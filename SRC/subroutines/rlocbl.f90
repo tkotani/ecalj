@@ -100,10 +100,7 @@ contains
     type(s_cv1),target:: sv_p_oppi(3,1)
     type(s_rv1),target:: sv_p_otau(3,1), sv_p_osig(3,1)
     type(s_rv5),target:: sv_p_oeqkkl(3,1), sv_p_oqkkl(3,1)
-    real(8),pointer:: qpp(:,:,:,:,:),eqpp(:,:,:,:,:),&
-         qhp(:,:,:,:,:),qhh(:,:,:,:,:),eqhp(:,:,:,:,:),eqhh(:,:,:,:,:),&
-         OSIGPP(:), OSIGHP(:)
-    complex(8),pointer:: OPPIPP(:),OPPIHP(:)
+    real(8),pointer:: qpp(:,:,:,:,:),eqpp(:,:,:,:,:),qhp(:,:,:,:,:),qhh(:,:,:,:,:),eqhp(:,:,:,:,:),eqhh(:,:,:,:,:)
     real(8):: q(3),f(3,nbas)
     real(8),target:: ewgt(nevec),evl(ndham,isp)
     complex(8),target:: evec(ndimh,nspc,nevec)
@@ -117,7 +114,7 @@ contains
     complex(8),allocatable:: cPkL(:),da(:),wk(:)
     integer ::iwdummy, iaini,iaend
     complex(8),allocatable::w_ob(:),w_odb(:,:,:,:)
-    real(8),allocatable:: force(:)
+    real(8),allocatable:: force(:,:)
     if (nevec <= 0) return
     call tcn('rlocbl')
     ! ... Find maximum sizes needed to allocate strux; allocate them
@@ -143,10 +140,10 @@ contains
     if (kmaxx > ktop0) call rxi('rlocbl: ktop0 < kmax=',kmax)
     allocate(w_ob(ndimh*nlmax*(kmaxx+1)), w_odb((kmaxx+1),nlmax,ndimh,3))
     if (lfrce /= 0) then
-       allocate(force(3*nbas))
+       allocate(force(3,nbas))
        force=0d0
     endif
-    ialoop: do ia = 1,nbas !Loop over augmentation sites ---
+    ialoop: do ia = 1,nbas !Loop over augmentation sites 
        isa = ispec(ia) 
        pa  = rv_a_opos(:,ia)
        lmxa= sspec(isa)%lmxa
@@ -156,31 +153,28 @@ contains
        nlmha = (lmxha+1)**2
        nlma  = (lmxa+1)**2
        call bstrux_set(ia,q) !Get bstr
-       
-       OPPIPP => sv_p_oppi(1,ia)%cv
-       OPPIHP => sv_p_oppi(2,ia)%cv
-       OSIGPP => sv_p_osig(1,ia)%v
-       OSIGHP => sv_p_osig(2,ia)%v
-
        qpp  => sv_p_oqkkl(1,ia)%v
        qhp  => sv_p_oqkkl(2,ia)%v
        qhh  => sv_p_oqkkl(3,ia)%v
        eqpp => sv_p_oeqkkl(1,ia)%v
        eqhp => sv_p_oeqkkl(2,ia)%v
        eqhh => sv_p_oeqkkl(3,ia)%v
-       
-       !   --- Loop over eigenstates ---
        !       In noncollinear case, isp=1 always => need internal ispc=1..2
-       !       ksp is the current spin index in both cases:
-       !       ksp = isp  in the collinear case
-       !           = ispc in the noncollinear case
+       !       ksp is the current spin index in both cases: ksp = isp in the collinear case;  ksp= ispc in the noncollinear case,
        !       whereas ispc is spin index in the noncoll case, but 1 for coll.
        cPklblock: block
          use m_orbl,only: Orblib, norb,ltab,ktab,offl, ntab,blks
+         use m_lmfinit,only:nsp
          complex(8):: cPkl(0:kmax,nlma),wtt
          complex(8),pointer::evecc(:)
          real(8),pointer:: ewgtt,evll
          integer:: k, ilma,ilm1,ilm2,k1,k2,io1,l1,ik1,i1,io2,l2,ik2,i2
+         real(8)::    sigpp(0:kmax,0:kmax,0:lmxa,nsp),sighp(nkaph,0:kmax,0:lmxha,nsp)
+         complex(8):: ppihpz(nkaph,0:kmax,nlmha,nlma,nsp),  ppippz(0:kmax,0:kmax,nlma,nlma,nsp)
+         sigpp= reshape(sv_p_osig(1,ia)%v,shape(sigpp))
+         sighp= reshape(sv_p_osig(2,ia)%v,shape(sighp))
+         ppippz=reshape(sv_p_oppi(1,ia)%cv,shape(ppippz))
+         ppihpz=reshape(sv_p_oppi(2,ia)%cv,shape(ppihpz))
          do ivec = 1, nevec
             do ispc = 1, nspc
                ksp = max(ispc,isp)
@@ -219,137 +213,79 @@ contains
                      enddo
                   enddo
                enddo
-               if (lfrce/=0) then! ... Contribution to forces
+               lfrceT: if(lfrce/=0) then! ... Contribution to forces
                   call rxx(nspc.ne.1,'forces not implemented in noncoll case')
-                  call flocbl( nbas,ia,kmax,nkaph,lmxha,nlmha,nlma, &
-                       lmxa,nlmto,ndimh,ksp,evll,evecc,ewgtt,cpkl,dbstr,&  
-                       OSIGPP, OSIGHP,OPPIPP,OPPIHP, force ) 
-               endif
-            enddo
-         enddo
-       endblock cPklblock
+                  flocblblock: block !& !Force contribution from augmentation at site ia.
+                    use m_orbl,only: Orblib, norb,ltab,ktab,offl, ntab,blks
+                    integer :: isp,i,ib,ilm,ilmb,io,iq,k,l2,m,nlm1,nkap0,ik,ilma,jlm,k1,k2,l,ll,oi,iblk 
+                    complex(8):: da(0:kmax,nlma,3), wk(0:kmax,nlma) !wk=(ppi-evll*sig)*psi 
+                    real(8):: ssum(3)
+                    isp=ksp
+                    call orblib(ia) !norb,ltab,ktab,offl
+                    wk=0d0
+                    do io = 1, norb  ! orbital index      !Block evll*ppi contribution in groups of consecutive l
+                       l  = ltab(io); ik = ktab(io)  !  l index, radial index
+                       nlm1 = l**2+1
+                       do  ilmb = nlm1, (l+1)**2   ! evll*sig contribution requires explicit knowledge of l
+                          wk(:,ilmb) = wk(:,ilmb) - evll*sighp(ik,:,l,isp)*evecc(offl(io)+1+ilmb-nlm1) ! Add Hsm*Pkl block of ppi-evll*sig times evecc     
+                       enddo
+                       do ilmb = nlm1, nlm1 + blks(io)-1 ! ppi contribution: loop over largest blocks possible !blks(io) /= 0
+                          wk(:,:) = wk(:,:) + ppihpz(ik,:,ilmb,:,isp)*evecc(offl(io)+1+ilmb-nlm1) 
+                       enddo
+                    enddo
+                    do  ilm = 1, nlma !Add Pkl*Pkl block of ppi-evll*sig times cPkL
+                       wk(:,ilm)= wk(:,ilm)+ &
+                            [(sum(ppippz(k1,:,ilm,:,isp)*cPkL(:,:)) -evll*sum(sigpp(k1,:,ll(ilm),isp)*cPkL(:,ilm)), k1=0,kmax)]
+                    enddo
+                    do ib = 1, nbas ! ... Loop over ib, virtual shift of wavefct part centered there
+                       if (ib == ia) cycle
+                       call orblib(ib)!norb,ltab,ktab,offl  !   ... Grad of psi expansion coeffs from a virtual shift at site ib
+                       da=0d0 !da can be written as {d cPkL}/{d R}.See rlocb1 to make cPkL. b is used instead of db
+                       do io = 1, norb
+                          do iblk=offl(io)+1, offl(io)+blks(io)  !if blsk(io)=0, no loop cycle
+                             da(0:kmax,:,1:3)=da(0:kmax,:,1:3)&
+                                  + evecc(iblk)* reshape(dbstr(iblk,:,0:kmax,1:3),shape(da),order=[2,1,3]) !transpose 1st and 2nd
+                          enddo
+                       enddo
+                       ssum = ewgtt* 2d0* [(sum(dconjg(da(:,:,m))*wk(:,:)),m=1,3)] ! --- Force term is (grad psi_kL) * (ppi-evll*sig)*evecc ---
+                       force(:,ib) = force(:,ib) - ssum
+                       force(:,ia) = force(:,ia) + ssum
+                    enddo
+                    da=0d0 !Force at site ia from PWs ---
+                    do  i = nlmto+1, ndimh
+                       da(:,:,:) = da(:,:,:) + evecc(i)*reshape(dbstr(i,:,:,:),shape=shape(da),order=[2,1,3]) !db(ilm,:,:)
+                    enddo
+                    force(:,ia) = force(:,ia) + ewgtt*2d0*[(sum(dconjg(da(:,:,m))*wk(:,:)),m=1,3)] !Force term is (grad psi_kL) * (ppi-evll*sig)*evecc
+                  endblock flocblblock
+               endif lfrceT
+             enddo
+          enddo
+        endblock cPklblock
     enddo ialoop
-    if (lfrce /= 0) call daxpy(3*nbas,1d0,force,1,f,1)
-    deallocate(da,wk,w_ob,w_odb) !cPkL,
-    if(lfrce /=0) deallocate(force)
+    if(lfrce/=0) f = force+f 
     call tcx('rlocbl')
   end subroutine rlocbl
-  subroutine flocbl(nbas,ia,kmax,nkaph,lmxha,nlmha,nlma,lmxa,nlmto, &
-       ndimh,isp,evll,evecc,ewgtt,cPkL,db, sigpp,sighp,ppippz,ppihpz,f)
-    use m_orbl,only: Orblib, norb,ltab,ktab,offl, ntab,blks
-    !- Force contribution from augmentation at site ia.
-    ! ----------------------------------------------------------------------
-    !i Inputs
-    !i   nbas  :size of basis
-    !i   ia    :site of augmentation
-    !i   kmax  :polynomial cutoff
-    !i   nkaph :leading dimension of sigph,ppihp at site ia
-    !i   nlmha :dimensions ppihp
-    !i   nlma  :augmentation L-cutoff
-    !i   lmxa  :augmentation L-cutoff
-    !i   ndimh :dimension of hamiltonian
-    !i   evll   :eigenvalue
-    !i   evecc  :eigenvector
-    !i   ewgtt  :eigenvector weight
-    !i   cPkL  :PkL expansion eigenvector at site ia.
-    !i   b     :structure constants, needed for PW contribution
-    !i   db    :gradient of structure constants, needed to make grad psi
-    !i   da    :work array holding grad psi
-    !i   wk    :work array holding (ppi-evll*sig)*evecc
-    !i   ppipp :local tail-tail potential matrix
-    !i   ppippz:local tail-tail potential matrix, complex form
-    !i         :NB: only ppipp or ppippz is used, depending on lcplxp
-    !i   sigpp :local tail-tail overlap matrix
-    !i   ppihp :local head-tail potential matrix
-    !i   ppihpz:local head-tail potential matrix, complex form
-    !i         :NB: only ppihp or ppihpz is used, depending on lcplxp
-    !i   sighp :local head-tail overlap matrix
-    !i   lcplxp=1 only now: ppi is complex
-    !o Outputs
-    !o   f     :local contribution to forces is added
-    !r Remarks
-    !u Updates
-    !u   05 Jul 08 (T. Kotani) Contribution from PW part of basis
-    !u    1 Sep 04 Adapted to handle complex ppi
-    !u   17 Jun 00 spin polarized
-    !u   25 May 00 Adapted from nfp floc_q.f
-    ! ----------------------------------------------------------------------
-    implicit none
-    integer :: ia,kmax,lmxa,nkaph,nbas,nlmto,ndimh,nlma,lmxha,nlmha,isp
-    double precision :: evll,f(3,nbas),ewgtt, &
-         sigpp(0:kmax,0:kmax,0:lmxa,isp),sighp(nkaph,0:kmax,0:lmxha,isp)
-    double complex db(ndimh,nlma,0:kmax,3),da(0:kmax,nlma,3), &
-         evecc(ndimh),cPkL(0:kmax,nlma),wk(0:kmax,nlma)
-    double complex ppihpz(nkaph,0:kmax,nlmha,nlma,isp)
-    double complex ppippz(0:kmax,0:kmax,nlma,nlma,isp)
-    integer :: i,ib,ilm,ilmb,io,iq,k,l2,m,nlm1,n0,nkap0,ik,ilma,jlm,k1,k2,l,ll
-    parameter (n0=10,nkap0=3)
-    integer ::oi,iblk ! blks(n0*nkap0),ntab(n0*nkap0),
-    double precision :: wt,xx,ssum(3)
-    if (nlmto == 0) return
-    call tcn('flocbl')
-    ! ... Make wk=(ppi-evll*sig)*psi 
-!    call flocb2(ia,nlmto,kmax,nkaph,nlmha,nlma,evll,evecc, &
-!         ppippz(0,0,1,1,isp),sigpp(0,0,0,isp),ppihpz(1,0,1,1,isp),sighp(1,0,0,isp), cPkL,wk)
-    ! ... Add Hsm*Pkl block of ppi-evll*sig times evecc
-    !     Block evll*ppi contribution in groups of consecutive l
-    call orblib(ia)!norb,ltab,ktab,offl
-    wk=0d0
-    do io = 1, norb  ! orbital index      
-       l  = ltab(io) !  l index
-       ik = ktab(io) !  radial index
-       nlm1 = l**2+1
-       do  ilmb = nlm1, (l+1)**2   ! evll*sig contribution requires explicit knowledge of l
-          wk(:,ilmb) = wk(:,ilmb) - evll*sighp(ik,:,l,isp)*evecc(offl(io)+1+ilmb-nlm1)
-       enddo
-       if (blks(io) /= 0) then ! ppi contribution: loop over largest blocks possible
-          do ilmb = nlm1, nlm1 + blks(io)-1
-             wk(:,:) = wk(:,:) + ppihpz(ik,:,ilmb,:,isp)*evecc(offl(io)+1+ilmb-nlm1) 
-          enddo
-       endif
-    enddo
-    do  ilm = 1, nlma !Add Pkl*Pkl block of ppi-evll*sig times cPkL
-       l = ll(ilm)
-       wk(:,ilm) = wk(:,ilm) +[(sum(ppippz(k1,:,ilm,:,isp)*cPkL(:,:)) - evll*sum(sigpp(k1,:,l,isp)*cPkL(:,ilm)),k1=0,kmax)]
-    enddo
-    do ib = 1, nbas ! ... Loop over ib, virtual shift of wavefct part centered there
-       if (ib == ia) cycle
-       call orblib(ib)!norb,ltab,ktab,offl  !   ... Grad of psi expansion coeffs from a virtual shift at site ib
-       da=0d0 !da can be written as {d cPkL}/{d R}.See rlocb1 to make cPkL. b is used instead of db
-       do io = 1, norb
-          oi = offl(io)  
-          do iblk=1,blks(io)  !if blsk(io)=0, no loop cycle
-             da(0:kmax,:,1:3)=da(0:kmax,:,1:3)+ evecc(oi+iblk)*reshape(db(oi+iblk,:,0:kmax,1:3),shape(da),order=[2,1,3])
-          enddo
-       enddo
-       ! --- Force term is (grad psi_kL) * (ppi-evll*sig)*evecc ---
-       ssum = ewgtt* 2d0* [(sum(dconjg(da(:,:,m))*wk(:,:)),m=1,3)]
-       f(:,ib) = f(:,ib) - ssum
-       f(:,ia) = f(:,ia) + ssum
-    enddo
-    ! --- Force at site ia from PWs ---
-    da=0d0
-    do  i = nlmto+1, ndimh
-       da(:,:,:) = da(:,:,:) + evecc(i)*reshape(db(i,:,:,:),shape=shape(da),order=[2,1,3]) !db(ilm,:,:)
-    enddo
-    f(:,ia) = f(:,ia) + ewgtt*2d0*[(sum(dconjg(da(:,:,m))*wk(:,:)),m=1,3)] !Force term is (grad psi_kL) * (ppi-evll*sig)*evecc
-    call tcx('flocbl')
-  end subroutine flocbl
-
-!   subroutine flocb2(ia,nlmto,kmax,nkaph,nlmha,nlma,evl,evec, &
-!        ppippz,sigpp,ppihpz,sighp,cPkL,wk)!lcplxp,
+end module m_rlocbl
+!   subroutine flocbl(nbas,ia,kmax,nkaph,lmxha,nlmha,nlma,lmxa,nlmto, & !Force contribution from augmentation at site ia.
+!        ndimh,isp,evll,evecc,ewgtt,cPkL,db, sigpp,sighp,ppippz,ppihpz,f)
+!     use m_lmfinit,only: nsp
 !     use m_orbl,only: Orblib, norb,ltab,ktab,offl, ntab,blks
-!     !- Make (ppi-evl*sig)*evec
-!     ! ----------------------------------------------------------------------
-!     !i Inputs
+!     !i   nbas  :size of basis
 !     !i   ia    :site of augmentation
-!     !l   nlmto :dimension of LMTO part of hamiltonian, for hh and ht blocks
+!     !i   kmax  :polynomial cutoff
+!     !i   nkaph :leading dimension of sigph,ppihp at site ia
 !     !i   nlmha :dimensions ppihp
 !     !i   nlma  :augmentation L-cutoff
-!     !i   kmax  :polynomial cutoff
-!     !i   evl   :eigenvalue
-!     !i   evec  :eigenvector
-!     !i   nkaph :leading dimension of sigph,ppihp
+!     !i   lmxa  :augmentation L-cutoff
+!     !i   ndimh :dimension of hamiltonian
+!     !i   evll   :eigenvalue
+!     !i   evecc  :eigenvector
+!     !i   ewgtt  :eigenvector weight
+!     !i   cPkL  :PkL expansion eigenvector at site ia.
+!     !i   b     :structure constants, needed for PW contribution
+!     !i   db    :gradient of structure constants, needed to make grad psi
+!     !i   da    :work array holding grad psi
+!     !i   wk    :work array holding (ppi-evll*sig)*evecc
 !     !i   ppipp :local tail-tail potential matrix
 !     !i   ppippz:local tail-tail potential matrix, complex form
 !     !i         :NB: only ppipp or ppippz is used, depending on lcplxp
@@ -359,73 +295,55 @@ contains
 !     !i         :NB: only ppihp or ppihpz is used, depending on lcplxp
 !     !i   sighp :local head-tail overlap matrix
 !     !i   lcplxp=1 only now: ppi is complex
-!     !i   cPkL  :PkL expansion eigenvector at site ia.
 !     !o Outputs
-!     !o   wk    :(ppi-evl*sig)*evec
-!     !r Remarks
-!     !u Updates
-!     ! ----------------------------------------------------------------------
-!     !     implicit none
-!     ! ... Passed parameters
-!     integer :: ia,kmax,nkaph,nlma,nlmha,nlmto
-!     double precision :: &
-!          evl,sighp(nkaph,0:kmax,0:*),& ! & ppihp(nkaph,0:kmax,nlmha,nlma),
-!          sigpp(0:kmax,0:kmax,0:*)!,ppipp(0:kmax,0:kmax,nlma,nlma)
-!     double complex wk(0:kmax,nlma),evec(1),cPkL(0:kmax,nlma)
-!     double complex ppihpz(nkaph,0:kmax,nlmha,nlma)
-!     double complex ppippz(0:kmax,0:kmax,nlma,nlma)
-!     ! ... Local parameters
-!     integer :: i,ilm,ilma,ilmb,io,jlm,k,k1,k2,l,ll,nlm1,nlm2,n0,nkap0,ik
-!     !     .norb
-!     parameter (n0=10,nkap0=3)
-! !    integer :: blks(n0*nkap0),ntab(n0*nkap0)!ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),
-!     double precision :: xx
-!     wk=0d0
-!     ! ... Add Hsm*Pkl block of ppi-evl*sig times evec
+!     !o   f     :local contribution to forces is added
+!     implicit none
+!     integer :: ia,kmax,lmxa,nkaph,nbas,nlmto,ndimh,nlma,lmxha,nlmha,isp
+!     real(8):: evll,f(3,nbas),ewgtt, sigpp(0:kmax,0:kmax,0:lmxa,nsp),sighp(nkaph,0:kmax,0:lmxha,nsp)
+!     complex(8):: db(ndimh,nlma,0:kmax,3),da(0:kmax,nlma,3),  evecc(ndimh),cPkL(0:kmax,nlma),wk(0:kmax,nlma),&
+!          ppihpz(nkaph,0:kmax,nlmha,nlma,nsp),     ppippz(0:kmax,0:kmax,nlma,nlma,nsp)
+!     integer :: i,ib,ilm,ilmb,io,iq,k,l2,m,nlm1,nkap0,ik,ilma,jlm,k1,k2,l,ll
+!     integer ::oi,iblk 
+!     double precision :: wt,xx,ssum(3)
+! !    if (nlmto == 0) return
+! !    call tcn('flocbl')
+!     ! ... Make wk=(ppi-evll*sig)*psi  ! Add Hsm*Pkl block of ppi-evll*sig times evecc     Block evll*ppi contribution in groups of consecutive l
 !     call orblib(ia)!norb,ltab,ktab,offl
-!     !     Block evl*ppi contribution in groups of consecutive l
-! !    call gtbsl4(ia) !1(4,norb,ltab,ktab,xx,xx,ntab,blks)
-!     do  io = 1, norb
-!        !       l,ik = l and kaph indices, needed for sigma
-!        l  = ltab(io)
-!        ik = ktab(io)
+!     wk=0d0
+!     do io = 1, norb  ! orbital index      
+!        l  = ltab(io) !  l index
+!        ik = ktab(io) !  radial index
 !        nlm1 = l**2+1
-!        nlm2 = (l+1)**2
-!        i  = offl(io)
-!        !   ... evl*sig contribution requires explicit knowledge of l
-!        do  ilmb = nlm1, nlm2
-!           i = i+1
-!           do  k = 0, kmax
-!              wk(k,ilmb) = wk(k,ilmb) - evl*sighp(ik,k,l)*evec(i)
-!           enddo
+!        do  ilmb = nlm1, (l+1)**2   ! evll*sig contribution requires explicit knowledge of l
+!           wk(:,ilmb) = wk(:,ilmb) - evll*sighp(ik,:,l,isp)*evecc(offl(io)+1+ilmb-nlm1)
 !        enddo
-!        !   ... ppi contribution: loop over largest blocks possible
-!        if (blks(io) /= 0) then ! .AND. lcplxp == 1) then
-!           nlm2 = nlm1 + blks(io)-1
-!           i  = offl(io)
-!           do  ilmb = nlm1, nlm2
-!              i = i+1
-!              do  ilma = 1, nlma
-!                 do  k = 0, kmax
-!                    wk(k,ilma) = wk(k,ilma) + ppihpz(ik,k,ilmb,ilma)*evec(i)
-!                 enddo
-!              enddo
+!        if (blks(io) /= 0) then ! ppi contribution: loop over largest blocks possible
+!           do ilmb = nlm1, nlm1 + blks(io)-1
+!              wk(:,:) = wk(:,:) + ppihpz(ik,:,ilmb,:,isp)*evecc(offl(io)+1+ilmb-nlm1) 
 !           enddo
 !        endif
 !     enddo
-!     ! ... Add Pkl*Pkl block of ppi-evl*sig times cPkL
-!     do  ilm = 1, nlma
-!        l = ll(ilm)
-!        do  k1 = 0, kmax
-!           do  jlm = 1, nlma
-!              do  k2 = 0, kmax
-!                 wk(k1,ilm) = wk(k1,ilm)+ppippz(k1,k2,ilm,jlm)*cPkL(k2,jlm)
-!              enddo
-!           enddo
-!           do  k2 = 0, kmax
-!              wk(k1,ilm) = wk(k1,ilm) - evl*sigpp(k1,k2,l)*cPkL(k2,ilm)
+!     do  ilm = 1, nlma !Add Pkl*Pkl block of ppi-evll*sig times cPkL
+!        wk(:,ilm)= wk(:,ilm)+ [(sum(ppippz(k1,:,ilm,:,isp)*cPkL(:,:)) -evll*sum(sigpp(k1,:,ll(ilm),isp)*cPkL(:,ilm)), k1=0,kmax)]
+!     enddo
+!     do ib = 1, nbas ! ... Loop over ib, virtual shift of wavefct part centered there
+!        if (ib == ia) cycle
+!        call orblib(ib)!norb,ltab,ktab,offl  !   ... Grad of psi expansion coeffs from a virtual shift at site ib
+!        da=0d0 !da can be written as {d cPkL}/{d R}.See rlocb1 to make cPkL. b is used instead of db
+!        do io = 1, norb
+!           do iblk=offl(io)+1, offl(io)+blks(io)  !if blsk(io)=0, no loop cycle
+!              da(0:kmax,:,1:3)=da(0:kmax,:,1:3)+ evecc(iblk)*reshape(db(iblk,:,0:kmax,1:3),shape(da),order=[2,1,3])
 !           enddo
 !        enddo
+!        ssum = ewgtt* 2d0* [(sum(dconjg(da(:,:,m))*wk(:,:)),m=1,3)] ! --- Force term is (grad psi_kL) * (ppi-evll*sig)*evecc ---
+!        f(:,ib) = f(:,ib) - ssum
+!        f(:,ia) = f(:,ia) + ssum
 !     enddo
-!   end subroutine flocb2
-end module m_rlocbl
+!     da=0d0 !Force at site ia from PWs ---
+!     do  i = nlmto+1, ndimh
+!        da(:,:,:) = da(:,:,:) + evecc(i)*reshape(db(i,:,:,:),shape=shape(da),order=[2,1,3]) !db(ilm,:,:)
+!     enddo
+!     f(:,ia) = f(:,ia) + ewgtt*2d0*[(sum(dconjg(da(:,:,m))*wk(:,:)),m=1,3)] !Force term is (grad psi_kL) * (ppi-evll*sig)*evecc
+! !    call tcx('flocbl')
+!   end subroutine flocbl
+!end module m_rlocbl

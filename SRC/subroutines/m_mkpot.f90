@@ -44,9 +44,8 @@ contains
     allocate( ohsozzx(3,nbas), ohsopmx(3,nbas)) !dummy
     allocate( osigx(3,nbas), otaux(3,nbas), oppix(3,nbas))
     call dfaugm(osigx, otaux, oppix, ohsozzx,ohsopmx) !for sig,tau,ppi without XC(LDA)
-    !     We obtain osigx,otaux,oppix,smpotx  (without XC)
-    call mkpot(1, osmrho,orhoat, spotx,osigx,otaux,oppix,fes1_rvx,ohsozzx,ohsopmx, novxc_)
-    !When novxc_ exists, we exclud XC(LDA) part. We only need spotx and oppix
+    call mkpot(1, osmrho,orhoat, spotx,osigx,otaux,oppix,fes1_rvx,ohsozzx,ohsopmx, novxc_) !obtain osigx,otaux,oppix,smpotx  (without XC)
+    !                                                                         When novxc_ exists, we exclud XC(LDA) part. We only need spotx and oppix
     deallocate(phzdphz,vesrmt,qmom,hab_rv,sab_rv,fes1_rvx)
   end subroutine m_mkpot_novxc
   subroutine m_mkpot_init()
