@@ -22,7 +22,7 @@ contains
   !o  eqpp   :energy-weighted local density matrix 
   subroutine rlocbl(lfrce,nbas,isp, q,ndham,ndimh,nspc,napw,igvapw, nevec &
        ,evec,ewgt,evl,sv_p_osig,sv_p_otau,sv_p_oppi,lekkl,sv_p_oqkkl,sv_p_oeqkkl,f )
-    use m_struc_def,only: s_spec,s_rv1,s_cv1,s_rv5
+    use m_struc_def,only: s_spec,s_rv1,s_cv1,s_rv5,s_rv4
     use m_lmfinit,only: lat_alat,nkaph,ispec,sspec=>v_sspec
     use m_lattic,only: lat_qlat,rv_a_opos
     use m_bstrux,only: bstrux_set,bstr,dbstr
@@ -98,7 +98,8 @@ contains
     implicit none
     integer :: lfrce,nbas,isp,ndimh,nspc,nevec,lekkl, ndham,napw,igvapw(3,napw)
     type(s_cv1),target:: sv_p_oppi(3,1)
-    type(s_rv1),target:: sv_p_otau(3,1), sv_p_osig(3,1)
+    type(s_rv4),target:: sv_p_otau(3,1)
+    type(s_rv4),target:: sv_p_osig(3,1)
     type(s_rv5),target:: sv_p_oeqkkl(3,1), sv_p_oqkkl(3,1)
     real(8),pointer:: qpp(:,:,:,:,:),eqpp(:,:,:,:,:),qhp(:,:,:,:,:),qhh(:,:,:,:,:),eqhp(:,:,:,:,:),eqhh(:,:,:,:,:)
     real(8):: q(3),f(3,nbas)
@@ -115,6 +116,7 @@ contains
     integer ::iwdummy, iaini,iaend
     complex(8),allocatable::w_ob(:),w_odb(:,:,:,:)
     real(8),allocatable:: force(:,:)
+    real(8),pointer::    sigpp(:,:,:,:), sighp(:,:,:,:) 
     if (nevec <= 0) return
     call tcn('rlocbl')
     ! ... Find maximum sizes needed to allocate strux; allocate them
@@ -159,6 +161,9 @@ contains
        eqpp => sv_p_oeqkkl(1,ia)%v
        eqhp => sv_p_oeqkkl(2,ia)%v
        eqhh => sv_p_oeqkkl(3,ia)%v
+!      real(8)::    sigpp(0:kmax,0:kmax,0:lmxa,nsp),sighp(nkaph,0:kmax,0:lmxha,nsp)
+       sigpp=> sv_p_osig(1,ia)%v !reshape(sv_p_osig(1,ia)%v,shape(sigpp))
+       sighp=> sv_p_osig(2,ia)%v !reshape(sv_p_osig(2,ia)%v,shape(sighp))
        !       In noncollinear case, isp=1 always => need internal ispc=1..2
        !       ksp is the current spin index in both cases: ksp = isp in the collinear case;  ksp= ispc in the noncollinear case,
        !       whereas ispc is spin index in the noncoll case, but 1 for coll.
@@ -169,10 +174,7 @@ contains
          complex(8),pointer::evecc(:)
          real(8),pointer:: ewgtt,evll
          integer:: k, ilma,ilm1,ilm2,k1,k2,io1,l1,ik1,i1,io2,l2,ik2,i2
-         real(8)::    sigpp(0:kmax,0:kmax,0:lmxa,nsp),sighp(nkaph,0:kmax,0:lmxha,nsp)
          complex(8):: ppihpz(nkaph,0:kmax,nlmha,nlma,nsp),  ppippz(0:kmax,0:kmax,nlma,nlma,nsp)
-         sigpp= reshape(sv_p_osig(1,ia)%v,shape(sigpp))
-         sighp= reshape(sv_p_osig(2,ia)%v,shape(sighp))
          ppippz=reshape(sv_p_oppi(1,ia)%cv,shape(ppippz))
          ppihpz=reshape(sv_p_oppi(2,ia)%cv,shape(ppihpz))
          do ivec = 1, nevec

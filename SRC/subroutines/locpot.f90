@@ -82,8 +82,8 @@ contains
     type(s_rv1) :: orhoat(3,nbas)
     type(s_cv1) :: oppi(3,nbas)
     type(s_sblock):: ohsozz(3,nbas),ohsopm(3,nbas)
-    type(s_rv1) :: otau(3,nbas)
-    type(s_rv1) :: osig(3,nbas)
+    type(s_rv4) :: otau(3,nbas)
+    type(s_rv4) :: osig(3,nbas)
     integer :: nlibu,lmaxu,lldau(nbas),iblu
     double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
     real(8):: qmom(1) , vval(1)

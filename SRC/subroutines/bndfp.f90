@@ -529,21 +529,14 @@ contains
     !r                + sum_ij D_ij sum_kLk'L' C^i_kL pi_kk'LL' C^j_k'L'
     !r                = int n0 Ves0~ + sum_kLk'L' qpp'LL' pi_kk'LL'
     !r
-    !u Updates
-    !u   29 Jun 05 (MvS) SO hamiltonian not included in d.c. terms when
-    !u             evaluating kinetic energy.
-    !u   27 Aug 01 Extended to local orbitals.
-    !u   18 Jun 00 spin polarized
-    !u   20 Jun 00 adapted from nfp get_ekin
-    ! ----------------------------------------------------------------------
     implicit none
     type(s_cv1),target :: oppi(3,nbas)
-    type(s_rv1),target :: otau(3,1)
-    type(s_rv1),target :: osig(3,1)
+    type(s_rv4),target :: otau(3,1)
+    type(s_rv4),target :: osig(3,1)
     type(s_rv5),target :: oqkkl(3,nbas)
     real(8),pointer:: QPP(:,:,:,:,:), QHP(:,:,:,:,:),QHH(:,:,:,:,:), &
-         OSIGHH(:),OSIGHP(:),OSIGPP(:), &
-         OTAUHH(:),OTAUHP(:),OTAUPP(:)
+         OSIGHH(:,:,:,:),OSIGHP(:,:,:,:),OSIGPP(:,:,:,:), &
+         OTAUHH(:,:,:,:),OTAUHP(:,:,:,:),OTAUPP(:,:,:,:)
     complex(8),pointer:: OPPIHH(:),OPPIHP(:),OPPIPP(:)
     real(8):: sumev , ekinval , vconst
     complex(8):: smpot(k1,k2,k3,nsp),smrho(k1,k2,k3,nsp)

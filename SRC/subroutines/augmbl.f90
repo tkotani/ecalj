@@ -9,7 +9,7 @@ contains
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol,rv_a_opos
     use m_bstrux,only: Bstrux_set, bstr
     use m_orbl,only: Orblib, norb,ltab,ktab,offl
-    use m_struc_def,only: s_cv1,s_rv1
+    use m_struc_def,only: s_cv1,s_rv1,s_rv4
     ! ----------------------------------------------------------------------
     !i Inputs
     !i   isp   :current spin channel
@@ -37,7 +37,7 @@ contains
     implicit none
     type(s_cv1),target :: oppi(3,nbas)
     type(s_rv1),target :: otau(3,nbas)
-    type(s_rv1),target :: osig(3,nbas)
+    type(s_rv4),target :: osig(3,nbas)
     integer:: isp , ndimh , napw 
     real(8):: q(3)
     complex(8):: h(ndimh,ndimh),s(ndimh,ndimh)

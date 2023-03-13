@@ -7,7 +7,7 @@ contains
        iblu,&
        osig, otau, oppi, ohsozz,ohsopm, phzdphz, hab, vab, sab,rotp)
     use m_lmfinit,only: n0,nkap0,nppn,nrmx
-    use m_struc_def, only: s_rv1,s_cv1,s_sblock
+    use m_struc_def, only: s_rv1,s_cv1,s_sblock,s_rv4
     use m_gaugm,only:  gaugm
     use m_potpus,only: potpus
     !- Make augmentation matrices sig,tau,pi for one site
@@ -323,8 +323,8 @@ contains
     implicit none
     type(s_cv1) :: oppi(3)
     type(s_sblock):: ohsozz(3),ohsopm(3)
-    type(s_rv1) :: otau(3)
-    type(s_rv1) :: osig(3)
+    type(s_rv4) :: otau(3)
+    type(s_rv4) :: osig(3)
     real(8):: phzdphz(nppn,n0,2), hab(3,3,n0,nsp),vab(3,3,n0,nsp),sab(3,3,n0,nsp)
 
     integer :: lmxa,kmax,nlml,nr,nsp,nkaph,nkapi,lmxh,lso, lmaxu,lldau,iblu,idu(4)

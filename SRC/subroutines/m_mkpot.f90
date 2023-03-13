@@ -1,13 +1,13 @@
 module m_mkpot ! Potential terms. See http://dx.doi.org/10.7566/JPSJ.84.034702
   use m_lmfinit,only: nbas,stdo,qbg=>zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nppn &
        ,lfrce,stdl, nchan=>pot_nlma, nvl=>pot_nlml,nkaph
-  use m_struc_def,only: s_rv1,s_cv1,s_sblock
+  use m_struc_def,only: s_rv1,s_cv1,s_sblock,s_rv4
   public:: m_mkpot_init, m_mkpot_energyterms, m_mkpot_novxc, m_mkpot_deallocate !,m_Mkpot_novxc_dipole
   ! Potential terms, call m_mkpot_init. Generated at mkpot-locpot-augmat-gaugm
   type(s_sblock),allocatable,protected,public  :: ohsozz(:,:),ohsopm(:,:) !SOC matrix
   type(s_cv1),allocatable,protected,public  :: oppi(:,:) !pi-integral Eq.(C.6) 
-  type(s_rv1),allocatable,protected,public  :: otau(:,:) !tau            (C.5) 
-  type(s_rv1),allocatable,protected,public  :: osig(:,:) !sigma          (C.4) 
+  type(s_rv4),allocatable,protected,public  :: otau(:,:) !tau            (C.5) 
+  type(s_rv4),allocatable,protected,public  :: osig(:,:) !sigma          (C.4) 
   complex(8),allocatable,protected ,public  :: osmpot(:,:,:,:)!0th component of Eq.(34)
   real(8),allocatable,protected,public:: fes1_rv(:), fes2_rv(:) !force terms
   real(8),allocatable,protected,public:: hab_rv(:,:,:), sab_rv(:,:,:), qmom(:),vesrmt(:)
@@ -30,8 +30,8 @@ contains
     logical:: novxc_
     real(8),allocatable :: fes1_rvx(:)! gpot0(:),vval(:),vab_rv(:,:,:) !dummy
     type(s_sblock),allocatable:: ohsozzx(:,:),ohsopmx(:,:) !dummy for SOC
-    type(s_rv1),allocatable   :: otaux(:,:) !dummy
-    type(s_rv1),allocatable   :: osigx(:,:) !dummy
+    type(s_rv4),allocatable   :: otaux(:,:) !dummy
+    type(s_rv4),allocatable   :: osigx(:,:) !dummy
     write(stdo,"(a)")' m_mkpot_novxc: Making one-particle potential without XC part ...'
     allocate( vesrmt(nbas))
     allocate( qmom(nvl)) !rhomom
@@ -202,8 +202,8 @@ contains
     type(s_rv1) :: orhoat(*)
     type(s_cv1) :: oppi(*)
     type(s_sblock) :: ohsozz(*),ohsopm(*)
-    type(s_rv1) :: otau(*)
-    type(s_rv1) :: osig(*)
+    type(s_rv4) :: otau(*)
+    type(s_rv4) :: osig(*)
     real(8)::  fes(3,nbas)
     complex(8):: smrho(k1,k2,k3,nsp),smpot(k1,k2,k3,nsp)
     logical:: cmdopt0,novxc
@@ -403,7 +403,8 @@ contains
     implicit none
     type(s_cv1) :: oppi(3,nbas)
     type(s_sblock):: ohsozz(3,nbas),ohsopm(3,nbas)
-    type(s_rv1) :: otau(3,nbas), osig(3,nbas)
+    type(s_rv4) :: otau(3,nbas)
+    type(s_rv4)::  osig(3,nbas)
     integer :: ib,igetss,is,kmax,lmxa,lmxh,nelt1,nelt2,nlma,nlmh,nelt !,nso
     logical:: cmdopt0
     do  ib = 1, nbas
@@ -415,23 +416,23 @@ contains
        nlmh = (lmxh+1)**2
        if (lmxa == -1) cycle
        !   ... Case Pkl*Pkl
-       nelt1 = (kmax+1)*(kmax+1)*(lmxa+1)*nsp
+!       nelt1 = (kmax+1)*(kmax+1)*(lmxa+1)*nsp
        nelt2 = (kmax+1)*(kmax+1)*nlma*nlma*nsp!*nspc!*nso
-       allocate(osig(1,ib)%v(nelt1))
-       allocate(otau(1,ib)%v(nelt1))
+       allocate(osig(1,ib)%v(0:kmax,0:kmax,0:lmxa,nsp) )!nelt1))
+       allocate(otau(1,ib)%v(0:kmax,0:kmax,0:lmxa,nsp) )
        allocate(oppi(1,ib)%cv(nelt2))
        !   ... Case Hsm*Hsm
-       nelt1 = nkaph*nkaph*(lmxh+1)*nsp
+!       nelt1 = nkaph*nkaph*(lmxh+1)*nsp
        nelt2 = nkaph*nkaph*nlmh*nlmh*nsp!*nspc !*nso
-       allocate(osig(3,ib)%v(nelt1))
-       allocate(otau(3,ib)%v(nelt1))
+       allocate(osig(3,ib)%v(nkaph,nkaph,0:lmxh,nsp)) 
+       allocate(otau(3,ib)%v(nkaph,nkaph,0:lmxh,nsp)) 
        allocate(oppi(3,ib)%cv(nelt2))
        !   ...  Case Hsm*Pkl
        if (lmxh > lmxa) call rx('dfaugm: lmxh > lmxa unexpected')
-       nelt1 = nkaph*(kmax+1)*(lmxh+1)*nsp
-       nelt2 = nkaph*(kmax+1)*nlmh*nlma*nsp!*nspc !*nso
-       allocate(osig(2,ib)%v(nelt1))
-       allocate(otau(2,ib)%v(nelt1))
+!       nelt1 = nkaph*(kmax+1)*(lmxh+1)*nsp
+       nelt2 = nkaph*(kmax+1)*nlmh*nlma*nsp
+       allocate(osig(2,ib)%v(nkaph,0:kmax,0:lmxh,nsp))! v(nelt1))
+       allocate(otau(2,ib)%v(nkaph,0:kmax,0:lmxh,nsp))
        allocate(oppi(2,ib)%cv(nelt2))
        if(lso/=0 .OR. cmdopt0('--socmatrix')) then !spin-orbit copling matrix elements
           nelt = (kmax+1)*(kmax+1)*nlma*nlma !ohsopm (L- and L+) is irrelevant for lso=2
