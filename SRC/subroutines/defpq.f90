@@ -242,15 +242,8 @@ subroutine defpq(z,lmax,nsp,p,q)  !- Generate default values for P and Q
      q(l+1,nsp) = 0
   enddo
 100 continue
-  !      if (iprint() .ge. 100 .or. (iprint() .ge. 50 .and. lchange)) then
-  !        call awrit6(' DEFPQ, z=%d: P=%n;6,2D%?#n==2#;%n;6,2D##',' ',80,lgunit(1),z,lmax+1,p,nsp,lmax+1,p(1,2))
-  !        call awrit6('        z=%d: Q=%n;6,2D%?#n==2#;%n;6,2D##',' ',80,lgunit(1),z,lmax+1,q,nsp,lmax+1,q(1,2))
-  !      endif
 end subroutine defpq
-
-subroutine atmoms(k0,q0,z)
-  !- Generate a default atomic configuration for specified nuclear charge
-  ! ----------------------------------------------------------------------
+subroutine atmoms(k0,q0,z)  !- Generate a default atomic configuration for specified nuclear charge
   !i Inputs:
   !i   z     :nuclear charge
   !o Outputs:
@@ -268,7 +261,6 @@ subroutine atmoms(k0,q0,z)
   parameter (li=3,na=11,k=19,rb=37,cs=55,fr=87)
   ! Intrinsic functions:
   intrinsic dble,idnint
-
   data ((iq0at(l,iz),l=0,3),iz=0,49) &
        /0,0, 0, 0,   1,0, 0, 0,   2,0, 0, 0,   1,0, 0, 0,   2,0, 0, 0, &
        2,1, 0, 0,   2,2, 0, 0,   2,3, 0, 0,   2,4, 0, 0,   2,5, 0, 0, &

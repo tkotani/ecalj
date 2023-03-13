@@ -1,4 +1,5 @@
 module m_lattic
+  use m_xlgen,only:xlgen
   public m_lattic_init,setopos,lctoff
   real(8), allocatable,protected,public ::  rv_a_odlv (:)
   real(8), allocatable,protected,public ::  rv_a_oqlv (:)

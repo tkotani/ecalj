@@ -24,6 +24,7 @@ program lmf
   use m_lgunit,only:   m_lgunit_init, stdo,stdl
   use m_sugcut,only:sugcut
   use m_cmdpath,only:setcmdpath
+  use m_lmfp,only: lmfp
   implicit none
   integer:: k, iarg,jobgw,iprint,nit1,ifi,nx,ny,nk1,nk2,nk3,i,j,ix
   logical:: fileexist,cmdopt0,cmdopt2, writeham,lbin,sigx

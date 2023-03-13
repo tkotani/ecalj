@@ -1,24 +1,20 @@
-!! ------------------------------------------------------------------------------------------------
 module m_get_bzdata1
   !! In addition to these variables, this also write mtet file (search ifmtet) for mtet mode.
   !! bzmesh, tet are included in this routine.
-  !------------------------------------------------------------
   implicit none
-  !! all are output by getbzdata1
-  integer,protected::             nqbz, nqibz, nqbzw,ntetf,nteti,nqbzm
-  real(8),allocatable,protected:: qbz(:,:),wbz(:),qibz(:,:),wibz(:),qbzw(:,:)
-  real(8),protected::             dq_(3)
-  integer,allocatable,protected:: idtetf(:,:),ib1bz(:),idteti(:,:),irk(:,:),nstar(:),nstbz(:)
-  real(8),allocatable,protected:: qbzm(:,:),qbzwm(:,:)
-  !private:: nkstar
-  !------------------------------------------------------------
+  public:: getbzdata1 ! all are output by getbzdata1
+  integer,protected,public::             nqbz, nqibz, nqbzw,ntetf,nteti,nqbzm
+  real(8),allocatable,protected,public:: qbz(:,:),wbz(:),qibz(:,:),wibz(:),qbzw(:,:)
+  integer,allocatable,protected,public:: idtetf(:,:),ib1bz(:),idteti(:,:),irk(:,:),nstar(:),nstbz(:)
+!  real(8),allocatable,protected,public:: qbzm(:,:),qbzwm(:,:)
+  private
 contains
   subroutine getbzdata1(qlat,nnn, symops,ngrp,tetrai,tetraf,mtet,gammacellctrl)
     use m_keyvalue,only: getkeyvalue
     use m_tetirr,only: ccutup
     implicit none
     intent(in)::        qlat,nnn, symops,ngrp,tetrai,tetraf,mtet,gammacellctrl
-!! all arguments are inputs. getbzdata1 returns all variables in the module m_get_bzdata1
+    !! all arguments are inputs. getbzdata1 returns all variables in the module m_get_bzdata1
     logical:: tetrai,tetraf,multet,qbzreg
     integer:: ngrp,nnn(3), mtet(3),n1qm,n2qm,n3qm,nnnx(3), &
          itet,ix,im,ifiqmtet,iq,icase,n1qtet,n2qtet,n3qtet,IMC(0:1,0:1,0:1)
@@ -34,7 +30,7 @@ contains
     real(8):: qbzshift(3)
     integer::  nmtet,nqbzwm,ntetfm,ifmtet       !,nqibz_r
     integer:: iqi,igrp,iccc,nnng(3),icasetet,nadd=0,iq4(4)
-    real(8)::qmic(3,3),weight,x1,x2,x3,xqconv,x1i,x2i,x3i,wsum
+    real(8)::qmic(3,3),weight,x1,x2,x3,x1i,x2i,x3i,wsum
     integer::kount,i1,i2,i3,n2,nnnv(3),ig,ir,j1,j2,j3,jj(3),k,m,i1x,i2x,i3x,ic,k1,k2,k3,kountw,ndx, &
          ibtr(3,3),kcut(3,4,6),ngcell,i,ii,j,igamma
     real(8):: xvec(3),xvecc(3),xvecs(3),xvece(3),vv(3),xvv(3),xv(3),diff(3),diff2(3),swgt,v1(3),wfac
@@ -389,7 +385,7 @@ contains
                    nteti = nteti+1
                    idteti(1:4,nteti) = iq4(1:4)
                    idteti(0,nteti)=1
-!                   write(6,"(' nnnnn i1i2i3=',3i5,2x,10i3)") i1,i2,i3,idteti(:,nteti)
+                   !                   write(6,"(' nnnnn i1i2i3=',3i5,2x,10i3)") i1,i2,i3,idteti(:,nteti)
 101                continue
 110             enddo
 222          enddo
@@ -531,216 +527,213 @@ contains
     !$$$      print *,' end of getbzdata1'
   end subroutine getbzdata1
 
-!   subroutine nkstar (qibz,qbz,grp,ginv, &
-!        nqibz,nqbz,ngrp,gammacellctrl, &
-!        nstar,irotk)
-!     ! 92.02.22
-!     ! generates the no. stars of k
-!     ! i.e. the no. times k appears in the FBZ
-!     ! qibz  = k { IBZ
-!     ! qbz   = k { FBZ
-!     ! grp   = rotation matrices
-!     ! nqibz = no. k { IBZ
-!     ! nqbz  = no. k { FBZ
-!     ! ngrp  = no. rotation matrices
-!     ! nstar(k) = no. times k appears in the FBZ
-!     ! irotk(k{IBZ,R) = index to k{FBZ
-!     implicit none
-!     integer:: nqibz,nqbz,ngrp,ir,k,kp,nsum,ivsum
-!     real(8):: qibz(3,nqibz),qbz(3,nqbz),grp(3,3,ngrp),ginv(3,3)
-!     integer:: nstar(nqibz),irotk(nqibz,ngrp)
-!     integer:: verbose,kout,iccc,gammacellctrl
-!     real(8):: diff(3),diff2(3),tolq=1d-6,gg(3,3)
-!     if(verbose()>104) then
-!        print *,' nkstar:'
-!        do kp = 1,nqbz
-!           write(6,"(' === kp=',i8,' qbz=',3f8.3)")kp,qbz(:,kp)
-!        enddo
-!     endif
-!     irotk=0
-!     nstar=0
-!     do kp = 1,nqbz
-!        do k  = 1,nqibz
-!           do ir = 1,ngrp
-!              if(verbose()>104) print *,' grp=',ir !;      print *, grp(:,ir)
-!              diff = matmul(grp(:,:,ir),qibz(:,k)) - qbz(:,kp)
-!              if(gammacellctrl/=2) then
-!                 call rangedq(matmul(ginv,diff), diff2)
-!              else
-!                 diff2=diff
-!              endif
-!              if(verbose()>104) write(6,"(' matmul(ginv,diff)=',3f8.3,' ',3f8.3)") diff, matmul(ginv,diff)
-!              if(sum(abs(diff2))< tolq) then
-!                 irotk(k,ir)= kp
-!                 kout=k
-!                 nstar(k)   = nstar(k) + 1
-!                 goto 1022
-!              endif
-!           enddo
-!        enddo
-!        call rx( 'nkstar: can not find irotk')
-! 1022   continue
-!        !        write(6,"('   kp=',i8,' qbz=',3f18.14, 'ibz qibz',i8,3f18.14)")kp,qbz(:,kp),kout,qibz(:,kout)
-!     enddo
-!     !      do k  = 1,nqibz
-!     !          write(6,"(' k nstar=',3i6)") k,nstar(k)
-!     !      enddo
-!     !      print *,'sum nstart=',sum(nstar)
-!     iccc=0
-!     do k=1,nqibz
-!        do ir=1,ngrp
-!           if(irotk(k,ir)/=0) then
-!              iccc=iccc+1
-!           endif
-!        enddo
-!     enddo
-!     !      print *,'cccccc icc sum=',iccc,sum(irotk)
-!     ! ccccccccc
+  !   subroutine nkstar (qibz,qbz,grp,ginv, &
+  !        nqibz,nqbz,ngrp,gammacellctrl, &
+  !        nstar,irotk)
+  !     ! 92.02.22
+  !     ! generates the no. stars of k
+  !     ! i.e. the no. times k appears in the FBZ
+  !     ! qibz  = k { IBZ
+  !     ! qbz   = k { FBZ
+  !     ! grp   = rotation matrices
+  !     ! nqibz = no. k { IBZ
+  !     ! nqbz  = no. k { FBZ
+  !     ! ngrp  = no. rotation matrices
+  !     ! nstar(k) = no. times k appears in the FBZ
+  !     ! irotk(k{IBZ,R) = index to k{FBZ
+  !     implicit none
+  !     integer:: nqibz,nqbz,ngrp,ir,k,kp,nsum,ivsum
+  !     real(8):: qibz(3,nqibz),qbz(3,nqbz),grp(3,3,ngrp),ginv(3,3)
+  !     integer:: nstar(nqibz),irotk(nqibz,ngrp)
+  !     integer:: verbose,kout,iccc,gammacellctrl
+  !     real(8):: diff(3),diff2(3),tolq=1d-6,gg(3,3)
+  !     if(verbose()>104) then
+  !        print *,' nkstar:'
+  !        do kp = 1,nqbz
+  !           write(6,"(' === kp=',i8,' qbz=',3f8.3)")kp,qbz(:,kp)
+  !        enddo
+  !     endif
+  !     irotk=0
+  !     nstar=0
+  !     do kp = 1,nqbz
+  !        do k  = 1,nqibz
+  !           do ir = 1,ngrp
+  !              if(verbose()>104) print *,' grp=',ir !;      print *, grp(:,ir)
+  !              diff = matmul(grp(:,:,ir),qibz(:,k)) - qbz(:,kp)
+  !              if(gammacellctrl/=2) then
+  !                 call rangedq(matmul(ginv,diff), diff2)
+  !              else
+  !                 diff2=diff
+  !              endif
+  !              if(verbose()>104) write(6,"(' matmul(ginv,diff)=',3f8.3,' ',3f8.3)") diff, matmul(ginv,diff)
+  !              if(sum(abs(diff2))< tolq) then
+  !                 irotk(k,ir)= kp
+  !                 kout=k
+  !                 nstar(k)   = nstar(k) + 1
+  !                 goto 1022
+  !              endif
+  !           enddo
+  !        enddo
+  !        call rx( 'nkstar: can not find irotk')
+  ! 1022   continue
+  !        !        write(6,"('   kp=',i8,' qbz=',3f18.14, 'ibz qibz',i8,3f18.14)")kp,qbz(:,kp),kout,qibz(:,kout)
+  !     enddo
+  !     !      do k  = 1,nqibz
+  !     !          write(6,"(' k nstar=',3i6)") k,nstar(k)
+  !     !      enddo
+  !     !      print *,'sum nstart=',sum(nstar)
+  !     iccc=0
+  !     do k=1,nqibz
+  !        do ir=1,ngrp
+  !           if(irotk(k,ir)/=0) then
+  !              iccc=iccc+1
+  !           endif
+  !        enddo
+  !     enddo
+  !     !      print *,'cccccc icc sum=',iccc,sum(irotk)
+  !     ! ccccccccc
 
-!     !! check that the sum of stars equal to the no. k{FBZ
-!     nsum = sum(nstar)
-!     if (nsum /= nqbz) then
-!        print *,' nums nqbz=',nsum,nqbz
-!        do k  = 1,nqibz
-!           do ir = 1,ngrp
-!              if(irotk(k,ir)/=0) write(6,"(' k ir irotk=',3i6)") k,ir, irotk(k,ir)
-!           enddo
-!        enddo
-!        call rx( 'nkstar: wrong no. stars')
-!     endif
-!     !$$$c write k { IBZ and no. stars to file KPNT
-!     !$$$      ifkpnt     = ifile('KPNT')
-!     !$$$      if (ifkpnt .gt. 0) then
-!     !$$$        write (ifkpnt,*) 'irreducible k-points and no. stars'
-!     !$$$        write (ifkpnt,*) 'k, k-vector, nstar '
-!     !$$$        do       k = 1,nqibz
-!     !$$$          write(ifkpnt,"(1x,i5,3f8.5,i3)")k,qibz(1,k),qibz(2,k),qibz(3,k),nstar(k)
-!     !$$$        end do
-!     !$$$      endif
-!     !$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-!     !$$$c      stop 'test end'
-!     !$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-!   end subroutine nkstar
-end module m_get_bzdata1
+  !     !! check that the sum of stars equal to the no. k{FBZ
+  !     nsum = sum(nstar)
+  !     if (nsum /= nqbz) then
+  !        print *,' nums nqbz=',nsum,nqbz
+  !        do k  = 1,nqibz
+  !           do ir = 1,ngrp
+  !              if(irotk(k,ir)/=0) write(6,"(' k ir irotk=',3i6)") k,ir, irotk(k,ir)
+  !           enddo
+  !        enddo
+  !        call rx( 'nkstar: wrong no. stars')
+  !     endif
+  !     !$$$c write k { IBZ and no. stars to file KPNT
+  !     !$$$      ifkpnt     = ifile('KPNT')
+  !     !$$$      if (ifkpnt .gt. 0) then
+  !     !$$$        write (ifkpnt,*) 'irreducible k-points and no. stars'
+  !     !$$$        write (ifkpnt,*) 'k, k-vector, nstar '
+  !     !$$$        do       k = 1,nqibz
+  !     !$$$          write(ifkpnt,"(1x,i5,3f8.5,i3)")k,qibz(1,k),qibz(2,k),qibz(3,k),nstar(k)
+  !     !$$$        end do
+  !     !$$$      endif
+  !     !$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+  !     !$$$c      stop 'test end'
+  !     !$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+  !   end subroutine nkstar
+  subroutine qwider(icase,qb,n1,n2,n3,n1w,n2w,n3w, ib1bz,qbzw,qbz,indexkw)
+    !! == Wider q point mesh. ==
+    implicit none
+    integer:: i1,i2,i3, kount,icase,n1w,n2w,n3w
+    integer:: n1,n2,n3,ib1bz(*),indexkw(0:n1w,0:n2w,0:n3w)
+    integer:: indexk(0:n1-1,0:n2-1,0:n3-1)
+    real(8):: qb(3,3),qbzw(1:3,*),qbz(1:3,*),hf
+    hf=0d0
+    kount      = 0
+    do      i1 = 1,n1
+       do      i2 = 1,n2
+          do      i3 = 1,n3
+             kount    = kount + 1
+             indexk(i1-1,i2-1,i3-1) = kount
+             qbz(1:3,kount) = qb(1:3,1)*(i1-1+hf) +qb(1:3,2)*(i2-1+hf) +qb(1:3,3)*(i3-1+hf)
+          end do
+       end do
+    end do
+    kount      = 0
+    do      i1 = 1,n1w+1
+       do      i2 = 1,n2w+1
+          do      i3 = 1,n3w+1
+             kount    = kount + 1
+             indexkw(i1-1,i2-1,i3-1) = kount
+             qbzw(1:3,kount) = &
+                  qb(1:3,1)*(i1-1+hf) + qb(1:3,2)*(i2-1+hf) + qb(1:3,3)*(i3-1+hf)
+             ib1bz(kount) = indexk(mod(i1-1,n1), mod(i2-1,n2), mod(i3-1,n3))
+          end do
+       end do
+    end do
+  end subroutine qwider
+  !!--------------------
+  subroutine tetdevide(qc, qcm, wtet, mt1,mt2,mt3)   !qc ---> qcm
+    real(8):: tolq=1d-4
+    integer:: mt1,mt2,mt3,iq(0:3,8),itet,ic
+    real(8):: qc(3,0:3), qcm(3,0:3,mt1*mt2*mt3),qq(3,0:9),wt(0:3,0:9),wtet(0:3,mt1*mt2*mt3)
+    !! == four tetrahedrons at ends ==
+    iq(:,1) = (/0,7,8,9/)
+    iq(:,2) = (/1,5,6,7/)
+    iq(:,3) = (/2,4,6,9/)
+    iq(:,4) = (/3,4,5,8/)
+    ! octahedron into four tetrahedron.
+    iq(:,5) = (/5,9,6,7/)
+    iq(:,6) = (/5,9,7,8/)
+    iq(:,7) = (/5,9,8,4/)
+    iq(:,8) = (/5,9,4,6/)
+    if(mt1==2.and.mt2==2.and.mt3==2) then
+       qq(:,0:3)  =  qc(:,0:3)
+       qq(:,3+1)  = (qc(:,2) +qc(:,3))/2d0
+       qq(:,3+2)  = (qc(:,3) +qc(:,1))/2d0
+       qq(:,3+3)  = (qc(:,1) +qc(:,2))/2d0
+       qq(:,6+1)  = (qc(:,1) +qc(:,0))/2d0
+       qq(:,6+2)  = (qc(:,3) +qc(:,0))/2d0
+       qq(:,6+3)  = (qc(:,2) +qc(:,0))/2d0
+       wt(:,0)  =  (/1d0,0d0,0d0,0d0/)
+       wt(:,1)  =  (/0d0,1d0,0d0,0d0/)
+       wt(:,2)  =  (/0d0,0d0,1d0,0d0/)
+       wt(:,3)  =  (/0d0,0d0,0d0,1d0/)
+       wt(:,3+1)  = (wt(:,2) +wt(:,3))/2d0
+       wt(:,3+2)  = (wt(:,3) +wt(:,1))/2d0
+       wt(:,3+3)  = (wt(:,1) +wt(:,2))/2d0
+       wt(:,6+1)  = (wt(:,1) +wt(:,0))/2d0
+       wt(:,6+2)  = (wt(:,3) +wt(:,0))/2d0
+       wt(:,6+3)  = (wt(:,2) +wt(:,0))/2d0
+       do itet=1,8
+          do ic=0,3
+             qcm (:,ic,itet) = qq(:,iq(ic,itet))
+          enddo
+          wtet(0,itet) =  sum( wt(0,iq(:,itet)) )/4d0
+          wtet(1,itet) =  sum( wt(1,iq(:,itet)) )/4d0
+          wtet(2,itet) =  sum( wt(2,iq(:,itet)) )/4d0
+          wtet(3,itet) =  sum( wt(3,iq(:,itet)) )/4d0
+          !         write(6,"(' itet wtet=',i5,5f8.3)")itet,wtet(:,itet),sum(wtet(:,itet))
+          if(abs(sum(wtet(:,itet))-1d0)>tolq) call rx( 'tetdevide: sumwtet/=1')
+       enddo
+    else
+       call rx( ' tetdvide: only 2 2 2 has already implimented.')
+    endif
+  end subroutine tetdevide
 
-subroutine qwider(icase,qb,n1,n2,n3,n1w,n2w,n3w, ib1bz,qbzw,qbz,indexkw)
-  !! == Wider q point mesh. ==
-  implicit none
-  integer:: i1,i2,i3, kount,icase,n1w,n2w,n3w
-  integer:: n1,n2,n3,ib1bz(*),indexkw(0:n1w,0:n2w,0:n3w)
-  integer:: indexk(0:n1-1,0:n2-1,0:n3-1)
-  real(8):: qb(3,3),qbzw(1:3,*),qbz(1:3,*),hf
-  hf=0d0
-  kount      = 0
-  do      i1 = 1,n1
-     do      i2 = 1,n2
-        do      i3 = 1,n3
-           kount    = kount + 1
-           indexk(i1-1,i2-1,i3-1) = kount
-           qbz(1:3,kount) = qb(1:3,1)*(i1-1+hf) +qb(1:3,2)*(i2-1+hf) +qb(1:3,3)*(i3-1+hf)
-        end do
-     end do
-  end do
-  kount      = 0
-  do      i1 = 1,n1w+1
-     do      i2 = 1,n2w+1
-        do      i3 = 1,n3w+1
-           kount    = kount + 1
-           indexkw(i1-1,i2-1,i3-1) = kount
-           qbzw(1:3,kount) = &
-                qb(1:3,1)*(i1-1+hf) + qb(1:3,2)*(i2-1+hf) + qb(1:3,3)*(i3-1+hf)
-           ib1bz(kount) = indexk(mod(i1-1,n1), mod(i2-1,n2), mod(i3-1,n3))
-        end do
-     end do
-  end do
-end subroutine qwider
-!!--------------------
-subroutine tetdevide(qc, qcm, wtet, mt1,mt2,mt3)   !qc ---> qcm
-  real(8):: tolq=1d-4
-  integer:: mt1,mt2,mt3,iq(0:3,8),itet,ic
-  real(8):: qc(3,0:3), qcm(3,0:3,mt1*mt2*mt3),qq(3,0:9),wt(0:3,0:9),wtet(0:3,mt1*mt2*mt3)
-  !! == four tetrahedrons at ends ==
-  iq(:,1) = (/0,7,8,9/)
-  iq(:,2) = (/1,5,6,7/)
-  iq(:,3) = (/2,4,6,9/)
-  iq(:,4) = (/3,4,5,8/)
-  ! octahedron into four tetrahedron.
-  iq(:,5) = (/5,9,6,7/)
-  iq(:,6) = (/5,9,7,8/)
-  iq(:,7) = (/5,9,8,4/)
-  iq(:,8) = (/5,9,4,6/)
-  if(mt1==2.and.mt2==2.and.mt3==2) then
-     qq(:,0:3)  =  qc(:,0:3)
-     qq(:,3+1)  = (qc(:,2) +qc(:,3))/2d0
-     qq(:,3+2)  = (qc(:,3) +qc(:,1))/2d0
-     qq(:,3+3)  = (qc(:,1) +qc(:,2))/2d0
-     qq(:,6+1)  = (qc(:,1) +qc(:,0))/2d0
-     qq(:,6+2)  = (qc(:,3) +qc(:,0))/2d0
-     qq(:,6+3)  = (qc(:,2) +qc(:,0))/2d0
-     wt(:,0)  =  (/1d0,0d0,0d0,0d0/)
-     wt(:,1)  =  (/0d0,1d0,0d0,0d0/)
-     wt(:,2)  =  (/0d0,0d0,1d0,0d0/)
-     wt(:,3)  =  (/0d0,0d0,0d0,1d0/)
-     wt(:,3+1)  = (wt(:,2) +wt(:,3))/2d0
-     wt(:,3+2)  = (wt(:,3) +wt(:,1))/2d0
-     wt(:,3+3)  = (wt(:,1) +wt(:,2))/2d0
-     wt(:,6+1)  = (wt(:,1) +wt(:,0))/2d0
-     wt(:,6+2)  = (wt(:,3) +wt(:,0))/2d0
-     wt(:,6+3)  = (wt(:,2) +wt(:,0))/2d0
-     do itet=1,8
-        do ic=0,3
-           qcm (:,ic,itet) = qq(:,iq(ic,itet))
-        enddo
-        wtet(0,itet) =  sum( wt(0,iq(:,itet)) )/4d0
-        wtet(1,itet) =  sum( wt(1,iq(:,itet)) )/4d0
-        wtet(2,itet) =  sum( wt(2,iq(:,itet)) )/4d0
-        wtet(3,itet) =  sum( wt(3,iq(:,itet)) )/4d0
-        !         write(6,"(' itet wtet=',i5,5f8.3)")itet,wtet(:,itet),sum(wtet(:,itet))
-        if(abs(sum(wtet(:,itet))-1d0)>tolq) call rx( 'tetdevide: sumwtet/=1')
-     enddo
-  else
-     call rx( ' tetdvide: only 2 2 2 has already implimented.')
-  endif
-end subroutine tetdevide
-
-
-real(8) function xqconv(x)
+  real(8) function xqconv(x)
 !!!   x --> xqconv : uniform to non uniform mesh converter
-  !! x is [0,1] --> xqcon = [0,1]
-  !! x can be -1 <= x =< 1
-  use m_keyvalue,only: getkeyvalue
-  real(8),intent(in)::x
-  real(8),parameter:: pi=4d0*atan(1d0) !3.1415926535897932d0
-  real(8),save:: adiv,bdiv
-  logical,save:: oncew=.true.
-  logical:: ggg
-  !! BZ division setting.
-  if(oncew) then
-     inquire(file='GWinput',exist=ggg)
-     if(.not.ggg) then
-        adiv=1d0
-     else
-        call getkeyvalue("GWinput","BZadiv",adiv,default=1d0)
-     endif
-     write(6,"('  BZadiv= ',f6.3)") adiv
-     bdiv = (1d0 -adiv)/2d0
-     oncew=.false.
-  endif
-  !!   adiv+2b=1
-  xqconv           = adiv*x + bdiv*(1-cos(pi*x))
-  if(x>1d0) xqconv = adiv*x + bdiv*(1-cos(pi*(x-1d0))+2d0)
-  if(x<0d0) xqconv = adiv*x + bdiv*(1-cos(pi*(x+1d0))-2d0)
-  !      print *,'x xqconv=',x,xqconv
-end function xqconv
+    !! x is [0,1] --> xqcon = [0,1]
+    !! x can be -1 <= x =< 1
+    use m_keyvalue,only: getkeyvalue
+    real(8),intent(in)::x
+    real(8),parameter:: pi=4d0*atan(1d0) !3.1415926535897932d0
+    real(8),save:: adiv,bdiv
+    logical,save:: oncew=.true.
+    logical:: ggg
+    !! BZ division setting.
+    if(oncew) then
+       inquire(file='GWinput',exist=ggg)
+       if(.not.ggg) then
+          adiv=1d0
+       else
+          call getkeyvalue("GWinput","BZadiv",adiv,default=1d0)
+       endif
+       write(6,"('  BZadiv= ',f6.3)") adiv
+       bdiv = (1d0 -adiv)/2d0
+       oncew=.false.
+    endif
+    !!   adiv+2b=1
+    xqconv           = adiv*x + bdiv*(1-cos(pi*x))
+    if(x>1d0) xqconv = adiv*x + bdiv*(1-cos(pi*(x-1d0))+2d0)
+    if(x<0d0) xqconv = adiv*x + bdiv*(1-cos(pi*(x+1d0))-2d0)
+    !      print *,'x xqconv=',x,xqconv
+  end function xqconv
 
-subroutine xconvv(xin,xout)
+  subroutine xconvv(xin,xout)
 !!!   xin is converted to xout (uniformmesh to non-uniform mesh).
-  real(8)::xin(3),xout(3),xqconv
-  integer:: i
-  do i=1,3
-     xout(i)=xqconv(xin(i))
-  enddo
-end subroutine xconvv
+    real(8)::xin(3),xout(3)
+    integer:: i
+    do i=1,3
+       xout(i)=xqconv(xin(i))
+    enddo
+  end subroutine xconvv
 
   subroutine nkstar (qibz,qbz,grp,ginv, &
        nqibz,nqbz,ngrp,gammacellctrl, &
@@ -832,3 +825,42 @@ end subroutine xconvv
     !$$$c      stop 'test end'
     !$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
   end subroutine nkstar
+  subroutine genqbz (qbas,n1,n2,n3, qbz,wbz, nstbz, nadd,half)
+    ! generates the k-points in the 1BZ
+    ! the 1BZ is a parallepiped formed by G1,G2,G3 (qbas(3,3))
+    ! this is divided into microcells defined by G1/n1,G2/n2,G3/n3
+    ! the k-points may be thought of as being centred at each microcell
+    ! the sampling weight for each k-point is the same (1/n1*n2*n3)
+    ! qbas = base reciprocal vectors G1,G2,G3
+    ! n1,n2,n3 = divisions along G1,G2,G3
+    ! qbz  = k-points in the 1BZ
+    ! wbz  = sampling weight for qbz
+    ! Taken from Ferdi's GW  -------------------------------------------------------------------
+    implicit real*8 (a-h,o-z)
+    real(8):: qbas(3,3)
+    real(8):: qbz(3,*),wbz(*) !wbz(n1*n2*n3)
+    real(8):: qmic(3,3),w1(3),w2(3),w3(3),half(3)
+    integer:: nstbz(*),nadd,n1,n2,n3,i1,i2,i3,kount,nnn
+    !! icase=1
+    !! vectors forming microcells
+    qmic(:,1)= qbas(:,1)/dble(n1)
+    qmic(:,2)= qbas(:,2)/dble(n2)
+    qmic(:,3)= qbas(:,3)/dble(n3)
+    nnn=(n1+nadd)*(n2+nadd)*(n3+nadd)
+    nstbz(1:nnn)=0
+    !! sampling weight
+    weight     = 1.d0/dble(n1*n2*n3)
+    kount      = 0
+    do      i1 = 1,n1+nadd
+       do      i2 = 1,n2+nadd
+          do      i3 = 1,n3+nadd
+             kount      = kount + 1
+             qbz(:,kount) = (i1-1+half(1))*qmic(:,1) + (i2-1+half(2))*qmic(:,2) + (i3-1+half(3))*qmic(:,3)
+             wbz(kount) = weight
+          enddo
+       enddo
+    enddo
+    if(kount /= (n1+nadd)*(n2+nadd)*(n3+nadd))call rx( 'genqbz: wrong no. k-points')
+  end subroutine genqbz
+end module m_get_bzdata1
+

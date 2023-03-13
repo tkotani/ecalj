@@ -1,6 +1,6 @@
 module m_mksym !in future this should be replaced with better version with spglib or something else.
   use m_mpitk,only: master_mpi
-  use m_mksym_util,only: gensym,grpgen,symtbl
+  use m_mksym_util,only: gensym,grpgen,symtbl,word,words,nword,splcls
   public :: m_mksym_init, &
        rv_a_oag,   iv_a_oics, lat_npgrp, lat_nsgrp, &
        rv_a_osymgr,iv_a_oistab, ctrl_nclass,iclasst, &

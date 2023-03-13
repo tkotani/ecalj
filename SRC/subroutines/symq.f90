@@ -88,79 +88,6 @@ subroutine psymq0(nrclas,nsp,ipa,wk,nvec,vec)
      enddo
   enddo
 end subroutine psymq0
-subroutine symqmp(nrclas,nlml,nlmx,plat,posc,ngrp,g,ag,qwk,ipa,sym,qmp,nn)
-  !- Symmetrize multipole moments for a single class
-  ! ----------------------------------------------------------------------
-  !i Inputs
-  !i   nrclas:number of atoms in the ith class
-  !i   nlml  :L-cutoff for charge density on radial mesh
-  !i   nlmx  :dimensions sym: sym is generated for ilm=1..nlmx
-  !i   plat  :primitive lattice vectors, in units of alat
-  !i   posc  :work array holding basis vectors for this class
-  !i   ngrp  :number of group operations
-  !i   g     :point group operations
-  !i   ag    :translation part of space group
-  !i   qwk   :work array of dimension nlml
-  !i   ipa   :ipa(1..nrclas) = table of offsets to qmp corresponding
-  !i         :to each member of the class
-  ! o Inputs/Outputs
-  ! o  qmp   :On input,  unsymmetrized multipole moments
-  ! o        :On output, multipole moments are symmetrized
-  !o Outputs
-  !o   sym   :symmetry projectors for each member of the class
-  !o   nn    :number of elements symmetrized
-  !u Updates
-  !u   23 Aug 01 adapted from psymql
-  ! ----------------------------------------------------------------------
-  implicit none
-  integer :: nrclas,nlmx,ipa(nrclas),nlml,ngrp,nn
-  double precision :: plat(3,3),posc(3,nrclas),g(3,3,ngrp),ag(3,ngrp)
-  double precision :: sym(nlmx,nlmx,nrclas),qwk(nlml),qmp(*)
-  integer :: ia,ilm,ixx
-  double precision :: wgt,xx,qlat(3,3)
-  call tcn('symqmp')
-  if (nlml > nlmx) call rxi('symqmp: increase nlmx to',nlml)
-  call dinv33(plat,1,qlat,xx)
-  ! ... Make the symmetry projectors
-  call symprj(nrclas,nlmx,ngrp,ixx,xx,g,ag,plat,qlat,posc,sym)
-  ! ... Accumulate symmetrized qmpol on first site
-  call dpzero(qwk, nlml)
-  do  ia = 1, nrclas
-     call pxsmr1(1d0,1,nlml,1,sym(1,1,ia),qmp(1+ipa(ia)),qwk,nn)
-  enddo
-  ! ... Rotate and copy to all sites in class
-  wgt = nrclas
-  do  ia = 1, nrclas
-     call dpzero(qmp(1+ipa(ia)), nlml)
-     call pysmr1(wgt,1,nlml,1,sym(1,1,ia),qwk,qmp(1+ipa(ia)),nn)
-  enddo
-  nn = 0
-  do  ilm = 1, nlml
-     if (dabs(qmp(ilm+ipa(1))) > 1d-6) nn = nn+1
-  enddo
-  call tcx('symqmp')
-end subroutine symqmp
-subroutine pxsmr1(wgt,nr,nlml,nsp,sym,rho1, rho2,nn)! Add wgt*sym*rho1 into rho2
-  implicit none
-  integer :: nr,nlml,nsp,nn
-  double precision :: sym(nlml,nlml),rho1(nr,nlml,nsp), rho2(nr,nlml,nsp),wgt
-  integer :: ilm,jlm,i,isp
-  double precision :: ccc
-  nn = 0
-  do  isp = 1, nsp
-     do  ilm = 1, nlml
-        do  jlm = 1, nlml
-           ccc = wgt*sym(ilm,jlm)
-           if (dabs(ccc) > 1d-9) then
-              nn = nn+1
-              do  i = 1, nr
-                 rho2(i,ilm,isp) = rho2(i,ilm,isp) + ccc*rho1(i,jlm,isp)
-              enddo
-           endif
-        enddo
-     enddo
-  enddo
-end subroutine pxsmr1
 subroutine pysmr1(wgt,nr,nlml,nsp,sym,rho1, rho2,nn)! Add wgt*sym*rho1 into rho2, transposed
   implicit none
   integer :: nr,nlml,nsp,nn
@@ -244,3 +171,24 @@ subroutine symprj(nrclas,nlml,ngrp,nbas,istab,g,ag,plat,qlat,pos, sym)
   endif
   deallocate(rmat_rv)
 end subroutine symprj
+subroutine pxsmr1(wgt,nr,nlml,nsp,sym,rho1, rho2,nn)! Add wgt*sym*rho1 into rho2
+  implicit none
+  integer :: nr,nlml,nsp,nn
+  double precision :: sym(nlml,nlml),rho1(nr,nlml,nsp), rho2(nr,nlml,nsp),wgt
+  integer :: ilm,jlm,i,isp
+  double precision :: ccc
+  nn = 0
+  do  isp = 1, nsp
+     do  ilm = 1, nlml
+        do  jlm = 1, nlml
+           ccc = wgt*sym(ilm,jlm)
+           if (dabs(ccc) > 1d-9) then
+              nn = nn+1
+              do  i = 1, nr
+                 rho2(i,ilm,isp) = rho2(i,ilm,isp) + ccc*rho1(i,jlm,isp)
+              enddo
+           endif
+        enddo
+     enddo
+  enddo
+end subroutine pxsmr1

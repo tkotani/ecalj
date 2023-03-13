@@ -2,7 +2,7 @@ module  m_bzwts
   public bzwtsf,bzwtsf2
   private
 contains
-  subroutine bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,&
+  subroutine bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,& !- BZ integration for fermi level, band sum and qp weights
        metal,tetra,norder,npts,width,rnge,wtkp,eb, efermi,sumev,wtkb,dosef,qval,ent,lfill)
     use m_ftox
     use m_lmfinit,only: stdo,stdl
@@ -10,10 +10,8 @@ contains
     use m_MPItk,only: master_mpi
     implicit none
     intent(in)::   nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,&
-       metal,tetra,norder,npts,width,rnge,wtkp,eb
+         metal,tetra,norder,npts,width,rnge,wtkp,eb
     intent(out)::                                  efermi,sumev,wtkb,dosef,qval,ent,lfill
-    !- BZ integration for fermi level, band sum and qp weights
-    ! ----------------------------------------------------------------------
     !i Inputs
     !i   nbmx  :leading dimension of eb
     !i   nevx  :leading dimension of wtkb and max number of evals calculated
@@ -83,7 +81,7 @@ contains
     master = 0
     call tcn('bzwts')
     ipr=iprint()
-!    print *,'iiiiiiiiiiii ipr=',ipr
+    !    print *,'iiiiiiiiiiii ipr=',ipr
     qval(1) = 0
     qval(2) = 0
     ent = 0
@@ -234,7 +232,7 @@ contains
           do  it = 1, itmax
              call pshpr(0)
              call splwts(nkp,nevxx,nbmxx,nspx,wtkp,eb,n,width,efermi,&
-                  .true.,sumev,wtkb,qval,ent,dosef,cv)
+                  .true.,sumev,wtkb,qval(1),ent,dosef(1),cv)
              call poppr
              if (dabs(zval - qval(1)) .lt. 1d-12) then
                 if(ipr>0) write(stdo,ftox)' Fermi energy, ',ftof(efermi),&
@@ -256,7 +254,7 @@ contains
           call maknos ( nkp , nevxx , nbmxx , nspx , wtkp , eb , n , width &
                , - rnge , emin , emax , npts , dos_rv )
           if ( nspx.eq.2 ) dos_rv(:,1)=dos_rv(:,2)+dos_rv(:,1)
-          call intnos ( npts , dos_rv , emin , emax , zval , efermi , dosef , sumev )
+          call intnos ( npts , dos_rv , emin , emax , zval , efermi , dosef(1) , sumev )
           if (allocated(dos_rv)) deallocate(dos_rv)
 3         continue
        else
@@ -283,7 +281,7 @@ contains
                 tRy = tlst_rv(it)/0.1579d6
                 call pshpr(1)
                 call splwts(nkp,nevxx,nbmxx,nspx,wtkp,eb,n,tRy,efermi,&
-                     metal,sumev,wtkb,qval,ent,dosef,cv)
+                     metal,sumev,wtkb,qval(1),ent,dosef(1),cv)
                 call poppr
                 write(stdo,ftox)ftof(0.1579d6*tRy),ftof(tRy),ftof(ent),ftof(cv)
              enddo
@@ -292,7 +290,7 @@ contains
        endif
        !   ... Make weights, sampling
        call splwts(nkp,nevxx,nbmxx,nspx,wtkp,eb,n,width,efermi,&
-            (.not. lfill) .or. (metal .and. (nkp .eq. 1)), sumev,wtkb,qval,ent,dosef,cv)
+            (.not. lfill) .or. (metal .and. (nkp .eq. 1)), sumev,wtkb,qval(1),ent,dosef(1),cv)
        if(nsp .eq. 2 .and. nspx .eq. 1) call dscal(nkp,2d0,wtkp,1)
     endif
     ! ... Restore to uncoupled bands; ditto with weights
@@ -314,9 +312,7 @@ contains
     if (.not. lfill .and. .not. tetra) e = efermi + rnge*width/2
     call tcx('bzwts')
   end subroutine bzwts
-
-  subroutine ebcpl(mode,nbmx,nevx,nsp,nspc,nq,nbpw,bmap,wk,eb)
-    !- Gather spin-polarized bands into a single group, or redistribute
+  subroutine ebcpl(mode,nbmx,nevx,nsp,nspc,nq,nbpw,bmap,wk,eb) !- Gather spin-polarized bands into a single group, or redistribute
     ! ----------------------------------------------------------------------
     !i Inputs
     !i   mode  :0, gather; 1, scatter
@@ -338,7 +334,7 @@ contains
     !io   bmap must be preserved for mode=1 call.
     !u Updates
     ! ----------------------------------------------------------------------
-    !     implicit none
+    implicit none
     integer mode,nbmx,nevx,nsp,nspc,nq,nbpw,bmap(1)
     double precision eb(nbmx,nsp,nq),wk(nbmx*nsp)
     integer ib,iq,ib1,ib2,iqb
@@ -401,9 +397,7 @@ contains
        enddo d110
     endif
   end subroutine ebcpl
-
-  subroutine mark1(bitmap, nbpw, n)
-    !- put a one in the nth bit of bitmap.
+  subroutine mark1(bitmap, nbpw, n)    !- put a one in the nth bit of bitmap.
     ! ----------------------------------------------------------------
     !i Inputs
     !i   bitmap, n
@@ -420,9 +414,7 @@ contains
     i = 2**(nbpw-nbit-1)
     bitmap(nword+1) = bitmap(nword+1) + i*(1-mod(bitmap(nword+1)/i,2))
   end subroutine mark1
-
-  integer function iget(bitmap, nbpw, n)
-    !- Return 0 or 1, depending on the value of the nth bit of bitmap
+  integer function iget(bitmap, nbpw, n)    !- Return 0 or 1, depending on the value of the nth bit of bitmap
     ! ----------------------------------------------------------------
     !r Remarks
     !r   See mark1
@@ -435,10 +427,7 @@ contains
     nbit = mod(n-1,nbpw)
     iget = mod(bitmap(nword+1)/2**(nbpw-nbit-1),2)
   end function iget
-
-
-  logical function efrng2(nsp,nkp,nbmax,nband,zval,eband,ebbot,ebtop,elo,ehi,e1,e2)
-    !- Find range of Fermi energy.
+  logical function efrng2(nsp,nkp,nbmax,nband,zval,eband,ebbot,ebtop,elo,ehi,e1,e2)  !- Find range of Fermi energy.
     ! ----------------------------------------------------------------------
     !i Inputs
     !i   nsp   :2 for spin-polarized case, otherwise 1
@@ -532,7 +521,6 @@ contains
        efrng2 = .true.
     endif
   end function efrng2
-
   subroutine dshell(n,array)
     implicit none
     integer n
@@ -565,7 +553,6 @@ contains
 11  enddo
     if (inc .gt. 1) goto 12
   end subroutine dshell
-
   subroutine fixef0(zval,nsp,nspc,nevx,ndev,evl,dosw,ef0)
     use m_lgunit,only:stdo
     !- Corrects estimate for Fermi level
@@ -594,12 +581,8 @@ contains
     integer:: i , i1 , ipr , nbpw , i1mach
     integer ,allocatable :: bmap_iv(:)
     real(8) ,allocatable :: wk_rv(:)
-
     double precision :: w2,xx,doso(2)
-    ! ... Heap
-
     call getpr(ipr)
-    !      stdo = lgunit(1)
     if (nsp == 2) then
        nbpw = int(dlog(dble(i1mach(9))+1d0)/dlog(2d0))
        allocate(bmap_iv(abs(-(nevx*nsp/nbpw+1))))
@@ -639,14 +622,13 @@ contains
             ' reset to (',f15.7,x,f15.7,')')") doso(1),doso(2),dosw(1),dosw(2)
     endif
   end subroutine fixef0
-  !!== FSMOMMETHOD=1 == June2011 takao
   !! This is for molecules.
   !! 1st step : Set initial bias magnetic field under assuming all eigenvalues are discrete.
   !!            Search elumo1,ehomo1 (for up spin) and elumo2,ehomo2 (for down spin) below.
   !! 2nd step : refine the bias field for given temperature.
   !!
   !!  (Takao think this bzwtsf2 may need to be modified for solids).
-  subroutine bzwtsf2(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval, &
+  subroutine bzwtsf2(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval, & !!== FSMOMMETHOD=1 == June2011 takao
        fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb,lswtk, &
        swtk,efermi,sumev,wtkb,qval,lwtkb,lfill,vnow)
     use m_lmfinit,only: stdo
@@ -836,17 +818,11 @@ contains
     endif
     call tcx('bzwtsf2')
   end subroutine bzwtsf2
-
-
-  !!== FSMOMMETHOD=0 ogiginal version(modified version. fmom=0 is allowed.)==
-  subroutine bzwtsf(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval, &
-       fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb,lswtk, &
+  subroutine bzwtsf(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval, & !== FSMOMMETHOD=0 ogiginal version(modified version. fmom=0 is allowed.)==
+       fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb,lswtk, & !- BZ integration for fermi level, band sum and qp weights, fixed-spin
        swtk,efermi,sumev,wtkb,qval,lwtkb,lfill,vnow)
     use m_lmfinit,only: stdo
     use m_ftox
-
-    !- BZ integration for fermi level, band sum and qp weights, fixed-spin
-    ! ----------------------------------------------------------------------
     !i Inputs
     !i   nbmx  :leading dimension of eb
     !i   nevx  :leading dimension of wtkb and max number of evals calculated
@@ -1009,12 +985,8 @@ contains
     endif
     call tcx('bzwtsf')
   end subroutine bzwtsf
-
-
-  subroutine bzwtsm(lswtk,nkp,nsp,nevx,wtkb,swtk,amom)
+  subroutine bzwtsm(lswtk,nkp,nsp,nevx,wtkb,swtk,amom) !- Determine the magnetic moment, collinear or noncollinear case
     use m_ftox
-    !- Determine the magnetic moment, collinear or noncollinear case
-    ! ----------------------------------------------------------------------
     !i Inputs
     !i   lswtk :if true, swtk is used.  Otherwise, collinear case assumed:
     !i         :swtk(*,1,*) = 1  and swtk(*,2,*) = -1
@@ -1038,11 +1010,8 @@ contains
        amom = sum(wtkb(:,1,:) - wtkb(:,2,:))
     endif
   end subroutine bzwtsm
-
-  subroutine fermi(qval,dos,ndos,emin,emax,nsp,eferm,e1,e2,dosef)
+  subroutine fermi(qval,dos,ndos,emin,emax,nsp,eferm,e1,e2,dosef) !Makes fermi energy from integrated density
     use m_ftox
-    !- Makes fermi energy from integrated density
-    ! ----------------------------------------------------------------------
     !i Inputs
     !i   qval, number of electrons to fermi level; dos(i) integrated
     !i   density at bin i; ndos, number of bins + 1; emin, emax, energy
@@ -1088,4 +1057,357 @@ contains
     eferm = e1 + (qval-q1)/(q2-q1)*de
     dosef = (q2-q1)/de
   end subroutine fermi
+  subroutine intnos(ndos,dos,emin,emax,qval,efermi,dosef,eband)!Finds E_F from a tabulated number of states function
+    use m_lgunit,only:stdo
+    !i  Input
+    !i    ndos : number of tabulated points; dos : integrated DOS
+    !i    emin, emax : energy range of tabulation;
+    !i    qval : number of valence electrons
+    !o  Output
+    !o    efermi : Fermi energy, dosef : DOS at E_f
+    !-----------------------------------------------------------------------
+    !     implicit none
+    integer :: ndos
+    double precision :: dos(0:ndos-1),emin,emax,qval,efermi,eband,dosef
+    integer :: i,meshpt,iprint
+    double precision :: step,sum,q,q1,q2,e1,eps,d1mach
+    eps = d1mach(3)
+    ! --- make Fermi energy ---
+    step = (emax - emin) / (ndos - 1)
+    meshpt = 0
+    q = qval + eps
+    do  1  i = 1, ndos-1
+       if ( dos(i) >= q ) goto 2
+       meshpt = i
+1   enddo
+2   continue
+    if (meshpt == ndos-1) &
+         call rx('INTNOS : Fermi energy lies above emax')
+    ! E_F lies between mesh points meshpt and meshpt+1 -- interpolate :
+    q1 = dos(meshpt)
+    q2 = dos(meshpt+1)
+    e1 = emin + step * meshpt
+    efermi = e1 + ( qval-q1 ) / ( q2-q1 ) * step
+    dosef = (q2 - dos(meshpt-1)) / (2*step)
+    ! --- make band energy by partial integration ---
+    sum = .5d0 * q1
+    do  3  i = 1, meshpt-1
+       sum = sum + dos(i)
+3   enddo
+    sum = sum * step
+    sum = sum + .5d0 * (efermi - e1) * (qval + q1)
+    eband = efermi * qval - sum
+    if (iprint() >= 30) then
+       !        do  12  i = 1, 1
+       write(stdo,"(' INTNOS: Fermi energy=,f15.8', &
+            '  band energy=',f15.8,' DOS(E_f)=',f15.8)") efermi, eband, dosef
+       !   12   continue
+       !        write(*,10) efermi, eband, dosef
+       !        write(fopn('LOG'),10) efermi, eband, dosef
+       !   10 format(' INTNOS: Fermi energy =',f10.6,'; band energy =',f11.6/
+       !     .       '          DOS(E_f) =',f11.6)
+    endif
+  end subroutine intnos
+  subroutine maknos(nqp,nband,nbmx,nsp,wgts,evl,n,w,tol,emin,emax, ndos,dos)!- Make density of states from bands
+    use m_ftox
+    use m_lmfinit,only:stdo
+    !i  Input
+    !i    nqp : number of q-points; nband : number of bands;
+    !i    nsp : 2 for spin polarised bands, 1 otherwise;
+    !i    wgts, evl : weights and bands (eigenvalues);
+    !i    nbmx : first dimension of evl ;
+    !i    n   : n>0 Methfessel-Paxton polynomial order
+    !i        : n<0 sampling done with Fermi-Dirac statistics
+    !i    w   : n>0 gaussian width in Methfessel-Paxton integration (Ry)
+    !i        : n<0 Temperature for Fermi distribution (Ry)
+    !i    tol : allowed error in DOS due to truncating the gaussian,
+    !i          if negative on entry, range is set to -tol*W
+    !i    emin, emax, ndos; energy range and number of energy mesh points
+    !o  Ouput
+    !o    dos: integrated DOS
+    !u Updates
+    !u   2 Nov 1995 (JEK) returns spin-polarized integrated dos
+    !     implicit none
+    integer :: nqp,nband,nbmx,nsp,n,ndos
+    double precision :: wgts(nqp),evl(nbmx,nsp,nqp),dos(0:ndos-1,nsp), &
+         w,emin,emax,tol,wt,emesh
+    integer :: i,isp,iband,iq,meshpt,mesh1,mesh2,mrange,iprint,i1mach
+    double precision :: e,x,range,test,step,d,s,xx
+    !  external delstp
+    mrange=-9999999
+    call dpzero(dos,nsp*ndos)
+    step = (emax - emin) / (ndos - 1)
+    if ( tol > 0d0 ) then
+       do  2  i = 0, ndos-1
+          x = i * step / w
+          call delstp(n,x,test,s,xx)
+          if ( test < tol ) then
+             mrange = i + 1
+             goto 3
+          endif
+2      enddo
+       if (iprint() > 30) print *,'maknos (warning) : tol too small'
+3      continue
+       range = 2 * mrange * step
+       test = tol
+    else
+       range = -tol * w
+       mrange = range / ( 2 * step )
+       call delstp(n,-tol/2,test,s,xx)
+    endif
+    if (iprint() >= 40) write(stdo,ftox) ' MAKNOS: range=',ftof(range/w), &
+         ' (',2*mrange,'bins) DOS error estimate=',ftof(test),'per state'
+    do  7  iq = 1, nqp
+       wt = abs(wgts(iq)) / nsp
+       do  61  iband = 1, nband
+          do  6  isp = 1, nsp
+             e = evl(iband,isp,iq)
+             meshpt = (e - emin) / step
+             mesh1 = meshpt - mrange
+             mesh2 = meshpt + mrange
+             if (mesh2 >= ndos) mesh2 = ndos-1
+             call rxx(mesh1 .lt. 0,'MAKNOS: emin too large')
+             do  4  meshpt = mesh1, mesh2
+                emesh = emin + meshpt * step
+                x = (emesh - e) / w
+                call delstp(n,x,d,s,xx)
+                dos(meshpt,isp) = dos(meshpt,isp) + wt * (1d0 - s)
+4            enddo
+             do  5  meshpt = mesh2+1, ndos-1
+                dos(meshpt,isp) = dos(meshpt,isp) + wt
+5            enddo
+6         enddo
+61     enddo
+7   enddo
+  end subroutine maknos
+  subroutine splwts(nqp,nband,nbmx,nsp,wgts,evl,n,w,efermi, & !make sampling weights for integrals under the Fermi surface
+       metal,sumev,bndwts,wtot,entrpy,dosef,cv)
+    use m_lmfinit,only: stdo
+    use m_ftox
+    !i  Input
+    !i    nqp : number of q-points; nband : number of bands
+    !i    wgts: band weights
+    !i    evl : energy eigenvalues
+    !i    n   : n>0 Methfessel-Paxton polynomial order
+    !i        : n<0 sampling done with Fermi-Dirac statistics
+    !i    w   : n>0 gaussian width in Methfessel-Paxton integration (Ry)
+    !i        : n<0 Temperature for Fermi distribution (Ry)
+    !i    nbmx : first dimension of evl ;
+    !i    metal : if F, weights unity below E_f and zero above.
+    !i    efermi : Fermi energy
+    !o  Output
+    !o    bndwts : band and E_F - dependent k-point weights for integration
+    !o    wtot   : sum of all weights (charge) qval
+    !o    entrpy : electron entropy
+    !o    dosef  : DOS at Fermi energy
+    !o    cv     : electronic specific heat
+    !o             (only evaluated with Fermi-Dirac statistics)
+    !r  Remarks
+    !r    sum of occupied eigenvalues = sum_n,k  w_nk E_nk
+    !r    w_nk are generalised occupation numbers;
+    !r    see Needs et al. Phys Rev B 33 (1986) 3778, eqs 1 & 2.
+    !u Updates
+    !u   16 Jul 08 returns entropy as TS for all n
+    !u   04 Aug 07 Generates dos(efermi), cv(T=w) for F-D statistics
+    !u   02 May 07 (MvS) prints entropy to stdout
+    !u   21 Jun 06 (ATP) generates entrpy as output
+    !u   17 Jan 05 Output wtot
+    !-----------------------------------------------------------------------
+    implicit none
+    ! ... Passed parameters
+    integer :: nqp,nband,nbmx,nsp,n,ix,isplwts,i_copy_size
+    logical :: metal
+    double precision :: wgts(nqp),evl(nbmx,nsp,nqp),w,efermi,sumev, &
+         bndwts(nband,nsp,nqp),wtot,entrpy,dosef,cv
+    ! ... Local parameters
+    integer :: iqp,iband,isp,iprint,i1mach
+    double precision :: e,s,d,wt,x,xx,dsdt,tdsdt
+    logical :: fractional
+    sumev = 0d0
+    wtot = 0d0
+    entrpy = 0d0
+    dosef = 0
+    tdsdt = 0
+    fractional=.false.
+    do  3  iqp = 1, nqp
+       do  2  iband = 1, nband
+          do  1  isp = 1, nsp
+             e = evl(iband,isp,iqp)
+             if (metal) then
+
+                !             debugging: check derivative numerically
+                !              x = (efermi - e) / (w+1d-7)
+                !              call delstp(n,x,d,s,sp)
+                !              x = (efermi - e) / (w-1d-7)
+                !              call delstp(n,x,d,s,sm)
+                !              dsdt1 = (sp-sm)/2d-7
+
+                x = (efermi - e) / w
+                !             call delstp(n,x,d,s,xx)
+                call delstd(n,x,d,s,xx,dsdt)
+                if (abs(x) < 36) then
+                   dsdt = -(efermi-e)/w**2 * dsdt
+                else
+                   dsdt = 0
+                endif
+
+                !C             debugging: compare analytical, numerical derivative
+                !              if (abs(x) .lt. 30) then
+                !                print 222, x,dsdt1,dsdt,dsdt-dsdt1
+                !  222           format(3f14.8,1pe12.3)
+                !              endif
+             else
+                s = 1d0
+                if (e <= efermi) s = 0d0
+                xx = 0
+                d = 0
+             endif
+             wt = abs(wgts(iqp)) * (1d0 - s) / nsp
+             bndwts(iband,isp,iqp) = wt
+             if(0.1d0<wt .AND. wt<0.9d0) then
+                fractional=.true.
+             endif
+             dosef = dosef + d*abs(wgts(iqp))/w/nsp
+             wtot = wtot + wt
+             sumev = sumev + e * wt
+             entrpy = entrpy + xx  * abs(wgts(iqp)) / nsp
+             tdsdt  = tdsdt + dsdt * abs(wgts(iqp)) / nsp
+1         enddo
+2      enddo
+3   enddo
+    tdsdt = tdsdt*w
+    entrpy = entrpy*w
+    if (n < 0) cv = tdsdt
+    ! ... Print out band weights, if only 1 kp
+    if (iprint() > 30 .AND. nqp == 1) then
+       isplwts=1093
+       open(isplwts,file="BandWeight.dat")
+       do  isp = 1, nsp
+          write(stdo,ftox)'SPLWTS: band weights .. Spin=',isp,'       eval      weight'
+          if(fractional) then
+             write(isplwts,*)"! Fractional occupation (criterion 0.1<wgt<0.9)"
+             write(stdo,*)   "! Fractional occupation (criterion 0.1<wgt<0.9)"
+          endif
+          ix=0
+          do  iband = 1, nband
+             if(bndwts(iband,isp,1)<1d-7) ix=ix+1
+             if(ix==10) then
+                write (stdo,"('     ... ')")
+                exit
+             endif
+             write (stdo,20) iband,evl(iband,isp,1),bndwts(iband,isp,1)
+             write (isplwts,20) iband,evl(iband,isp,1),bndwts(iband,isp,1)
+20           format (4x,i5,2f10.6)
+          enddo
+       enddo
+       close(isplwts)
+    endif
+    ! ... Print out various k-point integrations
+    if (iprint() >= 10) then
+       if (n >= 0) then
+          !          call awrit6(' N=%i, W=%d, E_F=%d, sumev=%d, entropy term:'
+          !     .    //' %d, %d electrons',' ',256,i1mach(2), n,w,efermi,sumev,entrpy,wtot)
+          write(stdo,"(a,i5,5d13.5)")'N W E_F sumev TS Nele=', &
+               n,w,efermi,sumev,entrpy,wtot
+       else
+          !          call awrit5(' T=%dK, E_F=%d, sumev=%d, TS=%;3g,'//' %d electrons',' ',256,i1mach(2),
+          write(stdo,"(a,5d13.5)")'T(K) E_F sumev TS Nele=', 0.1579d6*w,efermi,sumev,entrpy,wtot
+          write(stdo,"(a,2d13.5)")'Entropy S, specific heat TdS/dT=',entrpy/w,tdsdt
+          write(stdo,"(a)")'Fermi-Dirac;sampling'
+       endif
+       !      call info5(10,0,0,' SPLWTS: Fermi energy:%;6d;'//
+       !     .  '  band energy=%;6d;  %;6d electrons  DOS(E_f)=%;4g',
+       !     .    efermi,sumev,wtot,dosef,0)
+    endif
+  end subroutine splwts
+  subroutine delstd(n,x,d,s,e,ep) !- Returns generalised delta and step functions (Methfessel & Paxton)
+    !i  Inputs
+    !i    n  : order of approximant; see Remarks
+    !i       : n>=0 returns Methfessel-Paxton broadening
+    !i       : n<0  returns Fermi-Dirac broadening
+    !i    x  : (efermi - e) / width
+    !i       : width should be gaussian width (n>=0)
+    !i       : or temperature (n<0)
+    !o  Outputs
+    !o    D_n (x): smeared delta-function
+    !o    S_n (x): smeared heaviside function
+    !o    e_n (x): entropy
+    !o    ep     : de/dx (Fermi-Dirac case only)
+    !r  Remarks
+    !r    For Methfessel-Paxton (generalized gaussian) broadening
+    !r    (see Phys Rev B40, 3616 (1989))
+    !r      D_n (x) = exp -x^2 * sum_i=0^n A_i H_2i(x)
+    !r      S_n (x) = (1 - erf x)/2 + exp -x^2 * sum_i=1^n A_i H_{2i-1}(x)
+    !r      where H is a Hermite polynomial and
+    !r      A_i = (-1)^i / ( i! 4^i sqrt(pi) )
+    !r    For Fermi-Dirac broadening
+    !r      s = 1/(exp(x)+1)   (fermi function)
+    !r      d = ds/dx = exp(x)*s*s
+    !r      e = -( s*log(s) + (1-s)*log(1-s) )
+    !r     ep = log(s) - log(1-s)
+    !u Updates
+    !u   04 Aug 07 extended delstp to returns ep in Fermi-dirac case
+    !u   23 May 00 extended to handle Fermi-Dirac broadening
+    !-----------------------------------------------------------------------
+    !     implicit none
+    ! ... Passed parameters
+    integer :: n
+    double precision :: x,d,s,e,ep
+    ! ... Local parameters
+    integer :: i,k
+    double precision :: a,h1,h2,h3,s0,ex2,derfc,srpi
+    !      intrinsic dsqrt,datan,dexp
+    srpi = dsqrt(4d0*datan(1d0))
+    ! ... Fermi-Dirac broadening
+    if (n < 0) then
+       if (x < -36d0) goto 91
+       if (x >  36d0) goto 92
+       s = 1d0/(dexp(x)+1d0)
+       d = dexp(x)*s*s
+       e = -( s*dlog(s) + (1-s)*dlog(1-s) )
+       ep = (dlog(s) - dlog(1-s)) * s**2 * exp(x)
+       return
+    endif
+
+    ! ... Methfessel-Paxton broadening
+    if (x < -6d0) goto 91
+    if (x >  6d0) goto 92
+    ex2 = dexp(-x*x)
+    s0 = .5d0 * erfc(x)
+    a = 1d0/srpi
+    k = 0
+    h1 = 1d0
+    h2 = 2d0 * x
+    s = 0d0
+    d = a
+    do  1  i = 1, n
+       a = -a / ( 4d0*i )
+       k = k+1
+       h3 = h1
+       h1 = h2
+       h2 = 2*x*h2 - 2*k*h3
+       s = s + a*h1
+       k = k+1
+       h3 = h1
+       h1 = h2
+       h2 = 2*x*h2 - 2*k*h3
+       d = d + a*h1
+1   enddo
+    d = d * ex2
+    s = s0 + s*ex2
+    e = 0.5d0*a*h1*ex2
+    ep = 0
+    return
+    ! ... Branch for very small or very large x
+91  s = 1d0
+    e = 0d0
+    d = 0d0
+    ep = 0d0
+    return
+92  s = 0d0
+    e = 0d0
+    d = 0d0
+    ep = 0d0
+    return
+  end subroutine delstd
 end module m_bzwts

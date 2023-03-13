@@ -1,10 +1,8 @@
-subroutine symdmu(nlibu,dmatu,nbas,nsp,lmaxu,ng,g, istab,lldau,rms)
+subroutine symdmu(nlibu,dmatu,nbas,nsp,lmaxu,ng,g, istab,lldau,rms)!- Symmetrize LDA+U density matrix dmatu
   use m_struc_def
   use m_ftox
   use m_lmfinit,only:idu,ispec,sspec=>v_sspec
   use m_lgunit,only:stdo
-  !- Symmetrize LDA+U density matrix dmatu
-  ! ----------------------------------------------------------------------
   !i Inputs
   !i   dmatu :density matrix for LDA+U
   !i   dmatw :work array of same dimension as dmatu.
@@ -41,8 +39,6 @@ subroutine symdmu(nlibu,dmatu,nbas,nsp,lmaxu,ng,g, istab,lldau,rms)
   !--------------------------------------------------------------
   implicit none
   integer :: nbas,lldau(nbas),ng,nsp,lmaxu,istab(nbas,ng),i_copy_size
-!  type(s_spec)::sspec(*)
-!  type(s_site)::ssite(*)
   integer :: is,igetss,lmxa,m1,m2,ilm1,ilm2,ib,l,isp,m3,m4,ig,iblu,nlibu,jb,jblu,ofjbl,lwarn
   real(8):: rmat(16,16),r(-3:3,-3:3),ddot,g(9,*),rms,ddet33,xx
   complex(8):: sdmat(-3:3,-3:3,2,2),&  ! ... for spinor rotations
@@ -53,7 +49,6 @@ subroutine symdmu(nlibu,dmatu,nbas,nsp,lmaxu,ng,g, istab,lldau,rms)
   dmatw=0d0
   rms = 0
   if (cmdopt0('--nosymdm') .OR. ng == 0) return
-
   ! --- Setup for spinor part ---
   lwarn = 0
   do  ig = 1, ng
@@ -130,8 +125,6 @@ subroutine symdmu(nlibu,dmatu,nbas,nsp,lmaxu,ng,g, istab,lldau,rms)
   rms = dsqrt(ddot(2*is,dmatw,1,dmatw,1)/(2*is))
   call daxpy(2*is,1d0,dmatu,1,dmatw,1)
 end subroutine symdmu
-
-
 double precision function ddet33(matrix)
   !- Calculates the determinant of a 3X3 matrix
   double precision :: matrix(9),ddot,m1cm2(3)

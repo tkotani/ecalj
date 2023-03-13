@@ -1,3 +1,6 @@
+module m_xlgen
+  public xlgen,lgen
+  contains
 subroutine xlgen(plat,rmax,rmax2,nvmax,opts,mode,nv,vecs)! Generate a list of lattice vectors, subject to constraints
   use m_ftox
   ! ----------------------------------------------------------------
@@ -247,3 +250,20 @@ subroutine lgen(bas,bmax,nv,nvmax,vecs,work)  !  generates lattice vectors.
   nv=3*nv
   return
 end subroutine lgen
+subroutine latlim(plat,rmax,i1x,i2x,i3x)
+  !  We have connecting vectors vec=plat(:,1)*i1 + plat(:,2)*i2+plat(:,3)*i3
+  !  For |vec|<rmax, we have i1x,i2x,i3x, which are allowed maximum of i1,i2,i3.
+  integer:: i,j,i1x,i2x,i3x
+  real(8):: plat(3,3),eps=1d-6,rmax
+  real(8):: rlatp(3,3),xmx2(3)
+  do i=1,3
+     do j=1,3
+        rlatp(i,j) = sum(plat(:,i)*plat(:,j))
+     enddo
+  enddo
+  call ellipsoidxmax(rlatp,xmx2)
+  i1x = rmax*sqrt(xmx2(1)+eps)
+  i2x = rmax*sqrt(xmx2(2)+eps)
+  i3x = rmax*sqrt(xmx2(3)+eps)
+end subroutine latlim
+endmodule m_xlgen

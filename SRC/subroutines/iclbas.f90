@@ -1,27 +1,4 @@
-integer function iclbas(class,iclass)
-  !- Returns an index to iclbas atom in basis given class
-  ! ----------------------------------------------------------------
-  !i Inputs
-  !i   class,iclass
-  !o Outputs
-  !o   iclbas
-  !b Bugs
-  !r    No check is made on the length of class
-  ! ----------------------------------------------------------------
-  !     implicit none
-  ! Passed parameters
-  integer :: class,iclass(1)
-  integer :: ibas
-  do  10  ibas = 1, 10000
-     iclbas = ibas
-     if (iclass(ibas) == class) return
-10 enddo
-  call rx('ICLBAS: bad input')
-end function iclbas
-
-integer function iclbsj(ic,ipc,nbas,nrbas)
-  !- Returns an index to nrbas atom in basis given the class
-  ! ----------------------------------------------------------------------
+integer function iclbsj(ic,ipc,nbas,nrbas)  !- Returns an index to nrbas atom in basis given the class
   !i Inputs:
   !i   ic    :class index
   !i   ipc   :class index: site ib belongs to class ipc(ib) (mksym.f)
@@ -53,4 +30,9 @@ integer function iclbsj(ic,ipc,nbas,nrbas)
   endif
   call rx3('ICLBSJ: sought atom no.#1 in class #2 but only #3 atoms exist. #1#2#3=',nrbas,ic,n)
 end function iclbsj
-
+! integer function iclbas(class,iclass)  !- Returns an index to iclbas atom in basis given class
+!   use m_lmfinit,only:nbas
+!   integer :: class,iclass(1),ibas
+!   iclbas= findloc([(iclass(ibas) == class,ibas=1,nbas)],dim=1,value=.true.)
+!   if(iclbas==0) call rx('ICLBAS: bad input')
+! end function iclbas

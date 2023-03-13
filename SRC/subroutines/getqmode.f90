@@ -1,10 +1,7 @@
-!! getq mode.  Current version is not for spin dependent nor many restrictions.
-!! spin symmetic (or nspin=1, not 2 channell binded and so on...
-! sssssssssssssssssssssssssssssssssssssssssssssssssss
-subroutine getqmode()     !no output. getq mode just output. Not return variables.
+!! getq mode.  Current version is not for spin dependent nor many restrictions.! spin symmetic (or nspin=1, not 2 channell binded and so on...
+subroutine getqmode()  !no output. getq mode just output. Not return variables.
   use m_lmfinit, only: nspec,sspec=>v_sspec,ispec,nbas,stdo
-  use m_ext,only:sname
-  ! read veswavatm.* and qbyl.*
+  use m_ext,only:sname   ! read veswavatm.* and qbyl.*
   implicit none
   logical:: debug,cmdopt0
   integer:: lmxa,is,ifiwv,il,isp,ifiqb,ib,ibas,idummy,npri
@@ -38,8 +35,7 @@ subroutine getqmode()     !no output. getq mode just output. Not return variable
      enddo
   enddo
   close(ifiwv)
-  !     ! WARN. not averaged yet for given specs...
-  open(newunit=ifiqb,file='qbyl.'//trim(sname))
+  open(newunit=ifiqb,file='qbyl.'//trim(sname))! WARN. not averaged yet for given specs...
   read(ifiqb,*)
   allocate(ql(0:lmxa,nspec))
   do ib=1,nbas
@@ -64,5 +60,4 @@ subroutine getqmode()     !no output. getq mode just output. Not return variable
      write(*,"('    renormalized     Q=',12f12.4)") qset(0:lmxa,is)
   enddo
   close(ifiqb)
-  !     endif
 end subroutine getqmode

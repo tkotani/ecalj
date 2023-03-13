@@ -832,31 +832,3 @@ integer function nodnum(f,n)
      if(f(i)*f(i+1)<0) nodnum=nodnum+1
   enddo
 END function nodnum
-! real(8) function derie (x,y)
-!   implicit none
-!   real(8) :: x(3),y(3),deri1,deri2,xm1,xm2,xx,deriei,dxdi,dydi
-!   !      xm1  = (x(2)+x(1))/2d0
-!   !      deri1= (y(2)-y(1))/(x(2)-x(1))
-!   !      xm2  = (x(3)+x(2))/2d0
-!   !      deri2= (y(3)-y(2))/(x(3)-x(2))
-!   !      xx = x(3)
-!   !      deriei = deri1 + (deri2-deri1)/(xm2-xm1) *(xx - xm1)
-!   !c dxdi at end
-!   !c      dxdi1 = x(2) - x(1)
-!   !c      dxdi2 = x(3) - x(2)
-!   dxdi = x(3) - x(2) + .5d0*(x(3)- 2*x(2) +x(1))
-!   dydi = y(3) - y(2) + .5d0*(y(3)- 2*y(2) +y(1))
-!   derie = dydi/dxdi
-! END function derie
-
-! real(8) function derie3 (x,y)
-!   implicit none
-!   real(8) :: x(3),y(3),deri1,deri2,xm1,xm2,xx,deriei,dxdi,dydi
-!   xm1  = (x(2)+x(1))/2d0
-!   deri1= (y(2)-y(1))/(x(2)-x(1))
-!   xm2  = (x(3)+x(2))/2d0
-!   deri2= (y(3)-y(2))/(x(3)-x(2))
-!   xx = x(3)
-!   derie3 = deri1 + (deri2-deri1)/(xm2-xm1) *(xx - xm1)
-! END function derie3
-

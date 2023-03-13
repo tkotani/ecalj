@@ -1,4 +1,5 @@
 module m_lmaux
+  use m_xlgen,only:xlgen
   use m_lgunit,only:stdo
   public:: lmaux
   private
@@ -1357,6 +1358,7 @@ contains
 
     double precision :: r1,rr,qlat(3,3),p0(3)
     integer ::iwdummy
+    real(8):: wdummy(3)
 
 
     !     call tcn('ppair1')
@@ -1383,7 +1385,7 @@ contains
     if (moder == 0) r1 = 2*r1
     r1 = 2*r1
     ! ... List of lattice vectors to add to pos(ib)-pos(jb)
-    call xlgen ( plat , r1 / alat , 0d0 , 0 , 20 , mode , i , iwdummy )
+    call xlgen ( plat , r1 / alat , 0d0 , 0 , 20 , mode , i , wdummy )
     allocate(lat_rv(3*i))
     call xlgen ( plat , r1 / alat , 0d0 , i , 0 , mode , nlat , lat_rv)
     ! ... qlat = (plat^-1)^T so that qlat^T . plat = 1

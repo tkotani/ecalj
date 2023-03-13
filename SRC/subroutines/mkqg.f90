@@ -1,6 +1,6 @@
 subroutine mkQG2(iq0pin, gammacellctrl,lnq0iadd,lmagnon)! Make required q and G to expand eigenfunctions for GW.
   use m_get_bzdata1,only: Getbzdata1, nqbz, nqibz, nqbzw,ntetf,nteti,nqbzm, &
-       qbz,wbz,qibz,wibz, qbzw, idtetf, ib1bz, idteti, irk, nstar, nstbz, qbzm, qbzwm
+       qbz,wbz,qibz,wibz, qbzw, idtetf, ib1bz, idteti, irk, nstar, nstbz !, qbzm, qbzwm
   use m_q0p,only: Getallq0p, &
        nq0i,nq0itrue,nq0iadd,  q0i,wt, epslgroup, lxklm, epinv,wklm, dmlx, epinvq0i,ixyz
   use m_ftox

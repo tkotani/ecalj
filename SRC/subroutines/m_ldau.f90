@@ -34,14 +34,12 @@ contains
     real(8):: alpha,mmtarget, uhhist(nx),uhx,sss(1),fac,mmsite(nbas),mmhist(nx)
     integer:: nit,ibas,ifx,ncount=0,iblu,i
     call tcn('m_ldau_vorbset')
-    call chkdmu(eks,dmatu, dmato, vorb)
+    call chkdmu(eks,dmatu, dmato) ! , vorb)
     dmato=dmatu !dmato is kept in this module as previous dmat
     inquire(file='mmtarget.aftest',exist=mmtargetx)
     if(mmtargetx) call vorbmodifyaftest_experimental()
     call tcx('m_ldau_vorbset')
   end subroutine m_ldau_vorbset
-
-  ! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
   subroutine vorbmodifyaftest_experimental()
     use m_lmfinit,only: nlibu,nsp,lmaxu,lmaxu,nsp,nlibu,nbas,stdo
     complex(8):: vorbav(-lmaxu:lmaxu,-lmaxu:lmaxu)
@@ -63,13 +61,11 @@ contains
        mmsite=0d0
        mmhist=mmtarget !this gives we use uhx when mmsite are not read
        uhx=0d0
-       !             do
        read(ifx,*,end=1112,err=1112) uhx
        read(ifx,*,end=1112,err=1112) (mmsite(ibas),ibas=1,nbas)
        nit=nit+1
        mmhist(nit)=(mmsite(1)-mmsite(2))/2d0
        uhhist(nit)=uhx
-       !             enddo
 1112   continue
        close(ifx)
        write(stdo,"('mmaftest: ',i5,f10.6,2x,12f10.6)")nit,uhx,(mmsite(ibas),ibas=1,nbas)
@@ -112,112 +108,9 @@ contains
           vorb(:,:,1,iblu) = vorb(:,:,1,iblu) - uhx*fac*vorbav(:,:)
        enddo
     endif
-    ! cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
   end subroutine vorbmodifyaftest_experimental
-
-
-
   ! ssssssssssssssssssssssssssssssssssssssssssssssssss
-  subroutine mixmag(sss)
-    use m_amix,only: amix
-    !  subroutine pqmixa(nda,nmix,mmix,mxsav,beta,rms2,a,tj)
-    !- Mixing routine for sigma. Modified from pqmixa in subs/pqmix.f
-    !- Anderson mixing of a vector
-    !i  mmix: number of iterates available to mix
-    ! o nmix: nmix > 0: number of iter to try and mix
-    !i        nmix < 0: use mmix instead of nmix.
-    !o  nmix: (abs)  number of iter actually mixed.
-    !o        (sign) <0, intended that caller update nmix for next call.
-    !  MvS Feb 04 use sigin as input sigma if available (lsigin=T)
-    !             Add mixnit as parameter
-    implicit none
-    !      logical lsigin
-    integer,parameter:: nda=1
-    integer:: nmix,mmix
-    integer(4),parameter:: mxsav=10
-    double precision :: rms2,tj(mxsav),beta
-    integer :: im,imix,jmix,onorm,okpvt,oa !,amix
-    integer :: iprintxx,ifi,nitr,ndaf
-    real(8)::sss(nda),sigin(nda)
-    real(8):: tjmax
-    real(8),allocatable::norm(:),a(:,:,:)
-    integer(4),allocatable:: kpvt(:)
-    integer(4)::ret
-    character(20) :: fff
-    logical :: fexist
-    real(8):: acc
-    integer(4):: ido
-    iprintxx = 30
-    beta=.3d0
-    allocate ( a(nda,0:mxsav+1,2) )
-    fff="mixmag.aftest"
-    INQUIRE (FILE =fff, EXIST = fexist)
-    if(fexist)      write(6,*)'... reading file mixsigma'
-    if( .NOT. fexist) write(6,*)'... No file mixsigma'
-    open(newunit=ifi,file=fff,form='unformatted')
-    if(fexist) then
-       read(ifi,err=903,end=903) nitr,ndaf
-       if (ndaf /= nda) goto 903
-       read(ifi,err=903,end=903) a
-       goto 902
-    endif
-    goto 901
-903 continue
-    print 368
-368 format(5x,'(warning) file mismatch ... mixing file not read')
-901 continue
-    nitr = 0
-902 continue
-    a(:,0,1) = sss   !output
-    if( .NOT. fexist) a(:,0,2) = sss !input
-    !     if input sigma available, use it instead of file a(:,0,2)
-    !      if (lsigin) then
-    !        write(6,*)'... using input sigma read from sigm file'
-    !        a(:,0,2) = sigin  !input
-    !      endif
-    write(6,*)'sum sss=',sum(abs(sss))
-    imix=9
-    mmix = min(max(nitr-1,0),imix)
-    if (mmix > mxsav) mmix = mxsav
-    !     this information already printed out by amix
-    !     write(6,*)'mixing parameters for amix are fixed in mixsigma'
-    !     write(6,*)'   beta       =', beta
-    !     write(6,*)'   tjmax      =', tjmax
-    !     write(6,*)'   mmix mxsav =', mmix,mxsav
-    !     call getkeyvalue("GWinput","mixtj",acc,default=0d0,status=ret)
-    acc=0d0
-    if(acc/=0d0) then
-       write(6,*)' readin mixtj from GWinput: mixtj=',acc
-       tjmax=abs(acc)+1d-3
-       if(mmix==1) then
-          tj(1)=1d0
-       else
-          tj(1)= acc
-          tj(2)= 1-acc
-          mmix=2
-       endif
-       ido=2
-    else
-       tjmax=5d0
-       ido=0
-    endif
-    !      allocate(norm(mxsav**2),kpvt(mxsav))
-    imix = amix(nda,mmix,mxsav,ido,dabs(beta),iprintxx,tjmax, &
-         a,tj,rms2) !norm,kpvt,
-    !      deallocate(norm, kpvt)
-    ! ... Restore PQ array, updating new x
-    !      call dpscop(a,w(oa),nda,1+nda*(mxsav+2),1+nda*(mxsav+2),1d0)
-    !      call dcopy(nda*(mxsav+2)*2,w(oa),1,a,1)
-    ! ...
-    sss = a(:,0,2)
-    rewind(ifi)
-    write(ifi) nitr+1,nda
-    write(ifi) a
-    close(ifi)
-  end subroutine mixmag
-
-  ! ssssssssssssssssssssssssssssssssssssssssssssssssss
-  subroutine chkdmu(eks, dmatu,dmatuo,vorb)
+  subroutine chkdmu(eks, dmatu,dmatuo) !,vorb)
     use m_lmfinit,only: stdl,nbas,nsp,nlibu,lmaxu,ispec,sspec=>v_sspec,lldau, &
          tolu=>mix_tolu,umix=>mix_umix,stdo,idu,uh,jh,ham_lsig,addinv
     use m_MPItk,only: master_mpi
@@ -225,8 +118,8 @@ contains
     use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
     use m_ldauu,only: ldau
     implicit none
-    intent(in)::       eks,       dmatuo
-    intent(out)::                        vorb
+    intent(in)::       eks ,       dmatuo
+!    intent(out)::                        vorb
     ! LDA+U potential vorb and total energy eorb.
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -253,7 +146,7 @@ contains
     real(8):: eks, eorbxxx
     double complex dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
     double complex dmatuo(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
-    double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
+!    double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
     integer :: l,lmxa,ib,is,iblu,igetss,idmat,ivsiz
     integer :: iprint,ipl,havesh
     double precision :: ddmat,eorbi,eterms(20),ddot,xx !,uh(4),jh(4)
@@ -313,7 +206,7 @@ contains
     if(master_mpi)then
        ddmat = sum(abs(dmatu-dmatuo)**2)**.5
        write(stdo,ftox)'LDA+U update density matrix ... RMS diff in densmat',ftod(ddmat)
-    endif   
+    endif
     ddo = sum(abs(dmatuo)**2) !dmatuo=0d0 if no dmatu.* occnum.*
     if(ddo>1d-10.and.ssss>1d-10) dmatu = umix*dmatu+(1d0-umix)*dmatuo ! new*umix + old*(1-umix)
     call rotycs(1,dmatu,nbas,nsp,lmaxu,lldau) !from rh to sh
@@ -342,10 +235,10 @@ contains
     !!=>  At this point, dmatu and vorb are in spherical harmonics
     if(Iprint()>20) write(stdo,ftox)'RMS change in vorb from symmetrization =',ftod(xx)
     if(xx>.0001d0 .AND. iprint()>30) write(stdo,'(a)')'(warning) RMS change unexpectely large'
-!    if(iprint()>0) write(6,ftox)'=== representation in spherical harmonics dmatu ==='
-!    call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau, 'Mixed dmats',dmatu)
-!    if(iprint()>0) write(6,ftox)'=== representation in spherical harmonics vorb ==='
-!    call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau, 'New vorb',vorb)
+    !    if(iprint()>0) write(6,ftox)'=== representation in spherical harmonics dmatu ==='
+    !    call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau, 'Mixed dmats',dmatu)
+    !    if(iprint()>0) write(6,ftox)'=== representation in spherical harmonics vorb ==='
+    !    call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau, 'New vorb',vorb)
     if (master_mpi) then
        open(newunit=idmat,file='dmats.'//trim(sname)) !havesh mush be 1
        if(iprint()>0) write(stdo,*)' ... Writing density matrix dmats.*... '
@@ -366,13 +259,11 @@ contains
        close(idmat)
     endif
   end subroutine chkdmu
-  ! sssssssssssssssssssssssssssssssssssssssssssssss
-  subroutine sudmtu(dmatu,vorb)
+  subroutine sudmtu(dmatu,vorb)!- Initialize site density matrix and vorb  for LDA+U
+    use m_ftox
     use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
     use m_lmfinit,only: nbas,nsp,nlibu,lmaxu,lldau,ispec,sspec=>v_sspec,stdo,slabl,idu,uh,jh
     use m_mksym,only: g=>rv_a_osymgr,istab=>iv_a_oistab, ng =>lat_nsgrp
-    !- Initialize site density matrix and vorb  for LDA+U
-    ! ----------------------------------------------------------------------
     !i Inputs
     !i   nbas  :size of basis
     !i   nsp   :2 for spin-polarized case, otherwise 1
@@ -449,7 +340,7 @@ contains
     !    havesh = 1
     !    goto 1185
     ! endif
-    
+
     ! Read in dmatu if file  dmats.ext  exists ---
     if(procid /= master) goto 1185
     inquire(file='dmats.'//trim(sname),exist=dexist)
@@ -457,7 +348,7 @@ contains
     if(dexist) then
        open(newunit=idmat,file='dmats.'//trim(sname))
 825    continue
-!       read(idmat,*)str    !bug at 2022-12-11.
+       !       read(idmat,*)str    !bug at 2022-12-11.
        read(idmat,"(a)")str !bug recovered at 2023-01-28
        if(str(1:1) == '#') goto 825
        if(index(str,' sharm ')/=0) then
@@ -503,7 +394,7 @@ contains
        open(newunit=foccn,file='occnum.'//trim(sname))
        havesh = 1
 12     continue
-!      read(foccn,*) str  !bug at 2022-12-11.
+       !      read(foccn,*) str  !bug at 2022-12-11.
        read(foccn,"(a)") str  !bug recovered at 2023-01-28
        if (str(1:1) == '#') goto 12
        if (str(1:1) == '%') then
@@ -518,7 +409,7 @@ contains
              is = ispec(ib)
              lmxa=sspec(is)%lmxa
              do l = 0,min(lmxa,3)
-               if (idu(l+1,is) /= 0) then
+                if (idu(l+1,is) /= 0) then
                    iblu = iblu+1
                    do  isp = 1, 2
 11                    continue
@@ -577,14 +468,14 @@ contains
     if(cmdopt0('--showdmat')) then
        if(master_mpi)write(stdo,*)
        call praldm(0,30,30,idvsh,nbas,nsp,lmaxu,lldau,' Symmetrized dmats' , dmwk_zv )
-    endif   
+    endif
     !     Print dmats in complementary harmonics
     i = 1-idvsh
     call rotycs(2 * i - 1 , dmwk_zv , nbas , nsp , lmaxu, lldau )
     if(cmdopt0('--showdmat')) then
        if(master_mpi)write(stdo,*)
        call praldm(0,30,30,i,nbas,nsp,lmaxu,lldau, ' Symmetrized dmats' , dmwk_zv )
-    endif   
+    endif
     ! ... Make Vorb (ldau requires spherical harmonics)
     if (havesh /= 1) then
        call rotycs(1,dmatu,nbas,nsp,lmaxu,lldau)
@@ -608,8 +499,8 @@ contains
 22     enddo
 20  enddo
     call praldm(0,60,60,havesh,nbas,nsp,lmaxu,lldau,' Unsymmetrized vorb',vorb)
-    !!!! ==>     At this point, dmatu and vorb are in spherical harmonics (complex)
-    
+!!!! ==>     At this point, dmatu and vorb are in spherical harmonics (complex)
+
     ! ... Symmetrize vorb to check (symdmu requires real harmonics)
     call rotycs(-1,vorb,nbas,nsp,lmaxu,lldau)
     call symdmu (nlibu, vorb, nbas , nsp , lmaxu , ng , g , istab , lldau , xx )
@@ -633,81 +524,280 @@ contains
     if(cmdopt0('--showdmat')) then
        write(stdo,*) ! vorb in complementary harmonics
        call praldm(0,30,30, i , nbas , nsp , lmaxu , lldau , ' Vorb' , dmwk_zv )
-    endif   
+    endif
     eorb = 0d0
     return
 99  continue ! --- Error exit ---
     write(str,"('bad occnum file, site l= ',i5,i5)")ib,l
     call rx(trim(str))
   end subroutine sudmtu
+endmodule m_ldau
 
+subroutine mixmag(sss)
+  use m_amix,only: amix
+  !  subroutine pqmixa(nda,nmix,mmix,mxsav,beta,rms2,a,tj)
+  !- Mixing routine for sigma. Modified from pqmixa in subs/pqmix.f
+  !- Anderson mixing of a vector
+  !i  mmix: number of iterates available to mix
+  ! o nmix: nmix > 0: number of iter to try and mix
+  !i        nmix < 0: use mmix instead of nmix.
+  !o  nmix: (abs)  number of iter actually mixed.
+  !o        (sign) <0, intended that caller update nmix for next call.
+  !  MvS Feb 04 use sigin as input sigma if available (lsigin=T)
+  !             Add mixnit as parameter
+  implicit none
+  !      logical lsigin
+  integer,parameter:: nda=1
+  integer:: nmix,mmix
+  integer(4),parameter:: mxsav=10
+  double precision :: rms2,tj(mxsav),beta
+  integer :: im,imix,jmix,onorm,okpvt,oa !,amix
+  integer :: iprintxx,ifi,nitr,ndaf
+  real(8)::sss(nda),sigin(nda)
+  real(8):: tjmax
+  real(8),allocatable::norm(:),a(:,:,:)
+  integer(4),allocatable:: kpvt(:)
+  integer(4)::ret
+  character(20) :: fff
+  logical :: fexist
+  real(8):: acc
+  integer(4):: ido
+  iprintxx = 30
+  beta=.3d0
+  allocate ( a(nda,0:mxsav+1,2) )
+  fff="mixmag.aftest"
+  INQUIRE (FILE =fff, EXIST = fexist)
+  if(fexist)      write(6,*)'... reading file mixsigma'
+  if( .NOT. fexist) write(6,*)'... No file mixsigma'
+  open(newunit=ifi,file=fff,form='unformatted')
+  if(fexist) then
+     read(ifi,err=903,end=903) nitr,ndaf
+     if (ndaf /= nda) goto 903
+     read(ifi,err=903,end=903) a
+     goto 902
+  endif
+  goto 901
+903 continue
+  print 368
+368 format(5x,'(warning) file mismatch ... mixing file not read')
+901 continue
+  nitr = 0
+902 continue
+  a(:,0,1) = sss   !output
+  if( .NOT. fexist) a(:,0,2) = sss !input
+  !     if input sigma available, use it instead of file a(:,0,2)
+  !      if (lsigin) then
+  !        write(6,*)'... using input sigma read from sigm file'
+  !        a(:,0,2) = sigin  !input
+  !      endif
+  write(6,*)'sum sss=',sum(abs(sss))
+  imix=9
+  mmix = min(max(nitr-1,0),imix)
+  if (mmix > mxsav) mmix = mxsav
+  !     this information already printed out by amix
+  !     write(6,*)'mixing parameters for amix are fixed in mixsigma'
+  !     write(6,*)'   beta       =', beta
+  !     write(6,*)'   tjmax      =', tjmax
+  !     write(6,*)'   mmix mxsav =', mmix,mxsav
+  !     call getkeyvalue("GWinput","mixtj",acc,default=0d0,status=ret)
+  acc=0d0
+  if(acc/=0d0) then
+     write(6,*)' readin mixtj from GWinput: mixtj=',acc
+     tjmax=abs(acc)+1d-3
+     if(mmix==1) then
+        tj(1)=1d0
+     else
+        tj(1)= acc
+        tj(2)= 1-acc
+        mmix=2
+     endif
+     ido=2
+  else
+     tjmax=5d0
+     ido=0
+  endif
+  !      allocate(norm(mxsav**2),kpvt(mxsav))
+  imix = amix(nda,mmix,mxsav,ido,dabs(beta),iprintxx,tjmax, &
+       a,tj,rms2) !norm,kpvt,
+  !      deallocate(norm, kpvt)
+  ! ... Restore PQ array, updating new x
+  !      call dpscop(a,w(oa),nda,1+nda*(mxsav+2),1+nda*(mxsav+2),1d0)
+  !      call dcopy(nda*(mxsav+2)*2,w(oa),1,a,1)
+  ! ...
+  sss = a(:,0,2)
+  rewind(ifi)
+  write(ifi) nitr+1,nda
+  write(ifi) a
+  close(ifi)
+end subroutine mixmag
 ! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-  subroutine rotycs(mode,a,nbas,nsp,lmaxu,lldau)
-    use m_lmfinit,only:idu,ispec,sspec=>v_sspec
-    !- Rotate matrix a from real to spherical harmonics
-    ! for LDA+U objects densmat and vorb
-    !-------------------------------------
-    !i mode =1 from real a to spherical a
-    !i      -1 from spherical a to real a
-    !i a: matrix to be transformed a(m,m,isp,iblu)  could be vorb or dmat
-    !i nbas : number of sites
-    !i nsp  : number of spins
-    !i lmaxu: lmax for U
-    !i sspec: species info
-    !i lldau  :lldau(ib)=0 => no U on this site otherwise
-    !i        :U on site ib with dmat in dmats(*,lldau(ib))
-    !o a rotated in place
-    !r Remarks
-    !r order of cubic harmonics ls (l-1)s,ms...1s 0 1c mc... (l-1)c lc
-    !r order of spherical harmonics -l:l
-    !r Yl-m=(Ylmc-iYlms)/sqrt(2)  Ylm=(-1)**m*conjg(Yl-m)
-    !u Updates
-    !u   18 Jan 06 A. Chantis changed rotation matrices in accordance with
-    !u             the definition of real harmonics used in the rest of
-    !u             the code (Hund's rules satisfied as indicated by orb. moment)
-    !u   09 Nov 05 (wrl) Convert dmat to complex form
-    !u   30 Apr 05 Lambrecht first created
-    !----------------------------------------------------------------
-    implicit none
-    integer :: nbas,lldau(nbas),mode,lmaxu,nsp
-    complex(8),target:: a(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nbas)
-    integer:: ib,m,l,is,igetss,i,j,k,ll,isp,iblu
-    complex(8):: b(2,2),c(2,2),add,bb(2,2)
-    complex(8),parameter:: s2= 1/dsqrt(2d0), img=(0d0,1d0)
-    complex(8),pointer:: rot(:,:)
-    complex(8),save,target::rott(2,2,5,-1:1)
-    logical,save:: init=.true.
-    logical:: cmdopt0
-    if(mode/=1 .AND. mode/=-1) call rx('ROTYCS: mode must be 1 or -1')
-    if(init)then
-       do m=1,5
-          rott(1,1:2,m,-1) = [s2,          s2*(-1d0)**m] !mode -1: spherical to cubic basis
-          rott(2,1:2,m,-1) = [img*s2, -img*s2*(-1d0)**m]
-          rott(:,:,  m, 1) = transpose(dconjg(rott(:,:,m,-1))) !mode 1 : cubic to spherical
-       enddo
-       init=.false.
-    endif
-    iblu = 0
-    do  ib = 1, nbas
-       if (lldau(ib)==0) cycle
-       is  = ispec(ib) !ssite(ib)%spec
-       do  l = 0, min(sspec(is)%lmxa,3)
-          if (idu(l+1,is) ==0) cycle
-          iblu = iblu+1
-          do  isp = 1, 2
-             do  m = 1, l
-                bb(1,:) = [a( m,m,isp,iblu), a( m,-m,isp,iblu)]
-                bb(2,:) = [a(-m,m,isp,iblu), a(-m,-m,isp,iblu)]
-                rot => rott(:,:,m,mode)
-                c = matmul(matmul(rot,bb),transpose(dconjg(rot))) !c=rot*b*rot^+
-                a(m,m,isp,iblu)   = c(1,1)
-                a(m,-m,isp,iblu)  = c(1,2)
-                a(-m,m,isp,iblu)  = c(2,1)
-                a(-m,-m,isp,iblu) = c(2,2)
-             enddo
-          enddo
-       enddo
-    enddo
-  end subroutine rotycs
-  !---------------------------------------
-end module m_ldau
+subroutine rotycs(mode,a,nbas,nsp,lmaxu,lldau)
+  use m_lmfinit,only:idu,ispec,sspec=>v_sspec
+  !- Rotate matrix a from real to spherical harmonics
+  ! for LDA+U objects densmat and vorb
+  !-------------------------------------
+  !i mode =1 from real a to spherical a
+  !i      -1 from spherical a to real a
+  !i a: matrix to be transformed a(m,m,isp,iblu)  could be vorb or dmat
+  !i nbas : number of sites
+  !i nsp  : number of spins
+  !i lmaxu: lmax for U
+  !i sspec: species info
+  !i lldau  :lldau(ib)=0 => no U on this site otherwise
+  !i        :U on site ib with dmat in dmats(*,lldau(ib))
+  !o a rotated in place
+  !r Remarks
+  !r order of cubic harmonics ls (l-1)s,ms...1s 0 1c mc... (l-1)c lc
+  !r order of spherical harmonics -l:l
+  !r Yl-m=(Ylmc-iYlms)/sqrt(2)  Ylm=(-1)**m*conjg(Yl-m)
+  !u Updates
+  !u   18 Jan 06 A. Chantis changed rotation matrices in accordance with
+  !u             the definition of real harmonics used in the rest of
+  !u             the code (Hund's rules satisfied as indicated by orb. moment)
+  !u   09 Nov 05 (wrl) Convert dmat to complex form
+  !u   30 Apr 05 Lambrecht first created
+  !----------------------------------------------------------------
+  implicit none
+  integer :: nbas,lldau(nbas),mode,lmaxu,nsp
+  complex(8),target:: a(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nbas)
+  integer:: ib,m,l,is,igetss,i,j,k,ll,isp,iblu
+  complex(8):: b(2,2),c(2,2),add,bb(2,2)
+  complex(8),parameter:: s2= 1/dsqrt(2d0), img=(0d0,1d0)
+  complex(8),pointer:: rot(:,:)
+  complex(8),save,target::rott(2,2,5,-1:1)
+  logical,save:: init=.true.
+  logical:: cmdopt0
+  if(mode/=1 .AND. mode/=-1) call rx('ROTYCS: mode must be 1 or -1')
+  if(init)then
+     do m=1,5
+        rott(1,1:2,m,-1) = [s2,          s2*(-1d0)**m] !mode -1: spherical to cubic basis
+        rott(2,1:2,m,-1) = [img*s2, -img*s2*(-1d0)**m]
+        rott(:,:,  m, 1) = transpose(dconjg(rott(:,:,m,-1))) !mode 1 : cubic to spherical
+     enddo
+     init=.false.
+  endif
+  iblu = 0
+  do  ib = 1, nbas
+     if (lldau(ib)==0) cycle
+     is  = ispec(ib) !ssite(ib)%spec
+     do  l = 0, min(sspec(is)%lmxa,3)
+        if (idu(l+1,is) ==0) cycle
+        iblu = iblu+1
+        do  isp = 1, 2
+           do  m = 1, l
+              bb(1,:) = [a( m,m,isp,iblu), a( m,-m,isp,iblu)]
+              bb(2,:) = [a(-m,m,isp,iblu), a(-m,-m,isp,iblu)]
+              rot => rott(:,:,m,mode)
+              c = matmul(matmul(rot,bb),transpose(dconjg(rot))) !c=rot*b*rot^+
+              a(m,m,isp,iblu)   = c(1,1)
+              a(m,-m,isp,iblu)  = c(1,2)
+              a(-m,m,isp,iblu)  = c(2,1)
+              a(-m,-m,isp,iblu) = c(2,2)
+           enddo
+        enddo
+     enddo
+  enddo
+end subroutine rotycs
+
+subroutine praldm(ifi,ipr1,ipr2,sharm,nbas,nsp,lmaxu,lldau,strn,dmatu)!- Writes out a site density-matrix-like object for all sites
+  use m_struc_def
+  use m_lmfinit,only:idu,ispec,sspec=>v_sspec
+  !i Inputs
+  !i   ifi   :if zero, write to stdo, in screen style format
+  !i         :else, write to file ifi in high-precision format
+  !i   ipr1  :if verbosity ipr>ipr1, print header
+  !i   ipr2  :if verbosity ipr>ipr2, print contents of dmats
+  !i   sharm :0 if in real harmonics, 1 if in spherical harmonics
+  !i   nbas  :size of basis
+  !i   nsp   :2 for spin-polarized case, otherwise 1
+  !i   lmaxu :dimensioning parameter for U matrix
+  !i   lldau :lldau(ib)=0 => no U on this site otherwise
+  !i          U on site ib with dmat in dmats(*,lldau(ib))
+  !i   strn  :string put into header
+  !i   dmatu :density matrix for LDA+U
+  !o Outputs
+  !o   dmatu is written to file ifi
+  implicit none
+  integer :: nbas,nsp,lldau(nbas),ifi,lmaxu,ipr1,ipr2,sharm,i_copy_size
+  real(8)::   dmatu(2,-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
+  character strn*(*)
+  integer :: iblu,ib,is,igetss,lmxa,l !,idu(4)
+  iblu = 0
+  do  ib = 1, nbas
+     if (lldau(ib) /= 0) then
+        is = ispec(ib) 
+        lmxa=sspec(is)%lmxa
+        do  l = 0, min(lmxa,3)
+           if (idu(l+1,is) /= 0) then
+              iblu = iblu+1
+              call prdmts(ifi,ipr1,ipr2,sharm,strn,ib,l,lmaxu,iblu,dmatu, nsp,1)
+           endif
+        enddo
+     endif
+  enddo
+end subroutine praldm
+subroutine prdmts(ifi,ipr1,ipr2,sharm,strn,ib,l,lmaxu,iblu,dmats, nsp,nspc)
+  use m_ftox
+  use m_lmfinit,only: stdo
+  !- Writes out a site density-matrix-like object for a single l
+  ! ----------------------------------------------------------------------
+  !i Inputs
+  !i   ifi   :if zero, write to stdo, in screen style format
+  !i         :else, write to file ifi in high-precision format
+  !i   ipr1  :if verbosity ipr>ipr1, print header
+  !i   ipr2  :if verbosity ipr>ipr2, print contents of dmats
+  !i   sharm :0 if in real harmonics, 1 if in spherical harmonics
+  !i   strn  :string put into header
+  !i   ib    :site index (ib=0 suppresses printout)
+  !i   l     :dmats defined for l block
+  !i   lmaxu :dimensioning parameter for dmats
+  !i   iblu  :index to current block
+  !i   dmats :site density matrix
+  !i   nsp   :2 for spin-polarized case, otherwise 1
+  !i   nspc  :2 if spin-up and spin-down channels are coupled; else 1.
+  !o Outputs
+  !o  header and dmats are printed to stdo
+  implicit none
+  integer :: ifi,ipr1,ipr2,l,ib,lmaxu,nsp,nspc,iblu,sharm
+  double precision :: dmats(2,-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,iblu)
+  character strn*(*)
+  integer :: isp,ipr,m1,m2,mpipid,nlm
+  character strnl*120,strn1*30,lll*60
+  if (nspc == 2) call rx('prdmts not ready for nspc=2')
+  if (mpipid(1) /= 0) return
+  call getpr(ipr)
+  nlm = 2*l+1
+  if (ifi /= 0) then
+     if(sharm==0) lll=' real    rharm'
+     if(sharm/=0) lll=' complex sharm'
+     do  isp = 1, nsp
+        if (ipr>=ipr1)write(ifi,ftox)'% ',trim(lll),trim(strn),'l=',l,'site',ib,'spin',isp
+        if (ipr< ipr2)return
+        do  m1 = -l, l
+           write(ifi,'(7(f12.7,2x))') (dmats(1,m1,m2,isp,iblu),m2=-l,l)
+        enddo
+        write(ifi,*)
+        do  m1 = -l, l
+           write(ifi,'(7(f12.7,2x))') (dmats(2,m1,m2,isp,iblu),m2=-l,l)
+        enddo
+     enddo
+  else
+     if(sharm == 0) then
+        strnl = strn // ' real harmonics'
+     else
+        strnl = strn // ' spherical harmonics'
+     endif
+     do  isp = 1, nsp
+        if (ipr < ipr2) return
+        write(stdo,ftox) trim(strnl),'l=',l,'ib',ib,'isp',isp
+        do  m1 = -l, l
+           write(stdo,'(7(f9.5,2x))')(dmats(1,m1,m2,isp,iblu),m2=-l,l)
+        enddo
+        write(stdo,'(1x)')
+        do  m1 = -l, l
+           write(stdo,'(7(f9.5,2x))')(dmats(2,m1,m2,isp,iblu),m2=-l,l)
+        enddo
+     enddo
+  endif
+end subroutine prdmts
+

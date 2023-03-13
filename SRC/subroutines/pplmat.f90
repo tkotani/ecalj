@@ -73,13 +73,9 @@ subroutine mkppmt(alat,plat,qlat, q, ng1,ngvec1, rmax,  nbas,  bas, lmxa, lmxax,
   if(debug) call rx( 'test end ----------')
   deallocate(yl,cy)
 end subroutine mkppmt
-subroutine mkppovl(alat,plat,qlat, q, ng1,ngvec1,ng2,ngvec2, rmax, nbas,  bas, lmxa, lmxax, &
-     ppovl)
-  ! <P^q1_G1 | P^q2_G2 > matrix where P^q1_G1 denotes IPW, zero within sphere.
+subroutine mkppovl(alat,plat,qlat,q,ng1,ngvec1,ng2,ngvec2,rmax,nbas,bas,lmxa,lmxax, ppovl)!<P^q1_G1 | P^q2_G2 > matrix where P^q1_G1 denotes IPW, zero within sphere.
   implicit none
-  integer(4) ::  nbas,  ng1,ng2,lmxax &
-       ,ig1,ig2,ibas,la,lma,lmh, &
-       ngvec1(3,ng1),ngvec2(3,ng2),lmxa(nbas),ll
+  integer ::  nbas,  ng1,ng2,lmxax,ig1,ig2,ibas,la,lma,lmh,ngvec1(3,ng1),ngvec2(3,ng2),lmxa(nbas),ll
   real(8) :: absqg1,absqg2,tripl,rmax(nbas),pi4,r2s
   real(8) :: q(3),plat(3,3),qlat(3,3),qgg1(3,ng1),qgg2(3,ng2), facl &
        ,pi,alat,tpiba,cost,voltot,plegn,qg1(3),qg2(3),qqq(3), &
@@ -88,7 +84,7 @@ subroutine mkppovl(alat,plat,qlat, q, ng1,ngvec1,ng2,ngvec2, rmax, nbas,  bas, l
   real(8),allocatable::cy(:),yl(:),yl1(:),yl2(:)
   complex(8) :: img =(0d0,1d0),phase
   complex(8) :: ppovl(ng1,ng2)
-  integer(4):: verbose
+  integer:: verbose
   if(verbose()>50) print *,' mkppovl:'
   pi = 4d0*datan(1d0)
   pi4=16d0*datan(1d0)

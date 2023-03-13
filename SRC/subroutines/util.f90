@@ -514,3 +514,44 @@ character(8) function xn(num)
   if(num>999999) call rx( ' xn:can not produce')
 !  xn='.'//xn !no dot. see function xt
 END function xn
+character(8) function xtxx(num) !taken from xt in extension.F
+  integer(4) :: num
+  xtxx=''
+  if(num>0)     xtxx = char(48+mod(num,10))
+  if(num>9)     xtxx = char(48+mod(num/10,10))//xtxx
+  if(num>99)    xtxx = char(48+mod(num/100,10))//xtxx
+  if(num>999)   xtxx = char(48+mod(num/1000,10))//xtxx
+  if(num>9999)  xtxx = char(48+mod(num/10000,10))//xtxx
+  if(num>99999) xtxx = char(48+mod(num/100000,10))//xtxx
+  if(num>999999) call rx( ' xtxx:can not produce')
+END function xtxx
+
+double precision function plegn(n,x)  !- Calculates Legendre polynomical using a recursion relation
+  ! ----------------------------------------------------------------------
+  !i Inputs
+  !i   n,x
+  !o Outputs
+  !o   plegn: P_n(x)
+  !r Remarks
+  !r   Recursion relation is
+  !r   P_n = [(2*n-1)*x*P_(n-1) - (n-1)*P_(n-2)]/n
+  ! ----------------------------------------------------------------------
+  !     implicit none
+  ! Passed parameters
+  integer :: n
+  double precision :: x
+  ! Local parameters
+  double precision :: jpjm1,cj,pjp1
+  integer :: j
+
+  ! jpjm1 is j*p_(j-1);  cj is 2*j - 1;  pjp1 is p_(j+1)
+  jpjm1 = 0
+  plegn = 1
+  cj = 1
+  do  100  j = 1, n
+     pjp1 = (cj*x*plegn - jpjm1)/j
+     jpjm1 = j*plegn
+     cj = cj + 2
+     plegn = pjp1
+100 enddo
+END function plegn

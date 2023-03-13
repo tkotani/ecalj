@@ -384,7 +384,7 @@ contains
     integer :: ic,ib,ilm,mxint,nclass,ipa(nbas),nrclas,iv0
     integer :: ips(nbas),lmxl(nbas) !ipc(nbas),
     double precision :: pos(3,nbas),posc(3,nbas),plat(3,3),pi,y0
-    integer:: igetss,nlml ,ipr,jpr,ngrp,nn,iclbas,ibas
+    integer:: igetss,nlml ,ipr,jpr,ngrp,nn,ibas
     real(8) ,allocatable :: qwk_rv(:)
     real(8) ,allocatable :: sym_rv(:)
     call tcn('symvvl')
@@ -403,7 +403,7 @@ contains
        !   ... Make nrclas,ipa,posc
        call psymr0(lmxl,ic,nbas,ipc,pos,posc,ipa,nrclas)
        if (nrclas > 0) then
-          ib = iclbas(ic,ipc) !findloc(ipc,value=ic) !
+          ib = findloc([(ipc(ibas)==ic,ibas=1,nbas)],dim=1,value=.true.) !iclbas(ic,ipc) !findloc(ipc,value=ic) !
           if (lmxl(ib) > -1) then
              nlml = (lmxl(ib)+1)**2
              if (ipr >= 50) write(stdo,800) ic,nrclas,nlml
@@ -430,7 +430,7 @@ contains
        ic = ipc(ib)
        jpr = 0
        if (ipr > 60) jpr = 2
-       if (ib == iclbas(ic,ipc)) then !findloc(ipc,value=ic) ) then !
+       if( ib == findloc([(ipc(ibas)==ic,ibas=1,nbas)],dim=1,value=.true.)) then ! (ib == iclbas(ic,ipc)) then !findloc(ipc,value=ic) ) then !
           if (ipr >= 45) jpr = 1
           if (ipr >= 50) jpr = 2
        endif
@@ -630,4 +630,56 @@ contains
     call gvputf(ng,1,kv,k1,k2,k3,ccc,smpot)! smpot(G) =8pi/G**2 smrho(G)
     call tcx('vesft')
   end subroutine vesft
+subroutine symqmp(nrclas,nlml,nlmx,plat,posc,ngrp,g,ag,qwk,ipa,sym,qmp,nn)
+  !- Symmetrize multipole moments for a single class
+  ! ----------------------------------------------------------------------
+  !i Inputs
+  !i   nrclas:number of atoms in the ith class
+  !i   nlml  :L-cutoff for charge density on radial mesh
+  !i   nlmx  :dimensions sym: sym is generated for ilm=1..nlmx
+  !i   plat  :primitive lattice vectors, in units of alat
+  !i   posc  :work array holding basis vectors for this class
+  !i   ngrp  :number of group operations
+  !i   g     :point group operations
+  !i   ag    :translation part of space group
+  !i   qwk   :work array of dimension nlml
+  !i   ipa   :ipa(1..nrclas) = table of offsets to qmp corresponding
+  !i         :to each member of the class
+  ! o Inputs/Outputs
+  ! o  qmp   :On input,  unsymmetrized multipole moments
+  ! o        :On output, multipole moments are symmetrized
+  !o Outputs
+  !o   sym   :symmetry projectors for each member of the class
+  !o   nn    :number of elements symmetrized
+  !u Updates
+  !u   23 Aug 01 adapted from psymql
+  ! ----------------------------------------------------------------------
+  implicit none
+  integer :: nrclas,nlmx,ipa(nrclas),nlml,ngrp,nn
+  double precision :: plat(3,3),posc(3,nrclas),g(3,3,ngrp),ag(3,ngrp)
+  double precision :: sym(nlmx,nlmx,nrclas),qwk(nlml),qmp(*)
+  integer :: ia,ilm,ixx,iyy(1)
+  double precision :: wgt,xx,qlat(3,3)
+  call tcn('symqmp')
+  if (nlml > nlmx) call rxi('symqmp: increase nlmx to',nlml)
+  call dinv33(plat,1,qlat,xx)
+  ! ... Make the symmetry projectors
+  call symprj(nrclas,nlmx,ngrp,ixx,iyy,g,ag,plat,qlat,posc,sym)
+  ! ... Accumulate symmetrized qmpol on first site
+  call dpzero(qwk, nlml)
+  do  ia = 1, nrclas
+     call pxsmr1(1d0,1,nlml,1,sym(1,1,ia),qmp(1+ipa(ia)),qwk,nn)
+  enddo
+  ! ... Rotate and copy to all sites in class
+  wgt = nrclas
+  do  ia = 1, nrclas
+     call dpzero(qmp(1+ipa(ia)), nlml)
+     call pysmr1(wgt,1,nlml,1,sym(1,1,ia),qwk,qmp(1+ipa(ia)),nn)
+  enddo
+  nn = 0
+  do  ilm = 1, nlml
+     if (dabs(qmp(ilm+ipa(1))) > 1d-6) nn = nn+1
+  enddo
+  call tcx('symqmp')
+end subroutine symqmp
 end module m_smves

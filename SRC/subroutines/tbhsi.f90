@@ -1,7 +1,6 @@
-subroutine tbhsi(nspec,nermx,net,et,ipet,nrt,rt,iprt,ltop)
+subroutine tbhsi(nspec,nermx,net,et,ipet,nrt,rt,iprt,ltop)!- Table of orbital envelope energies and smoothing radii
   use m_uspecb,only:uspecb
   use m_lmfinit,only: nkaphh,lhh
-  !- Table of orbital envelope energies and smoothing radii
   ! ----------------------------------------------------------------------
   !i Inputs
   !i   sspec :struct containing species-specific information
@@ -84,4 +83,3 @@ subroutine tbhsi(nspec,nermx,net,et,ipet,nrt,rt,iprt,ltop)
      enddo
   enddo
 end subroutine tbhsi
-

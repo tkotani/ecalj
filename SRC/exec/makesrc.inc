@@ -117,7 +117,7 @@ xcpbe.o \
 m_ext.o\
 amix.o \
 cmdopt.o \
-cpudel.o \
+cputid.o \
 sort.o \
 fftz3.o \
 finits.o \
@@ -265,7 +265,6 @@ extension.o \
 rdpp.o \
 genallcf_mod.o \
 rgwinf_mod.o \
-cputid.o \
 mate.o \
 bz.o \
 genqbz.o \
