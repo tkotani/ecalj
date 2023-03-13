@@ -2,7 +2,7 @@ subroutine hambl(isp,qin,smpot,vconst,osig,otau,oppi, h,s)! Make LDA/GGA Hamilto
   use m_lmfinit,only: nbas , sspec=>v_sspec,nsp
   use m_igv2x,only: napw, igvapwin=>igv2x, ndimh
   use m_supot,only: k1,k2,k3
-  use m_struc_def,only: s_rv1,s_cv1,s_rv4
+  use m_struc_def,only: s_rv1,s_cv1,s_rv4,s_cv5
   use m_lattic,only:plat=>lat_plat,qlat=>lat_qlat
   use m_augmbl,only: augmbl
   use m_hsibl,only:hsibl
@@ -22,8 +22,8 @@ subroutine hambl(isp,qin,smpot,vconst,osig,otau,oppi, h,s)! Make LDA/GGA Hamilto
   !r  qpg(ig) = tpiba * ( qin + matmul(qlat,igapwin(1:3,ig))), ig=1,napw
   implicit none
   integer:: mode,isp,i
-  type(s_cv1) :: oppi(3,nbas)
-  type(s_rv1) :: otau(3,nbas)
+  type(s_cv5) :: oppi(3,nbas)
+  type(s_rv4) :: otau(3,nbas)
   type(s_rv4) :: osig(3,nbas)
   real(8):: vconst, qin(3)
   complex(8):: smpot(k1,k2,k3,nsp), h(ndimh,ndimh),s(ndimh,ndimh)

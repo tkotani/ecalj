@@ -1,11 +1,11 @@
 module m_mkpot ! Potential terms. See http://dx.doi.org/10.7566/JPSJ.84.034702
   use m_lmfinit,only: nbas,stdo,qbg=>zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nppn &
        ,lfrce,stdl, nchan=>pot_nlma, nvl=>pot_nlml,nkaph
-  use m_struc_def,only: s_rv1,s_cv1,s_sblock,s_rv4
+  use m_struc_def,only: s_rv1,s_cv1,s_sblock,s_rv4,s_cv5
   public:: m_mkpot_init, m_mkpot_energyterms, m_mkpot_novxc, m_mkpot_deallocate !,m_Mkpot_novxc_dipole
   ! Potential terms, call m_mkpot_init. Generated at mkpot-locpot-augmat-gaugm
   type(s_sblock),allocatable,protected,public  :: ohsozz(:,:),ohsopm(:,:) !SOC matrix
-  type(s_cv1),allocatable,protected,public  :: oppi(:,:) !pi-integral Eq.(C.6) 
+  type(s_cv5),allocatable,protected,public  :: oppi(:,:) !pi-integral Eq.(C.6) 
   type(s_rv4),allocatable,protected,public  :: otau(:,:) !tau            (C.5) 
   type(s_rv4),allocatable,protected,public  :: osig(:,:) !sigma          (C.4) 
   complex(8),allocatable,protected ,public  :: osmpot(:,:,:,:)!0th component of Eq.(34)
@@ -16,7 +16,7 @@ module m_mkpot ! Potential terms. See http://dx.doi.org/10.7566/JPSJ.84.034702
   ! Energy terms by call m_mkpot_energyterms
   real(8),protected,public:: utot,rhoexc,xcore,valvef,amom, valves,cpnves,rhovxc
   ! NoVxc terms  by call m_mkpot_novxc
-  type(s_cv1),allocatable,protected,public  :: oppix(:,:) !pi-integral without xc term
+  type(s_cv5),allocatable,protected,public  :: oppix(:,:) !pi-integral without xc term
   complex(8),allocatable,protected ,public  :: spotx(:,:,:,:)!0th component of Eq.(34) without xc term
   private
   !! nov2021 dipole contribution added  (not working...)! oppixd,spotxd: dipole part to oppix,spotx
@@ -26,7 +26,6 @@ contains
   subroutine m_mkpot_novxc() ! outputs are oppix and spotx (for no vxc terms).
     use m_supot,only: k1,k2,k3
     use m_density,only: osmrho, orhoat !main input density
-    use m_struc_def,only: s_rv1,s_sblock
     logical:: novxc_
     real(8),allocatable :: fes1_rvx(:)! gpot0(:),vval(:),vab_rv(:,:,:) !dummy
     type(s_sblock),allocatable:: ohsozzx(:,:),ohsopmx(:,:) !dummy for SOC
@@ -200,7 +199,7 @@ contains
     implicit none
     integer :: job,i1,i2,i3
     type(s_rv1) :: orhoat(*)
-    type(s_cv1) :: oppi(*)
+    type(s_cv5) :: oppi(*)
     type(s_sblock) :: ohsozz(*),ohsopm(*)
     type(s_rv4) :: otau(*)
     type(s_rv4) :: osig(*)
@@ -401,7 +400,7 @@ contains
     !l   nkaph :number of orbital types for a given L quantum no. in basis
     ! ----------------------------------------------------------------------
     implicit none
-    type(s_cv1) :: oppi(3,nbas)
+    type(s_cv5) :: oppi(3,nbas)
     type(s_sblock):: ohsozz(3,nbas),ohsopm(3,nbas)
     type(s_rv4) :: otau(3,nbas)
     type(s_rv4)::  osig(3,nbas)
@@ -420,20 +419,20 @@ contains
        nelt2 = (kmax+1)*(kmax+1)*nlma*nlma*nsp!*nspc!*nso
        allocate(osig(1,ib)%v(0:kmax,0:kmax,0:lmxa,nsp) )!nelt1))
        allocate(otau(1,ib)%v(0:kmax,0:kmax,0:lmxa,nsp) )
-       allocate(oppi(1,ib)%cv(nelt2))
+       allocate(oppi(1,ib)%cv(0:kmax,0:kmax,nlma,nlma,nsp))
        !   ... Case Hsm*Hsm
 !       nelt1 = nkaph*nkaph*(lmxh+1)*nsp
        nelt2 = nkaph*nkaph*nlmh*nlmh*nsp!*nspc !*nso
        allocate(osig(3,ib)%v(nkaph,nkaph,0:lmxh,nsp)) 
        allocate(otau(3,ib)%v(nkaph,nkaph,0:lmxh,nsp)) 
-       allocate(oppi(3,ib)%cv(nelt2))
+       allocate(oppi(3,ib)%cv(nkaph,nkaph,nlmh,nlmh,nsp)) !nelt2))
        !   ...  Case Hsm*Pkl
        if (lmxh > lmxa) call rx('dfaugm: lmxh > lmxa unexpected')
 !       nelt1 = nkaph*(kmax+1)*(lmxh+1)*nsp
        nelt2 = nkaph*(kmax+1)*nlmh*nlma*nsp
        allocate(osig(2,ib)%v(nkaph,0:kmax,0:lmxh,nsp))! v(nelt1))
        allocate(otau(2,ib)%v(nkaph,0:kmax,0:lmxh,nsp))
-       allocate(oppi(2,ib)%cv(nelt2))
+       allocate(oppi(2,ib)%cv(nkaph,0:kmax,nlmh,nlma,nsp)) !
        if(lso/=0 .OR. cmdopt0('--socmatrix')) then !spin-orbit copling matrix elements
           nelt = (kmax+1)*(kmax+1)*nlma*nlma !ohsopm (L- and L+) is irrelevant for lso=2
           allocate(ohsozz(1,ib)%sdiag(nelt,nsp),ohsopm(1,ib)%soffd(nelt,nsp))! Pkl*Pkl zz and pm component

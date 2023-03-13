@@ -80,7 +80,7 @@ contains
     ! ----------------------------------------------------------------------
     integer::  job,ibx,ir,isp,l,lm
     type(s_rv1) :: orhoat(3,nbas)
-    type(s_cv1) :: oppi(3,nbas)
+    type(s_cv5) :: oppi(3,nbas)
     type(s_sblock):: ohsozz(3,nbas),ohsopm(3,nbas)
     type(s_rv4) :: otau(3,nbas)
     type(s_rv4) :: osig(3,nbas)

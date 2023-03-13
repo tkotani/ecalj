@@ -7,7 +7,7 @@ contains
        iblu,&
        osig, otau, oppi, ohsozz,ohsopm, phzdphz, hab, vab, sab,rotp)
     use m_lmfinit,only: n0,nkap0,nppn,nrmx
-    use m_struc_def, only: s_rv1,s_cv1,s_sblock,s_rv4
+    use m_struc_def, only: s_rv1,s_cv1,s_sblock,s_rv4,s_cv5
     use m_gaugm,only:  gaugm
     use m_potpus,only: potpus
     !- Make augmentation matrices sig,tau,pi for one site
@@ -321,7 +321,7 @@ contains
     !     Generally speaking, we may need to calculate all blocks ohsozz%soffd, ohsopm%sdiag, ohsopp
 
     implicit none
-    type(s_cv1) :: oppi(3)
+    type(s_cv5) :: oppi(3)
     type(s_sblock):: ohsozz(3),ohsopm(3)
     type(s_rv4) :: otau(3)
     type(s_rv4) :: osig(3)

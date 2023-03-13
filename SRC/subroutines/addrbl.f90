@@ -101,7 +101,7 @@ contains
     integer :: nevl
     double precision :: emax,emin,qval,vconst
     real(8):: q(3), evl(ndham,nsp), sumev(2,3), sumqv(3,2), f(3,*)
-    type(s_cv1) :: sv_p_oppi(3,1)
+    type(s_cv5) :: sv_p_oppi(3,1)
     type(s_rv4) :: sv_p_otau(3,1)
     type(s_rv4) :: sv_p_osig(3,1)
     type(s_rv5) :: sv_p_oeqkkl(3,1)

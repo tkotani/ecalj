@@ -213,9 +213,7 @@ contains
     !! To know outputs, see 'use m_bandcal,only:'. The outputs are evlall, and so on.
     !! ndimhx_ is protected, but allows writing to other nodes because MPI_BCAST is f77, assumed-size array
     if( .NOT. (lwtkb==-1 .OR. lwtkb==0 .OR. lwtkb==1)) call rx('bndfp: something wrong lwtkb')
-    ! lwtkb=1 accumulate weight,
-    ! lwtkb=0 no weight
-    ! lwtkb=-1
+    ! lwtkb=1 accumulate weight, lwtkb=0 no weight
     sttime = MPI_WTIME()
     if(nspc==2) call m_addrbl_allocate_swtk(ndham,nsp,nkp)
     call m_bandcal_init(iqini,iqend,ispini,ispend,lrout,eferm,ifih,lwtkb) !All input. get evlall
@@ -363,7 +361,7 @@ contains
     endif
     !! write out orbital moment
     if(lwtkb==1 .AND. lso/=0) call iorbtm()  ! write orbital moment
-    !! Assemble output density, energies and forces ===============================
+    !! Assemble output density, energies and forces 
     if (lrout/=0) call m_bandcal_symsmrho()  !Get smrho_out Symmetrize smooth density
     call m_mkrout_init() !Get force frcbandsym, symmetrized atomic densities orhoat_out, and weights hbyl,qbyl
     !!  New boundary conditions pnu for phi and phidot
@@ -385,18 +383,15 @@ contains
           endif
           call m_mkehkf_etot2(ekinval, eksham)
        endif
-       !! --- Add together force terms ---
-       !! fes1_rv: contribution to HF forces from estat + xc potential
-       !           This is for input  density !=3rd term in (B.5) in JPSJ.84.034705
-       !! fes2_rv: contribution to KS forces from estat + xc potential.   This is for output density
-       !! frcbandsym : 1st term in (B.5)  (puley? need check)
-       !! fh_rv      : 2nd term in (B.5)  (need check)
-       !! force : total
-       if(lfrce> 0) then
+       if(lfrce> 0) then !Add together force terms 
+          ! fes1_rv: contribution to HF forces from estat + xc potential.  This is for input  density !=3rd term in (B.5) in JPSJ.84.034705
+          ! fes2_rv: contribution to KS forces from estat + xc potential.  This is for output density
+          ! frcbandsym : 1st term in (B.5)  (puley? need check)
+          ! fh_rv      : 2nd term in (B.5)  (need check)
           if(allocated(force)) deallocate(force)
           allocate(force(3,nbas))
           call dfrce (lfrce,orhoat,orhoat_out,qmom_in,osmrho,smrho_out,  fh_rv)
-          call totfrc(leks, fes1_rv, fes2_rv, fh_rv, frcbandsym, force)
+          call totfrc(leks, fes1_rv, fes2_rv, fh_rv, frcbandsym, force) ! force : total
        endif
        deallocate(qmom_in)
        ! Mix inputs(osmrho,orhoat) and outputs(osmrho_out,orhoat_out), resulting orhoat and osmrho.
@@ -410,25 +405,19 @@ contains
     call m_bandcal_clean()
     call tcx('bndfp')
   end subroutine bndfp
-!========================================================  
-  subroutine mkekin(osig,otau,oppi,oqkkl,vconst,smpot,smrho,sumev, ekinval)
+  !========================================================  
+  subroutine mkekin(osig,otau,oppi,oqkkl,vconst,smpot,smrho,sumev, ekinval) !- Evaluate the valence kinetic energy
     use m_struc_def
     use m_lmfinit,only:nkaph,nsp,nspc,stdo,nbas,ispec,sspec=>v_sspec,nlmto
     use m_lattic,only: lat_vol
     use m_supot,only: lat_nabc,k1,k2,k3
     use m_orbl,only: Orblib,ktab,ltab,offl,norb,ntab,blks
-    !- Evaluate the valence kinetic energy
     !NOTE: When SOC included, ek contains HSO, because ek= Eband- V*n where Eband contains SO contr.
-    ! ----------------------------------------------------------------------
     !i Inputs
-    !i   nbas  :size of basis
-    !i   nlmto :dimension of hamiltonian (MTO)
-    !i   lcplxp=1 only now: 0 if ppi is real; 1 if ppi is complex
     !i   osig  :augmentation overlap integrals
     !i   otau  :augmentation kinetic energy integrals
     !i   oppi  :augmentation kinetic + potential integrals
     !i   oqkkl :local density-matrix; see rlocbl.f
-    !i   k1..3 :dimensions smpot,smrho
     !i   vconst:constant potential added to hamiltonian
     !i   smpot :smooth input potential on uniform mesh (mkpot.f)
     !i         :smpot = Ves~ + vxc = Ves(n0 + compensating gaussians) + vxc
@@ -530,17 +519,17 @@ contains
     !r                = int n0 Ves0~ + sum_kLk'L' qpp'LL' pi_kk'LL'
     !r
     implicit none
-    type(s_cv1),target :: oppi(3,nbas)
+    type(s_cv5),target :: oppi(3,nbas)
     type(s_rv4),target :: otau(3,1)
     type(s_rv4),target :: osig(3,1)
     type(s_rv5),target :: oqkkl(3,nbas)
     real(8),pointer:: QPP(:,:,:,:,:), QHP(:,:,:,:,:),QHH(:,:,:,:,:), &
-         OSIGHH(:,:,:,:),OSIGHP(:,:,:,:),OSIGPP(:,:,:,:), &
-         OTAUHH(:,:,:,:),OTAUHP(:,:,:,:),OTAUPP(:,:,:,:)
-    complex(8),pointer:: OPPIHH(:),OPPIHP(:),OPPIPP(:)
-    real(8):: sumev , ekinval , vconst
+         SIGHH(:,:,:,:),SIGHP(:,:,:,:),SIGPP(:,:,:,:), &
+         TAUHH(:,:,:,:),TAUHP(:,:,:,:),TAUPP(:,:,:,:)
     complex(8):: smpot(k1,k2,k3,nsp),smrho(k1,k2,k3,nsp)
-    integer :: ib,igetss,ipr,is,kmax,lgunit,lmxa,lmxh,n0,n1,n2,n3, ngabc(3),nglob,nkap0,nlma,nlmh
+    complex(8),pointer:: PPIHH(:,:,:,:,:),PPIHP(:,:,:,:,:),PPIPP(:,:,:,:,:)
+    real(8):: sumev, ekinval , vconst
+    integer :: ib,igetss,ipr,is,kmax,lgunit,lmxa,lmxh,n0,n1,n2,n3, ngabc(3),nglob,nkap0,nlma,nlmh,ilm1
     logical :: lgors
     parameter (n0=10,nkap0=3)
     double precision :: qum1,qum2,sraugm,srhov,srmesh,sum1,sum2,sumh,sumq,sumt,vol,xx
@@ -556,138 +545,104 @@ contains
     call getpr(ipr)
     ngabc=lat_nabc
     vol=lat_vol
-    ! --- Integral n0(out) (Ves0~ + Vxc0), contribution from mesh ---
-    !     Note that it does not include the term (n0~-n0) Ves0~
-    srmesh = (dreal(sum(smpot*smrho)) + vconst*dreal(sum(smrho))) *vol/(n1*n2*n3)
-    ! --- Integral rhout*veff, part from augmentation ---
+    srmesh = (dreal(sum(smpot*smrho)) + vconst*dreal(sum(smrho))) *vol/(n1*n2*n3) ! Integral n0(out) (Ves0~ + Vxc0), contribution from mesh
+                                                                                  ! Note that it does not include the term (n0~-n0) Ves0~
     sraugm = 0d0
-    do  ib = 1, nbas
+    do  ib = 1, nbas !Integral rhout*veff, part from augmentation ---
        is = ispec(ib) 
        lmxa=sspec(is)%lmxa
        kmax=sspec(is)%kmxt
        lmxh=sspec(is)%lmxb
-       if (lmxa == -1) goto 10
+       if (lmxa == -1) cycle
        call orblib(ib) ! norb , ltab , ktab , offl ,ntab,blks
        nlma = (lmxa+1)**2
        nlmh = (lmxh+1)**2
-       QHH => oqkkl(3,ib)%v !head x head index=3
-       QHP => oqkkl(2,ib)%v !head x tail index=2
-       QPP => oqkkl(1,ib)%v !tail x tail index=1
-       OTAUHH =>otau(3,ib)%v
-       OTAUHP =>otau(2,ib)%v
-       OTAUPP =>otau(1,ib)%v
-       OSIGHH =>osig(3,ib)%v
-       OSIGHP =>osig(2,ib)%v
-       OSIGPP =>osig(1,ib)%v
-       OPPIHH =>oppi(3,ib)%cv
-       OPPIHP =>oppi(2,ib)%cv
-       OPPIPP =>oppi(1,ib)%cv
-       call pvgtkn ( kmax , lmxa , nlma , nkaph , norb , ltab , ktab & !  Add site augmentation contribution to rhout * (ham - ke)
-            , blks , lmxh , nlmh &
-            , OTAUHH , OSIGHH , OPPIHH &
-            , OTAUHP , OSIGHP , OPPIHP &
-            , OTAUPP , OSIGPP , OPPIPP &
-            , QHH , QHP , QPP , nsp , nspc , sumt, sumq , sumh ) 
+       QHH   => oqkkl(3,ib)%v !head x head index=3
+       QHP   => oqkkl(2,ib)%v !head x tail index=2
+       QPP   => oqkkl(1,ib)%v !tail x tail index=1
+       TAUHH => otau(3,ib)%v
+       TAUHP => otau(2,ib)%v
+       TAUPP => otau(1,ib)%v
+       SIGHH => osig(3,ib)%v
+       SIGHP => osig(2,ib)%v
+       SIGPP => osig(1,ib)%v
+       PPIHH => oppi(3,ib)%cv
+       PPIHP => oppi(2,ib)%cv
+       PPIPP => oppi(1,ib)%cv
+       ! real(8):: &
+       !      tauhh(nkaph,nkaph,0:lmxh,nsp),  sighh(nkaph,nkaph,0:lmxh,nsp), &
+       !      tauhp(nkaph,0:kmax,0:lmxh,nsp), sighp(nkaph,0:kmax,0:lmxh,nsp), &
+       !      taupp(0:kmax,0:kmax,0:lmxa,nsp),sigpp(0:kmax,0:kmax,0:lmxa,nsp), &
+       !      qhh(nkaph,nkaph,nlmh,nlmh,nsp), &
+       !      qhp(nkaph,0:kmax,nlmh,nlma,nsp), &
+       !      qpp(0:kmax,0:kmax,nlma,nlma,nsp)
+       ! complex(8)::&
+       !      ppihh(nkaph,nkaph,nlmh,nlmh,nsp), &
+       !      ppihp(nkaph,0:kmax,nlmh,nlma,nsp), &
+       !      ppipp(0:kmax,0:kmax,nlma,nlma,nsp)
+       !i   kmax  :cutoff in PkL expansion
+       !i   lmxa  :dimensions sigpp, taupp
+       !i   nlma  :L cutoff in PkL expansion
+       !i   nkaph :dimensions augmentation matrices
+       !i   norb  :number of orbitals for this site
+       !i   ltab  :table of l quantum numbers for the orbitals
+       !i   ktab  :table of k numbers (orbital type) for the orbitals
+       !i   blks  :block size for grouping orbitals into blocks (gtbls1)
+       !i   lmxh  :dimensions sighh, sighp, tauhh, tauhp
+       !i   nlmh  :dimensions heads ppi and qhh and qhp
+       !i   tauhh :head-head kinetic energy integrals (augmat.f)
+       !i   sighh :head-head overlap integrals (augmat.f)
+       !i   ppihh :head-head kinetic + potential integrals (augmat.f)
+       !i   tauhp :head-tail kinetic energy integrals (augmat.f)
+       !i   sighp :head-tail overlap integrals (augmat.f)
+       !i   ppihp :head-tail kinetic + potential integrals (augmat.f)
+       !i   taupp :tail-tail kinetic energy integrals (augmat.f)
+       !i   sigpp :tail-tail overlap integrals (augmat.f)
+       !i   ppipp :tail-tail potential integrals (augmat.f)
+       !i   qhh   :head-head density matrix for this site
+       !i   qhp   :head-tail density matrix for this site
+       !i   qpp   :tail-tail density matrix for this site
+       !i   nsp   :number of spin channels
+       !i   nspc  :2 for coupled spins; otherwise 1
+       pvgtknblock: block !Local contribution to kinetic energy for one site
+         integer :: ilm1,ilm2,k1,k2,ll,nlm11,nlm12,nlm21,nlm22,i, io1,io2,l1,l2
+         sumt = sum([(sum(qpp(:,:,ilm1,ilm1,:)*taupp(:,:,ll(ilm1),:)),ilm1=1,nlma)]) !Pkl*Pkl
+         sumq = sum([(sum(qpp(:,:,ilm1,ilm1,:)*sigpp(:,:,ll(ilm1),:)),ilm1=1,nlma)])
+         sumh = sum(qpp(:,:,:,:,:)*ppipp(:,:,:,:,:))
+         do  io2 = 1, norb;    if(blks(io2)==0) cycle 
+            k2 = ktab(io2)
+            nlm21 = ltab(io2)**2+1
+            nlm22 = nlm21 + blks(io2)-1
+            do  io1 = 1, norb; if(blks(io1)==0) cycle 
+               associate(k1=>ktab(io1),nlm11 => ltab(io1)**2+1)
+                 sumh=sumh+sum([( sum(qhh(k1,k2,ilm1,nlm21:nlm22,:)*ppihh(k1,k2,ilm1,nlm21:nlm22,:)),ilm1=nlm11,nlm11+blks(io1)-1)])
+                 do  ilm1 = nlm11, nlm11+ blks(io1)-1
+                    if( nlm21<= ilm1 .and. ilm1<=nlm21+blks(io2)-1) then !Hsm*Hsm
+                       sumt = sumt + sum(qhh(k1,k2,ilm1,ilm1,:)*tauhh(k1,k2,ll(ilm1),:))
+                       sumq = sumq + sum(qhh(k1,k2,ilm1,ilm1,:)*sighh(k1,k2,ll(ilm1),:))
+                    endif
+                 enddo
+               endassociate
+            enddo
+         enddo
+         do  io1 = 1, norb; if (blks(io1)==0) cycle !Hsm*Pkl
+            associate(k1=>ktab(io1), nlm11=>ltab(io1)**2+1, nlm11e=>min(ltab(io1)**2+1 +blks(io1)-1,nlma) )
+              sumh=sumh+sum([(sum(qhp(k1,:,ilm1,:,:)*ppihp(k1,:,ilm1,:,:)),ilm1= nlm11,nlm11+blks(io1)-1)])!site contribution to kinetic energy +potential
+              sumt=sumt+sum([(sum(qhp(k1,:,ilm1,ilm1,:)*tauhp(k1,:,ll(ilm1),:)),ilm1= nlm11,nlm11e)]) !site contribution to kinetic energy
+              sumq=sumq+sum([(sum(qhp(k1,:,ilm1,ilm1,:)*sighp(k1,:,ll(ilm1),:)),ilm1= nlm11,nlm11e)]) !site contribution to overlap (charge ?)
+            endassociate
+         enddo
+       endblock pvgtknblock
        sraugm = sraugm + sumh - sumt
-10     continue
     enddo
-    srhov = srmesh + sraugm != n_out*Vin
+    srhov   = srmesh + sraugm != n_out*Vin
     ekinval = sumev - srhov   != Eband - nout*Vin (V do not include SO term)
-    if (ipr >= 30) write(stdo,"(/a)")' mkekin:'
-    if (ipr >= 30) write(stdo,340) srmesh,sraugm,srhov,sumev,ekinval
-340 format('   nout*Vin = smpart,onsite,total=:',3f14.6,&
-         /'    E_B(band energy sum)=',f12.6,'  E_B-nout*Vin=',f12.6)
+    if(ipr>= 30) write(stdo,"(/a)")' mkekin:'
+    if(ipr>= 30) write(stdo,340) srmesh,sraugm,srhov,sumev,ekinval
+340 format('   nout*Vin = smpart,onsite,total=:',3f14.6,/'    E_B(band energy sum)=',f12.6,'  E_B-nout*Vin=',f12.6)
     call tcx('mkekin')
   end subroutine mkekin
-  subroutine pvgtkn(kmax,lmxa,nlma,nkaph,norb,ltab,ktab,blks,lmxh, &
-       nlmh,tauhh,sighh,ppihhz,tauhp,sighp,ppihpz, taupp,sigpp,ppippz,qhh,qhp,qpp,nsp,nspc,&
-       sumt,sumq,sumh) 
-    !- Local contribution to kinetic energy for one site
-    ! ----------------------------------------------------------------------
-    !i Inputs
-    !i   kmax  :cutoff in PkL expansion
-    !i   lmxa  :dimensions sigpp, taupp
-    !i   nlma  :L cutoff in PkL expansion
-    !i   nkaph :dimensions augmentation matrices
-    !i   norb  :number of orbitals for this site
-    !i   ltab  :table of l quantum numbers for the orbitals
-    !i   ktab  :table of k numbers (orbital type) for the orbitals
-    !i   blks  :block size for grouping orbitals into blocks (gtbls1)
-    !i   lmxh  :dimensions sighh, sighp, tauhh, tauhp
-    !i   nlmh  :dimensions heads ppi and qhh and qhp
-    !i   tauhh :head-head kinetic energy integrals (augmat.f)
-    !i   sighh :head-head overlap integrals (augmat.f)
-    !i   ppihh :head-head kinetic + potential integrals (augmat.f)
-    !i   tauhp :head-tail kinetic energy integrals (augmat.f)
-    !i   sighp :head-tail overlap integrals (augmat.f)
-    !i   ppihp :head-tail kinetic + potential integrals (augmat.f)
-    !i   taupp :tail-tail kinetic energy integrals (augmat.f)
-    !i   sigpp :tail-tail overlap integrals (augmat.f)
-    !i   ppipp :tail-tail potential integrals (augmat.f)
-    !i   lcplxp=1 only:0 if ppi is real; 1 if ppi is complex
-    !i   qhh   :head-head density matrix for this site
-    !i   qhp   :head-tail density matrix for this site
-    !i   qpp   :tail-tail density matrix for this site
-    !i   nsp   :number of spin channels
-    !i   nspc  :2 for coupled spins; otherwise 1
-    !o Outputs
-    !o   sumt  :site contribution to kinetic energy
-    !o   sumq  :site contribution to overlap (charge ?)
-    !o   sumh  :site contribution to kinetic energy + potential
-    !r Remarks
-    !u Updates
-    !u    1 Sep 04 Adapted to handle complex ppi
-    !u   28 Aug 01 Extended to local orbitals.
-    ! ----------------------------------------------------------------------
-    implicit none
-    integer :: kmax,lmxa,nlma,lmxh,nlmh,nsp,nspc
-    integer :: nkaph,norb,ltab(norb),ktab(norb),blks(norb)
-    real(8):: &
-         tauhh(nkaph,nkaph,0:lmxh,nsp),  sighh(nkaph,nkaph,0:lmxh,nsp), &
-         tauhp(nkaph,0:kmax,0:lmxh,nsp), sighp(nkaph,0:kmax,0:lmxh,nsp), &
-         taupp(0:kmax,0:kmax,0:lmxa,nsp),sigpp(0:kmax,0:kmax,0:lmxa,nsp), &
-         qhh(nkaph,nkaph,nlmh,nlmh,nsp), &
-         qhp(nkaph,0:kmax,nlmh,nlma,nsp), &
-         qpp(0:kmax,0:kmax,nlma,nlma,nsp)
-    complex(8)::&
-         ppihhz(nkaph,nkaph,nlmh,nlmh,nsp), &
-         ppihpz(nkaph,0:kmax,nlmh,nlma,nsp), &
-         ppippz(0:kmax,0:kmax,nlma,nlma,nsp)
-    integer :: ilm1,ilm2,k1,k2,ll,nlm11,nlm12,nlm21,nlm22,i
-    double precision :: sumt,sumq,sumh,xx
-    integer :: io1,io2,l1,l2
-    ! ... Pkl*Pkl
-    sumt = sum([(sum(qpp(:,:,ilm1,ilm1,:)*taupp(:,:,ll(ilm1),:)),ilm1=1,nlma)])
-    sumq = sum([(sum(qpp(:,:,ilm1,ilm1,:)*sigpp(:,:,ll(ilm1),:)),ilm1=1,nlma)])
-    sumh = sum(qpp(:,:,:,:,:)*ppippz(:,:,:,:,:))
-    ! ... Hsm*Hsm
-    do  io2 = 1, norb;    if(blks(io2)==0) cycle 
-       k2 = ktab(io2)
-       nlm21 = ltab(io2)**2+1
-       nlm22 = nlm21 + blks(io2)-1
-       do  io1 = 1, norb; if(blks(io1)==0) cycle 
-          associate(k1=>ktab(io1),nlm11 => ltab(io1)**2+1)
-            sumh= sumh+sum([( sum(qhh(k1,k2,ilm1,nlm21:nlm22,:)*ppihhz(k1,k2,ilm1,nlm21:nlm22,:)) ,ilm1=nlm11,nlm11+blks(io1)-1) ])
-            do  ilm1 = nlm11, nlm11+ blks(io1)-1
-               if( nlm21<= ilm1 .and. ilm1<=nlm21+blks(io2)-1) then
-                  sumt = sumt + sum(qhh(k1,k2,ilm1,ilm1,:)*tauhh(k1,k2,ll(ilm1),:))
-                  sumq = sumq + sum(qhh(k1,k2,ilm1,ilm1,:)*sighh(k1,k2,ll(ilm1),:))
-               endif
-            enddo
-          endassociate
-       enddo
-    enddo
-    ! ... Hsm*Pkl
-    do  io1 = 1, norb; if (blks(io1)==0) cycle
-       associate(k1=>ktab(io1), nlm11=>ltab(io1)**2+1, nlm11e=>min(ltab(io1)**2+1 +blks(io1)-1,nlma) )
-         sumh=sumh+sum([(sum(qhp(k1,:,ilm1,:,:)*ppihpz(k1,:,ilm1,:,:)),ilm1= nlm11,nlm11+blks(io1)-1)])
-         sumt=sumt+sum([(sum(qhp(k1,:,ilm1,ilm1,:)*tauhp(k1,:,ll(ilm1),:)),ilm1= nlm11,nlm11e)])
-         sumq=sumq+sum([(sum(qhp(k1,:,ilm1,ilm1,:)*sighp(k1,:,ll(ilm1),:)),ilm1= nlm11,nlm11e)])
-       endassociate
-    enddo
-  end subroutine pvgtkn
   subroutine makdos(nqp,nband,nbmx,nsp,wgts,evl,n,w,tol,emin,emax, ndos,dos)! Make density of states from bands
-    !-----------------------------------------------------------------------
     !i  Input
     !i   nqp   :number of q-points
     !i   nband :number of bands
@@ -704,7 +659,6 @@ contains
     !i   nbmx  :leading dimension of evl
     !o  Ouput
     !o    dos: density of states
-    !-----------------------------------------------------------------------
     implicit none
     integer :: nqp,nband,nbmx,nsp,n,ndos
     double precision :: wgts(nqp),evl(nbmx,nsp,nqp),dos(0:ndos-1,nsp),w,emin,emax,tol,wt,emesh
@@ -712,7 +666,7 @@ contains
     double precision :: e,x,range,test,step,d,s,xx
     dos=0d0
     step = (emax - emin) / (ndos - 1)
-    if ( tol > 0d0 ) then
+    if( tol > 0d0 ) then
        do   i = 0, ndos-1
           x = i * step / w
           call delstp(0,x,test,s,xx)
@@ -721,7 +675,7 @@ contains
              goto 3
           endif
        enddo
-       if (iprint() > 30) print *,'makdos (warning) : tol too small'
+       if(iprint()> 30) print *,'makdos (warning) : tol too small'
 3      continue
        range = 2 * mrange * step
        test = tol
