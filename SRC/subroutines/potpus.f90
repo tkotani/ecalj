@@ -7,7 +7,6 @@ contains
     use m_lmfinit,only: stdo,lrel,cc,n0,nppn
     use m_ftox
     use m_vxtrap,only: rwftai
-    ! ----------------------------------------------------------------------
     !r   A local orbital gz first type is defined as follows.
     !r      gz = r * ( phi_z - phi_z(rmax) u - (phi_z)'(rmax) s )
     !r   By construction, gz/r has both value = 0 and slope = 0 at rmax.
@@ -80,7 +79,6 @@ contains
     !r   From the boundary conditions (1s digit+fractional part of pnz),
     !r   wave function phi_z can be generated for r<rmax.
     !
-    !
     !r  NOTE:
     !   hab,vab,sab are matrix elements of the true wave function (including
     !   the small component). in the spherical part of the potential V.
@@ -89,33 +87,28 @@ contains
     !    h for Hamiltoian, not hermite(?)
     !    hab: hamiltonian, vab potential, sab,sodb diag and off-diag part of L.S coupling.
     implicit none
-    integer :: lmxa,lso,nr,nsp 
+    integer,parameter:: nrx=1501
+    integer :: lmxa,lso,nr,nsp, ipr,ir,i,j,k,l,lpzi(0:n0),nrbig
     real(8):: z,rmax,a,rofi(1),v(nr,nsp),ehl(n0),rsml(n0), &
          pnu(n0,nsp),pnz(n0,nsp),phzdphz(nppn,n0,nsp), & !,pp(n0,2,5)
          hab(3,3,n0,nsp),sab(3,3,n0,nsp),vab(3,3,n0,nsp),vdif(nr,nsp), &
-         sodb(3,3,n0,nsp,2),rs3,vmtz
-    integer:: ipr,ir,i,j,k,l,lpzi(0:n0),nrbig
-    real(8):: dmat(3,3),det,vi, &
+         sodb(3,3,n0,nsp,2),rs3,vmtz, dmat(3,3),det,vi, &
          hmat(3,3),phmins,phplus,q,r,smat(3,3),tmc, &
          umegam,umegap,vmat(3,3),vl,xx,xxx,yyy,zzz, &
          b,ghg,ghgp,gphgp, g(nr,2),gp(nr,2*4),gz(nr,2),&
          ev,phi,dphi,phip,dphip,p, &
-         ez,phz,dphz,phzp,dphzp,pz,phz2,dphz2
-    integer :: nrx,idn
-    parameter (nrx=1501)
-    double precision :: rwgtx(nrx) !,gzbig(nrx,2)
+         ez,phz,dphz,phzp,dphzp,pz,phz2,dphz2,rwgtx(nrx)
     real(8),allocatable:: gzbig(:,:)    !     double precision gbig(nrx*2),gpbig(nrx*8),vbig(nrx,2)
     real(8):: vavg(nr),dv(nr),sop(0:lmxa,nsp,nsp,3), &     !     Spin-Orbit related parameters
          sopz(0:lmxa,nsp,nsp,3), &
          psi(nr,0:lmxa,nsp),dpsi(nr,0:lmxa,nsp), &
          pzi(nr,0:lmxa,nsp),ezum(0:8,nsp), &
          enumx(0:8,nsp), x21,x11,x22,x12,vx00,vx01,vx10,vx11, &
-         vx0z,vxz0,vx1z,vxz1,vxzz,vxzu,vxuz,vxzs,vxsz, xxxx(1,1)
+         vx0z,vxz0,vx1z,vxz1,vxzz,vxzu,vxuz,vxzs,vxsz, xxxx(1,1),&
+         rwgt(nr),szz_,vzz_,hzz_,vx13,vx23, rotp(0:lmxa,nsp,2,2),rbig,fac=2d0
     real(8),target:: m(2,2,0:lmxa,nsp)
-    real(8):: rwgt(nr),szz_,vzz_,hzz_,vx13,vx23
-    real(8)::rotp(0:lmxa,nsp,2,2),rbig,fac=2d0
     call getpr(ipr)
-    if (maxval(pnz(1:lmxa+1,1)) >=10) then ! big radius for extended local orbitals 
+    if(maxval(pnz(1:lmxa+1,1)) >=10) then ! big radius for extended local orbitals 
        nrbig= nrx
        rbig = rmax * (dexp(a*nrx-a)-1d0)/(dexp(a*nr-a)-1d0)
        if (rbig > fac*rmax) then ! rbig=fac*rmax is maximum
@@ -128,16 +121,16 @@ contains
     endif
     call radmsh(rbig,a,nrbig,rofi) !extended mesh for rbig to rofi
     call radwgt(rmax,a,nr,rwgt)
-    b  = rmax/(dexp(a*nr - a) - 1d0)
-    if (lso /= 0) then !Gradient of average v (for spin-orbit)
+    b = rmax/(dexp(a*nr - a) - 1d0)
+    if(lso /= 0) then 
        if (lrel==0.or.nsp==1) call rx('spin-orbit requires REL=1 and nsp=2')
        vavg = .5d0*(v(:,1)+v(:,2))
-       call radgra(a,b,nr,rofi,vavg,dv)
+       call radgra(a,b,nr,rofi,vavg,dv) !dv=Gradient of average v (for spin-orbit)
+       sodb=0d0
     endif
     hab=0d0
     vab=0d0
     sab=0d0
-    if(lso/=0) sodb=0d0
     phzdphz=0d0
     isploop: do 80  i = 1, nsp
        if(ipr>=40)             write(stdo,ftox)' potpus spin=',i,'pnu=',ftof(pnu(1:lmxa+1,i),3)
@@ -165,13 +158,10 @@ contains
              if(lso/=0) ezum(l,i) = ez     !for SO
              if(lso/=0) pzi(:,l,i)= gz(:,1)!for SO
           endif
-          ! ... Valence wf g,gp, and their sphere boundary parameters
-          call makrwf(10,z,rmax,l,v(1,i),a,nr,rofi,pnu(1,i),2,g,gp,ev,phi,dphi,phip,dphip,p)
+          call makrwf(10,z,rmax,l,v(1,i),a,nr,rofi,pnu(1,i),2,g,gp,ev,phi,dphi,phip,dphip,p)!Valence wf g,gp, and their sphere boundary parameters
           ghg    = ev   ! <g H g> = e <g g> = e
           ghgp   = 1d0  ! <g H gp> = <g (H-e) gp> + e <g gp> = <g g> = 1
           gphgp  = ev*p ! <gp H gp> = <gp (H-e) gp> + e <gp gp> = <gp g> + e p = ep
-          !dlphi  = rmax*dphi/phi
-          !dlphip = rmax*dphip/phip
           if(lso /= 0) then ! ... Keep local copies of phi and phidot for SO coupling
              psi(:,l,i) = g(:,1)
              dpsi(:,l,i)= gp(:,1)
@@ -201,10 +191,8 @@ contains
             smat(1:2,2) = [0d0, p]  !<gp|gp>
             hmat(1:2,1) = [ghg,0d0]   ! hmat(1,1)=<g H g> = e <g g> = e                       
             hmat(1:2,2) = [ghgp,gphgp]! hmat(1,2)=<g H gp> = <g (H-e) gp> + e <g gp> = <g g>  
-            hmat(1:2,1:2)=hmat(1:2,1:2)+dmat(1:2,1:2)
-            ! hmat(2,1)=<gp H g>=0d0, hmat(2,2)=<gp H gp>=<gp (H-e) gp>+e <gp gp>=<gp g> + e p =ep
-            call pvpus1(rmax,phi,dphi,phip,dphip,hmat(1,2),hmat(2,1))
-            ! pvpus1 not needed? since Wronskian explicit in makrwf
+            hmat(1:2,1:2)=hmat(1:2,1:2)+dmat(1:2,1:2) ! hmat(2,1)=<gp H g>=0d0, hmat(2,2)=<gp H gp>=<gp (H-e) gp>+e <gp gp>=<gp g> + e p =ep
+            call pvpus1(rmax,phi,dphi,phip,dphip,hmat(1,2),hmat(2,1)) ! pvpus1 not needed? since Wronskian explicit in makrwf
             if(lpzi(l)/=0) then !computes integrals with products of (g,gp) x gz
                gf12(1)=0d0
                gf22(1)=0d0
@@ -280,7 +268,6 @@ contains
              endblock lpzint
           endif
           if(lpzi(l)/=0) phzdphz(1:2,k,i) = [phz, dphz]
-!          if(lpzi(l)/=0) write(stdo,ftox)'ppppotpus',k,i,ftod(phzdphz(1:2,k,i))
           det = phi*dphip - dphi*phip
           rotp(l,i,1,1) = dphip/det !see sugw for how to use rotp (u,s) to (phi,phidot)
           rotp(l,i,1,2) = -dphi/det
@@ -374,10 +361,7 @@ contains
        endif
     enddo
   end subroutine potpus
-  subroutine pvpus1(r,f,df,g,dg,Tfg,Tgf)
-    !- Forces K.E. or hamiltonian matrix elements to satisfy Wronskian
-    ! ----------------------------------------------------------------------
-    !i Inputs
+  subroutine pvpus1(r,f,df,g,dg,Tfg,Tgf)!- Forces K.E. or hamiltonian matrix elements to satisfy Wronskian
     !i   r     :radius
     !i   f     :value of first function at r
     !i   df    :df/dr
@@ -392,9 +376,6 @@ contains
     !r   for any two analytic radial functions (f,g), which satisfy
     !r   have val=0 or slope=0 at r=0 must also satisfy the Wronskian
     !r     Tfg-Tgf = -W(f,g)
-    !u Updates
-    !u   21 Jul 04  First created
-    ! ----------------------------------------------------------------------
     implicit none
     double precision :: Tfg,Tgf,r,df,g,f,dg
     double precision :: diff,avg
@@ -403,15 +384,12 @@ contains
     Tfg = (avg+diff)/2
     Tgf = (avg-diff)/2
   end subroutine pvpus1
-  subroutine soprm(lpzi,phi,phid,phiz,nr,nsp,lmxs,lmx,v,dv,enu, ez,z,ri,rwgt,sop,sopz)
+  subroutine soprm(lpzi,phi,phid,phiz,nr,nsp,lmxs,lmx,v,dv,enu, ez,z,ri,rwgt,sop,sopz)!- Radial matrix elements between orbitals of different spin
     use m_lgunit,only:stdo
     use m_lmfinit,only: c=>cc
-    !- Radial matrix elements between orbitals of different spin
     ! make spin-orbit parameters, i.e. matrix elements
-    !  <phi|so|phi> <phi|so|phidot> <phidot|so|phidot>
-    !  and for local orbitals that are present
-    !  <phiz|so|phiz> <phiz|so|phi> <phiz|so|phidot>
-    !  orthonormalize phi,phidot in separate spin channels
+    !  <phi|so|phi> <phi|so|phidot> <phidot|so|phidot>  and for local orbitals that are present
+    !  <phiz|so|phiz> <phiz|so|phi> <phiz|so|phidot>  orthonormalize phi,phidot in separate spin channels
     ! ---------------------------------------------------------------------
     !i Inputs
     !i   lpzi  :flags which channels have local orbitals
@@ -443,23 +421,11 @@ contains
     !r   so = 2/(c^2) dV/dr*(1/r), V(r)=-2*z/r+v(r)
     !r   Note: so=1/(2*m^2*c^2)*(dV/dr*1/r), m=.5, c=274 (at. Rydberg units)
     !r   H_so = so*s^ dot l^, s^=0.5d0*sigma (Pauli matrix).
-    !u Updates
-    !u   17 Jan 07 Set ME for l=0 to zero (weren't necesssarily calc before)
-    !u   11 Jul 05 Merged with sofp to make one routine
-    !u   25 Apr 05 A. Chantis added local orbitals
-    !u   05 Jan 04 leading dimensions of sop distinct from lmx
-    !u   07 Feb 03 Added ability to compute matrix elements of external
-    !u             field B.  New arg list and definition of mode.
-    ! ---------------------------------------------------------------------
     implicit none
-    integer :: lmx,mode,lpzi(0:lmx),lmxs,nr,nsp
-    double precision :: z, &
-         phi(nr,0:lmxs,nsp),phid(nr,0:lmxs,nsp),phiz(nr,0:lmxs,nsp), &
-         ri(nr),sop(0:lmxs,nsp,nsp,3),v(nr,nsp),wk(nr,4),dv(nr), &
-         rwgt(nr),sopz(0:lmxs,nsp,nsp,3),enu(0:8,nsp),ez(0:8,nsp)
-    integer :: l,ir,is,is1,is2,ipr,lmin
-    double precision :: pa,r,r1,r2,vavg(nr),eavg,eavgz,dva(nr),xx(nr),xxz(nr),xxavg(nr),wkz(nr,4)
-    data pa /1d0/
+    integer::lmx,mode,lpzi(0:lmx),lmxs,nr,nsp,l,ir,is,is1,is2,ipr,lmin
+    real(8)::z,phi(nr,0:lmxs,nsp),phid(nr,0:lmxs,nsp),phiz(nr,0:lmxs,nsp),ri(nr),sop(0:lmxs,nsp,nsp,3),v(nr,nsp),wk(nr,4),dv(nr), &
+         rwgt(nr),sopz(0:lmxs,nsp,nsp,3),enu(0:8,nsp),ez(0:8,nsp),r,r1,r2,vavg(nr),eavg,eavgz,dva(nr)&
+         ,xx(nr),xxz(nr),xxavg(nr),wkz(nr,4),pa=1d0
     call getpr(ipr)
     if (ipr > 50) print '(/'' soprm: overlaps  phi*phi     phi*phidot'')'
     do   is = 1, nsp
@@ -510,33 +476,5 @@ contains
           enddo
        enddo
     enddo
-!     ! Printout
-!     if (ipr <= 50) return
-!     write(stdo,332) 'spin-orbit coupling'
-! 332 format(' soprm:  matrix elements for perturbation from ',a/ &
-!          13x,'l',4x,'<phi || phi>',2x,'<dot || phi>',2x,'<dot || dot>')
-!     if (nsp == 1) then
-!        do  l = lmin, lmx
-!           write(stdo,333) '          ',  l,sop(l,1,1,1),sop(l,1,1,2),sop(l,1,1,3)
-!           if(lpzi(l)/=0)write(stdo,333) '          ', l,sopz(l,1,1,1),sopz(l,1,1,2),sopz(l,1,1,3)
-!        enddo
-!     else
-!        do  l = lmin, lmx
-!           write(stdo,333) 'up   up   ', l,sop(l,1,1,1),sop(l,1,1,2),sop(l,1,1,3)
-!           write(stdo,333) 'down down ', l,sop(l,2,2,1),sop(l,2,2,2),sop(l,2,2,3)
-!           write(stdo,333) 'up   down ', l,sop(l,1,2,1),sop(l,1,2,2),sop(l,1,2,3)
-!           write(stdo,333) 'down up   ', l,sop(l,2,1,1),sop(l,2,1,2),sop(l,2,1,3)
-!           write(stdo,333)
-!           if (lpzi(l) /= 0) then
-!              write(stdo,335) 'up   up   ', l,sopz(l,1,1,1),sopz(l,1,1,2),sopz(l,1,1,3)
-!              write(stdo,335) 'down down ', l,sopz(l,2,2,1),sopz(l,2,2,2),sopz(l,2,2,3)
-!              write(stdo,335) 'up   down ', l,sopz(l,1,2,1),sopz(l,1,2,2),sopz(l,1,2,3)
-!              write(stdo,335) 'down up   ', l,sopz(l,2,1,1),sopz(l,2,1,2),sopz(l,2,1,3)
-!              write(stdo,335)
-!           endif
-!        enddo
-!     endif
-! 333 format(1x,a,i3,1x, 3f14.8)
-! 335 format(1x,a,i3,'l',3f14.8)
   end subroutine soprm
 end module m_potpus

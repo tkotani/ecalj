@@ -11,7 +11,7 @@ module m_mkrout
   private
 contains
   subroutine m_mkrout_init()
-    use m_lmfinit,only: sspec=>v_sspec,ispec,nsp,n0,lfrce,lrout,nbas
+    use m_lmfinit,only: sspec=>v_sspec,ispec,nsp,lfrce,lrout,nbas
     use m_bandcal,only: oqkkl,oeqkkl,frcband
     use m_mkpot,only: hab_rv,sab_rv
     use m_suham,only: ham_ndham
@@ -78,9 +78,9 @@ contains
     type(s_rv5) :: oqkkl(3,nbas)
     real(8):: qbyl(n0,nsp,nbas) , hbyl(n0,nsp,nbas) , sab(3,3,n0,nsp,nbas), hab(3,3,n0,nsp,nbas)
     integer:: ib,ipr,iprint,is,k,kcor,kmax,lcor,lfoc,lgunit,lmxa,lmxh,lmxl,nlma,nlmh,nlml,nlml1,r,ncore,ifx
-    double precision :: a,ceh,pi,qcor(2),rfoc,rmt,smec,smtc,stc0, sum1,sum2,sums1,sums2,xx,y0,z,res,rsml(n0),ehl(n0)
+    real(8) :: a,ceh,pi,qcor(2),rfoc,rmt,smec,smtc,stc0, sum1,sum2,sums1,sums2,xx,y0,z,res,rsml(n0),ehl(n0)
     integer :: nkapi,nkape,nr, lh(nkap0)
-    double precision :: eh(n0,nkap0),rsmh(n0,nkap0),qcorg,qcorh,qsc,cofg,cofh
+    real(8) :: eh(n0,nkap0),rsmh(n0,nkap0),qcorg,qcorh,qsc,cofg,cofh
     real(8),pointer:: pnu(:,:),pnz(:,:)
     real(8):: dat(6,nbas)
     logical:: mmtargetx=.false.
@@ -137,34 +137,31 @@ contains
             call fradhd(nkaph,eh,rsmh,lhh(:,is),lmxh,nr,rofi_rv, fh_rv,xh_rv,vh_rv,dh_rv) !head
             call fradpk(kmax,rsma(is),lmxa,nr,rofi_rv, fp_rv,xp_rv,vp_rv,dp_rv) !tail
             rsml= rsmlss(:,is)
-            ehl=  ehlss(:,is)
-            call makusp(n0,z,nsp,rmt,lmxa,v0pot(ib)%v, a,nr,&! Augmented wave functions
+            ehl = ehlss(:,is)
+            call makusp(n0,z,nsp,rmt,lmxa,v0pot(ib)%v,a,nr,&! Augmented wave functions
                  pnu,pnz,rsml,ehl,ul_rv,sl_rv,gz_rv,ruu_rv, rus_rv,rss_rv )
-            !   ... Contracted density matrix as coffs to products of (u,s,gz)
+            ! ... Contracted density matrix as coffs to products of (u,s,gz)
             chh_rv=0d0
             chp_rv=0d0
             cpp_rv=0d0
             dmatl_rv=0d0
             call mkrou1(nsp, nlmh,nlma,nlml,kmax, nkaph,nkapi,norb,ltab,ktab,blks &
                  ,oqkkl(3,ib)%v,oqkkl(2,ib)%v,oqkkl(1,ib)%v,vh_rv,dh_rv,vp_rv,dp_rv,  chh_rv,chp_rv,cpp_rv,dmatl_rv )
-            call mkrou2(nsp,lmxa,nlml,pnz, dmatl_rv,nr,ul_rv ,sl_rv,gz_rv,ruu_rv,rus_rv,rss_rv,orhoat_out( 1,ib )%v )!True local density. 1st component
+            call mkrou2(nsp,lmxa,nlml,pnz, dmatl_rv,nr,ul_rv ,sl_rv,gz_rv,ruu_rv,rus_rv,rss_rv,     orhoat_out( 1,ib )%v)!True local density.1st component
             !   --- Assemble rho2 = unaugmented products Pkl*Pk'l' ---
-            call mkrou5(nsp,nr,nlml,nkaph,nkaph,fh_rv,lmxh ,nkaph,nkaph,fh_rv,lmxh,           chh_rv,orhoat_out( 2,ib )%v  ) !H H product.  
-            call mkrou5(nsp,nr,nlml,nkaph,nkaph,fh_rv,lmxh ,kmax + 1,kmax + 1,fp_rv,lmxa,     chp_rv,orhoat_out( 2,ib )%v   ) !H Pkl product
-            call mkrou5(nsp,nr,nlml,kmax + 1,kmax + 1,fp_rv,lmxa, kmax+1, kmax + 1,fp_rv,lmxa,cpp_rv,orhoat_out( 2,ib )%v   )!Pkl Pkl product
+            call mkrou5(nsp,nr,nlml,nkaph,nkaph,fh_rv,lmxh ,nkaph,nkaph,fh_rv,lmxh,           chh_rv,orhoat_out( 2,ib )%v) !H H product.  
+            call mkrou5(nsp,nr,nlml,nkaph,nkaph,fh_rv,lmxh ,kmax + 1,kmax + 1,fp_rv,lmxa,     chp_rv,orhoat_out( 2,ib )%v) !H Pkl product
+            call mkrou5(nsp,nr,nlml,kmax + 1,kmax + 1,fp_rv,lmxa, kmax+1, kmax + 1,fp_rv,lmxa,cpp_rv,orhoat_out( 2,ib )%v) !Pkl Pkl product
             call mkrou3(lmxa,nlml,nsp,pnz,dmatl_rv,sab(1,1,1,1,ib),qbyl(1,1,ib)) !  qbyl = site charge decomposed by l
-            !history: hab were/are wrong =>it had given wrong hbyl (in previous mkrou3) 
-            ! lekkl /= 0 mode only now.
             nlml1 = 1
             dmatl_rv=0d0 
             k = max(nkaph,1+kmax)**2*(lmxa+1)**2*nlml1*nsp
             chh_rv=0d0
             chp_rv=0d0
-            cpp_rv=0d0
+            cpp_rv=0d0 ! lekkl /= 0 mode only now. !history: hab were/are wrong =>it had given wrong hbyl (in previous mkrou3) 
             call mkrou1(nsp, nlmh, nlma, nlml1,kmax,nkaph,nkapi,norb,ltab,ktab,blks &
-                 ,oeqkkl(3,ib)%v, oeqkkl(2,ib)%v,oeqkkl(1,ib)%v,vh_rv,dh_rv,vp_rv,dp_rv,chh_rv &
-                 ,chp_rv,cpp_rv, dmatl_rv)  !dmatl_rv is energy weighted. c.f.previous call to mkrou1.
-            call mkrou3(lmxa,nlml=nlml1,nsp=nsp,pnz=pnz,dmatl=dmatl_rv,sab=sab(1,1,1,1,ib ),qsum=hbyl(1,1,ib ))!hbyl is energy-weighted density matrix
+                 ,oeqkkl(3,ib)%v, oeqkkl(2,ib)%v,oeqkkl(1,ib)%v,vh_rv,dh_rv,vp_rv,dp_rv,chh_rv ,chp_rv,cpp_rv, dmatl_rv) ! energy weighted dmatl_rv
+            call mkrou3(lmxa,nlml=nlml1,nsp=nsp,pnz=pnz,dmatl=dmatl_rv,sab=sab(1,1,1,1,ib ), qsum=hbyl(1,1,ib ))! hbyl is energy-weighted density matrix
             call radsum(nr,nr,nlml,nsp,rwgt_rv,orhoat_out( 1,ib )%v, sum1 )
             call radsum(nr,nr,nlml,nsp,rwgt_rv,orhoat_out( 2,ib )%v, sum2 )
             sum1 = sum1/y0
@@ -190,7 +187,7 @@ contains
             ! ccccccccccccccccccccccccccccccccccccccccccccccccc
           endblock fhblock
        endif
-       call mkrou6 ( rofi_rv,orhoat_out( 1,ib )%v,nr,nlml,nsp,xx,xx,res )!Contribution to mag outsite rmt: extrapolate tail to infinity
+       call mkrou6(rofi_rv,orhoat_out( 1,ib )%v,nr,nlml,nsp,xx,xx,res )!Contribution to mag outsite rmt: extrapolate tail to infinity
        if(ipr>=30.AND.res/=0) write(stdo,"(7x,'contr. to mm extrapolated for r>rmt:',f11.6,' est. true mm =',f9.6)")res,res-sums1
        if (lfoc == 0) then ! Make new core density and core eigenvalue sum ---
           call pshpr(ipr+11)
@@ -263,10 +260,10 @@ contains
     implicit none
     integer :: nsp,nlmh,nlma,nlml,kmax,norb,nkaph,nkapi
     integer :: ltab(norb),ktab(norb),blks(norb)
-    double precision :: qhh(nkaph,nkaph,nlmh,nlmh,nsp)
-    double precision :: qhp(nkaph,kmax+1,nlmh,nlma,nsp)
-    double precision :: qpp(kmax+1,kmax+1,nlmh,nlma,nsp)
-    double precision :: dmatl(*),vh(*),dh(*),vp(*),dp(*), chh(*),chp(*),cpp(*)
+    real(8) :: qhh(nkaph,nkaph,nlmh,nlmh,nsp)
+    real(8) :: qhp(nkaph,kmax+1,nlmh,nlma,nsp)
+    real(8) :: qpp(kmax+1,kmax+1,nlmh,nlma,nsp)
+    real(8) :: dmatl(*),vh(*),dh(*),vp(*),dp(*), chh(*),chp(*),cpp(*)
     integer :: ll,k,lmxa,lmxh
     integer :: ltba(n0*nkap0),ktba(n0*nkap0),blka(n0*nkap0)
     lmxa = ll(nlma)
@@ -323,16 +320,15 @@ contains
     !u   28 aug 01 extended to local orbitals.  altered argument list.
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: nsp,lmxa,nlml,nr,n0
-    parameter (n0=10)
-    double precision :: rho(nr,nlml,nsp),pnz(n0,nsp), &
+    integer :: nsp,lmxa,nlml,nr
+    real(8) :: rho(nr,nlml,nsp),pnz(n0,nsp), &
          dmatl(0:lmxa,0:lmxa,nlml,3,3,nsp), &
          ul(nr,0:lmxa,nsp),ruu(nr,0:lmxa,2,nsp), &
          sl(nr,0:lmxa,nsp),rus(nr,0:lmxa,2,nsp), &
          gz(nr,0:lmxa,nsp),rss(nr,0:lmxa,2,nsp)
     logical :: lpz1,lpz2
     integer :: l,i,mlm,l1,l2,isp
-    double precision :: xuu,xus,xsu,xss,xuz,xsz,xzu,xzs,xzz
+    real(8) :: xuu,xus,xsu,xss,xuz,xsz,xzu,xzs,xzz
     call tcn('mkrou2')
     ! --- Full density as products (u,s) (u,s); no small component ---
     do  isp = 1, nsp
@@ -341,36 +337,26 @@ contains
              do  l2 = 0, lmxa
                 lpz1 = pnz(l1+1,1) .ne. 0
                 lpz2 = pnz(l2+1,1) .ne. 0
-                xuu = dmatl(l1,l2,mlm,1,1,isp)
-                xus = dmatl(l1,l2,mlm,1,2,isp)
-                xsu = dmatl(l1,l2,mlm,2,1,isp)
-                xss = dmatl(l1,l2,mlm,2,2,isp)
                 rho(:,mlm,isp) = rho(:,mlm,isp) &
-                     + xuu * ul(:,l1,isp) * ul(:,l2,isp) &
-                     + xsu * sl(:,l1,isp) * ul(:,l2,isp) &
-                     + xus * ul(:,l1,isp) * sl(:,l2,isp) &
-                     + xss * sl(:,l1,isp) * sl(:,l2,isp)
-                if (lpz1 .OR. lpz2) then
-                   xuz = dmatl(l1,l2,mlm,1,3,isp)
-                   xsz = dmatl(l1,l2,mlm,2,3,isp)
-                   xzu = dmatl(l1,l2,mlm,3,1,isp)
-                   xzs = dmatl(l1,l2,mlm,3,2,isp)
-                   xzz = dmatl(l1,l2,mlm,3,3,isp)
+                     + dmatl(l1,l2,mlm,1,1,isp) * ul(:,l1,isp) * ul(:,l2,isp) &
+                     + dmatl(l1,l2,mlm,2,1,isp) * sl(:,l1,isp) * ul(:,l2,isp) &
+                     + dmatl(l1,l2,mlm,1,2,isp) * ul(:,l1,isp) * sl(:,l2,isp) &
+                     + dmatl(l1,l2,mlm,2,2,isp) * sl(:,l1,isp) * sl(:,l2,isp)
+                if (lpz1.OR.lpz2) then
                    if (xuz /= 0 .OR. xsz /= 0 .OR. xzu /= 0 .OR. xzs /= 0 .OR. xzz /= 0) then
                       rho(:,mlm,isp) = rho(:,mlm,isp) &
-                           + xuz * ul(:,l1,isp) * gz(:,l2,isp) &
-                           + xsz * sl(:,l1,isp) * gz(:,l2,isp) &
-                           + xzu * gz(:,l1,isp) * ul(:,l2,isp) &
-                           + xzs * gz(:,l1,isp) * sl(:,l2,isp) &
-                           + xzz * gz(:,l1,isp) * gz(:,l2,isp)
+                           + dmatl(l1,l2,mlm,1,3,isp) * ul(:,l1,isp) * gz(:,l2,isp) &
+                           + dmatl(l1,l2,mlm,2,3,isp) * sl(:,l1,isp) * gz(:,l2,isp) &
+                           + dmatl(l1,l2,mlm,3,1,isp) * gz(:,l1,isp) * ul(:,l2,isp) &
+                           + dmatl(l1,l2,mlm,3,2,isp) * gz(:,l1,isp) * sl(:,l2,isp) &
+                           + dmatl(l1,l2,mlm,3,3,isp) * gz(:,l1,isp) * gz(:,l2,isp)
                    endif
                 endif
              enddo
           enddo
        enddo
     enddo
-    ! --- Remake spherical density including small component ---
-    rho(1:nr,1,1:nsp)=0d0 
+    rho(1:nr,1,1:nsp)=0d0  ! --- Remake spherical density including small component ---
     do  isp = 1, nsp
        do  l = 0, lmxa
           xuu = dmatl(l,l,1,1,1,isp)
@@ -431,7 +417,7 @@ contains
     integer :: jcg(1),indxcg(1)
     integer :: ltab1(norb1),ktab1(norb1),blks1(norb1), &
          ltab2(norb2),ktab2(norb2),blks2(norb2)
-    double precision :: qkk12(nk1,nk2,ndim1,ndim2,nsp),cg(1), &
+    real(8) :: qkk12(nk1,nk2,ndim1,ndim2,nsp),cg(1), &
          ckk(nk1,nk2,0:lmx1,0:lmx2,nlml,nsp)
     integer :: ilm1,io1,l1,nlm11,nlm12,k1, &
          ilm2,io2,l2,nlm21,nlm22,k2, icg,ll,mlm,ix,isp
@@ -506,12 +492,12 @@ contains
     ! ----------------------------------------------------------------------
     implicit none
     integer :: nsp,nlml,lmxa,lmx1,lmx2,nf1,nf2,nf1s,nf2s
-    double precision :: ckk(nf1,nf2,0:lmx1,0:lmx2,nlml,nsp), &
+    real(8) :: ckk(nf1,nf2,0:lmx1,0:lmx2,nlml,nsp), &
          val1(0:lmx1,nf1s),slo1(0:lmx1,nf1s), &
          val2(0:lmx2,nf2s),slo2(0:lmx2,nf2s)
-    double precision :: dmatl(0:lmxa,0:lmxa,nlml,3,3,nsp)
+    real(8) :: dmatl(0:lmxa,0:lmxa,nlml,3,3,nsp)
     integer :: l1,k1,l2,k2,mlm,isp
-    double precision :: xx
+    real(8) :: xx
     !     call tcn('mkcfus')
     do  isp = 1, nsp
        do  mlm = 1, nlml
@@ -588,12 +574,8 @@ contains
     !u             have no smooth counterparts to subtract.
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: nsp,nr,nlml,lmx1,lmx2,nf1,nf2,nf1s,nf2s
-    double precision :: ckk(nf1,nf2,0:lmx1,0:lmx2,nlml,nsp), &
-         f1(nr,0:lmx1,nf1s),f2(nr,0:lmx2,nf2s),rho(nr,nlml,nsp)
-    integer :: l1,k1,l2,k2,mlm,isp,i,ir
-    double precision :: xx
-    call tcn('mkrou5')
+    integer :: nsp,nr,nlml,lmx1,lmx2,nf1,nf2,nf1s,nf2s,l1,k1,l2,k2,mlm,isp,i,ir
+    real(8) :: ckk(nf1,nf2,0:lmx1,0:lmx2,nlml,nsp),f1(nr,0:lmx1,nf1s),f2(nr,0:lmx2,nf2s),rho(nr,nlml,nsp)
 !    rho(:,:,:) =rho(:,:,:)+ ckk(k1,k2,l1,l2,:,:)*[(f1(ir,l1,k1)*f2(:,l2,k2),ir=1,nr)]
     do  k2 = 1, nf2s
        do  k1 = 1, nf1s
@@ -606,11 +588,8 @@ contains
           enddo
        enddo
     enddo
-    call tcx('mkrou5')
   end subroutine mkrou5
-  subroutine mkrou6(rofi,rho,nr,nlml,nsp,rho0,decay,res)
-    !- Fit tail of spin density; integrate charge beyond MT sphere
-    ! ----------------------------------------------------------------------
+  subroutine mkrou6(rofi,rho,nr,nlml,nsp,rho0,decay,res) !- Fit tail of spin density; integrate charge beyond MT sphere
     !i Inputs
     !i   rofi  :radial mesh points
     !i   rho   :spin-polarized charge density
@@ -620,18 +599,11 @@ contains
     !o   rho0  :fit density of form rho0*exp(-decay*r)
     !o   decay :fit density of form rho0*exp(-decay*r)
     !o   res   :integral of fit density from rofi(nr) to infinity
-    !l Local variables
-    !l         :
-    !r Remarks
-    !r
-    !u Updates
-    !u   27 Sep 03  First created
-    ! ----------------------------------------------------------------------
     implicit none
     integer :: nr,nlml,nsp
-    double precision :: rofi(nr),rho(nr,nlml,2),rho0,decay,res
+    real(8) :: rofi(nr),rho(nr,nlml,2),rho0,decay,res
     integer :: ir
-    double precision :: norm(2,2),tnorm(2,2),rhs(2),y,dy,fac,y0,r0,pi,a,b
+    real(8) :: norm(2,2),tnorm(2,2),rhs(2),y,dy,fac,y0,r0,pi,a,b
     res = 0
     if (nr < 10 .OR. nsp == 1) return
     call dpzero(norm,4)
@@ -658,15 +630,11 @@ contains
     b = -b
     if (b < 1) return !   Nonsensical if density not decaying fast enough
     r0 = rofi(nr)
-    !     Integral a*exp(-b*r)*r*r = (2+2*b*r0+b**2*r0*2)/b**3*exp(-b*r0)
-    res = a*(2+2*b*r0+b**2*r0**2)/b**3*exp(-b*r0)
+    res = a*(2+2*b*r0+b**2*r0**2)/b**3*exp(-b*r0) ! Integral a*exp(-b*r)*r*r = (2+2*b*r0+b**2*r0*2)/b**3*exp(-b*r0)
     decay = b
     rho0 = a
   end subroutine mkrou6
-  subroutine mkrou3(lmxa,nlml,nsp,pnz,dmatl,sab,qsum) !,hsum)
-    !- l-decomposed charges and eigenvalue sum
-    ! ----------------------------------------------------------------------
-    !i Inputs
+  subroutine mkrou3(lmxa,nlml,nsp,pnz,dmatl,sab,qsum) ! l-decomposed charges and eigenvalue sum
     !i   lmxa  :augmentation l-cutoff
     !i   dmatl :dmatl(l1,l2,mlm,i,j,isp) holds coefficients to a y_lm
     !i         :expansion of the function products f_i(l1) f_j(l2)
@@ -674,26 +642,13 @@ contains
     !i         :    (uu  us  uz)
     !i         :    (su  ss  sz)
     !i         :    (zu  zs  zz)
-    !i   hab   :<u,s | h | u,s> for each pair uu, us, su, ss; see remarks
     !i   sab   :<u,s | 1 | u,s>
-    !o Outputs
-    !o   qsum  :l-decomposed sphere charge
-    !o   hsum  :l-decomposed one-electron energy
-    !r Remarks
-    !r   qsum and hsum are used to find the band centers of gravity
-    !r   u and s ae linear combinations radial wave functions defined as:
-    !r   u has val=1, slo=1 at rmax, s has val=0, slo=1
-    !u Updates
-    !u   28 Aug 01 Extended to local orbitals.
-    ! ----------------------------------------------------------------------
+    !o Outputs qsum  :l-decomposed sphere charge
+    !r u and s are linear combinations radial wave functions defined as: u has val=1, slo=1 at rmax, s has val=0, slo=1
     implicit none
-    integer ::lmxa,n0,nlml,nsp
-    parameter (n0=10)
-    real(8):: qsum(n0,nsp) ,sab(3,3,n0,nsp), dmatl(0:lmxa,0:lmxa,nlml,3,3,nsp),pnz(n0,2)
-    integer :: l,isp,m
-    double precision :: pi,srfpi,qz,hz
-    pi = 4d0*datan(1d0)
-    srfpi = dsqrt(4d0*pi)
+    integer ::lmxa,nlml,nsp,l,isp,m
+    real(8):: qsum(n0,nsp) ,sab(3,3,n0,nsp), dmatl(0:lmxa,0:lmxa,nlml,3,3,nsp),pnz(n0,2),qz,hz
+    real(8),parameter:: pi=4d0*datan(1d0),srfpi = dsqrt(4d0*pi)
     qsum=0d0
     do  isp = 1, nsp
        do  l = 0, lmxa
@@ -715,8 +670,7 @@ contains
     enddo
   end subroutine mkrou3
   subroutine dinv22(a,ainv) ! ainv  :Inverse of a,  A.Chantis
-    double precision :: a(2,2), ainv(2,2)
-    double precision :: det,aloc(2,2)
+    real(8) :: a(2,2), ainv(2,2),det,aloc(2,2)
     det = a(1,1)*a(2,2) - a(1,2)*a(2,1)
     if (det == 0d0) call rx('INV22: vanishing determinant')
     ainv(1,1) = a(2,2)/det

@@ -1,17 +1,16 @@
 module m_augmat !- Make augmentation matrices sig,tau,pi for one site
+  use m_lmfinit,only: n0
   public augmat
   private
 contains
-  subroutine augmat ( z,rmt,rsma,lmxa,pnu,pnz,kmax,nlml,a,nr,nsp,lso,rwgt,  & 
+  subroutine augmat ( z,rmt,rsma,lmxa,pnu,pnz,kmax,nlml,a,nr,nsp,lso,rwgt,  &  !- Make augmentation matrices sig,tau,pi for one site
        v0,v1,v2,gpotb,gpot0,nkaph,nkapi,lmxh,lh,eh,rsmh,ehl,rsml,rs3,vmtz,lmaxu,vorb,lldau,idu, &
        iblu,&
        osig, otau, oppi, ohsozz,ohsopm, phzdphz, hab, vab, sab,rotp)
-    use m_lmfinit,only: n0,nkap0,nppn,nrmx
+    use m_lmfinit,only: nkap0,nppn,nrmx
     use m_struc_def, only: s_rv1,s_cv1,s_sblock,s_rv4,s_cv5
     use m_gaugm,only:  gaugm
     use m_potpus,only: potpus
-    !- Make augmentation matrices sig,tau,pi for one site
-    ! ----------------------------------------------------------------------
     !o Outputs
     !o   osig  :augmentation overlap integrals; see Remarks.
     !o   otau  :augmentation kinetic energy integrals; see Remarks.
@@ -319,27 +318,21 @@ contains
     !   we neither use ohsopm(1,ib)%soffd(:,isp=2) and ohsopm(3,ib)%soffd(:,isp=2).
     !
     !     Generally speaking, we may need to calculate all blocks ohsozz%soffd, ohsopm%sdiag, ohsopp
-
     implicit none
     type(s_cv5) :: oppi(3)
     type(s_sblock):: ohsozz(3),ohsopm(3)
-    type(s_rv4) :: otau(3)
-    type(s_rv4) :: osig(3)
-    real(8):: phzdphz(nppn,n0,2), hab(3,3,n0,nsp),vab(3,3,n0,nsp),sab(3,3,n0,nsp)
-
-    integer :: lmxa,kmax,nlml,nr,nsp,nkaph,nkapi,lmxh,lso, lmaxu,lldau,iblu,idu(4)
-    integer::  lh(nkap0), k,ll,lmxl,nlma,nlmh,i, lxa(0:kmax),kmax1
-    real(8):: z,rmt,rsma,a,rofi(nrmx),rwgt(nr),v0(nr,nsp), pnu(n0,nsp),pnz(n0,nsp),&
+    type(s_rv4) :: otau(3), osig(3)
+    integer :: lmxa,kmax,nlml,nr,nsp,nkaph,nkapi,lmxh,lso, lmaxu,lldau,iblu,idu(4),&
+         lh(nkap0), k,ll,lmxl,nlma,nlmh,i, lxa(0:kmax),kmax1
+    real(8):: phzdphz(nppn,n0,2), hab(3,3,n0,nsp),vab(3,3,n0,nsp),sab(3,3,n0,nsp),&
+         z,rmt,rsma,a,rofi(nrmx),rwgt(nr),v0(nr,nsp), pnu(n0,nsp),pnz(n0,nsp),&
          v1(nr,nlml,nsp),v2(nr,nlml,nsp),gpot0(nlml),gpotb(nlml), &
          eh(n0,nkaph),rsmh(n0,*),ehl(n0),rsml(n0), rs3,vmtz,&
-         pp(n0,2,5), vdif(nr,nsp),sodb(3,3,n0,nsp,2), &
-         vum((lmxa+1)**2,nlml,3,3,nsp), &
+         pp(n0,2,5), vdif(nr,nsp),sodb(3,3,n0,nsp,2), vum((lmxa+1)**2,nlml,3,3,nsp), &
          fh(nr*(lmxh+1)*nkap0),xh(nr*(lmxh+1)*nkap0), &
          vh((lmxh+1)*nkap0),fp(nr*(lmxa+1)*(kmax+1)), &
          dh((lmxh+1)*nkap0),xp(nr*(lmxa+1)*(kmax+1)), &
-         vp((lmxa+1)*(kmax+1)),dp((lmxa+1)*(kmax+1)),&
-         rotp(0:lmxa,nsp,2,2)
-         
+         vp((lmxa+1)*(kmax+1)),dp((lmxa+1)*(kmax+1)), rotp(0:lmxa,nsp,2,2)
     complex(8):: vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
     complex(8):: vumm(-lmaxu:lmaxu,-lmaxu:lmaxu,3,3,2,0:lmaxu)
     real(8),allocatable:: qum(:,:,:,:,:)
@@ -347,45 +340,36 @@ contains
     call tcn('augmat')
     call radmsh(rmt,a,nr,rofi)
     do  k = 1, lmxh+1 ! check; see description of rsmh above
-       if(pnz(k,1) /= 0 .AND. pnz(k,1) < 10 .AND. rsmh(k,nkapi+1) /= 0) &
-            call rx1('augmat: illegal value for rsmh',rsmh(k,nkapi+1))
+       if(pnz(k,1)/= 0.AND.pnz(k,1)<10.AND.rsmh(k,nkapi+1)/= 0)call rx1('augmat: illegal value for rsmh',rsmh(k,nkapi+1))
     enddo
     nlma = (lmxa+1)**2
     lmxl = ll(nlml)
     lxa=lmxa
-    vdif(1:nr,1:nsp) = y0*v1(1:nr,1,1:nsp) - v0(1:nr,1:nsp)
-    !vdif= extra part of spherical potential for deterimning radial function
+    vdif(1:nr,1:nsp) = y0*v1(1:nr,1,1:nsp) - v0(1:nr,1:nsp) !vdif= extra part of spherical potential for deterimning radial function
     ! --- Make hab,vab,sab and potential parameters pp ---
     allocate( qum((lmxa+1)**2,(lmxl+1),3,3,nsp))
-    call potpus(z,rmt,lmxa,v0,vdif,a,nr,nsp,lso,rofi,pnu,pnz,ehl,rsml,rs3,vmtz, &
-         phzdphz,hab,vab,sab,sodb,rotp)
-    ! --- Moments and potential integrals of ul*ul, ul*sl, sl*sl ---
-    call momusl(z,rmt,lmxa,pnu,pnz,rsml,ehl,lmxl,nlml,a,nr,nsp,rofi,rwgt,v0,v1, &
-         qum,vum)
+    call potpus(z,rmt,lmxa,v0,vdif,a,nr,nsp,lso,rofi,pnu,pnz,ehl,rsml,rs3,vmtz, phzdphz,hab,vab,sab,sodb,rotp)
+    call momusl(z,rmt,lmxa,pnu,pnz,rsml,ehl,lmxl,nlml,a,nr,nsp,rofi,rwgt,v0,v1, qum,vum) !Moments and potential integrals of ul*ul, ul*sl, sl*sl ---
     ! --- Set up all radial head and tail functions, and their BC's ---
     nlmh = (lmxh+1)**2
     fh=0d0
     call fradhd(nkaph,eh,rsmh,lh,lmxh,nr,rofi, fh,xh,vh,dh)
     call fradpk(kmax,rsma,lmxa,nr,rofi,        fp,xp,vp,dp)
-    ! LDA+U: Get vumm for (u,s,gz) from vorb for phi.
-    if(lldau>0) call vlm2us(lmaxu,rmt,idu,lmxa,iblu,vorb,phzdphz,rotp,vumm)
-    !...Pkl*Pkl !tail x tail
+    if(lldau>0) call vlm2us(lmaxu,rmt,idu,lmxa,iblu,vorb,phzdphz,rotp,vumm) ! LDA+U: Get vumm for (u,s,gz) from vorb for phi.
     kmax1=kmax+1
-    call gaugm(nr,nsp,lso,rofi,rwgt,lmxa,lmxl,nlml,v2,gpotb,gpot0,hab,vab,sab,sodb,qum,vum,&
+    call gaugm(nr,nsp,lso,rofi,rwgt,lmxa,lmxl,nlml,v2,gpotb,gpot0,hab,vab,sab,sodb,qum,vum,& !...Pkl*Pkl !tail x tail
          lmaxu,vumm,lldau,idu,&
          lmxa,&
          kmax1,kmax1,lmxa,lxa,nlma, fp,xp,vp,dp,&
          kmax1,kmax1,lmxa,lxa,nlma, fp,xp,vp,dp,&
          osig(1)%v, otau(1)%v, oppi(1)%cv, ohsozz(1)%sdiag, ohsopm(1)%soffd)
-    !...Hsm*Pkl! head x tail
-    call gaugm(nr,nsp,lso,rofi,rwgt,lmxa,lmxl,nlml,v2,gpotb,gpot0,hab,vab,sab,sodb,qum,vum,&
+    call gaugm(nr,nsp,lso,rofi,rwgt,lmxa,lmxl,nlml,v2,gpotb,gpot0,hab,vab,sab,sodb,qum,vum,& !...Hsm*Pkl! head x tail
          lmaxu,vumm,lldau,idu,&
          lmxh,&
          nkaph,nkapi,lmxh,lh, nlmh, fh,xh,vh,dh,&
          kmax1,kmax1,lmxa,lxa,nlma, fp,xp,vp,dp,&
          osig(2)%v, otau(2)%v, oppi(2)%cv, ohsozz(2)%sdiag, ohsopm(2)%soffd)
-    !...Hsm*Hsm! head x head
-    call gaugm(nr,nsp,lso,rofi,rwgt,lmxa,lmxl,nlml,v2,gpotb,gpot0,hab,vab,sab,sodb,qum,vum,&
+    call gaugm(nr,nsp,lso,rofi,rwgt,lmxa,lmxl,nlml,v2,gpotb,gpot0,hab,vab,sab,sodb,qum,vum,& !...Hsm*Hsm! head x head
          lmaxu,vumm,lldau,idu,&
          lmxh,&
          nkaph,nkapi,lmxh,lh,nlmh, fh,xh,vh,dh,&
@@ -393,10 +377,7 @@ contains
          osig(3)%v, otau(3)%v, oppi(3)%cv, ohsozz(3)%sdiag, ohsopm(3)%soffd)
     call tcx('augmat')
   end subroutine augmat
-  subroutine momusl(z,rmt,lmxa,pnu,pnz,rsml,ehl,lmxl,nlml,a,nr,nsp, rofi,rwgt,v0,v1, qum,vum)
-    !- Moments of ul*ul, ul*sl, sl*sl and their integrals with true pot.
-    ! ----------------------------------------------------------------------
-    !i Inputs
+  subroutine momusl(z,rmt,lmxa,pnu,pnz,rsml,ehl,lmxl,nlml,a,nr,nsp,rofi,rwgt,v0,v1, qum,vum)!Moments of ul*ul,ul*sl,sl*sl and their integrals with true pot.
     !i   z     :nuclear charge
     !i   rmt   :augmentation radius, in a.u.
     !i   lmxa  :augmentation l-cutoff
@@ -427,27 +408,19 @@ contains
     !r   Diagonal integrals (l1=l2, l=0 potential) are treated specially:
     !r   small component of w.f. is explicitly taken into account.
     !r   This routine does not rely on any special properties of (u,s,gz)
-    !u Updates
-    !u   31 Jul 04 normalization of local orbitals now depends on type.
-    !u             Altered argument list.
-    !u   21 Aug 01 Added local orbitals.  Altered argument list.
-    !u   13 Jun 00 spin polarized
-    !u   16 May 00 Adapted from nfp momusl.f
-    ! ----------------------------------------------------------------------
     implicit none
-    integer :: lmxa,lmxl,nlml,nr,nsp,n0
-    parameter (n0=10)
-    double precision :: rmt,a,z,rofi(nr),rwgt(nr),rsml(n0),ehl(n0), &
+    integer :: lmxa,lmxl,nlml,nr,nsp
+    real(8) :: rmt,a,z,rofi(nr),rwgt(nr),rsml(n0),ehl(n0), &
          v0(nr,nsp),v1(nr,nlml,nsp),pnu(n0,nsp),pnz(n0,nsp), &
          qum(0:lmxa,0:lmxa,0:lmxl,3,3,nsp), &
-         vum(0:lmxa,0:lmxa,nlml,3,3,nsp)
-    logical :: lpz1,lpz2
-    integer :: l1,l2,lm,i,mlm,isp
-    double precision :: pi,srfpi,xx, &
+         vum(0:lmxa,0:lmxa,nlml,3,3,nsp),&
+         pi,srfpi,xx, &
          quu,qus,qss,quz,qsz,qzz,vuu,vus,vss,vv,vuz,vsz,vzz,vvv(nr), &
          ul(nr,0:lmxa,nsp),ruu(nr,0:lmxa,2,nsp), &
          sl(nr,0:lmxa,nsp),rus(nr,0:lmxa,2,nsp), &
          gz(nr,0:lmxa,nsp),rss(nr,0:lmxa,2,nsp)
+    logical :: lpz1,lpz2
+    integer :: l1,l2,lm,i,mlm,isp
     call tcn('momusl')
     pi = 4d0*datan(1d0)
     srfpi = dsqrt(4d0*pi)
@@ -548,10 +521,9 @@ contains
     enddo
     call tcx('momusl')
   end subroutine momusl
-  subroutine vlm2us(lmaxu,rmt,idu,lmxa,iblu,vorb,phzdphz,rotp,vumm)
+  subroutine vlm2us(lmaxu,rmt,idu,lmxa,iblu,vorb,phzdphz,rotp,vumm)!- Rotate vorb from (phi,phidot) to (u,s) and store in vumm
     use m_lmfinit,only: nppn,stdo
     use m_ftox
-    !- Rotate vorb from (phi,phidot) to (u,s) and store in vumm
     !i   lmaxu :dimensioning parameter for U matrix
     !i   lmxa  :augmentation l-cutoff
     !i   vorb  :orbital-dependent potential matrices
@@ -565,19 +537,15 @@ contains
     !o         :vumm(m1,m2,i,j) = <u_i| vorb(m1,m2) |u_j>
     implicit none
     integer :: lmaxu,lmxa,iblu,idu(4),m1,m2,l,i
-    integer,parameter:: n0=10
     real(8):: rmt,phi,dlphi,phip,dlphip,dphi,dphip, r12,r21,r11,r22,det, phz,dphz,&
          phzdphz(nppn,n0,2),rotpp(2,2),rotppt(2,2),rotp(0:lmxa,2,2,2) !nsp=2 expected
-    complex(8):: vzz,vuz,vsz,vzu,vzs, Vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,2,*), &
-         vumm(-lmaxu:lmaxu,-lmaxu:lmaxu,3,3,2,0:lmaxu)
+    complex(8):: vzz,vuz,vsz,vzu,vzs, Vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,2,*), vumm(-lmaxu:lmaxu,-lmaxu:lmaxu,3,3,2,0:lmaxu)
     if(lmaxu>lmxa) call rx('vlm2ux:lmaxu>lmxa')
     vumm=0d0 !corrected at 2023feb3 
     do  l = 0, lmaxu !min(lmxa,3) ! ... Rotate Vorb from phi,phidot basis to u,s basis
        if (idu(l+1) == 0) cycle
        iblu = iblu+1
        do  i = 1, 2
-!          write(6,*) 'sumcheck1 ',sum(Vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,i,iblu))
-!          write(6,*) 'sumcheck1a',sum(abs(Vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,i,iblu)))
           rotpp  = rotp(l,i,:,:)
           rotppt = transpose(rotpp) !
           ! Vorb is for E_vorb= a_phi *Vorb *a_phi.
@@ -588,11 +556,9 @@ contains
           vumm(:,:,1,2,i,l) = rotpp(1,1)*Vorb(:,:,i,iblu)*rotppt(1,2)
           vumm(:,:,2,1,i,l) = rotpp(2,1)*Vorb(:,:,i,iblu)*rotppt(1,1)
           vumm(:,:,2,2,i,l) = rotpp(2,1)*Vorb(:,:,i,iblu)*rotppt(1,2)
-          !write(stdo,ftox)' vvvvlm2us ',iblu,l,i,ftod(phzdphz(1:2,l+1,i))
-          ! (au-phz, as-dphz)*vumm*(au-phz, as-dphz)^t for gz is expanded to be
           phz  = phzdphz(1,l+1,i)
           dphz = phzdphz(2,l+1,i)
-          if (phz /= 0) then
+          if (phz /= 0) then ! (au-phz, as-dphz)*vumm*(au-phz, as-dphz)^t for gz is expanded to be
              vumm(:,:,1:2,3,i,l)= - phz*vumm(:,:,1:2,1,i,l) - dphz*vumm(:,:,1:2,2,i,l) !vuz,vsz
              vumm(:,:,3,1:2,i,l)= - phz*vumm(:,:,1,1:2,i,l) - dphz*vumm(:,:,2,1:2,i,l) !vzu,vzs
              vumm(:,:,3,3,i,l)  =   phz**2*vumm(:,:,1,1,i,l) + &
@@ -600,6 +566,5 @@ contains
           endif
        enddo
     enddo
-!    write(6,*) 'sumcheck2',sum(vumm),sum(abs(vumm))
   end subroutine vlm2us
 end module m_augmat

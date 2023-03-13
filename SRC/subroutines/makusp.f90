@@ -1,8 +1,5 @@
-subroutine makusp(n0,z,nsp,rmax,lmxa,v,a,nr,pnu,pnz,rsml,ehl, ul,sl,gz,ruu,rus,rss)
+subroutine makusp(n0,z,nsp,rmax,lmxa,v,a,nr,pnu,pnz,rsml,ehl, ul,sl,gz,ruu,rus,rss)!Augmentation func. of pure val,slo (times r) for spherical V and b.c.
   use m_hansr,only: hansr
-!  use m_vxtrap,only: vxtrap
-  !- Augmentation functions of pure val,slo (times r) from spherical V and b.c.
-  ! ----------------------------------------------------------------------
   !r  ul: linear combination of phi,phidot val=1 slo=0
   !r  sl: linear combination of phi,phidot val=0 slo=1
   !r      ul and sl are r * u and r * s, respectively.
@@ -61,21 +58,10 @@ subroutine makusp(n0,z,nsp,rmax,lmxa,v,a,nr,pnu,pnz,rsml,ehl, ul,sl,gz,ruu,rus,r
   !u   16 May 00 Adapted from nfp makusp, makusr and potpsr.
   ! ----------------------------------------------------------------------
   implicit none
-  integer :: lmxa,nr,nsp,n0
-  double precision :: a,rmax,z,rsml(0:lmxa),ehl(0:lmxa), &
-       v(nr,1),pnu(n0,2),pnz(n0,2), &
-       ul(nr,lmxa+1,1),sl(nr,lmxa+1,1),gz(nr,lmxa+1,1), &
-       ruu(nr,lmxa+1,2,1),rus(nr,lmxa+1,2,1),rss(nr,lmxa+1,2,1)
-  integer :: i,l,k,lpz,lpzi,nrbig,idx
-!  parameter (nrx=1501)
-  double precision :: dphi,dphip,enu,ez,p,phi,phip, &
-       g(nr,2),gp(nr,8),gzl(nr,2),phz,dphz
-  double precision :: rofi(nr),rwgt(nr)!,vbig(nrx,2)
-  double precision :: xi(0:n0),wk(2),fac1
-!  logical:: isanrg, l_dummy_isanrg
-! --- Make rofi,rwgt, and possibly extended mesh ---
-!  call vxtrap(1,z,rmax,lmxa,v,a,nr,nsp,pnz,rs3,vmtz,nrx,lpz,nrbig,rofi,rwgt,vbig)
-!  if(nrbig<nr.or.nrbig>nrx) call rx('makusp:nrbig<nr.or.nrbig>nrx')
+  integer :: lmxa,nr,nsp,n0,i,l,k,lpz,lpzi,nrbig,idx
+  real(8):: a,rmax,z,rsml(0:lmxa),ehl(0:lmxa), v(nr,1),pnu(n0,2),pnz(n0,2), &
+       ul(nr,lmxa+1,1),sl(nr,lmxa+1,1),gz(nr,lmxa+1,1), ruu(nr,lmxa+1,2,1),rus(nr,lmxa+1,2,1),rss(nr,lmxa+1,2,1)
+  real(8):: dphi,dphip,enu,ez,p,phi,phip, g(nr,2),gp(nr,8),gzl(nr,2),phz,dphz,rofi(nr),rwgt(nr),xi(0:n0),wk(2),fac1
   call radmsh(rmax,a,nr,rofi)
   do  i = 1, nsp
      do  l = 0, lmxa
@@ -88,17 +74,15 @@ subroutine makusp(n0,z,nsp,rmax,lmxa,v,a,nr,pnu,pnz,rsml,ehl, ul,sl,gz,ruu,rus,r
            if (lpzi > 1) then !  Scale extended local orbital
               call hansr(rsml(l),0,l,1,[l],[ehl(l)],[rmax**2],1,1,[idx],11,xi)
               fac1 = gzl(nr,1)/rmax/xi(l)
-              gzl=gzl/fac1 !call dscal(2*nr,1/fac1,gzl,1)
+              gzl=gzl/fac1 
            endif
         endif
-        call makrwf(0,z,rmax,l,v(1,i),a,nr,rofi,pnu(1,i),2,g,gp, &
-             enu,phi,dphi,phip,dphip,p)
+        call makrwf(0,z,rmax,l,v(1,i),a,nr,rofi,pnu(1,i),2,g,gp,enu,phi,dphi,phip,dphip,p)
         !   ... Scale gz so that <|gz-P(g,gp)|^2> = 1
-        call makus2(lpzi,nr,rofi,g,gp,gzl,phi,dphi,phip,dphip, &
-             phz,dphz,l,enu,ez,z,v(1,i),ul(1,k,i),sl(1,k,i), &
+        call makus2(lpzi,nr,rofi,g,gp,gzl,phi,dphi,phip,dphip,phz,dphz,l,enu,ez,z,v(1,i),ul(1,k,i),sl(1,k,i), &
              ruu(1,k,1,i),rus(1,k,1,i),rss(1,k,1,i), &
              ruu(1,k,2,i),rus(1,k,2,i),rss(1,k,2,i))
-        if (pnz(k,i) > 0) gz(:,k,i)=gzl(1:nr,1) !call dcopy(nr,gzl,1,gz(1,k,i),1)
+        if (pnz(k,i) > 0) gz(:,k,i)=gzl(1:nr,1)
      enddo
   enddo
   do  i = 1, nsp
@@ -107,11 +91,8 @@ subroutine makusp(n0,z,nsp,rmax,lmxa,v,a,nr,pnu,pnz,rsml,ehl, ul,sl,gz,ruu,rus,r
      enddo
   enddo
 end subroutine makusp
-subroutine makus2(lpz,nr,rofi,g,gp,gz,phi,dphi,phip,dphip,phz, &
-     dphz,l,e,ez,z,v,  ul,sl,ruu,rus,rss,ruz,rsz,rzz)
+subroutine makus2(lpz,nr,rofi,g,gp,gz,phi,dphi,phip,dphip,phz,dphz,l,e,ez,z,v, ul,sl,ruu,rus,rss,ruz,rsz,rzz)!Kernel to make u and s from g and gp for one l
   use m_lmfinit,only: c=>cc
-  !- Kernel to make u and s from g and gp, for one l
-  ! ----------------------------------------------------------------------
   !i Inputs
   !l   lpz   :flags how local orbitals is to be treated in current channel
   !l         :0 no local orbital gz
@@ -156,13 +137,9 @@ subroutine makus2(lpz,nr,rofi,g,gp,gz,phi,dphi,phip,dphip,phz, &
   !u   21 Aug 01 extended to computation of semicore states
   ! ----------------------------------------------------------------------
   implicit none
-  integer :: l,nr,lpz
-  double precision :: dphi,dphip,e,ez,phi,phip,phz,dphz,z
-  double precision :: g(nr*2),gp(nr*2),gz(nr*2),rofi(nr),v(nr),ul(nr), &
-       sl(nr),ruu(nr),rus(nr),rss(nr),ruz(nr),rsz(nr),rzz(nr)
-  integer :: ir,jr
-  double precision :: as,au,bs,bu,det,fllp1,gfac,gf11,gf12,gf22,r,sx, &
-       tmcr,ux,phzl,dphzl
+  integer :: l,nr,lpz,ir,jr
+  real(8) :: dphi,dphip,e,ez,phi,phip,phz,dphz,z,as,au,bs,bu,det,fllp1,gfac,gf11,gf12,gf22,r,sx, tmcr,ux,phzl,dphzl,&
+       g(nr*2),gp(nr*2),gz(nr*2),rofi(nr),v(nr),ul(nr),sl(nr),ruu(nr),rus(nr),rss(nr),ruz(nr),rsz(nr),rzz(nr)
   fllp1 = l*(l+1)
   det = phi*dphip - dphi*phip
   au = dphip/det
@@ -176,9 +153,8 @@ subroutine makus2(lpz,nr,rofi,g,gp,gz,phi,dphi,phip,dphip,phz, &
      phzl = phz
      dphzl = dphz
   endif
-  if (z /= 0) then
-     !       This branch computes products of (g,gp,gz)
-     if (lpz /= 0) then
+  if (z /= 0) then 
+     if (lpz /= 0) then !   This branch computes products of (g,gp,gz)
         do  ir = 1, nr
            jr = ir+nr
            r = rofi(ir)
@@ -187,58 +163,44 @@ subroutine makus2(lpz,nr,rofi,g,gp,gz,phi,dphi,phip,dphip,phz, &
            tmcr = r*c - (r*v(ir) - 2d0*z - r*ez)/c
            gf22 = 1d0 + fllp1/tmcr**2
            gf12 = (gf11 + gf22)/2
-           !           (u,s), large component
-           ul(ir) = au*g(ir) + bu*gp(ir)
+           ul(ir) = au*g(ir) + bu*gp(ir) ! (u,s), large component
            sl(ir) = as*g(ir) + bs*gp(ir)
-           !           (u,s), small component
-           ux = au*g(jr) + bu*gp(jr)
+           ux = au*g(jr) + bu*gp(jr)  ! (u,s), small component
            sx = as*g(jr) + bs*gp(jr)
-           !           Subtract (phz ul + dphz sl) from gz
-           gz(ir) = gz(ir) - phzl*ul(ir) - dphzl*sl(ir)
+           gz(ir) = gz(ir) - phzl*ul(ir) - dphzl*sl(ir) !Subtract (phz ul + dphz sl) from gz
            gz(jr) = gz(jr) - phzl*ux     - dphzl*sx
-
            ruu(ir) = gf11*ul(ir)*ul(ir) + ux*ux
            rus(ir) = gf11*ul(ir)*sl(ir) + ux*sx
            rss(ir) = gf11*sl(ir)*sl(ir) + sx*sx
-
            ruz(ir) = gf12*ul(ir)*gz(ir) + ux*gz(jr)
            rsz(ir) = gf12*sl(ir)*gz(ir) + sx*gz(jr)
            rzz(ir) = gf22*gz(ir)*gz(ir) + gz(jr)*gz(jr)
         enddo
-
-        !       This branch computes products of (g,gp) only
-     else
+     else !       This branch computes products of (g,gp) only
         do  ir = 1, nr
            jr = ir+nr
            r = rofi(ir)
            tmcr = r*c - (r*v(ir) - 2d0*z - r*e)/c
            gfac = 1d0 + fllp1/tmcr**2
-           !           (u,s), large component
-           ul(ir) = au*g(ir) + bu*gp(ir)
+           ul(ir) = au*g(ir) + bu*gp(ir) !(u,s), large component
            sl(ir) = as*g(ir) + bs*gp(ir)
-           !           (u,s), small component
-           ux = au*g(jr) + bu*gp(jr)
+           ux = au*g(jr) + bu*gp(jr) !(u,s), small component
            sx = as*g(jr) + bs*gp(jr)
-
            ruu(ir) = gfac*ul(ir)*ul(ir) + ux*ux
            rus(ir) = gfac*ul(ir)*sl(ir) + ux*sx
            rss(ir) = gfac*sl(ir)*sl(ir) + sx*sx
         enddo
      endif
-     ! --- Treat z=0 nonrelativistically ---
-  else
+  else ! --- Treat z=0 nonrelativistically ---
      if (lpz /= 0) then
         do  ir = 1, nr
            r = rofi(ir)
            ul(ir) = au*g(ir) + bu*gp(ir)
            sl(ir) = as*g(ir) + bs*gp(ir)
-           !           Subtract (phzl ul + dphzl sl) from gz
-           gz(ir) = gz(ir) - phzl*ul(ir) - dphzl*sl(ir)
-
+           gz(ir) = gz(ir) - phzl*ul(ir) - dphzl*sl(ir) !Subtract (phzl ul + dphzl sl) from gz
            ruu(ir) = ul(ir)*ul(ir)
            rus(ir) = ul(ir)*sl(ir)
            rss(ir) = sl(ir)*sl(ir)
-
            ruz(ir) = ul(ir)*gz(ir)
            rsz(ir) = sl(ir)*gz(ir)
            rzz(ir) = gz(ir)*gz(ir)
@@ -254,4 +216,3 @@ subroutine makus2(lpz,nr,rofi,g,gp,gz,phi,dphi,phip,dphip,phz, &
      endif
   endif
 end subroutine makus2
-

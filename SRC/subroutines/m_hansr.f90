@@ -4,13 +4,10 @@ module m_hansr !Smooth Hankel functions in real space.
   ! “Nonsingular Hankel Functions as a New Basis for Electronic Structure Calculations.”
   ! Journal of Mathematical Physics 39, no. 6 (June 1, 1998): 3393–3425.
   ! https://doi.org/doi:10.1063/1.532437.
-  public hansr,hanr,hansmd, hansmr,corprm
-  ! hansmr is equilvaent to hansr except numerical accuracy problem. See note of hansmr
+  public hansr,hanr,hansmd, hansmr,corprm ! hansmr is equilvaent to hansr except numerical accuracy problem. See note of hansmr
   private
 contains
-  subroutine hansr(rsm,lmn,lmx,nxi,lxi,exi,rsq,nrx,nr,idx,job,xi)
-    !- Vector of smoothed Hankel functions, set of negative e's
-    ! ---------------------------------------------------------------
+  subroutine hansr(rsm,lmn,lmx,nxi,lxi,exi,rsq,nrx,nr,idx,job,xi) !- Vector of smoothed Hankel functions, set of negative e's
     !i Inputs
     !i   rsm     smoothing radius of smoothed Hankel
     !i   nrx,lmx dimensions xi
@@ -50,11 +47,11 @@ contains
     ! ---------------------------------------------------------------
     implicit none
     integer :: nrx,nr,lmn,lmx,idx(nrx,2),nxi,lxi(nxi),job
-    double precision :: rsq(nr),e,exi(nxi)
-    double precision :: xi(nrx,lmn:lmx,nxi),wk(nrx,4+lmx-lmn)
+    real(8) :: rsq(nr),e,exi(nxi)
+    real(8) :: xi(nrx,lmn:lmx,nxi),wk(nrx,4+lmx-lmn)
     integer :: ir,j,l,k,n0,n1,n2,ie,lmax
-    double precision :: a,rsm,y0,a2,emin,tol
-    double precision :: rc1,rc2,akap,rl,rl0
+    real(8) :: a,rsm,y0,a2,emin,tol
+    real(8) :: rc1,rc2,akap,rl,rl0
     parameter (tol=1d-15)
     logical :: ltmp,lsort,lscal
     lscal = mod(job,10) .ne. 0
@@ -203,10 +200,8 @@ contains
        enddo
     enddo
   end subroutine hansr
-  subroutine hansr1(rsq,lmin,lmax,nrx,nr,e,rsm,rmax,xi) ! Power series for points within rc1
-    !- Vector of smoothed hankel functions for l=0...lmax, negative e
+  subroutine hansr1(rsq,lmin,lmax,nrx,nr,e,rsm,rmax,xi)!Power series for points within rc1. Vector of smoothed hankel functions for l=0...lmax, negative e
     !  by power series expansion.
-    ! ---------------------------------------------------------------
     !i Inputs
     !i   rsq,nr vector of points r**2, and number of points.
     !i   nrx    dimensions xi; nrx must be gt nr.
@@ -227,13 +222,12 @@ contains
     ! ---------------------------------------------------------------
     implicit none
     integer :: nrx,nr,lmin,lmax,nmax,nm1,nm2
-    double precision :: rsq(nrx),e,xi(nrx,lmin:lmax),rsm,rmax
+    real(8) :: rsq(nrx),e,xi(nrx,lmin:lmax),rsm,rmax
     parameter (nmax=80,nm1=14,nm2=20)
-    double precision :: derfc,cof0(-1:20),cofl(0:nmax),tol
-    double precision :: a,a2,add,akap,al,cc,fac,rhs,ta,ta2l,y0,r2max,x
+    real(8) :: cof0(-1:20),cofl(0:nmax),tol
+    real(8) :: a,a2,add,akap,al,cc,fac,rhs,ta,ta2l,y0,r2max,x
     integer :: i,l,ir,m,nmaxl
     parameter (tol=1d-20)
-    ! --- Setup ---
     if (lmax < lmin .OR. nr == 0) return
     if (lmin < -1 .OR. lmin > 0) call rx('hansr1: bad lmin')
     y0 = 1/dsqrt(16*datan(1d0))
@@ -243,7 +237,6 @@ contains
     akap = dsqrt(-e)
     cc = 4d0*y0*a*dexp(e/(ta*ta))
     r2max = rmax**(2*nm1)
-
     ! --- 0 order coefficient ---
     fac = derfc(akap/ta)
     cof0(-1) = fac/akap
@@ -322,9 +315,7 @@ contains
        ta2l = ta2l*(2*a2)
 20  enddo
   end subroutine hansr1
-  subroutine hansr2(rsq,lmin,lmax,nrx,nr,e,rsm,wk,wk2,xi) !Normal evaluation of smoothed Hankels
-    !- Vector of smoothed hankel functions for l=0...lmax, negative e.
-    ! ---------------------------------------------------------------
+  subroutine hansr2(rsq,lmin,lmax,nrx,nr,e,rsm,wk,wk2,xi) !Normal evaluation of smoothed Hankels !Vector of smoothed hankel functions for l=0...lmax, negative e.
     !i Inputs
     !i   rsq,nr:vector of points r**2, and number of points.
     !i   lmin:  starting l for which to evaluate xi (must be 0 or -1).
@@ -343,15 +334,15 @@ contains
     ! ---------------------------------------------------------------
     implicit none
     integer :: nrx,nr,lmin,lmax
-    double precision :: rsq(nrx),e,xi(nrx,lmin:lmax),rsm,wk(nr),wk2(nr)
-    double precision :: sre,r2,xx,ra,h0,arsm,earsm
-    double precision :: akap,a,r,um,up,x,facgl,facdu,dudr
+    real(8) :: rsq(nrx),e,xi(nrx,lmin:lmax),rsm,wk(nr),wk2(nr)
+    real(8) :: sre,r2,xx,ra,h0,arsm,earsm
+    real(8) :: akap,a,r,um,up,x,facgl,facdu,dudr
     integer :: l,ir
     ! ... erfc(x) is evaluated as a ratio of polynomials,
     !     to a relative precision of <10^-15 for x<5.
     !     Different polynomials are used for x<1.3 and x>1.3.
     !     Numerators and denominators are t,b respectively.
-    double precision :: w,f1,f2, &
+    real(8) :: w,f1,f2, &
          t10,t11,t12,t13,t14,t15,t16,t17,b11,b12,b13,b14,b15,b16,b17,b18, &
          t20,t21,t22,t23,t24,t25,t26,t27,b21,b22,b23,b24,b25,b26,b27,b28
     parameter ( &
@@ -379,7 +370,6 @@ contains
     f2(w) = xx*(((((((t27*w+t26)*w+t25)*w+t24)*w+t23)*w+t22)* &
          w+t21)*w+t20)/((((((((b28*w+b27)*w+b26)*w+b25)*w+b24)* &
          w+b23)*w+b22)*w+b21)*w+1)
-
     ! --- Setup ---
     if (lmax < lmin .OR. nr == 0) return
     if (lmin < -1 .OR. lmin > 0) call rx('hansr2: bad lmin')
@@ -391,7 +381,6 @@ contains
     ! ... uncomment the following for upward recursion from l=1...
     if (lmin == -1) facgl = facgl/(2*a**2)
     facdu = 8*a*earsm
-
     ! --- xi(*,lmin), xi(*,lmin+1) ---
     do  20  ir = 1, nr
        r2 = rsq(ir)
@@ -400,7 +389,6 @@ contains
        sre = akap*r
        h0 = dexp(-sre)/r
        xx = earsm*wk(ir)/r
-
        ! ---   Evaluate um,up ---
        x = ra - arsm
        if (x > 1.3d0) then
@@ -419,7 +407,6 @@ contains
        else
           up = f1(x-.5d0)
        endif
-
        !   ... xi(0) = um - up
        xi(ir,0) = um - up
        !   ... xi(-1) = (um + up)*r/akap
@@ -432,7 +419,6 @@ contains
        endif
        wk2(ir) = facgl*wk(ir)
 20  enddo
-
     ! --- xi(ir,l) for l>1 by upward recursion ---
     facgl = 2*a**2
     do  30  l = lmin+2, lmax
@@ -458,8 +444,8 @@ contains
     ! ---------------------------------------------------------------
     implicit none
     integer :: nrx,nr,lmin,lmax
-    double precision :: rsq(nr),e,xi(nrx,lmin:lmax)
-    double precision :: sre,r2,r,h0,xx,akap
+    real(8) :: rsq(nr),e,xi(nrx,lmin:lmax)
+    real(8) :: sre,r2,r,h0,xx,akap
     integer :: l,ir
     if (lmin /= 0 .AND. lmin /= -1) &
          call rx('hanr: input lmin must be -1 or 0')
@@ -557,11 +543,11 @@ contains
     ! ---------------------------------------------------------------
     implicit none
     integer :: mode,lmax
-    double precision :: r,e,rsm
-    double precision :: hs(0:lmax),dhs(0:lmax),ddhs(0:lmax)
-    double precision :: hsp(0:lmax),dhsp(0:lmax),ddhsp(0:lmax)
+    real(8) :: r,e,rsm
+    real(8) :: hs(0:lmax),dhs(0:lmax),ddhs(0:lmax)
+    real(8) :: hsp(0:lmax),dhsp(0:lmax),ddhsp(0:lmax)
     integer :: idx,l,mode0,mode1
-    double precision :: xi(-1:lmax+2) !,wk(2)
+    real(8) :: xi(-1:lmax+2) !,wk(2)
     if (lmax < 0) return
     mode0 = mod(mode,10)
     mode1 = mod(mode/10,10)
@@ -607,33 +593,19 @@ contains
     !r
     !r  See J. Math. Phys. 39, 3393 (1998).
     !r  xi(l)= 2/sqrt(pi) * 2^l int_a^inf u^2l dexp(-r^2*u^2+kap2/4u^2) du
-    !u Updates
-    !u   04 Jul 08 (S. Lozovoi) Bug fix, lmax
-    !u   11 May 07 (S. Lozovoi) small bug fixes
-    ! ---------------------------------------------------------------
     implicit none
     integer :: lmax,l,n,nmax
-    double precision :: r,e,a,xi(0:lmax)
-    double precision :: a0(0:40),a2,add,akap,al,cc,derfc,dudr,ema2r2,fac, &
+    real(8) :: r,e,a,xi(0:lmax),a0(0:40),a2,add,akap,al,cc,dudr,ema2r2,fac, &
          gl,r2n,radd,rfac,rhs,rlim,srpi,sum,ta,ta2l,tol,u,uminus,uplus,w
     parameter (nmax=1000, tol=1d-20, srpi=1.77245385090551602729817d0)
     if (e > 0d0) call rx('hansmr: e gt 0')
     if (lmax > 40) call rx('hansmr: lmax gt 40')
-    ! ... old tolerance
-    !     rlim = 5d0/(a+1d0)
     rlim = 1.5d0/a
     akap = dsqrt(dabs(e))
     ta = a+a
     a2 = a*a
     cc = 4d0*a2*a*dexp(e/(ta*ta))/srpi
-    ! ---- return zero if exponential part very small -------
-    !      if (akap*r.gt.80d0) then
-    !        do  27  l = 0, lmax
-    !  27    xi(l)=0d0
-    !        return
-    !        endif
-    !  --- call bessl if exp(-a*a*r*r) is very small ---
-    if (a*r > 10d0) then
+    if (a*r > 10d0) then !call bessl if exp(-a*a*r*r) is very small ---
        call bessl(e*r*r,lmax,a0,xi)
        rfac = r
        do  l = 0, lmax
@@ -694,10 +666,8 @@ contains
        endif
     endif
   end subroutine hansmr
-  subroutine corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc, rfoc,z)
-    use m_lmfinit,only: pnux=>pnusp,pzx=>pzsp,sspec=>v_sspec
-    !- Returns parameters for smooth core+nucleus representation
-    ! ----------------------------------------------------------------------
+  subroutine corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc, rfoc,z)!- Returns parameters for smooth core+nucleus representation
+    use m_lmfinit,only: pnux=>pnusp,pzx=>pzsp,sspec=>v_sspec,n0
     !i Inputs
     !i  sspec, pnusp, pzsp
     !i   is: species index
@@ -740,15 +710,10 @@ contains
     !l    ccof :coefficient for core tail, for a smoothed Hankel.
     !l          ccof is differs from spec->ctail because ctail is
     !l          constructed for an unsmoothed Hankel.
-    !u Updates
-    !u   15 Sep 01 Generates qsc.  Argument list changed.
-    !u   24 Apr 00 Adapted from nfp corpars.f
-    ! ----------------------------------------------------------------------
     implicit none
     integer :: is,i_copy_size
     real(8):: qcorg , qcorh , qsc , cofg , cofh , ceh , rfoc , z
-    integer:: n0 , lfoc , lmxb , l,isp
-    parameter (n0=10)
+    integer:: lfoc , lmxb , l,isp
     real(8):: pnu(n0),pz(n0),ccof,q0,q1,qc,rmt,rsm,x0(0:n0), xi(0:n0),dgetss
     real(8),parameter:: fpi = 16d0*datan(1d0), srfpi = dsqrt(fpi), y0 = 1d0/srfpi
     lfoc=sspec(is)%lfoca
@@ -758,8 +723,8 @@ contains
     ccof=sspec(is)%ctail
     ceh= sspec(is)%etail
     lmxb=sspec(is)%lmxb
-    pnu= pnux(1:n0,1,is) !sspec(is)%p
-    pz = pzx(1:n0,1,is)  !sspec(is)%pz
+    pnu= pnux(1:n0,1,is) 
+    pz = pzx(1:n0,1,is)  
     rmt = sspec(is)%rmt
     if ( rfoc <= 1d-5 ) rfoc = (sspec(is)%rg)
     qsc = 0
@@ -769,35 +734,25 @@ contains
           if (int(mod(pz(l+1),10d0)) < int(pnu(l+1))) qsc = qsc + 4*l+2
        endif
     enddo
-    ! ... Scale smoothed hankel coeff for exact spillout charge
-    !     q1 = spillout charge in sm. Hankel
-    !     q0 = spillout charge in ordinary Hankel
-    if (ccof /= 0) then
+    if (ccof /= 0) then ! ... Scale smoothed hankel coeff for exact spillout charge
        call hansmr(rmt,0d0,1/rfoc,x0,1)
        call hansmr(rmt,ceh,1/rfoc,xi,1)
-       q1 = srfpi/ceh*(-dexp(rfoc**2/4*ceh) &
-            - rmt**3*(xi(1)-dexp(rfoc**2/4*ceh)*x0(1)))
+       q1 = srfpi/ceh*(-dexp(rfoc**2/4*ceh) - rmt**3*(xi(1)-dexp(rfoc**2/4*ceh)*x0(1))) !q1 = spillout charge in sm. Hankel
        rsm = 0.05d0
        call hansmr(rmt,0d0,1/rsm,x0,1)
        call hansmr(rmt,ceh,1/rsm,xi,1)
-       q0 = srfpi/ceh*(-dexp(rsm**2/4*ceh) &
-            - rmt**3*(xi(1)-dexp(rsm**2/4*ceh)*x0(1)))
+       q0 = srfpi/ceh*(-dexp(rsm**2/4*ceh) - rmt**3*(xi(1)-dexp(rsm**2/4*ceh)*x0(1))) !q0 = spillout charge in ordinary Hankel
        q0 = q0*y0
        q1 = q1*y0
        ccof = ccof*q0/q1
     endif
-    ! ... Set gaussian and hankel charges
     qcorg = qc
     qcorh = 0d0
     if (lfoc > 0) then
-       qcorh = -ccof*dexp(ceh*rfoc*rfoc/4d0)/ceh
+       qcorh = -ccof*dexp(ceh*rfoc*rfoc/4d0)/ceh ! Set gaussian and hankel charges
        qcorg = qc-qcorh
     endif
-    ! ... Coeffients to the the gaussian and hankel terms
-    cofh = -y0*qcorh*ceh*dexp(-ceh*rfoc*rfoc/4d0)
+    cofh = -y0*qcorh*ceh*dexp(-ceh*rfoc*rfoc/4d0)! Coeffients to the the gaussian and hankel terms
     cofg = y0*qcorg
-    !      write (6,352) is,qcorg,qcorh,cofg,cofh
-    !  352 format(' spec',i3,'  qcorg,qcorh=',2f10.6,'  cofg,cofh=',2f12.4)
   end subroutine corprm
 end module m_hansr
-
