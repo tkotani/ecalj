@@ -1,13 +1,17 @@
 !! explanations are old, some are obsolate
 module m_struc_def
   integer,parameter::  n0=10,nkap0=3
-  public s_rv1, s_nv2, s_cv1, s_cv2,s_cv3,s_cv4, s_sblock, s_spec
+  public s_rv1, s_nv2, s_cv1, s_cv2,s_cv3,s_cv4, s_sblock, s_spec,s_rv5
 
   private
 
   type s_rv1
      real(8),allocatable:: v(:)
   end type s_rv1
+
+  type s_rv5
+     real(8),allocatable:: v(:,:,:,:,:)
+  end type s_rv5
 
   type s_cv1
      complex(8),allocatable:: cv(:)

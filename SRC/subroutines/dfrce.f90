@@ -1,7 +1,7 @@
 module m_dfrce
   public dfrce
 contains
-  subroutine dfrce(job,sv_p_orhoat,sv_p_orhat1,qmom,smrho,smrout, dfh)!Correction to force theorem, Harris functional
+  subroutine dfrce(job,orhoat,orhoat_out,qmom,smrho,smrout, dfh)!Correction to force theorem, Harris functional
     use m_lmfinit,only: nvl=>pot_nlml
     use m_supot,only: rv_a_ogv,iv_a_okv
     use m_struc_def
@@ -10,14 +10,10 @@ contains
     use m_supot,only: lat_nabc,k1,k2,k3,lat_ng
     use m_lgunit,only:stdo
     !i Inputs
-    !i   sspec :struct for species-specific information; see routine uspec
-    !i     Elts read: lmxl z p pz lmxa a nr rmt nxi exi chfa rsmfa rg
-    !i     Stored:    *
-    !i     Passed to: pvdf4 pvdf2 rhomom pvdf1 gtpcor corprm smvxcm
     !i   k1..3 :dimensions smrho
     !i   nvl   :sum of local (lmxl+1)**2, lmxl = density l-cutoff
     !i   orhoat:vector of offsets containing site density
-    !i   orhat1:pointer to local densities
+    !i   orhoat_out:pointer to local densities
     !i   elind :Lindhard parameter, used for Lindhard screening
     !i   qmom  :multipole moments of on-site densities (rhomom.f)
     !i   smrho :smooth density on uniform mesh
@@ -33,8 +29,8 @@ contains
     !l         :+10  to screen the rigid shift by the Lindhard function
     !r Remarks
     !! Density
-    !!  sv_p_orhoat: input atomic density that generaed Hamiltonian
-    !!  sv_p_orhat1: new atomic density that the Hamiltonian generated
+    !!  orhoat: input atomic density that generaed Hamiltonian
+    !!  orhoat_out: new atomic density that the Hamiltonian generated
     !!  smrho:  input  density that generaed Hamiltonian
     !!  smrout: output density that the Hamiltonian generated
     !u Updates
@@ -47,8 +43,8 @@ contains
     !u   16 Jun 98 MvS parallelized for SGI
     ! ----------------------------------------------------------------------
     implicit none
-    type(s_rv1) :: sv_p_orhat1(3,*)
-    type(s_rv1) :: sv_p_orhoat(3,*)
+    type(s_rv1) :: orhoat_out(3,*)
+    type(s_rv1) :: orhoat(3,*)
     real(8):: dfh(3,nbas) , qmom(*)
     double complex smrho(k1,k2,k3,*),smrout(k1,k2,k3,*)
     integer :: job,n1,n2,n3,ng,iprint,ib,is,lmxl,iv0,nlm, &
@@ -157,7 +153,7 @@ contains
     ! --- Multipole moments of the output density ---
     allocate(qmout_rv(nvl))
     call pshpr(0)
-    call rhomom (sv_p_orhat1 , qmout_rv , vsum )
+    call rhomom (orhoat_out , qmout_rv , vsum )
     call poppr
     qmout_rv = qmout_rv- qmom(1:nvl)
     ! --- Lindhard dielectric function ---
@@ -193,7 +189,7 @@ contains
        nlm = (lmxl+1)**2
        call pvdf1 ( job , nsp , ib , iiv0(ib), qmom &
             , qmout_rv , ng , rv_a_ogv , g2_rv , yl_rv , iv_iv , qlat , 0 &
-            , cnomi_zv , ceps_zv , cdvx_zv , cvin_zv , sv_p_orhoat ( 1 , &
+            , cnomi_zv , ceps_zv , cdvx_zv , cvin_zv , orhoat ( 1 , &
             ib ) , fes1 , fes2 , fxc )
        do  i = 1, 3
           dfh(i,ib) = -(fes1(i) + fes2(i) + fxc(i))
@@ -228,7 +224,7 @@ contains
     if (allocated(ceps_zv)) deallocate(ceps_zv)
     call tcx('dfrce')
   end subroutine dfrce
-  subroutine pvdf1(job,nsp,ib,iv0,qmom, qmout,ng,gv,g2,yl,iv,qlat,kmax,cnomin,ceps,cdvxc,cvin , sv_p_orhoat, fes1,fes2,fxc)
+  subroutine pvdf1(job,nsp,ib,iv0,qmom, qmout,ng,gv,g2,yl,iv,qlat,kmax,cnomin,ceps,cdvxc,cvin , orhoat, fes1,fes2,fxc)
     use m_struc_def 
     use m_lmfinit,only: nbas,ispec,sspec=>v_sspec
     use m_lmfinit,only:lat_alat,pnuall,pnzall
@@ -265,7 +261,7 @@ contains
     ! ----------------------------------------------------------------------
     implicit none
     integer:: ng , nsp , iv0 , kmax , ib , job , iv(ng,3),i_copy_size
-    type(s_rv1) :: sv_p_orhoat(3)
+    type(s_rv1) :: orhoat(3)
     real(8):: qmom(*) , qmout(*) , gv(ng,3) , tau(3) , fes1(3) , &
          fes2(3) , fxc(3) , g2(ng) , yl(ng,1) , cs(ng) , sn(ng) , qlat(3,3)
     double complex cdn0(ng,nsp),cdn(ng),cdv(ng),ceps(ng), &
@@ -318,8 +314,8 @@ contains
        if (nr > nrmx) call rx('dfrce: nr gt nrmx')
        call radwgt(rmt,a,nr,rwgt)
        nlml = (lmxl+1)**2
-       call radsum ( nr , nr , nlml , nsp , rwgt , sv_p_orhoat( 1 )%v , qloc )
-       call radsum ( nr , nr , nlml , nsp , rwgt , sv_p_orhoat( 2 )%v , ssum )
+       call radsum ( nr , nr , nlml , nsp , rwgt , orhoat( 1 )%v , qloc )
+       call radsum ( nr , nr , nlml , nsp , rwgt , orhoat( 2 )%v , ssum )
        qloc = (qloc-ssum)/y0
        qfat = 0d0
        do  i  = 1, nsp

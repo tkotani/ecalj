@@ -25,7 +25,7 @@ contains
     endif
     if( .NOT. allocated(orhoat_out)) allocate(orhoat_out(3,nbas))
     do  ib = 1, nbas
-       is =  ispec(ib) !ssite(ib)%spec
+       is =  ispec(ib) 
        nr =  sspec(is)%nr
        lmxl= sspec(is)%lmxl
        nlml = (lmxl+1)**2
@@ -43,8 +43,7 @@ contains
        allocate(hbyl_rv(n0,nsp,nbas))
     endif
     call mkrout(oqkkl,oeqkkl, orhoat_out, hab_rv,sab_rv,qbyl_rv,hbyl_rv)
-    if (lrout/=00) then
-       !!  Symmetrize output atomic density and forces frcbandsym is symmetrized
+    if (lrout/=00) then !  Symmetrize output atomic density and forces frcbandsym is symmetrized
        call symrhoat ( orhoat_out, qbyl_rv, hbyl_rv, frcbandsym)
     endif
     call tcx('m_mkrout_init')
@@ -95,8 +94,8 @@ contains
     ! ----------------------------------------------------------------------
     implicit none
     type(s_rv1) :: orhoat_out(3,nbas)
-    type(s_rv1) :: oeqkkl(3,nbas)
-    type(s_rv1) :: oqkkl(3,nbas)
+    type(s_rv5) :: oeqkkl(3,nbas)
+    type(s_rv5) :: oqkkl(3,nbas)
     real(8):: qbyl(n0,nsp,nbas) , hbyl(n0,nsp,nbas) , sab(3,3,n0,nsp,nbas), hab(3,3,n0,nsp,nbas)
     integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc &
          , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , r , ncore , igetss
@@ -529,35 +528,32 @@ contains
     !     call tcn('mkrou4')
     do  isp = 1, nsp
        do  io2 = 1, norb2
-          if (blks2(io2) /= 0) then
-             l2 = ltab2(io2)  ! k2,l2 = k and starting l index for this block
-             k2 = ktab2(io2)
-             nlm21 = l2**2+1
-             nlm22 = nlm21 + blks2(io2)-1
-             do  ilm2 = nlm21, nlm22
-                l2 = ll(ilm2)
-                do  io1 = 1, norb1
-                   if (blks1(io1) /= 0) then
-                      l1 = ltab1(io1) !  k1,l1 = k and starting l index for this block
-                      k1 = ktab1(io1)
-                      nlm11 = l1**2+1
-                      nlm12 = nlm11 + blks1(io1)-1
-                      do  ilm1 = nlm11, nlm12
-                         l1 = ll(ilm1)
-                         ix = max0(ilm1,ilm2)
-                         ix = (ix*(ix-1))/2 + min0(ilm1,ilm2)
-                         do icg = indxcg(ix),indxcg(ix+1)-1
-                            mlm = jcg(icg)
-                            if (mlm <= nlml) then
-                               xx = cg(icg)*qkk12(k1,k2,ilm1,ilm2,isp)
-                               ckk(k1,k2,l1,l2,mlm,isp) = ckk(k1,k2,l1,l2,mlm,isp)+xx
-                            endif
-                         enddo
-                      enddo
-                   endif
+          if (blks2(io2) ==0) cycle 
+          l2 = ltab2(io2)  ! k2,l2 = k and starting l index for this block
+          k2 = ktab2(io2)
+          nlm21 = l2**2+1
+          nlm22 = nlm21 + blks2(io2)-1
+          do  ilm2 = nlm21, nlm22
+             l2 = ll(ilm2)
+             do  io1 = 1, norb1
+                if(blks1(io1) ==0) cycle
+                l1 = ltab1(io1) !  k1,l1 = k and starting l index for this block
+                k1 = ktab1(io1)
+                nlm11 = l1**2+1
+                nlm12 = nlm11 + blks1(io1)-1
+                do  ilm1 = nlm11, nlm12
+                   l1 = ll(ilm1)
+                   ix = max0(ilm1,ilm2)
+                   ix = (ix*(ix-1))/2 + min0(ilm1,ilm2)
+                   do icg = indxcg(ix),indxcg(ix+1)-1
+                      mlm = jcg(icg)
+                      if(mlm<=nlml) then
+                         ckk(k1,k2,l1,l2,mlm,isp) = ckk(k1,k2,l1,l2,mlm,isp)+cg(icg)*qkk12(k1,k2,ilm1,ilm2,isp)
+                      endif
+                   enddo
                 enddo
              enddo
-          endif
+          enddo
        enddo
     enddo
     !     call tcx('mkrou4')

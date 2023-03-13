@@ -104,8 +104,8 @@ contains
     type(s_cv1) :: sv_p_oppi(3,1)
     type(s_rv1) :: sv_p_otau(3,1)
     type(s_rv1) :: sv_p_osig(3,1)
-    type(s_rv1) :: sv_p_oeqkkl(3,1)
-    type(s_rv1) :: sv_p_oqkkl(3,1)
+    type(s_rv5) :: sv_p_oeqkkl(3,1)
+    type(s_rv5) :: sv_p_oqkkl(3,1)
     double complex evec(ndimh,nspc,ndimh,nspc),smrho(k1,k2,k3,isp),smpot(k1,k2,k3,isp)
     integer:: i , k , nevec , lmxax , lmxa , nlmax , nlmto , ig
     double precision :: vavg,wgt,tpiba

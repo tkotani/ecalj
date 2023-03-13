@@ -9,7 +9,7 @@ subroutine makusq(nsites,isite,nev,isp,iq,q,evec, auszall)!Accumulate coefficien
   use m_uspecb,only:uspecb
   use m_orbl,only: Orblib,ktab,ltab,offl,norb,blks
   use m_bstrux,only: bstrux_set,bstr
-  use m_rlocbl,only: rlocb1
+!  use m_rlocbl,only: rlocb1
   implicit none
   intent(in)::    nsites,isite,nev,isp,iq,q,evec
   intent(out)::                                   auszall
@@ -53,7 +53,12 @@ subroutine makusq(nsites,isite,nev,isp,iq,q,evec, auszall)!Accumulate coefficien
          ispcloop: do ispc = 1, nspc ! nspc=1 for so=0,2, nspc=2 for so=1. See m_lmfinit.f90)
             ksp = max(ispc,isp)
             do  ivec = 1, nev ! Loop over eigenfunctions
-               call rlocb1(ndimh, nlma, kmax, evec(1,ispc,ivec), bstr,cPkl)
+               do  k = 0, kmax
+                  do  ilma = 1, nlma
+                     cPkL(k,ilma) =  sum(evec(1:ndimh,ispc,ivec)*bstr(1:ndimh,ilma,k))
+                  enddo
+               enddo
+               !call rlocb1(ndimh, nlma, kmax, evec(1,ispc,ivec), bstr,cPkl)
                call orblib(ib) !Return norb,ltab,ktab,offl
                do  io1 = 1, norb ! Contribution from head part
                   l1  = ltab(io1)

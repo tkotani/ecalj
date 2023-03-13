@@ -1,5 +1,5 @@
 module m_bandcal !band structure calculation
-  use m_struc_def,only: s_rv1
+  use m_struc_def,only: s_rv1,s_rv5
   use m_suham,  only: ndhamx=>ham_ndhamx,nspx=>ham_nspx
   use m_qplist, only: nkp
   use m_mkqp,only: ntet=> bz_ntet, bz_nabc
@@ -25,7 +25,7 @@ module m_bandcal !band structure calculation
   integer,allocatable,protected,public::     ndimhx_(:,:),nevls(:,:) 
   real(8),allocatable,protected,public::     evlall(:,:,:),frcband(:,:), orbtm_rv(:,:,:)
   complex(8),allocatable,protected,public::  smrho_out(:),dmatu(:,:,:,:)
-  type(s_rv1),allocatable,protected,public:: oeqkkl(:,:), oqkkl(:,:)
+  type(s_rv5),allocatable,protected,public:: oeqkkl(:,:), oqkkl(:,:)
   !------------------------------------------------
   logical,private:: debug,sigmamode,call_m_bandcal_2nd,procaron,writeham
   logical,private:: dmatuinit=.true.

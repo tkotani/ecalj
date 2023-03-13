@@ -53,25 +53,25 @@ contains
     use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
     use m_mkqp,only: nkabc=> bz_nabc,ntet=> bz_ntet,iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, plat=>lat_plat,pos=>rv_a_opos
-    use m_rdsigm2,only: M_rdsigm2_init
-    use m_subzi, only: M_subzi_init, lwtkb,rv_a_owtkb,M_subzi_setlwtkb,M_subzi_bzintegration
+    use m_rdsigm2,only: m_rdsigm2_init
+    use m_subzi, only: m_subzi_init, lwtkb,rv_a_owtkb,m_subzi_setlwtkb,m_subzi_bzintegration
     use m_rsibl, only : Rsibl_ev ! to plot wavefunction in the fat band mode
     use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq,xmpbnd2
-    !      use m_lmfgw,only: M_lmfgw_init !,jobgw !,osigx,otaux,oppix,spotx
-    use m_mkpot,only: M_mkpot_init,M_mkpot_deallocate, M_mkpot_energyterms,M_mkpot_novxc,& ! & M_mkpot_novxc_dipole,
+    !      use m_lmfgw,only: m_lmfgw_init !,jobgw !,osigx,otaux,oppix,spotx
+    use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate, m_mkpot_energyterms,m_mkpot_novxc,& ! & m_mkpot_novxc_dipole,
          osmpot, qmom, vconst, osig,otau,oppi, qval , qsc , fes1_rv , fes2_rv
-    use m_clsmode,only: M_clsmode_init,m_clsmode_set1,m_clsmode_finalize
+    use m_clsmode,only: m_clsmode_init,m_clsmode_set1,m_clsmode_finalize
     use m_qplist,only:  qplist,nkp,xdatt,labeli,labele,dqsyml,etolc,etolv, &
          nqp2n_syml,nqp_syml,nqpe_syml,nqps_syml,nsyml,iqini,iqend,ispini,ispend,kpproc    ! MPIK divider. iqini:iqend are node-dependent
     use m_igv2x,only: napw,ndimh,ndimhx,igv2x
-    use m_procar,only: M_procar_init,dwgtall,nchanp,m_procar_closeprocar,m_procar_writepdos
-    use m_bandcal,only: M_bandcal_init,M_bandcal_2nd,M_bandcal_clean,M_bandcal_allreduce, &
+    use m_procar,only: m_procar_init,dwgtall,nchanp,m_procar_closeprocar,m_procar_writepdos
+    use m_bandcal,only: m_bandcal_init,m_bandcal_2nd,m_bandcal_clean,m_bandcal_allreduce, &
          evlall,smrho_out,oqkkl,oeqkkl, ndimhx_,nevls,m_bandcal_symsmrho !,nev_
-    use m_mkrout,only: M_mkrout_init,orhoat_out,frcbandsym,hbyl_rv,qbyl_rv
-    use m_addrbl,only: M_addrbl_allocate_swtk,swtk
-    use m_sugw,only: M_sugw_init
-    use m_mkehkf,only: M_mkehkf_etot1,M_mkehkf_etot2
-    use m_gennlat_sig,only: M_gennlat_init_sig
+    use m_mkrout,only: m_mkrout_init,orhoat_out,frcbandsym,hbyl_rv,qbyl_rv
+    use m_addrbl,only: m_addrbl_allocate_swtk,swtk
+    use m_sugw,only: m_sugw_init
+    use m_mkehkf,only: m_mkehkf_etot1,m_mkehkf_etot2
+    use m_gennlat_sig,only: m_gennlat_init_sig
     use m_dfrce,only: dfrce
     use m_sugcut,only:sugcut
     ! inputs
@@ -540,8 +540,8 @@ contains
     type(s_cv1),target :: oppi(3,nbas)
     type(s_rv1),target :: otau(3,1)
     type(s_rv1),target :: osig(3,1)
-    type(s_rv1),target :: oqkkl(3,nbas)
-    real(8),pointer:: OQPP(:), OQHP(:),OQHH(:), &
+    type(s_rv5),target :: oqkkl(3,nbas)
+    real(8),pointer:: QPP(:,:,:,:,:), QHP(:,:,:,:,:),QHH(:,:,:,:,:), &
          OSIGHH(:),OSIGHP(:),OSIGPP(:), &
          OTAUHH(:),OTAUHP(:),OTAUPP(:)
     complex(8),pointer:: OPPIHH(:),OPPIHP(:),OPPIPP(:)
@@ -577,9 +577,9 @@ contains
        call orblib(ib) ! norb , ltab , ktab , offl ,ntab,blks
        nlma = (lmxa+1)**2
        nlmh = (lmxh+1)**2
-       OQHH => oqkkl(3,ib)%v !head x head index=3
-       OQHP => oqkkl(2,ib)%v !head x tail index=2
-       OQPP => oqkkl(1,ib)%v !tail x tail index=1
+       QHH => oqkkl(3,ib)%v !head x head index=3
+       QHP => oqkkl(2,ib)%v !head x tail index=2
+       QPP => oqkkl(1,ib)%v !tail x tail index=1
        OTAUHH =>otau(3,ib)%v
        OTAUHP =>otau(2,ib)%v
        OTAUPP =>otau(1,ib)%v
@@ -590,10 +590,11 @@ contains
        OPPIHP =>oppi(2,ib)%cv
        OPPIPP =>oppi(1,ib)%cv
        call pvgtkn ( kmax , lmxa , nlma , nkaph , norb , ltab , ktab & !  Add site augmentation contribution to rhout * (ham - ke)
-            , blks , lmxh , nlmh , OTAUHH , OSIGHH , OPPIHH &
+            , blks , lmxh , nlmh &
+            , OTAUHH , OSIGHH , OPPIHH &
             , OTAUHP , OSIGHP , OPPIHP &
             , OTAUPP , OSIGPP , OPPIPP &
-            , OQHH , OQHP , OQPP , nsp , nspc , sumt, sumq , sumh ) 
+            , QHH , QHP , QPP , nsp , nspc , sumt, sumq , sumh ) 
        sraugm = sraugm + sumh - sumt
 10     continue
     enddo
@@ -649,8 +650,8 @@ contains
     integer :: kmax,lmxa,nlma,lmxh,nlmh,nsp,nspc
     integer :: nkaph,norb,ltab(norb),ktab(norb),blks(norb)
     real(8):: &
-         tauhh(nkaph,nkaph,0:lmxh,nsp),sighh(nkaph,nkaph,0:lmxh,nsp), &
-         tauhp(nkaph,0:kmax,0:lmxh,nsp),sighp(nkaph,0:kmax,0:lmxh,nsp), &
+         tauhh(nkaph,nkaph,0:lmxh,nsp),  sighh(nkaph,nkaph,0:lmxh,nsp), &
+         tauhp(nkaph,0:kmax,0:lmxh,nsp), sighp(nkaph,0:kmax,0:lmxh,nsp), &
          taupp(0:kmax,0:kmax,0:lmxa,nsp),sigpp(0:kmax,0:kmax,0:lmxa,nsp), &
          qhh(nkaph,nkaph,nlmh,nlmh,nsp), &
          qhp(nkaph,0:kmax,nlmh,nlma,nsp), &
