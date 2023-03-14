@@ -8,13 +8,11 @@ module m_lmfinit ! All ititial data (except rst/atm data via iors/rdovfa) !TK ex
   use m_struc_def,only: s_spec ! spec structures.
   use m_MPItk,only: master_mpi
   use m_lgunit,only: stdo,stdl
-!  use m_rseq,only:setcc
-!NOTE: m_density contains Not protected vatiables!  =====
-  use m_density,only: pnuall,pnzall ! These are set here! log-derivative of radial functions.
+  use m_density,only: pnuall,pnzall !These are set here! log-derivative of radial functions.
   implicit none 
-  type(s_spec),allocatable:: v_sspec(:)! unprotected but given at readin iors/rdovfa. That is, v_sspec is give by lmfa only. unchanged during lmf-MPIK
+  type(s_spec),allocatable:: v_sspec(:)! unprotected, changed only by readin iors/rdovfa (see lmfp.f90)
   integer,parameter:: noutmx=48,NULLI=-99999,nkap0=3,mxspec=256,lstrn=1000,n0=10,nppn=2,nrmx=1501,nlmx=64,n00=n0*nkap0
-  real(8),parameter:: fpi=16d0*datan(1d0), y0=1d0/dsqrt(fpi), pi=4d0*datan(1d0), srfpi=dsqrt(4d0*pi), pi4=4d0*pi,&
+  real(8),parameter:: fpi=16d0*datan(1d0), y0=1d0/dsqrt(fpi), pi=4d0*datan(1d0), srfpi = dsqrt(4d0*pi),pi4=fpi,&
        NULLR =-99999, fs = 20.67098d0, degK = 6.3333d-6 ! defaults for MD
   logical,parameter:: T=.true., F=.false.
   integer,protected:: lat_nkqmx,lat_nkdmx,nat, lxcf, smalit,lstonr(3)=0,nl,nbas=NULLI,nspec,&
@@ -41,9 +39,8 @@ module m_lmfinit ! All ititial data (except rst/atm data via iors/rdovfa) !TK ex
   integer,allocatable,protected:: lmxb(:),lmxa(:),idmod(:,:),idu(:,:),kmxt(:),lfoca(:),lmxl(:),nr(:),nmcore(:),nkapii(:),nkaphh(:),&
        ispec(:),ifrlx(:,:),ndelta(:), iantiferro(:), iv_a_oips (:),  lpz(:),lpzex(:),lhh(:,:)
   real(8),allocatable,protected:: rsmh1(:,:),rsmh2(:,:),eh1(:,:),eh2(:,:),rs3(:),alpha(:,:),uh(:,:),jh(:,:),eh3(:),&
-       qpol(:,:),stni(:),&
-       pnusp(:,:,:),pzsp(:,:,:),qnu(:,:,:),&
-       coreq(:,:),rg(:),rsma(:),rfoca(:), rmt(:), amom(:,:),spec_a(:),z(:),eref(:)
+       qpol(:,:),stni(:),pnusp(:,:,:),qnu(:,:,:),pnuspdefault(:,:),qnudefault(:,:),qnudummy(:,:),&
+       coreq(:,:),rg(:),rsma(:),rfoca(:), rmt(:),pzsp(:,:,:), amom(:,:),spec_a(:),z(:),eref(:)
   character*(8),allocatable,protected:: coreh(:)
   real(8),allocatable,protected:: pos(:,:), delta(:,:),mpole(:),dpole(:,:)
   real(8),allocatable,protected:: rv_a_ocg (:), rv_a_ocy(:)  !ClebshGordon coefficient (GW part use clebsh_t)
@@ -109,10 +106,9 @@ contains
          lmxcg,lmxcy,lnjcg,lnxcg,nlm,nout,nn,i0,ivec(10),iosite,io_tim(2),verbos,&
          lp1,lpzi,ii,sw,it,levelinit=0, lx,lxx, reclnr,nrecs,nrecs2
     real(8):: pnuspx(20) ,temp33(9),seref, xxx, avwsr, d2,plat(3,3),rydberg,rr, vsn,vers,xv(2*n0),xvv(3)
-    real(8),allocatable ::rv(:)&
-         ,pnuspdefault(:,:),qnudefault(:,:),qnudummy(:,:)
+    real(8),allocatable ::rv(:)
     character*(8),allocatable::clabl(:)
-    integer,allocatable:: ipc(:),initc(:),ics(:),wowk(:), idxdn(:,:,:)
+    integer,allocatable:: ipc(:),initc(:),ics(:), idxdn(:,:,:) !,wowk(:)
     real(8),allocatable:: pnuspc(:,:,:),qnuc(:,:,:,:),pp(:,:,:,:),ves(:),zc(:)
     if(master_mpi.and.cmdopt0('--help')) then !minimum help
        write(stdo,343)
@@ -167,7 +163,7 @@ contains
     endblock ReadCtrlp
     Stage1GetCatok: block !Read Category-Token from recrd by rval2
       logical:: cmdopt0,cmdopt2,parmxp
-      integer:: setprint0,iprint,isw,ncp,nmix,broy,n,n1,n2,n3
+      integer:: iprint,isw,ncp,nmix,broy,n,n1,n2,n3
       real(8):: avwsr,rydberg,wt(2),beta
       character(8):: fnam,xn
       call gtv2_setrcd(recrd)
@@ -347,15 +343,15 @@ contains
            ftof(betainit),ftof(wc),killj
     endblock Stage1GetCatok
     Stage2SetModuleParameters: block
-      integer:: isw,iprint,setprint0
+      integer:: isw,iprint
       logical:: cmdopt0,cmdopt2
-      i0=setprint0(30)       !Initial verbose set
+      call setpr0(30)       !Initial verbose set
       if    (cmdopt2('--pr=',outs))then; read(outs,*) verbos
       elseif(cmdopt2('--pr',outs)) then; read(outs,*) verbos
       elseif(cmdopt2('-pr',outs))  then; read(outs,*) verbos
       endif
-      i0 = setprint0(verbos) !Set initial verbos
-      if( .NOT. master_mpi) i0=setprint0(-100) !iprint()=0 except master
+      call setpr0(verbos) !Set initial verbos
+      if( .NOT. master_mpi) call setpr0(-100) !iprint()=0 except master
       if(cmdopt2('--time',outs) ) then ! Timing: Turns CPU timing log #1:tree depth #2:CPU times as routines execute.
          outs=trim(outs(2:))//' 999 999' ! --time=#1,#2     
          read(outs,*)io_tim(1),io_tim(2)
@@ -512,19 +508,14 @@ contains
       lat_nkqmx=lat_nkdmx
       lat_platin=plat
       lat_tolft=tolft
-      !! set cg coefficients for lmf --- Choose dimensions for arrays
-      lmxcg=8
+      lmxcg=8 ! set cg coefficients for lmf --- Choose dimensions for arrays
       lmxcy=12
-      lnjcg = 22700
+      lnjcg = 22700 !  for (lmxcg .le. 10);  lnjcg = 62200; lnxcg = 7400
       lnxcg = 3400
-      !  for (lmxcg .le. 10);  lnjcg = 62200; lnxcg = 7400
       nlm=(lmxcy+1)**2
-      allocate(rv_a_ocy(abs(nlm)))
-      allocate(rv_a_ocg(abs(lnjcg)))
-      allocate(iv_a_ojcg(abs(lnjcg)))
-      allocate(iv_a_oidxcg(abs(lnxcg)))
-      call sylmnc( rv_a_ocy , lmxcy ) ! for Clebsh-Gordon coefficients for lmf part
-      call scg( lmxcg , rv_a_ocg , iv_a_oidxcg , iv_a_ojcg ) !set CG coefficients for lmf part.
+      allocate(rv_a_ocy(nlm),rv_a_ocg(lnjcg),iv_a_ojcg(lnjcg),iv_a_oidxcg(lnxcg))
+      call sylmnc(rv_a_ocy , lmxcy ) ! for Clebsh-Gordon coefficients for lmf part
+      call scg(lmxcg , rv_a_ocg , iv_a_oidxcg , iv_a_ojcg ) !set CG coefficients for lmf part.
       ham_nkaph=nkaph
       if (procid==master) then
          inquire(file='sigm.'//trim(sname),exist=sexist)
@@ -532,8 +523,8 @@ contains
             write(stdo,*)' bndfp (warning): no sigm file found ... LDA calculation only'
             lrsigx = 0
          endif
+         ham_lsig=lrsigx
       endif
-      ham_lsig=lrsigx
       call mpibc1_int(ham_lsig,1,'bndfp_ham_lsig')
       ham_scaledsigma=scaledsigma
       ham_pwmode=pwmode
@@ -582,8 +573,7 @@ contains
          v_sspec(j)%rfoca=rfoca(j)
          v_sspec(j)%rg=rg(j)
          v_sspec(j)%rmt=rmt(j)
-! 501 format(/' species data:  augmentation',27x,'density'/ &
-!        ' spec       rmt   rsma lmxa kmxa',5x,' lmxl     rg   rsmv foca   rfoca')
+! 501 format(/' species data:  augmentation',27x,'density'/' spec       rmt   rsma lmxa kmxa',5x,' lmxl     rg   rsmv foca   rfoca')
 !      write (stdo,500) spec_a(j),rmt(j),rsma(js),lmxa(j),kmxt(j), lmxl(j),rg(j),rsmv,lfoca(j),rfoca(j)
 ! 500  format(1x,a,f6.3,f7.3,2i5,6x,i4,2f7.3,i5,f8.3)
       enddo
@@ -605,8 +595,7 @@ contains
       ! 2022-jan-20 new setting of addinv (addinv =.not.ctrl_noinv)
       !Add inversion to get !When we have TR, psi_-k(r) = (psi_k(r))^* (when we have SO/=1).
       !                      density |psi_-k(r)|^2 = |psi_k^*(r)|^2
-      if((lrlxr>=1 .AND. lrlxr<=3) .OR. &
-           cmdopt0('--cls') .OR. cmdopt0('--nosym') .OR. cmdopt0('--pdos')) then
+      if((lrlxr>=1.AND.lrlxr<=3) .OR. cmdopt0('--cls') .OR. cmdopt0('--nosym') .OR. cmdopt0('--pdos')) then
          symg = 'e'
          addinv = .false. !add inversion 
       elseif(lso == 0) then
@@ -615,8 +604,7 @@ contains
          addinv=.false. 
       endif
       sstrnsymg=trim(symg)
-      nspc = 1
-      if( lso==1 ) nspc = 2
+      nspc = merge(2,1,lso==1)! nspc=2 for lso=1
       orbital: block
         integer:: ib,l,lmr,ia, nnrlx,lmri,ik,nnrl,nnrli,li, iprmb(nbas * nl**2 * maxp )
         !o   norb  :number of orbital types for ib; see Remarks
@@ -705,13 +693,13 @@ contains
          enddo
       endif
       call mpibc1_int(nat,1,'m_lmfinit_nat')
-      allocate(wowk(nbas))
-      wowk=0
-      call pshpr(0)
-      call suldau(nbas,nlibu,k,wowk)!Count LDA+U blocks (printout only)
-      ham_nlibu=nlibu
-      call poppr
-      deallocate(wowk,amom, stni,rg,rfoca,idxdn, rmt,  lfoca,lmxl, spec_a,nr) !,rsmv)
+      ! allocate(wowk(nbas))
+      ! wowk=0
+      ! call pshpr(0)
+      ! call suldau(nbas,nlibu,k,wowk)!Count LDA+U blocks (printout only)
+      ! ham_nlibu=nlibu
+      ! call poppr
+      deallocate(amom, stni,rg,rfoca,idxdn, rmt,  lfoca,lmxl, spec_a,nr) !,rsmv)
       !! --- takao embed contents in susite here. This is only for lmf and lmfgw.
       allocate(iv_a_oips(nbas),source=[(ispec(ib), ib=1,nbas)])
       seref= sum([(eref(ispec(ib)),ib=1,nbas)])
@@ -728,12 +716,7 @@ contains
          maxit=1 !max number of iteration for electronic structure part
       endif
       if(lhf) maxit= 1
-      if (lrel /= 0) then
-         cc = 274.074d0 !srel
-      else 
-         cc = 1d10      !nrel 
-      endif
-!      call setcc(lrel) !lrel/=0 means scalar relativistiv c=274.074d0 in a.u.
+      cc=merge(274.074d0,1d10,lrel/=0) !speed of light. scalar rel 1d10 for lrel=0
       fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') !compute eigenvalues for fullmesh q points 
       lrout = 1 ! Whether to evaluate output density and/or KS energy
       leks = 1
@@ -779,6 +762,7 @@ contains
               endif
            enddo
         enddo       !! aug2012 we now fix lcplxp=1 (complex ppi integral)
+        ham_nlibu=nlibu
       endblock LDApU
       ! lhh, nkapii, nkaphh (nkaphh = nkapii(1 or 2) +1) if extented local orbital exist)
       allocate(lhh(nkap0,nspec))
@@ -867,35 +851,32 @@ contains
        res(2:3) = res(1)
     endif
   end subroutine fill3in
-  subroutine suldau(nbas,nlibu,lmaxu,lldau)!- Finds lda+U sites and counts number of blocks
-    use m_struc_def  
-    !use m_lmfinit,only:idu,ispec,sspec=>v_sspec
-    !i Inputs
-    !i   nbas  :size of basis
-    !o Outputs
-    !i   lldau :lldau(ib)=0 => no U on this site otherwise
-    !i         :U on site ib with dmat in dmats(*,lldau(ib))
-    !o   nlibu :number of LDA+U blocks
-    !o   lmaxu :highest l for which a U block found, used as
-    !o         :dimensioning parameter for U matrix
-    implicit none
-    integer :: nbas,nlibu,lmaxu,lldau(nbas),igetss,is,ib,l,lmxa
-    nlibu = 0
-    lmaxu = 0
-    do  ib = 1, nbas
-       lldau(ib) = 0
-       is  = ispec(ib)
-       lmxa= v_sspec(is)%lmxa
-       do  l = 0, min(lmxa,3)
-          if (idu(l+1,is) /= 0) then
-             if (lldau(ib) == 0) lldau(ib) = nlibu+1
-             nlibu = nlibu+1
-             lmaxu = max(lmaxu,l)
-          endif
-       enddo
-    enddo
-    if(nlibu/=0) write(stdo,ftox)'suldau:  ',nlibu,' U block(s)  lmaxu =',lmaxu
-  end subroutine suldau
+  ! subroutine suldau(nbas,nlibu,lmaxu,lldau)!- Finds lda+U sites and counts number of blocks
+  !   use m_struc_def  
+  !   !o Outputs
+  !   !i   lldau :lldau(ib)=0 => no U on this site otherwise
+  !   !i         :U on site ib with dmat in dmats(*,lldau(ib))
+  !   !o   nlibu :number of LDA+U blocks
+  !   !o   lmaxu :highest l for which a U block found, used as
+  !   !o         :dimensioning parameter for U matrix
+  !   implicit none
+  !   integer :: nbas,nlibu,lmaxu,lldau(nbas),igetss,is,ib,l,lmxa
+  !   nlibu = 0
+  !   lmaxu = 0
+  !   do  ib = 1, nbas
+  !      lldau(ib) = 0
+  !      is  = ispec(ib)
+  !      lmxa= v_sspec(is)%lmxa
+  !      do  l = 0, min(lmxa,3)
+  !         if (idu(l+1,is) /= 0) then
+  !            if (lldau(ib) == 0) lldau(ib) = nlibu+1
+  !            nlibu = nlibu+1
+  !            lmaxu = max(lmaxu,l)
+  !         endif
+  !      enddo
+  !   enddo
+  !   if(nlibu/=0) write(stdo,ftox)'suldau:  ',nlibu,' U block(s)  lmaxu =',lmaxu
+  ! end subroutine suldau
 end module m_lmfinit
 
 ! mmmm old doc mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm

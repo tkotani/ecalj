@@ -406,7 +406,8 @@ contains
           call zhev_tk4(ndimh,ham,ovl,ndimh,nev,evl(1,isp),evec,epsovl)
           write(6,"(' sugw:  kpt isp=',i8,i2,' of ',i8, ' k= ',3f9.5, ' ndimh= ',i5, &
                ' irank=',i4, ' lwvxc=',l,' nev=',i5)")  iq,isp,nqnum,qp,ndimh,procid,lwvxc,nev
-          call prtev(evec,ndimh,evl(1,isp),ndimh,nev)
+          !call prtev(evec,ndimh,evl(1,isp),ndimh,nev)
+          write(stdo,"(9f8.4)") (evl(i,isp), i=1,nev)
           if (ndham>nev ) evl(1+nev:ndham,isp)=1d20 ! See rdata4gw_v2
           if(mod(iq,10) /= 1) call poppr
           if(debug) write(6,"(' sugw:procid iq isp lwvxc= ',3i3,' ',l)")procid, iq,isp,lwvxc

@@ -200,9 +200,9 @@ subroutine lmfp(llmfgw)
           write(stdo,*)'lmfp-MDMODE: Reset density by atom superposition'
           iv=iprint()
           call Setopos( poss ) ! Set position of atoms before Rdovfa
-          call setprint(-1) !supress print out to stdo
+          call pshpr(-1) !supress print out to stdo
           call Rdovfa() !superposition of atom density
-          call setprint(iv)
+          call poppr()
        endif   
 
        if (master_mpi) then

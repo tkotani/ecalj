@@ -98,14 +98,14 @@ contains
           if (rsq(1) >= rc1) then
              n1 = 1
           else
-             call huntx(rsq,nr,rc1,[0],n1)
+             call huntx(rsq,nr,rc1,n1)
              n1 = n1+1
           endif
           if (rsq(nr) <= rc2) then
              n2 = nr+1
           else
              n2 = nr
-             call huntx(rsq,nr,rc2,[0],n2)
+             call huntx(rsq,nr,rc2,n2)
              n2 = n2+1
           endif
        endif

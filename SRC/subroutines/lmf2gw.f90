@@ -144,7 +144,6 @@ contains
     integer:: ifiproc,nqixx,nspxx,numprocxx,ixxx,ifiqibz
     integer::  id,nsizex,iqqxx,ib,ii,ipqn,nn,nnn(3),ifiqg,ifiqgc,irr,irrq,iqibz
     !! =================================================================
-    call setprint0(30)
     open(newunit=ifigwb,file='gwb.head',form='unformatted')
     read (ifigwb) nbas,nsp,ldim2,nbandmx,lmxamx,ncoremx,nrmx,plat,alat,nqirr
     allocate(bas(3,nbas),lmxaa(nbas),qplist(3,nqirr),ngplist(nqirr),ndimhall(nqirr))

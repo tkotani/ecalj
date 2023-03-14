@@ -145,7 +145,7 @@ subroutine pgvmat(ngs,gvs,ngb,gvb,kvb)
      iwk(ig) = -1
      !   ... Find first and last g-vector list with same length
      if (abs(xx-gg(ig)) > tol) then
-        call huntx(gg,ngs,gg(ig)+tol,0,high)
+        call huntx(gg,ngs,gg(ig)+tol,high)
         low = ig
         high = min(high,ngs)
         xx = gg(ig)

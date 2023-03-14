@@ -179,7 +179,7 @@ contains
               call zhev_tk4(ndimhx, hamm, ovlm, nmx, nev, evl(1, jsp ), evec, epsovl)
             endblock diagonalize_hamilatonian
           endblock Setup_hamiltonian_and_diagonalize
-          if(writeham.AND.master_mpi) call prtev(evec, ndimhx , evl(1, jsp ) , nmx , nev )
+          if(writeham.AND.master_mpi) write(stdo,"(9f8.4)") (evl(i,jsp), i=1,nev)
           if(call_m_bandcal_2nd) then
              write(ifig) nev,nmx,ndimhx !nev: number of eigenvalues
              write(ifig) evl(1:nev,jsp)

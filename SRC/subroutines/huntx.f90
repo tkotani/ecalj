@@ -1,12 +1,9 @@
-subroutine huntx(xa,n,x,iprm,low)
-  !- Brackets a value within an ordered array of points
+subroutine huntx(xa,n,x,low)  !- Brackets a value within an ordered array of points
   ! ----------------------------------------------------------------
   !i Inputs
   !i   n   :size of array
   !i   xa  :array of points, in ascending or descending order
   !i   x   :value to bracket
-  !i   iprm:permutation table by which array xa is ordered
-  !i        iprm(1) <= 0 => assumes iprm(i) = i; iprm not referenced
   !i   low : initial guess for output low
   !o Outputs
   !o   ... if xa is ordered in ascending order:
@@ -21,16 +18,10 @@ subroutine huntx(xa,n,x,iprm,low)
   !o       : low = n if xa(n)>=x
   !u Updates
   !u   29 Jul 04 Handle special case xa(1) .eq. xa(n)
-  ! ----------------------------------------------------------------
-  !     implicit none
-  ! Passed parameters
-  integer :: n,low,iprm(n)
-  double precision :: xa(n),x
-  ! Local variables
-  integer :: inc,jhi,jm
-  logical :: ascnd,liprm
-  double precision :: xn
-
+  implicit none
+  integer :: n,low ,inc,jhi,jm
+  double precision :: xa(n),x,xn
+  logical :: ascnd 
   ! ... Pathological case: all points equal (treat as ascending)
   if (xa(n) == xa(1)) then
      if (xa(1) >= x) then
@@ -40,34 +31,20 @@ subroutine huntx(xa,n,x,iprm,low)
      endif
      return
   endif
-
-  liprm = iprm(1) .gt. 0
-  if (liprm) then
-     ascnd = xa(iprm(n)) .gt. xa(iprm(1))
-  else
-     ascnd = xa(n) .gt. xa(1)
-  endif
+  ascnd = xa(n) .gt. xa(1)
   if (low <= 0 .OR. low > n) then
      low = 0
      jhi = n+1
      goto 3
   endif
   inc = 1
-  if (liprm) then
-     xn = xa(iprm(low))
-  else
-     xn = xa(low)
-  endif
+  xn = xa(low)
   if (x >= xn .eqv. ascnd) then
 1    jhi = low+inc
      if (jhi > n) then
         jhi = n+1
      else
-        if (liprm) then
-           xn = xa(iprm(jhi))
-        else
-           xn = xa(jhi)
-        endif
+        xn = xa(jhi)
         if (x >= xn .eqv. ascnd) then
            low = jhi
            inc = inc+inc
@@ -80,11 +57,7 @@ subroutine huntx(xa,n,x,iprm,low)
      if (low < 1) then
         low = 0
      else
-        if (liprm) then
-           xn = xa(iprm(low))
-        else
-           xn = xa(low)
-        endif
+        xn = xa(low)
         if (x < xn .eqv. ascnd) then
            jhi = low
            inc = inc+inc
@@ -96,11 +69,7 @@ subroutine huntx(xa,n,x,iprm,low)
      !   ... Find the first of values equal to x
 4    continue
      if (low > 1) then
-        if (liprm) then
-           xn = xa(iprm(low-1))
-        else
-           xn = xa(low-1)
-        endif
+        xn = xa(low-1)
         if (xn == x) then
            low = low-1
            goto 4
@@ -108,21 +77,13 @@ subroutine huntx(xa,n,x,iprm,low)
      endif
      !   ... if xa(low) = x, decrement low
      if (low >= 1) then
-        if (liprm) then
-           xn = xa(iprm(low))
-        else
-           xn = xa(low)
-        endif
+        xn = xa(low)
         if (xn == x) low = low-1
      endif
      return
   endif
   jm = (jhi+low)/2
-  if (liprm) then
-     xn = xa(iprm(jm))
-  else
-     xn = xa(jm)
-  endif
+  xn = xa(jm)
   if (x > xn .eqv. ascnd) then
      low = jm
   else
@@ -130,4 +91,3 @@ subroutine huntx(xa,n,x,iprm,low)
   endif
   goto 3
 end subroutine huntx
-
