@@ -1,4 +1,4 @@
-module m_mtchae!- Matches augmentation function to envelope function
+module m_mtchae !- Matches augmentation function to envelope function
   public mtchae,mtchre
 contains
   subroutine mtchae(mode,rsm,eh,l,r,phi,dphi,phip,dphip,alfa,beta)!- Matches augmentation function to envelope function

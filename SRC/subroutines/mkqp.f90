@@ -1,4 +1,4 @@
-module m_mkqp! Set up k-points and related quantities for BZ integration
+module m_mkqp ! Set up k-points and related quantities for BZ integration
   integer,allocatable,protected :: iv_a_oidtet(:), iv_a_oipq(:), iv_a_ostar(:)
   real(8),allocatable,protected :: rv_p_oqp (:,:), rv_a_owtkp(:)
   integer,protected:: bz_nabc(3),bz_ntet, bz_nkp

@@ -58,7 +58,6 @@ hnsmft.o \
 hsmq.o \
 iclbas.o \
 iofa.o \
-iorbtm.o \
 iors.o \
 iors_old.o \
 lattic.o \
@@ -268,7 +267,6 @@ m_eibz.o\
 m_gaussianfilter.o\
 m_llw.o\
 m_readfreq_r.o\
-m_readepswklm.o\
 qpe1.qsgw.o\
 eibzgen.o
 
