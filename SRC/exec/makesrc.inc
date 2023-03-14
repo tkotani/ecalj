@@ -12,6 +12,7 @@ getgv2.o\
 m_gennlat.o\
 m_density.o\
 m_ldau.o\
+m_ldau_util.o \
 boltztrap.o\
 m_bandcal.o\
 m_procar.o\
@@ -69,7 +70,6 @@ iors.o \
 iors_old.o \
 latlim.o \
 lattic.o \
-ldau.o \
 madmat.o \
 maknos.o \
 makrwf.o \
@@ -99,7 +99,6 @@ strx00.o \
 subzi.o \
 sugcut.o \
 suham.o \
-suldau.o \
 sylm.o \
 symdmu.o \
 symfor.o \

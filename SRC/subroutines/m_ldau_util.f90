@@ -1,443 +1,441 @@
 module m_ldau_util
+  use m_lgunit,only:stdo
   use m_MPItk,only: master_mpi
   use m_ftox
   public ldau, sudmtu,chkdmu,mixmag
   private
-  contains
-subroutine ldau(vrsion,l,iblu,UH,JH,dmatu,nsp,lmaxu,vorb,Eorb)
-  use m_lgunit,only:stdo
-  intent(out)                                         vorb,Eorb
-  intent(in)      vrsion,l,iblu,UH,JH,dmatu,nsp,lmaxu
-  !- Makes Vorb and Eorb from dmatu for given site and l
-  ! ----------------------------------------------------------------------
-  !i Inputs
-  !i   vrsion:LDA+U version 1 AMF; 2 FLL; 3 mixed Petukhov version
-  !i         :see Remarks
-  !i         :add 100's digit: make Eorb only; do not update vorb
-  !i   l     :l block for which LDA+U is defined
-  !i   iblu  :index to current LDA+U block
-  !i   UH    :Hubbard U
-  !i   JH    :Hubbard J
-  !i   dmatu :density matrix for LDA+U
-  !i   nsp   :2 for spin-polarized case, otherwise 1
-  !i   lmaxu :dimensioning parameter for U matrix
-  !o Outputs
-  !o   vorb  :orbital-dependent potential matrices
-  !o   Eorb  :orbital energy
-  !l Local variables
-  !r Remarks
-  !r   See Liechtenstein PRB 52, R5467 (1995) for FLL limit
-  !r   See Petukhov      PRB 67, 153106 (2003) for AMF
-  !r                                           Eq. 5 for mixed
-  !u Updates
-  !u   09 Nov 05 (wrl) Convert dmat to complex form
-  !u   29 Oct 05 Switch to evaluate Etot without updating vorb
-  !u   27 Apr 05 Lambrecht first created
-  ! ----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
-  integer :: l,iblu,nsp,lmaxu,vrsion,iprint
-  double precision :: UH,JH,Eorb
-  double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,iblu)
-  double complex dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,iblu)
-  integer :: m1,m2,ii,isp,lvrs,lnov
-  double precision :: aaa,num(2),aven(2),nnum,bot
-  double precision :: E1,E2
-  double complex Vorb1(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,iblu)
-  double complex Vorb2(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,iblu)
-  double complex den1(-3:3,-3:3),den2(-3:3,-3:3)
-  lvrs = mod(vrsion,100)
-  lnov = mod(vrsion/100,10)
-  !if(iprint()>0) write(stdo,ftox)' ldau: version(See ldau.F)= ',lvrs,'iblu=', iblu
-  ! see Petukhov et al. PRB 67, 153106 (2003) construct aaa=alpha mixing
-  ! of two ldau versions eq. 5
-  if (lvrs == 3) then
-     do  isp = 1, 2
-        aven(isp) = 0.0d0
-        do  m1 = -l,l
-           aven(isp) = aven(isp) + dmatu(m1,m1,isp,iblu)
-        enddo
-        aven(isp) = aven(isp)/(2*l+1)
-        do  m1 = -l, l
-           do  m2 = -l, l
-              den1(m1,m2) = dmatu(m1,m2,isp,iblu)
-              den2(m1,m2) = 0.d0
-           enddo
-           den1(m1,m1) = dmatu(m1,m1,isp,iblu) - aven(isp)
-        enddo
-        do  m1 = -l,l
-           do  m2 = -l,l
-              do  ii = -l,l
-                 den2(m1,m2) = den2(m1,m2) + den1(m1,ii)* &
-                      den1(m2,ii)
-              enddo
-           enddo
-        enddo
-        num(isp) = 0.0d0
-        do  m1 = -l,l
-           num(isp) = num(isp) + den2(m1,m1)
-        enddo
-     enddo
-     nnum = 0d0
-     bot = 0d0
-     do  isp = 1, 2
-        nnum = nnum + num(isp)
-        bot = bot + aven(isp)*(1d0 - aven(isp))
-     enddo
-     if (bot == 0d0) stop 'LDAU: divide by zero bot'
-     aaa = nnum/((2*l+1)*bot)
+contains
+  subroutine ldau(vrsion,l,iblu,UH,JH,dmatu,nsp,lmaxu,vorb,Eorb)
+    implicit none
+    intent(out)                                       vorb,Eorb
+    intent(in)    vrsion,l,iblu,UH,JH,dmatu,nsp,lmaxu
+    !- Makes Vorb and Eorb from dmatu for given site and l
+    ! ----------------------------------------------------------------------
+    !i Inputs
+    !i   vrsion:LDA+U version 1 AMF; 2 FLL; 3 mixed Petukhov version
+    !i         :see Remarks
+    !i         :add 100's digit: make Eorb only; do not update vorb
+    !i   l     :l block for which LDA+U is defined
+    !i   iblu  :index to current LDA+U block
+    !i   UH    :Hubbard U
+    !i   JH    :Hubbard J
+    !i   dmatu :density matrix for LDA+U
+    !i   nsp   :2 for spin-polarized case, otherwise 1
+    !i   lmaxu :dimensioning parameter for U matrix
+    !o Outputs
+    !o   vorb  :orbital-dependent potential matrices
+    !o   Eorb  :orbital energy
+    !l Local variables
+    !r Remarks
+    !r   See Liechtenstein PRB 52, R5467 (1995) for FLL limit
+    !r   See Petukhov      PRB 67, 153106 (2003) for AMF
+    !r                                           Eq. 5 for mixed
+    !u Updates
+    !u   09 Nov 05 (wrl) Convert dmat to complex form
+    !u   29 Oct 05 Switch to evaluate Etot without updating vorb
+    !u   27 Apr 05 Lambrecht first created
+    ! ----------------------------------------------------------------------
+    !     implicit none
+    ! ... Passed parameters
+    integer :: l,iblu,nsp,lmaxu,vrsion,iprint
+    real(8) :: UH,JH,Eorb
+    complex(8) vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,iblu)
+    complex(8) dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,iblu)
+    integer :: m1,m2,ii,isp,lvrs,lnov
+    real(8) :: aaa,num(2),aven(2),nnum,bot
+    real(8) :: E1,E2
+    complex(8) Vorb1(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,iblu)
+    complex(8) Vorb2(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,iblu)
+    complex(8) den1(-3:3,-3:3),den2(-3:3,-3:3)
+    lvrs = mod(vrsion,100)
+    lnov = mod(vrsion/100,10)
+    !if(iprint()>0) write(stdo,ftox)' ldau: version(See ldau.F)= ',lvrs,'iblu=', iblu
+    ! see Petukhov et al. PRB 67, 153106 (2003) construct aaa=alpha mixing
+    ! of two ldau versions eq. 5
+    if (lvrs == 3) then
+       do  isp = 1, 2
+          aven(isp) = 0.0d0
+          do  m1 = -l,l
+             aven(isp) = aven(isp) + dmatu(m1,m1,isp,iblu)
+          enddo
+          aven(isp) = aven(isp)/(2*l+1)
+          do  m1 = -l, l
+             do  m2 = -l, l
+                den1(m1,m2) = dmatu(m1,m2,isp,iblu)
+                den2(m1,m2) = 0.d0
+             enddo
+             den1(m1,m1) = dmatu(m1,m1,isp,iblu) - aven(isp)
+          enddo
+          do  m1 = -l,l
+             do  m2 = -l,l
+                do  ii = -l,l
+                   den2(m1,m2) = den2(m1,m2) + den1(m1,ii)* &
+                        den1(m2,ii)
+                enddo
+             enddo
+          enddo
+          num(isp) = 0.0d0
+          do  m1 = -l,l
+             num(isp) = num(isp) + den2(m1,m1)
+          enddo
+       enddo
+       nnum = 0d0
+       bot = 0d0
+       do  isp = 1, 2
+          nnum = nnum + num(isp)
+          bot = bot + aven(isp)*(1d0 - aven(isp))
+       enddo
+       if (bot == 0d0) stop 'LDAU: divide by zero bot'
+       aaa = nnum/((2*l+1)*bot)
 
-     !       call two types of vorb  and average them weighted according to aaa
-     call vldau(UH,JH,1,dmatu,l,nsp,lmaxu,iblu,E1,Vorb1)
-     call vldau(UH,JH,2,dmatu,l,nsp,lmaxu,iblu,E2,Vorb2)
-     if (lnov == 0) then
-        do  isp = 1, 2
-           do  m1 = -l, l
-              do  m2 = -l, l
-                 vorb(m1,m2,isp,iblu) = (1-aaa)*Vorb1(m1,m2,isp,iblu) + &
-                      aaa*Vorb2(m1,m2,isp,iblu)
-              enddo
-           enddo
-        enddo
-     endif
-     Eorb = (1-aaa)*E1 + aaa*E2
-  else
-     call vldau(UH,JH,vrsion,dmatu,l,nsp,lmaxu,iblu,Eorb,vorb)
-  endif
-end subroutine ldau
+       !       call two types of vorb  and average them weighted according to aaa
+       call vldau(UH,JH,1,dmatu,l,nsp,lmaxu,iblu,E1,Vorb1)
+       call vldau(UH,JH,2,dmatu,l,nsp,lmaxu,iblu,E2,Vorb2)
+       if (lnov == 0) then
+          do  isp = 1, 2
+             do  m1 = -l, l
+                do  m2 = -l, l
+                   vorb(m1,m2,isp,iblu) = (1-aaa)*Vorb1(m1,m2,isp,iblu) + &
+                        aaa*Vorb2(m1,m2,isp,iblu)
+                enddo
+             enddo
+          enddo
+       endif
+       Eorb = (1-aaa)*E1 + aaa*E2
+    else
+       call vldau(UH,JH,vrsion,dmatu,l,nsp,lmaxu,iblu,Eorb,vorb)
+    endif
+  end subroutine ldau
+  subroutine vldau(UH,JH,vrsion,dmatu,l,nsp,lmaxu,iblu,Eorb,vorb)
+    intent(out)                                        Eorb,vorb
+    !- Set up LDA+U potential from U and J for one l
+    ! ----------------------------------------------------------------------
+    !i Inputs
+    !i   UH    :Hubbard U
+    !i   JH    :Hubbard J
+    !i   vrsion:LDA+U version
+    !i         :1 AMF; 2 FLL; see Remarks
+    !i         :4 majority and minority shifted by U
+    !i         :4 majority spin shifted by U, minority by J
+    !i         :add 100's digit: make Eorb only; do not update vorb
+    !i   dmatu :density matrix for LDA+U, spherical harmonics
+    !i   l     :l block for which LDA+U is defined
+    !i   nsp   :2 for spin-polarized case, otherwise 1
+    !i   lmaxu :dimensioning parameter for U matrix
+    !i   iblu  :index to current LDA+U block
+    !o Outputs
+    !o   vorb  :orbital dependent-potential matrices
+    !o   Eorb  :orbital energy
+    !l Local variables
+    !r Remarks
+    !r   See Petukhov      PRB 67, 153106 (2003) for AMF, FLL in spherical approx
+    !r   See Liechtenstein PRB 52, R5467 (1995) for FLL limit
+    !u Updates
+    !u   06 May 07 Bug fix: return dmatu unchanged in AFM limit
+    !u   09 Nov 05 (wrl) Convert dmat to complex form
+    !u   29 Oct 05 Switch to evaluate Etot without updating vorb
+    !u   27 Apr 05 Lambrecht first created
+    ! ----------------------------------------------------------------------
+    !     implicit none
+    ! ... Passed parameters
+    integer :: l,nsp,lmaxu,iblu,vrsion
+    real(8) :: UH,JH,Eorb
+    complex(8) vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
+    complex(8) dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
+    ! ... Local parameters
+    integer :: m,m1,m2,m3,isp,lvrs,lnov
+    real(8) :: Eldau,Edc,Ueff,dmat4
+    real(8) :: trace(2)=1d99,n0(2),ttrace
+    complex(8) Vnew(-3:3,-3:3)
+    real(8) :: Vee(-3:3,-3:3,-3:3,-3:3)
+    complex(8) vtemp1,vtemp2
+    integer :: iot(2)
+    lvrs = mod(vrsion,100)
+    lnov = mod(vrsion/100,10)
+    !     iot(i) is spin complement to spin i
+    iot(1) = 2
+    iot(2) = 1
+    !     Calculate n_sig = Tr(rho_sig)/(2l+1)
+    do  isp = 1, nsp
+       trace(isp) = 0d0
+       do  m = -l, l
+          trace(isp) = trace(isp) + dmatu(m,m,isp,iblu)
+       enddo
+    enddo
+    ttrace = trace(1) + trace(2)
+    do  isp = 1, nsp
+       n0(isp) = trace(isp)/(2*l+1)
+    enddo
+    !     AMF
+    ! see Petukhov  PRB 67, 153106 (2003) but generalize ala Liechtenstein
+    ! for nonspherical case
+    ! AMF means construct with delta dmatu instead of dmatu in what follows
+    if (lvrs == 1) then
+       do  isp = 1, nsp
+          do m = -l, l
+             dmatu(m,m,isp,iblu) = dmatu(m,m,isp,iblu) - n0(isp)
+          enddo
+       enddo
+    endif
+    !     End AMF
+    !     Eq. 6, PRB 67, 153106 (2003)
+    !     Note:  JH=0 => Vee(m,m2,m1,m3) = U delta(m,m1) delta(m2,m3)
+    call veecomp(Vee,l,UH,JH)
+    !      print *, 'vee'
+    !      do m=-l,l
+    !        do m1=-l,l
+    !          print *,'m,m1',m,m1
+    !          do  m2=-l,l
+    !            print '(7f10.4)', (Vee(m,m2,m1,m3),m3=-l,l)
+    !          enddo
+    !        enddo
+    !      enddo
+    !      stop
+    !     See Liechtenstein PRB 52, R5467 (1995) for FLL limit
+    Eldau = 0d0
+    do  isp = 1, 2
+       do  m = -l, l
+          do  m1 = -l, l
+             Vnew(m,m1) = (0d0,0d0)
+             do  m2 = -l, l
+                do  m3 = -l, l
 
-subroutine vldau(UH,JH,vrsion,dmatu,l,nsp,lmaxu,iblu,Eorb,vorb)
-  use m_ftox
-  use m_lgunit,only:stdo
-  intent(out)                                        Eorb,vorb
-  !- Set up LDA+U potential from U and J for one l
-  ! ----------------------------------------------------------------------
-  !i Inputs
-  !i   UH    :Hubbard U
-  !i   JH    :Hubbard J
-  !i   vrsion:LDA+U version
-  !i         :1 AMF; 2 FLL; see Remarks
-  !i         :4 majority and minority shifted by U
-  !i         :4 majority spin shifted by U, minority by J
-  !i         :add 100's digit: make Eorb only; do not update vorb
-  !i   dmatu :density matrix for LDA+U, spherical harmonics
-  !i   l     :l block for which LDA+U is defined
-  !i   nsp   :2 for spin-polarized case, otherwise 1
-  !i   lmaxu :dimensioning parameter for U matrix
-  !i   iblu  :index to current LDA+U block
-  !o Outputs
-  !o   vorb  :orbital dependent-potential matrices
-  !o   Eorb  :orbital energy
-  !l Local variables
-  !r Remarks
-  !r   See Petukhov      PRB 67, 153106 (2003) for AMF, FLL in spherical approx
-  !r   See Liechtenstein PRB 52, R5467 (1995) for FLL limit
-  !u Updates
-  !u   06 May 07 Bug fix: return dmatu unchanged in AFM limit
-  !u   09 Nov 05 (wrl) Convert dmat to complex form
-  !u   29 Oct 05 Switch to evaluate Etot without updating vorb
-  !u   27 Apr 05 Lambrecht first created
-  ! ----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
-  integer :: l,nsp,lmaxu,iblu,vrsion
-  double precision :: UH,JH,Eorb
-  double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
-  double complex dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
-  ! ... Local parameters
-  integer :: m,m1,m2,m3,isp,lvrs,lnov
-  double precision :: Eldau,Edc,Ueff,dmat4
-  double precision :: trace(2)=1d99,n0(2),ttrace
-  double complex Vnew(-3:3,-3:3)
-  double precision :: Vee(-3:3,-3:3,-3:3,-3:3)
-  double complex vtemp1,vtemp2
-  integer :: iot(2)
-  lvrs = mod(vrsion,100)
-  lnov = mod(vrsion/100,10)
-  !     iot(i) is spin complement to spin i
-  iot(1) = 2
-  iot(2) = 1
-  !     Calculate n_sig = Tr(rho_sig)/(2l+1)
-  do  isp = 1, nsp
-     trace(isp) = 0d0
-     do  m = -l, l
-        trace(isp) = trace(isp) + dmatu(m,m,isp,iblu)
-     enddo
-  enddo
-  ttrace = trace(1) + trace(2)
-  do  isp = 1, nsp
-     n0(isp) = trace(isp)/(2*l+1)
-  enddo
-  !     AMF
-  ! see Petukhov  PRB 67, 153106 (2003) but generalize ala Liechtenstein
-  ! for nonspherical case
-  ! AMF means construct with delta dmatu instead of dmatu in what follows
-  if (lvrs == 1) then
-     do  isp = 1, nsp
-        do m = -l, l
-           dmatu(m,m,isp,iblu) = dmatu(m,m,isp,iblu) - n0(isp)
-        enddo
-     enddo
-  endif
-  !     End AMF
-  !     Eq. 6, PRB 67, 153106 (2003)
-  !     Note:  JH=0 => Vee(m,m2,m1,m3) = U delta(m,m1) delta(m2,m3)
-  call veecomp(Vee,l,UH,JH)
-  !      print *, 'vee'
-  !      do m=-l,l
-  !        do m1=-l,l
-  !          print *,'m,m1',m,m1
-  !          do  m2=-l,l
-  !            print '(7f10.4)', (Vee(m,m2,m1,m3),m3=-l,l)
-  !          enddo
-  !        enddo
-  !      enddo
-  !      stop
-  !     See Liechtenstein PRB 52, R5467 (1995) for FLL limit
-  Eldau = 0d0
-  do  isp = 1, 2
-     do  m = -l, l
-        do  m1 = -l, l
-           Vnew(m,m1) = (0d0,0d0)
-           do  m2 = -l, l
-              do  m3 = -l, l
+                   !             Case lvrs = 4:
+                   !             Potential shift and dmat input, not U and dmat
+                   !             Replace dmat with diagonal dmat4 => V diagonal, l independent
+                   if (lvrs == 4) then
+                      if (m /= m1 .OR. m2 /= m3 .OR. m /= m2) goto 10
 
-                 !             Case lvrs = 4:
-                 !             Potential shift and dmat input, not U and dmat
-                 !             Replace dmat with diagonal dmat4 => V diagonal, l independent
-                 if (lvrs == 4) then
-                    if (m /= m1 .OR. m2 /= m3 .OR. m /= m2) goto 10
+                      dmat4 = n0(isp)/2 + n0(3-isp)/2
+                      !               Spherical average from Petukhov
+                      !               Vnew(m,m) = - Ueff (dmat_eff - 0.5d0)
+                      Vnew(m,m1) = Vnew(m,m1) + UH
+                      Ueff = -UH/(dmat4-0.5d0)
+                      !               Petukhov Eq. 3.  Factor of 1/2 comes later
+                      Eldau = Eldau - Ueff*(dmat4**2 - dmat4)
 
-                    dmat4 = n0(isp)/2 + n0(3-isp)/2
-                    !               Spherical average from Petukhov
-                    !               Vnew(m,m) = - Ueff (dmat_eff - 0.5d0)
-                    Vnew(m,m1) = Vnew(m,m1) + UH
-                    Ueff = -UH/(dmat4-0.5d0)
-                    !               Petukhov Eq. 3.  Factor of 1/2 comes later
-                    Eldau = Eldau - Ueff*(dmat4**2 - dmat4)
+                      !               Mimic mode 2
+                      !               U2 = 0
+                      !               if (m .eq. m3) U2 = Ueff
+                      !               print *, Ueff/2*(n0(isp)**2 - n0(isp))
+                      !               print *,
+                      !     .           Ueff*dmat4*dmat4 + (Ueff - U2)*dmat4*dmat4
+                      !               Eldau = Eldau +
+                      !     .           Ueff*dmat4*dmat4 + (Ueff - U2)*dmat4*dmat4
+                   elseif (lvrs == 5) then
+                      if (m == m1) Vnew(m,m1)=UH*(isp-1.5d0)*2
+                      Eldau = 0
+                   else
+                      !             First line in Eq. 5, PRB 52, R5467
+                      !             NB: J=0 => vtemp1 = U delta(m,m1) delta(m2,m3)
+                      vtemp1 = Vee(m,m2,m1,m3)*dmatu(m2,m3,iot(isp),iblu)
+                      !             Second and third lines in Eq. 5, PRB 52, R5467
+                      vtemp2 = (Vee(m,m2,m1,m3) - Vee(m,m2,m3,m1))* &
+                           dmatu(m2,m3,isp,iblu)
+                      Vnew(m,m1) = Vnew(m,m1) + vtemp1 + vtemp2
+                      Eldau = Eldau + Vee(m,m2,m1,m3)*dmatu(m,m1,isp,iblu)* &
+                           dmatu(m2,m3,iot(isp),iblu) + (Vee(m,m2,m1,m3) - &
+                           Vee(m,m2,m3,m1))*dmatu(m,m1,isp,iblu)* &
+                           dmatu(m2,m3,isp,iblu)
+                   endif
+10                 continue
+                enddo
+             enddo
+          enddo
+          if (lvrs == 2) then !   FLL: see last line, Eq. 5, PRB 52, R5467
+             Vnew(m,m) = Vnew(m,m) - UH*(ttrace-0.5d0) + JH*(trace(isp)-0.5d0)
+          endif
+       enddo
+       if (lnov == 0) then
+          do  m=-l,l
+             do  m1 = -l,l
+                Vorb(m,m1,isp,iblu) = Vnew(m,m1)
+             enddo
+          enddo
+       endif
+    enddo
+    Eldau = Eldau/2d0
+    Edc = 0d0
+    if (lvrs == 2) then
+       Edc = 0.5d0*UH*ttrace*(ttrace-1d0) - 0.5d0*JH* &
+            (trace(1)*(trace(1)-1d0) + trace(2)*(trace(2)-1d0))
+    endif
+    Eorb = Eldau - Edc
+    !if (lvrs == 4) then
+    !   write(stdo,ftox)' vldau:  Eldau =',ftof(Eldau),'Ueff=',Ueff,'Eorb =',Eorb
+    !else
+    !   write(stdo,ftox)' vldau:  Eldau =',ftof(Eldau),'Edc =',Edc,'Eorb=',Eorb
+    !endif
+    if (lvrs == 1) then !!   Restore dmatu in AMF case
+       do  isp = 1, nsp
+          do m = -l, l
+             dmatu(m,m,isp,iblu) = dmatu(m,m,isp,iblu) + n0(isp)
+          enddo
+       enddo
+    endif
+  end subroutine vldau
 
-                    !               Mimic mode 2
-                    !               U2 = 0
-                    !               if (m .eq. m3) U2 = Ueff
-                    !               print *, Ueff/2*(n0(isp)**2 - n0(isp))
-                    !               print *,
-                    !     .           Ueff*dmat4*dmat4 + (Ueff - U2)*dmat4*dmat4
-                    !               Eldau = Eldau +
-                    !     .           Ueff*dmat4*dmat4 + (Ueff - U2)*dmat4*dmat4
-                 elseif (lvrs == 5) then
-                    if (m == m1) Vnew(m,m1)=UH*(isp-1.5d0)*2
-                    Eldau = 0
-                 else
-                    !             First line in Eq. 5, PRB 52, R5467
-                    !             NB: J=0 => vtemp1 = U delta(m,m1) delta(m2,m3)
-                    vtemp1 = Vee(m,m2,m1,m3)*dmatu(m2,m3,iot(isp),iblu)
-                    !             Second and third lines in Eq. 5, PRB 52, R5467
-                    vtemp2 = (Vee(m,m2,m1,m3) - Vee(m,m2,m3,m1))* &
-                         dmatu(m2,m3,isp,iblu)
-                    Vnew(m,m1) = Vnew(m,m1) + vtemp1 + vtemp2
-                    Eldau = Eldau + Vee(m,m2,m1,m3)*dmatu(m,m1,isp,iblu)* &
-                         dmatu(m2,m3,iot(isp),iblu) + (Vee(m,m2,m1,m3) - &
-                         Vee(m,m2,m3,m1))*dmatu(m,m1,isp,iblu)* &
-                         dmatu(m2,m3,isp,iblu)
-                 endif
-10               continue
-              enddo
-           enddo
-        enddo
-        if (lvrs == 2) then !   FLL: see last line, Eq. 5, PRB 52, R5467
-           Vnew(m,m) = Vnew(m,m) - UH*(ttrace-0.5d0) + JH*(trace(isp)-0.5d0)
-        endif
-     enddo
-     if (lnov == 0) then
-        do  m=-l,l
-           do  m1 = -l,l
-              Vorb(m,m1,isp,iblu) = Vnew(m,m1)
-           enddo
-        enddo
-     endif
-  enddo
-  Eldau = Eldau/2d0
-  Edc = 0d0
-  if (lvrs == 2) then
-     Edc = 0.5d0*UH*ttrace*(ttrace-1d0) - 0.5d0*JH* &
-          (trace(1)*(trace(1)-1d0) + trace(2)*(trace(2)-1d0))
-  endif
-  Eorb = Eldau - Edc
-  !if (lvrs == 4) then
-  !   write(stdo,ftox)' vldau:  Eldau =',ftof(Eldau),'Ueff=',Ueff,'Eorb =',Eorb
-  !else
-  !   write(stdo,ftox)' vldau:  Eldau =',ftof(Eldau),'Edc =',Edc,'Eorb=',Eorb
-  !endif
-  if (lvrs == 1) then !!   Restore dmatu in AMF case
-     do  isp = 1, nsp
-        do m = -l, l
-           dmatu(m,m,isp,iblu) = dmatu(m,m,isp,iblu) + n0(isp)
-        enddo
-     enddo
-  endif
-end subroutine vldau
+  subroutine Veecomp(Vee,l,U_H,J_H)
+    !- Calculate Vee from U, J, Slater integrals, and Clebsch-Gordon coefficients.
+    ! ----------------------------------------------------------------------
+    !i Inputs
+    !i   l     :l for which U_H and J_H are defined
+    !i   U_H   :Screened direct coulomb integral (Hubbard U)
+    !i   J_H   :Exchange integral (Hubbard J)
+    !o Outputs
+    !o   Vee   :Vee(m,m2,m3,m4) = <m,m2|Vee|m1,m3>
+    !l Local variables
+    !r Remarks
+    !u Updates
+    !u   02 Jun 05 Lambrecht bug fixes
+    !u   27 Apr 05 Larson first created
+    ! ----------------------------------------------------------------------
+    !     implicit none
+    ! ... Passed parameters
+    integer :: l
+    real(8) :: U_H,J_H
+    real(8) :: Vee(-3:3,-3:3,-3:3,-3:3)
+    ! ... Local parameters
+    integer :: m,m1,m2,m3,k,jj,sg
+    real(8) :: F(0:2*3),r42,r62,t1,t2,t3,ak
+    !     Slater integrals from U_H, J_H (this will be updated later)
 
-subroutine Veecomp(Vee,l,U_H,J_H)
-  !- Calculate Vee from U, J, Slater integrals, and Clebsch-Gordon coefficients.
-  ! ----------------------------------------------------------------------
-  !i Inputs
-  !i   l     :l for which U_H and J_H are defined
-  !i   U_H   :Screened direct coulomb integral (Hubbard U)
-  !i   J_H   :Exchange integral (Hubbard J)
-  !o Outputs
-  !o   Vee   :Vee(m,m2,m3,m4) = <m,m2|Vee|m1,m3>
-  !l Local variables
-  !r Remarks
-  !u Updates
-  !u   02 Jun 05 Lambrecht bug fixes
-  !u   27 Apr 05 Larson first created
-  ! ----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
-  integer :: l
-  double precision :: U_H,J_H
-  double precision :: Vee(-3:3,-3:3,-3:3,-3:3)
-  ! ... Local parameters
-  integer :: m,m1,m2,m3,k,jj,sg
-  double precision :: F(0:2*3),r42,r62,t1,t2,t3,ak
-  !     Slater integrals from U_H, J_H (this will be updated later)
+    call dpzero(vee,7**4)
+    call dpzero(F,7)
 
-  call dpzero(vee,7**4)
-  call dpzero(F,7)
+    F(0) = U_H
+    !     d-states -> r42 = F(4)/F(2) = 0.625
+    if (l == 2) then
+       r42 = 0.625d0
+       F(2) = 14d0*J_H/(1d0+r42)
+       F(4) = F(2)*r42
+    endif
+    !     f-states
+    if (l == 3) then
+       r42 = 451d0/675d0
+       r62 = 1001d0/2025d0
+       F(2) = 3d0*J_H/(2d0/15d0+1d0/11d0*r42+50d0/429d0*r62)
+       F(4) = F(2)*r42
+       F(6) = F(2)*r62
+    endif
+    !     Calculate <m,m2|Vee|m1,m3>
+    do  m = -l, l
+       do  m2 = -l, l
+          do  m1 = -l, l
+             do  m3 = -l, l
+                do  k = 0, 2*l,2
+                   !                     print *,'k=',k,'F=',F(k)
+                   ak = 0d0
+                   call t3j_all(l,k,l,0,0,0,t1)
+                   !                     print *,'l=',l,'k=',k,'F=',F(k),'t1=',t1
+                   do  jj = -k, k
+                      call t3j_all(l,k,l,-m,jj,m1,t2)
+                      call t3j_all(l,k,l,-m2,-jj,m3,t3)
+                      sg = (-1)**(m+jj+m2)
+                      ak = ak + sg*t2*t3
+                   enddo
+                   ak = (2*l+1)**2*t1**2*ak
+                   !                     print '(5i3,3f8.2)',
+                   !     .               m,m2,m1,m3,k,Vee(m,m2,m1,m3),ak,F(k)
+                   Vee(m,m2,m1,m3) = Vee(m,m2,m1,m3) + ak*F(k)
+                   !                     print '(5i3,3f9.4)',
+                   !     .               m,m2,m1,m3,k,Vee(m,m2,m1,m3),ak,F(k)
+                enddo
+             enddo
+          enddo
+       enddo
+    enddo
+  end subroutine Veecomp
 
-  F(0) = U_H
-  !     d-states -> r42 = F(4)/F(2) = 0.625
-  if (l == 2) then
-     r42 = 0.625d0
-     F(2) = 14d0*J_H/(1d0+r42)
-     F(4) = F(2)*r42
-  endif
-  !     f-states
-  if (l == 3) then
-     r42 = 451d0/675d0
-     r62 = 1001d0/2025d0
-     F(2) = 3d0*J_H/(2d0/15d0+1d0/11d0*r42+50d0/429d0*r62)
-     F(4) = F(2)*r42
-     F(6) = F(2)*r62
-  endif
-  !     Calculate <m,m2|Vee|m1,m3>
-  do  m = -l, l
-     do  m2 = -l, l
-        do  m1 = -l, l
-           do  m3 = -l, l
-              do  k = 0, 2*l,2
-                 !                     print *,'k=',k,'F=',F(k)
-                 ak = 0d0
-                 call t3j_all(l,k,l,0,0,0,t1)
-                 !                     print *,'l=',l,'k=',k,'F=',F(k),'t1=',t1
-                 do  jj = -k, k
-                    call t3j_all(l,k,l,-m,jj,m1,t2)
-                    call t3j_all(l,k,l,-m2,-jj,m3,t3)
-                    sg = (-1)**(m+jj+m2)
-                    ak = ak + sg*t2*t3
-                 enddo
-                 ak = (2*l+1)**2*t1**2*ak
-                 !                     print '(5i3,3f8.2)',
-                 !     .               m,m2,m1,m3,k,Vee(m,m2,m1,m3),ak,F(k)
-                 Vee(m,m2,m1,m3) = Vee(m,m2,m1,m3) + ak*F(k)
-                 !                     print '(5i3,3f9.4)',
-                 !     .               m,m2,m1,m3,k,Vee(m,m2,m1,m3),ak,F(k)
-              enddo
-           enddo
-        enddo
-     enddo
-  enddo
-end subroutine Veecomp
+  subroutine t3j_all(j1,j2,j3,m1,m2,m3,t3j)
+    ! ----------------------------------------------------------------
+    !- Calculate 3-j symbols.
+    !     implicit none
+    integer :: j1,j2,j3,m1,m2,m3
+    integer :: J,L1,L2,K0,K1,K2,KMAX,KMIN,trr,k
+    real(8) :: sgJ,sgk,C,ab,t3j
+    real(8) :: a1,a2,a3,a4,a5,a6,a7,a8,a9,b
+    real(8) :: a1a,a2a,a3a,a4a,a5a,a6a,a7a,a8a,a9a
+    t3j = 0d0
+    if ((m1+m2+m3) /= 0) goto 142
+    call tri_rule(j1,j2,j3,trr)
+    if (trr < 0) goto 142
+    call fctor1( j1 + j2 - j3,a1)
+    call fctor1( j1 - j2 + j3,a2)
+    call fctor1(-j1 + j2 + j3,a3)
+    call fctor1( j1 + m1,a4)
+    call fctor1( j1 - m1,a5)
+    call fctor1( j2 + m2,a6)
+    call fctor1( j2 - m2,a7)
+    call fctor1( j3 + m3,a8)
+    call fctor1( j3 - m3,a9)
+    call fctor1( j1 + j2 + j3 + 1,b)
+    ab = b
+    a1a = a1
+    a2a = a2
+    a3a = a3
+    a4a = a4
+    a5a = a5
+    a6a = a6
+    a7a = a7
+    a8a = a8
+    a9a = a9
+    J   = j1 - j2 - m3
+    sgJ = (-1)**(J)
+    C   = sgJ*DSQRT(a1a*a2a*a3a*a4a*a5a*a6a*a7a*a8a*a9a/ab)
 
-subroutine t3j_all(j1,j2,j3,m1,m2,m3,t3j)
-  ! ----------------------------------------------------------------
-  !- Calculate 3-j symbols.
-  !     implicit none
-  integer :: j1,j2,j3,m1,m2,m3
-  integer :: J,L1,L2,K0,K1,K2,KMAX,KMIN,trr,k
-  double precision :: sgJ,sgk,C,ab,t3j
-  double precision :: a1,a2,a3,a4,a5,a6,a7,a8,a9,b
-  double precision :: a1a,a2a,a3a,a4a,a5a,a6a,a7a,a8a,a9a
-  t3j = 0d0
-  if ((m1+m2+m3) /= 0) goto 142
-  call tri_rule(j1,j2,j3,trr)
-  if (trr < 0) goto 142
-  call fctor1( j1 + j2 - j3,a1)
-  call fctor1( j1 - j2 + j3,a2)
-  call fctor1(-j1 + j2 + j3,a3)
-  call fctor1( j1 + m1,a4)
-  call fctor1( j1 - m1,a5)
-  call fctor1( j2 + m2,a6)
-  call fctor1( j2 - m2,a7)
-  call fctor1( j3 + m3,a8)
-  call fctor1( j3 - m3,a9)
-  call fctor1( j1 + j2 + j3 + 1,b)
-  ab = b
-  a1a = a1
-  a2a = a2
-  a3a = a3
-  a4a = a4
-  a5a = a5
-  a6a = a6
-  a7a = a7
-  a8a = a8
-  a9a = a9
-  J   = j1 - j2 - m3
-  sgJ = (-1)**(J)
-  C   = sgJ*DSQRT(a1a*a2a*a3a*a4a*a5a*a6a*a7a*a8a*a9a/ab)
+    K0   = j1 + j2 - j3
+    K1   = j1 - m1
+    K2   = j2 + m2
+    L1   = j2 - j3 - m1
+    L2   = j1 - j3 + m2
+    KMAX = min0(K1,K2,K0)
+    KMIN = max0(0,L1,L2)
 
-  K0   = j1 + j2 - j3
-  K1   = j1 - m1
-  K2   = j2 + m2
-  L1   = j2 - j3 - m1
-  L2   = j1 - j3 + m2
-  KMAX = min0(K1,K2,K0)
-  KMIN = max0(0,L1,L2)
-
-  t3j = 0d0
-  do  k = KMIN, KMAX
-     call fctor1(k,a1)
-     call fctor1(j1 +j2 - j3 - k,a2)
-     call fctor1(j1 -m1 - k,a3)
-     call fctor1(j2 +m2 - k,a4)
-     call fctor1(j3 -j2 + m1 + k,a5)
-     call fctor1(j3 -j1 - m2 + k,a6)
-     sgk = (-1d0)**k
-     a1a = a1
-     a2a = a2
-     a3a = a3
-     a4a = a4
-     a5a = a5
-     a6a = a6
-     t3j = t3j + sgk/(a1a*a2a*a3a*a4a*a5a*a6a)
-  enddo
-  t3j = C*t3j
+    t3j = 0d0
+    do  k = KMIN, KMAX
+       call fctor1(k,a1)
+       call fctor1(j1 +j2 - j3 - k,a2)
+       call fctor1(j1 -m1 - k,a3)
+       call fctor1(j2 +m2 - k,a4)
+       call fctor1(j3 -j2 + m1 + k,a5)
+       call fctor1(j3 -j1 - m2 + k,a6)
+       sgk = (-1d0)**k
+       a1a = a1
+       a2a = a2
+       a3a = a3
+       a4a = a4
+       a5a = a5
+       a6a = a6
+       t3j = t3j + sgk/(a1a*a2a*a3a*a4a*a5a*a6a)
+    enddo
+    t3j = C*t3j
 142 continue
-end subroutine t3j_all
-subroutine fctor1(nfac,fctor2)
-  ! ----------------------------------------------------------------
-  !     implicit none
-  double precision :: f,f2(0:100),fctor2
-  integer :: nfac,i
-  f2(0) = 1d0
-  f = 0d0
-  do  i = 1,nfac
-     f = f+1d0
-     f2(i) = f2(i-1)*f
-  enddo
-  fctor2 = f2(nfac)
-end subroutine fctor1
+  end subroutine t3j_all
+  subroutine fctor1(nfac,fctor2)
+    ! ----------------------------------------------------------------
+    !     implicit none
+    real(8) :: f,f2(0:100),fctor2
+    integer :: nfac,i
+    f2(0) = 1d0
+    f = 0d0
+    do  i = 1,nfac
+       f = f+1d0
+       f2(i) = f2(i-1)*f
+    enddo
+    fctor2 = f2(nfac)
+  end subroutine fctor1
 
-subroutine tri_rule(j1,j2,j3,tri_ru)
-  ! ----------------------------------------------------------------
-  !     implicit none
-  integer :: j1,j2,j3,tri_ru
-  !     check the triangular rule
-  tri_ru = 1
-  if ((j1+j2-j3) < 0)tri_ru = -1
-  if ((j1-j2+j3) < 0)tri_ru = -1
-  if ((-j1+j2+j3) < 0)tri_ru = -1
-end subroutine tri_rule
+  subroutine tri_rule(j1,j2,j3,tri_ru)
+    ! ----------------------------------------------------------------
+    !     implicit none
+    integer :: j1,j2,j3,tri_ru
+    !     check the triangular rule
+    tri_ru = 1
+    if ((j1+j2-j3) < 0)tri_ru = -1
+    if ((j1-j2+j3) < 0)tri_ru = -1
+    if ((-j1+j2+j3) < 0)tri_ru = -1
+  end subroutine tri_rule
 
   ! ssssssssssssssssssssssssssssssssssssssssssssssssss
   subroutine mixmag(sss)
@@ -456,19 +454,19 @@ end subroutine tri_rule
     !      logical lsigin
     integer,parameter:: nda=1
     integer:: nmix,mmix
-    integer(4),parameter:: mxsav=10
-    double precision :: rms2,tj(mxsav),beta
+    integer,parameter:: mxsav=10
+    real(8) :: rms2,tj(mxsav),beta
     integer :: im,imix,jmix,onorm,okpvt,oa !,amix
     integer :: iprintxx,ifi,nitr,ndaf
     real(8)::sss(nda),sigin(nda)
     real(8):: tjmax
     real(8),allocatable::norm(:),a(:,:,:)
-    integer(4),allocatable:: kpvt(:)
-    integer(4)::ret
+    integer,allocatable:: kpvt(:)
+    integer::ret
     character(20) :: fff
     logical :: fexist
     real(8):: acc
-    integer(4):: ido,ifile_handle
+    integer:: ido,ifile_handle
     iprintxx = 30
     beta=.3d0
     allocate ( a(nda,0:mxsav+1,2) )
@@ -476,8 +474,7 @@ end subroutine tri_rule
     INQUIRE (FILE =fff, EXIST = fexist)
     if(fexist)      write(6,*)'... reading file mixsigma'
     if( .NOT. fexist) write(6,*)'... No file mixsigma'
-    ifi=ifile_handle()
-    open(ifi,file=fff,form='unformatted')
+    open(newunit=ifi,file=fff,form='unformatted')
     if(fexist) then
        read(ifi,err=903,end=903) nitr,ndaf
        if (ndaf /= nda) goto 903
@@ -571,12 +568,12 @@ end subroutine tri_rule
     include "mpif.h"
     integer:: idvsh=0
     real(8):: eks, eorbxxx,eorb
-    double complex dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
-    double complex dmatuo(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
-    double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
+    complex(8) dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
+    complex(8) dmatuo(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
+    complex(8) vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
     integer :: l,lmxa,ib,is,iblu,igetss,idmat,ivsiz,ifile_handle !,idu(4)
     integer :: iprint,ipl,havesh
-    double precision :: ddmat,eorbi,eterms(20),ddot,xx !,uh(4),jh(4)
+    real(8) :: ddmat,eorbi,eterms(20),ddot,xx !,uh(4),jh(4)
     logical:: fexist,mmtargetx,eee
     real(8),allocatable:: uhall(:,:)
     real(8):: mmsite(nbas),uhxx,mmhist(10000),uhhist(10000),mmtarget,uhdiff,ddo
@@ -633,7 +630,7 @@ end subroutine tri_rule
     if(master_mpi)then
        ddmat = sum(abs(dmatu-dmatuo)**2)**.5
        write(stdo,ftox)'LDA+U update density matrix ... RMS diff in densmat',ftod(ddmat)
-    endif   
+    endif
     ddo = sum(abs(dmatuo)**2) !dmatuo=0d0 if no dmatu.* occnum.*
     if(ddo>1d-10.and.ssss>1d-10) dmatu = umix*dmatu+(1d0-umix)*dmatuo ! new*umix + old*(1-umix)
     call rotycs(1,dmatu,nbas,nsp,lmaxu,lldau) !from rh to sh
@@ -662,10 +659,10 @@ end subroutine tri_rule
     !!=>  At this point, dmatu and vorb are in spherical harmonics
     if(Iprint()>20) write(stdo,ftox)'RMS change in vorb from symmetrization =',ftod(xx)
     if(xx>.0001d0 .AND. iprint()>30) write(stdo,'(a)')'(warning) RMS change unexpectely large'
-!    if(iprint()>0) write(6,ftox)'=== representation in spherical harmonics dmatu ==='
-!    call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau, 'Mixed dmats',dmatu)
-!    if(iprint()>0) write(6,ftox)'=== representation in spherical harmonics vorb ==='
-!    call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau, 'New vorb',vorb)
+    !    if(iprint()>0) write(6,ftox)'=== representation in spherical harmonics dmatu ==='
+    !    call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau, 'Mixed dmats',dmatu)
+    !    if(iprint()>0) write(6,ftox)'=== representation in spherical harmonics vorb ==='
+    !    call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau, 'New vorb',vorb)
     if (master_mpi) then
        idmat = ifile_handle()
        open(idmat,file='dmats.'//trim(sname)) !havesh mush be 1
@@ -719,7 +716,7 @@ end subroutine tri_rule
     !r Remarks
     !r   Reads in diagonal occupation numbers from file occnum.ext or dmatu
     !r   given in order of m=-l,l, isp=1,2, and constructs initial vorb
-!    use m_ldauu,only: ldau
+    !    use m_ldauu,only: ldau
     implicit none
     integer:: idvsh=0
     complex(8):: dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu),&
@@ -730,7 +727,7 @@ end subroutine tri_rule
     integer:: igetss,is,idmat,fxst,iblu,nlm,nlmu,nn,m1 !idu(4),
     complex(8):: tmp(7,7),img=(0d0,1d0)
     real(8):: tempr(7,7),tempi(7,7)
-    character str*80,spid*8,aaa*24
+    character str*80,spid*8,aaa*24, xn*8
     complex(8) :: dmwk_zv(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
     real(8):: uhx,uhxx
     ! ... MPI
@@ -758,7 +755,7 @@ end subroutine tri_rule
     !    havesh = 1
     !    goto 1185
     ! endif
-    
+
     ! Read in dmatu if file  dmats.ext  exists ---
     if(procid /= master) goto 1185
     inquire(file='dmats.'//trim(sname),exist=dexist)
@@ -766,7 +763,7 @@ end subroutine tri_rule
     if(dexist) then
        open(newunit=idmat,file='dmats.'//trim(sname))
 825    continue
-!       read(idmat,*)str    !bug at 2022-12-11.
+       !       read(idmat,*)str    !bug at 2022-12-11.
        read(idmat,"(a)")str !bug recovered at 2023-01-28
        if(str(1:1) == '#') goto 825
        if(index(str,' sharm ')/=0) then
@@ -812,7 +809,7 @@ end subroutine tri_rule
        open(newunit=foccn,file='occnum.'//trim(sname))
        havesh = 1
 12     continue
-!      read(foccn,*) str  !bug at 2022-12-11.
+       !      read(foccn,*) str  !bug at 2022-12-11.
        read(foccn,"(a)") str  !bug recovered at 2023-01-28
        if (str(1:1) == '#') goto 12
        if (str(1:1) == '%') then
@@ -827,7 +824,7 @@ end subroutine tri_rule
              is = ispec(ib)
              lmxa=sspec(is)%lmxa
              do l = 0,min(lmxa,3)
-               if (idu(l+1,is) /= 0) then
+                if (idu(l+1,is) /= 0) then
                    iblu = iblu+1
                    do  isp = 1, 2
 11                    continue
@@ -886,14 +883,14 @@ end subroutine tri_rule
     if(cmdopt0('--showdmat')) then
        if(master_mpi)write(stdo,*)
        call praldm(0,30,30,idvsh,nbas,nsp,lmaxu,lldau,' Symmetrized dmats' , dmwk_zv )
-    endif   
+    endif
     !     Print dmats in complementary harmonics
     i = 1-idvsh
     call rotycs(2 * i - 1 , dmwk_zv , nbas , nsp , lmaxu, lldau )
     if(cmdopt0('--showdmat')) then
        if(master_mpi)write(stdo,*)
        call praldm(0,30,30,i,nbas,nsp,lmaxu,lldau, ' Symmetrized dmats' , dmwk_zv )
-    endif   
+    endif
     ! ... Make Vorb (ldau requires spherical harmonics)
     if (havesh /= 1) then
        call rotycs(1,dmatu,nbas,nsp,lmaxu,lldau)
@@ -917,8 +914,8 @@ end subroutine tri_rule
 22     enddo
 20  enddo
     call praldm(0,60,60,havesh,nbas,nsp,lmaxu,lldau,' Unsymmetrized vorb',vorb)
-    !!!! ==>     At this point, dmatu and vorb are in spherical harmonics (complex)
-    
+!!!! ==>     At this point, dmatu and vorb are in spherical harmonics (complex)
+
     ! ... Symmetrize vorb to check (symdmu requires real harmonics)
     call rotycs(-1,vorb,nbas,nsp,lmaxu,lldau)
     call symdmu (nlibu, vorb, nbas , nsp , lmaxu , ng , g , istab , lldau , xx )
@@ -942,18 +939,14 @@ end subroutine tri_rule
     if(cmdopt0('--showdmat')) then
        write(stdo,*) ! vorb in complementary harmonics
        call praldm(0,30,30, i , nbas , nsp , lmaxu , lldau , ' Vorb' , dmwk_zv )
-    endif   
+    endif
     eorb = 0d0
     return
-99  continue ! --- Error exit ---
-    write(str,"('bad occnum file, site l= ',i5,i5)")ib,l
-    call rx(trim(str))
+99  continue 
+    call rx('bad occnum file, site l= '//trim(xn(ib))//trim(xn(l)))
   end subroutine sudmtu
-  subroutine rotycs(mode,a,nbas,nsp,lmaxu,lldau) !not touch module variables
+  subroutine rotycs(mode,a,nbas,nsp,lmaxu,lldau) !- Rotate matrix a from real to spherical harmonics for LDA+U objects densmat and vorb
     use m_lmfinit,only:idu,ispec,sspec=>v_sspec
-    !- Rotate matrix a from real to spherical harmonics
-    ! for LDA+U objects densmat and vorb
-    !-------------------------------------
     !i mode =1 from real a to spherical a
     !i      -1 from spherical a to real a
     !i a: matrix to be transformed a(m,m,isp,iblu)  could be vorb or dmat
@@ -1016,4 +1009,103 @@ end subroutine tri_rule
        enddo
     enddo
   end subroutine rotycs
+  subroutine praldm(ifi,ipr1,ipr2,sharm,nbas,nsp,lmaxu,lldau,strn,dmatu) !- Writes out a site density-matrix-like object for all sites
+    use m_struc_def
+    use m_lmfinit,only:idu,ispec,sspec=>v_sspec
+    !i Inputs
+    !i   ifi   :if zero, write to stdo, in screen style format
+    !i         :else, write to file ifi in high-precision format
+    !i   ipr1  :if verbosity ipr>ipr1, print header
+    !i   ipr2  :if verbosity ipr>ipr2, print contents of dmats
+    !i   sharm :0 if in real harmonics, 1 if in spherical harmonics
+    !i   nbas  :size of basis
+    !i   nsp   :2 for spin-polarized case, otherwise 1
+    !i   lmaxu :dimensioning parameter for U matrix
+    !i   lldau :lldau(ib)=0 => no U on this site otherwise
+    !i          U on site ib with dmat in dmats(*,lldau(ib))
+    !i   strn  :string put into header
+    !i   dmatu :density matrix for LDA+U
+    !o Outputs
+    !o   dmatu is written to file ifi
+    implicit none
+    integer :: nbas,nsp,lldau(nbas),ifi,lmaxu,ipr1,ipr2,sharm,i_copy_size
+    complex(8)::   dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
+    character strn*(*)
+    integer :: iblu,ib,is,igetss,lmxa,l !,idu(4)
+    iblu = 0
+    do  ib = 1, nbas
+       if (lldau(ib) /= 0) then
+          is = ispec(ib) 
+          lmxa=sspec(is)%lmxa
+          do  l = 0, min(lmxa,3)
+             if (idu(l+1,is) /= 0) then
+                iblu = iblu+1
+                call prdmts(ifi,ipr1,ipr2,sharm,strn,ib,l,lmaxu,iblu,dmatu, nsp,1)
+             endif
+          enddo
+       endif
+    enddo
+  end subroutine praldm
+  subroutine prdmts(ifi,ipr1,ipr2,sharm,strn,ib,l,lmaxu,iblu,dmats, nsp,nspc)!- Writes out a site density-matrix-like object for a single l
+    use m_ftox
+    use m_lmfinit,only: stdo
+    !i Inputs
+    !i   ifi   :if zero, write to stdo, in screen style format
+    !i         :else, write to file ifi in high-precision format
+    !i   ipr1  :if verbosity ipr>ipr1, print header
+    !i   ipr2  :if verbosity ipr>ipr2, print contents of dmats
+    !i   sharm :0 if in real harmonics, 1 if in spherical harmonics
+    !i   strn  :string put into header
+    !i   ib    :site index (ib=0 suppresses printout)
+    !i   l     :dmats defined for l block
+    !i   lmaxu :dimensioning parameter for dmats
+    !i   iblu  :index to current block
+    !i   dmats :site density matrix
+    !i   nsp   :2 for spin-polarized case, otherwise 1
+    !i   nspc  :2 if spin-up and spin-down channels are coupled; else 1.
+    !o Outputs
+    !o  header and dmats are printed to stdo
+    implicit none
+    integer :: ifi,ipr1,ipr2,l,ib,lmaxu,nsp,nspc,iblu,sharm
+    complex(8) :: dmats(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,iblu)
+    character strn*(*)
+    integer :: isp,ipr,m1,m2,mpipid,nlm
+    character strnl*120,strn1*30,lll*60
+    if (nspc == 2) call rx('prdmts not ready for nspc=2')
+    if (mpipid(1) /= 0) return
+    call getpr(ipr)
+    nlm = 2*l+1
+    if (ifi /= 0) then
+       if(sharm==0) lll=' real    rharm'
+       if(sharm/=0) lll=' complex sharm'
+       do  isp = 1, nsp
+          if (ipr>=ipr1)write(ifi,ftox)'% ',trim(lll),trim(strn),'l=',l,'site',ib,'spin',isp
+          if (ipr< ipr2)return
+          do  m1 = -l, l
+             write(ifi,'(7(f12.7,2x))') (dreal(dmats(m1,m2,isp,iblu)),m2=-l,l)
+          enddo
+          write(ifi,*)
+          do  m1 = -l, l
+             write(ifi,'(7(f12.7,2x))') (dimag(dmats(m1,m2,isp,iblu)),m2=-l,l)
+          enddo
+       enddo
+    else
+       if(sharm == 0) then
+          strnl = strn // ' real harmonics'
+       else
+          strnl = strn // ' spherical harmonics'
+       endif
+       do  isp = 1, nsp
+          if (ipr < ipr2) return
+          write(stdo,ftox) trim(strnl),'l=',l,'ib',ib,'isp',isp
+          do  m1 = -l, l
+             write(stdo,'(7(f9.5,2x))')(dreal(dmats(m1,m2,isp,iblu)),m2=-l,l)
+          enddo
+          write(stdo,'(1x)')
+          do  m1 = -l, l
+             write(stdo,'(7(f9.5,2x))')(dimag(dmats(m1,m2,isp,iblu)),m2=-l,l)
+          enddo
+       enddo
+    endif
+  end subroutine prdmts
 end module m_ldau_util

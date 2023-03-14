@@ -3,6 +3,7 @@ module m_lmfinit ! All ititial data (except rst/atm data via iors/rdovfa) !TK ex
   !                We perform 'call m_lmfinit_init', which sets all initial data.
   !! m_lmfinit_init have three stages. Search the word 'Block' in the followings.
   !! At the bottom of this code, which may/maynot be a help to read this code
+  use m_ftox
   use m_ext,only :sname        ! sname contains extension. foobar of ctrl.foobar
   use m_struc_def,only: s_spec ! spec structures.
   use m_MPItk,only: master_mpi
@@ -53,7 +54,6 @@ contains
   subroutine m_lmfinit_init(prgnam) ! All the initial data are set in module variables from ctrlp.*
     use m_gtv2,only: gtv2_setrcd,rval2
     use m_cmdpath,only:cmdpath
-    use m_ftox
     ! Inputs
     !   file  : ctrl.sname
     !   prgnam: name of main program
@@ -867,6 +867,35 @@ contains
        res(2:3) = res(1)
     endif
   end subroutine fill3in
+  subroutine suldau(nbas,nlibu,lmaxu,lldau)!- Finds lda+U sites and counts number of blocks
+    use m_struc_def  
+    !use m_lmfinit,only:idu,ispec,sspec=>v_sspec
+    !i Inputs
+    !i   nbas  :size of basis
+    !o Outputs
+    !i   lldau :lldau(ib)=0 => no U on this site otherwise
+    !i         :U on site ib with dmat in dmats(*,lldau(ib))
+    !o   nlibu :number of LDA+U blocks
+    !o   lmaxu :highest l for which a U block found, used as
+    !o         :dimensioning parameter for U matrix
+    implicit none
+    integer :: nbas,nlibu,lmaxu,lldau(nbas),igetss,is,ib,l,lmxa
+    nlibu = 0
+    lmaxu = 0
+    do  ib = 1, nbas
+       lldau(ib) = 0
+       is  = ispec(ib)
+       lmxa= v_sspec(is)%lmxa
+       do  l = 0, min(lmxa,3)
+          if (idu(l+1,is) /= 0) then
+             if (lldau(ib) == 0) lldau(ib) = nlibu+1
+             nlibu = nlibu+1
+             lmaxu = max(lmaxu,l)
+          endif
+       enddo
+    enddo
+    if(nlibu/=0) write(stdo,ftox)'suldau:  ',nlibu,' U block(s)  lmaxu =',lmaxu
+  end subroutine suldau
 end module m_lmfinit
 
 ! mmmm old doc mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
