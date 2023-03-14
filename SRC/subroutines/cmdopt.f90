@@ -5,7 +5,7 @@ logical function cmdopt0(argstr)! Check a command-line argument exist.
   character(*):: argstr
   integer ::     nargs,strln !dummy
   logical :: lsequ
-  integer :: iarg,nargf,idum,nxarg,strlnx
+  integer :: iarg,nargf,idum,nxarg,strlnx,iargc
   character(120) :: strn
   cmdopt0 = .false.
   do iarg=1,iargc()
@@ -25,7 +25,7 @@ logical function cmdopt2(argstr,outstr)  ! new version of cmdopt ! Check a comma
   character(*):: argstr,outstr
   integer ::     nargs,strln !dummy
   logical :: lsequ
-  integer :: iarg,nargf,idum,nxarg,strlnx
+  integer :: iarg,nargf,idum,nxarg,strlnx,iargc
   character(120) :: strn
   cmdopt2 = .false.
   do iarg=1,iargc()
@@ -48,7 +48,7 @@ logical function cmdopt(argstr,strln,nargs,outstr)! Check a command-line argumen
   character(*):: argstr, outstr
   integer ::     nargs,strln !dummy
   logical :: lsequ
-  integer :: iarg,nargf,idum,nxarg,strlnx
+  integer :: iarg,nargf,idum,nxarg,strlnx,iargc
   character(120) :: strn
   cmdopt = .false.
   do iarg=1,iargc()

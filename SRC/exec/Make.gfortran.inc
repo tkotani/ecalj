@@ -10,7 +10,7 @@ module = -J$(moddir) -I$(moddir)
 
 #2023feb: For newer gfortran, we need -fallow-argument-mismatch
 # FFLAGS_COMMON= -g -fimplicit-none -finit-integer=NaN -finit-real=NaN $(module) -fallow-argument-mismatch
-FFLAGS_COMMON= -g -fimplicit-none -finit-integer=NaN -finit-real=NaN $(module)
+FFLAGS_COMMON= -g -fallow-argument-mismatch -fimplicit-none -finit-integer=NaN -finit-real=NaN $(module)
 
 FFLAGS = -O2  $(FFLAGS_COMMON)
 FFLAGS_LESS = -O0   $(FFLAGS_COMMON)
@@ -27,6 +27,13 @@ FLAGS_LESS67 = -O0  $(FFLAGS_COMMON)
 #FFLAGS_LESS2 = -g  -fbacktrace $(FFLAGS_COMMON)
 #FFLAGS_LESS3 = -g  -fbacktrace $(FFLAGS_COMMON)
 #FFLAGS_NONE = -g  -fbacktrace $(FFLAGS_COMMON)
+
+#nfvortran???
+#+FC = mpif90 
+#+LIBMATH = -Mmkl
+#+module = -module $(moddir) -I$(moddir)
+#+FFLAGS_COMMON=  $(module)
+
 
 #-DMPIK 
 LIBLOC = ${LIBMATH}

@@ -137,6 +137,7 @@ contains
          if( .NOT. fileexist) call rx("No ctrl file found!! ctrl."//trim(sname))
          GetCtrlp: block !Get ctrlp file
            character(512):: aaa,cmdl,argv
+           integer:: iargc
            aaa=''
            do i = 1, iargc()
               call getarg( i, argv )

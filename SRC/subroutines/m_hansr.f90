@@ -225,7 +225,7 @@ contains
     real(8) :: rsq(nrx),e,xi(nrx,lmin:lmax),rsm,rmax
     parameter (nmax=80,nm1=14,nm2=20)
     real(8) :: cof0(-1:20),cofl(0:nmax),tol
-    real(8) :: a,a2,add,akap,al,cc,fac,rhs,ta,ta2l,y0,r2max,x
+    real(8) :: a,a2,add,akap,al,cc,fac,rhs,ta,ta2l,y0,r2max,x,derfc
     integer :: i,l,ir,m,nmaxl
     parameter (tol=1d-20)
     if (lmax < lmin .OR. nr == 0) return
@@ -596,7 +596,7 @@ contains
     implicit none
     integer :: lmax,l,n,nmax
     real(8) :: r,e,a,xi(0:lmax),a0(0:40),a2,add,akap,al,cc,dudr,ema2r2,fac, &
-         gl,r2n,radd,rfac,rhs,rlim,srpi,sum,ta,ta2l,tol,u,uminus,uplus,w
+         gl,r2n,radd,rfac,rhs,rlim,srpi,sum,ta,ta2l,tol,u,uminus,uplus,w,derfc
     parameter (nmax=1000, tol=1d-20, srpi=1.77245385090551602729817d0)
     if (e > 0d0) call rx('hansmr: e gt 0')
     if (lmax > 40) call rx('hansmr: lmax gt 40')

@@ -10,7 +10,7 @@ program lmchk
   implicit none
   logical:: fileexist,cmdopt,llmfgw=.false.,cmdopt0,cmdopt2,writeham,lbin
   character:: outs*20,aaa*512,sss*128,uuu*128, prgnam*8, charext*8
-  integer:: k,iarg,jobgw,iprint,nit1,ifi
+  integer:: k,iarg,jobgw,iprint,nit1,ifi,iargc
   data prgnam /'LMCHK'/
   call m_ext_init()        ! Get sname, e.g. trim(sname)=si of ctrl.si
   call m_MPItk_init(prgnam)
