@@ -1,14 +1,12 @@
-module m_readfreq_r
+module m_readfreq_r !read freq_r
   use m_genallcf_v3,only: niw
   use m_readgwinput,only: ua_
-  !     ! Readin WV.d (dimension file)
-  !     direct access files WVR and WVI which include W-V.
+  !   Readin WV.d (dimension file)  direct access files WVR and WVI which include W-V.
   implicit none
   integer:: mrecl
   integer,protected::nprecx,nblochpmx,nwp,niwt, nqnum, nw_i,nw,npm
   real(8),allocatable,protected:: freq_r(:)
   real(8),protected,allocatable::freqx(:),freqw(:),wwx(:),expa_(:)
-
 contains
   subroutine readfreq_r()
     integer:: ififr,ifwd,ix,nwxx,iw

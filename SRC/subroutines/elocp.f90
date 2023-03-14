@@ -1,4 +1,4 @@
-module m_elocp
+module m_elocp ! envlope parameters for extended local orbitals
   use m_lmfinit,only: nspec,n0
   real(8),allocatable,protected,public:: ehl(:,:),rsml(:,:)
   public:: elocp

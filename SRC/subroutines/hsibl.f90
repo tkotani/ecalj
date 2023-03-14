@@ -1,8 +1,8 @@
-module m_hsibl ! Interstitial ME of smooth Bloch Hankels, smooth potential.
+module m_hsibl ! Interstitial matrix elements of smooth Bloch Hankels, smooth potential.
   public hsibl,hsibl1
   private
 contains
-  subroutine hsibl(k1,k2,k3,vsm,isp,q,ndimh,napw,igapw,h)
+  subroutine hsibl(k1,k2,k3,vsm,isp,q,ndimh,napw,igapw, h)
     use m_lmfinit,only: alat=>lat_alat,nspec,nbas,ispec
     use m_lattic,only: qlat=>lat_qlat,vol=>lat_vol,rv_a_opos
     use m_supot,only: ngabc=>lat_nabc, lat_ng, gmax=>lat_gmax

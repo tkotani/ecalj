@@ -1,13 +1,10 @@
-module m_readeps
+module m_readeps !read epsinv and so on for W4phonon (not yet)
   !! Subroutines: read_eps,deallocate_eps
   implicit none
-
   complex(8),allocatable,protected :: epsinv(:,:),w_mu(:,:),llmat(:,:)
   !      complex(8),allocatable,protected :: epsinv(:,:),w_mu(:,:)
   !      complex(8),protected :: llmat(3,3)
-
 contains
-
   subroutine check_eps()
     !! read info for inverse dielectric function.
     integer:: iq,iq_read,ngb_read
@@ -31,7 +28,6 @@ contains
     end do
     close(ifw4pchk)
   end subroutine check_eps
-
   subroutine read_eps(q,iqx,ngb)
     intent(in)::        q,iqx,ngb
     integer:: iqx,ngb

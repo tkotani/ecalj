@@ -1,16 +1,13 @@
-module m_rhocor
+module m_rhocor !core density
   use m_lgunit,only:stdo
   use m_rseq,only: rseq
   public:: getcor,rhocor
   private
 contains
-  subroutine getcor(mode,z,a,pnu,pnz,nr,lmax,rofi,v0,kcor,lcor,qcor, &
+  subroutine getcor(mode,z,a,pnu,pnz,nr,lmax,rofi,v0,kcor,lcor,qcor, & !- Generate the core density for one site
        sumec,sumtc,rhoc,ncore,ecore,gcore,nmcore)
     use m_lmfinit,only: nsp
     use m_lgunit,only:stdo
-!    use m_rhocor
-    !- Generate the core density for one site
-    ! ----------------------------------------------------------------------
     !i Inputs
     !i   mode  :0 do not return ecore,gcore
     !i         :1 return core eigenvalues ecore and wave functions gcore
@@ -99,11 +96,8 @@ contains
        sumtc = smtc(1)+smtc(2)
     endif
   end subroutine getcor
-
-  subroutine rhocor(isw,z,lmax,nsp,konfig,a,b,nr,rofi,v,g,kcor,lcor, &
+  subroutine rhocor(isw,z,lmax,nsp,konfig,a,b,nr,rofi,v,g,kcor,lcor, & !Generates the (spherical) charge density from the core states
        qcor,tol,ec,sumec,sumtc,rho,gcore,nmcore,ipr) !nmcore jun2012
-    !- Generates the (spherical) charge density from the core states
-    ! ----------------------------------------------------------------------
     !i Inputs:
     !i   isw   :1 return the core wave functions in gcore
     !i   z     :nuclear charge
@@ -231,10 +225,8 @@ contains
             '  rho(rmax)',f8.5)
 80  enddo
   end subroutine rhocor
-  subroutine xyrhsr(ecore,l,z,a,b,nr,nre,g,rofi,v,rho,deg,vrho, rhormx)
+  subroutine xyrhsr(ecore,l,z,a,b,nr,nre,g,rofi,v,rho,deg,vrho, rhormx)!Make density and integrate potential*density for one core state
     use m_lmfinit,only: c=>cc
-    !- Make density and integrate potential*density for one core state
-    ! ----------------------------------------------------------------------
     !i Inputs
     !i   ecore :core eigenvalue
     !i   l     :l quantum number

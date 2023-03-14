@@ -1,9 +1,6 @@
-SUBROUTINE GINTxx(G1,G2,A,B,NR,SUM)
-  !- Integrate product of two wave functions, Simpson rule
-  ! ----------------------------------------------------------------
+SUBROUTINE GINTxx(G1,G2,A,B,NR,SUM) !- Integrate product of two wave functions, Simpson rule
   ! takao \sum_i g(i)*g(i) drdi
   implicit none
-  !      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
   integer:: ir,nr
   real(8):: G1(NR),G2(NR),a,b,sum,dedi,ea2,ea4,rmpb,drdi
   EA2 = DEXP(A + A)
@@ -23,13 +20,9 @@ SUBROUTINE GINTxx(G1,G2,A,B,NR,SUM)
   RMPB = B*DEXP(A*(NR-1))
   SUM = (2*SUM+ G1(1)*G2(1)*(A*B) + G1(NR)*G2(NR)*(A*RMPB))/3d0
 end SUBROUTINE GINTxx
-
-function gintegral(G1,G2,A,B,NR) result(sum)
-  !- Integrate product of two wave functions, Simpson rule
-  ! ----------------------------------------------------------------
+function gintegral(G1,G2,A,B,NR) result(sum) !- Integrate product of two wave functions, Simpson rule
   ! takao \sum_i g(i)*g(i) drdi
   implicit none
-  !      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
   integer:: ir,nr
   real(8):: G1(NR),G2(NR),a,b,sum,dedi,ea2,ea4,rmpb,drdi
   EA2 = DEXP(A + A)

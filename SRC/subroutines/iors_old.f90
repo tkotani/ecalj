@@ -1,11 +1,9 @@
 module m_iors_old!this module is for reading(and writing old version) of rst file befor 2022-5-14
   use m_struc_def           !we will remove this at some point.
   use m_lgunit,only:stdo
-
   public iors_old
   type(s_rv1),public,allocatable :: v1pot(:),v0pot(:)
   private
-
 contains
   integer function iors_old(nit,rwrw)!,irs5)
     use m_density,only: osmrho, orhoat !these are allocated

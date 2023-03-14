@@ -1,4 +1,4 @@
-! Frequency mesh generator
+module m_freq ! Frequency mesh generator
 !! - OUTPUT
 !!   - fhris :histgram bins to accumlate im part
 !!   - freq_r: omega along real axis
@@ -6,15 +6,11 @@
 !!   - wiw: integration weight along im axis
 !!   - npm: npm=1 means only positive omega;npm=2 means positive and negative omega.
 !! - NOTE: change of frequency mesh defined here may destroy consistency or not. Need check
-module m_freq
-  use m_read_bzdata,only: &
-       dq_,qbz,nqbz
-  use m_qbze,only: &
-       nqbze,nqibze,qbze,qibze
+  use m_read_bzdata,only: dq_,qbz,nqbz
+  use m_qbze,only:  nqbze,nqibze,qbze,qibze
   use m_genallcf_v3,only: niw_in=>niw,ecore,nctot,nspin
   use m_readhbe,only: nband
   implicit none
-  !!--------------
   public:: getfreq2, getfreq3, getfreq,freq01
   real(8),allocatable,protected,public::frhis(:),freq_r(:),freq_i(:),wiw(:),freqx(:),wx(:)
   integer,protected,public:: nwhis, npm, nw_i, nw, niw

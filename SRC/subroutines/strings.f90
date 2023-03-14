@@ -1,6 +1,4 @@
-subroutine strcop(dest,source,len,term,i)
-  !- copy one string to another
-  ! ----------------------------------------------------------------
+subroutine strcop(dest,source,len,term,i)  !- copy one string to another
   !i Inputs/Outputs
   !i   dest,source: source and destination strings
   !i   len:   maximum number of characters to copy
@@ -9,7 +7,6 @@ subroutine strcop(dest,source,len,term,i)
   !r Remarks
   !r   string copy continues until term encountered or
   !r   len characters are checked.
-  ! ----------------------------------------------------------------
   implicit none
   integer :: len
   character(1) :: dest(len),source(len),term
@@ -32,8 +29,6 @@ subroutine strncp(dest,src,idest,isrc,len)  !- Copy a string of given length fro
   enddo
 end subroutine strncp
 subroutine chrps2(s,ch,nch,maxch,ich,iterm)  !- Finds position of any of a set of characters in string
-  ! ----------------------------------------------------------------
-  !i Inputs
   !i   s:   string (declared as s(0:*), following C conventions)
   !i   ch,nch:  set of characters sought, and number in set
   !i   ich: start search at s(ich)
@@ -42,14 +37,11 @@ subroutine chrps2(s,ch,nch,maxch,ich,iterm)  !- Finds position of any of a set o
   !o   ich: position of character ch, not to exceed maxch
   !o   iterm: index to char in ch that terminated search (0 if none)
   !r Remarks
-  !r    seeks match at string(i0), string(i0+1) until ch is found or until
-  !r    ich = maxch.
-  ! ----------------------------------------------------------------
-  !     implicit none
+  !r    seeks match at string(i0), string(i0+1) until ch is found or until ich = maxch.
+  implicit none
   integer :: ich,maxch,iterm,nch
   character(1) :: ch(nch),s(0:*)
   integer :: i
-!  write(6,*)'mmmmixrho ccccc',s(ich:maxch)
   iterm = 0
 10 do  20  i = 1, nch
      if (s(ich) /= ch(i)) goto 20

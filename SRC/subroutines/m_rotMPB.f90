@@ -1,5 +1,4 @@
-module m_rotMPB2
-  !! == Mixed product basis rotator. ==
+module m_rotMPB2 ! == Mixed product basis rotator. ==
   !! a curious strange segmention fault occurs in a Si444 case when we test a code qout= matmul(symops(:,:,igx),qin).
   !! I don't know why.
   !! This has developed for eibz mode jun2012, not tested completely.

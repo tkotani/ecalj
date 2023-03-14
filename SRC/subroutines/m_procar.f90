@@ -1,4 +1,4 @@
-module m_procar
+module m_procar !for wriging PROCAR (VASP format)
   use m_lmfinit,only: nlmax,nsp,nbas,stdo,sspec=>v_sspec,ispec,nlmax,nspc,n0
   use m_suham,only: ndhamx=>ham_ndhamx,ndham=>ham_ndham,nspx=>ham_nspx
   use m_igv2x,only: igv2x,napw
@@ -9,13 +9,11 @@ module m_procar
   public m_procar_init, m_procar_closeprocar, m_procar_writepdos, dwgtall,nchanp
 
   private
-  real(8),allocatable,protected:: dwgtall(:,:,:,:,:)
   integer::  nchanp=25      !total of s,p,d,f
-
+  real(8),allocatable,protected:: dwgtall(:,:,:,:,:)
   logical,private:: isp1init=.true.,isp2init=.true.,init=.true.
   integer,private:: iprocar1,iprocar2
   logical,private:: cmdopt0,fullmesh,debug,procaron
-
 contains
   subroutine m_procar_closeprocar()
     logical:: nexist

@@ -1,4 +1,4 @@
-module m_lattic
+module m_lattic !lattice setup
   use m_xlgen,only:xlgen
   public m_lattic_init,setopos,lctoff
   real(8), allocatable,protected,public ::  rv_a_odlv (:)
@@ -70,8 +70,7 @@ contains
     lat_nkq=nkq
     call tcx('m_lattic_init')
   end subroutine m_lattic_init
-  subroutine lattc(as,tol,rpad,alat,alat0,platin,g1,g2,g3,gt,plat,qlat,lmax,vol,awald,dlat,nkd,glat,nkg,nkdmx,nkgmx)! Sets
-    !up the real and reciprocal space lattice vectors for Ewald
+  subroutine lattc(as,tol,rpad,alat,alat0,platin,g1,g2,g3,gt,plat,qlat,lmax,vol,awald,dlat,nkd,glat,nkg,nkdmx,nkgmx)! Sets up the real and reciprocal space lattice vectors for Ewald
     use m_ftox
     use m_lgunit,only:stdo
     ! ----------------------------------------------------------------

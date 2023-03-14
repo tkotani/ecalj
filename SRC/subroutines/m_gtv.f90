@@ -1,4 +1,4 @@
-module m_gtv2
+module m_gtv2 !new input system to read ctrl file.
   use m_ftox
   use m_lgunit,only:stdo
   use m_MPItk,only:master_mpi

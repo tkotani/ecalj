@@ -1,4 +1,4 @@
-module m_eibz
+module m_eibz ! === Use of symmetry. EIBZ procedure PRB81,125102 ===
   use m_read_bzdata,only: Read_bzdata, nqbz,nqibz,n1,n2,n3,ginv, &
        dq_,qbz,wbz,qibz,wibz, &
        ntetf,idtetf,ib1bz, qbzw,nqbzw !for tetrahedron
@@ -16,17 +16,13 @@ module m_eibz
   use m_readqgcou,only: Readqgcou
   use m_hamindex,only: ngrp
   implicit none
-
   integer,allocatable,protected:: nwgt(:,:)
   integer,allocatable,protected:: neibz(:),igx(:,:,:),igxt(:,:,:),eibzsym(:,:,:)
-
 contains
-
   subroutine Seteibz(iqxini,iqxend,iprintx)
     logical:: eibzmode,tiii,iprintx !,eibz4x0
     integer:: iqxini,iqxend,iqxendx,timereversal
     eibzmode = eibz4x0()
-    !! === Use of symmetry. EIBZ procedure PRB81,125102 ===
     !!  For rotation of zcousq.  See readeigen.F rotwv.F ppbafp.fal.F(for index of product basis).
     if(eibzmode) then
        !! commentout block inversion Use iqxendx=iqxend because of full inversion

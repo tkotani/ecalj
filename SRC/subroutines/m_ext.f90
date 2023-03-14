@@ -1,4 +1,4 @@
-module m_ext
+module m_ext !get extension of ctrl.foobar
   character(512),public,protected::sname='temp'
   public:: m_ext_init
 contains

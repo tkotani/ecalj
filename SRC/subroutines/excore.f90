@@ -1,10 +1,8 @@
-module m_excore
+module m_excore !- Calculate core-core exchange energy.
   public excore
   contains
-subroutine excore(nrmx,nl,nnc,nclass,nspn,nbas, &
-     phic,nindxc,iclass, &
-     a,b,nr,rofi)
-  !- Calculate core-core exchange energy.
+subroutine excore(nrmx,nl,nnc,nclass,nspn,nbas, & !- Calculate core-core exchange energy.
+     phic,nindxc,iclass, a,b,nr,rofi)
   use m_lldata,only: ll
   implicit none
   integer(4):: nrmx,nnc,nclass,nspn,ncmx,nl,nbas

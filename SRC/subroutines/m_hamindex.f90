@@ -1,4 +1,4 @@
-module m_hamindex  
+module m_hamindex   !hamiltonian index read/write for successive GW calculaitons.
   use m_lmfinit,only: ham_pwmode,pwemax,ldim=>nlmto,noutmx,nsp_in=>nsp,stdo, &
        alat=>lat_alat,nl,ctrl_nbas=>nbas,ispec,sspec=>v_sspec,n0,nkap0,zbak_read=>zbak,slabl,z
   use m_lattic,only: lat_qlat,lat_plat,rv_a_opos

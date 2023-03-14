@@ -1,4 +1,4 @@
-module m_lldata
+module m_lldata !l index for given lm
   integer :: ll(51**2)
   data ll/ &
        0,  3* 1,  5* 2,  7* 3,  9* 4, 11* 5, 13* 6, 15* 7, 17* 8, 19* 9, &

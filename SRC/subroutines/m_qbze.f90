@@ -1,4 +1,4 @@
-module m_qbze
+module m_qbze !Get qbze qibze, whic are extented qbz qibz including q0p shifts
   use NaNum,only: NaN
   use m_read_bzdata,only: nqbz,nqibz, qbz,qibz, q0i,nq0i,nq0iadd
   implicit none

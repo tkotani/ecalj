@@ -1,4 +1,4 @@
-module m_lmfp
+module m_lmfp !Driver for iteration loop for lmf-MPIK (electronic and MD)
   public lmfp
   private
   contains

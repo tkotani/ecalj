@@ -1,5 +1,4 @@
-module m_gennlat
-  ! nlat for FFT of H(R+T i, R'j)
+module m_gennlat  ! Get nlat npair for FFT of H(R+T i, R'j)
   use m_mkqp,only: bz_nabc
   use m_lattic,only: qlat=>lat_qlat,pos=>rv_a_opos,plat=>lat_plat
   use m_lmfinit,only: nbas,  alat=>lat_alat
@@ -31,7 +30,6 @@ contains
     call tcx('m_gennlat_init')
   end subroutine m_gennlat_init
 end module m_gennlat
-
 ! ssssssssssssssssssssssssssssssssss
 module m_gennlat_sig !this is essentially a copy of m_gennlat
   ! nlat for FFT of H(R+T i, R'j) sigm
@@ -64,8 +62,6 @@ contains
   end subroutine m_gennlat_init_sig
 end module m_gennlat_sig
 ! ssssssssssssssssssssssssssssssssss
-
-
 subroutine gennlat(pos,nbas,plat,nk1,nk2,nk3,npairmx,npair,nlat,nqwgt,nlatS,nlatE,ok)
   use m_shortn3,only: shortn3_initialize,shortn3,nout,nlatout
   implicit none

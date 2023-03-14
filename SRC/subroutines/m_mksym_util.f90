@@ -1,7 +1,7 @@
-module m_mksym_util
+module m_mksym_util !utities for m_mksym
   use m_lgunit,only:stdo
   use m_ftox
-  public gensym,grpgen,symtbl,word,words,nword,splcls
+  public gensym,grpgen,symtbl, word,words,nword,splcls
   private
   real(8),parameter:: toll=1d-4,tiny=1d-4
 contains

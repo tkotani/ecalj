@@ -1,3 +1,4 @@
+! Readin GWinput by keyvalue by H.Kino
 !--------------------------------------------------------
 !     input routines
 !     author:   H. Kino

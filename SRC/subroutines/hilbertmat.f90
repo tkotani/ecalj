@@ -1,5 +1,4 @@
-subroutine hilbertmat (zz,nwhis, his_L,his_C,his_R, rmat)
-  !- Martix for hilbert transformation, rmat.
+subroutine hilbertmat(zz,nwhis, his_L,his_C,his_R, rmat) ! Martix for hilbert transformation, rmat.
   !r  zz is real--->  no img*delta function part
   !r   zz is complex (and Im(zz)>0) : includes all contribution when Im(zz)>eps
   !o  rmat(-nwhis:nwhis) : rmat(0) is not meaningful.

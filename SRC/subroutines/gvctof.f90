@@ -1,9 +1,7 @@
-subroutine gvctof(iopt,alat,plat,pos,n1,n2,n3,gmax,ng)
+subroutine gvctof(iopt,alat,plat,pos,n1,n2,n3,gmax,ng)! Makes k-space cutoff associated with mesh orders n1,n2,n3
   use m_ftox
   use m_lgunit,only:stdo
   use m_shortn3,only: shortn3_initialize,shortn3,nout,nlatout
-  !- Makes k-space cutoff associated with mesh orders n1,n2,n3
-  ! ----------------------------------------------------------------------
   !i Inputs
   !i   iopt       0 Use default (smaller of iopt=1,2)
   !i              1 use Nyquist cutoff

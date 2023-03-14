@@ -2,16 +2,13 @@ module m_readVcoud        ! Coulomb matrix for given q
   use m_readqg,only: Readqg0
   use m_rdpp,only: nbloch
   implicit none
-  !-----------------------------------
   integer,protected :: ngb, ngc, iq
   real(8),protected :: q(3)
   real(8),allocatable,protected    :: vcousq(:), vcoud(:) 
   complex(8),allocatable,protected :: zcousq(:,:) 
 contains
-  !-----------------------------------
-  subroutine Readvcoud(q,iq,NoVcou)
-    intent(in)::         q,iq,NoVcou
-    !! === readin diagonalized Coulomb interaction ===
+  subroutine Readvcoud(q,iq,NoVcou) !readin diagonalized Coulomb interaction
+    intent(in)::       q,iq,NoVcou
     !! zcousq: E(\nu,I), given in PRB81,125102; vcousq: sqrt(v), as well.
     !! ===Readin diagonalized Coulomb interaction===
     !!  Vcoud file is sequential file Vcoulomb matrix for qibz_k.
@@ -33,14 +30,6 @@ contains
     open(newunit=ifvcoud, file=trim(vcoudfile), action='read',form='unformatted')
     read(ifvcoud) ngb0
     read(ifvcoud) qvv
-    !if(sum(abs(qvv-q))>1d-10) then
-    !   write(6,*)'qvv =',qvv
-    !   call rx( 'readvcoud: qvv/=0 is not consistent')
-    !endif
-    !if( ngb0/=ngb ) then      !sanity check
-    !   write(6,*)' qxx ngb0 ngb=',q,ngb0,ngb
-    !   call rx( 'readvcoud:ngb0/=ngb')
-    !endif
     if(allocated(zcousq)) deallocate( zcousq,vcousq,vcoud )
     allocate( zcousq(ngb0,ngb0),vcousq(ngb0),vcoud(ngb0))
     read(ifvcoud) vcoud
@@ -48,5 +37,4 @@ contains
     close(ifvcoud)
     vcousq = sqrt(vcoud)
   end subroutine Readvcoud
-
 end module m_readVcoud

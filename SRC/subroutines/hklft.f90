@@ -1,6 +1,4 @@
-subroutine hklft(v,rsm,e,tau,alat,kmax,nlm,k0,cy,hkl)
-  !- Returns one Fourier component of sm. Hankels centered at tau.
-  ! ----------------------------------------------------------------------
+subroutine hklft(v,rsm,e,tau,alat,kmax,nlm,k0,cy,hkl)! Returns one Fourier component of sm. Hankels centered at tau.
   !i Inputs
   !i   v     :reciprocal vector for which FT calc., units of 2*pi/alat
   !i   rsm   :smoothing radius
@@ -16,7 +14,6 @@ subroutine hklft(v,rsm,e,tau,alat,kmax,nlm,k0,cy,hkl)
   !r Remarks
   !u Updates
   !u   23 Apr 00 Adapted from nfp hkl_ft.f
-  ! ----------------------------------------------------------------------
   implicit none
   integer:: k0,kmax,nlm,ilm,k,l,ll,lmax,m
   real(8):: alat,e,rsm,v(3),cy(1),tau(3),aa,fac,gam,v2,yl(nlm),vv(3)
@@ -31,9 +28,7 @@ subroutine hklft(v,rsm,e,tau,alat,kmax,nlm,k0,cy,hkl)
      hkl(k,:) = (-v2)**k*hkl(0,:)
   enddo
 end subroutine hklft
-subroutine gklft(v,rsm,e,tau,alat,kmax,nlm,k0,cy,gkl)
-  !- Returns one Fourier component of gaussians Gkl centered at tau.
-  ! ----------------------------------------------------------------------
+subroutine gklft(v,rsm,e,tau,alat,kmax,nlm,k0,cy,gkl)! Returns one Fourier component of gaussians Gkl centered at tau.
   !i Inputs
   !i   v     :reciprocal vector for which FT calc., units of 2*pi/alat
   !i   rsm   :smoothing radius

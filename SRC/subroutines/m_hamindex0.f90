@@ -1,5 +1,4 @@
-!!  originally HAMIndex0 contains informatio of SYMOPS,LATTC,CLASS,NLAindx.
-module m_hamindex0
+module m_hamindex0 !  originally HAMIndex0 contains informatio of SYMOPS,LATTC,CLASS,NLAindx.
   use m_lmfinit,only: ham_pwmode,pwemax,ldim=>nlmto,noutmx,nsp_in=>nsp, &
        lat_alat,nl,ctrl_nbas=>nbas,ispec,sspec=>v_sspec,n0,nkap0,zbak_read=>zbak,slabl,z
   use m_lattic,only: lat_qlat,lat_plat,rv_a_opos

@@ -1,10 +1,10 @@
-module m_lmaux
+module m_lmaux !main part of lmchk ! check crystal structure symmetry and get WSR
   use m_xlgen,only:xlgen
   use m_lgunit,only:stdo
   public:: lmaux
   private
 contains
-  subroutine lmaux()        !main part of lmchk
+  subroutine lmaux()  ! check crystal structure symmetry and get WSR
     use m_mksym,only: ctrl_nclass,iv_a_oics,iclasst
     use m_lmfinit,only: iv_a_oips,str_mxnbr,str_rmax,nbas,nspec,nsp, &
          nl,omax1,omax2,wsrmax,slabl,sspec=>v_sspec, &
@@ -14,19 +14,6 @@ contains
     use m_struc_def
     use m_lattic,only:lat_plat,rv_a_opos
     use m_ftox
-    !! check crystal structure symmetry and get WSR
-    ! ----------------------------------------------------------------------
-    !i Inputs
-    !u Updates
-    !u   12 Aug 08 (L. Ke) empty sphere finder
-    ! xxx   04 Nov 04 Upgrade of rsta editor
-    ! xxx   26 Jan 03 Call to angtab changed
-    !u   17 May 02 Modified MT radii scaling to lower priority for E.S.
-    !u   23 Apr 02 Added option (--getwsr) to find MT radii
-    !u   01 Mar 02 Updated Import data mode
-    ! xxx   05 Oct 01 Adapted mode 2**3 to work with lm v6.11
-    !u   24 Nov 97 changed ovmin to run quickly
-    ! ----------------------------------------------------------------------
     implicit none
     integer:: mode=1 !,wksize
     character(120) :: outs,fnam(8)

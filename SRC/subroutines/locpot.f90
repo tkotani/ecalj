@@ -1,13 +1,12 @@
-module m_locpot
+module m_locpot !- Make the potential at atomic sites and augmentation matrices.
   use m_lmfinit,only: lmxax,nsp,nbas
   use m_MPItk,only: master_mpi
   use m_lgunit,only:stdo
   use m_vxcatom,only: vxcnsp
   public locpot
-  real(8),allocatable,public :: rotp(:,:,:,:,:) 
+  real(8),allocatable,public :: rotp(:,:,:,:,:) !rotation matrix
   private
 contains
-  !- Make the potential axt the atomic sites and augmentation matrices.
   subroutine locpot(orhoat,qmom,vval,gpot0,job,rhobg,nlibu,lmaxu,vorb,lldau,novxc, &!,idipole 
        osig , otau, oppi, ohsozz,ohsopm, phzdphz, hab, vab, sab, & 
        vvesat,cpnvsa, rhoexc,rhoex,rhoec,rhovxc, valvef, xcore, sqloc,sqlocc,saloc, qval,qsc )

@@ -30,9 +30,3 @@ integer function iclbsj(ic,ipc,nbas,nrbas)  !- Returns an index to nrbas atom in
   endif
   call rx3('ICLBSJ: sought atom no.#1 in class #2 but only #3 atoms exist. #1#2#3=',nrbas,ic,n)
 end function iclbsj
-! integer function iclbas(class,iclass)  !- Returns an index to iclbas atom in basis given class
-!   use m_lmfinit,only:nbas
-!   integer :: class,iclass(1),ibas
-!   iclbas= findloc([(iclass(ibas) == class,ibas=1,nbas)],dim=1,value=.true.)
-!   if(iclbas==0) call rx('ICLBAS: bad input')
-! end function iclbas

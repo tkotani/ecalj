@@ -1,4 +1,4 @@
-module m_orbl
+module m_orbl !orbital index system 
   use m_lmfinit,only: ltabx,ktabx,offlx,ndimxx,norbx
   public orblib,orblib1,orblib2!,gtbsl4!,orblinit
   integer,public,pointer:: ltab(:),ktab(:),offl(:),ndim,norb

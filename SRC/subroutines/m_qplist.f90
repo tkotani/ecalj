@@ -1,20 +1,15 @@
-module m_qplist
-  !! control all q points list (but still only for lmf part now june2021).
-
+module m_qplist ! control all q points list (but still only for lmf part now june2021).
   integer,allocatable,protected:: ngplist(:),iprocq(:,:),ispp(:),ngvecp(:,:,:) !rank divider
-  !      character*256,allocatable:: extp(:)
   real(8),allocatable,protected:: qplist(:,:)
-
+  integer,protected:: iqini,iqend,ispini,ispend      !for current rank
   integer,parameter,private:: nsymlmax=100
+  real(8),protected:: dqsyml(nsymlmax),etolv,etolc
+  integer,protected:: nkp,ngpmx ,nqi,iqibzmax
+  integer, allocatable,protected :: kpproc(:)
   integer,protected:: nsyml=0, nqp_syml(nsymlmax),nqps_syml(nsymlmax),nqpe_syml(nsymlmax)
   integer,protected:: nqp2n_syml(nsymlmax)
   character*20,protected ::labeli(nsymlmax),labele(nsymlmax)
   real(8),allocatable,protected:: xdatt(:)
-
-  integer,protected:: iqini,iqend,ispini,ispend      !for current rank
-  real(8),protected:: dqsyml(nsymlmax),etolv,etolc
-  integer,protected:: nkp,ngpmx ,nqi,iqibzmax
-  integer, allocatable,protected :: kpproc(:)
 
 contains
   subroutine m_qplist_init(plbnd,llmfgw)

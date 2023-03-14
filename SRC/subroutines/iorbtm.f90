@@ -1,9 +1,7 @@
-subroutine iorbtm()
+subroutine iorbtm()! Printout of orbital moments
   use m_lmfinit,only: ispec,sspec=>v_sspec,nl,nsp,nbas,slabl
   use m_bandcal,only: orbtm=>orbtm_rv
   use m_lgunit,only:stdo
-  !- Printout of orbital moments
-  ! ----------------------------------------------------------------------
   !i Inputs
   !i   sspec :struct containing species-specific information
   !i     Elts read: name
@@ -12,11 +10,6 @@ subroutine iorbtm()
   !i   nclass:number of inequivalent classes
   !i   nsp   :2 for spin-polarized case, otherwise 1
   !i   orbtm :orbital moments
-  !o Outputs
-  !u Updates
-  !u   09 Aug 04 (A. Chantis) Correct sign of orbl
-  !u   08 Dec 00 First implementation
-  ! ----------------------------------------------------------------------
   implicit none
   integer :: isp,l,im,lm,m,l1,ipr,is,ibas
   double precision :: amom,orbl(10)

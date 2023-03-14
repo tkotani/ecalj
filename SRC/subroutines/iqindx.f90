@@ -1,5 +1,4 @@
-subroutine iqindx2(q, ginv,qq,nq, iqindx,qu)
-  !- Find index as q=qq(:,iq) with modulo of premitive vector.
+subroutine iqindx2(q, ginv,qq,nq, iqindx,qu)! Find index as q=qq(:,iq) with modulo of premitive vector.
   !i ginv is the inverse of plat (premitive translation vector).
   implicit none
   integer(4):: nq,i_out, iq,iqx,iqindx !,saveiq
@@ -33,7 +32,6 @@ subroutine iqindx2(q, ginv,qq,nq, iqindx,qu)
   print *,'iqindx2: ERROR! we can not find proper iq ###'
   call rx( 'iqindx2: ERROR! we can not find proper iq ###')
 end subroutine iqindx2
-!----------------------------------------------------------
 integer function iqindx(q, ginv,qq,nq)
   implicit none
   integer(4):: nq,i_out, iq,iqx,iqindx0
@@ -42,7 +40,6 @@ integer function iqindx(q, ginv,qq,nq)
   if(isave>nq) isave=0
   iqindx= iqindx0(q, ginv,qq,nq,isave)
 END function iqindx
-
 integer function iqindx0(q, ginv,qq,nq,isave)
   !- Find index as q=qq(:,iq) with modulo of premitive vector.
   !i ginv is the inverse of plat (premitive translation vector).

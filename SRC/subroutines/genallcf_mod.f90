@@ -1,4 +1,4 @@
-module m_genallcf_v3 !-- Read basis data ----------------------------------
+module m_genallcf_v3 ! Readin starting data dat in GWinput
   use m_lgunit,only:stdo
   implicit none
   public:: Setesmr,Genallcf_v3

@@ -44,11 +44,9 @@ bzints.o \
 bzmesh.o \
 bzwts.o \
 chgmsh.o \
-config.o \
 defpq.o \
 delstp.o \
 dstrbp.o \
-dvdos.o \
 freeat.o \
 getq.o \
 gtbsl1.o \
@@ -153,7 +151,6 @@ smhsbl.o \
 smves.o \
 sopert.o \
 supot.o \
-suylg.o \
 symrho.o \
 tbhsi.o \
 totfrc.o \
@@ -222,7 +219,6 @@ x0kf_v4h.o \
 zsvd.o \
 m_zmel.o \
 m_freq.o \
-readpomat.o \
 keyvalue.o \
 rppovl.o \
 wfacx.o \

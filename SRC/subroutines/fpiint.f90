@@ -1,13 +1,10 @@
-module m_fpiint
+module m_fpiint !- Points and weights for integration on a sphere surface
   public fpiint
   private
   contains
-subroutine fpiint(nx,np,nxp,x,w)
+subroutine fpiint(nx,np,nxp,x,w) !- Points and weights for integration on a sphere surface
   ! takao. Maybe it will be better to replace this with spherical design
   ! see http://www2.research.att.com/~njas/sphdesigns/
-  !
-  !- Points and weights for integration on a sphere surface
-  ! ----------------------------------------------------------------------
   !i Inputs
   !i   nx    :number of points in polar angle (Legendre integration)
   !i          Use nx<0 for special points; see Remarks.

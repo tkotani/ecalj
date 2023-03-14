@@ -1,6 +1,4 @@
-subroutine lindsc(job,ng,gv,tpiba,elind,cn)
-  !- Make screened density, using a Lindhard response function
-  ! ----------------------------------------------------------------------
+subroutine lindsc(job,ng,gv,tpiba,elind,cn)! Make screened density, using a Lindhard response function
   !i Inputs
   !i   job  1s digit specifies what cn contains on output;
   !i          0 cn is untouched

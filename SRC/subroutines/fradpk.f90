@@ -1,6 +1,4 @@
-subroutine fradpk(kmax,rsma,lmxa,nr,rofi,fp,xp,vp,dp)
-  !- Set up radial pkl functions, grad of same, vals and slopes.
-  ! ----------------------------------------------------------------------
+subroutine fradpk(kmax,rsma,lmxa,nr,rofi,fp,xp,vp,dp)! Set up radial pkl functions, grad of same, vals and slopes.
   !i Inputs
   !i   kmax  :polynomial cutoff in augmentation expansion
   !i   rsma  :augmentation smoothing radius

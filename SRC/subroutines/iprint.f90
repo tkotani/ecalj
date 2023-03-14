@@ -1,4 +1,4 @@
-integer function iprint()
+integer function iprint()!print verbose setting
   implicit none
   integer :: mpipid
   integer:: verbose_in,setprint,ix,set0,setprint0,vb

@@ -1,8 +1,8 @@
-module  m_bzwts
+module  m_bzwts ! BZ integration
   public bzwtsf,bzwtsf2
   private
 contains
-  subroutine bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,& !- BZ integration for fermi level, band sum and qp weights
+  subroutine bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,& ! BZ integration for fermi level, band sum and qp weights
        metal,tetra,norder,npts,width,rnge,wtkp,eb, efermi,sumev,wtkb,dosef,qval,ent,lfill)
     use m_ftox
     use m_lmfinit,only: stdo,stdl
@@ -785,7 +785,7 @@ contains
        ! takao for molecule Dec1 2010
        agreemom= abs(amom-fmom) < 1d-6 ! 1d-6 on June-2 2011
        if(iprint()>60) print *,'ttttt amom fmom=',amom,fmom,agreemom
-       call dvdos(vnow,amom,dosef,vhold,fmom,dvcap,dv)
+       call dvdos(vnow,amom,dosef(1),vhold,fmom,dvcap,dv)
        if(agreemom) vhold(12)=0
        quitvnow=.false.
        if (abs(dv) < 1d-6 .OR. agreemom) then
@@ -912,7 +912,6 @@ contains
     vnow = 0
     ef0 = efermi
     write(stdo,*)' Seek potential shift for fixed-spin mom ...'
-
     !!== do loop for new guess at potential shift ==
     ! bisection method takao
     itermx=100
@@ -921,11 +920,9 @@ contains
        call bzwtsm(lswtk.eq.1.and.nspc.eq.2,nkp,nsp,nevx,wtkb,swtk,amom)
        if(ipr>=41) write(stdo,ftox)' -Vup+Vdn=',ftof(vnow,8),'yields ', &
             'ef=',ftof(efermi),'amom=',ftof(amom),'when seeking',ftof(fmom)
-       ! takao for molecule Dec1 2010
        agreemom= abs(amom-fmom) < 1d-3
        if(iprint()>60) print *,'ttttt amom fmom=',amom,fmom,agreemom
-       !      if(original_dvdos) then
-       call dvdos(vnow,amom,dosef,vhold,fmom,dvcap,dv)
+       call dvdos(vnow,amom,dosef(1),vhold,fmom,dvcap,dv)
        if(agreemom) vhold(12)=0
        !      if (abs(dv) .lt. 1d-6) then
        quitvnow=.false.
@@ -947,7 +944,6 @@ contains
           endif
           quitvnow=.true.
        endif
-
        !! Potential shift
        allocate(ebs(nevx,2,nkp))
        if (nspc == 2) then
@@ -956,7 +952,6 @@ contains
           ebs(:,1,:) = eb(:,1,:) - vnow/2
           ebs(:,2,:) = eb(:,2,:) + vnow/2
        endif
-
        !! Fermi level with dv shift
        if( .NOT. quitvnow) call pshpr(ipr-50)
        call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval, &
@@ -971,7 +966,6 @@ contains
        if ( .NOT. quitvnow) call poppr
        if(quitvnow) exit
 10  enddo
-
     ele1 = (zval+fmom)/2d0
     ele2 = (zval-fmom)/2d0
     sumev=sumev+ ele1*(vnow/2d0) - ele2*(vnow/2d0) !sumev correction takao
@@ -1410,4 +1404,42 @@ contains
     ep = 0d0
     return
   end subroutine delstd
+  subroutine dvdos(vnow,nosnow,dosnow,vhold,ztarg,dvcap,dv)  !- Estimate shift in potential shift to meet target number-of-states
+    !i Inputs
+    !i   vnow  :current value of potential shift
+    !i   nosnow:current value of charge
+    !i   dosnow:current density of states, d nosnow / dv
+    !i         :(used only for first iteration to estimate rfalsi step size)
+    !i   vhold :vector of 12 numbers, maintained internally by rfalsi
+    !i         :Initial call: vhold should be zero.
+    !i   ztarg :desired charge
+    !i   dvcap :maximum change in potential shift for any step
+    !o Outputs
+    !o   vnow  :updated value of estimated potential shift
+    !o   dv    :change in vnow this step
+    !r Remarks
+    !r   Routine uses regula falsi to iteratively find target nosnow.
+    implicit none
+    double precision :: vnow,nosnow,dosnow,vhold(12),ztarg, dvcap,dv
+    double precision :: dznow,dxmx
+    integer :: ir
+    ! ... First order estimate dv = (ztarg-zhave)/slope
+    dznow = nosnow-ztarg
+    dv = dznow/max(dosnow,1d-5)
+    ir = nint(vhold(12)) !  Hang onto vhold(12) because rfalsi destroys it
+    ! ... first iteration
+    if (ir == 0) then
+       dxmx = dznow/max(dosnow,1d-5)
+       if (abs(dxmx) > dvcap) dxmx = sign(dvcap,dxmx)
+       ir = 0
+    else
+       dxmx = dvcap
+    endif
+    call pshpr(0)
+    call rfalsi(vnow,dznow,5d-8,0d0,5d-8,dxmx,10,vhold(1),ir)
+    call poppr
+    vhold(12) = ir
+    dv = vnow - vhold(1)
+  end subroutine dvdos
+
 end module m_bzwts

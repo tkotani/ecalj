@@ -1,7 +1,6 @@
-module m_readgwinput
+module m_readgwinput ! Read values from GWinput
   use m_genallcf_v3,only: nspin,nctot
   implicit none
-  !! Read values from GWinput
   real(8),protected:: egauss,ecut,ecuts,ebmx ,ebmx_sig,ua_
   integer,protected:: nbcut,nbcut2,nbmx,nbmx_sig,iSigmode !,nbcutlow_sig
   integer,protected:: mtet(3),nmbas
@@ -9,13 +8,12 @@ module m_readgwinput
   logical,protected:: keeppositivecou
   logical,protected,public:: corehole
   real(8),allocatable:: wcorehole(:,:)
-
 contains
   subroutine SetIsigmode(ism)
     integer :: ism
     isigmode=ism
   end subroutine SetIsigmode
-  subroutine ReadGWinputKeys()
+  subroutine ReadGWinputKeys() ! Read values from GWinput
     use m_keyvalue,only: Getkeyvalue
     use m_genallcf_v3,only: natom
     use m_readhbe,only: nband

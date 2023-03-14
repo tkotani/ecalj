@@ -1,7 +1,5 @@
-subroutine hnsmft(rofi,rho,nr,qout,a,b,nrmt,e,qcst,xi,f,nf,err)
+subroutine hnsmft(rofi,rho,nr,qout,a,b,nrmt,e,qcst,xi,f,nf,err)! Fit the charge density tail to nf functions
   use m_lgunit,only:stdo
-  !- Fit the charge density tail to nf functions
-  !-----------------------------------------------------------------------
   !i Inputs
   !i   rofi  :radial mesh points
   !i   rho   :spherical valence charge density times 4*pi*r*r
@@ -172,11 +170,9 @@ subroutine hnsmft(rofi,rho,nr,qout,a,b,nrmt,e,qcst,xi,f,nf,err)
 500  format(4x,'fit: r>rmt',f10.6,'   r<rmt',f10.6,'   qtot',f10.6, &
           /4x,'rho: r>rmt',f10.6,'   r<rmt',f10.6,'   qtot',f10.6)
   endif
-
 end subroutine hnsmft
-
 subroutine sint(xi,xj,nrmt,a,b,rofi,irs,ire,sum)
-  !     implicit none
+  implicit none
   integer :: ire,irs,ir,nrmt,jr
   double precision :: rofi(1),r,a,b,sum,xi(1),xj(1)
   sum = 0d0

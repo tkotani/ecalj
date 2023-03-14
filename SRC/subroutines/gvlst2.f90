@@ -1,8 +1,4 @@
-!module m_gvlst2
-!  public gvlst2,mshsiz
-!  private
-!  contains
-subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv)
+subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv)!Setup a list of recip vectors within cutoff |q+G| < gmax
   use m_ftox
   use m_shortn3,only: shortn3_initialize,shortn3,nout,nlatout
   use m_lgunit,only:stdo
@@ -11,8 +7,6 @@ subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv)
   intent(in)::    alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx
   intent(out)::                                                      kv,gv,igv 
   intent(inout)::                                                 ng
-  !- Set up a list of recip vectors within cutoff |q+G| < gmax
-  ! ----------------------------------------------------------------------
   !i   alat     Lattice constant
   !i   plat     Real-space primitive lattice vectors
   !i   q        vectors |q+G|<gmax are included in list

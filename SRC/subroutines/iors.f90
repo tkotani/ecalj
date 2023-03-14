@@ -5,7 +5,7 @@ module m_iors
   private
 
 contains
-  integer function iors(nit,rwrw) 
+  integer function iors(nit,rwrw) ! I/O for charge density to rst or rsta. ssite sspec are readin
     use m_density,only: osmrho, orhoat,v1pot,v0pot !these are allocated
     use m_bndfp,only: m_bndfp_ef_SET,eferm
     use m_supot,only: lat_nabc
@@ -16,7 +16,6 @@ contains
     use m_ext,only:sname
     use m_ftox
     use m_density,only: pnuall,pnzall
-    !!- I/O for charge density to rst or rsta. ssite sspec are readin
     !! read write
     !!     smrho, rhoat
     !!     ssite: pos, pos0, force, pnu pz ov0,ov1

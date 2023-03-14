@@ -388,6 +388,7 @@ contains
     call fctail(nr,nrmt,a,b,rfoca,rofi,rhoc,ccof,ceh) !Fit analytical expression to tail of core density ---
   end subroutine freats
   subroutine pratfs(is,spid,lplawv,z,a,nr,rmax,nrmt,lmaxa,pl,pz,nsp,v,rofi,g,psi,plplus,qlplus,ifiwv)!Prints out core and valence energy levels of free-atom
+    use m_getqvc,only: config
     use m_ext,only:sname
     use m_ftox
     !i Inputs
@@ -921,6 +922,9 @@ contains
   subroutine newrho(z,lrel,lgdd,nl,nlr,lmax,a,b,nr,rofi,v,rho,rhoc, &
        kcor,lcor,qcor,pnu,qnu,sumec,sumtc,sumev,ec,ev,tol,nsp,lfrz,ipr,plplus,qlplus,nmcore)
     use m_lmfinit,only: c=>cc
+    use m_getqvc,only: config
+    use m_rhocor,only:rhocor
+    use m_phidx,only: phidx
     !! ev is dummy now. feb2010 takao
     !- Makes spherical charge density for a spherical potential.
     !  ---------------------------------------------------
@@ -991,9 +995,6 @@ contains
     !r     rho= q_0 phi*phi + 2 q_1 phi*phidot +
     !r          q_2 (phidot*phidot + phi*phidotdot)
     !  ---------------------------------------------------
-    use m_rhocor,only:rhocor
-    use m_phidx,only: phidx
-    use m_lmfinit,only:cc
     implicit none
     logical :: lgdd,lfrz
     integer :: nl,nlr,lmax,nr,nsp,lrel,kcor,lcor,ipr,iz

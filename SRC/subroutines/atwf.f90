@@ -1,8 +1,8 @@
-module m_atwf
+module m_atwf !- Make properties related to core for one sphere
   public atwf
   private
 contains
-  subroutine atwf(mode,a,lmxa,nr,nsp,pnu,pnz,rsml,ehl,rmt,z,v0, & !- Make properties related to core for one sphere
+  subroutine atwf(mode,a,lmxa,nr,nsp,pnu,pnz,rsml,ehl,rmt,z,v0, & 
        nphimx,ncore,konfig,ecore,gcore,gval,nmcore)
     use m_ftox
     use m_rhocor,only: getcor
@@ -14,11 +14,7 @@ contains
     !i         :1 return valence wave functions
     !i         :2 return core wave functions
     !i         :3 combination of 1+2
-    !ixxx         :10s digit concerns orthogonalization
-    !ixxx         :0 do not orthogonalize
-    !ixxx         :1 return orthogonalized to valence orbitals
-    !ixxx         :2 return orthogonalized to valence orbitals
-    !i         :  using large component only
+    !i       using large component only
     !i   a     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
     !i   lmxa  :augmentation l-cutoff
     !i   nr    :number of radial mesh points
