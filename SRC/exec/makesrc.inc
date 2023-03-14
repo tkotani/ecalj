@@ -121,6 +121,7 @@ atqval.o \
 augmat.o \
 augmbl.o \
 bndfp.o \
+m_bndfp_util.o\
 bstrux.o \
 dfqkkl.o \
 dfrce.o \

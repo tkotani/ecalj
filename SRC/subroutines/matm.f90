@@ -1,11 +1,10 @@
-!> interface for matrix multiplication  c=a*b -------------------------
+! routines for matrix multiplication and matrix inversion
 subroutine matm(a,b,c,n1,n2,n3)
   integer, intent(in) :: n1,n2,n3
   complex(8), intent(in) :: a(n1,n2), b(n2,n3)
   complex(8), intent(out) :: c(n1,n3)
   c=matmul(a,b)
 end subroutine matm
-
 function matcinvf(b) result(a)
   !!== Test routine for Inversion ==
   implicit none
@@ -30,7 +29,6 @@ function matcinvf(b) result(a)
      call rx( 'matcinv: zegtri ')
   endif
 end function matcinvf
-
 subroutine matcinv(n,a)
   implicit none
   integer :: n, info, ipiv(n)
@@ -85,4 +83,3 @@ subroutine matinv2(n,a,info)
      return
   endif
 end subroutine matinv2
-

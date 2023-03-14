@@ -1,15 +1,13 @@
-module m_mkqp
+module m_mkqp! Set up k-points and related quantities for BZ integration
   integer,allocatable,protected :: iv_a_oidtet(:), iv_a_oipq(:), iv_a_ostar(:)
   real(8),allocatable,protected :: rv_p_oqp (:,:), rv_a_owtkp(:)
   integer,protected:: bz_nabc(3),bz_ntet, bz_nkp
 contains
-  subroutine m_mkqp_init()
+  subroutine m_mkqp_init() ! Set up k-points and related quantities for BZ integration
     use m_lmfinit,only: bz_lshft,bz_tetrahedron,bz_lmet,ldos,bz_nabcin
     use m_lattic,only:  lat_plat
     use m_mksym,only:   rv_a_osymgr,lat_npgrp
     use m_tetirr,only: tetirr
-    !! Set up k-points and related quantities for BZ integration
-    !! ----------------------------------------------------------------------
     !! gettet: = bz_lmet/=0 .or. ldos/=0 given at setup
     !!            T read or generate tetrahedra corners, if
     !!             tetrahedron integration set
@@ -28,8 +26,7 @@ contains
     logical :: gettet
     integer::  lgstar=-2, i_copy_size,i_data_size !lreduc=1,
     logical:: lgors,ltet,lnoirr=.false.,llshft(3),lipq !lsx,
-    integer:: mxkp , nfilqp , nkp , nkxyz(3) , npgrp &
-         , lshft(3) , lpbc , ntet , i , iprint , igets
+    integer:: mxkp , nfilqp , nkp , nkxyz(3) , npgrp, lshft(3) , lpbc , ntet , i , iprint , igets
     integer,allocatable :: iv_a_owk(:)
     integer,allocatable :: iv_a_tmp(:)
     double precision :: plat(3,3),qlat(3,3),vol

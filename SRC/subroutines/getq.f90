@@ -1,4 +1,4 @@
-module m_getqvc
+module m_getqvc ! Gets the charge and related parameters within an atom. Returns principal quantum numbers from pnu, estimating those unknown
   public getqvc,config
   private
 contains

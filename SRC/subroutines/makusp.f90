@@ -1,10 +1,8 @@
 subroutine makusp(n0,z,nsp,rmax,lmxa,v,a,nr,pnu,pnz,rsml,ehl, ul,sl,gz,ruu,rus,rss)!Augmentation func. of pure val,slo (times r) for spherical V and b.c.
   use m_hansr,only: hansr
   !r  ul: linear combination of phi,phidot val=1 slo=0
-  !r  sl: linear combination of phi,phidot val=0 slo=1
-  !r      ul and sl are r * u and r * s, respectively.
-  !r  gz: gz is made for any l for pnz is nonzero where:
-  !r      gz = r* ( phi_z - phi_z(rmax) u - (phi_z)'(rmax) s )
+  !r  sl: linear combination of phi,phidot val=0 slo=1   ul and sl are r * u and r * s, respectively.
+  !r  gz: gz is made for any l for pnz is nonzero where:  gz = r* ( phi_z - phi_z(rmax) u - (phi_z)'(rmax) s )
   !r      Here phi_z be the w.f. corresponding to loc. orbital spec'd by pnz.
   !r      By construction, gz/r has value=slope = 0 at rmax.
   !i Inputs

@@ -1,9 +1,8 @@
-module m_mixrho
+module m_mixrho !  mixing routine of smrho, rh. T.kotani think this routine is too compicated to maintain. !It may be better to rewrite all
+  ! with keeping the functionality
   use m_lgunit,only:stdo,stml !  integer,parameter,public:: kmxv=15
   public:: mixrho
   private
-  !  mixing routine of smrho, rh. T.kotani think this routine is too compicated to maintain.
-  !  It may be better to rewrite all with keeping the functionality
 contains
   integer function ifile_handle() ! find unused file handle
     implicit none
@@ -2522,13 +2521,11 @@ contains
          gmax < gtol .AND. (isw3 == 1 .OR. isw3 == 3))) j = 0
     broyj = j
   end function broyj
-subroutine rhogkl ( ib1 , ib2 , nsp , mode , sv_p_orhoat , kmax , qkl )
+subroutine rhogkl ( ib1 , ib2 , nsp , mode , sv_p_orhoat , kmax , qkl )!- G_kL expansion of valence sphere densities
   use m_lgunit,only:stdo
   use m_struc_def  
   use m_lmfinit,only: ispec,sspec=>v_sspec
   use m_hansr,only:corprm
-  !- G_kL expansion of valence sphere densities
-  ! ----------------------------------------------------------------------
   !i Inputs
   !i  ib1,ib2: compute expansion coefficents for sites ib1..ib2
   !i   nsp   :1 make qkl for first spin (possibly the only one)
@@ -2913,10 +2910,9 @@ subroutine vecpkl(r,rsm,nr,kmax,lmax,nrx,k0,wk,lrl,p,gp)! Vector of p_kl polynom
      enddo
 52 enddo
 end subroutine vecpkl
-
 end module m_mixrho
-subroutine splrho(mode,nsp,nr,nlml,rho1,rho2,rhoc)
-  !- Overwrite spin pol local rho+,rho- with rho,rho+ - rho-, or reverse
+
+subroutine splrho(mode,nsp,nr,nlml,rho1,rho2,rhoc)  !- Overwrite spin pol local rho+,rho- with rho,rho+ - rho-, or reverse
   ! ----------------------------------------------------------------------
   !i Inputs
   !i   mode  :1s digit
@@ -2946,8 +2942,7 @@ subroutine splrho(mode,nsp,nr,nlml,rho1,rho2,rhoc)
   if (mod(mod(mode/10,10),2)  == 0)  call dsumdf(nr*nlml,fac,rho2,0,1,rho2(1,1,2),0,1)
   if (mod(mod(mode/10,10)/2,2) == 0) call dsumdf(nr,fac,rhoc,0,1,rhoc(1,2),0,1)
 end subroutine splrho
-subroutine lgstar(mode,ng,n,gv,ng0,ips0,cg)
-  !- Compresses F.T. of a real function, using fact it is hermitian
+subroutine lgstar(mode,ng,n,gv,ng0,ips0,cg)  !- Compresses F.T. of a real function, using fact it is hermitian
   ! ----------------------------------------------------------------------
   !i Inputs
   !i   mode  :0, count number of inequivalent points ng0,
@@ -3062,8 +3057,7 @@ subroutine dsumdf(n,scal,a1,ofa1,l1,a2,ofa2,l2)! Returns scaled sum and differen
   implicit none
   integer :: n,l1,l2,ofa1,ofa2
   double precision :: scal, a1(1), a2(1)
-  real(8) ,allocatable :: a_rv(:)
-  ! --- a1-a2-> temp;  a1+a2 -> a1;  temp -> a2 ---
+  real(8) ,allocatable :: a_rv(:)   ! --- a1-a2-> temp;  a1+a2 -> a1;  temp -> a2 ---
   allocate(a_rv(n))
   call dcopy ( n , a1 ( 1 + ofa1 ) , l1 , a_rv , 1 )
   call daxpy ( n , - 1d0 , a2 ( 1 + ofa2 ) , l2 , a_rv , 1 )

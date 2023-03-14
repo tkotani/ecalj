@@ -1,4 +1,4 @@
-SUBROUTINE GINTxx(G1,G2,A,B,NR,SUM) !- Integrate product of two wave functions, Simpson rule
+SUBROUTINE gintxx(G1,G2,A,B,NR,SUM) !- Integrate product of two wave functions, Simpson rule
   ! takao \sum_i g(i)*g(i) drdi
   implicit none
   integer:: ir,nr
@@ -19,7 +19,7 @@ SUBROUTINE GINTxx(G1,G2,A,B,NR,SUM) !- Integrate product of two wave functions, 
 11 enddo
   RMPB = B*DEXP(A*(NR-1))
   SUM = (2*SUM+ G1(1)*G2(1)*(A*B) + G1(NR)*G2(NR)*(A*RMPB))/3d0
-end SUBROUTINE GINTxx
+end SUBROUTINE gintxx
 function gintegral(G1,G2,A,B,NR) result(sum) !- Integrate product of two wave functions, Simpson rule
   ! takao \sum_i g(i)*g(i) drdi
   implicit none

@@ -1,4 +1,4 @@
-module m_makusq
+module m_makusq !Accumulate coefficients (u,s,z) in all augmentation spheres for evec(:,iq,isp)
   public makusq
   private
   contains
@@ -9,7 +9,6 @@ subroutine makusq(nsites,isite,nev,isp,iq,q,evec, auszall)!Accumulate coefficien
   use m_uspecb,only:uspecb
   use m_orbl,only: Orblib,ktab,ltab,offl,norb,blks
   use m_bstrux,only: bstrux_set,bstr
-!  use m_rlocbl,only: rlocb1
   implicit none
   intent(in)::    nsites,isite,nev,isp,iq,q,evec
   intent(out)::                                   auszall

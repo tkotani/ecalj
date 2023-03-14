@@ -1,10 +1,9 @@
-module m_purewintz
+module m_purewintz !Gaussian integral along im omg axis. pure, we need it in module for interface.
   public wintzsg_npm_wgtim
 contains
   pure subroutine wintzsg_npm_wgtim(npm,ua_,expa_,we,esmr, wgtim) !Gaussian integral along im omg axis
     !     loop over w' = (1-x)/x, frequencies in Wc(k,w')
     !     {x} are gaussian-integration points between (0,1)
-    !---------------------------------------------------------------------
     use m_genallcf_v3,only: niw
     use m_readfreq_r,only: wt=>wwx,x=>freqx
     implicit none
@@ -42,7 +41,6 @@ contains
     endif
   end subroutine wintzsg_npm_wgtim
 endmodule m_purewintz
-
 
 subroutine wintzsg_npm_wgtim(npm,a,expa,we,esmr, wgtim) !Gaussian integral along im omg axis
 !     loop over w' = (1-x)/x, frequencies in Wc(k,w')

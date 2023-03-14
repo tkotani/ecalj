@@ -23,9 +23,7 @@
 !  hbyl  :site- and l-decomposed one-electron energies
 !! NOTE: check lmv7->lmfp(iteration loop)->bndfp
 module m_bndfp
-  use m_ftox
   use m_density,only: orhoat,osmrho !input/output unprotected
-  use m_mixrho,only: Mixrho
   real(8),protected,public:: ham_ehf, ham_ehk, sev  !output
   real(8),protected,public:: eferm, qdiff           !output
   real(8),protected,allocatable,public:: force(:,:) !output
@@ -44,6 +42,9 @@ contains
     ! plbnd/=0 means band plot mode. no iteration.
     !     ! All read only in bndfp. Data are stored in modules such as m_bandcal, m_mkpot
     !     ! For example,, rightafter call m_bandcal_init, we can get evalall, which is used in other modules.
+    use m_ftox
+    use m_mixrho,only: mixrho
+    use m_bndfp_util,only: mkekin,makdos,phispinsym_ssite_set,iorbtm
     use m_supot,only: ngabc=>lat_nabc,k1,k2,k3 !for charge mesh
     use m_suham,only: ndham=>ham_ndham, ndhamx=>ham_ndhamx,nspx=>ham_nspx
     use m_lmfinit, only: ncutovl,lso,ndos=>bz_ndos,bz_w,fsmom=>bz_fsmom, bz_dosmax,lmet=>bz_lmet,bz_fsmommethod,bz_n, &
@@ -138,58 +139,39 @@ contains
     real(8),allocatable:: dosi_rv(:,:),dos_rv(:,:),qmom_in(:)
     real(8),parameter::  NULLR =-99999,pi=4d0*datan(1d0)
     real(8):: elind=0d0
-    !! ----------------------------
     call tcn ('bndfp')
     debug  = cmdopt0('--debugbndfp')
     tdos   = cmdopt0('--tdos')  !total dos mode or not
     fsmode = cmdopt0('--fermisurface')!FermiSurfece for xcrysden in http://www.xcrysden.org/doc/XSF.html#2l.16
     ipr    = iprint() ! for procid/=master, we set iprint=0 at lmv7.F
-    ltet = ntet>0 !tetrahedron method or not
-    !! FermiEnergy eferm is from rst.* or efermi.lmf.
-    if(binit) then
-       eferm = 0d0 ! if no eferm is read from rst file.
+    ltet = ntet>0! tetrahedron method or not
+    if(binit) then  ! FermiEnergy eferm is from rst.* or efermi.lmf.
+       eferm = 0d0  ! if no eferm is read from rst file.
        binit=.false.
     endif
-    !  Get eferm from efermi.lmf for plbnd mode.
-    !     efermi.lmf can be different from efermi in rst.* file.
-    !     For example, you may change NKABC, and run job_pdos (lmf-MPIK --quit=band only modify efermi.lmf, without touching rst.*).
-    if(plbnd/=0) then
+    GETefermforplbnd: if(plbnd/=0) then
        open(newunit=ifi,file='efermi.lmf')
-       read(ifi,*) eferm
-       close(ifi)
+       read(ifi,*) eferm  ! efermi.lmf can be different from efermi in rst.* file.
+       close(ifi)         !  For example, you may change NKABC, and run job_pdos (lmf-MPIK --quit=band only modify efermi.lmf, without touching rst.*).
        call mpibc1_real(eferm,1,'bndfp_eferm')
-    endif
-    !! Set spin-symmetrized pnu. aug2019. See also in pnunew and locpot
-    if(cmdopt0('--phispinsym')) call phispinsym_ssite_set() !pnu,pz are spin symmetrized
-    !! Write out Hamiltonian HamiltonianPMT.*
-    writeham= cmdopt0('--writeham')
+    endif GETefermforplbnd
+    if(cmdopt0('--phispinsym')) call phispinsym_ssite_set() !pnu,pz are spin symmetrized ! Set spin-symmetrized pnu. aug2019. See also in pnunew and locpot
+    writeham= cmdopt0('--writeham') ! Write out Hamiltonian HamiltonianPMT.*
     if(writeham) open(newunit=ifih,file='HamiltonianPMT.'//trim(strprocid),form='unformatted')
-    !! Make one-particle potential without XC part for GWdriver: lmfgw mode
-    if(llmfgw) call m_mkpot_novxc() !Get osigx,otaux oppix spotx (without XC(LDA)) !
+    if(llmfgw) call m_mkpot_novxc() !Get osigx,otaux oppix spotx (without XC(LDA))  one-particle potential without XC part for GWdriver: lmfgw mode
     !      if(llmfgw.and.cmdopt0('--dipolematrix')) call m_mkpot_novxc_dipole()
-    !! Generate one-body potential and energy-related quantities. See use m_mkpot:
-    call m_mkpot_init() !from (smrho,rhoat), get one-particle potential.
-    !  mkpot->locpot->augmat. augmat calculates sig,tau,ppi.
+    call m_mkpot_init() !from (smrho,rhoat), Get one-particle potential and energy-related quantities. mkpot->locpot->augmat. augmat calculates sig,tau,ppi.
     if(cmdopt0('--quit=mkpot')) call rx0('--quit=mkpot')
-    !! Setup for wtkb for BZ integration.
-    !! NOTE: if (wkp.* exists).and.lmet==2, wkp is used for wkkb.
-    call m_subzi_init(lrout>0)
-    !   Hankel's e of local orbital of PZ>10 (hankel tail mode) is changing.
-    !   lpztail: if T, local orbital of 2nd type(hankel tail).
-    if(lpztail) call sugcut(2)
+    call m_subzi_init(lrout>0) ! Setup for wtkb for BZ integration.  ! NOTE: if (wkp.* exists).and.lmet==2, wkp is used for wkkb.
+    if(lpztail) call sugcut(2) !   lpztail: if T, local orbital of 2nd type(hankel tail).
+    !    Hankel's e of local orbital of PZ>10 (hankel tail mode) is changing. ==>T.K think current version of PZ>10 might not give so useful advantages.
     if(cmdopt0('--cls')) then !clsmode
        call rxx(lso==1,'CLS not implemented in noncoll case')
        if (lrout == 0) call rx('bndfp: need output density for cls')
        call m_clsmode_init()
     endif
-    !! === \Sigma-Vxc to hrr
-    !! ndimsig is the dimension of the self-energy.
-    !  Current version is "ndimsig = ldim", which means we use only projection
-    !  onto MTO spaces even when PMT.
-    !! OUTPUT of m_rdsigm2_init: ndimsig, nk1,nk2,nk3, and hrr.
-    !! These are used in getsenex via bloch2.
     sigmamode = (lrsig/=0)
-    if( sigmamode .AND. siginit ) then
+    readingsigm: if( sigmamode .AND. siginit ) then !sigm contains \Sigma-Vxc 
        inquire(file='sigm.'//trim(sname),exist=sigx)
        if(sigx) then
           open(newunit=ifi,file='sigm.'//trim(sname),form='unformatted')
@@ -200,32 +182,27 @@ contains
        call m_rdsigm2_init()
        call mpi_barrier(MPI_COMM_WORLD,ierr)
        siginit=.false. !only once
-    endif
+    endif readingsigm
+    !  ndimsig is the dimension of the self-energy. Current version is "ndimsig = ldim", which means we use only projection
+    !  onto MTO spaces even when PMT. 
     if(sigmamode .AND. master_mpi) write(stdo,*)' ScaledSigma=',ham_scaledsigma
-    !! == GW driver and finish ==
-    if(llmfgw) then
-       !         call m_sugw_init(cmdopt0('--dipolematrix'),cmdopt0('--socmatrix'),eferm)
+    ! ==
+    GWdriver: if(llmfgw) then        !         call m_sugw_init(cmdopt0('--dipolematrix'),cmdopt0('--socmatrix'),eferm)
        call m_sugw_init(cmdopt0('--socmatrix'),eferm)
        call tcx('bndfp')
        call rx0('sugw mode')  !exit program here normally.
-    endif
-    !! Set up Hamiltonian and diagonalization in m_bandcal_init
-    !! To know outputs, see 'use m_bandcal,only:'. The outputs are evlall, and so on.
-    !! ndimhx_ is protected, but allows writing to other nodes because MPI_BCAST is f77, assumed-size array
+    endif GWdriver
+    ! Set up Hamiltonian and diagonalization in m_bandcal_init. To know outputs, see 'use m_bandcal,only:'. The outputs are evlall, and so on.
     if( .NOT. (lwtkb==-1 .OR. lwtkb==0 .OR. lwtkb==1)) call rx('bndfp: something wrong lwtkb')
-    ! lwtkb=1 accumulate weight, lwtkb=0 no weight
     sttime = MPI_WTIME()
     if(nspc==2) call m_addrbl_allocate_swtk(ndham,nsp,nkp)
-    call m_bandcal_init(iqini,iqend,ispini,ispend,lrout,eferm,ifih,lwtkb) !All input. get evlall
+    call m_bandcal_init(iqini,iqend,ispini,ispend,lrout,eferm,ifih,lwtkb) !All input. get evlall ! lwtkb=1 accumulate weight, lwtkb=0 no weight
     entime = MPI_WTIME()
     if(master_mpi) write(stdo,"(a,f9.4)") ' ... Done MPI k-loop: elapsed time=',entime-sttime
     sttime = MPI_WTIME()
     if(writeham) close(ifih)
     if(writeham) call rx0('Done --writeham: --fullmesh may be needed. HamiltonianMTO* genereted')
-    !! Broadcast. Use allreduce to avoid knowing which node to which node.
-    !! Because mpi is f77, ndimhx_ and so on are not protected.
     call mpibc2_int(ndimhx_,size(ndimhx_),'bndfp_ndimhx_') !all reduce (instead of which node to which node).
-    !call mpibc2_int(nev_,   size(nev_),   'bndfp_nev_') !all reduce
     call mpibc2_int(nevls,  size(nevls),  'bndfp_nevls') !all reduce (to avoid which node to which node).
     call xmpbnd2(kpproc,ndhamx,nkp,nspx,evlall) !all eigenvalues broadcasted
     evtop=-9999
@@ -239,17 +216,14 @@ contains
           if(master_mpi .AND. iq==1)write(stdl,"('fp evl',8f8.4)")(evlall(i,jsp,iq),i=1,nevls(iq,jsp))
        enddo
     enddo
-    !! pdos mode (--mkprocar and --fullmesh)
-    fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface')
+    fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') ! pdos mode (--mkprocar and --fullmesh)
     PROCARon = cmdopt0('--mkprocar') !write PROCAR(vasp format).
     nevmin=minval(nevls(1:nkp,1:nspx))
     if(fullmesh .AND. procaron) call m_procar_writepdos(evlall,nevmin,eferm,kpproc) !nev_
     if(fullmesh .AND. procaron) call rx0('Done pdos: --mkprocar & --fullmesh. Check by "grep k-point PROCAR.*.*"')
-    !! boltztrap data
-    if( cmdopt0('--boltztrap')) call writeboltztrap(eferm)
+    if( cmdopt0('--boltztrap')) call writeboltztrap(eferm) ! boltztrap data
     if( cmdopt0('--boltztrap')) call rx0('Done boltztrap: boltztrap.* are generated')
-    !! Write bands in bands-plotting case: loop over qp getting evals from array ===
-    if(plbnd/=0 ) then
+    Writebandmode: if(plbnd/=0 ) then
        if(master_mpi .AND. fsmode) call writefs(eferm) !fermi surface
        if(master_mpi) then
           write(stdo,*)' Writing bands to bands file for gnuplot ...'
@@ -261,17 +235,15 @@ contains
        endif
        if(fsmode) call rx0('done --fermisurface mode. *.bxsf for xcryden generated')
        call rx0('plot band mode done') ! end of band plbnd/=0, that is, band plot mode.
-    endif
+    endif Writebandmode
     if(plbnd/=0 .AND. fsmode) call rx0('done --fermisurface mode. *.bxsf for xcryden generated')
     if(plbnd/=0) call rx0('plot band mode done') ! end of band plbnd/=0, that is, band plot mode.
-    !! New eferm and wtkb determined from evlall
-    call m_subzi_bzintegration(evlall,swtk, eferm,sev,qvalm,vnow_magfield) !Get the Fermi energy eferm,...
+    call m_subzi_bzintegration(evlall,swtk, eferm,sev,qvalm,vnow_magfield) !Get the Fermi energy eferm,... New eferm and wtkb determined from evlall
     if(fsmom/=NULLR .AND. master_mpi) then !moved from m_subzi_bzintegration at 2022-dec
        open(newunit=ifimag,file='MagField')
        write(ifimag,"(d23.16,' !(in Ry) -vnow/2 for isp=1, +vnow/2 for isp=2')")vnow_magfield 
        close(ifimag)
-    endif
-    ! -vnow_magfield/2 is added to isp=1, +vnow_magfield/2 to isp=2
+    endif ! -vnow_magfield/2 is added to isp=1, +vnow_magfield/2 to isp=2
     evtop=-9999
     ecbot=9999
     eeem=9999
@@ -280,7 +252,7 @@ contains
           do ix=1,ndhamx !2022dec evtop,ecbot for magnetic case
              if(evlall(ix,jsp,iq)<eferm) evtop = max(evtop,evlall(ix,jsp,iq))
              if(evlall(ix,jsp,iq)>eferm) ecbot = min(ecbot,evlall(ix,jsp,iq))
-             eeem = min(eeem,evlall(ix,jsp,iq)) !forgotton. recovered at 2023feb
+             eeem = min(eeem,evlall(ix,jsp,iq)) !eeem for emin below
           enddo
        enddo
     enddo
@@ -298,8 +270,7 @@ contains
        write(ifi,"(i6,'# iter CAUTION! This file is overwritten by lmf-MPIK SC loop')")iter
        close(ifi)
     endif
-    !! Generate total DOS  emin=dosw(1) emax=dosw(2) dos range
-    if(master_mpi .AND. (tdos .OR. ldos/=0)) then
+    GenerateTotalDOS: if(master_mpi .AND. (tdos .OR. ldos/=0)) then !   emin=dosw(1) emax=dosw(2) dos range
        emin = eeem-0.01d0 
        dosw(1)= emin ! lowest energy limit to plot dos
        dosw(2)= eferm+bz_dosmax !max energy limit to plot dos
@@ -328,10 +299,9 @@ contains
        enddo
        close(ifi)
        close(ifii)
-    endif
+    endif GenerateTotalDOS
     if(tdos) call rx0('Done tdos mode:')
-    !! AllReduce band quantities.
-    if(lrout/=0) call m_bandcal_allreduce(lwtkb)
+    if(lrout/=0) call m_bandcal_allreduce(lwtkb) ! AllReduce band quantities.
     emin=1d9
     if(master_mpi) write(stdo,ftox)
     do iq = 1,nkp
@@ -345,32 +315,25 @@ contains
           emin= min(minval( evlall(1:nevls(iq,jsp),jsp,iq)),emin)
        enddo
     enddo
-    !! Accumurate sum in BZ for wtkb
-    if(lmet>0 .AND. lwtkb==-1 .AND. lrout>0) then
+    AccumurateSuminBZforwtkb: if(lmet>0 .AND. lwtkb==-1 .AND. lrout>0) then
        call m_subzi_setlwtkb(1)
        call mpi_barrier(MPI_comm_world,ierr)
        call m_bandcal_2nd(iqini,iqend,ispini,ispend,lrout)!, eferm) !accumulate smrho_out and so on.
        call m_bandcal_allreduce(lwtkb)
-    endif
-    !! Core-level spectroscopy --- m_clsmode_set1 is called in m_bandcal
-    if(cmdopt0('--cls')) then
+    endif AccumurateSuminBZforwtkb
+    CorelevelSpectroscopy: if(cmdopt0('--cls')) then !m_clsmode_set1 is called in m_bandcal
        dosw(1)= emin  - 0.5d0    ! lowest energy limit to plot dos
        dosw(2)= eferm + bz_dosmax ! highest energy limit to plot dos
        call m_clsmode_finalize(eferm,ndimh,ndhamx,nspx,nkp,dosw,evlall)
        call rx0('Done cls mode:')
-    endif
-    !! write out orbital moment
+    endif CorelevelSpectroscopy
     if(lwtkb==1 .AND. lso/=0) call iorbtm()  ! write orbital moment
-    !! Assemble output density, energies and forces 
-    if (lrout/=0) call m_bandcal_symsmrho()  !Get smrho_out Symmetrize smooth density
+    if (lrout/=0) call m_bandcal_symsmrho()  !Get smrho_out Symmetrize smooth density ! Assemble output density, energies and forces 
     call m_mkrout_init() !Get force frcbandsym, symmetrized atomic densities orhoat_out, and weights hbyl,qbyl
-    !!  New boundary conditions pnu for phi and phidot
-    if(.not.PNUFIX.and.lrout/=0) call pnunew(eferm) !ssite%pnu ssite%pz are revised.
+    if(.not.PNUFIX.and.lrout/=0) call pnunew(eferm) !ssite%pnu ssite%pz are revised. !  New boundary conditions pnu for phi and phidot
     !  if(master_mpi) call writeqpyl() !if you like to print writeqbyl
-    !! Evaluate Harris-foukner energy (note: we now use NonMagneticCORE mode as default)
-    call m_mkehkf_etot1(sev, eharris)
-    !! Evaluate KS total energy and Force ---
-    if(lrout/=0) then
+    call m_mkehkf_etot1(sev, eharris) ! Evaluate Harris-foukner energy (note: we now use NonMagneticCORE mode as default)
+    EvaluateKStotalEnergyandForce:if(lrout/=0) then
        allocate(qmom_in(nvl))
        qmom_in=qmom !multipole moments.
        eksham = 0d0 !   ... Evaluate KS total energy and output magnetic moment
@@ -398,7 +361,7 @@ contains
        call mixrho(iter,qval-qbg,orhoat_out,orhoat,smrho_out,osmrho,qdiff)!mixrho keeps history in it.
     else
        eksham = 0d0
-    endif
+    endif EvaluateKStotalEnergyandForce
     ham_ehf= eharris !Harris total energy
     ham_ehk= eksham  !Hohenberg-Kohn-Sham total energy
     call m_mkpot_deallocate()
@@ -406,340 +369,3 @@ contains
     call tcx('bndfp')
   end subroutine bndfp
 end module m_bndfp
-!========================================================  
-subroutine mkekin(osig,otau,oppi,oqkkl,vconst,smpot,smrho,sumev, ekinval) !- Evaluate the valence kinetic energy
-  use m_struc_def
-  use m_lmfinit,only:nkaph,nsp,nspc,stdo,nbas,ispec,sspec=>v_sspec,nlmto
-  use m_lattic,only: lat_vol
-  use m_supot,only: lat_nabc,k1,k2,k3
-  use m_orbl,only: Orblib,ktab,ltab,offl,norb,ntab,blks
-  !NOTE: When SOC included, ek contains HSO, because ek= Eband- V*n where Eband contains SO contr.
-  !i Inputs
-  !i   osig  :augmentation overlap integrals
-  !i   otau  :augmentation kinetic energy integrals
-  !i   oppi  :augmentation kinetic + potential integrals
-  !i   oqkkl :local density-matrix; see rlocbl.f
-  !i   vconst:constant potential added to hamiltonian
-  !i   smpot :smooth input potential on uniform mesh (mkpot.f)
-  !i         :smpot = Ves~ + vxc = Ves(n0 + compensating gaussians) + vxc
-  !i   smrho :smooth output density n0 (no gaussians n0~-n0)
-  !i   sumev :sum of eigenvalues
-  !o Outputs
-  !o   ekinval :kinetic energy
-  !l Local variables
-  !l   sraugm:sum_ib q * (tau+ppi-tau) : corresponds to valftr in mkpot.f
-  !l   smresh:sm rho * sm V ; corresponds to valfsm in mkpot.f
-  !r Remarks
-  !r   The valence kinetic energy is evaluated in the usual way as
-  !r        ekinval = sumev - srhov
-  !r   where sumev is the sum-of-eigenvalues and srhov is the integral
-  !r   of the output density and input potential.
-  !r   Integrals of the density with the xc potential are folded into the
-  !r   electrostatic parts, that is:
-  !r     V0 = V0es + V0xc  V1 = V1es + V1xc  V2 = V2es + V2xc
-  !r   and are not discussed here.
-  !r
-  !r   mkekin make the electrostatic integral
-  !r     int (n0~ Ves~ + n1 Ves1 - n2 Ves2~)                         (40)
-  !r   as described in
-  !r      M. Methfessel, M. van Schilfgaarde, and R. A. Casali,
-  !r      Lecture Notes in Physics, {\bf 535}. H. Dreysse,
-  !r      ed. (Springer-Verlag, Berlin) 2000.
-  !r   for an output density defined through (smrho,qkkl) and an input
-  !r   potential defined through smpot and the matrix elements (ppi-tau).
-
-  !r   Consider only one atom/cell for simplicity. The output density is
-  !r     n = sum_ij Dij F~i F~j with Dij = {sum_n w_n z*_in z_jn}   (32)
-  !r   i.e. the contraction of the density matrix with partial densities
-  !r     F~i F~j = Fi Fj +
-  !r               sum_kLk'L' C^i_kL (P~kLP~k'L' - PkLPk'L') C^j_k'L' (33)
-  !r             = n0_ij + n1_ij - n2_ij
-  !r   Note that local parts of the partial densities have two `levels'
-  !r   of decomposition, namely at the `ij' level as in Eq. 33, or
-  !r   at a still finer level in which the (kLk'L') indices are not
-  !r   summed over.  Thus
-  !r     n{1,2} = sum_ij D_ij n{1,2}_ij
-  !r     n{1,2}_ij = sum_kLk'L' C^i_kL n{1,2}_kL,k'L' C^j_k'L'
-  !r     n{1,2}_kL,k'L' = PkL Pk'L'
-  !r   Note also that the 'k index' may be a sum over polynomials, or when
-  !r   function `heads' are dealt with, the function itself, as described
-  !r   in augmat.f.  As in making the matrix elements, we have to deal
-  !r   with three cases, HH; HP; PP, but this is a inessential detail
-  !r   needed only because representing H with sums of polynomials tends
-  !r   to be ill-conditioned, and in the description below we ignore it.
-  !r
-  !r   Densities n0 and n2 have corresponding n0~ and n2~ which include
-  !r   the additional multipole terms that guarantee n1 and n2~ have
-  !r   the same multipole moments.  Thus:
-  !r     n0~ = n0 + sum_M q_M G_M
-  !r     n2~ = n2 + sum_M q_M G_M
-  !r   where q_M are the difference in multipole moments between n1 and n2
-  !r     q_M = int dr Y_M r^m (n1 - n2)
-  !r   We can define partial densities for multipole contributions as well
-  !r     n2~-n2 = sum_ij D_ij (n2~-n2)_ij
-  !r     (n2~-n2)_ij = sum_M Q_ijM G_M
-  !r                 = sum_kLk'L'M C^i_kL Q_kkLL'M G_M C^j_k'L'
-  !r   with the two forms decomposing q_M into two levels:
-  !r     q_M = sum_ij D_ij Q_ijM
-  !r     Q_ijM = sum_kLk'L' C^i_kL Q_kkLL'M C^j_k'L'
-  !r     Q_kkLL'M = int dr Y_M r^m (P~kL P~k'L' - PkL Pk'L')         (27)
-  !r
-  !r   Using the identity
-  !r     n2~ - n2 = n0~ - n0 = sum_M q_M G_M
-  !r   Eq. 40 is evaluated as
-  !r     int n0 Ves0~ + n1 Ves1 - n2 Ves2~ + sum_M q_M G_M (Ves0~-Ves2~)
-  !r   The first term is evaluated on the mesh and stored in srmesh
-  !r   The remaining terms amount to products of the density-matrix
-  !r   and the ppi matrix elements.  Thus:
-  !r     int n1 Ves1 = sum_ij D_ij int n1_ij Ves1
-  !r     int n1_ij Ves1 = sum_kLk'L' C^i_kL int n1_kL,k'L' Ves1 C^j_k'L'
-  !r                    = sum_kLk'L' C^i_kL pi1_kk'LL' C^j_k'L'
-  !r   where pi1 is the first term of the pi matrix element, Eq. 29:
-  !r     pi1_kk'LL' = P~kL V1 P~k'L'
-  !r   Similarly for the second term, substituting n2 for n1 and
-  !r   Ves2~ for Ves1.
-  !r     int n2 Ves2~ = sum_ij D_ij int n2_ij Ves2~
-  !r     int n2_ij Ves2~ = sum_kLk'L' C^i_kL int n2_kL,k'L' Ves2~ C^j_k'L'
-  !r                    = sum_kLk'L' C^i_kL pi2_kk'LL' C^j_k'L'
-  !r     pi2_kk'LL' = P~kL V1 P~k'L'
-  !r   The last term just amounts to products of the density-matrix and
-  !r   the remaining parts of the ppi matrix element:
-  !r     pi_kk'LL'  = pi1_kk'LL' - pi2_kk'LL' + pi3_kk'LL'
-  !r     pi3_kk'LL' = sum_M Q_kkLL'M int G_M (Ves0~ - Ves2~)
-  !r   Evaluating the last term in the electrostatic integral we have
-  !r     rhoV_MP = int sum_M q_M G_M (Ves0~ - Ves2~)
-  !r             = int sum_ij D_ij sum_M Q_ijM G_M (Ves0~ - Ves2~)
-  !r             = sum_ij D_ij sum_kLk'L'M C^i_kL pi3_kk'LL' C^j_k'L'
-  !r   which follows using the relationship between Q_kkLL'M and Q_ijM
-  !r   Using the definition of the local density-matrix (see rlocbl.f)
-  !r      qpp_kLk'L' = sum_ij D_ij C^i_kL C^j_k'L'
-  !r   the electrostatic integral then becomes
-  !r     int rhoVes = int n0 Ves0~ + n1 Ves1 - n2 Ves2~ + rhoV_MP
-  !r                = int n0 Ves0~
-  !r                + sum_ij D_ij sum_kLk'L' C^i_kL pi_kk'LL' C^j_k'L'
-  !r                = int n0 Ves0~ + sum_kLk'L' qpp'LL' pi_kk'LL'
-  !r
-  implicit none
-  type(s_cv5),target :: oppi(3,nbas)
-  type(s_rv4),target :: otau(3,1)
-  type(s_rv4),target :: osig(3,1)
-  type(s_rv5),target :: oqkkl(3,nbas)
-  real(8),pointer:: QPP(:,:,:,:,:), QHP(:,:,:,:,:),QHH(:,:,:,:,:), &
-       SIGHH(:,:,:,:),SIGHP(:,:,:,:),SIGPP(:,:,:,:), &
-       TAUHH(:,:,:,:),TAUHP(:,:,:,:),TAUPP(:,:,:,:)
-  complex(8):: smpot(k1,k2,k3,nsp),smrho(k1,k2,k3,nsp)
-  complex(8),pointer:: PPIHH(:,:,:,:,:),PPIHP(:,:,:,:,:),PPIPP(:,:,:,:,:)
-  real(8):: sumev, ekinval , vconst
-  integer :: ib,igetss,ipr,is,kmax,lgunit,lmxa,lmxh,n0,n1,n2,n3, ngabc(3),nglob,nkap0,nlma,nlmh,ilm1
-  logical :: lgors
-  parameter (n0=10,nkap0=3)
-  double precision :: qum1,qum2,sraugm,srhov,srmesh,sum1,sum2,sumh,sumq,sumt,vol,xx
-  equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
-  include 'mpif.h'
-  integer:: procid=0,ier=0,io,iorb
-  integer,parameter::master=0
-  logical:: iprx
-  call mpi_comm_rank(mpi_comm_world,procid,ier)
-  iprx=.false.
-  if(procid==master) iprx= .TRUE. 
-  call tcn('mkekin')
-  call getpr(ipr)
-  ngabc=lat_nabc
-  vol=lat_vol
-  srmesh = (dreal(sum(smpot*smrho)) + vconst*dreal(sum(smrho))) *vol/(n1*n2*n3) ! Integral n0(out) (Ves0~ + Vxc0), contribution from mesh
-  ! Note that it does not include the term (n0~-n0) Ves0~
-  sraugm = 0d0
-  do  ib = 1, nbas !Integral rhout*veff, part from augmentation ---
-     is = ispec(ib) 
-     lmxa=sspec(is)%lmxa
-     kmax=sspec(is)%kmxt
-     lmxh=sspec(is)%lmxb
-     if (lmxa == -1) cycle
-     call orblib(ib) ! norb , ltab , ktab , offl ,ntab,blks
-     nlma = (lmxa+1)**2
-     nlmh = (lmxh+1)**2
-     QHH   => oqkkl(3,ib)%v !head x head index=3
-     QHP   => oqkkl(2,ib)%v !head x tail index=2
-     QPP   => oqkkl(1,ib)%v !tail x tail index=1
-     TAUHH => otau(3,ib)%v
-     TAUHP => otau(2,ib)%v
-     TAUPP => otau(1,ib)%v
-     SIGHH => osig(3,ib)%v
-     SIGHP => osig(2,ib)%v
-     SIGPP => osig(1,ib)%v
-     PPIHH => oppi(3,ib)%cv
-     PPIHP => oppi(2,ib)%cv
-     PPIPP => oppi(1,ib)%cv
-     ! real(8):: &
-     !      tauhh(nkaph,nkaph,0:lmxh,nsp),  sighh(nkaph,nkaph,0:lmxh,nsp), &
-     !      tauhp(nkaph,0:kmax,0:lmxh,nsp), sighp(nkaph,0:kmax,0:lmxh,nsp), &
-     !      taupp(0:kmax,0:kmax,0:lmxa,nsp),sigpp(0:kmax,0:kmax,0:lmxa,nsp), &
-     !      qhh(nkaph,nkaph,nlmh,nlmh,nsp), &
-     !      qhp(nkaph,0:kmax,nlmh,nlma,nsp), &
-     !      qpp(0:kmax,0:kmax,nlma,nlma,nsp)
-     ! complex(8)::&
-     !      ppihh(nkaph,nkaph,nlmh,nlmh,nsp), &
-     !      ppihp(nkaph,0:kmax,nlmh,nlma,nsp), &
-     !      ppipp(0:kmax,0:kmax,nlma,nlma,nsp)
-     !i   kmax  :cutoff in PkL expansion
-     !i   lmxa  :dimensions sigpp, taupp
-     !i   nlma  :L cutoff in PkL expansion
-     !i   nkaph :dimensions augmentation matrices
-     !i   norb  :number of orbitals for this site
-     !i   ltab  :table of l quantum numbers for the orbitals
-     !i   ktab  :table of k numbers (orbital type) for the orbitals
-     !i   blks  :block size for grouping orbitals into blocks (gtbls1)
-     !i   lmxh  :dimensions sighh, sighp, tauhh, tauhp
-     !i   nlmh  :dimensions heads ppi and qhh and qhp
-     !i   tauhh :head-head kinetic energy integrals (augmat.f)
-     !i   sighh :head-head overlap integrals (augmat.f)
-     !i   ppihh :head-head kinetic + potential integrals (augmat.f)
-     !i   tauhp :head-tail kinetic energy integrals (augmat.f)
-     !i   sighp :head-tail overlap integrals (augmat.f)
-     !i   ppihp :head-tail kinetic + potential integrals (augmat.f)
-     !i   taupp :tail-tail kinetic energy integrals (augmat.f)
-     !i   sigpp :tail-tail overlap integrals (augmat.f)
-     !i   ppipp :tail-tail potential integrals (augmat.f)
-     !i   qhh   :head-head density matrix for this site
-     !i   qhp   :head-tail density matrix for this site
-     !i   qpp   :tail-tail density matrix for this site
-     !i   nsp   :number of spin channels
-     !i   nspc  :2 for coupled spins; otherwise 1
-     pvgtknblock: block !Local contribution to kinetic energy for one site
-       integer :: ilm1,ilm2,k1,k2,ll,nlm11,nlm12,nlm21,nlm22,i, io1,io2,l1,l2
-       sumt = sum([(sum(qpp(:,:,ilm1,ilm1,:)*taupp(:,:,ll(ilm1),:)),ilm1=1,nlma)]) !Pkl*Pkl
-       sumq = sum([(sum(qpp(:,:,ilm1,ilm1,:)*sigpp(:,:,ll(ilm1),:)),ilm1=1,nlma)])
-       sumh = sum(qpp(:,:,:,:,:)*ppipp(:,:,:,:,:))
-       do  io2 = 1, norb;    if(blks(io2)==0) cycle 
-          k2 = ktab(io2)
-          nlm21 = ltab(io2)**2+1
-          nlm22 = nlm21 + blks(io2)-1
-          do  io1 = 1, norb; if(blks(io1)==0) cycle 
-             associate(k1=>ktab(io1),nlm11 => ltab(io1)**2+1)
-               sumh=sumh+sum([( sum(qhh(k1,k2,ilm1,nlm21:nlm22,:)*ppihh(k1,k2,ilm1,nlm21:nlm22,:)),ilm1=nlm11,nlm11+blks(io1)-1)])
-               do  ilm1 = nlm11, nlm11+ blks(io1)-1
-                  if( nlm21<= ilm1 .and. ilm1<=nlm21+blks(io2)-1) then !Hsm*Hsm
-                     sumt = sumt + sum(qhh(k1,k2,ilm1,ilm1,:)*tauhh(k1,k2,ll(ilm1),:))
-                     sumq = sumq + sum(qhh(k1,k2,ilm1,ilm1,:)*sighh(k1,k2,ll(ilm1),:))
-                  endif
-               enddo
-             endassociate
-          enddo
-       enddo
-       do  io1 = 1, norb; if (blks(io1)==0) cycle !Hsm*Pkl
-          associate(k1=>ktab(io1), nlm11=>ltab(io1)**2+1, nlm11e=>min(ltab(io1)**2+1 +blks(io1)-1,nlma) )
-            sumh=sumh+sum([(sum(qhp(k1,:,ilm1,:,:)*ppihp(k1,:,ilm1,:,:)),ilm1= nlm11,nlm11+blks(io1)-1)])!site contribution to kinetic energy +potential
-            sumt=sumt+sum([(sum(qhp(k1,:,ilm1,ilm1,:)*tauhp(k1,:,ll(ilm1),:)),ilm1= nlm11,nlm11e)]) !site contribution to kinetic energy
-            sumq=sumq+sum([(sum(qhp(k1,:,ilm1,ilm1,:)*sighp(k1,:,ll(ilm1),:)),ilm1= nlm11,nlm11e)]) !site contribution to overlap (charge ?)
-          endassociate
-       enddo
-     endblock pvgtknblock
-     sraugm = sraugm + sumh - sumt
-  enddo
-  srhov   = srmesh + sraugm != n_out*Vin
-  ekinval = sumev - srhov   != Eband - nout*Vin (V do not include SO term)
-  if(ipr>= 30) write(stdo,"(/a)")' mkekin:'
-  if(ipr>= 30) write(stdo,340) srmesh,sraugm,srhov,sumev,ekinval
-340 format('   nout*Vin = smpart,onsite,total=:',3f14.6,/'    E_B(band energy sum)=',f12.6,'  E_B-nout*Vin=',f12.6)
-  call tcx('mkekin')
-end subroutine mkekin
-subroutine makdos(nqp,nband,nbmx,nsp,wgts,evl,n,w,tol,emin,emax, ndos,dos)! Make density of states from bands
-  !i  Input
-  !i   nqp   :number of q-points
-  !i   nband :number of bands
-  !i   nsp   :2 for spin-polarized case, otherwise 1
-  !i   wgts  :band weights
-  !i   evl   :band eigenvalues
-  !i   n,w   :Methfessel-Paxton order and broadening parameters
-  !i   tol   :(tol>0) allowed error in DOS due to truncating the gaussian,
-  !i         :        to a finite energy range (number of bins)
-  !i         :(tol<0) dimensionless energy window specifying truncation
-  !i         :        of gaussian.  Energy window for which gaussian is
-  !i         :        taken to be nonzero is set to -tol*w
-  !i   emin, emax, ndos: energy range and number of energy mesh points
-  !i   nbmx  :leading dimension of evl
-  !o  Ouput
-  !o    dos: density of states
-  implicit none
-  integer :: nqp,nband,nbmx,nsp,n,ndos
-  double precision :: wgts(nqp),evl(nbmx,nsp,nqp),dos(0:ndos-1,nsp),w,emin,emax,tol,wt,emesh
-  integer :: i,isp,iband,iq,meshpt,mesh1,mesh2,mrange=999999,iprint
-  double precision :: e,x,range,test,step,d,s,xx
-  dos=0d0
-  step = (emax - emin) / (ndos - 1)
-  if( tol > 0d0 ) then
-     do   i = 0, ndos-1
-        x = i * step / w
-        call delstp(0,x,test,s,xx)
-        if ( test < tol ) then
-           mrange = i + 1
-           goto 3
-        endif
-     enddo
-     if(iprint()> 30) print *,'makdos (warning) : tol too small'
-3    continue
-     range = 2 * mrange * step
-     test = tol
-  else
-     range = -tol * w
-     mrange = range / ( 2 * step )
-     call delstp(0,-tol/2,test,s,xx)
-  endif
-  if (iprint() > 30) write (*,100) range/w,2*mrange,test
-  iqloop: do  7  iq = 1, nqp
-     wt = abs(wgts(iq)) / nsp
-     ibandloop: do  61  iband = 1, nband
-        isploop: do   isp = 1, nsp
-           e = evl(iband,isp,iq)
-           meshpt = (e - emin) / step
-           mesh1 = meshpt - mrange
-           mesh2 = meshpt + mrange
-           if (mesh2 >= ndos) mesh2 = ndos-1
-           if (mesh1 < 0) mesh1 = 0
-           do   meshpt = mesh1, mesh2
-              emesh = emin + meshpt * step
-              x = (emesh - e) / w
-              call delstp(n,x,d,s,xx)
-              dos(meshpt,isp) = dos(meshpt,isp) + wt * d / w
-           enddo
-        enddo isploop
-61   enddo ibandloop
-7 enddo iqloop
-100 format(/1x,'MAKDOS :  range of gaussians is ',f5.2,'W (',i4,' bins).'/11x,'Error estimate in DOS : ',1pe9.2,' per state.')
-end subroutine makdos
-subroutine phispinsym_ssite_set()
-  use m_lmfinit,only: nbas,nsp,sspec=>v_sspec,n0,ispec !ssite=>v_ssite
-  use m_MPItk,only:master_mpi
-  use m_struc_def
-  use m_lgunit,only:stdo
-  use m_density,only: pnuall,pnzall
-  implicit none
-  integer:: ib,is,lmxa,l
-  real(8):: pmean
-  real(8),pointer:: pnu(:,:),pnz(:,:)
-  if(master_mpi)write(6,*)' --phispinsym use spin-averaged potential for phi and phidot'
-  do ib = 1,nbas
-     !     pnu = ssite(ib)%pnu
-     !     pnz = ssite(ib)%pz
-     pnu=>pnuall(:,1:nsp,ib)
-     pnz=>pnzall(:,1:nsp,ib)
-     is   = ispec(ib) !ssite(ib)%spec
-     lmxa = sspec(is)%lmxa
-     do l=0,lmxa
-        pmean = sum(pnu(l+1,1:nsp))/nsp
-        if(master_mpi .AND. nsp==2) write(stdo,"('  ibas l=',2i3,' pnu=',2f10.5,' -->',f10.5)") &
-             ib,l,pnu(l+1,1:nsp),pmean
-        pnu(l+1,1:nsp) = pmean
-        if(pnz(l+1,1)/=0 ) then
-           pmean = sum(pnz(l+1,1:nsp))/nsp
-           if(master_mpi .AND. nsp==2)write(stdo,"('  ibas l=',2i3,' pnz=',2f10.5,' -->',f10.5)") &
-                ib,l,pnz(l+1,1:nsp),pmean
-           pnz(l+1,1:nsp) = pmean
-        endif
-     enddo
-     !     ssite(ib)%pnu=pnu
-     !     ssite(ib)%pz=pnz
-     pnuall(:,1:nsp,ib)=pnu(:,1:nsp)
-     pnzall(:,1:nsp,ib)=pnz(:,1:nsp)
-  enddo
-end subroutine phispinsym_ssite_set

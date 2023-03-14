@@ -1,11 +1,9 @@
-module m_mtchae
+module m_mtchae!- Matches augmentation function to envelope function
   public mtchae,mtchre
 contains
-  subroutine mtchae(mode,rsm,eh,l,r,phi,dphi,phip,dphip,alfa,beta)
+  subroutine mtchae(mode,rsm,eh,l,r,phi,dphi,phip,dphip,alfa,beta)!- Matches augmentation function to envelope function
     use m_lgunit,only:stdo
     use m_hansr,only:hansmd
-    !- Matches augmentation function to envelope function
-    ! ----------------------------------------------------------------------
     !i Inputs
     !i   mode  :0 match phi,dphi to h at r
     !i         :1 match phi to h,hdot at r
@@ -39,20 +37,15 @@ contains
     !u Updates
     !u   16 Jun 04 First created
     ! ----------------------------------------------------------------------
-    !     implicit none
-    ! ... Passed parameters
+    implicit none
     integer :: mode,l
     double precision :: dphi,dphip,eh,phi,phip,r,rsm,alfa,beta
-    ! ... Local parameters
     double precision :: det,a,b,val,slo
     double precision :: hs(0:l),dhs(0:l),ddhs(0:l)
     double precision :: hsp(0:l),dhsp(0:l),ddhsp(0:l)
-
     logical:: isanrg,l_dummy_isanrg
-
     ! --- Radial part of smooth hankels and its derivatives ---
     call hansmd(12,r,eh,rsm,l,hs,dhs,ddhs,hsp,dhsp,ddhsp)
-
     ! --- Match hs,dhs to a linear combination of phi,phidot ---
     !     Use  phi=phi(R); phip=phidot(R) dphi=phi'(R); dphip=phidot'(R)
     !     (phi  phip ) (alfa)   (hs )    (alfa)    1  (dphip -phip) (hs )
@@ -88,20 +81,15 @@ contains
        alfa = slo/val
        slo  = -(a*ddhs(l) + b*ddhsp(l))
        beta = slo/val
-
     else
        call rxi('mtchae: bad mode',mode)
     endif
-
   end subroutine mtchae
-
-  subroutine mtchre(mode,l,rsmin,rsmax,emin,emax,r1,r2,phi1,dphi1, &
+  subroutine mtchre(mode,l,rsmin,rsmax,emin,emax,r1,r2,phi1,dphi1, & !- Finds envelope function parameters that match conditions on sphere
        phi2,dphi2,rsm,eh,ekin,ir)
     use m_lgunit,only:stdo
     use m_hansr,only:hansmd
     use m_ftox
-    !- Finds envelope function parameters that match conditions on sphere
-    ! ----------------------------------------------------------------------
     !i Inputs
     !i   mode  :controls how matching is done
     !i         :10s digit :
@@ -566,7 +554,6 @@ contains
           if (iter >= maxit) info = -2
           eh = xnow
        endif
-
        if (ipr >= IPRT) print '('' exit mtchr2 info ='',i2)',info
        !        if (info .eq. -1) then
        !        print *, 'exit mtchr2 info=',info
@@ -575,14 +562,9 @@ contains
        ! ... Vary rs to match K.E. of h to dphi.  Do iteratively, matching
        !     phi to hs; find point where K.E. matches.
     elseif (mode == 2) then
-
+       continue
     else
        call rxi('mtchr2 : bad mode',mode)
     endif
-
-
-    !     call poppr
-
   end subroutine mtchr2
-
 endmodule m_mtchae
