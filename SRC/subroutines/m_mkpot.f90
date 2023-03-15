@@ -86,7 +86,6 @@ contains
     ! job=0 => not make core and augmentation matrices
     ! job=1 => make core and augmentation matrices
     ! xxxxxx problematic option dipole_ removed. (for <i|{\bf r}|j> matrix for novxc)
-    use m_ldau,only: vorb !input. 'U-V_LDA(couter term)' of LDA+U
     use m_lmfinit,only:lso,nbas,ispec,sspec=>v_sspec,nlibu,lmaxu,lldau,nsp,lat_alat,lxcf,lpzex
     use m_lattic,only: lat_plat,lat_qlat, lat_vol,rv_a_opos
     use m_supot,only: k1,k2,k3,lat_nabc
@@ -209,12 +208,12 @@ contains
     logical,optional:: novxc_
     character(80) :: outs
     integer :: i,ipr,iprint,n1,n2,n3,ngabc(3),lxcfun,isw,isum
-    real(8) ,allocatable :: fxc_rv(:,:)
+!    real(8) ,allocatable :: fxc_rv(:,:)
     real(8) ,allocatable :: hpot0_rv(:)
-    complex(8) ,allocatable :: smvxc_zv(:)
-    complex(8) ,allocatable :: smvx_zv(:)
-    complex(8) ,allocatable :: smvc_zv(:)
-    complex(8) ,allocatable :: smexc_zv(:)
+!    complex(8) ,allocatable :: smvxc_zv(:)
+!    complex(8) ,allocatable :: smvx_zv(:)
+!    complex(8) ,allocatable :: smvc_zv(:)
+!    complex(8) ,allocatable :: smexc_zv(:)
     double precision :: dq,cpnvsa, & 
          qsmc,smq,smag,sum2,rhoex,rhoec,rhvsm,sgp0, &
          sqloc,sqlocc,saloc,uat,usm,valfsm,valftr, &
@@ -280,24 +279,19 @@ contains
     endif
     call rhomom(orhoat, qmom,vsum) !multipole moments
     allocate(hpot0_rv(nbas))
-    call smves(qmom,gpot0,vval,hpot0_rv,sgp0,smrho,smpot,vconst & ! Smooth electrostatic potential
-        ,smq,qsmc,fes,rhvsm,zvnsm,zsum,vesrmt,qbg )
+    call smves(qmom,gpot0,vval,hpot0_rv,sgp0,smrho,smpot,vconst,smq,qsmc,fes,rhvsm,zvnsm,zsum,vesrmt,qbg )  ! Smooth electrostatic potential
     smag = 0
     if(nsp == 2) smag = 2d0*dreal(sum(smrho(:,:,:,1)))*vol/(n1*n2*n3) - smq !spin part.
     if(allocated(hpot0_rv)) deallocate(hpot0_rv)
     if( .NOT. present(novxc_)) then ! Add smooth exchange-correlation potential 
        novxc=.false.
-       allocate(smvxc_zv(k1*k2*k3*nsp),smvx_zv(k1*k2*k3*nsp), &
-            smvc_zv(k1*k2*k3*nsp),smexc_zv(k1*k2*k3), fxc_rv(3,nbas))
-       smvx_zv =0d0
-       smvc_zv =0d0
-       smvxc_zv=0d0 ! ... Smooth exchange-correlation potential
-       smexc_zv=0d0
-       fxc_rv  =0d0
-       call smvxcm(lfrce, smrho,smpot,smvxc_zv,smvx_zv,smvc_zv,&
-            smexc_zv,repsm,repsmx,repsmc,rmusm,rvmusm,rvepsm, fxc_rv )
-       if( lfrce /= 0 ) fes = fes+fxc_rv
-       deallocate(fxc_rv,smexc_zv,smvc_zv,smvx_zv,smvxc_zv)
+       block
+         complex(8):: smvxc_zv(k1*k2*k3*nsp),smvx_zv(k1*k2*k3*nsp), smvc_zv(k1*k2*k3*nsp),smexc_zv(k1*k2*k3)
+         real(8):: fxc_rv(3,nbas)
+         smvxc_zv=0d0; smvx_zv=0d0; smvc_zv=0d0; smexc_zv=0d0; fxc_rv=0d0
+         call smvxcm(lfrce, smrho,smpot,smvxc_zv,smvx_zv,smvc_zv, smexc_zv,repsm,repsmx,repsmc,rmusm,rvmusm,rvepsm, fxc_rv )
+         if( lfrce /= 0 ) fes = fes+fxc_rv
+       endblock
     else
        novxc=.true.
        repsm=0d0
@@ -325,13 +319,11 @@ contains
     !$$$         enddo
     !$$$         enddo
     !$$$      endif
-    
     call elocp() ! set ehl and rsml for extendet local orbitals
     if(sum(lpzex)/=0) call m_bstrux_init()!computes structure constant (C_akL Eq.(38) in /JPSJ.84.034702) when we have extended local orbital.
     ! --- Make local potential at atomic sites and augmentation matrices ---
-    rhobg=qbg/vol
-    call locpot(orhoat,qmom,vval,gpot0,job,rhobg,nlibu,lmaxu,vorb,lldau,novxc, & !,idipole )
-         osig,otau, oppi,ohsozz,ohsopm, phzdphz,hab_rv,vab_rv,sab_rv,  &
+    call locpot(job,novxc,orhoat,qmom,vval,gpot0, & !,idipole )
+         osig,otau,oppi,ohsozz,ohsopm, phzdphz,hab_rv,vab_rv,sab_rv,  &
          vvesat,cpnvsa, repat,repatx,repatc,rmuat, valvfa,xcore, sqloc,sqlocc,saloc,qval,qsc )
     if(cmdopt0('--density') .AND. master_mpi .AND. secondcall) return
     ! ... Integral of valence density times estatic potential

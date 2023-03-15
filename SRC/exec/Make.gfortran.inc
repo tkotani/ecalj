@@ -9,8 +9,8 @@ module = -J$(moddir) -I$(moddir)
 # ##############################
 
 #2023feb: For newer gfortran, we need -fallow-argument-mismatch
-# FFLAGS_COMMON= -g -fimplicit-none -finit-integer=NaN -finit-real=NaN $(module) -fallow-argument-mismatch
-FFLAGS_COMMON= -g -fallow-argument-mismatch -fimplicit-none -finit-integer=NaN -finit-real=NaN $(module)
+FFLAGS_COMMON= -g -fimplicit-none -finit-integer=NaN -finit-real=NaN $(module)
+#FFLAGS_COMMON= -g -fallow-argument-mismatch -fimplicit-none -finit-integer=NaN -finit-real=NaN $(module)
 
 FFLAGS = -O2  $(FFLAGS_COMMON)
 FFLAGS_LESS = -O0   $(FFLAGS_COMMON)

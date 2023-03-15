@@ -7,21 +7,22 @@ module m_locpot !- Make the potential at atomic sites and augmentation matrices.
   real(8),allocatable,public :: rotp(:,:,:,:,:) !rotation matrix
   private
 contains
-  subroutine locpot(orhoat,qmom,vval,gpot0,job,rhobg,nlibu,lmaxu,vorb,lldau,novxc, &!,idipole 
+  subroutine locpot(job,novxc,orhoat,qmom,vval,gpot0, &!,idipole 
        osig , otau, oppi, ohsozz,ohsopm, phzdphz, hab, vab, sab, & 
-       vvesat,cpnvsa, rhoexc,rhoex,rhoec,rhovxc, valvef, xcore, sqloc,sqlocc,saloc, qval,qsc )
+       vvesat,cpnvsa, rhoexc,rhoex,rhoec,rhovxc, valvef,xcore, sqloc,sqlocc,saloc, qval,qsc )
     use m_density,only: v0pot,v1pot   !output
     use m_density,only: pnzall,pnuall !output
-    use m_lmfinit,only:nkaph,lxcf,lhh,nkapii,nkaphh
+    use m_lmfinit,only:nkaph,lxcf,lhh,nkapii,nkaphh,nlibu,lmaxu,lldau
     use m_lmfinit,only:n0,nppn,nrmx,nkap0,nlmx,nbas,nsp,lso,ispec, sspec=>v_sspec,frzwfa,lmxax
-    use m_lmfinit,only:slabl,idu,coreh,ham_frzwf,rsma,alat,v0fix,jnlml
+    use m_lmfinit,only:slabl,idu,coreh,ham_frzwf,rsma,alat,v0fix,jnlml,vol,qbg=>zbak
     use m_uspecb,only:uspecb
     use m_ftox
     use m_struc_def
     use m_augmat,only: augmat
     use m_hansr,only:corprm
+    use m_ldau,only: vorb !input. 'U-V_LDA(couter term)' of LDA+U
     implicit none
-    intent(in)::    orhoat,qmom,vval,gpot0,job,rhobg,nlibu,lmaxu,vorb,lldau,novxc
+    intent(in)::    job,novxc,orhoat,qmom,vval,gpot0
     ! ----------------------------------------------------------------------
     !i Inputs
     !i   orhoat:vector of offsets containing site density
@@ -83,8 +84,8 @@ contains
     type(s_sblock):: ohsozz(3,nbas),ohsopm(3,nbas)
     type(s_rv4) :: otau(3,nbas)
     type(s_rv4) :: osig(3,nbas)
-    integer :: nlibu,lmaxu,lldau(nbas),iblu
-    double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
+    integer :: iblu !lldau(nbas),
+!    double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
     real(8):: qmom(1) , vval(1)
     double precision :: cpnvsa,rhoexc(nsp),rhoex(nsp),rhoec(nsp),rhovxc(nsp), &
          qval,sqloc,sqlocc,saloc, & !,focvxc(nsp)focexc(nsp),focex(nsp),focec(nsp),
@@ -116,6 +117,7 @@ contains
     real(8):: ov0mean,pmean
     real(8),parameter:: pi = 4d0*datan(1d0),srfpi = dsqrt(4d0*pi),y0 = 1d0/srfpi  !integer:: idipole
     call tcn('locpot')
+    rhobg=qbg/vol
     ipr = iprint()
     if (ipr >= 30) write(stdo,"('  locpot:')")
     k = nrmx*nlmx*nsp
@@ -170,8 +172,8 @@ contains
          call radwgt(rmt,a,nr,rwgt)
          ! Write true density to file rhoMT.ib
          if(cmdopt0('--wrhomt'))call wrhomt('rhoMT.','density',ib,orhoat(1,ib)%v,rofi,nr,nlml,nsp)
-         call locpt2(z,rmt,rg,a,nr,nsp,cofg,cofh & ! Make potential and energy terms at this site ---
-              ,ceh,rfoc,lfoc,nlml,qmom(j1),vval(j1),rofi &
+         call locpt2(ib,j1,z,rmt,rg,a,nr,nsp,cofg,cofh & ! Make potential and energy terms at this site ---
+              ,ceh,rfoc,lfoc,nlml,qmom,vval,rofi &
               ,rwgt,orhoat(1,ib)%v,orhoat(2,ib)%v,orhoat( 3,ib )%v,&
               rhol1,rhol2,v1,v2,v1es,v2es, &
               valvs(ib),cpnvs(ib),rhexc(:,ib),rhex(:,ib),rhec(:,ib),rhvxc(:,ib),&
@@ -332,7 +334,7 @@ contains
     call tcx('locpot')
   end subroutine locpot
 
-  subroutine locpt2(z,rmt,rg,a,nr,nsp,cofg,cofh,ceh,rfoc,lfoc, &
+  subroutine locpt2(ib,j1,z,rmt,rg,a,nr,nsp,cofg,cofh,ceh,rfoc,lfoc, &
        nlml,qmom,vval,rofi,rwgt,rho1,rho2,rhoc,&
        rhol1,rhol2,v1,v2,v1es,v2es,&
        vvesat,cpnves,rhoexc,rhoex,rhoec,rhovxc, valvef,xcore,qloc, & 
@@ -442,7 +444,7 @@ contains
     !u    8 Feb 02 rhoex and rhoec (T. Miyake)
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: nr,nsp,lfoc,nlml
+    integer :: nr,nsp,lfoc,nlml,ib,j1
     double precision :: z,rmt,rg,a,cofg,cofh,ceh,rfoc,xcore,qloc,qlocc, &
          aloc,alocc,rhoexc(nsp),rhoex(nsp),rhoec(nsp),rhovxc(nsp), &
          valvef,vvesat, cpnves,rhobg
@@ -508,7 +510,7 @@ contains
     do  isp = 1, nsp
        do  ilm = 1, nlml
           l = ll(ilm)
-          cof(ilm) = qmom(ilm)*4d0*pi/df(2*l+1)
+          cof(ilm) = qmom(ilm+j1-1)*4d0*pi/df(2*l+1)
           fac = sfac*(ag*ag/pi)**1.5d0 * (2d0*ag*ag)**l
           rhol2(:,ilm,isp) = rho2(:,ilm,isp) + cof(ilm)*fac* rofi(:)**l*gg(:)/nsp
        enddo
@@ -544,13 +546,13 @@ contains
       qloc  = qv1-qv2
       if(dabs(sum1-sum2)>1d-6)call rx1('locpt2: sphere not neutral: charge = %d',sum1-sum2)
       !     v1=Ves[rho1t]: true ES pot without nuclear contribution
-      call poinsp(z,vval,nlml,a,b,v1,rofi,rhol1t,wk,nr,rvs1,rhves1,  vnucl,vsum)
+      call poinsp(z,vval(j1),nlml,a,b,v1,rofi,rhol1t,wk,nr,rvs1,rhves1,  vnucl,vsum)
       if (nlml >= 9 .AND. z > 0.01) then
          efg(1:5)=v1(5,5:9,1)/rofi(5)**2
       else
          efg(1:5)=0d0
       endif
-      call poinsp(0d0,vval,nlml,a,b,v2,rofi,rhol2t,wk,nr,rvs2,rhves2, vnucl,vsum)! v2=Ves[rhol2=rho2+gval+gcor+gnuc]
+      call poinsp(0d0,vval(j1),nlml,a,b,v2,rofi,rhol2t,wk,nr,rvs2,rhves2, vnucl,vsum)! v2=Ves[rhol2=rho2+gval+gcor+gnuc]
       ! --- gpotb = integrals of compensating gaussians times smooth ves ---
       sgpotb = 0d0
       do  ilm = 1, nlml
@@ -558,7 +560,7 @@ contains
          cof0 = 4d0*pi/df(2*l+1)
          fac = sfac*(ag*ag/pi)**1.5d0 * (2d0*ag*ag)**l
          gpotb(ilm) = sum(rwgt*v2(:,ilm,1)*cof0*fac*rofi(:)**l* gg(:) )
-         sgpotb = sgpotb + qmom(ilm)*gpotb(ilm)
+         sgpotb = sgpotb + qmom(ilm+j1-1)*gpotb(ilm)
       enddo
       ! --- Electrostatic integrals involving spherical terms only ---
       vesc1 = sum(rwgt(2:nr)*rhoct(2:nr)*(y0*v1(2:nr,1,1) - 2d0*z/rofi(2:nr)))
@@ -568,7 +570,7 @@ contains
       ves1int = 4d0*pi*(sum(rwgt*y0*v1(:,1,1)*rofi(:)**2) - z*rofi(nr)**2)
       ves2int = 4d0*pi*sum(rwgt*y0*v2(:,1,1)*rofi(:)**2)
       if(master_mpi)write(ifivesint,"(3f23.15,a)")ves1int-ves2int,ves1int,ves2int,' ! vesint1-vesint2 ves1int ves2int'
-      vnucl = 2d0*srfpi*vnucl + 2d0*z/rmt + y0*vval(1)
+      vnucl = 2d0*srfpi*vnucl + 2d0*z/rmt + y0*vval(j1)
       vesn1 = -z*vnucl
       vales1 = rvs1-vesc1 ! ... Valence density times electrostatic potential
       vales2 = rvs2-vesn2-vesc2

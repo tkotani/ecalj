@@ -1,12 +1,13 @@
 module m_gaugm !Generic routine to make augmentation matrices
   use m_lmfinit,only: n0
+  use m_lldata,only:ll
   public gaugm
   private
 contains
   subroutine gaugm(nr,nsp,lso,rofi,rwgt,lmxa,lmxl,nlml,vsm,gpotb,gpot0,hab,vab,sab,sodb,qum,vum,&
-       lmaxu,vumm,lldau,idu,lmux, &
-       nf1,nf1s,lmx1,lx1,nlx1,f1,x1,v1,d1, &
-       nf2,nf2s,lmx2,lx2,nlx2,f2,x2,v2,d2, &
+       lmaxu,vumm,lldau,idu,   lmux, &
+       nf1,nf1s,lmx1,lx1,nlx1, f1,x1,v1,d1, &
+       nf2,nf2s,lmx2,lx2,nlx2, f2,x2,v2,d2, &
        sig,tau,ppi,hsozz,hsopm) !OUTPUT: augmentation integrals. 
     use m_lmfinit,only: cg=>rv_a_ocg,jcg=>iv_a_ojcg,indxcg=>iv_a_oidxcg
     use m_lgunit,only: stdo
@@ -23,7 +24,7 @@ contains
          sig(nf1,nf2,0:lmux,nsp),tau(nf1,nf2,0:lmux,nsp),vum(0:lmxa,0:lmxa,nlml,3,3,nsp)
     double precision :: sodb(3,3,0:n0-1,nsp,2) !Spin-Orbit related
     integer :: ilm1,ilm2,ix,m1,m2
-    integer :: i1,i2,ilm,l,ll,nlm,nlm1,nlm2,i,iprint,ii,icg,lm,mlm,l1,l2,lm1,lm2
+    integer :: i1,i2,ilm,l,nlm,nlm1,nlm2,i,iprint,ii,icg,lm,mlm,l1,l2,lm1,lm2
     real(8),parameter:: pi= 4d0*datan(1d0),y0= 1d0/dsqrt(4d0*pi)
     real(8):: vsms(nr),ppi0(nf1,nf2,0:lmux), &
          qm(nf1,nf2,0:lmx1,0:lmx2,0:lmxl) , ssum(0:lmx1+1,0:lmx2+1,nlml)
@@ -32,156 +33,125 @@ contains
     complex(8):: hsozz(nf1,nf2,nlx1,nlx2,nsp),somatpm,somatzz
     complex(8):: hsopm(nf1,nf2,nlx1,nlx2,nsp) !offdiag parts for <isp|ispo> (see sodb(*,2))
     real(8)::   ppir(nf1,nf2,nlx1,nlx2,nsp),mmm
-    real(8):: vd1x(3),vd2x(3),sorad1,sorad2 !,ssum
+    real(8):: sorad1,sorad2 
+    real(8),target:: vd1xx(3,0:lmx1,nf1),vd2xx(3,0:lmx2,nf2)
+    real(8),pointer:: vd1x(:),vd2x(:)
     complex(8),parameter:: img=(0d0,1d0)
     if(lso/=0)  hsozz=0d0
     if(lso/=0)  hsopm=0d0
     ppir=0d0
     sig=0d0 
-    tau=0d0 
-    isploop: do i=1, nsp
+    tau=0d0
+    do i1=1,nf1
+       do l=0,lx1(i1)
+          vd1xx(:,l,i1)= merge([0d0,0d0,1d0],[v1(l,i1),d1(l,i1),0d0], i1> nf1s) !i1>nf1s means gz part, otherwise u s part.
+       enddo
+    enddo
+    do i2=1,nf2
+       do l=0,lx2(i2)
+          vd2xx(:,l,i2)= merge([0d0,0d0,1d0],[v2(l,i2),d2(l,i2),0d0], i2> nf2s)
+       enddo
+    enddo
+    isploop: do concurrent (i=1:nsp)
        vsms=y0*vsm(1:nr,1,i)!Spherical part of the smooth potential
        ppi0=0d0
        qm=0d0
-       i1loop: do i1 = 1, nf1 ! --- Make sig, tau, ppi0 = spherical part of ppi ---
-          i2loop: do i2 = 1, nf2
-             do  l = 0, min0(lx1(i1),lx2(i2))
-                if(i1> nf1s) vd1x= [0d0,0d0,1d0]
-                if(i1<=nf1s) vd1x= [v1(l,i1),d1(l,i1),0d0]
-                if(i2> nf2s) vd2x= [0d0,0d0,1d0]
-                if(i2<=nf2s) vd2x= [v2(l,i2),d2(l,i2),0d0]
-                sig(i1,i2,l,i)= -sum(rwgt*f1(:,l,i1)*f2(:,l,i2))&
-                     + sum(vd1x*matmul(sab(:,:,l,i),vd2x))
-                tau(i1,i2,l,i)= -sum(rwgt*x1(:,l,i1)*x2(:,l,i2)) &
-                     - l*(l+1)*sum([(rwgt(ii)*f1(ii,l,i1)*f2(ii,l,i2)/rofi(ii)**2,ii=2,nr)]) &
-                     + f1(nr,l,i1) * x2(nr,l,i2) &
-                     + sum(vd1x*matmul(hab(:,:,l,i)-vab(:,:,l,i),vd2x))
-                ppi0(i1,i2,l)= -sum(rwgt*f1(:,l,i1)*f2(:,l,i2)*vsms)&
-                     + sum(vd1x*matmul(vab(:,:,l,i),vd2x))
+       i1loop: do concurrent(i1 = 1:nf1, i2 = 1:nf2) ! --- Make sig, tau, ppi0 = spherical part of ppi ---
+          do l = 0, min0(lx1(i1),lx2(i2))
+             vd1x=>vd1xx(:,l,i1) 
+             vd2x=>vd2xx(:,l,i2) 
+             sig(i1,i2,l,i)= -sum(rwgt*f1(:,l,i1)*f2(:,l,i2)) + sum(vd1x*matmul(sab(:,:,l,i),vd2x))
+             tau(i1,i2,l,i)= -sum(rwgt*x1(:,l,i1)*x2(:,l,i2)) &
+                  - l*(l+1)*sum([(rwgt(ii)*f1(ii,l,i1)*f2(ii,l,i2)/rofi(ii)**2,ii=2,nr)]) &
+                  + f1(nr,l,i1) * x2(nr,l,i2) + sum(vd1x*matmul(hab(:,:,l,i)-vab(:,:,l,i),vd2x))
+             ppi0(i1,i2,l)= -sum(rwgt*f1(:,l,i1)*f2(:,l,i2)*vsms) + sum(vd1x*matmul(vab(:,:,l,i),vd2x))
+          enddo
+          !non-Spherical part ppir
+          nlm1 = (lx1(i1)+1)**2 
+          nlm2 = (lx2(i2)+1)**2
+          ssum(0:lx1(i1),0:lx2(i2),1:nlml) = 2d10 ! 2d10 is signal to show integral not yet calculated
+          do concurrent(ilm1 = 1:nlm1, ilm2 = 1: nlm2)
+             l1 = ll(ilm1)
+             l2 = ll(ilm2)
+             vd1x=>vd1xx(:,l1,i1)
+             vd2x=>vd2xx(:,l2,i2)
+             ix = max0(ilm1,ilm2)
+             ix = (ix*(ix-1))/2 + min0(ilm1,ilm2)
+             do  icg = indxcg(ix),indxcg(ix+1)-1
+                mlm = jcg(icg)
+                if (1< mlm .AND. mlm <= nlml) then !<(u,s,g) | V | (u,s,g)>
+                   if (ssum(l1,l2,mlm) > 1d10) ssum(l1,l2,mlm)= sum(rwgt*vsm(:,mlm,i)*f1(:,l1,i1)*f2(:,l2,i2))
+                   ppir(i1,i2,ilm1,ilm2,i) = ppir(i1,i2,ilm1,ilm2,i) + cg(icg)*sum(vd1x*matmul(vum(l1,l2,mlm,:,:,i),vd2x)) &
+                        - cg(icg)*ssum(l1,l2,mlm) 
+                endif
              enddo
-             !non-Spherical part ppir
-             nlm1 = (lx1(i1)+1)**2 
-             nlm2 = (lx2(i2)+1)**2
-             ssum(0:lx1(i1),0:lx2(i2),1:nlml) = 2d10 ! --- integral not yet calculated
-             do  ilm1 = 1, nlm1
-                l1 = ll(ilm1)
-                do  ilm2 = 1, nlm2
-                   l2 = ll(ilm2)
-                   if(i1> nf1s) vd1x= [0d0,0d0,1d0]
-                   if(i1<=nf1s) vd1x= [v1(l1,i1),d1(l1,i1),0d0]
-                   if(i2> nf2s) vd2x= [0d0,0d0,1d0]
-                   if(i2<=nf2s) vd2x= [v2(l2,i2),d2(l2,i2),0d0]
-                   ix = max0(ilm1,ilm2)
-                   ix = (ix*(ix-1))/2 + min0(ilm1,ilm2)
-                   do  icg = indxcg(ix),indxcg(ix+1)-1
-                      mlm = jcg(icg)
-                      if (1< mlm .AND. mlm <= nlml) then !<(u,s,g) | V | (u,s,g)>
-                         if (ssum(l1,l2,mlm) > 1d10) &
-                              ssum(l1,l2,mlm)= sum(rwgt*vsm(:,mlm,i)*f1(:,l1,i1)*f2(:,l2,i2))
-                         ppir(i1,i2,ilm1,ilm2,i) = ppir(i1,i2,ilm1,ilm2,i) &
-                              + cg(icg)*sum(vd1x*matmul(vum(l1,l2,mlm,:,:,i),vd2x)) &
-                              - cg(icg)*ssum(l1,l2,mlm) 
-                      endif
-                   enddo
-                enddo
-             enddo
-             !Multiple mom. Qm = integrals (f1~*f2~ - f1*f2) r**l
-             do  l1 = 0, lx1(i1)
-                do  l2 = 0, lx2(i2)
-                   do  lm = 0, lmxl
-                      if(i1> nf1s) vd1x= [0d0,0d0,1d0]
-                      if(i1<=nf1s) vd1x= [v1(l1,i1),d1(l1,i1),0d0]
-                      if(i2> nf2s) vd2x= [0d0,0d0,1d0]
-                      if(i2<=nf2s) vd2x= [v2(l2,i2),d2(l2,i2),0d0]
-                      qm(i1,i2,l1,l2,lm) = sum(vd1x*matmul(qum(l1,l2,lm,:,:,i),vd2x))&
-                           -sum([(rwgt(i)*f1(i,l1,i1)*f2(i,l2,i2)*rofi(i)**lm,i=2,nr)])
-                   enddo
-                enddo
-             enddo
-             !Add ppi0 and multipole part qm to ppir
-             nlm1 = (lx1(i1)+1)**2
-             nlm2 = (lx2(i2)+1)**2
-             do  ilm1 = 1, nlm1
-                l1 = ll(ilm1)
-                if (ilm1 <= nlm2) ppir(i1,i2,ilm1,ilm1,i) = ppir(i1,i2,ilm1,ilm1,i) + ppi0(i1,i2,l1)
-                do  ilm2 = 1, nlm2
-                   l2 = ll(ilm2)
-                   ix = max0(ilm1,ilm2)
-                   ix = (ix*(ix-1))/2 + min0(ilm1,ilm2)
-                   do  icg = indxcg(ix),indxcg(ix+1)-1
-                      mlm = jcg(icg)
-                      if (mlm <= nlml) then
-                         lm = ll(mlm)
-                         ppir(i1,i2,ilm1,ilm2,i) = ppir(i1,i2,ilm1,ilm2,i) + &
-                              cg(icg)*qm(i1,i2,l1,l2,lm)*(gpot0(mlm)-gpotb(mlm))
-                      endif
-                   enddo
-                enddo
-             enddo
-             do  ilm = 1, min0((lx1(i1)+1)**2,(lx2(i2)+1)**2) ! Add tau into ppi 
-                ppir(i1,i2,ilm,ilm,i) = ppir(i1,i2,ilm,ilm,i) + tau(i1,i2,ll(ilm),i)
-             enddo
-          enddo i2loop
-       enddo i1loop
-    enddo isploop
-    if(lso/=0) then !So matrix hsozz and hsopm
-       do i = 1, nsp
-          do  i1 = 1, nf1
-             do  i2 = 1, nf2
-                do  l = 0, min0(lx1(i1),lx2(i2))
-                   if(i1> nf1s) vd1x= [0d0,0d0,1d0]
-                   if(i1<=nf1s) vd1x= [v1(l,i1),d1(l,i1),0d0]
-                   if(i2> nf2s) vd2x= [0d0,0d0,1d0]
-                   if(i2<=nf2s) vd2x= [v2(l,i2),d2(l,i2),0d0]
-                   sorad1 = sum(vd1x*matmul(sodb(:,:,l,i,1),vd2x))             !diag
-                   if(lso==1) sorad2 = sum(vd1x*matmul(sodb(:,:,l,i,2),vd2x))  !off-diag sondb
-                   m1loop: do  m1 = -l, l     
-                      lm1 = l**2 + l+1+ m1     
-                      m2loop: do  m2 = -l, l
-                         lm2 = l**2 + l+1 + m2 
-                         if( m1+m2==0.AND.m2/=0.and.lm1/=lm2) then ! ... LzSz part
-                            if (lm1 < lm2 .AND. m1 == -m2) somatzz =  abs(m1)*img 
-                            if (lm1 > lm2 .AND. m1 == -m2) somatzz = -abs(m1)*img
-                            hsozz(i1,i2,lm1,lm2,i) = somatzz * sorad1
-                         endif
-                         if (lso == 1) then ! LxSx+LySy part
-                            call mksomat(l,m1,m2,i,somatpm) ! LxSx+LySy lm part
-                            hsopm(i1,i2,lm1,lm2,i)= somatpm* sorad2
-                         endif
-                      enddo m2loop
-                   enddo m1loop
+          enddo
+          !Multiple mom. Qm = integrals (f1~*f2~ - f1*f2) r**l
+          do  l1 = 0, lx1(i1)
+             do  l2 = 0, lx2(i2)
+                do  lm = 0, lmxl
+                   vd1x=>vd1xx(:,l1,i1)
+                   vd2x=>vd2xx(:,l2,i2)
+                   qm(i1,i2,l1,l2,lm) = sum(vd1x*matmul(qum(l1,l2,lm,:,:,i),vd2x))&
+                        -sum([(rwgt(i)*f1(i,l1,i1)*f2(i,l2,i2)*rofi(i)**lm,i=2,nr)])
                 enddo
              enddo
           enddo
+          !Add ppi0 and multipole part qm to ppir
+          nlm1 = (lx1(i1)+1)**2
+          nlm2 = (lx2(i2)+1)**2
+          do  ilm1 = 1, nlm1
+             l1 = ll(ilm1)
+             if (ilm1 <= nlm2) ppir(i1,i2,ilm1,ilm1,i) = ppir(i1,i2,ilm1,ilm1,i) + ppi0(i1,i2,l1)
+             do  ilm2 = 1, nlm2
+                l2 = ll(ilm2)
+                ix = max0(ilm1,ilm2)
+                ix = (ix*(ix-1))/2 + min0(ilm1,ilm2)
+                do  icg = indxcg(ix),indxcg(ix+1)-1
+                   mlm = jcg(icg)
+                   if (mlm <= nlml) then
+                      lm = ll(mlm)
+                      ppir(i1,i2,ilm1,ilm2,i) = ppir(i1,i2,ilm1,ilm2,i) + cg(icg)*qm(i1,i2,l1,l2,lm)*(gpot0(mlm)-gpotb(mlm))
+                   endif
+                enddo
+             enddo
+          enddo
+          do  ilm = 1, min0((lx1(i1)+1)**2,(lx2(i2)+1)**2) ! Add tau into ppi 
+             ppir(i1,i2,ilm,ilm,i) = ppir(i1,i2,ilm,ilm,i) + tau(i1,i2,ll(ilm),i)
+          enddo
+       enddo i1loop
+    enddo isploop
+    if(lso/=0) then !So matrix hsozz and hsopm
+       do concurrent(i=1:nsp,i1 = 1:nf1, i2 = 1:nf2)
+          do  l = 0, min0(lx1(i1),lx2(i2))
+             vd1x=>vd1xx(:,l,i1)
+             vd2x=>vd2xx(:,l,i2)
+             sorad1 = sum(vd1x*matmul(sodb(:,:,l,i,1),vd2x))             !diag radial part
+             if(lso==1) sorad2 = sum(vd1x*matmul(sodb(:,:,l,i,2),vd2x))  !off-diag sondb
+             m1loop: do  m1 = -l, l     
+                lm1 = l**2 + l+1+ m1     
+                m2loop: do  m2 = -l, l
+                   lm2 = l**2 + l+1 + m2 
+                   if(m1+m2==0.AND.m2/=0.and.lm1/=lm2) hsozz(i1,i2,lm1,lm2,i)= abs(m1)*img*merge(1d0,-1d0,lm1<lm2) *sorad1 !LzSz
+                   if(lso==1)                          hsopm(i1,i2,lm1,lm2,i)= socxy(l,m1,m2,i) *sorad2 ! LxSx+LySy lm part
+                enddo m2loop
+             enddo m1loop
+          enddo
        enddo
     endif
-    if(lldau/=0) then ! LDA+U contribution.
-!       write(6,*) 'sumcheck',sum(vumm),sum(abs(vumm))
+    if(lldau/=0) then ! LDA+U contribution. !       write(6,*) 'sumcheck',sum(vumm),sum(abs(vumm))
        allocate(ppiz(nf1,nf2,nlx1,nlx2,nsp))
        ppiz=0d0
-       do i=1,nsp
-          do  i1 = 1, nf1
-             do  i2 = 1, nf2 
-                ilm1 = 0
-                do  l1 = 0, min(lx1(i1),lmaxu)
-                   do  m1 = -l1, l1
-                      ilm1 = ilm1+1
-                      ilm2 = 0
-                      do  l2 = 0, min(lx2(i2),lmaxu)
-                         do  m2 = -l2, l2
-                            ilm2 = ilm2+1
-                            if (idu(l1+1) /= 0 .AND. l1 == l2) then
-                               if(i1> nf1s) vd1x= [0d0,0d0,1d0]
-                               if(i1<=nf1s) vd1x= [v1(l1,i1),d1(l1,i1),0d0]
-                               if(i2> nf2s) vd2x= [0d0,0d0,1d0]
-                               if(i2<=nf2s) vd2x= [v2(l2,i2),d2(l2,i2),0d0]
-                               ppiz(i1,i2,ilm1,ilm2,i) = ppiz(i1,i2,ilm1,ilm2,i) &
-                                    +sum(vd1x* matmul(vumm(m1,m2,:,:,i,l1),vd2x))
-                            endif
-                         enddo
-                      enddo
-                   enddo
-                enddo
+       do concurrent(i=1:nsp, i1=1:nf1, i2 = 1:nf2 )
+          do concurrent(l1 = 0:min(lx1(i1),lmaxu),l2 = 0:min(lx2(i2),lmaxu))
+             do concurrent( m1 = -l1:l1, m2 = -l2:l2)
+                ilm1 = l1**2 + l1+1+ m1  
+                ilm2 = l2**2 + l2+1+ m2  
+                if(idu(l1+1) /= 0 .AND. l1 == l2) then
+                   vd1x=>vd1xx(:,l1,i1)
+                   vd2x=>vd2xx(:,l2,i2)
+                   ppiz(i1,i2,ilm1,ilm2,i) = ppiz(i1,i2,ilm1,ilm2,i) +sum(vd1x* matmul(vumm(m1,m2,:,:,i,l1),vd2x))
+                endif
              enddo
           enddo
        enddo
@@ -191,11 +161,13 @@ contains
        ppi = ppir
     endif
   end subroutine gaugm
-  subroutine mksomat(l,m1,m2,isp,somatpm) ! L-(for isp=1),L+(for isp=2) matrix
+  pure function socxy(l,m1,m2,isp) result(somatpm) ! L-(for isp=1),L+(for isp=2) matrix 
     ! <lm1|L-|lm2> and <lm1|L+|lm2> !extracted from A.Chantis's original. Probably simplified more.
+    intent(in) ::        l,m1,m2,isp
     integer:: l,m1,m2,isp
     real(8):: a1,a2
-    complex(8):: somatpm,img=(0d0,1d0)
+    complex(8):: somatpm
+    complex(8),parameter:: img=(0d0,1d0)
     somatpm=0d0
     a1 = dsqrt(dble((l-abs(m2))*(l+abs(m2)+1)))
     a2 = dsqrt(dble((l+abs(m2))*(l-abs(m2)+1)))
@@ -242,8 +214,8 @@ contains
        elseif (abs(m2) == 0) then!             Case m=0
           if (m1 == 1)  somatpm =       a1*dsqrt(0.5d0)
           if (m1 == -1) somatpm =    -img*a1*dsqrt(0.5d0)
-       else
-          call rx('mksomat this can not occur 111')
+!       else
+!          call rx('mksomat this can not occur 111')
        endif
     else! <l,m1|L+|l,m2> for spin (2,1) block
        if (abs(m2) > 1 .AND. (abs(m2)+1) <= l) then!               Case A
@@ -288,11 +260,11 @@ contains
        elseif (abs(m2) == 0) then !               Case m=0
           if (m1 == 1) somatpm =  -a1*dsqrt(0.5d0)
           if (m1 == -1) somatpm=  -img*a1*dsqrt(0.5d0)
-       else
-          call rx('mksomat this can not occur 222')
+!       else
+!          call rx('mksomat this can not occur 222')
        endif
     end if
-  end subroutine mksomat
+  endfunction socxy
 end module m_gaugm
 
     ! ----------------------------------------------------------------------
