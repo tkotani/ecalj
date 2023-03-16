@@ -93,11 +93,11 @@ subroutine fexit0(retval,strng)! retval:  return value passed to operating syste
   endif
   if(procid==master) call tcprt(stdo)
   if(retval/=0) then
+     call MPI_Abort(MPI_COMM_WORLD, 911)
      write(stdo,"(a,i0,a,i0,a,3d15.8)")"ERROR Exit ",retval,' procid= ',procid,' '//trim(strng)
   else
      if(procid==master) write(stdo,"(a,i0,a,3d15.8)") 'Exit 0 procid= ',procid,' '//trim(strng)
   endif
-  call MPI_Abort(MPI_COMM_WORLD, 911)
   call MPI_FINALIZE(ierr)
   call exit(retval)
 end subroutine fexit0
