@@ -275,23 +275,25 @@ contains
                  v2=v2es 
               endif
               lsox= merge(1, lso, .NOT. novxc .AND. cmdopt0('--socmatrix') )
-              !          if(idipole/=0) then
-              !             call adddipole(v1,rofi,nr,nlml,nsp,idipole,ssite(ib)%pos(idipole)*alat)
+              !          if(idipole/=0) call adddipole(v1,rofi,nr,nlml,nsp,idipole,ssite(ib)%pos(idipole)*alat)
               !             call adddipole(v2,rofi,nr,nlml,nsp,idipole,ssite(ib)%pos(idipole)*alat)
-              !          endif
               if (ipr >= 20) write(stdo,"('     potential shift to crystal energy zero:',f12.6)") y0*(gpot0(j1)-gpotb(1))
-              call augmat(ib,z,rmt,rsma(is),lmxa,pnu,pnz,kmax,nlml, a,nr,nsp,lsox,rwgt,& 
-                 v0pot(ib)%v,v1,v2,gpotb,gpot0(j1),nkaph,nkapi,&
-                 lmxb,lhh(:,is),eh,rsmh, ehl,rsml,rs3,vmtz, lmaxu, vorb, lldau(ib), idu, &
+              augmatblock: block
+                real(8):: rsmaa
+              rsmaa=rsma(is)
+              call augmat(ib,z,rmt,rsmaa,lmxa,pnu,pnz,kmax,nlml, a,nr,nsp,lsox,rwgt,& 
+                 reshape(v0pot(ib)%v,[nr,nsp]),v1,v2,gpotb,gpot0(j1),nkaph,nkapi,&
+                 lmxb,eh,rsmh, ehl,rsml,rs3,vmtz, lmaxu, vorb, idu, &
                  iblu, &
-                 osig(1,ib), otau(1,ib), oppi(1,ib), ohsozz(1,ib), ohsopm(1,ib), &
-                 phzdphz(1,1,1,ib), hab(1,1,1,1,ib),vab (1,1,1,1,ib), sab(1,1,1,1,ib),rotp(0,1,1,1,ib) )
+                 osig, otau, oppi, ohsozz, ohsopm, &
+                 phzdphz, hab,vab,sab,rotp )
               ! call augmat(ib,lsox,rofi,rwgt,& 
               !      reshape(v0pot(ib)%v,[nr,nsp]),v1,v2,gpotb,gpot0(j1:j1+nlml-1),nkaph,nkapi,&
               !      lmxb,lhh(:,is),eh,rsmh, ehl,rsml,rs3,vmtz, lmaxu, vorb, lldau(ib), idu, &
               !      iblu, &
               !      osig(1,ib), otau(1,ib), oppi(1,ib), ohsozz(1,ib), ohsopm(1,ib), &
               !      phzdphz(1,1,1,ib), hab(1,1,1,1,ib),vab (1,1,1,1,ib), sab(1,1,1,1,ib),rotp(0:,1:,1:,1:,ib) )
+            endblock augmatblock
            endif
          endblock locpt2augmat
       enddo ibloop

@@ -36,8 +36,8 @@ module m_lmfinit ! All ititial data (except rst/atm data via iors/rdovfa) !TK ex
   character(8),protected:: alabl
   character*8,allocatable,protected:: slabl(:)
   logical,allocatable,protected:: cstrmx(:),frzwfa(:)
-  integer,allocatable,protected:: lmxb(:),lmxa(:),idmod(:,:),idu(:,:),kmxt(:),lfoca(:),lmxl(:),nr(:),nmcore(:),nkapii(:),nkaphh(:),&
-       ispec(:),ifrlx(:,:),ndelta(:), iantiferro(:), iv_a_oips (:),  lpz(:),lpzex(:),lhh(:,:)
+  integer,allocatable,protected:: lmxb(:),lmxa(:),idmod(:,:),idu(:,:),kmxt(:),lfoca(:),lmxl(:),nr(:),nmcore(:),&
+       nkapii(:),nkaphh(:),ispec(:),ifrlx(:,:),ndelta(:), iantiferro(:), iv_a_oips (:),  lpz(:),lpzex(:),lhh(:,:)
   real(8),allocatable,protected:: rsmh1(:,:),rsmh2(:,:),eh1(:,:),eh2(:,:),rs3(:),alpha(:,:),uh(:,:),jh(:,:),eh3(:),&
        qpol(:,:),stni(:),pnusp(:,:,:),qnu(:,:,:),pnuspdefault(:,:),qnudefault(:,:),qnudummy(:,:),&
        coreq(:,:),rg(:),rsma(:),rfoca(:), rmt(:),pzsp(:,:,:), amom(:,:),spec_a(:),z(:),eref(:)
