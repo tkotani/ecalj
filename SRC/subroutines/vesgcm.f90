@@ -1,4 +1,5 @@
 module m_vesgcm
+  use m_ll,only:ll
   private
   public vesgcm
   contains
@@ -63,7 +64,7 @@ subroutine vesgcm(qmom,ng,gv,kv,cv,cg1,cgsum,smpot,f,gpot0,hpot0,qsmc,zsum,vrmt)
   double precision :: qsmc,zsum
   real(8):: qmom(*) , gv(ng,3), f(3,nbas) , gpot0(*) , hpot0(nbas) , vrmt(nbas)
   double complex smpot(k1,k2,k3),cv(ng),cg1(ng),cgsum(ng)
-  integer :: k0,nlmx,i,ib,ilm,iprint,is,iv0,kb,kmax,l,ll, lmxl,m,nlm,lfoc
+  integer :: k0,nlmx,i,ib,ilm,iprint,is,iv0,kb,kmax,l, lmxl,m,nlm,lfoc
   parameter (k0=3, nlmx=64)
   double precision :: alat,ceh,cofg,cofh,g2,pi,qc,qcorg,qcorh,qsc,rfoc, &
        rg,sum1,sum2,sum3,tpiba,vol,xx,y0,z

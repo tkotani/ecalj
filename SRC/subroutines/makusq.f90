@@ -1,4 +1,5 @@
 module m_makusq !Accumulate coefficients (u,s,z) in all augmentation spheres for evec(:,iq,isp)
+  use m_ll,only:ll
   public makusq
   private
   contains
@@ -43,7 +44,7 @@ subroutine makusq(nsites,isite,nev,isp,iq,q,evec, auszall)!Accumulate coefficien
        call fradhd(nkapi,eh,rsmh,lhh(:,is),lmxh,nr,rofi_rv,fh_rv,xh_rv, vh,dh) !head part
        call fradpk(kmax,rsma(is),lmxa,nr,rofi_rv,fp_rv,xp_rv, vp,dp)           !tail part
        puqs11:block
-         integer:: ivec,ksp,ispc, io1,l1,ik1,nlm11,nlm12,ilm1,i1,ilma,k,l,ll
+         integer:: ivec,ksp,ispc, io1,l1,ik1,nlm11,nlm12,ilm1,i1,ilma,k,l
          complex(8) ::cPkl(0:kmax,nlma)
          complex(8),pointer:: ausz(:,:,:,:)
          logical:: s12

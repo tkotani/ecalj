@@ -1,4 +1,5 @@
 module m_vxcatom !Vxc LDA for sites (spherical expansion)
+  use m_ll,only: ll
   use m_fpiint,only: fpiint
   public vxcnsp,vxc0sp 
   private
@@ -73,7 +74,7 @@ subroutine vxcnsp(isw,a,ri,nr,rwgt,nlm,nsp,rl,lxcfun, reps,repsx,repsc,rmu,vl,fl
   integer :: nnn,nlmx
   parameter(nnn=122,nlmx=64)
 !  logical :: lpert
-  integer :: ipr,ll,lmax,np,nph,nth,nxl(0:7),lxcf,lxcg
+  integer :: ipr,lmax,np,nph,nth,nxl(0:7),lxcf,lxcg
   double precision :: p(3,nnn),wp(nnn),p2(nnn,3),r2(nnn),fpi
   real(8), allocatable :: yl(:),rp(:,:,:),gyl(:,:),grp(:,:),agrp(:), &
        ggrp(:),agrl(:),vxcnl(:),excnl(:)
@@ -526,6 +527,7 @@ subroutine vxcns4(isw,ri,nr,rwgt,np,wp,nsp,rp,exc,excx,excc,vxc, &
 727 format(' vxcnsp (warning): negative rho: min val = ',1pe10.2)
 end subroutine vxcns4
 subroutine vxcns5(isw,ipr,strn,nlml,nsp,nr,ri,rwgt,rl,vl,suml,ssum)
+  use m_ll,only:ll
   use m_lgunit,only:stdo
   !- Integrals of rl*vl resolved by l
   ! ----------------------------------------------------------------------
@@ -549,7 +551,7 @@ subroutine vxcns5(isw,ipr,strn,nlml,nsp,nr,ri,rwgt,rl,vl,suml,ssum)
   character strn*(*)
   integer :: isw,ipr,nlml,nsp,nr
   double precision :: ri(nr),rwgt(nr),rl(nr,nlml,nsp),vl(nr,nlml,nsp), suml(0:20,nsp),ssum(nsp)
-  integer :: ir,lmax,ilm,isp,l,ll
+  integer :: ir,lmax,ilm,isp,l
   lmax = ll(nlml)
   do   isp = 1, nsp
      call dpzero(suml(0,isp),lmax+1)
@@ -577,6 +579,7 @@ subroutine vxcns5(isw,ipr,strn,nlml,nsp,nr,ri,rwgt,rl,vl,suml,ssum)
   enddo
 end subroutine vxcns5
 subroutine vxcnls(a,ri,nr,np,nlm,nsp, yl,gyl,rwgt,wp,rl,lxcg, vl,rep,rmu) 
+  use m_ll,only:ll
   use m_xcpbe,  only: xcpbe
   !!= Gradient correction to nspher. density on a radial and angular mesh =
   !!*NOTE: seeing tol=1d-10 is changed on Dec1st 2010. But this is empirically determined for Co atom.
@@ -625,7 +628,7 @@ subroutine vxcnls(a,ri,nr,np,nlm,nsp, yl,gyl,rwgt,wp,rl,lxcg, vl,rep,rmu)
 
   double precision :: pi,vhold,sumnl(0:20),repnl(4),rmunl(4),weight,weightirr
   double precision :: wk(nr,nsp),wk2(nr,nsp)
-  integer :: ilm,ip,ipr,ir,i,l,ll,lmax,nn,oagrp,ogagrp,lopgfl, &
+  integer :: ilm,ip,ipr,ir,i,l,lmax,nn,oagrp,ogagrp,lopgfl, &
        ovxcp,oexcp,owk,owkl,lmx,jx
   integer :: ir0,ir1,nri,incn
 3584 logical lz
@@ -1299,6 +1302,7 @@ subroutine xxcnls2(lxcg,lmax,ir0,ir1,nr,np,nlm,nsp,nn,ri,yl,gyl,ylwp &
      ,wp,rp,ggrp,grp,agrl,rl,rwgt,& !lcut, &! & fixed bug (remove wkl) 11July2010.takao
      vxcnl,excnl,sumnl)
   !     implicit none
+  use m_ll,only:ll
   use m_xclda,only: vxnloc
 !  use m_vxcfunc,only: vxcgga
   integer :: ir0,ir1,nr,np,nlm,nsp,nn,lmax,lcut,lxcg
@@ -1309,7 +1313,7 @@ subroutine xxcnls2(lxcg,lmax,ir0,ir1,nr,np,nlm,nsp,nn,ri,yl,gyl,ylwp &
        yl(np,4),ylwp(np,nlm),gyl(np,nlm,3),wkl(ir0:ir1,nlm,nsp), &
        vxcp(ir0:ir1,np,nsp),excp(ir0:ir1,np),rl(nr,nlm,nsp),rwgt(nr), &
        sumnl(0:20)
-  integer :: ll,ir,ip,i,nri,ilm,l,iprint,mlm,lopgfl
+  integer :: ir,ip,i,nri,ilm,l,iprint,mlm,lopgfl
   logical :: debug=.false.
   !      real(8),allocatable:: wkl(:,:,:)
   !      allocate(wkl(ir0:ir1,nlm,nsp))

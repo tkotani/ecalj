@@ -1,4 +1,5 @@
 module m_pwmat
+  use m_ll,only:ll
   public pwmat,mkppovl2
   private
   contains
@@ -58,7 +59,7 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,inn,ppovl,pwhovl)
   !u   09 Apr 01 Adapted from Kotani's pplmat2
   ! ----------------------------------------------------------------------
   integer:: ngp,nlmax,igv(3,ngp),nbas,ndimh, napw,igapw(3,napw),&
-       ips(nbas),ib,is,igetss,ngmx,ig,lmxax,ll,iwk(3),nlmto,iga, ifindiv2,&
+       ips(nbas),ib,is,igetss,ngmx,ig,lmxax,iwk(3),nlmto,iga, ifindiv2,&
        inn(3),matmul_pwhovl,&
        lh(nkap0),nkapi,io,l,ik,offh,ilm,blks(n0*nkap0),ntab(n0*nkap0),oi,ol,igx
   real(8):: q(3),GcutH,tpiba,xx,tripl,dgetss,bas(3,nbas),rmax(nbas),qpg(3),qpg2(1),denom,gam,srvol,&

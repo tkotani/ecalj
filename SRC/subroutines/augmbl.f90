@@ -1,5 +1,6 @@
 module m_augmbl !Add augmentation part to H and S. aughsoc add SO part to H.
-                !Inputs are Site integrals, sig,tau,pi,hso See JPSJ.kotani
+  !Inputs are Site integrals, sig,tau,pi,hso See JPSJ.kotani
+  use m_ll,only:ll
   public augmbl,aughsoc
   private
 contains
@@ -55,7 +56,6 @@ contains
        if (lmxa == -1) cycle
        call bstrux_set(ibas,q) !Get structure constant bstr for given ibas and q for expanding orbitals at site ia.(Bloch sum of C^i_akL (C.1) in Ref.[1])
        addaug: block
-         integer,external:: ll
          integer:: i1,i2,ilm,l1,ik1,l2,ik2,ilm1,ilm2,j,iorb,jorb
          complex(8):: b(0:kmax,nlma,ndimh),g(0:kmax,nlma)
          !complex(8)::sig(0:kmax,0:kmax,0:lmxa,nsp),ppi(0:kmax,0:kmax,nlma,nlma,nsp), ppihh(nkaph,nkaph,nlmb,nlmb,nsp), ppihp(nkaph,0:kmax,nlmb,nlma,nsp)

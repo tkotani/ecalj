@@ -28,7 +28,7 @@ subroutine vcoulq_4(q,nbloch,ngc,nbas,lx,lxx,nx,nxx,alat,qlat,vol,ngvecc, &
   !         |P(q+G)_aL> : the projection of exp(i (q+G) r) to aL channnel.
   !         |j_aL>      : \def r^l/(2l+1)!! Y_L.  The spherical bessel functions near r=0.  Energy-dependence is omitted.
 
-  use m_lldata,only: ll
+  use m_ll,only: ll
   implicit none
   integer(4) :: nbloch, nblochpmx, nbas, &
        lxx,lx(nbas), nxx, nx(0:lxx,nbas)
@@ -428,7 +428,7 @@ subroutine mkjp_4(q,ngc,ngvecc,alat,qlat,lxx,lx,nxx,nx,bas,a,b,rmax,nr,nrx,rprod
   !r 1/|r-r'| = \sum 4 pi /(2k+1) \frac{r_<^k }{ r_>^{k+1} } Y_L(r) Y_L(r')
   !r See PRB34 5512(1986) for sigma type integral
   !r
-  use m_lldata,only: ll
+  use m_ll,only: ll
   implicit none
   integer(4) :: ngc,ngvecc(3,ngc), lxx, lx, nxx,nx(0:lxx),nr,nrx
   real(8)    :: q(3),bas(3), rprodx(nrx,nxx,0:lxx),a,b,rmax,alat, qlat(3,3)

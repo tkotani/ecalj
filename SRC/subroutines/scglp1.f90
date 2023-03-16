@@ -1,5 +1,5 @@
-subroutine scglp1(mlm,kz,cz,kx1,kx2,cx1,cx2,ky1,ky2,cy1,cy2)
-  !- Makes Clebsch-Gordan coefficients coupling to l+1 for one mlm. See ropylg and m_smhankel
+subroutine scglp1(mlm,kz,cz,kx1,kx2,cx1,cx2,ky1,ky2,cy1,cy2)  !- Makes Clebsch-Gordan coefficients coupling to l+1 for one mlm. See ropylg and m_smhankel
+  use m_ll,only:ll
   ! ----------------------------------------------------------------------
   !i Inputs
   !i   mlm
@@ -20,12 +20,12 @@ subroutine scglp1(mlm,kz,cz,kx1,kx2,cx1,cx2,ky1,ky2,cy1,cy2)
   !u Updates
   !u   1 May 00 Adapted from nfp scglp1.f
   ! ----------------------------------------------------------------------
-  !     implicit none
+  implicit none
   ! ... Passed parameters
   integer :: mlm,kz,kx1,kx2,ky1,ky2
   double precision :: cz,cx1,cx2,cy1,cy2
   ! ... Local parameters
-  integer :: l,ll,lav,m,mm,isg,kav,ma,mb
+  integer :: l,lav,m,mm,isg,kav,ma,mb
   double precision :: bot,top,tap,cofa,cofb
   l = ll(mlm)
   lav = l*l+l+1

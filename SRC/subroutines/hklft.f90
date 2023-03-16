@@ -1,4 +1,5 @@
 subroutine hklft(v,rsm,e,tau,alat,kmax,nlm,k0,cy,hkl)! Returns one Fourier component of sm. Hankels centered at tau.
+  use m_ll,only:ll
   !i Inputs
   !i   v     :reciprocal vector for which FT calc., units of 2*pi/alat
   !i   rsm   :smoothing radius
@@ -15,7 +16,7 @@ subroutine hklft(v,rsm,e,tau,alat,kmax,nlm,k0,cy,hkl)! Returns one Fourier compo
   !u Updates
   !u   23 Apr 00 Adapted from nfp hkl_ft.f
   implicit none
-  integer:: k0,kmax,nlm,ilm,k,l,ll,lmax,m
+  integer:: k0,kmax,nlm,ilm,k,l,lmax,m
   real(8):: alat,e,rsm,v(3),cy(1),tau(3),aa,fac,gam,v2,yl(nlm),vv(3)
   complex(8):: img=(0d0,1d0),hkl(0:k0,nlm)
   real(8),parameter:: pi = 4d0*datan(1d0)
@@ -29,6 +30,7 @@ subroutine hklft(v,rsm,e,tau,alat,kmax,nlm,k0,cy,hkl)! Returns one Fourier compo
   enddo
 end subroutine hklft
 subroutine gklft(v,rsm,e,tau,alat,kmax,nlm,k0,cy,gkl)! Returns one Fourier component of gaussians Gkl centered at tau.
+  use m_ll,only:ll
   !i Inputs
   !i   v     :reciprocal vector for which FT calc., units of 2*pi/alat
   !i   rsm   :smoothing radius
@@ -46,7 +48,7 @@ subroutine gklft(v,rsm,e,tau,alat,kmax,nlm,k0,cy,gkl)! Returns one Fourier compo
   !u   23 Apr 00 Adapted from nfp gkl_ft.f
   ! ----------------------------------------------------------------------
   implicit none
-  integer:: k0,nlm, ilm,k,l,ll,lmax,m,kmax
+  integer:: k0,nlm, ilm,k,l,lmax,m,kmax
   real(8):: alat,e,rsm,v(3),cy(1),tau(3), aa,fac,gam,scalp,v2,yl(nlm),vv(3)
   complex(8):: phaseaa,qfac,img=(0d0,1d0), gkl(0:k0,nlm)
   real(8),parameter::pi = 4d0*datan(1d0)

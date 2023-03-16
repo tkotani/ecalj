@@ -1,9 +1,10 @@
 module m_augmat !- Make augmentation matrices sig,tau,pi for one site
+  use m_ll,only: ll
   use m_lmfinit,only: n0
   public augmat
   private
 contains
-  subroutine augmat ( z,rmt,rsma,lmxa,pnu,pnz,kmax,nlml,a,nr,nsp,lso,rwgt,  &  !- Make augmentation matrices sig,tau,pi for one site
+  subroutine augmat (ib, z,rmt,rsma,lmxa,pnu,pnz,kmax,nlml,a,nr,nsp,lso,rwgt,  &  !- Make augmentation matrices sig,tau,pi for one site
        v0,v1,v2,gpotb,gpot0,nkaph,nkapi,lmxh,lh,eh,rsmh,ehl,rsml,rs3,vmtz,lmaxu,vorb,lldau,idu, &
        iblu,&
        osig, otau, oppi, ohsozz,ohsopm, phzdphz, hab, vab, sab,rotp)
@@ -323,7 +324,7 @@ contains
     type(s_sblock):: ohsozz(3),ohsopm(3)
     type(s_rv4) :: otau(3), osig(3)
     integer :: lmxa,kmax,nlml,nr,nsp,nkaph,nkapi,lmxh,lso, lmaxu,lldau,iblu,idu(4),&
-         lh(nkap0), k,ll,lmxl,nlma,nlmh,i, lxa(0:kmax),kmax1
+         lh(nkap0), k,lmxl,nlma,nlmh,i, lxa(0:kmax),kmax1,ib
     real(8):: phzdphz(nppn,n0,2), hab(3,3,n0,nsp),vab(3,3,n0,nsp),sab(3,3,n0,nsp),&
          z,rmt,rsma,a,rofi(nrmx),rwgt(nr),v0(nr,nsp), pnu(n0,nsp),pnz(n0,nsp),&
          v1(nr,nlml,nsp),v2(nr,nlml,nsp),gpot0(nlml),gpotb(nlml), &

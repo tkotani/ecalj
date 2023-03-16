@@ -3,7 +3,7 @@ module m_excore !- Calculate core-core exchange energy.
   contains
 subroutine excore(nrmx,nl,nnc,nclass,nspn,nbas, & !- Calculate core-core exchange energy.
      phic,nindxc,iclass, a,b,nr,rofi)
-  use m_lldata,only: ll
+  use m_ll,only: ll
   implicit none
   integer(4):: nrmx,nnc,nclass,nspn,ncmx,nl,nbas
   integer(4):: nindxc(0:nl-1,nclass),nr(nclass),iclass(nclass)
@@ -475,7 +475,7 @@ subroutine clebsh_t(cg,j1mx)
   !      numerical cancellation is not complete.
   !----------------------------------------------------------------c
   !      implicit double precision (a-h,o-z)
-  use m_lldata,only: ll
+  use m_ll,only: ll
   implicit none
   integer :: j1mx
   integer :: &

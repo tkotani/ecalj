@@ -1,5 +1,6 @@
 module m_mixrho !  mixing routine of smrho, rh. T.kotani think this routine is too compicated to maintain. !It may be better to rewrite all
   ! with keeping the functionality
+  use m_ll,only:ll
   use m_lgunit,only:stdo,stml !  integer,parameter,public:: kmxv=15
   public:: mixrho
   private
@@ -2196,7 +2197,7 @@ contains
     double complex   fklc(0:k0,nlm0,nsp,ib)
     double precision :: fklr(0:k0,nlm0,nsp,ib)
     ! ... Local parameters
-    integer :: lmx,i,ilm,isp,k,l,ll,lmxl,mode0,mode1,mode2,mode3,mode4,np
+    integer :: lmx,i,ilm,isp,k,l,lmxl,mode0,mode1,mode2,mode3,mode4,np
     double precision :: add,pi,r,rl,srfpi,sum1
     parameter(lmx=10)
     double precision :: fkl(0:kmax,nlm0,2),pkl(0:kmax,0:lmx)
@@ -2631,6 +2632,7 @@ subroutine rhogkl ( ib1 , ib2 , nsp , mode , sv_p_orhoat , kmax , qkl )!- G_kL e
 end subroutine rhogkl
 subroutine pvrgkl(mode,kmax,nlml,nr,nsp,rofi,rwgt,rho1,rho2,rhoc, pkl,cofh,rg,ceh,rfoc,z,qkl)
   use m_hansr,only:hansmr
+  use m_ll,only:ll
   !- Multipole moments for one site
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -2677,7 +2679,7 @@ subroutine pvrgkl(mode,kmax,nlml,nr,nsp,rofi,rwgt,rho1,rho2,rhoc, pkl,cofh,rg,ce
        rhoc(nr,nsp),rho1(nr,nlml,nsp),rho2(nr,nlml,nsp), &
        pkl(nr,0:kmax,0:*)
   ! ... Local parameters
-  integer :: n0,i,ilm,l,m,lmxl,ll,isp,k
+  integer :: n0,i,ilm,l,m,lmxl,isp,k
   parameter (n0=10)
   double precision :: ag,fac,y0,xi(0:n0),fpi,factk,dfact, &
        df(0:20),wk(nr),smrch,f1,f2

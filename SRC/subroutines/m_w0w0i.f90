@@ -1,5 +1,6 @@
 ! Get effective W(q=0,omega) for GW.
 module m_w0w0i
+  use m_ll,only:ll
   use m_llw,only: llw,llwI,wmuk,ngbq0,w4pmode
   use m_read_bzdata,only: q0i,nq0i, ixyz
   use m_genallcf_v3,only:  tpioa
@@ -129,7 +130,7 @@ contains
     real(8),intent(in)::  epinvq0i(nq0i,nq0i),dmlx(nq0i,9), wklm((lmxax+1)**2),wbz,epinv(3,3,nq0i),q0i(3,nq0i)
     complex(8),intent(in):: llw(ii:ie,nq0i)
     complex(8),intent(out):: w0(ii:ie),llmat(3,3)
-    integer:: lm,lm1,lm2,nlklm,iw,ll,lm1x,lm2x
+    integer:: lm,lm1,lm2,nlklm,iw,lm1x,lm2x
     complex(8):: llwyl(9,ii:ie),llw_invr(ii:ie,1:nq0i)
     real(8):: epinvq0i_m1(nq0i,nq0i)
     real(8),allocatable::  cg(:,:,:)

@@ -314,6 +314,7 @@ contains
     call tcx('m_bandcal_symsmrho')
   end subroutine m_bandcal_symsmrho
   subroutine mkorbm(isp,nev,iq,qp,evec, orbtm) !decomposed orbital moments within MT
+    use m_ll,only:ll
     use m_lmfinit,only: ispec,sspec=>v_sspec,nbas,nlmax,nsp,nspc,nl,n0,nppn
     use m_igv2x,only: napw,ndimh,ndimhx,igvapw=>igv2x
     use m_mkpot,only: sab_rv
@@ -357,7 +358,7 @@ contains
     ! ----------------------------------------------------------------------
     implicit none
     integer :: isp,nev,iq
-    integer :: lmxa,lmxax,lmdim,ichan,ib,is,igetss,iv,ilm,l,m,nlma, ll,lc,em,ispc,ksp
+    integer :: lmxa,lmxax,lmdim,ichan,ib,is,igetss,iv,ilm,l,m,nlma, lc,em,ispc,ksp
     real(8):: qp(3),diff
     real(8):: suml(11),s11,s22,s12,s33,s31,s32,s13,s23, suma,rmt,orbtm(nl,nsp,*) 
     complex(8):: au,as,az,iot=(0d0,1d0),evec(ndimh,nsp,nev),auasaz(3)

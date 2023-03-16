@@ -4,6 +4,7 @@ module m_bstrux ! Structure constants for P_kL expansion of Bloch lmto + PW arou
   use m_struc_def,only: s_cv3,s_cv4
   use m_lgunit,only:stdo
   use m_MPItk,only:procid
+  use m_ll,only:ll
   use m_ftox
   public:: bstrux_set, bstr, dbstr, m_bstrux_init
   complex(8),pointer,protected::  bstr(:,:,:)
@@ -318,7 +319,7 @@ contains
     integer :: mode,kmax,nlma,k0,napw,igapw(3,napw),ndimh
     double precision :: rsma,alat,qlat(3,3),q(3),srvol,pa(3)
     complex(8):: b0(0:k0,nlma,ndimh),b1(ndimh,nlma,0:k0), db(ndimh,nlma,0:k0,3)
-    integer :: k,lmxa,ll,l,ig,ilm,m,nlmto
+    integer :: k,lmxa,l,ig,ilm,m,nlmto
     double precision :: gamma,qpg(3),pi,tpiba,qpg2(1),ddot,facexp, &
          rsmal,pgint,dfac(0:kmax),fac2l(0:nlma),yl(nlma),fpi,fac ,qk
     double complex srm1,srm1l,gfourier,phase,facilm,b

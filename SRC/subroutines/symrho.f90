@@ -243,12 +243,13 @@ subroutine prrhat(sv_p_orhoat )
   enddo
 end subroutine prrhat
 subroutine prlrho(str,nr,nlm,nsp,rofi,rwgt,rho)!- Print info about site density
+  use m_ll,only:ll
   use m_lgunit,only:stdo
   implicit none
   integer :: nr,nlm,nsp
   double precision :: rho(nr,nlm,nsp),rofi(nr),rwgt(nr)
   character*(*) str
-  integer :: ilm,l,ll,itop,ibot,i
+  integer :: ilm,l,itop,ibot,i
   double precision :: xx,pi,srfpi,top,bot,sum
   pi = 4d0*datan(1d0)
   srfpi = dsqrt(4d0*pi)

@@ -151,10 +151,10 @@ subroutine pvcdm1(ncls,lcls,gcore,z,lmxa,v,a,nr,rofi,ul,sl,nsp,lmxax,ume,sme) !-
   use m_rseq,only: rseq
   use m_ftox
   implicit none
-  integer ncls,lcls,lmxa,nr,nsp,lmxax
+  integer ncls,lcls,lmxa,nr,nsp,lmxax,lx
   double precision a,z,gcore(nr,2),rofi(nr),v(nr,nsp),&
        ul(nr,0:lmxa,nsp),sl(nr,0:lmxa,nsp),ume(0:lmxax,nsp),sme(0:lmxax,nsp)
-  integer nodes,l,nre,isp,ll,ir,i1mach,iprint
+  integer nodes,l,nre,isp,ir,i1mach,iprint
   double precision e1,e2,slo,val,rmax,b,ecore,tol,yyy,dlml,slo1,r,wgt,uc,sc,ecor0,sum
   do  isp = 1, nsp
      if (nsp .eq. 2.and.iprint()>30) write(stdo,ftox)' Spin',isp,'..'
@@ -175,8 +175,8 @@ subroutine pvcdm1(ncls,lcls,gcore,z,lmxa,v,a,nr,rofi,ul,sl,nsp,lmxax,ume,sme) !-
      yyy = ecore - v(nr,isp) + 2*z/rmax
      if(nre .eq. nr .and. yyy .lt. 0.d0) then
         dlml = -1.d0-dsqrt(-yyy)*rmax
-        do  ll = 1, l
-           dlml = -yyy*rmax*rmax/dlml - (2*ll+1)
+        do  lx = 1, l
+           dlml = -yyy*rmax*rmax/dlml - (2*lx+1)
         enddo
         slo1 = val*(dlml+l+1)/rmax
         call rseq(e1,e2,ecore,tol,z,l,nodes,val,slo1,v(1,isp),gcore, sum,a,b,rofi,nr,nre)
@@ -216,6 +216,7 @@ subroutine pvcdm1(ncls,lcls,gcore,z,lmxa,v,a,nr,rofi,ul,sl,nsp,lmxax,ume,sme) !-
   enddo
 end subroutine pvcdm1
 subroutine pvcdm2(isite,nsite,ndham,ndimh,nlma,nlmax,aus,ume,sme,lcls,cg,jcg,indxcg,s)
+  use m_ll,only:ll
   !- Kernel called by vcmdel
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -243,7 +244,7 @@ subroutine pvcdm2(isite,nsite,ndham,ndimh,nlma,nlmax,aus,ume,sme,lcls,cg,jcg,ind
   integer isite,lcls,ndham,ndimh,nlma,nlmax,nsite,indxcg(*),jcg(*)
   double precision cg(*),ume(0:*),sme(0:*),s(3,nsite,ndimh,2)
   double complex aus(nlmax,ndham,2)
-  integer kk(4),mlm,lm,ll,klm,ii,indx,icg1,icg2,icg,llm,ib,k
+  integer kk(4),mlm,lm,klm,ii,indx,icg1,icg2,icg,llm,ib,k
   double complex cxx
   !     Transposes (y,z,x) to (x,y,z)
   data kk /0,2,3,1/

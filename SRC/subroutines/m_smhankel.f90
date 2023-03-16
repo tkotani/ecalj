@@ -1,6 +1,7 @@
 module m_smhankel !Bloch sum of smooth Hankel, Gaussians. Expansion and Integrals.
-    use m_factorial,only: factorial_init,factorial2,factorial
-    use m_lmfinit,only: cg=>rv_a_ocg,indxcg=>iv_a_oidxcg,jcg=>iv_a_ojcg,cy=>rv_a_ocy
+  use m_ll,only:ll
+  use m_factorial,only: factorial_init,factorial2,factorial
+  use m_lmfinit,only: cg=>rv_a_ocg,indxcg=>iv_a_oidxcg,jcg=>iv_a_ojcg,cy=>rv_a_ocy
   ! JMP39: Bott, E., M. Methfessel, W. Krabs, and P. C. Schmidt.
   ! “Nonsingular Hankel Functions as a New Basis for Electronic Structure Calculations.”
   ! Journal of Mathematical Physics 39, no. 6 (June 1, 1998): 3393–3425.
@@ -34,7 +35,7 @@ contains
     !u   22 Apr 00 Adapted from nfp hhug_bl.f
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: mode,nlm1,nlm2,ndim1,ndim2, kmax , kdim , i2 , i1 ,l , ll
+    integer :: mode,nlm1,nlm2,ndim1,ndim2, kmax , kdim , i2 , i1 ,l 
     real(8) :: add,q(3),gam1,gam2,xx1,xx2,zer(0:nlm1),bet1(nlm1),fac(nlm1)
     real(8):: rsm1(0:*) , rsm2(0:*) , e1(0:*) , e2(0:*) , p1(3) , p2(3)
     complex(8):: s(ndim1,ndim2),ds(ndim1,ndim2,3), wk(ndim1,ndim2),dwk(ndim1,ndim2,3)
@@ -81,7 +82,7 @@ contains
     !u   22 Apr 00 Adapted from nfp hgug_bl.f
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: nlm1,nlm2,ndim1,ndim2,l,ll
+    integer :: nlm1,nlm2,ndim1,ndim2,l
     real(8):: rsm1 , rsm2 , p1(3) , p2(3) , e1
     complex(8):: s(ndim1,ndim2),ds(ndim1,ndim2,3)
     integer:: kmax , kdim , ilm2 , ilm1
@@ -136,7 +137,7 @@ contains
     integer :: mode,nlm1,nlm2,kmax,ndim1,ndim2,k0 !jcg(1),indxcg(1)
     real(8):: p1(3) , p2(3) , q(3) , rsm1(0:*) ,rsm2(0:*) , e1(0:*) , e2(0:*) !cg(1) , cy(1)
     complex(8):: s(ndim1,ndim2,0:k0),ds(ndim1,ndim2,0:k0,3)
-    integer :: ilm,jlm,k,l1,l1t,l2,l2t,ll,lm11,lm12,lm21,lm22,lmx1,lmx2,m
+    integer :: ilm,jlm,k,l1,l1t,l2,l2t,lm11,lm12,lm21,lm22,lmx1,lmx2,m
     real(8) :: dr(3)
     if (nlm1 == 0 .OR. nlm2 == 0) return
     dr=p1-p2
@@ -205,7 +206,7 @@ contains
     integer :: nlm1,nlm2,kmax,ndim1,ndim2,k0,mlm1,mlm2 !jcg(1),indxcg(1),
     real(8):: q(3) ,  dr(3) , rsm1 , rsm2 , e1 , e2 !cg(1) , cy(1) 
     complex(8):: s(ndim1,ndim2,0:k0),ds(ndim1,ndim2,0:k0,3)
-    integer :: ktop0,lmax1,ll,lmax2,lmaxx,nlmx,nlmxp1,ktop,ktopp1, &
+    integer :: ktop0,lmax1,lmax2,lmaxx,nlmx,nlmxp1,ktop,ktopp1, &
          k,ilm,kz,kx1,kx2,ky1,ky2,ilm1,l1,ilm2,l2,ii,indx,icg1,icg2, icg,lm,ip
     real(8) :: gam1,fpi,gam2,gamx,rsmx,qq,fac1,fac2,e,cz,cx1, cx2,cy1,cy2,fac,add,dgets
     fpi = 16d0*datan(1.d0)
@@ -321,7 +322,7 @@ contains
     integer :: nlm1,nlm2,kmax,ndim1,ndim2 !jcg(1),indxcg(1),
     real(8) :: p1(3),p2(3),q(3),rsm1(0:*),rsm2(0:*),e1(0:*),e2(0:*) !cg(1),cy(1),
     complex(8):: s(ndim1,ndim2,0:kmax)
-    integer :: m,lmx1,lmx2,ll,l1,l2,k,jlm,ilm,lm11,lm21,lm12,lm22,l1t,l2t
+    integer :: m,lmx1,lmx2,l1,l2,k,jlm,ilm,lm11,lm21,lm12,lm22,l1t,l2t
     real(8) :: dr(3)
     if (nlm1 == 0 .OR. nlm2 == 0) return
     dr = p1-p2
@@ -376,7 +377,7 @@ contains
     complex(8):: s(ndim1,ndim2,0:kmax)
     ! ... Local parameters
     integer :: nlm0,ktop0,icg,icg1,icg2,ii,ilm,ilm1,ilm2,indx,ip,k, &
-         ktop,l1,l2,ll,lm,lmax1,lmax2,lmaxx,nlmx
+         ktop,l1,l2,lm,lmax1,lmax2,lmaxx,nlmx
     parameter( nlm0=100, ktop0=10 )
     real(8) :: fpi,e,fac,fac1,fac2,gam1,gam2,gamx,rsmx
     complex(8):: hkl1(0:ktop0,nlm0),hkl2(0:ktop0,nlm0), hsm(nlm0),hsmp(nlm0)
@@ -460,7 +461,7 @@ contains
     integer :: k0,kmax,nlm
     real(8):: e , rsm , q(3) , p(3) ,pi,sp,p1(3),rwald,ppin(3) !, cy(1)
     complex(8):: gkl(0:k0,nlm),cfac,phase,img=(0d0,1d0)
-    integer:: ilm , k , ll , lmax , owk , l , m
+    integer:: ilm , k , lmax , owk , l , m
     if (nlm == 0) return
     pi = 4d0*datan(1d0)
     ppin=matmul(transpose(qlat),p) 
@@ -503,7 +504,7 @@ contains
     integer :: k0,kmax,nkd,nlm
     double precision :: p(3),q(3),alat,rsm,dlv(3,nkd)
     complex(8):: gkl(0:k0,nlm),cfac,img=(0d0,1d0)
-    integer :: ilm,ir,k,l,ll,lmax,m,nm
+    integer :: ilm,ir,k,l,lmax,m,nm
     integer,parameter:: nlm0=144
     real(8),parameter:: tpi = 8d0*datan(1d0)
     real(8) :: yl(nlm),r(3),qdotr,r1,r2
@@ -539,7 +540,7 @@ contains
     integer :: k0,kmax,nkq,nlm
     real(8) :: alat,rsm,vol,q(3),p(3),qlv(3,nkq)
     complex(8):: gkl(0:k0,nlm)
-    integer :: ilm,ir,k,ll,lmax,nlm0
+    integer :: ilm,ir,k,lmax,nlm0
     real(8) :: a,gamma,r2,scalp,tpi,tpiba,vfac,r(3),yl(nlm)
     complex(8):: eiphi,add,add0
     complex(8):: img=(0d0,1d0)
@@ -586,7 +587,7 @@ contains
     integer :: k0,kmax,nlm
     real(8):: e , rsm , q(3) , p(3) !, cy(1)
     complex(8):: hkl(0:k0,nlm)
-    integer:: nlm0 , ilm , job , k , ll , lmax , nrx, owk , oyl
+    integer:: nlm0 , ilm , job , k , lmax , nrx, owk , oyl
     parameter (nlm0=144)
     real(8) :: sp,p1(3),ppin(3)
     complex(8):: hsm(nlm0),hsmp(nlm0),phase,gklsav,gklnew
@@ -648,7 +649,7 @@ contains
     implicit none
     integer :: kmax,nlm,k0
     real(8):: p(3) , rsm,ppin(3)
-    integer:: nlm0 , lmax , ll, nrx , owk , oyl , job, ilm , k
+    integer:: nlm0 , lmax , nrx , owk , oyl , job, ilm , k
     parameter ( nlm0=196 )
     real(8) :: q(3),p1(3),faca,fpi,y0,e
     complex(8):: fsm(nlm0),gklsav,gklnew,fkl(0:k0,nlm)
@@ -720,7 +721,7 @@ contains
     integer :: nlmg,nlmh,kmax,ndim1,ndim2,kdim !jcg(*),indxcg(*),
     real(8) :: ph(3),pg(3),rsmg,rsmh  !,cg(1),cy(1)
     complex(8):: s(ndim1,ndim2,0:kdim),ds(ndim1,ndim2,0:kdim,3)
-    integer :: nlm0,ktop0,m,lmaxh,ll,lmaxg,lmaxx,nlmx,nlmxp1,ktop,ktopp1, &
+    integer :: nlm0,ktop0,m,lmaxh,lmaxg,lmaxx,nlmx,nlmxp1,ktop,ktopp1, &
          ilm,kz,kx1,kx2,ky1,ky2,k,jlm,ilg,lg,ilh,lh,ii,indx,icg1,icg2, icg,lm,ip,nlmxx
     real(8) :: dr(3),gamh,gamg,rsmx,cz,cx1,cx2,cy1,cy2,fac
     complex(8),allocatable:: hkl(:,:),ghkl(:,:,:)
@@ -827,7 +828,7 @@ contains
     !u   25 May 00 Adapted from nfp hklg_bl.f
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: k0,kmax,nlm,nlm0,lmax,nlm1,ll
+    integer :: k0,kmax,nlm,nlm0,lmax,nlm1
     real(8) :: q(3),p(3),e,rsm
     complex(8):: hkl(0:k0,nlm0),ghkl(0:k0,nlm0,3)
     if (nlm == 0) return
@@ -875,7 +876,7 @@ contains
     real(8) :: rsmg,rsmh(1),eg,eh(1), ph(3),pg(3),q(3) !,cg(1),cy(1)
     complex(8):: s(ndim1,ndim2,0:kmax)
     integer :: nlm0,ktop0,icg,icg1,icg2,ii,ilg,ilh,ilm,indx,ip,jlm,k, &
-         ktop,lg,lh,ll,lm,lmaxg,lmaxh,lmaxx,m,nlmx,l1,l2,ilm1,ilm2
+         ktop,lg,lh,lm,lmaxg,lmaxh,lmaxx,m,nlmx,l1,l2,ilm1,ilm2
     complex(8),allocatable:: hkl(:,:)
     real(8) :: ee,fac,gamg,gamh,rsmx,dr(3),e,rsm
     if (nlmh == 0 .OR. nlmg == 0) return
@@ -961,7 +962,7 @@ contains
     real(8) :: ph(3),pg(3),q(3)!,cg(1),cy(1)
     complex(8):: s(ndim1,ndim2,0:k0),ds(ndim1,ndim2,0:k0,3)
     integer :: icg,icg1,icg2,ii,ilg,ilh,ilm,ilm1,ilm2,indx,ip,jlm,k,ktop, &
-         ktop0,l1,l2,lg,lh,ll,lm,lmaxg,lmaxh,lmaxx,m,nlm0,nlmx
+         ktop0,l1,l2,lg,lh,lm,lmaxg,lmaxh,lmaxx,m,nlm0,nlmx
     real(8) :: ee,fac,gamg,gamh,rsmx,dr(3),e,rsm
     complex(8),allocatable:: hkl(:,:),dhkl(:,:,:)
     if (nlmh == 0 .OR. nlmg == 0) return
@@ -1069,7 +1070,7 @@ contains
     integer :: k0,kmax,ndim,nlmg,nlmh!,jcg(1),indxcg(1)
     real(8) :: eh(1),rsmg,rsmh(1),ph(3),pg(3),q(3) !,cg(1),cy(1)
     complex(8):: c(0:k0,ndim,nlmh)
-    integer :: ndim1,ndim2,ktop0,ilmg,ilmh,k,l,ll,lmaxg,m,nm
+    integer :: ndim1,ndim2,ktop0,ilmg,ilmh,k,l,lmaxg,m,nm
     real(8) :: a,dfact,eg,fac,factk,fpi
     complex(8),allocatable:: s(:,:,:)
     if (nlmg == 0 .OR. nlmh == 0) return
@@ -1138,7 +1139,7 @@ contains
     integer :: k0,kmax,ndimg,ndimh,nlmg,nlmh!,jcg(1),indxcg(1)
     real(8) :: eh(1),rsmg,rsmh(1),ph(3),pg(3),q(3) !,cg(1),cy(1)
     complex(8):: c(0:k0,ndimg,ndimh),dc(0:k0,ndimg,ndimh,3)
-    integer :: ndim1,ndim2,ktop0,ilmg,ilmh,k,l,ll,lmaxg,m,nm
+    integer :: ndim1,ndim2,ktop0,ilmg,ilmh,k,l,lmaxg,m,nm
     real(8) :: a,dfact,eg,fac,factk,fpi
     complex(8),allocatable:: s(:,:,:),ds(:,:,:,:)
     if (nlmg == 0 .OR. nlmh == 0) return
@@ -1290,7 +1291,7 @@ contains
     integer :: lmax
     real(8):: rsm , e , q(3) , p(3) , ppin(3)
     complex(8):: hsm(1),hsmp(1)
-    integer:: ilm , l , m,ll
+    integer:: ilm , l , m
     real(8) :: p1(3),sp,rwald,asm
     real(8),parameter:: pi = 4d0*datan(1d0)
     complex(8):: cfac,phase,img=(0d0,1d0)
@@ -1487,7 +1488,7 @@ contains
     ! ----------------------------------------------------------------------
     implicit none
     integer :: kmax,ndim,nlmh
-    integer :: ilm,k,ktop,l,ll,lmaxh,l1,l2,ilm1,ilm2
+    integer :: ilm,k,ktop,l,lmaxh,l1,l2,ilm1,ilm2
     real(8) :: eg,eh(*),rsmg,rsmh(*),s(ndim,0:kmax)
     real(8) :: fac,gamg,gamh,rsmx,rsm,e
     real(8),parameter:: fpi = 16d0*datan(1d0), y0 = 1d0/dsqrt(fpi)
@@ -1597,7 +1598,7 @@ contains
     ! ----------------------------------------------------------------------
     integer :: k0,kmax,nlmh,ik,i1,i2,i
     real(8) :: eh(1),rsmg,rsmh(1),c(0:k0,nlmh)
-    integer :: ndim,ilm,k,l,ll,lmax,m,nm
+    integer :: ndim,ilm,k,l,lmax,m,nm
     real(8) :: a,dfact,eg,fac,factk,sig
     real(8):: s(nlmh,0:kmax)
     real(8),parameter:: fpi = 16d0*datan(1d0)

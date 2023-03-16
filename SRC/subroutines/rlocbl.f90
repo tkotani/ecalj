@@ -1,4 +1,5 @@
 module m_rlocbl
+  use m_ll,only:ll
   public rlocbl 
   private
 contains
@@ -184,7 +185,7 @@ contains
                call rxx(nspc.ne.1,'forces not implemented in noncoll case')
                Flocblblock: block ! Force contribution from augmentation at site ia.
                  use m_orbl,only: Orblib, norb,ltab,ktab,offl, ntab,blks
-                 integer :: isp,i,ib,ilm,ilmb,io,iq,k,l2,m,nlm1,ik,ilma,jlm,k1,k2,l,ll,oi,iblk 
+                 integer :: isp,i,ib,ilm,ilmb,io,iq,k,l2,m,nlm1,ik,ilma,jlm,k1,k2,l,oi,iblk 
                  complex(8):: da(0:kmax,nlma,3), wk(0:kmax,nlma) !wk=(ppi-evll*sig)*psi 
                  real(8):: ssum(3)
                  isp=ksp

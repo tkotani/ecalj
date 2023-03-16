@@ -44,7 +44,7 @@ program hx0fp0
   !! w0 and w0i (head part at Gamma point)
   use m_w0w0i,only: W0w0i, &
        w0,w0i
-  use m_lldata,only: ll
+  use m_ll,only: ll
   use m_readgwinput,only: ReadGwinputKeys, &
        ecut,ecuts,nbcut,nbcut2,mtet,ebmx,nbmx,nmbas,imbas,egauss
   use m_qbze,only: Setqbze, &

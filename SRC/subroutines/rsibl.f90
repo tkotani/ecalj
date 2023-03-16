@@ -1,4 +1,5 @@
 module  m_rsibl
+  use m_ll,only:ll
   use m_hsibl,only: hsibl,hsibl1
   public rsibl,rsibl_ev
   private
@@ -288,7 +289,7 @@ contains
           rsibl5block: block !- Add contribution to wave function from one block of orbitals
             real(8),parameter:: pi=3.1415926535897931d0
             real(8):: fac
-            integer:: ilm,l,ll,i
+            integer:: ilm,l,i
             fac = 4d0*pi*dexp(e*rsm*rsm*0.25d0)/vol
             ! ... Combine G-dependent energy, rsm and YL factors
             do  ilm = nlm1, nlm2 ! ... Make vector evec*phase

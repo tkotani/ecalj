@@ -29,7 +29,7 @@ program h_uumatrix
 
   ! RS: MPI module
   use rsmpi
-  use m_lldata,only: ll
+  use m_ll,only: ll
   use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
 
   implicit none

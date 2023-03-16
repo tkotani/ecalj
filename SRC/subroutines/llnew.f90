@@ -1,21 +1,10 @@
-module m_lldata !l index for given lm
-  integer :: ll(51**2)
-  data ll/ &
-       0,  3* 1,  5* 2,  7* 3,  9* 4, 11* 5, 13* 6, 15* 7, 17* 8, 19* 9, &
-       21*10, 23*11, 25*12, 27*13 ,29*14 ,31*15 ,33*16, 35*17, 37*18, 39*19, &
-       41*20, 43*21, 45*22, 47*23 ,49*24 ,51*25 ,53*26, 55*27, 57*28, 59*29, &
-       61*30, 63*31, 65*32, 67*33 ,69*34 ,71*35 ,73*36, 75*37, 77*38, 79*39, &
-       81*40, 83*41, 85*42, 87*43 ,89*44 ,91*45 ,93*46, 95*47, 97*48, 99*49, 101*50/
-end module m_lldata
-
-integer function ll(ilm) ! Returns l, given lm index
-  integer :: ilm
-  integer :: lmaxx
-  parameter (lmaxx=17)
-  integer :: lla(lmaxx**2)
-  data lla/0,3*1,5*2,7*3,9*4,11*5,13*6,15*7,17*8,19*9, &
-       21*10,23*11,25*12,27*13,29*14,31*15,33*16 /
-  ll = lla(ilm)
-end function ll
-
-
+module m_ll
+  contains
+  pure integer function ll(ilm) ! Returns l, given lm index
+    intent(in):: ilm
+    integer :: m,l,ilm
+    integer,parameter:: lmaxx=16
+    integer,parameter :: lla(1:(lmaxx+1)**2) = [((l,m=1,2*l+1),l=0,16)]
+    ll = lla(ilm)
+  end function ll
+endmodule

@@ -1,4 +1,5 @@
 module m_dfrce!Correction to force theorem, Harris functional
+  use m_ll,only:ll
   public dfrce
 contains
   subroutine dfrce(job,orhoat,orhoat_out,qmom,smrho,smrout, dfh)
@@ -266,7 +267,7 @@ contains
          fes2(3) , fxc(3) , g2(ng) , yl(ng,1) , cs(ng) , sn(ng) , qlat(3,3)
     double complex cdn0(ng,nsp),cdn(ng),cdv(ng),ceps(ng), &
          cnomin(ng),cdvxc(ng,nsp),cvin(ng)
-    integer :: ig,ilm,l,lmxl,m,nlm,nlmx,k,is,jv0,jb,js,ll,n0, nrmx
+    integer :: ig,ilm,l,lmxl,m,nlm,nlmx,k,is,jv0,jb,js,n0, nrmx
     parameter (nlmx=64, nrmx=1501, n0=10)
     integer :: lmxa,nr,nxi,ie,ixi,job0,kcor,lcor,lfoc,i, ngabc(3),n1,n2,n3,nlml
     equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))

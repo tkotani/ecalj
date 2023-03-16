@@ -1028,7 +1028,7 @@ subroutine mkb0( q, lxx,lx,nxx,nx, aa,bb, nrr,nrx,rprodx, &
      alat,bas,nbas,nbloch, &
      b0mat)
   !--make the matrix elementes < B_q | exp(iq r)>
-  use m_lldata,only: ll
+  use m_ll,only: ll
   implicit none
   integer(4) :: nlx,l,n,m,nr,ir,lm,ibl1,ibas,nrx,nbloch
   integer(4) :: nbas,lxx, lx(nbas), nxx, nx(0:lxx,nbas),nrr(nbas)

@@ -53,6 +53,7 @@ subroutine rhomom (sv_p_orhoat, qmom,vsum)
 end subroutine rhomom
 subroutine pvrhom(rmt,a,nlml,nr,nsp,rho1,rho2,rhoc,cofg,cofh,rg,ceh,rfoc,z,qmom,vsum1,vsum2)
   use m_hansr,only: hansmr
+  use m_ll,only:ll
   !- Multipole moments for one site
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -77,7 +78,7 @@ subroutine pvrhom(rmt,a,nlml,nr,nsp,rho1,rho2,rhoc,cofg,cofh,rg,ceh,rfoc,z,qmom,
   !r   The core spillout term is:   qcore(rhoc)-z  - sm_qcore-sm_qnuc
   ! ----------------------------------------------------------------------
   implicit none
-  integer :: nlml,nr,nsp,i,ilm,l,m,lmxl,ll,isp
+  integer :: nlml,nr,nsp,i,ilm,l,m,lmxl,isp
   real(8) :: ceh,cofg,cofh,rfoc,rg,z,rmt
   real(8) :: rofi(nr),rwgt(nr),h(nr),qmom(nlml),rhoc(nr,nsp), &
        rho1(nr,nlml,nsp),rho2(nr,nlml,nsp),xi0(nr),a,vsum1,vsum2

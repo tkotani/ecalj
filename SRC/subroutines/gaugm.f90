@@ -1,6 +1,6 @@
 module m_gaugm !Generic routine to make augmentation matrices
   use m_lmfinit,only: n0
-  use m_lldata,only:ll
+  use m_ll,only:ll
   public gaugm
   private
 contains

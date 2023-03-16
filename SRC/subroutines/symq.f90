@@ -110,6 +110,7 @@ subroutine pysmr1(wgt,nr,nlml,nsp,sym,rho1, rho2,nn)! Add wgt*sym*rho1 into rho2
   enddo
 end subroutine pysmr1
 subroutine symprj(nrclas,nlml,ngrp,nbas,istab,g,ag,plat,qlat,pos, sym)
+  use m_ll,only:ll
   !- Set up symmetry projectors for one class
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -130,7 +131,7 @@ subroutine symprj(nrclas,nlml,ngrp,nbas,istab,g,ag,plat,qlat,pos, sym)
   integer :: nlml,nrclas,ngrp,nbas,istab(nbas,ngrp)
   double precision :: sym(nlml,nlml,nrclas),plat(3,3),qlat(3,3), &
        g(3,3,ngrp),ag(3,ngrp),pos(3,nrclas),d(3)
-  integer:: lmxl , ll , ig , ja , m , ia=99999 , iprint , ilm , l , jlm,  jlm1 , jlm2
+  integer:: lmxl , ig , ja , m , ia=99999 , iprint , ilm , l , jlm,  jlm1 , jlm2
   real(8),allocatable :: rmat_rv(:,:)
   double precision :: wgt
   real(8):: rfrac(3)

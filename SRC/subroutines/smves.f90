@@ -1,4 +1,5 @@
 module m_smves !smooth part of electrostatic potential.
+  use m_ll,only:ll
   private
   public smves
 contains
@@ -487,7 +488,7 @@ contains
     implicit none
     real(8):: qmom(*),gpot0(*),f(3,nbas),hpot0(nbas),ugg
     integer :: ndim,ndim0,i,ib,ilm1,ilm2,is,iv0,jb,js,jv0,nvl,l1,l2, &
-         lfoc1,lfoc2,ll,lmax1,lmax2,m,nlm1,nlm2
+         lfoc1,lfoc2,lmax1,lmax2,m,nlm1,nlm2
     parameter (ndim=49, ndim0=2)
     double precision :: ceh1,ceh2,cof1,cof2,cofg1,cofg2,cofh1,cofh2,fpi, &
          pi,qcorg1,qcorg2,qcorh1,qcorh2,qsc1,qsc2,qm1,qm2,rg1,rg2,rh1, &

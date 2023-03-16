@@ -172,9 +172,9 @@ contains
       call rval2('STRUC_NBAS', rr=rr, nreq=1);  nbas=nint(rr)
       call rval2('HAM_NSPIN',  rr=rr, defa=[real(8):: 1]);  nsp=nint(rr)
       allocate(pnuall(n0,nsp,nbas),pnzall(n0,nsp,nbas))
-      allocate(pnusp(n0,nsp,nspec),qnu(n0,nsp,nspec), pzsp(n0,nsp,nspec),amom(n0,nspec),idmod(n0,nspec), &
+      allocate(pnusp(n0,nsp,nspec),qnu(n0,nsp,nspec), pzsp(n0,nsp,nspec),idmod(n0,nspec), &
            rsmh1(n0,nspec),eh1(n0,nspec),rsmh2(n0,nspec),eh2(n0,nspec), &
-           stni(nspec), rg(nspec),rsma(nspec),rfoca(nspec),&!rcfa(2,nspec), & !,rsmfa(nspec)
+           rg(nspec),rsma(nspec),rfoca(nspec),&!rcfa(2,nspec), & !,rsmfa(nspec)
            rmt(nspec),  spec_a(nspec),z(nspec),nr(nspec),eref(nspec), &
            coreh(nspec),coreq(2,nspec), idxdn(n0,nkap0,nspec), idu(4,nspec),uh(4,nspec),jh(4,nspec), &
            cstrmx(nspec),frzwfa(nspec), kmxt(nspec),lfoca(nspec),lmxl(nspec),lmxa(nspec),&
@@ -700,7 +700,7 @@ contains
       ! call suldau(nbas,nlibu,k,wowk)!Count LDA+U blocks (printout only)
       ! ham_nlibu=nlibu
       ! call poppr
-      deallocate(amom, stni,rg,rfoca,idxdn, rmt,  lfoca,lmxl, spec_a,nr) !,rsmv)
+      deallocate(idxdn) 
       !! --- takao embed contents in susite here. This is only for lmf and lmfgw.
       allocate(iv_a_oips(nbas),source=[(ispec(ib), ib=1,nbas)])
       seref= sum([(eref(ispec(ib)),ib=1,nbas)])

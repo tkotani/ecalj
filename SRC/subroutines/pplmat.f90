@@ -2,7 +2,7 @@ subroutine mkppmt(alat,plat,qlat, q, ng1,ngvec1, rmax,  nbas,  bas, lmxa, lmxax,
   !- ppmt value and slope at MT bounadaries for q+G plane waves.
   !o  ppmt(1,lm,nbas): value for (lm,ibas)
   !o  ppmt(2,lm,nbas):
-  use m_lldata,only: ll
+  use m_ll,only: ll
   implicit none
   integer(4) ::  nbas,  ng1,lmxax,ig1,ibas,la,lma,lmh, ngvec1(3,ng1),lmxa(nbas)
   real(8) :: absqg, rmax(nbas),pi4,r2s, q(3),plat(3,3),qlat(3,3),qgg(3),pi,alat,tpiba, bas(3,nbas) ,facl

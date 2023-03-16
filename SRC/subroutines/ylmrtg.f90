@@ -1,4 +1,5 @@
 subroutine ylmrtg(nlm,rotp,rmat)! Matrix to rotate cubic harmonics for a given rotation matrix
+  use m_ll,only: ll
   use m_ropyln,only: ropyln
   ! ----------------------------------------------------------------------
   !i Inputs:
@@ -11,12 +12,10 @@ subroutine ylmrtg(nlm,rotp,rmat)! Matrix to rotate cubic harmonics for a given r
   !r   Y_L(rotp-1 r) = sum_M Y_M(r) rmat(M,L)
   !r   rmat is block diagonal in l.
   ! ----------------------------------------------------------------------
-  !     implicit none
-  ! Passed parameters:
+  implicit none
   integer :: nlm
   double precision :: rmat(nlm,nlm),rotp(9)
-  ! Local parameters:
-  integer :: lmx,mmx,ndim,ll,lmax,i,l,m,mmax,nm,offs,ierr,nlmi
+  integer :: lmx,mmx,ndim,lmax,i,l,m,mmax,nm,offs,ierr,nlmi
   parameter ( lmx=8, mmx=2*lmx+1, ndim=(lmx+1)**2 )
   integer :: iwk(ndim)
   double precision :: p(3,mmx),rp(mmx,3),rr(mmx), &

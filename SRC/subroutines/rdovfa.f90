@@ -1,4 +1,5 @@
 module m_rdovfa
+  use m_ll,only:ll
   public rdovfa
 contains
   subroutine rdovfa() !- Read atm files and overlap free atom densities.
@@ -463,7 +464,7 @@ contains
     ! ... Local parameters
     !      integer stdo !kmx,lmx,
     !      parameter (kmx=20, lmx=6)
-    integer :: i,ie,ilm,ipr,iprint,k,l,ll,lmax,lmxl,isp
+    integer :: i,ie,ilm,ipr,iprint,k,l,lmax,lmxl,isp
     double precision :: asm,gam,pi,qall,qexa,qin,qlc,qnum,qout,qsmo,qut, &
          r,rl,rmt,srfpi,sum,sumfa,sumhd,sumsm,sumtr,y0, &
          xi(0:10),x0(0:2),ddot !pkl(0:kmx,0:lmx)

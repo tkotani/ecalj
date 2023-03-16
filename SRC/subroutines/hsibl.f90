@@ -1,4 +1,5 @@
 module m_hsibl ! Interstitial matrix elements of smooth Bloch Hankels, smooth potential.
+  use m_ll,only:ll
   public hsibl,hsibl1
   private
 contains
@@ -46,7 +47,7 @@ contains
     integer:: blks1(n0*nkap0),ntab1(n0*nkap0)
     integer:: blks2(n0*nkap0),ntab2(n0*nkap0)
     integer:: xxxx(nkap0), ig1,i1,ig2,i2,igx(3),igx1,igx2,igx3,oiv1, iloop,ng
-    integer:: ibini,ibend,nnrl,lmri,li,nnrlx,nnrli,ik,ib,ndim,ilm,offi,ll
+    integer:: ibini,ibend,nnrl,lmri,li,nnrlx,nnrli,ik,ib,ndim,ilm,offi
     complex(8) ,allocatable :: h_zv(:),phase(:,:)
     complex(8),allocatable,target:: w_oc1(:,:),w_ocf1(:),w_oc2(:,:),w_ocf2(:),ff(:)
     real(8),allocatable:: w_ocos1(:,:), w_osin1(:,:),w_ocos2(:,:), w_osin2(:,:),w_owk(:,:)

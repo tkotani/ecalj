@@ -93,13 +93,14 @@ contains
 
   !!------------------------------------------------
   subroutine s_cal_Worb()
+    use m_ll,only:ll
     use m_keyvalue,only: getkeyvalue
     use m_genallcf_v3, only : natom
     implicit none
     integer:: iclass, iclass2, iphidot_plus, ifmloc, iphi_tmp
     integer :: i, j, l_number, correction
     integer :: tmp_atom, tmp_l, iatom, il, iwf, ret,ixatom
-    integer :: nnvv(0:10,natom),ix,ioffset(0:10,natom),ll,ioffadd,mm
+    integer :: nnvv(0:10,natom),ix,ioffset(0:10,natom),ioffadd,mm
     integer,allocatable:: l_numbermx(:)
 
     !! Read index for cphi from GWinput: it should be essentially the same as @MNLA_CPHI

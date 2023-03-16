@@ -1,4 +1,5 @@
 subroutine poinsp(z,vval,nlm,a,b,v,rofi,rho,rho0,nr,rhoves,rhves1, vnucl,vsum) !- Solves poisson Equation inside sphere
+  use m_ll,only:ll
   ! ----------------------------------------------------------------------
   !i Inputs
   !i   z     :nuclear charge
@@ -26,7 +27,7 @@ subroutine poinsp(z,vval,nlm,a,b,v,rofi,rho,rho0,nr,rhoves,rhves1, vnucl,vsum) !
   integer :: nlm,nr
   double precision :: z,a,b,rhoves,rhves1,vnucl,vsum
   double precision :: rho(nr,nlm),vval(nlm),v(nr,nlm),rofi(nr),        vhrho(2),rho0(nr)
-  integer :: nsp,ir,ilm,l,ll,lp1
+  integer :: nsp,ir,ilm,l,lp1
   double precision :: fpi,srfpi,y0,atepi,ea,a2b4,rpb,rmax,fllp1,df,r, drdi,srdrdi,g,x,f,y2,y3,y4,vnow,vhom,alfa,sum,wgt
   nsp = 1
   fpi = 16d0*datan(1d0)

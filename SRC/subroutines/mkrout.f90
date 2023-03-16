@@ -1,4 +1,5 @@
 module m_mkrout
+  use m_ll,only:ll
   use m_struc_def,only:s_rv1
   use m_uspecb,only:uspecb
   use m_lmfinit,only:nkapii,lhh,nkap0,n0
@@ -264,7 +265,7 @@ contains
     real(8) :: qhp(nkaph,kmax+1,nlmh,nlma,nsp)
     real(8) :: qpp(kmax+1,kmax+1,nlmh,nlma,nsp)
     real(8) :: dmatl(*),vh(*),dh(*),vp(*),dp(*), chh(*),chp(*),cpp(*)
-    integer :: ll,k,lmxa,lmxh
+    integer :: k,lmxa,lmxh
     integer :: ltba(n0*nkap0),ktba(n0*nkap0),blka(n0*nkap0)
     lmxa = ll(nlma)
     lmxh = ll(nlmh)
@@ -420,7 +421,7 @@ contains
     real(8) :: qkk12(nk1,nk2,ndim1,ndim2,nsp),cg(1), &
          ckk(nk1,nk2,0:lmx1,0:lmx2,nlml,nsp)
     integer :: ilm1,io1,l1,nlm11,nlm12,k1, &
-         ilm2,io2,l2,nlm21,nlm22,k2, icg,ll,mlm,ix,isp
+         ilm2,io2,l2,nlm21,nlm22,k2, icg,mlm,ix,isp
     !     call tcn('mkrou4')
     do  isp = 1, nsp
        do  io2 = 1, norb2

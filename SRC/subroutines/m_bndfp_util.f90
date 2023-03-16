@@ -1,4 +1,5 @@
 module m_bndfp_util
+  use m_ll,only:ll
   public mkekin,makdos,phispinsym_ssite_set,iorbtm
 contains
   subroutine mkekin(osig,otau,oppi,oqkkl,vconst,smpot,smrho,sumev, ekinval) !- Evaluate the valence kinetic energy
@@ -200,7 +201,7 @@ contains
        !i   nsp   :number of spin channels
        !i   nspc  :2 for coupled spins; otherwise 1
        pvgtknblock: block !Local contribution to kinetic energy for one site
-         integer :: ilm1,ilm2,k1,k2,ll,nlm11,nlm12,nlm21,nlm22,i, io1,io2,l1,l2
+         integer :: ilm1,ilm2,k1,k2,nlm11,nlm12,nlm21,nlm22,i, io1,io2,l1,l2
          sumt = sum([(sum(qpp(:,:,ilm1,ilm1,:)*taupp(:,:,ll(ilm1),:)),ilm1=1,nlma)]) !Pkl*Pkl
          sumq = sum([(sum(qpp(:,:,ilm1,ilm1,:)*sigpp(:,:,ll(ilm1),:)),ilm1=1,nlma)])
          sumh = sum(qpp(:,:,:,:,:)*ppipp(:,:,:,:,:))
