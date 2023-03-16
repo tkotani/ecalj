@@ -2,7 +2,7 @@ module m_potpus
   public potpus
   private
 contains
-  subroutine potpus(z,rmax,lmxa,v,vdif,a,nr,nsp,lso,rofi,pnu,pnz,ehl,rsml,rs3,vmtz, &
+  subroutine potpus(z,rmax,lmxa,v,vdif,a,nr,nsp,lso,pnu,pnz,ehl,rsml,rs3,vmtz, &
        phzdphz,hab,vab,sab,sodb,rotp) ! Get phzdphz and matrix hab,vab,sab,sodb for (u,s,gz)
     use m_lmfinit,only: stdo,lrel,cc,n0,nppn
     use m_ftox
@@ -89,7 +89,7 @@ contains
     implicit none
     integer,parameter:: nrx=1501
     integer :: lmxa,lso,nr,nsp, ipr,ir,i,j,k,l,lpzi(0:n0),nrbig
-    real(8):: z,rmax,a,rofi(1),v(nr,nsp),ehl(n0),rsml(n0), &
+    real(8):: z,rmax,a,rofi(nrx),v(nr,nsp),ehl(n0),rsml(n0), &
          pnu(n0,nsp),pnz(n0,nsp),phzdphz(nppn,n0,nsp), & !,pp(n0,2,5)
          hab(3,3,n0,nsp),sab(3,3,n0,nsp),vab(3,3,n0,nsp),vdif(nr,nsp), &
          sodb(3,3,n0,nsp,2),rs3,vmtz, dmat(3,3),det,vi, &

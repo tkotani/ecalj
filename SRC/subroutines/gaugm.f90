@@ -5,9 +5,10 @@ module m_gaugm !Generic routine to make augmentation matrices
   private
 contains
   subroutine gaugm(nr,nsp,lso,rofi,rwgt,lmxa,lmxl,nlml,vsm,gpotb,gpot0,hab,vab,sab,sodb,qum,vum,&
-       lmaxu,vumm,lldau,idu,   lmux, &
-       nf1,nf1s,lmx1,lx1,nlx1, f1,x1,v1,d1, &
-       nf2,nf2s,lmx2,lx2,nlx2, f2,x2,v2,d2, &
+       lmaxu,vumm,lldau,idu,&
+       lmux,nlx1,nlx2,&
+       nf1,nf1s,lmx1,lx1,f1,x1,v1,d1, &
+       nf2,nf2s,lmx2,lx2,f2,x2,v2,d2, &
        sig,tau,ppi,hsozz,hsopm) !OUTPUT: augmentation integrals. 
     use m_lmfinit,only: cg=>rv_a_ocg,jcg=>iv_a_ojcg,indxcg=>iv_a_oidxcg
     use m_lgunit,only: stdo

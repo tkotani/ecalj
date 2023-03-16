@@ -1,4 +1,5 @@
 module m_locpot !- Make the potential at atomic sites and augmentation matrices.
+  use m_ftox
   use m_ll,only:ll
   use m_lmfinit,only: lmxax,nsp,nbas
   use m_MPItk,only: master_mpi
@@ -7,40 +8,37 @@ module m_locpot !- Make the potential at atomic sites and augmentation matrices.
   public locpot
   real(8),allocatable,public :: rotp(:,:,:,:,:) !rotation matrix
   private
+  real(8),parameter:: pi = 4d0*datan(1d0),srfpi = dsqrt(4d0*pi),y0 = 1d0/srfpi  !integer:: idipole
 contains
-  subroutine locpot(job,novxc,orhoat,qmom,vval,gpot0, &!,idipole 
-       osig , otau, oppi, ohsozz,ohsopm, phzdphz, hab, vab, sab, & 
+  subroutine locpot(job,novxc,orhoat,qmom,vval,gpot0,&
+       osig,otau,oppi,ohsozz,ohsopm,phzdphz,hab,vab,sab, & 
        vvesat,cpnvsa, rhoexc,rhoex,rhoec,rhovxc, valvef,xcore, sqloc,sqlocc,saloc, qval,qsc )
     use m_density,only: v0pot,v1pot   !output
     use m_density,only: pnzall,pnuall !output
-    use m_lmfinit,only:nkaph,lxcf,lhh,nkapii,nkaphh,nlibu,lmaxu,lldau
+    use m_lmfinit,only:nkaph,lxcf,lhh,nkapii,nkaphh,lmaxu,lldau
     use m_lmfinit,only:n0,nppn,nrmx,nkap0,nlmx,nbas,nsp,lso,ispec, sspec=>v_sspec,frzwfa,lmxax
     use m_lmfinit,only:slabl,idu,coreh,ham_frzwf,rsma,alat,v0fix,jnlml,vol,qbg=>zbak
     use m_uspecb,only:uspecb
-    use m_ftox
-    use m_struc_def
-    use m_augmat,only: augmat
     use m_hansr,only:corprm
     use m_ldau,only: vorb !input. 'U-V_LDA(couter term)' of LDA+U
+    use m_struc_def
     implicit none
     intent(in)::    job,novxc,orhoat,qmom,vval,gpot0
     ! ----------------------------------------------------------------------
     !i Inputs
+    !i   novxc
     !i   orhoat:vector of offsets containing site density
     !i   qmom  :multipole moments of on-site densities (rhomom.f)
     !i   vval  :electrostatic potential at MT boundary; needed
     !i         :to computed matrix elements of local orbitals.
     !i   gpot0 :integrals of local gaussians * phi0~
     !i         :phi0~ is the estatic potential of the interstitial
-    !i   job   :1s  digit
-    !i         : 1 make core and augmentation matrices
-    !i  rhobg  :compensating background density
-    !i  lso    :if nonzero, calculate LzSz matrix elements
-    !i  lcplxp=1 only now :0 if ppi is real; 1 if ppi is complex
-    !i  nlibu  : max number of lda+u blocks
-    !i  lmaxu  : max l for U
-    !i  vorb   : orbital dependent potential matrices
-    !i  lldau  :lldau(ib)=0 => no U on this site otherwise
+    !i   job   := 1 make core and augmentation matrices, :=0 not
+    !i rhobg  :compensating background density
+    !i lso    :if nonzero, calculate LzSz matrix elements
+    !i lmaxu  : max l for U
+    !i vorb   : orbital dependent potential matrices
+    !i lldau  :lldau(ib)=0 => no U on this site otherwise
     !i         :U on site ib with dmat beginning at dmats(*,lldau(ib))
     !o Outputs
     !o   ... the following are summed over all spheres
@@ -76,8 +74,7 @@ contains
     !o   sab   :integrals of    unity with true w.f.  See Remarks in augmat
     !l Local variables
     !l   lfltwf:T  update potential used to define basis
-    !l   iblu  :index to current LDA+U block
-    !i   idu   :idu(l+1)=1 => this l has a nonlocal U matrix
+    !i   idu  :idu(l+1,ibas)>01 => this l has a nonlocal U matrix
     ! ----------------------------------------------------------------------
     integer::  job,ibx,ir,isp,l,lm
     type(s_rv1) :: orhoat(3,nbas)
@@ -85,14 +82,12 @@ contains
     type(s_sblock):: ohsozz(3,nbas),ohsopm(3,nbas)
     type(s_rv4) :: otau(3,nbas)
     type(s_rv4) :: osig(3,nbas)
-    integer :: iblu !lldau(nbas),
-!    double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
     real(8):: qmom(1) , vval(1)
     double precision :: cpnvsa,rhoexc(nsp),rhoex(nsp),rhoec(nsp),rhovxc(nsp), &
          qval,sqloc,sqlocc,saloc, & !,focvxc(nsp)focexc(nsp),focex(nsp),focec(nsp),
          valvef,vvesat,xcore,& !rvvxc, & !,rveps rvepsv, ,rvexv,rvecv,rvvxcv
-         hab(3,3,n0,nsp,nbas),vab(3,3,n0,nsp,nbas),sab(3,3,n0,nsp,nbas), &
          gpot0(1),phzdphz(nppn,n0,nsp,nbas),rhobg
+    real(8),target::hab(3,3,n0,nsp,nbas),vab(3,3,n0,nsp,nbas),sab(3,3,n0,nsp,nbas)
     character spid*8
     integer :: lh(nkap0),nkapi,nkape,k
     double precision :: eh(n0,nkap0),rsmh(n0,nkap0)
@@ -112,11 +107,10 @@ contains
     integer:: i,nglob,ipr,iprint,j1,ib,is,lmxl,lmxa,nr,lmxb,kmax,lfoc,nrml,nlml,ifivesint,ifi
     logical,save:: secondcall=.false.
     logical :: phispinsym,cmdopt0,readov0,v0write,novxc
-    integer::lsox
+    integer::lsox,lmxh
     character*20::strib
     character strn*120
     real(8):: ov0mean,pmean
-    real(8),parameter:: pi = 4d0*datan(1d0),srfpi = dsqrt(4d0*pi),y0 = 1d0/srfpi  !integer:: idipole
     call tcn('locpot')
     rhobg=qbg/vol
     ipr = iprint()
@@ -135,9 +129,8 @@ contains
       valvs=0d0;cpnvs=0d0;valvt=0d0 
       qloc=0d0;aloc=0d0;qlocc=0d0;alocc=0d0
       rhexc=0d0;rhex=0d0;rhec=0d0;rhvxc=0d0 ;xcor=0d0;qv=0d0;qsca=0d0
-      iblu = 0
       ibloop: do  ib = 1, nbas
-         is=ispec(ib) 
+         is=ispec(ib)
          pnu=>pnuall(:,:,ib)
          pnz=>pnzall(:,:,ib)
          z=   sspec(is)%z
@@ -274,26 +267,68 @@ contains
                  v1=v1es 
                  v2=v2es 
               endif
-              lsox= merge(1, lso, .NOT. novxc .AND. cmdopt0('--socmatrix') )
               !          if(idipole/=0) call adddipole(v1,rofi,nr,nlml,nsp,idipole,ssite(ib)%pos(idipole)*alat)
               !             call adddipole(v2,rofi,nr,nlml,nsp,idipole,ssite(ib)%pos(idipole)*alat)
+              lsox = merge(1, lso, .NOT. novxc .AND. cmdopt0('--socmatrix') )
               if (ipr >= 20) write(stdo,"('     potential shift to crystal energy zero:',f12.6)") y0*(gpot0(j1)-gpotb(1))
+              do  k = 1, lmxh+1 ! check; see description of rsmh above
+                 if(pnz(k,1)/=0.AND.pnz(k,1)<10.AND.rsmh(k,nkapi+1)/=0)call rx1('augmat: illegal value for rsmh',rsmh(k,nkapi+1))
+              enddo
+              lmxh=lmxb !MTO l of basis minimum 
               augmatblock: block
-                real(8):: rsmaa
-              rsmaa=rsma(is)
-              call augmat(ib,z,rmt,rsmaa,lmxa,pnu,pnz,kmax,nlml, a,nr,nsp,lsox,rwgt,& 
-                 reshape(v0pot(ib)%v,[nr,nsp]),v1,v2,gpotb,gpot0(j1),nkaph,nkapi,&
-                 lmxb,eh,rsmh, ehl,rsml,rs3,vmtz, lmaxu, vorb, idu, &
-                 iblu, &
-                 osig, otau, oppi, ohsozz, ohsopm, &
-                 phzdphz, hab,vab,sab,rotp )
-              ! call augmat(ib,lsox,rofi,rwgt,& 
-              !      reshape(v0pot(ib)%v,[nr,nsp]),v1,v2,gpotb,gpot0(j1:j1+nlml-1),nkaph,nkapi,&
-              !      lmxb,lhh(:,is),eh,rsmh, ehl,rsml,rs3,vmtz, lmaxu, vorb, lldau(ib), idu, &
-              !      iblu, &
-              !      osig(1,ib), otau(1,ib), oppi(1,ib), ohsozz(1,ib), ohsopm(1,ib), &
-              !      phzdphz(1,1,1,ib), hab(1,1,1,1,ib),vab (1,1,1,1,ib), sab(1,1,1,1,ib),rotp(0:,1:,1:,1:,ib) )
-            endblock augmatblock
+                use m_gaugm,only:  gaugm
+                use m_augmat,only: vlm2us,momusl
+                use m_potpus,only: potpus
+                integer :: k,nlma,nlmh,i, lxa(0:kmax),kmax1
+                real(8):: v0(nr,nsp),rsmaa,&
+                     vdif(nr,nsp),sodb(3,3,n0,nsp,2), vum((lmxa+1)**2,nlml,3,3,nsp), fh(nr*(lmxh+1)*nkap0),xh(nr*(lmxh+1)*nkap0), &
+                     vh((lmxh+1)*nkap0),fp(nr*(lmxa+1)*(kmax+1)), &
+                     dh((lmxh+1)*nkap0),xp(nr*(lmxa+1)*(kmax+1)), &
+                     vp((lmxa+1)*(kmax+1)),dp((lmxa+1)*(kmax+1)),qum((lmxa+1)**2,(lmxl+1),3,3,nsp)
+                complex(8):: vumm(-lmaxu:lmaxu,-lmaxu:lmaxu,3,3,2,0:lmaxu)
+                real(8),pointer:: hab_(:,:,:,:),sab_(:,:,:,:),vab_(:,:,:,:)
+                rsmaa=rsma(is)
+                nlma = (lmxa+1)**2
+                lxa=lmxa
+                nlmh = (lmxh+1)**2
+                v0 = reshape(v0pot(ib)%v,shape(v0))
+                hab_=>hab(:,:,:,:,ib)
+                sab_=>sab(:,:,:,:,ib)
+                vab_=>vab(:,:,:,:,ib)
+                vdif(1:nr,1:nsp) = y0*v1(1:nr,1,1:nsp) - v0(1:nr,1:nsp) !vdif= extra part of spherical potential for deterimning radial function
+                call potpus(z,rmt,lmxa,v0,vdif,a,nr,nsp,lsox,pnu,pnz,ehl,rsml,rs3,vmtz, & !hab,vab,sab and phzdphz, and rotp
+                     phzdphz(:,:,:,ib),hab_,vab_,sab_,sodb,rotp(:,:,:,:,ib)) 
+                call momusl(z,rmt,lmxa,pnu,pnz,rsml,ehl,lmxl,nlml,a,nr,nsp,rofi,rwgt,v0,v1, qum,vum)!Moments and potential integrals of ul*ul, ul*sl, sl*s
+                call fradhd(nkaph,eh,rsmh,lhh(:,is),lmxh,nr,rofi, fh,xh,vh,dh)
+                call fradpk(kmax,rsmaa,lmxa,nr,rofi,        fp,xp,vp,dp)
+                if(lldau(ib)>0)call vlm2us(lmaxu,rmt,idu(:,is),lmxa, count( idu(:,ispec(1:ib-1))>0 ), & !offset to the Ublock for ib
+                     vorb,phzdphz(:,:,:,ib),rotp(:,:,:,:,ib), vumm)!LDA+U: vumm of (u,s,gz) from vorb for phi.
+                kmax1=kmax+1
+                call gaugm(nr,nsp,lsox,rofi,rwgt,lmxa,lmxl,nlml,v2,gpotb,gpot0(j1),hab_,vab_,sab_,sodb,qum,vum,& !...Pkl*Pkl !tail x tail
+                     lmaxu,vumm,lldau(ib),idu(:,is),&
+                     lmxa,nlma,nlma,& !lmxa=lcutoff for augmentation
+                     kmax1,kmax1,lmxa,lxa, fp,xp,vp,dp,&
+                     kmax1,kmax1,lmxa,lxa, fp,xp,vp,dp,&
+                     osig(1,ib)%v, otau(1,ib)%v, oppi(1,ib)%cv, ohsozz(1,ib)%sdiag, ohsopm(1,ib)%soffd)
+                call gaugm(nr,nsp,lsox,rofi,rwgt,lmxa,lmxl,nlml,v2,gpotb,gpot0(j1),hab_,vab_,sab_,sodb,qum,vum,& !...Hsm*Pkl! head x tail
+                     lmaxu,vumm,lldau(ib),idu(:,is),&
+                     lmxh, nlmh,nlma, &!lmxh=lcutoff for basis (lmxh<=lmxa is assumed)
+                     nkaph,nkapi,lmxh,lhh(:,is),fh,xh,vh,dh,&
+                     kmax1,kmax1,lmxa,lxa, fp,xp,vp,dp,&
+                     osig(2,ib)%v, otau(2,ib)%v, oppi(2,ib)%cv, ohsozz(2,ib)%sdiag, ohsopm(2,ib)%soffd)
+                call gaugm(nr,nsp,lsox,rofi,rwgt,lmxa,lmxl,nlml,v2,gpotb,gpot0(j1),hab_,vab_,sab_,sodb,qum,vum,& !...Hsm*Hsm! head x head
+                     lmaxu,vumm,lldau(ib),idu(:,is),&
+                     lmxh,nlmh,nlmh,&
+                     nkaph,nkapi,lmxh,lhh(:,is),fh,xh,vh,dh,&
+                     nkaph,nkapi,lmxh,lhh(:,is),fh,xh,vh,dh,&
+                     osig(3,ib)%v, otau(3,ib)%v, oppi(3,ib)%cv, ohsozz(3,ib)%sdiag, ohsopm(3,ib)%soffd)
+!                  call augmat(ib,z,rmt,rsmaa,lmxa,pnu,pnz,kmax,nlml, a,nr,nsp,lsox,rwgt,& 
+!                       v0,v1,v2,gpotb,gpot0(j1),nkaph,nkapi,&
+!                       lmxb,eh,rsmh, ehl,rsml,rs3,vmtz, lmaxu, vorb, idu, &
+!                       iblu, &
+!                       osig, otau, oppi, ohsozz, ohsopm, &
+!                       phzdphz, hab,vab,sab,rotp )
+              endblock augmatblock
            endif
          endblock locpt2augmat
       enddo ibloop
@@ -317,14 +352,12 @@ contains
     deallocate(efg,zz)!,rhol1,rhol2,v1,v2,v1es,v2es)
     call tcx('locpot')
   end subroutine locpot
-
   subroutine locpt2(ib,j1,z,rmt,rg,a,nr,nsp,cofg,cofh,ceh,rfoc,lfoc, &
        nlml,qmom,vval,rofi,rwgt,rho1,rho2,rhoc,&
        rhol1,rhol2,v1,v2,v1es,v2es,&
        vvesat,cpnves,rhoexc,rhoex,rhoec,rhovxc, valvef,xcore,qloc, & 
        qlocc,aloc,alocc,gpotb,rhobg,efg,ifivesint,lxcfun) 
     use m_hansr,only:hansmr
-    use m_ftox
     !- Makes the potential at one site, and associated energy terms.
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -628,10 +661,7 @@ contains
     endif
     call tcx('locpt2')
   end subroutine locpt2
-
-  subroutine elfigr(nc,stdo,z,efg1)
-    !use m_mathlib,only: htridi,imtql2,htribk
-    !- Computation of electric field gradient
+  subroutine elfigr(nc,stdo,z,efg1)    !- Computation of electric field gradient
     ! ----------------------------------------------------------------------
     !i Inputs
     !i   nc    :number of classes or sites
@@ -714,8 +744,6 @@ contains
             call diagcv(oo,vv,tt,n,d,nmx,1d99,nev)
             tr=dreal(tt)
           endblock diag
-          !     write(stdo,99) ic
-          ! 99  format(/' EFG, class = ',I3)
           do  i = 1, 3
              da(i) = dabs(d(i))
           enddo
@@ -732,23 +760,12 @@ contains
           iyy = mod(imax+1,3)+1
           eta = 0d0
           if(dabs(d(imax)) > 1.d-2) eta = dabs((d(ixx)-d(iyy))/d(imax))
-          !     do  i = 1, 3
-          !        write(stdo,98) conv1*d(i),conv2*d(i),(tr(j,i),j=1,3)
-          !     enddo
-          !     if (ifesn.eq.0) write(stdo,97) eta
           split = conv3*da(imax)*dsqrt(1d0+eta**2/3d0)
-          !     if (ifesn.eq.1) write(stdo,96) eta,split
-          ! 98  format(3X,F12.4,' 10**13 esu/cm**2',3X,F12.4,' 10**19 V/m*2',
-          !    +         /,12X,3F12.6)
-          ! 97  format(/' eta = ',F12.4/)
-          ! 96  format(/' eta = ',F12.4,' line splitting = ',F12.4,' mm/s'/)
           do  i = 1, 3
              if(i == 1) then
-                write(ifi,'(i4,3x,3f6.3,2x,f8.2,2x,f8.2,5x,f6.3,5x,f8.5)') &
-                     ic,(tr(j,i),j=1,3),conv1*d(i),conv2*d(i),eta,split
+                write(ifi,'(i4,3x,3f6.3,2x,f8.2,2x,f8.2,5x,f6.3,5x,f8.5)') ic,(tr(j,i),j=1,3),conv1*d(i),conv2*d(i),eta,split
              else
-                write(ifi,'(4x,3x,3f6.3,2x,f8.2,2x,f8.2,5x)') &
-                     (tr(j,i),j=1,3),conv1*d(i),conv2*d(i)
+                write(ifi,'(4x,3x,3f6.3,2x,f8.2,2x,f8.2,5x)') (tr(j,i),j=1,3),conv1*d(i),conv2*d(i)
              endif
           enddo
           write(ifi,'(1x)')

@@ -1,4 +1,4 @@
-subroutine fradhd(nkaps,eh,rsmh,lh,lmxh,nr,rofi,fh,xh,vh,dh)!Radial envelope head functions and gradients
+subroutine fradhd(nkaps,eh,rsmh,lh,lmxh,nr,rofi,fh,xh,vh,dh) !Radial envelope head functions and gradients
   use m_hansr,only: hansr
   !i Inputs
   !i   nkaps :1s digit: number of envelope function types per l q.n.
@@ -23,24 +23,15 @@ subroutine fradhd(nkaps,eh,rsmh,lh,lmxh,nr,rofi,fh,xh,vh,dh)!Radial envelope hea
   !u             substitute call to hansmr with call to hansr.
   !u   10 Apr 02 Redimensioned eh,rsmh to accomodate larger lmax
   !u   16 May 00 Adapted from nfp fradhd.f
-  ! ----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
+  implicit none
   integer :: nkaps,lh(nkaps),lmxh,nr,n0
   parameter (n0=10)
   double precision :: eh(n0,nkaps),rsmh(n0,nkaps),rofi(nr), &
        fh(nr,0:lmxh,nkaps),vh(0:lmxh,nkaps), &
        xh(nr,0:lmxh,nkaps),dh(0:lmxh,nkaps)
-  ! ... Local parameters
   integer :: ik,l,i,idx
   double precision :: rsm,e,rmt,r,vhh,dhh,xi(0:20),rl !,wk(2)
-  !     double precision hs(0:20),dhs(0:20),ddhs(0:20),xx
-
-  call dpzero(fh,nr*(1+lmxh)*nkaps)
-  call dpzero(xh,nr*(1+lmxh)*nkaps)
-  call dpzero(vh,(1+lmxh)*nkaps)
-  call dpzero(dh,(1+lmxh)*nkaps)
-
+  fh=0d0; xh=0d0; vh=0d0; dh=0d0
   do  ik = 1, nkaps
      do  l = 0, lh(ik)
         rsm = rsmh(l+1,ik)
@@ -85,11 +76,6 @@ subroutine fradhd(nkaps,eh,rsmh,lh,lmxh,nr,rofi,fh,xh,vh,dh)!Radial envelope hea
            enddo
         endif
      enddo
-
-     !       call prrmsh('f',rofi,fh,nr,nr,lh(ik)+1)
-     !       call prrmsh('df/dr',rofi,xh,nr,nr,lh(ik)+1)
-
   enddo
-
 end subroutine fradhd
 
