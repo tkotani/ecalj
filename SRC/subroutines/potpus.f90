@@ -154,6 +154,7 @@ contains
                    dphzp= dphzp*xx
                    gz   = gz*xx !call dscal(nr,xx,gz(1,1),1) call dscal(nr,xx,gz(1,2),1)
                 endif
+                deallocate(gzbig)
              endif
              if(lso/=0) ezum(l,i) = ez     !for SO
              if(lso/=0) pzi(:,l,i)= gz(:,1)!for SO
