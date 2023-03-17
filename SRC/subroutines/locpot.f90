@@ -165,6 +165,11 @@ contains
          locpt2augmat: block
            real(8)::rhol1(nr,nlml,nsp),rhol2(nr,nlml,nsp),v1(nr,nlml,nsp),v2(nr,nlml,nsp),v1es(nr,nlml,nsp),v2es(nr,nlml,nsp),&
                 gpotb(nlml),rofi(nr),rwgt(nr)
+           real(8),pointer ::rho1(:,:,:),rho2(:,:,:),rhoc(:,:)
+           !real(8),allocatable ::rho1(:,:,:),rho2(:,:,:),rhoc(:,:) !nr,nlml,nsp),rhoc(nr,nsp)
+           !allocate(rho1,source=reshape(orhoat(1,ib)%v,[nr,nlml,nsp]))
+           !allocate(rho2,source=reshape(orhoat(2,ib)%v,[nr,nlml,nsp]))
+           !allocate(rhoc,source=reshape(orhoat(3,ib)%v,[nr,nsp]))
            call radmsh(rmt,a,nr,rofi)
            call radwgt(rmt,a,nr,rwgt)
            if(cmdopt0('--wrhomt'))call wrhomt('rhoMT.','density',ib,orhoat(1,ib)%v,rofi,nr,nlml,nsp) ! Write true density to file rhoMT.ib
@@ -503,17 +508,12 @@ contains
     sfac = 1d0/sumg
     fac = fac*sfac
     sumh = 0d0
-    !  Smooth nuc. and core rho, sm Hankel portion, true & smooth core q
-    do i=1,nr
+    do i=1,nr !Smooth nuc. and core rho, sm Hankel portion, true & smooth core q
        call hansmr(rofi(i),ceh,afoc,xil,0)
        xill(i)=xil(0)
     enddo
-    ! --- Make core and nucleus pseudodensities ---
-    rhonsm(:) = -z*fac *gg(:) ! nucleus Gaussian (negative sign)
-!    do i=1,nr
-!       write(6,*)'ffffffover',i,xill(i),rofi(i)**2 
-!    enddo
-    rhochs = srfpi*cofh*xill(:)*rofi(:)**2 !pseudocore
+    rhonsm(:) = -z*fac *gg(:) ! nucleus Gaussian (negative sign) 
+    rhochs = srfpi*cofh*xill(:)*rofi(:)**2       ! pseudocore
     rhocsm = srfpi*cofg*fac *gg(:)   + rhochs(:) ! pcore= pseudocore - Gaussian
     sumh  = sum(rwgt*rhochs)
     samh = -y0*cofh*4d0*pi*dexp(ceh*rfoc*rfoc*0.25d0)/ceh
@@ -521,7 +521,6 @@ contains
          '=total-spillout=',ftof(samh),'-',ftof(samh-sumh)
     rhol1 = rho1
     rhol1(:,1,:)= rhol1(:,1,:)+ y0*rhoc(:,:) ! full electron density = rho1 + rhoc 
-    ! --- rhol2 = full smooth compensated density rho2+gval +gnuc + pcore 
     !     gval : qmom * compensating gaussians
     !     Distribute core+nuclear charge equally over spins
     do  isp = 1, nsp
@@ -531,17 +530,12 @@ contains
           fac = sfac*(ag*ag/pi)**1.5d0 * (2d0*ag*ag)**l
           rhol2(:,ilm,isp) = rho2(:,ilm,isp) + cof(ilm)*fac* rofi(:)**l*gg(:)/nsp
        enddo
-       rhol2(:,1,isp) = rhol2(:,1,isp) + y0/nsp*(rhocsm(:)+rhonsm(:))
+       rhol2(:,1,isp)=rhol2(:,1,isp)+y0/nsp*(rhocsm(:)+rhonsm(:)) !rhol2:full smooth compensated density rho2+gval +gnuc + pcore 
     enddo
-    if(nsp==2) then !magnetic moments 
-       a1    = srfpi*ddot(nr,rwgt,1,rho1(:,1,1)-rho1(:,1,2),1)
-       a2    = srfpi*ddot(nr,rwgt,1,rho2(:,1,1)-rho2(:,1,2),1)
-       aloc  = a1-a2
-       alocc = ddot(nr,rwgt,1,rhoc(:,1)-rhoc(:,2),1)
-    else
-       aloc=0d0
-       alocc=0d0
-    endif
+    a1    = srfpi*sum(rwgt*(rho1(:,1,1)-rho1(:,1,2)))
+    a2    = srfpi*sum(rwgt*(rho2(:,1,1)-rho2(:,1,2)))
+    aloc  = merge(a1-a2,0d0,nsp==2)
+    alocc = merge(sum(rwgt*(rhoc(:,1)-rhoc(:,2))),0d0,nsp==2)
     rhototal: block
       real(8):: ddot,rho1t(nr,nlml),rhol1t(nr,nlml), rho2t(nr,nlml),rhol2t(nr,nlml),rhoct(nr)
       rho1t =sum(rho1(:,:,1:nsp),dim=3) !spin sum total density

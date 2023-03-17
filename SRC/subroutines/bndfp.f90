@@ -330,8 +330,8 @@ contains
     if(lwtkb==1 .AND. lso/=0) call iorbtm()  ! write orbital moment
     if (lrout/=0) call m_bandcal_symsmrho()  !Get smrho_out Symmetrize smooth density ! Assemble output density, energies and forces 
     call m_mkrout_init() !Get force frcbandsym, symmetrized atomic densities orhoat_out, and weights hbyl,qbyl
-    if(.not.PNUFIX.and.lrout/=0) call pnunew(eferm) !ssite%pnu ssite%pz are revised. !  New boundary conditions pnu for phi and phidot
-    !  if(master_mpi) call writeqpyl() !if you like to print writeqbyl
+    if(((.not.PNUFIX).or.iprint()>40) .and.lrout/=0) call pnunew(eferm) !pnuall are revised. !  New boundary conditions pnu for phi and phidot
+    !  call writeqpyl() !Set if you like to print writeqbyl
     call m_mkehkf_etot1(sev, eharris) ! Evaluate Harris-foukner energy (note: we now use NonMagneticCORE mode as default)
     EvaluateKStotalEnergyandForce:if(lrout/=0) then
        allocate(qmom_in(nvl))

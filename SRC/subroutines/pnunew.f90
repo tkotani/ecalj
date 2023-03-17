@@ -1,15 +1,13 @@
-subroutine pnunew(eferm)
+subroutine pnunew(eferm) != Makes new boundary conditions pnu for phi,phidot =
   use m_ftox
   use m_MPItk,only: master_mpi
   use m_lmfinit,only:nbas,nsp,ispec,sspec=>v_sspec,ham_frzwf,idmodis=>idmod,slabl,&
-       pmin,pmax,n0,frzwfa
+       pmin,pmax,n0,frzwfa,pnufix
   use m_mkrout,only: hbyl=>hbyl_rv,qbyl=>qbyl_rv
   use m_lgunit,only:stdo
   use m_phidx,only: phidx
-  use m_density,only: v0pot,pnuall,pnzall !output
-  !!= Makes new boundary conditions pnu for phi,phidot =
-  !!* takao sep2010. P is setted to that at efermi if PZ is for semicore.
-  ! ----------------------------------------------------------------------
+  use m_density,only: v0pot, pnuall,pnzall !output
+  ! P is setted to that at efermi if PZ is for semicore. takao sep2010.
   !i Inputs
   !i   nbas  :size of basis
   !i   lfrzw :0, float pnu to band !G, provided IDMOD=0 for that channel
@@ -226,8 +224,8 @@ subroutine pnunew(eferm)
            endif
         endif
      enddo lloop
-     pnuall(:,1:nsp,ib)=pnu(:,1:nsp)
-     pnzall(:,1:nsp,ib)=pnz(:,1:nsp)
+     if(.not.pnufix) pnuall(:,1:nsp,ib)=pnu(:,1:nsp)
+     if(.not.pnufix) pnzall(:,1:nsp,ib)=pnz(:,1:nsp)
   enddo ibloop
   call tcx('pnunew')
 end subroutine pnunew

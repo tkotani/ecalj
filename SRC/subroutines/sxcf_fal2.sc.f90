@@ -91,6 +91,7 @@ module m_sxcf_main
   use m_readgwinput,only: ua_,  corehole,wcorehole
   use m_mpi,only: MPI__sxcf_rankdivider
   use m_ftox
+  use m_lgunit,only:stdo
   use m_sxcf_count,only: ncount,ispc,kxc,irotc,ipc,krc,nstateMax,nstti,nstte,nstte2, nwxic, nwxc
   implicit none
   public sxcf_scz_main, zsecall
@@ -133,6 +134,8 @@ contains
     endif
     kxold=-9999  ! To make MAINicountloop 3030 as parallel loop, set cache=.false.
     MAINicountloop: do 3030 icount=1,ncount!we accumulate zsec. !we only consider bzcase()==1 now
+       if(mod(icount,100)==1) write(stdo,ftox)'icount=',icount,'out of ncount=',ncount
+       call flush(stdo)
        isp =ispc(icount)
        kx  =kxc(icount) !for W(kx), kx is irreducible !kx is main axis
        irot=irotc(icount)

@@ -347,110 +347,87 @@ contains
     real(8) :: rmt,a,z,rofi(nr),rwgt(nr),rsml(n0),ehl(n0), &
          v0(nr,nsp),v1(nr,nlml,nsp),pnu(n0,nsp),pnz(n0,nsp), &
          qum(0:lmxa,0:lmxa,0:lmxl,3,3,nsp), &
-         vum(0:lmxa,0:lmxa,nlml,3,3,nsp),&
-         pi,srfpi,xx, &
+         vum(0:lmxa,0:lmxa,nlml,3,3,nsp),   &
          quu,qus,qss,quz,qsz,qzz,vuu,vus,vss,vv,vuz,vsz,vzz,vvv(nr), &
          ul(nr,0:lmxa,nsp),ruu(nr,0:lmxa,2,nsp), &
          sl(nr,0:lmxa,nsp),rus(nr,0:lmxa,2,nsp), &
          gz(nr,0:lmxa,nsp),rss(nr,0:lmxa,2,nsp)
     logical :: lpz1,lpz2
     integer :: l1,l2,lm,i,mlm,isp
+    real(8),parameter:: pi = 4d0*datan(1d0),srfpi = dsqrt(4d0*pi)
     call tcn('momusl')
-    pi = 4d0*datan(1d0)
-    srfpi = dsqrt(4d0*pi)
-    gz=0d0
     call makusp(n0,z,nsp,rmt,lmxa,v0,a,nr,pnu,pnz,rsml,ehl, ul,sl,gz,ruu,rus,rss)
-    ! --- Moments ---
-    do  isp = 1, nsp
-       do  l1 = 0, lmxa
-          do  l2 = 0, lmxa
-             lpz1 = pnz(l1+1,1) .ne. 0
-             lpz2 = pnz(l2+1,1) .ne. 0
-             quu = 0d0
-             qus = 0d0
-             qss = 0d0
-             quz = 0d0
-             qsz = 0d0
-             qzz = 0d0
-             do  lm = 0, lmxl
-                if (l1 == l2 .AND. lm == 0) then
-                   quu= sum(rwgt*ruu(:,l1,1,isp))
-                   qus= sum(rwgt*rus(:,l1,1,isp))
-                   qss= sum(rwgt*rss(:,l1,1,isp))
-                   if (lpz1) then
-                      quz= sum(rwgt*ruu(:,l1,2,isp))
-                      qsz= sum(rwgt*rus(:,l1,2,isp))
-                      qzz= sum(rwgt*rss(:,l1,2,isp))
-                   endif
-                else
-                   quu= sum(rwgt*rofi**lm*ul(:,l1,isp)*ul(:,l2,isp))
-                   qus= sum(rwgt*rofi**lm*ul(:,l1,isp)*sl(:,l2,isp))
-                   qss= sum(rwgt*rofi**lm*sl(:,l1,isp)*sl(:,l2,isp))
-                   if (lpz2) then
-                      quz= sum(rwgt*rofi**lm*ul(:,l1,isp)*gz(:,l2,isp))
-                      qsz= sum(rwgt*rofi**lm*sl(:,l1,isp)*gz(:,l2,isp))
-                      qzz= sum(rwgt*rofi**lm*gz(:,l1,isp)*gz(:,l2,isp))
-                   endif
-                endif
-                qum(l1,l2,lm,1,1,isp) = quu
-                qum(l1,l2,lm,1,2,isp) = qus
-                qum(l1,l2,lm,2,2,isp) = qss
-                qum(l1,l2,lm,1,3,isp) = quz
-                qum(l1,l2,lm,2,3,isp) = qsz
-                qum(l1,l2,lm,3,3,isp) = qzz
-                qum(l2,l1,lm,2,1,isp) = qus !transposed symmetric
-                qum(l2,l1,lm,3,1,isp) = quz !
-                qum(l2,l1,lm,3,2,isp) = qsz !
-             enddo
-          enddo
-       enddo
+    do concurrent(isp=1:nsp, l1=0:lmxa, l2=0:lmxa,lm=0:lmxl) ! --- Moments ---
+       lpz1 = pnz(l1+1,1) .ne. 0
+       lpz2 = pnz(l2+1,1) .ne. 0
+       quz = 0d0
+       qsz = 0d0
+       qzz = 0d0
+       if (l1 == l2 .AND. lm == 0) then
+          quu= sum(rwgt*ruu(:,l1,1,isp))
+          qus= sum(rwgt*rus(:,l1,1,isp))
+          qss= sum(rwgt*rss(:,l1,1,isp))
+          if (lpz1) then
+             quz= sum(rwgt*ruu(:,l1,2,isp))
+             qsz= sum(rwgt*rus(:,l1,2,isp))
+             qzz= sum(rwgt*rss(:,l1,2,isp))
+          endif
+       else
+          quu= sum(rwgt*rofi**lm*ul(:,l1,isp)*ul(:,l2,isp))
+          qus= sum(rwgt*rofi**lm*ul(:,l1,isp)*sl(:,l2,isp))
+          qss= sum(rwgt*rofi**lm*sl(:,l1,isp)*sl(:,l2,isp))
+          if (lpz2) then
+             quz= sum(rwgt*rofi**lm*ul(:,l1,isp)*gz(:,l2,isp))
+             qsz= sum(rwgt*rofi**lm*sl(:,l1,isp)*gz(:,l2,isp))
+             qzz= sum(rwgt*rofi**lm*gz(:,l1,isp)*gz(:,l2,isp))
+          endif
+       endif
+       qum(l1,l2,lm,1,1,isp) = quu
+       qum(l1,l2,lm,1,2,isp) = qus
+       qum(l1,l2,lm,1,3,isp) = quz
+       qum(l1,l2,lm,2,2,isp) = qss
+       qum(l1,l2,lm,2,3,isp) = qsz
+       qum(l1,l2,lm,3,3,isp) = qzz
+       qum(l2,l1,lm,2,1,isp) = qus !transposed symmetric
+       qum(l2,l1,lm,3,1,isp) = quz !
+       qum(l2,l1,lm,3,2,isp) = qsz !
     enddo
-    ! --- Integrals ul*ul*V_M, ul*sl*V_M, sl*sl*V_M ---
-    do  isp = 1, nsp
-       do  mlm = 1, nlml
-          do  l1 = 0, lmxa
-             do  l2 = 0, lmxa
-                lpz1 = pnz(l1+1,1) .ne. 0
-                lpz2 = pnz(l2+1,1) .ne. 0
-                vuu = 0d0
-                vus = 0d0
-                vss = 0d0
-                vuz = 0d0
-                vsz = 0d0
-                vzz = 0d0
-                vvv = v1(:,mlm,isp)
-                if (mlm == 1) vvv(2:) = vvv(2:) - [(srfpi*2d0*z/rofi(i),i=2,nr)]
-                vvv(1)=0d0
-                if (l1 == l2 .AND. mlm == 1) then
-                   vuu= sum(rwgt*vvv* ruu(:,l1,1,isp))
-                   vus= sum(rwgt*vvv* rus(:,l1,1,isp))
-                   vss= sum(rwgt*vvv* rss(:,l1,1,isp))
-                   if (lpz1) then
-                      vuz= sum(rwgt*vvv* ruu(:,l1,2,isp))
-                      vsz= sum(rwgt*vvv* rus(:,l1,2,isp))
-                      vzz= sum(rwgt*vvv* rss(:,l1,2,isp))
-                   endif
-                else
-                    vuu= sum(rwgt*vvv* ul(:,l1,isp)*ul(:,l2,isp))
-                    vus= sum(rwgt*vvv* ul(:,l1,isp)*sl(:,l2,isp))
-                    vss= sum(rwgt*vvv* sl(:,l1,isp)*sl(:,l2,isp))
-                    if (lpz2) then
-                       vuz= sum(rwgt*vvv* ul(:,l1,isp)*gz(:,l2,isp))
-                       vsz= sum(rwgt*vvv* sl(:,l1,isp)*gz(:,l2,isp))
-                       vzz= sum(rwgt*vvv* gz(:,l1,isp)*gz(:,l2,isp))
-                    endif
-                endif
-                vum(l1,l2,mlm,1,1,isp) = vuu
-                vum(l1,l2,mlm,1,2,isp) = vus
-                vum(l1,l2,mlm,2,2,isp) = vss
-                vum(l1,l2,mlm,1,3,isp) = vuz
-                vum(l1,l2,mlm,2,3,isp) = vsz
-                vum(l1,l2,mlm,3,3,isp) = vzz
-                vum(l2,l1,mlm,2,1,isp) = vus  !transposed symmetric
-                vum(l2,l1,mlm,3,1,isp) = vuz !
-                vum(l2,l1,mlm,3,2,isp) = vsz !
-             enddo
-          enddo
+    do concurrent(isp = 1:nsp, mlm = 1:nlml)  ! --- Integrals ul*ul*V_M, ul*sl*V_M, sl*sl*V_M ---
+       vvv = merge( [0d0,v1(2:nr,mlm,isp)]-[0d0,(srfpi*2d0*z/rofi(i),i=2,nr)], [0d0,v1(2:nr,mlm,isp)], mlm==1)
+       do concurrent(l1 = 0:lmxa, l2 = 0:lmxa) 
+          lpz1 = pnz(l1+1,1) .ne. 0
+          lpz2 = pnz(l2+1,1) .ne. 0
+          vuz = 0d0
+          vsz = 0d0
+          vzz = 0d0
+          if (l1 == l2 .AND. mlm == 1) then
+             vuu= sum(rwgt*vvv* ruu(:,l1,1,isp))
+             vus= sum(rwgt*vvv* rus(:,l1,1,isp))
+             vss= sum(rwgt*vvv* rss(:,l1,1,isp))
+             if (lpz1) then
+                vuz= sum(rwgt*vvv* ruu(:,l1,2,isp))
+                vsz= sum(rwgt*vvv* rus(:,l1,2,isp))
+                vzz= sum(rwgt*vvv* rss(:,l1,2,isp))
+             endif
+          else
+             vuu= sum(rwgt*vvv* ul(:,l1,isp)*ul(:,l2,isp))
+             vus= sum(rwgt*vvv* ul(:,l1,isp)*sl(:,l2,isp))
+             vss= sum(rwgt*vvv* sl(:,l1,isp)*sl(:,l2,isp))
+             if (lpz2) then
+                vuz= sum(rwgt*vvv* ul(:,l1,isp)*gz(:,l2,isp))
+                vsz= sum(rwgt*vvv* sl(:,l1,isp)*gz(:,l2,isp))
+                vzz= sum(rwgt*vvv* gz(:,l1,isp)*gz(:,l2,isp))
+             endif
+          endif
+          vum(l1,l2,mlm,1,1,isp) = vuu
+          vum(l1,l2,mlm,1,2,isp) = vus
+          vum(l1,l2,mlm,2,2,isp) = vss
+          vum(l1,l2,mlm,1,3,isp) = vuz
+          vum(l1,l2,mlm,2,3,isp) = vsz
+          vum(l1,l2,mlm,3,3,isp) = vzz
+          vum(l2,l1,mlm,2,1,isp) = vus  !transposed symmetric
+          vum(l2,l1,mlm,3,1,isp) = vuz !
+          vum(l2,l1,mlm,3,2,isp) = vsz !
        enddo
     enddo
     call tcx('momusl')
