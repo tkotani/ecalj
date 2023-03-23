@@ -110,8 +110,8 @@ contains
           j = i-1
           modes = 1
        endif
-       print *,'gggggg',gens(1:j)
-       print *,'platcv',platcv
+       print *,'gggggg',ngen,gens(1:j)
+!       print *,'platcv',platcv
        call psymop(gens(1:j),platcv,gen,agen,ngen)
        nwgens = gens(1:j)
     endif
@@ -631,8 +631,7 @@ contains
     enddo
   end subroutine grpprd
   !! -------------------------------------
-  subroutine psymop(t,plat,g,ag,ng)
-    !- Parse symbolic representation of symmetry group operations
+  subroutine psymop(t,plat,g,ag,ng)    !- Parse symbolic representation of symmetry group operations
     ! ----------------------------------------------------------------------
     !i Inputs:
     !i   t,nt  string of symmetry operations, separated by spaces
@@ -663,36 +662,42 @@ contains
     character*1:: leftp='('
     ! --- Do until no more symbolic representation, do ---
     nt = len(t)
-    write(6,*)'psymop:t=###'//trim(t)//'####'
+    write(6,*)'========== psymop  :'//trim(t)//'###'
     ng = 0
     i = 0
     do
        call skipbl(t,nt,i)
+       i=i+1 !
+       write(6,*)'  psymop:start###'//trim(t(i:)),' i=',i
        if (i >= nt) return
        ng = ng+1
        call parsop(t,i,g(1,ng))
-       if (t(i+1:i+1) == '*') then
+       write(6,*)'  Endof parsop1 i=',i,trim(t(i:))
+       if (t(i:i) == '*') then
           i = i+1
+          write(6,*)'  psymop:ttttt222yyy###'//trim(t(i+1:)),'i=',i
           call parsop(t,i,h)
           call grpprd(g(1,ng),h,hh)
           call dcopy(9,hh,1,g(1,ng),1)
        endif
-       call dpzero(ag(1,ng),3)
+       ag(:,ng)=0d0 !call dpzero(ag(1,ng),3)
        !    ! ... Compatibility with old :T(x,y,z)
        !    if (t(i+1:i+2) == ':T' .OR. t(i+1:i+2) == ':t') i=i+2
        ! ... Compatibility with ::(x,y,z)
        flgp = .false.
-       print *,'tttttttttt=',t(i+1:i+2) 
-       if (t(i+1:i+2) == '::') then
+       print *,'tttttttttt=',t(i:i+1) 
+       if (t(i:i+1) == '::') then
           flgp = .true.
           i=i+2
-       elseif (t(i+1:i+1) == ':') then
+       elseif (t(i:i) == ':') then
           i=i+1
        endif
-       if (t(i+1:i+1) == leftp) then
-          write(6,*)'psymop:ttttt111###'//trim(t)//'####',' flgp=',flgp,t(i+1:i+1)
+       if (t(i:i) == leftp) then
+          write(6,*)'psymop:ttttt111###'//trim(t)//'####',' flgp=',flgp,t(i:i)
+          !i=i+1
           if ( .NOT. parsvc(-1,t,i,ag(1:3,ng))) call rxi('psymop: failed to parse translation ig=',ng)
-          write(6,*)'aaaa000 ag=',ag(1:3,ng)
+          !i=i-1
+          write(6,*)'aaaa000 ag=',ag(1:3,ng),t(i:)
           write(6,*) plat(1:3,1)
           write(6,*) plat(1:3,2)
           write(6,*) plat(1:3,3)
@@ -711,7 +716,7 @@ contains
     character(*) :: t !(0:*)
     !      logical parsvc
     integer :: i,j,k,nrot,iii
-    i=i+1
+!    i=i+1
     write(*,*)"parsopinput=@@@"//trim(t)//"@@@",i
     pi2 = 8*datan(1d0)
     if (t(i:i) == 'r' .OR. t(i:i) == 'R') then
@@ -767,10 +772,10 @@ contains
     else
        goto 99
     endif
-    i=i-1
+!    i=i-1
     return
 99  continue
-    write(stdo,*)'PARSOP: parse error at ',i,'t= ',t(i:i)
+    write(stdo,*)'PARSOP: parse error at ',i,'t=',t(i:)
     call rx('PARSOP: parse error')
   end subroutine parsop
   ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
@@ -948,7 +953,7 @@ contains
     if (ipr >= 30) write(stdo,ftox)' SYMCRY: crystal invariant under ' &
          ,ng,'symmetry operations for tol=',ftof(tol1)
     if (ipr >= 60 .AND. ng > 1) then
-       write(stdo,'('' ig  group op'')')
+       write(stdo,'(''-- ig group op'')')
        do  60  ig = 1, ng
           call asymop(g(:,:,ig),ag(1,ig),' ',sg)
           write(stdo,'(i4,2x,a)') ig,trim(sg)
@@ -1000,8 +1005,10 @@ contains
           if( .NOT. li) sg='r'//char(48+nrot)
           ip =len(trim(sg))
        endif
+       ip=ip+1
        call rxx(.not. parsvc(2+fmtv,sg,ip,vecg),'bug in asymop')
     endif
+!    write(6,*)'nrot=',nrot,trim(sg)
     ! --- Translational part ---
     if (dasum(3,ag,1) > tiny) then
        if (asep(i1:i1) /= ' ') then
@@ -1009,14 +1016,13 @@ contains
           sg(ip+1:) = asep(i1:i2)
           ip = ip+i2-i1+1
        endif
+       ip=ip+1
        call rxx(.not. parsvc(1+fmtv,sg,ip,ag),'bug in asymop')
     endif
   end subroutine asymop
   ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-  subroutine csymop(iopt,grp,li,nrot,vecg)
+  subroutine csymop(iopt,grp,li,nrot,vecg) !Decomposes a group operation into its consitutents, or vice-versa
     use m_ftox
-    !- Decomposes a group operation into its consitutents, or vice-versa
-    ! ----------------------------------------------------------------------
     !i Inputs:
     !i   iopt  := -1 to convert (nrot,vecg,li) to grp
     !i          =  1 to convert grp to to (nrot,vecg,li)
@@ -1231,7 +1237,7 @@ contains
     logical :: lveq0(3),lveq1(3)!,a2bin
     data rchr /'(XxYyZzDd'/
     integer:: mmm
-    ip=ip+1
+    !ip=ip+1
     ! --- Convert t to vec ---
     tlen=len(t)
 !    write(6,*) 'Startparsvc:###'//t//'###xxxx',iopt
@@ -1247,9 +1253,9 @@ contains
           ip = ip+1
           mmm=index(t,')',back=.true.) !findloc([(t(ip+m)==')',m=1,size(t))],dim=1,value=.true.,back=.true.) !we have t(ip+mmm-1)=')'
           if(mmm<=0) call rx('cannot find right parensis for vector')
-!          write(*,*)'xxxx'//t(ip:mmm-1)//'xxxx'
+          write(*,*)'xxxx'//t(ip:mmm-1)//'xxxx'
           read(t(ip:mmm-1),*) v
-!          write(*,*)'vvvv=',v
+          write(*,*)'vvvv=',v
 !          stop 'vvvvvvvvv'
           !if ( .NOT. a2bin(t,v,4,0,',',ip,-1)) return
           !if ( .NOT. a2bin(t,v,4,1,',',ip,-1)) return
@@ -1264,7 +1270,7 @@ contains
              v(itrm/2) = 1
           endif
           parsvc = .true.
-          ip = ip+1
+          ip = ip+1 
        endif
        return
        ! --- Convert vec to t ---
@@ -1315,11 +1321,11 @@ contains
              if(i==3) add=')'
              sout=trim(adjustl(sout))//add
              m=len(trim(sout))
-             call strncp(t(ip+1:ip+1),sout,1,1,m) !t(ip+1:ip+m)=trim(sout) !
-             ip = ip+m
+             call strncp(t(ip+1:ip+m),sout,1,1,m) !t(ip+1:ip+m)=trim(sout) !
+!             ip = ip+m
 12        enddo
        endif
-       ip = ip+1
+!       ip = ip+1
     endif
   end function parsvc
   subroutine grpfnd(tol,g,ag,ig,pos,nbas,qlat,ia,ja) !- Find index to site ja site into which g,ag transforms site ia
@@ -1402,22 +1408,26 @@ contains
     return
   end function spgeql
   logical function grpeql(g1,g2)    !- Checks if G1 is equal to G2
-    double precision :: g1(9),g2(9)
-    grpeql = merge(any(dabs(g1-g2)>toll),.false.,.true.)
+         implicit none
+    double precision :: g1(9),g2(9),dabs,x1,x2
+    logical :: ddif
+    integer :: i
+    ddif(x1,x2) = dabs(x1-x2)> toll
+    grpeql = .false.
+    do  10  i = 1, 9
+       if (ddif(g1(i),g2(i))) return
+10  enddo
+    grpeql = .true.
   end function grpeql
   SUBROUTINE GRPOP(V,V1,G,I)
+    !     implicit none
     double precision :: G(3,3,*),V(3),V1(3)
     integer :: i
-    v1 = matmul(g(:,:,i),v)
+    V1(1) = G(1,1,I)*V(1) + G(1,2,I)*V(2) + G(1,3,I)*V(3)
+    V1(2) = G(2,1,I)*V(1) + G(2,2,I)*V(2) + G(2,3,I)*V(3)
+    V1(3) = G(3,1,I)*V(1) + G(3,2,I)*V(2) + G(3,3,I)*V(3)
+    RETURN
   END SUBROUTINE GRPOP
-    ! logical function latvec(n,tol,qlat,vec)    !- Checks whether a set of vectors are lattice vectors
-    !   implicit none
-    !   integer :: n
-    !   double precision :: qlat(3,3),vec(3,n),tol
-    !   real(8),allocatable:: vdiff(:,:)
-    !   allocate(vdiff,source=matmul(transpose(vec(:,:)),qlat(:,:)))
-    !   latvec = merge( all(dabs(vdiff-dnint(vdiff))<tol),.true.,.false.)
-    ! end function latvec
   logical function latvec(n,tol,qlat,vec)
     !- Checks whether a set of vectors are lattice vectors
     ! ----------------------------------------------------------------------
@@ -1431,21 +1441,14 @@ contains
     ! ----------------------------------------------------------------------
     implicit none
     integer :: n,i,m
-    double precision :: qlat(3,3),vec(3,n),tol
-    real(8),allocatable:: vdiff(:,:)
-    logical,allocatable:: lvdiff(:,:)
-    allocate(vdiff, source=matmul(transpose(vec(:,:)),qlat(:,:)))
-    ! latvec=.false.
-    ! if(n==0) then
-    !    latvec=.true.
-    !    return
-    ! endif   
-    ! latvec = merge( any(dabs(vdiff-dnint(vdiff))>tol),.false.,.true.)
-    ! return
+    double precision :: qlat(3,3),vec(3,n),tol, vdiff
     latvec = .false.
     do  10  i = 1, n
        do  20  m = 1, 3
-          if (dabs(vdiff(i,m)-dnint(vdiff(i,m))) > tol) return
+          vdiff = vec(1,i)*qlat(1,m) + &
+               vec(2,i)*qlat(2,m) + &
+               vec(3,i)*qlat(3,m)
+          if (dabs(vdiff-dnint(vdiff)) > tol) return
 20     enddo
 10  enddo
     latvec = .true.
@@ -1545,7 +1548,7 @@ contains
     ! ... We have reached the end of the string
     if (nw == iw) j2 = len(str)
     return
-    ! ... cleanup: exit if word sought, else try again
+    ! ... cleanup: exit if word soguht, else try again
 91  i0 = i2
     if (nw == iw) then
        j2 = i2-1
@@ -1602,13 +1605,16 @@ contains
           !   ... For each basis atom in this class, do
           do  20  jb = 1, nbas
              !         print *, 'jb=',ib,jb,nclass
-             if (ipc(jb) == ic) then                !      ... If there is a g mapping ib->jb, sites are equivalent
+             if (ipc(jb) == ic) then
+                !      ... If there is a g mapping ib->jb, sites are equivalent
                 do  22  ig = 1, ng
                    if (istab(ib,ig) == jb) goto 20
-22              enddo               !      ... If there is a g mapping jb->ib, sites are equivalent
+22              enddo
+                !      ... If there is a g mapping jb->ib, sites are equivalent
                 do  23  ig = 1, ng
                    if (istab(jb,ig) == ib) goto 20
 23              enddo
+                ! 04 Apr 03 consider these other possibilities
                 !      ... If there is a g mapping ib->kb,jb, sites are equivalent
                 do  24  ig = 1, ng
                    if (istab(istab(ib,ig),ig) == jb) goto 20

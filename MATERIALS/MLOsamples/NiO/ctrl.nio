@@ -126,7 +126,8 @@ BZ    NKABC={nk1} {nk2} {nk3} # division of BZ for q points.
       #      It seems good enough to use W=0.001. Smaller W= may cause instability.
       #For Molecule, you may also need to set FSMOM=n_up-n_dn, and FSMOMMETHOD=1 below.
 
-      # NOINV=F (If F, we enfoce |psi_\sigma^fk|^2=|psi_\sigma^{-fk}|^2)
+      NOINV=T
+      #(If F, we enfoce |psi_\sigma^fk|^2=|psi_\sigma^{-fk}|^2)
       #    usually judged automatically. So this is for debugging).
       # If NOINV=F, we assume H=H^* for each spin (k <-> -k symmetry). 
       #   This is the case in DFT without spin-orbit coupling.
