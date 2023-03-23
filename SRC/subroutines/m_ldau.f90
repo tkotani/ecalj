@@ -9,7 +9,7 @@ module m_ldau !ldau densitimatrix and potential
   complex(8),allocatable,private::  dmato(:,:,:,:) !previous density matrix
   logical,private:: init=.true.
 contains
-  subroutine m_ldau_init()! LDA+U initialization
+  subroutine m_ldau_init() ! LDA+U initialization
     use m_lmfinit,only: nlibu,nsp,lmaxu,lmaxu,nsp,nlibu
     integer:: i,idmatu
     logical:: mmtargetx

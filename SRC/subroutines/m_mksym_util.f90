@@ -5,16 +5,13 @@ module m_mksym_util !utities for m_mksym
   private
   real(8),parameter:: toll=1d-4,tiny=1d-4
 contains
-  subroutine gensym(slabl,gens,usegen,lcar,lfix,lsmall,nbas, nspec,ngmx,plat,platcv,bas,ips,nrspec,ng,g, &
-       ag,ngen,gen,nwgens,nggen,isym,istab)  ! Generate the space group 
-    ! ----------------------------------------------------------------------
+  subroutine gensym(slabl,gens,symfind,lcar,lfix,lsmall,nbas, nspec,ngmx,plat,platcv,bas,ips,nrspec, ng,g,ag, & ! Generate the space group ops
+       ngen,gen,nwgens,nggen,isym,istab)  
     !i Inputs:
     !i   slabl: name of the different species.
-    !i   gens:  a list of generators, in symbolic representation
-    !i          NB: this list is not required; see Remarks.
-    !i   usegen:0 Find any additional group operations for this basis.
-    !i          1 Also, extra basis atoms are added as needed to guarantee
-    !i            the group operations created from gens are valid.
+    !i   gens:  a list of generators, in symbolic representation  NB: this list is not required; see Remarks.
+    !i   symfind:0 Find any additional group operations for this basis. 0 is T.
+    !i          1 Also, extra basis atoms are added as needed to guarantee the group operations created from gens are valid.
     !i          2 Do neither 0 nor 1.
     !i   lcar:  (not used)
     !i          T express ag,positions in cartesian coordinates
@@ -30,18 +27,18 @@ contains
     !i         :when generated from spacegroup data in some books.
     !i   ldist: lattice deformation matrix key; see lattdf
     !i   dist:  lattice deformation matrix; see lattdf
-    ! o Inputs/Outputs (altered only if usegen=F)
+    ! o Inputs/Outputs (altered only if symfind=F)
     ! o  nbas:  On input, number of atoms in the basis
-    ! o         On output nbas may be enlarged, depending symops and usegen
+    ! o         On output nbas may be enlarged, depending symops and symfind
     ! o  bas:   basis vectors
-    ! o         On output bas may be enlarged, depending symops and usegen
+    ! o         On output bas may be enlarged, depending symops and symfind
     ! o  ips:   the jth atom belongs to spec ips(j)
-    ! o         On output ips may be enlarged, depending symops and usegen
+    ! o         On output ips may be enlarged, depending symops and symfind
     !o Outputs:
     !o   istab: site ib is transformed into istab(ib,ig) by operation ig
     !o   g:     symmetry operation matrix (assumed dimensioned >=ngmx)
     !o   ag:    symmetry operation vector (assumed dimensioned >=ngmx)
-    !o   ... The following are generated if usegen=F
+    !o   ... The following are generated if symfind=F
     !o   isym:  numbers characterizing the symmetry of lattice and crystal
     !o          isym(1) produces index for underlying lattice (see symlat)
     !o   lsmall:if T: a smaller unit cell can be found
@@ -62,10 +59,10 @@ contains
     !r     1.  Any generators supplied from input gens
     !r         are checked for consistency with the underlying lattice.
     !r     2.  The space group is made from these generators.
-    !r     3.  if usegen<2, missing basis atoms are added to make
+    !r     3.  if symfind<2, missing basis atoms are added to make
     !r         the basis consistent with the supplied symmetry.
     !r     4.  nrspec is created
-    !r     ... Unless usegen is 0, nothing more is done
+    !r     ... Unless symfind is 0, nothing more is done
     !r     5.  The point group of the underlying lattice without the
     !r         basis is generated.
     !r     6.  The full space group is generated from the point group
@@ -84,7 +81,7 @@ contains
     !u   03 Nov 01 Shortened argument list, eliminating duplicate bas,ips
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: nbas,isym(*),istab(nbas,*),nspec,ngen,ngmx, ng,nrspec(nspec),usegen,ips(nbas),nggen 
+    integer :: nbas,isym(*),istab(nbas,*),nspec,ngen,ngmx, ng,nrspec(nspec),symfind,ips(nbas),nggen 
     double precision :: plat(9),platcv(9),g(9,*),ag(3,*),bas(3,nbas)
     character(8) ::  slabl(*), gens*(*), nwgens*(*)
     logical :: lcar,lfix
@@ -95,7 +92,7 @@ contains
     parameter(ngnmx=10)
     double precision :: gen(9,ngnmx),agen(3,ngnmx)
     integer ::iwdummy,iwdummy1(1)
-    character(8):: xt
+    character(8):: xn
     call rxx(.not. lcar, 'gensym not implemented lcar')
     call rxx(lfix,  'gensym not implemented lfix')
     call rxx(lsmall,'gensym not implemented lsmall')
@@ -106,21 +103,24 @@ contains
     call words(gens,ngen)
     if (ngen > 0) then
        call word(gens,ngen,i,j)
-       if (gens(i:j) == 'point') then
-          j = i-1
-          modes = 1
-       endif
-       print *,'gggggg',ngen,gens(1:j)
-!       print *,'platcv',platcv
        call psymop(gens(1:j),platcv,gen,agen,ngen)
        nwgens = gens(1:j)
     endif
     do  10  igen = 1, ngen
        call grpprd(gen(1,igen),plat,platt)
-       if(.NOT.latvec(3,toll,qlat,platt))call rx('GENSYM: imcompatible with lattice generators. igen='//trim(xt(igen)))
+       if(.NOT.latvec(3,toll,qlat,platt)) call rx('GENSYM: imcompatible with lattice generators. igen='//trim(xn(igen)))
 10  enddo
-    ! ... Set up space group (g,ag,ng) given point group generators gen
-    call sgroup(10+modes,gen,agen,ngen,g,ag,nggen,ngmx,qlat)
+    
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!111    
+    write(6,*)'goto sgroup',ngen
+    do i=1,ngen
+       write(stdo,ftox)i,' gen agen=',ftof(gen(:,i),2),' ',ftof(agen(:,i),3)
+    enddo
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    
+    call sgroup(10+modes,gen,agen,ngen, g,ag,nggen,ngmx,qlat)! ... Set up space group (g,ag,ng) given point group generators gen
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    
+    write(stdo,ftox)'end of sgroup ngen nggen ngmx',ngen,nggen,ngmx,ftof(ag(:,1),3)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    
     ng = min(nggen,ngmx)
     if (nggen > ngmx) return
     i = maxval(ips) !mxint(nbas,ips)
@@ -132,43 +132,25 @@ contains
        ic = ips(ibas)
        nrspec(ic) = nrspec(ic)+1
 22  enddo
-    ! --- Complete the space group ---
-    if (usegen == 0) then
-       !       call rotlat(alat,bas,csym,isym,lfix,nbas,plat,qlat)
-       !   ... Symmetry of lattice without basis
-       call symlat(plat,ng,g,isym(1))
-       !   ... Symmetry of lattice with basis
-       allocate(wk_rv(3*nbas))
-       call symcry (bas , wk_rv , ips , nbas , nspec , nrspec &
-            , ng , plat , qlat , g , ag , istab )
-       if (allocated(wk_rv)) deallocate(wk_rv)
+    if (symfind == 0) then !Complete the space group. SYMGRP find. symfind=T
+       call symlat(plat,ng,g,isym(1)) !Symmetry of lattice without bas
+       call symcry(bas, ips,nbas,nspec,nrspec,ng,plat,qlat,g,ag,istab ) ! Symmetry of lattice with bas
        if (ng > ngmx) return
        nwgens = ' '
        call groupg(0,ng,g,ag,plat,ngen,gen,agen,nwgens,nggen)
     else
-       nggen = 0
-       call symtbl ( 0 , nbas , iwdummy1 , bas , g , ag , ng , qlat , istab )
+       call symtbl(0,nbas,iwdummy1,bas,g,ag,ng,qlat,istab )
+       nggen = ng
     endif
-    ! --- Make istab2 ---
-    !      do  i = 1, ng
-    !        do  ibas = 1, nbas
-    !          ic = istab(ibas,i)
-    !          istab2(ic,i) = ibas
-    !        enddo
-    !      enddo
-    if (iprint() >= 80 .AND. ng > 1) then
-       write(stdo,*)'  ib  istab ...'
-       do  i = 1, nbas
-          write(stdo,"(i4,':',48i3)") i, (istab(i,ig), ig=1,ng)
+    if(iprint()>0) then
+       write(stdo,"(a)")' gensym: site permutation table for group operations ...'
+       write(stdo,"('  ib/ig:',48i3)")  [(ig,ig=1,ng)]
+       do i = 1, nbas
+          write(stdo,"(i7,':',48i3)") i,(istab(i,ig), ig=1,ng)
        enddo
-       write(stdo,*)' GENSYM: site permutation table for group operations ...'
     endif
   end subroutine gensym
-
-  subroutine sgroup(mode,gen,agen,ngen,g,ag,ng,ngmx,qb)
-    !      use m_lmfinit,only: stdo
-    !- Sets up space group given generators (gen,agen).
-    ! ----------------------------------------------------------------------
+  subroutine sgroup(mode,gen,agen,ngen,g,ag,ng,ngmx,qb)  !- Sets up space group given generators (gen,agen).
     !i Inputs
     !i   mode  :a compound set of switches
     !i         :1s digit
@@ -212,16 +194,13 @@ contains
     ng = 1
     mode0 = mod(mode,10)
     mode1 = mod(mode/10,10)
-    ! --- For each generator, do ---
-    do  80  igen = 1, ngen
+    do  80  igen = 1, ngen !For each generator, do ---
+!       write(stdo,ftox)'do80',igen,ftof(gen(1:9,igen),3),'  ',ftof(agen(:,igen),3)
+       
        call spgcop(gen(1,igen),agen(1,igen),sig,asig)
-       ! --- Extend the group by all products with sig ----
-       do  9  ig = 1, ng
+       do  9  ig = 1, ng ! --- Extend the group by all products with sig ----
           if (spgeql(mode0,g(1,ig),ag(1,ig),sig,asig,qb)) then
-             if (ipr > 30) write(stdo,ftox)' Generator ',igen,' already in group '// &
-                  'as element ',ig
-             !        write(stdo,650) igen,ig
-             !  650   format(' generator',i3,'  is already in group as element',i3)
+             if (ipr > 30) write(stdo,ftox)' Generator ',igen,' already in group as element ',ig
              goto 80
           endif
 9      enddo
@@ -234,7 +213,7 @@ contains
 1      enddo
        ! ... Products of type  g1 sig**p g2
 2      nnow = ng
-       if(ipr>=40) write(stdo,ftox)trim(sout),' ',igen,' is ',iord
+!       if(ipr>=40) write(stdo,ftox)trim(sout),' ',igen,' is ',iord
        do  8  j = 1, ng
           call spgcop(g(1,j),ag(1,j),h,ah)
           do  10  ip = 1, iord-1
@@ -280,13 +259,14 @@ contains
     ! --- Printout ---
     if (ipr >= 30) then
        if (sout /= ' ' .AND. ipr >= 60) write(stdo,ftox)' Order of generator'//trim(sout)
-       write(stdo,ftox)'SGROUP: ',ng,'symmetry operations from',ngen
+       write(stdo,ftox)' sgroup: ',ng,'symmetry operations from',ngen,'generators'
        if (ipr >= 60 .AND. ng > 1) then
-          write(stdo,'('' ig group op'')')
-          do  60  ig = 1, ng
+          write(stdo,'('' sgroup: ig op'')')
+          do  ig = 1, ng
+             sg=''
              call asymop(g(1,ig),ag(1,ig),' ',sg)
-             write(stdo,'(i4,2x,a)') ig,sg
-60        enddo
+             write(stdo,'(5x,i4,2x,a)') ig,sg
+          enddo
        endif
     endif
     return
@@ -294,7 +274,6 @@ contains
     if(mode1 == 0)call rx1('SGROUP: ng greater than ngmx=%i: probably bad translation',ngmx)
     ng = ngmx+1
   end subroutine sgroup
-
   subroutine spgprd(g1,a1,g2,a2,g,a)
     !     implicit none
     double precision :: &
@@ -325,7 +304,6 @@ contains
 14  enddo
     return
   end subroutine spgprd
-
   subroutine spgcop(g,ag,h,ah)
     integer :: i
     double precision :: h(9),g(9),ag(3),ah(3)
@@ -338,7 +316,6 @@ contains
        if (dabs(ah(i)) < 1.d-10) ah(i)=0d0
 11  enddo
   end subroutine spgcop
-
   subroutine gpfndx(g,ag,ia,ja,pos,nrc,rb,qb)
     !- Finds atom ja which is transformed into ia by group operation g,ag.
     !     implicit none
@@ -370,12 +347,9 @@ contains
        !endif
 11  enddo
   end subroutine gpfndx
-
-  subroutine groupg(mode,ng,g,ag,plat,ngen,gen,agen,gens,ngout)
+  subroutine groupg(mode,ng,g,ag,plat,ngen,gen,agen,gens,ngout) !- Finds a set of generators for the symmetry group
     use m_ftox
-    use m_shortn3,only: shortn3_initialize,shortn3,nlatout
-    !- Finds a set of generators for the symmetry group
-    ! ----------------------------------------------------------------------
+!    use m_shortn3,only: shortn3_initialize,shortn3,nlatout
     !i Inputs:
     !i   mode  :0 two groups compare to equal when both their point
     !i         :  and space parts compare equal
@@ -407,7 +381,7 @@ contains
     double precision :: gen(3,3,*),agen(3,*),g(3,3,*),ag(3,*)
     character*(*) gens
     integer :: imax,isop,ngloc,ngmax,iprint,ngen0,ngmx
-    integer :: i1,i2,j1,j2
+    integer :: i1,i2,j1,j2,icount,ngmax2
     parameter (ngmx=48*64)
     character(100) :: sg,sg1,sout,sout2
     double precision :: gloc(3,3,ngmx),agloc(3,ngmx),qlat(3,3),xx,vec(3),vol
@@ -415,76 +389,62 @@ contains
     call dinv33(plat,1,qlat,vol)
     call pshpr(1)
     ngen0 = ngen
-    call sgroup(0,gen,agen,ngen,gloc,agloc,ngout,ngmx,qlat)
-10  continue
-    ! --- Do until enough generators added to make whole group ---
-    if (ngout < ng) then
+    print *,'groupg-sgroup ngen0=',ngen0
+ !   write(stdo,ftox)'   gen=',ftof(gen(:,1,1))
+ !   write(stdo,ftox)'   gen=',ftof(gen(:,2,1))
+ !   write(stdo,ftox)'   gen=',ftof(gen(:,3,1))
+ !   write(stdo,ftox)'  agen=',ftof(agen(:,1))
+    call sgroup(0,gen,agen,ngen, gloc,agloc,ngout, ngmx,qlat)
+    print *,'groupg-sgroup ngout=',ngout
+!    print *,'  gloc=',gloc(:,:,1)
+    !    print *,' agloc=',agloc(:,1)
+    icount=0
+    ngmax2=0
+    do ! a set of generators (gen,agen) to maximize number of spc operations
+       icount=icount+1
        imax = 0
        ngmax = 0
        do  isop = 1, ng!   ... Run through all symops, choosing whichever adds the most ops
           gen(:,:,ngen+1)= g(:,:,isop) 
           agen(:,ngen+1) = ag(:,isop)  
-          call sgroup(mode,gen,agen,ngen+1,gloc,agloc,ngloc,ngmx,qlat)
+          call sgroup(mode,gen,agen,ngen+1, gloc,agloc,ngloc,ngmx,qlat)
           if (ngloc > ngmax) then
              imax = isop
              ngmax = ngloc
              ngout = ngloc
           endif
        enddo
+       if(ngmax>ngmax2) then
+          ngmax2=ngmax
+       else
+          exit
+       endif
        ngen = ngen+1
        gen(:,:,ngen)= g(:,:,imax) 
        agen(: ,ngen)= ag(: ,imax) 
-       goto 10
-    endif
-    if ( .TRUE. ) then
-       !   ... Run through all symops, choosing whichever adds the most ops
-       imax = 0
-       ngmax = ngout
-       do  isop = 1, ng
-          gen(:,:,ngen+1)= g(:,:,isop)
-          agen(:,ngen+1) = ag(:,isop) 
-          call sgroup(mode,gen,agen,ngen+1,gloc,agloc,ngloc,ngmx,qlat)
-          if (ngloc > ngmax) then
-             imax = isop
-             ngmax = ngloc
-             ngout = ngloc
-          endif
-       enddo
-       if (ngout > ngmax) then
-          ngen = ngen+1
-          gen(:,:,ngen)= g(:,:,imax)
-          agen(: ,ngen)= ag(: ,imax)
-       endif
-    endif
+       write(6,*)'Enlarging ngen=',ngen,' ng ngout=',ng,ngout
+    enddo
     call poppr
     if(iprint()>0.and. ngen0 == 0) then     ! --- Create gens, optionally printout ---
-       write(stdo,ftox)'GROUPG: the following are sufficient to generate the space group:'
+       write(stdo,ftox)' groupg: the following are sufficient to generate the space group:'
     elseif(iprint()>0) then
-       write(stdo,ftox)'GROUPG:',ngen-ngen0,'generator(s) were added to complete the group:'
+       write(stdo,ftox)' groupg:',ngen-ngen0,'generator(s) were added to complete the group:'
     endif
-    sout = ' '
-    sout2 = ' '
-    call shortn3_initialize(plat)
+    sout = ''
+    sout2 = ''
+!    call shortn3_initialize(plat)
     do  20  isop = 1, ngen
-       call asymop(gen(1,1,isop),agen(1,isop),':',sg)
-       sout(9:)=trim(sout(9:))//' '//trim(sg) 
-       vec=agen(:,isop)
-       call dgemm('N','N',1,3,3,1d0,agen(1,isop),1,qlat,3,0d0,vec,1)
-       call asymop(gen(1,1,isop),vec,'::',sg1)
-       call word(sg1,1,i1,i2)
-       call shortn3(vec)
-       vec=vec+matmul(plat,nlatout(:,1))
-       call asymop(gen(1,1,isop),vec,'::',sg)
-       call word(sg,1,j1,j2)
-       if (i2-i1 < j2-j1) sg = sg1
-       sout2(9:)=trim(sout2(9:))//' '//trim(sg) 
+       call asymop(gen(1,1,isop),agen(1,isop),':',sg) !cartesian
+       sout=trim(sout)//' '//trim(sg)
+       call asymop(gen(1,1,isop),matmul(agen(1:3,isop),qlat(:,:)),'::',sg1) !fractional
+       sout2=trim(sout2)//' '//trim(sg1) 
 20  enddo
     if (ngen > ngen0 .AND. iprint() >= 20) then
-       write(stdo,"(' Generators:trans(cart)  = ', a)")trim(adjustl(sout)) 
-       write(stdo,"(' Generators::trans(frac) = ', a)")trim(adjustl(sout2))
+       write(stdo,"('  Generators:  trans(cart)= ', a)")trim(adjustl(sout)) 
+       write(stdo,"('  Generators:: trans(frac)= ', a)")trim(adjustl(sout2))
     endif
     gens = sout2
-    if(ngout>ng)write(stdo,ftox)'(warning)',ng,' ops supplied but generators create ',ngout,' ops'
+    if(ngout>ng)write(stdo,ftox)' (warning)ng=',ng,' ops supplied but generators create ngout=',ngout,' ops'
   end subroutine groupg
   subroutine grpgen(gen,ngen,symops,ng,ngmx)
     use m_ftox
@@ -659,65 +619,40 @@ contains
     double precision :: plat(3,3),g(9,1),h(9),hh(9),ag(3,1),vec(3)
     integer :: nt,ng,i
     logical :: flgp
-    character*1:: leftp='('
-    ! --- Do until no more symbolic representation, do ---
+    character*1:: leftp='(' 
     nt = len(t)
-    write(6,*)'========== psymop  :'//trim(t)//'###'
     ng = 0
     i = 0
-    do
+    do ! Do until no more symbolic representation, do ---
        call skipbl(t,nt,i)
-       i=i+1 !
-       write(6,*)'  psymop:start###'//trim(t(i:)),' i=',i
+       i=i+1 !  write(6,*)'  psymop:start###'//trim(t(i:)),' i=',i
        if (i >= nt) return
        ng = ng+1
-       call parsop(t,i,g(1,ng))
-       write(6,*)'  Endof parsop1 i=',i,trim(t(i:))
+       call parsop(t,i,g(1,ng)) !  write(6,*)'  Endof parsop1 i=',i,trim(t(i:))
        if (t(i:i) == '*') then
-          i = i+1
-          write(6,*)'  psymop:ttttt222yyy###'//trim(t(i+1:)),'i=',i
+          i = i+1 !       write(6,*)'  psymop:ttttt222yyy###'//trim(t(i+1:)),'i=',i
           call parsop(t,i,h)
           call grpprd(g(1,ng),h,hh)
           call dcopy(9,hh,1,g(1,ng),1)
        endif
-       ag(:,ng)=0d0 !call dpzero(ag(1,ng),3)
-       !    ! ... Compatibility with old :T(x,y,z)
-       !    if (t(i+1:i+2) == ':T' .OR. t(i+1:i+2) == ':t') i=i+2
-       ! ... Compatibility with ::(x,y,z)
-       flgp = .false.
-       print *,'tttttttttt=',t(i:i+1) 
-       if (t(i:i+1) == '::') then
+       ag(:,ng)=0d0 
+       flgp = .false. 
+       if (t(i:i+1) == '::') then !fractional
           flgp = .true.
           i=i+2
-       elseif (t(i:i) == ':') then
+       elseif (t(i:i) == ':') then !cartesian 
           i=i+1
        endif
        if (t(i:i) == leftp) then
-          write(6,*)'psymop:ttttt111###'//trim(t)//'####',' flgp=',flgp,t(i:i)
-          !i=i+1
-          if ( .NOT. parsvc(-1,t,i,ag(1:3,ng))) call rxi('psymop: failed to parse translation ig=',ng)
-          !i=i-1
-          write(6,*)'aaaa000 ag=',ag(1:3,ng),t(i:)
-          write(6,*) plat(1:3,1)
-          write(6,*) plat(1:3,2)
-          write(6,*) plat(1:3,3)
-          if (flgp) then
-             vec= ag(1:3,ng)
-             call grpop(vec,ag(1,ng),plat,1)
-          endif
-          write(6,*)'aaaa111 ag=',ag(1:3,ng)
+          if( .NOT. parsvc(-1,t,i,ag(1:3,ng))) call rxi('psymop: failed to parse translation ig=',ng)
+          if(flgp) ag(:,ng) = matmul(plat(:,:),ag(1:3,ng)) 
        endif
     enddo
-    !    goto 90
   end subroutine psymop
-  subroutine parsop(t,i,a)
-    !- Parse string for a point group operator
+  subroutine parsop(t,i,a)    !- Parse string for a point group operator
     double precision :: v(3),sp,c,s,pi2,a(3,3),ddot
-    character(*) :: t !(0:*)
-    !      logical parsvc
-    integer :: i,j,k,nrot,iii
-!    i=i+1
-    write(*,*)"parsopinput=@@@"//trim(t)//"@@@",i
+    character(*) :: t 
+    integer :: i,j,k,nrot,iii !    write(*,*)"parsopinput=@@@"//trim(t)//"@@@",i
     pi2 = 8*datan(1d0)
     if (t(i:i) == 'r' .OR. t(i:i) == 'R') then
        i = i+1
@@ -746,7 +681,7 @@ contains
     else if (t(i:i) == 'm' .OR. t(i:i) == 'M') then
        i = i+1
        if ( .NOT. parsvc(-1,t,i,v)) goto 99
-       sp = ddot(3,v,1,v,1)
+       sp = sum(v**2)
        do  11  j = 1, 3
           do  12  k = 1, 3
              a(j,k) = -2.d0*v(k)*v(j)/sp
@@ -755,33 +690,25 @@ contains
 11     enddo
     else if (t(i:i) == 'i' .OR. t(i:i) == 'I') then
        i = i+1
-       !       call dvcpy(0d0,0,a,1,9)
-       !       call dvcpy(-1d0,0,a,4,3)
-       call dpzero(a,9)
+       a=0d0
        a(1,1) = -1
        a(2,2) = -1
        a(3,3) = -1
     else if (t(i:i) == 'e' .OR. t(i:i) == 'E') then
        i = i+1
-       !       call dvcpy(0d0,0,a,1,9)
-       !       call dvcpy(-1d0,0,a,4,3)
-       call dpzero(a,9)
+       a=0d0
        a(1,1) = 1
        a(2,2) = 1
        a(3,3) = 1
     else
        goto 99
     endif
-!    i=i-1
     return
 99  continue
     write(stdo,*)'PARSOP: parse error at ',i,'t=',t(i:)
     call rx('PARSOP: parse error')
   end subroutine parsop
-  ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-  subroutine symlat(platcp,ngrp,grp,isym)
-    !- Generates the (point) symmetry operations of the lattice
-    ! ----------------------------------------------------------------------
+  subroutine symlat(platcp,ngrp,grp,isym)  !- Generates the (point) symmetry operations of the lattice
     !i Inputs:
     !i   platcp:lattice vectors of most compact primitive unit cell
     !o Outputs:
@@ -800,20 +727,17 @@ contains
     !r Remarks:
     !r   symlat analyzes the primitive translations of the bravais
     !r   lattice in order to supply the symmetry operations of the lattice.
-    !r   It gives the number ngrp of allowed operations as well as
-    !r   these operations themselves.
-    ! ----------------------------------------------------------------------
+    !r   It gives the number ngrp of allowed operations as well as these operations themselves.
     implicit none
     integer :: ngrp,isym
     double precision :: platcp(3,3),grp(9,*)
-    integer :: i,iprint,ltmax,ll1,m,m1,m2,m3,mm,nrot(4)
+    integer :: i,iprint,ltmax,ll1,m,m1,m2,m3,mm
     parameter(ltmax=3,ll1=ltmax*2+1)
     double precision :: platt(9),qlatcp(3,3),mat(9),vecg(3),vol
     logical :: lirr
-    character(12) :: csym1(0:7)
-    data nrot /2,3,4,6/
-    data csym1 /'indefinite','triclinic','monoclinic','orthorhombic', &
-         'tetragonal','rhombohedral','hexagonal','cubic'/
+    character(12),parameter:: csym1(0:7)=[character(12):: &
+         'indefinite','triclinic','monoclinic','orthorhombic','tetragonal','rhombohedral','hexagonal','cubic']
+    integer,parameter:: nrot(4)=[2,3,4,6]
     mm(i,m) = ltmax-(mod(i,ll1**m)-mod(i,ll1**(m-1)))/ll1**(m-1)
     call dinv33(platcp,1,qlatcp,vol)
     ! --- Start out with E and I ---
@@ -825,22 +749,12 @@ contains
        m1 = mm(i,1)
        m2 = mm(i,2)
        m3 = mm(i,3)
-       lirr = .true.
-       do  12  m = 2, ll1
-          lirr = lirr.and.(mod(m1,m).ne.0.or.mod(m2,m).ne.0.or. &
-               mod(m3,m).ne.0)
-12     enddo
-       if (lirr) then
-          do  14  m = 1, 3
-             vecg(m) = m1*platcp(m,1) + m2*platcp(m,2) + m3*platcp(m,3)
-14        enddo
-
-          do  16  m = 1, 4
-             !       ... Matrix for this symmetry operation
-             call csymop(-1,mat,.false.,nrot(m),vecg)
+       if( all([((mod(m1,m)/=0.or.mod(m2,m)/=0.or.mod(m3,m)/=0),m=2,ll1)]) ) then
+          vecg(:) = matmul(platcp,[m1,m2,m3]) ! m1*platcp(:,1) + m2*platcp(:,2) + m3*platcp(:,3)
+          do  16  m = 1, 4 
+             call csymop(-1,mat,.false.,nrot(m),vecg)!       ... Matrix for this symmetry operation
              call grpprd(mat,platcp,platt)
-             !       ... Add it and i*symop, if allowed
-             if (latvec(3,toll,qlatcp,platt)) then
+             if (latvec(3,toll,qlatcp,platt)) then !       ... Add it and i*symop, if allowed
                 call csymop(-1,grp(1,ngrp+1),.false.,nrot(m),vecg)
                 call csymop(-1,grp(1,ngrp+2),.true. ,nrot(m),vecg)
                 ngrp = ngrp+2
@@ -854,21 +768,16 @@ contains
        endif
 10  enddo
     isym = 0
-    if (ngrp == 2) isym=1
-    if (ngrp == 4) isym=2
-    if (ngrp == 8) isym=3
+    if (ngrp == 2)  isym=1
+    if (ngrp == 4)  isym=2
+    if (ngrp == 8)  isym=3
     if (ngrp == 16) isym=4
     if (ngrp == 12) isym=5
     if (ngrp == 24) isym=6
     if (ngrp == 48) isym=7
-    if (iprint() >= 30) write(stdo,ftox)' SYMLAT: Bravais system is ' &
-         //csym1(isym)//'with',ngrp,'symmetry operations.'
+    if (iprint() >= 30) write(stdo,ftox)' symfind=T: symlat: Bravais system is '//csym1(isym)//' with',ngrp,'symmetry operations.'
   end subroutine symlat
-  ! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss!
-  subroutine symcry(bas,bast,ipc,nbas,nclass,nrclas, &
-       ng,plat,qlat,g,ag,istab)
-    !- Generates the symmetry ops of the crystal from those of the lattice
-    ! ----------------------------------------------------------------------
+  subroutine symcry(bas,ipc,nbas,nclass,nrclas, ng,plat,qlat,g,ag,istab) ! Generates the symmetry ops of the crystal from those of the lattice
     !i Inputs:
     !i   tol:   tol for which atoms are considered to be at the same site
     !i          use 0 for symtbl to pick internal default
@@ -879,12 +788,12 @@ contains
     !i   nrclas:number of atoms in the ith class
     !i   plat  :primitive lattice vectors (scaled by alat)
     !i   qlat  :primitive translation vectors in reciprocal space
-    !i   bast  :work array of same dimension as bas
-    ! o Inputs/Outputs:
-    ! o  ng    :number of allowed symmetry operations (see Remarks)
-    ! o         on input  number of symmetry operations of the lattice
-    ! o         on output number of symmetry operations of the crystal
-    ! o  g     :symmetry operation matrices
+    !xi   bast  :work array of same dimension as bas
+    ! io Inputs/Outputs:
+    ! io  ng    :number of allowed symmetry operations (see Remarks)
+    ! io         on input  number of symmetry operations of the lattice
+    ! io         on output number of symmetry operations of the crystal
+    ! io  g     :symmetry operation matrices
     !o Outputs:
     !o   ag    :symmetry operation vector
     !o   istab :site ib is transformed into istab(ib,ig) by operation ig
@@ -915,6 +824,7 @@ contains
     ng0 = ng
     ng = 0
     do  30  ig = 1, ng0
+!       write(stdo,ftox)'check initial generator ig=',ig
        bast= matmul(g(:,:,ig),bas)!   ... Rotate the basis by g
        do  20  nj = 1, nrclas(icmin)
           jbas = iclbsj(icmin,ipc,nbas,nj)
@@ -931,39 +841,26 @@ contains
                    goto 10
                 endif
 12           enddo
-             !       ... Candidate not valid
-             !if (ipr >= 90) then
-             !   call asymop(g(:,:,ig),ag(1,ng+1),' ',sg)
-             !   call awrit1(' symcry: excluded candidate ig=%,2i  '//sg &
-             !        //'%a',' ',80,stdo,ig)
-             !endif
+             call asymop(g(:,:,ig),ag(1,ng+1),' ',sg)
+             write(stdo,ftox)' symcry: excluded candidate ig=',ig,' op=',trim(sg) !Candidate not valid
              goto 20
 10        enddo
           !     --- Valid ag found; add g to list ---
           ng = ng+1
           if (ig > ng) g(:,:,ng)=g(:,:,ig) 
-          !if (ipr >= 70) then
-          !   call asymop(g(:,:,ng),ag(1,ng),' ',sg)
-          !   call awrit1(' symcry: accepted candidate ig=%,2i  '//sg &
-          !        //'%a',' ',80,stdo,ig)
-          !endif
           goto 30
 20     enddo
 30  enddo
-    if (ipr >= 30) write(stdo,ftox)' SYMCRY: crystal invariant under ' &
-         ,ng,'symmetry operations for tol=',ftof(tol1)
+    if(ipr>=30)write(stdo,ftox)' symfind=T: symcry: crystal invariant under',ng,'following symmetry operations for tol=',ftof(tol1)
     if (ipr >= 60 .AND. ng > 1) then
-       write(stdo,'(''-- ig group op'')')
+       write(stdo,'('' -- ig group op: symcry'')')
        do  60  ig = 1, ng
           call asymop(g(:,:,ig),ag(1,ig),' ',sg)
-          write(stdo,'(i4,2x,a)') ig,trim(sg)
+          write(stdo,'(i5,2x,a)') ig,trim(sg)
 60     enddo
     endif
   end subroutine symcry
-  ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-  subroutine asymop(grp,ag,asep,sg)
-    !- Generate the symbolic representation of a group operation
-    ! ----------------------------------------------------------------------
+  subroutine asymop(grp,ag,asep,sg)    !- Generate the symbolic representation of a group operation
     !i Inputs:
     !i  grp,ag :  space group rotation + translation matrix
     !i  asep:     If first character is 'f', rot. and trans. vectors
@@ -972,17 +869,13 @@ contains
     !i            used for the separators.
     !o Outputs:
     !o  sg  :  symbolic representation of group op
-    !b Bugs
-    !b  No check is made on the length of sg
-    ! ----------------------------------------------------------------------
     implicit none
     double precision :: grp(3,3),ag(3)
     character(*):: sg,asep
     double precision :: vecg(3),dasum
     integer :: nrot,ip,isw,i1,i2,fmtv
     logical :: li
-    ! --- Get consitutents of grp ---
-    call csymop(1,grp,li,nrot,vecg)
+    call csymop(1,grp,li,nrot,vecg) !Get consitutents of grp ---
     ! --- Rotational part ---
     i1 = 1
     fmtv = 0
@@ -1006,21 +899,18 @@ contains
           ip =len(trim(sg))
        endif
        ip=ip+1
-       call rxx(.not. parsvc(2+fmtv,sg,ip,vecg),'bug in asymop')
-    endif
-!    write(6,*)'nrot=',nrot,trim(sg)
-    ! --- Translational part ---
-    if (dasum(3,ag,1) > tiny) then
+       call rxx(.not. parsvc(2+fmtv,sg,ip,vecg),'bug in asymop 2+fmtv')
+    endif!    write(6,*)'nrot=',nrot,trim(sg)
+    if (dasum(3,ag,1) > tiny) then !Translational part ---
        if (asep(i1:i1) /= ' ') then
           call nword(asep,1,i1,i2)
           sg(ip+1:) = asep(i1:i2)
           ip = ip+i2-i1+1
        endif
        ip=ip+1
-       call rxx(.not. parsvc(1+fmtv,sg,ip,ag),'bug in asymop')
+       call rxx(.not. parsvc(1+fmtv,sg,ip,ag),'bug in asymop 1+fmtv')
     endif
   end subroutine asymop
-  ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
   subroutine csymop(iopt,grp,li,nrot,vecg) !Decomposes a group operation into its consitutents, or vice-versa
     use m_ftox
     !i Inputs:
@@ -1208,124 +1098,83 @@ contains
     enddo
   end subroutine istbpm
   logical function parsvc(iopt,t,ip,v)  !- Parses string, converting to a vector, or vice-versa
+    ! We now handle only v=(num,num,num),d,x,y,z only, where num is not fractional number.
+    !
     !i Inputs:
     !i   iopt   -1 to convert string t to vector,
     !i           1 to convert vector v to string t
     !i           2 same as 1, but use shorthand 'D', 'X', 'Y', 'Z'.
     !i   ip      position in t first char (0 for first char)
     !i Inputs/Outputs:
-    ! o  t       string representation of vector (see Remarks)
-    ! o  v       vector
+    !o  t       string representation of vector (see Remarks)
+    !o  v       vector
     !o Outputs:
     !o   ip      position after last char: t(ip-1) is last char
     !o   parsvc  T if parse was successful; F if not.
-    !r Remarks
-    !r   The general string represntation has the form '(a,b,c)'
-    !r   where a, b and c are expressions.
+    !
     !r   The following shorthand notations are allowed:
-    !r   'D' for  (1,1,1)
-    !r   'X', 'Y', 'Z' for (1,0,0), (0,1,0), (0,0,1).
-    !b Bugs
-    !b   no check is made on the length of t
+    !r   'D' for  (1,1,1)  'X', 'Y', 'Z' for (1,0,0), (0,1,0), (0,0,1).
     implicit none
     integer :: ip,tlen
     double precision :: v(3)
     character(*) :: t
     double precision :: x,y,z,d
-    character rchr*9, sout*50, add*1,soutx*50
+    character sout*50, add*1,soutx*50
     integer :: itrm,ix(3),ich,iopt,m,i,iz,id,mx !,awrite !,a2vec
     logical :: lveq0(3),lveq1(3)!,a2bin
-    data rchr /'(XxYyZzDd'/
+    character(9),parameter:: rchr='(XxYyZzDd'
     integer:: mmm
-    !ip=ip+1
     ! --- Convert t to vec ---
-    tlen=len(t)
-!    write(6,*) 'Startparsvc:###'//t//'###xxxx',iopt
+    tlen=len(t) !    write(6,*) 'Startparsvc:###'//t//'###xxxx',iopt
     if (iopt == -1) then
        v=0d0
        ich = 0
        call chrps2(t(ip:),rchr,len(rchr),ich,ich,itrm)
-!       write(6,*) '###'//t(ip:ip+2)//'###itrm=',itrm
-       !   ... First char not in rchr: not a recognizable vector
        parsvc = .false.
        if (itrm == 0) return
        if (itrm == 1) then !   '(' is found. We expect t(ip:)='(..., ..., ...)
           ip = ip+1
-          mmm=index(t,')',back=.true.) !findloc([(t(ip+m)==')',m=1,size(t))],dim=1,value=.true.,back=.true.) !we have t(ip+mmm-1)=')'
+          mmm=index(t(ip:),')')
           if(mmm<=0) call rx('cannot find right parensis for vector')
-          write(*,*)'xxxx'//t(ip:mmm-1)//'xxxx'
-          read(t(ip:mmm-1),*) v
-          write(*,*)'vvvv=',v
-!          stop 'vvvvvvvvv'
-          !if ( .NOT. a2bin(t,v,4,0,',',ip,-1)) return
-          !if ( .NOT. a2bin(t,v,4,1,',',ip,-1)) return
-          !if ( .NOT. a2bin(t,v,4,2,')',ip,-1)) return
-          ip=mmm
+          if(verify(t(ip:ip+mmm-2),'0123456789.Dde-, ')>0) then
+             write(stdo,ftox)'t=',t(ip:ip+mmm-2)
+             call rx('translation of symops should be numerical w/o math operations')
+          endif   
+          read(t(ip:ip+mmm-2),*) v 
+          ip=ip+mmm-2+2
           parsvc = .true.
           return
        else
           if (itrm >= 8) then!         ... 'd'
-             v(1:3) = 1
+             v(1:3) = 1d0
           else!         ... 'x' 'y' or 'z'
-             v(itrm/2) = 1
+             v(itrm/2) = 1d0
           endif
           parsvc = .true.
           ip = ip+1 
        endif
        return
-       ! --- Convert vec to t ---
-    elseif (mod(iopt,4) == 1 .OR. mod(iopt,4) == 2) then
+    elseif (mod(iopt,4) == 1 .OR. mod(iopt,4) == 2) then ! --- Convert vec to t ---
        parsvc = .true.
-       do    i = 1, 3
-          lveq0(i) = dabs(v(i)) .lt. tiny
-          lveq1(i) = dabs(v(i)-1) .lt. tiny
-       enddo
-       !   ... Exclude shorthand
-       if (mod(iopt,4) == 1) then
-          lveq0(3) = .false.
-          lveq1(3) = .false.
-       endif
-       if     (lveq1(1) .AND. lveq1(2) .AND. lveq1(3)) then
-          t(ip:ip) = 'd'
-       elseif (lveq1(1) .AND. lveq0(2) .AND. lveq0(3)) then
-          t(ip:ip) = 'x'
-       elseif (lveq0(1) .AND. lveq1(2) .AND. lveq0(3)) then
-          t(ip:ip) = 'y'
-       elseif (lveq0(1) .AND. lveq0(2) .AND. lveq1(3)) then
-          t(ip:ip) = 'z'
-       else
-          t(ip:ip) = '('
-          do  12  i = 1, 3
-             write(sout,ftox)ftof(v(i))
+       t(ip:ip)=' '
+       if(mod(iopt,4) == 2) then
+          if( all(v(:)-[1d0,1d0,1d0]<tiny) ) t(ip:ip)='d'
+          if( all(v(:)-[1d0,0d0,0d0]<tiny) ) t(ip:ip)='x'
+          if( all(v(:)-[0d0,1d0,0d0]<tiny) ) t(ip:ip)='y'
+          if( all(v(:)-[0d0,0d0,1d0]<tiny) ) t(ip:ip)='z'
+       endif   
+       if(t(ip:ip)==' ') then
+          t(ip:ip)='('
+          do i = 1, 3
+             write(sout,ftox) ftof(v(i))
              if(abs(nint(v(i))-v(i))<1d-6) write(sout,ftox) nint(v(i))
-             x = v(i)
-             y = v(i)*dsqrt(3d0)*4
-             if (abs(x) > tiny .AND. dabs(dabs(x)-1) > tiny .AND. iopt <= 4) then
-                if (abs(1/x-nint(1/x)) < tiny) then
-                   write(sout,"('1/',g0)")  nint(abs(1/x))
-                   if(x<0) sout='-'//adjustl(sout)
-                elseif (abs(y-nint(y)) < tiny .AND.   abs(y) > .5d0) then
-                   d = 12
-                   iz = nint(abs(y))
-                   id = 12
-                   if (iz == 2) id = 6
-                   if (iz == 4) id = 3
-                   if (iz == 6) id = 2
-                   if (iz == 12) id = 1
-                   y = y/(12/id)
-                   if(nint(y)==1) write(sout,"('sqrt(3)/',g0)") id
-                   if(nint(y)/=1) write(sout,"(g0,'*sqrt(3)/',g0)") nint(y),id
-                endif
-             endif
-             add=','
-             if(i==3) add=')'
-             sout=trim(adjustl(sout))//add
-             m=len(trim(sout))
-             call strncp(t(ip+1:ip+m),sout,1,1,m) !t(ip+1:ip+m)=trim(sout) !
-!             ip = ip+m
-12        enddo
+             sout = trim(adjustl(sout))//merge(')',',',i==3)
+             m= len_trim(sout)
+             t(ip+1:ip+m)=trim(sout) 
+             ip = ip+m
+          enddo
        endif
-!       ip = ip+1
+       ip = ip+1
     endif
   end function parsvc
   subroutine grpfnd(tol,g,ag,ig,pos,nbas,qlat,ia,ja) !- Find index to site ja site into which g,ag transforms site ia
@@ -1371,17 +1220,13 @@ contains
        endif
 10  enddo
   end subroutine grpfnd
-  logical function spgeql(mode,g1,a1,g2,a2,qb)
-    !- Determines whether space group op g1 is equal to g2
-    ! ----------------------------------------------------------------------
+  logical function spgeql(mode,g1,a1,g2,a2,qb) !- Determines whether space group op g1 is equal to g2
     !i Inputs
     !i   mode  :0 -> space group is compared
     !i         :1 -> only point group is compared
     !i   g1,a1 :first space group
     !i   g2,a2 :second space group
     !i   qb    :reciprocal lattice vectors
-    !u Updates
-    ! ----------------------------------------------------------------------
     implicit none
     integer :: mode
     double precision :: g1(9),g2(9),a1(3),a2(3),qb(3,3)
@@ -1408,26 +1253,16 @@ contains
     return
   end function spgeql
   logical function grpeql(g1,g2)    !- Checks if G1 is equal to G2
-         implicit none
-    double precision :: g1(9),g2(9),dabs,x1,x2
-    logical :: ddif
-    integer :: i
-    ddif(x1,x2) = dabs(x1-x2)> toll
-    grpeql = .false.
-    do  10  i = 1, 9
-       if (ddif(g1(i),g2(i))) return
-10  enddo
-    grpeql = .true.
+    implicit none
+    real(8):: g1(9),g2(9)
+    if(any(dabs(g1-g2)>toll)) then
+       grpeql=.false.
+    else
+       grpeql=.true.
+    endif
+!2023march. follwing is equivalent but did not work in gfortran gcc 9.4.0    
+!    grpeql = merge(any(dabs(g1-g2)>toll),.false.,.true.)
   end function grpeql
-  SUBROUTINE GRPOP(V,V1,G,I)
-    !     implicit none
-    double precision :: G(3,3,*),V(3),V1(3)
-    integer :: i
-    V1(1) = G(1,1,I)*V(1) + G(1,2,I)*V(2) + G(1,3,I)*V(3)
-    V1(2) = G(2,1,I)*V(1) + G(2,2,I)*V(2) + G(2,3,I)*V(3)
-    V1(3) = G(3,1,I)*V(1) + G(3,2,I)*V(2) + G(3,3,I)*V(3)
-    RETURN
-  END SUBROUTINE GRPOP
   logical function latvec(n,tol,qlat,vec)
     !- Checks whether a set of vectors are lattice vectors
     ! ----------------------------------------------------------------------
@@ -1445,9 +1280,7 @@ contains
     latvec = .false.
     do  10  i = 1, n
        do  20  m = 1, 3
-          vdiff = vec(1,i)*qlat(1,m) + &
-               vec(2,i)*qlat(2,m) + &
-               vec(3,i)*qlat(3,m)
+          vdiff = vec(1,i)*qlat(1,m) + vec(2,i)*qlat(2,m) + vec(3,i)*qlat(3,m)
           if (dabs(vdiff-dnint(vdiff)) > tol) return
 20     enddo
 10  enddo
@@ -1455,13 +1288,9 @@ contains
   end function latvec
 !=======================================  
   subroutine words(str,nw) !- Count blank-delimited words in str
-    ! ----------------------------------------------------------------------
-    !i Inputs
     !i   str   :string
     !o Outputs
     !o   nw    :number of blank-delimited words in str
-    !u Updates
-    ! ----------------------------------------------------------------------
     character*(*) str
     integer :: nw
     integer :: i1,i2,i0,i
@@ -1556,10 +1385,8 @@ contains
     endif
     goto 99
   end subroutine nword
-  subroutine splcls(nosplt,bas,nbas,ng,istab,nspec,slabl,nclass,ipc, ics,nrclas)
+  subroutine splcls(nosplt,bas,nbas,ng,istab,nspec,slabl,nclass,ipc, ics,nrclas) !- Splits species into classes
     use m_lgunit,only:stdo
-    !- Splits species into classes
-    ! ----------------------------------------------------------------------
     !i Inputs:
     !i   nosplt:   T copy class and species
     !i   bas,nbas: dimensionless basis vectors, and number
@@ -1647,11 +1474,11 @@ contains
        endif
     endif
     if(ipr>=30) then
-       write(stdo,"(a)")'splcls:  ibas iclass ispec label(ispec)'
+       write(stdo,"(a)")' splcls:  ibas iclass ispec label(ispec)'
        do j=1,nbas
           ic   = ipc(j) !class
           ispec= ics(ic)!spec
-          write(stdo,"(a,3i5,a)")"      ",j,ic,ispec,'     '//trim(slabl(ispec))
+          write(stdo,"(a,3i5,a)")"       ",j,ic,ispec,'     '//trim(slabl(ispec))
        enddo
     endif
     if (nclass == nspec .OR. ipr < 20) return

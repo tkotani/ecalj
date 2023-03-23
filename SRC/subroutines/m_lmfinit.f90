@@ -546,7 +546,7 @@ contains
                   if (ik==1 .AND. rsmh1(lp1,j)<=0) idxdn(lp1,ik,j)=3
                   if (ik==2 .AND. rsmh2(lp1,j)<=0) idxdn(lp1,ik,j)=3
                enddo
-            endif
+            endif 
             if (ik == nkaph .AND. sum(lpz)>0) then
                idxdn(:,ik,j)=3  !call ivset(idxdn(1,ik,j),1,n0,4)
                do  lp1  = 1, lmxb(j)+1

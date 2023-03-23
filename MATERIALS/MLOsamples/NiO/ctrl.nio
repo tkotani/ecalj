@@ -12,8 +12,15 @@ IO      SHOW=T VERBOS=35 TIM=0,0 #Use TIM=3,3 or more for debug (to show which r
          # It is useful to check ctrl is read in correctly or not (equivalent with --show option).
          # larger VERBOSE gives more detailed console output.
 
-SYMGRPAF i::(1,1,1)
-SYMGRP find   # 'find' evaluate space-group symmetry (just from lattice) automatically.
+#SYMGRPAF i:(1,1,1)
+#SYMGRP   i*r3d r2(1,0,-1) i:(1,1,1)
+#SYMGRP   i*r3d r2(1,0,-1)
+
+#SYMGRP   find i::(-1,0,0)
+#SYMGRP   find i:(1,1,1)
+
+SYMGRP    find 
+              # 'find' evaluate space-group symmetry (just from lattice) automatically.
               #
               # Usually 'find is OK', but lmf may use lower symmetry
           # if you did not supply accurate structure.
@@ -31,7 +38,7 @@ SYMGRP find   # 'find' evaluate space-group symmetry (just from lattice) automat
 #id  = NiO
 # NOTE set MMOM. (it will be included in this...)
 %const bohr=0.529177 a=7.88
-STRUC   ALAT={a} PLAT= 0.5 0.5 1.0  0.5 1.0 0.5  1.0 0.5 0.5
+STRUC   ALAT={a}*.9 PLAT= 0.5 0.5 1.0  0.5 1.0 0.5  1.0 0.5 0.5
      NL=4  NBAS= 4  NSPEC=3
 SITE    ATOM=Niup POS=  .0   .0   .0 AF=1
         ATOM=Nidn POS= 1.0  1.0  1.0 AF=-1
@@ -114,7 +121,7 @@ BZ    NKABC={nk1} {nk2} {nk3} # division of BZ for q points.
                #which obtain only eigenvalues in first-path to obtain integration weights
                #, and accumulate eigenfunctions in second path.
 
-      FSMOM={fsmom} real number (fixed moment method)
+      #FSMOM={fsmom} real number (fixed moment method)
       #  FSMOM is for he fixed-spin moment method. 
       #  a spin-dependent potential shift is added to constrain the total magnetic moment to value 
       #  assigned by FSMOM=. Default is NULL (no FSMOM). FSMOM=0 works now (takao Dec2010)
@@ -126,7 +133,7 @@ BZ    NKABC={nk1} {nk2} {nk3} # division of BZ for q points.
       #      It seems good enough to use W=0.001. Smaller W= may cause instability.
       #For Molecule, you may also need to set FSMOM=n_up-n_dn, and FSMOMMETHOD=1 below.
 
-      NOINV=T
+      #NOINV=T
       #(If F, we enfoce |psi_\sigma^fk|^2=|psi_\sigma^{-fk}|^2)
       #    usually judged automatically. So this is for debugging).
       # If NOINV=F, we assume H=H^* for each spin (k <-> -k symmetry). 
