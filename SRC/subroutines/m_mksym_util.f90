@@ -110,6 +110,8 @@ contains
           j = i-1
           modes = 1
        endif
+       print *,'gggggg',gens(1:j)
+       print *,'platcv',platcv
        call psymop(gens(1:j),platcv,gen,agen,ngen)
        nwgens = gens(1:j)
     endif
@@ -654,14 +656,14 @@ contains
     !r   10 Jan 1997 now generates g=transpose of prior versions.
     ! ----------------------------------------------------------------------
     !     implicit none
-    character*(*) t
+    character(*):: t
     double precision :: plat(3,3),g(9,1),h(9),hh(9),ag(3,1),vec(3)
     integer :: nt,ng,i
     logical :: flgp
     character*1:: leftp='('
     ! --- Do until no more symbolic representation, do ---
     nt = len(t)
-    write(6,*)'pppppppppppp=', trim(t)
+    write(6,*)'psymop:t=###'//trim(t)//'####'
     ng = 0
     i = 0
     do
@@ -680,6 +682,7 @@ contains
        !    if (t(i+1:i+2) == ':T' .OR. t(i+1:i+2) == ':t') i=i+2
        ! ... Compatibility with ::(x,y,z)
        flgp = .false.
+       print *,'tttttttttt=',t(i+1:i+2) 
        if (t(i+1:i+2) == '::') then
           flgp = .true.
           i=i+2
@@ -687,10 +690,17 @@ contains
           i=i+1
        endif
        if (t(i+1:i+1) == leftp) then
+          write(6,*)'psymop:ttttt111###'//trim(t)//'####',' flgp=',flgp,t(i+1:i+1)
+          if ( .NOT. parsvc(-1,t,i,ag(1:3,ng))) call rxi('psymop: failed to parse translation ig=',ng)
+          write(6,*)'aaaa000 ag=',ag(1:3,ng)
+          write(6,*) plat(1:3,1)
+          write(6,*) plat(1:3,2)
+          write(6,*) plat(1:3,3)
           if (flgp) then
              vec= ag(1:3,ng)
              call grpop(vec,ag(1,ng),plat,1)
           endif
+          write(6,*)'aaaa111 ag=',ag(1:3,ng)
        endif
     enddo
     !    goto 90
@@ -698,13 +708,15 @@ contains
   subroutine parsop(t,i,a)
     !- Parse string for a point group operator
     double precision :: v(3),sp,c,s,pi2,a(3,3),ddot
-    character(1) :: t(0:*)
+    character(*) :: t !(0:*)
     !      logical parsvc
     integer :: i,j,k,nrot,iii
+    i=i+1
+    write(*,*)"parsopinput=@@@"//trim(t)//"@@@",i
     pi2 = 8*datan(1d0)
-    if (t(i) == 'r' .OR. t(i) == 'R') then
+    if (t(i:i) == 'r' .OR. t(i:i) == 'R') then
        i = i+1
-       read(t(i),'(i1)',err=99) nrot
+       read(t(i:i),'(i1)',err=99) nrot
        i = i+1
        if ( .NOT. parsvc(-1,t,i,v)) goto 99
        sp = ddot(3,v,1,v,1)
@@ -726,7 +738,7 @@ contains
        a(1,2) = a(1,2) - s*v(3)
        a(3,1) = a(3,1) - s*v(2)
        a(2,3) = a(2,3) - s*v(1)
-    else if (t(i) == 'm' .OR. t(i) == 'M') then
+    else if (t(i:i) == 'm' .OR. t(i:i) == 'M') then
        i = i+1
        if ( .NOT. parsvc(-1,t,i,v)) goto 99
        sp = ddot(3,v,1,v,1)
@@ -736,7 +748,7 @@ contains
 12        enddo
           a(j,j) = a(j,j) + 1d0
 11     enddo
-    else if (t(i) == 'i' .OR. t(i) == 'I') then
+    else if (t(i:i) == 'i' .OR. t(i:i) == 'I') then
        i = i+1
        !       call dvcpy(0d0,0,a,1,9)
        !       call dvcpy(-1d0,0,a,4,3)
@@ -744,7 +756,7 @@ contains
        a(1,1) = -1
        a(2,2) = -1
        a(3,3) = -1
-    else if (t(i) == 'e' .OR. t(i) == 'E') then
+    else if (t(i:i) == 'e' .OR. t(i:i) == 'E') then
        i = i+1
        !       call dvcpy(0d0,0,a,1,9)
        !       call dvcpy(-1d0,0,a,4,3)
@@ -755,9 +767,10 @@ contains
     else
        goto 99
     endif
+    i=i-1
     return
 99  continue
-    write(stdo,*)'PARSOP: parse error at ',i,'t= ',t(i)
+    write(stdo,*)'PARSOP: parse error at ',i,'t= ',t(i:i)
     call rx('PARSOP: parse error')
   end subroutine parsop
   ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
@@ -883,7 +896,7 @@ contains
     double precision :: plat(3,3),qlat(3,3),bas(3,nbas),bast(3,nbas), g(3,3,*),ag(3,*)
     integer :: ibas,ic,iclbsj,icmin,ig,ipr,jbas,kbas,kc, m,mbas,nj,nm,ng0
     double precision :: dbas(3),tol1
-    character sg*135
+    character(135):: sg
     real(8):: rfrac(3),epsr=1d-12
     call getpr(ipr)
     tol1=toll
@@ -959,7 +972,7 @@ contains
     ! ----------------------------------------------------------------------
     implicit none
     double precision :: grp(3,3),ag(3)
-    character*(*) sg,asep
+    character(*):: sg,asep
     double precision :: vecg(3),dasum
     integer :: nrot,ip,isw,i1,i2,fmtv
     logical :: li
@@ -1209,39 +1222,44 @@ contains
     !b Bugs
     !b   no check is made on the length of t
     implicit none
-    integer :: ip
+    integer :: ip,tlen
     double precision :: v(3)
-    character*(1) t(0:*)
+    character(*) :: t
     double precision :: x,y,z,d
     character rchr*9, sout*50, add*1,soutx*50
     integer :: itrm,ix(3),ich,iopt,m,i,iz,id,mx !,awrite !,a2vec
     logical :: lveq0(3),lveq1(3)!,a2bin
     data rchr /'(XxYyZzDd'/
     integer:: mmm
+    ip=ip+1
     ! --- Convert t to vec ---
+    tlen=len(t)
+!    write(6,*) 'Startparsvc:###'//t//'###xxxx',iopt
     if (iopt == -1) then
        v=0d0
        ich = 0
-       call chrps2(t(ip),rchr,len(rchr),ich,ich,itrm)
-       write(6,*) t(ip:ip+2), 'itrm=',itrm
+       call chrps2(t(ip:),rchr,len(rchr),ich,ich,itrm)
+!       write(6,*) '###'//t(ip:ip+2)//'###itrm=',itrm
        !   ... First char not in rchr: not a recognizable vector
        parsvc = .false.
        if (itrm == 0) return
-       
        if (itrm == 1) then !   '(' is found. We expect t(ip:)='(..., ..., ...)
           ip = ip+1
-          mmm=index(t(ip),')') !we have t(ip+mmm-1)=')'
-          read(t(ip:ip+mmm-2),*) v
+          mmm=index(t,')',back=.true.) !findloc([(t(ip+m)==')',m=1,size(t))],dim=1,value=.true.,back=.true.) !we have t(ip+mmm-1)=')'
+          if(mmm<=0) call rx('cannot find right parensis for vector')
+!          write(*,*)'xxxx'//t(ip:mmm-1)//'xxxx'
+          read(t(ip:mmm-1),*) v
+!          write(*,*)'vvvv=',v
+!          stop 'vvvvvvvvv'
           !if ( .NOT. a2bin(t,v,4,0,',',ip,-1)) return
           !if ( .NOT. a2bin(t,v,4,1,',',ip,-1)) return
           !if ( .NOT. a2bin(t,v,4,2,')',ip,-1)) return
+          ip=mmm
           parsvc = .true.
           return
        else
           if (itrm >= 8) then!         ... 'd'
-             v(1) = 1
-             v(2) = 1
-             v(3) = 1
+             v(1:3) = 1
           else!         ... 'x' 'y' or 'z'
              v(itrm/2) = 1
           endif
@@ -1262,15 +1280,15 @@ contains
           lveq1(3) = .false.
        endif
        if     (lveq1(1) .AND. lveq1(2) .AND. lveq1(3)) then
-          t(ip) = 'd'
+          t(ip:ip) = 'd'
        elseif (lveq1(1) .AND. lveq0(2) .AND. lveq0(3)) then
-          t(ip) = 'x'
+          t(ip:ip) = 'x'
        elseif (lveq0(1) .AND. lveq1(2) .AND. lveq0(3)) then
-          t(ip) = 'y'
+          t(ip:ip) = 'y'
        elseif (lveq0(1) .AND. lveq0(2) .AND. lveq1(3)) then
-          t(ip) = 'z'
+          t(ip:ip) = 'z'
        else
-          t(ip) = '('
+          t(ip:ip) = '('
           do  12  i = 1, 3
              write(sout,ftox)ftof(v(i))
              if(abs(nint(v(i))-v(i))<1d-6) write(sout,ftox) nint(v(i))
@@ -1297,7 +1315,7 @@ contains
              if(i==3) add=')'
              sout=trim(adjustl(sout))//add
              m=len(trim(sout))
-             call strncp(t(ip+1),sout,1,1,m) !t(ip+1:ip+m)=trim(sout) !
+             call strncp(t(ip+1:ip+1),sout,1,1,m) !t(ip+1:ip+m)=trim(sout) !
              ip = ip+m
 12        enddo
        endif
@@ -1384,26 +1402,22 @@ contains
     return
   end function spgeql
   logical function grpeql(g1,g2)    !- Checks if G1 is equal to G2
-         implicit none
-    double precision :: g1(9),g2(9),dabs,x1,x2
-    logical :: ddif
-    integer :: i
-    ddif(x1,x2) = dabs(x1-x2)> toll
-    grpeql = .false.
-    do  10  i = 1, 9
-       if (ddif(g1(i),g2(i))) return
-10  enddo
-    grpeql = .true.
+    double precision :: g1(9),g2(9)
+    grpeql = merge(any(dabs(g1-g2)>toll),.false.,.true.)
   end function grpeql
   SUBROUTINE GRPOP(V,V1,G,I)
-    !     implicit none
     double precision :: G(3,3,*),V(3),V1(3)
     integer :: i
-    V1(1) = G(1,1,I)*V(1) + G(1,2,I)*V(2) + G(1,3,I)*V(3)
-    V1(2) = G(2,1,I)*V(1) + G(2,2,I)*V(2) + G(2,3,I)*V(3)
-    V1(3) = G(3,1,I)*V(1) + G(3,2,I)*V(2) + G(3,3,I)*V(3)
-    RETURN
+    v1 = matmul(g(:,:,i),v)
   END SUBROUTINE GRPOP
+    ! logical function latvec(n,tol,qlat,vec)    !- Checks whether a set of vectors are lattice vectors
+    !   implicit none
+    !   integer :: n
+    !   double precision :: qlat(3,3),vec(3,n),tol
+    !   real(8),allocatable:: vdiff(:,:)
+    !   allocate(vdiff,source=matmul(transpose(vec(:,:)),qlat(:,:)))
+    !   latvec = merge( all(dabs(vdiff-dnint(vdiff))<tol),.true.,.false.)
+    ! end function latvec
   logical function latvec(n,tol,qlat,vec)
     !- Checks whether a set of vectors are lattice vectors
     ! ----------------------------------------------------------------------
@@ -1417,14 +1431,21 @@ contains
     ! ----------------------------------------------------------------------
     implicit none
     integer :: n,i,m
-    double precision :: qlat(3,3),vec(3,n),tol, vdiff
+    double precision :: qlat(3,3),vec(3,n),tol
+    real(8),allocatable:: vdiff(:,:)
+    logical,allocatable:: lvdiff(:,:)
+    allocate(vdiff, source=matmul(transpose(vec(:,:)),qlat(:,:)))
+    ! latvec=.false.
+    ! if(n==0) then
+    !    latvec=.true.
+    !    return
+    ! endif   
+    ! latvec = merge( any(dabs(vdiff-dnint(vdiff))>tol),.false.,.true.)
+    ! return
     latvec = .false.
     do  10  i = 1, n
        do  20  m = 1, 3
-          vdiff = vec(1,i)*qlat(1,m) + &
-               vec(2,i)*qlat(2,m) + &
-               vec(3,i)*qlat(3,m)
-          if (dabs(vdiff-dnint(vdiff)) > tol) return
+          if (dabs(vdiff(i,m)-dnint(vdiff(i,m))) > tol) return
 20     enddo
 10  enddo
     latvec = .true.
@@ -1581,16 +1602,13 @@ contains
           !   ... For each basis atom in this class, do
           do  20  jb = 1, nbas
              !         print *, 'jb=',ib,jb,nclass
-             if (ipc(jb) == ic) then
-                !      ... If there is a g mapping ib->jb, sites are equivalent
+             if (ipc(jb) == ic) then                !      ... If there is a g mapping ib->jb, sites are equivalent
                 do  22  ig = 1, ng
                    if (istab(ib,ig) == jb) goto 20
-22              enddo
-                !      ... If there is a g mapping jb->ib, sites are equivalent
+22              enddo               !      ... If there is a g mapping jb->ib, sites are equivalent
                 do  23  ig = 1, ng
                    if (istab(jb,ig) == ib) goto 20
 23              enddo
-                ! 04 Apr 03 consider these other possibilities
                 !      ... If there is a g mapping ib->kb,jb, sites are equivalent
                 do  24  ig = 1, ng
                    if (istab(istab(ib,ig),ig) == jb) goto 20

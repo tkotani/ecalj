@@ -27,18 +27,18 @@ contains
       character(4):: modec
       character(8):: xn
       character(256):: outx
-      if(debug) write(stdo,*)'ccccccccinit rval2 ',trim(cattok),nrecs
+!      write(stdo,*)'ccccccccinit rval2 ',trim(cattok),nrecs
       ncat=len(trim(cattok))
       if(present(ch)) then
          do i=1,nrecs
-            if( recrd(i)(1:ncat)==trim(cattok) ) then
+            if( recrd(i)(1:ncat+1)==trim(cattok)//' ' ) then
                read(recrd(i)(ncat+1:),"(a)") ch
                goto 1012
             endif
          enddo
          ch=''
 1012     continue
-         if(debug) write(stdo,*)'cccccccc ',trim(cattok),'ch=###'//trim(ch)//'###'
+         write(stdo,*)'cccccccc ',trim(cattok),'ch=###'//trim(ch)//'###'
          return
       endif   
       nomode=.false.; nrmode=.false.; ndmode=.false.

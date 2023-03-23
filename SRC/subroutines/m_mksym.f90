@@ -6,13 +6,11 @@ module m_mksym !in future this should be replaced with better version with spgli
        rv_a_osymgr,iv_a_oistab, ctrl_nclass,iclasst, &
        iclasstaf_, symops_af_, ag_af_, ngrpaf_ !for antiferro symmetry
   !antiferro sym y = matmul(symps_af_(:,:,ig),x)+ ag_af(:,ig), ig=1,ngrpaf_
-  integer, allocatable,protected  ::  iv_a_oics(:) ! ispec= ics(iclass) gives spec for iclass.
-  
-  real(8) , allocatable,protected :: rv_a_osymgr (:,:,:) !point operation for 1,... nsgrp  !(additioanl to npgrp)
-  real(8) , allocatable,protected :: rv_a_oag (:)        !translation for 1,...nsgrp
-  integer , allocatable,protected :: iv_a_oistab (:)! j= istab(i,ig): site i is transformed into site j by grp op ig
-  integer,allocatable,protected   :: iclasst(:)    !class information,
-  
+  integer, allocatable,protected  ::  iv_a_oics(:)     ! ispec= ics(iclass) gives spec for iclass.
+  real(8) , allocatable,protected :: rv_a_osymgr (:,:,:) ! point operation for 1,... nsgrp  !(additioanl to npgrp)
+  real(8) , allocatable,protected :: rv_a_oag (:)        ! translation for 1,...nsgrp
+  integer , allocatable,protected :: iv_a_oistab (:)     ! j= istab(i,ig): site i is transformed into site j by grp op ig
+  integer,allocatable,protected   :: iclasst(:)          !class information,
   integer,allocatable,protected:: iclasstaf_(:) !AntiFerro class information 
   real(8),allocatable,protected:: symops_af_(:,:,:), ag_af_(:,:) 
   integer,protected::&
@@ -21,12 +19,10 @@ module m_mksym !in future this should be replaced with better version with spgli
        ngrpaf_,& ! antiferro symops_af_ and ag_af_
        lat_npgrp !number of point group operation with adding iversion. Used in mkqp.f90
 contains
-  ! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
   subroutine m_mksym_init(prgnam) ! Driver for calling mksymaf and mksym
     use m_lmfinit,only: nspec,nbas,sstrnsymg,addinv, &
          symgaf,iv_a_oips,slabl,mxspec,procid,master,iantiferro
     use m_lattic,only: rv_a_opos,m_lattic_init,rv_a_opos
-    !-------------
     ! note: Antiferro symmetric self-energy mode. Feb2021 recovered
     !! To obtain self-consistency, it may be useful to keep AF condition during iteration.
     !! We need to set SYMGRPAF (still developing...)
@@ -52,26 +48,12 @@ contains
     strn = 'find'
     if(len_trim(sstrnsymg)>0) strn=trim(sstrnsymg)
     if (cmdopt0('--nosym') .OR. cmdopt0('--pdos') ) strn = ' '
-    
     !clean 2023jan
     if(addinv) then ! Add inversion to get sampling k points. phi*
        lc=1 !When we have TR with keeping spin \sigma, psi_-k\sigm(r) = (psi_k\sigma(r))^* 
     else
        lc=0
     endif
-    
-    !if( prgnam == 'LMFGWD') then
-    !   lc= 0 
-    !else
-    !   lc= 1 !add inversion for k mesh points
-    !endif
-    
-!    if (prgnam=='LMFA' .OR. prgnam=='LMCHK') then
-!       lc=0
-!       if(ctrl_noinv==0 ) lc=1  !+1 means add inversion
-!    endif
-    !if(len_trim(symgaf)>0) lc=11 ! inversion allowed for AF case. Good?
-    
     if( .NOT. (prgnam=='LMFA' .OR. prgnam=='LMCHK')) ipr10= iprint()>10 !this is only for master
     if(len_trim(symgaf)>0) then
        if(ipr10) then
@@ -96,8 +78,6 @@ contains
     if(procid==master) call poppr
     call tcx('m_mksym_init')
   end subroutine m_mksym_init
-
-  ! SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
   subroutine mksymaf(iantiferro,iv_a_oips_in,imaster,strn2,lc,slabl,mxspec) !all input. Get iclassaf_
     use m_lmfinit,only: nbas,stdo
     intent(in)::     iantiferro,iv_a_oips_in,imaster,strn2,lc,slabl,mxspec
@@ -129,8 +109,6 @@ contains
     call dcopy ( ngrpaf_ * 3 , rv_a_oag ,    1 , ag_af_ , 1 )
     if(imaster) write(6,"(a,i3)") ' AF: ngrpaf=',ngrpaf_
   end subroutine mksymaf
-
-  ! SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSs
   subroutine mksym(mode,slabl,ssymgr,iv_a_oips,iclass)!return symmerty info
     use m_lmfinit,only: nbas,stdo,nspec
     use m_lattic,only: lat_plat,rv_a_opos
@@ -193,49 +171,52 @@ contains
     integer,  allocatable ::  iv_a_oipc(:)!class for lmaux                     maybe= iclasst
     plat =lat_plat
     ngmx = 48
-5   continue! ... Re-entry when ngmx was increased
-    if(allocated(rv_a_oag)) deallocate(rv_a_oag,rv_a_osymgr,iv_a_oipc,iv_a_oics)
-    allocate( rv_a_oag(3*ngmx)    )
-    allocate( rv_a_osymgr(3,3,ngmx) )
-    allocate( iv_a_oipc(nbas)  )
-    allocate( iv_a_oics(nbas)  )
-    allocate( nrspc_iv(nbas) )
-    call words(ssymgr,ngen)
-    j1 = 1
-    idest = 1
-    usegen = 2
-    gens = ' '
-    ltmp = .false.
-    do  ig = 1, ngen
-       call word(ssymgr,ig,j1,j2)
-       if (ssymgr(j1:j2) == 'find') then
-          usegen = 0
-       else
-          call strncp(gens,ssymgr,idest,j1,j2-j1+2)
-          idest = idest+j2-j1+2
+    do ! ... Re-entry when ngmx was increased 
+       if(allocated(rv_a_oag)) deallocate(rv_a_oag,rv_a_osymgr,iv_a_oics)
+       if(allocated(iv_a_oipc)) deallocate(iv_a_oipc) !within subroutine
+       allocate( rv_a_oag(3*ngmx)    )
+       allocate( rv_a_osymgr(3,3,ngmx) )
+       allocate( iv_a_oipc(nbas)  )
+       allocate( iv_a_oics(nbas)  )
+       allocate( nrspc_iv(nbas) )
+       call words(ssymgr,ngen)
+       j1 = 1
+       idest = 1
+       usegen = 2
+       gens = ' '
+       ltmp = .false.
+       do  ig = 1, ngen
+          call word(ssymgr,ig,j1,j2)
+          if (ssymgr(j1:j2) == 'find') then
+             usegen = 0
+          else
+             call strncp(gens,ssymgr,idest,j1,j2-j1+2)
+             idest = idest+j2-j1+2
+          endif
+       enddo
+       ! --- Generate space group ---
+       nbas0 = nbas
+       if (cmdopt0('--fixpos')) call Rx('fixpos is removed in current version')
+       ! ... When generating the group the basis may become enlarged ...
+       if(allocated(iv_a_oistab)) deallocate(iv_a_oistab) 
+       allocate(iv_a_oistab(abs((ngmx+1)*nbas)))
+       allocate(ips2_iv(ngmx*nbas))
+       allocate(pos2_rv(3,ngmx*nbas))
+       ips2_iv(1:nbas)= iv_a_oips(1:nbas)
+       pos2_rv(:,1:nbas)=rv_a_opos(:,1:nbas)
+       call gensym ( slabl , gens , usegen , t , f , f , nbas &
+            , nspec , ngmx , plat , plat , pos2_rv , ips2_iv& 
+            , nrspc_iv , nsgrp , rv_a_osymgr , rv_a_oag , ngen , gen , ssymgr &
+            , nggen , isym , iv_a_oistab )
+       if(nbas >nbas0) call rxs('gensym: the basis was enlarged.',' Check group operations.')
+       if(nggen>nsgrp) then
+          if(master_mpi)write(stdo,ftox)'MKSYM(warning): generators create more than ngmx=',ngmx,'group ops ...'
+          ngmx = ngmx*16
+          deallocate(pos2_rv,ips2_iv,nrspc_iv)
+          cycle
        endif
+       exit
     enddo
-    ! --- Generate space group ---
-    nbas0 = nbas
-    if (cmdopt0('--fixpos')) call Rx('fixpos is removed in current version')
-    ! ... When generating the group the basis may become enlarged ...
-    if(allocated(iv_a_oistab)) deallocate(iv_a_oistab) 
-    allocate(iv_a_oistab(abs((ngmx+1)*nbas)))
-    allocate(ips2_iv(ngmx*nbas))
-    allocate(pos2_rv(3,ngmx*nbas))
-    ips2_iv(1:nbas)= iv_a_oips(1:nbas)
-    pos2_rv(:,1:nbas)=rv_a_opos(:,1:nbas)
-    call gensym ( slabl , gens , usegen , t , f , f , nbas &
-         , nspec , ngmx , plat , plat , pos2_rv , ips2_iv& 
-         , nrspc_iv , nsgrp , rv_a_osymgr , rv_a_oag , ngen , gen , ssymgr &
-         , nggen , isym , iv_a_oistab )
-    if(nbas >nbas0) call rxs('gensym: the basis was enlarged.',' Check group operations.')
-    if(nggen>nsgrp) then
-       if(master_mpi)write(stdo,ftox)'MKSYM(warning): generators create more than ngmx=',ngmx,'group ops ...'
-       ngmx = ngmx*16
-       deallocate(pos2_rv,ips2_iv,nrspc_iv)
-       goto 5
-    endif
     ! --- Add inversion to point group ---
     incli = -1
     npgrp = nsgrp
