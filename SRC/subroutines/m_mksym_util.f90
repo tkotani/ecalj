@@ -5,7 +5,7 @@ module m_mksym_util !utities for m_mksym
   private
   real(8),parameter:: toll=1d-4,tiny=1d-4
 contains
-  subroutine gensym(slabl,gens,symfind,lcar,lfix,lsmall,nbas, nspec,ngmx,plat,platcv,bas,ips,nrspec, ng,g,ag, & ! Generate the space group ops
+  subroutine gensym(slabl,gens,symfind,lcar,lfix,lsmall,nbas, nspec,ngmx,plat,platcv,bas,ips,nrspec,ng,g,ag, & ! Generate the space group ops
        ngen,gen,nwgens,nggen,isym,istab)  
     !i Inputs:
     !i   slabl: name of the different species.
@@ -112,14 +112,14 @@ contains
 10  enddo
     
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!111    
-    write(6,*)'goto sgroup',ngen
-    do i=1,ngen
-       write(stdo,ftox)i,' gen agen=',ftof(gen(:,i),2),' ',ftof(agen(:,i),3)
-    enddo
+    !write(6,*)'goto sgroup',ngen
+!    do i=1,ngen
+!       write(stdo,ftox)i,' gen agen=',ftof(gen(:,i),2),' ',ftof(agen(:,i),3)
+!    enddo
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    
     call sgroup(10+modes,gen,agen,ngen, g,ag,nggen,ngmx,qlat)! ... Set up space group (g,ag,ng) given point group generators gen
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    
-    write(stdo,ftox)'end of sgroup ngen nggen ngmx',ngen,nggen,ngmx,ftof(ag(:,1),3)
+!    write(stdo,ftox)'end of sgroup ngen nggen ngmx',ngen,nggen,ngmx,ftof(ag(:,1),3)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    
     ng = min(nggen,ngmx)
     if (nggen > ngmx) return
@@ -389,13 +389,13 @@ contains
     call dinv33(plat,1,qlat,vol)
     call pshpr(1)
     ngen0 = ngen
-    print *,'groupg-sgroup ngen0=',ngen0
+!    print *,'groupg-sgroup ngen0=',ngen0
  !   write(stdo,ftox)'   gen=',ftof(gen(:,1,1))
  !   write(stdo,ftox)'   gen=',ftof(gen(:,2,1))
  !   write(stdo,ftox)'   gen=',ftof(gen(:,3,1))
  !   write(stdo,ftox)'  agen=',ftof(agen(:,1))
     call sgroup(0,gen,agen,ngen, gloc,agloc,ngout, ngmx,qlat)
-    print *,'groupg-sgroup ngout=',ngout
+!    print *,'groupg-sgroup ngout=',ngout
 !    print *,'  gloc=',gloc(:,:,1)
     !    print *,' agloc=',agloc(:,1)
     icount=0
@@ -422,7 +422,7 @@ contains
        ngen = ngen+1
        gen(:,:,ngen)= g(:,:,imax) 
        agen(: ,ngen)= ag(: ,imax) 
-       write(6,*)'Enlarging ngen=',ngen,' ng ngout=',ng,ngout
+       if(iprint()>0) write(6,*)'Enlarging ngen=',ngen,' ng ngout=',ng,ngout
     enddo
     call poppr
     if(iprint()>0.and. ngen0 == 0) then     ! --- Create gens, optionally printout ---
@@ -444,7 +444,7 @@ contains
        write(stdo,"('  Generators:: trans(frac)= ', a)")trim(adjustl(sout2))
     endif
     gens = sout2
-    if(ngout>ng)write(stdo,ftox)' (warning)ng=',ng,' ops supplied but generators create ngout=',ngout,' ops'
+    if(iprint()>0.and.ngout>ng)write(stdo,ftox)' (warning)ng=',ng,' ops supplied but generators create ngout=',ngout,' ops'
   end subroutine groupg
   subroutine grpgen(gen,ngen,symops,ng,ngmx)
     use m_ftox
@@ -842,7 +842,7 @@ contains
                 endif
 12           enddo
              call asymop(g(:,:,ig),ag(1,ng+1),' ',sg)
-             write(stdo,ftox)' symcry: excluded candidate ig=',ig,' op=',trim(sg) !Candidate not valid
+             !write(stdo,ftox)' symcry: excluded candidate ig=',ig,' op=',trim(sg) !Candidate not valid
              goto 20
 10        enddo
           !     --- Valid ag found; add g to list ---

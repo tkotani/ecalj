@@ -189,7 +189,7 @@ contains
           idest = idest+j2-j1+2
        endif
     enddo
-    write(stdo,*)'gens=',trim(gens)
+    if(master_mpi) write(stdo,*)'gens=',trim(gens)
     ! --- Generate space group ---
     nbas0 = nbas
     !if (cmdopt0('--fixpos')) call Rx('fixpos is removed in current version')
@@ -202,7 +202,7 @@ contains
     pos2_rv(:,1:nbas)=rv_a_opos(:,1:nbas)
     call gensym(slabl,gens,symfind,t,f,f,nbas,nspec,ngmx,plat,plat,pos2_rv,ips2_iv,nrspc_iv,  nsgrp,rv_a_osymgr,rv_a_oag,&
          ngen,gen,ssymgr, nggen,isym,iv_a_oistab)
-    write(stdo,ftox)' mksym: ng ng ngen =',nsgrp,nggen,ngen
+    if(master_mpi) write(stdo,ftox)' mksym: ng ng ngen =',nsgrp,nggen,ngen
     if(nbas >nbas0) call rxs('gensym: the basis was enlarged.',' Check group operations.')
     if(nggen>nsgrp.and.master_mpi) write(stdo,ftox)' MKSYM(warning): nggen=',nggen,'> nsgrp=',nsgrp
     if(nggen>ngmx) call rx('mksym: nggen>ngmx')
