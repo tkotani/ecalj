@@ -1,6 +1,6 @@
 integer function iclbsj(ic,ipc,nbas,nrbas)  !- Returns an index to nrbas atom in basis given the class
   !i   ic    :class index
-  !i   ipc   :class index: site ib belongs to class ipc(ib) (mksym.f)
+  !i   ipc   :class index: site ib belongs to class ipc(ib) 
   !i   nbas  : abs  = number of atoms in the basis
   !i         : sign <0 to return with -n if there are fewer than nrbas
   !i         :  members of class ic, where n=number members of class ic

@@ -1,17 +1,15 @@
 module m_mksym_util !utities for m_mksym
   use m_lgunit,only:stdo
   use m_ftox
-  public gensym,grpgen,symtbl, word,words,nword,splcls
+  public gensym,grpgen,symtbl,splcls
   private
   real(8),parameter:: toll=1d-4,tiny=1d-4
 contains
-  subroutine gensym(slabl,gens,symfind,nbas,nspec,ngmx,plat,platcv,bas,ips, nrspec,ng,g,ag,ngen,gen,nwgens,nggen,isym,istab) !Generate the space group ops
+  subroutine gensym(slabl,gens,symfind,nbas,nspec,ngmx,plat,platcv,bas,ips, ng,g,ag,ngen,gen,nwgens,nggen,isym,istab) !Generate the space group ops
     !i Inputs:
     !i   slabl: name of the different species.
     !i   gens:  a list of generators, in symbolic representation  NB: this list is not required; see Remarks.
-    !i   symfind:0 Find any additional group operations for this basis.
-    !i           1 Also, extra basis atoms are added as needed to guarantee the group operations created from gens are valid.
-    !i           2 Do neither 0 nor 1.
+    !i   symfind:=T Find any additional group operations for this basis.
     !i   nspec: number of classes, atoms in same class are symmetry-related
     !i   plat:  primitive lattice vectors (scaled by alat)
     !i   platcv:(=plat usually). Used to scale translation part of generators, when translation part specified as a multiple of
@@ -27,7 +25,6 @@ contains
     !o   ... The following are generated if symfind=0
     !o   isym:  numbers characterizing the symmetry of lattice and crystal
     !o          isym(1) produces index for underlying lattice (see symlat)
-    !o   nrspec:number of atoms in the ith class
     !o   ng:    number of group operations
     !o   ngen:  number of symmetry generators
     !o   gen:   generators in matrix form
@@ -40,16 +37,14 @@ contains
     !r     1.  Any generators supplied from input gens
     !r         are checked for consistency with the underlying lattice.
     !r     2.  The space group is made from these generators.
-    !r     3.  if symfind<2, missing basis atoms are added to make
-    !r         the basis consistent with the supplied symmetry.
-    !r     4.  nrspec is created
-    !r     x... Unless symfind is 0, nothing more is done
-    !r     x5.  The point group of the underlying lattice without the basis is generated.
-    !r     x6.  The full space group is generated from the point group
-    !r     x7.  A set of generators for this group is created
+    !r     For symfind=T, we do follwoings
+    !r       * The point group of the underlying lattice without the basis is generated.
+    !r       * The full space group is generated from the point group
+    !r       * A set of generators for this group is created
     !r   This program was adapted from the Stuttgart ASA version lmto-46.
     implicit none
-    integer :: nbas,isym(*),istab(nbas,*),nspec,ngen,ngmx, ng,nrspec(nspec),symfind,ips(nbas),nggen 
+    logical :: symfind
+    integer :: nbas,isym(*),istab(nbas,*),nspec,ngen,ngmx, ng,nrspec(nspec),ips(nbas),nggen 
     integer:: i , j , ibas , ic , iprint, igen , mxint , ig,iwdummy1(1)
     integer,parameter:: ngnmx=10
     real(8) :: plat(3,3),platcv(3,3),g(3,3,*),ag(3,*),bas(3,nbas), qlat(3,3),vol,platt(3,3),gen(3,3,ngnmx),agen(3,ngnmx)
@@ -57,11 +52,9 @@ contains
     character(8):: xn
     call dinv33(plat,1,qlat,vol) !Reciprocal lattice vectors --- 
     nwgens = gens
-    call words(gens,ngen)
-    if (ngen > 0) then
-       call word(gens,ngen,i,j)
-       call psymop(gens(1:j),platcv,gen,agen,ngen)     ! Symmetry group as given by input generators ---
-       nwgens = gens(1:j)
+    if(len_trim(gens) > 0) then
+       call psymop(trim(gens),platcv,gen,agen,ngen)     ! Symmetry group as given by input generators ---
+       nwgens = trim(gens)
     endif
     do igen = 1, ngen
        if(.NOT.latvec(3,toll,qlat,matmul(gen(:,:,igen),plat))) &
@@ -71,8 +64,8 @@ contains
     !                  write(stdo,ftox)'end of sgroup ngen nggen ngmx',ngen,nggen,ngmx,ftof(ag(:,1),3)
     if (maxval(ips)/= nspec.AND.iprint() > 0)write(stdo,ftox)' GENSYM (warning)',nspec,'species supplied but only',i,'spec used ...'
     nspec = maxval(ips) 
-    nrspec= [(count(ips(1:nbas)==ic),ic=1,nspec)]
-    if (symfind == 0) then !Complete the space group. SYMGRP find. symfind=T
+    nrspec= [(count(ips(1:nbas)==ic),ic=1,nspec)] ! nrspec:number of atoms in the ith class
+    if (symfind) then !Complete the space group. SYMGRP find. symfind=T
        call symlat(plat,ng,g,isym(1)) !Symmetry of lattice without bas
        call symcry(bas, ips,nbas,nspec,nrspec,ng,plat,qlat,g,ag,istab ) ! Symmetry of lattice with bas
        if (ng > ngmx) return
@@ -473,7 +466,7 @@ contains
        endif
 10  enddo
     ngrp = merge(ngrp,ngtab(isym),isym==0)
-    if(iprint()>=30) write(stdo,ftox)' symfind=T: symlat: Bravais system is '//csym1(isym)//' with',ngrp,'symmetry operations.'
+    if(iprint()>=30) write(stdo,ftox)' symlat: Bravais system is '//csym1(isym)//' with',ngrp,'symmetry operations.'
   end subroutine symlat
   subroutine symcry(bas,ipc,nbas,nclass,nrclas, ng,plat,qlat,g,ag,istab) ! Generates the symmetry ops of the crystal from those of the lattice
     !i Inputs:
@@ -567,7 +560,7 @@ contains
     real(8) :: grp(3,3),ag(3)
     character(*):: sg,asep
     real(8) :: vecg(3),dasum
-    integer :: nrot,ip,isw,i1,i2,fmtv
+    integer :: nrot,ip,isw,i1,i2,fmtv,llen
     logical :: li
     call csymop(1,grp,li,nrot,vecg) !Get consitutents of grp ---
     ! --- Rotational part ---
@@ -597,8 +590,8 @@ contains
     endif
     if(sum(abs(ag)) > tiny) then !Translational part 
        if (asep(i1:i1) /= ' ') then
-          call nword(asep,1,i1,i2)
-          sg(ip+1:) = asep(i1:i2)
+          llen = index(asep(i1:),' ')-1
+          sg(ip+1:) = asep(i1: i1+llen)
           ip = ip+i2-i1+1
        endif
        ip=ip+1
@@ -874,9 +867,8 @@ contains
     ah=a1+matmul(g1,a2)
     a=ah
   end subroutine spgprd
-  logical function spgeql(g1,a1,g2,a2,qb) !- Determines whether space group op g1 is equal to g2
-    !i   g1,a1 :first space group,   !i   g2,a2 :second space group, !i   qb    :reciprocal lattice vectors
-    implicit none
+  logical function spgeql(g1,a1,g2,a2,qb) ! Determines whether space group op g1 is equal to g2
+    implicit none !i      g1,a1 :first space group,  g2,a2 :second space group, qb:reciprocal lattice vectors
     integer :: m,iq,iac
     real(8) :: g1(9),g2(9),a1(3),a2(3),qb(3,3),adiff(3)
     spgeql=.true.
@@ -901,103 +893,4 @@ contains
     vdiff  = matmul(transpose(vec(:,:)),qlat(:,:))
     latvec = all(abs(vdiff-nint(vdiff)) < tol)
   end function latvec
-!=======================================  
-  subroutine words(str,nw) !- Count blank-delimited words in str
-    !i   str   :string
-    !o Outputs
-    !o   nw    :number of blank-delimited words in str
-    character*(*) str
-    integer :: nw
-    integer :: i1,i2,i0,i
-    nw = 0
-    i1 = 0
-    i2 = 0
-    i0 = 1
-99  do  10  i = i0, len(str)
-       if(str(i:i) /= ' ') then
-          i1 = i
-          goto 90
-       endif
-10  enddo
-    return
-90  nw = nw+1
-    do  20  i = i1,len(str)
-       if(str(i:i) == ' ') then
-          i2 = i
-          goto 91
-       endif
-20  enddo
-    return
-91  i0 = i2
-    goto 99
-  end subroutine words
-  subroutine word(str,iw,j1,j2) !- Returns j1,j2 so that str(j1:j2) is the iw-th word from beginning
-    ! ----------------------------------------------------------------------
-    !i Inputs
-    !i   str   :string
-    !i   iw    :find iw-th word
-    !o Outputs
-    !o   j1    :str(j1:j2) is iw-th word
-    !o   j2    :-//-
-    !u Updates
-    ! ----------------------------------------------------------------------
-    !     implicit none
-    ! ... Passed parameters
-    character*(*) str
-    integer :: iw,j1,j2
-    ! ... External calls
-    !external nword
-    j1 = 1
-    call nword(str,iw,j1,j2)
-  end subroutine word
-  subroutine nword(str,iw,j1,j2)    !- Returns j1,j2 so that str(j1:j2) is the iw-th word from current pos
-    ! ----------------------------------------------------------------------
-    !i Inputs
-    !i   str   :string
-    !i   iw    :find iw-th word
-    !i   j1    :start search from str(j1:)
-    !o Outputs
-    !o   j1    :str(j1:j2) is iw-th word
-    !o   j2    :-//-
-    !u Updates
-    ! ----------------------------------------------------------------------
-    !     implicit none
-    ! ... Passed parameters
-    integer :: iw,j1,j2
-    character*(*) str
-    ! ... Local parameters
-    integer :: nw,i1,i2,i0,i
-    nw = 0
-    i1 = 0
-    i2 = 0
-    i0 = j1
-    j2 = -1
-99  do  10  i = i0, len(str)
-       !   ... skip until nonblank char
-       if(str(i:i) /= ' ') then
-          i1 = i
-          goto 90
-       endif
-10  enddo
-    return
-    !   ... skip until a blank char
-90  nw = nw+1
-    if (nw == iw) j1 = i1
-    do  20  i = i1, len(str)
-       if(str(i:i) == ' ') then
-          i2 = i
-          goto 91
-       endif
-20  enddo
-    ! ... We have reached the end of the string
-    if (nw == iw) j2 = len(str)
-    return
-    ! ... cleanup: exit if word soguht, else try again
-91  i0 = i2
-    if (nw == iw) then
-       j2 = i2-1
-       return
-    endif
-    goto 99
-  end subroutine nword
 end module m_mksym_util
