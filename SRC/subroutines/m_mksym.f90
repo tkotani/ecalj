@@ -150,7 +150,7 @@ contains
     ! ----------------------------------------------------------------------
     character(8) :: slabl(*),ssymgr*(*)
     integer :: mode,nsgrp,npgrp,ibas
-    integer ::iwdummy ,iwdummy1(1)
+    integer :: iwdummy1(1)
     logical :: T,F,cmdopt0,ltmp
     integer:: idest,ig,iprint,igets,isym(10),j1,j2,lpgf, &
          nbas0,nclass,ngen,ngnmx,symfind, nggen,ngmx,incli, oiwk !, aginv
@@ -190,55 +190,42 @@ contains
        endif
     enddo
     if(master_mpi) write(stdo,*)'gens=',trim(gens)
-    ! --- Generate space group ---
     nbas0 = nbas
-    !if (cmdopt0('--fixpos')) call Rx('fixpos is removed in current version')
-    ! ... When generating the group the basis may become enlarged ...
     if(allocated(iv_a_oistab)) deallocate(iv_a_oistab) 
     allocate(iv_a_oistab(abs((ngmx+1)*nbas)))
-    allocate(ips2_iv(ngmx*nbas))
-    allocate(pos2_rv(3,ngmx*nbas))
-    ips2_iv(1:nbas)= iv_a_oips(1:nbas)
-    pos2_rv(:,1:nbas)=rv_a_opos(:,1:nbas)
-    call gensym(slabl,gens,symfind,t,f,f,nbas,nspec,ngmx,plat,plat,pos2_rv,ips2_iv,nrspc_iv,  nsgrp,rv_a_osymgr,rv_a_oag,&
-         ngen,gen,ssymgr, nggen,isym,iv_a_oistab)
+    call gensym(slabl,gens,symfind,nbas,nspec,ngmx,plat,plat, rv_a_opos(:,1:nbas),iv_a_oips(1:nbas),nrspc_iv,&
+         nsgrp,rv_a_osymgr,rv_a_oag, ngen,gen,ssymgr, nggen,isym,iv_a_oistab) ! --- Generate space group ops
     if(master_mpi) write(stdo,ftox)' mksym: ng ng ngen =',nsgrp,nggen,ngen
-    if(nbas >nbas0) call rxs('gensym: the basis was enlarged.',' Check group operations.')
+    if(nbas /= nbas0) call rxs('gensym: the basis was enlarged.',' Check group operations.')
     if(nggen>nsgrp.and.master_mpi) write(stdo,ftox)' MKSYM(warning): nggen=',nggen,'> nsgrp=',nsgrp
     if(nggen>ngmx) call rx('mksym: nggen>ngmx')
-    deallocate(pos2_rv,ips2_iv,nrspc_iv)
-    ! --- Add inversion to point group ---
+    deallocate(nrspc_iv)
     incli = -1
     npgrp = nsgrp
-    if (mode /= 0) then
+    if (mode /= 0) then !Add inversion to point group ---
        ngen = ngen+1
        gen(:,ngen) = [-1d0,0d0,0d0, 0d0,-1d0,0d0, 0d0,0d0,-1d0]
        call pshpr(iprint()-40)
-       call grpgen ( gen ( 1 , ngen ) , 1 , rv_a_osymgr , npgrp , ngmx  )
+       call grpgen(gen(1,ngen),1 , rv_a_osymgr,npgrp, ngmx)
        call poppr
        incli = npgrp-nsgrp
     endif
-    ! --- Printout of symmetry operations ---
+    ! Printout of symmetry operations
     if(master_mpi) write(stdo,ftox)'  mksym: found ',nsgrp,' space group operations'
-    if(master_mpi.and.nsgrp/=npgrp)write(stdo,ftox)'    adding inversion gives',npgrp,' operations'//&
-    ' for generating k points; enforce real for dmatu for LDA+U'
+    if(master_mpi.and.nsgrp/=npgrp)write(stdo,ftox)&
+         '    adding inversion gives',npgrp,' operations for generating k points; enforce real for dmatu for LDA+U'
     if(master_mpi.and.incli == -1) write(stdo,*)'  no attempt to add inversion symmetry'
-    !if(mod(mode/10,10) == 0) goto 100
-    ! Split species into classes : ibas ==> iclass=ipc(ibas) ==> ispec=ics(iclass)
     if(allocated(iv_a_onrc)) deallocate(iv_a_onrc)
     allocate(iv_a_onrc(nspec))
     iv_a_oipc=iv_a_oips(1:nbas)
-    call splcls( .false., rv_a_opos , nbas & !mod ( mode / 10 , 10 ) .eq.4 
-         , nsgrp , iv_a_oistab , nspec , slabl , nclass , iv_a_oipc , iv_a_oics , iv_a_onrc )
-    ! nbas >nclass;  iv_a_ics(1:nclass) is fine:  !o   ics: class i belongs to species ics(i)
-    ! ... Remake istab
+    call splcls(rv_a_opos,nbas,nsgrp,iv_a_oistab,nspec,slabl,nclass,iv_a_oipc,iv_a_oics,iv_a_onrc) !Split species into classes
+    !                                                   ibas ==> iclass=ipc(ibas) ==> ispec=ics(iclass)
     if (allocated(iv_a_oistab)) deallocate(iv_a_oistab)
     allocate(iv_a_oistab(abs(nsgrp*nbas)))
     call dinv33(plat,1,qlat,xx)
-    call symtbl(1, nbas, iwdummy1, rv_a_opos , rv_a_osymgr, rv_a_oag, nsgrp, qlat, iv_a_oistab)
+    call symtbl(1, nbas, rv_a_opos , rv_a_osymgr, rv_a_oag, nsgrp, qlat, iv_a_oistab)
     iclass(1:nbas)=iv_a_oipc(1:nbas) 
     ctrl_nclass=nclass
-!100 continue
     lat_npgrp=npgrp
     lat_nsgrp=nsgrp
   end subroutine mksym
