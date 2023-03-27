@@ -136,7 +136,6 @@ real(8) function facl(a,l)
   endif
 END function facl
 subroutine mkppovl2test(alat,plat,qlat,ng1,ngvec1,ng2,ngvec2,nbas,rmax,bas, ppovl) ! < G1 | G2 > matrix where G1 denotes IPW, zero within MT sphere.
-  use m_lldata,only: ll
   implicit none
   integer ::  nbas, ng1,ng2,nx(3),ig1,ig2,ibas, ngvec1(3,ng1),ngvec2(3,ng2), n1x,n2x,n3x,n1m,n2m,n3m
   real(8) :: absqg1,absqg2,tripl,rmax(nbas),pi
