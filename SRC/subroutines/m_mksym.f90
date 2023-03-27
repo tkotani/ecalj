@@ -1,4 +1,4 @@
-module m_mksym 
+module m_mksym !crystal symmetry data given by call m_mksym_init.  nbas (atomic sites)-> nspec (species) -> nclass (class)
   use m_mpitk,only: master_mpi
   public :: m_mksym_init, &
        rv_a_oag,   iv_a_oics, lat_npgrp, lat_nsgrp, &

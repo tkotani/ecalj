@@ -307,25 +307,19 @@ contains
 99  continue
     call rx('GRPGEN: too many elements nnow ngmx='//trim(xn(nnow))//' '//trim(xn(ngmx)))
   end subroutine grpgen
-  subroutine psymop(t,plat, g,ag,ng) !- Parse symbolic representation of symmetry group operations
+  subroutine psymop(t,plat, g,ag,ng) !- Get symmetry group operations(g,ag,ng) from symbolic representation t
     !i Inputs:
     !i   t     string of symmetry operations, separated by spaces
     !i   plat  lattice vectors that scale translation part ag  (if needed, i.e. if translation specified by '::')
     !o Outputs:
     !o   g,ng  group op (3x3 matrix) for each input, and number
     !r Remarks:
-    !r   Symbols have two parts, first the point group part, followed
-    !r   By an optional translation.  The point group part has the form
-    !r   O(nx,ny,nz) where O is one of M, I or Rj for mirror, inversion
-    !r   and j-fold rotations, respectively, and nx,ny,nz are a triplet
-    !r   of indices specifying the axis of operation.
-    !r   (nx,ny,nz) is one of (1,0,0), (0,1,0), (0,0,1) and (1,1,1),
-    !r   it can be abbreviated as x,X, y,Y, z,Z and d,D, respectively.
-    !r   Also permissible are products, eg I*R4X.
-    !r   The translation is also of the form (n1,n2,n3)
-    !
-    !r Example: the following input
-    !r     R3D(0,0,0) Mx R2(1/2,sqrt(3)/2,0)(pi,0,0) my*i' !WARN2023: we can not use math operations in parenthesis. Give numerical number 6digits.
+    !r   Symbols have two parts, first the point group part, followed by an optional translation.  The point group part has the form
+    !r   O(nx,ny,nz) where O is one of M, I or Rj for mirror, inversion and j-fold rotations, respectively, and nx,ny,nz are a triplet
+    !r   of indices specifying the axis of operation.   (nx,ny,nz) is one of (1,0,0), (0,1,0), (0,0,1) and (1,1,1),
+    !r   it can be abbreviated as x,X, y,Y, z,Z and d,D, respectively.  Also permissible are products, eg I*R4X.
+    !r   The translation is also of the form (n1,n2,n3) :
+    !r  CAUTION!: 2023: we do not allowe math operations in parenthesis. Give numerical number 6digits (if you like to recover, touch ctrl2ctrlp.py)
     implicit none
     character(*):: t
     real(8) :: plat(3,3),g(3,3,*),h(3,3),hh(3,3),ag(3,1),vec(3)
@@ -438,22 +432,22 @@ contains
     mm(i,m) = ltmax-(mod(i,ll1**m)-mod(i,ll1**(m-1)))/ll1**(m-1)
     call dinv33(platcp,1,qlatcp,vol)
     ngrp = 2 ! --- Start out with E and I ---
-    call csymop(-1,grp(1,1),.false.,1,[0d0,0d0,0d0])
-    call csymop(-1,grp(1,2), .true.,1,[0d0,0d0,0d0])
+    call csymop(grp(1,1),.false.,1,[0d0,0d0,0d0])
+    call csymop(grp(1,2), .true.,1,[0d0,0d0,0d0])
     do  10  i = 0, (ll1**3-1)/2-1 !Find all possible rotation axes ---
        m1 = mm(i,1); m2 = mm(i,2); m3 = mm(i,3)
        if( all([((mod(m1,m)/=0.or.mod(m2,m)/=0.or.mod(m3,m)/=0),m=2,ll1)]) ) then
           vecg(:) = matmul(platcp,[m1,m2,m3]) 
           do  16  m = 1, 4 
-             call csymop(-1,mat,.false.,nrot(m),vecg) ! Matrix for this symmetry operation
+             call csymop(mat,.false.,nrot(m),vecg) ! Matrix for this symmetry operation
              platt=matmul(mat,platcp)
              if (latvec(3,toll,qlatcp,platt)) then !       ... Add it and i*symop, if allowed
-                call csymop(-1,grp(1,ngrp+1),.false.,nrot(m),vecg)
-                call csymop(-1,grp(1,ngrp+2),.true. ,nrot(m),vecg)
+                call csymop(grp(1,ngrp+1),.false.,nrot(m),vecg)
+                call csymop(grp(1,ngrp+2),.true. ,nrot(m),vecg)
                 ngrp = ngrp+2
                 if (m /= 1) then
-                   call csymop(-1,grp(1,ngrp+1),.false.,-nrot(m),vecg)
-                   call csymop(-1,grp(1,ngrp+2),.true. ,-nrot(m),vecg)
+                   call csymop(grp(1,ngrp+1),.false.,-nrot(m),vecg)
+                   call csymop(grp(1,ngrp+2),.true. ,-nrot(m),vecg)
                    ngrp = ngrp+2
                 endif
              endif
@@ -499,7 +493,7 @@ contains
     call getpr(ipr)
     icmin = 1
     do ic = 1, nclass !Find the class with minimum number of atoms ---
-       if (nrclas(ic) < nrclas(icmin) .AND. nrclas(ic) > 0) icmin = ic
+       if(nrclas(ic) < nrclas(icmin) .AND. nrclas(ic) > 0) icmin = ic
     enddo
     ibas = iclbsjx(ipc,nbas, icmin,1)
     ! --- For each group op, see whether it only shifts basis by some T ---
@@ -539,33 +533,25 @@ contains
        enddo
     endif
   end subroutine symcry
-  subroutine asymop(grp,ag,asep,sg)  ! Generate the symbolic representation sg of a group operation 
-    !i  grp,ag :  space group rotation + translation matrix
+  subroutine asymop(grpin,ag,asep,sg)  ! Generate the symbolic representation sg of a group operation 
+    !i  grpin,ag :  space group rotation + translation matrix
     !i  asep: 
     !o  sg  :  symbolic representation of group op
     implicit none
-    real(8) :: grp(3,3),ag(3),vecg(3),dasum
+    real(8) :: grp(3,3),ag(3),vecg(3),grpin(3,3),costbn,detop,ddet33,dnrm2,sinpb3,vfac,wk(9)
     character(*):: sg,asep
-    integer :: nrot,ip,isw,i1,i2,fmtv,llen
+    integer :: nrot,ip,isw,i1,i2,fmtv,llen,i,idamax,j,in
     logical :: li
     real(8),parameter:: twopi = 8*datan(1d0)
-    ccymop1block:block !call csymop(1,grp,li,nrot,vecg) ! Get consitutents of grp ---
-      integer :: i,idamax,j,in
-      real(8) :: costbn,detop,ddet33,dnrm2,sinpb3,vfac, wk(9),sintbn,omcos,ddot
-      character(8):: xn
-      call dinv33(grp,0,wk,detop)
-      if(dabs(dabs(detop)-1d0)>tiny) call rx('Exit -1 ASYMOP: determinant of group op must be +/- 1, but is '//trim(ftof(detop)))
-      detop = dsign(1d0,detop) !sign of determinant
-      li = detop<0d0 !   ... li is T if to multiply by inversion
-      grp= detop*grp !Multiply operation grp with detop to guarantee pure rotation 
-      costbn = 0.5d0*(-1 + grp(1,1) + grp(2,2) + grp(3,3))
-      if(abs(costbn-1d0) < tiny) then
-         nrot = 1
-      else
-         nrot = idnint(twopi/dacos(dmax1(-1d0,costbn)))
-      endif
-      grp = detop*grp
-    endblock ccymop1block
+    character(8):: xn
+    grp=grpin
+    call dinv33(grp,0,wk,detop)
+    if(dabs(dabs(detop)-1d0)>tiny) call rx('Exit -1 ASYMOP: determinant of group op must be +/- 1, but is '//trim(ftof(detop)))
+    detop = dsign(1d0,detop) !sign of determinant
+    li = detop<0d0 !   ... li is T if to multiply by inversion
+    grp= detop*grp !Multiply operation grp with detop to guarantee pure rotation 
+    costbn = 0.5d0*(-1 + grp(1,1) + grp(2,2) + grp(3,3))
+    nrot = merge(1, idnint(twopi/dacos(dmax1(-1d0,costbn))),abs(costbn-1d0) < tiny)
     if(nrot == 1) then ! Rotational part
        sg = merge('i','e',li) 
     elseif(li.and.nrot==2) then
@@ -577,16 +563,12 @@ contains
     ip=len(trim(sg))
     if(sum(abs(ag))>tiny .and. asep(1:1)/=' ') sg(ip+1:)=asep(1:index(asep(1:),' ')) !Translational part added
   end subroutine asymop
-  
-  subroutine csymop(iopt,grp,li,nrot,vecg) !Decomposes a group operation into its consitutents, or vice-versa
+  subroutine csymop(grp,li,nrot,vecg) !Convert (nrot,vecg,li) to grp
     use m_ftox
-    !i   iopt  := -1 to convert (nrot,vecg,li) to grp
-    !i          =  1 to convert grp to to (nrot,vecg,li)
-    !o Inputs/Outputs:
+    ! i li    :if T: inversion or rotoinversion
+    ! i nrot  :rotation angle = 2*pi/nrot
+    ! i vecg  :rotation axis
     ! o grp   :group operation matrix
-    ! o li    :if T: inversion or rotoinversion
-    ! o nrot  :rotation angle = 2*pi/nrot
-    ! o vecg  :rotation axis
     !r Remarks
     !r   for nrot > 2 the matrix is non-symmetric and the rotation axis can be calculated from the antisymmetric part.
     !r   For nrot = 2 this not possible.  However, the squared vector components are given by:  mat(i,i) = 2 v_i * v_i - 1.
@@ -598,21 +580,21 @@ contains
     logical :: li
     character(8):: xt
     real(8),parameter:: twopi = 8*datan(1d0)
-       in = iabs(nrot)
-       if(in <= 0 .OR. in == 5 .OR. in > 6)call rx('CSYMOP: abs(nrot) must 1,2,3,4 or 6, but is '//trim(xt(in)))
-       if(in == 1) then
-          grp=reshape([1d0,0d0,0d0,0d0,1d0,0d0,0d0,0d0,1d0],[3,3])
-       else
-          call rxx(dnrm2(3,vecg,1).lt.tiny, 'CSYMOP: zero rotation vector')
-          sintbn = sin(twopi/nrot)
-          costbn = cos(twopi/nrot)
-          omcos  = 1d0-costbn
-          vecg= 1d0/sum(vecg**2)**.5 *vecg 
-          grp(1,1:3) = omcos*vecg(1)*vecg(:) + [costbn,         -sintbn*vecg(3),  sintbn*vecg(2)]
-          grp(2,1:3) = omcos*vecg(2)*vecg(:) + [sintbn*vecg(3),          costbn, -sintbn*vecg(1)]
-          grp(3,1:3) = omcos*vecg(3)*vecg(:) + [-sintbn*vecg(2), sintbn*vecg(1),  costbn]
-       endif
-       if(li) grp=-grp 
+    in = iabs(nrot)
+    if(in <= 0 .OR. in == 5 .OR. in > 6)call rx('CSYMOP: abs(nrot) must 1,2,3,4 or 6, but is '//trim(xt(in)))
+    if(in == 1) then
+       grp=reshape([1d0,0d0,0d0,0d0,1d0,0d0,0d0,0d0,1d0],[3,3])
+    else
+       call rxx(dnrm2(3,vecg,1).lt.tiny, 'CSYMOP: zero rotation vector')
+       sintbn = sin(twopi/nrot)
+       costbn = cos(twopi/nrot)
+       omcos  = 1d0-costbn
+       vecg= 1d0/sum(vecg**2)**.5 *vecg 
+       grp(1,1:3) = omcos*vecg(1)*vecg(:) + [costbn,         -sintbn*vecg(3),  sintbn*vecg(2)]
+       grp(2,1:3) = omcos*vecg(2)*vecg(:) + [sintbn*vecg(3),          costbn, -sintbn*vecg(1)]
+       grp(3,1:3) = omcos*vecg(3)*vecg(:) + [-sintbn*vecg(2), sintbn*vecg(1),  costbn]
+    endif
+    if(li) grp=-grp 
   end subroutine csymop
   subroutine symtbl(mode,nbas,pos,g,ag,ng,qlat,istab) ! Make symmetry transformation table for posis atoms; check classes
     !i Inputs
