@@ -12,13 +12,13 @@ IO      SHOW=T VERBOS=35 TIM=0,0 #Use TIM=3,3 or more for debug (to show which r
          # It is useful to check ctrl is read in correctly or not (equivalent with --show option).
          # larger VERBOSE gives more detailed console output.
 
-#SYMGRPAF i:(1,1,1)
 #SYMGRP   i*r3d r2(1,0,-1) i:(1,1,1)
 #SYMGRP   i*r3d r2(1,0,-1)
 
 #SYMGRP   find i::(-1,0,0)
 #SYMGRP   find i:(1,1,1)
 
+SYMGRPAF i:(1,1,1)
 SYMGRP    find 
               # 'find' evaluate space-group symmetry (just from lattice) automatically.
               #

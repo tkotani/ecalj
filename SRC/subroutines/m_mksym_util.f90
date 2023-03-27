@@ -5,7 +5,7 @@ module m_mksym_util !utities for m_mksym
   private
   real(8),parameter:: toll=1d-4,tiny=1d-4,epsr=1d-12
 contains
-  subroutine gensym(slabl,gens,symfind,nbas,nspec,ngmx,plat,platcv,bas,ips, ng,g,ag,ngen,gen,nwgens,nggen,isym,istab) !Generate the space group ops
+  subroutine gensym(slabl,gens,symfind,nbas,nspec,ngmx,plat,platcv,bas,ips, ng,g,ag, ngen,gen,nwgens,nggen,isym,istab) !Generate the space group ops
     !i Inputs:
     !i   slabl: name of the different species.
     !i   gens:  a list of generators, in symbolic representation  NB: this list is not required; see Remarks.
@@ -44,9 +44,9 @@ contains
     logical :: symfind
     integer :: nbas,isym(*),istab(nbas,*),nspec,ngen,ngmx, ng,nrspec(nspec),ips(nbas),nggen 
     integer:: i , j , ibas , ic , iprint, igen , mxint , ig,iwdummy1(1)
-    integer,parameter:: ngnmx=10
-    real(8) :: plat(3,3),platcv(3,3),g(3,3,*),ag(3,*),bas(3,nbas), qlat(3,3),vol,platt(3,3),gen(3,3,ngnmx),agen(3,ngnmx)
+    real(8) :: plat(3,3),platcv(3,3),g(3,3,*),ag(3,*),bas(3,nbas), qlat(3,3),vol,platt(3,3),gen(3,3,ngmx),agen(3,ngmx)
     character(8) ::  slabl(*), gens*(*), nwgens*(*),xn
+    character(100) :: sg,sg1,sout,sout2
     call dinv33(plat,1,qlat,vol) !Reciprocal lattice vectors --- 
     nwgens = gens
     if(len_trim(gens) > 0) then
@@ -74,7 +74,6 @@ contains
          !o         :usually nggen=ng unless artificial translations
          !o   nwgens  :ascii representation of generators
          integer :: imax,isop,ngloc,ngmax,iprint,ngen0,i1,i2,j1,j2,icount,ngmax2
-         character(100) :: sg,sg1,sout,sout2
          real(8)::gloc(3,3,ngmx),agloc(3,ngmx),xx,vec(3)
          call pshpr(1)
          ngen0 = ngen
@@ -103,7 +102,7 @@ contains
             ngen = ngen+1
             gen(:,:,ngen)= g(:,:,imax) 
             agen(: ,ngen)= ag(: ,imax) 
-            if(iprint()>0) write(stdo,ftox)'Enlarging ngen=',ngen,' ng nggen=',ng,nggen
+            if(iprint()>0) write(stdo,ftox)'   Enlarging ngen=',ngen,' ng nggen=',ng,nggen
          enddo
          call poppr
          if(iprint()>0.and. ngen0 == 0) then
@@ -124,13 +123,22 @@ contains
             write(stdo,"('  Generators:: trans(frac)= ', a)")trim(adjustl(sout2))
          endif
          nwgens = sout2
-         if(iprint()>0.and.nggen>ng)write(stdo,ftox)' (warning)ng=',ng,' ops supplied but generators create nggen=',nggen,' ops'
+         if(iprint()>0.and.nggen>ng) write(stdo,ftox)' (warning) Enlarged ng=',nggen,' > lattice ng=',ng
+         ng =nggen
+         g(:,:,1:ng)= gloc(:,:,1:ng)
+         ag(:,1:ng) = agloc(:,1:ng)
        endblock groupgblock
+       call symtbl(0,nbas,bas,g,ag,ng,qlat,istab )
     else
        call symtbl(0,nbas,bas,g,ag,ng,qlat,istab )
        nggen = ng
     endif
     if(iprint()>0) then
+       write(stdo,"(' gensym: ig group ops (:vector means translation in cartesian)')")
+       do  ig = 1, ng
+          call asymop(g(:,:,ig),ag(1,ig),':',sg)
+          write(stdo,'(i5,2x,a)') ig,trim(sg)
+       enddo
        write(stdo,"(a)")' gensym: site permutation table for group operations ...'
        write(stdo,"('  ib/ig:',48i3)")  [(ig,ig=1,ng)]
        do i = 1, nbas
@@ -219,11 +227,15 @@ contains
        if (ipr >= 60 .AND. ng > 1) then
           write(stdo,'('' sgroup: ig op'')')
           do  ig = 1, ng
-             sg=''
-             call asymop(g(1,1,ig),ag(1,ig),' ',sg)
+             call asymop(g(1,1,ig),ag(1,ig),':',sg)
+!             write(6,*)' g=',g(:,1,ig)
+!             write(6,*)'   ',g(:,2,ig)
+!             write(6,*)'   ',g(:,3,ig)
+!             write(6,*)'ag=',ag(:,ig)
              write(stdo,'(5x,i4,2x,a)') ig,sg
           enddo
        endif
+!       stop 'qqqqqqqqqqqqqqq'
     endif
     return
 99  continue
@@ -250,7 +262,7 @@ contains
        sig = gen(:,:,igen) !  Extend the group by all products with sig ---
        do ig = 1, ng 
           if (grpeql(symops(:,:,ig),sig) .AND. ipr > 30)  write(stdo,ftox)' Generator ',igen,' already in group as element',ig
-          if (grpeql(symops(:,:,ig),sig)) cycle
+          if (grpeql(symops(:,:,ig),sig)) goto 80
        enddo
        h=sig
        do  itry = 1, 100
@@ -299,7 +311,7 @@ contains
           write(stdo,'('' ig  group op'')')
           do  ig = 1, ng
              call asymop(symops(1,1,ig),ae,' ',sout)
-             write(stdo,'(i4,2x,a)') ig,sout(1:35)
+             write(stdo,'(i4,2x,a)') ig,trim(sout)
           enddo
        endif
     endif
@@ -454,7 +466,7 @@ contains
 16        enddo
        endif
 10  enddo
-    ngrp = merge(ngrp,ngtab(isym),isym==0)
+    isym = findloc(ngtab,value=ngrp,dim=1)
     if(iprint()>=30) write(stdo,ftox)' symlat: Bravais system is '//csym1(isym)//' with',ngrp,'symmetry operations.'
   end subroutine symlat
   subroutine symcry(bas,ipc,nbas,nclass,nrclas, ng,plat,qlat,g,ag,istab) ! Generates the symmetry ops of the crystal from those of the lattice
@@ -525,13 +537,13 @@ contains
 20     enddo
 30  enddo
     if(ipr>=30)write(stdo,ftox)' symcry: crystal invariant under',ng,'following symmetry operations for tol=',ftof(toll)
-    if (ipr >= 60 .AND. ng > 1) then
-       write(stdo,'('' -- ig group op: symcry'')')
-       do  ig = 1, ng
-          call asymop(g(:,:,ig),ag(1,ig),' ',sg)
-          write(stdo,'(i5,2x,a)') ig,trim(sg)
-       enddo
-    endif
+!    if (ipr >= 60 .AND. ng > 1) then
+!       write(stdo,'('' -- ig group op: symcry'')')
+!       do  ig = 1, ng
+!          call asymop(g(:,:,ig),ag(1,ig),' ',sg)
+!          write(stdo,'(i5,2x,a)') ig,trim(sg)
+!       enddo
+!    endif
   end subroutine symcry
   subroutine asymop(grpin,ag,asep,sg)  ! Generate the symbolic representation sg of a group operation 
     !i  grpin,ag :  space group rotation + translation matrix
@@ -551,17 +563,52 @@ contains
     li = detop<0d0 !   ... li is T if to multiply by inversion
     grp= detop*grp !Multiply operation grp with detop to guarantee pure rotation 
     costbn = 0.5d0*(-1 + grp(1,1) + grp(2,2) + grp(3,3))
-    nrot = merge(1, idnint(twopi/dacos(dmax1(-1d0,costbn))),abs(costbn-1d0) < tiny)
+    if (dabs(costbn-1d0) < tiny) then
+       nrot = 1
+       vecg=0d0 
+    else
+       nrot = idnint(twopi/dacos(dmax1(-1d0,costbn)))
+       if (nrot == 2) then
+          vecg = 0.5d0*[((grp(i,i)+1.0d0),i=1,3)]
+          j = idamax(3,vecg,1)
+          if(vecg(j) < 0d0)call rx('ASYMOP: bad operation j='//trim(xn(j))//'. Diagonal element is '//ftof(grp(j,j)))
+          vecg(j) = dsqrt(vecg(j))
+          vfac = 0.5d0/vecg(j)
+          do i = 1, 3
+             if (i /= j) vecg(i) = vfac*grp(i,j)
+          enddo
+       else
+          vecg=[grp(3,2)-grp(2,3), grp(1,3)-grp(3,1), grp(2,1)-grp(1,2)]
+       endif
+       sinpb3 = dsqrt(.75d0) 
+       if (dabs((sinpb3-dabs(vecg(1)))*(sinpb3-dabs(vecg(2)))*(sinpb3-dabs(vecg(3)))) > tiny) then
+          do  j = 3, 1,-1 !Renormalize at least one component to 1 to allow for abbreviations as 'D', 'X', 'Y' or 'Z'
+             vfac = dabs(vecg(j))
+             if(vfac > tiny) vecg=1d0/vfac*vecg
+          enddo
+       endif
+    endif
+    sg=''
+!    write(stdo,ftox)'nrotnnnnn',nrot,li,'vecg',vecg,'ag=',ag
     if(nrot == 1) then ! Rotational part
        sg = merge('i','e',li) 
-    elseif(li.and.nrot==2) then
-       sg='m'
-    else   
-       sg=merge('i*','  ',li)//'r'//char(48+nrot)
+       ip=len(trim(sg))+1
+    else
+       if(li.and.nrot==2) then
+          sg='m'
+       else   
+          sg=merge('i*','  ',li)//'r'//char(48+nrot)
+       endif
+       ip=len(trim(sg))+1
+       call rxx(.not. parsvc2(.true.,sg,ip,vecg),'bug in asymop 2')!rotation axis
     endif
     sg=adjustl(sg)
-    ip=len(trim(sg))
-    if(sum(abs(ag))>tiny .and. asep(1:1)/=' ') sg(ip+1:)=asep(1:index(asep(1:),' ')) !Translational part added
+    if(sum(abs(ag))>tiny) then !Translational part added
+!       print *,'sg=',sg,'asep=',trim(asep)
+       if(asep(1:1)/=' ') sg=trim(sg)//trim(asep)
+       ip=len(trim(sg))+1
+       call rxx(.not. parsvc2(.false.,sg,ip,ag),'bug in asymop 1')
+     endif  
   end subroutine asymop
   subroutine csymop(grp,li,nrot,vecg) !Convert (nrot,vecg,li) to grp
     use m_ftox
@@ -615,7 +662,7 @@ contains
     do    ig = 1, ng !Make atom transformation table ---
        do ib = 1, nbas          
           jb=findloc( [(latvec(1,toll,qlat, matmul(g(:,:,ig),pos(:,ib))+ag(:,ig)-pos(:,ka)), ka=1,nbas)],dim=1,value=.true.)!ib is mapped to jb by g,ag 
-          if(jb == 0) call rx("SYMTBL: no map for atom ib="//trim(xn(ib))//"ig="//trim(xn(ig)))
+          if(jb == 0) call rx("SYMTBL: no map for atom ib="//trim(xn(ib))//" ig="//trim(xn(ig)))
           if (mode == 0) then
              istab(ib,ig) = jb
           else
@@ -624,6 +671,37 @@ contains
        enddo
     enddo
   end subroutine symtbl
+  logical function parsvc2(modex,t,ip,v)  
+    implicit none
+    logical:: modex
+    integer :: ip
+    real(8) :: v(3)
+    character(*) :: t
+    real(8) :: x,y,z,d
+    character sout*50, add*1,soutx*50
+    integer :: itrm,ix(3),ich,iopt,m,i,iz,id,mx !,awrite !,a2vec
+    character(9),parameter:: rchr='(XxYyZzDd'
+    parsvc2 = .true.
+    t(ip:ip)=' '
+    if(modex) then
+       if( all(abs(v(:)-[1d0,1d0,1d0])<tiny) ) t(ip:ip)='d'
+       if( all(abs(v(:)-[1d0,0d0,0d0])<tiny) ) t(ip:ip)='x'
+       if( all(abs(v(:)-[0d0,1d0,0d0])<tiny) ) t(ip:ip)='y'
+       if( all(abs(v(:)-[0d0,0d0,1d0])<tiny) ) t(ip:ip)='z'
+    endif
+    if(t(ip:ip)==' ') then
+       t(ip:ip)='('
+       do i = 1, 3
+          write(sout,ftox) ftof(v(i))
+          if(abs(nint(v(i))-v(i))<1d-6) write(sout,ftox) nint(v(i))
+          sout = trim(adjustl(sout))//merge(')',',',i==3)
+          m= len_trim(sout)
+          t(ip+1:ip+m)=trim(sout) 
+          ip = ip+m
+       enddo
+    endif
+    ip = ip+1
+  end function parsvc2
   logical function parsvc(t,ip,v)  !Converting ascii t to vector v.  We handle only v=(num,num,num),d,x,y,z, where num is wo math operations.
     !io  ip     position in t first char.  out: position ofr last char
     !i  t       string representation of vector (see Remarks)
@@ -713,7 +791,7 @@ contains
        do j=1,nbas
           ic   = ipc(j) !class
           ispec= ics(ic)!spec
-          write(stdo,"(a,3i5,a)")"       ",j,ic,ispec,'     '//trim(slabl(ispec))
+          write(stdo,"(a,3i6,a)")"       ",j,ic,ispec,'     '//trim(slabl(ispec))
        enddo
     endif
   end subroutine splcls
@@ -748,6 +826,11 @@ contains
     integer:: n
     real(8):: qlat(3,3),vec(3,n),tol, vdiff(n,3)
     vdiff  = matmul(transpose(vec(:,:)),qlat(:,:))
+    ! print *,'vec1=',vec(:,1)
+    ! print *,'vec2=',vec(:,2)
+    ! print *,'vec3=',vec(:,3)
+    ! print *,'qlat=',qlat
+    ! print *,'vdiff=',vdiff
     latvec = all(abs(vdiff-nint(vdiff)) < tol)
   end function latvec
   integer function iclbsjx(ipc,nbas, ic,nrbas) !the nrbas-th atom belonging to class ic (ipc(ibas)==ic)

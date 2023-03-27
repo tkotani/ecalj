@@ -1,5 +1,6 @@
 module m_mksym !crystal symmetry data given by call m_mksym_init.  nbas (atomic sites)-> nspec (species) -> nclass (class)
   use m_mpitk,only: master_mpi
+  use m_lgunit,only: stdo
   public :: m_mksym_init, &
        rv_a_oag,   iv_a_oics, lat_npgrp, lat_nsgrp, &
        rv_a_osymgr,iv_a_oistab, ctrl_nclass,iclasst, &
@@ -13,10 +14,10 @@ module m_mksym !crystal symmetry data given by call m_mksym_init.  nbas (atomic 
   integer,allocatable,protected:: iclasstaf_(:) !=== AntiFerro class information 
   real(8),allocatable,protected:: symops_af_(:,:,:), ag_af_(:,:) 
   integer,protected::&
-       lat_nsgrp, & !number of space group symmetry
+       lat_nsgrp,  & !number of space group symmetry
        ctrl_nclass,& !number of equivalence class
-       ngrpaf_,& ! antiferro symops_af_ and ag_af_
-       lat_npgrp !number of point group operation with adding iversion. Used in mkqp.f90
+       lat_npgrp,  & !number of point group operation with adding iversion. Used in mkqp.f90
+       ngrpaf_       !antiferro symops_af_ for (symops_af_,ag_af_)
 contains
   subroutine m_mksym_init(prgnam) ! Driver for calling mksymaf and mksym
     use m_lmfinit,only: nspec,nbas,sstrnsymg,addinv, symgaf,iv_a_oips,slabl,mxspec,procid,master,iantiferro
@@ -46,26 +47,27 @@ contains
     if(len_trim(sstrnsymg)>0) strn=trim(sstrnsymg)
     if (cmdopt0('--nosym') .OR. cmdopt0('--pdos') ) strn = ' '
     lc=merge(1,0,addinv) ! Add inversion to get sampling k points. phi*. When we have TR with keeping spin \sigma, psi_-k\sigm(r) = (psi_k\sigma(r))^* 
-    if( .NOT. (prgnam=='LMFA' .OR. prgnam=='LMCHK')) ipr10= iprint()>10 !this is only for master
+    if( .NOT. prgnam=='LMFA') ipr10= iprint()>10 !this is only for master
     if(len_trim(symgaf)>0) then
        strn2=trim(strn)//' '//trim(symgaf)
        if(ipr10) then
-          write(6,*)
-          write(6,"(a)")       'AF: ======== AF symmetry ===================== '
-          write(6,"(a)")       'AF: Antiferro mode: SPGGRAF  = '//trim(symgaf)
-          write(6,"(a)")       'AF:                 SPGGR all= '//trim(strn2)
-          write(6,"(a,2i3)")  ('AF:  ibas,AF=',j,iantiferro(j),j=1,nbas)
+          write(stdo,*)
+          write(stdo,"(a)")       'AF: ======== AF symmetry ===================== '
+          write(stdo,"(a)")       'AF: Antiferro mode: SPGGRAF  = '//trim(symgaf)
+          write(stdo,"(a)")       'AF:                 SPGGR all= '//trim(strn2)
+          write(stdo,"(a,2i3)")  ('AF:  ibas,AF=',j,iantiferro(j),j=1,nbas)
        endif
        !NOTE: a little confusing. ! Module variables are written by mksymaf but overwitten by next call of mksym.
        call mksymaf(iantiferro,iv_a_oips,procid==master,strn2,lc,slabl,mxspec)
-       if(ipr10) write(6,"(a)") 'AF: ===== end of AF section================= '
-       if(ipr10) write(6,"(a)")
+       if(ipr10) write(stdo,"(a)") 'AF: ===== end of AF section================= '
+       if(ipr10) write(stdo,"(a)")
     endif 
     if(procid==master) call pshpr(60)
     allocate(iclasst(nbas))
-    if(ipr10) write(6,"(a)") 'SpaceGroupSym: ======================================= '
+    if(ipr10) write(stdo,"(a)") 'SpaceGroupSym: ======================================= '
     call mksym(lc,slabl,strn,iv_a_oips,iclasst)
-    if(ipr10) write(6,"(a)") 'SpaceGroupSym: ========end of SYM section============= '
+    if(ipr10) write(stdo,"(a)") 'SpaceGroupSym: ========end of SYM section============= '
+    if(ipr10) write(stdo,*)
     if(procid==master) call poppr
     call tcx('m_mksym_init')
   end subroutine m_mksym_init
@@ -88,15 +90,16 @@ contains
           endif
        enddo
     enddo
-    ngrpaf_     = lat_nsgrp
-    allocate(iclasstaf_(nbas),symops_af_(3,3,ngrpaf_),ag_af_(3,ngrpaf_))
     if(imaster) call pshpr(60)
+    allocate(iclasstaf_(nbas))
     call mksym(lc,slabl,strn2,iv_a_oips,iclasstaf_) !strn2 and v_ssite2 are used.
+    ngrpaf_     = lat_nsgrp
+    allocate(symops_af_(3,3,ngrpaf_),ag_af_(3,ngrpaf_))
     if(imaster) call poppr()
-    if(imaster) write(6,"(a)")'AF: mksym, generator= SYMGRP+SYMGRPAF= '//trim(strn2)
+    if(imaster) write(stdo,"(a)")'AF: mksym, generator= SYMGRP+SYMGRPAF= '//trim(strn2)
     call dcopy ( ngrpaf_ * 9 , rv_a_osymgr , 1 , symops_af_ , 1 )
     call dcopy ( ngrpaf_ * 3 , rv_a_oag ,    1 , ag_af_ , 1 )
-    if(imaster) write(6,"(a,i3)")'AF: ngrpaf=',ngrpaf_
+    if(imaster) write(stdo,"(a,i3)")'AF: ngrpaf=',ngrpaf_
   end subroutine mksymaf
   subroutine mksym(mode,slabl,ssymgr,iv_a_oips,iclass)! Setup symmetry group.  Split species into classes, Also assign class labels to each class
     use m_lmfinit,only: nbas,stdo,nspec               ! outputs are allocated as module variables
@@ -132,7 +135,7 @@ contains
     integer,allocatable :: ips2_iv(:)
     integer,parameter:: ngnmx=10
     character(120) :: gens
-    real(8) :: gen(9,ngnmx),plat(3,3),qlat(3,3),xx
+    real(8) :: gen(3,3,ngnmx),plat(3,3),qlat(3,3),xx
     integer:: iv_a_oips(:),iclass(nbas),ifind
     integer, allocatable ::  iv_a_onrc (:)
     integer, allocatable ::  iv_a_oipc(:) !class for lmaux                     maybe= iclasst
@@ -141,32 +144,33 @@ contains
     ngmx = 48
     if(allocated(rv_a_oag))  deallocate(rv_a_oag,rv_a_osymgr,iv_a_oics)
     if(allocated(iv_a_oipc)) deallocate(iv_a_oipc) !within subroutine
-    allocate( rv_a_oag(3*ngmx)    )
+    allocate( rv_a_oag(3*ngmx)      )
     allocate( rv_a_osymgr(3,3,ngmx) )
     allocate( iv_a_oipc(nbas)  )
     allocate( iv_a_oics(nbas)  )
     ifind = index(ssymgr,'find')
-    gens  = merge(ssymgr(1:ifind)//' '//ssymgr(ifind+4:),ssymgr, ifind>0)
-    if(master_mpi) write(stdo,*)' generators=',trim(gens)
+    !write(stdo,*)'ifind=',ifind
+    !write(stdo,*)'###'//ssymgr(ifind:ifind+3)//'###'
+    gens = merge(ssymgr(1:ifind-1)//' '//ssymgr(ifind+4:),ssymgr, ifind>0)
+    if(master_mpi) write(stdo,*)' Generators except find=',trim(gens)
     if(.not. allocated(iv_a_oistab)) allocate(iv_a_oistab(ngmx*nbas))
     symfind = ifind>0
     call gensym(slabl,gens,symfind,nbas,nspec,ngmx,plat,plat,rv_a_opos(:,1:nbas),iv_a_oips(1:nbas), & !Generate space group ops
          nsgrp,rv_a_osymgr,rv_a_oag, ngen,gen,ssymgr, nggen,isym,iv_a_oistab)
-    if(master_mpi) write(stdo,ftox)' mksym: ng ng ngen =',nsgrp,nggen,ngen
-    if(nggen>nsgrp.and.master_mpi) write(stdo,ftox)' MKSYM(warning): nggen=',nggen,'> nsgrp=',nsgrp
+!    if(master_mpi) write(stdo,ftox)' mksym: ng ng ngen =',nsgrp,nggen,ngen
+!    if(nggen>nsgrp.and.master_mpi) write(stdo,ftox)' MKSYM(warning): nggen=',nggen,'> nsgrp=',nsgrp
     if(nggen>ngmx) call rx('mksym: nggen>ngmx')
     incli = -1
     npgrp = nsgrp
     if (mode /= 0) then !Add inversion to point group
        ngen = ngen+1
-       gen(:,ngen) = [-1d0,0d0,0d0, 0d0,-1d0,0d0, 0d0,0d0,-1d0]
+       gen(:,:,ngen) = reshape([-1d0,0d0,0d0, 0d0,-1d0,0d0, 0d0,0d0,-1d0],[3,3])
        call pshpr(iprint()-40)
-       call grpgen(gen(1,ngen),1 , rv_a_osymgr,npgrp, ngmx)
+       call grpgen(gen(1,1,ngen),1, rv_a_osymgr,npgrp, ngmx)
        call poppr
        incli = npgrp-nsgrp
     endif
-    ! Printout of symmetry operations
-    if(master_mpi) write(stdo,ftox)'  mksym: found ',nsgrp,' space group operations'
+    ! Printout of symmetry operations !    if(master_mpi) write(stdo,ftox)'  mksym: found ',nsgrp,' space group operations'
     if(master_mpi.and.nsgrp/=npgrp) write(stdo,ftox) &
          '    adding inversion gives',npgrp,' operations for generating k points; enforce real for dmatu for LDA+U'
     if(master_mpi.and.incli == -1) write(stdo,*)'  no attempt to add inversion symmetry'

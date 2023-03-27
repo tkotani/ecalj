@@ -24,7 +24,7 @@ contains
          nclasp,nclass,nlspc,modep(3),nbasp, &
          nbaspp,nkd,nkq,neul,nc,mxcsiz,nttab,igets, & ! & npadl,npadr,
          iosits,cmplat,ngrp,irs(5),nclspp,bitand,igetss, &
-         ngmx,nsgrp
+         nsgrp
     integer:: oeold  , olmx , opold , owk2 , orham , oamsh &
          , onrmsh , oalpha , onpr , os , ormx , oip , opgfsl , mxclas
     integer,allocatable :: iv_a_ontab(:)
@@ -42,7 +42,7 @@ contains
     double precision :: xv(10),xx,plat(3,3),facrmx,facrng, & ! & ,plat2(9)
          dval,avw,ekap(2),enu,qss(4),ckbas,cksumf,ehterm(4), rmaxs, &
          qlat(9),emad,trumad,vmtz(2)
-    parameter (ngmx=48,mxclas=1000)
+    parameter (mxclas=1000)
     integer:: ifx,w_dummy(1)=1
     integer,allocatable:: lmxa(:)
     real(8),allocatable:: z(:),rmax(:)
@@ -1587,8 +1587,8 @@ contains
 102 END DO
 
     if(ipr>=10) then
-       if(lrmt) write(stdo,*)'    Site   ic Spec        Rmax   RMT   Position'
-       if(.NOT.lrmt)write(stdo,*)'    Site   ic Spec        Rmax      Position'
+       if(lrmt) write(stdo,*)    '    Site      ic Spec        Rmax   RMT   Position'
+       if(.NOT.lrmt)write(stdo,*)'    Site      ic Spec        Rmax      Position'
     endif
     volsph = 0d0
     open(newunit=ifp,file='SiteInfo.lmchk')

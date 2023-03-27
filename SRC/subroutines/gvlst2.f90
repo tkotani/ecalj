@@ -78,7 +78,7 @@ subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv)!
   real(8):: plat1(3,3),qlat1(3,3),gg,gs(3)
   integer:: j1,j2,j3,m,jj1,jj2,jj3,nn1,nn2,nn3,i123(3),jjj(3),jg,igrp,jjg
   real(8):: rlatp(3,3),xmx2(3),gvv(3),diffmin
-  integer :: nginit,kv_tmp(ngmx,3),igv_tmp(ngmx,3),ips(ngmx),jx,nxx,itemp(48),ix,iprint
+  integer :: nginit,kv_tmp(ngmx,3),igv_tmp(ngmx,3),ips(ngmx),jx,nxx,itemp(ngmx),ix,iprint
   real(8):: gv_tmp(ngmx,3)
   call tcn('gvlst2')
   call pshpr(iprint()-30)
