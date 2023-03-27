@@ -1,18 +1,12 @@
 integer function iclbsj(ic,ipc,nbas,nrbas)  !- Returns an index to nrbas atom in basis given the class
   !i   ic    :class index
   !i   ipc   :class index: site ib belongs to class ipc(ib) 
-  !i   nbas  : abs  = number of atoms in the basis
-  !i         : sign <0 to return with -n if there are fewer than nrbas
+  !i   nbas  : abs  = number of atoms in the basis. NOTe: sign <0 to return with -n if there are fewer than nrbas
   !i         :  members of class ic, where n=number members of class ic
   !i   nrbas :the nrbas-th basis atom of class ic is sought
-  !o Outputs:
-  !o   iclbsj:the nrbas-th atom belonging to class ic
-  !u Updates
-  !u   10 May 01 Returns -n rather than -1 when nrbas-th atom not found
-  ! ----------------------------------------------------------------------
+  !o Outputs: iclbsj:the nrbas-th atom belonging to class ic
   implicit none
-  integer :: ic,nbas,ipc(*),nrbas
-  integer :: ibas,n,nbasa
+  integer :: ic,nbas,ipc(*),nrbas,ib, ibas,n,nbasa
   iclbsj = 1
   n = 0
   nbasa = iabs(nbas)
