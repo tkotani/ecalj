@@ -1,4 +1,6 @@
 module m_lattic !lattice setup
+  use m_ftox
+  use m_lgunit,only:stdo
   use m_xlgen,only:xlgen
   public m_lattic_init,setopos,lctoff
   real(8), allocatable,protected,public ::  rv_a_odlv (:)
@@ -7,7 +9,6 @@ module m_lattic !lattice setup
   real(8), allocatable,protected,public :: rv_a_opos(:,:)
   integer,protected,public:: lat_nkd,lat_nkq
   logical,protected,public:: lattic_init=.false.
-  ! real(8),protected:: lat_dist(3,3) !unused because no deformation of cell allowed currently.
   private
 contains
   subroutine setopos(posin) !called from lmfp to revise atomic position by reading rst file.
@@ -16,10 +17,10 @@ contains
     rv_a_opos(1:3,1:nbas)= posin(1:3,1:nbas)
   end subroutine Setopos
   subroutine m_lattic_init() ! Sets up the real and rmeciprocal space lattice vectors !no shear now  ldist=0
-    use m_lmfinit,only:nbas,lat_alat,lat_as,lat_tol,lat_rpad,lat_nkdmx,lat_nkqmx,lat_platin, poss=>pos
+    use m_lmfinit,only:nbas,lat_alat,lat_as,lat_tol,lat_rpad,nkdmx=>lat_nkdmx,nkqmx=>lat_nkqmx,lat_platin,pos
     implicit none
-    integer::  lmxst , nkd , nkdmx , nkq , nkqmx,ib
-    real(8),allocatable:: dlv_tmp(:),qlv_tmp(:)
+    integer::  lmxst , nkd,nkq,ib
+    real(8) :: dlv(3*nkdmx),qlv(3*nkqmx)
     real(8):: alat,awald,awald0,tol,vol,xx1,xx2,dotprd,pi,rpad, plat0(3,3),plat(3,3),qlat(3,3) 
     call tcn('m_lattic_init')
     lattic_init=.true.
@@ -27,25 +28,17 @@ contains
     awald0=lat_as
     tol=lat_tol
     rpad=lat_rpad
-    nkdmx=lat_nkdmx
-    nkqmx=lat_nkqmx
     alat = lat_alat
     plat0=lat_platin
-    allocate(rv_a_opos(3,nbas))
-    rv_a_opos(:,1:nbas)= poss(:,1:nbas)
-    allocate(dlv_tmp(3*nkdmx),qlv_tmp(3*nkqmx))
+    allocate(rv_a_opos,source=pos)
     lmxst = 6
-    call lattc ( awald0 , tol , rpad , alat , alat , plat0 , plat , qlat , lmxst , vol , awald , dlv_tmp &
-         , nkd , qlv_tmp , nkq , nkdmx , nkqmx )
+    call lattc ( awald0 , tol , rpad , alat , alat , plat0 , plat , qlat , lmxst , vol , awald , dlv &
+         , nkd , qlv , nkq , nkdmx , nkqmx )
     lat_vol  =vol
     lat_plat =plat
     lat_qlat =qlat
-    allocate(rv_a_oqlv(3*nkq))
-    rv_a_oqlv=qlv_tmp(1:3*nkq)
-    deallocate(qlv_tmp)
-    allocate(rv_a_odlv(3*nkd))
-    rv_a_odlv=dlv_tmp(1:3*nkd)
-    deallocate(dlv_tmp)
+    allocate(rv_a_oqlv,source=qlv(1:3*nkq))
+    allocate(rv_a_odlv,source=dlv(1:3*nkd))
     lat_awald=awald
     lat_nkd=nkd
     lat_nkq=nkq
