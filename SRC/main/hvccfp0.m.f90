@@ -1,8 +1,5 @@
-program hvccfp0
-  !- Coulomb matrix. <f_i | v| f_j>_q. ------------------------
-  ! output
-  !    VCCFP : the coulomb matrix vcoul(nblochpmx,nblochpmx) for all qibz.
-  !-------------------------------------------------------------
+program hvccfp0   ! Coulomb matrix. <f_i | v| f_j>_q. ------------------------
+  ! output   VCCFP : the coulomb matrix vcoul(nblochpmx,nblochpmx) for all qibz.
   ! int
   !    strx: structure constant for e=0 (means 1/|r-r'| )
   use m_xlgen,only:lgen

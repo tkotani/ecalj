@@ -29,8 +29,7 @@ module m_lmfinit ! All ititial data (except rst/atm data via iors/rdovfa) !TK ex
        dlat,alat=NULLR,dalat=NULLR,vol,avw ,omax1(3)=0d0,omax2(3)=0d0,wsrmax=0d0,sclwsr=0d0,vmtz(mxspec)=-.5d0,&
        bz_efmax,bz_zval,bz_fsmom,bz_semsh(10),zbak,bz_range=5d0,bz_dosmax,&
        lat_as,lat_tol,lat_rpad=0d0, str_rmax=nullr, etol,qtol,mix_tolu,mix_umix, pwemax,oveps,pwemin=0d0,&
-       ham_seref, bz_w,lat_platin(3,3),lat_alat,lat_avw,lat_tolft,lat_gmaxin,lat_gam(1:4)=[0d0,0d0,1d0,1d0] ,&
-       socaxis(3), xtolr,gtolr,stepr, wtinit(2),wc,betainit 
+       ham_seref, bz_w,lat_platin(3,3),lat_alat,lat_avw,lat_tolft,lat_gmaxin,socaxis(3), xtolr,gtolr,stepr, wtinit(2),wc,betainit 
   character(lstrn),protected:: sstrnsymg, symg=' ',   symgaf=' '!for Antiferro
   character(128),protected :: iter_mix=' ' !mix
   character(8),protected:: alabl
