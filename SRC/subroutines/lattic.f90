@@ -12,9 +12,8 @@ module m_lattic !lattice setup
   private
 contains
   subroutine setopos(posin) !called from lmfp to revise atomic position by reading rst file.
-    use m_lmfinit,only: nbas
     real(8):: posin(:,:)
-    rv_a_opos(1:3,1:nbas)= posin(1:3,1:nbas)
+    rv_a_opos= posin
   end subroutine Setopos
   subroutine m_lattic_init() ! Sets up the real and rmeciprocal space lattice vectors !no shear now  ldist=0
     use m_lmfinit,only:nbas,lat_alat,lat_as,lat_tol,lat_rpad,nkdmx=>lat_nkdmx,nkqmx=>lat_nkqmx,lat_platin,pos
@@ -43,8 +42,6 @@ contains
     call tcx('m_lattic_init')
   end subroutine m_lattic_init
   subroutine lattc(as,tol,rpad,alat,plat,qlat,lmax,vol,awald,dlat,nkd,qlv,nkq,nkdmx,nkqmx)! Sets up the real and reciprocal space lattice vectors for Ewald
-    use m_ftox
-    use m_lgunit,only:stdo
     ! ----------------------------------------------------------------
     !i Inputs
     !i   as    :dimensionless Ewald parameter (2 is suggested).
@@ -130,7 +127,6 @@ contains
 342 format(9x,'r1=',f7.3,'   nkd=',i4,'      q1=',f7.3,'   nkq=',i4)
   end subroutine lattc
   subroutine lctoff(a0,v0,lmax,tol,r0,q0) !- makes limits r0,q0 for sums in real and recip space for a lattice
-    use m_lgunit,only:stdo
     !  with lattice constant 1.    !u   25 Jun 03 (Kino) bug fix in dimension of f and g
     implicit none
     integer :: lmax,i
