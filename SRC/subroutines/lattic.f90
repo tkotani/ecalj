@@ -28,12 +28,10 @@ contains
     awald0=lat_as
     tol=lat_tol
     rpad=lat_rpad
-    alat = lat_alat
-    plat0=lat_platin
+    plat=lat_platin
     allocate(rv_a_opos,source=pos)
     lmxst = 6
-    call lattc ( awald0 , tol , rpad , alat , alat , plat0 , plat , qlat , lmxst , vol , awald , dlv &
-         , nkd , qlv , nkq , nkdmx , nkqmx )
+    call lattc ( awald0,tol,rpad,alat,plat,qlat,lmxst,vol,awald,dlv,nkd,qlv,nkq,nkdmx,nkqmx)
     lat_vol  =vol
     lat_plat =plat
     lat_qlat =qlat
@@ -44,7 +42,7 @@ contains
     lat_nkq=nkq
     call tcx('m_lattic_init')
   end subroutine m_lattic_init
-  subroutine lattc(as,tol,rpad,alat,alat0,platin,plat,qlat,lmax,vol,awald,dlat,nkd,glat,nkg,nkdmx,nkgmx)! Sets up the real and reciprocal space lattice vectors for Ewald
+  subroutine lattc(as,tol,rpad,alat,plat,qlat,lmax,vol,awald,dlat,nkd,qlv,nkq,nkdmx,nkqmx)! Sets up the real and reciprocal space lattice vectors for Ewald
     use m_ftox
     use m_lgunit,only:stdo
     ! ----------------------------------------------------------------
@@ -59,14 +57,14 @@ contains
     !ix   gt:    multiplier of g1,g2,g3.  gt=1 => no distortion
     !i   lmax:  Ewald sums will be taken to maximum L.
     !i   nkdmx: maximum number of direct lattice vectors
-    !i   nkgmx: maximum number of reciprocal lattice vectors
+    !i   nkqmx: maximum number of reciprocal lattice vectors
     !o Outputs
     !o    plat:   distorted lattice vectors
     !o    qlat:   distorted reciprocal vectors
     !o     vol:   cell volume
     !o   awald:   ewald parameter
     !o   dlat,nkd: direct lattice vectors and number
-    !o   glat,nkg: reciprocal lattice vectors and number
+    !o   qlv,nkq: reciprocal lattice vectors and number
     !r Remarks
     !r   awald is in (atomic units)^-1.
     !r   Tolerance tol is the estimated error for a lattice of unit volume.
@@ -81,15 +79,15 @@ contains
     !r            least one lattice vector.
     ! ----------------------------------------------------------------
     implicit none
-    integer :: lmax,nkd,nkg,nkdmx,nkgmx
-    double precision :: as,tol,alat,vol,awald,alat0,rpad, &
-         glat(3,nkgmx),dlat(3,nkdmx),platin(3,3),plat(3,3),qlat(3,3)
+    integer :: lmax,nkd,nkq,nkdmx,nkqmx
+    double precision :: as,tol,alat,vol,awald,rpad, &
+         qlv(3,nkqmx),dlat(3,nkdmx),plat(3,3),qlat(3,3)
     integer :: k,iprint,m,i1mach,modeg(3),isw
     double precision :: qlat0(3,3),vol0,plat0(3,3),radd,qadd
     double precision :: qdist0,a0,rdist0,tol1,r0,q0,one(3,3),oned(3,3)
     integer:: ifp,i
     real(8):: rxx,qxx
-    plat0=platin !call dcopy(9,platin,1,plat0,1)
+    plat0=plat !call dcopy(9,platin,1,plat0,1)
     call dinv33(plat0,1,qlat0,vol0)
     vol0 = dabs(vol0)
     plat=plat0 !call rdistn(plat0,plat,3,g1,g2,g3,gt)
@@ -118,18 +116,18 @@ contains
     qadd = 0.7d0*qdist0 
     a0 = as/rdist0
     awald = a0/alat
-    tol1 = tol*alat0**(lmax+1)
+    tol1 = tol*alat**(lmax+1)
     call lctoff(a0,vol0,lmax,tol1,r0,q0)
     modeg = 2
     rxx= maxval([r0+radd,(sum(plat0(:,i)**2)**.5*1.05,i=1,3)]) !2022-10-12 for very anisotropic cases safer.
     qxx= maxval([q0+qadd,(sum(qlat0(:,i)**2)**.5*1.05,i=1,3)]) !2022-10-12
     call xlgen(plat0,rxx,rpad*(r0+radd),nkdmx,11,modeg,nkd,dlat)
-    call xlgen(qlat0,qxx,rpad*(q0+qadd),nkgmx,11,modeg,nkg,glat)
+    call xlgen(qlat0,qxx,rpad*(q0+qadd),nkqmx,11,modeg,nkq,qlv)
     write (stdo,340) as,tol,alat,awald
-    write (stdo,342) r0+radd,nkd,q0+qadd,nkg
+    write (stdo,342) r0+radd,nkd,q0+qadd,nkq
 340 format(/'LATTC:  as=',f6.3,'   tol=',1p,e9.2, &
          '   alat=',0p,f8.5,'   awald=',f6.3)
-342 format(9x,'r1=',f7.3,'   nkd=',i4,'      q1=',f7.3,'   nkg=',i4)
+342 format(9x,'r1=',f7.3,'   nkd=',i4,'      q1=',f7.3,'   nkq=',i4)
   end subroutine lattc
   subroutine lctoff(a0,v0,lmax,tol,r0,q0) !- makes limits r0,q0 for sums in real and recip space for a lattice
     use m_lgunit,only:stdo
