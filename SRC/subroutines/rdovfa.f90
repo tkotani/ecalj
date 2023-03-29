@@ -3,7 +3,7 @@ module m_rdovfa
   public rdovfa
 contains
   subroutine rdovfa() !- Read atm files and overlap free atom densities.
-    use m_density,only: zv_a_osmrho=>osmrho,sv_p_orhoat=>orhoat,v1pot,v0pot !Outputs. allocated
+    use m_density,only: zv_a_osmrho=>osmrho,sv_p_orhoat=>orhoat,v1pot,v0pot,eferm !Outputs. allocated
 
     use m_supot,only: lat_nabc,lat_ng,rv_a_ogv,iv_a_okv,rv_a_ogv
     use m_lmfinit,only:lat_alat,nsp,nbas,nspec,ispec,sspec=>v_sspec,qbg=>zbak,slabl,v0fix
@@ -233,6 +233,7 @@ contains
     if(allocated(zv_a_osmrho)) deallocate(zv_a_osmrho)
     allocate(zv_a_osmrho(k1*k2*k3,nsp))
     ! --- Overlap smooth hankels to get smooth interstitial density ---
+    eferm=0d0
     zv_a_osmrho=0d0
     ng=lat_ng
     allocate(cv_zv(ng*nsp))

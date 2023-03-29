@@ -1,5 +1,5 @@
 != Main part of full-potential LDA/GGA/QSGW(for given sigm). Single iteration = 2023-jan memo checked
-! From density osmrhod and osmrho, m_mkpot_init gives potential,
+! From density osmrho,osmrho, m_mkpot_init gives potential,
 ! osmpot, and osig, otau, oppi (potential site integrals)
 ! Then we do band calcultion m_bandcal_init. It gives osmrho_out and orhoat_out.
 ! Finally, osmrho and orhoat are returned after mixing procedure (mixrho).
@@ -23,20 +23,14 @@
 !  hbyl  :site- and l-decomposed one-electron energies
 !! NOTE: check lmv7->lmfp(iteration loop)->bndfp
 module m_bndfp
-  use m_density,only: orhoat,osmrho !input/output unprotected
+  use m_density,only: orhoat,osmrho,eferm  !input/output unprotected  ! NOTE:variable in m_density are not protected
   real(8),protected,public:: ham_ehf, ham_ehk, sev  !output
-  real(8),protected,public:: eferm, qdiff           !output
+  real(8),protected,public:: qdiff                  !output
   real(8),protected,allocatable,public:: force(:,:) !output
   !NOTE: other ouputs are in: m_mkpot(potential), m_bandcal(band,dmatu), and m_density(density)
-  public bndfp, m_bndfp_ef_set
+  public bndfp
   private
-  logical,private:: binit=.true.,initd=.true.
 contains
-  subroutine m_bndfp_ef_set(bz_ef00) !called from iors.F. grep 'use m_bndfp'
-    real(8):: bz_ef00
-    eferm  = bz_ef00
-    binit=.false.
-  end subroutine m_bndfp_ef_set
   subroutine bndfp(iter, llmfgw, plbnd) !Single iteration for given density and dmatu
     ! llmfgw=T is for generating eigenfunctions for GW calculations, no iteration.
     ! plbnd/=0 means band plot mode. no iteration.
@@ -58,7 +52,6 @@ contains
     use m_subzi, only: m_subzi_init, lwtkb,rv_a_owtkb,m_subzi_setlwtkb,m_subzi_bzintegration
     use m_rsibl, only : Rsibl_ev ! to plot wavefunction in the fat band mode
     use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq,xmpbnd2
-    !      use m_lmfgw,only: m_lmfgw_init !,jobgw !,osigx,otaux,oppix,spotx
     use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate, m_mkpot_energyterms,m_mkpot_novxc,& ! & m_mkpot_novxc_dipole,
          osmpot, qmom, vconst, osig,otau,oppi, qval , qsc , fes1_rv , fes2_rv
     use m_clsmode,only: m_clsmode_init,m_clsmode_set1,m_clsmode_finalize
@@ -145,10 +138,6 @@ contains
     fsmode = cmdopt0('--fermisurface')!FermiSurfece for xcrysden in http://www.xcrysden.org/doc/XSF.html#2l.16
     ipr    = iprint() ! for procid/=master, we set iprint=0 at lmv7.F
     ltet = ntet>0! tetrahedron method or not
-    if(binit) then  ! FermiEnergy eferm is from rst.* or efermi.lmf.
-       eferm = 0d0  ! if no eferm is read from rst file.
-       binit=.false.
-    endif
     GETefermforplbnd: if(plbnd/=0) then
        open(newunit=ifi,file='efermi.lmf')
        read(ifi,*) eferm  ! efermi.lmf can be different from efermi in rst.* file.

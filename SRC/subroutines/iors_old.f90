@@ -6,8 +6,8 @@ module m_iors_old!this module is for reading(and writing old version) of rst fil
   private
 contains
   integer function iors_old(nit,rwrw)!,irs5)
-    use m_density,only: osmrho, orhoat !these are allocated
-    use m_bndfp,only: m_bndfp_ef_SET,eferm
+    use m_density,only: osmrho, orhoat,eferm !these are allocated
+!    use m_bndfp,only: m_bndfp_ef_SET,eferm
     use m_supot,only: lat_nabc
     use m_struc_func,only: mpibc1_s_spec!,mpibc1_s_site
     use m_lmfinit,only: lat_alat,nsp,lrel,nl,ispec,sspec=>v_sspec, nbas,nat,nspec,n0,idmodis=>idmod,slabl,&
@@ -283,7 +283,8 @@ contains
        endif
        call mpibc1_real(wk,1,'iors:eferm')
        use=trim(use)//'use window,'
-       call m_bndfp_ef_SET(wk(1)) !bz_ef00) !,bz_def00)
+       eferm=wk(1)
+!       call m_bndfp_ef_SET(wk(1)) !bz_ef00) !,bz_def00)
        !   --- Read atomic positions,forces,velocities ---
        line = 'site data'
        do  ib = 1, nbas0

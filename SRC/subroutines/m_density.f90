@@ -7,4 +7,5 @@ module m_density !all are changing during iteration. Not protected!!!!
   complex(8) , allocatable ::  osmrho(:,:) ! smoothed interstitial density, smrho(k1,k2,k3,nsp)
   real(8),allocatable,target ::   pnuall(:,:,:) ! log derivative parameter
   real(8),allocatable,target ::   pnzall(:,:,:)  ! log derivative parameter for LocalOrbital
+  real(8):: eferm
 end module m_density

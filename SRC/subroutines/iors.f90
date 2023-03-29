@@ -6,8 +6,7 @@ module m_iors
 
 contains
   integer function iors(nit,rwrw) ! I/O for charge density to rst or rsta. ssite sspec are readin
-    use m_density,only: osmrho, orhoat,v1pot,v0pot !these are allocated
-    use m_bndfp,only: m_bndfp_ef_SET,eferm
+    use m_density,only: osmrho, orhoat,v1pot,v0pot,pnuall,pnzall,eferm !these are allocated
     use m_supot,only: lat_nabc
     use m_struc_func,only: mpibc1_s_spec !,mpibc1_s_site
     use m_lmfinit,only: alat=>lat_alat,nsp,lrel,nl,ispec,sspec=>v_sspec, nbas,nat,nspec,n0,&
@@ -15,7 +14,7 @@ contains
     use m_lattic,only: plat=>lat_plat,vol=>lat_vol,qlat=>lat_qlat
     use m_ext,only:sname
     use m_ftox
-    use m_density,only: pnuall,pnzall
+    use m_density,only: 
     !! read write
     !!     smrho, rhoat
     !!     ssite: pos, pos0, force, pnu pz ov0,ov1
@@ -231,7 +230,8 @@ contains
        if (procid == master) read(jfi) eferm0
        call mpibc1_real(eferm0,1,'iors:eferm')
        use=trim(use)//'use window,'
-       call m_bndfp_ef_SET(eferm0) 
+       eferm=eferm0
+!       call m_bndfp_ef_SET(eferm0) 
        line = 'site data' !Read atomic positions,forcexxxs,velocities ---
        do ib = 1, nbas0 
           if (procid == master) read(jfi,err=999,end=999)forcexxx
