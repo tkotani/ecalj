@@ -62,6 +62,7 @@ contains
   !c$$$      enddo
 
   subroutine HamPMTtoHamRsMTO() !Convert HamPMT(k mesh) to HamRsMTO(real space)
+    use m_zhev,only:zhev_tk4
     use m_ftox
     use m_readqplist,only: eferm
     implicit none
@@ -267,6 +268,7 @@ contains
 end module m_HamRsMTO
 
 subroutine Hreduction(iprx,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, evl,hammout,ovlmout)!Reduce H(ndimPMT) to H(ndimMTO)
+  use m_zhev,only:zhev_tk4
   use m_readqplist,only: eferm
   use m_HamPMT,only: GramSchmidt
   use m_ftox
@@ -421,6 +423,7 @@ program lmfham1
   use m_HamPMT, only: plat, npair,nlat,nqwgt, ldim, nkp,qplist,&
        ib_table,alat, ReadHamPMTInfo, HamPMTtoHamRsMTO
   ! note.  HamPMTtoHamRsMTO do not change variables. Only generate HamRsMTO file.
+  use m_zhev,only:zhev_tk4
   use m_HamRsMTO,  only: hammr,ovlmr,ndimMTO,  ReadHamRsMTO,ix,npairmx,nspx
   use m_readqplist,only: eferm,qplistsy,ndat,xdat, Readqplistsy
   use m_mpi,only: MPI__hx0fp0_rankdivider2Q, MPI__Qtask, &

@@ -18,7 +18,7 @@ maxloc= ../wanniergw/
 moddir= $(obj_path)
 tags  = ..
 
-progslm = lmf-MPIK lmfa lmchk 
+progslm = lmf-MPIK lmfa lmchk lmfham1
 progsgw = hbasfp0 hvccfp0 hx0fp0 hsfp0 hqpe qg4gw gwinit heftet rdata4gw_v2 hx0fp0_sc hsfp0_sc hqpe_sc hmagnon hx0init hhilbert hrcxq hx0zmel
 progsw  = hmaxloc huumat_MPI hpsig_MPI wanplot hwmatK_MPI hsocmat
 
