@@ -3,10 +3,8 @@ module m_lmfp !Driver for iteration loop for lmf-MPIK (electronic and MD)
   private
   contains
 subroutine lmfp(llmfgw)
-  use m_lmfinit,only: lhf, maxit,nbas,nsp, &
-       ham_seref,  sspec=>v_sspec, ispec, slabl,&
-       nlibu,stdo,lrout,leks,plbnd,lpzex, nitrlx, &
-       indrx_iv,natrlx,xyzfrz,pdim,qtol,etol,alat
+  use m_lmfinit,only: lhf, maxit,nbas,nsp, ham_seref,  sspec=>v_sspec, ispec, slabl,&
+       nlibu,stdo,lrout,leks,plbnd,lpzex, nitrlx, indrx_iv,natrlx,xyzfrz,pdim,qtol,etol,alat
   use m_lattic,only: qlat=>lat_qlat,rv_a_opos
   use m_bandcal,only: dmatu
   use m_mkpot,only:   amom
@@ -18,16 +16,15 @@ subroutine lmfp(llmfgw)
   use m_ldau,only:   M_ldau_vorbset, eorb
   use m_bstrux,only: M_bstrux_init
   use m_relax,only:  Relax
-!  use m_mixrho,only: Parms0
   use m_lattic,only: Setopos
   use m_ftox
   use m_rdovfa,only:rdovfa
   !!= Main routine of lmf = (following document is roughly checked at May2021)
   !! lmfp contains two loops after initialization
-  !!   1  outer  MDloop:  do 2000 is for molecular dynamics (relaxiation).
-  !!   2. innner Eleloop: do 1000 is for electronic structure self-consistency.
+  !!   1  outer  AtomicPositionRelaxiation:  do 2000 is for molecular dynamics (relaxiation).
+  !!   2. innner ElectronicStructureSelfConsistencyLoop: do 1000 
   !!      Main part of band calculaiton is in bndfp.
-  !! (Most of) all data in modules are 'protected'.
+  !! (Most of) all data in modules are 'protected' (m_density contains iterative quantities)
   !! Thus data in m_lmfinit, m_lattic, m_mksy, m_ext, ... are fixed during iteration.
   !! Currently rhoat, smrho, smpot in m_supot are iterated. ham_ehf _ehk changed by iterations.
   !     sspec :struct for species-specific information. I think fixed during iteration. See m_lmfinit.
@@ -48,28 +45,24 @@ subroutine lmfp(llmfgw)
   integer :: i,ifi,ipr, k, nit1,numq, lsc, icom,  nvrelx , itrlx,lscx
   integer:: ibas,unlink,ifipos,iter,j,idmatu,iprint
   real(8) :: gam(4),gam1,bstim,pletot(6,2), plat(3,3),xvcart(3),xvfrac(3),seref,etot(2),vs,vs1
-  real(8),allocatable :: ftot_rv(:), wk_rv(:), p_rv(:,:),hess(:,:)
   real(8),allocatable :: rv_a_omad (:) !  Madelung matrix if necessary
-  character(512):: aaachar
   character(10):: i2char
   logical:: cmdopt2
   character(20):: outs=''
   integer:: ierr,iv
   logical:: irpos,hsign,iatom
   character(256):: strn,strn2
-  real(8),allocatable:: poss(:,:),pos0(:,:)
+  real(8):: hess(natrlx,natrlx),p_rv(natrlx,10),pos0(3,nbas),poss(3,nbas)
   include "mpif.h"
   call tcn('lmfp')
   ipr = iprint()
-  allocate(pos0(3,nbas),poss(3,nbas))
   poss = rv_a_opos ! Use atomic positon in m_lattic
   call ReadAtomPos(nbas,poss)! Overwrite pos in the file AtomPos.* if it exists.
   call mpi_barrier(MPI_COMM_WORLD,ierr)
-  ! Sep2020 " Shorten site positions" here removed.
   etot = 0d0 ! Total energy mode --etot ==>moved to m_lmfinit ---
-  if(nitrlx>0 ) then ! Atomic position Relaxation setup (MDloop)
+  if(nitrlx>0 ) then ! Atomic position Relaxation setup for 
      icom = 0
-     if(natrlx /= 0) allocate(hess(natrlx,natrlx),p_rv(natrlx,10))
+!     if(natrlx /= 0) allocate()
      if(master_mpi) then
         open(newunit=ifipos,file='AtomPos.'//trim(sname),position='append')
         write(ifipos,ftox) '========'
@@ -94,73 +87,58 @@ subroutine lmfp(llmfgw)
   call Mpi_barrier(MPI_COMM_WORLD,ierr)
   call Mpibc1_real(vs,1,'lmv7: vs: version id of rst file')
   k=-1 !try to read rst files containing density
-  if(vs==2d0) then       !2020-5-14
-     k = iors(nit1,'read') ! read rst file. sspec ssite maybe modified
-  else !vs=1.04d0 for backward compatibility                  
-     k = iors_old(nit1,'read') ! read rst file. sspec ssite maybe modified
-  endif
+  if(vs==2d0) k = iors(nit1,'read') ! read rst file. sspec ssite maybe modified
+  if(vs/=2d0) k = iors_old(nit1,'read') ! read rst file. sspec ssite maybe modified
   call Mpibc1_int(k,1,'lmv7:lmfp_k')
   if(k<0) then 
-     call Rdovfa()  ! Initial potential from atm file (lmfa) if rst can not read
+     call rdovfa()  ! Initial potential from atm file (lmfa) if rst can not read
      nit1 = 0
      iatom=.true.
   else
      iatom=.false.
   endif
   call Mpi_barrier(MPI_COMM_WORLD,ierr)
-  !smshft is not correct, thus commented out. See T.kotani JPSJ paper for formulation.
-  !if(k>=0 .AND. irs1x10) call Smshft(1,poss,poss) ! modify denity after reading rst when irs1x10=True
   !==== Main iteration loops ===
-  MDloop: do 2000 itrlx = 1,max(1,nitrlx) !loop for atomic position relaxiation(molecular dynamics)
-     call Setopos( poss )  ! Set position of atoms 
-     ! We can make structure constant (C_akL Eq.(38) in /JPSJ.84.034702) here
-     ! if we have no extended local orbital.
-     ! When we have extentede local obtail, we run m_bstrux_init after elocp in mkpot.
-     if(sum(lpzex)==0) call M_bstrux_init() ! Get structure constants for nbas and qplist
-     if( ipr>=30 ) then ! Write atom positions
-        write(stdo,"(/1x,a/' site spec',8x,'pos (Cartesian coordinates)',9x, &
-             'pos (multiples of plat)')") 'Basis, after reading restart file'
+  AtomicPositionRelaxiation: do 2000 itrlx = 1,max(1,nitrlx) !loop for atomic position relaxiation(molecular dynamics)
+     call setopos( poss )  ! Set position of atoms 
+     ! We can make structure constant (C_akL Eq.(38) in /JPSJ.84.034702) here when we have no extended local orbital.
+     ! NOTE: When we have extentede local obtail, see mkpot elocp: we run m_bstrux_init after elocp in mkpot.(we may remove extented local orbial in future)
+     if(sum(lpzex)==0) call m_bstrux_init() ! Get structure constants for nbas and qplist
+     if( ipr>=30) then ! Write atom positions
+        write(stdo,"(/1x,'Basis, after reading restart file'/' site spec',8x,'pos (Cartesian coordinates)',9x,&
+             'pos (multiples of plat)')")
         do i = 1, nbas
            xvcart = poss(:,i) !cartesian coordinate
            xvfrac = matmul(transpose(qlat),xvcart) !fractional coodinate
            write(stdo,"(i4,2x,a8,f10.6,2f11.6,1x,3f11.6)")i,trim(slabl(ispec(i))),xvcart,xvfrac
         enddo
      endif
-     Eleloop: do 1000 iter = 1,max(1,maxit)!For electronic structure scf. Atomic forces calculated
-        if(maxit/=0) then
-           if (master_mpi) then
-              aaachar=trim(i2char(iter))//" of "//trim(i2char(maxit))
-              write(stdo,*)
-              write(stdo,"(a)") trim("--- BNDFP:  begin iteration "//aaachar)
-           endif
-           call bndfp(iter,llmfgw,plbnd)!Main. Band cal. Get total energies ham_ehf and ham_ehk
+     ElectronicStructureSelfConsistencyLoop: do 1000 iter = 1,maxit
+        if(master_mpi) write(stdo,*)
+        if(master_mpi) write(stdo,"(a)")trim("--- BNDFP:  begin iteration "//trim(i2char(iter))//" of "//trim(i2char(maxit)))
+        call bndfp(iter,llmfgw,plbnd)!Main. Band cal. Get total energies ham_ehf and ham_ehk
+        if(nlibu>0.AND.lrout>0)call m_ldau_vorbset(ham_ehk, dmatu)!Set new vorb for dmat by given bndfp (mkpot)
+        !    --density(plot density) are in locpot.f90(rho1mt and rho2mt) and mkpot.f90(smooth part).
+        if(master_mpi.AND.(.NOT.cmdopt0('--quit=band'))) then
+           if(lrout>0) k=iors(iter, 'write')  ! = iors_old ( iter , 'write' ,irs5) ! Write restart file (skip if --quit=band) ---
         endif
-        !Check conv. of dmatu(density matrix for LDA+U) and update it. Get vorbdmat (U potential)
-        if(nlibu>0.AND.lrout>0)call m_ldau_vorbset(ham_ehk,dmatu)!set new vorb of dmat by bndfp-mkpot
-        !Things of --density(plot density) are in locpot.f90(rho1mt and rho2mt) and mkpot.f90(smooth part).
-        ! Write restart file (skip if --quit=band) ---
-        if(master_mpi .AND. ( .NOT. cmdopt0('--quit=band'))) then
-           if(lrout>0 .OR. maxit==0) k=iors(iter, 'write')  ! = iors_old ( iter , 'write' ,irs5)
-        endif
-        if (maxit<=0) goto 9998  !exit
-        etot(1) = ham_ehf        ! etot(1) is not the total energy when LDA+U
-        ! because vefv1,vefv2 do not include U contributions
-        etot(2) = ham_ehk + eorb !eorb by LDA+U
-        seref   = ham_seref !   ... reference energy
+        if (maxit<=0) goto 9998 
+        etot(1) = ham_ehf        
+        etot(2) = ham_ehk + eorb !eorb by LDA+U, etot(1) is not the total energy for LDA+U, because vefv1,vefv2 do not include U contributions
+        seref   = ham_seref !   ... reference energy supplied from ctrlfile
         etot(1) = etot(1) - seref
         if (etot(2)/=0) etot(2) = etot(2) - seref
         call mpi_barrier(MPI_COMM_WORLD,ierr)
         if(master_mpi) then
-           !==   convergence check by call nwit
-           !     lsc   :0 self-consistency achieved (diffe<=etol, qdiff=dmxp(11)<=qtol)
+           hsign= (lhf.or.iatom).and.iter==1
+           if(itrlx>1) hsign=.false.
+           call nwit(0,iter,maxit,hsign,leks,etol,qtol,qdiff,amom,etot,sev, lsc) !convergence check. lsc is the self-consistency flag
+           !lsc  :0 self-consistency achieved (diffe<=etol, qdiff=dmxp(11)<=qtol)
            !     :1 if not self-consistent, but encountered max. no. iter.
            !     :2 Harris energy from overlap of free atoms (iter=1 and lhf=t)
            !     :3 otherwise
-           hsign= (lhf.or.iatom).and.iter==1
-           if(itrlx>1) hsign=.false.
-           call nwit(0,iter,maxit,hsign,leks,etol,qtol,qdiff,amom,etot,sev,lsc)
         endif
-        call mpibc1_int(lsc,1,'lmfp_lsc')
+        call mpibc1_int(lsc,1,'lmfp_lsc') !b
         if (lsc==2 .AND. ( .NOT. lhf) .AND. maxit>1) lsc = 3
         if (lsc==1 .AND. lrout>0 .OR. lsc==3) then
            if (iter >= maxit) lsc = 1
@@ -168,10 +146,10 @@ subroutine lmfp(llmfgw)
         endif
         if(master_mpi) flush(stdo)
         if( cmdopt0('--quit=band')) call rx0('lmf-MPIK : exit (--quit=band)')
-        if( lsc <= 2) exit  !self-consistency exit
-1000 enddo Eleloop              ! ---------------- SCF (iteration) loop end ----
-     if(nitrlx==0) exit     !no molecular dynamics (=no atomic position relaxation)
-     !==== Molecular dynamics (relaxiation). I think it is better to comine another approach to move/relax atomic positions.
+        if( lsc <= 2) exit  
+1000 enddo ElectronicStructureSelfConsistencyLoop
+     if(nitrlx==0) exit !no molecular dynamics (=no atomic position relaxation)
+     !==== Molecular dynamics (relaxiation). TK think it is better to comine another approach to move/relax atomic positions.
      MDblock: Block !Not maintained well recently. But Testinstall/te test
        pos0 = poss !keep old poss to pos0
        ! Relax atomic positions. Get new poss. Shear mode removed.
@@ -192,10 +170,10 @@ subroutine lmfp(llmfgw)
           enddo
           close(ifipos)
        endif
-       ! Smshft is on wrong idea. See TK paper.
+       !   
+       ! New density after atom shifts. (for old user. call smshft(ctrl_lfrce,poss,pos0) was on wrong idea,(New user do not need to know it)).
        !   1. nothing to do means nuleus+core shift.
        !   2. simple superposition of atoms rdovfa
-       ! call Smshft(ctrl_lfrce,poss,pos0)!New density after atom shifts.
        if (alat*sum((poss-pos0)**2)**.5>0.05d0) then! 0.05 a.u. is intuitively given. 2022-6-22
           write(stdo,*)'lmfp-MDMODE: Reset density by atom superposition'
           iv=iprint()
@@ -204,7 +182,6 @@ subroutine lmfp(llmfgw)
           call Rdovfa() !superposition of atom density
           call poppr()
        endif   
-
        if (master_mpi) then
           write(stdo,*)' Delete mixing and band weights files ...'
           open(newunit=ifi, file='mixm.'//trim(sname)); close(ifi, status='delete')
@@ -217,13 +194,11 @@ subroutine lmfp(llmfgw)
           endif
           exit
        endif
-!       call Parms0(0,0,0d0,0) !   reset mixing block
        if(itrlx==nitrlx .AND. master_mpi) write(stdo,"(a)")' LMFP: relaxation incomplete'
      endblock MDblock
-2000 enddo MDloop
+2000 enddo AtomicPositionRelaxiation
 9998 continue
-!  if(allocated(p_rv)) deallocate(p_rv)
-  if(allocated(hess)) deallocate(hess)
+!  if(allocated(hess)) deallocate(hess)
   call tcx('lmfp')
 end subroutine lmfp
 subroutine readatompos(nbas,pos)
