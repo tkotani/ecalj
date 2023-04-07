@@ -275,11 +275,11 @@ contains
               !          if(idipole/=0) call adddipole(v1,rofi,nr,nlml,nsp,idipole,ssite(ib)%pos(idipole)*alat)
               !             call adddipole(v2,rofi,nr,nlml,nsp,idipole,ssite(ib)%pos(idipole)*alat)
               lsox = merge(1, lso, .NOT. novxc .AND. cmdopt0('--socmatrix') )
+              lmxh = lmxb !MTO l of basis minimum 
               if (ipr >= 20) write(stdo,"('     potential shift to crystal energy zero:',f12.6)") y0*(gpot0(j1)-gpotb(1))
               do  k = 1, lmxh+1 ! check; see description of rsmh above
                  if(pnz(k,1)/=0.AND.pnz(k,1)<10.AND.rsmh(k,nkapi+1)/=0)call rx1('augmat: illegal value for rsmh',rsmh(k,nkapi+1))
               enddo
-              lmxh=lmxb !MTO l of basis minimum 
               augmatblock: block
                 use m_gaugm,only:  gaugm
                 use m_augmat,only: vlm2us,momusl

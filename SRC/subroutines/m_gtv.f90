@@ -38,7 +38,7 @@ contains
          enddo
          ch=''
 1012     continue
-         write(stdo,*)'cccccccc ',trim(cattok),'ch=###'//trim(ch)//'###'
+!         write(stdo,*)'cccccccc ',trim(cattok),'ch=###'//trim(ch)//'###'
          return
       endif   
       nomode=.false.; nrmode=.false.; ndmode=.false.
