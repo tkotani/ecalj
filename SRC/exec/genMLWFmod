@@ -82,9 +82,9 @@ fi
 
 ##### preparation of required inputs for GW (mainly prepare required eigenfuncitons) ######
 if [ "$gwpre" = "on" ] ; then
-    argin=0; run_arg $argin $NO_MPI   $MNODEZERO $nfpgw /lmf-MPIK      llmfgw00 $MATERIAL --jobgw 
+    argin=0; run_arg $argin $NO_MPI   $MNODEZERO $nfpgw /lmf-MPIK      llmfgw00 $MATERIAL --jobgw=0
     argin=1; run_arg $argin $NO_MPI   $MNODEZERO $nfpgw /qg4gw      lqg4gw   #Generate requied q+G vectors.
-    argin=1; run_arg $argin $MPI_SIZE $MPI_NODE $nfpgw /lmf-MPIK llmfgw01 $MATERIAL --jobgw
+    argin=1; run_arg $argin $MPI_SIZE $MPI_NODE $nfpgw /lmf-MPIK llmfgw01 $MATERIAL --jobgw=1
     run_arg  '---' $NO_MPI  $MNODEZERO $nfpgw /lmf2gw     llmf2gw  #reform data for gw
 fi
 

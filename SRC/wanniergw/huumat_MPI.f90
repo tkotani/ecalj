@@ -565,6 +565,7 @@ program h_uumatrix
   allocate(iq_proc(nq_proc+1))
   iq_proc = 0
   iftmp = ifile_handle() !100 + myproc
+  open(iftmp,file='myproc'//xt(myproc))
   write(iftmp,*)'*** myproc,i,q(i)'
   kk = 0
   do jj = 1,nproc

@@ -30,6 +30,7 @@ program hpsig_MPI
   !      use rsmpi_rotkindex
 
   implicit none
+  character(8):: xt
   integer :: iclass2
   real(8):: q(3),  qgbin(3),qx(3)
   integer(4),allocatable :: ngvecpB(:,:,:),ngveccB(:,:), ngvecpf1(:,:), ngvecpf2(:,:), &
@@ -102,7 +103,7 @@ program hpsig_MPI
        ifbb,nbb,iko_ixs(2),iko_fxs(2),noxs(2), &
        iqibz,iqbz,ibb,itmp,itmp2,iti,itf, &
        nqibz2,nqbz2,iqb,ibb2,iqtmp,ibbtmp, &
-       ia,iwf,ifile_handle,if101
+       ia,iwf,ifile_handle!,if101
   integer(4),allocatable:: ikidx(:),ikbidx(:,:)
   real(8),allocatable :: bbv(:,:),r0g(:,:),c1(:,:,:),c2(:,:,:), &
        phig(:,:,:,:),wphi(:,:)
@@ -116,7 +117,6 @@ program hpsig_MPI
   integer(4):: ierr,iftmp
   integer(4):: myproc,nproc,nproc1,nproc2,nq_proc,ii,jj,kk,iclose
   integer(4),allocatable:: iq_proc(:)
-  character(8) :: xt
   character(4) charnum4
   integer,allocatable:: ncore(:)
   !-------------------------
@@ -326,7 +326,7 @@ program hpsig_MPI
      write(6,*) ' Used k number in Q0P =', nq0i
      write(6,"(i3,2x, 3f14.6)" )(i,q0i(1:3,i),i=1,nq0i)
   endif
-  close(if101)
+!  close(if101)
 
   ! m
   ifbb = iopen('BBVEC',1,0,0)
@@ -435,8 +435,9 @@ program hpsig_MPI
   nproc2 = nproc - nproc1
   allocate(iq_proc(nq_proc+1))
   iq_proc = 0
-  iftmp = 100 + myproc
-  write(iftmp,*)'*** myproc,i,q(i)'
+  !iftmp = 100 + myproc
+  open(newunit=iftmp,file='myproc'//xt(myproc))
+  write(iftmp,*)'*** my proc,i,q(i)'
   kk = 0
   do jj = 1,nproc
      do ii = 1,nq_proc+1
