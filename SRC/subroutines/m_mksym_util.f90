@@ -826,12 +826,7 @@ contains
     integer:: n
     real(8):: qlat(3,3),vec(3,n),tol, vdiff(n,3)
     vdiff  = matmul(transpose(vec(:,:)),qlat(:,:))
-    ! print *,'vec1=',vec(:,1)
-    ! print *,'vec2=',vec(:,2)
-    ! print *,'vec3=',vec(:,3)
-    ! print *,'qlat=',qlat
-    ! print *,'vdiff=',vdiff
-    latvec = all(abs(vdiff-nint(vdiff)) < tol)
+    latvec = all(reshape(abs(vdiff-nint(vdiff)),[n*3]) < tol)
   end function latvec
   integer function iclbsjx(ipc,nbas, ic,nrbas) !the nrbas-th atom belonging to class ic (ipc(ibas)==ic)
     implicit none
