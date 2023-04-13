@@ -36,7 +36,6 @@ subroutine calc_DJbeta(J,beta,DJbeta)
   integer,intent(in) :: J
   double precision,intent(in) :: beta
   double precision :: DJbeta(2*J+1,2*J+1)
-
   double precision :: zeta
   integer :: i1,i2,M,K,l
   double precision :: tmp1,tmp2,tmp3
@@ -49,11 +48,9 @@ subroutine calc_DJbeta(J,beta,DJbeta)
      K=i2-J-1
      do i1=1,2*J+1
         M=i1-J-1
-        tmp1=dble(myfact(J+M))
-        tmp2=dble(myfact(J-M)*myfact(J+K)*myfact(J-K))* &
-             zeta**(M-K)*(1.0d0-zeta)**(M+K)
-
-        tmp3=0.0d0
+        tmp1= myfact(J+M)
+        tmp2= zeta**(M-K)*(1.0d0-zeta)**(M+K)* myfact(J-M)*dble(myfact(J+K))*dble(myfact(J-K))
+        tmp3= 0d0
         do l=0,J+K
            tmp3=tmp3+(-1.0d0)**(J+K-l)*mycomb(J+K,l)* &
                 mydif(zeta,2*J-l,J-M)
