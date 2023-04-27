@@ -495,7 +495,7 @@ contains
          rh2,srfpi,y0,z1,z2
     double precision :: df(0:20),ff(3),tau1(3),tau2(3)
     double complex s(ndim,ndim),ds(ndim,ndim,3),s0(ndim0,ndim0), &
-         ds0(ndim0,ndim0,3),wk(ndim0,ndim0),dwk(ndim0,ndim0,3)
+         ds0(ndim0,ndim0,3)!,wk(ndim0,ndim0),dwk(ndim0,ndim0,3)
     integer :: nlmx,npmx,ip,mp,nbmx
     parameter (nlmx=64, npmx=1, nbmx=256)
     double precision :: xf(3,nbas,npmx),xhpot0(nbas,npmx), xgpot0(nlmx*nbas,npmx),xugg(npmx)
@@ -557,8 +557,7 @@ contains
                 enddo
                 !     --- Additional h*h, h*g, g*h terms for foca ---
                 if (lfoc1 > 0 .OR. lfoc2 > 0) then
-                   call hhugbl(0,tau1,tau2,[rh1],[rh2],[ceh1],[ceh2],1,1,ndim0,ndim0, &
-                        wk,dwk,s0,ds0)
+                   call hhugbl(0,tau1,tau2,[rh1],[rh2],[ceh1],[ceh2],1,1,ndim0,ndim0, s0,ds0)
                    xugg(ip) = xugg(ip) + cofh1*s0(1,1)*cofh2
                    xhpot0(jb,ip) = xhpot0(jb,ip) + cofh1*s0(1,1)
                    ff = ff + 0.5d0*cofh1*cofh2*ds0(1,1,1:3)

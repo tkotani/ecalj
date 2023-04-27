@@ -5,14 +5,11 @@ module m_hsmq !Bloch sum of smooth Hankel. lm expansion
   ! https://doi.org/doi:10.1063/1.532437.
   public:: hsmq,hsmqe0
 contains
-  subroutine hsmq(nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,yl,awald,alat,qlv,nG,dlv,nD,vol,hsm,hsmp)
+  subroutine hsmq(nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,yl,awald,alat,qlv,nG,dlv,nD,vol,hsm,hsmp) !Bloch-sum of smooth Hankel functions and energy derivatives at p by Ewald summation, for nxi groups of parameters (lxi,exi,rsm).
     use m_ropyln,only: ropyln
     use m_shortn3_plat,only: shortn3_plat,nout,nlatout,plat=>platx,qlat=>qlatx
     implicit none
-    intent(in)::  nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,      awald,alat,qlv,nG,dlv,nD,vol
-    !- Bloch-sum of smooth Hankel functions and energy derivatives at p
-    !  by Ewald summation, for nxi groups of parameters (lxi,exi,rsm).
-    ! ---------------------------------------------------------------
+    intent(in)::  nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,   awald,alat,qlv,nG,dlv,nD,vol
     !i Inputs:
     !i  nxi,lxi,exi,rsm:  number of (l,energy,rsm) groups, and list
     !i  dlv,nD:  direct lattice vectors, and number
@@ -44,15 +41,11 @@ contains
     !u   7 May 98 handles case rsm>1/a by strict q-space summation
     !u  16 Sep 98 fixed dimensioning error arising when nD > nG
     ! ---------------------------------------------------------------
-    integer :: nxi,lmxa,lmax,nG,nD,nrx,lxi(nxi),job,nlmx
-    integer :: ie,ir,ilm,l,m,ir1,lc,ls,job0,job1,job2,job3,lm, lx(20),ndx,le,i1,i2!,lce,lse
-    real(8):: qdotr,a2,sp,gam,tpiba,rsmi, pp(3),&
-         x1,x2,xx,xx0,r,akap=1d99,kappa,h0,h0d,a,p1(3),cosp,sinp,&
-         alat,awald,vol,exi(nxi),rsm(nxi),p(3),q(3), &
-         yl(nrx,*),qlv(3,*),dlv(3,*),y0fac(nrx),rsq(nrx)
-    complex(8):: hsmp(nlmx,nxi), hsm(nlmx,nxi)
-    complex(8):: xxc,phase(nrx),phasex,img=(0d0,1d0)
+    integer :: nxi,lmxa,lmax,nG,nD,nrx,lxi(nxi),job,nlmx, ie,ir,ilm,l,m,ir1,lc,ls,job0,job1,job2,job3,lm, lx(20),ndx,le,i1,i2
     real(8),parameter:: pi = 4d0*datan(1d0), tpi = 2d0*pi,y0 = 1/dsqrt(4d0*pi),faca=1d0
+    real(8):: qdotr,a2,sp,gam,tpiba,rsmi, pp(3),x1,x2,xx,xx0,r,akap=1d99,kappa,h0,h0d,a,p1(3),cosp,sinp,&
+         alat,awald,vol,exi(nxi),rsm(nxi),p(3),q(3), yl(nrx,*),qlv(3,*),dlv(3,*),y0fac(nrx),rsq(nrx)
+    complex(8):: hsmp(nlmx,nxi), hsm(nlmx,nxi),xxc,phase(nrx),phasex,img=(0d0,1d0)
     logical :: dcmpre,ltmp
     dcmpre(x1,x2) = dabs(x1-x2) .lt. 1d-8
     !Shorten p: pp=matmul(transpose(qlat),p); call shortn3_plat(pp); p1 = matmul(plat,pp+nlatout(:,1))
@@ -223,8 +216,7 @@ contains
     !u   7 May 98 handles case rsm>1/a by strict q-space summation
     ! ---------------------------------------------------------------
     implicit none
-    integer :: lmax,nG,nD,nlmx,nrx,job
-    integer :: ir,ilm,l,m,ir1,lc,ls,job0,job1,job2,job3,lm,nDx, lx1(1),i1,i2
+    integer :: lmax,nG,nD,nlmx,nrx,job, ir,ilm,l,m,ir1,lc,ls,job0,job1,job2,job3,lm,nDx, lx1(1),i1,i2
     real(8) :: qdotr,a2,sp,gam,tpiba,p1(3),ex1(1), &
          x1,x2,xx,xx1((lmax+1)**2),xx2((lmax+1)**2),r,h0,q0(3),a,faca,cosp,sinp
     real(8):: alat,awald,vol,rsm,p(3),q(3), &
@@ -335,11 +327,9 @@ contains
     lqzero = dcmpre(sum(dabs(q0)),0d0)
     if (lqzero) hsm(1) = hsm(1) + rsm**2/(4d0*vol*y0) !! --- Add extra term for l=0 when e=0 and q=0 ---
   end subroutine hsmqe0
-  subroutine hansr4(rsq,lmax,nrx,nr,e,rsm,wk,chi)
+  subroutine hansr4(rsq,lmax,nrx,nr,e,rsm,wk,chi)! Difference between true,smoothed hankels for l=-1...lmax  for e nonzero.  Vectorizes for negative e.
     use m_ftox
-    !- Difference between true,smoothed hankels for l=-1...lmax
-    !  for e nonzero.  Vectorizes for negative e.
-    ! ---------------------------------------------------------------
+    ! we need to simplify description here...
     !i Inputs
     !i   rsq,nr:vector of points r**2, and number of points.
     !i          Only the first value of rsq may be zero (See Remarks)
@@ -500,10 +490,8 @@ contains
        wk2(ir1:nr) = facgl*wk2(ir1:nr)
     enddo
   end subroutine hansr4
-  subroutine hansr5(rsq,lmax,nrx,nr,rsm,wk,chi)
+  subroutine hansr5(rsq,lmax,nrx,nr,rsm,wk,chi) !Difference between true,smoothed hankels for l=0...lmax, e=0
     use m_ftox
-    !- Difference between true,smoothed hankels for l=0...lmax, e=0
-    ! ---------------------------------------------------------------
     !i Inputs
     !i   rsq,nr:vector of points r**2, and number of points.
     !i          Only the first value of rsq may be zero (See Remarks)
@@ -549,12 +537,9 @@ contains
        wk2(ir1:nr) = facgl*wk2(ir1:nr)
     enddo
   end subroutine hansr5
-
-  real(8) function erfcee(ra) ! erfcee(x)= erfc(|x|)/y0/exp(-x*x)
-    ! We still use erfcee because gfortran erfc gives NaN for large x at 2022-7.
+  real(8) function erfcee(ra) ! erfcee(x)= erfc(|x|)/y0/exp(-x*x)  ! We still use erfcee because gfortran erfc gives NaN for large x at 2022-7.
     ! For example, I observed erfc(25.3526)=NaN (gfortran compilar bug. it must be zero).
-    ! ... erfc(x) is evaluated as a ratio of polynomials,
-    !     to a relative precision of <10^-15 for x<5.
+    ! ... erfc(x) is evaluated as a ratio of polynomials, to a relative precision of <10^-15 for x<5.
     !     Different polynomials are used for x<1.3 and x>1.3.
     !     Numerators and denominators are t,b respectively.
     integer:: i
@@ -596,9 +581,7 @@ contains
        erfcee = f2(-ra-2d0)
     endif
   end function erfcee
-
-  subroutine pvhsmq(job,nx,lmxa,lxi,exi,a,vol,n,qsq,nyl,yl,nlmx,cssn,hl,hlp)
-    !- Makes H_L(1/a,e,r) by summation over reciprocal lattice vectors.
+  subroutine pvhsmq(job,nx,lmxa,lxi,exi,a,vol,n,qsq,nyl,yl,nlmx,cssn,hl,hlp) ! Makes H_L(1/a,e,r) by summation over reciprocal lattice vectors.
     !o    hl,hlp
     !  job=1 : make hl only (not hlp)
     !  Skips any ie for which lxi(ie)<lmxa. This is a kernel called by hsmq.
@@ -614,18 +597,17 @@ contains
     real(8),parameter::pi = 4d0*datan(1d0)
     dcmpre(x1,x2) = dabs(x1-x2) .lt. 1d-8
     gam = 0.25d0/a**2
-    ! --- For each exi ne 0 and ilm do ---
-    do  20  ie = 1, nx
+    do  20  ie = 1, nx !For each exi ne 0 and ilm do ---
        e = exi(ie)
        lx = lxi(ie)
        if (lxi(ie) < lmxa) cycle
-       do  30  je = 1, ie-1 ! Copy existing hl,hlp if already calculated for this exi
+       do  je = 1, ie-1 ! Copy existing hl,hlp if already calculated for this exi
           if (dabs(exi(je)-exi(ie)) > 1d-8) cycle
           if (lxi(ie) > lxi(je)) cycle
           hl (1:(lxi(ie)+1)**2,ie)= hl (1:(lxi(ie)+1)**2,je)
           hlp(1:(lxi(ie)+1)**2,ie)= hlp(1:(lxi(ie)+1)**2,je)
           goto 20
-30     enddo
+       enddo
        nlm=(lx+1)**2
        i1 = 1
        if (dcmpre(e-qsq(1),0d0)) i1 = 2
@@ -644,8 +626,7 @@ contains
             if(job/=1) hlp(li:le,ie) = hlp(li:le,ie) + cof*(gam*c2(li:le)-c3(li:le))
          enddo
        endblock nlmb
-       ! --- Add extra term for l=0 when e=0 and q=0 ---
-       if(dcmpre(e-qsq(1),0d0)) hl(1,ie)= hl(1,ie) - sqrt(4d0*pi)/vol*gam
+       if(dcmpre(e-qsq(1),0d0)) hl(1,ie)= hl(1,ie) - sqrt(4d0*pi)/vol*gam !Add extra term for l=0 when e=0 and q=0 
 20  enddo
   end subroutine pvhsmq
 end module m_hsmq
