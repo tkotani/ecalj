@@ -30,7 +30,7 @@ contains
     plat=lat_platin
     allocate(rv_a_opos,source=pos)
     lmxst = 6
-    call lattc ( awald0,tol,rpad,alat,plat,qlat,lmxst,vol,awald,dlv,nkd,qlv,nkq,nkdmx,nkqmx)
+    call lattc(awald0,tol,rpad,alat,plat,qlat,lmxst,vol,awald,dlv,nkd,qlv,nkq,nkdmx,nkqmx)
     lat_vol  =vol
     lat_plat =plat
     lat_qlat =qlat
@@ -90,18 +90,17 @@ contains
     plat=plat0 !call rdistn(plat0,plat,3,g1,g2,g3,gt)
     call dinv33(plat,1,qlat,vol)
     vol = dabs(vol)*(alat**3)
-!    if (iprint() < 20) goto 20
-    write(stdo,351)
-351 format(/t17,'Plat',t55,'Qlat')
-    write (stdo,350) ((plat0(m,k),m=1,3),(qlat0(m,k),m=1,3),k=1,3)
-    open(newunit=ifp,file='PlatQlat.chk')
-    write (ifp,350) ((plat0(m,k),m=1,3),(qlat0(m,k),m=1,3),k=1,3)
-    write (ifp,"('             PLAT              and         QLAT    ')")
-    close(ifp)
-350 format(3f11.6,5x,3f11.6)
-    write(stdo,ftox)'  Cell vol= ',ftof(vol)
-    if((dabs(vol-vol0*(alat**3)) > 1d-9))write(stdo,ftox)'(undistorted vol=',ftof(vol0*(alat**3))
-!20  continue
+    if(iprint()>0) then
+       write(stdo,"(/t17,'Plat',t55,'Qlat')")
+       write(stdo,350) ((plat0(m,k),m=1,3),(qlat0(m,k),m=1,3),k=1,3)
+       open(newunit=ifp,file='PlatQlat.chk')
+       write(ifp,350) ((plat0(m,k),m=1,3),(qlat0(m,k),m=1,3),k=1,3)
+       write(ifp,"('             PLAT              and         QLAT    ')")
+       close(ifp)
+350    format(3f11.6,5x,3f11.6)
+       write(stdo,ftox)'  Cell vol= ',ftof(vol)
+       if((dabs(vol-vol0*(alat**3)) > 1d-9))write(stdo,ftox)'(undistorted vol=',ftof(vol0*(alat**3))
+    endif
     ! --- Set up real and reciprocal vectors ---
     ! The errors are estimated making a continuum approximation to a
     ! discrete set of lattice sums.  Adding .7, slightly more than
@@ -120,8 +119,8 @@ contains
     qxx= maxval([q0+qadd,(sum(qlat0(:,i)**2)**.5*1.05,i=1,3)]) !2022-10-12
     call xlgen(plat0,rxx,rpad*(r0+radd),nkdmx,11,modeg,nkd,dlat)
     call xlgen(qlat0,qxx,rpad*(q0+qadd),nkqmx,11,modeg,nkq,qlv)
-    write (stdo,"(/'LATTC:  as=',f6.3,'   tol=',1p,e9.2,'   alat=',0p,f8.5,'   awald=',f6.3)") as,tol,alat,awald
-    write (stdo,"(9x,'r1=',f7.3,'   nkd=',i4,'      q1=',f7.3,'   nkq=',i4)") r0+radd,nkd,q0+qadd,nkq
+    if(iprint()>0) write(stdo,"(/'LATTC:  as=',f6.3,'   tol=',1p,e9.2,'   alat=',0p,f8.5,'   awald=',f6.3)") as,tol,alat,awald
+    if(iprint()>0) write(stdo,"(9x,'r1=',f7.3,'   nkd=',i4,'      q1=',f7.3,'   nkq=',i4)") r0+radd,nkd,q0+qadd,nkq
   end subroutine lattc
   subroutine lctoff(a0,v0,lmax,tol,r0,q0) !- makes limits r0,q0 for sums in real and recip space for a lattice
     !  with lattice constant 1.    !u   25 Jun 03 (Kino) bug fix in dimension of f and g

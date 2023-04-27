@@ -47,7 +47,7 @@ program lmf
   aaa=''
   do iarg=1,iargc()
      call getarg(iarg,sss)
-     print *,iarg,trim(sss)
+!     print *,iarg,trim(sss)
      aaa=trim(aaa)//' '//trim(sss) !command-line
   enddo
   if(master_mpi.and.len_trim(aaa)==0) then

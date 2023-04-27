@@ -105,7 +105,7 @@ subroutine pairtakao_unuused(job,pos,nbas,plat,nk,npair, npairmx,range, nlat,qwg
   !      logical:: exiton
   pi=4d0*datan(1d0)
   call dinv33(plat,1,qlat,xx)
-  print *,'job=',job,nk,npairmx
+  !print *,'job=',job,nk,npairmx
   if(job==1) then !determine range,and npairmx
      npair=0
      do ib1=1,nbas

@@ -48,35 +48,15 @@ contains
     integer:: iout,iapw,napwx !,nout,nlatout(3,noutmx)
     call tcn('m_igv2x_init')
     debug = cmdopt0('--debugbndfp')
-!    call shortn3_qlat(ppin=matmul(transpose(plat),qp)) !this returns nlatout for ppin+nlatout(1:3,1:nout).!ppin is fractional coordinate of qp(Cartesian).
     if(allocated(igv2x_z)) deallocate(igv2x_z)
     if (0<pwemax .and. mod(pwmode,10)>0) then !with APWs
        pwgmax = pwemax**.5d0
        qqq = 0d0
        if (mod(pwmode/10,10) == 1) qqq = qp !pwmode 1 in 10th digit means q-dependent nw
        call getgv2(alat,plat,qlat, qqq, pwgmax,1, napw_z, imx11)   ! get nqpn. # of G vector for |q+G| < pwgmax
-       print *,' getgv2 pwemax=',pwemax,napw_z
        allocate(igv2x_z(3,napw_z))
        call getgv2(alat,plat,qlat, qqq, pwgmax,2, napw_z, igv2x_z) ! for eigenfunctions (psi)
-       ! pwgmin = pwemin**.5d0
-       !       call pshpr(1) 
-       !       call gvlst2(alat,plat,qqq,0,0,0,pwgmin,pwgmax,0,0,napwx,napwx,dum,dum,dum)!,dum) !get napwx
-       !       napw_z=napwx
-       !       block
-       !         integer::igvxx(napw_z,3)
-       !         allocate(igv2x_z(3,napw_z), kv_iv(3,napw_z))
-       !         igvxx=0
-       !         call gvlst2(alat,plat,qqq,0,0,0,pwgmin,pwgmax,0,1,napw_z,napw_z,kv_iv,dum,igvxx)
-       !         igv2x_z=transpose(igvxx)
-       !       endblock
-       !       call poppr
-!       if (pwmode<10) then
-!          do iapw=1,napw_z
-!             igv2x_z(:,iapw)=igv2x_z(:,iapw)+nlatout(:,1)  ! shortest set of G 
-!          enddo
-!       endif
-!       deallocate(kv_iv)     
-    else !No APW
+    else !No APWs
        napw_z=0
        allocate(igv2x_z(1,1))  
     endif
