@@ -532,8 +532,10 @@ contains
        enddo
        rhol2(:,1,isp)=rhol2(:,1,isp)+y0/nsp*(rhocsm(:)+rhonsm(:)) !rhol2:full smooth compensated density rho2+gval +gnuc + pcore 
     enddo
-    a1    = srfpi*sum(rwgt*(rho1(:,1,1)-rho1(:,1,2)))
-    a2    = srfpi*sum(rwgt*(rho2(:,1,1)-rho2(:,1,2)))
+    if(nsp==2) then
+       a1  = srfpi*sum(rwgt*(rho1(:,1,1)-rho1(:,1,2)))
+       a2  = srfpi*sum(rwgt*(rho2(:,1,1)-rho2(:,1,2)))
+    endif
     aloc  = merge(a1-a2,0d0,nsp==2)
     alocc = merge(sum(rwgt*(rhoc(:,1)-rhoc(:,2))),0d0,nsp==2)
     rhototal: block
