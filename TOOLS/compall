@@ -8,10 +8,13 @@ diff=0
 for ifnum,ifi in enumerate(f1):
     iline1=re.split('\s+',f1[ifnum])
     iline2=re.split('\s+',f2[ifnum])
+    #print(ifnum, iline1, iline2)
     if(iline1[0][0:1]=='#'): continue
-    iline1=[float(i) for i in iline1 if i!='' and float(i)!=0]
-    iline2=[float(i) for i in iline2 if i!='' and float(i)!=0]
+    iline1=[float(i) for i in iline1 if i!=''] #and float(i)!=0]
+    iline2=[float(i) for i in iline2 if i!=''] #and float(i)!=0]
+    #print(ifnum, iline1, iline2)
     for i,idat1 in enumerate(iline1):
         diff=max(idat1-iline2[i],diff)
-print('max deviation =',diff,' tolerance =',tol)
+if(diff>float(tol)) : print('ERROR: max deviation =',diff,' tolerance =',tol)
+if(diff<=float(tol)): print('max deviation =',diff,' tolerance =',tol)
     
