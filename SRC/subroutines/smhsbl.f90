@@ -138,8 +138,7 @@ subroutine smhsbl(vavg,q,ndimh, napw,igapw, h,s)
                  nlm1 = (lhh(i1,is1)+1)**2
                  nlm2 = (lhh(i2,is2)+1)**2
                  if (nlm1 > nlms .OR. nlm2 > nlms) call rx('smhsbl: increase nlms')
-                 call hhibl(p1,p2,q,rsm1(1,i1),rsm2(1,i2),e1(1,i1),e2(1,i2),nlm1,nlm2,1,nlms &
-                      ,nlms,s0(1,1,0,i1,i2)) 
+                 call hhibl(p1,p2,q,rsm1(1,i1),rsm2(1,i2),e1(1,i1),e2(1,i2),nlm1,nlm2,1,nlms,nlms,s0(1,1,0,i1,i2)) 
                  !F0*F0 and F0*\laplacian F0 integrals (smH parts)
               enddo
            enddo

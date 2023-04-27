@@ -112,3 +112,68 @@ subroutine ellipsoidxmax(nn, xmx2)
     xmx2 = [1d0/fac1,1d0/fac2,1d0/fac3]
   endassociate
 end subroutine ellipsoidxmax
+
+! subroutine shorbz(p,pout,plat,qlat)
+!   !- Shortens vector to equivalent in first Brillouin zone.
+!   ! ----------------------------------------------------------------
+!   !i Inputs:
+!   !i   plat,qlat lattice vectors and inverse
+!   !i   p         vector to shorten
+!   !o Outputs:
+!   !o   pout      shortened p.   pout and p can point to the same address.
+!   !r Remarks
+!   !r   Switch around plat,qlat to shorten reciprocal space vectors.
+!   !r   Jan 1997 Adapted from shorps to fix bug:  Example:
+!   !r   plat=  -0.5  0.5  1.7517  0.5  -0.5  1.7517  0.5  0.5  -1.7517
+!   !r   p= 0.0 -0.5 -1.26384
+!   !r   Should get pout -> 0.5 0.0 0.48786, not -0.5 1.0 0.48786.
+!   ! ----------------------------------------------------------------
+!   !     implicit none
+!   double precision :: p(3),pout(3),plat(3,3),qlat(3,3),x(3),x0,xx,a2,ap
+!   double precision :: tol
+!   parameter (tol=-1d-10)
+!   integer :: i,j,m,j2min,j3min,j1,j2,j3
+
+!   ! --- Reduce to unit cell centered at origin ---
+!   do  1  i = 1, 3
+!      ! ... x is projection of pin along plat(i), with multiples of p removed
+!      x0 = p(1)*qlat(1,i)+p(2)*qlat(2,i)+p(3)*qlat(3,i)
+!      xx = idnint(x0)
+!      x(i) = x0-xx
+! 1 enddo
+!   ! ... pout is x rotated back to Cartesian coordinates
+!   do  2  m = 1, 3
+!      pout(m) = x(1)*plat(m,1)+x(2)*plat(m,2)+x(3)*plat(m,3)
+! 2 enddo
+
+!   ! --- Try shortening by adding +/- basis vectors ---
+! 15 continue
+!   do  j1 =  0, 1
+!      j2min = -1
+!      if (j1 == 0) j2min = 0
+!      do  j2 = j2min, 1
+!         j3min = -1
+!         if (j1 == 0 .AND. j2 == 0) j3min = 0
+!         do  j3 = j3min, 1
+
+!            !     ... (-1,0,1) (plat(1) + (-1,0,1) plat(2)) + (-1,0,1) plat(3))
+!            ! takao think this alglorism cause problems (=wrong) for very anisotropic cases.
+
+!            do  17  i = 1, 3
+!               x(i) = plat(i,1)*j1 + plat(i,2)*j2 + plat(i,3)*j3
+! 17         enddo
+!            a2 = x(1)*x(1) + x(2)*x(2) + x(3)*x(3)
+!            ap = pout(1)*x(1) + pout(2)*x(2) + pout(3)*x(3)
+!            j = 0
+!            if (a2 + 2*ap < tol) j = 1
+!            if (a2 - 2*ap < tol) j = -1
+!            if (j /= 0) then
+!               pout(1) = pout(1) + j*x(1)
+!               pout(2) = pout(2) + j*x(2)
+!               pout(3) = pout(3) + j*x(3)
+!               goto 15
+!            endif
+!         enddo
+!      enddo
+!   enddo
+! end subroutine shorbz

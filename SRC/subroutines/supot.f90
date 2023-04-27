@@ -10,7 +10,7 @@ module m_supot
   integer,protected,pointer:: n1,n2,n3
 contains
   subroutine m_supot_init()! Initialization for G vectors bgv,ips0,gv,kv !See gvlst2 and sgvsym
-    use m_lattic,only: rv_a_odlv,rv_a_oqlv,lat_plat,rv_a_opos,lat_qlat
+    use m_lattic,only: lat_plat,rv_a_opos,lat_qlat
     use m_mksym,only:   rv_a_osymgr,rv_a_oag
     use m_lmfinit,only : lcd4,nsp,lat_alat,ftmesh,lat_gmaxin,stdo
     use m_lattic,only: lat_vol, lat_awald

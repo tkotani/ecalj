@@ -165,10 +165,10 @@ contains
                  [( sum([(yl(ir,ilm)*wkc(ir,l)*phase(ir),ir=1,nDx)])/2d0, ilm=i1,i2)]
          enddo
          !... Put in phase to undo shortening, or different phase convention
-         sp = tpi*sum(q*(p-p1))!if (job3 >= 2) sp = sp-tpi*sum(q*p1) 
+!         sp = tpi*sum(q*(p-p1))!if (job3 >= 2) sp = sp-tpi*sum(q*p1) 
          le=(lx(ie)+1)**2
-         if(sp/=0d0) hsm(1:le,ie)  = exp(img*sp)* hsm(1:le,ie) 
-         if(sp/=0d0) hsmp(1:le,ie) = exp(img*sp)* hsmp(1:le,ie)
+!         if(sp/=0d0) hsm(1:le,ie)  = exp(img*sp)* hsm(1:le,ie) 
+!         if(sp/=0d0) hsmp(1:le,ie) = exp(img*sp)* hsmp(1:le,ie)
        endblock hansblock
 30  enddo
   end subroutine hsmq
@@ -324,13 +324,13 @@ contains
 31     enddo
     endif
     ! ... Make sin(qR)*(H(rsm,r)-H(1/a,r)), cos(qR)*(H(rsm,r)-H(1/a,r))
-    sp = tpi*sum(q*(p-p1))  !  if (job3 >= 2) sp = sp-tpi*sum(q*p1)
+!    sp = tpi*sum(q*(p-p1))  !  if (job3 >= 2) sp = sp-tpi*sum(q*p1)
     phasex= exp(img*sp)
     llooop: do l = 0, lmax
        i1=l*l+1
        i2=l*l+2*l+1
        hsm(i1:i2)  = hsm(i1:i2) + [(sum([(yl(ir,ilm)*phase(ir)*wk(ir,l+lc),ir=1,nDx)]), ilm=i1,i2)]
-       if(sp /= 0d0) hsm(i1:i2) = phasex*hsm(i1:i2)
+!       if(sp /= 0d0) hsm(i1:i2) = phasex*hsm(i1:i2)
     enddo llooop
     lqzero = dcmpre(sum(dabs(q0)),0d0)
     if (lqzero) hsm(1) = hsm(1) + rsm**2/(4d0*vol*y0) !! --- Add extra term for l=0 when e=0 and q=0 ---

@@ -1,19 +1,20 @@
 module m_qplist ! control all q points list (but still only for lmf part now june2021).
-  integer,allocatable,protected:: ngplist(:),iprocq(:,:),ispp(:),ngvecp(:,:,:) !rank divider
-  real(8),allocatable,protected:: qplist(:,:)
-  integer,protected:: iqini,iqend,ispini,ispend      !for current rank
+  use m_ftox
+  use m_lgunit,only:stdo
+  public :: m_qplist_init,m_qplist_qspdivider,qshortn
   integer,parameter,private:: nsymlmax=100
-  real(8),protected:: dqsyml(nsymlmax),etolv,etolc
-  integer,protected:: nkp,ngpmx ,nqi,iqibzmax
-  integer, allocatable,protected :: kpproc(:)
-  integer,protected:: nsyml=0, nqp_syml(nsymlmax),nqps_syml(nsymlmax),nqpe_syml(nsymlmax)
-  integer,protected:: nqp2n_syml(nsymlmax)
-  character*20,protected ::labeli(nsymlmax),labele(nsymlmax)
-  real(8),allocatable,protected:: xdatt(:)
-
+  integer,protected,public:: nkp,ngpmx ,nqi,iqibzmax,  iqini,iqend,ispini,ispend      !for current rank
+  integer,protected,public:: nsyml=0, nqp_syml(nsymlmax),nqps_syml(nsymlmax),nqpe_syml(nsymlmax),nqp2n_syml(nsymlmax)
+  integer,allocatable,protected,public:: ngplist(:),iprocq(:,:),ispp(:),ngvecp(:,:,:), kpproc(:)
+  real(8),protected,public:: dqsyml(nsymlmax),etolv,etolc
+  real(8),allocatable,protected,public:: qplist(:,:), xdatt(:)
+  character*20,protected,public ::labeli(nsymlmax),labele(nsymlmax)
+  private
+  real(8),allocatable:: qplistss(:,:)
+  real(8)::tolq=1d-12
 contains
   subroutine m_qplist_init(plbnd,llmfgw)
-    use m_lmfinit,only: nspx,stdo,procid,master
+    use m_lmfinit,only: nspx,procid,master
     use m_mkqp,only: rv_p_oqp,rv_a_owtkp
     use m_MPItk,only: master_mpi,mlog
     use m_mkqp,only: nkabc=> bz_nabc,bz_nkp
@@ -34,7 +35,6 @@ contains
     integer:: nqnum, nqbz,iqq,isp,ifiqg,irr,ngp ,imx,nqibz,iqibz
     real(8):: QpGcut_psi,q(3)
     real(8)::qq(3)
-    !     !
     call tcn('m_qplist_init')
     if(master_mpi) write(stdo,*) 'm_qplistinit:start'
     nkk1=nkabc(1)
@@ -43,13 +43,10 @@ contains
     fullmesh = cmdopt0('--fullmesh').or. cmdopt0('--fermisurface') !full mesh stop just after do 2010 iq loop.
     fsmode   = cmdopt0('--fermisurface') !full mesh stop just after do 2010 iq loop.
     PROCARon = cmdopt0('--mkprocar')
-    !      readeferm=.false.
     if(allocated(qplist)) deallocate(qplist)
-
-    !! GW driver mode !Read QGpsi Get ngplist,ngvecp in addition to qplist.
     if( .NOT. master_mpi) then
        continue
-    elseif(llmfgw) then
+    elseif(llmfgw) then ! GW driver mode !Read QGpsi Get ngplist,ngvecp in addition to qplist.
        open(newunit=ifiqg,file='QGpsi',form='unformatted',status='old')
        read(ifiqg) nqnum, ngpmx ,QpGcut_psi,nqbz ,nqi ,imx,nqibz
        allocate(qplist(3,nqi), ngplist(nqi), ngvecp(3,ngpmx,nqi))
@@ -216,8 +213,7 @@ contains
        enddo
        close(ifqplist)
     endif
-    
-    !! broadcase nkp and qplist
+    ! broadcase nkp and qplist
     call mpibc1_int( nkp,1,  'qplit_nkp')
     call mpibc1_int( onesp,1,'qplist_onesp')
     if( .NOT. master_mpi) allocate(qplist(3,nkp))
@@ -230,7 +226,6 @@ contains
        call mpibc1_int( ngvecp,  3*ngpmx*nkp,  'qplist_ngvecp' )
        call mpibc1_int( iqibzmax,1, 'qplist_iqibzmax')
     endif
-    !!
     if(procaron .AND. nsyml==0 .AND. master_mpi) then !xdatt is dummy
        if(allocated(xdatt)) deallocate(xdatt)
        allocate(xdatt(nkp))
@@ -240,27 +235,43 @@ contains
        if( .NOT. master_mpi) allocate(xdatt(nkp))
        call mpibc1( xdatt, nkp , 4 , .false. , 'bndfp' , 'xdatt'  )
     endif
+    allocate(qplistss(3,nkp))
+    qplistshortened: block  !2023-4-27
+      use m_shortn3_qlat,only: shortn3_qlat,nout,nlatout
+      real(8):: qfrac(3),qs(3)
+      do ikp=1,nkp !
+         qfrac = matmul(transpose(plat),qplist(:,ikp)) !qfrac: qplist in fractional coordinate
+         call shortn3_qlat(qfrac)
+         qplistss(:,ikp)=matmul(qlat, qfrac+nlatout(1:3,1)) !shortened qplist
+      enddo
+    endblock qplistshortened
     call tcx('m_qplist_init')
   end subroutine m_qplist_init
+  function qshortn(q) result(qs) !shortest q vectror. module of qlat 2023-4-27
+    intent(in):: q
+    integer:: ikp,iq
+    real(8):: q(3),qs(3)
+    if(sum(abs(q))<tolq) then
+       qs=0d0
+    else
+       iq = findloc([(sum(abs(qplist(:,ikp)-q))<tolq,ikp=1,nkp)],value=.true.,dim=1)
+       if(iq==0) call rx('qshortn: can not find iq')
+       qs = qplistss(:,iq) !write(aaa,ftox)'q=',ftof(q,3),'qshortn=',ftof(qs,3),'qdiff=',ftof(q-qs,3),iq
+    endif   
+  end function qshortn
   ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-  subroutine m_qplist_qspdivider()
-    !! MPIK k point divider. From iqini to iqend for each processor.
-    ! Set iqini,iqend ispx for each rank (procid)
+  subroutine m_qplist_qspdivider() ! MPIK k point divider. From iqini to iqend for each processor. ! Set iqini,iqend ispx for each rank (procid)
     use m_MPItk,only: master_mpi,mlog, numprocs=>nsize
-    use m_lmfinit,only: stdo,procid,master
+    use m_lmfinit,only: procid,master
     use m_suham,  only: nspx=>ham_nspx
     use m_ext,only: sname
     implicit none
     integer:: iprocid,iqendx,iqinix,iqq,ifiproc,isp,ispx,icount,iqs,ncount,iqsi,iqse,iprint
     integer,allocatable::iqvec(:),ispin(:),iproc(:)
     call tcn('m_qplist_qpsdivider')
-    allocate(iqvec(nkp*nspx),ispin(nkp*nspx),iproc(nkp*nspx))
-    !---------------------------------------------------------------
-    allocate(kpproc(0:numprocs))
-    allocate(iprocq(nkp,nspx))
+    allocate(iqvec(nkp*nspx),ispin(nkp*nspx),iproc(nkp*nspx), kpproc(0:numprocs),iprocq(nkp,nspx))
     call dstrbp(nkp*nspx,numprocs,1,kpproc(0)) !mpik distribution
-    !     ! (iq,isp) is ordered as (1,1),(1,2),(2,1),(2,2),(3,1),(3,2),(4,1),(4,2).....
-    !     ! range for the procid
+    !  (iq,isp) is ordered as (1,1),(1,2),(2,1),(2,2),(3,1),(3,2),(4,1),(4,2).....  ! range for the procid
     iqsi = kpproc(procid)
     iqse = kpproc(procid+1)-1
     iqini = iqsi
@@ -269,39 +280,11 @@ contains
     if(nspx==2) iqend = (iqse+1)/nspx
     ispini = mod(iqsi+1,nspx)+1
     ispend = mod(iqse+1,nspx)+1
-    if(iprint()>80) write(stdo,'(a,i5, ", (",i5,i2,"), "," (",i5,i2,")")' ) &
-         'm_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=', procid,iqini,ispini,iqend,ispend
-    !$$$!!--- write lmfgw_divider ---------
-    !$$$      icount = 0
-    !$$$      do iprocid = 0,numprocs-1
-    !$$$         do iqs     = kpproc(iprocid),kpproc(iprocid+1)-1
-    !$$$            icount=icount+1
-    !$$$            iqvec(icount) = iqs
-    !$$$            if(nspx==2) iqvec(icount) =  (iqs+1)/nspx
-    !$$$            ispin(icount) = mod(iqs+1,nspx)+1
-    !$$$            iproc(icount) = iprocid
-    !$$$         enddo
-    !$$$      enddo
-    !$$$      ncount=icount
-    !$$$      do icount=1,ncount
-    !$$$         iprocq(iqvec(icount),ispin(icount)) = iproc(icount)
-    !$$$      enddo
-    !$$$      if(master_mpi) then
-    !$$$         open(newunit=ifiproc,file='lmfgw_kdivider')
-    !$$$         write(ifiproc,"(a,'    ! extension ')") '.'//trim(sname)
-    !$$$         write(ifiproc,"(3i10,'    ! nqi nspx numproc')") nkp, nspx, numprocs
-    !$$$         do isp=1,nspx
-    !$$$            do iqq=1,nkp        !nqi
-    !$$$               write(ifiproc,"(3i9,'  ! iqq isp irank')") iqq, isp, iprocq(iqq,isp)
-    !$$$            enddo
-    !$$$         enddo
-    !$$$         close(ifiproc)
-    !$$$      endif
+    if(iprint()>80) write(stdo,ftox)'m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=',procid,iqini,ispini,iqend,ispend
     call tcx('m_qplist_qpsdivider')
   end subroutine m_qplist_qspdivider
 end module m_qplist
-
-! mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+!mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
 module read_lmfgw_kdivider
   character*256,allocatable:: extp(:)
   integer,allocatable,protected:: iprocq(:,:)
@@ -335,9 +318,7 @@ contains
     enddo
   end subroutine readlmfgw_kdivider
 end module read_lmfgw_kdivider
-!! --------------------------------------
-!!---  qplist.dat reader -----------------------------------
-module m_readqplist
+module m_readqplist !---  qplist.dat reader -----------------------------------
   integer,protected:: ndat
   real(8),allocatable,protected:: xdat(:),qplistsy(:,:)
   real(8),protected:: eferm !<-- temporary use. just as a memo.
@@ -360,8 +341,5 @@ contains
 1011 continue
     ndat=ix-1
     close(ifqplistsy)
-    return
   end subroutine readqplistsy
 end module m_readqplist
-
-

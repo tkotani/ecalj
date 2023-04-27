@@ -23,7 +23,10 @@ contains
     implicit none
     real(8):: qin(3),q(3),eps=1d-10
     integer:: iq,iqx,ia
+!!!!!!!!!!!!!!!!!!!! 2023-04-25 obatadebug
     q=qin 
+!    call shorbz(qin,q,qlat,plat) !Get q. Is this fine?
+    
     iq=-999
     do iqx=iqini,iqend
        if( sum( (q-qall(:,iqx))**2 )<eps) then
@@ -48,13 +51,15 @@ contains
     use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat,rv_a_opos
     use m_igv2x,only: napw, igvapw=>igv2x, ndimh,m_Igv2x_setiq !igvapwin=>igv2x,
     integer:: kmaxx,ia,isa,lmxa,lmxb,kmax,nlmb,nlma,mode,inn(3),ig,iq,ndimhmax
-    real(8):: pa(3),qin(3),q(3),qlatinv(3,3),qss(3)
+    real(8):: pa(3),qin(3),q(3),qlatinv(3,3),qss(3),qxx(3)
     call tcn('m_bstrux_init')
     if(allocated(qall)) deallocate(qall,p_bstr,p_dbstr)
     allocate(qall(3,iqini:iqend),p_bstr(nbas,iqini:iqend),p_dbstr(nbas,iqini:iqend))
     iqloop: do 1200 iq = iqini, iqend ! iqini:iqend for each rank
        qin = qplist(:,iq)
        call m_Igv2x_setiq(iq) ! Get napw,ndimh,igvapw and so on for given iq
+!!!!!!!!!!!!!!!!!!!! 2023-04-25 obatadebug
+!       call shorbz(qin,q,qlat,plat) !Get q. Is this fine?
        q=qin
        ibasloop: do ia=1,nbas !  --- Make strux to expand all orbitals at site ia ---
           isa=ispec(ia) 
@@ -67,10 +72,10 @@ contains
           if(lfrce/=0) allocate(  p_dbstr(ia,iq)%cv4(ndimh,nlma,0:kmax,3) )
           mode = 2
           if(lfrce/=0) mode=1
-          qss = q+ [1d-8,2d-8,3d-8] !for stabilizing deneracy ordering (this works well?)
+          qss = q !+ [1d-8,2d-8,3d-8] for stabilizing deneracy ordering (this works well?) --> this conflict with qshortn 
           call bstrux(mode,ia,pa,rsma(isa),qss,kmax,nlma,ndimh,napw,igvapw, p_bstr(ia,iq)%cv3,p_dbstr(ia,iq)%cv4)
        enddo ibasloop
-       qall(:,iq)=q !write(stdo,ftox)'m_bstrux_init qin',procid,iq,ftof(qin),ftof(qall(:,iq))
+       qall(:,iq)=q  !write(stdo,ftox)'m_bstrux_init qin',procid,iq,ftof(qin),ftof(qall(:,iq))
 1200 enddo iqloop
     call tcx('m_bstrux_init')
   end subroutine m_bstrux_init

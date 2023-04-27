@@ -3,8 +3,8 @@ module m_lattic !lattice setup
   use m_lgunit,only:stdo
   use m_xlgen,only:xlgen
   public m_lattic_init,setopos,lctoff
-  real(8), allocatable,protected,public ::  rv_a_odlv (:)
-  real(8), allocatable,protected,public ::  rv_a_oqlv (:)
+  real(8), allocatable,protected,public ::  rv_a_odlv (:,:)
+  real(8), allocatable,protected,public ::  rv_a_oqlv (:,:)
   real(8), protected,public:: lat_plat(3,3),lat_qlat(3,3),lat_awald,lat_vol
   real(8), allocatable,protected,public :: rv_a_opos(:,:)
   integer,protected,public:: lat_nkd,lat_nkq
@@ -19,7 +19,7 @@ contains
     use m_lmfinit,only:nbas,lat_alat,lat_as,lat_tol,lat_rpad,nkdmx=>lat_nkdmx,nkqmx=>lat_nkqmx,lat_platin,pos
     implicit none
     integer::  lmxst , nkd,nkq,ib
-    real(8) :: dlv(3*nkdmx),qlv(3*nkqmx)
+    real(8) :: dlv(3,nkdmx),qlv(3,nkqmx)
     real(8):: alat,awald,awald0,tol,vol,xx1,xx2,dotprd,pi,rpad, plat0(3,3),plat(3,3),qlat(3,3) 
     call tcn('m_lattic_init')
     lattic_init=.true.
@@ -34,8 +34,8 @@ contains
     lat_vol  =vol
     lat_plat =plat
     lat_qlat =qlat
-    allocate(rv_a_oqlv,source=qlv(1:3*nkq))
-    allocate(rv_a_odlv,source=dlv(1:3*nkd))
+    allocate(rv_a_oqlv, source=qlv(1:3,1:nkq))
+    allocate(rv_a_odlv, source=dlv(1:3,1:nkd))
     lat_awald=awald
     lat_nkd=nkd
     lat_nkq=nkq
@@ -109,8 +109,8 @@ contains
     ! on the safe side.
     rdist0 = vol0**(1d0/3d0)
     qdist0 = 1d0/rdist0
-    radd = 0.7d0*rdist0 
-    qadd = 0.7d0*qdist0 
+    radd = .7d0*rdist0  
+    qadd = .7d0*qdist0  != 1.2d0*qdist0 
     a0 = as/rdist0
     awald = a0/alat
     tol1 = tol*alat**(lmax+1)
@@ -120,11 +120,8 @@ contains
     qxx= maxval([q0+qadd,(sum(qlat0(:,i)**2)**.5*1.05,i=1,3)]) !2022-10-12
     call xlgen(plat0,rxx,rpad*(r0+radd),nkdmx,11,modeg,nkd,dlat)
     call xlgen(qlat0,qxx,rpad*(q0+qadd),nkqmx,11,modeg,nkq,qlv)
-    write (stdo,340) as,tol,alat,awald
-    write (stdo,342) r0+radd,nkd,q0+qadd,nkq
-340 format(/'LATTC:  as=',f6.3,'   tol=',1p,e9.2, &
-         '   alat=',0p,f8.5,'   awald=',f6.3)
-342 format(9x,'r1=',f7.3,'   nkd=',i4,'      q1=',f7.3,'   nkq=',i4)
+    write (stdo,"(/'LATTC:  as=',f6.3,'   tol=',1p,e9.2,'   alat=',0p,f8.5,'   awald=',f6.3)") as,tol,alat,awald
+    write (stdo,"(9x,'r1=',f7.3,'   nkd=',i4,'      q1=',f7.3,'   nkq=',i4)") r0+radd,nkd,q0+qadd,nkq
   end subroutine lattc
   subroutine lctoff(a0,v0,lmax,tol,r0,q0) !- makes limits r0,q0 for sums in real and recip space for a lattice
     !  with lattice constant 1.    !u   25 Jun 03 (Kino) bug fix in dimension of f and g
