@@ -1,10 +1,8 @@
-subroutine getgv2(alat,plat,qlat,q, QpGcut,job,    ng, ngvec)
-  !-  Set up a list of recip vectors within cutoff |Q+G| < QpGcut a.u.
+subroutine getgv2(alat,plat,qlat,q, QpGcut,job, ng,ngvec)  !-  Set up a list of recip vectors within cutoff |q+G| < QpGcut a.u.
   ! takao
   ! job==1 -> return ng (number of G ) only
   ! job==2 -> return ng and ngvec
-  ! True G is given by
-  !    G(1:3,1:ng) = 2*pi/alat * matmul(qlat * ngvec(1:3,1:ng))
+  ! True G is given by  G(1:3,1:ng) = 2*pi/alat * matmul(qlat * ngvec(1:3,1:ng))
   implicit none
   integer :: ng
   real(8):: s_lat(1),q(3),plat(3,3),qlat(3,3),qpg(3),enor(3) &

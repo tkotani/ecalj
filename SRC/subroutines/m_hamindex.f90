@@ -46,7 +46,7 @@ contains
     integer:: iout,iapw ,iprint,ngadd,igadd,igaf !,nout,nlatout(3,noutmx)
     integer:: ngp, ifiqg,iq,nnn(3),ixx,ndummy,nqbz___ ,ifatomlist
     integer,allocatable:: iqtt(:), kv(:)!ltabx(:,:),ktabx(:,:),offlx(:,:),
-    real(8):: pwgmax, pwgmin=0d0, QpGcut_psi,qxx(3),qtarget(3),platt(3,3),q(3),qx(3),qqx(3)
+    real(8):: pwgmax, QpGcut_psi,qxx(3),qtarget(3),platt(3,3),q(3),qx(3),qqx(3)!pwgmin=0d0, 
     real(8):: dum,qb(3,3),ddd(3),ppin(3), rlatp(3,3),xmx2(3),qqq(3),diffs,ddf
     real(8),allocatable:: symtmp(:,:,:)
     logical:: siginit, qpgexist,debug=.false., llmfgw,prpushed
@@ -206,17 +206,19 @@ contains
          pwgmax = pwemax**.5
          do ikt=1,nkt
             qqq = merge(qq(:,ikt), 0d0, mod(pwmode/10,10)==1)
-            call gvlst2(alat,plat,qqq,0,0,0,pwgmin,pwgmax,0,0,0, napwk(ikt),dum,dum,dum)!,dum)
+            call getgv2(alat,plat,qlat,qqq, pwgmax,1, napwk(ikt),dum)
+            !call gvlst2(alat,plat,qqq,0,0,0,pwgmin,pwgmax,0,0,0, napwk(ikt),dum,dum,dum)!,dum)
          enddo
          napwmx=maxval(napwk)
-         allocate( igv2(3,napwmx,nkt), kv(3*napwmx),igvx(napwmx,3))
+         allocate( igv2(3,napwmx,nkt))!, kv(3*napwmx),igvx(napwmx,3))
          do ikt = 1,nkt
             qqq = merge(qq(:,ikt),0d0,mod(pwmode/10,10) == 1)
-            igvx=0
-            call gvlst2(alat,plat,qqq,0,0,0,pwgmin,pwgmax,0,1,napwmx,napwk(ikt),kv,dum,igvx) 
-            igv2(:,:,ikt) = transpose(igvx)
+            !igvx=0
+            call getgv2(alat,plat,qlat,qqq, pwgmax,2, napwk(ikt),igv2(:,:,ikt)) 
+            !call gvlst2(alat,plat,qqq,0,0,0,pwgmin,pwgmax,0,1,napwmx,napwk(ikt),kv,dum,igvx) 
+            !igv2(:,:,ikt) = transpose(igvx)
          enddo
-         deallocate(kv,igvx)
+!         deallocate(kv,igvx)
          ! ... 
          imx=-999
          do ikt = 1,nkt

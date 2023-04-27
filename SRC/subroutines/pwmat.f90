@@ -87,14 +87,16 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,inn,ppovl,pwhovl)
   ! ... G vectors for the envelope (smooth hankel) functions
   !     Find ngmx = number of G's in PW expansion of basis for this qp:
   call pshpr(0)
-  call gvlst2(alat,plat,q,0,0,0,0d0,gcutH,0,0,1,    ngmx,xx,xx,xx)
-  allocate(igvx(3,ngmx),kv(3,ngmx))
-  block
-    integer:: igvxx(ngmx,3)
-    igvxx=0
-    call gvlst2(alat,plat,q,0,0,0,0d0,gcutH,0,1,ngmx, ngmx,kv,xx,igvxx)
-    igvx=transpose(igvxx)
-  endblock
+!  call gvlst2(alat,plat,q,0,0,0,0d0,gcutH,0,0,1,    ngmx,xx,xx,xx)
+  call getgv2(alat,plat,qlat,q, gcutH,1, ngmx,xx) 
+  allocate(igvx(3,ngmx))!,kv(3,ngmx))
+!  block
+!    integer:: igvxx(ngmx,3)
+!    igvxx=0
+    !call gvlst2(alat,plat,q,0,0,0,0d0,gcutH,0,1,ngmx, ngmx,kv,xx,igvxx)
+    call getgv2(alat,plat,qlat,q, gcutH,2, ngmx,igvx) 
+!    igvx=transpose(igvxx)
+!  endblock
   call poppr
   ! --- Expansion of envelope basis functions in PWs ---
   !     pwh(ig,j) = Fourier coff ig for envelope function j, where ig is index to igvx
@@ -135,7 +137,7 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,inn,ppovl,pwhovl)
   allocate(ppovlx(ngp,ngmx))
   call ipwovl(alat,plat,qlat,ngp,igv,ngmx,igvx,nbas,rmax,bas,ppovlx)
   pwhovl= matmul(ppovlx,pwh)
-  deallocate(yl,igvx,pwh,kv,ppovlx)
+  deallocate(yl,igvx,pwh,ppovlx)
 end subroutine pwmat
 subroutine ipwovl(alat,plat,qlat,ng1,igv1,ng2,igv2,nbas, rmax,bas,ppovl)
   !- Overlap matrix elements between interstitial plane waves

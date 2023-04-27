@@ -36,7 +36,7 @@ contains
     call tcx('m_igv2xall_init')
   end subroutine m_igv2xall_init
   subroutine m_igv2x_init(qp) !Set napw and igv2x_z for given qp
-    use m_lmfinit,only: pwmode=>ham_pwmode,pwemin,pwemax,alat=>lat_alat,stdo,nspc
+    use m_lmfinit,only: pwmode=>ham_pwmode,pwemax,alat=>lat_alat,stdo,nspc
     use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat
     use m_MPItk,only: master_mpi,procid,master
     use m_lmfinit,only: nlmto !    use m_shortn3_qlat,only: shortn3_qlat,nout,nlatout

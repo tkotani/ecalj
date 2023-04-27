@@ -95,6 +95,7 @@ subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv)!
   lgv   = mod(job0/4,4)/=0  !8,9 !Get gv
   lsort = mod(job0/8,2)/=0  !8,9 sorted
   lgpq  = mod(job/100,10)>4 !+500 or not
+  
   !! ... Basis vectors for real-space mesh and recip-space supercell
   nn1=n1
   nn2=n2
@@ -102,9 +103,13 @@ subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv)!
   n1min=0; n1max=nn1-1
   n2min=0; n2max=nn2-1
   n3min=0; n3max=nn3-1
-  if(nn1==0) call gvlstn(qlat(1,1),qlat(1,2),qlat(1,3),q,mshlst,gmax0,nn1) 
-  if(nn2==0) call gvlstn(qlat(1,2),qlat(1,3),qlat(1,1),q,mshlst,gmax0,nn2) 
-  if(nn3==0) call gvlstn(qlat(1,3),qlat(1,1),qlat(1,2),q,mshlst,gmax0,nn3) 
+  if(nn1*nn2*nn3==0) then
+     print *,'nn1,nn2,nn3=',nn1,nn2,nn3
+     call rx('gvlst2: require n1*n2*n3/=0')
+  endif   
+!  if(nn1==0) call gvlstn(qlat(1,1),qlat(1,2),qlat(1,3),q,mshlst,gmax0,nn1) 
+!  if(nn2==0) call gvlstn(qlat(1,2),qlat(1,3),qlat(1,1),q,mshlst,gmax0,nn2) 
+!  if(nn3==0) call gvlstn(qlat(1,3),qlat(1,1),qlat(1,2),q,mshlst,gmax0,nn3) 
   do m = 1, 3
      plat1(m,:) = plat(m,:)*[1d0/nn1,1d0/nn2,1d0/nn3]
      qlat1(m,:) = qlat(m,:)*[nn1,nn2,nn3]
@@ -188,48 +193,6 @@ subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv)!
   call poppr
   call tcx('gvlst2')
 end subroutine gvlst2
-subroutine gvlstn(q0,q1,q2,qp,mshlst,gmax0,nn)
-  implicit none
-  intent(in) ::   q0,q1,q2,qp,mshlst,gmax0
-  intent(out)::                            nn
-  !- Multiples of r.l.v. that bound cutoff gmax0  (r.l.v. reciplocal lattice vector)
-  ! ----------------------------------------------------------------------
-  !i Inputs
-  !i   q0    :r.l.v. for which bounds nmin and nmax are to be computed
-  !i   q1    :first  r.l.v. different from q0
-  !i   q2    :second r.l.v. different from q0
-  !i   qp    :k-point added to G vectors: sphere is centered G=qp.
-  !i   mshlst:An ordered list of integers used to restrict the assignment
-  !i         :of nn to one of an allowed list of points, should a value
-  !i         :of nn be assigned (see description for nn below).
-  !i         :If first entry is nonzero, mshlst(1..) = list of allowed
-  !i         :values nn may take.  mshlst(0) is the size of mshlst.
-  !i         :Certain fourier transform routines have restrictions
-  !i         :on the allowed mesh sizes; this constraint is designed
-  !i         :to handle that restriction.
-  !i  gmax0  :cutoff G
-  !o Outputs
-  !o     nn :   meshsize
-  !r Remarks
-  !r   q0,q1,q2,qp and G are all dimensionless (units of 2*pi/a)
-  ! ----------------------------------------------------------------------
-  integer :: nmin,nmax,nn,mshlst(0:*), indx
-  double precision :: q0(3),q1(3),q2(3),qp(3),gmax0,qperp(3),ddot,qqperp
-  ! ... qperp = q1 x q2 / |q1 x q2| ; qqperp = q . qperp
-  qperp=[q1(2)*q2(3) - q1(3)*q2(2),&
-       q1(3)*q2(1) - q1(1)*q2(3),&
-       q1(1)*q2(2) - q1(2)*q2(1)]
-  qperp  = qperp/sum(qperp**2)**.5 
-  qqperp = sum(q0*qperp)
-  nmax =  gmax0/abs(Qqperp) - sum(qp*qperp)/Qqperp + 1
-  nmin = -gmax0/abs(Qqperp) - sum(qp*qperp)/Qqperp - 1
-  nn = 2*max(iabs(nmin),nmax)+1
-  if (mshlst(0) /= 0) then
-     indx = 1
-     call hunti(mshlst(1),mshlst,nn,0,indx)
-     nn = mshlst(min(indx+1,mshlst(0)))
-  endif
-end subroutine gvlstn
 subroutine gvgetf(ng,n,kv,k1,k2,k3,c,c0)!- Gathers Fourier coefficients from 3D array c into list c0.
   implicit none
   integer :: ng,n,k1,k2,k3,kv(ng,3)
@@ -261,10 +224,8 @@ subroutine gvaddf(ng,kv,k1,k2,k3,c0,c)! Adds Fourier coefficients from list c0 i
      c(j1,j2,j3) = c(j1,j2,j3) + c0(ig)
   enddo
 end subroutine gvaddf
-subroutine mshsiz(alat,plat,gmax,ngabc,ng)
+subroutine mshsiz(alat,plat,gmax,ngabc,ng) !Finds dimensions for a mesh of G vectors that satisfy a cutoff
   use m_lgunit,only:stdo
-  !- Finds dimensions for a mesh of G vectors that satisfy a cutoff
-  ! ----------------------------------------------------------------------
   !i Inputs
   !i   alat  :length scale of lattice and basis vectors, a.u.
   !i   plat  :primitive lattice vectors, in units of alat
@@ -280,7 +241,7 @@ subroutine mshsiz(alat,plat,gmax,ngabc,ng)
   ! o        :satisfy cutoff criterion.
   ! o   ng    :number of G-vectors
   implicit none
-  integer :: ngabc(3),ng,job
+  integer :: ngabc(3),ng,job,j
   double precision :: alat,plat(3,3),gmax
   logical :: change
   integer :: npfac,pfac(10),fmax,i,indx,iprint,i1,i2,i3,nn,nmin,nmx(3),nmxn(3),k,ngabcn(3),ngn,nginit,PRTG,kxx(1,1)
@@ -328,7 +289,8 @@ subroutine mshsiz(alat,plat,gmax,ngabc,ng)
            !       The granularity of gvlstn may be too coarse.
            !       Don't assign, ngabcn(i) = nn but find next one smaller in mshlst
            indx = 1
-           call hunti(mshlst(1),mshlst,ngabc(i),0,indx)
+           !call hunti(mshlst(1),mshlst,ngabc(i),0,indx)
+           indx= findloc([(mshlst(j)<ngabc(i).and.ngabc(i)<=mshlst(j+1),j=1,mshlst(0)-1)],value=.true.,dim=1)
            indx = max(indx,1)
            ngabcn(i) = mshlst(indx)
         enddo
@@ -371,9 +333,49 @@ subroutine mshsiz(alat,plat,gmax,ngabc,ng)
 999 continue
   call tcx('mshsiz')
 end subroutine mshsiz
-subroutine ppfac(fmax,job,fac,nfac) !npfac,pfac,
-  !- Find all products of prime factors within some maximum
+subroutine gvlstn(q0,q1,q2,qp,mshlst,gmax0,nn)! Multiples of r.l.v. that bound cutoff gmax0  (r.l.v. reciplocal lattice vector)
+  implicit none
+  intent(in) ::   q0,q1,q2,qp,mshlst,gmax0
+  intent(out)::                            nn
   ! ----------------------------------------------------------------------
+  !i Inputs
+  !i   q0    :r.l.v. for which bounds nmin and nmax are to be computed
+  !i   q1    :first  r.l.v. different from q0
+  !i   q2    :second r.l.v. different from q0
+  !i   qp    :k-point added to G vectors: sphere is centered G=qp.
+  !i   mshlst:An ordered list of integers used to restrict the assignment
+  !i         :of nn to one of an allowed list of points, should a value
+  !i         :of nn be assigned (see description for nn below).
+  !i         :If first entry is nonzero, mshlst(1..) = list of allowed
+  !i         :values nn may take.  mshlst(0) is the size of mshlst.
+  !i         :Certain fourier transform routines have restrictions
+  !i         :on the allowed mesh sizes; this constraint is designed
+  !i         :to handle that restriction.
+  !i  gmax0  :cutoff G
+  !o Outputs
+  !o     nn :   meshsize
+  !r Remarks
+  !r   q0,q1,q2,qp and G are all dimensionless (units of 2*pi/a)
+  ! ----------------------------------------------------------------------
+  integer :: nmin,nmax,nn,mshlst(0:*), indx,i
+  double precision :: q0(3),q1(3),q2(3),qp(3),gmax0,qperp(3),ddot,qqperp
+  ! ... qperp = q1 x q2 / |q1 x q2| ; qqperp = q . qperp
+  qperp=[q1(2)*q2(3) - q1(3)*q2(2),&
+       q1(3)*q2(1) - q1(1)*q2(3),&
+       q1(1)*q2(2) - q1(2)*q2(1)]
+  qperp  = qperp/sum(qperp**2)**.5 
+  qqperp = sum(q0*qperp)
+  nmax =  gmax0/abs(Qqperp) - sum(qp*qperp)/Qqperp + 1
+  nmin = -gmax0/abs(Qqperp) - sum(qp*qperp)/Qqperp - 1
+  nn = 2*max(iabs(nmin),nmax)+1
+  if (mshlst(0) /= 0) then
+     indx = 1
+     !call hunti(mshlst(1),mshlst,nn,0,indx)
+     indx= findloc([(mshlst(i)<nn.and.nn<=mshlst(i+1),i=1,mshlst(0)-1)],value=.true.,dim=1)
+     nn = mshlst(min(indx+1,mshlst(0)))
+  endif
+end subroutine gvlstn
+subroutine ppfac(fmax,job,fac,nfac)   !- Find all products of prime factors within some maximum
   !i Inputs
   !i   npfac :number of prime factors
   !i   pfac  :list of prime factors
@@ -413,123 +415,122 @@ subroutine ppfac(fmax,job,fac,nfac) !npfac,pfac,
   enddo
   if (job /= 0) call ivheap(1,nfac,fac,fac(1+2*nfac),0)
 end subroutine ppfac
-subroutine hunti(xa,n,x,iprm,low)
-  !- Brackets a value within an ordered array of integer points
-  ! ----------------------------------------------------------------
-  !i Inputs
-  !i   xa  :array of points
-  !i   n   :size of array
-  !i   x   :value to bracket
-  !i   iprm:permutation table by which array xa is ordered
-  !i        iprm(1) <= 0 => assumes iprm(i) = i; iprm not referenced
-  !i   low : initial guess for output low
-  !o Outputs
-  !o   low : xa(low) < x <= xa(low+1)
-  !u Updates
-  !u   13 Sep 01 Handle case n=0
-  ! ----------------------------------------------------------------
-  !     implicit none
-  ! Passed parameters
-  integer :: n,low,iprm(n)
-  integer :: xa(n),x
-  ! Local variables
-  integer :: inc,jhi,jm
-  logical :: ascnd,liprm
-  integer :: xn
+! subroutine hunti(xa,n,x,iprm,low)  !- Brackets a value within an ordered array of integer points
+!   ! ----------------------------------------------------------------
+!   !i Inputs
+!   !i   xa  :array of points
+!   !i   n   :size of array
+!   !i   x   :value to bracket
+!   !i   iprm:permutation table by which array xa is ordered
+!   !i        iprm(1) <= 0 => assumes iprm(i) = i; iprm not referenced
+!   !i   low : initial guess for output low
+!   !o Outputs
+!   !o   low : xa(low) < x <= xa(low+1)
+!   !u Updates
+!   !u   13 Sep 01 Handle case n=0
+!   ! ----------------------------------------------------------------
+!   !     implicit none
+!   ! Passed parameters
+!   integer :: n,low,iprm(n)
+!   integer :: xa(n),x
+!   ! Local variables
+!   integer :: inc,jhi,jm
+!   logical :: ascnd,liprm
+!   integer :: xn
 
-  if (n == 0) then
-     low = 0
-     return
-  endif
+!   if (n == 0) then
+!      low = 0
+!      return
+!   endif
 
-  liprm = iprm(1) .gt. 0
-  if (liprm) then
-     ascnd = xa(iprm(n)) .gt. xa(iprm(1))
-  else
-     ascnd = xa(n) .gt. xa(1)
-  endif
-  if (low <= 0 .OR. low > n) then
-     low = 0
-     jhi = n+1
-     goto 3
-  endif
-  inc = 1
-  if (liprm) then
-     xn = xa(iprm(low))
-  else
-     xn = xa(low)
-  endif
-  if (x >= xn .eqv. ascnd) then
-1    jhi = low+inc
-     if (jhi > n) then
-        jhi = n+1
-     else
-        if (liprm) then
-           xn = xa(iprm(jhi))
-        else
-           xn = xa(jhi)
-        endif
-        if (x >= xn .eqv. ascnd) then
-           low = jhi
-           inc = inc+inc
-           goto 1
-        endif
-     endif
-  else
-     jhi = low
-2    low = jhi-inc
-     if (low < 1) then
-        low = 0
-     else
-        if (liprm) then
-           xn = xa(iprm(low))
-        else
-           xn = xa(low)
-        endif
-        if (x < xn .eqv. ascnd) then
-           jhi = low
-           inc = inc+inc
-           goto 2
-        endif
-     endif
-  endif
-3 if (jhi-low == 1) then
-     !   ... Find the first of values equal to x
-4    continue
-     if (low > 1) then
-        if (liprm) then
-           xn = xa(iprm(low-1))
-        else
-           xn = xa(low-1)
-        endif
-        if (xn == x) then
-           low = low-1
-           goto 4
-        endif
-     endif
-     !     ... if xa(low) = x, decrement low
-     if (low >= 1) then
-        if (liprm) then
-           xn = xa(iprm(low))
-        else
-           xn = xa(low)
-        endif
-        if (xn == x) low = low-1
-     endif
-     return
-  endif
-  jm = (jhi+low)/2
-  if (liprm) then
-     xn = xa(iprm(jm))
-  else
-     xn = xa(jm)
-  endif
-  if (x > xn .eqv. ascnd) then
-     low = jm
-  else
-     jhi = jm
-  endif
-  goto 3
-end subroutine hunti
+!   liprm = iprm(1) .gt. 0
+!   if (liprm) then
+!      ascnd = xa(iprm(n)) .gt. xa(iprm(1))
+!   else
+!      ascnd = xa(n) .gt. xa(1)
+!   endif
+!   if (low <= 0 .OR. low > n) then
+!      low = 0
+!      jhi = n+1
+!      goto 3
+!   endif
+!   inc = 1
+!   if (liprm) then
+!      xn = xa(iprm(low))
+!   else
+!      xn = xa(low)
+!   endif
+!   if (x >= xn .eqv. ascnd) then
+! 1    jhi = low+inc
+!      if (jhi > n) then
+!         jhi = n+1
+!      else
+!         if (liprm) then
+!            xn = xa(iprm(jhi))
+!         else
+!            xn = xa(jhi)
+!         endif
+!         if (x >= xn .eqv. ascnd) then
+!            low = jhi
+!            inc = inc+inc
+!            goto 1
+!         endif
+!      endif
+!   else
+!      jhi = low
+! 2    low = jhi-inc
+!      if (low < 1) then
+!         low = 0
+!      else
+!         if (liprm) then
+!            xn = xa(iprm(low))
+!         else
+!            xn = xa(low)
+!         endif
+!         if (x < xn .eqv. ascnd) then
+!            jhi = low
+!            inc = inc+inc
+!            goto 2
+!         endif
+!      endif
+!   endif
+! 3 if (jhi-low == 1) then
+!      !   ... Find the first of values equal to x
+! 4    continue
+!      if (low > 1) then
+!         if (liprm) then
+!            xn = xa(iprm(low-1))
+!         else
+!            xn = xa(low-1)
+!         endif
+!         if (xn == x) then
+!            low = low-1
+!            goto 4
+!         endif
+!      endif
+!      !     ... if xa(low) = x, decrement low
+!      if (low >= 1) then
+!         if (liprm) then
+!            xn = xa(iprm(low))
+!         else
+!            xn = xa(low)
+!         endif
+!         if (xn == x) low = low-1
+!      endif
+!      return
+!   endif
+!   jm = (jhi+low)/2
+!   if (liprm) then
+!      xn = xa(iprm(jm))
+!   else
+!      xn = xa(jm)
+!   endif
+!   if (x > xn .eqv. ascnd) then
+!      low = jm
+!   else
+!      jhi = jm
+!   endif
+!   goto 3
+! end subroutine hunti
 
 

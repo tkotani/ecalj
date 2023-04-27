@@ -7,7 +7,7 @@ contains
     use m_ext,only:   sname
     use m_struc_def,only: s_rv1, s_spec
     use m_suham,only: ndham=>ham_ndham !max dimension of hamiltonian +napwad (for so=0,2)
-    use m_lmfinit,only: ham_pwmode,pwemin,pwemax,ham_oveps,lrsig=>ham_lsig,nlmto,lso
+    use m_lmfinit,only: ham_pwmode,pwemax,ham_oveps,lrsig=>ham_lsig,nlmto,lso
     use m_lmfinit,only: ham_scaledsigma,lat_alat,mxorb,nkaph,nsp,nspc,nl,mxorb,ispec,sspec=>v_sspec
     use m_lmfinit,only: nbas,n0,nppn,nkap0,slabl,nmcorex=>nmcore,iantiferro
     use m_lattic,only: lat_plat, lat_qlat,rv_a_opos

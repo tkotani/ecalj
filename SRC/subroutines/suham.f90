@@ -8,7 +8,7 @@ contains
   subroutine m_suham_init() !Get Hamiltonian dimension
     use m_struc_def
     use m_lmfinit,only:lso,nspc,nsp,nlmto, &
-         pwmode=>ham_pwmode,pwemax,pwemin &
+         pwmode=>ham_pwmode,pwemax &!,pwemin &
          ,alat=>lat_alat, lat_tolft,nkaph, pot_nlma, pot_nlml ,stdo,nlmto
     use m_supot,only: lat_ng, rv_a_ogv
     use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat
@@ -46,7 +46,7 @@ contains
     ham_ndham = nlmto
     ndham     = nlmto
     if (pwemax>0 .AND. mod(pwmode,10)>0) then
-       Gmin = dsqrt(pwemin)
+!       Gmin = dsqrt(pwemin)
        Gmax = dsqrt(pwemax)
        if (mod(pwmode/10,10) == 1) then
           if(master_mpi)write(stdo,*)'Estimate max size of PW basis from combinations of recip. lattice vectors ...'
@@ -59,7 +59,8 @@ contains
                       q(m) = (qlat(m,1)/nqdiv)*j1 +(qlat(m,2)/nqdiv)*j2 +(qlat(m,3)/nqdiv)*j3
                    enddo
                    call pshpr(iprint()-40)
-                   call gvlst2(alat,plat,q,0,0,0,Gmin,Gmax,0,0,0,npw,xx,xx,xx)
+!                   call gvlst2(alat,plat,q,0,0,0,Gmin,Gmax,0,0,0,npw,xx,xx,xx)
+                   call getgv2(alat,plat,qlat,q,Gmax,1,npw,xx) 
                    call poppr
                    npwmin = min(npwmin,npw)
                    npwmax = max(npwmax,npw)
@@ -70,7 +71,8 @@ contains
        else
           q=0d0
           call pshpr(0)
-          call gvlst2(alat,plat,q,0,0,0,Gmin,Gmax,0,0,0,npw,xx,xx,xx)
+          !call gvlst2(alat,plat,q,0,0,0,Gmin,Gmax,0,0,0,npw,xx,xx,xx)
+          call getgv2(alat,plat,qlat,q,Gmax,1, npw,xx) 
           call poppr
           npwmin = npw
           npwmax = npw
@@ -82,7 +84,7 @@ contains
        !! Dimension maximum of Hamiltonian is ndhamx (ispx=1,nspx)
        !! Note spinoffdiag=T case: we use nspc,nsp,nspx,ndhamx (a little complicated, I think).
        !     nspx*nspc=nsp
-       if(master_mpi)write(stdo,ftox)'suham: PW basis Emin Emax',ftof([pwemin,pwemax],3),'npw ndham',npw,ndham
+       if(master_mpi)write(stdo,ftox)'suham: PW basis Emax=',ftof(pwemax,3),'npw,ndham=',npw,ndham
     endif
     if(nspc==2 .AND. nsp==2) then     !  spinoffdiag=.true.
        ham_nspx= 1
