@@ -1,6 +1,7 @@
 #NOTE: when you add your foobar.F, choose one of *_list.
 
 ELIB_list=\
+m_HamPMT.o\
 m_cmdpath.o\
 diagcv2.o \
 m_shortn3.o\

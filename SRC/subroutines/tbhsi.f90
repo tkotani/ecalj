@@ -1,11 +1,11 @@
 subroutine tbhsi(nspec,nermx,net,et,ipet,nrt,rt,iprt,ltop)!- Table of orbital envelope energies and smoothing radii
   use m_uspecb,only:uspecb
   use m_lmfinit,only: nkaphh,lhh
-  ! ----------------------------------------------------------------------
-  !i Inputs
-  !i   sspec :struct containing species-specific information
-  !i     Passed to: uspecb
-  !i   nspec  :number of species
+  !r Remarks
+  !r   An orbital (l,ik,is) has smoothing radius index ir=iprt(l,ik,is) and energy index ie=ipet(l,ik,is).  Its smoothing radius and
+  !r   energy are rt(ir) and et(ie), respectively.
+  !
+  !i   nspec :number of species
   !i   nermx :maximum allowed size of et,rt
   !o Outputs
   !o   net   :size of table et
@@ -15,10 +15,6 @@ subroutine tbhsi(nspec,nermx,net,et,ipet,nrt,rt,iprt,ltop)!- Table of orbital en
   !o   rt    :table of all inequivalent smoothing radii
   !o   iprt  :index to which entry in rt a given orbital belongs
   !o   ltop  :largest l at any site
-  !r Remarks
-  !r   An orbital (l,ik,is) has smoothing radius index ir=iprt(l,ik,is)
-  !r   and energy index ie=ipet(l,ik,is).  Its smoothing radius and
-  !r   energy are rt(ir) and et(ie), respectively.
   !u Updates
   !u   12 Aug 04 First implementation of extended local orbitals
   !u   10 Apr 02 Redimensionsed ipet,iprt to accomodate larger lmax
@@ -38,11 +34,11 @@ subroutine tbhsi(nspec,nermx,net,et,ipet,nrt,rt,iprt,ltop)!- Table of orbital en
   nrt = 0
   ltop = -1
   ! --- Loop over orbitals (is,io) ---
-  do  is = 1, nspec
+  specloop: do  is = 1, nspec
      call uspecb(is,rsmh,eh)
-     do  ik = 1, nkaphh(is) !nkape
+     nkaploop: do  ik = 1, nkaphh(is)! nkap radial index
         ltop = max0(ltop,lhh(ik,is))
-        do  l = 0, lhh(ik,is)
+        lloop: do  l = 0, lhh(ik,is) ! l index
            if (rsmh(l+1,ik) > 0) then
               !     ... Find eh, or add it to list
               j = 0
@@ -79,7 +75,7 @@ subroutine tbhsi(nspec,nermx,net,et,ipet,nrt,rt,iprt,ltop)!- Table of orbital en
                  iprt(l+1,ik,is) = nrt
               endif
            endif
-        enddo
-     enddo
-  enddo
+        enddo lloop
+     enddo nkaploop
+  enddo specloop
 end subroutine tbhsi

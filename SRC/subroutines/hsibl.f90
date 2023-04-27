@@ -73,8 +73,8 @@ contains
        call gvlst2(alat, plat, q, n1, n2, n3, gmin, gmax, 0, 509, ng, ng, kv, gvv, iv)!, iv)
        call poppr
 !       call tcx('gvlst2')
-       ! ... Tables of energies, rsm, indices to them
-       call tbhsi(nspec,nermx,net,etab,ipet,nrt,rtab,iprt,ltop)
+       ! ... 
+       call tbhsi(nspec,nermx,net,etab,ipet,nrt,rtab,iprt,ltop) !Tables of energies, rsm, indices to them
        !     ndimx = maximum hamiltonian dimension for any site (in m_lmfinit now)
        nlmtop = (ltop+1)**2
        allocate(gg(ng*3))
@@ -100,13 +100,13 @@ contains
           ofh1 = offl1(1)
           call uspecb(is1,rsmh1,eh1)
           call gtbsl1(1,norb1,ltab1,ktab1,rsmh1,eh1,ntab1,blks1) ![1,1,1,0,1]
-          irob1loop: do  iorb1 = 1, norb1
+          irob1loop: do  iorb1 = 1, norb1 !MTO orbital loop
              if (blks1(iorb1) == 0) cycle
              l1   = ltab1(iorb1)
              ik1  = ktab1(iorb1)
              nlm1 = l1**2+1
              nlm2 = nlm1 + blks1(iorb1)-1
-             ie   = ipet(l1+1,ik1,is1)
+             ie   = ipet(l1+1,ik1,is1) !energy index for etab(ie)
              ir   = iprt(l1+1,ik1,is1)
              fac1 = -4d0*pi*dexp(etab(ie)*rtab(ir)**2/4)/dsqrt(vol)
              offi = ndim1-nlm1+1
@@ -126,7 +126,7 @@ contains
                call gvgetf(ng,1,kv,k1,k2,k3,f,w_oc1(1,i)) !w_oc1(ipw,i) = <MTO(i)|vsm for ith pw
             enddo
           endblock fvsm
-          ib2loop: do 1010 ib2 = ib1, nbas !   ... Loop over second of (ib1,ib2) site pairs
+          ib2loop: do 1010 ib2 = ib1, nbas ! Loop over second of (ib1,ib2) site pairs
              is2 =ispec(ib2)
              ncut=ngcut(:,:,is2)
              call orblib2(ib2) !norb2,ltab2,ktab2,offl2
@@ -187,7 +187,7 @@ contains
                      if (blks2(io2) == 0) cycle
                      ofh2 = offl2(io2)
                      nlm2 = blks2(io2)
-                     do  i1 = 1, nlm1
+                     do i1 = 1, nlm1
                         do  i2 = 1, nlm2
                            h(ofh1+i1,ofh2+i2) = h(ofh1+i1,ofh2+i2) + hss(ofw1+i1,ofw2+i2)
                         enddo
@@ -200,7 +200,7 @@ contains
 1010      enddo ib2loop
           hsmvsmpw: block !   ... Matrix elements <Hsm| Vsm |PW>
             integer:: i2x,ig,io1,ofw1
-            do  ig = 1, napw
+            do ig = 1, napw
                i2  = nlmto+ig
                i2x = ifindiv(igapw(1,ig),iv,ng) ! index matching igv,igapw
                ofw1 = 0
@@ -240,10 +240,8 @@ contains
     enddo
     call tcx('hsibl')
   end subroutine hsibl
-  subroutine hsibl1(net,etab,nrt,rtab,ltop,alat,q0,ng,gvv, gg,g2,yl,he,hr)
+  subroutine hsibl1(net,etab,nrt,rtab,ltop,alat,q0,ng,gvv, gg,g2,yl,he,hr) !Make yl's, energy and rsm factors for list of G vectors
     use m_ropyln,only: ropyln
-    !- Make yl's, energy and rsm factors for list of G vectors
-    ! ----------------------------------------------------------------------
     !i Inputs
     !i   net   :size of table et
     !i   etab    :table of all inequivalent energies
