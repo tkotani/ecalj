@@ -45,7 +45,7 @@ contains
     real(8),parameter:: pi = 4d0*datan(1d0), tpi = 2d0*pi,y0 = 1/dsqrt(4d0*pi),faca=1d0
     real(8):: qdotr,a2,sp,gam,tpiba,rsmi, pp(3),x1,x2,xx,xx0,r,akap=1d99,kappa,h0,h0d,a,p1(3),cosp,sinp,&
          alat,awald,vol,exi(nxi),rsm(nxi),p(3),q(3), yl(nrx,*),qlv(3,*),dlv(3,*),y0fac(nrx),rsq(nrx)
-    complex(8):: hsmp(nlmx,nxi), hsm(nlmx,nxi),xxc,phase(nrx),phasex,img=(0d0,1d0)
+    complex(8):: hsmp(nlmx,nxi), hsm(nlmx,nxi),xxc,phase(nrx),img=(0d0,1d0) !,phasex
     logical :: dcmpre,ltmp
     dcmpre(x1,x2) = dabs(x1-x2) .lt. 1d-8
     !Shorten p: pp=matmul(transpose(qlat),p); call shortn3_plat(pp); p1 = matmul(plat,pp+nlatout(:,1))
@@ -317,7 +317,7 @@ contains
     endif
     ! ... Make sin(qR)*(H(rsm,r)-H(1/a,r)), cos(qR)*(H(rsm,r)-H(1/a,r))
 !    sp = tpi*sum(q*(p-p1))  !  if (job3 >= 2) sp = sp-tpi*sum(q*p1)
-    phasex= exp(img*sp)
+!    phasex= exp(img*sp)
     llooop: do l = 0, lmax
        i1=l*l+1
        i2=l*l+2*l+1
