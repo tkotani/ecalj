@@ -119,10 +119,6 @@ contains
     !r Remarks
     !r  s(L,M,k) contains integral of H_L^*(r-p1) (laplace)^k H_M(r-p2)
     !r  Gradient is wrt p1; use -ds for grad wrt p2.
-    !u Updates
-    !u   23 May 00 Made rsm1,e1,rsm2,e2 l-dependent
-    !u   22 Apr 00 Adapted from nfp hhig_bl.f
-    !u   28 Apr 97 adapted to handle case q=0 and e1 or e2 zero.
     implicit none
     integer :: mode,nlm1,nlm2,kmax,ndim1,ndim2,k0,ilm,jlm,k,l1,l1t,l2,l2t,lm11,lm12,lm21,lm22,lmx1,lmx2,m
     real(8):: p1(3),p2(3),q(3),rsm1(0:*) ,rsm2(0:*),e1(0:*),e2(0:*),dr(3)
@@ -184,10 +180,6 @@ contains
     !r Remarks
     !r  s(L,M,k) contains integral of H_L^*(r-p1) (laplace)^k H_M(r-p2)
     !r  Gradient is wrt p1; use -ds for grad wrt p2.
-    !u Updates
-    !u   22 Apr 00 Adapted from nfp hhig_bl.f
-    !u   28 Apr 97 adapted to handle case q=0 and e1 or e2 zero.
-    ! ----------------------------------------------------------------------
     implicit none
     integer :: nlm1,nlm2,kmax,ndim1,ndim2,k0,mlm1,mlm2 !jcg(1),indxcg(1),
     real(8):: q(3), dr(3),rsm1,rsm2,e1,e2 !cg(1),cy(1) 
@@ -596,9 +588,6 @@ contains
     !r Remarks
     !r   For (k=0,l=0) f equals the limit of hklbl minus the avg value.
     !r   For all other cases f is the limit of hklbl as e goes to zero.
-    !u Updates
-    !u   24 Apr 00 Adapted from nfp fkl_bl.f
-    ! ----------------------------------------------------------------------
     implicit none
     integer :: kmax,nlm,k0
     real(8):: p(3),rsm,ppin(3)
@@ -664,10 +653,6 @@ contains
     !r   s(L,M,k) contains integral of G_L^*(r-pg) (laplace)^k F_M(r-ph)
     !r            s,ds are generated for L=1..nlmg and M=1..nlmh
     !r   ds is gradient of s wrt pg; use -ds for grad wrt ph.
-    !u Updates
-    !u   28 Apr 97 adapted to handle case q=0 and e1 or e2 zero.
-    !u   22 Apr 00 Adapted from nfp hhig_bl.f
-    ! ----------------------------------------------------------------------
     implicit none
     integer :: nlmg,nlmh,kmax,ndim1,ndim2,kdim !jcg(*),indxcg(*),
     real(8) :: ph(3),pg(3),rsmg,rsmh  !,cg(1),cy(1)
@@ -988,10 +973,6 @@ contains
     !r   reducing accuracy at small r.
     !b Bugs
     !b   Doesn't properly handle case rsmh<0
-    !u Updates
-    !u   18 May 00 Made rsmh,eh l-dependent
-    !u   24 Apr 00 Adapted from nfp hxp_bl.f
-    ! ----------------------------------------------------------------------
     implicit none
     integer :: k0,kmax,ndim,nlmg,nlmh!,jcg(1),indxcg(1)
     real(8) :: eh(1),rsmg,rsmh(1),ph(3),pg(3),q(3) !,cg(1),cy(1)
@@ -1120,7 +1101,6 @@ contains
     a2  = 1/rsm**2
     ta2 = 2*a2
     gkl=0d0
-!    p1=p
     wkblock: block
       integer:: li,le
       real(8):: wk1(nkd,0:lmax),wk2(nkd,0:lmax),wkfac(nkd),r2(nkd)
@@ -1164,10 +1144,6 @@ contains
 30       enddo lloop
 301   enddo kloop2
     endblock wkblock
-    ! ... Put in phase to undo shortening, or different phase convention
-!    sp = tpi*sum(q*(p-p1)) 
-!    phase = exp(img*sp)
-!    if(sp/=0d0) gkl(0:kmax,1:nlm) = gkl(0:kmax,1:nlm)*phase
   end subroutine gklq
   subroutine hsmbl(p,rsm,e,q,lmax, hsm,hsmp)  !Bloch-sum of smooth Hankel functions and energy derivatives
     use m_lmfinit,only: alat=>lat_alat,tol=>lat_tol
@@ -1419,17 +1395,14 @@ contains
     !r Remarks
     !r   Only the functions for l=0 are generated (remaining are zero)
     !r   Equivalent to hkl_ml for p=(0,0,0) and lmax=0.
-    !u Updates
-    !u   24 Apr 00 Adapted from nfp hkl_os.f
-    ! ----------------------------------------------------------------------
     implicit none
     integer :: kmax,k
     real(8) :: rsm,e,h0k(0:kmax)
     real(8) :: akap,asm,cc,derfc,gam,gg,hh
     real(8),parameter:: pi = 4d0*datan(1d0),y0 = 1d0/dsqrt(4*pi)
+    if(e > 0d0) call rx('hklos: e is positive')! ... Make smooth Hankel at zero
     gam = rsm*rsm/4d0
     asm = 0.5d0/dsqrt(gam)
-    if(e > 0d0) call rx('hklos: e is positive')! ... Make smooth Hankel at zero
     akap = sqrt(abs(e))
     hh = 4d0*asm**3*exp(gam*e)/sqrt(pi)/(2*asm*asm)-akap*erfc(akap/(2*asm))
     h0k(0) = hh*y0
@@ -1441,26 +1414,10 @@ contains
     enddo
   end subroutine hklos
   subroutine gtbsl2(l1,lmxh,eh,rsmh, l2) ! Returns the highest l with rsm,e common to those of a given l
-    !i Inputs
-    !i   l1    :current l
-    !i   lmxh :basis l-cutoff
-    !i   eh    :energy of smoothed Hankel
-    !i   rsmh  :smoothing radius of smoothed hankel
-    !o Outputs
-    !o   l2    :large l for which eh and rsmh l1..l2 are in common
-    !r Remarks
-    !r   Routine used group functions, strux in blocks.
     implicit none
     integer :: l1,l2,lmxh
     real(8) :: rsmh(0:lmxh),eh(0:lmxh), e,rsm
-    e = eh(l1)
-    rsm = rsmh(l1)
-    l2 = l1
-    do 
-       if (l2 >= lmxh) return
-       if (rsmh(l2+1) /= rsm .OR. eh(l2+1) /= e) return
-       l2 = l2+1
-    enddo
+    l2 = findloc([(rsmh(l2+1)/=rsmh(l1).or.eh(l2+1)/=eh(l1).or.l2>=lmxh, l2=l1,lmxh)],value=.true.,dim=1) + l1-1
   end subroutine gtbsl2
   subroutine hxpos(rsmh,rsmg,eh,kmax,nlmh,k0, c) ! Coefficients to expand smooth hankels at (0,0,0) into P_kl's.
     !i Inputs
@@ -1484,10 +1441,6 @@ contains
     !r
     !r    Only diagonal elements ilmh=ilmg are nonzero and returned.
     !r    Routine is equivalent to hxpml with ph=pg.
-    !u Updates
-    !u   18 May 00 Made rsmh,eh l-dependent
-    !u   24 Apr 00 Adapted from nfp hxp_os.f
-    ! ----------------------------------------------------------------------
     integer :: k0,kmax,nlmh,ik,i1,i2,i
     real(8) :: eh(1),rsmg,rsmh(1),c(0:k0,nlmh)
     integer :: ndim,ilm,k,l,lmax,m,nm
