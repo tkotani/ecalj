@@ -533,11 +533,12 @@ contains
        rhol2(:,1,isp)=rhol2(:,1,isp)+y0/nsp*(rhocsm(:)+rhonsm(:)) !rhol2:full smooth compensated density rho2+gval +gnuc + pcore 
     enddo
     if(nsp==2) then
-       a1  = srfpi*sum(rwgt*(rho1(:,1,1)-rho1(:,1,2)))
-       a2  = srfpi*sum(rwgt*(rho2(:,1,1)-rho2(:,1,2)))
+       aloc = srfpi*sum(rwgt*((rho1(:,1,1)-rho1(:,1,2))-(rho2(:,1,1)-rho2(:,1,2))))
+       alocc= sum(rwgt*(rhoc(:,1)-rhoc(:,2)))
+    else
+       aloc  = 0d0
+       alocc = 0d0
     endif
-    aloc  = merge(a1-a2,0d0,nsp==2)
-    alocc = merge(sum(rwgt*(rhoc(:,1)-rhoc(:,2))),0d0,nsp==2)
     rhototal: block
       real(8):: ddot,rho1t(nr,nlml),rhol1t(nr,nlml), rho2t(nr,nlml),rhol2t(nr,nlml),rhoct(nr)
       rho1t =sum(rho1(:,:,1:nsp),dim=3) !spin sum total density
