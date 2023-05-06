@@ -74,6 +74,8 @@ program qg4gw
      iq0pinxxx=iq0pin
   elseif(iq0pin==4) then
      iq0pinxxx=2
+  elseif(iq0pin==3) then
+     iq0pinxxx=3
   elseif(iq0pin==201) then
      iq0pinxxx=1
      lnq0iadd=.true.
@@ -93,6 +95,7 @@ program qg4gw
   write(6,*) ' OK! End of qg4gw '
   if(iq0pin ==1)     call rx0( ' OK! qg4gw mode=1 normal mode')
   if(iq0pin ==2)     call rx0( ' OK! qg4gw mode=2 Readin Q0P mode')
+  if(iq0pin ==3)     call rx0( ' OK! qg4gw mode=3 epsPP mode')
   if(iq0pin ==4)     call rx0( ' OK! qg4gw mode=4 Readin Q0P mode. Set ngp=ngc=0')
   if(iq0pin ==201)   call rx0( ' OK! qg4gw mode=201 Generate Q0P and Q0P for xyz ')
   if(iq0pin ==10002) call rx0( ' OK! qg4gw mode=10002 Readin Q0P. GammaCell skipped.')

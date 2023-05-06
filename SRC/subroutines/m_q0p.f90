@@ -139,15 +139,18 @@ contains
              deallocate(qmin,qmax,ndiv)
           endif
        endif
-       allocate( wt(nq0i) )
-       wt = 0d0
-       !$$$         open (newunit=ifi00,file='Q0P')
-       !$$$         write(ifi00,"(3i5,a)") nq0i,iq0pin,0, " !nq0i iq0pin ---"//
-       !$$$     &        "This is readin Q0P from GWinput <QforEPS> ---"
-       !$$$         write(ifi00,"(d24.16,3x, 3d24.16,2i3)") (wt(i),q0i(1:3,i),0,epslgroup(i),i=1,nq0i)
-       !$$$         close(ifi00)
+       allocate( wt(nq0i),source=0d0 )
+    elseif(iq0pin==3) then
+       nq0i=5
+       allocate(epslgroup(nq0i))
+       epslgroup=0
+       allocate( q0i(3,nq0i) )
+       print *,' nq0i=',nq0i
+       do i=1,nq0i
+          q0i(:,i)= [0d0,0d0,0.01d0]*i
+       enddo   
+       allocate( wt(nq0i),source=0d0 )
     endif
-
     print *,' end fo writing Q0P'
     call cputid (0)
     !! Timereversal may require q0i. Anyway, qreduce0 will reduce the number of q points by symops.

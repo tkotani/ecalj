@@ -12,7 +12,7 @@ TARGET=$3
 echo "### START epsPP@"$nfpgw,' $MPI_SIZE= '$MPI_SIZE, ' $TARGET= '$TARGET
 set -x
 $nfpgw/lmf-MPIK --novxc $TARGET --jobgw=0 >& llmfgw00  #generate information files
-$nfpgw/qg4gw --job=2 >& lqg4gw02   #Generate q points for GW
+$nfpgw/qg4gw --job=3 >& lqg4gw03   #Generate q points for epsPP
 mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK $TARGET --jobgw=1 >& llmfgw01 #generate eigenfunctions for GW.
 #$nfpgw/lmf2gw   >&  llmf2gw  #Reformat data for gw
 #rm gwa.$TARGET* gwb.$TARGET* gw1.$TARGET* gw2.$TARGET*

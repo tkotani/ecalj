@@ -140,7 +140,7 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
      write(ifbz) ixyz(1:nq0i+nq0iadd)
      write(ifbz) lxklm,dmlx(1:nq0i,1:9),epinv(1:3,1:3,1:nq0i),epinvq0i(1:nq0i,1:nq0i)
      write(ifbz) wklm(1:(lxklm+1)**2)
-  elseif(iq0pin==2) then
+  elseif(iq0pin==2.or.iq0pin==3) then
      write(ifbz) epslgroup(1:nq0i)
   endif
   close(ifbz)
@@ -152,7 +152,7 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
   !! 2. offregular (not including Gamma)
   !! 3. regular    + Q0P
   !! 4. offregular + Q0P
-  if(iq0pin==2) then        !this is just for dielectric case
+  if(iq0pin==2.or.iq0pin==3) then        !this is just for dielectric case
      regmesh = qbzreg()
   else
      regmesh = .true.
