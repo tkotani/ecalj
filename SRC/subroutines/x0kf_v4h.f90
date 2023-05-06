@@ -1,10 +1,8 @@
 module m_x0kf
   use m_keyvalue,only : Getkeyvalue
   use m_pkm4crpa,only : Readpkm4crpa
-  use m_zmel,only:Get_zmel_init,Dconjg_zmel,Deallocate_zmel,Deallocate_zmel0,zmel,&
-       rwzmel,zmel0,setzmel0,unsetzmel0
-  ! qm0                      !GramSchmidt_zmel,
-  use m_freq,only:  npm, nwhis
+  use m_zmel,only: Get_zmel_init,zmel 
+  use m_freq,only: npm, nwhis
   use m_genallcf_v3,only:  nsp=>nspin ,nlmto,nctot
   use m_read_bzdata,only:  nqbz,ginv,nqibz,  rk=>qbz,wk=>wbz
   use m_rdpp,only: nbloch
@@ -28,6 +26,7 @@ module m_x0kf
   integer,allocatable:: nkmin(:), nkmax(:),nkqmin(:),nkqmax(:)
   real(8),allocatable:: whwc(:)
   integer,allocatable:: iwc(:),itc(:),itpc(:),jpmc(:)
+  complex(8),allocatable :: zmel0(:,:,:) 
 contains
   subroutine X0kf_v4hz_init_write(iq,is)
     integer:: iq,is,ix0
@@ -64,7 +63,6 @@ contains
     integer:: k,isp_k,isp_kq, iq, jpm, ibib, iw,igb2,igb1,it,itp,job,icount, nmbas
     real(8):: q(3), imagweight, wpw_k, wpw_kq
     logical :: iww2=.true., crpa !eibzmode, 
-    !!
     write(6,'(" x0kf_v4hz_init: job q =",i3,3f8.4)') job,q
     if(npm==1) then
        ncc=0
@@ -115,8 +113,8 @@ contains
        ! NOTE:
        !  q+rk n2b vec_kq  vec_kq_g geig_kq cphi_kq  ngp_kq ngvecp_kq  isp_kq
        !    rk n1b vec_k   vec_k_g  geig_k  cphi_k   ngp_k  ngvecp_k   isp_k
-       do 1251 jpm  = 1, npm ! npm=1 usually (or =2)
-          do 125 ibib = 1, nbnb(k,jpm) !---  ibib loop, ibib is decomposed to band index pair, it and itp
+       jpmloop: do 1251 jpm  = 1, npm ! npm=1 usually (or =2)
+          ibibloop: do 125 ibib = 1, nbnb(k,jpm) !---  ibib loop, ibib is decomposed to band index pair, it and itp
              !! n1b,n2b --> core after valence.  it,itp --> valence after core
              !          it_(ibib, jpm,k)= -999
              !          itp_(ibib,jpm,k)= -999
@@ -184,29 +182,20 @@ contains
                    !        write(6,"(a,6i5,d13.5)")'uuuuu k it itp iw jpm whw=',icount,k,it,itp,iw,jpm,whwc(icount)
                 endif
              enddo                 ! iw
-125       enddo !enddo
-1251   enddo !enddo
-110 enddo !enddo
+125       enddo ibibloop
+1251   enddo jpmloop
+110 enddo 
     ncount = icount
     ierr=0
     if(job==0) write(6,"('x0kf_v4hz_init: job=0 ncount ngb nqibz=',3i8)") ncount, ngb, nqibz
   end function x0kf_v4hz_init
   !! --------------------------------------------------------------------------------
   subroutine X0kf_zmel ( q,iq,k, isp_k,isp_kq) ! zmel= <phi phi |M_I> for chi0, or chi0_pm 
+    use m_zmel,only: Dconjg_zmel
     intent(in)   ::      q,iq,k, isp_k,isp_kq   
     integer:: k,isp_k,isp_kq,iq 
     real(8):: q(3)
-!    complex(8),allocatable :: zmelt(:,:,:)
-!    complex(8),allocatable::  z1p(:,:)
-!    logical,parameter:: debug=.false.
-!    real(8) :: imagweight
-!    logical :: iww2=.true.
-!    complex(8):: img=(0d0,1d0),zmelt2 !,zzz(ngbb)
-!    integer ::  nkmax1,nkqmax1, ib1, ib2, ngcx,ix,iy,igb !nkqmin, nkqmax,
-!    real(8)::  wpw_k,wpw_kq
     integer::  irot=1 !, neibz,icc,ig,ikp,i,j,itimer,icount,iele !,eibzmoden
-!    integer:: ieqbz,kold,nxxxx
-!    integer:: nkoff,nkqoff,ispold,izmel,nmini,nqini,nmtot,nqtot,ispold2 !nkmin_,nkqmin_,
     if(npm==1) then
        ncc=0
     else
@@ -215,7 +204,7 @@ contains
     call Get_zmel_init(q+rk(:,k),q,irot,q, nkmin(k)+nctot,nkmax(k)+nctot,isp_k, nkqmin(k),nkqmax(k),isp_kq, nctot,ncc,iprx=.false.)
     call Dconjg_zmel() 
   end subroutine x0kf_zmel
-  subroutine X0kf_v4hz (q, isp_k,isp_kq, iq, nmbas,  rcxq,epsppmode,iqxini,rfac00,q00)
+  subroutine X0kf_v4hz (q, isp_k,isp_kq, iq, nmbas,  rcxq,epsppmode,iqxini, q00)
     intent(in)   ::     q, isp_k,isp_kq, iq, nmbas,     epsppmode,iqxini
     !! === calculate chi0, or chi0_pm === ! eibzmode, 
     !! We calculate imaginary part of chi0 along real axis.
@@ -240,7 +229,7 @@ contains
     !! nlmto   = total number of atomic basis functions within MT
     !! nqbz    = number of k-points in the 1st BZ
     !     !
-    real(8),optional:: rfac00,q00(3)
+    real(8)::q00(3)
     logical,optional ::epsppmode
     integer:: k,isp_k,isp_kq,iq, jpm, ibib, iw,igb2,igb1,it,itp
     integer,optional::iqxini
@@ -258,15 +247,15 @@ contains
     integer ::  nkmax1,nkqmax1, ib1, ib2, ngcx,ix,iy,igb !nkqmin, nkqmax,
 !    logical :: eibzmode
 !    integer::  nwgt(nqbz)
-    real(8)::  wpw_k,wpw_kq,q1a,q2a!, vec_kcrpa(3),vec_kqcrpa(3)
+    real(8)::  wpw_k,wpw_kq,qa,q0a!, vec_kcrpa(3),vec_kqcrpa(3)
     integer::  irot=1         !, ntqxx,nbmax!,nctot
     integer::  neibz,icc,ig,ikp,i,j,itimer,icount,iele!,ngbb !eibzsym(ngrp,-1:1),,eibzmoden
     integer:: ieqbz,kold,nxxxx !igx(ngrp*2,nqbz),igxt(ngrp*2,nqbz),
-    integer::nkmin_,nkqmin_,izmel,ispold,nmini,nqini,nmtot,nqtot ,ispold2
+    integer::nkmin_,nkqmin_,izmel,ispold,nmini,nqini,nmtot,nqtot ,ispold2,ierr,iwmax,ifi0
     !     logical:: interbandonly,intrabandonly
-    logical:: izmel0,cmdopt0!,zmel0mode
-    !      integer,allocatable:: it_(:,:,:),itp_(:,:,:)
-    !!-----------------------------------------------------------
+!    logical:: izmel0,cmdopt0
+!    logical,save:: initzmel0=.true.
+    
     !! Main loop over k-points ---------------------------------------------------------
     !! z1p = <M_ibg1 psi_it | psi_itp> < psi_itp | psi_it M_ibg2 >
     !     ! zxq(iw,ibg1,igb2) = \sum_ibib imgw(iw,ibib)* z1p(ibib, igb1,igb2) !ibib means band pair (occ,unocc)
@@ -302,45 +291,14 @@ contains
     !! zmel(ngb, nctot+nt0,ncc+ntp0) in m_zmel
     !        nkmin:nt0,           nkqmin:ntp0
     !     nt0=nkmax-nkmin+1  , ntp0=nkqmax-nkqmin+1
-    !zmel0mode=cmdopt0('--zmel0')
-    if(.not.cmdopt0('--zmel0')) goto 2000 !goto main mode
-    kold = -999 !zmel0mode ==============================
-    zmel0modeicount: do icount = 1,ncount
-       k = kc(icount)
-       nkmin_  = nkmin(k)
-       nkqmin_ = nkqmin(k)
-       nmini= nkmin_
-       nqini= nkqmin_
-       if(kold/=k) then
-          call setzmel0()  !to zmel0 instead of zmel
-          call Deallocate_zmel0()
-          call x0kf_zmel(q00,iqxini,k, isp_k,isp_kq) !zmel0 because of setzmel0()
-          call unsetzmel0()
-          q1a=sum(q00**2)**.5
-          q2a=sum(q**2)**.5
-          rfac00=q2a/(q2a-q1a)
-          kold=k
-       endif
-       it  = itc(icount)  !occ      k
-       itp = itpc(icount) !unocc    q+k
-       iw  = iwc(icount)  !omega-bin
-       jpm = jpmc(icount)      ! \pm omega
-       do igb2=1,nmbas  !this part dominates cpu time most time consuming...........
-          do igb1=1,igb2
-             rcxq(igb1,igb2,iw,jpm) =  rcxq(igb1,igb2,iw,jpm) &
-                  + rfac00**2*(abs(zmel(igb1,it,itp))-abs(zmel0(igb1,it,itp)))**2 * whwc(icount)
-          enddo                   !compute difference for zmel0 mode
-       enddo
-    enddo zmel0modeicount 
-2000 continue !mainmode ===================================
+    kold = -999 
     mainloop: do 1000 icount = 1,ncount
        k = kc(icount)
        nkmin_  = nkmin(k)
        nkqmin_ = nkqmin(k)
        nmini= nkmin_
        nqini= nkqmin_
-       if(kold/=k) then
-          call Deallocate_zmel()
+       if(kold/=k) then 
           call x0kf_zmel(q, iq,k, isp_k,isp_kq) !Return zmel(igb q,  k it occ,   q+k itp unocc)
           kold=k
        endif
@@ -354,11 +312,10 @@ contains
        do igb2=1,nmbas  !this part dominates cpu time most time consuming...........
           do igb1=1,igb2
              rcxq(igb1,igb2,iw,jpm) =  rcxq(igb1,igb2,iw,jpm) &
-                     + dconjg(zmel(igb1,it,itp) )*zmel (igb2,it,itp) * whwc(icount)! whwc is ImgWeight by tetrahedron method.
+                  + dconjg(zmel(igb1,it,itp) )*zmel (igb2,it,itp) * whwc(icount)! whwc is ImgWeight by tetrahedron method.
           enddo
        enddo
 1000 enddo mainloop
-    call Deallocate_zmel()
     deallocate(nkmin,nkmax,nkqmin,nkqmax)!,skipk)
     deallocate(whwc,kc,itc,itpc,iwc,jpmc) !z1p
     !! Hermitianize. jun2012takao moved from dpsion5 ====
@@ -370,8 +327,7 @@ contains
        enddo
     enddo
     write(6,"(' --- x0kf_v4hz: end')") !, 3d13.5)")
-    if(debug) write(6,"(' --- ', 3d13.5)") &
-         sum(abs(rcxq(1:nmbas,1:nmbas,1:nwhis,1:npm))),sum((rcxq(1:nmbas,1:nmbas,1:nwhis,1:npm)))
+    if(debug) write(6,"(' --- ', 3d13.5)") sum(abs(rcxq(1:nmbas,1:nmbas,1:nwhis,1:npm))),sum((rcxq(1:nmbas,1:nmbas,1:nwhis,1:npm)))
   end subroutine x0kf_v4hz
 end module m_x0kf
 

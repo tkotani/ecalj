@@ -18,14 +18,13 @@ module m_zmel
   use m_hamindex0,only: Readhamindex0,iclasst
   use m_readVcoud,only: zcousq,ngc,ngb !! zcousq is the eigenfuncition of the Coulomb matrix
   ! OUTPUT: zmel(nbb,nmtot, nqtot) ,nbb:mixproductbasis, nmtot:middlestate, nqtot:endstate
-  complex(8),allocatable,protected,public :: zmel(:,:,:),zmel0(:,:,:) !for  Get_zmel
+  complex(8),allocatable,protected,public :: zmel(:,:,:)!,zmel0(:,:,:) !for  Get_zmel
   !                                                      zmel0 is just one another zmel which can be contained in m_zmel
   real(8),protected,public:: qm0(3) !for zmel0
   integer,protected:: nbb           !1st dimension of zmel. MPB
-  public:: Get_zmel_init, Dconjg_zmel, Deallocate_zmel, Deallocate_zmel0, &
-       Setppovlz, Setppovlz_chipm,  Mptauof_zmel,rwzmel &! & GramSchmidt_zmel (test code)
-       ,&
-       drvmelp3,setzmel0,unsetzmel0,ppbafp_v2 !these are for old-fashioned codes in wannier/
+  public:: Get_zmel_init, Dconjg_zmel, &!Deallocate_zmel, &!Deallocate_zmel0, &
+       Setppovlz, Setppovlz_chipm,  Mptauof_zmel, & !rwzmel &! & GramSchmidt_zmel (test code)
+       drvmelp3, ppbafp_v2 !these are for old-fashioned codes in wannier/ !setzmel0,unsetzmel0
   !!------------------------------------------------------
   !! set by Mptauof_zmel in advance
   private
@@ -38,7 +37,7 @@ module m_zmel
   complex(8),allocatable,private :: cphiq(:,:), cphim(:,:),cphitemp(:,:)
 !  logical:: modex0=.false.
   integer:: nkmin, nkqmin, isp_k, isp_kq,nmtot,nqtot,ispq_bk,ispm_bk
-  logical:: debug=.false.,zzmel0=.false.
+  logical:: debug=.false. !,zzmel0=.false.
   integer:: nbbx=0
 contains
   ! ssssssssssssssssssssssssssssssssss
@@ -57,18 +56,14 @@ contains
     enddo
   end subroutine GramSchmidt_zmel
   subroutine Dconjg_zmel()
-    if(zzmel0) then
-       zmel0 = dconjg(zmel0)
-    else
-       zmel = dconjg(zmel)
-    endif
+    zmel = dconjg(zmel)
   end subroutine Dconjg_zmel
-  subroutine Deallocate_zmel()
-    if(allocated(zmel)) deallocate(zmel)
-  end subroutine Deallocate_zmel
-  subroutine Deallocate_zmel0()
-    if(allocated(zmel0)) deallocate(zmel0)
-  end subroutine Deallocate_zmel0
+!  subroutine Deallocate_zmel()
+!    if(allocated(zmel)) deallocate(zmel)
+!  end subroutine Deallocate_zmel
+!  subroutine Deallocate_zmel0()
+!    if(allocated(zmel0)) deallocate(zmel0)
+!  end subroutine Deallocate_zmel0
   subroutine setppovlz(q,matz)
     intent(in)::       q,matz
     logical:: matz
@@ -187,33 +182,33 @@ contains
        enddo
     enddo
   end subroutine ppbafp_v2
-  subroutine rwzmel(iq,k,isp_k,isp_kq,rw,q,izmel0)
-    intent(in)::    iq,k,isp_k,isp_kq,rw,q,izmel0
-    logical,optional::izmel0
-    integer:: iq,k,isp_k,isp_kq,izmel,nmtot_,nqtot_
-    character(1):: rw
-    character(10) :: i2char
-    character*256::fff,fname
-    real(8),optional:: q(3)
-    integer::nnn
-    fname=trim(i2char(iq))//'_'//trim(i2char(k))//'_'//trim(i2char(isp_k))//trim(i2char(isp_kq))
-    open(newunit=izmel,file='zmel.'//trim(fname),form='unformatted')
-    if(rw=='r' .AND. present(izmel0)) then
-       read(izmel) nbb,nmtot_,nqtot_,qm0
-       if(allocated(zmel0)) deallocate(zmel0)
-       allocate(zmel0(1:nbb,1:nmtot_,1:nqtot_))
-       read(izmel) zmel0
-    elseif(rw=='r') then
-       read(izmel) nbb,nmtot_,nqtot_,qm0
-       if(allocated(zmel)) deallocate(zmel)
-       allocate(zmel(1:nbb,1:nmtot_,1:nqtot_))
-       read(izmel) zmel
-    else
-       write(izmel) nbb,nmtot,nqtot,q
-       write(izmel) zmel
-    endif
-    close(izmel)
-  end subroutine rwzmel
+  ! subroutine rwzmel(iq,k,isp_k,isp_kq,rw,q,izmel0)
+  !   intent(in)::    iq,k,isp_k,isp_kq,rw,q,izmel0
+  !   logical,optional::izmel0
+  !   integer:: iq,k,isp_k,isp_kq,izmel,nmtot_,nqtot_
+  !   character(1):: rw
+  !   character(10) :: i2char
+  !   character*256::fff,fname
+  !   real(8),optional:: q(3)
+  !   integer::nnn
+  !   fname=trim(i2char(iq))//'_'//trim(i2char(k))//'_'//trim(i2char(isp_k))//trim(i2char(isp_kq))
+  !   open(newunit=izmel,file='zmel.'//trim(fname),form='unformatted')
+  !   if(rw=='r' .AND. present(izmel0)) then
+  !      read(izmel) nbb,nmtot_,nqtot_,qm0
+  !      if(allocated(zmel0)) deallocate(zmel0)
+  !      allocate(zmel0(1:nbb,1:nmtot_,1:nqtot_))
+  !      read(izmel) zmel0
+  !   elseif(rw=='r') then
+  !      read(izmel) nbb,nmtot_,nqtot_,qm0
+  !      if(allocated(zmel)) deallocate(zmel)
+  !      allocate(zmel(1:nbb,1:nmtot_,1:nqtot_))
+  !      read(izmel) zmel
+  !   else
+  !      write(izmel) nbb,nmtot,nqtot,q
+  !      write(izmel) zmel
+  !   endif
+  !   close(izmel)
+  ! end subroutine rwzmel
   subroutine Get_zmel_init(q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc,iprx)
     intent(in)::           q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc,iprx
     ! ns1:ns2 is the range of middle states (count including core index (i=1,nctot). Thus kth valence is at nctot+k.
@@ -339,16 +334,16 @@ contains
       else
          call matm(dconjg(transpose(ppovlz)), dconjg(zmelt), zmel,nbb,ngb,nmtot*nqtot)
       endif
-      if(zzmel0) call move_alloc(from=zmel,to=zmel0)
+!      if(zzmel0) call move_alloc(from=zmel,to=zmel0)
       deallocate(zmelt)
     EndBlock ZmeltMain
   end subroutine get_zmel_init
-  subroutine setzmel0()
-    zzmel0=.true.
-  end subroutine setzmel0
-  subroutine unsetzmel0()
-    zzmel0=.false.
-  end subroutine unsetzmel0
+!  subroutine setzmel0()
+!    zzmel0=.true.
+!  end subroutine setzmel0
+!  subroutine unsetzmel0()
+!    zzmel0=.false.
+!  end subroutine unsetzmel0
   !> Mattrix elements <Plane psi |psi> from interstitial plane wave.
   !! zmelp(igc(qi),it(q2),itp(q1)) = <itp(for q1+G1)| it(for q2+G2) igc>
   !! NOTE: shtv = g(delta_{g^-1})

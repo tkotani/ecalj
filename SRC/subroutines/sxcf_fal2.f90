@@ -12,7 +12,7 @@ subroutine sxcf_fal3z(&
   use m_readqg,only:readqg0
   use m_readeigen,only: readeval
   use m_keyvalue,only: getkeyvalue
-  use m_zmel,only: Get_zmel_init,Setppovlz, Deallocate_zmel, zmel
+  use m_zmel,only: Get_zmel_init,Setppovlz, zmel ! Deallocate_zmel,
   use m_readVcoud,only:   Readvcoud, vcoud,vcousq,zcousq,ngb,ngc
   use m_wfac,only:wfacx2,weavx2
   implicit none
@@ -505,7 +505,7 @@ subroutine sxcf_fal3z(&
            ntp0 = ntq
            ntqxx= ntp0
            !! Get matrix element zmelt= rmelt + img*cmelt, defined in m_zmel.F---
-           if(allocated(zmel)) call Deallocate_zmel()
+!           if(allocated(zmel)) call Deallocate_zmel()
            call Get_zmel_init(q,qibz_k,irot,qbz_kr, 1,nbmax+nctot,isp, 1,ntqxx,isp, nctot,ncc=0,iprx=.false.)
            if(kx<= nqibz) then
               wtt = wk(kr)      !         wtx = 1d0
@@ -657,7 +657,7 @@ subroutine sxcf_fal3z(&
                  coh(itp,ip)  = coh(itp,ip) &
                       &                 + .5d0*wtt*sum(dreal(zwz0(1:nstate,itp)))
               enddo
-              call Deallocate_zmel()
+!              call Deallocate_zmel()
               deallocate(zw,zwz0)
               cycle
            endif
@@ -934,7 +934,7 @@ subroutine sxcf_fal3z(&
                  ! zmel (ngb, nstate, ntp0)
               enddo
               !              deallocate(zmel)
-              call Deallocate_zmel()
+              !call Deallocate_zmel()
               deallocate(zw)
            endif
            !---------------------------------------------
@@ -1045,7 +1045,7 @@ subroutine sxcf_fal3z(&
               enddo
            endif
            if(zwz3mode) then
-              call Deallocate_zmel()
+              !call Deallocate_zmel()
               deallocate(zw3)
            else
               deallocate(zwz)
@@ -1062,7 +1062,7 @@ subroutine sxcf_fal3z(&
         exx = exx + wik(ip) * exxq * 0.25d0
      endif
      if (allocated(zz)) deallocate(zz)
-     if (allocated(zmel))  call Deallocate_zmel()
+     !if (allocated(zmel))  call Deallocate_zmel()
      if (allocated(zzmel)) deallocate(zzmel)
      if (allocated(zw)) deallocate(zw)
      if (allocated(zwz)) deallocate(zwz)

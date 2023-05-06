@@ -11,9 +11,9 @@ TARGET=$3
 ######## THIS IS for no lfc mode. See hbasfp0 and hx0fp0 c2 case.
 echo "### START epsPP@"$nfpgw,' $MPI_SIZE= '$MPI_SIZE, ' $TARGET= '$TARGET
 set -x
-$nfpgw/lmf-MPIK --job=0 --novxc $TARGET --jobgw >& llmfgw00  #generate information files
+$nfpgw/lmf-MPIK --novxc $TARGET --jobgw=0 >& llmfgw00  #generate information files
 $nfpgw/qg4gw --job=2 >& lqg4gw02   #Generate q points for GW
-mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK --job=1 $TARGET --jobgw >& llmfgw01 #generate eigenfunctions for GW.
+mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK $TARGET --jobgw=1 >& llmfgw01 #generate eigenfunctions for GW.
 #$nfpgw/lmf2gw   >&  llmf2gw  #Reformat data for gw
 #rm gwa.$TARGET* gwb.$TARGET* gw1.$TARGET* gw2.$TARGET*
 $nfpgw/rdata4gw_v2 --job=0 >& lrdata4gw_v2 # Prepare all files for GW
@@ -21,6 +21,7 @@ $nfpgw/rdata4gw_v2 --job=0 >& lrdata4gw_v2 # Prepare all files for GW
 $nfpgw/heftet --job=1 >& leftet # A file EFERMI for hx0fp0 generated
 $nfpgw/hbasfp0 --job=4 >& lbas   # Product basis generation mode=4
 mpirun -np $MPI_SIZE $nfpgw/hvccfp0 --job=202 >& lvcc # Coulomb matrix for lbas 
-mpirun -np $MPI_SIZE $nfpgw/hx0fp0 --job=202 --zmel0 --interbandonly >& lx0_interband #EPS for interband
-mpirun -np $MPI_SIZE $nfpgw/hx0fp0 --job=202 --zmel0 --intrabandonly >& lx0_intraband #EPS for intraband
+mpirun -np $MPI_SIZE $nfpgw/hx0fp0 --job=202 --rcxq0  --interbandonly >& lx0_interband #EPS for interband
+mpirun -np $MPI_SIZE $nfpgw/hx0fp0 --job=202 --zmel0  --interbandonly >& lx0_interband #EPS for interband
+mpirun -np $MPI_SIZE $nfpgw/hx0fp0 --job=202 --zmel0  --intrabandonly >& lx0_intraband #EPS for intraband
 : OK! ==== All calclation finished for epsPP ====,$TARGET

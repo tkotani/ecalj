@@ -47,8 +47,7 @@ program hx0fp0
   use m_ll,only: ll
   use m_readgwinput,only: ReadGwinputKeys, &
        ecut,ecuts,nbcut,nbcut2,mtet,ebmx,nbmx,nmbas,imbas,egauss
-  use m_qbze,only: Setqbze, &
-       nqbze,nqibze,qbze,qibze
+  use m_qbze,only: Setqbze, nqbze,nqibze,qbze,qibze
   use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
   !! q0p
   !      use m_readq0p,only: Readq0p,
@@ -198,31 +197,27 @@ program hx0fp0
   complex(8):: vc1vc2
   !      integer,allocatable:: neibz(:),nwgt(:,:),ngrpt(:),igx(:,:,:),igxt(:,:,:),eibzsym(:,:,:)
   integer,allocatable:: nwgt(:,:)
-
   real(8),allocatable:: aik(:,:,:,:)
   integer,allocatable:: aiktimer(:,:)
   integer:: l2nl
   logical:: tiii,iprintx,symmetrize,eibzmode !,eibz4x0
   real(8):: qread(3),imagweight,q00(3),rfac00,q1a,q2a
-
   character(128):: vcoudfile,aaax,itag
   integer:: src,dest
   logical:: lqall
   integer,allocatable ::  invgx(:) !iclasst(:),
   integer:: ificlass,k
   complex(8),allocatable:: ppovl_(:,:)
-
   logical:: readw0w0itest=.false.,hx0,cmdopt0
-
-
-  !      real(8)::ebmx
-  integer:: ifq0p,ifwc,ifif,ierr,iqxx !nbmx,mtet(3),
+  integer:: ifq0p,ifwc,ifif,ierr,iqxx,ifi0
   real(8),allocatable:: ekxx1(:,:),ekxx2(:,:)
-  !      integer:: nqbze,nqibze
-  !      real(8),allocatable:: qbze(:,:),qibze(:,:)
   logical:: cmdopt2,zmel0mode
   character(20):: outs=''
-  !! -------------------------------------------------------------------
+
+  logical,save:: initzmel0=.true.
+  real(8):: q0a,qa
+  complex(8),allocatable:: rcxq0(:,:,:,:)
+  
   call MPI__Initialize()
   call M_lgunit_init()
   call MPI__consoleout('hx0fp0')
@@ -250,8 +245,6 @@ program hx0fp0
   endif
   call MPI__Broadcast(ixc)
   call cputid(0)
-
-
   !! Set switches: ---
   !!  normalm: normal eps mode
   !!    crpa: crpa mode
@@ -307,7 +300,6 @@ program hx0fp0
   else
      call rx( ' hx0fp0: given mode ixc is not appropriate')
   endif
-
   call Read_BZDATA(hx0)
   write(6,"(' nqbz nqibz ngrp=',3i5)") nqbz,nqibz,ngrp
   if(MPI__root) then
@@ -327,8 +319,7 @@ program hx0fp0
   if(nqbz /=nqbzt ) call rx( ' hx0fp0_sc: nqbz /=nqbzt  in hbe.d')
   if(nlmto/=nlmtot) call rx('hx0fp0: nlmto/=nlmtot in hbe.d')
   call ReadGWinputKeys()    !Readin GWinput
-  !! Readin Offset Gamma --------
-  !      call ReadQ0P()
+  !! Readin Offset Gamma --------  !      call ReadQ0P()
   write( 6,*) ' num of zero weight q0p=',neps
   write(6,"(i3,f14.6,2x, 3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i)
   !! Readin q+G. nqbze and nqibze are for adding Q0P related points to nqbz and nqibz.
@@ -359,18 +350,15 @@ program hx0fp0
   call Setitq()
   !! Pointer to optimal product basis
   !     nblochpmx = nbloch + ngcmx !rdpp \in mptauof_zmel \in m_zmel
-  allocate(ngveccB(3,ngcmx)) ! work arry
+  allocate(ngveccB(3,ngcmx)) 
   iqxend = nqibz + nq0i
   write(6,*) ' nqibz nqibze=',nqibz,nqibze
-  !! Initialization of readEigen
-  call Readhamindex()
+  call Readhamindex() ! Initialization of readEigen
   call init_readeigen() !EVU EVD are read in init_readeigen
   call init_readeigen2()
   if(verbose()>50) print *,'eeee exit of init_readeigen2'
-  !! Frequency
   call Getfreq3(lqall,epsmode,realomega,imagomega,ua,mpi__root)
-  !! Write freq_r
-  if(realomega .AND. mpi__root) then
+  writefreq_r: if(realomega .AND. mpi__root) then  
      open(newunit=ifif,file='freq_r') !write number of frequency points nwp and frequensies in 'freq_r' file
      write(ifif,"(2i8,'  !(a.u.=2Ry)')") nw+1, nw_i
      do iw= nw_i,-1
@@ -380,22 +368,20 @@ program hx0fp0
         write(ifif,"(d23.15,2x,i6)") freq_r(iw),iw
      enddo
      close(ifif)
-  endif
+  endif writefreq_r
   if(MPI__root) write(6,"(' nw=',i5)") nw
   nwp = nw+1
   !! Get eigenvector corresponds to exp(iqr) (q is almost zero).
   if(epsmode) allocate(epsi(nw_i:nw,neps))
-  !! Tetrahedron initialization
-  !noccxv = maxocc2 (nspin,ef, nband, qbze,nqbze) ! maximum no. occupied valence states
-  block
+  Tetrahedroninitialization: block
     real(8):: ekt(nband,nqbze,nspin)
     do is = 1,nspin
        do iq = 1,nqbze
           ekt(:,iq,is)= readeval(qbze(:,iq),is)
        enddo
     enddo
-    noccxv = maxval(count(ekt(1:nband,1:nqbze,1:nspin)<ef,1))
-  endblock
+    noccxv = maxval(count(ekt(1:nband,1:nqbze,1:nspin)<ef,1)) ! maximum no. occupied valence states
+  endblock Tetrahedroninitialization
   if(noccxv>nband) call rx( 'hx0fp0: all the bands filled! too large Ef')
   noccx  = noccxv + nctot
   if (MPI__root) then
@@ -405,13 +391,12 @@ program hx0fp0
   endif
   allocate( zw(nblochpmx,nblochpmx) )
   nspinmx = nspin
-
-  !! Set iqxini !omitqbz means skip loopf for iq=1,nqibz
-  if(omitqbz) then
+  if(omitqbz) then !! Set iqxini !omitqbz means skip loopf for iq=1,nqibz
      iqxini= nqibz + 1
   else
      iqxini= 1
   endif
+  if(cmdopt0('--rcxq0')) iqxend=iqxini
   if( chipm ) then !transverse spin susceptibility
      allocate(aimbas(nmbas))
      aimbas(1:nmbas)   = abs(imbas(1:nmbas))
@@ -496,16 +481,11 @@ program hx0fp0
   allocate( llw(nw_i:nw,nq0i), llwI(niw,nq0i) )
   !! ======== Loop over iq ================================
   if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
-  zmel0mode=cmdopt0('--zmel0')
+!  zmel0mode=cmdopt0('--zmel0')
   !      do 1000 iqxx=1,2          !for iq=1 at first for zme0mode
   !         if(iqxx==2.and.(.not.zmel0mode)) exit
   !         if(zmel0mode) call MPI__barrier()
-  do 1001 iq = iqxini,iqxend  ! NOTE: q=(0,0,0) is omitted when iqxini=2
-     if(zmel0mode) then
-        if(iq==iqxini) cycle
-        !            if(iqxx==1.and.iq/=iqxini) cycle
-        !            if(iqxx==2.and.iq==iqxini) cycle
-     endif
+  iqloop: do 1001 iq = iqxini,iqxend  ! NOTE: q=(0,0,0) is omitted when iqxini=2
      if( .NOT. MPI__task(iq) ) cycle
      call cputid (0)
      q  = qibze(:,iq)
@@ -605,7 +585,7 @@ program hx0fp0
      zxq=0d0;  zxqi=0d0;  rcxq = 0d0
      kold=-999
      isold=-999
-     do 1003 is = 1,nspinmx
+     isloop: do 1003 is = 1,nspinmx
         write(6,"(' ##### ',2i4,' out of nqibz+n0qi nsp=',2i4,' ##### ')")iq, is, nqibz + nq0i,nspin
         if(debug) write(6,*)' niw nw=',niw,nw
         !!        chi(charge) or chi_+-(spin when chipm=T)
@@ -623,27 +603,11 @@ program hx0fp0
         call gettetwt(q,iq,is,isf,ekxx1,ekxx2,nband)!,,nwgt(:,iq)eibzmode)
         !! == x0kf_v4hz is the main routine to accumalte imaginary part of x0 into rcxq ==
         epsppmode=  epsmode.and.nolfco
+        write(6,*)'epsppmode=',epsppmode
         ierr = x0kf_v4hz_init(0, q, is, isf, iq, nmbas_in,crpa)
         ierr = x0kf_v4hz_init(1, q, is, isf, iq, nmbas_in,crpa)
-        !, eibzmode, nwgt(:,iq)
-        write(6,*)'epsppmode=',epsppmode
-        !$$$          do icount = 1,ncount
-        !$$$            k = kc(icount)
-        !$$$            if(k/=kold.or.is/=isold) then
-        !$$$               call x0kf_zmel(q,      iq,k, is,isf)
-        !$$$               if(zmel0mode) then
-        !$$$                 call setzmel0()
-        !$$$                 call x0kf_zmel(q00,iqxini,k, is,isf)
-        !$$$                 call unsetzmel0()
-        !$$$                 q1a=sum(q00**2)**.5
-        !$$$                 q2a=sum(q**2)**.5
-        !$$$                 rfac00=q2a/(q2a-q1a)
-        !$$$               endif
-        !$$$               kold=k
-        !$$$               isold=is
-        !$$$            endif
-        !$$$          enddo
-        call x0kf_v4hz(q,is,isf,iq,nmbas_in,rcxq,epsppmode,iqxini,rfac00=rfac00,q00=q00) !,eibzmode
+        call x0kf_v4hz(q,is,isf,iq,nmbas_in,rcxq,epsppmode,iqxini,q00=q00) !,eibzmode
+        call tetdeallocate() !--> deallocate(ihw,nhw,jhw, whw,ibjb,n1b,n2b)
         !  rcxq is the accumulating variable for spins
         !!    Symmetrize and convert to Enu basis by dconjg(tranpsoce(zcousq)*rcxq8zcousq if eibzmode
         ! if(is==nspinmx .OR. chipm) then !Apr2015. TK think " .OR. chipm" is required for chipm mode
@@ -652,9 +616,25 @@ program hx0fp0
         !    call x0kf_v4hz_symmetrize(q,iq,nolfco,zzr,nmbas_in,chipm,eibzmode,eibzsym(:,:,iq),rcxq)
         !    !  crystal symmetry of rcxq is recovered for EIBZ mode.
         ! endif
-        call tetdeallocate() !--> deallocate(ihw,nhw,jhw, whw,ibjb,n1b,n2b)
         if(debug) write(6,"(a)") ' --- goto dpsion5 --- '
         if(is==nspinmx .OR. chipm) then
+           if(cmdopt0('--rcxq0')) then
+              open(newunit=ifi0,file='rcxq0',form='unformatted')
+              write(ifi0)rcxq
+              close(ifi0)
+              goto 1001
+           elseif(cmdopt0('--zmel0')) then
+              if(initzmel0) then
+                 open(newunit=ifi0,file='rcxq0',form='unformatted')
+                 allocate(rcxq0,mold=rcxq)
+                 read(ifi0)rcxq0
+                 close(ifi0)
+                 initzmel0=.false.
+              endif
+              q0a=sum(q00**2)**.5
+              qa=sum(q**2)**.5
+              if(abs(q0a-qa)>1d-12) rcxq = qa**2/(qa**2-q0a**2)*(rcxq - rcxq0)
+           endif
            write(6,"('  nmbas1,nmbas2=',2i10)") nmbas1,nmbas2
            call dpsion5(realomega, imagomega, &
                 rcxq, nmbas1,nmbas2, zxq, zxqi, &
@@ -667,12 +647,9 @@ program hx0fp0
            write(6,*)' --- end of dpsion5 ----',sum(abs(zxq)),sum(abs(zxqi))
         endif
         continue  !end of spin loop =====
-1003 enddo
-     if(allocated(rcxq) ) deallocate(rcxq)
-
-     !! ===  RealOmega ====================================
-     !     ! ===  RealOmega === W-V: WVR and WVI. Wing elemments: llw, llwi LLWR, LLWI
-     if(realomega .AND. ( .NOT. epsmode)) then
+1003 enddo isloop
+     if(allocated(rcxq)) deallocate(rcxq)
+     romegamode: if(realomega .AND. ( .NOT. epsmode)) then ! ===  RealOmega === W-V: WVR and WVI. Wing elemments: llw, llwi LLWR, LLWI
         call WVRllwR(q,iq,zxq,nmbas1,nmbas2)
         deallocate(zxq)
      elseif(realomega .AND. epsmode) then
@@ -698,7 +675,7 @@ program hx0fp0
         if(allocated(epstilde)) deallocate(epstilde,epstinv)
         allocate(epstilde(ngb,ngb),epstinv(ngb,ngb))
         !     ! === iw loop for real axiw ===
-        do 1015 iw  = nw_i,nw
+        iwloop: do 1015 iw  = nw_i,nw
            frr= dsign(freq_r(abs(iw)),dble(iw))
            if( .NOT. chipm) then
               if(debug)write(6,*) 'xxx2 epsmode iq,iw=',iq,iw
@@ -726,17 +703,14 @@ program hx0fp0
                  epstinv(ix+1:ngb,ix+1:ngb)=epstilde(ix+1:ngb,ix+1:ngb)
                  call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
                  epsi(iw,iqixc2)= epstinv(1,1)
-                 write(6,'( " iq iw omega eps epsi  wLFC=" &
-                      ,2i6,f8.3,2e23.15,3x, 2e23.15)') &
+                 write(6,'( " iq iw omega eps epsi  wLFC=",2i6,f8.3,2e23.15,3x, 2e23.15)') &
                       iqixc2,iw,2*frr,1d0/epsi(iw,iqixc2),epsi(iw,iqixc2)
                  write(6,*)
-                 write(ifepsdat,'(3f12.8,2x,d12.4,2e23.15,2x,2e23.15)') &
-                      q, 2*frr,1d0/epsi(iw,iqixc2),epsi(iw,iqixc2)
+                 write(ifepsdat,'(3f12.8,2x,d12.4,2e23.15,2x,2e23.15)') q, 2*frr,1d0/epsi(iw,iqixc2),epsi(iw,iqixc2)
               endif
-              !     ! ChiPM mode
-           elseif(chipm) then
+           elseif(chipm) then ! ChiPM mode without LFC
               allocate( x0meanx(nmbas,nmbas) )
-              if(nolfco) then ! ChiPM mode without LFC
+              if(nolfco) then 
                  !$$$  c! --- three lines below may work for test purpose for legas. But not sure.
                  !$$$  c       vcmean= sum( dconjg(gbvec) * matmul(vcoul,gbvec) )
                  !$$$  c       write(ifchipmn,'(3f12.8,2x,f8.5,2x,2e23.15)')
@@ -751,20 +725,18 @@ program hx0fp0
                             sum( svec(1:nbloch,imb1)* &
                             matmul(zxq(1:nbloch,1:nbloch,iw),svec(1:nbloch,imb2)))
                     enddo
-                 enddo
-                 !     x0meanx= <m|chi^+-(\omega)|m>/<m|m>**2
+                 enddo                 !     x0meanx= <m|chi^+-(\omega)|m>/<m|m>**2
               endif
               do imb1=1,nmbas
                  do imb2=1,nmbas
-                    x0meanx(imb1,imb2) = &
-                         x0meanx(imb1,imb2)/mmnorm(imb1)/mmnorm(imb2)
+                    x0meanx(imb1,imb2) = x0meanx(imb1,imb2)/mmnorm(imb1)/mmnorm(imb2)
                  enddo
               enddo
               write(ifchipmn_mat,'(3f12.8,2x,f20.15,2x,255e23.15)')q, 2*schi*frr, x0meanx(:,:)
               if( .NOT. nolfco) write(ifchipm_fmat) q, 2*schi*frr, zxq(1:nbloch,1:nbloch,iw)
               deallocate(x0meanx)
            endif
-1015    enddo
+1015    enddo iwloop
         if( allocated(zzr)   ) deallocate(zzr)
         if( allocated(x0mean)) deallocate(x0mean)
         if( allocated(gbvec) ) deallocate(gbvec)
@@ -781,17 +753,13 @@ program hx0fp0
               close(ifepsdat) !  = iclose(fileps)
            endif
         endif
-     endif
-     !! RealOmega end ==============================
-
-     !! ImagOmega start ============================
-     if (imagomega .AND. ( .NOT. epsmode)) then
+     endif romegamode
+     iomegamode: if (imagomega .AND. ( .NOT. epsmode)) then ! ImagOmega start ============================
         call WVIllwI(q,iq,zxqi,nmbas1,nmbas2)
         deallocate(zxqi)
      elseif(imagomega .AND. epsmode) then
         call rx('hx0fp0: imagoemga=T and epsmod=T is not implemented')
-     endif
-     !! ImagOmega end =================
+     endif iomegamode
      if(allocated(vcoul)) deallocate(vcoul)
      if(allocated(zw0)) deallocate(zw0)
      if(allocated(zxq )) deallocate(zxq)
@@ -800,42 +768,17 @@ program hx0fp0
         close(ifrcwi)
         close(ifrcw)
      endif
-1001 enddo
-  ! 1000 continue
-  !! =================== end of loop 1001 for q point ========================
+1001 enddo iqloop
   call MPI__barrier()
+  if(cmdopt0('--rcxq0')) call rx0('end of --rcxq0 mode to generete rcxq0')
   if( .NOT. epsmode) call MPI__sendllw2(iqxend) !!! mpi send LLW to root.
 
   !! == W(0) divergent part and W(0) non-analytic constant part.==
   !!   Note that this is only for q=0 -->iq=1
   !! get w0 and w0i (diagonal element at Gamma point
   !! This return w0, and w0i
-  if(( .NOT. epsmode) .AND. MPI__rank==0) then
-     call w0w0i(nw_i,nw,nq0i,niw,q0i) !llw,llwI,
-     !! === w0,w0i are stored to zw for q=0 ===
-     !! === w_ks*wk are stored to zw for iq >nqibz ===
-     !$$$        do iq = 1,1             !iq=1 only 4pi/k**2 /eps part only ! iq = iqxini,iqxend
-     !$$$          q = qibze(:,iq)
-     !$$$          do ircw=1,2
-     !$$$           if  (ircw==1) then
-     !$$$              nini=nw_i
-     !$$$              nend=nw
-     !$$$              open(newunit=ifrcwx, file='WVR.'//i2char(iq), form='unformatted', access='direct',recl=mrecl)
-     !$$$           elseif(ircw==2) then
-     !$$$              nini=1
-     !$$$              nend=niw
-     !$$$              open(newunit=ifrcwx, file='WVI.'//i2char(iq), form='unformatted',access='direct',recl=mrecl)
-     !$$$            endif
-     !$$$            do iw=nini,nend
-     !$$$              read(ifrcwx, rec= iw-nini+1) zw
-     !$$$              if(ircw==1) zw(1,1) = w0(iw)
-     !$$$              if(ircw==2) zw(1,1) = w0i(iw)
-     !$$$              write(ifrcwx,rec= iw-nini+1 ) zw
-     !$$$            enddo
-     !$$$            close(ifrcwx)
-     !$$$          enddo
-     !$$$        enddo
-  endif
+  if(( .NOT. epsmode) .AND. MPI__rank==0) call w0w0i(nw_i,nw,nq0i,niw,q0i) !llw,llwI,
+  ! === w0,w0i are stored to zw for q=0 ===    !! === w_ks*wk are stored to zw for iq >nqibz ===
 
   !$$$!! --- legas mode is not working now. Need fixing... voltot ntot are not given.
   !$$$      if(epsmode.and.legas) then
