@@ -229,7 +229,7 @@ contains
     !! nlmto   = total number of atomic basis functions within MT
     !! nqbz    = number of k-points in the 1st BZ
     !     !
-    real(8)::q00(3)
+    real(8),optional::q00(3)
     logical,optional ::epsppmode
     integer:: k,isp_k,isp_kq,iq, jpm, ibib, iw,igb2,igb1,it,itp
     integer,optional::iqxini

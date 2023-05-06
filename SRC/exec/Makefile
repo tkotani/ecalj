@@ -27,7 +27,7 @@ progslm2 = mkhamloc plotmodel initmlo mkinput lmfham1
 progsgw2 = hhomogas  hef convgwin kino_input_test hqpe_qsgw hecor eout eout2 
 progsw2  = huumat hpsig htbplot
 
-script  = cleargw* dqpu eps* gw_* gwg* gwu* gws* gwp*  mkG* chipm_mat genMLWF genMLWF_vw genMLWF2 genMLWFmod RPAWannier* FLEX_interaction.py genMLWFhso
+script  = readeps.py cleargw* dqpu eps* gw_* gwg* gwu* gws* gwp*  mkG* chipm_mat genMLWF genMLWF_vw genMLWF2 genMLWFmod RPAWannier* FLEX_interaction.py genMLWFhso
 #genMLWFdipole
 
 all: mkobj progs tags

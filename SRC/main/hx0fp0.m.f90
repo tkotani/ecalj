@@ -396,7 +396,7 @@ program hx0fp0
   else
      iqxini= 1
   endif
-  if(cmdopt0('--rcxq0')) iqxend=iqxini
+!  if(cmdopt0('--rcxq0')) iqxend=iqxini
   if( chipm ) then !transverse spin susceptibility
      allocate(aimbas(nmbas))
      aimbas(1:nmbas)   = abs(imbas(1:nmbas))
@@ -481,10 +481,6 @@ program hx0fp0
   allocate( llw(nw_i:nw,nq0i), llwI(niw,nq0i) )
   !! ======== Loop over iq ================================
   if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
-!  zmel0mode=cmdopt0('--zmel0')
-  !      do 1000 iqxx=1,2          !for iq=1 at first for zme0mode
-  !         if(iqxx==2.and.(.not.zmel0mode)) exit
-  !         if(zmel0mode) call MPI__barrier()
   iqloop: do 1001 iq = iqxini,iqxend  ! NOTE: q=(0,0,0) is omitted when iqxini=2
      if( .NOT. MPI__task(iq) ) cycle
      call cputid (0)
@@ -618,23 +614,23 @@ program hx0fp0
         ! endif
         if(debug) write(6,"(a)") ' --- goto dpsion5 --- '
         if(is==nspinmx .OR. chipm) then
-           if(cmdopt0('--rcxq0')) then
-              open(newunit=ifi0,file='rcxq0',form='unformatted')
-              write(ifi0)rcxq
-              close(ifi0)
-              goto 1001
-           elseif(cmdopt0('--zmel0')) then
-              if(initzmel0) then
-                 open(newunit=ifi0,file='rcxq0',form='unformatted')
-                 allocate(rcxq0,mold=rcxq)
-                 read(ifi0)rcxq0
-                 close(ifi0)
-                 initzmel0=.false.
-              endif
-              q0a=sum(q00**2)**.5
-              qa=sum(q**2)**.5
-              if(abs(q0a-qa)>1d-12) rcxq = qa**2/(qa**2-q0a**2)*(rcxq - rcxq0)
-           endif
+           ! if(cmdopt0('--rcxq0')) then
+           !    open(newunit=ifi0,file='rcxq0',form='unformatted')
+           !    write(ifi0)rcxq
+           !    close(ifi0)
+           !    goto 1001
+           ! elseif(cmdopt0('--zmel0')) then
+           !    if(initzmel0) then
+           !       open(newunit=ifi0,file='rcxq0',form='unformatted')
+           !       allocate(rcxq0,mold=rcxq)
+           !       read(ifi0)rcxq0
+           !       close(ifi0)
+           !       initzmel0=.false.
+           !    endif
+           !    q0a=sum(q00**2)**.5
+           !    qa=sum(q**2)**.5
+           !    if(abs(q0a-qa)>1d-12) rcxq = qa**2/(qa**2-q0a**2)*(rcxq - rcxq0)
+           ! endif
            write(6,"('  nmbas1,nmbas2=',2i10)") nmbas1,nmbas2
            call dpsion5(realomega, imagomega, &
                 rcxq, nmbas1,nmbas2, zxq, zxqi, &
@@ -770,7 +766,7 @@ program hx0fp0
      endif
 1001 enddo iqloop
   call MPI__barrier()
-  if(cmdopt0('--rcxq0')) call rx0('end of --rcxq0 mode to generete rcxq0')
+!  if(cmdopt0('--rcxq0')) call rx0('end of --rcxq0 mode to generete rcxq0')
   if( .NOT. epsmode) call MPI__sendllw2(iqxend) !!! mpi send LLW to root.
 
   !! == W(0) divergent part and W(0) non-analytic constant part.==
