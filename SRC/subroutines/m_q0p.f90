@@ -40,7 +40,6 @@ contains
     logical:: noq0p,timereversal
     real(8),allocatable:: q0x(:,:),wt0(:)
     real(8):: deltaq,deltaq_scale,delta8,delta5,emat(3,3)
-    real(8):: pi=4d0*atan(1d0)
     real(8),allocatable:: wti(:),qi(:,:),cg(:,:,:),matxxl(:,:,:), &
          cy(:),yl(:) !,norq0x(:) !,wqfac(:)
     integer:: bzcase=1,i,iq0i,ifidmlx,lmxax,lx,j,iclose!,llxxx
@@ -56,10 +55,12 @@ contains
     integer,allocatable :: ndiv(:)
     real(8),allocatable:: qsave(:,:),   qmin(:,:),qmax(:,:)
     real(8),allocatable:: qany(:,:)
-    logical:: anyq,ibzqq,lnq0iadd
+    logical:: anyq,ibzqq,lnq0iadd,unita
     !      integer,allocatable:: epslgroup(:)
     integer:: dummyia(1,1)
-
+    real(8),parameter:: pi=4d0* atan(1d0)
+    real(8):: tpioa
+    tpioa=2*pi/alat
     alpm = minval(alpv)
     if(alpm<=0d0) call rx( 'alpha_offG or alpha_offG_vec <=0')
     !      if(debug) write(6,"('  alpm=',3f12.6)") alpm
@@ -82,6 +83,7 @@ contains
        ngcxx,ngcx,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,ngvect,lnq0iadd)
        !! Get Q0P from GWinput
     elseif(iq0pin==2) then
+       call getkeyvalue("GWinput","QforEPSunita",unita,default=.false.)
        call getkeyvalue("GWinput","QforEPSIBZ",ibzqq,default=.false.)
        if(ibzqq) then
           write(6,*)'=== Find QforEPSIBZ=on === '
@@ -116,6 +118,7 @@ contains
              call getkeyvalue("GWinput","<QforEPS>",unit=ifinin,status=nq0i00)
              do i=1,nq0i00
                 read (ifinin,*) q0i(1:3,i)
+                if(unita) q0i(:,i)=q0i(:,i)*tpioa
                 write (6,"('<QforEPS> ' 3f12.8)") q0i(:,i)
              enddo
              close(ifinin)    !25jan2006
@@ -125,6 +128,8 @@ contains
              allocate( qmin(3,nq0i0), qmax(3,nq0i0) )
              do i=1, nq0i0
                 read(ifinin,*)qmin(:,i), qmax(:,i), ndiv(i)
+                if(unita) qmin(:,i)=qmin(:,i)*tpioa
+                if(unita) qmax(:,i)=qmax(:,i)*tpioa
                 write(6,"('<QforEPSL>',3f12.8,2x,3f12.8,i5)")qmin(:,i),qmax(:,i),ndiv(i)
              enddo
              close(ifinin)
