@@ -93,7 +93,7 @@ for idat in range(len(dintra)):
     if(len(dintra)!=0):
         eps1+=dintra[idat][2]
         eps2+=dintra[idat][2+nfile]
-    print(id,omega, eps1, eps2,file=f)
+    print(id,omega, eps1-1, eps2,file=f)
 f.close()    
 f=open('epsall.glt','w')
 aaa='set title "Epsilon(omega(eV))"\nset xlabel "(eV)"\nset datafile fortran\nset xran[0:30]\nset yran[-30:30]\n'+\
