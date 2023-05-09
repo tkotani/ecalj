@@ -61,6 +61,10 @@ for ilinex in midfile.split('\n'): #line by line, for pure mathematical operatio
     iii= re.sub('^\s+$','',iii)
     if(len(iii)==0): continue    #print('line=',iii,'=========')
     mmm=re.split('([=, ])',iii) #(...) means separators in lists.
+    if('SYMGR' in mmm[0]): #insereted at 2023-5-9 for NiS
+        iii=re.sub('\(','( ',iii)
+        iii=re.sub('\)',' )',iii)
+        mmm=re.split('([=, ])',iii) #(...) means separators in lists.
     nnn=[]
     for ix in mmm:
         eout=ix
