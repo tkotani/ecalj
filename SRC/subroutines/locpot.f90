@@ -653,7 +653,7 @@ contains
        write(stdo,"(' rhoeps:  ',3f15.6/' rhomu:   ',3f15.6)") sum(rep1),sum(rep2),sum(rhoexc),rmu1(1),rmu2(1),rhovxc(1)
        if(nsp==2)write(stdo,"(' spin2:   ',3f15.6/' total:   ',3f15.6)")rmu1(2),rmu2(2),rhovxc(2),sum(rmu1),sum(rmu2),sum(rhovxc)
        write(stdo,"(' val*vef  ',3f15.6/' val chg: ',3f15.6)") vefv1,vefv2,valvef,qv1,qv2,qloc
-       if(nsp == 2) write(stdo,"(' val mom: ',3f15.6,'    core:',f11.6)") a1,a2,aloc,alocc
+       if(nsp == 2) write(stdo,"(' val mmom: ',f15.6,'  core mmom:',f11.6)") aloc,alocc
        write(stdo,"(' core chg:',3f15.6)") qcor1,qcor2,qlocc
     endif
     call tcx('locpt2')

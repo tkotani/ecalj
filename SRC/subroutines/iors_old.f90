@@ -1,8 +1,9 @@
-module m_iors_old!this module is for reading(and writing old version) of rst file befor 2022-5-14
-  use m_struc_def           !we will remove this at some point.
+! This will be removed in future. Only for reading rst.* version 1.04.
+module m_iors_old ! This module is for reading old version of rst file before 2022-5-14. Fixed at 2022-5-11. Working for NiSe for Teb
+  use m_struc_def      
   use m_lgunit,only:stdo
   public iors_old
-  type(s_rv1),public,allocatable :: v1pot(:),v0pot(:)
+!  type(s_rv1),public,allocatable :: v1pot(:),v0pot(:)
   private
 contains
   integer function iors_old(nit,rwrw)!,irs5)
@@ -14,7 +15,7 @@ contains
          rsma
     use m_lattic,only: lat_plat
     use m_ext,only:sname
-    use m_density,only: pnuall,pnzall
+    use m_density,only: pnuall,pnzall,v0pot,v1pot
     use m_ftox
     !!- I/O for charge density to rst or rsta. ssite sspec are readin
     !! read write
@@ -112,7 +113,7 @@ contains
     integer :: idmod(n0),idmoz(n0) !,lrs(10)
     logical :: isanrg,lfail,ltmp1,ltmp2,latvec,cmdopt,mlog !,lshear
     double precision :: a,a0,alat,alat0,cof,eh,fac,qc,rfoc,rfoc0,rmt, &
-         rmt0,rsma0,rsmr,rsmr0,rsmv,rsmv0,stc,sum,vfac,vol,vol0,vs,vs1,z,z0
+         rmt0,rsma0,rsmr,rsmr0,rsmv,rsmv0,stc,ssum,vfac,vol,vol0,vs,vs1,z,z0
     real(8),pointer:: pnu(:,:),pnz(:,:)
     double precision :: ql(n0,2*n0),pos(3)=-9999, &
          pos0(3),forcexxx(3)=999d0,plat(3,3),plat0(3,3),qlat(3,3),qlat0(3,3), &
@@ -279,7 +280,8 @@ contains
        !   --- Read information related to dynamics ---
        !       For compatibility with nfp, read record into wk
        if (procid == master) then
-          call dpdump(wk,100,jfi)
+          !call dpdump(wk,100,jfi)
+          read(jfi) wk
        endif
        call mpibc1_real(wk,1,'iors:eferm')
        use=trim(use)//'use window,'
@@ -419,12 +421,13 @@ contains
           allocate(v1pot(ib)%v(nr*nsp))
           ! ccccccccccccccccccccccccccc
           if (procid == master) then
-             call dpdbyl ( orhoat( 1 , ib )%v , nr0 , nlml0 , nlml , nsp0 , nsp , lbin , jfi,'read'  )
-             call dpdbyl ( orhoat( 2 , ib )%v , nr0 , nlml0 , nlml , nsp0 , nsp , lbin , jfi,'read'  )
+             call dpdbyl(orhoat(1,ib)%v, nr0 , nlml0 , nlml , nsp0 , nsp , lbin , jfi,'read'  )
+             call dpdbyl(orhoat(2,ib)%v, nr0 , nlml0 , nlml , nsp0 , nsp , lbin , jfi,'read'  )
+             call dpdbyl(orhoat(3,ib)%v, nr0,1,1,nsp0, nsp , lbin , jfi,'read'  )
+             write(stdo,*)'sumccccc=',sum(orhoat(3,ib)%v)
              if (nlml0 > nlml .AND. ipr >= 10) write(stdo,202) ib,spid,'truncate',nlml0,nlml
              if (nlml0 < nlml .AND. ipr >= 10) write(stdo,202) ib,spid,'inflate',nlml0,nlml
 202          format(9x,'site',i4,', species ',a,': ',a,' local density from nlm=',i3,' to',i3)
-             call dpdbyl(orhoat(3,ib)%v,nr0,1,1,nsp0, nsp , lbin , jfi,'read'  )
              call dpdbyl ( v0pot(ib)%v, nr0, 1, 1, nsp0, nsp , lbin , jfi,'read'  )
              call dpdbyl ( v1pot(ib)%v, nr0, 1, 1, nsp0, nsp , lbin , jfi,'read' )
              if (nsp0 < nsp) then
@@ -485,7 +488,7 @@ contains
           if (nr*nsp<0) sspec(is)%rv_a_orhoc(:)=0.0d0
           if (procid == master) then
              if (nr /= nr0) call rx('iors not set up to convert core radial mesh')
-             call dpdump ( sspec(is)%rv_a_orhoc , nr * nsp0 , jfi )
+             read(jfi)sspec(is)%rv_a_orhoc(1:nr*nsp0) ! call dpdump ( sspec(is)%rv_a_orhoc , nr * nsp0 , jfi )
              if (nsp > nsp0) then !spin-split core density
                 i = nr
                 call dscal ( i , 0.5d0 , sspec(is)%rv_a_orhoc , 1 )
@@ -533,12 +536,12 @@ contains
           else
              allocate(rwgt_rv(nr))
              call radwgt ( rmt , a , nr , rwgt_rv )
-             call radsum ( nr , nr , 1 , nsp , rwgt_rv , orhoat( 3 , ib )%v , sum )
+             call radsum ( nr , nr , 1 , nsp , rwgt_rv , orhoat( 3 , ib )%v , ssum )
              fac = 1d0
-             if (dabs(sum) > 1d-6) fac = qc/sum
+             if (dabs(ssum) > 1d-6) fac = qc/ssum
              if (dabs(fac-1d0) > 1d-7 .AND. ipr >= 30) &
-                  write(stdo,787) ib,qc,sum,fac
-787          format(' fix core chg: ib=',i4,'  qc,sum,fac=',3f12.6)
+                  write(stdo,787) ib,qc,ssum,fac
+787          format(' fix core chg: ib=',i4,'  qc,ssum,fac=',3f12.6)
              call dpcopy ( orhoat( 3 , ib )%v , orhoat( 3 , ib )%v, 1 , nr * nsp , fac )
              if (allocated(rwgt_rv)) deallocate(rwgt_rv)
           endif
@@ -591,7 +594,7 @@ contains
        !   --- Write information related to dynamics ---
        wk=1d99 !call dpzero(wk,100)
        wk(1)= eferm !sbz%ef !dummy ! we use wk(1) only wk(2:100) are dummy
-       call dpdump(wk,100,jfi,'write')
+       call dpdump(wk,100,jfi) !,'write')
        do  110  ib = 1, nbas
           !pos  =ssite(ib)%pos
           !force=ssite(ib)%force
@@ -666,7 +669,7 @@ contains
           if (lmxa == -1) goto 130
           write(jfi) nr,a,qc,cof,eh,stc,lfoc,rfoc
           !     ... For now, ASA stores no core data
-          call dpdump ( sspec(is)%rv_a_orhoc , nr * nsp , jfi,'write' )
+          call dpdump ( sspec(is)%rv_a_orhoc , nr * nsp , jfi) !,'write' )
           write(jfi) rsmfa,nxi
           write(jfi) ((exi(i),hfc(i,isp),i=1,nxi),isp=1,nsp)
 130    enddo
@@ -680,35 +683,13 @@ contains
     return
 999 continue
     if (ipr > 0) write(stdo,'('' iors  : read failed in: '',a)') line
-    !      call tcx('iors')
   end function iors_old
-  subroutine dpdftr(n1,n2,n3,k1,k2,k3,n,f,lbin,ifi,rwrw)
-    !- Dump/read an array of reals given on a Fourier transform mesh.
-    ! ----------------------------------------------------------------------
-    !i Inputs
-    !i   n1..3 :size of f
-    !i   k1..3 :dimensions f
-    !i   n     :number of functions f
-    !i   ifi   :file logical unit, but >0 for read, <0 for write
-    !i   lbin  :T file I/O in binary mode
-    !i         :F file I/O in ascii mode
-    !i Inputs/Outputs
-    ! o  f     :array to read/write
-    !r Remarks
-    !r   f is complex but is stored as real with zero imaginary part.
-    !u Updates
-    !u   27 Apr 01 Added lbin switch
-    ! ----------------------------------------------------------------------
-    !     implicit none
-    ! ... Passed parameters
+  subroutine dpdftr(n1,n2,n3,k1,k2,k3,n,f,lbin,ifi,rwrw)    !- Dump/read an array of reals given on a Fourier transform mesh.
     character(*)::rwrw
     logical :: lbin
     integer :: n1,n2,n3,k1,k2,k3,n,ifi
     double complex f(k1,k2,k3,n)
-    ! ... Local parameters
     integer :: n1mx,jfi,i,i1,i2,i3
-    !      parameter (n1mx=1024)
-    !      double precision row(n1mx)
     double precision :: row(n1)
     n1mx = n1
     ! --- Input ---
@@ -726,9 +707,8 @@ contains
              enddo
           enddo
        enddo
-
        ! --- Output ---
-    elseif (trim(rwrw)=='wirte') then
+    elseif (trim(rwrw)=='write') then
        jfi = ifi
        do  i = 1, n
           do  i3 = 1, n3
@@ -736,23 +716,15 @@ contains
                 do  i1 = 1, n1
                    row(i1) = dble(f(i1,i2,i3,i))
                 enddo
-                !              if (lbin) then
                 write(jfi) (row(i1), i1=1,n1)
-                !              else
-                !                call dfdump(row,n1,ifi)
-                !              endif
              enddo
           enddo
        enddo
-
-       ! --- Invalid ifi ---
     else
        call rx('dpdftr: invalid ifi')
     endif
-
   end subroutine dpdftr
-  subroutine dpdbyl(a,nr,nlm,nlm0,nsp0,nsp,lbin,ifi,rwrw)
-    !- Dumps or reads an array given as a(nr,nlm,nsp).
+  subroutine dpdbyl(a,nr,nlm,nlm0,nsp0,nsp,lbin,ifi,rwrw)    !- Dumps or reads an array given as a(nr,nlm,nsp).
     ! ----------------------------------------------------------------------
     !i Inputs
     !i   nr    :number of radial mesh points
@@ -789,11 +761,7 @@ contains
        jfi = ifi
        do  10  isp = 1, nsp
           do  12  ilm = 1, nlm
-             if (lbin) then
-                write(jfi) (a(i,ilm,isp),i=1,nr)
-             else
-                call dfdump(a(1,ilm,isp),nr,jfi,'write')
-             endif
+             write(jfi) (a(i,ilm,isp),i=1,nr)
 12        enddo
 10     enddo
        return
@@ -808,10 +776,8 @@ contains
           if (isp == 2 .AND. nsp0 == 1) then
              call dscal(nr,0.5d0,a(1,ilm,1),1)
              call dpscop(a(1,ilm,1),a(1,ilm,2),nr,1,1,1d0)
-          elseif (lbin) then
+          else !if (lbin) then
              read(jfi) (a(i,ilm,isp), i=1,nr)
-          else
-             call dfdump(a(1,ilm,isp),nr,jfi,rwrw,'read')
           endif
 22     enddo
        ! ...   read and discard higher components in file
@@ -823,22 +789,11 @@ contains
              read(jfi,*) (xx, i=1,nr)
           endif
 24     enddo
-       ! ...   zero out unset components in array
        do  26  ilm = nlmx+1,nlm0
           call dpzero(a(1,ilm,isp),nr)
 26     enddo
 20  enddo
   end subroutine dpdbyl
 end module m_iors_old
-subroutine dfdump(array,length,ifile,rwrw)
-  !- ASCII I/O of an array
-  !     implicit none
-  character(*)::rwrw
-  integer :: ifile,length
-  double precision :: array(length)
-  if (trim(rwrw)=='read') read(ifile,333) array
-  if (trim(rwrw)=='write') write(ifile,333) array
-333 format(1p,4e20.13)
-end subroutine dfdump
 
 
