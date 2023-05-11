@@ -424,7 +424,7 @@ contains
              call dpdbyl(orhoat(1,ib)%v, nr0 , nlml0 , nlml , nsp0 , nsp , lbin , jfi,'read'  )
              call dpdbyl(orhoat(2,ib)%v, nr0 , nlml0 , nlml , nsp0 , nsp , lbin , jfi,'read'  )
              call dpdbyl(orhoat(3,ib)%v, nr0,1,1,nsp0, nsp , lbin , jfi,'read'  )
-             write(stdo,*)'sumccccc=',sum(orhoat(3,ib)%v)
+!             write(stdo,*)'sumccccc=',sum(orhoat(3,ib)%v)
              if (nlml0 > nlml .AND. ipr >= 10) write(stdo,202) ib,spid,'truncate',nlml0,nlml
              if (nlml0 < nlml .AND. ipr >= 10) write(stdo,202) ib,spid,'inflate',nlml0,nlml
 202          format(9x,'site',i4,', species ',a,': ',a,' local density from nlm=',i3,' to',i3)
