@@ -2410,7 +2410,7 @@ contains
        !   --- Coefficient matrices and the sum for corrections ---
        !   ... dfnorm = |g(i)-g(i-1)|, used for normalization
        dfnorm = dsqrt(ddot(n,wk(1,1,ir),1,wk(1,1,ir),1))
-       fac2 = one/dfnorm
+       fac2 = one/(dfnorm+1d-12)
        fac1 = beta*fac2
        !   ... Shuffle each prior u,vt to prior+1 iteration
        irm1 = ir-1

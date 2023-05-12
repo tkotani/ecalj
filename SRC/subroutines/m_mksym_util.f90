@@ -49,6 +49,7 @@ contains
     character(100) :: sg,sg1,sout,sout2
     call dinv33(plat,1,qlat,vol) !Reciprocal lattice vectors --- 
     nwgens = gens
+    ngen=0 !initialization buf obata added at 2023-5-12
     if(len_trim(gens) > 0) then
        call psymop(trim(gens),platcv,gen,agen,ngen)     ! Symmetry group as given by input generators ---
        nwgens = trim(gens)

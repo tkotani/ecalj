@@ -21,6 +21,9 @@ FFLAGS_NONE = -O0 -traceback  -init:snan $(module)
 ### conditional compile to avoid compilar bug for ucgw 2023feb ifort 18.0.5.274 
 $(obj_path)/m_qplist.o: $(subr)m_qplist.f90
 	$(FC) $(FFLAGS_NONE) -c $< -o $@
+#$(obj_path)/m_mksym.o: $(subr)m_mksym.f90
+#	$(FC) $(FFLAGS_NONE) -c $< -o $@
+	
 #$(obj_path)/sxcf_fal2.sc.o: $(subr)sxcf_fal2.sc.f90
 #	$(FC) $(FFLAGS_NONE) -c $< -o $@
 #$(obj_path)/sxcf_fal2_count.sc.o: $(subr)sxcf_fal2_count.sc.f90
