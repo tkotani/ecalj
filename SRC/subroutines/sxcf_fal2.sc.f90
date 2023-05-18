@@ -176,7 +176,7 @@ contains
             !character(8):: xt ;call timeshow("ExchangeMODE1 icount="//trim(xt(icount)))
             vcoud_= vcoud                                    ! kx==1 must be for q=0     
             if(kx==1) vcoud_(1)=wklm(1)*fpi*sqrt(fpi)/wk(kx) ! voud_(1) is effective v(q=0) in the Gamma cell. 
-            wtff = [(1d0,it=ns1,nctot), (wfacx(-1d99, ef, ekc(it), esmr),it=nctot+1,ns2)]
+            wtff = [(1d0,it=ns1,nctot), (wfacx(-1d99, ef, ekc(it), esmr),it=max(nctot+1,ns1),ns2)] !bugfix 2023-5-18 ns1==>max(nctot+1,ns1)
             if(corehole) wtff(ns1:nctot) = wtff(ns1:nctot) * wcorehole(ns1:nctot,isp)
             do concurrent(itp=1:ntqxx, itpp=1:ntqxx)
                zsec(itp,itpp)=zsec(itp,itpp) - wtt* &
