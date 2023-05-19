@@ -12,6 +12,7 @@ def gwsc_args():
        nloop: numbdr of QSGW iterations starting from current result (nloop=0 is replaced by nloop=1 internally)
        ncore: number of MPI thereads in lmf
       ncore2: number of MPI thereads in lxsC etc.
+      option: options
     '''
     import argparse
     parser=argparse.ArgumentParser(prog='gwsc',description='QSGW calculation')
@@ -19,7 +20,9 @@ def gwsc_args():
     parser.add_argument("-np2",    help='number of mpi cores in lxc etc.',action='store') 
     parser.add_argument("nloop",   help='iteration number of QSGW loop')
     parser.add_argument("material_name",help='material name')
+    parser.add_argument('--phispinsym',action='store_true',help='spin-symmetrized augmentation')
     args=parser.parse_args()
+    print(args)
     target=args.material_name
     nloop=int(args.nloop)
     if args.np!=None:
@@ -31,7 +34,9 @@ def gwsc_args():
     else:
         ncore=1
         ncore2=ncore
-    return(target,nloop,ncore,ncore2)
+    option=''
+    if args.phispinsym==True: option=' --phispinsym'
+    return(target,nloop,ncore,ncore2,option)
 
 def gen_dir(dirname):
     '''
