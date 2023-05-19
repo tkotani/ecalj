@@ -118,7 +118,7 @@ contains
              call getkeyvalue("GWinput","<QforEPS>",unit=ifinin,status=nq0i00)
              do i=1,nq0i00
                 read (ifinin,*) q0i(1:3,i)
-                if(unita) q0i(:,i)=q0i(:,i)*tpioa
+                if(unita) q0i(:,i)=q0i(:,i)/tpioa !2023-5-19fixed
                 write (6,"('<QforEPS> ' 3f12.8)") q0i(:,i)
              enddo
              close(ifinin)    !25jan2006
@@ -128,8 +128,8 @@ contains
              allocate( qmin(3,nq0i0), qmax(3,nq0i0) )
              do i=1, nq0i0
                 read(ifinin,*)qmin(:,i), qmax(:,i), ndiv(i)
-                if(unita) qmin(:,i)=qmin(:,i)*tpioa
-                if(unita) qmax(:,i)=qmax(:,i)*tpioa
+                if(unita) qmin(:,i)=qmin(:,i)/tpioa
+                if(unita) qmax(:,i)=qmax(:,i)/tpioa
                 write(6,"('<QforEPSL>',3f12.8,2x,3f12.8,i5)")qmin(:,i),qmax(:,i),ndiv(i)
              enddo
              close(ifinin)
