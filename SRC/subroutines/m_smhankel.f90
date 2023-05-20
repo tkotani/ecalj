@@ -1417,7 +1417,8 @@ contains
     implicit none
     integer :: l1,l2,lmxh
     real(8) :: rsmh(0:lmxh),eh(0:lmxh), e,rsm
-    l2 = findloc([(rsmh(l2+1)/=rsmh(l1).or.eh(l2+1)/=eh(l1).or.l2>=lmxh, l2=l1,lmxh)],value=.true.,dim=1) + l1-1
+    l2 = findloc([(rsmh(l2+1)/=rsmh(l1).or.eh(l2+1)/=eh(l1), l2=l1,lmxh-1)],value=.true.,dim=1) + l1-1
+    if(l2==l1-1) l2=lmxh
   end subroutine gtbsl2
   subroutine hxpos(rsmh,rsmg,eh,kmax,nlmh,k0, c) ! Coefficients to expand smooth hankels at (0,0,0) into P_kl's.
     !i Inputs
