@@ -12,7 +12,8 @@ def cleanl(iline):
     return iout
 def fd0(x,f,dig):
     c=np.polyfit(x[0:dig+1],f[0:dig+1],dig)
-    return c[dig-1]
+    return (f[1]-f[0])/(x[1]-x[0])
+    #return c[dig-1]
 ### interband part ###############################    
 files=glob.glob('EPS*.nlfc.dat.interbandonly')
 files.sort()
@@ -26,12 +27,13 @@ for idf,iff in enumerate(range(nfile)): # idf is file ID for EPS*
     q2[idf]=np.dot(q,q)    # q**2
     print('# ',idf,dlines[idf][0][0:4],files[idf])
 dinter=[]
+dig=1
 for idat in range(len(dlines[0])):
     omega=  dlines[0][idat][3]     #Note: bare eps2= np.array([ dlines[idf][idat][5] for idf in range(nfile)])
     q2eps1= [q2[idf]*dlines[idf][idat][4] for idf in range(nfile)] #list of q**2*eps1 in EPS*
     q2eps2= [q2[idf]*dlines[idf][idat][5] for idf in range(nfile)] #list of q**2*eps2 in EPS*
-    eps1=[fd0(q2[idf:],q2eps1[idf:],2) for idf in range(nfile-2)]
-    eps2=[fd0(q2[idf:],q2eps2[idf:],2) for idf in range(nfile-2)]
+    eps1=[fd0(q2[idf:],q2eps1[idf:],dig) for idf in range(nfile-dig)]
+    eps2=[fd0(q2[idf:],q2eps2[idf:],dig) for idf in range(nfile-dig)]
     dinter.append([idat,omega,*eps1,*eps2])
 if(nfile>0):
     f=open('epsinter.dat','w')
@@ -43,11 +45,11 @@ if(nfile>0):
     f=open('epsinter.glt','w') 
     print()
     fdata=''
-    for iddat in range(3,nfile+3-2):
+    for iddat in range(3,nfile+3-dig):
         fdata=fdata+' '+'"epsinter.dat" using ($2)*13.605:($'+str(iddat)+') w l title "RealPart:'+ files[iddat-3]+'"'
         fdata=fdata+',\\\n'
-    for iddat in range(3,nfile+3-2):
-        fdata=fdata+' '+'"epsinter.dat" using ($2)*13.605:($'+str(iddat+nfile-2)+') w l title   "ImagPart:'+ files[iddat-3]+'",\\\n'
+    for iddat in range(3,nfile+3-dig):
+        fdata=fdata+' '+'"epsinter.dat" using ($2)*13.605:($'+str(iddat+nfile-dig)+') w l title   "ImagPart:'+ files[iddat-3]+'",\\\n'
     aaa='set title "IntraBand part of Epsilon(omega(eV))"\nset xlabel "(eV)"\nset datafile fortran\nset xran[0:30]\nset yran[-30:30]\nplot\\\n' + fdata
     print(aaa,file=f)
     f.close()
