@@ -344,14 +344,14 @@ contains
                      + dmatl(l1,l2,mlm,1,2,isp) * ul(:,l1,isp) * sl(:,l2,isp) &
                      + dmatl(l1,l2,mlm,2,2,isp) * sl(:,l1,isp) * sl(:,l2,isp)
                 if (lpz1.OR.lpz2) then
-                   if (xuz /= 0 .OR. xsz /= 0 .OR. xzu /= 0 .OR. xzs /= 0 .OR. xzz /= 0) then
+!                   if (xuz /= 0 .OR. xsz /= 0 .OR. xzu /= 0 .OR. xzs /= 0 .OR. xzz /= 0) then !commented 2023-5-24
                       rho(:,mlm,isp) = rho(:,mlm,isp) &
                            + dmatl(l1,l2,mlm,1,3,isp) * ul(:,l1,isp) * gz(:,l2,isp) &
                            + dmatl(l1,l2,mlm,2,3,isp) * sl(:,l1,isp) * gz(:,l2,isp) &
                            + dmatl(l1,l2,mlm,3,1,isp) * gz(:,l1,isp) * ul(:,l2,isp) &
                            + dmatl(l1,l2,mlm,3,2,isp) * gz(:,l1,isp) * sl(:,l2,isp) &
                            + dmatl(l1,l2,mlm,3,3,isp) * gz(:,l1,isp) * gz(:,l2,isp)
-                   endif
+!                   endif
                 endif
              enddo
           enddo
