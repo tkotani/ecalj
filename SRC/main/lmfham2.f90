@@ -34,7 +34,7 @@ program lmfham2
        nlmto,nlnmx, nctot,niw, alat,delta,deltaw,esmr,clabl,iclass, il, in, im, nlnm, &
        plat, pos, ecore, konf,z, spid
   use m_read_Worb,only: s_read_Worb, s_cal_Worb, &
-       nwf, nclass_mlwf, cbas_mlwf, nbasclass_mlwf, &
+       nclass_mlwf, cbas_mlwf, nbasclass_mlwf, &
        classname_mlwf, iclassin, &
        iphi, iphidot, nphi, nphix
   use m_keyvalue,only: getkeyvalue
@@ -44,7 +44,6 @@ program lmfham2
   use m_zhev,only:zhev_tk4
   use m_MPItk,only:    m_MPItk_init, m_MPItk_finalize, nsize, master_mpi
   implicit none
-  real(8),allocatable:: r0g(:,:), wphi(:,:)
   real(8)    :: esmr2,shtw
   integer :: iclass2
   integer(4):: &
@@ -148,7 +147,7 @@ program lmfham2
   complex(8):: ctmp
   real(8),allocatable:: omgik(:)
   real(8)   :: omgi,omgiold,conv1,alpha1,domgi,qtmp(3)
-  integer(4):: nsc1,ndz,nin,ifhoev,ifuu0,ifpsig
+  integer(4):: nsc1,ndz,nin,ifhoev,ifuu0,ifpsig,nout
   ! step 2
   complex(8),allocatable:: mmn(:,:,:,:),mmn0(:,:,:,:), &
        rmn(:,:),smn(:,:),amn(:,:), &
@@ -181,8 +180,7 @@ program lmfham2
   integer::npin
   real(8):: qiin(3),qfin(3)
 
-  integer(4),allocatable:: &
-       m_indx(:),n_indx(:),l_indx(:),ibas_indx(:),ibasiwf(:)
+  integer(4),allocatable:: m_indx(:),n_indx(:),l_indx(:),ibas_indx(:),ibasiwf(:),idmto(:)
   integer:: ifoc,iwf,ldim2,ixx,ifile_handle
 
   real(8):: enwfmax,qxx(3),eeee,enwfmaxi, ef,epsovl=1d-8,ginv(3,3)
@@ -197,41 +195,37 @@ program lmfham2
   complex(8),parameter:: img=(0d0,1d0)
   !  integer,allocatable:: ikbidx(:,:)
   complex(8),allocatable:: hmlor(:,:,:,:),omlor(:,:,:,:)
+  integer:: nwf
   call m_MPItk_init('lmfham2') ! mpi initialization
   hartree=2d0*rydberg()
-  write(6,*) ' verbose=',verbose()
-  write(6,*) '  Oneof --job=? 1:preparation, 2:main '
-  if(cmdopt2('--job=',outs)) then
-     read(outs,*) ixc
-  else
-     write(6,*)'set --job=1 or 2'
-     call exit(-1)
-  endif
-  write(6,*) ' ixc=',ixc
-  if(ixc<1 .OR. ixc>3) call rx(' --- ixc=0 --- Choose computational mode!')
+!  write(6,*) ' verbose=',verbose()
+!  write(6,*) '  Oneof --job=? 1:preparation, 2:main '
+!  if(cmdopt2('--job=',outs)) then
+!     read(outs,*) ixc
+!  else
+!     write(6,*)'set --job=1 or 2'; call exit(-1)
+!  endif
+!  write(6,*) ' ixc=',ixc
+!  if(ixc<1 .OR. ixc>3) call rx(' --- ixc=0 --- Choose computational mode!')
   call ReadHamPMTinfo()
   call ReadHamRsMTO()
   nqbz=nkp
-!  call read_Bzdata() !  write(6,*)' nqibz ngrp=',nqibz,ngrp,' nqbz  =',nqbz
-!  call Setqbze()    ! extented BZ points list
-  call pshpr(60)
   incwfin= -1  !use 7th colmn for core at the end section of GWIN
   call genallcf_v3(incwfin) !in module m_genallcf_v3
   call getnemx(nbmx,ebmx,8,.true.) !8+1 th line of GWIN0
   if (nclass /= natom ) stop ' hsfp0: nclass /= natom ' ! We assume nclass = natom.
-  write(6,*)' hsfp0: end of genallcf2'
   call pshpr(30)
   tpia = 2d0*pi/alat
   call minv33tp(plat,qlat)
-  ginv = transpose(plat)
+  ginv   = transpose(plat)
   voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
-  efermiread: block
+  Readefermi: block
     integer:: ifi
     open(newunit=ifi,file='efermi.lmf')
     read(ifi,*) ef
     close(ifi)
-  endblock efermiread
-  readsyml: block
+  endblock Readefermi
+  Readsyml: block
     write(*,*)'Read k points for bands from SYML'     !      lqall      = .false.    !      laf        = .false.
     open(newunit=isyml,file='syml',status='old')
     nline=0
@@ -269,18 +263,9 @@ program lmfham2
           qold=q(:,iq)
        enddo nploop
     enddo nlineloop
-  endblock readsyml
+  endblock Readsyml
   call s_read_Worb() ! input parameters specific to MAXLOC
   call s_cal_Worb()
-  allocate (r0g(nphix,nwf), wphi(nphix,nwf))
-  r0g = 2d0
-  wphi = 1d0
-  !! Read parameters in GWinput. expand wan_input
-  !      call wan_input(leout,lein,lbin,ieo_swt,iei_swt,
-  !     &    eomin,eomax,itout_i,itout_f,nbbelow,nbabove,
-  !     &    eimin,eimax,itin_i,itin_f,
-  !     &    nsc1,nsc2,conv1,conv2,alpha1,alpha2,rcut)
-  ieo_swt = 0
   eomin   = 0d0
   eomax   = 0d0
   itout_i = 0
@@ -297,11 +282,6 @@ program lmfham2
      call getkeyvalue("GWinput","wan_out_emin",eomin,default=999d0 )
      call getkeyvalue("GWinput","wan_out_emax",eomax,default=-999d0 )
      if (eomin > eomax) call rx('hmaxloc: eomin > eomax')
-     ieo_swt = 1
-  else
-     call getkeyvalue("GWinput","wan_out_bmin",itout_i,default=999 )
-     call getkeyvalue("GWinput","wan_out_bmax",itout_f,default=-999 )
-     if (itout_i > itout_f) call rx('hmaxloc: itout_i > itout_f')
   endif
   if (lein) then
      call getkeyvalue("GWinput","wan_in_emin",eimin,default=999d0 )
@@ -318,35 +298,37 @@ program lmfham2
   call getkeyvalue("GWinput","wan_maxit_1st",nsc1,default=100)
   call getkeyvalue("GWinput","wan_conv_1st",conv1,default=1d-5)
   call getkeyvalue("GWinput","wan_mix_1st",alpha1,default=0.1d0)
-  call getkeyvalue("GWinput","wan_maxit_2nd",nsc2,default=100)
-  call getkeyvalue("GWinput","wan_conv_2nd",conv2,default=1d-5)
-  call getkeyvalue("GWinput","wan_mix_2nd",alpha2,default=0.1d0)
-  call getkeyvalue("GWinput","wan_tb_cut",rcut,default=1.01d0)
-  call getkeyvalue("GWinput","wan_nb_below",nbbelow,default=0)
-  call getkeyvalue("GWinput","wan_nb_above",nbabove,default=0)
-  r_v=rcut
-  call getkeyvalue("GWinput",'wan_tbcut_rcut',heps,default=r_v)
-  call getkeyvalue("GWinput",'wan_tbcut_heps',heps,default=0.0d0)
-  write(*,*) 'mloc.heps ', heps   !c --- read LDA eigenvalues
-!  ntq = nwf
-!  call winfo(6,nspin,nq,ntq,is,nbloch ,0,0,nqbz,nqibz,ef,deltaw,alat,esmr)
-! Rt vectors
-!  allocate (rt(3,nqbz),rt8(3,8,nqbz),qbz0(3,nqbz))
-!  call getrt(qbz,qbas,plat,n1,n2,n3,nqbz, rt,rt8,qbz0)
+  ! call getkeyvalue("GWinput","wan_maxit_2nd",nsc2,default=100)
+  ! call getkeyvalue("GWinput","wan_conv_2nd",conv2,default=1d-5)
+  ! call getkeyvalue("GWinput","wan_mix_2nd",alpha2,default=0.1d0)
+  ! call getkeyvalue("GWinput","wan_tb_cut",rcut,default=1.01d0)
+  ! call getkeyvalue("GWinput","wan_nb_below",nbbelow,default=0)
+  ! call getkeyvalue("GWinput","wan_nb_above",nbabove,default=0)
+  ! r_v=rcut
+  ! call getkeyvalue("GWinput",'wan_tbcut_rcut',heps,default=r_v)
+  ! call getkeyvalue("GWinput",'wan_tbcut_heps',heps,default=0.0d0)
+  ! write(*,*) 'mloc.heps ', heps   !c --- read LDA eigenvalues
+  !  ntq = nwf
+  !  call winfo(6,nspin,nq,ntq,is,nbloch ,0,0,nqbz,nqibz,ef,deltaw,alat,esmr)
+  ! Rt vectors
+  !  allocate (rt(3,nqbz),rt8(3,8,nqbz),qbz0(3,nqbz))
+  !  call getrt(qbz,qbas,plat,n1,n2,n3,nqbz, rt,rt8,qbz0)
   
-  call getbb(plat,alat,n1,n2,n3, nbb,wbb,wbbsum,bb) ! b vectors
-  allocate (ku(3,nqbz),kbu(3,nbb,nqbz),ikbidx(nbb,nqbz))
-  call kbbindx(qbz,ginv,bb, nqbz,nbb, ikbidx,ku,kbu) ! index for k and k+bb
-  allocate(iko_i(nqbz),iko_f(nqbz), iki_i(nqbz),iki_f(nqbz), ikbo_i(nbb,nqbz),ikbo_f(nbb,nqbz), ikbi_i(nbb,nqbz),ikbi_f(nbb,nqbz))
-  nband= ndimMTO
-  if (ixc == 1) then     ! write bb vectors to 'BBVEC'
-     call writebb(ifbb,wbb(1:nbb),bb(1:3,1:nbb), ikbidx,ku,kbu, &
-          iko_ixs,iko_fxs,noxs, &
-          nspin,nqbz,nbb)
-     write(6,"(/,a)") 'OK! lmfham2: --job=1'
-     call exit(0)
-  endif
-  allocate(bbv,source=bb)
+  bbvector: block
+    call getbb(plat,alat,n1,n2,n3, nbb,wbb,wbbsum,bb) ! b vectors
+    allocate (ku(3,nqbz),kbu(3,nbb,nqbz),ikbidx(nbb,nqbz))
+    call kbbindx(qbz,ginv,bb, nqbz,nbb, ikbidx,ku,kbu) ! index for k and k+bb
+    allocate(iko_i(nqbz),iko_f(nqbz), iki_i(nqbz),iki_f(nqbz), ikbo_i(nbb,nqbz),ikbo_f(nbb,nqbz), ikbi_i(nbb,nqbz),ikbi_f(nbb,nqbz))
+    nband= ndimMTO
+    ! if (ixc == 1) then     ! write bb vectors to 'BBVEC'
+    call writebb(ifbb,wbb(1:nbb),bb(1:3,1:nbb), ikbidx,ku,kbu, &
+         iko_ixs,iko_fxs,noxs, &
+         nspin,nqbz,nbb)
+    !    write(6,"(/,a)") 'OK! lmfham2: --job=1'
+    !    call exit(0)
+    ! endif
+    allocate(bbv,source=bb)
+  endblock bbvector
   ! readbbvec: block
   !   open(newunit=ifbb,file='BBVEC')
   !   read(ifbb,*)
@@ -358,22 +340,25 @@ program lmfham2
   !   enddo
   !   close(ifbb)
   ! endblock readbbvec
-
+  
+!-----------------------------------------------------------
+  nwf=18
+  iki_i=1; iki_f=6 ! inner
+  iko_i=1; iko_f=ndimMTO ! outer 
+  lein=.true.
+  allocate(idmto,source=[(i,i=1,9),(i,i=19,27)]) !1 to nwf
+!-----------------------------------------------------------
+  
   allocate(hmlor(nwf,nwf,npairmx,nspin),omlor(nwf,nwf,npairmx,nspin),source=(0d0,0d0))
   ispinloop: do 1000 is = 1,nspin
      write(*,*)'is =',is,'  out of',nspin
-     ! energy window
-     iko_i=1; iko_f=36! outer 
-     iki_i=1; iki_f=6 ! inner
-     ikbo_i=1; ikbo_f=36 !k+b for projection
-     lein=.true.
-     
+     ikbo_i=iko_i(iq)
+     ikbo_f=iko_f(iq) !k+b for projection
      iko_ix=minval(iko_i)
      iko_fx=maxval(iko_f)
      ikbi_i=9999 !dummy
      ikbi_f=9999 !
      nox = iko_fx - iko_ix + 1
-     
      allocate(ovlm(1:ndimMTO,1:ndimMTO),ovlmx(1:ndimMTO,1:ndimMTO),hamm(1:ndimMTO,1:ndimMTO))
      allocate(evec(ndimMTO,ndimMTO),evl(ndimMTO,nqbz), ovec(ndimMTO,ndimMTO),ovl(ndimMTO))
      allocate(amnk(iko_ix:iko_fx,nwf,nqbz))
@@ -417,7 +402,6 @@ program lmfham2
        ! enddo
        ! close(iband)
        ! stop 'vvvvvvvvvvv'
-       
        emat=0d0
        forall(i=1:ndimMTO) emat(i,i)=1d0
        do iqbz=1,nqbz
@@ -440,15 +424,12 @@ program lmfham2
           call zhev_tk4(ndimMTO,ovlm,emat,nmx,nev, ovl, ovec, epsovl)!Diangonale (ovlm - e ) alp=0
           ovlm=ovlmx
           call zhev_tk4(ndimMTO,hamm,ovlm,nmx,nev, evl(:,iqbz), evec(:,:,iqbz), epsovl)!Diangonale (hamm- evl ovlm) z=0
-!          do i=1,nwf
-!             write(6,*)'   e0=',i,evl(i,iqbz)
-!          enddo
+!          do i=1,nwf!             write(6,*)'   e0=',i,evl(i,iqbz)!          enddo
           do concurrent (i=1:ndimMTO,j=1:ndimMTO)
              osq(i,j)=sum(ovec(i,:)*ovl(:)**0.5d0*dconjg(ovec(j,:)))
           enddo   
           o2al(:,:,iqbz) = matmul(osq, evec(:,:,iqbz)) !o2al(basis index, band index, iqbz index)
-!          o2al(:,:,iqbz) = matmul(ovlmx,evec(:,:,iqbz)) !matmul(osq, evec(:,:,iqbz)) !o2al(basis index, band index, iqbz index)
-          forall(i=1:ndimMTO) ovlmm(i,:) = [ovlmx(i,1:9),ovlmx(i,19:27)]
+          forall(i=1:ndimMTO) ovlmm(i,:) = ovlmx(i,idmto(:)) ![ovlmx(i,idmot1:9),ovlmx(i,19:27)]
           amnk(:,:,iqbz)= matmul(transpose(dconjg(evec(1:ndimMTO,iko_ix:iko_fx,iqbz))),ovlmm) !amnk= <psi|MTO> minimum basis MTO =9+9
        enddo
        allocate (uumat(iko_ix:iko_fx,iko_ix:iko_fx,nbb,nqbz))
@@ -457,47 +438,28 @@ program lmfham2
              iqb = ikbidx(ibb,iqbz)             !q1(:) = qbz(:,iqbz)             !q2(:) = q1(:) + bbv(:,ibb)
              do concurrent(ib1=iko_ix:iko_fx, ib2=iko_ix:iko_fx) !ib1,ib2 band index of outer-inner window
                 uumat(ib1,ib2,ibb,iqbz)= sum(dconjg(o2al(1:ndimMTO,ib1,iqbz))*o2al(1:ndimMTO,ib2,iqb)) ! define connection <q ib1| q+b ib2>
-!uumat(ib1,ib2,ibb,iqbz)= sum(dconjg(o2al(1:ndimMTO,ib1,iqbz))*evec(1:ndimMTO,ib2,iqb)) !o2al(1:ndimMTO,ib2,iqb)) ! define connection <q ib1| q+b ib2>evec
              enddo
           enddo
        enddo
      endblock uumatambk
-     
-     !! step 1  -- choose Hilbert space -- determine cnk
-     write(*,*)'Step 1: Hilbert space branch'
-     write(6,*)' iko_ix iko_fx=',iko_ix,iko_fx
-     allocate (& !amnk(iko_ix:iko_fx,nwf,nqbz), &
+     ! step 1  -- choose Hilbert space -- determine cnk
+     write(*,*)'Step 1: Hilbert space branch, iko_ix iko_fx=',iko_ix,iko_fx
+     allocate (& 
           upu(iko_ix:iko_fx,iko_ix:iko_fx,nbb,nqbz), &
           cnk(iko_ix:iko_fx,nwf,nqbz), &
           cnk2(iko_ix:iko_fx,nwf,nqbz), &
           omgik(nqbz))
-     ! amnk appered in Eq.22 in Ref.II. <psi|Gaussian>
      cnk  = 0d0
-     ! amnk = 0d0
-     ! read psig(it,iwf,iqbz) = < psi(it,iqbz) | g(iwf) >
-     !print *,'goto readpsig'
-     !call readpsig(is,  iko_ix,iko_fx, nqbz,nwf,   amnk) !amnk given already.
-     call amnk2unk(amnk,iko_ix,iko_fx,iko_i,iko_f, nwf,nqbz,  cnk)
+     call amnk2unk(amnk,iko_ix,iko_fx,iko_i,iko_f, nwf,nqbz,  cnk)! amnk is in Eq.22 in Ref.II. <psi|Gaussian>. Now amnk = < psi(it,iqbz) | MTO(nwf) >
      print *,'goto init_iew=',lein,iko_ix,iko_fx !,iko_i,iko_f,iki_i,iki_f
      if(lein)  call init_iew(iko_ix,iko_fx,iko_i,iko_f, iki_i,iki_f, nwf,nband,nqbz, cnk) ! inner energy window
-     write(6,*)'end of amnk2'
-     
-!     call init_unkg(is,qbz,ginv,ef,lein, &
-!          iko_ix,iko_fx,iko_i,iko_f, &
-!          iki_i,iki_f, &
-!          nwf,nband,nqbz, &
-!          amnk,cnk)
-  
-     !      call chk_amnkweight(qbz,iko_ix,iko_fx,amnk,
-     !     &     nqbz,nwf,nband,nlmto)
-     !      call chk_cnkweight(qbz,iko_ix,iko_fx,cnk,
-     !     &     nqbz,nwf,nband,nlmto)
-     write(*,*) 'gotto step1looop: iko_ix:iko_fx,nwf,nqbz=',iko_ix,iko_fx,nwf,nqbz
+     write(*,*) 'goto step1looop: iko_ix:iko_fx,nwf,nqbz=',iko_ix,iko_fx,nwf,nqbz
      Step1loop: do isc = 1,nsc1
-        iqloop: do iq = 1,nqbz
-           call dimz(lein,iko_i(iq),iko_f(iq),iki_i(iq),iki_f(iq), ndz,nin)
-           !           write(6,*)'iq =',iq,'iko=',iko_i(iq),iko_f(iq),iki_i(iq),iki_f(iq),'ndz=',ndz
-           if (nwf > nin) then
+        iqloop: do iq = 1,nqbz !           call dimz(lein,iko_i(iq),iko_f(iq),iki_i(iq),iki_f(iq), ndz,nin)
+           nout = iko_f(iq) - iko_i(iq) + 1 !outer
+           nin  = iki_f(iq) - iki_i(iq) + 1 !inner
+           ndz  = nout - nin            !       write(6,*)'iq =',iq,'iko=',iko_i(iq),iko_f(iq),iki_i(iq),iki_f(iq),'ndz=',ndz
+           if (nwf > nin) then !nwf (number of Wannier), nin: number of inner window
               if (ndz < 1) call rx('ndz < 1')
               ! (1-2) <u_mk | P_k+b | u_nk>
               call getupu(isc, &
@@ -537,7 +499,6 @@ program lmfham2
            else
               omgik(iq) = 0d0
               cnk2(:,:,iq) = cnk(:,:,iq)
-              ! end if (ndz>1)
            endif
         enddo iqloop
         ! (1-5) w_I(k) > Omaga_I  eq.(11)
@@ -580,7 +541,6 @@ program lmfham2
              ham(i,j)  = sum(dconjg(pa(:,i))*evl(:,iqbz)*pa(:,j)) !sum(dconjg(pa(:,i))*pa(:,j))!
              ovlx(i,j) = sum(dconjg(pa(:,i))*pa(:,j))
           enddo
-
           ! ham=0d0
           ! ovlx=0d0
           ! forall(i=1:nwf)
@@ -589,7 +549,6 @@ program lmfham2
           ! end forall
           !          write(6,*)'sum ham=',iqbz,sum(abs(ham))
           !          write(6,*)'sum ovl=',iqbz,sum(abs(ovl))
-          
           do concurrent(i=1:nwf,j=1:nwf) !Real space Hamiltonian. H(k)->H(T) FT to real space
              ib1 = merge(1,2,i<=9) !test ib_table(i) 
              ib2 = merge(1,2,j<=9) !     ib_table(j) 
@@ -634,6 +593,9 @@ program lmfham2
      endblock bandplotMLO
      call rx0('mmmm end of bandplotMTO mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm')
 
+
+
+     
 
 
      

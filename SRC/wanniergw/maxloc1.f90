@@ -355,41 +355,21 @@ subroutine   getupu(isc, &
      alpha = alpha_in
      upu(:,:,:) = upu(:,:,:) * (1d0-alpha)
   endif
-  !      if (iki_i .eq. 0) then
-  !         nin = 0
-  !      else
-  !         nin = iki_f - iki_i + 1
-  !      endif
   nin = iki_f - iki_i + 1 !starting index of outer-inner (ex. When iki_i=1, nin= iki_f+1)
   if (nin >= nwf) stop 'getupu: Nin >= Nwf'
   allocate(wmat(iko_ix:iko_fx,iko_ix:iko_fx), wmat2(iko_ix:iko_fx,iko_ix:iko_fx))
   do ibb = 1,nbb
      iqb = ikbidx(ibb)
-     wmat = (0d0,0d0) ! wmat = cnk * cnk^{*} !projecto to 'outer window'-'inner window'.
-     do inp  = ikbo_i(ibb),ikbo_f(ibb)
-        do imp  = ikbo_i(ibb),ikbo_f(ibb)
-!!!!!!!!           do il  = nin+1,nwf
-           do il  = 1,nwf !nin+1,nwf
-              wmat(inp,imp) = wmat(inp,imp) + cnk(imp,il,iqb)*dconjg(cnk(inp,il,iqb))
-           enddo
-        enddo
+     i1= ikbo_i(ibb)
+     i2= ikbo_f(ibb)
+     do concurrent(inp=i1:i2, imp=i1:i2) !wmat = cnk * cnk^{*} is projector to 'wannier space'.
+        wmat(inp,imp)= sum(dconjg(cnk(inp,1:nwf,iqb))*cnk(imp,1:nwf,iqb)) !BUG-> range of sum was nin+1,nwf before 2023-6-8
      enddo
-     ! wmat2 = uumat^{*} * wmat
-     wmat2 = (0d0,0d0)
-     do in   = iko_i,iko_f
-        do imp  = ikbo_i(ibb),ikbo_f(ibb)
-           do inp  = ikbo_i(ibb),ikbo_f(ibb)
-              wmat2(imp,in) = wmat2(imp,in) +  dconjg(uumat(in,inp,ibb)) * wmat(inp,imp)
-           enddo
-        enddo
+     do concurrent(in=iko_i:iko_f, imp=i1:i2)
+        wmat2(imp,in)= sum(dconjg(uumat(in,i1:i2,ibb)) * wmat(i1:i2,imp))
      enddo
-     ! upu = upu + uumat * wmat2 * alpha
-     do im   = iko_i,iko_f
-        do in   = iko_i,iko_f
-           do imp  = ikbo_i(ibb),ikbo_f(ibb)
-              upu(im,in,ibb) = upu(im,in,ibb) +  uumat(im,imp,ibb) * wmat2(imp,in) * alpha
-           enddo
-        enddo
+     do concurrent(im=iko_i:iko_f, in=iko_i:iko_f)
+        upu(im,in,ibb) = upu(im,in,ibb) +  sum(uumat(im,i1:i2,ibb)*wmat2(i1:i2,in)) * alpha  ! upu = upu + uumat * wmat2 * alpha
      enddo
   enddo
   deallocate(wmat,wmat2)
@@ -427,9 +407,7 @@ subroutine getzmn(upu,wbb,lein, &
   real(8) :: wbb(nbb)
   integer(4) :: it(ndz)
   logical :: lein
-
   zmn = (0d0,0d0)
-
   ! no inner energy window
   if (iki_i == 0) then
      no = iko_f - iko_i + 1
@@ -438,10 +416,8 @@ subroutine getzmn(upu,wbb,lein, &
         zmn(1:ndz,1:ndz) = zmn(1:ndz,1:ndz) &
              +  wbb(ibb) * upu(iko_i:iko_f,iko_i:iko_f,ibb)
      enddo
-
      ! inner energy window
   else
-
      j = 0
      do i = iko_i,iki_i-1
         j = j + 1
@@ -452,7 +428,6 @@ subroutine getzmn(upu,wbb,lein, &
         it(j) = i
      enddo
      if (j /= ndz) stop 'getzmn: ndz error'
-
      do im = 1,ndz
         do in = 1,ndz
            do ibb = 1, nbb
@@ -461,10 +436,7 @@ subroutine getzmn(upu,wbb,lein, &
            enddo
         enddo
      enddo
-
   endif
-
-  return
 end subroutine getzmn
 !-----------------------------------------------------------------------
 subroutine chk_hm(zmat,ndim)
