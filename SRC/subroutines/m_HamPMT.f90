@@ -104,7 +104,7 @@ contains
     nnn=0
     do i=1,ldim 
        if(l_table(i)>=3) cycle !only spd
-       !if(k_table(i)==2) cycle !.and.l_table(i)>=2) cycle ! throw away EH2
+       !if(k_table(i)==2.and.l_table(i)>=2) cycle ! throw away EH2 for d
        !if(k_table(i)==2) cycle ! throw away EH2
 
        

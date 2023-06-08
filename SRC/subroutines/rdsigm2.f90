@@ -167,6 +167,7 @@ contains
     real(8):: qir(3),diffq(3),platt(3,3)
     integer:: ii1,ii2,ii4,ispr,iaf,ig,nsp_,ndimh_,nk1_,nk2_,nk3_,nqp_
     character(300)::aaa
+    character(8):: xt
     integer,allocatable,target:: ipqaf(:,:,:)
     integer,pointer:: ipq_pointer(:,:,:)
     !     --- Read sigma(orbital basis) from file ---
@@ -208,7 +209,7 @@ contains
     write(stdo,"(a)") ' Irr. qp for which sigma is calculated ...'
     call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , rv_a_osymgr &
          , nsgrps , ipq, qp_rv , wgt_rv , nqps , mxkp , gstar_iv , 0 )
-    if(nqps/=nqp_) call rx('nqps/=nqp_ from sigm')
+    if(nqps/=nqp_) call rx('nqps/=nqp_ from sigm '//xt(nqps)//' '//xt(nqp))
     platt=transpose(plat)
     !! qmesh
     do i1=1,nk1

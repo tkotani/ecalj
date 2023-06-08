@@ -72,7 +72,7 @@ def run_program(commandline,ncore=0):
     '''
     import subprocess
     mpirun='mpirun -np %d '%ncore if ncore!=0 else ''
-    run_command = mpirun + commandline
+    run_command = mpirun + commandline+';date'
     print(run_command,flush=True)
     info=subprocess.run(run_command,shell=True)
     if info.returncode!=0: #if return error

@@ -4,15 +4,231 @@ cd CdS_so.qsgw.mass
 cp ../syml.init syml.cds
 ~/bin/job_band cds -np 4 -vnspin=2 -vso=1 NoGnuplot
 popd
+echo -----------  CdS_so.qsgw.mass_mee100.png
+pushd .
+cd CdS_so.qsgw.mass_mee100.png
+cp ../syml.init syml.cds
+~/bin/job_band cds -np 4 -vnspin=2 -vso=1 NoGnuplot
+popd
+echo -----------  CdS_so.qsgw.mass_mee110.png
+pushd .
+cd CdS_so.qsgw.mass_mee110.png
+cp ../syml.init syml.cds
+~/bin/job_band cds -np 4 -vnspin=2 -vso=1 NoGnuplot
+popd
+echo -----------  CdS_so.qsgw.mass_mee111.png
+pushd .
+cd CdS_so.qsgw.mass_mee111.png
+cp ../syml.init syml.cds
+~/bin/job_band cds -np 4 -vnspin=2 -vso=1 NoGnuplot
+popd
+echo -----------  CdS_so.qsgw.mass_mhh100.png
+pushd .
+cd CdS_so.qsgw.mass_mhh100.png
+cp ../syml.init syml.cds
+~/bin/job_band cds -np 4 -vnspin=2 -vso=1 NoGnuplot
+popd
+echo -----------  CdS_so.qsgw.mass_mhh110.png
+pushd .
+cd CdS_so.qsgw.mass_mhh110.png
+cp ../syml.init syml.cds
+~/bin/job_band cds -np 4 -vnspin=2 -vso=1 NoGnuplot
+popd
+echo -----------  CdS_so.qsgw.mass_mhh111.png
+pushd .
+cd CdS_so.qsgw.mass_mhh111.png
+cp ../syml.init syml.cds
+~/bin/job_band cds -np 4 -vnspin=2 -vso=1 NoGnuplot
+popd
+echo -----------  CdS_so.qsgw.mass_mlh100.png
+pushd .
+cd CdS_so.qsgw.mass_mlh100.png
+cp ../syml.init syml.cds
+~/bin/job_band cds -np 4 -vnspin=2 -vso=1 NoGnuplot
+popd
+echo -----------  CdS_so.qsgw.mass_mlh110.png
+pushd .
+cd CdS_so.qsgw.mass_mlh110.png
+cp ../syml.init syml.cds
+~/bin/job_band cds -np 4 -vnspin=2 -vso=1 NoGnuplot
+popd
+echo -----------  CdS_so.qsgw.mass_mlh111.png
+pushd .
+cd CdS_so.qsgw.mass_mlh111.png
+cp ../syml.init syml.cds
+~/bin/job_band cds -np 4 -vnspin=2 -vso=1 NoGnuplot
+popd
+echo -----------  CdS_so.qsgw.mass_mso100.png
+pushd .
+cd CdS_so.qsgw.mass_mso100.png
+cp ../syml.init syml.cds
+~/bin/job_band cds -np 4 -vnspin=2 -vso=1 NoGnuplot
+popd
+echo -----------  CdS_so.qsgw.mass_mso110.png
+pushd .
+cd CdS_so.qsgw.mass_mso110.png
+cp ../syml.init syml.cds
+~/bin/job_band cds -np 4 -vnspin=2 -vso=1 NoGnuplot
+popd
+echo -----------  CdS_so.qsgw.mass_mso111.png
+pushd .
+cd CdS_so.qsgw.mass_mso111.png
+cp ../syml.init syml.cds
+~/bin/job_band cds -np 4 -vnspin=2 -vso=1 NoGnuplot
+popd
 echo -----------  GaAs_so.qsgw.mass
 pushd .
 cd GaAs_so.qsgw.mass
 cp ../syml.init syml.gaas
 ~/bin/job_band gaas -np 4 -vnspin=2 -vso=1 NoGnuplot
 popd
+echo -----------  GaAs_so.qsgw.mass_mee100.png
+pushd .
+cd GaAs_so.qsgw.mass_mee100.png
+cp ../syml.init syml.gaas
+~/bin/job_band gaas -np 4 -vnspin=2 -vso=1 NoGnuplot
+popd
+echo -----------  GaAs_so.qsgw.mass_mee110.png
+pushd .
+cd GaAs_so.qsgw.mass_mee110.png
+cp ../syml.init syml.gaas
+~/bin/job_band gaas -np 4 -vnspin=2 -vso=1 NoGnuplot
+popd
+echo -----------  GaAs_so.qsgw.mass_mee111.png
+pushd .
+cd GaAs_so.qsgw.mass_mee111.png
+cp ../syml.init syml.gaas
+~/bin/job_band gaas -np 4 -vnspin=2 -vso=1 NoGnuplot
+popd
+echo -----------  GaAs_so.qsgw.mass_mhh100.png
+pushd .
+cd GaAs_so.qsgw.mass_mhh100.png
+cp ../syml.init syml.gaas
+~/bin/job_band gaas -np 4 -vnspin=2 -vso=1 NoGnuplot
+popd
+echo -----------  GaAs_so.qsgw.mass_mhh110.png
+pushd .
+cd GaAs_so.qsgw.mass_mhh110.png
+cp ../syml.init syml.gaas
+~/bin/job_band gaas -np 4 -vnspin=2 -vso=1 NoGnuplot
+popd
+echo -----------  GaAs_so.qsgw.mass_mhh111.png
+pushd .
+cd GaAs_so.qsgw.mass_mhh111.png
+cp ../syml.init syml.gaas
+~/bin/job_band gaas -np 4 -vnspin=2 -vso=1 NoGnuplot
+popd
+echo -----------  GaAs_so.qsgw.mass_mlh100.png
+pushd .
+cd GaAs_so.qsgw.mass_mlh100.png
+cp ../syml.init syml.gaas
+~/bin/job_band gaas -np 4 -vnspin=2 -vso=1 NoGnuplot
+popd
+echo -----------  GaAs_so.qsgw.mass_mlh110.png
+pushd .
+cd GaAs_so.qsgw.mass_mlh110.png
+cp ../syml.init syml.gaas
+~/bin/job_band gaas -np 4 -vnspin=2 -vso=1 NoGnuplot
+popd
+echo -----------  GaAs_so.qsgw.mass_mlh111.png
+pushd .
+cd GaAs_so.qsgw.mass_mlh111.png
+cp ../syml.init syml.gaas
+~/bin/job_band gaas -np 4 -vnspin=2 -vso=1 NoGnuplot
+popd
+echo -----------  GaAs_so.qsgw.mass_mso100.png
+pushd .
+cd GaAs_so.qsgw.mass_mso100.png
+cp ../syml.init syml.gaas
+~/bin/job_band gaas -np 4 -vnspin=2 -vso=1 NoGnuplot
+popd
+echo -----------  GaAs_so.qsgw.mass_mso110.png
+pushd .
+cd GaAs_so.qsgw.mass_mso110.png
+cp ../syml.init syml.gaas
+~/bin/job_band gaas -np 4 -vnspin=2 -vso=1 NoGnuplot
+popd
+echo -----------  GaAs_so.qsgw.mass_mso111.png
+pushd .
+cd GaAs_so.qsgw.mass_mso111.png
+cp ../syml.init syml.gaas
+~/bin/job_band gaas -np 4 -vnspin=2 -vso=1 NoGnuplot
+popd
 echo -----------  GaNzb_so.qsgw.mass
 pushd .
 cd GaNzb_so.qsgw.mass
+cp ../syml.init syml.ganzb
+~/bin/job_band ganzb -np 4 -vnspin=2 -vso=1 NoGnuplot
+popd
+echo -----------  GaNzb_so.qsgw.mass_mee100.png
+pushd .
+cd GaNzb_so.qsgw.mass_mee100.png
+cp ../syml.init syml.ganzb
+~/bin/job_band ganzb -np 4 -vnspin=2 -vso=1 NoGnuplot
+popd
+echo -----------  GaNzb_so.qsgw.mass_mee110.png
+pushd .
+cd GaNzb_so.qsgw.mass_mee110.png
+cp ../syml.init syml.ganzb
+~/bin/job_band ganzb -np 4 -vnspin=2 -vso=1 NoGnuplot
+popd
+echo -----------  GaNzb_so.qsgw.mass_mee111.png
+pushd .
+cd GaNzb_so.qsgw.mass_mee111.png
+cp ../syml.init syml.ganzb
+~/bin/job_band ganzb -np 4 -vnspin=2 -vso=1 NoGnuplot
+popd
+echo -----------  GaNzb_so.qsgw.mass_mhh100.png
+pushd .
+cd GaNzb_so.qsgw.mass_mhh100.png
+cp ../syml.init syml.ganzb
+~/bin/job_band ganzb -np 4 -vnspin=2 -vso=1 NoGnuplot
+popd
+echo -----------  GaNzb_so.qsgw.mass_mhh110.png
+pushd .
+cd GaNzb_so.qsgw.mass_mhh110.png
+cp ../syml.init syml.ganzb
+~/bin/job_band ganzb -np 4 -vnspin=2 -vso=1 NoGnuplot
+popd
+echo -----------  GaNzb_so.qsgw.mass_mhh111.png
+pushd .
+cd GaNzb_so.qsgw.mass_mhh111.png
+cp ../syml.init syml.ganzb
+~/bin/job_band ganzb -np 4 -vnspin=2 -vso=1 NoGnuplot
+popd
+echo -----------  GaNzb_so.qsgw.mass_mlh100.png
+pushd .
+cd GaNzb_so.qsgw.mass_mlh100.png
+cp ../syml.init syml.ganzb
+~/bin/job_band ganzb -np 4 -vnspin=2 -vso=1 NoGnuplot
+popd
+echo -----------  GaNzb_so.qsgw.mass_mlh110.png
+pushd .
+cd GaNzb_so.qsgw.mass_mlh110.png
+cp ../syml.init syml.ganzb
+~/bin/job_band ganzb -np 4 -vnspin=2 -vso=1 NoGnuplot
+popd
+echo -----------  GaNzb_so.qsgw.mass_mlh111.png
+pushd .
+cd GaNzb_so.qsgw.mass_mlh111.png
+cp ../syml.init syml.ganzb
+~/bin/job_band ganzb -np 4 -vnspin=2 -vso=1 NoGnuplot
+popd
+echo -----------  GaNzb_so.qsgw.mass_mso100.png
+pushd .
+cd GaNzb_so.qsgw.mass_mso100.png
+cp ../syml.init syml.ganzb
+~/bin/job_band ganzb -np 4 -vnspin=2 -vso=1 NoGnuplot
+popd
+echo -----------  GaNzb_so.qsgw.mass_mso110.png
+pushd .
+cd GaNzb_so.qsgw.mass_mso110.png
+cp ../syml.init syml.ganzb
+~/bin/job_band ganzb -np 4 -vnspin=2 -vso=1 NoGnuplot
+popd
+echo -----------  GaNzb_so.qsgw.mass_mso111.png
+pushd .
+cd GaNzb_so.qsgw.mass_mso111.png
 cp ../syml.init syml.ganzb
 ~/bin/job_band ganzb -np 4 -vnspin=2 -vso=1 NoGnuplot
 popd

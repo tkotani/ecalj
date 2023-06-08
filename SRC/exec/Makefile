@@ -18,12 +18,12 @@ maxloc= ../wanniergw/
 moddir= $(obj_path)
 tags  = ..
 
-progslm = lmf-MPIK lmfa lmchk lmfham1
+progslm = lmf-MPIK lmfa lmchk lmfham1 lmfham2
 progsgw = hbasfp0 hvccfp0 hx0fp0 hsfp0 hqpe qg4gw gwinit heftet rdata4gw_v2 hx0fp0_sc hsfp0_sc hqpe_sc hmagnon hx0init hhilbert hrcxq hx0zmel
 progsw  = hmaxloc huumat_MPI hpsig_MPI wanplot hwmatK_MPI hsocmat
 
 # targets generaged by make prog2
-progslm2 = mkhamloc plotmodel initmlo mkinput lmfham1
+progslm2 = mkhamloc plotmodel initmlo mkinput 
 progsgw2 = hhomogas  hef convgwin kino_input_test hqpe_qsgw hecor eout eout2 
 progsw2  = huumat hpsig htbplot
 
@@ -106,7 +106,6 @@ $(obj_path)/lmf-MPIK.o: $(main)lmv7.f90 $(main)show_programinfo.fpp
 	$(FC) $(FFLAGS_NONE) -c $(main)lmv7.f90 -o $@
 $(obj_path)/lmfa.o:     $(main)show_programinfo.fpp
 $(obj_path)/lmchk.o:    $(main)show_programinfo.fpp
-$(obj_path)/lmfham.o:   $(main)show_programinfo.fpp
 $(obj_path)/lmfham1.o:  $(main)show_programinfo.fpp
 $(obj_path)/qg4gw.m.o:  $(main)show_programinfo.fpp
 
@@ -135,9 +134,6 @@ lmfa:	$(obj_path)/lmfa.o $(ELIB)  $(MPI)
 lmchk:	$(obj_path)/lmchk.o $(ELIB) $(MPI) 
 	@echo $(LK) $@.o 'link with *.o'
 	@$(LK) $(LKFLAGS1) $(obj_path)/$@.o $(ELIB)  $(MPI) $(LIBLOC) $(LKFLAGS2) -o $@
-lmfham: $(obj_path)/lmfham.o $(ELIB)  $(MPI) $(MLO)
-	@echo $(LK) $@.o 'link with *.o'
-	@$(LK) $(LKFLAGS1) $(obj_path)/$@.o $(ELIB)  $(MPI) $(LIBLOC) $(LKFLAGS2) $(MLO) -o $@
 lmfham1: $(obj_path)/lmfham1.o $(ELIB)  $(MPI) $(MLO)
 	@echo $(LK) $@.o 'link with *.o'
 	@$(LK) $(LKFLAGS1) $(obj_path)/$@.o $(ELIB)  $(MPI) $(LIBLOC) $(LKFLAGS2) $(MLO) -o $@
@@ -275,6 +271,10 @@ kino_input_test: $(obj_path)/kino_input_test.o  $(MPI) $(ELIB) $(GWLIB)
 hmaxloc: $(obj_path)/hmaxloc.o $(MLOC)  $(MPI) $(ELIB) $(GWLIB)
 	@echo $(LK) $@.o 'link with *.o'
 	@$(LK) $(LKFLAGS1) $< $(MLOC)  $(MPI)  $(ELIB) $(GWLIB) $(LKFLAGS2) -o $@
+lmfham2: $(obj_path)/lmfham2.o $(MLOC)  $(MPI) $(ELIB) $(GWLIB)
+	@echo $(LK) $@.o 'link with *.o'
+	@$(LK) $(LKFLAGS1) $< $(MLOC)  $(MPI)  $(ELIB) $(GWLIB) $(LKFLAGS2) -o $@
+
 hpsig: $(obj_path)/hpsig.o $(MLOC)  $(MPI) $(ELIB) $(GWLIB)
 	@echo $(LK) $@.o 'link with *.o'
 	@$(LK) $(LKFLAGS1) $< $(MLOC)  $(MPI)  $(ELIB) $(GWLIB) $(LKFLAGS2) -o $@

@@ -14,45 +14,32 @@ subroutine diag_unk(is,qbz, &
   integer :: iko_i(nqbz),iko_f(nqbz)
   allocate (ham(nwf,nwf),eks(nband), evecc(nwf,nwf),eval(nwf), cnk2(iko_ix:iko_fx,nwf))
   do iq = 1,nqbz
-     ! read eigenvalues
      q(:) = qbz(:,iq)
-     eks= readeval (q,is)
-
-     ! construct H
-     ham = (0d0,0d0)
+     eks= readeval (q,is)! read eigenvalues
+     ham = 0d0
      do ii = 1,nwf
         do ij = 1,nwf
            do ik = iko_i(iq),iko_f(iq)
-              ham(ii,ij) = ham(ii,ij) + &
-                   dconjg(cnk(ik,ii,iq))*cnk(ik,ij,iq)*eks(ik)
+              ham(ii,ij) = ham(ii,ij) + dconjg(cnk(ik,ii,iq))*cnk(ik,ij,iq)*eks(ik)
            enddo
         enddo
      enddo
-
      ! diagonalize H
      call chk_hm(ham,nwf)
      call diag_hm(ham,nwf,eval,evecc)
-
-
      ! cnk(n,l) = S[m] evecc(m,l)*c(n,m)
      cnk2 = (0d0,0d0)
      do il = 1,nwf
         do im = 1,nwf
            do in = iko_i(iq),iko_f(iq)
-              cnk2(in,il) = cnk2(in,il) + &
-                   evecc(im,il) * cnk(in,im,iq)
+              cnk2(in,il) = cnk2(in,il) + evecc(im,il) * cnk(in,im,iq)
            enddo
         enddo
      enddo
-
      cnk(:,:,iq) = cnk2
      eunk(:,iq) = eval(:)
-
-     ! end of iq-loop
   enddo
-
   deallocate (ham,eks,evecc,eval,cnk2)
-
   return
 end subroutine diag_unk
 !-----------------------------------------------------------------------

@@ -13,7 +13,7 @@ FFLAGS = -O2       -init:snan $(module)
 FFLAGS_LESS = -O1  -init:snan $(module)
 FFLAGS_NONE = -O0 -traceback  -init:snan $(module)
 
-#FFLAGS = -O2 -traceback  -init:snan $(module)
+#FFLAGS = -O0 -traceback  -init:snan $(module)
 #FFLAGS_LESS = -O0  -traceback -init:snan $(module)
 #FFLAGS_NONE = -O0  -traceback -init:snan $(module)
 

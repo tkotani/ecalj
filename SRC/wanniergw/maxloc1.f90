@@ -270,84 +270,60 @@ subroutine amnk2unk(amnk, &
   return
 end subroutine amnk2unk
 !-----------------------------------------------------------------------
-subroutine init_iew(iko_ix,iko_fx,iko_i,iko_f, &
-     iki_i,iki_f, &
-     nwf,nband,nqbz, &
-     cnk)
+subroutine init_iew(iko_ix,iko_fx,iko_i,iko_f, iki_i,iki_f, nwf,nband,nqbz, cnk) !Modify cnk to include all the inner space explictly. See Souza Eq.27 around. 
   implicit integer (i-n)
   implicit real*8(a-h,o-z)
-
-
   complex(8),allocatable :: cnk2(:,:),vnk(:,:),mat(:,:),evec(:,:)
   complex(8) :: cnk(iko_ix:iko_fx,nwf,nqbz),ctmp
   real(8),allocatable :: eval(:)
   integer(4),allocatable :: it(:)
-  integer(4) :: iko_i(nqbz),iko_f(nqbz), &
-       iki_i(nqbz),iki_f(nqbz)
-
-  allocate(cnk2(iko_ix:iko_fx,nwf), &
-       vnk(iko_ix:iko_fx,nwf))
+  integer(4) :: iko_i(nqbz),iko_f(nqbz), iki_i(nqbz),iki_f(nqbz)
+  allocate(cnk2(iko_ix:iko_fx,nwf), vnk(iko_ix:iko_fx,nwf))
   nox = iko_fx - iko_ix + 1
-
+!  print *, 'initnnnnnnnnox=',nox,iko_ix, iko_fx,nwf
   do iq = 1,nqbz
-
+ !    print *,'initnnnnnnnnn iq=',iq,iki_i(iq),iki_f(iq)
      ! no innner energy window
      if (iki_i(iq) == 0) then
         if (iki_f(iq) /= -1) stop 'init_iew: iki_f error'
-
-        ! inner energy window
-     else
+     else        ! inner energy window
         nout = iko_f(iq) - iko_i(iq) + 1
         nin  = iki_f(iq) - iki_i(iq) + 1
         if (nin < 1) stop 'init_iew: nin error'
-        cnk2 = (0d0,0d0)
-
-        ! Nin(k) states in the inner energy window
-        do il = 1, nin
-           ij = iki_i(iq) - 1 + il
-           cnk2(ij,il) = (1d0,0d0)
+        cnk2 = 0d0
+        do il = 1, nin ! Nin(k) states in the inner energy window
+           cnk2(iki_i(iq)-1+il,il) = 1d0
         enddo
-
-        ! Nwf - Nin(k) states out of Nout states
-        ! |vnk>
+        ! Nwf - Nin(k) states out of Nout states         ! |vnk>
         vnk(:,:) = cnk(:,:,iq)
         vnk(iki_i(iq):iki_f(iq),:) = 0d0
-
-        ! diagonalization
+!        print *,'initnnnn222 ',nox,nwf,iko_ix
         allocate(mat(nox,nox),evec(nox,nox),eval(nox))
-        mat = 0d0
-        do ii = 1,nox
+        do ii = 1,nox !nox=nouter-ninner
            do ij = 1,nox
-              do il = 1,nwf
-                 mat(ii,ij) = mat(ii,ij) &
-                      + vnk(ii+iko_ix-1,il) * dconjg(vnk(ij+iko_ix-1,il))
-              enddo
+              mat(ii,ij) = sum(vnk(ii+iko_ix-1,1:nwf)*dconjg(vnk(ij+iko_ix-1,1:nwf))) !QPQ matrix of Eq.27 in Souza paper.
            enddo
         enddo
+        forall (ii=1:nox) mat(ii,ii)=mat(ii,ii)+1d-16 !stabilize calculaiton 2023-6-6
         call chk_hm(mat,nox)
         call diag_hm(mat,nox,eval,evec)
-
-        ! cnk2
+ !       do i=1,nox
+ !          write(6,*)'nnnnnnneval=',i,eval(i)
+ !       enddo
         do il = 1, nwf-nin
            do ij = iko_ix, iko_fx
               cnk2(ij,il+nin) = evec(ij-iko_ix+1,nox-il+1)
            enddo
         enddo
-
         deallocate(mat,evec,eval)
         call chk_on(cnk2(iko_ix:iko_fx,:),nox,nwf)
-
         ! new cnk(:,:,q)
         cnk(:,:,iq) = cnk2(:,:)
-
         ! end of if (iki_i == 0)
-     endif
-     ! end of iq-loop
+     endif     ! end of iq-loop
+     !xxxx debug if(iq==6) stop 'xxxxxxxxxxxx'
   enddo
-
   deallocate(cnk2,vnk)
-
-  return
 end subroutine init_iew
 !-----------------------------------------------------------------------
 subroutine   getupu(isc, &
@@ -355,7 +331,7 @@ subroutine   getupu(isc, &
      lein,alpha_in,iq,ikbidx, &
      iko_ix,iko_fx, &
      iko_i,iko_f, &
-     iki_i,iki_f, &
+     iki_i,iki_f, & !inner window range
      ikbo_i,ikbo_f, &
      ikbi_i,ikbi_f, &
      nwf,nbb,nqbz, &
@@ -372,86 +348,60 @@ subroutine   getupu(isc, &
        ikbo_i(nbb),ikbo_f(nbb), &
        ikbi_i(nbb),ikbi_f(nbb)
   logical :: lein
-
-
   if (isc == 1) then
      alpha = 1d0
-     upu(:,:,:) = (0d0,0d0)
+     upu(:,:,:) = 0d0
   else
      alpha = alpha_in
      upu(:,:,:) = upu(:,:,:) * (1d0-alpha)
   endif
-
   !      if (iki_i .eq. 0) then
   !         nin = 0
   !      else
   !         nin = iki_f - iki_i + 1
   !      endif
-  nin = iki_f - iki_i + 1
-
-  if (nin >= nwf) then
-     stop 'getupu: Nin >= Nwf'
-  endif
-
-
-  allocate(wmat(iko_ix:iko_fx,iko_ix:iko_fx), &
-       wmat2(iko_ix:iko_fx,iko_ix:iko_fx))
-
+  nin = iki_f - iki_i + 1 !starting index of outer-inner (ex. When iki_i=1, nin= iki_f+1)
+  if (nin >= nwf) stop 'getupu: Nin >= Nwf'
+  allocate(wmat(iko_ix:iko_fx,iko_ix:iko_fx), wmat2(iko_ix:iko_fx,iko_ix:iko_fx))
   do ibb = 1,nbb
      iqb = ikbidx(ibb)
-
-
-     ! wmat = cnk * cnk^{*}
-     wmat = (0d0,0d0)
+     wmat = (0d0,0d0) ! wmat = cnk * cnk^{*} !projecto to 'outer window'-'inner window'.
      do inp  = ikbo_i(ibb),ikbo_f(ibb)
         do imp  = ikbo_i(ibb),ikbo_f(ibb)
-           do il  = nin+1,nwf
-              wmat(inp,imp) = wmat(inp,imp) &
-                   + cnk(imp,il,iqb)*dconjg(cnk(inp,il,iqb))
+!!!!!!!!           do il  = nin+1,nwf
+           do il  = 1,nwf !nin+1,nwf
+              wmat(inp,imp) = wmat(inp,imp) + cnk(imp,il,iqb)*dconjg(cnk(inp,il,iqb))
            enddo
         enddo
      enddo
-
      ! wmat2 = uumat^{*} * wmat
      wmat2 = (0d0,0d0)
      do in   = iko_i,iko_f
         do imp  = ikbo_i(ibb),ikbo_f(ibb)
            do inp  = ikbo_i(ibb),ikbo_f(ibb)
-              wmat2(imp,in) = wmat2(imp,in) &
-                   +  dconjg(uumat(in,inp,ibb)) * wmat(inp,imp)
+              wmat2(imp,in) = wmat2(imp,in) +  dconjg(uumat(in,inp,ibb)) * wmat(inp,imp)
            enddo
         enddo
      enddo
-
      ! upu = upu + uumat * wmat2 * alpha
      do im   = iko_i,iko_f
         do in   = iko_i,iko_f
            do imp  = ikbo_i(ibb),ikbo_f(ibb)
-              upu(im,in,ibb) = upu(im,in,ibb) &
-                   +  uumat(im,imp,ibb) * wmat2(imp,in) * alpha
+              upu(im,in,ibb) = upu(im,in,ibb) +  uumat(im,imp,ibb) * wmat2(imp,in) * alpha
            enddo
         enddo
      enddo
-
   enddo
-
   deallocate(wmat,wmat2)
-
-  return
 end subroutine getupu
 !-----------------------------------------------------------------------
-subroutine dimz(lein,iko_i,iko_f,iki_i,iki_f, &
-     ndz,nin)
+subroutine dimz(lein,iko_i,iko_f,iki_i,iki_f, ndz,nin)
   implicit integer (i-n)
   implicit real*8(a-h,o-z)
-
   logical :: lein
-
-
   nout = iko_f - iko_i + 1
   nin  = iki_f - iki_i + 1
   ndz  = nout - nin
-
   ! eck
   if (iki_i == 0) then
      if (iki_f /= -1) stop 'dimz: iki_f error'
@@ -460,7 +410,6 @@ subroutine dimz(lein,iko_i,iko_f,iki_i,iki_f, &
      if (iko_f < iki_f) stop 'dimz: ik_f error'
      if (iki_i > iki_f) stop 'dimz: iki error'
   endif
-
   return
 end subroutine dimz
 !-----------------------------------------------------------------------
@@ -575,10 +524,8 @@ end subroutine chk_um
 subroutine chk_on(zmat,n1,n2)
   implicit integer (i-n)
   implicit real*8(a-h,o-z)
-
   parameter (eps = 1d-4)
   complex(8):: zmat(n1,n2),cij
-
   do i = 1,n2
      do j = 1,n2
         cij = sum(dconjg(zmat(:,i))*zmat(:,j))
@@ -587,8 +534,6 @@ subroutine chk_on(zmat,n1,n2)
         if (rij > eps) stop 'chk_on: error'
      enddo
   enddo
-
-  return
 end subroutine chk_on
 !-----------------------------------------------------------------------
 subroutine diag_hm(zmat,ndim,eval,evecc)
@@ -663,22 +608,18 @@ subroutine new_cnk(cnk,evecc,iq, &
        cnk2(iko_ix:iko_fx,nwf), &
        evecc(ndz,ndz)
   integer(4) :: it(ndz)
-
   ! initialize
   cnk2(:,:) = (0d0,0d0)
-
   ! no inner energy window
   if (iki_i == 0) then
      nout = iko_f - iko_i + 1
      if (nout /= ndz) stop 'new_cnk: ndz error'
      if (nwf > ndz) stop 'new_cnk: nwf error'
-
      il2 = ndz + 1
      do il = 1,nwf
         il2 = il2 - 1
         cnk2(iko_i:iko_f,il) = evecc(1:ndz,il2)
      enddo
-
      ! inner energy window
   else
      nout = iko_f - iko_i + 1
@@ -686,7 +627,6 @@ subroutine new_cnk(cnk,evecc,iq, &
      if (nout-nin /= ndz) stop 'new_cnk: ndz error'
      if (nwf-nin > ndz) stop 'new_cnk: nwf error'
      cnk2(:,1:nin) = cnk(:,1:nin)
-
      ! pick nwf-nin states with the largest eigenvalues
      j = 0
      do i = iko_i,iki_i-1
@@ -697,7 +637,6 @@ subroutine new_cnk(cnk,evecc,iq, &
         j = j + 1
         it(j) = i
      enddo
-
      il2 = ndz + 1
      do il = nin+1,nwf
         il2 = il2 - 1
@@ -705,9 +644,7 @@ subroutine new_cnk(cnk,evecc,iq, &
            cnk2(it(in),il) = evecc(in,il2)
         enddo
      enddo
-
   endif
-
   return
 end subroutine new_cnk
 !-----------------------------------------------------------------------

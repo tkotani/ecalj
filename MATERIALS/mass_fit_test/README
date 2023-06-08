@@ -1,7 +1,6 @@
 ===================================================
    Effective Mass fitting test for ZB structure.
 ===================================================
-(python files are in python2 --- need to modify it if necessary).
 
 For test,
 run 
@@ -13,7 +12,6 @@ run
 python2 ./jobprepare.py >jobbash;bash jobbash
 python2 ./job_mass.py
 ------------
-(you need to modify this slightly for python3).
 
 Here, jobbash should be
 =========================================

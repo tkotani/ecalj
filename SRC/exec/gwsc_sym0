@@ -70,7 +70,7 @@ do
 	run_arg20 '---' $MPI_SIZE $nfpgw          /lmf-MPIK llmf $TARGET
     fi
     rm -f ewindow.${TARGET}* qbyl.${TARGET}* eigze*.${TARGET}* mixm.${TARGET}
-    argin=0; run_arg20 $argin $NO_MPI  $nfpgw  /lmf-MPIK llmfgw00 $TARGET --jobgw
+    argin=0; run_arg20 $argin $NO_MPI  $nfpgw  /lmf-MPIK llmfgw00 $TARGET --jobgw=0
     argin=1; run_arg20 $argin $NO_MPI  $nfpgw  /qg4gw lqg4gw   #Generate requied q+G v
 
     ### eigenvalues for micro-tetrahedron method. Rarely used.
@@ -79,7 +79,7 @@ do
     # 	argin=5; run_arg20 $argin $MPI_SIZE $nfpgw /lmfgw-MPIK llmfgw_eigval $TARGET
     # 	mv eigval eigmtet
     # fi
-    argin=1; run_arg20 $argin $MPI_SIZE $nfpgw /lmf-MPIK  llmfgw01 $TARGET --jobgw
+    argin=1; run_arg20 $argin $MPI_SIZE $nfpgw /lmf-MPIK  llmfgw01 $TARGET --jobgw=1
     #run_arg20  '---' $NO_MPI   $nfpgw /lmf2gw     llmf2gw  #reform data for gw
 
     mv normchk* STDOUT
