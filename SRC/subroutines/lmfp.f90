@@ -269,6 +269,7 @@ contains
     if (iter > 1 .OR. etol == 0) then
        diffe = etot(1)-ehf1
        if (lhk == 11) diffe = etot(2)-ehk1
+       if (eorb/=0d0) diffe = etot(2)-ehk1 !2023-6-21 for LDAU convergence
        letol = dabs(diffe) .le. etol .or. etol .le. 0
        lqtol = dabs(qdiff) .le. qtol .or. qtol .le. 0
        if (letol .AND. lqtol) then
