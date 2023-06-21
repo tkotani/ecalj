@@ -7,7 +7,9 @@ plot\
  "epsinter.dat" using ($2)*13.605:($3) w l title "RealPart:EPS0001.nlfc.dat.interbandonly",\
  "epsinter.dat" using ($2)*13.605:($4) w l title "RealPart:EPS0002.nlfc.dat.interbandonly",\
  "epsinter.dat" using ($2)*13.605:($5) w l title "RealPart:EPS0003.nlfc.dat.interbandonly",\
- "epsinter.dat" using ($2)*13.605:($6) w l title   "ImagPart:EPS0001.nlfc.dat.interbandonly",\
- "epsinter.dat" using ($2)*13.605:($7) w l title   "ImagPart:EPS0002.nlfc.dat.interbandonly",\
- "epsinter.dat" using ($2)*13.605:($8) w l title   "ImagPart:EPS0003.nlfc.dat.interbandonly",\
+ "epsinter.dat" using ($2)*13.605:($6) w l title "RealPart:EPS0004.nlfc.dat.interbandonly",\
+ "epsinter.dat" using ($2)*13.605:($7) w l title   "ImagPart:EPS0001.nlfc.dat.interbandonly",\
+ "epsinter.dat" using ($2)*13.605:($8) w l title   "ImagPart:EPS0002.nlfc.dat.interbandonly",\
+ "epsinter.dat" using ($2)*13.605:($9) w l title   "ImagPart:EPS0003.nlfc.dat.interbandonly",\
+ "epsinter.dat" using ($2)*13.605:($10) w l title   "ImagPart:EPS0004.nlfc.dat.interbandonly",\
 
