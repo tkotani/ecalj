@@ -90,7 +90,7 @@ f.close()
 f=open('epsall.dat','w')
 for idat in range(len(dintra)):
     eps1= dinter[idat][2]
-    eps2= dinter[idat][2+nfile-2]
+    eps2= dinter[idat][2+nfile]
     id,omega=dintra[idat][0:2]
     if(len(dintra)!=0):
         eps1+=dintra[idat][2]
