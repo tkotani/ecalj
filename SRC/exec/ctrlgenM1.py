@@ -759,7 +759,7 @@ else:
 metali_val= '%i' % metali
 tail="""
 \n"""
-tail = tail+ "% const pwemax=2 nk1="+nk_val1+" nk2="+nk_val2+" nk3="+nk_val3+" nit=80  gmax=12  nspin="+nspin_val+ " metal="+ metali_val +" so=" +so_val +" xcfun="+xcfun_val+" ssig="+str(ssig_val)+" tetra=T \n"
+tail = tail+ "% const pwemax=3 nk1="+nk_val1+" nk2="+nk_val2+" nk3="+nk_val3+" nit=80  gmax=12  nspin="+nspin_val+ " metal="+ metali_val +" so=" +so_val +" xcfun="+xcfun_val+" ssig="+str(ssig_val)+" tetra=T \n"
 tail = tail + "BZ    #ZBAK=0.1 For exmple, at Si ZBAK=0.1 gives 8-0.1=7.9 total electrons\n"\
             + "      NKABC={nk1} {nk2} {nk3} # division of BZ for q points.\n"\
             + "      METAL={metal}"\
@@ -858,7 +858,7 @@ tail = tail + """      #For Molecule, you may also need to set FSMOM=n_up-n_dn, 
       # NOTE: because of inversion in space-group symmetry, we may have 
       #       |phi_sigm^\bfk|^2 = |phi_sigm^{-\bfk}|^2. This is not for NOINV.
 
-ITER MIX=A3 b=.2 CONV=1e-5 CONVC=1e-5 NIT={nit}
+ITER MIX=A5 b=.2 CONV=1e-5 CONVC=1e-5 NIT={nit} UMIX=0.2
 #ITER MIX=B CONV=1e-6 CONVC=1e-6 NIT={nit}
                 # MIX=A#1: Anderson mixing. #1 is the number to keep history
                 # MIX=B#1: Broyden mixing (default). Unstable than Anderson mixing. But faseter. It works fine for sp bonded systems.
