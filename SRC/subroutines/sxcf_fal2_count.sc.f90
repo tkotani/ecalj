@@ -72,6 +72,7 @@ contains
       call MPI__sxcf_rankdivider(irkip_all,nspinmx,nqibz,ngrp,nqibz,  irkip)
     endblock rankdivider
     PreIcountBlock: Block!Get Size: nstateMax(ncount),ndiv(icount),nstatei(j,icount),nstatee(j,icount)
+      use m_keyvalue,only: getkeyvalue
       integer:: ndivide,nstateavl,nnn,nloadav,nrem,idiv,j
       integer,allocatable:: nload(:)
       ncount=count(irkip/=0)
@@ -108,7 +109,8 @@ contains
          enddo isploop
       enddo kxloop
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!      
-      nstateavl = 16  ! middle states are batched by nstateavl.
+!      nstateavl = 16  ! middle states are batched by nstateavl.
+      call getkeyvalue("GWinput","nstateavl",  nstateavl, default=8)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       !nstateavl=max(sum(nstatemax)/(ncount*ndivide),1)
       if(ixc==3) nstateavl= maxval(nstatemax) ! size of average load of middle states (in G)
