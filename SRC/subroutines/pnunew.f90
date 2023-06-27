@@ -42,7 +42,7 @@ subroutine pnunew(eferm) != Makes new boundary conditions pnu for phi,phidot =
   real(8) ,allocatable :: rofi_rv(:)
   real(8) ,allocatable :: v0i_rv(:)
   double precision pi,rmt,p1,ebar,a,d0l,pfree,pold,ptry,z,val(5),slo(5),dl,phi,dphi
-  real(8),pointer:: pnu(:,:),pnz(:,:)
+  real(8),allocatable:: pnu(:,:),pnz(:,:)
   double precision ez,umegam,phip,dphip,dlphi,dlphip,cz
   double precision pznew,fi(0:10),gi(0:10),xx,dnz
   character spid*8
@@ -66,8 +66,9 @@ subroutine pnunew(eferm) != Makes new boundary conditions pnu for phi,phidot =
   endif
   ibloop: do  ib = 1, nbas
      is=ispec(ib) 
-     pnu=>pnuall(:,:,ib)
-     pnz=>pnzall(:,:,ib)
+     if(allocated(pnu)) deallocate(pnu,pnz)
+     allocate(pnu,source=pnuall(:,:,ib))
+     allocate(pnz,source=pnzall(:,:,ib))
      lmxa=sspec(is)%lmxa
      rmt=sspec(is)%rmt
      idmod=idmodis(:,is)
