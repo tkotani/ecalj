@@ -27,6 +27,7 @@ do
     done
     popd
 done
+rm -f mlog* stdout* eibze* mlog* rcxq* x0icount* norm* mix*
 
 exit
 

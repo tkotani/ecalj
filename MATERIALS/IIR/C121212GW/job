@@ -1,0 +1,19 @@
+#!/bin/bash
+#$ -N mp
+#$ -pe smp 16
+#$ -cwd
+#$ -M takaokotani@gmail.com
+#$ -m be
+#$ -V
+#$ -S /bin/bash
+
+n=$0
+nfpgw=`pwd`
+mat=${nfpgw##*/}
+mat='c'
+echo $mat
+export OMP_NUM_THREADS=1
+EXEPATH=/home/takao/bin/
+$EXEPATH/gw_lmfh -np 16 $mat >& out
+
+

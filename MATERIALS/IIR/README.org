@@ -1,0 +1,107 @@
+* impact ionization rate calculation.
+
+At first, we need ground state where we have accurate band gap.
+For this, we use hybrid QSGW (Deguchi,10.7567/JJAP.55.051201), 20 percent LDA included.
+Then we run one-show GW calculations where we calcualte self-energy with dense k point mesh.
+
+** Step 0.
+Install ecalj
+In principle, read ecalj/README.org. But it may be still confusing.
+Just push ./Install.ifort at ecalj/.
+Then ./Install.ifort does install and test. It may take ~10 minutes.
+For band plot along symmetry line See Getsyml described in README.org.
+
+** Step 1.
+Create C/ directory, while keep original C/ in the ecalj package somewhere.
+This is for diamond.
+Prepare crystal structure file ctrls.c file. Here .c is an extension for diamond.
+This contains only the crystal structure. 
+We can get it via conversion to VASP POSCAR format (thus cif=>POSCAR=>ctrl).
+or by hand.
+---- ctrls.c --------------
+%const bohr=0.529177 a= 3.56683/bohr
+STRUC
+     ALAT={a} 
+     PLAT=0 0.5 0.5  0.5 0 0.5  0.5 0.5 0 
+SITE
+     ATOM=C POS=0.0 0.0 0.0
+     ATOM=C POS=0.25 0.25 0.25
+-------------------------
+
+** Step 2. LDA band calculation
+Convert this to ctrl.c by
+>ctrlgenM1.py c
+>cp ctrlgenM1.ctrl.c ctrl.c
+The ctrl.c is the input file for band structure calculation.
+We may/may not modify only nspin, nk1,nk2,nk3(# of k point) usually.
+Now not need to modify them.
+
+Then we run
+>lmfa
+, which is to generate spherical atom data for band structure calculation.
+atm* atmpnu* are used in the followings.
+>mpirun -np 4 lmf-MPIK c
+Main part of band calculation. save.c show info for iteration summary.
+>getsyml c
+(currently, showing BZ may not work. But stop it and have syml.c for symmetry line of BZ).
+>job_band c -np 4
+At this point, we should have band structure plot correctly in LDA.
+
+** Step 3. QSGW band calculation
+   Set ssig=0.8 in ctrl.c file. This is QSGW80(20 percent of LDA xc term included).
+(ssig do not affect to LDA calculation. So, we can set this in advance).
+>mkGWinput c
+This quickly generates GWinput.tmp for GW kinds of calculations.
+>cp GWinput.tmp GWinput
+Then we may modify some point in GWinput. Now we use it without modification.
+   Run QSGW calcualtion by
+>gwsc 5 -np 32 c >& out
+5 means five QSGW iteration. So, 0th to 4th. Most expensive part
+(If you run this gain, it continue 5th run (because gwsc checks 'QPU.4run' exists).
+ QPU is the file for self-energy infomation (only real part in gwsc mode). 
+gwsc is timeconsuming for generating self-energy=(XC part), 
+so use batch job (qsub file for my system is C/job).
+   Anyway, bandplot in QSGW is in the same manner as LDA;
+>job_band c -np 4
+We have band plot in QSGW. 
+Note that one of unique point in our QSGW code is that
+number of k point for omega-independent sel-energy 
+(=XC_QSGW, which is expensive part---this is Screened-exchange-like term).
+
+sigm.c contains XC_QSGW-XC_LDA term. rst.c contains electron density.
+We need to keep atmpnu* (logarismic derivative at Muffin-tin boundary).
+In cases NTQXX causes a problem (when you change setting of comutational condition), then delete NTQXX 
+(number of bands for which we calcuate XC_QSGW).
+
+** Step 4. QPE_life energy
+Let us make another directory as C121212GW/.
+From C/, copy GWinput, ctrl.c, rst.c, sigm.c, atmpnu.*.c to C121212GW/.
+(At C1212GW/, we can run >mpirun -np 4 lmf-MPIK c to reproduce final results).
+All XC_QSGW is in sigm.c.
+
+Then edit GWinput file for GW calculation for diagonal elements only but including imaginary part.
+We set 
+1. 12 12 12 k points.
+2. lcutmx =2 for atoms (light atoms) to have computational time. This sets somehow automatic.
+3. number of bands at which we calculate self-energy in <QPNT> section. Our example is
+   for 12 bands from index 1 to index 12.
+Take
+>diff C/GWinput C121212GW/GWinput
+to know how to modify GWinput.
+
+QPU contains human-readable self-energy information.
+
+>cleargw . 
+clean up too much files below the current directory.
+
+** Comparison with Old result
+>gnuplot -p imi_compare.glt
+
+We see a little differnce from 'old calculaiton'. Reasons are
+1. Some changes of code and minor changes of ecalj method.
+2. We set ssig=0.68 so as to set the band gap=5.47eV in old result.
+3. I didn't check it well (sorry), but I may use lcutmx 4 4 for OldResult.
+
+At OldResult/,
+>gnuplot -p imi_dia.glt
+This shows dependence on number of k points. Looks not so bad.

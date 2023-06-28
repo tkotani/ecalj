@@ -1,0 +1,19 @@
+#!/bin/bash
+#$ -N c
+#$ -pe smp 32
+#$ -cwd
+#$ -M takaokotani@gmail.com
+#$ -m be
+#$ -V
+#$ -S /bin/bash
+
+n=$0
+nfpgw=`pwd`
+#mat=${nfpgw##*/}
+mat='c'
+echo $mat
+export OMP_NUM_THREADS=1
+EXEPATH=/home/takao/bin/
+$EXEPATH/gwsc 5 -np 32 $mat >& out
+
+
