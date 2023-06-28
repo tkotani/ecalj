@@ -15,7 +15,7 @@ program hqpe_qsgw
   implicit real*8 (a-h,o-z)
   implicit integer(i-n)
   ! local data
-  logical :: laf
+!  logical :: laf
   dimension ifsex(2),ifsexcore(2),ifxc(2),ifsec(2),ifqpe(2) &
        ,iftote(2),iftote2(2)
   integer(4),allocatable :: itxc(:),itc(:),itx(:)
@@ -71,11 +71,11 @@ program hqpe_qsgw
   !      else
   !        ifqpnt     = iopenxx ('QPNT')
   !      endif
-  laf        = .false.
+!  laf        = .false.
 
-  call readx   (ifqpnt,10)
-  read (ifqpnt,*) iqall,iaf
-  if (iaf == 1) laf = .TRUE. 
+!  call readx   (ifqpnt,10)
+!  read (ifqpnt,*) iqall,iaf
+!  if (iaf == 1) laf = .TRUE. 
 
 
   ! swj added begin
@@ -122,7 +122,7 @@ program hqpe_qsgw
   ! swj added
 
 
-  if (nspin == 2 .AND. .NOT. laf) then
+  if (nspin == 2 ) then
      ifsex(2)   = iopenxx ('SEXD')
      ifsexcore(2)   = iopenxx ('SEXcoreD')
      ifsec(2)   = iopenxx ('SECD')
@@ -570,7 +570,7 @@ program hqpe_qsgw
           itx, qx ,eldax,sex, &
           itcomg, qcomg, eldacomg, rsecomg, csecomg)
 
-     if (laf) exit
+!     if (laf) exit
      if (jin > 0) jin = 999999
   end do
   deallocate( omega)
@@ -589,7 +589,6 @@ subroutine readxxx(ifil)
      if(rchar(1:5) == '*****') return
      if(rchar(1:5) == '#####') return
 10 enddo
-  ! top2rx 2013.08.09 kino      stop 'readx: cannot find the string (gwsrc/wse.f/readxx)'
   call rx( 'readx: cannot find the string (gwsrc/wse.f/readxx)')
 end subroutine readxxx
 

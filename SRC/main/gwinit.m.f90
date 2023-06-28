@@ -26,7 +26,7 @@ program gwinit_v2
   !r    True_G(1:3,igp) = 2*pi/alat * matmul(qlat * ngvec(1:3,igp)) ,igp=1,ngp
   !! -----------------------------------------------------------
   use m_hamindex0,only: readhamindex0,alat,plat,nbas,lmxax,nsp,konft,lmxaa=>lmxa, &
-       nindx,lindx,mnla=>ndima,iat=>ibasindx,caption,spid,symops, ngrp,npqn,qlat,zz,pqn
+       nindx,lindx,mnla=>ndima,iat=>ibasindx,caption,spid,symops, ngrp,npqn,qlat,zz,pqn,ndima
   use m_get_bzdata1,only:  getbzdata1, nqbz, nqibz, qbz,wbz,qibz,wibz
   implicit none
   integer ::n1q,n2q,n3q,ifiqg,ifiqgc,ifigw0,ifi,i,ig
@@ -98,19 +98,17 @@ program gwinit_v2
   write(6,"(' --- TOTAL num of q is n1*n2*n3=',i10)")nnn
   ! --- Sample QPNT file ---------------
   open (newunit=ifqpnt,file='QPNT.chk')
-  write(ifqpnt,"(a,a)") " --- Specify the q and band indeces", &
-       " for which we evaluate the self-energy ---"
-  write(ifqpnt,*)
-  write(ifqpnt,"(a)")"*** all q -->1, otherwise 0;  up only -->1, otherwise 0"
-  iqall = 0;      iaf   = 0
-  write(ifqpnt,*)iqall,iaf
-  write(ifqpnt,"(a)")"*** no. states and band index for calculation."
-  iii = 2
+!  write(ifqpnt,"(a,a)") " --- Specify the q and band indeces for which we evaluate the self-energy ---"
+  write(ifqpnt,"(a)")"*** all qibz for gw_lmfh -->1, otherwise 0" !;  up only -->1, otherwise 0"
+  iqall = 1 !;      iaf   = 0
+  write(ifqpnt,*) iqall !,iaf
+  write(ifqpnt,"(a)")"*** # of states and band index for gw_lmfh calculation."
+  iii = min(ndima,100) !this is the number of MTO (max of iii is ndima+napw(lowest))
   write(ifqpnt,*)  iii ! nband
-  write(ifqpnt,"(99i3)") (i,i=4,5)
-  write(ifqpnt,"(a)") "*** q-points, which shoud be in qbz. See KPNTin1BZ."
-  write(ifqpnt,*) min(nqibz,3)
-  write(ifqpnt,'(i3,3f23.16)')(i,qibz(1:3,i),i=1,nqibz)
+  write(ifqpnt,'(*(g0,x))') (i,i=1,iii)
+!  write(ifqpnt,"(a)") "*** q-points, which shoud be in qbz. See KPNTin1BZ."
+!  write(ifqpnt,*) min(nqibz,3)
+!  write(ifqpnt,'(i3,3f23.16)')(i,qibz(1:3,i),i=1,nqibz)
   rewind ifqpnt
   allocate(nnvv(0:lmxax,nbas))
   nnvv = 0

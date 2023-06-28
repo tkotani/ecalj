@@ -202,7 +202,7 @@ subroutine getwemax(lqall,wemax) !!> this routine is just in order to get |e_ip-
   implicit none
   logical,intent(in):: lqall
   real(8),intent(out):: wemax
-  integer:: ntq,i,nq,ifqpnt,ret,iaf,ipx1,itx1,ipx2,itx2
+  integer:: ntq,i,nq,ifqpnt,ret,ipx1,itx1,ipx2,itx2
   integer,allocatable:: itq(:)
   real(8),allocatable:: q(:,:),eqt(:) !,q0p(:,:)
   logical ::  legas = .false., tetra,lqallxxx
@@ -213,8 +213,8 @@ subroutine getwemax(lqall,wemax) !!> this routine is just in order to get |e_ip-
   if( .NOT. lqall) then
      call getkeyvalue("GWinput","<QPNT>",unit=ifqpnt,status=ret)
      call readx   (ifqpnt,10)
-     iaf=-1
-     read (ifqpnt,*) iqall,iaf
+!     iaf=-1
+     read (ifqpnt,*) iqall!,iaf
      if (iqall == 1) then
         lqallxxx = .true.
      else
@@ -244,7 +244,7 @@ subroutine getwemax(lqall,wemax) !!> this routine is just in order to get |e_ip-
      q = qibz(1:3,1:nqibz) !call dcopy   (3*nqibz,qibz,1,q,1)
   endif
   nspinmx = nspin
-  if (laf .OR. iaf==1) nspinmx =1
+  if (laf) nspinmx =1
   !! for 1shot GW deltaw id for d\Sigma/d_omega
   allocate(eqt(nband))
   omegav =  0d0 !1d99 fixed oct.2003 takao
@@ -271,21 +271,16 @@ subroutine getwemax(lqall,wemax) !!> this routine is just in order to get |e_ip-
         enddo
      enddo
   enddo
-  !! for Gaussian smearing
-  !      if(GaussSmear()) then
+  !! for Gaussian smearing   !      if(GaussSmear()) then
   ffac=10d0 !This is OK?
-  !      else
-  !        ffac=0.5d0
-  !      endif
+  !      else   !        ffac=0.5d0  !      endif
   emaxv =  0d0 !-1d99 fixed oct.2003 takao
   eminc =  0d0 !1d99
   do is = 1, nspinmx
      do iq = 1, nqbz
         eqt= readeval(qbz(1,iq),is)
-        !          print *
         do ib=1,nband
            eee = eqt(ib)
-           !            if(ib<6) write(6,*)' iq ib eee=',iq,ib,eee
            if( eee <ef+ffac*esmr .AND. eee>emaxv) emaxv = eee
            if( eee >ef-ffac*esmr .AND. eee<eminc) eminc = eee
         enddo
@@ -294,6 +289,7 @@ subroutine getwemax(lqall,wemax) !!> this routine is just in order to get |e_ip-
   deallocate(eqt)
   we  = max(abs(emaxv - ef), abs(omegav-ef),abs(omegac- ef) , abs(eminc-ef) )
   wemax= we+ffac*esmr
+end subroutine getwemax
   !      nw  = idint (we/2d0/dw) + 3
   !      write(6,*)' --------------------------------'
   !      write(6,*)' emaxv= ',emaxv
@@ -311,4 +307,3 @@ subroutine getwemax(lqall,wemax) !!> this routine is just in order to get |e_ip-
   !      write(6,'("    deltaw  =",f13.6)') deltaw
   !      write(6,'("    esmr    =",f13.6)') esmr
   !      write(6,'("    niw nw dw   =",2i6,f13.6)') niw,nw,dw
-end subroutine getwemax

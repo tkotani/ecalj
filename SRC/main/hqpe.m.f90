@@ -10,11 +10,12 @@ program hqpe
   ! SEx and xcLDA are in file SEX
   ! SEc is in file SEC
   use m_keyvalue,only: getkeyvalue
+  use m_anf,only: anfcond,laf
   !      use m_lgunit,only: m_lgunit_init
   implicit real*8 (a-h,o-z)
   implicit integer(i-n)
   ! local data
-  logical :: laf
+!  logical :: laf
   dimension ifsex(2),ifsexcore(2),ifxc(2),ifsec(2),ifqpe(2) &
        ,iftote(2),iftote2(2)
   integer,allocatable :: itxc(:),itc(:),itx(:)
@@ -24,6 +25,7 @@ program hqpe
   integer:: ret,iix
   !      logical:: readgwinput
   logical :: nozmode=.false.
+  call anfcond()
   !      call m_lgunit_init()
   ! shift quasiparticle energies (eV)
 !  write (*,*)' q+band index for zero?'
@@ -34,10 +36,10 @@ program hqpe
 !     nozmode=.true.
 !  endif
   call getkeyvalue("GWinput","<QPNT>",unit=ifqpnt,status=ret)
-  laf        = .false.
-  call readx   (ifqpnt,10)
-  read (ifqpnt,*) iqall,iaf
-  if (iaf == 1) laf = .TRUE. 
+!  laf        = .false.
+!  call readx   (ifqpnt,10)
+!  read (ifqpnt,*) iqall,iaf
+!  if (iaf == 1) laf = .TRUE. 
   open(newunit=ifsex(1)   ,file='SEXU')
   open(newunit=ifsexcore(1) ,file='SEXcoreU')
   open(newunit=ifsec(1)   ,file='SECU')

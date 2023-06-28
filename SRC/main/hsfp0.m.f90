@@ -24,6 +24,7 @@ program hsfp0
   use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
   use m_lgunit,only: m_lgunit_init
   use m_freq,only: freq01
+  use m_anf,only:  Anfcond, laf
   implicit none
   !! = Calculate the diagonal part of self-energy \Sigma within the GW approximation. And some other functions =
   !  See document at the top of hsfp0.sc.m.F
@@ -67,7 +68,7 @@ program hsfp0
   real(8) :: pi,tpia,vol,voltot,rs,alpha, &
        qfermi,efx,valn,efnew,edummy,efz,qm,xsex,egex,edummyd(1), &
        zfac1,zfac2,dscdw1,dscdw2,dscdw,zfac,ef2=1d99,exx,exxq,exxelgas
-  logical :: lqall,laf
+  logical :: lqall!,laf
   real(8),allocatable    :: q(:,:)
   integer,allocatable :: ngvecp(:,:), ngvecc(:,:),iqib(:), kount(:,:)
   real(8),allocatable:: vxcfp(:,:,:), &
@@ -432,16 +433,16 @@ program hsfp0
         open(newunit=ifqpnt,file='QPNT'//xt(nz))
      endif
   endif
-  !      write(6,*)' ifqpnt ret=',ifqpnt,ret
+  !   write(6,*)' ifqpnt ret=',ifqpnt,ret
+  call anfcond()
+!  lqall=.true.
   if (tote) then
      lqall      = .true.
   else
      lqall      = .false.
-     laf        = .false.
      call readx   (ifqpnt,10)
-     read (ifqpnt,*) iqall,iaf
+     read (ifqpnt,*) iqall!,iaf
      if (iqall == 1) lqall = .TRUE. 
-     if (iaf   == 1)   laf = .TRUE. 
      call readx   (ifqpnt,100)
   endif
   call setitq_hsfp0(ngcmx,ngpmx,tote,ifqpnt,noccxv,nss)

@@ -4,9 +4,9 @@ module m_hamindex0 !  originally HAMIndex0 contains informatio of SYMOPS,LATTC,C
   use m_lattic,only: lat_qlat,lat_plat,rv_a_opos
   use NaNum,only: NaN       !for initialization, but not working well
 
-  integer,protected,public:: ngrpaf,ngrp_original,pwmode
-  integer,protected,public:: nqi=NaN, nqnum=NaN, ngrp=NaN, lxx=NaN, kxx=NaN,norbmto=NaN, &
-       nqtt=NaN, ndimham=NaN, napwmx=NaN, lxxa=NaN, ngpmx=NaN, imx=NaN,nbas=NaN
+  integer,protected,public:: ngrpaf,ngrp_original,pwmode,ngrp=NaN, nbas=NaN
+!  integer,protected,public:: nqi=NaN, nqnum=NaN, lxx=NaN, kxx=NaN,norbmto=NaN, &
+!       nqtt=NaN, ndimham=NaN, napwmx=NaN, lxxa=NaN, ngpmx=NaN, imx=NaN
   integer,allocatable,protected,public:: iclasstaf(:), offH (:), &
        ltab(:),ktab(:),offl(:),offlrev(:,:,:),ibastab(:), &
        iqimap(:),iqmap(:),igmap(:),invgx(:),miat(:,:),ibasindex(:), &

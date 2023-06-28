@@ -7,9 +7,7 @@ module m_itq
   integer,allocatable,protected :: itq(:),nbandmx(:,:)
   integer,protected  :: ntq 
   private
-  !!======================================================================
 contains
-  !!======================================================================
   subroutine setitq()
     integer:: i
     ntq   = nband
@@ -101,18 +99,15 @@ contains
   end subroutine setitq_hsfp0sc
   !!======================================================================
   subroutine setitq_hsfp0 (ngcmx_in,ngpmx_in,tote,ifqpnt,noccxv,nss)
-    intent(in)::             ngcmx_in,ngpmx_in,tote,ifqpnt,noccxv,nss
+    intent(in)::     ngcmx_in,ngpmx_in,tote,ifqpnt,noccxv,nss
     integer:: nband_in,ngcmx_in,ngpmx_in,ifqpnt,noccxv,i,nss(2)
     logical:: tote
     if (tote) then
-       ntq    = noccxv
-       allocate( itq(ntq) )
-       do i   = 1,ntq
-          itq(i) = i
-       enddo
+       ntq = noccxv
+       allocate( itq(ntq),source=[(i,i=1,ntq)])
     else
        read (ifqpnt,*) ntq
-       allocate( itq(ntq) )
+       allocate( itq(ntq)) 
        read (ifqpnt,*) (itq(i),i=1,ntq)
     endif
     if(nss(2)/=-99997) then
@@ -127,45 +122,45 @@ contains
 end module m_itq
 
 !!------------------------------------------------------------------
-module m_selectqp
-  use m_keyvalue,only: GETKEYVALUE
-  implicit none
-  integer,protected:: nq
-  real(8),allocatable,protected ::qvec(:,:)
-contains
-  subroutine getqpoint(selectqp,nqibz,qibz)
-    real(8):: qibz(3,nqibz)
-    logical:: lqall,laff,selectqp
-    integer:: ifqpnt,ret,nqibz,i,iaf,iq,iqall,k
-    if(selectqp) then 
-       call GETKEYVALUE("GWinput","<QPNT>",unit=ifqpnt,status=ret)
-       lqall      = .false.
-       laff        = .false.
-       call readx   (ifqpnt,10)
-       read (ifqpnt,*) iqall,iaf
-       if (iqall == 1) lqall = .TRUE. 
-       if (iaf   == 1) laff = .TRUE. 
-       call readx   (ifqpnt,100)
-       if (lqall) then         !all q-points case
-          nq         = nqibz
-          allocate(qvec(3,nq))
-          call dcopy   (3*nqibz,qibz,1,qvec,1)
-       else
-          call readx   (ifqpnt,100)
-          read (ifqpnt,*) nq
-          allocate(qvec(3,nq))
-          do       k = 1,nq
-             read (ifqpnt,*) i,qvec(1,k),qvec(2,k),qvec(3,k)
-          enddo
-       endif
-       close(ifqpnt)
-    else
-       nq = nqibz
-       allocate(qvec(3,nq))
-       qvec(:,1:nq) = qibz(:,1:nq)
-    endif
-    do iq=1,nq
-       write(6,'(" Target iq q=",i6,3f9.4)')iq,qvec(:,iq)
-    enddo
-  end subroutine getqpoint
-end module m_selectqp
+! module m_selectqp
+!   use m_keyvalue,only: GETKEYVALUE
+!   implicit none
+!   integer,protected:: nq
+!   real(8),allocatable,protected ::qvec(:,:)
+! contains
+!   subroutine getqpoint(selectqp,nqibz,qibz)
+!     real(8):: qibz(3,nqibz)
+!     logical:: lqall,laff,selectqp
+!     integer:: ifqpnt,ret,nqibz,i,iaf,iq,iqall,k
+!     if(selectqp) then 
+!        call GETKEYVALUE("GWinput","<QPNT>",unit=ifqpnt,status=ret)
+!        lqall      = .false.
+!        laff        = .false.
+!        call readx   (ifqpnt,10)
+!        read (ifqpnt,*) iqall,iaf
+!        if (iqall == 1) lqall = .TRUE. 
+!        if (iaf   == 1) laff = .TRUE. 
+!        call readx   (ifqpnt,100)
+!        if (lqall) then         !all q-points case
+!           nq         = nqibz
+!           allocate(qvec(3,nq))
+!           call dcopy   (3*nqibz,qibz,1,qvec,1)
+!        else
+!           call readx   (ifqpnt,100)
+!           read (ifqpnt,*) nq
+!           allocate(qvec(3,nq))
+!           do       k = 1,nq
+!              read (ifqpnt,*) i,qvec(1,k),qvec(2,k),qvec(3,k)
+!           enddo
+!        endif
+!        close(ifqpnt)
+!     else
+!        nq = nqibz
+!        allocate(qvec(3,nq))
+!        qvec(:,1:nq) = qibz(:,1:nq)
+!     endif
+!     do iq=1,nq
+!        write(6,'(" Target iq q=",i6,3f9.4)')iq,qvec(:,iq)
+!     enddo
+!   end subroutine getqpoint
+!end module m_selectqp
