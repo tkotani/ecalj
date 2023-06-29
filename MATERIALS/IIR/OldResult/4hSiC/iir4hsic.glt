@@ -1,0 +1,31 @@
+#!/usr/bin/gnuplot -persist
+set terminal postscript enhanced color eps
+set output 'imi4hsic.eps'
+set title "4H-SiC IMI rate (hQSGW=QSGW70%+LDA30% Band Gap=3.12eV (experiment 3.23eV))"
+set xlabel " Electron energy (zero at minimum of conduction) (eV)" 
+set ylabel " Impact ionization rate (1/s)" 
+set xrange [-20: 20]
+set log y
+set yrange [1e5: 1e16]
+set grid
+set pointsize .2
+
+vbm= -1.616 #read by bnd file
+gap=  3.231 #
+cbm=  gap+vbm
+
+#VBM
+set arrow from -3.231,1e5 to -3.231,1e16 nohead
+#CBM
+set arrow from 0,1e5 to 0,1e16 nohead
+
+plot "4hSiC_hQSGW/QPU_life" using ($5-cbm):(abs($6)*10.**15/0.658) with points ti '12x12x4' pt 9
+set term postscript enhanced color
+set output "pl.eps"
+replot
+exit
+
+ "4hSiC_hQSGW_imi_lcut2_993/QPU_life"  using ($5+1.616-3.231):(abs($6)*10.**15/0.658) with points ti '993' pt 7,\
+     "4hSiC_hQSGW_imi_lcut4_993/QPU_life"  using ($5+1.616-3.231):(abs($6)*10.**15/0.658) with points ti '993' pt 8,\
+    
+

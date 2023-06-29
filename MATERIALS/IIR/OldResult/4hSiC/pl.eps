@@ -1,0 +1,4033 @@
+%!PS-Adobe-2.0 EPSF-2.0
+%%Title: pl.eps
+%%Creator: gnuplot 5.2 patchlevel 8
+%%CreationDate: Thu Jun 29 12:55:27 2023
+%%DocumentFonts: (atend)
+%%BoundingBox: 50 50 410 302
+%%EndComments
+%%BeginProlog
+/gnudict 256 dict def
+gnudict begin
+%
+% The following true/false flags may be edited by hand if desired.
+% The unit line width and grayscale image gamma correction may also be changed.
+%
+/Color true def
+/Blacktext false def
+/Solid false def
+/Dashlength 1 def
+/Landscape false def
+/Level1 false def
+/Level3 false def
+/Rounded false def
+/ClipToBoundingBox false def
+/SuppressPDFMark false def
+/TransparentPatterns false def
+/gnulinewidth 5.000 def
+/userlinewidth gnulinewidth def
+/Gamma 1.0 def
+/BackgroundColor {-1.000 -1.000 -1.000} def
+%
+/vshift -46 def
+/dl1 {
+  10.0 Dashlength userlinewidth gnulinewidth div mul mul mul
+  Rounded { currentlinewidth 0.75 mul sub dup 0 le { pop 0.01 } if } if
+} def
+/dl2 {
+  10.0 Dashlength userlinewidth gnulinewidth div mul mul mul
+  Rounded { currentlinewidth 0.75 mul add } if
+} def
+/hpt_ 31.5 def
+/vpt_ 31.5 def
+/hpt hpt_ def
+/vpt vpt_ def
+/doclip {
+  ClipToBoundingBox {
+    newpath 50 50 moveto 410 50 lineto 410 302 lineto 50 302 lineto closepath
+    clip
+  } if
+} def
+%
+% Gnuplot Prolog Version 5.2 (Dec 2017)
+%
+%/SuppressPDFMark true def
+%
+/M {moveto} bind def
+/L {lineto} bind def
+/R {rmoveto} bind def
+/V {rlineto} bind def
+/N {newpath moveto} bind def
+/Z {closepath} bind def
+/C {setrgbcolor} bind def
+/f {rlineto fill} bind def
+/g {setgray} bind def
+/Gshow {show} def   % May be redefined later in the file to support UTF-8
+/vpt2 vpt 2 mul def
+/hpt2 hpt 2 mul def
+/Lshow {currentpoint stroke M 0 vshift R 
+	Blacktext {gsave 0 setgray textshow grestore} {textshow} ifelse} def
+/Rshow {currentpoint stroke M dup stringwidth pop neg vshift R
+	Blacktext {gsave 0 setgray textshow grestore} {textshow} ifelse} def
+/Cshow {currentpoint stroke M dup stringwidth pop -2 div vshift R 
+	Blacktext {gsave 0 setgray textshow grestore} {textshow} ifelse} def
+/UP {dup vpt_ mul /vpt exch def hpt_ mul /hpt exch def
+  /hpt2 hpt 2 mul def /vpt2 vpt 2 mul def} def
+/DL {Color {setrgbcolor Solid {pop []} if 0 setdash}
+ {pop pop pop 0 setgray Solid {pop []} if 0 setdash} ifelse} def
+/BL {stroke userlinewidth 2 mul setlinewidth
+	Rounded {1 setlinejoin 1 setlinecap} if} def
+/AL {stroke userlinewidth 2 div setlinewidth
+	Rounded {1 setlinejoin 1 setlinecap} if} def
+/UL {dup gnulinewidth mul /userlinewidth exch def
+	dup 1 lt {pop 1} if 10 mul /udl exch def} def
+/PL {stroke userlinewidth setlinewidth
+	Rounded {1 setlinejoin 1 setlinecap} if} def
+3.8 setmiterlimit
+% Classic Line colors (version 5.0)
+/LCw {1 1 1} def
+/LCb {0 0 0} def
+/LCa {0 0 0} def
+/LC0 {1 0 0} def
+/LC1 {0 1 0} def
+/LC2 {0 0 1} def
+/LC3 {1 0 1} def
+/LC4 {0 1 1} def
+/LC5 {1 1 0} def
+/LC6 {0 0 0} def
+/LC7 {1 0.3 0} def
+/LC8 {0.5 0.5 0.5} def
+% Default dash patterns (version 5.0)
+/LTB {BL [] LCb DL} def
+/LTw {PL [] 1 setgray} def
+/LTb {PL [] LCb DL} def
+/LTa {AL [1 udl mul 2 udl mul] 0 setdash LCa setrgbcolor} def
+/LT0 {PL [] LC0 DL} def
+/LT1 {PL [2 dl1 3 dl2] LC1 DL} def
+/LT2 {PL [1 dl1 1.5 dl2] LC2 DL} def
+/LT3 {PL [6 dl1 2 dl2 1 dl1 2 dl2] LC3 DL} def
+/LT4 {PL [1 dl1 2 dl2 6 dl1 2 dl2 1 dl1 2 dl2] LC4 DL} def
+/LT5 {PL [4 dl1 2 dl2] LC5 DL} def
+/LT6 {PL [1.5 dl1 1.5 dl2 1.5 dl1 1.5 dl2 1.5 dl1 6 dl2] LC6 DL} def
+/LT7 {PL [3 dl1 3 dl2 1 dl1 3 dl2] LC7 DL} def
+/LT8 {PL [2 dl1 2 dl2 2 dl1 6 dl2] LC8 DL} def
+/SL {[] 0 setdash} def
+/Pnt {stroke [] 0 setdash gsave 1 setlinecap M 0 0 V stroke grestore} def
+/Dia {stroke [] 0 setdash 2 copy vpt add M
+  hpt neg vpt neg V hpt vpt neg V
+  hpt vpt V hpt neg vpt V closepath stroke
+  Pnt} def
+/Pls {stroke [] 0 setdash vpt sub M 0 vpt2 V
+  currentpoint stroke M
+  hpt neg vpt neg R hpt2 0 V stroke
+ } def
+/Box {stroke [] 0 setdash 2 copy exch hpt sub exch vpt add M
+  0 vpt2 neg V hpt2 0 V 0 vpt2 V
+  hpt2 neg 0 V closepath stroke
+  Pnt} def
+/Crs {stroke [] 0 setdash exch hpt sub exch vpt add M
+  hpt2 vpt2 neg V currentpoint stroke M
+  hpt2 neg 0 R hpt2 vpt2 V stroke} def
+/TriU {stroke [] 0 setdash 2 copy vpt 1.12 mul add M
+  hpt neg vpt -1.62 mul V
+  hpt 2 mul 0 V
+  hpt neg vpt 1.62 mul V closepath stroke
+  Pnt} def
+/Star {2 copy Pls Crs} def
+/BoxF {stroke [] 0 setdash exch hpt sub exch vpt add M
+  0 vpt2 neg V hpt2 0 V 0 vpt2 V
+  hpt2 neg 0 V closepath fill} def
+/TriUF {stroke [] 0 setdash vpt 1.12 mul add M
+  hpt neg vpt -1.62 mul V
+  hpt 2 mul 0 V
+  hpt neg vpt 1.62 mul V closepath fill} def
+/TriD {stroke [] 0 setdash 2 copy vpt 1.12 mul sub M
+  hpt neg vpt 1.62 mul V
+  hpt 2 mul 0 V
+  hpt neg vpt -1.62 mul V closepath stroke
+  Pnt} def
+/TriDF {stroke [] 0 setdash vpt 1.12 mul sub M
+  hpt neg vpt 1.62 mul V
+  hpt 2 mul 0 V
+  hpt neg vpt -1.62 mul V closepath fill} def
+/DiaF {stroke [] 0 setdash vpt add M
+  hpt neg vpt neg V hpt vpt neg V
+  hpt vpt V hpt neg vpt V closepath fill} def
+/Pent {stroke [] 0 setdash 2 copy gsave
+  translate 0 hpt M 4 {72 rotate 0 hpt L} repeat
+  closepath stroke grestore Pnt} def
+/PentF {stroke [] 0 setdash gsave
+  translate 0 hpt M 4 {72 rotate 0 hpt L} repeat
+  closepath fill grestore} def
+/Circle {stroke [] 0 setdash 2 copy
+  hpt 0 360 arc stroke Pnt} def
+/CircleF {stroke [] 0 setdash hpt 0 360 arc fill} def
+/C0 {BL [] 0 setdash 2 copy moveto vpt 90 450 arc} bind def
+/C1 {BL [] 0 setdash 2 copy moveto
+	2 copy vpt 0 90 arc closepath fill
+	vpt 0 360 arc closepath} bind def
+/C2 {BL [] 0 setdash 2 copy moveto
+	2 copy vpt 90 180 arc closepath fill
+	vpt 0 360 arc closepath} bind def
+/C3 {BL [] 0 setdash 2 copy moveto
+	2 copy vpt 0 180 arc closepath fill
+	vpt 0 360 arc closepath} bind def
+/C4 {BL [] 0 setdash 2 copy moveto
+	2 copy vpt 180 270 arc closepath fill
+	vpt 0 360 arc closepath} bind def
+/C5 {BL [] 0 setdash 2 copy moveto
+	2 copy vpt 0 90 arc
+	2 copy moveto
+	2 copy vpt 180 270 arc closepath fill
+	vpt 0 360 arc} bind def
+/C6 {BL [] 0 setdash 2 copy moveto
+	2 copy vpt 90 270 arc closepath fill
+	vpt 0 360 arc closepath} bind def
+/C7 {BL [] 0 setdash 2 copy moveto
+	2 copy vpt 0 270 arc closepath fill
+	vpt 0 360 arc closepath} bind def
+/C8 {BL [] 0 setdash 2 copy moveto
+	2 copy vpt 270 360 arc closepath fill
+	vpt 0 360 arc closepath} bind def
+/C9 {BL [] 0 setdash 2 copy moveto
+	2 copy vpt 270 450 arc closepath fill
+	vpt 0 360 arc closepath} bind def
+/C10 {BL [] 0 setdash 2 copy 2 copy moveto vpt 270 360 arc closepath fill
+	2 copy moveto
+	2 copy vpt 90 180 arc closepath fill
+	vpt 0 360 arc closepath} bind def
+/C11 {BL [] 0 setdash 2 copy moveto
+	2 copy vpt 0 180 arc closepath fill
+	2 copy moveto
+	2 copy vpt 270 360 arc closepath fill
+	vpt 0 360 arc closepath} bind def
+/C12 {BL [] 0 setdash 2 copy moveto
+	2 copy vpt 180 360 arc closepath fill
+	vpt 0 360 arc closepath} bind def
+/C13 {BL [] 0 setdash 2 copy moveto
+	2 copy vpt 0 90 arc closepath fill
+	2 copy moveto
+	2 copy vpt 180 360 arc closepath fill
+	vpt 0 360 arc closepath} bind def
+/C14 {BL [] 0 setdash 2 copy moveto
+	2 copy vpt 90 360 arc closepath fill
+	vpt 0 360 arc} bind def
+/C15 {BL [] 0 setdash 2 copy vpt 0 360 arc closepath fill
+	vpt 0 360 arc closepath} bind def
+/Rec {newpath 4 2 roll moveto 1 index 0 rlineto 0 exch rlineto
+	neg 0 rlineto closepath} bind def
+/Square {dup Rec} bind def
+/Bsquare {vpt sub exch vpt sub exch vpt2 Square} bind def
+/S0 {BL [] 0 setdash 2 copy moveto 0 vpt rlineto BL Bsquare} bind def
+/S1 {BL [] 0 setdash 2 copy vpt Square fill Bsquare} bind def
+/S2 {BL [] 0 setdash 2 copy exch vpt sub exch vpt Square fill Bsquare} bind def
+/S3 {BL [] 0 setdash 2 copy exch vpt sub exch vpt2 vpt Rec fill Bsquare} bind def
+/S4 {BL [] 0 setdash 2 copy exch vpt sub exch vpt sub vpt Square fill Bsquare} bind def
+/S5 {BL [] 0 setdash 2 copy 2 copy vpt Square fill
+	exch vpt sub exch vpt sub vpt Square fill Bsquare} bind def
+/S6 {BL [] 0 setdash 2 copy exch vpt sub exch vpt sub vpt vpt2 Rec fill Bsquare} bind def
+/S7 {BL [] 0 setdash 2 copy exch vpt sub exch vpt sub vpt vpt2 Rec fill
+	2 copy vpt Square fill Bsquare} bind def
+/S8 {BL [] 0 setdash 2 copy vpt sub vpt Square fill Bsquare} bind def
+/S9 {BL [] 0 setdash 2 copy vpt sub vpt vpt2 Rec fill Bsquare} bind def
+/S10 {BL [] 0 setdash 2 copy vpt sub vpt Square fill 2 copy exch vpt sub exch vpt Square fill
+	Bsquare} bind def
+/S11 {BL [] 0 setdash 2 copy vpt sub vpt Square fill 2 copy exch vpt sub exch vpt2 vpt Rec fill
+	Bsquare} bind def
+/S12 {BL [] 0 setdash 2 copy exch vpt sub exch vpt sub vpt2 vpt Rec fill Bsquare} bind def
+/S13 {BL [] 0 setdash 2 copy exch vpt sub exch vpt sub vpt2 vpt Rec fill
+	2 copy vpt Square fill Bsquare} bind def
+/S14 {BL [] 0 setdash 2 copy exch vpt sub exch vpt sub vpt2 vpt Rec fill
+	2 copy exch vpt sub exch vpt Square fill Bsquare} bind def
+/S15 {BL [] 0 setdash 2 copy Bsquare fill Bsquare} bind def
+/D0 {gsave translate 45 rotate 0 0 S0 stroke grestore} bind def
+/D1 {gsave translate 45 rotate 0 0 S1 stroke grestore} bind def
+/D2 {gsave translate 45 rotate 0 0 S2 stroke grestore} bind def
+/D3 {gsave translate 45 rotate 0 0 S3 stroke grestore} bind def
+/D4 {gsave translate 45 rotate 0 0 S4 stroke grestore} bind def
+/D5 {gsave translate 45 rotate 0 0 S5 stroke grestore} bind def
+/D6 {gsave translate 45 rotate 0 0 S6 stroke grestore} bind def
+/D7 {gsave translate 45 rotate 0 0 S7 stroke grestore} bind def
+/D8 {gsave translate 45 rotate 0 0 S8 stroke grestore} bind def
+/D9 {gsave translate 45 rotate 0 0 S9 stroke grestore} bind def
+/D10 {gsave translate 45 rotate 0 0 S10 stroke grestore} bind def
+/D11 {gsave translate 45 rotate 0 0 S11 stroke grestore} bind def
+/D12 {gsave translate 45 rotate 0 0 S12 stroke grestore} bind def
+/D13 {gsave translate 45 rotate 0 0 S13 stroke grestore} bind def
+/D14 {gsave translate 45 rotate 0 0 S14 stroke grestore} bind def
+/D15 {gsave translate 45 rotate 0 0 S15 stroke grestore} bind def
+/DiaE {stroke [] 0 setdash vpt add M
+  hpt neg vpt neg V hpt vpt neg V
+  hpt vpt V hpt neg vpt V closepath stroke} def
+/BoxE {stroke [] 0 setdash exch hpt sub exch vpt add M
+  0 vpt2 neg V hpt2 0 V 0 vpt2 V
+  hpt2 neg 0 V closepath stroke} def
+/TriUE {stroke [] 0 setdash vpt 1.12 mul add M
+  hpt neg vpt -1.62 mul V
+  hpt 2 mul 0 V
+  hpt neg vpt 1.62 mul V closepath stroke} def
+/TriDE {stroke [] 0 setdash vpt 1.12 mul sub M
+  hpt neg vpt 1.62 mul V
+  hpt 2 mul 0 V
+  hpt neg vpt -1.62 mul V closepath stroke} def
+/PentE {stroke [] 0 setdash gsave
+  translate 0 hpt M 4 {72 rotate 0 hpt L} repeat
+  closepath stroke grestore} def
+/CircE {stroke [] 0 setdash 
+  hpt 0 360 arc stroke} def
+/Opaque {gsave closepath 1 setgray fill grestore 0 setgray closepath} def
+/DiaW {stroke [] 0 setdash vpt add M
+  hpt neg vpt neg V hpt vpt neg V
+  hpt vpt V hpt neg vpt V Opaque stroke} def
+/BoxW {stroke [] 0 setdash exch hpt sub exch vpt add M
+  0 vpt2 neg V hpt2 0 V 0 vpt2 V
+  hpt2 neg 0 V Opaque stroke} def
+/TriUW {stroke [] 0 setdash vpt 1.12 mul add M
+  hpt neg vpt -1.62 mul V
+  hpt 2 mul 0 V
+  hpt neg vpt 1.62 mul V Opaque stroke} def
+/TriDW {stroke [] 0 setdash vpt 1.12 mul sub M
+  hpt neg vpt 1.62 mul V
+  hpt 2 mul 0 V
+  hpt neg vpt -1.62 mul V Opaque stroke} def
+/PentW {stroke [] 0 setdash gsave
+  translate 0 hpt M 4 {72 rotate 0 hpt L} repeat
+  Opaque stroke grestore} def
+/CircW {stroke [] 0 setdash 
+  hpt 0 360 arc Opaque stroke} def
+/BoxFill {gsave Rec 1 setgray fill grestore} def
+/Density {
+  /Fillden exch def
+  currentrgbcolor
+  /ColB exch def /ColG exch def /ColR exch def
+  /ColR ColR Fillden mul Fillden sub 1 add def
+  /ColG ColG Fillden mul Fillden sub 1 add def
+  /ColB ColB Fillden mul Fillden sub 1 add def
+  ColR ColG ColB setrgbcolor} def
+/BoxColFill {gsave Rec PolyFill} def
+/PolyFill {gsave Density fill grestore grestore} def
+/h {rlineto rlineto rlineto closepath gsave fill grestore stroke} bind def
+%
+% PostScript Level 1 Pattern Fill routine for rectangles
+% Usage: x y w h s a XX PatternFill
+%	x,y = lower left corner of box to be filled
+%	w,h = width and height of box
+%	  a = angle in degrees between lines and x-axis
+%	 XX = 0/1 for no/yes cross-hatch
+%
+/PatternFill {gsave /PFa [ 9 2 roll ] def
+  PFa 0 get PFa 2 get 2 div add PFa 1 get PFa 3 get 2 div add translate
+  PFa 2 get -2 div PFa 3 get -2 div PFa 2 get PFa 3 get Rec
+  TransparentPatterns {} {gsave 1 setgray fill grestore} ifelse
+  clip
+  currentlinewidth 0.5 mul setlinewidth
+  /PFs PFa 2 get dup mul PFa 3 get dup mul add sqrt def
+  0 0 M PFa 5 get rotate PFs -2 div dup translate
+  0 1 PFs PFa 4 get div 1 add floor cvi
+	{PFa 4 get mul 0 M 0 PFs V} for
+  0 PFa 6 get ne {
+	0 1 PFs PFa 4 get div 1 add floor cvi
+	{PFa 4 get mul 0 2 1 roll M PFs 0 V} for
+ } if
+  stroke grestore} def
+%
+/languagelevel where
+ {pop languagelevel} {1} ifelse
+dup 2 lt
+	{/InterpretLevel1 true def
+	 /InterpretLevel3 false def}
+	{/InterpretLevel1 Level1 def
+	 2 gt
+	    {/InterpretLevel3 Level3 def}
+	    {/InterpretLevel3 false def}
+	 ifelse }
+ ifelse
+%
+% PostScript level 2 pattern fill definitions
+%
+/Level2PatternFill {
+/Tile8x8 {/PaintType 2 /PatternType 1 /TilingType 1 /BBox [0 0 8 8] /XStep 8 /YStep 8}
+	bind def
+/KeepColor {currentrgbcolor [/Pattern /DeviceRGB] setcolorspace} bind def
+<< Tile8x8
+ /PaintProc {0.5 setlinewidth pop 0 0 M 8 8 L 0 8 M 8 0 L stroke} 
+>> matrix makepattern
+/Pat1 exch def
+<< Tile8x8
+ /PaintProc {0.5 setlinewidth pop 0 0 M 8 8 L 0 8 M 8 0 L stroke
+	0 4 M 4 8 L 8 4 L 4 0 L 0 4 L stroke}
+>> matrix makepattern
+/Pat2 exch def
+<< Tile8x8
+ /PaintProc {0.5 setlinewidth pop 0 0 M 0 8 L
+	8 8 L 8 0 L 0 0 L fill}
+>> matrix makepattern
+/Pat3 exch def
+<< Tile8x8
+ /PaintProc {0.5 setlinewidth pop -4 8 M 8 -4 L
+	0 12 M 12 0 L stroke}
+>> matrix makepattern
+/Pat4 exch def
+<< Tile8x8
+ /PaintProc {0.5 setlinewidth pop -4 0 M 8 12 L
+	0 -4 M 12 8 L stroke}
+>> matrix makepattern
+/Pat5 exch def
+<< Tile8x8
+ /PaintProc {0.5 setlinewidth pop -2 8 M 4 -4 L
+	0 12 M 8 -4 L 4 12 M 10 0 L stroke}
+>> matrix makepattern
+/Pat6 exch def
+<< Tile8x8
+ /PaintProc {0.5 setlinewidth pop -2 0 M 4 12 L
+	0 -4 M 8 12 L 4 -4 M 10 8 L stroke}
+>> matrix makepattern
+/Pat7 exch def
+<< Tile8x8
+ /PaintProc {0.5 setlinewidth pop 8 -2 M -4 4 L
+	12 0 M -4 8 L 12 4 M 0 10 L stroke}
+>> matrix makepattern
+/Pat8 exch def
+<< Tile8x8
+ /PaintProc {0.5 setlinewidth pop 0 -2 M 12 4 L
+	-4 0 M 12 8 L -4 4 M 8 10 L stroke}
+>> matrix makepattern
+/Pat9 exch def
+/Pattern1 {PatternBgnd KeepColor Pat1 setpattern} bind def
+/Pattern2 {PatternBgnd KeepColor Pat2 setpattern} bind def
+/Pattern3 {PatternBgnd KeepColor Pat3 setpattern} bind def
+/Pattern4 {PatternBgnd KeepColor Landscape {Pat5} {Pat4} ifelse setpattern} bind def
+/Pattern5 {PatternBgnd KeepColor Landscape {Pat4} {Pat5} ifelse setpattern} bind def
+/Pattern6 {PatternBgnd KeepColor Landscape {Pat9} {Pat6} ifelse setpattern} bind def
+/Pattern7 {PatternBgnd KeepColor Landscape {Pat8} {Pat7} ifelse setpattern} bind def
+} def
+%
+%
+%End of PostScript Level 2 code
+%
+/PatternBgnd {
+  TransparentPatterns {} {gsave 1 setgray fill grestore} ifelse
+} def
+%
+% Substitute for Level 2 pattern fill codes with
+% grayscale if Level 2 support is not selected.
+%
+/Level1PatternFill {
+/Pattern1 {0.250 Density} bind def
+/Pattern2 {0.500 Density} bind def
+/Pattern3 {0.750 Density} bind def
+/Pattern4 {0.125 Density} bind def
+/Pattern5 {0.375 Density} bind def
+/Pattern6 {0.625 Density} bind def
+/Pattern7 {0.875 Density} bind def
+} def
+%
+% Now test for support of Level 2 code
+%
+Level1 {Level1PatternFill} {Level2PatternFill} ifelse
+%
+/Symbol-Oblique /Symbol findfont [1 0 .167 1 0 0] makefont
+dup length dict begin {1 index /FID eq {pop pop} {def} ifelse} forall
+currentdict end definefont pop
+%
+/Metrics {ExtendTextBox Gswidth} def
+/Lwidth {currentpoint stroke M 0 vshift R Metrics} def
+/Rwidth {currentpoint stroke M dup stringwidth pop neg vshift R Metrics} def
+/Cwidth {currentpoint stroke M dup stringwidth pop -2 div vshift R Metrics} def
+/GLwidth {currentpoint stroke M 0 vshift R {ExtendTextBox} forall} def
+/GRwidth {currentpoint stroke M dup Gwidth vshift R {ExtendTextBox} forall} def
+/GCwidth {currentpoint stroke M dup Gwidth 2 div vshift R {ExtendTextBox} forall} def
+/GLwidth2 {0 Gwidth AddGlyphWidth} def
+/GRwidth2 {Gwidth -1 mul 0 AddGlyphWidth} def
+/GCwidth2 {Gwidth 2 div dup -1 mul AddGlyphWidth} def
+/AddGlyphWidth { dup TBx2 gt {userdict /TBx2 3 -1 roll put} {pop} ifelse
+                 dup TBx1 lt {userdict /TBx1 3 -1 roll put} {pop} ifelse } def
+/MFshow {
+   { dup 5 get 3 ge
+     { 5 get 3 eq {gsave} {grestore} ifelse }
+     {dup dup 0 get findfont exch 1 get scalefont setfont
+     [ currentpoint ] exch dup 2 get 0 exch R dup 5 get 2 ne {dup dup 6
+     get exch 4 get {textshow} {Metrics pop 0 R} ifelse }if dup 5 get 0 eq
+     {dup 3 get {2 get neg 0 exch R pop} {pop aload pop M} ifelse} {dup 5
+     get 1 eq {dup 2 get exch dup 3 get exch 6 get Gswidth pop -2 div
+     dup 0 R} {dup 6 get Gswidth pop -2 div 0 R 6 get
+     textshow 2 index {aload pop M neg 3 -1 roll neg R pop pop} {pop pop pop
+     pop aload pop M} ifelse }ifelse }ifelse }
+     ifelse }
+   forall} def
+/Gswidth {dup type /stringtype eq {stringwidth} {pop (n) stringwidth} ifelse} def
+/MFwidth {0 exch { dup 5 get 3 ge { 5 get 3 eq { 0 } { pop } ifelse }
+ {dup 3 get{dup dup 0 get findfont exch 1 get scalefont setfont
+     6 get Gswidth pop add} {pop} ifelse} ifelse} forall} def
+/MLshow { currentpoint stroke M
+  0 exch R
+  Blacktext {gsave 0 setgray MFshow grestore} {MFshow} ifelse } bind def
+/MRshow { currentpoint stroke M
+  exch dup MFwidth neg 3 -1 roll R
+  Blacktext {gsave 0 setgray MFshow grestore} {MFshow} ifelse } bind def
+/MCshow { currentpoint stroke M
+  exch dup MFwidth -2 div 3 -1 roll R
+  Blacktext {gsave 0 setgray MFshow grestore} {MFshow} ifelse } bind def
+/XYsave    { [( ) 1 2 true false 3 ()] } bind def
+/XYrestore { [( ) 1 2 true false 4 ()] } bind def
+Level1 SuppressPDFMark or 
+{} {
+/SDict 10 dict def
+systemdict /pdfmark known not {
+  userdict /pdfmark systemdict /cleartomark get put
+} if
+SDict begin [
+  /Title (pl.eps)
+  /Subject (gnuplot plot)
+  /Creator (gnuplot 5.2 patchlevel 8)
+%  /Producer (gnuplot)
+%  /Keywords ()
+  /CreationDate (Thu Jun 29 12:55:27 2023)
+  /DOCINFO pdfmark
+end
+} ifelse
+%
+% Support for boxed text - Ethan A Merritt Sep 2016
+%
+/InitTextBox { userdict /TBy2 3 -1 roll put userdict /TBx2 3 -1 roll put
+           userdict /TBy1 3 -1 roll put userdict /TBx1 3 -1 roll put
+	   /Boxing true def } def
+/ExtendTextBox { dup type /stringtype eq
+    { Boxing { gsave dup false charpath pathbbox
+      dup TBy2 gt {userdict /TBy2 3 -1 roll put} {pop} ifelse
+      dup TBx2 gt {userdict /TBx2 3 -1 roll put} {pop} ifelse
+      dup TBy1 lt {userdict /TBy1 3 -1 roll put} {pop} ifelse
+      dup TBx1 lt {userdict /TBx1 3 -1 roll put} {pop} ifelse
+      grestore } if }
+    {} ifelse} def
+/PopTextBox { newpath TBx1 TBxmargin sub TBy1 TBymargin sub M
+               TBx1 TBxmargin sub TBy2 TBymargin add L
+	       TBx2 TBxmargin add TBy2 TBymargin add L
+	       TBx2 TBxmargin add TBy1 TBymargin sub L closepath } def
+/DrawTextBox { PopTextBox stroke /Boxing false def} def
+/FillTextBox { gsave PopTextBox fill grestore /Boxing false def} def
+0 0 0 0 InitTextBox
+/TBxmargin 20 def
+/TBymargin 20 def
+/Boxing false def
+/textshow { ExtendTextBox Gshow } def
+%
+end
+%%EndProlog
+%%Page: 1 1
+gnudict begin
+gsave
+doclip
+50 50 translate
+0.050 0.050 scale
+0 setgray
+newpath
+(Helvetica) findfont 140 scalefont setfont
+BackgroundColor 0 lt 3 1 roll 0 lt exch 0 lt or or not {BackgroundColor C 1.000 0 0 7200.00 5040.00 BoxColFill} if
+1.000 UL
+LTb
+LCb setrgbcolor
+854 478 M
+31 0 V
+6062 0 R
+-31 0 V
+854 585 M
+31 0 V
+6062 0 R
+-31 0 V
+854 650 M
+31 0 V
+6062 0 R
+-31 0 V
+854 696 M
+31 0 V
+6062 0 R
+-31 0 V
+854 732 M
+31 0 V
+6062 0 R
+-31 0 V
+854 761 M
+31 0 V
+6062 0 R
+-31 0 V
+854 786 M
+31 0 V
+6062 0 R
+-31 0 V
+854 808 M
+31 0 V
+6062 0 R
+-31 0 V
+stroke
+0.500 UL
+LTa
+LCa setrgbcolor
+854 827 M
+6093 0 V
+stroke
+1.000 UL
+LTb
+LCb setrgbcolor
+854 827 M
+63 0 V
+6030 0 R
+-63 0 V
+stroke
+770 827 M
+[ [(Helvetica) 140.0 0.0 true true 0 ( 1x10)]
+[(Helvetica) 112.0 70.0 true true 0 (6)]
+] -60.7 MRshow
+/Helvetica findfont 140 scalefont setfont
+/vshift -46 def
+1.000 UL
+LTb
+LCb setrgbcolor
+854 1236 M
+31 0 V
+6062 0 R
+-31 0 V
+854 1344 M
+31 0 V
+6062 0 R
+-31 0 V
+854 1408 M
+31 0 V
+6062 0 R
+-31 0 V
+854 1454 M
+31 0 V
+6062 0 R
+-31 0 V
+854 1490 M
+31 0 V
+6062 0 R
+-31 0 V
+854 1520 M
+31 0 V
+6062 0 R
+-31 0 V
+854 1545 M
+31 0 V
+6062 0 R
+-31 0 V
+854 1566 M
+31 0 V
+6062 0 R
+-31 0 V
+stroke
+0.500 UL
+LTa
+LCa setrgbcolor
+854 1586 M
+6093 0 V
+stroke
+1.000 UL
+LTb
+LCb setrgbcolor
+854 1586 M
+63 0 V
+6030 0 R
+-63 0 V
+stroke
+770 1586 M
+[ [(Helvetica) 140.0 0.0 true true 0 ( 1x10)]
+[(Helvetica) 112.0 70.0 true true 0 (8)]
+] -60.7 MRshow
+/Helvetica findfont 140 scalefont setfont
+1.000 UL
+LTb
+LCb setrgbcolor
+854 1995 M
+31 0 V
+6062 0 R
+-31 0 V
+854 2102 M
+31 0 V
+6062 0 R
+-31 0 V
+854 2166 M
+31 0 V
+6062 0 R
+-31 0 V
+854 2212 M
+31 0 V
+6062 0 R
+-31 0 V
+854 2248 M
+31 0 V
+6062 0 R
+-31 0 V
+854 2278 M
+31 0 V
+6062 0 R
+-31 0 V
+854 2303 M
+31 0 V
+6062 0 R
+-31 0 V
+854 2325 M
+31 0 V
+6062 0 R
+-31 0 V
+stroke
+0.500 UL
+LTa
+LCa setrgbcolor
+854 2344 M
+6093 0 V
+stroke
+1.000 UL
+LTb
+LCb setrgbcolor
+854 2344 M
+63 0 V
+6030 0 R
+-63 0 V
+stroke
+770 2344 M
+[ [(Helvetica) 140.0 0.0 true true 0 ( 1x10)]
+[(Helvetica) 112.0 70.0 true true 0 (10)]
+] -60.7 MRshow
+/Helvetica findfont 140 scalefont setfont
+1.000 UL
+LTb
+LCb setrgbcolor
+854 2753 M
+31 0 V
+6062 0 R
+-31 0 V
+854 2860 M
+31 0 V
+6062 0 R
+-31 0 V
+854 2925 M
+31 0 V
+6062 0 R
+-31 0 V
+854 2971 M
+31 0 V
+6062 0 R
+-31 0 V
+854 3007 M
+31 0 V
+6062 0 R
+-31 0 V
+854 3036 M
+31 0 V
+6062 0 R
+-31 0 V
+854 3061 M
+31 0 V
+6062 0 R
+-31 0 V
+854 3083 M
+31 0 V
+6062 0 R
+-31 0 V
+stroke
+0.500 UL
+LTa
+LCa setrgbcolor
+854 3102 M
+6093 0 V
+stroke
+1.000 UL
+LTb
+LCb setrgbcolor
+854 3102 M
+63 0 V
+6030 0 R
+-63 0 V
+stroke
+770 3102 M
+[ [(Helvetica) 140.0 0.0 true true 0 ( 1x10)]
+[(Helvetica) 112.0 70.0 true true 0 (12)]
+] -60.7 MRshow
+/Helvetica findfont 140 scalefont setfont
+1.000 UL
+LTb
+LCb setrgbcolor
+854 3511 M
+31 0 V
+6062 0 R
+-31 0 V
+854 3619 M
+31 0 V
+6062 0 R
+-31 0 V
+854 3683 M
+31 0 V
+6062 0 R
+-31 0 V
+854 3729 M
+31 0 V
+6062 0 R
+-31 0 V
+854 3765 M
+31 0 V
+6062 0 R
+-31 0 V
+854 3795 M
+31 0 V
+6062 0 R
+-31 0 V
+854 3820 M
+31 0 V
+6062 0 R
+-31 0 V
+854 3841 M
+31 0 V
+6062 0 R
+-31 0 V
+stroke
+0.500 UL
+LTa
+LCa setrgbcolor
+854 3861 M
+6093 0 V
+stroke
+1.000 UL
+LTb
+LCb setrgbcolor
+854 3861 M
+63 0 V
+6030 0 R
+-63 0 V
+stroke
+770 3861 M
+[ [(Helvetica) 140.0 0.0 true true 0 ( 1x10)]
+[(Helvetica) 112.0 70.0 true true 0 (14)]
+] -60.7 MRshow
+/Helvetica findfont 140 scalefont setfont
+1.000 UL
+LTb
+LCb setrgbcolor
+854 4270 M
+31 0 V
+6062 0 R
+-31 0 V
+854 4377 M
+31 0 V
+6062 0 R
+-31 0 V
+854 4441 M
+31 0 V
+6062 0 R
+-31 0 V
+854 4488 M
+31 0 V
+6062 0 R
+-31 0 V
+854 4524 M
+31 0 V
+6062 0 R
+-31 0 V
+854 4553 M
+31 0 V
+6062 0 R
+-31 0 V
+854 4578 M
+31 0 V
+6062 0 R
+-31 0 V
+854 4600 M
+31 0 V
+6062 0 R
+-31 0 V
+stroke
+0.500 UL
+LTa
+LCa setrgbcolor
+854 4619 M
+6093 0 V
+stroke
+1.000 UL
+LTb
+LCb setrgbcolor
+854 4619 M
+63 0 V
+6030 0 R
+-63 0 V
+stroke
+770 4619 M
+[ [(Helvetica) 140.0 0.0 true true 0 ( 1x10)]
+[(Helvetica) 112.0 70.0 true true 0 (16)]
+] -60.7 MRshow
+/Helvetica findfont 140 scalefont setfont
+1.000 UL
+LTb
+LCb setrgbcolor
+0.500 UL
+LTa
+LCa setrgbcolor
+854 448 M
+0 4171 V
+stroke
+1.000 UL
+LTb
+LCb setrgbcolor
+854 448 M
+0 63 V
+0 4108 R
+0 -63 V
+stroke
+854 308 M
+[ [(Helvetica) 140.0 0.0 true true 0 (-20)]
+] -46.7 MCshow
+/Helvetica findfont 140 scalefont setfont
+1.000 UL
+LTb
+LCb setrgbcolor
+0.500 UL
+LTa
+LCa setrgbcolor
+1616 448 M
+0 4171 V
+stroke
+1.000 UL
+LTb
+LCb setrgbcolor
+1616 448 M
+0 63 V
+0 4108 R
+0 -63 V
+stroke
+1616 308 M
+[ [(Helvetica) 140.0 0.0 true true 0 (-15)]
+] -46.7 MCshow
+/Helvetica findfont 140 scalefont setfont
+1.000 UL
+LTb
+LCb setrgbcolor
+0.500 UL
+LTa
+LCa setrgbcolor
+2377 448 M
+0 4171 V
+stroke
+1.000 UL
+LTb
+LCb setrgbcolor
+2377 448 M
+0 63 V
+0 4108 R
+0 -63 V
+stroke
+2377 308 M
+[ [(Helvetica) 140.0 0.0 true true 0 (-10)]
+] -46.7 MCshow
+/Helvetica findfont 140 scalefont setfont
+1.000 UL
+LTb
+LCb setrgbcolor
+0.500 UL
+LTa
+LCa setrgbcolor
+3139 448 M
+0 4171 V
+stroke
+1.000 UL
+LTb
+LCb setrgbcolor
+3139 448 M
+0 63 V
+0 4108 R
+0 -63 V
+stroke
+3139 308 M
+[ [(Helvetica) 140.0 0.0 true true 0 (-5)]
+] -46.7 MCshow
+/Helvetica findfont 140 scalefont setfont
+1.000 UL
+LTb
+LCb setrgbcolor
+0.500 UL
+LTa
+LCa setrgbcolor
+3901 448 M
+0 4171 V
+stroke
+1.000 UL
+LTb
+LCb setrgbcolor
+3901 448 M
+0 63 V
+0 4108 R
+0 -63 V
+stroke
+3901 308 M
+[ [(Helvetica) 140.0 0.0 true true 0 ( 0)]
+] -46.7 MCshow
+/Helvetica findfont 140 scalefont setfont
+1.000 UL
+LTb
+LCb setrgbcolor
+0.500 UL
+LTa
+LCa setrgbcolor
+4662 448 M
+0 4171 V
+stroke
+1.000 UL
+LTb
+LCb setrgbcolor
+4662 448 M
+0 63 V
+0 4108 R
+0 -63 V
+stroke
+4662 308 M
+[ [(Helvetica) 140.0 0.0 true true 0 ( 5)]
+] -46.7 MCshow
+/Helvetica findfont 140 scalefont setfont
+1.000 UL
+LTb
+LCb setrgbcolor
+0.500 UL
+LTa
+LCa setrgbcolor
+5424 448 M
+0 4171 V
+stroke
+1.000 UL
+LTb
+LCb setrgbcolor
+5424 448 M
+0 63 V
+0 4108 R
+0 -63 V
+stroke
+5424 308 M
+[ [(Helvetica) 140.0 0.0 true true 0 ( 10)]
+] -46.7 MCshow
+/Helvetica findfont 140 scalefont setfont
+1.000 UL
+LTb
+LCb setrgbcolor
+0.500 UL
+LTa
+LCa setrgbcolor
+6185 448 M
+0 3968 V
+0 140 R
+0 63 V
+stroke
+1.000 UL
+LTb
+LCb setrgbcolor
+6185 448 M
+0 63 V
+0 4108 R
+0 -63 V
+stroke
+6185 308 M
+[ [(Helvetica) 140.0 0.0 true true 0 ( 15)]
+] -46.7 MCshow
+/Helvetica findfont 140 scalefont setfont
+1.000 UL
+LTb
+LCb setrgbcolor
+0.500 UL
+LTa
+LCa setrgbcolor
+6947 448 M
+0 4171 V
+stroke
+1.000 UL
+LTb
+LCb setrgbcolor
+6947 448 M
+0 63 V
+0 4108 R
+0 -63 V
+stroke
+6947 308 M
+[ [(Helvetica) 140.0 0.0 true true 0 ( 20)]
+] -46.7 MCshow
+/Helvetica findfont 140 scalefont setfont
+1.000 UL
+LTb
+LCb setrgbcolor
+1.000 UL
+LTB
+LCb setrgbcolor
+854 4619 N
+854 448 L
+6093 0 V
+0 4171 V
+-6093 0 V
+Z stroke
+0.200 UP
+1.000 UL
+[] 0 setdash
+LCb setrgbcolor
+3408 448 M
+0 4171 V
+stroke
+[] 0 setdash
+LCb setrgbcolor
+3901 448 M
+0 4171 V
+stroke
+LTb
+LCb setrgbcolor
+LCb setrgbcolor
+133 2533 M
+currentpoint gsave translate -270 rotate 0 0 moveto
+[ [(Helvetica) 140.0 0.0 true true 0 ( Impact ionization rate \(1/s\))]
+] -46.7 MCshow
+grestore
+/Helvetica findfont 140 scalefont setfont
+LTb
+LCb setrgbcolor
+3900 98 M
+[ [(Helvetica) 140.0 0.0 true true 0 ( Electron energy \(zero at minimum of conduction\) \(eV\))]
+] -46.7 MCshow
+/Helvetica findfont 140 scalefont setfont
+LTb
+LCb setrgbcolor
+3900 4829 M
+[ [(Helvetica) 140.0 0.0 true true 0 (4H-SiC IMI rate \(hQSGW=QSGW70%+LDA30% Band Gap=3.12eV \(experiment 3.23eV\)\))]
+] -46.7 MCshow
+/Helvetica findfont 140 scalefont setfont
+LTb
+% Begin plot #1
+0.200 UP
+1.000 UL
+LTb
+0.58 0.00 0.83 C
+LCb setrgbcolor
+6296 4486 M
+[ [(Helvetica) 140.0 0.0 true true 0 (12x12x4)]
+] -46.7 MRshow
+/Helvetica findfont 140 scalefont setfont
+0.200 UP
+1.000 UL
+LTb
+0.58 0.00 0.83 C
+957 4378 TriUF
+1144 4352 TriUF
+1153 4353 TriUF
+1528 4287 TriUF
+2028 4065 TriUF
+2700 2663 TriUF
+2706 2755 TriUF
+4449 2483 TriUF
+4542 2883 TriUF
+4549 2848 TriUF
+4661 3151 TriUF
+4661 3151 TriUF
+4666 3171 TriUF
+4666 3171 TriUF
+4733 3245 TriUF
+4837 3471 TriUF
+4837 3471 TriUF
+4881 3471 TriUF
+4881 3471 TriUF
+4955 3675 TriUF
+5048 3773 TriUF
+5242 3921 TriUF
+5481 3934 TriUF
+5481 3934 TriUF
+5609 4003 TriUF
+5609 4003 TriUF
+5725 4069 TriUF
+5783 4109 TriUF
+6043 4125 TriUF
+6043 4125 TriUF
+6051 4115 TriUF
+6185 4196 TriUF
+6203 4204 TriUF
+6203 4204 TriUF
+6210 4203 TriUF
+6249 4232 TriUF
+6249 4232 TriUF
+6478 4247 TriUF
+6478 4247 TriUF
+6638 4264 TriUF
+976 4375 TriUF
+1162 4350 TriUF
+1172 4350 TriUF
+1543 4281 TriUF
+2045 4057 TriUF
+2706 2834 TriUF
+2712 2851 TriUF
+4410 1909 TriUF
+4497 2749 TriUF
+4535 2782 TriUF
+4577 2957 TriUF
+4635 3116 TriUF
+4655 3159 TriUF
+4687 3215 TriUF
+4724 3261 TriUF
+4736 3307 TriUF
+4820 3449 TriUF
+4832 3443 TriUF
+4869 3528 TriUF
+4948 3564 TriUF
+5002 3684 TriUF
+5053 3748 TriUF
+5237 3879 TriUF
+5369 3936 TriUF
+5388 3900 TriUF
+5628 4019 TriUF
+5699 4024 TriUF
+5795 4093 TriUF
+5933 4128 TriUF
+5964 4136 TriUF
+5967 4114 TriUF
+6010 4161 TriUF
+6177 4216 TriUF
+6183 4180 TriUF
+6219 4213 TriUF
+6314 4231 TriUF
+6366 4233 TriUF
+6398 4227 TriUF
+6577 4266 TriUF
+6583 4266 TriUF
+6736 4278 TriUF
+1034 4368 TriUF
+1217 4342 TriUF
+1227 4340 TriUF
+1589 4265 TriUF
+2096 4034 TriUF
+2703 3047 TriUF
+2711 3018 TriUF
+4413 1820 TriUF
+4457 2294 TriUF
+4633 3086 TriUF
+4690 3190 TriUF
+4729 3276 TriUF
+4759 3353 TriUF
+4773 3337 TriUF
+4822 3476 TriUF
+4850 3439 TriUF
+4887 3554 TriUF
+4970 3664 TriUF
+5004 3662 TriUF
+5102 3732 TriUF
+5111 3765 TriUF
+5166 3795 TriUF
+5336 3866 TriUF
+5366 3927 TriUF
+5651 4042 TriUF
+5700 4064 TriUF
+5742 4042 TriUF
+5834 4119 TriUF
+5876 4093 TriUF
+6165 4197 TriUF
+6216 4213 TriUF
+6289 4233 TriUF
+6299 4211 TriUF
+6409 4228 TriUF
+6501 4252 TriUF
+6502 4262 TriUF
+6644 4273 TriUF
+6688 4282 TriUF
+6799 4300 TriUF
+6825 4302 TriUF
+1127 4356 TriUF
+1307 4326 TriUF
+1316 4323 TriUF
+1659 4243 TriUF
+2173 3993 TriUF
+2554 3539 TriUF
+2613 3427 TriUF
+2665 3221 TriUF
+2878 1750 TriUF
+2913 745 TriUF
+4524 2448 TriUF
+4617 2872 TriUF
+4775 3370 TriUF
+4780 3403 TriUF
+4787 3349 TriUF
+4902 3547 TriUF
+4976 3681 TriUF
+5065 3753 TriUF
+5070 3724 TriUF
+5095 3781 TriUF
+5246 3830 TriUF
+5272 3865 TriUF
+5299 3886 TriUF
+5348 3892 TriUF
+5438 3914 TriUF
+5605 4028 TriUF
+5724 4079 TriUF
+5772 4061 TriUF
+5823 4103 TriUF
+5871 4094 TriUF
+6154 4196 TriUF
+6450 4244 TriUF
+6461 4245 TriUF
+6581 4262 TriUF
+6640 4282 TriUF
+6692 4282 TriUF
+6752 4282 TriUF
+6783 4302 TriUF
+6846 4305 TriUF
+6901 4303 TriUF
+1253 4337 TriUF
+1422 4301 TriUF
+1433 4297 TriUF
+1735 4221 TriUF
+2225 3958 TriUF
+2337 3860 TriUF
+2408 3798 TriUF
+2492 3633 TriUF
+2683 3301 TriUF
+2903 1948 TriUF
+4423 1315 TriUF
+4479 2184 TriUF
+4659 2993 TriUF
+4745 3332 TriUF
+4811 3428 TriUF
+4937 3587 TriUF
+4970 3661 TriUF
+5177 3839 TriUF
+5180 3840 TriUF
+5242 3842 TriUF
+5374 3937 TriUF
+5404 3944 TriUF
+5485 3963 TriUF
+5508 4000 TriUF
+5622 4024 TriUF
+5675 4027 TriUF
+5812 4098 TriUF
+5893 4114 TriUF
+5906 4109 TriUF
+5993 4130 TriUF
+6111 4184 TriUF
+6451 4241 TriUF
+6527 4248 TriUF
+6671 4279 TriUF
+6866 4309 TriUF
+6917 4308 TriUF
+6926 4307 TriUF
+1399 4308 TriUF
+1542 4273 TriUF
+1558 4266 TriUF
+1761 4210 TriUF
+2120 4015 TriUF
+2175 3990 TriUF
+2262 3925 TriUF
+2477 3714 TriUF
+2523 3580 TriUF
+2838 2759 TriUF
+2894 2168 TriUF
+4533 2541 TriUF
+4709 3222 TriUF
+4771 3335 TriUF
+4945 3616 TriUF
+5050 3694 TriUF
+5204 3857 TriUF
+5209 3860 TriUF
+5304 3875 TriUF
+5381 3961 TriUF
+5422 3960 TriUF
+5680 4047 TriUF
+5686 4070 TriUF
+5778 4084 TriUF
+5891 4114 TriUF
+5978 4129 TriUF
+6038 4147 TriUF
+6138 4181 TriUF
+6146 4174 TriUF
+6204 4185 TriUF
+6367 4228 TriUF
+6620 4261 TriUF
+6728 4285 TriUF
+6924 4306 TriUF
+6938 4308 TriUF
+1501 4286 TriUF
+1584 4262 TriUF
+1625 4250 TriUF
+1738 4213 TriUF
+2039 4052 TriUF
+2086 4034 TriUF
+2281 3920 TriUF
+2345 3858 TriUF
+2615 3339 TriUF
+2745 3151 TriUF
+2879 2431 TriUF
+4390 1354 TriUF
+4472 2335 TriUF
+4695 3171 TriUF
+4750 3271 TriUF
+4944 3606 TriUF
+5174 3797 TriUF
+5190 3798 TriUF
+5206 3859 TriUF
+5213 3864 TriUF
+5405 3981 TriUF
+5431 3960 TriUF
+5754 4094 TriUF
+5762 4076 TriUF
+5858 4111 TriUF
+5922 4120 TriUF
+6134 4170 TriUF
+6170 4179 TriUF
+6219 4197 TriUF
+6290 4206 TriUF
+6319 4213 TriUF
+6335 4220 TriUF
+6661 4264 TriUF
+6775 4293 TriUF
+6815 4285 TriUF
+6884 4294 TriUF
+6908 4302 TriUF
+6945 4302 TriUF
+1015 4370 TriUF
+1199 4345 TriUF
+1209 4344 TriUF
+1574 4271 TriUF
+2079 4042 TriUF
+2711 2979 TriUF
+2716 2973 TriUF
+4434 2093 TriUF
+4462 2332 TriUF
+4529 2808 TriUF
+4563 2911 TriUF
+4640 3111 TriUF
+4655 3192 TriUF
+4687 3167 TriUF
+4781 3380 TriUF
+4832 3442 TriUF
+4858 3480 TriUF
+4873 3521 TriUF
+4914 3554 TriUF
+5014 3662 TriUF
+5029 3704 TriUF
+5102 3770 TriUF
+5137 3754 TriUF
+5374 3923 TriUF
+5379 3938 TriUF
+5628 4015 TriUF
+5689 4047 TriUF
+5795 4084 TriUF
+5802 4076 TriUF
+6026 4157 TriUF
+6036 4184 TriUF
+6127 4182 TriUF
+6221 4199 TriUF
+6277 4215 TriUF
+6363 4235 TriUF
+6405 4241 TriUF
+6483 4252 TriUF
+6580 4258 TriUF
+6681 4279 TriUF
+6720 4293 TriUF
+6865 4294 TriUF
+1090 4361 TriUF
+1272 4333 TriUF
+1281 4331 TriUF
+1632 4252 TriUF
+2144 4009 TriUF
+2650 3300 TriUF
+2675 3228 TriUF
+2746 2828 TriUF
+4460 2084 TriUF
+4535 2649 TriUF
+4694 3182 TriUF
+4724 3274 TriUF
+4750 3337 TriUF
+4791 3357 TriUF
+4816 3458 TriUF
+4888 3503 TriUF
+4993 3652 TriUF
+5007 3633 TriUF
+5062 3721 TriUF
+5143 3802 TriUF
+5185 3805 TriUF
+5267 3874 TriUF
+5344 3888 TriUF
+5436 3951 TriUF
+5594 4018 TriUF
+5678 4056 TriUF
+5754 4066 TriUF
+5841 4097 TriUF
+5984 4148 TriUF
+6187 4197 TriUF
+6302 4226 TriUF
+6407 4242 TriUF
+6449 4240 TriUF
+6507 4243 TriUF
+6666 4277 TriUF
+6684 4288 TriUF
+6748 4297 TriUF
+6823 4293 TriUF
+6862 4306 TriUF
+6915 4316 TriUF
+1200 4346 TriUF
+1374 4312 TriUF
+1385 4308 TriUF
+1707 4229 TriUF
+2221 3961 TriUF
+2444 3736 TriUF
+2512 3651 TriUF
+2564 3499 TriUF
+2759 3041 TriUF
+4464 1708 TriUF
+4594 2775 TriUF
+4733 3297 TriUF
+4762 3309 TriUF
+4812 3427 TriUF
+4897 3558 TriUF
+4945 3634 TriUF
+5019 3684 TriUF
+5122 3776 TriUF
+5187 3807 TriUF
+5235 3864 TriUF
+5301 3865 TriUF
+5399 3924 TriUF
+5486 3988 TriUF
+5584 4011 TriUF
+5600 4027 TriUF
+5727 4071 TriUF
+5834 4093 TriUF
+5930 4122 TriUF
+6027 4147 TriUF
+6167 4196 TriUF
+6442 4236 TriUF
+6532 4252 TriUF
+6622 4275 TriUF
+6704 4286 TriUF
+6803 4297 TriUF
+6914 4304 TriUF
+1338 4321 TriUF
+1496 4283 TriUF
+1508 4278 TriUF
+1765 4211 TriUF
+2196 3972 TriUF
+2261 3930 TriUF
+2323 3879 TriUF
+2489 3637 TriUF
+2570 3563 TriUF
+2832 2672 TriUF
+2871 2394 TriUF
+4407 1469 TriUF
+4464 2118 TriUF
+4613 2846 TriUF
+4705 3200 TriUF
+4829 3451 TriUF
+4932 3612 TriUF
+4993 3643 TriUF
+5076 3786 TriUF
+5222 3856 TriUF
+5273 3857 TriUF
+5404 3944 TriUF
+5451 3964 TriUF
+5469 3975 TriUF
+5620 4028 TriUF
+5689 4061 TriUF
+5764 4078 TriUF
+5819 4097 TriUF
+5970 4131 TriUF
+6089 4165 TriUF
+6159 4180 TriUF
+6192 4191 TriUF
+6452 4241 TriUF
+6533 4248 TriUF
+6738 4285 TriUF
+6821 4299 TriUF
+6942 4310 TriUF
+1478 4290 TriUF
+1590 4261 TriUF
+1615 4252 TriUF
+1750 4210 TriUF
+2076 4036 TriUF
+2123 4016 TriUF
+2270 3922 TriUF
+2397 3811 TriUF
+2589 3435 TriUF
+2763 3069 TriUF
+2805 2889 TriUF
+2930 1743 TriUF
+4418 1821 TriUF
+4487 2372 TriUF
+4682 3089 TriUF
+4850 3488 TriUF
+4891 3556 TriUF
+5032 3720 TriUF
+5153 3804 TriUF
+5257 3881 TriUF
+5269 3867 TriUF
+5431 3961 TriUF
+5502 4002 TriUF
+5648 4049 TriUF
+5746 4080 TriUF
+5779 4086 TriUF
+5865 4104 TriUF
+6001 4140 TriUF
+6094 4162 TriUF
+6183 4187 TriUF
+6227 4198 TriUF
+6269 4205 TriUF
+6419 4235 TriUF
+6553 4248 TriUF
+6791 4293 TriUF
+6849 4294 TriUF
+6917 4302 TriUF
+6925 4301 TriUF
+1182 4349 TriUF
+1358 4315 TriUF
+1368 4312 TriUF
+1697 4232 TriUF
+2214 3966 TriUF
+2529 3604 TriUF
+2570 3531 TriUF
+2591 3429 TriUF
+2772 2956 TriUF
+2859 1510 TriUF
+4547 2547 TriUF
+4722 3194 TriUF
+4736 3255 TriUF
+4781 3371 TriUF
+4782 3398 TriUF
+4845 3465 TriUF
+4900 3530 TriUF
+4951 3617 TriUF
+5008 3642 TriUF
+5082 3710 TriUF
+5107 3783 TriUF
+5297 3840 TriUF
+5397 3936 TriUF
+5442 3987 TriUF
+5600 4035 TriUF
+5608 4027 TriUF
+5692 4056 TriUF
+5826 4093 TriUF
+5967 4136 TriUF
+6173 4192 TriUF
+6177 4184 TriUF
+6388 4240 TriUF
+6402 4233 TriUF
+6662 4266 TriUF
+6691 4284 TriUF
+6811 4294 TriUF
+6850 4302 TriUF
+6905 4311 TriUF
+6947 4310 TriUF
+1305 4327 TriUF
+1470 4289 TriUF
+1481 4285 TriUF
+1762 4212 TriUF
+2256 3932 TriUF
+2350 3848 TriUF
+2409 3796 TriUF
+2506 3614 TriUF
+2601 3502 TriUF
+2740 3006 TriUF
+2805 2697 TriUF
+4538 2488 TriUF
+4656 3002 TriUF
+4718 3224 TriUF
+4789 3372 TriUF
+4845 3489 TriUF
+4905 3518 TriUF
+4914 3605 TriUF
+5019 3698 TriUF
+5038 3696 TriUF
+5159 3774 TriUF
+5204 3827 TriUF
+5334 3877 TriUF
+5488 3974 TriUF
+5561 4023 TriUF
+5625 4041 TriUF
+5715 4066 TriUF
+5745 4086 TriUF
+5967 4136 TriUF
+6125 4175 TriUF
+6209 4195 TriUF
+6268 4210 TriUF
+6413 4233 TriUF
+6603 4270 TriUF
+6661 4272 TriUF
+6813 4294 TriUF
+6916 4309 TriUF
+6945 4310 TriUF
+1447 4295 TriUF
+1585 4261 TriUF
+1599 4255 TriUF
+1775 4206 TriUF
+2165 3988 TriUF
+2211 3965 TriUF
+2292 3901 TriUF
+2458 3739 TriUF
+2556 3524 TriUF
+2652 3344 TriUF
+2726 3105 TriUF
+2813 2783 TriUF
+4512 2390 TriUF
+4559 2667 TriUF
+4602 2841 TriUF
+4801 3402 TriUF
+4859 3499 TriUF
+4865 3516 TriUF
+4988 3667 TriUF
+5083 3759 TriUF
+5219 3821 TriUF
+5334 3915 TriUF
+5386 3926 TriUF
+5404 3948 TriUF
+5531 4000 TriUF
+5626 4029 TriUF
+5685 4060 TriUF
+5733 4070 TriUF
+5821 4101 TriUF
+6015 4144 TriUF
+6146 4180 TriUF
+6241 4205 TriUF
+6313 4218 TriUF
+6364 4218 TriUF
+6610 4264 TriUF
+6805 4294 TriUF
+6850 4299 TriUF
+6932 4303 TriUF
+1549 4272 TriUF
+1624 4250 TriUF
+1659 4240 TriUF
+1749 4212 TriUF
+2089 4027 TriUF
+2136 4007 TriUF
+2325 3881 TriUF
+2351 3854 TriUF
+2599 3450 TriUF
+2649 3374 TriUF
+2687 3188 TriUF
+2776 2990 TriUF
+2893 2077 TriUF
+4514 2514 TriUF
+4519 2365 TriUF
+4543 2676 TriUF
+4820 3422 TriUF
+4823 3462 TriUF
+4864 3518 TriUF
+4985 3659 TriUF
+5203 3845 TriUF
+5252 3840 TriUF
+5327 3913 TriUF
+5425 3963 TriUF
+5585 4037 TriUF
+5601 4033 TriUF
+5628 4018 TriUF
+5696 4064 TriUF
+5777 4074 TriUF
+5923 4114 TriUF
+5956 4125 TriUF
+6048 4152 TriUF
+6186 4196 TriUF
+6282 4215 TriUF
+6319 4205 TriUF
+6584 4261 TriUF
+6862 4298 TriUF
+6892 4304 TriUF
+1435 4297 TriUF
+1579 4261 TriUF
+1592 4257 TriUF
+1788 4204 TriUF
+2243 3939 TriUF
+2266 3919 TriUF
+2306 3893 TriUF
+2459 3736 TriUF
+2545 3566 TriUF
+2575 3499 TriUF
+2660 3298 TriUF
+2812 2587 TriUF
+4570 2789 TriUF
+4617 2966 TriUF
+4779 3314 TriUF
+4836 3421 TriUF
+4893 3545 TriUF
+4980 3657 TriUF
+5011 3669 TriUF
+5041 3685 TriUF
+5151 3807 TriUF
+5151 3782 TriUF
+5229 3837 TriUF
+5392 3911 TriUF
+5537 4000 TriUF
+5575 4026 TriUF
+5596 4024 TriUF
+5683 4057 TriUF
+5799 4100 TriUF
+6002 4141 TriUF
+6184 4189 TriUF
+6191 4190 TriUF
+6300 4212 TriUF
+6446 4243 TriUF
+6654 4277 TriUF
+6766 4293 TriUF
+6883 4300 TriUF
+6933 4306 TriUF
+1569 4264 TriUF
+1663 4240 TriUF
+1679 4235 TriUF
+1751 4213 TriUF
+2156 3992 TriUF
+2206 3964 TriUF
+2302 3896 TriUF
+2382 3823 TriUF
+2481 3668 TriUF
+2511 3628 TriUF
+2701 3122 TriUF
+2703 3213 TriUF
+2827 2350 TriUF
+4463 2082 TriUF
+4568 2801 TriUF
+4771 3305 TriUF
+4906 3555 TriUF
+4941 3622 TriUF
+5035 3685 TriUF
+5086 3724 TriUF
+5139 3785 TriUF
+5265 3873 TriUF
+5348 3908 TriUF
+5375 3938 TriUF
+5390 3937 TriUF
+5496 3988 TriUF
+5557 4020 TriUF
+5660 4041 TriUF
+5680 4047 TriUF
+5753 4069 TriUF
+5844 4091 TriUF
+5995 4137 TriUF
+6105 4162 TriUF
+6157 4194 TriUF
+6496 4252 TriUF
+6726 4281 TriUF
+6855 4304 TriUF
+6924 4309 TriUF
+1663 4236 TriUF
+1697 4232 TriUF
+1697 4232 TriUF
+1711 4226 TriUF
+2178 3979 TriUF
+2241 3939 TriUF
+2241 3939 TriUF
+2409 3759 TriUF
+2409 3759 TriUF
+2417 3794 TriUF
+2701 3212 TriUF
+2701 3212 TriUF
+2762 2708 TriUF
+4968 3640 TriUF
+4968 3640 TriUF
+4977 3651 TriUF
+5119 3730 TriUF
+5218 3826 TriUF
+5251 3865 TriUF
+5251 3865 TriUF
+5369 3919 TriUF
+5369 3919 TriUF
+5381 3956 TriUF
+5452 3974 TriUF
+5452 3974 TriUF
+5567 4013 TriUF
+5683 4042 TriUF
+5683 4042 TriUF
+5819 4090 TriUF
+5895 4105 TriUF
+5895 4105 TriUF
+6127 4192 TriUF
+6706 4278 TriUF
+6706 4278 TriUF
+6916 4313 TriUF
+6916 4313 TriUF
+970 4376 TriUF
+1066 4364 TriUF
+1250 4338 TriUF
+1474 4297 TriUF
+2100 4036 TriUF
+2475 3673 TriUF
+4425 2211 TriUF
+4578 2972 TriUF
+4581 3001 TriUF
+4669 3171 TriUF
+4669 3171 TriUF
+4671 3184 TriUF
+4671 3184 TriUF
+4727 3225 TriUF
+4832 3455 TriUF
+4832 3455 TriUF
+4863 3458 TriUF
+4863 3458 TriUF
+4879 3578 TriUF
+5100 3818 TriUF
+5219 3906 TriUF
+5523 3950 TriUF
+5523 3950 TriUF
+5636 4002 TriUF
+5636 4002 TriUF
+5751 4078 TriUF
+5795 4109 TriUF
+5933 4128 TriUF
+5933 4128 TriUF
+6061 4125 TriUF
+6076 4176 TriUF
+6076 4176 TriUF
+6151 4185 TriUF
+6245 4210 TriUF
+6408 4247 TriUF
+6408 4247 TriUF
+6558 4260 TriUF
+6609 4272 TriUF
+6609 4272 TriUF
+989 4374 TriUF
+1085 4361 TriUF
+1268 4334 TriUF
+1490 4292 TriUF
+2117 4028 TriUF
+2486 3653 TriUF
+4417 1937 TriUF
+4472 2580 TriUF
+4550 2885 TriUF
+4582 2980 TriUF
+4651 3160 TriUF
+4667 3184 TriUF
+4696 3238 TriUF
+4733 3307 TriUF
+4749 3302 TriUF
+4789 3382 TriUF
+4809 3406 TriUF
+4870 3519 TriUF
+4928 3551 TriUF
+4955 3620 TriUF
+5113 3799 TriUF
+5247 3898 TriUF
+5382 3921 TriUF
+5435 3920 TriUF
+5585 3994 TriUF
+5668 4006 TriUF
+5783 4097 TriUF
+5884 4125 TriUF
+5932 4129 TriUF
+5998 4146 TriUF
+6037 4161 TriUF
+6170 4190 TriUF
+6207 4180 TriUF
+6269 4220 TriUF
+6320 4228 TriUF
+6366 4226 TriUF
+6380 4243 TriUF
+6606 4272 TriUF
+6662 4276 TriUF
+6683 4285 TriUF
+1046 4366 TriUF
+1141 4353 TriUF
+1322 4324 TriUF
+1538 4277 TriUF
+2164 4002 TriUF
+2511 3608 TriUF
+2852 1546 TriUF
+4492 2535 TriUF
+4611 3011 TriUF
+4680 3162 TriUF
+4709 3257 TriUF
+4775 3383 TriUF
+4796 3423 TriUF
+4829 3426 TriUF
+4863 3527 TriUF
+4888 3523 TriUF
+4988 3671 TriUF
+5001 3674 TriUF
+5079 3720 TriUF
+5095 3733 TriUF
+5226 3840 TriUF
+5324 3891 TriUF
+5380 3891 TriUF
+5537 4004 TriUF
+5635 4005 TriUF
+5792 4101 TriUF
+5865 4121 TriUF
+5981 4126 TriUF
+6189 4204 TriUF
+6230 4212 TriUF
+6291 4213 TriUF
+6304 4214 TriUF
+6389 4229 TriUF
+6459 4256 TriUF
+6515 4261 TriUF
+6596 4263 TriUF
+6649 4275 TriUF
+6789 4306 TriUF
+6804 4296 TriUF
+1139 4354 TriUF
+1233 4339 TriUF
+1408 4304 TriUF
+1613 4254 TriUF
+2230 3957 TriUF
+2488 3668 TriUF
+2609 3395 TriUF
+2734 3013 TriUF
+2762 2906 TriUF
+4500 2216 TriUF
+4596 2818 TriUF
+4709 3209 TriUF
+4808 3444 TriUF
+4829 3428 TriUF
+4941 3633 TriUF
+4981 3673 TriUF
+4992 3658 TriUF
+5077 3733 TriUF
+5160 3822 TriUF
+5255 3842 TriUF
+5275 3877 TriUF
+5280 3851 TriUF
+5331 3890 TriUF
+5471 3932 TriUF
+5572 4019 TriUF
+5673 4025 TriUF
+5744 4081 TriUF
+5860 4114 TriUF
+5999 4130 TriUF
+6148 4195 TriUF
+6352 4230 TriUF
+6378 4220 TriUF
+6592 4270 TriUF
+6659 4289 TriUF
+6683 4276 TriUF
+6748 4285 TriUF
+6835 4296 TriUF
+6875 4310 TriUF
+6916 4307 TriUF
+1265 4335 TriUF
+1353 4316 TriUF
+1517 4276 TriUF
+1698 4230 TriUF
+2240 3947 TriUF
+2323 3878 TriUF
+2419 3774 TriUF
+2558 3533 TriUF
+2627 3429 TriUF
+2814 2717 TriUF
+4470 1930 TriUF
+4641 2896 TriUF
+4765 3319 TriUF
+4781 3397 TriUF
+4917 3602 TriUF
+5022 3721 TriUF
+5074 3737 TriUF
+5226 3845 TriUF
+5320 3920 TriUF
+5354 3921 TriUF
+5450 3962 TriUF
+5487 3992 TriUF
+5491 3968 TriUF
+5625 4030 TriUF
+5696 4035 TriUF
+5778 4082 TriUF
+5841 4088 TriUF
+5901 4118 TriUF
+6089 4153 TriUF
+6105 4181 TriUF
+6366 4231 TriUF
+6437 4228 TriUF
+6783 4289 TriUF
+6910 4319 TriUF
+6910 4307 TriUF
+6939 4313 TriUF
+1409 4306 TriUF
+1487 4286 TriUF
+1621 4250 TriUF
+1742 4216 TriUF
+2115 4017 TriUF
+2178 3985 TriUF
+2264 3925 TriUF
+2431 3771 TriUF
+2591 3452 TriUF
+2836 2720 TriUF
+2904 1919 TriUF
+4413 1679 TriUF
+4541 2538 TriUF
+4748 3318 TriUF
+4758 3295 TriUF
+4845 3479 TriUF
+5019 3723 TriUF
+5115 3775 TriUF
+5283 3899 TriUF
+5387 3949 TriUF
+5395 3956 TriUF
+5509 3986 TriUF
+5655 4059 TriUF
+5680 4046 TriUF
+5756 4076 TriUF
+5872 4108 TriUF
+5992 4133 TriUF
+6008 4141 TriUF
+6095 4162 TriUF
+6134 4179 TriUF
+6274 4198 TriUF
+6382 4233 TriUF
+6539 4245 TriUF
+6743 4282 TriUF
+6940 4311 TriUF
+1509 4284 TriUF
+1560 4270 TriUF
+1650 4241 TriUF
+1723 4217 TriUF
+2062 4042 TriUF
+2110 4023 TriUF
+2239 3946 TriUF
+2301 3898 TriUF
+2678 3196 TriUF
+2790 3009 TriUF
+2888 2305 TriUF
+4438 2102 TriUF
+4467 2157 TriUF
+4735 3278 TriUF
+4774 3319 TriUF
+4807 3396 TriUF
+5014 3721 TriUF
+5132 3790 TriUF
+5272 3895 TriUF
+5395 3953 TriUF
+5412 3963 TriUF
+5523 3995 TriUF
+5713 4080 TriUF
+5761 4075 TriUF
+5819 4095 TriUF
+5919 4122 TriUF
+6074 4156 TriUF
+6172 4182 TriUF
+6225 4198 TriUF
+6265 4204 TriUF
+6365 4218 TriUF
+6396 4235 TriUF
+6576 4249 TriUF
+6735 4279 TriUF
+6830 4288 TriUF
+6896 4300 TriUF
+6899 4302 TriUF
+1027 4369 TriUF
+1122 4356 TriUF
+1304 4328 TriUF
+1523 4282 TriUF
+2149 4010 TriUF
+2505 3619 TriUF
+4439 2055 TriUF
+4459 2302 TriUF
+4519 2776 TriUF
+4527 2773 TriUF
+4637 3099 TriUF
+4662 3186 TriUF
+4759 3327 TriUF
+4766 3350 TriUF
+4825 3431 TriUF
+4831 3435 TriUF
+4877 3531 TriUF
+4947 3597 TriUF
+5002 3656 TriUF
+5014 3684 TriUF
+5106 3770 TriUF
+5191 3804 TriUF
+5340 3900 TriUF
+5410 3942 TriUF
+5566 3992 TriUF
+5582 4006 TriUF
+5863 4112 TriUF
+5871 4108 TriUF
+6007 4148 TriUF
+6067 4182 TriUF
+6194 4200 TriUF
+6243 4197 TriUF
+6293 4216 TriUF
+6305 4225 TriUF
+6398 4241 TriUF
+6523 4248 TriUF
+6529 4261 TriUF
+6665 4284 TriUF
+6671 4285 TriUF
+6787 4291 TriUF
+1102 4359 TriUF
+1196 4345 TriUF
+1374 4312 TriUF
+1584 4262 TriUF
+2207 3973 TriUF
+2515 3609 TriUF
+2730 2957 TriUF
+2801 2515 TriUF
+2847 1656 TriUF
+4470 2129 TriUF
+4531 2620 TriUF
+4639 3044 TriUF
+4690 3196 TriUF
+4792 3405 TriUF
+4820 3440 TriUF
+4837 3462 TriUF
+4899 3526 TriUF
+4980 3637 TriUF
+5030 3676 TriUF
+5059 3718 TriUF
+5142 3789 TriUF
+5203 3815 TriUF
+5259 3861 TriUF
+5318 3872 TriUF
+5451 3961 TriUF
+5566 4009 TriUF
+5600 4015 TriUF
+5834 4092 TriUF
+5901 4125 TriUF
+6013 4151 TriUF
+6194 4202 TriUF
+6277 4214 TriUF
+6363 4230 TriUF
+6458 4246 TriUF
+6500 4249 TriUF
+6581 4269 TriUF
+6681 4281 TriUF
+6743 4290 TriUF
+6784 4294 TriUF
+6858 4308 TriUF
+1212 4344 TriUF
+1303 4327 TriUF
+1472 4288 TriUF
+1666 4239 TriUF
+2261 3933 TriUF
+2416 3779 TriUF
+2511 3630 TriUF
+2626 3394 TriUF
+2700 3223 TriUF
+2821 2587 TriUF
+4479 1911 TriUF
+4554 2557 TriUF
+4652 3077 TriUF
+4759 3283 TriUF
+4855 3507 TriUF
+4899 3562 TriUF
+4970 3646 TriUF
+5046 3711 TriUF
+5124 3780 TriUF
+5187 3819 TriUF
+5234 3835 TriUF
+5297 3870 TriUF
+5438 3955 TriUF
+5468 3974 TriUF
+5575 4017 TriUF
+5608 4027 TriUF
+5682 4051 TriUF
+5865 4101 TriUF
+5939 4130 TriUF
+6053 4155 TriUF
+6193 4199 TriUF
+6352 4220 TriUF
+6422 4237 TriUF
+6650 4280 TriUF
+6783 4295 TriUF
+6820 4295 TriUF
+6896 4303 TriUF
+1349 4318 TriUF
+1433 4298 TriUF
+1584 4259 TriUF
+1737 4218 TriUF
+2190 3975 TriUF
+2246 3940 TriUF
+2348 3856 TriUF
+2522 3641 TriUF
+2563 3524 TriUF
+2819 2741 TriUF
+2855 2457 TriUF
+4461 2065 TriUF
+4643 2980 TriUF
+4674 3091 TriUF
+4797 3391 TriUF
+4863 3516 TriUF
+5036 3738 TriUF
+5117 3772 TriUF
+5240 3863 TriUF
+5263 3875 TriUF
+5410 3948 TriUF
+5443 3962 TriUF
+5533 4003 TriUF
+5617 4028 TriUF
+5680 4053 TriUF
+5729 4066 TriUF
+5798 4090 TriUF
+6001 4140 TriUF
+6078 4163 TriUF
+6134 4177 TriUF
+6247 4199 TriUF
+6388 4230 TriUF
+6487 4242 TriUF
+6791 4289 TriUF
+6836 4299 TriUF
+6932 4311 TriUF
+1487 4288 TriUF
+1552 4271 TriUF
+1656 4240 TriUF
+1737 4215 TriUF
+2084 4031 TriUF
+2148 4004 TriUF
+2239 3942 TriUF
+2352 3854 TriUF
+2652 3300 TriUF
+2789 2969 TriUF
+2823 2796 TriUF
+2890 2305 TriUF
+4467 2297 TriUF
+4554 2615 TriUF
+4688 3146 TriUF
+4746 3286 TriUF
+4841 3461 TriUF
+5012 3716 TriUF
+5171 3819 TriUF
+5237 3860 TriUF
+5335 3937 TriUF
+5488 3984 TriUF
+5545 4011 TriUF
+5629 4044 TriUF
+5719 4062 TriUF
+5758 4077 TriUF
+5860 4104 TriUF
+5964 4130 TriUF
+6122 4170 TriUF
+6176 4186 TriUF
+6212 4195 TriUF
+6296 4208 TriUF
+6432 4238 TriUF
+6515 4244 TriUF
+6777 4285 TriUF
+6853 4295 TriUF
+6890 4299 TriUF
+6928 4303 TriUF
+1194 4347 TriUF
+1286 4330 TriUF
+1457 4292 TriUF
+1654 4242 TriUF
+2262 3932 TriUF
+2463 3713 TriUF
+2611 3382 TriUF
+2622 3425 TriUF
+2744 3085 TriUF
+2800 2677 TriUF
+4521 2227 TriUF
+4653 3044 TriUF
+4694 3145 TriUF
+4761 3342 TriUF
+4817 3410 TriUF
+4893 3541 TriUF
+4923 3603 TriUF
+4980 3633 TriUF
+5002 3638 TriUF
+5096 3728 TriUF
+5145 3759 TriUF
+5272 3862 TriUF
+5401 3961 TriUF
+5429 3946 TriUF
+5572 4017 TriUF
+5620 4036 TriUF
+5669 4052 TriUF
+5879 4106 TriUF
+5998 4148 TriUF
+6157 4184 TriUF
+6187 4195 TriUF
+6344 4221 TriUF
+6415 4243 TriUF
+6560 4260 TriUF
+6644 4277 TriUF
+6814 4295 TriUF
+6848 4294 TriUF
+6908 4306 TriUF
+1317 4325 TriUF
+1403 4305 TriUF
+1561 4265 TriUF
+1729 4221 TriUF
+2263 3927 TriUF
+2326 3874 TriUF
+2438 3757 TriUF
+2554 3544 TriUF
+2578 3534 TriUF
+2745 2986 TriUF
+2828 2486 TriUF
+2851 2303 TriUF
+4528 2460 TriUF
+4588 2745 TriUF
+4662 3073 TriUF
+4803 3390 TriUF
+4847 3463 TriUF
+4892 3565 TriUF
+4999 3662 TriUF
+5024 3707 TriUF
+5084 3724 TriUF
+5190 3798 TriUF
+5235 3853 TriUF
+5256 3840 TriUF
+5480 3977 TriUF
+5521 3995 TriUF
+5658 4051 TriUF
+5689 4065 TriUF
+5752 4088 TriUF
+6005 4145 TriUF
+6129 4178 TriUF
+6198 4193 TriUF
+6287 4213 TriUF
+6387 4227 TriUF
+6553 4258 TriUF
+6634 4275 TriUF
+6796 4294 TriUF
+6913 4304 TriUF
+1457 4293 TriUF
+1532 4274 TriUF
+1658 4240 TriUF
+1761 4211 TriUF
+2159 3991 TriUF
+2215 3960 TriUF
+2290 3904 TriUF
+2423 3781 TriUF
+2614 3414 TriUF
+2660 3328 TriUF
+2738 3066 TriUF
+2813 2793 TriUF
+2906 1520 TriUF
+4498 2330 TriUF
+4527 2577 TriUF
+4656 3047 TriUF
+4731 3245 TriUF
+4796 3370 TriUF
+4922 3592 TriUF
+5022 3705 TriUF
+5111 3770 TriUF
+5225 3840 TriUF
+5279 3883 TriUF
+5388 3943 TriUF
+5414 3940 TriUF
+5538 4002 TriUF
+5624 4032 TriUF
+5676 4049 TriUF
+5729 4075 TriUF
+5811 4099 TriUF
+6053 4154 TriUF
+6170 4185 TriUF
+6201 4195 TriUF
+6318 4216 TriUF
+6383 4226 TriUF
+6567 4261 TriUF
+6809 4293 TriUF
+6855 4297 TriUF
+6904 4302 TriUF
+6936 4304 TriUF
+1556 4270 TriUF
+1604 4257 TriUF
+1680 4233 TriUF
+1737 4215 TriUF
+2111 4017 TriUF
+2155 3997 TriUF
+2284 3910 TriUF
+2314 3886 TriUF
+2610 3437 TriUF
+2671 3310 TriUF
+2750 2984 TriUF
+2757 3074 TriUF
+4472 2216 TriUF
+4558 2810 TriUF
+4580 2728 TriUF
+4742 3296 TriUF
+4765 3279 TriUF
+4958 3601 TriUF
+4978 3679 TriUF
+5110 3773 TriUF
+5283 3889 TriUF
+5375 3940 TriUF
+5426 3964 TriUF
+5576 4026 TriUF
+5600 4026 TriUF
+5649 4037 TriUF
+5653 4039 TriUF
+5802 4088 TriUF
+5890 4106 TriUF
+5978 4134 TriUF
+6085 4165 TriUF
+6153 4182 TriUF
+6286 4211 TriUF
+6363 4221 TriUF
+6562 4261 TriUF
+6860 4297 TriUF
+6861 4296 TriUF
+1445 4295 TriUF
+1523 4276 TriUF
+1656 4240 TriUF
+1770 4209 TriUF
+2232 3947 TriUF
+2247 3933 TriUF
+2329 3871 TriUF
+2431 3769 TriUF
+2585 3491 TriUF
+2596 3460 TriUF
+2706 3171 TriUF
+2780 2848 TriUF
+2831 2379 TriUF
+4599 2912 TriUF
+4610 2980 TriUF
+4731 3260 TriUF
+4825 3390 TriUF
+4892 3516 TriUF
+4978 3660 TriUF
+5033 3714 TriUF
+5111 3732 TriUF
+5173 3801 TriUF
+5205 3823 TriUF
+5205 3825 TriUF
+5282 3866 TriUF
+5459 3967 TriUF
+5542 4002 TriUF
+5690 4061 TriUF
+5696 4068 TriUF
+5793 4098 TriUF
+6037 4150 TriUF
+6191 4194 TriUF
+6213 4195 TriUF
+6262 4201 TriUF
+6479 4246 TriUF
+6635 4271 TriUF
+6732 4290 TriUF
+6871 4300 TriUF
+6895 4299 TriUF
+6918 4302 TriUF
+1577 4262 TriUF
+1632 4248 TriUF
+1707 4227 TriUF
+1747 4215 TriUF
+2170 3984 TriUF
+2217 3957 TriUF
+2280 3911 TriUF
+2348 3856 TriUF
+2492 3648 TriUF
+2539 3581 TriUF
+2665 3352 TriUF
+2764 2918 TriUF
+2778 2804 TriUF
+4513 2465 TriUF
+4602 2950 TriUF
+4773 3338 TriUF
+4821 3424 TriUF
+4938 3596 TriUF
+5027 3685 TriUF
+5117 3751 TriUF
+5155 3796 TriUF
+5243 3863 TriUF
+5304 3892 TriUF
+5347 3911 TriUF
+5408 3942 TriUF
+5476 3974 TriUF
+5553 4013 TriUF
+5650 4043 TriUF
+5700 4056 TriUF
+5745 4071 TriUF
+5899 4111 TriUF
+6048 4153 TriUF
+6098 4177 TriUF
+6147 4175 TriUF
+6532 4255 TriUF
+6689 4277 TriUF
+6842 4298 TriUF
+6906 4305 TriUF
+6935 4307 TriUF
+1669 4235 TriUF
+1697 4231 TriUF
+1697 4231 TriUF
+1702 4228 TriUF
+2205 3963 TriUF
+2233 3943 TriUF
+2233 3943 TriUF
+2366 3843 TriUF
+2439 3725 TriUF
+2439 3725 TriUF
+2652 3385 TriUF
+2652 3385 TriUF
+2830 2021 TriUF
+4531 2514 TriUF
+4531 2514 TriUF
+4831 3475 TriUF
+4961 3628 TriUF
+4961 3628 TriUF
+5164 3784 TriUF
+5210 3821 TriUF
+5245 3856 TriUF
+5245 3856 TriUF
+5317 3902 TriUF
+5317 3902 TriUF
+5446 3955 TriUF
+5446 3955 TriUF
+5459 3985 TriUF
+5566 4013 TriUF
+5643 4028 TriUF
+5643 4028 TriUF
+5836 4097 TriUF
+6001 4140 TriUF
+6001 4140 TriUF
+6056 4172 TriUF
+6712 4278 TriUF
+6712 4278 TriUF
+6881 4303 TriUF
+6881 4303 TriUF
+1006 4372 TriUF
+1006 4372 TriUF
+1364 4318 TriUF
+1364 4318 TriUF
+2267 3940 TriUF
+2267 3940 TriUF
+4615 3086 TriUF
+4615 3085 TriUF
+4676 3195 TriUF
+4676 3195 TriUF
+4676 3195 TriUF
+4676 3195 TriUF
+4766 3327 TriUF
+4766 3327 TriUF
+4835 3439 TriUF
+4835 3439 TriUF
+4835 3439 TriUF
+4835 3439 TriUF
+5166 3868 TriUF
+5166 3868 TriUF
+5614 3980 TriUF
+5614 3980 TriUF
+5614 3980 TriUF
+5614 3980 TriUF
+5791 4096 TriUF
+5791 4096 TriUF
+5922 4141 TriUF
+5922 4141 TriUF
+5922 4141 TriUF
+5922 4141 TriUF
+6088 4157 TriUF
+6088 4157 TriUF
+6378 4232 TriUF
+6378 4232 TriUF
+6619 4278 TriUF
+6619 4278 TriUF
+6619 4278 TriUF
+6619 4278 TriUF
+1025 4369 TriUF
+1025 4369 TriUF
+1382 4314 TriUF
+1382 4314 TriUF
+2281 3925 TriUF
+2281 3925 TriUF
+4439 2210 TriUF
+4439 2208 TriUF
+4573 2970 TriUF
+4573 2970 TriUF
+4676 3214 TriUF
+4676 3214 TriUF
+4718 3284 TriUF
+4718 3283 TriUF
+4752 3295 TriUF
+4752 3295 TriUF
+4863 3494 TriUF
+4863 3494 TriUF
+4890 3524 TriUF
+4890 3524 TriUF
+5204 3869 TriUF
+5204 3869 TriUF
+5468 3945 TriUF
+5468 3945 TriUF
+5550 3966 TriUF
+5550 3966 TriUF
+5825 4110 TriUF
+5825 4110 TriUF
+6017 4154 TriUF
+6017 4154 TriUF
+6032 4162 TriUF
+6032 4162 TriUF
+6240 4190 TriUF
+6240 4190 TriUF
+6407 4244 TriUF
+6407 4244 TriUF
+6559 4264 TriUF
+6559 4264 TriUF
+6590 4276 TriUF
+6590 4276 TriUF
+1082 4362 TriUF
+1082 4362 TriUF
+1433 4301 TriUF
+1433 4301 TriUF
+2320 3886 TriUF
+2320 3886 TriUF
+4542 2769 TriUF
+4542 2769 TriUF
+4699 3231 TriUF
+4699 3231 TriUF
+4815 3455 TriUF
+4815 3455 TriUF
+4819 3429 TriUF
+4819 3429 TriUF
+4952 3621 TriUF
+4952 3621 TriUF
+5032 3694 TriUF
+5032 3694 TriUF
+5169 3783 TriUF
+5169 3783 TriUF
+5398 3938 TriUF
+5398 3938 TriUF
+5491 3946 TriUF
+5491 3946 TriUF
+5860 4123 TriUF
+5860 4123 TriUF
+6144 4170 TriUF
+6144 4170 TriUF
+6266 4208 TriUF
+6266 4208 TriUF
+6303 4228 TriUF
+6303 4228 TriUF
+6515 4250 TriUF
+6515 4250 TriUF
+6609 4284 TriUF
+6609 4284 TriUF
+6716 4287 TriUF
+6716 4287 TriUF
+1175 4349 TriUF
+1175 4349 TriUF
+1514 4278 TriUF
+1514 4278 TriUF
+2357 3847 TriUF
+2357 3847 TriUF
+2659 3262 TriUF
+2659 3262 TriUF
+2836 2249 TriUF
+2836 2243 TriUF
+4632 2970 TriUF
+4632 2971 TriUF
+4883 3549 TriUF
+4883 3549 TriUF
+4907 3572 TriUF
+4907 3572 TriUF
+5042 3698 TriUF
+5042 3698 TriUF
+5223 3854 TriUF
+5223 3854 TriUF
+5267 3846 TriUF
+5267 3846 TriUF
+5437 3954 TriUF
+5437 3954 TriUF
+5558 3976 TriUF
+5558 3976 TriUF
+5836 4109 TriUF
+5836 4109 TriUF
+6193 4177 TriUF
+6193 4177 TriUF
+6208 4205 TriUF
+6208 4205 TriUF
+6640 4276 TriUF
+6640 4276 TriUF
+6787 4308 TriUF
+6787 4308 TriUF
+6788 4285 TriUF
+6788 4285 TriUF
+6931 4312 TriUF
+6931 4312 TriUF
+1298 4328 TriUF
+1298 4328 TriUF
+1613 4251 TriUF
+1613 4251 TriUF
+2277 3918 TriUF
+2277 3918 TriUF
+2513 3644 TriUF
+2513 3644 TriUF
+2682 3253 TriUF
+2682 3254 TriUF
+4541 2514 TriUF
+4541 2516 TriUF
+4838 3453 TriUF
+4838 3453 TriUF
+4881 3553 TriUF
+4881 3553 TriUF
+5168 3824 TriUF
+5168 3824 TriUF
+5424 3968 TriUF
+5424 3968 TriUF
+5436 3949 TriUF
+5436 3949 TriUF
+5536 3996 TriUF
+5536 3996 TriUF
+5757 4058 TriUF
+5757 4058 TriUF
+5829 4097 TriUF
+5829 4097 TriUF
+6210 4202 TriUF
+6210 4202 TriUF
+6255 4190 TriUF
+6255 4190 TriUF
+6902 4306 TriUF
+6902 4306 TriUF
+1439 4298 TriUF
+1439 4298 TriUF
+1690 4231 TriUF
+1690 4231 TriUF
+2136 4006 TriUF
+2136 4006 TriUF
+2340 3866 TriUF
+2340 3866 TriUF
+2729 3113 TriUF
+2729 3113 TriUF
+4515 2472 TriUF
+4515 2471 TriUF
+4754 3286 TriUF
+4754 3286 TriUF
+4859 3525 TriUF
+4859 3525 TriUF
+5197 3859 TriUF
+5197 3860 TriUF
+5511 3988 TriUF
+5511 3988 TriUF
+5554 4022 TriUF
+5554 4022 TriUF
+5688 4049 TriUF
+5688 4049 TriUF
+5918 4119 TriUF
+5918 4119 TriUF
+6033 4145 TriUF
+6033 4145 TriUF
+6253 4206 TriUF
+6253 4206 TriUF
+6395 4219 TriUF
+6395 4219 TriUF
+6886 4302 TriUF
+6886 4302 TriUF
+1530 4279 TriUF
+1530 4279 TriUF
+1688 4228 TriUF
+1688 4228 TriUF
+2114 4019 TriUF
+2114 4019 TriUF
+2225 3953 TriUF
+2225 3953 TriUF
+2790 2929 TriUF
+2790 2929 TriUF
+4520 2506 TriUF
+4520 2506 TriUF
+4711 3184 TriUF
+4711 3184 TriUF
+4848 3511 TriUF
+4848 3511 TriUF
+5193 3860 TriUF
+5193 3860 TriUF
+5526 3993 TriUF
+5526 3993 TriUF
+5590 4035 TriUF
+5590 4035 TriUF
+5761 4073 TriUF
+5761 4073 TriUF
+5972 4135 TriUF
+5972 4135 TriUF
+6240 4200 TriUF
+6240 4200 TriUF
+6288 4211 TriUF
+6288 4211 TriUF
+6450 4229 TriUF
+6450 4229 TriUF
+6854 4296 TriUF
+6854 4296 TriUF
+6860 4294 TriUF
+6860 4294 TriUF
+1063 4364 TriUF
+1063 4364 TriUF
+1416 4305 TriUF
+1416 4305 TriUF
+2308 3898 TriUF
+2308 3898 TriUF
+4449 2116 TriUF
+4449 2111 TriUF
+4508 2721 TriUF
+4508 2720 TriUF
+4650 3123 TriUF
+4650 3123 TriUF
+4779 3368 TriUF
+4779 3368 TriUF
+4834 3462 TriUF
+4834 3462 TriUF
+4903 3544 TriUF
+4903 3544 TriUF
+4994 3661 TriUF
+4994 3661 TriUF
+5186 3820 TriUF
+5186 3820 TriUF
+5377 3896 TriUF
+5377 3896 TriUF
+5510 3983 TriUF
+5510 3983 TriUF
+5930 4132 TriUF
+5930 4132 TriUF
+6010 4155 TriUF
+6010 4155 TriUF
+6247 4200 TriUF
+6247 4200 TriUF
+6334 4225 TriUF
+6334 4225 TriUF
+6452 4245 TriUF
+6452 4245 TriUF
+6519 4264 TriUF
+6519 4264 TriUF
+6695 4286 TriUF
+6695 4286 TriUF
+1138 4354 TriUF
+1138 4354 TriUF
+1482 4287 TriUF
+1482 4287 TriUF
+2350 3854 TriUF
+2350 3854 TriUF
+2771 2692 TriUF
+2771 2692 TriUF
+4492 2298 TriUF
+4492 2301 TriUF
+4655 3113 TriUF
+4655 3113 TriUF
+4812 3425 TriUF
+4812 3425 TriUF
+4876 3521 TriUF
+4876 3521 TriUF
+5017 3659 TriUF
+5017 3659 TriUF
+5095 3751 TriUF
+5095 3751 TriUF
+5238 3844 TriUF
+5238 3844 TriUF
+5381 3907 TriUF
+5381 3907 TriUF
+5547 4000 TriUF
+5547 4000 TriUF
+5933 4131 TriUF
+5933 4131 TriUF
+6107 4170 TriUF
+6107 4170 TriUF
+6272 4217 TriUF
+6272 4217 TriUF
+6508 4253 TriUF
+6508 4253 TriUF
+6584 4270 TriUF
+6584 4270 TriUF
+6722 4284 TriUF
+6722 4284 TriUF
+6933 4315 TriUF
+6933 4315 TriUF
+1247 4338 TriUF
+1247 4338 TriUF
+1573 4262 TriUF
+1573 4262 TriUF
+2342 3861 TriUF
+2342 3861 TriUF
+2583 3488 TriUF
+2583 3487 TriUF
+2724 3140 TriUF
+2724 3140 TriUF
+4587 2801 TriUF
+4587 2801 TriUF
+4781 3366 TriUF
+4781 3366 TriUF
+4981 3645 TriUF
+4981 3645 TriUF
+5072 3736 TriUF
+5072 3736 TriUF
+5221 3845 TriUF
+5221 3845 TriUF
+5381 3917 TriUF
+5381 3917 TriUF
+5507 3987 TriUF
+5507 3987 TriUF
+5639 4039 TriUF
+5639 4039 TriUF
+5924 4122 TriUF
+5924 4122 TriUF
+6147 4181 TriUF
+6147 4181 TriUF
+6308 4216 TriUF
+6308 4216 TriUF
+6728 4290 TriUF
+6728 4290 TriUF
+6869 4302 TriUF
+6869 4302 TriUF
+1381 4311 TriUF
+1381 4311 TriUF
+1668 4237 TriUF
+1668 4237 TriUF
+2206 3966 TriUF
+2206 3966 TriUF
+2433 3767 TriUF
+2433 3767 TriUF
+2697 3204 TriUF
+2697 3204 TriUF
+2875 2312 TriUF
+2875 2320 TriUF
+4551 2677 TriUF
+4551 2677 TriUF
+4729 3246 TriUF
+4729 3246 TriUF
+4923 3590 TriUF
+4923 3590 TriUF
+5204 3850 TriUF
+5204 3850 TriUF
+5368 3937 TriUF
+5368 3937 TriUF
+5492 3973 TriUF
+5492 3973 TriUF
+5644 4046 TriUF
+5644 4046 TriUF
+5747 4069 TriUF
+5747 4069 TriUF
+6040 4151 TriUF
+6040 4151 TriUF
+6217 4197 TriUF
+6217 4197 TriUF
+6372 4222 TriUF
+6372 4222 TriUF
+6855 4302 TriUF
+6855 4302 TriUF
+1513 4281 TriUF
+1513 4281 TriUF
+1702 4226 TriUF
+1702 4226 TriUF
+2124 4012 TriUF
+2124 4012 TriUF
+2270 3923 TriUF
+2270 3923 TriUF
+2763 3009 TriUF
+2763 3009 TriUF
+2853 2625 TriUF
+2853 2625 TriUF
+4561 2718 TriUF
+4561 2719 TriUF
+4702 3172 TriUF
+4702 3172 TriUF
+4838 3479 TriUF
+4838 3479 TriUF
+5264 3898 TriUF
+5264 3898 TriUF
+5416 3958 TriUF
+5416 3958 TriUF
+5618 4036 TriUF
+5618 4036 TriUF
+5714 4059 TriUF
+5714 4059 TriUF
+5897 4113 TriUF
+5897 4113 TriUF
+6154 4181 TriUF
+6154 4181 TriUF
+6290 4211 TriUF
+6290 4211 TriUF
+6415 4228 TriUF
+6415 4228 TriUF
+6855 4297 TriUF
+6855 4297 TriUF
+6918 4303 TriUF
+6918 4303 TriUF
+1229 4341 TriUF
+1229 4341 TriUF
+1560 4265 TriUF
+1560 4265 TriUF
+2364 3838 TriUF
+2364 3838 TriUF
+2664 3282 TriUF
+2664 3282 TriUF
+2704 3221 TriUF
+2704 3220 TriUF
+4655 3054 TriUF
+4655 3055 TriUF
+4775 3348 TriUF
+4775 3348 TriUF
+4929 3603 TriUF
+4929 3603 TriUF
+5002 3622 TriUF
+5002 3622 TriUF
+5179 3805 TriUF
+5179 3805 TriUF
+5278 3865 TriUF
+5278 3865 TriUF
+5502 3986 TriUF
+5502 3986 TriUF
+5644 4049 TriUF
+5644 4049 TriUF
+5997 4139 TriUF
+5997 4139 TriUF
+6142 4186 TriUF
+6142 4186 TriUF
+6358 4229 TriUF
+6358 4229 TriUF
+6565 4266 TriUF
+6565 4266 TriUF
+6830 4296 TriUF
+6830 4296 TriUF
+6942 4307 TriUF
+6942 4307 TriUF
+1350 4318 TriUF
+1350 4318 TriUF
+1652 4241 TriUF
+1652 4241 TriUF
+2287 3908 TriUF
+2287 3908 TriUF
+2504 3664 TriUF
+2504 3664 TriUF
+2683 3254 TriUF
+2683 3254 TriUF
+2800 2674 TriUF
+2800 2677 TriUF
+4585 2756 TriUF
+4585 2755 TriUF
+4818 3419 TriUF
+4818 3419 TriUF
+4984 3654 TriUF
+4984 3654 TriUF
+5096 3748 TriUF
+5096 3748 TriUF
+5193 3821 TriUF
+5193 3821 TriUF
+5336 3889 TriUF
+5336 3889 TriUF
+5593 4033 TriUF
+5593 4033 TriUF
+5730 4078 TriUF
+5730 4078 TriUF
+6092 4165 TriUF
+6092 4165 TriUF
+6219 4199 TriUF
+6219 4199 TriUF
+6445 4241 TriUF
+6445 4241 TriUF
+6697 4283 TriUF
+6697 4283 TriUF
+1486 4286 TriUF
+1486 4286 TriUF
+1718 4223 TriUF
+1718 4223 TriUF
+2177 3981 TriUF
+2177 3981 TriUF
+2351 3855 TriUF
+2351 3855 TriUF
+2676 3275 TriUF
+2676 3275 TriUF
+2773 2959 TriUF
+2773 2959 TriUF
+4428 1512 TriUF
+4428 1448 TriUF
+4568 2791 TriUF
+4568 2792 TriUF
+4782 3334 TriUF
+4782 3334 TriUF
+4946 3610 TriUF
+4946 3610 TriUF
+5223 3865 TriUF
+5223 3865 TriUF
+5293 3881 TriUF
+5293 3881 TriUF
+5473 3966 TriUF
+5473 3966 TriUF
+5654 4051 TriUF
+5654 4051 TriUF
+5775 4085 TriUF
+5775 4085 TriUF
+6121 4172 TriUF
+6121 4172 TriUF
+6260 4204 TriUF
+6260 4204 TriUF
+6461 4244 TriUF
+6461 4244 TriUF
+6833 4296 TriUF
+6833 4296 TriUF
+6919 4304 TriUF
+6919 4304 TriUF
+1576 4265 TriUF
+1576 4265 TriUF
+1711 4223 TriUF
+1711 4223 TriUF
+2161 3993 TriUF
+2161 3993 TriUF
+2256 3930 TriUF
+2256 3930 TriUF
+2644 3373 TriUF
+2644 3373 TriUF
+2817 2786 TriUF
+2817 2786 TriUF
+2887 1931 TriUF
+2887 1933 TriUF
+4419 1514 TriUF
+4419 1505 TriUF
+4595 2912 TriUF
+4595 2912 TriUF
+4749 3231 TriUF
+4749 3231 TriUF
+4900 3554 TriUF
+4900 3554 TriUF
+5264 3886 TriUF
+5264 3886 TriUF
+5359 3933 TriUF
+5359 3933 TriUF
+5598 4021 TriUF
+5598 4021 TriUF
+5657 4047 TriUF
+5657 4047 TriUF
+5840 4097 TriUF
+5840 4097 TriUF
+6028 4151 TriUF
+6028 4151 TriUF
+6246 4197 TriUF
+6246 4197 TriUF
+6451 4243 TriUF
+6451 4243 TriUF
+6867 4298 TriUF
+6867 4298 TriUF
+1475 4288 TriUF
+1475 4288 TriUF
+1723 4222 TriUF
+1723 4222 TriUF
+2228 3948 TriUF
+2228 3948 TriUF
+2377 3825 TriUF
+2377 3825 TriUF
+2639 3362 TriUF
+2639 3362 TriUF
+2727 3139 TriUF
+2727 3139 TriUF
+2844 2276 TriUF
+2844 2267 TriUF
+4655 3110 TriUF
+4655 3110 TriUF
+4890 3508 TriUF
+4890 3508 TriUF
+5042 3725 TriUF
+5042 3725 TriUF
+5141 3795 TriUF
+5141 3795 TriUF
+5210 3814 TriUF
+5210 3814 TriUF
+5293 3862 TriUF
+5293 3862 TriUF
+5625 4045 TriUF
+5625 4045 TriUF
+5771 4089 TriUF
+5771 4089 TriUF
+6116 4170 TriUF
+6116 4170 TriUF
+6254 4205 TriUF
+6254 4205 TriUF
+6546 4256 TriUF
+6546 4256 TriUF
+6782 4294 TriUF
+6782 4294 TriUF
+6892 4297 TriUF
+6892 4297 TriUF
+1599 4256 TriUF
+1599 4256 TriUF
+1732 4220 TriUF
+1732 4220 TriUF
+2206 3962 TriUF
+2206 3962 TriUF
+2287 3905 TriUF
+2287 3905 TriUF
+2536 3583 TriUF
+2536 3583 TriUF
+2681 3310 TriUF
+2681 3310 TriUF
+4540 2630 TriUF
+4540 2630 TriUF
+4630 3053 TriUF
+4630 3053 TriUF
+4896 3510 TriUF
+4896 3510 TriUF
+5071 3745 TriUF
+5071 3745 TriUF
+5199 3830 TriUF
+5199 3830 TriUF
+5282 3864 TriUF
+5282 3864 TriUF
+5439 3952 TriUF
+5439 3952 TriUF
+5614 4035 TriUF
+5614 4035 TriUF
+5735 4070 TriUF
+5735 4070 TriUF
+5974 4138 TriUF
+5974 4138 TriUF
+6160 4182 TriUF
+6160 4182 TriUF
+6605 4264 TriUF
+6605 4264 TriUF
+6856 4295 TriUF
+6856 4295 TriUF
+6944 4311 TriUF
+6944 4311 TriUF
+1685 4231 TriUF
+1685 4231 TriUF
+1697 4231 TriUF
+1697 4231 TriUF
+2226 3946 TriUF
+2226 3946 TriUF
+2276 3916 TriUF
+2276 3916 TriUF
+2480 3670 TriUF
+2480 3670 TriUF
+2597 3512 TriUF
+2597 3512 TriUF
+4615 3030 TriUF
+4615 3030 TriUF
+4617 2995 TriUF
+4617 2996 TriUF
+4948 3601 TriUF
+4948 3601 TriUF
+5193 3810 TriUF
+5193 3810 TriUF
+5236 3813 TriUF
+5236 3813 TriUF
+5261 3894 TriUF
+5261 3894 TriUF
+5453 3951 TriUF
+5453 3951 TriUF
+5549 4011 TriUF
+5549 4011 TriUF
+5620 4023 TriUF
+5620 4023 TriUF
+5922 4130 TriUF
+5922 4130 TriUF
+6089 4167 TriUF
+6089 4167 TriUF
+6705 4275 TriUF
+6705 4275 TriUF
+6877 4295 TriUF
+6877 4295 TriUF
+970 4376 TriUF
+1066 4364 TriUF
+1250 4338 TriUF
+1474 4297 TriUF
+2100 4036 TriUF
+2475 3673 TriUF
+4425 2216 TriUF
+4578 2972 TriUF
+4581 3002 TriUF
+4669 3171 TriUF
+4669 3171 TriUF
+4671 3184 TriUF
+4671 3184 TriUF
+4727 3225 TriUF
+4832 3455 TriUF
+4832 3455 TriUF
+4863 3458 TriUF
+4863 3458 TriUF
+4879 3578 TriUF
+5100 3818 TriUF
+5219 3906 TriUF
+5523 3950 TriUF
+5523 3950 TriUF
+5636 4002 TriUF
+5636 4002 TriUF
+5751 4078 TriUF
+5795 4109 TriUF
+5933 4128 TriUF
+5933 4128 TriUF
+6061 4125 TriUF
+6076 4176 TriUF
+6076 4176 TriUF
+6151 4185 TriUF
+6245 4210 TriUF
+6408 4246 TriUF
+6408 4246 TriUF
+6558 4260 TriUF
+6609 4272 TriUF
+6609 4272 TriUF
+989 4374 TriUF
+1085 4361 TriUF
+1268 4334 TriUF
+1490 4292 TriUF
+2117 4028 TriUF
+2486 3653 TriUF
+4417 1940 TriUF
+4472 2581 TriUF
+4550 2885 TriUF
+4582 2980 TriUF
+4651 3160 TriUF
+4667 3184 TriUF
+4696 3238 TriUF
+4733 3307 TriUF
+4749 3302 TriUF
+4789 3382 TriUF
+4809 3406 TriUF
+4870 3519 TriUF
+4928 3551 TriUF
+4955 3620 TriUF
+5113 3799 TriUF
+5247 3898 TriUF
+5382 3921 TriUF
+5435 3920 TriUF
+5585 3994 TriUF
+5668 4006 TriUF
+5783 4097 TriUF
+5884 4125 TriUF
+5932 4129 TriUF
+5998 4146 TriUF
+6037 4161 TriUF
+6170 4190 TriUF
+6207 4180 TriUF
+6269 4220 TriUF
+6320 4228 TriUF
+6366 4226 TriUF
+6380 4243 TriUF
+6606 4272 TriUF
+6662 4276 TriUF
+6683 4285 TriUF
+1046 4366 TriUF
+1141 4353 TriUF
+1322 4324 TriUF
+1538 4277 TriUF
+2164 4002 TriUF
+2511 3608 TriUF
+2852 1529 TriUF
+4492 2536 TriUF
+4611 3011 TriUF
+4680 3162 TriUF
+4709 3257 TriUF
+4775 3383 TriUF
+4796 3422 TriUF
+4829 3426 TriUF
+4863 3527 TriUF
+4888 3523 TriUF
+4988 3671 TriUF
+5001 3674 TriUF
+5079 3720 TriUF
+5095 3733 TriUF
+5226 3840 TriUF
+5324 3891 TriUF
+5380 3891 TriUF
+5537 4004 TriUF
+5635 4005 TriUF
+5792 4101 TriUF
+5865 4121 TriUF
+5981 4126 TriUF
+6189 4204 TriUF
+6230 4212 TriUF
+6291 4213 TriUF
+6304 4214 TriUF
+6389 4229 TriUF
+6459 4256 TriUF
+6515 4261 TriUF
+6596 4263 TriUF
+6649 4275 TriUF
+6789 4306 TriUF
+6804 4296 TriUF
+1139 4354 TriUF
+1233 4339 TriUF
+1408 4304 TriUF
+1613 4254 TriUF
+2230 3957 TriUF
+2488 3668 TriUF
+2609 3395 TriUF
+2734 3013 TriUF
+2762 2907 TriUF
+4500 2229 TriUF
+4596 2818 TriUF
+4709 3209 TriUF
+4808 3444 TriUF
+4829 3428 TriUF
+4941 3633 TriUF
+4981 3673 TriUF
+4992 3658 TriUF
+5077 3733 TriUF
+5160 3822 TriUF
+5255 3842 TriUF
+5275 3877 TriUF
+5280 3851 TriUF
+5331 3890 TriUF
+5471 3932 TriUF
+5572 4019 TriUF
+5673 4025 TriUF
+5744 4081 TriUF
+5860 4114 TriUF
+5999 4130 TriUF
+6148 4195 TriUF
+6352 4230 TriUF
+6378 4220 TriUF
+6592 4270 TriUF
+6659 4289 TriUF
+6683 4276 TriUF
+6748 4285 TriUF
+6835 4296 TriUF
+6875 4310 TriUF
+6916 4307 TriUF
+1265 4335 TriUF
+1353 4316 TriUF
+1517 4276 TriUF
+1698 4230 TriUF
+2240 3947 TriUF
+2323 3878 TriUF
+2419 3774 TriUF
+2558 3533 TriUF
+2627 3429 TriUF
+2814 2720 TriUF
+4470 1922 TriUF
+4641 2896 TriUF
+4765 3319 TriUF
+4781 3397 TriUF
+4917 3602 TriUF
+5022 3721 TriUF
+5074 3737 TriUF
+5226 3845 TriUF
+5320 3920 TriUF
+5354 3921 TriUF
+5450 3962 TriUF
+5487 3992 TriUF
+5491 3968 TriUF
+5625 4030 TriUF
+5696 4035 TriUF
+5778 4082 TriUF
+5841 4088 TriUF
+5901 4118 TriUF
+6089 4153 TriUF
+6105 4181 TriUF
+6366 4231 TriUF
+6437 4228 TriUF
+6783 4289 TriUF
+6910 4319 TriUF
+6910 4307 TriUF
+6939 4313 TriUF
+1409 4306 TriUF
+1487 4286 TriUF
+1621 4250 TriUF
+1742 4216 TriUF
+2115 4017 TriUF
+2178 3985 TriUF
+2264 3925 TriUF
+2431 3771 TriUF
+2591 3452 TriUF
+2836 2721 TriUF
+2904 1912 TriUF
+4413 1660 TriUF
+4541 2538 TriUF
+4748 3318 TriUF
+4758 3294 TriUF
+4845 3479 TriUF
+5019 3723 TriUF
+5115 3775 TriUF
+5283 3899 TriUF
+5387 3949 TriUF
+5395 3956 TriUF
+5509 3986 TriUF
+5655 4059 TriUF
+5680 4046 TriUF
+5756 4076 TriUF
+5872 4108 TriUF
+5992 4133 TriUF
+6008 4141 TriUF
+6095 4162 TriUF
+6134 4179 TriUF
+6274 4198 TriUF
+6382 4233 TriUF
+6539 4245 TriUF
+6743 4282 TriUF
+6940 4311 TriUF
+1509 4285 TriUF
+1560 4270 TriUF
+1650 4241 TriUF
+1723 4217 TriUF
+2062 4042 TriUF
+2110 4023 TriUF
+2239 3946 TriUF
+2301 3898 TriUF
+2678 3196 TriUF
+2790 3009 TriUF
+2888 2299 TriUF
+4438 2096 TriUF
+4467 2154 TriUF
+4735 3277 TriUF
+4774 3319 TriUF
+4807 3396 TriUF
+5014 3720 TriUF
+5132 3790 TriUF
+5272 3895 TriUF
+5395 3953 TriUF
+5412 3963 TriUF
+5523 3995 TriUF
+5713 4080 TriUF
+5761 4075 TriUF
+5819 4095 TriUF
+5919 4122 TriUF
+6074 4156 TriUF
+6172 4182 TriUF
+6225 4198 TriUF
+6265 4204 TriUF
+6365 4218 TriUF
+6396 4235 TriUF
+6576 4249 TriUF
+6735 4279 TriUF
+6830 4288 TriUF
+6896 4300 TriUF
+6899 4302 TriUF
+1027 4369 TriUF
+1122 4356 TriUF
+1304 4328 TriUF
+1523 4282 TriUF
+2149 4011 TriUF
+2505 3620 TriUF
+4439 2045 TriUF
+4459 2298 TriUF
+4519 2776 TriUF
+4527 2774 TriUF
+4637 3099 TriUF
+4662 3186 TriUF
+4759 3327 TriUF
+4766 3350 TriUF
+4825 3431 TriUF
+4831 3435 TriUF
+4877 3531 TriUF
+4947 3597 TriUF
+5002 3656 TriUF
+5014 3684 TriUF
+5106 3770 TriUF
+5191 3804 TriUF
+5340 3900 TriUF
+5410 3942 TriUF
+5566 3992 TriUF
+5582 4006 TriUF
+5863 4112 TriUF
+5871 4107 TriUF
+6007 4148 TriUF
+6067 4182 TriUF
+6194 4200 TriUF
+6243 4197 TriUF
+6293 4216 TriUF
+6305 4225 TriUF
+6398 4241 TriUF
+6523 4248 TriUF
+6529 4261 TriUF
+6665 4284 TriUF
+6671 4285 TriUF
+6787 4291 TriUF
+1102 4359 TriUF
+1196 4345 TriUF
+1374 4312 TriUF
+1584 4262 TriUF
+2207 3973 TriUF
+2515 3609 TriUF
+2730 2956 TriUF
+2801 2521 TriUF
+2847 1691 TriUF
+4470 2131 TriUF
+4531 2621 TriUF
+4639 3044 TriUF
+4690 3196 TriUF
+4792 3405 TriUF
+4820 3440 TriUF
+4837 3462 TriUF
+4899 3526 TriUF
+4980 3637 TriUF
+5030 3676 TriUF
+5059 3718 TriUF
+5142 3789 TriUF
+5203 3815 TriUF
+5259 3861 TriUF
+5318 3872 TriUF
+5451 3961 TriUF
+5566 4009 TriUF
+5600 4015 TriUF
+5834 4092 TriUF
+5901 4125 TriUF
+6013 4151 TriUF
+6194 4202 TriUF
+6277 4214 TriUF
+6363 4230 TriUF
+6458 4246 TriUF
+6500 4249 TriUF
+6581 4269 TriUF
+6681 4281 TriUF
+6743 4290 TriUF
+6784 4294 TriUF
+6858 4308 TriUF
+1212 4344 TriUF
+1303 4327 TriUF
+1472 4288 TriUF
+1666 4239 TriUF
+2261 3933 TriUF
+2416 3779 TriUF
+2511 3630 TriUF
+2626 3394 TriUF
+2700 3223 TriUF
+2821 2589 TriUF
+4479 1908 TriUF
+4554 2559 TriUF
+4652 3077 TriUF
+4759 3284 TriUF
+4855 3507 TriUF
+4899 3561 TriUF
+4970 3646 TriUF
+5046 3711 TriUF
+5124 3780 TriUF
+5187 3819 TriUF
+5234 3835 TriUF
+5297 3870 TriUF
+5437 3955 TriUF
+5468 3974 TriUF
+5575 4017 TriUF
+5608 4027 TriUF
+5682 4051 TriUF
+5865 4101 TriUF
+5939 4130 TriUF
+6053 4155 TriUF
+6193 4199 TriUF
+6352 4220 TriUF
+6422 4237 TriUF
+6650 4280 TriUF
+6783 4295 TriUF
+6820 4295 TriUF
+6896 4303 TriUF
+1349 4318 TriUF
+1433 4298 TriUF
+1584 4259 TriUF
+1737 4218 TriUF
+2190 3975 TriUF
+2246 3940 TriUF
+2348 3856 TriUF
+2522 3641 TriUF
+2563 3524 TriUF
+2819 2742 TriUF
+2855 2457 TriUF
+4461 2056 TriUF
+4643 2980 TriUF
+4674 3091 TriUF
+4797 3391 TriUF
+4863 3516 TriUF
+5036 3738 TriUF
+5117 3772 TriUF
+5240 3863 TriUF
+5263 3875 TriUF
+5410 3948 TriUF
+5443 3962 TriUF
+5533 4003 TriUF
+5617 4028 TriUF
+5680 4053 TriUF
+5729 4066 TriUF
+5798 4090 TriUF
+6001 4140 TriUF
+6078 4163 TriUF
+6134 4177 TriUF
+6247 4199 TriUF
+6388 4230 TriUF
+6487 4242 TriUF
+6791 4289 TriUF
+6836 4299 TriUF
+6932 4311 TriUF
+1487 4288 TriUF
+1552 4271 TriUF
+1656 4240 TriUF
+1737 4215 TriUF
+2084 4031 TriUF
+2148 4004 TriUF
+2239 3942 TriUF
+2352 3854 TriUF
+2652 3300 TriUF
+2789 2969 TriUF
+2823 2796 TriUF
+2890 2320 TriUF
+4467 2295 TriUF
+4554 2616 TriUF
+4688 3146 TriUF
+4746 3286 TriUF
+4841 3461 TriUF
+5012 3715 TriUF
+5171 3819 TriUF
+5237 3860 TriUF
+5335 3937 TriUF
+5488 3984 TriUF
+5545 4011 TriUF
+5629 4044 TriUF
+5719 4062 TriUF
+5758 4077 TriUF
+5860 4104 TriUF
+5964 4130 TriUF
+6122 4170 TriUF
+6176 4186 TriUF
+6212 4195 TriUF
+6296 4208 TriUF
+6432 4238 TriUF
+6515 4244 TriUF
+6777 4285 TriUF
+6853 4295 TriUF
+6890 4299 TriUF
+6928 4303 TriUF
+1194 4347 TriUF
+1286 4330 TriUF
+1457 4292 TriUF
+1654 4242 TriUF
+2262 3932 TriUF
+2463 3713 TriUF
+2611 3382 TriUF
+2622 3425 TriUF
+2744 3085 TriUF
+2800 2678 TriUF
+4521 2223 TriUF
+4653 3044 TriUF
+4694 3145 TriUF
+4761 3343 TriUF
+4817 3410 TriUF
+4893 3541 TriUF
+4923 3603 TriUF
+4980 3633 TriUF
+5002 3638 TriUF
+5096 3728 TriUF
+5145 3759 TriUF
+5272 3863 TriUF
+5401 3961 TriUF
+5429 3947 TriUF
+5572 4017 TriUF
+5620 4036 TriUF
+5669 4052 TriUF
+5879 4106 TriUF
+5998 4148 TriUF
+6157 4184 TriUF
+6187 4195 TriUF
+6344 4221 TriUF
+6415 4243 TriUF
+6560 4260 TriUF
+6644 4277 TriUF
+6814 4295 TriUF
+6848 4294 TriUF
+6908 4306 TriUF
+1317 4325 TriUF
+1403 4305 TriUF
+1561 4265 TriUF
+1729 4221 TriUF
+2263 3927 TriUF
+2326 3874 TriUF
+2438 3757 TriUF
+2554 3544 TriUF
+2578 3534 TriUF
+2745 2986 TriUF
+2828 2486 TriUF
+2851 2292 TriUF
+4528 2462 TriUF
+4588 2744 TriUF
+4662 3073 TriUF
+4803 3390 TriUF
+4847 3463 TriUF
+4892 3565 TriUF
+4999 3662 TriUF
+5024 3707 TriUF
+5084 3724 TriUF
+5190 3798 TriUF
+5235 3853 TriUF
+5256 3840 TriUF
+5480 3977 TriUF
+5521 3995 TriUF
+5658 4051 TriUF
+5689 4065 TriUF
+5752 4088 TriUF
+6005 4145 TriUF
+6129 4178 TriUF
+6198 4193 TriUF
+6287 4213 TriUF
+6387 4227 TriUF
+6553 4258 TriUF
+6634 4275 TriUF
+6796 4294 TriUF
+6913 4304 TriUF
+1457 4293 TriUF
+1532 4274 TriUF
+1658 4240 TriUF
+1761 4211 TriUF
+2159 3991 TriUF
+2215 3960 TriUF
+2290 3904 TriUF
+2423 3781 TriUF
+2614 3414 TriUF
+2660 3329 TriUF
+2738 3066 TriUF
+2813 2794 TriUF
+2906 631 TriUF
+4498 2331 TriUF
+4527 2577 TriUF
+4656 3047 TriUF
+4731 3245 TriUF
+4796 3369 TriUF
+4922 3592 TriUF
+5022 3705 TriUF
+5111 3770 TriUF
+5225 3840 TriUF
+5279 3883 TriUF
+5388 3943 TriUF
+5414 3940 TriUF
+5538 4002 TriUF
+5624 4032 TriUF
+5676 4049 TriUF
+5729 4075 TriUF
+5811 4099 TriUF
+6053 4154 TriUF
+6170 4185 TriUF
+6201 4195 TriUF
+6318 4216 TriUF
+6383 4226 TriUF
+6567 4261 TriUF
+6809 4293 TriUF
+6855 4297 TriUF
+6904 4302 TriUF
+6936 4304 TriUF
+1556 4270 TriUF
+1604 4257 TriUF
+1680 4233 TriUF
+1737 4215 TriUF
+2111 4017 TriUF
+2155 3997 TriUF
+2284 3911 TriUF
+2314 3886 TriUF
+2610 3437 TriUF
+2671 3310 TriUF
+2750 2985 TriUF
+2757 3074 TriUF
+4472 2217 TriUF
+4558 2810 TriUF
+4580 2728 TriUF
+4742 3296 TriUF
+4765 3278 TriUF
+4958 3600 TriUF
+4978 3679 TriUF
+5110 3773 TriUF
+5283 3889 TriUF
+5375 3940 TriUF
+5426 3964 TriUF
+5576 4026 TriUF
+5600 4026 TriUF
+5649 4037 TriUF
+5653 4039 TriUF
+5802 4088 TriUF
+5890 4106 TriUF
+5978 4134 TriUF
+6085 4165 TriUF
+6153 4182 TriUF
+6286 4211 TriUF
+6363 4221 TriUF
+6562 4261 TriUF
+6860 4297 TriUF
+6861 4296 TriUF
+1445 4295 TriUF
+1523 4276 TriUF
+1656 4240 TriUF
+1770 4209 TriUF
+2232 3947 TriUF
+2247 3933 TriUF
+2329 3871 TriUF
+2431 3769 TriUF
+2585 3491 TriUF
+2596 3460 TriUF
+2706 3172 TriUF
+2780 2850 TriUF
+2831 2384 TriUF
+4599 2912 TriUF
+4610 2980 TriUF
+4731 3260 TriUF
+4825 3390 TriUF
+4892 3515 TriUF
+4978 3660 TriUF
+5033 3714 TriUF
+5111 3732 TriUF
+5173 3801 TriUF
+5205 3823 TriUF
+5205 3825 TriUF
+5282 3866 TriUF
+5459 3967 TriUF
+5542 4002 TriUF
+5690 4061 TriUF
+5696 4068 TriUF
+5793 4098 TriUF
+6037 4150 TriUF
+6191 4194 TriUF
+6213 4195 TriUF
+6262 4201 TriUF
+6479 4246 TriUF
+6635 4271 TriUF
+6732 4290 TriUF
+6871 4300 TriUF
+6895 4299 TriUF
+6918 4302 TriUF
+1577 4262 TriUF
+1632 4248 TriUF
+1707 4227 TriUF
+1747 4215 TriUF
+2170 3984 TriUF
+2217 3957 TriUF
+2280 3911 TriUF
+2348 3856 TriUF
+2492 3648 TriUF
+2539 3581 TriUF
+2665 3352 TriUF
+2764 2918 TriUF
+2778 2806 TriUF
+4513 2463 TriUF
+4602 2950 TriUF
+4773 3338 TriUF
+4821 3424 TriUF
+4938 3596 TriUF
+5027 3685 TriUF
+5117 3751 TriUF
+5155 3796 TriUF
+5243 3863 TriUF
+5304 3892 TriUF
+5347 3911 TriUF
+5408 3941 TriUF
+5476 3974 TriUF
+5553 4013 TriUF
+5650 4043 TriUF
+5700 4056 TriUF
+5745 4071 TriUF
+5899 4111 TriUF
+6048 4153 TriUF
+6098 4177 TriUF
+6147 4175 TriUF
+6532 4255 TriUF
+6689 4277 TriUF
+6842 4298 TriUF
+6906 4305 TriUF
+6935 4307 TriUF
+1669 4235 TriUF
+1697 4231 TriUF
+1697 4231 TriUF
+1702 4228 TriUF
+2205 3963 TriUF
+2233 3943 TriUF
+2233 3943 TriUF
+2366 3843 TriUF
+2439 3725 TriUF
+2439 3725 TriUF
+2652 3385 TriUF
+2652 3385 TriUF
+2830 2052 TriUF
+4531 2517 TriUF
+4531 2517 TriUF
+4831 3476 TriUF
+4961 3628 TriUF
+4961 3628 TriUF
+5164 3784 TriUF
+5210 3821 TriUF
+5245 3856 TriUF
+5245 3856 TriUF
+5317 3902 TriUF
+5317 3902 TriUF
+5446 3955 TriUF
+5446 3955 TriUF
+5459 3985 TriUF
+5566 4013 TriUF
+5643 4028 TriUF
+5643 4028 TriUF
+5836 4097 TriUF
+6001 4140 TriUF
+6001 4140 TriUF
+6056 4172 TriUF
+6712 4278 TriUF
+6712 4278 TriUF
+6881 4303 TriUF
+6881 4303 TriUF
+6579 4486 TriUF
+% End plot #1
+2.000 UL
+LTb
+LCb setrgbcolor
+1.000 UL
+LTB
+LCb setrgbcolor
+854 4619 N
+854 448 L
+6093 0 V
+0 4171 V
+-6093 0 V
+Z stroke
+0.200 UP
+1.000 UL
+LTb
+LCb setrgbcolor
+stroke
+grestore
+end
+showpage
+%%Trailer
+%%DocumentFonts: Helvetica

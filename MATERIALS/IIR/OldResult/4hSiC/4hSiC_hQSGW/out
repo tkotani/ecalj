@@ -1,0 +1,18 @@
+NOTE: Use run_arg defined in /home/usr2/h70252a/binb46f/run_arg
+OK! --> Start echo 0 | /home/usr2/h70252a/binb46f/lmfgw 4hsic > llmfgw00 
+OK! --> Start echo 1 | /home/usr2/h70252a/binb46f/qg4gw  > lqg4gw 
+OK! --> Start echo 1 | mpirun -np 48 /home/usr2/h70252a/binb46f/lmfgw-MPIK 4hsic > llmfgw01 
+OK! --> Start echo --- | /home/usr2/h70252a/binb46f/lmf2gw  > llmf2gw 
+OK! --> Start echo 0 | /home/usr2/h70252a/binb46f/rdata4gw_v2  > lrdata4gw_v2 
+OK! --> Start echo 1 | /home/usr2/h70252a/binb46f/heftet  > leftet 
+OK! --> Start echo 1 | /home/usr2/h70252a/binb46f/hchknw  > lchknw 
+OK! --> Start echo 3 | /home/usr2/h70252a/binb46f/hbasfp0  > lbasC 
+OK! --> Start echo 3 | mpirun -np 48 /home/usr2/h70252a/binb46f/hvccfp0  > lvccC 
+OK! --> Start echo 3 | mpirun -np 48 /home/usr2/h70252a/binb46f/hsfp0  > lsxC 
+OK! --> Start echo 0 | /home/usr2/h70252a/binb46f/hbasfp0  > lbas 
+OK! --> Start echo 0 | mpirun -np 48 /home/usr2/h70252a/binb46f/hvccfp0  > lvcc 
+OK! --> Start echo 11 | mpirun -np 48 /home/usr2/h70252a/binb46f/hsfp0  > lsx_sf 
+OK! --> Start echo 11 | mpirun -np 48 /home/usr2/h70252a/binb46f/hx0fp0  > lx0_sf 
+OK! --> Start echo 12 | mpirun -np 48 /home/usr2/h70252a/binb46f/hsfp0  > lsc_sf 
+OK! --> Start echo 0 | /home/usr2/h70252a/binb46f/hqpe  > lqpe 
+OK! ==== All calclation finished for gw_lmfh ====

@@ -1,0 +1,2 @@
+C: only old data with gnuplot script *.glt
+4hSiC: not organized well. But use *.glt to check your newer result. ctrl.4hsic GWinput included

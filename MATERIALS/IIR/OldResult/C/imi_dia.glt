@@ -1,0 +1,36 @@
+#!/usr/bin/gnuplot -persist
+#takao@mar:~/DATA/ImpactIonization/GaN/Scaled/impact10105$ cat ggg4  (Band gap=5.47eV)"
+#set term postscript enhanced color
+#set output "Fig3_imic.eps"
+#set title font "Helvetica,20"
+#set xl font "Helvetica,20"
+#set yl font "Helvetica,18"
+#set ytics font "Helvetica,20"
+#set xtics font "Helvetica,20"
+#set key font "Helvetica,20"
+set title "Diamond: Ionization rate for electrons and holes (band gap=5.47eV)"
+set xlabel "Electron (or Hole) energies from the top of valence band (eV)" 
+set ylabel "Ionization rate (1/s)" 
+set xrange [-20: 25]
+set log y
+set yrange [1e5: +1e16]
+set grid
+set pointsize .2
+#set key right bottom
+#set arrow from 0,1e5 to 0,1e16 nohead
+set arrow 1 from -5.472,1e5 to -5.472,1e16 nohead lc 'blue' lw 1
+set arrow 2 from 5.472+5.472,1e5 to 5.472+5.472,1e16 nohead lc 'blue' lw 1
+#set terminal postscript enhanced color eps
+#set output 'pp.eps'
+set ylabel offset -1,0
+#unset key
+set object rectangle from 0,1e5 to 5.472,1e16 fc 'light-grey' behind
+set label 1 ' BandGap ' at 0,5e10 left font "Helvetica,16"
+set arrow 3 from 0,2e10 to 5.472,2e10 filled heads lc 'black' lw 1
+
+set multiplot
+set size 1,1
+set origin 0.01,0
+plot "QPU_life.181818" using ($5+2.764):(abs($6)*10.**15/0.658) with points ti 'k181818' pt 4 lc 'red',\
+     "QPU_life.151515" using ($5+2.764):(abs($6)*10.**15/0.658) with points ti 'k151515' pt 7 lc 'blue',\
+     "QPU_life.121212" using ($5+2.764):(abs($6)*10.**15/0.658) with points ti 'k121212' pt 8 lc 'green'

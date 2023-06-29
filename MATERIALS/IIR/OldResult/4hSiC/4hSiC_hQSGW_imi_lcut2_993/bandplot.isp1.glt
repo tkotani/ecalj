@@ -1,0 +1,21 @@
+set xzeroaxis
+set grid
+set ylabel "Energy-Efermi(eV)"
+# This is given written in subroutine writeband in lm7K/fp/bndfp.F
+set title "Band 4hsic"
+set yrange [   -18.00000:    16.00000]
+set xrange [0.0:     1.51891]
+set xtics ('G'   0.0000000000,\
+'K'   0.5773502019,\
+'M'   0.8660252019,\
+'G'   1.3660252019,\
+'Z'   1.5189052019)
+set x2tics ('K'   0.5773502019,\
+'M'   0.8660252019,\
+'G'   1.3660252019,\
+'Z'   1.5189052019)
+plot \
+"bnd001.spin1" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd002.spin1" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd003.spin1" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd004.spin1" u ($2):($3) lt 1 pt 1 w lp 

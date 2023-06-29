@@ -1,0 +1,18 @@
+#!/usr/bin/gnuplot -persist
+set title "4H-SiC IMI rate (QSGW70%+LDA30% gap=3.23eV)"
+set xlabel " electron energy from top of valence (eV)" 
+set ylabel "---ionization rate (1/s) ------" 
+set xrange [-15: 12]
+set log y
+set yrange [1e5: 1e16]
+set grid
+set pointsize .2
+set arrow from 0,1e5 to 0,1e16 nohead
+set arrow from -3.231,1e5 to -3.231,1e16 nohead
+plot "4hSiC_hQSGW_imi_lcut2_993/QPU_life"  using ($5+1.616-3.231):(abs($6)*10.**15/0.658) with points ti '993' pt 8,\
+     "4hSiC_hQSGW_imi_lcut4_993/QPU_life"  using ($5+1.616-3.231):(abs($6)*10.**15/0.658) with points ti '993' pt 8
+set term postscript enhanced color
+set output "pl.eps"
+replot
+exit
+
