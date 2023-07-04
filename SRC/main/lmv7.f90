@@ -6,7 +6,8 @@
 !     In principle, all the data are generared and stored in some modules with 'protection'.
 !     We can not modify data in a module by other modules (in prinicple, not everywhere yet).
 program lmf
-  use m_lmfinit,only:  m_lmfinit_init,nlibu,plbnd
+  use m_lattic,only: Setopos
+  use m_lmfinit,only:  m_lmfinit_init,nlibu,plbnd,nbas
   use m_writeham,only: m_writeham_init, m_writeham_write
   use m_ext,only:      m_ext_init,sname
   use m_lattic,only:   m_lattic_init
@@ -90,6 +91,15 @@ program lmf
   if(trim(prgnam)=='LMF') call m_mkqp_init() ! data of BZ go into m_mkqp
   ! --rs=3 is removed. (--rs=3 meand fixed density Harris-foukner MD).
   ! Sep2020:  Shorten site positions" removed. (we are useing shortn3 mainly now)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  ReadingPos: block !from AtomPos if it exists, overwrite pos in lattic.
+    real(8):: posread(3,nbas)
+    logical:: irpos
+    call ReadAtomPos(nbas,posread,irpos)
+    if(irpos) call Setopos(posread)
+    print *,'irpossssssssssssssssss',irpos
+  endblock ReadingPos
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ! Get jobgw for lmfgw mode. Quit for job=0
   if(jobgw==0) then ! Index for hamiltonian gen_hamindex
      if(master_mpi) call m_hamindex0_init()
@@ -129,3 +139,25 @@ program lmf
 end program Lmf
 include "show_programinfo.fpp" !this is for 'call show_programinfo'
 ! preprocessed from show_programinfo.f90 by Makefile
+subroutine readatompos(nbas,pos,irpos)
+  use m_ext,only:     sname
+  use m_ftox
+  real(8):: pos(3,nbas),p(3)
+  integer:: ifipos,i,nbas,nbaso
+  logical:: irpos
+  irpos=.false.
+  open(newunit=ifipos,file='AtomPos.'//trim(sname),status='old',err=1010)
+  do 
+     read(ifipos,*,end=1010)
+     read(ifipos,*)
+     read(ifipos,*) nbaso
+     do i=1,nbaso
+        read(ifipos,*) p
+        if(i<=nbas) pos(:,i)=p
+        !write(6,ftox)i,ftof(p)
+     enddo
+     irpos=.true.
+  enddo
+  close(ifipos)
+1010 continue
+end subroutine readatompos

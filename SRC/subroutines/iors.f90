@@ -291,6 +291,8 @@ contains
                 read(jfi) ((pnu(l+1,isp), l=0,lmxa0),isp=1,nsp0)
                 read(jfi) ((pnz(l+1,isp), l=0,lmxa0),isp=1,nsp0)
                 do  isp = 1, nsp0
+!                   read(jfi) (pnu(l+1,isp), l=0,lmxa0)
+!                   read(jfi) (pnz(l+1,isp), l=0,lmxa0)
                    if (nsp > nsp0) then
                       do  l = 0, lmxa0
                          pnu(l+1,2) = pnu(l+1,1)

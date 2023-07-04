@@ -57,7 +57,7 @@ contains
     call tcn('lmfp')
     ipr = iprint()
     poss = rv_a_opos ! Use atomic positon in m_lattic
-    call ReadAtomPos(nbas,poss)! Overwrite pos in the file AtomPos.* if it exists.
+!    call ReadAtomPos(nbas,poss)! Overwrite pos in the file AtomPos.* if it exists.
     call mpi_barrier(MPI_COMM_WORLD,ierr)
     etot = 0d0 ! Total energy mode --etot ==>moved to m_lmfinit ---
     if(nitrlx>0 ) then ! Atomic position Relaxation setup for 
@@ -195,25 +195,25 @@ contains
 9998 continue
     call tcx('lmfp')
   end subroutine lmfp
-  subroutine readatompos(nbas,pos)
-    use m_ext,only:     sname
-    use m_ftox
-    real(8):: pos(3,nbas),p(3)
-    integer:: ifipos,i,nbas,nbaso
-    logical:: irpos
-    open(newunit=ifipos,file='AtomPos.'//trim(sname),status='old',err=1010)
-    do 
-       read(ifipos,*,end=1010)
-       read(ifipos,*)
-       read(ifipos,*) nbaso
-       do i=1,nbaso
-          read(ifipos,*) p
-          if(i<=nbas) pos(:,i)=p
-       enddo
-    enddo
-    close(ifipos)
-1010 continue
-  end subroutine readatompos
+!   subroutine readatompos(nbas,pos)
+!     use m_ext,only:     sname
+!     use m_ftox
+!     real(8):: pos(3,nbas),p(3)
+!     integer:: ifipos,i,nbas,nbaso
+!     logical:: irpos
+!     open(newunit=ifipos,file='AtomPos.'//trim(sname),status='old',err=1010)
+!     do 
+!        read(ifipos,*,end=1010)
+!        read(ifipos,*)
+!        read(ifipos,*) nbaso
+!        do i=1,nbaso
+!           read(ifipos,*) p
+!           if(i<=nbas) pos(:,i)=p
+!        enddo
+!     enddo
+!     close(ifipos)
+! 1010 continue
+!   end subroutine readatompos
   subroutine nwit(nvario,iter,maxit,lhf,lhk,etol,qtol,qdiff,amom,etot,sev, lsc) ! Add to save file, determine whether to continue execution
     use m_lmfinit,only: nsp
     use m_lgunit,only:stdo,stdl
