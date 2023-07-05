@@ -24,7 +24,7 @@ module m_lmfinit ! All ititial data (except rst/atm data via iors/rdovfa) !TK ex
        ham_pwmode,ham_nkaph,ham_nlibu, nlmax,mxorb,lfrce,bz_nevmx,ham_nbf,ham_lsig,bz_nabcin(3)=NULLI, bz_ndos,ldos,&
        lmaxu,nlibu
   logical,protected :: ham_frzwf,ham_ewald, lhf,lcd4,bz_tetrahedron, addinv,&
-       readpnu,v0fix,pnufix,bexist,rdhessr, lpztail=.false., xyzfrz(3)
+       readpnu,v0fix,pnufix,bexist,rdhessr, lpztail=.false., xyzfrz(3),readpnuskipf
   real(8),protected:: pmin(n0)=0d0,pmax(n0)=0d0,tolft,scaledsigma, ham_oveps,ham_scaledsigma, cc,&!speed of light
        dlat,alat=NULLR,dalat=NULLR,vol,avw ,omax1(3)=0d0,omax2(3)=0d0,wsrmax=0d0,sclwsr=0d0,vmtz(mxspec)=-.5d0,&
        bz_efmax,bz_zval,bz_fsmom,bz_semsh(10),zbak,bz_range=5d0,bz_dosmax,&
@@ -208,6 +208,7 @@ contains
       call rval2('HAM_PWMODE',rr=rr, defa=[real(8):: 0]);  pwmode=nint(rr)
       call rval2('HAM_PWEMAX',rr=rr, defa=[real(8):: 0]);  pwemax=rr
       call rval2('HAM_READP', rr=rr, defa=[real(8):: 0]); readpnu= nint(rr)==1
+      call rval2('HAM_READPSKIPF', rr=rr, defa=[real(8):: 0]); readpnuskipf= nint(rr)==1
       call rval2('HAM_V0FIX', rr=rr, defa=[real(8):: 0]); v0fix =  nint(rr)==1
       call rval2('HAM_PNUFIX',rr=rr,defa=[real(8):: 0]); pnufix=  nint(rr)==1
       avw = avwsr(plat,alat,vol,nbas)
@@ -430,28 +431,31 @@ contains
             if(maxval(pzsp(1:nnx,1,j))>10d0) lpztail= .TRUE. ! PZ +10 mode exist or not.
             ReadPnuFromLMFA:block 
               integer:: ifipnu,lr,iz,nspx,lrmx,isp,ispx
-              real(8):: pnur,pzav(n0),pnav(n0)
+              real(8):: pnur,pzav(n0),pnav(n0),pzsp_r(n0,nsp,nspec),pnusp_r(n0,nsp,nspec)
               character(8):: charext
               if (prgnam /= 'LMFA'.and.ReadPnu) then
                  open(newunit=ifipnu,file='atmpnu.'//trim(charext(j))//'.'//trim(sname))
                  write(stdo,*)'READP=T: read pnu from atmpnu.*'
                  do
                     read(ifipnu,*,end=1015) pnur,iz,lr,isp
-                    if(iz==1) pzsp (lr+1,isp,j)= pnur ! +10d0 caused probelm for 3P of Fe.
-                    if(iz==0) pnusp(lr+1,isp,j)= pnur
+                    if(iz==1) pzsp_r (lr+1,isp,j)= pnur ! +10d0 caused probelm for 3P of Fe.
+                    if(iz==0) pnusp_r(lr+1,isp,j)= pnur
                     lrmx=lr
                     nspx=isp
                  enddo
 1015             continue
-                 pzav(1:lrmx+1)=sum(pzsp(1:lrmx+1,1:nspx,j), dim=2)/nspx !spin averaged
-                 pnav(1:lrmx+1)=sum(pnusp(1:lrmx+1,1:nspx,j),dim=2)/nspx
+                 pzav(1:lrmx+1)=sum(pzsp_r(1:lrmx+1,1:nspx,j), dim=2)/nspx !spin averaged
+                 pnav(1:lrmx+1)=sum(pnusp_r(1:lrmx+1,1:nspx,j),dim=2)/nspx
                  do l=1,lrmx+1
                     if(pzav(l)>pnav(l)) pzav(l)=floor(pzav(l))+.5d0 ! push up p =floor(p)+0.5 if we have lower orbital
                     if(pzav(l)>1d-8.and.pnav(l)>pzav(l)) pnav(l)=floor(pnav(l))+.5d0
                  enddo
                  do ispx=1,nspx
-                    pzsp(1:lrmx+1, ispx,j) = pzav(1:lrmx+1)
-                    pnusp(1:lrmx+1,ispx,j)=  pnav(1:lrmx+1)
+                    do lr=1,lrmx+1
+                       if(lr>3.and.readpnuskipf)cycle
+                       pzsp(lr, ispx,j) = pzav(lr)
+                       pnusp(lr,ispx,j)=  pnav(lr)
+                    enddo
                  enddo
                  close(ifipnu)
               endif

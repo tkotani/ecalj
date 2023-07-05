@@ -1,8 +1,7 @@
 subroutine pnunew(eferm) != Makes new boundary conditions pnu for phi,phidot =
   use m_ftox
   use m_MPItk,only: master_mpi
-  use m_lmfinit,only:nbas,nsp,ispec,sspec=>v_sspec,ham_frzwf,idmodis=>idmod,slabl,&
-       pmin,pmax,n0,frzwfa,pnufix
+  use m_lmfinit,only:nbas,nsp,ispec,sspec=>v_sspec,ham_frzwf,idmodis=>idmod,slabl, pmin,pmax,n0,frzwfa,pnufix
   use m_mkrout,only: hbyl=>hbyl_rv,qbyl=>qbyl_rv
   use m_lgunit,only:stdo
   use m_phidx,only: phidx
