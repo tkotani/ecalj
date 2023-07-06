@@ -894,6 +894,7 @@ tail = tail + "      XCFUN={xcfun}"+ """
 tail = tail + """                 # For sp-bonded solids, ELIND=-1 may give faster convergence.
                  # For O2 molecule, Fe, and so on, use ELIND=0(this is default).
       READP=T  # Read P,PZ values from results of atom calculation.
+      READPSKIPF=T # For f,g,h... We use default P,PZ given in subroutine defpq.f90 called from m_lmfinit.(default is T)
       PNUFIX=T # B.C. (phi'/phi) of radial functions are fixed.
       FRZWF=F #If T, fix augmentation function. This is worth to test in future. FRZWF=T may give not low-enough energy.
       #  See HAM_FRZWF, file://Document/Manual/CaterogyAndToken.org
