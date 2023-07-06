@@ -107,24 +107,15 @@ GaussSmear on  ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr fo
  0d0 0d0 0d0  .5d0  .5d0  0d0 8
 </QforEPSL>
 
+!----------------------------------------------------
 <Worb> Site 
-  1 Si   1 2 3 4 5 6 7 8 9 
-  2 Si   1 2 3 4 5 6 7 8 9 
-</Worb> 
-
-wan_out_ewin on
-wan_out_emin  -9999 !eV relative to Efermi
-wan_out_emax   9999 !eV relative to Efermi
-wan_in_ewin on 
-wan_in_emin  -9999 !eV relative to Efermi
-wan_in_emax   3    !eV relative to Efermi
-
-wan_tb_cut 15
-
-wan_maxit_1st 100
-wan_conv_1st 1d-7
+  1 Si   1 2 3 4 5 6 7 8 9
+  2 Si   1 2 3 4 5 6 7 8 9
+</Worb>
+wan_maxit_1st 20
+wan_conv_1st 1d-5
 wan_mix_1st   1
-
-wan_maxit_2nd 0
-wan_max_2nd   0.3
-wan_conv_end  1d-8
+!wan_in_ewid  .1  !eV smearing pamrameter for inner window
+!wan_in_emax   8  !eV relative to VBM
+!wan_fac1 0.1
+!wan_fac2 10

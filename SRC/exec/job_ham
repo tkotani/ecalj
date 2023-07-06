@@ -1,29 +1,20 @@
 #!/bin/bash
+nfpgw=`dirname $0`
 echo $0
 echo $@
 echo $1
 if [ $# -le 2 ] || [ $2 != "-np" ]; then
   echo "An example of usage: job_ham si -np 4 [options for lmf]"
-  echo " CAUTION: We need PWMODE={pwmode}, where const pwmode=11 (or somegthing) given in ctrl file as follows."
-  echo " %const pwmode=11"
-  echo "   PWMODE={pwmode} "
   exit
 else
   MPI_SIZE=$3
 fi
-
-# We introduced {pwmode}. as PWMODE={pwmode}
 rm -f HamiltonianPMT*
-#Get efermi.lmf
-echo 'runnnig efermi determination for pwmode=0'
-mpirun -np $3 lmf-MPIK $1 --quit=band > lmf_efermi
-echo 'runnnig hamiltonian generation for pwmode=0'
-mpirun -np $3 lmf-MPIK $1 --writeham --mkprocar --fullmesh
-
+echo 'Runnnig Hamiltonian generation'
+mpirun -np $3 $nfpgw/lmf-MPIK $1 --writeham --mkprocar --fullmesh
 # Get Hamiltonian file, namded as HamiltonianMTO
 cat HamiltonianPMT.* >HamiltonianPMT
 rm HamiltonianPMT.* 
-
-# Read HamiltonianMTO.
-lmfham1
+# Get projectedMTO-only Hamiltonian
+$nfpgw/lmfham1
 

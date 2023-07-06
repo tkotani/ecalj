@@ -30,7 +30,7 @@ program lmf
   integer:: k, iarg,jobgw,iprint,nit1,ifi,nx,ny,nk1,nk2,nk3,i,j,ix,iargc
   logical:: fileexist,cmdopt0,cmdopt2, writeham,lbin,sigx
   character:: outs*20,aaa*512,sss*128
-  character(8):: prgnam
+  character(8):: prgnam=''
   ! Bootstrap building up of module variables. Variables are set in modules and proteted (except m_density).
   call m_ext_init()         ! Get sname, e.g. trim(sname)=si of ctrl.si
   call m_MPItk_init(prgnam) ! mpi initialization

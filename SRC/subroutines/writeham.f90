@@ -48,24 +48,18 @@ contains
     write(ififft) qplist
     write(ififft) npair,npairmx
     write(ififft) nlat,nqwgt
-    !     ! delta fun check: k --> T --> k
-    !     !     \delta_{kk'} = \sum_{T \in T(i,j)} W_T exp( i (k-k') T)
-    ikpd=1
-    do ikp=1,nkp
-       qp = qplist(:,ikp) - qplist(:,ikpd)
+    if(.false.) then ! delta-fun check: k --> T --> k  !  \delta_{kk'} = \sum_{T \in T(i,j)} W_T exp( i (k-k') T)
+       ikpd=1
+       do ikp=1,nkp
+         qp = qplist(:,ikp) - qplist(:,ikpd)
        do ib1=1,nbas
-          do ib2=1,nbas
-             aaaa=0d0
-             do ni = 1,npair(ib1,ib2)
-                aaaa=aaaa+1d0/(nkp*nqwgt(ni,ib1,ib2))&
-                     *exp(img*2d0*pi*sum(qp*matmul(plat,nlat(:,ni,ib1,ib2))))
-             enddo
-             cccx=''
-             if(ikp==ikpd) cccx=' <--'
-             write(6,"('\delta-fun test',3f10.4,2i3,2f23.15,a)") qplist(:,ikp),ib1,ib2,aaaa,cccx
-          enddo
+       do ib2=1,nbas
+            aaaa=sum([ (1d0/(nkp*nqwgt(ni,ib1,ib2))*exp(img*2d0*pi*sum(qp*matmul(plat,nlat(:,ni,ib1,ib2)))),ni=1,npair(ib1,ib2)) ])
+            write(6,"('\delta-func test',3f10.4,2i3,2f23.15,a)") qplist(:,ikp),ib1,ib2,aaaa,trim(merge(' <--','    ',ikp==ikpd))
        enddo
-    enddo
+       enddo
+       enddo
+    endif
   end subroutine m_writeham_init
   !--------------------------------------------
   subroutine m_writeham_write()
@@ -84,23 +78,22 @@ contains
     if( .NOT. initset1  ) return
     initset1 = .false.
     ldim=nlmto  !     write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
-    write(stdo,*)'mmmm m_writeham_init',ldim,norbmto,ibastab
-    !      print *,'offl',offl,'ltab',ltab,'ktab',ktab
-    print *,' norbmto mmmmmmmmmm',norbmto
-    write(6,*) ' i  ib l  k trim(spec)'
-    if(writeham) open(newunit=ifspec,file="atmspc")
-    if(writeham) write(ifspec,*) ldim,nsp
+    write(stdo,*)'mmmm m_writeham_init',ldim,norbmto,ibastab!  print *,'offl',offl,'ltab',ltab,'ktab',ktab
+    write(stdo,*)' norbmto mmmmmmmmmm',norbmto
+    write(stdo,*)' i  ib l  k trim(spec)'
+!    if(writeham) open(newunit=ifspec,file="atmspc")
+!    if(writeham) write(ifspec,*) ldim,nsp
     do i= 1, ldim
        ib   = ib_table(i)
        is   = ispec(ib) 
        spid = slabl(is) 
-       write(6,"(i3,x,3i3,x,a)")i, ib_table(i),l_table(i),k_table(i),trim(spid)
-       write(ifspec,"(i3,x,a,x,3i4)") i,trim(spid),ib_table(i),l_table(i),k_table(i) !sakakibara
+       write(stdo,"(i3,x,3i3,x,a)")i, ib_table(i),l_table(i),k_table(i),trim(spid)
+!       write(ifspec,"(i3,x,a,x,3i4)") i,trim(spid),ib_table(i),l_table(i),k_table(i) !sakakibara
     enddo
-    if(writeham) write(ififft)ldim,lso,nsp
-    if(writeham) write(ififft)ib_table,l_table,k_table
+    if(writeham) write(ififft)ldim,lso,nsp !ldim lmto
+    if(writeham) write(ififft)ib_table,l_table,k_table,ispec(ib_table(1:ldim)),slabl(ispec(ib_table(1:ldim)))
     if(writeham) close(ififft)
-    if(writeham) close(ifspec)
+!    if(writeham) close(ifspec)
 !    deallocate(ib_table,l_table,k_table)
   end subroutine m_writeham_write
 end module m_writeham

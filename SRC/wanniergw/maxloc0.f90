@@ -699,6 +699,31 @@ subroutine  get3vec(nv,vec,vv)
   return
 end subroutine get3vec
 !-----------------------------------------------------------------------
+subroutine  writebb2(ifbb,wbb,bb, ikbidx,ku,kbu, nqbz,nbb)
+  implicit integer (i-n)
+  implicit real*8(a-h,o-z)
+  parameter (eps = 1d-4)
+  integer :: ikbidx(nbb,nqbz) !iko_ixs(2),iko_fxs(2),noxs(2)
+  real(8) :: wbb(nbb),bb(3,nbb),bb2(3),ku(3,nqbz),kbu(3,nbb,nqbz)
+  open(newunit=ifbb,file='BBVEC')
+  write(ifbb,*)'nbb,nqbz'
+  write(ifbb,*)nbb,nqbz
+  do i = 1,nbb
+     write(ifbb,*)bb(1:3,i),wbb(i)
+  enddo
+  do iq = 1,nqbz
+     write(ifbb,999)iq,ku(:,iq)
+     do ib = 1,nbb
+        itmp = ikbidx(ib,iq)
+        if (itmp > nqbz .OR. itmp < 1) stop 'writebb: ikbidx error!'
+        write(ifbb,998)iq,ib,ikbidx(ib,iq),kbu(:,ib,iq)
+     enddo
+  enddo
+  close(ifbb)
+998 format(3i5,3f24.16)
+999 format(i5,3f24.16)
+end subroutine writebb2
+!------------------------------------------------------------
 subroutine  writebb(ifbb,wbb,bb, &
      ikbidx,ku,kbu, &
      iko_ixs,iko_fxs,noxs, &

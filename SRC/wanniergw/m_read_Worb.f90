@@ -8,10 +8,8 @@
 !! cbas_mlwf : each Wannier orbital
 !!             (e.g) s = 1, py = 2,... (see texts in the script job_band)
 !-------------------------------------
-module m_read_Worb
-  !! all output
+module m_read_Worb  !! all output
   integer,protected:: nwf, nclass_mlwf
-  ! cbas_mlwf(nbasclassMax,nclass_mlwf) !We may need nbasclassMax to pass array to subroutine.
   integer,protected,allocatable:: cbas_mlwf(:,:),nbasclass_mlwf(:)
   character(20),protected,allocatable:: classname_mlwf(:)
   integer,protected,allocatable:: iclassin(:)
@@ -20,9 +18,7 @@ module m_read_Worb
   integer(4),protected,allocatable::  iphi(:,:),iphidot(:,:), nphi(:)
   integer(4),protected:: nphix
   integer(4):: natom
-
 contains
-
   subroutine s_read_Worb()
     use m_keyvalue,only: getkeyvalue
     implicit none
@@ -31,17 +27,13 @@ contains
     character*256:: a,aaa
     integer::ifmloc
     integer,allocatable:: cbastemp(:,:)
-
     call getkeyvalue("GWinput","<Worb>",unit=ifmloc,status=ret)
-    !      write(6,*)' ifmloc ret=',ifmloc,ret
-
     iline = 0
     nline = 0
     nclass_mlwf = 0
     do
        iline = iline + 1
        read(ifmloc,"(a)") aaa
-       !        print *, aaa
        if (aaa(1:1) == '!') cycle
        if(aaa(1:7) == "</Worb>") then
           exit
@@ -50,12 +42,10 @@ contains
        end if
     end do
     close(ifmloc)
-
     nline = iline-1
     write(6,'("nline nclass mlwf=",3i5)') nline,nclass_mlwf
     allocate(iclassin(nclass_mlwf),cbastemp(maxdat,nclass_mlwf), &
          nbasclass_mlwf(nclass_mlwf),classname_mlwf(nclass_mlwf))
-
     call getkeyvalue("GWinput","<Worb>",unit=ifmloc,status=ret)
     cbastemp=-999
     iclass = 0
@@ -89,20 +79,23 @@ contains
        nwf = nwf + nbasclass_mlwf(iclass)
     end do
     close(ifmloc)
+!    do iclass=1,nclass_mlwf
+!       write(6,"(' readin Worb: ibas=',i5,': orb= ',255i3)')") iclass, cbas_mlwf(1:nbasclass_mlwf(iclass),iclass)
+!    enddo   
   end subroutine s_read_Worb
 
   !!------------------------------------------------
   subroutine s_cal_Worb()
     use m_ll,only:ll
     use m_keyvalue,only: getkeyvalue
-    use m_genallcf_v3, only : natom
+    use m_HamPMT,  only: natom=>nbas
+!    use m_genallcf_v3, only : natom
     implicit none
     integer:: iclass, iclass2, iphidot_plus, ifmloc, iphi_tmp
     integer :: i, j, l_number, correction
     integer :: tmp_atom, tmp_l, iatom, il, iwf, ret,ixatom
-    integer :: nnvv(0:10,natom),ix,ioffset(0:10,natom),ioffadd,mm
+    integer :: nnvv,ix,ioffset(0:10,natom),ioffadd,mm
     integer,allocatable:: l_numbermx(:)
-
     !! Read index for cphi from GWinput: it should be essentially the same as @MNLA_CPHI
     call getkeyvalue("GWinput","<PRODUCT_BASIS>",unit=ifmloc,status=ret)
     read(ifmloc,*)
@@ -112,14 +105,13 @@ contains
     read(ifmloc,*)
     ioffadd = 0
     do
-       read(ifmloc,*,err=888) ixatom, il ,nnvv(il,ixatom)
+       read(ifmloc,*,err=888) ixatom, il ,nnvv!(il,ixatom)
        ioffset(il,ixatom) = ioffadd
        !         write(6,"(' iatom l nnvv=',4i5)") ixatom, il, nnvv(il,ixatom),ioffset(il,ixatom)
-       ioffadd = ioffadd + nnvv(il,ixatom) * (2*il+1)
+       ioffadd = ioffadd + nnvv * (2*il+1)
     end do
 888 continue
     close(ifmloc)
-
     !! real harmonics case
     allocate (nphi(nwf)) ! number of radial waves for each iwf.
     nphi  = 1  ! We use a simple setting.
@@ -131,18 +123,12 @@ contains
     do iclass=1,nclass_mlwf !atom
        do i=1,nbasclass_mlwf(iclass) !wannier index for atom from GWinput Worb.
           l_number = ll(cbas_mlwf(i,iclass)) !l for Wannier
-          !          print *, "l_number, iclassin(iclass)", l_number , iclassin(iclass)
           mm = cbas_mlwf(i,iclass) - l_number**2
           iphi  (nphix,iwf) = ioffset(l_number,iclassin(iclass)) + mm !bugfix 2022-8-7 (based on Suzuki report.)
           iphidot(nphix,iwf) = iphi(nphix,iwf) + l_number*2+1
           iwf = iwf +1
        enddo
     enddo
-
-
-    !      write(6,"('iii:iphi     = ',10i5)") iphi
-    !      write(6,"('iii:iphidot  = ',10i5)") iphidot
   end subroutine s_cal_Worb
-
 end module m_read_Worb
 

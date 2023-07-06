@@ -338,7 +338,6 @@ subroutine   getupu(isc, &
      upu)
   implicit integer (i-n)
   implicit real*8(a-h,o-z)
-
   complex(8),allocatable :: wmat(:,:),wmat2(:,:)
   complex(8) :: upu(iko_ix:iko_fx,iko_ix:iko_fx,nbb), &
        uumat(iko_ix:iko_fx,iko_ix:iko_fx,nbb), &
@@ -355,8 +354,8 @@ subroutine   getupu(isc, &
      alpha = alpha_in
      upu(:,:,:) = upu(:,:,:) * (1d0-alpha)
   endif
-  nin = iki_f - iki_i + 1 !starting index of outer-inner (ex. When iki_i=1, nin= iki_f+1)
-  if (nin >= nwf) stop 'getupu: Nin >= Nwf'
+!  nin = iki_f - iki_i + 1 !starting index of outer-inner (ex. When iki_i=1, nin= iki_f+1)
+!  if (nin >= nwf) stop 'getupu: Nin >= Nwf'
   allocate(wmat(iko_ix:iko_fx,iko_ix:iko_fx), wmat2(iko_ix:iko_fx,iko_ix:iko_fx))
   do ibb = 1,nbb
      iqb = ikbidx(ibb)
@@ -368,7 +367,7 @@ subroutine   getupu(isc, &
      do concurrent(in=iko_i:iko_f, imp=i1:i2)
         wmat2(imp,in)= sum(dconjg(uumat(in,i1:i2,ibb)) * wmat(i1:i2,imp))
      enddo
-     do concurrent(im=iko_i:iko_f, in=iko_i:iko_f)
+     do concurrent(im=iko_i:iko_f, in=iko_i:iko_f)! uumat* wmat * uumat
         upu(im,in,ibb) = upu(im,in,ibb) +  sum(uumat(im,i1:i2,ibb)*wmat2(i1:i2,in)) * alpha  ! upu = upu + uumat * wmat2 * alpha
      enddo
   enddo
@@ -401,23 +400,19 @@ subroutine getzmn(upu,wbb,lein, &
      zmn)
   implicit integer (i-n)
   implicit real*8(a-h,o-z)
-
-  complex(8) :: upu(iko_ix:iko_fx,iko_ix:iko_fx,nbb), &
-       zmn(ndz,ndz)
+  complex(8) :: upu(iko_ix:iko_fx,iko_ix:iko_fx,nbb),    zmn(ndz,ndz)
   real(8) :: wbb(nbb)
   integer(4) :: it(ndz)
   logical :: lein
   zmn = (0d0,0d0)
   ! no inner energy window
   if (iki_i == 0) then
-     no = iko_f - iko_i + 1
-     if (no /= ndz) stop 'getzmn: ndz error'
+!     no = iko_f - iko_i + 1
+!     if (no /= ndz) stop 'getzmn: ndz error'
      do ibb = 1, nbb
-        zmn(1:ndz,1:ndz) = zmn(1:ndz,1:ndz) &
-             +  wbb(ibb) * upu(iko_i:iko_f,iko_i:iko_f,ibb)
+        zmn(1:ndz,1:ndz) = zmn(1:ndz,1:ndz) +  wbb(ibb) * upu(iko_i:iko_f,iko_i:iko_f,ibb)
      enddo
-     ! inner energy window
-  else
+  else ! inner energy window
      j = 0
      do i = iko_i,iki_i-1
         j = j + 1
@@ -431,8 +426,7 @@ subroutine getzmn(upu,wbb,lein, &
      do im = 1,ndz
         do in = 1,ndz
            do ibb = 1, nbb
-              zmn(im,in) = zmn(im,in) &
-                   + wbb(ibb) * upu(it(im),it(in),ibb)
+              zmn(im,in) = zmn(im,in) + wbb(ibb) * upu(it(im),it(in),ibb)
            enddo
         enddo
      enddo
@@ -575,15 +569,10 @@ subroutine new_cnk(cnk,evecc,iq, &
      cnk2)
   implicit integer (i-n)
   implicit real*8(a-h,o-z)
-
-  complex(8) :: cnk(iko_ix:iko_fx,nwf), &
-       cnk2(iko_ix:iko_fx,nwf), &
-       evecc(ndz,ndz)
+  complex(8) :: cnk(iko_ix:iko_fx,nwf), cnk2(iko_ix:iko_fx,nwf), evecc(ndz,ndz)
   integer(4) :: it(ndz)
-  ! initialize
-  cnk2(:,:) = (0d0,0d0)
-  ! no inner energy window
-  if (iki_i == 0) then
+  cnk2(:,:) = 0d0
+  if (iki_i == 0) then! no inner energy window
      nout = iko_f - iko_i + 1
      if (nout /= ndz) stop 'new_cnk: ndz error'
      if (nwf > ndz) stop 'new_cnk: nwf error'
@@ -592,14 +581,12 @@ subroutine new_cnk(cnk,evecc,iq, &
         il2 = il2 - 1
         cnk2(iko_i:iko_f,il) = evecc(1:ndz,il2)
      enddo
-     ! inner energy window
-  else
+  else ! with inner energy window
      nout = iko_f - iko_i + 1
      nin  = iki_f - iki_i + 1
      if (nout-nin /= ndz) stop 'new_cnk: ndz error'
      if (nwf-nin > ndz) stop 'new_cnk: nwf error'
-     cnk2(:,1:nin) = cnk(:,1:nin)
-     ! pick nwf-nin states with the largest eigenvalues
+     cnk2(:,1:nin) = cnk(:,1:nin) !inner window
      j = 0
      do i = iko_i,iki_i-1
         j = j + 1
@@ -610,14 +597,13 @@ subroutine new_cnk(cnk,evecc,iq, &
         it(j) = i
      enddo
      il2 = ndz + 1
-     do il = nin+1,nwf
+     do il = nin+1,nwf ! pick nwf-nin states with the largest eigenvalues
         il2 = il2 - 1
         do in = 1,ndz
            cnk2(it(in),il) = evecc(in,il2)
         enddo
      enddo
   endif
-  return
 end subroutine new_cnk
 !-----------------------------------------------------------------------
 subroutine  get_omgik(wbb,evz, &
@@ -627,31 +613,17 @@ subroutine  get_omgik(wbb,evz, &
      omgik)
   implicit integer (i-n)
   implicit real*8(a-h,o-z)
-
   parameter (eps = 1d-4)
   real(8):: wbb(nbb),evz(ndz)
-
   nin = iki_f - iki_i + 1
   nn  = nwf - nin
-
-  ! eck
-  if (iki_i == 0) then
-     if (iki_f /= -1) stop 'get_omgik: iki_f error'
-  else
-     if (nin <= 0) stop 'get_omgik: nin error'
-  endif
-
-
   if (ndz < nn) stop 'get_omgik: ndz error'
   esum = 0d0
   do i = 1,nn
      j = ndz + 1 - i
      esum = esum + evz(j)
   enddo
-
   omgik = dble(nn)*sum(wbb) - esum
-
-  return
 end subroutine get_omgik
 !-----------------------------------------------------------------------
 subroutine zgesvdmn(ngb1,ngb2,zzz, SS,UU,VT)
