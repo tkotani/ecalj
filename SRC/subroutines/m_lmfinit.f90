@@ -434,6 +434,8 @@ contains
               real(8):: pnur,pzav(n0),pnav(n0),pzsp_r(n0,nsp,nspec),pnusp_r(n0,nsp,nspec)
               character(8):: charext
               if (prgnam /= 'LMFA'.and.ReadPnu) then
+                 pzsp_r=0d0
+                 pnusp_r=0d0
                  open(newunit=ifipnu,file='atmpnu.'//trim(charext(j))//'.'//trim(sname))
                  write(stdo,*)'READP=T: read pnu from atmpnu.*'
                  do
