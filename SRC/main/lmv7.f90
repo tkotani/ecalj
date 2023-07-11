@@ -73,14 +73,14 @@ program lmf
   WritePdosmode: if( cmdopt0('--writepdos') ) then
      !! See job_pdos. New pdos mode (use --mkprocar and --fullmesh together).
      !! We use all k points (--fullmesh), instead of using crystal symmetry. See job_pdos
-     if(master_mpi) write(6,*) '... Doing writepdos mode. Wait a while ...'
-     if(master_mpi) write(6,*) '... See job_pdos to know how to call --writepdos mode'
+     if(master_mpi) write(stdo,*) '... Doing writepdos mode. Wait a while ...'
+     if(master_mpi) write(stdo,*) '... See job_pdos to know how to call --writepdos mode'
      call writepdos(trim(sname))
      call rx0('done: end of --writepdos mode.')
   endif WritePdosmode
   WriteDOSsawadamode:  if( Cmdopt0('--wdsawada') ) then !! Sawada's simple mode and exit
-     if(master_mpi)write(6,*) '... write Dos from tetraf.dat and eigenf.dat. '
-     if(master_mpi)write(6,*) '...  eigenf.dat is for qplistf.dat '
+     if(master_mpi)write(stdo,*) '... write Dos from tetraf.dat and eigenf.dat. '
+     if(master_mpi)write(stdo,*) '...  eigenf.dat is for qplistf.dat '
      call writedossawada()
      call rx0('done: end of --wdsawada mode.')
   endif WriteDOSsawadamode
@@ -97,7 +97,7 @@ program lmf
     logical:: irpos
     call ReadAtomPos(nbas,posread,irpos)
     if(irpos) call Setopos(posread)
-    print *,'irpossssssssssssssssss',irpos
+    if(irpos) write(stdo,*) 'Readin AtomPos.'//trim(sname)//' !!!!'
   endblock ReadingPos
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ! Get jobgw for lmfgw mode. Quit for job=0
@@ -154,7 +154,7 @@ subroutine readatompos(nbas,pos,irpos)
      do i=1,nbaso
         read(ifipos,*) p
         if(i<=nbas) pos(:,i)=p
-        !write(6,ftox)i,ftof(p)
+        !write(stdo,ftox)i,ftof(p)
      enddo
      irpos=.true.
   enddo
