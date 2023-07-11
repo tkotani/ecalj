@@ -454,8 +454,8 @@ contains
                  enddo
                  do ispx=1,nspx
                     do lr=1,lrmx+1
-                       if(lr>3.and.readpnuskipf)cycle
                        pzsp(lr, ispx,j) = pzav(lr)
+                       if(lr>3.and.readpnuskipf)cycle
                        pnusp(lr,ispx,j)=  pnav(lr)
                     enddo
                  enddo
