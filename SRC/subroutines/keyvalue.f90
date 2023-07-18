@@ -56,8 +56,7 @@ module m_keyvalue
   public:: getkeyvalue
   private
   integer :: nf_input=0,output=6,default_nf_input=50
-  character(120):: &
-       filename0="adfadjpfijwpojobuwhfqeijqope"
+  character(120):: filename0="adfadjpfijwpojobuwhfqeijqope"
   integer,parameter:: input_err_success=0
   integer,parameter:: input_err_conv=-1
   integer,parameter:: input_err_lessvaluenum=-2
@@ -69,22 +68,16 @@ module m_keyvalue
        '1      ', 'T      ', &
        'false  ', 'ng     ', '.false.', 'no     ','off    ', &
        '0      ', 'F      '/)
-  integer :: logicalint(nlogical) = &
-       (/1,1,1,1,1,1,1,0,0,0,0,0,0,0/)
+  integer :: logicalint(nlogical) = (/1,1,1,1,1,1,1,0,0,0,0,0,0,0/)
   integer:: printlevel=0 !!debug
   integer,parameter:: max_error_count=5 !!error report
   integer :: error_count=0
   character(120):: error_message(max_error_count)
   interface getkeyvalue
-     module procedure getkeyvalue_i, getkeyvalue_r8, &
-          getkeyvalue_iv, getkeyvalue_rv, getkeyvalue_l  , &
-          getkeyvalue_c
+     module procedure getkeyvalue_i, getkeyvalue_r8, getkeyvalue_iv, getkeyvalue_rv, getkeyvalue_l, getkeyvalue_c
   end interface getkeyvalue
-  !! ----------------------------------------------------------
 contains
-  !----------------------------------------------------------
   !     used only for internal use
-
   integer function unusedfid()
     implicit none
     integer:: i

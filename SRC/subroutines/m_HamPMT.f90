@@ -59,7 +59,7 @@ contains
   !c$$$          enddo
   !c$$$        enddo
   !c$$$      enddo
-  subroutine HamPMTtoHamRsMTO() !Convert HamPMT(k mesh) to HamRsMTO(real space)
+  subroutine HamPMTtoHamRsMTO(facw) !Convert HamPMT(k mesh) to HamRsMTO(real space)
     use m_zhev,only:zhev_tk4
     use m_ftox
     use m_readqplist,only: eferm
@@ -69,20 +69,16 @@ contains
     complex(8),allocatable:: hamm(:,:),ovlm(:,:)!,t_zv(:,:)!,ovlmx(:,:)
     logical:: lprint=.true.,savez=.false.,getz=.false.,skipdiagtest=.false.
     complex(8):: img=(0d0,1d0),aaaa,phase
-    real(8)::qp(3),pi=4d0*atan(1d0),fff,ef,fff1=2,fff2=2,fff3=0 
+    real(8)::qp(3),pi=4d0*atan(1d0),fff,ef,fff1=2,fff2=2,fff3=0 ,facw
     integer:: nn,ib,k,l,ix5,imin,ixx,j2,j1,j3,nx,ix(ldim)
     integer,allocatable:: ib_tableM(:),l_tableM(:),k_tableM(:),ndimMTO !ndimMTO<ldim if we throw away f MTOs, for example. 
     allocate(ib_tableM(ldim),k_tableM(ldim),l_tableM(ldim))
     nn=0
     do i=1,ldim  !only MTOs. Further restrictions.
-       !if(l_table(i)>=3) cycle !only spd. skip f orbitals.
-       !if(k_table(i)==2.and.l_table(i)>=2) cycle ! throw away EH2 for d
-       !if(k_table(i)==2) cycle ! throw away EH2
-       ! for Si LDA 9=(
-       ! for Si QSGW 13+13
-       !MLO dimension !for NiO LDA 9+9+4+4
+       !if(l_table(i)>=3) cycle !only spd. skip f orbitals.     !if(k_table(i)==2.and.l_table(i)>=2) cycle ! throw away EH2 for d
+       !MLO dimension. For example, 9+9 for Si, for NiO LDA 9+9+4+4
        !if( (ib_table(i)==3.or.ib_table(i)==4).and.l_table(i)>=2) cycle !for Oxygen of NiO. skip 3d
-!       write(stdo,*) 'ham1 index', i,ib_table(i),l_table(i),k_table(i)
+       !   write(stdo,*) 'ham1 index', i,ib_table(i),l_table(i),k_table(i)
        nn=nn+1
        ix(nn)=i
        ib_tableM(nn)=ib_table(i)
@@ -110,7 +106,7 @@ contains
        epsovl=0d0 !1d-8
        GETham_ndimMTO: block
          real(8):: evlmlo(ndimMTO),evl(ndimPMT)
-         call Hreduction(.false.,ndimPMT,hamm(1:ndimPMT,1:ndimPMT),ovlm(1:ndimPMT,1:ndimPMT), & !Get reduced Hamitonian for ndimMTO
+         call Hreduction(.false.,facw,ndimPMT,hamm(1:ndimPMT,1:ndimPMT),ovlm(1:ndimPMT,1:ndimPMT), & !Get reduced Hamitonian for ndimMTO
               ndimMTO,ix,fff1,      evl,hamm(1:ndimMTO,1:ndimMTO),ovlm(1:ndimMTO,1:ndimMTO)) 
          Checkfinaleigen: block
            complex(8):: evec(ndimMTO**2), hh(ndimMTO,ndimMTO),oo(ndimMTO,ndimMTO)
@@ -202,7 +198,7 @@ contains
     print*,' OK: Read HamRsMTO file!'
   end subroutine ReadHamRsMTO
 end module m_HamRsMTO
-subroutine Hreduction(iprx,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, evl,hammout,ovlmout)!Reduce H(ndimPMT) to H(ndimMTO)
+subroutine Hreduction(iprx,facw,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, evl,hammout,ovlmout)!Reduce H(ndimPMT) to H(ndimMTO)
   use m_zhev,only:zhev_tk4
   use m_readqplist,only: eferm
   use m_HamPMT,only: GramSchmidt
@@ -210,7 +206,7 @@ subroutine Hreduction(iprx,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, evl,hammout,ovlmou
   use m_lgunit,only:stdo
   implicit none
   integer::i,j,ndimPMT,ndimMTO,nx,nmx,ix(ndimMTO),nev,nxx,jj
-  real(8)::beta,emu,val,wgt(ndimPMT),evlmto(ndimMTO),evl(ndimPMT),evlx(ndimPMT)
+  real(8)::beta,emu,val,wgt(ndimPMT),evlmto(ndimMTO),evl(ndimPMT),evlx(ndimPMT),facw
   complex(8):: oz(ndimPMT,ndimPMT),wnj(ndimPMT,ndimMTO),wnm(ndimPMT,ndimMTO),wnn(ndimMTO,ndimMTO)
   complex(8):: evecmto(ndimMTO,ndimMTO),evecpmt(ndimPMT,ndimPMT)
   complex(8):: ovlmx(ndimPMT,ndimPMT),hammx(ndimPMT,ndimPMT),fac(ndimPMT,ndimMTO),ddd(ndimMTO,ndimMTO)
@@ -240,7 +236,7 @@ subroutine Hreduction(iprx,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, evl,hammout,ovlmou
     do j=1,ndimMTO 
        do i=1,ndimPMT
           www=abs(fac(i,j))
-          wnm(i,j) = fac(i,j) * www
+          wnm(i,j) = fac(i,j) * www**facw !.5d0 !1d0,0.25d0 is poorer ! www**2 !weight multipled.
        enddo
     enddo   
   endblock mulfac

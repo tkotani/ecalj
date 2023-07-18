@@ -134,12 +134,15 @@ lmfa:	$(obj_path)/lmfa.o $(ELIB)  $(MPI)
 lmchk:	$(obj_path)/lmchk.o $(ELIB) $(MPI) 
 	@echo $(LK) $@.o 'link with *.o'
 	@$(LK) $(LKFLAGS1) $(obj_path)/$@.o $(ELIB)  $(MPI) $(LIBLOC) $(LKFLAGS2) -o $@
-lmfham1: $(obj_path)/lmfham1.o $(ELIB)  $(MPI) $(MLO)
+lmfham1: $(obj_path)/lmfham1.o $(ELIB)  $(MPI) $(MLO) $(GWLIB)
 	@echo $(LK) $@.o 'link with *.o'
 	@$(LK) $(LKFLAGS1) $(obj_path)/$@.o $(ELIB)  $(MPI) $(LIBLOC) $(LKFLAGS2) $(MLO) -o $@
-mkhamloc: $(obj_path)/mkhamloc.o $(ELIB)  $(MPI) $(MLO)
+lmfham2: $(obj_path)/lmfham2.o $(MLOC)  $(MPI) $(ELIB) $(GWLIB)
 	@echo $(LK) $@.o 'link with *.o'
-	@$(LK) $(LKFLAGS1) $(obj_path)/$@.o $(ELIB)  $(MPI) $(LIBLOC) $(LKFLAGS2) $(MLO) -o $@
+	@$(LK) $(LKFLAGS1) $< $(MLOC) $(MPI) $(ELIB) $(GWLIB) $(LIBLOC) $(LKFLAGS2) -o $@
+#!mkhamloc: $(obj_path)/mkhamloc.o $(ELIB)  $(MPI) $(MLO)
+#	@echo $(LK) $@.o 'link with *.o'
+#	@$(LK) $(LKFLAGS1) $(obj_path)/$@.o $(ELIB)  $(MPI) $(LIBLOC) $(LKFLAGS2) $(MLO) -o $@
 plotmodel: $(obj_path)/plotmodel.o $(ELIB)  $(MPI) $(MLO)
 	@echo $(LK) $@.o 'link with *.o'
 	@$(LK) $(LKFLAGS1) $(obj_path)/$@.o $(ELIB)  $(MPI) $(LIBLOC) $(LKFLAGS2) $(MLO) -o $@
@@ -269,9 +272,6 @@ kino_input_test: $(obj_path)/kino_input_test.o  $(MPI) $(ELIB) $(GWLIB)
 	@$(LK) $(LKFLAGS1) $<  $(MPI)  $(ELIB) $(GWLIB) $(LKFLAGS2) -o $@
 
 hmaxloc: $(obj_path)/hmaxloc.o $(MLOC)  $(MPI) $(ELIB) $(GWLIB)
-	@echo $(LK) $@.o 'link with *.o'
-	@$(LK) $(LKFLAGS1) $< $(MLOC)  $(MPI)  $(ELIB) $(GWLIB) $(LKFLAGS2) -o $@
-lmfham2: $(obj_path)/lmfham2.o $(MLOC)  $(MPI) $(ELIB) $(GWLIB)
 	@echo $(LK) $@.o 'link with *.o'
 	@$(LK) $(LKFLAGS1) $< $(MLOC)  $(MPI)  $(ELIB) $(GWLIB) $(LKFLAGS2) -o $@
 

@@ -91,7 +91,6 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to 
     call getkeyvalue("GWinput","wan_maxit_1st",nsc1,default=50)
     call getkeyvalue("GWinput","wan_conv_1st",conv1,default=1d-4)
     call getkeyvalue("GWinput","wan_mix_1st",alpha1,default=1d0)
-    
 !    call getkeyvalue("GWinput","wan_in_emax",eimax, default=5d0) !relative to Ef
     call getkeyvalue("GWinput","wan_in_ewid",ewid, default=.1d0) !eV
     call getkeyvalue("GWinput","wan_fac1",fac1,default=0.1d0)!size of energy minimization

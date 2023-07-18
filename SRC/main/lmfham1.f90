@@ -8,18 +8,29 @@ program lmfham1 ! Read HamiltonianPMT and generates MTO-only Hamiltonian
   use m_ftox
   use m_lgunit,only:stdo
   use m_zhev,only:zhev_tk4
+  use m_keyvalue,only: getkeyvalue
+  use m_MPItk,only:    m_MPItk_init, m_MPItk_finalize, nsize, master_mpi !  use m_ext,only:      m_ext_init,sname
   implicit none
   integer:: i,j,ikp,ib1,ib2,it,nmx,nev,jsp
   complex(8)::img=(0d0,1d0),phase 
   real(8),allocatable:: evl(:)
-  real(8)::qp(3),pi=4d0*atan(1d0),epsovl=0d0 !1d-8
+  real(8)::qp(3),pi=4d0*atan(1d0),epsovl=0d0
+  real(8)::facw
   logical:: lprint=.true.,savez=.false.,getz=.false. 
-  integer:: ndatx,ifsy1,ifsy2,ifsy,iix(36)
+  integer:: ndatx,ifsy1,ifsy2,ifsy,iix(36),nsc1
   logical:: symlcase=.true.
   character(256):: fband(2)=['band_lmfham1_spin1.dat','band_lmfham1_spin2.dat']
-  call MPI__Initialize()
+  character(8):: prgnam=''
+  call m_MPItk_init('lmfham1') ! mpi initialization
+  !call setcmdpath() !Set self-command path (this is for call system at m_lmfinit)
+  !call m_ext_init()         ! Get sname, e.g. trim(sname)=si of ctrl.si
+  !call m_MPItk_init(prgnam) ! mpi initialization
+  !call m_lgunit_init() !set stdo,stdl
+  !call m_lmfinit_init(prgnam)! Read ctrlp into module m_lmfinit.
   call ReadHamPMTInfo()   ! Read infomation for PMT Hamiltonian (lattice structures and index of basis).
-  call HamPMTtoHamRsMTO() ! HamRsMTO (real-space Hamiltonian hammr,ovlmr,ndimMTO) is generated,and written to a file HamRsMTO
+  !call getkeyvalue("GWinput","wan_facw",facw,default=1d0) !size of fixing inner window
+  facw=1d0
+  call HamPMTtoHamRsMTO(facw) ! HamRsMTO (real-space Hamiltonian hammr,ovlmr,ndimMTO) is generated,and written to a file HamRsMTO
   call ReadHamRsMTO()     ! Read real-space Hamiltonian hammr,ovlmr from HamRsMTO.
   if(symlcase) then ! When symlcase=T, read qplist.dat (q points list, see bndfp.F). 
      call readqplistsy()
