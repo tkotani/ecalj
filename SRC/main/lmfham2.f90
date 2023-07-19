@@ -93,19 +93,18 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to 
        ibold=ib_tableM(i)
     enddo SETidmto
 !    nwf2=10;  deallocate(idmto);  allocate(idmto,source=[1,2,3,4,17, 26,27,28,29,42])
-    write(stdo,ftox)'idmto=',idmto
-    call getkeyvalue("GWinput","wan_maxit_1st",nsc1,default=50)
-    call getkeyvalue("GWinput","wan_conv_1st",conv1,default=1d-4)
-    call getkeyvalue("GWinput","wan_mix_1st",alpha1,default=1d0)
-!    call getkeyvalue("GWinput","wan_in_emax",eimax, default=5d0) !relative to Ef
-    call getkeyvalue("GWinput","wan_in_ewid",ewid, default=.1d0) !eV
-    call getkeyvalue("GWinput","wan_fac1",fac1,default=0.1d0)!size of energy minimization
-    call getkeyvalue("GWinput","wan_fac2",fac2,default=10d0) !size of fixing inner window
-    call getkeyvalue("GWinput","wan_einnerL", einnerLeV,default=-1d8)
-    call getkeyvalue("GWinput","wan_einnerH", einnerHeV,default= 1d8)
-    write(stdo,ftox)' wan_einner: einnerL einnerH relative to Ef (eV) =',ftof(einnerLeV),ftof(einnerHeV)
-    write(stdo,ftox)' wan_maxit_1st conv1_1st mix_1st=',nsc1,ftof(conv1),ftof(alpha1)
-    write(stdo,ftox)' wan_in_ewid fac1 fac2=',ftof(ewid),ftof(fac1),ftof(fac2)
+    write(stdo,ftox)' idmto=',idmto
+    call getkeyvalue("GWinput","mlo_maxit_1st",nsc1,default=50)
+    call getkeyvalue("GWinput","mlo_conv_1st",conv1,default=1d-4)
+    call getkeyvalue("GWinput","mlo_mix_1st",alpha1,default=1d0)
+    call getkeyvalue("GWinput","mlo_in_ewid",ewid, default=.1d0) !eV
+    call getkeyvalue("GWinput","mlo_fac1",fac1,default=0.05d0)!size of energy minimization
+    call getkeyvalue("GWinput","mlo_fac2",fac2,default=10d0) !size of fixing inner window
+    call getkeyvalue("GWinput","mlo_einnerL", einnerLeV,default=-1d8)
+    call getkeyvalue("GWinput","mlo_einnerH", einnerHeV,default= 1d8)
+    write(stdo,ftox)' mlo_einner: einnerL einnerH relative to Ef (eV) =',ftof(einnerLeV),ftof(einnerHeV)
+    write(stdo,ftox)' mlo_maxit_1st conv1_1st mix_1st=',nsc1,ftof(conv1),ftof(alpha1)
+    write(stdo,ftox)' mlo_in_ewid fac1 fac2=',ftof(ewid),ftof(fac1),ftof(fac2)
   endblock ReadInfoFromGWinput
   ewid= ewid/rydberg()
   bbvector: block !Get connecting vectors bb, bb connects k and k+bb, where both k and k+bb are on mesh points nqbz.
@@ -118,21 +117,21 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to 
     allocate(bbv,source=bb)
   endblock bbvector
   nband= nwf1     
-  iko_i=1; iko_f=nwf1 ! outer window nwf1 is the number of MLO1
+  iko_i=1; iko_f=nwf1 ! outer window nwf1 is the number of MLO
   iko_ix=minval(iko_i)
   iko_fx=maxval(iko_f)
   nox = iko_fx - iko_ix + 1
-  if(job==1) goto 1011
-
-  write(stdo,ftox)'goto GETuumatANDamnk block... : nwf1 for |MLO1>=',nwf1,'iko_i iko_f=',iko_ix,iko_fx
-  open(newunit=ifuumat,file='CNmat',form='unformatted')
-  uuispinloop: do 1010 is = 1,nspin
-     write(stdo,ftox)'Generating connection matrix ispinloop: is =',is,'  out of',nspin
-     GETuumatANDamnk: block
-       real(8):: qp(3),evl(nwf1,nqbz),ovl(nwf1)
-       complex(8):: emat(nwf1,nwf1),osq(1:nwf1,1:nwf1),o2al(1:nwf1,1:nwf1,nqbz),phase,ovlmm(nwf1,nwf2),&
-            evec(nwf1,nwf1,nqbz),evecx(1:nwf1,1:nwf1), ovec(nwf1,nwf1),amnk(iko_ix:iko_fx,nwf2,nqbz),&
-            ovlm(1:nwf1,1:nwf1),ovlmx(1:nwf1,1:nwf1), hamm(1:nwf1,1:nwf1),uumat(iko_ix:iko_fx,iko_ix:iko_fx,nbb,nqbz)
+  if(job==1) goto 1011 !Souza's iteration 
+  
+  GetCNmat: block
+    real(8):: qp(3),evl(nwf1,nqbz),ovl(nwf1)
+    complex(8):: emat(nwf1,nwf1),osq(1:nwf1,1:nwf1),o2al(1:nwf1,1:nwf1,nqbz),phase,ovlmm(nwf1,nwf2),&
+         evec(nwf1,nwf1,nqbz),evecx(1:nwf1,1:nwf1), ovec(nwf1,nwf1),amnk(iko_ix:iko_fx,nwf2,nqbz),&
+         ovlm(1:nwf1,1:nwf1),ovlmx(1:nwf1,1:nwf1), hamm(1:nwf1,1:nwf1),uumat(iko_ix:iko_fx,iko_ix:iko_fx,nbb,nqbz)
+    write(stdo,ftox)'Going to get CNmat ... : nwf1 for |MLO1>=',nwf1,'iko_i iko_f=',iko_ix,iko_fx
+    open(newunit=ifuumat,file='CNmat',form='unformatted')
+    uuispinloop: do 1010 is = 1,nspin
+       write(stdo,ftox)'Generating connection matrix ispinloop: is =',is,'  out of',nspin
        emat=0d0
        forall(i=1:nwf1) emat(i,i)=1d0
        do iqbz=1,nqbz
@@ -157,7 +156,7 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to 
           call zhev_tk4(nwf1,hamm,ovlm,nmx,nev, evl(:,iqbz), evec(:,:,iqbz), epsovl) !Diangonale (hamm- evl ovlm) z=0
           do concurrent (i=1:nwf1,j=1:nwf1)
              osq(i,j)=sum(ovec(i,:)*ovl(:)**0.5d0*dconjg(ovec(j,:))) !O^(1/2)
-          enddo   
+          enddo
           o2al(:,:,iqbz) = matmul(osq, evec(:,:,iqbz)) !o2al(basis index, band index, iqbz index) O^(1/2)*evec
           forall(i=1:nwf1) ovlmm(i,:) = ovlmx(i,idmto(:))
           amnk(:,:,iqbz)= matmul(transpose(dconjg(evec(1:nwf1,iko_ix:iko_fx,iqbz))),ovlmm) !amnk= <psi|MTO> minimum basis MTO =9+9
@@ -173,10 +172,10 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to 
        write(ifuumat) evl   !eigenvalue
        write(ifuumat) uumat !connection matrix
        write(ifuumat) amnk  !initial projection
-     endblock GETuumatANDamnk
 1010 enddo uuispinloop
-  close(ifuumat)
-  if(job==0) call rx0('OK! end of lmhfam2 job=0 for generating CNmat')
+    close(ifuumat)
+    if(job==0) call rx0('OK! end of lmhfam2 job=0 for generating CNmat')
+  endblock GetCNmat
 
 1011 continue
   open(newunit=ifuumat,file='CNmat',form='unformatted')
@@ -191,51 +190,6 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to 
      read(ifuumat) evl
      read(ifuumat) uumat
      read(ifuumat) amnk
-     ! write(stdo,ftox)'goto GETuumatANDamnk block... : nwf1 for |MLO1>=',nwf1,'iko_i iko_f=',iko_ix,iko_fx
-     ! GETuumatANDamnk: block
-     !   real(8):: qp(3)
-     !   complex(8):: emat(1:nwf1,1:nwf1),osq(1:nwf1,1:nwf1),o2al(1:nwf1,1:nwf1,nqbz),phase,ovlmm(nwf1,nwf2),&
-     !        evec(nwf1,nwf1,nqbz),evecx(1:nwf1,1:nwf1)
-     !   allocate (uumat(iko_ix:iko_fx,iko_ix:iko_fx,nbb,nqbz))
-     !   emat=0d0
-     !   forall(i=1:nwf1) emat(i,i)=1d0
-     !   do iqbz=1,nqbz
-     !      qp=qbz(:,iqbz)
-     !      ovlm = 0d0
-     !      hamm = 0d0
-     !      do i=1,nwf1
-     !         do j=1,nwf1
-     !            ib1 = ib_tableM(i) !atomic-site index in the primitive cell
-     !            ib2 = ib_tableM(j)
-     !            do it =1,npair(ib1,ib2)
-     !               phase= 1d0/nqwgt(it,ib1,ib2)*exp(-img*2d0*pi* sum(qp*matmul(plat,nlat(:,it,ib1,ib2))))
-     !               hamm(i,j)= hamm(i,j)+ hmmr1(i,j,it,is)*phase
-     !               ovlm(i,j)= ovlm(i,j)+ ommr1(i,j,it,is)*phase
-     !            enddo
-     !         enddo
-     !      enddo
-     !      nmx=nwf1
-     !      ovlmx=ovlm
-     !      call zhev_tk4(nwf1,ovlm,emat,nmx,nev, ovl, ovec, epsovl)!Diangonale overlap matrix. (ovlm - e ) ovec=0
-     !      ovlm=ovlmx
-     !      call zhev_tk4(nwf1,hamm,ovlm,nmx,nev, evl(:,iqbz), evec(:,:,iqbz), epsovl)!Diangonale (hamm- evl ovlm) z=0
-     !      do concurrent (i=1:nwf1,j=1:nwf1)
-     !         osq(i,j)=sum(ovec(i,:)*ovl(:)**0.5d0*dconjg(ovec(j,:))) !O^(1/2)
-     !      enddo   
-     !      o2al(:,:,iqbz) = matmul(osq, evec(:,:,iqbz)) !o2al(basis index, band index, iqbz index) O^(1/2)*evec
-     !      forall(i=1:nwf1) ovlmm(i,:) = ovlmx(i,idmto(:))
-     !      amnk(:,:,iqbz)= matmul(transpose(dconjg(evec(1:nwf1,iko_ix:iko_fx,iqbz))),ovlmm) !amnk= <psi|MTO> minimum basis MTO =9+9
-     !   enddo
-     !   do iqbz=1,nqbz
-     !      do ibb=1,nbb
-     !         iqb = ikbidx(ibb,iqbz)             !q1(:) = qbz(:,iqbz)             !q2(:) = q1(:) + bbv(:,ibb)
-     !         do concurrent(ib1=iko_ix:iko_fx, ib2=iko_ix:iko_fx) !ib1,ib2 band index of outer-inner window
-     !            uumat(ib1,ib2,ibb,iqbz)= sum(dconjg(o2al(1:nwf1,ib1,iqbz))*o2al(1:nwf1,ib2,iqb)) ! define connection <q ib1| q+b ib2>
-     !         enddo
-     !      enddo
-     !   enddo
-     ! endblock GETuumatANDamnk
-     
      emm=9999d0
      emin=9999d0
      do iqbz=1,nqbz ! Default einnerH is at lowest of nwf2/2 th band.
@@ -254,7 +208,7 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to 
      zesumold=1d10
      alpha = 1d0
      upu   = 0d0
-     Step1loop: do isc = 1,nsc1 ! choose Hilbert space -- determine cnk
+     SouzaStep1loop: do isc = 1,nsc1 ! choose Hilbert space -- determine cnk
         iqloop: do iq = 1,nqbz 
            nout = iko_f(iq) - iko_i(iq) + 1 !outer
            ndz  = nout 
@@ -284,12 +238,12 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to 
               zmn0(1:ndz,1:ndz) = zmn0(1:ndz,1:ndz) + wbb(ibb)*upu(iko_i(iq):iko_f(iq),iko_i(iq):iko_f(iq),ibb,iq)
            enddo 
            zmn=zmn0
-           forall(i=iko_i(iq):iko_f(iq)) !penalty part to get innner window parts
-              zmn(i,i)=zmn0(i,i)+ fac1*sum(wbb(1:nbb))*(-evl(i,iq)) &
-                   + fac2*sum(wbb(1:nbb))* 1d0/(exp((evl(i,iq)-einnerH)/ewid)+1d0) * 1d0/(exp(-(evl(i,iq)-einnerL)/ewid)+1d0)
+           forall(i=iko_i(iq):iko_f(iq)) !penalty part to emphasize innner window
+              zmn(i,i)=zmn0(i,i)&
+                   + fac1*sum(wbb(1:nbb))*(-evl(i,iq)) & !lower eigenvalue for higher energy
+                   + fac2*sum(wbb(1:nbb))* 1d0/(exp((evl(i,iq)-einnerH)/ewid)+1d0) * 1d0/(exp(-(evl(i,iq)-einnerL)/ewid)+1d0) !inner window enhancement
            end forall
            call diag_hm(zmn,ndz,eval,evecc)
-           
            ndzm=ndz-nwf2+1
            zesum(iq)=sum(eval(ndzm:ndz))
            forall(iwf = 1:nwf2) cnk(iko_i(iq):iko_f(iq),iwf,iq) = evecc(1:ndz,ndz+1-iwf)
@@ -305,7 +259,7 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to 
         endif
         zesumold = zesi
         if(isc==nsc1) write(*,*)'step1: not converged'
-     enddo Step1loop
+     enddo SouzaStep1loop
      deallocate(upu) 
      !! NOTE: cnk(iko_ix:iko_fx,nwf2,nqbz) is the final results of Step1loop, which minimize Omega_I (Wannier space)
      !!   cnk(iko_i(iq):iko_f(iq),nwf2,iq) gives nwf2-dimentional space.
