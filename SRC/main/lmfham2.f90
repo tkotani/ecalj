@@ -27,10 +27,10 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to 
   integer:: inii,if102,iwf2,ib,itmp,itmp2,nqbz2,nspin2,ib1,ib2,iqb,iqbz,it,jsp,nmx,nev,isyml,nband,nqbz!,n1,n2,n3
   integer:: nwf2,ikx,ikxx,iadd,ndzm,i1q,i2q,i1,i2,imp,inp,inx,imx,ibas,ibold,ibx,iorb
   integer,parameter:: nlinex=100
-  integer::nline,np(nlinex), iwf,ldim2,ixx,npin
+  integer::nline,np(nlinex), iwf,ldim2,ixx,npin,ifuumat,job
   real(8),parameter:: pi = 4d0*datan(1d0)
   real(8) :: tpia,vol,voltot,rs,alpha, rydberg,hartree,qlat(3,3),tripl,wbbsum,bb(3,12),eimax 
-  real(8):: qi(3,nlinex),qf(3,nlinex), omgi,omgiold,conv1,alpha1,zesumold,zesi,emm
+  real(8):: qi(3,nlinex),qf(3,nlinex), omgi,omgiold,conv1,alpha1,zesumold,zesi,emm,einnerL,einnerH,einnerLeV,einnerHeV,emin
   real(8)::qiin(3),qfin(3),qold(3),enwfmax,qxx(3),eeee,enwfmaxi, epsovl=1d-8,ginv(3,3),einner,ewid,fac2,ecenter,eee,etest,egap,fac1
   character(8) :: xt
   real(8),allocatable    :: q(:,:)
@@ -42,10 +42,12 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to 
   real(8),allocatable:: evl(:,:),ovl(:), bbv(:,:),wbz(:)
   complex(8),allocatable:: upu(:,:,:,:), zmn(:,:),zmn0(:,:)
   complex(8),parameter:: img=(0d0,1d0)
-  complex(8),allocatable::ovlm(:,:),ovlmx(:,:),hamm(:,:),evec(:,:),ovec(:,:),emat(:,:)
+  complex(8),allocatable::ovlm(:,:),ovlmx(:,:),hamm(:,:),ovec(:,:)!,emat(:,:)
   complex(8),allocatable:: uumat(:,:,:,:),evecc(:,:), amnk(:,:,:),cnk(:,:,:),umnk(:,:,:),evecc1(:,:,:),evecc2(:,:,:)
   complex(8),allocatable:: hmmr2(:,:,:,:),ommr2(:,:,:,:),wmat(:,:),wmat2(:,:)
   character(256):: fband
+  logical:: cmdopt2
+  character:: outs*20
 !  complex(8),allocatable:: hrotk(:,:,:),hrotr(:,:,:),hrotkp(:,:), hrotkps(:,:)
 !  real(8):: e1,e2,rcut
 !  integer(4):: iband,ifbnd,iftb,ifsh,nsh,nsh1,nsh2,iffb
@@ -59,6 +61,10 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to 
 !  character(20):: outs=''
 !  call m_ext_init()         ! Get sname, e.g. trim(sname)=si of ctrl.si
   call m_MPItk_init('lmfham2') ! mpi initialization
+  job=-1
+  if(cmdopt2('--job=',outs)) read(outs,*) job
+  if(job/=0.and.job/=1) call rx0(' Set --job=0 or 1')
+  call mpibc1_int(job,1,'lmfham2_job')
   hartree=2d0*rydberg()
   call ReadHamPMTInfo()   ! Read infomation for Hamiltonian (lattice structures and index of basis).
   call ReadHamRsMTO()
@@ -95,6 +101,11 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to 
     call getkeyvalue("GWinput","wan_in_ewid",ewid, default=.1d0) !eV
     call getkeyvalue("GWinput","wan_fac1",fac1,default=0.1d0)!size of energy minimization
     call getkeyvalue("GWinput","wan_fac2",fac2,default=10d0) !size of fixing inner window
+    call getkeyvalue("GWinput","wan_einnerL", einnerLeV,default=-1d8)
+    call getkeyvalue("GWinput","wan_einnerH", einnerHeV,default= 1d8)
+    write(stdo,ftox)' wan_einner: einnerL einnerH relative to Ef (eV) =',ftof(einnerLeV),ftof(einnerHeV)
+    write(stdo,ftox)' wan_maxit_1st conv1_1st mix_1st=',nsc1,ftof(conv1),ftof(alpha1)
+    write(stdo,ftox)' wan_in_ewid fac1 fac2=',ftof(ewid),ftof(fac1),ftof(fac2)
   endblock ReadInfoFromGWinput
   ewid= ewid/rydberg()
   bbvector: block !Get connecting vectors bb, bb connects k and k+bb, where both k and k+bb are on mesh points nqbz.
@@ -111,19 +122,17 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to 
   iko_ix=minval(iko_i)
   iko_fx=maxval(iko_f)
   nox = iko_fx - iko_ix + 1
-  allocate(hmmr2(nwf2,nwf2,npairmx,nspin),ommr2(nwf2,nwf2,npairmx,nspin),source=(0d0,0d0))
-  ispinloop: do 1000 is = 1,nspin
-     write(stdo,ftox)'ispinloop: is =',is,'  out of',nspin
-     allocate(ovlm(1:nwf1,1:nwf1),ovlmx(1:nwf1,1:nwf1),hamm(1:nwf1,1:nwf1))
-     allocate(evec(nwf1,nwf1),evl(nwf1,nqbz), ovec(nwf1,nwf1),ovl(nwf1))
-     allocate(amnk(iko_ix:iko_fx,nwf2,nqbz))
-     allocate(wbz(nqbz),source=1d0/nqbz)
-     write(stdo,ftox)'goto GETuumatANDamnk block... : nwf1 for |MLO1>=',nwf1,'iko_i iko_f=',iko_ix,iko_fx
+  if(job==1) goto 1011
+
+  write(stdo,ftox)'goto GETuumatANDamnk block... : nwf1 for |MLO1>=',nwf1,'iko_i iko_f=',iko_ix,iko_fx
+  open(newunit=ifuumat,file='CNmat',form='unformatted')
+  uuispinloop: do 1010 is = 1,nspin
+     write(stdo,ftox)'Generating connection matrix ispinloop: is =',is,'  out of',nspin
      GETuumatANDamnk: block
-       real(8):: qp(3)
-       complex(8):: emat(1:nwf1,1:nwf1),osq(1:nwf1,1:nwf1),o2al(1:nwf1,1:nwf1,nqbz),phase,ovlmm(nwf1,nwf2),&
-            evec(nwf1,nwf1,nqbz),evecx(1:nwf1,1:nwf1)
-       allocate (uumat(iko_ix:iko_fx,iko_ix:iko_fx,nbb,nqbz))
+       real(8):: qp(3),evl(nwf1,nqbz),ovl(nwf1)
+       complex(8):: emat(nwf1,nwf1),osq(1:nwf1,1:nwf1),o2al(1:nwf1,1:nwf1,nqbz),phase,ovlmm(nwf1,nwf2),&
+            evec(nwf1,nwf1,nqbz),evecx(1:nwf1,1:nwf1), ovec(nwf1,nwf1),amnk(iko_ix:iko_fx,nwf2,nqbz),&
+            ovlm(1:nwf1,1:nwf1),ovlmx(1:nwf1,1:nwf1), hamm(1:nwf1,1:nwf1),uumat(iko_ix:iko_fx,iko_ix:iko_fx,nbb,nqbz)
        emat=0d0
        forall(i=1:nwf1) emat(i,i)=1d0
        do iqbz=1,nqbz
@@ -143,9 +152,9 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to 
           enddo
           nmx=nwf1
           ovlmx=ovlm
-          call zhev_tk4(nwf1,ovlm,emat,nmx,nev, ovl, ovec, epsovl)!Diangonale overlap matrix. (ovlm - e ) ovec=0
+          call zhev_tk4(nwf1,ovlm,emat,nmx,nev, ovl, ovec, epsovl) !Diangonale overlap matrix. (ovlm - e ) ovec=0
           ovlm=ovlmx
-          call zhev_tk4(nwf1,hamm,ovlm,nmx,nev, evl(:,iqbz), evec(:,:,iqbz), epsovl)!Diangonale (hamm- evl ovlm) z=0
+          call zhev_tk4(nwf1,hamm,ovlm,nmx,nev, evl(:,iqbz), evec(:,:,iqbz), epsovl) !Diangonale (hamm- evl ovlm) z=0
           do concurrent (i=1:nwf1,j=1:nwf1)
              osq(i,j)=sum(ovec(i,:)*ovl(:)**0.5d0*dconjg(ovec(j,:))) !O^(1/2)
           enddo   
@@ -161,29 +170,91 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to 
              enddo
           enddo
        enddo
+       write(ifuumat) evl   !eigenvalue
+       write(ifuumat) uumat !connection matrix
+       write(ifuumat) amnk  !initial projection
      endblock GETuumatANDamnk
+1010 enddo uuispinloop
+  close(ifuumat)
+  if(job==0) call rx0('OK! end of lmhfam2 job=0 for generating CNmat')
+
+1011 continue
+  open(newunit=ifuumat,file='CNmat',form='unformatted')
+  allocate(hmmr2(nwf2,nwf2,npairmx,nspin),ommr2(nwf2,nwf2,npairmx,nspin),source=(0d0,0d0))
+  ispinloop: do 1000 is = 1,nspin
+     write(stdo,ftox)'ispinloop: is =',is,'  out of',nspin
+     allocate(ovlm(1:nwf1,1:nwf1),ovlmx(1:nwf1,1:nwf1),hamm(1:nwf1,1:nwf1))
+     allocate(evl(nwf1,nqbz), ovec(nwf1,nwf1),ovl(nwf1))
+     allocate(amnk(iko_ix:iko_fx,nwf2,nqbz))
+     allocate(wbz(nqbz),source=1d0/nqbz)
+     allocate (uumat(iko_ix:iko_fx,iko_ix:iko_fx,nbb,nqbz))
+     read(ifuumat) evl
+     read(ifuumat) uumat
+     read(ifuumat) amnk
+     ! write(stdo,ftox)'goto GETuumatANDamnk block... : nwf1 for |MLO1>=',nwf1,'iko_i iko_f=',iko_ix,iko_fx
+     ! GETuumatANDamnk: block
+     !   real(8):: qp(3)
+     !   complex(8):: emat(1:nwf1,1:nwf1),osq(1:nwf1,1:nwf1),o2al(1:nwf1,1:nwf1,nqbz),phase,ovlmm(nwf1,nwf2),&
+     !        evec(nwf1,nwf1,nqbz),evecx(1:nwf1,1:nwf1)
+     !   allocate (uumat(iko_ix:iko_fx,iko_ix:iko_fx,nbb,nqbz))
+     !   emat=0d0
+     !   forall(i=1:nwf1) emat(i,i)=1d0
+     !   do iqbz=1,nqbz
+     !      qp=qbz(:,iqbz)
+     !      ovlm = 0d0
+     !      hamm = 0d0
+     !      do i=1,nwf1
+     !         do j=1,nwf1
+     !            ib1 = ib_tableM(i) !atomic-site index in the primitive cell
+     !            ib2 = ib_tableM(j)
+     !            do it =1,npair(ib1,ib2)
+     !               phase= 1d0/nqwgt(it,ib1,ib2)*exp(-img*2d0*pi* sum(qp*matmul(plat,nlat(:,it,ib1,ib2))))
+     !               hamm(i,j)= hamm(i,j)+ hmmr1(i,j,it,is)*phase
+     !               ovlm(i,j)= ovlm(i,j)+ ommr1(i,j,it,is)*phase
+     !            enddo
+     !         enddo
+     !      enddo
+     !      nmx=nwf1
+     !      ovlmx=ovlm
+     !      call zhev_tk4(nwf1,ovlm,emat,nmx,nev, ovl, ovec, epsovl)!Diangonale overlap matrix. (ovlm - e ) ovec=0
+     !      ovlm=ovlmx
+     !      call zhev_tk4(nwf1,hamm,ovlm,nmx,nev, evl(:,iqbz), evec(:,:,iqbz), epsovl)!Diangonale (hamm- evl ovlm) z=0
+     !      do concurrent (i=1:nwf1,j=1:nwf1)
+     !         osq(i,j)=sum(ovec(i,:)*ovl(:)**0.5d0*dconjg(ovec(j,:))) !O^(1/2)
+     !      enddo   
+     !      o2al(:,:,iqbz) = matmul(osq, evec(:,:,iqbz)) !o2al(basis index, band index, iqbz index) O^(1/2)*evec
+     !      forall(i=1:nwf1) ovlmm(i,:) = ovlmx(i,idmto(:))
+     !      amnk(:,:,iqbz)= matmul(transpose(dconjg(evec(1:nwf1,iko_ix:iko_fx,iqbz))),ovlmm) !amnk= <psi|MTO> minimum basis MTO =9+9
+     !   enddo
+     !   do iqbz=1,nqbz
+     !      do ibb=1,nbb
+     !         iqb = ikbidx(ibb,iqbz)             !q1(:) = qbz(:,iqbz)             !q2(:) = q1(:) + bbv(:,ibb)
+     !         do concurrent(ib1=iko_ix:iko_fx, ib2=iko_ix:iko_fx) !ib1,ib2 band index of outer-inner window
+     !            uumat(ib1,ib2,ibb,iqbz)= sum(dconjg(o2al(1:nwf1,ib1,iqbz))*o2al(1:nwf1,ib2,iqb)) ! define connection <q ib1| q+b ib2>
+     !         enddo
+     !      enddo
+     !   enddo
+     ! endblock GETuumatANDamnk
      
-     ! einner is at lowest of nwf2/2 th band.
-     emm=999d0
-     do iqbz=1,nqbz
-        eee = evl(nwf2/2,iqbz) !>eferm+1d-2,dim=1,value=.true.),iqbz) !evl(cvm+1)
-        if(emm>eee) emm=eee
+     emm=9999d0
+     emin=9999d0
+     do iqbz=1,nqbz ! Default einnerH is at lowest of nwf2/2 th band.
+        emm = min(evl(nwf2/2,iqbz),emm) !>eferm+1d-2,dim=1,value=.true.),iqbz) !evl(cvm+1)
+        emin= min(emin,evl(1,iqbz))
      enddo
-     einner= emm !=eimax/rydberg() !ewid !   ecenter=sum(evl(nwf2/2,1:nqbz))/nqbz
-     write(stdo,ftox)'einner from VBM=',ftof((einner-eferm)*rydberg()),' eV'
-     !
-     !  call getkeyvalue("GWinput","wan_in_emax",eimax, default=5d0) !relative to Ef
-     !  write(stdo,ftox)'eimax (eV relative to cbm. Upper bound of inner window)=',ftof(eimax)
-     !  einner= eimax/rydberg()+eferm
-     write(*,*)'Step1loop: Choose Hilbert space iko_ix iko_fx=',iko_ix,iko_fx ! Step 1  -- choose Hilbert space -- determine cnk
-     allocate ( upu(iko_ix:iko_fx,iko_ix:iko_fx,nbb,nqbz), cnk(iko_ix:iko_fx,nwf2,nqbz), omgik(nqbz), zesum(nqbz))     !cnk2(iko_ix:iko_fx,nwf2,nqbz)
+     if(einnerHeV> 1d7) einnerHeV= (emm-eferm)*rydberg()       !default emax is around at center of bands.
+     einnerH= einnerHeV/rydberg()+eferm
+     einnerL= einnerLeV/rydberg()+eferm
+     if(master_mpi) write(*,*)'Step1loop: Choose Hilbert space by cnk(iko_ix:iko_fx,1:nwf2,1:nqbz)=',iko_ix,iko_fx,nwf2,nqbz
+     if(master_mpi) write(stdo,ftox)'einnerH from VBM=',ftof((einnerH-eferm)*rydberg()),' eV'
+     if(master_mpi) write(stdo,ftox)'einnerL from VBM=',ftof((einnerL-eferm)*rydberg()),' eV'
+     allocate ( upu(iko_ix:iko_fx,iko_ix:iko_fx,nbb,nqbz), cnk(iko_ix:iko_fx,nwf2,nqbz), omgik(nqbz), zesum(nqbz)) !cnk2(iko_ix:iko_fx,nwf2,nqbz)
      cnk  = 0d0
-     call amnk2unk(amnk,iko_ix,iko_fx,iko_i,iko_f, nwf2,nqbz,  cnk)! amnk is in Eq.22 in Ref.II. <psi|Gaussian>. Now amnk = < psi(it,iqbz) | MTO(nwf2) >
-     print *,' goto step1looop: iko_ix:iko_fx,nwf2,nqbz=',iko_ix,iko_fx,nwf2,nqbz
+     call amnk2unk(amnk,iko_ix,iko_fx,iko_i,iko_f, nwf2,nqbz,  cnk)! amnk was in Eq.22 in Ref.II. <psi|Gaussian>. Now amnk=< psi(it,iqbz) | MTO(nwf2) >
      zesumold=1d10
      alpha = 1d0
      upu   = 0d0
-     Step1loop: do isc = 1,nsc1
+     Step1loop: do isc = 1,nsc1 ! choose Hilbert space -- determine cnk
         iqloop: do iq = 1,nqbz 
            nout = iko_f(iq) - iko_i(iq) + 1 !outer
            ndz  = nout 
@@ -195,27 +266,30 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to 
               iqb = ikbidx(ibb,iq)
               i1= iko_i(iqb)
               i2= iko_f(iqb)
-              do concurrent(inp=i1:i2,  imp=i1:i2) !wmat = cnk * cnk^{*} is projector to 'wannier space'.
-                 wmat(inp,imp)= sum(dconjg(cnk(inp,1:nwf2,iqb))*cnk(imp,1:nwf2,iqb)) !BUG-> range of sum was nin+1,nwf2 before 2023-6-8
+              do concurrent(inp=i1:i2, imp=i1:i2) !wmat = cnk * cnk^{*} is projector to 'wannier space'.
+                 wmat(inp,imp)= sum(dconjg(cnk(inp,1:nwf2,iqb))*cnk(imp,1:nwf2,iqb)) !BUG-> range of sum was nin+1,nwf2 before 2023-6-8(miyake)
               enddo
               do concurrent(inx=i1q:i2q, imp=i1:i2)
                  wmat2(imp,inx)= sum( wmat(i1:i2,imp)*dconjg(uumat(inx,i1:i2,ibb,iq)) ) !wmat*uumat
               enddo
-              do concurrent(imx=i1q:i2q, inx=i1q:i2q)!      upu=                  uumat* wmat * uumat ! (1-2) <u_mk | P_k+b | u_nk>
+              do concurrent(imx=i1q:i2q, inx=i1q:i2q)!      upu=   uumat* wmat * uumat ! (1-2) <u_mk | P_k+b | u_nk>
                  upu(imx,inx,ibb,iq)= (1d0-alpha)*upu(imx,inx,ibb,iq) + alpha*sum(uumat(imx,i1:i2,ibb,iq)*wmat2(i1:i2,inx))
               enddo
            enddo
            deallocate(wmat,wmat2)
+           
            allocate (zmn0(ndz,ndz),source=(0d0,0d0)) ! (1-3) Zmn(k) > phi,eval
-           allocate (zmn(ndz,ndz),evecc(ndz,ndz),eval(ndz))
+           allocate (zmn(ndz,ndz), evecc(ndz,ndz),eval(ndz))
            do ibb = 1,nbb
               zmn0(1:ndz,1:ndz) = zmn0(1:ndz,1:ndz) + wbb(ibb)*upu(iko_i(iq):iko_f(iq),iko_i(iq):iko_f(iq),ibb,iq)
            enddo 
            zmn=zmn0
            forall(i=iko_i(iq):iko_f(iq)) !penalty part to get innner window parts
-              zmn(i,i)=zmn0(i,i) + fac1*sum(wbb(1:nbb))*(-evl(i,iq)) + fac2*sum(wbb(1:nbb))/(exp((evl(i,iq)-einner)/ewid)+1d0)
+              zmn(i,i)=zmn0(i,i)+ fac1*sum(wbb(1:nbb))*(-evl(i,iq)) &
+                   + fac2*sum(wbb(1:nbb))* 1d0/(exp((evl(i,iq)-einnerH)/ewid)+1d0) * 1d0/(exp(-(evl(i,iq)-einnerL)/ewid)+1d0)
            end forall
            call diag_hm(zmn,ndz,eval,evecc)
+           
            ndzm=ndz-nwf2+1
            zesum(iq)=sum(eval(ndzm:ndz))
            forall(iwf = 1:nwf2) cnk(iko_i(iq):iko_f(iq),iwf,iq) = evecc(1:ndz,ndz+1-iwf)
@@ -264,7 +338,7 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to 
      write(6,*)' get hmmr2. Goto band_lmfham2.dat ---------'
      bandplotMLO: block
        real(8):: qp(3),evlm(nwf2,ndat)
-       complex(8):: phase,hamm(nwf2,nwf2),ovlm(nwf2,nwf2)
+       complex(8):: phase,hamm(nwf2,nwf2),ovlm(nwf2,nwf2),evec(nwf2,nwf2)
        integer:: iband
        jsp=is
        fband='band_lmfham2_spin'//char(48+jsp)//'.dat'

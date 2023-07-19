@@ -1,4 +1,5 @@
 module m_HamPMT ! -- Read HamiltionanPMTinfo and HamiltonianPMT. Then convert HamPMT to HamRsMTO  ------
+  use m_MPItk,only: procid, master_mpi, nsize,master
   use m_lgunit,only:stdo
   real(8),allocatable,protected:: plat(:,:),pos(:,:),qplist(:,:),qlat(:,:)
   integer,allocatable,protected:: nlat(:,:,:,:),npair(:,:),ib_table(:),l_table(:),k_table(:),ispec_table(:),nqwgt(:,:,:)
@@ -28,8 +29,8 @@ contains
     allocate(ib_table(ldim),l_table(ldim),k_table(ldim),ispec_table(ldim),slabl_table(ldim))
     read(ififft)ib_table,l_table,k_table,ispec_table,slabl_table
     close(ififft)
-    write(stdo,"('MHAM: --- MTO part of Hamiltonian index (real-harmonics table is in job_pdos script) --- ')")
-    write(stdo,'("MHAM: MTO block dim=",i5)') ldim
+    if(master_mpi) write(stdo,"('MHAM: --- MTO part of Hamiltonian index (real-harmonics table is in job_pdos script) --- ')")
+    if(master_mpi) write(stdo,'("MHAM: MTO block dim=",i5)') ldim
     lold=-999
     do i = 1,ldim
        if(l_table(i)/= lold) then !reset m of lm
@@ -38,7 +39,7 @@ contains
        else
           m=m+1
        endif
-       write(stdo,"('MHAM: i ib(atom) l m k(EH,EH2,PZ)=',5i3)")i,ib_table(i),l_table(i),m,k_table(i)
+       if(master_mpi) write(stdo,"('MHAM: i ib(atom) l m k(EH,EH2,PZ)=',5i3)")i,ib_table(i),l_table(i),m,k_table(i)
     enddo
   end subroutine ReadHamPMTInfo
   !c$$$  !! delta fun check for FFT: k --> T --> k 
@@ -63,6 +64,7 @@ contains
     use m_zhev,only:zhev_tk4
     use m_ftox
     use m_readqplist,only: eferm
+    use m_mpi,only: MPI__reduceSum
     implicit none
     integer:: ifihmto
     integer::ikpd,ikp,ib1,ib2,ifih,it,iq,nev,nmx,ifig=-999,i,j,ndimPMT,lold,m
@@ -70,9 +72,10 @@ contains
     logical:: lprint=.true.,savez=.false.,getz=.false.,skipdiagtest=.false.
     complex(8):: img=(0d0,1d0),aaaa,phase
     real(8)::qp(3),pi=4d0*atan(1d0),fff,ef,fff1=2,fff2=2,fff3=0 ,facw
-    integer:: nn,ib,k,l,ix5,imin,ixx,j2,j1,j3,nx,ix(ldim)
-    integer,allocatable:: ib_tableM(:),l_tableM(:),k_tableM(:),ndimMTO !ndimMTO<ldim if we throw away f MTOs, for example. 
-    allocate(ib_tableM(ldim),k_tableM(ldim),l_tableM(ldim))
+    integer:: nn,ib,k,l,ix5,imin,ixx,j2,j1,j3,nx,ix(ldim),iqini,iqend,ndiv
+    integer:: ndimMTO !ndimMTO<ldim if we throw away f MTOs, for example. 
+    include "mpif.h"
+    integer:: ib_tableM(ldim),k_tableM(ldim),l_tableM(ldim),ierr
     nn=0
     do i=1,ldim  !only MTOs. Further restrictions.
        !if(l_table(i)>=3) cycle !only spd. skip f orbitals.     !if(k_table(i)==2.and.l_table(i)>=2) cycle ! throw away EH2 for d
@@ -87,19 +90,24 @@ contains
     enddo
     ndimMTO=nn
     open(newunit=ifih,file='HamiltonianPMT',form='unformatted')
-    write(stdo,*)'Reaing HamiltonianPMT ...'
     if(lso==1) ldim=ldim*2 !L.S mode
     nspx=nsp
     if(lso==1) nspx=1
-    write(stdo,"('nnnnnnn ndimMTO ldim lso=',i6,4i3)") ndimMTO,ldim,lso
+    if(master_mpi) write(stdo,"('Reading HamiltonianPMT: ndimMTO ldim lso=',i6,4i3)") ndimMTO,ldim,lso
     allocate(ovlmr(1:ndimMTO,1:ndimMTO,npairmx,nspx), hammr(1:ndimMTO,1:ndimMTO,npairmx,nspx))
     hammr=0d0
     ovlmr=0d0
+    ndiv= nkp/nsize 
+    if(nkp>ndiv*nsize) ndiv=ndiv+1    !MPI division
+    iqini =         ndiv*procid+1     !initial for each procid
+    iqend = min(nkp,ndiv*procid+ndiv) !end  for each procid
+    write(stdo,ftox)'nsize procid iqini iqend=',nsize,procid,iqini,iqend
     iq=0
     qploop: do 
        read(ifih,end=2019) qp,ndimPMT,lso,epsovl,jsp !jsp for isp; if so=1, jsp=1 only
        if(jsp==1) iq=iq+1
-       write(stdo,"('=== Reading Ham for iq,spin,q=',2i4,3f9.5)") iq,jsp,qp
+       if(iq<iqini.or.iqend<iq) cycle 
+       if(master_mpi) write(stdo,"('=== Reading Ham for iq,spin,q=',2i4,3f9.5)") iq,jsp,qp
        allocate(ovlm(1:ndimPMT,1:ndimPMT),hamm(1:ndimPMT,1:ndimPMT))
        read(ifih) ovlm(1:ndimPMT,1:ndimPMT)
        read(ifih) hamm(1:ndimPMT,1:ndimPMT)
@@ -134,17 +142,22 @@ contains
        deallocate(ovlm,hamm)
     enddo qploop
 2019 continue
-    write(stdo,*)'Read: total # of q for Ham=',iq
-    close(ifih)
-    !! write RealSpace MTO Hamiltonian
-    !ix(1:ndimMTO)=ix1(1:ndimMTO) !for atom idex
-    write(stdo,*)' Writing HamRsMTO... ndimMTO=',ndimMTO
-    open(newunit=ifihmto,file='HamRsMTO',form='unformatted')
-    write(ifihmto) ndimMTO,npairmx,nspx
-    write(ifihmto) hammr(1:ndimMTO,1:ndimMTO,1:npairmx,1:nspx),ovlmr(1:ndimMTO,1:ndimMTO,1:npairmx,1:nspx) !,ix(1:ndimMTO)
-    write(ifihmto) ib_tableM(1:ndimMTO),k_tableM(1:ndimMTO),l_tableM(1:ndimMTO)
-    close(ifihmto)
-    print*,' OK: Wrote HamRsMTO file!'
+    call mpibc2_complex(hammr,size(hammr),'m_HamPMT_hammr') !to master
+    call mpibc2_complex(ovlmr,size(ovlmr),'m_HamPMT_ovlmr') !to master
+    if(master_mpi) then
+       write(stdo,*)'Read: total # of q for Ham=',iq
+       close(ifih)
+       !! write RealSpace MTO Hamiltonian
+       !ix(1:ndimMTO)=ix1(1:ndimMTO) !for atom idex
+       write(stdo,*)' Writing HamRsMTO... ndimMTO=',ndimMTO
+       open(newunit=ifihmto,file='HamRsMTO',form='unformatted')
+       write(ifihmto) ndimMTO,npairmx,nspx
+       write(ifihmto) hammr(1:ndimMTO,1:ndimMTO,1:npairmx,1:nspx),ovlmr(1:ndimMTO,1:ndimMTO,1:npairmx,1:nspx) !,ix(1:ndimMTO)
+       write(ifihmto) ib_tableM(1:ndimMTO),k_tableM(1:ndimMTO),l_tableM(1:ndimMTO)
+       close(ifihmto)
+    endif   
+    call mpi_barrier(MPI_comm_world,ierr)
+    if(master_mpi) write(stdo,*)" Wrote HamRsMTO file! End of lmfham1"
   end subroutine HamPMTtoHamRsMTO
   subroutine detemu(beta,val,evl,nev, emu)
     use m_ftox
@@ -185,17 +198,18 @@ module m_HamRsMTO ! read real-space MTO Hamiltonian
   complex(8),allocatable,protected:: ovlmr(:,:,:,:),hammr(:,:,:,:)
 contains
   subroutine ReadHamRsMTO()! read RealSpace MTO Hamiltonian
+    use m_MPItk,only: master_mpi
     integer:: ifihmto
     open(newunit=ifihmto,file='HamRsMTO',form='unformatted')
     read(ifihmto) ndimMTO,npairmx,nspx
 !    allocate(ix(ndimMTO))
-    write(stdo,*)'ndimMTO,npairmx,nspx=',ndimMTO,npairmx,nspx
+    if(master_mpi) write(stdo,*)'ndimMTO,npairmx,nspx=',ndimMTO,npairmx,nspx
     allocate(ovlmr(1:ndimMTO,1:ndimMTO,npairmx,nspx), hammr(1:ndimMTO,1:ndimMTO,npairmx,nspx))
     read(ifihmto)hammr(1:ndimMTO,1:ndimMTO,1:npairmx,1:nspx),ovlmr(1:ndimMTO,1:ndimMTO,1:npairmx,1:nspx) !,ix(1:ndimMTO)
     allocate(ib_tableM(1:ndimMTO),k_tableM(1:ndimMTO),l_tableM(1:ndimMTO))
     read(ifihmto) ib_tableM(1:ndimMTO),k_tableM(1:ndimMTO),l_tableM(1:ndimMTO)
     close(ifihmto)
-    print*,' OK: Read HamRsMTO file!'
+    if(master_mpi) write(stdo,*)' OK: Read HamRsMTO file!'
   end subroutine ReadHamRsMTO
 end module m_HamRsMTO
 subroutine Hreduction(iprx,facw,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, evl,hammout,ovlmout)!Reduce H(ndimPMT) to H(ndimMTO)
@@ -231,12 +245,13 @@ subroutine Hreduction(iprx,facw,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, evl,hammout,o
   enddo
   mulfac :block
     integer:: ie,nidxevlmto,nidxevl,ibx,jx,idxevlmto(ndimMTO),idxevl(ndimPMT),jbx
-    real(8):: eee,fffx,ecut,www,xxx
+    real(8):: eee,fffx,ecut,xxx
     real(8),allocatable::mulfac(:,:),mulfacw(:,:)
+    complex(8):: www
     do j=1,ndimMTO 
        do i=1,ndimPMT
-          www=abs(fac(i,j))
-          wnm(i,j) = fac(i,j) * www**facw !.5d0 !1d0,0.25d0 is poorer ! www**2 !weight multipled.
+          wnm(i,j) = fac(i,j)**(1d0+facw) !www=fac(i,j)!www**facw
+          !* 1d0/(exp(abs(evlmto(j)-evl(i)))+1d0) !.5d0 !1d0,0.25d0 is poorer ! www**2 !weight multipled.
        enddo
     enddo   
   endblock mulfac

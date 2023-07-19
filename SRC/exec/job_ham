@@ -16,5 +16,5 @@ mpirun -np $3 $nfpgw/lmf-MPIK $1 --writeham --mkprocar --fullmesh
 cat HamiltonianPMT.* >HamiltonianPMT
 rm HamiltonianPMT.* 
 # Get projectedMTO-only Hamiltonian
-$nfpgw/lmfham1
+mpirun -np $3 $nfpgw/lmfham1 $1
 

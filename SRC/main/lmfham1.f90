@@ -6,54 +6,67 @@ program lmfham1 ! Read HamiltonianPMT and generates MTO-only Hamiltonian
   use m_mpi,only: MPI__hx0fp0_rankdivider2Q, MPI__Qtask, MPI__Initialize, MPI__Finalize,MPI__root, &
        MPI__Broadcast, MPI__rank,MPI__size, MPI__consoleout,MPI__barrier
   use m_ftox
-  use m_lgunit,only:stdo
+  use m_lgunit,only:stdo,m_lgunit_init
   use m_zhev,only:zhev_tk4
+  use m_MPItk,only:    m_MPItk_init, m_MPItk_finalize, nsize, procid,master_mpi !  use m_ext,only:      m_ext_init,sname
   use m_keyvalue,only: getkeyvalue
-  use m_MPItk,only:    m_MPItk_init, m_MPItk_finalize, nsize, master_mpi !  use m_ext,only:      m_ext_init,sname
+  use m_lmfinit,only:  m_lmfinit_init,oveps
+  use m_ext,only: m_ext_init
+  use m_cmdpath,only:setcmdpath
   implicit none
   integer:: i,j,ikp,ib1,ib2,it,nmx,nev,jsp
   complex(8)::img=(0d0,1d0),phase 
   real(8),allocatable:: evl(:)
-  real(8)::qp(3),pi=4d0*atan(1d0),epsovl=0d0
+  real(8)::qp(3),pi=4d0*atan(1d0)
   real(8)::facw
   logical:: lprint=.true.,savez=.false.,getz=.false. 
-  integer:: ndatx,ifsy1,ifsy2,ifsy,iix(36),nsc1
+  integer:: ndatx,ifsy1,ifsy2,ifsy,iix(36),nsc1,iqini,iqend,ndiv
   logical:: symlcase=.true.
   character(256):: fband(2)=['band_lmfham1_spin1.dat','band_lmfham1_spin2.dat']
   character(8):: prgnam=''
+  include "mpif.h"
+  call setcmdpath() !Set self-command path (this is for call system at m_lmfinit)
+  call m_ext_init()         ! Get sname, e.g. trim(sname)=si of ctrl.si
   call m_MPItk_init('lmfham1') ! mpi initialization
-  !call setcmdpath() !Set self-command path (this is for call system at m_lmfinit)
-  !call m_ext_init()         ! Get sname, e.g. trim(sname)=si of ctrl.si
-  !call m_MPItk_init(prgnam) ! mpi initialization
-  !call m_lgunit_init() !set stdo,stdl
-  !call m_lmfinit_init(prgnam)! Read ctrlp into module m_lmfinit.
+  call m_lgunit_init() !set stdo,stdl
+  call m_lmfinit_init('LMF')! Read ctrlp into module m_lmfinit.
   call ReadHamPMTInfo()   ! Read infomation for PMT Hamiltonian (lattice structures and index of basis).
-  !call getkeyvalue("GWinput","wan_facw",facw,default=1d0) !size of fixing inner window
-  facw=1d0
+  call getkeyvalue("GWinput","mlo_facw",facw,default=.5d0) !size of fixing inner window
+  if(master_mpi) write(stdo,ftox)'mlo_facw=',ftof(facw)
   call HamPMTtoHamRsMTO(facw) ! HamRsMTO (real-space Hamiltonian hammr,ovlmr,ndimMTO) is generated,and written to a file HamRsMTO
-  call ReadHamRsMTO()     ! Read real-space Hamiltonian hammr,ovlmr from HamRsMTO.
+  call ReadHamRsMTO()         ! Read real-space Hamiltonian hammr,ovlmr from HamRsMTO.
+  
   if(symlcase) then ! When symlcase=T, read qplist.dat (q points list, see bndfp.F). 
      call readqplistsy()
-     open(newunit=ifsy1,file=trim(fband(1)))
-     if(nspx==2) open(newunit=ifsy2,file=trim(fband(2)))
-     write(stdo,ftox)'Read qplist.dat: ndat =',ndat
+     if(master_mpi) open(newunit=ifsy1,file=trim(fband(1)))
+     if(master_mpi.and.nspx==2) open(newunit=ifsy2,file=trim(fband(2)))
+     if(master_mpi) write(stdo,ftox)'Read qplist.dat: ndat =',ndat
   endif
+  nmx = ndimMTO
+  ndatx = nkp
+  if(symlcase) ndatx=ndat
   GetEigenvaluesForSYML: block! Get Hamitonian at k points from hammr,ovlmr (Realspace Hamiltonian), then diagnalize.
+    real(8):: evl(ndimMTO,ndatx,nspx)
+    integer:: ierr
+    evl=0d0
     ! bands by original ecalj (by job_band), and TB hamiltonian read by ReadHamiltonianPMTInfo.
-    nmx = ndimMTO
-    ndatx = nkp
-    if(symlcase) ndatx=ndat
-    do ikp=1,ndatx
+    ndiv= ndatx/nsize !!MPI division
+    if(ndatx>ndiv*nsize) ndiv=ndiv+1
+    iqini =     ndiv*procid+1
+    iqend =     ndiv*procid+ndiv
+    if(procid==nsize-1) iqend = min(ndatx,iqend)
+    write(stdo,ftox)'nsize procid iqini iqend=',nsize,procid,iqini,iqend
+    call mpi_barrier(MPI_comm_world,ierr)
+    do ikp=iqini,iqend !1,ndatx
        if(symlcase) then
           qp= qplistsy(:,ikp)
        else
           qp= qplist(:,ikp) 
        endif
-       write(stdo,"(' ikp along qplist, q=',i5,3f9.4)")ikp,qp! true q(i)= 2pi/alat * qplist(i,ikp)
+       if(master_mpi) write(stdo,"(' ikp along qplist, q=',i5,3f9.4)")ikp,qp! true q(i)= 2pi/alat * qplist(i,ikp)
        Spinloop: do jsp=1,nspx !nsp is the number of spin.  When lso=1(Lz.Sz), nspx=1
           Hamblock: block
             complex(8):: ovlm(1:ndimMTO,1:ndimMTO),hamm(1:ndimMTO,1:ndimMTO),t_zv(ndimMTO,ndimMTO)
-            real(8):: evl(ndimMTO)
             ovlm = 0d0
             hamm = 0d0
             FFTloop:do i=1,ndimMTO
@@ -67,19 +80,24 @@ program lmfham1 ! Read HamiltonianPMT and generates MTO-only Hamiltonian
                   enddo
                enddo
             enddo FFTloop
-            call zhev_tk4(ndimMTO,hamm,ovlm,nmx,nev, evl,t_zv, epsovl)!Diangonalize (hamm- evl ovlm) z=0
-            if(symlcase) then
-               if(jsp==1) ifsy=ifsy1
-               if(jsp==2) ifsy=ifsy2
-               do i=1,nev
-                  write(ifsy,"(f15.5,f15.5,2i4)") xdat(ikp),evl(i),jsp,i !for gnuplot
-               enddo
-            endif
+            call zhev_tk4(ndimMTO,hamm,ovlm,nmx,nev, evl(:,ikp,jsp),t_zv, oveps)!Diangonalize (hamm- evl ovlm) z=0
           endblock Hamblock
        enddo Spinloop
     enddo
-    close(ifsy1)
-    if(nspx==2) close(ifsy2)
+    call mpibc2_real(evl,size(evl),'lmfham1_evl')
+    if(symlcase.and.master_mpi) then
+       do ikp=1,ndatx
+          do jsp=1,nspx
+             if(jsp==1) ifsy=ifsy1
+             if(jsp==2) ifsy=ifsy2
+             do i=1,nev
+                write(ifsy,"(f15.5,f15.5,2i4)") xdat(ikp),evl(i,ikp,jsp),jsp,i !for gnuplot
+             enddo
+          enddo
+       enddo
+    endif
+    if(master_mpi) close(ifsy1)
+    if(master_mpi.and.nspx==2) close(ifsy2)
     Writebandplotlmfham1glt: block
       integer:: ifglt1,ifglt
       character(256):: aline,fname,fname1
@@ -101,9 +119,11 @@ program lmfham1 ! Read HamiltonianPMT and generates MTO-only Hamiltonian
 989      continue
          close(ifglt1)
          close(ifglt)
-         write(stdo,ftox)'OK! Run gnuplot -p '//trim(fname1)//'. Brown points are by HamRsMTO for Hamiltonian on {|MLO1>}'
+         if(master_mpi)&
+              write(stdo,ftox)'OK! Run gnuplot -p '//trim(fname1)//'. Brown points are by HamRsMTO for Hamiltonian on {|MLO1>}'
       enddo
     endblock Writebandplotlmfham1glt
-    write(stdo,ftox)'Dim of |MLO1>based Hamiltonian HamRsMTO=',ndimMTO,'Atom-pair in real space=',npairmx
+    if(master_mpi) write(stdo,ftox)'Dim of |MLO1>based Hamiltonian HamRsMTO=',ndimMTO,'Atom-pair in real space=',npairmx
   endblock GetEigenvaluesForSYML
+  call rx0('OK! end of lmfham1')
 endprogram

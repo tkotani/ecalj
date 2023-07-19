@@ -23,7 +23,7 @@ progsgw = hbasfp0 hvccfp0 hx0fp0 hsfp0 hqpe qg4gw gwinit heftet rdata4gw_v2 hx0f
 progsw  = hmaxloc huumat_MPI hpsig_MPI wanplot hwmatK_MPI hsocmat
 
 # targets generaged by make prog2
-progslm2 = mkhamloc plotmodel initmlo mkinput 
+#progslm2 = mkhamloc plotmodel initmlo mkinput 
 progsgw2 = hhomogas  hef convgwin kino_input_test hqpe_qsgw hecor eout eout2 
 progsw2  = huumat hpsig htbplot
 
@@ -109,18 +109,7 @@ $(obj_path)/lmchk.o:    $(main)show_programinfo.fpp
 $(obj_path)/lmfham1.o:  $(main)show_programinfo.fpp
 $(obj_path)/qg4gw.m.o:  $(main)show_programinfo.fpp
 
-
 ### conditional compile to avoid compilar bug. This can be in Make.foobar.inc
-$(obj_path)/lmfham1.o: $(main)lmfham1.f90
-	$(FC) $(FFLAGS_NONE) -c $< -o $@
-$(obj_path)/mkhamloc.o: $(main)mkhamloc.f90
-	$(FC) $(FFLAGS_NONE) -c $< -o $@
-$(obj_path)/plotmodel.o: $(main)plotmodel.f90
-	$(FC) $(FFLAGS_NONE) -c $< -o $@
-$(obj_path)/initmlo.o: $(main)initmlo.f90
-	$(FC) $(FFLAGS_NONE) -c $< -o $@
-$(obj_path)/mkinput.o: $(main)mkinput.f90
-	$(FC) $(FFLAGS_NONE) -c $< -o $@
 $(obj_path)/chgmsh.o: $(subr)chgmsh.f90
 	$(FC) $(FFLAGS_NONE) -c $< -o $@
 
@@ -134,24 +123,12 @@ lmfa:	$(obj_path)/lmfa.o $(ELIB)  $(MPI)
 lmchk:	$(obj_path)/lmchk.o $(ELIB) $(MPI) 
 	@echo $(LK) $@.o 'link with *.o'
 	@$(LK) $(LKFLAGS1) $(obj_path)/$@.o $(ELIB)  $(MPI) $(LIBLOC) $(LKFLAGS2) -o $@
-lmfham1: $(obj_path)/lmfham1.o $(ELIB)  $(MPI) $(MLO) $(GWLIB)
+lmfham1: $(obj_path)/lmfham1.o $(MLOC) $(MPI) $(ELIB) $(GWLIB)
 	@echo $(LK) $@.o 'link with *.o'
-	@$(LK) $(LKFLAGS1) $(obj_path)/$@.o $(ELIB)  $(MPI) $(LIBLOC) $(LKFLAGS2) $(MLO) -o $@
+	@$(LK) $(LKFLAGS1) $< $(MLOC) $(MPI) $(ELIB) $(GWLIB) $(LIBLOC) $(LKFLAGS2) $(MLO) -o $@
 lmfham2: $(obj_path)/lmfham2.o $(MLOC)  $(MPI) $(ELIB) $(GWLIB)
 	@echo $(LK) $@.o 'link with *.o'
 	@$(LK) $(LKFLAGS1) $< $(MLOC) $(MPI) $(ELIB) $(GWLIB) $(LIBLOC) $(LKFLAGS2) -o $@
-#!mkhamloc: $(obj_path)/mkhamloc.o $(ELIB)  $(MPI) $(MLO)
-#	@echo $(LK) $@.o 'link with *.o'
-#	@$(LK) $(LKFLAGS1) $(obj_path)/$@.o $(ELIB)  $(MPI) $(LIBLOC) $(LKFLAGS2) $(MLO) -o $@
-plotmodel: $(obj_path)/plotmodel.o $(ELIB)  $(MPI) $(MLO)
-	@echo $(LK) $@.o 'link with *.o'
-	@$(LK) $(LKFLAGS1) $(obj_path)/$@.o $(ELIB)  $(MPI) $(LIBLOC) $(LKFLAGS2) $(MLO) -o $@
-initmlo: $(obj_path)/initmlo.o $(ELIB)  $(MPI) $(MLO)
-	@echo $(LK) $@.o 'link with *.o'
-	@$(LK) $(LKFLAGS1) $(obj_path)/$@.o $(ELIB)  $(MPI) $(LIBLOC) $(LKFLAGS2) $(MLO) -o $@
-mkinput: $(obj_path)/mkinput.o $(ELIB)  $(MPI) $(MLO)
-	@echo $(LK) $@.o 'link with *.o'
-	@$(LK) $(LKFLAGS1) $(obj_path)/$@.o $(ELIB)  $(MPI) $(LIBLOC) $(LKFLAGS2) $(MLO) -o $@
 lmf-MPIK: $(obj_path)/lmf-MPIK.o $(ELIB) $(MPI)
 	@echo $(LK) $@.o 'link with *.o'
 	@$(LK) $(LKFLAGS1) $(obj_path)/$@.o $(ELIB) $(MPI)  $(LIBLOC) $(LKFLAGS2) -o $@
