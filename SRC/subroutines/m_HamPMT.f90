@@ -209,7 +209,7 @@ contains
     allocate(ib_tableM(1:ndimMTO),k_tableM(1:ndimMTO),l_tableM(1:ndimMTO))
     read(ifihmto) ib_tableM(1:ndimMTO),k_tableM(1:ndimMTO),l_tableM(1:ndimMTO)
     close(ifihmto)
-    if(master_mpi) write(stdo,*)' OK: Read HamRsMTO file!'
+    if(master_mpi) write(stdo,*)'OK: Read HamRsMTO file!'
   end subroutine ReadHamRsMTO
 end module m_HamRsMTO
 subroutine Hreduction(iprx,facw,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, evl,hammout,ovlmout)!Reduce H(ndimPMT) to H(ndimMTO)

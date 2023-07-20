@@ -43,7 +43,7 @@ contains
     end do
     close(ifmloc)
     nline = iline-1
-    write(6,'("nline nclass mlwf=",3i5)') nline,nclass_mlwf
+    !write(6,'("nline nclass mlwf=",3i5)') nline,nclass_mlwf
     allocate(iclassin(nclass_mlwf),cbastemp(maxdat,nclass_mlwf), &
          nbasclass_mlwf(nclass_mlwf),classname_mlwf(nclass_mlwf))
     call getkeyvalue("GWinput","<Worb>",unit=ifmloc,status=ret)
@@ -70,7 +70,7 @@ contains
        ! rite(*,"(i5,a,i5)") iclassin(iline),trim(classname(iline)) ,nbasclass_mlwf(iline) (cbas_mlwf(i,iline),i=1,nbasclass_mlwf(iline))
 1001 enddo
     nbasclassMax = maxval(nbasclass_mlwf(1:nclass_mlwf))
-    print *,'nbasclass_mlwf=',nbasclass_mlwf,nbasclassMaX
+    !print *,'nbasclass_mlwf=',nbasclass_mlwf,nbasclassMaX
     allocate(cbas_mlwf(nbasclassMax,nclass_mlwf))
     cbas_mlwf = cbastemp(1:nbasclassMax,1:nclass_mlwf)
     deallocate(cbastemp)

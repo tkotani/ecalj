@@ -29,7 +29,7 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to 
   integer,parameter:: nlinex=100
   integer::nline,np(nlinex), iwf,ldim2,ixx,npin,ifuumat,job
   real(8),parameter:: pi = 4d0*datan(1d0)
-  real(8) :: tpia,vol,voltot,rs,alpha, rydberg,hartree,qlat(3,3),tripl,wbbsum,bb(3,12),eimax 
+  real(8) :: tpia,vol,voltot,rs,alpha, rydberg,hartree,qlat(3,3),tripl,wbbsum,bb(3,12),eimax ,wbbs
   real(8):: qi(3,nlinex),qf(3,nlinex), omgi,omgiold,conv1,alpha1,zesumold,zesi,emm,einnerL,einnerH,einnerLeV,einnerHeV,emin
   real(8)::qiin(3),qfin(3),qold(3),enwfmax,qxx(3),eeee,enwfmaxi, epsovl=1d-8,ginv(3,3),einner,ewid,fac2,ecenter,eee,etest,egap,fac1
   character(8) :: xt
@@ -94,17 +94,21 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to 
     enddo SETidmto
 !    nwf2=10;  deallocate(idmto);  allocate(idmto,source=[1,2,3,4,17, 26,27,28,29,42])
     write(stdo,ftox)' idmto=',idmto
-    call getkeyvalue("GWinput","mlo_maxit_1st",nsc1,default=50)
+    call getkeyvalue("GWinput","mlo_maxit_1st",nsc1,default=10)
     call getkeyvalue("GWinput","mlo_conv_1st",conv1,default=1d-4)
     call getkeyvalue("GWinput","mlo_mix_1st",alpha1,default=1d0)
-    call getkeyvalue("GWinput","mlo_in_ewid",ewid, default=.1d0) !eV
-    call getkeyvalue("GWinput","mlo_fac1",fac1,default=0.05d0)!size of energy minimization
-    call getkeyvalue("GWinput","mlo_fac2",fac2,default=10d0) !size of fixing inner window
-    call getkeyvalue("GWinput","mlo_einnerL", einnerLeV,default=-1d8)
-    call getkeyvalue("GWinput","mlo_einnerH", einnerHeV,default= 1d8)
-    write(stdo,ftox)' mlo_einner: einnerL einnerH relative to Ef (eV) =',ftof(einnerLeV),ftof(einnerHeV)
-    write(stdo,ftox)' mlo_maxit_1st conv1_1st mix_1st=',nsc1,ftof(conv1),ftof(alpha1)
-    write(stdo,ftox)' mlo_in_ewid fac1 fac2=',ftof(ewid),ftof(fac1),ftof(fac2)
+    call getkeyvalue("GWinput","mlo_Wlow"  ,fac1,default=0.05d0)     ! Weight to emphasize lower energy bands
+    call getkeyvalue("GWinput","mlo_Winner",fac2,default=10d0)        ! energy window weighting
+    call getkeyvalue("GWinput","mlo_ewid",ewid, default=.1d0)      ! energy window softing eV
+    call getkeyvalue("GWinput","mlo_einnerL", einnerLeV,default=-1d8) ! energy window lower eV
+    call getkeyvalue("GWinput","mlo_einnerH", einnerHeV,default= 1d8) ! energy window upper eV
+    write(stdo,ftox)' Reading: mlo_ einnerL einnerH relative to Ef (eV) =',ftof(einnerLeV),ftof(einnerHeV)
+    write(stdo,ftox)' Reading: mlo_ maxit_1st conv1_1st mix_1st=',nsc1,ftof(conv1),ftof(alpha1)
+    write(stdo,ftox)' Reading: mlo_ Wlow Winner ewid=',ftof(fac1),ftof(fac2),ftof(ewid)
+    write(stdo,ftox)' --- Our test show Wlow=0.05 and Winner=10 is good for Si666(spd model); Wlow=0.20 Winner=10 for Si888 ---'
+    write(stdo,ftox)'  Larger mlo_Wlow may give flatter bands at low energy (larger bandgap). Tested Range of Wlow 0.05 ~ 0.2'
+    write(stdo,ftox)'  Larger mlo_Winner may pushe down bands to lower energy(smaller bandgap). Tested Range of Winner 1 ~ 10'
+    write(stdo,ftox)'  So, (probably) Choose Wlow to fit band width, then Choose Winner to fit band gap.'
   endblock ReadInfoFromGWinput
   ewid= ewid/rydberg()
   bbvector: block !Get connecting vectors bb, bb connects k and k+bb, where both k and k+bb are on mesh points nqbz.
@@ -238,11 +242,21 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to 
               zmn0(1:ndz,1:ndz) = zmn0(1:ndz,1:ndz) + wbb(ibb)*upu(iko_i(iq):iko_f(iq),iko_i(iq):iko_f(iq),ibb,iq)
            enddo 
            zmn=zmn0
+           wbbs=sum(wbb(1:nbb))
            forall(i=iko_i(iq):iko_f(iq)) !penalty part to emphasize innner window
               zmn(i,i)=zmn0(i,i)&
-                   + fac1*sum(wbb(1:nbb))*(-evl(i,iq)) & !lower eigenvalue for higher energy
-                   + fac2*sum(wbb(1:nbb))* 1d0/(exp((evl(i,iq)-einnerH)/ewid)+1d0) * 1d0/(exp(-(evl(i,iq)-einnerL)/ewid)+1d0) !inner window enhancement
+                   + fac1*wbbs*(-evl(i,iq)) & !lower eigenvalue for higher energy
+                   + fac2*wbbs* 1d0/(exp((evl(i,iq)-einnerH)/ewid)+1d0) * 1d0/(exp(-(evl(i,iq)-einnerL)/ewid)+1d0) !inner window enhancement
            end forall
+           ! do i=iko_i(iq),iko_f(iq)
+           !    if(evl(i,iq)<einnerH.and.evl(i,iq)>einnerL) then
+           !       zmn(i,i)       = 9999d0
+           !       zmn(i,1:i-1   )= 0d0
+           !       zmn(i,i+1:ndz )= 0d0
+           !       zmn(1:i-1, i  )= 0d0
+           !       zmn(i+1:ndz,i )= 0d0
+           !    endif   
+           ! enddo
            call diag_hm(zmn,ndz,eval,evecc)
            ndzm=ndz-nwf2+1
            zesum(iq)=sum(eval(ndzm:ndz))
