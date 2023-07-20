@@ -1,4 +1,4 @@
-program lmfham1 ! Read HamiltonianPMT and generates MTO-only Hamiltonian
+program lmfham1 ! Read HamiltonianPMT and generates MTO-only Hamiltonian <MLO1|H|MLO1> and overlap <MLO1|MLO1>
   use m_HamPMT,only: ReadHamPMTInfo, HamPMTtoHamRsMTO, plat,npair,nlat,nqwgt,ldim,nkp,qplist,ib_table,alat
   !                                  HamPMTtoHamRsMTO do not change variables here. Only generate HamRsMTO file.
   use m_HamRsMTO,  only: hammr,ovlmr,ndimMTO, ReadHamRsMTO, npairmx,nspx,ib_tableM
@@ -31,11 +31,10 @@ program lmfham1 ! Read HamiltonianPMT and generates MTO-only Hamiltonian
   call m_lgunit_init() !set stdo,stdl
   call m_lmfinit_init('LMF')! Read ctrlp into module m_lmfinit.
   call ReadHamPMTInfo()   ! Read infomation for PMT Hamiltonian (lattice structures and index of basis).
-  call getkeyvalue("GWinput","mlo_facw",facw,default=.5d0) !size of fixing inner window
+  call getkeyvalue("GWinput","mlo_facw_lmfham1",facw,default=.5d0) !size of fixing inner window
   if(master_mpi) write(stdo,ftox)'mlo_facw=',ftof(facw)
   call HamPMTtoHamRsMTO(facw) ! HamRsMTO (real-space Hamiltonian hammr,ovlmr,ndimMTO) is generated,and written to a file HamRsMTO
   call ReadHamRsMTO()         ! Read real-space Hamiltonian hammr,ovlmr from HamRsMTO.
-  
   if(symlcase) then ! When symlcase=T, read qplist.dat (q points list, see bndfp.F). 
      call readqplistsy()
      if(master_mpi) open(newunit=ifsy1,file=trim(fband(1)))

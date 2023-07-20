@@ -241,7 +241,7 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to 
                    + fac1*wbbs*(-evl(i,iq)) & !lower eigenvalue for higher energy
                    + fac2*wbbs* 1d0/(exp((evl(i,iq)-einnerH)/ewid)+1d0) * 1d0/(exp(-(evl(i,iq)-einnerL)/ewid)+1d0) !inner window enhancement
            end forall
-           ! do i=iko_i(iq),iko_f(iq)
+           ! do i=iko_i(iq),iko_f(iq) !Hard inner window
            !    if(evl(i,iq)<einnerH.and.evl(i,iq)>einnerL) then
            !       zmn(i,i)       = 9999d0
            !       zmn(i,1:i-1   )= 0d0
