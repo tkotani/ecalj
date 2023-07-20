@@ -38,7 +38,7 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to 
   integer,allocatable:: ikbidx(:,:),iko_i(:),iko_f(:)
   real(8),allocatable:: omgik(:),zesum(:)
   real(8),allocatable:: xq(:),eval1(:,:),eval2(:,:),eval3(:,:),eval_w(:,:,:)
-  integer,allocatable:: m_indx(:),n_indx(:),l_indx(:),ibas_indx(:),ibasiwf(:),idmto(:)
+  integer,allocatable:: m_indx(:),n_indx(:),l_indx(:),ibas_indx(:),ibasiwf(:),idmto(:),idmto_(:)
   real(8),allocatable:: evl(:,:),ovl(:), bbv(:,:),wbz(:)
   complex(8),allocatable:: upu(:,:,:,:), zmn(:,:),zmn0(:,:)
   complex(8),parameter:: img=(0d0,1d0)
@@ -48,22 +48,12 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to 
   character(256):: fband
   logical:: cmdopt2
   character:: outs*20
-!  complex(8),allocatable:: hrotk(:,:,:),hrotr(:,:,:),hrotkp(:,:), hrotkps(:,:)
-!  real(8):: e1,e2,rcut
-!  integer(4):: iband,ifbnd,iftb,ifsh,nsh,nsh1,nsh2,iffb
-!  real(8),allocatable :: rws(:,:),drws(:)
-!  integer,allocatable:: irws(:)
-!  integer:: nrws,ifham
-!  character(20)::filename
-!  complex(8),allocatable::  hrotrcut(:,:,:),evecc_w(:,:,:,:)
-!  integer:: ifh
-!  real(8):: heps ,r_v
-!  character(20):: outs=''
-!  call m_ext_init()         ! Get sname, e.g. trim(sname)=si of ctrl.si
+  integer:: nwf1_,nqbz_,iko_ix_,iko_fx_,nwf2_
   call m_MPItk_init('lmfham2') ! mpi initialization
   job=-1
   if(cmdopt2('--job=',outs)) read(outs,*) job
   if(job/=0.and.job/=1) call rx0(' Set --job=0 or 1')
+  write(stdo,ftox)'=== Start lmfham2 --job=',job
   call mpibc1_int(job,1,'lmfham2_job')
   hartree=2d0*rydberg()
   call ReadHamPMTInfo()   ! Read infomation for Hamiltonian (lattice structures and index of basis).
@@ -92,25 +82,24 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to 
        endif       !write(stdo,"('MHAM: i ib(atom) l m k(EH,EH2,PZ)=',5i3)") i,ib_table(i),ibx
        ibold=ib_tableM(i)
     enddo SETidmto
-!    nwf2=10;  deallocate(idmto);  allocate(idmto,source=[1,2,3,4,17, 26,27,28,29,42])
     write(stdo,ftox)' idmto=',idmto
-    call getkeyvalue("GWinput","mlo_maxit_1st",nsc1,default=10)
-    call getkeyvalue("GWinput","mlo_conv_1st",conv1,default=1d-4)
-    call getkeyvalue("GWinput","mlo_mix_1st",alpha1,default=1d0)
-    call getkeyvalue("GWinput","mlo_Wlow"  ,fac1,default=0.05d0)     ! Weight to emphasize lower energy bands
-    call getkeyvalue("GWinput","mlo_Winner",fac2,default=10d0)        ! energy window weighting
-    call getkeyvalue("GWinput","mlo_ewid",ewid, default=.1d0)      ! energy window softing eV
-    call getkeyvalue("GWinput","mlo_einnerL", einnerLeV,default=-1d8) ! energy window lower eV
-    call getkeyvalue("GWinput","mlo_einnerH", einnerHeV,default= 1d8) ! energy window upper eV
-    write(stdo,ftox)' Reading: mlo_ einnerL einnerH relative to Ef (eV) =',ftof(einnerLeV),ftof(einnerHeV)
-    write(stdo,ftox)' Reading: mlo_ maxit_1st conv1_1st mix_1st=',nsc1,ftof(conv1),ftof(alpha1)
-    write(stdo,ftox)' Reading: mlo_ Wlow Winner ewid=',ftof(fac1),ftof(fac2),ftof(ewid)
+    call getkeyvalue("GWinput","mlo_maxit",nsc1,default=10)
+    call getkeyvalue("GWinput","mlo_conv",conv1,default=1d-4)
+    call getkeyvalue("GWinput","mlo_mix",alpha1,default=.5d0)
+    call getkeyvalue("GWinput","mlo_WTlow"  ,fac1,default=0.05d0)     ! WeighT to emphasize lower energy bands
+    call getkeyvalue("GWinput","mlo_WTinner",fac2,default=10d0)       ! inner energy window WeighTing
+    call getkeyvalue("GWinput","mlo_EWinner", ewid, default=.1d0)     ! inner energy window softing eV
+    call getkeyvalue("GWinput","mlo_ELinner", einnerLeV,default=-1d8) ! inner energy window lower eV relative to efermi (or VBM)
+    call getkeyvalue("GWinput","mlo_EUinner", einnerHeV,default= 1d8) ! inner energy window upper eV relative to efermi
+    write(stdo,ftox)' Reading: mlo_ ELinner EUinner EWinner relative to Ef (eV) =',ftof(einnerLeV),ftof(einnerHeV),ftof(ewid)
+    write(stdo,ftox)' Reading: mlo_ maxit conv mix=',nsc1,ftof(conv1),ftof(alpha1)
+    write(stdo,ftox)' Reading: mlo_ WTlow WTinner=',ftof(fac1),ftof(fac2)
     write(stdo,ftox)' --- Our test show Wlow=0.05 and Winner=10 is good for Si666(spd model); Wlow=0.20 Winner=10 for Si888 ---'
     write(stdo,ftox)'  Larger mlo_Wlow may give flatter bands at low energy (larger bandgap). Tested Range of Wlow 0.05 ~ 0.2'
     write(stdo,ftox)'  Larger mlo_Winner may pushe down bands to lower energy(smaller bandgap). Tested Range of Winner 1 ~ 10'
     write(stdo,ftox)'  So, (probably) Choose Wlow to fit band width, then Choose Winner to fit band gap.'
   endblock ReadInfoFromGWinput
-  ewid= ewid/rydberg()
+  ewid= ewid/rydberg() !in Ry.
   bbvector: block !Get connecting vectors bb, bb connects k and k+bb, where both k and k+bb are on mesh points nqbz.
     allocate(wbb(12))
     call getbb(plat,alat,n1,n2,n3, nbb,wbb,wbbsum,bb) ! b vectors (connecting vectors).
@@ -125,9 +114,8 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to 
   iko_ix=minval(iko_i)
   iko_fx=maxval(iko_f)
   nox = iko_fx - iko_ix + 1
-  if(job==1) goto 1011 !Souza's iteration 
-  
-  GetCNmat: block
+  if(job==1) goto 1011 !Goto Souza's iteration job=1 mode
+  GetCNmatFile: block  !job=0 mode to get CNmat file (connection matrix uumat and so on).
     real(8):: qp(3),evl(nwf1,nqbz),ovl(nwf1)
     complex(8):: emat(nwf1,nwf1),osq(1:nwf1,1:nwf1),o2al(1:nwf1,1:nwf1,nqbz),phase,ovlmm(nwf1,nwf2),&
          evec(nwf1,nwf1,nqbz),evecx(1:nwf1,1:nwf1), ovec(nwf1,nwf1),amnk(iko_ix:iko_fx,nwf2,nqbz),&
@@ -146,9 +134,9 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to 
              do j=1,nwf1
                 ib1 = ib_tableM(i) !atomic-site index in the primitive cell
                 ib2 = ib_tableM(j)
-                do it =1,npair(ib1,ib2)
+                do it =1,npair(ib1,ib2) !real-space to H,O at qp
                    phase= 1d0/nqwgt(it,ib1,ib2)*exp(-img*2d0*pi* sum(qp*matmul(plat,nlat(:,it,ib1,ib2))))
-                   hamm(i,j)= hamm(i,j)+ hmmr1(i,j,it,is)*phase
+                   hamm(i,j)= hamm(i,j)+ hmmr1(i,j,it,is)*phase 
                    ovlm(i,j)= ovlm(i,j)+ ommr1(i,j,it,is)*phase
                 enddo
              enddo
@@ -173,24 +161,29 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to 
              enddo
           enddo
        enddo
+       write(ifuumat) nwf1,nqbz,iko_ix,iko_fx,nwf2,idmto
        write(ifuumat) evl   !eigenvalue
        write(ifuumat) uumat !connection matrix
        write(ifuumat) amnk  !initial projection
 1010 enddo uuispinloop
     close(ifuumat)
     if(job==0) call rx0('OK! end of lmhfam2 job=0 for generating CNmat')
-  endblock GetCNmat
+  endblock GetCNmatFile
 
-1011 continue
+1011 continue !=== job==1 mode start ========================================
   open(newunit=ifuumat,file='CNmat',form='unformatted')
   allocate(hmmr2(nwf2,nwf2,npairmx,nspin),ommr2(nwf2,nwf2,npairmx,nspin),source=(0d0,0d0))
+  allocate(ovlm(1:nwf1,1:nwf1),ovlmx(1:nwf1,1:nwf1),hamm(1:nwf1,1:nwf1))
+  allocate(evl(nwf1,nqbz), ovec(nwf1,nwf1),ovl(nwf1))
+  allocate(amnk(iko_ix:iko_fx,nwf2,nqbz),idmto_(nwf2))
+  allocate(wbz(nqbz),source=1d0/nqbz)
+  allocate (uumat(iko_ix:iko_fx,iko_ix:iko_fx,nbb,nqbz))
   ispinloop: do 1000 is = 1,nspin
      write(stdo,ftox)'ispinloop: is =',is,'  out of',nspin
-     allocate(ovlm(1:nwf1,1:nwf1),ovlmx(1:nwf1,1:nwf1),hamm(1:nwf1,1:nwf1))
-     allocate(evl(nwf1,nqbz), ovec(nwf1,nwf1),ovl(nwf1))
-     allocate(amnk(iko_ix:iko_fx,nwf2,nqbz))
-     allocate(wbz(nqbz),source=1d0/nqbz)
-     allocate (uumat(iko_ix:iko_fx,iko_ix:iko_fx,nbb,nqbz))
+     read(ifuumat) nwf1_,nqbz_,iko_ix_,iko_fx_,nwf2_,idmto_
+     if(nwf2/=nwf2.or.sum(abs(idmto-idmto_))/=0) call rx0('lmfham2: idmto error: Repeat --job=1 with the same <Worb> in GWinput!')
+!     if( sum(abs([nwf1_-nwf1, nqbz_-nqbz, iko_ix_-iko_ix, iko_fx_-iko_fx, nwf2_-nwf2]))/=0) &
+!          call rx0('Repeat --job=1 with the same setting <Worb>.')
      read(ifuumat) evl
      read(ifuumat) uumat
      read(ifuumat) amnk
