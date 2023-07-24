@@ -321,7 +321,7 @@ subroutine  getbb(plat,alat,n1,n2,n3, &
         do i = 1,4
            bb(1:3,i+4) = -bb(1:3,i)
         enddo
-        wbb(:) = 3d0 / (nbb*dq1*dq1) * n1*n1
+        wbb(:) = 3d0 / (nbb*dq1*dq1) * n1*n1 !3/(Z*|b|*|b|) See Marzari (B1) around
 
         goto 900
      endif
