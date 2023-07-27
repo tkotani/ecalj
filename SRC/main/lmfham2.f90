@@ -1,4 +1,4 @@
-program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to (hmmr2,ommr2,nwf2).
+program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nband) to (hmmr2,ommr2,nMLO).
   ! In advance, run lmfham1 to get MLO1 (MLO1 are given by a mapping from MTOs to PMT space.
   ! That is, |MLO1_i> = M |MTO_i>, where M is a mapping from MTO to the space of PMT.
   !  
@@ -20,12 +20,12 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to 
   use m_HamPMT,only: ReadHamPMTInfo, nspin=>nsp, natom=>nbas,plat,alat,npair,nlat,nqwgt, ldim, nkp,qbz=>qplist,&
        n1=>nkk1,n2=>nkk2,n3=>nkk3,pos,npairmx,nspx !,ib_table,l_table,k_table
   use m_read_Worb,only:s_read_Worb,nclass_mlwf,cbas_mlwf,norb=>nbasclass_mlwf,classname_mlwf ! iclassin,iphi,iphidot,nphi,nphix
-  use m_HamRsMTO,only: ReadHamRsMTO,hmmr1=>hammr,ommr1=>ovlmr,nwf1=>ndimMTO,ib_tableM,l_tableM,k_tableM !Real-space Hamiltonian on the basis |MLO1>.
-  !      Main output of lmfham2 is  hmmr2,       ommr2,       nwf2,         ib_tableM(idmto(1:nwf)),... for |MLO2>
+  use m_HamRsMTO,only: ReadHamRsMTO,hmmr1=>hammr,ommr1=>ovlmr,nband=>ndimMTO,ib_tableM,l_tableM,k_tableM !Real-space Hamiltonian on the basis |MLO1>.
+  !      Main output of lmfham2 is  hmmr2,       ommr2,       nMLO,         ib_tableM(idmto(1:nwf)),... for |MLO2>
   implicit none
   integer:: i,iq,is,ix,j,ifbb,ifoc,nbb,isc,ifq0p, nox,iko_ix,iko_fx,nsc1,ndz,nin,nout,nsc2,ibb
-  integer:: inii,if102,iwf2,ib,itmp,itmp2,nqbz2,nspin2,ib1,ib2,iqb,iqbz,it,jsp,nmx,nev,isyml,nband,nqbz!,n1,n2,n3
-  integer:: nwf2,ikx,ikxx,iadd,ndzm,i1q,i2q,i1,i2,imp,inp,inx,imx,ibas,ibold,ibx,iorb
+  integer:: inii,if102,iwf2,ib,itmp,itmp2,nqbz2,nspin2,ib1,ib2,iqb,iqbz,it,jsp,nmx,nev,isyml,nqbz!,n1,n2,n3
+  integer:: nMLO,ikx,ikxx,iadd,ndzm,i1q,i2q,i1,i2,imp,inp,inx,imx,ibas,ibold,ibx,iorb
   integer,parameter:: nlinex=100
   integer::nline,np(nlinex), iwf,ldim2,ixx,npin,ifuumat,job
   real(8),parameter:: pi = 4d0*datan(1d0)
@@ -46,9 +46,11 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to 
   complex(8),allocatable:: uumat(:,:,:,:),evecc(:,:), amnk(:,:,:),cnk(:,:,:),umnk(:,:,:),evecc1(:,:,:),evecc2(:,:,:)
   complex(8),allocatable:: hmmr2(:,:,:,:),ommr2(:,:,:,:),wmat(:,:),wmat2(:,:)
   character(256):: fband
-  logical:: cmdopt2
+  logical:: cmdopt2,noinner
+  real(8):: seedwt,eoffset
   character:: outs*20
-  integer:: nwf1_,nqbz_,iko_ix_,iko_fx_,nwf2_
+  character(256):: aaa='',bbb=''
+  integer:: nband_,nqbz_,iko_ix_,iko_fx_,nMLO_
   call m_MPItk_init('lmfham2') ! mpi initialization
   job=-1
   if(cmdopt2('--job=',outs)) read(outs,*) job
@@ -67,12 +69,12 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to 
   call readqplistsy()
   ReadInfoFromGWinput: block
     call s_read_Worb() ! Input orbital index for MLO, stored into idmto
-    nwf2=sum(norb(1:nclass_mlwf)) !number of MLO2
-    allocate(idmto(nwf2)) 
+    nMLO=sum(norb(1:nclass_mlwf)) !number of MLO2
+    allocate(idmto(nMLO)) 
     ibx=0
     ibold=-999
     iorb=0
-    SETidmto:do i = 1,nwf1 !for example, allocate(idmto,source=[(i,i=1,9),(i+25,i=1,9)]) for Si
+    SETidmto:do i = 1,nband !for example, allocate(idmto,source=[(i,i=1,9),(i+25,i=1,9)]) for Si
        if(ibold/=ib_tableM(i)) ibx=0
        ibas=ib_tableM(i)
        ibx=ibx+1
@@ -86,18 +88,28 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to 
     call getkeyvalue("GWinput","mlo_maxit",nsc1,default=10)
     call getkeyvalue("GWinput","mlo_conv",conv1,default=1d-4)
     call getkeyvalue("GWinput","mlo_mix",alpha1,default=.5d0) 
-    call getkeyvalue("GWinput","mlo_WTlow"  ,fac1,default=2d0)        ! WeighT to emphasize lower energy bands
-    call getkeyvalue("GWinput","mlo_WTinner",fac2,default=400d0)      ! inner energy window WeighTing
+    call getkeyvalue("GWinput","mlo_WTlow"  ,fac1,default=4d0)        ! WeighT to emphasize lower energy bands
+    
+    call getkeyvalue("GWinput","mlo_WTinner", fac2,default=800d0)     ! inner energy window WeighTing
     call getkeyvalue("GWinput","mlo_EWinner", ewid, default=.1d0)     ! inner energy window softing eV
     call getkeyvalue("GWinput","mlo_ELinner", einnerLeV,default=-1d8) ! inner energy window lower eV relative to efermi (or VBM)
     call getkeyvalue("GWinput","mlo_EUinner", einnerHeV,default= 1d8) ! inner energy window upper eV relative to efermi
-    write(stdo,ftox)' Reading: mlo_ ELinner EUinner EWinner relative to Ef (eV) =',ftof(einnerLeV),ftof(einnerHeV),ftof(ewid)
-    write(stdo,ftox)' Reading: mlo_ maxit conv mix=',nsc1,ftof(conv1),ftof(alpha1)
-    write(stdo,ftox)' Reading: mlo_ WTlow WTinner=',ftof(fac1),ftof(fac2)
-    write(stdo,ftox)' --- Our test show WTlow,WTinner=2,400 is good for Si666(spd model); =10,100 is for Si888 ---'
-    write(stdo,ftox)'  Rule of thumb: WTlow affects to band width, WTinner affects to band position.'
-    write(stdo,ftox)'    Larger mlo_WTlow may give flatter bands at low energy (larger bandgap).   Range of WTlow   1~20'
-    write(stdo,ftox)'    Larger mlo_WTinner may push down bands to lower energy(smaller bandgap). Range of WTinner 100~500'
+
+    call getkeyvalue("GWinput","mlo_eoffset",eoffset,default=0d0)   !bandgap+3eV is default Einner
+    call getkeyvalue("GWinput",'mlo_WTseed',seedwt,default=10d0)   !SeedWT
+    if(master_mpi) then
+       write(stdo,ftox)' Reading: mlo_ maxit conv mix=',nsc1,ftof(conv1),ftof(alpha1)
+       write(stdo,ftox)' Reading: mlo_ WTlow=',ftof(fac1)
+       write(stdo,ftox)' Reading: mlo_ ELinner EWinner relative to Ef (eV) WTinner=',ftof(einnerLeV),&
+            ftof(ewid),ftof(fac2)
+!       if(einnerHeV>1d7) write(stdo,ftox) 'Reading: mlo_EUinner= bandgap +',eoffset
+       if(einnerHeV<1d7) write(stdo,ftox) 'Reading: mlo_EUinner realative to Ef (eV)=',einnerHeV
+       write(stdo,ftox)' Reading: mlo_WTseed=',seedwt
+       write(stdo,ftox)' --- Our test show WTlow,WTinner=2,400 is good for Si666(spd model); =10,100 is for Si888 ---'
+       write(stdo,ftox)'  Rule of thumb: WTlow affects to band width, WTinner affects to band position.'
+       write(stdo,ftox)'    Larger mlo_WTlow may give flatter bands at low energy (larger bandgap).   Range of WTlow   1~20'
+       write(stdo,ftox)'    Larger mlo_WTinner may push down bands to lower energy(smaller bandgap). Range of WTinner 100~500'
+    endif
   endblock ReadInfoFromGWinput
   ewid= ewid/rydberg() !in Ry.
   bbvector: block !Get connecting vectors bb, bb connects k and k+bb, where both k and k+bb are on mesh points nqbz.
@@ -110,29 +122,28 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to 
     write(stdo,ftox)'nbb wbb(in unit of 2pi/alat)=',nbb,ftof(wbb(1:nbb))
     allocate(bbv,source=bb)
   endblock bbvector
-  nband= nwf1     
-  iko_i=1; iko_f=nwf1 ! outer window nwf1 is the number of MLO
+  iko_i=1; iko_f=nband ! outer window nband is the number of MLO
   iko_ix=minval(iko_i)
   iko_fx=maxval(iko_f)
   nox = iko_fx - iko_ix + 1
   if(job==1) goto 1011 !Goto Souza's iteration job=1 mode
   GetCNmatFile: block  !job=0 mode to get CNmat file (connection matrix uumat and so on).
-    real(8):: qp(3),evl(nwf1,nqbz),ovl(nwf1)
-    complex(8):: emat(nwf1,nwf1),osq(1:nwf1,1:nwf1),o2al(1:nwf1,1:nwf1,nqbz),phase,ovlmm(nwf1,nwf2),&
-         evec(nwf1,nwf1,nqbz),evecx(1:nwf1,1:nwf1), ovec(nwf1,nwf1),amnk(iko_ix:iko_fx,nwf2,nqbz),&
-         ovlm(1:nwf1,1:nwf1),ovlmx(1:nwf1,1:nwf1), hamm(1:nwf1,1:nwf1),uumat(iko_ix:iko_fx,iko_ix:iko_fx,nbb,nqbz)
-    write(stdo,ftox)'Going to get CNmat ... : nwf1 for |MLO1>=',nwf1,'iko_i iko_f=',iko_ix,iko_fx
+    real(8):: qp(3),evl(nband,nqbz),ovl(nband)
+    complex(8):: emat(nband,nband),osq(1:nband,1:nband),o2al(1:nband,1:nband,nqbz),phase,ovlmm(nband,nMLO),&
+         evec(nband,nband,nqbz),evecx(1:nband,1:nband), ovec(nband,nband),amnk(iko_ix:iko_fx,nMLO,nqbz),&
+         ovlm(1:nband,1:nband),ovlmx(1:nband,1:nband), hamm(1:nband,1:nband),uumat(iko_ix:iko_fx,iko_ix:iko_fx,nbb,nqbz)
+    write(stdo,ftox)'Going to get CNmat ... : nband for |MLO1>=',nband,'iko_i iko_f=',iko_ix,iko_fx
     open(newunit=ifuumat,file='CNmat',form='unformatted')
     uuispinloop: do 1010 is = 1,nspin
        write(stdo,ftox)'Generating connection matrix ispinloop: is =',is,'  out of',nspin
        emat=0d0
-       forall(i=1:nwf1) emat(i,i)=1d0
+       forall(i=1:nband) emat(i,i)=1d0
        do iqbz=1,nqbz
           qp=qbz(:,iqbz)
           ovlm = 0d0
           hamm = 0d0
-          do i=1,nwf1
-             do j=1,nwf1
+          do i=1,nband !this is for MLO0 Hamiltonian. PMT is already reduced to be MLO0-only Hamiltonian, hamm and ovlm below.
+             do j=1,nband
                 ib1 = ib_tableM(i) !atomic-site index in the primitive cell
                 ib2 = ib_tableM(j)
                 do it =1,npair(ib1,ib2) !real-space to H,O at qp
@@ -142,27 +153,27 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to 
                 enddo
              enddo
           enddo
-          nmx=nwf1
+          nmx=nband
           ovlmx=ovlm
-          call zhev_tk4(nwf1,ovlm,emat,nmx,nev, ovl, ovec, epsovl) !Diangonale overlap matrix. (ovlm - e ) ovec=0
+          call zhev_tk4(nband,ovlm,emat,nmx,nev, ovl, ovec, epsovl) !Diangonale overlap matrix. (ovlm - e ) ovec=0
           ovlm=ovlmx
-          call zhev_tk4(nwf1,hamm,ovlm,nmx,nev, evl(:,iqbz), evec(:,:,iqbz), epsovl) !Diangonale (hamm- evl ovlm) z=0
-          do concurrent (i=1:nwf1,j=1:nwf1)
+          call zhev_tk4(nband,hamm,ovlm,nmx,nev, evl(:,iqbz), evec(:,:,iqbz), epsovl) !Diangonale (hamm- evl ovlm) z=0
+          do concurrent (i=1:nband,j=1:nband)
              osq(i,j)=sum(ovec(i,:)*ovl(:)**0.5d0*dconjg(ovec(j,:))) !O^(1/2)
           enddo
           o2al(:,:,iqbz) = matmul(osq, evec(:,:,iqbz)) !o2al(basis index, band index, iqbz index) O^(1/2)*evec
-          forall(i=1:nwf1) ovlmm(i,:) = ovlmx(i,idmto(:))
-          amnk(:,:,iqbz)= matmul(transpose(dconjg(evec(1:nwf1,iko_ix:iko_fx,iqbz))),ovlmm) !amnk= <psi|MTO> minimum basis MTO =9+9
+          forall(i=1:nband) ovlmm(i,:) = ovlmx(i,idmto(:))
+          amnk(:,:,iqbz)= matmul(transpose(dconjg(evec(1:nband,iko_ix:iko_fx,iqbz))),ovlmm) !amnk= <psi|MTO> minimum basis MTO =9+9
        enddo
        do iqbz=1,nqbz
           do ibb=1,nbb
              iqb = ikbidx(ibb,iqbz)             !q1(:) = qbz(:,iqbz)             !q2(:) = q1(:) + bbv(:,ibb)
              do concurrent(ib1=iko_ix:iko_fx, ib2=iko_ix:iko_fx) !ib1,ib2 band index of outer-inner window
-                uumat(ib1,ib2,ibb,iqbz)= sum(dconjg(o2al(1:nwf1,ib1,iqbz))*o2al(1:nwf1,ib2,iqb)) ! define connection <q ib1| q+b ib2>
+                uumat(ib1,ib2,ibb,iqbz)= sum(dconjg(o2al(1:nband,ib1,iqbz))*o2al(1:nband,ib2,iqb)) ! define connection <q ib1| q+b ib2>
              enddo
           enddo
        enddo
-       write(ifuumat) nwf1,nqbz,iko_ix,iko_fx,nwf2,idmto
+       write(ifuumat) nband,nqbz,iko_ix,iko_fx,nMLO,idmto
        write(ifuumat) evl   !eigenvalue
        write(ifuumat) uumat !connection matrix
        write(ifuumat) amnk  !initial projection
@@ -173,37 +184,42 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to 
 
 1011 continue !=== job==1 mode start ========================================
   open(newunit=ifuumat,file='CNmat',form='unformatted')
-  allocate(hmmr2(nwf2,nwf2,npairmx,nspin),ommr2(nwf2,nwf2,npairmx,nspin),source=(0d0,0d0))
-  allocate(ovlm(1:nwf1,1:nwf1),ovlmx(1:nwf1,1:nwf1),hamm(1:nwf1,1:nwf1))
-  allocate(evl(nwf1,nqbz), ovec(nwf1,nwf1),ovl(nwf1))
-  allocate(amnk(iko_ix:iko_fx,nwf2,nqbz),idmto_(nwf2))
+  allocate(hmmr2(nMLO,nMLO,npairmx,nspin),ommr2(nMLO,nMLO,npairmx,nspin),source=(0d0,0d0))
+  allocate(ovlm(1:nband,1:nband),ovlmx(1:nband,1:nband),hamm(1:nband,1:nband))
+  allocate(evl(nband,nqbz), ovec(nband,nband),ovl(nband))
+  allocate(amnk(iko_ix:iko_fx,nMLO,nqbz),idmto_(nMLO))
   allocate(wbz(nqbz),source=1d0/nqbz)
   allocate (uumat(iko_ix:iko_fx,iko_ix:iko_fx,nbb,nqbz))
   ispinloop: do 1000 is = 1,nspin
      write(stdo,ftox)'ispinloop: is =',is,'  out of',nspin
-     read(ifuumat) nwf1_,nqbz_,iko_ix_,iko_fx_,nwf2_,idmto_
-     if(nwf2/=nwf2.or.sum(abs(idmto-idmto_))/=0) call rx0('lmfham2: idmto error: Repeat --job=1 with the same <Worb> in GWinput!')
-!     if( sum(abs([nwf1_-nwf1, nqbz_-nqbz, iko_ix_-iko_ix, iko_fx_-iko_fx, nwf2_-nwf2]))/=0) &
+     read(ifuumat) nband_,nqbz_,iko_ix_,iko_fx_,nMLO_,idmto_
+     if(nMLO/=nMLO.or.sum(abs(idmto-idmto_))/=0) call rx0('lmfham2: idmto error: Repeat --job=1 with the same <Worb> in GWinput!')
+!     if( sum(abs([nband_-nband, nqbz_-nqbz, iko_ix_-iko_ix, iko_fx_-iko_fx, nMLO_-nMLO]))/=0) &
 !          call rx0('Repeat --job=1 with the same setting <Worb>.')
      read(ifuumat) evl
      read(ifuumat) uumat
      read(ifuumat) amnk
+     
      emm=9999d0
      emin=9999d0
-     do iqbz=1,nqbz ! Default einnerH is at lowest of nwf2/2 th band.
-        emm = min(evl(nwf2/2,iqbz),emm) !>eferm+1d-2,dim=1,value=.true.),iqbz) !evl(cvm+1)
-        emin= min(emin,evl(1,iqbz))
+     do iqbz=1,nqbz ! Default einnerH is at eferm+5eV !lowest of nMLO/2 th band.
+!        emm = min(emm,minval(evl(:,iqbz),mask=evl(:,iqbz)>eferm+0.01d0)) 
+       emm = min(evl(nMLO/2,iqbz),emm) !>eferm+1d-2,dim=1,value=.true.),iqbz) !evl(cvm+1)
      enddo
-     if(einnerHeV> 1d7) einnerHeV= (emm-eferm)*rydberg()       !default emax is around at center of bands.
+     write(stdo,ftox)'bandgap(on mesh point) eV=',(emm-eferm)*rydberg()
+     if(einnerHeV> 1d7) einnerHeV= (emm-eferm)*rydberg()+eoffset  !emm is bandgap
+     
      einnerH= einnerHeV/rydberg()+eferm
      einnerL= einnerLeV/rydberg()+eferm
-     if(master_mpi) write(*,*)'Step1loop: Choose Hilbert space by cnk(iko_ix:iko_fx,1:nwf2,1:nqbz)=',iko_ix,iko_fx,nwf2,nqbz
-     if(master_mpi) write(stdo,ftox)'einnerH from VBM=',ftof((einnerH-eferm)*rydberg()),' eV'
-     if(master_mpi) write(stdo,ftox)'einnerL from VBM=',ftof((einnerL-eferm)*rydberg()),' eV'
-     allocate ( upu(iko_ix:iko_fx,iko_ix:iko_fx,nbb,nqbz), cnk(iko_ix:iko_fx,nwf2,nqbz), omgik(nqbz),evals(nqbz),zesum(nqbz)) !cnk2(iko_ix:iko_fx,nwf2,nqbz)
+     if(master_mpi) then
+        write(*,*)'Step1loop: Choose Hilbert space by cnk(iko_ix:iko_fx,1:nMLO,1:nqbz)=',iko_ix,iko_fx,nMLO,nqbz
+        write(stdo,ftox)'einnerH from VBM=',ftof((einnerH-eferm)*rydberg()),' eV'
+        write(stdo,ftox)'einnerL from VBM=',ftof((einnerL-eferm)*rydberg()),' eV'
+     endif   
+     allocate ( upu(iko_ix:iko_fx,iko_ix:iko_fx,nbb,nqbz), cnk(iko_ix:iko_fx,nMLO,nqbz), omgik(nqbz),evals(nqbz),zesum(nqbz)) !cnk2(iko_ix:iko_fx,nMLO,nqbz)
      allocate( fac1q(nqbz),fac2q(nqbz))
      cnk  = 0d0
-     call amnk2unk(amnk,iko_ix,iko_fx,iko_i,iko_f, nwf2,nqbz,  cnk)! amnk was in Eq.22 in Ref.II. <psi|Gaussian>. Now amnk=< psi(it,iqbz) | MTO(nwf2) >
+     call amnk2unk(amnk,iko_ix,iko_fx,iko_i,iko_f, nMLO,nqbz,  cnk)! amnk was in Eq.22 in Ref.II. <psi|Gaussian>. Now amnk=< psi(it,iqbz) | MTO(nMLO) >
      zesumold=1d10
      alpha = 1d0
      upu   = 0d0
@@ -221,7 +237,7 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to 
               i1= iko_i(iqb)
               i2= iko_f(iqb)
               do concurrent(inp=i1:i2, imp=i1:i2) !wmat = cnk * cnk^{*} is projector to 'wannier space'.
-                 wmat(inp,imp)= sum(dconjg(cnk(inp,1:nwf2,iqb))*cnk(imp,1:nwf2,iqb)) !BUG-> range of sum was nin+1,nwf2 before 2023-6-8(miyake)
+                 wmat(inp,imp)= sum(dconjg(cnk(inp,1:nMLO,iqb))*cnk(imp,1:nMLO,iqb)) !BUG-> range of sum was nin+1,nMLO before 2023-6-8(miyake)
               enddo
               do concurrent(inx=i1q:i2q, imp=i1:i2)
                  wmat2(imp,inx)= sum( wmat(i1:i2,imp)*dconjg(uumat(inx,i1:i2,ibb,iq)) ) !wmat*uumat
@@ -234,25 +250,31 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to 
            allocate (zmn0(ndz,ndz),source=(0d0,0d0)) ! (1-3) Zmn(k) > phi,eval
            allocate (zmn(ndz,ndz), evecc(ndz,ndz),eval(ndz),fac1ii(ndz),fac2ii(ndz))
            do ibb = 1,nbb
-              zmn0(1:ndz,1:ndz) = zmn0(1:ndz,1:ndz) + wbb(ibb)*upu(iko_i(iq):iko_f(iq),iko_i(iq):iko_f(iq),ibb,iq)
-           enddo 
+              zmn0(1:ndz,1:ndz) = zmn0(1:ndz,1:ndz) - 2d0*wbb(ibb)*upu(iko_i(iq):iko_f(iq),iko_i(iq):iko_f(iq),ibb,iq)
+           enddo
+! Omega= 1/2 \sum_b,k Tr {|\nabla Pk Pk+b|^2} + fac1* Tr{ Pk H} - fac2*Tr{Pk Window}
            zmn=zmn0
-           forall(i=iko_i(iq):iko_f(iq)) fac1ii(i)=fac1*(-evl(i,iq))  !lower eigenvalue for higher energy
-           forall(i=iko_i(iq):iko_f(iq)) fac2ii(i)=fac2/(exp((evl(i,iq)-einnerH)/ewid)+1d0)/(exp(-(evl(i,iq)-einnerL)/ewid)+1d0) !inner window enhancement 
-           forall(i=iko_i(iq):iko_f(iq)) zmn(i,i)=zmn0(i,i) + fac1ii(i)+fac2ii(i) !Add penalty part to emphasize lower/innner window
+           forall(i=iko_i(iq):iko_f(iq)) fac1ii(i)= fac1*(evl(i,iq))  !lower eigenvalue for higher energy
+           forall(i=iko_i(iq):iko_f(iq)) zmn(i,i)=zmn0(i,i) + fac1ii(i)!Add penalty part to emphasize lower/innner window
+           
+           zmn = zmn - seedwt*matmul(amnk(iko_i(iq):iko_f(iq),1:nMLO,iq),dconjg(transpose(amnk(iko_i(iq):iko_f(iq),1:nMLO,iq)))) !projection to Seeds
+           forall(i=iko_i(iq):iko_f(iq)) fac2ii(i)=-fac2/(exp((evl(i,iq)-einnerH)/ewid)+1d0)/(exp(-(evl(i,iq)-einnerL)/ewid)+1d0) !inner window enhancement 
+           forall(i=iko_i(iq):iko_f(iq)) zmn(i,i)=zmn(i,i) + fac2ii(i)!Add penalty part to emphasize lower/innner window
+!
+!           +fac2ii(i) 
            ! do i=iko_i(iq),iko_f(iq) !Hard inner window
-           !    if(evl(i,iq)<einnerH.and.evl(i,iq)>einnerL) then
+           !    if(evl(i,iq)<einnerH.and.evl(i,iq)>einnerL) then 
            !       zmn(i,i)       = 9999d0; zmn(i,1:i-1   )= 0d0;  zmn(i,i+1:ndz )= 0d0; zmn(1:i-1, i  )= 0d0; zmn(i+1:ndz,i )= 0d0
            !    endif   
            ! enddo
            call diag_hm(zmn,ndz,eval,evecc)
            ! eval(i)/wbbs is normalized. If all eval(i)/wbbs=1, P_k=P_{k+b}.
-           ndzm=ndz-nwf2+1
-           forall(iwf = 1:nwf2) cnk(iko_i(iq):iko_f(iq),iwf,iq) = evecc(1:ndz,ndz+1-iwf)
-           evals(iq)= sum(eval(ndzm:ndz))
-           omgik(iq)= sum([(sum(dconjg(evecc(1:ndz,i))*matmul(zmn0,evecc(1:ndz,i))),i=ndzm,ndz)])  !1st part !wbbs normalization 
-           fac1q(iq)= sum([(sum(dconjg(evecc(1:ndz,i))*fac1ii(1:ndz)*evecc(1:ndz,i)),i=ndzm,ndz)]) !2nd energy term
-           fac2q(iq)= sum([(sum(dconjg(evecc(1:ndz,i))*fac2ii(1:ndz)*evecc(1:ndz,i)),i=ndzm,ndz)]) !
+!           ndzm=ndz-nMLO+1
+           forall(iwf = 1:nMLO) cnk(iko_i(iq):iko_f(iq),iwf,iq) = evecc(1:ndz,iwf) !ndz+1-iwf)
+           evals(iq)= sum(eval(1:nMLO)) !ndzm:ndz))
+           omgik(iq)= sum([(sum(dconjg(evecc(1:ndz,i))*matmul(zmn0,evecc(1:ndz,i))),i=1,nMLO)])  !ndzm,ndz!1st part !wbbs normalization 
+           fac1q(iq)= sum([(sum(dconjg(evecc(1:ndz,i))*fac1ii(1:ndz)*evecc(1:ndz,i)),i=1,nMLO)]) !2nd energy term
+           fac2q(iq)= sum([(sum(dconjg(evecc(1:ndz,i))*fac2ii(1:ndz)*evecc(1:ndz,i)),i=1,nMLO)]) !
            !write(stdo,ftox)'iq=',iq,'eval=',ftof(eval)
            deallocate (zmn,evecc,eval,zmn0,fac1ii,fac2ii)
         enddo iqloop
@@ -261,11 +283,13 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to 
         fac2qsum=sum(fac2q(:)*wbz(:))
         evalss= sum(evals(:)*wbz(:))   
         ! \sum eval = \sum zmn0 term + fac1q + fac2q
-        !    write(stdo,ftox)'#SC-loop, Omega_a Zsum=',isc,ftof(omgi),'=',ftof(zesi-evalss+fac1qsum+fac2qsum) 
-        write(stdo,ftox)'#SC-loop: EvSum=',isc,ftof(evalss/nwf2/tpia**2),&
-             'OmegaI_per_band=',ftof(wbbs*(1d0-omgi/wbbs/nwf2)/tpia**2),'MeanOverlap=',ftof(omgi/nwf2/wbbs),&
-             'Emean(eV)=',ftof((-fac1qsum/fac1/nwf2-eferm)*rydberg()),'Pinner=',ftof(fac2qsum/fac2/nwf2)
-        !NOTE: nwf2 \sim omgi=\sum_b wb \sum_{m=1}^N \sum_{n=1}^N |Mmn^{k,b}|^2 (See Eq.7 in Souza paper).
+        !    write(stdo,ftox)'#SC-loop, OmegaI_a Zsum=',isc,ftof(omgi),'=',ftof(zesi-evalss+fac1qsum+fac2qsum)
+        if(fac2/=0d0) aaa='Pinner='//trim(ftof(-fac2qsum/fac2/nMLO))
+        if(fac1/=0d0) bbb='Emean(eV)='//trim(ftof((fac1qsum/fac1/nMLO-eferm)*rydberg()))
+        write(stdo,ftox)'#SC-loop:isc=',isc,'Omega/nMLO=',ftof( (wbbs+omgi/2d0/nMLO)/tpia**2 + fac1qsum/nMLO + fac2qsum/nMLO ), &
+             'Nabla2/nMLO(a.u.**2)=',ftof((wbbs+omgi/2d0/nMLO)/tpia**2 ),&
+             'MeanOverlap=',ftof(-omgi/2d0/nMLO/wbbs),trim(bbb),trim(aaa) !Omega corresponds to Omega_I in Eq.34 Mazari.
+        !NOTE: nMLO \sim omgi=\sum_b wb \sum_{m=1}^N \sum_{n=1}^N |Mmn^{k,b}|^2 (See Eq.7 in Souza paper).
         !      But Mnm here is only for coefficienets parts of eigenfunctions.
         if(isc>=2 .and. dabs(evalssold-evalss)<conv1) then   ! (1-6) check self-consistency
            write(*,*) 'step1: converged!'
@@ -275,24 +299,24 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to 
         if(isc==nsc1) write(*,*)'step1: not converged'
      enddo SouzaStep1loop
      deallocate(upu) 
-     !! NOTE: cnk(iko_ix:iko_fx,nwf2,nqbz) is the final results of Step1loop, which minimize Omega_I (Wannier space)
-     !!   cnk(iko_i(iq):iko_f(iq),nwf2,iq) gives nwf2-dimentional space.
+     !! NOTE: cnk(iko_ix:iko_fx,nMLO,nqbz) is the final results of Step1loop, which minimize Omega_I (Wannier space)
+     !!   cnk(iko_i(iq):iko_f(iq),nMLO,iq) gives nMLO-dimentional space.
      GetHamiltonianforMTObyProjection: block  !We do not use Marzari's unitary rotation
        real(8):: qq(3)
        integer:: il,im,in,ib1,ib2,jsp
-       complex(8):: ham(nwf2,nwf2),ovlx(nwf2,nwf2),phase,proj(iko_ix:iko_fx,iko_ix:iko_fx),pa(iko_ix:iko_fx,nwf2)
+       complex(8):: ham(nMLO,nMLO),ovlx(nMLO,nMLO),phase,proj(iko_ix:iko_fx,iko_ix:iko_fx),pa(iko_ix:iko_fx,nMLO)
        jsp=is
        do iqbz = 1,nqbz
           qq(:) = qbz(:,iqbz) !          write(6,*)' xxxx iq q=',iq,qq
           do concurrent(i=iko_ix:iko_fx, j=iko_ix:iko_fx)     !outer bandindex
              proj(i,j) = sum(cnk(i,:,iqbz)*dconjg(cnk(j,:,iqbz))) !sum for MLOindex
           enddo
-          pa(iko_ix:iko_fx,1:nwf2) = matmul(proj,amnk(iko_ix:iko_fx,1:nwf2,iqbz))
-          do concurrent(i=1:nwf2,j=1:nwf2)
+          pa(iko_ix:iko_fx,1:nMLO) = matmul(proj,amnk(iko_ix:iko_fx,1:nMLO,iqbz))
+          do concurrent(i=1:nMLO,j=1:nMLO)
              ham(i,j)  = sum(dconjg(pa(:,i))*evl(:,iqbz)*pa(:,j)) !sum(dconjg(pa(:,i))*pa(:,j))!
              ovlx(i,j) = sum(dconjg(pa(:,i))*pa(:,j))
           enddo
-          do concurrent(i=1:nwf2,j=1:nwf2) !Real space Hamiltonian. H(k)->H(T) FT to real space
+          do concurrent(i=1:nMLO,j=1:nMLO) !Real space Hamiltonian. H(k)->H(T) FT to real space
              ib1 = ib_tableM(i) 
              ib2 = ib_tableM(j) 
              do it =1,npair(ib1,ib2)! hammr_ij (T)= \sum_k hamm(k) exp(ikT). it is the index for T
@@ -305,8 +329,8 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to 
      endblock GetHamiltonianforMTObyProjection
      write(6,*)' get hmmr2. Goto band_lmfham2.dat ---------'
      bandplotMLO: block
-       real(8):: qp(3),evlm(nwf2,ndat)
-       complex(8):: phase,hamm(nwf2,nwf2),ovlm(nwf2,nwf2),evec(nwf2,nwf2)
+       real(8):: qp(3),evlm(nMLO,ndat)
+       complex(8):: phase,hamm(nMLO,nMLO),ovlm(nMLO,nMLO),evec(nMLO,nMLO)
        integer:: iband
        jsp=is
        fband='band_lmfham2_spin'//char(48+jsp)//'.dat'
@@ -316,7 +340,7 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to 
           !qp = q(:,iq)
           ovlm = 0d0
           hamm = 0d0
-          do concurrent(i=1:nwf2,j=1:nwf2)
+          do concurrent(i=1:nMLO,j=1:nMLO)
              ib1 = ib_tableM(i) 
              ib2 = ib_tableM(j) 
              do it =1,npair(ib1,ib2)
@@ -325,8 +349,8 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nwf1) to 
                 ovlm(i,j)= ovlm(i,j)+ ommr2(i,j,it,is)*phase
              enddo
           enddo
-          nmx =nwf2
-          call zhev_tk4(nwf2,hamm,ovlm,nmx,nev, evlm(:,iq), evec, epsovl)! Diangonale (hamm - evl ovlm ) evec=0
+          nmx =nMLO
+          call zhev_tk4(nMLO,hamm,ovlm,nmx,nev, evlm(:,iq), evec, epsovl)! Diangonale (hamm - evl ovlm ) evec=0
           if(iq<6)  write(stdo,"(' iq q=',i3,*(a))") iq,' ',ftof(qp,3),' e=',ftof(evlm(1:12,iq),3)
           if(iq==6) write(stdo,"(' iq q= ...')") 
           do i=1,nev
