@@ -89,20 +89,19 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nband) to
     call getkeyvalue("GWinput","mlo_maxit",nsc1,default=10)
     call getkeyvalue("GWinput","mlo_conv",conv1,default=1d-4)
     call getkeyvalue("GWinput","mlo_mix",alpha1,default=.5d0) 
+    call getkeyvalue("GWinput",'mlo_WTseed',WTseed,default=0d0)   !WTseed
     call getkeyvalue("GWinput","mlo_WTband"  ,WTband,default=32d0)    ! Weight to minimize band energies
     call getkeyvalue("GWinput","mlo_WTinner", WTinner,default=8192d0/WTband)  ! inner energy window WeighTing
     call getkeyvalue("GWinput","mlo_EWinner", ewid, default=.1d0)     ! inner energy window softing eV
     call getkeyvalue("GWinput","mlo_ELinner", einnerLeV,default=-1d8) ! inner energy window lower eV relative to efermi (or VBM)
     call getkeyvalue("GWinput","mlo_EUinner", einnerHeV,default= 1d8) ! inner energy window upper eV relative to efermi
-
     call getkeyvalue("GWinput","mlo_EUinneradd",eoffset,default=3d0)   !bandgap+3eV is default Einner
-    call getkeyvalue("GWinput",'mlo_WTseed',WTseed,default=0d0)   !WTseed
     if(master_mpi) then
        write(stdo,ftox)' Reading: mlo_ maxit conv mix=',nsc1,ftof(conv1),ftof(alpha1)
        write(stdo,ftox)' Reading: mlo_WTseed =',ftof(WTseed,2)
        write(stdo,ftox)' Reading: mlo_WTband =',ftof(WTband,2)
        write(stdo,ftox)' Reading: mlo_WTinner=',ftof(WTinner,2)
-       ! WTband,WTinner,WTseed=32,256,0 for Si888, =8,1024,0 for Si666
+       ! WTband,WTinner=32,256 for Si888, =8,1024 for Si666
        write(stdo,ftox)' Reading: mlo_EUinner mlo_ELinner _EWinner(eV)=',ftof(einnerHeV,2),ftof(einnerLeV,2),ftof(ewid,2)
 !       write(stdo,ftox)' --- Our test show WTband,WTinner=4,800 is good for Si666(spd model); =20,200 is for Si888 ---'
        write(stdo,ftox)'   Rule of thumb: WTband x WTinner ~ 8192 to respect nabla term (smooth continuity).' 
@@ -197,11 +196,11 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nband) to
      read(ifuumat) amnk
      emm=9999d0
      emin=9999d0
-     do iqbz=1,nqbz ! Default einnerH is at eferm+5eV !lowest of nMLO/2 th band.
+     do iqbz=1,nqbz 
         emm = min(emm,minval(evl(:,iqbz),mask=evl(:,iqbz)>eferm+0.01d0))  != min(evl(nMLO/2,iqbz),emm) 
-     enddo
+     enddo !emm is at CBM
      write(stdo,ftox)' bandgap(on mesh point) eV=',(emm-eferm)*rydberg()
-     if(einnerHeV> 1d7) einnerHeV= (emm-eferm)*rydberg()+eoffset  !emm is bandgap
+     if(einnerHeV> 1d7) einnerHeV= (emm-eferm)*rydberg()+eoffset  !einnerHeV= CBM + eoffset (eV)
      einnerH= einnerHeV/rydberg()+eferm
      einnerL= einnerLeV/rydberg()+eferm
      if(master_mpi) then
