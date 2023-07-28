@@ -25,29 +25,30 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nband) to
   implicit none
   integer:: i,iq,is,ix,j,ifbb,ifoc,nbb,isc,ifq0p, nox,iko_ix,iko_fx,nsc1,ndz,nin,nout,nsc2,ibb
   integer:: inii,if102,iwf2,ib,itmp,itmp2,nqbz2,nspin2,ib1,ib2,iqb,iqbz,it,jsp,nmx,nev,isyml,nqbz!,n1,n2,n3
-  integer:: nMLO,ikx,ikxx,iadd,ndzm,i1q,i2q,i1,i2,imp,inp,inx,imx,ibas,ibold,ibx,iorb
+  integer:: nMLO,ikx,ikxx,iadd,i1q,i2q,i1,i2,imp,inp,inx,imx,ibas,ibold,ibx,iorb
   integer,parameter:: nlinex=100
   integer::nline,np(nlinex), iwf,ldim2,ixx,npin,ifuumat,job
   real(8),parameter:: pi = 4d0*datan(1d0)
-  real(8) :: tpia,vol,voltot,rs,alpha, rydberg,hartree,qlat(3,3),tripl,wbbsum,bb(3,12),eimax ,wbbs,fac1qsum,fac2qsum,evalssold,sss
-  real(8):: qi(3,nlinex),qf(3,nlinex), omgi,omgiold,conv1,alpha1,zesumold,zesi,emm,einnerL,einnerH,einnerLeV,einnerHeV,emin,evalss
-  real(8)::qiin(3),qfin(3),qold(3),enwfmax,qxx(3),eeee,enwfmaxi, epsovl=1d-8,ginv(3,3),einner,ewid,fac2,ecenter,eee,etest,egap,fac1
+  real(8) :: tpia,vol,voltot,rs,alpha, rydberg,hartree,qlat(3,3),tripl,wbbsum,bb(3,12),eimax ,wbbs,WTbandqsum,WTinnerqsum,&
+       evalssold,qi(3,nlinex),qf(3,nlinex), omgi,omgiold,conv1,alpha1,zesumold,zesi,emm,einnerL,einnerH,einnerLeV,einnerHeV,&
+       emin,evalss,sss,qiin(3),qfin(3),qold(3),enwfmax,qxx(3),eeee,enwfmaxi, epsovl=1d-8,ginv(3,3),einner,ewid,WTinner,ecenter,&
+       eee,etest,egap,WTband
   character(8) :: xt
   real(8),allocatable    :: q(:,:)
   real(8),allocatable:: ku(:,:),kbu(:,:,:),eunk(:,:),eval(:), eks(:),wbb(:)
   integer,allocatable:: ikbidx(:,:),iko_i(:),iko_f(:)
-  real(8),allocatable:: omgik(:),zesum(:),evals(:),fac1q(:),fac2q(:)
+  real(8),allocatable:: omgik(:),zesum(:),evals(:),WTbandq(:),WTinnerq(:)
   real(8),allocatable:: xq(:),eval1(:,:),eval2(:,:),eval3(:,:),eval_w(:,:,:)
   integer,allocatable:: m_indx(:),n_indx(:),l_indx(:),ibas_indx(:),ibasiwf(:),idmto(:),idmto_(:)
   real(8),allocatable:: evl(:,:),ovl(:), bbv(:,:),wbz(:)
-  complex(8),allocatable:: upu(:,:,:,:), zmn(:,:),zmn0(:,:),fac1ii(:),fac2ii(:)
+  complex(8),allocatable:: upu(:,:,:,:), zmn(:,:),zmn0(:,:),WTbandii(:),WTinnerii(:)
   complex(8),parameter:: img=(0d0,1d0)
   complex(8),allocatable::ovlm(:,:),ovlmx(:,:),hamm(:,:),ovec(:,:)!,emat(:,:)
   complex(8),allocatable:: uumat(:,:,:,:),evecc(:,:), amnk(:,:,:),cnk(:,:,:),umnk(:,:,:),evecc1(:,:,:),evecc2(:,:,:)
   complex(8),allocatable:: hmmr2(:,:,:,:),ommr2(:,:,:,:),wmat(:,:),wmat2(:,:)
   character(256):: fband
   logical:: cmdopt2,noinner
-  real(8):: seedwt,eoffset
+  real(8):: WTseed,eoffset
   character:: outs*20
   character(256):: aaa='',bbb=''
   integer:: nband_,nqbz_,iko_ix_,iko_fx_,nMLO_
@@ -88,26 +89,25 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nband) to
     call getkeyvalue("GWinput","mlo_maxit",nsc1,default=10)
     call getkeyvalue("GWinput","mlo_conv",conv1,default=1d-4)
     call getkeyvalue("GWinput","mlo_mix",alpha1,default=.5d0) 
-    call getkeyvalue("GWinput","mlo_WTband"  ,fac1,default=20d0)        ! WeighT to emphasize lower energy bands
-    
-    call getkeyvalue("GWinput","mlo_WTinner", fac2,default=200d0)     ! inner energy window WeighTing
+    call getkeyvalue("GWinput","mlo_WTband"  ,WTband,default=32d0)    ! Weight to minimize band energies
+    call getkeyvalue("GWinput","mlo_WTinner", WTinner,default=8192d0/WTband)  ! inner energy window WeighTing
     call getkeyvalue("GWinput","mlo_EWinner", ewid, default=.1d0)     ! inner energy window softing eV
     call getkeyvalue("GWinput","mlo_ELinner", einnerLeV,default=-1d8) ! inner energy window lower eV relative to efermi (or VBM)
     call getkeyvalue("GWinput","mlo_EUinner", einnerHeV,default= 1d8) ! inner energy window upper eV relative to efermi
 
     call getkeyvalue("GWinput","mlo_EUinneradd",eoffset,default=3d0)   !bandgap+3eV is default Einner
-    call getkeyvalue("GWinput",'mlo_WTseed',seedwt,default=0d0)   !SeedWT
+    call getkeyvalue("GWinput",'mlo_WTseed',WTseed,default=0d0)   !WTseed
     if(master_mpi) then
        write(stdo,ftox)' Reading: mlo_ maxit conv mix=',nsc1,ftof(conv1),ftof(alpha1)
-       write(stdo,ftox)' Reading: mlo_WTseed =',ftof(seedwt,2)
-       write(stdo,ftox)' Reading: mlo_WTband =',ftof(fac1,2)
-       write(stdo,ftox)' Reading: mlo_WTinner=',ftof(fac2,2)
-       ! WTband,WTinner,WTseed=30,200,0 for Si888, =10,800,0 for Si666
+       write(stdo,ftox)' Reading: mlo_WTseed =',ftof(WTseed,2)
+       write(stdo,ftox)' Reading: mlo_WTband =',ftof(WTband,2)
+       write(stdo,ftox)' Reading: mlo_WTinner=',ftof(WTinner,2)
+       ! WTband,WTinner,WTseed=32,256,0 for Si888, =8,1024,0 for Si666
        write(stdo,ftox)' Reading: mlo_EUinner mlo_ELinner _EWinner(eV)=',ftof(einnerHeV,2),ftof(einnerLeV,2),ftof(ewid,2)
 !       write(stdo,ftox)' --- Our test show WTband,WTinner=4,800 is good for Si666(spd model); =20,200 is for Si888 ---'
-       write(stdo,ftox)'   Rule of thumb: (I think) WTband x WTinner ~8000 .' 
-       write(stdo,ftox)'   mlo_WTband push down bands when we use low mlo_WTinner: WTband maybe 0,10,20,30,40'
-       write(stdo,ftox)'   mlo_WTinner: (soft)100,200,400,800,1600(Hard)'
+       write(stdo,ftox)'   Rule of thumb: WTband x WTinner ~ 8192 to respect nabla term (smooth continuity).' 
+       write(stdo,ftox)'    mlo_WTband push down bands when we use low mlo_WTinner: WTband maybe 4,8,16,32'
+       write(stdo,ftox)'    mlo_WTinner: (soft)128,256,512,1024,2048(Hard)'
     endif
   endblock ReadInfoFromGWinput
   ewid= ewid/rydberg() !in Ry.
@@ -118,7 +118,7 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nband) to
     call kbbindx(qbz,ginv,bb, nqbz,nbb, ikbidx,ku,kbu) ! index for k and k+bb
     allocate(iko_i(nqbz),iko_f(nqbz)) !, ikbo_i(nbb,nqbz),ikbo_f(nbb,nqbz)) !, ikbi_i(nbb,nqbz),ikbi_f(nbb,nqbz))
     call writebb2(ifbb,wbb(1:nbb),bb(1:3,1:nbb), ikbidx,ku,kbu, nqbz,nbb)
-    write(stdo,ftox)'nbb wbb(in unit of 2pi/alat)=',nbb,ftof(wbb(1:nbb),3)
+    write(stdo,ftox)' nbb wbb(in unit of 2pi/alat)=',nbb,ftof(wbb(1:nbb),3)
     allocate(bbv,source=bb)
   endblock bbvector
   iko_i=1; iko_f=nband ! outer window nband is the number of MLO
@@ -190,33 +190,29 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nband) to
   allocate(wbz(nqbz),source=1d0/nqbz)
   allocate (uumat(iko_ix:iko_fx,iko_ix:iko_fx,nbb,nqbz))
   ispinloop: do 1000 is = 1,nspin
-     write(stdo,ftox)'ispinloop: is =',is,'  out of',nspin
      read(ifuumat) nband_,nqbz_,iko_ix_,iko_fx_,nMLO_,idmto_
      if(nMLO/=nMLO.or.sum(abs(idmto-idmto_))/=0) call rx0('lmfham2: idmto error: Repeat --job=1 with the same <Worb> in GWinput!')
-!     if( sum(abs([nband_-nband, nqbz_-nqbz, iko_ix_-iko_ix, iko_fx_-iko_fx, nMLO_-nMLO]))/=0) &
-!          call rx0('Repeat --job=1 with the same setting <Worb>.')
      read(ifuumat) evl
      read(ifuumat) uumat
      read(ifuumat) amnk
-     
      emm=9999d0
      emin=9999d0
      do iqbz=1,nqbz ! Default einnerH is at eferm+5eV !lowest of nMLO/2 th band.
-        emm = min(emm,minval(evl(:,iqbz),mask=evl(:,iqbz)>eferm+0.01d0)) 
-!       emm = min(evl(nMLO/2,iqbz),emm) !>eferm+1d-2,dim=1,value=.true.),iqbz) !evl(cvm+1)
+        emm = min(emm,minval(evl(:,iqbz),mask=evl(:,iqbz)>eferm+0.01d0))  != min(evl(nMLO/2,iqbz),emm) 
      enddo
-     write(stdo,ftox)'bandgap(on mesh point) eV=',(emm-eferm)*rydberg()
+     write(stdo,ftox)' bandgap(on mesh point) eV=',(emm-eferm)*rydberg()
      if(einnerHeV> 1d7) einnerHeV= (emm-eferm)*rydberg()+eoffset  !emm is bandgap
-     
      einnerH= einnerHeV/rydberg()+eferm
      einnerL= einnerLeV/rydberg()+eferm
      if(master_mpi) then
-        write(*,*)'Step1loop: Choose Hilbert space by cnk(iko_ix:iko_fx,1:nMLO,1:nqbz)=',iko_ix,iko_fx,nMLO,nqbz
         write(stdo,ftox)' einnerH from VBM=',ftof((einnerH-eferm)*rydberg()),' eV'
         write(stdo,ftox)' einnerL from VBM=',ftof((einnerL-eferm)*rydberg()),' eV'
      endif   
+     if(master_mpi) then
+        write(stdo,ftox)'isploop: is=',is,'out of',nspin,'ChooseSpace by cnk(init:iend,1:nMLO,1:nqbz)=',iko_ix,iko_fx,nMLO,nqbz
+     endif   
      allocate ( upu(iko_ix:iko_fx,iko_ix:iko_fx,nbb,nqbz), cnk(iko_ix:iko_fx,nMLO,nqbz), omgik(nqbz),evals(nqbz),zesum(nqbz)) !cnk2(iko_ix:iko_fx,nMLO,nqbz)
-     allocate( fac1q(nqbz),fac2q(nqbz))
+     allocate( WTbandq(nqbz),WTinnerq(nqbz))
      cnk  = 0d0
      call amnk2unk(amnk,iko_ix,iko_fx,iko_i,iko_f, nMLO,nqbz,  cnk)! amnk was in Eq.22 in Ref.II. <psi|Gaussian>. Now amnk=< psi(it,iqbz) | MTO(nMLO) >
      zesumold=1d10
@@ -247,23 +243,24 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nband) to
            enddo
            deallocate(wmat,wmat2)
            
-           ! Omega= 1/2 \sum_b,k Tr {|\nabla Pk|^2} + fac1*Tr{Pk H} - fac2*Tr{Pk EinnerW} + WTseed * Tr {Pk <psi_m|seed_i><seed_i|psi_n|}
+           ! Omega= 1/2 \sum_b,k Tr {|\nabla Pk|^2} + WTband*Tr{Pk H} - WTinner*Tr{Pk EinnerW} + WTseed * Tr {Pk <psi_m|seed_i><seed_i|psi_n|}
            ! zmn = \frac{\delta Omega}{\delta Pmn^k}
            allocate (zmn0(ndz,ndz),source=(0d0,0d0)) ! (1-3) Zmn(k) > phi,eval
-           allocate (zmn(ndz,ndz), evecc(ndz,ndz),eval(ndz),fac1ii(ndz),fac2ii(ndz))
+           allocate (zmn(ndz,ndz), evecc(ndz,ndz),eval(ndz),WTbandii(ndz),WTinnerii(ndz))
            do ibb = 1,nbb
               zmn0(1:ndz,1:ndz) = zmn0(1:ndz,1:ndz) - 2d0*wbb(ibb)*upu(iko_i(iq):iko_f(iq),iko_i(iq):iko_f(iq),ibb,iq)
            enddo
            zmn=zmn0
            do concurrent(i=iko_i(iq):iko_f(iq))
-              fac1ii(i)= fac1*(evl(i,iq))   !lower eigenvalue for higher energy
-              zmn(i,i)=zmn0(i,i) + fac1ii(i)!Add penalty part to emphasize lower/innner window
+              WTbandii(i)= WTband*(evl(i,iq))   !lower eigenvalue for higher energy
+              zmn(i,i)=zmn0(i,i) + WTbandii(i)!Add penalty part to emphasize lower/innner window
            enddo   
            do concurrent(i=iko_i(iq):iko_f(iq))
-              fac2ii(i)=-fac2/(exp((evl(i,iq)-einnerH)/ewid)+1d0)/(exp(-(evl(i,iq)-einnerL)/ewid)+1d0) !inner window enhancement 
-              zmn(i,i)=zmn(i,i) + fac2ii(i)!Add penalty part to emphasize lower/innner window
-           enddo   
-           zmn = zmn - seedwt*matmul(amnk(iko_i(iq):iko_f(iq),1:nMLO,iq),dconjg(transpose(amnk(iko_i(iq):iko_f(iq),1:nMLO,iq)))) !projection to Seeds
+              WTinnerii(i)=-WTinner/(exp((evl(i,iq)-einnerH)/ewid)+1d0)/(exp(-(evl(i,iq)-einnerL)/ewid)+1d0) !inner window enhancement 
+              zmn(i,i)=zmn(i,i) + WTinnerii(i)!Add penalty part to emphasize lower/innner window
+           enddo
+           if(WTseed/=0d0) zmn=zmn-WTseed*matmul(amnk(iko_i(iq):iko_f(iq),1:nMLO,iq), & !projection to Seed functions
+                dconjg(transpose(amnk(iko_i(iq):iko_f(iq),1:nMLO,iq)))) 
            ! do i=iko_i(iq),iko_f(iq) !Hard inner window
            !    if(evl(i,iq)<einnerH.and.evl(i,iq)>einnerL) then 
            !       zmn(i,i)       = 9999d0; zmn(i,1:i-1   )= 0d0;  zmn(i,i+1:ndz )= 0d0; zmn(1:i-1, i  )= 0d0; zmn(i+1:ndz,i )= 0d0
@@ -271,34 +268,33 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nband) to
            ! enddo
            call diag_hm(zmn,ndz,eval,evecc)
            ! eval(i)/wbbs is normalized. If all eval(i)/wbbs=1, P_k=P_{k+b}.
-!           ndzm=ndz-nMLO+1
            forall(iwf = 1:nMLO) cnk(iko_i(iq):iko_f(iq),iwf,iq) = evecc(1:ndz,iwf) !ndz+1-iwf)
-           evals(iq)= sum(eval(1:nMLO)) !ndzm:ndz))
-           omgik(iq)= sum([(sum(dconjg(evecc(1:ndz,i))*matmul(zmn0,evecc(1:ndz,i))),i=1,nMLO)])  !ndzm,ndz!1st part !wbbs normalization 
-           fac1q(iq)= sum([(sum(dconjg(evecc(1:ndz,i))*fac1ii(1:ndz)*evecc(1:ndz,i)),i=1,nMLO)]) !2nd energy term
-           fac2q(iq)= sum([(sum(dconjg(evecc(1:ndz,i))*fac2ii(1:ndz)*evecc(1:ndz,i)),i=1,nMLO)]) !
+           evals(iq)= sum(eval(1:nMLO)) 
+           omgik(iq)= sum([(sum(dconjg(evecc(1:ndz,i))*matmul(zmn0,evecc(1:ndz,i))),i=1,nMLO)])  
+           WTbandq(iq)= sum([(sum(dconjg(evecc(1:ndz,i))*WTbandii(1:ndz)*evecc(1:ndz,i)),i=1,nMLO)]) !2nd energy term
+           WTinnerq(iq)= sum([(sum(dconjg(evecc(1:ndz,i))*WTinnerii(1:ndz)*evecc(1:ndz,i)),i=1,nMLO)]) !
            !write(stdo,ftox)'iq=',iq,'eval=',ftof(eval)
-           deallocate (zmn,evecc,eval,zmn0,fac1ii,fac2ii)
+           deallocate (zmn,evecc,eval,zmn0,WTbandii,WTinnerii)
         enddo iqloop
         omgi  = sum(omgik(:)*wbz(:)) 
-        fac1qsum=sum(fac1q(:)*wbz(:))
-        fac2qsum=sum(fac2q(:)*wbz(:))
+        WTbandqsum=sum(WTbandq(:)*wbz(:))
+        WTinnerqsum=sum(WTinnerq(:)*wbz(:))
         evalss= sum(evals(:)*wbz(:))   
-        ! \sum eval = \sum zmn0 term + fac1q + fac2q
-        !    write(stdo,ftox)'#SC-loop, OmegaI_a Zsum=',isc,ftof(omgi),'=',ftof(zesi-evalss+fac1qsum+fac2qsum)
-        if(fac2/=0d0) aaa='Pinner='//trim(ftof(-fac2qsum/fac2/nMLO))
-        if(fac1/=0d0) bbb='Emean(eV)='//trim(ftof((fac1qsum/fac1/nMLO-eferm)*rydberg()))
-        write(stdo,ftox)'#SC-loop:isc=',isc,'Omega/nMLO=',ftof( (wbbs+omgi/2d0/nMLO)/tpia**2 + fac1qsum/nMLO + fac2qsum/nMLO ), &
+        ! \sum eval = \sum zmn0 term + WTbandq + WTinnerq
+        !    write(stdo,ftox)'#SC-loop, OmegaI_a Zsum=',isc,ftof(omgi),'=',ftof(zesi-evalss+WTbandqsum+WTinnerqsum)
+        if(WTinner/=0d0) aaa='Pinner='//trim(ftof(-WTinnerqsum/WTinner/nMLO))
+        if(WTband/=0d0) bbb='Emean(eV)='//trim(ftof((WTbandqsum/WTband/nMLO-eferm)*rydberg()))
+        write(stdo,ftox)'#SC-loop:isc=',isc,'Omega/nMLO=',ftof( (wbbs+omgi/2d0/nMLO)/tpia**2 + WTbandqsum/nMLO + WTinnerqsum/nMLO),&
              'Nabla2/nMLO(a.u.**2)=',ftof((wbbs+omgi/2d0/nMLO)/tpia**2 ),&
              'MeanOverlap=',ftof(-omgi/2d0/nMLO/wbbs),trim(bbb),trim(aaa) !Omega corresponds to Omega_I in Eq.34 Mazari.
         !NOTE: nMLO \sim omgi=\sum_b wb \sum_{m=1}^N \sum_{n=1}^N |Mmn^{k,b}|^2 (See Eq.7 in Souza paper).
         !      But Mnm here is only for coefficienets parts of eigenfunctions.
         if(isc>=2 .and. dabs(evalssold-evalss)<conv1) then   ! (1-6) check self-consistency
-           write(*,*) 'step1: converged!'
+           write(stdo,ftox) ' Step1: converged!'
            exit
         endif
         evalssold = evalss
-        if(isc==nsc1) write(*,*)'step1: not converged'
+        if(isc==nsc1) write(stdo,ftox)' Step1: not converged'
      enddo SouzaStep1loop
      deallocate(upu) 
      !! NOTE: cnk(iko_ix:iko_fx,nMLO,nqbz) is the final results of Step1loop, which minimize Omega_I (Wannier space)
