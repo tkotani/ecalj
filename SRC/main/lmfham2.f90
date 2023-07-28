@@ -88,27 +88,26 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nband) to
     call getkeyvalue("GWinput","mlo_maxit",nsc1,default=10)
     call getkeyvalue("GWinput","mlo_conv",conv1,default=1d-4)
     call getkeyvalue("GWinput","mlo_mix",alpha1,default=.5d0) 
-    call getkeyvalue("GWinput","mlo_WTlow"  ,fac1,default=4d0)        ! WeighT to emphasize lower energy bands
+    call getkeyvalue("GWinput","mlo_WTband"  ,fac1,default=20d0)        ! WeighT to emphasize lower energy bands
     
-    call getkeyvalue("GWinput","mlo_WTinner", fac2,default=800d0)     ! inner energy window WeighTing
+    call getkeyvalue("GWinput","mlo_WTinner", fac2,default=200d0)     ! inner energy window WeighTing
     call getkeyvalue("GWinput","mlo_EWinner", ewid, default=.1d0)     ! inner energy window softing eV
     call getkeyvalue("GWinput","mlo_ELinner", einnerLeV,default=-1d8) ! inner energy window lower eV relative to efermi (or VBM)
     call getkeyvalue("GWinput","mlo_EUinner", einnerHeV,default= 1d8) ! inner energy window upper eV relative to efermi
 
-    call getkeyvalue("GWinput","mlo_eoffset",eoffset,default=0d0)   !bandgap+3eV is default Einner
-    call getkeyvalue("GWinput",'mlo_WTseed',seedwt,default=10d0)   !SeedWT
+    call getkeyvalue("GWinput","mlo_EUinneradd",eoffset,default=3d0)   !bandgap+3eV is default Einner
+    call getkeyvalue("GWinput",'mlo_WTseed',seedwt,default=0d0)   !SeedWT
     if(master_mpi) then
        write(stdo,ftox)' Reading: mlo_ maxit conv mix=',nsc1,ftof(conv1),ftof(alpha1)
-       write(stdo,ftox)' Reading: mlo_ WTlow=',ftof(fac1)
-       write(stdo,ftox)' Reading: mlo_ ELinner EWinner relative to Ef (eV) WTinner=',ftof(einnerLeV),&
-            ftof(ewid),ftof(fac2)
-!       if(einnerHeV>1d7) write(stdo,ftox) 'Reading: mlo_EUinner= bandgap +',eoffset
-       if(einnerHeV<1d7) write(stdo,ftox) 'Reading: mlo_EUinner realative to Ef (eV)=',einnerHeV
-       write(stdo,ftox)' Reading: mlo_WTseed=',seedwt
-       write(stdo,ftox)' --- Our test show WTlow,WTinner=2,400 is good for Si666(spd model); =10,100 is for Si888 ---'
-       write(stdo,ftox)'  Rule of thumb: WTlow affects to band width, WTinner affects to band position.'
-       write(stdo,ftox)'    Larger mlo_WTlow may give flatter bands at low energy (larger bandgap).   Range of WTlow   1~20'
-       write(stdo,ftox)'    Larger mlo_WTinner may push down bands to lower energy(smaller bandgap). Range of WTinner 100~500'
+       write(stdo,ftox)' Reading: mlo_WTseed =',ftof(seedwt,2)
+       write(stdo,ftox)' Reading: mlo_WTband =',ftof(fac1,2)
+       write(stdo,ftox)' Reading: mlo_WTinner=',ftof(fac2,2)
+       ! WTband,WTinner,WTseed=30,200,0 for Si888, =10,800,0 for Si666
+       write(stdo,ftox)' Reading: mlo_EUinner mlo_ELinner _EWinner(eV)=',ftof(einnerHeV,2),ftof(einnerLeV,2),ftof(ewid,2)
+!       write(stdo,ftox)' --- Our test show WTband,WTinner=4,800 is good for Si666(spd model); =20,200 is for Si888 ---'
+       write(stdo,ftox)'   Rule of thumb: (I think) WTband x WTinner ~8000 .' 
+       write(stdo,ftox)'   mlo_WTband push down bands when we use low mlo_WTinner: WTband maybe 0,10,20,30,40'
+       write(stdo,ftox)'   mlo_WTinner: (soft)100,200,400,800,1600(Hard)'
     endif
   endblock ReadInfoFromGWinput
   ewid= ewid/rydberg() !in Ry.
@@ -119,7 +118,7 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nband) to
     call kbbindx(qbz,ginv,bb, nqbz,nbb, ikbidx,ku,kbu) ! index for k and k+bb
     allocate(iko_i(nqbz),iko_f(nqbz)) !, ikbo_i(nbb,nqbz),ikbo_f(nbb,nqbz)) !, ikbi_i(nbb,nqbz),ikbi_f(nbb,nqbz))
     call writebb2(ifbb,wbb(1:nbb),bb(1:3,1:nbb), ikbidx,ku,kbu, nqbz,nbb)
-    write(stdo,ftox)'nbb wbb(in unit of 2pi/alat)=',nbb,ftof(wbb(1:nbb))
+    write(stdo,ftox)'nbb wbb(in unit of 2pi/alat)=',nbb,ftof(wbb(1:nbb),3)
     allocate(bbv,source=bb)
   endblock bbvector
   iko_i=1; iko_f=nband ! outer window nband is the number of MLO
@@ -203,8 +202,8 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nband) to
      emm=9999d0
      emin=9999d0
      do iqbz=1,nqbz ! Default einnerH is at eferm+5eV !lowest of nMLO/2 th band.
-!        emm = min(emm,minval(evl(:,iqbz),mask=evl(:,iqbz)>eferm+0.01d0)) 
-       emm = min(evl(nMLO/2,iqbz),emm) !>eferm+1d-2,dim=1,value=.true.),iqbz) !evl(cvm+1)
+        emm = min(emm,minval(evl(:,iqbz),mask=evl(:,iqbz)>eferm+0.01d0)) 
+!       emm = min(evl(nMLO/2,iqbz),emm) !>eferm+1d-2,dim=1,value=.true.),iqbz) !evl(cvm+1)
      enddo
      write(stdo,ftox)'bandgap(on mesh point) eV=',(emm-eferm)*rydberg()
      if(einnerHeV> 1d7) einnerHeV= (emm-eferm)*rydberg()+eoffset  !emm is bandgap
@@ -213,8 +212,8 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nband) to
      einnerL= einnerLeV/rydberg()+eferm
      if(master_mpi) then
         write(*,*)'Step1loop: Choose Hilbert space by cnk(iko_ix:iko_fx,1:nMLO,1:nqbz)=',iko_ix,iko_fx,nMLO,nqbz
-        write(stdo,ftox)'einnerH from VBM=',ftof((einnerH-eferm)*rydberg()),' eV'
-        write(stdo,ftox)'einnerL from VBM=',ftof((einnerL-eferm)*rydberg()),' eV'
+        write(stdo,ftox)' einnerH from VBM=',ftof((einnerH-eferm)*rydberg()),' eV'
+        write(stdo,ftox)' einnerL from VBM=',ftof((einnerL-eferm)*rydberg()),' eV'
      endif   
      allocate ( upu(iko_ix:iko_fx,iko_ix:iko_fx,nbb,nqbz), cnk(iko_ix:iko_fx,nMLO,nqbz), omgik(nqbz),evals(nqbz),zesum(nqbz)) !cnk2(iko_ix:iko_fx,nMLO,nqbz)
      allocate( fac1q(nqbz),fac2q(nqbz))
@@ -247,21 +246,24 @@ program lmfham2 ! Get |MLO2> from |MLO1>. Conversion from (hmmr1,ommr1,nband) to
               enddo
            enddo
            deallocate(wmat,wmat2)
+           
+           ! Omega= 1/2 \sum_b,k Tr {|\nabla Pk|^2} + fac1*Tr{Pk H} - fac2*Tr{Pk EinnerW} + WTseed * Tr {Pk <psi_m|seed_i><seed_i|psi_n|}
+           ! zmn = \frac{\delta Omega}{\delta Pmn^k}
            allocate (zmn0(ndz,ndz),source=(0d0,0d0)) ! (1-3) Zmn(k) > phi,eval
            allocate (zmn(ndz,ndz), evecc(ndz,ndz),eval(ndz),fac1ii(ndz),fac2ii(ndz))
            do ibb = 1,nbb
               zmn0(1:ndz,1:ndz) = zmn0(1:ndz,1:ndz) - 2d0*wbb(ibb)*upu(iko_i(iq):iko_f(iq),iko_i(iq):iko_f(iq),ibb,iq)
            enddo
-! Omega= 1/2 \sum_b,k Tr {|\nabla Pk Pk+b|^2} + fac1* Tr{ Pk H} - fac2*Tr{Pk Window}
            zmn=zmn0
-           forall(i=iko_i(iq):iko_f(iq)) fac1ii(i)= fac1*(evl(i,iq))  !lower eigenvalue for higher energy
-           forall(i=iko_i(iq):iko_f(iq)) zmn(i,i)=zmn0(i,i) + fac1ii(i)!Add penalty part to emphasize lower/innner window
-           
+           do concurrent(i=iko_i(iq):iko_f(iq))
+              fac1ii(i)= fac1*(evl(i,iq))   !lower eigenvalue for higher energy
+              zmn(i,i)=zmn0(i,i) + fac1ii(i)!Add penalty part to emphasize lower/innner window
+           enddo   
+           do concurrent(i=iko_i(iq):iko_f(iq))
+              fac2ii(i)=-fac2/(exp((evl(i,iq)-einnerH)/ewid)+1d0)/(exp(-(evl(i,iq)-einnerL)/ewid)+1d0) !inner window enhancement 
+              zmn(i,i)=zmn(i,i) + fac2ii(i)!Add penalty part to emphasize lower/innner window
+           enddo   
            zmn = zmn - seedwt*matmul(amnk(iko_i(iq):iko_f(iq),1:nMLO,iq),dconjg(transpose(amnk(iko_i(iq):iko_f(iq),1:nMLO,iq)))) !projection to Seeds
-           forall(i=iko_i(iq):iko_f(iq)) fac2ii(i)=-fac2/(exp((evl(i,iq)-einnerH)/ewid)+1d0)/(exp(-(evl(i,iq)-einnerL)/ewid)+1d0) !inner window enhancement 
-           forall(i=iko_i(iq):iko_f(iq)) zmn(i,i)=zmn(i,i) + fac2ii(i)!Add penalty part to emphasize lower/innner window
-!
-!           +fac2ii(i) 
            ! do i=iko_i(iq),iko_f(iq) !Hard inner window
            !    if(evl(i,iq)<einnerH.and.evl(i,iq)>einnerL) then 
            !       zmn(i,i)       = 9999d0; zmn(i,1:i-1   )= 0d0;  zmn(i,i+1:ndz )= 0d0; zmn(1:i-1, i  )= 0d0; zmn(i+1:ndz,i )= 0d0
