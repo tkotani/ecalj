@@ -52,18 +52,10 @@ Email to takaokotani@gmail.com.
    As it is combined with seekpath and spglib, 
    Brillowin Zone and symmetry lines are automatically drawn with matplotlib.
 
-* Permission
-- For publications, make a citation cleary to this homepage such as;
----------------
-[1] ecalj package is availabe from https://github.com/tkotani/ecalj/. 
-Its one-body part is developed based on the LMTO part of Questaal a https://www.questaal.org/,
-whereas Quastall takes its GW part from ecalj.
----------------
-in the references on the same footing of other papers. 
-
-- Except commercial uses, you can freely use and modify this package for your purpose. 
-You can re-distribute your modified package as long as you cite our ecalj package 
-and our contributions are clarified. For commercial use, ask to takaokotani.
+* LICENCE 
+We apply the licence [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.html) to ecalj.
+For publications, make a citation as; [1] We use ecalj at https://github.com/tkotani/ecalj/,
+and/or PMT-QSGW refereces above.
 
 * Automatic installation script and test
 We have an automatic installer and test system, just by a command.
