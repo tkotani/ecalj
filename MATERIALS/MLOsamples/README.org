@@ -4,20 +4,8 @@ still preliminary version. Only for LDA (not QSGW because MTO basis changed --->
    Get convergence.
 2. run job_band
 
-3. modify ctrl file EH and RSMH 
-   Si ===> RSMH=1.6 (better with EH=-0.5 probably)
-   NiO ===> 
-    ATOM=Ni       
-      EH=-.5 -.5 -1 -1  RSMH=1.56 1.56 1.06 1.06 
-      EH2=-2 -2 -2  RSMH2=1.06 1.06 1.06 
-    ATOM=O Z=8 R=1.70    
-      MMOM=0 0 0 0
-      EH=-1 -1 -1  RSMH=0.85 0.85 0.85
-      EH2=-2 -2  RSMH2=0.85 0.85 
+3. run job_ham
 
-4. run job_ham1
-   In advance, edit lmfham1.f90 (called from job_ham1),
-   to set basis for MLOs.
 ===this is the part to be edited in lmfham1.f90 ==================
     nnn=0
     do i=1,ldim !MLO dimension 

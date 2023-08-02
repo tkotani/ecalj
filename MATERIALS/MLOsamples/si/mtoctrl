@@ -1,8 +1,0 @@
- y    !lmfa and lmf(0)
- y    !job_band(1)
- y    !writeham(2)  
- n    !initmlo(3) 
- n    !mkhamloc(4) 
- n    !lmfham(5) 
- n    !plotmodel(6)
-#### "y" means "DO", the others mean "do NOT" ##############

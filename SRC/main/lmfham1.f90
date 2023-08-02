@@ -1,4 +1,4 @@
-program lmfham1 ! Read HamiltonianPMT and generates MTO-only Hamiltonian <MLO1|H|MLO1> and overlap <MLO1|MLO1>
+program lmfham1 ! Read HamiltonianPMT and generates MT-projected Basis Hamiltonian <MTP|H|MTP> and overlap <MTP|MTP>
   use m_HamPMT,only: ReadHamPMTInfo, HamPMTtoHamRsMTO, plat,npair,nlat,nqwgt,ldim,nkp,qplist,ib_table,alat
   !                                  HamPMTtoHamRsMTO do not change variables here. Only generate HamRsMTO file.
   use m_HamRsMTO,  only: hammr,ovlmr,ndimMTO, ReadHamRsMTO, npairmx,nspx,ib_tableM

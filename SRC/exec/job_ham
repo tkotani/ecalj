@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -eux
 nfpgw=`dirname $0`
 echo $0
 echo $@
@@ -11,10 +11,14 @@ else
 fi
 rm -f HamiltonianPMT*
 echo 'Runnnig Hamiltonian generation'
-mpirun -np $3 $nfpgw/lmf-MPIK $1 --writeham --mkprocar --fullmesh
+mpirun -np $3 $nfpgw/lmf-MPIK $1 --writeham --mkprocar --fullmesh >& out_writeham
 # Get Hamiltonian file, namded as HamiltonianMTO
 cat HamiltonianPMT.* >HamiltonianPMT
 rm HamiltonianPMT.* 
-# Get projectedMTO-only Hamiltonian
-mpirun -np $3 $nfpgw/lmfham1 $1
+# Get |MTP> Get MTprojected Hamiltonian
+mpirun -np $3 $nfpgw/lmfham1 $1 >& out_lmfham1
+# Get |MLO> Get MLO Hamiltonian
+$nfpgw/lmfham2 --job=0 >& out_lmfham2_0
+$nfpgw/lmfham2 --job=1 >& out_lmfham2_1
+echo 'OK! end of job_ham'
 

@@ -1,6 +1,7 @@
 module m_HamPMT ! -- Read HamiltionanPMTinfo and HamiltonianPMT. Then convert HamPMT to HamRsMTO  ------
   use m_MPItk,only: procid, master_mpi, nsize,master
   use m_lgunit,only:stdo
+  use m_ftox
   real(8),allocatable,protected:: plat(:,:),pos(:,:),qplist(:,:),qlat(:,:)
   integer,allocatable,protected:: nlat(:,:,:,:),npair(:,:),ib_table(:),l_table(:),k_table(:),ispec_table(:),nqwgt(:,:,:)
   character(8),allocatable,protected:: slabl_table(:)
@@ -29,7 +30,7 @@ contains
     allocate(ib_table(ldim),l_table(ldim),k_table(ldim),ispec_table(ldim),slabl_table(ldim))
     read(ififft)ib_table,l_table,k_table,ispec_table,slabl_table
     close(ififft)
-    if(master_mpi) write(stdo,"('MHAM: --- MTO part of Hamiltonian index (real-harmonics table is in job_pdos script) --- ')")
+    if(master_mpi) write(stdo,"('MHAM: --- MTO part of PMT Hamiltonian index (real-harmonics table is in job_pdos script) --- ')")
     if(master_mpi) write(stdo,'("MHAM: MTO block dim=",i5)') ldim
     lold=-999
     do i = 1,ldim
@@ -62,7 +63,6 @@ contains
   !c$$$      enddo
   subroutine HamPMTtoHamRsMTO(facw) !Convert HamPMT(k mesh) to HamRsMTO(real space)
     use m_zhev,only:zhev_tk4
-    use m_ftox
     use m_readqplist,only: eferm
     use m_mpi,only: MPI__reduceSum
     implicit none
@@ -79,9 +79,9 @@ contains
     nn=0
     do i=1,ldim  !only MTOs. Further restrictions.
        !if(l_table(i)>=3) cycle !only spd. skip f orbitals.     !if(k_table(i)==2.and.l_table(i)>=2) cycle ! throw away EH2 for d
-       !MLO dimension. For example, 9+9 for Si, for NiO LDA 9+9+4+4
        !if( (ib_table(i)==3.or.ib_table(i)==4).and.l_table(i)>=2) cycle !for Oxygen of NiO. skip 3d
        !   write(stdo,*) 'ham1 index', i,ib_table(i),l_table(i),k_table(i)
+       if( k_table(i)>2) cycle !skip PZ orbitals !
        nn=nn+1
        ix(nn)=i
        ib_tableM(nn)=ib_table(i)
@@ -160,7 +160,6 @@ contains
     if(master_mpi) write(stdo,*)" Wrote HamRsMTO file! End of lmfham1"
   end subroutine HamPMTtoHamRsMTO
   subroutine detemu(beta,val,evl,nev, emu)
-    use m_ftox
     integer:: nev,ix
     real(8):: evl(nev),val,emu,beta,demu,valn
     emu=-1d0
@@ -193,6 +192,7 @@ contains
 end module m_HamPMT
 module m_HamRsMTO ! read real-space MTO Hamiltonian
   use m_lgunit,only:stdo
+  use m_ftox
   integer,protected:: ndimMTO,npairmx,nspx  !ndimMTO<ldim if we throw away f MTOs, for example. 
   integer,allocatable,protected:: ib_tableM(:),l_tableM(:),k_tableM(:)
   complex(8),allocatable,protected:: ovlmr(:,:,:,:),hammr(:,:,:,:)
@@ -203,7 +203,7 @@ contains
     open(newunit=ifihmto,file='HamRsMTO',form='unformatted')
     read(ifihmto) ndimMTO,npairmx,nspx
 !    allocate(ix(ndimMTO))
-    if(master_mpi) write(stdo,*)'ndimMTO,npairmx,nspx=',ndimMTO,npairmx,nspx
+    if(master_mpi) write(stdo,ftox)'MTOHamiltonian: ndimMTO,npairmx,nspx=',ndimMTO,npairmx,nspx
     allocate(ovlmr(1:ndimMTO,1:ndimMTO,npairmx,nspx), hammr(1:ndimMTO,1:ndimMTO,npairmx,nspx))
     read(ifihmto)hammr(1:ndimMTO,1:ndimMTO,1:npairmx,1:nspx),ovlmr(1:ndimMTO,1:ndimMTO,1:npairmx,1:nspx) !,ix(1:ndimMTO)
     allocate(ib_tableM(1:ndimMTO),k_tableM(1:ndimMTO),l_tableM(1:ndimMTO))
@@ -216,7 +216,6 @@ subroutine Hreduction(iprx,facw,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, evl,hammout,o
   use m_zhev,only:zhev_tk4
   use m_readqplist,only: eferm
   use m_HamPMT,only: GramSchmidt
-  use m_ftox
   use m_lgunit,only:stdo
   implicit none
   integer::i,j,ndimPMT,ndimMTO,nx,nmx,ix(ndimMTO),nev,nxx,jj
