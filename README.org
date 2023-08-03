@@ -10,6 +10,10 @@
 This is README.org (easy to read in org-mode in emacs) at https://github.com/tkotani/ecalj. 
 Email to takaokotani@gmail.com.
 
+* LICENCE 
+We apply the licence [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.html) to ecalj.
+For publications, make a citation to https://github.com/tkotani/ecalj/, and/or PMT-QSGW refereces contained below.
+
 * What can we do in ecalj package?
 1. All electron full-potential PMT method, where the PMT method means 
    *A mixed basis method of two kinds of augmented waves, that is, LAPW+LMTO*.
@@ -51,11 +55,6 @@ Email to takaokotani@gmail.com.
    For example, a converter between POSCAR(VASP) and our crystal strucrue file 'ctrls.*' are included.
    As it is combined with seekpath and spglib, 
    Brillowin Zone and symmetry lines are automatically drawn with matplotlib.
-
-* LICENCE 
-We apply the licence [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.html) to ecalj.
-For publications, make a citation as; [1] We use ecalj at https://github.com/tkotani/ecalj/,
-and/or PMT-QSGW refereces above.
 
 * Automatic installation script and test
 We have an automatic installer and test system, just by a command.

@@ -80,33 +80,12 @@ contains
   !     used only for internal use
   integer function unusedfid()
     implicit none
-    integer:: i
+    integer:: i,ifile_handle
     logical ::L
-    !     check the last file is still open or not?
-    !     nf_input==0 means the first time, no check is necessary.
-
-    !     if (nf_input.ne.0) then
-    !     inquire(nf_input,opened=L)
-    !     takao aug2005. This is because nf_input might be closed and opened in other part---
     unusedfid=-9999
     inquire(opened=L,file=filename0)
-    if (L) then
-       call  getkeyvalue_err_exit( &
-            'unusedfid(getkeyvalue module)',' The last file is still opened. Close it first.')
-    endif
-    !     endif
-
-    !     find new unused file id
-    do i=10,999
-       inquire(i,opened=L)
-       if ( .NOT. L) then
-          unusedfid=i
-          return
-       endif
-    enddo
-    !     error
-    call  getkeyvalue_err_exit( &
-         'unusedfid(getkeyvalue module)' ,' no fid left')
+    if (L) call  getkeyvalue_err_exit( 'unusedfid(getkeyvalue module)',' The last file is still opened. Close it first.')
+    unusedfid=ifile_handle() ! find unused file handle 20230803
   end function unusedfid
   !----------------------------------------------------------
 

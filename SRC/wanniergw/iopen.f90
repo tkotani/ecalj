@@ -67,46 +67,39 @@ integer function iopen (nam,iform,istat,mrecl)
   ! top2rx 2013.08.09 kino      stop 'iopen: enlarge mxfil...'
   call rx( 'iopen: enlarge mxfil...')
 1012 continue
-  if(verbose()>91) write(6,"(' opening: ',i5,1x,a)") namn+9,namt
+  !if(verbose()>91)
+  write(6,"(' opening: ',i5,1x,a)") namn+9,trim(namt) !we have to write here to avoid gfortran bug for srvo3_crpa. Why???
   !      namn       = namn + 1
   !      if(namn .gt. mxfil) stop 'iopen: too many files'
 
   fnamn(namn)= namt
   iunit(namn)= 9 + namn
   if(namn>namnmax) namnmax=namn
-  ! cccccccccc
-  !      write(6,*)'namn,namnmax=',namn,namnmax
-  ! ccccccccccccc
-  ! akao
   if(debug) then
      do ix=9+1,namnmax
-        write(6,"(' iopen: namn iunit fnamn =',i5,i5,' ',a32)") &
-             ix,iunit(ix),fnamn(ix)
+        write(6,"(' iopen: namn iunit fnamn =',i5,i5,' ',a32)") ix,iunit(ix),fnamn(ix)
      enddo
   endif
 
   ! format
   fmt        = 'formatted'
   if(iform == 0) fmt = 'unformatted'
-
   ! status
   stat       = 'unknown'
   if(istat == 0) stat = 'old'
   if(istat == 1) stat = 'new'
   if(istat == 2) stat = 'scratch'
-
   ! open file
   !> sequential
   iopen      = iunit(namn)
   if (mrecl == 0) then
-     open(iopen,file=namt,form=fmt,status=stat)
+     open(iopen,file=trim(namt),form=trim(fmt),status=trim(stat))
   endif
 
   !> direct access
   if (mrecl > 0) then
      write(6,*)' mrelc.ne.0 file=',namt,mrecl
-     open(iopen,file=namt,form=fmt,status=stat,access='direct', &
-          recl=mrecl)
+     open(iopen,file=trim(namt),form=trim(fmt),status=trim(stat),access='direct',recl=mrecl)
   endif
 
   ! formats

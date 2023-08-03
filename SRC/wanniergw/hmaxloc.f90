@@ -565,40 +565,30 @@ program hmaxloc
   call getkeyvalue("GWinput",'wan_tbcut_heps',heps,default=0.0d0)
   write(*,*) 'mloc.heps ', heps
   !     ekino
+  call getkeyvalue("GWinput","wan_out_emax_auto",leauto,default=.false.)
+  call getkeyvalue("GWinput","wan_in_emax_auto",leinauto,default=.false.)
 
-
+  
   !c --- read LDA eigenvalues
   ntq = nwf
   ! --- info
-  call winfo(6,nspin,nq,ntq,is,nbloch &
-       ,0,0,nqbz,nqibz,ef,deltaw,alat,esmr)
+  call winfo(6,nspin,nq,ntq,is,nbloch,0,0,nqbz,nqibz,ef,deltaw,alat,esmr)
   iii=count(irk/=0) !ivsumxxx(irk,nqibz*ngrp)
   write(6,*) " sum of nonzero iirk=",iii, nqbz
-
   ! Rt vectors
   allocate (rt(3,nqbz),rt8(3,8,nqbz),qbz0(3,nqbz))
   !      write(6,"(a,9f9.4)")'qbas=',qbas
   !      write(6,"(a,9f9.4)")'plat=',plat
-  call getrt(qbz,qbas,plat,n1,n2,n3,nqbz, &
-       rt,rt8,qbz0)
-
+  call getrt(qbz,qbas,plat,n1,n2,n3,nqbz, rt,rt8,qbz0)
   ! b vectors
-  call getbb(plat,alat,n1,n2,n3, &
-       nbb,wbb,wbbsum,bb)
-
+  call getbb(plat,alat,n1,n2,n3, nbb,wbb,wbbsum,bb)
   ! index for k and k+bb
   allocate (ku(3,nqbz),kbu(3,nbb,nqbz),ikbidx(nbb,nqbz))
-
-  call kbbindx(qbz,ginv,bb, &
-       nqbz,nbb, &
-       ikbidx,ku,kbu)
-
-
+  call kbbindx(qbz,ginv,bb, nqbz,nbb, ikbidx,ku,kbu)
   allocate (iko_i(nqbz),iko_f(nqbz), &
        iki_i(nqbz),iki_f(nqbz), &
        ikbo_i(nbb,nqbz),ikbo_f(nbb,nqbz), &
        ikbi_i(nbb,nqbz),ikbi_f(nbb,nqbz))
-
   !! takao list eigen -----
   enwfmax =-1d9
   enwfmaxi=1d9
@@ -622,20 +612,16 @@ program hmaxloc
   enddo
   deallocate(eqt)
   write(6,"('elist max enwf enwfmaxi=',2f13.5)") enwfmax,enwfmaxi
-  call getkeyvalue("GWinput","wan_out_emax_auto",leauto,default=.false.)
   if(leauto) then
      eomax= enwfmax + 1d-4
      write(6,*)
      write(6,"(' WE USE wan_out_emax_auto on ==> +1d-3 ==> eomax=',3f13.5)") eomax
   endif
-  call getkeyvalue("GWinput","wan_in_emax_auto",leinauto,default=.false.)
   if(leinauto) then
      eimax= enwfmaxi + 1d-4
      write(6,*)
      write(6,"(' WE USE  wan_in_emax_auto on ==> +1d-3 ==> eimax=',3f13.5)") eimax
   endif
-
-  !      stop 'qqqqqqqqqqqqqqqqqq'
 
   !! ixc = 1 ----------------
   if (ixc == 1) then
@@ -649,13 +635,11 @@ program hmaxloc
              iko_ixs(is),iko_fxs(is),noxs(is), &
              leout,lein)
      enddo
-
      ! write bb vectors to 'BBVEC'
      call writebb(ifbb,wbb(1:nbb),bb(1:3,1:nbb), &
           ikbidx,ku,kbu, &
           iko_ixs,iko_fxs,noxs, &
           nspin,nqbz,nbb)
-
      ! m, 060923 !!!
      ifwand = iopen('wan.d',1,-1,0)
      iko_ix = iko_ixs(1)

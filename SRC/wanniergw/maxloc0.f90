@@ -736,8 +736,6 @@ subroutine  writebb(ifbb,wbb,bb, &
        iko_ixs(2),iko_fxs(2),noxs(2)
   real(8) :: wbb(nbb),bb(3,nbb),bb2(3), &
        ku(3,nqbz),kbu(3,nbb,nqbz)
-
-
   ifbb = iopen('BBVEC',1,-1,0)
   write(ifbb,*)'nbb,nqbz'
   write(ifbb,*)nbb,nqbz
