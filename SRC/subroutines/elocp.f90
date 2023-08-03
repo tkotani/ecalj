@@ -32,7 +32,7 @@ contains
     ! --- Setup ---
     call tcn('elocp')
     if(allocated(ehl)) deallocate(ehl,rsml)
-    allocate( ehl(n0,nspec),rsml(n0,nspec))
+    allocate( ehl(n0,nspec),rsml(n0,nspec),source=0d0)
 !    if(sum(lpzex)/=0) return
     ipr = iprint()
     eloc = .false.

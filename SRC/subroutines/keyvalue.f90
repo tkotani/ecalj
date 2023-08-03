@@ -83,7 +83,7 @@ contains
     integer:: i,ifile_handle
     logical ::L
     unusedfid=-9999
-    inquire(opened=L,file=filename0)
+    inquire(file=filename0,opened=L)
     if (L) call  getkeyvalue_err_exit( 'unusedfid(getkeyvalue module)',' The last file is still opened. Close it first.')
     unusedfid=ifile_handle() ! find unused file handle 20230803
   end function unusedfid
