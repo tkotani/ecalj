@@ -124,10 +124,11 @@ program lmfham2 ! Get the Hamiltonian of the MTO-based localized orbital |MLO> f
   if(job==1) goto 1011 !Goto Souza's iteration job=1 mode
   
   GetCNmatFile: block  !job=0 mode to get CNmat file (connection matrix uumat and so on).
-    real(8):: qp(3),evl(nband,nqbz),ovl(nband)
+    real(8):: qp(3)
     complex(8):: emat(nband,nband),osq(1:nband,1:nband),o2al(1:nband,1:nband,nqbz),phase,ovlmm(nband,nMLO),&
          evec(nband,nband,nqbz),evecx(1:nband,1:nband), ovec(nband,nband),amnk(iko_ix:iko_fx,nMLO,nqbz),&
          ovlm(1:nband,1:nband),ovlmx(1:nband,1:nband), hamm(1:nband,1:nband),uumat(iko_ix:iko_fx,iko_ix:iko_fx,nbb,nqbz)
+    allocate(evl(nband,nqbz),ovl(nband))!NOTE: 20230805. When I declear evl in this block, ifort18.05 gives strange results.
     write(stdo,ftox)'Going to get CNmat ... : nband for |MLO1>=',nband,'iko_i iko_f=',iko_ix,iko_fx
     open(newunit=ifuumat,file='CNmat',form='unformatted')
     uuispinloop: do 1010 is = 1,nspin
@@ -253,7 +254,7 @@ program lmfham2 ! Get the Hamiltonian of the MTO-based localized orbital |MLO> f
               zmn(i,i)=zmn0(i,i) + WTbandii(i)!Add penalty part to emphasize lower/innner window
            enddo   
            do concurrent(i=iko_i(iq):iko_f(iq))
-              WTinnerii(i)=-WTinner/(exp((evl(i,iq)-einnerH)/ewid)+1d0)/(exp(-(evl(i,iq)-einnerL)/ewid)+1d0) !inner window enhancement 
+              WTinnerii(i)=-WTinner*fermidist((evl(i,iq)-einnerH)/ewid)*fermidist(-(evl(i,iq)-einnerL)/ewid)
               zmn(i,i)=zmn(i,i) + WTinnerii(i)!Add penalty part to emphasize lower/innner window
            enddo
            if(WTseed/=0d0) zmn=zmn-WTseed*matmul(amnk(iko_i(iq):iko_f(iq),1:nMLO,iq), & !projection to Seed functions
@@ -299,7 +300,7 @@ program lmfham2 ! Get the Hamiltonian of the MTO-based localized orbital |MLO> f
      GetHamiltonianforMTObyProjection: block  !We do not use Marzari's unitary rotation
        real(8):: qq(3)
        integer:: il,im,in,ib1,ib2,jsp
-       complex(8):: ham(nMLO,nMLO),ovlx(nMLO,nMLO),phase,proj(iko_ix:iko_fx,iko_ix:iko_fx),pa(iko_ix:iko_fx,nMLO)
+       complex(8):: phase,proj(iko_ix:iko_fx,iko_ix:iko_fx),pa(iko_ix:iko_fx,nMLO),ham(nMLO,nMLO),ovlx(nMLO,nMLO)
        jsp=is
        do iqbz = 1,nqbz
           qq(:) = qbz(:,iqbz) !          write(6,*)' xxxx iq q=',iq,qq
@@ -307,10 +308,12 @@ program lmfham2 ! Get the Hamiltonian of the MTO-based localized orbital |MLO> f
              proj(i,j) = sum(cnk(i,:,iqbz)*dconjg(cnk(j,:,iqbz))) !sum for MLOindex
           enddo
           pa(iko_ix:iko_fx,1:nMLO) = matmul(proj,amnk(iko_ix:iko_fx,1:nMLO,iqbz))
+!          write(6,*)'sumcheck ham=',iqbz,sum(abs(pa)),sum(abs(evl(iko_ix:iko_fx,iqbz))),sum(abs(amnk(iko_ix:iko_fx,1:nMLO,iqbz)))
           do concurrent(i=1:nMLO,j=1:nMLO)
-             ham(i,j)  = sum(dconjg(pa(:,i))*evl(:,iqbz)*pa(:,j)) !sum(dconjg(pa(:,i))*pa(:,j))!
+             ham(i,j)  = sum(dconjg(pa(:,i))*evl(iko_ix:iko_fx,iqbz)*pa(:,j)) !sum(dconjg(pa(:,i))*pa(:,j))!
              ovlx(i,j) = sum(dconjg(pa(:,i))*pa(:,j))
           enddo
+!          write(6,*)'sumcheck ham=',iqbz,sum(abs(ham))
           do concurrent(i=1:nMLO,j=1:nMLO) !Real space Hamiltonian. H(k)->H(T) FT to real space
              ib1 = ib_tableM(i) 
              ib2 = ib_tableM(j) 
@@ -354,7 +357,7 @@ program lmfham2 ! Get the Hamiltonian of the MTO-based localized orbital |MLO> f
        enddo
        close(iband)
      endblock bandplotMLO
-     write(stdo,ftox)'einner ewid (eV)=',ftof((einner-eferm)*rydberg()),ftof(ewid*rydberg())
+!     write(stdo,ftox)'einner ewid (eV)=',ftof((einner-eferm)*rydberg()),ftof(ewid*rydberg())
      Modifiedbandplotglt: block
        integer:: ifglt1,ifglt
        character(256):: aline,fname,fname2
@@ -382,9 +385,20 @@ program lmfham2 ! Get the Hamiltonian of the MTO-based localized orbital |MLO> f
     deallocate(cnk,omgik,evals,wtbandq,wtinnerq)
 1000 enddo ispinloop
   call rx0('OK! end of lmfham2 -----------------')
-END PROGRAM lmfham2
+contains
+  pure real(8) function fermidist(x)
+    real(8),intent(in) :: x
+    if(x>100d0) then
+       fermidist=0d0
+    elseif(x<-100d0) then
+       fermidist=1d0
+    else
+       fermidist=1d0/(exp(x)+1)
+    endif
+  end function fermidist
+END PROGRAM
 
-     
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
      ! ! --- Readin nlam index
      ! open(newunit=ifoc,file ='@MNLA_CPHI')
