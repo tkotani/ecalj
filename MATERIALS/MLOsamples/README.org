@@ -46,7 +46,7 @@ Then we run
 (Not yet paralellized).
 You can change mlo_* and repeat lmfham2
 
-See exa
+See examples
 
 * Check results
 We have two results.
@@ -57,7 +57,12 @@ We have two results.
      This is for not only for the Hamiltonian of |MLO> (muffin-tin-projected basis).
 
 * TODO
-# Many possible cases
-# Default setting. Can we make it automatic?
-# Parallel
-# Effective interaction. Plot picture. Range control (range of Hamiltonian). 
+** Parallellize lmfham2, speed up
+** Test many possible cases. 
+    Semiconductors, 4f, magnetic systems, transition metal oxides..., graphite... Slab
+** Default setting. Can we make it automatic?
+** Calculate effective interaction. Plot picture of MLO. 
+** Evaluate range of Hamiltonian. 
+** PROBLEMS: (not so serious)
+ The space-group symmety is slightly broken in lmfham1, which uses Gram-shmidt diagonalization. (one by one otrhogonalized from bottom).
+ The Souza procedure of lmfham2 may enhance the broken symmetry.

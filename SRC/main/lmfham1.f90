@@ -1,4 +1,4 @@
-program lmfham1 ! Read HamiltonianPMT and generates MT-projected Basis Hamiltonian <MTP|H|MTP> and overlap <MTP|MTP>
+program lmfham1 ! Read HamiltonianPMT and generates MT-projected-orbital Hamiltonian <MPO|H|MPO> and overlap <MPO|MTPO>
   use m_HamPMT,only: ReadHamPMTInfo, HamPMTtoHamRsMTO, plat,npair,nlat,nqwgt,ldim,nkp,qplist,ib_table,alat
   !                                  HamPMTtoHamRsMTO do not change variables here. Only generate HamRsMTO file.
   use m_HamRsMTO,  only: hammr,ovlmr,ndimMTO, ReadHamRsMTO, npairmx,nspx,ib_tableM
@@ -110,7 +110,7 @@ program lmfham1 ! Read HamiltonianPMT and generates MT-projected Basis Hamiltoni
             if(trim(aline)=="plot \") then !"
              write(ifglt1,ftox)"ef=",ftof(eferm)  
              write(ifglt1,ftox)trim(aline)
-             write(ifglt1,ftox)'"'//trim(fband(jsp))//'" u ($1):(13.605*($2-ef)) pt 2 lc rgb "red",\' !' 
+             write(ifglt1,ftox)'"'//trim(fband(jsp))//'" u ($1):(13.605*($2-ef)) pt 2 lc rgb "green",\' !' 
             else
              write(ifglt1,ftox)trim(aline)
             endif   

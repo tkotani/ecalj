@@ -10,10 +10,6 @@
 This is README.org (easy to read in org-mode in emacs) at https://github.com/tkotani/ecalj. 
 Email to takaokotani@gmail.com.
 
-* LICENCE 
-We apply the licence [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.html) to ecalj.
-For publications, make a citation to https://github.com/tkotani/ecalj/, and/or PMT-QSGW refereces contained below.
-
 * What can we do in ecalj package?
 1. All electron full-potential PMT method, where the PMT method means 
    *A mixed basis method of two kinds of augmented waves, that is, LAPW+LMTO*.

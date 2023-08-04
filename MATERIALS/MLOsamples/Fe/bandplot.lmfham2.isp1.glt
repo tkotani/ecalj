@@ -1,0 +1,22 @@
+set terminal postscript enhanced color eps
+set output "bandplot.isp1.band.eps"
+set xzeroaxis
+set grid
+set ylabel "Energy-Efermi(eV)"
+# This is given written in subroutine writeband in lm7K/fp/bndfp.F
+set title "Band fe isp=1"
+set yrange [   -20.00000:    20.00000]
+set xrange [0.0:     1.86603]
+set xtics ('P'   0.0000000000,\
+'Gamma'   0.8660254038,\
+'to'   1.8660254038)
+set x2tics ('to'   0.8660254038,\
+'to'   1.8660254038)
+tpia=2*3.1415926/     5.41690
+ef=  0.019454
+plot \
+"band_lmfham2_spin1.dat" u ($1):(13.605*($2-ef)) pt 2 lc rgb "red",\
+"bnd001.spin1" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd002.spin1" u ($2):($3) lt 1 pt 1 w lp
+set terminal x11
+replot

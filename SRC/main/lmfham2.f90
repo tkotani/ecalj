@@ -1,7 +1,7 @@
 program lmfham2 ! Get the Hamiltonian of the MTO-based localized orbital |MLO> from
-  ! that of the MTO-projected basis |MTP>. Conversion from MTP(hmmr1,ommr1,nband) to MLO(hmmr2,ommr2,nMLO).
-  ! In advance, run lmfham1 to get |MTP> (MTPare given by a projection from MTOs to PMT space.
-  ! That is, |MTP_i> = M |PMT_i>, where M is a mapping from MTP to the space of PMT.
+  ! that of the MTO-projected basis |MPO>. Conversion from MPO(hmmr1,ommr1,nband) to MLO(hmmr2,ommr2,nMLO).
+  ! In advance, run lmfham1 to get |MPO> (MPOare given by a projection from MTOs to PMT space.
+  ! That is, |MPO_i> = M |PMT_i>, where M is a mapping from MPO to the space of PMT.
   !  
   ! We use a modified procedure of this method of  [2]I.Souza, N.Marzari and D.Vanderbilt, PRB65,035109(2002) 
   !
@@ -368,7 +368,7 @@ program lmfham2 ! Get the Hamiltonian of the MTO-based localized orbital |MLO> f
           if(trim(aline)=="plot \") then !"
              write(ifglt1,ftox)"ef=",ftof(eferm)  
              write(ifglt1,ftox)trim(aline)
-             write(ifglt1,ftox)'"'//trim(fband1)//'" u ($1):(13.605*($2-ef)) pt 2 lc rgb "red",\'   !'  
+             write(ifglt1,ftox)'"'//trim(fband1)//'" u ($1):(13.605*($2-ef)) pt 2 lc rgb "green",\'   !'  
              write(ifglt1,ftox)'"'//trim(fband)//'" u ($1):(13.605*($2-ef)) pt 2 lc rgb "red",\'   !'  
           else
              write(ifglt1,ftox)trim(aline)

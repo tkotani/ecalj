@@ -22,5 +22,5 @@ mpirun -np $3 $nfpgw/lmfham1 $1 >& out_lmfham1
 #$nfpgw/lmfham2 --job=0 >& out_lmfham2_0
 #$nfpgw/lmfham2 --job=1 >& out_lmfham2_1
 echo 'OK! end of job_ham. '
-echo  'Run lmfham2 --job0 and lmfham2 --job1 after edit GWinput'
+echo  'Run lmfham2 --job=0 and lmfham2 --job=1 after edit GWinput'
 
