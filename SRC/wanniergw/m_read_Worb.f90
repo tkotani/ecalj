@@ -83,13 +83,10 @@ contains
 !       write(6,"(' readin Worb: ibas=',i5,': orb= ',255i3)')") iclass, cbas_mlwf(1:nbasclass_mlwf(iclass),iclass)
 !    enddo   
   end subroutine s_read_Worb
-
-  !!------------------------------------------------
   subroutine s_cal_Worb()
     use m_ll,only:ll
     use m_keyvalue,only: getkeyvalue
-    use m_HamPMT,  only: natom=>nbas
-!    use m_genallcf_v3, only : natom
+    use m_genallcf_v3, only : natom !    use m_HamPMT,  only: natom=>nbas !NOT 2023-8-4
     implicit none
     integer:: iclass, iclass2, iphidot_plus, ifmloc, iphi_tmp
     integer :: i, j, l_number, correction
@@ -105,9 +102,9 @@ contains
     read(ifmloc,*)
     ioffadd = 0
     do
-       read(ifmloc,*,err=888) ixatom, il ,nnvv!(il,ixatom)
+       read(ifmloc,*,err=888)ixatom,il,nnvv
        ioffset(il,ixatom) = ioffadd
-       !         write(6,"(' iatom l nnvv=',4i5)") ixatom, il, nnvv(il,ixatom),ioffset(il,ixatom)
+       !       write(6,"(' iatom l nnvv=',4i5)") ixatom, il, nnvv,ioffset(il,ixatom)
        ioffadd = ioffadd + nnvv * (2*il+1)
     end do
 888 continue
