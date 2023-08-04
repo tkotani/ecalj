@@ -47,7 +47,7 @@ program lmfham2 ! Get the Hamiltonian of the MTO-based localized orbital |MLO> f
   complex(8),allocatable::ovlm(:,:),ovlmx(:,:),hamm(:,:),ovec(:,:)!,emat(:,:)
   complex(8),allocatable:: uumat(:,:,:,:),evecc(:,:), amnk(:,:,:),cnk(:,:,:),umnk(:,:,:),evecc1(:,:,:),evecc2(:,:,:)
   complex(8),allocatable:: hmmr2(:,:,:,:),ommr2(:,:,:,:),wmat(:,:),wmat2(:,:)
-  character(256):: fband
+  character(256):: fband,fband1
   logical:: cmdopt2,noinner
   real(8):: WTseed,eoffset
   character:: outs*20
@@ -329,6 +329,7 @@ program lmfham2 ! Get the Hamiltonian of the MTO-based localized orbital |MLO> f
        integer:: iband
        jsp=is
        fband='band_lmfham2_spin'//char(48+jsp)//'.dat'
+       fband1='band_lmfham1_spin'//char(48+jsp)//'.dat'
        open(newunit=iband,file=trim(fband))
        do iq= 1,ndat
           qp=qplistsy(:,iq) 
@@ -356,17 +357,18 @@ program lmfham2 ! Get the Hamiltonian of the MTO-based localized orbital |MLO> f
      write(stdo,ftox)'einner ewid (eV)=',ftof((einner-eferm)*rydberg()),ftof(ewid*rydberg())
      Modifiedbandplotglt: block
        integer:: ifglt1,ifglt
-       character(256):: aline,fname,fname1
+       character(256):: aline,fname,fname2
        jsp = is
-       fname1='bandplot.lmfham2.isp'//char(48+jsp)//'.glt'
+       fname2='bandplot.lmfham2.isp'//char(48+jsp)//'.glt'
        fname ='bandplot.isp'//char(48+jsp)//'.glt'
        open(newunit=ifglt,  file=trim(fname))
-       open(newunit=ifglt1, file=trim(fname1))
+       open(newunit=ifglt1, file=trim(fname2))
        do 
           read(ifglt,"(a)",err=989,end=989)aline
           if(trim(aline)=="plot \") then !"
              write(ifglt1,ftox)"ef=",ftof(eferm)  
              write(ifglt1,ftox)trim(aline)
+             write(ifglt1,ftox)'"'//trim(fband1)//'" u ($1):(13.605*($2-ef)) pt 2 lc rgb "red",\'   !'  
              write(ifglt1,ftox)'"'//trim(fband)//'" u ($1):(13.605*($2-ef)) pt 2 lc rgb "red",\'   !'  
           else
              write(ifglt1,ftox)trim(aline)
@@ -375,7 +377,7 @@ program lmfham2 ! Get the Hamiltonian of the MTO-based localized orbital |MLO> f
 989    continue
        close(ifglt)
        close(ifglt1)
-       write(stdo,ftox)'OK! Run gnuplot -p '//trim(fname1)//'.Red points are by hmmr2 for Hamiltonian on {|MLO2>}'
+       write(stdo,ftox)'OK! Run gnuplot -p '//trim(fname2)//'.Red points are by hmmr2 for Hamiltonian on {|MLO2>}'
     endblock Modifiedbandplotglt
     deallocate(cnk,omgik,evals,wtbandq,wtinnerq)
 1000 enddo ispinloop

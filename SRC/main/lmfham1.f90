@@ -110,7 +110,7 @@ program lmfham1 ! Read HamiltonianPMT and generates MT-projected Basis Hamiltoni
             if(trim(aline)=="plot \") then !"
              write(ifglt1,ftox)"ef=",ftof(eferm)  
              write(ifglt1,ftox)trim(aline)
-             write(ifglt1,ftox)'"'//trim(fband(jsp))//'" u ($1):(13.605*($2-ef)) pt 2 lc rgb "brown",\' !' 
+             write(ifglt1,ftox)'"'//trim(fband(jsp))//'" u ($1):(13.605*($2-ef)) pt 2 lc rgb "red",\' !' 
             else
              write(ifglt1,ftox)trim(aline)
             endif   
