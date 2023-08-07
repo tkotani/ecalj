@@ -61,7 +61,7 @@ contains
   !c$$$          enddo
   !c$$$        enddo
   !c$$$      enddo
-  subroutine HamPMTtoHamRsMTO(facw) !Convert HamPMT(k mesh) to HamRsMTO(real space)
+  subroutine HamPMTtoHamRsMTO(facw,ecutw,eww) !Convert HamPMT(k mesh) to HamRsMTO(real space)
     use m_zhev,only:zhev_tk4
     use m_readqplist,only: eferm
     use m_mpi,only: MPI__reduceSum
@@ -71,7 +71,7 @@ contains
     complex(8),allocatable:: hamm(:,:),ovlm(:,:)!,t_zv(:,:)!,ovlmx(:,:)
     logical:: lprint=.true.,savez=.false.,getz=.false.,skipdiagtest=.false.
     complex(8):: img=(0d0,1d0),aaaa,phase
-    real(8)::qp(3),pi=4d0*atan(1d0),fff,ef,fff1=2,fff2=2,fff3=0 ,facw
+    real(8)::qp(3),pi=4d0*atan(1d0),fff,ef,fff1=2,fff2=2,fff3=0 ,facw,ecutw,eww
     integer:: nn,ib,k,l,ix5,imin,ixx,j2,j1,j3,nx,ix(ldim),iqini,iqend,ndiv
     integer:: ndimMTO !ndimMTO<ldim if we throw away f MTOs, for example. 
     include "mpif.h"
@@ -114,7 +114,7 @@ contains
        epsovl=0d0 !1d-8
        GETham_ndimMTO: block
          real(8):: evlmlo(ndimMTO),evl(ndimPMT)
-         call Hreduction(.false.,facw,ndimPMT,hamm(1:ndimPMT,1:ndimPMT),ovlm(1:ndimPMT,1:ndimPMT), & !Get reduced Hamitonian for ndimMTO
+         call Hreduction(.false.,facw,ecutw,eww,ndimPMT,hamm(1:ndimPMT,1:ndimPMT),ovlm(1:ndimPMT,1:ndimPMT), & !Get reduced Hamitonian for ndimMTO
               ndimMTO,ix,fff1,      evl,hamm(1:ndimMTO,1:ndimMTO),ovlm(1:ndimMTO,1:ndimMTO)) 
          Checkfinaleigen: block
            complex(8):: evec(ndimMTO**2), hh(ndimMTO,ndimMTO),oo(ndimMTO,ndimMTO)
@@ -212,14 +212,14 @@ contains
     if(master_mpi) write(stdo,*)'OK: Read HamRsMTO file!'
   end subroutine ReadHamRsMTO
 end module m_HamRsMTO
-subroutine Hreduction(iprx,facw,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, evl,hammout,ovlmout)!Reduce H(ndimPMT) to H(ndimMTO)
+subroutine Hreduction(iprx,facw,ecutw,eww,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, evl,hammout,ovlmout)!Reduce H(ndimPMT) to H(ndimMTO)
   use m_zhev,only:zhev_tk4
   use m_readqplist,only: eferm
   use m_HamPMT,only: GramSchmidt
   use m_lgunit,only:stdo
   implicit none
   integer::i,j,ndimPMT,ndimMTO,nx,nmx,ix(ndimMTO),nev,nxx,jj
-  real(8)::beta,emu,val,wgt(ndimPMT),evlmto(ndimMTO),evl(ndimPMT),evlx(ndimPMT),facw
+  real(8)::beta,emu,val,wgt(ndimPMT),evlmto(ndimMTO),evl(ndimPMT),evlx(ndimPMT),facw,ecutw,eww
   complex(8):: oz(ndimPMT,ndimPMT),wnj(ndimPMT,ndimMTO),wnm(ndimPMT,ndimMTO),wnn(ndimMTO,ndimMTO)
   complex(8):: evecmto(ndimMTO,ndimMTO),evecpmt(ndimPMT,ndimPMT)
   complex(8):: ovlmx(ndimPMT,ndimPMT),hammx(ndimPMT,ndimPMT),fac(ndimPMT,ndimMTO),ddd(ndimMTO,ndimMTO)
@@ -244,13 +244,15 @@ subroutine Hreduction(iprx,facw,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, evl,hammout,o
   enddo
   mulfac :block
     integer:: ie,nidxevlmto,nidxevl,ibx,jx,idxevlmto(ndimMTO),idxevl(ndimPMT),jbx
-    real(8):: eee,fffx,ecut,xxx
+    real(8):: eee,fffx,ecut,xxx,ewcutf,rydberg,facww
     real(8),allocatable::mulfac(:,:),mulfacw(:,:)
     complex(8):: www
-    do j=1,ndimMTO 
+!    real(8):: ewcut=1d0,eww=0.1d0
+    ewcutf = ecutw+eferm
+    do j=1,ndimMTO
        do i=1,ndimPMT
-          wnm(i,j) = fac(i,j)**(1d0+facw) !www=fac(i,j)!www**facw
-          !* 1d0/(exp(abs(evlmto(j)-evl(i)))+1d0) !.5d0 !1d0,0.25d0 is poorer ! www**2 !weight multipled.
+          facww = facw*fermidist((evlmto(j)-ewcutf)/eww) 
+          wnm(i,j) = fac(i,j)**(1d0+facww)
        enddo
     enddo   
   endblock mulfac
@@ -271,5 +273,16 @@ subroutine Hreduction(iprx,facw,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, evl,hammout,o
         ovlmout(i,j)= sum( dconjg(wnj(1:nx,i))*wnj(1:nx,j) ) !<MLO|MLO>
      enddo
   enddo
+contains
+  real(8) function fermidist(x)
+    real(8),intent(in) :: x
+    if(x>100d0) then
+       fermidist=0d0
+    elseif(x<-100d0) then
+       fermidist=1d0
+    else
+       fermidist=1d0/(exp(x)+1)
+    endif
+  end function fermidist
 end subroutine Hreduction
 
