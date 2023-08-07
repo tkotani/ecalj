@@ -18,7 +18,7 @@ program lmfham1 ! Read HamiltonianPMT and generates MT-projected-orbital Hamilto
   complex(8)::img=(0d0,1d0),phase 
   real(8),allocatable:: evl(:)
   real(8)::qp(3),pi=4d0*atan(1d0)
-  real(8)::facw,ecutw,eww
+  real(8)::facw,ecutw,eww,rydberg
   logical:: lprint=.true.,savez=.false.,getz=.false. 
   integer:: ndatx,ifsy1,ifsy2,ifsy,iix(36),nsc1,iqini,iqend,ndiv
   logical:: symlcase=.true.
@@ -31,8 +31,9 @@ program lmfham1 ! Read HamiltonianPMT and generates MT-projected-orbital Hamilto
   call m_lgunit_init() !set stdo,stdl
   call m_lmfinit_init('LMF')! Read ctrlp into module m_lmfinit.
   call ReadHamPMTInfo()   ! Read infomation for PMT Hamiltonian (lattice structures and index of basis).
-  call getkeyvalue("GWinput","mlo_facw",facw,default=.5d0) !size of fixing inner window
-  call getkeyvalue("GWinput","mlo_ecutw",ecutw,default=2d0) !size of fixing inner window
+  call getkeyvalue("GWinput","mlo_facw",facw,default=.5d0)   
+  call getkeyvalue("GWinput","mlo_ecutw",ecutw,default=2*rydberg())
+  ecutw=ecutw/rydberg()
   call getkeyvalue("GWinput","mlo_eww",eww,default=.1d0) !size of fixing inner window
   if(master_mpi) write(stdo,ftox)'mlo_facw _ecutw _eww=',ftof(facw),ftof(ecutw),ftof(eww)
   if(symlcase) call readqplistsy()      ! When symlcase=T, read qplist.dat (q points list, see bndfp.F). 

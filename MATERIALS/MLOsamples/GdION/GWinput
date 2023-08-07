@@ -132,9 +132,9 @@ QforEPSunita on
   1 Gd   10 11 12 13 14 15 16
 </Worb> 
 
-mlo_facw  1.0
-mlo_ecutw 2.0
-mlo_eww   0.1
+!mlo_facw  .5  ! <PMT|MTO>**(1d0+mlo_facw) 
+mlo_ecutw 26   ! eV  mlo_facw is reduced to be 0 for eigen> mlo_ecutw
+!mlo_eww   0.1  ! smoothing for energy-dependent mlo_facw
 
 mlo_WTband 32
 mlo_WTinner 256
