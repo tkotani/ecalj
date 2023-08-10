@@ -8,7 +8,7 @@
 #+OPTIONS: \n:t
  
 This is README.org (easy to read in org-mode in emacs) at https://github.com/tkotani/ecalj. 
-Email to takaokotani@gmail.com.
+Email to takaokotani@gmail.com. Licence:AGPLv3
 
 * What can we do in ecalj package?
 1. All electron full-potential PMT method, where the PMT method means 

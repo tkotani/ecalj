@@ -33,7 +33,7 @@ program lmfham2 ! Get the Hamiltonian of the MTO-based localized orbital |MLO> f
   real(8) :: tpia,vol,voltot,rs,alpha, rydberg,hartree,qlat(3,3),tripl,wbbsum,bb(3,12),eimax ,wbbs,WTbandqsum,WTinnerqsum,&
        evalssold,qi(3,nlinex),qf(3,nlinex), omgi,omgiold,conv1,alpha1,zesumold,zesi,emm,einnerL,einnerH,einnerLeV,einnerHeV,&
        emin,evalss,sss,qiin(3),qfin(3),qold(3),enwfmax,qxx(3),eeee,enwfmaxi, epsovl=1d-8,ginv(3,3),einner,ewid,WTinner,ecenter,&
-       eee,etest,egap,WTband
+       eee,etest,egap,WTband,hardeinnerLev,hardeinnerHev
   character(8) :: xt
   real(8),allocatable    :: q(:,:)
   real(8),allocatable:: ku(:,:),kbu(:,:,:),eunk(:,:),eval(:), eks(:),wbb(:)
@@ -90,11 +90,13 @@ program lmfham2 ! Get the Hamiltonian of the MTO-based localized orbital |MLO> f
     call getkeyvalue("GWinput","mlo_mix",alpha1,default=.5d0) 
     call getkeyvalue("GWinput",'mlo_WTseed',WTseed,default=0d0)   !WTseed
     call getkeyvalue("GWinput","mlo_WTband"  ,WTband,default=32d0)    ! Weight to minimize band energies
-    call getkeyvalue("GWinput","mlo_WTinner", WTinner,default=8192d0/WTband)  ! inner energy window WeighTing
+    call getkeyvalue("GWinput","mlo_WTinner", WTinner,default=2048d0)  ! inner energy window WeighTing
     call getkeyvalue("GWinput","mlo_EWinner", ewid, default=.1d0)     ! inner energy window softing eV
     call getkeyvalue("GWinput","mlo_ELinner", einnerLeV,default=-1d8) ! inner energy window lower eV relative to efermi (or VBM)
     call getkeyvalue("GWinput","mlo_EUinner", einnerHeV,default= 1d8) ! inner energy window upper eV relative to efermi
     call getkeyvalue("GWinput","mlo_EUinneradd",eoffset,default=3d0)   !bandgap+3eV is default Einner
+    call getkeyvalue("GWinput","mlo_ELhardinner",hardeinnerLev,default=999999d0) !Hard inner
+    call getkeyvalue("GWinput","mlo_EUhardinner",hardeinnerHev,default=-999999d0)   
     if(master_mpi) then
        write(stdo,ftox)' Reading: mlo_ maxit conv mix=',nsc1,ftof(conv1),ftof(alpha1)
        write(stdo,ftox)' Reading: mlo_WTseed =',ftof(WTseed,2)
@@ -102,9 +104,9 @@ program lmfham2 ! Get the Hamiltonian of the MTO-based localized orbital |MLO> f
        write(stdo,ftox)' Reading: mlo_WTinner=',ftof(WTinner,2)        ! WTband,WTinner=32,256 for Si888, =8,1024 for Si666
        write(stdo,ftox)' Reading: mlo_EUinner mlo_ELinner _EWinner(eV)=',ftof(einnerHeV,2),ftof(einnerLeV,2),ftof(ewid,2)
 ! --- Our test show WTband,WTinner=4,1024 is good for Si666(spd model); =32,256 is for Si888 ---'
-       write(stdo,ftox)' Rule of thumb: WTband x WTinner ~ 8192 to respect nabla term (smooth continuity).' 
-       write(stdo,ftox)'    mlo_WTband push down bands when we use low mlo_WTinner: WTband maybe 4,8,16,32'
-       write(stdo,ftox)'    mlo_WTinner: (soft)128,256,512,1024,2048(Hard). '
+       write(stdo,ftox)' Rule of thumb: Too large WTband and WTinner may destroy smoothness of bands'
+       write(stdo,ftox)'    mlo_WTband:  Fill bands from bottom. Search range is 1,2,4,...,256'
+       write(stdo,ftox)'    mlo_WTinner: Usually =2048 works well. '
     endif
     ewid= ewid/rydberg() !in Ry.
   endblock ReadInfoFromGWinput
@@ -249,21 +251,25 @@ program lmfham2 ! Get the Hamiltonian of the MTO-based localized orbital |MLO> f
               zmn0(1:ndz,1:ndz) = zmn0(1:ndz,1:ndz) - 2d0*wbb(ibb)*upu(iko_i(iq):iko_f(iq),iko_i(iq):iko_f(iq),ibb,iq)
            enddo
            zmn=zmn0
-           do concurrent(i=iko_i(iq):iko_f(iq))
+           WTbandBlock: do concurrent(i=iko_i(iq):iko_f(iq))
               WTbandii(i)= WTband*(evl(i,iq))   !lower eigenvalue for higher energy
               zmn(i,i)=zmn0(i,i) + WTbandii(i)!Add penalty part to emphasize lower/innner window
-           enddo   
-           do concurrent(i=iko_i(iq):iko_f(iq))
-              WTinnerii(i)=-WTinner*fermidist((evl(i,iq)-einnerH)/ewid)*fermidist(-(evl(i,iq)-einnerL)/ewid)
-              zmn(i,i)=zmn(i,i) + WTinnerii(i)!Add penalty part to emphasize lower/innner window
-           enddo
-           if(WTseed/=0d0) zmn=zmn-WTseed*matmul(amnk(iko_i(iq):iko_f(iq),1:nMLO,iq), & !projection to Seed functions
-                dconjg(transpose(amnk(iko_i(iq):iko_f(iq),1:nMLO,iq)))) 
-           ! do i=iko_i(iq),iko_f(iq) !Hard inner window
-           !    if(evl(i,iq)<einnerH.and.evl(i,iq)>einnerL) then 
-           !       zmn(i,i)       = 9999d0; zmn(i,1:i-1   )= 0d0;  zmn(i,i+1:ndz )= 0d0; zmn(1:i-1, i  )= 0d0; zmn(i+1:ndz,i )= 0d0
-           !    endif   
-           ! enddo
+           enddo WTbandBlock
+           WTinnerBlock: do concurrent(i=iko_i(iq):iko_f(iq))
+              WTinnerii(i)= -WTinner*fermidist((evl(i,iq)-einnerH)/ewid)*fermidist(-(evl(i,iq)-einnerL)/ewid)
+              zmn(i,i)= zmn(i,i) + WTinnerii(i) !Add penalty part to emphasize innner window
+           enddo WTinnerBlock
+           WTseedBlock: if(WTseed/=0d0) then
+              zmn=zmn-WTseed*matmul(amnk(iko_i(iq):iko_f(iq),1:nMLO,iq), & !projection to Seed functions
+                   dconjg(transpose(amnk(iko_i(iq):iko_f(iq),1:nMLO,iq))))
+           endif WTseedBlock
+           HardInnerBlock: block !effective only when hardeinnerHeV > haredinnerLeV
+             do i=iko_i(iq),iko_f(iq) 
+                if(evl(i,iq)<hardeinnerHeV/rydberg()+eferm.and.evl(i,iq)>hardeinnerLeV/rydberg()+eferm) then 
+                   zmn(i,:)=0d0; zmn(:,i)= 0d0; zmn(i,i)= -1d6
+                endif
+             enddo
+           endblock HardInnerBlock
            call diag_hm(zmn,ndz,eval,evecc)
            ! eval(i)/wbbs is normalized. If all eval(i)/wbbs=1, P_k=P_{k+b}.
            forall(iwf = 1:nMLO) cnk(iko_i(iq):iko_f(iq),iwf,iq) = evecc(1:ndz,iwf) !ndz+1-iwf)

@@ -81,7 +81,7 @@ contains
        !if(l_table(i)>=3) cycle !only spd. skip f orbitals.     !if(k_table(i)==2.and.l_table(i)>=2) cycle ! throw away EH2 for d
        !if( (ib_table(i)==3.or.ib_table(i)==4).and.l_table(i)>=2) cycle !for Oxygen of NiO. skip 3d
        !   write(stdo,*) 'ham1 index', i,ib_table(i),l_table(i),k_table(i)
-       if( k_table(i)>2) cycle !skip PZ orbitals !
+ !      if( k_table(i)>2) cycle !skip PZ orbitals !
        nn=nn+1
        ix(nn)=i
        ib_tableM(nn)=ib_table(i)
@@ -215,7 +215,7 @@ end module m_HamRsMTO
 subroutine Hreduction(iprx,facw,ecutw,eww,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, evl,hammout,ovlmout)!Reduce H(ndimPMT) to H(ndimMTO)
   use m_zhev,only:zhev_tk4
   use m_readqplist,only: eferm
-  use m_HamPMT,only: GramSchmidt
+  use m_HamPMT,only: GramSchmidt,epsovl
   use m_lgunit,only:stdo
   implicit none
   integer::i,j,ndimPMT,ndimMTO,nx,nmx,ix(ndimMTO),nev,nxx,jj
@@ -225,13 +225,13 @@ subroutine Hreduction(iprx,facw,ecutw,eww,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, evl
   complex(8):: ovlmx(ndimPMT,ndimPMT),hammx(ndimPMT,ndimPMT),fac(ndimPMT,ndimMTO),ddd(ndimMTO,ndimMTO)
   complex(8):: hamm(ndimPMT,ndimPMT),ovlm(ndimPMT,ndimPMT)
   complex(8):: hammout(ndimMTO,ndimMTO),ovlmout(ndimMTO,ndimMTO)
-  real(8):: epsovl=0d0 ,fff1,fff !epsovl=1d-8
+  real(8):: epsovlm=0d0 ,fff1,fff !epsovl=1d-8
   logical:: iprx
   ovlmx= ovlm
   hammx= hamm
   nmx = ndimMTO
 !  write(stdo,ftox)'Start Hreduction: eferm=',ftof(eferm)
-  call zhev_tk4(ndimMTO,hamm(ix(1:ndimMTO),ix(1:ndimMTO)),ovlm(ix(1:ndimMTO),ix(1:ndimMTO)), nmx,nev, evlmto, evecmto, epsovl)
+  call zhev_tk4(ndimMTO,hamm(ix(1:ndimMTO),ix(1:ndimMTO)),ovlm(ix(1:ndimMTO),ix(1:ndimMTO)), nmx,nev, evlmto, evecmto, epsovlm)
   ovlm= ovlmx
   hamm= hammx
   nmx = ndimPMT
