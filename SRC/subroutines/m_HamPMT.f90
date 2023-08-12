@@ -2,11 +2,12 @@ module m_HamPMT ! -- Read HamiltionanPMTinfo and HamiltonianPMT. Then convert Ha
   use m_MPItk,only: procid, master_mpi, nsize,master
   use m_lgunit,only:stdo
   use m_ftox
+  use m_lmfinit,only: oveps
   real(8),allocatable,protected:: plat(:,:),pos(:,:),qplist(:,:),qlat(:,:)
   integer,allocatable,protected:: nlat(:,:,:,:),npair(:,:),ib_table(:),l_table(:),k_table(:),ispec_table(:),nqwgt(:,:,:)
   character(8),allocatable,protected:: slabl_table(:)
   integer,protected:: nkk1,nkk2,nkk3,nbas,nkp,npairmx,ldim,jsp,lso,nsp,nspx !ldim is number of MTOs
-  real(8),protected:: epsovl,alat
+  real(8),protected:: alat
   complex(8),allocatable,protected:: ovlmr(:,:,:,:),hammr(:,:,:,:)
   integer:: ndimMTO 
 contains
@@ -71,7 +72,7 @@ contains
     complex(8),allocatable:: hamm(:,:),ovlm(:,:)!,t_zv(:,:)!,ovlmx(:,:)
     logical:: lprint=.true.,savez=.false.,getz=.false.,skipdiagtest=.false.
     complex(8):: img=(0d0,1d0),aaaa,phase
-    real(8)::qp(3),pi=4d0*atan(1d0),fff,ef,fff1=2,fff2=2,fff3=0 ,facw,ecutw,eww
+    real(8)::qp(3),pi=4d0*atan(1d0),fff,ef,fff1=2,fff2=2,fff3=0 ,facw,ecutw,eww,xxx
     integer:: nn,ib,k,l,ix5,imin,ixx,j2,j1,j3,nx,ix(ldim),iqini,iqend,ndiv
     integer:: ndimMTO !ndimMTO<ldim if we throw away f MTOs, for example. 
     include "mpif.h"
@@ -104,14 +105,14 @@ contains
     write(stdo,ftox)'nsize procid iqini iqend=',nsize,procid,iqini,iqend
     iq=0
     qploop: do 
-       read(ifih,end=2019) qp,ndimPMT,lso,epsovl,jsp !jsp for isp; if so=1, jsp=1 only
+       read(ifih,end=2019) qp,ndimPMT,lso,xxx,jsp !jsp for isp; if so=1, jsp=1 only
        if(jsp==1) iq=iq+1
        if(iq<iqini.or.iqend<iq) cycle 
        if(master_mpi) write(stdo,"('=== Reading Ham for iq,spin,q=',2i4,3f9.5)") iq,jsp,qp
        allocate(ovlm(1:ndimPMT,1:ndimPMT),hamm(1:ndimPMT,1:ndimPMT))
        read(ifih) ovlm(1:ndimPMT,1:ndimPMT)
        read(ifih) hamm(1:ndimPMT,1:ndimPMT)
-       epsovl=0d0 !1d-8
+       !epsovl=0d0 !1d-8
        GETham_ndimMTO: block
          real(8):: evlmlo(ndimMTO),evl(ndimPMT)
          call Hreduction(.false.,facw,ecutw,eww,ndimPMT,hamm(1:ndimPMT,1:ndimPMT),ovlm(1:ndimPMT,1:ndimPMT), & !Get reduced Hamitonian for ndimMTO
@@ -122,7 +123,8 @@ contains
               hh = hamm(1:ndimMTO,1:ndimMTO) 
               oo = ovlm(1:ndimMTO,1:ndimMTO)
               nmx= ndimMTO
-              call zhev_tk4(ndimMTO,hh,oo, nmx,nev,evlmlo, evec, epsovl)
+!              write(6,*)'checkfinaleigen zhev_tk4'
+              call zhev_tk4(ndimMTO,hh,oo, nmx,nev,evlmlo, evec, oveps) !epsovl)
            endif
          endblock Checkfinaleigen
        endblock GETham_ndimMTO
@@ -215,30 +217,33 @@ end module m_HamRsMTO
 subroutine Hreduction(iprx,facw,ecutw,eww,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, evl,hammout,ovlmout)!Reduce H(ndimPMT) to H(ndimMTO)
   use m_zhev,only:zhev_tk4
   use m_readqplist,only: eferm
-  use m_HamPMT,only: GramSchmidt,epsovl
+  use m_HamPMT,only: GramSchmidt!,epsovl
   use m_lgunit,only:stdo
+  use m_lmfinit,only:oveps
   implicit none
-  integer::i,j,ndimPMT,ndimMTO,nx,nmx,ix(ndimMTO),nev,nxx,jj
+  integer::i,j,ndimPMT,ndimMTO,nx,nmx,ix(ndimMTO),nev,nxx,jj,ndimPMTx
   real(8)::beta,emu,val,wgt(ndimPMT),evlmto(ndimMTO),evl(ndimPMT),evlx(ndimPMT),facw,ecutw,eww
   complex(8):: oz(ndimPMT,ndimPMT),wnj(ndimPMT,ndimMTO),wnm(ndimPMT,ndimMTO),wnn(ndimMTO,ndimMTO)
   complex(8):: evecmto(ndimMTO,ndimMTO),evecpmt(ndimPMT,ndimPMT)
   complex(8):: ovlmx(ndimPMT,ndimPMT),hammx(ndimPMT,ndimPMT),fac(ndimPMT,ndimMTO),ddd(ndimMTO,ndimMTO)
   complex(8):: hamm(ndimPMT,ndimPMT),ovlm(ndimPMT,ndimPMT)
   complex(8):: hammout(ndimMTO,ndimMTO),ovlmout(ndimMTO,ndimMTO)
-  real(8):: epsovlm=0d0 ,fff1,fff !epsovl=1d-8
+  real(8):: fff1,fff !epsovl=1d-8 epsovlm=0d0 ,
   logical:: iprx
   ovlmx= ovlm
   hammx= hamm
   nmx = ndimMTO
-!  write(stdo,ftox)'Start Hreduction: eferm=',ftof(eferm)
-  call zhev_tk4(ndimMTO,hamm(ix(1:ndimMTO),ix(1:ndimMTO)),ovlm(ix(1:ndimMTO),ix(1:ndimMTO)), nmx,nev, evlmto, evecmto, epsovlm)
+!  write(stdo,*)'Start Hreduction: 111'
+  call zhev_tk4(ndimMTO,hamm(ix(1:ndimMTO),ix(1:ndimMTO)),ovlm(ix(1:ndimMTO),ix(1:ndimMTO)), nmx,nev, evlmto, evecmto, oveps)
   ovlm= ovlmx
   hamm= hammx
   nmx = ndimPMT
-  call zhev_tk4(ndimPMT,hamm(1:ndimPMT,1:ndimPMT),ovlm(1:ndimPMT,1:ndimPMT), nmx,nev, evl,evecpmt, epsovl) !PMT
+!  write(stdo,*)'Start Hreduction: 222'
+  call zhev_tk4(ndimPMT,hamm(1:ndimPMT,1:ndimPMT),ovlm(1:ndimPMT,1:ndimPMT), nmx,nev, evl,evecpmt, oveps) !PMT
   ovlm=ovlmx
+  ndimPMTx=nev
   do j=1,ndimMTO !wnm is corrected matrix element of <psi_PMT|psi_MTO>
-     do i=1,ndimPMT
+     do i=1,ndimPMTx
         fac(i,j)= sum(dconjg(evecpmt(:,i))*matmul(ovlmx(:,ix(1:ndimMTO)),evecmto(1:ndimMTO,j)))
      enddo
   enddo
@@ -250,23 +255,26 @@ subroutine Hreduction(iprx,facw,ecutw,eww,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, evl
 !    real(8):: ewcut=1d0,eww=0.1d0
     ewcutf = ecutw+eferm
     do j=1,ndimMTO
-       do i=1,ndimPMT
+       do i=1,ndimPMTx
           facww = facw*fermidist((evlmto(j)-ewcutf)/eww) 
-          wnm(i,j) = fac(i,j)**(1d0+facww)
+          wnm(i,j) = fac(i,j)*fac(i,j)**facww
+       enddo
+       do i=1,ndimPMTx
+          if(j<4.and.abs(fac(i,j))>.1d0) write(6,*)' j=',j,i,' fac=',abs(fac(i,j))
        enddo
     enddo   
   endblock mulfac
-  call GramSchmidt(ndimPMT,ndimMTO,wnm)
+  call GramSchmidt(ndimPMTx,ndimMTO,wnm(1:ndimPMTx,1:ndimMTO))
   if(iprx) then
      do j=1,ndimMTO !wnm is corrected matrix element of <psi_PMT|psi_MTO>
-        do i=1,ndimPMT
+        do i=1,ndimPMTx
            if(abs(wnm(i,j))>.1) write(stdo,*)'wnm matrix ',j,i,abs(wnm(i,j))**2
         enddo
      enddo
   endif
   ! Mapping operator wnm*<psi_MTO|F_i>, where F_i is MTO basis.
-  wnj = matmul(wnm(1:ndimPMT,1:ndimMTO),matmul(transpose(dconjg(evecmto(:,:))),ovlmx(ix(1:ndimMTO),ix(1:ndimMTO))))
-  nx=ndimPMT
+  nx=ndimPMTx
+  wnj(1:nx,1:ndimMTO) = matmul(wnm(1:ndimPMTx,1:ndimMTO),matmul(transpose(dconjg(evecmto(:,:))),ovlmx(ix(1:ndimMTO),ix(1:ndimMTO))))
   do i=1,ndimMTO
      do j=1,ndimMTO
         hammout(i,j)= sum( dconjg(wnj(1:nx,i))*evl(1:nx)*wnj(1:nx,j))
