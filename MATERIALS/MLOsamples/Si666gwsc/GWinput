@@ -112,17 +112,8 @@ v 0d0 0d0 0.01d0
   1 Si   1 2 3 4 5 6 7 8 9
   2 Si   1 2 3 4 5 6 7 8 9
 </Worb>
-!mlo_maxit 10
-!mlo_WTband  16
-!mlo_WTinner 2048
-!mlo_EUinneradd 3
 
-!mlo_WTinner 2048
-!mlo_EUinner -9999
-!mlo_ELinner 9999
-!mlo_WTseed  0
-
-mlo_WTband  32
-mlo_EUinnerhard  5
-mlo_ELinnerhard -5
 mlo_maxit 10
+mlo_WTband 16
+mlo_EUinner  5
+mlo_ELinner  -5
