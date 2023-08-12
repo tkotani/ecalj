@@ -132,6 +132,10 @@ QforEPSunita on
   1 Gd   10 11 12 13 14 15 16
 </Worb> 
 
+mlo_facw 0.5
+mlo_ecutw 999
+mlo_eww 0.1
+
 mlo_WTband 32
 mlo_maxit  10
 

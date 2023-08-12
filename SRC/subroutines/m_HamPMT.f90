@@ -114,9 +114,9 @@ contains
        read(ifih) hamm(1:ndimPMT,1:ndimPMT)
        !epsovl=0d0 !1d-8
        GETham_ndimMTO: block
-         real(8):: evlmlo(ndimMTO),evl(ndimPMT)
+         real(8):: evlmlo(ndimMTO)
          call Hreduction(.false.,facw,ecutw,eww,ndimPMT,hamm(1:ndimPMT,1:ndimPMT),ovlm(1:ndimPMT,1:ndimPMT), & !Get reduced Hamitonian for ndimMTO
-              ndimMTO,ix,fff1,      evl,hamm(1:ndimMTO,1:ndimMTO),ovlm(1:ndimMTO,1:ndimMTO)) 
+              ndimMTO,ix,fff1,      hamm(1:ndimMTO,1:ndimMTO),ovlm(1:ndimMTO,1:ndimMTO)) 
          Checkfinaleigen: block
            complex(8):: evec(ndimMTO**2), hh(ndimMTO,ndimMTO),oo(ndimMTO,ndimMTO)
            if(sum([qp(2),qp(3)]**2)<1d-3) then !check write
@@ -214,7 +214,7 @@ contains
     if(master_mpi) write(stdo,*)'OK: Read HamRsMTO file!'
   end subroutine ReadHamRsMTO
 end module m_HamRsMTO
-subroutine Hreduction(iprx,facw,ecutw,eww,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, evl,hammout,ovlmout)!Reduce H(ndimPMT) to H(ndimMTO)
+subroutine Hreduction(iprx,facw,ecutw,eww,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, hammout,ovlmout)!Reduce H(ndimPMT) to H(ndimMTO)
   use m_zhev,only:zhev_tk4
   use m_readqplist,only: eferm
   use m_HamPMT,only: GramSchmidt!,epsovl
@@ -223,7 +223,6 @@ subroutine Hreduction(iprx,facw,ecutw,eww,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, evl
   implicit none
   integer::i,j,ndimPMT,ndimMTO,nx,nmx,ix(ndimMTO),nev,nxx,jj,ndimPMTx
   real(8)::beta,emu,val,wgt(ndimPMT),evlmto(ndimMTO),evl(ndimPMT),evlx(ndimPMT),facw,ecutw,eww
-  complex(8):: oz(ndimPMT,ndimPMT),wnj(ndimPMT,ndimMTO),wnm(ndimPMT,ndimMTO),wnn(ndimMTO,ndimMTO)
   complex(8):: evecmto(ndimMTO,ndimMTO),evecpmt(ndimPMT,ndimPMT)
   complex(8):: ovlmx(ndimPMT,ndimPMT),hammx(ndimPMT,ndimPMT),fac(ndimPMT,ndimMTO),ddd(ndimMTO,ndimMTO)
   complex(8):: hamm(ndimPMT,ndimPMT),ovlm(ndimPMT,ndimPMT)
@@ -232,13 +231,12 @@ subroutine Hreduction(iprx,facw,ecutw,eww,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, evl
   logical:: iprx
   ovlmx= ovlm
   hammx= hamm
-  nmx = ndimMTO
-!  write(stdo,*)'Start Hreduction: 111'
+  nmx = ndimMTO !  write(stdo,*)'Start Hreduction: 111'
   call zhev_tk4(ndimMTO,hamm(ix(1:ndimMTO),ix(1:ndimMTO)),ovlm(ix(1:ndimMTO),ix(1:ndimMTO)), nmx,nev, evlmto, evecmto, oveps)
+  if(nev/=ndimMTO) call rx('Hreduction: nev/=ndimMTO We didnot get eigenfuncitons of ndimMTO. Linear dependency problem?')
   ovlm= ovlmx
   hamm= hammx
-  nmx = ndimPMT
-!  write(stdo,*)'Start Hreduction: 222'
+  nmx = ndimPMT !  write(stdo,*)'Start Hreduction: 222'
   call zhev_tk4(ndimPMT,hamm(1:ndimPMT,1:ndimPMT),ovlm(1:ndimPMT,1:ndimPMT), nmx,nev, evl,evecpmt, oveps) !PMT
   ovlm=ovlmx
   ndimPMTx=nev
@@ -247,40 +245,38 @@ subroutine Hreduction(iprx,facw,ecutw,eww,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, evl
         fac(i,j)= sum(dconjg(evecpmt(:,i))*matmul(ovlmx(:,ix(1:ndimMTO)),evecmto(1:ndimMTO,j)))
      enddo
   enddo
-  mulfac :block
+  ModifyMatrixElements :block
     integer:: ie,nidxevlmto,nidxevl,ibx,jx,idxevlmto(ndimMTO),idxevl(ndimPMT),jbx
     real(8):: eee,fffx,ecut,xxx,ewcutf,rydberg,facww
     real(8),allocatable::mulfac(:,:),mulfacw(:,:)
-    complex(8):: www
-!    real(8):: ewcut=1d0,eww=0.1d0
+    complex(8):: wnj(ndimPMTx,ndimMTO),wnm(ndimPMTx,ndimMTO)
     ewcutf = ecutw+eferm
     do j=1,ndimMTO
        do i=1,ndimPMTx
           facww = facw*fermidist((evlmto(j)-ewcutf)/eww) 
           wnm(i,j) = fac(i,j)*fac(i,j)**facww
        enddo
-       do i=1,ndimPMTx
-          if(j<4.and.abs(fac(i,j))>.1d0) write(6,*)' j=',j,i,' fac=',abs(fac(i,j))
+       !do i=1,ndimPMTx; if(j<4.and.abs(fac(i,j))>.1d0) write(6,*)' j=',j,i,' fac=',abs(fac(i,j)); enddo
+    enddo
+    call GramSchmidt(ndimPMTx,ndimMTO,wnm)
+    if(iprx) then
+       do j=1,ndimMTO !wnm is corrected matrix element of <psi_PMT|psi_MTO>
+          do i=1,ndimPMTx
+             if(abs(wnm(i,j))>.1) write(stdo,*)'wnm matrix ',j,i,abs(wnm(i,j))**2
+          enddo
        enddo
-    enddo   
-  endblock mulfac
-  call GramSchmidt(ndimPMTx,ndimMTO,wnm(1:ndimPMTx,1:ndimMTO))
-  if(iprx) then
-     do j=1,ndimMTO !wnm is corrected matrix element of <psi_PMT|psi_MTO>
-        do i=1,ndimPMTx
-           if(abs(wnm(i,j))>.1) write(stdo,*)'wnm matrix ',j,i,abs(wnm(i,j))**2
-        enddo
-     enddo
-  endif
-  ! Mapping operator wnm*<psi_MTO|F_i>, where F_i is MTO basis.
-  nx=ndimPMTx
-  wnj(1:nx,1:ndimMTO) = matmul(wnm(1:ndimPMTx,1:ndimMTO),matmul(transpose(dconjg(evecmto(:,:))),ovlmx(ix(1:ndimMTO),ix(1:ndimMTO))))
-  do i=1,ndimMTO
-     do j=1,ndimMTO
-        hammout(i,j)= sum( dconjg(wnj(1:nx,i))*evl(1:nx)*wnj(1:nx,j))
-        ovlmout(i,j)= sum( dconjg(wnj(1:nx,i))*wnj(1:nx,j) ) !<MLO|MLO>
-     enddo
-  enddo
+    endif
+    ! Mapping operator wnm*<psi_MTO|F_i>, where F_i is MTO basis.
+    nx=ndimPMTx
+    wnj = matmul(wnm(1:ndimPMTx,1:ndimMTO),matmul(transpose(dconjg(evecmto(:,:))),ovlmx(ix(1:ndimMTO),ix(1:ndimMTO))))
+    do i=1,ndimMTO
+       do j=1,ndimMTO
+          hammout(i,j)= sum( dconjg(wnj(1:nx,i))*evl(1:nx)*wnj(1:nx,j))
+          ovlmout(i,j)= sum( dconjg(wnj(1:nx,i))*wnj(1:nx,j) ) !<MLO|MLO>
+       enddo
+    enddo
+  endblock ModifyMatrixElements
+  return
 contains
   real(8) function fermidist(x)
     real(8),intent(in) :: x

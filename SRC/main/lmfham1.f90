@@ -32,9 +32,11 @@ program lmfham1 ! Read HamiltonianPMT and generates MT-projected-orbital Hamilto
   call m_lmfinit_init('LMF')! Read ctrlp into module m_lmfinit.
   call ReadHamPMTInfo()   ! Read infomation for PMT Hamiltonian (lattice structures and index of basis).
   call getkeyvalue("GWinput","mlo_facw",facw,default=.5d0)   
-  call getkeyvalue("GWinput","mlo_ecutw",ecutw,default=9999d0*rydberg())
-  call getkeyvalue("GWinput","mlo_eww",eww,default=.1d0) !size of fixing inner window
-  if(master_mpi) write(stdo,ftox)'mlo_facw _ecutw _eww=',ftof(facw),ftof(ecutw),ftof(eww)
+  call getkeyvalue("GWinput","mlo_ecutw",ecutw,default=999*rydberg())
+  call getkeyvalue("GWinput","mlo_eww",eww,default=.1d0*rydberg()) !size of fixing inner window
+  if(master_mpi) write(stdo,ftox)'mlo_facw _ecutw _eww (eV)=',ftof(facw),ftof(ecutw/rydberg()),ftof(eww)
+  ecutw= ecutw/rydberg()
+  eww  = eww  /rydberg()
   if(symlcase) call readqplistsy()      ! When symlcase=T, read qplist.dat (q points list, see bndfp.F). 
   call HamPMTtoHamRsMTO(facw,ecutw,eww) ! HamRsMTO (real-space Hamiltonian hammr,ovlmr,ndimMTO) is generated,and written to a file HamRsMTO
   call ReadHamRsMTO()                   ! Read real-space Hamiltonian hammr,ovlmr from HamRsMTO.
