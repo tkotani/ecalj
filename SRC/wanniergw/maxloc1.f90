@@ -218,42 +218,32 @@ subroutine get_amnk(ifhoev,is,qwf0,qbz,ginv, &
            enddo
         enddo
      enddo
-
   enddo
-
   deallocate(hks,oks,cks,eval,wmat)
-
   ! close
   if (is == 1) then
      ifi = iclose('HOEV.UP')
   else
      ifi = iclose('HOEV.DN')
   endif
-
 999 format(i5,3f16.8)
-
   return
 end subroutine get_amnk
 !-----------------------------------------------------------------------
-subroutine amnk2unk(amnk, &
-     iko_ix,iko_fx,iko_i,iko_f, &
-     nwf,nqbz, &
-     cnk0)
+subroutine amnk2unk(amnk,iko_ix,iko_fx,iko_i,iko_f,nwf,nqbz, cnk0)
   implicit real*8(a-h,o-z)
   implicit integer (i-n)
   parameter (eps = 1d-3)
-  !      complex(8),allocatable :: evecc(:,:),smat(:,:),wmat(:,:),
-  !     &                          wmat2(:,:),wmat3(:,:)
-  !      real (8),allocatable :: eval(:)
+  intent(in)::     amnk,iko_ix,iko_fx,iko_i,iko_f,nwf,nqbz
+  intent(out)::                                              cnk0
   complex(8),allocatable :: aa(:,:),cc(:,:),zz(:,:),vv(:,:)
   real(8),allocatable :: dd(:)
   complex(8) :: amnk(iko_ix:iko_fx,nwf,nqbz), cnk0(iko_ix:iko_fx,nwf,nqbz),ctmp
   integer :: iko_i(nqbz),iko_f(nqbz)
-  !! singular value decomposition, 061003
-  !! see around Eq.23 of Ref.[2]
+  !! singular value decomposition, 061003. see around Eq.23 of Ref.[2]
   nks = iko_fx - iko_ix + 1
   allocate (aa(nks,nks),zz(nks,nks),vv(nwf,nwf),dd(nwf))
-  cnk0 = (0d0,0d0)
+  cnk0 = 0d0
   do iq = 1,nqbz
      aa(1:nks,1:nwf) = amnk(iko_ix:iko_fx,1:nwf,iq)
      call zgesvdmn(nks,nwf,aa,dd,zz,vv)
@@ -265,7 +255,7 @@ subroutine amnk2unk(amnk, &
            enddo
         enddo
      enddo
-  enddo ! iq
+  enddo 
   deallocate (aa,zz,vv,dd)
   return
 end subroutine amnk2unk

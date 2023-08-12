@@ -52,7 +52,7 @@ program lmfham2 ! Get the Hamiltonian of the MTO-based localized orbital |MLO> f
   real(8):: WTseed,eoffset
   character:: outs*20
   character(256):: aaa='',bbb=''
-  integer:: nband_,nqbz_,iko_ix_,iko_fx_,nMLO_
+  integer:: nband_,nqbz_,iko_ix_,iko_fx_,nMLO_,ilowest
   call m_MPItk_init('lmfham2') ! mpi initialization
   job=-1
   if(cmdopt2('--job=',outs)) read(outs,*) job
@@ -89,14 +89,14 @@ program lmfham2 ! Get the Hamiltonian of the MTO-based localized orbital |MLO> f
     call getkeyvalue("GWinput","mlo_conv",conv1,default=1d-4)
     call getkeyvalue("GWinput","mlo_mix",alpha1,default=.5d0) 
     call getkeyvalue("GWinput",'mlo_WTseed',WTseed,default=0d0)   !WTseed
-    call getkeyvalue("GWinput","mlo_WTband"  ,WTband,default=32d0)    ! Weight to minimize band energies
+    call getkeyvalue("GWinput","mlo_WTband"  ,WTband,default=16d0)    ! Weight to minimize band energies
     call getkeyvalue("GWinput","mlo_WTinner", WTinner,default=2048d0)  ! inner energy window WeighTing
     call getkeyvalue("GWinput","mlo_EWinner", ewid, default=.1d0)     ! inner energy window softing eV
     call getkeyvalue("GWinput","mlo_ELinner", einnerLeV,default=-1d8) ! inner energy window lower eV relative to efermi (or VBM)
     call getkeyvalue("GWinput","mlo_EUinner", einnerHeV,default= 1d8) ! inner energy window upper eV relative to efermi
-    call getkeyvalue("GWinput","mlo_EUinneradd",eoffset,default=3d0)   !bandgap+3eV is default Einner
-    call getkeyvalue("GWinput","mlo_ELhardinner",hardeinnerLev,default=999999d0) !Hard inner
-    call getkeyvalue("GWinput","mlo_EUhardinner",hardeinnerHev,default=-999999d0)   
+!    call getkeyvalue("GWinput","mlo_EUinneradd",eoffset,default=3d0)   !bandgap+3eV is default Einner
+    call getkeyvalue("GWinput","mlo_ELinnerhard",hardeinnerLev,default=999999d0) !Hard inner
+    call getkeyvalue("GWinput","mlo_EUinnerhard",hardeinnerHev,default=-999999d0)   
     if(master_mpi) then
        write(stdo,ftox)' Reading: mlo_ maxit conv mix=',nsc1,ftof(conv1),ftof(alpha1)
        write(stdo,ftox)' Reading: mlo_WTseed =',ftof(WTseed,2)
@@ -141,7 +141,7 @@ program lmfham2 ! Get the Hamiltonian of the MTO-based localized orbital |MLO> f
           qp=qbz(:,iqbz)
           ovlm = 0d0
           hamm = 0d0
-          do i=1,nband !this is for MLO0 Hamiltonian. PMT is already reduced to be MLO0-only Hamiltonian, hamm and ovlm below.
+          do i=1,nband !Get MTP Hamiltonian at qp by FF from the real-space MTP Hamiltonian (lmfham1)
              do j=1,nband
                 ib1 = ib_tableM(i) !atomic-site index in the primitive cell
                 ib2 = ib_tableM(j)
@@ -162,7 +162,7 @@ program lmfham2 ! Get the Hamiltonian of the MTO-based localized orbital |MLO> f
           enddo
           o2al(:,:,iqbz) = matmul(osq, evec(:,:,iqbz)) !o2al(basis index, band index, iqbz index) O^(1/2)*evec
           forall(i=1:nband) ovlmm(i,:) = ovlmx(i,idmto(:))
-          amnk(:,:,iqbz)= matmul(transpose(dconjg(evec(1:nband,iko_ix:iko_fx,iqbz))),ovlmm) !amnk= <psi|MTO> minimum basis MTO =9+9
+          amnk(:,:,iqbz)= matmul(transpose(dconjg(evec(1:nband,iko_ix:iko_fx,iqbz))),ovlmm) !amnk= <Psi^MTP|MTO>
        enddo
        do iqbz=1,nqbz
           do ibb=1,nbb
@@ -195,32 +195,35 @@ program lmfham2 ! Get the Hamiltonian of the MTO-based localized orbital |MLO> f
      read(ifuumat) evl
      read(ifuumat) uumat
      read(ifuumat) amnk
-     emm=9999d0
-     emin=9999d0
-     do iqbz=1,nqbz 
-        emm = min(emm,minval(evl(:,iqbz),mask=evl(:,iqbz)>eferm+0.01d0))  != min(evl(nMLO/2,iqbz),emm) 
-     enddo !emm is at CBM
-     write(stdo,ftox)' bandgap(on mesh point) eV=',ftof((emm-eferm)*rydberg(),3)
-     if(einnerHeV> 1d7) einnerHeV= (emm-eferm)*rydberg()+eoffset  !einnerHeV= CBM + eoffset (eV)
      einnerH= einnerHeV/rydberg()+eferm
-     einnerL= einnerLeV/rydberg()+eferm
-     if(master_mpi) then
-        write(stdo,ftox)' einnerH from VBM=',ftof((einnerH-eferm)*rydberg(),3),' eV'
-        write(stdo,ftox)' einnerL from VBM=',ftof((einnerL-eferm)*rydberg(),3),' eV'
+     if(master_mpi) write(stdo,ftox)' einnerH from VBM=',ftof((einnerH-eferm)*rydberg(),3),' eV'
+     if(einnerLeV>-1d5) then
+        einnerL= einnerLeV/rydberg()+eferm
+        if(master_mpi) write(stdo,ftox)' einnerL from VBM=',ftof((einnerL-eferm)*rydberg(),3),' eV'
+     else
+        if(master_mpi) write(stdo,ftox)' einnerL automatic'
      endif   
-     if(master_mpi) then
-        write(stdo,ftox)'isploop: is=',is,'out of',nspin,'ChooseSpace by cnk(init:iend,1:nMLO,1:nqbz)=',iko_ix,iko_fx,nMLO,nqbz
-     endif   
-     allocate ( upu(iko_ix:iko_fx,iko_ix:iko_fx,nbb,nqbz), cnk(iko_ix:iko_fx,nMLO,nqbz), omgik(nqbz),evals(nqbz))!,zesum(nqbz)) !cnk2(iko_ix:iko_fx,nMLO,nqbz)
+     if(master_mpi) &
+          write(stdo,ftox)'isploop: is=',is,'out of',nspin,'ChooseSpace by cnk(init:iend,1:nMLO,1:nqbz)=',iko_ix,iko_fx,nMLO,nqbz
+     allocate( upu(iko_ix:iko_fx,iko_ix:iko_fx,nbb,nqbz), cnk(iko_ix:iko_fx,nMLO,nqbz), omgik(nqbz),evals(nqbz))!,zesum(nqbz)) !cnk2(iko_ix:iko_fx,nMLO,nqbz)
      allocate( WTbandq(nqbz),WTinnerq(nqbz))
-     cnk  = 0d0
-     call amnk2unk(amnk,iko_ix,iko_fx,iko_i,iko_f, nMLO,nqbz,  cnk)! amnk was in Eq.22 in Ref.II. <psi|Gaussian>. Now amnk=< psi(it,iqbz) | MTO(nMLO) >
+     call amnk2unk(amnk,iko_ix,iko_fx,iko_i,iko_f,nMLO,nqbz, cnk)
+     !amnk=<Psi^MTP(it,iqbz)|MTO(1:nMLO) >.  Note that amnk was in Eq.22 in Ref.II. <psi|Gaussian>. We replace Gaussian with MTO.
+     !cnk =<Psi^MTP(it,iqbz)|MTO_orth(1:nMLO)>.  |MTO_orth>= |MTO> O^{-1/2} 
      zesumold=1d10
      alpha = 1d0
      upu   = 0d0
      wbbs=sum(wbb(1:nbb)) !we assume iko_i(iq)=1. If not, use evl(iko_i(iq),iq)
      SouzaStep1loop: do isc = 1,nsc1 ! choose Hilbert space -- determine cnk
-        iqloop: do iq = 1,nqbz 
+        iqloop: do iq = 1,nqbz
+           AUTOeinnerL:block != AUTOeinnerL. Search bottom of MTP Hamiltonian for given MTOsets to generate MLO.
+             real(8):: proj(iko_ix:iko_fx)
+             proj = [ (sum(cnk(i,:,iq)*dconjg(cnk(i,:,iq))),i=iko_ix,iko_fx) ]
+             einnerL = evl(findloc(proj>0.1d0,value=.true.,dim=1),iq)-3d0*ewid !-3*ewid is offset
+             !do i=iko_ix,iko_fx;
+             !   write(stdo,ftox) i,'eigen=',ftof((evl(i,iq)-eferm)*rydberg()),'weight=',ftof(abs(proj(i))); enddo
+             if(isc==1.and.iq==1) write(stdo,ftox)' AUTOeinnerL isc iq=',isc,iq,'einnerL=',ftof((einnerL-eferm)*rydberg(),3),' eV'
+           endblock AUTOeinnerL
            nout = iko_f(iq) - iko_i(iq) + 1 !outer
            ndz  = nout 
            if(isc /= 1) alpha = alpha1
@@ -252,21 +255,22 @@ program lmfham2 ! Get the Hamiltonian of the MTO-based localized orbital |MLO> f
            enddo
            zmn=zmn0
            WTbandBlock: do concurrent(i=iko_i(iq):iko_f(iq))
-              WTbandii(i)= WTband*(evl(i,iq))   !lower eigenvalue for higher energy
-              zmn(i,i)=zmn0(i,i) + WTbandii(i)!Add penalty part to emphasize lower/innner window
+              WTbandii(i)= WTband*(evl(i,iq))   !band energy term
+              zmn(i,i)=zmn0(i,i) + WTbandii(i)  
            enddo WTbandBlock
-           WTinnerBlock: do concurrent(i=iko_i(iq):iko_f(iq))
-              WTinnerii(i)= -WTinner*fermidist((evl(i,iq)-einnerH)/ewid)*fermidist(-(evl(i,iq)-einnerL)/ewid)
-              zmn(i,i)= zmn(i,i) + WTinnerii(i) !Add penalty part to emphasize innner window
+           WTinnerBlock: do concurrent(i=iko_i(iq):iko_f(iq)) !Add penalty for compoment outside of inner window
+              WTinnerii(i)= WTinner*max(fermidist(-(evl(i,iq)-einnerH)/ewid),fermidist((evl(i,iq)-einnerL)/ewid))
+              zmn(i,i)= zmn(i,i) + WTinnerii(i) 
            enddo WTinnerBlock
            WTseedBlock: if(WTseed/=0d0) then
               zmn=zmn-WTseed*matmul(amnk(iko_i(iq):iko_f(iq),1:nMLO,iq), & !projection to Seed functions
                    dconjg(transpose(amnk(iko_i(iq):iko_f(iq),1:nMLO,iq))))
            endif WTseedBlock
            HardInnerBlock: block !effective only when hardeinnerHeV > haredinnerLeV
+             real(8),parameter:: zhard=-1d6
              do i=iko_i(iq),iko_f(iq) 
                 if(evl(i,iq)<hardeinnerHeV/rydberg()+eferm.and.evl(i,iq)>hardeinnerLeV/rydberg()+eferm) then 
-                   zmn(i,:)=0d0; zmn(:,i)= 0d0; zmn(i,i)= -1d6
+                   zmn(i,:)=0d0; zmn(:,i)= 0d0; zmn(i,i)= zhard
                 endif
              enddo
            endblock HardInnerBlock
@@ -286,7 +290,7 @@ program lmfham2 ! Get the Hamiltonian of the MTO-based localized orbital |MLO> f
         evalss= sum(evals(:)*wbz(:))   
         ! \sum eval = \sum zmn0 term + WTbandq + WTinnerq
         !    write(stdo,ftox)'#SC-loop, OmegaI_a Zsum=',isc,ftof(omgi),'=',ftof(zesi-evalss+WTbandqsum+WTinnerqsum)
-        if(WTinner/=0d0) aaa='Pinner='//trim(ftof(-WTinnerqsum/WTinner/nMLO))
+        if(WTinner/=0d0) aaa='Pout='//trim(ftof(-WTinnerqsum/WTinner/nMLO))
         if(WTband/=0d0) bbb='Emean(eV)='//trim(ftof((WTbandqsum/WTband/nMLO-eferm)*rydberg()))
         write(stdo,ftox)'#SC-loop:isc=',isc,'Omega/nMLO=',ftof( (wbbs+omgi/2d0/nMLO)/tpia**2 + WTbandqsum/nMLO + WTinnerqsum/nMLO),&
              'Nabla2/nMLO(a.u.**2)=',ftof((wbbs+omgi/2d0/nMLO)/tpia**2/2d0 ),&
