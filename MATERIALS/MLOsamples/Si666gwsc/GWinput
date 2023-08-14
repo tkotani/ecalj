@@ -115,5 +115,4 @@ v 0d0 0d0 0.01d0
 
 mlo_maxit 10
 mlo_WTband 16
-mlo_EUinner  5
-mlo_ELinner  -5
+mlo_EUouter 5

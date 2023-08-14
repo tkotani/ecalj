@@ -62,7 +62,7 @@ contains
   !c$$$          enddo
   !c$$$        enddo
   !c$$$      enddo
-  subroutine HamPMTtoHamRsMTO(facw,ecutw,eww) !Convert HamPMT(k mesh) to HamRsMTO(real space)
+  subroutine HamPMTtoHamRsMTP(facw,ecutw,eww) !Convert HamPMT(k mesh) to HamRsMTP(real space)
     use m_zhev,only:zhev_tk4
     use m_readqplist,only: eferm
     use m_mpi,only: MPI__reduceSum
@@ -160,24 +160,7 @@ contains
     endif   
     call mpi_barrier(MPI_comm_world,ierr)
     if(master_mpi) write(stdo,*)" Wrote HamRsMTO file! End of lmfham1"
-  end subroutine HamPMTtoHamRsMTO
-  subroutine detemu(beta,val,evl,nev, emu)
-    integer:: nev,ix
-    real(8):: evl(nev),val,emu,beta,demu,valn
-    emu=-1d0
-    demu=1d0
-    valn=-9999d0
-    ix=0
-    do while(abs(valn-val)>1d-10)
-       valn= sum(1d0/(exp(beta*(evl(:)-emu))+1d0))
-       if(valn<val) emu=emu+demu
-       if(valn>val) then
-          emu = emu-demu
-          demu= 0.5d0*demu
-       endif
-       ix=ix+1
-    enddo
-  end subroutine detemu
+  end subroutine HamPMTtoHamRsMTP
   subroutine GramSchmidt(nv,n,zmel) 
     integer:: igb=1,it,itt,n,nv
     complex(8):: ov(n),vec(nv),dnorm2(nv),zmel(nv,n)
@@ -192,14 +175,14 @@ contains
     enddo
   end subroutine GramSchmidt
 end module m_HamPMT
-module m_HamRsMTO ! read real-space MTO Hamiltonian
+module m_HamRsMTP ! read real-space MTP Hamiltonian
   use m_lgunit,only:stdo
   use m_ftox
   integer,protected:: ndimMTO,npairmx,nspx  !ndimMTO<ldim if we throw away f MTOs, for example. 
   integer,allocatable,protected:: ib_tableM(:),l_tableM(:),k_tableM(:)
   complex(8),allocatable,protected:: ovlmr(:,:,:,:),hammr(:,:,:,:)
 contains
-  subroutine ReadHamRsMTO()! read RealSpace MTO Hamiltonian
+  subroutine ReadHamRsMTP()! read RealSpace MTO Hamiltonian
     use m_MPItk,only: master_mpi
     integer:: ifihmto
     open(newunit=ifihmto,file='HamRsMTO',form='unformatted')
@@ -212,8 +195,8 @@ contains
     read(ifihmto) ib_tableM(1:ndimMTO),k_tableM(1:ndimMTO),l_tableM(1:ndimMTO)
     close(ifihmto)
     if(master_mpi) write(stdo,*)'OK: Read HamRsMTO file!'
-  end subroutine ReadHamRsMTO
-end module m_HamRsMTO
+  end subroutine ReadHamRsMTP
+end module m_HamRsMTP
 subroutine Hreduction(iprx,facw,ecutw,eww,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, hammout,ovlmout)!Reduce H(ndimPMT) to H(ndimMTO)
   use m_zhev,only:zhev_tk4
   use m_readqplist,only: eferm
