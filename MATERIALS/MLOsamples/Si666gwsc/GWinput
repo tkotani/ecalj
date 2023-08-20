@@ -98,9 +98,9 @@ GaussSmear on  ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr fo
 
 !QforEPSIBZ on ! Use all q in IBZ for the calculation of eps mode.
 <QforEPS>
-v 0d0 0d0 0.01d0
+ 0d0 0d0 0.01d0
  0d0 0d0 0.02d0
- 0d0 0d0 0.04d0
+vv 0d0 0d0 0.04d0
 </QforEPS>
 <QforEPSL>
  0d0 0d0 0d0   1d0   0d0  0d0 8
@@ -113,6 +113,20 @@ v 0d0 0d0 0.01d0
   2 Si   1 2 3 4 5 6 7 8 9
 </Worb>
 
-mlo_maxit 10
-mlo_WTband 16
-mlo_EUouter 5
+!a little flatter
+!mlo_maxit 60
+!mlo_WTband  16
+!mlo_EUinner 3
+!mlo_mix .6
+
+!broken---
+!mlo_maxit 30
+!mlo_WTband  16
+!mlo_EUinner 10
+!mlo_mix .6
+
+!good
+mlo_mix 1
+mlo_maxit 30
+mlo_WTband  16
+mlo_EUinner 5

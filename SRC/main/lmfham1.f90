@@ -30,7 +30,7 @@ program lmfham1 ! Get the Hamiltoniand on the MT-Projected orbitals <MTP|H|MTP> 
   call m_ext_init()         ! Get sname, e.g. trim(sname)=si of ctrl.si
   call m_MPItk_init('lmfham1') ! mpi initialization
   call m_lgunit_init() !set stdo,stdl
-  call m_lmfinit_init('LMF')! Read ctrlp into module m_lmfinit.
+  call m_lmfinit_init('lmfham1')! Read ctrlp into module m_lmfinit.
   call ReadHamPMTInfo()   ! Read infomation for PMT Hamiltonian (lattice structures and index of basis).
   call getkeyvalue("GWinput","mlo_facw",facw,default=.5d0)   
   call getkeyvalue("GWinput","mlo_ecutw",ecutw,default=999*rydberg())

@@ -2,7 +2,7 @@
 nfpgw=`dirname $0`
 echo $0
 echo $@
-echo $1
+#echo $4
 if [ $# -le 2 ] || [ $2 != "-np" ]; then
   echo "An example of usage: job_ham si -np 4 [options for lmf]"
   exit

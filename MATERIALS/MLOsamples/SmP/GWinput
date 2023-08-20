@@ -177,9 +177,7 @@ GaussianFilterX0 0.0001 !(a.u.) Gaussian smearing for the polarization function 
   1 Sm  10 11 12 13 14 15 16
   2 P   
 </Worb> 
-
-mlo_WTband 8     !zero for f bands
-mlo_WTinner 2048 
-mlo_EUinner  20  !Upper limit of inner window. large enough to conver 4f band 
-mlo_ELinner -10  !Upper limit of inner window. large enough to conver 4f band 
+mlo_WTband 16   !zero for f bands
 mlo_maxit 10
+mlo_WTseed 2048
+!mlo_EUrange 5 -->failed

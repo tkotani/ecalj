@@ -21,7 +21,7 @@ set x2tics ('X'   1.0000000000,\
 'W'   3.9873457473,\
 'X'   4.4873457473)
 tpia=2*3.1415926/    10.88483
-ef=  0.016091
+ef=  0.016041
 plot \
 "band_lmfham1_spin1.dat" u ($1):(13.605*($2-ef)) pt 2 lc rgb "green",\
 "bnd001.spin1" u ($2):($3) lt 1 pt 1 w lp,\

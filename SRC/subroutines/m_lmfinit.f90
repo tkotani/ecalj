@@ -162,6 +162,7 @@ contains
       enddo
       close(ifi)
     endblock ReadCtrlp
+    write(6,*)'end of readctrlp'
     Stage1GetCatok: block !Read Category-Token from recrd by rval2
       logical:: cmdopt0,cmdopt2,parmxp
       integer:: iprint,isw,ncp,nmix,broy,n,n1,n2,n3
@@ -364,7 +365,8 @@ contains
       if(i0>=1) call tcinit(io_tim(2),io_tim(1),levelinit) !Start tcn (timing monitor) 
       call tcn('m_lmfinit') 
       lcd4=F
-      if (prgnam == 'LMF' .OR. prgnam == 'LMFGWD') lcd4=T
+!      if (prgnam == 'LMF' .OR. prgnam == 'LMFGWD') lcd4=T
+      if (prgnam /= 'LMFA') lcd4=T
       if(sum(abs(socaxis-[0d0,0d0,1d0])) >1d-6 .AND. (.NOT.cmdopt0('--phispinsym'))) &
            call rx('We need --phispinsym for SO=1 and HAM_SOCAXIS/=001. Need check if you dislike --phispinsym')
       if(cmdopt0('--zmel0')) OVEPS=0d0
