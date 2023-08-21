@@ -113,20 +113,6 @@ vv 0d0 0d0 0.04d0
   2 Si   1 2 3 4 5 6 7 8 9
 </Worb>
 
-!a little flatter
-!mlo_maxit 60
-!mlo_WTband  16
-!mlo_EUinner 3
-!mlo_mix .6
-
-!broken---
-!mlo_maxit 30
-!mlo_WTband  16
-!mlo_EUinner 10
-!mlo_mix .6
-
 !good
-mlo_mix 1
 mlo_maxit 30
-mlo_WTband  16
 mlo_EUinner 5

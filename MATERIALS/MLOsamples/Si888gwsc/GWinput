@@ -113,21 +113,5 @@ v 0d0 0d0 0.04d0
   2 Si   1 2 3 4 5 6 7 8 9
 </Worb>
 
-!good
-!mlo_mix 1
-!mlo_maxit 20
-!mlo_WTband  16
-!mlo_EUinner 5
-!mlo_WTseed 2048
-
-!too flat
-!mlo_mix 1
-!mlo_maxit 20
-!mlo_WTband  16
-!mlo_WTseed 2048
-
-mlo_mix 1
-mlo_maxit 20
-mlo_WTband  16
 mlo_EUinner 5
-mlo_WTseed 4096
+!mlo_WTseed 2500
