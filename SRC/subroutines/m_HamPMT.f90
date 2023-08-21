@@ -117,16 +117,16 @@ contains
          real(8):: evlmlo(ndimMTO)
          call Hreduction(.false.,facw,ecutw,eww,ndimPMT,hamm(1:ndimPMT,1:ndimPMT),ovlm(1:ndimPMT,1:ndimPMT), & !Get reduced Hamitonian for ndimMTO
               ndimMTO,ix,fff1,      hamm(1:ndimMTO,1:ndimMTO),ovlm(1:ndimMTO,1:ndimMTO)) 
-         Checkfinaleigen: block
-           complex(8):: evec(ndimMTO**2), hh(ndimMTO,ndimMTO),oo(ndimMTO,ndimMTO)
-           if(sum([qp(2),qp(3)]**2)<1d-3) then !check write
-              hh = hamm(1:ndimMTO,1:ndimMTO) 
-              oo = ovlm(1:ndimMTO,1:ndimMTO)
-              nmx= ndimMTO
-!              write(6,*)'checkfinaleigen zhev_tk4'
-              call zhev_tk4(ndimMTO,hh,oo, nmx,nev,evlmlo, evec, oveps) !epsovl)
-           endif
-         endblock Checkfinaleigen
+!          Checkfinaleigen: block
+!            complex(8):: evec(ndimMTO**2), hh(ndimMTO,ndimMTO),oo(ndimMTO,ndimMTO)
+!            if(sum([qp(2),qp(3)]**2)<1d-3) then !check write
+!               hh = hamm(1:ndimMTO,1:ndimMTO) 
+!               oo = ovlm(1:ndimMTO,1:ndimMTO)
+!               nmx= ndimMTO
+! !              write(6,*)'checkfinaleigen zhev_tk4'
+!               call zhev_tk4(ndimMTO,hh,oo, nmx,nev,evlmlo, evec, oveps) !epsovl)
+!            endif
+!          endblock Checkfinaleigen
        endblock GETham_ndimMTO
        GETrealspaceHamiltonian: block ! H(k) ->  H(T) FourierTransformation to real space
          do i=1,ndimMTO
@@ -210,6 +210,7 @@ subroutine Hreduction(iprx,facw,ecutw,eww,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, ham
   complex(8):: ovlmx(ndimPMT,ndimPMT),hammx(ndimPMT,ndimPMT),fac(ndimPMT,ndimMTO),ddd(ndimMTO,ndimMTO)
   complex(8):: hamm(ndimPMT,ndimPMT),ovlm(ndimPMT,ndimPMT)
   complex(8):: hammout(ndimMTO,ndimMTO),ovlmout(ndimMTO,ndimMTO)
+  complex(8),allocatable :: wnj(:,:),wnm(:,:)
   real(8):: fff1,fff !epsovl=1d-8 epsovlm=0d0 ,
   logical:: iprx
   ovlmx= ovlm
@@ -232,7 +233,8 @@ subroutine Hreduction(iprx,facw,ecutw,eww,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, ham
     integer:: ie,nidxevlmto,nidxevl,ibx,jx,idxevlmto(ndimMTO),idxevl(ndimPMT),jbx
     real(8):: eee,fffx,ecut,xxx,ewcutf,rydberg,facww
     real(8),allocatable::mulfac(:,:),mulfacw(:,:)
-    complex(8):: wnj(ndimPMTx,ndimMTO),wnm(ndimPMTx,ndimMTO)
+    !    complex(8):: wnj(ndimPMTx,ndimMTO),wnm(ndimPMTx,ndimMTO)
+    allocate(wnj(ndimPMTx,ndimMTO),wnm(ndimPMTx,ndimMTO))!this is to avoid bug in ifort18.0.5
     ewcutf = ecutw+eferm
     do j=1,ndimMTO
        do i=1,ndimPMTx
