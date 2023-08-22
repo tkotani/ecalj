@@ -148,5 +148,7 @@ GaussSmear on  ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr fo
 
 <Worb> Site 
   1 Fe 1 2 3 4 5 6 7 8 9
-</Worb> 
-mlo_EUinner 5
+</Worb>
+mlo_CUinner .1
+!mlo_EUinner 5
+!mlo_CLhard 0.1

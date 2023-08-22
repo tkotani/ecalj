@@ -13,7 +13,7 @@ module m_HamPMT ! -- Read HamiltionanPMTinfo and HamiltonianPMT. Then convert Ha
 contains
   subroutine ReadHamPMTInfo() ! read information for crystal strucre, k points, neighbor pairs.
     implicit none
-    integer:: ififft,i,lold,m
+    integer:: ififft,i,lold,m,ibold,ioff
     character*4:: cccx
     open(newunit=ififft,file='HamiltonianPMTInfo',form='unformatted')
     allocate(plat(3,3),qlat(3,3)) !plat primitive vectors, qlat:primitive in reciprocal space
@@ -34,6 +34,8 @@ contains
     if(master_mpi) write(stdo,"('MHAM: --- MTO part of PMT Hamiltonian index (real-harmonics table is in job_pdos script) --- ')")
     if(master_mpi) write(stdo,'("MHAM: MTO block dim=",i5)') ldim
     lold=-999
+    ibold=-999
+    ioff=0
     do i = 1,ldim
        if(l_table(i)/= lold) then !reset m of lm
           m=-l_table(i)
@@ -41,7 +43,12 @@ contains
        else
           m=m+1
        endif
-       if(master_mpi) write(stdo,"('MHAM: i ib(atom) l m k(EH,EH2,PZ)=',5i3)")i,ib_table(i),l_table(i),m,k_table(i)
+       if(ib_table(i)/=ibold) then
+          ioff=i-1
+          ibold=ib_table(i)
+       endif
+       if(master_mpi) write(stdo,"('MHAM: i i-ioffib ib(atom) l m k(1:EH,2:EH2,3:PZ)=',i4,5i3)")&
+            i,i-ioff,ib_table(i),l_table(i),m,k_table(i)
     enddo
   end subroutine ReadHamPMTInfo
   !c$$$  !! delta fun check for FFT: k --> T --> k 
@@ -194,7 +201,7 @@ contains
     allocate(ib_tableM(1:ndimMTO),k_tableM(1:ndimMTO),l_tableM(1:ndimMTO))
     read(ifihmto) ib_tableM(1:ndimMTO),k_tableM(1:ndimMTO),l_tableM(1:ndimMTO)
     close(ifihmto)
-    if(master_mpi) write(stdo,*)'OK: Read HamRsMTO file!'
+    if(master_mpi) write(stdo,*)'OK: Read HamRsMTO file! Use i-ioffib for setting <Worb>'
   end subroutine ReadHamRsMTP
 end module m_HamRsMTP
 subroutine Hreduction(iprx,facw,ecutw,eww,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, hammout,ovlmout)!Reduce H(ndimPMT) to H(ndimMTO)

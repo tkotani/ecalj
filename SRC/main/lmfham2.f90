@@ -52,8 +52,8 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
   complex(8),allocatable:: uumat(:,:,:,:),evecc(:,:), amnk(:,:,:),cnk(:,:,:),umnk(:,:,:),evecc1(:,:,:),evecc2(:,:,:)
   complex(8),allocatable:: hmmr2(:,:,:,:),ommr2(:,:,:,:),wmat(:,:),wmat2(:,:)
   character(256):: fband,fband1
-  logical:: cmdopt2,noinner,eLinnerauto,ELhardauto
-  real(8):: WTseed,eoffset, projcut,ewid,ewideV,eUinnercut,eouter,CUouter,WTouter,EUouter,CLhard,eUoutereV
+  logical:: cmdopt2,noinner,eLinnerauto,ELhardauto,eUinnerauto,convn
+  real(8):: WTseed,eoffset, projcut,ewid,ewideV,eUinnercut,eouter,CUouter,WTouter,EUouter,CLhard,eUoutereV,CUinner,eLhardeVoffset
   character:: outs*20
   character(256):: aaa='',bbb=''
   integer:: nband_,nqbz_,iko_ix_,iko_fx_,nMLO_,ilowest
@@ -98,11 +98,14 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
     call getkeyvalue("GWinput","mlo_mix",alpha1,default=.5d0) 
     call getkeyvalue("GWinput","mlo_EUinner", eUinnereV,default= 1d8) ! inner energy windowU eV relative to VBM
     call getkeyvalue("GWinput","mlo_CUouter",CUouter,default=0.01d0)
+    call getkeyvalue("GWinput","mlo_CUinner",CUinner,default=0.5d0 )!.1d0)
+!    call getkeyvalue("GWinput","mlo_NUinner",NUinner,default=0.5d0)
     
     call getkeyvalue("GWinput","mlo_ELhard",ELhardeV,default=-1d8)
+    call getkeyvalue("GWinput","mlo_ELhardoffset",ELhardeVoffset,default=.1d0)
     ELhardauto=.true.
     if(ELhardeV>-1d7) ELhardauto=.false.
-    call getkeyvalue("GWinput","mlo_CLhard",CLhard,default=0.1d0)
+    call getkeyvalue("GWinput","mlo_CLhard",CLhard,default=0.33d0)
     
     call getkeyvalue("GWinput","mlo_ewid", ewideV, default=1d0)       ! inner energy window softing eV
     call getkeyvalue("GWinput","mlo_EUouter",EUoutereV,default=1d8)   
@@ -119,18 +122,27 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
        write(stdo,ftox)'        : mlo_mix  =',ftof(alpha1,2)
        write(stdo,ftox)'        : mlo_WTseed   =',ftof(WTseed,2)
        write(stdo,ftox)'        : mlo_WTband   =',ftof(WTband,2)
-       write(stdo,ftox)'        : mlo_WTinner  =',ftof(WTinner,2)  
-       write(stdo,ftox)'        :  mlo_EUinner(eV)=',ftof(eUinnereV,2)
+       write(stdo,ftox)'        : mlo_WTinner  =',ftof(WTinner,2)
+       if(eUinnereV>1d5) then
+          write(stdo,ftox)'        :  mlo_EUinner = by mlo_CUinner'
+          write(stdo,ftox)'        :  mlo_CUinner =',ftof(CUinner,2)
+       endif   
+       if(eUinnereV<=1d5) write(stdo,ftox)'        :  mlo_EUinner(eV)=',ftof(eUinnereV,2)
        if(eLinnereV>-1d5)write(stdo,ftox)'        :  mlo_ELinner(eV)=',ftof(eLinnereV,2)
-       write(stdo,ftox)'        :  mlo_ewid   (eV)=',ftof(ewideV,2)
+       write(stdo,ftox)'        :  mlo_ewid(eV)=',ftof(ewideV,2)
        write(stdo,ftox)'        : mlo_WTouter  =',ftof(WTouter,2)  
-       if(CUouter>0 )    write(stdo,ftox)'        :  mlo_CUouter     =',ftof(CUouter,2)
-       if(CUouter<=0)    write(stdo,ftox)'        :  mlo_EUouter(eV) =',ftof(EUoutereV,2)
-       if(ELhardeV>1d-7)   write(stdo,ftox)'        : mlo_ELhard(eV)  =',ftof(ELhard,2)
+       if(CUouter>0 )      write(stdo,ftox)'        :  mlo_CUouter =',ftof(CUouter,2)
+       if(CUouter<=0)      write(stdo,ftox)'        :  mlo_EUouter(eV) =',ftof(EUoutereV,2)
+       if(.not.ELhardauto) write(stdo,ftox)'        : mlo_ELhard(eV)=',ftof(ELhardeV,2)
+       if(ELhardauto)      write(stdo,ftox)'        : mlo_ELhard(eV) = by mlo_CLhard'
+       if(ELhardauto)      write(stdo,ftox)'        :  mlo_CLhard =',ftof(CLhard,2)
+       if(ELhardauto)      write(stdo,ftox)'        :  mlo_ELhardoffset(eV) =',ftof(ELhardeVoffset,3)
 !       write(stdo,ftox)' Reading: mlo_ ELinner EUinner(eV)=',ftof(hardinnerLeV,2),ftof(eHhardeV,2)
     endif
     eLinner= eLinnereV/rydberg()+eferm
-    eUinner= eUinnereV/rydberg() +eferm
+    eUinner= eUinnereV/rydberg()+eferm
+    eUinnerauto=.false.
+    if(eUinner>1d5) eUinnerauto=.true.
     ewid= ewideV/rydberg() !in Ry.
   endblock ReadInfoFromGWinput
   bbvector: block !Get connecting vectors bb, bb connects k and k+bb, where both k and k+bb are on mesh points nqbz.
@@ -211,13 +223,13 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
   allocate(amnk(iko_ix:iko_fx,nMLO,nqbz),idmto_(nMLO))
   allocate(wbz(nqbz),source=1d0/nqbz)
   allocate (uumat(iko_ix:iko_fx,iko_ix:iko_fx,nbb,nqbz))
+  convn=.false.
   ispinloop: do 1000 is = 1,nspin
      read(ifuumat) nband_,nqbz_,iko_ix_,iko_fx_,nMLO_,idmto_
      if(nMLO/=nMLO.or.sum(abs(idmto-idmto_))/=0) call rx0('lmfham2: idmto error: Repeat --job=1 with the same <Worb> in GWinput!')
      read(ifuumat) evl
      read(ifuumat) uumat
      read(ifuumat) amnk
-     if(eUinner>1d5.and.master_mpi) write(stdo,ftox)' EUinner automatic'
      if(master_mpi) &
           write(stdo,ftox)'isploop: is=',is,'out of',nspin,'ChooseSpace by cnk(init:iend,1:nMLO,1:nqbz)=',iko_ix,iko_fx,nMLO,nqbz
      allocate(upu(iko_ix:iko_fx,iko_ix:iko_fx,nbb,nqbz), cnk(iko_ix:iko_fx,nMLO,nqbz), omgik(nqbz),evals(nqbz))!,zesum(nqbz)) !cnk2(iko_ix:iko_fx,nMLO,nqbz)
@@ -235,6 +247,29 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
      upu   = 0d0
      wbbs=sum(wbb(1:nbb)) !we assume iko_i(iq)=1. If not, use evl(iko_i(iq),iq)
      SouzaStep1loop: do isc = 1,nsc1 ! choose Hilbert space -- determine cnk
+        
+        AUTOeLhard:block
+          if(eLhardauto) then! Search bottom of MTP Hamiltonian for given MTOsets to generate MLO.
+             eLhard=999d0
+             do iq = 1,nqbz
+                proj = [ (sum(cnk(i,:,iq)*dconjg(cnk(i,:,iq))),i=iko_ix,iko_fx) ]
+                !if(iq==1) then;do i=1,nband; write(stdo,ftox)i,ftof((evl(i,iq)-eferm)*rydberg()),ftof(proj(i)); enddo;endif
+                eLhard = min(evl(findloc(proj>CLhard,value=.true.,dim=1),iq) -eLhardeVoffset/rydberg(), eLhard)
+             enddo
+          else
+             eLhard= eLhardeV/rydberg()+eferm
+          endif
+          if(isc==1.or.convn.or.isc==nsc1) write(stdo,ftox)' isc eLhard =',isc,ftof((eLhard-eferm)*rydberg(),3),'eV'
+        endblock AUTOeLhard
+
+!        if(eUinnerauto) then
+!            eUinner=-99999d0
+!            do iq = 1,nqbz
+!               projs = [(sum(proj(i:iko_fx)),i=iko_ix,iko_fx)]
+!               eUinner = max(evl(findloc(projs>CUinner,value=.true.,back=.true.,dim=1),iq) + 1d-3,eUinner)
+!            enddo
+!        endif
+        
         iqloop: do iq = 1,nqbz
           ! xxxxxx developing xxxxxxxxxxx
           !  PDOSblock: block
@@ -254,34 +289,34 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
           !  endblock PDOSblock
           !  xxxxxxxxxxxxxxxxxxx
            
-           AUTOeLhard:if(eLhardauto) then! Search bottom of MTP Hamiltonian for given MTOsets to generate MLO.
-              proj = [ (sum(cnk(i,:,iq)*dconjg(cnk(i,:,iq))),i=iko_ix,iko_fx) ]
-              eLhard = evl(findloc(proj>CLhard,value=.true.,    dim=1),iq) - 1d-3
-              if((isc==1.or.isc==nsc1).and.iq==1) then
-                 write(stdo,ftox)'AUTO: isc iq eLhard=',isc,iq,ftof((eLhard-eferm)*rydberg(),3),' cut=',ftof(CLhard)
-              endif
-           else
-              eLhard= eLhardeV/rydberg()+eferm
-           endif AUTOeLhard
-!           eLinner=max(eLinner,eLhard)
-!           if((isc==1.or.isc==nsc1).and.iq==1) &
-!                write(stdo,ftox)' isc iq eLinner=',isc,iq,ftof((eLinner-eferm)*rydberg(),3),' cut=',ftof(CLhard)
-           EUouterblock:block !if(eUinner>=1d5) then! Search bottom of MTP Hamiltonian for given MTOsets to generate MLO. Needed for SmP
+           ! AUTOeLhard:if(eLhardauto) then! Search bottom of MTP Hamiltonian for given MTOsets to generate MLO.
+           !    proj = [ (sum(cnk(i,:,iq)*dconjg(cnk(i,:,iq))),i=iko_ix,iko_fx) ]
+           !    !if(iq==1) then;do i=1,nband; write(stdo,ftox)i,ftof((evl(i,iq)-eferm)*rydberg()),ftof(proj(i)); enddo;endif
+           !    eLhard = evl(findloc(proj>CLhard,value=.true.,dim=1),iq) - 1d-3 !eLhardeVoffset/rydberg()
+           !    if((isc==1.or.isc==nsc1).and.iq==1) then
+           !       write(stdo,ftox)' isc iq eLhard =',isc,iq,ftof((eLhard-eferm)*rydberg(),3),'eV'
+           !    endif
+           ! else
+           !    eLhard= eLhardeV/rydberg()+eferm
+           ! endif AUTOeLhard
+           
+           eUblock:block 
              if(CUouter <=0) then
                 eUouter= EUoutereV/rydberg()+eferm
-             else   
-!                proj  = [(sum(cnk(i,:,iq)*dconjg(cnk(i,:,iq))),i=iko_ix,iko_fx) ]
+             else   !     proj  = [(sum(cnk(i,:,iq)*dconjg(cnk(i,:,iq))),i=iko_ix,iko_fx) ]
                 projs = [(sum(proj(i:iko_fx)),i=iko_ix,iko_fx)]
-                !do i=iko_ix,iko_fx
-                !   write(stdo,*)i,proj(i),projs(i),rydberg()*(evl(i,iq)-eferm),&
-                !        'eee1=',rydberg()*(evl(findloc(proj>0.1d0,value=.true.,back=.true.,dim=1),iq)   + 1d-3-eferm),&
-                !        'eee2=',rydberg()*(evl(findloc(projs>nMLO/2,value=.true.,back=.true.,dim=1),iq) + 1d-3-eferm)
-                !enddo              !stop 'mmmmmmmmm'
-!               eUouter = evl(findloc(proj >CUouter,value=.true.,back=.true.,dim=1),iq) + 1d-3
                 eUouter = evl(findloc(projs>CUouter,value=.true.,back=.true.,dim=1),iq) + 1d-3
-             endif   
-             if((isc==1.or.isc==nsc1).and.iq==1) write(stdo,ftox)' isc iq eUouter=',isc,iq,ftof((eUouter-eferm)*rydberg(),3)
-           endblock EUouterblock
+             endif
+             if(eUinnerauto) then
+                 projs = [(sum(proj(i:iko_fx)),i=iko_ix,iko_fx)]
+                 eUinner = evl(findloc(projs>CUinner,value=.true.,back=.true.,dim=1),iq) + 1d-3
+             endif
+             if((isc==1.or.convn.or.isc==nsc1).and.iq==1)then
+                write(stdo,ftox)' isc iq eUouter=',isc,iq,ftof((eUouter-eferm)*rydberg(),3),'eV'
+                write(stdo,ftox)' isc iq eUinner=',isc,iq,ftof((eUinner-eferm)*rydberg(),3),'eV'
+             endif
+           endblock eUblock
+           
            nout = iko_fx - iko_ix + 1 
            ndz  = nout 
            if(isc /= 1) alpha = alpha1
@@ -358,11 +393,11 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
              'MeanOverlap=',ftof(-omgi/2d0/nMLO/wbbs),trim(bbb),trim(aaa) !Omega corresponds to Omega_I in Eq.34 Mazari.
         !NOTE: nMLO \sim omgi=\sum_b wb \sum_{m=1}^N \sum_{n=1}^N |Mmn^{k,b}|^2 (See Eq.7 in Souza paper).
         !      But Mnm here is only for coefficienets parts of eigenfunctions.
-        if(isc>=2 .and. dabs(evalssold-evalss)<conv1) then   ! (1-6) check self-consistency
+        if(convn) then
            write(stdo,ftox)' Step1: converged!'
-           write(stdo,ftox)' isc iq eUouter=',isc,iq,ftof((eUouter-eferm)*rydberg(),3)
            exit
         endif
+        if(isc>=2 .and. dabs(evalssold-evalss)<conv1) convn=.true. 
         evalssold = evalss
         if(isc==nsc1) write(stdo,ftox)' Step1: not converged'
      enddo SouzaStep1loop

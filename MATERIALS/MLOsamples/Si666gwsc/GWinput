@@ -114,5 +114,4 @@ vv 0d0 0d0 0.04d0
 </Worb>
 
 !good
-mlo_maxit 30
 mlo_EUinner 5

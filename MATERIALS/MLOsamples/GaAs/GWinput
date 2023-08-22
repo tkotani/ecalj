@@ -154,6 +154,7 @@ QforEPSunita on
 <Worb> Site 
   1 Ga   1 2 3 4 5 6 7 8 9 
   2 As   1 2 3 4 5 6 7 8 9 
-</Worb> 
+</Worb>
+mlo_maxit 15
 mlo_EUinner 5
-
+!mlo_ELhardoffset 10
