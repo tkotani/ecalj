@@ -52,11 +52,11 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
   complex(8),allocatable:: uumat(:,:,:,:),evecc(:,:), amnk(:,:,:),cnk(:,:,:),umnk(:,:,:),evecc1(:,:,:),evecc2(:,:,:)
   complex(8),allocatable:: hmmr2(:,:,:,:),ommr2(:,:,:,:),wmat(:,:),wmat2(:,:)
   character(256):: fband,fband1
-  logical:: cmdopt2,noinner,eLinnerauto,ELhardauto,eUinnerauto,convn
+  logical:: cmdopt2,noinner,eLinnerauto,ELhardauto,eUinnerauto,convn,eUouterauto
   real(8):: WTseed,eoffset, projcut,ewid,ewideV,eUinnercut,eouter,CUouter,WTouter,EUouter,CLhard,eUoutereV,CUinner,eLhardeVoffset
   character:: outs*20
   character(256):: aaa='',bbb=''
-  integer:: nband_,nqbz_,iko_ix_,iko_fx_,nMLO_,ilowest
+  integer:: nband_,nqbz_,iko_ix_,iko_fx_,nMLO_,ilowest,ieLhard
   call setcmdpath() !Set self-command path (this is for call system at m_lmfinit)
   call m_ext_init()         ! Get sname, e.g. trim(sname)=si of ctrl.si
   call m_MPItk_init('lmfham2') ! mpi initialization
@@ -98,17 +98,16 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
     call getkeyvalue("GWinput","mlo_mix",alpha1,default=.5d0) 
     call getkeyvalue("GWinput","mlo_EUinner", eUinnereV,default= 1d8) ! inner energy windowU eV relative to VBM
     call getkeyvalue("GWinput","mlo_CUouter",CUouter,default=0.01d0)
-    call getkeyvalue("GWinput","mlo_CUinner",CUinner,default=0.5d0 )!.1d0)
-!    call getkeyvalue("GWinput","mlo_NUinner",NUinner,default=0.5d0)
+    call getkeyvalue("GWinput","mlo_CUinner",CUinner,default=0.1d0)
     
     call getkeyvalue("GWinput","mlo_ELhard",ELhardeV,default=-1d8)
-    call getkeyvalue("GWinput","mlo_ELhardoffset",ELhardeVoffset,default=.1d0)
+!    call getkeyvalue("GWinput","mlo_ELhardoffset",ELhardeVoffset,default=.1d0)
     ELhardauto=.true.
     if(ELhardeV>-1d7) ELhardauto=.false.
     call getkeyvalue("GWinput","mlo_CLhard",CLhard,default=0.33d0)
     
     call getkeyvalue("GWinput","mlo_ewid", ewideV, default=1d0)       ! inner energy window softing eV
-    call getkeyvalue("GWinput","mlo_EUouter",EUoutereV,default=1d8)   
+!    call getkeyvalue("GWinput","mlo_EUouter",EUoutereV,default=1d8)   
     call getkeyvalue("GWinput","mlo_WTband" ,WTband,default=16d0)    ! Weight to minimize band energies
 !    call getkeyvalue("GWinput","mlo_EUhard",eUhardeV,default=-999999d0)
     call getkeyvalue("GWinput",'mlo_WTseed', WTseed,default=2048d0)   ! Weight for seed.
@@ -124,25 +123,27 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
        write(stdo,ftox)'        : mlo_WTband   =',ftof(WTband,2)
        write(stdo,ftox)'        : mlo_WTinner  =',ftof(WTinner,2)
        if(eUinnereV>1d5) then
-          write(stdo,ftox)'        :  mlo_EUinner = by mlo_CUinner'
-          write(stdo,ftox)'        :  mlo_CUinner =',ftof(CUinner,2)
+           write(stdo,ftox)'        :  mlo_EUinner = by mlo_CUinner'
+           write(stdo,ftox)'        :  mlo_CUinner =',ftof(CUinner,2)
        endif   
        if(eUinnereV<=1d5) write(stdo,ftox)'        :  mlo_EUinner(eV)=',ftof(eUinnereV,2)
        if(eLinnereV>-1d5)write(stdo,ftox)'        :  mlo_ELinner(eV)=',ftof(eLinnereV,2)
        write(stdo,ftox)'        :  mlo_ewid(eV)=',ftof(ewideV,2)
        write(stdo,ftox)'        : mlo_WTouter  =',ftof(WTouter,2)  
-       if(CUouter>0 )      write(stdo,ftox)'        :  mlo_CUouter =',ftof(CUouter,2)
-       if(CUouter<=0)      write(stdo,ftox)'        :  mlo_EUouter(eV) =',ftof(EUoutereV,2)
+       write(stdo,ftox)'        :  mlo_CUouter =',ftof(CUouter,2)
+!       if(CUouter>0 )      write(stdo,ftox)'        :  mlo_CUouter =',ftof(CUouter,2)
+!       if(CUouter<=0)      write(stdo,ftox)'        :  mlo_EUouter(eV) =',ftof(EUoutereV,2)
        if(.not.ELhardauto) write(stdo,ftox)'        : mlo_ELhard(eV)=',ftof(ELhardeV,2)
        if(ELhardauto)      write(stdo,ftox)'        : mlo_ELhard(eV) = by mlo_CLhard'
        if(ELhardauto)      write(stdo,ftox)'        :  mlo_CLhard =',ftof(CLhard,2)
-       if(ELhardauto)      write(stdo,ftox)'        :  mlo_ELhardoffset(eV) =',ftof(ELhardeVoffset,3)
+!       if(ELhardauto)      write(stdo,ftox)'        :  mlo_ELhardoffset(eV) =',ftof(ELhardeVoffset,3)
 !       write(stdo,ftox)' Reading: mlo_ ELinner EUinner(eV)=',ftof(hardinnerLeV,2),ftof(eHhardeV,2)
     endif
     eLinner= eLinnereV/rydberg()+eferm
     eUinner= eUinnereV/rydberg()+eferm
-    eUinnerauto=.false.
-    if(eUinner>1d5) eUinnerauto=.true.
+!    eUouter= eUoutereV/rydberg()+eferm
+    eUouterauto=.true. !merge(.true.,.false.,eUouter>1d5)
+    eUinnerauto=merge(.true.,.false.,eUinner>1d5)
     ewid= ewideV/rydberg() !in Ry.
   endblock ReadInfoFromGWinput
   bbvector: block !Get connecting vectors bb, bb connects k and k+bb, where both k and k+bb are on mesh points nqbz.
@@ -223,7 +224,6 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
   allocate(amnk(iko_ix:iko_fx,nMLO,nqbz),idmto_(nMLO))
   allocate(wbz(nqbz),source=1d0/nqbz)
   allocate (uumat(iko_ix:iko_fx,iko_ix:iko_fx,nbb,nqbz))
-  convn=.false.
   ispinloop: do 1000 is = 1,nspin
      read(ifuumat) nband_,nqbz_,iko_ix_,iko_fx_,nMLO_,idmto_
      if(nMLO/=nMLO.or.sum(abs(idmto-idmto_))/=0) call rx0('lmfham2: idmto error: Repeat --job=1 with the same <Worb> in GWinput!')
@@ -246,16 +246,17 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
      alpha = 1d0
      upu   = 0d0
      wbbs=sum(wbb(1:nbb)) !we assume iko_i(iq)=1. If not, use evl(iko_i(iq),iq)
+     convn=.false.
      SouzaStep1loop: do isc = 1,nsc1 ! choose Hilbert space -- determine cnk
-        
         AUTOeLhard:block
           if(eLhardauto) then! Search bottom of MTP Hamiltonian for given MTOsets to generate MLO.
-             eLhard=999d0
+             ieLhard=9999
              do iq = 1,nqbz
                 proj = [ (sum(cnk(i,:,iq)*dconjg(cnk(i,:,iq))),i=iko_ix,iko_fx) ]
                 !if(iq==1) then;do i=1,nband; write(stdo,ftox)i,ftof((evl(i,iq)-eferm)*rydberg()),ftof(proj(i)); enddo;endif
-                eLhard = min(evl(findloc(proj>CLhard,value=.true.,dim=1),iq) -eLhardeVoffset/rydberg(), eLhard)
+                ieLhard = min(findloc(proj>CLhard,value=.true.,dim=1),ieLhard) !lowest band index
              enddo
+             eLhard = minval(evl(ieLhard,:))- 1d-3 !eLhardeVoffset/rydberg()
           else
              eLhard= eLhardeV/rydberg()+eferm
           endif
@@ -301,19 +302,14 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
            ! endif AUTOeLhard
            
            eUblock:block 
-             if(CUouter <=0) then
-                eUouter= EUoutereV/rydberg()+eferm
-             else   !     proj  = [(sum(cnk(i,:,iq)*dconjg(cnk(i,:,iq))),i=iko_ix,iko_fx) ]
-                projs = [(sum(proj(i:iko_fx)),i=iko_ix,iko_fx)]
-                eUouter = evl(findloc(projs>CUouter,value=.true.,back=.true.,dim=1),iq) + 1d-3
-             endif
-             if(eUinnerauto) then
-                 projs = [(sum(proj(i:iko_fx)),i=iko_ix,iko_fx)]
-                 eUinner = evl(findloc(projs>CUinner,value=.true.,back=.true.,dim=1),iq) + 1d-3
-             endif
+             projs = [(sum(proj(i:iko_fx)),i=iko_ix,iko_fx)]
+             if(eUouterauto) eUouter = evl(findloc(projs>CUouter,value=.true.,back=.true.,dim=1),iq) + 1d-3
+             if(eUinnerauto) eUinner = evl(findloc(projs>CUinner,value=.true.,back=.true.,dim=1),iq) + 1d-3
              if((isc==1.or.convn.or.isc==nsc1).and.iq==1)then
-                write(stdo,ftox)' isc iq eUouter=',isc,iq,ftof((eUouter-eferm)*rydberg(),3),'eV'
-                write(stdo,ftox)' isc iq eUinner=',isc,iq,ftof((eUinner-eferm)*rydberg(),3),'eV'
+                aaa=merge('given by CUouter='//ftof(CUouter),repeat(' ',256), eUouterauto)
+                write(stdo,ftox)' isc iq eUouter=',isc,iq,ftof((eUouter-eferm)*rydberg(),3),'eV',trim(aaa)
+                aaa=merge('given by CUinner='//ftof(CUinner),repeat(' ',256), eUinnerauto)
+                write(stdo,ftox)' isc iq eUinner=',isc,iq,ftof((eUinner-eferm)*rydberg(),3),'eV',trim(aaa)
              endif
            endblock eUblock
            
