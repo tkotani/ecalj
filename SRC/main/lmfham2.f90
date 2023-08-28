@@ -113,7 +113,7 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
     call getkeyvalue("GWinput","mlo_ELhard",ELhardeV,default=-1d8)
 
 !    call getkeyvalue("GWinput","mlo_Skipdfinner",Skipdfinner,default=.false.)
-    call getkeyvalue("GWinput","mlo_EUinnerAUTOsp",EUautosp,default=.false.)
+!    call getkeyvalue("GWinput","mlo_EUinnerAUTOsp",EUautosp,default=.false.)
     
     ELhardauto=.true.
     if(ELhardeV>-1d7) ELhardauto=.false.
@@ -273,7 +273,7 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
           character(5):: aaax
           character(8):: xn
           integer:: nlow,iUinner,iUouter
-          if(eUautosp)    eUinner= 9999d0/rydberg()+eferm
+!          if(eUautosp)    eUinner= 9999d0/rydberg()+eferm
           if(eUinnerauto) eUinner=-9999d0/rydberg()+eferm
           if(eUouterauto) eUouter=-9999d0/rydberg()+eferm
           iUinner=nband
@@ -299,26 +299,27 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
                 if(iUouter==0.or.iUouter>nband) iUouter=nband
                 eUouter = max(evl(iUouter,iq),eUouter)
              endif
-             if(EUautosp) then   
-                iUinner=-999
-                do imlo=1,nMLO
-                   proj = [(sum(cnk0(iki:ik,imlo,iq)*dconjg(cnk0(iki:ik,imlo,iq))),ik=iki,ikf)] !proj for each imlo
-                   iUinneri=findloc(proj>.5d0,value=.true.,dim=1)   !      write(stdo,ftox)'imlo=',imlo,' sum=',nnc(ikf,imlo),ibandx
-!                   if(skipdfinner.and.lindex(imlo)>=2) then
-                   if(lindex(imlo)>=2) then
-                      continue
-                   else   
-                      iUinner=max(iUinner,iUinneri)
-                   endif
-                enddo
-                eUinner=min(evl(iUinner,iq),eUinner)
-             elseif(eUinnerauto) then !default
-!                if(projss(ikf)>7.1) then
-!                do i=iki,ikf
-!                   write(stdo,ftox) 'xxx projss=',i,ftof(proj(i)),ftof(projss(i)),nMLO,' evl=',ftof((evl(i,iq)-eferm)*rydberg())
+!             if(EUautosp) then   
+!                iUinner=-999
+!                do imlo=1,nMLO
+!                   proj = [(sum(cnk0(iki:ik,imlo,iq)*dconjg(cnk0(iki:ik,imlo,iq))),ik=iki,ikf)] !proj for each imlo
+!                   iUinneri=findloc(proj>.8d0,value=.true.,dim=1)   !      write(stdo,ftox)'imlo=',imlo,' sum=',nnc(ikf,imlo),ibandx
+                   !                   if(skipdfinner.and.lindex(imlo)>=2) then
+                   !                   if(lindex(imlo)>=2) then
+                   !                      continue
+                   !                   else   
+!                   iUinner=max(iUinner,iUinneri)
+                   !                   endif
 !                enddo
-!                endif
-!                iUinner= findloc(projss>nMLO-0.1d0,value=.true.,dim=1) !projss integer
+!                eUinner=max(evl(iUinner,iq),eUinner)
+!             elseif(eUinnerauto) then !default
+             if(eUinnerauto) then !default
+                !                if(projss(ikf)>7.1) then
+                !                do i=iki,ikf
+                !                   write(stdo,ftox) 'xxx projss=',i,ftof(proj(i)),ftof(projss(i)),nMLO,' evl=',ftof((evl(i,iq)-eferm)*rydberg())
+                !                enddo
+                !                endif
+                !                iUinner= findloc(projss>nMLO-0.1d0,value=.true.,dim=1) !projss integer
                 iUinner= findloc(projss>nMLO-1d-3,value=.true.,dim=1) 
                 if(iUinner==0)  iUinner=nband
                 eUinner = max(evl(iUinner,iq),eUinner)  !maximum value
@@ -329,7 +330,7 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
              write(stdo,ftox)' isc iq eUouter=',isc,iq,ftof((eUouter-eferm)*rydberg(),3),'eV',trim(aaa)
              aaa=''
              if(eUinnerauto) aaa='auto.default'//' EUinner by nMLO='//xn(nMLO)
-             if(eUautosp)    aaa='EUinnerAUTOsp on.'
+!             if(eUautosp)    aaa='EUinnerAUTOsp on.'
              write(stdo,ftox)' isc iq eUinner=',isc,iq,ftof((eUinner-eferm)*rydberg(),3),'eV',trim(aaa)
           endif
         endblock AUTOeUblock

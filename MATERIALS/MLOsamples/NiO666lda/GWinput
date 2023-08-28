@@ -198,4 +198,4 @@ GaussianFilterX0 0.0001 !(a.u.) Gaussian smearing for the polarization function 
 3 O   2 3 4
 4 O   2 3 4
 </Worb> 
-mlo_EUinner 5
+mlo_EUinner 1.5
