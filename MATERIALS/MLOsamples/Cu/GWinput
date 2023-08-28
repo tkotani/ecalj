@@ -104,7 +104,7 @@ QforEPSunita on
 !</QforEPSL>
 
 !!! ##### Maximally localized Wannier function ################ 
-v!!! For s,p,d,f the indices 1-16 correspond to: 
+vvv!!! For s,p,d,f the indices 1-16 correspond to: 
 !!! index l m polynomial 
 !!! 1 0 0 1 
 !!! -----------------------------  
@@ -130,3 +130,4 @@ v!!! For s,p,d,f the indices 1-16 correspond to:
 <Worb> Site 
   1 Cu 5 6 7 8 9
 </Worb> 
+!mlo_EUinner 5

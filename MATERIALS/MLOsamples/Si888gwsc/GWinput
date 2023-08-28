@@ -114,4 +114,5 @@ v 0d0 0d0 0.04d0
 </Worb>
 
 mlo_EUinner 5
+mlo_CUouter 0
 !mlo_WTseed 2500

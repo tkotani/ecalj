@@ -104,7 +104,7 @@ GaussSmear on  ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr fo
  26     0.7500000000000000     0.8750000000000000     1.1250000000000000
  27     0.7500000000000000     1.0000000000000000     1.0000000000000000
  28     0.8750000000000000     0.8750000000000000     1.0000000000000000
- 29     1.0000000000000000     1.0000000000000000     1.0000000000000000
+vv 29     1.0000000000000000     1.0000000000000000     1.0000000000000000
 </QPNT>
 !EPSrange  1    !(Ry) [0,EPSrange] for dielectric function plot.
 !EPSdw     0.05 !(Ry) energy mesh  for dielectric function plot.
@@ -149,4 +149,4 @@ GaussSmear on  ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr fo
 <Worb> Site 
   1 Fe 1 2 3 4 5 6 7 8 9
 </Worb>
-!mlo_EUinner 5
+!mlo_EUinnerAUTOsp on

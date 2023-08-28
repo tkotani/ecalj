@@ -28,7 +28,7 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
   use m_HamRsMTP,only: ReadHamRsMTP,hmmr1=>hammr,ommr1=>ovlmr,nband=>ndimMTO,ib_tableM,l_tableM,k_tableM !Real-space Hamiltonian on the basis |MTo>.
   !      Main output of lmfham2 is  hmmr2,       ommr2,       nMLO,         ib_tableM(idmto(1:nwf)),... for |MLO>
   implicit none
-  integer:: i,iq,is,ix,j,ifbb,ifoc,nbb,isc,ifq0p, nox,iko_ix,iko_fx,nsc1,ndz,nin,nout,nsc2,ibb
+  integer:: i,iq,is,ix,j,ifbb,ifoc,nbb,isc,ifq0p, nox,iki,ikf,nsc1,ndz,nin,nout,nsc2,ibb
   integer:: inii,if102,iwf2,ib,itmp,itmp2,nqbz2,nspin2,ib1,ib2,iqb,iqbz,it,jsp,nmx,nev,isyml!,nqbz!,n1,n2,n3
   integer:: nMLO,ikx,ikxx,iadd,i1q,i2q,i1,i2,imp,inp,inx,imx,ibas,ibold,ibx,iorb
   integer,parameter:: nlinex=100
@@ -41,22 +41,23 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
   character(8) :: xt
   real(8),allocatable    :: q(:,:)
   real(8),allocatable:: ku(:,:),kbu(:,:,:),eunk(:,:),eval(:), eks(:),wbb(:)
-  integer,allocatable:: ikbidx(:,:)
+  integer,allocatable:: ikbidx(:,:),lindex(:)
   real(8),allocatable:: omgik(:),zesum(:),evals(:),WTbandq(:),WTinnerq(:)
   real(8),allocatable:: xq(:),eval1(:,:),eval2(:,:),eval3(:,:),eval_w(:,:,:)
   integer,allocatable:: m_indx(:),n_indx(:),l_indx(:),ibas_indx(:),ibasiwf(:),idmto(:),idmto_(:)
-  real(8),allocatable:: evl(:,:),ovl(:), bbv(:,:),wbz(:),proj(:),projs(:)
-  complex(8),allocatable:: upu(:,:,:,:), zmn(:,:),zmn0(:,:),WTbandii(:),WTinnerii(:)
+  real(8),allocatable:: evl(:,:),ovl(:), bbv(:,:),wbz(:),proj(:),projs(:),projss(:)
+  complex(8),allocatable:: upu(:,:,:,:), zmn(:,:),zmn0(:,:),WTbandii(:),WTinnerii(:),zmns(:,:)
   complex(8),parameter:: img=(0d0,1d0)
   complex(8),allocatable::ovlm(:,:),ovlmx(:,:),hamm(:,:),ovec(:,:)!,emat(:,:)
   complex(8),allocatable:: uumat(:,:,:,:),evecc(:,:), amnk(:,:,:),cnk(:,:,:),umnk(:,:,:),evecc1(:,:,:),evecc2(:,:,:)
-  complex(8),allocatable:: hmmr2(:,:,:,:),ommr2(:,:,:,:),wmat(:,:),wmat2(:,:)
+  complex(8),allocatable:: hmmr2(:,:,:,:),ommr2(:,:,:,:),wmat(:,:),wmat2(:,:),cnk0(:,:,:)
   character(256):: fband,fband1
-  logical:: cmdopt2,noinner,eLinnerauto,ELhardauto,eUinnerauto,convn,eUouterauto
+  logical:: cmdopt2,noinner,eLinnerauto,ELhardauto,eUinnerauto,convn,eUouterauto,skipdfinner,EUautosp
   real(8):: WTseed,eoffset, projcut,ewid,ewideV,eUinnercut,eouter,CUouter,WTouter,EUouter,CLhard,eUoutereV,CUinner,eLhardeVoffset
   character:: outs*20
   character(256):: aaa='',bbb=''
-  integer:: nband_,nqbz_,iko_ix_,iko_fx_,nMLO_,ilowest,ieLhard
+
+  integer:: nband_,nqbz_,iki_,ikf_,nMLO_,ilowest,ieLhard,iUinneradd
   call setcmdpath() !Set self-command path (this is for call system at m_lmfinit)
   call m_ext_init()         ! Get sname, e.g. trim(sname)=si of ctrl.si
   call m_MPItk_init('lmfham2') ! mpi initialization
@@ -78,7 +79,7 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
   ReadInfoFromGWinput: block
     call s_read_Worb() ! Input orbital index for MLO, stored into idmto (s,p,d=1,2,3,4,5,6,7,8,9)
     nMLO=sum(norb(1:nclass_mlwf)) !number of MLO
-    allocate(idmto(nMLO)) 
+    allocate(idmto(nMLO),lindex(nMLO))
     ibx=0
     ibold=-999
     iorb=0
@@ -89,31 +90,33 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
        if(findloc([(ibx==cbas_mlwf(ix,ibas),ix=1,norb(ibas))],dim=1,value=.true.)/=0) then
           iorb=iorb+1
           idmto(iorb)=i
-       endif       !write(stdo,"('MHAM: i ib(atom) l m k(EH,EH2,PZ)=',5i3)") i,ib_table(i),ibx
+          lindex(iorb)=l_tableM(i)
+       endif
+       !write(stdo,"('MHAM: i ib(atom) l m k(EH,EH2,PZ)=',5i3)") i,ib_table(i),ibx
        ibold=ib_tableM(i)
     enddo SETidmto
+      
     write(stdo,ftox)' idmto=',idmto
     call getkeyvalue("GWinput","mlo_maxit",nsc1,default=20)
     call getkeyvalue("GWinput","mlo_conv",conv1,default=1d-4)
     call getkeyvalue("GWinput","mlo_mix",alpha1,default=.5d0) 
     call getkeyvalue("GWinput","mlo_EUinner", eUinnereV,default= 1d8) ! inner energy windowU eV relative to VBM
-    call getkeyvalue("GWinput","mlo_CUouter",CUouter,default=0.01d0)
-    call getkeyvalue("GWinput","mlo_CUinner",CUinner,default=0.1d0)
+    call getkeyvalue("GWinput","mlo_CUouter", CUouter,default=0.1d0)
     
-    call getkeyvalue("GWinput","mlo_ELhard",ELhardeV,default=-1d8)
-!    call getkeyvalue("GWinput","mlo_ELhardoffset",ELhardeVoffset,default=.1d0)
-    ELhardauto=.true.
-    if(ELhardeV>-1d7) ELhardauto=.false.
     call getkeyvalue("GWinput","mlo_CLhard",CLhard,default=0.33d0)
-    
-    call getkeyvalue("GWinput","mlo_ewid", ewideV, default=1d0)       ! inner energy window softing eV
-!    call getkeyvalue("GWinput","mlo_EUouter",EUoutereV,default=1d8)   
-    call getkeyvalue("GWinput","mlo_WTband" ,WTband,default=16d0)    ! Weight to minimize band energies
-!    call getkeyvalue("GWinput","mlo_EUhard",eUhardeV,default=-999999d0)
-    call getkeyvalue("GWinput",'mlo_WTseed', WTseed,default=2048d0)   ! Weight for seed.
+    call getkeyvalue("GWinput","mlo_ewid",    ewideV, default=1d0)       ! inner energy window softing eV
+    call getkeyvalue("GWinput","mlo_WTband" , WTband,default=32d0)    ! Weight to minimize band energies
+    call getkeyvalue("GWinput",'mlo_WTseed' , WTseed,default=64d0)    ! Weight for seed.
     call getkeyvalue("GWinput","mlo_ELinner", eLinnereV,default=-1d8) ! inner energy windowL eV relative to VBM
     call getkeyvalue("GWinput","mlo_WTinner", WTinner,default=2048d0) ! inner energy window WeighTing
-    call getkeyvalue("GWinput","mlo_WTouter", WTouter,default=2048d0*10d0) ! inner energy window WeighTing
+    call getkeyvalue("GWinput","mlo_WTouter", WTouter,default=2048d0*16d0) ! inner energy window WeighTing
+    call getkeyvalue("GWinput","mlo_ELhard",ELhardeV,default=-1d8)
+
+!    call getkeyvalue("GWinput","mlo_Skipdfinner",Skipdfinner,default=.false.)
+    call getkeyvalue("GWinput","mlo_EUinnerAUTOsp",EUautosp,default=.false.)
+    
+    ELhardauto=.true.
+    if(ELhardeV>-1d7) ELhardauto=.false.
 
     if(master_mpi) then
        write(stdo,ftox)' Reading: mlo_maxit=',nsc1
@@ -122,10 +125,10 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
        write(stdo,ftox)'        : mlo_WTseed   =',ftof(WTseed,2)
        write(stdo,ftox)'        : mlo_WTband   =',ftof(WTband,2)
        write(stdo,ftox)'        : mlo_WTinner  =',ftof(WTinner,2)
-       if(eUinnereV>1d5) then
-           write(stdo,ftox)'        :  mlo_EUinner = by mlo_CUinner'
-           write(stdo,ftox)'        :  mlo_CUinner =',ftof(CUinner,2)
-       endif   
+!       if(eUinnereV>1d5) then
+!           write(stdo,ftox)'        :  mlo_EUinner = by mlo_CUinner'
+!           write(stdo,ftox)'        :  mlo_CUinner =',ftof(CUinner,2)
+!       endif   
        if(eUinnereV<=1d5) write(stdo,ftox)'        :  mlo_EUinner(eV)=',ftof(eUinnereV,2)
        if(eLinnereV>-1d5)write(stdo,ftox)'        :  mlo_ELinner(eV)=',ftof(eLinnereV,2)
        write(stdo,ftox)'        :  mlo_ewid(eV)=',ftof(ewideV,2)
@@ -156,17 +159,17 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
     allocate(bbv,source=bb)
   endblock bbvector
   !iko_i=1; iko_f=nband ! inner window nband is the number of MLO
-  iko_ix=1     !minval(iko_i)
-  iko_fx=nband !maxval(iko_f) !  nox = iko_fx - iko_ix + 1
+  iki=1     !minval(iko_i)
+  ikf=nband !maxval(iko_f) !  nox = ikf - iki + 1
   if(job==1) goto 1011 !Goto Souza's iteration job=1 mode
   
   GetCNmatFile: block  !job=0 mode to get CNmat file (connection matrix uumat and so on).
     real(8):: qp(3)
     complex(8):: emat(nband,nband),osq(1:nband,1:nband),o2al(1:nband,1:nband,nqbz),phase,ovlmm(nband,nMLO),&
-         evec(nband,nband,nqbz),evecx(1:nband,1:nband), ovec(nband,nband),amnk(iko_ix:iko_fx,nMLO,nqbz),&
-         ovlm(1:nband,1:nband),ovlmx(1:nband,1:nband), hamm(1:nband,1:nband),uumat(iko_ix:iko_fx,iko_ix:iko_fx,nbb,nqbz)
+         evec(nband,nband,nqbz),evecx(1:nband,1:nband), ovec(nband,nband),amnk(iki:ikf,nMLO,nqbz),&
+         ovlm(1:nband,1:nband),ovlmx(1:nband,1:nband), hamm(1:nband,1:nband),uumat(iki:ikf,iki:ikf,nbb,nqbz)
     allocate(evl(nband,nqbz),ovl(nband))!NOTE: 20230805. When I declear evl in this block, ifort18.05 gives wrong results.
-    write(stdo,ftox)'Going to get CNmat ... : nband for |MLO1>=',nband,'iko_ix iko_fx=',iko_ix,iko_fx
+    write(stdo,ftox)'Going to get CNmat ... : nband for |MLO1>=',nband,'iki ikf=',iki,ikf
     open(newunit=ifuumat,file='CNmat',form='unformatted')
     uuispinloop: do 1010 is = 1,nspin
        write(stdo,ftox)'Generating connection matrix ispinloop: is =',is,'  out of',nspin
@@ -197,17 +200,17 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
           enddo
           o2al(:,:,iqbz) = matmul(osq, evec(:,:,iqbz)) !o2al(basis index, band index, iqbz index) O^(1/2)*evec
           forall(i=1:nband) ovlmm(i,:) = ovlmx(i,idmto(:))
-          amnk(:,:,iqbz)= matmul(transpose(dconjg(evec(1:nband,iko_ix:iko_fx,iqbz))),ovlmm) !amnk= <Psi^MTP|MTO>
+          amnk(:,:,iqbz)= matmul(transpose(dconjg(evec(1:nband,iki:ikf,iqbz))),ovlmm) !amnk= <Psi^MTP|MTO>
        enddo
        do iqbz=1,nqbz
           do ibb=1,nbb
              iqb = ikbidx(ibb,iqbz)             !q1(:) = qbz(:,iqbz)             !q2(:) = q1(:) + bbv(:,ibb)
-             do concurrent(ib1=iko_ix:iko_fx, ib2=iko_ix:iko_fx) !ib1,ib2 band index of inner-inner window
+             do concurrent(ib1=iki:ikf, ib2=iki:ikf) !ib1,ib2 band index of inner-inner window
                 uumat(ib1,ib2,ibb,iqbz)= sum(dconjg(o2al(1:nband,ib1,iqbz))*o2al(1:nband,ib2,iqb)) ! define connection <q ib1| q+b ib2>
              enddo
           enddo
        enddo
-       write(ifuumat) nband,nqbz,iko_ix,iko_fx,nMLO,idmto
+       write(ifuumat) nband,nqbz,iki,ikf,nMLO,idmto
        write(ifuumat) evl   !eigenvalue
        write(ifuumat) uumat !connection matrix
        write(ifuumat) amnk  !initial projection
@@ -221,24 +224,26 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
   allocate(hmmr2(nMLO,nMLO,npairmx,nspin),ommr2(nMLO,nMLO,npairmx,nspin),source=(0d0,0d0))
   allocate(ovlm(1:nband,1:nband),ovlmx(1:nband,1:nband),hamm(1:nband,1:nband))
   allocate(evl(nband,nqbz), ovec(nband,nband),ovl(nband))
-  allocate(amnk(iko_ix:iko_fx,nMLO,nqbz),idmto_(nMLO))
+  allocate(amnk(iki:ikf,nMLO,nqbz),idmto_(nMLO))
   allocate(wbz(nqbz),source=1d0/nqbz)
-  allocate (uumat(iko_ix:iko_fx,iko_ix:iko_fx,nbb,nqbz))
+  allocate (uumat(iki:ikf,iki:ikf,nbb,nqbz))
   ispinloop: do 1000 is = 1,nspin
-     read(ifuumat) nband_,nqbz_,iko_ix_,iko_fx_,nMLO_,idmto_
+     read(ifuumat) nband_,nqbz_,iki_,ikf_,nMLO_,idmto_
      if(nMLO/=nMLO.or.sum(abs(idmto-idmto_))/=0) call rx0('lmfham2: idmto error: Repeat --job=1 with the same <Worb> in GWinput!')
      read(ifuumat) evl
      read(ifuumat) uumat
      read(ifuumat) amnk
      if(master_mpi) &
-          write(stdo,ftox)'isploop: is=',is,'out of',nspin,'ChooseSpace by cnk(init:iend,1:nMLO,1:nqbz)=',iko_ix,iko_fx,nMLO,nqbz
-     allocate(upu(iko_ix:iko_fx,iko_ix:iko_fx,nbb,nqbz), cnk(iko_ix:iko_fx,nMLO,nqbz), omgik(nqbz),evals(nqbz))!,zesum(nqbz)) !cnk2(iko_ix:iko_fx,nMLO,nqbz)
-     allocate(WTbandq(nqbz),WTinnerq(nqbz),proj(iko_ix:iko_fx),projs(iko_ix:iko_fx))
+          write(stdo,ftox)'isploop: is=',is,'out of',nspin,'ChooseSpace by cnk(init:iend,1:nMLO,1:nqbz)=',iki,ikf,nMLO,nqbz
+     allocate(upu(iki:ikf,iki:ikf,nbb,nqbz), cnk(iki:ikf,nMLO,nqbz), omgik(nqbz),evals(nqbz))!,zesum(nqbz)) !cnk2(iki:ikf,nMLO,nqbz)
+     allocate(WTbandq(nqbz),WTinnerq(nqbz),proj(iki:ikf),projs(iki:ikf),projss(iki:ikf))
      callamnk2unk: block
        integer:: iko_i(nqbz),iko_f(nqbz)
-       iko_i=iko_ix
-       iko_f=iko_fx
-       call amnk2unk(amnk,iko_ix,iko_fx,iko_i,iko_f,nMLO,nqbz, cnk)
+       iko_i=iki
+       iko_f=ikf
+       call amnk2unk(amnk,iki,ikf,iko_i,iko_f,nMLO,nqbz, cnk)
+       if(allocated(cnk0)) deallocate(cnk0)
+       allocate(cnk0(iki:ikf,nMLO,nqbz),source=cnk)
      endblock callamnk2unk
      !amnk=<Psi^MTP(it,iqbz)|MTO(1:nMLO) >.  Note that amnk was in Eq.22 in Ref.II. <psi|Gaussian>. We replace Gaussian with MTO.
      !cnk =<Psi^MTP(it,iqbz)|MTO_orth(1:nMLO)>.  |MTO_orth>= |MTO> O^{-1/2} !initial condition
@@ -252,7 +257,7 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
           if(eLhardauto) then! Search bottom of MTP Hamiltonian for given MTOsets to generate MLO.
              ieLhard=9999
              do iq = 1,nqbz
-                proj = [ (sum(cnk(i,:,iq)*dconjg(cnk(i,:,iq))),i=iko_ix,iko_fx) ]
+                proj = [ (sum(cnk(i,:,iq)*dconjg(cnk(i,:,iq))),i=iki,ikf) ]
                 !if(iq==1) then;do i=1,nband; write(stdo,ftox)i,ftof((evl(i,iq)-eferm)*rydberg()),ftof(proj(i)); enddo;endif
                 ieLhard = min(findloc(proj>CLhard,value=.true.,dim=1),ieLhard) !lowest band index
              enddo
@@ -262,67 +267,109 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
           endif
           if(isc==1.or.convn.or.isc==nsc1) write(stdo,ftox)' isc eLhard =',isc,ftof((eLhard-eferm)*rydberg(),3),'eV'
         endblock AUTOeLhard
-
-!        if(eUinnerauto) then
-!            eUinner=-99999d0
-!            do iq = 1,nqbz
-!               projs = [(sum(proj(i:iko_fx)),i=iko_ix,iko_fx)]
-!               eUinner = max(evl(findloc(projs>CUinner,value=.true.,back=.true.,dim=1),iq) + 1d-3,eUinner)
-!            enddo
-!        endif
-        
-        iqloop: do iq = 1,nqbz
-          ! xxxxxx developing xxxxxxxxxxx
-          !  PDOSblock: block
-          !    complex(8):: ham(nMLO,nMLO),ovlx(nMLO,nMLO),evech(nMLO,nMLO)
-          !    real(8):: evalh(nMLO)
-          !    do concurrent(i=1:nMLO,j=1:nMLO) !nMLO Hamiltonian
-          !       ham(i,j)  = sum(dconjg(cnk(:,i,iqbz)*evl(iko_ix:iko_fx,iqbz)*cnk(:,j,iqbz))
-          !       ovlx(i,j) = sum(dconjg(cnk(:,i,iqbz)*cnk(:,j,iqbz))
-          !    enddo
-          !    nmx=nMLO
-          !    call zhev_tk4(nMLO,ham,ovlx,nmx,nev, evalh, evech, oveps)! iev=1,nMLO
-          !    do imlo=1,nMLO
-          !       do iev=1,nMLO !projection to MTO
-          !          PtoMTO(imlo,iev)=sum(dconjg(amnk(iko_ix:iko_fx,imlo,iq))*matmul(cnk(iko_ix:iko_fx,1:nMLO),evech(1:nMLO,iev)))
-          !       enddo
-          !    enddo
-          !  endblock PDOSblock
-          !  xxxxxxxxxxxxxxxxxxx
-           
-           ! AUTOeLhard:if(eLhardauto) then! Search bottom of MTP Hamiltonian for given MTOsets to generate MLO.
-           !    proj = [ (sum(cnk(i,:,iq)*dconjg(cnk(i,:,iq))),i=iko_ix,iko_fx) ]
-           !    !if(iq==1) then;do i=1,nband; write(stdo,ftox)i,ftof((evl(i,iq)-eferm)*rydberg()),ftof(proj(i)); enddo;endif
-           !    eLhard = evl(findloc(proj>CLhard,value=.true.,dim=1),iq) - 1d-3 !eLhardeVoffset/rydberg()
-           !    if((isc==1.or.isc==nsc1).and.iq==1) then
-           !       write(stdo,ftox)' isc iq eLhard =',isc,iq,ftof((eLhard-eferm)*rydberg(),3),'eV'
-           !    endif
-           ! else
-           !    eLhard= eLhardeV/rydberg()+eferm
-           ! endif AUTOeLhard
-           
-           eUblock:block 
-             projs = [(sum(proj(i:iko_fx)),i=iko_ix,iko_fx)]
-             if(eUouterauto) eUouter = evl(findloc(projs>CUouter,value=.true.,back=.true.,dim=1),iq) + 1d-3
-             if(eUinnerauto) eUinner = evl(findloc(projs>CUinner,value=.true.,back=.true.,dim=1),iq) + 1d-3
-             if((isc==1.or.convn.or.isc==nsc1).and.iq==1)then
-                aaa=merge('given by CUouter='//ftof(CUouter),repeat(' ',256), eUouterauto)
-                write(stdo,ftox)' isc iq eUouter=',isc,iq,ftof((eUouter-eferm)*rydberg(),3),'eV',trim(aaa)
-                aaa=merge('given by CUinner='//ftof(CUinner),repeat(' ',256), eUinnerauto)
-                write(stdo,ftox)' isc iq eUinner=',isc,iq,ftof((eUinner-eferm)*rydberg(),3),'eV',trim(aaa)
+        AUTOeUblock:block
+          integer::ikff,imlo,ik,ibandx,ibandxx,iUinneri,n
+          real(8):: zmnsa(iki:ikf),nnc(iki:ikf,nMLO),projsss(iki:ikf),ppp
+          character(5):: aaax
+          character(8):: xn
+          integer:: nlow,iUinner,iUouter
+          if(eUautosp)    eUinner= 9999d0/rydberg()+eferm
+          if(eUinnerauto) eUinner=-9999d0/rydberg()+eferm
+          if(eUouterauto) eUouter=-9999d0/rydberg()+eferm
+          iUinner=nband
+          do iq=1,nqbz
+             proj   = [(sum(cnk(i,:,iq)*dconjg(cnk(i,:,iq))),i=iki,ikf) ]
+             projs  = [(sum(proj(i:ikf)),i=iki,ikf)]
+             projss = [(sum(proj(iki:i)),i=iki,ikf)] !nint sum. Integer index
+!             projss = [(sum(nint(proj(iki:i))),i=iki,ikf)] !nint sum. Integer index
+             ! do i=iki,ikf
+             !    ppp=0d0
+             !    do n=2,3
+             !       if(proj(i)>1d0/n) then
+             !          ppp=1d0/(n-1)
+             !          exit
+             !       endif
+             !    enddo
+             !    if(i==iki) projss(i)=ppp
+             !    if(i/=iki) projss(i)=projss(i-1)+ppp
+             ! enddo   
+!             projsss = [(sum(proj(iki:i)),i=iki,ikf)] !nint sum. Integer index 
+             if(eUouterauto) then
+                iUouter = findloc(projs>CUouter,value=.true.,back=.true.,dim=1) +1
+                if(iUouter==0.or.iUouter>nband) iUouter=nband
+                eUouter = max(evl(iUouter,iq),eUouter)
              endif
-           endblock eUblock
+             if(EUautosp) then   
+                iUinner=-999
+                do imlo=1,nMLO
+                   proj = [(sum(cnk0(iki:ik,imlo,iq)*dconjg(cnk0(iki:ik,imlo,iq))),ik=iki,ikf)] !proj for each imlo
+                   iUinneri=findloc(proj>.5d0,value=.true.,dim=1)   !      write(stdo,ftox)'imlo=',imlo,' sum=',nnc(ikf,imlo),ibandx
+!                   if(skipdfinner.and.lindex(imlo)>=2) then
+                   if(lindex(imlo)>=2) then
+                      continue
+                   else   
+                      iUinner=max(iUinner,iUinneri)
+                   endif
+                enddo
+                eUinner=min(evl(iUinner,iq),eUinner)
+             elseif(eUinnerauto) then !default
+!                if(projss(ikf)>7.1) then
+!                do i=iki,ikf
+!                   write(stdo,ftox) 'xxx projss=',i,ftof(proj(i)),ftof(projss(i)),nMLO,' evl=',ftof((evl(i,iq)-eferm)*rydberg())
+!                enddo
+!                endif
+!                iUinner= findloc(projss>nMLO-0.1d0,value=.true.,dim=1) !projss integer
+                iUinner= findloc(projss>nMLO-1d-3,value=.true.,dim=1) 
+                if(iUinner==0)  iUinner=nband
+                eUinner = max(evl(iUinner,iq),eUinner)  !maximum value
+             endif
+          enddo
+          if((isc==1.or.convn.or.isc==nsc1)) then !.and.iq==1)then
+             aaa=merge('auto. given by CUouter='//ftof(CUouter),repeat(' ',256), eUouterauto)
+             write(stdo,ftox)' isc iq eUouter=',isc,iq,ftof((eUouter-eferm)*rydberg(),3),'eV',trim(aaa)
+             aaa=''
+             if(eUinnerauto) aaa='auto.default'//' EUinner by nMLO='//xn(nMLO)
+             if(eUautosp)    aaa='EUinnerAUTOsp on.'
+             write(stdo,ftox)' isc iq eUinner=',isc,iq,ftof((eUinner-eferm)*rydberg(),3),'eV',trim(aaa)
+          endif
+        endblock AUTOeUblock
+        iqloop: do iq = 1,nqbz
+!            eU2block:block
+!              character(5):: aaax
+! !             integer:: nlow,iUinner
+!              proj   = [ (sum(cnk(i,:,iq)*dconjg(cnk(i,:,iq))),i=iki,ikf) ]
+!              projss = [(sum(nint(proj(iki:i))),i=iki,ikf)] !nint sum 
+!              projs  = [(sum(proj(i:ikf)),i=iki,ikf)]
+!              nlow = max(findloc(evl(:,iq)>eLhard,value=.true.,dim=1)-1,0)   !  print *,'nlow=',nlow,nlow+nband,nlow+nMLO
+!              if(eUouterauto) eUouter = evl(findloc(projs>CUouter,value=.true.,back=.true.,dim=1),iq) + 1d-3
+! !             iUinner=max(findloc(projss>nMLO-1d-3,value=.true.,dim=1),nMLO) ! +iUinneradd,nMLO)
+! !             if(eUinnerauto) eUinner = evl(iUinner,iq) + 1d-3
+!              if((isc==1.or.convn.or.isc==nsc1).and.iq==1)then
+!                 aaa=merge('given by CUouter='//ftof(CUouter),repeat(' ',256), eUouterauto)
+! !                write(stdo,ftox)' isc iq eUouter=',isc,iq,ftof((eUouter-eferm)*rydberg(),3),'eV',trim(aaa)
+! !                aaa=merge('given by CUinner='//ftof(CUinner),repeat(' ',256), eUinnerauto)
+! !                write(stdo,ftox)' isc iq eUinner=',isc,iq,ftof((eUinner-eferm)*rydberg(),3),'eV',trim(aaa)
+! !             endif
+! !             if(iq==1.and.(convn.or.isc==nsc1)) then
+! !                write(stdo,ftox)'---Monitor eigenvalue and nint(proj) at q=0'
+! !                do i=1,min(nband,IUinner)
+! !                   aaax=merge('inner','     ',i<=iUinner.and.i>nlow)
+! !                   write(stdo,ftox)i,ftof((evl(i,iq)-eferm)*rydberg(),3),ftof(projss(i),3),trim(aaax)
+! !                enddo
+! !                write(stdo,ftox)'...'
+! !             endif
+!            endblock eU2block
            
-           nout = iko_fx - iko_ix + 1 
+           nout = ikf - iki + 1 
            ndz  = nout 
            if(isc /= 1) alpha = alpha1
-           allocate(wmat(iko_ix:iko_fx,iko_ix:iko_fx), wmat2(iko_ix:iko_fx,iko_ix:iko_fx))
-           i1q=iko_ix!iko_i(iq)
-           i2q=iko_fx!iko_f(iq)
+           allocate(wmat(iki:ikf,iki:ikf), wmat2(iki:ikf,iki:ikf))
+           i1q=iki!iko_i(iq)
+           i2q=ikf!iko_f(iq)
            do ibb = 1,nbb
               iqb = ikbidx(ibb,iq)
-              i1= iko_ix!iko_i(iqb)
-              i2= iko_fx!iko_f(iqb)
+              i1= iki!iko_i(iqb)
+              i2= ikf!iko_f(iqb)
               do concurrent(inp=i1:i2, imp=i1:i2) !wmat = cnk * cnk^{*} is projector to 'wannier space'.
                  wmat(inp,imp)= sum(dconjg(cnk(inp,1:nMLO,iqb))*cnk(imp,1:nMLO,iqb)) !BUG-> sum was for nin+1:nMLO before 2023-6-8(miyake)
               enddo
@@ -337,28 +384,46 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
            ! Omega= 1/2 \sum_b,k Tr {|\nabla Pk|^2} + WTband*Tr{Pk H} - WTinner*Tr{Pk EinnerW} + WTseed * Tr {Pk <psi_m|seed_i><seed_i|psi_n|}
            ! zmn = \frac{\delta Omega}{\delta Pmn^k}
            allocate (zmn0(ndz,ndz),source=(0d0,0d0)) ! (1-3) Zmn(k) > phi,eval
-           allocate (zmn(ndz,ndz), evecc(ndz,ndz),eval(ndz),WTbandii(ndz),WTinnerii(ndz))
+           allocate (zmn(ndz,ndz),zmns(ndz,ndz), evecc(ndz,ndz),eval(ndz),WTbandii(ndz),WTinnerii(ndz))
            do ibb = 1,nbb
 !             zmn0(1:ndz,1:ndz) = zmn0(1:ndz,1:ndz) - 2d0*wbb(ibb)*upu(iko_i(iq):iko_f(iq),iko_i(iq):iko_f(iq),ibb,iq)
-              zmn0(1:ndz,1:ndz) = zmn0(1:ndz,1:ndz) - 2d0*wbb(ibb)*upu(iko_ix:iko_fx,iko_ix:iko_fx,ibb,iq)
+              zmn0(1:ndz,1:ndz) = zmn0(1:ndz,1:ndz) - 2d0*wbb(ibb)*upu(iki:ikf,iki:ikf,ibb,iq)
            enddo
            zmn=zmn0
-           WTbandBlock: do concurrent(i=iko_ix:iko_fx)
+           WTbandBlock: do concurrent(i=iki:ikf)
               WTbandii(i)= WTband*evl(i,iq) !+ WTband*evl(i,iq)*(1d0-filter2((evl(i,iq)-eferm-1d0)/ewid))
               zmn(i,i)=zmn0(i,i) + WTbandii(i)  
            enddo WTbandBlock
-           WTinnerBlock: do concurrent(i=iko_ix:iko_fx) !Add penalty for compoment outside of inner window
+           
+           WTseedBlock: block
+             if(WTseed/=0d0) then !projection to Seed functions
+                !  zmns = matmul(amnk(iki:ikf,1:nMLO,iq),dconjg(transpose(amnk(iki:ikf,1:nMLO,iq))))
+                zmns = matmul(cnk0(iki:ikf,1:nMLO,iq),dconjg(transpose(cnk0(iki:ikf,1:nMLO,iq)))) !NOTE: this did not work for Si666 at least
+                zmn(iki:ikf,iki:ikf)= zmn(iki:ikf,iki:ikf) - WTseed*zmns
+             endif
+                
+!                zmnsa=[(sum([(abs(zmns(i,i)),i=iki,ikff)]),ikff=iki,ikf)]
+!                do i=iki,ikf
+!                   write(stdo,ftox)'zmnss=',i,ftof((evl(i,iq)-eferm)*rydberg()),ftof(zmnsa(i))
+!                enddo
+!                eUinner= evl(findloc(zmnsa>0.8, value=.true., back=.true.,dim=1),iq)
+!                write(stdo,ftox)'--- zsum=',ftof(sum([(zmns(i,i),i=iki,ikf)])),'eUinner=',ftof((eUinner-eferm)*rydberg())
+
+                !              zmn(iki:ikf/2,iki:ikf/2)= zmn(iki:ikf,iki:ikf/2) &
+                !              - WTseed*matmul(amnk(iki:ikf/2,1:nMLO,iq),dconjg(transpose(amnk(iki:ikf/2,1:nMLO,iq)))) 
+                !!              zmn=zmn-WTseed*matmul(cnk0(iki:ikf,1:nMLO,iq), & !projection to Seed functions
+                !!                   dconjg(transpose(cnk0(iki:ikf,1:nMLO,iq)))) !NOTE: this did not work for Si666 at least
+             
+           endblock WTseedBlock
+           
+           WTinnerBlock: do concurrent(i=iki:ikf) !Add penalty for compoment outside of inner window
               WTinnerii(i) = WTinner*filter2((evl(i,iq)-eUinner)/ewid) + WTinner*filter2((eLinner-evl(i,iq))/ewid)!inner window
               zmn(i,i)= zmn(i,i) + WTinnerii(i)
               zmn(i,i)= zmn(i,i) + WTouter*filter2((evl(i,iq)-eUouter)/ewid)  !outer window
            enddo WTinnerBlock
-           WTseedBlock: if(WTseed/=0d0) then
-              zmn=zmn-WTseed*matmul(amnk(iko_ix:iko_fx,1:nMLO,iq), & !projection to Seed functions
-                   dconjg(transpose(amnk(iko_ix:iko_fx,1:nMLO,iq))))
-           endif WTseedBlock
            HardInnerBlock: block ! hard innerwindow
              real(8),parameter:: zhard=-1d8, zavoid=1d8
-             do i=iko_ix,iko_fx 
+             do i=iki,ikf 
                 if(evl(i,iq)<eLhard) then !avoided
                    zmn(i,:)=0d0; zmn(:,i)= 0d0; zmn(i,i)= zavoid 
 !                elseif(evl(i,iq)<eUhardeV/rydberg()+eferm) then !included
@@ -368,13 +433,13 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
            endblock HardInnerBlock
            call diag_hm(zmn,ndz,eval,evecc)
            ! eval(i)/wbbs is normalized. If all eval(i)/wbbs=1, P_k=P_{k+b}.
-           forall(iwf = 1:nMLO) cnk(iko_ix:iko_fx,iwf,iq) = evecc(1:ndz,iwf) 
+           forall(iwf = 1:nMLO) cnk(iki:ikf,iwf,iq) = evecc(1:ndz,iwf) 
            evals(iq)= sum(eval(1:nMLO)) 
            omgik(iq)= sum([(sum(dconjg(evecc(1:ndz,i))*matmul(zmn0,evecc(1:ndz,i))),i=1,nMLO)])  
            WTbandq(iq)= sum([(sum(dconjg(evecc(1:ndz,i))*WTbandii(1:ndz)*evecc(1:ndz,i)),i=1,nMLO)]) !2nd energy term
            WTinnerq(iq)= sum([(sum(dconjg(evecc(1:ndz,i))*WTinnerii(1:ndz)*evecc(1:ndz,i)),i=1,nMLO)]) !
            !write(stdo,ftox)'iq=',iq,'eval=',ftof(eval)
-           deallocate (zmn,evecc,eval,zmn0,WTbandii,WTinnerii)
+           deallocate (zmn,evecc,eval,zmn0,WTbandii,WTinnerii,zmns)
         enddo iqloop
         omgi  = sum(omgik(:)*wbz(:)) 
         WTbandqsum=sum(WTbandq(:)*wbz(:))
@@ -398,22 +463,22 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
         if(isc==nsc1) write(stdo,ftox)' Step1: not converged'
      enddo SouzaStep1loop
      deallocate(upu) 
-     !! NOTE: cnk(iko_ix:iko_fx,nMLO,nqbz) is the final results of Step1loop, which minimize Omega_I (Wannier space)
+     !! NOTE: cnk(iki:ikf,nMLO,nqbz) is the final results of Step1loop, which minimize Omega_I (Wannier space)
      !!   cnk(iko_i(iq):iko_f(iq),nMLO,iq) gives nMLO-dimentional space.
      GetHamiltonianforMTObyProjection: block  !We do not use Marzari's unitary rotation
        real(8):: qq(3)
        integer:: il,im,in,ib1,ib2,jsp
-       complex(8):: phase,proj(iko_ix:iko_fx,iko_ix:iko_fx),pa(iko_ix:iko_fx,nMLO),ham(nMLO,nMLO),ovlx(nMLO,nMLO)
+       complex(8):: phase,proj(iki:ikf,iki:ikf),pa(iki:ikf,nMLO),ham(nMLO,nMLO),ovlx(nMLO,nMLO)
        jsp=is
        do iqbz = 1,nqbz
           qq(:) = qbz(:,iqbz) !          write(6,*)' xxxx iq q=',iq,qq
-          do concurrent(i=iko_ix:iko_fx, j=iko_ix:iko_fx)     !inner bandindex
+          do concurrent(i=iki:ikf, j=iki:ikf)     !inner bandindex
              proj(i,j) = sum(cnk(i,:,iqbz)*dconjg(cnk(j,:,iqbz))) !sum for MLOindex
           enddo
-          pa(iko_ix:iko_fx,1:nMLO) = matmul(proj,amnk(iko_ix:iko_fx,1:nMLO,iqbz))
-!          write(6,*)'sumcheck ham=',iqbz,sum(abs(pa)),sum(abs(evl(iko_ix:iko_fx,iqbz))),sum(abs(amnk(iko_ix:iko_fx,1:nMLO,iqbz)))
+          pa(iki:ikf,1:nMLO) = matmul(proj,amnk(iki:ikf,1:nMLO,iqbz))
+!          write(6,*)'sumcheck ham=',iqbz,sum(abs(pa)),sum(abs(evl(iki:ikf,iqbz))),sum(abs(amnk(iki:ikf,1:nMLO,iqbz)))
           do concurrent(i=1:nMLO,j=1:nMLO)
-             ham(i,j)  = sum(dconjg(pa(:,i))*evl(iko_ix:iko_fx,iqbz)*pa(:,j)) !sum(dconjg(pa(:,i))*pa(:,j))!
+             ham(i,j)  = sum(dconjg(pa(:,i))*evl(iki:ikf,iqbz)*pa(:,j)) !sum(dconjg(pa(:,i))*pa(:,j))!
              ovlx(i,j) = sum(dconjg(pa(:,i))*pa(:,j))
           enddo
 !          write(6,*)'sumcheck ham=',iqbz,sum(abs(ham))
@@ -484,7 +549,7 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
        close(ifglt1)
        write(stdo,ftox)'OK! Run gnuplot -p '//trim(fname2)//'.Red points are by hmmr2 for Hamiltonian on {|MLO2>}'
     endblock Modifiedbandplotglt
-    deallocate(cnk,omgik,evals,wtbandq,wtinnerq,proj,projs)
+    deallocate(cnk,omgik,evals,wtbandq,wtinnerq,proj,projs,projss)
 1000 enddo ispinloop
   call rx0('OK! end of lmfham2 -----------------')
 contains
