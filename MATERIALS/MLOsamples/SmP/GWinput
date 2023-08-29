@@ -157,7 +157,7 @@ GaussianFilterX0 0.0001 !(a.u.) Gaussian smearing for the polarization function 
 !!! 2 1 -1 y 
 !!! 3 1 0 z  
 !!! 4 1 1 x  
-!!! -----------------------------  
+vv!!! -----------------------------  
 !!! 5 2 -2 xy 
 !!! 6 2 -1 yz  
 !!! 7 2 0 3z^2-1 
@@ -177,3 +177,4 @@ GaussianFilterX0 0.0001 !(a.u.) Gaussian smearing for the polarization function 
   1 Sm  10 11 12 13 14 15 16
   2 P   
 </Worb> 
+mlo_CUinner .9
