@@ -56,7 +56,6 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
   real(8):: WTseed,eoffset, projcut,ewid,ewideV,eUinnercut,eouter,CUouter,WTouter,EUouter,CLhard,eUoutereV,CUinner,eLhardeVoffset
   character:: outs*20
   character(256):: aaa='',bbb=''
-
   integer:: nband_,nqbz_,iki_,ikf_,nMLO_,ilowest,ieLhard,iUinneradd
   call setcmdpath() !Set self-command path (this is for call system at m_lmfinit)
   call m_ext_init()         ! Get sname, e.g. trim(sname)=si of ctrl.si
@@ -151,19 +150,19 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
   endblock ReadInfoFromGWinput
   bbvector: block !Get connecting vectors bb, bb connects k and k+bb, where both k and k+bb are on mesh points nqbz.
     allocate(wbb(12))
-    call getbb(plat,alat,n1,n2,n3, nbb,wbb,wbbsum,bb) ! b vectors (connecting vectors).
+    call getbb(plat,alat,n1,n2,n3, nbb,wbb,wbbsum,bb) ! b vectors (connecting vectors). See appendix of Marzari.1997
     allocate (ku(3,nqbz),kbu(3,nbb,nqbz),ikbidx(nbb,nqbz))
     call kbbindx(qbz,ginv,bb, nqbz,nbb, ikbidx,ku,kbu) ! index for k and k+bb
     call writebb2(ifbb,wbb(1:nbb),bb(1:3,1:nbb), ikbidx,ku,kbu, nqbz,nbb)
     write(stdo,ftox)' nbb wbb(in unit of 2pi/alat)=',nbb,ftof(wbb(1:nbb),3)
     allocate(bbv,source=bb)
   endblock bbvector
-  !iko_i=1; iko_f=nband ! inner window nband is the number of MLO
+  !iko_i=1; iko_f=nband 
   iki=1     !minval(iko_i)
-  ikf=nband !maxval(iko_f) !  nox = ikf - iki + 1
+  ikf=nband !maxval(iko_f) !  nox = ikf - iki + 1. nband is for MTP Hamiltonian
   if(job==1) goto 1011 !Goto Souza's iteration job=1 mode
   
-  GetCNmatFile: block  !job=0 mode to get CNmat file (connection matrix uumat and so on).
+  GetCNmatFile_job0: block  !job=0 mode to get CNmat file (connection matrix uumat and so on).
     real(8):: qp(3)
     complex(8):: emat(nband,nband),osq(1:nband,1:nband),o2al(1:nband,1:nband,nqbz),phase,ovlmm(nband,nMLO),&
          evec(nband,nband,nqbz),evecx(1:nband,1:nband), ovec(nband,nband),amnk(iki:ikf,nMLO,nqbz),&
@@ -217,7 +216,7 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
 1010 enddo uuispinloop
     close(ifuumat)
     if(job==0) call rx0('OK! end of lmhfam2 job=0 for generating CNmat')
-  endblock GetCNmatFile
+  endblock GetCNmatFile_Job0
 
 1011 continue !=== job==1 mode start ========================================
   open(newunit=ifuumat,file='CNmat',form='unformatted')
@@ -300,10 +299,12 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
              ! enddo   
 !             projsss = [(sum(proj(iki:i)),i=iki,ikf)] !nint sum. Integer index 
 !             if(EUautosp) then   
-!                iUinner=-999
-!                do imlo=1,nMLO
-!                   proj = [(sum(cnk0(iki:ik,imlo,iq)*dconjg(cnk0(iki:ik,imlo,iq))),ik=iki,ikf)] !proj for each imlo
-!                   iUinneri=findloc(proj>.8d0,value=.true.,dim=1)   !      write(stdo,ftox)'imlo=',imlo,' sum=',nnc(ikf,imlo),ibandx
+             !   iUinner=-999
+             do imlo=1,nMLO
+                proj = [(sum(cnk0(iki:ik,imlo,iq)*dconjg(cnk0(iki:ik,imlo,iq))),ik=iki,ikf)] !proj for each imlo
+                !     iUinneri=findloc(proj>.8d0,value=.true.,dim=1)
+                write(stdo,ftox)'imlo=',imlo,' weight=',proj(ikf)
+             enddo
 !                   if(skipdfinner.and.lindex(imlo)>=2) then
 !                     continue
 !                   else   
@@ -390,18 +391,17 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
               zmn0(1:ndz,1:ndz) = zmn0(1:ndz,1:ndz) - 2d0*wbb(ibb)*upu(iki:ikf,iki:ikf,ibb,iq)
            enddo
            zmn=zmn0
+           
            WTbandBlock: do concurrent(i=iki:ikf)
               WTbandii(i)= WTband*evl(i,iq) !+ WTband*evl(i,iq)*(1d0-filter2((evl(i,iq)-eferm-1d0)/ewid))
               zmn(i,i)=zmn0(i,i) + WTbandii(i)  
            enddo WTbandBlock
-           
            WTseedBlock: block
              if(WTseed/=0d0) then !projection to Seed functions
                 !  zmns = matmul(amnk(iki:ikf,1:nMLO,iq),dconjg(transpose(amnk(iki:ikf,1:nMLO,iq))))
                 zmns = matmul(cnk0(iki:ikf,1:nMLO,iq),dconjg(transpose(cnk0(iki:ikf,1:nMLO,iq)))) !NOTE: this did not work for Si666 at least
                 zmn(iki:ikf,iki:ikf)= zmn(iki:ikf,iki:ikf) - WTseed*zmns
              endif
-                
 !                zmnsa=[(sum([(abs(zmns(i,i)),i=iki,ikff)]),ikff=iki,ikf)]
 !                do i=iki,ikf
 !                   write(stdo,ftox)'zmnss=',i,ftof((evl(i,iq)-eferm)*rydberg()),ftof(zmnsa(i))
@@ -413,9 +413,7 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
                 !              - WTseed*matmul(amnk(iki:ikf/2,1:nMLO,iq),dconjg(transpose(amnk(iki:ikf/2,1:nMLO,iq)))) 
                 !!              zmn=zmn-WTseed*matmul(cnk0(iki:ikf,1:nMLO,iq), & !projection to Seed functions
                 !!                   dconjg(transpose(cnk0(iki:ikf,1:nMLO,iq)))) !NOTE: this did not work for Si666 at least
-             
            endblock WTseedBlock
-           
            WTinnerBlock: do concurrent(i=iki:ikf) !Add penalty for compoment outside of inner window
               WTinnerii(i) = WTinner*filter2((evl(i,iq)-eUinner)/ewid) + WTinner*filter2((eLinner-evl(i,iq))/ewid)!inner window
               zmn(i,i)= zmn(i,i) + WTinnerii(i)
@@ -431,6 +429,7 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
                 endif
              enddo
            endblock HardInnerBlock
+           
            call diag_hm(zmn,ndz,eval,evecc)
            ! eval(i)/wbbs is normalized. If all eval(i)/wbbs=1, P_k=P_{k+b}.
            forall(iwf = 1:nMLO) cnk(iki:ikf,iwf,iq) = evecc(1:ndz,iwf) 

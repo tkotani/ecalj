@@ -118,3 +118,4 @@ GaussSmear on  ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr fo
 !mlo_WTinner 1024
 !mlo_CUouter 0
 mlo_EUinner 5
+mlo_WTseed 128
