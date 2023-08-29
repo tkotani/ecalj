@@ -280,8 +280,13 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
           do iq=1,nqbz
              proj   = [(sum(cnk(i,:,iq)*dconjg(cnk(i,:,iq))),i=iki,ikf) ]
              projs  = [(sum(proj(i:ikf)),i=iki,ikf)]
-             projss = [(sum(proj(iki:i)),i=iki,ikf)] !nint sum. Integer index
-!             projss = [(sum(nint(proj(iki:i))),i=iki,ikf)] !nint sum. Integer index
+             projss = [(sum(proj(iki:i)),i=iki,ikf)] 
+             if(eUouterauto) then
+                iUouter = findloc(projs>CUouter,value=.true.,back=.true.,dim=1) +1
+                if(iUouter==0.or.iUouter>nband) iUouter=nband
+                eUouter = max(evl(iUouter,iq),eUouter)
+             endif
+             ! projss = [(sum(nint(proj(iki:i))),i=iki,ikf)] !nint sum. Integer index
              ! do i=iki,ikf
              !    ppp=0d0
              !    do n=2,3
@@ -294,22 +299,16 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
              !    if(i/=iki) projss(i)=projss(i-1)+ppp
              ! enddo   
 !             projsss = [(sum(proj(iki:i)),i=iki,ikf)] !nint sum. Integer index 
-             if(eUouterauto) then
-                iUouter = findloc(projs>CUouter,value=.true.,back=.true.,dim=1) +1
-                if(iUouter==0.or.iUouter>nband) iUouter=nband
-                eUouter = max(evl(iUouter,iq),eUouter)
-             endif
 !             if(EUautosp) then   
 !                iUinner=-999
 !                do imlo=1,nMLO
 !                   proj = [(sum(cnk0(iki:ik,imlo,iq)*dconjg(cnk0(iki:ik,imlo,iq))),ik=iki,ikf)] !proj for each imlo
 !                   iUinneri=findloc(proj>.8d0,value=.true.,dim=1)   !      write(stdo,ftox)'imlo=',imlo,' sum=',nnc(ikf,imlo),ibandx
-                   !                   if(skipdfinner.and.lindex(imlo)>=2) then
-                   !                   if(lindex(imlo)>=2) then
-                   !                      continue
-                   !                   else   
-!                   iUinner=max(iUinner,iUinneri)
-                   !                   endif
+!                   if(skipdfinner.and.lindex(imlo)>=2) then
+!                     continue
+!                   else   
+!                     iUinner=max(iUinner,iUinneri)
+!                   endif
 !                enddo
 !                eUinner=max(evl(iUinner,iq),eUinner)
 !             elseif(eUinnerauto) then !default
