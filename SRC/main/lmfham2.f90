@@ -103,17 +103,16 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
     call getkeyvalue("GWinput","mlo_CUouter", CUouter,default=0.1d0)
     call getkeyvalue("GWinput","mlo_CUinner", CUinner,default=0.5d0)
     
-    call getkeyvalue("GWinput","mlo_CLhard",CLhard,default=0.33d0)
-    call getkeyvalue("GWinput","mlo_ewid",    ewideV, default=1d0)       ! inner energy window softing eV
     call getkeyvalue("GWinput","mlo_WTband" , WTband,default=32d0)    ! Weight to minimize band energies
     call getkeyvalue("GWinput",'mlo_WTseed' , WTseed,default=64d0)    ! Weight for seed.
-    call getkeyvalue("GWinput","mlo_ELinner", eLinnereV,default=-1d8) ! inner energy windowL eV relative to VBM
     call getkeyvalue("GWinput","mlo_WTinner", WTinner,default=2048d0) ! inner energy window WeighTing
+    call getkeyvalue("GWinput","mlo_ELinner", eLinnereV,default=-1d8) ! inner energy windowL eV relative to VBM
+    call getkeyvalue("GWinput","mlo_ewid",    ewideV, default=1d0)    ! inner energy window softing eV
     call getkeyvalue("GWinput","mlo_WTouter", WTouter,default=2048d0*16d0) ! inner energy window WeighTing
+    call getkeyvalue("GWinput","mlo_CLhard",CLhard,default=0.33d0)
     call getkeyvalue("GWinput","mlo_ELhard",ELhardeV,default=-1d8)
-
 !    call getkeyvalue("GWinput","mlo_Skipdfinner",Skipdfinner,default=.false.)
-    call getkeyvalue("GWinput","mlo_EUinnerAUTOsp",EUautosp,default=.false.)
+    call getkeyvalue("GWinput","mlo_EUinnerAUTOsp",EUautosp,default=.false.) !hardly used
     
     ELhardauto=.true.
     if(ELhardeV>-1d7) ELhardauto=.false.
@@ -379,7 +378,7 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
            zmn=zmn0
            
            WTbandBlock: do concurrent(i=iki:ikf)
-              WTbandii(i)= WTband*evl(i,iq) !+ WTband*evl(i,iq)*(1d0-filter2((evl(i,iq)-eferm-1d0)/ewid))
+              WTbandii(i)= WTband*evl(i,iq)*filter2((eUinner-evl(i,iq))/ewid) !2023-8-30 !          WTbandii(i)= WTband*evl(i,iq) 
               zmn(i,i)=zmn0(i,i) + WTbandii(i)  
            enddo WTbandBlock
            WTseedBlock: block
@@ -400,7 +399,7 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
                 !!              zmn=zmn-WTseed*matmul(cnk0(iki:ikf,1:nMLO,iq), & !projection to Seed functions
                 !!                   dconjg(transpose(cnk0(iki:ikf,1:nMLO,iq)))) !NOTE: this did not work for Si666 at least
            endblock WTseedBlock
-           WTinnerBlock: do concurrent(i=iki:ikf) !Add penalty for compoment outside of inner window
+           WTinnerBlock: do concurrent(i=iki:ikf) !Add penalty for compoments outside of inner window. Soft inner window.
               WTinnerii(i) = WTinner*filter2((evl(i,iq)-eUinner)/ewid) + WTinner*filter2((eLinner-evl(i,iq))/ewid)!inner window
 !              WTinnerii(i) = WTinner*merge(1d0,0d0,evl(i,iq)-eferm>5d0/13.605d0) 
 !              WTinnerii(i) = WTinnerii(i)*merge(abs(evl(i,iq)-eferm)**6,0d0,evl(i,iq)-eferm>0)
@@ -429,7 +428,7 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
            deallocate (zmn,evecc,eval,zmn0,WTbandii,WTinnerii,zmns)
         enddo iqloop
         omgi  = sum(omgik(:)*wbz(:)) 
-        WTbandqsum=sum(WTbandq(:)*wbz(:))
+        WTbandqsum= sum(WTbandq(:)*wbz(:))
         WTinnerqsum=sum(WTinnerq(:)*wbz(:))
         evalss= sum(evals(:)*wbz(:))   
         ! \sum eval = \sum zmn0 term + WTbandq + WTinnerq
@@ -445,7 +444,10 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
            write(stdo,ftox)' Step1: converged!'
            exit
         endif
-        if(isc>=2 .and. dabs(evalssold-evalss)<conv1) convn=.true. 
+        if(isc>=2 .and. dabs(evalssold-evalss)<conv1) then
+           write(stdo,ftox) 'evalss_old evalss',ftod(evalssold),ftod(evalss)
+           convn=.true.
+        endif   
         evalssold = evalss
         if(isc==nsc1) write(stdo,ftox)' Step1: not converged'
      enddo SouzaStep1loop

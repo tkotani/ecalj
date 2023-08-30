@@ -1,10 +1,10 @@
 # -*- Mode: org ; Coding: utf-8-unix -*-
-#+TITLE: How to generate |MLO> orbitals (MuffinTin-oibital-based localized orbitals). revised at 2023-8-29
+#+TITLE: How to generate |MLO> orbitals (MuffinTin-oibital-based localized orbitals). revised at 2023-08-30
 #+AUTHOR: takao kotani @ tottori university, Japan
 #+email: takaokotani@gmail.com
 
-Starting from PMT Hamiltonian, we remove APW part in the 1st step, resulting the 
-MTP(muffin-tin projected) Hamiltonian at the end of the 1st step.
+Starting from PMT Hamiltonian, we remove APW part in the 1st step, 
+resulting the MTP(muffin-tin projected) Hamiltonian at the end of the 1st step.
 Then we finally get MLO(muffin-tin based localized oribtals)-based Hamiltonian at the end of the 3rd step. 
 
 * 0th step.
@@ -44,12 +44,14 @@ for prepare connecting matrix required for the next step.
 * 3rd step: lmfham2 --job=1
 We may have to repeat lmfham2 --job=1 until we get reasonable results.
 See examples. And lmfham2.f90, where we see all settings and default values.
-
 ** Settings of inner window
 To set the inner window, we can use mlo_EUinner or mlo_CUinner mainly as we explain below.
 Without following settings, we use defaults values to set EUinner.
 This did not work in cases such as Si and SmP.
 But defaults worked well for Fe,Cu GdION, NiO and SrTiO3.
+
+Lower limit of inner window is automatic now.
+(I suppose it works for any case.)
 
 *** Semiconductors. mlo_EUinner
 For Si, set 
@@ -79,10 +81,72 @@ For tests, we may use maxit 10, however I observed cases
 that 10 is too small to make band dispersion too noisy (observe convergence on Nabla2/nMLO.)
 Convergence criterion mlo_conv might be a little larger, but not tested.
 
-** Outer window
-We do not usually need to set outerwindow.
-It is automatically done. Even when you set outerwindow, results may not change so much.
+* 4th step: if needes, we may do fine tuning
+We may need to do fine tuning to have better reproduction of PMT band structures.
+*** WTinner
+In the case of C(diamond), we saw good match with 
+ (a) mlo_EUinner 10 with mlo_WTinner 2048(default), 
+ (b) mlo_EUinner 5  with mlo_WTinner 1024.
+(b) is a little poorer than case (a).
+(b) means mlo_EUinner 5 is too low to use strong inner window (=WTinner 2048).
+With softer inner window (=WTinner 1024), we have good results.
 
+*** WTband and WTseed
+Larger WTseed make bands smoother. Larger WTband may give better band structure,
+although causes bumpy bands. 
+For larger WTband and WTseed, the contribution from nabla term become relatively smaller.
+
+*** Outer window CUouter (may affect little to the final results)
+We usually use CUouter 0.1, whiich automatically detemine outerwindow.
+CUouter can be 0 or 0.2 to check MLO become better or not. But usually affects little.
+
+*** other parameters
+We see other parameters mlo_foobar at the begining of lmfham2.f90
+Some parameters may change band structures slightly, however, we expect 
+changing mlo_foobar will give little improvements.
+
+
+* Samples ============================================
+Hamiltonian models may be classified to
+# (1) Semiconductors (spd models)
+# (2) metal (spd band model)
+# (3) Crystal-field model (3d,4f, and so on without hybridyzation)
+# (4) Fermi surface around model (3d + Oxygen2p + metallic s band)
+As for (1), we may need to set the mlo_EUinner.
+As for (3) and (4), we may set mlo_CUinner or mlo_EUinner.
+
+For trial test, you may use mlo_maxit 10. But be careful for convergence.
+
+** Si666gwsc,Si888gwsc,GaAse needed to set the inner window
+>mlo_EUinner 5
+
+Fine tuning for Si888. A slightly better result with
+>mlo_WTseed 128
+for CBM around. It seems WTband gives little contribution.
+** C(dia)
+>EUinner 10 
+See the description for WTinner above.
+Use EUinner 10 (or WTinner 1024 and EUinner 5).
+** NiO666lda
+Default OK.
+We can do MLO with the default setting of mlo_CUinner 0.5.
+This is to set EUinner by the condition that the number of occupancy >0.5 
+for projections to given MTOs. If we set mlo_CUinner 0.9, 
+it gives slightly too large EUinner, resulting slighly poor band structure.
+** SmP
+>mlo_CUinner 0.9
+Set mlo_CUinner 0.9 to give larger value of EUinner.
+With the default mlo_CUinner 0.5, we have a little too low EUinner, resulting
+unsatisfactory band structure.
+** GdNION
+Default OK. 
+mlo_CUinner 0.9 works as well. So, mlo_CUinner 0.9 is probably general for 4f.
+** Fe,Cu
+Default OK.
+We observe that mlo_EUinner 5 for Cu show slightly different band structure.
+** SrTiO3
+Default OK.
+(fine tuning) I found mlo_WTband 128 gives better band matching.
 
 * TODO
 ** Parallellize lmfham2, speed up

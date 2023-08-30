@@ -15,7 +15,7 @@ unit_2pioa off ! off --> a.u.; on--> unit of QpGcut_* are in 2*pi/alat
 alpha_OffG 1.0 !(a.u.) Used in auxially function in the offset-Gamma method.
 !emax_chi0  999 !(Ry) emax cutoff for chi0  (Optional)
 emax_sigm  3.0  !(Ry)  emax cutoff for Sigma
- 
+
 ! ##### FREQUENCIES from GWIN_V2 ################ 
 HistBin_dw    2d-3 ! 1d-5 is fine mesh (good for metal?) !(a.u.) BinWidth along real axis at omega=0.
 HistBin_ratio 1.08 ! 1.03 maybe safer. frhis(iw)= b*(exp(a*(iw-1))-1), where a=ratio-1.0 and dw=b*a
@@ -31,78 +31,53 @@ esmr   0.003  !(Ry) used by hsfp0. Keep esmr smaller than band gap for insulator
               ! Poles of G^LDA are treated as if they have width esmr in hsfp0. 
               ! Change esmr for metals.  See DOSACC*---especailly around Ef.
 GaussSmear on ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr for hsfp0.
-GaussianFilterX0 0.0001 !(a.u.) Gaussian smearing for the polarization function x0. 
+!GaussianFilterX0 0.0001 !(a.u.) Gaussian smearing for the polarization function x0. 
                          ! This stabilize convergence for metallic systems
                          ! This can be a default setting in the future
- 
+
 ! ################################################# 
 <PRODUCT_BASIS> 
  tolerance to remove products due to poor linear-independency
- 1d-2 ! =tolopt; larger gives smaller num. of product basis. See lbas and lbasC, which are output of hbasfp0.
+ 1d-3 ! =tolopt; larger gives smaller num. of product basis. See lbas and lbasC, which are output of hbasfp0.
  lcutmx(atom) = maximum l-cutoff for the product basis.  =4 is required for atoms with valence d, like Ni Ga
-  6  4
+  4  4
   atom   l  nnvv  nnc ! nnvv: num. of radial functions (valence) on the augmentation-waves, nnc: num. for core.
-    1    0    2    5
-    1    1    3    3
-    1    2    2    2
-    1    3    3    0
+    1    0    2    1
+    1    1    2    0
+    1    2    2    0
+    1    3    2    0
     1    4    2    0
-    1    5    2    0
-    1    6    2    0
-    2    0    2    2
-    2    1    2    1
+    2    0    2    1
+    2    1    2    0
     2    2    2    0
     2    3    2    0
     2    4    2    0
-    2    5    2    0
-    2    6    2    0
-  atom   l    n  occ unocc  ! Valence(1=yes,0=no)
-    1    0    1    1    1   ! 6S_p  -----
-    1    0    2    0    0   ! 6S_d
-    1    1    1    1    1   ! 6p_p
-    1    1    2    0    0   ! 6p_d
-    1    1    3    1    1   ! 5p_l
-    1    2    1    1    1   ! 5d_p
-    1    2    2    0    0   ! 5d_d
-    1    3    1    1    1   ! 4f_p
-    1    3    2    0    1   ! 4f_d
-    1    3    3    0    1   ! 5f_l
-    1    4    1    0    0   ! 5g_p
-    1    4    2    0    0   ! 5g_d
-    1    5    1    0    0   ! 65_p
-    1    5    2    0    0   ! 65_d
-    1    6    1    0    0   ! 76_p
-    1    6    2    0    0   ! 76_d
-    2    0    1    1    1   ! 3S_p  -----
-    2    0    2    0    0   ! 3S_d
-    2    1    1    1    1   ! 3p_p
-    2    1    2    0    0   ! 3p_d
-    2    2    1    1    1   ! 3d_p
-    2    2    2    0    0   ! 3d_d
-    2    3    1    0    1   ! 4f_p
-    2    3    2    0    0   ! 4f_d
-    2    4    1    0    0   ! 5g_p
-    2    4    2    0    0   ! 5g_d
-    2    5    1    0    0   ! 65_p
-    2    5    2    0    0   ! 65_d
-    2    6    1    0    0   ! 76_p
-    2    6    2    0    0   ! 76_d
+  atom   l    n  occ unocc  ! Valence(1=yes,0=no) 
+    1    0    1    1    1   ! 2s_phi    -----
+    1    0    2    0    0   ! 2s_phidot
+    1    1    1    1    1   ! 2p_phi   
+    1    1    2    0    0   ! 2p_phidot
+    1    2    1    1    1   ! 3d_phi   
+    1    2    2    0    0   ! 3d_phidot
+    1    3    1    0    1   ! 4f_phi   
+    1    3    2    0    0   ! 4f_phidot
+    1    4    1    0    0   ! 5g_phi   
+    1    4    2    0    0   ! 5g_phidot
+    2    0    1    1    1   ! 2s_phi    -----
+    2    0    2    0    0   ! 2s_phidot
+    2    1    1    1    1   ! 2p_phi   
+    2    1    2    0    0   ! 2p_phidot
+    2    2    1    1    1   ! 3d_phi   
+    2    2    2    0    0   ! 3d_phidot
+    2    3    1    0    1   ! 4f_phi   
+    2    3    2    0    0   ! 4f_phidot
+    2    4    1    0    0   ! 5g_phi   
+    2    4    2    0    0   ! 5g_phidot
   atom   l    n  occ unocc  ForX0 ForSxc ! Core (1=yes, 0=no)
     1    0    1    0    0      0    0    ! 1S -----
-    1    0    2    0    0      0    0    ! 2S
-    1    0    3    0    0      0    0    ! 3S
-    1    0    4    0    0      0    0    ! 4S
-    1    0    5    0    0      0    0    ! 5S
-    1    1    1    0    0      0    0    ! 2P
-    1    1    2    0    0      0    0    ! 3P
-    1    1    3    0    0      0    0    ! 4P
-    1    2    1    0    0      0    0    ! 3D
-    1    2    2    0    0      0    0    ! 4D
     2    0    1    0    0      0    0    ! 1S -----
-    2    0    2    0    0      0    0    ! 2S
-    2    1    1    0    0      0    0    ! 2P
 </PRODUCT_BASIS>
- 
+
 ! ################################################# 
 <QPNT> ! This block is the same as QPNT.
  --- Specify the q and band indeces for which we evaluate the self-energy ---
@@ -117,27 +92,15 @@ GaussianFilterX0 0.0001 !(a.u.) Gaussian smearing for the polarization function 
   1     0.0000000000000000     0.0000000000000000     0.0000000000000000
   2    -0.2500000000000000     0.2500000000000000     0.2500000000000000
   3    -0.5000000000000000     0.5000000000000000     0.5000000000000000
-  4    -0.7500000000000000     0.7500000000000000     0.7500000000000000
-  5     0.0000000000000000     0.0000000000000000     0.5000000000000000
-  6    -0.2500000000000000     0.2500000000000000     0.7500000000000000
-  7    -0.5000000000000000     0.5000000000000000     1.0000000000000000
-  8     0.0000000000000000     0.0000000000000000     1.0000000000000000
-  9    -0.2500000000000000     0.2500000000000000     1.2500000000000000
- 10     0.0000000000000000     0.0000000000000000     1.5000000000000000
- 11     0.0000000000000000     0.5000000000000000     0.0000000000000000
- 12    -0.2500000000000000     0.7500000000000000     0.2500000000000000
- 13    -0.5000000000000000     1.0000000000000000     0.5000000000000000
- 14     0.0000000000000000     0.5000000000000000     0.5000000000000000
- 15    -0.2500000000000000     0.7500000000000000     0.7500000000000000
- 16     0.7500000000000000    -0.2500000000000000     0.2500000000000000
- 17     0.0000000000000000     0.5000000000000000     1.0000000000000000
- 18     0.7500000000000000    -0.2500000000000000     0.7500000000000000
- 19     0.0000000000000000     1.0000000000000000     0.0000000000000000
- 20     0.0000000000000000     1.0000000000000000     0.5000000000000000
+  4     0.0000000000000000     0.0000000000000000     0.5000000000000000
+  5    -0.2500000000000000     0.2500000000000000     0.7500000000000000
+  6    -0.5000000000000000     0.5000000000000000     1.0000000000000000
+  7     0.0000000000000000     0.0000000000000000     1.0000000000000000
+  8     0.0000000000000000     0.5000000000000000     1.0000000000000000
 </QPNT>
 !EPSrange  1    !(Ry) [0,EPSrange] for dielectric function plot.
 !EPSdw     0.05 !(Ry) energy mesh  for dielectric function plot.
- 
+
 !QforEPSIBZ on ! Use all q in IBZ for the calculation of eps mode.
 <QforEPS>
  0d0 0d0 0.01d0
@@ -148,7 +111,7 @@ GaussianFilterX0 0.0001 !(a.u.) Gaussian smearing for the polarization function 
 ! 0d0 0d0 0d0   1d0   0d0  0d0 8
 ! 0d0 0d0 0d0  .5d0  .5d0  0d0 8
 !</QforEPSL>
- 
+
 !!! ##### Maximally localized Wannier function ################ 
 !!! For s,p,d,f the indices 1-16 correspond to: 
 !!! index l m polynomial 
@@ -157,7 +120,7 @@ GaussianFilterX0 0.0001 !(a.u.) Gaussian smearing for the polarization function 
 !!! 2 1 -1 y 
 !!! 3 1 0 z  
 !!! 4 1 1 x  
-vv!!! -----------------------------  
+!!! -----------------------------  
 !!! 5 2 -2 xy 
 !!! 6 2 -1 yz  
 !!! 7 2 0 3z^2-1 
@@ -174,7 +137,11 @@ vv!!! -----------------------------
 !!! higher is lm ordered. See Ylm definition in lmto/fpgw doc.
 
 <Worb> Site 
-  1 Sm  10 11 12 13 14 15 16
-  2 P   
+ 1 C   1 2 3 4
+ 2 C   1 2 3 4
 </Worb> 
-mlo_CUinner .9
+mlo_EUinner 10
+
+!mlo_WTinner 1024
+!mlo_EUinner 5
+
