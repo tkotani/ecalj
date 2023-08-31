@@ -83,6 +83,7 @@ Convergence criterion mlo_conv might be a little larger, but not tested.
 * 4th step: fine tuning
 With changing WTseed and/or WTinner, we may make fine tuning to have better 
 reproduction of PMT band structures.
+In addition to EUinner/CUinner, we may change WTseed, WTband, and WTinner to get better results.
 For larger WT*, the relative contribution from the nabla term become relatively smaller.
 *** WTseed
 Larger WTseed make bands smoother. Larger WTband may give better band structure,
