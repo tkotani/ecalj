@@ -154,7 +154,7 @@ Default OK.
 |-----------+---------------+---------+-------------+--------+--------+-----------------|
 |           | Inner Setting |         | Fine Tuning |        |        |                 |
 |           |       EUinner | CUinner |     WTinner | WTseed | WTband |                 |
-| default   |          auto |      .5 |        2048 |     64 |      0 |                 |
+| default   |               |      .5 |        2048 |     64 |      0 |                 |
 | Si666gwsc |             5 |         |             |        |        | spd model       |
 | Si888gwsc |             5 |         |             |    128 |        | spd model       |
 | GaAs      |             5 |         |             |        |        |                 |
