@@ -157,8 +157,7 @@ QforEPSunita on
 </Worb>
 !mlo_maxit 15
 !mlo_WTseed 128
-!mlo_WTband 64
+!mlo_WTband 16
 
+mlo_WTseed 128
 mlo_EUinner 5
-!mlo_WTinner 1024
-!mlo_WTseed 128

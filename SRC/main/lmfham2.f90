@@ -103,7 +103,7 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
     call getkeyvalue("GWinput","mlo_CUouter", CUouter,default=0.1d0)
     call getkeyvalue("GWinput","mlo_CUinner", CUinner,default=0.5d0)
     
-    call getkeyvalue("GWinput","mlo_WTband" , WTband,default=32d0)    ! Weight to minimize band energies
+    call getkeyvalue("GWinput","mlo_WTband" , WTband,default=0d0)    ! Weight to minimize band energies
     call getkeyvalue("GWinput",'mlo_WTseed' , WTseed,default=64d0)    ! Weight for seed.
     call getkeyvalue("GWinput","mlo_WTinner", WTinner,default=2048d0) ! inner energy window WeighTing
     call getkeyvalue("GWinput","mlo_ELinner", eLinnereV,default=-1d8) ! inner energy windowL eV relative to VBM
@@ -122,7 +122,7 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
        write(stdo,ftox)'        : mlo_conv =',ftof(conv1)
        write(stdo,ftox)'        : mlo_mix  =',ftof(alpha1,2)
        write(stdo,ftox)'        : mlo_WTseed   =',ftof(WTseed,2)
-       write(stdo,ftox)'        : mlo_WTband   =',ftof(WTband,2)
+       if(WTband/=0d0) write(stdo,ftox)'        : mlo_WTband   =',ftof(WTband,2)
        write(stdo,ftox)'        : mlo_WTinner  =',ftof(WTinner,2)
        if(eUinnereV>1d5) then
 !           write(stdo,ftox)'        :  mlo_EUinner = by mlo_CUinner'
@@ -376,11 +376,6 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
               zmn0(1:ndz,1:ndz) = zmn0(1:ndz,1:ndz) - 2d0*wbb(ibb)*upu(iki:ikf,iki:ikf,ibb,iq)
            enddo
            zmn=zmn0
-           
-           WTbandBlock: do concurrent(i=iki:ikf)
-              WTbandii(i)= WTband*evl(i,iq)*filter2((eUinner-evl(i,iq))/ewid) !2023-8-30 !          WTbandii(i)= WTband*evl(i,iq) 
-              zmn(i,i)=zmn0(i,i) + WTbandii(i)  
-           enddo WTbandBlock
            WTseedBlock: block
              if(WTseed/=0d0) then !projection to Seed functions
                 !  zmns = matmul(amnk(iki:ikf,1:nMLO,iq),dconjg(transpose(amnk(iki:ikf,1:nMLO,iq))))
@@ -399,6 +394,10 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
                 !!              zmn=zmn-WTseed*matmul(cnk0(iki:ikf,1:nMLO,iq), & !projection to Seed functions
                 !!                   dconjg(transpose(cnk0(iki:ikf,1:nMLO,iq)))) !NOTE: this did not work for Si666 at least
            endblock WTseedBlock
+           WTbandBlock: do concurrent(i=iki:ikf)!WTband is only to supress high band energy out of inner window
+              WTbandii(i)= WTband*evl(i,iq)!*filter2((eUinner-evl(i,iq))/ewid) !2023-8-30!WTband is effective for SrTiO3
+              zmn(i,i)=zmn(i,i) + WTbandii(i)  
+           enddo WTbandBlock
            WTinnerBlock: do concurrent(i=iki:ikf) !Add penalty for compoments outside of inner window. Soft inner window.
               WTinnerii(i) = WTinner*filter2((evl(i,iq)-eUinner)/ewid) + WTinner*filter2((eLinner-evl(i,iq))/ewid)!inner window
 !              WTinnerii(i) = WTinner*merge(1d0,0d0,evl(i,iq)-eferm>5d0/13.605d0) 

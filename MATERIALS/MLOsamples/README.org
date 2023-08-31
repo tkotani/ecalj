@@ -82,23 +82,27 @@ that 10 is too small to make band dispersion too noisy (observe convergence on N
 Convergence criterion mlo_conv might be a little larger, but not tested.
 
 * 4th step: if needes, we may do fine tuning
-We may need to do fine tuning to have better reproduction of PMT band structures.
+With changing WTseed and/or WTinner, we may make fine tuning to have better 
+reproduction of PMT band structures.
+*** WTseed
+Larger WTseed make bands smoother. Larger WTband may give better band structure,
+although causes bumpy bands. 
+For larger WTband and WTseed, the contribution from nabla term become relatively smaller.
+*** WTband
+Default WTband is zero.
+But I found WTband 128 improve result of SrTiO3.
 *** WTinner
-In the case of C(diamond), we saw good match with 
+In the case of C(diamond), we saw good match with both two cases (a) and (b).
  (a) mlo_EUinner 10 with mlo_WTinner 2048(default), 
  (b) mlo_EUinner 5  with mlo_WTinner 1024.
 (b) is a little poorer than case (a).
 (b) means mlo_EUinner 5 is too low to use strong inner window (=WTinner 2048).
-With softer inner window (=WTinner 1024), we have good results.
-
-*** WTband and WTseed
-Larger WTseed make bands smoother. Larger WTband may give better band structure,
-although causes bumpy bands. 
-For larger WTband and WTseed, the contribution from nabla term become relatively smaller.
-
-*** Outer window CUouter (may affect little to the final results)
-We usually use CUouter 0.1, whiich automatically detemine outerwindow.
-CUouter can be 0 or 0.2 to check MLO become better or not. But usually affects little.
+With softer inner window (=WTinner 1024), we can take into acount high band effects 
+a little more. This improves results in the case of C.
+*** Outer window CUouter (may affects little)
+I found CUouter 0.1 is slightly better than CUouter 0 for NiO.
+But I think CUouter gives little effects usually.
+CUouter can be 0,0.1,0.2 to check MLO become better or not. 
 
 *** other parameters
 We see other parameters mlo_foobar at the begining of lmfham2.f90
@@ -117,12 +121,9 @@ As for (3) and (4), we may set mlo_CUinner or mlo_EUinner.
 
 For trial test, you may use mlo_maxit 10. But be careful for convergence.
 
-** Si666gwsc,Si888gwsc,GaAse needed to set the inner window
+** Si666gwsc,Si888gwsc,GaAs
 >mlo_EUinner 5
-
-Fine tuning for Si888. A slightly better result with
->mlo_WTseed 128
-for CBM around. It seems WTband gives little contribution.
+(fine tuning for Si888). A slightly better result with mlo_WTseed 128 for CBM around.
 ** C(dia)
 >EUinner 10 
 See the description for WTinner above.
