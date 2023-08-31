@@ -45,9 +45,8 @@ for prepare connecting matrix required for the next step.
 We may have to repeat lmfham2 --job=1 until we get reasonable results.
 See examples. And lmfham2.f90, where we see all settings and default values.
 ** Settings of inner window
-To set the inner window, we can use mlo_EUinner or mlo_CUinner mainly as we explain below.
-Without following settings, we use defaults values to set EUinner.
-This did not work in cases such as Si and SmP.
+To set the inner window manually, we can use mlo_EUinner or mlo_CUinner.
+See the Setting Table below.
 But defaults worked well for Fe,Cu GdION, NiO and SrTiO3.
 
 Lower limit of inner window is automatic now.
@@ -81,16 +80,18 @@ For tests, we may use maxit 10, however I observed cases
 that 10 is too small to make band dispersion too noisy (observe convergence on Nabla2/nMLO.)
 Convergence criterion mlo_conv might be a little larger, but not tested.
 
-* 4th step: if needes, we may do fine tuning
+* 4th step: fine tuning
 With changing WTseed and/or WTinner, we may make fine tuning to have better 
 reproduction of PMT band structures.
+For larger WT*, the relative contribution from the nabla term become relatively smaller.
 *** WTseed
 Larger WTseed make bands smoother. Larger WTband may give better band structure,
 although causes bumpy bands. 
-For larger WTband and WTseed, the contribution from nabla term become relatively smaller.
+Try WTseed 128, instead of default value of WTseed 64
 *** WTband
 Default WTband is zero.
 But I found WTband 128 improve result of SrTiO3.
+With larger WTband, we may destroy continuity (I saw this in the case of GaAs with WTband 64).
 *** WTinner
 In the case of C(diamond), we saw good match with both two cases (a) and (b).
  (a) mlo_EUinner 10 with mlo_WTinner 2048(default), 
@@ -104,13 +105,12 @@ I found CUouter 0.1 is slightly better than CUouter 0 for NiO.
 But I think CUouter gives little effects usually.
 CUouter can be 0,0.1,0.2 to check MLO become better or not. 
 
-*** other parameters
+*** Other parameters
 We see other parameters mlo_foobar at the begining of lmfham2.f90
 Some parameters may change band structures slightly, however, we expect 
 changing mlo_foobar will give little improvements.
 
-
-* Samples ============================================
+* Samples
 Hamiltonian models may be classified to
 # (1) Semiconductors (spd models)
 # (2) metal (spd band model)
@@ -148,6 +148,25 @@ We observe that mlo_EUinner 5 for Cu show slightly different band structure.
 ** SrTiO3
 Default OK.
 (fine tuning) I found mlo_WTband 128 gives better band matching.
+
+* Samples. Setting Table for mlo_* to obtain good result 
+|-----------+---------------+---------+-------------+--------+--------+-----------------|
+|           | Inner Setting |         | Fine Tuning |        |        |                 |
+|           |       EUinner | CUinner |     WTinner | WTseed | WTband |                 |
+| default   |          auto |      .5 |        2048 |     64 |      0 |                 |
+| Si666gwsc |             5 |         |             |        |        | spd model       |
+| Si888gwsc |             5 |         |             |    128 |        | spd model       |
+| GaAs      |             5 |         |             |        |        |                 |
+| C         |            10 |         |             |        |        |                 |
+| C  case2  |             5 |         |        1024 |        |        | a little poorer |
+| NiO666lda |               |         |             |        |        |                 |
+| SrTiO3    |               |         |             |        |    128 |                 |
+| SmP       |               |      .9 |             |        |        | 4f model        |
+| GdION     |               |      .9 |             |        |        | 4f model        |
+| Fe        |               |         |             |        |        | spd model       |
+| Cu        |               |         |             |        |        | d model         |
+| Cu case2  |             5 |         |             |        |        | d band smoother |
+|-----------+---------------+---------+-------------+--------+--------+-----------------|
 
 * TODO
 ** Parallellize lmfham2, speed up
