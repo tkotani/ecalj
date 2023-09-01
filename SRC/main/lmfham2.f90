@@ -111,7 +111,6 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
     call getkeyvalue("GWinput","mlo_WTouter", WTouter,default=2048d0*16d0) ! inner energy window WeighTing
     call getkeyvalue("GWinput","mlo_CLhard",CLhard,default=0.33d0)
     call getkeyvalue("GWinput","mlo_ELhard",ELhardeV,default=-1d8)
-!    call getkeyvalue("GWinput","mlo_Skipdfinner",Skipdfinner,default=.false.)
     call getkeyvalue("GWinput","mlo_EUinnerAUTOsp",EUautosp,default=.false.) !hardly used
     
     ELhardauto=.true.

@@ -151,23 +151,24 @@ Default OK.
 (fine tuning) I found mlo_WTband 128 gives better band matching.
 
 * Samples. Setting Table for mlo_* to obtain good result 
-|-----------+---------------+---------+-------------+--------+--------+-----------------|
-|           | Inner Setting |         | Fine Tuning |        |        |                 |
-|           |       EUinner | CUinner |     WTinner | WTseed | WTband |                 |
-| default   |               |      .5 |        2048 |     64 |      0 |                 |
-| Si666gwsc |             5 |         |             |        |        | spd model       |
-| Si888gwsc |             5 |         |             |    128 |        | spd model       |
-| GaAs      |             5 |         |             |        |        |                 |
-| C         |            10 |         |             |        |        |                 |
-| C  case2  |             5 |         |        1024 |        |        | a little poorer |
-| NiO666lda |               |         |             |        |        |                 |
-| SrTiO3    |               |         |             |        |    128 |                 |
-| SmP       |               |      .9 |             |        |        | 4f model        |
-| GdION     |               |      .9 |             |        |        | 4f model        |
-| Fe        |               |         |             |        |        | spd model       |
-| Cu        |               |         |             |        |        | d model         |
-| Cu case2  |             5 |         |             |        |        | d band smoother |
-|-----------+---------------+---------+-------------+--------+--------+-----------------|
+|-----------+---------------+---------+-------------+--------+--------+------------------|
+|           | Inner Setting |         | Fine Tuning |        |        |                  |
+|           |       EUinner | CUinner |     WTinner | WTseed | WTband |                  |
+| default   |               |      .5 |        2048 |     64 |      0 |                  |
+| Si666gwsc |             5 |         |             |        |        | spd model        |
+| Si888gwsc |             5 |         |             |    128 |        | spd model        |
+| GaAs      |             5 |         |             |        |        |                  |
+| C         |            10 |         |             |        |        |                  |
+| C  case2  |             5 |         |        1024 |        |        | a little poorer  |
+| NiO666lda |               |         |             |        |        |                  |
+| SrTiO3    |               |         |             |        |    128 |                  |
+| SmP       |               |      .9 |             |        |        | 4f model         |
+| GdION     |               |      .9 |             |        |        | 4f model         |
+| Fe        |               |         |             |        |        | spd model        |
+| Fe        |             5 |         |             |        |        | better around Ef |
+| Cu        |               |         |             |        |        | d model          |
+| Cu case2  |             5 |         |             |        |        | d band smoother  |
+|-----------+---------------+---------+-------------+--------+--------+------------------|
 
 * TODO
 ** Parallellize lmfham2, speed up
