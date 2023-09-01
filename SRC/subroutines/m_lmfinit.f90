@@ -11,7 +11,7 @@ module m_lmfinit ! All ititial data (except rst/atm data via iors/rdovfa) !TK ex
   use m_density,only: pnuall,pnzall !These are set here! log-derivative of radial functions.
   implicit none 
   type(s_spec),allocatable:: v_sspec(:)! unprotected, changed only by readin iors/rdovfa (see lmfp.f90)
-  integer,parameter:: noutmx=48,NULLI=-99999,nkap0=3,mxspec=256,lstrn=1000,n0=10,nppn=2,nrmx=1501,nlmx=64,n00=n0*nkap0
+  integer,parameter:: noutmx=48,NULLI=-99999,nkap0=3,mxspec=256,lstrn=1000,n0=10,nppn=2,nrmx=1501,nlmx=64,n00=n0*nkap0,k0=3
   real(8),parameter:: fpi=16d0*datan(1d0), y0=1d0/dsqrt(fpi), pi=4d0*datan(1d0), srfpi = dsqrt(4d0*pi),pi4=fpi,&
        NULLR =-99999, fs = 20.67098d0, degK = 6.3333d-6 ! defaults for MD
   logical,parameter:: T=.true., F=.false.

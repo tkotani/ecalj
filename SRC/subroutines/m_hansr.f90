@@ -443,59 +443,52 @@ contains
     !o           Energy derivative is    hlp(ilm) = x(l-1)/2*cy(ilm)*yl(ilm)
     ! ---------------------------------------------------------------
     implicit none
-    integer :: nrx,nr,lmin,lmax
-    real(8) :: rsq(nr),e,xi(nrx,lmin:lmax)
-    real(8) :: sre,r2,r,h0,xx,akap
-    integer :: l,ir
-    if (lmin /= 0 .AND. lmin /= -1) &
-         call rx('hanr: input lmin must be -1 or 0')
+    integer :: nrx,nr,lmin,lmax,l,ir
+    real(8) :: rsq(nr),e,xi(nrx,lmin:lmax),sre,r2,r,h0,xx,akap
+    if (lmin /= 0 .AND. lmin /= -1) call rx('hanr: input lmin must be -1 or 0')
     if (lmax < lmin .OR. nr <= 0) return
     akap = dsqrt(-e)
-    ! --- Make xi(lmin), xi(lmin+1) ---
-    ! ... xi(-1) for lmax=-1 only
+    ! --- Make xi(lmin), xi(lmin+1) ---   ! ... xi(-1) for lmax=-1 only
     if (lmin == -1 .AND. lmax == -1) then
-       do  1  ir = 1, nr
+       do   ir = 1, nr
           r = dsqrt(rsq(ir))
           sre = akap*r
           h0 = dexp(-sre)/r
           xi(ir,-1) = -h0*sre/e
-1      enddo
+       enddo
     elseif (lmin == -1) then
-       do  3  ir = 1, nr
+       do    ir = 1, nr
           r = dsqrt(rsq(ir))
           sre = akap*r
           h0 = dexp(-sre)/r
           xi(ir,0) = h0
           xi(ir,-1) = -h0*sre/e
-3      enddo
+       enddo
        ! ... xi(0) for lmax=0 only
     elseif (lmax == 0) then
-       do  5  ir = 1, nr
+       do   ir = 1, nr
           r2 = rsq(ir)
           r = dsqrt(r2)
           xi(ir,0) = dexp(-akap*r)/r
-5      enddo
+       enddo
     else
-       do  10  ir = 1, nr
+       do   ir = 1, nr
           r = dsqrt(rsq(ir))
           sre = akap*r
           h0 = dexp(-sre)/r
           xi(ir,0) = h0
           xi(ir,1) = h0*(1d0+sre)/rsq(ir)
-10     enddo
+       enddo
     endif
     ! --- xi(*,lmin+2:lmax) by upward recursion ---
     do  30  l = lmin+2, lmax
        xx = 2*l-1
-       do  32  ir = 1, nr
+       do  ir = 1, nr
           xi(ir,l) = (xx*xi(ir,l-1) - e*xi(ir,l-2))/rsq(ir)
-32     enddo
+       enddo
 30  enddo
   end subroutine hanr
-  subroutine hansmd(mode,r,e,rsm,lmax,hs,dhs,ddhs,hsp,dhsp,ddhsp)
-    !use m_hansr,only: hansr
-    !- Value and some derivatives of smoothed radial Hankel functions
-    ! ---------------------------------------------------------------
+  subroutine hansmd(mode,r,e,rsm,lmax,hs,dhs,ddhs,hsp,dhsp,ddhsp) !Value and some derivatives of smoothed radial Hankel functions
     !i Inputs
     !i   mode  :tells hansmd what derivatives to make.
     !i         :1s digit concerns 2nd radial derivative
@@ -542,27 +535,20 @@ contains
     !u   16 Jun 04 First created
     ! ---------------------------------------------------------------
     implicit none
-    integer :: mode,lmax
-    real(8) :: r,e,rsm
-    real(8) :: hs(0:lmax),dhs(0:lmax),ddhs(0:lmax)
-    real(8) :: hsp(0:lmax),dhsp(0:lmax),ddhsp(0:lmax)
-    integer :: idx,l,mode0,mode1
-    real(8) :: xi(-1:lmax+2) !,wk(2)
+    integer :: mode,lmax,idx,l,mode0,mode1
+    real(8) :: r,e,rsm, hs(0:lmax),dhs(0:lmax),ddhs(0:lmax),hsp(0:lmax),dhsp(0:lmax),ddhsp(0:lmax), xi(-1:lmax+2)
     if (lmax < 0) return
     mode0 = mod(mode,10)
     mode1 = mod(mode/10,10)
-    !      call hansr(rsm,-1,lmax+2,1,lmax+2,e,r**2,1,1,idx,wk,11,xi)
+    !call hansr(rsm,-1,lmax+2,1,lmax+2,e,r**2,1,1,idx,wk,11,xi)
     call hansr(rsm,-1,lmax+2,1,[lmax+2],[e],[r**2],1,1,[idx],11,xi)
     do  54  l = 0, lmax
        hs(l)   = xi(l)
        if (mode0 /= 0) then
           dhs(l)  = xi(l)*l/r - xi(l+1)
-          if (mode0 == 1) &
-               ddhs(l) = xi(l)*l*(l+1)/r**2 - (2*l+3)/r*xi(l+1) + xi(l+2)
-          if (mode0 == 2) &
-               ddhs(l) =                    - (2*l+3)/r*xi(l+1) + xi(l+2)
-          if (mode0 == 3) &
-               ddhs(l) = xi(l)*l*(l-1)/r**2 - (2*l+1)/r*xi(l+1) + xi(l+2)
+          if (mode0 == 1) ddhs(l) = xi(l)*l*(l+1)/r**2 - (2*l+3)/r*xi(l+1) + xi(l+2)
+          if (mode0 == 2) ddhs(l) =                    - (2*l+3)/r*xi(l+1) + xi(l+2)
+          if (mode0 == 3) ddhs(l) = xi(l)*l*(l-1)/r**2 - (2*l+1)/r*xi(l+1) + xi(l+2)
        endif
        if (mode1 /= 0) then
           hsp(l)   = xi(l-1)*r/2
@@ -570,11 +556,9 @@ contains
           ddhsp(l) = - (2*l+3)*xi(l)/2 + xi(l+1)*r/2
        endif
 54  enddo
-    if (mode1 /= 0) then
-       hsp(0) = xi(-1)/2
-    endif
+    if(mode1 /= 0) hsp(0) = xi(-1)/2
   end subroutine hansmd
-  subroutine hansmr(r,e,a,xi,lmax)
+  subroutine hansmr(r,e,a,xi,lmax) !Smoothed hankel functions for l=0...lmax, negative e.
     !NOTE: Except numerical minor differences, hansr is equivalent to hansr in m_hansr.
     !  hansmr may have numerical problem for rms<1d-9 (tailsm.f90).
     !      hansmr is usef for core fitting parts, while hansr is for valence part.
@@ -582,8 +566,6 @@ contains
     !      hansr: r is divided into three section. Less smoothness but numericall good overall
     !      hansmr: better smoothness but less numericall problematic probably when rsm<1d-9
     !      (Thus we need special treatements as in tailsm.f90). 2022-6-29
-    !
-    !- Smoothed hankel functions for l=0...lmax, negative e.
     ! ---------------------------------------------------------------
     !o  Outputs: xi(0:lmax)
     !o
@@ -666,50 +648,39 @@ contains
        endif
     endif
   end subroutine hansmr
-  subroutine corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc, rfoc,z)!- Returns parameters for smooth core+nucleus representation
+  subroutine corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc, rfoc,z) !Returns parameters for Zc part of Eq.(28) TK.JPSJ034702
     use m_lmfinit,only: pnux=>pnusp,pzx=>pzsp,sspec=>v_sspec,n0
-    !i Inputs
-    !i  sspec, pnusp, pzsp
-    !i   is: species index
+    !i  is: species index
+    !i       pnusp, pzsp
     !o Outputs
-    !o   cofg  :coefficient to Gaussian part of pseudocore density
-    !o         :assigned so that pseudocore charge = true core charge
-    !o   cofh  :coefficient to Hankel part of pseudocore density
-    !o         :Hankel contribution is determined by inputs
-    !o         :(qcorh,ceh,rfoc) and should accurately represent the
-    !o         :true core core density for r>rmt
-    !o   qcorg :charge in the gaussian part; see Remarks
-    !o   qcorh :charge in the Hankel part; see Remarks
+    !o   cofg  :coefficient to Gaussian part of pseudocore density assigned so that pseudocore charge = true core charge
+    !o   cofh  :coefficient to smHankel part of pseudocore density. Hankel contribution is determined by inputs (qcorh,ceh,rfoc)
+    !           and should accurately represent the true core density for r>rmt
+    !o   qcorg :charge in the gaussian part
+    !o   qcorh :charge in the Hankel part
     !o   qsc   :number of electrons in semicore treated by local orbitals
     !o   lfoc  :switch specifying treatment of core density.
     !o          0 => val,slo = 0 at sphere boundary
     !o          1 => core tails included explicitly with valence
-    !o          2 => tails included perturbatively
-    !o
     !o   rfoc :smoothing radius for hankel head fitted to core tail
     !o   z     :nuclear charge
     !r Remarks
-    !r   qcorg and qcorh are the charges in the gaussian and hankel parts.
-    !r   The hankel part is used when the core is allowed to spill out of
+    !r   qcorg and qcorh are the charges in the Gaussian and smHankels. The hankel part is used when the core is allowed to spill out of
     !r   the augmentation sphere.
     !r
-    !r   cofg and cofh are the coefficients in front of the standard
-    !r   gaussian and smoothed hankel functions for l=0.
-    !r   That is: the pseudocore density is
-    !r      cofg*g0(rg;r)*Y0 + cofh*h0(rfoca;r)*Y0        (1)
+    !r   cofg and cofh are the coefficients in front of the standard gaussian and smoothed hankel functions for l=0.
+    !r   That is: the pseudocore density is 
+    !r      cofg*g0(rg;r)*Y0 + cofh*h0(rfoca;r)*Y0        (1) (See 0th part Eq.(28).
     !r   ceh and rfoc are the energy and sm.-radius for the hankel part.
     !r   cofg is set so that qc = integral of eq. 1 above.
     !r
     !r   For lfoc=0 there is no Hankel part; qc carried entirely by Gausian
-    !r   For lfoc>0 there is no Hankel part; Gaussian carries difference
-    !r              between qc and charge in Hankel part.
+    !r   For lfoc>0 there is no Hankel part; Gaussian carries difference between qc and charge in Hankel part.
     !r
-    !r   To add to the radial density 4*pi*r**2*rho_true, multiply
-    !r   cofg,cofh by srfpi.
+    !r   To add to the radial density 4*pi*r**2*rho_true, multiply cofg,cofh by srfpi.
     !l Local variables
     !l    ccof :coefficient for core tail, for a smoothed Hankel.
-    !l          ccof is differs from spec->ctail because ctail is
-    !l          constructed for an unsmoothed Hankel.
+    !l          ccof is differs from spec->ctail because ctail is constructed for an unsmoothed Hankel.
     implicit none
     integer :: is,i_copy_size
     real(8):: qcorg , qcorh , qsc , cofg , cofh , ceh , rfoc , z
@@ -749,10 +720,10 @@ contains
     qcorg = qc
     qcorh = 0d0
     if (lfoc > 0) then
-       qcorh = -ccof*dexp(ceh*rfoc*rfoc/4d0)/ceh ! Set gaussian and hankel charges
+       qcorh = -ccof*dexp(ceh*rfoc*rfoc/4d0)/ceh ! Set gaussian and smhankel charges
        qcorg = qc-qcorh
     endif
-    cofh = -y0*qcorh*ceh*dexp(-ceh*rfoc*rfoc/4d0)! Coeffients to the the gaussian and hankel terms
+    cofh = -y0*qcorh*ceh*dexp(-ceh*rfoc*rfoc/4d0)! Coeffients to the the gaussian and smhankel
     cofg = y0*qcorg
   end subroutine corprm
 end module m_hansr

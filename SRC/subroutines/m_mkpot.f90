@@ -266,7 +266,7 @@ contains
             ' q=',ftod(qbg),'radius r=',rhobg,'E=9/5*q*q/r=',1.8d0*qbg*qbg/rhobg
     endif
     call rhomom(orhoat, qmom,vsum) !multipole moments
-    call smves(qmom,gpot0,vval,hpot0_rv,sgp0,smrho,smpot,vconst,smq,qsmc,fes,rhvsm,zvnsm,zsum,vesrmt,qbg )  ! Smooth electrostatic potential
+    call smves(qmom,gpot0,vval,hpot0_rv,sgp0,smrho,smpot,vconst,smq,qsmc,fes,rhvsm,zvnsm,zsum,vesrmt,qbg) ! 0th part of electrostatic potential Ves and Ees
     smag = 0
     if(nsp == 2) smag = 2d0*dreal(sum(smrho(:,:,:,1)))*vol/(n1*n2*n3) - smq !spin part.
     if( .NOT. present(novxc_)) then ! Add smooth exchange-correlation potential 
@@ -275,7 +275,7 @@ contains
          complex(8):: smvxc_zv(k1*k2*k3*nsp),smvx_zv(k1*k2*k3*nsp), smvc_zv(k1*k2*k3*nsp),smexc_zv(k1*k2*k3)
          real(8):: fxc_rv(3,nbas)
          smvxc_zv=0d0; smvx_zv=0d0; smvc_zv=0d0; smexc_zv=0d0; fxc_rv=0d0
-         call smvxcm(lfrce, smrho,smpot,smvxc_zv,smvx_zv,smvc_zv, smexc_zv,repsm,repsmx,repsmc,rmusm,rvmusm,rvepsm, fxc_rv )
+         call smvxcm(lfrce, smrho,smpot,smvxc_zv,smvx_zv,smvc_zv, smexc_zv,repsm,repsmx,repsmc,rmusm,rvmusm,rvepsm, fxc_rv )!0th of Exc Vxc
          if( lfrce /= 0 ) fes = fes+fxc_rv
        endblock
     else
@@ -314,7 +314,7 @@ contains
     rhovxc = sum(rmusm) + sum(rmuat) ! \int rho*Vxc
     usm = 0.5d0*(rhvsm+zvnsm)
     uat = 0.5d0*(vvesat+cpnvsa)
-    utot = usm + uat !total electro static energy
+    utot = usm + uat !Ees total electro static energy
     dq = smq+sqloc + qsmc+sqlocc + qbg -zsum !smooth part + local part + smoothcore + core local + qbackground -Z
     amom = smag+saloc !magnetic moment
     if(ipr >= 30) then
@@ -322,7 +322,7 @@ contains
        write(stdo,680) 'rhoval*veff ',valfsm,valftr,valvef, & !\int rho Veff
             'rhoval*ves ',rhvsm,vvesat,valves, & !\int rho Ves
             'psnuc*ves  ',zvnsm,cpnvsa,cpnves, & !\int rho(Z+core) Ves
-            'utot       ',usm,uat,utot, & !total electrostatic energy
+            'Eestatic   ',usm,uat,utot, & ! electrostatic energy
             'rho*exc    ',sum(repsm),sum(repat),rhoexc, &
             'rho*vxc    ',sum(rmusm),sum(rmuat),rhovxc, &
             'valence chg',smq,sqloc,smq+sqloc !valence electron density, smooth part + local part
@@ -393,9 +393,7 @@ contains
     enddo
   end subroutine dfaugm
   subroutine m_mkpot_deallocate()
-    if (allocated(vesrmt)) then
-       deallocate(vesrmt,fes1_rv,phzdphz,sab_rv,hab_rv,qmom,oppi,otau,osig,osmpot,ohsozz,ohsopm)
-    endif
+    if(allocated(vesrmt)) deallocate(vesrmt,fes1_rv,phzdphz,sab_rv,hab_rv,qmom,oppi,otau,osig,osmpot,ohsozz,ohsopm)
   end subroutine m_mkpot_deallocate
 end module m_mkpot
 
