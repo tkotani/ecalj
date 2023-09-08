@@ -466,8 +466,7 @@ contains
              !     !  Thus, we have
              !     !           igv(internally in pwmat) = igv2 + qlatinv*(qp-q)
              !     !            inn = qlatinv*(qp-q)
-             inn=0
-             call pwmat(nbas,ndimh,napw,igv2x,qp,ngp,nlmax,ngvecp(1,1,iq),gmax,inn, ppovl, phovl )
+             call pwmat(nbas,ndimh,napw,igv2x,qp,ngp,nlmax,ngvecp(1,1,iq),gmax, ppovl, phovl )
              pwz=matmul(phovl,evec)
              deallocate(phovl)
              if (lchk >= 1) then
@@ -503,6 +502,7 @@ contains
                 do  i2 = 1, ndimh
                    xx(3) = testc(i1,i2)
                    xx(4) = testcd(i1) 
+                   !if(i1==i2)write(ifinormchk,'(f12.5,5f14.6)')evl(i1,isp),xx(3),xx(4),xx(1),xx(1)+xx(3)
                    if(i1==i2)write(ifinormchk,'(f12.5,5f14.6)')evl(i1,isp),xx(3),xx(4),xx(1),xx(1)+xx(3)
                 enddo
              enddo

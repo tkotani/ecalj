@@ -42,7 +42,7 @@ module m_lmfinit ! All ititial data (except rst/atm data via iors/rdovfa) !TK ex
        coreq(:,:),rg(:),rsma(:),rfoca(:), rmt(:),pzsp(:,:,:), amom(:,:),spec_a(:),z(:),eref(:)
   character*(8),allocatable,protected:: coreh(:)
   real(8),allocatable,protected:: pos(:,:), delta(:,:),mpole(:),dpole(:,:)
-  !                     WARNINIG: pos is initial position read from ctrl. We use lattic.f90 (search pos in bndfp.f90 and lmfp.f90 as well.)
+  !            WARNINIG: pos is initial position read from ctrl. We use lattic.f90 (search pos in bndfp.f90 and setpos in lmfp.f90 as well.)
   real(8),allocatable,protected:: rv_a_ocg (:), rv_a_ocy(:)  !ClebshGordon coefficient (GW part use clebsh_t)
   integer,allocatable,protected:: iv_a_oidxcg(:),iv_a_ojcg(:)!ClebshGordon coefficient (GW part use clebsh_t)
   integer,allocatable,protected:: lldau(:), indrx_iv(:,:) ,jma(:),jnlml(:)

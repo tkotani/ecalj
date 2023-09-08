@@ -584,7 +584,7 @@ program hx0fp0
      isloop: do 1003 is = 1,nspinmx
         write(6,"(' ##### ',2i4,' out of nqibz+n0qi nsp=',2i4,' ##### ')")iq, is, nqibz + nq0i,nspin
         if(debug) write(6,*)' niw nw=',niw,nw
-        !!        chi(charge) or chi_+-(spin when chipm=T)
+        !  chi(charge) or chi_+-(spin when chipm=T)
         isf=is
         if(chipm) then
            write(6,*)" chi_+- mode nolfc=",nolfco
@@ -596,7 +596,27 @@ program hx0fp0
            ekxx1(1:nband, kx)  = readeval(qbz(:,kx),   is )
            ekxx2(1:nband, kx)  = readeval(q+qbz(:,kx), isf)
         enddo
-        call gettetwt(q,iq,is,isf,ekxx1,ekxx2,nband)!,,nwgt(:,iq)eibzmode)
+        
+! !!!!!!!!!!!!!!!!!!!!!!!        
+!         block
+!           use m_ftox
+!           use m_lgunit
+!           integer:: iv,iv1,iv2
+!           real(8):: e1,e2
+!           do kx = 1, nqbz
+!              do iv1=1,nband
+!              do iv2=1,nband
+!                 e1=ekxx1(iv1, kx)-ef
+!                 e2=ekxx2(iv2, kx)-ef
+!                 if(e1*e2<0.and.e2>e1.and.e2-e1<0.3/rydberg())&
+!                      write(stdo,ftox)'eeeigen: k iv1iv2=',kx,iv1,iv2,' e=',e1*rydberg(),e2*rydberg()
+!              enddo
+!              enddo
+!           enddo
+!         endblock
+! !!!!!!!!!!!!!!!!!!!!!!!!!!
+        
+        call gettetwt(q,iq,is,isf,ekxx1,ekxx2,nband)
         !! == x0kf_v4hz is the main routine to accumalte imaginary part of x0 into rcxq ==
         epsppmode=  epsmode.and.nolfco
         write(6,*)'epsppmode=',epsppmode

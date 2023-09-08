@@ -16,7 +16,7 @@ contains
     use m_ldau,only:   m_ldau_vorbset, eorb
     use m_bstrux,only: m_bstrux_init
     use m_relax,only:  relax
-    use m_lattic,only: setopos
+    use m_lattic,only: setopos !this is to store atomic position
     use m_ftox
     use m_rdovfa,only:rdovfa
     !!= Main routine of lmf = (following document is roughly checked at May2021)
@@ -195,7 +195,7 @@ contains
 9998 continue
     call tcx('lmfp')
   end subroutine lmfp
-!   subroutine readatompos(nbas,pos)
+!   subroutine readatompos(nbas,pos) --->setopos
 !     use m_ext,only:     sname
 !     use m_ftox
 !     real(8):: pos(3,nbas),p(3)

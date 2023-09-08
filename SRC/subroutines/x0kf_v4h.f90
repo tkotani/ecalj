@@ -205,6 +205,8 @@ contains
     call Dconjg_zmel() 
   end subroutine x0kf_zmel
   subroutine X0kf_v4hz (q, isp_k,isp_kq, iq, nmbas,  rcxq,epsppmode,iqxini, q00)
+    use m_ftox
+    use m_lgunit,only:stdo
     intent(in)   ::     q, isp_k,isp_kq, iq, nmbas,     epsppmode,iqxini
     !! === calculate chi0, or chi0_pm === ! eibzmode, 
     !! We calculate imaginary part of chi0 along real axis.
@@ -302,7 +304,7 @@ contains
           call x0kf_zmel(q, iq,k, isp_k,isp_kq) !Return zmel(igb q,  k it occ,   q+k itp unocc)
           kold=k
        endif
-       !!  z1p = <M_ibg1 psi_it | psi_itp> < psi_itp | psi_it M_ibg2 >
+       !!  z1p = <M_ibg1(q) psi_it(k) | psi_itp(q+k)> < psi_itp | psi_it M_ibg2 >
        !!  zxq(iw,ibg1,igb2) = sum_ibib wwk(iw,ibib)* z1p(ibib, igb1,igb2)
        !! n1b,n2b --> core after valence.  it,itp --> valence after core
        it  = itc(icount)  !occ      k
@@ -311,8 +313,12 @@ contains
        jpm = jpmc(icount)      ! \pm omega
        do igb2=1,nmbas  !this part dominates cpu time most time consuming...........
           do igb1=1,igb2
-             rcxq(igb1,igb2,iw,jpm) =  rcxq(igb1,igb2,iw,jpm) &
-                  + dconjg(zmel(igb1,it,itp) )*zmel (igb2,it,itp) * whwc(icount)! whwc is ImgWeight by tetrahedron method.
+             rcxq(igb1,igb2,iw,jpm)=rcxq(igb1,igb2,iw,jpm) + dconjg(zmel(igb1,it,itp))*zmel(igb2,it,itp)*whwc(icount)
+             !                                                whwc is ImgWeight by tetrahedron method.
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!             if(it>14.and.it<18.and.itp>14.and.itp<19) &
+!                  write(stdo,ftox) "iiittt iq k it itp iw=",iq,k,it,itp,ftod(abs(zmel(igb1,it,itp))**2) !,ftod(zmel(igb2,it,itp))
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!             
           enddo
        enddo
 1000 enddo mainloop

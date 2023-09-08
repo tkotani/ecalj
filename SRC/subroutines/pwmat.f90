@@ -4,7 +4,7 @@ module m_pwmat
   private
   contains
 ! Matrix elements (IPW,IPW) and (IPW,envelope function)
-subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,inn,ppovl,pwhovl)
+subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
   use m_struc_def     
   use m_lmfinit,only: alat=>lat_alat,ispec,sspec=>v_sspec,n0,nkap0,pi,pi4
   use m_lattic,only:  qlat=>lat_qlat, vol=>lat_vol,plat=>lat_plat,rv_a_opos
@@ -17,7 +17,7 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,inn,ppovl,pwhovl)
   !!   We have  q+G(igvx; internal in pwmat) = qp + G(igapw).
   !!  (because qp may be shortedned q (when w(oigv2)=igapw is generated) igapw is used in hambl.
   !!   Thus, we need to use
-  !!           igv(internally in pwmat) = igapw + inn, where inn = qlatinv*(qp-q).
+  !!           igv(internally in pwmat) = igapw 
   ! ----------------------------------------------------------------------
   !i   nbas  :size of basis
   !i   ndimh :dimension of hamiltonian
@@ -60,7 +60,7 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,inn,ppovl,pwhovl)
   ! ----------------------------------------------------------------------
   integer:: ngp,nlmax,igv(3,ngp),nbas,ndimh, napw,igapw(3,napw),&
        ips(nbas),ib,is,igetss,ngmx,ig,lmxax,iwk(3),nlmto,iga, ifindiv2,&
-       inn(3),matmul_pwhovl,&
+       matmul_pwhovl,&
        lh(nkap0),nkapi,io,l,ik,offh,ilm,blks(n0*nkap0),ntab(n0*nkap0),oi,ol,igx
   real(8):: q(3),GcutH,tpiba,xx,tripl,dgetss,bas(3,nbas),rmax(nbas),qpg(3),qpg2(1),denom,gam,srvol,&
        eh(n0,nkap0),rsmh(n0,nkap0)
@@ -130,7 +130,7 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,inn,ppovl,pwhovl)
   ! ... Fourier coefficients to APWs. APWs are normalized:  |G> = 1/sqrt(vol) exp[i G.r]
   pwh(:,nlmto+1:) = 0d0
   do iga= 1,napw 
-     ig = findloc([(all(igapw(:,iga)+inn(:)==igvx(:,igx)),igx=1,ngmx)],value=.true.,dim=1)!
+     ig = findloc([(all(igapw(:,iga)==igvx(:,igx)),igx=1,ngmx)],value=.true.,dim=1)!
      pwh(ig,iga+nlmto) = 1d0/srvol
   enddo
   ! --- Matrix elements between each (IPW,envelope function) pair ---
