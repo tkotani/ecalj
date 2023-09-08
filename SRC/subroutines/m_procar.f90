@@ -105,7 +105,7 @@ contains
                   endif
                 EndBlock pdosc
                 dwgt(ilm)= sum( dconjg(auasaz) & ! auasaz is for phi,phidot,pz(val=slo=0)
-                     *matmul( sab_rv(:,:,l+1+n0*(jspp-1)+n0*nsp*(ib-1)),auasaz)) !bugfix 2023-4-28 based on suzuki's report for cDyN. ! sab(3,3,l+1,isp,ib)
+                     *matmul( sab_rv(:,:,l+1,jspp,ib),auasaz)) !bugfix 2023-4-28 based on suzuki's report for cDyN. ! sab(3,3,l+1,isp,ib)
 !bug before 2023-4-28           *matmul( sab_rv(:,:,l+1+n0*(ib-1)+n0*nbas*(jspp-1)),auasaz)) 
              enddo
           enddo

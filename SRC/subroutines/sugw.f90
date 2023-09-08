@@ -570,8 +570,7 @@ contains
              do im = 1, 2*l+1
                 ilm = ilm+1
                 auasaz=aus(ilm,iv,1:3,isp,ib) !coefficient for (u,s,gz)
-                wgt = sum(dconjg(auasaz)*matmul( sab_rv(:,:,l+1+n0*(ib-1)+n0*nbas*(isp-1)),auasaz)) 
-                cphiw(iv) = cphiw(iv) +   wgt
+                cphiw(iv) = cphiw(iv) + sum(dconjg(auasaz)*matmul(sab_rv(:,:,l+1,isp,ib),auasaz)) 
                 !  cphi corresponds to coefficients of augmented functions for
                 !   {phi,phidot,gz(val=slo=0)}, which are not orthnormal. 
                 cphi(nlindx(1:2,l,ib)+im,iv)= matmul(auasaz(1:2),rotp(l,isp,:,:,ib))

@@ -10,7 +10,7 @@ module m_mkpot ! Potential terms. See http://dx.doi.org/10.7566/JPSJ.84.034702
   type(s_rv4),allocatable,protected,public  :: osig(:,:) !sigma          (C.4) 
   complex(8),allocatable,protected ,public  :: osmpot(:,:,:,:)!0th component of Eq.(34)
   real(8),allocatable,protected,public:: fes1_rv(:), fes2_rv(:) !force terms
-  real(8),allocatable,protected,public:: hab_rv(:,:,:), sab_rv(:,:,:), qmom(:),vesrmt(:)
+  real(8),allocatable,protected,public:: hab_rv(:,:,:), sab_rv(:,:,:,:,:), qmom(:),vesrmt(:)
   real(8),protected,public:: qval,vconst,qsc
   real(8),allocatable,protected,public:: phzdphz(:,:,:,:) !val and slo at Rmt for local orbitals.
   ! Energy terms by call m_mkpot_energyterms
@@ -35,7 +35,7 @@ contains
     allocate( vesrmt(nbas))
     allocate( qmom(nvl)) !rhomom
     allocate( hab_rv(3,3,n0*nsp*nbas))
-    allocate( sab_rv(3,3,n0*nsp*nbas))
+    allocate( sab_rv(3,3,n0,nsp,nbas))
     allocate( phzdphz(nppn,n0,nsp,nbas))
     allocate( fes1_rvx(3*nbas))
     allocate( spotx(k1,k2,k3,nsp)) !smooth potential without XC
@@ -59,7 +59,7 @@ contains
     allocate( osmpot(k1,k2,k3,nsp)) 
     allocate( qmom(nvl))
     allocate( hab_rv(3,3,n0*nsp*nbas))
-    allocate( sab_rv(3,3,n0*nsp*nbas))
+    allocate( sab_rv(3,3,n0,nsp,nbas))
     allocate( phzdphz(nppn,n0,nsp,nbas))
     allocate( fes1_rv(3*nbas))
     allocate( osig(3,nbas), otau(3,nbas), oppi(3,nbas))

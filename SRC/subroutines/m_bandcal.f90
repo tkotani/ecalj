@@ -409,8 +409,7 @@ contains
                    else
                       auasaz= aus(ilm,iv,:,ksp,ib)
                    endif ! (au as az) are for (u,s,gz) functions where gz=gz'=0 at MT
-                   orbtm(l+1,ksp,ib) = orbtm(l+1,ksp,ib)&
-                   + m* wtkb(iv,isp,iq) * sum( dconjg(auasaz)*matmul(sab_rv(:,:,l+1+n0*(ib-1)+n0*nbas*(ksp-1)), auasaz))
+                   orbtm(l+1,ksp,ib)= orbtm(l+1,ksp,ib) +m*wtkb(iv,isp,iq)*sum(dconjg(auasaz)*matmul(sab_rv(:,:,l+1,ksp,ib),auasaz))
                 enddo mloop
              enddo lloop
           enddo ivloop ! print*, l, ksp,ib,'ORB.MOMNT=',(orbtm(l+1,ksp,ib),l=0,lmxa)
