@@ -481,6 +481,7 @@ program hx0fp0
   allocate( llw(nw_i:nw,nq0i), llwI(niw,nq0i) )
   !! ======== Loop over iq ================================
   if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
+  if(cmdopt0('--zmel0')) iqxini=2
   iqloop: do 1001 iq = iqxini,iqxend  ! NOTE: q=(0,0,0) is omitted when iqxini=2
      if( .NOT. MPI__task(iq) ) cycle
      call cputid (0)
@@ -597,24 +598,24 @@ program hx0fp0
            ekxx2(1:nband, kx)  = readeval(q+qbz(:,kx), isf)
         enddo
         
-! !!!!!!!!!!!!!!!!!!!!!!!        
-!         block
-!           use m_ftox
-!           use m_lgunit
-!           integer:: iv,iv1,iv2
-!           real(8):: e1,e2
-!           do kx = 1, nqbz
-!              do iv1=1,nband
-!              do iv2=1,nband
-!                 e1=ekxx1(iv1, kx)-ef
-!                 e2=ekxx2(iv2, kx)-ef
-!                 if(e1*e2<0.and.e2>e1.and.e2-e1<0.3/rydberg())&
-!                      write(stdo,ftox)'eeeigen: k iv1iv2=',kx,iv1,iv2,' e=',e1*rydberg(),e2*rydberg()
-!              enddo
-!              enddo
-!           enddo
-!         endblock
-! !!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!        
+        block
+          use m_ftox
+          use m_lgunit
+          integer:: iv,iv1,iv2
+          real(8):: e1,e2
+          do kx = 1, nqbz
+             do iv1=1,nband
+             do iv2=1,nband
+                e1=ekxx1(iv1, kx)-ef
+                e2=ekxx2(iv2, kx)-ef
+                if(e1*e2<0.and.e2>e1.and.e2-e1<0.3/rydberg())&
+                     write(stdo,ftox)'eeeigen: k iv1iv2=',kx,iv1,iv2,' e=',e1*rydberg(),e2*rydberg()
+             enddo
+             enddo
+          enddo
+        endblock
+!!!!!!!!!!!!!!!!!!!!!!!!!!
         
         call gettetwt(q,iq,is,isf,ekxx1,ekxx2,nband)
         !! == x0kf_v4hz is the main routine to accumalte imaginary part of x0 into rcxq ==

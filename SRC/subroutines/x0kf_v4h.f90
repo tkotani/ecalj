@@ -254,10 +254,6 @@ contains
     integer::  neibz,icc,ig,ikp,i,j,itimer,icount,iele!,ngbb !eibzsym(ngrp,-1:1),,eibzmoden
     integer:: ieqbz,kold,nxxxx !igx(ngrp*2,nqbz),igxt(ngrp*2,nqbz),
     integer::nkmin_,nkqmin_,izmel,ispold,nmini,nqini,nmtot,nqtot ,ispold2,ierr,iwmax,ifi0
-    !     logical:: interbandonly,intrabandonly
-!    logical:: izmel0,cmdopt0
-!    logical,save:: initzmel0=.true.
-    
     !! Main loop over k-points ---------------------------------------------------------
     !! z1p = <M_ibg1 psi_it | psi_itp> < psi_itp | psi_it M_ibg2 >
     !     ! zxq(iw,ibg1,igb2) = \sum_ibib imgw(iw,ibib)* z1p(ibib, igb1,igb2) !ibib means band pair (occ,unocc)
@@ -293,7 +289,42 @@ contains
     !! zmel(ngb, nctot+nt0,ncc+ntp0) in m_zmel
     !        nkmin:nt0,           nkqmin:ntp0
     !     nt0=nkmax-nkmin+1  , ntp0=nkqmax-nkqmin+1
-    kold = -999 
+    zmel0mode : block
+      real(8)::  wpw_k,wpw_kq,q1a,q2a,rfac00
+      complex(8),allocatable:: zmel0(:,:,:)
+      logical:: cmdopt0
+      if(cmdopt0('--zmel0')) then
+         q1a=sum(q00**2)**.5
+         q2a=sum(q**2)**.5
+         rfac00=q2a/(q2a-q1a)
+         kold = -999 
+         zmel0modeicount: do icount = 1,ncount
+            k = kc(icount)
+            nkmin_  = nkmin(k)
+            nkqmin_ = nkqmin(k)
+            nmini= nkmin_
+            nqini= nkqmin_
+            if(kold/=k) then
+               call x0kf_zmel(q00,iqxini,k, isp_k,isp_kq)
+               if(allocated(zmel0)) deallocate(zmel0)
+               allocate(zmel0,source=zmel)
+               call x0kf_zmel(q,      iq,k, isp_k,isp_kq) !Get zmel(igb q,  k it occ,   q+k itp unocc)
+               kold=k
+            endif
+            it  = itc(icount)  !occ      k
+            itp = itpc(icount) !unocc    q+k
+            iw  = iwc(icount)  !omega-bin
+            jpm = jpmc(icount)      ! \pm omega
+            do igb2=1,nmbas  !this part dominates cpu time most time consuming...........
+               do igb1=1,igb2
+                  rcxq(igb1,igb2,iw,jpm) =  rcxq(igb1,igb2,iw,jpm) &
+                       + rfac00**2*(abs(zmel(igb1,it,itp))-abs(zmel0(igb1,it,itp)))**2 * whwc(icount)
+               enddo                   !compute difference for zmel0 mode
+            enddo
+         enddo zmel0modeicount
+         goto 2000
+      endif
+    endblock zmel0mode
     mainloop: do 1000 icount = 1,ncount
        k = kc(icount)
        nkmin_  = nkmin(k)
@@ -316,19 +347,20 @@ contains
              rcxq(igb1,igb2,iw,jpm)=rcxq(igb1,igb2,iw,jpm) + dconjg(zmel(igb1,it,itp))*zmel(igb2,it,itp)*whwc(icount)
              !                                                whwc is ImgWeight by tetrahedron method.
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!             if(it>14.and.it<18.and.itp>14.and.itp<19) &
-!                  write(stdo,ftox) "iiittt iq k it itp iw=",iq,k,it,itp,ftod(abs(zmel(igb1,it,itp))**2) !,ftod(zmel(igb2,it,itp))
+!!             if(it==16.and.itp==17) &
+!             if(abs(zmel(igb1,it,itp))**2>1d-10.and.iw<120) &
+!                  write(stdo,ftox) "iiittt iq k isp=",iq,k,isp_k,' iw it itp=',iw,it+nkmin(k)-1,itp+nkqmin(k)-1,&
+!                  ftod(abs(zmel(igb1,it,itp))**2) !,ftod(zmel(igb2,it,itp))
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!             
           enddo
        enddo
 1000 enddo mainloop
-    deallocate(nkmin,nkmax,nkqmin,nkqmax)!,skipk)
-    deallocate(whwc,kc,itc,itpc,iwc,jpmc) !z1p
-    !! Hermitianize. jun2012takao moved from dpsion5 ====
+2000 continue 
+    deallocate(nkmin,nkmax,nkqmin,nkqmax,whwc,kc,itc,itpc,iwc,jpmc)
     do concurrent (jpm=1:npm,iw=1:nwhis)
        do igb2= 1,nmbas       !eibzmode assumes nmbas1=nmbas2
           do igb1= 1,igb2-1
-             rcxq(igb2,igb1,iw,jpm) = dconjg(rcxq(igb1,igb2,iw,jpm))
+             rcxq(igb2,igb1,iw,jpm) = dconjg(rcxq(igb1,igb2,iw,jpm)) ! Hermitianize. jun2012takao moved from dpsion5 ====
           enddo
        enddo
     enddo
@@ -336,7 +368,6 @@ contains
     if(debug) write(6,"(' --- ', 3d13.5)") sum(abs(rcxq(1:nmbas,1:nmbas,1:nwhis,1:npm))),sum((rcxq(1:nmbas,1:nmbas,1:nwhis,1:npm)))
   end subroutine x0kf_v4hz
 end module m_x0kf
-
 !   !! --------------------------------------------------------------------------------
 !   subroutine X0kf_v4hz_symmetrize(q, iq, nolfco, zzr,nmbas, chipmzzr, eibzmode, eibzsym, rcxq)
 !     use m_readqgcou,only: qtt_, nqnum
