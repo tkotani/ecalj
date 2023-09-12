@@ -11,13 +11,10 @@ contains
   subroutine swtkzero()
     swtk=0d0
   end subroutine swtkzero
-  subroutine addrbl(isp,q,iq,smpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,evec,evl,nevl,&
-       smrho,sumqv,sumev,sv_p_oqkkl,sv_p_oeqkkl,f)
+  subroutine addrbl(isp,q,iq,smpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,evec,evl,nevl, smrho,sumqv,sumev,sv_p_oqkkl,sv_p_oeqkkl,f) !Adds to the smooth and local output density and to eigval sum
     use m_struc_def
-    use m_suham,only: &
-         ndham=>ham_ndham,ndhamx=>ham_ndhamx,nspx=>ham_nspx
-    use m_lmfinit,only:alat=>lat_alat,nbas, ispec,sspec=>v_sspec,nsp,nspc,lmet=>bz_lmet,&
-         zbak ,lfrce
+    use m_suham,only: ndham=>ham_ndham,ndhamx=>ham_ndhamx,nspx=>ham_nspx
+    use m_lmfinit,only:alat=>lat_alat,nbas, ispec,sspec=>v_sspec,nsp,nspc,lmet=>bz_lmet, zbak ,lfrce !zbak is added positive bg charge.
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol
     use m_supot,only: lat_nabc,k1,k2,k3
     use m_igv2x,only: napw,ndimh,ndimhx,igapw=>igv2x
@@ -27,10 +24,6 @@ contains
     use m_ropyln,only: ropyln
     use m_rsibl,only:rsibl
     use m_rlocbl,only: rlocbl
-    !- Adds to the smooth and local output density and to eigval sum
-    ! ----------------------------------------------------------------------
-    !i Inputs
-    !i   sspec :struct for species-specific information; see routine uspec
     !i   isp   :current spin channel
     !i   nsp   :2 for spin-polarized case, otherwise 1
     !i   nspc  :2 for coupled spins; otherwise 1
@@ -82,118 +75,67 @@ contains
     !o   f     :eigenvalue contribution to forces
     !o   swtk  :'spin weights' to determine global magnetic moment, nspc=2
     !o         : swtk = diagonal part of  (z)^-1 sigmz z
-    !r Remarks
-    !u Updates
-    !u   05 Jul 08 (T. Kotani) output density for new PW part
-    !u             Option to accumulate energy-weighted output density
-    !u   09 Jun 07 Makes spin weights (noncollinear case)
-    !u   02 Jan 06 sumqv resolved by spin
-    !u   17 Jan 05 Extension of esmear to Fermi distribution
-    !u   23 Dec 04 Extended to spin-coupled case
-    !u   18 Nov 04 Sampling integration properly handles Fermi distribtion
-    !u    1 Sep 04 Adapted to handle complex ppi
-    !u   23 Jan 01 Added lrout switch
-    !u   17 Jun 00 spin polarized
-    !u   22 May 00 Adapted from nfp add_densw.f
-    ! ----------------------------------------------------------------------
     implicit none
-    integer :: isp,iq!,lfrce
-    integer :: nevl
-    double precision :: emax,emin,qval,vconst
-    real(8):: q(3), evl(ndham,nsp), sumev(2,3), sumqv(3,2), f(3,*)
+    integer:: i , k , nevec , lmxax , lmxa , nlmax , nlmto , ig, isp,iq,nevl,ipiv(ndimh*2) !,lfrce
+    real(8):: q(3), evl(ndham,nsp), sumev(2,3), sumqv(3,2), f(3,*),emax,emin,qval,vconst,vavg,wgt,tpiba,ewgt(ndimh*nspc),epsnevec
     type(s_cv5) :: sv_p_oppi(3,1)
-    type(s_rv4) :: sv_p_otau(3,1)
-    type(s_rv4) :: sv_p_osig(3,1)
-    type(s_rv5) :: sv_p_oeqkkl(3,1)
-    type(s_rv5) :: sv_p_oqkkl(3,1)
-    double complex evec(ndimh,nspc,ndimh,nspc),smrho(k1,k2,k3,isp),smpot(k1,k2,k3,isp)
-    integer:: i , k , nevec , lmxax , lmxa , nlmax , nlmto , ig
-    double precision :: vavg,wgt,tpiba
-    integer :: ipiv(ndimh*2),i_copy_size
-    complex(8),allocatable:: evecc(:,:,:,:),work(:,:,:,:)
+    type(s_rv4) :: sv_p_otau(3,1),   sv_p_osig(3,1)
+    type(s_rv5) :: sv_p_oeqkkl(3,1), sv_p_oqkkl(3,1)
+    complex(8):: evec(ndimh,nspc,ndimh,nspc),smrho(k1,k2,k3,isp),smpot(k1,k2,k3,isp)
     real(8),allocatable:: qpgv(:,:),qpg2v(:),ylv(:,:)
-    double precision :: ewgt(ndimh*nspc),epsnevec
+    complex(8),allocatable:: evecc(:,:,:,:),work(:,:,:,:)
     qval= qval_- zbak
     if (lwtkb < 0) return
     call tcn('addrbl')
     nlmto = ndimh-napw
-    lmxax = -1
-    do  i = 1, nbas
-       k=ispec(i) 
-       lmxa=sspec(k)%lmxa
-       lmxax = max(lmxax,lmxa)
-    enddo
-    nlmax=(lmxax+1)**2
-    if (napw>0) then
+    lmxax = maxval(sspec(ispec(1:nbas))%lmxa)
+    nlmax = (lmxax+1)**2
+    tpiba = 2d0*4d0*datan(1d0)/alat
+    if(napw>0) then
        allocate(ylv(napw,nlmax),qpgv(3,napw),qpg2v(napw))
-       tpiba = 2d0*4d0*datan(1d0)/alat
-       do  ig = 1, napw
-          qpgv(:,ig) = tpiba * ( q + matmul(qlat,igapw(:,ig)) )
-       enddo
+       forall(ig = 1:napw) qpgv(:,ig) = tpiba * ( q + matmul(qlat,igapw(:,ig)) )
        call ropyln(napw,qpgv(1,1:napw),qpgv(2,1:napw),qpgv(3,1:napw), lmxax,napw,ylv,qpg2v)
-    else
-       allocate(ylv(1,1),qpgv(1,1),qpg2v(1))
     endif
-    ! --- Decide how many states to include and make their weights ---
-    ! ... Case band weights not passed: make sampling weights
+    ! --- Decide how many states to include and make their weights --- ... Case band weights not passed: make sampling weights
     if (lwtkb == 0) then
        call rxx(nspc.ne.1,'lwtkb=0 not implemented in noncoll case')
        wgt = abs(wtkp(iq))/nsp
        call mkewgt(lmet,wgt,qval,ndimh,evl(1,isp),nevec,ewgt,sumev,sumqv(1,isp))
        call dscal(nevec,wgt,ewgt,1)
-    else! ... Case band weights are passed
+    else ! ... Case band weights are passed
        call dcopy(nevl,wtkb(1,isp,iq),1,ewgt,1)
-       do  10  i = nevl, 1, -1
+       do  i = nevl, 1, -1
           nevec = i
-          if (abs(wtkb(i,isp,iq)) > epsnevec()) goto 12
-10     enddo
-12     continue
+          if (abs(wtkb(i,isp,iq)) > epsnevec()) exit
+       enddo
     endif
-    ! ... Force from smooth analytic hamiltonian and overlap
-    if (lfrce > 0 ) then
+    if(lfrce>0) then ! ... Force from smooth analytic hamiltonian and overlap
        call rxx(nspc.ne.1,'forces not implemented in noncoll case')
        vavg = vconst
-       if (nlmto>0) then
-          call fsmbl(vavg , q , ndimh , nlmto, nevec, evl(1,isp) , evec ,  ewgt , f )
-       endif
-       if (napw>0) then
-          call fsmbpw (vavg, ndimh , nlmto, nevec , evl(1,isp), evec , ewgt , napw, qpgv, &
-               qpg2v , ylv , nlmax , lmxax , alat , dsqrt ( vol ) , f )
-       endif
+       if(nlmto>0) call fsmbl (vavg,q,ndimh,nlmto, nevec,evl(1,isp),evec,ewgt,f )
+       if(napw>0)  call fsmbpw(vavg,  ndimh,nlmto, nevec,evl(1,isp),evec,ewgt,napw, qpgv, qpg2v,ylv,nlmax,lmxax,alat,dsqrt(vol),f)
+       if(allocated(ylv)) deallocate(qpgv,qpg2v,ylv)
     endif
-    ! ... Add to smooth density
-    call rsibl( lfrce, isp , q , &
-         iq , ndimh , nspc , napw , igapw , nevec &
-         , evec , ewgt , k1 , k2 , k3 , smpot , smrho , f )
+    call rsibl(lfrce, isp,q,iq,ndimh,nspc,napw,igapw,nevec,evec,ewgt,k1,k2,k3,smpot,smrho,f ) ! ... Add to smooth density
     ! ... Add to local density coefficients
-    call rlocbl (lfrce , nbas , isp , q , &
-         ndham , ndimh , nspc , napw , igapw , nevec &
-         , evec , ewgt , evl , sv_p_osig , sv_p_otau , sv_p_oppi &
-         , 1 , sv_p_oqkkl , sv_p_oeqkkl , f ) !lekkl=1
-    ! ... Weights for spin moments
-    if (lswtk>0 .AND. nspc==2) then
-       allocate(evecc(ndimh,2,ndimh,2),work(ndimh,2,ndimh,2))
-       call zcopy(ndimhx**2,evec,1,evecc,1)
+    call rlocbl(lfrce,nbas,isp,q,ndham,ndimh,nspc,napw,igapw,nevec,evec,ewgt,evl,sv_p_osig,sv_p_otau,sv_p_oppi,1,&
+         sv_p_oqkkl,sv_p_oeqkkl,f) !lekkl=1
+    Weightsforspinmoments: if (lswtk>0 .AND. nspc==2) then!
+       allocate(evecc,source=evec) ! evecc=evec call zcopy(ndimhx**2,evec,1,evecc,1)
+       allocate(work,mold=evec) 
        call zgetrf(nevl,nevl,evecc,ndimhx,ipiv,i)
-       if (i /= 0) call rx('addrbl: failed to generate overlap')
+       if(i/=0) call rx('addrbl: failed to generate overlap')
        call zgetri(nevl,evecc,ndimhx,ipiv,work,ndimhx**2,i) !evecc is evec^-1
        do  i = 1, ndimh
-          do  k = 1, ndimh
-             swtk(i,1,iq)= swtk(i,1,iq) + evecc(i,1,k,1)*evec(k,1,i,1) - evecc(i,1,k,2)*evec(k,2,i,1)
-             swtk(i,2,iq)= swtk(i,2,iq) + evecc(i,2,k,1)*evec(k,1,i,2) - evecc(i,2,k,2)*evec(k,2,i,2)
-          enddo
+          swtk(i,1,iq)= swtk(i,1,iq) + sum(evecc(i,1,:,1)*evec(:,1,i,1) - evecc(i,1,:,2)*evec(:,2,i,1))
+          swtk(i,2,iq)= swtk(i,2,iq) + sum(evecc(i,2,:,1)*evec(:,1,i,2) - evecc(i,2,:,2)*evec(:,2,i,2))
        enddo
        deallocate(evecc,work)
-    endif
-    deallocate(qpgv,qpg2v,ylv)
+    endif Weightsforspinmoments
     call tcx('addrbl')
   end subroutine addrbl
-
-  subroutine addsds(ndimh,evl,wgt,emin,emax,ndos,dos) !,esmear
+  subroutine addsds(ndimh,evl,wgt,emin,emax,ndos,dos) !Add to sampling dos   
     use m_lmfinit,only: bz_w,bz_n
-    !- Add to sampling dos
-    ! ----------------------------------------------------------------------
-    !i Inputs
     !i   ndimh :hamiltonian dimension
     !i   evl   :eigenvalues
     !i   wgt   :eigenvalue weights
