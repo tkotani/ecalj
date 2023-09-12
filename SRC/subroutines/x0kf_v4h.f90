@@ -1,4 +1,5 @@
 module m_x0kf
+  use m_lgunit,only: stdo
   use m_keyvalue,only : Getkeyvalue
   use m_pkm4crpa,only : Readpkm4crpa
   use m_zmel,only: Get_zmel_init,zmel 
@@ -11,18 +12,14 @@ module m_x0kf
   use m_readhbe,only: nband
   use m_readgwinput,only: nbcut,nbcut2
   use m_hamindex,only: ngrp
-  !! q-dependent quantities
+  ! q-dependent quantities
   use m_readVcoud,only: zcousq,ngc,ngb
   use m_tetwt,only:     whw,ihw,nhw,jhw,n1b,n2b,nbnb,nbnbx,nhwtot
-  
   implicit none
-  public:: X0kf_v4hz_init, X0kf_v4hz,X0kf_v4hz_init_write,X0kf_v4hz_init_read,x0kf_zmel,&
-       kc,ncount ! X0kf_v4hz_symmetrize, 
-  integer,allocatable:: kc(:)
-  integer:: ncount
-  
+  public:: X0kf_v4hz_init, X0kf_v4hz,X0kf_v4hz_init_write,X0kf_v4hz_init_read,x0kf_zmel,kc,ncount ! X0kf_v4hz_symmetrize, 
   private
-  integer:: ncc
+  integer,allocatable:: kc(:)
+  integer:: ncount,ncc
   integer,allocatable:: nkmin(:), nkmax(:),nkqmin(:),nkqmax(:)
   real(8),allocatable:: whwc(:)
   integer,allocatable:: iwc(:),itc(:),itpc(:),jpmc(:)
@@ -63,7 +60,7 @@ contains
     integer:: k,isp_k,isp_kq, iq, jpm, ibib, iw,igb2,igb1,it,itp,job,icount, nmbas
     real(8):: q(3), imagweight, wpw_k, wpw_kq
     logical :: iww2=.true., crpa !eibzmode, 
-    write(6,'(" x0kf_v4hz_init: job q =",i3,3f8.4)') job,q
+    write(stdo,'(" x0kf_v4hz_init: job q =",i3,3f8.4)') job,q
     if(npm==1) then
        ncc=0
     else
@@ -76,9 +73,7 @@ contains
     endif
     icount=0
     do 110 k = 1,nqbz
-!       if( (eibzmode .AND. nwgt(k)==0) .OR. sum(nbnb(k,1:npm))==0   ) then
-!          cycle
-!       endif
+!      if( (eibzmode .AND. nwgt(k)==0) .OR. sum(nbnb(k,1:npm))==0   ) cycle
        if(job==0) then
           nkmin(k) = 999999
           nkmax(k)= -999999
@@ -98,7 +93,7 @@ contains
        !     ntp0  = nkqmax(k) - nkqmin(k) +1
        !! sanity check
        if( npm==2 .AND. nkqmin(k)/=1) then
-          write(6,*)' npm==2 nkqmin nkqmax  nkmin nkmax=',nkqmin,nkqmax,nkmin,nkmax
+          write(stdo,*)' npm==2 nkqmin nkqmax  nkmin nkmax=',nkqmin,nkqmax,nkmin,nkmax
           call rx( " When npm==2, nkqmin==1 should be.")
        endif
        !        if(nkmin(k)/=1) call rx( " nkmin==1 should be.") !nov 2021 commneted out for --intraband only
@@ -137,7 +132,7 @@ contains
                 if(jpm==1) then
                    if( n1b(ibib,k,jpm) <= nbcut .AND. nbcut2<n2b(ibib,k,jpm) ) then
                       if(iww2) then
-                         write(6,"(' nband_chi0 nbcut nbcut2 n2b n1b=',4i6)") nbcut,n2b(ibib,k,jpm),n1b(ibib,k,jpm)
+                         write(stdo,"(' nband_chi0 nbcut nbcut2 n2b n1b=',4i6)") nbcut,n2b(ibib,k,jpm),n1b(ibib,k,jpm)
                          iww2=.false.
                       endif
                       cycle
@@ -145,7 +140,7 @@ contains
                 else               !jpm==2
                    if( n2b(ibib,k,jpm) <= nbcut .AND. nbcut2<n1b(ibib,k,jpm) ) then
                       if(iww2) then
-                         write(6,"(' nband_chi0 nbcut nbcut2 n2b n1b=',4i6)") nbcut,n2b(ibib,k,jpm),n1b(ibib,k,jpm)
+                         write(stdo,"(' nband_chi0 nbcut nbcut2 n2b n1b=',4i6)") nbcut,n2b(ibib,k,jpm),n1b(ibib,k,jpm)
                          iww2=.false.
                       endif
                       cycle
@@ -179,7 +174,7 @@ contains
                    itc  (icount)= it
                    itpc (icount)= itp
                    jpmc (icount)= jpm
-                   !        write(6,"(a,6i5,d13.5)")'uuuuu k it itp iw jpm whw=',icount,k,it,itp,iw,jpm,whwc(icount)
+                   !        write(stdo,"(a,6i5,d13.5)")'uuuuu k it itp iw jpm whw=',icount,k,it,itp,iw,jpm,whwc(icount)
                 endif
              enddo                 ! iw
 125       enddo ibibloop
@@ -187,7 +182,7 @@ contains
 110 enddo 
     ncount = icount
     ierr=0
-    if(job==0) write(6,"('x0kf_v4hz_init: job=0 ncount ngb nqibz=',3i8)") ncount, ngb, nqibz
+    if(job==0) write(stdo,"('x0kf_v4hz_init: job=0 ncount ngb nqibz=',3i8)") ncount, ngb, nqibz
   end function x0kf_v4hz_init
   !! --------------------------------------------------------------------------------
   subroutine X0kf_zmel ( q,iq,k, isp_k,isp_kq) ! zmel= <phi phi |M_I> for chi0, or chi0_pm 
@@ -206,7 +201,6 @@ contains
   end subroutine x0kf_zmel
   subroutine X0kf_v4hz (q, isp_k,isp_kq, iq, nmbas,  rcxq,epsppmode,iqxini, q00)
     use m_ftox
-    use m_lgunit,only:stdo
     intent(in)   ::     q, isp_k,isp_kq, iq, nmbas,     epsppmode,iqxini
     !! === calculate chi0, or chi0_pm === ! eibzmode, 
     !! We calculate imaginary part of chi0 along real axis.
@@ -290,7 +284,7 @@ contains
     !        nkmin:nt0,           nkqmin:ntp0
     !     nt0=nkmax-nkmin+1  , ntp0=nkqmax-nkqmin+1
     zmel0mode : block
-      real(8)::  wpw_k,wpw_kq,q1a,q2a,rfac00
+      real(8)::  q1a,q2a,rfac00
       complex(8),allocatable:: zmel0(:,:,:)
       logical:: cmdopt0
       if(cmdopt0('--zmel0')) then
@@ -314,15 +308,13 @@ contains
             it  = itc(icount)  !occ      k
             itp = itpc(icount) !unocc    q+k
             iw  = iwc(icount)  !omega-bin
-            jpm = jpmc(icount)      ! \pm omega
-            do igb2=1,nmbas  !this part dominates cpu time most time consuming...........
-               do igb1=1,igb2
-                  rcxq(igb1,igb2,iw,jpm) =  rcxq(igb1,igb2,iw,jpm) &
-                       + rfac00**2*(abs(zmel(igb1,it,itp))-abs(zmel0(igb1,it,itp)))**2 * whwc(icount)
-               enddo                   !compute difference for zmel0 mode
-            enddo
+            jpm = jpmc(icount) ! \pm omega. Usual mode is only for jpm=1
+            igb2=1 !do igb2=1,nmbas  !we assume igb1=igb2=1 in this mode
+            igb1=1 !do ibg1=1,igb2
+            rcxq(igb1,igb2,iw,jpm)=rcxq(igb1,igb2,iw,jpm) &
+                 + rfac00**2*(abs(zmel(igb1,it,itp))-abs(zmel0(igb1,it,itp)))**2 * whwc(icount)
          enddo zmel0modeicount
-         goto 2000
+         goto 2000 
       endif
     endblock zmel0mode
     mainloop: do 1000 icount = 1,ncount
@@ -335,8 +327,8 @@ contains
           call x0kf_zmel(q, iq,k, isp_k,isp_kq) !Return zmel(igb q,  k it occ,   q+k itp unocc)
           kold=k
        endif
-       !!  z1p = <M_ibg1(q) psi_it(k) | psi_itp(q+k)> < psi_itp | psi_it M_ibg2 >
-       !!  zxq(iw,ibg1,igb2) = sum_ibib wwk(iw,ibib)* z1p(ibib, igb1,igb2)
+       !! z1p = <M_ibg1(q) psi_it(k) | psi_itp(q+k)> < psi_itp | psi_it M_ibg2 >
+       !! zxq(iw,ibg1,igb2) = sum_ibib wwk(iw,ibib)* z1p(ibib, igb1,igb2)
        !! n1b,n2b --> core after valence.  it,itp --> valence after core
        it  = itc(icount)  !occ      k
        itp = itpc(icount) !unocc    q+k
@@ -345,7 +337,7 @@ contains
        do igb2=1,nmbas  !this part dominates cpu time most time consuming...........
           do igb1=1,igb2
              rcxq(igb1,igb2,iw,jpm)=rcxq(igb1,igb2,iw,jpm) + dconjg(zmel(igb1,it,itp))*zmel(igb2,it,itp)*whwc(icount)
-             !                                                whwc is ImgWeight by tetrahedron method.
+             !NOTE:   whwc is ImgWeight by tetrahedron method. If we skip zmel part, we should get joint DOS.
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!             if(it==16.and.itp==17) &
 !             if(abs(zmel(igb1,it,itp))**2>1d-10.and.iw<120) &
@@ -357,18 +349,14 @@ contains
 1000 enddo mainloop
 2000 continue 
     deallocate(nkmin,nkmax,nkqmin,nkqmax,whwc,kc,itc,itpc,iwc,jpmc)
-    do concurrent (jpm=1:npm,iw=1:nwhis)
-       do igb2= 1,nmbas       !eibzmode assumes nmbas1=nmbas2
-          do igb1= 1,igb2-1
-             rcxq(igb2,igb1,iw,jpm) = dconjg(rcxq(igb1,igb2,iw,jpm)) ! Hermitianize. jun2012takao moved from dpsion5 ====
-          enddo
-       enddo
+    do concurrent (jpm=1:npm, iw=1:nwhis, igb2= 1:nmbas)       !note: eibzmode assumes nmbas1=nmbas2
+       rcxq(igb2,1:igb2-1,iw,jpm) = dconjg(rcxq(1:igb2-1,igb2,iw,jpm)) ! Hermitianize. jun2012takao moved from dpsion5 ====
     enddo
-    write(6,"(' --- x0kf_v4hz: end')") !, 3d13.5)")
-    if(debug) write(6,"(' --- ', 3d13.5)") sum(abs(rcxq(1:nmbas,1:nmbas,1:nwhis,1:npm))),sum((rcxq(1:nmbas,1:nmbas,1:nwhis,1:npm)))
+    write(stdo,"(' --- x0kf_v4hz: end')") !, 3d13.5)")
+    if(debug)write(stdo,"(' --- ', 3d13.5)")sum(abs(rcxq(1:nmbas,1:nmbas,1:nwhis,1:npm))),sum((rcxq(1:nmbas,1:nmbas,1:nwhis,1:npm)))
   end subroutine x0kf_v4hz
 end module m_x0kf
-!   !! --------------------------------------------------------------------------------
+!subroutine x0kf_vhz_symmetrize here removed. See old source code ~2022.
 !   subroutine X0kf_v4hz_symmetrize(q, iq, nolfco, zzr,nmbas, chipmzzr, eibzmode, eibzsym, rcxq)
 !     use m_readqgcou,only: qtt_, nqnum
 !     use m_rotMPB2,only:  rotMPB2
@@ -417,7 +405,7 @@ end module m_x0kf
 !     !!
 !     !! === zmelt conversion ===
 !     if(nolfco .AND. nmbas==1) then
-!        write(6,*)' nmbas=1 nolfco=T ---> not need to symmetrize'
+!        write(stdo,*)' nmbas=1 nolfco=T ---> not need to symmetrize'
 !        goto 9999
 !     endif
 !     !!
@@ -426,7 +414,7 @@ end module m_x0kf
 !        if(sum(abs(q-quu))>tolq) call rx( 'x0kf_v4h_symmetrize: eibz 111 q/quu')
 !        neibz = sum(eibzsym(:,1))+sum(eibzsym(:,-1))
 !        ! timer=-1 means time reversal. eibzsym(ig,itimer) where ig: space rotation.
-!        write(6,"(' --- goto symmetrization --- ikp neibz q=',2i3,3f12.8)")ikp,neibz,q
+!        write(stdo,"(' --- goto symmetrization --- ikp neibz q=',2i3,3f12.8)")ikp,neibz,q
 !        call cputid2(' --- x0kf: start symmetrization  ',0)
 !        ntimer=1
 !        if(sum(eibzsym(:,-1))>0) ntimer=2 !timereversal case
@@ -516,12 +504,12 @@ end module m_x0kf
 !                    enddo
 !                    if(iagain==1) then
 !                       nrotmx=irotm !enlarge allocation and do things again.
-!                       write(6,*)' warn:(slow speed) xxxx goto 1011 xxxxxx nrotmx+=nrotmx+10000 again'
+!                       write(stdo,*)' warn:(slow speed) xxxx goto 1011 xxxxxx nrotmx+=nrotmx+10000 again'
 !                       goto 1011
 !                       ! nlarge nrotmx ang try it again.
 !                    endif
 !                    nrotm(icc)=irotm
-!                    if(debug) write(6,*)'ig itimer icc nrotm=',ig,itimer,icc,nrotm(icc) ,iele
+!                    if(debug) write(stdo,*)'ig itimer icc nrotm=',ig,itimer,icc,nrotm(icc) ,iele
 !                 endif
 !              enddo
 !           enddo
@@ -537,7 +525,7 @@ end module m_x0kf
 !        ! OMP parallel private(rcxq000,icc,itt,icount,rcxqwww,rcxq00,rcxq0,rcxq_core)
 !        allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb),rcxqwww(ngb,ngb),rcxq_core(ngb,ngb))
 !        ! OMP master
-!        !$         write(6,'(a,i5,a,i5)') 'OMP parallel nwhis, threads=',omp_get_num_threads(),' nwhis=',nwhis
+!        !$         write(stdo,'(a,i5,a,i5)') 'OMP parallel nwhis, threads=',omp_get_num_threads(),' nwhis=',nwhis
 !        ! OMP end master
 !        ! OMP do
 !        do iw=1,nwhis
@@ -606,7 +594,7 @@ end module m_x0kf
 !                       !$$$
 !                       ! cccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !                       !               if(iw==1.and.jpm==1) then
-!                       !                  write(6,"('bbbbbbb ig icc iw jpm rcxq', 4i3, 13d13.6)")
+!                       !                  write(stdo,"('bbbbbbb ig icc iw jpm rcxq', 4i3, 13d13.6)")
 !                       !     &                 ig,icc,iw,jpm, sum(abs(rcxq00)), rcxq00(1,1),sum(abs(rcxqwww)),sum((rcxqwww))
 !                       !               endif
 !                       ! ccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -619,7 +607,7 @@ end module m_x0kf
 !                 !$$$c$$$c               call zgemm("N","N",ngb,ngb,ngb, (1d0,0d0), rcxq00, ngb, zcousq,ngb, (0d0,0d0), rzc,ngb)
 !                 !$$$c$$$c               call zgemm("N","N",ngb,ngb,ngb, (1d0,0d0), zcousqc,ngb, rzc,ngb, (0d0,0d0), rcxq000,ngb)
 !                 !$$$           elseif(icount>0) then
-!                 !$$$c$$$c           write(6,*)'qqqqq icount=',icount
+!                 !$$$c$$$c           write(stdo,*)'qqqqq icount=',icount
 !                 !$$$c$$$c           rcxq000(:,:) = rcxq000(:,:) + transpose(matmul(transpose(zcousq),matmul(rcxq00,dconjg(zcousq))))
 !                 !$$$             rcxq000(:,:) = rcxq000(:,:) +   matmul(matmul(zcousqc,transpose(rcxq00)),zcousq)
 !                 !$$$           endif
@@ -688,7 +676,7 @@ end module m_x0kf
 !        if(debug) call cputid2(' --- qqqqq222end:',0)
 !     endif
 ! 9999 continue
-!     write(6,"(' --- x0kf_v4hz_symmetrize: end')")
+!     write(stdo,"(' --- x0kf_v4hz_symmetrize: end')")
 !   end subroutine x0kf_v4hz_symmetrize
 !end module m_x0kf
 
