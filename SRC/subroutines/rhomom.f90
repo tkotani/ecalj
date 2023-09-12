@@ -71,7 +71,7 @@ subroutine pvrhom(rmt,a,nlml,nr,nsp,rho1,rho2,rhoc,cofg,cofh,rg,ceh,rfoc,z,qmomj
   real(8) :: ceh,cofg,cofh,rfoc,rg,z,rmt,rofi(nr),rwgt(nr),h(nr),qmomj(nlml),rhoc(nr,nsp), &
        rho1(nr,nlml,nsp),rho2(nr,nlml,nsp),xi0(nr),a,vsum1,vsum2,&
        ag,delq,fac,qcor1,qcor2,qnuc2,b,q1,facs,vhrho,vsum,cg,af,q2,v(nr),facc,&
-       rhochs,rhocsm,rhonsm,ssum,sumg,xi(0:0),qcor1s,gnu(nr)
+       rhochs,rhocsm,rhonsm,ssum,sumg,xi(0:0),qcor1s!,gnu(nr)
   real(8),parameter:: pi=4d0*datan(1d0), srfpi = dsqrt(4d0*pi),y0 = 1d0/srfpi,fpi = 4d0*pi
   call radmsh( rmt , a , nr , rofi )
   call radwgt( rmt , a , nr , rwgt )
@@ -96,7 +96,7 @@ subroutine pvrhom(rmt,a,nlml,nr,nsp,rho1,rho2,rhoc,cofg,cofh,rg,ceh,rfoc,z,qmomj
   ! ... Smooth density, including compensating gaussians
   cg = qmomj(1) + cofg - y0*z ! this is true Q^Zc_aL in Eq.(25) for ilm=1.
   facc = fpi*(ag*ag/pi)**1.5d0
-  q2= srfpi*sum(rwgt*( facs*(rho2(:,1,1)+rho2(:,1,nsp)) + cg*facc*gnu + cofh*xi0*rofi**2))
+!  q2= srfpi*sum(rwgt*( facs*(rho2(:,1,1)+rho2(:,1,nsp)) + cg*facc*gnu + cofh*xi0*rofi**2))
   call poiss0(0d0,a,b,rofi,h,nr,0d0, v, vhrho,vsum,1)
   vsum2 = fpi*sum(rwgt*rofi**2*v)
 end subroutine pvrhom
