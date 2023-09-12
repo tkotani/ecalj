@@ -32,7 +32,7 @@ for idat in range(len(dlines[0])):
     omega=  dlines[0][idat][3]     #Note: bare eps2= np.array([ dlines[idf][idat][5] for idf in range(nfile)])
     q2eps1= [q2[idf]*dlines[idf][idat][4] for idf in range(nfile)] #list of q**2*eps1 in EPS*
     q2eps2= [q2[idf]*dlines[idf][idat][5] for idf in range(nfile)] #list of q**2*eps2 in EPS*
-    eps1=[fd0(q2[idf:],q2eps1[idf:],dig) for idf in range(nfile-dig)]
+    eps1=[fd0(q2[idf:],q2eps1[idf:],dig) for idf in range(nfile-dig)] #this is to remove divergent term \propto 1/q^2 
     eps2=[fd0(q2[idf:],q2eps2[idf:],dig) for idf in range(nfile-dig)]
     dinter.append([idat,omega,*eps1,*eps2])
 if(nfile>0):
@@ -89,12 +89,12 @@ f.close()
 #### epsall.data = epsinter+epsintra. Only with 1st data ####    
 f=open('epsall.dat','w')
 for idat in range(len(dintra)):
-    eps1= dinter[idat][2]
-    eps2= dinter[idat][2+nfile]
+    eps1= dinter[idat][3]
+    eps2= dinter[idat][3+nfile]
     id,omega=dintra[idat][0:2]
     if(len(dintra)!=0):
-        eps1+=dintra[idat][2]
-        eps2+=dintra[idat][2+nfile]
+        eps1+=dintra[idat][3]
+        eps2+=dintra[idat][3+nfile]
     print(id,omega, eps1-1, eps2,file=f)
 f.close()    
 f=open('epsall.glt','w')

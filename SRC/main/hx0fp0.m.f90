@@ -4,54 +4,31 @@
 !! (only epsPP_lmf_chipm mode works).
 program hx0fp0
   use m_ReadEfermi,only: Readefermi,ef
-  use m_readqg,only: Readqg,Readngmx2,ngpmx,ngcmx
+  use m_readqg,only:     Readqg,Readngmx2,ngpmx,ngcmx
   use m_hamindex,only:   Readhamindex
-  use m_readeigen,only: Readeval,Init_readeigen,Init_readeigen2
-  use m_read_bzdata,only: Read_bzdata, &
-       ngrp2=>ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,ginv, &
-       dq_,qbz,wbz,qibz,wibz,qbzw, &
-       idtetf,ib1bz,idteti, &
-       nstar,irk,nstbz, &
-       wqt=>wt,q0i,nq0i ,nq0iadd,ixyz,nq0ix,neps
-
-  use m_genallcf_v3,only: Genallcf_v3, &
-       nclass,natom,nspin,nl,nn, &
-       nlmto,nlnmx, nctot, alat, esmr,clabl,iclass, il,in,im,nlnm, &
+  use m_readeigen,only:  Readeval,Init_readeigen,Init_readeigen2
+  use m_read_bzdata,only: Read_bzdata, ngrp2=>ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,ginv, &
+       dq_,qbz,wbz,qibz,wibz,qbzw, idtetf,ib1bz,idteti, nstar,irk,nstbz, wqt=>wt,q0i,nq0i ,nq0iadd,ixyz,nq0ix,neps
+  use m_genallcf_v3,only: Genallcf_v3, nclass,natom,nspin,nl,nn, nlmto,nlnmx, nctot, alat, esmr,clabl,iclass, il,in,im,nlnm, &
        plat, pos,ecore, tpioa
   use m_hamindex,only: ngrp
-  !      use m_keyvalue,only: getkeyvalue
   use m_pbindex,only: PBindex !,norbt,l_tbl,k_tbl,ibas_tbl,offset_tbl,offset_rev_tbl
   use m_readqgcou,only: readqgcou
   use m_mpi,only: MPI__hx0fp0_rankdivider2,MPI__task,MPI__Initialize,MPI__Finalize,MPI__root, &
-       MPI__Broadcast,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,MPI__rank,MPI__size, &
-       MPI__ranktab,MPI__consoleout,MPI__barrier
-  !     ! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
+       MPI__Broadcast,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,MPI__rank,MPI__size, MPI__ranktab,MPI__consoleout,MPI__barrier
   use m_rdpp,only: Rdpp, &   ! & NOTE: "call rdpp" generate following data.
        nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx,nprecx,mrecl,nblochpmx
-  !     ! Generate matrix element for "call get_zmelt".
-  use m_zmel,only:      &    ! & NOTE: these data set are stored in this module, and used
-       Mptauof_zmel, Setppovlz,Setppovlz_chipm !Ppbafp_v2_zmel,Setppovlz_ee,
-  !     & nband,itq,ngcmx,ngpmx, ppovlz, ppbir,shtvg, miat,tiat , ntq
-
+  use m_zmel,only: Mptauof_zmel, Setppovlz,Setppovlz_chipm   ! & NOTE: these data set are stored in this module, and used
   use m_itq,only: Setitq !set itq,ntq,nband,ngcmx,ngpmx to m_itq
-
-  !! frequency
   use m_freq,only: Getfreq3, &! & NOTE: call getfreq generate following data.
        frhis,freq_r,freq_i, nwhis,nw_i,nw,npm,wiw,niw !, frhis0,nwhis0 !output of getfreq
-  !! tetwt
   use m_tetwt,only: Tetdeallocate,Gettetwt, &! & followings are output of 'L871:call gettetwt')
        whw,ihw,nhw,jhw,ibjb,nbnbx,nhwtot,n1b,n2b,nbnb
-  !! w0 and w0i (head part at Gamma point)
-  use m_w0w0i,only: W0w0i, &
-       w0,w0i
+  use m_w0w0i,only: W0w0i, w0,w0i ! w0 and w0i (head part at Gamma point)
   use m_ll,only: ll
-  use m_readgwinput,only: ReadGwinputKeys, &
-       ecut,ecuts,nbcut,nbcut2,mtet,ebmx,nbmx,nmbas,imbas,egauss
+  use m_readgwinput,only: ReadGwinputKeys, ecut,ecuts,nbcut,nbcut2,mtet,ebmx,nbmx,nmbas,imbas,egauss
   use m_qbze,only: Setqbze, nqbze,nqibze,qbze,qibze
   use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
-  !! q0p
-  !      use m_readq0p,only: Readq0p,
-  !     &     wqt,q0i,nq0i ,nq0iadd,ixyz,nq0ix,neps
   use m_readVcoud,only: Readvcoud,vcousq,zcousq,ngb,ngc
   use m_x0kf,only: X0kf_v4hz, X0kf_v4hz_init,x0kf_zmel,ncount,kc !X0kf_v4hz_symmetrize,
 !  use m_eibz,only:Seteibz, nwgt,neibz,igx,igxt,eibzsym
@@ -59,14 +36,12 @@ program hx0fp0
   use m_w0w0i,only: w0w0i
   use m_lgunit,only:m_lgunit_init
   implicit none
-  !! ------------------------------------------------
   !! We calculate chi0 by the follwoing three steps.
   !!  gettetwt: tetrahedron weights
   !!  x0kf_v4h: Accumlate Im part of the Lindhard function. Im(chi0) or Im(chi0^+-)
   !!  dpsion5: calculate real part by the Hilbert transformation from the Im part
-  !!  eibz means extented irreducible brillowin zone scheme by C.Friedlich. (not so efficient in cases).
+  !!  note: eibz means extented irreducible brillowin zone scheme by C.Friedlich. (not so efficient in cases).
   !!-------------------------------------------------
-
   ! cccc this may be wrong or correct cccccccccc
   !r Be careful for the indexing...
   !r      A routine idxlnmc(nindxv,nindxc,...  in index.f
@@ -75,20 +50,16 @@ program hx0fp0
   !r      The indexing starts with core first and then valence on top of core
   !r      So n-index in "in" for valence electron is different from "inv".
   ! cccccccccccccccccccccccccccccccccccccccccccccccc
-  real(8):: q(3),  qgbin(3),qx(3)
-  real(8):: ua=1d0 ! this is a dummy.
-  integer:: ifrb(2),ifcb(2),ifrhb(2),ifchb(2) ,icount,kold,isold
-  integer:: ndble=8
+  real(8):: q(3),  qgbin(3),qx(3), ua=1d0 ! ua is a dummy.
+  integer:: ifrb(2),ifcb(2),ifrhb(2),ifchb(2) ,icount,kold,isold, ndble=8
   real(8),allocatable:: vxcfp(:,:), wgt0(:,:)
   integer,allocatable :: ngvecpB(:,:,:),ngveccB(:,:), ngvecp(:,:), ngvecc(:,:)
   complex(8),allocatable:: geigB(:,:,:,:) ,geig(:,:),vcoul(:,:), zw(:,:),zw0(:,:), zxq(:,:,:),zxqi(:,:,:)
-  real(8),allocatable :: eqt(:), ppbrdx(:,:,:,:,:,:,:),aaa(:,:),symope(:,:), &
-       ppb(:,:),pdb(:,:),dpb(:,:),ddb(:,:)
+  real(8),allocatable :: eqt(:), ppbrdx(:,:,:,:,:,:,:),aaa(:,:),symope(:,:), ppb(:,:),pdb(:,:),dpb(:,:),ddb(:,:)
   complex(8),allocatable :: trwv(:),trwv2(:),rcxq(:,:,:,:)
   complex(8) :: fff,img=(0d0,1d0)
   complex(8),allocatable :: wwk(:,:,:)
-  integer,allocatable :: &
-       noccxvv(:) !n1b(:,:,:),n2b(:,:,:),nbnb(:,:),nbnbtt(:,:),
+  integer,allocatable :: noccxvv(:) !n1b(:,:,:),n2b(:,:,:),nbnb(:,:),nbnbtt(:,:),
   real(8) ::qbzx(3),anfvec(3)
   logical :: debug=.false.
   integer,allocatable:: ibasf(:)
@@ -103,25 +74,19 @@ program hx0fp0
   character(11) ::  filele
   character(10) :: i2char
   character(20):: xxt
-
   real(8) :: Emin, Emax,emin2,emax2
   real(8) :: omg2max,omg1max,wemax
-  real(8), allocatable :: freqr2(:)  , ekxxx(:,:,:)
-
-  !      logical::imagonly=.false.,realonly=.false. !,readgwinput
+  real(8), allocatable :: freqr2(:)  , ekxxx(:,:,:)   !      logical::imagonly=.false.,realonly=.false. !,readgwinput
   integer::maxocc2, &
        ixc,iqxini,iqxend,iqxendx, &
-       !     &   ifhbe,
-       !     &   nprecb,mrecb,mrece,nlmtot,nqbzt,nband,
+       !     &   ifhbe,    &   nprecb,mrecb,mrece,nlmtot,nqbzt,nband,
        i,ngrpmx,mxx,ini,ix,ngrpx,&! & ngcmx,ngpmx nq0i,nq0ix,
        ndummy1,ndummy2,ifcphi,is,nwp, &! & ifvcfpout,,mdimx,nbloch
        ifepscond ,nw0,iw,ifinin,iw0,ifwwk,noccxv,noccx &
        ,ifwd,ifrcwi,ifrcw,nspinmx,ifianf,ibas &! & ,nprecx
        ,ibas1,irot,iq,iqixc2,ifepsdatnolfc,ifepsdat,ngbin,igc0dummy &
        ,kx,isf,kqxx,kp,job,noccxvx(2)=-9999,nwmax & ! & ,ifev1,ifev2 nbnbx,nhwtot,
-       ,ihis,jhwtot,ik,ibib,ib1,ib2,ichkhis,ihww,j
-  !     &   ,ngpmx !,  ifchipmlog
-
+       ,ihis,jhwtot,ik,ibib,ib1,ib2,ichkhis,ihww,j   !     &   ,ngpmx !,  ifchipmlog
   real(8):: dum1,dum2,dum3,wqtsum,epsrng,dnorm, dwry,dwh,omg_c,omg2
   integer:: incwfin,  verbose
   real(8):: quu(3), deltaq(3)!,qq(3) !,qqq(3)=0d0
@@ -153,8 +118,7 @@ program hx0fp0
   complex(8),allocatable :: ppovl(:,:),oo(:,:),x0meanx(:,:),x0inv(:,:),ppovlzinv(:,:)
   real(8)::qxx(3),ssm
   real(8),allocatable::SS(:),rwork(:),ss0(:)
-  complex(8),allocatable:: UU(:,:),VT(:,:),work(:),zw0bk(:,:),ddd(:,:) &
-       ,vtt(:,:),zzz(:,:),sqsvec(:),ooo(:,:),ppo(:,:) !,sqovlp(:,:),sqovlpi(:,:)
+  complex(8),allocatable:: UU(:,:),VT(:,:),work(:),zw0bk(:,:),ddd(:,:),vtt(:,:),zzz(:,:),sqsvec(:),ooo(:,:),ppo(:,:) !,sqovlp(:,:),sqovlpi(:,:)
   integer::lwork,info,imin,ifzxq
   complex(8)::x0mx
   complex(8),allocatable:: UU0(:,:),VT0(:,:)
@@ -194,8 +158,7 @@ program hx0fp0
        w_k(:),w_ks(:),w_kI(:), w_ksI(:), s_vc(:),vw_k(:),vw_ks(:)
   complex(8),allocatable:: llw(:,:), llwI(:,:),aaamat(:,:)
   integer:: lxklm,nlxklm,ifrcwx,iq0xx,ircw,nini,nend,iwxx,nw_ixxx,nwxxx,iwx,icc1,icc2!,niw,niwxxx,
-  complex(8):: vc1vc2
-  !      integer,allocatable:: neibz(:),nwgt(:,:),ngrpt(:),igx(:,:,:),igxt(:,:,:),eibzsym(:,:,:)
+  complex(8):: vc1vc2   !      integer,allocatable:: neibz(:),nwgt(:,:),ngrpt(:),igx(:,:,:),igxt(:,:,:),eibzsym(:,:,:)
   integer,allocatable:: nwgt(:,:)
   real(8),allocatable:: aik(:,:,:,:)
   integer,allocatable:: aiktimer(:,:)
@@ -213,11 +176,9 @@ program hx0fp0
   real(8),allocatable:: ekxx1(:,:),ekxx2(:,:)
   logical:: cmdopt2,zmel0mode
   character(20):: outs=''
-
   logical,save:: initzmel0=.true.
   real(8):: q0a,qa
   complex(8),allocatable:: rcxq0(:,:,:,:)
-  
   call MPI__Initialize()
   call M_lgunit_init()
   call MPI__consoleout('hx0fp0')
@@ -229,77 +190,25 @@ program hx0fp0
   sqfourpi = sqrt(fourpi)
   !! computational mode select ! takao keeps only the Sergey mode.
   write(6,"(a)") '--- Type numbers #1 #2 #3 [#2 and #3 are options] ---'
-  write(6,"(a)") ' #1:run mode'
-  write(6,"(a)") '    11  : normal    '
-  write(6,"(a)") '    111 : normal    fullband '
-  write(6,"(a)") '    10111 : normal  crpa     '
-  write(6,"(a)") '    202 : epsNoLFC  '
-  write(6,"(a)") '    203 : eps       '
-  write(6,"(a)") '    222 : chi^+- NoLFC'
-  !      write(6,"(a)") '    12  : total energy Miyake: developint'
+  write(6,"(a)") ' #1:run mode= 11: normal! 111: normal fullband! 10111 : normal  crpa!'
+  write(6,"(a)") '             202: epsNoLFC! 203: eps!  222: chi^+- NoLFC'
   write(6,"(a)")  '-------------------------------------------------------'
-  if(cmdopt2('--job=',outs)) then
-     read(outs,*) ixc
-  elseif(MPI__root) then
-     read(5,*) ixc
-  endif
+  if(cmdopt2('--job=',outs)) then; read(outs,*) ixc
+  elseif(MPI__root) then         ; read(5,*)    ixc; endif
   call MPI__Broadcast(ixc)
   call cputid(0)
-  !! Set switches: ---
-  !!  normalm: normal eps mode
-  !!    crpa: crpa mode
-  !!  epsmode: (normalm or epsmode)
-  !!    omitqbz: qbz>nqbz+1 are calulated
-  !!  realomega:
-  !!   \chi on real axis
-  !!  imagomega:
-  !!   \chi on imag omega
-  !!  lqall:
-  !!   limited range of \chi on real axis (mainly for memory reduction
-  !!  chipm:
-  !!    \Chi_pm mode (nspin=2)
-  !!  nolfco:
-  !!    no local field correction
-  !!
+  !! List of Switches: !  normalm: normal eps mode; !  crpa: crpa mode !  epsmode: (normalm or epsmode)!  omitqbz: qbz>nqbz+1 are calulated
+  !!  realomega: \chi on real axis  !  imagomega: \chi on imag omega !  lqall: limited range of \chi on real axis (mainly for memory reduction
+  !!  chipm: \Chi_pm mode (nspin=2) !  nolfco: no local field correction
   lqall=.true.
-  if(ixc==11) then; write(6,*) " OK ixc=11 normal mode "
-     epsmode=.false. !normalm=.true.
-     lqall=.false.
-  elseif(ixc==111) then; write(6,*) " OK ixc=111 normal mode. fullband"
-     epsmode=.false. !normalm=.true.
-  elseif(ixc==10011) then; write(6,*) " OK ixc=10011 crpa mode "
-     epsmode=.false. !normalm=.true.
-     crpa=.true.
-     !! -- eps mode NoLFC
-  elseif(ixc==202) then
-     write(6,*) " OK ixc=202  sergey's eps mode Only NoLFC "
-     imagomega=.false.
-     omitqbz=.true.
-     epsmode = .true.
-     nolfco=.true.
-     !!    eps mode with LFC
-  elseif(ixc==203) then
-     write(6,*) " OK ixc=203 sergey's eps mode with LFC "
-     imagomega=.false.
-     omitqbz=.true.
-     epsmode = .true.
-     !! chipm mode NoLFC
-  elseif(ixc==222) then
-     write(6,*) " OK ixc=222    chipm sergey's "
-     imagomega =.false.
-     omitqbz=.true.
-     epsmode = .true.
-     chipm=.true.
-     nolfco=.true.
-     !$$$!! Total energy test mode --> need fixing
-     !$$$      elseif(ixc==12) then
-     !$$$        write(6,*) " ixc=12 Miyake's total energy Sergey--->need to fix this mode"
-     !$$$        call rx( " ixc=12 Miyake's total energy Sergey--->need to fix this mode")
-     !$$$        realomega=.false.
-     !$$$        ecorr_on=901
-  else
-     call rx( ' hx0fp0: given mode ixc is not appropriate')
-  endif
+  if(ixc==11) then;      write(6,*)"OK ixc=11  normal ";         epsmode=.false. ; lqall=.false.
+  elseif(ixc==111) then; write(6,*)"OK ixc=111 normal fullband"; epsmode=.false. 
+  elseif(ixc==10011)then;write(6,*)"OK ixc=10011 crpa ";         epsmode=.false. ; crpa=.true.
+  elseif(ixc==202) then; write(6,*)"OK ixc=202 eps NoLFC";       epsmode =.true. ; imagomega=.false.; omitqbz=.true.;nolfco=.true.
+  elseif(ixc==203) then; write(6,*)"OK ixc=203 eps wLFC";        epsmode = .true.; imagomega=.false.; omitqbz=.true.   
+  elseif(ixc==222) then; write(6,*)"OK ixc=222 chipm noLFC";     epsmode = .true.; imagomega=.false.; omitqbz=.true.;nolfco=.true.
+     chipm=.true.    !  elseif(ixc==12) realomega=.false.; ecorr_on=901; then ! Total energy test mode --> need fixing 
+  else; call rx( ' hx0fp0: given mode ixc is not appropriate') ; endif
   call Read_BZDATA(hx0)
   write(6,"(' nqbz nqibz ngrp=',3i5)") nqbz,nqibz,ngrp
   if(MPI__root) then
@@ -313,35 +222,25 @@ program hx0fp0
   write(6,"(a,f12.6)")' --- READIN ef from EFERMI. ef=',ef
   call genallcf_v3(incwfx=0) !use 'ForX0 for core' in GWIN
   if(chipm .AND. nspin==1) call rx( 'chipm mode is for nspin=2')
-  if(debug) write(6,*)' end of genallc'
   if(nclass /= natom) call rx( ' nclass /= natom ') !! WE ASSUME iclass(iatom)= iatom
   call Readhbe()
-  if(nqbz /=nqbzt ) call rx( ' hx0fp0_sc: nqbz /=nqbzt  in hbe.d')
+  if(nqbz /=nqbzt ) call rx(' hx0fp0_sc: nqbz /=nqbzt  in hbe.d')
   if(nlmto/=nlmtot) call rx('hx0fp0: nlmto/=nlmtot in hbe.d')
   call ReadGWinputKeys()    !Readin GWinput
   !! Readin Offset Gamma --------  !      call ReadQ0P()
-  write( 6,*) ' num of zero weight q0p=',neps
-  write(6,"(i3,f14.6,2x, 3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i)
   !! Readin q+G. nqbze and nqibze are for adding Q0P related points to nqbz and nqibz.
   call Readngmx2() !return ngpmx and ngcmx in m_readqg
-  write(6,"(' ngcmx ngpmx= ',2i8)") ngcmx,ngpmx
   call Setqbze()    ! extented BZ points list
-  do i = 1,nq0i+1
-     ini = nqbz*(i-1)
-     do ix=1,nqbz
-        write(6,"('hx0fp0 qbze q0i=',i8,3f10.4,2x,3f10.4)") ini+ix,qbze(:,ini+ix)!,q0i(:,i)
-     enddo
-     write(6,*)
-  enddo
+  write(6,*)' num of zero weight q0p=',neps
+  write(6,"(i3,f14.6,2x,3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i)
+  write(6,"(' ngcmx ngpmx nqbz nq0i= ',2i8)") ngcmx,ngpmx,nqbz,nq0i
+!  do i = 1,nq0i+1; ini = nqbz*(i-1); do ix=1,nqbz;write(6,"('hx0fp0 qbze q0i=',i8,3f10.4,2x,3f10.4)") ini+ix,qbze(:,ini+ix);enddo
   !! Get space-group transformation information. See header of mptaouof.
   !! Here we use ngrpx=1 ==> "no symmetry operation in hx0fp0", c.f. hsfp0.sc.m.F case.
   !! ngrpx=1 (no symmetry operation in hx0fp0), whereas we use ngrp in eibzmode=T.
   ngrpx = 1
   l2nl=2*(nl-1)
-  allocate(symope(3,3))
-  symope(1:3,1) = [1d0,0d0,0d0]
-  symope(1:3,2) = [0d0,1d0,0d0]
-  symope(1:3,3) = [0d0,0d0,1d0]
+  allocate(symope(3,3),source=reshape([1d0,0d0,0d0, 0d0,1d0,0d0, 0d0,0d0,1d0],[3,3]))
   call Mptauof_zmel(symope,ngrpx) !we set thing in m_zmel for matrix elemenets generator
   !! ppbrd = radial integrals, cgr = rotated cg coeffecients (no rotatio here since nrgpx=1 for identity matrix)
   !! Rdpp gives ppbrd: radial integrals and cgr = rotated cg coeffecients.
@@ -468,7 +367,7 @@ program hx0fp0
   !! EIBZ mode
   eibzmode = .false. !eibz4x0()
   allocate( nwgt(1,iqxini:iqxend))
-  
+ 
   !call seteibz(iqxini,iqxend,iprintx)
   !! Calculate x0(q,iw) and W == main loop 1001 for iq.
   !! NOTE: iq=1 (q=0,0,0) write 'EPS0inv', which is used for iq>nqibz for ixc=11 mode
@@ -663,10 +562,10 @@ program hx0fp0
            endif
            write(6,*)' --- end of dpsion5 ----',sum(abs(zxq)),sum(abs(zxqi))
         endif
-        continue  !end of spin loop =====
+        continue  
 1003 enddo isloop
      if(allocated(rcxq)) deallocate(rcxq)
-     romegamode: if(realomega .AND. ( .NOT. epsmode)) then ! ===  RealOmega === W-V: WVR and WVI. Wing elemments: llw, llwi LLWR, LLWI
+     realomegamode: if(realomega .AND. ( .NOT. epsmode)) then ! ===  RealOmega === W-V: WVR and WVI. Wing elemments: llw, llwi LLWR, LLWI
         call WVRllwR(q,iq,zxq,nmbas1,nmbas2)
         deallocate(zxq)
      elseif(realomega .AND. epsmode) then
@@ -733,8 +632,7 @@ program hx0fp0
                  !$$$  c       write(ifchipmn,'(3f12.8,2x,f8.5,2x,2e23.15)')
                  !$$$  c     & q, 2*schi*frr, 1d0-vcmean*2*x0mean(iw,1,1)  !4*pi*alat**2/sum(q**2)/4d0/pi**2*x0mean(iw)
                  x0meanx = x0mean(iw,:,:)/2d0 !in Ry unit.
-              else
-                 !     ! ChiPM mode with LFC... NoLFC part
+              else ! ChiPM mode with LFC... NoLFC part
                  zxq(1:ngb,1:ngb,iw) = zxq(1:ngb,1:ngb,iw)/2d0 ! in Ry.
                  do imb1=1,nmbas
                     do imb2=1,nmbas
@@ -770,13 +668,13 @@ program hx0fp0
               close(ifepsdat) !  = iclose(fileps)
            endif
         endif
-     endif romegamode
-     iomegamode: if (imagomega .AND. ( .NOT. epsmode)) then ! ImagOmega start ============================
+     endif realomegamode
+     imagomegamode: if (imagomega .AND. ( .NOT. epsmode)) then ! ImagOmega start ============================
         call WVIllwI(q,iq,zxqi,nmbas1,nmbas2)
         deallocate(zxqi)
      elseif(imagomega .AND. epsmode) then
         call rx('hx0fp0: imagoemga=T and epsmod=T is not implemented')
-     endif iomegamode
+     endif imagomegamode
      if(allocated(vcoul)) deallocate(vcoul)
      if(allocated(zw0)) deallocate(zw0)
      if(allocated(zxq )) deallocate(zxq)
