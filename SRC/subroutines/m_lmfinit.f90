@@ -155,7 +155,7 @@ contains
     end block ConvertCtrl2Ctrlp
     ReadCtrlp: block !Readin ctrlp given by ctrl2ctrlp.py above
       open(newunit=ifi,file='ctrlp.'//trim(sname))
-      read(ifi,*) nrecs,reclnr,nrecs2
+      read(ifi,*) nrecs2,reclnr !nrecs,
       allocate(character(reclnr):: recrd(nrecs2))
       do i = 1, nrecs2
          read(ifi,"(a)")recrd(i)

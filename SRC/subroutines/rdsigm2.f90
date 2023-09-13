@@ -126,7 +126,7 @@ contains
     logical :: llshft(3),cmdopt,lphase,lsplts,lnwmsh, latvec,lfbzin,lfbzout
     character outs*80,out2*80,dc*1,rots*120
     integer,parameter::niax=10
-    integer ,allocatable :: gstar_iv(:)
+!    integer ,allocatable :: gstar_iv(:)
     integer ,allocatable,target :: ipq(:,:,:)
     real(8) ,allocatable :: qp_rv(:,:), wgt_rv(:),evls(:),evlz(:),sigii(:)
     complex(8),allocatable :: wk_zv(:), sigm_zv(:,:), siglda(:,:),z(:,:),sigo(:,:)
@@ -148,23 +148,18 @@ contains
     rewind ifis !Read sigma(orbital basis) from a file 
     read(ifis) nsp_,ndimsig_r,nk1_,nk2_,nk3_,nqp_
     nsgrp=lat_nsgrp
-!    k1=nk1
-!    k2=nk2
-!    k3=nk3
     nsgrps = nsgrp
     print *,' lat_nsgrp=',lat_nsgrp
     llshft = .false. 
-    call bzmsh0(plat,llshft,0,nk1,nk2,nk3,is,ifac,rb,qb)!Get is,ifac,qb,qlat,qoff  Get list of irreducible k-points, and ipq and gstar arrays
+    call bzmsh0(plat,llshft,nk1,nk2,nk3,is,ifac,rb,qb)!Get is,ifac,qb,qlat,qoff  Get list of irreducible k-points, and ipq and gstar arrays
     mxkp = nk1*nk2*nk3
     allocate(rv_p_oqsig(abs(3*mxkp)),qp_rv(3,mxkp),ipq(nk1,nk2,nk3))
-    allocate(gstar_iv(mxkp+1),source=-2)
-    allocate(wgt_rv(mxkp),source=0d0)
+    allocate(wgt_rv(mxkp))
     write(stdo,"(a)")' q-points in full BZ where sigma calculable ...'
-    call bzmesh(plat,qb,nk1,nk2,nk3,llshft,iwdummy,0, ipq,rv_p_oqsig, wgt_rv, nqsig, mxkp, 0, 0)
+    call bzmesh(plat,qb,nk1,nk2,nk3,llshft,iwdummy,0, ipq,rv_p_oqsig, wgt_rv, nqsig, mxkp)!,0)
     ham_nqsig=nqsig
-    wgt_rv=0d0
     write(stdo,"(a)") ' Irr. qp for which sigma is calculated ...'
-    call bzmesh(plat,qb,nk1,nk2,nk3,llshft,rv_a_osymgr, nsgrps,ipq, qp_rv,wgt_rv,nqps,mxkp,gstar_iv,0 )
+    call bzmesh(plat,qb,nk1,nk2,nk3,llshft,rv_a_osymgr, nsgrps,ipq, qp_rv,wgt_rv,nqps,mxkp)! ,gstar_iv)
     if(nqps/=nqp_) call rx('nqps/=nqp_ from sigm '//xt(nqps)//' '//xt(nqp))
     platt=transpose(plat)
     do concurrent(i1=1:nk1,i2=1:nk2,i3=1:nk3)
@@ -236,7 +231,7 @@ contains
           write(stdo,"(a,2i5,' ',13f13.5)")' rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=', isp,iaf,qp
           if(iprint()>60) write(stdo,"(a,13f13.5)")' rdsigm2:Goto hamfb3k  xxx input qp=', qp
           call hamfb3k(qp, iq1, nk1,nk2,nk3,ipq_pointer, napw_in,ndimsig,ndimsig,ndimsig,qb,ldim,&
-               ifac,gstar_iv,sigm_zv(1:ndimsig,1:ndimsig),iaf, sfz(1,1,1,1,1,isp))
+               ifac,sigm_zv(1:ndimsig,1:ndimsig),iaf, sfz(1,1,1,1,1,isp))
           if(debugmode()>0) write(stdo,"(a,3f13.5)")'end of hamfbk3'
        enddo
        deallocate(sigm_zv,wk_zv)
@@ -245,17 +240,15 @@ contains
     if (allocated(wgt_rv)) deallocate(wgt_rv)
     if (allocated(ipq)) deallocate(ipq)
     if (allocated(qp_rv)) deallocate(qp_rv)
-    if (allocated(gstar_iv)) deallocate(gstar_iv)
+!    if (allocated(gstar_iv)) deallocate(gstar_iv)
   end subroutine rdsigm2
   ! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-  subroutine hamfb3k(qin,iq,nk1,nk2,nk3,ipq,napw_in,ndimh,ldima,ldimb,qb,ldim,ifac,igstar, hq,iaf, gfbz)! Generate gfbz (full BZ) from hq (1st BZ).
+  subroutine hamfb3k(qin,iq,nk1,nk2,nk3,ipq,napw_in,ndimh,ldima,ldimb,qb,ldim,ifac, hq,iaf, gfbz)! Generate gfbz (full BZ) from hq (1st BZ).
     use m_lmfinit,only: stdo
     !i q iq: q and index for q
     !i   nk1,nk2,nk3:  no. divisions for the qp in 3 recip. latt. vecs
     !i   ipq   :ipq(i1,i2,i3) points to the irreducible qp into which
     !i          mesh point (i1,i2,i3) is mapped (bzmesh.f)
-    !i-temp  igstar:contains group operation needed to rotated a k-point
-    !i          to its irreducible one (bzmesh.f) !this is just for check.
     !i   ndimh: dim of self energy hq at qin
     !i   ldima :dimensions gfbz; also the number of rows in gfbz to fill.
     !i         :usually dimension of lower (or l+i) block for crystal
@@ -268,7 +261,7 @@ contains
     !o   gfbz  : For those qp in star iq, hq stored
     ! ----------------------------------------------------------------------
     implicit none
-    integer:: nk1,nk2,nk3,ipq(*),igstar(0:*),ndimh,ldima,ldimb,napw_in,debugmode
+    integer:: nk1,nk2,nk3,ipq(*),ndimh,ldima,ldimb,napw_in,debugmode
     real(8)::    qin(3),qb(3,3) !,plat(3,3),qlat(3,3)
     complex(8):: hq(ndimh,ndimh),gfbz(nk1,nk2,nk3,ldima,ldimb)
     integer:: i,i1,i2,i3,ig,iq,iq1,is,j,jj1,jj2,jj3,js,k,nl,ierr,ifac(3),j1,j2,ik1,ik2,ik3,isp,ldim,iaf

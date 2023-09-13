@@ -1,55 +1,48 @@
-!! == Main program for lmf part. Now we use MPI for all program
-!  Based on the paper  [1] TK. H.Kino H.Akai, JPSJ84,034702(2015): We will write newer paper (2023plan)
-!    ecalj/Document/PAPERandPRESENTATION/KotaniKinoAkai2015FormulationPMT.pdf
-!  lmf-MPIK and lmfgw-MPIK
-!     We use module-based programing.
-!     In principle, all the data are generared and stored in some modules with 'protection'.
-!     We can not modify data in a module by other modules (in prinicple, not everywhere yet).
-program lmf
-  use m_lattic,only: Setopos
-  use m_lmfinit,only:  m_lmfinit_init,nlibu,plbnd,nbas
-  use m_writeham,only: m_writeham_init, m_writeham_write
+! Main program for lmf part. Now we use MPI for all program based on the paper
+! [1] TK. H.Kino H.Akai, JPSJ84,034702(2015): We will write newer paper (2023plan)
+!   Cite ecalj/Document/PAPERandPRESENTATION/KotaniKinoAkai2015FormulationPMT.pdf
+!
+! We use a module-based programing. In principle, all the variables are generared and stored in modules with 'protection'.
+! This assure that we can not modify data in a module by other modules.
+program lmf ! Bootstrap sequence of modules initialzation. The variables in modules are proteted except m_density. Use variables with 'use only'.
   use m_ext,only:      m_ext_init,sname
+  use m_MPItk,only:    m_MPItk_init, nsize, master_mpi
+  use m_lgunit,only:   m_lgunit_init, stdo,stdl
+  use m_cmdpath,only:  setcmdpath
+  use m_lmfinit,only:  m_lmfinit_init,nlibu,plbnd,nbas
   use m_lattic,only:   m_lattic_init
+  use m_mksym,only:    m_mksym_init
   use m_mkqp,only:     m_mkqp_init,bz_nabc
-  use m_MPItk,only:    m_MPItk_init, m_MPItk_finalize, nsize, master_mpi
-  use m_hamindex, only:m_hamindex_init
+  use m_lattic,only:   Setopos
   use m_hamindex0,only:m_hamindex0_init
   use m_supot,only:    m_supot_init
+  use m_sugcut,only:   sugcut
   use m_suham,only:    m_suham_init
+  use m_ldau,only:     m_ldau_init
   use m_qplist,only:   m_qplist_init, m_qplist_qspdivider, nkp
   use m_igv2x,only:    m_igv2xall_init
-  use m_ldau,only:     m_ldau_init
+  use m_hamindex, only:m_hamindex_init
   use m_gennlat,only:  m_gennlat_init
-  use m_mksym,only:    m_mksym_init
-  use m_lgunit,only:   m_lgunit_init, stdo,stdl
-  use m_sugcut,only:sugcut
-  use m_cmdpath,only:setcmdpath
-  use m_lmfp,only: lmfp
+  use m_writeham,only: m_writeham_init, m_writeham_write
+  use m_lmfp,only:     lmfp  !this is main part lmfp-->bndfp
   implicit none
-  integer:: k, iarg,jobgw,iprint,nit1,ifi,nx,ny,nk1,nk2,nk3,i,j,ix,iargc
-  logical:: fileexist,cmdopt0,cmdopt2, writeham,lbin,sigx
+  integer:: iarg,iprint,iargc,jobgw=-1
+  logical:: cmdopt0,cmdopt2, writeham
   character:: outs*20,aaa*512,sss*128
-  character(8):: prgnam=''
-  ! Bootstrap building up of module variables. Variables are set in modules and proteted (except m_density).
+  character(8):: prgnam='LMF'
   call m_ext_init()         ! Get sname, e.g. trim(sname)=si of ctrl.si
-  call m_MPItk_init(prgnam) ! mpi initialization
-  call m_lgunit_init() !set stdo,stdl
-  call setcmdpath() !Set self-command path (this is for call system at m_lmfinit)
+  call m_MPItk_init(prgnam) ! MPI initialization
+  call m_lgunit_init()      ! Set file handle of stdo(console) and stdl(log)
+  call setcmdpath()         ! Set self-command path (this is for call system at m_lmfinit)
   if(cmdopt2('--jobgw=',outs))then
-     prgnam='LMFGWD'
+     prgnam='LMFGWD' !GW set up mode
      read(outs,*) jobgw
      if(jobgw/=0.and.jobgw/=1) call rx0(' Set --jobgw=0 or 1')
-  else   
-     prgnam='LMF'
-     jobgw=-1 
-  endif   
-  call mpibc1_int(jobgw,1,'lmfp_jobgw')
+  endif 
   aaa=''
   do iarg=1,iargc()
-     call getarg(iarg,sss)
-!     print *,iarg,trim(sss)
-     aaa=trim(aaa)//' '//trim(sss) !command-line
+     call getarg(iarg,sss) !  print *,iarg,trim(sss)
+     aaa=trim(aaa)//' '//trim(sss) !command-line options
   enddo
   if(master_mpi.and.len_trim(aaa)==0) then
      write(stdo,*)' usage: mpirun -np 4 lmf-MPIK foobar [options]'
@@ -70,9 +63,8 @@ program lmf
      call m_lmfinit_init(prgnam) ! show help and quit for --input
      call rx0('end of help mode')
   endif Helpmode
-  WritePdosmode: if( cmdopt0('--writepdos') ) then
-     !! See job_pdos. New pdos mode (use --mkprocar and --fullmesh together).
-     !! We use all k points (--fullmesh), instead of using crystal symmetry. See job_pdos
+  WritePdosmode: if( cmdopt0('--writepdos') ) then  ! See job_pdos. New pdos mode (use --mkprocar and --fullmesh together).
+     ! We use all k points (--fullmesh), instead of using crystal symmetry. See job_pdos
      if(master_mpi) write(stdo,*) '... Doing writepdos mode. Wait a while ...'
      if(master_mpi) write(stdo,*) '... See job_pdos to know how to call --writepdos mode'
      call writepdos(trim(sname))
@@ -91,22 +83,18 @@ program lmf
   if(trim(prgnam)=='LMF') call m_mkqp_init() ! data of BZ go into m_mkqp
   ! --rs=3 is removed. (--rs=3 meand fixed density Harris-foukner MD).
   ! Sep2020:  Shorten site positions" removed. (we are useing shortn3 mainly now)
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  ReadingPos: block !from AtomPos if it exists, overwrite pos in lattic.
+  ReadingPos: block !read aomic positions from AtomPos if it exists. Overwrite pos in m_lattic.
     real(8):: posread(3,nbas)
     logical:: irpos
     call ReadAtomPos(nbas,posread,irpos)
     if(irpos) call Setopos(posread)
     if(irpos) write(stdo,*) 'Readin AtomPos.'//trim(sname)//' !!!!'
   endblock ReadingPos
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  ! Get jobgw for lmfgw mode. Quit for job=0
-  if(jobgw==0) then ! Index for hamiltonian gen_hamindex
+  if(jobgw==0) then ! Index for hamiltonian gen_hamindex ! Get jobgw for lmfgw mode. Quit for job=0
      if(master_mpi) call m_hamindex0_init()
      call rx0(' OK! '//'lmfgw mode=0 generated HAMindex0')
   endif
-  ! Array allocated in supot rhoat smrho.
-  call m_supot_init() ! get G vectors for charge
+  call m_supot_init() ! get G vectors for charge ! Array allocated in supot rhoat smrho.
   call sugcut(1)
   call m_suham_init()   ! Get estimated dimension of Hamiltonian (probably simplified in future).
   if(nlibu>0) call m_ldau_init() !! LDA+U initialization
@@ -115,30 +103,27 @@ program lmf
   call m_qplist_qspdivider()  !generate iqini:iqend,isini,isend  for each rank
   call m_igv2xall_init(1,nkp) !G vectors for qplist. (1,nkp) is needed for gwb.head
   !Madelung mode here may need to be recovered if necessary.
-  ! allocate(madelung(nbas**2)); call madmat(madelung) !Monopole Madelung matrix (kept for future).
+  !   allocate(madelung(nbas**2)); call madmat(madelung) !Monopole Madelung matrix (kept for future).
   !Shear mode here is currently commented out.=>probably shear mode should be outside of fortran.
   call m_hamindex_init(jobgw) 
   writeham= cmdopt0('--writeham') !m_writeham_* is after m_hamindex_init 2022apr22
   if(writeham .AND. master_mpi) call m_gennlat_init(bz_nabc) !for interpolation of Hamiltonian
   if(writeham .AND. master_mpi) call m_writeham_init()
   if(writeham .AND. master_mpi) call m_writeham_write()
-  if( cmdopt0('--quit=ham') ) call Rx0('quit = ham')
-  !! (we need check. a simple approximaiton to determine VBM and CBM. Need fixing if necessary).
-  if(cmdopt0('--vbmonly')) then !Get VBM and CBM relative to vaccum
+  if( cmdopt0('--quit=ham') ) call rx0('quit = ham')
+  if(cmdopt0('--vbmonly')) then !Get VBM and CBM relative to vaccum ! (a simple approximaiton to determine VBM and CBM. Need fixing if necessary).
      if(master_mpi) call Vbmmode()
-     call Rx0('--vbmonly mode done')
+     call rx0('--vbmonly mode done')
   endif
   if(cmdopt0('--getq')) then ! Current version is not for spin dependent, with many restrictions.
      if(master_mpi) call Getqmode()
-     call Rx0('--getq mode done')
-  endif !call praugm()
+     call rx0('--getq mode done')
+  endif
   MainRoutine: block
     call lmfp(jobgw==1) 
   endblock MainRoutine
   call rx0("OK! end of "//trim(prgnam)//" ======================")
-end program Lmf
-include "show_programinfo.fpp" !this is for 'call show_programinfo'
-! preprocessed from show_programinfo.f90 by Makefile
+endprogram lmf
 subroutine readatompos(nbas,pos,irpos)
   use m_ext,only:     sname
   use m_ftox
@@ -153,11 +138,11 @@ subroutine readatompos(nbas,pos,irpos)
      read(ifipos,*) nbaso
      do i=1,nbaso
         read(ifipos,*) p
-        if(i<=nbas) pos(:,i)=p
-        !write(stdo,ftox)i,ftof(p)
+        if(i<=nbas) pos(:,i)=p    !write(stdo,ftox)i,ftof(p)
      enddo
      irpos=.true.
   enddo
   close(ifipos)
 1010 continue
-end subroutine readatompos
+endsubroutine readatompos
+include "show_programinfo.fpp" !this is for 'call show_programinfo' ! preprocessed from show_programinfo.f90 by Makefile

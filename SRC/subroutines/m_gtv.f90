@@ -26,8 +26,7 @@ contains
       logical:: nomode,nrmode,ndmode,debug=.false.
       character(4):: modec
       character(8):: xn
-      character(256):: outx
-!      write(stdo,*)'ccccccccinit rval2 ',trim(cattok),nrecs
+      character(256):: outx !    write(stdo,*)'ccccccccinit rval2 ',trim(cattok),nrecs
       ncat=len(trim(cattok))
       if(present(ch)) then
          do i=1,nrecs
@@ -37,8 +36,7 @@ contains
             endif
          enddo
          ch=''
-1012     continue
-!         write(stdo,*)'cccccccc ',trim(cattok),'ch=###'//trim(ch)//'###'
+1012     continue !      write(stdo,*)'cccccccc ',trim(cattok),'ch=###'//trim(ch)//'###'
          return
       endif   
       nomode=.false.; nrmode=.false.; ndmode=.false.

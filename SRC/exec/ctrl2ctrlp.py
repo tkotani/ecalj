@@ -51,7 +51,7 @@ for i,irep in constrep.items():
     ix='{'+i+'}'
     midfile=midfile.replace(ix,irep) #print('ix rep=',ix,irep)
 
-#Pure math section. # we replaced {foobar} with numerical values.
+### Pure math section. # we replaced {foobar} with numerical values.
 outfile=''
 for ilinex in midfile.split('\n'): #line by line, for pure mathematical operations.
     iline=re.sub(pat,aft,ilinex) #for DOS compatible
@@ -147,6 +147,6 @@ catok=catok+'STRUC_NBAS '+str(nbas)+'\n'   # less prior
 #lx=catok.split('\n')
 #print(lx)
 llx=len(outfile0.split('\n'))+len(lll.split('\n'))
-print(llx,lmax,llx+len(catok.split('\n'))+1,'# of line; # of reclen;#  of all lines\n'+outfile0+'\n'+lll)
+print(llx+len(catok.split('\n'))+1,lmax,llx,'#  of all lines; # of reclen;# of line\n'+outfile0+'\n'+lll)
 print('@@@@@@@@@@@@@@@@@')
 print(catok)

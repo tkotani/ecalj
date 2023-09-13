@@ -46,7 +46,7 @@ contains
          ham_scaledsigma, alat=>lat_alat,stdo,stdl,procid,master, nkaph,nlmax,nl,nbas,nsp, bz_dosmax, &
          lmaxu,nlibu,lldau,lpztail,leks,lrout,  nchan=>pot_nlma, nvl=>pot_nlml,nspc,pnufix !lmfinit contains fixed input 
     use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
-    use m_mkqp,only: nkabc=> bz_nabc,ntet=> bz_ntet,iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
+    use m_mkqp,only: nkabc=> bz_nabc,ntet=> bz_ntet,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, plat=>lat_plat,pos=>rv_a_opos
     use m_rdsigm2,only: m_rdsigm2_init
     use m_subzi, only: m_subzi_init, lwtkb,rv_a_owtkb,m_subzi_setlwtkb,m_subzi_bzintegration
