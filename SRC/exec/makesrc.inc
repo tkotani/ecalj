@@ -164,7 +164,8 @@ sugw.o \
 smvxcm.o \
 m_vxcatom.o \
 w_psir.o \
-gintxx.o 
+gintxx.o \
+rotwave.o
 
 
 MPI_list= MPI_fpgw2.o
@@ -257,7 +258,6 @@ m_pbindex.o \
 m_rotMPB.o \
 m_iqindx_qtt.o \
 m_iqindx_wan.o \
-rotwave.o \
 rotcg.o \
 rotgvec.o\
 m_readVcoud.o\

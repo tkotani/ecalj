@@ -7,7 +7,7 @@ module m_vesgcm
     use m_lmfinit,only:alat=>lat_alat,ispec,sspec=>v_sspec,nbas,cy=>rv_a_ocy,nlmx,k0
     use m_lattic,only: vol=>lat_vol,rv_a_opos
     use m_lgunit,only:stdo
-    use m_supot,only: k1,k2,k3
+    use m_supot,only: k1=>n1,k2=>n2,k3=>n3
     use m_hansr,only:corprm
     !i   cy    :Normalization constants for spherical harmonics
     !i   qmom  :multipole moments of on-site the local density:

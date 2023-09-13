@@ -3,7 +3,7 @@ module m_smvxcm
   private
 contains
   subroutine smvxcm(lfrce,smrho,smpot,smvxc,smvx,smvc,smexc,repsm,repsmx,repsmc,rmusm,rvmusm,rvepsm,f)
-    use m_supot,only: rv_a_ogv,iv_a_okv, lat_nabc, lat_ng,k1,k2,k3
+    use m_supot,only: rv_a_ogv,iv_a_okv, lat_ng,n1,n2,n3
     use m_lmfinit,only: rv_a_ocy,   lat_alat, lxcf,nsp,nbas
     use m_lattic,only: lat_vol
     use m_lgunit,only:stdo
@@ -15,7 +15,7 @@ contains
     !i Inputs
     !i   nbas  :size of basis
     !i   lfrce :1, calculate contribution to forces
-    !i   k1,k2,k3 dimensions smooth crystal densities, potentials on a mesh
+    !i   n1,n2,n3 dimensions smooth crystal densities, potentials on a mesh
     !i   smrho :smooth valence density on uniform mesh
     !o Outputs
     !o   smvxc :ex-corr  potential of smoothed density + core corrections
@@ -52,13 +52,13 @@ contains
     !u    1 May 00 Adapted from nfp sxc_smooth.f
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: lfrce,ngabc(3),lxcfun
-    equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
+    integer :: lfrce,lxcfun
+!    equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
     real(8):: f(3,nbas) , repsm(nsp) , repsmx(nsp) , repsmc(nsp) , rmusm(nsp) &
          , rvmusm(nsp) , rvepsm(nsp) !, focexc(nsp) , focex(nsp) , focec(nsp) , focvxc(nsp)
-    complex(8):: smrho(k1,k2,k3,nsp),smpot(k1,k2,k3,nsp), &
-         smvxc(k1,k2,k3,nsp),smvx(k1,k2,k3,nsp),smvc(k1,k2,k3,nsp),smexc(k1,k2,k3)
-    integer:: i , k123 , n1 , n2 , n3 , ng , lfoc1, lfoc2 , iprint , excsan
+    complex(8):: smrho(n1,n2,n3,nsp),smpot(n1,n2,n3,nsp), &
+         smvxc(n1,n2,n3,nsp),smvx(n1,n2,n3,nsp),smvc(n1,n2,n3,nsp),smexc(n1,n2,n3)
+    integer:: i , n123, ng , lfoc1, lfoc2 , iprint , excsan
     complex(8) ,allocatable :: cgh1_zv(:)
     complex(8) ,allocatable :: cgh2_zv(:)
     complex(8) ,allocatable :: dxcv_zv(:)
@@ -79,37 +79,37 @@ contains
     if(procid==master) iprx= .TRUE. 
     call tcn('smvxc')
     lxcfun= lxcf
-    ngabc = lat_nabc
+!    ngabc = lat_nabc
     ng    = lat_ng
     vol  = lat_vol
     alat = lat_alat
     vol  = lat_vol
     ! ... Sum of foca hankel heads; break into direct and pert. parts
-    !      call defcc (osmrho,-k1*k2*k3*nsp)
-    allocate(smrho_w(k1*k2*k3*nsp))
+    !      call defcc (osmrho,-n1*n2*n3*nsp)
+    allocate(smrho_w(n1*n2*n3*nsp))
     smrho_w=0d0
     allocate(cgh1_zv(ng), cgh2_zv(ng))
     call smcorm(nbas,ng,rv_a_ogv,cgh1_zv,cgh2_zv, lfoc1,lfoc2)
     ! ... smrho_w = smrho + smoothed core from foca hankel heads
-    k123 = 2*k1*k2*k3
+    n123 = 2*n1*n2*n3
     if(lfoc1 == 1) then
-       call gvputf ( ng , 1 , iv_a_okv , k1 , k2 , k3 , cgh1_zv , smrho_w )
-       call fftz3(smrho_w,n1,n2,n3,k1,k2,k3,1,0,1)
+       call gvputf ( ng , 1 , iv_a_okv , n1 , n2 , n3 , cgh1_zv , smrho_w )
+       call fftz3(smrho_w,n1,n2,n3,n1,n2,n3,1,0,1)
        if (nsp == 2) then
-          call dscal(k123,.5d0,smrho_w,1)
-          call dpscop(smrho_w,smrho_w,k123,1,1+k123,1d0)
+          call dscal(n123,.5d0,smrho_w,1)
+          call dpscop(smrho_w,smrho_w,n123,1,1+n123,1d0)
        endif
-       !        call dpadd(smrho_w,smrho,1,k123*nsp,1d0)
-       call daxpy(k123*nsp,1d0, smrho,1,smrho_w,1)
+       !        call dpadd(smrho_w,smrho,1,n123*nsp,1d0)
+       call daxpy(n123*nsp,1d0, smrho,1,smrho_w,1)
     else
-       call dpcopy(smrho,smrho_w,1,k123*nsp,1d0)
+       call dpcopy(smrho,smrho_w,1,n123*nsp,1d0)
     endif
     if(enforce_positive_smrho()) then
        !!== negative smrho check== This is also similar with what is done in mkpot.
        !! For GGA, we have to supply positive rho. See enforce_positive_smrho section in mkpot.
        nnn=0
        swmin=0d0
-       do i=1,k1*k2*k3*nsp
+       do i=1,n1*n2*n3*nsp
           sss=dreal(smrho_w(i))
           if(sss<minimumrho) then 
              nnn=nnn+1
@@ -129,12 +129,11 @@ contains
     endif
     ! ... Force density strictly positive definite
     !      print *, 'density strictly pos def?'
-    !      call smrpos(w(osmrho),k1,k2,k3,n1,n2,n3)
+    !      call smrpos(w(osmrho),n1,n2,n3,n1,n2,n3)
     rvmusm = 0d0
     ! --- Direct branch (lfoc2 .eq. 0) ---
     if (lfoc2 == 0) then
-       call smvxc2 ( 0 ,  nsp , lxcfun , vol , n1 , n2 , n3 ,&
-            k1 , k2 , k3 , smrho_w , smvxc , smvx , smvc , smexc  &
+       call smvxc2 ( 0 ,  nsp , lxcfun , vol , n1 , n2 , n3 , smrho_w , smvxc , smvx , smvc , smexc  &
             , repsm , repsmx , repsmc , rmusm , vxcavg )
        smpot(:,:,:,1:nsp) = smpot(:,:,:,1:nsp)+smvxc(:,:,:,1:nsp)
        do  i = 1, nsp
@@ -149,8 +148,8 @@ contains
        allocate(cgh1_zv(ng*nsp))
        call dpzero(f,3*nbas)
        if (lfoc1 > 0 .OR. lfoc2 > 0) then
-          call fftz3(smvxc,n1,n2,n3,k1,k2,k3,nsp,0,-1)
-          call gvgetf(ng, nsp, iv_a_okv , k1 , k2 , k3 , smvxc , cgh1_zv  )
+          call fftz3(smvxc,n1,n2,n3,n1,n2,n3,nsp,0,-1)
+          call gvgetf(ng, nsp, iv_a_okv , n1 , n2 , n3 , smvxc , cgh1_zv  )
           call smvxc4(nbas, nsp, alat, vol, rv_a_ocy, ng , rv_a_ogv , cgh1_zv , f )
        endif
        if (allocated(cgh1_zv)) deallocate(cgh1_zv)
@@ -158,8 +157,7 @@ contains
     call tcx('smvxc')
   end subroutine smvxcm
   
-  subroutine smvxc2(mode,nsp,lxcfun,vol,n1,n2,n3,k1,k2,k3,smrho, &
-       smvxc,smvx,smvc,smexc,       rhoeps,rhoex,rhoec,rhomu,vxcavg)
+  subroutine smvxc2(mode,nsp,lxcfun,vol,n1,n2,n3,smrho, smvxc,smvx,smvc,smexc, rhoeps,rhoex,rhoec,rhomu,vxcavg)
     use m_ftox
     use m_lgunit,only:stdo
     use m_xclda,only: evxcv,evxcp
@@ -189,7 +187,7 @@ contains
     !i   vol   :cell volume
     !i   slat  :struct containing information about the lattice
     !i   n1,n2,n3 uniform mesh on which smrho,smcor,cmvxc defined
-    !i   k1,k2,k3 dimensions of smrho,smpot for smooth mesh density
+    !i   n1,n2,n3 dimensions of smrho,smpot for smooth mesh density
     !i   smrho :smooth density on uniform mesh
     !o Outputs
     !o   smvxc :xc potential of smoothed density (no core contr.)
@@ -220,11 +218,11 @@ contains
     !u    1 May 00 Adapted from nfp vxcd_smooth.f
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: mode,nsp,k1,k2,k3,n1,n2,n3,lxcfun
+    integer :: mode,nsp,n1,n2,n3,lxcfun
     double precision :: rhoeps(nsp),rhoex(nsp),rhoec(nsp),rhomu(nsp), vxcavg(nsp),vol
-    double complex smvxc(k1,k2,k3,nsp),smrho(k1,k2,k3,nsp), &
-         smvx(k1,k2,k3,nsp),smvc(k1,k2,k3,nsp), &
-         smexc(k1,k2,k3) !,dsmvxc(k1,k2,k3,nsp)
+    double complex smvxc(n1,n2,n3,nsp),smrho(n1,n2,n3,nsp), &
+         smvx(n1,n2,n3,nsp),smvc(n1,n2,n3,nsp), &
+         smexc(n1,n2,n3) !,dsmvxc(n1,n2,n3,nsp)
     ! ... Local parameters
     integer :: i,i1,i2,i3,lxcf,nx,iprint,n1x,lxcg,nglob,mode1
     parameter (n1x=512)
@@ -321,7 +319,7 @@ contains
     ! ... Gradient corrections to potential, energy
     if(lxcg/=0.and.lxcg/=1) call rx('smvxc2: lxcg/=0.and.lxcg/=1')
     if (lxcg == 1) then  !        print *,'smvxcm:calling vxcnlm sum smrho=',sum(abs(smrho))
-       call vxcnlm(lxcg,nsp,k1,k2,k3,smrho, repnl,rmunl,vavgnl,smvx,smvc,smvxc)
+       call vxcnlm(lxcg,nsp,n1,n2,n3,smrho, repnl,rmunl,vavgnl,smvx,smvc,smvxc)
        rhoeps =  repnl
        rhomu  =  rmunl
        vxcavg =  vavgnl
@@ -345,14 +343,14 @@ contains
     endif
     call tcx('smvxc2')
   end subroutine smvxc2
-  subroutine smvxc3(vol,nsp,n1,n2,n3,k1,k2,k3,smrho,smcor,dsmvxc, smvxc,rmuxcc)
+  subroutine smvxc3(vol,nsp,n1,n2,n3,smrho,smcor,dsmvxc, smvxc,rmuxcc)
     use m_lgunit,only:stdo
     !- Smooth core density times dvxc/drho
     ! ----------------------------------------------------------------------
     !i Inputs
     !i   vol   :cell volume
     !i   n1,n2,n3 uniform mesh on which smrho,smcor,cmvxc defined
-    !i   k1,k2,k3 dimensions of smrho,smpot for smooth mesh density
+    !i   n1,n2,n3 dimensions of smrho,smpot for smooth mesh density
     !i   smrho :smooth density on n1,n2,n3 mesh
     !i   smcor :smooth core density on n1,n2,n3 mesh
     !i   dsmvxc:dvxc/drho on n1,n2,n3 mesh mesh
@@ -364,10 +362,10 @@ contains
     !u Updates
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: nsp,k1,k2,k3,n1,n2,n3
+    integer :: nsp,n1,n2,n3
     double precision :: rmuxcc(nsp),vol
-    double complex smvxc(k1,k2,k3,nsp),smcor(k1,k2,k3), &
-         dsmvxc(k1,k2,k3,nsp),smrho(k1,k2,k3,nsp)
+    double complex smvxc(n1,n2,n3,nsp),smcor(n1,n2,n3), &
+         dsmvxc(n1,n2,n3,nsp),smrho(n1,n2,n3,nsp)
     integer :: i,i1,i2,i3
     double complex cadd,csum(nsp)
     rmuxcc = 0
@@ -461,17 +459,17 @@ contains
   end subroutine smvxc4
   !!= Gradient correction to smoothed rho(q) tabulated on a mesh =
   !!*Kotani's version newmode with xcpbe.F in abinit Aug2010
-  subroutine vxcnlm(lxcg,nsp,k1,k2,k3,smrho,repnl,rmunl,vavgnl,vxnl,vcnl,vxcnl)
-    use m_supot,only: iv_a_okv,rv_a_ogv
+  subroutine vxcnlm(lxcg,nsp,n1,n2,n3,smrho,repnl,rmunl,vavgnl,vxnl,vcnl,vxcnl)
+    use m_supot,only: iv_a_okv,rv_a_ogv!,n1,n2,n3
     use m_xcpbe,  only: xcpbe
     use m_lmfinit,only:    lat_alat
     use m_lattic,only: lat_vol
-    use m_supot,only: lat_nabc
+    use m_supot,only: 
     use m_supot,only: lat_ng
     !! ----------------------------------------------------------------------
     ! i Inputs
     ! i   lxcg  : dummy now.  (need to set option in xcpbe)
-    ! i   slat,smrho(k1,k2,k3,nsp)
+    ! i   slat,smrho(n1,n2,n3,nsp)
     ! o Outputs (for newmode=T).
     ! o   repnl : integral smrho * eps
     ! o   rmunl : integral smrho * vxc
@@ -491,7 +489,7 @@ contains
     !i         :  3    PBE
     !i         :  4    PBE with Becke exchange
     !i   nsp   : 2 for spin-polarized case, otherwise 1
-    !i   k1..k3: dimensions of smrho,vnl for smooth mesh density
+    !i   n1..n3: dimensions of smrho,vnl for smooth mesh density
     !i   slat  :struct for lattice information; see routine ulat
     !i     Elts read: nabc ng ogv okv alat vol
     !i     Stored:
@@ -514,11 +512,11 @@ contains
     !u   06 Apr 09 Adapted from vxcnlp.f
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: lxcg,k1,k2,k3,nsp
+    integer :: lxcg,n1,n2,n3,nsp
     real(8):: repnl(nsp),rmunl(nsp),vavgnl(nsp)
-    complex(8):: smrho(k1,k2,k3,nsp),vxcnl(k1,k2,k3,nsp)
-    complex(8):: vxnl(k1,k2,k3,nsp), vcnl(k1,k2,k3,nsp),tpibai
-    integer :: ip,i,i1,i2,i3,lcut,ng,np,ipr,n1,n2,n3,ngabc(3),nnn
+    complex(8):: smrho(n1,n2,n3,nsp),vxcnl(n1,n2,n3,nsp)
+    complex(8):: vxnl(n1,n2,n3,nsp), vcnl(n1,n2,n3,nsp),tpibai
+    integer :: ip,i,i1,i2,i3,lcut,ng,np,ipr,nnn
     real(8),allocatable :: ggr(:,:),agr(:,:),gagr(:,:),rho(:,:)
     real(8),allocatable :: enl(:,:,:),vnl(:,:,:,:),enlbk(:,:,:)
     real(8),allocatable:: dvxcdgr(:,:,:,:),grho2_updn(:,:,:,:),grho(:,:,:,:,:),gv(:,:)
@@ -534,27 +532,26 @@ contains
     call tcn('vxcnlm')
     if(debug) print *,'smvxcm:calling vxcnlm sum=',sum(abs(smrho))
     call getpr(ipr)
-    ngabc =lat_nabc
-    n1= ngabc(1)
-    n2= ngabc(2)
-    n3= ngabc(3)
-    if(abs(n1-k1)+abs(n2-k2)+abs(n3-k3)/=0) call rx('vxcnlm: ni/=ki')
+!    ngabc =lat_nabc
+!    n1= ngabc(1)
+!    n2= ngabc(2)
+!    n3= ngabc(3)
+    if(abs(n1-n1)+abs(n2-n2)+abs(n3-n3)/=0) call rx('vxcnlm: ni/=ki')
     ng    = lat_ng
     allocate(gv(ng,3))
     call dcopy(3*ng,rv_a_ogv,1,gv,1)
     alat  =lat_alat
     vol   =lat_vol
-    np = n1*n2*n3 !k1*k2*k3
+    np = n1*n2*n3 !n1*n2*n3
     if(debug) print *,'vxcnlm: sum check smrho=',sum(abs(smrho))
     !!== New mode start here ==
     !!== Obtain grho= \nabla smrho (on real mesh) ==
     !  if(newmode) then
     allocate(zgrho(np,3,nsp))
     do  i = 1, nsp
-       call grfmsh ( 201 , alat , ng , rv_a_ogv , iv_a_okv , k1 , k2 &
-            , k3 , n1 , n2 , n3 , smrho(1,1,1,i) , zgrho(1,1,i), wdummy ) !dummy = zzgrho is  not touched for grfmsh(isw=201,...
+       call grfmsh(201,alat,ng,rv_a_ogv,iv_a_okv,n1,n2,n3, smrho(1,1,1,i) , zgrho(1,1,i), wdummy ) !dummy = zzgrho is  not touched for grfmsh(isw=201,...
     enddo
-    allocate(grho(k1,k2,k3,3,nsp))
+    allocate(grho(n1,n2,n3,3,nsp))
     call dcopy(3*np*nsp,zgrho,2,grho,1) ! grho contains $\nabla$smrho in real space
     deallocate(zgrho)
     !! == grho2_updn = (\nabla smrho) **2 ==
@@ -571,12 +568,12 @@ contains
        enddo
     enddo
     !!== call xcpbe in abinit ==
-    allocate( vnl(k1,k2,k3,nsp) )
-    allocate( enl(k1,k2,k3))
-    allocate( dvxcdgr(k1,k2,k3,3))
+    allocate( vnl(n1,n2,n3,nsp) )
+    allocate( enl(n1,n2,n3))
+    allocate( dvxcdgr(n1,n2,n3,3))
     fac=1d0/2d0!This is required since rp (:,:,isp=1) contains total density in the case of nsp=1.
     if(nsp==2) fac=1d0
-    allocate(r_smrho(k1,k2,k3,nsp))
+    allocate(r_smrho(n1,n2,n3,nsp))
     r_smrho=fac*dreal(smrho)
     ! allocate for calling a subroutine
     allocate(grho2_updn_forcall(n1,n2,n3,2*nsp-1))
@@ -597,22 +594,22 @@ contains
     !!== vxcnl is given ==
     fac=1d0/2d0
     if(nsp==2) fac=1d0
-    allocate(fg(ng,3),fn(k1,k2,k3), fgg(ng) )
-    allocate(fgrd(k1,k2,k3))
+    allocate(fg(ng,3),fn(n1,n2,n3), fgg(ng) )
+    allocate(fgrd(n1,n2,n3))
     do isp=1,nsp
        do j=1,3 !x,y,z components of grho.
           fn = fac*grho(:,:,:,j,isp)*dvxcdgr(:,:,:,isp)      !exchange part for spin density
           fn=fn+ sum(grho(:,:,:,j,:),dim=4)*dvxcdgr(:,:,:,3) !correlation part for total density
-          call fftz3(fn,n1,n2,n3,k1,k2,k3,1,0,-1)  ! from real space to reciprocal space
-          call gvgetf(ng,1,iv_a_okv,k1,k2,k3,fn,fg(1,j))  
+          call fftz3(fn,n1,n2,n3,n1,n2,n3,1,0,-1)  ! from real space to reciprocal space
+          call gvgetf(ng,1,iv_a_okv,n1,n2,n3,fn,fg(1,j))  
        enddo
        !!== make i G fg ---> FFT back ==
        pi = 4d0*datan(1d0)
        tpiba = 2d0*pi/alat
        tpibai = dcmplx(0d0,1d0)*tpiba
        fgg =  tpibai*[(sum(gv(ig,1:3)*fg(ig,1:3)),ig=1,ng)]
-       call gvputf(ng,1,iv_a_okv,k1,k2,k3,fgg,fgrd)
-       call fftz3(fgrd,n1,n2,n3,k1,k2,k3,1,0,1) !fft back to real space
+       call gvputf(ng,1,iv_a_okv,n1,n2,n3,fgg,fgrd)
+       call fftz3(fgrd,n1,n2,n3,n1,n2,n3,1,0,1) !fft back to real space
        vxcnl(:,:,:,isp) = vnl(:,:,:,isp) - dreal(fgrd)
     enddo
     !!=== plottest check write for debug ===
@@ -644,7 +641,7 @@ contains
        vavgnl(i) = vavgnl(i)/(n1*n2*n3)
     enddo
     !if(plottest) then
-    !   allocate(enlbk(k1,k2,k3))
+    !   allocate(enlbk(n1,n2,n3))
     !   enlbk=enl
     !endif
     deallocate(grho,grho2_updn,dvxcdgr,vnl,enl)
@@ -711,7 +708,7 @@ contains
        endif
     enddo
   end subroutine smcorm
-  subroutine grfmsh(isw,alat,ng,gv,kv,k1,k2,k3,n1,n2,n3,fn, fgrd,flap) !- Gradient and Laplacian of a function tabulated on a uniform mesh
+  subroutine grfmsh(isw,alat,ng,gv,kv,n1,n2,n3,fn, fgrd,flap) !- Gradient and Laplacian of a function tabulated on a uniform mesh
     !i Inputs
     !i   isw   :1s digit
     !i         : 0 input function fn is real
@@ -732,7 +729,7 @@ contains
     !i   ng    :number of G-vectors
     !i   gv    :list of reciprocal lattice vectors G (gvlist.f)
     !i   kv    :indices for gather/scatter operations (gvlist.f)
-    !i   k1..k3:dimensions of fn,fgrd,flap
+    !i   n1..n3:dimensions of fn,fgrd,flap
     !i   n1..n3:size of uniform mesh for which fn,fgrd,flap are tabulated
     !i   fn    :function on uniform mesh, either in real or recip space,
     !i         :depending on isw
@@ -751,10 +748,10 @@ contains
     !u   08 Apr 09 First created
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: ng,isw,k1,k2,k3,n1,n2,n3
+    integer :: ng,isw,n1,n2,n3
     integer :: kv(ng,3)
     double precision :: alat,gv(ng,3)
-    double complex fn(k1,k2,k3),fgrd(k1,k2,k3,3),flap(k1,k2,k3)
+    double complex fn(n1,n2,n3),fgrd(n1,n2,n3,3),flap(n1,n2,n3)
     integer :: i,isw0,isw1,isw2
     double precision :: pi,tpiba,g2
     double complex tpibai,gi(3)
@@ -767,12 +764,12 @@ contains
     isw2 = mod(isw/100,10)
     if (isw0 /= 1) call rx('grfmsh: gradient of real function not implemented')
     ! ... FT of smooth function to reciprocal space
-    if (isw1 == 0) call fftz3(fn,n1,n2,n3,k1,k2,k3,1,0,-1)
+    if (isw1 == 0) call fftz3(fn,n1,n2,n3,n1,n2,n3,1,0,-1)
     ! ... Gather function G coefficients
     allocate(fg(ng))
-    call gvgetf(ng,1,kv,k1,k2,k3,fn,fg)
+    call gvgetf(ng,1,kv,n1,n2,n3,fn,fg)
     ! ... Restore given function to real space
-    if (isw1 == 0) call fftz3(fn,n1,n2,n3,k1,k2,k3,1,0,1)
+    if (isw1 == 0) call fftz3(fn,n1,n2,n3,n1,n2,n3,1,0,1)
     ! ... Make iG * f(G)  and (iG)^2 * f(G)
     fg(1) = 0
     tpibai = dcmplx(0d0,1d0)*tpiba
@@ -785,20 +782,20 @@ contains
     enddo
     ! ... Scatter gradient, laplacian into respective arrays
     if (isw2 == 1 .OR. isw2 == 2 .OR. isw2 == 5 .OR. isw2 == 6) then
-       call gvputf(ng,1,kv,k1,k2,k3,fgg(1,1),fgrd(1,1,1,1))
-       call gvputf(ng,1,kv,k1,k2,k3,fgg(1,2),fgrd(1,1,1,2))
-       call gvputf(ng,1,kv,k1,k2,k3,fgg(1,3),fgrd(1,1,1,3))
+       call gvputf(ng,1,kv,n1,n2,n3,fgg(1,1),fgrd(1,1,1,1))
+       call gvputf(ng,1,kv,n1,n2,n3,fgg(1,2),fgrd(1,1,1,2))
+       call gvputf(ng,1,kv,n1,n2,n3,fgg(1,3),fgrd(1,1,1,3))
     endif
     if (isw2 == 3 .OR. isw2 == 4 .OR. isw2 == 5 .OR. isw2 == 6) then
-       call gvputf(ng,1,kv,k1,k2,k3,fg2,     flap)
+       call gvputf(ng,1,kv,n1,n2,n3,fg2,     flap)
     endif
     ! ... Gradient, laplacian in real space
     if (isw2 == 2 .OR. isw2 == 6) then
-       call fftz3(fgrd(1,1,1,1),n1,n2,n3,k1,k2,k3,1,0,1)
-       call fftz3(fgrd(1,1,1,2),n1,n2,n3,k1,k2,k3,1,0,1)
-       call fftz3(fgrd(1,1,1,3),n1,n2,n3,k1,k2,k3,1,0,1)
+       call fftz3(fgrd(1,1,1,1),n1,n2,n3,n1,n2,n3,1,0,1)
+       call fftz3(fgrd(1,1,1,2),n1,n2,n3,n1,n2,n3,1,0,1)
+       call fftz3(fgrd(1,1,1,3),n1,n2,n3,n1,n2,n3,1,0,1)
     endif
-    if (isw2 == 4 .OR. isw2 == 6) call fftz3(flap,n1,n2,n3,k1,k2,k3,1,0,1)
+    if (isw2 == 4 .OR. isw2 == 6) call fftz3(flap,n1,n2,n3,n1,n2,n3,1,0,1)
     deallocate(fg,fgg,fg2)
     call tcx('grfmsh')
   end subroutine grfmsh

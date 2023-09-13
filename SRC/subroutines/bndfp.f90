@@ -39,7 +39,7 @@ contains
     use m_ftox
     use m_mixrho,only: mixrho
     use m_bndfp_util,only: mkekin,makdos,phispinsym_ssite_set,iorbtm
-    use m_supot,only: ngabc=>lat_nabc,k1,k2,k3 !for charge mesh
+    use m_supot,only: n1,n2,n3 !for charge mesh
     use m_suham,only: ndham=>ham_ndham, ndhamx=>ham_ndhamx,nspx=>ham_nspx
     use m_lmfinit, only: ncutovl,lso,ndos=>bz_ndos,bz_w,fsmom=>bz_fsmom, bz_dosmax,lmet=>bz_lmet,bz_fsmommethod,bz_n, &
          ldos,qbg=>zbak,lfrce,pwmode=>ham_pwmode,lrsig=>ham_lsig,epsovl=>ham_oveps, &
@@ -99,7 +99,7 @@ contains
     !o   frc   :forces.  Only calculated if lfrce>0.
     !o         :If leks=1, forces are HF  forces
     !o         :If leks=2, forces are HKS forces
-    !l   k1,k2,k3: dimensions smrho,smpot.
+    !l   n1,n2,n3: dimensions smrho,smpot.
     !!      nspx: number of independent spin channels
     !!      nspc is now avoided (memo:nspc=2 for lso==1, nspc=1 for lso/=1 See m_lmfinit)
     !!      ndhamx: maximum size of hamiltonian
@@ -299,7 +299,7 @@ contains
           jsp = isp
           if(master_mpi .AND. iprint()>=35) then
              write(stdo,ftox)" bndfp: kpt",iq," of",nkp," k isp=",ftof(qp,4),jsp," ndimh nev=",ndimhx_(iq,jsp),nevls(iq,jsp)
-             write(stdo,"(9f8.4)") (evlall(i,jsp,iq), i=1,nevls(iq,jsp))
+             write(stdo,ftox) ftof([(evlall(i,jsp,iq), i=1,nevls(iq,jsp))],4)
           endif
           emin= min(minval( evlall(1:nevls(iq,jsp),jsp,iq)),emin)
        enddo

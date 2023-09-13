@@ -7,7 +7,7 @@ module m_iors
 contains
   integer function iors(nit,rwrw) ! I/O for charge density to rst or rsta. ssite sspec are readin
     use m_density,only: osmrho, orhoat,v1pot,v0pot,pnuall,pnzall,eferm !these are allocated
-    use m_supot,only: lat_nabc
+    use m_supot,only: n1,n2,n3
     use m_struc_func,only: mpibc1_s_spec !,mpibc1_s_site
     use m_lmfinit,only: alat=>lat_alat,nsp,lrel,nl,ispec,sspec=>v_sspec, nbas,nat,nspec,n0,&
          idmodis=>idmod,slabl,readpnu!,rsma!,rsmfa
@@ -49,7 +49,6 @@ contains
     !r      NOTE: on input, arrays for rhoat and v0 are allocated here
     !r   Smooth density
     !r      real part of complex*16 array smrho contains the density
-    !r      k1,k2,k3 are the physical dimensions of the array
     !r      n1,n2,n3 are the dimensions of the mesh.
     !r   Additional information stored:
     !r      fid: file identifier, a string of length 64 characters or less.
@@ -98,15 +97,15 @@ contains
     character*256:: fid=''
     ! ... Local parameters
     integer :: procid,master,mpipid,nproc
-    integer :: i,i0,i1,i2,i3,i4,ib,ipr,iprint,ic,is,is0,isp,jb,k1,k2,k3, &
-         igetss,jfi,k11,k21,k31,kmax,kmax0,l,lmxa, & !kmxv,lfoc,lfoc0
+    integer :: i,i0,i1,i2,i3,i4,ib,ipr,iprint,ic,is,is0,isp,jb, &
+         igetss,jfi,kmax,kmax0,l,lmxa, & !kmxv,lfoc,lfoc0
          lmxa0,lmxb,lmxb0,lmxl,lmxl0,lmxr,lmxv,lmxv0,lrel0,n11,n21, &
          n31,nbas0,nspec0,nlml,nlml0,npan,npan0,nr,nr0,nsp0, &
          nxi,nat0,ibaug
-    integer:: ngabc(3) , n1 , n2 , n3 , isw
+    integer:: isw
     complex(8) ,allocatable :: h_zv(:)
     real(8) ,allocatable :: rwgt_rv(:)
-    equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
+!    equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
     integer :: idmod(n0),idmoz(n0) !,lrs(10)
     logical :: isanrg,lfail,ltmp1,ltmp2,latvec,cmdopt,mlog,skiprstpnu,cmdopt0 !,lshear
     double precision :: a,a0,alat0,cof,eh,fac,qc,rmt, & !rfoc,rfoc0
@@ -128,7 +127,7 @@ contains
     procid = mpipid(1)
     master = 0
     mlog = cmdopt('--mlog',6,0,ignore)
-    ngabc=lat_nabc
+!    ngabc=lat_nabc
     ipr    = iprint()
     !      stdo   = lgunit(1)
     vs   =  2d0 !1.04d0 !version of rst file vs=2d0 at 2022-5-15. Only we support reading vs=1.04 only.
@@ -136,7 +135,7 @@ contains
     msgw = '         warning:'
     iors = -1
     line = 'header'
-    call fftz30(n1,n2,n3,k1,k2,k3)
+!    call fftz30(n1,n2,n3,k1,k2,k3)
     ffmt = '(5f15.10)'
     ifmt = '(20i5)'
     npan = 1 !Hardwired for now
@@ -185,14 +184,14 @@ contains
        call mpibc1_real(plat,9,'iors_plat')
        call mpibc1_int(nit,1,'iors_nit')
        !   --- Read smooth charge density ---
-       allocate(osmrho(k1*k2*k3,nsp))
+       allocate(osmrho(n1*n2*n3,nsp))
        osmrho=0d0
        line = 'smoothed density'
        if (procid == master) then
           read(jfi,err=999,end=999) n11,n21,n31
           if (n11 == n1 .AND. n21 == n2 .AND. n31 == n3) then
-             n =k1*k2*k3
-             read(jfi) osmrho(1:k1*k2*k3,1:nsp0)
+             n =n1*n2*n3
+             read(jfi) osmrho(1:n1*n2*n3,1:nsp0)
              if (nsp > nsp0) then
                 osmrho(1:n,1)=.5d0*osmrho(1:n,1)
                 osmrho(1:n,2)= osmrho(1:n,1)
@@ -200,19 +199,18 @@ contains
           else                 !... or read and remesh
              if (ipr >= 10) write(stdo,450) n11,n21,n31,n1,n2,n3
 450          format(9x,'remesh density from  ',i4,'  *',i4,'  *',i4,'    to  ',i4,'  *',i4,'  *',i4)
-             call fftz30(n11,n21,n31,k11,k21,k31)
-             allocate(h_zv(k11*k21*k31*nsp))
-             read(jfi)h_zv(1:k11*k21*k31*nsp0)
+!             call fftz30(n11,n21,n31,k11,k21,k31)
+             allocate(h_zv(n11*n21*n31*nsp))
+             read(jfi)h_zv(1:n11*n21*n31*nsp0)
              if (nsp > nsp0) then
-                n  = k11*k21*k31
+                n  = n11*n21*n31
                 h_zv(1:n    ) = .5d0 *h_zv(1:n)
                 h_zv(1+n:n+n) = h_zv(1:n)
              endif
              call pshpr(50)
              i = 0
              if (n1 == 2*n11 .AND. n2 == 2*n21 .AND. n3 == 2*n31) i=3
-             call chgmsh ( i , plat , nsp , n11 , n21 , n31 , k11 , k21 , &
-                  k31 , h_zv , n1 , n2 , n3 , k1 , k2 , k3 , osmrho )
+             call chgmsh ( i , plat , nsp , n11 , n21 , n31 , n11,n21,n31 , h_zv , n1 , n2 , n3 , n1 , n2 , n3 , osmrho )
              call poppr
              if (allocated(h_zv)) deallocate(h_zv)
           endif

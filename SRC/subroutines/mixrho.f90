@@ -33,11 +33,11 @@ contains
   end function ifile_handle
   subroutine mixrho(iter, qval,  sv_p_orhnew, sv_p_orhold, smrnew, smrho,rmsdel)
     use m_struc_def
-    use m_supot,only: iv_a_okv,rv_a_ogv,k1,k2,k3
+    use m_supot,only: iv_a_okv,rv_a_ogv,n1,n2,n3
     use m_lmfinit,only:lat_alat,nbas,stdl,ispec,sspec=>v_sspec,nsp,&
          broyinit,nmixinit,betainit,killj,wtinit,wc,bexist,mix_nsave !elinls=>elinl,
     use m_lattic,only: lat_vol
-    use m_supot,only:  lat_nabc, lat_ng
+    use m_supot,only:  lat_ng,n1,n2,n3
     use m_ext,only:    sname
     use m_ftox
     !!= Mix old and new charge densities =
@@ -202,10 +202,10 @@ contains
     type(s_rv1) :: sv_p_orhold(3,1)
     type(s_rv1) :: sv_p_orhnew(3,1)
     double precision :: qval,elind=0d0
-    double complex smrnew(k1,k2,k3,nsp),smrho(k1,k2,k3,nsp)
+    double complex smrnew(n1,n2,n3,nsp),smrho(n1,n2,n3,nsp)
     integer :: i,i1,i2,i3,ib,ipl,ipr,is,k0,k9, &
-         lmxl,n1,n2,n3,ng,nglob,nlml,nr,nmixr,nda,ifi,nlm0, &
-         kkk,nnnew,nnmix,ngabc(3),igetss,nx, &
+         lmxl,ng,nglob,nlml,nr,nmixr,nda,ifi,nlm0, &
+         kkk,nnnew,nnmix,igetss,nx, &
          nkill,isw,naa,kmxr,kmxs,locmix,offx,off2
     integer:: ng0 !,  oa , oaa !, ocn ,owk , oqkl
     integer ,allocatable :: ips0_iv(:)
@@ -215,9 +215,9 @@ contains
     complex(8) ,allocatable :: fkl_zv(:)
     real(8) ,allocatable :: rofi_rv(:)
     real(8) ,allocatable :: rwgt_rv(:)
-    real(8) ,allocatable :: wk1_rv(:)
-    real(8) ,allocatable :: wk2_rv(:)
-    equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
+    real(8) ,allocatable :: wn1_rv(:)
+    real(8) ,allocatable :: wn2_rv(:)
+!    equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
     parameter (nlm0=49)
     double precision :: a,beta0,dif,difx,difxu,fac,rms,rmt, &
          sumo,summ,sums,top,vol,alat,tpiba,pi,dquns,rmsuns,ddot,q1, &
@@ -249,12 +249,12 @@ contains
     call getpr(ipr)
     ipl = 1
     nx = 0
-    kkk = k1*k2*k3
+    kkk = n1*n2*n3
     pi = 4d0*datan(1d0)
     srfpi = dsqrt(4d0*pi)
     locmix = 3 !original lmv7 by mark.
     qmix(2) = 0
-    ngabc=lat_nabc
+!    ngabc=lat_nabc
     ng=lat_ng
     vol=lat_vol
     alat = lat_alat
@@ -302,8 +302,8 @@ contains
     call dscal(3,1/dsqrt(wt(1)**2+wt(2)**2+wt(3)**2),wt,1)
     if (nmix < 0) nmix = mxsav
     ! ... Initial charges
-    call rhoqm(smrho,k1,k2,k3,n1,n2,n3,nsp,vol,qin)
-    call rhoqm(smrnew,k1,k2,k3,n1,n2,n3,nsp,vol,qout)
+    call rhoqm(smrho,n1,n2,n3,nsp,vol,qin)
+    call rhoqm(smrnew,n1,n2,n3,nsp,vol,qout)
     fac = vol/(n1*n2*n3)
     !!== RMS differences screened and input sm density; count neg points ==
     sumo = sum(dble(smrho))
@@ -375,7 +375,7 @@ contains
     enddo
 
     if(mixrealsmooth()) then
-       ng02 = k1*k2*k3
+       ng02 = n1*n2*n3
        ng2 = ng02
        nda = nda + ng02
        allocate(w_ocn(ng02*nsp),co_rv(ng02*nsp))
@@ -398,12 +398,12 @@ contains
        allocate(w_ocn(2*ng*nsp),co_rv(ng*2*nsp))
        allocate(w_owk(kkk*nsp))
        call dpcopy(smrnew,w_owk,1,kkk*2*nsp,1d0)
-       call fftz3(w_owk,n1,n2,n3,k1,k2,k3,nsp,0,-1)
-       call gvgetf ( ng , nsp , iv_a_okv , k1 , k2 , k3 , w_owk, w_ocn)
+       call fftz3(w_owk,n1,n2,n3,n1,n2,n3,nsp,0,-1)
+       call gvgetf ( ng , nsp , iv_a_okv , n1 , n2 , n3 , w_owk, w_ocn)
        call lgstar ( 1 , ng , nsp , rv_a_ogv , i , ips0_iv , w_ocn)
        call dpcopy(smrho,w_owk,1,kkk*2*nsp,1d0)
-       call fftz3(w_owk,n1,n2,n3,k1,k2,k3,nsp,0,-1)
-       call gvgetf ( ng , nsp , iv_a_okv , k1 , k2 , k3 , w_owk, co_rv)
+       call fftz3(w_owk,n1,n2,n3,n1,n2,n3,nsp,0,-1)
+       call gvgetf ( ng , nsp , iv_a_okv , n1 , n2 , n3 , w_owk, co_rv)
        call lgstar ( 1 , ng , nsp , rv_a_ogv , i , ips0_iv , co_rv)
        deallocate(w_owk)
     endif
@@ -453,7 +453,7 @@ contains
 !    if (nnnew+nnmix > 0 .AND. ipr >= 20) call awrit2( &
 !         ' mixrho: (warning) scr. and lin-mixed densities had'// &
 !         ' %i and %i negative points',' ',80,stdo,nnnew,nnmix)
-    call rhoqm(smrnew,k1,k2,k3,n1,n2,n3,nsp,vol,qscr)
+    call rhoqm(smrnew,n1,n2,n3,nsp,vol,qscr)
     !     if (ipr .gt. 30) write(stdo,100)
     !    .  sumo*fac,sumu*fac,sums*fac,rms,summ*fac
     if (ipr >45) then
@@ -512,8 +512,7 @@ contains
     endif
     ! ... 14. Poke mixed smooth and local densities into smrho,rhoold
     allocate(w_owk(kkk))
-    call pvmix7 (   nbas , nsp , nda , w_oa , n1 , &
-         n2 , n3 , k1 , k2 , k3 , locmix , wt , k9 , kmxr , nlm0 , w_oqkl &
+    call pvmix7 (   nbas , nsp , nda , w_oa , n1 , n2 , n3 , locmix , wt , k9 , kmxr , nlm0 , w_oqkl &
          , ng , ng2, ng02 , iv_a_okv , ips0_iv , rv_a_ogv , co_rv , w_owk , &
          sv_p_orhold , smrho, wgtsmooth )
     deallocate(w_oqkl)
@@ -544,24 +543,24 @@ contains
        !   ... Add net local charge to qmix
        do  i = 1, nsp
           off2 = 1 + nr*nlml*(i-1)
-          allocate(wk1_rv(nr))
-          allocate(wk2_rv(nr))
-          call dpscop ( sv_p_orhold( 1 , ib )%v , wk1_rv , nr , off2 , 1 , 1d0 )
-          call dpscop ( sv_p_orhold( 2 , ib )%v , wk2_rv , nr , off2 , 1 , 1d0 )
-          qmx = srfpi*(ddot(nr,wk1_rv,1,rwgt_rv,1)- ddot ( nr , wk2_rv , 1 , rwgt_rv , 1))
+          allocate(wn1_rv(nr))
+          allocate(wn2_rv(nr))
+          call dpscop ( sv_p_orhold( 1 , ib )%v , wn1_rv , nr , off2 , 1 , 1d0 )
+          call dpscop ( sv_p_orhold( 2 , ib )%v , wn2_rv , nr , off2 , 1 , 1d0 )
+          qmx = srfpi*(ddot(nr,wn1_rv,1,rwgt_rv,1)- ddot ( nr , wn2_rv , 1 , rwgt_rv , 1))
           !         print *, 'spin, qmx',i,qmx
           if (i == 2) qmix(2) = qmix(2) + qmx-q1
           q1 = qmx
           qmix(1) = qmix(1) + qmx
-          if (allocated(wk2_rv)) deallocate(wk2_rv)
-          if (allocated(wk1_rv)) deallocate(wk1_rv)
+          if (allocated(wn2_rv)) deallocate(wn2_rv)
+          if (allocated(wn1_rv)) deallocate(wn1_rv)
        enddo
        if (allocated(rwgt_rv)) deallocate(rwgt_rv)
        if (allocated(rofi_rv)) deallocate(rofi_rv)
     enddo                     !Loop over sites
 
     ! ... Force density positive
-    !     call rhopos(smrho,k1,k2,k3,n1,n2,n3)
+    !     call rhopos(smrho,n1,n2,n3,n1,n2,n3)
 
     ! ... Net interstitial charge and cell charge
     summ = 0
@@ -659,9 +658,9 @@ contains
     do isp=1,nsp
        nnnx = 0
        smmin=1d0
-       do i1=1,k1
-          do i2=1,k2
-             do i3=1,k3
+       do i1=1,n1
+          do i2=1,n2
+             do i3=1,n3
                 sss=dreal(smrho(i1,i2,i3,isp))
                 if(sss<0d0) then
                    nnnx=nnnx+1
@@ -1454,8 +1453,7 @@ contains
     !     sqmix = (a(1,0,1) - sqmix)*vol
   end subroutine pvmix6
 
-  subroutine pvmix7 ( nbas , nsp , nda , a , n1 &
-       , n2 , n3 , k1 , k2 , k3 , locmix , wt , k9 , kmxr , nlm0 , qkl &
+  subroutine pvmix7 ( nbas , nsp , nda , a , n1 , n2 , n3 , locmix , wt , k9 , kmxr , nlm0 , qkl &
        , ng , ng2, ng02 , kv , ips0 , gv , crho , wk , sv_p_orhold , smrho &
        ,wgtsmooth)
     use m_lmfinit,only: ispec,sspec=>v_sspec
@@ -1479,7 +1477,7 @@ contains
     !i         :If locmix =  0,1, or 3, a contains spherical part on mesh
     !i         :If locmix =  2,3 a full rho, GkL expansion
     !i   n1..3 :FT mesh
-    !i   k1..3 :dimensions smrho
+    !i   n1..3 :dimensions smrho
     !i   locmix:mixing mode for local densities
     !i   ng    :number of FT G-vectors
     !i   ng0   :condensed number of G vector (excluding hermitian equiv)
@@ -1487,7 +1485,7 @@ contains
     !i   ips0  :permutation array mapping ng0 vectors to ng vectors (lgstar)
     !i   gv    :list of reciprocal lattice vectors G (gvlist.f)
     !i   crho  :FT coefficients of smrho(G)
-    !i   wk    :complex work array of dimension (k1,k2,k3)
+    !i   wk    :complex work array of dimension (n1,n2,n3)
     !i   smrho :smooth density that generated the hamiltonian
     !i   orhold:local  density that generated the hamiltonian,
     !i         :a portion of which which has been linearly mixed (pvmix4)
@@ -1500,17 +1498,10 @@ contains
     !u Updates
     ! ----------------------------------------------------------------------
     implicit none
-    ! ... Passed parameters
-    integer :: nsp,n1,n2,n3,k1,k2,k3,ng,ng02,nda,na,nr,nbas,locmix,k9, &
-         kv(ng,3),ips0(ng),kmxr,nlm0,ng2
+    integer :: nsp,n1,n2,n3,ng,ng02,nda,na,nr,nbas,locmix,k9, kv(ng,3),ips0(ng),kmxr,nlm0,ng2
     type(s_rv1) :: sv_p_orhold(3,1)
-
-    real(8):: gv(ng,3) , a(nda,nsp) , qkl(0:kmxr,nlm0,nsp,4,nbas) &
-         , rf , wt(2), wgtsmooth
-!    type(s_site)::ssite(*)
-!    type(s_spec)::sspec(*)
-
-    double complex smrho(k1,k2,k3,nsp),wk(k1,k2,k3)
+    real(8):: gv(ng,3) , a(nda,nsp) , qkl(0:kmxr,nlm0,nsp,4,nbas) , rf , wt(2), wgtsmooth
+    double complex smrho(n1,n2,n3,nsp),wk(n1,n2,n3)
     real(8):: crho(ng2,nsp)
     ! ... Local parameters
     real(8) ,allocatable :: rofi_rv(:)
@@ -1530,7 +1521,7 @@ contains
        do  i = 1, nsp
           call dscal(ng02,-1d0/wgtsmooth,crho(1,i),1)
           call daxpy(ng02,1d0/wgtsmooth,a(1,i),1,crho(1,i),1)
-          call daxpy(k1*k2*k3,1d0,crho(1,i),1,smrho(1,1,1,i),2)
+          call daxpy(n1*n2*n3,1d0,crho(1,i),1,smrho(1,1,1,i),2)
        enddo
     else
        do  i = 1, nsp
@@ -1542,9 +1533,9 @@ contains
           call dscal(ng02,-1d0,crho(1,i),1)
           call daxpy(ng02,1d0,a(1,i),1,crho(1,i),1)
           call lgstar(2,ng,1,gv,m,ips0,crho(1,i))
-          call gvputf(ng,1,kv,k1,k2,k3,crho(1,i),wk)
-          call fftz3(wk,n1,n2,n3,k1,k2,k3,1,0,1)
-          call daxpy(2*k1*k2*k3,1d0,wk,1,smrho(1,1,1,i),1)
+          call gvputf(ng,1,kv,n1,n2,n3,crho(1,i),wk)
+          call fftz3(wk,n1,n2,n3,n1,n2,n3,1,0,1)
+          call daxpy(2*n1*n2*n3,1d0,wk,1,smrho(1,1,1,i),1)
        enddo
     endif
 
@@ -2285,12 +2276,12 @@ contains
 
   end subroutine pkl2ro
 
-  subroutine rhoqm(smrho,k1,k2,k3,n1,n2,n3,nsp,vol,qsum)
+  subroutine rhoqm(smrho,n1,n2,n3,nsp,vol,qsum)
     !- Return charge, magnetic moment of smooth density
     ! ----------------------------------------------------------------------
     !i Inputs
     !i   smrho :smooth density on uniform mesh
-    !i   k1..k3:
+    !i   n1..n3:
     !i   n1..n3:
     !i   nsp   :2 for spin-polarized case, otherwise 1
     !i   vol   :cell volume
@@ -2306,8 +2297,8 @@ contains
     !u   13 Dec 08 First created
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: k1,k2,k3,n1,n2,n3,nsp
-    double complex smrho(k1,k2,k3,nsp)
+    integer :: n1,n2,n3,nsp
+    double complex smrho(n1,n2,n3,nsp)
     double precision :: vol,qsum(2)
     integer :: i,i1,i2,i3
     double precision :: sumi,q1,fac
@@ -2683,7 +2674,7 @@ subroutine pvrgkl(mode,kmax,nlml,nr,nsp,rofi,rwgt,rho1,rho2,rhoc, pkl,cofh,rg,ce
   parameter (n0=10)
   double precision :: ag,fac,y0,xi(0:n0),fpi,factk,dfact, &
        df(0:20),wk(nr),smrch,f1,f2
-  !     double precision gkl(0:kmax,0:nlml),wk2(0:kmax,0:nlml),rl
+  !     double precision gkl(0:kmax,0:nlml),wn2(0:kmax,0:nlml),rl
   !     double precision sumh,samh,y0
 
   !     call prrmsh('rho1',rofi,rho1,nr,nr,nlml*nsp)
@@ -2698,11 +2689,11 @@ subroutine pvrgkl(mode,kmax,nlml,nr,nsp,rofi,rwgt,rho1,rho2,rhoc, pkl,cofh,rg,ce
   !     either pkl -> gkl exp, or with gkl -> pkl exp, but
   !     something is wrong ...  doesn't work
   !      do  i = 1, nr
-  !        call radgkl(rofi(i),rg,kmax,lmxl,kmax,wk2)
-  !C       call radpkl(rofi(i),rg,kmax,lmxl,kmax,wk2)
+  !        call radgkl(rofi(i),rg,kmax,lmxl,kmax,wn2)
+  !C       call radpkl(rofi(i),rg,kmax,lmxl,kmax,wn2)
   !        rl = 1
   !        do  l = 0, lmxl
-  !          pkl(i,0:kmax,l) = wk2(0:kmax,l)*rl
+  !          pkl(i,0:kmax,l) = wn2(0:kmax,l)*rl
   !          rl = rl * rofi(i)
   !        enddo
   !      enddo

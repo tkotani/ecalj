@@ -2,6 +2,9 @@ module m_qplist ! control all q points list (but still only for lmf part now jun
   use m_ftox
   use m_lgunit,only:stdo
   public :: m_qplist_init,m_qplist_qspdivider,qshortn
+  integer,protected,public::   napwmxqp
+  integer,allocatable,public:: igv2qp(:,:,:),igv2revqp(:,:,:,:),napwkqp(:)
+  
   integer,parameter,private:: nsymlmax=100
   integer,protected,public:: nkp,ngpmx ,nqi,iqibzmax,  iqini,iqend,ispini,ispend      !for current rank
   integer,protected,public:: nsyml=0, nqp_syml(nsymlmax),nqps_syml(nsymlmax),nqpe_syml(nsymlmax),nqp2n_syml(nsymlmax)
@@ -14,7 +17,7 @@ module m_qplist ! control all q points list (but still only for lmf part now jun
   real(8)::tolq=1d-12
 contains
   subroutine m_qplist_init(plbnd,llmfgw)
-    use m_lmfinit,only: nspx,procid,master
+    use m_lmfinit,only: nspx,procid,master,pwemax,alat,pwmode
     use m_mkqp,only: rv_p_oqp,rv_a_owtkp
     use m_MPItk,only: master_mpi,mlog
     use m_mkqp,only: nkabc=> bz_nabc,bz_nkp
@@ -44,7 +47,7 @@ contains
     fsmode   = cmdopt0('--fermisurface') !full mesh stop just after do 2010 iq loop.
     PROCARon = cmdopt0('--mkprocar')
     if(allocated(qplist)) deallocate(qplist)
-    if( .NOT. master_mpi) then
+    plbndmode: if( .NOT. master_mpi) then
        continue
     elseif(llmfgw) then ! GW driver mode !Read QGpsi Get ngplist,ngvecp in addition to qplist.
        open(newunit=ifiqg,file='QGpsi',form='unformatted',status='old')
@@ -131,7 +134,7 @@ contains
           ! 5  0 0 0    1.  0  0        Gamma  X
           ! 5  0 0 0   .75 .75 0        Gamma  K       1025  8  38     0.1      0.01
           !! As this shows you can add or not add line after ndiv2. These are for highly resolved calculations.
-          write(6,*)' --- Readin syml file --- '
+          write(stdo,*)' --- Readin syml file --- '
           open(newunit=ifisyml,status='old',file='syml.'//trim(sname))
           nsyml=0
           nsymln=0
@@ -147,7 +150,7 @@ contains
              nqp2n_syml(nsyml+1)= nqp2e_syml(nsyml+1)-nqp2s_syml(nsyml+1)+1
              nqps_syml(nsyml+1)=1
              nqpe_syml(nsyml+1)=nqp_syml(nsyml+1)
-             write(6,"(' ',i4,3f9.4,' ',3f9.4,' ',a,' ',a,'  Massl:div,init,end=',3i5)") &
+             write(stdo,"(' ',i4,3f9.4,' ',3f9.4,' ',a,' ',a,'  Massl:div,init,end=',3i5)") &
                   nqp_syml(nsyml+1), qps_syml(1:3,nsyml+1), qpe_syml(1:3,nsyml+1), &
                   trim(labeli(nsyml+1)),trim(labele(nsyml+1)), &
                   nqp2_syml(nsyml+1),nqp2s_syml(nsyml+1),nqp2e_syml(nsyml+1)
@@ -160,7 +163,7 @@ contains
              masslineon(nsyml+1)=.false.
              nqps_syml(nsyml+1)=1
              nqpe_syml(nsyml+1)=nqp_syml(nsyml+1)
-             write(6,"(' ',i4,3f9.4,' ',3f9.4,' ',a,' ',a)") &
+             write(stdo,"(' ',i4,3f9.4,' ',3f9.4,' ',a,' ',a)") &
                   nqp_syml(nsyml+1), qps_syml(1:3,nsyml+1), qpe_syml(1:3,nsyml+1), &
                   trim(labeli(nsyml+1)),trim(labele(nsyml+1))
              nsymln = nsymln+1
@@ -192,10 +195,38 @@ contains
              enddo
              totxdatt = totxdatt + dqsyml(isyml)
           enddo
-          write(6,"('nsyml nkp=',3i5)") nsyml,nkp
+          write(stdo,"('nsyml nkp=',3i5)") nsyml,nkp
        endif
        if (nkp <= 0) call rx('bndfp: nkp<=0') ! quit if nkp==0
-    endif
+    endif plbndmode
+    !
+    Gindexqplist: block
+      integer:: nnn(3),ig,ikt,i
+      real(8):: qqq(3),dum,pwgmax
+      PMTmodeOnly: if(mod(pwmode,10)/=0 .and. pwemax>1d-8) then
+         pwgmax = pwemax**.5
+         allocate(napwkqp(nkp))
+         do ikt=1,nkp
+            qqq = merge(qplist(:,ikt), 0d0, mod(pwmode/10,10)==1)
+            call getgv2(alat,plat,qlat,qqq, pwgmax,1, napwkqp(ikt),dum)
+         enddo
+         napwmxqp=maxval(napwkqp)
+         allocate(igv2qp(3,napwmxqp,nkp))
+         do ikt = 1,nkp
+            qqq = merge(qplist(:,ikt),0d0,mod(pwmode/10,10) == 1)
+            call getgv2(alat,plat,qlat,qqq, pwgmax,2, napwkqp(ikt),igv2qp(:,:,ikt)) 
+         enddo
+         imx = maxval([(maxval(abs(igv2qp(1:3,1:napwkqp(ikt),ikt))),ikt=1,nkp)])
+         allocate( igv2revqp(-imx:imx,-imx:imx,-imx:imx,nkp),source=999999 ) !Reverse table of igv2 
+         do ikt = 1,nkp
+            do ig  = 1,napwkqp(ikt)
+               nnn = igv2qp(1:3, ig, ikt)
+               igv2revqp( nnn(1), nnn(2),nnn(3), ikt) = ig
+            enddo
+         enddo
+      endif PMTmodeOnly
+    endblock Gindexqplist
+    
     if (master_mpi .AND. nsyml>0) then !plbnd mode
        open(newunit=ifqplist,file='QPLIST')
        print *,'-------- qplist --------',nsyml
@@ -206,7 +237,7 @@ contains
              infoq=''
              if(i==1) infoq=' <-- isyml= '//charnum3(isyml)
              if(i==nqp_syml(isyml)+1) infoq=' <-- isyml Mass= '//charnum3(isyml)
-             write(6,"(i5,3f8.3,' ',a)")iq,qplist(:,iq),trim(infoq)
+             write(stdo,"(i5,3f8.3,' ',a)")iq,qplist(:,iq),trim(infoq)
              write(ifqplist,"(i5,3f23.15,x,f12.6,' ',a)")iq,qplist(:,iq),xdatt(iq),trim(infoq)
           enddo
           write(ifqplist,*)
@@ -286,6 +317,7 @@ contains
 end module m_qplist
 !mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
 module read_lmfgw_kdivider
+  use m_lgunit,only:stdo
   character*256,allocatable:: extp(:)
   integer,allocatable,protected:: iprocq(:,:)
 contains
@@ -303,22 +335,24 @@ contains
           if(iqqxx/=iqq) stop 'iqqxx/=iqq'
           if(ispxx/=isp) stop 'ispxx/=isp'
           iprocq(iqq,isp) = ixxx
-          write(6,"('iqq isp irank=',i8,i2,i6)") iqq,isp, iprocq(iqq,isp)
+          write(stdo,"('iqq isp irank=',i8,i2,i6)") iqq,isp, iprocq(iqq,isp)
        enddo
     enddo
     close(ifiproc)
     !! for mpi files.
     allocate(extp(0:nrank-1))
     extp(0) = trim(ext)
-    write(6,"('  0 ext= ',a,a)") trim(extp(0)),' ----------'
+    write(stdo,"('  0 ext= ',a,a)") trim(extp(0)),' ----------'
     do procid=1,nrank-1
        write(extn,"(i10)") procid
        extp(procid)=trim(adjustl(ext))//'_'//trim(adjustl(extn))
-       write(6,"(i3,' ext= ',a,a)") procid,trim(extp(procid)),' ----------'
+       write(stdo,"(i3,' ext= ',a,a)") procid,trim(extp(procid)),' ----------'
     enddo
   end subroutine readlmfgw_kdivider
 end module read_lmfgw_kdivider
-module m_readqplist !---  qplist.dat reader -----------------------------------
+!mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+module m_readqplist 
+  use m_lgunit,only:stdo
   integer,protected:: ndat
   real(8),allocatable,protected:: xdat(:),qplistsy(:,:)
   real(8),protected:: eferm !<-- temporary use. just as a memo.
@@ -336,7 +370,7 @@ contains
     do
        ix=ix+1
        read(ifqplistsy,*,end=1011) xdat(ix),qplistsy(1:3,ix)
-       !        write(6,'(" qplist ix xdata q=",i5,f9.4,x,3f9.4)')ix,xdat(ix),qplistsy(:,ix)
+       !        write(stdo,'(" qplist ix xdata q=",i5,f9.4,x,3f9.4)')ix,xdat(ix),qplistsy(:,ix)
     enddo
 1011 continue
     ndat=ix-1

@@ -24,7 +24,7 @@ module m_mkpot ! Potential terms. See http://dx.doi.org/10.7566/JPSJ.84.034702
   !      complex(8),allocatable,protected ,public  :: spotxd(:,:,:,:,:)
 contains
   subroutine m_mkpot_novxc() ! outputs are oppix and spotx (for no vxc terms).
-    use m_supot,only: k1,k2,k3
+    use m_supot,only: n1,n2,n3
     use m_density,only: osmrho, orhoat !main input density
     logical:: novxc_
     real(8),allocatable :: fes1_rvx(:)! gpot0(:),vval(:),vab_rv(:,:,:) !dummy
@@ -38,7 +38,7 @@ contains
     allocate( sab_rv(3,3,n0,nsp,nbas))
     allocate( phzdphz(nppn,n0,nsp,nbas))
     allocate( fes1_rvx(3*nbas))
-    allocate( spotx(k1,k2,k3,nsp)) !smooth potential without XC
+    allocate( spotx(n1,n2,n3,nsp)) !smooth potential without XC
     spotx=0d0
     allocate( ohsozzx(3,nbas), ohsopmx(3,nbas)) !dummy
     allocate( osigx(3,nbas), otaux(3,nbas), oppix(3,nbas))
@@ -48,7 +48,7 @@ contains
     deallocate(phzdphz,vesrmt,qmom,hab_rv,sab_rv,fes1_rvx)
   end subroutine m_mkpot_novxc
   subroutine m_mkpot_init()
-    use m_supot,only: k1,k2,k3
+    use m_supot,only: n1,n2,n3
     use m_density,only: osmrho, orhoat !main input density
     use m_lmfinit,only: lso,nbas,sspec=>v_sspec, nlibu,lmaxu,lldau,nsp,lat_alat,lxcf,lpzex
     use m_struc_def,only: s_rv1,s_sblock
@@ -56,7 +56,7 @@ contains
     call tcn('m_mkpot_init')
     if(iprint()>=10) write(stdo,"(a)")' m_mkpot_init: Making one-particle potential ...'
     allocate( vesrmt(nbas))
-    allocate( osmpot(k1,k2,k3,nsp)) 
+    allocate( osmpot(n1,n2,n3,nsp)) 
     allocate( qmom(nvl))
     allocate( hab_rv(3,3,n0*nsp*nbas))
     allocate( sab_rv(3,3,n0,nsp,nbas))
@@ -88,7 +88,7 @@ contains
     ! xxxxxx problematic option dipole_ removed. (for <i|{\bf r}|j> matrix for novxc)
     use m_lmfinit,only:lso,nbas,ispec,sspec=>v_sspec,nlibu,lmaxu,lldau,nsp,lat_alat,lxcf,lpzex
     use m_lattic,only: lat_plat,lat_qlat, lat_vol,rv_a_opos
-    use m_supot,only: k1,k2,k3,lat_nabc
+    use m_supot,only: n1,n2,n3
     use m_MPItk,only: master_mpi
     use m_struc_def
     use m_bstrux,only: m_bstrux_init
@@ -114,7 +114,7 @@ contains
     !i Inputs
     !i   lfrce :nonzero =>  contribution to forces
     !i   lcplxp=1 only ::0 if ppi is real; 1 if ppi is complex
-    !i   k1,k2,k3 dimensions of smrho for smooth crystal density
+    !i   n1,n2,n3 dimensions of smrho for smooth crystal density
     !i   smrho :smooth crystal density, on a uniform mesh
     !i   orhoat:local atomic densities (true and smooth parts)
     !i   qbg   :homogeneous background charge
@@ -203,11 +203,11 @@ contains
     type(s_rv4) :: otau(*)
     type(s_rv4) :: osig(*)
     real(8)::  fes(3,nbas)
-    complex(8):: smrho(k1,k2,k3,nsp),smpot(k1,k2,k3,nsp)
+    complex(8):: smrho(n1,n2,n3,nsp),smpot(n1,n2,n3,nsp)
     logical:: cmdopt0,novxc
     logical,optional:: novxc_
     character(80) :: outs
-    integer :: i,ipr,iprint,n1,n2,n3,ngabc(3),lxcfun,isw,isum
+    integer :: i,ipr,iprint,lxcfun,isw,isum
     real(8):: hpot0_rv(nbas), dq,cpnvsa, & 
          qsmc,smq,smag,sum2,rhoex,rhoec,rhvsm,sgp0, &
          sqloc,sqlocc,saloc,uat,usm,valfsm,valftr, &
@@ -217,7 +217,7 @@ contains
          rvmusm(nsp),rmusm(nsp), rvepsm(nsp), &
          vxcavg(nsp),repat(nsp),repatx(nsp),repatc(nsp), & !,fcvxca(nsp),fcvxc0(nsp)
          rmuat(nsp),repsm(nsp),repsmx(nsp),repsmc(nsp),rhobg
-    equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
+!    equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
     complex(8),allocatable:: smpotbk(:,:,:),smpotbkx(:,:,:)
     real(8),parameter:: minimumrho=1d-14
     real(8):: plat(3,3),alat
@@ -245,10 +245,10 @@ contains
           write(ifi,'("BEGIN_BLOCK_DATAGRID_3D")')
           write(ifi,'("charge_density_spin_",i1)') isp
           write(ifi,'("BEGIN_DATAGRID_3D_isp_",i1)') isp
-          write(ifi,'(3i4)') k1,k2,k3
+          write(ifi,'(3i4)') n1,n2,n3
           write(ifi,'(3f10.5)') 0.,0.,0.
           write(ifi,'(3f10.5)') ((plat(i1,i2)*alat*0.529177208,i1=1,3),i2=1,3)
-          write(ifi,'(8e14.6)') (((dble(smrho(i1,i2,i3,isp)),i1=1,k1),i2=1,k2),i3=1,k3)
+          write(ifi,'(8e14.6)') (((dble(smrho(i1,i2,i3,isp)),i1=1,n1),i2=1,n2),i3=1,n3)
           write(ifi,'("END_DATAGRID_3D_isp_",i1)') isp
           write(ifi,'("END_BLOCK_DATAGRID_3D")')
        enddo
@@ -258,7 +258,7 @@ contains
     endif
     ipr = iprint()
     lxcfun = lxcf
-    ngabc=lat_nabc
+!    ngabc=lat_nabc
     vol=lat_vol
     if (qbg /= 0) then !Printout for smooth background charge 
        rhobg = (3d0/4d0/pi*vol)**(1d0/3d0)
@@ -272,7 +272,7 @@ contains
     if( .NOT. present(novxc_)) then ! Add smooth exchange-correlation potential 
        novxc=.false.
        block
-         complex(8):: smvxc_zv(k1*k2*k3*nsp),smvx_zv(k1*k2*k3*nsp), smvc_zv(k1*k2*k3*nsp),smexc_zv(k1*k2*k3)
+         complex(8):: smvxc_zv(n1*n2*n3*nsp),smvx_zv(n1*n2*n3*nsp), smvc_zv(n1*n2*n3*nsp),smexc_zv(n1*n2*n3)
          real(8):: fxc_rv(3,nbas)
          smvxc_zv=0d0; smvx_zv=0d0; smvc_zv=0d0; smexc_zv=0d0; fxc_rv=0d0
          call smvxcm(lfrce, smrho,smpot,smvxc_zv,smvx_zv,smvc_zv, smexc_zv,repsm,repsmx,repsmc,rmusm,rvmusm,rvepsm, fxc_rv )!0th of Exc Vxc
@@ -287,11 +287,11 @@ contains
     !$$$      dipole=0
     !$$$      if(present(dipole_)) then
     !$$$         if(dipole_/=0) dipole=dipole_
-    !$$$         write(6,*)' mkpot dipole=', present(dipole_),dipole_,dipole,k1,k2,k3
+    !$$$         write(6,*)' mkpot dipole=', present(dipole_),dipole_,dipole,n1,n2,n3
     !$$$      endif
     !$$$      if(dipole/=0) then
-    !$$$         do isp=1,nsp;  do i=1,k1;    do j=1,k2;  do k=1,k3
-    !$$$            smpot(i,j,k,isp)=smpot(i,j,k,isp)+ lat_alat*sum(plat(dipole,:)*[(i-1)/dble(k1),(j-1)/dble(k2),(k-1)/dble(k3)])
+    !$$$         do isp=1,nsp;  do i=1,n1;    do j=1,n2;  do k=1,n3
+    !$$$            smpot(i,j,k,isp)=smpot(i,j,k,isp)+ lat_alat*sum(plat(dipole,:)*[(i-1)/dble(n1),(j-1)/dble(n2),(k-1)/dble(n3)])
     !$$$         enddo;   enddo;    enddo;    enddo
     !$$$      endif
     call elocp() ! set ehl and rsml for extendet local orbitals
@@ -401,7 +401,7 @@ end module m_mkpot
   !$$$! output: oppixd, spotxd
   !$$$! Assuming osigx,otaux are allocated already by calling m_mkpot_novxc in advance.
   !$$$! nov2021:   dipole option is added whether we calculate <i|{\bf r}|j> matrix (by differece).
-  !$$$      use m_supot,only: k1,k2,k3
+  !$$$      use m_supot,only: n1,n2,n3
   !$$$      use m_density,only: osmrho, orhoat !main input density
   !$$$      use m_lmfinit,only: nkaph,nsp,nbas,ssite=>v_ssite,sspec=>v_sspec
   !$$$      integer:: i,lfrzw,ib,is,kmax,lmxa,lmxh,nlma,nlmh,iidipole,ilfzw
@@ -420,7 +420,7 @@ end module m_mkpot
   !$$$      lfrzw = 0
   !$$$      if(ham_frzwf) lfrzw = 1   !freeze all augmentation wave
   !$$$      ilfzw = 1 + 10*lfrzw !+ 100    ! Adding 100 means excluding XC(LDA) part. nolxc=T
-  !$$$      allocate( spotxd(k1,k2,k3,nsp,3), oppixd(3,nbas,3)) !smooth potential without XC
+  !$$$      allocate( spotxd(n1,n2,n3,nsp,3), oppixd(3,nbas,3)) !smooth potential without XC
   !$$$      spotxd=0d0
   !$$$      do  ib = 1, nbas
   !$$$         is = int(ssite(ib)%spec)

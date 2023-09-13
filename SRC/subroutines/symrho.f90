@@ -7,7 +7,6 @@ subroutine symrhoat(sv_p_orhoat, qbyl, hbyl, f)!- Symmetrize charge density and 
   use m_mksym,only: iv_a_oistab , rv_a_osymgr, rv_a_oag
   use m_struc_def
   use m_lmfinit,only: nbas,nsp,lfrce
-  use m_supot,only: lat_nabc
   use m_lgunit,only:stdo
   !i Inputs
   !i   lfrce    :>0 symmetrize forces
@@ -29,12 +28,9 @@ subroutine symrhoat(sv_p_orhoat, qbyl, hbyl, f)!- Symmetrize charge density and 
   implicit none
   type(s_rv1) :: sv_p_orhoat(3,*)
   real(8):: f(*) , qbyl(*) , hbyl(*)
-  integer :: ngabc(3),n1,n2,n3,k1,k2,k3,nglob,iprint,i_copy_size
-  equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
+  integer :: iprint
   call tcn('symrhoat')
   if(iprint()>=10) write(stdo,*)' Symmetrize density..'
-  ngabc=lat_nabc
-  call fftz30(n1,n2,n3,k1,k2,k3)
   call symrat (sv_p_orhoat , qbyl , hbyl , f )
   if ( iprint ( ) > 60 ) call prrhat (sv_p_orhoat )
   call tcx('symrhoat')
@@ -289,68 +285,68 @@ end module m_symrhoat
 
 subroutine symsmrho(smrho) !- Symmetrize the smooth charge density
   use m_supot,only:  iv_a_oips0, iv_a_okv,rv_a_ogv,zv_a_obgv
-  use m_supot,only: lat_ng,lat_nabc,k1,k2,k3
+  use m_supot,only: lat_ng,n1,n2,n3
   use m_mksym,only: lat_nsgrp
   use m_lmfinit,only: nsp
   use m_lgunit,only:stdo
   implicit none
-  double complex smrho(k1,k2,k3,nsp)
-  integer:: n1,n2,n3,ng,ngrp,ngabc(3),isp
+  double complex smrho(n1,n2,n3,nsp)
+  integer:: ng,ngrp,isp
   complex(8) ,allocatable :: csym_zv(:)
   complex(8) ,allocatable :: cv_zv(:)
-  equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
+!  equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
   call tcn('symsmrho')
-  ngabc=lat_nabc
+!  ngabc=lat_nabc
   ng=lat_ng
   ngrp=lat_nsgrp
   if (ngrp > 1) then
      allocate(cv_zv(ng))
      allocate(csym_zv(ng))
-     call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,-1)
+     call fftz3(smrho,n1,n2,n3,n1,n2,n3,nsp,0,-1)
      do  isp = 1, nsp
-        call gvgetf ( ng,1,iv_a_okv,k1,k2,k3,smrho(1,1,1,isp), cv_zv )
+        call gvgetf ( ng,1,iv_a_okv,n1,n2,n3,smrho(1,1,1,isp), cv_zv )
         call gvsym ( ng,rv_a_ogv,iv_a_oips0,zv_a_obgv,cv_zv,   csym_zv )
         csym_zv=csym_zv - cv_zv
-        call gvaddf ( ng,iv_a_okv,k1,k2,k3,csym_zv, smrho(1,1,1,isp) )
+        call gvaddf ( ng,iv_a_okv,n1,n2,n3,csym_zv, smrho(1,1,1,isp) )
      enddo
-     call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,1)
+     call fftz3(smrho,n1,n2,n3,n1,n2,n3,nsp,0,1)
      if (allocated(csym_zv)) deallocate(csym_zv)
      if (allocated(cv_zv)) deallocate(cv_zv)
      ! ... Force density to be real and positive
-     !       call rhopos(smrho,k1,k2,k3,n1,n2,n3)
-     !        do  10  i23 = 1, k2*k3
-     !        do  10  i1  = 1, k1
+     !       call rhopos(smrho,n1,n2,n3)
+     !        do  10  i23 = 1, n2*n3
+     !        do  10  i1  = 1, n1
      !   10   smrho(i1,i23,1) = dble(smrho(i1,i23,1))
   else
      write(stdo,*)' Smooth density not symmetrized (ngrp=1)'
   endif
   call tcx('symsmrho')
 end subroutine symsmrho
-subroutine rhopos(smrho,k1,k2,k3,n1,n2,n3)!- Make smrho real and positive
-  use m_lgunit,only:stdo
-  implicit none
-  integer :: k1,k2,k3,n1,n2,n3
-  double complex smrho(k1,k2,k3)
-  integer :: i1,i2,i3,nneg
-  double precision :: rmin,xx
-  nneg = 0
-  rmin = 999
-  do    i3 = 1, n3
-     do    i2 = 1, n2
-        do    i1 = 1, n1
-           xx = dble(smrho(i1,i2,i3))
-           rmin = min(rmin,xx)
-           if (xx < 0) then
-              nneg = nneg+1
-              xx = 1d-8
-           endif
-           smrho(i1,i2,i3) = xx
-        enddo
-     enddo
-  enddo
-  if (nneg > 0) write(stdo,333) nneg,rmin
-333 format(' rhopos (warning): mesh density negative at',i6,' points.  min=',f13.8)
-end subroutine rhopos
+! subroutine rhopos(smrho,n1,n2,n3)!- Make smrho real and positive
+!   use m_lgunit,only:stdo
+!   implicit none
+!   integer :: n1,n2,n3,n1,n2,n3
+!   double complex smrho(n1,n2,n3)
+!   integer :: i1,i2,i3,nneg
+!   double precision :: rmin,xx
+!   nneg = 0
+!   rmin = 999
+!   do    i3 = 1, n3
+!      do    i2 = 1, n2
+!         do    i1 = 1, n1
+!            xx = dble(smrho(i1,i2,i3))
+!            rmin = min(rmin,xx)
+!            if (xx < 0) then
+!               nneg = nneg+1
+!               xx = 1d-8
+!            endif
+!            smrho(i1,i2,i3) = xx
+!         enddo
+!      enddo
+!   enddo
+!   if (nneg > 0) write(stdo,333) nneg,rmin
+! 333 format(' rhopos (warning): mesh density negative at',i6,' points.  min=',f13.8)
+! end subroutine rhopos
 subroutine gvsym(ng,gv,ips0,bgv,c,csym)  !- Symmetrize a function c, given in the form of a list
   ! ----------------------------------------------------------------------
   !i Inputs

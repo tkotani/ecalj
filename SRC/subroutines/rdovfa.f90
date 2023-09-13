@@ -5,7 +5,7 @@ contains
   subroutine rdovfa() !- Read atm files and overlap free atom densities.
     use m_density,only: zv_a_osmrho=>osmrho,sv_p_orhoat=>orhoat,v1pot,v0pot,eferm !Outputs. allocated
 
-    use m_supot,only: lat_nabc,lat_ng,rv_a_ogv,iv_a_okv,rv_a_ogv
+    use m_supot,only: lat_ng,rv_a_ogv,iv_a_okv,rv_a_ogv,n1,n2,n3
     use m_lmfinit,only:lat_alat,nsp,nbas,nspec,ispec,sspec=>v_sspec,qbg=>zbak,slabl,v0fix
     use m_lattic,only: lat_plat,lat_vol
     use m_struc_def,only: s_rv1
@@ -25,7 +25,7 @@ contains
     !o           3-component form (true rho, smoothed rho, core rho)
     !o   smrho :smoothed interstitial density
     !o         :* for smrho = smoothed mesh density, smrho is complex and
-    !o         :  smrho = smrho(k1,k2,k3)
+    !o         :  smrho = smrho(n1,n2,n3)
     ! ----------------------------------------------------------------------
     implicit none
     integer :: procid, master, mpipid, nrmx, n0,i_spec
@@ -37,11 +37,10 @@ contains
          alat,plat(3,3),a,rmt,z,rfoc,z0,rmt0,a0,qc,ccof, &
          ceh,stc,ztot,ctot,corm,ssum,fac,sum1,sum2,sqloc,dq,vol,smom, slmom,qcor(2)
     character(8) :: spid(nspec),spidr
-    integer:: ipr , iprint , ngabc(3) , n1 , n2 , n3 , k1 , k2 , iofa , kcor , lcor,&
-         k3 , i , ifi , is, nr , lfoc , nr0 , i1 , nch , ib , igetss , lmxl , nlml , ng,ierr 
+    integer:: ipr , iprint , iofa , kcor , lcor, i , ifi , is, nr , lfoc , nr0 , i1 , nch , ib , igetss , lmxl , nlml , ng,ierr 
     real(8) ,allocatable :: rwgt_rv(:)
     complex(8) ,allocatable :: cv_zv(:)
-    equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
+!    equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
     character msg*23, strn*120
     logical :: mlog,cmdopt,lfail, l_dummy_isanrg,isanrg
     call tcn('rdovfa')
@@ -53,9 +52,9 @@ contains
     if(ipr>=10)write(stdo,"(/'rdovfa: read and overlap free-atom densities',' (mesh density) ...')")
     alat=lat_alat
     plat=lat_plat
-    ngabc=lat_nabc
+!    ngabc=lat_nabc
     vol=lat_vol
-    call fftz30(n1,n2,n3,k1,k2,k3)
+!    call fftz30(n1,n2,n3,n1,n2,n3)
     hfc=0d0
     exi=0d0
     hfc=0d0
@@ -231,16 +230,16 @@ contains
     endblock v0wrireblock
 
     if(allocated(zv_a_osmrho)) deallocate(zv_a_osmrho)
-    allocate(zv_a_osmrho(k1*k2*k3,nsp))
+    allocate(zv_a_osmrho(n1*n2*n3,nsp))
     ! --- Overlap smooth hankels to get smooth interstitial density ---
     eferm=0d0
     zv_a_osmrho=0d0
     ng=lat_ng
     allocate(cv_zv(ng*nsp))
     call ovlpfa( nbas , nxi , n0 , exi , hfc , rsmfa, ng , ng , rv_a_ogv , cv_zv )
-    call gvputf( ng , nsp , iv_a_okv , k1 , k2 , k3 , cv_zv , zv_a_osmrho )
+    call gvputf( ng , nsp , iv_a_okv , n1 , n2 , n3 , cv_zv , zv_a_osmrho )
     if (allocated(cv_zv)) deallocate(cv_zv)
-    call fftz3(zv_a_osmrho , n1 , n2 , n3 , k1 , k2 , k3 , nsp, 0 , 1 )! ... FFT to real-space mesh
+    call fftz3(zv_a_osmrho , n1 , n2 , n3 , n1 , n2 , n3 , nsp, 0 , 1 )! ... FFT to real-space mesh
     zv_a_osmrho=zv_a_osmrho-qbg/vol/nsp !Add compensating uniform density to compensate background
     sum1 = dreal(sum(zv_a_osmrho(:,:)))*vol/(n1*n2*n3)
     if(nsp==2) smom = 2d0*dreal(sum(zv_a_osmrho(:,1)))*vol/(n1*n2*n3) - sum1

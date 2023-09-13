@@ -84,19 +84,6 @@ subroutine bzmesh(plat,qb,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx,igstar,lpbc) !-
   !r  ipq(i1,i2,i3) marks which irreducible qp to which each point in the
   !r  full BZ belongs: point (i1,i2,i3) is equivalent to irreducible
   !r  point ipq(i1,i2,i3).
-  !r
-  !u Updates
-  !u   09 Jan 09 Package calculation of ndmx into mxxyz, to circumvent
-  !u             compiler bugs
-  !u   09 Jan 03 Can pass ng=0
-  !u   15 Sep 02 Use sign of wgt to flag which irr points contain
-  !u             equivalent points from time-reversal symmetry
-  !u   21 Jul 02 Further changes to 18 Jun revisions.
-  !u   18 Jun 02 New 100s digit in lpbc option to change order in
-  !u             generation of qpoints.  Stripped some options in igstar.
-  !u   23 Nov 01 Bug fix for long unit cells
-  !r   19 Nov 97 (WRL) added lpbc option, projecting qp to 2D
-  !-----------------------------------------------------------------------
   implicit none
   logical :: lshft(3)
   integer :: n1,n2,n3,nqmx,ng,nq,igstar(0:*),ipq(n1,n2,n3),lpbc
@@ -109,7 +96,6 @@ subroutine bzmesh(plat,qb,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx,igstar,lpbc) !-
   character(1) :: chr(0:2)
   real(8),parameter:: tolq=1d-3
   call getpr(ipr)
-  !      stdo = lgunit(1)
   ndmx = mxxyz()
   lstar = igstar(0)
   lpbc01 = mod(lpbc,100)
@@ -118,8 +104,7 @@ subroutine bzmesh(plat,qb,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx,igstar,lpbc) !-
   chr(2) = ' '
   chr(0) = '*'
   if (nsgrp /= wgt(1)) call rx('bzmesh: invalid input wgt(1)')
-  if (lstar /= 0 .AND. max(n1,n2,n3) > ndmx) &
-       call rx('bzmesh: too many divisions to accomodate ndmx')
+  if (lstar /= 0 .AND. max(n1,n2,n3) > ndmx) call rx('bzmesh: too many divisions to accomodate ndmx')
   if (min(n1,n2,n3) < 1) call rx('bzmesh: improper specification of k-mesh')
   call bzmsh0(plat,lshft,lpbc01,n1,n2,n3,is,ifac,rb,qb)
   m1 = n1*ifac(1)
@@ -133,12 +118,10 @@ subroutine bzmesh(plat,qb,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx,igstar,lpbc) !-
   nn1 = 6*m1
   nn2 = 6*m2
   nn3 = 6*m3
-
   ! --- For each of (n1*n2*n3) qp, find irreducible set ---
   i1 = 0
   i3 = 0
-  !   23 continue
-  do 23  !main loop here
+  mainloop: do 23  
      i2 = 0
 22   continue
      if (lpbc2 == 0) then
@@ -149,30 +132,20 @@ subroutine bzmesh(plat,qb,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx,igstar,lpbc) !-
 21   continue
      !   ... Add qp to list if not flagged as symmetry-related to a prior
      if (ipq(i1+1,i2+1,i3+1) == 0) then
-        ii1 = i1*ifac(1)+is(1)
-        ii2 = i2*ifac(2)+is(2)
-        ii3 = i3*ifac(3)+is(3)
-        v(1) = ii1*qb(1,1) + ii2*qb(1,2) + ii3*qb(1,3)
-        v(2) = ii1*qb(2,1) + ii2*qb(2,2) + ii3*qb(2,3)
-        v(3) = ii1*qb(3,1) + ii2*qb(3,2) + ii3*qb(3,3)
-        !     --- Mark each qp in the star of q as equivalent to this qp ---
+        v(:) = matmul(qb(:,:),[i1*ifac(1)+is(1), i2*ifac(2)+is(2), i3*ifac(3)+is(3)])
+        ! Mark each qp in the star of q as equivalent to this qp ---
         iwgt = 0
         lsgrp = .false.
-        call dcopy(3,v,1,v1,1)
-        do  25  ig = 1, max(ng,1)
-           if (ng > 0) v1=matmul(g(:,:,ig),v) !call grpop(v,v1,g,ig)
+        v1=v
+        do 25 ig = 1, max(ng,1)
+           if (ng > 0) v1=matmul(g(:,:,ig),v) 
            x1 = v1(1)*rb(1,1) + v1(2)*rb(2,1) + v1(3)*rb(3,1) - is(1)
            x2 = v1(1)*rb(1,2) + v1(2)*rb(2,2) + v1(3)*rb(3,2) - is(2)
-           if (lpbc01 == 0) then
-              x3 = v1(1)*rb(1,3) + v1(2)*rb(2,3) + v1(3)*rb(3,3) - is(3)
-           else
-              x3 = 0
-           endif
+           x3 = merge(sum(v1(:)*rb(:,3))-is(3),0d0,lpbc01 == 0) 
            j1 = idnint(x1)
            j2 = idnint(x2)
            j3 = idnint(x3)
            if (max(dabs(x1-j1),dabs(x2-j2),dabs(x3-j3)) > tolq) then
-              !            call awrit2(' qp%3:1,3;3d -> %3:1,3;3d is not on k-mesh',' ',80,stdo,v,v1)
               write(stdo,"(a,3f9.4,' ',3f9.4)") ' qp mapped to is not on k-mesh',v,v1
               write(stdo,"(a,3f9.4,' ',3i5)")   '             x j=',x1,x2,x3,j1,j2,j3
               call rx('BZMESH: symops incompatible with this mesh')
@@ -206,15 +179,11 @@ subroutine bzmesh(plat,qb,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx,igstar,lpbc) !-
            call rxx(j1.lt.0.or.j2.lt.0.or.j3.lt.0,'neg j in bzmesh')
 25      enddo
         nq = nq+1
-        qp(1,nq) = v(1)
-        qp(2,nq) = v(2)
-        qp(3,nq) = v(3)
+        qp(:,nq) = v(:)
         wgt(nq) = iwgt*w0
         if (lsgrp) wgt(nq) = -iwgt*w0
         swgt = swgt + abs(wgt(nq))
      endif
-     !     End-of-loop for i1,i2,i3
-     !  20 continue
      if (lpbc2 == 0) then
         i1 = i1+1
         if (i1 < n1) goto 21
@@ -226,31 +195,26 @@ subroutine bzmesh(plat,qb,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx,igstar,lpbc) !-
      if (i2 < n2) goto 22
      if (lpbc2 == 0) then
         i3 = i3+1
-        if (i3 < n3) cycle !goto 23
+        if (i3 < n3) cycle 
      else
         i1 = i1+1
-        if (i1 < n1) cycle !goto 23
+        if (i1 < n1) cycle 
      endif
      exit
-23 enddo
+23 enddo mainloop
   ! ... Done accumulating inequivalent qp
-  if (ipr>= 20) then
-     write(stdo,"(a,i5,a,3i4,a,3l)") " BZMESH:  ",nq," irreducible QP from ",n1,n2,n3," shift=",lshft
-  endif
-  if (lstar /= 0) igstar(0) = n1 + ndmx*n2 + ndmx**2*n3
-  if (lstar < 0) igstar(0) = -igstar(0)
-  if (igcnt /= n1*n2*n3) call rx('bug in bzmesh')
-  if (dabs(swgt-2) > 1.d-9) call rx1('BZMESH: QP weights sum to ',swgt)
-  if (ipr >= 50) then
-     write(stdo,663)
-663  format(14x,'Qx',10x,'Qy',10x,'Qz',6x,'Multiplicity    Weight')
-     do  51  iq = 1, nq
+  if(ipr>= 20)write(stdo,"(a,i5,a,3i4,a,3l)") " BZMESH:  ",nq," irreducible QP from ",n1,n2,n3," shift=",lshft
+  if(lstar /= 0) igstar(0) = n1 + ndmx*n2 + ndmx**2*n3
+  if(lstar < 0) igstar(0) = -igstar(0)
+  if(igcnt /= n1*n2*n3) call rx('bug in bzmesh')
+  if(dabs(swgt-2) > 1.d-9) call rx1('BZMESH: QP weights sum to ',swgt)
+  if(ipr>= 50) then
+     write(stdo,"(14x,'Qx',10x,'Qy',10x,'Qz',6x,'Multiplicity    Weight')")
+     do iq = 1, nq
         ii = 1+dsign(1d0,wgt(iq))
         iwgt = abs(wgt(iq)/w0) + .1d0
-        write(stdo,661) &
-             iq,qp(1,iq),qp(2,iq),qp(3,iq),iwgt,chr(ii),abs(wgt(iq))
-51   enddo
-661  format(i5,2x,3f12.6,i10,1x,a,f14.6)
+        write(stdo,"(i5,2x,3f12.6,i10,1x,a,f14.6)") iq,qp(1,iq),qp(2,iq),qp(3,iq),iwgt,chr(ii),abs(wgt(iq))
+     enddo
   endif
 end subroutine bzmesh
 

@@ -16,7 +16,7 @@ contains
     use m_suham,only: ndham=>ham_ndham,ndhamx=>ham_ndhamx,nspx=>ham_nspx
     use m_lmfinit,only:alat=>lat_alat,nbas, ispec,sspec=>v_sspec,nsp,nspc,lmet=>bz_lmet, zbak ,lfrce !zbak is added positive bg charge.
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol
-    use m_supot,only: lat_nabc,k1,k2,k3
+    use m_supot,only: n1,n2,n3
     use m_igv2x,only: napw,ndimh,ndimhx,igapw=>igv2x
     use m_subzi, only: lwtkb,nevmx, lswtk,wtkb=>rv_a_owtkb
     use m_mkqp,only: wtkp=>rv_a_owtkp
@@ -48,7 +48,7 @@ contains
     !i   iq    :index to current k-point
     !i   lfrce :if nonzero, accumulate contribution to force
     !i   ldos  :if nonzero, accumulate density-of-states
-    !i   k1,k2,k3 dimensions of smpot,smrho
+    !i   n1,n2,n3 dimensions of smpot,smrho
     !i   smpot :smooth potential on uniform mesh (mkpot.f), for forces
     !i   vconst:additional constant potential
     !i   qval  :total valence charge
@@ -81,7 +81,7 @@ contains
     type(s_cv5) :: sv_p_oppi(3,1)
     type(s_rv4) :: sv_p_otau(3,1),   sv_p_osig(3,1)
     type(s_rv5) :: sv_p_oeqkkl(3,1), sv_p_oqkkl(3,1)
-    complex(8):: evec(ndimh,nspc,ndimh,nspc),smrho(k1,k2,k3,isp),smpot(k1,k2,k3,isp)
+    complex(8):: evec(ndimh,nspc,ndimh,nspc),smrho(n1,n2,n3,isp),smpot(n1,n2,n3,isp)
     real(8),allocatable:: qpgv(:,:),qpg2v(:),ylv(:,:)
     complex(8),allocatable:: evecc(:,:,:,:),work(:,:,:,:)
     qval= qval_- zbak
@@ -116,7 +116,7 @@ contains
        if(napw>0)  call fsmbpw(vavg,  ndimh,nlmto, nevec,evl(1,isp),evec,ewgt,napw, qpgv, qpg2v,ylv,nlmax,lmxax,alat,dsqrt(vol),f)
        if(allocated(ylv)) deallocate(qpgv,qpg2v,ylv)
     endif
-    call rsibl(lfrce, isp,q,iq,ndimh,nspc,napw,igapw,nevec,evec,ewgt,k1,k2,k3,smpot,smrho,f ) ! ... Add to smooth density
+    call rsibl(lfrce, isp,q,iq,ndimh,nspc,napw,igapw,nevec,evec,ewgt,n1,n2,n3,smpot,smrho,f ) ! ... Add to smooth density
     ! ... Add to local density coefficients
     call rlocbl(lfrce,nbas,isp,q,ndham,ndimh,nspc,napw,igapw,nevec,evec,ewgt,evl,sv_p_osig,sv_p_otau,sv_p_oppi,1,&
          sv_p_oqkkl,sv_p_oeqkkl,f) !lekkl=1
@@ -299,7 +299,7 @@ contains
     double complex evec(ndimh,ndimh)
     integer :: nlms,k0,n0,nkap0
     parameter (nlms=25, k0=1, n0=10, nkap0=3)
-    integer:: i1,i2,ib1,ib2,ilm1,ilm2,io1,io2,iq,is1,is2,l1,l2,ik1,ik2,ivec,m,nlm1,nlm2
+    integer:: i1,i2,ib1,ib2,ilm1,ilm2,io1,io2,iq,is1,is2,l1,l2,in1,in2,ivec,m,nlm1,nlm2
     integer :: lh1(nkap0),lh2(nkap0),nkap1,nkap2,nlm21,nlm22,nlm11,nlm12
     integer:: blks1(n0*nkap0),ntab1(n0*nkap0)
     integer:: blks2(n0*nkap0),ntab2(n0*nkap0)
@@ -331,20 +331,20 @@ contains
              enddo
           enddo
           do io2= 1, norb2
-             ik2= ktab2(io2)
+             in2= ktab2(io2)
              ol2= ltab2(io2)**2
              oi2= offl2(io2)
              do io1= 1, norb1
-                ik1= ktab1(io1)
+                in1= ktab1(io1)
                 ol1= ltab1(io1)**2
                 oi1= offl1(io1)
                 do  ivec = 1, nevec
                    ssum = 0d0
                    do ibl2=1,blks2(io2) 
                       do ibl1=1,blks1(io1) 
-                         ccc = [(vavg*ds(ol1+ibl1,ol2+ibl2,0,m,ik1,ik2) &
-                              -       ds(ol1+ibl1,ol2+ibl2,1,m,ik1,ik2) &
-                              - evl(ivec)*ds(ol1+ibl1,ol2+ibl2,0,m,ik1,ik2),m=1,3)]
+                         ccc = [(vavg*ds(ol1+ibl1,ol2+ibl2,0,m,in1,in2) &
+                              -       ds(ol1+ibl1,ol2+ibl2,1,m,in1,in2) &
+                              - evl(ivec)*ds(ol1+ibl1,ol2+ibl2,0,m,in1,in2),m=1,3)]
                          ssum = ssum + dconjg(evec(oi1+ibl1,ivec))*ccc*evec(oi2+ibl2,ivec)
                       enddo
                    enddo
@@ -403,7 +403,7 @@ contains
     real(8),parameter:: pi = 4d0*datan(1d0), fpi = 4*pi
     real(8):: evl(ndimh),f(3,nbas),ewgt(nevec),vavg,qpgv(3,napw),qpg2v(napw),qpg2,alat,sqv
     real(8):: gam,denom, e1(n0,nkap0),rsm1(n0,nkap0),p1(3),xx(n0),wt,ylv(napw,nlmax),ssum(3)
-    integer :: i1,i2,ib1,ilm1,io1,iq,is1,l1,ik1,ig,ivec,nglob, nlm11,nlm12,m
+    integer :: i1,i2,ib1,ilm1,io1,iq,is1,l1,in1,ig,ivec,nglob, nlm11,nlm12,m
     integer:: blks1(n0*nkap0),ntab1(n0*nkap0),lh1(nkap0),nkap1
     complex(8):: phase,fach,ovl,ccc(3),sum, srm1l(0:n0),evec(ndimh,ndimh),img=(0d0,1d0)
     integer:: ibl1,oi1,ol1
@@ -427,11 +427,11 @@ contains
           phase = exp(img*alat*sum(qpgv(:,ig)*p1))
           iorbloop: do 3000 io1 = 1, norb1
              l1  = ltab1(io1)
-             ik1 = ktab1(io1)
+             in1 = ktab1(io1)
              ol1 = ltab1(io1)**2
              oi1 = offl1(io1)
-             denom = e1(l1+1,ik1) - qpg2
-             gam   = 1d0/4d0*rsm1(l1+1,ik1)**2
+             denom = e1(l1+1,in1) - qpg2
+             gam   = 1d0/4d0*rsm1(l1+1,in1)**2
              fach  = -fpi/denom * phase * srm1l(l1) * exp(gam*denom)
              iorbblock: do 3010 ibl1 = 1,blks1(io1) 
                 !             s(i1,i2) = ovl

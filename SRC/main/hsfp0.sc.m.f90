@@ -142,7 +142,7 @@ program hsfp0_sc
     call setesmr(esmr_in=esmr) !set esmr back in genalloc_v3
     call Readhbe()        ! Read dimensions in m_readhbe
     call Readhamindex()
-    call INIT_READEIGEN() ! initialization for readeigen readchpi readgeig.
+    call INIT_READEIGEN() ! initialization for readeigen readcphi readgeig.
     call INIT_READEIGEN2()! initialize m_readeigen
     call Mptauof_zmel(symgg,ngrp) ! Put space-group transformation information to m_zmel,call rdpp in this
     call Readngmx2() !return ngpmx and ngcmx in m_readqg

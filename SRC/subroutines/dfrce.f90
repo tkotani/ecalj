@@ -8,10 +8,10 @@ contains
     use m_struc_def
     use m_lmfinit,only:lat_alat,nsp,nbas,nspec,ispec,sspec=>v_sspec
     use m_lattic,only: lat_qlat, lat_vol,lat_plat
-    use m_supot,only: lat_nabc,k1,k2,k3,lat_ng
+    use m_supot,only: lat_ng,n1,n2,n3
     use m_lgunit,only:stdo
     !i Inputs
-    !i   k1..3 :dimensions smrho
+    !i   n1..3 :dimensions smrho
     !i   nvl   :sum of local (lmxl+1)**2, lmxl = density l-cutoff
     !i   orhoat:vector of offsets containing site density
     !i   orhoat_out:pointer to local densities
@@ -47,10 +47,9 @@ contains
     type(s_rv1) :: orhoat_out(3,*)
     type(s_rv1) :: orhoat(3,*)
     real(8):: dfh(3,nbas) , qmom(*)
-    double complex smrho(k1,k2,k3,*),smrout(k1,k2,k3,*)
-    integer :: job,n1,n2,n3,ng,iprint,ib,is,lmxl,iv0,nlm, &
-         ip,m,i,ngabc(3),ltop,nlmtop,igets,igetss,nn
-    equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
+    double complex smrho(n1,n2,n3,*),smrout(n1,n2,n3,*)
+    integer :: job,ng,iprint,ib,is,lmxl,iv0,nlm, ip,m,i,ltop,nlmtop,igets,igetss,nn
+!    equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
     complex(8) ,allocatable :: ceps_zv(:)
     complex(8) ,allocatable :: cnomi_zv(:)
     complex(8) ,allocatable :: smro_zv(:)
@@ -64,25 +63,24 @@ contains
     real(8) ,allocatable :: g2_rv(:)
     real(8) ,allocatable :: g_rv(:)
     integer ,allocatable :: iv_iv(:,:)
-    complex(8) ,allocatable :: wk1_zv(:)
-    complex(8) ,allocatable :: wk2_zv(:)
-    complex(8) ,allocatable :: wk3_zv(:)
-    double precision :: vol,plat(3,3),qlat(3,3),alat,vsum,pi,tpiba,elind=0d0, &
-         fes1(3),fes2(3),fxc(3),c,avgdf(3)
+    complex(8) ,allocatable :: wn1_zv(:)
+    complex(8) ,allocatable :: wn2_zv(:)
+    complex(8) ,allocatable :: wn3_zv(:)
+    double precision :: vol,plat(3,3),qlat(3,3),alat,vsum,pi,tpiba,elind=0d0, fes1(3),fes2(3),fxc(3),c,avgdf(3)
     integer::ibini,ibend,iiv0(nbas)
     character(40) :: strn
     real(8),allocatable:: cs_(:),sn_(:)
     call tcn('dfrce')
     ! --- Setup ---
     dfh=0d0
-    ngabc=lat_nabc
+!    ngabc=lat_nabc
     ng=lat_ng
     vol=lat_vol
     alat=lat_alat
     plat=lat_plat
     qlat=lat_qlat
     c = 1000
-    nn   = k1*k2*k3
+    nn   = n1*n2*n3
     ! ... Arrays needed for pvdf1
     allocate(ceps_zv(ng))
     allocate(cnomi_zv(ng))
@@ -107,8 +105,8 @@ contains
     allocate(cs_(ng), sn_(ng))
     call dcopy(2*nn, smrho,1,smro_zv,1)
     if(nsp==2) call daxpy(2*nn, 1d0, smrho (1,1,1,2), 1, smro_zv, 1)
-    call fftz3 ( smro_zv , n1 , n2 , n3 , k1 , k2 , k3 , 1 , 0 , - 1 )
-    call gvgetf ( ng , 1 , iv_a_okv , k1 , k2 , k3 , smro_zv , cvin_zv )
+    call fftz3 ( smro_zv , n1 , n2 , n3 , n1 , n2 , n3 , 1 , 0 , - 1 )
+    call gvgetf ( ng , 1 , iv_a_okv , n1 , n2 , n3 , smro_zv , cvin_zv )
     call pvdf4 (  qmom , ng , g2_rv , yl_rv , cs_ , sn_ , iv_iv , qlat , cvin_zv )
     if (allocated(smro_zv)) deallocate(smro_zv)
     deallocate(cs_,sn_)
@@ -117,16 +115,14 @@ contains
     allocate(smro_zv(nn*nsp))
     allocate(vxcp_zv(nn*nsp))
     allocate(vxcm_zv(nn*nsp))
-    allocate(wk1_zv(nn*nsp))
-    allocate(wk2_zv(nn*nsp))
-    allocate(wk3_zv(nn*nsp))
+    allocate(wn1_zv(nn*nsp))
+    allocate(wn2_zv(nn*nsp))
+    allocate(wn3_zv(nn*nsp))
     call dpcopy ( smrho , smro_zv , 1 , 2 * nn * nsp , 1d0 )
-    call pvdf2 ( nbas , nsp ,  n1 , n2 , n3 & ! & slat ,
-         , k1 , k2 , k3 , smro_zv , vxcp_zv , vxcm_zv , wk1_zv &
-         , wk2_zv , wk3_zv , dvxc_zv )
-    deallocate(wk3_zv)
-    deallocate(wk2_zv)
-    deallocate(wk1_zv)
+    call pvdf2 ( nbas , nsp, n1 , n2 , n3 , smro_zv , vxcp_zv , vxcm_zv , wn1_zv, wn2_zv , wn3_zv , dvxc_zv )
+    deallocate(wn3_zv)
+    deallocate(wn2_zv)
+    deallocate(wn1_zv)
     deallocate(vxcm_zv)
     deallocate(vxcp_zv)
     ! --- cdvx = FFT ((n0_out-n0_in) dVxc/dn) ---
@@ -136,20 +132,20 @@ contains
        call daxpy (2*nn,  1d0, smrout( 1 , 1 , 1 , i ), 1, smro_zv,1)
        call daxpy (2*nn, -1d0, smrho ( 1 , 1 , 1 , i ), 1, smro_zv,1)
     enddo
-    call pvdf3 ( n1 , n2 , n3 , k1 , k2 , k3 , nsp , smro_zv , dvxc_zv )
-    call fftz3 ( dvxc_zv , n1 , n2 , n3 , k1 , k2 , k3 , nsp , 0 , - 1 )
-    call gvgetf ( ng , nsp , iv_a_okv , k1 , k2 , k3 , dvxc_zv , cdvx_zv )
+    call pvdf3 ( n1 , n2 , n3 , nsp , smro_zv , dvxc_zv )
+    call fftz3 ( dvxc_zv , n1 , n2 , n3 , n1 , n2 , n3 , nsp , 0 , - 1 )
+    call gvgetf ( ng , nsp , iv_a_okv , n1 , n2 , n3 , dvxc_zv , cdvx_zv )
     ! --- Cnomi = (n0_out(q) - n0_in(q)) ---
-    call fftz3 ( smro_zv , n1 , n2 , n3 , k1 , k2 , k3 , 1 , 0 , - 1 )
-    call gvgetf ( ng , 1 , iv_a_okv , k1 , k2 , k3 , smro_zv , cnomi_zv  )
+    call fftz3 ( smro_zv , n1 , n2 , n3 , n1 , n2 , n3 , 1 , 0 , - 1 )
+    call gvgetf ( ng , 1 , iv_a_okv , n1 , n2 , n3 , smro_zv , cnomi_zv  )
     if (allocated(smro_zv)) deallocate(smro_zv)
     if (allocated(dvxc_zv)) deallocate(dvxc_zv)
     ! ... Debugging slot smrho(out) for out-in
     !      print *, '*** debugging ... subs smrout for out-in'
     !      call dpcopy(smrout,w(osmro),1,2*nn,1d0)
-    !      call fftz3(w(osmro),n1,n2,n3,k1,k2,k3,1,0,-1)
-    !      call gvgetf(ng,1,w(okv),k1,k2,k3,w(osmro),w(ocnomi))
-    !      call zprm3('rho-out(q)',w(osmro),k1,k2,k3)
+    !      call fftz3(w(osmro),n1,n2,n3,n1,n2,n3,1,0,-1)
+    !      call gvgetf(ng,1,w(okv),n1,n2,n3,w(osmro),w(ocnomi))
+    !      call zprm3('rho-out(q)',w(osmro),n1,n2,n3)
 
     ! --- Multipole moments of the output density ---
     allocate(qmout_rv(nvl))
@@ -230,7 +226,7 @@ contains
     use m_lmfinit,only: nbas,ispec,sspec=>v_sspec
     use m_lmfinit,only:lat_alat,pnuall,pnzall
     use m_lattic,only: lat_vol,rv_a_opos
-    use m_supot,only: lat_nabc
+    use m_supot,only: n1,n2,n3
     use m_hansr,only:corprm
     ! need to modify texts.
     !- Estimate shift in local density for one site
@@ -269,8 +265,8 @@ contains
          cnomin(ng),cdvxc(ng,nsp),cvin(ng)
     integer :: ig,ilm,l,lmxl,m,nlm,nlmx,k,is,jv0,jb,js,n0, nrmx
     parameter (nlmx=64, nrmx=1501, n0=10)
-    integer :: lmxa,nr,nxi,ie,ixi,job0,kcor,lcor,lfoc,i, ngabc(3),n1,n2,n3,nlml
-    equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
+    integer :: lmxa,nr,nxi,ie,ixi,job0,kcor,lcor,lfoc,i, ngabc(3),nlml
+!    equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
     double precision :: alat,ceh,cofg,cofh,qcorg,qcorh,qsc,rfoc,rg, &
          vol,z,v(3),df(0:20),feso(3),qcor(2),gpot0(nlmx,3),fesdn(3), &
          fesgg(3),pnu(n0),pnz(n0),a,rmt,qloc,exi(n0),hfc(n0,2), &
@@ -280,7 +276,7 @@ contains
     real(8),parameter:: pi = 4d0*datan(1d0),tpi=2d0*pi,y0 = 1d0/dsqrt(4d0*pi)
     data q0 /0d0,0d0,0d0/
     call tcn('pvdf1')
-    ngabc=lat_nabc
+!    ngabc=lat_nabc
     alat=lat_alat
     vol=lat_vol
     call stdfac(20,df)
@@ -471,19 +467,19 @@ contains
     fes2=fes2-fesgg
     call tcx('pvdf1')
   end subroutine pvdf1
-  subroutine pvdf2(nbas,nsp,n1,n2,n3,k1,k2,k3, smrho,vxcp,vxcm,wk1,wk2,wk3,dvxc)
+  subroutine pvdf2(nbas,nsp,n1,n2,n3, smrho,vxcp,vxcm,wn1,wn2,wn3,dvxc)
     use m_struc_def
     use m_smvxcm,only: smvxcm
     use m_lmfinit,only:ispec,sspec=>v_sspec
     !- Makes derivative of smoothed xc potential wrt density.
     implicit none
     ! ... Passed parameters
-    integer :: nbas,nsp,n1,n2,n3,k1,k2,k3
+    integer :: nbas,nsp,n1,n2,n3
     !  type(s_spec)::sspec(*)
-    complex(8):: vxcp(k1,k2,k3,nsp),vxcm(k1,k2,k3,nsp), &
-         dvxc(k1,k2,k3,nsp),smrho(k1,k2,k3,nsp), &
-         wk1(k1,k2,k3,nsp),wk2(k1,k2,k3,nsp), &
-         wk3(k1,k2,k3,nsp)
+    complex(8):: vxcp(n1,n2,n3,nsp),vxcm(n1,n2,n3,nsp), &
+         dvxc(n1,n2,n3,nsp),smrho(n1,n2,n3,nsp), &
+         wn1(n1,n2,n3,nsp),wn2(n1,n2,n3,nsp), &
+         wn3(n1,n2,n3,nsp)
     ! ... Local parameters
     integer :: i1,i2,i3,i,nn
     double precision :: fac,dmach,f1,f2,f,alfa,dfdr,rrho,dvdr, &
@@ -491,7 +487,7 @@ contains
     !fcexc0(nsp),fcex0(nsp),fcec0(nsp),fcvxc0(nsp),
     fac = dmach(1)**(1d0/3d0)
     alfa = 2d0/3d0
-    nn = k1*k2*k3
+    nn = n1*n2*n3
     call pshpr(0)
     ! ... Add fac (rho+ + rho-)/2 into rho+, rho- for spin pol case,
     !     Add fac * rho into rho if not spin polarized
@@ -510,10 +506,10 @@ contains
     endif
     ! ... vxcp = vxc (smrho+drho)
     call dpzero(vxcp, nn*2*nsp)
-    call dpzero(wk1, nn*2*nsp)
-    call dpzero(wk2, nn*2*nsp)
-    call dpzero(wk3, nn*2)
-    call smvxcm(0,smrho, vxcp,dvxc,wk1,wk2,wk3,repsm,repsmx,repsmc,rmusm, &
+    call dpzero(wn1, nn*2*nsp)
+    call dpzero(wn2, nn*2*nsp)
+    call dpzero(wn3, nn*2)
+    call smvxcm(0,smrho, vxcp,dvxc,wn1,wn2,wn3,repsm,repsmx,repsmc,rmusm, &
          rvmusm,rvepsm,ff) !,fcexc0,fcex0,fcec0,fcvxc0
     ! ... Replace fac*rho with -fac*rho
     if (nsp == 1) then
@@ -531,7 +527,7 @@ contains
     endif
     ! ... vxcm = vxc (smrho-drho)
     call dpzero(vxcm, nn*2*nsp)
-    call smvxcm(0,smrho,  vxcm,dvxc,wk1,wk2,wk3,repsm,repsmx,repsmc,rmusm, &
+    call smvxcm(0,smrho,  vxcm,dvxc,wn1,wn2,wn3,repsm,repsmx,repsmc,rmusm, &
          rvmusm,rvepsm,ff) !,fcexc0,fcex0,fcec0,fcvxc0
     ! ... Restore rho+, rho-
     if (nsp == 1) then
@@ -567,7 +563,7 @@ contains
     enddo
     ! ... vxcm = vxc (smrho)
     call dpzero(vxcm, nn*2*nsp)
-    call smvxcm(0,smrho, vxcm,dvxc,wk1,wk2,wk3,repsm,repsmx,repsmc,rmusm, &
+    call smvxcm(0,smrho, vxcm,dvxc,wn1,wn2,wn3,repsm,repsmx,repsmc,rmusm, &
          rvmusm,rvepsm,ff) !,fcexc0,fcex0,fcec0,fcvxc0
     ! ... dvxc/drho into dvxc
     do  i = 1, nsp
@@ -588,11 +584,11 @@ contains
     enddo
     call poppr
   end subroutine pvdf2
-  subroutine pvdf3(n1,n2,n3,k1,k2,k3,nsp,deln0,dvxc)
+  subroutine pvdf3(n1,n2,n3,nsp,deln0,dvxc)
     !- Overwrites dvxc with (nout-nin)*dvxc
     implicit none
-    integer :: n1,n2,n3,k1,k2,k3,nsp
-    double complex deln0(k1,k2,k3),dvxc(k1,k2,k3,nsp)
+    integer :: n1,n2,n3,nsp
+    double complex deln0(n1,n2,n3),dvxc(n1,n2,n3,nsp)
     integer :: i1,i2,i3,i
     do  i  = 1, nsp
        do  i3 = 1, n3
@@ -608,7 +604,7 @@ contains
     use m_struc_def
     use m_lmfinit,only: nbas,ispec,sspec=>v_sspec
     use m_lattic,only: lat_vol,rv_a_opos
-    use m_supot,only: lat_nabc
+    use m_supot,only: n1,n2,n3
     use m_hansr,only:corprm
     !- Makes smoothed ves from smoothed density and qmom, incl nuc. charge
     ! ----------------------------------------------------------------------
@@ -647,8 +643,8 @@ contains
     real(8):: qmom(1) , g2(ng) , yl(ng,1) , cs(ng) , sn(ng) , qlat(3,3)
     !  type(s_spec)::sspec(*)
     double complex cv(ng)
-    integer :: ig,ib,ilm,is,iv0,l,lmxl,m,nlm,nlmx,nglob,n1,n2,n3, ngabc(3),lfoc
-    equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
+    integer :: ig,ib,ilm,is,iv0,l,lmxl,m,nlm,nlmx,lfoc
+!    equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
     parameter (nlmx=64)
     double precision :: tau(3),df(0:20),vol,rg,qcorg,qcorh,qsc, &
          cofg,cofh,ceh,rfoc,z,q0(3),gam,gamf,cfoc,cvol,aa
@@ -657,7 +653,7 @@ contains
     data q0 /0d0,0d0,0d0/
     call tcn('pvdf4')
     call stdfac(20,df)
-    ngabc=lat_nabc
+!    ngabc=lat_nabc
     vol=lat_vol
     ! --- FT of gaussian density, all sites, for list of G vectors ---
     iv0 = 0

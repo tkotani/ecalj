@@ -6,7 +6,7 @@ contains
   subroutine hsibl(k1,k2,k3,vsm,isp,q,ndimh,napw,igapw, h)
     use m_lmfinit,only: alat=>lat_alat,nspec,nbas,ispec
     use m_lattic,only: qlat=>lat_qlat,vol=>lat_vol,rv_a_opos
-    use m_supot,only: ngabc=>lat_nabc, lat_ng, gmax=>lat_gmax
+    use m_supot,only: lat_ng, gmax=>lat_gmax,n1,n2,n3
     use m_lattic,only:  plat=>lat_plat
     use m_uspecb,only:uspecb
     use m_orbl,only: Orblib1,Orblib2,ktab1,ltab1,offl1,norb1,ktab2,ltab2,offl2,norb2
@@ -38,7 +38,7 @@ contains
     real(8) :: xx(n0),p1(3),p2(3)
     complex(8):: h(ndimh,ndimh),vsm(k1,k2,k3,isp)
     integer :: npmx,nlmto
-    integer:: ltop , n1 , n2 , n3 , net , nglob , nlmtop , nrt , iprint
+    integer:: ltop , net, nlmtop , nrt , iprint
     real(8) ,allocatable :: gg(:), g2(:), gvv(:),he(:,:), hr(:,:),yl(:,:)
     real(8) :: q0(3), etab(nermx),rtab(nermx)
     integer ,allocatable :: kv(:),iv(:,:),ncuti(:)
@@ -56,9 +56,9 @@ contains
     real(8),parameter:: pi=4d0*atan(1d0),tpi=2d0*pi
     call tcn('hsibl')
     ng=lat_ng
-    n1=ngabc(1)
-    n2=ngabc(2)
-    n3=ngabc(3)
+!    n1=ngabc(1)
+!    n2=ngabc(2)
+!    n3=ngabc(3)
     nlmto = ndimh - napw
     ! --- <MTO|V|MTO> and < MTO|V|PW> parts of h ---
     if (nlmto > 0) then

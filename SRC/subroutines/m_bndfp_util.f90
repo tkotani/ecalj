@@ -6,7 +6,7 @@ contains
     use m_struc_def
     use m_lmfinit,only:nkaph,nsp,nspc,stdo,nbas,ispec,sspec=>v_sspec,nlmto
     use m_lattic,only: lat_vol
-    use m_supot,only: lat_nabc,k1,k2,k3
+    use m_supot,only: n1,n2,n3
     use m_orbl,only: Orblib,ktab,ltab,offl,norb,ntab,blks
     !NOTE: When SOC included, ek contains HSO, because ek= Eband- V*n where Eband contains SO contr.
     !i Inputs
@@ -122,14 +122,14 @@ contains
     real(8),pointer:: QPP(:,:,:,:,:), QHP(:,:,:,:,:),QHH(:,:,:,:,:), &
          SIGHH(:,:,:,:),SIGHP(:,:,:,:),SIGPP(:,:,:,:), &
          TAUHH(:,:,:,:),TAUHP(:,:,:,:),TAUPP(:,:,:,:)
-    complex(8):: smpot(k1,k2,k3,nsp),smrho(k1,k2,k3,nsp)
+    complex(8):: smpot(n1,n2,n3,nsp),smrho(n1,n2,n3,nsp)
     complex(8),pointer:: PPIHH(:,:,:,:,:),PPIHP(:,:,:,:,:),PPIPP(:,:,:,:,:)
     real(8):: sumev, ekinval , vconst
-    integer :: ib,igetss,ipr,is,kmax,lgunit,lmxa,lmxh,n0,n1,n2,n3, ngabc(3),nglob,nkap0,nlma,nlmh,ilm1
+    integer :: ib,igetss,ipr,is,kmax,lgunit,lmxa,lmxh,n0, ngabc(3),nglob,nkap0,nlma,nlmh,ilm1
     logical :: lgors
     parameter (n0=10,nkap0=3)
     double precision :: qum1,qum2,sraugm,srhov,srmesh,sum1,sum2,sumh,sumq,sumt,vol,xx
-    equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
+!    equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
     include 'mpif.h'
     integer:: procid=0,ier=0,io,iorb
     integer,parameter::master=0
@@ -139,7 +139,7 @@ contains
     if(procid==master) iprx= .TRUE. 
     call tcn('mkekin')
     call getpr(ipr)
-    ngabc=lat_nabc
+!    ngabc=lat_nabc
     vol=lat_vol
     srmesh = (dreal(sum(smpot*smrho)) + vconst*dreal(sum(smrho))) *vol/(n1*n2*n3) ! Integral n0(out) (Ves0~ + Vxc0), contribution from mesh
     ! Note that it does not include the term (n0~-n0) Ves0~

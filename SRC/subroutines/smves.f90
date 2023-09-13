@@ -7,7 +7,7 @@ contains
     use m_supot,only: iv_a_okv, rv_a_ogv
     use m_lmfinit,only: rv_a_ocy,nsp,stdo,nbas,sspec=>v_sspec,ispec
     use m_lattic,only: vol=>lat_vol
-    use m_supot,only: ng=>lat_ng,k1,k2,k3,n1,n2,n3
+    use m_supot,only: ng=>lat_ng,n1,n2,n3
     use m_MPItk,only: master_mpi
     use m_ext,only: sname
     use m_esmsmves,only: esmsmves
@@ -16,7 +16,7 @@ contains
     use m_ftox
     !i   nbas  :size of basis
     !i   sspec :struct containing species-specific information
-    !i   k1,k2,k3 dimensions of smrho,smpot for smooth mesh density
+    !i   n1,n2,n3 dimensions of smrho,smpot for smooth mesh density
     !i   qmom  :multipole moments of on-site densities (rhomom.f)
     !i   smrho :smooth density on real-space mesh
     !i   qbg   : back ground charge
@@ -144,7 +144,7 @@ contains
          , vrmt(nbas),qsmc,smq,rhvsm,sgp0,vconst,zsum,zvnsm,qbg
     real(8):: ceh,cofg,cofh,dgetss,hsum,qcorg,qcorh,qsc, &
          rfoc,rmt,s1,s2,sbar,sumx,sum1,sum2,u00,u0g,ugg,usm,vbar,z,R,eint
-    complex(8):: smrho(k1,k2,k3,nsp),smpot(k1,k2,k3,nsp)
+    complex(8):: smrho(n1,n2,n3,nsp),smpot(n1,n2,n3,nsp)
     complex(8) ,allocatable :: cg1_zv(:), cgsum_zv(:), cv_zv(:)
     real(8),parameter::pi = 4d0*datan(1d0), srfpi = dsqrt(4d0*pi), y0= 1d0/srfpi
     call tcn('smves')
@@ -152,7 +152,7 @@ contains
     if(nsp==2) smrho(:,:,:,1)=smrho(:,:,:,1)+smrho(:,:,:,2)!Electrostatics is only on total density
     allocate(cv_zv(ng),cg1_zv(ng),cgsum_zv(ng))
     f=0d0
-    call fftz3(smrho,n1,n2,n3,k1,k2,k3,1,0,-1) ! FT of smooth density to reciprocal space
+    call fftz3(smrho,n1,n2,n3,n1,n2,n3,1,0,-1) ! FT of smooth density to reciprocal space
     call vesft ( ng,rv_a_ogv,iv_a_okv,cv_zv,smrho,smpot,u00 )! Estatic potential of smooth density without gaussians
     call vesgcm (qmom,ng,rv_a_ogv,iv_a_okv,cv_zv,cg1_zv,cgsum_zv ,&
          smpot,f,gpot0,hpot0,qsmc,zsum,vrmt ) !Add estatic potential of  gaussians and smHankels to smpot
@@ -199,8 +199,8 @@ contains
        enddo
     endif
     ! ... Back transform of density and potential to real-space mesh
-    call fftz3(smrho,n1,n2,n3,k1,k2,k3,1,0,1)
-    call fftz3(smpot,n1,n2,n3,k1,k2,k3,1,0,1)
+    call fftz3(smrho,n1,n2,n3,n1,n2,n3,1,0,1)
+    call fftz3(smpot,n1,n2,n3,n1,n2,n3,1,0,1)
     smrho(:,:,:,1)=smrho(:,:,:,1)+qbg/vol !Add background to smrho
     if (qbg /= 0) then
        R = (3d0/pi/4d0*vol)**(1d0/3d0)
@@ -250,7 +250,7 @@ contains
     use m_struc_def
     use m_lattic,only:lat_plat,rv_a_opos
     use m_lmfinit,only:lat_alat,nbas,ispec,sspec=>v_sspec
-    use m_supot,only: lat_nabc,k1,k2,k3
+    use m_supot,only: n1,n2,n3
     use m_ropyln,only: ropyln
     use m_ropbes,only: ropbes
     !- Makes potential at MT surfaces given potential on a uniform mesh
@@ -261,7 +261,7 @@ contains
     !i   gv    :list of reciprocal lattice vectors G (gvlist.f)
     !i   kv    :indices for gather/scatter operations (gvlist.f)
     !i   cv    :work array
-    !i   k1,k2,k3 dimensions of smrho,smpot for smooth mesh density
+    !i   n1,n2,n3 dimensions of smrho,smpot for smooth mesh density
     !i   smpot :estat potential
     !o Outputs
     !o   vval  :coffs to YL expansion of es potential at MT boundary
@@ -281,11 +281,11 @@ contains
     implicit none
     integer :: ng,kv(ng,3)
     real(8):: gv(ng,3),vval(1)
-    double complex smpot(k1,k2,k3),cv(ng)
-    integer :: i,ib,is,lmxx,nlmx,iv0,lmxl,nlm,ngabc(3), n1,n2,n3,m,ilm,l,ipr
+    double complex smpot(n1,n2,n3),cv(ng)
+    integer :: i,ib,is,lmxx,nlmx,iv0,lmxl,nlm,m,ilm,l,ipr
     double precision :: alat,pi,tpiba,tau(3),rmt,fac,plat(3,3)
     double complex vvali,fprli
-    equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
+!    equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
     parameter (lmxx=6, nlmx=(lmxx+1)**2)
     double precision,allocatable:: phil(:,:),yl(:,:)
     double precision,allocatable:: gv2(:,:),agv(:),cgp(:),sgp(:)
@@ -296,9 +296,9 @@ contains
     pi = 4d0*datan(1d0)
     alat=lat_alat
     plat =lat_plat
-    ngabc=lat_nabc
+!    ngabc=lat_nabc
     tpiba = 2*pi/alat
-    call gvgetf(ng,1,kv,k1,k2,k3,smpot,cv)
+    call gvgetf(ng,1,kv,n1,n2,n3,smpot,cv)
     ! --- YL(G)*G**l, agv=|G| for each g ---
     call dpcopy(gv,gv2,1,3*ng,tpiba)
     call ropyln(ng,gv2(1,1),gv2(1,2),gv2(1,3),lmxx,ng,yl,agv)
@@ -594,12 +594,12 @@ contains
   subroutine vesft(ng,gv,kv,cv,smrho,smpot,ssum)!Make electrostatic potential of density given in recip space
     use m_lmfinit,only:alat=>lat_alat
     use m_lattic,only: vol=>lat_vol
-    use m_supot,only: k1,k2,k3
+    use m_supot,only: n1,n2,n3
     !i   ng    :number of G-vectors
     !i   gv    :list of reciprocal lattice vectors G (gvlist.f)
     !i   kv    :indices for gather/scatter operations (gvlist.f)
     !i   cv    :work array holding smrho and smpot in glist form
-    !i   k1,k2,k3 dimensions of smrho,smpot for smooth mesh density
+    !i   n1,n2,n3 dimensions of smrho,smpot for smooth mesh density
     !i   smrho :FT of smooth density on uniform mesh
     !o Outputs
     !o   smpot :FT of smooth electrostatic potential
@@ -607,14 +607,14 @@ contains
     implicit none
     integer :: ng,i, kv(ng,3)
     real(8):: gv(ng,3),ssum, tpiba,g2
-    complex(8):: smrho(k1,k2,k3),smpot(k1,k2,k3),cv(ng),ccc(ng)
+    complex(8):: smrho(n1,n2,n3),smpot(n1,n2,n3),cv(ng),ccc(ng)
     real(8),parameter:: pi = 4d0*datan(1d0), pi8  = 8d0*pi
     call tcn('vesft')
     tpiba=2d0*pi/alat
-    call gvgetf(ng,1,kv,k1,k2,k3,smrho,cv) ! ... Gather density coefficients
+    call gvgetf(ng,1,kv,n1,n2,n3,smrho,cv) ! ... Gather density coefficients
     ccc= [complex(8):: 0d0, ((pi8/(tpiba**2*sum(gv(i,:)**2)))*cv(i),i=2,ng)]
     ssum = vol*sum(ccc(2:ng)*cv(2:ng))
-    call gvputf(ng,1,kv,k1,k2,k3,ccc,smpot)! smpot(G) =8pi/G**2 smrho(G)
+    call gvputf(ng,1,kv,n1,n2,n3,ccc,smpot)! smpot(G) =8pi/G**2 smrho(G)
     call tcx('vesft')
   end subroutine vesft
 subroutine symqmp(nrclas,nlml,nlmx,plat,posc,ngrp,g,ag,qwk,ipa,sym,qmp,nn)

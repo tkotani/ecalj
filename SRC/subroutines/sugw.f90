@@ -11,7 +11,7 @@ contains
     use m_lmfinit,only: ham_scaledsigma,lat_alat,mxorb,nkaph,nsp,nspc,nl,mxorb,ispec,sspec=>v_sspec
     use m_lmfinit,only: nbas,n0,nppn,nkap0,slabl,nmcorex=>nmcore,iantiferro
     use m_lattic,only: lat_plat, lat_qlat,rv_a_opos
-    use m_supot,only: lat_nabc, lat_gmax
+    use m_supot,only: n1,n2,n3, lat_gmax
     use m_rdsigm2,only: getsenex, senex,dsene
     use m_mkpot,only: smpot=>osmpot, vconst, vesrmt
     use m_mkpot,only: osig, otau, oppi, ohsozz,ohsopm, oppix,spotx
@@ -81,7 +81,7 @@ contains
          ifiqg,iflband(2),ifqeigen,ifsyml,igets,igetss,iix,iline, &
          im1,im2,ipb(nbas),ipqn,ipr,iprint,iq,is,isp,ispc,j,job,k1, &
          k2,k3,konf,konfig(0:n0),l,lchk,ldim,loldpw, &
-         lmaxa,lmxax,lsig,mx,mxint,n1,n2,n3,nat, &
+         lmaxa,lmxax,lsig,mx,mxint,nat, &
          ncore,ndima,nevl,nev,nglob,ngp,ngp_p, &
          ngpmx,nline,nlinemax,nlmax,nmx,nn1,nn2,nnn, &
          nphimx,npqn,nqbz,nqibz,nqnum,nqnumx,nqtot,nr,iqibz,imx, &
@@ -152,13 +152,13 @@ contains
     !!--------------------
     call getpr(ipr)
     alat=lat_alat
-    n1 = lat_nabc(1)
-    n2 = lat_nabc(2)
-    n3 = lat_nabc(3)
+!    n1 = lat_nabc(1)
+!    n2 = lat_nabc(2)
+!    n3 = lat_nabc(3)
     plat =lat_plat
     qlat =lat_qlat
     gmax =lat_gmax
-    call fftz30(n1,n2,n3,k1,k2,k3)
+!    call fftz30(n1,n2,n3,k1,k2,k3)
     lchk = 1
     lwvxc = .not. cmdopt0('--novxc')
     ! !!  Count number of atoms : exclude floating orbitals

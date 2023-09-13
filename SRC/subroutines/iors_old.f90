@@ -8,11 +8,9 @@ module m_iors_old ! This module is for reading old version of rst file before 20
 contains
   integer function iors_old(nit,rwrw)!,irs5)
     use m_density,only: osmrho, orhoat,eferm !these are allocated
-!    use m_bndfp,only: m_bndfp_ef_SET,eferm
-    use m_supot,only: lat_nabc
+    use m_supot,only: n1,n2,n3
     use m_struc_func,only: mpibc1_s_spec!,mpibc1_s_site
-    use m_lmfinit,only: lat_alat,nsp,lrel,nl,ispec,sspec=>v_sspec, nbas,nat,nspec,n0,idmodis=>idmod,slabl,&
-         rsma
+    use m_lmfinit,only: lat_alat,nsp,lrel,nl,ispec,sspec=>v_sspec, nbas,nat,nspec,n0,idmodis=>idmod,slabl,rsma
     use m_lattic,only: lat_plat
     use m_ext,only:sname
     use m_density,only: pnuall,pnzall,v0pot,v1pot
@@ -106,10 +104,10 @@ contains
          lmxa0,lmxb,lmxb0,lmxl,lmxl0,lmxr,lmxv,lmxv0,lrel0,n11,n21, &
          n31,nbas0,nspec0,nlml,nlml0,npan,npan0,nr,nr0,nsp0, &
          nxi,nat0,ibaug
-    integer:: ngabc(3) , n1 , n2 , n3 , isw
+    integer:: isw
     complex(8) ,allocatable :: h_zv(:)
     real(8) ,allocatable :: rwgt_rv(:)
-    equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
+!    equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
     integer :: idmod(n0),idmoz(n0) !,lrs(10)
     logical :: isanrg,lfail,ltmp1,ltmp2,latvec,cmdopt,mlog !,lshear
     double precision :: a,a0,alat,alat0,cof,eh,fac,qc,rfoc,rfoc0,rmt, &
@@ -132,7 +130,6 @@ contains
     mlog = cmdopt('--mlog',6,0,ignore)
     alat=lat_alat
     plat=lat_plat
-    ngabc=lat_nabc
     call dinv33(plat,1,qlat,fac)
     vol = dabs(fac)*alat**3
     ipr    = iprint()
@@ -142,7 +139,10 @@ contains
     msgw = '         warning:'
     iors_old = -1
     line = 'header'
-    call fftz30(n1,n2,n3,k1,k2,k3)
+    !call fftz30(n1,n2,n3,k1,k2,k3)
+    k1=n1
+    k2=n2
+    k3=n3
     ffmt = '(5f15.10)'
     ifmt = '(20i5)'
     npan = 1 !Hardwired for now
@@ -250,20 +250,20 @@ contains
              if (ipr >= 10) write(stdo,450) n11,n21,n31,n1,n2,n3
 450          format(9x,'remesh density from  ',i4,'  *',i4,'  *',i4, &
                   '    to  ',i4,'  *',i4,'  *',i4)
-             call fftz30(n11,n21,n31,k11,k21,k31)
-             allocate(h_zv(k11*k21*k31*nsp))
+!             call fftz30(n11,n21,n31,n11,n21,n31)
+             allocate(h_zv(n11*n21*n31*nsp))
              h_zv(:)=0.0d0
-             call dpdftr ( n11 , n21 , n31 , k11 , k21 , k31 , nsp0 , h_zv , lbin , jfi,rwrw )
+             call dpdftr ( n11 , n21 , n31 , n11 , n21 , n31 , nsp0 , h_zv , lbin , jfi,rwrw )
              if (nsp > nsp0) then
-                i = k11*k21*k31*2
+                i = n11*n21*n31*2
                 call dscal ( i , 0.5d0 , h_zv , 1 )
                 call dpscop ( h_zv , h_zv , i , 1 , 1 + i , 1d0 )
              endif
              call pshpr(50)
              i = 0
              if (n1 == 2*n11 .AND. n2 == 2*n21 .AND. n3 == 2*n31) i=3
-             call chgmsh ( i , plat , nsp , n11 , n21 , n31 , k11 , k21 , &
-                  k31 , h_zv , n1 , n2 , n3 , k1 , k2 , k3 , osmrho )
+             call chgmsh ( i , plat , nsp , n11 , n21 , n31 , n11 , n21 , &
+                  n31 , h_zv , n1 , n2 , n3 , k1 , k2 , k3 , osmrho )
              call poppr
              if (allocated(h_zv)) deallocate(h_zv)
           endif

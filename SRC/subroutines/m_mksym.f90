@@ -92,8 +92,8 @@ contains
     enddo
     if(imaster) call pshpr(60)
     allocate(iclasstaf_(nbas))
-    call mksym(lc,slabl,strn2,iv_a_oips,iclasstaf_) !strn2 and v_ssite2 are used.
-    ngrpaf_     = lat_nsgrp
+    call mksym(lc,slabl,strn2,iv_a_oips,iclasstaf_) !lat_nsgrp returned !strn2 and v_ssite2 are used.
+    ngrpaf_     = lat_nsgrp !number of spg symmetry + af symmetry.
     allocate(symops_af_(3,3,ngrpaf_),ag_af_(3,ngrpaf_))
     if(imaster) call poppr()
     if(imaster) write(stdo,"(a)")'AF: mksym, generator= SYMGRP+SYMGRPAF= '//trim(strn2)

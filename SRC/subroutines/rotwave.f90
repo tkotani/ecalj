@@ -1,42 +1,35 @@
-!! space-group rotation core of eigenfunctions, MTpartAPW expansion and MPB.
-module m_rotwave
-  public:: Rotmto,Rotmto2,Rotipw,Rotipw2,Rotwvigg
+module m_rotwave ! PMT wave funciton rotation ! space-group rotation of eigenfunctions, MTpartAPW expansion and MPB.
+  public:: Rotmto,Rotmto2,Rotipw,Rotipw2,Rotevec
 contains
-  !!------------------------------------------------------
-  subroutine rotwvigg(igg,q,qtarget,ndimh,napw_in,nband,evec,evecout,ierr)
-    use m_hamindex,only: symops,invgx,miat,tiat,shtvg,qlat,plat,dlmm,ngrp,norbmto, &
-         ibastab,ltab,ktab,offl,offlrev,getikt,igv2,igv2rev,napwk,nbas,pwmode
+  subroutine rotevec(igg,q,qtarget,ndimh,napw_in,nband,evec, evecout) ! Rotation of coefficients evec in PMT basis for q in qplist.
+    use m_qplist,only: igv2qp,igv2revqp,napwkqp,qplist,nkp
+    use m_hamindex,only: symops,miat,tiat,shtvg,qlat,plat,dlmm,ngrp,norbmto,ibastab,ltab,ktab,offl,offlrev,nbas
+    use m_lgunit,only: stdo
     use m_ftox
     implicit none
-    intent(in)::        igg,q,qtarget,ndimh,napw_in,nband,evec
-    intent(out)::                                              evecout,ierr
-    !! ==  wave function rotator by space group operation.
-    !! OUTPUT evecout, ierr
-    !! NOTE:
-    !! rotation of coefficients on PMT basis.
-    !!  phi(r) = \sum_i evec(i,iband) |F_i> ==> Rotated[phi](r)=\sum_i evecout(i,iband) |F_i>  by sym(:,:,ig).
-    !!  Rotated[phi](r)= phi[sym^-1(r)], where   sym(r)=r'= symops*r + shftvg.
-    integer::ig,ndimh,napw_in,nband,ibaso,iorb,nnn(3),igx,init1,init2,iend1,iend2,nlmto,ierr &
-         ,igg,ikt2,ikt,l,ibas,ig2,k
+    intent(in)::     igg,q,qtarget,ndimh,napw_in,nband,evec
+    intent(out)::                                            evecout
+    !   phi(r) = \sum_i evec(i,iband) |F_i> ==> Rotated[phi](r)=\sum_i evecout(i,iband) |F_i>  by sym(:,:,ig).
+    !   Rotated[phi](r)= phi[sym^-1(r)], where   sym(r)=r'= symops*r + shftvg.
+    !This comment is Checked at 2023-9-13
+    integer::i,ig,ndimh,napw_in,nband,iorb,nnn(3),igx,init1,init2,iend1,iend2,nlmto,ierr,igg,ikt2,ikt,l,ibas,ig2,k
     real(8)::q(3),gout(3),delta(3),ddd(3),qpg(3),platt(3,3),qtarget(3),qx(3),det,qpgr(3),ddd2(3)
     complex(8):: evec(ndimh,nband),evecout(ndimh,nband),phase(nbas)
     real(8),parameter:: tolq=1d-4
     complex(8),parameter:: img=(0d0,1d0), img2pi=2*4d0*datan(1d0)*img
-    platt = transpose(plat) !this is inverse of qlat
-    ierr=1
-    !! check q is really rotated to qtarget by symops(:,:,igg)
-    call rangedq( matmul(platt,(qtarget-matmul(symops(:,:,igg),q)) ), qx)
+    character(256)::aaa
+    platt = transpose(plat) ! inverse of qlat
+    call rangedq( matmul(platt,(qtarget-matmul(symops(:,:,igg),q)) ), qx) ! Check equivalence of q and qtarget
     if(sum(abs(qx))>tolq) then
-       write(6,"(a,3f7.3,2x,3f7.3)")'  rotwvigg: qtarget is not a star of q',q,qtarget
-       call rx( 'rotwvigg: qtarget is not symops(:,:,ig)*q')
+       write(aaa,"(a,3f7.3,2x,3f7.3)")' qtarget is not a star of q',q,qtarget
+       call rx( 'rotwvigg: qtarget is not symops(:,:,ig)*q'//trim(aaa))
     endif
     evecout = 0d0
     nlmto = ndimh-napw_in
-    !! mto part
-    if(nlmto/=0) then
-       phase = [(exp(-img2pi*sum(qtarget*tiat(:,ibas,igg))),ibas=1,nbas)]
-       do iorb=1,norbmto !orbital-blocks are specified by ibas, l, and k.
-          ibas = ibastab(iorb)
+    MTOpart: if(nlmto/=0) then 
+       phase = [(exp(-img2pi*sum(qtarget*tiat(:,ibas,igg))), ibas=1,nbas)]
+       OrbitalBlock: do iorb=1,norbmto 
+          ibas = ibastab(iorb) 
           l   = ltab(iorb)
           k   = ktab(iorb)
           init1 = offl(iorb)+1
@@ -44,55 +37,37 @@ contains
           init2 = offlrev(miat(ibas,igg),l,k)+1
           iend2 = offlrev(miat(ibas,igg),l,k)+2*l+1
           evecout(init2:iend2,:)= matmul(dlmm(-l:l,-l:l,l,igg),evec(init1:iend1,:))*phase(ibas)
-       enddo
-    endif
-    !! apw part
-    if(napw_in/=0) then
-       ikt  = getikt(q)       !index for q
-       ikt2 = getikt(qtarget) !index for qtarget
-       if(napw_in /= napwk(ikt) ) then
-          call rx('rotwv: napw_in /= napw(ikt)')
-       endif
-       do ig = 1,napw_in
-          if(pwmode>10) then
-             qpg  = q + matmul( qlat(:,:),igv2(:,ig,ikt))  !q+G
-             qpgr = matmul(symops(:,:,igg),qpg)            !rotated q+G
-             nnn= nint(matmul(platt,qpgr-qtarget)) !integer representation of G= qpgr - qtarget
-          else   
-             block
-               real(8):: gg(3),ggr(3) 
-               gg  = matmul(qlat(:,:),igv2(:,ig,ikt))  !q+G
-               ggr = matmul(symops(:,:,igg),gg)            !rotated G
-               nnn = nint(matmul(platt,ggr)) !integer representation of G= qpgr - qtarget
-             endblock
-          endif
-          ig2 = igv2rev(nnn(1),nnn(2),nnn(3),ikt2) !get index of G
-          if(ig2>=999999) then
-             block
-               integer:: i1
-             do i1=1,napwk(ikt)
-                write(6,ftox)'yyy0 igv2', ftof(q,3),     ikt,i1, ' ',igv2(:,i1,ikt)
-             enddo
-             do i1=1,napwk(ikt2)
-                write(6,ftox)'yyy1 igv2', ftof(qtarget,3),ikt2,i1,' ',igv2(:,i1,ikt2)
-             enddo
-             endblock
-             write(6,ftox)'rotwvigg: q=',ftof( q,3),'qtarget=', ftof(qtarget,3)
-             write(6,ftox)'rotwvigg  qr=',ftof(matmul(symops(:,:,igg),q),3)
-             write(6,ftox)'rotwvigg: qpg=',ftof(qpg,3),'qpgr=', ftof(qpgr,3)
-             write(6,ftox)'rorwvigg: igv2rev ikt2=',nnn(1),nnn(2),nnn(3)
-             call rx('rotwvigg can not find index of mapped G vector ig2')
-          endif
+       enddo OrbitalBlock
+    endif MTOpart
+    APWpart: if(napw_in/=0) then 
+       if(napw_in /= napwkqp(ikt) ) call rx('rotwave: napw_in /= napw(ikt)')
+       ikt  = findloc([(sum(abs(q      -qplist(:,i)))<1d-8,i=1,nkp)],value=.true.,dim=1)  !=index for q
+       ikt2 = findloc([(sum(abs(qtarget-qplist(:,i)))<1d-8,i=1,nkp)],value=.true.,dim=1)
+       igloop: do ig = 1,napw_in
+          getig2: block
+            integer:: i1
+            qpg  = q + matmul(qlat(:,:),igv2qp(:,ig,ikt))! q+G
+            qpgr = matmul(symops(:,:,igg),qpg)         ! rotated q+G
+            nnn  = nint(matmul(platt,qpgr-qtarget))    ! integer representation for G= qpgr - qtarget 
+            ig2 = igv2revqp(nnn(1),nnn(2),nnn(3),ikt2) ! get index of G
+            debugq: if(ig2>=999999) then
+               do i1=1,napwkqp(ikt) ;write(stdo,ftox)'yyy0 q ',ftof(q,3),      ikt, i1,' ',igv2qp(:,i1,ikt)
+               enddo
+               do i1=1,napwkqp(ikt2);write(stdo,ftox)'yyy1 qt',ftof(qtarget,3),ikt2,i1,' ',igv2qp(:,i1,ikt2)
+               enddo
+               write(stdo,ftox)'rotevec: q=',ftof( q,3),'qtarget=',ftof(qtarget,3),'qr=',ftof(matmul(symops(:,:,igg),q),3)
+               write(stdo,ftox)'       qpg=',ftof(qpg,3),'qpgr=', ftof(qpgr,3),'igv2revqp ikt2=',nnn(1),nnn(2),nnn(3)
+               call rx('rotwvigg can not find index of mapped G vector ig2')
+            endif debugq
+          endblock getig2
           evecout(nlmto+ig2,:)= evec(nlmto+ig,:) * exp( -img2pi*sum(qpgr*shtvg(:,igg)) )
-       enddo
-    endif
-    ierr=0
-  end subroutine rotwvigg
-  ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+       enddo igloop
+    endif APWpart
+  endsubroutine rotevec
   subroutine rotmto(qin,nbloch,nband, &
-         norbt,ibas_tbl,l_tbl,k_tbl,offset_tbl,offset_rev_tbl,max_ibas_tbl,max_l_tbl,max_k_tbl, &
-         sym,shtvg,dlmm,lxxa,miat,tiat,igxt,nbas,  cphiin, &
-         cphiout)
+       norbt,ibas_tbl,l_tbl,k_tbl,offset_tbl,offset_rev_tbl,max_ibas_tbl,max_l_tbl,max_k_tbl, &
+       sym,shtvg,dlmm,lxxa,miat,tiat,igxt,nbas,  cphiin, &
+       cphiout)
     implicit none
     intent(in)::    qin,nbloch,nband, &
          norbt,ibas_tbl,l_tbl,k_tbl,offset_tbl,offset_rev_tbl,max_ibas_tbl,max_l_tbl,max_k_tbl, &
@@ -130,8 +105,7 @@ contains
        iend2 = ini2+2*l
        cphiout(ini2:iend2,:)= matmul(dlmm(-l:l,-l:l,l),cphiin(ini1:iend1,:))*phase(ibas)
     enddo
-  end subroutine rotmto
-  !! ------------------------------------------------------
+  endsubroutine rotmto
   subroutine rotmto2(qin,nbloch,nband, &
        norbt,ibas_tbl,l_tbl,k_tbl,offset_tbl,offset_rev_tbl,max_ibas_tbl,max_l_tbl,max_k_tbl, &
        sym,shtvg,dlmm,lxxa,miat,tiat,igxt,nbas, &
@@ -167,7 +141,7 @@ contains
        iend2 = ini2+2*l
        zrotm(ini2:iend2,ini1:iend1) = dlmm(-l:l,-l:l,l)*phase(ibas)
     enddo
-  end subroutine rotmto2
+  endsubroutine rotmto2
   !! --------------------------------
   !> Rotation of Plane wave part. by sym
   !! Mapped from qtt(:,iqq) to qtt(:,iq)
@@ -190,22 +164,16 @@ contains
        if(igxt==-1) qpgr=-qpgr ! xxxxxxxx need to check!
        nnn = nint( matmul(platt,qpgr-qtarget)) ! integer-representation of G=qpgr-qtarget
        ig2 = ngvecprev(nnn(1),nnn(2),nnn(3))   ! index for G
-!       ig2 = findloc(ngvecp,val=nnn)
+       !       ig2 = findloc(ngvecp,val=nnn)
        geigenout(ig2,:)= geigenin(ig,:) * exp( -img2pi*sum(qpgr*shtvg) )
     enddo
-  end subroutine rotipw
-  !! --------------------------------
-  subroutine rotipw2(qin,qtarget,ngp,nband,platt,qlat,sym,ngvecp,ngvecprev,shtvg,igxt,imx, &
-       zrotm)
+  endsubroutine rotipw
+  subroutine rotipw2(qin,qtarget,ngp,nband,platt,qlat,sym,ngvecp,ngvecprev,shtvg,igxt,imx, zrotm)
     implicit none
-    intent(in)::       qin,qtarget,ngp,nband,platt,qlat,sym,ngvecp,ngvecprev,shtvg,igxt,imx
-    !! similar with rotipw
-    !! output: zrotm
-    real(8):: sym(3,3),qlat(3,3),platt(3,3),shtvg(3)
-    integer:: ngp,imx,nband, &
-         ngvecp(3,ngp), ngvecprev(-imx:imx,-imx:imx,-imx:imx) 
-    real(8):: qin(3),qpg(3),qpgr(3),qtarget(3)
-    integer:: ig,ig2,nnn(3),igxt
+    intent(in)::     qin,qtarget,ngp,nband,platt,qlat,sym,ngvecp,ngvecprev,shtvg,igxt,imx
+    intent(out)::                                                                          zrotm
+    real(8):: sym(3,3),qlat(3,3),platt(3,3),shtvg(3),qin(3),qpg(3),qpgr(3),qtarget(3)
+    integer:: ngp,imx,nband, ngvecp(3,ngp), ngvecprev(-imx:imx,-imx:imx,-imx:imx),ig,ig2,nnn(3),igxt
     complex(8),parameter:: img=(0d0,1d0),img2pi = 2d0*4d0*datan(1d0)*img
     complex(8):: zrotm(ngp,ngp)
     do ig = 1,ngp
@@ -216,5 +184,5 @@ contains
        ig2 = ngvecprev(nnn(1),nnn(2),nnn(3))  ! indeg of G
        zrotm(ig2,ig)= exp( -img2pi*sum(qpgr*shtvg) )
     enddo
-  end subroutine rotipw2
-end module m_rotwave
+  endsubroutine rotipw2
+endmodule m_rotwave

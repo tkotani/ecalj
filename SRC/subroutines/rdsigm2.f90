@@ -12,9 +12,7 @@ module m_rdsigm2
   integer,protected:: ndimsig,nspsigm,ndhrs,ham_nqsig
   real(8),protected,allocatable ::  rv_p_oqsig (:)
 contains
-  ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-  subroutine getsenex(qp,isp,ndimh,ovlm)
-    !! Return self-energy senex at qp,isp
+  subroutine getsenex(qp,isp,ndimh,ovlm)! Return self-energy senex at qp,isp
     implicit none
     integer:: isp,ndimh,ispsigm
     real(8):: qp(3)
@@ -42,7 +40,7 @@ contains
   ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
   subroutine m_rdsigm2_init() !get hrr (fourier transformation of self-energy in full BZ)
     use m_lmfinit,only : nbas,pwmode=>ham_pwmode,stdo,ldim=>nlmto
-    use m_hamindex,only: symops_af,napwmx
+    use m_hamindex,only: symops_af!,napwmx
     use m_MPItk,only: procid,master
     use m_ext,only:sname
     integer:: ierr,ifi,ndimh_dummy,ifis2,ik1,ik2,ik3,is,iset,nqp
@@ -50,8 +48,7 @@ contains
     character strn*120
     real(8),allocatable:: qsmesh2(:,:,:,:)
     call tcn('m_rdsigm2_init')
-    !      ldim  = ham_ldham(1)
-    ndimsig= ldim             !if(mtosigmaonly()) mode. Dimension of sigm is the size of MTOs.
+    ndimsig= ldim      
     if(procid==master) then
        open(newunit=ifi,file='sigm.'//trim(sname),form='unformatted')
        read(ifi,err=9995,end=9995) nspsigm,ndimh_dummy,nk1,nk2,nk3,nqp
@@ -65,16 +62,9 @@ contains
           call rx('mtosigmaonly()=T is needed in the current version sep2012')
        endif
        rewind ifi
-       if (mod(pwmode,10) ==0) then
-          write(stdo,"(a,2i5)")" --- ldim(=dim of lmto)= ",ldim
-       elseif(napwmx>0) then
-          write(stdo,"(a,2i5)")" --- ldim(=dim of lmto), napwmx= ",ldim,napwmx
-       endif
-       !! Get self-energy sfz in the full BZ.
-       call rdsigm2(nbas,nspsigm,ifi,nk1,nk2,nk3,ldim,qsmesh2,mtosigmaonly(),ndimsig)
+       call rdsigm2(nspsigm,ifi,nk1,nk2,nk3,ldim,qsmesh2,mtosigmaonly(),ndimsig) ! Get self-energy sfz in the full BZ.
        close(ifi)
-       !! Write sig_fbz
-       if(cmdopt0('--wsig_fbz')) then
+       WRITEsig_fbz: if(cmdopt0('--wsig_fbz')) then
           open(newunit=ifis2,file='sigm_fbz.'//trim(sname),form='unformatted')
           write(stdo,"(a)")' Writing sigm_fbz.* for SYMGRP e --wsig_fbz'
           write(ifis2) nspsigm,ndimsig,nk1,nk2,nk3,nk1*nk2*nk3,0,0,0
@@ -89,9 +79,8 @@ contains
              enddo
           enddo
           close(ifis2) !call fclose(ifis2)
-       endif
-       ! FT hrr is on regular mesh points. For bloch2
-       call fftz3(sfz,nk1,nk2,nk3,nk1,nk2,nk3,ndimsig**2*nspsigm,iset,+1) !+1 backward
+       endif WRITEsig_fbz
+       call fftz3(sfz,nk1,nk2,nk3,nk1,nk2,nk3,ndimsig**2*nspsigm,iset,+1) !+1 backward ! FT hrr is on regular mesh points. For bloch2
        hrr => sfz ! rename sfz as hrr
     endif                  !procid==master
     if(cmdopt0('--wsig_fbz')) call rx0('end of --wsig_fbz mode')
@@ -109,14 +98,11 @@ contains
 9995 continue
     call rx('sigmainit: readin error of sigm file')
   end subroutine m_rdsigm2_init
-  ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-  subroutine rdsigm2(nbas_dummy,nspsigm,ifis, &
-       nk1,nk2,nk3,ldim,qsmesh    ,mtosigmaonly,ndimsig) !,qsfz,qqps are for test sfz
+  subroutine rdsigm2(nspsigm,ifis, nk1,nk2,nk3,ldim,qsmesh, mtosigmaonly,ndimsig) ! Expand self-energy (read by ifis) to all the q point on mesh.
     use m_mksym,only: rv_a_osymgr,lat_nsgrp
-    use m_hamindex,only : getikt,napwk,   symops_af,ngrp_original,ngrpaf,symops,ngrp
+    use m_hamindex,only : symops_af,ngrp_original,ngrpaf,symops,ngrp,napwk
     use m_lmfinit,only: nl,stdo
     use m_lattic,only: plat=>lat_plat
-    !! == Expand self-energy (read by ifis) to all the q point on mesh. In developing. ==
     !! nbas is in this structure
     !! input
     !!    ifis:  file hundle for self-energy file sigm. only at irreducible q point.
@@ -135,96 +121,56 @@ contains
     !!  Especially qsmesh (regular q mesh for self-energy.) is very problematic. It should be given at a place, and then
     !!  it should be used somewhere else.
     implicit none
-    integer:: ifis,ndimsig_r,lwsig, nbas_dummy!nbas,
-    logical :: llshft(3),cmdopt,lphase,lsplts,lnwmsh, &
-         latvec,lfbzin,lfbzout
+    integer:: ifis,ndimsig_r,lwsig,i,j,ifis2,ifiz,isp,nspsigm,nglob,lrsig, nkxyz(3),nk1,nk2,nk3,nsgrp,nsgrps,mxkp,nqp,nqps, &
+         j1,iq1,mxorb,nqsig,lrot,iprint,lssym,ndims,ndimz,iq,n123(4),lcore,lhigh,ohrss,osigm2,odelt,oistb2
+    logical :: llshft(3),cmdopt,lphase,lsplts,lnwmsh, latvec,lfbzin,lfbzout
     character outs*80,out2*80,dc*1,rots*120
-    integer :: i,j,ifis2,ifiz,isp,nspsigm,nglob,lrsig, &
-         nkxyz(3),nk1,nk2,nk3,nsgrp,nsgrps,mxkp,nqp,nqps, &
-         j1,k1,k2,k3,iq1,nspc,mxorb,nqsig, lrot,iprint,lssym, &
-         ndims,ndimz,iq,n123(4),lcore,lhigh
     integer,parameter::niax=10
-    integer:: ohrss , osigm2 , odelt , oistb2
     integer ,allocatable :: gstar_iv(:)
     integer ,allocatable,target :: ipq(:,:,:)
-    real(8) ,allocatable :: qp_rv(:,:)
-    real(8) ,allocatable :: wgt_rv(:)
-    complex(8) ,allocatable :: wk_zv(:)
-    complex(8) ,allocatable :: sigm_zv(:,:)
-    real(8),allocatable:: evls(:),evlz(:),sigii(:)
-    complex(8),allocatable:: siglda(:,:),z(:,:),sigo(:,:)
-    integer :: is(3),lshft(3),ifac(3) !,lqoffo
-    double precision :: rb(3,3),qb(3,3) !,qoffi(3),qoffo(3)
-    double precision :: qp(3),tolq,rsstol,rotm(3,3),ddot  !plat(3,3),qlat(3,3)
-    integer :: jj1,jj2,jj3,k
-    integer ::iwdummy
-    real(8):: qsmesh(3,nk1,nk2,nk3) !eseavr,
-    integer:: i1,i2,i3,ikt,ldim,napw_in,debugmode
-    integer::  ndimsig !sep2012
-    !      complex(8)::sfz(nk1,nk2,nk3,ndimsig,ndimsig,nspsigm)
-    integer:: i_copy_size,ix
-    logical:: isanrg, l_dummy_isanrg,debug=.false.,mtosigmaonly,laf
+    real(8) ,allocatable :: qp_rv(:,:), wgt_rv(:),evls(:),evlz(:),sigii(:)
+    complex(8),allocatable :: wk_zv(:), sigm_zv(:,:), siglda(:,:),z(:,:),sigo(:,:)
+    integer :: is(3),lshft(3),ifac(3), jj1,jj2,jj3,k,iwdummy
+    real(8):: rb(3,3),qb(3,3), qp(3),tolq=1d-4,rsstol,rotm(3,3), qsmesh(3,nk1,nk2,nk3) 
+    integer:: i1,i2,i3,ikt,ldim,napw_in,debugmode, ndimsig,ix
+    logical:: isanrg, debug=.false.,mtosigmaonly,laf
     real(8):: qir(3),diffq(3),platt(3,3)
     integer:: ii1,ii2,ii4,ispr,iaf,ig,nsp_,ndimh_,nk1_,nk2_,nk3_,nqp_
     character(300)::aaa
     character(8):: xt
     integer,allocatable,target:: ipqaf(:,:,:)
     integer,pointer:: ipq_pointer(:,:,:)
-    !     --- Read sigma(orbital basis) from file ---
     call tcn('rdsigm2')
-    print *
-    print *,'rdsigm2:'
+    write(stdo,*)'rdsigm2:'
     sfz=1d99
     laf=allocated(symops_af) !jun2015takao
-    tolq = 1d-4
     lshft=0
-    rewind ifis
+    rewind ifis !Read sigma(orbital basis) from a file 
     read(ifis) nsp_,ndimsig_r,nk1_,nk2_,nk3_,nqp_
     nsgrp=lat_nsgrp
-    k1=nk1
-    k2=nk2
-    k3=nk3
+!    k1=nk1
+!    k2=nk2
+!    k3=nk3
     nsgrps = nsgrp
     print *,' lat_nsgrp=',lat_nsgrp
-    ! ... Make is,ifac,qb,qlat,qoff
-    do i = 1, 3
-       llshft(i) = .false. !lshft(i) .ne. 0
-    enddo
-    call bzmsh0(plat,llshft,0,nk1,nk2,nk3,is,ifac,rb,qb)
-    ! --- Get list of irreducible k-points, and ipq and gstar arrays ---
+    llshft = .false. 
+    call bzmsh0(plat,llshft,0,nk1,nk2,nk3,is,ifac,rb,qb)!Get is,ifac,qb,qlat,qoff  Get list of irreducible k-points, and ipq and gstar arrays
     mxkp = nk1*nk2*nk3
-    if (allocated(rv_p_oqsig)) deallocate(rv_p_oqsig)
-    allocate(rv_p_oqsig(abs(3*mxkp)))
-    allocate(qp_rv(3,mxkp))
-    allocate(gstar_iv(mxkp+1))
-    gstar_iv = -2
-    allocate(ipq(nk1,nk2,nk3))
-    allocate(wgt_rv(mxkp))
-    wgt_rv=0d0
-    if(debug) print *,'rdsigm2: debug2222'
+    allocate(rv_p_oqsig(abs(3*mxkp)),qp_rv(3,mxkp),ipq(nk1,nk2,nk3))
+    allocate(gstar_iv(mxkp+1),source=-2)
+    allocate(wgt_rv(mxkp),source=0d0)
     write(stdo,"(a)")' q-points in full BZ where sigma calculable ...'
-    call bzmesh(plat, qb, nk1,nk2,nk3, llshft,iwdummy,0, ipq,rv_p_oqsig, wgt_rv, nqsig, mxkp, 0, 0)
+    call bzmesh(plat,qb,nk1,nk2,nk3,llshft,iwdummy,0, ipq,rv_p_oqsig, wgt_rv, nqsig, mxkp, 0, 0)
     ham_nqsig=nqsig
     wgt_rv=0d0
     write(stdo,"(a)") ' Irr. qp for which sigma is calculated ...'
-    call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , rv_a_osymgr &
-         , nsgrps , ipq, qp_rv , wgt_rv , nqps , mxkp , gstar_iv , 0 )
+    call bzmesh(plat,qb,nk1,nk2,nk3,llshft,rv_a_osymgr, nsgrps,ipq, qp_rv,wgt_rv,nqps,mxkp,gstar_iv,0 )
     if(nqps/=nqp_) call rx('nqps/=nqp_ from sigm '//xt(nqps)//' '//xt(nqp))
     platt=transpose(plat)
-    !! qmesh
-    do i1=1,nk1
-       do i2=1,nk2
-          do i3=1,nk3
-             qsmesh(:,i1,i2,i3) = &
-                  (i1*ifac(1)-1)*qb(:,1) + &
-                  (i2*ifac(2)-1)*qb(:,2) + &
-                  (i3*ifac(3)-1)*qb(:,3)
-          enddo
-       enddo
+    do concurrent(i1=1:nk1,i2=1:nk2,i3=1:nk3)
+       qsmesh(:,i1,i2,i3) = matmul(qb(:,:), [(i1*ifac(1)-1), (i2*ifac(2)-1), (i3*ifac(3)-1)])
     enddo
-    if(debug) print *,'rdsigm2: debug111111'
-    if(laf) then
-       if(iprint()>10) write(stdo,*)'rdsimg2: AF mode, mapping from irr points to regular mesh point'
+    if(laf) then; if(iprint()>10) write(stdo,*)'rdsimg2: AF mode, mapping from irr points to regular mesh point'
        allocate(ipqaf(nk1,nk2,nk3))
        ipqaf=0
        do i1=1,nk1
@@ -247,17 +193,13 @@ contains
           enddo
        enddo
     endif
-    ! --- Generate hrs = sigma(T) from file sigma(k) ---
-    do  2001 isp = 1, nspsigm
+    ispsigmloop: do 2001 isp = 1, nspsigm !Generate hrs = sigma(T) from file sigma(k) ---
        if (isp==2 .AND. nsp_==1 ) then !If sigm file not spin polarized, use sigm from spin 1
           rewind ifis
           read(ifis)
        endif
-       allocate(wk_zv(ndimsig_r**2))
-       nspc = 1
-       allocate(sigm_zv(ndimsig_r,ndimsig_r))
-       do iq1 = 1, nqps
-          !! look for a tag qp in sigm, where qp=qp_rv(:,iq1)  for given iq1
+       allocate(wk_zv(ndimsig_r**2),sigm_zv(ndimsig_r,ndimsig_r))
+       do iq1 = 1, nqps ! look for a tag qp in sigm, where qp=qp_rv(:,iq1)  for given iq1
           do ix=0,1
              do
                 read(ifis,end=468) qp, ispr ! ispr is added dec2013
@@ -293,14 +235,12 @@ contains
           endif
           write(stdo,"(a,2i5,' ',13f13.5)")' rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=', isp,iaf,qp
           if(iprint()>60) write(stdo,"(a,13f13.5)")' rdsigm2:Goto hamfb3k  xxx input qp=', qp
-          call hamfb3k ( qp , iq1 , nk1 , nk2 , nk3 , k1 , k2 , k3 , ipq_pointer, &
-               napw_in , ndimsig , ndimsig , ndimsig , qb , ldim , &
-               ifac , gstar_iv , sigm_zv(1:ndimsig,1:ndimsig) , iaf, sfz(1,1,1,1,1,isp))
+          call hamfb3k(qp, iq1, nk1,nk2,nk3,ipq_pointer, napw_in,ndimsig,ndimsig,ndimsig,qb,ldim,&
+               ifac,gstar_iv,sigm_zv(1:ndimsig,1:ndimsig),iaf, sfz(1,1,1,1,1,isp))
           if(debugmode()>0) write(stdo,"(a,3f13.5)")'end of hamfbk3'
        enddo
-       deallocate(sigm_zv)
-       deallocate(wk_zv)
-2001 enddo
+       deallocate(sigm_zv,wk_zv)
+2001 enddo ispsigmloop
     call tcx('rdsigm2')
     if (allocated(wgt_rv)) deallocate(wgt_rv)
     if (allocated(ipq)) deallocate(ipq)
@@ -308,13 +248,10 @@ contains
     if (allocated(gstar_iv)) deallocate(gstar_iv)
   end subroutine rdsigm2
   ! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-  subroutine hamfb3k(qin,iq,nk1,nk2,nk3, &
-       k1,k2,k3,ipq,napw_in,ndimh,ldima,ldimb,qb,ldim,ifac,igstar, hq,iaf, gfbz)
+  subroutine hamfb3k(qin,iq,nk1,nk2,nk3,ipq,napw_in,ndimh,ldima,ldimb,qb,ldim,ifac,igstar, hq,iaf, gfbz)! Generate gfbz (full BZ) from hq (1st BZ).
     use m_lmfinit,only: stdo
-    !! Generate gfbz (full BZ) from hq (1st BZ).
     !i q iq: q and index for q
     !i   nk1,nk2,nk3:  no. divisions for the qp in 3 recip. latt. vecs
-    !i   k1,k2,k3: leading dimensions of gfbz
     !i   ipq   :ipq(i1,i2,i3) points to the irreducible qp into which
     !i          mesh point (i1,i2,i3) is mapped (bzmesh.f)
     !i-temp  igstar:contains group operation needed to rotated a k-point
@@ -331,16 +268,14 @@ contains
     !o   gfbz  : For those qp in star iq, hq stored
     ! ----------------------------------------------------------------------
     implicit none
-    integer:: nk1,nk2,nk3,k1,k2,k3,ipq(*),igstar(0:*),ndimh,ldima,ldimb,napw_in,debugmode
+    integer:: nk1,nk2,nk3,ipq(*),igstar(0:*),ndimh,ldima,ldimb,napw_in,debugmode
     real(8)::    qin(3),qb(3,3) !,plat(3,3),qlat(3,3)
-    complex(8):: hq(ndimh,ndimh),gfbz(k1,k2,k3,ldima,ldimb)
+    complex(8):: hq(ndimh,ndimh),gfbz(nk1,nk2,nk3,ldima,ldimb)
     integer:: i,i1,i2,i3,ig,iq,iq1,is,j,jj1,jj2,jj3,js,k,nl,ierr,ifac(3),j1,j2,ik1,ik2,ik3,isp,ldim,iaf
     real(8):: q1(3),qk
     character(200)::aaa
     ! Given (j1,j2,j3) of ipq, q_k(j1,j2,j3) =  sum_i (j_i*ifac(i)-1)*qb(k,i)
-    qk(k,jj1,jj2,jj3) = (jj1*ifac(1)-1)*qb(k,1) + &
-         (jj2*ifac(2)-1)*qb(k,2) + &
-         (jj3*ifac(3)-1)*qb(k,3)
+    qk(k,jj1,jj2,jj3) = sum(qb(k,:)*[(jj1*ifac(1)-1),(jj2*ifac(2)-1), (jj3*ifac(3)-1)])
     call tcn('hamfb3k')
     if(debugmode()>0) print *, 'hamfb3k: start...'
     iq1 = 0
@@ -368,21 +303,19 @@ contains
     if(debugmode()>0) print *, 'hamfb3k: end...'
     call tcx('hamfb3k')
   end subroutine hamfb3k
-  ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-  subroutine rotsig(qin,qout,ndimh,napw_in,ldim,sig,sigout,ierr,iaf) !iaf is added @jun2015takao
+  subroutine rotsig(qin,qout,ndimh,napw_in,ldim,sig, sigout,ierr,iaf) !Sigm rotator. sig at qin to sig at qout. ===
     use m_hamindex,only: symops,invgx,miat,tiat,shtvg,qlat,plat,dlmm,ngrp,norbmto, &
-         ibastab,ltab,ktab,offl,offlrev,getikt,igv2,igv2rev,napwk, &
-         ngrp_original
+         ibastab,ltab,ktab,offl,offlrev,igv2,igv2rev,napwk, ngrp_original
     use m_lmfinit,only: stdo
     implicit none
-    !!=== sigma rotator. sig at qin to sig at qout. ===
+    intent(out)::                                    sigout,ierr
     !! obtain sigout for qout.
     !! a little confusing since qin=symops(qout), and basis rotation. Need to clean up.
     !! Both of q and qtarget should be in qq table(in m_hamindex) which is given by gen_hamindex
     !! (read from QGpsi).
     !! Used idea is   <base(qin)|sigma(qin)|base(qin)> = <g(base)|sigma |g(base)>.
     !! where qin=g(qout).  qtarget=qin= g(q=qout)
-    integer ::  ig,ndimh,napw_in,ibaso,iorb,nnn(3),igx,init1,init2,iend1,iend2,nlmto,ierr,igg,ikt2,ikt,l,ibas,ig2,k,ix
+    integer:: ig,ndimh,napw_in,ibaso,iorb,nnn(3),igx,init1,init2,iend1,iend2,nlmto,ierr,igg,ikt2,ikt,l,ibas,ig2,k,ix
     real(8):: qin(3),qout(3)
     real(8)   :: q(3),delta(3),ddd(3),qpg(3),platt(3,3),qtarget(3),qx(3),det,qpgr(3),ddd2(3) !plat(3,3),qlat(3,3)
     complex(8):: phase,img=(0d0,1d0),img2pi, sig(ndimh,ndimh),sigout(ndimh,ndimh)
@@ -394,24 +327,20 @@ contains
     img2pi=2*4d0*datan(1d0)*img
     ierr=1
     platt=transpose(plat) !this is inverse of qlat
-    !! find symops(3,3,ig),
     if(debugmode()>0) write(stdo,"('rotsig: qin qout=',3f9.4,x,3f9.4)") qin,qout
     qtarget= qin
-    q      = qout  ! we find q
-    ! we try to find qtrget = symops(igx) * q          (this means qin = symops(igc) qout).
-
-    if(iaf==1) then !iaf mechanism is adde @jun2015takao for antiferro materials such as Nd2CuO4.
+    q      = qout  
+    AntiferroMechanism: if(iaf==1) then !AFisp=1
        ngini = 1
        ngend = ngrp_original
-    elseif(iaf==2) then
+    elseif(iaf==2) then !AF isp=2. These are antiferro space-group operations
        ngini = ngrp_original + 1
        ngend = ngrp
     else
        ngini = 1
        ngend = ngrp
-    endif
-
-    do igx=ngini,ngend
+    endif AntiferroMechanism
+    GetiggOFsymops: do igx=ngini,ngend ! we find qtrget = symops(igx) * q    (this means qin = symops(igc) qout).
        if(debugmode()>0) print *, 'ddd=',matmul(platt,(qtarget-matmul(symops(:,:,igx),q)))
        call rangedq(   matmul(platt,(qtarget-matmul(symops(:,:,igx),q))), qx)
        if(sum(abs(qx))<tolq) then
@@ -425,7 +354,7 @@ contains
           endif
           goto 1012
        endif
-    enddo
+    enddo Getiggofsymops
     write(aaa,"(a,3f7.3,2x,3f7.3)")' rotsig: qtarget is not a star of q',q,qtarget
     call rx(trim(aaa))
     print *
@@ -433,17 +362,14 @@ contains
 1012 continue
     allocate(sigx(ndimh,ndimh))
     sigx=0d0
-    !      nlmto = ndimh-napw_in
     nlmto=ldim
     if(debugmode()>0) then
        print *,' tttt: invgx =',invgx(igg),shtvg(:,igg)
        print *,' tttt: ntorb napwin',norbmto,ndimh,napw_in,nlmto
     endif
-    !! mto part ---
-    !  write(6,"(3i3,2x,2i5,3x,a)") ib,l,k, offl(iorb,ib)+1,offl(iorb,ib)+2*l+1,trim(spid)
-    if(nlmto/=0 )then
+    MTOpart: if(nlmto/=0 )then
        ibaso=-999
-       do iorb=1,norbmto !orbital-blocks are specified by ibas, l, and k.
+       OrbitalBlock: do iorb=1,norbmto !orbital-blocks are specified by ibas, l, and k.
           ! ndex of Hamiltonian is devided into these blocks.
           ibas = ibastab(iorb)
           if(ibas/=ibaso) phase = exp( -img2pi*sum(qtarget*tiat(:,ibas,igg)) )
@@ -457,10 +383,9 @@ contains
           do ix=1,ndimh
              sigx(ix,init1:iend1)= matmul(sig(ix,init2:iend2),dlmm(-l:l,-l:l,l,igg))*phase
           enddo
-       enddo
-    endif
-    !! apw part ------------
-    if(napw_in/=0) then
+       enddo OrbitalBlock
+    endif MTOpart
+    APWpart: if(napw_in/=0) then
        write(*,*) ' Probably OK-->Remove this stop to use this branch.' &
             //' But need to confirm two apw sections in this routines.(phase factors) ' &
             //' Idea of this routine: <i|\sigma|j>_qout= <g(i)|\sigma|g(i)>_qin, where qin=g(qout)'
@@ -482,10 +407,9 @@ contains
              sigx(ix,nlmto+ig) = sig(ix,nlmto+ig2) * phase
           enddo
        enddo
-    endif
-    if(debugmode()>0) print *,' apw part end 111: ikt ikt2=',ikt,ikt2
-    !! mto part ------
-    if(nlmto/=0) then
+       if(debugmode()>0) print *,' apw part end 111: ikt ikt2=',ikt,ikt2
+    endif APWpart
+    MTOpart2: if(nlmto/=0) then
        ibaso=-999
        do iorb=1,norbmto !orbital-blocks are specified by ibas, l, and k.
           ! ndex of Hamiltonian is devided into these blocks.
@@ -502,10 +426,9 @@ contains
              sigout(init1:iend1,ix)= phase * matmul(transpose(dlmm(-l:l,-l:l,l,igg)),sigx(init2:iend2,ix))
           enddo
        enddo
-    endif
-    if(debugmode()>0) print *,' end of 2nd mto part q=',q
-    !! apw part ------------
-    if(napw_in/=0) then
+       if(debugmode()>0) print *,' end of 2nd mto part q=',q
+    endif MTOpart2
+    APWpart2: if(napw_in/=0) then
        ikt  = getikt(q)    !index for q
        ikt2 = getikt(qtarget) !index for qtarget
        if(debugmode()>0) print *,' rotsig 111 ikt ikt2=',ikt,ikt2
@@ -524,31 +447,21 @@ contains
           enddo
        enddo
        if(debugmode()>0) print *,' apw part end 222: ikt ikt2=',ikt,ikt2
-    endif
-    ierr=0
-    if(debugmode()>0) print *,' goto deallcate sigx'
+    endif APWpart2
     deallocate(sigx)
-    if(debugmode()>0) print *,' end of rotsig'
     call tcx('rotsig')
+    ierr=0
   end subroutine rotsig
-  ! Bloch transform of real-space matrix  sll(j,i) =\sum_T hrr(T,i,j,isp,T)*phase
-  ! , where phase is the avarage for Tbar (shortest equivalent to T).  exp(ikT)
-  subroutine bloch2(qp,isp, sll)
-    !use m_rdsigm2,only: hrr,ndimsig,nk1,nk2,nk3
+  subroutine bloch2(qp,isp, sll)! Bloch transform of real-space matrix  sll(j,i) =\sum_T hrr(T,i,j,isp,T)*phase, where phase is the avarage for Tbar (shortest equivalent to T).  exp(ikT)
     use m_hamindex, only: ib_table
     use m_gennlat_sig,only: nlatS,nlatE,nlat
     use m_lattic,only: plat=>lat_plat
-    !      use m_mpitk,only: master_mpi,procid
     implicit none
-    integer:: isp,iset
+    integer:: ik1,ik2,ik3,i,j,ib1,ib2,ix,nS,nE,nnn,isp,iset
     real(8):: qp(3)
     real(8),parameter:: twopi = 8*datan(1d0)
-    complex(8):: sll(ndimsig,ndimsig)
-    complex(8):: phase,img=(0d0,1d0)
-    integer:: ik1,ik2,ik3,i,j,ib1,ib2,ix,nS,nE,nnn
+    complex(8):: sll(ndimsig,ndimsig), phase,img=(0d0,1d0)
     call tcn('bloch2')
-    !write(6,*)'ndimsig=',ndimsig,nk1,nk2,nk3
-    !write(6,*)'ibtable=',sum(ib_table(1:ndimsig))
     sll=0d0
     nnn=nk1*nk2*nk3
     do ik1=1,nk1
@@ -573,4 +486,12 @@ contains
     enddo
     call tcx('bloch2')
   end subroutine bloch2
+  integer function getikt(qin) !return !> get index ikt such that for qin(:)=qq(:,ikt)
+    use m_hamindex,only: qq,nqnum
+    intent(in)::          qin
+    integer::i
+    real(8):: qin(3)
+    getikt  = findloc([(sum(abs(qin-qq(:,i)))<1d-8,i=1,nqnum)],value=.true.,dim=1)  !=index for q
+    if(getikt<=0) call rx('getikt rdsigm2 can not find ikt for given q')
+  endfunction getikt
 end module m_rdsigm2
