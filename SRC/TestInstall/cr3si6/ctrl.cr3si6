@@ -3,12 +3,6 @@ Notes
   To test nonspherical moments (ASA), run at least twice through.
   Each time will generate qpp file closer to self-consistent one.
   lm cr3si6 -vnsph=1 -vnit=0
-TESTLMF   lmfa cr3si6 --pr51 -vnit=2 --time=6 --no-iactiv
-          lmf  cr3si6 --pr51 -vnit=2 --time=6 --no-iactiv
-#         mpix -np=9 lmf-MPI --rs=0 cr3si6 --pr51 -vnit=2 --time=6 --no-iactiv
-#         lmf  cr3si6 --pr51 -vnit=2 --time=6 --no-iactiv -vpwmode=11
-CLEAN   rm -f \{atm,mixm,rst,wf_si,ctrl,moms,save,wkp,log,out.lmf,wf_cr,wf_si}.cr3si6
-VERS      LMASA-6 LMF-6 FTB-6 LM:7 FP:7 ASA:7
 % const nsph=0 ccor=t asa=0
 # full-potential-specific
 % const lfrce=1
@@ -29,10 +23,10 @@ OPTIONS   NSPIN={nsp} REL=T HF=hf ASA[ CCOR={ccor} NSPH={nsph} ]
           NRXC=1 NONLOC=F CORDRD=F 
 SPEC      ATOM=Cr Z=24 R=2.68293751*.97 LMX=2 CONF=4 4 3 4 IDMOD=0 0 0 IDXDN=1 1 1
           RSMH= 2.9,2.9,1.3 EH= -0.1,-0.1,-0.2 A=0.03
-          BAS: 2,0,1,2.9,-.1,2,2,1.3,-.2 LMXA=3  MMOM=0 0 2
+          LMXA=3  MMOM=0 0 2
           ATOM=Si Z=14 R=2.68293752*.98 LMX=2 CONF=3 3 3 4 IDMOD=0 0 0 IDXDN=1 1 1
           RSMH= 1.7,1.7,1.7 EH= -0.20,-0.20,-0.20 A=0.03
-          BAS: 2-1,0,2,1.7,-.2 KMXA=2
+          KMXA=2
 SITE      ATOM=Cr POS=0.4330127 0.25000000 -.23894863 
           ATOM=Cr POS=0.0000000 0.50000000 0.23894863 
           ATOM=Cr POS=0.4330127 -.25000000 0.71684588 

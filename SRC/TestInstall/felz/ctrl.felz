@@ -16,7 +16,6 @@ TESTFSS lmf -vrel=1 -vnit=3 -vso=1 --rs=2 felz -vfsmom=-2
 #        mpix -np=9 lmf-MPIK -vrel=1 -vnit=3 -vso=1 --rs=2 felz -vfsmom=-2
 CLEAN   rm -f atm.felz fe.felz mixm.felz out.felz save.felz ctrl.felz log.felz moms.felz rst.felz rsta.felz wkp.felz
 % const verb=30
-VERS    LMF-6.10 LMASA-6.10 LM:7 FP:7
 IO      SHOW=F HELP=F VERBOS={verb} WKP=F
 %const a=2.87/0.529177 gmax=13 nmix=3 nk=4 rf=0.99 R=rf*sqrt(3)*a/4
 STRUC   NBAS=1 NSPEC=1 NL=5

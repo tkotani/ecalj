@@ -1,14 +1,6 @@
 %const  xcr=.1459771443 zcr=0.2497534934 xn=0.09939163258 zn=0.749777179
 %const  cpl=0
 %const  aR=7.8406 nmix=3 beta=0.5 conv=1e-5 convc=1e-5 lmx=2 asa=f
-TESTCLS lmfa crn
-#       mpix -np=16 lmf-MPIK --rs=0 crn
-#       mpix -np=16 lmf-MPIK --rs=1,0 --cls:5,0,1 -vnit=1 -vmetal=2 crn
-        lmf crn
-        lmf --rs=1,0 --cls:5,0,1 -vnit=1 -vmetal=2 crn
-        lmdos --dos:cls:window=0,1:npts=101 --cls crn
-        mv dos.crn dos-cls.crn
-# Notes:
 # Total energy and magnetic moment for different coreh hole configurations
 #     potential     coreh,spin      Cr1-mom  Cr2-mom  tot-mmom      ehf
 #       fp          none             2.31     -2.31     0.00    -8826.155104
@@ -18,10 +10,7 @@ TESTCLS lmfa crn
 #       asa         -1,-1            2.47     -2.20    -0.85    -8796.819646
 #       asa         -1,0             2.45     -2.21     0.31    -8796.227328
 #
-CLEAN   rm -f atm.crn cls.crn ctrl.crn dos-cls.crn moms.crn out.lmf-dos.crn
-PLOTCLS echo .25 10 0 1 | pldos -fplot -lst="1;3;5" -lst2="2;4;6" dos-cls.crn
 HEADER  CrN in orthorhombic setting afm structure (a)
-VERS    LMF-6.14 LMASA-6.14 LM:7 FP:7
 IO      SHOW=F HELP=F VERBOS=30 WKP=F
 OPTIONS NSPIN=2 REL=T
 %const nk=2 b=5.649096655 c=7.759189467 v0=476.516436 vfrac=0.9815569941

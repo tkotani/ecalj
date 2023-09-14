@@ -36,7 +36,10 @@ contains
             endif
          enddo
          ch=''
-1012     continue !      write(stdo,*)'cccccccc ',trim(cattok),'ch=###'//trim(ch)//'###'
+1012     continue
+         outx='rval2: '//trim(cattok)
+         lx=len_trim(outx)
+         if(master_mpi) write(stdo,ftox) trim(outx)//repeat(' ',30-lx),'val=',trim(ch)
          return
       endif   
       nomode=.false.; nrmode=.false.; ndmode=.false.
@@ -99,7 +102,6 @@ contains
            trim(cattok),nomode,nrmode,ndmode,ncount,rr
       outx='rval2: '//trim(cattok)
       lx=len_trim(outx)
-      if(master_mpi) write(stdo,ftox) trim(outx)//repeat(' ',30-lx),trim(modec),'n=',ncount &
-           ,'val=',ftof(rvx(1:ncount),8)
+      if(master_mpi) write(stdo,ftox) trim(outx)//repeat(' ',30-lx),trim(modec),'n=',ncount,'val=',ftof(rvx(1:ncount),8)
  end subroutine
 end module

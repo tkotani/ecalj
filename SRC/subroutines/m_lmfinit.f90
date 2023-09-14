@@ -96,15 +96,16 @@ contains
     character:: strn*(recln),strn2*(recln)
     character(:),allocatable:: recrd(:)
     integer,parameter:: maxp=3
+    character(10000):: recrdx
     character fileid*64
     character(256)::  a,outs,sss,ch
     character(128) :: nm
     logical :: cmdopt0,  debug=.false.,sexist, ipr10,fullmesh,lzz,fileexist, logarr(100), mlog=.false.
-    integer :: i,is,iprint, iprt,isw,ifi,ix(n0*nkap0),j,k,l,lfrzw,lrs,k1,k2,mpipid, lmxbj,lmxaj,nlbj,&
+    integer :: i,is,iprint, iprt,isw,ifi,ixx,j,k,l,lfrzw,lrs,k1,k2,mpipid, lmxbj,lmxaj,nlbj,&
          ibas,ierr,lc, iqnu=0, ifzbak,nn1,nn2,nnx,lmxxx,nlaj,isp,&
          inumaf,iin,iout,ik,iprior,ibp1,indx,iposn,m,nvi,nvl,nn1xx,nn2xx, nnn,ib,&
          lmxcg,lmxcy,lnjcg,lnxcg,nlm,nout,nn,i0,ivec(10),iosite,io_tim(2),verbos,&
-         lp1,lpzi,ii,sw,it,levelinit=0, lx,lxx, reclnr,nrecs,nrecs2
+         lp1,lpzi,ii,sw,it,levelinit=0, lx,lxx, reclnr,nrecs,nrecs2,lenmax
     real(8):: pnuspx(20) ,temp33(9),seref, xxx, avwsr, d2,plat(3,3),rydberg,rr, vsn,vers,xv(2*n0),xvv(3)
     real(8),allocatable ::rv(:)
     character*(8),allocatable::clabl(:)
@@ -154,8 +155,20 @@ contains
       call MPI_BARRIER( MPI_COMM_WORLD, ierr)
     end block ConvertCtrl2Ctrlp
     ReadCtrlp: block !Readin ctrlp given by ctrl2ctrlp.py above
-      open(newunit=ifi,file='ctrlp.'//trim(sname))
-      read(ifi,*) nrecs2,reclnr !nrecs,
+      open(newunit=ifi,file='ctrlp.'//trim(sname))       !read(ifi,*) nrecs2,reclnr !nrecs,
+      lenmax=-9999
+      ixx=0
+      do 
+         read(ifi,"(a)",end=1011)recrdx
+         ixx=ixx+1
+         lenmax=max(len_trim(recrdx),lenmax)
+      enddo
+1011  continue
+      reclnr=lenmax !max record size
+      nrecs2=ixx    !number of records
+!      write(6,*)'lenmax=',lenmax
+!      write(6,*) 'ixx=',ixx
+      rewind ifi
       allocate(character(reclnr):: recrd(nrecs2))
       do i = 1, nrecs2
          read(ifi,"(a)")recrd(i)

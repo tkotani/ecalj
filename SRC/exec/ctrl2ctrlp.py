@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Convert ctrl file to ctrlp, stdin to stdout
 # example: ctrl can contain
-#     %const a=2.4 b=2.3 c=a*b R=c
+#    %const a=2.4 b=2.3 c=a*b R=c
 #  , where >lmf-MPIK -va=3.8 replace value of a.
 # Except %const, such as %if, are not supported. T.K. 2023feb
 import sys,re
@@ -144,9 +144,10 @@ for iline in lll.split('\n'):
             catok=catok+itk+'\n'
 catok=catok+'STRUC_NSPEC '+str(nspec)+'\n' # less prior if STRUC_NSPEC already in ctrl
 catok=catok+'STRUC_NBAS '+str(nbas)+'\n'   # less prior
-#lx=catok.split('\n')
-#print(lx)
 llx=len(outfile0.split('\n'))+len(lll.split('\n'))
-print(llx+len(catok.split('\n'))+1,lmax,llx,'#  of all lines; # of reclen;# of line\n'+outfile0+'\n'+lll)
-print('@@@@@@@@@@@@@@@@@')
+#print(llx+len(catok.split('\n'))+1,lmax,llx,'#  of all lines; # of reclen;# of line\n'+outfile0+'\n'+lll)
+#print(catok)
+
+for iline in lll.split('\n'):
+    if('SYMGRP' in iline): print(iline)
 print(catok)

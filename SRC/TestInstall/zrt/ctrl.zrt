@@ -42,4 +42,3 @@ OPTIONS PFLOAT=0
 ITER    MIX=A{nmix},b={beta} CONV={conv} CONVC={convc} NIT={nitq} 
 MIX     MODE=A{nmix},b={beta} CONV={conv} CONVC={convc}
 
-DYN     MSTAT:{relmode},{hessian},{xtol},{gtol},{step},0 NIT={nitf}

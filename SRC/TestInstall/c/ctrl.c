@@ -1,11 +1,5 @@
 HEADER  sc C atom
-VERS    LMASA-6 LMF-6 LM:7 FP:7
 IO      SHOW=F HELP=F VERBOS=30 40 50 60 WKP=F
-TESTLMF lmfa --no-iactiv c -vzbak=0
-        lmf  --no-iactiv c -vzbak=0
-TESTION lmfa --no-iactiv c -vzbak=1
-        lmf  --no-iactiv c -vzbak=1
-CLEAN   rm -f ctrl.c moms.c atm.c mixm.c rst.c save.c log.c hssn.c wkp.c bsmv.c syml.c bnds.c
 %const ef0=0 nk=2 lmxa=3  nit=10 hf=f zbak=0
 OPTIONS NSPIN=2 REL=t FRZ=0 NRMIX=2 TPAN=0 HF={hf} ESP=F XCN=0 LMH=0
         XCFUN=2 FORCES=12

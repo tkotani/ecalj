@@ -1,14 +1,4 @@
 HEADER  GaAs in the ZB structure, with local orbitals
-# TESTSO  lmf --rs=2 -vso=1 -vnit=1 gasls --band:fn=syml
-TESTSO  lmf --rs=2 -vso=1 -vnit=1 gasls --band:fn=syml -vpwmode=0
-CLEAN   rm -f *.gasls
-TSTPDOS lmfa gas -vnit=10
-        rm -f mixm.gas
-        lmf  gas --rs=0,1 -vnit=10 
-        lmf  gas -vpdos=t --pdos:mode=1 --rs=1,0 -vnit=1
-        mv dos.gas tdos.gas
-        echo 1001 -1.2 .7 | lmdos gas -vpdos=t --pdos:mode=1
-        mv dos.gas pdos.gas
 %const  a=10.66 da=0 bzj=0 avw=2.62434548 lf1=4 lf2=lf1 lmxa=lf1 lmxae=lf2 rw=1.00 
 %const wto=0 kl=0 tet=1 nit=1 lf1=4 lf2=lf1 lmxa=lf1 lmxae=lf2 nk=6 nk2=nk 
 SYMGRP  find
@@ -25,10 +15,10 @@ SPEC    ATOM=C1 Z=31 R={avw}*{rw} A=.015 EREF=-3882.1256
           P=0,0,4.30 PZ=5.5 IDMOD=0,0,1 LMX=3 LMXL=2 LMXA={lmxa}
           RSMH=1.3,1.3,1.3,1.3 EH=-.6,-.1,-.1,-.1 RSMH2=1.3*0,1.3 EH2=-1.3,-1
         ATOM=EA1 Z=0 R={avw}*{rw} A=.015
-          LMX=2 LMXL=2 LMXA={lmxae} BAS: 1,0,2,rsm,-.1
+          LMX=2 LMXL=2 LMXA={lmxae} 
           RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1
         ATOM=EC1 Z=0 R={avw}*{rw} A=.015
-          LMX=2 LMXL=2 LMXA={lmxae} BAS: 1,0,2,rsm,-.1
+          LMX=2 LMXL=2 LMXA={lmxae} 
           RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1
 # for version 7
 ITER    MIX=A3,b=.7,k=5 BETA=.5 BETSW=F CONV=5e-5 CONVC=.002 NIT=nit
@@ -46,4 +36,3 @@ HAM     NMTO=0 KMTO=-.4 .1 .6 1.1 EWALD=T
         NSPIN=2 REL=t SO={so} XCFUN=2 
         FORCES=0 FTMESH=24 24 24 TOL=1d-6 QASA=3
         PWMODE={pwmode} PWEMIN={pwemin} PWEMAX={pwemax} OVMIN={ovmin}
-VERS    LMFP-5.0 LMASA-6 TB-6 LMF-6 FTB-6 LM:7 FP:7

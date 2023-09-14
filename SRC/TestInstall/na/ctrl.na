@@ -2,7 +2,6 @@
 # Lines beginning with '#' are comment lines.
 
 # ... Version control
-VERS    LMF-6 LMASA-6 LM:7 FP:7
 IO      SHOW=f HELP=F VERBOS=31,30 WKP=F IACTIV=0
 TESTLMF lmfa --no-iactiv na -vnk=6 -vbigbas=t -vnapval=0
         lmf  --no-iactiv na -vnk=6 -vbigbas=t -vnapval=0
@@ -17,7 +16,6 @@ TESTGW  echo -1 | lmfgw na -vnk=6 -vbigbas=2 -vnapval=1
         echo na | lmf2gw 
 
 
-# ... Preprocessor variable declarations:
 #   bigbas   bigbas=1 uses a larger basis
 #            bigbas=2 adds g orbitals to the basis
 #   napval   1 Put Na p state in the valence as a conventional local orbital
@@ -28,7 +26,7 @@ TESTGW  echo -1 | lmfgw na -vnk=6 -vbigbas=2 -vnapval=1
 
 # ... Variable declarations used as input in other categories
 #   a     the lattice constant, in a.u.
-#   da    change in lattice constant: a+da is lattice constant
+#   da    change in lattice constant a+da is lattice constant
 #   nit   maximum number of band passes for LDA self-consistency
 #   nk    number k-points divisions for BZ integrations
 #   dist  parameter defining lattice shear; see SHEAR below
