@@ -37,7 +37,6 @@ m_hamindex0.o \
 m_hamindex.o \
 m_struc_def.o \
 m_gtv.o \
-addrwf.o \
 m_rhocor.o\
 atwf.o \
 besslr.o \
@@ -63,18 +62,15 @@ iors.o \
 iors_old.o \
 lattic.o \
 madmat.o \
-makrwf.o \
 mkqp.o \
 m_mksym.o \
 m_mksym_util.o \
 mtchae.o \
-phidx.o \
 radgkl.o \
 radmsh.o \
 radpkl.o \
 relax.o \
 rmesh.o \
-rnatm.o \
 ropbes.o \
 roplat.o \
 ropyln.o \
@@ -157,7 +153,6 @@ tbhsi.o \
 totfrc.o \
 vcdmel.o \
 vesgcm.o \
-vxtrap.o \
 lmaux.o \
 pwmat.o \
 sugw.o \
@@ -202,12 +197,12 @@ ent_MPI.o\
 wmatK_mpi.o
 
 GWLIB_list=\
+m_readwan.o \
 lmf2gw.o\
 zsecsym.o \
 hilbertmat.o\
 dpsion5.o\
 m_homoelectron.o \
-m_readwan.o \
 m_w0w0i.o \
 wse.o \
 bzints2.o \

@@ -1,5 +1,6 @@
 subroutine makusp(n0,z,nsp,rmax,lmxa,v,a,nr,pnu,pnz,rsml,ehl, ul,sl,gz,ruu,rus,rss)!Augmentation func. of pure val,slo (times r) for spherical V and b.c.
   use m_hansr,only: hansr
+  use m_atwf,only: makrwf
   !r  ul: linear combination of phi,phidot val=1 slo=0
   !r  sl: linear combination of phi,phidot val=0 slo=1   ul and sl are r * u and r * s, respectively.
   !r  gz: gz is made for any l for pnz is nonzero where:  gz = r* ( phi_z - phi_z(rmax) u - (phi_z)'(rmax) s )
@@ -52,14 +53,14 @@ subroutine makusp(n0,z,nsp,rmax,lmxa,v,a,nr,pnu,pnz,rsml,ehl, ul,sl,gz,ruu,rus,r
         if (pnz(k,i) >  0)  lpzi = 1
         if (pnz(k,i) >= 10) lpzi = 2
         if (lpzi /= 0) then
-           call makrwf(0,z,rmax,l,v(1,i),a,nr,rofi,pnz(1,i),2, gzl,gp,ez,phz,dphz,phip,dphip,p)
+           call makrwf(z,rmax,l,v(1,i),a,nr,rofi,pnz(1,i),2, gzl,gp,ez,phz,dphz,phip,dphip,p)
            if (lpzi > 1) then !  Scale extended local orbital
               call hansr(rsml(l),0,l,1,[l],[ehl(l)],[rmax**2],1,1,[idx],11,xi)
               fac1 = gzl(nr,1)/rmax/xi(l)
               gzl=gzl/fac1 
            endif
         endif
-        call makrwf(0,z,rmax,l,v(1,i),a,nr,rofi,pnu(1,i),2,g,gp,enu,phi,dphi,phip,dphip,p)
+        call makrwf(z,rmax,l,v(1,i),a,nr,rofi,pnu(1,i),2,g,gp,enu,phi,dphi,phip,dphip,p)
         !   ... Scale gz so that <|gz-P(g,gp)|^2> = 1
         call makus2(lpzi,nr,rofi,g,gp,gzl,phi,dphi,phip,dphip,phz,dphz,l,enu,ez,z,v(1,i),ul(1,k,i),sl(1,k,i), &
              ruu(1,k,1,i),rus(1,k,1,i),rss(1,k,1,i), ruu(1,k,2,i),rus(1,k,2,i),rss(1,k,2,i))

@@ -77,8 +77,6 @@ contains
     real(8):: eferm,evlall(ndhamx,nspx,nkp)
     call mpibc2_complex(ausc_zv,size(ausc_zv),'ausc_zv') !2023jan fixed for TestInstall/crn
     eferm=bz_ef
-    if (master_mpi) call vcdmel(nl,nlmax,ndham,ndimh,nkp,nsp,nspc,eferm,evlall,ausc_zv,&
-         nsites,isite,iclsl,iclsn,dosw)
-    !call rx0('done generating core level spectra')
+    if(master_mpi) call vcdmel(nl,nlmax,ndham,ndimh,nkp,nsp,nspc,eferm,evlall,ausc_zv,nsites,isite,iclsl,iclsn,dosw)
   end subroutine m_clsmode_finalize
 end module m_clsmode

@@ -309,14 +309,6 @@ contains
     if(ifiwv>0) write(ifiwv,"(f23.15,' ! total charge')") sum(qlplus(0:lmxa,1:nsp)+ql(1,1:lmxa+1,1:nsp))
     dq=dq+sum(qlplus(:,:)) !takao feb2011
     if (ipr>=20)write(stdo,ftox)'sumev=',ftof(sumev),'etot=',ftof(etot),'eref=',ftof(eref),'etot-eref=',ftof(etot-eref)
-    !! june2012takao comment out followings. because confusing.
-    !      call dcopy(lmxa+1,ql,3,qat,1)
-    !      call dcopy(lmxa+1,ql(1,1,nsp),3,qat(1,2),1)
-    !      call awrit4('fa  Pl %n:-1d  Ql %n:-1d',
-    !     .' ',80,stdl,lmxa+1,pl,lmxa+1,qat)
-    !      if (nsp .eq. 2)
-    !     .call awrit4('fa  Pl2%n:-1d  Ql2%n:-1d',
-    !     .' ',80,stdl,lmxa+1,pl(1,nsp),lmxa+1,qat(1,nsp))
     if (dabs(dq) > 1d-5 .AND. iprint() >= 10) write(stdo,ftox)' freeat (warning) atom not neutral, Q=',ftof(dq)
     ! .. Subtract core from density to make valence density
     do  isp = 1, nsp
@@ -325,11 +317,6 @@ contains
           rho(i+(isp-1)*nr) = rho(i+(isp-1)*nr)-rhoc(i+(isp-1)*nr)
        enddo
     enddo
-    ! --- Renormalize atom density or potential ---
-    !irchan=0 !call ivset(irchan,1,n0,0)
-    !! takao jun2012: rnatm is not tested ---> this is related to SPEC_ATOM_RCFA on.
-    !call rnatm(pl,qat,n0,irchan,lmxa,z,a,b,rofi,ev,nr,rcfa,nsp,v,rho,plplus,qlplus)
-    !     call prrmsh('starting total rho',rofi,rhot,nr,nr,nsp)
     do  isp = 1, nsp
        do  i = 1, nr
           rhot(i+(isp-1)*nr) = rho(i+(isp-1)*nr)+rhoc(i+(isp-1)*nr)
@@ -351,7 +338,6 @@ contains
           do  30  i = 1, nr
              r = rofi(i)
              wt0 = rofi(i+nr)
-             !       wt0 = 2*(mod(i+1,2)+1)*a*(r+b)/3d0
              wt1 = wt0
              if (i > nrmt) wt1 = 0d0
              if (i == 1 .OR. i == nrmt) wt1 = a*(r+b)/3d0
@@ -924,7 +910,7 @@ contains
     use m_lmfinit,only: c=>cc
     use m_getqvc,only: config
     use m_rhocor,only:rhocor
-    use m_phidx,only: phidx
+    use m_atwf,only: phidx
     !! ev is dummy now. feb2010 takao
     !- Makes spherical charge density for a spherical potential.
     !  ---------------------------------------------------
@@ -1068,7 +1054,7 @@ contains
              else
                 val(1) = val(1)/dsqrt(sum)
                 slo(1) = slo(1)/dsqrt(sum)
-                call phidx(1,z,l,v(1,isp),rofi,nr,2,tol,eval,val,slo,nn,g,gp,phi,dphi,phip,dphip,p)!,0d0,[0d0],0d0,[0d0])
+                call phidx(0,z,l,v(1,isp),rofi,nr,2,tol,eval,val,slo,nn,g,gp,phi,dphi,phip,dphip,p)!,0d0,[0d0],0d0,[0d0])
              endif
              fllp1 = l*(l+1)
              !  ...  Case add q2 phi phidd rho

@@ -1,5 +1,4 @@
 subroutine atqval(lmxa,pnu,pnz,z,kcor,lcor,qcor,qc,qv,qsc)  ! Return valence and core charge for one site
-  ! ----------------------------------------------------------------------
   !i Inputs
   !i   lmxa  :augmentation l-cutoff
   !i   pnu   :boundary conditions.  If Dl = log. deriv. at rmax,
@@ -14,11 +13,6 @@ subroutine atqval(lmxa,pnu,pnz,z,kcor,lcor,qcor,qc,qv,qsc)  ! Return valence and
   !i   qc    :sphere core charge
   !i   qv    :nuclear charge - sphere core charge
   !i   qsc   :sphere semicore charge
-  !r Remarks
-  !u Updates
-  !u   16 Sep 01 Added calculation of qsc.  New argument list.
-  !u   30 May 00 adapted from nfp getqval
-  ! ----------------------------------------------------------------------
   implicit none
   integer :: kcor,lcor,lmxa
   double precision :: qc,qcor(1),qv,qsc,z,pnu(0:lmxa),pnz(0:lmxa)

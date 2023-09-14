@@ -127,6 +127,7 @@ contains
     use m_mtchae,only:mtchre
     use m_lmfinit,only: stdo
     use m_hansr,only:hansmr
+    use m_atwf,only: makrwf
     use m_ftox
     !- Fit value and slope of local orbitals to smoothed Hankel
     ! ----------------------------------------------------------------------
@@ -247,7 +248,7 @@ contains
              vv= v
           endif
           !     ... Wave function and potential parameters at MT sphere
-          call makrwf(0,z,rmt,l,vv(1,i),a,nrmt,rofi,pnz(1,i),4,g_rv,gp_rv,eval,phi,dphi,phip,dphip,p)
+          call makrwf(z,rmt,l,vv(1,i),a,nrmt,rofi,pnz(1,i),4,g_rv,gp_rv,eval,phi,dphi,phip,dphip,p)
           vsel(1,l+1) = phi
           vsel(2,l+1) = dphi
           vmine = eval - (v(nrmt,i)-2*z/rmt)

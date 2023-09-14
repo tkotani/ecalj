@@ -24,7 +24,7 @@ contains
     use m_augmbl,only: aughsoc
     use m_makusq,only: makusq
     use m_pwmat,only: pwmat
-    use m_atwf,only: atwf
+    use m_atwf,only: atwf,makrwf
     use m_ftox
     use m_zhev,only: zhev_tk4
     implicit none
@@ -287,8 +287,7 @@ contains
                   do ie=-12,10
                      pnux= [0d0,0d0,0d0,4.65d0 + ie*0.05d0] !pnu is changing
                      if(ie==7) cycle
-                     call makrwf(0,z,rmt(ib),l,v0pot(ib)%v(1+(i-1)*nr:nr*i) &
-                          ,a,nr,rofi,pnux,2,  gfun,gpfun,enu, phi,dphi,phip,dphip,p)
+                     call makrwf(z,rmt(ib),l,v0pot(ib)%v(1+(i-1)*nr:nr*i),a,nr,rofi,pnux,2, gfun,gpfun,enu, phi,dphi,phip,dphip,p)
                      call gintxx(gfun(1:nr,1),gfun(1:nr,1),a,b,nr,sum1)
                      rgfun=[(rofi(ir)*gfun(ir,1),ir=1,nr)]
                      if(abs(sum1-1d0)>0.01d0) call rx('sugw: need to check normalization 111')
@@ -298,21 +297,19 @@ contains
                   enddo
                   write(stdo,*)
                enddo
-               l = 3            !0, lmaxa
-               do i = 1, nsp
-                  do ie=-10,10
-                     enu= eferm + 0.2d0*ie !enu is changing
-                     call makrwf(1,z,rmt(ib),l,v0pot(ib)%v(1+(i-1)*nr:nr*i) &
-                          ,a,nr,rofi,1d10,2,  gfun,gpfun,enu, phi,dphi,phip,dphip,p)
-                     call gintxx(gfun(1:nr,1),gfun(1:nr,1),a,b,nr,sum1)
-                     rgfun=[(rofi(ir)*gfun(ir,1),ir=1,nr)]
-                     if(abs(sum1-1d0)>0.01d0) call rx('sugw: need to check normalization 222')
-                     call gintxx(rgfun,gfun(1:nr,1),a,b,nr,sum2)
-                     write(stdo,ftox)'\int phiphi : ib l isp=',ib,l,i, &
-                          ' enu \int rphiphi=',ftof(enu,3),ftof(sum2,3)
-                  enddo
-                  write(stdo,*)
-               enddo
+               ! l = 3            !0, lmaxa
+               ! do i = 1, nsp
+               !    do ie=-10,10
+               !       enu= eferm + 0.2d0*ie !enu is changing
+               !       call makrwf(1,z,rmt(ib),l,v0pot(ib)%v(1+(i-1)*nr:nr*i),a,nr,rofi,1d10,2, gfun,gpfun,enu, phi,dphi,phip,dphip,p)
+               !       call gintxx(gfun(1:nr,1),gfun(1:nr,1),a,b,nr,sum1)
+               !       rgfun=[(rofi(ir)*gfun(ir,1),ir=1,nr)]
+               !       if(abs(sum1-1d0)>0.01d0) call rx('sugw: need to check normalization 222')
+               !       call gintxx(rgfun,gfun(1:nr,1),a,b,nr,sum2)
+               !       write(stdo,ftox)'\int phiphi : ib l isp=',ib,l,i,' enu \int rphiphi=',ftof(enu,3),ftof(sum2,3)
+               !    enddo
+               !    write(stdo,*)
+               ! enddo
             endif
           endblock radint
           deallocate(rofi,rwgt,gcore,gval)

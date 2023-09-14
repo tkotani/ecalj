@@ -2,17 +2,15 @@ module m_potpus
   public potpus
   private
 contains
-  subroutine potpus(z,rmax,lmxa,v,vdif,a,nr,nsp,lso,pnu,pnz,ehl,rsml,rs3,vmtz, &
-       phzdphz,hab,vab,sab,sodb,rotp) ! Get phzdphz and matrix hab,vab,sab,sodb for (u,s,gz)
+  subroutine potpus(z,rmax,lmxa,v,vdif,a,nr,nsp,lso,pnu,pnz,ehl,rsml,rs3,vmtz,phzdphz,hab,vab,sab,sodb,rotp) ! Get phzdphz and matrix hab,vab,sab,sodb for (u,s,gz)
     use m_lmfinit,only: stdo,lrel,cc,n0,nppn
     use m_ftox
-    use m_vxtrap,only: rwftai
-    !r   A local orbital gz first type is defined as follows.
+    use m_atwf,only: makrwf,rwftai
+    !r   A local orbital gz first type is defined as
     !r      gz = r * ( phi_z - phi_z(rmax) u - (phi_z)'(rmax) s )
     !r   By construction, gz/r has both value = 0 and slope = 0 at rmax.
     !
-    !r   A local orbital gz the second type is defined as gz=r*phi_z;
-    !r     for r>rmax a smooth Hankel tail (spec'd by ehl,rsml) is attached as MTO.
+    !r   A local orbital gz the second type is defined as gz=r*phi_z. For r>rmax a smooth Hankel tail (spec'd by ehl,rsml) is attached as MTO.
     !    (t.k. will remove this second type probably in future. 2023jan plan)
     !i Inputs
     !i   z     :nuclear charge
@@ -141,7 +139,7 @@ contains
           if (pnz(k,i) >  0)  lpzi(l) = 1
           if (pnz(k,i) >= 10) lpzi(l) = 2
           if (lpzi(l)/=0) then ! ... lo wf gz and its sphere boundary parameters
-             call makrwf(10,z,rmax,l,v(1,i),a,nr,rofi,pnz(1,i),4,gz,gp,ez,phz,dphz,phzp,dphzp,pz)
+             call makrwf(z,rmax,l,v(1,i),a,nr,rofi,pnz(1,i),4,gz,gp,ez,phz,dphz,phzp,dphzp,pz)
              if (lpzi(l)==2) then ! Extend local orbital to large mesh; match gz to envelope
                 allocate(gzbig(nrbig,2))
                 gzbig(1:nr,:) = gz(1:nr,:)
@@ -159,7 +157,7 @@ contains
              if(lso/=0) ezum(l,i) = ez     !for SO
              if(lso/=0) pzi(:,l,i)= gz(:,1)!for SO
           endif
-          call makrwf(10,z,rmax,l,v(1,i),a,nr,rofi,pnu(1,i),2,g,gp,ev,phi,dphi,phip,dphip,p)!Valence wf g,gp, and their sphere boundary parameters
+          call makrwf(z,rmax,l,v(1,i),a,nr,rofi,pnu(1,i),2,g,gp,ev,phi,dphi,phip,dphip,p)!Valence wf g,gp, and their sphere boundary parameters
           ghg    = ev   ! <g H g> = e <g g> = e
           ghgp   = 1d0  ! <g H gp> = <g (H-e) gp> + e <g gp> = <g g> = 1
           gphgp  = ev*p ! <gp H gp> = <gp (H-e) gp> + e <gp gp> = <gp g> + e p = ep

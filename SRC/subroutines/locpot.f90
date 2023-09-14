@@ -76,41 +76,27 @@ contains
     !l   lfltwf:T  update potential used to define basis
     !i   idu  :idu(l+1,ibas)>01 => this l has a nonlocal U matrix
     ! ----------------------------------------------------------------------
-    integer::  job,ibx,ir,isp,l,lm
+    integer::  job,ibx,ir,isp,l,lm, kcor,lcor
+    integer:: i,nglob,ipr,iprint,j1,ib,is,lmxl,lmxa,nr,lmxb,kmax,lfoc,nrml,nlml,ifivesint,ifi
+    integer::lsox,lmxh
+    integer :: lh(nkap0),nkapi,nkape,k
     type(s_rv1) :: orhoat(3,nbas)
     type(s_cv5) :: oppi(3,nbas)
     type(s_sblock):: ohsozz(3,nbas),ohsopm(3,nbas)
-    type(s_rv4) :: otau(3,nbas)
-    type(s_rv4) :: osig(3,nbas)
-    real(8):: qmom(1) , vval(1)
-    double precision :: cpnvsa,rhoexc(nsp),rhoex(nsp),rhoec(nsp),rhovxc(nsp), &
-         qval,sqloc,sqlocc,saloc, & !,focvxc(nsp)focexc(nsp),focex(nsp),focec(nsp),
-         valvef,vvesat,xcore,& !rvvxc, & !,rveps rvepsv, ,rvexv,rvecv,rvvxcv
-         gpot0(1),phzdphz(nppn,n0,nsp,nbas),rhobg
+    type(s_rv4) :: otau(3,nbas), osig(3,nbas)
+    real(8):: qmom(1) , vval(1), cpnvsa,rhoexc(nsp),rhoex(nsp),rhoec(nsp),rhovxc(nsp), &
+         qval,sqloc,sqlocc,saloc, valvef,vvesat,xcore,gpot0(1),phzdphz(nppn,n0,nsp,nbas),rhobg,&
+         eh(n0,nkap0),rsmh(n0,nkap0), ehl(n0),rsml(n0),z,a,rmt,qc,ceh,rfoc, &
+         qcorg,qcorh,qsc,cofg,cofh,qsca,rg,qv,cpnvs, qloc,qlocc,xcor, aloc,alocc,rs3,vmtz,qcor(2),qc0,qsc0
+    real(8):: ov0mean,pmean
     real(8),target::hab(3,3,n0,nsp,nbas),vab(3,3,n0,nsp,nbas),sab(3,3,n0,nsp,nbas)
     character spid*8
-    integer :: lh(nkap0),nkapi,nkape,k
-    double precision :: eh(n0,nkap0),rsmh(n0,nkap0)
-    double precision :: ehl(n0),rsml(n0)
-    double precision :: &
-         z,a,rmt,qc,ceh,rfoc, &
-         qcorg,qcorh,qsc,cofg,cofh,qsca,rg,qv,cpnvs, &
-         qloc,qlocc,xcor, aloc,alocc!,rvexl, rvecl,rvvxvl,rvvxtl !,rvepvl,rveptl
+    logical :: lfltwf,phispinsym,cmdopt0,readov0,v0write,novxc
     real(8),pointer:: pnu(:,:),pnz(:,:)
-    ! ... for sm. Hankel tails
-    double precision :: rs3,vmtz
-!    character chole*8
-    integer :: kcor,lcor
-    double precision :: qcor(2),qc0,qsc0
     real(8),allocatable:: wk(:),efg(:,:),zz(:)
-    logical :: lfltwf
-    integer:: i,nglob,ipr,iprint,j1,ib,is,lmxl,lmxa,nr,lmxb,kmax,lfoc,nrml,nlml,ifivesint,ifi
     logical,save:: secondcall=.false.
-    logical :: phispinsym,cmdopt0,readov0,v0write,novxc
-    integer::lsox,lmxh
     character*20::strib
     character strn*120
-    real(8):: ov0mean,pmean
     call tcn('locpot')
     rhobg=qbg/vol
     ipr = iprint()
@@ -174,12 +160,9 @@ contains
            call radwgt(rmt,a,nr,rwgt)
            if(cmdopt0('--wrhomt'))call wrhomt('rhoMT.','density',ib,orhoat(1,ib)%v,rofi,nr,nlml,nsp) ! Write true density to file rhoMT.ib
            call locpt2(ib,j1,z,rmt,rg,a,nr,nsp,cofg,cofh & ! Make potential and energy terms at this site ---
-                ,ceh,rfoc,lfoc,nlml,qmom,vval,rofi &
-                ,rwgt,orhoat(1,ib)%v,orhoat(2,ib)%v,orhoat( 3,ib )%v,&
-                rhol1,rhol2,v1,v2,v1es,v2es, &
+                ,ceh,rfoc,lfoc,nlml,qmom,vval,rofi,rwgt, orhoat(1,ib)%v,orhoat(2,ib)%v,orhoat(3,ib)%v,rhol1,rhol2,v1,v2,v1es,v2es,&
                 valvs(ib),cpnvs(ib),rhexc(:,ib),rhex(:,ib),rhec(:,ib),rhvxc(:,ib),&
-                valvt(ib),xcor(ib) ,qloc(ib),qlocc(ib),aloc(ib),alocc(ib),gpotb,& 
-                rhobg,efg(1,ib),ifivesint,lxcf) 
+                valvt(ib),xcor(ib) ,qloc(ib),qlocc(ib),aloc(ib),alocc(ib),gpotb, rhobg,efg(1,ib),ifivesint,lxcf) 
            ! write density 1st(true) component and counter components.
            if(cmdopt0('--density') .AND. master_mpi .AND. secondcall) then
               write(stdo,"(' TotalValenceChange diff in MT; ib,\int(rho2-rho1)=',i5,f13.5)") ib,qloc(ib)
@@ -208,15 +191,9 @@ contains
            phispinsymB: block ! spin averaged oV0 to generate phi and phidot. takaoAug2019
              phispinsym= cmdopt0('--phispinsym')
              if(phispinsym) then
-                if(master_mpi .AND. nsp==2) then
-                   write(6,*) 'locpot: --phispinsym mode: use spin-averaged potential for phi and phidot'
-                endif
+                if(master_mpi.AND.nsp==2)write(6,*) 'locpot: --phispinsym mode: use spin-averaged potential for phi and phidot'
                 do ir=1,nr
-                   ov0mean = 0d0
-                   do isp=1,nsp
-                      ov0mean = ov0mean + v0pot(ib)%v( ir + nr*(isp-1) )
-                   enddo
-                   ov0mean = ov0mean/nsp
+                   ov0mean = sum([(v0pot(ib)%v( ir + nr*(isp-1) ),isp=2,nsp)])/nsp
                    do isp=1,nsp
                       v0pot(ib)%v(ir + nr*(isp-1))= ov0mean
                    enddo
@@ -327,12 +304,6 @@ contains
                      nkaph,nkapi,lmxh,lhh(:,is),fh,xh,vh,dh,&
                      nkaph,nkapi,lmxh,lhh(:,is),fh,xh,vh,dh,&
                      osig(3,ib)%v, otau(3,ib)%v, oppi(3,ib)%cv, ohsozz(3,ib)%sdiag, ohsopm(3,ib)%soffd)
-!                  call augmat(ib,z,rmt,rsmaa,lmxa,pnu,pnz,kmax,nlml, a,nr,nsp,lsox,rwgt,& 
-!                       v0,v1,v2,gpotb,gpot0(j1),nkaph,nkapi,&
-!                       lmxb,eh,rsmh, ehl,rsml,rs3,vmtz, lmaxu, vorb, idu, &
-!                       iblu, &
-!                       osig, otau, oppi, ohsozz, ohsopm, &
-!                       phzdphz, hab,vab,sab,rotp )
               endblock augmatblock
            endif
          endblock locpt2augmat
@@ -466,33 +437,19 @@ contains
     !u    8 Feb 02 rhoex and rhoec (T. Miyake)
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: nr,nsp,lfoc,nlml,ib,j1
-    double precision :: z,rmt,rg,a,cofg,cofh,ceh,rfoc,xcore,qloc,qlocc, &
-         aloc,alocc,rhoexc(nsp),rhoex(nsp),rhoec(nsp),rhovxc(nsp), &
-         valvef,vvesat, cpnves,rhobg
-    real(8):: rofi(nr),rwgt(nr), &
-         qmom(nlml),vval(nlml),gpotb(nlml), &
-         rho1(nr,nlml,nsp),rhol1(nr,nlml,nsp), &
-         rho2(nr,nlml,nsp),rhol2(nr,nlml,nsp), &
-         v1(nr,nlml,nsp),v1es(nr,nlml,nsp), &
-         v2(nr,nlml,nsp),v2es(nr,nlml,nsp), &
-         wk(nr,nlml,nsp),rhoc(nr,nsp)
-    double precision :: efg(5)
-    integer :: ipr,iprint,i,isp,ilm,l,lxcfun,nglob,nrml
-    double precision :: rhochs(nr),rhonsm(nr),df(0:20),cof(nlml), &
-         rhocsm(nr),tmp(nsp),xil(0:0),xill(nr) !xi(0:20,2),
-    double precision :: afoc,ag,b,cof0,fac,qv1,qv2,qcor1,qcor2, &
-         r,rep1(nsp),rep2(nsp),rep1x(nsp),rep2x(nsp),rep1c(nsp),rep2c(nsp), &
-         rhves1,rhves2,rmu1(nsp),rmu2(nsp),rvs1,rvs2, &
-         rvsm(nsp),rvtr(nsp),samh,sfac,sgpotb,sum1,sum2,sumg,sumh,top, &
+    integer:: nr,nsp,lfoc,nlml,ib,j1, ipr,iprint,i,isp,ilm,l,lxcfun,nglob,nrml, ifivesint
+    real(8):: rofi(nr),rwgt(nr), qmom(nlml),vval(nlml),gpotb(nlml), &
+         rho1(nr,nlml,nsp),rhol1(nr,nlml,nsp), rho2(nr,nlml,nsp),rhol2(nr,nlml,nsp), &
+         v1(nr,nlml,nsp),v1es(nr,nlml,nsp), v2(nr,nlml,nsp),v2es(nr,nlml,nsp), &
+         wk(nr,nlml,nsp),rhoc(nr,nsp), efg(5), z,rmt,rg,a,cofg,cofh,ceh,rfoc,xcore,qloc,qlocc, &
+         aloc,alocc,rhoexc(nsp),rhoex(nsp),rhoec(nsp),rhovxc(nsp), valvef,vvesat, cpnves,rhobg,&
+         rhochs(nr),rhonsm(nr),df(0:20),cof(nlml), rhocsm(nr),tmp(nsp),xil(0:0),xill(nr),&
+         afoc,ag,b,cof0,fac,qv1,qv2,qcor1,qcor2, r,rep1(nsp),rep2(nsp),rep1x(nsp),rep2x(nsp),rep1c(nsp),rep2c(nsp), &
+         rhves1,rhves2,rmu1(nsp),rmu2(nsp),rvs1,rvs2, rvsm(nsp),rvtr(nsp),samh,sfac,sgpotb,sum1,sum2,sumg,sumh,top, &
          ves1,vales1,vales2,vcpn1,vcpn2,vefc1,vefv1,vefv2,vesc1,vesc2, &
-         vesn1,vesn2,vnucl,vsum,vtr,ddot,a1,a2,smrhoc
-    double precision :: qs(nsp)
+         vesn1,vesn2,vnucl,vsum,vtr,ddot,a1,a2,smrhoc, qs(nsp),ves1int,ves2int, w2(nsp),fl(1,1,1),gnu,gg(nr)
     real(8),parameter:: pi = 4d0*datan(1d0),srfpi = dsqrt(4d0*pi),y0 = 1d0/srfpi
-    real(8):: ves1int,ves2int, w2(nsp),fl(1,1,1),gnu
     logical:: debug=.false.,topl
-    integer:: ifivesint
-    real(8):: gg(nr)
     call tcn('locpt2')
     call stdfac(20,df)
     ipr = iprint()
