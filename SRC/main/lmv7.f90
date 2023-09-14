@@ -10,7 +10,7 @@ program lmf ! Bootstrap sequence of modules initialzation. The variables in modu
   use m_lgunit,only:   m_lgunit_init, stdo,stdl
   use m_cmdpath,only:  setcmdpath
   use m_lmfinit,only:  m_lmfinit_init,nlibu,plbnd,nbas
-  use m_lattic,only:   m_lattic_init
+  use m_lattic,only:   m_lattic_init,  qlat=>lat_qlat
   use m_mksym,only:    m_mksym_init
   use m_mkqp,only:     m_mkqp_init,bz_nabc
   use m_lattic,only:   Setopos
@@ -25,6 +25,7 @@ program lmf ! Bootstrap sequence of modules initialzation. The variables in modu
   use m_gennlat,only:  m_gennlat_init
   use m_writeham,only: m_writeham_init, m_writeham_write
   use m_lmfp,only:     lmfp  !this is main part lmfp-->bndfp
+  use m_ftox
   implicit none
   integer:: iarg,iprint,iargc,jobgw=-1
   logical:: cmdopt0,cmdopt2, writeham
@@ -80,9 +81,11 @@ program lmf ! Bootstrap sequence of modules initialzation. The variables in modu
   call m_lmfinit_init(prgnam)! Read ctrlp into module m_lmfinit.
   call m_lattic_init()       ! lattice setup (for ewald sum)
   call m_mksym_init(prgnam)  !symmetry go into m_lattic and m_mksym
+  write(6,ftox)'lmv7bbbzzz qqqqqqqqlat',ftof(reshape(qlat,[9]))
   if(trim(prgnam)=='LMF') call m_mkqp_init() ! data of BZ go into m_mkqp
   ! --rs=3 is removed. (--rs=3 meand fixed density Harris-foukner MD).
   ! Sep2020:  Shorten site positions" removed. (we are useing shortn3 mainly now)
+  write(6,ftox)'lmv7bbb000 qqqqqqqqlat',ftof(reshape(qlat,[9]))
   ReadingPos: block !read aomic positions from AtomPos if it exists. Overwrite pos in m_lattic.
     real(8):: posread(3,nbas)
     logical:: irpos

@@ -42,8 +42,9 @@ $(obj_path)/iopen.o: $(maxloc)/iopen.f90
 	$(FC) $(FFLAGS_LESS3) -c $< -o $@
 	
 # ##### Patch section #############
-# $(obj_path)/huntx.o: $(subr)/huntx.f90
-# 	$(FC) $(FFLAGS_LESS3) -c $< -o $@
+$(obj_path)/mkqp.o: $(subr)/mkqp.f90
+	$(FC) $(FFLAGS_LESS3) -c $< -o $@
+
 # $(obj_path)/hunti.o: $(subr)/hunti.f90
 # 	$(FC) $(FFLAGS_LESS3) -c $< -o $@
 # $(obj_path)/polcof.o: $(subr)/polcof.f90

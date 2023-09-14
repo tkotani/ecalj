@@ -39,6 +39,7 @@ contains
     lat_awald=awald
     lat_nkd=nkd
     lat_nkq=nkq
+!    write(6,ftox)'lattic_init qqqqqqqqlat',ftof(reshape(lat_qlat,[9]))
     call tcx('m_lattic_init')
   end subroutine m_lattic_init
   subroutine lattc(as,tol,rpad,alat,plat,qlat,lmax,vol,awald,dlat,nkd,qlv,nkq,nkdmx,nkqmx)! Sets up the real and reciprocal space lattice vectors for Ewald
@@ -119,6 +120,7 @@ contains
     qxx= maxval([q0+qadd,(sum(qlat0(:,i)**2)**.5*1.05,i=1,3)]) !2022-10-12
     call xlgen(plat0,rxx,rpad*(r0+radd),nkdmx,11,modeg,nkd,dlat)
     call xlgen(qlat0,qxx,rpad*(q0+qadd),nkqmx,11,modeg,nkq,qlv)
+!    write(6,ftox)'lattic qqqqqqqqlat',ftof(reshape(qlat,[9]))
     if(iprint()>0) write(stdo,"(/'LATTC:  as=',f6.3,'   tol=',1p,e9.2,'   alat=',0p,f8.5,'   awald=',f6.3)") as,tol,alat,awald
     if(iprint()>0) write(stdo,"(9x,'r1=',f7.3,'   nkd=',i4,'      q1=',f7.3,'   nkq=',i4)") r0+radd,nkd,q0+qadd,nkq
   end subroutine lattc

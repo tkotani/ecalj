@@ -151,15 +151,15 @@ contains
     nsgrps = nsgrp
     print *,' lat_nsgrp=',lat_nsgrp
     llshft = .false. 
-    call bzmsh0(plat,llshft,nk1,nk2,nk3,is,ifac,rb,qb)!Get is,ifac,qb,qlat,qoff  Get list of irreducible k-points, and ipq and gstar arrays
+!    call bzmsh0(plat,llshft,nk1,nk2,nk3,is,ifac,rb,qb)!Get is,ifac,qb,qlat,qoff  Get list of irreducible k-points, and ipq and gstar arrays
     mxkp = nk1*nk2*nk3
     allocate(rv_p_oqsig(abs(3*mxkp)),qp_rv(3,mxkp),ipq(nk1,nk2,nk3))
     allocate(wgt_rv(mxkp))
     write(stdo,"(a)")' q-points in full BZ where sigma calculable ...'
-    call bzmesh(plat,qb,nk1,nk2,nk3,llshft,iwdummy,0, ipq,rv_p_oqsig, wgt_rv, nqsig, mxkp)!,0)
+    call bzmesh(plat,qb,ifac,nk1,nk2,nk3,llshft,iwdummy,0, ipq,rv_p_oqsig, wgt_rv, nqsig, mxkp)!,0)
     ham_nqsig=nqsig
     write(stdo,"(a)") ' Irr. qp for which sigma is calculated ...'
-    call bzmesh(plat,qb,nk1,nk2,nk3,llshft,rv_a_osymgr, nsgrps,ipq, qp_rv,wgt_rv,nqps,mxkp)! ,gstar_iv)
+    call bzmesh(plat,qb,ifac,nk1,nk2,nk3,llshft,rv_a_osymgr, nsgrps,ipq, qp_rv,wgt_rv,nqps,mxkp)! ,gstar_iv)
     if(nqps/=nqp_) call rx('nqps/=nqp_ from sigm '//xt(nqps)//' '//xt(nqp))
     platt=transpose(plat)
     do concurrent(i1=1:nk1,i2=1:nk2,i3=1:nk3)

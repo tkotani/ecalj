@@ -1,4 +1,4 @@
-subroutine bzmesh(plat,qb,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx) ! Divides the reciprocal lattice into microcells
+subroutine bzmesh(plat,qb,ifac,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx) ! Divides the reciprocal lattice into microcells
   use m_lgunit,only:stdo
   !i  plat     :primitive lattice vectors
   !i  n1,n2,n3 :no. divisions for the 3 recip. latt. vecs; (see Remarks)
@@ -19,6 +19,7 @@ subroutine bzmesh(plat,qb,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx) ! Divides the 
   !o   qb    :vectors of first microcell for input to BZINTS (see bzmsh0)
   !o   qp
   !    Some of the qp will be symmetry-related, leaving nq irreducible k-points, which are returned in qp(1..3,j), j=1,nq.
+  !o   ifac
   !NOTE:
   !  The reciprocal lattice is divided into n1*n2*n3 microcells which are parallelipipeds with 8 corners. The corners are nodes of the
   !  k-space mesh in the whole reciprocal lattice unit cell. Thus, for i1=1..n1, i2=1..n2, i3=1..n3 the qp(i1,i2,i3) are

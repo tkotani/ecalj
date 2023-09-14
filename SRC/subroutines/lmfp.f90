@@ -5,7 +5,7 @@ contains
   subroutine lmfp(llmfgw)
     use m_lmfinit,only: lhf, maxit,nbas,nsp, ham_seref,  sspec=>v_sspec, ispec, slabl,&
          nlibu,stdo,lrout,leks,plbnd,lpzex, nitrlx, indrx_iv,natrlx,xyzfrz,pdim,qtol,etol,alat
-    use m_lattic,only: qlat=>lat_qlat,rv_a_opos
+    use m_lattic,only: qlat=>lat_qlat,rv_a_opos,plat=>lat_plat
     use m_bandcal,only: dmatu
     use m_mkpot,only:   amom
     use m_ext,only:     sname
@@ -44,7 +44,7 @@ contains
     logical :: cmdopt,llmfgw,lbin,cmdopt0 !,lshr=.false.
     integer :: i,ifi,ipr, k, nit1,numq, lsc, icom,  nvrelx , itrlx,lscx
     integer:: ibas,unlink,ifipos,iter,j,idmatu,iprint
-    real(8) :: gam(4),gam1,bstim,pletot(6,2), plat(3,3),xvcart(3),xvfrac(3),seref,etot(2),vs=2d0,vs1
+    real(8) :: gam(4),gam1,bstim,pletot(6,2), xvcart(3),xvfrac(3),seref,etot(2),vs=2d0,vs1
     real(8),allocatable :: rv_a_omad (:) !  Madelung matrix if necessary
     character(10):: i2char
     logical:: cmdopt2
