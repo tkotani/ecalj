@@ -293,13 +293,14 @@ contains
     if(lrout/=0) call m_bandcal_allreduce(lwtkb) ! AllReduce band quantities.
     emin=1d9
     if(master_mpi) write(stdo,ftox)
+    if(master_mpi) write(stdo,"('    ikp isp            q          nev ndimh',100i8)")[(i,i=1,min(nevmin,100))]
     do iq = 1,nkp
        qp=qplist(:,iq)
        do isp = 1,nspx
           jsp = isp
           if(master_mpi .AND. iprint()>=35) then
-             write(stdo,ftox)" bndfp: kpt",iq," of",nkp," k isp=",ftof(qp,4),jsp," ndimh nev=",ndimhx_(iq,jsp),nevls(iq,jsp)
-             write(stdo,ftox) ftof([(evlall(i,jsp,iq), i=1,nevls(iq,jsp))],4)
+             write(stdo,"('band:',i3,i2,x,3f8.4,' ',i3,' ',i3,100f8.4)") & !up to 100th band
+             iq,jsp,qp,nevls(iq,jsp),ndimhx_(iq,jsp),[(evlall(i,jsp,iq), i=1,min(nevls(iq,jsp),100))]
           endif
           emin= min(minval( evlall(1:nevls(iq,jsp),jsp,iq)),emin)
        enddo
