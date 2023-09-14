@@ -35,7 +35,7 @@ subroutine pnunew(eferm) != Makes new boundary conditions pnu for phi,phidot =
   ! ----------------------------------------------------------------------
   implicit none
   logical lpz,lfrzv,lfrzz
-  integer:: idmod(n0) ,ipr , ib , is , lmxa , l , ipqn , m , isp , nr , nn , mxcst ! 
+  integer:: idmod(n0) ,ipr,ib,is,lmxa,l,ipqn,m,isp,nr,nn,mxcst ! 
   real(8) ,allocatable :: g_rv(:)
   real(8) ,allocatable :: gp_rv(:)
   real(8) ,allocatable :: rofi_rv(:)
@@ -100,18 +100,16 @@ subroutine pnunew(eferm) != Makes new boundary conditions pnu for phi,phidot =
               nr=sspec(is)%nr
               allocate(g_rv(nr*2))
               allocate(rofi_rv(nr*2))
-              call radmsh ( rmt , a , nr , rofi_rv )
+              call radmsh ( rmt,a,nr,rofi_rv )
               allocate(v0i_rv(nr))
-              call dpscop ( v0pot(ib)%v , v0i_rv , nr , 1 + nr * ( isp - 1 ) , 1 , 1d0 )
+              call dpscop ( v0pot(ib)%v,v0i_rv,nr,1 + nr * ( isp - 1 ),1,1d0 )
               if (mod(idmod(m),10) .eq. 3) then
                  val(1) = rmt
                  dl = dtan(pi*(0.5d0-mod(pnu(m,isp),10d0)))
                  slo(1) = dl + 1d0
                  nn = int(mod(pnu(m,1),10d0))-l-1
                  allocate(gp_rv(8*nr))
-                 call phidx ( 0 , z , l , v0i_rv , 0d0 , 0d0 , rofi_rv , &
-                      nr , 2 , 1d-12 , ebar , val , slo , nn , g_rv , gp_rv &
-                      , phi , dphi , phip , dphip , xx , xx , [xx] , xx , [xx] )
+                 call phidx(0,z,l,v0i_rv,rofi_rv,nr,2,1d-12,ebar,val,slo,nn,g_rv,gp_rv,phi,dphi,phip,dphip,xx)
                  !         ... cz = estimate for energy of orbital with b.c. connecting
                  !             to Hankel of energy 0
                  dlphi = rmt*dphi/phi
@@ -124,9 +122,7 @@ subroutine pnunew(eferm) != Makes new boundary conditions pnu for phi,phidot =
                  ebar=eferm
                  if(ipr>40) write(6,"(' pnunew: valence with semicore ebar=efermi=',f12.6)")ebar
               endif
-              call phidx ( 2 , z , l , v0i_rv , 0d0 , 0d0 , rofi_rv , nr ,  &
-                   0 , 1d-12 , ebar , val , slo , nn , g_rv , gp_rv , phi , &
-                   dphi , 0d0 , 0d0 , 0d0 , 0d0 , [0d0] , 0d0 , [0d0] )
+              call phidx(2,z,l,v0i_rv,rofi_rv,nr,0,1d-12,ebar,val,slo,nn,g_rv,gp_rv,phi,dphi,0d0,0d0,0d0)
               nnv=nn
               if (nn .eq. int(pnu(m,1))-l-1) then
                  dl = rmt*slo(1)/val(1) - 1
@@ -146,9 +142,7 @@ subroutine pnunew(eferm) != Makes new boundary conditions pnu for phi,phidot =
                  slo(1) = dnz + 1d0
                  nn = int(mod(pnz(m,1),10d0))-l-1
                  allocate(gp_rv(8*nr))
-                 call phidx ( 0 , z , l , v0i_rv , 0d0 , 0d0 , rofi_rv , &
-                      nr , 2 , 1d-12 , ez , val , slo , nn , g_rv , gp_rv , &
-                      phi , dphi , phip , dphip , xx , xx , [xx] , xx , [xx] )
+                 call phidx(0,z,l,v0i_rv,rofi_rv,nr,2,1d-12,ez,val,slo,nn,g_rv,gp_rv,phi,dphi,phip,dphip,xx)
                  dlphi = rmt*dphi/phi
                  dlphip = rmt*dphip/phip
                  umegam = -(phi/phip)*(-l-1-dlphi)/(-l-1-dlphip)

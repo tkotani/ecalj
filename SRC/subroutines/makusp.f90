@@ -37,29 +37,13 @@ subroutine makusp(n0,z,nsp,rmax,lmxa,v,a,nr,pnu,pnz,rsml,ehl, ul,sl,gz,ruu,rus,r
   !l Local variables
   !l   lpzi  :flags how local orbitals is to be treated in current channel
   !l         :0 no local orbital gz
-  !l         :1 value and slope of gz constructed to be zero at rmax
-  !l         :  by admixture of phi,phidot
-  !l         :2 a smooth Hankel tail is attached (extended local orbital)
-  !l         :  and it is included explicitly in the basis.
-  !l         :3 a smooth Hankel tail is attached (extended local orbital)
-  !l         :  and is coupled to the valence states in an extended atom
-  !l         :  approximation.
-  !b Bugs
-  !b   lpzi=3 is not implemented
-  !r
-  !u Updates
-  !u   12 Aug 04 First implementation of extended local orbitals
-  !u             Altered argument list.
-  !u   21 May 04 (ATP) pass n0 as argument rather than local dimension
-  !u   06 Mar 02 Added code to scale gz (see SCALEGZ)
-  !u   21 Aug 01 Extended to local orbitals.  Altered argument list.
-  !u   16 May 00 Adapted from nfp makusp, makusr and potpsr.
-  ! ----------------------------------------------------------------------
+  !l         :1 value and slope of gz constructed to be zero at rmax by admixture of phi,phidot
+  !l         :2 a smooth Hankel tail is attached (extended local orbital) and it is included explicitly in the basis.
   implicit none
   integer :: lmxa,nr,nsp,n0,i,l,k,lpz,lpzi,nrbig,idx
   real(8):: a,rmax,z,rsml(0:lmxa),ehl(0:lmxa), v(nr,1),pnu(n0,2),pnz(n0,2), &
-       ul(nr,lmxa+1,1),sl(nr,lmxa+1,1),gz(nr,lmxa+1,1), ruu(nr,lmxa+1,2,1),rus(nr,lmxa+1,2,1),rss(nr,lmxa+1,2,1)
-  real(8):: dphi,dphip,enu,ez,p,phi,phip, g(nr,2),gp(nr,8),gzl(nr,2),phz,dphz,rofi(nr),rwgt(nr),xi(0:n0),wk(2),fac1
+       ul(nr,lmxa+1,1),sl(nr,lmxa+1,1),gz(nr,lmxa+1,1), ruu(nr,lmxa+1,2,1),rus(nr,lmxa+1,2,1),rss(nr,lmxa+1,2,1),&
+       dphi,dphip,enu,ez,p,phi,phip, g(nr,2),gp(nr,8),gzl(nr,2),phz,dphz,rofi(nr),rwgt(nr),xi(0:n0),wk(2),fac1
   call radmsh(rmax,a,nr,rofi)
   do  i = 1, nsp
      do  l = 0, lmxa
@@ -78,8 +62,7 @@ subroutine makusp(n0,z,nsp,rmax,lmxa,v,a,nr,pnu,pnz,rsml,ehl, ul,sl,gz,ruu,rus,r
         call makrwf(0,z,rmax,l,v(1,i),a,nr,rofi,pnu(1,i),2,g,gp,enu,phi,dphi,phip,dphip,p)
         !   ... Scale gz so that <|gz-P(g,gp)|^2> = 1
         call makus2(lpzi,nr,rofi,g,gp,gzl,phi,dphi,phip,dphip,phz,dphz,l,enu,ez,z,v(1,i),ul(1,k,i),sl(1,k,i), &
-             ruu(1,k,1,i),rus(1,k,1,i),rss(1,k,1,i), &
-             ruu(1,k,2,i),rus(1,k,2,i),rss(1,k,2,i))
+             ruu(1,k,1,i),rus(1,k,1,i),rss(1,k,1,i), ruu(1,k,2,i),rus(1,k,2,i),rss(1,k,2,i))
         if (pnz(k,i) > 0) gz(:,k,i)=gzl(1:nr,1)
      enddo
   enddo
@@ -127,13 +110,10 @@ subroutine makus2(lpz,nr,rofi,g,gp,gz,phi,dphi,phip,dphip,phz,dphz,l,e,ez,z,v, u
   !o   rsz   :diagonal product u_l*gz_l, including small component
   !o   rzz   :diagonal product s_l*gz_l, including small component
   !r Remarks
-  !r   This routine makes linear combinations (u,s) of out of phi,phidot
-  !r   defined as : u has val=1, slo=1 at rmax, s has val=0, slo=1
-  !r   ul and sl are as r * u and r * s, respectively.
-  !u Updates
-  !u   13 Jul 04 First implementation of extended local orbitals
-  !u   21 Aug 01 extended to computation of semicore states
-  ! ----------------------------------------------------------------------
+  !r   This routine makes linear combinations (u,s) of out of phi,phidot defined as :
+  !       u has val=1, slo=0 at rmax,
+  !       s has val=0, slo=1 at rmax
+  !r      ul and sl are as r * u and r * s, respectively.
   implicit none
   integer :: l,nr,lpz,ir,jr
   real(8) :: dphi,dphip,e,ez,phi,phip,phz,dphz,z,as,au,bs,bu,det,fllp1,gfac,gf11,gf12,gf22,r,sx, tmcr,ux,phzl,dphzl,&
@@ -156,10 +136,8 @@ subroutine makus2(lpz,nr,rofi,g,gp,gz,phi,dphi,phip,dphip,phz,dphz,l,e,ez,z,v, u
         do  ir = 1, nr
            jr = ir+nr
            r = rofi(ir)
-           tmcr = r*c - (r*v(ir) - 2d0*z - r*e)/c
-           gf11 = 1d0 + fllp1/tmcr**2
-           tmcr = r*c - (r*v(ir) - 2d0*z - r*ez)/c
-           gf22 = 1d0 + fllp1/tmcr**2
+           gf11 = 1d0 + fllp1/(r*c - (r*v(ir) - 2d0*z - r*e)/c)**2
+           gf22 = 1d0 + fllp1/(r*c - (r*v(ir) - 2d0*z - r*ez)/c)**2
            gf12 = (gf11 + gf22)/2
            ul(ir) = au*g(ir) + bu*gp(ir) ! (u,s), large component
            sl(ir) = as*g(ir) + bs*gp(ir)

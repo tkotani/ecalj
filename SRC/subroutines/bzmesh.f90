@@ -1,12 +1,11 @@
-subroutine bzmesh(plat,qb,ifac,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx) ! Divides the reciprocal lattice into microcells
+subroutine bzmesh(plat,qb,ifac,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx)! Divides the reciprocal lattice into microcells
   use m_lgunit,only:stdo
   !i  plat     :primitive lattice vectors
   !i  n1,n2,n3 :no. divisions for the 3 recip. latt. vecs; (see Remarks)
   !i  g,ng     :symmetry point group operations, and number
-  !i  nqmx     :abort if number of k-points exceeds this maximum
-  !i  lshft    :logical switch, for each recip. latt. vec. :
-  !i           :center the mesh through the origin (k=0)
-  !i           :center the mesh straddling the origin --- no point at 0.
+  !i  nqmx     : number of k-points exceeds this maximum
+  !i  lshft(1:3)  :logical switch, for each recip. latt. vec. 
+  !i           T:center the mesh straddling the origin --- no point at (0,0,0).
   !o Outputs:
   !o   ipq   :ipq(i1,i2,i3) points to irreducible qp corresponding to
   !o         :qp labelled (i1,i2,i3), where i1=1..n1, i2=1..n2, i3=1..n3
@@ -19,7 +18,14 @@ subroutine bzmesh(plat,qb,ifac,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx) ! Divides
   !o   qb    :vectors of first microcell for input to BZINTS (see bzmsh0)
   !o   qp
   !    Some of the qp will be symmetry-related, leaving nq irreducible k-points, which are returned in qp(1..3,j), j=1,nq.
-  !o   ifac
+  !o   ifac(i)    1 if not shifted, 2 if shifted for i'th axis; see qb.
+  !o   rb:        a microcell in the Wigner Seitz cell.
+  !o   qb:        a microcell in the Brillouin zone
+  !o              This, together with ifac provides information how to generate the actual q-point from a triplet of integers
+  !o              specifying a point on the mesh.  Given a triplet (j_1,j_2,j_3) of ipq, the i'th component q_i is
+  !o                 q_i(j_1,j_2,j_3) = sum_n (j'_n)*qb(i,n),  with      j'_n = j_n*ifac(n)-1
+  !   is(i)      0 mesh points centered at the origin for i'th axis
+  !              1 mesh points off-centered from the origin for i'th axis
   !NOTE:
   !  The reciprocal lattice is divided into n1*n2*n3 microcells which are parallelipipeds with 8 corners. The corners are nodes of the
   !  k-space mesh in the whole reciprocal lattice unit cell. Thus, for i1=1..n1, i2=1..n2, i3=1..n3 the qp(i1,i2,i3) are
@@ -33,7 +39,24 @@ subroutine bzmesh(plat,qb,ifac,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx) ! Divides
   character(1) :: chr(0:2)
   real(8),parameter:: tolq=1d-3
   call getpr(ipr)
-  call bzmsh0(plat,lshft,n1,n2,n3,is,ifac,rb,qb)
+  bzmesh0: block
+    integer:: k,m,iprint,mvec(3)
+    real(8):: vol,qlat(3,3)
+    call dinv33(plat,1,qlat,vol)
+    is   = [(merge(1,0,lshft(m)),m=1,3)]
+    ifac = [(merge(2,1,lshft(m)),m=1,3)]
+    mvec = [n1,n2,n3]*ifac
+    do  m = 1, 3
+       qb(m,:) = qlat(m,:)/mvec
+       rb(m,:) = plat(m,:)*mvec
+    enddo
+    if(iprint() > 80) then
+       write(stdo,"(' BZMESH : ',5X,'Plat',31X,'Qlat')")
+       do k = 1, 3
+          write(stdo,"(3f10.5,5x,3f10.5)") (plat(m,k),m=1,3),(qlat(m,k),m=1,3)
+       enddo
+    endif
+  endblock bzmesh0
   ipq=0 
   nq = 0
   swgt = 0d0
@@ -57,7 +80,7 @@ subroutine bzmesh(plat,qb,ifac,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx) ! Divides
                     write(stdo,"(a,3f9.4,' ',3i5)")   '             x j=',xx,jj(1),jj(2),jj(3)
                     call rx('BZMESH: symops incompatible with this mesh')
                  endif
-                 if(any(lshft(:).AND.mod(abs(jj(:)),2)== 1)) cycle !scale shifted point or discard if shifted off mesh
+                 if(any(lshft(:).AND.mod(abs(jj(:)),2)== 1)) cycle ! discard if shifted off mesh
                  if(lshft(1)) jj(1) = jj(1)/2 
                  if(lshft(2)) jj(2) = jj(2)/2
                  if(lshft(3)) jj(3) = jj(3)/2
@@ -80,7 +103,7 @@ subroutine bzmesh(plat,qb,ifac,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx) ! Divides
   if(igcnt/=n1*n2*n3 ) call rx('bug in bzmesh')
   if(abs(swgt-2)>1d-9) call rx1('BZMESH: QP weights sum to ',swgt)
   if(ipr>=20)write(stdo,"(a,i5,a,3i4,a,3l)") " BZMESH:  ",nq," irreducible QP from ",n1,n2,n3," shift=",lshft
-  if(ipr>= 50) then
+  if(ipr>=50) then
      chr(2) = ' '
      chr(0) = '*'
      write(stdo,"(14x,'Qx',10x,'Qy',10x,'Qz',6x,'Multiplicity    Weight')")
@@ -91,59 +114,3 @@ subroutine bzmesh(plat,qb,ifac,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx) ! Divides
      enddo
   endif
 end subroutine bzmesh
-subroutine bzmsh0(plat,lshft,n1,n2,n3,is,ifac,rb,qb) !Setup for a uniform mesh in the Brillouin zone
-  use m_lgunit,only:stdo
-  !i   plat:      primitive lattice vectors
-  !i   n1,n2,n3:  number of divisions along the three R.L.V
-  !i   lshft:     F center mesh points on the origin for i'th R.L.V
-  !i              T set mesh points off center from the origin
-  !o Outputs:
-  !o   is(i)      0 mesh points centered at the origin for i'th axis
-  !o              1 mesh points off-centered from the origin for i'th axis
-  !o   ifac(i)    1 if not shifted, 2 if shifted for i'th axis; see qb.
-  !o   rb:        a microcell in the Wigner Seitz cell.
-  !o   qb:        a microcell in the Brillouin zone
-  !o              This, together with ifac provides information how to
-  !o              generate the actual q-point from a triplet of integers
-  !o              specifying a point on the mesh.  Given a
-  !o              triplet (j_1,j_2,j_3) of ipq, the i'th component q_i is
-  !o                 q_i(j_1,j_2,j_3) = sum_n (j'_n)*qb(i,n),  with
-  !o                 j'_n = j_n*ifac(n)-1
-  implicit none
-  logical :: lshft(3)
-  integer :: n1,n2,n3,is(3),ifac(3)!,lpbc
-  double precision :: plat(3,3),rb(3,3),qb(3,3),qlat(3,3),vol
-  integer :: k,m,m1,m2,m3,iprint
-  is   = 0
-  ifac = 1
-  if (lshft(1)) then
-     is(1) = 1
-     ifac(1) = 2
-  endif
-  if (lshft(2)) then
-     is(2) = 1
-     ifac(2) = 2
-  endif
-  if (lshft(3)) then
-     is(3) = 1
-     ifac(3) = 2
-  endif
-  m1 = n1*ifac(1)
-  m2 = n2*ifac(2)
-  m3 = n3*ifac(3)
-  call dinv33(plat,1,qlat,vol)
-  do  m = 1, 3
-     qb(m,1) = qlat(m,1)/m1
-     qb(m,2) = qlat(m,2)/m2
-     qb(m,3) = qlat(m,3)/m3
-     rb(m,1) = plat(m,1)*m1
-     rb(m,2) = plat(m,2)*m2
-     rb(m,3) = plat(m,3)*m3
-  enddo
-  if (iprint() > 80) then
-     write(stdo,"(' BZMESH : ',5X,'Plat',31X,'Qlat')")
-     do  k = 1, 3
-        write(stdo,"(3f10.5,5x,3f10.5)") (plat(m,k),m=1,3),(qlat(m,k),m=1,3)
-     enddo
-  endif
-end subroutine bzmsh0

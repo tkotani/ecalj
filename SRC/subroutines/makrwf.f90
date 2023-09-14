@@ -6,8 +6,7 @@ subroutine makrwf(mode,z,rmax,l,v,a,nr,rofi,pnu,nptdif,g,gp, enu,phi,dphi,phip,d
   !i         :0 input boundary conditions
   !i         :1 input energy
   !i         :10s digit
-  !i         :1 set dphip to satisfy Wronskian condition, rather
-  !i         :  than compute numerically
+  !i         :1 set dphip to satisfy Wronskian condition, rather than compute numerically
   !i   z     :nuclear charge
   !i   rmax  :augmentation radius, in a.u.
   !i   l     :l-quantum number
@@ -53,5 +52,5 @@ subroutine makrwf(mode,z,rmax,l,v,a,nr,rofi,pnu,nptdif,g,gp, enu,phi,dphi,phip,d
   else
      modep = 2
   endif
-  call phidx(modep,z,l,v,0d0,0d0,rofi,nr,nptdif,tol,enu,val,slo,nn,g,gp,phi,dphi,phip,dphip,p,0d0,[0d0],0d0,[0d0])
+  call phidx(modep,z,l,v,rofi,nr,nptdif,tol,enu,val,slo,nn,g,gp,phi,dphi,phip,dphip,p)!,0d0,[0d0],0d0,[0d0])
 end subroutine makrwf

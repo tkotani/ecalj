@@ -2,7 +2,7 @@ module m_phidx
   public phidx
   private
 contains
-  subroutine phidx(job,z,l,v,hcr,vmtz,rofi,nr,nptdif,tol,e,val,slo,nn,g,gp,phi,dphi,phip,dphip,p,phia,phiap,dla,dlap)!Generate potential parameters for a prescribed energy or b.c.
+  subroutine phidx(job,z,l,v,rofi,nr,nptdif,tol,e,val,slo,nn,g,gp,phi,dphi,phip,dphip,p)!Generate potential parameters for a prescribed energy or b.c.
     use m_rseq,only: rseq,rsq1
     use m_lgunit,only:stdo
     !i Inputs:
@@ -15,14 +15,11 @@ contains
     !i   z:     nuclear charge
     !i   l:     l quantum number for this g
     !i   v:     spherical potential on shifted logarithmic mesh
-    !i   vmtz   flat potential used to generate dla,dlap
-    !i          Not used if hcr=0
-    !i   hcr:   hard sphere radius.  If nonzero, dla,dlap are generated
     !i   rofi:  list of points
     !i   nr:    number of mesh points
     !i   nptdif:2 or 4 for 3- or 5- point differentiation
     !i         :You may also set nptdif=0.  Then quantities related to
-    !i         :energy differences are not calculated (dlap,phip,dphip,p)
+    !i         :energy differences are not calculated (phip,dphip,p)
     !i   tol:   precision to which wave function is integrated
     ! o Inputs/Outputs:
     ! o         Which subset of these quantities are needed for input and
@@ -48,13 +45,6 @@ contains
     !o   phip:  energy derivative of wave function at rmax
     !o   dphip: energy derivative of slope of wave function at rmax
     !o   p:     <gp**2> (potential parameter)
-    !o   phia:  (hcr>0) value of phi at hcr boundary, i.e. g(hcr)/hcr
-    !o   phiap: (hcr>0) energy derivatives of phia
-    !o   dla:   (hcr>0) hcr * logarithmic derivative of phi0 at hcr boundary
-    !o                  where phi0 is back-extrapolated wave function
-    !o          (hcr=0) not calculated
-    !o   dlap:  (hcr>0) energy derivatives of dla
-    !o          (hcr=0) not calculated
     !r Remarks:
     !r   This version makes parameters related to wave function g(r)/r
     !r   defined by potential v(r).
@@ -77,8 +67,8 @@ contains
     !b      dphip = (sloi(1) - phip)/rmax
     implicit none
     integer :: job,l,nr,nn,nptdif,nre,i,iprint,job0,job1
-    real(8)::z,e,vmtz,hcr,val(*),slo(*),phi,dphi,phip,dphip,dla,dlap(*),p,phia,phiap(*),tol,v(nr),rofi(nr),g(2*nr),gp(2*nr,4),&
-         dlax(1),rmax,eb1,eb2,dele,ddde,sum,a,b,aold,dmach,tola,sloi(5),vali(5),phiai(4),dlai(4),ei(4),de1,de2,del1,del2,tole
+    real(8)::z,e,val(*),slo(*),phi,dphi,phip,dphip,p,tol,v(nr),rofi(nr),g(2*nr),gp(2*nr,4),& !vmtz,hcr,phia,phiap(*)dla,dlap(*)
+         rmax,eb1,eb2,dele,ddde,sum,a,b,aold,dmach,tola,sloi(5),vali(5),phiai(4),ei(4),de1,de2,del1,del2,tole!dlax(1),,dlai(4)
     parameter (tole=1d-10)
     job0 = mod(job,10)
     job1 = mod(job/10,10)
@@ -123,7 +113,7 @@ contains
     elseif (job0 /= 1) then
        call rx('phidx: bad job')
     endif
-    if (hcr /= 0) call makdla(e-vmtz,l,hcr,slo(1),val(1),rmax,phia,dla)
+!    if (hcr /= 0) call makdla(e-vmtz,l,hcr,slo(1),val(1),rmax,phia,dla)
     if (nptdif /= 0) then
        ddde = -rmax/g(nr)**2
        ei(1:4) = [1d0, -1d0, 1.5d0, -1.5d0]
@@ -146,7 +136,7 @@ contains
           call rseq(eb1,eb2,ei(i),tol,z,l,nn,val(1),sloi(i),v,gp(1,i),   sum,a,b,rofi,nr,nre)
           vali(i) = val(1)/dsqrt(sum)
           sloi(i) = sloi(i)/dsqrt(sum)
-          if (hcr /= 0) call makdla(ei(i)-vmtz,l,hcr,sloi(i),vali(i), rmax,phiai(i),dlai(i))
+!          if (hcr /= 0) call makdla(ei(i)-vmtz,l,hcr,sloi(i),vali(i), rmax,phiai(i),dlai(i))
 10     enddo
        de1  = (ei(1) - ei(2))/2
        del1 = (ei(1) + ei(2))/2 - e
@@ -154,14 +144,14 @@ contains
        del2 = (ei(3) + ei(4))/2 - e
        call dfphi(de1,del1,de2,del2,1,val,vali,nptdif.eq.4) !Energy derivatives of value and slope
        call dfphi(de1,del1,de2,del2,1,slo,sloi,nptdif.eq.4)
-       if (hcr /= 0) then
-          call dfphi(de1,del1,de2,del2,1,dlax,dlai,nptdif.eq.4)!Energy derivatives of dla
-          call dfphi(de1,del1,de2,del2,1,dlax,phiai,nptdif.eq.4)
-          do  12  i = 1, nptdif
-             dlap(i)  = dlai(i)
-             phiap(i) = phiai(i)
-12        enddo
-       endif
+!       if (hcr /= 0) then
+!          call dfphi(de1,del1,de2,del2,1,dlax,dlai,nptdif.eq.4)!Energy derivatives of dla
+!          call dfphi(de1,del1,de2,del2,1,dlax,phiai,nptdif.eq.4)
+!          do  12  i = 1, nptdif
+!             dlap(i)  = dlai(i)
+!             phiap(i) = phiai(i)
+!12        enddo
+!       endif
        call dfphi(de1,del1,de2,del2,2*nr,g,gp,nptdif.eq.4)!     Energy derivatives of g
        call gintsr(gp,gp,a,b,nr,z,e,l,v,rofi,p) !     p = integral <gp gp>
     endif
@@ -179,58 +169,6 @@ contains
     ! phi*dphip - dphi*phip = -1/rmax**2 => dphip = (dphi*phip - 1/rmax**2)/phi
     if (iprint() >= 111) write(stdo,"(' PHIDOT:  phi,phip,phip,dphip=',4f12.6)") phi,dphi,phip,dphip
   end subroutine phidx
-  subroutine makdla(kbak,l,hcr,slo,val,rmax,phia,dla)  ! Gets logarithmic derivative of wave function at hard core radius
-    !i Inputs:
-    !i   kbak  :kinetic energy for back extrapolation
-    !i   l     :angular momentum
-    !i   hcr   :hard-core screening radius a, in atomic units
-    !i   slo   :slope of g at rmax, where g = rmax * radial w.f.
-    !i   val   :value of g at rmax, where g = rmax * radial w.f.
-    !i   rmax  :radius at which val,slo are evaluated, in atomic units
-    !o Outputs:
-    !o   phia  :value of radial w.f. at a
-    !o         :If a=rmax, phia = val/rmax
-    !o   dla   :logarithmic derivative at a, i.e. a/phi*(dphi/dr)_a
-    !o         :If a=rmax, dla = log deriv of phi = rmax*slo/val - 1
-    !r Remarks:
-    !r This was adapted from the Stuttgart third-generation LMTO package.
-    implicit none
-    integer :: l,lmax,lx
-    double precision :: kbak,hcr,slo,val,rmax,phia,dla
-    integer :: nlmax,lmin
-    parameter(nlmax=20)
-    double precision :: er2,fi(0:nlmax+1),gi(0:nlmax+1),wn,wj,dlr,dj,dn,sigma,phi,rdphia,rdfi,rdgi, fac2l(0:l+1)
-    lmin=0
-    lmax=l+1
-    fac2l(0) = 1d0
-    do  lx = 1, lmax
-       fac2l(lx) = fac2l(lx-1) * (lx+lx-1)
-    enddo
-    er2 = kbak*rmax*rmax
-    call bessl(er2,l+1,fi(0),gi(0)) !bessl2->bessl
-    fi(lmin:lmax) = fi(lmin:lmax)*fac2l(lmin:lmax)*0.5d0 !Andersen factor
-    gi(lmin:lmax) = gi(lmin:lmax)/fac2l(lmin:lmax)       !Andersen factor
-    !     phi,dlr are value and logarithmic derivative r/phi dphi/dr at rmax
-    !     free dlr=dj
-    phi =  val/rmax
-    dlr =  rmax*slo/val - 1
-    !     dj,dn are the logarithmic derivatives of Bessel and Hankels
-    dj  = l-fi(l+1)/fi(l)/(l+l+1)*er2
-    dn  = l-gi(l+1)/gi(l)*(l+l+1)
-    !     wj,wn are the amounts of Bessel and Hankel making up phi0
-    wj  = (dlr-dj)*fi(l)*phi
-    wn  = (dlr-dn)*gi(l)*phi
-    sigma = hcr/rmax
-    er2 = kbak*hcr**2
-    call bessl(er2,l+1,fi(0),gi(0)) !call bessl2(er2,0,l+1,fi(0),gi(0))
-    fi(lmin:lmax) = fi(lmin:lmax)*fac2l(lmin:lmax)*0.5d0 !Andersen factor
-    gi(lmin:lmax) = gi(lmin:lmax)/fac2l(lmin:lmax)       !Andersen factor
-    rdgi = l*gi(l) - gi(l+1)*(l+l+1)
-    rdfi = l*fi(l) - fi(l+1)/(l+l+1)*er2
-    phia   = 2d0*(wn*fi(l)*sigma**l - wj*gi(l)*sigma**(-l-1))
-    rdphia = 2d0*(wn*rdfi*sigma**l  - wj*rdgi*sigma**(-l-1))
-    dla    = rdphia/phia
-  end subroutine makdla
   subroutine gintsr(g1,g2,a,b,nr,z,e,l,v,rofi,sum)
     use m_lmfinit,only: c=>cc
     !- Integrate inner product of two wave equations

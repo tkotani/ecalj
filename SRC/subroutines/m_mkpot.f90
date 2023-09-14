@@ -1,6 +1,5 @@
 module m_mkpot ! Potential terms. See http://dx.doi.org/10.7566/JPSJ.84.034702
-  use m_lmfinit,only: nbas,stdo,qbg=>zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nppn &
-       ,lfrce,stdl, nchan=>pot_nlma, nvl=>pot_nlml,nkaph
+  use m_lmfinit,only: nbas,stdo,qbg=>zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nppn,lfrce,stdl, nchan=>pot_nlma, nvl=>pot_nlml,nkaph
   use m_struc_def,only: s_rv1,s_cv1,s_sblock,s_rv4,s_cv5
   public:: m_mkpot_init, m_mkpot_energyterms, m_mkpot_novxc, m_mkpot_deallocate !,m_Mkpot_novxc_dipole
   ! Potential terms, call m_mkpot_init. Generated at mkpot-locpot-augmat-gaugm
@@ -49,7 +48,7 @@ contains
   end subroutine m_mkpot_novxc
   subroutine m_mkpot_init()
     use m_supot,only: n1,n2,n3
-    use m_density,only: osmrho, orhoat !main input density
+    use m_density,only: osmrho, orhoat !main input to represent electron density
     use m_lmfinit,only: lso,nbas,sspec=>v_sspec, nlibu,lmaxu,lldau,nsp,lat_alat,lxcf,lpzex
     use m_struc_def,only: s_rv1,s_sblock
     integer:: i,is,ib,kmax,lmxa,lmxh,nelt2,nlma,nlmh,iprint
@@ -81,13 +80,11 @@ contains
     call mkpot(0, smrho_out,orhoat_out, osmpot,osig,otau,oppi,fes2_rv,ohsozz,ohsopm) !job=0 is for no augmentation term
     call tcx('m_mkpot_energyterms')
   end subroutine m_mkpot_energyterms
-  !- Make the potential from the density (smrho, orhoat)
-  subroutine mkpot(job,smrho,orhoat, smpot,osig,otau,oppi,fes,ohsozz,ohsopm, novxc_) !dipole_)
+  subroutine mkpot(job,smrho,orhoat, smpot,osig,otau,oppi,fes,ohsozz,ohsopm, novxc_)!- Make the potential from the density (smrho, orhoat) !dipole_) 
     ! job=0 => not make core and augmentation matrices
-    ! job=1 => make core and augmentation matrices
-    ! xxxxxx problematic option dipole_ removed. (for <i|{\bf r}|j> matrix for novxc)
-    use m_lmfinit,only:lso,nbas,ispec,sspec=>v_sspec,nlibu,lmaxu,lldau,nsp,lat_alat,lxcf,lpzex
-    use m_lattic,only: lat_plat,lat_qlat, lat_vol,rv_a_opos
+    ! job=1 => make core and augmentation matrices     ! xxxxxx problematic option dipole_ removed. (for <i|{\bf r}|j> matrix for novxc)
+    use m_lmfinit,only:lso,nbas,ispec,sspec=>v_sspec,nlibu,lmaxu,lldau,nsp,alat=>lat_alat,lxcf,lpzex
+    use m_lattic,only: plat=>lat_plat, vol=>lat_vol,rv_a_opos
     use m_supot,only: n1,n2,n3
     use m_MPItk,only: master_mpi
     use m_struc_def
@@ -97,7 +94,6 @@ contains
     use m_smvxcm,only: smvxcm
     use m_smves,only: smves
     use m_ftox
-    ! other other output in module variables
     ! for job=0
     !o         utot   = total electrostatic energy
     !o         valves = valence rho * estat potential
@@ -196,47 +192,28 @@ contains
     !r    the electrostatic energy of (neutral) local parts
     !r
     implicit none
-    integer :: job,i1,i2,i3
     type(s_rv1) :: orhoat(*)
     type(s_cv5) :: oppi(*)
     type(s_sblock) :: ohsozz(*),ohsopm(*)
-    type(s_rv4) :: otau(*)
-    type(s_rv4) :: osig(*)
-    real(8)::  fes(3,nbas)
+    type(s_rv4) :: otau(*), osig(*)
     complex(8):: smrho(n1,n2,n3,nsp),smpot(n1,n2,n3,nsp)
-    logical:: cmdopt0,novxc
+    logical:: cmdopt0,novxc,secondcall=.false.     !      integer,optional:: dipole_
     logical,optional:: novxc_
+    integer:: job,i1,i2,i3,i,iprint,isw,isum, ifi,isp,j,k !dipole,
+    real(8):: hpot0_rv(nbas), dq,cpnvsa,qsmc,smq,smag,sum2,rhoex,rhoec,rhvsm,sgp0,sqloc,sqlocc,saloc,uat,usm,valfsm,valftr, &
+         valvfa,vvesat,vsum,zsum,zvnsm,rvvxcv(nsp),rvvxc(nsp),rvmusm(nsp),rmusm(nsp), rvepsm(nsp),vxcavg(nsp),repat(nsp),&
+         repatx(nsp),repatc(nsp),rmuat(nsp),repsm(nsp),repsmx(nsp),repsmc(nsp),rhobg,gpot0(nvl),vab_rv(3,3,n0*nsp*nbas),&
+         vval(nchan),fes(3,nbas)
+    real(8),parameter:: minimumrho=1d-14,pi=4d0*datan(1d0),tpi=2d0*pi
     character(80) :: outs
-    integer :: i,ipr,iprint,lxcfun,isw,isum
-    real(8):: hpot0_rv(nbas), dq,cpnvsa, & 
-         qsmc,smq,smag,sum2,rhoex,rhoec,rhvsm,sgp0, &
-         sqloc,sqlocc,saloc,uat,usm,valfsm,valftr, &
-         valvfa,vvesat, & !rvepva,rvexva,rvecva,rvvxva,rvepsa,rvvxca,
-         vol,vsum,zsum,zvnsm, & !rvepsv(nsp),rvexv(nsp),rvecv(nsp), &
-         rvvxcv(nsp),rvvxc(nsp),  & !,rveps(nsp)
-         rvmusm(nsp),rmusm(nsp), rvepsm(nsp), &
-         vxcavg(nsp),repat(nsp),repatx(nsp),repatc(nsp), & !,fcvxca(nsp),fcvxc0(nsp)
-         rmuat(nsp),repsm(nsp),repsmx(nsp),repsmc(nsp),rhobg
-!    equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
-    complex(8),allocatable:: smpotbk(:,:,:),smpotbkx(:,:,:)
-    real(8),parameter:: minimumrho=1d-14
-    real(8):: plat(3,3),alat
-    integer:: ifi,isp
     character strn*120
-    logical:: secondcall=.false.     !      integer,optional:: dipole_
-    integer:: j,k !dipole,
-    real(8),parameter::  pi=4d0*datan(1d0),tpi=2d0*pi
-    real(8):: gpot0(nvl), vab_rv(3,3,n0*nsp*nbas),vval(nchan)
     call tcn('mkpot')
-    if(cmdopt0('--density') .AND. master_mpi .AND. secondcall) then ! new density mode
-       plat =lat_plat
-       alat =lat_alat
+    WRITEsmrhoTOxsf: if(cmdopt0('--density') .AND. master_mpi .AND. secondcall) then ! new density mode
        open(newunit=ifi,file='smrho.xsf')
        do isp = 1, nsp
           write(ifi,'("CRYSTAL")')
           write(ifi,'("PRIMVEC")')
-          write(ifi,'(3f10.5)') ((plat(i1,i2)*alat*0.529177208,i1=1,3) &
-               ,i2=1,3)
+          write(ifi,'(3f10.5)') ((plat(i1,i2)*alat*0.529177208,i1=1,3),i2=1,3)
           write(ifi,'("PRIMCOORD")')
           write(ifi,'(2i5)') nbas,1
           do i = 1, nbas
@@ -255,21 +232,16 @@ contains
        close(ifi)
     else
        secondcall=.true.
-    endif
-    ipr = iprint()
-    lxcfun = lxcf
-!    ngabc=lat_nabc
-    vol=lat_vol
-    if (qbg /= 0) then !Printout for smooth background charge 
+    endif WRITEsmrhoTOxsf
+    Printsmoothbackgroundcharge: if (qbg /= 0) then !
        rhobg = (3d0/4d0/pi*vol)**(1d0/3d0)
-       if(master_mpi) write(stdo,ftox)' Energy for background charge', &
-            ' q=',ftod(qbg),'radius r=',rhobg,'E=9/5*q*q/r=',1.8d0*qbg*qbg/rhobg
-    endif
+       if(master_mpi)write(stdo,ftox)' Energy for background charge q=',ftod(qbg),'radius r=',rhobg,&
+            'E=9/5*q*q/r=',1.8d0*qbg*qbg/rhobg
+    endif Printsmoothbackgroundcharge
     call rhomom(orhoat, qmom,vsum) !multipole moments
     call smves(qmom,gpot0,vval,hpot0_rv,sgp0,smrho,smpot,vconst,smq,qsmc,fes,rhvsm,zvnsm,zsum,vesrmt,qbg) ! 0th part of electrostatic potential Ves and Ees
-    smag = 0
-    if(nsp == 2) smag = 2d0*dreal(sum(smrho(:,:,:,1)))*vol/(n1*n2*n3) - smq !spin part.
-    if( .NOT. present(novxc_)) then ! Add smooth exchange-correlation potential 
+    smag = merge(2d0*dreal(sum(smrho(:,:,:,1)))*vol/(n1*n2*n3) - smq,0d0,nsp==2) !mag mom
+    ADDsmoothExchangeCorrelationPotential: if( .NOT. present(novxc_)) then 
        novxc=.false.
        block
          complex(8):: smvxc_zv(n1*n2*n3*nsp),smvx_zv(n1*n2*n3*nsp), smvc_zv(n1*n2*n3*nsp),smexc_zv(n1*n2*n3)
@@ -281,7 +253,7 @@ contains
     else
        novxc=.true.
        repsm=0d0;  repsmx=0d0;  repsmc=0d0;   rmusm=0d0;  rvmusm=0d0;
-    endif
+    endif ADDsmoothExchangeCorrelationPotential
     !! Add dipole contribution (x,y,z) to smpot (we only need <i|x|j> and so on, but because of technical reason,
     !! Calculate <i|x|j> by subtraction. nov2021 (this is stupid implementation--- See MLWF paper.
     !$$$      dipole=0
@@ -317,7 +289,7 @@ contains
     utot = usm + uat !Ees total electro static energy
     dq = smq+sqloc + qsmc+sqlocc + qbg -zsum !smooth part + local part + smoothcore + core local + qbackground -Z
     amom = smag+saloc !magnetic moment
-    if(ipr >= 30) then
+    if(iprint() >= 30) then
        write(stdo,"('  mkpot:',/'   Energy terms:',11x,'smooth',11x,'local',11x,'total')")
        write(stdo,680) 'rhoval*veff ',valfsm,valftr,valvef, & !\int rho Veff
             'rhoval*ves ',rhvsm,vvesat,valves, & !\int rho Ves
@@ -333,7 +305,7 @@ contains
          '   deviation from neutrality: ',f12.5)
 680    format(3x,a,4x,3f17.6)
     endif
-    if(ipr>0) then
+    if(iprint()>0) then
        write (stdl,"('fp qvl',f11.6,'  sm',f11.6,'  loc',f11.6,'  qbg',f11.6,' dQ',f11.6)") smq+sqloc,smq,sqloc,qbg,dq
        if (nsp == 2) write (stdl,"('fp mag ',f11.5,'  sm ',f11.5,'  loc ',f11.5)") smag+saloc,smag,saloc
        write (stdl,"('fp pot  rvxc',f18.7,'  rexc ',f18.7,'  rves ',f16.7)") rhovxc,rhoexc,utot

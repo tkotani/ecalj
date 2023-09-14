@@ -1068,7 +1068,7 @@ contains
              else
                 val(1) = val(1)/dsqrt(sum)
                 slo(1) = slo(1)/dsqrt(sum)
-                call phidx(1,z,l,v(1,isp),0d0,0d0,rofi,nr,2,tol,eval,val,slo,nn,g,gp,phi,dphi,phip,dphip,p,0d0,[0d0],0d0,[0d0])
+                call phidx(1,z,l,v(1,isp),rofi,nr,2,tol,eval,val,slo,nn,g,gp,phi,dphi,phip,dphip,p)!,0d0,[0d0],0d0,[0d0])
              endif
              fllp1 = l*(l+1)
              !  ...  Case add q2 phi phidd rho
