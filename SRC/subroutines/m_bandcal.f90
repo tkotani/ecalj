@@ -259,24 +259,27 @@ contains
           if( nlibu>0 .AND. nev>0) call mkdmtu(jsp, iq,qp, nev, evec,  dmatu)
           if( cmdopt0('--cls'))    call m_clsmode_set1(nmx,jsp,iq,qp,nev,evec) !all inputs
           call addrbl(jsp,qp,iq, osmpot,vconst,osig,otau,oppi,evec,evl,nev, smrho_out, sumqv, sumev, oqkkl,oeqkkl, frcband)
-!-----------------------
-          afsymblock: block !jsp2 is given by jsp=1
-            use m_rotwave,only:  rotevec
-            use m_hamindex,only: symops,ngrp_original,ngrp
-            use m_qplist,only: qplist,nkp
-            logical:: cmdopt0
-            integer:: igrp,jsp2
-            real(8)::qtarget(3)
-            complex(8):: evecrot(ndimhx,nmx)
-            if(cmdopt0('--afsym')) then
-               if(jsp==2) cycle
-               do igrp = ngrp_original + 1, ngrp !AF symmetry
+          
+          afsymifffffffffffffffffffffff:     if(cmdopt0('--afsym')) then
+             afsymblock: block !jsp2 is given by jsp=1
+               use m_rotwave,only:  rotevec
+               use m_mksym,only: symops,ngrp,ngrpAF
+               use m_qplist,only: qplist,nkp
+               logical:: cmdopt0
+               integer:: igrp,jsp2
+               real(8)::qtarget(3)
+               complex(8):: evecrot(ndimhx,nmx)
+               if(jsp==2) then
+                  deallocate(evec)
+                  cycle
+               endif
+               do igrp = ngrp + 1, ngrpAF !AF symmetry
                   qtarget=matmul(symops(:,:,igrp),qp)
                   do i=1,nkp
                      if(sum(abs(qplist(:,i)-qtarget))<1d-8) then
-                        write(stdo,ftox) igrp,'qp=',ftof(qp),'qtarget=',qtarget
+                        write(stdo,ftox) igrp,'qqqqqx qp=',ftof(qp),'qtarget=',qtarget
                         goto 1018
-                     endif   
+                     endif
                   enddo
                enddo
 10180          continue
@@ -284,7 +287,7 @@ contains
                  do i=1,nkp
                     write(stdo,ftox)i,'qplist=',ftof(qplist(:,i))
                  enddo
-                 do igrp = ngrp_original + 1, ngrp !AF symmetry
+                 do igrp = ngrp + 1, ngrpAF !AF symmetry
                     qtarget=matmul(symops(:,:,igrp),qp)
                     write(stdo,ftox)igrp,'qp=',ftof(qp),'qtarget=',qtarget
                  enddo
@@ -298,9 +301,9 @@ contains
                if( nlibu>0 .AND. nev>0) call mkdmtu(jsp2, iq,qp, nev, evec,  dmatu)
                if( cmdopt0('--cls'))    call m_clsmode_set1(nmx,jsp2,iq,qp,nev,evec) !all inputs
                call addrbl(jsp2,qp,iq, osmpot,vconst,osig,otau,oppi,evec,evl,nev, smrho_out, sumqv, sumev, oqkkl,oeqkkl, frcband)
-            endif
-          endblock afsymblock
-!-----------------------          
+             endblock afsymblock
+          endif afsymifffffffffffffffffffffff
+          
           deallocate(evec)
 12005  enddo isploop
 12010 enddo iqloop

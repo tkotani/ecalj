@@ -21,14 +21,15 @@ program lmf ! Bootstrap sequence of modules initialzation. The variables in modu
   use m_ldau,only:     m_ldau_init
   use m_qplist,only:   m_qplist_init, m_qplist_qspdivider, nkp
   use m_igv2x,only:    m_igv2xall_init
-  use m_hamindex, only:m_hamindex_init
+  use m_hamindexW, only:m_hamindexW_init
+  use m_hamindex, only:readhamindex
   use m_gennlat,only:  m_gennlat_init
   use m_writeham,only: m_writeham_init, m_writeham_write
   use m_lmfp,only:     lmfp  !this is main part lmfp-->bndfp
   use m_ftox
   implicit none
   integer:: iarg,iprint,iargc,jobgw=-1
-  logical:: cmdopt0,cmdopt2, writeham
+  logical:: cmdopt0,cmdopt2, writeham,sigx
   character:: outs*20,aaa*512,sss*128
   character(8):: prgnam='LMF'
   call m_ext_init()         ! Get sname, e.g. trim(sname)=si of ctrl.si
@@ -106,7 +107,9 @@ program lmf ! Bootstrap sequence of modules initialzation. The variables in modu
   !Madelung mode here may need to be recovered if necessary.
   !   allocate(madelung(nbas**2)); call madmat(madelung) !Monopole Madelung matrix (kept for future).
   !Shear mode here is currently commented out.=>probably shear mode should be outside of fortran.
-  call m_hamindex_init(jobgw) 
+  inquire(file='sigm.'//trim(sname),exist=sigx)
+  if(jobgw>=0.or.sigx) call m_hamindexW_init() !write HAMindex for GW part, or for reading sigm
+  if(sigx) call readhamindex() !for reading sigm
   writeham= cmdopt0('--writeham') !m_writeham_* is after m_hamindex_init 2022apr22
   if(writeham .AND. master_mpi) call m_gennlat_init(bz_nabc) !for interpolation of Hamiltonian
   if(writeham .AND. master_mpi) call m_writeham_init()
