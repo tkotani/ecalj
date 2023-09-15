@@ -5,28 +5,27 @@ module m_hamindex   !hamiltonian index read/write for successive GW calculaitons
   use m_lattic,only: lat_qlat,lat_plat,rv_a_opos
   use m_suham,only: ndham_read=>ham_ndham !max dimension of hamiltonian +napwad (for so=0,2)
   use m_lmfinit,only:norbx,ltabx,ktabx,offlx
+  use m_MPItk,only: master_mpi
   use m_lgunit,only:stdo
   use m_ftox
   public:: m_hamindex_init, Readhamindex
   integer,protected,allocatable,public:: ib_table(:),k_table(:),l_table(:)
-  integer,protected,public:: ngrpaf,ngrp_original,pwmode,ndham
+  integer,protected,public:: ngrp_original,pwmode,ndham !ngrpaf,
   integer,protected,public:: nqi=NaN, nqnum=NaN, ngrp=NaN, lxx=NaN, kxx=NaN,norbmto=NaN, &
        nqtt=NaN, ndimham=NaN, napwmx=NaN, lxxa=NaN, ngpmx=NaN, imx=NaN,nbas=NaN
-  integer,allocatable,protected,public:: iclasstaf(:), offH (:), &
+  integer,allocatable,protected,public::  offH (:), & !iclasstaf(:),
        ltab(:),ktab(:),offl(:), offlrev(:,:,:),ibastab(:), & !iclasst(:),
        iqimap(:),iqmap(:),igmap(:),invgx(:),miat(:,:),ibasindex(:), &
        igv2(:,:,:),napwk(:),igv2rev(:,:,:,:)! for rotation of evec       
-  real(8),allocatable,protected,public:: symops_af(:,:,:), ag_af(:,:), &
+  real(8),allocatable,protected,public:: & !symops_af(:,:,:), ag_af(:,:), &
        symops(:,:,:),ag(:,:),tiat(:,:,:),shtvg(:,:), dlmm(:,:,:,:),qq(:,:), qtt(:,:),qtti(:,:)
   real(8),protected,public:: plat(3,3)=NaN,qlat(3,3)=NaN,zbak
-  logical,protected,public:: readhamindex_init=.false.
+  logical,protected,public:: readhamindex_init=.false., AFmode
   private
   logical,private:: debug=.false.
 contains
   subroutine m_hamindex_init(jobgw) !Set up m_hamiltonian. Index for Hamiltonian. --
-    use m_mksym,only: rv_a_osymgr,rv_a_oag,lat_nsgrp, iclasstaf_,symops_af_,ag_af_,ngrpaf_,iclasst
-    use m_struc_def
-    use m_MPItk,only: master_mpi
+    use m_mksym,only: rv_a_osymgr,rv_a_oag,lat_nsgrp,iclasst,AFmode_mksym=>AFmode !iclasstaf_,symops_af_,ag_af_,ngrpaf_,
     !!  Generated index are stored into m_hamindex 
     !!  Only include q-point information for GW (QGpsi).
     !!#Inputs
@@ -42,7 +41,7 @@ contains
     integer:: ibas,k,l,ndim,ipr,nglob,off,offs,specw,fieldw,iorb,offsi,ib,is, norb,nsp
     integer:: nkabc(3),nkp,lshft(3),napwx,ig,nini,nk1,nk2,nk3,ik1,ik2,ik3,ikt,nkt
     integer:: i_copy_size,i_spacks,i_spackv,ifi,nbas_in,ifisym,i,ifiqibz,igg,iqq,iqi,irr,iqi_,jobgw
-    integer:: iout,iapw ,iprint,ngadd,igadd,igaf !,nout,nlatout(3,noutmx)
+    integer:: iout,iapw ,iprint,ngadd,igadd!,igaf !,nout,nlatout(3,noutmx)
     integer:: ngp, ifiqg,iq,nnn(3),ixx,ndummy,nqbz___ ,ifatomlist
     integer,allocatable:: iqtt(:), kv(:)!ltabx(:,:),ktabx(:,:),offlx(:,:),
     real(8):: pwgmax, QpGcut_psi,qxx(3),qtarget(3),platt(3,3),q(3),qx(3),qqx(3)!pwgmin=0d0, 
@@ -65,6 +64,7 @@ contains
     plat=lat_plat
     qlat=lat_qlat
     nsp=nsp_in
+    AFmode=AFmode_mksym
     allocate(symops(3,3,ngrp),ag(3,ngrp))
     call dcopy ( ngrp * 9 , rv_a_osymgr , 1 , symops , 1 )
     call dcopy ( ngrp * 3 , rv_a_oag , 1 , ag , 1 )
@@ -126,10 +126,52 @@ contains
     lxxa=nl-1
     allocate( dlmm( -lxxa:lxxa, -lxxa:lxxa, 0:lxxa, ngrp))
     call rotdlmm(symops,ngrp, nl, dlmm) !!! Get rotation matrix dlmm.  We assume nl=lmxa+1. !for sigm mode, dlmm needed.
+
+!     AFsymPart: if(allocated(symops_af)) then !Symmetry for AF for GW. Order AF symmetry operation after normal one. jun2015takao
+!        ! Caution: symops,and so on are overwritten.   writehamindex() already wrote HAMindex which is just for SYMGRP.
+!        ngrpaf = ngrpaf_
+!        allocate(iclasstaf(nbas),symops_af(3,3,ngrpaf_),ag_af(3,ngrpaf_))
+!        iclasstaf = iclasstaf_
+!        symops_af = symops_af_
+!        ag_af = ag_af_
+!        allocate(symtmp(3,3,ngrpaf))
+!        symtmp(:,:,1:ngrp)=symops
+!        igadd=ngrp
+!        do igaf=1,ngrpaf
+!           do ig=1,ngrp
+!              diffs=sum(abs(symops_af(:,:,igaf)-symops(:,:,ig)))
+!              if(diffs<1d-6) goto 1013
+!           enddo
+!           igadd=igadd+1
+!           symtmp(:,:,igadd)=symops_af(:,:,igaf)
+! 1013      continue
+!        enddo
+!        if(igadd/=ngrpaf) call rx('m_hamindex: strange. bug igadd/=ngrpaf')
+!        if(master_mpi) write(stdo,*) '-----SYMGRPAF mode ---- # of additional symmetry=',igadd
+!        deallocate(symops, invgx,miat,tiat,shtvg,  dlmm )
+!        ngrp_original=ngrp ! Get space group information ---- translation informations also in miat tiat invgx, shtvg
+!        ngrp      = ngrpaf ! Overwrite ngrp by ngrpaf (>ngrp because we treat AF pairs are in the same class.
+!        allocate(invgx(ngrp),miat(nbas,ngrp),tiat(3,nbas,ngrp),shtvg(3,ngrp))
+!        allocate(symops, source=symtmp)
+!        call mptauof ( symtmp , ngrp, plat , nbas , rv_a_opos , iclasstaf, miat , tiat , invgx , shtvg )
+!        if(master_mpi) then
+!           write(stdo,*)
+!           write(stdo,ftox)' ngrp for SYMGRP+GYMGRPAF=',ngrp,'ngrp for SYMGRP=',ngrp_original
+!           do ig=1,ngrp
+!              write(stdo,ftox)'ig=',ig, ' miat=',miat(:,ig)
+!           enddo
+!        endif
+!        lxxa=nl-1
+!        allocate( dlmm( -lxxa:lxxa, -lxxa:lxxa, 0:lxxa, ngrp))
+!        call rotdlmm(symtmp,ngrp, nl, dlmm) !rotation matrix dlmm.  We assume nl=lmxa+1.
+!     endif AFsymPart
+    
+   
     if(jobgw<0) then ! Not GW mode 
        call tcx('m_hamindex_init')
        return                 
     endif
+    
     inquire(file='QGpsi',EXIST=qpgexist) 
     QGpsimodeWriteHamindex: if(qpgexist) then
        open(newunit=ifiqg,file='QGpsi',form='unformatted') ! q on mesh and shortened q.
@@ -219,46 +261,7 @@ contains
        if(master_mpi) call writehamindex()
     endif QGpsimodeWriteHamindex
     if(master_mpi) call poppr !print index is poped.
-    
-    AFsymPart: if(allocated(symops_af)) then !Symmetry for AF for GW. Order AF symmetry operation after normal one. jun2015takao
-       ! Caution: symops,and so on are overwritten.   writehamindex() already wrote HAMindex which is just for SYMGRP.
-       ngrpaf = ngrpaf_
-       allocate(iclasstaf(nbas),symops_af(3,3,ngrpaf_),ag_af(3,ngrpaf_))
-       iclasstaf = iclasstaf_
-       symops_af = symops_af_
-       ag_af = ag_af_
-       allocate(symtmp(3,3,ngrpaf))
-       symtmp(:,:,1:ngrp)=symops
-       igadd=ngrp
-       do igaf=1,ngrpaf
-          do ig=1,ngrp
-             diffs=sum(abs(symops_af(:,:,igaf)-symops(:,:,ig)))
-             if(diffs<1d-6) goto 1013
-          enddo
-          igadd=igadd+1
-          symtmp(:,:,igadd)=symops_af(:,:,igaf)
-1013      continue
-       enddo
-       if(igadd/=ngrpaf) call rx('m_hamindex: strange. bug igadd/=ngrpaf')
-       if(master_mpi) write(stdo,*) '-----SYMGRPAF mode ---- # of additional symmetry=',igadd
-       deallocate(symops, invgx,miat,tiat,shtvg,  dlmm )
-       ngrp_original=ngrp ! Get space group information ---- translation informations also in miat tiat invgx, shtvg
-       ngrp      = ngrpaf ! Overwrite ngrp by ngrpaf (>ngrp because we treat AF pairs are in the same class.
-       allocate(invgx(ngrp),miat(nbas,ngrp),tiat(3,nbas,ngrp),shtvg(3,ngrp))
-       allocate(symops, source=symtmp)
-       call mptauof ( symtmp , ngrp, plat , nbas , rv_a_opos , iclasstaf, miat , tiat , invgx , shtvg )
-       if(master_mpi) then
-          write(stdo,*)
-          write(stdo,ftox)' ngrp for SYMGRP+GYMGRPAF=',ngrp,'ngrp for SYMGRP=',ngrp_original
-          do ig=1,ngrp
-             write(stdo,ftox)'ig=',ig, ' miat=',miat(:,ig)
-          enddo
-       endif
-       lxxa=nl-1
-       allocate( dlmm( -lxxa:lxxa, -lxxa:lxxa, 0:lxxa, ngrp))
-       call rotdlmm(symtmp,ngrp, nl, dlmm) !rotation matrix dlmm.  We assume nl=lmxa+1.
-    endif AFsymPart
-    
+
     call tcx('m_hamindex_init')
   end subroutine m_hamindex_init
   
@@ -271,7 +274,7 @@ contains
     zbak=zbak_read
     ndham=ndham_read
     open(newunit=ifi,file='HAMindex',form='unformatted')
-    write(ifi)ngrp,nbas,kxx,lxx,nqtt,nqi,nqnum,imx,ngpmx,norbmto,pwmode,zbak,ndham
+    write(ifi)ngrp,nbas,kxx,lxx,nqtt,nqi,nqnum,imx,ngpmx,norbmto,pwmode,zbak,ndham,AFmode
     write(ifi)symops,ag,invgx,miat,tiat,shtvg,qtt,qtti,iqmap,igmap,iqimap
     write(ifi)lxxa
     write(ifi)dlmm
@@ -290,7 +293,7 @@ contains
     done=.true.
     readhamindex_init=.true.
     open(newunit=ifi,file='HAMindex',form='unformatted')
-    read(ifi)ngrp,nbas,kxx,lxx,nqtt,nqi,nqnum,imx,ngpmx,norbmto,pwmode,zbak,ndham
+    read(ifi)ngrp,nbas,kxx,lxx,nqtt,nqi,nqnum,imx,ngpmx,norbmto,pwmode,zbak,ndham,AFmode
     allocate(symops(3,3,ngrp),ag(3,ngrp),qtt(3,nqtt),qtti(3,nqi))
     allocate(invgx(ngrp),miat(nbas,ngrp),tiat(3,nbas,ngrp),shtvg(3,ngrp))
     allocate(iqmap(nqtt),igmap(nqtt),iqimap(nqtt))

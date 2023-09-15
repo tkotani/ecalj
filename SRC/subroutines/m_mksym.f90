@@ -4,20 +4,21 @@ module m_mksym !crystal symmetry data given by call m_mksym_init.  nbas (atomic 
   public :: m_mksym_init, &
        rv_a_oag,   iv_a_oics, lat_npgrp, lat_nsgrp, &
        rv_a_osymgr,iv_a_oistab, ctrl_nclass,iclasst, &
-       iclasstaf_, symops_af_, ag_af_, ngrpaf_ !for antiferro symmetry
-  !antiferro sym y = matmul(symps_af_(:,:,ig),x)+ ag_af(:,ig), ig=1,ngrpaf_
+       iclasstAF, symopsAF, agAF, ngrpAF !for antiferro symmetry
+  !antiferro sym y = matmul(sympsAF(:,:,ig),x)+ ag_af(:,ig), ig=1,ngrpAF
   integer,  allocatable,protected :: iv_a_oics(:)     ! ispec= ics(iclass) gives spec for iclass.
   real(8) , allocatable,protected :: rv_a_osymgr (:,:,:) ! point operation for 1,... nsgrp  !(additioanl to npgrp)
   real(8) , allocatable,protected :: rv_a_oag (:)        ! translation for 1,...nsgrp
   integer , allocatable,protected :: iv_a_oistab (:)     ! j= istab(i,ig): site i is transformed into site j by grp op ig
   integer,allocatable,protected   :: iclasst(:)          !class information,
-  integer,allocatable,protected:: iclasstaf_(:) !=== AntiFerro class information 
-  real(8),allocatable,protected:: symops_af_(:,:,:), ag_af_(:,:) 
+  integer,allocatable,protected:: iclasstAF(:) !=== AntiFerro class information 
+  real(8),allocatable,protected:: symopsAF(:,:,:), agAF(:,:) 
   integer,protected::&
        lat_nsgrp,  & !number of space group symmetry
        ctrl_nclass,& !number of equivalence class
        lat_npgrp,  & !number of point group operation with adding iversion. Used in mkqp.f90
-       ngrpaf_       !antiferro symops_af_ for (symops_af_,ag_af_)
+       ngrpAF       !antiferro symopsAF for (symopsAF,agAF)
+  logical:: AFmode
 contains
   subroutine m_mksym_init(prgnam) ! Driver for calling mksymaf and mksym
     use m_lmfinit,only: nspec,nbas,sstrnsymg,addinv, symgaf,iv_a_oips,slabl,mxspec,procid,master,iantiferro
@@ -31,7 +32,9 @@ contains
     ! TRUC   ALAT={a} PLAT= 0.5 0.5 1.0  0.5 1.0 0.5  1.0 0.5 0.5
     !        NBAS= 4  NSPEC=3
     ! ITE    ATOM=Niup POS=  .0   .0   .0   AF=1    <--- AF symmetric pair
-    !        ATOM=Nidn POS= 1.0  1.0  1.0   AF=-1   <---
+    !        ATOM=Nidn POS= 1.0  1.0  1.0   AF=-1   <--- 
+    !         ATOM=Mnup POS=  .0   .0   .0   AF=2   (if another AF pairs)
+    !         ATOM=Mndn POS= 1.0  1.0  1.0   AF=-2 
     !        ATOM=O POS=  .5   .5   .5
     !        ATOM=O POS= 1.5  1.5  1.5
     !------------------------------------------------------------
@@ -42,65 +45,60 @@ contains
     logical ::cmdopt0,ipr10=.false.
     character strn*(recln),strn2*(recln),outs(recln)
     call tcn('m_mksym_init')
-    !! mksym mksymaf generate symmetry operations; split species into classes  ---
     strn = 'find'
     if(len_trim(sstrnsymg)>0) strn=trim(sstrnsymg)
     if (cmdopt0('--nosym') .OR. cmdopt0('--pdos') ) strn = ' '
     lc=merge(1,0,addinv) ! Add inversion to get sampling k points. phi*. When we have TR with keeping spin \sigma, psi_-k\sigm(r) = (psi_k\sigma(r))^* 
-    if( .NOT. prgnam=='LMFA') ipr10= iprint()>10 !this is only for master
-    if(len_trim(symgaf)>0) then
-       strn2=trim(strn)//' '//trim(symgaf)
-       if(ipr10) then
-          write(stdo,*)
-          write(stdo,"(a)")       'AF: ======== AF symmetry ===================== '
-          write(stdo,"(a)")       'AF: Antiferro mode: SPGGRAF  = '//trim(symgaf)
-          write(stdo,"(a)")       'AF:                 SPGGR all= '//trim(strn2)
-          write(stdo,"(a,2i3)")  ('AF:  ibas,AF=',j,iantiferro(j),j=1,nbas)
-       endif
-       !NOTE: a little confusing. ! Module variables are written by mksymaf but overwitten by next call of mksym.
-       call mksymaf(iantiferro,iv_a_oips,procid==master,strn2,lc,slabl,mxspec)
-       if(ipr10) write(stdo,"(a)") 'AF: ===== end of AF section================= '
-       if(ipr10) write(stdo,"(a)")
-    endif 
+    if(.NOT.prgnam=='LMFA') ipr10= iprint()>10 !this is only for master
+    AFmode=len_trim(symgaf)>0 
+    AFsymblock :block
+      integer:: inumaf,iv_a_oipsAF(nbas),j,k, mxspec,ib
+      if(AFmode) then
+         strn2=trim(strn)//' '//trim(symgaf)
+         iv_a_oipsAF=iv_a_oips
+         if(ipr10) then
+            write(stdo,*)
+            write(stdo,"(a)") 'SpaceGroupSym including AF symmetry===start========= '
+            write(stdo,"(a)") 'AF: ======== AF symmetry ===================== '
+            write(stdo,"(a)") 'AF: Antiferro mode: SPGGRAF  = '//trim(symgaf)
+            write(stdo,"(a)") 'AF:                 SPGGR all= '//trim(strn2)
+            write(stdo,"(a,2i3)")  ('AF:  ibas,AF=',j,iantiferro(j),j=1,nbas)
+         endif
+         !NOTE: a little confusing. ! Module variables are written by mksymaf but overwitten by next call of mksym.
+         inumaf = 0
+         do j=1,nbas
+            do k=j,nbas
+               if( iantiferro(j)+iantiferro(k)==0) then
+                  iv_a_oipsAF(k) = iv_a_oipsAF(j) !to drive mksym for AF mode (Assuming AF pairs with the same spec).
+                  inumaf=inumaf+1
+                  exit
+               endif
+            enddo
+         enddo
+         if(master_mpi) call pshpr(60)
+         allocate(iclasstAF(nbas))
+         call mksym(lc,slabl,strn2,iv_a_oipsAF,iclasstAF) !lat_nsgrp returned !strn2 and v_ssite2 are used.
+         ngrpAF    = lat_nsgrp !number of spg symmetry + af symmetry.
+         allocate(symopsAF(3,3,ngrpAF),agAF(3,ngrpAF))
+         if(master_mpi) call poppr()
+         if(master_mpi) write(stdo,"(a)")'AF: mksym, generator= SYMGRP+SYMGRPAF= '//trim(strn2)
+         call dcopy ( ngrpAF * 9 , rv_a_osymgr , 1 , symopsAF , 1 )
+         call dcopy ( ngrpAF * 3 , rv_a_oag ,    1 , agAF , 1 )
+         if(master_mpi) write(stdo,"(a,i3)")'AF: ngrpaf=',ngrpAF
+         if(ipr10) write(stdo,"(a)") 'SpaceGroupSym of AF:      ========end =========================== '
+         if(ipr10) write(stdo,"(a)")
+      endif
+    endblock AFsymblock
     if(procid==master) call pshpr(60)
     allocate(iclasst(nbas))
-    if(ipr10) write(stdo,"(a)") 'SpaceGroupSym: ======================================= '
+    if(ipr10) write(stdo,"(a)")      'SpaceGroupSym of Lattice: ========start========================== '
     call mksym(lc,slabl,strn,iv_a_oips,iclasst)
-    if(ipr10) write(stdo,"(a)") 'SpaceGroupSym: ========end of SYM section============= '
+    if(ipr10) write(stdo,"(a)") 'SpaceGroupSym of Lattice: ========end =========================== '
     if(ipr10) write(stdo,*)
     if(procid==master) call poppr
     call tcx('m_mksym_init')
   end subroutine m_mksym_init
-  subroutine mksymaf(iantiferro,iv_a_oips_in,imaster,strn2,lc,slabl,mxspec) !all input. Get iclassaf_
-    use m_lmfinit,only: nbas,stdo
-    intent(in)::     iantiferro,iv_a_oips_in,imaster,strn2,lc,slabl,mxspec
-    logical::  imaster
-    character(*)::  strn2
-    character(8) :: slabl(mxspec)
-    integer:: inumaf,iv_a_oips_in(nbas),j,k,lc, mxspec,ib,iantiferro(nbas)
-    integer::iv_a_oips(nbas)
-    iv_a_oips=iv_a_oips_in
-    inumaf = 0
-    do j=1,nbas
-       do k=j,nbas
-          if( iantiferro(j)+iantiferro(k)==0) then
-             iv_a_oips(k) = iv_a_oips(j) !to drive mksym for AF mode (Assuming AF pairs with the same spec).
-             inumaf=inumaf+1
-             exit
-          endif
-       enddo
-    enddo
-    if(imaster) call pshpr(60)
-    allocate(iclasstaf_(nbas))
-    call mksym(lc,slabl,strn2,iv_a_oips,iclasstaf_) !lat_nsgrp returned !strn2 and v_ssite2 are used.
-    ngrpaf_     = lat_nsgrp !number of spg symmetry + af symmetry.
-    allocate(symops_af_(3,3,ngrpaf_),ag_af_(3,ngrpaf_))
-    if(imaster) call poppr()
-    if(imaster) write(stdo,"(a)")'AF: mksym, generator= SYMGRP+SYMGRPAF= '//trim(strn2)
-    call dcopy ( ngrpaf_ * 9 , rv_a_osymgr , 1 , symops_af_ , 1 )
-    call dcopy ( ngrpaf_ * 3 , rv_a_oag ,    1 , ag_af_ , 1 )
-    if(imaster) write(stdo,"(a,i3)")'AF: ngrpaf=',ngrpaf_
-  end subroutine mksymaf
+  
   subroutine mksym(mode,slabl,ssymgr,iv_a_oips,iclass)! Setup symmetry group.  Split species into classes, Also assign class labels to each class
     use m_lmfinit,only: nbas,stdo,nspec               ! outputs are allocated as module variables
     use m_lattic,only: lat_plat,rv_a_opos

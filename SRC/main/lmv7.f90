@@ -81,11 +81,9 @@ program lmf ! Bootstrap sequence of modules initialzation. The variables in modu
   call m_lmfinit_init(prgnam)! Read ctrlp into module m_lmfinit.
   call m_lattic_init()       ! lattice setup (for ewald sum)
   call m_mksym_init(prgnam)  !symmetry go into m_lattic and m_mksym
-  write(6,ftox)'lmv7bbbzzz qqqqqqqqlat',ftof(reshape(qlat,[9]))
   if(trim(prgnam)=='LMF') call m_mkqp_init() ! data of BZ go into m_mkqp
   ! --rs=3 is removed. (--rs=3 meand fixed density Harris-foukner MD).
   ! Sep2020:  Shorten site positions" removed. (we are useing shortn3 mainly now)
-  write(6,ftox)'lmv7bbb000 qqqqqqqqlat',ftof(reshape(qlat,[9]))
   ReadingPos: block !read aomic positions from AtomPos if it exists. Overwrite pos in m_lattic.
     real(8):: posread(3,nbas)
     logical:: irpos

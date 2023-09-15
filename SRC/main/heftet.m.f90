@@ -8,7 +8,7 @@ program heftet
   use m_genallcf_v3,only: genallcf_v3, nclass,natom,nspin,nl,nn,nnv,nnc, &
        nlmto,nlnmx, nctot,niw,  alat, delta,deltaw,esmr,clabl,iclass, &!il,in,im,nlnm, &
        plat, pos,z,ecore, konf,nlnx
-  use m_hamindex,only:   Readhamindex
+  use m_hamindex,only:   Readhamindex,qtt,nqtt
   use m_readeigen,only: init_readeigen,readeval
   use m_tetrakbt,only: tetrakbt_init, kbt
   use m_keyvalue,only: getkeyvalue
@@ -16,6 +16,7 @@ program heftet
   use m_mpi,only: MPI__Initialize
   use m_lgunit,only: m_lgunit_init
   use m_ftox
+  use m_lgunit,only: stdo
   implicit none
   integer :: mxclass,ngnmax, &
        ibas,ibasx,ngpmx,nxx,ngcmx,nbloch,ifqpnt,ifwd, &
@@ -130,6 +131,12 @@ program heftet
 
   if(imode==1 .OR. imode==5) then
      call Readhamindex()
+!!!!!!!!!!!!!!!!!!!!!!
+!     write(stdo,ftox)'mmmmmmmmmmm',nqtt
+!     do i=1,nqtt
+!        write(stdo,ftox)'mmmmmmmm',i,ftof(qtt(:,i))
+!     enddo
+!!!!!!!!!!!!     
      call init_readeigen() !initialization of readEigen
      nbandx= nband
      nkp   = nqibz

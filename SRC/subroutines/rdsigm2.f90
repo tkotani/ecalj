@@ -40,11 +40,11 @@ contains
   ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
   subroutine m_rdsigm2_init() !get hrr (fourier transformation of self-energy in full BZ)
     use m_lmfinit,only : nbas,pwmode=>ham_pwmode,stdo,ldim=>nlmto
-    use m_hamindex,only: symops_af!,napwmx
+    use m_hamindex,only: laf=>AFmode !symops_af!,napwmx
     use m_MPItk,only: procid,master
     use m_ext,only:sname
     integer:: ierr,ifi,ndimh_dummy,ifis2,ik1,ik2,ik3,is,iset,nqp
-    logical:: laf,mlog,cmdopt, mtosigmaonly,cmdopt0
+    logical:: mlog,cmdopt, mtosigmaonly,cmdopt0
     character strn*120
     real(8),allocatable:: qsmesh2(:,:,:,:)
     call tcn('m_rdsigm2_init')
@@ -53,7 +53,7 @@ contains
        open(newunit=ifi,file='sigm.'//trim(sname),form='unformatted')
        read(ifi,err=9995,end=9995) nspsigm,ndimh_dummy,nk1,nk2,nk3,nqp
        write(stdo,"(' sigm file has ',i5,' irreducible QP: nk =',3i5)") nqp,nk1,nk2,nk3
-       laf=allocated(symops_af) !jun2015takao !reserved for future
+!       laf=allocated(symops_af) !jun2015takao !reserved for future
        if(laf) nspsigm=2      ! we need recover laf mode
        allocate( qsmesh2(3,nk1,nk2,nk3) )
        if(mtosigmaonly()) then
@@ -100,7 +100,7 @@ contains
   end subroutine m_rdsigm2_init
   subroutine rdsigm2(nspsigm,ifis, nk1,nk2,nk3,ldim,qsmesh, mtosigmaonly,ndimsig) ! Expand self-energy (read by ifis) to all the q point on mesh.
     use m_mksym,only: rv_a_osymgr,lat_nsgrp
-    use m_hamindex,only : symops_af,ngrp_original,ngrpaf,symops,ngrp,napwk
+    use m_hamindex,only : ngrp_original,symops,ngrp,napwk,laf=>AFmode
     use m_lmfinit,only: nl,stdo
     use m_lattic,only: plat=>lat_plat
     !! nbas is in this structure
@@ -126,16 +126,15 @@ contains
     logical :: llshft(3),cmdopt,lphase,lsplts,lnwmsh, latvec,lfbzin,lfbzout
     character outs*80,out2*80,dc*1,rots*120
     integer,parameter::niax=10
-!    integer ,allocatable :: gstar_iv(:)
     integer ,allocatable,target :: ipq(:,:,:)
     real(8) ,allocatable :: qp_rv(:,:), wgt_rv(:),evls(:),evlz(:),sigii(:)
     complex(8),allocatable :: wk_zv(:), sigm_zv(:,:), siglda(:,:),z(:,:),sigo(:,:)
-    integer :: is(3),lshft(3),ifac(3), jj1,jj2,jj3,k,iwdummy
+    integer :: is(3),lshft(3),ifac(3), jj1,jj2,jj3,k,iwdummy,iaf
     real(8):: rb(3,3),qb(3,3), qp(3),tolq=1d-4,rsstol,rotm(3,3), qsmesh(3,nk1,nk2,nk3) 
     integer:: i1,i2,i3,ikt,ldim,napw_in,debugmode, ndimsig,ix
-    logical:: isanrg, debug=.false.,mtosigmaonly,laf
+    logical:: isanrg, debug=.false.,mtosigmaonly
     real(8):: qir(3),diffq(3),platt(3,3)
-    integer:: ii1,ii2,ii4,ispr,iaf,ig,nsp_,ndimh_,nk1_,nk2_,nk3_,nqp_
+    integer:: ii1,ii2,ii4,ispr,ig,nsp_,ndimh_,nk1_,nk2_,nk3_,nqp_
     character(300)::aaa
     character(8):: xt
     integer,allocatable,target:: ipqaf(:,:,:)
@@ -143,7 +142,6 @@ contains
     call tcn('rdsigm2')
     write(stdo,*)'rdsigm2:'
     sfz=1d99
-    laf=allocated(symops_af) !jun2015takao
     lshft=0
     rewind ifis !Read sigma(orbital basis) from a file 
     read(ifis) nsp_,ndimsig_r,nk1_,nk2_,nk3_,nqp_

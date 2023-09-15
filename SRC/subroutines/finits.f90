@@ -1,16 +1,4 @@
 ! All exit routines with errors 2023 feb. Too much varieties is historical reasons.
-subroutine rx(string) !error exit
-  use m_lgunit,only:stdo,stdl
-  character*(*) string
-  call fexit0(-1,string)
-  call rx0s(string)         !for single core exit
-end subroutine rx
-subroutine rxi(string,iarg) ! Error exit, with a single integer at end
-  character*(*) string
-  integer:: iarg
-  character(10):: i2char
-  call fexit0(-1,' Exit -1 '//string//' '//trim(i2char(iarg)))
-end subroutine rxi
 subroutine rx0s(string) !normal exit for master_mpi
   use m_MPItk,only: master_mpi
   character*(*) string
@@ -23,6 +11,32 @@ subroutine rx0(string) !normal exit
   call fexit0(0,string)
   call rx0s(string)         !for single core exit
 end subroutine rx0
+
+subroutine rx(string) !error exit
+  use m_lgunit,only:stdo,stdl
+  character*(*) string
+  call fexit0(-1,string)
+  call rx0s(string)         !for single core exit
+end subroutine rx
+subroutine rxi(string,iarg) ! Error exit, with a single integer at end
+  character*(*) string
+  integer:: iarg
+  character(10):: i2char
+  call fexit0(-1,' Exit -1 '//string//' '//trim(i2char(iarg)))
+end subroutine rxi
+subroutine rxii(string,iarg,iarg2) 
+  character*(*) string
+  integer:: iarg,iarg2
+  character(10):: i2char
+  call fexit0(-1,' Exit -1 '//string//' '//trim(i2char(iarg))//' '//trim(i2char(iarg2)))
+end subroutine rxii
+subroutine rxiii(string,iarg,iarg2,iarg3) 
+  character*(*) string
+  integer:: iarg,iarg2,iarg3
+  character(10):: i2char
+  call fexit0(-1,' Exit -1 '//string//' '//trim(i2char(iarg))//' '//trim(i2char(iarg2))//' '//trim(i2char(iarg3)))
+end subroutine rxiii
+
 subroutine rx1(string,arg) ! Error exit, with a single argument
   use m_ftox
   use m_lgunit,only:stdo,stdl
@@ -45,6 +59,7 @@ subroutine rx3(string,arg1,arg2,arg3) ! Error exit, with two arguments
   real(8):: arg1,arg2,arg3
   call fexit0(-1,' Exit -1 '//string//trim(ftof(arg1))//' '//trim(ftof(arg2))//' '//trim(ftof(arg3)))
 end subroutine rx3
+
 subroutine rxs(string,msg) ! Error exit with extra string message
   character*(*) string,msg
   character(120) :: outs
@@ -57,6 +72,7 @@ subroutine rxx(test,string)
   character*(*) string
   if (test) call rx(string)
 end subroutine rxx
+
 subroutine fexit0(retval,strng)! retval:  return value passed to operating system. /=0 for error exit
   use m_MPItk,only:  m_MPItk_finalize
   use m_lgunit,only:stdo,stdl

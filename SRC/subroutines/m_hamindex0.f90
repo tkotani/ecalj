@@ -4,14 +4,14 @@ module m_hamindex0 !  originally HAMIndex0 contains informatio of SYMOPS,LATTC,C
   use m_lattic,only: lat_qlat,lat_plat,rv_a_opos
   use NaNum,only: NaN       !for initialization, but not working well
 
-  integer,protected,public:: ngrpaf,ngrp_original,pwmode,ngrp=NaN, nbas=NaN
+  integer,protected,public:: ngrp_original,pwmode,ngrp=NaN, nbas=NaN
 !  integer,protected,public:: nqi=NaN, nqnum=NaN, lxx=NaN, kxx=NaN,norbmto=NaN, &
 !       nqtt=NaN, ndimham=NaN, napwmx=NaN, lxxa=NaN, ngpmx=NaN, imx=NaN
-  integer,allocatable,protected,public:: iclasstaf(:), offH (:), &
+  integer,allocatable,protected,public:: offH (:), &
        ltab(:),ktab(:),offl(:),offlrev(:,:,:),ibastab(:), &
        iqimap(:),iqmap(:),igmap(:),invgx(:),miat(:,:),ibasindex(:), &
        igv2(:,:,:),napwk(:),igv2rev(:,:,:,:),iclasst(:)
-  real(8),allocatable,protected,public:: symops_af(:,:,:), ag_af(:,:), &
+  real(8),allocatable,protected,public:: &
        symops(:,:,:),ag(:,:),tiat(:,:,:),shtvg(:,:), dlmm(:,:,:,:),qq(:,:), &
        qtt(:,:),qtti(:,:),zz(:)
   real(8),protected,public:: plat(3,3)=NaN,qlat(3,3)=NaN,zbak
@@ -29,7 +29,7 @@ module m_hamindex0 !  originally HAMIndex0 contains informatio of SYMOPS,LATTC,C
 contains
   ! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
   subroutine m_hamindex0_init()
-    use m_mksym,only: rv_a_osymgr,rv_a_oag,lat_nsgrp, iclasstaf_,symops_af_,ag_af_,ngrpaf_,iclasstin=>iclasst
+    use m_mksym,only: rv_a_osymgr,rv_a_oag,lat_nsgrp,iclasstin=>iclasst
     use m_MPItk,only: master_mpi
     use m_density,only: pnzall,pnuall
     !!-- Set up m_hamiltonian. Index for Hamiltonian. --
@@ -48,7 +48,7 @@ contains
     integer:: ibas,k,l,ndim,ipr,nglob,off,offs,specw,fieldw,iorb,offsi,ib,is
     integer:: nkabc(3),nkp,lshft(3),napwx,ig,nini,nk1,nk2,nk3,ik1,ik2,ik3,ikt,nkt
     integer:: i_spacks,i_spackv,ifi,nbas_in,ifisym,i,ifiqibz,igg,iqq,iqi,irr,iqi_,jobgw
-    integer:: iout,nout,nlatout(3,noutmx),iapw ,iprint,ngadd,igadd,igaf
+    integer:: iout,nout,nlatout(3,noutmx),iapw ,iprint,ngadd,igadd
     integer:: ngp, ifiqg,iq,nnn(3),ixx,ndummy,nqbz___ ,ifatomlist
     integer,allocatable:: ltabx(:,:),ktabx(:,:),offlx(:,:),iqtt(:), kv(:)
     real(8):: pwgmax, pwgmin, QpGcut_psi,qxx(3),qtarget(3),platt(3,3),q(3),qx(3),qqx(3)
