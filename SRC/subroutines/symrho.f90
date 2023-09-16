@@ -4,7 +4,7 @@ module m_symrhoat
   contains
 subroutine symrhoat(sv_p_orhoat, qbyl, hbyl, f)!- Symmetrize charge density and related quantities
   use m_supot,only: rv_a_ogv , iv_a_oips0 , zv_a_obgv ,iv_a_okv
-  use m_mksym,only: iv_a_oistab , rv_a_osymgr, rv_a_oag
+!  use m_mksym,only: iv_a_oistab , rv_a_osymgr, rv_a_oag
   use m_struc_def
   use m_lmfinit,only: nbas,nsp,lfrce
   use m_lgunit,only:stdo
@@ -37,7 +37,7 @@ subroutine symrhoat(sv_p_orhoat, qbyl, hbyl, f)!- Symmetrize charge density and 
 end subroutine symrhoat
 subroutine symrat(sv_p_orhoat , qbyl , hbyl , f )
   use m_struc_def
-  use m_mksym,only: iv_a_oistab , rv_a_osymgr, rv_a_oag,lat_nsgrp,ipc_iv=>iclasst
+  use m_mksym,only: oistab , symops, ag,ngrp,ipc_iv=>iclasst
   use m_lattic,only: lat_qlat,lat_plat,rv_a_opos
   use m_lgunit,only:stdo
   use m_lmfinit,only: ispec,sspec=>v_sspec,lfrce,nbas,nsp,n0
@@ -63,7 +63,7 @@ subroutine symrat(sv_p_orhoat , qbyl , hbyl , f )
   implicit none
   type(s_rv1) :: sv_p_orhoat(3,nbas)
   real(8):: f(3,nbas),qbyl(n0,nsp,nbas),hbyl(n0,nsp,nbas)
-  integer:: ib0,ic,ipr,iprint,is,lmxa,lmxl,nclass,ngrp,nlml,nlmx,nr,nrclas,igetss,ival,ibas
+  integer:: ib0,ic,ipr,iprint,is,lmxa,lmxl,nclass,nlml,nlmx,nr,nrclas,igetss,ival,ibas
   integer ,allocatable :: ipa_iv(:)
   integer ,allocatable :: ips_iv(:)
   real(8) ,allocatable :: pos_rv(:)
@@ -75,7 +75,7 @@ subroutine symrat(sv_p_orhoat , qbyl , hbyl , f )
   ipr = iprint()
   plat=lat_plat
   qlat=lat_qlat
-  ngrp=lat_nsgrp
+!  ngrp=lat_nsgrp
   allocate(ips_iv(nbas))
   allocate(pos0_rv(3,nbas))
   do ibas=1,nbas
@@ -99,8 +99,7 @@ subroutine symrat(sv_p_orhoat , qbyl , hbyl , f )
         !   ... Make the projectors; make to at least to l=1 for forces
         nlmx = max0(nlml,4)
         allocate(sym_rv(nlmx*nlmx*nrclas))
-        call symprj(nrclas,nlmx,ngrp,nbas,iv_a_oistab,rv_a_osymgr &
-            ,rv_a_oag,plat,qlat,pos_rv,sym_rv )
+        call symprj(nrclas,nlmx,ngrp,nbas,oistab,symops,ag,plat,qlat,pos_rv,sym_rv )
         !   ... Apply the projectors to rhoat
         if (lmxl > -1) then
            allocate(rho_rv(nr*nlml*nsp))
@@ -286,19 +285,19 @@ end module m_symrhoat
 subroutine symsmrho(smrho) !- Symmetrize the smooth charge density
   use m_supot,only:  iv_a_oips0, iv_a_okv,rv_a_ogv,zv_a_obgv
   use m_supot,only: lat_ng,n1,n2,n3
-  use m_mksym,only: lat_nsgrp
+  use m_mksym,only: ngrp
   use m_lmfinit,only: nsp
   use m_lgunit,only:stdo
   implicit none
   double complex smrho(n1,n2,n3,nsp)
-  integer:: ng,ngrp,isp
+  integer:: ng,isp
   complex(8) ,allocatable :: csym_zv(:)
   complex(8) ,allocatable :: cv_zv(:)
 !  equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
   call tcn('symsmrho')
 !  ngabc=lat_nabc
   ng=lat_ng
-  ngrp=lat_nsgrp
+!  ngrp=lat_nsgrp
   if (ngrp > 1) then
      allocate(cv_zv(ng))
      allocate(csym_zv(ng))

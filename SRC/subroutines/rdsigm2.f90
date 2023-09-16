@@ -100,8 +100,8 @@ contains
     call rx('sigmainit: readin error of sigm file')
   end subroutine m_rdsigm2_init
   subroutine rdsigm2(nspsigm,ifis, nk1,nk2,nk3,ldim,qsmesh, mtosigmaonly,ndimsig) ! Expand self-energy (read by ifis) to all the q point on mesh.
-    use m_mksym,only: rv_a_osymgr,lat_nsgrp
-    use m_hamindex,only : ngrp_original,symops,ngrp,napwk,laf=>AFmode
+    use m_mksym,only: symops,ngrp,ngrpAF,laf=>AFmode
+    use m_hamindex,only: napwk
     use m_lmfinit,only: nl,stdo
     use m_lattic,only: plat=>lat_plat
     !! nbas is in this structure
@@ -146,9 +146,9 @@ contains
     lshft=0
     rewind ifis !Read sigma(orbital basis) from a file 
     read(ifis) nsp_,ndimsig_r,nk1_,nk2_,nk3_,nqp_
-    nsgrp=lat_nsgrp
+    nsgrp=ngrp !lat_nsgrp
     nsgrps = nsgrp
-    print *,' lat_nsgrp=',lat_nsgrp
+!    print *,' lat_nsgrp=',lat_nsgrp
     llshft = .false. 
 !    call bzmsh0(plat,llshft,nk1,nk2,nk3,is,ifac,rb,qb)!Get is,ifac,qb,qlat,qoff  Get list of irreducible k-points, and ipq and gstar arrays
     mxkp = nk1*nk2*nk3
@@ -158,7 +158,7 @@ contains
     call bzmesh(plat,qb,ifac,nk1,nk2,nk3,llshft,iwdummy,0, ipq,rv_p_oqsig, wgt_rv, nqsig, mxkp)!,0)
     ham_nqsig=nqsig
     write(stdo,"(a)") ' Irr. qp for which sigma is calculated ...'
-    call bzmesh(plat,qb,ifac,nk1,nk2,nk3,llshft,rv_a_osymgr, nsgrps,ipq, qp_rv,wgt_rv,nqps,mxkp)! ,gstar_iv)
+    call bzmesh(plat,qb,ifac,nk1,nk2,nk3,llshft,symops, nsgrps,ipq, qp_rv,wgt_rv,nqps,mxkp)! ,gstar_iv)
     if(nqps/=nqp_) call rx('nqps/=nqp_ from sigm '//xt(nqps)//' '//xt(nqp))
     platt=transpose(plat)
     do concurrent(i1=1:nk1,i2=1:nk2,i3=1:nk3)
@@ -172,7 +172,7 @@ contains
              do i3=1,nk3
                 do 1111 iq1=1,nqps
                    qir = qp_rv(:,iq1)
-                   do ig= ngrp_original+1,ngrp !only AF symmetry (equivalent with symops_af)
+                   do ig= ngrp+1,ngrpAF !only AF symmetry (equivalent with symops_af)
                       call rangedq( matmul(platt,(qsmesh(:,i1,i2,i3) - matmul(symops(:,:,ig),qir))), diffq)
                       if(sum(abs(diffq))<tolq) then
                          ipqaf(i1,i2,i3) = iq1    !iq1 is pointer to the irreducible q point = qp_rv(:,iq1)
@@ -297,9 +297,10 @@ contains
   end subroutine hamfb3k
   
   subroutine rotsig(qin,qout,ndimh,napw_in,ldim,sig, sigout,ierr,iaf) !Sigm rotator. sig at qin to sig at qout. ===
-    use m_hamindex,only: symops,invgx,miat,tiat,shtvg,qlat,plat,dlmm,ngrp,norbmto, &
-         ibastab,ltab,ktab,offl,offlrev,igv2,igv2rev,napwk, ngrp_original
-    use m_lmfinit,only: stdo
+    use m_mksym,only:   ngrp,ngrpAF,symops,invgx,miat,tiat,shtvg,ibastab,ltab,ktab,offl,offlrev,dlmm,norbmto
+    use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat
+    use m_lgunit,only: stdo
+    use m_hamindex,only: igv2,igv2rev,napwk
     implicit none
     intent(out)::                                    sigout,ierr
     !! obtain sigout for qout.
@@ -325,10 +326,10 @@ contains
     q      = qout  
     AntiferroMechanism: if(iaf==1) then !AFisp=1
        ngini = 1
-       ngend = ngrp_original
-    elseif(iaf==2) then !AF isp=2. These are antiferro space-group operations
-       ngini = ngrp_original + 1
        ngend = ngrp
+    elseif(iaf==2) then !AF isp=2. These are antiferro space-group operations
+       ngini = ngrp + 1
+       ngend = ngrpAF
     else
        ngini = 1
        ngend = ngrp
@@ -486,11 +487,11 @@ contains
     call tcx('bloch2')
   end subroutine bloch2
   integer function getikt(qin) !return !> get index ikt such that for qin(:)=qq(:,ikt)
-    use m_hamindex,only: qq,nqnum
+    use m_hamindex,only: qtt,nqtt
     intent(in)::          qin
     integer::i
     real(8):: qin(3)
-    getikt  = findloc([(sum(abs(qin-qq(:,i)))<1d-8,i=1,nqnum)],value=.true.,dim=1)  !=index for q
+    getikt  = findloc([(sum(abs(qin-qtt(:,i)))<1d-8,i=1,nqtt)],value=.true.,dim=1)  !=index for q
     if(getikt<=0) call rx('getikt rdsigm2 can not find ikt for given q')
   endfunction getikt
 end module m_rdsigm2

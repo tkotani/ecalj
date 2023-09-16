@@ -4,10 +4,8 @@ module m_hamindex0 !  originally HAMIndex0 contains informatio of SYMOPS,LATTC,C
   use m_lattic,only: lat_qlat,lat_plat,rv_a_opos
   use NaNum,only: NaN       !for initialization, but not working well
 
-  integer,protected,public:: ngrp_original,pwmode,ngrp=NaN, nbas=NaN
-!  integer,protected,public:: nqi=NaN, nqnum=NaN, lxx=NaN, kxx=NaN,norbmto=NaN, &
-!       nqtt=NaN, ndimham=NaN, napwmx=NaN, lxxa=NaN, ngpmx=NaN, imx=NaN
-  integer,allocatable,protected,public:: offH (:), &
+  integer,protected,public:: pwmode,ngrp=NaN, nbas=NaN
+  integer,allocatable,protected,public:: & !offH (:), &
        ltab(:),ktab(:),offl(:),offlrev(:,:,:),ibastab(:), &
        iqimap(:),iqmap(:),igmap(:),invgx(:),miat(:,:),ibasindex(:), &
        igv2(:,:,:),napwk(:),igv2rev(:,:,:,:),iclasst(:)
@@ -29,7 +27,7 @@ module m_hamindex0 !  originally HAMIndex0 contains informatio of SYMOPS,LATTC,C
 contains
   ! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
   subroutine m_hamindex0_init()
-    use m_mksym,only: rv_a_osymgr,rv_a_oag,lat_nsgrp,iclasstin=>iclasst
+    use m_mksym,only: osymgr=>symops,oag=>ag,ngrpin=>ngrp,iclasstin=>iclasst
     use m_MPItk,only: master_mpi
     use m_density,only: pnzall,pnuall
     !!-- Set up m_hamiltonian. Index for Hamiltonian. --
@@ -64,14 +62,14 @@ contains
     data lorb /'phi','phidot','phiz'/
     ! forget floating orbital case  !    ldim  = ham_ldham(1)
     nbas=ctrl_nbas !nbas_in
-    ngrp=lat_nsgrp            !note nsgrp given in mksym.F is without inversion.
+    ngrp=ngrpin   !note nsgrp given in mksym.F is without inversion.
     nsp=nsp_in
     plat=lat_plat
     qlat=lat_qlat
     !! symmetry operation ---
     allocate(symops(3,3,ngrp),ag(3,ngrp))
-    call dcopy ( ngrp * 9 , rv_a_osymgr , 1 , symops , 1 )
-    call dcopy ( ngrp * 3 , rv_a_oag , 1 , ag , 1 )
+    call dcopy ( ngrp * 9 , osymgr , 1 , symops , 1 )
+    call dcopy ( ngrp * 3 , oag , 1 , ag , 1 )
     allocate(invgx(ngrp),miat(nbas,ngrp),tiat(3,nbas,ngrp), & !iclasst(nbas),
          shtvg(3,ngrp),spid(nbas),lmxa(nbas),zz(nbas))
     do ib=1,nbas

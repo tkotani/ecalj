@@ -103,8 +103,6 @@ contains
 end module m_suham
 
 subroutine mptauof(symops,ng,plat,nbas,bas, iclass,miat,tiat,invg,delta) !- Mapping of atomic sites by points group operations.
-  ! Modded by okuda 1994 March.
-  ! Simplified by kotani 1994 7/31.
   !i  Input
   !i     symops(1,ng),ng,plat,nbas,bas(3,nbas)
   !i     iclass(nbas); denote class for each atom
@@ -121,8 +119,6 @@ subroutine mptauof(symops,ng,plat,nbas,bas, iclass,miat,tiat,invg,delta) !- Mapp
   !r    bas( k,miat(ibas,ig) )+ tiat(k,ibas,ig), k=1~3.
   !r
   !r (2) tiat= unit translation
-  !r
-  !--------------------------------------------------------------------
   implicit none
   integer :: ng,nbas, miat(nbas,ng),iclass(nbas),invg(ng), &
        nbmx, nsymx, ig,igd,i,j,ibas,mi,i1,i2,i3

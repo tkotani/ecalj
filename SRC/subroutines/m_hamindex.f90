@@ -1,40 +1,33 @@
 module m_hamindex   !hamiltonian index read/write for successive GW calculaitons.
-  use NaNum,only: NaN       !for initialization, but not working well
-  use m_lgunit,only:stdo
-  use m_ftox
   public:: Readhamindex
-  integer,protected,public:: ngrp_original,pwmode,ndham !ngrpaf,
-  integer,protected,public:: nqi=NaN, nqnum=NaN, ngrp=NaN, lxx=NaN, kxx=NaN,norbmto=NaN, &
-       nqtt=NaN, ndimham=NaN, napwmx=NaN, lxxa=NaN, ngpmx=NaN, imx=NaN,nbas=NaN
-  integer,allocatable,protected,public:: & ! offH (:), & !iclasstaf(:),
-       ltab(:),ktab(:),offl(:), offlrev(:,:,:),ibastab(:), & !iclasst(:),
-       iqimap(:),iqmap(:),igmap(:),invgx(:),miat(:,:),ibasindex(:), &
-       igv2(:,:,:),napwk(:),igv2rev(:,:,:,:)! for rotation of evec       
-  real(8),allocatable,protected,public:: & !symops_af(:,:,:), ag_af(:,:), &
+  integer,protected,public:: pwmode,ndham 
+  integer,protected,public:: nqi, ngrp, lxx, kxx,norbmto, nqtt, ndimham, napwmx, lxxa, ngpmx, imx,nbas
+  integer,allocatable,protected,public:: ltab(:),ktab(:),offl(:), offlrev(:,:,:),ibastab(:), & 
+       iqimap(:),iqmap(:),igmap(:),invgx(:),miat(:,:),ibasindex(:), igv2(:,:,:),napwk(:),igv2rev(:,:,:,:)
+  real(8),allocatable,protected,public:: & 
        symops(:,:,:),ag(:,:),tiat(:,:,:),shtvg(:,:), dlmm(:,:,:,:),qq(:,:), qtt(:,:),qtti(:,:)
-  real(8),protected,public:: plat(3,3)=NaN,qlat(3,3)=NaN,zbak
+  real(8),protected,public:: plat(3,3),qlat(3,3),zbak
   logical,protected,public:: readhamindex_init=.false., AFmode
+  integer,protected,public:: ngrpAF
   private
   logical,private:: debug=.false.
+  integer,private::ngall
 contains
   subroutine readhamindex() !Read info of PMT Hamiltoninan for wave rotation.
+    use m_lgunit,only:stdo
+    use m_ftox
     logical::qpgexist
-    integer:: ifi,nkt
-!    logical::pmton
-!    logical,save:: done=.false.
-!    if(done) call rx('readhamindex is already done')
-!    done=.true.
+    integer:: ifi
     readhamindex_init=.true.
     open(newunit=ifi,file='HAMindex',form='unformatted')
-    read(ifi)ngrp,nbas,kxx,lxx,imx,ngpmx,norbmto,pwmode,zbak,ndham,AFmode
-    allocate(symops(3,3,ngrp),ag(3,ngrp))
-    allocate(invgx(ngrp),miat(nbas,ngrp),tiat(3,nbas,ngrp),shtvg(3,ngrp))
-    write(stdo,ftox) 'ngrp=',ngrp
+    read(ifi)ngrp,nbas,kxx,lxx,imx,norbmto,pwmode,zbak,ndham,AFmode,ngrpAF
+    ngall=ngrp+ngrpAF
+    allocate(symops(3,3,ngall),ag(3,ngall),invgx(ngall),miat(nbas,ngall),tiat(3,nbas,ngall),shtvg(3,ngall))
     read(ifi)symops,ag,invgx,miat,tiat,shtvg
-    allocate( ltab(norbmto),ktab(norbmto),offl(norbmto),ibastab(norbmto) )
-    allocate( offlrev(nbas,0:lxx,kxx))
+    allocate( ltab(norbmto),ktab(norbmto),offl(norbmto),ibastab(norbmto),offlrev(nbas,0:lxx,kxx))
     read(ifi) lxxa
-    allocate( dlmm(-lxxa:lxxa, -lxxa:lxxa, 0:lxxa, ngrp))
+!    write(6,*)'lllllllllllllxxa=',lxxa
+    allocate( dlmm(-lxxa:lxxa, -lxxa:lxxa, 0:lxxa, ngall))
     read(ifi) dlmm
     read(ifi) ibastab,ltab,ktab,offl,offlrev
     read(ifi) qpgexist
@@ -42,28 +35,24 @@ contains
        close(ifi)
        return
     endif
-    read(ifi) nqtt,nqi,nqnum
-    allocate( qq(3,nqnum),qtt(3,nqtt),qtti(3,nqi)) !this was qq(3,nqnum*2) until Aug2012 when shorbz had been used.
+    read(ifi) nqtt,nqi,ngpmx
+    allocate(qtt(3,nqtt),qtti(3,nqi)) 
     allocate(iqmap(nqtt),igmap(nqtt),iqimap(nqtt))
-    read(ifi)qq,qtt,qtti,iqmap,igmap,iqimap !,ngvecp,ngvecprev
+    read(ifi)qtt,qtti,iqmap,igmap,iqimap !,ngvecp,ngvecprev
     read(ifi)plat,qlat,napwmx
     if(napwmx/=0)then !for APW rotation used in rotwvigg
-       nkt=nqtt
-       allocate( igv2(3,napwmx,nkt) )
-       allocate( napwk(nkt))
-       allocate( igv2rev(-imx:imx,-imx:imx,-imx:imx,nkt) )
+       nqtt=nqtt
+       allocate( igv2(3,napwmx,nqtt), napwk(nqtt),igv2rev(-imx:imx,-imx:imx,-imx:imx,nqtt))
        read(ifi) igv2,napwk,igv2rev
     endif
     close(ifi)
   end subroutine readhamindex
 end module m_hamindex
 
-
 module m_hamindexW   !Write hamiltonian index file 'HAMindex' for rdsigm2 and GW parts
   public m_hamindexW_init
 contains
   subroutine m_hamindexW_init() !Set up m_hamiltonian. Index for Hamiltonian. --
-    use NaNum,only: NaN        !for initialization, but not working well
     use m_lmfinit,only: pwmode=>ham_pwmode,pwemax,ldim=>nlmto,noutmx,nsp,stdo, &
          alat=>lat_alat,nl,nbas,ispec,sspec=>v_sspec,n0,nkap0,zbak,slabl,z
     use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat,rv_a_opos
@@ -72,15 +61,15 @@ contains
     use m_MPItk,only: master_mpi
     use m_lgunit,only:stdo
     use m_ftox
-    use m_mksym,only: rv_a_osymgr,rv_a_oag,lat_nsgrp,iclasst,AFmode_mksym=>AFmode,& 
-         ngrp,kxx,lxx,norbmto,AFmode,symops,ag,invgx,miat,tiat,shtvg,lxxa,dlmm,ltab,ktab,offl,offlrev,ibastab
+    use m_mksym,only: rv_a_osymgr=>symops,rv_a_oag=>ag,iclasst,AFmode_mksym=>AFmode,& 
+         ngrp,kxx,lxx,norbmto,AFmode,symops,ag,invgx,miat,tiat,shtvg,lxxa,dlmm,ltab,ktab,offl,offlrev,ibastab,ngrpAF
+    use m_mpi,only: MPI__barrier
     implicit none
-    integer:: ngrp_original
-    integer:: nqi, nqnum,nqtt, ndimham, napwmx, ngpmx, imx
+    integer:: nqi, nqtt, ndimham, napwmx, ngpmx, imx
     integer,allocatable::  offH (:), iqimap(:),iqmap(:),igmap(:),ibasindex(:), igv2(:,:,:),napwk(:),igv2rev(:,:,:,:)
-    real(8),allocatable:: qq(:,:), qtt(:,:),qtti(:,:)
+    real(8),allocatable:: qtt(:,:),qtti(:,:)
     integer:: ibas,k,l,ndim,ipr,nglob,off,offs,iorb,offsi,ib,is
-    integer:: nkabc(3),nkp,lshft(3),napwx,ig,nini,nk1,nk2,nk3,ik1,ik2,ik3,ikt,nkt
+    integer:: nkabc(3),nkp,lshft(3),napwx,ig,nini,nk1,nk2,nk3,ik1,ik2,ik3,ikt
     integer:: ifi, ifisym,i,ifiqibz,igg,iqq,iqi,irr,iqi_,jobgw
     integer:: iapw ,iprint,ngadd,igadd
     integer:: ngp, ifiqg,iq,nnn(3),ixx,ndummy,nqbz___ ,ifatomlist
@@ -90,42 +79,35 @@ contains
     real(8),allocatable:: symtmp(:,:,:)
     logical:: qpgexist
     character(8)::  spid(nbas)
-    integer:: ndima,lmxax,npqn,ificlass,nat,lmaxa,ipqn,ifinlaindx,isp,konf
+    integer:: ndima,lmxax,npqn,ificlass,nat,lmaxa,ipqn,ifinlaindx,isp,konf,ngall
     logical,save:: done=.false.
     real(8):: tolq
     character(1):: lorb(1:3)=['p','d','l'],dig(1:9)=['1','2','3','4','5','6','7','8','9'],&
          lsym(0:n0-1)=['s','p','d','f','g','5','6','7','8','9']
+    character(256)::aaa
     call tcn('m_hamindex_init')
-    inquire(file='QGpsi',EXIST=qpgexist) 
+    inquire(file='QGpsi',EXIST=qpgexist)  !for GW drivermode
     QGpsimodeWriteHamindex: if(qpgexist) then
        open(newunit=ifiqg,file='QGpsi',form='unformatted') ! q on mesh and shortened q.
-       read(ifiqg) nqnum, ngpmx ,QpGcut_psi, nqbz___, nqi
-       if(allocated(qq)) deallocate(qq)
-       nqtt=nqnum 
-       nkt=nqtt
-       allocate( qtti(3,nqi), qq(3,nqtt),iqtt(nqtt) )
+       read(ifiqg) nqtt, ngpmx ,QpGcut_psi, nqbz___, nqi
+       allocate(qtt(3,nqtt), qtti(3,nqi), iqtt(nqtt),iqmap(nqtt),igmap(nqtt),iqimap(nqtt))
        iqi=0
-       do  iq = 1, nqnum
-          read(ifiqg)  qxx,ngp,irr  ! read q and number of G vectors (irr=1 meand irreducible points)
+       do iq = 1, nqtt
+          read(ifiqg) qtt(:,iq),ngp,irr  ! read q and number of G vectors (irr=1 meand irreducible points)
           if(irr/=0) then
              iqi=iqi+1
-             qtti(:,iqi)=qxx
-             iqtt(iqi)=iq
+             qtti(:,iqi)= qtt(:,iq)
+             iqtt(  iqi)= iq
           endif
-          read(ifiqg)
-          qq(:,iq)=qxx
-          if(master_mpi)write(stdo,"(' qq=',i5,3f10.5)") iq,qq(:,iq)
+          read(ifiqg) !if(master_mpi) write(stdo,"(' qq=',i5,3f10.5)") iq,qq(:,iq)
        enddo
        close(ifiqg)
-       allocate(iqmap(nqtt),igmap(nqtt),iqimap(nqtt))
        platt= transpose(plat) !inverse of qlat
-       allocate(qtt(3,nqtt))
-       qtt(:,1:nqtt)=qq(:,1:nqtt)
        do i=1,nqtt !Generate info for rotwv and write 
           qtarget(:)=qtt(:,i)
           do iqi=1,nqi
-             q=qtti(:,iqi)
-             iqq=iqtt(iqi)
+             q   =qtti(:,iqi)
+             iqq =iqtt(iqi)
              iqi_=iqi
              do ig=1,ngrp
                 call rangedq( matmul(platt,(qtarget-matmul(symops(:,:,ig),q)) ), qx)
@@ -137,17 +119,14 @@ contains
                 endif
              enddo
           enddo
-          errorexitq: if(master_mpi) then !error exit
-             write(stdo,"(a,3f7.3)")'gen_ham: qtarget cannot found. Need to add SYMGRP explicitly (for SO=1), '//&
-                  'or You have to delete inconsistent QGpsi. qtarget=',qtarget
-             write(stdo,*)'gen_hamindex: qtarget can not found by SYMOPS.'
-             write(stdo,"('qq20 ',3d16.8,2x,3d16.8,2x,3d16.8)")q,qtarget,matmul(platt,(qtarget-matmul(symops(:,:,ig),q)))
+          Errorexitq: if(master_mpi) then
              do ig=1,ngrp
                 call rangedq( matmul(platt,(qtarget-matmul(symops(:,:,ig),q)) ), qx)
-                write(stdo,"('qqqq2 ',3d16.8,2x,3d16.8,2x,3d16.8)") qtarget-matmul(symops(:,:,ig),q),qx
+                write(stdo,"(3d16.8,2x,3d16.8,2x,3d16.8)") qtarget-matmul(symops(:,:,ig),q),qx
              enddo
-             call rx('gen_hamindex: you may need to repeat echo 1|qg4gw, when you changed SYMOPS.')
-          endif errorexitq
+             write(aaa,"(a,3f7.3)") 'm_hamindexW: no qtarget by symops:',ftof(q),' ',ftof(qtarget)
+             call rx('m_hamindex:'//trim(aaa))
+          endif Errorexitq
 2012      continue
           iqmap(i)=iqq
           iqimap(i)=iqi_
@@ -156,28 +135,27 @@ contains
        ! === For rotation of APW.===
        if(master_mpi) call pshpr(0) !print index is pushed to be zero
        if(mod(pwmode,10)==0 .OR. pwemax<1d-8) then
-          allocate(napwk(nkt),source=0)
+          allocate(napwk(nqtt),source=0)
           napwmx=0
        else ! for APW rotation.  ! ... Get igv2(3,iapw,ikt). pwmode>=10 only
           if(master_mpi) print *,' gen_hamindex goto APW part: pwmode pwemax=',pwmode,pwemax
-          allocate(napwk(nkt))
+          allocate(napwk(nqtt))
           pwgmax = pwemax**.5
-          do ikt=1,nkt
-             qqq = merge(qq(:,ikt), 0d0, mod(pwmode/10,10)==1)
+          do ikt=1,nqtt
+             qqq = merge(qtt(:,ikt), 0d0, mod(pwmode/10,10)==1)
              call getgv2(alat,plat,qlat,qqq, pwgmax,1, napwk(ikt),dum)
           enddo
           napwmx=maxval(napwk)
-          allocate( igv2(3,napwmx,nkt))
-          do ikt = 1,nkt
-             qqq = merge(qq(:,ikt),0d0,mod(pwmode/10,10) == 1)
+          allocate(igv2(3,napwmx,nqtt))
+          do ikt = 1,nqtt
+             qqq = merge(qtt(:,ikt),0d0,mod(pwmode/10,10) == 1)
              call getgv2(alat,plat,qlat,qqq, pwgmax,2, napwk(ikt),igv2(:,:,ikt)) 
           enddo
-          imx = maxval([(maxval(abs(igv2(1:3,1:napwk(ikt),ikt))),ikt=1,nkt)])
-          allocate( igv2rev(-imx:imx,-imx:imx,-imx:imx,nkt),source=999999 ) !Reverse table of igv2 --->igv2rev
-          do ikt = 1,nkt
-             do ig  = 1,napwk( ikt )
-                nnn  = igv2(1:3, ig, ikt)
-                igv2rev( nnn(1), nnn(2),nnn(3), ikt) = ig
+          imx = maxval([(maxval(abs(igv2(1:3,1:napwk(ikt),ikt))),ikt=1,nqtt)])
+          allocate(igv2rev(-imx:imx,-imx:imx,-imx:imx,nqtt),source=999999 ) !Reverse table of igv2 --->igv2rev
+          do ikt = 1,nqtt
+             do ig=1,napwk(ikt)
+                igv2rev(igv2(1,ig,ikt), igv2(2,ig,ikt),igv2(3,ig,ikt), ikt) = ig
              enddo
           enddo
        endif
@@ -186,15 +164,16 @@ contains
        if(done) call rx('writehamindex is already done')
        done=.true.
        open(newunit=ifi,file='HAMindex',form='unformatted')
-       write(ifi)ngrp,nbas,kxx,lxx,imx,ngpmx,norbmto,pwmode,zbak,ndham,AFmode
-       write(ifi)symops,ag,invgx,miat,tiat,shtvg
+       write(ifi)ngrp,nbas,kxx,lxx,imx,norbmto,pwmode,zbak,ndham,AFmode,ngrpAF
+       ngall=ngrp+ngrpAF
+       write(ifi)symops(:,:,1:ngall),ag(:,1:ngall),invgx(1:ngall),miat(:,1:ngall),tiat(:,:,1:ngall),shtvg(:,1:ngall)
        write(ifi)lxxa
        write(ifi)dlmm
        write(ifi)ibastab,ltab,ktab,offl,offlrev !for rotation of MTO. recovered sep2012 for EIBZ for hsfp0
-       write(ifi) qpgexist
-       if(qpgexist) then
-         write(ifi)nqtt,nqi,nqnum
-         write(ifi)qq,qtt,qtti,iqmap,igmap,iqimap
+       write(ifi)qpgexist
+       if(qpgexist) then !not rdsigm2 do not require followings when mtosigmaonly=T.
+         write(ifi)nqtt,nqi,ngpmx
+         write(ifi)qtt,qtti,iqmap,igmap,iqimap
          write(ifi)plat,qlat,napwmx
          if(napwmx/=0) write(ifi) igv2,napwk,igv2rev !for APW rotation used in rotwvigg
          write(ifi) alat,rv_a_opos
@@ -202,6 +181,7 @@ contains
       endif
       call poppr !print index is poped.
     endif
+    call MPI__barrier()
     call tcx('m_hamindex_init')
   end subroutine m_hamindexW_init
 end module m_hamindexW

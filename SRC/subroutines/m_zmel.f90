@@ -99,8 +99,7 @@ contains
     integer,allocatable ::  invgx(:)
     call readhamindex0()
     allocate(invgx(ng),miat(natom,ng),tiat(3,natom,ng),shtvg(3,ng))
-    call mptauof(symops,ng,plat,natom,pos,iclasst &
-         ,miat,tiat,invgx,shtvg ) !note: miat,tiat,shtvg are defined in m_zmel.
+    call mptauof(symops,ng,plat,natom,pos,iclasst,miat,tiat,invgx,shtvg ) !note: miat,tiat,shtvg are defined in m_zmel.
     deallocate(invgx)
     call Rdpp(ng,symops)
     call ppbafp_v2_zmel(ng)
@@ -265,6 +264,9 @@ contains
       invr  = invg(irot)       !invrot (irot,invg,ngrp) ! Rotate atomic positions invrot*R = R' + T
       tr    = tiat(:,:,invr)
       iatomp= miat(:,invr)
+!      write(6,*)'iiiiiiiatomp1=',iatomp
+!      write(6,*)'iiiiiiiatomp2=',invr,irot
+!      write(6,*)'iiiiiinvg=',invg
       symope= symgg(:,:,irot)
       shtv  = matmul(symope,shtvg(:,invr))
       allocate( ppb(nlnmx,nlnmx,mdimx,nclass)) ! ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)>
@@ -478,6 +480,7 @@ contains
        ias  = iasx(ia)
        iap  = iatomp(ia)
        icp  = iclass(iap)
+       write(6,*)'iiiiiiiiiiiiiiiiiiiii',ic,nv,nc,nc1,ias, iap,icp
        prodloop: do concurrent(i=1:mdim(icp))   ! loop over optimal product basis
           !     sum(Ln) bkq(Ln,t') * <phi(Ln) phi(L'n') B(i)> !bkq is complex but < > is real
           ib = imdim(iap)-1+i  !   <psi(k+q,t') | psi(k,t) B(i)>

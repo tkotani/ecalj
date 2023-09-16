@@ -6,7 +6,7 @@ contains
   subroutine m_mkqp_init() ! Set up k-points and related quantities for BZ integration
     use m_lmfinit,only: lshft=>bz_lshft, bz_tetrahedron,bz_lmet,ldos,nkk=>bz_nabcin
     use m_lattic,only:  plat=>lat_plat
-    use m_mksym,only:   rv_a_osymgr, npgrp=>lat_npgrp
+    use m_mksym,only:   symops, npgrp
     use m_tetirr,only: tetirr
 !    use m_bzmesh,only: bzmesh
     implicit none
@@ -21,7 +21,7 @@ contains
     mxkp   = nkk(1)*nkk(2)*nkk(3)
     llshft = [(lshft(i)/=0,i=1,3)]
     allocate(rv_a_owtkp_temp(mxkp), rv_p_oqp_temp(3,mxkp), iv_a_oipq(6*mxkp))
-    call bzmesh(plat,qb,ifac,nkk(1),nkk(2),nkk(3),llshft,rv_a_osymgr, npgrp,iv_a_oipq, rv_p_oqp_temp,rv_a_owtkp_temp,nkp,mxkp)
+    call bzmesh(plat,qb,ifac,nkk(1),nkk(2),nkk(3),llshft,symops, npgrp,iv_a_oipq, rv_p_oqp_temp,rv_a_owtkp_temp,nkp,mxkp)
     allocate(rv_a_owtkp, source=rv_a_owtkp_temp(1:nkp))
     allocate(rv_p_oqp,   source=rv_p_oqp_temp(1:3,1:nkp))
     ntet=0

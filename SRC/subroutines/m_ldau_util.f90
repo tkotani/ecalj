@@ -538,7 +538,7 @@ contains
   subroutine chkdmu(eks, dmatu,dmatuo,vorb,eorb)
     use m_lmfinit,only: stdl,nbas,nsp,nlibu,lmaxu,ispec,sspec=>v_sspec,lldau, &
          tolu=>mix_tolu,umix=>mix_umix,stdo,idu,uh,jh,ham_lsig,addinv
-    use m_mksym,only: g=>rv_a_osymgr,istab=>iv_a_oistab, ng =>lat_nsgrp
+    use m_mksym,only: g=>symops,istab=>oistab, ng =>ngrp
     use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
     !use m_ldauu,only: ldau
     implicit none
@@ -687,7 +687,7 @@ contains
   subroutine sudmtu(dmatu,vorb) !not touch module variables
     use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
     use m_lmfinit,only: nbas,nsp,nlibu,lmaxu,lldau,ispec,sspec=>v_sspec,stdo,slabl,idu,uh,jh
-    use m_mksym,only: g=>rv_a_osymgr,istab=>iv_a_oistab, ng =>lat_nsgrp
+    use m_mksym,only: g=>symops,istab=>oistab, ng =>ngrp
     !- Initialize site density matrix and vorb  for LDA+U
     ! ----------------------------------------------------------------------
     !i Inputs

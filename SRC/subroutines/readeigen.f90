@@ -5,7 +5,7 @@
 !!----------------
 module m_readeigen
   use m_iqindx_qtt,only: Iqindx2_, Init_iqindx_qtt
-  use m_hamindex,only:   ngpmx, nqtt, nqi, nqnum, qtt,iqimap, iqmap,igmap,shtvg,qlat,symops
+  use m_hamindex,only:   ngpmx, nqtt, nqi, qtt,iqimap, iqmap,igmap,shtvg,qlat,symops
   use m_hamindex,only:   plat,invgx, miat,tiat,dlmm,shtvg,symops,lxxa,nbas
   use m_read_bzdata,only: ginv
   use m_genallcf_v3,only: nsp =>nspin ,ldim2=>nlmto
@@ -172,23 +172,23 @@ contains
   subroutine init_readeigen() !nband_in,mrece_in)
     !!-- initialization. Save QpGpsi EVU EVD to arrays.--
     integer:: iq,is,ifiqg,nnnn,ikp,isx,mrecb_in,ik,ib,verbose
-    integer:: ifev,nband_ev, nqi_, nsp_ev ,ngpmx_ ,nqnum_
+    integer:: ifev,nband_ev, nqi_, nsp_ev ,ngpmx_ ,nqtt_
     real(8):: QpGcut_psi
     real(8),allocatable:: qtt_(:,:),qtti_(:,:)
     write(6,*) 'init_readeigen:'
     if(nsp<0 .OR. nsp>2) call rx( 'init_reaeigen:nsp wrong')
-    !write(*,*)'nqi=',nqi!,nqnum
+    !write(*,*)'nqi=',nqi!,nqtt
     call init_iqindx_qtt()
     open(newunit=ifiqg ,file='QGpsi',form='unformatted')
-    read(ifiqg) nqnum_ , ngpmx_, QpGcut_psi, nnnn,nqi_ ,imx
-    write(6,*)'read(ifiqg)', nqnum , ngpmx_, QpGcut_psi, nnnn,nqi
+    read(ifiqg) nqtt_ , ngpmx_, QpGcut_psi, nnnn,nqi_ ,imx
+    write(6,*)'read(ifiqg)', nqtt , ngpmx_, QpGcut_psi, nnnn,nqi
     if(nqi  /=  nqi_) call rx( 'init_readeigen:nqi/=nqi_ 11111')
-    if(nqnum/=  nqnum_) call rx( 'init_readeigen:nqnum/=nqnum_ 11111')
+    if(nqtt/=  nqtt_) call rx( 'init_readeigen:nqtt/=nqtt_ 11111')
     if(ngpmx_/=ngpmx) call rx('ngpmx error: 1111111 readeigen')
-    allocate( qtt_(3,nqnum),ngp(nqnum) )
-    allocate( ngvecp(3,ngpmx,nqnum))
-    allocate( ngvecprev(-imx:imx,-imx:imx,-imx:imx,nqnum) )
-    do ikp = 1,nqnum
+    allocate( qtt_(3,nqtt),ngp(nqtt) )
+    allocate( ngvecp(3,ngpmx,nqtt))
+    allocate( ngvecprev(-imx:imx,-imx:imx,-imx:imx,nqtt) )
+    do ikp = 1,nqtt
        read (ifiqg) qtt_(:,ikp), ngp(ikp)
        read (ifiqg) ngvecp(1:3, 1:ngp(ikp),ikp),ngvecprev(-imx:imx,-imx:imx,-imx:imx,ikp)
     enddo

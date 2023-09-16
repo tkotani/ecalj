@@ -213,28 +213,28 @@ contains
     ierr=0
   end subroutine rotwvigg2
   integer function getikt(qin) !return !> get index ikt such that for qin(:)=qq(:,ikt)
-    use m_hamindex,only: qq,nqnum
+    use m_hamindex,only: qtt,nqtt
     intent(in)::          qin
     integer::i
     real(8):: qin(3)
-    getikt  = findloc([(sum(abs(qin-qq(:,i)))<1d-8,i=1,nqnum)],value=.true.,dim=1)  !=index for q
+    getikt  = findloc([(sum(abs(qin-qtt(:,i)))<1d-8,i=1,nqtt)],value=.true.,dim=1)  !=index for q
     if(getikt<=0) call rx('getikt zsecsym can not find ikt for given q')
   endfunction getikt
   ! integer function getikt(qin) !return !> get index ikt such that for qin(:)=qq(:,ikt)
-  !   use m_hamindex,only: qq,nqnum
+  !   use m_hamindex,only: qq,nqtt
   !   intent(in)::          qin
   !   integer::i
   !   real(8):: qin(3)
   !   getikt=-99999
-  !   do i=1, nqnum !*2 !nkt
+  !   do i=1, nqtt !*2 !nkt
   !      if(debug) write(stdo,*)i,qin, qq(:,i)
   !      if(sum (abs(qin-qq(:,i)))<1d-8) then
   !         getikt=i
   !         return
   !      endif
   !   enddo
-  !   write(stdo,ftox)' getikt: xxx error nqnum qin=',nqnum,qin
-  !   do i=1, nqnum ; write(*,"('i qq=',i3,3f11.5)")i, qq(:,i);  enddo
+  !   write(stdo,ftox)' getikt: xxx error nqtt qin=',nqtt,qin
+  !   do i=1, nqtt ; write(*,"('i qq=',i3,3f11.5)")i, qq(:,i);  enddo
   !   call rx('getikt can not find ikt for given q')
   ! end function getikt
   ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss

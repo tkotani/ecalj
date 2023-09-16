@@ -2,7 +2,7 @@ subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv)!
   use m_ftox
   use m_shortn3,only: shortn3_initialize,shortn3,nout,nlatout
   use m_lgunit,only:stdo
-  use m_mksym,only:  ngrp=>lat_nsgrp,gsym=>rv_a_osymgr
+  use m_mksym,only:  ngrp,gsym=>symops
   implicit none
   intent(in)::    alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx
   intent(out)::                                                      kv,gv,igv 

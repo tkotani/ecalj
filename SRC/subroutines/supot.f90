@@ -10,7 +10,7 @@ module m_supot
 contains
   subroutine m_supot_init()! Initialization for G vectors bgv,ips0,gv,kv !See gvlst2 and sgvsym
     use m_lmfinit,only : lcd4,nsp,alat=>lat_alat,ftmesh,gmax=>lat_gmaxin,stdo
-    use m_mksym,only:  ngrp=>lat_nsgrp,rv_a_osymgr,rv_a_oag
+    use m_mksym,only:  ngrp,symops,ag
     use m_lattic,only: plat=>lat_plat,rv_a_opos,qlat=>lat_qlat,vol=>lat_vol, awald=>lat_awald,nkd=>lat_nkd, nkq=>lat_nkq
     use m_shortn3,only: shortn3_initialize,shortn3,nout,nlatout
     use m_ftox
@@ -35,7 +35,7 @@ contains
        lat_gmax = gmax
        allocate(iv_a_oips0(ng),source=0)
        allocate(zv_a_obgv(ng),source=(0d0,0d0))
-       call sgvsym(ngrp, rv_a_osymgr , rv_a_oag , ng , rv_a_ogv , iv_a_oips0 , zv_a_obgv )
+       call sgvsym(ngrp, symops , ag , ng , rv_a_ogv , iv_a_oips0 , zv_a_obgv )
     endif
     call tcx('m_supot_init')
   end subroutine m_supot_init

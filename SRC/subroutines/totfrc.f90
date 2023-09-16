@@ -1,7 +1,6 @@
 subroutine totfrc(leks,fes1,fes2,dfhf,fin,fout)! Add together and print contributions to force
   use m_lmfinit,only: nbas
-  use m_mksym,only:  rv_a_osymgr , iv_a_oistab ,lat_nsgrp
-  use m_struc_def
+  use m_mksym,only:  symops , oistab ,ngrp
   use m_lgunit,only:stdo,stdl
   use m_ftox
   ! ----------------------------------------------------------------------
@@ -26,7 +25,7 @@ subroutine totfrc(leks,fes1,fes2,dfhf,fin,fout)! Add together and print contribu
   implicit none
   integer :: leks,i_copy_size
   real(8):: fin(3,nbas) ,fout(3,nbas), f(3,nbas) , fes1(3,nbas) , fes2(3,nbas) , dfhf(3,nbas)
-  integer:: ipr , ipl , ib , m , ng , ibmx , isw
+  integer:: ipr , ipl , ib , m , ibmx , isw
   real(8) ,allocatable :: wk_rv(:)
   double precision :: fev1(3),fev2(3),fhar(3),fks(3),c,ddot,fmax,dfmax
   call tcn('totfrc')
@@ -75,11 +74,11 @@ subroutine totfrc(leks,fes1,fes2,dfhf,fin,fout)! Add together and print contribu
   write(stdo,ftox)' Maximum Harris force = ',ftof(c*fmax),'mRy/au (site',ibmx,')'
   if(dfmax>0) write(stdo,ftox)' Max eval correction = ',ftof(c*dfmax)
   !     Symmetrize forces to machine precision
-  ng=lat_nsgrp
-  if (ng > 1) then
+!  ng=lat_nsgrp
+  if (ngrp > 1) then
      if(ipr>=30) write(stdo,*)' Symmetrize forces ...'
      allocate(wk_rv(3*nbas))
-     call symfor ( nbas , 1 , rv_a_osymgr , ng , iv_a_oistab , wk_rv , f )
+     call symfor ( nbas , 1 , symops , ngrp , oistab , wk_rv , f )
      if (allocated(wk_rv)) deallocate(wk_rv)
   endif
   fout=f

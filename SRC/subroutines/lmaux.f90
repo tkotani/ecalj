@@ -5,7 +5,7 @@ module m_lmaux !main part of lmchk ! check crystal structure symmetry and get WS
   private
 contains
   subroutine lmaux()  ! check crystal structure symmetry and get WSR
-    use m_mksym,only: ctrl_nclass,iv_a_oics,iclasst
+    use m_mksym,only: ctrl_nclass=>nclasst,oics,iclasst
     use m_lmfinit,only: iv_a_oips,str_mxnbr,str_rmax,nbas,nspec,nsp, &
          nl,omax1,omax2,wsrmax,slabl,sspec=>v_sspec, &
          lat_avw,alat,cstrmx
@@ -58,10 +58,10 @@ contains
     rmaxs=str_rmax !sstr%rmax
     nclspp = max(nclass,nspec)
     allocate(rv_a_ormax(nclspp))
-    rv_a_ormax = sspec(iv_a_oics(1:nclasp))%rmt
+    rv_a_ormax = sspec(oics(1:nclasp))%rmt
     allocate(lmxa(nclasp),z(nclasp))
-    lmxa(1:nclasp) = sspec(iv_a_oics(1:nclasp))%lmxa !sarray%
-    z   (1:nclasp) = sspec(iv_a_oics(1:nclasp))%z
+    lmxa(1:nclasp) = sspec(oics(1:nclasp))%lmxa !sarray%
+    z   (1:nclasp) = sspec(oics(1:nclasp))%z
     nbasp = nbas !+ npadl + npadr
     nbaspp = nbas !2*nbasp - nbas
     j = 10
@@ -141,7 +141,7 @@ contains
        print *,' zzzz nclspp=',nclspp
        if(allocated(rv_a_ormax)) deallocate(rv_a_ormax) !is this correct???
        do i=1,nclspp
-          rmax(i) = rmt_rv(iv_a_oics(i)) !sspec(iv_a_oics(i))%rmt
+          rmax(i) = rmt_rv(oics(i)) 
        enddo
        allocate(rv_a_ormax(nclspp))
        call dcopy ( nclspp , rmax , 1 , rv_a_ormax , 1 )
