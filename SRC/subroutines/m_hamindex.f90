@@ -1,7 +1,7 @@
 module m_hamindex   !hamiltonian index read/write for successive GW calculaitons.
   public:: Readhamindex
-  integer,protected,public:: pwmode,ndham 
-  integer,protected,public:: nqi, ngrp, lxx, kxx,norbmto, nqtt, ndimham, napwmx, lxxa, ngpmx, imx,nbas
+  integer,protected,public:: pwmode,ndham,lmxax
+  integer,protected,public:: nqi, ngrp, lxx, kxx,norbmto, nqtt, ndimham, napwmx, ngpmx, imx,nbas
   integer,allocatable,protected,public:: ltab(:),ktab(:),offl(:), offlrev(:,:,:),ibastab(:), & 
        iqimap(:),iqmap(:),igmap(:),invgx(:),miat(:,:),ibasindex(:), igv2(:,:,:),napwk(:),igv2rev(:,:,:,:)
   real(8),allocatable,protected,public:: & 
@@ -25,9 +25,9 @@ contains
     allocate(symops(3,3,ngall),ag(3,ngall),invgx(ngall),miat(nbas,ngall),tiat(3,nbas,ngall),shtvg(3,ngall))
     read(ifi)symops,ag,invgx,miat,tiat,shtvg
     allocate( ltab(norbmto),ktab(norbmto),offl(norbmto),ibastab(norbmto),offlrev(nbas,0:lxx,kxx))
-    read(ifi) lxxa
-!    write(6,*)'lllllllllllllxxa=',lxxa
-    allocate( dlmm(-lxxa:lxxa, -lxxa:lxxa, 0:lxxa, ngall))
+    read(ifi) lmxax
+!    write(6,*)'lllllllllllllmxax=',lmxax
+    allocate( dlmm(-lmxax:lmxax, -lmxax:lmxax, 0:lmxax, ngall))
     read(ifi) dlmm
     read(ifi) ibastab,ltab,ktab,offl,offlrev
     read(ifi) qpgexist
@@ -55,10 +55,10 @@ contains
   subroutine m_hamindexW_init() !Set up m_hamiltonian. Index for Hamiltonian. --
     use m_lmfinit,only: pwmode=>ham_pwmode,pwemax,ldim=>nlmto,noutmx,nsp,stdo, &
          alat=>lat_alat,nl,nbas,ispec,sspec=>v_sspec,n0,nkap0,zbak,slabl,z,&
-         kxx,lxx,norbmto,lxxa,ltab,ktab,offl,offlrev,ibastab
+         kxx,lxx,norbmto,lmxax,ltab,ktab,offl,offlrev,ibastab
     use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat,rv_a_opos
     use m_suham,only: ndham=>ham_ndham !max dimension of hamiltonian +napwad (for so=0,2)
-    use m_lmfinit,only:norbx,ltabx,ktabx,offlx
+    use m_lmfinit,only:norbx,ltabx,ktabx,offlx,lmxax
     use m_MPItk,only: master_mpi
     use m_lgunit,only:stdo
     use m_ftox
@@ -80,7 +80,7 @@ contains
     real(8),allocatable:: symtmp(:,:,:)
     logical:: qpgexist
     character(8)::  spid(nbas)
-    integer:: ndima,lmxax,npqn,ificlass,nat,lmaxa,ipqn,ifinlaindx,isp,konf,ngall
+    integer:: ndima,npqn,ificlass,nat,ipqn,ifinlaindx,isp,konf,ngall
     logical,save:: done=.false.
     real(8):: tolq
     character(1):: lorb(1:3)=['p','d','l'],dig(1:9)=['1','2','3','4','5','6','7','8','9'],&
@@ -168,7 +168,7 @@ contains
        write(ifi)ngrp,nbas,kxx,lxx,imx,norbmto,pwmode,zbak,ndham,AFmode,ngrpAF
        ngall=ngrp+ngrpAF
        write(ifi)symops(:,:,1:ngall),ag(:,1:ngall),invgx(1:ngall),miat(:,1:ngall),tiat(:,:,1:ngall),shtvg(:,1:ngall)
-       write(ifi)lxxa
+       write(ifi)lmxax
        write(ifi)dlmm
        write(ifi)ibastab,ltab,ktab,offl,offlrev !for rotation of MTO. recovered sep2012 for EIBZ for hsfp0
        write(ifi)qpgexist

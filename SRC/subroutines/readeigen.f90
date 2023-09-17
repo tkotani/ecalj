@@ -6,7 +6,7 @@
 module m_readeigen
   use m_iqindx_qtt,only: Iqindx2_, Init_iqindx_qtt
   use m_hamindex,only:   ngpmx, nqtt, nqi, qtt,iqimap, iqmap,igmap,shtvg,qlat,symops
-  use m_hamindex,only:   plat,invgx, miat,tiat,dlmm,shtvg,symops,lxxa,nbas
+  use m_hamindex,only:   plat,invgx, miat,tiat,dlmm,shtvg,symops,lmxax,nbas
   use m_read_bzdata,only: ginv
   use m_genallcf_v3,only: nsp =>nspin ,ldim2=>nlmto
   use m_readhbe,only: mrecb, mrece,nband, mrecg
@@ -165,7 +165,7 @@ contains
     igxt=1 !not timereversal (for future)
     call rotmto(qtt(:,iqq),ldim2,nband,norbtx,ibas_tbl,l_tbl,k_tbl,offset_tbl,offset_rev_tbl, &
          maxval(ibas_tbl),maxval(l_tbl),maxval(k_tbl), &
-         symops(1,1,igg),shtvg(:,igg),dlmm(:,:,:,igg),lxxa,miat(:,igg),tiat(:,:,igg),igxt,nbas, &
+         symops(1,1,igg),shtvg(:,igg),dlmm(:,:,:,igg),lmxax,miat(:,igg),tiat(:,:,igg),igxt,nbas, &
          cphifr, cphif)
   end subroutine readcphi
   ! sssssssssssssssssssssssssssssssssssssssssssss

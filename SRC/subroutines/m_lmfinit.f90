@@ -47,7 +47,7 @@ module m_lmfinit ! All ititial data (except rst/atm data via iors/rdovfa) !TK ex
   integer,allocatable,protected:: iv_a_oidxcg(:),iv_a_ojcg(:)!ClebshGordon coefficient (GW part use clebsh_t)
   integer,allocatable,protected:: lldau(:), indrx_iv(:,:) ,jma(:),jnlml(:)
   integer,allocatable,target:: ltabx(:,:),ktabx(:,:),offlx(:,:),ndimxx(:),norbx(:)
-  integer,protected :: lxx,kxx,norbmto,lxxa !oribtal index
+  integer,protected :: lxx,kxx,norbmto !oribtal index
   integer,allocatable,protected:: ib_table(:),k_table(:),l_table(:),ltab(:),ktab(:),offl(:), offlrev(:,:,:),ibastab(:)
   
 contains
@@ -698,7 +698,7 @@ contains
       Orbital2: block! A block contains 2*l+1 orbitals. A block specified by (ibas,k,l) !k=1,2,3 is for EH,EH2,PZ
 !        use m_lmfinit,only: nbas,ispec,norbx,ltabx,ktabx,offlx,nl
         integer:: ib,iorb,is,k,l
-        lxxa=lmxax
+!        lxxa=lmxax
         norbmto=0
         kxx=-1
         lxx=-1 
