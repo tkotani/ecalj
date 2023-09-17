@@ -297,7 +297,8 @@ contains
   end subroutine hamfb3k
   
   subroutine rotsig(qin,qout,ndimh,napw_in,ldim,sig, sigout,ierr,iaf) !Sigm rotator. sig at qin to sig at qout. ===
-    use m_mksym,only:   ngrp,ngrpAF,symops,invgx,miat,tiat,shtvg,ibastab,ltab,ktab,offl,offlrev,dlmm,norbmto
+    use m_lmfinit,only: ibastab,ltab,ktab,offl,offlrev,norbmto
+    use m_mksym,only:   ngrp,ngrpAF,symops,invgx,miat,tiat,shtvg,dlmm
     use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat
     use m_lgunit,only: stdo
     use m_hamindex,only: igv2,igv2rev,napwk
@@ -453,7 +454,7 @@ contains
   end subroutine rotsig
   
   subroutine bloch2(qp,isp, sll)! Bloch transform of real-space matrix  sll(j,i) =\sum_T hrr(T,i,j,isp,T)*phase, where phase is the avarage for Tbar (shortest equivalent to T).  exp(ikT)
-    use m_mksym, only: ib_table
+    use m_lmfinit, only: ib_table
     use m_gennlat_sig,only: nlatS,nlatE,nlat
     use m_lattic,only: plat=>lat_plat
     implicit none

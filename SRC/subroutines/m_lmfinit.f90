@@ -47,6 +47,9 @@ module m_lmfinit ! All ititial data (except rst/atm data via iors/rdovfa) !TK ex
   integer,allocatable,protected:: iv_a_oidxcg(:),iv_a_ojcg(:)!ClebshGordon coefficient (GW part use clebsh_t)
   integer,allocatable,protected:: lldau(:), indrx_iv(:,:) ,jma(:),jnlml(:)
   integer,allocatable,target:: ltabx(:,:),ktabx(:,:),offlx(:,:),ndimxx(:),norbx(:)
+  integer,protected :: lxx,kxx,norbmto,lxxa !oribtal index
+  integer,allocatable,protected:: ib_table(:),k_table(:),l_table(:),ltab(:),ktab(:),offl(:), offlrev(:,:,:),ibastab(:)
+  
 contains
   subroutine m_lmfinit_init(prgnam) ! All the initial data are set in module variables from ctrlp.*
     use m_gtv2,only: gtv2_setrcd,rval2
@@ -105,7 +108,7 @@ contains
          ibas,ierr,lc, iqnu=0, ifzbak,nn1,nn2,nnx,lmxxx,nlaj,isp,&
          inumaf,iin,iout,ik,iprior,ibp1,indx,iposn,m,nvi,nvl,nn1xx,nn2xx, nnn,ib,&
          lmxcg,lmxcy,lnjcg,lnxcg,nlm,nout,nn,i0,ivec(10),iosite,io_tim(2),verbos,&
-         lp1,lpzi,ii,sw,it,levelinit=0, lx,lxx, reclnr,nrecs,nrecs2,lenmax
+         lp1,lpzi,ii,sw,it,levelinit=0, lx,lxxx, reclnr,nrecs,nrecs2,lenmax
     real(8):: pnuspx(20) ,temp33(9),seref, xxx, avwsr, d2,plat(3,3),rydberg,rr, vsn,vers,xv(2*n0),xvv(3)
     real(8),allocatable ::rv(:)
     character*(8),allocatable::clabl(:)
@@ -500,11 +503,11 @@ contains
          if(master_mpi .AND. sum(abs(idu(:,j)))/=0) then
             inquire(file='sigm.'//trim(sname),exist=sexist)
             if(sexist) then
-               do lxx=0+1,3+1
-                  if(idu(lxx,j)>10) then
-                     write(stdo,"(a,2i4)")'For IDU>10 with sigm.*, we set UH=JH=0 for l,ibas=',lxx,j
-                     uh(lxx,j) = 0d0
-                     jh(lxx,j) = 0d0
+               do lxxx=0+1,3+1
+                  if(idu(lxxx,j)>10) then
+                     write(stdo,"(a,2i4)")'For IDU>10 with sigm.*, we set UH=JH=0 for l,ibas=',lxxx,j
+                     uh(lxxx,j) = 0d0
+                     jh(lxxx,j) = 0d0
                   endif
                enddo
             endif
@@ -692,6 +695,50 @@ contains
            if (norbx(ib) > n00) call rx('orbl: norb> n00')
         enddo
       endblock orbital
+      Orbital2: block! A block contains 2*l+1 orbitals. A block specified by (ibas,k,l) !k=1,2,3 is for EH,EH2,PZ
+!        use m_lmfinit,only: nbas,ispec,norbx,ltabx,ktabx,offlx,nl
+        integer:: ib,iorb,is,k,l
+        lxxa=lmxax
+        norbmto=0
+        kxx=-1
+        lxx=-1 
+        do  ib = 1, nbas
+           is=ispec(ib) 
+           do iorb = 1, norbx(ib)
+              norbmto = norbmto+1
+              if(ltabx(iorb,ib)>lxx)  lxx = ltabx(iorb,ib)
+              if(ktabx(iorb,ib)>kxx)  kxx = ktabx(iorb,ib) 
+           enddo
+        enddo
+        !!--- make index table :norbmto is the total number of different type of MTOs !      allocate( ibasindex(ndimham))
+        allocate( ltab(norbmto),ktab(norbmto),offl(norbmto),ibastab(norbmto) )
+        norbmto=0 !      ndimham = 0 !dimension of mto part of hamiltonian!      allocate(offH(nbas+1)) !offH looks!      offH=0
+        do  ib = 1, nbas
+           is=ispec(ib) 
+           do  iorb = 1, norbx(ib) !(ib,irob) specify a block of MTO part Hamiltonian
+              norbmto=norbmto+1
+              ibastab(norbmto)= ib
+              ltab(norbmto)   = ltabx(iorb,ib) !angular momentum l of (ib,iorb) block
+              ktab(norbmto)   = ktabx(iorb,ib) !radial index of (ib,iorb) block
+              offl(norbmto)   = offlx(iorb,ib) !offset to (ib,iorb) block
+           enddo
+        enddo
+        allocate(offlrev(nbas,0:lxx,kxx))
+        do iorb=1,norbmto ! ... reverse maping of offset-index for hamiltonian
+           ibas = ibastab(iorb)
+           l   = ltab(iorb)
+           k   = ktab(iorb)
+           offlrev(ibas,l,k)= offl(iorb)
+        enddo
+        allocate(ib_table(nlmto),l_table(nlmto),k_table(nlmto))
+        do iorb = 1, norbmto      !Total number of MTO's (without m)
+           ib   = ibastab(iorb)
+           is   = ispec(ib) 
+           ib_table(offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ib
+           l_table (offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ltab(iorb)
+           k_table (offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ktab(iorb)
+        enddo
+      endblock Orbital2
       nspx  = nsp
       if(lso/=0) nspx = 1
       nvi= sum([( (lmxa(ispec(ib))+1)**2,ib=1,nbas )])
