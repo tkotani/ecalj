@@ -35,6 +35,7 @@ program hmaxloc
   use m_keyvalue,only: getkeyvalue
   use m_readhbe,only:Readhbe,nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
   use m_hamindex0,only: readhamindex0,iclasst
+  use m_mksym_util,only:mptauof
   implicit none
   !------------------------------------
   real(8),allocatable:: r0g(:,:), wphi(:,:)
@@ -304,8 +305,7 @@ program hmaxloc
   ! because the class in the generated GW file is dummy.(iclass(ibas)=ibas should be kept).
   !      if102=ifile_handle()
   !      open (if102,file='CLASS')
-  allocate(invgx(ngrp) &
-       ,miat(natom,ngrp),tiat(3,natom,ngrp),shtvg(3,ngrp))
+  allocate(invgx(ngrp),miat(natom,ngrp),tiat(3,natom,ngrp),shtvg(3,ngrp))
   write(6,*)'  --- Readingin CLASS info ---'
   call readhamindex0()
   !      do ibas = 1,natom
@@ -316,8 +316,7 @@ program hmaxloc
 
   !     Get space-group transformation information. See header of mptaouof.
   print *,'goto mptauof'
-  call mptauof(symgg,ngrp,plat,natom,pos,iclasst &
-       ,miat,tiat,invgx,shtvg )
+  call mptauof(symgg,ngrp,plat,natom,pos,iclasst,miat,tiat,invgx,shtvg )
 !  write (*,*)  'tiat=', tiat(1:3,1:natom,invr),invr
   !----------------------------------------------
   call pshpr(60)

@@ -93,6 +93,7 @@ contains
     nbbx=nmbas1
   end subroutine setppovlz_chipm
   subroutine mptauof_zmel(symops,ng)! Set miat,tiat,invgx,shtvg, and then call ppbafp_v2_zmel successively
+    use m_mksym_util,only:mptauof
     intent(in)::          symops,ng
     integer:: ng
     real(8):: symops(9,ng)

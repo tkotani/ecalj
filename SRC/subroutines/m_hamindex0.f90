@@ -28,6 +28,7 @@ contains
   ! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
   subroutine m_hamindex0_init()
     use m_mksym,only: osymgr=>symops,oag=>ag,ngrpin=>ngrp,iclasstin=>iclasst
+    use m_mksym_util,only:mptauof
     use m_MPItk,only: master_mpi
     use m_density,only: pnzall,pnuall
     !!-- Set up m_hamiltonian. Index for Hamiltonian. --

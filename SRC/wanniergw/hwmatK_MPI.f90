@@ -54,6 +54,7 @@ program hwmatK_MPI
   ! RS: MPI module
   use rsmpi
   use rsmpi_rotkindex
+  use m_mksym_util,only:mptauof
   implicit none
   real(8),parameter :: &
        ua    = 1d0    ! constant in w(0)exp(-ua^2*w'^2) to take care of peak around w'=0

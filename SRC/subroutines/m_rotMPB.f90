@@ -16,6 +16,7 @@ module m_rotMPB2 ! == Mixed product basis rotator. ==
   real(8),allocatable:: dlmm(:,:,:,:)
 contains
   subroutine RotMPB2(nbloch,ngbb,qin,igx,igxt,ginv, zrotm) !zcousqr=Rotate_igx(zcousq) igxt=-1 means timereversal case.
+    use m_mksym_util,only:rotdlmm
     intent(in)::     nbloch,ngbb,qin,igx,igxt,ginv
     intent(out)::                                   zrotm
     !! --- zrotm(J,J') = <Mbar^k_J| \hat{A}^k_i Mbar^k_J'>. ---
