@@ -1,5 +1,4 @@
-subroutine rotcg(lmxax,symops,ng,cgr)
-  !! -- Rotated CG coefficients.
+subroutine rotcg(lmxax,symops,ng,cgr) ! -- Rotated CG coefficients.
   !! output: cgr
   !! NOTE: key is the line
   !!      cgr(lm1,lm2,lm,ig) = sum(cgn(lx-l:lx+l,lm1,lm2)*dlmm(-l:l,m,l,ig))
@@ -19,13 +18,6 @@ subroutine rotcg(lmxax,symops,ng,cgr)
   ! Injcg = indxcg(inxcg) to indxcg(inxcg)-1
   ! cg(inxcg)  : = <lm3|lm1 lm2>
   ! jcg(lnjcg) : = lm3
-  !c      write(6,*)' rotcg:'
-  !      do ig=1,ng
-  !      write(6,*)' transposed symope ig  =',ig
-  !     write(6,'(3f12.6)') symops(1:3,ig)
-  !     write(6,'(3f12.6)') symops(4:6,ig)
-  !     write(6,'(3f12.6)') symops(7:9,ig)
-  !      enddo
   ll2 = (2*lmxax+1)**2
   ll1 = (lmxax+1)**2
   allocate( cgn(ll2,ll1,ll1) )
@@ -62,7 +54,6 @@ subroutine rotcg(lmxax,symops,ng,cgr)
         enddo
      enddo
   enddo
-
   !! --- no Rotation case
   ig=1
   if(ng==1 .AND. sum(abs(symops(:,ig)-[1d0,0d0,0d0,0d0,1d0,0d0,0d0,0d0,1d0]))<1d-12) then
@@ -80,7 +71,6 @@ subroutine rotcg(lmxax,symops,ng,cgr)
      deallocate( cg,cgn,jcg,indxcg)
      return
   endif
-
   !! --- Rotation matrix
   allocate(dlmm( -2*lmxax:2*lmxax, -2*lmxax:2*lmxax, 0:2*lmxax,ng))
   call rotdlmm(symops, ng, 2*lmxax+1,dlmm)

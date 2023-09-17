@@ -199,33 +199,6 @@ contains
        endif
        if (nkp <= 0) call rx('bndfp: nkp<=0') ! quit if nkp==0
     endif plbndmode
-    !
-    Gindexqplist: block
-      integer:: nnn(3),ig,ikt,i
-      real(8):: qqq(3),dum,pwgmax
-      PMTmodeOnly: if(mod(pwmode,10)/=0 .and. pwemax>1d-8) then
-         pwgmax = pwemax**.5
-         allocate(napwkqp(nkp))
-         do ikt=1,nkp
-            qqq = merge(qplist(:,ikt), 0d0, mod(pwmode/10,10)==1)
-            call getgv2(alat,plat,qlat,qqq, pwgmax,1, napwkqp(ikt),dum)
-         enddo
-         napwmxqp=maxval(napwkqp)
-         allocate(igv2qp(3,napwmxqp,nkp))
-         do ikt = 1,nkp
-            qqq = merge(qplist(:,ikt),0d0,mod(pwmode/10,10) == 1)
-            call getgv2(alat,plat,qlat,qqq, pwgmax,2, napwkqp(ikt),igv2qp(:,:,ikt)) 
-         enddo
-         imx = maxval([(maxval(abs(igv2qp(1:3,1:napwkqp(ikt),ikt))),ikt=1,nkp)])
-         allocate( igv2revqp(-imx:imx,-imx:imx,-imx:imx,nkp),source=999999 ) !Reverse table of igv2 
-         do ikt = 1,nkp
-            do ig  = 1,napwkqp(ikt)
-               nnn = igv2qp(1:3, ig, ikt)
-               igv2revqp( nnn(1), nnn(2),nnn(3), ikt) = ig
-            enddo
-         enddo
-      endif PMTmodeOnly
-    endblock Gindexqplist
     
     if (master_mpi .AND. nsyml>0) then !plbnd mode
        open(newunit=ifqplist,file='QPLIST')
@@ -276,6 +249,35 @@ contains
          qplistss(:,ikp)=matmul(qlat, qfrac+nlatout(1:3,1)) !shortened qplist
       enddo
     endblock qplistshortened
+    !
+    Gindexqplist: block
+      integer:: nnn(3),ig,ikt,i
+      real(8):: qqq(3),dum,pwgmax
+      PMTmodeOnly: if(mod(pwmode,10)/=0 .and. pwemax>1d-8) then
+         pwgmax = pwemax**.5
+         allocate(napwkqp(nkp))
+         do ikt=1,nkp
+            qqq = merge(qplist(:,ikt), 0d0, mod(pwmode/10,10)==1)
+            call getgv2(alat,plat,qlat,qqq, pwgmax,1, napwkqp(ikt),dum)
+         enddo
+         napwmxqp=maxval(napwkqp)
+         allocate(igv2qp(3,napwmxqp,nkp))
+         do ikt = 1,nkp
+            qqq = merge(qplist(:,ikt),0d0,mod(pwmode/10,10) == 1)
+            call getgv2(alat,plat,qlat,qqq, pwgmax,2, napwkqp(ikt),igv2qp(:,:,ikt)) 
+         enddo
+         imx = maxval([(maxval(abs(igv2qp(1:3,1:napwkqp(ikt),ikt))),ikt=1,nkp)])
+         allocate( igv2revqp(-imx:imx,-imx:imx,-imx:imx,nkp),source=999999 ) !Reverse table of igv2 
+         do ikt = 1,nkp
+            do ig  = 1,napwkqp(ikt)
+               nnn = igv2qp(1:3, ig, ikt)
+               igv2revqp( nnn(1), nnn(2),nnn(3), ikt) = ig
+            enddo
+         enddo
+      endif PMTmodeOnly
+!      write(6,*)'napwkqp=',napwkqp
+!      stop 'vvvvvvvvvvvvvvvvvvvvvvv'
+    endblock Gindexqplist
     call tcx('m_qplist_init')
   end subroutine m_qplist_init
   function qshortn(q) result(qs) !shortest q vectror. module of qlat 2023-4-27

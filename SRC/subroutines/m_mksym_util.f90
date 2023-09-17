@@ -1,4 +1,4 @@
-module m_mksym_util !only subrouitine mksym requied by m_mksym_init
+module m_mksym_util !Symmetry related routines.
   use m_lgunit,only:stdo
   use m_ftox
   public mksym,mptauof,rotdlmm
@@ -894,7 +894,8 @@ contains
     integer :: ic,nbas,ipc(nbas),nrbas,ib,ibas
     iclbsjx = findloc( [(count([(ipc(ib)==ic,ib=1,ibas)]),ibas=1,nbas)], value=nrbas,dim=1)
   end function iclbsjx
-  subroutine mptauof(symops,ng,plat,nbas,bas, iclass,miat,tiat,invg,delta) !- Mapping of atomic sites by points group operations.
+  subroutine mptauof(symops,ng,plat,nbas,bas, iclass,miat,tiat,invg,delta,afmode) !- Mapping of atomic sites by points group operations.
+    use  m_lmfinit,only: iantiferro
     !i  Input
     !i     symops(1,ng),ng,plat,nbas,bas(3,nbas)
     !i     iclass(nbas); denote class for each atom
@@ -921,6 +922,8 @@ contains
     integer :: ires(3, nbas, ng)
     integer:: ib1,ib2
     real(8) ::tran(3),delta(3,ng)
+    logical:: cmdopt0
+    logical,optional:: afmode
     data ep/1.0d-3/
     if(iprintx>=46) write(6,*)'MPTAUOf: search miat tiat for wave function rotation'
     do 10 ig=1,ng
@@ -948,7 +951,13 @@ contains
        do 120 ib1=1,nbas ! trial shift vector tran
           do 121 ib2=1,nbas
              tran =  bas(:,ib2)  - matmul(am,bas(:,ib1))
+             if(present(afmode)) then
+                if(iantiferro(ib1)==0) cycle
+                if(iantiferro(ib2)==0) cycle
+                if(iantiferro(ib1)+iantiferro(ib2)/=0) cycle
+             endif
              do 30 ibas=1,nbas
+                !bb1=matmul(am,bas(:,ibas))+trans
                 b1=am(1,1)*bas(1,ibas)+am(1,2)*bas(2,ibas)+am(1,3)*bas(3,ibas) +tran(1)
                 b2=am(2,1)*bas(1,ibas)+am(2,2)*bas(2,ibas)+am(2,3)*bas(3,ibas) +tran(2)
                 b3=am(3,1)*bas(1,ibas)+am(3,2)*bas(2,ibas)+am(3,3)*bas(3,ibas) +tran(3)
@@ -992,7 +1001,7 @@ contains
              write(6,150) ibas, miat(ibas,ig), tiat(1,ibas,ig), &
                   tiat(2,ibas,ig), tiat(3,ibas,ig), &
                   ires(1,ibas,ig),ires(2,ibas,ig),ires(3,ibas,ig)
-150          format(' ibas=',i3,' miat=',i3,' tiat=',3f11.4,' i1i2i3=',3i3)
+150          format(' iiiiibas=',i3,' miat=',i3,' tiat=',3f11.4,' i1i2i3=',3i3)
 123       enddo
        endif
 10  enddo

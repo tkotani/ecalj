@@ -1,33 +1,22 @@
-module m_excore !- Calculate core-core exchange energy.
+module m_excore ! Calculate core-core exchange energy.
   public excore
   contains
-subroutine excore(nrmx,nl,nnc,nclass,nspn,nbas, & !- Calculate core-core exchange energy.
-     phic,nindxc,iclass, a,b,nr,rofi)
+subroutine excore(nrmx,nl,nnc,nclass,nspn,nbas,phic,nindxc,iclass, a,b,nr,rofi)
   use m_ll,only: ll
   implicit none
-  integer(4):: nrmx,nnc,nclass,nspn,ncmx,nl,nbas
-  integer(4):: nindxc(0:nl-1,nclass),nr(nclass),iclass(nclass)
-  real(8) :: a(nclass),b(nclass),rofi(nrmx,nclass)
-  real(8) :: phic (nrmx,0:nl-1,nnc,nclass,nspn),wgtx
-
-  real(8):: exacct,exacc(nbas,nspn),rydberg
+  integer:: nrmx,nnc,nclass,nspn,ncmx,nl,nbas, nindxc(0:nl-1,nclass),nr(nclass),iclass(nclass)
+  real(8) :: a(nclass),b(nclass),rofi(nrmx,nclass),phic (nrmx,0:nl-1,nnc,nclass,nspn),wgtx,exacct,exacc(nbas,nspn),rydberg
   integer,parameter :: nsxamx=10000000
-  real(8),allocatable :: &
-       gc(:,:,:,:), sxadata(:),sigkcc(:,:,:,:,:)
-  integer(4),allocatable:: indxsxa(:,:),lcr(:,:,:),ncr(:,:)
-  integer(4):: ir,l,n,ic,ncrr,ncmxx(nclass),kmax,k,it,isp, &
-       isx,lm1,lm2,lm3,lm4,ibas,icr,icrd,nsxatot,ifexcore
+  real(8),allocatable :: gc(:,:,:,:), sxadata(:),sigkcc(:,:,:,:,:)
+  integer,allocatable:: indxsxa(:,:),lcr(:,:,:),ncr(:,:)
+  integer:: ir,l,n,ic,ncrr,ncmxx(nclass),kmax,k,it,isp,isx,lm1,lm2,lm3,lm4,ibas,icr,icrd,nsxatot,ifexcore
   real(8):: rkp(nrmx,0:2*(nl-1)),rkm(nrmx,0:2*(nl-1))
   do ic = 1,nclass
      ncmxx(ic) = sum(nindxc(0:nl-1,ic))
   enddo
   ncmx = maxval(ncmxx(1:nclass))
-
   print *,' ncmx nl nspn=',ncmx,nl,nspn
-
-  ! --- convert format of core function ---
-  ! nindxc(l,ic) phic ---> ncr lcr gc
-
+  ! --- convert format of core function ---   ! nindxc(l,ic) phic ---> ncr lcr gc
   allocate( gc(nrmx,ncmx,nspn,nclass) &
        ,lcr(ncmx,nspn,nclass),ncr(nspn,nclass) )
   do ic = 1,nclass
@@ -44,12 +33,9 @@ subroutine excore(nrmx,nl,nnc,nclass,nspn,nbas, & !- Calculate core-core exchang
      end do
      ncr(1:nspn,ic) = ncrr
   enddo
-  !---------------------------------------------------------------
   print *,' goto alloc'
-  allocate( sxadata(nsxamx),indxsxa(6,nsxamx), &
-       sigkcc(0:2*(nl-1), ncmx, ncmx, nclass,nspn) )
+  allocate( sxadata(nsxamx),indxsxa(6,nsxamx),sigkcc(0:2*(nl-1), ncmx, ncmx, nclass,nspn) )
   print *,' end of alloc'
-
   kmax  = 2*(nl-1)
   do ic = 1,nclass
      print *,' make rkp rkm ic=',ic
@@ -65,23 +51,15 @@ subroutine excore(nrmx,nl,nnc,nclass,nspn,nbas, & !- Calculate core-core exchang
      print *,' end of make rkp rkm ic=',ic
      !- radial integrals
      do isp = 1,nspn
-        call intsigkcc(sigkcc(0,1,1,ic,isp), ncmx, &
-             gc(1,1,isp,ic), &
-             a(ic),b(ic),nr(ic),rofi(1,ic),nl, &
-             ncr(isp,ic),lcr(1,isp,ic), &
+        call intsigkcc(sigkcc(0,1,1,ic,isp), ncmx, gc(1,1,isp,ic), a(ic),b(ic),nr(ic),rofi(1,ic),nl, ncr(isp,ic),lcr(1,isp,ic), &
              kmax, rkp, rkm )
      enddo
   enddo
-
-  !- make structure spherical part --- sxadata
-  call mksxa(nl,nsxamx, &
-       sxadata,indxsxa,nsxatot)
-
+  call mksxa(nl,nsxamx, sxadata,indxsxa,nsxatot)!- make structure spherical part --- sxadata
   !- core-core exchange =sxadata * radial integral
   print * !; print *,' go into EXEX.CORE part'
   exacc = 0d0
   do 301 isx=1,nsxatot
-     !	print *,' do 300 isx isp=',isx, isp
      do 300 isp=1,nspn
         k   = indxsxa (1,isx)
         lm1 = indxsxa (2,isx)
@@ -96,32 +74,17 @@ subroutine excore(nrmx,nl,nnc,nclass,nspn,nbas, & !- Calculate core-core exchang
            !	  print *,' ibas ic=',nbas,ibas,ic
            do icr = 1, ncr(isp,ic)
               do icrd= 1, ncr(isp,ic)
-                 ! ccccccccccccccccccccc
-                 !	print *,' isx=',isx,ic,isp,icr,icrd,lm1,lm3
-                 !	print *,' lcr=',lcr(icr, isp,ic),lcr(icrd, isp,ic)
-                 !	print *,' ll=',ll(lm1),ll(lm3)
-                 ! ccccccccccccccccccccc
-
-                 ! ccccccccccccccccccccccccccccccccccc
-                 !     test
-                 !            if(ll(lm3)==1.or.ll(lm1)==1) cycle
-                 ! ccccccccccccccccccccccccccccccccccc
-
-
                  if( lcr(icr, isp,ic) /= ll(lm3)) cycle
                  if( lcr(icrd,isp,ic) /= ll(lm1)) cycle
-                 exacc(ibas,isp) = exacc(ibas,isp) &
-                      - sxadata(isx) * sigkcc(k,icr,icrd,ic,isp)
+                 exacc(ibas,isp) = exacc(ibas,isp) - sxadata(isx) * sigkcc(k,icr,icrd,ic,isp)
               enddo
            enddo
 350     enddo
-        !---------------------
 300  enddo
 301 enddo
   wgtx=1d0
   if(nspn==1) wgtx=2d0
   exacct = sum(exacc(1:nbas,1:nspn))*wgtx
-
   open (newunit=ifexcore,file='TEEXXcc')
   write(6,*) '==== EXCORE ==> TEEXXcc ============'
   write(ifexcore,*) '======================================='
@@ -134,51 +97,27 @@ subroutine excore(nrmx,nl,nnc,nclass,nspn,nbas, & !- Calculate core-core exchang
   write(6,"(' excore total =',f13.6)") exacct*rydberg()
   do isp =1,nspn
      do ibas=1,nbas
-        write(6,"(' ibas isp=',2i3,' Ex core-core (eV) =',f13.6)") &
-             ibas,isp,exacc(ibas,isp)*rydberg()
-        !	write(ifexcore,"(' ibas isp=',2i3,' Ex core-core (Ry) =',f13.6)")
-        !     &  ibas,isp,exacc(ibas,isp)
-        write(ifexcore,"( f20.10,2i4,' ! Ex core-core (eV)  ibas isp ')") &
-             exacc(ibas,isp)*rydberg(),ibas,isp
+        write(6,"(' ibas isp=',2i3,' Ex core-core (eV) =',f13.6)") ibas,isp,exacc(ibas,isp)*rydberg()
+        !	write(ifexcore,"(' ibas isp=',2i3,' Ex core-core (Ry) =',f13.6)")  ibas,isp,exacc(ibas,isp)
+        write(ifexcore,"( f20.10,2i4,' ! Ex core-core (eV)  ibas isp ')")exacc(ibas,isp)*rydberg(),ibas,isp
      enddo
   enddo
 end subroutine excore
-
-! cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-! cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-subroutine intsigkcc(sigkcc,ncmx, &
-     gc, a,b,nr,rofi, nl, &
-     ncr,lcr , &
-     kmax, rkp, rkm )
-  !- integral \sigma^k(l1,l3,ip1,ip3,l2,l4,ip2,ip4) in the Phys.Rev.B34, 5512 ,Simpson
-  !---------------------------------------------------------------------
+subroutine intsigkcc(sigkcc,ncmx,gc,a,b,nr,rofi,nl,ncr,lcr,kmax, rkp,rkm)! integral \sigma^k(l1,l3,ip1,ip3,l2,l4,ip2,ip4) in the Phys.Rev.B34, 5512 ,Simpson
   !i ncmx,nrec, gl,gpl,gc , a,b,nr,rofi,nl,ncr,lcr
   !o  sigkcc
-  !---------------------------------------------------------------------
   implicit none
-  integer :: nr, ncmx, nl,l1,l2,l3,l4,l1l3,l2l4,k &
-       ,ip1,ip3,ip2,ip4,ip2ip4,icr,l1l4,icrd,ip1ip3,ir,lr0 &
-       ,ncr,lcr(ncmx)
-  double precision :: a,b,rofi(nr) &
-       , gc(nr,ncmx) &
-       , sum1,sum2 &
-       , sigkcc(0:2*(nl-1), ncmx, ncmx  ) &
-       , int1(nr),int2(nr),a1(nr),a2(nr),b1(nr),f13(nr)
+  integer::nr, ncmx, nl,l1,l2,l3,l4,l1l3,l2l4,k,ip1,ip3,ip2,ip4,ip2ip4,icr,l1l4,icrd,ip1ip3,ir,lr0,ncr,lcr(ncmx)
+  real(8):: a,b,rofi(nr), gc(nr,ncmx), sum1,sum2, sigkcc(0:2*(nl-1), ncmx, ncmx), int1(nr),int2(nr),a1(nr),a2(nr),b1(nr),f13(nr)
   integer :: kmax
-  double precision :: rkp(nr,0:kmax),rkm(nr,0:kmax)
+  real(8) :: rkp(nr,0:kmax),rkm(nr,0:kmax)
   print *,' intsigkcc:'
-  !--------------
-  print *,' normcheck:'
   do icr  = 1,ncr; l2 =lcr(icr);  l3=l2
      do icrd = 1,ncr; l1 =lcr(icrd); l4=l1
         call gintxx(gc(1,icr),gc(1,icrd),a,b,nr,sum1)
         write(6,"(' norm check ='2i3,2x,f13.6)") icr,icrd,sum1
      enddo
   enddo
-  !      do ir=1,nr
-  !        write(6,"(' rofi ='i3,2x,f13.6)") ir,rofi(ir)
-  !      enddo
-
   ! ---------------between core and core->  sigkc
   do 2216 icr  = 1,ncr; l2 =lcr(icr);  l3=l2
      do 2215 icrd = 1,ncr; l1 =lcr(icrd); l4=l1
@@ -192,74 +131,40 @@ subroutine intsigkcc(sigkcc,ncmx, &
            b1(1:nr) = gc(1:nr,icr)
            call intn_smp_g(a1,b1,int1,a,b,rofi,nr,lr0)
            call intn_smp_g(a2,b1,int2,a,b,rofi,nr,lr0)
-
-           ! check write ---------------------------------------------
            call gintxx(a1,b1,a,b,nr,sum1)
            call gintxx(a2,b1,a,b,nr,sum2)
            write(6,"(' integral ='2d13.6)") sum1,sum2
            write(6,"(' integral ='2d13.6)") int1(1),int2(1)
-           !        endif
-           !---
            f13(1)    = 0d0
-           f13(2:nr) = rkm(2:nr,k) *( int1(1)-int1(2:nr) ) &
-                + rkp(2:nr,k) * int2(2:nr)
+           f13(2:nr) = rkm(2:nr,k) *( int1(1)-int1(2:nr) ) + rkp(2:nr,k) * int2(2:nr)
            a1(1:nr)  = gc(1:nr,icr) *f13(1:nr)
            b1(1:nr)  = gc(1:nr, icrd)
            call gintxx(a1,b1,A,B,NR, sigkcc(k, icr, icrd ) )
-           ! chekc write
-           !        if(iprint().ge.130)
-           write(6,"( ' k icr icrd =',3i5,'  sigkcc=',d15.8)") &
-                k, icr,icrd ,sigkcc(k,icr,icrd)
+           write(6,"( ' k icr icrd =',3i5,'  sigkcc=',d15.8)") k, icr,icrd ,sigkcc(k,icr,icrd)
 2210    enddo
 2215 enddo
 2216 enddo
 end subroutine intsigkcc
-
-! ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-! ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-subroutine mksxa(nl,nsxamx, &
-     sxadata,indxsxa,nsxatot)
-  !- make sx (spherical-dependent part for exx energy.) ------------c
-  !i INPUT
+subroutine mksxa(nl,nsxamx, sxadata,indxsxa,nsxatot)  !- make sx (spherical-dependent part for exx energy.) ------------c
   !i   nl
   !i   nsxamx
   !o   indxsxa, sxdata, nsxatot
-  !i
   !r       ngaut is number for non-zero cgau.
   !r  Generation of
   !r     cgau(k,L',L) for R=R'
-  !-------------------------------------------------------------------------c
   implicit none
   integer :: nl,nlx, &
-       m,istcl,lrd,lr,j1,j2,j3,m1,m2,m3,jm1,jm2,jm3, &
-       ngau,ngaut,ngau2,k1,k2,j4,m4,jm1m, &
-       jm2m,jm4,km1,km2, &
-       i,j,k ,jmax
-  integer :: nsxamx, nsxatot
-  integer :: indxsxa(6,nsxamx)
-  double precision :: sxadata(nsxamx)
-
+       m,istcl,lrd,lr,j1,j2,j3,m1,m2,m3,jm1,jm2,jm3, ngau,ngaut,ngau2,k1,k2,j4,m4,jm1m, jm2m,jm4,km1,km2, i,j,k ,jmax
+  integer :: nsxamx, nsxatot, indxsxa(6,nsxamx)
+  real(8) :: sxadata(nsxamx)
   double complex &
        sxx(-(nl-1):(nl-1),-(nl-1):(nl-1),-(nl-1):(nl-1),-(nl-1):(nl-1))
-  !     & ,syy(-3:3,-3:3,-3:3,-3:3)
-  double precision :: osq2
-
-  ! takao obtain cg upto 2*l
-  !      double precision cg( (2*nl-1)**2,(2*nl-1)**2, 4*(nl-1) )
-  double precision :: cg( (2*nl-1)**2,(2*nl-1)**2, 0:4*(nl-1) ) &
-       , cgau(0:2*(nl-1),nl**2, nl**2 ) ,dum
-  !      integer iprint
-
-  !      external clebsh ,mscmul
-  double complex msc(0:1,2,2),mcs(0:1,2,2),Img &
-       ,ap,am!,mscmul
-
+  real(8) :: osq2
+  real(8) :: cg( (2*nl-1)**2,(2*nl-1)**2, 0:4*(nl-1) ) , cgau(0:2*(nl-1),nl**2, nl**2 ) ,dum
+  double complex msc(0:1,2,2),mcs(0:1,2,2),Img  ,ap,am
   integer :: ngautx
   data Img/(0.0d0,1.0d0)/
-
-  !----------------------------------------------------------------------
-  print *,' goto mksxa'
-
+  print *,' goto mksxa' 
   !  msc, conversion matrix generation 1->m 2->-m for m>0
   osq2 = 1d0/sqrt(2d0) !sq2=1/sqrt(2)
   do m=0,1
@@ -273,27 +178,10 @@ subroutine mksxa(nl,nsxamx, &
      Mcs(m,2,1)= osq2*Img*(-1)**m
      Mcs(m,2,2)=-osq2*Img
   enddo
-
   !- CG coeff. generation
   jmax=  2*(nl-1)
   call clebsh_t( cg,jmax )
   print *,' end of clebsh'
-  !- check write
-  !      if(iprint().ge.120) then
-  !        do 106 j1=0,nl-1
-  !        do 106 j2=0,nl-1
-  !        do 106 j3=abs(j1-j2),j1+j2
-  !        do 106 m1=-j1,j1
-  !        do 106 m2=-j2,j2
-  !          jm1=j1**2+j1+1+m1
-  !          jm2=j2**2+j2+1+m2
-  !          m3=m1+m2
-  !          if(abs(m3).gt.j3) go to 106
-  !          write(6,105) j1,m1,j2,m2,j3,m3,cg(jm1,jm2,j3)
-  !  105     format( ' ###  j1m1 j2m2 jm = ',2i3,' ',2i3,' ',2i3, d12.5)
-  !  106   continue
-  !      endif
-
   !---------------------------------------------------------------
   !     make Gaunt coefficient. Def. by eq(A2), and Rose eq.4.34
   !     cgau(k,L',L)  ; k=j2 L'=jm3 L=jm1
@@ -338,40 +226,6 @@ subroutine mksxa(nl,nsxamx, &
   PRINT *,' * Gaunt coef. end;  num of Gaunt; nl  =' &
        , ngaut ,nl
   print *,' ngautx=',ngautx
-
-  !$$$c----check write--------------------------------------c
-  !$$$      if(iprint().ge.120) then
-  !$$$        ngau=0
-  !$$$        ngau2=0
-  !$$$        do 31 j3=0,nl-1
-  !$$$        do 31 j1=0,nl-1
-  !$$$        do 31 j2=0,2*(nl-1)
-  !$$$        do 31 m1=-j1,j1
-  !$$$        do 31 m3=-j3,j3
-  !$$$          jm1= j1**2+m1+j1+1
-  !$$$          jm3= j3**2+m3+j3+1
-  !$$$          m2 = m3 - m1
-  !$$$          jm2= j2**2+m2+j2+1
-  !$$$          if(jm3.ge.jm1) then
-  !$$$          if( (-1)**(j1+j2+j3).eq.1.and.abs(m1-m3).le.j2.and.
-  !$$$     &      j2.ge.abs(j3-j1).and.j2.le.(j3+j1) ) then
-  !$$$
-  !$$$            write(6,119)j2,j3,m3,j1,m1, cgau(j2,jm3,jm1),
-  !$$$     &        cgau(j2,jm1,jm3)*(-1)**(m1-m3),(-1)**(j1+j2+j3)
-  !$$$            ngau=ngau+1
-  !$$$          else
-  !$$$            write(6,129)j2,j3,m3,j1,m1, cgau(j2,jm3,jm1),
-  !$$$     &        cgau(j2,jm1,jm3)*(-1)**(m1-m3),(-1)**(j1+j2+j3)
-  !$$$            ngau2=ngau2+1
-  !$$$          endif
-  !$$$          endif
-  !$$$  119     format('   gaunt j2 j3m3 j1m1 parity= '
-  !$$$     &              ,i3,' ',2i3,' ',2i3,' ',2d23.16,'  ',i3)
-  !$$$  129     format('                   gaunt j2 j3m3 j1m1 parity= '
-  !$$$     &              ,i3,' ',2i3,' ',2i3,' ',2d23.16,'  ',i3)
-  !$$$   31   continue
-  !$$$      endif
-
   !-- sxa cal. for R=R', see eq.(A11) --------------------------------c
   print *
   print *
@@ -401,9 +255,6 @@ subroutine mksxa(nl,nsxamx, &
                                 sxx(m1,m2,m3,m4)=2*(-1)**(m1+m2)*cgau(k,jm3,jm1m) &
                                      *cgau(k,jm2m,jm4)
                              endif
-                             ! cccccccccccccccccccccccc
-                             !            syy(m1,m2,m3,m4)= sxx(m1,m2,m3,m4)
-                             ! cccccccccccccccccccccccc
 207                       enddo
 217                    enddo
 227                 enddo
@@ -455,35 +306,22 @@ subroutine mksxa(nl,nsxamx, &
 127     enddo
 137  enddo
 147 enddo
-
   sxadata(1:nsxatot)=sxadata(1:nsxatot)/2d0
 end subroutine mksxa
-
-! ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-! ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-!      subroutine clebsh()
-subroutine clebsh_t(cg,j1mx)
-  !- generate crebsh gordon coefficient
-  !  takao 1993 8/17
-  !     eq.3.18 Rose's book , 'elementary theory of the angular momentum
-
-  !    C(j1,j2,j; m1,m2,m1+m2) = cg(jm1,jm2,j)
-  !      jm1=j1**2+(j1+1+m1)
-
+subroutine clebsh_t(cg,j1mx) ! Generate crebsh gordon coefficient
+  !     See eq.3.18 Rose's book , 'elementary theory of the angular momentum
+  !    C(j1,j2,j; m1,m2,m1+m2) = cg(jm1,jm2,j), where  jm1=j1**2+(j1+1+m1)
   !    C(j1,j2,j;0,0,0) at j1+j2+j=even is exactly 0  (eq.3.22),
-  !      however this routine gives the value oder 1.0d-16, according to
-  !      numerical cancellation is not complete.
-  !----------------------------------------------------------------c
-  !      implicit double precision (a-h,o-z)
+  !      however this routine gives the value oder 1.0d-16, according to numerical cancellation is not complete.
   use m_ll,only: ll
   implicit none
   integer :: j1mx
   integer :: &
        j1,j2,jm1,jm2,m1,m2,m3,j3,nu, &
        id1,id2,id3
-  double precision :: &
+  real(8) :: &
        k1,k2,k3,k4,k5,k6,k7,k8,k9,k10
-  double precision :: &
+  real(8) :: &
        fac,fac2, &!@igan, &
        cg( (j1mx+1)**2, (j1mx+1)**2, 0:2*j1mx)
   print *, ' go into clebsh j1mx=',j1mx
@@ -551,39 +389,13 @@ subroutine clebsh_t(cg,j1mx)
 405  enddo
 403 enddo
 end subroutine clebsh_t
-
-! ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-! ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-subroutine convsx(sxx,j1,j2,j3,j4,nl,msc,mcs)
-  !- sx based on spherical har. rep. is converted to cub rep.
-  !i input
+subroutine convsx(sxx,j1,j2,j3,j4,nl,msc,mcs)  !- sx based on spherical har. rep. is converted to cub rep.
   !i     sxx; in the harmonic rep.
-  !o output
   !o     sxx; in the sperical rep.
-
   !r inversion test was included; uncomment the lines commented by ct.
-  !r
-  !------------------------------------------------
   implicit none
-  !      implicit double precision(a-h,o-z)
-  !      parameter(nlx=3)
-  integer :: &
-       nl,j1,j2,j3,j4,m1,m2,m3,m4
-  double complex &
-       sxx (-(nl-1):(nl-1),-(nl-1):(nl-1), &
-       -(nl-1):(nl-1),-(nl-1):(nl-1))
-  !     &   sxxx(-(nlx-1):(nlx-1),-(nlx-1):(nlx-1),
-  !     &        -(nlx-1):(nlx-1),-(nlx-1):(nlx-1)),
-  !     &   syyy(-(nlx-1):(nlx-1),-(nlx-1):(nlx-1),
-  !     &        -(nlx-1):(nlx-1),-(nlx-1):(nlx-1))
-
-  double complex &
-       msc(0:1,2,2),Img,ap,am!,mscmul
-  !  inversion test
-  double complex &
-       mcs(0:1,2,2)
-
+  integer ::    nl,j1,j2,j3,j4,m1,m2,m3,m4
+  complex(8):: sxx (-(nl-1):(nl-1),-(nl-1):(nl-1), -(nl-1):(nl-1),-(nl-1):(nl-1)), msc(0:1,2,2),Img,ap,am,  mcs(0:1,2,2)
   !      if(nlx.ne.nl) stop 'CONVSX: nlx.ne.nl'
   do m1=   1, j1
      do m2= -j2, j2
@@ -634,59 +446,31 @@ subroutine convsx(sxx,j1,j2,j3,j4,nl,msc,mcs)
      enddo
   enddo
 end subroutine convsx
-! cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-double complex function mscmul(i,m,msc,ap,am)
-  !----multiple mat matrix
+complex(8) function mscmul(i,m,msc,ap,am)  !----multiple mat matrix
   integer :: mx,m,i
-  double complex msc(0:1,2,2),ap,am
+  complex(8):: msc(0:1,2,2),ap,am
   !  msc, conversion matrix generation 1->m 2->-m for m>0
   mx=mod(m,2)
   mscmul=ap*msc(mx,1,i)+am*msc(mx,2,i)
 END function mscmul
-
-! ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-! ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-subroutine intn_smp_g(g1,g2,int,a,b,rofi,nr,lr0)
-  !-- intergral of two wave function.
+subroutine intn_smp_g(g1,g2,int,a,b,rofi,nr,lr0)  !-- intergral of two wave function.
   !   This is for true g1(ir) = r phi(ir), where phi is the true wave function.
-
   ! int(r) = \int_(r)^(rmax) u1(r') u2(r') dr'
-
-  ! lr0 dummy index, now not used.
-  ! simpson rule ,and with higher rule for odd devision.
-  ! --------------------------------------------------------------
-  !      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+  ! lr0 dummy index, now not used.   ! simpson rule ,and with higher rule for odd devision.
   IMPLICIT none
   integer :: nr,ir,lr0
-  double precision :: g1(nr),g2(nr),int(nr),a,b,rofi(nr),w1,w2,w3 &
-       ,ooth,foth
-  integer(4):: mx=1
-  ! Local parameters
-  ! one over three-> oot,  and so on.
+  real(8) :: g1(nr),g2(nr),int(nr),a,b,rofi(nr),w1,w2,w3,ooth,foth
+  integer:: mx=1
   data ooth,foth/0.33333333333333333,1.3333333333333333333/
-  data w1,w2,w3/0.41666666666666666,0.6666666666666666666, &
-       -0.083333333333333333/
-  !                        xxxxx
-  if(mod(nr,2) == 0) &
-       ! top2rx 2013.08.09 kino     &  stop ' intn_smp_g: nr should be odd. '
-       call rx( ' intn_smp_g: nr should be odd. ')
-
+  data w1,w2,w3/0.41666666666666666,0.6666666666666666666,-0.083333333333333333/
+  if(mod(nr,2) == 0) call rx( ' intn_smp_g: nr should be odd. ')
   int(1)=0.0d0
-  ! l00 means u1(r)u2(r)~r**lr0 near r~0
-  !c simplest formula
-  !c      do 10 ir=3,nr
-  !c        int(ir)=int(ir-1)
-  !c     &         +0.5d0*G1(ir-1)*G2(ir-1)*( a*(b+rofi(ir-1)) )**mx
-  !c     &         +0.5d0*G1(ir)*G2(ir)*( a*(b+rofi(ir)) )**mx
-  !c   10 continue
-  ! simpson rule
   DO  10  IR = 3,NR,2
      int(ir)=int(ir-2) &
           + ooth*G1(IR-2)*G2(IR-2)*( a*(b+rofi(ir-2)) )**mx &
           + foth*G1(IR-1)*G2(IR-1)*( a*(b+rofi(ir-1)) )**mx &
           + ooth*G1(IR)*G2(IR)*( a*(b+rofi(ir)) )**mx
 10 enddo
-
   ! At the value for odd points, use the same interpolation above
   do 20 ir = 2,nr-1,2
      int(ir)=int(ir-1) &
@@ -694,16 +478,12 @@ subroutine intn_smp_g(g1,g2,int,a,b,rofi,nr,lr0)
           + w2*G1(IR)  *G2(IR)*  ( a*(b+rofi(ir)  ) )**mx &
           + w3*G1(IR+1)*G2(IR+1)*( a*(b+rofi(ir+1)) )**mx
 20 enddo
-
   do 30 ir=1,nr
      int(ir)=int(nr)-int(ir)
 30 enddo
 end subroutine intn_smp_g
-
-! ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 real(8) function igan(i)
   integer:: i,ix
   igan= product([(ix,ix=1,i)])
 END function igan
-
 end module m_excore

@@ -3,7 +3,9 @@ module m_rotwave ! PMT wave funciton rotation ! space-group rotation of eigenfun
 contains
   subroutine rotevec(igg,q,qtarget,ndimh,napw_in,nband,evec, evecout) ! Rotation of coefficients evec in PMT basis for q in qplist.
     use m_qplist,only: igv2qp,igv2revqp,napwkqp,qplist,nkp
-    use m_hamindex,only: symops,miat,tiat,shtvg,qlat,plat,dlmm,ngrp,norbmto,ibastab,ltab,ktab,offl,offlrev,nbas
+    use m_mksym,only:   symops,miat,tiat,shtvg,dlmm,ngrp
+    use m_lmfinit,only: norbmto,ibastab,ltab,ktab,offl,offlrev,nbas
+    use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat
     use m_lgunit,only: stdo
     use m_ftox
     implicit none
@@ -36,13 +38,15 @@ contains
           iend1 = offl(iorb)+2*l+1
           init2 = offlrev(miat(ibas,igg),l,k)+1
           iend2 = offlrev(miat(ibas,igg),l,k)+2*l+1
+          !write(stdo,ftox)'iorb',iorb,'data from',init1,iend1,'to', init2,iend2,'ibas l k',ibas,l,k,&
+          !     'igg=',igg,' miat',miat(ibas,igg),'tiat=',ftof(tiat(:,ibas,igg),3)
           evecout(init2:iend2,:)= matmul(dlmm(-l:l,-l:l,l,igg),evec(init1:iend1,:))*phase(ibas)
        enddo OrbitalBlock
     endif MTOpart
     APWpart: if(napw_in/=0) then 
-       if(napw_in /= napwkqp(ikt) ) call rx('rotwave: napw_in /= napw(ikt)')
        ikt  = findloc([(sum(abs(q      -qplist(:,i)))<1d-8,i=1,nkp)],value=.true.,dim=1)  !=index for q
        ikt2 = findloc([(sum(abs(qtarget-qplist(:,i)))<1d-8,i=1,nkp)],value=.true.,dim=1)
+       if(napw_in /= napwkqp(ikt) ) call rxii('rotwave: napw_in /= napw(ikt)',napw_in,napwkqp(ikt))
        igloop: do ig = 1,napw_in
           getig2: block
             integer:: i1

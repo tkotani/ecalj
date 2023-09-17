@@ -86,18 +86,9 @@ contains
        !     nspx*nspc=nsp
        if(master_mpi)write(stdo,ftox)'suham: PW basis Emax=',ftof(pwemax,3),'npw,ndham=',npw,ndham
     endif
-    if(nspc==2 .AND. nsp==2) then     !  spinoffdiag=.true.
-       ham_nspx= 1
-       ham_ndhamx = ndham*2
-    elseif(nspc==1 .AND. nsp==2) then !  spinoffdiag=.false.    !spin no-offdiagonal
-       ham_nspx= 2
-       ham_ndhamx= ndham
-    elseif(nspc==1 .AND. nsp==1) then !  spinoffdiag=.false.    !paramagnetic
-       ham_nspx= 1            !nsp/nspc
-       ham_ndhamx= ndham
-    else
-       call rx('suham: nspc==2 but nsp=1')
-    endif
+    if(nspc==2 .AND. nsp==1) call rx('suham: nspc==2 but nsp=1')
+    ham_nspx=nsp/nspc
+    ham_ndhamx= ndham*nspc
     call tcx('m_suham_init')
   end subroutine m_suham_init
 end module m_suham

@@ -36,7 +36,7 @@ contains
     implicit none
     integer,parameter::  ngmx = 48
     character,intent(in)::  prgnam*(*)
-    integer:: ibas,lc,j,iprint,nclass,ngrpTotal,k,npgrpAll
+    integer:: ibas,lc,j,iprint,nclass,ngrpTotal,k,npgrpAll,ig
     integer,parameter::recln=511
     logical ::cmdopt0,ipr10=.false.
     character strn*(recln),strn2*(recln),outs(recln)
@@ -53,8 +53,9 @@ contains
     if(master_mpi) call pshpr(60)
     allocate(iclasst(nbas),oics(nbas),oistab(nbas,ngmx))
     if(ipr10) write(stdo,"(a)")   'SpaceGroupSym of Lattice: ========start========================== '
+    write(stdo,"(a)") ' SYMGRP = '//trim(strn)
     call mksym(lc,slabl,strn,ips, iclasst,nclasst,npgrp,ngrp,oag,osymgr,oics,oistab)
-      if(ipr10) write(stdo,"(a)") 'SpaceGroupSym of Lattice: ========end =========================== '
+    if(ipr10) write(stdo,"(a)") 'SpaceGroupSym of Lattice: ========end =========================== '
     allocate(symops,source=osymgr)
     allocate(ag,source=oag)
     AFmodeBlock: block
@@ -62,14 +63,14 @@ contains
       integer:: oicsAll(nbas),oistabAll(nbas,ngmx),ipsAF(nbas),iga,igall,nclassAll,ig
       AFmode=len_trim(symgaf)>0 
       if(AFmode) then
+         strn2=trim(strn)//' '//trim(symgaf)
          if(ipr10) then
             write(stdo,*)
             write(stdo,"(a)") 'Add SpaceGroupSym ops by AF symmetry===start========= '
-            write(stdo,"(a)") 'AF: Antiferro mode: SPGGRAF  = '//trim(symgaf)
-            write(stdo,"(a)") 'AF:                 SPGGR all= '//trim(strn2)
+            write(stdo,"(a)") 'AF: Antiferro mode: SYMGRPAF    = '//trim(symgaf)
+            write(stdo,"(a)") 'AF:                 SYMGRPAF all= '//trim(strn2)
             write(stdo,"(a,2i3)")  ('AF:  ibas,AF=',j,iantiferro(j),j=1,nbas)
          endif
-         strn2=trim(strn)//' '//trim(symgaf)
          ipsAF = ips
          do j=1,nbas
             do k=j,nbas
@@ -85,7 +86,11 @@ contains
          call mksym(lc,slabl,strn2,ipsAF, iclasstAll,nclassAll, npgrpAll,ngrpTotal,oagAll,osymgrAll,oicsAll,oistabAll) !Big symmetry for lattice+AF
          ngrpAF=ngrpTotal-ngrp
          if(ipr10) write(stdo,"(a)")   'SpaceGroupSym of Lattice+AF: ========end========================== '
-!         write(stdo,ftox)'symall ig=',ig,ftof(reshape(osymgrAll(:,:,ig),[9]),2),' ',oagAll(:,ig)
+
+!         do ig=1,ngrpTotal
+!            write(stdo,ftox)'symall ig=',ig,ftof(reshape(osymgrAll(:,:,ig),[9]),2),' ',oagAll(:,ig)
+!         enddo
+      
          iga=ngrp
          do igall=1,ngrpTotal !Pick up symmetry by AF
             if(any( [( sum(abs(symops(:,:,ig)-osymgrALL(:,:,igall)))+sum(abs(ag(:,ig)-oagAll(:,igall)))<tol,ig=1,ngrp )]  )) cycle
@@ -103,9 +108,17 @@ contains
     MiatTiatDlmm:block
       allocate(miat(nbas,ngrpTotal),tiat(3,nbas,ngrpTotal),invgx(ngrpTotal),shtvg(3,ngrpTotal),&
            dlmm(-lmxax:lmxax,-lmxax:lmxax,0:lmxax,ngrpTotal))
-      call            mptauof(symops,ngrp,  plat,nbas,rv_a_opos,iclasst,   miat,           tiat,             invgx,    shtvg)  !for ig=1,ngrp
-      if(AFmode) call mptauof(symops,ngrpAF,plat,nbas,rv_a_opos,iclasstAll,miat(:,ngrp+1:),tiat(:,:,ngrp+1:),invgx(ngrp+1:), & !    ig=ngrp+1,ngrpAF
-           shtvg(:,ngrp+1)) !mapping of sites by spacegrope ops
+      call            mptauof(symops,             ngrp,  plat,nbas,rv_a_opos,iclasst,   miat,tiat,invgx,shtvg)  !for ig=1,ngrp
+      if(AFmode) call mptauof(symops(:,:,ngrp+1:),ngrpAF,plat,nbas,rv_a_opos,iclasstAll, & !  ig=ngrp+1,ngrpAF
+           miat(:,ngrp+1:),tiat(:,:,ngrp+1:),invgx(ngrp+1:),shtvg(:,ngrp+1:),afmode) !mapping of sites by spacegrope ops
+!      write(stdo,ftox)'mmmmm iclasst=',iclasst
+!      do ig=1,ngrp
+!         write(stdo,ftox)'mmmm ig=',ig, 'miat=',miat(1:nbas,ig)
+!      enddo
+!      write(stdo,ftox)'mmmmm iclasstAll=',iclasstAll
+!      do ig=ngrp+1,ngrp+ngrpAF
+!         write(stdo,ftox)'mmmm ig=',ig,'symops=',ftof(reshape(symops(:,:,ig),[9])),'miat=',miat(1:nbas,ig)
+!      enddo
       call rotdlmm(symops,ngrpTotal, lmxax+1, dlmm) ! Get rotation matrix Dlmm in real spherical harmonics.  !for sigm mode, dlmm needed.
       if(ipr10) write(stdo,*)
     endblock MiatTiatDlmm
