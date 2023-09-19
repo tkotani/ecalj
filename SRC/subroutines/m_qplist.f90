@@ -6,9 +6,11 @@ module m_qplist ! control all q points list (but still only for lmf part now jun
   integer,allocatable,public:: igv2qp(:,:,:),igv2revqp(:,:,:,:),napwkqp(:)
   
   integer,parameter,private:: nsymlmax=100
-  integer,protected,public:: nkp,ngpmx ,nqi,iqibzmax,  iqini,iqend,ispini,ispend      !for current rank
+  integer,protected,public:: nkp,ngpmx ,nqi,iqibzmax ,  iqini,iqend     !for current rank
   integer,protected,public:: nsyml=0, nqp_syml(nsymlmax),nqps_syml(nsymlmax),nqpe_syml(nsymlmax),nqp2n_syml(nsymlmax)
   integer,allocatable,protected,public:: ngplist(:),iprocq(:,:),ispp(:),ngvecp(:,:,:), kpproc(:)
+  integer,protected,allocatable,public:: iqproc(:),isproc(:)
+  integer,protected,public:: niqisp
   real(8),protected,public:: dqsyml(nsymlmax),etolv,etolc
   real(8),allocatable,protected,public:: qplist(:,:), xdatt(:)
   character*20,protected,public ::labeli(nsymlmax),labele(nsymlmax)
@@ -299,7 +301,7 @@ contains
 !    use m_suham,  only: nspx=>ham_nspx
     use m_ext,only: sname
     implicit none
-    integer:: iprocid,iqendx,iqinix,iqq,ifiproc,isp,ispx,icount,iqs,ncount,iqsi,iqse,iprint,nspx
+    integer:: iprocid,iqendx,iqinix,iqq,ifiproc,isp,ispx,icount,iqs,ncount,iqsi,iqse,iprint,nspx,i
     integer,allocatable::iqvec(:),ispin(:),iproc(:)
     call tcn('m_qplist_qpsdivider')
     nspx=nsp/nspc
@@ -308,13 +310,23 @@ contains
     !  (iq,isp) is ordered as (1,1),(1,2),(2,1),(2,2),(3,1),(3,2),(4,1),(4,2).....  ! range for the procid
     iqsi = kpproc(procid)
     iqse = kpproc(procid+1)-1
-    iqini = iqsi
-    if(nspx==2) iqini = (iqsi+1)/nspx
-    iqend = iqse
-    if(nspx==2) iqend = (iqse+1)/nspx
-    ispini = mod(iqsi+1,nspx)+1
-    ispend = mod(iqse+1,nspx)+1
-    if(iprint()>80) write(stdo,ftox)'m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=',procid,iqini,ispini,iqend,ispend
+    niqisp=iqse-iqsi+1
+    if(niqisp>0) then
+       allocate(iqproc(niqisp),isproc(niqisp))
+       do i=iqsi,iqse
+          iqproc(i-iqsi+1) =   (i-1)/nspx +1
+          isproc(i-iqsi+1) = mod(i-1,nspx)+1
+       enddo
+       iqini=iqproc(1)
+       iqend=iqproc(niqisp)
+    else
+       iqini=0
+       iqend=-1
+    endif
+    write(stdo,ftox)'m_qplist_qspdivider: procid niqisp iqini iqend=',procid,niqisp,iqini,iqend
+    do i=1,niqisp
+       write(stdo,ftox)'m_qplist_qspdivider: procid=',procid,' i iq isp=',i,iqproc(i),isproc(i)
+    enddo
     call tcx('m_qplist_qpsdivider')
   end subroutine m_qplist_qspdivider
 end module m_qplist

@@ -3,7 +3,7 @@ module m_bandcal !band structure calculation
   use m_suham,  only: ndhamx=>ham_ndhamx!,nspx=>ham_nspx
   use m_qplist, only: nkp
   use m_mkqp,only: ntet=> bz_ntet, bz_nabc
-  use m_qplist,only: qplist
+  use m_qplist,only: qplist,niqisp,iqproc,isproc
   use m_igv2x,only: m_igv2x_setiq, napw,ndimh,ndimhx,igv2x
   use m_lmfinit,only: lrsig=>ham_lsig, lso,ham_scaledsigma,lmet=>bz_lmet,nbas,epsovl=>ham_oveps,nspc,plbnd,lfrce,&
        pwmode=>ham_pwmode,pwemax,stdl,nsp,nlibu,lmaxu,nbas,nl,nlmto
@@ -32,10 +32,10 @@ module m_bandcal !band structure calculation
   real(8),private:: sumqv(3,2),sumev(3,2)
   private
 contains
-  subroutine m_bandcal_init(iqini,iqend,ispini,ispend,lrout,ef0,ifih) !,lwtkb) ! Set up Hamiltonian, diagonalization
+  subroutine m_bandcal_init(lrout,ef0,ifih) ! Set up Hamiltonian, diagonalization
     implicit none
     complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:),hammhso(:,:,:) !Hamiltonian,Overlapmatrix
-    integer:: iq,nmx,ispinit,isp,nev,ifih,lwtkb,iqini,iqend,lrout,ifig,ispini,ispend,ispendx,i,ibas,iwsene,nspx
+    integer:: iq,nmx,ispinit,isp,nev,ifih,lwtkb,lrout,ifig,i,ibas,iwsene,nspx,idat
     real(8):: qp(3),ef0,def=0d0,xv(3),q(3)
     real(8),allocatable    :: evl(:,:)  !eigenvalue (nband,nspin)
     complex(8),allocatable :: evec(:,:) !eigenvector( :,nband)
@@ -75,14 +75,23 @@ contains
     sumev = 0d0
     sumqv = 0d0
     if (lswtk==1)  call swtkzero() !write(stdo,*)'iiiiqqq procid iqini iqend=',procid,iqini,iqend
-    bandcalculation_q: do 2010 iq = iqini, iqend 
+!    bandcalculation_q: do 2010 iq = iqini, iqend 
+!       qp = qplist(:,iq)  !write(stdo,ftox)'m_bandcal_init: procid iq=',procid,iq,ftof(qp)
+!       if(iq==iqini) call mlog_mpiiq(iq,iqini,iqend)
+!       call m_Igv2x_setiq(iq) ! Get napw and so on for given qp
+!       allocate(hamm(ndimh,ndimh,nspc*nspc),ovlm(ndimh,ndimh,nspc*nspc)) !spin offdiagonal included
+!       bandcalculation_spin: do 2005 isp = 1,nsp/nspc
+!          if(iq==iqini .AND. ispini==2 .AND. isp==1) cycle
+!          if(iq==iqend .AND. ispend==1 .AND. isp==2) cycle
+    bandcalculation_q: do 2010 idat=1,niqisp
+       iq = iqproc(idat)
+       isp= isproc(idat)
        qp = qplist(:,iq)  !write(stdo,ftox)'m_bandcal_init: procid iq=',procid,iq,ftof(qp)
-       if(iq==iqini) call mlog_mpiiq(iq,iqini,iqend)
+       isp= isproc(idat)
        call m_Igv2x_setiq(iq) ! Get napw and so on for given qp
        allocate(hamm(ndimh,ndimh,nspc*nspc),ovlm(ndimh,ndimh,nspc*nspc)) !spin offdiagonal included
-       bandcalculation_spin: do 2005 isp = 1,nsp/nspc
-          if(iq==iqini .AND. ispini==2 .AND. isp==1) cycle
-          if(iq==iqend .AND. ispend==1 .AND. isp==2) cycle
+!       if(iq==iqini) call mlog_mpiiq(iq,iqini,iqend)
+       !       bandcalculation_spin: do 2005 isp = 1,nsp/nspc
           ! Hambl calls augmbl. See Appendix C in http://dx.doi.org/10.7566/JPSJ.84.034702
           !! finally makes F~F~=F0F0+(F1F1-F2F2), which is overlap matrix, s.
           !! Note that F2=Hankel head at a site + Hankel tail contributions from the other site.
@@ -196,7 +205,7 @@ contains
 !               evec,evl,nev,smrho_out,sumqv,sumev,oqkkl,oeqkkl,frcband) ! accumulate output density and sampling DOS.
           if(PROCARon) call m_procar_init(iq,isp,ef0,evl,ndimh,isp,qp,nev,evec,ndimhx,nmx)
           if(allocated(evec)) deallocate(evec)
-2005   enddo bandcalculation_spin !== end loop over isp (main loop in parallel mode)==
+!2005   enddo bandcalculation_spin !== end loop over isp (main loop in parallel mode)==
        if(allocated(hammhso)) deallocate(hammhso)
        if(allocated(hamm)) deallocate(hamm,ovlm)
 2010 enddo bandcalculation_q
@@ -212,9 +221,9 @@ contains
     deallocate(evl)
     call tcx('m_bandcal_init')
   end subroutine m_bandcal_init
-  subroutine m_bandcal_2nd(iqini,iqend,ispini,ispend,lrout)! accumule evec things by addrbl
+  subroutine m_bandcal_2nd(lrout)! accumule evec things by addrbl
     implicit none
-    integer:: iq,nmx,ispinit,isp,nev,iqini,iqend,lrout,ifig,i,ibas,ispini,ispend,ispendx
+    integer:: iq,nmx,ispinit,isp,nev,lrout,ifig,i,ibas,idat
     real(8):: qp(3),ef0,def=0d0,xv(3)
     real(8),allocatable:: evl(:,:)
     complex(8),allocatable :: evec(:,:),evecbackup(:,:)
@@ -234,21 +243,26 @@ contains
     sumqv = 0d0
     allocate(evl(ndhamx,nsp/nspc))
     open(newunit=ifig,file='eigze_'//trim(strprocid),form='unformatted')
-    iqloop: do 12010 iq = iqini, iqend !This is a big iq loop
-       qp = qplist(:,iq)
+    iqloop: do 12010 idat=1,niqisp !iq = iqini, iqend !This is a big iq loop
+       iq = iqproc(idat)
+       isp= isproc(idat)
+       qp = qplist(:,iq)  !write(stdo,ftox)'m_bandcal_init: procid iq=',procid,iq,ftof(qp)
+       isp= isproc(idat)
+       
+!       qp = qplist(:,iq)
        call m_Igv2x_setiq(iq) ! Get napw and so on for given qp
-       isploop: do 12005 isp = 1,nsp/nspc
-          if(iq==iqini .AND. ispini==2 .AND. isp==1) cycle
-          if(iq==iqend .AND. ispend==1 .AND. isp==2) cycle
+!       isploop: do 12005 isp = 1,nsp/nspc
+!          if(iq==iqini .AND. ispini==2 .AND. isp==1) cycle
+!          if(iq==iqend .AND. ispend==1 .AND. isp==2) cycle
           read(ifig) nev,nmx  !ndimhx <---supplied by m_Igv2x_set
           allocate(evec(ndimhx,nmx))
           read(ifig) evl(1:nev,isp)
           read(ifig) evec(1:ndimhx,1:nmx)
           evl(nev+1:ndhamx,isp)=1d99 !to skip these data
           
-          if(cmdopt0('--afsym').and.isp==ispendx) then
+          if(cmdopt0('--afsym').and.isp==2) then
              deallocate(evec)
-             exit
+             cycle
           endif
           
           if( lso/=0)              call mkorbm(isp, nev, iq,qp, evec,  orbtm_rv)
@@ -313,7 +327,7 @@ contains
              endblock afsymblock
           endif afsymiffffffffffffffffffffffffffffffff
           deallocate(evec)
-12005  enddo isploop
+!12005  enddo isploop
 12010 enddo iqloop
     if (pwemax>0 .AND. mod(pwmode,10)>0 .AND. lfrce/=0) then
        xv(:)=[(sum(frcband(i,1:nbas))/nbas,i=1,3)]

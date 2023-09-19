@@ -24,9 +24,7 @@ contains
     real(8):: qin(3),q(3),eps=1d-10
     integer:: iq,iqx,ia
 !!!!!!!!!!!!!!!!!!!! 2023-04-25 obatadebug
-    q=qin 
-!    call shorbz(qin,q,qlat,plat) !Get q. Is this fine?
-    
+    q=qin !    call shorbz(qin,q,qlat,plat) !Get q. Is this fine?
     iq=-999
     do iqx=iqini,iqend
        if( sum( (q-qall(:,iqx))**2 )<eps) then
@@ -34,14 +32,14 @@ contains
           exit
        endif
     enddo
-    if(iq==-999) then !error exit
+    Errorexit:if(iq==-999) then !error exit
        write(stdo,ftox)'qin=',ftof(qin)
        write(stdo,ftox)'  q=',ftof(q)
        do iqx=iqini,iqend
           write(stdo,ftox)'bstrux_set iq q=',procid,iqx,ftof(qall(:,iqx))
        enddo
        call rx('err:bstrux_set')
-    endif
+    endif Errorexit
     bstr => p_bstr(ia,iq)%cv3
     if(lfrce/=0) dbstr=> p_dbstr(ia,iq)%cv4
   end subroutine bstrux_set
@@ -58,8 +56,7 @@ contains
     iqloop: do 1200 iq = iqini, iqend ! iqini:iqend for each rank
        qin = qplist(:,iq)
        call m_Igv2x_setiq(iq) ! Get napw,ndimh,igvapw and so on for given iq
-!!!!!!!!!!!!!!!!!!!! 2023-04-25 obatadebug
-!       call shorbz(qin,q,qlat,plat) !Get q. Is this fine?
+!!!!!!!!!!!!!!!!!!!! 2023-04-25 obatadebug call shorbz(qin,q,qlat,plat) !Get q. Is this fine?
        q=qin
        ibasloop: do ia=1,nbas !  --- Make strux to expand all orbitals at site ia ---
           isa=ispec(ia) 

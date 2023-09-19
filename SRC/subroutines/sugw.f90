@@ -18,7 +18,7 @@ contains
     use m_MPItk,only: numproc=>nsize,procid,master,master_mpi
     use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_setiq,ndimhall
     use m_elocp,only: rsmlss=>rsml, ehlss=>ehl
-    use m_qplist,only: qplist,ngplist,ngvecp, iqini,iqend,ispini,ispend,iqibzmax
+    use m_qplist,only: qplist,ngplist,ngvecp,iqibzmax,niqisp,iqproc,isproc
     use m_hamindex0,only: Readhamindex0, nlindx
     use m_density,only: v0pot,pnuall,pnzall
     use m_augmbl,only: aughsoc
@@ -86,7 +86,7 @@ contains
          ngpmx,nline,nlinemax,nlmax,nmx,nn1,nn2,nnn, &
          nphimx,npqn,nqbz,nqibz,nqnum,nqnumx,nqtot,nr,iqibz,imx, &
          ifigwb,ifigwa,ifinormchk,ifigw1,ifildima,ifigwn,ifigwbhead, &
-         ificlass,ifievec,ifievecx,ifigw2,ifiqbz,ifievv
+         ificlass,ifievec,ifievecx,ifigw2,ifiqbz,ifievv,idat
     complex(8),allocatable :: aus_zv(:)
     real(8),allocatable :: ww_rv(:)
     real(8):: QpGcut_psi,QpGcut_cou,dum,xx(5),gmax,ecore(50),a,z,rmt(nbas),b,vshft, &
@@ -340,8 +340,10 @@ contains
     !!    Note: this routine should use only irr qp.
     !! == Main loop for eigenfunction generation ==
     if(ham_scaledsigma/=1d0 .AND. sigmamode) write(stdo,*)' Scaled Sigma method: ScaledSigma=',ham_scaledsigma
-    iqloop: do 1001 iq = iqini,iqend ! iqini:iqend for this procid
+    iqloop: do 1001 idat=1,niqisp !iq = iqini,iqend ! iqini:iqend for this procid
        !        if (dipolematrix.and.iq>nqbz) exit
+       iq = iqproc(idat)
+       isp= isproc(idat)
        qp  = qplist(:,iq)     !  ... For this qp, G vectors for PW basis and hamiltonian dimension
        ngp = ngplist(iq)
        lwvxc = iq<=iqibzmax
@@ -351,15 +353,15 @@ contains
        allocate(ham(ndimh,ndimh),ovl(ndimh,ndimh),evec(ndimh,ndimh), vxc(ndimh,ndimh))
        allocate(cphi(ndima,ndimh,nsp),cphiw(ndimh,nsp))
        !        if(dipolematrix) allocate(dipo(ndimh,ndimh,3))
-       ispSS=1
-       ispEE=nsp
-       if(iq==iqini .AND. ispini==2) ispSS=2
-       if(iq==iqend .AND. ispend==1) ispEE=1
+!       ispSS=1
+!       ispEE=nsp
+!       if(iq==iqini .AND. ispini==2) ispSS=2
+!       if(iq==iqend .AND. ispend==1) ispEE=1
        if(lso/=0 .OR. socmatrix) then
           allocate(hammhso(ndimh,ndimh,3))
           call aughsoc(qp, ohsozz,ohsopm, ndimh, hammhso)
        endif
-       isploop: do 1002 isp = ispSS,ispEE
+!       isploop: do 1002 isp = ispSS,ispEE
           open(newunit=ifigwb,file='gwb'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
           if(lwvxc) then
              open(newunit=ifievec,   file='evec'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
@@ -518,7 +520,7 @@ contains
              close(ifiv)
              close(ifievec)
           endif
-1002   enddo isploop
+!1002   enddo isploop
        if(allocated(hammhso)) deallocate(hammhso)
        deallocate(ham,ovl,evec,vxc,cphi,cphiw)
        continue 

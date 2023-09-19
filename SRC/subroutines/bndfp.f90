@@ -56,7 +56,7 @@ contains
          osmpot, qmom, vconst, osig,otau,oppi, qval , qsc , fes1_rv , fes2_rv
     use m_clsmode,only: m_clsmode_init,m_clsmode_set1,m_clsmode_finalize
     use m_qplist,only:  qplist,nkp,xdatt,labeli,labele,dqsyml,etolc,etolv, &
-         nqp2n_syml,nqp_syml,nqpe_syml,nqps_syml,nsyml,iqini,iqend,ispini,ispend,kpproc    ! MPIK divider. iqini:iqend are node-dependent
+         nqp2n_syml,nqp_syml,nqpe_syml,nqps_syml,nsyml,kpproc,iqini,iqend    ! MPIK divider. iqini:iqend are node-dependent
     use m_igv2x,only: napw,ndimh,ndimhx,igv2x
     use m_procar,only: m_procar_init,dwgtall,nchanp,m_procar_closeprocar,m_procar_writepdos
     use m_bandcal,only: m_bandcal_init,m_bandcal_2nd,m_bandcal_clean,m_bandcal_allreduce, &
@@ -178,10 +178,9 @@ contains
        call rx0('sugw mode')  !exit program here normally.
     endif GWdriver
     ! Set up Hamiltonian and diagonalization in m_bandcal_init. To know outputs, see 'use m_bandcal,only:'. The outputs are evlall, and so on.
-!    if( .NOT. (lwtkb==-1 .OR. lwtkb==0)) call rx('bndfp: something wrong lwtkb')
     sttime = MPI_WTIME()
     if(nspc==2) call m_addrbl_allocate_swtk(ndham,nsp,nkp)
-    call m_bandcal_init(iqini,iqend,ispini,ispend,lrout,eferm,ifih) !,lwtkb) !All input. Do diagonalization resulting evlall ! lwtkb=1 accumulate weight, lwtkb=0 no weight
+    call m_bandcal_init(lrout,eferm,ifih) ! Do diagonalization resulting evlall 
     entime = MPI_WTIME()
     if(master_mpi) write(stdo,"(a,f9.4)") ' ... Done MPI k-loop: elapsed time=',entime-sttime
     if(writeham) close(ifih)
@@ -305,7 +304,7 @@ contains
     endif WRITEeigenvaluesONconsole
     AccumurateSuminBZforwtkb: if(lrout>0) then !     call m_subzi_setlwtkb(1)
        call mpi_barrier(MPI_comm_world,ierr)
-       call m_bandcal_2nd(iqini,iqend,ispini,ispend,lrout)!, eferm) !accumulate smrho_out and so on.
+       call m_bandcal_2nd(lrout)   !accumulate smrho_out and so on.
        call m_bandcal_allreduce() !lwtkb)
     endif AccumurateSuminBZforwtkb
     CorelevelSpectroscopy2: if(cmdopt0('--cls')) then !m_clsmode_set1 is called in m_bandcal
