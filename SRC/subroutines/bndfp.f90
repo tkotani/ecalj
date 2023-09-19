@@ -49,7 +49,7 @@ contains
     use m_mkqp,only: nkabc=> bz_nabc,ntet=> bz_ntet,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, plat=>lat_plat,pos=>rv_a_opos
     use m_rdsigm2,only: m_rdsigm2_init
-    use m_subzi, only: m_subzi_init, lwtkb,rv_a_owtkb,m_subzi_setlwtkb,m_subzi_bzintegration
+    use m_subzi, only: m_subzi_init, rv_a_owtkb,m_subzi_bzintegration !,m_subzi_setlwtkb !lwtkb,
     use m_rsibl, only : Rsibl_ev ! to plot wavefunction in the fat band mode
     use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq,xmpbnd2
     use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate, m_mkpot_energyterms,m_mkpot_novxc,& ! & m_mkpot_novxc_dipole,
@@ -178,10 +178,10 @@ contains
        call rx0('sugw mode')  !exit program here normally.
     endif GWdriver
     ! Set up Hamiltonian and diagonalization in m_bandcal_init. To know outputs, see 'use m_bandcal,only:'. The outputs are evlall, and so on.
-    if( .NOT. (lwtkb==-1 .OR. lwtkb==0 .OR. lwtkb==1)) call rx('bndfp: something wrong lwtkb')
+!    if( .NOT. (lwtkb==-1 .OR. lwtkb==0)) call rx('bndfp: something wrong lwtkb')
     sttime = MPI_WTIME()
     if(nspc==2) call m_addrbl_allocate_swtk(ndham,nsp,nkp)
-    call m_bandcal_init(iqini,iqend,ispini,ispend,lrout,eferm,ifih,lwtkb) !All input. Do diagonalization resulting evlall ! lwtkb=1 accumulate weight, lwtkb=0 no weight
+    call m_bandcal_init(iqini,iqend,ispini,ispend,lrout,eferm,ifih) !,lwtkb) !All input. Do diagonalization resulting evlall ! lwtkb=1 accumulate weight, lwtkb=0 no weight
     entime = MPI_WTIME()
     if(master_mpi) write(stdo,"(a,f9.4)") ' ... Done MPI k-loop: elapsed time=',entime-sttime
     if(writeham) close(ifih)
@@ -285,7 +285,7 @@ contains
        close(ifii)
     endif GenerateTotalDOS
     if(tdos) call rx0('Done tdos mode:')
-    if(lrout/=0) call m_bandcal_allreduce(lwtkb) ! AllReduce band quantities.
+!    if(lrout/=0) call m_bandcal_allreduce()!lwtkb) ! AllReduce band quantities.
     emin=1d9
     if(master_mpi) write(stdo,ftox)
     if(master_mpi) write(stdo,"('    ikp isp            q          nev ndimh',100i8)")[(i,i=1,min(nevmin,100))]
@@ -303,11 +303,10 @@ contains
           enddo
        enddo
     endif WRITEeigenvaluesONconsole
-    AccumurateSuminBZforwtkb: if(lmet>0 .AND. lwtkb==-1 .AND. lrout>0) then
-       call m_subzi_setlwtkb(1)
+    AccumurateSuminBZforwtkb: if(lrout>0) then !     call m_subzi_setlwtkb(1)
        call mpi_barrier(MPI_comm_world,ierr)
        call m_bandcal_2nd(iqini,iqend,ispini,ispend,lrout)!, eferm) !accumulate smrho_out and so on.
-       call m_bandcal_allreduce(lwtkb)
+       call m_bandcal_allreduce() !lwtkb)
     endif AccumurateSuminBZforwtkb
     CorelevelSpectroscopy2: if(cmdopt0('--cls')) then !m_clsmode_set1 is called in m_bandcal
        dosw(1)= emin  - 0.5d0    ! lowest energy limit to plot dos
@@ -315,7 +314,7 @@ contains
        call m_clsmode_finalize(eferm,ndimh,ndhamx,nspx,nkp,dosw,evlall)
        call rx0('Done cls mode:')
     endif CorelevelSpectroscopy2
-    if(lwtkb==1 .AND. lso/=0) call iorbtm() !WriteOribitalMoment
+    if(lso/=0) call iorbtm() !WriteOribitalMoment
     if(lrout/=0) call m_bandcal_symsmrho()  !Getsmrho_out Symmetrize smooth density ! Assemble output density, energies and forces 
     call m_mkrout_init() !Get force frcbandsym, symmetrized atomic densities orhoat_out, and weights hbyl,qbyl
     call pnunew(eferm) !pnuall are revised. !  New boundary conditions pnu for phi and phidot

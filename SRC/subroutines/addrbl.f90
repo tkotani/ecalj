@@ -85,7 +85,7 @@ contains
     real(8),allocatable:: qpgv(:,:),qpg2v(:),ylv(:,:)
     complex(8),allocatable:: evecc(:,:,:,:),work(:,:,:,:)
     qval= qval_- zbak
-    if (lwtkb < 0) return
+!    if (lwtkb < 0) return
     call tcn('addrbl')
     nlmto = ndimh-napw
     lmxax = maxval(sspec(ispec(1:nbas))%lmxa)

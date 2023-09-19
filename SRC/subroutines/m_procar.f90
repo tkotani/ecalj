@@ -1,6 +1,6 @@
 module m_procar !for wriging PROCAR (VASP format)
   use m_lmfinit,only: nlmax,nsp,nbas,stdo,sspec=>v_sspec,ispec,nlmax,nspc,n0
-  use m_suham,only: ndhamx=>ham_ndhamx,ndham=>ham_ndham,nspx=>ham_nspx
+  use m_suham,only: ndham=>ham_ndham,ndhamx=>ham_ndhamx,nspx=>ham_nspx
   use m_igv2x,only: igv2x,napw
   use m_mkpot,only: sab_rv 
   use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize,procid,xmpbnd2

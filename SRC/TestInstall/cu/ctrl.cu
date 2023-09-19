@@ -13,7 +13,7 @@ HAM     NSPIN=1 REL=t XCFUN=2
         PWMODE={pwmode} PWEMIN={pwemin} PWEMAX={pwemax} OVEPS={oveps}
 OPTIONS NSPIN=1 REL=t XCFUN=2 HF=f
 BZ      NKABC={nk} BZJOB=1 W=.002 NPTS=1001 SAVDOS=t
-%const metal=2
+%const metal=3
         EF0=0 DELEF=.1 TETRA=t DOS=0-1 0+.5 METAL={metal}
 EWALD   AS=2.0 TOL=1D-12 ALAT0={a} NKRMX=600 NKDMX=600
 ITER    MIX=A3 CONV=1e-5 CONVC=1e-5 NIT={nit}

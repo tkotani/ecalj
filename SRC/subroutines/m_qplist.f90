@@ -295,13 +295,14 @@ contains
   ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
   subroutine m_qplist_qspdivider() ! MPIK k point divider. From iqini to iqend for each processor. ! Set iqini,iqend ispx for each rank (procid)
     use m_MPItk,only: master_mpi,mlog, numprocs=>nsize
-    use m_lmfinit,only: procid,master
-    use m_suham,  only: nspx=>ham_nspx
+    use m_lmfinit,only: procid,master,nsp,nspc
+!    use m_suham,  only: nspx=>ham_nspx
     use m_ext,only: sname
     implicit none
-    integer:: iprocid,iqendx,iqinix,iqq,ifiproc,isp,ispx,icount,iqs,ncount,iqsi,iqse,iprint
+    integer:: iprocid,iqendx,iqinix,iqq,ifiproc,isp,ispx,icount,iqs,ncount,iqsi,iqse,iprint,nspx
     integer,allocatable::iqvec(:),ispin(:),iproc(:)
     call tcn('m_qplist_qpsdivider')
+    nspx=nsp/nspc
     allocate(iqvec(nkp*nspx),ispin(nkp*nspx),iproc(nkp*nspx), kpproc(0:numprocs),iprocq(nkp,nspx))
     call dstrbp(nkp*nspx,numprocs,1,kpproc(0)) !mpik distribution
     !  (iq,isp) is ordered as (1,1),(1,2),(2,1),(2,2),(3,1),(3,2),(4,1),(4,2).....  ! range for the procid

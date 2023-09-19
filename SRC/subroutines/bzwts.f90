@@ -630,7 +630,7 @@ contains
   !!  (Takao think this bzwtsf2 may need to be modified for solids).
   subroutine bzwtsf2(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval, & !!== FSMOMMETHOD=1 == June2011 takao
        fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb,lswtk, &
-       swtk,efermi,sumev,wtkb,qval,lwtkb,lfill,vnow)
+       swtk,efermi,sumev,wtkb,qval,lfill,vnow) !,lwtkb
     use m_lmfinit,only: stdo
     use m_ftox
 
@@ -681,7 +681,7 @@ contains
     ! Passed parameters
     logical :: metal,tetra
     integer :: nbmx,norder,npts,nevx,nsp,nspc,n1,n2,n3,nkp,ntet, &
-         idtet(5,ntet),lswtk,lwtkb
+         idtet(5,ntet),lswtk!,lwtkb
     double precision :: zval,fmom,eb(nbmx,nsp,nkp),width,rnge,wtkp(nkp), &
          wtkb(nevx,nsp,nkp),swtk(nevx,nsp,nkp),efermi,sumev,qval(2)
     ! Local variables
@@ -719,7 +719,7 @@ contains
        return
     endif
     !! --- Setup for fixed-spin moment method ---
-    if (fmom==NULLR .OR. lwtkb == 0) return
+    if (fmom==NULLR)return ! .OR. lwtkb == 0) return
     !      if (fmom==NULLR .or. lwtkb .eq. 0) call rx('bzwtsf2: check logic of lwtkb')
 
     call tcn('bzwtsf2')
@@ -811,16 +811,16 @@ contains
     ele2 = (zval-amom)/2d0
     sumev=sumev+ ele1*(vnow/2d0) - ele2*(vnow/2d0) !sumev correction takao
     if(iprint()>20) write(stdo,ftox)' bzwtsf2(METHOD=1): Set Bias field -Vup+Vdn=',ftof(vnow,8)
-    if (lswtk == 1 .AND. lwtkb == 1) then
-       call rx('bzwtsf2:111 tk think not used here')
-    elseif (lswtk == 1 .AND. lwtkb == 2) then
-       call rx('bzwtsf2:222 tk think not used here')
-    endif
+!    if (lswtk == 1 .AND. lwtkb == 1) then
+!       call rx('bzwtsf2:111 tk think not used here')
+!    elseif (lswtk == 1 .AND. lwtkb == 2) then
+!       call rx('bzwtsf2:222 tk think not used here')
+!    endif
     call tcx('bzwtsf2')
   end subroutine bzwtsf2
   subroutine bzwtsf(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval, & !== FSMOMMETHOD=0 ogiginal version(modified version. fmom=0 is allowed.)==
        fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb,lswtk, & !- BZ integration for fermi level, band sum and qp weights, fixed-spin
-       swtk,efermi,sumev,wtkb,qval,lwtkb,lfill,vnow)
+       swtk,efermi,sumev,wtkb,qval,lfill,vnow) !,lwtkb
     use m_lmfinit,only: stdo
     use m_ftox
     !i Inputs
@@ -868,7 +868,7 @@ contains
     ! Passed parameters
     logical :: metal,tetra
     integer :: nbmx,norder,npts,nevx,nsp,nspc,n1,n2,n3,nkp,ntet, &
-         idtet(5,ntet),lswtk,lwtkb
+         idtet(5,ntet),lswtk!,lwtkb
     double precision :: zval,fmom,eb(nbmx,nsp,nkp),width,rnge,wtkp(nkp), &
          wtkb(nevx,nsp,nkp),swtk(nevx,nsp,nkp),efermi,sumev,qval(2)
     ! Local variables
@@ -905,7 +905,7 @@ contains
 
     !!== Setup for fixed-spin moment method ==
     !      if (fmom .eq. 0 .or. lwtkb .eq. 0) return
-    if (fmom==NULLR .OR. lwtkb == 0) return
+    if (fmom==NULLR) return  !.OR. lwtkb == 0) return
     !      if (fmom==NULLR .or. lwtkb .eq. 0) call rx('bzwtsf:check logic of lwtkb')
     call tcn('bzwtsf')
     call dpzero(vhold,12)
@@ -970,13 +970,13 @@ contains
     ele2 = (zval-fmom)/2d0
     sumev=sumev+ ele1*(vnow/2d0) - ele2*(vnow/2d0) !sumev correction takao
     if(iprint()>20) write(stdo,"(' bzwtsf: Set Bias field -Vup+Vdn=',f20.15)")vnow
-    if (lswtk == 1 .AND. lwtkb == 1) then
-       !        lwtkb = 2
-       call rx('bzwtsf:111 tk think not used here')
-    elseif (lswtk == 1 .AND. lwtkb == 2) then
-       !        lwtkb = 1
-       call rx('bzwtsf:222 tk think not used here')
-    endif
+!    if (lswtk == 1 .AND. lwtkb == 1) then
+!       !        lwtkb = 2
+!       call rx('bzwtsf:111 tk think not used here')
+!    elseif (lswtk == 1 .AND. lwtkb == 2) then
+!       !        lwtkb = 1
+!       call rx('bzwtsf:222 tk think not used here')
+!    endif
     call tcx('bzwtsf')
   end subroutine bzwtsf
   subroutine bzwtsm(lswtk,nkp,nsp,nevx,wtkb,swtk,amom) !- Determine the magnetic moment, collinear or noncollinear case

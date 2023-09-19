@@ -5,30 +5,25 @@ module m_suham
   public m_suham_init
   private
 contains
-  subroutine m_suham_init() !Get Hamiltonian dimension
+  subroutine m_suham_init() !Get Hamiltonian dimension ham_ndham= Hamiltonian dimensition= nAPW +nlmto
     use m_struc_def
-    use m_lmfinit,only:lso,nspc,nsp,nlmto, &
-         pwmode=>ham_pwmode,pwemax &!,pwemin &
+    use m_lmfinit,only:lso,nspc,nsp,nlmto, pwmode=>ham_pwmode,pwemax &!,pwemin &
          ,alat=>lat_alat, lat_tolft,nkaph, pot_nlma, pot_nlml ,stdo,nlmto
     use m_supot,only: lat_ng, rv_a_ogv
     use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat
-    !! Hamiltonian dimensiton: APW part
-    !!       ham_ndham,ham_ndhamx,ham_nspx
+    !Main output is ndham = estimate for upper dimension of hamiltonian, including possible APW part
     !l   ndim  :total number of lmto orbitals = nl**2 * nbas
-    !l   npwmin:lower limit to number of PWs, estimated by sweeping
+    !l   npwmin: lower limit to number of PWs, estimated by sweeping
     !l         :over a fine mesh of qp.
-    !l   npwmax:upper limit to number of PWs, estimated by sweeping
-    !l         :over a fine mesh of qp.
+    !l   npwmax: upper limit to number of PWs, estimated by sweeping
+    !l         : over a fine mesh of qp.
     !l   nqdiv: loop over mesh of q-points to estimate npwmax
     !l        : nqdiv is fineness of q-mesh.
     !l  npwpad: a 'safety' padding to npwmax in case npwmax
     !l        : underestimates actual upper limit !required???
-    !u     ndham = estimate for upper dimension of hamiltonian, including possible PW part
-    ! ----------------------------------------------------------------------
     implicit none
     integer :: hord,i,i1,i2,iprint, lidim,lihdim,nclasp,ndim,neul, &
-         nlspcp,nspx,nttab,partok,igets,nvi,nvl, &
-         ib,is,lmxa,lmxl,isw,nbf,lmxax, j1,j2,j3,m,npw,npwmin,npwmax
+         nlspcp,nspx,nttab,partok,igets,nvi,nvl,ib,is,lmxa,lmxl,isw,nbf,lmxax, j1,j2,j3,m,npw,npwmin,npwmax
     integer:: ndham=0
     double precision :: q(3),Gmin,Gmax,xx
     integer,parameter:: nqdiv=12
@@ -41,12 +36,10 @@ contains
     call tcn('m_suham_init')
     ! --- Hamiltonian offsets, orbital permutation table ---
     if (mod(pwmode,10)==2 .AND. master_mpi) write(stdo,"(a)")' suham: no MTO basis'
-    !   ... PW setup : estimate upper bound to number of G vectors
-    !     to set up upper bound to hamiltonian dimension
+    !   ... PW setup : estimate upper bound to number of G vectors to set up upper bound to hamiltonian dimension
     ham_ndham = nlmto
     ndham     = nlmto
-    if (pwemax>0 .AND. mod(pwmode,10)>0) then
-!       Gmin = dsqrt(pwemin)
+    if (pwemax>0 .AND. mod(pwmode,10)>0) then !       Gmin = dsqrt(pwemin)
        Gmax = dsqrt(pwemax)
        if (mod(pwmode/10,10) == 1) then
           if(master_mpi)write(stdo,*)'Estimate max size of PW basis from combinations of recip. lattice vectors ...'
@@ -59,7 +52,6 @@ contains
                       q(m) = (qlat(m,1)/nqdiv)*j1 +(qlat(m,2)/nqdiv)*j2 +(qlat(m,3)/nqdiv)*j3
                    enddo
                    call pshpr(iprint()-40)
-!                   call gvlst2(alat,plat,q,0,0,0,Gmin,Gmax,0,0,0,npw,xx,xx,xx)
                    call getgv2(alat,plat,qlat,q,Gmax,1,npw,xx) 
                    call poppr
                    npwmin = min(npwmin,npw)
@@ -71,7 +63,6 @@ contains
        else
           q=0d0
           call pshpr(0)
-          !call gvlst2(alat,plat,q,0,0,0,Gmin,Gmax,0,0,0,npw,xx,xx,xx)
           call getgv2(alat,plat,qlat,q,Gmax,1, npw,xx) 
           call poppr
           npwmin = npw
@@ -87,8 +78,8 @@ contains
        if(master_mpi)write(stdo,ftox)'suham: PW basis Emax=',ftof(pwemax,3),'npw,ndham=',npw,ndham
     endif
     if(nspc==2 .AND. nsp==1) call rx('suham: nspc==2 but nsp=1')
-    ham_nspx=nsp/nspc
-    ham_ndhamx= ndham*nspc
+    ham_ndhamx= ndham*nspc !nspc=2 for spin-coupled case
+    ham_nspx  = nsp/nspc
     call tcx('m_suham_init')
   end subroutine m_suham_init
 end module m_suham

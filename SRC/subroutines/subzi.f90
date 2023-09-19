@@ -13,10 +13,10 @@ module m_subzi ! Obtain weight wtkb(ib,isp,iq) for brillowine zone integation
 
 contains
 
-  subroutine m_subzi_setlwtkb(lwtkbin )
-    integer:: lwtkbin
-    lwtkb = lwtkbin
-  end subroutine m_subzi_setlwtkb
+!  subroutine m_subzi_setlwtkb(lwtkbin )
+!    integer:: lwtkbin
+!    lwtkb = lwtkbin
+!  end subroutine m_subzi_setlwtkb
 
   subroutine m_subzi_init(lwt)
     use m_ext,only: sname
@@ -90,30 +90,31 @@ contains
     procid = mpipid(1)
     master = 0
     lwtkb = 0
-    if ( lmet > 0 ) then
-       allocate(rv_a_owtkb(ndham,nsp,nkp))
-    endif
-    if (nevmx >= 0) then
+!    if ( lmet > 0 ) then
+!       allocate(rv_a_owtkb(ndham,nsp,nkp))
+!    endif
+!    if (nevmx >= 0) then
        if (lmet == 2 .OR. lmet == 3) then
+          allocate(rv_a_owtkb(ndham,nsp,nkp))
           lwtkb = -1
           !     ... Attempt to use existing weights
-          if (lmet == 2 .AND. lwt) then
-             if(master_mpi) then
-                open(newunit=ifi,file='wkp.'//trim(sname),form='unformatted')
-                read(ifi,end=8080,err=8080) nevx0,nq0,nsp0
-                if( .NOT. (ndham*nspc==nevx0 .AND. nkp==nq0 .AND. nsp==nsp0)) goto 8080
-                read(ifi) rv_a_owtkb
-                lwtkb=1
-8080            continue
-                close(ifi)
-             endif
-             call mpibc1(lwtkb,1,2,.false.,'subzi','lwtkb')
-             if (lwtkb==1) call mpibc1(rv_a_owtkb, ndham * nsp * nkp , 4 , .FALSE. , 'subzi' , 'wtkb' )
-          endif
+!           if (lmet == 2 .AND. lwt) then
+!              if(master_mpi) then
+!                 open(newunit=ifi,file='wkp.'//trim(sname),form='unformatted')
+!                 read(ifi,end=8080,err=8080) nevx0,nq0,nsp0
+!                 if( .NOT. (ndham*nspc==nevx0 .AND. nkp==nq0 .AND. nsp==nsp0)) goto 8080
+!                 read(ifi) rv_a_owtkb
+!                 lwtkb=1
+! 8080            continue
+!                 close(ifi)
+!              endif
+!              call mpibc1(lwtkb,1,2,.false.,'subzi','lwtkb')
+!              if (lwtkb==1) call mpibc1(rv_a_owtkb, ndham * nsp * nkp , 4 , .FALSE. , 'subzi' , 'wtkb' )
+!           endif
        endif
-    endif
+ !   endif
     lswtk = -2
-    if (nspc ==2 .AND. lwtkb == 1) lswtk = 1
+!    if (nspc ==2 .AND. lwtkb == 1) lswtk = 1
     if (nevmx == 0) then
        nevmx = (int(zval) + 1)/2
        if (lmet /= 0) nevmx = max(nevmx+nevmx/2,9)
@@ -162,14 +163,14 @@ contains
             ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_a_oidtet , qval-qbg,& ! & note qval is output
        fsmom , lmet.ne.0 , ltet , bz_n , ndos , bz_w &
             , dosrng , rv_a_owtkp , evlall ,  lswtk , swtk &
-            , eferm , sev , rv_a_owtkb , sumqv ( 1 , 2 ) , lwtkb ,lfill,vnow)
+            , eferm , sev , rv_a_owtkb , sumqv ( 1 , 2 ) ,lfill,vnow)!, lwtkb
     else
        !     ! vnow june22013
        call bzwtsf ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc &
             ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_a_oidtet , qval-qbg , &
             fsmom , lmet.ne.0 , ltet , bz_n , ndos , bz_w &
             , dosrng , rv_a_owtkp , evlall , lswtk , swtk &
-            , eferm , sev , rv_a_owtkb , sumqv ( 1 , 2 ) , lwtkb ,lfill, vnow)
+            , eferm , sev , rv_a_owtkb , sumqv ( 1 , 2 )  ,lfill, vnow) !, lwtkb
     endif
     !     ! june2013 magfield is added
     if(fsmom/=NULLR .AND. master_mpi) then
@@ -180,14 +181,14 @@ contains
     !     !         Store val charge & magnetic moment in sumqv(1..2)
     sumqv(1,1) = sumqv(1,2)
     sumqv(2,1) = sumqv(2,2)
-    if (lmet > 0) then
-       if (master_mpi) then
-          open(newunit=ifi,file='wkp.'//trim(sname),form='unformatted')
-          write(ifi) ndhamx,nkp,nspx
-          write(ifi) rv_a_owtkb
-          close(ifi)
-       endif
-    endif
+    ! if (lmet > 0) then
+    !    if (master_mpi) then
+    !       open(newunit=ifi,file='wkp.'//trim(sname),form='unformatted')
+    !       write(ifi) ndhamx,nkp,nspx
+    !       write(ifi) rv_a_owtkb
+    !       close(ifi)
+    !    endif
+    ! endif
     call tcx('m_subzi_bzintegration')
   end subroutine m_subzi_bzintegration
 end module m_subzi
