@@ -36,22 +36,20 @@ contains
     call tcn('m_suham_init')
     ! --- Hamiltonian offsets, orbital permutation table ---
     if (mod(pwmode,10)==2 .AND. master_mpi) write(stdo,"(a)")' suham: no MTO basis'
-    !   ... PW setup : estimate upper bound to number of G vectors to set up upper bound to hamiltonian dimension
+    ! ... PW setup : estimate upper bound to number of G vectors to set up upper bound to hamiltonian dimension
     ham_ndham = nlmto
     ndham     = nlmto
-    if (pwemax>0 .AND. mod(pwmode,10)>0) then !       Gmin = dsqrt(pwemin)
+    if(pwemax>0 .AND. mod(pwmode,10)>0) then !       Gmin = dsqrt(pwemin)
        Gmax = dsqrt(pwemax)
        if (mod(pwmode/10,10) == 1) then
           if(master_mpi)write(stdo,*)'Estimate max size of PW basis from combinations of recip. lattice vectors ...'
           npwmax = -1
           npwmin = 99999
-          do  j1 = 0, nqdiv
-             do  j2 = 0, nqdiv
+          do        j1 = 0, nqdiv
+             do     j2 = 0, nqdiv
                 do  j3 = 0, nqdiv
-                   do   m = 1, 3
-                      q(m) = (qlat(m,1)/nqdiv)*j1 +(qlat(m,2)/nqdiv)*j2 +(qlat(m,3)/nqdiv)*j3
-                   enddo
-                   call pshpr(iprint()-40)
+                   q(:) = (qlat(:,1)/nqdiv)*j1 +(qlat(:,2)/nqdiv)*j2 +(qlat(:,3)/nqdiv)*j3
+                   call pshpr(0)
                    call getgv2(alat,plat,qlat,q,Gmax,1,npw,xx) 
                    call poppr
                    npwmin = min(npwmin,npw)
@@ -71,8 +69,7 @@ contains
        endif
        ndham = npwmax + npwpad
        if (mod(pwmode,10) /= 2) ndham = nlmto + npwmax + npwpad
-       ham_ndham = ndham
-       !! Dimension maximum of Hamiltonian is ndhamx (ispx=1,nspx)
+       ham_ndham = ndham        ! Maximum dimension maximum of Hamiltonian is ndhamx (ispx=1,nspx)
        !! Note spinoffdiag=T case: we use nspc,nsp,nspx,ndhamx (a little complicated, I think).
        !     nspx*nspc=nsp
        if(master_mpi)write(stdo,ftox)'suham: PW basis Emax=',ftof(pwemax,3),'npw,ndham=',npw,ndham

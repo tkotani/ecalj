@@ -298,16 +298,14 @@ contains
   subroutine m_qplist_qspdivider() ! MPIK k point divider. From iqini to iqend for each processor. ! Set iqini,iqend ispx for each rank (procid)
     use m_MPItk,only: master_mpi,mlog, numprocs=>nsize
     use m_lmfinit,only: procid,master,nsp,nspc
-!    use m_suham,  only: nspx=>ham_nspx
     use m_ext,only: sname
     implicit none
-    integer:: iprocid,iqendx,iqinix,iqq,ifiproc,isp,ispx,icount,iqs,ncount,iqsi,iqse,iprint,nspx,i
+    integer:: iprocid,iqendx,iqinix,iqq,ifiproc,isp,ispx,icount,iqs,ncount,iqsi,iqse,iprint,nspx,idat,i
     integer,allocatable::iqvec(:),ispin(:),iproc(:)
     call tcn('m_qplist_qpsdivider')
-    nspx=nsp/nspc
-    allocate(iqvec(nkp*nspx),ispin(nkp*nspx),iproc(nkp*nspx), kpproc(0:numprocs),iprocq(nkp,nspx))
-    call dstrbp(nkp*nspx,numprocs,1,kpproc(0)) !mpik distribution
-    !  (iq,isp) is ordered as (1,1),(1,2),(2,1),(2,2),(3,1),(3,2),(4,1),(4,2).....  ! range for the procid
+    nspx=nsp/nspc !nspc is 2 for spin-coupled case
+    allocate(iqvec(nkp*nspx),ispin(nkp*nspx),iproc(nkp*nspx), kpproc(0:numprocs))
+    call dstrbp(nkp*nspx,numprocs,1,kpproc(0)) !  (iq,isp) is ordered as (1,1),(1,2),(2,1),(2,2),(3,1),(3,2),(4,1),(4,2).....  
     iqsi = kpproc(procid)
     iqse = kpproc(procid+1)-1
     niqisp=iqse-iqsi+1
@@ -323,9 +321,9 @@ contains
        iqini=0
        iqend=-1
     endif
-    write(stdo,ftox)'m_qplist_qspdivider: procid niqisp iqini iqend=',procid,niqisp,iqini,iqend
-    do i=1,niqisp
-       write(stdo,ftox)'m_qplist_qspdivider: procid=',procid,' i iq isp=',i,iqproc(i),isproc(i)
+!    write(stdo,ftox)'m_qplist_qspdivider: procid niqisp iqini iqend=',procid,niqisp,iqini,iqend
+    do idat=1,niqisp
+       write(stdo,ftox)'m_qplist_divider: procid=',procid,' idat iq isp=',idat,iqproc(idat),isproc(idat)
     enddo
     call tcx('m_qplist_qpsdivider')
   end subroutine m_qplist_qspdivider

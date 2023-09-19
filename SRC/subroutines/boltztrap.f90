@@ -1,4 +1,4 @@
-subroutine writeboltztrap(eferm) !write input file for boltztrap !test by gomi at year2020 around
+subroutine writeboltztrap(evlall,eferm) !write input file for boltztrap !test by gomi at year2020 around
   use m_lmfinit,only: nlmax,nsp,nbas,stdo,sspec=>v_sspec,nlmax,nspc,qbg=>zbak,alat=>lat_alat
   use m_suham,only: ndhamx=>ham_ndhamx,ndham=>ham_ndham
   use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize,procid
@@ -8,7 +8,8 @@ subroutine writeboltztrap(eferm) !write input file for boltztrap !test by gomi a
   use m_ext,only: sname
   use m_hamindex, only: ngrp,symops !,norbmto,ibastab,ltab,ktab,offl, symops_af
   use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, plat=>lat_plat,pos=>rv_a_opos
-  use m_bandcal,only: evlall
+  real(8):: evlall(:,:,:)
+!  use m_bandcal,only: evlall
   character strn*120,strn2*120
   integer:: iqread,iqindex,job,ist,ip,ni,ix,ifi,jsp,ncount,iq,iband,i,j,nbandx,ig
   real(8):: eferm,qvec(3),symxx(3,3)

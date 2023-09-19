@@ -1,24 +1,22 @@
-subroutine writefs(ef0)!Fermi surface mode (eigenvalues in full BZ). No output variables.
+subroutine writefs(evlall,eferm)!Fermi surface mode (eigenvalues in full BZ). No output variables.
   use m_lmfinit, only: nsp,nspc
   use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat
   use m_mkqp,only: bz_nabc
   use m_suham,only: ndhamx=>ham_ndhamx,nspx=>ham_nspx
   use m_qplist,only:nkp,qplist
-  use m_bandcal,only: evlall
+!  use m_bandcal,only: evlall
   use m_shortn3_qlat,only: shortn3_qlat,nout,nlatout
   implicit none
   logical:: cmdopt0,allband
-  real(8):: ppin(3),ef0
+  real(8):: ppin(3),eferm
   integer:: ip,i,isp,ififm,nbxx,iq,ib,nkk1,nkk2,nkk3,ifi
-  real(8):: rlatp(3,3),xmx2(3),vadd,qshort(3)
+  real(8):: rlatp(3,3),xmx2(3),vadd,qshort(3),evlall(:,:,:)
   integer:: iout 
   nkk1=bz_nabc(1)
   nkk2=bz_nabc(2)
   nkk3=bz_nabc(3)
   allband  = cmdopt0('--allband')
-  i=nsp
-  if(nspc==2) i=1
-  do isp=1,i
+  do isp=1,nsp/nspc
      if(isp==1) open(newunit=ifi, file='fermiup.bxsf')
      if(isp==2) open(newunit=ifi, file='fermidn.bxsf')
      if(isp==1) open(newunit=ififm, file='fermiup.data')
@@ -28,8 +26,8 @@ subroutine writefs(ef0)!Fermi surface mode (eigenvalues in full BZ). No output v
      write(ifi,*) "BEGIN_INFO"
      write(ifi,*) " # usage xcrysden --bxsf fermiup.bxsf"
      write(ifi,*) " # http://www.xcrysden.org/doc/XSF.html#2l.16"
-     write(ifi,'(a,f9.5)') "  Fermi Energy:",ef0
-     write(ififm,'(a,f9.5)') "  # Fermi Energy [eV]:",ef0
+     write(ifi,'(a,f9.5)') "  Fermi Energy:",eferm
+     write(ififm,'(a,f9.5)') "  # Fermi Energy [eV]:",eferm
      write(ififm,*) " # qshort(3) band_energy[eV]"
      write(ifi,*) "END_INFO"
      write(ifi,*)"BEGIN_BLOCK_BANDGRID_3D"
@@ -37,8 +35,7 @@ subroutine writefs(ef0)!Fermi surface mode (eigenvalues in full BZ). No output v
      write(ifi,*)"  BEGIN_BANDGRID_3D_simple_test"
      nbxx=0
      do ib=1,ndhamx
-        if(allband .OR. (minval(evlall(ib,isp,:))<ef0+0.5 .AND. &
-             maxval(evlall(ib,isp,:))>ef0-0.5)) then
+        if(allband .OR. (minval(evlall(ib,isp,:))<eferm+0.5 .AND.maxval(evlall(ib,isp,:))>eferm-0.5)) then
            nbxx=nbxx+1
         endif
      enddo
@@ -50,12 +47,10 @@ subroutine writefs(ef0)!Fermi surface mode (eigenvalues in full BZ). No output v
      write(ifi,"(4x,3(f9.5,1x))") qlat(:,3)
      !call shortn3_initialize(qlat)
      do ib=1,ndhamx
-        if(allband .OR. (minval(evlall(ib,isp,:))<ef0+0.5 .AND. &
-             maxval(evlall(ib,isp,:))>ef0-0.5)) then
+        if(allband .OR. (minval(evlall(ib,isp,:))<eferm+0.5 .AND. maxval(evlall(ib,isp,:))>eferm-0.5)) then
            write(ifi,"(a,i8)")"  BAND: ",ib
            write(ififm,"(a,i8)")"  # BAND: ",ib
-           write(ifi,"(3x,10(x,f9.5))") &
-                (evlall(ib,isp,iq), iq=1,nkk1*nkk2*nkk3)
+           write(ifi,"(3x,10(x,f9.5))") (evlall(ib,isp,iq), iq=1,nkk1*nkk2*nkk3)
            ! to reduce q-point to qshort
            do iq=1,nkk1*nkk2*nkk3
               ppin=matmul(transpose(plat),qplist(:,iq))

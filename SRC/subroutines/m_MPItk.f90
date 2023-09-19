@@ -82,8 +82,7 @@ contains
   end subroutine mlog_MPIiq
 
   ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-  subroutine xmpbnd2(kpproc,ndham,nkp,nspx,eb)
-    !use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq
+  subroutine xmpbnd2(kpproc,ndham,nkp,nspx,eb) !use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq
     !- Collect eb from various processors (MPI)
     ! ----------------------------------------------------------------------
     !i Inputs

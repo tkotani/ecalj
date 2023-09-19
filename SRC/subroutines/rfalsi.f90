@@ -1,8 +1,5 @@
-subroutine rfalsi(xn,fn,xtol,ftol,dxmn,dxmx,isw,wk,ir)
+subroutine rfalsi(xn,fn,xtol,ftol,dxmn,dxmx,isw,wk,ir)!- Find root of a function by a modified regular falsi method.
   use m_ftox
-  !- Find root of a function by a modified regular falsi method.
-  ! ----------------------------------------------------------------------
-  !i Inputs:
   !i  xn,fn: (point,function) pair; xn is also output; see below
   !i  xtol,ftol: tolerances in x or f.  1s digit of isw determines
   !i         which tolerance is used; see isw, below.

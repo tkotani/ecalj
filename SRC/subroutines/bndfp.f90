@@ -49,7 +49,7 @@ contains
     use m_mkqp,only: nkabc=> bz_nabc,ntet=> bz_ntet,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, plat=>lat_plat,pos=>rv_a_opos
     use m_rdsigm2,only: m_rdsigm2_init
-    use m_subzi, only: m_subzi_init, rv_a_owtkb,m_subzi_bzintegration !,m_subzi_setlwtkb !lwtkb,
+    use m_subzi, only: m_subzi_init, rv_a_owtkb,m_subzi_bzintegration 
     use m_rsibl, only : Rsibl_ev ! to plot wavefunction in the fat band mode
     use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq,xmpbnd2
     use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate, m_mkpot_energyterms,m_mkpot_novxc,& ! & m_mkpot_novxc_dipole,
@@ -60,7 +60,7 @@ contains
     use m_igv2x,only: napw,ndimh,ndimhx,igv2x
     use m_procar,only: m_procar_init,dwgtall,nchanp,m_procar_closeprocar,m_procar_writepdos
     use m_bandcal,only: m_bandcal_init,m_bandcal_2nd,m_bandcal_clean,m_bandcal_allreduce, &
-         evlall,smrho_out,oqkkl,oeqkkl, ndimhx_,nevls,m_bandcal_symsmrho
+         smrho_out,oqkkl,oeqkkl, ndimhx_,nevls,m_bandcal_symsmrho
     use m_mkrout,only: m_mkrout_init,orhoat_out,frcbandsym,hbyl_rv,qbyl_rv
     use m_addrbl,only: m_addrbl_allocate_swtk,swtk
     use m_sugw,only: m_sugw_init
@@ -90,7 +90,7 @@ contains
     !i         :dmxp(33)  is the Lindhard parameter???
     !i   iter  :current iteration number
     !i   maxit :maximum number of iterations
-    !i   evlall  : eigenvalues
+    !i   evlall  : eigenvalues in m_bandcal
     !i  LDA+U inputs and outputs
     !o   dmatu :density matrix for LDA+U (changed upon output)
     !i   vorb  :orbital dependent LDA+U potential
@@ -128,8 +128,8 @@ contains
     integer:: iter,i,ifi,ipr,iq,isp,jsp,iprint,ipts
     integer:: idummy, unlink,ifih,ifii,ib,ix,ifimag,nevmin,nnn
     real(8):: ekinval,eharris,eksham,  dosw(2),dum,evtop,ecbot,qp(3),rydberg,xxx,eeem
-    real(8):: fh_rv(3,nbas),vnow_magfield,eee,dosi(2),dee,efermxxx,emin,qvalm(2)
-    real(8),allocatable:: dosi_rv(:,:),dos_rv(:,:),qmom_in(:)
+    real(8):: fh_rv(3,nbas),vmag,eee,dosi(2),dee,efermxxx,emin,qvalm(2)
+    real(8),allocatable:: dosi_rv(:,:),dos_rv(:,:),qmom_in(:),evlallm(:,:,:),evlall(:,:,:)
     real(8),parameter::  NULLR =-99999,pi=4d0*datan(1d0)
     real(8):: elind=0d0
     call tcn ('bndfp')
@@ -138,12 +138,13 @@ contains
     fsmode = cmdopt0('--fermisurface')!FermiSurfece for xcrysden in http://www.xcrysden.org/doc/XSF.html#2l.16
     ipr    = iprint() ! for procid/=master, we set iprint=0 at lmv7.F
     ltet = ntet>0! tetrahedron method or not
-    GETefermFORplbnd: if(plbnd/=0) then
+    GETefermFORplbndMODE: if(plbnd/=0) then
        open(newunit=ifi,file='efermi.lmf')
        read(ifi,*) eferm  ! efermi.lmf can be different from efermi in rst.* file.
+       read(ifi,*) vmag   ! efermi.lmf can be different from efermi in rst.* file.
        close(ifi)         !  For example, you may change NKABC, and run job_pdos (lmf-MPIK --quit=band only modify efermi.lmf, without touching rst.*).
        call mpibc1_real(eferm,1,'bndfp_eferm')
-    endif GETefermFORplbnd
+    endif GETefermFORplbndMODE
     if(cmdopt0('--phispinsym')) call phispinsym_ssite_set() !pnu,pz are spin symmetrized ! Set spin-symmetrized pnu. aug2019. See also in pnunew and locpot
     writeham= cmdopt0('--writeham') ! Write out Hamiltonian HamiltonianPMT.*
     if(writeham) open(newunit=ifih,file='HamiltonianPMT.'//trim(strprocid),form='unformatted')
@@ -180,70 +181,63 @@ contains
     ! Set up Hamiltonian and diagonalization in m_bandcal_init. To know outputs, see 'use m_bandcal,only:'. The outputs are evlall, and so on.
     sttime = MPI_WTIME()
     if(nspc==2) call m_addrbl_allocate_swtk(ndham,nsp,nkp)
-    call m_bandcal_init(lrout,eferm,ifih) ! Do diagonalization resulting evlall 
-    entime = MPI_WTIME()
+    allocate( evlall(ndhamx,nspx,nkp))
+    call m_bandcal_init(lrout,eferm,vmag,ifih, evlall) ! Get Hamiltonian and diagonalization resulting evl and evec,evlall. 
+    entime = MPI_WTIME()                               ! eferm and vmag are only read by m_procar_init
     if(master_mpi) write(stdo,"(a,f9.4)") ' ... Done MPI k-loop: elapsed time=',entime-sttime
     if(writeham) close(ifih)
     if(writeham) call rx0('Done --writeham: --fullmesh may be needed. HamiltonianMTO* genereted')
     call mpibc2_int(ndimhx_,size(ndimhx_),'bndfp_ndimhx_') !all reduce (instead of which node to which node).
     call mpibc2_int(nevls,  size(nevls),  'bndfp_nevls')   !all reduce (to avoid which node to which node).
     call xmpbnd2(kpproc,ndhamx,nkp,nspx,evlall) !all eigenvalues broadcasted
-    evtop=-9999
-    ecbot=9999
-    do       iq=1,nkp
-       do   jsp=1,nspx     !nspx=1 for SO=1
-          do ix=1,ndhamx !2022dec evtop,ecbot for magnetic case
-             if(evlall(ix,jsp,iq)<eferm) evtop = max(evtop,evlall(ix,jsp,iq))
-             if(evlall(ix,jsp,iq)>eferm) ecbot = min(ecbot,evlall(ix,jsp,iq))
-          enddo
-          if(master_mpi .AND. iq==1)write(stdl,"('fp evl',8f8.4)")(evlall(i,jsp,iq),i=1,nevls(iq,jsp))
-       enddo
+    allocate(evlallm,mold=evlall)
+    do isp=1,nsp/nspc !nspx=nsp/nspc, where nspc=2 for spin-coupled case.
+       evlallm(:,isp,:)=evlall(:,isp,:)+vmag*(isp-1.5d0) !magnetic field addes. vmag=0 for non-fsmom mode.
     enddo
-    fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') ! pdos mode (--mkprocar and --fullmesh)
-    PROCARon = cmdopt0('--mkprocar') !write PROCAR(vasp format).
-    nevmin = minval(nevls(1:nkp,1:nspx))
-    if(fullmesh .AND. procaron) call m_procar_writepdos(evlall,nevmin,eferm,kpproc) !nev_
-    if(fullmesh .AND. procaron) call rx0('Done pdos: --mkprocar & --fullmesh. Check by "grep k-point PROCAR.*.*"')
-    if( cmdopt0('--boltztrap')) call writeboltztrap(eferm) ! boltztrap data
-    if( cmdopt0('--boltztrap')) call rx0('Done boltztrap: boltztrap.* are generated')
-    Writebandmode: if(plbnd/=0 ) then
-       if(master_mpi .AND. fsmode) call writefs(eferm) !fermi surface
-       if(master_mpi) then
-          write(stdo,*)' Writing bands to bands file for gnuplot ...'
-          if(nsyml/=0) call writeband(eferm,evtop,ecbot)
-       endif
-       if(fsmom/=NULLR) then
-          write(stdo,"(a)")'Caution: fsmom(fixed moment). In sc cycle, we use additional bias mag field  '
-          write(stdo,"(a)")'Caution: Mag.field is written in MagField. But it is not used for --band mode!'
-       endif
-       if(fsmode) call rx0('done --fermisurface mode. *.bxsf for xcryden generated')
-       call rx0('plot band mode done') ! end of band plbnd/=0, that is, band plot mode.
-    endif Writebandmode
-    if(plbnd/=0 .AND. fsmode) call rx0('done --fermisurface mode. *.bxsf for xcryden generated')
-    if(plbnd/=0) call rx0('plot band mode done') ! end of band plbnd/=0, that is, band plot mode.
-    call m_subzi_bzintegration(evlall,swtk, eferm,sev,qvalm,vnow_magfield) !Get the Fermi energy eferm,... New eferm and wtkb determined from evlall
-    MagFieldFSMOM: if(fsmom/=NULLR .AND. master_mpi) then 
-       open(newunit=ifimag,file='MagField')
-       write(ifimag,"(d23.16,' !(in Ry) -vnow/2 for isp=1, +vnow/2 for isp=2')")vnow_magfield 
-       close(ifimag)
-    endif MagFieldFSMOM ! -vnow_magfield/2 is added to isp=1, +vnow_magfield/2 to isp=2
-    evtop=-9999
-    ecbot=9999
-    eeem=9999
-    geteeem: do iq=1,nkp
-       do jsp=1,nspx     !nspx=1 for SO=1
-          do ix=1,ndhamx !2022dec evtop,ecbot for magnetic case
-             if(evlall(ix,jsp,iq)<eferm) evtop = max(evtop,evlall(ix,jsp,iq))
-             if(evlall(ix,jsp,iq)>eferm) ecbot = min(ecbot,evlall(ix,jsp,iq))
-             eeem = min(eeem,evlall(ix,jsp,iq)) !eeem for emin below
-          enddo
+    evtop=maxval(evlallm,mask=evlallm<eferm)
+    ecbot=minval(evlallm,mask=evlallm>eferm)
+    if(master_mpi) then; iq=1
+       do jsp=1,nspx
+          write(stdl,"('fp evl',8f8.4)")(evlallm(i,jsp,iq),i=1,nevls(iq,jsp))
        enddo
-    enddo geteeem
+    endif
+    PLOTmode: block
+      Procarmode:block
+        fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') ! pdos mode (--mkprocar and --fullmesh)
+        PROCARon = cmdopt0('--mkprocar') 
+        nevmin = minval(nevls(1:nkp,1:nspx))
+        if(fullmesh .AND. procaron) call m_procar_writepdos(evlallm,nevmin,eferm,kpproc) 
+        if(fullmesh .AND. procaron) call rx0('Done pdos: --mkprocar & --fullmesh. Check by "grep k-point PROCAR.*.*"')
+      endblock Procarmode
+      Boltztrap:if( cmdopt0('--boltztrap')) then
+         call writeboltztrap(evlallm,eferm) ! boltztrap data
+         call rx0('Done boltztrap: boltztrap.* are generated')
+      endif Boltztrap
+      Writebandmode: if(plbnd/=0 ) then ! -vmag/2 is added to isp=1, +vmag/2 to isp=2 for writefs and writeband at 2023-9-20
+         if(master_mpi) then
+            if(fsmode)  call writefs(evlallm,eferm)   !fermi surface !bias field vmag added  2023-9-20
+            write(stdo,*)' Writing bands to bands file for gnuplot ...'
+            if(nsyml/=0)call writeband(evlallm,eferm,evtop,ecbot) !bias field added  2023-9-20
+         endif
+         if(fsmode) call rx0('done --fermisurface mode. *.bxsf for xcryden generated')
+         call rx0('plot band mode done') ! end of band plbnd/=0, that is, band plot mode.
+      endif Writebandmode
+    endblock PLOTmode
+    call m_subzi_bzintegration(evlall,swtk, eferm,sev,qvalm,vmag) !Get the Fermi energy, vmag and wtkb, from evlall
+    deallocate(evlallm)
+    allocate(evlallm,mold=evlall)
+    do isp=1,nsp/nspc
+       evlallm(:,isp,:)=evlall(:,isp,:)+vmag*(isp-1.5d0)
+    enddo
+    evtop=maxval(evlallm,evlallm <eferm)
+    ecbot=minval(evlallm,evlallm >eferm)
+    emin =minval(evlallm) !for plot
     if(lmet==0) eferm = (evtop+ecbot)/2d0 !for metal
-    if(lmet==0 .AND. master_mpi) write(stdo,"(' HOMO; Ef; LUMO =',3f11.6)")evtop,eferm,ecbot
     if(master_mpi) then
+       if(lmet==0) write(stdo,"(' HOMO; Ef; LUMO =',3f11.6)")evtop,eferm,ecbot
        open(newunit=ifi,file='efermi.lmf')
        write(ifi,"(d24.16, ' # (Ry) Fermi energy given by lmf')") eferm
+       write(ifi,"(d24.16, ' # (Ry) Bias mag field -vmag/2 +vmag/2 for each spin')") vmag
        write(ifi,"(d24.16, ' # (Ry) Top of Valence')") evtop
        write(ifi,"(d24.16, ' # (Ry) Bottom of conduction')") ecbot
        write(ifi,"(2d24.16,' #before: number of electrons total at sites:qval, backg:qbg=')") qval,qbg
@@ -254,20 +248,19 @@ contains
        close(ifi)
     endif
     GenerateTotalDOS: if(master_mpi .AND. (tdos .OR. ldos/=0)) then !   emin=dosw(1) emax=dosw(2) dos range
-       emin = eeem-0.01d0 
-       dosw(1)= emin ! lowest energy limit to plot dos
+       dosw(1)= emin-0.01d0 ! lowest energy limit to plot dos
        dosw(2)= eferm+bz_dosmax !max energy limit to plot dos
        write(stdo,ftox)' bndfp:Generating TDOS: efermi=',ftof(eferm),' dos window emin emax= ',ftof(dosw)
        allocate( dosi_rv(ndos,nspx),dos_rv(ndos,nspx)) !for xxxdif
        if(cmdopt0('--tdostetf')) ltet= .FALSE. ! Set tetrahedron=F
        if(ltet) then
           nnn=nkabc(1)*nkabc(2)*nkabc(3)
-          call bzints(nnn,evlall,dum,nkp,nevmin,ndhamx,nspx,dosw(1),dosw(2),dosi_rv,ndos,xxx,1,ntet,iv_a_oidtet,dum,dum)!job=1 give IntegratedDos to dosi_rv
+          call bzints(nnn,evlallm,dum,nkp,nevmin,ndhamx,nspx,dosw(1),dosw(2),dosi_rv,ndos,xxx,1,ntet,iv_a_oidtet,dum,dum)!job=1 give IntegratedDos to dosi_rv
           dos_rv(2:ndos-1,:)=(dosi_rv(3:ndos,:)-dosi_rv(1:ndos-2,:))/(2d0*(dosw(2)-dosw(1))/(ndos-1))
           dos_rv(1,:)    = dos_rv(2,:)
           dos_rv(ndos,:) = dos_rv(ndos-1,:)
        else
-          call makdos(nkp,nevmin,ndhamx,nspx,rv_a_owtkp,evlall,bz_n,bz_w,-6d0,dosw(1),dosw(2),ndos,dos_rv) !ndmahx=>nevmin
+          call makdos(nkp,nevmin,ndhamx,nspx,rv_a_owtkp,evlallm,bz_n,bz_w,-6d0,dosw(1),dosw(2),ndos,dos_rv) !ndmahx=>nevmin
        endif
        if(lso==1) dos_rv=0.5d0*dos_rv 
        open(newunit=ifi, file='dos.tot.'//trim(sname) )
@@ -282,38 +275,31 @@ contains
        enddo
        close(ifi)
        close(ifii)
+       if(tdos) call rx0('Done tdos mode:')
     endif GenerateTotalDOS
-    if(tdos) call rx0('Done tdos mode:')
-!    if(lrout/=0) call m_bandcal_allreduce()!lwtkb) ! AllReduce band quantities.
-    emin=1d9
     if(master_mpi) write(stdo,ftox)
-    if(master_mpi) write(stdo,"('    ikp isp            q          nev ndimh',100i8)")[(i,i=1,min(nevmin,100))]
-    GETemin: do iq = 1,nkp
-       do jsp = 1,nspx
-          emin = min(minval(evlall(1:nevls(iq,jsp),jsp,iq)),emin)
-       enddo
-    enddo GETemin
-    WRITEeigenvaluesONconsole: if(master_mpi .AND. iprint()>=35) then
-       do iq = 1,nkp
-          qp=qplist(:,iq)
+    if(master_mpi) write(stdo,"('    ikp isp            q          nev ndimh',50i7)")[(i,i=1,min(nevmin,50))]
+    WRITEeigenvaluesConsole: if(master_mpi .AND. iprint()>=35) then
+       do    iq  = 1,nkp
+             qp  = qplist(:,iq)
           do jsp = 1,nspx
-             write(stdo,"('band:',i3,i2,x,3f8.4,' ',i3,' ',i3,100f8.4)") & !up to 100th band
-                  iq,jsp,qp,nevls(iq,jsp),ndimhx_(iq,jsp),[(evlall(i,jsp,iq), i=1,min(nevls(iq,jsp),100))]
+             write(stdo,"('  band:',i3,i2,x,3f7.3,' ',i3,' ',i3,100f7.3)") & !up to 50th band
+                  iq,jsp,qp,nevls(iq,jsp),ndimhx_(iq,jsp),[(rydberg()*(evlallm(i,jsp,iq)-eferm), i=1,min(nevls(iq,jsp),50))]
           enddo
        enddo
-    endif WRITEeigenvaluesONconsole
-    AccumurateSuminBZforwtkb: if(lrout>0) then !     call m_subzi_setlwtkb(1)
+    endif WRITEeigenvaluesConsole
+    AccumurateSuminBZforwtkb: if(lrout>0) then 
        call mpi_barrier(MPI_comm_world,ierr)
-       call m_bandcal_2nd(lrout)   !accumulate smrho_out and so on.
-       call m_bandcal_allreduce() !lwtkb)
+       call m_bandcal_2nd(lrout)  !accumulate smrho_out and so on.
+       call m_bandcal_allreduce() 
     endif AccumurateSuminBZforwtkb
     CorelevelSpectroscopy2: if(cmdopt0('--cls')) then !m_clsmode_set1 is called in m_bandcal
        dosw(1)= emin  - 0.5d0    ! lowest energy limit to plot dos
        dosw(2)= eferm + bz_dosmax ! highest energy limit to plot dos
-       call m_clsmode_finalize(eferm,ndimh,ndhamx,nspx,nkp,dosw,evlall)
+       call m_clsmode_finalize(eferm,ndimh,ndhamx,nspx,nkp,dosw,evlallm)
        call rx0('Done cls mode:')
     endif CorelevelSpectroscopy2
-    if(lso/=0) call iorbtm() !WriteOribitalMoment
+    if(lso/=0)  call iorbtm() !WriteOribitalMoment
     if(lrout/=0) call m_bandcal_symsmrho()  !Getsmrho_out Symmetrize smooth density ! Assemble output density, energies and forces 
     call m_mkrout_init() !Get force frcbandsym, symmetrized atomic densities orhoat_out, and weights hbyl,qbyl
     call pnunew(eferm) !pnuall are revised. !  New boundary conditions pnu for phi and phidot
@@ -352,6 +338,7 @@ contains
     ham_ehk= eksham  !Hohenberg-Kohn-Sham total energy
     call m_mkpot_deallocate()
     call m_bandcal_clean()
+    deallocate(evlall,evlallm)
     call tcx('bndfp')
   end subroutine bndfp
 end module m_bndfp

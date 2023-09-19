@@ -21,18 +21,21 @@ contains
     inquire(iprocar2,exist=nexist)
     if(nexist) close(iprocar2)
   end subroutine m_procar_closeprocar
-  subroutine m_procar_init(iq,isp,ef0,evl,ndimh,jsp,qp,nev,evec,ndimhx,nmx)
+  subroutine m_procar_init(iq,isp,ef0,vmag0,evl,ndimh,qp,nev,evec,ndimhx,nmx)
     use m_makusq,only: makusq
     implicit none
     complex(8):: evec(ndimhx,nmx)
     character*1000::ccc
     real(8):: ef0
     complex(8):: auasaz(3)
-    real(8):: s11,s22,s33,s12,s13,s23,dwgt(100),dwgtt(100),xdat,qold(3),qp(3)
+    real(8):: s11,s22,s33,s12,s13,s23,dwgt(100),dwgtt(100),xdat,qold(3),qp(3),vmag0
     complex(8),allocatable:: auspp(:,:,:,:,:)
-    integer:: iq,isp,jspini,jspend,jspp,iprocar,iband,is,ilm,ndimh,nspc,jsp,ib,nev,i,m,l,ndimhx,nmx
+    integer:: iq,isp,iprocar,iband,is,ilm,ndimh,nspc,ib,nev,i,m,l,ndimhx,nmx
     real(8):: rydberg=13.6058d0,evl(ndhamx,nspx)
     logical:: cmdopt0
+    real(8),allocatable:: evlm(:,:)
+    allocate(evlm,mold=evl)
+    evlm(:,isp)=evl(:,isp) + vmag0*(isp-1.5d0)
     fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface')
     debug = cmdopt0('--debugbndfp')
     PROCARon = cmdopt0('--mkprocar') !write PROCAR(vasp format).
@@ -51,13 +54,10 @@ contains
     endif
     allocate( auspp(nlmax,ndhamx,3,nsp,nbas) )
     auspp = 0d0
-    call makusq(nbas,[-999], nev,jsp,1,qp,evec, auspp ) !for (u,s,gz) !correct 2023-jan mode=0
-    jspini=isp
-    jspend=isp
-    jspp=isp
-    if(jspp==1) iprocar=iprocar1
-    if(jspp==2) iprocar=iprocar2
-    if(debug) write(stdo,*) 'm_procar',iprocar1,iprocar2,jspp,iprocar,ef0,nlmax,ndham,nspc,nsp,nbas
+    call makusq(nbas,[-999], nev,isp,1,qp,evec, auspp ) !for (u,s,gz) !correct 2023-jan mode=0
+    if(isp==1) iprocar=iprocar1
+    if(isp==2) iprocar=iprocar2
+    if(debug) write(stdo,*) 'm_procar',iprocar1,iprocar2,isp,iprocar,ef0,nlmax,ndham,nspc,nsp,nbas
     ccc="ion        s       py       pz       px      dxy      dyz      dz2      dxz   dx2-y2"// &
          "      f-3      f-2      f-1       f0       f1       f2       f3"// &
          "                                                                                 tot"
@@ -67,7 +67,7 @@ contains
     write(iprocar,*)
     do iband = 1, nev
        write(iprocar,*)
-       write(iprocar,"('band ',i3,' # energy ',f13.8,' # occ. -----' )")iband,(evl(iband,jsp)-ef0)*rydberg
+       write(iprocar,"('band ',i3,' # energy ',f13.8,' # occ. -----' )")iband,(evlm(iband,isp)-ef0)*rydberg
        write(iprocar,*)
        dwgtt=0d0
        do ib = 1, nbas
@@ -77,9 +77,9 @@ contains
           do  l = 0, sspec(is)%lmxa
              do  m = -l, l
                 ilm = ilm+1 !ilm,ib --> evec(ix,
-                auasaz = auspp(ilm,iband,1:3,jspp,ib)
-                !as = auspp(ilm,iband,2,jspp,ib)
-                !az = auspp(ilm,iband,3,jspp,ib)
+                auasaz = auspp(ilm,iband,1:3,isp,ib)
+                !as = auspp(ilm,iband,2,isp,ib)
+                !az = auspp(ilm,iband,3,isp,ib)
                 !Note au,as,az are coefficients for phi1*Ylm phi2*Ylm phi3*Ylm.
                 ! If --ylmc, Ylm(complex) is assumed.
                 !  u=phi1: linear combination of phi,phidot (val=1 slo=0) at MP
@@ -94,26 +94,26 @@ contains
                      ilmm = ilm-2*m
                      if(m>0) then
                         auasaz =[&
-                             dsq*(-1)**m*(auspp(ilm,iband,1,jspp,ib)-img*auspp(ilmm,iband,1,jspp,ib)),&
-                             dsq*(-1)**m*(auspp(ilm,iband,2,jspp,ib)-img*auspp(ilmm,iband,2,jspp,ib)),&
-                             dsq*(-1)**m*(auspp(ilm,iband,3,jspp,ib)-img*auspp(ilmm,iband,3,jspp,ib))]
+                             dsq*(-1)**m*(auspp(ilm,iband,1,isp,ib)-img*auspp(ilmm,iband,1,isp,ib)),&
+                             dsq*(-1)**m*(auspp(ilm,iband,2,isp,ib)-img*auspp(ilmm,iband,2,isp,ib)),&
+                             dsq*(-1)**m*(auspp(ilm,iband,3,isp,ib)-img*auspp(ilmm,iband,3,isp,ib))]
                      elseif(m<0) then
-                        auasaz = [dsq*(img*auspp(ilm,iband,1,jspp,ib) + auspp(ilmm,iband,1,jspp,ib)),&
-                             dsq*(img*auspp(ilm,iband,2,jspp,ib) + auspp(ilmm,iband,2,jspp,ib)),&
-                             dsq*(img*auspp(ilm,iband,3,jspp,ib) + auspp(ilmm,iband,3,jspp,ib))]
+                        auasaz = [dsq*(img*auspp(ilm,iband,1,isp,ib) + auspp(ilmm,iband,1,isp,ib)),&
+                             dsq*(img*auspp(ilm,iband,2,isp,ib) + auspp(ilmm,iband,2,isp,ib)),&
+                             dsq*(img*auspp(ilm,iband,3,isp,ib) + auspp(ilmm,iband,3,isp,ib))]
                      endif
                   endif
                 EndBlock pdosc
                 dwgt(ilm)= sum( dconjg(auasaz) & ! auasaz is for phi,phidot,pz(val=slo=0)
-                     *matmul( sab_rv(:,:,l+1,jspp,ib),auasaz)) !bugfix 2023-4-28 based on suzuki's report for cDyN. ! sab(3,3,l+1,isp,ib)
-!bug before 2023-4-28           *matmul( sab_rv(:,:,l+1+n0*(ib-1)+n0*nbas*(jspp-1)),auasaz)) 
+                     *matmul( sab_rv(:,:,l+1,isp,ib),auasaz)) !bugfix 2023-4-28 based on suzuki's report for cDyN. ! sab(3,3,l+1,isp,ib)
+!bug before 2023-4-28           *matmul( sab_rv(:,:,l+1+n0*(ib-1)+n0*nbas*(isp-1)),auasaz)) 
              enddo
           enddo
           dwgtt = dwgtt + dwgt(1:ilm)
           if(ib==1)  write(iprocar,"(a)") trim(ccc)
           write(iprocar,"(i3,100(x,f8.5))")ib,(dwgt(i),i=1,nchanp),sum(dwgt)
           if(ib==nbas) write(iprocar,"('tot',100(x,f8.5))")(dwgtt(i),i=1,nchanp),sum(dwgtt)
-          if(fullmesh) dwgtall(1:nchanp,ib,iband,jspp,iq) = dwgt(1:nchanp)
+          if(fullmesh) dwgtall(1:nchanp,ib,iband,isp,iq) = dwgt(1:nchanp)
        enddo
     enddo
     deallocate( auspp )
@@ -124,7 +124,7 @@ contains
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, plat=>lat_plat,pos=>rv_a_opos
     use m_ext,only:sname
     use m_tetirr,only: tetirr
-    real(8) evlall(:,:,:)
+    real(8):: evlall(:,:,:)
 !    integer:: nev_(:)
     logical:: cmdopt0
     integer:: kpproc(*)

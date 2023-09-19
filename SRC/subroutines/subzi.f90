@@ -124,9 +124,7 @@ contains
     endif
     call tcx('m_subzi_init')
   end subroutine m_subzi_init
-
-  ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-  subroutine m_subzi_bzintegration(evlall,swtk, eferm,sev,sumqv,vnow)
+  subroutine m_subzi_bzintegration(evlall,swtk, eferm,sev,sumqv,vmag)
     use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq
     use m_lmfinit, only: lso,nsp,ham_scaledsigma,nlibu,lmaxu,bz_w, &
          lmet=>bz_lmet,stdo,nbas,epsovl=>ham_oveps,nspc,bz_n,bz_fsmommethod,qbg=>zbak,fsmom=>bz_fsmom,ndos=>bz_ndos
@@ -140,11 +138,11 @@ contains
     use m_bzwts,only: bzwtsf,bzwtsf2
     implicit none
     intent(in)::                     evlall,swtk
-    intent(out)::                                 eferm,sev,sumqv,vnow
+    intent(out)::                                 eferm,sev,sumqv,vmag
     logical:: lfill=.false.,ltet
     logical:: debug,cmdopt0 !goto99,
     integer:: ierr,ifimag,i,ifi,unlink !,iobzwt
-    real(8):: dosrng,evlall(*),sev,sumqv(3,*),eferm,vnow,ef0,bz_ef
+    real(8):: dosrng,evlall(*),sev,sumqv(3,*),eferm,vmag,ef0,bz_ef
     real(8),parameter::    NULLR =-99999
     real(8):: swtk(*)
     call tcn('m_subzi_bzintegration')
@@ -153,42 +151,25 @@ contains
     !      qbg = ctrl_zbak(1) !homogenious background charge
     debug    = cmdopt0('--debugbndfp')
     if (master_mpi) ierr=unlink('MagField') !delete
-    !! --- BZ integration for fermi level, band sum and qp weights ---
+    ! --- BZ integration for fermi level, band sum and qp weights ---
     dosrng = 8
     if (bz_n < 0) dosrng = 16
-    if(bz_fsmommethod == 1) then !takao dec2010
-       !     ! vnow june22013 !vnow !(in Ry) contains magnetic field
-       !     ! For eigenvalus, add  -vnow/2 for isp=1, and +vnow/2 for isp=2.
+    if(bz_fsmommethod == 1) then ! vmag (in Ry) contains magnetic field
+       !     ! For eigenvalus, add  -vmag/2 for isp=1, and +vmag/2 for isp=2.
        call bzwtsf2 ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc &
             ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_a_oidtet , qval-qbg,& ! & note qval is output
-       fsmom , lmet.ne.0 , ltet , bz_n , ndos , bz_w &
+            fsmom , lmet.ne.0 , ltet , bz_n , ndos , bz_w &
             , dosrng , rv_a_owtkp , evlall ,  lswtk , swtk &
-            , eferm , sev , rv_a_owtkb , sumqv ( 1 , 2 ) ,lfill,vnow)!, lwtkb
+            , eferm , sev , rv_a_owtkb , sumqv ( 1 , 2 ) ,lfill,vmag)!, lwtkb
     else
-       !     ! vnow june22013
        call bzwtsf ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc &
             ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_a_oidtet , qval-qbg , &
             fsmom , lmet.ne.0 , ltet , bz_n , ndos , bz_w &
             , dosrng , rv_a_owtkp , evlall , lswtk , swtk &
-            , eferm , sev , rv_a_owtkb , sumqv ( 1 , 2 )  ,lfill, vnow) !, lwtkb
+            , eferm , sev , rv_a_owtkb , sumqv ( 1 , 2 )  ,lfill, vmag) !, lwtkb
     endif
-    !     ! june2013 magfield is added
-    if(fsmom/=NULLR .AND. master_mpi) then
-       open(newunit=ifimag,file='MagField',status='unknown')
-       write(ifimag,"(d23.16,' !(in Ry) -vnow/2 for isp=1, +vnow/2 for isp=2')")vnow
-       close(ifimag)
-    endif
-    !     !         Store val charge & magnetic moment in sumqv(1..2)
     sumqv(1,1) = sumqv(1,2)
     sumqv(2,1) = sumqv(2,2)
-    ! if (lmet > 0) then
-    !    if (master_mpi) then
-    !       open(newunit=ifi,file='wkp.'//trim(sname),form='unformatted')
-    !       write(ifi) ndhamx,nkp,nspx
-    !       write(ifi) rv_a_owtkb
-    !       close(ifi)
-    !    endif
-    ! endif
     call tcx('m_subzi_bzintegration')
   end subroutine m_subzi_bzintegration
 end module m_subzi

@@ -1,9 +1,9 @@
-subroutine writeband(eferm,evtop,ecbot) !write band file. bnd* and bandplot.isp*.glt
+subroutine writeband(evlall,eferm,evtop,ecbot) !write band file. bnd* and bandplot.isp*.glt
   use m_lmfinit,only:stdo,nsp,alat=>lat_alat
   use m_qplist,only: nkp,nsyml,xdatt,nqp_syml,nqp2n_syml,qplist,labeli,labele, &
        nqps_syml,nqpe_syml,dqsyml,etolv,etolc
   use m_suham,only: ndham=>ham_ndham, ndhamx=>ham_ndhamx,nspx=>ham_nspx
-  use m_bandcal,only:nevls,evlall
+  use m_bandcal,only:nevls
   use m_ext,only: sname
   implicit none
   real(8),intent(in):: eferm,evtop,ecbot ! evtop is max of n-th band. !evbot is bottom of bands upper than n+1
@@ -23,12 +23,13 @@ subroutine writeband(eferm,evtop,ecbot) !write band file. bnd* and bandplot.isp*
   character(100),allocatable:: fnameb(:,:),fnamem(:,:,:)
   logical:: initii
   logical:: semiconband,metalband
-  integer:: idat,ichangesign,ifglts(2),iqplist
+  integer:: idat,ichangesign,ifglts(2),iqplist,isp
   character(100)::acrossef
   character(13)::massd,mass2d
   logical:: scd
   real(8)::kef
   real(8),allocatable:: kabs(:)
+  real(8)::  evlall(ndhamx,nspx,nkp)
   scd= evtop <ecbot
   tpiba = 2d0*4d0*datan(1d0)/alat
   !! ikpoffset
@@ -127,85 +128,6 @@ subroutine writeband(eferm,evtop,ecbot) !write band file. bnd* and bandplot.isp*
 4113 enddo
 4111 enddo
   close(iqplist)
-
-  !$$$
-  !$$$!! write massplotband.glt for gnuplot
-  !$$$!! write massplot.glt for gnuplot (curvature, not the slope for metal).
-  !$$$      allocate(fnamem(minval(nevls(:,:)),nsymln+1:nsyml,nspx))
-  !      do jsp = 1, nspx
-  !$$$c        fname='massplot.isp'//char(48+jsp)
-  !$$$c        open(newunit=ifmglt,file=trim(fname)//'.glt')
-  !$$$        fname2='massplotband.isp'//char(48+jsp)
-  !$$$c        open(newunit=ifmglt2,file=trim(fname2)//'.glt')
-  !$$$c   set terminal postscript enhanced color eps
-  !$$$c   set output 'temp.eps'
-  !$$$c        write(ifmglt,'(a)')'set terminal postscript enhanced color eps'
-  !$$$c        write(ifmglt,'(a)')'set output "'//trim(fname)//'.eps"'
-  !$$$c        write(ifmglt,'(a,i1)')'set multiplot layout 1,',nsyml-nsymln
-  !$$$c        write(ifmglt,'(a)')'set xzeroaxis'
-  !$$$c        write(ifmglt,'(a)')'set grid'
-  !$$$c        write(ifmglt,'(a)')'set ylabel "mass/mass(electron)"'
-  !$$$c        write(ifmglt,'(a)')'set xlabel " |q|/(2pi/alat) "'
-  !$$$c        write(ifmglt,'(a)')'# If necessary, see subroutine writeband given in lm7K/fp/bndfp.F for your purpose!'
-  !$$$
-  !$$$c$$$        write(ifglt,'(a)')'set terminal postscript enhanced color eps'
-  !$$$c$$$        write(ifglt,'(a)')'set output "'//trim(fname2)//'.eps"'
-  !$$$c$$$        write(ifglt,'(a,i1)')'set multiplot layout 1,',nsyml-nsymln
-  !$$$c$$$        write(ifglt,'(a)')'set xzeroaxis'
-  !$$$c$$$        write(ifglt,'(a)')'set grid'
-  !$$$c$$$        write(ifglt,'(a)')'set ylabel " e - E(fermi) (eV)"'
-  !$$$c$$$        write(ifglt,'(a)')'set xlabel " |q| " '
-  !$$$c$$$        write(ifglt,'(a)')'# If necessary, see subroutine writeband given in lm7K/fp/bndfp.F for your purpose!'
-  !$$$c$$$        if(nspx==1) addx=''
-  !$$$c$$$        if(nspx==2) addx=' isp='//char(48+jsp)
-  !$$$c$$$c        write(ifmglt,*)
-  !        do isyml = nsymln+1,nsyml
-  !$$$          ne = nqpe_syml(isyml)-nqps_syml(isyml)+1
-  !$$$c$$$c          if(scd)         aaa='# insul u ($5):($8)'
-  !$$$c$$$c          if(.not.scd)    aaa='# metal u ($5):($9)'
-  !$$$c$$$c          if(.not.scd)    aaa='# metal u ($5):($8)'
-  !$$$c$$$c          write(ifmglt,'(a)')'set title "Mass '//trim(sname)//trim(addx)//
-  !$$$c$$$c     &    ' '//trim(labeli(isyml))//'--'//trim(labele(isyml))//' '//trim(aaa)//'"'
-  !$$$c$$$c          write(ifmglt,'(a,F12.5,a)') 'set xrange [0.0:',xdatt(ikpoff(isyml+1))-disoff(isyml),']'
-  !$$$c$$$c          write(ifmglt,"('plot \')")
-  !$$$c$$$          write(ifglt,'(a)')'set title "Band '//trim(sname)//trim(addx)//
-  !$$$c$$$     &    ' '//trim(labeli(isyml))//'--'//trim(labele(isyml))//'"'
-  !$$$c$$$          write(ifglt,'(a,F12.5,a)') 'set xrange [0.0:',xdatt(ikpoff(isyml+1))-disoff(isyml),']'
-  !$$$          write(ifglt,'(a,F12.5)') 'tpia=2*3.1415926/',alat
-  !$$$          write(ifglt,"('plot \')")
-  !$$$          ibb=0
-  !$$$          ikps= ikpoff(isyml)+1
-  !$$$          initii=.true.
-  !          do i=1,minval(nevls(:,:))
-  !$$$            eee = evlall(i,jsp,ikps)
-  !$$$            semiconband = scd .and. evtop-etolv<eee .and. eee<ecbot+etolv .and. isyml>nsymln !check i-th band is neare VCM and CBM
-  !$$$            idat= ichangesign(evlall(i,jsp,ikps:ikps+ne-1)-eferm,ne) !for metal crosspoint point across eferm
-  !$$$            metalband  = idat>-1 .and. isyml>nsymln !check i-th band is near VCM and CBM
-  !$$$            if(semiconband.or.metalband) then
-  !               ibb = ibb+1
-  !               fnamem(ibb,isyml,jsp)='Band'//charnum3(ibb)//'Syml'//charnum3(isyml)//'Spin'//char(48+jsp)//'.mass'
-  !$$$c               if(.not.initii) write(ifmglt,'(",\")')
-  !$$$c               if(scd)         aaa='" u ($5):($8) lt'
-  !$$$c               if(.not.scd)    aaa='" u ($5):($9) lt'
-  !$$$c               write(bchar,"(a,i2,a,i2,a,i3,a)") '"'//trim(fnamem(ibb,isyml,jsp))//trim(aaa),
-  !$$$c     &         ibb,' pt ',ibb,' w lp ti "band=',i,'"'
-  !$$$c               write(ifmglt,"(a,$)")trim(bchar)
-  !$$$               if(.not.initii) write(ifglt,'(",\")')
-  !$$$               aaa='" u (tpia*$5):($6) lt'
-  !$$$               write(bchar,"(a,i2,a,i2,a,i3,a)") '"'//trim(fnamem(ibb,isyml,jsp))//trim(aaa),
-  !$$$     &         ibb,' pt ',ibb,' w lp ti "band=',i,'"'
-  !$$$               write(ifglt,"(a,$)")trim(bchar)
-  !$$$               initii=.false.
-  !$$$            endif
-  !          enddo
-  !$$$c          write(ifmglt,*)
-  !$$$c          write(ifmglt,'(a)')'unset ylabel'
-  !$$$          write(ifglt,*)
-  !$$$          write(ifglt,'(a)')'unset ylabel'
-  !$$$        enddo
-  !$$$c        close(ifmglt)
-  !$$$c        close(ifmglt2)
-  !      enddo
   
   !! Write Band*Syml*Spin*.dat : These are between [VBM(left)-etolv(Ry), CBM(left) + etolc(Ry)]
   allocate(fnamem(minval(nevls(:,:)),nsyml,nspx))

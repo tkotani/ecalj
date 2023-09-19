@@ -630,7 +630,7 @@ contains
   !!  (Takao think this bzwtsf2 may need to be modified for solids).
   subroutine bzwtsf2(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval, & !!== FSMOMMETHOD=1 == June2011 takao
        fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb,lswtk, &
-       swtk,efermi,sumev,wtkb,qval,lfill,vnow) !,lwtkb
+       swtk,efermi,sumev,wtkb,qval,lfill,vmag) !,lwtkb
     use m_lmfinit,only: stdo
     use m_ftox
 
@@ -686,7 +686,7 @@ contains
          wtkb(nevx,nsp,nkp),swtk(nevx,nsp,nkp),efermi,sumev,qval(2)
     ! Local variables
     integer :: ikp,ib,ipr,itmax,iter,iprint
-    double precision :: amom,dosef(2),vhold(12),vnow,dvcap,dv,ef0,ent
+    double precision :: amom,dosef(2),vhold(12),vmag,dvcap,dv,ef0,ent
     parameter (dvcap=.2d0,itmax=50)
 
     logical:: agreemom
@@ -696,8 +696,7 @@ contains
     real(8),allocatable:: ebs(:,:,:)
     real(8):: ele1,ele2
     integer:: itermx
-    logical:: quitvnow,lfill
-
+    logical:: quitvmag,lfill
     ! --- Fermi level without spin constraint ---
     call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval, &
          metal,tetra,norder,npts,width,rnge,wtkp,eb,efermi, &
@@ -718,12 +717,10 @@ contains
        write(stdo,*) 'spin weights not available ... no spin moment calculated'
        return
     endif
+    vmag=0d0
+    if (fmom==NULLR) return 
     !! --- Setup for fixed-spin moment method ---
-    if (fmom==NULLR)return ! .OR. lwtkb == 0) return
-    !      if (fmom==NULLR .or. lwtkb .eq. 0) call rx('bzwtsf2: check logic of lwtkb')
-
     call tcn('bzwtsf2')
-
     ele1 = (zval+fmom)/2d0
     ele2 = (zval-fmom)/2d0
     nmom1 = ele1+1d-8
@@ -740,12 +737,12 @@ contains
     else
        ehomo2= elumo2 - 0.5d0
     endif
-    vnow = (ehomo1+elumo1)/2d0 -(ehomo2+elumo2)/2d0
+    vmag = (ehomo1+elumo1)/2d0 -(ehomo2+elumo2)/2d0
     efermi= ((ehomo1+elumo1)/2d0 +(ehomo2+elumo2)/2d0)/2d0 !/2d0 bug fix Jun26,2014 this only affects to the message.
     write(stdo,"('bzwtsf2: zval fmom nmon1 nmom2=',2f12.8,2x,2i3)")zval,fmom,nmom1,nmom2
     write(stdo,"('bzwtsf2: HOMOup LUMOup Diff=',3f20.15,' (Diff=0.5forNoOccupied)')")ehomo1,elumo1,elumo1-ehomo1
     write(stdo,"('bzwtsf2: HOMOdn LUMOdn Diff=',3f20.15,' (Diff=0.5forNoOccupied)')")ehomo2,elumo2,elumo2-ehomo2
-    write(stdo,"('bzwtsf2: Set Bias initial cond. -Vup+Vdn=',f20.15)")vnow
+    write(stdo,"('bzwtsf2: Set Bias initial cond. -Vup+Vdn=',f20.15)")vmag
 
     !!= takao interted a block taken from original version of bzwtsf.F June-2 2011.=
     vhold= 0d0
@@ -755,18 +752,18 @@ contains
     !!== do loop for new guess at potential shift ==
     ! bisection method takao
     itermx=100
-    quitvnow=.false.
+    quitvmag=.false.
     do 10 iter=1,itermx
        !! Potential shift
        allocate(ebs(nevx,2,nkp))
        if (nspc == 2) then
-          ebs = eb + vnow/2*swtk
+          ebs = eb + vmag/2*swtk
        else
-          ebs(:,1,:) = eb(:,1,:) - vnow/2d0
-          ebs(:,2,:) = eb(:,2,:) + vnow/2d0
+          ebs(:,1,:) = eb(:,1,:) - vmag/2d0
+          ebs(:,2,:) = eb(:,2,:) + vmag/2d0
        endif
        !! Fermi level with dv shift
-       if( .NOT. quitvnow) call pshpr(ipr-50)
+       if( .NOT. quitvmag) call pshpr(ipr-50)
        call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval, &
             metal,tetra,norder,npts,width,rnge,wtkp,ebs,efermi, &
             sumev,wtkb,dosef,qval,ent,lfill)
@@ -776,18 +773,18 @@ contains
           write(stdo,922) amom
        endif
        deallocate(ebs)
-       if ( .NOT. quitvnow) call poppr
-       if(quitvnow) exit
+       if ( .NOT. quitvmag) call poppr
+       if(quitvmag) exit
        !!=== Magnetic moment ===
        call bzwtsm(lswtk.eq.1.and.nspc.eq.2,nkp,nsp,nevx,wtkb,swtk,amom)
-       if(ipr>=41)write(stdo,ftox)' -Vup+Vdn=',ftof(vnow,8),'yields ef=',ftof(efermi), &
+       if(ipr>=41)write(stdo,ftox)' -Vup+Vdn=',ftof(vmag,8),'yields ef=',ftof(efermi), &
             'amom',ftof(amom),'when seeking mom=',ftof(fmom)
        ! takao for molecule Dec1 2010
        agreemom= abs(amom-fmom) < 1d-6 ! 1d-6 on June-2 2011
        if(iprint()>60) print *,'ttttt amom fmom=',amom,fmom,agreemom
-       call dvdos(vnow,amom,dosef(1),vhold,fmom,dvcap,dv)
+       call dvdos(vmag,amom,dosef(1),vhold,fmom,dvcap,dv)
        if(agreemom) vhold(12)=0
-       quitvnow=.false.
+       quitvmag=.false.
        if (abs(dv) < 1d-6 .OR. agreemom) then
           if (vhold(12) == -2 .OR. vhold(12) == -3 .OR. &
                vhold(12) ==  0 .OR. vhold(12) ==  1) then
@@ -795,22 +792,22 @@ contains
                   write(stdo,ftox)' BZWTSF2: potential shift bracketed.', &
                   'Unconstrained efermi=',ftof(ef0), &
                   'constraint fmom=',ftof(fmom),'actual mmom=',amom, &
-                  'ef=',efermi,'-Vup+Vdn=',vnow
-             quitvnow=.true.
+                  'ef=',efermi,'-Vup+Vdn=',vmag
+             quitvmag=.true.
           endif
        else if (iter == itmax) then
           if (ipr >= 10) &
                write(stdo,ftox)' BZWTSF2: failed to converge potential shift', &
                'after',iter,'iterations.', &
                'constraint fmom=',ftof(fmom),'actual amom=',ftof(amom), &
-               'ef=',ftof(efermi),'-Vup+Vdn=',ftof(vnow)
-          quitvnow=.true.
+               'ef=',ftof(efermi),'-Vup+Vdn=',ftof(vmag)
+          quitvmag=.true.
        endif
 10  enddo
     ele1 = (zval+amom)/2d0
     ele2 = (zval-amom)/2d0
-    sumev=sumev+ ele1*(vnow/2d0) - ele2*(vnow/2d0) !sumev correction takao
-    if(iprint()>20) write(stdo,ftox)' bzwtsf2(METHOD=1): Set Bias field -Vup+Vdn=',ftof(vnow,8)
+    sumev=sumev+ ele1*(vmag/2d0) - ele2*(vmag/2d0) !sumev correction takao
+    if(iprint()>20) write(stdo,ftox)' bzwtsf2(METHOD=1): Set Bias field -Vup+Vdn=',ftof(vmag,8)
 !    if (lswtk == 1 .AND. lwtkb == 1) then
 !       call rx('bzwtsf2:111 tk think not used here')
 !    elseif (lswtk == 1 .AND. lwtkb == 2) then
@@ -820,7 +817,7 @@ contains
   end subroutine bzwtsf2
   subroutine bzwtsf(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval, & !== FSMOMMETHOD=0 ogiginal version(modified version. fmom=0 is allowed.)==
        fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb,lswtk, & !- BZ integration for fermi level, band sum and qp weights, fixed-spin
-       swtk,efermi,sumev,wtkb,qval,lfill,vnow) !,lwtkb
+       swtk,efermi,sumev,wtkb,qval,lfill,vmag) !,lwtkb
     use m_lmfinit,only: stdo
     use m_ftox
     !i Inputs
@@ -873,7 +870,7 @@ contains
          wtkb(nevx,nsp,nkp),swtk(nevx,nsp,nkp),efermi,sumev,qval(2)
     ! Local variables
     integer :: ikp,ib,ipr,itmax,iter,iprint
-    double precision :: amom,dosef(2),vhold(12),vnow,dvcap,dv,ef0,ent
+    double precision :: amom,dosef(2),vhold(12),vmag,dvcap,dv,ef0,ent
     parameter (dvcap=.2d0,itmax=50)
 
     real(8):: ele1,ele2
@@ -881,17 +878,14 @@ contains
     logical:: agreemom
     real(8),parameter::    NULLR =-99999
     real(8),allocatable:: ebs(:,:,:)
-    logical:: quitvnow,lfill
-
+    logical:: quitvmag,lfill
     !!== Fermi level without spin constraint ==
     call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval, &
          metal,tetra,norder,npts,width,rnge,wtkp,eb,efermi, &
          sumev,wtkb,dosef,qval,ent,lfill)
     if (nsp == 1) return
-
     call getpr(ipr)
     !      stdo = globalvariables%stdo
-
     !!== Make and print out magnetic moment ==
     if ((lswtk == 1 .OR. nspc == 1) .AND. metal) then
        call bzwtsm(lswtk.eq.1.and.nspc.eq.2,nkp,nsp,nevx,wtkb,swtk,amom)
@@ -902,14 +896,11 @@ contains
        write(stdo,*)'spin weights not available ... no spin moment calculated'
        return
     endif
-
     !!== Setup for fixed-spin moment method ==
-    !      if (fmom .eq. 0 .or. lwtkb .eq. 0) return
-    if (fmom==NULLR) return  !.OR. lwtkb == 0) return
-    !      if (fmom==NULLR .or. lwtkb .eq. 0) call rx('bzwtsf:check logic of lwtkb')
+    vmag = 0d0
+    if (fmom==NULLR) return  
     call tcn('bzwtsf')
     call dpzero(vhold,12)
-    vnow = 0
     ef0 = efermi
     write(stdo,*)' Seek potential shift for fixed-spin mom ...'
     !!== do loop for new guess at potential shift ==
@@ -918,14 +909,14 @@ contains
     do 10 iter=1,itermx
        !!=== Magnetic moment ===
        call bzwtsm(lswtk.eq.1.and.nspc.eq.2,nkp,nsp,nevx,wtkb,swtk,amom)
-       if(ipr>=41) write(stdo,ftox)' -Vup+Vdn=',ftof(vnow,8),'yields ', &
+       if(ipr>=41) write(stdo,ftox)' -Vup+Vdn=',ftof(vmag,8),'yields ', &
             'ef=',ftof(efermi),'amom=',ftof(amom),'when seeking',ftof(fmom)
        agreemom= abs(amom-fmom) < 1d-3
        if(iprint()>60) print *,'ttttt amom fmom=',amom,fmom,agreemom
-       call dvdos(vnow,amom,dosef(1),vhold,fmom,dvcap,dv)
+       call dvdos(vmag,amom,dosef(1),vhold,fmom,dvcap,dv)
        if(agreemom) vhold(12)=0
        !      if (abs(dv) .lt. 1d-6) then
-       quitvnow=.false.
+       quitvmag=.false.
        if (abs(dv) < 1d-6 .OR. agreemom) then
           !       A root was found
           if (vhold(12) == -2 .OR. vhold(12) == -3 .OR. &
@@ -933,27 +924,27 @@ contains
              if (ipr >= 10) write(stdo,ftox)' BZWTSF: potential shift bracketed.', &
                   'Unconstrained efermi=',ftof(ef0), &
                   'constraint fmom=',ftof(fmom),'actual mmom=',ftof(amom), &
-                  'ef=',ftof(efermi),'-Vup+Vdn=',ftof(vnow,8)
-             quitvnow=.true.
+                  'ef=',ftof(efermi),'-Vup+Vdn=',ftof(vmag,8)
+             quitvmag=.true.
           endif
        else if (iter == itmax) then
           if(ipr>=10)then
              write(stdo,ftox)' BZWTSF: failed to converge potential shift after',iter,'iterations.'
              write(stdo,ftox)' constraint fmom=',ftof(fmom),'actual amom=',ftof(amom), &
-                  'ef=',ftof(efermi),'-Vup+Vdn=',ftof(vnow,8)
+                  'ef=',ftof(efermi),'-Vup+Vdn=',ftof(vmag,8)
           endif
-          quitvnow=.true.
+          quitvmag=.true.
        endif
        !! Potential shift
        allocate(ebs(nevx,2,nkp))
        if (nspc == 2) then
-          ebs = eb + vnow/2*swtk
+          ebs = eb + vmag/2*swtk
        else
-          ebs(:,1,:) = eb(:,1,:) - vnow/2
-          ebs(:,2,:) = eb(:,2,:) + vnow/2
+          ebs(:,1,:) = eb(:,1,:) - vmag/2
+          ebs(:,2,:) = eb(:,2,:) + vmag/2
        endif
        !! Fermi level with dv shift
-       if( .NOT. quitvnow) call pshpr(ipr-50)
+       if( .NOT. quitvmag) call pshpr(ipr-50)
        call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval, &
             metal,tetra,norder,npts,width,rnge,wtkp,ebs,efermi, &
             sumev,wtkb,dosef,qval,ent,lfill)
@@ -963,13 +954,13 @@ contains
           write(stdo,922) amom
        endif
        deallocate(ebs)
-       if ( .NOT. quitvnow) call poppr
-       if(quitvnow) exit
+       if ( .NOT. quitvmag) call poppr
+       if(quitvmag) exit
 10  enddo
     ele1 = (zval+fmom)/2d0
     ele2 = (zval-fmom)/2d0
-    sumev=sumev+ ele1*(vnow/2d0) - ele2*(vnow/2d0) !sumev correction takao
-    if(iprint()>20) write(stdo,"(' bzwtsf: Set Bias field -Vup+Vdn=',f20.15)")vnow
+    sumev=sumev+ ele1*(vmag/2d0) - ele2*(vmag/2d0) !sumev correction takao
+    if(iprint()>20) write(stdo,"(' bzwtsf: Set Bias field -Vup+Vdn=',f20.15)")vmag
 !    if (lswtk == 1 .AND. lwtkb == 1) then
 !       !        lwtkb = 2
 !       call rx('bzwtsf:111 tk think not used here')
@@ -1404,9 +1395,9 @@ contains
     ep = 0d0
     return
   end subroutine delstd
-  subroutine dvdos(vnow,nosnow,dosnow,vhold,ztarg,dvcap,dv)  !- Estimate shift in potential shift to meet target number-of-states
+  subroutine dvdos(vmag,nosnow,dosnow,vhold,ztarg,dvcap,dv)  !- Estimate shift in potential shift to meet target number-of-states
     !i Inputs
-    !i   vnow  :current value of potential shift
+    !i   vmag  :current value of potential shift
     !i   nosnow:current value of charge
     !i   dosnow:current density of states, d nosnow / dv
     !i         :(used only for first iteration to estimate rfalsi step size)
@@ -1415,12 +1406,12 @@ contains
     !i   ztarg :desired charge
     !i   dvcap :maximum change in potential shift for any step
     !o Outputs
-    !o   vnow  :updated value of estimated potential shift
-    !o   dv    :change in vnow this step
+    !o   vmag  :updated value of estimated potential shift
+    !o   dv    :change in vmag this step
     !r Remarks
     !r   Routine uses regula falsi to iteratively find target nosnow.
     implicit none
-    double precision :: vnow,nosnow,dosnow,vhold(12),ztarg, dvcap,dv
+    double precision :: vmag,nosnow,dosnow,vhold(12),ztarg, dvcap,dv
     double precision :: dznow,dxmx
     integer :: ir
     ! ... First order estimate dv = (ztarg-zhave)/slope
@@ -1436,10 +1427,10 @@ contains
        dxmx = dvcap
     endif
     call pshpr(0)
-    call rfalsi(vnow,dznow,5d-8,0d0,5d-8,dxmx,10,vhold(1),ir)
+    call rfalsi(vmag,dznow,5d-8,0d0,5d-8,dxmx,10,vhold(1),ir)
     call poppr
     vhold(12) = ir
-    dv = vnow - vhold(1)
+    dv = vmag - vhold(1)
   end subroutine dvdos
 
 end module m_bzwts
