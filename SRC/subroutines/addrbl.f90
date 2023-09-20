@@ -18,7 +18,7 @@ contains
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol
     use m_supot,only: n1,n2,n3
     use m_igv2x,only: napw,ndimh,ndimhx,igapw=>igv2x
-    use m_subzi, only: lwtkb,nevmx, lswtk,wtkb=>rv_a_owtkb
+    use m_subzi, only: nevmx,wtkb=>rv_a_owtkb
     use m_mkqp,only: wtkp=>rv_a_owtkp
     use m_mkpot,only: qval_=>qval
     use m_ropyln,only: ropyln
@@ -97,7 +97,7 @@ contains
        call ropyln(napw,qpgv(1,1:napw),qpgv(2,1:napw),qpgv(3,1:napw), lmxax,napw,ylv,qpg2v)
     endif
     ! --- Decide how many states to include and make their weights --- ... Case band weights not passed: make sampling weights
-    if (lwtkb == 0) then
+    if (lmet==0) then
        call rxx(nspc.ne.1,'lwtkb=0 not implemented in noncoll case')
        wgt = abs(wtkp(iq))/nsp
        call mkewgt(lmet,wgt,qval,ndimh,evl(1,isp),nevec,ewgt,sumev,sumqv(1,isp))
@@ -120,18 +120,18 @@ contains
     ! ... Add to local density coefficients
     call rlocbl(lfrce,nbas,isp,q,ndham,ndimh,nspc,napw,igapw,nevec,evec,ewgt,evl,sv_p_osig,sv_p_otau,sv_p_oppi,1,&
          sv_p_oqkkl,sv_p_oeqkkl,f) !lekkl=1
-    Weightsforspinmoments: if (lswtk>0 .AND. nspc==2) then!
-       allocate(evecc,source=evec) ! evecc=evec call zcopy(ndimhx**2,evec,1,evecc,1)
-       allocate(work,mold=evec) 
-       call zgetrf(nevl,nevl,evecc,ndimhx,ipiv,i)
-       if(i/=0) call rx('addrbl: failed to generate overlap')
-       call zgetri(nevl,evecc,ndimhx,ipiv,work,ndimhx**2,i) !evecc is evec^-1
-       do  i = 1, ndimh
-          swtk(i,1,iq)= swtk(i,1,iq) + sum(evecc(i,1,:,1)*evec(:,1,i,1) - evecc(i,1,:,2)*evec(:,2,i,1))
-          swtk(i,2,iq)= swtk(i,2,iq) + sum(evecc(i,2,:,1)*evec(:,1,i,2) - evecc(i,2,:,2)*evec(:,2,i,2))
-       enddo
-       deallocate(evecc,work)
-    endif Weightsforspinmoments
+    ! Weightsforspinmoments: if (lswtk>0 .AND. nspc==2) then!
+    !    allocate(evecc,source=evec) ! evecc=evec call zcopy(ndimhx**2,evec,1,evecc,1)
+    !    allocate(work,mold=evec) 
+    !    call zgetrf(nevl,nevl,evecc,ndimhx,ipiv,i)
+    !    if(i/=0) call rx('addrbl: failed to generate overlap')
+    !    call zgetri(nevl,evecc,ndimhx,ipiv,work,ndimhx**2,i) !evecc is evec^-1
+    !    do  i = 1, ndimh
+    !       swtk(i,1,iq)= swtk(i,1,iq) + sum(evecc(i,1,:,1)*evec(:,1,i,1) - evecc(i,1,:,2)*evec(:,2,i,1))
+    !       swtk(i,2,iq)= swtk(i,2,iq) + sum(evecc(i,2,:,1)*evec(:,1,i,2) - evecc(i,2,:,2)*evec(:,2,i,2))
+    !    enddo
+    !    deallocate(evecc,work)
+    ! endif Weightsforspinmoments
     call tcx('addrbl')
   end subroutine addrbl
   subroutine addsds(ndimh,evl,wgt,emin,emax,ndos,dos) !Add to sampling dos   

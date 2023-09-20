@@ -3,7 +3,7 @@ module m_sugw
   private
   public:: m_sugw_init
 contains
-  subroutine m_sugw_init (socmatrix,eferm) !dipolematrix,
+  subroutine m_sugw_init (socmatrix,eferm,vmag) !dipolematrix,
     use m_ext,only:   sname
     use m_struc_def,only: s_rv1, s_spec
     use m_suham,only: ndham=>ham_ndham !max dimension of hamiltonian +napwad (for so=0,2)
@@ -127,7 +127,7 @@ contains
     integer:: iout,nout,nlatout(3,noutmx),iapw,ival
     real(8)::ppin(3)
     real(8):: rlatp(3,3),xmx2(3)
-    real(8):: qqq(3)
+    real(8):: qqq(3),vmag
     integer:: mode,iwdummy,jx
     complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:),ovlmtoi(:,:),ovliovl(:,:) ,hammhso(:,:,:)
     integer:: lpdiag=0,nrmx,ncoremx!,ndham
@@ -136,10 +136,15 @@ contains
     logical,optional:: socmatrix !dipolematrix,
     integer:: ispSS,ispEE
     include "mpif.h"
-    
     call tcn ('m_sugw_init')
     if(master_mpi) write(stdo,"(a)") 'm_sugw_init: start'
     sigmamode = mod(lrsig,10) .ne. 0
+    write(6,"('MagField to eval. -vmag/2 for isp=1, +vmag/2 for isp=2. vmag=',d13.6)")vmag
+    call getpr(ipr)
+    alat=lat_alat
+!    n1 = lat_nabc(1)
+!    n2 = lat_nabc(2)
+!    n3 = lat_nabc(3)
     open(newunit=ifimag,file='MagField',status='old',err=112)! june2013 magfield is added
     read(ifimag,*,err=112) vnow
     close(ifimag)

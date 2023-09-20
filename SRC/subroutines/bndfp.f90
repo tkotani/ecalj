@@ -62,7 +62,7 @@ contains
     use m_bandcal,only: m_bandcal_init,m_bandcal_2nd,m_bandcal_clean,m_bandcal_allreduce, &
          smrho_out,oqkkl,oeqkkl, ndimhx_,nevls,m_bandcal_symsmrho
     use m_mkrout,only: m_mkrout_init,orhoat_out,frcbandsym,hbyl_rv,qbyl_rv
-    use m_addrbl,only: m_addrbl_allocate_swtk,swtk
+!    use m_addrbl,only: m_addrbl_allocate_swtk,swtk
     use m_sugw,only: m_sugw_init
     use m_mkehkf,only: m_mkehkf_etot1,m_mkehkf_etot2
     use m_gennlat_sig,only: m_gennlat_init_sig
@@ -139,11 +139,14 @@ contains
     ltet = ntet>0! tetrahedron method or not
     vmag=0d0
     GETefermFORplbndMODE: if(plbnd/=0) then
-       open(newunit=ifi,file='efermi.lmf')
+       open(newunit=ifi,file='efermi.lmf',status='old',err=113)
        read(ifi,*) eferm,vmag  ! efermi is consistent with eferm in rst.* file (iors.f90).
        !                         However, efermi.lmf can be modified when we do one-shot dense-mesh calculation as is done in job_band.
        close(ifi)              ! For example, you may change NKABC, and run job_pdos (lmf-MPIK --quit=band only modify efermi.lmf, without touching rst.*).
-       call mpibc1_real(eferm,1,'bndfp_eferm')
+       goto 114
+113    continue
+       call rx('No efermi.lmf: need to repeat sc mode of lmf-MPIK. --quit=band stops without changing rst file')
+114    continue
     endif GETefermFORplbndMODE
     if(cmdopt0('--phispinsym')) call phispinsym_ssite_set() !pnu,pz are spin symmetrized ! Set spin-symmetrized pnu. aug2019. See also in pnunew and locpot
     writeham= cmdopt0('--writeham') ! Write out Hamiltonian HamiltonianPMT.*
@@ -152,7 +155,7 @@ contains
     !      if(llmfgw.and.cmdopt0('--dipolematrix')) call m_mkpot_novxc_dipole()
     call m_mkpot_init()! From smrho and rhoat, get one-particle potential and related quantities. mkpot->locpot->augmat. augmat calculates sig,tau,ppi.
     if(cmdopt0('--quit=mkpot')) call rx0('--quit=mkpot')
-    call m_subzi_init(lrout>0) ! Setup weight wtkb for BZ integration.  ! NOTE: if (wkp.* exists).and.lmet==2, wkp is used for wkkb.
+    if(lrout>0) call m_subzi_init() ! Setup weight wtkb for BZ integration.  ! NOTE: if (wkp.* exists).and.lmet==2, wkp is used for wkkb.
     if(lpztail) call sugcut(2) ! lpztail: if T, local orbital of 2nd type(hankel tail). Hankel's e of local orbital of PZ>10 (hankel tail mode) is changing. ==>T.K think current version of PZ>10 might not give so useful advantages.
     CorelevelSpectroscopyINIT: if(cmdopt0('--cls')) then
        call rxx(lso==1,'CLS not implemented in noncoll case')
@@ -174,13 +177,13 @@ contains
     endif READsigm ! ndimsig is the dim of the self-energy. We now set "ndimsig=ldim",which means we use only projection onto MTO spaces even when PMT. 
     if(sigmamode .AND. master_mpi) write(stdo,*)' ScaledSigma=',ham_scaledsigma
     GWdriver: if(llmfgw) then        !         call m_sugw_init(cmdopt0('--dipolematrix'),cmdopt0('--socmatrix'),eferm)
-       call m_sugw_init(cmdopt0('--socmatrix'),eferm)
+       call m_sugw_init(cmdopt0('--socmatrix'),eferm,vmag)
        call tcx('bndfp')
        call rx0('sugw mode')  !exit program here normally.
     endif GWdriver
     ! Set up Hamiltonian and diagonalization in m_bandcal_init. To know outputs, see 'use m_bandcal,only:'. The outputs are evlall, and so on.
     sttime = MPI_WTIME()
-    if(nspc==2) call m_addrbl_allocate_swtk(ndham,nsp,nkp)
+!    if(nspc==2) call m_addrbl_allocate_swtk(ndham,nsp,nkp)
     allocate( evlall(ndhamx,nspx,nkp))
     call m_bandcal_init(lrout,eferm,vmag,ifih, evlall) ! Get Hamiltonian and diagonalization resulting evl,evec,evlall. 
     entime = MPI_WTIME()                               ! eferm,vmag are inputs: only read by m_procar_init
@@ -221,7 +224,7 @@ contains
          deallocate(evlallm)
       endif
     endblock PLOTmode
-    call m_subzi_bzintegration(evlall,swtk, eferm,sev,qvalm,vmag) !Get the Fermi energy, vmag and wtkb, from evlall
+    call m_subzi_bzintegration(evlall,eferm,sev,qvalm,vmag) !Get the Fermi energy, vmag and wtkb, from evlall
     allocate(evlallm,mold=evlall)
     do isp=1,nsp/nspc
        evlallm(:,isp,:)=evlall(:,isp,:)+vmag*(isp-1.5d0)
@@ -284,8 +287,8 @@ contains
        do    iq  = 1,nkp
              qp  = qplist(:,iq)
           do jsp = 1,nspx
-             write(stdo,"('  band:',i3,i2,x,3f7.3,' ',i3,' ',i3,100f7.3)") & !up to 50th band
-                  iq,jsp,qp,nevls(iq,jsp),ndimhx_(iq,jsp),[(rydberg()*(evlallm(i,jsp,iq)-eferm), i=1,min(nevls(iq,jsp),50))]
+             write(stdo,"('  band:',i3,i2,x,3f7.3,' ',i3,' ',i3,a)") & !up to 50th band
+                  iq,jsp,qp,nevls(iq,jsp),ndimhx_(iq,jsp),ftof([(rydberg()*(evlallm(i,jsp,iq)-eferm), i=1,min(nevls(iq,jsp),50))],3)
           enddo
        enddo
     endif WRITEeigenvaluesConsole

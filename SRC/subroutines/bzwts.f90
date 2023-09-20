@@ -629,8 +629,8 @@ contains
   !!
   !!  (Takao think this bzwtsf2 may need to be modified for solids).
   subroutine bzwtsf2(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval, & !!== FSMOMMETHOD=1 == June2011 takao
-       fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb,lswtk, &
-       swtk,efermi,sumev,wtkb,qval,lfill,vmag) !,lwtkb
+       fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb,&! lswtk,swtk &
+       efermi,sumev,wtkb,qval,lfill,vmag) !,lwtkb
     use m_lmfinit,only: stdo
     use m_ftox
 
@@ -655,11 +655,11 @@ contains
     !i   wtkp  :weight of k-point, including spin degeneracy (bzmesh.f)
     !i   eb    :energy bands; alias eband
     !i   eb    :energy bands
-    !i   lswtk :Flags indicating whether 'spin weights' swtk are available
-    !i   swtk  :'spin weights': diagonal part of  (z)^-1 sigmz z
-    !i         :where z are eigenvectors, sigma is the Pauli spin matrix
-    !i         :Supplies information about spin moment in noncoll case.
-    !i         :Used when lswtk is set
+    !ixx   lswtk :Flags indicating whether 'spin weights' swtk are available
+    !ixx   swtk  :'spin weights': diagonal part of  (z)^-1 sigmz z
+    !ixx         :where z are eigenvectors, sigma is the Pauli spin matrix
+    !ixx         :Supplies information about spin moment in noncoll case.
+    !ixx         :Used when lswtk is set
     ! oxxx  lwtkb :Used in connection w/ fixed spin-moments method.  On input:
     ! o        :0 weights are not available; no moment calculation
     ! o        :if 1, weights were generated with no constraint
@@ -681,9 +681,9 @@ contains
     ! Passed parameters
     logical :: metal,tetra
     integer :: nbmx,norder,npts,nevx,nsp,nspc,n1,n2,n3,nkp,ntet, &
-         idtet(5,ntet),lswtk!,lwtkb
+         idtet(5,ntet)!,lswtk!,lwtkb
     double precision :: zval,fmom,eb(nbmx,nsp,nkp),width,rnge,wtkp(nkp), &
-         wtkb(nevx,nsp,nkp),swtk(nevx,nsp,nkp),efermi,sumev,qval(2)
+         wtkb(nevx,nsp,nkp),efermi,sumev,qval(2) !,swtk(nevx,nsp,nkp)
     ! Local variables
     integer :: ikp,ib,ipr,itmax,iter,iprint
     double precision :: amom,dosef(2),vhold(12),vmag,dvcap,dv,ef0,ent
@@ -702,14 +702,13 @@ contains
          metal,tetra,norder,npts,width,rnge,wtkp,eb,efermi, &
          sumev,wtkb,dosef,qval,ent,lfill)
     if (nsp == 1) return
-
     call getpr(ipr)
     ! angenglob      stdo = nglob('stdo')
     !      stdo = globalvariables%stdo
     !     stdl = nglob('stdl')
     ! --- Make and print out magnetic moment ---
-    if ((lswtk == 1 .OR. nspc == 1) .AND. metal) then
-       call bzwtsm(lswtk.eq.1.and.nspc.eq.2,nkp,nsp,nevx,wtkb,swtk,amom)
+    if (nspc == 1.AND. metal) then
+       call bzwtsm(nkp,nsp,nevx,wtkb,amom)
        if (ipr >= 20) write(stdo,922) amom
 922    format(9x,'Mag. moment:',f15.6)
        qval(2) = amom
@@ -756,27 +755,26 @@ contains
     do 10 iter=1,itermx
        !! Potential shift
        allocate(ebs(nevx,2,nkp))
-       if (nspc == 2) then
-          ebs = eb + vmag/2*swtk
-       else
+!       if (nspc == 2) then
+!          ebs = eb + vmag/2*swtk
+!       else
           ebs(:,1,:) = eb(:,1,:) - vmag/2d0
           ebs(:,2,:) = eb(:,2,:) + vmag/2d0
-       endif
+!       endif
        !! Fermi level with dv shift
        if( .NOT. quitvmag) call pshpr(ipr-50)
        call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval, &
             metal,tetra,norder,npts,width,rnge,wtkp,ebs,efermi, &
             sumev,wtkb,dosef,qval,ent,lfill)
        if (iprint()>= 20) then
-          call bzwtsm(lswtk.eq.1.and.nspc.eq.2,nkp,nsp,nevx,wtkb,swtk, &
-               amom)
+          call bzwtsm(nkp,nsp,nevx,wtkb,amom)
           write(stdo,922) amom
        endif
        deallocate(ebs)
        if ( .NOT. quitvmag) call poppr
        if(quitvmag) exit
        !!=== Magnetic moment ===
-       call bzwtsm(lswtk.eq.1.and.nspc.eq.2,nkp,nsp,nevx,wtkb,swtk,amom)
+       call bzwtsm(nkp,nsp,nevx,wtkb,amom)
        if(ipr>=41)write(stdo,ftox)' -Vup+Vdn=',ftof(vmag,8),'yields ef=',ftof(efermi), &
             'amom',ftof(amom),'when seeking mom=',ftof(fmom)
        ! takao for molecule Dec1 2010
@@ -816,8 +814,8 @@ contains
     call tcx('bzwtsf2')
   end subroutine bzwtsf2
   subroutine bzwtsf(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval, & !== FSMOMMETHOD=0 ogiginal version(modified version. fmom=0 is allowed.)==
-       fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb,lswtk, & !- BZ integration for fermi level, band sum and qp weights, fixed-spin
-       swtk,efermi,sumev,wtkb,qval,lfill,vmag) !,lwtkb
+       fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb, & !- BZ integration for fermi level, band sum and qp weights, fixed-spin
+       efermi,sumev,wtkb,qval,lfill,vmag) !,lwtkb lswtk, swtk,
     use m_lmfinit,only: stdo
     use m_ftox
     !i Inputs
@@ -839,11 +837,11 @@ contains
     !i   wtkp  :weight of k-point, including spin degeneracy (bzmesh.f)
     !i   eb    :energy bands; alias eband
     !i   eb    :energy bands
-    !i   lswtk :Flags indicating whether 'spin weights' swtk are available
-    !i   swtk  :'spin weights': diagonal part of  (z)^-1 sigmz z
-    !i         :where z are eigenvectors, sigma is the Pauli spin matrix
-    !i         :Supplies information about spin moment in noncoll case.
-    !i         :Used when lswtk is set
+    !ixx   lswtk :Flags indicating whether 'spin weights' swtk are available
+    !ixx   swtk  :'spin weights': diagonal part of  (z)^-1 sigmz z
+    !ixx         :where z are eigenvectors, sigma is the Pauli spin matrix
+    !ixx         :Supplies information about spin moment in noncoll case.
+    !ixx         :Used when lswtk is set
     ! oxxx  lwtkb :Used in connection w/ fixed spin-moments method.  On input:
     ! o        :0 weights are not available; no moment calculation
     ! o        :if 1, weights were generated with no constraint
@@ -865,9 +863,9 @@ contains
     ! Passed parameters
     logical :: metal,tetra
     integer :: nbmx,norder,npts,nevx,nsp,nspc,n1,n2,n3,nkp,ntet, &
-         idtet(5,ntet),lswtk!,lwtkb
+         idtet(5,ntet)!,lswtk!,lwtkb
     double precision :: zval,fmom,eb(nbmx,nsp,nkp),width,rnge,wtkp(nkp), &
-         wtkb(nevx,nsp,nkp),swtk(nevx,nsp,nkp),efermi,sumev,qval(2)
+         wtkb(nevx,nsp,nkp),efermi,sumev,qval(2) !,swtk(nevx,nsp,nkp)
     ! Local variables
     integer :: ikp,ib,ipr,itmax,iter,iprint
     double precision :: amom,dosef(2),vhold(12),vmag,dvcap,dv,ef0,ent
@@ -887,8 +885,8 @@ contains
     call getpr(ipr)
     !      stdo = globalvariables%stdo
     !!== Make and print out magnetic moment ==
-    if ((lswtk == 1 .OR. nspc == 1) .AND. metal) then
-       call bzwtsm(lswtk.eq.1.and.nspc.eq.2,nkp,nsp,nevx,wtkb,swtk,amom)
+    if ( nspc == 1 .AND. metal) then
+       call bzwtsm(nkp,nsp,nevx,wtkb,amom)
        if (ipr >= 20) write(stdo,922) amom
 922    format(9x,'Mag. moment:',f15.6)
        qval(2) = amom
@@ -908,7 +906,7 @@ contains
     itermx=100
     do 10 iter=1,itermx
        !!=== Magnetic moment ===
-       call bzwtsm(lswtk.eq.1.and.nspc.eq.2,nkp,nsp,nevx,wtkb,swtk,amom)
+       call bzwtsm(nkp,nsp,nevx,wtkb,amom)
        if(ipr>=41) write(stdo,ftox)' -Vup+Vdn=',ftof(vmag,8),'yields ', &
             'ef=',ftof(efermi),'amom=',ftof(amom),'when seeking',ftof(fmom)
        agreemom= abs(amom-fmom) < 1d-3
@@ -937,20 +935,19 @@ contains
        endif
        !! Potential shift
        allocate(ebs(nevx,2,nkp))
-       if (nspc == 2) then
-          ebs = eb + vmag/2*swtk
-       else
+!       if (nspc == 2) then
+!          ebs = eb + vmag/2*swtk
+!       else
           ebs(:,1,:) = eb(:,1,:) - vmag/2
           ebs(:,2,:) = eb(:,2,:) + vmag/2
-       endif
+!       endif
        !! Fermi level with dv shift
        if( .NOT. quitvmag) call pshpr(ipr-50)
        call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval, &
             metal,tetra,norder,npts,width,rnge,wtkp,ebs,efermi, &
             sumev,wtkb,dosef,qval,ent,lfill)
        if (iprint()>= 20) then
-          call bzwtsm(lswtk.eq.1.and.nspc.eq.2,nkp,nsp,nevx,wtkb,swtk, &
-               amom)
+          call bzwtsm(nkp,nsp,nevx,wtkb,amom)
           write(stdo,922) amom
        endif
        deallocate(ebs)
@@ -970,7 +967,8 @@ contains
 !    endif
     call tcx('bzwtsf')
   end subroutine bzwtsf
-  subroutine bzwtsm(lswtk,nkp,nsp,nevx,wtkb,swtk,amom) !- Determine the magnetic moment, collinear or noncollinear case
+!  subroutine bzwtsm(lswtk,nkp,nsp,nevx,wtkb,swtk,amom) !- Determine the magnetic moment, collinear or noncollinear case
+  subroutine bzwtsm(nkp,nsp,nevx,wtkb,amom) !- Determine the magnetic moment, collinear or noncollinear case
     use m_ftox
     !i Inputs
     !i   lswtk :if true, swtk is used.  Otherwise, collinear case assumed:
@@ -978,9 +976,9 @@ contains
     !i   nkp   :number of irreducible k-points (bzmesh.f)
     !i   nevx  :Maximum number of bands
     !i   wtkb  :band weights
-    !i   swtk  :'spin weights': diagonal part of  (z)^-1 sigmz z
-    !i         :where z are eigenvectors, sigma is the Pauli spin matrix
-    !i         :Used when lswtk is set
+    !ixx   swtk  :'spin weights': diagonal part of  (z)^-1 sigmz z
+    !ixx         :where z are eigenvectors, sigma is the Pauli spin matrix
+    !ixx         :Used when lswtk is set
     !o Outputs
     !o   amom  :magnetic moment
     logical :: lswtk
@@ -989,11 +987,11 @@ contains
     integer :: ikp,k
     double precision :: dsum
     if (nsp == 1) return
-    if (lswtk) then
-       amom = sum(wtkb(:,1,:)*swtk(:,1,:) + wtkb(:,2,:)*swtk(:,2,:))
-    else
+!    if (lswtk) then
+!       amom = sum(wtkb(:,1,:)*swtk(:,1,:) + wtkb(:,2,:)*swtk(:,2,:))
+!    else
        amom = sum(wtkb(:,1,:) - wtkb(:,2,:))
-    endif
+!    endif
   end subroutine bzwtsm
   subroutine fermi(qval,dos,ndos,emin,emax,nsp,eferm,e1,e2,dosef) !Makes fermi energy from integrated density
     use m_ftox

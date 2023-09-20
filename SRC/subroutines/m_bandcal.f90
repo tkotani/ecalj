@@ -8,7 +8,7 @@ module m_bandcal !band structure calculation
   use m_lmfinit,only: lrsig=>ham_lsig, lso,ham_scaledsigma,lmet=>bz_lmet,nbas,epsovl=>ham_oveps,nspc,plbnd,lfrce,&
        pwmode=>ham_pwmode,pwemax,stdl,nsp,nlibu,lmaxu,nbas,nl,nlmto
   use m_MPItk,only: mlog, master_mpi, procid,strprocid, numprocs=>nsize, mlog_mpiiq
-  use m_subzi, only: nevmx,lswtk,rv_a_owtkb
+  use m_subzi, only: nevmx,rv_a_owtkb
   use m_supot, only: n1,n2,n3
   use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate, osmpot,vconst, osig, otau, oppi,ohsozz,ohsopm
   use m_rdsigm2,only: senex,sene,getsenex,dsene,ndimsig
@@ -75,11 +75,15 @@ contains
     allocate( evl(ndhamx,nspx))
     sumev = 0d0
     sumqv = 0d0
-    if (lswtk==1)  call swtkzero() !write(stdo,*)'iiiiqqq procid iqini iqend=',procid,iqini,iqend
+!    if (lswtk==1)  call swtkzero() !write(stdo,*)'iiiiqqq procid iqini iqend=',procid,iqini,iqend
     bandcalculation_q: do 2010 idat=1,niqisp
        iq = iqproc(idat)
        qp = qplist(:,iq) !write(stdo,ftox)'m_bandcal_init: procid iq=',procid,iq,ftof(qp)
        isp= isproc(idat) !NOTE: isp=1:nsp/nspc
+       if(cmdopt0('--afsym').and.isp==2) then
+!          deallocate(evec)
+          cycle
+       endif
        call m_Igv2x_setiq(iq) ! Get napw,ndimh,ndimhx, and igv2x
        allocate(hamm(ndimh,nspc,ndimh,nspc),ovlm(ndimh,nspc,ndimh,nspc)) !spin offdiagonal included
        ! hambl calls augmbl. See Appendix C in http://dx.doi.org/10.7566/JPSJ.84.034702
@@ -171,9 +175,13 @@ contains
        nevls(iq,isp)  = nev        !nov2014 isp and isp is confusing...
        ndimhx_(iq,isp)= ndimhx     !Hamiltonian dimension
        evlall(1:ndhamx,isp,iq) = evl(1:ndhamx,isp)
-       if(master_mpi.AND.epsovl>=1d-14.AND.plbnd/=0) then
-          write(stdo,"(' : ndimhx=',i5,' --> nev=',i5' by HAM_OVEPS ',d11.2)") ndimhx,nev,epsovl
-       endif
+       if(cmdopt0('--afsym')) then
+          evlall(1:ndhamx,2,iq) = evl(1:ndhamx,1)
+          nevls(iq,2)  = nev        !nov2014 isp and isp is confusing...
+          ndimhx_(iq,2)= ndimhx     !Hamiltonian dimension
+       endif   
+       if(master_mpi.AND.epsovl>=1d-14.AND.plbnd/=0) write(stdo,&
+            "(' : ndimhx=',i5,' --> nev=',i5' by HAM_OVEPS ',d11.2)") ndimhx,nev,epsovl
        ! This block is moved to _2nd          
        !          if(plbnd==0 .AND.lwtkb>=0) then !lwtkb=-1,0,1
        !             if(nlibu>0.AND.nev>0.AND.lmet==0) call rx('metal weights required for LDA+U calculation')
@@ -213,7 +221,7 @@ contains
     call dfqkkl( oqkkl ) !zero clear
     call dfqkkl( oeqkkl ) !zero clear if(lekkl==1) 
     if (lfrce>0)  frcband  = 0d0
-    if (lswtk==1) call swtkzero()
+!    if (lswtk==1) call swtkzero()
     if(lso/=0) orbtm_rv=0d0
     if(allocated(smrho_out)) deallocate(smrho_out)
     allocate( smrho_out(n1*n2*n3*nsp) )
@@ -226,6 +234,10 @@ contains
        iq = iqproc(idat)
        qp = qplist(:,iq)  !write(stdo,ftox)'m_bandcal_init: procid iq=',procid,iq,ftof(qp)
        isp= isproc(idat)
+       if(cmdopt0('--afsym').and.isp==2) then
+!          deallocate(evec)
+          cycle
+       endif
        call m_Igv2x_setiq(iq) ! Get napw and so on for given qp
        read(ifig) nev,nmx  !ndimhx <---supplied by m_Igv2x_set
        allocate(evec(ndimhx,nmx))
@@ -233,10 +245,6 @@ contains
        read(ifig) evec(1:ndimhx,1:nmx)
        evl(nev+1:ndhamx,isp)=1d99 !to skip these data
 
-       if(cmdopt0('--afsym').and.isp==2) then
-          deallocate(evec)
-          cycle
-       endif
 
        if( lso/=0)              call mkorbm(isp, nev, iq,qp, evec,  orbtm_rv)
        if( nlibu>0 .AND. nev>0) call mkdmtu(isp, iq,qp, nev, evec,  dmatu)
@@ -319,7 +327,7 @@ contains
     call mpibc2_real(sumqv,size(sumqv),'bndfp_sumqv')
     call mpibc2_real(sumev,size(sumev),'bndfp_sumev')
     call mpibc2_complex(smrho_out,size(smrho_out),'bndfp_smrho')
-    if(lswtk==1) call mpibc2_complex(swtk,size(swtk),'bndfp_swtk')
+!    if(lswtk==1) call mpibc2_complex(swtk,size(swtk),'bndfp_swtk')
     do  ib = 1, nbas
        do  i = 1, 3
           if(allocated(oqkkl(i,ib)%v)) then

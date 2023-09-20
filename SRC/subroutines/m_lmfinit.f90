@@ -300,8 +300,8 @@ contains
       call fill3in(n,bz_nabcin) !filled to the end if n<3
       call rval2('BZ_BZJOB',rv=rv, nout=n); bz_lshft(1:n)=nint(rv) !  '0 centers BZ mesh at origin, 1 centers off origin'// &
       call fill3in(n,bz_lshft)
-      call rval2('BZ_METAL', rr=rr, defa=[real(8):: 3]); bz_lmet=nint(rr) !'0 insulator only; 3 for metal (2 is for maintenance)')
-      call rval2('BZ_TETRA', rr=rr, defa=[real(8):: 1]); bz_tetrahedron= nint(rr)==1 ! & tetrahedron switch
+      call rval2('BZ_METAL', rr=rr, defa=[real(8):: 3]); bz_lmet=nint(rr) !'0 insulator only; 3 for metal
+      call rval2('BZ_TETRA', rr=rr, defa=[real(8):: 1]); bz_tetrahedron= nint(rr)==1 ! & tetrahedron switch 1 or 0.
       if(cmdopt0('--tdos') .OR. cmdopt0('--pdos')) then
          write(stdo,*)' --tdos or --pdos enforces BZ_METAL=3 and BZ_TETRA=T'
          bz_lmet=3
