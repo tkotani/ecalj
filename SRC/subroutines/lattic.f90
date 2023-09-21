@@ -1,4 +1,4 @@
-module m_lattic !lattice setup
+module m_lattic ! Sets up the real and rmeciprocal space lattice vectors !no shear now  ldist=0
   use m_ftox
   use m_lgunit,only:stdo
   use m_xlgen,only:xlgen
@@ -6,63 +6,36 @@ module m_lattic !lattice setup
   real(8), allocatable,protected,public ::  rv_a_odlv (:,:)
   real(8), allocatable,protected,public ::  rv_a_oqlv (:,:)
   real(8), protected,public:: lat_plat(3,3),lat_qlat(3,3),lat_awald,lat_vol
-  real(8), allocatable,protected,public :: rv_a_opos(:,:)
   integer,protected,public:: lat_nkd,lat_nkq
   logical,protected,public:: lattic_init=.false.
+  real(8), allocatable,protected,public :: rv_a_opos(:,:)
   private
 contains
   subroutine setopos(posin) !called from lmfp to revise atomic position by reading rst file.
     real(8):: posin(:,:)
     rv_a_opos= posin
   end subroutine Setopos
-  subroutine m_lattic_init() ! Sets up the real and rmeciprocal space lattice vectors !no shear now  ldist=0
-    use m_lmfinit,only:nbas,lat_alat,lat_as,lat_tol,lat_rpad,nkdmx=>lat_nkdmx,nkqmx=>lat_nkqmx,lat_platin,pos
+  subroutine m_lattic_init() 
+    use m_lmfinit,only:nbas,alat=>lat_alat,as=>lat_as,tol=>lat_tol,rpad=>lat_rpad,nkdmx=>lat_nkdmx,nkqmx=>lat_nkqmx,lat_platin,pos
     implicit none
     integer::  lmxst , nkd,nkq,ib
-    real(8) :: dlv(3,nkdmx),qlv(3,nkqmx)
-    real(8):: alat,awald,awald0,tol,vol,xx1,xx2,dotprd,pi,rpad, plat0(3,3),plat(3,3),qlat(3,3) 
-    call tcn('m_lattic_init')
-    lattic_init=.true.
-    alat=lat_alat
-    awald0=lat_as
-    tol=lat_tol
-    rpad=lat_rpad
-    plat=lat_platin
-    allocate(rv_a_opos,source=pos)
-    lmxst = 6
-    call lattc(awald0,tol,rpad,alat,plat,qlat,lmxst,vol,awald,dlv,nkd,qlv,nkq,nkdmx,nkqmx)
-    lat_vol  =vol
-    lat_plat =plat
-    lat_qlat =qlat
-    allocate(rv_a_oqlv, source=qlv(1:3,1:nkq))
-    allocate(rv_a_odlv, source=dlv(1:3,1:nkd))
-    lat_awald=awald
-    lat_nkd=nkd
-    lat_nkq=nkq
-!    write(6,ftox)'lattic_init qqqqqqqqlat',ftof(reshape(lat_qlat,[9]))
-    call tcx('m_lattic_init')
-  end subroutine m_lattic_init
-  subroutine lattc(as,tol,rpad,alat,plat,qlat,lmax,vol,awald,dlat,nkd,qlv,nkq,nkdmx,nkqmx)! Sets up the real and reciprocal space lattice vectors for Ewald
-    ! ----------------------------------------------------------------
+    real(8) :: dlv(3,nkdmx),qlv(3,nkqmx), awald,vol,xx1,xx2,dotprd,pi, plat0(3,3),plat(3,3),qlat(3,3) 
     !i Inputs
     !i   as    :dimensionless Ewald parameter (2 is suggested).
-    !i         :Ewald parameter awald scales with the lattice as
-    !i         :as/(vol)**(1/3)
+    !i         :Ewald parameter awald scales with the lattice as as/(vol)**(1/3)
     !i   tol   :tolerance for ewald sums
     !i   alat  :length scale of lattice and basis vectors, a.u.
     !i   platin:primitive lattice translation vectors, in units of alat
-    !ix   g1,g2,g3:x,y,z distortions of platin
-    !ix   gt:    multiplier of g1,g2,g3.  gt=1 => no distortion
     !i   lmax:  Ewald sums will be taken to maximum L.
     !i   nkdmx: maximum number of direct lattice vectors
     !i   nkqmx: maximum number of reciprocal lattice vectors
     !o Outputs
-    !o    plat:   distorted lattice vectors
-    !o    qlat:   distorted reciprocal vectors
-    !o     vol:   cell volume
-    !o   awald:   ewald parameter
-    !o   dlat,nkd: direct lattice vectors and number
-    !o   qlv,nkq: reciprocal lattice vectors and number
+    !o    lat_plat:   distorted lattice vectors
+    !o    lat_qlat:   distorted reciprocal vectors
+    !o    lat_vol:   cell volume
+    !o    lat_awald:   ewald parameter
+    !o    dlv,nkd: direct lattice vectors and number
+    !o    qlv,nkq: reciprocal lattice vectors and number
     !r Remarks
     !r   awald is in (atomic units)^-1.
     !r   Tolerance tol is the estimated error for a lattice of unit volume.
@@ -75,62 +48,65 @@ contains
     !u   2 Mar 04 New rpad: truncate radius of lattice vectors to rpad*rmax
     !u            when list has to be padded in order to include at
     !r            least one lattice vector.
-    ! ----------------------------------------------------------------
-    implicit none
-    integer :: lmax,nkd,nkq,nkdmx,nkqmx
-    double precision :: as,tol,alat,vol,awald,rpad, &
-         qlv(3,nkqmx),dlat(3,nkdmx),plat(3,3),qlat(3,3)
-    integer :: k,iprint,m,i1mach,modeg(3),isw
-    double precision :: qlat0(3,3),vol0,plat0(3,3),radd,qadd
-    double precision :: qdist0,a0,rdist0,tol1,r0,q0,one(3,3),oned(3,3)
-    integer:: ifp,i
-    real(8):: rxx,qxx
-    plat0=plat !call dcopy(9,platin,1,plat0,1)
-    call dinv33(plat0,1,qlat0,vol0)
-    vol0 = dabs(vol0)
-    plat=plat0 !call rdistn(plat0,plat,3,g1,g2,g3,gt)
-    call dinv33(plat,1,qlat,vol)
-    vol = dabs(vol)*(alat**3)
-    if(iprint()>0) then
-       write(stdo,"(/t17,'Plat',t55,'Qlat')")
-       write(stdo,350) ((plat0(m,k),m=1,3),(qlat0(m,k),m=1,3),k=1,3)
-       open(newunit=ifp,file='PlatQlat.chk')
-       write(ifp,350) ((plat0(m,k),m=1,3),(qlat0(m,k),m=1,3),k=1,3)
-       write(ifp,"('             PLAT              and         QLAT    ')")
-       close(ifp)
-350    format(3f11.6,5x,3f11.6)
-       write(stdo,ftox)'  Cell vol= ',ftof(vol)
-       if((dabs(vol-vol0*(alat**3)) > 1d-9))write(stdo,ftox)'(undistorted vol=',ftof(vol0*(alat**3))
-    endif
-    ! --- Set up real and reciprocal vectors ---
-    ! The errors are estimated making a continuum approximation to a
-    ! discrete set of lattice sums.  Adding .7, slightly more than
-    ! half the average spacing makes the continuum approximation err
-    ! on the safe side.
-    rdist0 = vol0**(1d0/3d0)
-    qdist0 = 1d0/rdist0
-    radd = .7d0*rdist0  
-    qadd = .7d0*qdist0  != 1.2d0*qdist0 
-    a0 = as/rdist0
-    awald = a0/alat
-    tol1 = tol*alat**(lmax+1)
-    call lctoff(a0,vol0,lmax,tol1,r0,q0)
-    modeg = 2
-    rxx= maxval([r0+radd,(sum(plat0(:,i)**2)**.5*1.05,i=1,3)]) !2022-10-12 for very anisotropic cases safer.
-    qxx= maxval([q0+qadd,(sum(qlat0(:,i)**2)**.5*1.05,i=1,3)]) !2022-10-12
-    call xlgen(plat0,rxx,rpad*(r0+radd),nkdmx,11,modeg,nkd,dlat)
-    call xlgen(qlat0,qxx,rpad*(q0+qadd),nkqmx,11,modeg,nkq,qlv)
-!    write(6,ftox)'lattic qqqqqqqqlat',ftof(reshape(qlat,[9]))
-    if(iprint()>0) write(stdo,"(/'LATTC:  as=',f6.3,'   tol=',1p,e9.2,'   alat=',0p,f8.5,'   awald=',f6.3)") as,tol,alat,awald
-    if(iprint()>0) write(stdo,"(9x,'r1=',f7.3,'   nkd=',i4,'      q1=',f7.3,'   nkq=',i4)") r0+radd,nkd,q0+qadd,nkq
-  end subroutine lattc
+    call tcn('m_lattic_init')
+    lattic_init=.true.
+    plat = lat_platin
+    lattc: block !subroutine lattc(as,tol,rpad,alat,plat,qlat,lmax,vol,awald,dlv,nkd,qlv,nkq,nkdmx,nkqmx)
+      ! Sets up the real and reciprocal space lattice vectors for Ewald
+      integer :: lmax=6 , k,iprint,m,modeg(3),ifp,i
+      real(8) :: qlat0(3,3),vol0,plat0(3,3),radd,qadd,qdist0,a0,rdist0,tol1,r0,q0,one(3,3),oned(3,3),rxx,qxx
+      plat0=plat 
+      call dinv33(plat0,1,qlat0,vol0)
+      vol0 = dabs(vol0)
+      plat=plat0 
+      call dinv33(plat,1,qlat,vol)
+      vol = dabs(vol)*(alat**3)
+      if(iprint()>0) then
+         write(stdo,"(/t17,'Plat',t55,'Qlat')")
+         write(stdo,350) ((plat0(m,k),m=1,3),(qlat0(m,k),m=1,3),k=1,3)
+         open(newunit=ifp,file='PlatQlat.chk')
+         write(ifp,350) ((plat0(m,k),m=1,3),(qlat0(m,k),m=1,3),k=1,3)
+         write(ifp,"('             PLAT              and         QLAT    ')")
+         close(ifp)
+350      format(3f11.6,5x,3f11.6)
+         write(stdo,ftox)'  Cell vol= ',ftof(vol)
+         if((dabs(vol-vol0*(alat**3)) > 1d-9))write(stdo,ftox)'(undistorted vol=',ftof(vol0*(alat**3))
+      endif
+      ! --- Set up real and reciprocal vectors ---
+      ! The errors are estimated making a continuum approximation to a
+      ! discrete set of lattice sums.  Adding .7, slightly more than half the average spacing makes the continuum approximation err on the safe side.
+      rdist0 = vol0**(1d0/3d0)
+      qdist0 = 1d0/rdist0
+      radd = .7d0*rdist0  
+      qadd = .7d0*qdist0  != 1.2d0*qdist0 
+      a0 = as/rdist0
+      awald = a0/alat
+      tol1 = tol*alat**(lmax+1)
+      call lctoff(a0,vol0,lmax,tol1,r0,q0)
+      modeg = 2
+      rxx= maxval([r0+radd,(sum(plat0(:,i)**2)**.5*1.05,i=1,3)]) !2022-10-12 for very anisotropic cases safer.
+      qxx= maxval([q0+qadd,(sum(qlat0(:,i)**2)**.5*1.05,i=1,3)]) !2022-10-12
+      call xlgen(plat0,rxx,rpad*(r0+radd),nkdmx,11,modeg,nkd,dlv)
+      call xlgen(qlat0,qxx,rpad*(q0+qadd),nkqmx,11,modeg,nkq,qlv)
+      if(iprint()>0)write(stdo,"(/'m_lattic_init:  as=',f6.3,'  tol=',1p,e9.2,'  alat=',0p,f8.5,'   awald=',f6.3)")as,tol,alat,awald
+      if(iprint()>0)write(stdo,"(9x,'r1=',f7.3,'   nkd=',i4,'      q1=',f7.3,'   nkq=',i4)") r0+radd,nkd,q0+qadd,nkq
+    endblock lattc
+    lat_vol  =vol
+    lat_plat =plat
+    lat_qlat =qlat
+    lat_awald=awald
+    lat_nkd=nkd
+    lat_nkq=nkq
+    allocate(rv_a_opos,source=pos)
+    allocate(rv_a_oqlv, source=qlv(1:3,1:nkq))
+    allocate(rv_a_odlv, source=dlv(1:3,1:nkd))
+    call tcx('m_lattic_init')
+  end subroutine m_lattic_init
   subroutine lctoff(a0,v0,lmax,tol,r0,q0) !- makes limits r0,q0 for sums in real and recip space for a lattice
     !  with lattice constant 1.    !u   25 Jun 03 (Kino) bug fix in dimension of f and g
     implicit none
     integer :: lmax,i
-    double precision :: a0,q0,r0,tol,v0
-    double precision :: gq0,gq1,pi,q1,q2,r1,r2
-    double precision :: f(0:lmax),g(0:lmax)
+    real(8) :: a0,q0,r0,tol,v0, gq0,gq1,pi,q1,q2,r1,r2, f(0:lmax),g(0:lmax)
     pi = 4d0*datan(1d0)
     q1 = 0.001d0
     if (lmax > 2) q1 = dsqrt(.5d0*(lmax-2))*a0/pi
@@ -157,8 +133,7 @@ contains
   subroutine dlmtor(r,a,lmax,f,fbar)  !- Radial part of damped lmtos f and fbar, l=0 to lmax
     implicit none
     integer :: l,lmax
-    double precision :: a,f(0:lmax),fbar(0:lmax),r
-    double precision :: derfc,emz2,erfc0,erfc1,erfc2,fbsrpi, flm2,g,ta2r,z
+    real(8):: a,f(0:lmax),fbar(0:lmax),r, derfc,emz2,erfc0,erfc1,erfc2,fbsrpi, flm2,g,ta2r,z
     fbsrpi = 0.564189835d0
     z = a*r
     emz2 = dexp(-z*z)
@@ -178,4 +153,3 @@ contains
 10  enddo
   end subroutine dlmtor
 end module m_lattic
-

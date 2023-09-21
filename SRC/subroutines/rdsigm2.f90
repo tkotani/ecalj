@@ -45,7 +45,7 @@ contains
     use m_MPItk,only: procid,master
     use m_ext,only:sname
     integer:: ierr,ifi,ndimh_dummy,ifis2,ik1,ik2,ik3,is,iset,nqp
-    logical:: mlog,cmdopt, mtosigmaonly,cmdopt0
+    logical:: mtosigmaonly,cmdopt0
     character strn*120
     real(8),allocatable:: qsmesh2(:,:,:,:)
     call tcn('m_rdsigm2_init')
@@ -85,7 +85,6 @@ contains
        hrr => sfz ! rename sfz as hrr
     endif                  !procid==master
     if(cmdopt0('--wsig_fbz')) call rx0('end of --wsig_fbz mode')
-    mlog = cmdopt('--mlog',6,0,strn) !--mlog here is taken by getarg.
     call mpibc1_int(nspsigm,1,'senebr:nspsigm')
     call mpibc1_int(nk1,1,'senebr:nk1')
     call mpibc1_int(nk2,1,'senebr:nk2')
@@ -124,7 +123,7 @@ contains
     implicit none
     integer:: ifis,ndimsig_r,lwsig,i,j,ifis2,ifiz,isp,nspsigm,nglob,lrsig, nkxyz(3),nk1,nk2,nk3,nsgrp,nsgrps,mxkp,nqp,nqps, &
          j1,iq1,mxorb,nqsig,lrot,iprint,lssym,ndims,ndimz,iq,n123(4),lcore,lhigh,ohrss,osigm2,odelt,oistb2
-    logical :: llshft(3),cmdopt,lphase,lsplts,lnwmsh, latvec,lfbzin,lfbzout
+    logical :: llshft(3),lphase,lsplts,lnwmsh, latvec,lfbzin,lfbzout
     character outs*80,out2*80,dc*1,rots*120
     integer,parameter::niax=10
     integer ,allocatable,target :: ipq(:,:,:)

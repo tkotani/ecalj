@@ -197,7 +197,7 @@ contains
     double precision :: starttime, endtime
     integer :: iunit
     character(120) :: strn
-    logical :: mlog,cmdopt
+    logical :: mlog!,cmdopt
     integer::  iter , procid , master
     type(s_rv1) :: sv_p_orhold(3,1)
     type(s_rv1) :: sv_p_orhnew(3,1)
@@ -1062,7 +1062,7 @@ contains
     integer :: namelen(0:MAX_PROCS-1)
     double precision :: starttime, endtime
     character(120) :: strn
-    logical :: mlog,cmdopt
+    logical :: mlog!,cmdopt
     integer :: iunit
     logical :: readerror
     logical :: lbin

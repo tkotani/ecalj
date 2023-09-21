@@ -1,0 +1,11 @@
+AFmode test
+Set 
+SYMGRPAF
+and
+SITE_ATOM_AF  
+
+run
+>mpirun -np 4 lmf-MPIK --afsym nio
+
+This only calculated bands of isp=1, which is copied to isp=2
+

@@ -13,6 +13,7 @@ contains
     use m_ext,only: sname
     use m_lgunit,only:stdo,stdl
     use m_ftox
+    use m_MPItk,only: mlog
     ! ----------------------------------------------------------------------
     !i Inputs
     !i   nbas  :size of basis
@@ -42,13 +43,13 @@ contains
     complex(8) ,allocatable :: cv_zv(:)
 !    equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
     character msg*23, strn*120
-    logical :: mlog,cmdopt,lfail, l_dummy_isanrg,isanrg
+    logical :: cmdopt,lfail, l_dummy_isanrg,isanrg
     call tcn('rdovfa')
     ipr   = iprint()
     msg   = '         File mismatch:'
     procid = mpipid(1)
     master = 0
-    mlog = cmdopt('--mlog',6,0,strn)
+!    mlog = cmdopt('--mlog',6,0,strn)
     if(ipr>=10)write(stdo,"(/'rdovfa: read and overlap free-atom densities',' (mesh density) ...')")
     alat=lat_alat
     plat=lat_plat

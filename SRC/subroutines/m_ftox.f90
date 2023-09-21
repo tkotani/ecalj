@@ -221,6 +221,7 @@ module m_lgunit
   private
 contains
   subroutine M_lgunit_init()
+    logical:: cmdopt0
     stdo=lgunit(1)
     stdl=lgunit(2)
     if(cmdopt0('--mlog')) stml=lgunit(3)

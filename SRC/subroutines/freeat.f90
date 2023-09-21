@@ -24,7 +24,6 @@ contains
     real(8) :: hfc(nxi0,2),exi(nxi0),hfct(nxi0,2), v(nrmx*2),rho(nrmx*2),rhoc(nrmx*2),rofi(nrmx*2)
     real(8) :: pnu(n0,2),pz(n0,2),qat(n0,2), rtab(n0,2),etab(n0,2),rsmfa
     character strn*120
-    logical :: cmdopt
     open(newunit=ifi,file='atm.'//trim(sname))
     open(newunit=ifives,file='vesintatm.'//trim(sname)//'.chk')
     open(newunit=ifiwv,file='veswavatm.'//trim(sname)//'.chk')
@@ -155,7 +154,7 @@ contains
     character(8) :: spid
     real(8) :: rsmfa,rfoca,qc,ccof,ceh,sec,stc,z,rmt,a,eref, v(nrmx*2),rho(nrmx*2),rhoc(nrmx*2),hfc(nxi0,*),hfct(nxi0,*), &
          exi(*),rtab(n0,2),etab(n0,2),rofi(nrmx*2),rs3,eh3,vmtz,qcor(2)
-    logical :: cmdopt
+    logical :: cmdopt0
     integer :: ncmx,nvmx
     parameter (ncmx=50, nvmx=20)
     integer :: idmod(n0)
@@ -268,7 +267,7 @@ contains
     ! ov 2010 QvalCheck
     do i = 1, nsp
        do l = 0, lmxa
-          if( .NOT. cmdopt('--skip_qvalcheck',16,0,strn)) then
+          if( .NOT. cmdopt0('--skip_qvalcheck')) then
              if(ql(1,l+1,i)<-1d-10) then
                 call rx('conf:negative Qval. Check SPEC_ATOM_Q & MMOM or Use --skip_qvalcheck')
              endif
@@ -739,7 +738,7 @@ contains
     parameter (ncmx=50, nvmx=20)
     double precision :: ec(ncmx),ev(nvmx),rofi(nr,2),v(nr,nsp),rho(nr,nsp),rhoc(nr,nsp),rhoin(nr,nsp),pnu(nl,2), &
          qnu(3,nl,nsp),z,rmax,a,qc,vrmax(nsp),exrmax(2),dv,rhrmx, rhozbk,qcor(2),amgm,ekin,etot,qtot,rhoeps,sumec,sumev,sumtc,utot
-    logical :: last,cmdopt,ltmp
+    logical :: last,ltmp
     integer :: iprint,ir,isp,iter,jmix,nglob,ipr1,l,ii
     character strn*10
     real(8):: b,ddot,decay,dl,dold,drdi,drho,dsumec,ea,fac,pi,rho0t,rhomu,rhovh,rmsdel,ro,ssum,tolrsq,vhrmax,vnucl,vrhoc,vsum, &

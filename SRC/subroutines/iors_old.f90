@@ -109,7 +109,7 @@ contains
     real(8) ,allocatable :: rwgt_rv(:)
 !    equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
     integer :: idmod(n0),idmoz(n0) !,lrs(10)
-    logical :: isanrg,lfail,ltmp1,ltmp2,latvec,cmdopt,mlog !,lshear
+    logical :: isanrg,lfail,ltmp1,ltmp2,latvec,mlog !,lshear
     double precision :: a,a0,alat,alat0,cof,eh,fac,qc,rfoc,rfoc0,rmt, &
          rmt0,rsma0,rsmr,rsmr0,rsmv,rsmv0,stc,ssum,vfac,vol,vol0,vs,vs1,z,z0
     real(8),pointer:: pnu(:,:),pnz(:,:)
@@ -127,7 +127,7 @@ contains
     nproc  = mpipid(0)
     procid = mpipid(1)
     master = 0
-    mlog = cmdopt('--mlog',6,0,ignore)
+!    mlog = cmdopt('--mlog',6,0,ignore)
     alat=lat_alat
     plat=lat_plat
     call dinv33(plat,1,qlat,fac)
@@ -173,8 +173,8 @@ contains
        if (procid == master) then
           rewind jfi
        endif
-       use    = '         use from  restart file:'
-       ignore = '         ignore in restart file:'
+!       use    = '         use from  restart file:'
+!       ignore = '         ignore in restart file:'
        line = 'header'
        ! MPI check to see if at least 1st record can be read. Abort with error message if file is missing (lfail = .true.)
        lfail = .false.
@@ -304,7 +304,7 @@ contains
 !       endif
        if (ipr >= 10) then
           write(stdo,*)trim(use)
-          write(stdo,*)trim(ignore)
+!          write(stdo,*)trim(ignore)
        endif
        allocate(orhoat(3,nbas), v1pot(nbas),v0pot(nbas))
        ibaug = 0
