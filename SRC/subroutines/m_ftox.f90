@@ -223,7 +223,7 @@ contains
   subroutine M_lgunit_init()
     stdo=lgunit(1)
     stdl=lgunit(2)
-    stml=lgunit(3)
+    if(cmdopt0('--mlog')) stml=lgunit(3)
   end subroutine M_lgunit_init
   integer function lgunit(i)
     ! Returns stdout for i=1, log for i=2, mlog for i=3 (MPI logfile)

@@ -103,7 +103,7 @@ contains
     character fileid*64
     character(256)::  a,outs,sss,ch
     character(128) :: nm
-    logical :: cmdopt0,  debug=.false.,sexist, ipr10,fullmesh,lzz,fileexist, logarr(100), mlog=.false.
+    logical :: cmdopt0,  debug=.false.,sexist, ipr10,fullmesh,lzz,fileexist, logarr(100)
     integer :: i,is,iprint, iprt,isw,ifi,ixx,j,k,l,lfrzw,lrs,k1,k2,mpipid, lmxbj,lmxaj,nlbj,&
          ibas,ierr,lc, iqnu=0, ifzbak,nn1,nn2,nnx,lmxxx,nlaj,isp,&
          inumaf,iin,iout,ik,iprior,ibp1,indx,iposn,m,nvi,nvl,nn1xx,nn2xx, nnn,ib,&

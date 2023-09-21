@@ -23,26 +23,29 @@ module m_bandcal !band structure calculation
   ! outputs ---------------------------
   public m_bandcal_init,m_bandcal_2nd,m_bandcal_clean,m_bandcal_allreduce,m_bandcal_symsmrho
   integer,allocatable,protected,public::     ndimhx_(:,:),nevls(:,:) 
-  real(8),allocatable,protected,public::     frcband(:,:), orbtm_rv(:,:,:)
+  real(8),allocatable,protected,public::     frcband(:,:), orbtm_rv(:,:,:),evlall(:,:,:)
   complex(8),allocatable,protected,public::  smrho_out(:),dmatu(:,:,:,:)
   type(s_rv5),allocatable,protected,public:: oeqkkl(:,:), oqkkl(:,:)
   !------------------------------------------------
   logical,private:: debug,sigmamode,call_m_bandcal_2nd,procaron,writeham
   logical,private:: dmatuinit=.true.
   real(8),private:: sumqv(3,2),sumev(3,2)
+  integer,allocatable,private::neviqis(:),ndimhxiqis(:)
+  real(8),allocatable,private::evliqis(:,:)
+  complex(8),allocatable,private:: eveciqis(:,:,:)
   private
 contains
-  subroutine m_bandcal_init(lrout,ef0,vmag0,ifih,evlall) ! Set up Hamiltonian, diagonalization
+  subroutine m_bandcal_init(lrout,ef0,vmag0,ifih) ! Set up Hamiltonian, diagonalization
     implicit none
-    intent(in)::            lrout,ef0,vmag0,ifih 
+    intent(in)::            lrout,ef0,vmag0,ifih
     complex(8),allocatable:: hamm(:,:,:,:),ovlm(:,:,:,:),hammhso(:,:,:) !Hamiltonian,Overlapmatrix
-    integer:: iq,nmx,ispinit,isp,nev,ifih,lwtkb,lrout,ifig,i,ibas,iwsene,idat
+    integer:: iq,nmx,ispinit,isp,nev,ifih,lwtkb,lrout,ifig,i,ibas,iwsene,idat,ikp
     real(8):: qp(3),ef0,def=0d0,xv(3),q(3),vmag0
     real(8),allocatable    :: evl(:,:)  !eigenvalue (nband,nspin)
     complex(8),allocatable :: evec(:,:) !eigenvector( :,nband)
     logical:: ltet,cmdopt0,dmatuinit=.true.,wsene
     character(3):: charnum3
-    real(8)::  evlall(ndhamx,nspx,nkp)
+!    real(8)::  evlall(ndhamx,nspx,nkp)
     call tcn('m_bandcal_init')
     if(master_mpi) write(stdo,ftox)' m_bandcal_init: start'
     sigmamode = mod(lrsig,10)/=0
@@ -55,9 +58,8 @@ contains
     if(lso/=0) allocate(orbtm_rv(nl,nsp,nbas)) !for spin-orbit coupling
     if(lso/=0) orbtm_rv=0d0
     if(lfrce>0) allocate( frcband(3,1:nbas),source=0d0) !force for band
-    allocate( ndimhx_(nkp,nspx),nevls(nkp,nspx)) 
-    ndimhx_=0
-    nevls  =0
+    allocate( ndimhx_(nkp,nspx),nevls(nkp,nspx),source=0) 
+    allocate( evlall(ndhamx,nspx,nkp),source=0d0)
     if(nlibu>0 .AND. dmatuinit) then
        allocate( dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu))
        dmatuinit=.false.
@@ -71,7 +73,11 @@ contains
     endif
     call_m_bandcal_2nd =.false.
     if(plbnd==0) call_m_bandcal_2nd= (lmet>=0 .AND. lrout>0 )
-    if(call_m_bandcal_2nd) open(newunit=ifig,file='eigze_'//trim(strprocid),form='unformatted')
+!    if(call_m_bandcal_2nd) open(newunit=ifig,file='eigze_'//trim(strprocid),form='unformatted')
+    if(call_m_bandcal_2nd) then
+       if(allocated(neviqis))deallocate(neviqis,ndimhxiqis,evliqis,eveciqis)
+       allocate(neviqis(niqisp),ndimhxiqis(niqisp),evliqis(nevmx,niqisp),eveciqis(ndhamx,nevmx,niqisp))
+    endif
     allocate( evl(ndhamx,nspx))
     sumev = 0d0
     sumqv = 0d0
@@ -79,11 +85,8 @@ contains
     bandcalculation_q: do 2010 idat=1,niqisp
        iq = iqproc(idat)
        qp = qplist(:,iq) !write(stdo,ftox)'m_bandcal_init: procid iq=',procid,iq,ftof(qp)
-       isp= isproc(idat) !NOTE: isp=1:nsp/nspc
-       if(cmdopt0('--afsym').and.isp==2) then
-!          deallocate(evec)
-          cycle
-       endif
+       isp= isproc(idat) !NOTE: isp=1:nspx=nsp/nspc
+       if(cmdopt0('--afsym').and.isp==2) cycle
        call m_Igv2x_setiq(iq) ! Get napw,ndimh,ndimhx, and igv2x
        allocate(hamm(ndimh,nspc,ndimh,nspc),ovlm(ndimh,nspc,ndimh,nspc)) !spin offdiagonal included
        ! hambl calls augmbl. See Appendix C in http://dx.doi.org/10.7566/JPSJ.84.034702
@@ -145,7 +148,7 @@ contains
             endif
          endif
          if(wsene) close(iwsene)
-         nmx=min(nevmx,ndimhx)!nmx: maximum number of eigenfunctions we will obtain. Smaller is faster.
+         nmx=min(nevmx,ndimhx)!nmx:maximum number of eigenfunctions we will obtain. Smaller is faster.
          if(iprint()>=30) write(stdo,'(" bndfp: kpt ",i5," of ",i5, " k=",3f8.4, &
               " ndimh = nmto+napw = ",3i5,f13.5)') iq,nkp,qp,ndimh,ndimh-napw,napw
          if(writeham) then
@@ -167,9 +170,13 @@ contains
        endblock Setup_hamiltonian_and_diagonalize
        if(writeham.AND.master_mpi) write(stdo,"(9f8.4)") (evl(i,isp), i=1,nev)
        if(call_m_bandcal_2nd) then
-          write(ifig) nev,nmx,ndimhx !nev: number of eigenvalues
-          write(ifig) evl(1:nev,isp)
-          write(ifig) evec(1:ndimhx,1:nmx)
+          neviqis(idat)   =nev
+          ndimhxiqis(idat)=ndimhx
+          evliqis(1:nev,idat)=evl(1:nev,isp)
+          eveciqis(1:ndimhx,1:nev,idat)=evec(1:ndimhx,1:nev)
+          !write(ifig) nev,ndimhx !nev: number of eigenvalues
+          !write(ifig) evl(1:nev,isp)
+          !write(ifig) evec(1:ndimhx,1:nev)
        endif
        evl(nev+1:ndhamx,isp)=1d99  !padding. flag to skip these data
        nevls(iq,isp)  = nev        !nov2014 isp and isp is confusing...
@@ -182,16 +189,7 @@ contains
        endif   
        if(master_mpi.AND.epsovl>=1d-14.AND.plbnd/=0) write(stdo,&
             "(' : ndimhx=',i5,' --> nev=',i5' by HAM_OVEPS ',d11.2)") ndimhx,nev,epsovl
-       ! This block is moved to _2nd          
-       !          if(plbnd==0 .AND.lwtkb>=0) then !lwtkb=-1,0,1
-       !             if(nlibu>0.AND.nev>0.AND.lmet==0) call rx('metal weights required for LDA+U calculation')
-       !             if(lso/=0)  call mkorbm(isp, nev, iq,qp, evec,  orbtm_rv)           !Orbital magnetic moment
-       !             if(nlibu>0 .AND. nev>0) call mkdmtu(isp, iq, qp, nev, evec,  dmatu) !density matrix
-       !             if(cmdopt0('--cls')) call m_clsmode_set1(nmx,isp,iq,qp,nev,evec)   !all inputs
-       !          endif
-       !          if(lrout/=0.AND.lwtkb>=0) call addrbl(isp,qp,iq,osmpot,vconst,osig,otau,oppi, &
-       !               evec,evl,nev,smrho_out,sumqv,sumev,oqkkl,oeqkkl,frcband) ! accumulate output density and sampling DOS.
-       if(PROCARon) call m_procar_init(iq,isp,ef0,vmag0,evl,ndimh,qp,nev,evec,ndimhx,nmx)
+       if(PROCARon) call m_procar_init(iq,isp,ef0,vmag0,evl,ndimh,qp,nev,evec,ndimhx)
        if(allocated(evec)) deallocate(evec)
        if(allocated(hammhso)) deallocate(hammhso)
        if(allocated(hamm)) deallocate(hamm,ovlm)
@@ -203,14 +201,13 @@ contains
        enddo
     endif
     if(PROCARon) call m_procar_closeprocar()
-    if(debug) write(stdo,"(' ---- end of do 2010 ---- ',2i5)") procid
-    if(call_m_bandcal_2nd) close(ifig)
+    if(debug) write(stdo,"(' ---- end of do 2010 ---- ',2i5)") procid !if(call_m_bandcal_2nd) close(ifig)
     deallocate(evl)
     call tcx('m_bandcal_init')
   end subroutine m_bandcal_init
   subroutine m_bandcal_2nd(lrout)! accumule evec things by addrbl
     implicit none
-    integer:: iq,nmx,ispinit,isp,nev,lrout,ifig,i,ibas,idat
+    integer:: iq,ispinit,isp,nev,lrout,ifig,i,ibas,idat
     real(8):: qp(3),def=0d0,xv(3)
     real(8),allocatable:: evl(:,:)
     complex(8),allocatable :: evec(:,:),evecbackup(:,:)
@@ -228,27 +225,30 @@ contains
     smrho_out = 0d0
     sumev = 0d0
     sumqv = 0d0
-    allocate(evl(ndhamx,nsp/nspc))
-    open(newunit=ifig,file='eigze_'//trim(strprocid),form='unformatted')
+    allocate(evl(ndhamx,nspx))
+!    open(newunit=ifig,file='eigze_'//trim(strprocid),form='unformatted')
     iqloop: do 12010 idat=1,niqisp !iq = iqini, iqend !This is a big iq loop
        iq = iqproc(idat)
        qp = qplist(:,iq)  !write(stdo,ftox)'m_bandcal_init: procid iq=',procid,iq,ftof(qp)
        isp= isproc(idat)
-       if(cmdopt0('--afsym').and.isp==2) then
-!          deallocate(evec)
-          cycle
-       endif
+       if(cmdopt0('--afsym').and.isp==2) cycle
        call m_Igv2x_setiq(iq) ! Get napw and so on for given qp
-       read(ifig) nev,nmx  !ndimhx <---supplied by m_Igv2x_set
-       allocate(evec(ndimhx,nmx))
-       read(ifig) evl(1:nev,isp)
-       read(ifig) evec(1:ndimhx,1:nmx)
-       evl(nev+1:ndhamx,isp)=1d99 !to skip these data
+       !read(ifig) nev,ndimhx  !ndimhx <---supplied by m_Igv2x_set
+       !allocate(evec(ndimhx,nev))
+       !read(ifig) evl(1:nev,isp)
+       !read(ifig) evec(1:ndimhx,1:nev)
+       !evl(nev+1:ndhamx,isp)=1d99 !to skip these data
 
+       nev   = neviqis(idat)
+       ndimhx= ndimhxiqis(idat)
+       allocate(evec(ndimhx,nev))
+       evl(1:nev,isp)=evliqis(1:nev,idat)
+       evl(nev+1:ndhamx,isp)=1d99 !padding 
+       evec(1:ndimhx,1:nev)=eveciqis(1:ndimhx,1:nev,idat)
 
-       if( lso/=0)              call mkorbm(isp, nev, iq,qp, evec,  orbtm_rv)
-       if( nlibu>0 .AND. nev>0) call mkdmtu(isp, iq,qp, nev, evec,  dmatu)
-       if( cmdopt0('--cls'))    call m_clsmode_set1(nmx,isp,iq,qp,nev,evec) !all inputs
+       if(lso/=0)              call mkorbm(isp, nev, iq,qp, evec,  orbtm_rv)
+       if(nlibu>0 .AND. nev>0) call mkdmtu(isp, iq,qp, nev, evec,  dmatu)
+       if(cmdopt0('--cls'))    call m_clsmode_set1(nev,isp,iq,qp,nev,evec) !all inputs
 
        if(cmdopt0('--afsym')) then
           if(allocated(evecbackup)) deallocate(evecbackup)
@@ -265,7 +265,7 @@ contains
             logical:: cmdopt0
             integer:: igrp,isp2,ikp,iev
             real(8)::qtarget(3)
-            complex(8):: evecrot(ndimhx,nmx)
+            complex(8):: evecrot(ndimhx,nev)
             evec=evecbackup
             evl(1:nev,2)=evl(1:nev,1)
             do igrp = ngrp + 1, ngrp+ngrpAF !AF symmetry
@@ -289,15 +289,9 @@ contains
             !               enddo   
             evec = evecrot
             isp2 = 2
-            !read(ifig) nev,nmx  !ndimhx <---supplied by m_Igv2x_set
-            !read(ifig)
-            !read(ifig) evec(1:ndimhx,1:nmx)
-            !do iev=1,nev
-            !   write(stdo,ftox) iq,iev, sum(abs(evec(:,iev))-abs(evecrot(:,iev)))
-            !enddo   
             if( lso/=0)              call mkorbm(isp2, nev, iq,qp, evec,  orbtm_rv)
             if( nlibu>0 .AND. nev>0) call mkdmtu(isp2, iq,qp, nev, evec,  dmatu)
-            if( cmdopt0('--cls'))    call m_clsmode_set1(nmx,isp2,iq,qp,nev,evec) !all inputs
+            if( cmdopt0('--cls'))    call m_clsmode_set1(nev,isp2,iq,qp,nev,evec) !all inputs
             call addrbl(isp2,qp,iq, osmpot,vconst,osig,otau,oppi,evec,evl,nev, smrho_out, sumqv, sumev, oqkkl,oeqkkl, frcband)
           endblock afsymblock
        endif afsymiffffffffffffffffffffffffffffffff
@@ -309,7 +303,7 @@ contains
           frcband(:,ibas) = frcband(:,ibas) - xv(:) ! Average forces so net force on system is zero (APW case)
        enddo
     endif
-    close(ifig)
+!    close(ifig)
     deallocate(evl)
     call tcx('m_bandcal_2nd')
   end subroutine m_bandcal_2nd
@@ -317,7 +311,7 @@ contains
     if (allocated(orbtm_rv)) deallocate(orbtm_rv)
     if (allocated(smrho_out)) deallocate(smrho_out)
     if (allocated(frcband))  deallocate(frcband)
-    if (allocated(ndimhx_))  deallocate(ndimhx_,nevls)
+    if (allocated(ndimhx_))  deallocate(ndimhx_,nevls,evlall)
     if(allocated(oqkkl)) deallocate( oqkkl)
     if(allocated(oeqkkl))deallocate( oeqkkl)
   end subroutine m_bandcal_clean

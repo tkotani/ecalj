@@ -300,20 +300,23 @@ contains
     use m_lmfinit,only: procid,master,nsp,nspc
     use m_ext,only: sname
     implicit none
-    integer:: iprocid,iqendx,iqinix,iqq,ifiproc,isp,ispx,icount,iqs,ncount,iqsi,iqse,iprint,nspx,idat,i
-    integer,allocatable::iqvec(:),ispin(:),iproc(:)
+    integer:: iqq,isp,ispx,icount,iqs,ncount,iqsi,iqse,iprint,nspxx,idat,i,nsize
+    logical:: cmdopt0
     call tcn('m_qplist_qpsdivider')
-    nspx=nsp/nspc !nspc is 2 for spin-coupled case
-    allocate(iqvec(nkp*nspx),ispin(nkp*nspx),iproc(nkp*nspx), kpproc(0:numprocs))
-    call dstrbp(nkp*nspx,numprocs,1,kpproc(0)) !  (iq,isp) is ordered as (1,1),(1,2),(2,1),(2,2),(3,1),(3,2),(4,1),(4,2).....  
+    nspxx=nsp/nspc !nspc is 2 for spin-coupled case
+    if(cmdopt0('--afsym')) nspxx=1
+    allocate(kpproc(0:numprocs))
+    call dstrbp(nkp*nspxx, numprocs,1,kpproc(0))
+    ! i=1,nkp*nspxx is divided into [kpproc(procid),kpporc(procid+1)-1] for each procid.
     iqsi = kpproc(procid)
     iqse = kpproc(procid+1)-1
     niqisp=iqse-iqsi+1
+    ! (iq,isp) is ordered as (1,1),(1,2),(2,1),(2,2),(3,1),(3,2),(4,1),(4,2).....  
     if(niqisp>0) then
        allocate(iqproc(niqisp),isproc(niqisp))
        do i=iqsi,iqse
-          iqproc(i-iqsi+1) =   (i-1)/nspx +1
-          isproc(i-iqsi+1) = mod(i-1,nspx)+1
+          iqproc(i-iqsi+1) =   (i-1)/nspxx +1
+          isproc(i-iqsi+1) = mod(i-1,nspxx)+1
        enddo
        iqini=iqproc(1)
        iqend=iqproc(niqisp)
@@ -321,9 +324,8 @@ contains
        iqini=0
        iqend=-1
     endif
-!    write(stdo,ftox)'m_qplist_qspdivider: procid niqisp iqini iqend=',procid,niqisp,iqini,iqend
     do idat=1,niqisp
-       write(stdo,ftox)'m_qplist_divider: procid=',procid,' idat iq isp=',idat,iqproc(idat),isproc(idat)
+       write(stdo,ftox)'qspdivider: procid=',procid,' idat iq isp=',idat,iqproc(idat),isproc(idat)
     enddo
     call tcx('m_qplist_qpsdivider')
   end subroutine m_qplist_qspdivider

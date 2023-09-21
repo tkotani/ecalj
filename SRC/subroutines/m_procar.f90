@@ -21,16 +21,16 @@ contains
     inquire(iprocar2,exist=nexist)
     if(nexist) close(iprocar2)
   end subroutine m_procar_closeprocar
-  subroutine m_procar_init(iq,isp,ef0,vmag0,evl,ndimh,qp,nev,evec,ndimhx,nmx)
+  subroutine m_procar_init(iq,isp,ef0,vmag0,evl,ndimh,qp,nev,evec,ndimhx)
     use m_makusq,only: makusq
     implicit none
-    complex(8):: evec(ndimhx,nmx)
+    complex(8):: evec(ndimhx,nev)
     character*1000::ccc
     real(8):: ef0
     complex(8):: auasaz(3)
     real(8):: s11,s22,s33,s12,s13,s23,dwgt(100),dwgtt(100),xdat,qold(3),qp(3),vmag0
     complex(8),allocatable:: auspp(:,:,:,:,:)
-    integer:: iq,isp,iprocar,iband,is,ilm,ndimh,nspc,ib,nev,i,m,l,ndimhx,nmx
+    integer:: iq,isp,iprocar,iband,is,ilm,ndimh,nspc,ib,nev,i,m,l,ndimhx
     real(8):: rydberg=13.6058d0,evl(ndhamx,nspx)
     logical:: cmdopt0
     real(8),allocatable:: evlm(:,:)
@@ -125,7 +125,6 @@ contains
     use m_ext,only:sname
     use m_tetirr,only: tetirr
     real(8):: evlall(:,:,:)
-!    integer:: nev_(:)
     logical:: cmdopt0
     integer:: kpproc(*)
     integer,allocatable:: ipqe(:,:,:),idtete(:,:)
@@ -136,7 +135,12 @@ contains
     nkk3=nkabc(3)
     !! pdos mode (--mkprocar and --fullmesh). ===
     if(debug) print *,'mmmm procid sum dwgt check=',procid,sum(dwgtall)
-    call xmpbnd2(kpproc,nbas*nchanp*ndhamx,nkp,nspx,dwgtall)
+    if(cmdopt0('--afsym')) then
+       call xmpbnd2(kpproc,nbas*nchanp*ndhamx,nkp,dwgtall(:,:,:,1,:)) !all eigenvalues broadcasted
+       call xmpbnd2(kpproc,nbas*nchanp*ndhamx,nkp,dwgtall(:,:,:,2,:)) !all eigenvalues broadcasted
+    else
+       call xmpbnd2(kpproc,nbas*nchanp*ndhamx,nkp*nspx,dwgtall)
+    endif   
     if(master_mpi) then
        allocate(idtete(0:4,6*nkp),ipqe(nkk1,nkk2,nkk3))
        iq=0

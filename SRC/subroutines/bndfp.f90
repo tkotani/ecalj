@@ -60,7 +60,7 @@ contains
     use m_igv2x,only: napw,ndimh,ndimhx,igv2x
     use m_procar,only: m_procar_init,dwgtall,nchanp,m_procar_closeprocar,m_procar_writepdos
     use m_bandcal,only: m_bandcal_init,m_bandcal_2nd,m_bandcal_clean,m_bandcal_allreduce, &
-         smrho_out,oqkkl,oeqkkl, ndimhx_,nevls,m_bandcal_symsmrho
+         smrho_out,oqkkl,oeqkkl, ndimhx_,nevls,m_bandcal_symsmrho,evlall
     use m_mkrout,only: m_mkrout_init,orhoat_out,frcbandsym,hbyl_rv,qbyl_rv
 !    use m_addrbl,only: m_addrbl_allocate_swtk,swtk
     use m_sugw,only: m_sugw_init
@@ -125,10 +125,10 @@ contains
     logical:: fsmode !for --fermisurface for xcrysden.
     logical,save:: siginit=.true.
     integer:: iter,i,ifi,ipr,iq,isp,jsp,iprint,ipts
-    integer:: idummy, unlink,ifih,ifii,ib,ix,ifimag,nevmin,nnn
+    integer:: idummy, unlink,ifih,ifii,ib,ix,ifimag,nevmin,nnn,ikp
     real(8):: ekinval,eharris,eksham,  dosw(2),dum,evtop,ecbot,qp(3),rydberg,xxx,eeem
     real(8):: fh_rv(3,nbas),vmag,eee,dosi(2),dee,efermxxx,emin,qvalm(2)
-    real(8),allocatable:: dosi_rv(:,:),dos_rv(:,:),qmom_in(:),evlallm(:,:,:),evlall(:,:,:)
+    real(8),allocatable:: dosi_rv(:,:),dos_rv(:,:),qmom_in(:),evlallm(:,:,:)
     real(8),parameter::  NULLR =-99999,pi=4d0*datan(1d0)
     real(8):: elind=0d0
     call tcn ('bndfp')
@@ -182,17 +182,21 @@ contains
        call rx0('sugw mode')  !exit program here normally.
     endif GWdriver
     ! Set up Hamiltonian and diagonalization in m_bandcal_init. To know outputs, see 'use m_bandcal,only:'. The outputs are evlall, and so on.
-    sttime = MPI_WTIME()
-!    if(nspc==2) call m_addrbl_allocate_swtk(ndham,nsp,nkp)
-    allocate( evlall(ndhamx,nspx,nkp))
-    call m_bandcal_init(lrout,eferm,vmag,ifih, evlall) ! Get Hamiltonian and diagonalization resulting evl,evec,evlall. 
-    entime = MPI_WTIME()                               ! eferm,vmag are inputs: only read by m_procar_init
+    sttime = MPI_WTIME() ! if(nspc==2) call m_addrbl_allocate_swtk(ndham,nsp,nkp)
+    call m_bandcal_init(lrout,eferm,vmag,ifih) ! Get Hamiltonian and diagonalization resulting evl,evec,evlall.  eferm,vmag are inputs read by m_procar_init in m_bandcal_init.
+    entime = MPI_WTIME()                
     if(master_mpi) write(stdo,"(a,f9.4)") ' ... Done MPI k-loop: elapsed time=',entime-sttime
     if(writeham) close(ifih)
     if(writeham) call rx0('Done --writeham: --fullmesh may be needed. HamiltonianMTO* genereted')
-    call mpibc2_int(ndimhx_,size(ndimhx_),'bndfp_ndimhx_') !all reduce (instead of which node to which node).
-    call mpibc2_int(nevls,  size(nevls),  'bndfp_nevls')   !all reduce (to avoid which node to which node).
-    call xmpbnd2(kpproc,ndhamx,nkp,nspx,evlall) !all eigenvalues broadcasted
+    call mpibc2_int(ndimhx_,size(ndimhx_),'bndfp_ndimhx_') 
+    call mpibc2_int(nevls,  size(nevls),  'bndfp_nevls')   
+    if(cmdopt0('--afsym')) then
+       call xmpbnd2(kpproc,ndhamx,nkp,evlall(:,1,:)) !all eigenvalues broadcasted
+       call xmpbnd2(kpproc,ndhamx,nkp,evlall(:,2,:)) 
+    else
+       call xmpbnd2(kpproc,ndhamx,nkp*nspx,evlall)   !all eigenvalues broadcasted
+    endif   
+    nevmin = minval(nevls(1:nkp,1:nspx))
     PLOTmode: block
       fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') ! pdos mode (--mkprocar and --fullmesh)
       PROCARon = cmdopt0('--mkprocar') 
@@ -254,7 +258,8 @@ contains
     GenerateTotalDOS: if(master_mpi .AND. (tdos .OR. ldos/=0)) then !   emin=dosw(1) emax=dosw(2) dos range
        dosw(1)= emin-0.01d0 ! lowest energy limit to plot dos
        dosw(2)= eferm+bz_dosmax !max energy limit to plot dos
-       write(stdo,ftox)' bndfp:Generating TDOS: efermi=',ftof(eferm),' dos window emin emax= ',ftof(dosw)
+       write(stdo,ftox)' bndfp:Generating TDOS: efermi(eV)=',ftof(rydberg()*eferm),&
+            'DOSwindow emin emax(eV)= ',ftof(rydberg()*dosw)
        allocate( dosi_rv(ndos,nspx),dos_rv(ndos,nspx)) !for xxxdif
        if(cmdopt0('--tdostetf')) ltet= .FALSE. ! Set tetrahedron=F
        if(ltet) then
@@ -282,13 +287,16 @@ contains
        if(tdos) call rx0('Done tdos mode:')
     endif GenerateTotalDOS
     if(master_mpi) write(stdo,ftox)
-    if(master_mpi) write(stdo,"('    ikp isp            q          nev ndimh',50i7)")[(i,i=1,min(nevmin,50))]
+    if(master_mpi.and.cmdopt0('--afsym')) write(stdo,ftox)&
+         ' --afsym mode: AF symmetry lets us make bands of isp=2 from isp=1!'
     WRITEeigenvaluesConsole: if(master_mpi .AND. iprint()>=35) then
+    if(master_mpi) write(stdo,"('                 ikp isp         q           nev ndimh')")
        do    iq  = 1,nkp
              qp  = qplist(:,iq)
           do jsp = 1,nspx
-             write(stdo,"('  band:',i3,i2,x,3f7.3,' ',i3,' ',i3,a)") & !up to 50th band
-                  iq,jsp,qp,nevls(iq,jsp),ndimhx_(iq,jsp),ftof([(rydberg()*(evlallm(i,jsp,iq)-eferm), i=1,min(nevls(iq,jsp),50))],3)
+             write(stdo,"(' band-efermi(eV):',i3,i2,x,3f7.3,' ',i3,' ',i3)") & !up to 50th band
+                  iq,jsp,qp,nevls(iq,jsp),ndimhx_(iq,jsp)
+             write(stdo,"('  ',10f8.3)") rydberg()*(evlallm(1:nevls(iq,jsp),jsp,iq)-eferm)
           enddo
        enddo
     endif WRITEeigenvaluesConsole
@@ -342,7 +350,7 @@ contains
     ham_ehk= eksham  !Hohenberg-Kohn-Sham total energy
     call m_mkpot_deallocate()
     call m_bandcal_clean()
-    deallocate(evlall,evlallm)
+    deallocate(evlallm)
     call tcx('bndfp')
   end subroutine bndfp
 end module m_bndfp

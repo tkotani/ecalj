@@ -291,7 +291,7 @@ contains
     amom = smag+saloc !magnetic moment
     if(iprint() >= 30) then
        write(stdo,"('  mkpot:',/'   Energy terms:',11x,'smooth',11x,'local',11x,'total')")
-       write(stdo,680) 'rhoval*veff ',valfsm,valftr,valvef, & !\int rho Veff
+       write(stdo,680) 'rhoval*veff',valfsm,valftr,valvef, & !\int rho Veff
             'rhoval*ves ',rhvsm,vvesat,valves, & !\int rho Ves
             'psnuc*ves  ',zvnsm,cpnvsa,cpnves, & !\int rho(Z+core) Ves
             'Eestatic   ',usm,uat,utot, & ! electrostatic energy

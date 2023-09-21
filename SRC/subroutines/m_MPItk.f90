@@ -1,10 +1,7 @@
 module m_MPItk
   use m_ext,only:sname
   use m_lgunit,only: stml,stdl
-  public :: &
-       m_MPItk_init, m_MPItk_finalize, procid, strprocid,master,nsize,master_mpi,mlog,mlog_MPIiq,&
-       xmpbnd2
-
+  public :: m_MPItk_init, m_MPItk_finalize, procid, strprocid,master,nsize,master_mpi,mlog,mlog_MPIiq, xmpbnd2
   private
   integer:: procid,master=0,nsize
   include "mpif.h"
@@ -82,7 +79,7 @@ contains
   end subroutine mlog_MPIiq
 
   ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-  subroutine xmpbnd2(kpproc,ndham,nkp,nspx,eb) !use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq
+  subroutine xmpbnd2(kpproc,ndham,ndat,eb) 
     !- Collect eb from various processors (MPI)
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -94,22 +91,24 @@ contains
     !o Outputs
     ! ----------------------------------------------------------------------
     implicit none
-    integer:: kpproc(0:*),ndham,nkp,nspx
-    double precision :: eb(ndham,nspx*nkp)
+    integer:: kpproc(0:*),ndham,ndat
+    double precision :: eb(ndham,ndat)
     integer :: i,ista,iend, ierr
     integer, dimension(:),allocatable :: offset,length
     real(8) ,allocatable :: buf_rv(:,:)
     allocate (offset(0:nsize), stat=ierr)
     allocate (length(0:nsize), stat=ierr)
     offset(0) = 0
-    do  i = 0, nsize-1
+    do  i = 0, nsize-1 !NOTE: ndat is divided into kpproc
        ista = kpproc(i)
        iend = kpproc(i+1)-1
        length(i) = (iend - ista + 1)*ndham !nsp*ndham
        offset(i+1) = offset(i) + length(i)
     enddo
     ista = kpproc(procid)
-    allocate(buf_rv(ndham,nkp*nspx))
+    allocate(buf_rv(ndham,ndat))
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!    write(6,*)'ppppp',procid,ista,ndham,'nkp nspx=',nkp,nspx,'len=',length(procid)
     call mpi_allgatherv(eb(1,ista),length(procid),mpi_double_precision,buf_rv,length,offset &
          , mpi_double_precision , mpi_comm_world , ierr )
     eb= buf_rv 

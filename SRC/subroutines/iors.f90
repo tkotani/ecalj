@@ -107,7 +107,7 @@ contains
     real(8) ,allocatable :: rwgt_rv(:)
 !    equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
     integer :: idmod(n0),idmoz(n0) !,lrs(10)
-    logical :: isanrg,lfail,ltmp1,ltmp2,latvec,cmdopt,mlog,skiprstpnu,cmdopt0 !,lshear
+    logical :: isanrg,lfail,ltmp1,ltmp2,latvec,skiprstpnu,cmdopt0 !,lshear
     double precision :: a,a0,alat0,cof,eh,fac,qc,rmt, & !rfoc,rfoc0
          rmt0,rsma0,rsmv0,stc,sum,vfac,vol0,vs,vs1,z,z0
     real(8),pointer:: pnu(:,:),pnz(:,:)
@@ -126,7 +126,7 @@ contains
     nproc  = mpipid(0)
     procid = mpipid(1)
     master = 0
-    mlog = cmdopt('--mlog',6,0,ignore)
+!    mlog = cmdopt('--mlog',6,0,ignore)
 !    ngabc=lat_nabc
     ipr    = iprint()
     !      stdo   = lgunit(1)
