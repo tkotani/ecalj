@@ -103,6 +103,7 @@ contains
     use m_hamindex,only: napwk
     use m_lmfinit,only: nl,stdo
     use m_lattic,only: plat=>lat_plat
+    use m_ftox
     !! nbas is in this structure
     !! input
     !!    ifis:  file hundle for self-energy file sigm. only at irreducible q point.
@@ -145,7 +146,7 @@ contains
     lshft=0
     rewind ifis !Read sigma(orbital basis) from a file 
     read(ifis) nsp_,ndimsig_r,nk1_,nk2_,nk3_,nqp_
-    nsgrp=ngrp !lat_nsgrp
+    nsgrp  = ngrp !lat_nsgrp
     nsgrps = nsgrp
 !    print *,' lat_nsgrp=',lat_nsgrp
     llshft = .false. 
@@ -153,17 +154,22 @@ contains
     mxkp = nk1*nk2*nk3
     allocate(rv_p_oqsig(abs(3*mxkp)),qp_rv(3,mxkp),ipq(nk1,nk2,nk3))
     allocate(wgt_rv(mxkp))
-    write(stdo,"(a)")' q-points in full BZ where sigma calculable ...'
-    call bzmesh(plat,qb,ifac,nk1,nk2,nk3,llshft,iwdummy,0, ipq,rv_p_oqsig, wgt_rv, nqsig, mxkp)!,0)
+    write(stdo,"(a)")'  points in Full BZ where sigma should be given ...'
+    call bzmesh(plat,qb,ifac,nk1,nk2,nk3,llshft,iwdummy,0, ipq,rv_p_oqsig, wgt_rv, nqsig, mxkp)
     ham_nqsig=nqsig
-    write(stdo,"(a)") ' Irr. qp for which sigma is calculated ...'
-    call bzmesh(plat,qb,ifac,nk1,nk2,nk3,llshft,symops, nsgrps,ipq, qp_rv,wgt_rv,nqps,mxkp)! ,gstar_iv)
+    write(stdo,"(a)")'  Irreducible qp for which sigma is calculated ...'
+    call bzmesh(plat,qb,ifac,nk1,nk2,nk3,llshft,symops, nsgrps,ipq, qp_rv,wgt_rv,nqps,mxkp)
     if(nqps/=nqp_) call rx('nqps/=nqp_ from sigm '//xt(nqps)//' '//xt(nqp))
     platt=transpose(plat)
     do concurrent(i1=1:nk1,i2=1:nk2,i3=1:nk3)
        qsmesh(:,i1,i2,i3) = matmul(qb(:,:), [(i1*ifac(1)-1), (i2*ifac(2)-1), (i3*ifac(3)-1)])
     enddo
-    if(laf) then; if(iprint()>10) write(stdo,*)'rdsimg2: AF mode, mapping from irr points to regular mesh point'
+    if(laf) then
+       if(iprint()>10) write(stdo,*)'rdsimg2: AF mode, mapping from irr points to regular mesh point'
+       write(6,*)'ngrp ngrpAF=',ngrp,ngrpAF
+       do ig= ngrp+1,ngrp+ngrpAF !only AF symmetry (equivalent with symops_af)
+          write(stdo,ftox)ig,ftof(reshape(symops(:,:,ig),[9]),3)
+       enddo
        allocate(ipqaf(nk1,nk2,nk3))
        ipqaf=0
        do i1=1,nk1
@@ -171,7 +177,7 @@ contains
              do i3=1,nk3
                 do 1111 iq1=1,nqps
                    qir = qp_rv(:,iq1)
-                   do ig= ngrp+1,ngrpAF !only AF symmetry (equivalent with symops_af)
+                   do ig= ngrp+1,ngrp+ngrpAF !only AF symmetry (equivalent with symops_af)
                       call rangedq( matmul(platt,(qsmesh(:,i1,i2,i3) - matmul(symops(:,:,ig),qir))), diffq)
                       if(sum(abs(diffq))<tolq) then
                          ipqaf(i1,i2,i3) = iq1    !iq1 is pointer to the irreducible q point = qp_rv(:,iq1)
@@ -324,12 +330,9 @@ contains
     if(debugmode>0) write(stdo,"('rotsig: qin qout=',3f9.4,x,3f9.4)") qin,qout
     qtarget= qin
     q      = qout  
-    AntiferroMechanism: if(iaf==1) then !AFisp=1
-       ngini = 1
-       ngend = ngrp
-    elseif(iaf==2) then !AF isp=2. These are antiferro space-group operations
-       ngini = ngrp + 1
-       ngend = ngrpAF
+    AntiferroMechanism: if(iaf==2) then !AF isp=2. These are antiferro space-group operations
+       ngini = ngrp+ 1
+       ngend = ngrp+ ngrpAF
     else
        ngini = 1
        ngend = ngrp

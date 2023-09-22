@@ -102,7 +102,7 @@ subroutine bzmesh(plat,qb,ifac,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx)! Divides 
 23 enddo i3loop
   if(igcnt/=n1*n2*n3 ) call rx('bug in bzmesh')
   if(abs(swgt-2)>1d-9) call rx1('BZMESH: QP weights sum to ',swgt)
-  if(ipr>=20)write(stdo,"(a,i5,a,3i4,a,3l)") " BZMESH:  ",nq," irreducible QP from ",n1,n2,n3," shift=",lshft
+  if(ipr>=20)write(stdo,"(a,i3,i5,a,3i4,a,3l)") " BZMESH: ngrp nq ",ng,nq," QP from ",n1,n2,n3," shift=",lshft
   if(ipr>=50) then
      chr(2) = ' '
      chr(0) = '*'
