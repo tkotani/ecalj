@@ -1,3 +1,7 @@
+module m_defpq
+  public defpq
+  private
+contains
 subroutine defpq(z,lmax,nsp,p,q)  !- Generate default values for P and Q
   !i Inputs
   !i   z     :nuclear charge
@@ -322,4 +326,4 @@ subroutine atmoms(k0,q0,z)  !- Generate a default atomic configuration for speci
      k0(3) = 4
   endif
 end subroutine atmoms
-
+endmodule m_defpq

@@ -27,6 +27,7 @@ contains
     use m_atwf,only: atwf,makrwf
     use m_ftox
     use m_zhev,only: zhev_tk4
+    use m_hambl,only: hambl
     implicit none
     !! == Driver for fpgw (to prepare eigenfuncitons for fpgw) ==
     !! NOTE: following documents are not carefully examined. Not believe everything.

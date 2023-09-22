@@ -10,6 +10,7 @@ contains
     use m_lmfinit,only: bz_ndos,bz_dosmax,slabl
     use m_elocp,only: rsmlss=>rsml,ehlss=>ehl
     use m_density,only: v0pot,pnuall,pnzall
+    use m_makusp,only: makusp
     !i   nlmax :first dimension of aus; largest augmentation (l+1)^2
     !i   ndham :second dimension of aus, at least as large as ndimh
     !i   ndimh :number of eigenvalues

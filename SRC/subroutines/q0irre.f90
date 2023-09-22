@@ -837,39 +837,39 @@ real(8) function auxfun6xnx(q0x, alpv, alat, qlat, ngc, ngvect &
 END function auxfun6xnx
 
 
-!-------------------------------------------------------------
-complex(8) function formfac_test(qg,alat)
-  complex(8):: imag=(0d0,1d0)
-  integer,parameter:: natom=2
-  integer::ia
-  real(8):: absqg,qg(3),bas(3,natom),z(natom),valn(natom),atomform0,alat
-  formfac_test=0d0
-  absqg  = sqrt(sum(qg(1:3)**2))
-  ! cccccccccccccccccccccccccccccccccccccccccccccccccccc
-  !      natom=2
-  bas(:,1)=(/0D0,0d0, 0.2408438061041292D+00/)
-  bas(:,2)=(/0D0,0d0,-0.2408438061041292D+00/)
-  ! cccccccccccccccccccccccccccccccccccccccccccccccccccc
-  !      alp=1d0
-  !      formfac_test =  sqrt(exp(-alp*absqg*absqg))
-  !      return
-  ! cccccccccccccccccccccccccccccccccccccccccccccccccccc
-  do ia=1,natom
-     formfac_test= formfac_test + atomform0(absqg)*exp(-imag*sum(qg*alat*bas(:,ia)))
-  enddo
-END function formfac_test
+! !-------------------------------------------------------------
+! complex(8) function formfac_test(qg,alat)
+!   complex(8):: imag=(0d0,1d0)
+!   integer,parameter:: natom=2
+!   integer::ia
+!   real(8):: absqg,qg(3),bas(3,natom),z(natom),valn(natom),atomform0,alat
+!   formfac_test=0d0
+!   absqg  = sqrt(sum(qg(1:3)**2))
+!   ! cccccccccccccccccccccccccccccccccccccccccccccccccccc
+!   !      natom=2
+!   bas(:,1)=(/0D0,0d0, 0.2408438061041292D+00/)
+!   bas(:,2)=(/0D0,0d0,-0.2408438061041292D+00/)
+!   ! cccccccccccccccccccccccccccccccccccccccccccccccccccc
+!   !      alp=1d0
+!   !      formfac_test =  sqrt(exp(-alp*absqg*absqg))
+!   !      return
+!   ! cccccccccccccccccccccccccccccccccccccccccccccccccccc
+!   do ia=1,natom
+!      formfac_test= formfac_test + atomform0(absqg)*exp(-imag*sum(qg*alat*bas(:,ia)))
+!   enddo
+! END function formfac_test
 
-!--------------------------------------------------------------------------------
-complex(8) function formfac(qg,bas,natom,z,valn)
-  complex(8):: imag=(0d0,1d0)
-  integer:: natom,ia
-  real(8):: absqg,qg(3),bas(3,natom),z(natom),valn(natom),atomform0
-  formfac=0d0
-  do ia=1,natom
-     absqg  = sqrt(sum(qg(1:3)**2))
-     formfac= formfac + atomform0(absqg)*exp(-imag*sum(qg*bas(:,ia)))
-  enddo
-END function formfac
+! !--------------------------------------------------------------------------------
+! complex(8) function formfac(qg,bas,natom,z,valn)
+!   complex(8):: imag=(0d0,1d0)
+!   integer:: natom,ia
+!   real(8):: absqg,qg(3),bas(3,natom),z(natom),valn(natom),atomform0
+!   formfac=0d0
+!   do ia=1,natom
+!      absqg  = sqrt(sum(qg(1:3)**2))
+!      formfac= formfac + atomform0(absqg)*exp(-imag*sum(qg*bas(:,ia)))
+!   enddo
+! END function formfac
 
 subroutine getnvaln(konfig,z,natom,nl,iclass,nclass,valn)
   real(8):: valn(natom),z(natom)
@@ -1012,16 +1012,6 @@ end subroutine setq0x_notused
 !      if(q0pchoice()==5) ixtest=1
 !      if(q0pchoice()==6) ixtest=2
 !      end
-
-subroutine zccopy(n,nb,zzz)
-  integer::n,nb,i
-  real(8)::rrr(n)
-  complex(8)::zzz(n)
-  do i=1,n
-     zzz(i)=rrr(i)
-  enddo
-end subroutine zccopy
-
 
 subroutine gsorth(ndim,mx,aset,b)
   !! for gram-schmit diagonalization

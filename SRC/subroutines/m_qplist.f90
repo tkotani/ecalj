@@ -299,6 +299,7 @@ contains
     use m_MPItk,only: master_mpi,mlog, numprocs=>nsize
     use m_lmfinit,only: procid,master,nsp,nspc
     use m_ext,only: sname
+    use m_dstrbp,only: dstrbp
     implicit none
     integer:: iqq,isp,ispx,icount,iqs,ncount,iqsi,iqse,iprint,nspxx,idat,i,nsize
     logical:: cmdopt0

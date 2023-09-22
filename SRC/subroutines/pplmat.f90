@@ -73,59 +73,6 @@ subroutine mkppmt(alat,plat,qlat, q, ng1,ngvec1, rmax,  nbas,  bas, lmxa, lmxax,
   if(debug) call rx( 'test end ----------')
   deallocate(yl,cy)
 end subroutine mkppmt
-subroutine mkppovl(alat,plat,qlat,q,ng1,ngvec1,ng2,ngvec2,rmax,nbas,bas,lmxa,lmxax, ppovl)!<P^q1_G1 | P^q2_G2 > matrix where P^q1_G1 denotes IPW, zero within sphere.
-  implicit none
-  integer ::  nbas,  ng1,ng2,lmxax,ig1,ig2,ibas,la,lma,lmh,ngvec1(3,ng1),ngvec2(3,ng2),lmxa(nbas),ll
-  real(8) :: absqg1,absqg2,tripl,rmax(nbas),pi4,r2s
-  real(8) :: q(3),plat(3,3),qlat(3,3),qgg1(3,ng1),qgg2(3,ng2), facl &
-       ,pi,alat,tpiba,cost,voltot,plegn,qg1(3),qg2(3),qqq(3), &
-       bas(3,nbas), fkk(0:lmxax),fkj(0:lmxax),fjk(0:lmxax),fjj(0:lmxax) &
-       ,absqg1x(ng1),absqg2x(ng2)
-  real(8),allocatable::cy(:),yl(:),yl1(:),yl2(:)
-  complex(8) :: img =(0d0,1d0),phase
-  complex(8) :: ppovl(ng1,ng2)
-  integer:: verbose
-  if(verbose()>50) print *,' mkppovl:'
-  pi = 4d0*datan(1d0)
-  pi4=16d0*datan(1d0)
-  tpiba=2*pi/alat
-  voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
-  allocate(cy((lmxax+1)**2),yl((lmxax+1)**2) )
-  call sylmnc(cy,lmxax)
-  ! <P^q_G1 | P^q_G2 > matrix
-  do ig1 = 1,ng1
-     qgg1(1:3,ig1) = tpiba * (q(1:3)+ matmul(qlat, ngvec1(1:3,ig1)))
-     absqg1x(ig1)  = sqrt(sum(qgg1(1:3,ig1)**2))
-  enddo
-  do ig2 = 1,ng2
-     qgg2(1:3,ig2) = tpiba * (q(1:3)+ matmul(qlat, ngvec2(1:3,ig2)))
-     absqg2x(ig2)  = sqrt(sum(qgg2(1:3,ig2)**2))
-  enddo
-  ppovl = 0d0
-  do ig1 =1,ng1
-     qg1(1:3) = qgg1(1:3,ig1)
-     absqg1   = absqg1x(ig1)
-     do ig2 =1,ng2
-        qg2(1:3) = qgg2(1:3,ig2)
-        absqg2   = absqg2x(ig2)
-        if(sum(abs(ngvec1(:,ig1)-ngvec2(:,ig2)))==0) ppovl(ig1,ig2)= voltot
-        if( absqg1*absqg2 == 0d0) then
-           cost = 1d0
-        else
-           cost = sum(qg1*qg2)/absqg1/absqg2
-        endif
-        do ibas = 1,nbas
-           call wronkj( absqg1**2, absqg2**2, rmax(ibas), lmxa(ibas),fkk,fkj,fjk,fjj)
-           do la  = 0,lmxa(ibas)
-              ppovl(ig1,ig2) = ppovl(ig1,ig2) - exp( img* sum((qg2-qg1)*bas(1:3,ibas))*alat )   & 
-                   * pi4 *(2*la+1d0) * plegn(la,cost) * (-fjj(la))  *facl(absqg1*absqg2,la)
-           enddo
-        enddo
-     enddo
-  enddo
-  if (allocated(cy)) deallocate(cy)
-  if (allocated(yl)) deallocate(yl)
-end subroutine mkppovl
 real(8) function facl(a,l)
   integer :: l
   real(8) a

@@ -26,6 +26,7 @@ program lmf ! Bootstrap sequence of modules initialzation. The variables in modu
   use m_gennlat,only:  m_gennlat_init
   use m_writeham,only: m_writeham_init, m_writeham_write
   use m_lmfp,only:     lmfp  !this is main part lmfp-->bndfp
+  use m_writeband,only: writepdos,writedossawada
   use m_ftox
   implicit none
   integer:: iarg,iprint,iargc,jobgw=-1
@@ -85,10 +86,10 @@ program lmf ! Bootstrap sequence of modules initialzation. The variables in modu
   if(trim(prgnam)=='LMF') call m_mkqp_init() ! data of BZ go into m_mkqp
   ! --rs=3 is removed. (--rs=3 meand fixed density Harris-foukner MD).
   ! Sep2020:  Shorten site positions" removed. (we are useing shortn3 mainly now)
-  ReadingPos: block !read aomic positions from AtomPos if it exists. Overwrite pos in m_lattic.
+  ReadingPos: block !read atomic positions from AtomPos if it exists. Overwrite pos in m_lattic.
     real(8):: posread(3,nbas)
     logical:: irpos
-    call ReadAtomPos(nbas,posread,irpos)
+    call ReadAtomPos(posread,irpos)
     if(irpos) call Setopos(posread)
     if(irpos) write(stdo,*) 'Readin AtomPos.'//trim(sname)//' !!!!'
   endblock ReadingPos
@@ -127,26 +128,29 @@ program lmf ! Bootstrap sequence of modules initialzation. The variables in modu
     call lmfp(jobgw==1) 
   endblock MainRoutine
   call rx0("OK! end of "//trim(prgnam)//" ======================")
-endprogram lmf
-subroutine readatompos(nbas,pos,irpos)
-  use m_ext,only:     sname
-  use m_ftox
-  real(8):: pos(3,nbas),p(3)
-  integer:: ifipos,i,nbas,nbaso
-  logical:: irpos
-  irpos=.false.
-  open(newunit=ifipos,file='AtomPos.'//trim(sname),status='old',err=1010)
-  do 
-     read(ifipos,*,end=1010)
-     read(ifipos,*)
-     read(ifipos,*) nbaso
-     do i=1,nbaso
-        read(ifipos,*) p
-        if(i<=nbas) pos(:,i)=p    !write(stdo,ftox)i,ftof(p)
-     enddo
-     irpos=.true.
-  enddo
-  close(ifipos)
+contains
+  subroutine readatompos(pos,irpos)
+    intent(out)::        pos,irpos
+    real(8):: pos(3,nbas)
+    logical:: irpos
+    block
+      integer::i,nbaso,ifipos
+      real(8):: p(3)
+      irpos=.false.
+      open(newunit=ifipos,file='AtomPos.'//trim(sname),status='old',err=1010)
+      do 
+         read(ifipos,*,end=1010)
+         read(ifipos,*)
+         read(ifipos,*) nbaso
+         do i=1,nbaso
+            read(ifipos,*) p
+            if(i<=nbas) pos(:,i)=p    !write(stdo,ftox)i,ftof(p)
+         enddo
+         irpos=.true.
+      enddo
+      close(ifipos)
+    endblock
 1010 continue
-endsubroutine readatompos
+  endsubroutine readatompos
+endprogram lmf
 include "show_programinfo.fpp" !this is for 'call show_programinfo' ! preprocessed from show_programinfo.f90 by Makefile

@@ -54,6 +54,7 @@ contains
   subroutine m_lmfinit_init(prgnam) ! All the initial data are set in module variables from ctrlp.*
     use m_gtv2,only: gtv2_setrcd,rval2
     use m_cmdpath,only:cmdpath
+    use m_defpq,only:defpq
     ! Inputs
     !   file  : ctrl.sname
     !   prgnam: name of main program

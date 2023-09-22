@@ -118,6 +118,7 @@ augmat.o \
 augmbl.o \
 bndfp.o \
 m_bndfp_util.o\
+m_writeband.o\
 bstrux.o \
 dfqkkl.o \
 dfrce.o \
@@ -146,7 +147,6 @@ rlocbl.o \
 rsibl.o \
 smhsbl.o \
 smves.o \
-sopert.o \
 supot.o \
 symrho.o \
 tbhsi.o \
@@ -205,7 +205,6 @@ dpsion5.o\
 m_homoelectron.o \
 m_w0w0i.o \
 wse.o \
-bzints2.o \
 wintzsg.o \
 pplmat.o \
 getbzdata1.o \

@@ -25,6 +25,7 @@ program hsfp0
   use m_lgunit,only: m_lgunit_init
   use m_freq,only: freq01
   use m_anf,only:  Anfcond, laf
+  use m_bzints,only: bzints2x
   implicit none
   !! = Calculate the diagonal part of self-energy \Sigma within the GW approximation. And some other functions =
   !  See document at the top of hsfp0.sc.m.F

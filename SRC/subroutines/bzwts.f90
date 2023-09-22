@@ -8,6 +8,7 @@ contains
     use m_lmfinit,only: stdo,stdl
     use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
     use m_MPItk,only: master_mpi
+    use m_bzints,only:bzints
     implicit none
     intent(in)::   nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,&
          metal,tetra,norder,npts,width,rnge,wtkp,eb
@@ -70,7 +71,7 @@ contains
     real(8) ,allocatable :: top_rv(:)
     integer ,allocatable :: bmap_iv(:)
     real(8) ,allocatable :: wk_rv(:)
-    double precision emin,emax,e1,e2,dum,tol,e,elo,ehi,sumwt,&
+    double precision emin,emax,e1,e2,dum(1),tol,e,elo,ehi,sumwt,&
          dmin,dmax,egap,amom,cv,tRy
     character outs*100,ryy*3
     logical cmdopt0,lfill
@@ -217,7 +218,7 @@ contains
        if (allocated(dos_rv)) deallocate(dos_rv)
 2      continue
        call bzints(n1*n2*n3,eb,wtkb,nkp,nevxx,nbmxx,&
-            nspx,emin,emin,emin,1,efermi,2*job,ntet,idtet,sumev,qval(1))
+            nspx,emin,emin,dum,1,efermi,2*job,ntet,idtet,sumev,qval(1))
     else
        ! --- BZ weights, sumev and E_f by Methfessel-Paxton sampling ---
        if(ipr>0) write(stdo,"(a,i0,a,f15.6)")' BZWTS : --- Brillouin Zone sampling; N=',n,' W=',width

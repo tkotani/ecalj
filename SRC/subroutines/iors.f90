@@ -14,7 +14,8 @@ contains
     use m_lattic,only: plat=>lat_plat,vol=>lat_vol,qlat=>lat_qlat
     use m_ext,only:sname
     use m_ftox
-    use m_density,only: 
+    use m_density,only:
+    use m_chgmsh,only:chgmsh
     !! read write
     !!     smrho, rhoat
     !!     ssite: pos, pos0, force, pnu pz ov0,ov1

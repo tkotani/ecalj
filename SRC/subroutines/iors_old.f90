@@ -15,6 +15,7 @@ contains
     use m_ext,only:sname
     use m_density,only: pnuall,pnzall,v0pot,v1pot
     use m_ftox
+    use m_chgmsh,only:chgmsh
     !!- I/O for charge density to rst or rsta. ssite sspec are readin
     !! read write
     !!     smrho, rhoat

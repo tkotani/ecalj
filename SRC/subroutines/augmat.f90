@@ -5,6 +5,7 @@ module m_augmat !- Make augmentation matrices sig,tau,pi for one site
   private
 contains
   subroutine momusl(z,rmt,lmxa,pnu,pnz,rsml,ehl,lmxl,nlml,a,nr,nsp,rofi,rwgt,v0,v1,qum,vum)!Moments of ul*ul,ul*sl,sl*sl and their integrals with true pot.
+    use m_makusp,only: makusp
     !i   z     :nuclear charge
     !i   rmt   :augmentation radius, in a.u.
     !i   lmxa  :augmentation l-cutoff

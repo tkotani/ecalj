@@ -1,3 +1,7 @@
+module m_rhomom
+  public rhomom
+  private
+  contains
 subroutine rhomom (sv_p_orhoat, qmom,vsum) ! Multipole moments Q_L = Q_aL^Zc+ Q_aL^v (See.Eq.(28) JPSJ034702)
   use m_struc_def
   use m_lmfinit,only: nsp,nbas,sspec=>v_sspec,jnlml,ispec
@@ -100,3 +104,4 @@ subroutine pvrhom(rmt,a,nlml,nr,nsp,rho1,rho2,rhoc,cofg,cofh,rg,ceh,rfoc,z,qmomj
   call poiss0(0d0,a,b,rofi,h,nr,0d0, v, vhrho,vsum,1)
   vsum2 = fpi*sum(rwgt*rofi**2*v)
 end subroutine pvrhom
+endmodule m_rhomom

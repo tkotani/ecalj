@@ -525,33 +525,56 @@ character(8) function xtxx(num) !taken from xt in extension.F
   if(num>99999) xtxx = char(48+mod(num/100000,10))//xtxx
   if(num>999999) call rx( ' xtxx:can not produce')
 END function xtxx
-
-double precision function plegn(n,x)  !- Calculates Legendre polynomical using a recursion relation
-  ! ----------------------------------------------------------------------
+double precision function plegn(n,x) ! Legendre polynomical using a recursion relation
   !i Inputs
   !i   n,x
   !o Outputs
   !o   plegn: P_n(x)
-  !r Remarks
-  !r   Recursion relation is
-  !r   P_n = [(2*n-1)*x*P_(n-1) - (n-1)*P_(n-2)]/n
+  !r   Recursion relation is P_n = [(2*n-1)*x*P_(n-1) - (n-1)*P_(n-2)]/n
   ! ----------------------------------------------------------------------
-  !     implicit none
-  ! Passed parameters
-  integer :: n
-  double precision :: x
-  ! Local parameters
-  double precision :: jpjm1,cj,pjp1
-  integer :: j
-
+  implicit none
+  integer :: n,j
+  double precision :: x,jpjm1,cj,pjp1
   ! jpjm1 is j*p_(j-1);  cj is 2*j - 1;  pjp1 is p_(j+1)
   jpjm1 = 0
   plegn = 1
   cj = 1
-  do  100  j = 1, n
+  do j = 1, n
      pjp1 = (cj*x*plegn - jpjm1)/j
      jpjm1 = j*plegn
      cj = cj + 2
      plegn = pjp1
-100 enddo
+  enddo
 END function plegn
+subroutine sortea(ea,ieaord,n,isig)
+  ! mini-sort routine.
+  implicit real*8(a-h,o-z)
+  real(8)::        ea(n)
+  ! ino delete integer(4) def.      integer(4):: ieaord(n)
+  integer:: ieaord(n),n,isig,itmp,i,ix
+  ! sorting of ea
+  isig = 1
+  do i = 1,n
+     ieaord(i) = i
+  enddo
+  do ix= 2,n
+     do i=ix,2,-1
+        if( ea(ieaord(i-1)) >ea(ieaord(i) ) ) then
+           itmp = ieaord(i-1)
+           ieaord(i-1) = ieaord(i)
+           ieaord(i) = itmp
+           isig= -isig
+           cycle
+        endif
+        exit
+     enddo
+  enddo
+end subroutine sortea
+subroutine eprod(a,b, c)  ! c gives normalized normal vector for a and b.
+  real(8) :: a(3),b(3),c(3),cnorm !anorm,bnorm,
+  c(1)= a(2)*b(3)-a(3)*b(2)
+  c(2)= a(3)*b(1)-a(1)*b(3)
+  c(3)= a(1)*b(2)-a(2)*b(1)
+  cnorm = sqrt(sum(c(1:3)**2))
+  c = c/cnorm
+end subroutine eprod

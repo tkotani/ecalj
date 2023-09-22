@@ -1,4 +1,4 @@
-!! Tetrahedron weight. -----------------------
+module m_tetwt ! Tetrahedron weights are stored in this module
 !! output of gettetwt is passed to x0kf_v4hz
 !!     nbnbx
 !!     ihw(ibjb,kx): omega index, to specify the section of the histogram.
@@ -17,14 +17,6 @@
 !!
 !! - NOTE: 'call getbzdata1' generates nteti,ntetf,... See mkqg.F about how to call it.
 !!
-module m_tetwt
-  use m_genallcf_v3,only: niw_in=>niw,ecore,nctot,nspin
-  use m_freq,only: Getfreq2, &
-       frhis,freq_r,freq_i, nwhis,nw_i,nw,npm,niw !output of getfreq
-  use m_read_bzdata,only: qlat,ginv, ntetf,idtetf,ib1bz,nqibz_mtet=>nqibz, &
-       nqbz,qbz,nqbzw,qbzw, idtetf,ib1bz, qbzw,nqbzw !for tetrahedron
-  use m_ReadEfermi,only: ef
-  use m_readgwinput,only: ebmx,nbmx,mtet
   implicit none
   !! output ------------------------
   real(8),allocatable,protected,public :: whw(:)
@@ -38,15 +30,14 @@ contains
   subroutine Tetdeallocate()
     deallocate(ihw,nhw,jhw, whw,ibjb,n1b,n2b,nbnb)
   end subroutine Tetdeallocate
-
-  !! routine --------------------------------------------------------
-  subroutine Gettetwt(q,iq,is,isf, & !nwgt, &
-       ekxx1,ekxx2,nband,& !eibzmode, &
-       wan )                 !Jan2019 okumura's option
-    intent(in)::      q,iq,is,isf,&!nwgt, &
-       ekxx1,ekxx2,nband, &!eibzmode, &
-       wan
-    !!
+  subroutine Gettetwt(q,iq,is,isf,ekxx1,ekxx2,nband,wan )  
+    use m_genallcf_v3,only: niw_in=>niw,ecore,nctot,nspin
+    use m_freq,only: Getfreq2, frhis,freq_r,freq_i, nwhis,nw_i,nw,npm,niw !output of getfreq
+    use m_read_bzdata,only: qlat,ginv, ntetf,idtetf,ib1bz,nqibz_mtet=>nqibz,nqbz,qbz,nqbzw,qbzw, idtetf,ib1bz, qbzw,nqbzw !for tetrahedron
+    use m_ReadEfermi,only: ef
+    use m_readgwinput,only: ebmx,nbmx,mtet
+    use m_tetwt5,only:tetwt5x_dtet4,rsvwwk00_4,hisrange
+    intent(in)::      q,iq,is,isf,ekxx1,ekxx2,nband,wan
     !! nqibz_mtet: is only for mtet/=(/1,1,1/) --->(we usually use only this case)
     !!
     !! output data in returened in the module variables above.
@@ -127,20 +118,11 @@ contains
     if (present(wan)) then
        if(wan) wan1= .TRUE. 
     endif
-    call tetwt5x_dtet4(npm,ncc, &
-         q, ekxx1, ekxx2, qlat,ginv,ef, &
-         ntetf,nqbzw, nband,nqbz, &
-         nctot,ecore_(1,is),idtetf,qbzw,ib1bz, &
-         job, &
-         iwgt,nbnb,           & !job=0
-    demin,demax,              & !job=0
-    frhis, nwhis,             & ! job=1    not-used
-    nbnbx,ibjb,nhwtot,        & ! job=1    not-used
-    ihw,nhw,jhw,              & ! job=1    not-used
-    whw,                      & ! job=1    not-used
-    iq,is,isf,nqibz_mtet,&! eibzmode,nwgt, &
+    call tetwt5x_dtet4(npm,ncc, q, ekxx1, ekxx2, qlat,ginv,ef, ntetf,nqbzw, nband,nqbz, nctot,ecore_(1,is),idtetf,qbzw,ib1bz,job, &
+         iwgt,nbnb,   demin,demax,                          & !job=0
+         frhis, nwhis,nbnbx,ibjb,nhwtot,  ihw,nhw,jhw, whw, & ! job=1    not-used
+         iq,is,isf,nqibz_mtet,&
          nbmx,ebmx,mtet, wan1 ) !Jan2019 for Wannier
-
     deallocate(ibjb,ihw,jhw,nhw,whw) !dummy
     nbnbx = max(maxval(nbnb(1:nqbz,1:npm)),1) !nbnbx = nbnbxx
     if(debug) write(6,*)' nbnbx=',nbnbx

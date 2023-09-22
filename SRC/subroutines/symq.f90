@@ -1,7 +1,4 @@
-subroutine psymr0(lmxl,ic,nbas,ipc,pos0,pos,ipa,nrclas)
-  !- Make list of atoms in one class
-  ! ----------------------------------------------------------------------
-  !i Inputs
+subroutine psymr0(lmxl,ic,nbas,ipc,pos0,pos,ipa,nrclas)  !- Make list of atoms in one class
   !i   lmxl  :lmxl(1..nbas) = l-cutoffs dimensioning offsets.
   !i         :Used in creating table offsets for table ipa, which see
   !i         :lmxl(1) < -1 => ipa is created differently and
@@ -24,9 +21,6 @@ subroutine psymr0(lmxl,ic,nbas,ipc,pos0,pos,ipa,nrclas)
   !o         :       (lmxl(ib)+1)**2 + offs(ib).
   !o   pos   :basis vectors for each member of class (made if ic>0)
   !o   nrclas:number of sites in class ic
-  !u Updates
-  !u   17 May 01 Add ic<0 as flag to suppress generation of pos
-  ! ----------------------------------------------------------------------
   implicit none
   integer :: nbas,lmxl(nbas),ic,nrclas,ipc(nbas),ipa(nbas)
   double precision :: pos0(3,nbas),pos(3,nbas)
@@ -48,10 +42,7 @@ subroutine psymr0(lmxl,ic,nbas,ipc,pos0,pos,ipa,nrclas)
      ioff = ioff + (lmxl(ib)+1)**2
   enddo
 end subroutine psymr0
-subroutine psymq0(nrclas,nsp,ipa,wk,nvec,vec)
-  !- Symmetrize vector of objects with l=0 symmetry for one class of atoms
-  ! ----------------------------------------------------------------------
-  !i Inputs
+subroutine psymq0(nrclas,nsp,ipa,wk,nvec,vec)  !- Symmetrize vector of objects with l=0 symmetry for one class of atoms
   !i   nrclas:number of atoms in the present class
   !i   nsp   :2 for spin-polarized case, otherwise 1
   !o   ipa   :list of site indices for each member of class
@@ -61,9 +52,6 @@ subroutine psymq0(nrclas,nsp,ipa,wk,nvec,vec)
   ! o   vec  :On input,  unsymmetrized vector of quantities
   ! o        :On output, elements of vec in class list ipa(1..nrclas)
   ! o        :are symmetrized.
-  !u Updates
-  !u   17 May 01
-  ! ----------------------------------------------------------------------
   implicit none
   integer :: nrclas,nsp,nvec,ipa(nrclas)
   double precision :: wk(nvec,nsp),vec(nvec,nsp,1)
@@ -109,11 +97,8 @@ subroutine pysmr1(wgt,nr,nlml,nsp,sym,rho1, rho2,nn)! Add wgt*sym*rho1 into rho2
      enddo
   enddo
 end subroutine pysmr1
-subroutine symprj(nrclas,nlml,ngrp,nbas,istab,g,ag,plat,qlat,pos, sym)
+subroutine symprj(nrclas,nlml,ngrp,nbas,istab,g,ag,plat,qlat,pos, sym) !- Set up symmetry projectors for one class
   use m_ll,only:ll
-  !- Set up symmetry projectors for one class
-  ! ----------------------------------------------------------------------
-  !i Inputs
   !i   nrclas:number of atoms in this class
   !i   nlml  :L-cutoff to which symmetry projectors are calculated
   !i   ngrp  :size of space group
@@ -126,7 +111,6 @@ subroutine symprj(nrclas,nlml,ngrp,nbas,istab,g,ag,plat,qlat,pos, sym)
   !i   pos   :basis vectors, in units of alat
   !o Outputs
   !o   sym   :symmetry projectors for each site within this class
-  ! ----------------------------------------------------------------------
   implicit none
   integer :: nlml,nrclas,ngrp,nbas,istab(nbas,ngrp)
   double precision :: sym(nlml,nlml,nrclas),plat(3,3),qlat(3,3), &
@@ -174,22 +158,15 @@ subroutine symprj(nrclas,nlml,ngrp,nbas,istab,g,ag,plat,qlat,pos, sym)
 end subroutine symprj
 subroutine pxsmr1(wgt,nr,nlml,nsp,sym,rho1, rho2,nn)! Add wgt*sym*rho1 into rho2
   implicit none
-  integer :: nr,nlml,nsp,nn
-  double precision :: sym(nlml,nlml),rho1(nr,nlml,nsp), rho2(nr,nlml,nsp),wgt
-  integer :: ilm,jlm,i,isp
-  double precision :: ccc
+  integer :: nr,nlml,nsp,nn,ilm,jlm,i,isp
+  real(8) :: sym(nlml,nlml),rho1(nr,nlml,nsp), rho2(nr,nlml,nsp),wgt
+  !double precision :: ccc
   nn = 0
-  do  isp = 1, nsp
-     do  ilm = 1, nlml
-        do  jlm = 1, nlml
-           ccc = wgt*sym(ilm,jlm)
-           if (dabs(ccc) > 1d-9) then
-              nn = nn+1
-              do  i = 1, nr
-                 rho2(i,ilm,isp) = rho2(i,ilm,isp) + ccc*rho1(i,jlm,isp)
-              enddo
-           endif
-        enddo
+  do  ilm = 1, nlml
+     do  jlm = 1, nlml
+!        ccc = wgt*sym(ilm,jlm);!        if (dabs(ccc) < 1d-9) cycle
+        nn = nn+1
+        rho2(:,ilm,:) = rho2(:,ilm,:) + wgt*sym(ilm,jlm)*rho1(:,jlm,:)
      enddo
   enddo
 end subroutine pxsmr1

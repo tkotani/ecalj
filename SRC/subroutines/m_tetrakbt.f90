@@ -1,22 +1,16 @@
-module m_tetrakbt
+module m_tetrakbt !finite-temperature tetrahedron method
   use m_keyvalue,only: getkeyvalue
-!  use m_tetwt5,only: integtetn,hisrange,tetwt5x_dtet4,rsvwwk00_4
   implicit none
-  public:: tetrakbt_init, tetrakbt, kbt
-
+  public:: tetrakbt_init, tetrakbt, kbt,integtetn
   private
-  real(8):: tt,kbt
-  real(8):: eps=1d-26 !to avoid ZeroDIV, severe condition
-  integer:: i
-  integer:: ndiv !for numerical integration; h=(b-a)/ndiv
+  real(8):: tt,kbt, eps=1d-26 !!! tt: temperature [K].  eps is to avoid ZeroDIV, severe condition 
+  integer:: i, ndiv !for numerical integration; h=(b-a)/ndiv
   logical:: init = .true.
   real(8):: kb=8.6171d-5 ![eV/K]
   !! developer
   real(8):: err_sum=0d0, err_sum2=0d0
   integer:: nn
-
 contains
-  !! tt: temperature [K]
   !-----------------------------------------------------
   subroutine tetrakbt_init()
     real(8):: temperature, rydberg
@@ -32,15 +26,10 @@ contains
     endif
   end subroutine tetrakbt_init
   !-----------------------------------------------------
-  subroutine tetrakbt( &
-       ebfin,eafin,v,voltet, &
-       frhis, nwhis, &
-       wtthis) !this is accumlating variable
-    intent(in):: &
-         ebfin,eafin,v,voltet, &
-         frhis, nwhis
-    intent(out):: &
-         wtthis
+  subroutine tetrakbt( ebfin,eafin,v,voltet,frhis,nwhis, wtthis) !this is accumlating variable
+!    use m_tetwt5,only: integtetn
+    intent(in)::       ebfin,eafin,v,voltet,frhis,nwhis
+    intent(out)::                                         wtthis
     !! kbt version
     !! Histgram weights for each bin.
     !! The i-th bin of the Histgrams is [frhis(i) frhis(i+1)].
@@ -448,8 +437,32 @@ contains
     enddo
     int_simpson = (funcgx2(e_start,eeref)+sumval+funcgx2(e_end,eeref))*hdiv/3d0
   end function int_simpson
-
-  !--------------------------------------------------------------
+  subroutine integtetn(e, ee, integb)  !> Calculate primitive integral of integb = 1/pi Imag[\int^ee dE' 1/(E' -e(k))] = \int^ee dE' S[E']
+    !! \remark
+    !!  S[E] : is area of the cross-section between the omega-constant plane and the tetrahedron. [here we assumee e1<e2<e3<e4].
+    !!  Normalization is not considered! Rath&Freeman Integration of imaginary part on Eq.(17)
+    implicit none
+    real(8)::  e(1:4), ee, integb,a,b !,e1,e2,e3,e4 V1,V2,V3,V4 , ,D1,D2,D3,D4
+    associate( e1=>e(1)-3d-8, e2=>e(2)-2d-8, e3=>e(3)-1d-8, e4=>e(4))
+      associate(V1=>ee-e1, V2=>ee-e2, V3=>ee-e3,V4=>ee-e4)
+        if(ee<e1) then
+           integb=0d0
+        elseif( e1<=ee .AND. ee<e2 ) then
+           integb = V1**3/((e4-e1)*(e3-e1)*(e2-e1))
+        elseif( e2<=ee .AND. ee<e3 ) then
+           a  =  V1/ ((e4-e1)*(e3-e1)*(e2-e1))**(1d0/3d0)
+           b  =  V2/(-(e4-e2)*(e3-e2)*(e1-e2))**(1d0/3d0)
+           integb = (a-b) * (a**2+a*b+b**2)
+        elseif( e3<=ee .AND. ee<e4 ) then
+           integb = 1d0 - V4**3/((e1-e4)*(e2-e4)*(e3-e4))
+        elseif( ee==e4 ) then
+           integb = 1d0
+        else
+           call rx( ' integtetn: ee>e4')
+        endif
+      endassociate
+    endassociate
+  end subroutine integtetn
 end module m_tetrakbt
 
 

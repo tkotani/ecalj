@@ -68,6 +68,9 @@ contains
     use m_gennlat_sig,only: m_gennlat_init_sig
     use m_dfrce,only: dfrce
     use m_sugcut,only:sugcut
+    use m_bzints,only: bzints
+    use m_writeband,only: writeband,writefs,writepdos,writedossawada
+    use m_totfrc,only:totfrc
     ! inputs
     ! main input are osmrho, orhoat (in m_mkpot_init), specifing density, and vorb, which is potential for LDA+U
     !i   nbas  : size of basis
@@ -126,7 +129,7 @@ contains
     logical,save:: siginit=.true.
     integer:: iter,i,ifi,ipr,iq,isp,jsp,iprint,ipts
     integer:: idummy, unlink,ifih,ifii,ib,ix,ifimag,nevmin,nnn,ikp
-    real(8):: ekinval,eharris,eksham,  dosw(2),dum,evtop,ecbot,qp(3),rydberg,xxx,eeem
+    real(8):: ekinval,eharris,eksham,  dosw(2),dum(1),evtop,ecbot,qp(3),rydberg,xxx,eeem,dumx
     real(8):: fh_rv(3,nbas),vmag,eee,dosi(2),dee,efermxxx,emin,qvalm(2)
     real(8),allocatable:: dosi_rv(:,:),dos_rv(:,:),qmom_in(:),evlallm(:,:,:)
     real(8),parameter::  NULLR =-99999,pi=4d0*datan(1d0)
@@ -264,7 +267,7 @@ contains
        if(cmdopt0('--tdostetf')) ltet= .FALSE. ! Set tetrahedron=F
        if(ltet) then
           nnn=nkabc(1)*nkabc(2)*nkabc(3)
-          call bzints(nnn,evlallm,dum,nkp,nevmin,ndhamx,nspx,dosw(1),dosw(2),dosi_rv,ndos,xxx,1,ntet,iv_a_oidtet,dum,dum)!job=1 give IntegratedDos to dosi_rv
+          call bzints(nnn,evlallm,dum,nkp,nevmin,ndhamx,nspx,dosw(1),dosw(2),dosi_rv,ndos,xxx,1,ntet,iv_a_oidtet,dumx,dumx)!job=1 give IntegratedDos to dosi_rv
           dos_rv(2:ndos-1,:)=(dosi_rv(3:ndos,:)-dosi_rv(1:ndos-2,:))/(2d0*(dosw(2)-dosw(1))/(ndos-1))
           dos_rv(1,:)    = dos_rv(2,:)
           dos_rv(ndos,:) = dos_rv(ndos-1,:)

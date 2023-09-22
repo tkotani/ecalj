@@ -57,6 +57,7 @@ contains
     use m_density,only: v0pot,v1pot,pnuall,pnzall !read
     use m_hansr,only:corprm
     use m_rhocor,only: getcor
+    use m_makusp,only: makusp
     !i   nbas  :size of basis, nsp: 2 for spin-polarized case, otherwise 1. nlmto:dimension of MTO basis.
     !l   lekkl=T for eqkkl/qkkl
     !i   oqkkl :local density-matrix (rhocbl or comparable routine)

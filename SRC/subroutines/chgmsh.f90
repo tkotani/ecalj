@@ -1,3 +1,7 @@
+module m_chgmsh
+  public chgmsh
+  private
+  contains
 subroutine chgmsh(iopt,plat,n,m1,m2,m3,l1,l2,l3,f0, n1,n2,n3,k1,k2,k3,f) ! Retabulate a function on a different real-space mesh
   !i Inputs
   !i   iopt  :0 Use default (smaller of iopt=1,2)
@@ -173,4 +177,4 @@ subroutine pgvmat(ngs,gvs,ngb,gvb,kvb)
 44   enddo
 40 enddo
 end subroutine pgvmat
-
+endmodule m_chgmsh

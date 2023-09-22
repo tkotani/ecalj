@@ -94,6 +94,7 @@ contains
     use m_smvxcm,only: smvxcm
     use m_smves,only: smves
     use m_ftox
+    use m_rhomom,only: rhomom
     ! for job=0
     !o         utot   = total electrostatic energy
     !o         valves = valence rho * estat potential

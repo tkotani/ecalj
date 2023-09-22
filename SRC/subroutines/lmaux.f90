@@ -202,6 +202,7 @@ contains
     use m_lmfinit,only: nsp
     use m_freeat,only:freats
     use m_xclda,only:evxcv
+    use m_defpq,only:defpq
     use m_ftox
     ! C- Estimate muffin-tin radii overlapping atomic potentials
     ! C ----------------------------------------------------------------------

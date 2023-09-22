@@ -17,6 +17,7 @@ program heftet
   use m_lgunit,only: m_lgunit_init
   use m_ftox
   use m_lgunit,only: stdo
+  use m_bzints,only: bzints2x,efrang3
   implicit none
   integer :: mxclass,ngnmax, &
        ibas,ibasx,ngpmx,nxx,ngcmx,nbloch,ifqpnt,ifwd, &
