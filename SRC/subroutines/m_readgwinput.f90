@@ -1,4 +1,5 @@
-module m_readgwinput ! Read values from GWinput
+!> Read values from GWinput
+module m_readgwinput 
   use m_genallcf_v3,only: nspin,nctot
   implicit none
   real(8),protected:: egauss,ecut,ecuts,ebmx ,ebmx_sig,ua_

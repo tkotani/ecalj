@@ -10,12 +10,12 @@ subroutine getgv2(alat,plat,qlat,q, QpGcut,job, ng,ngvec) ! Set up a list of rec
   tpiba=2*pi/alat
   QpGmax   = QpGcut/tpiba  ! QpGcut in a.u.= tpiba*Qcut
   QpGmax2  = QpGmax**2
-  call eprod(qlat(1:3,2),qlat(1:3,3),enor);
-  Qenor = sum(qlat(1:3,1)*enor); n1max = QpGmax/abs(Qenor) -sum(q*enor)/Qenor +1;n1min = -QpGmax/abs(Qenor) - sum(q*enor)/Qenor -1
-  call eprod(qlat(1:3,3),qlat(1:3,1),enor)
-  Qenor = sum(qlat(1:3,2)*enor); n2max = QpGmax/abs(Qenor) -sum(q*enor)/Qenor +1;n2min = -QpGmax/abs(Qenor) - sum(q*enor)/Qenor -1
-  call eprod(qlat(1:3,1),qlat(1:3,2),enor)
-  Qenor = sum(qlat(1:3,3)*enor); n3max = QpGmax/abs(Qenor) -sum(q*enor)/Qenor +1;n3min = -QpGmax/abs(Qenor) - sum(q*enor)/Qenor -1
+  enor =eprod(qlat(1:3,2),qlat(1:3,3))
+  Qenor = sum(qlat(1:3,1)*enor); n1max= QpGmax/abs(Qenor) -sum(q*enor)/Qenor +1; n1min= -QpGmax/abs(Qenor) - sum(q*enor)/Qenor -1
+  enor = eprod(qlat(1:3,3),qlat(1:3,1))
+  Qenor = sum(qlat(1:3,2)*enor); n2max= QpGmax/abs(Qenor) -sum(q*enor)/Qenor +1; n2min= -QpGmax/abs(Qenor) - sum(q*enor)/Qenor -1
+  enor= eprod(qlat(1:3,1),qlat(1:3,2))
+  Qenor = sum(qlat(1:3,3)*enor); n3max= QpGmax/abs(Qenor) -sum(q*enor)/Qenor +1; n3min= -QpGmax/abs(Qenor) - sum(q*enor)/Qenor -1
   ig=0
   imx=-9999
   GETngvecWithinTheLimit: do i1 = n1min, n1max
@@ -31,5 +31,15 @@ subroutine getgv2(alat,plat,qlat,q, QpGcut,job, ng,ngvec) ! Set up a list of rec
      enddo
   enddo GETngvecWithinTheLimit
   ng = ig
-  if(job==1) ngvec(1,1)=imx 
+  if(job==1) ngvec(1,1)=imx
+  contains
+    pure function eprod(a,b) result(c)  ! c is normalized vector of a x b.
+      intent(in)::      a,b
+      real(8) :: a(3),b(3),c(3),cnorm
+      c(1)= a(2)*b(3)-a(3)*b(2)
+      c(2)= a(3)*b(1)-a(1)*b(3)
+      c(3)= a(1)*b(2)-a(2)*b(1)
+      cnorm = sqrt(sum(c(1:3)**2))
+      c = c/cnorm
+    endfunction eprod
 end subroutine getgv2

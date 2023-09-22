@@ -1,7 +1,7 @@
-module m_lmfinit ! All ititial data (except rst/atm data via iors/rdovfa) !TK extensively rewrote at 2023feb.
-  !                to run lmf-MPIK,lmfa,lmchk are stored in this module
-  !                We perform 'call m_lmfinit_init', which sets all initial data.
-  !! m_lmfinit_init have three stages. Search the word 'Block' in the followings.
+!> All ititial data for lmf-MPIK lmchk lmfa (except rst/atm data via iors/rdovfa) 
+module m_lmfinit 
+  ! We perform 'call m_lmfinit_init', which sets all initial data stored in m_lmfinit_init.
+  ! We have three stages. Search the word 'Stage1 Stage2 Stage3' in the followings.
   !! At the bottom of this code, which may/maynot be a help to read this code
   use m_ftox
   use m_ext,only :sname        ! sname contains extension. foobar of ctrl.foobar
@@ -372,18 +372,16 @@ contains
       endif
       call setpr0(verbos) !Set initial verbos
       if( .NOT. master_mpi) call setpr0(-100) !iprint()=0 except master
+      io_tim=2
       if(cmdopt2('--time',outs) ) then ! Timing: Turns CPU timing log #1:tree depth #2:CPU times as routines execute.
          outs=trim(outs(2:))//' 999 999' ! --time=#1,#2     
          read(outs,*)io_tim(1),io_tim(2)
          if(io_tim(1)==999) io_tim(1)=5
          if(io_tim(2)==999) io_tim(2)=2
-         i0=1
       endif
-      if(i0>=1) call tcinit(io_tim(2),io_tim(1),levelinit) !Start tcn (timing monitor) 
+      call tcinit(io_tim(2),io_tim(1),levelinit) !Start tcn (timing monitor) 
       call tcn('m_lmfinit') 
-      lcd4=F
-!      if (prgnam == 'LMF' .OR. prgnam == 'LMFGWD') lcd4=T
-      if (prgnam /= 'LMFA') lcd4=T
+      lcd4 = merge(T,F,prgnam/='LMFA')
       if(sum(abs(socaxis-[0d0,0d0,1d0])) >1d-6 .AND. (.NOT.cmdopt0('--phispinsym'))) &
            call rx('We need --phispinsym for SO=1 and HAM_SOCAXIS/=001. Need check if you dislike --phispinsym')
       if(cmdopt0('--zmel0')) OVEPS=0d0
@@ -522,11 +520,10 @@ contains
          nkaphh(j) = nkapii(j) + lpzex(j)
 1111  enddo nspecloop
       lmxax = maxval(lmxa) !Maximum L-cutoff
-      nlmax = (lmxax+1)**2
       nkaph = nkapi + lpzi     !-1
-      mxorb= nkaph*nlmax
+      mxorb= nkaph*(lmxax+1)**2
       maxit=iter_maxit
-      nl = max(lmxbx,lmxax)+1 !max l-base l-aug +1
+      nl = max(lmxbx,lmxax)+1 !max lbase laug +1
       nlmax=nl**2
       if (dalat == NULLR) dalat=0d0
       lat_alat=alat+dalat
@@ -594,7 +591,7 @@ contains
          v_sspec(j)%lfoca=lfoca(j) !lfoca=1,usually (frozen core)
          v_sspec(j)%rsmv= rmt(j)*.5d0 !rsmv(j)
          v_sspec(j)%lmxa=lmxa(j) !lmx for augmentation
-         v_sspec(j)%lmxb=lmxb(j) !lmx for base
+         v_sspec(j)%lmxb=lmxb(j) !lmx for basis
          v_sspec(j)%lmxl=lmxl(j) !lmx for rho and density
          v_sspec(j)%rfoca=rfoca(j)
          v_sspec(j)%rg=rg(j)

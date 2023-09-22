@@ -1,15 +1,13 @@
-module m_qbze !Get qbze qibze, whic are extented qbz qibz including q0p shifts
+!>Get qbze qibze, whic are extented qbz qibz including q0p shifts
+module m_qbze 
   use NaNum,only: NaN
   use m_read_bzdata,only: nqbz,nqibz, qbz,qibz, q0i,nq0i,nq0iadd
   implicit none
-
   integer,protected::    nqbze=NaN, nqibze=NaN
   real(8),allocatable,protected :: qbze(:,:),qibze(:,:)
-
 contains
   subroutine setqbze()
     integer:: i,iq
-    !!
     nqbze  = nqbz *(1 + nq0i+nq0iadd)
     nqibze = nqibz + nq0i+nq0iadd
     allocate( qbze(3, nqbze), qibze(3, nqibze))
@@ -21,13 +19,6 @@ contains
           qbze (:,nqbz*i + iq) = qbz(:,iq) + q0i(:,i)
        enddo
     enddo
-    
-!    do i = 0,nq0i+nq0iadd
-!    do iq = 1,nqbz
-!       write(6,"('qqqqq',i5,3f9.4)") nqbz*i + iq, qbze (:,nqbz*i + iq) 
-!    enddo
-!    enddo
     write(6,*) ' m_qbze: nqibz nqibze=',nqibz,nqibze
   end subroutine setqbze
-
 end module m_qbze

@@ -795,6 +795,31 @@ contains
 26     enddo
 20  enddo
   end subroutine dpdbyl
+  subroutine dpdump(array,length,ifile)! Binary I/O of an array
+    integer:: length,ifile
+    double precision :: array(length)
+    if (ifile > 0) read(ifile) array
+    if (ifile < 0) write(-ifile) array
+  end subroutine dpdump
+  logical function lddump(array,length,ifile)! Binary I/O of an array, returning T if I/O without error or EOF
+    integer :: length,ifile
+    double precision :: array(length),xx,yy
+    lddump = .true.
+    if (ifile > 0) then
+       yy = array(length)
+       xx = -1.9283746d0*datan(1d0) !       (some random number)
+       array(length) = xx
+       read(ifile,end=90,err=91) array
+       if (xx /= array(length)) return
+       array(length) = yy
+       goto 90
+90     continue
+91     continue
+       lddump = .false.
+    else
+       write(-ifile) array
+    endif
+  end function lddump
 end module m_iors_old
 
 

@@ -1,4 +1,5 @@
-module m_cmdpath !Get cmdpath, which is the full path to the command (fortran program) itself.
+!>Get cmdpath, which is the full path to the command (fortran program) itself.
+module m_cmdpath 
   character(1024),public :: cmdpath
   public setcmdpath !command path
   private

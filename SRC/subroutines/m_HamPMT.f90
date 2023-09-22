@@ -1,4 +1,5 @@
-module m_HamPMT ! -- Read HamiltionanPMTinfo and HamiltonianPMT. Then convert HamPMT to HamRsMTO  ------
+!> Read HamiltionanPMTinfo and HamiltonianPMT. Then convert HamPMT to HamRsMTO  
+module m_HamPMT 
   use m_MPItk,only: procid, master_mpi, nsize,master
   use m_lgunit,only:stdo
   use m_ftox

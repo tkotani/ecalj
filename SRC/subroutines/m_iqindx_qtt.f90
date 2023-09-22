@@ -1,5 +1,6 @@
-module m_iqindx_qtt ! Inverse mapping, q to 'integer index of q',
-  !! We prepare integer index of q, its resolution is given by epsd.
+!> Inverse mapping, q to 'integer index of q',
+module m_iqindx_qtt 
+  ! We prepare integer index of q, its resolution is given by epsd.
   use m_hamindex,only: qtt,nqtt
   use m_read_bzdata,only: ginv
   implicit none

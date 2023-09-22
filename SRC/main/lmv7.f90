@@ -45,7 +45,7 @@ program lmf ! Bootstrap sequence of modules initialzation. The variables in modu
   aaa=''
   do iarg=1,iargc()
      call getarg(iarg,sss) !  print *,iarg,trim(sss)
-     aaa=trim(aaa)//' '//trim(sss) !command-line options
+     aaa=trim(aaa)//' '//trim(sss) !command-line options with defalut --time=1,1
   enddo
   if(master_mpi.and.len_trim(aaa)==0) then
      write(stdo,*)' usage: mpirun -np 4 lmf-MPIK foobar [options]'

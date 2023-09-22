@@ -1,4 +1,5 @@
-module m_rhocor !core density
+!>core density
+module m_rhocor 
   use m_lgunit,only:stdo
   use m_rseq,only: rseq
   public:: getcor,rhocor

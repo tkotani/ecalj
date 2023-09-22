@@ -1,4 +1,4 @@
-! Collection of utility routines and small math routines.
+! A Collection of utility routines and small math routines.
 real(8) function rydberg()
   rydberg=13.6058d0
 END function rydberg
@@ -38,7 +38,6 @@ pure subroutine rangedq(qin, qout) ! qout is in [-0.5d0,0.5d0)
   qout= qin-nint(qin)
   qout= merge(-0.5d0,qout,mask=qout>.5d0-tol)
 end subroutine rangedq
-!sssssssssssssssssssssssssssssssssssssssssssssssssss
 character(8) function xt(num)
   integer :: num
   if(num==0) then
@@ -473,7 +472,6 @@ module NaNum
 !    NaN=ieee_value(1d0,IEEE_QUIET_NAN)
 !  end subroutine naninit
 end module NaNum
-
 subroutine getdval(dddin, ncount,arr) !Read undefinit number of real(8) array
   integer:: ncount, i,ix,iy
   real(8):: arr(*)
@@ -498,7 +496,6 @@ subroutine getdval(dddin, ncount,arr) !Read undefinit number of real(8) array
   call rx('error: getdval')
 1012 continue   !write(6,*) 'getdval=',arr(1:ncount)
 end subroutine getdval
-
 character(8) function xn(num)
   integer :: num
   if(num==0) then
@@ -546,13 +543,10 @@ double precision function plegn(n,x) ! Legendre polynomical using a recursion re
      plegn = pjp1
   enddo
 END function plegn
-subroutine sortea(ea,ieaord,n,isig)
-  ! mini-sort routine.
+subroutine sortea(ea,ieaord,n,isig)  ! mini-sort routine.
   implicit real*8(a-h,o-z)
   real(8)::        ea(n)
-  ! ino delete integer(4) def.      integer(4):: ieaord(n)
   integer:: ieaord(n),n,isig,itmp,i,ix
-  ! sorting of ea
   isig = 1
   do i = 1,n
      ieaord(i) = i
@@ -570,11 +564,34 @@ subroutine sortea(ea,ieaord,n,isig)
      enddo
   enddo
 end subroutine sortea
-subroutine eprod(a,b, c)  ! c gives normalized normal vector for a and b.
-  real(8) :: a(3),b(3),c(3),cnorm !anorm,bnorm,
-  c(1)= a(2)*b(3)-a(3)*b(2)
-  c(2)= a(3)*b(1)-a(1)*b(3)
-  c(3)= a(1)*b(2)-a(2)*b(1)
-  cnorm = sqrt(sum(c(1:3)**2))
-  c = c/cnorm
-end subroutine eprod
+subroutine gvgetf(ng,n,kv,k1,k2,k3,c,c0)!- Gathers Fourier coefficients from 3D array c into list c0.
+  implicit none
+  integer :: ng,n,k1,k2,k3,kv(ng,3)
+  complex(8):: c0(ng,n),c(k1,k2,k3,n)
+  integer :: ig,i,j1,j2,j3
+  do i=1,n
+     c0(:,i) = [(c(kv(ig,1),kv(ig,2),kv(ig,3),i), ig=1,ng)]
+  enddo   
+end subroutine gvgetf
+subroutine gvputf(ng,n,kv,k1,k2,k3,c0,c)!- Pokes Fourier coefficients from list c0 into 3D array c.
+  implicit none
+  integer :: ng,n,k1,k2,k3,kv(ng,3)
+  complex(8):: c0(ng,n),c(k1,k2,k3,n)
+  integer :: ig,i,j1,j2,j3
+  c=0d0
+  do ig=1,ng
+     c(kv(ig,1),kv(ig,2),kv(ig,3),:) = c0(ig,:)
+  enddo   
+end subroutine gvputf
+subroutine gvaddf(ng,kv,k1,k2,k3,c0,c)! Adds Fourier coefficients from list c0 into 3D array c.
+  implicit none
+  integer :: ng,k1,k2,k3,kv(ng,3)
+  complex(8):: c0(ng),c(k1,k2,k3)
+  integer :: ig,j1,j2,j3
+  do  ig = 1, ng
+     j1 = kv(ig,1)
+     j2 = kv(ig,2)
+     j3 = kv(ig,3)
+     c(j1,j2,j3) = c(j1,j2,j3) + c0(ig)
+  enddo
+end subroutine gvaddf

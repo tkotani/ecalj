@@ -1,4 +1,5 @@
-module m_readeps !read epsinv and so on for W4phonon (not yet)
+!> Read epsinv and so on for W4phonon (not yet)
+module m_readeps !
   !! Subroutines: read_eps,deallocate_eps
   implicit none
   complex(8),allocatable,protected :: epsinv(:,:),w_mu(:,:),llmat(:,:)

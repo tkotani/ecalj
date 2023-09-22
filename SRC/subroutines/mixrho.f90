@@ -1,5 +1,5 @@
-module m_mixrho !  mixing routine of smrho, rh. T.kotani think this routine is too compicated to maintain. !It may be better to rewrite all
-  ! with keeping the functionality
+module m_mixrho !mixing routine of smrho, rh. NOTE: TK thinks this routine is too compicated to maintain. !It may
+  ! be better to rewrite all with keeping the functionality. 
   use m_ll,only:ll
   use m_lgunit,only:stdo,stml !  integer,parameter,public:: kmxv=15
   public:: mixrho
@@ -31,7 +31,7 @@ contains
     enddo
     call rx('ifile_handle: we did not find open file handle')
   end function ifile_handle
-  subroutine mixrho(iter, qval,  sv_p_orhnew, sv_p_orhold, smrnew, smrho,rmsdel)
+  subroutine mixrho(iter, qval,  sv_p_orhnew, sv_p_orhold, smrnew, smrho,rmsdel)! Mix old and new charge densities =  Takao's version: real space mixing of smrho. It works OK. However, we may need to fix it so that this is well-defined chi=|rho-f(rho)|**2 minimization mixing.
     use m_struc_def
     use m_supot,only: iv_a_okv,rv_a_ogv,n1,n2,n3
     use m_lmfinit,only:lat_alat,nbas,stdl,ispec,sspec=>v_sspec,nsp,&
@@ -40,9 +40,6 @@ contains
     use m_supot,only:  lat_ng,n1,n2,n3
     use m_ext,only:    sname
     use m_ftox
-    !!= Mix old and new charge densities =
-    !!  Takao's version: real space mixing of smrho. It works OK. However,
-    !!  we may need to fix it so that this is well-defined chi=|rho-f(rho)|**2 minimization mixing.
     !!     Warn. For Co case, I found broyden mixing works wrong.
     !!     ITER    NIT=30 MIX=B3,n=5,b=.7,w=1,0
     !!     However, as in copt, Broyden mixing is efficient.
@@ -125,7 +122,7 @@ contains
     !l   ng0    : condensed number of G vectors. That rho(G) is hermitian
     !l          : is exploited to reduce ng to ng0
     !l   qcell  : cell charge
-    
+
     !b Bugs
     !b   Mixing scheme needs some revision.  For now, uses locmix=3 and k9=10
     !b   Problem: G-kL expansion doesn't represent rim density well; not
@@ -181,8 +178,8 @@ contains
     real(8),save:: rmsdelsave,beta
     integer,save:: broy,nmix,mxsav
     real(8),save:: wt(3)
-!    logical,save:: bexist
-!    character,save:: fnaminit*8
+    !    logical,save:: bexist
+    !    character,save:: fnaminit*8
 
     include "mpif.h"
     integer :: numprocs, ierr, status(MPI_STATUS_SIZE)
@@ -217,7 +214,7 @@ contains
     real(8) ,allocatable :: rwgt_rv(:)
     real(8) ,allocatable :: wn1_rv(:)
     real(8) ,allocatable :: wn2_rv(:)
-!    equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
+    !    equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
     parameter (nlm0=49)
     double precision :: a,beta0,dif,difx,difxu,fac,rms,rmt, &
          sumo,summ,sums,top,vol,alat,tpiba,pi,dquns,rmsuns,ddot,q1, &
@@ -228,7 +225,7 @@ contains
     character sout*80,fnam*8
     integer ::iwdummy ,isp,nnnx,ng02,ng2, iprint!,ifile_handle
     real(8):: smmin,sss,wgtsmooth,wdummy(1,1,1,1)!,elinl
-    complex(8),allocatable:: smrnewbk(:,:,:,:),w_owk(:)
+    complex(8),allocatable:: smrnewbk(:,:,:,:),w_owk(:),w_ocnc(:),co_rvc(:)
     !      complex(8),allocatable:: w_oqkl(:)
     real(8),allocatable:: w_oqkl(:)
     real(8),allocatable:: w_oa(:),w_oaa(:)
@@ -236,8 +233,9 @@ contains
     logical::       noelind
     logical:: mixrealsmooth
     logical:: init=.true., initd=.true.
+    complex(8)::cdummy(1)
     call tcn('mixrho')
-!    if (mixmod == 'none') return
+    !    if (mixmod == 'none') return
     !  Initial setup for mixrho (charge mixing). This is used in mixrho-parmax.
     call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
     call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
@@ -254,11 +252,11 @@ contains
     srfpi = dsqrt(4d0*pi)
     locmix = 3 !original lmv7 by mark.
     qmix(2) = 0
-!    ngabc=lat_nabc
+    !    ngabc=lat_nabc
     ng=lat_ng
     vol=lat_vol
     alat = lat_alat
-!    elinl = elinls
+    !    elinl = elinls
     kmxs = 3
     kmxr = 8
     if(initd) then
@@ -275,8 +273,8 @@ contains
     nmix = nmixinit
     broy = broyinit
     if(bexist) beta=betainit
-    
-!    write(stdo,ftox)'wwwwwwmix2',broy,nmix,ftof(wt),'beta=',ftof(beta),ftof(elinl),ftof(wc),killj!,trim(fnam)
+
+    !    write(stdo,ftox)'wwwwwwmix2',broy,nmix,ftof(wt),'beta=',ftof(beta),ftof(elinl),ftof(wc),killj!,trim(fnam)
     !r Periodic file deletion (nkill):  parmxp returns nkill as -nkill when
     !r   mod(iter,nkill) is zero, as a signal that the current mixing
     !r   file is to be deleted after it is used.  Here nitj is the sum of
@@ -286,7 +284,7 @@ contains
        if (mod(iter,nkill) == 0) nkill=-nkill
     endif
     if (nkill == 1) nkill=-nkill
-    
+
     rmsdel = rmsdelsave
     if (nmix == 0) broy = 0
     ! ... Initial printout
@@ -391,21 +389,24 @@ contains
        ! ... 8. FFT smooth densities -> rho(G) for mixing
        ! ... Find and include number of smooth mesh points.
        allocate(ips0_iv(ng))
-       call lgstar ( 0 , ng , 1 , rv_a_ogv , ng0 , ips0_iv , iwdummy )
+       call lgstar ( 0 , ng , 1 , rv_a_ogv , ng0 , ips0_iv , cdummy )
        ng02= ng0*2
        ng2=ng*2
        nda = nda + ng02
-       allocate(w_ocn(2*ng*nsp),co_rv(ng*2*nsp))
+       allocate(w_ocnc(ng*nsp),co_rvc(ng*nsp),w_ocn(2*ng*nsp),co_rv(ng*2*nsp))
        allocate(w_owk(kkk*nsp))
        call dpcopy(smrnew,w_owk,1,kkk*2*nsp,1d0)
        call fftz3(w_owk,n1,n2,n3,n1,n2,n3,nsp,0,-1)
-       call gvgetf ( ng , nsp , iv_a_okv , n1 , n2 , n3 , w_owk, w_ocn)
-       call lgstar ( 1 , ng , nsp , rv_a_ogv , i , ips0_iv , w_ocn)
+       call gvgetf ( ng , nsp , iv_a_okv , n1 , n2 , n3 , w_owk, w_ocnc)
+       call lgstar ( 1 , ng , nsp , rv_a_ogv , i , ips0_iv , w_ocnc)
+       call dcopy(ng*nsp*2,w_ocnc,1,w_ocn,1)
+       deallocate(w_ocnc)
        call dpcopy(smrho,w_owk,1,kkk*2*nsp,1d0)
        call fftz3(w_owk,n1,n2,n3,n1,n2,n3,nsp,0,-1)
-       call gvgetf ( ng , nsp , iv_a_okv , n1 , n2 , n3 , w_owk, co_rv)
-       call lgstar ( 1 , ng , nsp , rv_a_ogv , i , ips0_iv , co_rv)
-       deallocate(w_owk)
+       call gvgetf ( ng , nsp , iv_a_okv , n1 , n2 , n3 , w_owk, co_rvc)
+       call lgstar ( 1 , ng , nsp , rv_a_ogv , i , ips0_iv , co_rvc)
+       call dcopy(ng*nsp*2,co_rvc,1,co_rv,1)
+       deallocate(w_owk,co_rvc)
     endif
     allocate(w_oa(nda*nsp*(mxsav+2)*2))
     w_oa=0d0
@@ -421,12 +422,12 @@ contains
        open(ifi,file=trim(fnam)//'.'//trim(sname),form='unformatted')
     endif
     call MPI_BCAST(ifi,1,MPI_INTEGER,master,MPI_COMM_WORLD,ierr)
-!    if (mlog) then
-!       call gettime(datim)
-!       call awrit3(' mixrho '//datim//' Process %i of %i on ' &
-!            //shortname(procid)(1:namelen(procid))// &
-!            ' bcast ifi = %i',' ',256,stml,procid,numprocs,ifi)
-!    endif
+    !    if (mlog) then
+    !       call gettime(datim)
+    !       call awrit3(' mixrho '//datim//' Process %i of %i on ' &
+    !            //shortname(procid)(1:namelen(procid))// &
+    !            ' bcast ifi = %i',' ',256,stml,procid,numprocs,ifi)
+    !    endif
     k9 = 10
     call pvmix5 ( nmix , mxsav , fnam , ifi , rmsdel , locmix &
          , k9 , nbas , kmxr , nlm0 ,  nsp , sv_p_orhold &
@@ -450,9 +451,9 @@ contains
     endif
 
     ! --- Printout smooth density mixing data ---
-!    if (nnnew+nnmix > 0 .AND. ipr >= 20) call awrit2( &
-!         ' mixrho: (warning) scr. and lin-mixed densities had'// &
-!         ' %i and %i negative points',' ',80,stdo,nnnew,nnmix)
+    !    if (nnnew+nnmix > 0 .AND. ipr >= 20) call awrit2( &
+    !         ' mixrho: (warning) scr. and lin-mixed densities had'// &
+    !         ' %i and %i negative points',' ',80,stdo,nnnew,nnmix)
     call rhoqm(smrnew,n1,n2,n3,nsp,vol,qscr)
     !     if (ipr .gt. 30) write(stdo,100)
     !    .  sumo*fac,sumu*fac,sums*fac,rms,summ*fac
@@ -600,7 +601,7 @@ contains
     !     print *, 'qcell after shift',qcell; stop
 
     ! --- Clean up ---
-!    if (nmix < 0) dmxp(7) = -nmix
+    !    if (nmix < 0) dmxp(7) = -nmix
     !    if (beta0 /= beta) betakeep = beta
     rmsdelsave = rmsdel
     ! dmxp(12) = difx
@@ -616,26 +617,26 @@ contains
     if (ipr >= 10 .AND. abs(qcell) > 1d-6) write(stdo, &
          '('' add q='',f10.6,'' to preserve neutrality'')') qcell
 
-!     if (ipr >= 30) then
-!        if (elinl /= 0) then
-!           write(stdo,450) ' unscreened ',rmsuns,difxu
-!           write(stdo,450) '   screened ',rms,difx,rmsdel
-! 450       format(a,'rms difference:  smooth',f10.6,'   local',f10.6: &
-!                '   tot',f10.6)
-!        endif
-!    
-!    elseif (ipr >= 20) then
-!       call awrit3(' rms smooth dq=%;3g  max local dq=%;3g  dq=%;3g', &
-!            ' ',80,stdo,rms,difx,rmsdel)
-!    endif
-!    if (ipl > 0 .AND. ipr > 0) then
-!       call awrit6('%xfp %?;n;elind %;4g  ;%j;'// &
-!            '%?#(n==1)#Broyden n %1i wc %;3g#%2j#%-3j'// &
-!            '%?#(n==0)#Anderson n %i beta %j%;3g#%3j#', &
-!            sout,80,0,isw(elinl.ne.0),elinl,broy,nmix,wc,beta)
-!       call awrit3('%a  sm-dq %;3g  mx loc %;3g  dq %;3g',sout,80, &
-!            -stdl,rms,difx,rmsdel)
-!    endif
+    !     if (ipr >= 30) then
+    !        if (elinl /= 0) then
+    !           write(stdo,450) ' unscreened ',rmsuns,difxu
+    !           write(stdo,450) '   screened ',rms,difx,rmsdel
+    ! 450       format(a,'rms difference:  smooth',f10.6,'   local',f10.6: &
+    !                '   tot',f10.6)
+    !        endif
+    !    
+    !    elseif (ipr >= 20) then
+    !       call awrit3(' rms smooth dq=%;3g  max local dq=%;3g  dq=%;3g', &
+    !            ' ',80,stdo,rms,difx,rmsdel)
+    !    endif
+    !    if (ipl > 0 .AND. ipr > 0) then
+    !       call awrit6('%xfp %?;n;elind %;4g  ;%j;'// &
+    !            '%?#(n==1)#Broyden n %1i wc %;3g#%2j#%-3j'// &
+    !            '%?#(n==0)#Anderson n %i beta %j%;3g#%3j#', &
+    !            sout,80,0,isw(elinl.ne.0),elinl,broy,nmix,wc,beta)
+    !       call awrit3('%a  sm-dq %;3g  mx loc %;3g  dq %;3g',sout,80, &
+    !            -stdl,rms,difx,rmsdel)
+    !    endif
     call tcx('mixrho')
     nnnew = 0
     nnmix = 0
@@ -737,8 +738,8 @@ contains
 
     ! ino wt(3)      real(8):: difx , beta , wt(2) , qkl(0:kmxr,nlm0,nsp,4,nbas)
     real(8):: difx , beta , wt(3) , qkl(0:kmxr,nlm0,nsp,4,nbas)
-!    type(s_site)::ssite(*)
-!    type(s_spec)::sspec(*)
+    !    type(s_site)::ssite(*)
+    !    type(s_spec)::sspec(*)
 
     ! ... Local parameters
     integer :: ib,is,igetss,nr,nlml,m,lmxl,k9l
@@ -1047,9 +1048,7 @@ contains
     !r     a(1+k:2*ng0:2*ng0+2*nr+(1+kmxr)*nlml) = P_kL exp. of rho1-rho2
     !r                                             w/ l=0 part zeroed out
     !r     ... nda = 2*ng0 + 2*nr + (1+kmxr)*nlml
-    ! -----------------------------------------------------------------
     implicit none
-    ! ... Passed parameters
     include "mpif.h"
     integer :: procid, master, numprocs, ierr, status(MPI_STATUS_SIZE)
     integer :: MAX_PROCS
@@ -1066,39 +1065,25 @@ contains
     integer :: iunit
     logical :: readerror
     logical :: lbin
-    integer :: ng2,ng02,nda,nmix,mxsav,ifi,nbas,nr,nsp,cnst(0:*),locmix, &
-         k9,kmxr,nlm0
+    integer :: ng2,ng02,nda,nmix,mxsav,ifi,nbas,nr,nsp,cnst(0:*),locmix, k9,kmxr,nlm0
     type(s_rv1) :: sv_p_orhold(3,1)
-
     type(s_rv1) :: sv_p_orhnew(3,1)
-
     double precision :: a(nda,nsp,mxsav+2,2),rms2,rmsdel
     real(8):: co(ng2,nsp) , cn(ng2,nsp) , qkl(0:kmxr,nlm0,nsp,4,1)
-!    type(s_site)::ssite(*)
-!    type(s_spec)::sspec(*)
-
     character fnam*8
-    ! ... Local parameters
     integer :: ib,na,i,j,k,m,np,iprint,nmixr,is,igetss, off,nlml,lmxl,k9l !awrite,
     real(8) ,allocatable :: rofi_rv(:)
-
-    logical :: lcnst,lfdmp,lddump
+    logical :: lcnst,lfdmp!,lddump
     double precision :: ddot,rmt,aat,rf
-
     character outs*80
-    ! ... Heap
-
     call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr)
     call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr)
     call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
     call strcop(shortname(procid),name,10,'.',i)
     namelen(procid) = i-1
     master = 0
-!    mlog = cmdopt('--mlog',6,0,strn)
     mlog=.false.
-    !      stdo = lgunit(1)
     lcnst = cnst(0) .gt. 0
-
     ! --- Copy rho to a; calc. RMS error; read prior iter from ifi ---
     if (ifi > 0) then
 
@@ -1323,9 +1308,9 @@ contains
        if (nda*nsp /= na) then
           if (procid == master) then
              write(stdo,ftox)' mixrho:  expecting',nda*nsp,'elements but found',na,'discarding file'
-!             call awrit2 &
-!                  ( %i elements but found %i ...' &
-!                  //' discarding file',' ',80,stdo,nda*nsp,na)
+             !             call awrit2 &
+             !                  ( %i elements but found %i ...' &
+             !                  //' discarding file',' ',80,stdo,nda*nsp,na)
           endif
           nmixr = 0
           goto 31
@@ -1334,13 +1319,13 @@ contains
        if (procid == master) then
           readerror = .false.
           do  30  j = 1, k
-!             if (lbin) then
-                if ( .NOT. lddump(a(1,1,j+1,1),na,ifi)) readerror = .TRUE. 
-                if ( .NOT. lddump(a(1,1,j+1,2),na,ifi)) readerror = .TRUE. 
-!             else
-!                if ( .NOT. lfdmp(a(1,1,j+1,1),na,ifi)) readerror = .TRUE. 
-!                if ( .NOT. lfdmp(a(1,1,j+1,2),na,ifi)) readerror = .TRUE. 
-!             endif
+             !             if (lbin) then
+             if ( .NOT. lddump(a(1,1,j+1,1),na,ifi)) readerror = .TRUE. 
+             if ( .NOT. lddump(a(1,1,j+1,2),na,ifi)) readerror = .TRUE. 
+             !             else
+             !                if ( .NOT. lfdmp(a(1,1,j+1,1),na,ifi)) readerror = .TRUE. 
+             !                if ( .NOT. lfdmp(a(1,1,j+1,2),na,ifi)) readerror = .TRUE. 
+             !             endif
              if (readerror) goto 313
              nmixr = j
 30        enddo
@@ -1532,7 +1517,7 @@ contains
           ! ccccccccccccc
           call dscal(ng02,-1d0,crho(1,i),1)
           call daxpy(ng02,1d0,a(1,i),1,crho(1,i),1)
-          call lgstar(2,ng,1,gv,m,ips0,crho(1,i))
+          call lgstar(2,ng,1,gv,m,ips0,dcmplx(crho(1:,i)))
           call gvputf(ng,1,kv,n1,n2,n3,crho(1,i),wk)
           call fftz3(wk,n1,n2,n3,n1,n2,n3,1,0,1)
           call daxpy(2*n1*n2*n3,1d0,wk,1,smrho(1,1,1,i),1)
@@ -1994,7 +1979,7 @@ contains
     double precision :: ddot,dval,wc
     integer:: im , km , i , iprint , i1mach , imix , jmix
     real(8) ,allocatable :: xmp1_rv(:)
-!    integer:: broyj
+    !    integer:: broyj
     real(8) ,allocatable :: f_rv(:)
     real(8) ,allocatable :: ui_rv(:)
     real(8) ,allocatable :: vti_rv(:)
@@ -2258,7 +2243,7 @@ contains
     if (mode4 == 0 .OR. nsp /= 2) return
     i = 20                   ! No core
     if (mode1 == 0) i = 30 ! No rho2
-    call splrho(i,nsp,nr,nlml,rho1,rho2,sum1)
+    call splrho(i,nsp,nr,nlml,rho1,rho2,[sum1])
     np = nr*nlml
     if (mode4 == 1) then   ! Zero density
        call dpzero(rho1(1,1,1),np)
@@ -2272,7 +2257,7 @@ contains
           call dpzero(rho2(1,1,nsp),np)
        endif
     endif
-    call splrho(i+1,nsp,nr,nlml,rho1,rho2,sum1)
+    call splrho(i+1,nsp,nr,nlml,rho1,rho2,[sum1])
 
   end subroutine pkl2ro
 
@@ -2513,577 +2498,577 @@ contains
          gmax < gtol .AND. (isw3 == 1 .OR. isw3 == 3))) j = 0
     broyj = j
   end function broyj
-subroutine rhogkl ( ib1 , ib2 , nsp , mode , sv_p_orhoat , kmax , qkl )!- G_kL expansion of valence sphere densities
-  use m_lgunit,only:stdo
-  use m_struc_def  
-  use m_lmfinit,only: ispec,sspec=>v_sspec
-  use m_hansr,only:corprm
-  !i Inputs
-  !i  ib1,ib2: compute expansion coefficents for sites ib1..ib2
-  !i   nsp   :1 make qkl for first spin (possibly the only one)
-  !i         :2 make qkl combining spins 1 and 2
-  !i   mode  : a compound of digits specifying what is to be included
-  !i         : in the expansion coefficients
-  !i         : 1s   digit = 1 include local density rho1-rho2
-  !i         :              2 include local density rho1
-  !i         :              3 include local density rho2
-  !i         : 10s  digit = 1 include core density rhoc
-  !i                        2 include -1 * core density from sm-hankel
-  !i                        3 combination 1+2
-  !i         : 100s digit = 1 add -1 * nuclear density Y0 Z delta(r)
-  !i   kmax  :make expansion coffs to polynomial cutoff kmax
-  !i   ssite :struct for site-specific information; see routine usite
-  !i     Elts read: spec
-  !i     Stored:    *
-  !i     Passed to: *
-  !i   sspec :struct for species-specific information; see routine uspec
-  !i     Elts read: lmxl z qc a nr rmt rg
-  !i     Stored:    *
-  !i     Passed to: corprm
-  !i   orhoat:vector of offsets containing site density
-  !o Outputs
-  !o   qkl  :Expansion coefficients, stored as a single long vector.
-  !o        := integral pkl Y_L integrand
-  !o        :where integrand is according to mode
-  !r Remarks
-  !r    In the spin-polarized case, up- and down- spins are combined.
-  !u Updates
-  !u   19 Oct 01 Adapted from rhomom.f
-  ! ----------------------------------------------------------------------
-  implicit none
-  integer:: ib1 , ib2 , nsp , mode , kmax
-  type(s_rv1) :: sv_p_orhoat(3,1)
-  real(8):: qkl(0:kmax,1)
-  integer:: ipr , iprint, nrmx , j1 , ib , is &
-       , igetss , lmxl , nr , nlml , ilm , j , lfoc , k , l , m
-  real(8) ,allocatable :: rofi_rv(:)
-  real(8) ,allocatable :: rwgt_rv(:)
-  real(8) ,allocatable :: h_rv(:)
-  parameter( nrmx=1501)
-  double precision :: z,qc,a,rmt,qcorg,qcorh,qsc,cofg,cofh,rg, ceh,rfoc,df(0:20)
-  ipr  = iprint()
-  allocate(rofi_rv(nrmx))
-  allocate(rwgt_rv(nrmx))
-  call stdfac(20,df)
-  if (ipr >= 40) write(stdo,221)
-  j1 = 1
-  do  ib = ib1, ib2
-     is = ispec(ib)
-     lmxl=sspec(is)%lmxl
-     z=sspec(is)%z
-     qc=sspec(is)%qc
-     a=sspec(is)%a
-     nr=sspec(is)%nr
-     rmt=sspec(is)%rmt
-     rg=sspec(is)%rg
+  subroutine rhogkl ( ib1 , ib2 , nsp , mode , sv_p_orhoat , kmax , qkl )!- G_kL expansion of valence sphere densities
+    use m_lgunit,only:stdo
+    use m_struc_def  
+    use m_lmfinit,only: ispec,sspec=>v_sspec
+    use m_hansr,only:corprm
+    !i Inputs
+    !i  ib1,ib2: compute expansion coefficents for sites ib1..ib2
+    !i   nsp   :1 make qkl for first spin (possibly the only one)
+    !i         :2 make qkl combining spins 1 and 2
+    !i   mode  : a compound of digits specifying what is to be included
+    !i         : in the expansion coefficients
+    !i         : 1s   digit = 1 include local density rho1-rho2
+    !i         :              2 include local density rho1
+    !i         :              3 include local density rho2
+    !i         : 10s  digit = 1 include core density rhoc
+    !i                        2 include -1 * core density from sm-hankel
+    !i                        3 combination 1+2
+    !i         : 100s digit = 1 add -1 * nuclear density Y0 Z delta(r)
+    !i   kmax  :make expansion coffs to polynomial cutoff kmax
+    !i   ssite :struct for site-specific information; see routine usite
+    !i     Elts read: spec
+    !i     Stored:    *
+    !i     Passed to: *
+    !i   sspec :struct for species-specific information; see routine uspec
+    !i     Elts read: lmxl z qc a nr rmt rg
+    !i     Stored:    *
+    !i     Passed to: corprm
+    !i   orhoat:vector of offsets containing site density
+    !o Outputs
+    !o   qkl  :Expansion coefficients, stored as a single long vector.
+    !o        := integral pkl Y_L integrand
+    !o        :where integrand is according to mode
+    !r Remarks
+    !r    In the spin-polarized case, up- and down- spins are combined.
+    !u Updates
+    !u   19 Oct 01 Adapted from rhomom.f
+    ! ----------------------------------------------------------------------
+    implicit none
+    integer:: ib1 , ib2 , nsp , mode , kmax
+    type(s_rv1) :: sv_p_orhoat(3,1)
+    real(8):: qkl(0:kmax,1)
+    integer:: ipr , iprint, nrmx , j1 , ib , is &
+         , igetss , lmxl , nr , nlml , ilm , j , lfoc , k , l , m
+    real(8) ,allocatable :: rofi_rv(:)
+    real(8) ,allocatable :: rwgt_rv(:)
+    real(8) ,allocatable :: h_rv(:)
+    parameter( nrmx=1501)
+    double precision :: z,qc,a,rmt,qcorg,qcorh,qsc,cofg,cofh,rg, ceh,rfoc,df(0:20)
+    ipr  = iprint()
+    allocate(rofi_rv(nrmx))
+    allocate(rwgt_rv(nrmx))
+    call stdfac(20,df)
+    if (ipr >= 40) write(stdo,221)
+    j1 = 1
+    do  ib = ib1, ib2
+       is = ispec(ib)
+       lmxl=sspec(is)%lmxl
+       z=sspec(is)%z
+       qc=sspec(is)%qc
+       a=sspec(is)%a
+       nr=sspec(is)%nr
+       rmt=sspec(is)%rmt
+       rg=sspec(is)%rg
 
-     if (lmxl == -1) goto 10
-     call corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
-     qc = qcorg+qcorh
-     nlml = (lmxl+1)**2
-     call radmsh ( rmt , a , nr , rofi_rv )
-     call radwgt ( rmt , a , nr , rwgt_rv )
-     allocate(h_rv(nr*(kmax+1)*(lmxl+1)))
-     call pvrgkl ( mode , kmax , nlml , nr , nsp , rofi_rv , rwgt_rv &
-          , sv_p_orhoat( 1 , ib )%v , sv_p_orhoat( 2 , ib )%v , sv_p_orhoat( 3 , ib )%v &
-          , h_rv , cofh , rg , ceh , rfoc , z , qkl ( 0 , j1 ) )
-     deallocate(h_rv)
+       if (lmxl == -1) goto 10
+       call corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
+       qc = qcorg+qcorh
+       nlml = (lmxl+1)**2
+       call radmsh ( rmt , a , nr , rofi_rv )
+       call radwgt ( rmt , a , nr , rwgt_rv )
+       allocate(h_rv(nr*(kmax+1)*(lmxl+1)))
+       call pvrgkl ( mode , kmax , nlml , nr , nsp , rofi_rv , rwgt_rv &
+            , sv_p_orhoat( 1 , ib )%v , sv_p_orhoat( 2 , ib )%v , sv_p_orhoat( 3 , ib )%v &
+            , h_rv , cofh , rg , ceh , rfoc , z , qkl ( 0 , j1 ) )
+       deallocate(h_rv)
 
-     if (ipr >= 40) then
-        write(stdo,222) ib,0,1,(qkl(k,j1), k=0,kmax)
-        ilm = 1
-        do  l = 1, lmxl
-           do  m = -l, l
-              ilm = ilm+1
-              j = j1+ilm-1
-              if (dabs(qkl(0,j))*df(2*l+1) > 1d-6) write(stdo,220) 0,ilm, &
-                   (qkl(k,j)*df(2*l+1),k=0,kmax)
+       if (ipr >= 40) then
+          write(stdo,222) ib,0,1,(qkl(k,j1), k=0,kmax)
+          ilm = 1
+          do  l = 1, lmxl
+             do  m = -l, l
+                ilm = ilm+1
+                j = j1+ilm-1
+                if (dabs(qkl(0,j))*df(2*l+1) > 1d-6) write(stdo,220) 0,ilm, &
+                     (qkl(k,j)*df(2*l+1),k=0,kmax)
 
-           enddo
-        enddo
-     endif
-222  format(2x,'ib=',i3,i5,i6,10f12.6)
-220  format(9x,i4,i6,f12.6,10f12.6)
-221  format(/' rhogkl:    k   ilm      qkl (2l+1)!! ...')
-     !$$$#if DEBUG
-     !$$$        if (ib .eq. 1) then
-     !$$$          print *, 'ib=',ib
-     !$$$          call prtrkl ( mode , kmax , rg , nr , nlml , nsp , rofi_rv ,
-     !$$$     .     sv_p_orhoat( 1 , ib )%v , sv_p_orhoat( 2 , ib )%v , sv_p_orhoat( 3 , ib )%v
-     !$$$     .     , qkl ( 0 , j1 ) )
-     !$$$
-     !$$$
-     !$$$        endif
-     !$$$#endif
-     j1 = j1+nlml
-10   continue
-  enddo
-  if (allocated(rwgt_rv)) deallocate(rwgt_rv)
-  if (allocated(rofi_rv)) deallocate(rofi_rv)
-end subroutine rhogkl
-subroutine pvrgkl(mode,kmax,nlml,nr,nsp,rofi,rwgt,rho1,rho2,rhoc, pkl,cofh,rg,ceh,rfoc,z,qkl)
-  use m_hansr,only:hansmr
-  use m_ll,only:ll
-  !- Multipole moments for one site
-  ! ----------------------------------------------------------------------
-  !i Inputs
-  !i   mode  : a compound of digits specifying what is to be included
-  !i         : in the expansion coefficients
-  !i         : 1s   digit = 1 include local density rho1-rho2
-  !i         :              2 include local density rho1
-  !i         :              3 include local density rho2
-  !i         : 10s  digit = 1 include core density rhoc
-  !i                        2 include -1 * core density from sm-hankel
-  !i                        3 combination 1+2
-  !i         : 100s digit = 1 add -1 * nuclear density Y0 Z delta(r)
-  !i   kmax  :k-cutoff for polynomial expansion of radial part
-  !i   nlml  :L-cutoff for charge
-  !i   nr    :number of radial mesh points
-  !i   nsp   :number of spins
-  !i   rofi  :radial mesh points
-  !i   rwgt  :radial integration weights
-  !i   rho1  :local true density*r**2, tabulated on a radial mesh
-  !i   rho2  :local smoothed density*r**2, tabulated on a radial mesh
-  !i   rhoc  :core density
-  !i   cofh  :coefficient to Hankel part of pseudocore density (corprm)
-  !i   rg    :smoothing radius for compensating gaussians
-  !i   ceh   :energy of hankel function to fit core tail
-  !i   rfoc  :smoothing radius for hankel head fitted to core tail
-  !i   z     :nuclear charge
-  !o Outputs
-  !o   qkl  :expansion coefficients for rho
-  !w Workarea:
-  !w   pkl:
-  !r Remarks
-  !r   Q_kL = integral p_kl (rho1-rho2) + l=0 contr. from core spillout
-  !r   The core spillout term is:
-  !r      qcore(rhoc)-z  - sm_qcore-sm_qnuc
-  !r   pvrgkl makes this Q_kL when mode=131; partial contr for other modes
-  !r   NB: p0l = a**l and scaling factor for k=0 is 4*pi/(a**l * (2l+1)!!)
-  !r       => q0l = 4*pi/(2l+1)!! q_l, where q_l is the multipole moment
-  ! ----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
-  integer :: mode,kmax,nlml,nr,nsp
-  double precision :: ceh,cofh,rfoc,rg,z
-  double precision :: rofi(1),rwgt(1),qkl(0:kmax,nlml), &
-       rhoc(nr,nsp),rho1(nr,nlml,nsp),rho2(nr,nlml,nsp), &
-       pkl(nr,0:kmax,0:*)
-  ! ... Local parameters
-  integer :: n0,i,ilm,l,m,lmxl,isp,k
-  parameter (n0=10)
-  double precision :: ag,fac,y0,xi(0:n0),fpi,factk,dfact, &
-       df(0:20),wk(nr),smrch,f1,f2
-  !     double precision gkl(0:kmax,0:nlml),wn2(0:kmax,0:nlml),rl
-  !     double precision sumh,samh,y0
+             enddo
+          enddo
+       endif
+222    format(2x,'ib=',i3,i5,i6,10f12.6)
+220    format(9x,i4,i6,f12.6,10f12.6)
+221    format(/' rhogkl:    k   ilm      qkl (2l+1)!! ...')
+       !$$$#if DEBUG
+       !$$$        if (ib .eq. 1) then
+       !$$$          print *, 'ib=',ib
+       !$$$          call prtrkl ( mode , kmax , rg , nr , nlml , nsp , rofi_rv ,
+       !$$$     .     sv_p_orhoat( 1 , ib )%v , sv_p_orhoat( 2 , ib )%v , sv_p_orhoat( 3 , ib )%v
+       !$$$     .     , qkl ( 0 , j1 ) )
+       !$$$
+       !$$$
+       !$$$        endif
+       !$$$#endif
+       j1 = j1+nlml
+10     continue
+    enddo
+    if (allocated(rwgt_rv)) deallocate(rwgt_rv)
+    if (allocated(rofi_rv)) deallocate(rofi_rv)
+  end subroutine rhogkl
+  subroutine pvrgkl(mode,kmax,nlml,nr,nsp,rofi,rwgt,rho1,rho2,rhoc, pkl,cofh,rg,ceh,rfoc,z,qkl)
+    use m_hansr,only:hansmr
+    use m_ll,only:ll
+    !- Multipole moments for one site
+    ! ----------------------------------------------------------------------
+    !i Inputs
+    !i   mode  : a compound of digits specifying what is to be included
+    !i         : in the expansion coefficients
+    !i         : 1s   digit = 1 include local density rho1-rho2
+    !i         :              2 include local density rho1
+    !i         :              3 include local density rho2
+    !i         : 10s  digit = 1 include core density rhoc
+    !i                        2 include -1 * core density from sm-hankel
+    !i                        3 combination 1+2
+    !i         : 100s digit = 1 add -1 * nuclear density Y0 Z delta(r)
+    !i   kmax  :k-cutoff for polynomial expansion of radial part
+    !i   nlml  :L-cutoff for charge
+    !i   nr    :number of radial mesh points
+    !i   nsp   :number of spins
+    !i   rofi  :radial mesh points
+    !i   rwgt  :radial integration weights
+    !i   rho1  :local true density*r**2, tabulated on a radial mesh
+    !i   rho2  :local smoothed density*r**2, tabulated on a radial mesh
+    !i   rhoc  :core density
+    !i   cofh  :coefficient to Hankel part of pseudocore density (corprm)
+    !i   rg    :smoothing radius for compensating gaussians
+    !i   ceh   :energy of hankel function to fit core tail
+    !i   rfoc  :smoothing radius for hankel head fitted to core tail
+    !i   z     :nuclear charge
+    !o Outputs
+    !o   qkl  :expansion coefficients for rho
+    !w Workarea:
+    !w   pkl:
+    !r Remarks
+    !r   Q_kL = integral p_kl (rho1-rho2) + l=0 contr. from core spillout
+    !r   The core spillout term is:
+    !r      qcore(rhoc)-z  - sm_qcore-sm_qnuc
+    !r   pvrgkl makes this Q_kL when mode=131; partial contr for other modes
+    !r   NB: p0l = a**l and scaling factor for k=0 is 4*pi/(a**l * (2l+1)!!)
+    !r       => q0l = 4*pi/(2l+1)!! q_l, where q_l is the multipole moment
+    ! ----------------------------------------------------------------------
+    !     implicit none
+    ! ... Passed parameters
+    integer :: mode,kmax,nlml,nr,nsp
+    double precision :: ceh,cofh,rfoc,rg,z
+    double precision :: rofi(1),rwgt(1),qkl(0:kmax,nlml), &
+         rhoc(nr,nsp),rho1(nr,nlml,nsp),rho2(nr,nlml,nsp), &
+         pkl(nr,0:kmax,0:*)
+    ! ... Local parameters
+    integer :: n0,i,ilm,l,m,lmxl,isp,k
+    parameter (n0=10)
+    double precision :: ag,fac,y0,xi(0:n0),fpi,factk,dfact, &
+         df(0:20),wk(nr),smrch,f1,f2
+    !     double precision gkl(0:kmax,0:nlml),wn2(0:kmax,0:nlml),rl
+    !     double precision sumh,samh,y0
 
-  !     call prrmsh('rho1',rofi,rho1,nr,nr,nlml*nsp)
-  !     call prrmsh('rho2',rofi,rho2,nr,nr,nlml*nsp)
+    !     call prrmsh('rho1',rofi,rho1,nr,nr,nlml*nsp)
+    !     call prrmsh('rho2',rofi,rho2,nr,nr,nlml*nsp)
 
-  fpi  = 16d0*datan(1d0)
-  y0   = 1d0/dsqrt(fpi)
-  lmxl = ll(nlml)
-  call stdfac(20,df)
-  call vecpkl(rofi,rg,nr,kmax,lmxl,nr,kmax,wk,1,pkl,pkl)
-  !     Non-vectorized form ... should be able to integrate with
-  !     either pkl -> gkl exp, or with gkl -> pkl exp, but
-  !     something is wrong ...  doesn't work
-  !      do  i = 1, nr
-  !        call radgkl(rofi(i),rg,kmax,lmxl,kmax,wn2)
-  !C       call radpkl(rofi(i),rg,kmax,lmxl,kmax,wn2)
-  !        rl = 1
-  !        do  l = 0, lmxl
-  !          pkl(i,0:kmax,l) = wn2(0:kmax,l)*rl
-  !          rl = rl * rofi(i)
-  !        enddo
-  !      enddo
-  call dpzero(qkl,nlml*(kmax+1))
+    fpi  = 16d0*datan(1d0)
+    y0   = 1d0/dsqrt(fpi)
+    lmxl = ll(nlml)
+    call stdfac(20,df)
+    call vecpkl(rofi,rg,nr,kmax,lmxl,nr,kmax,wk,1,pkl,pkl)
+    !     Non-vectorized form ... should be able to integrate with
+    !     either pkl -> gkl exp, or with gkl -> pkl exp, but
+    !     something is wrong ...  doesn't work
+    !      do  i = 1, nr
+    !        call radgkl(rofi(i),rg,kmax,lmxl,kmax,wn2)
+    !C       call radpkl(rofi(i),rg,kmax,lmxl,kmax,wn2)
+    !        rl = 1
+    !        do  l = 0, lmxl
+    !          pkl(i,0:kmax,l) = wn2(0:kmax,l)*rl
+    !          rl = rl * rofi(i)
+    !        enddo
+    !      enddo
+    call dpzero(qkl,nlml*(kmax+1))
 
-  ! ... rho1-rho2 contribution (or rho1, or rho2, depending on mode)
-  if (mod(mode,10) > 0) then
-     if (mod(mode,10) == 1) then
-        f1 = 1
-        f2 = -1
-     elseif (mod(mode,10) == 2) then
-        f1 = 1
-        f2 = 0
-     elseif (mod(mode,10) == 3) then
-        f1 = 0
-        f2 = 1
-     else
-        call rx('rhogkl: bad mode')
-     endif
-     ilm = 0
-     do  l = 0, lmxl
-        do  m = -l, l
-           ilm = ilm+1
-           do  k = 0, kmax
-              do  i = 1, nr
-                 !             If rg is small enough, these should all integrate to 1
-                 !             call radgkl(rofi(i),rg,kmax,lmxl,kmax,gkl)
-                 !              if (m .eq. -l) qkl(k,ilm) = qkl(k,ilm) +
-                 !     .          rwgt(i)*rofi(i)**(2+l) * gkl(k,l) * pkl(i,k,l)
-                 do  isp = 1, nsp
-                    qkl(k,ilm) = qkl(k,ilm) + rwgt(i) * pkl(i,k,l) * &
-                         (f1*rho1(i,ilm,isp) + f2*rho2(i,ilm,isp))
-                 enddo
-              enddo
-           enddo
-        enddo
-     enddo
-  endif
+    ! ... rho1-rho2 contribution (or rho1, or rho2, depending on mode)
+    if (mod(mode,10) > 0) then
+       if (mod(mode,10) == 1) then
+          f1 = 1
+          f2 = -1
+       elseif (mod(mode,10) == 2) then
+          f1 = 1
+          f2 = 0
+       elseif (mod(mode,10) == 3) then
+          f1 = 0
+          f2 = 1
+       else
+          call rx('rhogkl: bad mode')
+       endif
+       ilm = 0
+       do  l = 0, lmxl
+          do  m = -l, l
+             ilm = ilm+1
+             do  k = 0, kmax
+                do  i = 1, nr
+                   !             If rg is small enough, these should all integrate to 1
+                   !             call radgkl(rofi(i),rg,kmax,lmxl,kmax,gkl)
+                   !              if (m .eq. -l) qkl(k,ilm) = qkl(k,ilm) +
+                   !     .          rwgt(i)*rofi(i)**(2+l) * gkl(k,l) * pkl(i,k,l)
+                   do  isp = 1, nsp
+                      qkl(k,ilm) = qkl(k,ilm) + rwgt(i) * pkl(i,k,l) * &
+                           (f1*rho1(i,ilm,isp) + f2*rho2(i,ilm,isp))
+                   enddo
+                enddo
+             enddo
+          enddo
+       enddo
+    endif
 
-  ! ... Core part (spec'd by 10s digit mode)
-  if (mod(mode/10,10) > 0) then
-     do  k = 0, kmax
-        do  isp = 1, nsp
-           !         Case 1 or 3: add core density
-           if (mod(mod(mode/10,10),2) /= 0) then
-              do  i = 1, nr
-                 qkl(k,1) = qkl(k,1) + y0*rwgt(i)*rhoc(i,isp)*pkl(i,k,0)
-              enddo
-           endif
-           !         Case 2 or 3: subtract core density from sm. Hankel
-           if (mod(mode/10,10) >= 2) then
-              do  i = 1, nr
-                 call hansmr(rofi(i),ceh,1/rfoc,xi,1)
-                 smrch = cofh*xi(0)*rofi(i)**2
-                 qkl(k,1) = qkl(k,1) - rwgt(i)*smrch*pkl(i,k,0)
-              enddo
-           endif
-        enddo
-     enddo
-  endif
-  ! ... Nuclear part (spec'd by 100s digit mode)
-  if (mod(mode/100,10) == 1) then
-     do  k = 0, kmax
-        qkl(k,1) = qkl(k,1) - y0*z*pkl(1,k,0)
-     enddo
-  endif
-  ! ... Scale to get coefficients of the G_kL; see radpkl
-  ag = 1/rg
-  ilm = 0
-  dfact = 1
-  do  l = 0, lmxl
-     do  m = -l, l
-        ilm = ilm+1
-        factk = 1d0
-        do  k = 0, kmax
-           fac = fpi / ((4*ag*ag)**k * ag**l * factk * dfact)
-           qkl(k,ilm) = qkl(k,ilm) * fac
-           factk = factk*(k+1)
-        enddo
-     enddo
-     dfact = dfact*(2*l+3)
-  enddo
-end subroutine pvrgkl
-subroutine vecpkl(r,rsm,nr,kmax,lmax,nrx,k0,wk,lrl,p,gp)! Vector of p_kl polynomials, or r^l p_kl
-  ! ----------------------------------------------------------------------
-  !i Inputs
-  !i   r     :vector of points
-  !i   rsm   :smoothing radius
-  !i   nr    :number of points
-  !i   kmax  :make p for k=0..kmax
-  !i   lmax  :make p for l=0..lmax
-  !i   nrx   :leading dimension of p
-  !i   k0    :second dimension of p
-  !i   wk    :work array of length nr
-  !i   lrl   :if 1s digit = 0, returns p_kl; otherwise returns r^l p_kl
-  !i         :if 10s digit nonzero, returns gp; otherwise gp is not touched.
-  !o Outputs
-  !o   p     :radial part of spherical polynomials P_kL; see Remarks
-  !o   gp    :radial derivative of p from l=0..lmax-1 (depending on lrl).
-  !r Remarks
-  !r   P_kL are polyonomials orthogonal in the following sense:
-  !r                                          (4a^2)^k a^l k! (2l+1)!!
-  !r    int P_kL G_k'L' = delta_kk'*delta_ll'  ----------------------
-  !r                                                    4pi
-  !r   and are defined in J. Math. Phys. 39, 3393 (1988).
-  !r   Combining eqns 12.7 and 5.19 in that paper, we obtain
-  !r    p_kl = a**l / (2a**2)^(k+l) (2l+1)!! / (2k+2l+1)!! phi_kl
-  !r    p_0l = a**l
-  !r    p_1l = a**l (2*(ar)**2/(2l+3) - 1)
-  !r    p_kl = [(2*(ar)**2 - (4k+2l-1))p_k-1,l - 2(k-1)p_k-2,l]
-  !r           / (2k+2l+1)
-  !u Updates
-  !u   22 Aug 01 bug fix for gp when kmax=0
-  !u   25 Jan 00 veckl generates gp as well as p.
-  ! ----------------------------------------------------------------------
-  !     implicit none
-  integer :: nr,kmax,lmax,nrx,k0,lrl
-  double precision :: r(nrx),wk(nr),rsm,p(nrx,0:k0,0:*), &
-       gp(nrx,0:k0,0:*)
-  integer :: i,l,k
-  double precision :: a,xx,xx2,xx3
+    ! ... Core part (spec'd by 10s digit mode)
+    if (mod(mode/10,10) > 0) then
+       do  k = 0, kmax
+          do  isp = 1, nsp
+             !         Case 1 or 3: add core density
+             if (mod(mod(mode/10,10),2) /= 0) then
+                do  i = 1, nr
+                   qkl(k,1) = qkl(k,1) + y0*rwgt(i)*rhoc(i,isp)*pkl(i,k,0)
+                enddo
+             endif
+             !         Case 2 or 3: subtract core density from sm. Hankel
+             if (mod(mode/10,10) >= 2) then
+                do  i = 1, nr
+                   call hansmr(rofi(i),ceh,1/rfoc,xi,1)
+                   smrch = cofh*xi(0)*rofi(i)**2
+                   qkl(k,1) = qkl(k,1) - rwgt(i)*smrch*pkl(i,k,0)
+                enddo
+             endif
+          enddo
+       enddo
+    endif
+    ! ... Nuclear part (spec'd by 100s digit mode)
+    if (mod(mode/100,10) == 1) then
+       do  k = 0, kmax
+          qkl(k,1) = qkl(k,1) - y0*z*pkl(1,k,0)
+       enddo
+    endif
+    ! ... Scale to get coefficients of the G_kL; see radpkl
+    ag = 1/rg
+    ilm = 0
+    dfact = 1
+    do  l = 0, lmxl
+       do  m = -l, l
+          ilm = ilm+1
+          factk = 1d0
+          do  k = 0, kmax
+             fac = fpi / ((4*ag*ag)**k * ag**l * factk * dfact)
+             qkl(k,ilm) = qkl(k,ilm) * fac
+             factk = factk*(k+1)
+          enddo
+       enddo
+       dfact = dfact*(2*l+3)
+    enddo
+  end subroutine pvrgkl
+  subroutine vecpkl(r,rsm,nr,kmax,lmax,nrx,k0,wk,lrl,p,gp)! Vector of p_kl polynomials, or r^l p_kl
+    ! ----------------------------------------------------------------------
+    !i Inputs
+    !i   r     :vector of points
+    !i   rsm   :smoothing radius
+    !i   nr    :number of points
+    !i   kmax  :make p for k=0..kmax
+    !i   lmax  :make p for l=0..lmax
+    !i   nrx   :leading dimension of p
+    !i   k0    :second dimension of p
+    !i   wk    :work array of length nr
+    !i   lrl   :if 1s digit = 0, returns p_kl; otherwise returns r^l p_kl
+    !i         :if 10s digit nonzero, returns gp; otherwise gp is not touched.
+    !o Outputs
+    !o   p     :radial part of spherical polynomials P_kL; see Remarks
+    !o   gp    :radial derivative of p from l=0..lmax-1 (depending on lrl).
+    !r Remarks
+    !r   P_kL are polyonomials orthogonal in the following sense:
+    !r                                          (4a^2)^k a^l k! (2l+1)!!
+    !r    int P_kL G_k'L' = delta_kk'*delta_ll'  ----------------------
+    !r                                                    4pi
+    !r   and are defined in J. Math. Phys. 39, 3393 (1988).
+    !r   Combining eqns 12.7 and 5.19 in that paper, we obtain
+    !r    p_kl = a**l / (2a**2)^(k+l) (2l+1)!! / (2k+2l+1)!! phi_kl
+    !r    p_0l = a**l
+    !r    p_1l = a**l (2*(ar)**2/(2l+3) - 1)
+    !r    p_kl = [(2*(ar)**2 - (4k+2l-1))p_k-1,l - 2(k-1)p_k-2,l]
+    !r           / (2k+2l+1)
+    !u Updates
+    !u   22 Aug 01 bug fix for gp when kmax=0
+    !u   25 Jan 00 veckl generates gp as well as p.
+    ! ----------------------------------------------------------------------
+    !     implicit none
+    integer :: nr,kmax,lmax,nrx,k0,lrl
+    double precision :: r(nrx),wk(nr),rsm,p(nrx,0:k0,0:*), &
+         gp(nrx,0:k0,0:*)
+    integer :: i,l,k
+    double precision :: a,xx,xx2,xx3
 
-  if (kmax < 0 .OR. lmax < 0) return
-  if (kmax > k0) call rx('vecpkl: kmax gt k0')
-  if (rsm <= 0) call rx('vecpkl: rsm <= 0')
-  a = 1d0/rsm
+    if (kmax < 0 .OR. lmax < 0) return
+    if (kmax > k0) call rx('vecpkl: kmax gt k0')
+    if (rsm <= 0) call rx('vecpkl: rsm <= 0')
+    a = 1d0/rsm
 
-  ! --- Set wk = 2*a**2*r**2 ---
-  xx = 2*a*a
-  do  6  i = 1, nr
-     wk(i) = xx*r(i)**2
-6 enddo
+    ! --- Set wk = 2*a**2*r**2 ---
+    xx = 2*a*a
+    do  6  i = 1, nr
+       wk(i) = xx*r(i)**2
+6   enddo
 
-  ! --- Do explicitly for k=0,1 ---
-  do    l = 0, lmax
-     xx = a**l
-     do    i = 1, nr
-        p(i,0,l) = xx
-     enddo
-  enddo
+    ! --- Do explicitly for k=0,1 ---
+    do    l = 0, lmax
+       xx = a**l
+       do    i = 1, nr
+          p(i,0,l) = xx
+       enddo
+    enddo
 
-  if (kmax > 0) then
-     do   l = 0, lmax
-        xx = a**l
-        xx2 = 1/dble(2*l+3)
-        do   i = 1, nr
-           p(i,1,l)=xx*(wk(i)*xx2-1d0)
-        enddo
-     enddo
-  endif
+    if (kmax > 0) then
+       do   l = 0, lmax
+          xx = a**l
+          xx2 = 1/dble(2*l+3)
+          do   i = 1, nr
+             p(i,1,l)=xx*(wk(i)*xx2-1d0)
+          enddo
+       enddo
+    endif
 
-  ! --- Recursion for higher k ---
-  do    k = 2, kmax
-     xx3 = 2*(k-1)
-     do    l = 0, lmax
-        xx2 = (4*k+2*l-1)
-        xx = 1/dble(2*k+2*l+1)
-        do    i = 1, nr
-           p(i,k,l) = xx*((wk(i)-xx2)*p(i,k-1,l) - xx3*p(i,k-2,l))
-        enddo
-     enddo
-  enddo
+    ! --- Recursion for higher k ---
+    do    k = 2, kmax
+       xx3 = 2*(k-1)
+       do    l = 0, lmax
+          xx2 = (4*k+2*l-1)
+          xx = 1/dble(2*k+2*l+1)
+          do    i = 1, nr
+             p(i,k,l) = xx*((wk(i)-xx2)*p(i,k-1,l) - xx3*p(i,k-2,l))
+          enddo
+       enddo
+    enddo
 
-  ! --- Radial derivative of p ---
-  if (mod(lrl/10,10) /= 0) then
+    ! --- Radial derivative of p ---
+    if (mod(lrl/10,10) /= 0) then
 
-     !  ... Set wk = 2*a**2*r**2
-     xx = 2*a*a
-     do  16  i = 1, nr
-        wk(i) = xx*r(i)
-16   enddo
+       !  ... Set wk = 2*a**2*r**2
+       xx = 2*a*a
+       do  16  i = 1, nr
+          wk(i) = xx*r(i)
+16     enddo
 
-     do    k = 0, kmax
-        do    l = 0, lmax-1
-           xx2 = dble(2*k+2*l+3)/(a*(2*l+3))
-           do    i = 1, nr
-              gp(i,k,l) = wk(i)*(p(i,k,l) - xx2*p(i,k,l+1))
-           enddo
-        enddo
-     enddo
-  endif
+       do    k = 0, kmax
+          do    l = 0, lmax-1
+             xx2 = dble(2*k+2*l+3)/(a*(2*l+3))
+             do    i = 1, nr
+                gp(i,k,l) = wk(i)*(p(i,k,l) - xx2*p(i,k,l+1))
+             enddo
+          enddo
+       enddo
+    endif
 
-  ! --- Scale by r^l if lrl nonzero ---
-  if (mod(lrl,10) == 0) return
-  do  50  i = 1, nr
-     wk(i) = 1
-50 enddo
+    ! --- Scale by r^l if lrl nonzero ---
+    if (mod(lrl,10) == 0) return
+    do  50  i = 1, nr
+       wk(i) = 1
+50  enddo
 
-  do  52  l = 1, lmax
+    do  52  l = 1, lmax
 
-     !   ... gP scales as  r*l gP +  l*r^l-1 P
-     if (mod(lrl/10,10) /= 0 .AND. l < lmax) then
-        do   k = 0, kmax
-           do   i = 1, nr
-              gp(i,k,l) = wk(i)*r(i)*gp(i,k,l) + l*wk(i)*p(i,k,l)
-           enddo
-        enddo
-     endif
+       !   ... gP scales as  r*l gP +  l*r^l-1 P
+       if (mod(lrl/10,10) /= 0 .AND. l < lmax) then
+          do   k = 0, kmax
+             do   i = 1, nr
+                gp(i,k,l) = wk(i)*r(i)*gp(i,k,l) + l*wk(i)*p(i,k,l)
+             enddo
+          enddo
+       endif
 
-     do  54  i = 1, nr
-        wk(i) = wk(i)*r(i)
-54   enddo
-     do   k = 0, kmax
-        do   i = 1, nr
-           p(i,k,l) = p(i,k,l)*wk(i)
-        enddo
-     enddo
-52 enddo
-end subroutine vecpkl
-end module m_mixrho
-
-subroutine splrho(mode,nsp,nr,nlml,rho1,rho2,rhoc)  !- Overwrite spin pol local rho+,rho- with rho,rho+ - rho-, or reverse
-  ! ----------------------------------------------------------------------
-  !i Inputs
-  !i   mode  :1s digit
-  !i         :0 input (rho+,rho-) -> (rho+ + rho-, rho+ - rho-)
-  !i         :1 input (rho+ + rho-, rho+ - rho-) -> (rho+,rho-)
-  !i         :10s digit
-  !i         :1 suppress splitting of rho2
-  !i         :2 suppress splitting of rhoc
-  !i         :3 suppress both
-  !i   nsp   :2 for spin-polarized case, otherwise 1
-  !i   nr    :number of radial mesh points
-  !i   nlml  :L-cutoff
-  !i   rho1  :local true density, tabulated on a radial mesh
-  !i   rho2  :local smoothed density, tabulated on a radial mesh
-  !i   rhoc  :core density
-  !r Remarks
-  !u Updates
-  ! ----------------------------------------------------------------------
-  implicit none
-  integer :: mode,nsp,nr,nlml
-  double precision :: rho1(nr,nlml,nsp),rho2(nr,nlml,nsp),rhoc(nr,nsp)
-  double precision :: fac
-  if (nsp == 1) return
-  fac = 1
-  if (mod(mode,10) /= 0) fac = .5d0
-  call dsumdf(nr*nlml,fac,rho1,0,1,rho1(1,1,2),0,1)
-  if (mod(mod(mode/10,10),2)  == 0)  call dsumdf(nr*nlml,fac,rho2,0,1,rho2(1,1,2),0,1)
-  if (mod(mod(mode/10,10)/2,2) == 0) call dsumdf(nr,fac,rhoc,0,1,rhoc(1,2),0,1)
-end subroutine splrho
-subroutine lgstar(mode,ng,n,gv,ng0,ips0,cg)  !- Compresses F.T. of a real function, using fact it is hermitian
-  ! ----------------------------------------------------------------------
-  !i Inputs
-  !i   mode  :0, count number of inequivalent points ng0,
-  !i             and make ips0.  cg is not used.
-  !i         :1  same as mode 0, but also compress cg
-  !i         :2  use ips0 to undo compression of cg
-  !i   ng    :number of G-vectors
-  !i   n     :cg array holds n functions;
-  !i   gv    :list of reciprocal lattice vectors G (gvlist.f)
-  !o   ng0   :(mode=2) number of inequivalent points
-  !i   ips0  :(mode=2) permutation array.
-  !i   cg    :list of g-vectors for each of n functions
-  !o Outputs
-  !o   ng0   :(mode=0,1) number of inequivalent points
-  !o   ips0  :(mode=0,1) array of permutation indices.  A negative value
-  !o         :signifies the point's hermitian counterpart falls earlier in
-  !o         :the list, and points to that element.
-  !r Remarks
-  !r   Hacked from svgsym, using only one symmetry operation
-  !r   to reduce (G,-G) pairs to a single element.
-  !u Updates
-  ! ----------------------------------------------------------------------
-  !     implicit none
-  integer :: mode,ng,n,ips0(ng),ng0,iprint
-  double precision :: gv(ng,3)
-  double complex cg(ng,n)
-  integer :: i,i0,i00,irep,k,j,j0,lwarn,m
-  double precision :: v(3),df
-  if (mode < 0 .OR. mode > 2) call rxi('lgstar, bad mode',mode)
-  lwarn = 0
-  if (mode == 2) goto 200
-  ! --- mode = 0,1 ---
-  ng0 = 0
-  do  5  i = 1, ng
-     ips0(i) = 0
-5 enddo
-  ! --- Main loop: look for next unclassified vector ---
-  i00 = 1
-  do  10  irep = 1, ng+1
-     i0 = 0
-     do  12  i = i00, ng
-        i0 = i
-        if (ips0(i) == 0) goto 80
-12   enddo
-     goto 81
-80   continue
-     !   ... Apply all point ops, find in list, add to phase sum
-     ng0 = ng0 + 1
-     ips0(i0) = ng0
-     if (mode == 1)  then
-        do  21  m = 1, n
-           cg(ng0,m) = cg(i0,m)
-21      enddo
-     endif
-     do  20  k = 1, 1
-        v(1) = gv(i0,1)
-        v(2) = gv(i0,2)
-        v(3) = gv(i0,3)
-        do  22  j = i0+1,ng
-           df = (v(1)+gv(j,1))**2+(v(2)+gv(j,2))**2+(v(3)+gv(j,3))**2
-           j0 = j
-           if (df < 1d-8) goto 70
-22      enddo
-        !     ... No matching vector here ... should only happen for G=0
-        i00 = i0
-        goto 10
-70      continue
-        ips0(j0) = -i0
-        if (mode == 1) then
-           if (abs(cg(i0,1)-dconjg(cg(j0,1))) > 1d-9) lwarn = lwarn+1
-        endif
-20   enddo
-     i00 = i0
-10 enddo
-  call rxi('bug in lgstar, irep=',irep)
-81 continue
-  if (lwarn > 1 .AND. iprint() >= 10) print 345, lwarn
+       do  54  i = 1, nr
+          wk(i) = wk(i)*r(i)
+54     enddo
+       do   k = 0, kmax
+          do   i = 1, nr
+             p(i,k,l) = p(i,k,l)*wk(i)
+          enddo
+       enddo
+52  enddo
+  end subroutine vecpkl
+  subroutine splrho(mode,nsp,nr,nlml,rho1,rho2,rhoc)  !- Overwrite spin pol local rho+,rho- with rho,rho+ - rho-, or reverse
+    ! ----------------------------------------------------------------------
+    !i Inputs
+    !i   mode  :1s digit
+    !i         :0 input (rho+,rho-) -> (rho+ + rho-, rho+ - rho-)
+    !i         :1 input (rho+ + rho-, rho+ - rho-) -> (rho+,rho-)
+    !i         :10s digit
+    !i         :1 suppress splitting of rho2
+    !i         :2 suppress splitting of rhoc
+    !i         :3 suppress both
+    !i   nsp   :2 for spin-polarized case, otherwise 1
+    !i   nr    :number of radial mesh points
+    !i   nlml  :L-cutoff
+    !i   rho1  :local true density, tabulated on a radial mesh
+    !i   rho2  :local smoothed density, tabulated on a radial mesh
+    !i   rhoc  :core density
+    !r Remarks
+    !u Updates
+    ! ----------------------------------------------------------------------
+    implicit none
+    integer :: mode,nsp,nr,nlml
+    double precision :: rho1(nr,nlml,nsp),rho2(nr,nlml,nsp),rhoc(nr,nsp)
+    double precision :: fac
+    if (nsp == 1) return
+    fac = 1
+    if (mod(mode,10) /= 0) fac = .5d0
+    call dsumdf(nr*nlml,fac,rho1,0,1,rho1(1,1,2),0,1)
+    if (mod(mod(mode/10,10),2)  == 0)  call dsumdf(nr*nlml,fac,rho2,0,1,rho2(1,1,2),0,1)
+    if (mod(mod(mode/10,10)/2,2) == 0) call dsumdf(nr,fac,rhoc,0,1,rhoc(1,2),0,1)
+  end subroutine splrho
+  subroutine lgstar(mode,ng,n,gv,ng0,ips0,cg)  !- Compresses F.T. of a real function, using fact it is hermitian
+    ! ----------------------------------------------------------------------
+    !i Inputs
+    !i   mode  :0, count number of inequivalent points ng0,
+    !i             and make ips0.  cg is not used.
+    !i         :1  same as mode 0, but also compress cg
+    !i         :2  use ips0 to undo compression of cg
+    !i   ng    :number of G-vectors
+    !i   n     :cg array holds n functions;
+    !i   gv    :list of reciprocal lattice vectors G (gvlist.f)
+    !o   ng0   :(mode=2) number of inequivalent points
+    !i   ips0  :(mode=2) permutation array.
+    !i   cg    :list of g-vectors for each of n functions
+    !o Outputs
+    !o   ng0   :(mode=0,1) number of inequivalent points
+    !o   ips0  :(mode=0,1) array of permutation indices.  A negative value
+    !o         :signifies the point's hermitian counterpart falls earlier in
+    !o         :the list, and points to that element.
+    !r Remarks
+    !r   Hacked from svgsym, using only one symmetry operation
+    !r   to reduce (G,-G) pairs to a single element.
+    !u Updates
+    ! ----------------------------------------------------------------------
+    !     implicit none
+    integer :: mode,ng,n,ips0(ng),ng0,iprint
+    double precision :: gv(ng,3)
+    double complex cg(ng,n)
+    integer :: i,i0,i00,irep,k,j,j0,lwarn,m
+    double precision :: v(3),df
+    if (mode < 0 .OR. mode > 2) call rxi('lgstar, bad mode',mode)
+    lwarn = 0
+    if (mode == 2) goto 200
+    ! --- mode = 0,1 ---
+    ng0 = 0
+    do  5  i = 1, ng
+       ips0(i) = 0
+5   enddo
+    ! --- Main loop: look for next unclassified vector ---
+    i00 = 1
+    do  10  irep = 1, ng+1
+       i0 = 0
+       do  12  i = i00, ng
+          i0 = i
+          if (ips0(i) == 0) goto 80
+12     enddo
+       goto 81
+80     continue
+       !   ... Apply all point ops, find in list, add to phase sum
+       ng0 = ng0 + 1
+       ips0(i0) = ng0
+       if (mode == 1)  then
+          do  21  m = 1, n
+             cg(ng0,m) = cg(i0,m)
+21        enddo
+       endif
+       do  20  k = 1, 1
+          v(1) = gv(i0,1)
+          v(2) = gv(i0,2)
+          v(3) = gv(i0,3)
+          do  22  j = i0+1,ng
+             df = (v(1)+gv(j,1))**2+(v(2)+gv(j,2))**2+(v(3)+gv(j,3))**2
+             j0 = j
+             if (df < 1d-8) goto 70
+22        enddo
+          !     ... No matching vector here ... should only happen for G=0
+          i00 = i0
+          goto 10
+70        continue
+          ips0(j0) = -i0
+          if (mode == 1) then
+             if (abs(cg(i0,1)-dconjg(cg(j0,1))) > 1d-9) lwarn = lwarn+1
+          endif
+20     enddo
+       i00 = i0
+10  enddo
+    call rxi('bug in lgstar, irep=',irep)
+81  continue
+    if (lwarn > 1 .AND. iprint() >= 10) print 345, lwarn
 345 format(' lgstar (warning):',i6, ' points not hermitian')
-  return
-  ! --- mode = 2 ---
+    return
+    ! --- mode = 2 ---
 200 continue
-  ! ... Unpack original points first
-  do    m = 1, n
-     do    i = ng, 1, -1
-        k = ips0(i)
-        if (k > 0) cg(i,m) = cg(k,m)
-     enddo
-  enddo
-  ! ... Unpack hermitian points
-  do    m = 1, n
-     do    i = 1, ng
-        k = -ips0(i)
-        if (k > 0) cg(i,m) = dconjg(cg(k,m))
-     enddo
-  enddo
-end subroutine lgstar
-subroutine dsumdf(n,scal,a1,ofa1,l1,a2,ofa2,l2)! Returns scaled sum and difference of two vectors
-  ! ----------------------------------------------------------------
-  !i Inputs
-  !i   n    :number elements to scale and combine
-  !i   scal :scale sum and difference by scal; see Outputs
-  !i   a1   :first vector
-  !i   ofa1 :offset to first entry in a1
-  !i   l1   :skip length in a1
-  !i   a2   :second vector
-  !i   ofa2 :offset to first entry in a2
-  !i   l2   :skip length in a2
-  !o Outputs
-  !o   a1   :a1 <- scal*(a1+a2)
-  !o   a2   :a1 <- scal*(a1-a2)
-  ! ----------------------------------------------------------------
-  implicit none
-  integer :: n,l1,l2,ofa1,ofa2
-  double precision :: scal, a1(1), a2(1)
-  real(8) ,allocatable :: a_rv(:)   ! --- a1-a2-> temp;  a1+a2 -> a1;  temp -> a2 ---
-  allocate(a_rv(n))
-  call dcopy ( n , a1 ( 1 + ofa1 ) , l1 , a_rv , 1 )
-  call daxpy ( n , - 1d0 , a2 ( 1 + ofa2 ) , l2 , a_rv , 1 )
-  call daxpy (n,1d0,a2(1+ofa2),l2,a1(1+ofa1),l1)
-  call dcopy ( n , a_rv , 1 , a2 ( 1 + ofa2 ) , l2 )
-  deallocate(a_rv)
-  if (scal == 1) return
-  call dscal(n,scal,a1(1+ofa1),l1)
-  call dscal(n,scal,a2(1+ofa2),l1)
-end subroutine dsumdf
-subroutine dpdump(array,length,ifile)! Binary I/O of an array
-  integer:: length,ifile
-  double precision :: array(length)
-  if (ifile > 0) read(ifile) array
-  if (ifile < 0) write(-ifile) array
-end subroutine dpdump
-logical function lddump(array,length,ifile)! Binary I/O of an array, returning T if I/O without error or EOF
-  integer :: length,ifile
-  double precision :: array(length),xx,yy
-  lddump = .true.
-  if (ifile > 0) then
-     yy = array(length)
-     xx = -1.9283746d0*datan(1d0) !       (some random number)
-     array(length) = xx
-     read(ifile,end=90,err=91) array
-     if (xx /= array(length)) return
-     array(length) = yy
-     goto 90
-90   continue
-91   continue
-     lddump = .false.
-  else
-     write(-ifile) array
-  endif
-end function lddump
+    ! ... Unpack original points first
+    do    m = 1, n
+       do    i = ng, 1, -1
+          k = ips0(i)
+          if (k > 0) cg(i,m) = cg(k,m)
+       enddo
+    enddo
+    ! ... Unpack hermitian points
+    do    m = 1, n
+       do    i = 1, ng
+          k = -ips0(i)
+          if (k > 0) cg(i,m) = dconjg(cg(k,m))
+       enddo
+    enddo
+  end subroutine lgstar
+  subroutine dsumdf(n,scal,a1,ofa1,l1,a2,ofa2,l2)! Returns scaled sum and difference of two vectors
+    ! ----------------------------------------------------------------
+    !i Inputs
+    !i   n    :number elements to scale and combine
+    !i   scal :scale sum and difference by scal; see Outputs
+    !i   a1   :first vector
+    !i   ofa1 :offset to first entry in a1
+    !i   l1   :skip length in a1
+    !i   a2   :second vector
+    !i   ofa2 :offset to first entry in a2
+    !i   l2   :skip length in a2
+    !o Outputs
+    !o   a1   :a1 <- scal*(a1+a2)
+    !o   a2   :a1 <- scal*(a1-a2)
+    ! ----------------------------------------------------------------
+    implicit none
+    integer :: n,l1,l2,ofa1,ofa2
+    double precision :: scal, a1(1), a2(1)
+    real(8) ,allocatable :: a_rv(:)   ! --- a1-a2-> temp;  a1+a2 -> a1;  temp -> a2 ---
+    allocate(a_rv(n))
+    call dcopy ( n , a1 ( 1 + ofa1 ) , l1 , a_rv , 1 )
+    call daxpy ( n , - 1d0 , a2 ( 1 + ofa2 ) , l2 , a_rv , 1 )
+    call daxpy (n,1d0,a2(1+ofa2),l2,a1(1+ofa1),l1)
+    call dcopy ( n , a_rv , 1 , a2 ( 1 + ofa2 ) , l2 )
+    deallocate(a_rv)
+    if (scal == 1) return
+    call dscal(n,scal,a1(1+ofa1),l1)
+    call dscal(n,scal,a2(1+ofa2),l1)
+  end subroutine dsumdf
+  subroutine dpdump(array,length,ifile)! Binary I/O of an array
+    integer:: length,ifile
+    double precision :: array(length)
+    if (ifile > 0) read(ifile) array
+    if (ifile < 0) write(-ifile) array
+  end subroutine dpdump
+  logical function lddump(array,length,ifile)! Binary I/O of an array, returning T if I/O without error or EOF
+    integer :: length,ifile
+    double precision :: array(length),xx,yy
+    lddump = .true.
+    if (ifile > 0) then
+       yy = array(length)
+       xx = -1.9283746d0*datan(1d0) !       (some random number)
+       array(length) = xx
+       read(ifile,end=90,err=91) array
+       if (xx /= array(length)) return
+       array(length) = yy
+       goto 90
+90     continue
+91     continue
+       lddump = .false.
+    else
+       write(-ifile) array
+    endif
+  end function lddump
+
+end module m_mixrho
 

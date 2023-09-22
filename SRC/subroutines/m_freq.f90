@@ -1,4 +1,5 @@
-module m_freq ! Frequency mesh generator
+!> Frequency mesh generator
+module m_freq 
 !! - OUTPUT
 !!   - fhris :histgram bins to accumlate im part
 !!   - freq_r: omega along real axis

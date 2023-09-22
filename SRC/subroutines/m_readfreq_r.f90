@@ -1,7 +1,7 @@
-module m_readfreq_r !read freq_r
+!>read freq_r ! Readin WV.d (dimension file)  direct access files WVR and WVI which include W-V.
+module m_readfreq_r
   use m_genallcf_v3,only: niw
   use m_readgwinput,only: ua_
-  !   Readin WV.d (dimension file)  direct access files WVR and WVI which include W-V.
   implicit none
   integer:: mrecl
   integer,protected::nprecx,nblochpmx,nwp,niwt, nqnum, nw_i,nw,npm
@@ -39,19 +39,15 @@ contains
     !! Generate frequencies x between (0,1) and w=(1-x)/x for Gaussian integral along im axis
     if(niw/=0) then
        allocate(freqx(niw),freqw(niw),wwx(niw),expa_(niw))
-       !    generate gaussian points
-       call gauss   (niw,0d0,1d0,freqx,wwx) !!w = 1/(1+x)
+       call gauss   (niw,0d0,1d0,freqx,wwx) !!w = 1/(1+x) !    generate gaussian points
        write(6,"(' --- readfreq:  ix    x    freqw(a.u.)---')")
        do ix = 1,niw
           freqw(ix)= (1.d0 - freqx(ix)) / freqx(ix)
           write(6,"('            ',i4,2f9.4)") ix,freqx(ix),freqw(ix)
           expa_(ix)= dexp(-ua_**2*freqw(ix)*freqw(ix))
        end do
-       !     call freq01x  (niw,     !ua,
-       !     o   freqx,freqw,wwx)       !,expa)
     endif
     npm = 1                   ! npm=1    Timeveversal case
     if(nw_i/=0) npm = 2       ! npm=2 No TimeReversal case. Need negative energy part of W(omega)
-
   end subroutine readfreq_r
 end module m_readfreq_r

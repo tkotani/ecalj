@@ -1,8 +1,9 @@
-module m_esmsmves ! this file originated by Masao Obata, Kanazawa univ.
+!> ESM by Masao Obata, Kanazawa univ. Make ESM electrostatic potential of density given in real space
+module m_esmsmves 
   public esmsmves
   private
 contains
-  subroutine esmsmves(qmom,ng,gv,kv,cv,cg1,cgsum,smrho,qbg,smpot,f,gpot0,hpot0,qsmc,zsum,vrmt)! Make ESM electrostatic potential of density given in real space
+  subroutine esmsmves(qmom,ng,gv,kv,cv,cg1,cgsum,smrho,qbg,smpot,f,gpot0,hpot0,qsmc,zsum,vrmt)
     use m_lmfinit,only: nsp, alat=>lat_alat,nbas
     use m_MPItk,only:  master_mpi,mlog
     use m_lattic,only: vol=>lat_vol,plat=>lat_plat

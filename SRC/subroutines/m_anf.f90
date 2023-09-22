@@ -1,4 +1,4 @@
-!> Antiferro condition
+!> Antiferro conditions set by call anfcond
 module m_anf
   implicit none
   logical,protected:: laf !! - laf: antiferro switch

@@ -3,6 +3,7 @@ module m_chgmsh
   private
   contains
 subroutine chgmsh(iopt,plat,n,m1,m2,m3,l1,l2,l3,f0, n1,n2,n3,k1,k2,k3,f) ! Retabulate a function on a different real-space mesh
+  use m_shortn3,only: gvlst2,gvctof
   !i Inputs
   !i   iopt  :0 Use default (smaller of iopt=1,2)
   !i         :1 use Nyquist cutoff
@@ -32,7 +33,8 @@ subroutine chgmsh(iopt,plat,n,m1,m2,m3,l1,l2,l3,f0, n1,n2,n3,k1,k2,k3,f) ! Retab
   double precision :: gmax,gmax1,gmax2,tau(3)
   real(8),allocatable:: gv1(:),gv2(:)
   integer,allocatable:: kv1(:),kv2(:)
-  integer:: wdummy
+  real(8):: wdummy(3)
+  integer:: idummy(1)
   print *,' chgmsh: iopt=',iopt
   tau=0d0 !call dpzero(tau,3)
   if (iopt == 3) then
@@ -50,8 +52,8 @@ subroutine chgmsh(iopt,plat,n,m1,m2,m3,l1,l2,l3,f0, n1,n2,n3,k1,k2,k3,f) ! Retab
   gmax = dmin1(gmax1,gmax2)
   ngmx = min0(ng1,ng2)
   allocate(gv1(ngmx*3), gv2(ngmx*3),kv1(ngmx*3),kv2(ngmx*3))
-  call gvlst2(1d0,plat,wdummy,m1,m2,m3,0d0,gmax,0,8,ngmx,ng1,kv1,gv1,wdummy)!,wdummy)
-  call gvlst2(1d0,plat,wdummy,n1,n2,n3,0d0,gmax,0,8,ngmx,ng2,kv2,gv2,wdummy)!,wdummy)
+  call gvlst2(1d0,plat,wdummy,m1,m2,m3,0d0,gmax,[0],8,ngmx,ng1,kv1,gv1,idummy)
+  call gvlst2(1d0,plat,wdummy,n1,n2,n3,0d0,gmax,[0],8,ngmx,ng2,kv2,gv2,idummy)
   if (ng1 /= ng2) call rx('chgmsh: ng1 /= ng2')
   call pgvmat (ng1,gv1, ng2,gv2,kv2 )
   call poppr

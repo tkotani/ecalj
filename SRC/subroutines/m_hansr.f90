@@ -1,4 +1,5 @@
-module m_hansr !Smooth Hankel functions in real space.
+!>Smooth Hankel functions in real space. JMP39: https://doi.org/doi:10.1063/1.532437.
+module m_hansr 
   ! JMP39:
   ! Bott, E., M. Methfessel, W. Krabs, and P. C. Schmidt.
   ! “Nonsingular Hankel Functions as a New Basis for Electronic Structure Calculations.”

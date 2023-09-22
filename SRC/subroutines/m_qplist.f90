@@ -1,4 +1,5 @@
-module m_qplist ! control all q points list (but still only for lmf part now june2021).
+!> Get q points list.
+module m_qplist 
   use m_ftox
   use m_lgunit,only:stdo
   public :: m_qplist_init,m_qplist_qspdivider,qshortn

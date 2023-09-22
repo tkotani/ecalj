@@ -1,4 +1,5 @@
-module m_shortn3_plat !shortest p (real space) vector)
+!>shortest p (real space) vector
+module m_shortn3_plat 
 ! usage 2022-jul  
 !  pp=matmul(transpose(qlat),p)
 !  call shortn3_plat(pp)
@@ -34,8 +35,8 @@ contains
   end subroutine shortn3_plat
 end module m_shortn3_plat
 
-
-module m_shortn3_qlat !shortest q 
+!>shortest q 
+module m_shortn3_qlat 
 ! usage 2022-jul  
 !  pp=matmul(transpose(qlat),p)
 !  call shortn3_plat(pp)

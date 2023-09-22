@@ -1,4 +1,5 @@
-module m_mksym !Crystal symmetry data given by call m_mksym_init.  nbas (atomic sites)-> nspec (species) -> nclass (class)
+!>Crystal symmetry data are stored by call m_mksym_init. NOTE:nbas (atomic sites)-> nspec (species) -> nclass (class)
+module m_mksym 
   public :: m_mksym_init
   integer,allocatable,protected :: oics(:)    ! ispec= ics(iclass) gives spec for iclass.
   real(8),allocatable,protected :: symops(:,:,:),ag(:,:),tiat(:,:,:),shtvg(:,:),dlmm(:,:,:,:)

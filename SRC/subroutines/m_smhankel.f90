@@ -1,5 +1,5 @@
-module m_smhankel !Bloch sum of smooth Hankel, Gaussians. Expansion and Integrals.
-  !2023-4-28 memo: TK added qshortn(q). This allows q is not need to be within BZ.
+!>Bloch sum of smooth Hankel, Gaussians. Expansion and Integrals.
+module m_smhankel   !2023-4-28 memo: TK added qshortn(q). This allows q is not need to be within BZ.
   use m_ll,only:ll
   use m_factorial,only: factorial_init,factorial2,factorial
   use m_lmfinit,only: cg=>rv_a_ocg,indxcg=>iv_a_oidxcg,jcg=>iv_a_ojcg,cy=>rv_a_ocy
@@ -10,7 +10,6 @@ module m_smhankel !Bloch sum of smooth Hankel, Gaussians. Expansion and Integral
   ! Journal of Mathematical Physics 39, no. 6 (June 1, 1998): 3393–3425.
   ! https://doi.org/doi:10.1063/1.532437.
   implicit none
-  
   public hxpbl,hxpgbl, hhibl,hhigbl, hhugbl,hgugbl,ggugbl, hxpos !*bl means blochsum. *g* means gradient. xp means expansion. hhig means integral of h*h
          !xp=expansion !hh integral  !hg integral       !expansion 
   private

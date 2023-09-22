@@ -1,4 +1,5 @@
-module m_igv2x !Return G vectors (integer sets) for given q points specifiec by qplist(:,iq)
+!>Return G vectors (integer sets) for given q points specifiec by qplist(:,iq)
+module m_igv2x 
   use m_struc_def,only: s_nv2
   public:: m_igv2xall_init, m_igv2x_setiq
   integer,protected,pointer,public :: igv2x(:,:)

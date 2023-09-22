@@ -1,4 +1,5 @@
-module m_eibz ! === Use of symmetry. EIBZ procedure PRB81,125102 ===
+!> EIBZ (extended Irreducible Brillowin zone) procedure PRB81,125102 ===
+module m_eibz 
   use m_read_bzdata,only: Read_bzdata, nqbz,nqibz,n1,n2,n3,ginv, &
        dq_,qbz,wbz,qibz,wibz, &
        ntetf,idtetf,ib1bz, qbzw,nqbzw !for tetrahedron

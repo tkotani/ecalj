@@ -1,3 +1,4 @@
+!> MPI utility routines and variablis by TK
 module m_MPItk
   use m_ext,only:sname
   use m_lgunit,only: stml,stdl
@@ -15,7 +16,6 @@ module m_MPItk
   integer ::  resultlen, id,nproc
   character::  prgnam*32, ext*100
 contains
-
   subroutine m_MPItk_init(prgnamx)
     character::  prgnamx*(*)
     integer:: mpipid

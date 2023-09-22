@@ -1,4 +1,4 @@
-! Get effective W(q=0,omega) for GW.
+!> Get effective W(q=0,omega) for GW.
 module m_w0w0i
   use m_ll,only:ll
   use m_llw,only: llw,llwI,wmuk,ngbq0,w4pmode

@@ -1,4 +1,5 @@
-module m_readqgcou !readin QGcou
+!>readin QGcou
+module m_readqgcou 
   ! this is somehow duplicated with reqdqg.F---> I hope they are unified... jun2012takao
   !! ngveccrev(-imxc:imxc,-imxc:imxc,-imxc:imxc,ikp) is added on jun2012takao
   use NaNum,only: NaN

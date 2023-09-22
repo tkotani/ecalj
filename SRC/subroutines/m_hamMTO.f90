@@ -1,4 +1,4 @@
-!! -- Read HamiltionanMTOinfo and HamiltonianMTO. Then convert HamMTO to HamRsMTO  ------
+!> -- Read HamiltionanMTOinfo and HamiltonianMTO. Then convert HamMTO to HamRsMTO  ------
 module m_hamMTO
 !  public :: ReadHamMTOInfo,resetMTOInfo,geninitmloinfo
 !  private

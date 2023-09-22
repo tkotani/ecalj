@@ -1,4 +1,5 @@
-module m_ldau !ldau densitimatrix and potential
+!ldau density matrix and potential
+module m_ldau 
   use m_ldau_util,only: chkdmu,sudmtu,mixmag
   use m_mpitk,only:master_mpi
   use m_ftox

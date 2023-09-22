@@ -1,4 +1,5 @@
-module m_q0p   ! Q0P (offset Gamma points) and thir weight generator.
+!> Q0P (offset Gamma points) and thir weight generator.
+module m_q0p   
   !! All of them are outputs when getq0p is called.
   !! Read GWinput
   !! Write Q0P: Q0P contains offset Gamma, or k points specified in GWinput

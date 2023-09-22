@@ -1,3 +1,4 @@
+!>Gamma-cell averaged W
 module m_llw
   !      use m_readq0p,only: Readq0p,
   !     &     wqt,q0i,nq0i ,nq0iadd,ixyz

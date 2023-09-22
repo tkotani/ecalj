@@ -1,4 +1,5 @@
-module m_vxcatom !Vxc LDA for sites (spherical expansion)
+!>Vxc LDA for sites (spherical expansion)
+module m_vxcatom 
   use m_ll,only: ll
   use m_fpiint,only: fpiint
   public vxcnsp,vxc0sp 

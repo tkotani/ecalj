@@ -1,4 +1,3 @@
-!> lmf2gw() set variables to module variables by reading files from following input files.
 !    gwb.head
 !    NLAindx
 !    CLASS
@@ -69,7 +68,8 @@
 !!      cphi(ldim2,  nband, nqirr,nsp), ! Coefficients of eigenfunction
 !!      geig(ngpmx,  nband, nqirr,nsp) ! Coefficients of eigenfunction for IPW.
 
-module m_lmf2gw
+!> lmf2gw() set variables to module variables by reading files from following input files.
+module m_lmf2gw 
   integer,allocatable,protected:: nindx(:),lindx(:),ibasindx(:),iantiferro(:),mnla(:,:)
   integer,protected :: nbandmx,nphimx,&
   nsp,       &  !=1 or 2, corresponding to para or ferro.

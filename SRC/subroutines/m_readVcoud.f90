@@ -1,4 +1,5 @@
-module m_readVcoud        ! Coulomb matrix for given q
+!> read Coulomb matrix for given q
+module m_readVcoud        
   use m_readqg,only: Readqg0
   use m_rdpp,only: nbloch
   implicit none

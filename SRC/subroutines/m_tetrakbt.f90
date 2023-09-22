@@ -1,4 +1,5 @@
-module m_tetrakbt !finite-temperature tetrahedron method
+!>finite-temperature tetrahedron method
+module m_tetrakbt 
   use m_keyvalue,only: getkeyvalue
   implicit none
   public:: tetrakbt_init, tetrakbt, kbt,integtetn

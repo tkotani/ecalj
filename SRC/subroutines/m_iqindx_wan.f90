@@ -1,6 +1,7 @@
+! inverse mapping, q to 'integer index' for wan (okumura)
 module m_iqindx_wan
   implicit none
-  !! To accelarate inverse mapping, q to 'integer index',
+  !
   !! we prepare integer index of q, its resolution is given by epsd.
   !!      use m_hamindex, only: qtt,nqtt
   !      use m_iqindx_qtt, only: init_iqindx_qtt

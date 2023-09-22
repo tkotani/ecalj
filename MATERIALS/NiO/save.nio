@@ -1,3 +1,65 @@
 Start LMF --afsym nio
 i mmom=-0.0000 ehf(eV)=-86704.366209 ehk(eV)=-86704.365387 sev(eV)=-142.172451
 c mmom=-0.0000 ehf(eV)=-86704.366209 ehk(eV)=-86704.365387 sev(eV)=-142.172491
+Start LMF nio
+i mmom=-0.0000 ehf(eV)=-86704.366209 ehk(eV)=-86704.365386 sev(eV)=-142.172526
+c mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365386 sev(eV)=-142.172557
+Start LMF --afsym nio
+i mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172584
+c mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172607
+Start LMF --afsym --time=5,2 nio
+i mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172628
+c mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172646
+Start LMF --afsym nio
+i mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172662
+c mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172676
+Start LMF --afsym --time=0,2 nio
+i mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172688
+c mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172699
+Start LMF --afsym --time=2,0 nio
+i mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172708
+c mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172716
+Start LMF --afsym --time=2,1 nio
+i mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172723
+c mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172730
+Start LMF --afsym --time=2,2 nio
+i mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172735
+c mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172740
+Start LMF --afsym --time=1,1 nio
+i mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172744
+c mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172748
+Start LMF --afsym --time=0,0 nio
+i mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172751
+c mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172754
+Start LMF --afsym --time=0,0 nio
+Start LMF --afsym --time=0,0 nio
+i mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172757
+c mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172759
+Start LMF --afsym nio
+i mmom=-0.000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172761
+c mmom=-0.000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172763
+Start LMF --afsym nio
+Start LMF --afsym nio
+i mmom=-0.000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172764
+c mmom=-0.000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172766
+Start LMF --afsym --time= nio
+Start LMF --afsym --time=3,4 nio
+i mmom=-0.000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172767
+Start LMF --afsym --time=5,5 nio
+i mmom=-0.000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172768
+c mmom=-0.000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172769
+Start LMF --afsym nio
+i mmom=-0.000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172769
+c mmom=-0.000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172770
+Start LMF --afsym nio
+i mmom=-0.000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172771
+c mmom=-0.000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172771
+Start LMF --afsym --time=5,5 nio
+i mmom=-0.000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172772
+c mmom= 0.000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172772
+Start LMF --afsym --time=5,5 nio
+i mmom=-0.000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172772
+c mmom=-0.000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172773
+Start LMF --afsym nio
+i mmom=-0.000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172773
+c mmom= 0.000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172773

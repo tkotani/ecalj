@@ -1,3 +1,4 @@
+!>utils called in bndfp
 module m_bndfp_util
   use m_ll,only:ll
   public mkekin,makdos,phispinsym_ssite_set,iorbtm

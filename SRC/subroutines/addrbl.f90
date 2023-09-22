@@ -1,16 +1,17 @@
-module m_addrbl !- Adds to the smooth and local output density and to eigval sum
-  real(8),allocatable,protected,public:: swtk(:,:,:) !spin weight
-  public:: addrbl, swtkzero, m_addrbl_allocate_swtk
+!> addrbl adds to the smooth and local output density and to eigval sum
+module m_addrbl 
+  public:: addrbl !, swtkzero, m_addrbl_allocate_swtk
   private
+  !  real(8),allocatable,protected,public:: swtk(:,:,:) !spin weight
 contains
-  subroutine m_addrbl_allocate_swtk(ndham,nsp,nkp)
-    integer::ndham,nsp,nkp
-    if(allocated(swtk)) deallocate(swtk)
-    allocate(swtk(ndham,nsp,nkp))
-  end subroutine m_addrbl_allocate_swtk
-  subroutine swtkzero()
-    swtk=0d0
-  end subroutine swtkzero
+!  subroutine m_addrbl_allocate_swtk(ndham,nsp,nkp)
+!    integer::ndham,nsp,nkp
+!    if(allocated(swtk)) deallocate(swtk)
+!    allocate(swtk(ndham,nsp,nkp))
+!  end subroutine m_addrbl_allocate_swtk
+!  subroutine swtkzero()
+!    swtk=0d0
+!  end subroutine swtkzero
   subroutine addrbl(isp,q,iq,smpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,evec,evl,nevl, smrho,sumqv,sumev,sv_p_oqkkl,sv_p_oeqkkl,f) !Adds to the smooth and local output density and to eigval sum
     use m_struc_def
     use m_suham,only: ndham=>ham_ndham,ndhamx=>ham_ndhamx,nspx=>ham_nspx

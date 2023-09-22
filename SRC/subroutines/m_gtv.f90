@@ -1,4 +1,5 @@
-module m_gtv2 !new input system to read ctrl file.
+!>new input system to read ctrl file.
+module m_gtv2 
   use m_ftox
   use m_lgunit,only:stdo
   use m_MPItk,only:master_mpi
@@ -53,7 +54,6 @@ contains
       do i=1,nrecs
          if( recrd(i)(1:ncat+1)==trim(cattok)//' ' ) then
             if(debug) write(6,*)'goto getdval',trim(recrd(i)(ncat+2:))//'@@@',ncount
-!            print *,'BZ_N xxxxx',recrd(i)(1:ncat), 'xxxx', trim(recrd(i)(ncat+1:))
             call getdval(trim(recrd(i)(ncat+2:)),ncount,arr) !Read undefinit number of real(8) array
             exit
          endif
@@ -66,7 +66,6 @@ contains
          if(ncount>nreq) ncount=nreq !truncation
          if(ncount/=nreq) call rx('rval2: '//trim(cattok)//' nreq mode. ncount='//xn(ncount)//'/=nreq='//xn(nreq))
       endif
-      
       if(present(rv)) then !rv mode
         if(allocated(rv)) deallocate(rv)
         if(ncount==0.and.ndmode) then
@@ -91,7 +90,6 @@ contains
         rvx(1)=rr
       endif
       if(present(nout)) nout=ncount !nomode
-!print
       modec='----'
       if(nomode) modec='----'
       if(nrmode) modec='requ'

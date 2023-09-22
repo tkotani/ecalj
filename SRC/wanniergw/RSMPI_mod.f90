@@ -1,10 +1,7 @@
-!     variables for MPI version of FPLMTO-GW code
-!     R. Sakuma 2007
-
+!>    mpi utility for wannier part R. Sakuma 2007
 module RSMPI
   implicit none
   include "mpif.h"
-!#include <mpif.h>
   ! S:     FILES
   ! S:
   ! S:     nrsin: contains additional parameters

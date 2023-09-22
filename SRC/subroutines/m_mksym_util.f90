@@ -1,4 +1,5 @@
-module m_mksym_util !Symmetry related routines.
+!>Subroutines used in m_mksym
+module m_mksym_util 
   use m_lgunit,only:stdo
   use m_ftox
   public mksym,mptauof,rotdlmm

@@ -1,4 +1,5 @@
-subroutine gtbsl8(norb,ltab,ktab,rsmh,eh, ntab,blks)!- Marks blocks of contiguous l for which rsm and e are unchanged
+!> Marks blocks of contiguous l for which rsm and e are unchanged
+subroutine gtbsl8(norb,ltab,ktab,rsmh,eh, ntab,blks)
   implicit none
   integer :: norb,ltab(norb),ktab(norb), ntab(norb),blks(norb)
   integer,parameter::nkap0=3,n0=10
@@ -8,7 +9,8 @@ subroutine gtbsl8(norb,ltab,ktab,rsmh,eh, ntab,blks)!- Marks blocks of contiguou
   blks =[(sum( [ (2*ltab(io)+1, io=iorb,ntab(iorb)) ] ),iorb=1,norb)]
   where( [(rsmh(ltab(iorb)+1,ktab(iorb)) <= 0, iorb=1,norb)] ) blks = 0 
 end subroutine gtbsl8
-subroutine gtbsl1(mode,norb,ltab,ktab,rsmh,eh, ntab,blks)!- Marks blocks of contiguous l for which rsm and e are unchanged
+!> Marks blocks of contiguous l for which rsm and e are unchanged
+subroutine gtbsl1(mode,norb,ltab,ktab,rsmh,eh, ntab,blks)
   !  requires l be consecutive and kappa index be constant  in contiguous block
   !  orbital types with rsmh<=0 are excluded
   ! ----------------------------------------------------------------------

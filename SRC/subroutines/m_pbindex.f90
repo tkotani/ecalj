@@ -1,4 +1,5 @@
-module m_pbindex !generate index table for product basis.
+!>generate index table for product basis.
+module m_pbindex 
   Use NaNum,only: NaN
   implicit none
 

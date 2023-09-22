@@ -99,7 +99,7 @@ program hx0fp0
   real(8),allocatable:: ecqw(:,:) !,wiw(:)
   real(8) :: erpaqw, trpvqw, trlogqw,rydberg,hartree,pi,efz,qfermi,alpha,rs,voltot,ecelgas,efx,valn
   integer:: iqbz,iqindx,iflegas,nmx,ifcor,nqitot,isx,ntot,ieclog,iww,iqq,ieceig,ecorr_on=-1
-  real(8) :: eclda_bh,eclda_pz,wk4ec,faca
+  real(8) :: wk4ec,faca !eclda_bh,eclda_pz,
   real(8),allocatable::    evall(:)
   complex(8),allocatable:: ovlpc(:,:),evecc(:,:)
   integer:: nev !,  ifdpin
@@ -816,110 +816,110 @@ program hx0fp0
   if(ixc==222)  call rx0( ' OK! hx0fp0 mode=222 chi+- NoLFC sergeyv')
 END PROGRAM hx0fp0
 
-!--------------------------------------------------------------------
-real*8 function eclda_bh(rs)
-  real(8) :: rs,cp,rp,z
-  cp       = 0.0504d0*0.5d0 ! 0.5 changes unit from Ry to Hartree
-  rp       = 30.d0
-  z        = rs / rp
-  eclda_bh = -cp * ( (1.d0+z**3)*dlog(1.d0+1.d0/z) &
-       + 0.5d0*z - z**2 - 0.33333333d0 )
-END function eclda_bh
-!--------------------------------------------------------------------
-real*8 function eclda_pz(rs)
-  real(8) :: rs
-  if (rs >= 1.d0) then
-     eclda_pz = -0.1423d0 / (1.d0 + 1.0529d0*dsqrt(rs) + 0.334d0*rs)
-  else
-     eclda_pz = -0.0480d0 + 0.0311d0*dlog(rs) - 0.0116d0 * rs &
-          + 0.0020d0*rs*dlog(rs)
-  endif
-END function eclda_pz
-!--------------------------------------------------------------------
-subroutine wecqw(ifcor, &
-     nqibz,nqbz,nq0i,nqitot,niw, &
-     wibz,wqt,wx,freqx,ecqw)
+! !--------------------------------------------------------------------
+! real*8 function eclda_bh(rs)
+!   real(8) :: rs,cp,rp,z
+!   cp       = 0.0504d0*0.5d0 ! 0.5 changes unit from Ry to Hartree
+!   rp       = 30.d0
+!   z        = rs / rp
+!   eclda_bh = -cp * ( (1.d0+z**3)*dlog(1.d0+1.d0/z) &
+!        + 0.5d0*z - z**2 - 0.33333333d0 )
+! END function eclda_bh
+! !--------------------------------------------------------------------
+! real*8 function eclda_pz(rs)
+!   real(8) :: rs
+!   if (rs >= 1.d0) then
+!      eclda_pz = -0.1423d0 / (1.d0 + 1.0529d0*dsqrt(rs) + 0.334d0*rs)
+!   else
+!      eclda_pz = -0.0480d0 + 0.0311d0*dlog(rs) - 0.0116d0 * rs &
+!           + 0.0020d0*rs*dlog(rs)
+!   endif
+! END function eclda_pz
+! !--------------------------------------------------------------------
+! subroutine wecqw(ifcor, &
+!      nqibz,nqbz,nq0i,nqitot,niw, &
+!      wibz,wqt,wx,freqx,ecqw)
 
-  implicit double precision (a-h,o-z)
-  dimension   wibz(nqibz),wqt(nq0i),wx(niw), &
-       freqx(niw),ecqw(nqitot,niw)
-  integer:: ifcor,nqibz,nqbz,nq0i,nqitot,ip,ix,niw
-  real(8):: rydberg
-  write(ifcor,*)'### ecqw(q,w) ###'
-  write(ifcor,*)'nqibz =',nqibz
-  write(ifcor,*)'nq0i  =',nq0i
-  write(ifcor,*)'niw   =',niw
-  do ip = 2,nqitot
-     if (ip <= nqibz) then
-        wk = wibz(ip)*0.5d0 ! 0.5 for the normalization of wibz
-     else
-        !        wk = wqt(ip-nqibz)*wibz(1)*0.5d0 ! 0.5 for the normalization of wibz
-        wk = wqt(ip-nqibz)* 1d0/dble(nqbz)
-     endif
-     write(ifcor,*)'### iq,wq = ',ip,wk
-     sume=0d0
-     do ix = 1,niw
-        write(ifcor,*)freqx(ix),ecqw(ip,ix),wx(ix)
-        sume=sume+  wx(ix)/(freqx(ix)*freqx(ix)) * ecqw(ip,ix)
-     enddo
-     write(ifcor,*) '  sum ecqw*wx=', wk*sume*2d0*rydberg()
-     ! end of ip-loop
-  enddo
-  return
-end subroutine wecqw
-!---------------------------------------------------------------------
-subroutine getsqovlp(q,ngc,ngb,sqovlp)
-  !! == Get sqrt of ppovl ==
-  implicit none
-  real(8)::q(3)
-  integer:: ngc,ngb,nbloch,i,nmxx,ix,iy,nev
-  complex(8):: sqovlp(ngb,ngb)
-  complex(8),allocatable:: ooo(:,:),ppo(:,:),sqovlpi(:,:),ppovl(:,:)
-  complex(8),allocatable:: ovlp(:,:),evec(:,:)
-  real(8),allocatable:: eval(:)
-  nbloch = ngb-ngc
-  if(ngc==0) goto 888
+!   implicit double precision (a-h,o-z)
+!   dimension   wibz(nqibz),wqt(nq0i),wx(niw), &
+!        freqx(niw),ecqw(nqitot,niw)
+!   integer:: ifcor,nqibz,nqbz,nq0i,nqitot,ip,ix,niw
+!   real(8):: rydberg
+!   write(ifcor,*)'### ecqw(q,w) ###'
+!   write(ifcor,*)'nqibz =',nqibz
+!   write(ifcor,*)'nq0i  =',nq0i
+!   write(ifcor,*)'niw   =',niw
+!   do ip = 2,nqitot
+!      if (ip <= nqibz) then
+!         wk = wibz(ip)*0.5d0 ! 0.5 for the normalization of wibz
+!      else
+!         !        wk = wqt(ip-nqibz)*wibz(1)*0.5d0 ! 0.5 for the normalization of wibz
+!         wk = wqt(ip-nqibz)* 1d0/dble(nqbz)
+!      endif
+!      write(ifcor,*)'### iq,wq = ',ip,wk
+!      sume=0d0
+!      do ix = 1,niw
+!         write(ifcor,*)freqx(ix),ecqw(ip,ix),wx(ix)
+!         sume=sume+  wx(ix)/(freqx(ix)*freqx(ix)) * ecqw(ip,ix)
+!      enddo
+!      write(ifcor,*) '  sum ecqw*wx=', wk*sume*2d0*rydberg()
+!      ! end of ip-loop
+!   enddo
+!   return
+! end subroutine wecqw
+! !---------------------------------------------------------------------
+! subroutine getsqovlp(q,ngc,ngb,sqovlp)
+!   !! == Get sqrt of ppovl ==
+!   implicit none
+!   real(8)::q(3)
+!   integer:: ngc,ngb,nbloch,i,nmxx,ix,iy,nev
+!   complex(8):: sqovlp(ngb,ngb)
+!   complex(8),allocatable:: ooo(:,:),ppo(:,:),sqovlpi(:,:),ppovl(:,:)
+!   complex(8),allocatable:: ovlp(:,:),evec(:,:)
+!   real(8),allocatable:: eval(:)
+!   nbloch = ngb-ngc
+!   if(ngc==0) goto 888
 
-  allocate(ppovl(1:ngc,1:ngc))
-  call readppovl0(q,ngc,ppovl)
-  allocate(ooo(ngc,ngc),ppo(ngc,ngc),evec(ngc,ngc),eval(ngc))
-  ooo= 0d0
-  do ix=1,ngc
-     ooo(ix,ix)=1d0
-  enddo
-  ppo = ppovl
-  deallocate(ppovl)
-  nmxx = ngc
-  evec = 0d0
-  eval = 0d0
-  call diagcv(ooo, ppo, &
-       evec, ngc, eval, nmxx, 1d99, nev)
-  write(6,*)' diagcv overlap ngc nev=',ngc,nev
-  deallocate(ooo,ppo)
+!   allocate(ppovl(1:ngc,1:ngc))
+!   call readppovl0(q,ngc,ppovl)
+!   allocate(ooo(ngc,ngc),ppo(ngc,ngc),evec(ngc,ngc),eval(ngc))
+!   ooo= 0d0
+!   do ix=1,ngc
+!      ooo(ix,ix)=1d0
+!   enddo
+!   ppo = ppovl
+!   deallocate(ppovl)
+!   nmxx = ngc
+!   evec = 0d0
+!   eval = 0d0
+!   call diagcv(ooo, ppo, &
+!        evec, ngc, eval, nmxx, 1d99, nev)
+!   write(6,*)' diagcv overlap ngc nev=',ngc,nev
+!   deallocate(ooo,ppo)
 
-888 continue
-  sqovlp=0d0
-  do i=1,nbloch
-     sqovlp(i,i)=1d0
-  enddo
-  do i=1,ngc
-     if(eval(i)<0d0) then
-        call rx( 'getsqovlp:  eval(i) <0d0')
-     endif
-     do ix=1,ngc;  do iy=1,ngc
-        sqovlp(ix+nbloch,iy+nbloch)= &
-             sqovlp(ix+nbloch,iy+nbloch) &
-             + evec(ix,i)* sqrt(eval(i))* dconjg(evec(iy,i))
-     enddo;      enddo
-  enddo
-  if(allocated(evec)) deallocate(evec)
-  if(allocated(eval)) deallocate(eval)
-  write(6,*)' end of getsqovlp'
-  !         sqovlpi = sqovlp
-  !         call matcinv(ngb,sqovlp)     !  inverse
-  !         ovlpi=ovlp
-  !         deallocate(ppovl,ovlp)
-end subroutine getsqovlp
+! 888 continue
+!   sqovlp=0d0
+!   do i=1,nbloch
+!      sqovlp(i,i)=1d0
+!   enddo
+!   do i=1,ngc
+!      if(eval(i)<0d0) then
+!         call rx( 'getsqovlp:  eval(i) <0d0')
+!      endif
+!      do ix=1,ngc;  do iy=1,ngc
+!         sqovlp(ix+nbloch,iy+nbloch)= &
+!              sqovlp(ix+nbloch,iy+nbloch) &
+!              + evec(ix,i)* sqrt(eval(i))* dconjg(evec(iy,i))
+!      enddo;      enddo
+!   enddo
+!   if(allocated(evec)) deallocate(evec)
+!   if(allocated(eval)) deallocate(eval)
+!   write(6,*)' end of getsqovlp'
+!   !         sqovlpi = sqovlp
+!   !         call matcinv(ngb,sqovlp)     !  inverse
+!   !         ovlpi=ovlp
+!   !         deallocate(ppovl,ovlp)
+! end subroutine getsqovlp
 
 !--------------------------------------------------------------------
 !      subroutine test_xxx(tagname,zw,iw,freqq,nblochpmx,nbloch,ngb,iq)
@@ -936,24 +936,24 @@ end subroutine getsqovlp
 !      end
 !--------------------------------------------------------------------
 
-!--------------------------------------------------------------------
-subroutine diagno00(nbloch,wpvc,eval)
-  !! == ontain eigenvalue only for input complex matrix wpvc(nbloch,nbloch)
-  implicit none
-  integer:: nbloch,nmx,nev,i
-  complex(8),allocatable:: ovlpc(:,:),evecc(:,:),wpvcc(:,:)
-  real(8)::emx,eval(nbloch)
-  complex(8):: wpvc(nbloch,nbloch)
-  allocate( ovlpc(nbloch,nbloch),evecc(nbloch,nbloch),wpvcc(nbloch,nbloch))
-  wpvcc= wpvc
-  ovlpc= 0d0
-  do i=1,nbloch
-     ovlpc(i,i)=1d0
-  enddo
-  eval=0d0
-  nev  = nbloch
-  nmx  = nbloch
-  call diagcv(ovlpc,wpvcc, evecc, nbloch, eval, nmx, 1d99, nev)
-  deallocate(ovlpc,evecc,wpvcc)
-end subroutine diagno00
+! !--------------------------------------------------------------------
+! subroutine diagno00(nbloch,wpvc,eval)
+!   !! == ontain eigenvalue only for input complex matrix wpvc(nbloch,nbloch)
+!   implicit none
+!   integer:: nbloch,nmx,nev,i
+!   complex(8),allocatable:: ovlpc(:,:),evecc(:,:),wpvcc(:,:)
+!   real(8)::emx,eval(nbloch)
+!   complex(8):: wpvc(nbloch,nbloch)
+!   allocate( ovlpc(nbloch,nbloch),evecc(nbloch,nbloch),wpvcc(nbloch,nbloch))
+!   wpvcc= wpvc
+!   ovlpc= 0d0
+!   do i=1,nbloch
+!      ovlpc(i,i)=1d0
+!   enddo
+!   eval=0d0
+!   nev  = nbloch
+!   nmx  = nbloch
+!   call diagcv(ovlpc,wpvcc, evecc, nbloch, eval, nmx, 1d99, nev)
+!   deallocate(ovlpc,evecc,wpvcc)
+! end subroutine diagno00
 

@@ -1,4 +1,5 @@
-module m_pkm4crpa !read pkmU for cRPA calclaitons ===
+!>read pkmU for cRPA calclaitons ===
+module m_pkm4crpa 
   implicit none !!! subroutine wmaxloc in maxloc2.F write pkmU file.
   public:: Readpkm4crpa
   private

@@ -12,7 +12,7 @@ contains
     use m_lmfinit,only : lcd4,nsp,alat=>lat_alat,ftmesh,gmax=>lat_gmaxin,stdo
     use m_mksym,only:  ngrp,symops,ag
     use m_lattic,only: plat=>lat_plat,rv_a_opos,qlat=>lat_qlat,vol=>lat_vol, awald=>lat_awald,nkd=>lat_nkd, nkq=>lat_nkq
-    use m_shortn3,only: shortn3_initialize,shortn3,nout,nlatout
+    use m_shortn3,only: mshsiz
     use m_ftox
     implicit none
     integer:: ngmx, ng, iprint,ig,j1,j2,j3
@@ -25,9 +25,10 @@ contains
     if(lcd4) then ! --- Setup for FFT charge density, potential representation ---
        call mshsiz(alat,plat,gmax, ngabc,ngmx) !return n1 n2 n3 (=ngabc) satisfying gmax    !write(stdo,ftox)' 000 gmax ngmx=',ftof(gmax),ngmx
        gvblock: block !Make list of lattice vectors within cutoff
+         use m_shortn3,only: gvlst2
          real(8):: ogv(ngmx,3)
-         integer:: okv(ngmx,3)
-         call gvlst2(alat, plat, [0d0,0d0,0d0], n1,n2,n3, 0d0,gmax,0,8+1000, ngmx, ng, okv, ogv, xx)  !+1000 for symmetry cheker for sgvsym
+         integer:: okv(ngmx,3),ixx(1)
+         call gvlst2(alat, plat, [0d0,0d0,0d0], n1,n2,n3, 0d0,gmax,[0],8+1000, ngmx, ng, okv, ogv, ixx)  !+1000 for symmetry cheker for sgvsym
          allocate(rv_a_ogv,source=ogv(1:ng,1:3))
          allocate(iv_a_okv,source=okv(1:ng,1:3))     !print *,'ogv(1:ng,1:3)',ogv(1,1:3),okv(1,1:3)
        endblock gvblock

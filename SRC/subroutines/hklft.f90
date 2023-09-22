@@ -1,6 +1,5 @@
 subroutine hklft(v,rsm,e,tau,alat,kmax,nlm,k0,cy,hkl)! Returns one Fourier component of sm. Hankels centered at tau.
   use m_ll,only:ll
-  !i Inputs
   !i   v     :reciprocal vector for which FT calc., units of 2*pi/alat
   !i   rsm   :smoothing radius
   !i   e     :gaussian scaled by exp(e*rsm**2/4)
@@ -12,9 +11,6 @@ subroutine hklft(v,rsm,e,tau,alat,kmax,nlm,k0,cy,hkl)! Returns one Fourier compo
   !i   cy    :Normalization constants for spherical harmonics
   !o Outputs
   !o   hkl   :FT of smoothed Hankels centered at tau
-  !r Remarks
-  !u Updates
-  !u   23 Apr 00 Adapted from nfp hkl_ft.f
   implicit none
   integer:: k0,kmax,nlm,ilm,k,l,lmax,m
   real(8):: alat,e,rsm,v(3),cy(1),tau(3),aa,fac,gam,v2,yl(nlm),vv(3)
@@ -23,15 +19,13 @@ subroutine hklft(v,rsm,e,tau,alat,kmax,nlm,k0,cy,hkl)! Returns one Fourier compo
   if (nlm == 0) return
   gam = .25d0*rsm**2
   call sylm(v*2*pi/alat, yl, ll(nlm), v2)
-  hkl(0,:) = -4d0*pi*exp(gam*(e-v2))/(e-v2)*exp(-2d0*pi*img*sum(tau*v)) &
-       * [((-img)**ll(ilm)*cy(ilm)*yl(ilm), ilm=1,nlm)]
+  hkl(0,:) = -4d0*pi*exp(gam*(e-v2))/(e-v2)*exp(-2d0*pi*img*sum(tau*v)) * [((-img)**ll(ilm)*cy(ilm)*yl(ilm), ilm=1,nlm)]
   do k = 1, kmax
      hkl(k,:) = (-v2)**k*hkl(0,:)
   enddo
 end subroutine hklft
 subroutine gklft(v,rsm,e,tau,alat,kmax,nlm,k0,cy,gkl)! Returns one Fourier component of gaussians Gkl centered at tau.
   use m_ll,only:ll
-  !i Inputs
   !i   v     :reciprocal vector for which FT calc., units of 2*pi/alat
   !i   rsm   :smoothing radius
   !i   e     :gaussian scaled by exp(e*rsm**2/4)
@@ -43,10 +37,6 @@ subroutine gklft(v,rsm,e,tau,alat,kmax,nlm,k0,cy,gkl)! Returns one Fourier compo
   !i   cy    :Normalization constants for spherical harmonics
   !o Outputs
   !o   gkl   :FT of gaussian centered at tau
-  !r Remarks
-  !u Updates
-  !u   23 Apr 00 Adapted from nfp gkl_ft.f
-  ! ----------------------------------------------------------------------
   implicit none
   integer:: k0,nlm, ilm,k,l,lmax,m,kmax
   real(8):: alat,e,rsm,v(3),cy(1),tau(3), aa,fac,gam,scalp,v2,yl(nlm),vv(3)
@@ -55,8 +45,7 @@ subroutine gklft(v,rsm,e,tau,alat,kmax,nlm,k0,cy,gkl)! Returns one Fourier compo
   if (nlm == 0) return
   gam = 0.25d0*rsm**2
   call sylm(v(:)*2d0*pi/alat,yl, ll(nlm), v2)
-  gkl(0,:) = exp(gam*(e-v2)) * exp(-2d0*img*pi*sum(tau*v)) &
-       * [((-img)**ll(ilm)*cy(ilm)*yl(ilm),  ilm=1,nlm)]
+  gkl(0,:) = exp(gam*(e-v2)) * exp(-2d0*img*pi*sum(tau*v)) * [((-img)**ll(ilm)*cy(ilm)*yl(ilm),  ilm=1,nlm)]
   do k = 1, kmax
      gkl(k,:) = (-v2)**k *gkl(0,:)
   enddo

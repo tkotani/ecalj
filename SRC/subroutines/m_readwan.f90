@@ -1,4 +1,5 @@
-module m_readwan !read Wannier things.
+!>read Wannier things.
+module m_readwan 
   use m_keyvalue,only: getkeyvalue
   use m_iqindx_wan,only: iqindx2_wan
   implicit none

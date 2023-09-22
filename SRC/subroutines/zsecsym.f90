@@ -1,3 +1,6 @@
+module m_zsecsym
+  private
+  contains
 subroutine zsecsym(zsec,ntq,nq,nband,nbandmx,nspinmx,nspin, eibzsym,ngrp,tiii,q,is)!Symmetrize zsec for eibz4sig mode. Not recently checked!
   use m_readeigen,only: READEVAL
   implicit none
@@ -239,3 +242,4 @@ contains
   ! end function getikt
   ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
 end subroutine zsecsym
+endmodule m_zsecsym

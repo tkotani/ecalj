@@ -1,6 +1,6 @@
-!! Get the matrix element zmel =  ZO^-1 <MPB psi|psi> , where ZO is ppovlz.
-!!  "call get_zmel_init" return zmel
-!!  All dependencies (use foobar below ) are inputs (must be protected).
+!> Get the matrix element zmel =  ZO^-1 <MPB psi|psi> , where ZO is ppovlz(inverse of overlap matrix)
+!  "call get_zmel_init" return zmel 
+!  All dependencies (use foobar below ) are inputs (must be protected).
 module m_zmel
   use m_genallcf_v3,only: &
        nclass,natom,nspin,nl,nn,nnv,nnc, &
@@ -40,7 +40,6 @@ module m_zmel
   logical:: debug=.false. !,zzmel0=.false.
   integer:: nbbx=0
 contains
-  ! ssssssssssssssssssssssssssssssssss
   subroutine GramSchmidt_zmel() !oct15 2021 !experimenal
     integer:: igb=1,it,itt
     complex(8):: ov(nmtot),vec(nqtot),dnorm2(nmtot)

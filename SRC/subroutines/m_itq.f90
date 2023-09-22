@@ -1,3 +1,4 @@
+!>Set itq for which we calculate self-energy. And NTQX mechanism
 module m_itq
   use m_keyvalue,only: Getkeyvalue
   use m_readeigen,only: Readeval
@@ -11,9 +12,6 @@ contains
   subroutine setitq()
     integer:: i
     ntq   = nband
-    !      nband = nband_in
-    !      ngcmx = ngcmx_in
-    !      ngpmx = ngpmx_in
     allocate(itq(ntq))
     do i=1,ntq
        itq(i)=i

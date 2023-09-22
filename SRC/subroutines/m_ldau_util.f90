@@ -1,3 +1,4 @@
+!>utils for LDAU
 module m_ldau_util
   use m_lgunit,only:stdo
   use m_MPItk,only: master_mpi
@@ -5,13 +6,10 @@ module m_ldau_util
   public ldau, sudmtu,chkdmu,mixmag,symdmu
   private
 contains
-  subroutine ldau(vrsion,l,iblu,UH,JH,dmatu,nsp,lmaxu,vorb,Eorb)
+  subroutine ldau(vrsion,l,iblu,UH,JH,dmatu,nsp,lmaxu,vorb,Eorb) !Makes Vorb and Eorb from dmatu for given site and l
     implicit none
     intent(out)                                       vorb,Eorb
     intent(in)    vrsion,l,iblu,UH,JH,dmatu,nsp,lmaxu
-    !- Makes Vorb and Eorb from dmatu for given site and l
-    ! ----------------------------------------------------------------------
-    !i Inputs
     !i   vrsion:LDA+U version 1 AMF; 2 FLL; 3 mixed Petukhov version
     !i         :see Remarks
     !i         :add 100's digit: make Eorb only; do not update vorb

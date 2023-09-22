@@ -1,3 +1,4 @@
+!>homogenious electron gas module
 module m_homoelectron
   !!      use m_genallcf_v3,only: genallcf_v3,
   !     !    & alat, plat
@@ -9,7 +10,6 @@ module m_homoelectron
   logical:: init=.true.
   real(8):: xmx2(3),rlatp(3,3)
 contains
-
 !!! generate |q+G| bands
 !!! calculate |q+G|^2
   subroutine read_qgband(alat,plat,q,ngv,ngvec,isp,gsq,qshort)

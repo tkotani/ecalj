@@ -1,8 +1,9 @@
+!> Get default values for P(=.5-atan(D)/pi+(princ.quant.number) and Q (charge)
 module m_defpq
   public defpq
   private
 contains
-subroutine defpq(z,lmax,nsp,p,q)  !- Generate default values for P and Q
+subroutine defpq(z,lmax,nsp,p,q)  
   !i Inputs
   !i   z     :nuclear charge
   !i   lmax  :l-cutoff

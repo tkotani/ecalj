@@ -1,4 +1,5 @@
-Module m_struc_func
+!> mpi broadcase of spec
+module m_struc_func
   use m_ftox,only: ftox
   use m_lgunit,only:stml
   public  mpibc1_s_spec

@@ -1,4 +1,5 @@
-module m_tetwt ! Tetrahedron weights are stored in this module
+!> Tetrahedron weights are stored in this module
+module m_tetwt 
 !! output of gettetwt is passed to x0kf_v4hz
 !!     nbnbx
 !!     ihw(ibjb,kx): omega index, to specify the section of the histogram.

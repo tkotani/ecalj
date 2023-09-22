@@ -1,4 +1,4 @@
-! == General purpose formatted write module m_FtoX ==
+!> General purpose formatted write module m_ftox 
 ! m_ftox contains
 !  ftox: general format. usage: write(6,ftox) foobar,foobar1,foobar2
 !        foobar can be integer, character, and something like

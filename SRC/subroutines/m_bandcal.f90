@@ -1,4 +1,5 @@
-module m_bandcal !band structure calculation
+!>band structure calculation
+module m_bandcal 
   use m_struc_def,only: s_rv1,s_rv5
   use m_suham,  only: ndhamx=>ham_ndhamx,nspx=>ham_nspx
   use m_qplist, only: nkp
@@ -6,7 +7,7 @@ module m_bandcal !band structure calculation
   use m_qplist,only: qplist,niqisp,iqproc,isproc
   use m_igv2x,only: m_igv2x_setiq, napw,ndimh,ndimhx,igv2x
   use m_lmfinit,only: lrsig=>ham_lsig, lso,ham_scaledsigma,lmet=>bz_lmet,nbas,epsovl=>ham_oveps,nspc,plbnd,lfrce,&
-       pwmode=>ham_pwmode,pwemax,stdl,nsp,nlibu,lmaxu,nbas,nl,nlmto
+       pwmode=>ham_pwmode,pwemax,stdl,nsp,nlibu,lmaxu,nl !,nbas,nl,nlmto
   use m_MPItk,only: mlog, master_mpi, procid,strprocid, numprocs=>nsize, mlog_mpiiq
   use m_subzi, only: nevmx,rv_a_owtkb
   use m_supot, only: n1,n2,n3
@@ -14,7 +15,7 @@ module m_bandcal !band structure calculation
   use m_rdsigm2,only: senex,sene,getsenex,dsene,ndimsig
   use m_procar,only: m_procar_init,m_procar_closeprocar
   use m_clsmode,only: m_clsmode_set1
-  use m_addrbl,only: addrbl,swtk,Swtkzero
+  use m_addrbl,only: addrbl!,swtk,Swtkzero
   use m_lgunit,only:stdo
   use m_augmbl,only: aughsoc
   use m_makusq,only: makusq
@@ -22,7 +23,7 @@ module m_bandcal !band structure calculation
   use m_ftox
   use m_hambl,only: hambl
   ! outputs ---------------------------
-  public m_bandcal_init,m_bandcal_2nd,m_bandcal_clean,m_bandcal_allreduce,m_bandcal_symsmrho
+  public m_bandcal_init, m_bandcal_2nd, m_bandcal_clean, m_bandcal_allreduce, m_bandcal_symsmrho
   integer,allocatable,protected,public::     ndimhx_(:,:),nevls(:,:) 
   real(8),allocatable,protected,public::     frcband(:,:), orbtm_rv(:,:,:),evlall(:,:,:)
   complex(8),allocatable,protected,public::  smrho_out(:),dmatu(:,:,:,:)
