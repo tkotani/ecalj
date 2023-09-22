@@ -50,7 +50,7 @@ contains
     call tcx('m_mkrout_init')
   end subroutine m_mkrout_init
   subroutine mkrout(oqkkl,oeqkkl,orhoat_out,hab,sab, qbyl,hbyl)!Assembles local output densities out of the qkkl, and core states
-    use m_lmfinit,only: procid,master,nkaph, sspec=>v_sspec,ispec,nbas,nsp,lrout,n0,nlmto,nmcore,rsma !lekkl=1
+    use m_lmfinit,only: nkaph, sspec=>v_sspec,ispec,nbas,nsp,lrout,n0,nlmto,nmcore,rsma !lekkl=1
     use m_lgunit,only: stdo
     use m_struc_def
     use m_elocp,only: rsmlss=>rsml, ehlss=>ehl
@@ -58,6 +58,7 @@ contains
     use m_hansr,only:corprm
     use m_rhocor,only: getcor
     use m_makusp,only: makusp
+    use m_MPItk,only: master_mpi
     !i   nbas  :size of basis, nsp: 2 for spin-polarized case, otherwise 1. nlmto:dimension of MTO basis.
     !l   lekkl=T for eqkkl/qkkl
     !i   oqkkl :local density-matrix (rhocbl or comparable routine)
@@ -95,7 +96,7 @@ contains
     sumtc = 0d0
     sumec = 0d0
     sumt0 = 0d0
-    if(procid==master) inquire(file='mmtarget.aftest',exist=mmtargetx)
+    if(master_mpi) inquire(file='mmtarget.aftest',exist=mmtargetx)
     ibloop: do  ib = 1, nbas
        is = ispec(ib)
        lmxa=sspec(is)%lmxa
@@ -176,7 +177,7 @@ contains
             if(nsp==2) dat(1:6,ib) = [sum1,sum2,sum1-sum2, -sums1,-sums2,-sums1+sums2]
             ! cccccccccccccccccccccccccccccccccccccccccccccccccccccc
             !!exper. block to keep mag.moment for AF.controlled by uhval.aftest file. See elsewhere.
-            if( nsp==2 .AND. procid==master .AND. mmtargetx) then
+            if( nsp==2 .AND. master_mpi .AND. mmtargetx) then
                if(ib==1) then
                   open(newunit=ifx,file='mmagfield.aftest',position='append')
                   write(ifx,"('          ',f23.15)",advance='no') -sums1

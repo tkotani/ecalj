@@ -43,7 +43,7 @@ contains
     use m_suham,only: ndham=>ham_ndham, ndhamx=>ham_ndhamx,nspx=>ham_nspx
     use m_lmfinit, only: ncutovl,lso,ndos=>bz_ndos,bz_w,fsmom=>bz_fsmom, bz_dosmax,lmet=>bz_lmet,bz_fsmommethod,bz_n, &
          ldos,qbg=>zbak,lfrce,pwmode=>ham_pwmode,lrsig=>ham_lsig,epsovl=>ham_oveps, &
-         ham_scaledsigma, alat=>lat_alat,stdo,stdl,procid,master, nkaph,nlmax,nl,nbas,nsp, bz_dosmax, &
+         ham_scaledsigma, alat=>lat_alat,stdo,stdl, nkaph,nlmax,nl,nbas,nsp, bz_dosmax, &
          lmaxu,nlibu,lldau,lpztail,leks,lrout,  nchan=>pot_nlma, nvl=>pot_nlml,nspc,pnufix !lmfinit contains fixed input 
     use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
     use m_mkqp,only: nkabc=> bz_nabc,ntet=> bz_ntet,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
@@ -51,7 +51,7 @@ contains
     use m_rdsigm2,only: m_rdsigm2_init
     use m_subzi, only: m_subzi_init, rv_a_owtkb,m_subzi_bzintegration 
     use m_rsibl, only : Rsibl_ev ! to plot wavefunction in the fat band mode
-    use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq,xmpbnd2
+    use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq,xmpbnd2 !, procid,master
     use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate, m_mkpot_energyterms,m_mkpot_novxc,& ! & m_mkpot_novxc_dipole,
          osmpot, qmom, vconst, osig,otau,oppi, qval , qsc , fes1_rv , fes2_rv
     use m_clsmode,only: m_clsmode_init,m_clsmode_set1,m_clsmode_finalize
@@ -158,7 +158,7 @@ contains
     !      if(llmfgw.and.cmdopt0('--dipolematrix')) call m_mkpot_novxc_dipole()
     call m_mkpot_init()! From smrho and rhoat, get one-particle potential and related quantities. mkpot->locpot->augmat. augmat calculates sig,tau,ppi.
     if(cmdopt0('--quit=mkpot')) call rx0('--quit=mkpot')
-    if(lrout>0) call m_subzi_init() ! Setup weight wtkb for BZ integration.  ! NOTE: if (wkp.* exists).and.lmet==2, wkp is used for wkkb.
+    call m_subzi_init() ! Setup weight wtkb for BZ integration.  ! NOTE: if (wkp.* exists).and.lmet==2, wkp is used for wkkb.
     if(lpztail) call sugcut(2) ! lpztail: if T, local orbital of 2nd type(hankel tail). Hankel's e of local orbital of PZ>10 (hankel tail mode) is changing. ==>T.K think current version of PZ>10 might not give so useful advantages.
     CorelevelSpectroscopyINIT: if(cmdopt0('--cls')) then
        call rxx(lso==1,'CLS not implemented in noncoll case')
@@ -194,7 +194,7 @@ contains
     call mpibc2_int(ndimhx_,size(ndimhx_),'bndfp_ndimhx_') 
     call mpibc2_int(nevls,  size(nevls),  'bndfp_nevls')   
     if(cmdopt0('--afsym')) then
-       call xmpbnd2(kpproc,ndhamx,nkp,evlall(:,1,:)) !all eigenvalues broadcasted
+       call xmpbnd2(kpproc,ndhamx,nkp,evlall(:,1,:)) !all eigenvalues are distributed ndhamx blocks
        call xmpbnd2(kpproc,ndhamx,nkp,evlall(:,2,:)) 
     else
        call xmpbnd2(kpproc,ndhamx,nkp*nspx,evlall)   !all eigenvalues broadcasted

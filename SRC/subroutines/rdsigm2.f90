@@ -272,8 +272,8 @@ contains
     real(8):: q1(3),qk
     character(200)::aaa
     ! Given (j1,j2,j3) of ipq, q_k(j1,j2,j3) =  sum_i (j_i*ifac(i)-1)*qb(k,i)
-!    qk(k,jj1,jj2,jj3) = sum(qb(k,:)*[(jj1*ifac(1)-1),(jj2*ifac(2)-1), (jj3*ifac(3)-1)])
     qk(k,jj1,jj2,jj3) = (jj1*ifac(1)-1)*qb(k,1) + (jj2*ifac(2)-1)*qb(k,2) + (jj3*ifac(3)-1)*qb(k,3)
+    !qk(k,jj1,jj2,jj3) = sum(qb(k,:)*[(jj1*ifac(1)-1),(jj2*ifac(2)-1), (jj3*ifac(3)-1)]) <=Not working in ifort
     call tcn('hamfb3k')
     if(debugmode>0) print *, 'hamfb3k: start...'
     iq1 = 0

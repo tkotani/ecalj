@@ -42,7 +42,6 @@ contains
     master_mpi=.false.
     if(procid==master) master_mpi= .TRUE. 
   end subroutine m_MPItk_init
-
   subroutine m_MPItk_finalize()
     character(256) :: strn 
     character(26):: datim

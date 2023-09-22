@@ -1,7 +1,12 @@
+!> size of Hamiltonian
 module m_suham
   use m_MPItk,only:master_mpi
   use m_ftox
   integer,protected,public:: ham_ndham, ham_ndhamx,ham_nspx  !only these integers returned.
+  ! ndham: Hamiltonian dimension for each spin
+  ! nspc:  =2 if up down spins are coupled (so=1). otherwize =1
+  ! ndhamx=hdham*nspc  dimension of diagonalization
+  ! isp = [1,nspx] = [1,nsp/nspc] : isp runs number of diagonalization per q vector. (since nspc=2 for so=1, only isp=1 allowed).
   public m_suham_init
   private
 contains
@@ -34,7 +39,6 @@ contains
     integer,allocatable :: kv_iv(:), igv2_iv(:)
     integer:: obas , oo , opp ,  opti , obs , omagf,i_copy_size
     call tcn('m_suham_init')
-    ! --- Hamiltonian offsets, orbital permutation table ---
     if (mod(pwmode,10)==2 .AND. master_mpi) write(stdo,"(a)")' suham: no MTO basis'
     ! ... PW setup : estimate upper bound to number of G vectors to set up upper bound to hamiltonian dimension
     ham_ndham = nlmto
@@ -71,7 +75,7 @@ contains
        if (mod(pwmode,10) /= 2) ndham = nlmto + npwmax + npwpad
        ham_ndham = ndham        ! Maximum dimension maximum of Hamiltonian is ndhamx (ispx=1,nspx)
        !! Note spinoffdiag=T case: we use nspc,nsp,nspx,ndhamx (a little complicated, I think).
-       !     nspx*nspc=nsp
+       !     nspx=nsp/nspc
        if(master_mpi)write(stdo,ftox)'suham: PW basis Emax=',ftof(pwemax,3),'npw,ndham=',npw,ndham
     endif
     if(nspc==2 .AND. nsp==1) call rx('suham: nspc==2 but nsp=1')
@@ -80,4 +84,3 @@ contains
     call tcx('m_suham_init')
   end subroutine m_suham_init
 end module m_suham
-
