@@ -1,4 +1,71 @@
 !> subroutine pack related to shortest vectors. 
+module m_shortvec ! core of m_shortn3: Find shortest vectors in modulo of rlat 
+  public:: shortvec,shortvecinitialize
+contains
+  subroutine shortvec(pin,rlatp,xmx2,noutmx,nout,nlatout)
+    !i pin is the fractional coodinate on rlat.
+    !i rlatp,xmx2 are passed from shortvecinitialize
+    !   rlatp(i,j)= sum( rlat(:,i)*rlat(:,j) )
+    !   rlat(3,i) i-th vertor for modulo
+    !i noutmax: upper limit of nlatout
+    !o nout
+    !o nlatout
+    ! Shortest vectors are
+    !    pin+nlatout(:,ix), where ix=1:nout, is the shortest vectors.
+    !    We may have multiple nlatout (# is nout).
+    implicit none
+    integer:: noutmx
+    integer:: nlatout(3,noutmx)
+    integer:: nmax(3),nknknk,ik1,ik2,ik3,nout,nk,ik,i,j
+    real(8):: rmax2,pin(3),eps=1d-8,rlat(3,3),xmax2(3),rr(3),rmin,nrmax(3)
+    integer,allocatable:: nlat0(:,:)
+    real(8),allocatable:: rnorm(:)
+    real(8):: rlatp(3,3),xmx2(3)
+    rmax2 = sum(pin*matmul(rlatp,pin)) + eps  ! eps is to make degeneracy safe.
+    nrmax(:) =  sqrt(rmax2*xmx2(:))+abs(pin(:)) ! range of ix
+    nmax =  nrmax
+    ! we are looking for shortest vectors
+    ik=0
+    nknknk= (2*nmax(1)+1)*(2*nmax(2)+1)*(2*nmax(3)+1)
+    allocate( nlat0(3, nknknk), rnorm(nknknk) )
+    do ik1=-nmax(1),nmax(1)
+       do ik2=-nmax(2),nmax(2)
+          do ik3=-nmax(3),nmax(3)
+             ik=ik+1
+             nlat0(:,ik) = [ik1,ik2,ik3]
+             rr= pin + nlat0(:,ik)
+             rnorm(ik) = sum(rr*matmul(rlatp,rr))
+          enddo
+       enddo
+    enddo
+    nk=ik
+    rmin=minval(rnorm(1:nk))
+    nout=0
+    do ik=1,nk
+       rr= pin + nlat0(:,ik)
+       if(rnorm(ik)<rmin+eps) then
+          nout=nout+1
+          if(nout>noutmx) call rx('shortn3: enlarge noutmx')
+          nlatout(:,nout)=nlat0(:,ik)
+       endif
+    enddo
+    deallocate(rnorm,nlat0)
+    return
+  end subroutine shortvec
+  subroutine shortvecinitialize(rlat,rlatp,xmx2)    !!== Set translation vactors rlat(:,i),i=1,3 ==
+    ! i rlat
+    ! o rlatp,xmx2: these are passed to shortn3
+    integer:: i,j
+    real(8):: rlat(3,3)
+    real(8):: rlatp(3,3),xmx2(3)
+    do i=1,3
+       do j=1,3
+          rlatp(i,j) = sum(rlat(:,i)*rlat(:,j))
+       enddo
+    enddo
+    call ellipsoidxmax(rlatp,xmx2)
+  end subroutine shortvecinitialize
+endmodule m_shortvec
 module m_shortn3 
   ! Set rlat at first, then call shortn3(pin)
   ! Shortest p= pin + matmul(rlat(:,:),nlatout(:,i)) for i=1,nout
@@ -596,73 +663,6 @@ contains
     if (job /= 0) call ivheap(1,nfac,fac,fac(1+2*nfac),0)
   end subroutine ppfac
 endmodule m_shortn3
-module m_shortvec ! core of m_shortn3: Find shortest vectors in modulo of rlat 
-  public:: shortvec,shortvecinitialize
-contains
-  subroutine shortvec(pin,rlatp,xmx2,noutmx,nout,nlatout)
-    !i pin is the fractional coodinate on rlat.
-    !i rlatp,xmx2 are passed from shortvecinitialize
-    !   rlatp(i,j)= sum( rlat(:,i)*rlat(:,j) )
-    !   rlat(3,i) i-th vertor for modulo
-    !i noutmax: upper limit of nlatout
-    !o nout
-    !o nlatout
-    ! Shortest vectors are
-    !    pin+nlatout(:,ix), where ix=1:nout, is the shortest vectors.
-    !    We may have multiple nlatout (# is nout).
-    implicit none
-    integer:: noutmx
-    integer:: nlatout(3,noutmx)
-    integer:: nmax(3),nknknk,ik1,ik2,ik3,nout,nk,ik,i,j
-    real(8):: rmax2,pin(3),eps=1d-8,rlat(3,3),xmax2(3),rr(3),rmin,nrmax(3)
-    integer,allocatable:: nlat0(:,:)
-    real(8),allocatable:: rnorm(:)
-    real(8):: rlatp(3,3),xmx2(3)
-    rmax2 = sum(pin*matmul(rlatp,pin)) + eps  ! eps is to make degeneracy safe.
-    nrmax(:) =  sqrt(rmax2*xmx2(:))+abs(pin(:)) ! range of ix
-    nmax =  nrmax
-    ! we are looking for shortest vectors
-    ik=0
-    nknknk= (2*nmax(1)+1)*(2*nmax(2)+1)*(2*nmax(3)+1)
-    allocate( nlat0(3, nknknk), rnorm(nknknk) )
-    do ik1=-nmax(1),nmax(1)
-       do ik2=-nmax(2),nmax(2)
-          do ik3=-nmax(3),nmax(3)
-             ik=ik+1
-             nlat0(:,ik) = [ik1,ik2,ik3]
-             rr= pin + nlat0(:,ik)
-             rnorm(ik) = sum(rr*matmul(rlatp,rr))
-          enddo
-       enddo
-    enddo
-    nk=ik
-    rmin=minval(rnorm(1:nk))
-    nout=0
-    do ik=1,nk
-       rr= pin + nlat0(:,ik)
-       if(rnorm(ik)<rmin+eps) then
-          nout=nout+1
-          if(nout>noutmx) call rx('shortn3: enlarge noutmx')
-          nlatout(:,nout)=nlat0(:,ik)
-       endif
-    enddo
-    deallocate(rnorm,nlat0)
-    return
-  end subroutine shortvec
-  subroutine shortvecinitialize(rlat,rlatp,xmx2)    !!== Set translation vactors rlat(:,i),i=1,3 ==
-    ! i rlat
-    ! o rlatp,xmx2: these are passed to shortn3
-    integer:: i,j
-    real(8):: rlat(3,3)
-    real(8):: rlatp(3,3),xmx2(3)
-    do i=1,3
-       do j=1,3
-          rlatp(i,j) = sum(rlat(:,i)*rlat(:,j))
-       enddo
-    enddo
-    call ellipsoidxmax(rlatp,xmx2)
-  end subroutine shortvecinitialize
-endmodule m_shortvec
 subroutine ellipsoidxmax(nn, xmx2)!== Maximum value for x_i for ellipsoid ==
   implicit none
   !!  Ellipsoid is given as 1d0 = sum x_i nn(i,j) x_j.

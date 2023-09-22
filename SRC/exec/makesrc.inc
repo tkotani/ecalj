@@ -21,17 +21,13 @@ m_igv2x.o\
 m_qplist.o\
 m_clsmode.o\
 m_mkpot.o\
-writefs.o\
 writeham.o\
 vbmmode.o\
 getqmode.o\
 m_MPItk.o \
-writedossawada.o\
 xcfunc.o\
 m_struc_func.o\
 m_lmfinit.o\
-writeband.o\
-writepdos.o\
 util.o\
 m_hamindex0.o \
 m_hamindex.o \
@@ -51,10 +47,7 @@ freeat.o \
 getq.o \
 gtbsl1.o \
 gtpcor.o \
-gvctof.o \
-gvlst2.o \
 m_hansr.o \
-hnsmft.o \
 hsmq.o \
 iclbas.o \
 iofa.o \
@@ -82,7 +75,6 @@ subzi.o \
 sugcut.o \
 suham.o \
 sylm.o \
-symdmu.o \
 symq.o \
 symstr.o \
 tetirr.o \
@@ -120,7 +112,6 @@ bndfp.o \
 m_bndfp_util.o\
 m_writeband.o\
 bstrux.o \
-dfqkkl.o \
 dfrce.o \
 elocp.o \
 esmsmves.o \
@@ -130,7 +121,6 @@ gaugm.o \
 hambl.o \
 hklft.o \
 hsibl.o \
-lindsc.o \
 lmfp.o \
 locpot.o \
 makusp.o \
@@ -145,7 +135,6 @@ rdovfa.o \
 rhomom.o \
 rlocbl.o \
 rsibl.o \
-smhsbl.o \
 smves.o \
 supot.o \
 symrho.o \
