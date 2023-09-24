@@ -36,16 +36,16 @@ module m_struc_def
   end type s_cv4
   type s_spec  !I think all of them are fixed during iteration cycle of lmf-MPIK
      real(8),allocatable :: rv_a_orhoc(:) !pointer to core density
-     real(8):: z !atomic number
-     real(8):: rmt !augmentation radius
+     real(8):: z     !atomic number
+     real(8):: rmt   !augmentation radius
      real(8):: rsmfa !rsm to fit free atom density
-     real(8):: rg !rsm for gaussians to fix multipole moments
-     integer:: lmxa !  l cutoff for augmentation expansion
-     integer:: lmxl !  l cutoff for local density and potential
-     integer:: lmxb !  highest l in basis
-     integer:: kmxt !  k cutoffs for tail augmentation expansion
-     real(8):: rsmv !  rsmv  =rmt*.5d0 in defspc from m_lmfinit. smoothing radius of gaussian
-     real(8):: a !a for mesh
+     real(8):: rg    !rsm for gaussians to fix multipole moments
+     integer:: lmxa  !  l cutoff for augmentation expansion
+     integer:: lmxl  !  l cutoff for local density and potential
+     integer:: lmxb  !  highest l in basis
+     integer:: kmxt  !  k cutoffs for tail augmentation expansion of P_kl
+     real(8):: rsmv  !  rsmv  =rmt*.5d0 in defspc from m_lmfinit. smoothing radius of gaussian
+     real(8):: a  !a for mesh
      integer:: nr !nr for mesh
      integer:: lfoca ! switch specifying treatment of core density
      real(8):: rfoca ! smoothing radius for frozen core overlap approx

@@ -1,4 +1,5 @@
-!> All ititial data for lmf-MPIK lmchk lmfa (except rst/atm data via iors/rdovfa) 
+!> All ititial data for lmf-MPIK lmchk lmfa (except data by rst/atm data via iors/rdovfa, as well as pos in lattic, dmatu in m_ldau)
+!> I think v_sspec%foobar given in m_lmfinit is not overwritten.
 module m_lmfinit 
   ! We perform 'call m_lmfinit_init', which sets all initial data stored in m_lmfinit_init.
   ! Note our block coding: Search HelpExit ConvertCtrl2CtrlpByPython ReadCtrlp Stage1 Stage2 Stage3.
@@ -202,7 +203,7 @@ contains
       !  See 'call gaugm' at the end of augmat.
       call rval2('HAM_GMAX',  rr=rr, defa=[0d0]);          lat_gmaxin=rr
       call rval2('HAM_FTMESH',rv=rv, defa=[0d0,0d0,0d0]);  ftmesh=rv
-!      call rval2('HAM_TOL',   rr=rr, defa=[1d-6]); tolft=rr
+      call rval2('HAM_TOL',   rr=rr, defa=[1d-6]); tolft=rr
       call rval2('HAM_FRZWF', rr=rr, defa=[real(8):: 0]); ham_frzwf= nint(rr)==1 
       call rval2('HAM_XCFUN', rr=rr, defa=[real(8):: 2]); lxcf=nint(rr) ! XC functional. 1:Ceperly-Alder, 2:Barth-Hedin, 103:PBE-GGA
       call rval2('HAM_FORCES',rr=rr, defa=[real(8):: 0]); lfrce=nint(rr) !0 or 1
@@ -387,7 +388,6 @@ contains
          if(rmt(j) == 0 ) lmxa(j) = -1
          lmxaj = lmxa(j)
          nlaj = 1+lmxaj
-         idxdn(:,:,j) = 1
          PnuQnuSetting: if (nlaj /= 0) then
             !Pnu is fractional quantum number. When P=4.56 for example, 4 is principle quantum number (nodenum-l). .56 is
             !for log derivative (+inf to -inf is mapped to 0 to 1.) to determine radial functions.
@@ -531,47 +531,31 @@ contains
       !r         2 => include only PWs in basis   
       !  +10 means we do q cutoff at q=0.  |G|^2 <pwemax
       ham_oveps=oveps
-      !! idxdn= 1 or 3
-      !r     =1  Orbital is included for Hamiltonian
-      !r     =3  Skipped.
-      !xxx obsolate
-      !xxx   10  Orbital is a local orbital whose value and slope are constructed to be zero at the MT boundary. It is included in the basis.
-      !xxx   11  Orbital is a local orbital with a smooth Hankel tail and it is included in the basis.
+      !! idxdn  =1  MTO included for Hamiltonian
+      idxdn=-999
       do j=1,nspec
          do  ik = 1, nkap0
-            if (ik <= nkapi) then
-               do lp1 = 1, lmxb(j)+1
-                  if (ik==1 .AND. rsmh1(lp1,j)<=0) idxdn(lp1,ik,j)=3
-                  if (ik==2 .AND. rsmh2(lp1,j)<=0) idxdn(lp1,ik,j)=3
-               enddo
-            endif 
-            if (ik == nkaph .AND. sum(lpz)>0) then
-               idxdn(:,ik,j)=3  !call ivset(idxdn(1,ik,j),1,n0,4)
-               do  lp1  = 1, lmxb(j)+1
-                  if (pzsp(lp1,1,j) /=  0) then
-                     if(pzsp(lp1,1,j)>=10) idxdn(lp1,ik,j)=1 !11
-                     if(pzsp(lp1,1,j)>  0) idxdn(lp1,ik,j)=1 !10
-                  endif
-               enddo
-            endif
-            if (ik > nkaph) idxdn(:,ik,j)=3 !call ivset(idxdn(1,ik,j),1,n0,4)
-            idxdn(lmxb(j)+ 2:,ik,j)=3
+            do lp1 = 1, lmxb(j)+1
+               if(ik<=nkapi.and.ik==1  .AND. rsmh1(lp1,j)>0)    idxdn(lp1,ik,j)=1
+               if(ik<=nkapi.and.ik==2  .AND. rsmh2(lp1,j)>0)    idxdn(lp1,ik,j)=1
+               if(sum(lpz)>0.and.ik==nkaph.and.pzsp(lp1,1,j)>0) idxdn(lp1,ik,j)=1 
+            enddo
          enddo
       enddo
       allocate(v_sspec(nspec))
-      do j=1,nspec !additional data supplied from rdovfa.f90 and iors.f90
-         v_sspec(j)%z=z(j)
-         v_sspec(j)%a=spec_a(j)
-         v_sspec(j)%nr=nr(j)
-         v_sspec(j)%kmxt=kmxt(j)
+      do j=1,nspec !additional data supplied from rdovfa.f90 and iors.f90. See m_struc_def.f90. 
+         v_sspec(j)%z=z(j)       !nucleus
+         v_sspec(j)%a=spec_a(j)  !a for radial mesh
+         v_sspec(j)%nr=nr(j)     !nr for radial mesh
+         v_sspec(j)%kmxt=kmxt(j) !kmax. the max number radial funciton index of P_kl(r)
          v_sspec(j)%lfoca=lfoca(j) !lfoca=1,usually (frozen core)
-         v_sspec(j)%rsmv= rmt(j)*.5d0 !rsmv(j)
+         v_sspec(j)%rsmv= rmt(j)*.5d0 !rsmv(j) :smoothing radius for P_kl expansion
          v_sspec(j)%lmxa=lmxa(j) !lmx for augmentation
          v_sspec(j)%lmxb=lmxb(j) !lmx for basis
          v_sspec(j)%lmxl=lmxl(j) !lmx for rho and density
          v_sspec(j)%rfoca=rfoca(j)
-         v_sspec(j)%rg=rg(j)
-         v_sspec(j)%rmt=rmt(j)
+         v_sspec(j)%rg=rg(j)   !size of Gaussian
+         v_sspec(j)%rmt=rmt(j) ! MT radius
          !write(stdo,"(/' species data:  augmentation',27x,'density'/' spec       rmt   rsma lmxa kmxa',5x,' lmxl     rg   rsmv foca   rfoca')")
          !write(stdo,"(1x,a,f6.3,f7.3,2i5,6x,i4,2f7.3,i5,f8.3)") spec_a(j),rmt(j),rsma(js),lmxa(j),kmxt(j), lmxl(j),rg(j),rsmv,lfoca(j),rfoca(j)
       enddo
@@ -602,7 +586,7 @@ contains
          addinv=.false. 
       endif
       sstrnsymg=trim(symg)
-      nspc = merge(2,1,lso==1) ! nspc=2 for lso=1
+      nspc = merge(2,1,lso==1) ! nspc=2 for lso=1. nspx=nsp/nspc. Haittonian is ham(1:ndham*nspc, 1:ndham*nspc, 1:nsp/nspc)
       GETorbitaindex1: block
         integer:: ib,l,lmr,ia, nnrlx,lmri,ik,nnrl,nnrli,li, iprmb(nbas * nl**2 * maxp )
         !o   norb  :number of orbital types for ib; see Remarks

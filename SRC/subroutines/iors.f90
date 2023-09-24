@@ -1,47 +1,36 @@
+!> I/O rst file. charge density and sspec are readin
 module m_iors
   use m_struc_def
   use m_lgunit,only:stdo
   public iors
   private
-
 contains
-  integer function iors(nit,rwrw) ! I/O for charge density to rst or rsta. ssite sspec are readin
-    use m_density,only: osmrho, orhoat,v1pot,v0pot,pnuall,pnzall,eferm !these are allocated
+  integer function iors(nit,rwrw) 
+    use m_density,only: osmrho, orhoat,v1pot,v0pot,pnuall,pnzall,eferm !Main I/O. these are allocated. In addition sspc is written
     use m_supot,only: n1,n2,n3
-    use m_struc_func,only: mpibc1_s_spec !,mpibc1_s_site
-    use m_lmfinit,only: alat=>lat_alat,nsp,lrel,nl,ispec,sspec=>v_sspec, nbas,nat,nspec,n0,&
-         idmodis=>idmod,slabl,readpnu!,rsma!,rsmfa
+    use m_struc_func,only: mpibc1_s_spec 
+    use m_lmfinit,only: alat=>lat_alat,nsp,lrel,nl,ispec,sspec=>v_sspec, nbas,nat,nspec,n0, idmodis=>idmod,slabl,readpnu
     use m_lattic,only: plat=>lat_plat,vol=>lat_vol,qlat=>lat_qlat
     use m_ext,only:sname
     use m_ftox
-    use m_density,only:
     use m_chgmsh,only:chgmsh
-    !! read write
+    !! I/O data
     !!     smrho, rhoat
-    !!     ssite: pos, pos0, force, pnu pz ov0,ov1
     !      sspec:
     !!           a nr rmt z lmxa lmxl kmxt p pz lfoca qc orhoc idmod
     !!           rsma lmxb kmxv rsmv rfoca ctail etail stc nxi exi
     !!           chfa rsmfa
-
-    !! ef,def --> goto bndfp via m_bndfp_ef_set
     !!
-    ! xxx   fid   :string containing identification
     !i   nbas  :size of basis
     !i   nat   :number atoms in basis with augmentation sites
     !i         :Note: if nat<nbas, there is a requirement that
     !i         :lmxa>-1 for nat sites, and
     !i         :and lmxa=-1 for nbas-nat sites
-    !i   ifi   :file logical unit, but >0 for read, <0 for write
-    !i   lbin  :=T file I/O in binary mode
-    !i         :xxxF file I/O in ascii mode
     !!
     !r Remarks
-    !r   The density consists of a smooth part (smrho) plus
-    !r   nbas atom-centered densities inside the MT spheres.
-    !r   Their sum is the full charge density.
-    !r   The local density is represented as the difference of the
-    !r   two valence components in orhoat, plus the core density.
+    !r   The density consists of a smooth part (smrho) plus nbas atom-centered densities inside the MT spheres.
+    !r   Their sum is the full charge density. 
+    !r   The local density is represented as the difference of the two valence components in orhoat, plus the core density.
     !r   Density in the MT spheres:
     !r      mesh parameters rmt,nr,a;
     !r      total density rho (times r**2) to lmxl;
@@ -57,46 +46,9 @@ contains
     !r   On input, iors tries to transform data format where needed:
     !r      lmxl incompatible: pad or truncate l-components
     !r      FT mesh changed: map onto new mesh
-    !l Local variables
-    !l   lrs switches:  0=>use rst file data; 1=>ignore rst file data
-    !l   lrs(1) site positions
-    !l   lrs(2) starting fermi level
-    !l   lrs(3) starting pnu's
-    !m MPI
-    !m   Master process reads and broadcasts line by line. err= and end= are
-    !m   troublesome since the slave processes may hang if the rst file is
-    !m   corrupted or incompatible. For now if iors returns < 1 lmfp will
-    !m   exit and hope the slave processes follow suit!
-    !u Updates
-    !u   01 Jul 08 New mode -2
-    !u   25 Aug 07 Bug fix, case floating orbitals not positioned at end
-    !u   10 Jul 07 Cleaner error exit, MPI
-    !u   20 Jun 06 Repackaged MPI
-    !u   07 Jul 05 (version update 1.04)
-    !u   01 Jul 05 handle sites with lmxa=-1 -> no augmentation
-    !u   04 Feb 05 Spin-split file non-spin-polarized density (FP)
-    !u   26 Apr 03 Added MPI parallelization for ASA
-    !u   11 Jan 03 Bug fix: corrected calc. vol (might have been<0)
-    ! xxx   10 Dec 02 File shears atom positions by shear transformation
-    ! xxx             (slat->plat) (file plat)^-1
-    !u   19 Feb 02 (version update 1.03)
-    !u             File now contains nspec
-    !u             File contents backwardly compatible with prior versions.
-    !u             New mode (-1)
-    !u             Routine's argument list changed.
-    !u   15 Feb 02 (ATP) Added MPI parallelization for fp
-    !u   15 Jan 02 ascii version now labels site rho1,rho2,..
-    !u   27 Aug 01 Extended to local orbitals.
-    !u   17 May 01 Added ASA file I/O.  New argument list.
-    !u   27 Apr 01 Added lbin switch
-    !u   25 Jun 00 spin polarized
-    !u   21 Apr 00 Adapted from nfp rw_rs
-    !  ----------------------------------------------------------------------
     implicit none
-    logical:: lbin=.true.
     integer::  nit , ifi , i_site,i_spec!,i_copy_size !mode=1 ,
     character*256:: fid=''
-    ! ... Local parameters
     integer :: procid,master,mpipid,nproc
     integer :: i,i0,i1,i2,i3,i4,ib,ipr,iprint,ic,is,is0,isp,jb, &
          igetss,jfi,kmax,kmax0,l,lmxa, & !kmxv,lfoc,lfoc0
@@ -106,13 +58,11 @@ contains
     integer:: isw
     complex(8) ,allocatable :: h_zv(:)
     real(8) ,allocatable :: rwgt_rv(:)
-!    equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
-    integer :: idmod(n0),idmoz(n0) !,lrs(10)
+    integer :: idmod(n0),idmoz(n0) 
     logical :: isanrg,lfail,ltmp1,ltmp2,latvec,skiprstpnu!,cmdopt0 !,lshear
     double precision :: a,a0,alat0,cof,eh,fac,qc,rmt, & !rfoc,rfoc0
          rmt0,rsma0,rsmv0,stc,sum,vfac,vol0,vs,vs1,z,z0
     real(8),pointer:: pnu(:,:),pnz(:,:)
-!    real(8):: pnu(n0,2),pnz(n0,2)
     real(8):: ql(n0,2*n0),pos(3)=99999, &
          forcexxx(3)=999,plat0(3,3),qlat0(3,3), &
          exi(n0),hfc(n0,2),vec0(3),wk(100),rh,vrmax(2),pnus(n0,2), &
@@ -122,24 +72,17 @@ contains
     integer:: fextg, i_dummy_fextg,n
     character(*)::rwrw
     data vec0 /0d0,0d0,0d0/
-    !     call tcn('iors')
-    ! ... MPI setup
     nproc  = mpipid(0)
     procid = mpipid(1)
     master = 0
-!    mlog = cmdopt('--mlog',6,0,ignore)
-!    ngabc=lat_nabc
     ipr    = iprint()
-    !      stdo   = lgunit(1)
     vs   =  2d0 !1.04d0 !version of rst file vs=2d0 at 2022-5-15. Only we support reading vs=1.04 only.
     msg  = '         File mismatch:'
     msgw = '         warning:'
     iors = -1
     line = 'header'
-!    call fftz30(n1,n2,n3,k1,k2,k3)
     ffmt = '(5f15.10)'
     ifmt = '(20i5)'
-    npan = 1 !Hardwired for now
     if(ipr>0) write(stdo,"(/a)")' iors  : '//trim(rwrw)//' rst restart file (binary mesh density)'
     open(newunit=ifi,file='rst.'//trim(sname),form='unformatted')
     ! --- Input ---
@@ -161,25 +104,19 @@ contains
        if (lfail) goto 998
        if (procid == master) then
           read(jfi,end=998,err=998) vs1
-          read(jfi) fid0
+          read(jfi) !fid0
           read(jfi) datimp,usernm,hostnm
-          read(jfi) nbas0,nat0,nsp0,npan0,lrel0,nspec0
+          read(jfi) nbas0,nat0,nsp0 !,npan0,lrel0,nspec0
           read(jfi) nit
           read(jfi) alat0,vol0
-          if (ipr >= 40) write(stdo,710) trim(fid0),trim(usernm),trim(hostnm),trim(datimp)
-          if (nat > nat0) then !  Number of real atoms may not increase
-             if (isanrg(nat0, nat,nat,msg,'nat', .TRUE. )) goto 999
-          elseif (nat==nat0 .AND. nbas/=nbas0) then
+          if(ipr >= 40) write(stdo,710) trim(usernm),trim(hostnm),trim(datimp)
+          if(nbas/=nbas0) then
              write(stdo,ftox)' (warning) mismatch in nbas ... skipping sites'
              write(stdo,ftox)' expected nbas=',nbas,'but rst file has nbas=',nbas0
-             !     OK to reduce nat (e.g. E.S.); these sites will be skipped
-          elseif (nat < nat0) then
-             write(stdo,*)'   (warning) rst mismatch in nat ... skipping sites'
           endif
           if (nsp0 < nsp) write(stdo,*)'   (warning) rst file not spin pol .. splitting spins'
-          if(lrel0/=lrel) write(stdo,ftox) 'warning lrel_ctrl lrelrst=',lrel0,lrel
        endif
-710    format(9x,'id -  ',a,/9x,'written by -  ',a,' on ',a,' at: ',a)
+710    format(/9x,'written by -  ',a,' on ',a,' at: ',a)
        call mpibc1_int(nbas0,1,'iors_nbas0')
        call mpibc1_int(nat0,1,'iors_nat0')
        call mpibc1_real(plat,9,'iors_plat')
@@ -200,7 +137,6 @@ contains
           else                 !... or read and remesh
              if (ipr >= 10) write(stdo,450) n11,n21,n31,n1,n2,n3
 450          format(9x,'remesh density from  ',i4,'  *',i4,'  *',i4,'    to  ',i4,'  *',i4,'  *',i4)
-!             call fftz30(n11,n21,n31,k11,k21,k31)
              allocate(h_zv(n11*n21*n31*nsp))
              read(jfi)h_zv(1:n11*n21*n31*nsp0)
              if (nsp > nsp0) then
@@ -230,13 +166,9 @@ contains
        call mpibc1_real(eferm0,1,'iors:eferm')
        use=trim(use)//'use window,'
        eferm=eferm0
-!       call m_bndfp_ef_SET(eferm0) 
        line = 'site data' !Read atomic positions,forcexxxs,velocities ---
        do ib = 1, nbas0 
-          if (procid == master) read(jfi,err=999,end=999)forcexxx
-          if(ib > nbas) cycle !This is for TestInstall/te, which has nbas0=12 but nbas=3
-          !call mpibc1_real(force,3,'iors_force')
-          !ssite(ib)%force=force
+          if (procid == master) read(jfi)
        enddo
        !   --- Read information for local densities ---
        use=trim(use)//' pnu,'
@@ -249,7 +181,7 @@ contains
        do  ib = 1, nbas
           is=ispec(ib) !  is = -1 -> spec struc does not have these parameters
           if (is /= -1) then
-             spid=slabl(is) !sspec(is)%name
+             spid=slabl(is)
              a=sspec(is)%a
              nr=sspec(is)%nr
              rmt=sspec(is)%rmt
@@ -277,10 +209,7 @@ contains
           call mpibc1_real(a0,1,'iors_a0')
           call mpibc1_real(qc,1,'iors_qc')
           if (is == -1 ) call rx('iors: need check for is==-1')
-          !pnu=ssite(ib)%pnu(:,1:nsp)
-          !pnz=ssite(ib)%pz(:,1:nsp)
-          !skiprstpnu=cmdopt0('--skiprstpnu')
-          if(readpnu) then !skiprstpnu) then
+          if(readpnu) then 
              read(jfi)
              read(jfi)
           else   
@@ -290,8 +219,6 @@ contains
                 read(jfi) ((pnu(l+1,isp), l=0,lmxa0),isp=1,nsp0)
                 read(jfi) ((pnz(l+1,isp), l=0,lmxa0),isp=1,nsp0)
                 do  isp = 1, nsp0
-!                   read(jfi) (pnu(l+1,isp), l=0,lmxa0)
-!                   read(jfi) (pnz(l+1,isp), l=0,lmxa0)
                    if (nsp > nsp0) then
                       do  l = 0, lmxa0
                          pnu(l+1,2) = pnu(l+1,1)
@@ -337,23 +264,15 @@ contains
              if (lmxa0 /= lmxa .AND. ipr >= 10) write(stdo,201) ib,spid,'lmax',lmxa0,lmxa
 201          format(9x,'site',i4,', species ',a,': augmentation ',a,' changed from',i2,' to',i2)
           endif
-          !          else
-          !             lmxl = lmxl0
-          !             nr = nr0
-          !          endif
-          !!
           nlml0 = (lmxl0+1)**2
           nlml  = (lmxl+1)**2
           if (nr /= nr0) call rx('iors not set up to convert radial mesh')
           allocate(orhoat(1,ib)%v(nr*nlml*nsp)) !FP local densities rho1,rho2,rhoc and potentials v0, v1
           allocate(orhoat(2,ib)%v(nr*nlml*nsp))
           allocate(orhoat(3,ib)%v(nr*nsp))
-!          allocate(ssite(ib)%rv_a_ov0(nr*nsp))
-!          allocate(ssite(ib)%rv_a_ov1(nr*nsp))
           allocate(v0pot(ib)%v(nr*nsp))
           allocate(v1pot(ib)%v(nr*nsp))
           if (procid == master) then
-             !             print *,'nnnnnnnnread',ib,nr*nlml*nsp,nr,nlml,nsp
              call readrho(ifi,nr,nlml0,nsp0,nlml,nsp,orhoat(1,ib)%v)
              call readrho(ifi,nr,nlml0,nsp0,nlml,nsp,orhoat(2,ib)%v)
              call readrho(ifi,nr,1,nsp0,1,nsp,orhoat(3,ib)%v)
@@ -362,8 +281,6 @@ contains
              if(nlml0 > nlml .AND. ipr >= 10) write(stdo,202) ib,spid,'truncate',nlml0,nlml
              if(nlml0 < nlml .AND. ipr >= 10) write(stdo,202) ib,spid,'inflate',nlml0,nlml
 202          format(9x,'site',i4,', species ',a,': ',a,' local density from nlm=',i3,' to',i3)
-             !v0pot(ib)%v = ssite(ib)%rv_a_ov0
-             !v1pot(ib)%v = ssite(ib)%rv_a_ov1
           endif
           call mpibc1_real( orhoat(1,ib)%v, size(orhoat(1,ib)%v), 'iors_rhoat(1)' )
           call mpibc1_real( orhoat(2,ib)%v, size(orhoat(2,ib)%v), 'iors_rhoat(2)' )
@@ -382,8 +299,6 @@ contains
           if (lmxa == -1) goto 30
           if (procid == master) then
              read(jfi,err=999,end=999) nr0,a0,qc,cof,eh,stc !,lfoc0 !,rfoc0
-!             sspec(is)%lfoca=lfoc0
-!             sspec(is)%rfoca=rfoc0
              lfail = isanrg(nr0,nr,nr,msgw,'nr',.false.)
              call fsanrg(a0,a,a,0d-9,msg,'spec a',.true.)
           endif
@@ -453,9 +368,6 @@ contains
           endif
 40        continue
        enddo
-!       do i_site=1,nbas
-!          call mpibc1_s_site(ssite(i_site),'iors_ssite')
-!       enddo
        do i_spec=1,nspec
           call mpibc1_s_spec(sspec(i_spec),'iors_sspec')
        enddo
@@ -467,47 +379,43 @@ contains
           call rx('iors: something wrong duplicated writing by cores?')
        endif
        jfi = ifi
-       fid0 = fid
+!       fid0 = fid
        jobid = sname 
        call ftime(datimp)
        hostnm = ' '
        usernm = ' '
        call get_environment_variable('HOST',hostnm)
        call get_environment_variable('USER',usernm)
-       if (ipr >= 40) write(stdo,710) trim(fid), trim(usernm),trim(hostnm),trim(datimp)
+       if (ipr >= 40) write(stdo,710) trim(usernm),trim(hostnm),trim(datimp) !trim(fid), 
 721    format('----------------------- ',a,' -----------------------')
        write(jfi) vs
-       write(jfi) fid0
+       write(jfi) !fid0
        write(jfi) datimp,usernm,hostnm,jobid
-       write(jfi) nbas,nat,nsp,npan,lrel,nspec
+       write(jfi) nbas,0,nsp,0,0,0 !lrel,nspec
        write(jfi) nit
        write(jfi) alat,vol,plat
        write(jfi) n1,n2,n3
        write(jfi) osmrho
        write(jfi) eferm 
        do ib = 1, nbas
-          write(jfi)forcexxx !ssite(ib)%force
+          write(jfi)!forcexxx !ssite(ib)%force
        enddo
        if (ipr >= 50) write(stdo,364)
        do  120  ib = 1, nbas
-          !ic=ssite(ib)%class
-          is=ispec(ib) !ssite(ib)%spec
-          spid=slabl(is) !sspec(is)%name
+          is=ispec(ib)   
+          spid=slabl(is) 
           a=sspec(is)%a
           nr=sspec(is)%nr
           rmt=sspec(is)%rmt
           z=sspec(is)%z
           qc=sspec(is)%qc
-          idmod=idmodis(:,is) !sspec(is)%idmod
+          idmod=idmodis(:,is)
           lmxa=sspec(is)%lmxa
           lmxl=sspec(is)%lmxl
           lmxb=sspec(is)%lmxb
-!          rsmv=sspec(is)%rsmv
           kmax=sspec(is)%kmxt
           pnu=>pnuall(:,1:nsp,ib)
           pnz=>pnzall(:,1:nsp,ib)
-!          pnu=ssite(ib)%pnu(:,1:nsp)
-!          pnz=ssite(ib)%pz(:,1:nsp)
           if (lmxa == -1) cycle
           write(jfi) is,spid,lmxa,lmxl,nr,rmt,a,z,qc ! Some extra info. lots of it useless or obsolete
           lmxr = 0
@@ -534,8 +442,6 @@ contains
           nr =sspec(is)%nr
           qc =sspec(is)%qc
           lmxa=sspec(is)%lmxa
-!          lfoc=sspec(is)%lfoca
-!          rfoc=sspec(is)%rfoca
           cof =sspec(is)%ctail
           eh  =sspec(is)%etail
           stc =sspec(is)%stc
@@ -563,7 +469,6 @@ contains
 999 continue
     if (ipr > 0) write(stdo,'('' iors  : read failed in: '',a)') line
     close(ifi)
-    !      call tcx('iors')
   end function iors
 
   subroutine readrho(ifi,nr,nlm0,nsp0,nlm,nsp,aout)!size controled read

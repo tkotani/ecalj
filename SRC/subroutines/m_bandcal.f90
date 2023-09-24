@@ -186,7 +186,7 @@ contains
        evlall(1:ndhamx,isp,iq) = evl(1:ndhamx,isp)
        if(cmdopt0('--afsym')) then
           evlall(1:ndhamx,2,iq) = evl(1:ndhamx,1)
-          nevls(iq,2)  = nev        !nov2014 isp and isp is confusing...
+          nevls(iq,2)  = nev        
           ndimhx_(iq,2)= ndimhx     !Hamiltonian dimension
        endif   
        if(master_mpi.AND.epsovl>=1d-14.AND.plbnd/=0) write(stdo,&
