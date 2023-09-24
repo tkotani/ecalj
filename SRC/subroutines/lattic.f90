@@ -21,7 +21,7 @@ contains
     integer::  lmxst , nkd,nkq,ib
     real(8) :: dlv(3,nkdmx),qlv(3,nkqmx), awald,vol,xx1,xx2,dotprd,pi, plat0(3,3),plat(3,3),qlat(3,3) 
     !i Inputs
-    !i   as    :dimensionless Ewald parameter (2 is suggested).
+    !i   as    :Ewald smoothing parameter. dimensionless Ewald parameter (2 is suggested).
     !i         :Ewald parameter awald scales with the lattice as as/(vol)**(1/3)
     !i   tol   :tolerance for ewald sums
     !i   alat  :length scale of lattice and basis vectors, a.u.
@@ -34,8 +34,8 @@ contains
     !o    lat_qlat:   distorted reciprocal vectors
     !o    lat_vol:   cell volume
     !o    lat_awald:   ewald parameter
-    !o    dlv,nkd: direct lattice vectors and number
-    !o    qlv,nkq: reciprocal lattice vectors and number
+    !o    dlv,nkd: direct lattice vectors and number for Ewald sum
+    !o    qlv,nkq: reciprocal lattice vectors and number for Ewald sum
     !r Remarks
     !r   awald is in (atomic units)^-1.
     !r   Tolerance tol is the estimated error for a lattice of unit volume.
@@ -44,10 +44,12 @@ contains
     !r
     !r   Local variables r0 and q0 are the ranges for
     !r   real-space and reciprocal lattice vectors for a unit lattice.
+    !r  rpad..  truncate Ewald to rpad*rmax when lattice vector
+    !r          list has to be padded in order to include at
+    !r          least one lattice vector
+    !r  tol     Ewald tolerance
     !u Updates
-    !u   2 Mar 04 New rpad: truncate radius of lattice vectors to rpad*rmax
-    !u            when list has to be padded in order to include at
-    !r            least one lattice vector.
+    !u   2 Mar 04 New rpad: truncate radius of lattice vectors to rpad*rmax when list has to be padded in order to include at least one lattice vector.
     call tcn('m_lattic_init')
     lattic_init=.true.
     plat = lat_platin

@@ -6,9 +6,8 @@ module m_lmaux !main part of lmchk ! check crystal structure symmetry and get WS
 contains
   subroutine lmaux()  ! check crystal structure symmetry and get WSR
     use m_mksym,only: ctrl_nclass=>nclasst,oics,iclasst
-    use m_lmfinit,only: iv_a_oips,str_mxnbr,str_rmax,nbas,nspec,nsp, &
-         nl,omax1,omax2,wsrmax,slabl,sspec=>v_sspec, &
-         lat_avw,alat,cstrmx
+    use m_lmfinit,only: iv_a_oips, str_mxnbr,str_rmax,nbas,nspec,nsp, &
+         nl,slabl,sspec=>v_sspec, lat_avw,alat,cstrmx
     use m_lattic,only: lat_nkd
     use m_lattic,only: lat_nkq
     use m_struc_def
@@ -20,6 +19,13 @@ contains
     integer :: NULLI
     logical :: cmdopt0,T,F,swtmp
     parameter (T=.true., F=.false., NULLI=-99999)
+
+!!!!!!!!!!!!!
+    real(8):: omax1(3)=0d0,omax2(3)=0d0,wsrmax=0d0
+!r   omax1   sphere overlap constraints, type 1
+!r   omax2   sphere overlap constraints, type 2
+!r   wsrmax  constraint on size of largest WS sphere
+    
     integer :: getdig,i,ip,j,k,m,ifi,iprint,lpbc, &
          nclasp,nclass,nlspc,modep(3),nbasp, &
          nbaspp,nkd,nkq,neul,nc,mxcsiz,nttab,igets, & ! & npadl,npadr,
@@ -549,10 +555,8 @@ contains
           if (opt2 .eq. 2) rmt(is) = rmin
        endif
     enddo
-    !C    print *, rmt
   end subroutine makrm0
-  subroutine sclwsr(opt,nbas,nbasp,nspec,alat,plat,basp,ips,modep, &
-       slabl,z,lock,volfac,wsmax,omax1,omax2,wsr)
+  subroutine sclwsr(opt,nbas,nbasp,nspec,alat,plat,basp,ips,modep,slabl,z,lock,volfac,wsmax,omax1,omax2,wsr)
     use m_ext,only: sname
     !- Scales sphere radii to specified volume, satisfying constraints.
     ! ----------------------------------------------------------------------
