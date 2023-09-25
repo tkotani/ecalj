@@ -10,7 +10,7 @@ contains
     use m_density,only: osmrho, orhoat,eferm !these are allocated
     use m_supot,only: n1,n2,n3
     use m_struc_func,only: mpibc1_s_spec!,mpibc1_s_site
-    use m_lmfinit,only: lat_alat,nsp,lrel,nl,ispec,sspec=>v_sspec, nbas,nat,nspec,n0,idmodis=>idmod,slabl,rsma
+    use m_lmfinit,only: lat_alat,nsp,lrel,ispec,sspec=>v_sspec, nbas,nat,nspec,n0,idmodis=>idmod,slabl,rsma
     use m_lattic,only: lat_plat
     use m_ext,only:sname
     use m_density,only: pnuall,pnzall,v0pot,v1pot

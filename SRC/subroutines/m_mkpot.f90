@@ -318,7 +318,7 @@ contains
   end subroutine mkpot
   subroutine dfaugm(osig, otau, oppi, ohsozz,ohsopm )
     use m_struc_def,only:s_rv1,s_cv1,s_sblock
-    use m_lmfinit,only: lso,nkaph,nsp,nbas,ispec,sspec=>v_sspec
+    use m_lmfinit,only: lso,nkaphh,nsp,nbas,ispec,sspec=>v_sspec
     !o  osig,otau,oppi,ohsozz  :memory allocated (ohsoz is for SOC)
     !r Remarks
     !r   sig and tau are l diagonal, ppi is full matrix
@@ -336,10 +336,11 @@ contains
     type(s_sblock):: ohsozz(3,nbas),ohsopm(3,nbas)
     type(s_rv4) :: otau(3,nbas)
     type(s_rv4)::  osig(3,nbas)
-    integer :: ib,is,kmax,lmxa,lmxh,nelt1,nlma,nlmh,nelt
+    integer :: ib,is,kmax,lmxa,lmxh,nelt1,nlma,nlmh,nelt,nkaph
     logical:: cmdopt0
     do  ib = 1, nbas
        is = ispec(ib)
+       nkaph=nkaphh(is)
        lmxa=sspec(is)%lmxa !max l of augmenation
        lmxh=sspec(is)%lmxb !max l of head 
        kmax=sspec(is)%kmxt !0:kmax for radial index, ! nkaph:number of orbital types for a given L quantum no. in basis

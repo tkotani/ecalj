@@ -7,7 +7,7 @@ module m_bandcal
   use m_qplist,only: qplist,niqisp,iqproc,isproc
   use m_igv2x,only: m_igv2x_setiq, napw,ndimh,ndimhx,igv2x
   use m_lmfinit,only: lrsig=>ham_lsig, lso,ham_scaledsigma,lmet=>bz_lmet,nbas,epsovl=>ham_oveps,nspc,plbnd,lfrce,&
-       pwmode=>ham_pwmode,pwemax,stdl,nsp,nlibu,lmaxu,nl !,nbas,nl,nlmto
+       pwmode=>ham_pwmode,pwemax,stdl,nsp,nlibu,lmaxu,lmxax
   use m_MPItk,only: mlog, master_mpi, procid,strprocid, numprocs=>nsize, mlog_mpiiq
   use m_subzi, only: nevmx,rv_a_owtkb
   use m_supot, only: n1,n2,n3
@@ -57,8 +57,7 @@ contains
     ltet = ntet>0
 !    nspx=nsp/nspc
     if(plbnd==0 .AND. lso/=0 .AND. lmet==0 ) call rx('metal weights required to get orb.moment')
-    if(lso/=0) allocate(orbtm_rv(nl,nsp,nbas)) !for spin-orbit coupling
-    if(lso/=0) orbtm_rv=0d0
+    if(lso/=0) allocate(orbtm_rv(lmxax+1,nsp,nbas),source=0d0) !for spin-orbit coupling
     if(lfrce>0) allocate( frcband(3,1:nbas),source=0d0) !force for band
     allocate( ndimhx_(nkp,nspx),nevls(nkp,nspx),source=0) 
     allocate( evlall(ndhamx,nspx,nkp),source=0d0)
@@ -220,7 +219,6 @@ contains
     call dfqkkl( oqkkl ) !zero clear
     call dfqkkl( oeqkkl ) !zero clear if(lekkl==1) 
     if (lfrce>0)  frcband  = 0d0
-!    if (lswtk==1) call swtkzero()
     if(lso/=0) orbtm_rv=0d0
     if(allocated(smrho_out)) deallocate(smrho_out)
     allocate( smrho_out(n1*n2*n3*nsp) )
@@ -349,7 +347,7 @@ contains
   end subroutine m_bandcal_symsmrho
   subroutine mkorbm(isp,nev,iq,qp,evec, orbtm) !decomposed orbital moments within MT
     use m_ll,only:ll
-    use m_lmfinit,only: ispec,sspec=>v_sspec,nbas,nlmax,nsp,nspc,nl,n0,nppn
+    use m_lmfinit,only: ispec,sspec=>v_sspec,nbas,nlmax,nsp,nspc,n0,nppn,lmxax
     use m_igv2x,only: napw,ndimh,ndimhx,igvapw=>igv2x
     use m_mkpot,only: sab_rv
     use m_subzi, only: wtkb=>rv_a_owtkb
@@ -392,16 +390,16 @@ contains
     ! ----------------------------------------------------------------------
     implicit none
     integer :: isp,nev,iq
-    integer :: lmxa,lmxax,lmdim,ichan,ib,is,igetss,iv,ilm,l,m,nlma, lc,em,ispc,ksp
+    integer :: lmxa,lmdim,ichan,ib,is,igetss,iv,ilm,l,m,nlma, lc,em,ispc,ksp
     real(8):: qp(3),diff
-    real(8):: suml(11),s11,s22,s12,s33,s31,s32,s13,s23, suma,rmt,orbtm(nl,nsp,*) 
+    real(8):: suml(11),s11,s22,s12,s33,s31,s32,s13,s23, suma,rmt,orbtm(lmxax+1,nsp,*) 
     complex(8):: au,as,az,iot=(0d0,1d0),evec(ndimh,nsp,nev),auasaz(3)
     complex(8),allocatable ::aus(:,:,:,:,:)
 !    real(8):: sab(nab,n0,2)
     allocate(aus(nlmax,ndham*nspc,3,nsp,nbas))
     aus=0d0
     call makusq(nbas,[-999], nev, isp,1,qp,evec, aus )
-    lmxax = ll(nlmax)
+!    lmxax = ll(nlmax)
     iot = dcmplx(0d0,1d0)
     ichan = 0
     ibloop: do  ib = 1, nbas
@@ -452,7 +450,7 @@ contains
     deallocate(aus)
   end subroutine mkorbm
   subroutine mkdmtu(isp,iq,qp,nev,evec,dmatu) !Get density matrix dmatu for LDA+U (phi-projected density matrix)
-    use m_lmfinit,only: ispec,sspec=>v_sspec,nbas,nlmax,nsp,nspc,nl,n0,nppn,nlibu,lmaxu,nlibu,lldau,idu
+    use m_lmfinit,only: ispec,sspec=>v_sspec,nbas,nlmax,nsp,nspc,n0,nppn,nlibu,lmaxu,nlibu,lldau,idu
     use m_mkpot,only: phzdphz
     use m_subzi, only: wtkb=>rv_a_owtkb
     use m_igv2x,only: ndimh
@@ -552,13 +550,14 @@ contains
   end subroutine mkdmtu
 end module m_bandcal
 subroutine dfqkkl( oqkkl ) !Allocates arrays to accumulate output site density
-  use m_lmfinit,only: nkaph,nsp,nbas,ispec,sspec=>v_sspec
+  use m_lmfinit,only: nsp,nbas,ispec,sspec=>v_sspec,nkaphh
   use m_struc_def,only:s_rv5   !o oqkkl : memory is allocated for qkkl
   implicit none
   type(s_rv5) :: oqkkl(3,nbas)
-  integer :: ib,is,kmax,lmxa,lmxh,nlma,nlmh
+  integer :: ib,is,kmax,lmxa,lmxh,nlma,nlmh ,nkaph
   do  ib = 1, nbas
      is = ispec(ib) 
+     nkaph=nkaphh(is)
      lmxa=sspec(is)%lmxa
      if (lmxa == -1) cycle
      nlma = (lmxa+1)**2

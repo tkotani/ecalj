@@ -2,7 +2,7 @@ module m_vcdmel! Valence-core dipole matrix elements
   public vcdmel
   private
 contains  
-  subroutine vcdmel(nl,nlmax,ndham,ndimh,nq,nsp,nspc,ef,evl,aus,nsite,isite,iclsl,iclsn,dosw)! Valence-core dipole matrix elements
+  subroutine vcdmel(nlmax,ndham,ndimh,nq,nsp,nspc,ef,evl,aus,nsite,isite,iclsl,iclsn,dosw)! Valence-core dipole matrix elements
     use m_lmfinit,only: rv_a_ocg,iv_a_ojcg,iv_a_oidxcg,ispec,sspec=>v_sspec,n0,lmxax
     use m_mkqp,only: iv_a_oidtet ,bz_nabc, bz_ntet
     use m_struc_def
@@ -28,7 +28,7 @@ contains
     implicit none
     integer:: nlmax,ndham,ndimh,nq,nsp,nspc,nsite, isite(nsite),iclsl(nsite),iclsn(nsite)
     real(8):: ef,evl(ndham,nsp,nq)
-    integer:: ifi,isp,ib,is,lcls,ncls,nl,i,j,nr,lmxa,iq,nlma,igets,igetss,i1mach,nfstg,nchan
+    integer:: ifi,isp,ib,is,lcls,ncls,i,j,nr,lmxa,iq,nlma,igets,igetss,i1mach,nfstg,nchan
     integer:: nbandx,nspx,npts,ifid,ikp,ichib,ifdos,ie,ild, lh(10)
     real(8),allocatable :: rofi_rv(:), ul_rv(:), sl_rv(:), gz_rv(:),ruu_rv(:), rus_rv(:),rss_rv(:), g_rv(:), s_rv(:,:,:)
     real(8),pointer:: pnu(:,:),pnz(:,:)

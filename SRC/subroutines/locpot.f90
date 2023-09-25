@@ -10,14 +10,11 @@ module m_locpot !- Make the potential at atomic sites and augmentation matrices.
   private
   real(8),parameter:: pi = 4d0*datan(1d0),srfpi = dsqrt(4d0*pi),y0 = 1d0/srfpi  !integer:: idipole
 contains
-  subroutine locpot(job,novxc,orhoat,qmom,vval,gpot0,&
-       osig,otau,oppi,ohsozz,ohsopm,phzdphz,hab,vab,sab, & 
+  subroutine locpot(job,novxc,orhoat,qmom,vval,gpot0, osig,otau,oppi,ohsozz,ohsopm,phzdphz,hab,vab,sab, & 
        vvesat,cpnvsa, rhoexc,rhoex,rhoec,rhovxc, valvef,xcore, sqloc,sqlocc,saloc, qval,qsc )
-    use m_density,only: v0pot,v1pot   !output
-    use m_density,only: pnzall,pnuall !output
-    use m_lmfinit,only:nkaph,lxcf,lhh,nkapii,nkaphh,lmaxu,lldau
-    use m_lmfinit,only:n0,nppn,nrmx,nkap0,nlmx,nbas,nsp,lso,ispec, sspec=>v_sspec,frzwfa,lmxax
-    use m_lmfinit,only:slabl,idu,coreh,ham_frzwf,rsma,alat,v0fix,jnlml,vol,qbg=>zbak,lpzex
+    use m_density,only: v0pot,v1pot,pnzall,pnuall !output
+    use m_lmfinit,only:lxcf,lhh,nkapii,nkaphh,lmaxu,lldau,n0,nppn,nrmx,nkap0,nlmx,nbas,nsp,lso,ispec, sspec=>v_sspec,frzwfa,lmxax,&
+         slabl,idu,coreh,ham_frzwf,rsma,alat,v0fix,jnlml,vol,qbg=>zbak,lpzex
     use m_uspecb,only:uspecb
     use m_hansr,only:corprm
     use m_ldau,only: vorb !input. 'U-V_LDA(couter term)' of LDA+U
@@ -51,17 +48,10 @@ contains
     !o   rhoex :integral of density times exch. energy density
     !o   rhoec :integral of density times corr. energy density
     !o   rhovxc:integral of density times xc potential
-    !!o   rvepsv:integral of valence density times exc(valence density)
-    !!o   rvexv :integral of valence density times ex(valence density)
-    !!o   rvecv :integral of valence density times ec(valence density)
-    !!o   rvvxcv:integral of valence density times vxc(valence density)
-    !!o   rveps :int rhov*exc(rhotot) (only made if 1000's digit job set)
-    !!o   rvvxc :int rhov*vxc(rhotot) (only made if 1000's digit job set)
     !o   valvef:integral (rho1*(v1-2Z/r) - rho2*vsm) ??
     !o   xcore :integral rhoc*(v1-2Z/r)
     !o   sqloc :total valence charge rho1-rho2 in sphere
-    !o   saloc :total valence magnetic moment in sphere
-    !o         :+core moment for sites with core hole
+    !o   saloc :total valence magnetic moment in sphere +core moment for sites with core hole
     !o   sqlocc:total core charge qcor1-qcor2 in sphere
     !o   qval  :nominal total valence charge qv-z
     !o   qsc   :semicore charge from local orbitals
@@ -76,10 +66,8 @@ contains
     !l   lfltwf:T  update potential used to define basis
     !i   idu  :idu(l+1,ibas)>01 => this l has a nonlocal U matrix
     ! ----------------------------------------------------------------------
-    integer::  job,ibx,ir,isp,l,lm, kcor,lcor
-    integer:: i,nglob,ipr,iprint,j1,ib,is,lmxl,lmxa,nr,lmxb,kmax,lfoc,nrml,nlml,ifivesint,ifi
-    integer::lsox,lmxh
-    integer :: lh(nkap0),nkapi,nkape,k
+    integer::  job,ibx,ir,isp,l,lm, kcor,lcor, i,nglob,ipr,iprint,j1,ib,is,lmxl,lmxa,nr,lmxb,kmax,lfoc,nrml,nlml,ifivesint,ifi,&
+         lsox,lmxh, lh(nkap0),nkapi,nkaph,k
     type(s_rv1) :: orhoat(3,nbas)
     type(s_cv5) :: oppi(3,nbas)
     type(s_sblock):: ohsozz(3,nbas),ohsopm(3,nbas)
@@ -87,8 +75,7 @@ contains
     real(8):: qmom(1) , vval(1), cpnvsa,rhoexc(nsp),rhoex(nsp),rhoec(nsp),rhovxc(nsp), &
          qval,sqloc,sqlocc,saloc, valvef,vvesat,xcore,gpot0(1),phzdphz(nppn,n0,nsp,nbas),rhobg,&
          eh(n0,nkap0),rsmh(n0,nkap0), ehl(n0),rsml(n0),z,a,rmt,qc,ceh,rfoc, &
-         qcorg,qcorh,qsc,cofg,cofh,qsca,rg,qv,cpnvs, qloc,qlocc,xcor, aloc,alocc,rs3,vmtz,qcor(2),qc0,qsc0
-    real(8):: ov0mean,pmean
+         qcorg,qcorh,qsc,cofg,cofh,qsca,rg,qv,cpnvs, qloc,qlocc,xcor, aloc,alocc,rs3,vmtz,qcor(2),qc0,qsc0, ov0mean,pmean
     real(8),target::hab(3,3,n0,nsp,nbas),vab(3,3,n0,nsp,nbas),sab(3,3,n0,nsp,nbas)
     character spid*8
     logical :: lfltwf,phispinsym,cmdopt0,readov0,v0write,novxc
@@ -240,9 +227,8 @@ contains
               eh  = 0d0
               call uspecb(is,rsmh,eh)
               nkapi=nkapii(is)
-              nkape=nkaphh(is)
+              nkaph=nkaphh(is)
               block
-!                use m_elocp,only: rsml,ehl
                 if(lpzex(is)==1) rsml=rsmh(:,nkaph)
                 if(lpzex(is)==1)  ehl=  eh(:,nkaph)
               endblock
@@ -255,9 +241,6 @@ contains
               lsox = merge(1, lso, .NOT. novxc .AND. cmdopt0('--socmatrix') )
               lmxh = lmxb !MTO l of basis minimum 
               if (ipr >= 20) write(stdo,"('     potential shift to crystal energy zero:',f12.6)") y0*(gpot0(j1)-gpotb(1))
-!              do  k = 1, lmxh+1 ! check; see description of rsmh above
-!                 if(pnz(k,1)/=0.AND.pnz(k,1)<10.AND.rsmh(k,nkapi+1)/=0)call rx1('augmat: illegal value for rsmh',rsmh(k,nkapi+1))
-!              enddo
               augmatblock: block
                 use m_gaugm,only:  gaugm
                 use m_augmat,only: vlm2us,momusl

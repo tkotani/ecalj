@@ -50,7 +50,7 @@ contains
     call tcx('m_mkrout_init')
   end subroutine m_mkrout_init
   subroutine mkrout(oqkkl,oeqkkl,orhoat_out,hab,sab, qbyl,hbyl)!Assembles local output densities out of the qkkl, and core states
-    use m_lmfinit,only: nkaph, sspec=>v_sspec,ispec,nbas,nsp,lrout,n0,nlmto,nmcore,rsma !lekkl=1
+    use m_lmfinit,only: nkaphh, sspec=>v_sspec,ispec,nbas,nsp,lrout,n0,nlmto,nmcore,rsma !lekkl=1
     use m_lgunit,only: stdo
     use m_struc_def
     use m_elocp,only: rsmlss=>rsml, ehlss=>ehl
@@ -82,7 +82,7 @@ contains
     real(8):: qbyl(n0,nsp,nbas) , hbyl(n0,nsp,nbas) , sab(3,3,n0,nsp,nbas), hab(3,3,n0,nsp,nbas)
     integer:: ib,ipr,iprint,is,k,kcor,kmax,lcor,lfoc,lgunit,lmxa,lmxh,lmxl,nlma,nlmh,nlml,nlml1,r,ncore,ifx
     real(8) :: a,ceh,pi,qcor(2),rfoc,rmt,smec,smtc,stc0, sum1,sum2,sums1,sums2,xx,y0,z,res,rsml(n0),ehl(n0)
-    integer :: nkapi,nkape,nr, lh(nkap0)
+    integer :: nkapi,nkape,nr, lh(nkap0),nkaph
     real(8) :: eh(n0,nkap0),rsmh(n0,nkap0),qcorg,qcorh,qsc,cofg,cofh
     real(8),pointer:: pnu(:,:),pnz(:,:)
     real(8):: dat(6,nbas)
@@ -103,6 +103,7 @@ contains
        if (lmxa == -1) cycle 
        lmxl=sspec(is)%lmxl
        kmax=sspec(is)%kmxt
+       nkaph=nkaphh(is)
        a=sspec(is)%a
        nr=sspec(is)%nr
        rmt=sspec(is)%rmt

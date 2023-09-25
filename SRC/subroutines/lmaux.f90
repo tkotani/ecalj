@@ -7,7 +7,7 @@ contains
   subroutine lmaux()  ! check crystal structure symmetry and get WSR
     use m_mksym,only: ctrl_nclass=>nclasst,oics,iclasst
     use m_lmfinit,only: iv_a_oips, str_mxnbr,str_rmax,nbas,nspec,nsp, &
-         nl,slabl,sspec=>v_sspec, lat_avw,alat,cstrmx
+         slabl,sspec=>v_sspec, lat_avw,alat,cstrmx
     use m_lattic,only: lat_nkd
     use m_lattic,only: lat_nkq
     use m_struc_def

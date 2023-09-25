@@ -5,19 +5,11 @@ module m_elocp ! envlope parameters for extended local orbitals
   private
 contains
   subroutine elocp()! Make envlope parameters for extended local orbitals
-    use m_lmfinit,only: stdo,nspec,nbas,nsp,ispec,sspec=>v_sspec,n0,nkapii,slabl,vmtz,rs3,eh3,lpzex
+    use m_lmfinit,only: stdo,nspec,nbas,nsp,ispec,sspec=>v_sspec,n0,nkapii,slabl,vmtz,rs3,eh3
     use m_density,only: v0pot,pnuall,pnzall
-    ! ----------------------------------------------------------------------
-    !i Inputs
-    !i         : 0 do nothing ; just return
-    !i         : 1 make core and augmentation matrices
     !o Outputs
     !o   ehl,rsml
     !o         : smoothing radius and energy set for extended local orbitals
-    !r Remarks
-    !u Updates
-    !u   06 Jul 05 first created
-    ! ----------------------------------------------------------------------
     implicit none
     character spid*8
     logical :: eloc
@@ -25,15 +17,12 @@ contains
     parameter (nrmx=1501, nkap0=3)
     integer:: nkape,idamax,nkapex
     integer,allocatable :: ips_iv(:)
-    real(8):: z,a,rmt,xx, rofi(nrmx),vseli(4,n0),vsel(4,n0,nbas), &
-         eh(n0,nkap0),rsmh(n0,nkap0) !
+    real(8):: z,a,rmt,xx, rofi(nrmx),vseli(4,n0),vsel(4,n0,nbas), eh(n0,nkap0),rsmh(n0,nkap0) 
     real(8),pointer:: pnu(:,:),pnz(:,:),pnui(:,:),pnzi(:,:)
     real(8):: ehls(n0*2),rsmls(n0*2),wdummy(1)
-    ! --- Setup ---
     call tcn('elocp')
     if(allocated(ehl)) deallocate(ehl,rsml)
     allocate( ehl(n0,nspec),rsml(n0,nspec),source=0d0)
-!    if(sum(lpzex)/=0) return
     ipr = iprint()
     eloc = .false.
     vsel=0d0
@@ -42,25 +31,22 @@ contains
        is=ispec(ib) 
        pnu=>pnuall(:,:,ib)
        pnz=>pnzall(:,:,ib)
-       spid = slabl(is) !sspec(is)%name
+       spid = slabl(is) 
        a=sspec(is)%a
        nr=sspec(is)%nr
        rmt=sspec(is)%rmt
        z=sspec(is)%z
        lmxa=sspec(is)%lmxa
        lmxb=sspec(is)%lmxb
-       if (lmxa == -1) goto 10
-       if (pnz(idamax(lmxb+1,pnz,1),1) < 10) goto 10
+       if (lmxa == -1) cycle
+       if (pnz(idamax(lmxb+1,pnz,1),1) < 10) cycle
        eloc = .true.
        call radmsh(rmt,a,nr,rofi)
-       call loctsh ( 1 , spid , z , a , nr , nr , nsp , lmxa , rofi & !1101
-            , v0pot(ib)%v , pnu , pnz , xx , xx , vmtz(is) , vsel ( 1 , 1 , ib ) &
-            , rsml , ehl )
-10     continue
+       call loctsh ( 1,spid,z,a,nr,nr,nsp,lmxa,rofi & !mode1101
+           ,v0pot(ib)%v,pnu,pnz,xx,xx,vmtz(is),vsel ( 1,1,ib ) ,rsml,ehl )
     enddo
     if ( .NOT. eloc) goto 999
-    if (ipr >= 30) write(stdo,199)
-199 format(/' elocp:')
+    if (ipr >= 30) write(stdo,"(/' elocp:')")
     ! --- Determine shape of smooth Hankel tails for local orbitals ---
     allocate(ips_iv(nbas))
     ips_iv=ispec
@@ -70,79 +56,45 @@ contains
        z=sspec(is)%z
        lmxa=sspec(is)%lmxa
        lmxb=sspec(is)%lmxb
-       if (lmxa == -1) goto 20
-       nrspec = iabs ( iclbsj ( is , ips_iv , - nbas , nbas ) )
-       if (nrspec == 0) goto 20
-       ib = iclbsj ( is , ips_iv , nbas , 1 )
+       if (lmxa == -1) cycle
+       nrspec = iabs ( iclbsj ( is,ips_iv,- nbas,nbas ) )
+       if (nrspec == 0) cycle
+       ib = iclbsj ( is,ips_iv,nbas,1 )
        pnui=>pnuall(:,:,ib)
        pnzi=>pnzall(:,:,ib)
-       
-       if (pnzi(idamax(lmxb+1,pnzi,1),1) < 10) goto 20
-       !   ... Average over sites within this species
-       vseli=0d0
+       if (pnzi(idamax(lmxb+1,pnzi,1),1) < 10) cycle
+       vseli=0d0 !Average over sites within this species
        do  ibs = 1, nrspec
-          ib = iclbsj ( is , ips_iv , nbas , ibs )
-          if (pnzi(idamax(lmxb+1,pnzi,1),1) < 10) goto 22
+          ib = iclbsj ( is,ips_iv,nbas,ibs )
+          if (pnzi(idamax(lmxb+1,pnzi,1),1) < 10) cycle
           vseli = vseli + vsel(:,:,ib)/dble(nrspec)
-22        continue
        enddo
-!        !   ... Printout of input for parameters
-!        if (ipr >= 90/1) then
-!           write(stdo,261) spid
-! 261       format(/'  l  site    Eval        Val         Slo         K.E.', &
-!                5x,'species ',a)
-!           do  l = 0, lmxb
-!              if (pnz(l+1,1) < 10) goto 24
-!              do  ibs = 1, nrspec
-!                 ib = iclbsj ( is , ips_iv , nbas , ibs )
-!                 write (stdo,260) l,ib,vsel(4,l+1,ib),(vsel(k,l+1,ib),k=2,4)
-! 260             format(i3,i4,4f12.6:a)
-! 262             format(i3,' avg',4f12.6)
-!              enddo
-!              write (stdo,262) l,vseli(4,l+1),(vseli(k,l+1),k=2,4)
-! 24           continue
-!           enddo
-!        endif
-       !rs3= sspec(is)%rs3
-       !eh3= sspec(is)%eh3
-       !vmtz=sspec(is)%vmtz
        a=sspec(is)%a
        nr=sspec(is)%nr
        rmt=sspec(is)%rmt
-       rsmls=0d0
-       ehls=0d0
        call radmsh(rmt,a,nr,rofi)
-       ! 102 means spin-averaged ehl,rsml
-       call loctsh ( 2 , spid , xx , a , nr , nr , nsp , lmxa , rofi & !1102
-            , wdummy , pnui , pnzi , rs3(is) , eh3(is) , vmtz(is) , vseli , rsmls , ehls )
+       call loctsh ( 2,spid,xx,a,nr,nr,nsp,lmxa,rofi & !mode1102
+           ,wdummy,pnui,pnzi,rs3(is),eh3(is),vmtz(is),vseli,rsmls,ehls )
        rsml(1:n0,is) = rsmls(1:n0) !Rsmooth for PZ
        ehl(1:n0,is) = ehls(1:n0)   !Eh for PZ
-20     continue
     enddo
 999 continue
     call tcx('elocp')
     if (allocated(ips_iv)) deallocate(ips_iv)
   end subroutine elocp
-  subroutine loctsh(mode0,spid,z,a,nr,nrmt,nsp,lmxb,rofi,v,pnu,pnz,rs3,eh3,vmtz, vsel,rsml,ehl)
+  subroutine loctsh(mode0,spid,z,a,nr,nrmt,nsp,lmxb,rofi,v,pnu,pnz,rs3,eh3,vmtz, vsel,rsml,ehl)!Fit value and slope of local orbitals to smoothed Hankel
     use m_mtchae,only:mtchre
     use m_lmfinit,only: stdo
     use m_hansr,only:hansmr
     use m_atwf,only: makrwf
     use m_ftox
-    !- Fit value and slope of local orbitals to smoothed Hankel
-    ! ----------------------------------------------------------------------
-    !i Inputs mode=110x allowed now
-    !i   mode  :1s digit concerns fit to low-lying local orbitals
-    !i         : 1 Generate val,slo, and K.E. from potential
-    !i         : 2 Fit low-lying local orbitals attempting to match rs,eh
-    !i         :   to val, slope and K.E.
-    !i         :xxx10s digit concerns fit to high-lying local orbitals
-    !i         :   NB: this branch is not implemented
-    !i         : 0 do not fit high-lying local orbitals
-    !i         :xxx100s digit concerns constraint on rsm
-    !i         : 1 constrain rsm to be <= rmt
-    !i         :xxx1000s digit deals with spin-polarized case:
-    !i         : 1 Compute ehl,rsml for average potential
+    !i Inputs mode=110x allowed now. Only x is supplied
+    !i   mode  : For fitting to low-lying local orbitals,
+    !i         := 1 Generate val,slo, and K.E. from potential
+    !i         := 2 Fit low-lying local orbitals attempting to match rs,eh to val, slope and K.E.
+    !i      We do not fit high-lying local orbitals
+    !i      We have constrain rsm to be <= rmt
+    !i      We Compute ehl,rsml for average potential
     !i   z     :nuclear charge
     !i   a     :the mesh points are given by rofi(ir) = b [e^(a(ir-1)) -1]
     !i   nr    :number of radial mesh points in potential sphere
@@ -186,8 +138,8 @@ contains
     double precision :: rofi(1),v(nr,nsp),pnz(n0,nsp),pnu(n0,nsp)
     double precision :: rsml(n0,2),ehl(n0,2),vsel(4,n0)
     character spid*8,orbit(2)*4,flg(2)*1
-    integer:: ipr , iprint , i , l , info , mode0, modei , loclo=-99999 , nfit , iprt , isw
-    !, mode1 , mode2 , mode3 , mode4
+    integer:: ipr,iprint,i,l,info,mode0, modei,loclo=-99999,nfit,iprt,isw
+    !, mode1,mode2,mode3,mode4
     real(8) ,allocatable :: g_rv(:)
     real(8) ,allocatable :: gp_rv(:)
     real(8) ,allocatable :: h_rv(:)
@@ -215,19 +167,14 @@ contains
     do  l = 0, lmxb
        rsml(l+1,i) = 0
        ehl(l+1,i) = 0
-       !       pl(l+1,i) = pnu(l+1,i)
-       !       konfig = mod(pnz(l+1,i),10d0)
-       !       Skip all but local orbitals with tails attached
        if (pnz(l+1,i) < 10) goto 10!
-       !       Case local orbital deeper than valence
-       if (int(pnu(l+1,i)-1) == int(mod(pnz(l+1,i),10d0))) then
+       if (int(pnu(l+1,i)-1) == int(mod(pnz(l+1,i),10d0))) then     ! Case local orbital deeper than valence
           loclo = 1
           if (mode0 == 0) goto 10
           modei = mode0
-          !       Case local orbital higher than the valence state
-       elseif (int(pnu(l+1,i)+1) == int(mod(pnz(l+1,i),10d0))) then
+       elseif (int(pnu(l+1,i)+1) == int(mod(pnz(l+1,i),10d0))) then !  Case local orbital higher than the valence state
           loclo = 0
-          goto 10 !if (mode1 == 0) goto 10
+          goto 10 
           modei = 0 !mode1
        else!   Local orbital neither low nor high: error
           write(aaa,ftox)'Exit -1 loctsh',l,ftof(pnz(l+1,i),3),'incompatible with valence P=',ftof(pnu(l+1,i),3)

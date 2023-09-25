@@ -1,7 +1,7 @@
 module m_uspecb !Get rsmh and eh. a little complicated when PZ is self-consistently determined.
 contains
   subroutine uspecb(is,rsmh,eh)
-    use m_lmfinit,only: nkaph,nspec,nkapii,n0,nkap0, &
+    use m_lmfinit,only: nkaphh,nspec,nkapii,n0,nkap0, &
          rsmh1ss=>rsmh1,rsmh2ss=>rsmh2,eh1ss=>eh1,eh2ss=>eh2,lhh,lpzex
     use m_elocp,only: rsml,ehl
     implicit none
@@ -30,7 +30,7 @@ contains
     eh(:,1,is)   = eh1ss(:,is)
     if(nkapii(is)==2) rsmh(:,2,is)=rsmh2ss(:,is)
     if(nkapii(is)==2) eh(:,2,is)=eh2ss(:,is)
-    if(lpzex(is)==1 .AND. allocated(rsml)) rsmh(:,nkaph,is)=rsml(:,is)
-    if(lpzex(is)==1 .AND. allocated(ehl))  eh(:,nkaph,is)=ehl(:,is)
+    if(lpzex(is)==1 .AND. allocated(rsml)) rsmh(:,nkaphh(is),is)=rsml(:,is)
+    if(lpzex(is)==1 .AND. allocated(ehl))    eh(:,nkaphh(is),is)=ehl(:,is)
   end subroutine uspecb
 end module m_uspecb

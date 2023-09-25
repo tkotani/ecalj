@@ -2,8 +2,6 @@
 !> I think v_sspec%foobar given in m_lmfinit is not overwritten.
 module m_lmfinit 
   ! We perform 'call m_lmfinit_init', which sets all initial data stored in m_lmfinit_init.
-  ! Note our block coding: Search HelpExit ConvertCtrl2CtrlpByPython ReadCtrlp Stage1 Stage2 Stage3.
-  !! At the bottom of this code, which may/maynot be a help to read this code
   use m_ftox
   use m_ext,only :sname        ! sname contains extension. foobar of ctrl.foobar
   use m_struc_def,only: s_spec ! spec structures.
@@ -11,18 +9,17 @@ module m_lmfinit
   use m_lgunit,only: stdo,stdl
   use m_density,only: pnuall,pnzall !These are set here! log-derivative of radial functions.
   implicit none 
-  type(s_spec),allocatable:: v_sspec(:) !NOTE: unprotected, changed only by readin iors/rdovfa (see lmfp.f90)
+  type(s_spec),allocatable:: v_sspec(:) !NOTE: unprotected, add several data in iors/rdovfa (see lmfp.f90)
   integer,parameter:: noutmx=48,NULLI=-99999,nkap0=3,mxspec=256,lstrn=1000,n0=10,nppn=2,nrmx=1501,nlmx=64,n00=n0*nkap0,k0=3
   real(8),parameter:: fpi=16d0*datan(1d0), y0=1d0/dsqrt(fpi), pi=4d0*datan(1d0), srfpi = dsqrt(4d0*pi),pi4=fpi,&
        NULLR =-99999, fs = 20.67098d0, degK = 6.3333d-6 ! defaults for MD
   logical,parameter:: T=.true., F=.false.
-  integer,protected:: lat_nkqmx,lat_nkdmx,nat, lxcf, smalit,lstonr(3)=0,nl,nbas=NULLI,nspec,&
+  integer,protected:: lat_nkqmx,lat_nkdmx,nat, lxcf, smalit,lstonr(3)=0,nbas=NULLI,nspec,&
        nspc,master=0,nspx, maxit,gga,ftmesh(3),nmto=0,lrsigx=0,nsp=1,lrel=1,lso=0,&
-       lmxbx=-1,lmxax,nkaph,bz_lshft(3)=0, bz_lmet,bz_n,bz_lmull,bz_fsmommethod,str_mxnbr,&
+       lmxbx=-1,lmxax,bz_lshft(3)=0, bz_lmet,bz_n,bz_lmull,bz_fsmommethod,str_mxnbr,&
        iter_maxit=1, mix_nsave, pwmode,ncutovl ,ndimx,natrlx,pdim, leks,lrout,plbnd, pot_nlma, pot_nlml,ham_nspx, nlmto,& !total number of MTOs 
        lrlxr,nkillr,nitrlx, broyinit,nmixinit,killj ,&
-       ham_pwmode,ham_nkaph,ham_nlibu, nlmax,lfrce,bz_nevmx,ham_nbf,ham_lsig,bz_nabcin(3)=NULLI, bz_ndos,ldos,&
-       lmaxu,nlibu
+       ham_pwmode,ham_nlibu, nlmax,lfrce,bz_nevmx,ham_nbf,ham_lsig,bz_nabcin(3)=NULLI, bz_ndos,ldos, lmaxu,nlibu
   logical,protected :: ham_frzwf,ham_ewald, lhf,lcd4,bz_tetrahedron, addinv,&
        readpnu,v0fix,pnufix,bexist,rdhessr, lpztail=.false., xyzfrz(3),readpnuskipf
   real(8),protected:: pmin(n0)=0d0,pmax(n0)=0d0,tolft,scaledsigma, ham_oveps,ham_scaledsigma, cc,&!speed of light
@@ -55,17 +52,17 @@ contains
     use m_cmdpath,only:cmdpath
     use m_defpq,only:defpq
     ! Inputs
-    !   file  : ctrl.sname
+    !   file  : read ctrl.sname
     !   prgnam: name of main program
     ! Outputs
-    !    All the module variables. Only v_sspec can be modifed from outside (at readin part of atomic results).
-    ! We have three stages (stage 1, stage 2 , stage 3) in this routine. Search 'stage'.
-    ! Following memo is not so completed yet.
+    !    All the module variables. Only several components of v_sspec are added by iors/rdovfa (readining atomic or previous results).
+    !MEMO:2023-sep
+    ! Note our block coding: Search HelpExit ConvertCtrl2CtrlpByPython ReadCtrlp Stage1 Stage2 Stage3.
+    !   In ConvertCtrl2CtrlpByPython, we convert ctrl.foobar to ctrlp.foobar by invoking a python script.
     !   BZ_  : Brillouin Zone related
     !   HAM_ :  Hamiltonian related
-    !   v_sspec : SPEC data.
     !   SITE_: site information
-    !   slabl : vector of species labels (species<-class<-nbas)
+    !   slabl : vector of species labels (spec < class < nbas)
     !   avw   : the average Wigner-Seitz radius
     !   lrel  :specifies type of Schrodinger equation
     !         :0 nonrelativistic Schrodinger equation
@@ -74,22 +71,19 @@ contains
     !         :1 for Ceperly-Alder
     !         :2 for Barth-Hedin (ASW fit)
     !         :103 for PBE
+    !   v_sspec : SPEC data.
     !  MTO is specified by (n,l,m). (n=1,2,3. n=1:EH1, n=2:EH2, n=3:PZ)
     !   nbas  :number of atoms in the basis
-    !   nkaph :The maximum number of radial functions centered at particular R and l channel used in the lmto basis. +1 when we have lo
-    !   nl    :1+Maximum l-cutoff for augmentation
-    !   nkaphh :The maximum number of "principal quantum" numbers.
+    !   nkaphh :The maximum number of radial functions centered at particular R and l channel used in the lmto basis. 
     !   nsp   :number of spins
-    !   nspc  :2 if two-spins are coupled (spin-off diagonal included). So, isp runs isp=1,nsp/nspc. nspx=nsp/nspc
+    !   nspc  :2 if two-spins are coupled (spin-off diagonal included). Thus isp runs isp=1,nsp/nspc, where nspx=nsp/nspc
     !   nspec :number of species
-    !   stde  :standard error file
     !   stdl  :standard log file
     !   stdo  :standard output file
     ! DYN_ molecular dynamics section DYN (only relaxiation, 2022-6-22)
     !   lrlxr: 0 no relaxation or dynamics, 4 relax with conjugate gradients, 5 relax with variable metric, 6 relax with Broyden
     !   rdhessr: T read hessian matrix, xtolr: relaxation x-tolerance, gtolr: relaxation g-tolerance, stepr: step length
     !   nkillr: Remove hessian after this many steps
-    ! ----------------------------------------------------------------------
     implicit none
     include "mpif.h" 
     character,intent(in)::  prgnam*(*)
@@ -180,7 +174,7 @@ contains
       call rval2('HAM_NSPIN',  rr=rr, defa=[real(8):: 1]);  nsp=nint(rr) 
       allocate(pnuall(n0,nsp,nbas),pnzall(n0,nsp,nbas),pnusp(n0,nsp,nspec),qnu(n0,nsp,nspec), pzsp(n0,nsp,nspec),idmod(n0,nspec), &
            rsmh1(n0,nspec),eh1(n0,nspec),rsmh2(n0,nspec),eh2(n0,nspec), rg(nspec),rsma(nspec),rfoca(nspec),&
-           rmt(nspec),  spec_a(nspec),z(nspec),nr(nspec),eref(nspec), coreh(nspec),coreq(2,nspec), &
+           rmt(nspec), spec_a(nspec),z(nspec),nr(nspec),eref(nspec), coreh(nspec),coreq(2,nspec), &
            idxdn(n0,nkap0,nspec), idu(4,nspec),uh(4,nspec),jh(4,nspec), &
            cstrmx(nspec),frzwfa(nspec), kmxt(nspec),lfoca(nspec),lmxl(nspec),lmxa(nspec),&
            lmxb(nspec),nmcore(nspec),rs3(nspec),eh3(nspec),&
@@ -404,25 +398,16 @@ contains
             call defpq(z(j),lmxaj,1,pnuspdefault,qnudefault)! qnu is given here for default pnusp.
             call defpq(z(j),lmxaj,1,pnusp(1,1,j),qnudummy)  ! set pnusp. qnu is kept (but not used here).
             if(iqnu==0) qnu(:,1,j)  = qnudefault(:,1)
-            if(nsp==2) pnusp(1:n0,2,j)= pnusp(1:n0,1,j)! call dcopy(n0,pnusp(1,1,j),1,pnusp(1,2,j),1)
+            if(nsp==2) pnusp(1:n0,2,j)= pnusp(1:n0,1,j)
             if(nsp==2) pzsp (1:n0,2,j)= pzsp (1:n0,1,j) 
-            !! lmxb corrected by pzsp
-            nnx=0 !nout
-            do i=n0,1,-1
-               if(pzsp(i,1,j)>0d0) then
-                  nnx=i
-                  lmxb(j)=max(lmxb(j),nnx-1)
-                  exit
-               endif
-            enddo
-            if (nnx>0) then
-               if (maxval(pzsp(1:nnx,1,j))>0) then
-                  lpzi = 1 !max(lpzi,1) !,2
-                  lpz(j)=1
-                  if(sum(floor(pzsp(1:nlaj,1,j)/10))>0 ) lpzex(j)=1
-               endif
+            nnx = findloc(pzsp(1:n0,1,j)>0,dim=1,value=.true.,back=.true.)
+            lmxb(j) = max(lmxb(j),nnx-1) ! lmxb corrected by pzsp
+            if (nnx>0) then !            if (maxval(pzsp(1:nnx,1,j))>0) then
+               lpzi = 1
+               lpz(j)=1
+               if(sum(floor(pzsp(1:nlaj,1,j)/10))>0 ) lpzex(j)=1 !          endif
             endif
-            if(maxval(pzsp(1:nnx,1,j))>10d0) lpztail= .TRUE. ! PZ +10 mode exist or not.
+            if(maxval(pzsp(1:n0,1,j))>10d0) lpztail= .TRUE. ! PZ +10 mode exist or not.
             ReadPnuFromLMFA:block 
               integer:: ifipnu,lr,iz,nspr,lrmx,isp,ispx
               real(8):: pnur,pzav(n0),pnav(n0),pzsp_r(n0,nsp,nspec),pnusp_r(n0,nsp,nspec)
@@ -489,15 +474,11 @@ contains
          call mpibc1_real(jh(:,j),4,'m_lmfinit_jh')  !lda+u
          rg(j)   = 0.25d0*rmt(j)
          rfoca(j)= 0.4d0*rmt(j)
-         nkaphh(j) = nkapii(j) + lpzex(j)
+         nkaphh(j) = nkapii(j) + lpz(j) !number of radial basis of MTOs for j.
 1111  enddo nspecloop
       lmxax = maxval(lmxa) !Maximum L-cutoff
-      nkaph = nkapi + lpzi
-      write(stdo,ftox)'nnnnnnnkapi lpzi nkaph=',nkapi,lpzi,nkaph
-!      mxorb= nkaph*(lmxax+1)**2
       maxit=iter_maxit
-      nl = max(lmxbx,lmxax)+1 !max lbase laug +1
-      nlmax=nl**2
+      nlmax=(max(lmxbx,lmxax)+1)**2
       if (dalat == NULLR) dalat=0d0
       lat_alat=alat+dalat
       lat_avw=avw
@@ -512,7 +493,6 @@ contains
       allocate(rv_a_ocy(nlm),rv_a_ocg(lnjcg),iv_a_ojcg(lnjcg),iv_a_oidxcg(lnxcg))
       call sylmnc(rv_a_ocy , lmxcy ) ! for Clebsh-Gordon coefficients for lmf part
       call scg(lmxcg , rv_a_ocg , iv_a_oidxcg , iv_a_ojcg ) !set CG coefficients for lmf part.
-      ham_nkaph=nkaph
       if (master_mpi) then
          inquire(file='sigm.'//trim(sname),exist=sexist)
          if (lrsigx/=0 .AND. ( .NOT. sexist) ) then
@@ -531,15 +511,14 @@ contains
       !r         2 => include only PWs in basis   
       !  +10 means we do q cutoff at q=0.  |G|^2 <pwemax
       ham_oveps=oveps
-      !! idxdn  =1  MTO included for Hamiltonian
-      idxdn=0
+      idxdn=0 !=1  when MTO of (lp1,ik,j) included in the Hamiltonian
       do j=1,nspec
-         do  ik = 1, nkap0
-            do lp1 = 1, lmxb(j)+1
-               if(ik==1  .AND. rsmh1(lp1,j)>0)    idxdn(lp1,ik,j)=1
-               if(ik==2  .AND. rsmh2(lp1,j)>0)    idxdn(lp1,ik,j)=1
-               if(sum(lpz)>0.and.ik==nkaph.and.pzsp(lp1,1,j)>0) idxdn(lp1,ik,j)=1 
+         do lp1 = 1, lmxb(j)+1
+            do  ik = 1, nkapii(j)
+               if(ik==1.AND. rsmh1(lp1,j)>0) idxdn(lp1,ik,j)=1
+               if(ik==2.AND. rsmh2(lp1,j)>0) idxdn(lp1,ik,j)=1
             enddo
+            if(pzsp(lp1,1,j)>0)              idxdn(lp1,nkaphh(j),j)=1 
          enddo
       enddo
       allocate(v_sspec(nspec))
@@ -596,7 +575,7 @@ contains
         !o   ktab  :table of energy index for each type
         !o   offl  :offl(norb) offset in h to this block of orbitals
         !o   ndim  :dimension of hamiltonian for this site
-        ndimx=maxval([ (sum([(sum((2*li+1)*idxdn(li+1,:,j)), li=0,nl-1)]), j=1,nspec) ])
+        ndimx=maxval([ (sum([(sum((2*li+1)*idxdn(li+1,:,j)), li=0,n0-1)]), j=1,nspec) ])
         allocate(ltabx(n00,nbas),ktabx(n00,nbas),offlx(n00,nbas),ndimxx(nbas),norbx(nbas))
         norbx=0
         ndimxx=0
@@ -604,7 +583,7 @@ contains
         do ib=1,nbas
            is = ispec(ib)
            do  ik = 1, nkap0
-              do  l = 0, nl-1
+              do  l = 0, n0-1
                  offlx(norbx(ib)+1,ib) = -1
                  if(idxdn(l+1,ik,is)==1) then
                     offlx(norbx(ib)+1,ib) = nlmto 
@@ -747,7 +726,7 @@ contains
       do i=1,nspec
          lmxbj = lmxb(i);  call getiout(rsmh1(1,i), lmxbj+1,lhh(1,i))
          if(nkapii(i)==2)  call getiout(rsmh2(1,i), lmxbj+1,lhh(2,i))
-         if(lpz(i)==1 )    call getiout(pzsp(1,1,i),lmxbj+1,lhh(nkaph,i))!lh for lo
+         if(lpz(i)==1 )    call getiout(pzsp(1,1,i),lmxbj+1,lhh(nkaphh(i),i))!lh for lo
       enddo
       ShowMTOsetting:if(master_mpi) then
          write(stdo,"('mto === MTO setting ===')")
@@ -758,8 +737,8 @@ contains
             write(stdo,"('mto   eh1 ',i4,100f6.2)")i,   eh1(1:lhh(1,i)+1,i)
             if(nkapii(i)==2) write(stdo,"('mto rsmh2 ',i4,100f6.2)")i, rsmh2(1:lhh(2,i)+1,i)
             if(nkapii(i)==2) write(stdo,"('mto  eh2  ',i4,100f6.2)")i,   eh2(1:lhh(2,i)+1,i)
-            if(lpz(i)==1 ) write(stdo,"('mto pz    ',i4,100f6.2)")i,    pzsp(1:lhh(nkaph,i)+1,1,i)
-            write(stdo,"('mto lh    ',i4,100i3)")  lhh(1:nkaph,i)
+            if(lpz(i)==1 ) write(stdo,"('mto pz    ',i4,100f6.2)")i,    pzsp(1:lhh(nkaphh(i),i)+1,1,i)
+            write(stdo,"('mto lh    ',i4,100i3)")  lhh(1:nkaphh(i),i)
          enddo
       endif ShowMTOsetting
       DYNsetting: block ! Atomic position Relaxation setup (DYN mode)

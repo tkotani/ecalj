@@ -101,7 +101,7 @@ contains
   subroutine rdsigm2(nspsigm,ifis, nk1,nk2,nk3,ldim,qsmesh, mtosigmaonly,ndimsig) ! Expand self-energy (read by ifis) to all the q point on mesh.
     use m_mksym,only: symops,ngrp,ngrpAF,laf=>AFmode
     use m_hamindex,only: napwk
-    use m_lmfinit,only: nl,stdo
+    use m_lmfinit,only: stdo
     use m_lattic,only: plat=>lat_plat
     use m_ftox
     !! nbas is in this structure
@@ -268,7 +268,7 @@ contains
     integer:: nk1,nk2,nk3,ipq(*),ndimh,ldima,ldimb,napw_in,debugmode
     real(8)::    qin(3),qb(3,3) !,plat(3,3),qlat(3,3)
     complex(8):: hq(ndimh,ndimh),gfbz(nk1,nk2,nk3,ldima,ldimb)
-    integer:: i,i1,i2,i3,ig,iq,iq1,is,j,jj1,jj2,jj3,js,k,nl,ierr,ifac(3),j1,j2,ik1,ik2,ik3,isp,ldim,iaf
+    integer:: i,i1,i2,i3,ig,iq,iq1,is,j,jj1,jj2,jj3,js,k,ierr,ifac(3),j1,j2,ik1,ik2,ik3,isp,ldim,iaf
     real(8):: q1(3),qk
     character(200)::aaa
     ! Given (j1,j2,j3) of ipq, q_k(j1,j2,j3) =  sum_i (j_i*ifac(i)-1)*qb(k,i)
