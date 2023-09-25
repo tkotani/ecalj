@@ -18,7 +18,7 @@ module m_lmfinit
   logical,parameter:: T=.true., F=.false.
   integer,protected:: lat_nkqmx,lat_nkdmx,nat, lxcf, smalit,lstonr(3)=0,nl,nbas=NULLI,nspec,&
        nspc,master=0,nspx, maxit,gga,ftmesh(3),nmto=0,lrsigx=0,nsp=1,lrel=1,lso=0,&
-       lmxbx=-1,lmxax,nkaph,nkapi,bz_lshft(3)=0, bz_lmet,bz_n,bz_lmull,bz_fsmommethod,str_mxnbr,&
+       lmxbx=-1,lmxax,nkaph,bz_lshft(3)=0, bz_lmet,bz_n,bz_lmull,bz_fsmommethod,str_mxnbr,&
        iter_maxit=1, mix_nsave, pwmode,ncutovl ,ndimx,natrlx,pdim, leks,lrout,plbnd, pot_nlma, pot_nlml,ham_nspx, nlmto,& !total number of MTOs 
        lrlxr,nkillr,nitrlx, broyinit,nmixinit,killj ,&
        ham_pwmode,ham_nkaph,ham_nlibu, nlmax,mxorb,lfrce,bz_nevmx,ham_nbf,ham_lsig,bz_nabcin(3)=NULLI, bz_ndos,ldos,&
@@ -106,7 +106,7 @@ contains
          ibas,ierr,lc, iqnu=0, ifzbak,nn1,nn2,nnx,lmxxx,nlaj,isp,&
          inumaf,iin,iout,ik,iprior,ibp1,indx,iposn,m,nvi,nvl,nn1xx,nn2xx, nnn,ib,&
          lmxcg,lmxcy,lnjcg,lnxcg,nlm,nout,nn,i0,ivec(10),iosite,io_tim(2),verbos,&
-         lp1,lpzi,ii,sw,it,levelinit=0, lx,lxxx, reclnr,nrecs,nrecs2
+         lp1,lpzi,ii,sw,it,levelinit=0, lx,lxxx, reclnr,nrecs,nrecs2 ,nkapi
     real(8):: pnuspx(20) ,temp33(9),seref, xxx, avwsr, d2,plat(3,3),rydberg,rr, vsn,vers,xv(2*n0),xvv(3)
     real(8),allocatable ::rv(:)
     character*(8),allocatable::clabl(:)
@@ -536,8 +536,8 @@ contains
       do j=1,nspec
          do  ik = 1, nkap0
             do lp1 = 1, lmxb(j)+1
-               if(ik<=nkapi.and.ik==1  .AND. rsmh1(lp1,j)>0)    idxdn(lp1,ik,j)=1
-               if(ik<=nkapi.and.ik==2  .AND. rsmh2(lp1,j)>0)    idxdn(lp1,ik,j)=1
+               if(ik==1  .AND. rsmh1(lp1,j)>0)    idxdn(lp1,ik,j)=1
+               if(ik==2  .AND. rsmh2(lp1,j)>0)    idxdn(lp1,ik,j)=1
                if(sum(lpz)>0.and.ik==nkaph.and.pzsp(lp1,1,j)>0) idxdn(lp1,ik,j)=1 
             enddo
          enddo
