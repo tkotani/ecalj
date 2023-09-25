@@ -105,7 +105,7 @@ contains
          ibas,ierr,lc, iqnu=0, ifzbak,nn1,nn2,nnx,lmxxx,nlaj,isp,&
          inumaf,iin,iout,ik,iprior,ibp1,indx,iposn,m,nvi,nvl,nn1xx,nn2xx, nnn,ib,&
          lmxcg,lmxcy,lnjcg,lnxcg,nlm,nout,nn,i0,ivec(10),iosite,io_tim(2),verbos,&
-         lp1,lpzi,ii,sw,it,levelinit=0, lx,lxxx, reclnr,nrecs,nrecs2 ,nkapi,mxorb
+         lp1,lpzi,ii,sw,it,levelinit=0, lx,lxxx, reclnr,nrecs,nrecs2 ,nkapi!,mxorb
     real(8):: pnuspx(20) ,temp33(9),seref, xxx, avwsr, d2,plat(3,3),rydberg,rr, vsn,vers,xv(2*n0),xvv(3)
     real(8),allocatable ::rv(:)
     character*(8),allocatable::clabl(:)
@@ -494,7 +494,7 @@ contains
       lmxax = maxval(lmxa) !Maximum L-cutoff
       nkaph = nkapi + lpzi
       write(stdo,ftox)'nnnnnnnkapi lpzi nkaph=',nkapi,lpzi,nkaph
-      mxorb= nkaph*(lmxax+1)**2
+!      mxorb= nkaph*(lmxax+1)**2
       maxit=iter_maxit
       nl = max(lmxbx,lmxax)+1 !max lbase laug +1
       nlmax=nl**2
@@ -587,61 +587,42 @@ contains
       endif
       sstrnsymg=trim(symg)
       nspc = merge(2,1,lso==1) ! nspc=2 for lso=1. nspx=nsp/nspc. Haittonian is ham(1:ndham*nspc, 1:ndham*nspc, 1:nsp/nspc)
-      GETorbitaindex1: block
-        integer:: ib,l,lmr,ia, nnrlx,lmri,ik,nnrl,nnrli,li, iprmb(nbas * nl**2 * maxp )
+      
+      GETorbitalindex: block ! probably too confusing.
+        integer:: ib,l,lmr,ia, nnrlx,lmri,ik,nnrl,nnrli,li, iorb,is,k,iorbmto,iorbe,jorb,io
+        logical:: agree
         !o   norb  :number of orbital types for ib; see Remarks
         !o   ltab  :table of l-quantum numbers for each type
         !o   ktab  :table of energy index for each type
         !o   offl  :offl(norb) offset in h to this block of orbitals
         !o   ndim  :dimension of hamiltonian for this site
-        !r Remarks
-        !r   Each orbital type is label by a 'l' and a 'k' index
-        !r   Each orbital corresponds to a unique radial wave function at the
-        !r   site where the orbit is centered.  There can be multiple 'k'
-        !r   indices (radial wave function shapes) for a particular l.
-        iprmb=-1
-        nlmto = 0
-        do 110 ib = 1,nbas
-           is = ispec(ib) 
-           iposn = mxorb*(ib-1)
-           do 1121 ik = 1, nkaph
-              do  l = 0, nl-1
-                 if(idxdn(l+1,ik,is)==1) then
-                    iprmb(iposn+1:iposn+2*l+1) = [(nlmto+i,i=1,2*l+1)]
-                    nlmto=nlmto+2*l+1
-                 endif
-                 iposn=iposn+2*l+1
-              enddo
-1121       enddo
-110     enddo
         ndimx=maxval([ (sum([(sum((2*li+1)*idxdn(li+1,:,j)), li=0,nl-1)]), j=1,nspec) ])
         allocate(ltabx(n00,nbas),ktabx(n00,nbas),offlx(n00,nbas),ndimxx(nbas),norbx(nbas))
         norbx=0
         ndimxx=0
+        nlmto=0
         do ib=1,nbas
-           lmr = mxorb*(ib-1)
            is = ispec(ib)
-           do  ik = 1, nkaph
+           do  ik = 1, nkap0
               do  l = 0, nl-1
                  offlx(norbx(ib)+1,ib) = -1
-                 if (idxdn(l+1,ik,is)==1) then !iprmb(lmr+1) >0 .AND. iprmb(lmr+1) <= nlmto) then
-                    offlx(norbx(ib)+1,ib) = iprmb(lmr+1) - 1
-                    norbx(ib) = norbx(ib) +1
+                 if(idxdn(l+1,ik,is)==1) then
+                    offlx(norbx(ib)+1,ib) = nlmto 
+                    norbx(ib)  = norbx(ib) +1
                     ndimxx(ib) = ndimxx(ib) + 2*l+1
                     ltabx(norbx(ib),ib) = l
                     ktabx(norbx(ib),ib) = ik
+                    nlmto=nlmto+2*l+1
                  endif
-                 lmr = lmr + 2*l+1
               enddo
            enddo
            if (norbx(ib) > n00) call rx('orbl: norb> n00')
         enddo
         norbxx=maxval(norbx)   
+        norbmto=sum(norbx)
         allocate(blksx(norbxx,nbas),ntabx(norbxx,nbas)) ! requires l be consecutive and kappa index be constant in contiguous block
         !ntab  :table of upper ranges for each orbital block, !  blks sum of 2*l+1
-        GETntabxblksx: block !subroutine gtbsl4(ia)  ! Marks blocks of contiguous l for which rsm and e are unchanged
-          logical:: agree
-          integer:: iorb,iorbe,jorb,io
+        GETntabxblksx: block ! Marks blocks of contiguous l for which rsm and e are unchanged
           do ib=1,nbas
              iorb=1
              do while(iorb<=norbx(ib))
@@ -657,49 +638,30 @@ contains
              blksx(1:norbx(ib),ib) =[(sum( [ (2*ltabx(io,ib)+1, io=iorb,ntabx(iorb,ib)) ] ),iorb=1,norbx(ib))]
           enddo
         endblock GETntabxblksx
-      endblock GETorbitaindex1
-      Orbitalindex2: block! A block contains 2*l+1 orbitals. A block specified by (ibas,k,l) !k=1,2,3 is for EH,EH2,PZ
-        integer:: ib,iorb,is,k,l
-        norbmto=0
-        kxx=-1
-        lxx=-1 
-        do ib = 1, nbas
-           is=ispec(ib) 
-           do iorb = 1, norbx(ib)
-              norbmto = norbmto+1
-              if(ltabx(iorb,ib)>lxx)  lxx = ltabx(iorb,ib)
-              if(ktabx(iorb,ib)>kxx)  kxx = ktabx(iorb,ib) 
-           enddo
-        enddo
         !!--- make index table :norbmto is the total number of different type of MTOs !      allocate( ibasindex(ndimham))
         allocate( ltab(norbmto),ktab(norbmto),offl(norbmto),ibastab(norbmto) )
-        norbmto=0 !      ndimham = 0 !dimension of mto part of hamiltonian!      allocate(offH(nbas+1)) !offH looks!      offH=0
+        iorbmto=0 !      ndimham = 0 !dimension of mto part of hamiltonian!      allocate(offH(nbas+1)) !offH looks!      offH=0
         do  ib = 1, nbas
-           is=ispec(ib) 
            do  iorb = 1, norbx(ib) !(ib,irob) specify a block of MTO part Hamiltonian
-              norbmto=norbmto+1
-              ibastab(norbmto)= ib
-              ltab(norbmto)   = ltabx(iorb,ib) !angular momentum l of (ib,iorb) block
-              ktab(norbmto)   = ktabx(iorb,ib) !radial index of (ib,iorb) block
-              offl(norbmto)   = offlx(iorb,ib) !offset to (ib,iorb) block
+              iorbmto=iorbmto+1
+              ibastab(iorbmto)= ib
+              ltab(iorbmto)   = ltabx(iorb,ib) !angular momentum l of (ib,iorb) block
+              ktab(iorbmto)   = ktabx(iorb,ib) !radial index of (ib,iorb) block
+              offl(iorbmto)   = offlx(iorb,ib) !offset to (ib,iorb) block
            enddo
         enddo
+        kxx=maxval([(ktabx(1:norbx(ib),ib),ib=1,nbas)])
+        lxx=maxval([(ltabx(1:norbx(ib),ib),ib=1,nbas)])
         allocate(offlrev(nbas,0:lxx,kxx))
-        do iorb=1,norbmto ! ... reverse maping of offset-index for hamiltonian
-           ibas = ibastab(iorb)
-           l   = ltab(iorb)
-           k   = ktab(iorb)
-           offlrev(ibas,l,k)= offl(iorb)
-        enddo
         allocate(ib_table(nlmto),l_table(nlmto),k_table(nlmto))
-        do iorb = 1, norbmto      !Total number of MTO's (without m)
-           ib   = ibastab(iorb)
-           is   = ispec(ib) 
-           ib_table(offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ib
+        do iorb=1,norbmto 
+           ibas = ibastab(iorb)
+           offlrev(ibas,ltab(iorb),ktab(iorb))= offl(iorb) ! ... reverse maping of offset-index for hamiltonian
+           ib_table(offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ibas
            l_table (offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ltab(iorb)
            k_table (offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ktab(iorb)
         enddo
-      endblock Orbitalindex2
+      endblock GETorbitalindex
       nspx  = nsp/nspc
       nvi= sum([( (lmxa(ispec(ib))+1)**2,ib=1,nbas )])
       nvl= sum([( (lmxl(ispec(ib))+1)**2,ib=1,nbas )])
@@ -776,7 +738,7 @@ contains
                  lmaxu = max(lmaxu,lx)
               endif
            enddo
-        enddo       !! aug2012 we now fix lcplxp=1 (complex ppi integral)
+        enddo     
         ham_nlibu=nlibu
       endblock LDApU
       ! lhh, nkapii, nkaphh (nkaphh = nkapii(1 or 2) +1) if extented local orbital exist)
