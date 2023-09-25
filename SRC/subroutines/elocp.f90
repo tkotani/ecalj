@@ -5,7 +5,7 @@ module m_elocp ! envlope parameters for extended local orbitals
   private
 contains
   subroutine elocp()! Make envlope parameters for extended local orbitals
-    use m_lmfinit,only: nkaph,stdo,nspec,nbas,nsp,ispec,sspec=>v_sspec,n0,nkapii,slabl,vmtz,rs3,eh3,lpzex
+    use m_lmfinit,only: stdo,nspec,nbas,nsp,ispec,sspec=>v_sspec,n0,nkapii,slabl,vmtz,rs3,eh3,lpzex
     use m_density,only: v0pot,pnuall,pnzall
     ! ----------------------------------------------------------------------
     !i Inputs

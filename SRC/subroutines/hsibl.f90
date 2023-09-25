@@ -12,7 +12,7 @@ contains
     use m_orbl,only: Orblib1,Orblib2,ktab1,ltab1,offl1,norb1,ktab2,ltab2,offl2,norb2
     use m_ftox
     use m_sugcut,only: ngcut
-    use m_lmfinit,only: nkaph,nl,ndimx
+    use m_lmfinit,only: nl,ndimx
     use m_shortn3,only:gvlst2
     !i Inputs
     !i   k1,k2,k3 dimensions of vsm

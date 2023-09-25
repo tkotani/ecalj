@@ -783,7 +783,7 @@ contains
     if (rkey=='(') then ! we expect t(ip:)='(..., ..., ...)
        ip = ip+1
        mmm=index(t(ip:),')')
-       if(mmm<=0) call rx('cannot find right parensis for vector')
+       if(mmm<=0) call rx('cannot find right parensis for vector ###'//trim(t(ip:))//'###')
        if(verify(t(ip:ip+mmm-2),'0123456789.Dde-, ')>0) call rx('trans.part of symops should be numerical w/o math operations'&
             //trim(t(ip:ip+mmm-2)))
        read(t(ip:ip+mmm-2),*) v 

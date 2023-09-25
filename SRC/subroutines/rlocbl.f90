@@ -24,7 +24,7 @@ contains
   subroutine rlocbl(lfrce,nbas,isp, q,ndham,ndimh,nspc,napw,igvapw, nevec &
        ,evec,ewgt,evl,sv_p_osig,sv_p_otau,sv_p_oppi,lekkl,sv_p_oqkkl,sv_p_oeqkkl,f )
     use m_struc_def,only: s_spec,s_rv1,s_cv1,s_rv5,s_rv4,s_cv5
-    use m_lmfinit,only: alat=>lat_alat,nkaph,ispec,sspec=>v_sspec
+    use m_lmfinit,only: alat=>lat_alat,ispec,sspec=>v_sspec
     use m_lattic,only: qlat=>lat_qlat,rv_a_opos
     use m_bstrux,only: bstrux_set,bstr,dbstr
     !- Accumulates the local atomic densities.

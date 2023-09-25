@@ -17,7 +17,7 @@ contains
     use m_density,only: pnzall,pnuall !output
     use m_lmfinit,only:nkaph,lxcf,lhh,nkapii,nkaphh,lmaxu,lldau
     use m_lmfinit,only:n0,nppn,nrmx,nkap0,nlmx,nbas,nsp,lso,ispec, sspec=>v_sspec,frzwfa,lmxax
-    use m_lmfinit,only:slabl,idu,coreh,ham_frzwf,rsma,alat,v0fix,jnlml,vol,qbg=>zbak
+    use m_lmfinit,only:slabl,idu,coreh,ham_frzwf,rsma,alat,v0fix,jnlml,vol,qbg=>zbak,lpzex
     use m_uspecb,only:uspecb
     use m_hansr,only:corprm
     use m_ldau,only: vorb !input. 'U-V_LDA(couter term)' of LDA+U
@@ -241,10 +241,11 @@ contains
               call uspecb(is,rsmh,eh)
               nkapi=nkapii(is)
               nkape=nkaphh(is)
-              if (nkape > nkapi) then
-                 rsml=rsmh(:,nkaph)
-                 ehl =  eh(:,nkaph)
-              endif
+              block
+!                use m_elocp,only: rsml,ehl
+                if(lpzex(is)==1) rsml=rsmh(:,nkaph)
+                if(lpzex(is)==1)  ehl=  eh(:,nkaph)
+              endblock
               if (novxc) then !  ... Use effective potentials with modified xc
                  v1=v1es 
                  v2=v2es 
@@ -254,9 +255,9 @@ contains
               lsox = merge(1, lso, .NOT. novxc .AND. cmdopt0('--socmatrix') )
               lmxh = lmxb !MTO l of basis minimum 
               if (ipr >= 20) write(stdo,"('     potential shift to crystal energy zero:',f12.6)") y0*(gpot0(j1)-gpotb(1))
-              do  k = 1, lmxh+1 ! check; see description of rsmh above
-                 if(pnz(k,1)/=0.AND.pnz(k,1)<10.AND.rsmh(k,nkapi+1)/=0)call rx1('augmat: illegal value for rsmh',rsmh(k,nkapi+1))
-              enddo
+!              do  k = 1, lmxh+1 ! check; see description of rsmh above
+!                 if(pnz(k,1)/=0.AND.pnz(k,1)<10.AND.rsmh(k,nkapi+1)/=0)call rx1('augmat: illegal value for rsmh',rsmh(k,nkapi+1))
+!              enddo
               augmatblock: block
                 use m_gaugm,only:  gaugm
                 use m_augmat,only: vlm2us,momusl
@@ -296,7 +297,7 @@ contains
                      lmaxu,vumm,lldau(ib),idu(:,is),&
                      lmxh, nlmh,nlma, &!lmxh=lcutoff for basis (lmxh<=lmxa is assumed)
                      nkaph,nkapi,lmxh,lhh(:,is),fh,xh,vh,dh,&
-                     kmax1,kmax1,lmxa,lxa, fp,xp,vp,dp,&
+                     kmax1,kmax1,lmxa,lxa,      fp,xp,vp,dp,&
                      osig(2,ib)%v, otau(2,ib)%v, oppi(2,ib)%cv, ohsozz(2,ib)%sdiag, ohsopm(2,ib)%soffd)
                 call gaugm(nr,nsp,lsox,rofi,rwgt,lmxa,lmxl,nlml,v2,gpotb,gpot0(j1),hab_,vab_,sab_,sodb,qum,vum,& !...Hsm*Hsm! head x head
                      lmaxu,vumm,lldau(ib),idu(:,is),&

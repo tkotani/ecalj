@@ -5,7 +5,7 @@ module m_bndfp_util
 contains
   subroutine mkekin(osig,otau,oppi,oqkkl,vconst,smpot,smrho,sumev, ekinval) !- Evaluate the valence kinetic energy
     use m_struc_def
-    use m_lmfinit,only:nkaph,nsp,nspc,stdo,nbas,ispec,sspec=>v_sspec,nlmto
+    use m_lmfinit,only:nsp,nspc,stdo,nbas,ispec,sspec=>v_sspec,nlmto
     use m_lattic,only: lat_vol
     use m_supot,only: n1,n2,n3
     use m_orbl,only: Orblib,ktab,ltab,offl,norb,ntab,blks

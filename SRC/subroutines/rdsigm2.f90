@@ -123,7 +123,7 @@ contains
     !!  it should be used somewhere else.
     implicit none
     integer:: ifis,ndimsig_r,lwsig,i,j,ifis2,ifiz,isp,nspsigm,nglob,lrsig, nkxyz(3),nk1,nk2,nk3,nsgrp,nsgrps,mxkp,nqp,nqps, &
-         j1,iq1,mxorb,nqsig,lrot,iprint,lssym,ndims,ndimz,iq,n123(4),lcore,lhigh,ohrss,osigm2,odelt,oistb2
+         j1,iq1,nqsig,lrot,iprint,lssym,ndims,ndimz,iq,n123(4),lcore,lhigh,ohrss,osigm2,odelt,oistb2
     logical :: llshft(3),lphase,lsplts,lnwmsh, latvec,lfbzin,lfbzout
     character outs*80,out2*80,dc*1,rots*120
     integer,parameter::niax=10

@@ -21,7 +21,7 @@ module m_lmfinit
        lmxbx=-1,lmxax,nkaph,bz_lshft(3)=0, bz_lmet,bz_n,bz_lmull,bz_fsmommethod,str_mxnbr,&
        iter_maxit=1, mix_nsave, pwmode,ncutovl ,ndimx,natrlx,pdim, leks,lrout,plbnd, pot_nlma, pot_nlml,ham_nspx, nlmto,& !total number of MTOs 
        lrlxr,nkillr,nitrlx, broyinit,nmixinit,killj ,&
-       ham_pwmode,ham_nkaph,ham_nlibu, nlmax,mxorb,lfrce,bz_nevmx,ham_nbf,ham_lsig,bz_nabcin(3)=NULLI, bz_ndos,ldos,&
+       ham_pwmode,ham_nkaph,ham_nlibu, nlmax,lfrce,bz_nevmx,ham_nbf,ham_lsig,bz_nabcin(3)=NULLI, bz_ndos,ldos,&
        lmaxu,nlibu
   logical,protected :: ham_frzwf,ham_ewald, lhf,lcd4,bz_tetrahedron, addinv,&
        readpnu,v0fix,pnufix,bexist,rdhessr, lpztail=.false., xyzfrz(3),readpnuskipf
@@ -74,8 +74,7 @@ contains
     !         :1 for Ceperly-Alder
     !         :2 for Barth-Hedin (ASW fit)
     !         :103 for PBE
-    !   mxorb :nkaph \times (maximum number of lm channels in any sphere).
-    !         MTO is specified by (n,l,m). (n=1,2,3. n=1:EH1, n=2:EH2, n=3:PZ)
+    !  MTO is specified by (n,l,m). (n=1,2,3. n=1:EH1, n=2:EH2, n=3:PZ)
     !   nbas  :number of atoms in the basis
     !   nkaph :The maximum number of radial functions centered at particular R and l channel used in the lmto basis. +1 when we have lo
     !   nl    :1+Maximum l-cutoff for augmentation
@@ -106,7 +105,7 @@ contains
          ibas,ierr,lc, iqnu=0, ifzbak,nn1,nn2,nnx,lmxxx,nlaj,isp,&
          inumaf,iin,iout,ik,iprior,ibp1,indx,iposn,m,nvi,nvl,nn1xx,nn2xx, nnn,ib,&
          lmxcg,lmxcy,lnjcg,lnxcg,nlm,nout,nn,i0,ivec(10),iosite,io_tim(2),verbos,&
-         lp1,lpzi,ii,sw,it,levelinit=0, lx,lxxx, reclnr,nrecs,nrecs2 ,nkapi
+         lp1,lpzi,ii,sw,it,levelinit=0, lx,lxxx, reclnr,nrecs,nrecs2 ,nkapi,mxorb
     real(8):: pnuspx(20) ,temp33(9),seref, xxx, avwsr, d2,plat(3,3),rydberg,rr, vsn,vers,xv(2*n0),xvv(3)
     real(8),allocatable ::rv(:)
     character*(8),allocatable::clabl(:)
@@ -493,7 +492,8 @@ contains
          nkaphh(j) = nkapii(j) + lpzex(j)
 1111  enddo nspecloop
       lmxax = maxval(lmxa) !Maximum L-cutoff
-      nkaph = nkapi + lpzi     !-1
+      nkaph = nkapi + lpzi
+      write(stdo,ftox)'nnnnnnnkapi lpzi nkaph=',nkapi,lpzi,nkaph
       mxorb= nkaph*(lmxax+1)**2
       maxit=iter_maxit
       nl = max(lmxbx,lmxax)+1 !max lbase laug +1
@@ -532,7 +532,7 @@ contains
       !  +10 means we do q cutoff at q=0.  |G|^2 <pwemax
       ham_oveps=oveps
       !! idxdn  =1  MTO included for Hamiltonian
-      idxdn=-999
+      idxdn=0
       do j=1,nspec
          do  ik = 1, nkap0
             do lp1 = 1, lmxb(j)+1
@@ -606,40 +606,25 @@ contains
            iposn = mxorb*(ib-1)
            do 1121 ik = 1, nkaph
               do  l = 0, nl-1
-                 do  m = -l, l
-                    iposn = iposn+1
-                    if(idxdn(l+1,ik,is)==1) then
-                       nlmto = nlmto+1
-                       iprmb(iposn) = nlmto
-                    endif
-                 enddo
+                 if(idxdn(l+1,ik,is)==1) then
+                    iprmb(iposn+1:iposn+2*l+1) = [(nlmto+i,i=1,2*l+1)]
+                    nlmto=nlmto+2*l+1
+                 endif
+                 iposn=iposn+2*l+1
               enddo
 1121       enddo
 110     enddo
-        nnrlx=0
-        do ib = 1,nbas
-           nnrli = 0
-           lmri = nl*nl*nkaph*(ib-1)
-           do  ik = 1, nkaph
-              do   li = 0, nl-1
-                 lmri = lmri + 2*li+1
-                 if (iprmb(lmri) > nlmto) cycle
-                 nnrli = nnrli + 2*li+1
-              enddo
-           enddo
-           nnrlx = max(nnrlx,nnrli)
-        enddo
-        nnrl = nnrlx
-        ndimx=nnrl
+        ndimx=maxval([ (sum([(sum((2*li+1)*idxdn(li+1,:,j)), li=0,nl-1)]), j=1,nspec) ])
         allocate(ltabx(n00,nbas),ktabx(n00,nbas),offlx(n00,nbas),ndimxx(nbas),norbx(nbas))
         norbx=0
         ndimxx=0
         do ib=1,nbas
-           lmr = nl*nl*nkaph*(ib-1)
+           lmr = mxorb*(ib-1)
+           is = ispec(ib)
            do  ik = 1, nkaph
               do  l = 0, nl-1
                  offlx(norbx(ib)+1,ib) = -1
-                 if (iprmb(lmr+1) >0 .AND. iprmb(lmr+1) <= nlmto) then
+                 if (idxdn(l+1,ik,is)==1) then !iprmb(lmr+1) >0 .AND. iprmb(lmr+1) <= nlmto) then
                     offlx(norbx(ib)+1,ib) = iprmb(lmr+1) - 1
                     norbx(ib) = norbx(ib) +1
                     ndimxx(ib) = ndimxx(ib) + 2*l+1
@@ -798,10 +783,9 @@ contains
       allocate(lhh(nkap0,nspec))
       lhh=-1
       do i=1,nspec
-         lmxbj = lmxb(i)
-         call getiout(rsmh1(1,i), lmxbj+1,lhh(1,i))
-         if(nkapii(i)==2) call getiout(rsmh2(1,i),lmxbj+1,lhh(2,i))
-         if(lpz(i)==1 )   call getiout(pzsp(1,1,i),lmxbj+1,lhh(nkaph,i))!lh for lo
+         lmxbj = lmxb(i);  call getiout(rsmh1(1,i), lmxbj+1,lhh(1,i))
+         if(nkapii(i)==2)  call getiout(rsmh2(1,i), lmxbj+1,lhh(2,i))
+         if(lpz(i)==1 )    call getiout(pzsp(1,1,i),lmxbj+1,lhh(nkaph,i))!lh for lo
       enddo
       ShowMTOsetting:if(master_mpi) then
          write(stdo,"('mto === MTO setting ===')")
@@ -866,6 +850,7 @@ contains
         endif
       endblock DYNsetting
     endblock Stage3InitialSetting
+    call MPI_BARRIER( MPI_COMM_WORLD, ierr)
     call tcx('m_lmfinit')
   end subroutine m_lmfinit_init
   subroutine getiout(a,iin,iout) !a(1:iout) can be nonzero.

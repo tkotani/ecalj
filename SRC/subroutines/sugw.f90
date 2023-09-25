@@ -8,8 +8,8 @@ contains
     use m_struc_def,only: s_rv1, s_spec
     use m_suham,only: ndham=>ham_ndham !max dimension of hamiltonian +napwad (for so=0,2)
     use m_lmfinit,only: ham_pwmode,pwemax,ham_oveps,lrsig=>ham_lsig,nlmto,lso
-    use m_lmfinit,only: ham_scaledsigma,lat_alat,mxorb,nkaph,nsp,nspc,nl,mxorb,ispec,sspec=>v_sspec
-    use m_lmfinit,only: nbas,n0,nppn,nkap0,slabl,nmcorex=>nmcore,iantiferro
+    use m_lmfinit,only: ham_scaledsigma,lat_alat,nsp,nspc,nl,ispec,sspec=>v_sspec
+    use m_lmfinit,only: nbas,n0,nppn,nkap0,slabl,nmcorex=>nmcore,iantiferro,lmxax
     use m_lattic,only: lat_plat, lat_qlat,rv_a_opos
     use m_supot,only: n1,n2,n3, lat_gmax
     use m_rdsigm2,only: getsenex, senex,dsene
@@ -82,7 +82,7 @@ contains
          ifiqg,iflband(2),ifqeigen,ifsyml,igets,igetss,iix,iline, &
          im1,im2,ipb(nbas),ipqn,ipr,iprint,iq,is,isp,ispc,j,job,k1, &
          k2,k3,konf,konfig(0:n0),l,lchk,ldim,loldpw, &
-         lmaxa,lmxax,lsig,mx,mxint,nat, &
+         lmaxa,lsig,mx,mxint,nat, &
          ncore,ndima,nevl,nev,nglob,ngp,ngp_p, &
          ngpmx,nline,nlinemax,nlmax,nmx,nn1,nn2,nnn, &
          nphimx,npqn,nqbz,nqibz,nqnum,nqnumx,nqtot,nr,iqibz,imx, &
@@ -181,13 +181,13 @@ contains
     ldim=nlmto
     pwmode= ham_pwmode
     ndima = 0
-    lmxax = -1
+!    lmxax = -1
     do  ib = 1, nbas
        is=ispec(ib)
        lmaxa=sspec(is)%lmxa
        pnz=>pnzall(:,1:nsp,ib)
        if(sum(abs(pnz(:,1:nsp)-pnzall(:,1:nsp,ib)))>1d-9) call rx('sugw xxx1aaa')
-       lmxax = max(lmxax,lmaxa)
+!       lmxax = max(lmxax,lmaxa)
 !       if (lmaxa > -1) then
        do  l = 0, lmaxa
           npqn = 2
@@ -424,7 +424,7 @@ contains
           !$$$!! wave function rotation test  for nqzz and and qzz(:,i)
           !$$$  for qtarget, call rotwv(q,qtarget,ndimh,napw,ndimh, evec,evecout,ierr)
           ! Project wf into augmentation spheres, Kotani conventions ---
-          nlmax = mxorb / nkaph
+          nlmax = (lmxax+1)**2 
           allocate(aus_zv(nlmax*ndham*3*nsp*nbas))
           aus_zv=0d0
           call makusq(nbas,[-999], nev,  isp, 1 , qp , evec , aus_zv )
