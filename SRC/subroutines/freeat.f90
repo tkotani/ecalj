@@ -7,7 +7,7 @@ contains
   subroutine freeat() !For all species, we make free atom self-consistent, and get density to files.
     use m_ext,only:sname
     use m_lmfinit,only: smalit,lxcf,ham_seref,nsp,nspec, sspec=>v_sspec,& 
-         idmod,slabl,vmtz,eref,rs3,eh3,nmcore,coreh,coreq,pnux=>pnusp,pzx=>pzsp,qnu
+         idmod,slabl,vmtz,eref,rs3,eh3,nmcore,coreh,coreq,pnux=>pnusp,pzsp,qnu
     use m_ftox
     !Inputs  are module variables of m_lmfinit
     !Outputs are via iofa, atmpnu are pnu (logarismic derivatives of atoms).
@@ -52,7 +52,7 @@ contains
        if(nsp==2) pnu(:,2)= pnu(:,1)
        qat(1:n0,1:nsp)=  qnu(1:n0,1:nsp,is) 
        lmxa = sspec(is)%lmxa
-       pz(:,1) =  pzx(1:n0,1,is) 
+       pz(:,1) =  pzsp(1:n0,1,is) 
        if(nsp==2) pz(:,2)= pz(:,1) !       write(6,ftox)'xxx isp pz=',is,ftof(pz(1:lmxa+1,1),6)
        write(stdo,"(a)")'freats:'
        call freats(spid,is,nxi0,nxi,exi,rfoca,rsmfa,kcor,lcor,qcor, &

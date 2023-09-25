@@ -741,7 +741,7 @@ contains
             write(stdo,"('mto lh    ',i4,100i3)")  lhh(1:nkaphh(i),i)
          enddo
       endif ShowMTOsetting
-      DYNsetting: block ! Atomic position Relaxation setup (DYN mode)
+      ForceDYNsetting: block ! Atomic position Relaxation setup (DYN mode)
         integer:: i,j,k,iprint !,ifrlx(3)
         logical:: force,mdxx
         ! nitrlx = num of iteration cycle for atomic relaxiation (outer loop)
@@ -789,7 +789,7 @@ contains
            endif
 9299       continue
         endif
-      endblock DYNsetting
+      endblock ForceDYNsetting
     endblock Stage3InitialSetting
     call MPI_BARRIER( MPI_COMM_WORLD, ierr)
     call tcx('m_lmfinit')
