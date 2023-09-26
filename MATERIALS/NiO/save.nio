@@ -66,3 +66,6 @@ c mmom= 0.000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172773
 Start LMF nio
 i mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365386 sev(eV)=-142.172773
 Start LMCHK nio
+Start LMF nio
+i mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365386 sev(eV)=-142.172774
+c mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365386 sev(eV)=-142.172775

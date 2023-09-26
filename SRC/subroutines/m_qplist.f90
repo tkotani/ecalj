@@ -326,9 +326,9 @@ contains
        iqini=0
        iqend=-1
     endif
-    do idat=1,niqisp
-       write(stdo,ftox)'qspdivider: procid=',procid,' idat iq isp=',idat,iqproc(idat),isproc(idat)
-    enddo
+!    do idat=1,niqisp
+!       write(stdo,ftox)'qspdivider: procid=',procid,' idat iq isp=',idat,iqproc(idat),isproc(idat)
+!    enddo
     call tcx('m_qplist_qpsdivider')
   end subroutine m_qplist_qspdivider
 end module m_qplist

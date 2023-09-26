@@ -180,7 +180,7 @@ contains
              if(phispinsym) then
                 if(master_mpi.AND.nsp==2)write(6,*) 'locpot: --phispinsym mode: use spin-averaged potential for phi and phidot'
                 do ir=1,nr
-                   ov0mean = sum([(v0pot(ib)%v( ir + nr*(isp-1) ),isp=2,nsp)])/nsp
+                   ov0mean = sum([(v0pot(ib)%v( ir + nr*(isp-1) ),isp=1,nsp)])/nsp
                    do isp=1,nsp
                       v0pot(ib)%v(ir + nr*(isp-1))= ov0mean
                    enddo

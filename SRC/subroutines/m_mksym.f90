@@ -42,7 +42,7 @@ contains
     logical ::cmdopt0,ipr10=.false.
     character strn*(recln),strn2*(recln),outs(recln)
     real(8):: osymgr (3,3,ngmx),oag(3,ngmx)
-    real(8),parameter:: tol=1d-8
+    real(8),parameter:: tol=1d-4
     integer,allocatable:: iclasstAll(:)
     call tcn('m_mksym_init')
     if(.NOT.prgnam=='LMFA') ipr10= iprint()>10 !this is only for master
@@ -100,7 +100,7 @@ contains
             ag(:,iga)      = oagALL(:,igall)
             oistab(:,iga)  = oistabAll(:,igall)
          enddo
-         if(iga/=ngrpAF+ngrp) call rx('ngrpAF+nggp/=ngrpTotal')
+         if(iga/=ngrpAF+ngrp) call rxiii('ngrpAF+nggp/=ngrpTotal',ngrp,ngrpAF,iga)
       else
          ngrpTotal=ngrp
          ngrpAF=0

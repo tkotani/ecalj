@@ -30,6 +30,8 @@ contains
 !    write(6,*)'lllllllllllllmxax=',lmxax
     allocate( dlmm(-lmxax:lmxax, -lmxax:lmxax, 0:lmxax, ngall))
     read(ifi) dlmm
+!    write(stdo,ftox)'hhhhhhhhhamindexread',norbmto,lxx,kxx,nbas
+!    write(stdo,ftox)'hhhhhhhhhamindexreddsize',size(ibastab),size(ltab),size(ktab),size(offl),size(offlrev)
     read(ifi) ibastab,ltab,ktab,offl,offlrev
     read(ifi) qpgexist
     if(.not.qpgexist) then
@@ -171,6 +173,8 @@ contains
        write(ifi)symops(:,:,1:ngall),ag(:,1:ngall),invgx(1:ngall),miat(:,1:ngall),tiat(:,:,1:ngall),shtvg(:,1:ngall)
        write(ifi)lmxax
        write(ifi)dlmm
+!       write(stdo,ftox)'hhhhhhhhhamindexwrite',norbmto,lxx,kxx,nbas
+!       write(stdo,ftox)'hhhhhhhhhamindexwritesize',size(ibastab),size(ltab),size(ktab),size(offl),size(offlrev)
        write(ifi)ibastab,ltab,ktab,offl,offlrev !for rotation of MTO. recovered sep2012 for EIBZ for hsfp0
        write(ifi)qpgexist
        if(qpgexist) then !not rdsigm2 do not require followings when mtosigmaonly=T.
@@ -179,8 +183,8 @@ contains
          write(ifi)plat,qlat,napwmx
          if(napwmx/=0) write(ifi) igv2,napwk,igv2rev !for APW rotation used in rotwvigg
          write(ifi) alat,rv_a_opos
-         close(ifi)
       endif
+      close(ifi)
       call poppr !print index is poped.
     endif
     call MPI__barrier()

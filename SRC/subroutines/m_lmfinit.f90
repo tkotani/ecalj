@@ -1,7 +1,6 @@
-!> All ititial data for lmf-MPIK lmchk lmfa (except data by rst/atm data via iors/rdovfa, as well as pos in lattic, dmatu in m_ldau)
-!> I think v_sspec%foobar given in m_lmfinit is not overwritten.
-module m_lmfinit 
-  ! We perform 'call m_lmfinit_init', which sets all initial data stored in m_lmfinit_init.
+!> Ititial data for lmf-MPIK lmchk lmfa read from ctrl file
+!> We add some extra foobar to v_sspec%foobar in rdovfa/iors. pos can be from AtomPos (see lmfp.f90)
+module m_lmfinit ! 'call m_lmfinit_init' sets all initial data from ctrl are processed and stored in m_lmfinit_init.
   use m_ftox
   use m_ext,only :sname        ! sname contains extension. foobar of ctrl.foobar
   use m_struc_def,only: s_spec ! spec structures.
@@ -400,18 +399,17 @@ contains
             if(iqnu==0) qnu(:,1,j)  = qnudefault(:,1)
             if(nsp==2) pnusp(1:n0,2,j)= pnusp(1:n0,1,j)
             if(nsp==2) pzsp (1:n0,2,j)= pzsp (1:n0,1,j)
-!following lines can not be compiled by ifort smith2 2023           
-!            nnx = findloc(pzsp(1:n0,1,j)>0,dim=1,value=.true.,back=.true.)
-!            lmxb(j) = max(lmxb(j),nnx-1) ! lmxb corrected by pzsp
+!following lines can not be compiled by ifort smith2 2023 
+!            nnx = findloc(pzsp(1:n0,1,j)>0d0,dim=1,value=.true.,back=.true.)
             nnx=0 !nout
             do i=n0,1,-1
                if(pzsp(i,1,j)>0d0) then
                   nnx=i
-                  lmxb(j)=max(lmxb(j),nnx-1)
                   exit
                endif
             enddo
-            if (nnx>0) then !            if (maxval(pzsp(1:nnx,1,j))>0) then
+            lmxb(j) = max(lmxb(j),nnx-1) ! lmxb corrected by pzsp
+            if (nnx>0) then !          
                lpzi = 1
                lpz(j)=1
                if(sum(floor(pzsp(1:nlaj,1,j)/10))>0 ) lpzex(j)=1 !          endif
