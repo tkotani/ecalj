@@ -348,7 +348,7 @@ contains
       endif
       call setpr0(verbos) !Set initial verbos
       if( .NOT. master_mpi) call setpr0(-100) !iprint()=0 except master
-      io_tim=2
+      io_tim=0
       if(cmdopt2('--time',outs)) then ! Timing: Turns CPU timing log #1:tree depth #2:CPU times as routines execute.
          outs=trim(outs(2:))//' 999' ! --time=#1,#2     
          read(outs,*)io_tim(1),io_tim(2)

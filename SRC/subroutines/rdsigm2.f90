@@ -44,6 +44,7 @@ contains
     use m_mksym,only: laf=>AFmode !symops_af!,napwmx
     use m_MPItk,only: procid,master
     use m_ext,only:sname
+    use m_ftox
     integer:: ierr,ifi,ndimh_dummy,ifis2,ik1,ik2,ik3,is,iset,nqp
     logical:: mtosigmaonly,cmdopt0
     character strn*120
@@ -53,6 +54,7 @@ contains
     if(procid==master) then
        open(newunit=ifi,file='sigm.'//trim(sname),form='unformatted')
        read(ifi,err=9995,end=9995) nspsigm,ndimh_dummy,nk1,nk2,nk3,nqp
+!       write(stdo,ftox) 'rrrrreading sigm nspsigm,nk1,nk2,nk3,nqp=', nspsigm,nk1,nk2,nk3,nqp
        write(stdo,"(' sigm file has ',i5,' irreducible QP: nk =',3i5)") nqp,nk1,nk2,nk3
 !       laf=allocated(symops_af) !jun2015takao !reserved for future
        if(laf) nspsigm=2      ! we need recover laf mode
@@ -166,10 +168,10 @@ contains
     enddo
     if(laf) then
        if(iprint()>10) write(stdo,*)'rdsimg2: AF mode, mapping from irr points to regular mesh point'
-       write(6,*)'ngrp ngrpAF=',ngrp,ngrpAF
-       do ig= ngrp+1,ngrp+ngrpAF !only AF symmetry (equivalent with symops_af)
-          write(stdo,ftox)ig,ftof(reshape(symops(:,:,ig),[9]),3)
-       enddo
+!       write(6,*)'ngrp ngrpAF=',ngrp,ngrpAF
+!       do ig= ngrp+1,ngrp+ngrpAF !only AF symmetry (equivalent with symops_af)
+!          write(stdo,ftox)ig,ftof(reshape(symops(:,:,ig),[9]),3)
+!       enddo
        allocate(ipqaf(nk1,nk2,nk3))
        ipqaf=0
        do i1=1,nk1

@@ -69,3 +69,19 @@ Start LMCHK nio
 Start LMF nio
 i mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365386 sev(eV)=-142.172774
 c mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365386 sev(eV)=-142.172775
+Start LMF nio --afsym
+i mmom= 0.0000 ehf(eV)=-86704.366277 ehk(eV)=-86704.366119 sev(eV)=-142.258294
+Start LMF nio --afsym --quit=band
+i mmom= 0.0000 ehf(eV)=-86704.366275 ehk(eV)=-86704.366116 sev(eV)=-142.258023
+Start LMF nio --quit=band
+i mmom=-0.0000 ehf(eV)=-86704.366266 ehk(eV)=-86704.366104 sev(eV)=-142.258013
+Start LMF nio --afsym --quit=band
+i mmom= 0.0000 ehf(eV)=-86704.366275 ehk(eV)=-86704.366116 sev(eV)=-142.258023
+Start LMF nio --afsym --quit=band
+i mmom= 0.0000 ehf(eV)=-86704.366275 ehk(eV)=-86704.366116 sev(eV)=-142.258023
+Start LMF nio --afsym --quit=band
+i mmom= 0.0000 ehf(eV)=-86704.366275 ehk(eV)=-86704.366116 sev(eV)=-142.258023
+Start LMF nio --afsym --quit=band
+i mmom= 0.0000 ehf(eV)=-86704.366275 ehk(eV)=-86704.366116 sev(eV)=-142.258023
+Start LMF nio --afsym --quit=band
+i mmom= 0.0000 ehf(eV)=-86704.366275 ehk(eV)=-86704.366116 sev(eV)=-142.258023

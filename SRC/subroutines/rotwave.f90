@@ -14,12 +14,13 @@ contains
     !   phi(r) = \sum_i evec(i,iband) |F_i> ==> Rotated[phi](r)=\sum_i evecout(i,iband) |F_i>  by sym(:,:,ig).
     !   Rotated[phi](r)= phi[sym^-1(r)], where   sym(r)=r'= symops*r + shftvg.
     !This comment is Checked at 2023-9-13
-    integer::i,ig,ndimh,napw_in,nband,iorb,nnn(3),igx,init1,init2,iend1,iend2,nlmto,ierr,igg,ikt2,ikt,l,ibas,ig2,k
-    real(8)::q(3),gout(3),delta(3),ddd(3),qpg(3),platt(3,3),qtarget(3),qx(3),det,qpgr(3),ddd2(3)
+    integer::i,ig,ndimh,napw_in,nband,iorb,nnn(3),igx,init1,init2,iend1,iend2,nlmto,ierr,igg,ikt2,ikt,l,ibas,ig2,k!,ndeltaG(3)
+    real(8)::q(3),gout(3),delta(3),ddd(3),qpg(3),platt(3,3),qtarget(3),qx(3),det,qpgr(3),ddd2(3),qpgr2(3)
     complex(8):: evec(ndimh,nband),evecout(ndimh,nband),phase(nbas)
     real(8),parameter:: tolq=1d-4
     complex(8),parameter:: img=(0d0,1d0), img2pi=2*4d0*datan(1d0)*img
     character(256)::aaa
+    logical::errig2=.false.
     platt = transpose(plat) ! inverse of qlat
     call rangedq( matmul(platt,(qtarget-matmul(symops(:,:,igg),q)) ), qx) ! Check equivalence of q and qtarget
     if(sum(abs(qx))>tolq) then
@@ -46,15 +47,23 @@ contains
     APWpart: if(napw_in/=0) then 
        ikt  = findloc([(sum(abs(q      -qplist(:,i)))<1d-8,i=1,nkp)],value=.true.,dim=1)  !=index for q
        ikt2 = findloc([(sum(abs(qtarget-qplist(:,i)))<1d-8,i=1,nkp)],value=.true.,dim=1)
+       write(stdo,ftox)'rotevec: ikt q=',ikt,ftof(q,3),' ikt2 q=',ikt2,ftof(qtarget,3),'q-qtarget=',ftof(matmul(platt,q-qtarget),3)
        if(napw_in /= napwkqp(ikt) ) call rxii('rotwave: napw_in /= napw(ikt)',napw_in,napwkqp(ikt))
        igloop: do ig = 1,napw_in
           getig2: block
             integer:: i1
             qpg  = q + matmul(qlat(:,:),igv2qp(:,ig,ikt))! q+G
-            qpgr = matmul(symops(:,:,igg),qpg)         ! rotated q+G
-            nnn  = nint(matmul(platt,qpgr-qtarget))    ! integer representation for G= qpgr - qtarget 
+            qpgr = matmul(symops(:,:,igg),qpg)           ! rotated q+G
+            nnn  = nint(matmul(platt,qpgr-qtarget))    ! integer representation for G= qpgr - qtarget
+            !            qpgr2 = qtarget + matmul(qlat(:,:),nnn) 
+            !            write(stdo,ftox)'sssss qpg',ig,'nnn=',igv2qp(:,ig,ikt),ftof(sum(qpg**2)**.5,3),&
+            !                 'nnn=',nnn,'diff=',ftof(sum(qpgr2**2)**.5-sum(qpg**2)**.5,3)
+            !ikt,ikt2,ftof(sum(qpg**2)**.5,3),'qpgr=',ftof(sum(qpgr**2)**.5,3),
             ig2 = igv2revqp(nnn(1),nnn(2),nnn(3),ikt2) ! get index of G
             debugq: if(ig2>=999999) then
+               call rx('rotwave: q+G rotation error. (we have to set PWmode=11 for --afsym)')
+!               errig2=.true.
+!               cycle
                do i1=1,napwkqp(ikt) ;write(stdo,ftox)'yyy0 q ',ftof(q,3),      ikt, i1,' ',igv2qp(:,i1,ikt)
                enddo
                do i1=1,napwkqp(ikt2);write(stdo,ftox)'yyy1 qt',ftof(qtarget,3),ikt2,i1,' ',igv2qp(:,i1,ikt2)
@@ -66,6 +75,7 @@ contains
           endblock getig2
           evecout(nlmto+ig2,:)= evec(nlmto+ig,:) * exp( -img2pi*sum(qpgr*shtvg(:,igg)) )
        enddo igloop
+       if(errig2) call rx('errig2')
     endif APWpart
   endsubroutine rotevec
   subroutine rotmto(qin,nbloch,nband, &

@@ -41,14 +41,16 @@ contains
     use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat
     use m_MPItk,only: master_mpi,procid,master
     use m_lmfinit,only: nlmto !    use m_shortn3_qlat,only: shortn3_qlat,nout,nlatout
+    use m_ftox
     integer:: ifiese,imx11(1,1)
     integer,allocatable ::  kv_iv(:,:)
-    real(8):: ppin(3),qp(3),qqq(3),pwgmax,dum
+    real(8):: ppin(3),qp(3),qqq(3),pwgmax,dum,platt(3,3)
     logical:: debug,cmdopt0
     logical,save:: init=.true.
-    integer:: iout,iapw,napwx !,nout,nlatout(3,noutmx)
+    integer:: iout,iapw,napwx,i !,nout,nlatout(3,noutmx)
     call tcn('m_igv2x_init')
     debug = cmdopt0('--debugbndfp')
+    platt=transpose(plat)
     if(allocated(igv2x_z)) deallocate(igv2x_z)
     if (0<pwemax .and. mod(pwmode,10)>0) then !with APWs
        pwgmax = pwemax**.5d0
@@ -57,6 +59,10 @@ contains
        call getgv2(alat,plat,qlat, qqq, pwgmax,1, napw_z, imx11)   ! get nqpn. # of G vector for |q+G| < pwgmax
        allocate(igv2x_z(3,napw_z))
        call getgv2(alat,plat,qlat, qqq, pwgmax,2, napw_z, igv2x_z) ! for eigenfunctions (psi)
+!       write(stdo,ftox) ftof(qqq),' ',ftof(qp)
+!       do i=1,napw_z
+!          write(stdo,ftox) 'iiiiiiiggggggggg',i,'  ',igv2x_z(:,i)
+!       enddo
     else !No APWs
        napw_z=0
        allocate(igv2x_z(1,1))  

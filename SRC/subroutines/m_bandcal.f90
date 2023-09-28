@@ -211,7 +211,7 @@ contains
     integer:: iq,ispinit,isp,nev,lrout,ifig,i,ibas,idat
     real(8):: qp(3),def=0d0,xv(3)
     real(8),allocatable:: evl(:,:)
-    complex(8),allocatable :: evec(:,:),evecbackup(:,:)
+    complex(8),allocatable :: evec(:,:)!,evecbackup(:,:)
     logical:: cmdopt0
     call tcn('m_bandcal_2nd')
     if(master_mpi) write(stdo,ftox)
@@ -245,56 +245,50 @@ contains
        evl(1:nev,isp)=evliqis(1:nev,idat)
        evl(nev+1:ndhamx,isp)=1d99 !padding 
        evec(1:ndimhx,1:nev)=eveciqis(1:ndimhx,1:nev,idat)
-
        if(lso/=0)              call mkorbm(isp, nev, iq,qp, evec,  orbtm_rv)
        if(nlibu>0 .AND. nev>0) call mkdmtu(isp, iq,qp, nev, evec,  dmatu)
        if(cmdopt0('--cls'))    call m_clsmode_set1(nev,isp,iq,qp,nev,evec) !all inputs
-
-       if(cmdopt0('--afsym')) then
-          if(allocated(evecbackup)) deallocate(evecbackup)
-          allocate(evecbackup,source=evec)
-       endif
-
        call addrbl(isp,qp,iq, osmpot,vconst,osig,otau,oppi,evec,evl,nev, smrho_out, sumqv, sumev, oqkkl,oeqkkl, frcband)
 
-       afsymiffffffffffffffffffffffffffffffff:     if(cmdopt0('--afsym')) then
+       afsymifffffffffffffffff:  if(cmdopt0('--afsym')) then
+          if(idat==1) write(stdo,ftox)'--afsym:'
           afsymblock: block !isp2 is given by isp=1
             use m_rotwave,only:  rotevec
             use m_mksym,only: symops,ngrp,ngrpAF,ag
             use m_qplist,only: qplist,nkp
+            use m_lattic,only: plat=>lat_plat
+            use m_ftox
             logical:: cmdopt0
-            integer:: igrp,isp2,ikp,iev
-            real(8)::qtarget(3)
+            integer:: igrp,isp2,ikp,iev,ndeltaG(3),ikpx
+            real(8):: qtarget(3),platt(3,3),diffq(3),tol=1d-4,qpr(3)
             complex(8):: evecrot(ndimhx,nev)
-            evec=evecbackup
+            platt=transpose(plat)
             evl(1:nev,2)=evl(1:nev,1)
             do igrp = ngrp + 1, ngrp+ngrpAF !AF symmetry
-               do ikp=1,nkp
-                  if(sum(abs(qp - matmul(symops(:,:,igrp),qplist(:,ikp))))<1d-8) goto 1018
+               do ikp=1,nkp ! write(stdo,ftox)'ssssym',iq,igrp,ikp,ftof(matmul(symops(:,:,igrp),qplist(:,ikp)),3)
+                  diffq = matmul(platt, (qplist(:,ikp)-matmul(symops(:,:,igrp),qp)) )
+                  if(sum(abs(diffq-nint(diffq)))<tol) goto 1018
                enddo
             enddo
             DebugWrite: block
+              write(stdo,ftox)'error afsymmode'
+              write(stdo,ftox)' igrp ikp',igrp,ikp,'qp=',ftof(qp,3),'qplist=',ftof(qplist(:,ikp),3) !,'deltaG=',ndeltaG
               write(stdo,ftox)'qp=',ftof(qp,3)
-              do ikp=1,nkp; write(stdo,ftox)ikp,'qplist=',ftof(qplist(:,ikp),3); enddo
+              do ikpx=1,nkp
+                 write(stdo,ftox)'qplist=',ikpx,ftof(qplist(:,ikpx),3)
+              enddo
               call rx('can not find qtarget by afsym')
             endblock DebugWrite
-1018        continue
-            !               write(stdo,ftox)'igrp ikp',igrp,ikp,'qp=',ftof(qp,3),'qplist=',ftof(qplist(:,ikp)), &
-            !                    ftof(matmul(symops(:,:,igrp),qplist(:,ikp))-qp,3)
-            !               write(stdo,ftox)'sym=',ftof(reshape(symops(:,:,igrp),[9]),3),'ag=',ftof(ag(:,igrp),3)
-            call rotevec(igrp,qplist(:,ikp),qp,ndimhx,napw,nev,evec(:,1:nev),evecrot(:,1:nev))
-            !               do iev=1,16 !nev
-            !                  write(stdo,ftox)'evec =',iev,ftof(abs(evec(1:nlmto,iev)),3)
-            !                  write(stdo,ftox)'evecr=',iev,ftof(abs(evecrot(1:nlmto,iev)),3)
-            !               enddo   
-            evec = evecrot
+1018        continue!write(stdo,ftox)'ikp qp=',ikp,ftof(qp,3),'is mapped to',ftof(matmul(symops(:,:,igrp),qp),3),' by symops igp=',igrp
+            qpr = qplist(:,ikp)
             isp2 = 2
-            if( lso/=0)              call mkorbm(isp2, nev, iq,qp, evec,  orbtm_rv)
-            if( nlibu>0 .AND. nev>0) call mkdmtu(isp2, iq,qp, nev, evec,  dmatu)
-            if( cmdopt0('--cls'))    call m_clsmode_set1(nev,isp2,iq,qp,nev,evec) !all inputs
-            call addrbl(isp2,qp,iq, osmpot,vconst,osig,otau,oppi,evec,evl,nev, smrho_out, sumqv, sumev, oqkkl,oeqkkl, frcband)
+            call rotevec(igrp,qp, qpr,ndimhx,napw,nev,evec(:,1:nev), evecrot(:,1:nev))
+            if( lso/=0)              call mkorbm(isp2, nev, ikp,qpr, evecrot,  orbtm_rv)
+            if( nlibu>0 .AND. nev>0) call mkdmtu(isp2,      ikp,qpr, nev, evecrot,  dmatu)
+            if( cmdopt0('--cls'))    call m_clsmode_set1(nev,isp2,ikp,qpr,nev,evecrot) 
+            call addrbl(isp2,qpr,ikp, osmpot,vconst,osig,otau,oppi,evecrot,evl,nev, smrho_out, sumqv, sumev, oqkkl,oeqkkl, frcband)
           endblock afsymblock
-       endif afsymiffffffffffffffffffffffffffffffff
+       endif afsymifffffffffffffffff
        deallocate(evec)
 12010 enddo iqloop
     if (pwemax>0 .AND. mod(pwmode,10)>0 .AND. lfrce/=0) then

@@ -81,17 +81,14 @@ contains
                endif
             enddo
          enddo
-         if(master_mpi) call pshpr(60)
+         if(master_mpi) call pshpr(50)
          allocate(iclasstAll(nbas))
          if(ipr10) write(stdo,"(a)")   'SpaceGroupSym of Lattice+AF: ========start========================== '
          call mksym(lc,slabl,strn2,ipsAF, iclasstAll,nclassAll, npgrpAll,ngrpTotal,oagAll,osymgrAll,oicsAll,oistabAll) !Big symmetry for lattice+AF
          ngrpAF=ngrpTotal-ngrp
          if(ipr10) write(stdo,"(a)")   'SpaceGroupSym of Lattice+AF: ========end========================== '
-
-!         do ig=1,ngrpTotal
-!            write(stdo,ftox)'symall ig=',ig,ftof(reshape(osymgrAll(:,:,ig),[9]),2),' ',oagAll(:,ig)
-!         enddo
-      
+         if(master_mpi) call poppr()
+!         do ig=1,ngrpTotal; write(stdo,ftox)'symall ig=',ig,ftof(reshape(osymgrAll(:,:,ig),[9]),2),' ',oagAll(:,ig);   enddo
          iga=ngrp
          do igall=1,ngrpTotal !Pick up symmetry by AF
             if(any( [( sum(abs(symops(:,:,ig)-osymgrALL(:,:,igall)))+sum(abs(ag(:,ig)-oagAll(:,igall)))<tol,ig=1,ngrp )]  )) cycle

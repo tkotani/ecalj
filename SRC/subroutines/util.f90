@@ -1,8 +1,48 @@
-! A Collection of utility routines and small math routines.
+!> A Collection of utility routines and small math routines.
+module m_lgunit !> file handles for standard output log, and mpilog
+  !  stdo: file handle for standard output
+  !  stdl: handle for log
+  !  stml: mpilog
+  public:: m_lgunit_init
+  integer,public :: stdl,stdo=6,stml
+  private
+contains
+  subroutine M_lgunit_init()
+    logical:: cmdopt0
+    stdo=lgunit(1)
+    stdl=lgunit(2)
+    if(cmdopt0('--mlog')) stml=lgunit(3)
+  end subroutine M_lgunit_init
+  integer function lgunit(i)
+    ! Returns stdout for i=1, log for i=2, mlog for i=3 (MPI logfile)
+    use m_ext,only: sname
+    implicit none
+    character(10):: i2char
+    character*100 ext
+    integer i, fopn, i1mach, fhndl,procid
+    integer,save:: lgunit1=0,lgunit2=0,lgunit3=0
+    include "mpif.h"
+    integer mpipid
+    procid = mpipid(1) 
+    lgunit = 6
+    if (i .eq. 1) return
+    if (i .eq. 2) then
+       if(lgunit2==0) then
+          open(newunit=lgunit2,file='log.'//trim(sname),position='append')
+       endif
+       lgunit = lgunit2
+    elseif (i .eq. 3) then
+       if(lgunit3==0) then
+          open(newunit=lgunit3,file='mlog.'//trim(sname)//'_'//trim(i2char(procid)))
+       endif
+       lgunit = lgunit3
+    endif
+  end function lgunit
+end module m_lgunit
 real(8) function rydberg()
   rydberg=13.6058d0
 END function rydberg
-integer function ifile_handle() ! find unused file handle
+integer function ifile_handle() ! return unused file handle (5001-9999)
   implicit none
   integer:: i
   logical:: nexist

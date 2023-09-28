@@ -133,8 +133,7 @@ contains
        allocate(bmap_iv(nevx*nsp*nkp/nbpw+1))
        bmap_iv(:)=0
        allocate(wk_rv(nevx*nsp))
-       call ebcpl ( 0 , nbmx , nevx , nsp , nspc , nkp , nbpw , bmap_iv &
-            , wk_rv , eb )
+       call ebcpl ( 0 , nbmx , nevx , nsp , nspc , nkp , nbpw , bmap_iv , wk_rv , eb )
     endif
     ! --- BZ weights, sumev and E_f for an insulator  ---
     if ( .not. metal ) then
@@ -166,8 +165,8 @@ contains
        endif
        ! --- BZ weights, sumev and E_f by tetrahedron method (Blochl wts) ---
     elseif (tetra) then
-       if (ipr .ge. 30) write (stdo,103)
-103    format(/' bzwts: --- Tetrahedron Integration ---')
+       if (ipr .ge. 30) write(stdo,ftox)' bzwts: --- Tetrahedron Integration ---'
+!103    format(/' bzwts:   --- Tetrahedron Integration ---')
        if (lfill) then
           egap = emax-emin
           if(ipr>=30)write(stdo,ftox)' ... only filled or empty bands encountered: ev=',&
@@ -936,14 +935,13 @@ contains
        endif
        !! Potential shift
        allocate(ebs(nevx,2,nkp))
-!       if (nspc == 2) then
-!          ebs = eb + vmag/2*swtk
-!       else
-          ebs(:,1,:) = eb(:,1,:) - vmag/2
-          ebs(:,2,:) = eb(:,2,:) + vmag/2
-!       endif
+!       if (nspc == 2) then !          ebs = eb + vmag/2*swtk!       else
+!       ebs(:,1,:) = eb(:,1,:) - vmag/2;   ebs(:,2,:) = eb(:,2,:) + vmag/2;   endif
+       ebs(:,1,:) = eb(:,1,:) - vmag/2
+       ebs(:,2,:) = eb(:,2,:) + vmag/2
        !! Fermi level with dv shift
-       if( .NOT. quitvmag) call pshpr(ipr-50)
+          if( .NOT. quitvmag) call pshpr(ipr-50)
+       if(iprint()>0) write(stdo,ftox) ' Second call bzwts in bzwtsf for fsmom mode'
        call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval, &
             metal,tetra,norder,npts,width,rnge,wtkp,ebs,efermi, &
             sumev,wtkb,dosef,qval,ent,lfill)
