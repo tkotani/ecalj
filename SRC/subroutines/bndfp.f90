@@ -79,8 +79,6 @@ contains
     !i   lmaxu : lmax for U used to dimension vorb and dmatu. lmaxu=2 if d is, but lmaxu=3 if f is included.
     !i   lldau :lldau(ib)=0 => no U on this site otherwise
     !i         :U on site ib with dmat in dmats(*,lldau(ib))
-    !i   sspec :struct for species-specific information
-
     !i   ndham :dimensioning parameter, at least as large as largest
     !i         :hamiltonian dimension
     !i   leks  :>0 make the Hohnberg-Kohn-Sham energy

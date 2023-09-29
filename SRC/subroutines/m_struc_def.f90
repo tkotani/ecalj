@@ -1,7 +1,6 @@
 !>definision of structures. pointer array
 module m_struc_def 
-  integer,parameter::  n0=10,nkap0=3
-  public s_rv1, s_nv2, s_cv1, s_cv2,s_cv3,s_cv4, s_sblock, s_spec,s_rv5,s_rv4,s_cv5
+  public s_rv1, s_nv2, s_cv1, s_cv2,s_cv3,s_cv4, s_sblock,s_rv5,s_rv4,s_cv5
   private
   type s_rv1
      real(8),allocatable:: v(:)
@@ -34,17 +33,4 @@ module m_struc_def
   type s_cv4
      complex(8),allocatable:: cv4(:,:,:,:)
   end type s_cv4
-  type s_spec
-     !I think lmfa detemines all the following data and write to atm.* files
-     ! The data is used for lmf-MPIK and copied into rst file (unchanged).
-     real(8):: qc    !core charge
-     real(8):: rsmfa !rsm to fit free atom density
-     real(8):: ctail !coefficients to fit of free-atom core tail by unsm. Hankel
-     real(8):: etail !energy to fit of free-atom core tail
-     real(8):: stc   !core kinetic energy
-     integer:: nxi    ! Number of energies in fit of free-atom density tails
-     real(8):: exi(n0)! Hankel energies for fit to c.d.; fit to free-atom density tails.
-     real(8):: chfa(n0,2) ! coefficients to fit of free-atom density tails
-     real(8),allocatable :: rv_a_orhoc(:) !pointer to core density
-  end type s_spec
 end module m_struc_def

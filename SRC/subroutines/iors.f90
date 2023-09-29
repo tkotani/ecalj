@@ -8,14 +8,14 @@ contains
   integer function iors(nit,rwrw) 
     use m_density,only: osmrho, orhoat,v1pot,v0pot,pnuall,pnzall,eferm !Main I/O. these are allocated. In addition sspc is written
     use m_supot,only: n1,n2,n3
-    use m_struc_func,only: mpibc1_s_spec 
-    use m_lmfinit,only: alat=>lat_alat,nsp,lrel,ispec,sspec=>v_sspec, nbas,nspec,n0, idmodis=>idmod,slabl,readpnu,spec_a
+    use m_lmfinit,only: alat=>lat_alat,nsp,lrel,ispec, nbas,nspec,n0, idmodis=>idmod,slabl,readpnu,spec_a
     use m_lattic,only: plat=>lat_plat,vol=>lat_vol,qlat=>lat_qlat
     use m_ext,only:sname
     use m_ftox
     use m_chgmsh,only:chgmsh
     use m_lmfinit,only:init_z=>z,init_nr=>nr,init_kmxt=>kmxt,init_rmt=>rmt,init_lmxa=>lmxa,&
          init_lmxl=>lmxl,init_kmxt=>kmxt,init_lmxb=>lmxb,lfoca
+    use m_fatom,only:sspec,mpibc1_s_spec 
     !! I/O data
     !!     smrho, rhoat
     !      sspec:
@@ -370,7 +370,7 @@ contains
 40        continue
        enddo
        do i_spec=1,nspec
-          call mpibc1_s_spec(sspec(i_spec),'iors_sspec')
+          call mpibc1_s_spec(sspec(i_spec))!,'iors_sspec')
        enddo
     endif
 !=======================================================================    

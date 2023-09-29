@@ -52,7 +52,7 @@ contains
     call tcx('m_mkrout_init')
   end subroutine m_mkrout_init
   subroutine mkrout(oqkkl,oeqkkl,orhoat_out,hab,sab, qbyl,hbyl)!Assembles local output densities out of the qkkl, and core states
-    use m_lmfinit,only: nkaphh, sspec=>v_sspec,ispec,nbas,nsp,lrout,n0,nlmto,nmcore,rsma !lekkl=1
+    use m_lmfinit,only: nkaphh, ispec,nbas,nsp,lrout,n0,nlmto,nmcore,rsma !lekkl=1
     use m_lgunit,only: stdo
     use m_struc_def
     use m_elocp,only: rsmlss=>rsml, ehlss=>ehl
@@ -61,6 +61,8 @@ contains
     use m_rhocor,only: getcor
     use m_makusp,only: makusp
     use m_MPItk,only: master_mpi
+    use m_fatom,only: sspec
+    
     !i   nbas  :size of basis, nsp: 2 for spin-polarized case, otherwise 1. nlmto:dimension of MTO basis.
     !l   lekkl=T for eqkkl/qkkl
     !i   oqkkl :local density-matrix (rhocbl or comparable routine)

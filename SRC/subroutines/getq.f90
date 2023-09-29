@@ -81,45 +81,6 @@ contains
     if (ncore > ncmx .OR. nval > nvmx) call rx('GETQVC: too many orbitals')
     qt = qc + qt - z
   end subroutine getqvc
-  subroutine getq(nsp,nl,lmx,nc,z,pnu,qnu,ics,sspec,qc,qt,dq)  !- Gets the charge and related parameters for a set of atoms
-    !i Inputs
-    !i   nsp   :2 for spin-polarized case, otherwise 1
-    !i   nl    :(global maximum l) + 1
-    !i   lmx   :lmx(j) = maximum l for atom j
-    !i   nc    :number of classes
-    !i   z     :nuclear charge
-    !i   pnu   :pnu = .5 - atan(Dl)/pi + (princ.quant.number).
-    !i         :Integer part used to get princ. quant. number for counting
-    !i   qnu   :energy-weighted moments of the sphere charges
-    !i   ics   :species table: class ic belongs to species ics(ic)
-    !i         :Set to zero to suppress information for core hole
-    !i   sspec :struct for species-specific information; see routine uspec
-    !i         :Not used unless ics(1)>0
-    !i     Elts read: kcor,lcor,qcor
-    !o Outputs
-    !o   qc:    core electronic charge
-    !o   qt:    total charge (nuclear + electronic) within sphere
-    !o   dq:    difference between spin up and spin down charge
-    !u Updates
-    !u   04 Jan 06 Redesign to enable core hole
-    !u   17 Feb 03 Changed dq to correct convention (q+ - q-)
-    ! ----------------------------------------------------------------
-    implicit none
-    integer :: nl,nsp,nc,lmx(nc),ics(nc)
-    double precision :: pnu(nl,nsp,nc),qnu(3,nl,nsp,nc), qc(nc),qt(nc),dq(nc),z(nc),sspec(1)
-    integer :: ic,kcor,lcor,is
-    double precision :: qcor(2)
-    do  ic = 1, nc
-       if (ics(1) == 0) then
-          kcor = 0
-          lcor = 0
-       else
-          is = ics(ic)
-          call gtpcor(is,kcor,lcor,qcor)
-       endif
-       call getqvc(nsp,nl,lmx(ic),z(ic),pnu(1,1,ic),qnu(1,1,1,ic),0,0, kcor,lcor,qcor,qc(ic),qt(ic),dq(ic))
-    enddo
-  end subroutine getq
   subroutine config(pnu,lmax,z,konfig,lmaxc) !- Returns principal quantum numbers from pnu, estimating those unknown
     !i Inputs
     !i   pnu   :boundary conditions.  If Dl = log. deriv. at rmax,

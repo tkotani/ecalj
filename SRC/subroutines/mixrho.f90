@@ -2316,8 +2316,9 @@ contains
   subroutine rhogkl ( ib1 , ib2 , nsp , mode , sv_p_orhoat , kmax , qkl )!- G_kL expansion of valence sphere densities
     use m_lgunit,only:stdo
     use m_struc_def  
-    use m_lmfinit,only: ispec,sspec=>v_sspec
+    use m_lmfinit,only: ispec
     use m_hansr,only:corprm
+    use m_freeatom,only:sspec
     !i Inputs
     !i  ib1,ib2: compute expansion coefficents for sites ib1..ib2
     !i   nsp   :1 make qkl for first spin (possibly the only one)

@@ -8,19 +8,17 @@ contains
     use m_density,only: zv_a_osmrho=>osmrho,sv_p_orhoat=>orhoat,v1pot,v0pot,eferm !Outputs. allocated
 
     use m_supot,only: lat_ng,rv_a_ogv,iv_a_okv,rv_a_ogv,n1,n2,n3
-    use m_lmfinit,only:lat_alat,nsp,nbas,nspec,ispec,sspec=>v_sspec,qbg=>zbak,slabl,v0fix
+    use m_lmfinit,only:lat_alat,nsp,nbas,nspec,ispec,qbg=>zbak,slabl,v0fix
     use m_lattic,only: lat_plat,lat_vol
     use m_struc_def,only: s_rv1
-    use m_struc_func, only: mpibc1_s_spec
     use m_ext,only: sname
     use m_lgunit,only:stdo,stdl
     use m_ftox
     use m_MPItk,only: mlog
-    ! ----------------------------------------------------------------------
+    use m_fatom,only:sspec,mpibc1_s_spec
     !i Inputs
     !i   nbas  :size of basis
     !i   nspec :number of species
-    !i   ssite :struct containing site-specific information
     !i   sspec :struct containing species-specific information
     !i   qbg  :constant background charge  qcore+qval-qbg = \sum_i Zi
     !o Outputs
@@ -139,7 +137,7 @@ contains
 10  enddo isloop
     i = mpipid(3)
     do i_spec=1,nspec ! Re-broadcast entire species structure, and arrays used below
-       call mpibc1_s_spec(sspec(i_spec),'rdovfa_sspec')
+       call mpibc1_s_spec(sspec(i_spec))!,'rdovfa_sspec')
     enddo
     if (procid == master) close(ifi)
     ! --- Define arrays for local densities rho1,rho2,rhoc and v0,v1 ---
@@ -281,7 +279,7 @@ contains
   end subroutine rdovfa
 
   subroutine ovlocr(nbas,nxi0,nxi,exi,hfc,rsmfa,rv_a_orhofa, sv_p_orhoat , sqloc, slmom )
-    use m_lmfinit,only: nsp,ispec,sspec=>v_sspec
+    use m_lmfinit,only: nsp,ispec
     use m_struc_def
     use m_lgunit,only:stdo
     use m_smhankel,only: hxpbl
@@ -576,7 +574,7 @@ contains
   end subroutine p2ovlc
   subroutine adbkql( sv_p_orhoat , nbas , nsp , qbg , vol , fac )
     use m_struc_def
-    use m_lmfinit,only: ispec, sspec=>v_sspec
+    use m_lmfinit,only: ispec
     !- Add uniform bkg charge density to local smooth rho
     !i orhoat: pointers to local density in spheres
     !i nbas: number of atoms in basis

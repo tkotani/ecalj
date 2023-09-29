@@ -11,13 +11,13 @@ contains
   integer function iors_old(nit,rwrw)!,irs5)
     use m_density,only: osmrho, orhoat,eferm !these are allocated
     use m_supot,only: n1,n2,n3
-    use m_struc_func,only: mpibc1_s_spec!,mpibc1_s_site
-    use m_lmfinit,only: lat_alat,nsp,lrel,ispec,sspec=>v_sspec, nbas,nspec,n0,idmodis=>idmod,slabl,rsma
+    use m_lmfinit,only: lat_alat,nsp,lrel,ispec, nbas,nspec,n0,idmodis=>idmod,slabl,rsma
     use m_lattic,only: lat_plat
     use m_ext,only:sname
     use m_density,only: pnuall,pnzall,v0pot,v1pot
     use m_ftox
     use m_chgmsh,only:chgmsh
+    use m_fatom,only:sspec,mpibc1_s_spec
     !!- I/O for charge density to rst or rsta. ssite sspec are readin
     !! read write
     !!     smrho, rhoat
@@ -528,11 +528,8 @@ contains
           endif
 40        continue
        enddo
-!       do i_site=1,nbas
-!          call mpibc1_s_site(ssite(i_site),'iors_ssite')
-!       enddo
        do i_spec=1,nspec
-          call mpibc1_s_spec(sspec(i_spec),'iors_sspec')
+          call mpibc1_s_spec(sspec(i_spec))
        enddo
        ! --- Output ---
     else

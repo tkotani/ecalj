@@ -2,7 +2,7 @@ module m_hambl
   public hambl
 contains
   subroutine hambl(isp,qin,smpot,vconst,osig,otau,oppi, h,s)! Make LDA/GGA Hamiltonian and overlap matrix for a k-point. No SOC added.
-    use m_lmfinit,only: nbas , sspec=>v_sspec,nsp
+    use m_lmfinit,only: nbas , nsp
     use m_igv2x,only: napw, igvapwin=>igv2x, ndimh
     use m_supot,only: n1,n2,n3
     use m_struc_def,only: s_rv1,s_cv1,s_rv4,s_cv5

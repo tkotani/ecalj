@@ -15,11 +15,12 @@ contains
   subroutine locpot(job,novxc,orhoat,qmom,vval,gpot0, osig,otau,oppi,ohsozz,ohsopm,phzdphz,hab,vab,sab, & 
        vvesat,cpnvsa, rhoexc,rhoex,rhoec,rhovxc, valvef,xcore, sqloc,sqlocc,saloc, qval,qsc )
     use m_density,only: v0pot,v1pot,pnzall,pnuall !output
-    use m_lmfinit,only:lxcf,lhh,nkapii,nkaphh,lmaxu,lldau,n0,nppn,nrmx,nkap0,nlmx,nbas,nsp,lso,ispec, sspec=>v_sspec,frzwfa,lmxax,&
+    use m_lmfinit,only:lxcf,lhh,nkapii,nkaphh,lmaxu,lldau,n0,nppn,nrmx,nkap0,nlmx,nbas,nsp,lso,ispec,frzwfa,lmxax,&
          slabl,idu,coreh,ham_frzwf,rsma,alat,v0fix,jnlml,vol,qbg=>zbak,lpzex
     use m_uspecb,only:uspecb
     use m_hansr,only:corprm
     use m_ldau,only: vorb !input. 'U-V_LDA(couter term)' of LDA+U
+    use m_fatom,only:sspec
     use m_struc_def
     implicit none
     intent(in)::    job,novxc,orhoat,qmom,vval,gpot0

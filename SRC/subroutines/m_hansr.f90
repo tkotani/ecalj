@@ -651,7 +651,8 @@ contains
     endif
   end subroutine hansmr
   subroutine corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc, rfoc,z) !Returns parameters for Zc part of Eq.(28) TK.JPSJ034702
-    use m_lmfinit,only: pnux=>pnusp,pzx=>pzsp,sspec=>v_sspec,n0
+    use m_lmfinit,only: pnux=>pnusp,pzx=>pzsp,n0
+    use m_fatom,only:sspec
     !i  is: species index
     !i       pnusp, pzsp
     !o Outputs

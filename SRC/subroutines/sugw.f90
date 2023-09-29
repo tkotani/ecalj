@@ -6,7 +6,6 @@ module m_sugw
 contains
   subroutine m_sugw_init (socmatrix,eferm,vmag) !dipolematrix,
     use m_ext,only:   sname
-    use m_struc_def,only: s_rv1, s_spec
     use m_suham,only: ndham=>ham_ndham !max dimension of hamiltonian +napwad (for so=0,2)
     use m_lmfinit,only: ham_pwmode,pwemax,ham_oveps,lrsig=>ham_lsig,nlmto,lso
     use m_lmfinit,only: ham_scaledsigma,lat_alat,nsp,nspc,ispec

@@ -1,15 +1,13 @@
 !> Ititial data for lmf-MPIK lmchk lmfa read from ctrl file
-!> We add some extra foobar to v_sspec%foobar in rdovfa/iors. pos can be from AtomPos (see lmfp.f90)
+!> pos can be from AtomPos (see lmfp.f90)
 module m_lmfinit ! 'call m_lmfinit_init' sets all initial data from ctrl are processed and stored in m_lmfinit_init.
   use m_ftox
   use m_ext,only :sname        ! sname contains extension. foobar of ctrl.foobar
-  use m_struc_def,only: s_spec ! spec structures.
   use m_MPItk,only: master_mpi
   use m_lgunit,only: stdo,stdl
   use m_density,only: pnuall,pnzall !These are set here! log-derivative of radial functions.
+  use m_fatom,only: sspec !allocte only here: free atom density (detemined by lmfa)
   implicit none 
-  type(s_spec),allocatable:: v_sspec(:) !just allocated for iors and rdovfa. Not touched.
-  ! iors/rdovfa fill all the v_sspec%foobar. I think v_sspec%foobar unchanged after initial setup.
   integer,parameter:: noutmx=48,NULLI=-99999,nkap0=3,mxspec=256,lstrn=1000,n0=10,nppn=2,nrmx=1501,nlmx=64,n00=n0*nkap0,k0=3
   real(8),parameter:: fpi=16d0*datan(1d0), y0=1d0/dsqrt(fpi), pi=4d0*datan(1d0), srfpi = dsqrt(4d0*pi),pi4=fpi,&
        NULLR =-99999, fs = 20.67098d0, degK = 6.3333d-6 ! defaults for MD
@@ -356,6 +354,7 @@ contains
     Stage2SetModuleParameters: block
       integer:: isw,iprint
       logical:: cmdopt0,cmdopt2
+      allocate(sspec(nspec)) !NOTE: this is in module m_fatom.f90
       call setpr0(30)       !Set initial verbose for console output.
       if    (cmdopt2('--pr=',outs))then; read(outs,*) verbos
       elseif(cmdopt2('--pr',outs)) then; read(outs,*) verbos
@@ -546,7 +545,6 @@ contains
          enddo
       enddo
       allocate(rsmv,source=.5d0*rmt)
-      allocate(v_sspec(nspec))
       if(master_mpi) write(stdo,ftox)'pnu list       ibas isp  pnu(0:lmxa) '
       do j=1,nbas
          is=ispec(j) 
