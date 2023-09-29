@@ -9,7 +9,7 @@ contains
     use m_density,only: osmrho, orhoat,v1pot,v0pot,pnuall,pnzall,eferm !Main I/O. these are allocated. In addition sspc is written
     use m_supot,only: n1,n2,n3
     use m_struc_func,only: mpibc1_s_spec 
-    use m_lmfinit,only: alat=>lat_alat,nsp,lrel,ispec,sspec=>v_sspec, nbas,nspec,n0, idmodis=>idmod,slabl,readpnu
+    use m_lmfinit,only: alat=>lat_alat,nsp,lrel,ispec,sspec=>v_sspec, nbas,nspec,n0, idmodis=>idmod,slabl,readpnu,spec_a
     use m_lattic,only: plat=>lat_plat,vol=>lat_vol,qlat=>lat_qlat
     use m_ext,only:sname
     use m_ftox
@@ -180,7 +180,7 @@ contains
           is=ispec(ib) !  is = -1 -> spec struc does not have these parameters
           if (is /= -1) then
              spid=slabl(is)
-             a=sspec(is)%a
+             a=spec_a(is)
              nr=sspec(is)%nr
              rmt=sspec(is)%rmt
              z=sspec(is)%z

@@ -93,12 +93,12 @@ contains
     character fileid*64
     character(256)::  a,outs,sss,ch
     character(128) :: nm
-    logical :: cmdopt0,  debug,sexist, ipr10,fullmesh,lzz, logarr(100)
+    logical :: cmdopt0,  debug,sexist=.false., ipr10,fullmesh,lzz, logarr(100)
     integer :: i,is,iprint, iprt,isw,ifi,j,k,l,lfrzw,lrs,k1,k2,mpipid, lmxbj,lmxaj,nlbj,&
          ibas,ierr,lc, iqnu=0, ifzbak,nn1,nn2,nnx,lmxxx,nlaj,isp,&
          inumaf,iin,iout,ik,iprior,ibp1,indx,iposn,m,nvi,nvl,nn1xx,nn2xx, nnn,ib,&
          lmxcg,lmxcy,lnjcg,lnxcg,nlm,nout,nn,i0,ivec(10),iosite,io_tim(2),verbos,&
-         lp1,lpzi,ii,sw,it,levelinit=0, lx,lxxx, reclnr,nrecs,nrecs2 ,nkapi!,mxorb
+         lp1,ii,sw,it,levelinit=0, lx,lxxx, reclnr,nrecs,nrecs2 ,nkapi!,mxorb
     real(8):: pnuspx(20) ,temp33(9),seref, xxx, avwsr, d2,plat(3,3),rydberg,rr, vsn,vers,xv(2*n0),xvv(3)
     real(8),allocatable ::rv(:)
     character*(8),allocatable::clabl(:)
@@ -180,7 +180,7 @@ contains
            lpz(nspec),lpzex(nspec),nkapii(nspec),nkaphh(nspec),slabl(nspec),&
            pos(3,nbas),ispec(nbas),ifrlx(3,nbas),iantiferro(nbas))
       idu=0; uh=0d0; jh=0d0; rs3=0.5d0; eh3=0.5d0; pnusp=0d0; pzsp=0d0; qnu=0d0; lpz=0; lpzex=0; cstrmx=F 
-      nkapii=1; nkapi=1; lpzi = 0; rsmh1 = 0d0; rsmh2 = 0d0; eh1  = 0d0; eh2 = 0d0; idmod=0; rfoca = 0d0; rg=0d0
+      nkapii=1; nkapi=1; rsmh1 = 0d0; rsmh2 = 0d0; eh1  = 0d0; eh2 = 0d0; idmod=0; rfoca = 0d0; rg=0d0
       call rval2('IO_VERBOS' , rr=rr, defa=[real(8)::  30]); verbos=nint(rr)
       call rval2('IO_TIM'    , rr=rr, defa=[real(8)::  1 ]); io_tim=nint(rr)
       call rval2('STRUC_ALAT', rr=rr, nout=n);  alat=rr  !   lattice parameter, in a.u.
@@ -364,23 +364,31 @@ contains
       if(pwmode==10) pwmode=0   !takao added. corrected Sep2011
       if(prgnam=='LMFGWD') pwmode=10+ mod(pwmode,10) !lmfgw mode use 
       if(iprint()>0) write(stdo,ftox) ' ===> for --jobgw, pwmode is switched to be ',pwmode
-      nspecloop: do 1111 j = 1, nspec ! Radial mesh parameters: determine default value of a
+      inquire(file='sigm.'//trim(sname),exist=sexist)
+      nspecloop0: do j = 1, nspec ! Radial mesh parameters: determine default value of a
          i0 = NULLI
          xxx = NULLR
          call pshpr(0)
          call rmesh(z(j),rmt(j),lrel,.false.,nrmx,xxx,i0)
-         call poppr
          if (xxx == .03d0) xxx = .015d0 !.025d0 jun2012 .025 to .015 as default.
          if(spec_a(j)==0d0) spec_a(j)=xxx
          i0 = 0
-         call pshpr(0)
          call rmesh(z(j),rmt(j),lrel,.false.,nrmx,spec_a(j),i0)
          call poppr
+         rg(j)   = 0.25d0*rmt(j)
+         rfoca(j)= 0.4d0*rmt(j)
          if(nr(j) == 0) nr(j) = i0
-         if(rmt(j) == 0 ) lmxa(j) = -1
-         lmxaj = lmxa(j)
-         nlaj = 1+lmxaj
-         PnuQnuSetting: if (nlaj /= 0) then
+         nnx=findloc([(pzsp(i,1,j)>0d0,i=1,n0)],value=.true.,back=.true.,dim=1)
+         lmxb(j) = max(lmxb(j),nnx-1) ! lmxb corrected by pzsp
+         if(nnx>0) then !          
+            lpz(j)=1
+            if(sum(floor(pzsp(1:lmxa(j)+1,1,j)/10))>0 ) lpzex(j)=1 !          endif
+         endif
+         if(maxval(pzsp(1:n0,1,j))>10d0) lpztail= .TRUE. ! PZ +10 mode exist or not.
+         nkaphh(j) = nkapii(j) + lpz(j) !number of radial basis of MTOs for j.
+      enddo nspecloop0
+      nspecloop: do 1111 j = 1, nspec ! Radial mesh parameters: determine default value of a
+         PnuQnuSetting: if (lmxa(j)>0) then
             !Pnu is fractional quantum number. When P=4.56 for example, 4 is principle quantum number (nodenum-l). .56 is
             !for log derivative (+inf to -inf is mapped to 0 to 1.) to determine radial functions.
             ! P = PrincipleQnum - 0.5*atan(dphidr/phi)/pi
@@ -394,27 +402,26 @@ contains
             allocate(pnuspdefault(n0,nsp),qnudefault(n0,nsp),qnudummy(n0,nsp),source=0d0)
             iqnu=1
             if(sum(abs(qnu(:,1,j)))<1d-8) iqnu=0 !check initial Q is given or not.
-            call defpq(z(j),lmxaj,1,pnuspdefault,qnudefault)! qnu is given here for default pnusp.
-            call defpq(z(j),lmxaj,1,pnusp(1,1,j),qnudummy)  ! set pnusp. qnu is kept (but not used here).
+            call defpq(z(j),lmxa(j),1,pnuspdefault,qnudefault)! qnu is given here for default pnusp.
+            call defpq(z(j),lmxa(j),1,pnusp(1,1,j),qnudummy)  ! set pnusp. qnu is kept (but not used here).
             if(iqnu==0) qnu(:,1,j)  = qnudefault(:,1)
             if(nsp==2) pnusp(1:n0,2,j)= pnusp(1:n0,1,j)
             if(nsp==2) pzsp (1:n0,2,j)= pzsp (1:n0,1,j)
 !following lines can not be compiled by ifort smith2 2023 
 !            nnx = findloc(pzsp(1:n0,1,j)>0d0,dim=1,value=.true.,back=.true.)
-            nnx=0 !nout
-            do i=n0,1,-1
-               if(pzsp(i,1,j)>0d0) then
-                  nnx=i
-                  exit
-               endif
-            enddo
-            lmxb(j) = max(lmxb(j),nnx-1) ! lmxb corrected by pzsp
-            if (nnx>0) then !          
-               lpzi = 1
-               lpz(j)=1
-               if(sum(floor(pzsp(1:nlaj,1,j)/10))>0 ) lpzex(j)=1 !          endif
-            endif
-            if(maxval(pzsp(1:n0,1,j))>10d0) lpztail= .TRUE. ! PZ +10 mode exist or not.
+            ! nnx=0 !nout
+            ! do i=n0,1,-1
+            !    if(pzsp(i,1,j)>0d0) then
+            !       nnx=i
+            !       exit
+            !    endif
+            ! enddo
+            ! lmxb(j) = max(lmxb(j),nnx-1) ! lmxb corrected by pzsp
+            ! if (nnx>0) then !          
+            !    lpz(j)=1
+            !    if(sum(floor(pzsp(1:lmxa(j)+1,1,j)/10))>0 ) lpzex(j)=1 !          endif
+            ! endif
+            ! if(maxval(pzsp(1:n0,1,j))>10d0) lpztail= .TRUE. ! PZ +10 mode exist or not.
             ReadPnuFromLMFA:block 
               integer:: ifipnu,lr,iz,nspr,lrmx,isp,ispx
               real(8):: pnur,pzav(n0),pnav(n0),pzsp_r(n0,nsp,nspec),pnusp_r(n0,nsp,nspec)
@@ -454,7 +461,7 @@ contains
             !     Pz < P=Pdefault ! qnu + 2*(2l+1)
             !     Pz=Pdefault < P ! qnu
             if(iqnu==0) then
-               do lx=0,lmxaj     !correct valence number of electrons.
+               do lx=0,lmxa(j)     !correct valence number of electrons.
                   if(pzsp(lx+1,1,j)<1d-8) then ! PZSP(local orbital) not exist
                      if(int(pnuspdefault(lx+1,1))<int(pnusp(lx+1,1,j))) qnu(lx+1,1,j)=0d0 !pnuspdefault is filled and no q for pnusp. (core hole case or so)
                   else           !PZ exist   !     print *,'qnu=',lx,qnu(lx+1,1,j)
@@ -463,9 +470,10 @@ contains
                enddo
             endif
          endif PnuQnuSetting
-         if(master_mpi .AND. sum(abs(idu(:,j)))/=0) then
-            inquire(file='sigm.'//trim(sname),exist=sexist)
-            if(sexist) then
+1111  enddo nspecloop
+      SkipLDAU: if(sexist) then
+         do j=1,nspec
+            if(sum(abs(idu(:,j)))/=0) then
                do lxxx=0+1,3+1
                   if(idu(lxxx,j)>10) then
                      write(stdo,"(a,2i4)")'For IDU>10 with sigm.*, we set UH=JH=0 for l,ibas=',lxxx,j
@@ -473,16 +481,10 @@ contains
                      jh(lxxx,j) = 0d0
                   endif
                enddo
+               idu(0+1:3+1,j) = mod(idu(0+1:3+1,j),10)
             endif
-            idu(0+1:3+1,j) = mod(idu(0+1:3+1,j),10)
-         endif
-         call mpibc1_int(idu(:,j),4,'m_lmfinit_idu') !lda+u
-         call mpibc1_real(uh(:,j),4,'m_lmfinit_uh')  !lda+u 
-         call mpibc1_real(jh(:,j),4,'m_lmfinit_jh')  !lda+u
-         rg(j)   = 0.25d0*rmt(j)
-         rfoca(j)= 0.4d0*rmt(j)
-         nkaphh(j) = nkapii(j) + lpz(j) !number of radial basis of MTOs for j.
-1111  enddo nspecloop
+         enddo
+      endif SkipLDAU
       lmxax = maxval(lmxa) !Maximum L-cutoff
       maxit=iter_maxit
       nlmax=(max(lmxbx,lmxax)+1)**2
@@ -563,11 +565,11 @@ contains
       ! 2022-jan-20 new setting of addinv (addinv =.not.ctrl_noinv)
       !Add inversion to get !When we have TR, psi_-k(r) = (psi_k(r))^* (when we have SO/=1).
       !                      density |psi_-k(r)|^2 = |psi_k^*(r)|^2
-      if((lrlxr>=1.AND.lrlxr<=3) .OR. cmdopt0('--cls') .OR. cmdopt0('--nosym') .OR. cmdopt0('--pdos')) then
+      if( (lrlxr>=1.AND.lrlxr<=3) .OR. cmdopt0('--cls') .OR. cmdopt0('--nosym') .OR. cmdopt0('--pdos')) then
          symg = 'e'
-         addinv = .false. !add inversion 
-      elseif(lso == 0) then
-         addinv=.true. !add inversion means
+         addinv = .false. 
+      elseif( lso==0 .and. sum(abs(idu))/=0 .and.(.not.sexist) ) then ! Add inversion means Hamiltonian is real (time-reversal).
+         addinv=.true. 
       else
          addinv=.false. 
       endif
