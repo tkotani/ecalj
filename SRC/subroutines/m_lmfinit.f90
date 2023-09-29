@@ -5,8 +5,10 @@ module m_lmfinit ! 'call m_lmfinit_init' sets all initial data from ctrl are pro
   use m_ext,only :sname        ! sname contains extension. foobar of ctrl.foobar
   use m_MPItk,only: master_mpi
   use m_lgunit,only: stdo,stdl
-  use m_density,only: pnuall,pnzall !These are set here! log-derivative of radial functions.
-  use m_fatom,only: sspec !allocte only here: free atom density (detemined by lmfa)
+  
+  use m_density,only: pnuall,pnzall !NOTE: These are set here! log-derivative of radial functions. m_denisty is not protected.
+  use m_fatom,only: sspec !allocttion only: free atom density (detremined by lmfa) Not protected.
+  
   implicit none 
   integer,parameter:: noutmx=48,NULLI=-99999,nkap0=3,mxspec=256,lstrn=1000,n0=10,nppn=2,nrmx=1501,nlmx=64,n00=n0*nkap0,k0=3
   real(8),parameter:: fpi=16d0*datan(1d0), y0=1d0/dsqrt(fpi), pi=4d0*datan(1d0), srfpi = dsqrt(4d0*pi),pi4=fpi,&
@@ -56,7 +58,7 @@ contains
     !    All the module variables. Only several components of v_sspec are added by iors/rdovfa (readining atomic or previous results).
     !MEMO:2023-sep
     ! Note our block coding: Search HelpExit ConvertCtrl2CtrlpByPython ReadCtrlp Stage1 Stage2 Stage3.
-    !   In ConvertCtrl2CtrlpByPython, we convert ctrl.foobar to ctrlp.foobar by invoking a python script.
+    !   At ConvertCtrl2CtrlpByPython, we convert ctrl.foobar to ctrlp.foobar by invoking a python script.
     !   BZ_  : Brillouin Zone related
     !   HAM_ :  Hamiltonian related
     !   SITE_: site information
@@ -241,7 +243,8 @@ contains
          if(nn2>0) nkapi=2
          if(nn2>0) nkapii(j)=2
          call rval2('SPEC_LMX@'//xn(j), rr=rr, defa=[real(8):: 999]);     lmxb(j)=min(nint(rr), max(nn1,nn2)-1) !lmax for MTO basis
-         call rval2('SPEC_LMXA@'//xn(j),rr=rr, defa=[real(8):: lmxb(j)]); lmxa(j)=nint(rr); if(rmt(j)==0d0) lmxa(j)=-1 !lmax for augmentation
+         call rval2('SPEC_LMXA@'//xn(j),rr=rr, defa=[real(8):: lmxb(j)]); lmxa(j)=nint(rr)
+         if(rmt(j)==0d0) lmxa(j)=-1 !lmax for augmentation
          call rval2('SPEC_LMXL@'//xn(j),rr=rr, defa=[real(8):: lmxa(j)]); lmxl(j)=nint(rr) !'lmax for accumulating rho,V in sphere'
          call rval2('SPEC_P@'//xn(j),   rv=rv,nout=n); pnusp(1:n,1,j)=rv
          call rval2('SPEC_Q@'//xn(j),   rv=rv,nout=n); qnu(1:n,1,j)=rv
@@ -257,14 +260,14 @@ contains
          call rval2('SPEC_IDMOD@'//xn(j),rv=rv,nout=n); idmod(1:n,j)=rv  !  'idmod=0 floats P to band CG, 1 freezes P, 2 freezes enu'
          call rval2('SPEC_FRZWF@'//xn(j),rr=rr,defa=[real(8):: 0]); frzwfa(j)= nint(rr)==1
          call rval2('SPEC_IDU@'//xn(j), rv=rv,nout=n); idu(1:n,j)=nint(rv)!U mode: 0 nothing, 1 AMF, 2 FLL, 3 mixed. +10:no LDA+U if sigm.* exist
-         ! 2019 Automatic turn off lda+u mode; Enforce uh=jh=0 when sigm exist !!
+         ! 2019 Automatic turn off lda+u mode by +10 ; Enforce uh=jh=0 when sigm exist !!
          call rval2('SPEC_UH@'//xn(j),  rv=rv,nout=n); uh(1:n,j)=rv ! Hubbard U for LDA+U
          call rval2('SPEC_JH@'//xn(j),  rv=rv,nout=n); jh(1:n,j)=rv ! Exchange parameter J for LDA+U
          call rval2('SPEC_C-HOLE@'//xn(j),ch=ch); coreh(j)=trim(adjustl(ch)) ! Channel for core hole
          call rval2('SPEC_C-HQ@'//xn(j),rv=rv,defa=[-1d0,0d0]) ; coreq(:,j)=rv
-!              NOTE: 'Charge and Moment of core hole:'// &
-!               Q(spin1) = full + C-HQ(1)/2 + C-HQ(2)/2 
-!               Q(spin2) = full + C-HQ(1)/2 - C-HQ(2)/2
+         !   NOTE: 'Charge and Moment of core hole:'// &
+         !          Q(spin1) = full + C-HQ(1)/2 + C-HQ(2)/2 
+         !          Q(spin2) = full + C-HQ(1)/2 - C-HQ(2)/2
          call rval2('SPEC_EREF'//xn(j), rr=rr,defa=[0d0]); eref(j)=rr
       enddo specloop
       lmxbx=maxval(lmxb)
@@ -392,7 +395,7 @@ contains
          rg(j)   = 0.25d0*rmt(j)
          rfoca(j)= 0.4d0*rmt(j)
          if(nr(j) == 0) nr(j) = i0
-         nnx=findloc([(pzsp(i,1,j)>0d0,i=1,n0)],value=.true.,back=.true.,dim=1)
+         nnx = findloc([(pzsp(i,1,j)>0d0,i=1,n0)],value=.true.,back=.true.,dim=1)
          lmxb(j) = max(lmxb(j),nnx-1) ! lmxb corrected by pzsp
          if(nnx>0) then !          
             lpz(j)=1
@@ -401,90 +404,75 @@ contains
          if(maxval(pzsp(1:n0,1,j))>10d0) lpztail= .TRUE. ! PZ +10 mode exist or not.
          nkaphh(j) = nkapii(j) + lpz(j) !number of radial basis of MTOs for j.
       enddo nspecloop0
-      nspecloop: do 1111 j = 1, nspec ! Radial mesh parameters: determine default value of a
-         PnuQnuSetting: if (lmxa(j)>0) then
-            !Pnu is fractional quantum number. When P=4.56 for example, 4 is principle quantum number (nodenum-l). .56 is
-            !for log derivative (+inf to -inf is mapped to 0 to 1.) to determine radial functions.
-            ! P = PrincipleQnum - 0.5*atan(dphidr/phi)/pi
-            ! === Reset default P,Q in absence of explicit specification ====
-            !     !  qnu is set by default p. --
-            !     ! This looks too complicated. Fix this in future.
-            !     ! In anyway, we expect pnusp and qnu are correctly returned (qnu does not care value of given P).
-            !     ! set default pnusp. See the following section 'correct qnu'
-            !     ! isp=1 means charge. isp=2 means mmom
-            if(allocated(pnuspdefault)) deallocate(pnuspdefault,qnudefault,qnudummy)
-            allocate(pnuspdefault(n0,nsp),qnudefault(n0,nsp),qnudummy(n0,nsp),source=0d0)
-            iqnu=1
-            if(sum(abs(qnu(:,1,j)))<1d-8) iqnu=0 !check initial Q is given or not.
-            call defpq(z(j),lmxa(j),1,pnuspdefault,qnudefault)! qnu is given here for default pnusp.
-            call defpq(z(j),lmxa(j),1,pnusp(1,1,j),qnudummy)  ! set pnusp. qnu is kept (but not used here).
-            if(iqnu==0) qnu(:,1,j)  = qnudefault(:,1)
-            if(nsp==2) pnusp(1:n0,2,j)= pnusp(1:n0,1,j)
-            if(nsp==2) pzsp (1:n0,2,j)= pzsp (1:n0,1,j)
-!following lines can not be compiled by ifort smith2 2023 
-!            nnx = findloc(pzsp(1:n0,1,j)>0d0,dim=1,value=.true.,back=.true.)
-            ! nnx=0 !nout
-            ! do i=n0,1,-1
-            !    if(pzsp(i,1,j)>0d0) then
-            !       nnx=i
-            !       exit
-            !    endif
-            ! enddo
-            ! lmxb(j) = max(lmxb(j),nnx-1) ! lmxb corrected by pzsp
-            ! if (nnx>0) then !          
-            !    lpz(j)=1
-            !    if(sum(floor(pzsp(1:lmxa(j)+1,1,j)/10))>0 ) lpzex(j)=1 !          endif
-            ! endif
-            ! if(maxval(pzsp(1:n0,1,j))>10d0) lpztail= .TRUE. ! PZ +10 mode exist or not.
-            ReadPnuFromLMFA:block 
-              integer:: ifipnu,lr,iz,nspr,lrmx,isp,ispx
-              real(8):: pnur,pzav(n0),pnav(n0),pzsp_r(n0,nsp,nspec),pnusp_r(n0,nsp,nspec)
-              character(8):: charext
-              if (prgnam /= 'LMFA'.and.ReadPnu) then
-                 pzsp_r =0d0
-                 pnusp_r=0d0
-                 open(newunit=ifipnu,file='atmpnu.'//trim(charext(j))//'.'//trim(sname))
-                 write(stdo,*)'READP=T: read pnu from atmpnu.*'
-                 do
-                    read(ifipnu,*,end=1015) pnur,iz,lr,isp
-                    if(iz==1) pzsp_r (lr+1,isp,j)= pnur ! +10d0 caused probelm for 3P of Fe.
-                    if(iz==0) pnusp_r(lr+1,isp,j)= pnur
-                    lrmx=lr
-                    nspr=isp
+      PnuQnuSetting: do 1111 j = 1, nspec ! Radial mesh parameters: determine default value of a
+         if (lmxa(j)==-1) cycle
+         !Pnu is fractional quantum number. For example, P=4.56; 4 is principle quantum number (nodenum-l);
+         !    .56 is for log derivative (+inf to -inf is mapped to 0 to 1) at MT to determine radial functions.
+         ! P = PrincipleQnum - 0.5*atan(dphidr/phi)/pi
+         ! === Reset default P,Q in absence of explicit specification ====
+         !     !  qnu is set by default p. --
+         !     ! This looks too complicated. Fix this in future.
+         !     ! In anyway, we expect pnusp and qnu are correctly returned (qnu does not care value of given P).
+         !     ! set default pnusp. See the following section 'correct qnu'
+         !     ! isp=1 means charge. isp=2 means mmom
+         ReadDefaultPnuQnu: block
+           if(allocated(pnuspdefault)) deallocate(pnuspdefault,qnudefault,qnudummy)
+           allocate(pnuspdefault(n0,nsp),qnudefault(n0,nsp),qnudummy(n0,nsp),source=0d0)
+           iqnu = merge(0,1,sum(abs(qnu(:,1,j)))<1d-8) !check initial Q is given or not.
+           call defpq(z(j),lmxa(j),1,pnuspdefault,qnudefault)! qnu is given here for default pnusp.
+           call defpq(z(j),lmxa(j),1,pnusp(1,1,j),qnudummy)  ! Set pnusp. 
+           if(iqnu==0) qnu(:,1,j)  = qnudefault(:,1) !charge (qnu(:,:,2) is maga moment.)
+           if(nsp==2) pnusp(1:n0,2,j)= pnusp(1:n0,1,j)
+           if(nsp==2) pzsp (1:n0,2,j)= pzsp (1:n0,1,j)
+         endblock ReadDefaultPnuQnu
+         ReadPnuOverwritepnu:block 
+           integer:: ifipnu,lr,iz,nspr,lrmx,isp,ispx
+           real(8):: pnur,pzav(n0),pnav(n0),pzsp_r(n0,nsp,nspec),pnusp_r(n0,nsp,nspec)
+           character(8):: charext
+           if(prgnam /= 'LMFA'.and.ReadPnu) then
+              pzsp_r =0d0
+              pnusp_r=0d0
+              open(newunit=ifipnu,file='atmpnu.'//trim(charext(j))//'.'//trim(sname))
+              write(stdo,*)'READP=T: read pnu from atmpnu.*'
+              do
+                 read(ifipnu,*,end=1015) pnur,iz,lr,isp
+                 if(iz==1) pzsp_r (lr+1,isp,j)= pnur ! +10d0 caused probelm for 3P of Fe.
+                 if(iz==0) pnusp_r(lr+1,isp,j)= pnur
+                 lrmx=lr
+                 nspr=isp
+              enddo
+1015          continue
+              pzav(1:lrmx+1)=sum(pzsp_r (1:lrmx+1,1:nspr,j), dim=2)/nspr !spin averaged
+              pnav(1:lrmx+1)=sum(pnusp_r(1:lrmx+1,1:nspr,j), dim=2)/nspr
+              do l=1,lrmx+1
+                 if(pzav(l)>pnav(l)) pzav(l)=floor(pzav(l))+.5d0 ! push up p =floor(p)+0.5 if we have lower orbital
+                 if(pzav(l)>1d-8.and.pnav(l)>pzav(l)) pnav(l)=floor(pnav(l))+.5d0
+              enddo
+              do ispx=1,nspr
+                 do lr=1,lrmx+1
+                    pzsp(lr, ispx,j) = pzav(lr)
+                    if(lr>3.and.readpnuskipf)cycle
+                    pnusp(lr,ispx,j)=  pnav(lr)
                  enddo
-1015             continue
-                 pzav(1:lrmx+1)=sum(pzsp_r (1:lrmx+1,1:nspr,j), dim=2)/nspr !spin averaged
-                 pnav(1:lrmx+1)=sum(pnusp_r(1:lrmx+1,1:nspr,j), dim=2)/nspr
-                 do l=1,lrmx+1
-                    if(pzav(l)>pnav(l)) pzav(l)=floor(pzav(l))+.5d0 ! push up p =floor(p)+0.5 if we have lower orbital
-                    if(pzav(l)>1d-8.and.pnav(l)>pzav(l)) pnav(l)=floor(pnav(l))+.5d0
-                 enddo
-                 do ispx=1,nspr
-                    do lr=1,lrmx+1
-                       pzsp(lr, ispx,j) = pzav(lr)
-                       if(lr>3.and.readpnuskipf)cycle
-                       pnusp(lr,ispx,j)=  pnav(lr)
-                    enddo
-                 enddo
-                 close(ifipnu)
-              endif
-            endblock ReadPnuFromLMFA
-            ! our four cases are
-            !     P=Pdefault      ! qnu
-            !     Pdefault < P    ! Pdefault is filled as core
-            !     Pz < P=Pdefault ! qnu + 2*(2l+1)
-            !     Pz=Pdefault < P ! qnu
-            if(iqnu==0) then
-               do lx=0,lmxa(j)     !correct valence number of electrons.
-                  if(pzsp(lx+1,1,j)<1d-8) then ! PZSP(local orbital) not exist
-                     if(int(pnuspdefault(lx+1,1))<int(pnusp(lx+1,1,j))) qnu(lx+1,1,j)=0d0 !pnuspdefault is filled and no q for pnusp. (core hole case or so)
-                  else           !PZ exist   !     print *,'qnu=',lx,qnu(lx+1,1,j)
-                     if( mod(int(pzsp(lx+1,1,j)),10)<int(pnuspdefault(lx+1,1)) ) qnu(lx+1,1,j)= qnu(lx+1,1,j)+ 2d0*(2d0*lx+1d0)
-                  endif
-               enddo
-            endif
-         endif PnuQnuSetting
-1111  enddo nspecloop
+              enddo
+              close(ifipnu)
+           endif
+         endblock ReadPnuOverwritepnu
+         ! We have four cases: run >lmfa |grep conf
+         !     P=Pdefault      ! qnu
+         !     Pdefault < P    ! Default core is treated as valence with Pdefault.
+         !     Pz < P=Pdefault ! qnu + 2*(2l+1)
+         !     Pz=Pdefault < P ! qnu
+         if(iqnu==0) then
+            do lx=0,lmxa(j)     !correct valence number of electrons.
+               if(pzsp(lx+1,1,j)<1d-8) then ! PZSP(local orbital) not exist
+                  if(int(pnuspdefault(lx+1,1))<int(pnusp(lx+1,1,j))) qnu(lx+1,1,j)=0d0 !pnuspdefault is filled and no q for pnusp. (core hole case or so)
+               else           !PZ exist   !     print *,'qnu=',lx,qnu(lx+1,1,j)
+                  if( mod(int(pzsp(lx+1,1,j)),10)<int(pnuspdefault(lx+1,1)) ) qnu(lx+1,1,j)= qnu(lx+1,1,j)+ 2d0*(2d0*lx+1d0)
+               endif
+            enddo
+         endif
+1111  enddo PnuQnuSetting
       SkipLDAU: if(sexist) then
          do j=1,nspec
             if(sum(abs(idu(:,j)))/=0) then
@@ -527,8 +515,7 @@ contains
       call mpibc1_int(ham_lsig,1,'bndfp_ham_lsig')
       ham_scaledsigma=scaledsigma
       ham_pwmode=pwmode
-      !r  pwmode Controls PW part of basis.
-      !  1st digit
+      !r  pwmode Controls PW part of basis.  1st digit=
       !r         0 => no PW part of basis
       !r         1 => include PWs in basis. |q+G|^2 <pwemax
       !r         2 => include only PWs in basis   
@@ -566,14 +553,13 @@ contains
       if( (lrlxr>=1.AND.lrlxr<=3) .OR. cmdopt0('--cls') .OR. cmdopt0('--nosym') .OR. cmdopt0('--pdos')) then
          symg = 'e'
          addinv = .false. 
-      elseif( lso==0 .and. sum(abs(idu))/=0 .and.(.not.sexist) ) then ! Add inversion means Hamiltonian is real (time-reversal).
+      elseif( lso==0 .and. sum(abs(idu))/=0 .and. (.not.sexist) ) then ! Add inversion means Hamiltonian is real (time-reversal).
          addinv=.true. 
       else
          addinv=.false. 
       endif
       sstrnsymg=trim(symg)
       nspc = merge(2,1,lso==1) ! nspc=2 for lso=1. nspx=nsp/nspc. Haittonian is ham(1:ndham*nspc, 1:ndham*nspc, 1:nsp/nspc)
-      
       GETorbitalindex: block ! probably too confusing.
         integer:: ib,l,lmr,ia, nnrlx,lmri,ik,nnrl,nnrli,li, iorb,is,k,iorbmto,iorbe,jorb,io
         logical:: agree
@@ -655,11 +641,9 @@ contains
       pot_nlml=nvl
       allocate(jnlml(nbas), source=[1,(1+sum( (lmxl(ispec(1:i))+1)**2 ),i=1,nbas-1)]) !offset of lmxl
       deallocate(idxdn) 
-      !! --- takao embed contents in susite here. This is only for lmf and lmfgw.
       allocate(iv_a_oips(nbas),source=[(ispec(ib), ib=1,nbas)])
       seref= sum([(eref(ispec(ib)),ib=1,nbas)])
       ham_seref= seref
-!      call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
       if( cmdopt0('--quit=show') ) call rx0(trim(prgnam)//' --quit=show')
     endblock Stage2SetModuleParameters

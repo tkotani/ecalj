@@ -195,8 +195,8 @@ contains
             ! ccccccccccccccccccccccccccccccccccccccccccccccccc
           endblock fhblock
        endif
-       call mkrou6(rofi_rv,orhoat_out( 1,ib )%v,nr,nlml,nsp,xx,xx,res )!Contribution to mag outsite rmt: extrapolate tail to infinity
-       if(ipr>=30.AND.res/=0) write(stdo,"(7x,'contr. to mm extrapolated for r>rmt:',f11.6,' est. true mm =',f9.6)")res,res-sums1
+!       call mkrou6(rofi_rv,orhoat_out( 1,ib )%v,nr,nlml,nsp,xx,xx,res )!Contribution to mag outsite rmt: extrapolate tail to infinity
+!       if(ipr>=30.AND.res/=0) write(stdo,"(7x,'contr. to mm extrapolated for r>rmt:',f11.6,' est. true mm =',f9.6)")res,res-sums1
        if (lfoc == 0) then ! Make new core density and core eigenvalue sum ---
           call pshpr(ipr+11)
           call getcor(0,z,a,pnu,pnz,nr,lmxa,rofi_rv,v1pot(ib)%v & 
@@ -338,7 +338,7 @@ contains
     integer :: l,i,mlm,l1,l2,isp
     real(8) :: xuu,xus,xsu,xss,xuz,xsz,xzu,xzs,xzz
     call tcn('mkrou2')
-    ! --- Full density as products (u,s) (u,s); no small component ---
+    ! --- Full density as products (u,s,z) (u,s,z); no small component ---
     do  isp = 1, nsp
        do  mlm = 1, nlml
           do  l1 = 0, lmxa
@@ -351,14 +351,12 @@ contains
                      + dmatl(l1,l2,mlm,1,2,isp) * ul(:,l1,isp) * sl(:,l2,isp) &
                      + dmatl(l1,l2,mlm,2,2,isp) * sl(:,l1,isp) * sl(:,l2,isp)
                 if (lpz1.OR.lpz2) then
-!                   if (xuz /= 0 .OR. xsz /= 0 .OR. xzu /= 0 .OR. xzs /= 0 .OR. xzz /= 0) then !commented 2023-5-24
                       rho(:,mlm,isp) = rho(:,mlm,isp) &
                            + dmatl(l1,l2,mlm,1,3,isp) * ul(:,l1,isp) * gz(:,l2,isp) &
                            + dmatl(l1,l2,mlm,2,3,isp) * sl(:,l1,isp) * gz(:,l2,isp) &
                            + dmatl(l1,l2,mlm,3,1,isp) * gz(:,l1,isp) * ul(:,l2,isp) &
                            + dmatl(l1,l2,mlm,3,2,isp) * gz(:,l1,isp) * sl(:,l2,isp) &
                            + dmatl(l1,l2,mlm,3,3,isp) * gz(:,l1,isp) * gz(:,l2,isp)
-!                   endif
                 endif
              enddo
           enddo
@@ -502,48 +500,44 @@ contains
     integer :: nsp,nlml,lmxa,lmx1,lmx2,nf1,nf2,nf1s,nf2s
     real(8) :: ckk(nf1,nf2,0:lmx1,0:lmx2,nlml,nsp), &
          val1(0:lmx1,nf1s),slo1(0:lmx1,nf1s), &
-         val2(0:lmx2,nf2s),slo2(0:lmx2,nf2s)
+         val2(0:lmx2,nf2s),slo2(0:lmx2,nf2s),vs1(2),vs2(2),vs1vs2(2,2)
     real(8) :: dmatl(0:lmxa,0:lmxa,nlml,3,3,nsp)
-    integer :: l1,k1,l2,k2,mlm,isp
-    real(8) :: xx
-    !     call tcn('mkcfus')
-    do  isp = 1, nsp
-       do  mlm = 1, nlml
-          do  k2 = 1, nf2s
-             do  k1 = 1, nf1s
-                do  l2 = 0, lmx2
-                   do  l1 = 0, lmx1
-                      xx = ckk(k1,k2,l1,l2,mlm,isp)
-                      dmatl(l1,l2,mlm,1,1,isp)= dmatl(l1,l2,mlm,1,1,isp)+ xx*val1(l1,k1) * val2(l2,k2)
-                      dmatl(l1,l2,mlm,1,2,isp)= dmatl(l1,l2,mlm,1,2,isp)+ xx*val1(l1,k1) * slo2(l2,k2)
-                      dmatl(l1,l2,mlm,2,1,isp)= dmatl(l1,l2,mlm,2,1,isp)+ xx*slo1(l1,k1) * val2(l2,k2)
-                      dmatl(l1,l2,mlm,2,2,isp)= dmatl(l1,l2,mlm,2,2,isp)+ xx*slo1(l1,k1) * slo2(l2,k2)
+    integer :: l1,k1,l2,k2,mlm,isp,i,j
+    real(8) :: xx     !     call tcn('mkcfus')
+    do  k2 = 1, nf2s
+       do  k1 = 1, nf1s
+          do  l2 = 0, lmx2
+             do  l1 = 0, lmx1
+                vs1=[val1(l1,k1),slo1(l1,k1)]
+                vs2=[val2(l2,k2),slo2(l2,k2)]
+                do concurrent(i=1:2,j=1:2)
+                   vs1vs2(i,j) =vs1(i)*vs2(j)
+                enddo
+                do  isp = 1, nsp
+                   do  mlm = 1, nlml
+                      dmatl(l1,l2,mlm,1:2,1:2,isp) = dmatl(l1,l2,mlm,1:2,1:2,isp)+ ckk(k1,k2,l1,l2,mlm,isp)*vs1vs2
                    enddo
                 enddo
              enddo
           enddo
        enddo
     enddo
-    !     call tcx('mkcfus')
     ! --- Products involving local orbitals ---
     if (nf1s >= nf1 .AND. nf2s >= nf2) return
-    !     call tcn('mkcfus')
-    do  isp = 1, nsp
-       do  mlm = 1, nlml
-          do  k2 = 1, nf2
-             do  k1 = 1, nf1
-                if (k1 > nf1s .OR. k2 > nf2s) then
-                   do  l2 = 0, lmx2
-                      do  l1 = 0, lmx1
+    do  k2 = 1, nf2
+       do  k1 = 1, nf1
+          if (k1 > nf1s .OR. k2 > nf2s) then
+             do  l2 = 0, lmx2
+                do  l1 = 0, lmx1
+                   do  isp = 1, nsp
+                      do  mlm = 1, nlml
                          xx = ckk(k1,k2,l1,l2,mlm,isp)
                          if (k1 > nf1s .AND. k2 > nf2s) then!               sc-sc product
-                            dmatl(l1,l2,mlm,3,3,isp) = dmatl(l1,l2,mlm,3,3,isp)+xx 
+                            dmatl(l1,l2,mlm,3,3,isp) = dmatl(l1,l2,mlm,3,3,isp) + xx 
                          elseif (k1 > nf1s) then ! sc-valence product
-                            dmatl(l1,l2,mlm,3,1,isp) = dmatl(l1,l2,mlm,3,1,isp) + xx*val2(l2,k2)
-                            dmatl(l1,l2,mlm,3,2,isp) = dmatl(l1,l2,mlm,3,2,isp) + xx*slo2(l2,k2)
+                            dmatl(l1,l2,mlm,3,1:2,isp) = dmatl(l1,l2,mlm,3,1:2,isp) + xx*[val2(l2,k2),slo2(l2,k2)]
                          elseif (k2 > nf2s) then!  valence-sc product
-                            dmatl(l1,l2,mlm,1,3,isp) = dmatl(l1,l2,mlm,1,3,isp) + xx*val1(l1,k1) 
-                            dmatl(l1,l2,mlm,2,3,isp) = dmatl(l1,l2,mlm,2,3,isp) + xx*slo1(l1,k1) 
+                            dmatl(l1,l2,mlm,1:2,3,isp) = dmatl(l1,l2,mlm,1:2,3,isp) + xx*[val1(l1,k1),slo1(l1,k1)]
                          endif
                       enddo
                    enddo
@@ -554,9 +548,7 @@ contains
     enddo
     !     call tcx('mkcfus')
   end subroutine mkcfus
-  subroutine mkrou5(nsp,nr,nlml,nf1,nf1s,f1,lmx1,nf2,nf2s,f2,lmx2, ckk,rho)
-    !- Assemble smooth site density from contracted density matrix
-    ! ----------------------------------------------------------------------
+  subroutine mkrou5(nsp,nr,nlml,nf1,nf1s,f1,lmx1,nf2,nf2s,f2,lmx2, ckk,rho)  !- Assemble smooth site density from contracted density matrix
     !i Inputs
     !i   nsp   :2 for spin-polarized case, otherwise 1
     !i   nlml  :charge density L-cutoff
@@ -597,51 +589,6 @@ contains
        enddo
     enddo
   end subroutine mkrou5
-  subroutine mkrou6(rofi,rho,nr,nlml,nsp,rho0,decay,res) !- Fit tail of spin density; integrate charge beyond MT sphere
-    !i Inputs
-    !i   rofi  :radial mesh points
-    !i   rho   :spin-polarized charge density
-    !i   nr    :number of radial mesh points
-    !i   nlml  :L-cutoff for charge density on radial mesh
-    !o Outputs
-    !o   rho0  :fit density of form rho0*exp(-decay*r)
-    !o   decay :fit density of form rho0*exp(-decay*r)
-    !o   res   :integral of fit density from rofi(nr) to infinity
-    implicit none
-    integer :: nr,nlml,nsp
-    real(8) :: rofi(nr),rho(nr,nlml,2),rho0,decay,res
-    integer :: ir
-    real(8) :: norm(2,2),tnorm(2,2),rhs(2),y,dy,fac,y0,r0,pi,a,b
-    res = 0
-    if (nr < 10 .OR. nsp == 1) return
-    call dpzero(norm,4)
-    call dpzero(rhs,2)
-    fac = 1
-    if (rho(nr,1,1) < rho(nr,1,2)) fac = -1
-    do  ir = nr-5, nr
-       y = fac*(rho(ir,1,1) - rho(ir,1,2))/rofi(ir)**2
-       if (y <= 0) return ! If the spin density changes sign, nonsensical to try and fit
-       dy = dlog(y)
-       norm(1,1) = norm(1,1) + 1
-       norm(1,2) = norm(1,2) + rofi(ir)
-       norm(2,1) = norm(2,1) + rofi(ir)
-       norm(2,2) = norm(2,2) + rofi(ir)**2
-       rhs(1) = rhs(1) + dy
-       rhs(2) = rhs(2) + rofi(ir)*dy
-    enddo
-    call dinv22(norm,tnorm)
-    a = tnorm(1,1)*rhs(1) + tnorm(1,2)*rhs(2)
-    b = tnorm(2,1)*rhs(1) + tnorm(2,2)*rhs(2)
-    pi = 4d0*datan(1d0)
-    y0 = 1d0/dsqrt(4d0*pi)
-    a = fac*exp(a)/y0
-    b = -b
-    if (b < 1) return !   Nonsensical if density not decaying fast enough
-    r0 = rofi(nr)
-    res = a*(2+2*b*r0+b**2*r0**2)/b**3*exp(-b*r0) ! Integral a*exp(-b*r)*r*r = (2+2*b*r0+b**2*r0*2)/b**3*exp(-b*r0)
-    decay = b
-    rho0 = a
-  end subroutine mkrou6
   subroutine mkrou3(lmxa,nlml,nsp,pnz,dmatl,sab,qsum) ! l-decomposed charges and eigenvalue sum
     !i   lmxa  :augmentation l-cutoff
     !i   dmatl :dmatl(l1,l2,mlm,i,j,isp) holds coefficients to a y_lm
@@ -661,18 +608,11 @@ contains
     do  isp = 1, nsp
        do  l = 0, lmxa
           m = l+1
-          qsum(m,isp) = &
-               + dmatl(l,l,1,1,1,isp)*sab(1,1,m,isp)*srfpi &
-               + dmatl(l,l,1,1,2,isp)*sab(1,2,m,isp)*srfpi &
-               + dmatl(l,l,1,2,1,isp)*sab(2,1,m,isp)*srfpi &
-               + dmatl(l,l,1,2,2,isp)*sab(2,2,m,isp)*srfpi
+          qsum(m,isp) = srfpi*sum(dmatl(l,l,1,1:2,1:2,isp)*sab(1:2,1:2,m,isp))
           if (pnz(m,1) /= 0) then!         ... uz, sz, zu, zs, zz terms
-             qz =   dmatl(l,l,1,1,3,isp)*sab(1,3,m,isp)*srfpi &
-                  + dmatl(l,l,1,2,3,isp)*sab(2,3,m,isp)*srfpi &
-                  + dmatl(l,l,1,3,1,isp)*sab(1,3,m,isp)*srfpi &
-                  + dmatl(l,l,1,3,2,isp)*sab(2,3,m,isp)*srfpi &
-                  + dmatl(l,l,1,3,3,isp)*sab(3,3,m,isp)*srfpi
-             qsum(m,isp) = qsum(m,isp) + qz  !qsum is including local orbital
+             qsum(m,isp) = qsum(m,isp) &
+                  + srfpi*sum(dmatl(l,l,1,1:2,3,isp)*sab(1:2,3,m,isp)) &
+                  + srfpi*sum(dmatl(l,l,1,3,1:3,isp)*sab(1:3,3,m,isp))  !qsum is including local orbital
           endif
        enddo
     enddo
@@ -686,4 +626,49 @@ contains
     ainv(1,2) = -a(1,2)/det
     ainv(2,1) = -a(2,1)/det
   end subroutine dinv22
+  ! subroutine mkrou6(rofi,rho,nr,nlml,nsp,rho0,decay,res) !- Fit tail of spin density; integrate charge beyond MT sphere
+  !   !i Inputs
+  !   !i   rofi  :radial mesh points
+  !   !i   rho   :spin-polarized charge density
+  !   !i   nr    :number of radial mesh points
+  !   !i   nlml  :L-cutoff for charge density on radial mesh
+  !   !o Outputs
+  !   !o   rho0  :fit density of form rho0*exp(-decay*r)
+  !   !o   decay :fit density of form rho0*exp(-decay*r)
+  !   !o   res   :integral of fit density from rofi(nr) to infinity
+  !   implicit none
+  !   integer :: nr,nlml,nsp
+  !   real(8) :: rofi(nr),rho(nr,nlml,2),rho0,decay,res
+  !   integer :: ir
+  !   real(8) :: norm(2,2),tnorm(2,2),rhs(2),y,dy,fac,y0,r0,pi,a,b
+  !   res = 0
+  !   if (nr < 10 .OR. nsp == 1) return
+  !   call dpzero(norm,4)
+  !   call dpzero(rhs,2)
+  !   fac = 1
+  !   if (rho(nr,1,1) < rho(nr,1,2)) fac = -1
+  !   do  ir = nr-5, nr
+  !      y = fac*(rho(ir,1,1) - rho(ir,1,2))/rofi(ir)**2
+  !      if (y <= 0) return ! If the spin density changes sign, nonsensical to try and fit
+  !      dy = dlog(y)
+  !      norm(1,1) = norm(1,1) + 1
+  !      norm(1,2) = norm(1,2) + rofi(ir)
+  !      norm(2,1) = norm(2,1) + rofi(ir)
+  !      norm(2,2) = norm(2,2) + rofi(ir)**2
+  !      rhs(1) = rhs(1) + dy
+  !      rhs(2) = rhs(2) + rofi(ir)*dy
+  !   enddo
+  !   call dinv22(norm,tnorm)
+  !   a = tnorm(1,1)*rhs(1) + tnorm(1,2)*rhs(2)
+  !   b = tnorm(2,1)*rhs(1) + tnorm(2,2)*rhs(2)
+  !   pi = 4d0*datan(1d0)
+  !   y0 = 1d0/dsqrt(4d0*pi)
+  !   a = fac*exp(a)/y0
+  !   b = -b
+  !   if (b < 1) return !   Nonsensical if density not decaying fast enough
+  !   r0 = rofi(nr)
+  !   res = a*(2+2*b*r0+b**2*r0**2)/b**3*exp(-b*r0) ! Integral a*exp(-b*r)*r*r = (2+2*b*r0+b**2*r0*2)/b**3*exp(-b*r0)
+  !   decay = b
+  !   rho0 = a
+  ! end subroutine mkrou6
 end module m_mkrout
