@@ -6,7 +6,7 @@ module m_augmbl !Add augmentation part to H and S. aughsoc add SO part to H.
   private
 contains
   subroutine augmbl(isp,q,osig,otau,oppi,ndimh, h,s)  !Add augmentation part to H and S. 
-    use m_lmfinit,only: nsp,nlmto, sspec=>v_sspec
+    use m_lmfinit,only: nsp,nlmto
     use m_lmfinit,only: nbas,alat=>lat_alat,ispec
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol,rv_a_opos
     use m_bstrux,only: Bstrux_set, bstr
@@ -113,7 +113,7 @@ contains
   subroutine aughsoc(qp,ohsozz,ohsopm,ndimh, hso) ! Spin-orbit-couping matrix hso
     use m_orbl,only: Orblib, norb,ltab,ktab,offl
     use m_struc_def,only: s_cv1,s_rv1,s_sblock
-    use m_lmfinit,only: nsp, lsox=>lso, nbas, nkaphh, ispec, sspec=>v_sspec,socaxis
+    use m_lmfinit,only: nsp, lsox=>lso, nbas, nkaphh, ispec, socaxis
     use m_bstrux,only: Bstrux_set, bstr
     use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat
     !i   qp    :Bloch wave number

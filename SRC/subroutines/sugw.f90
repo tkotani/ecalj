@@ -9,7 +9,7 @@ contains
     use m_struc_def,only: s_rv1, s_spec
     use m_suham,only: ndham=>ham_ndham !max dimension of hamiltonian +napwad (for so=0,2)
     use m_lmfinit,only: ham_pwmode,pwemax,ham_oveps,lrsig=>ham_lsig,nlmto,lso
-    use m_lmfinit,only: ham_scaledsigma,lat_alat,nsp,nspc,ispec,sspec=>v_sspec
+    use m_lmfinit,only: ham_scaledsigma,lat_alat,nsp,nspc,ispec
     use m_lmfinit,only: nbas,n0,nppn,nkap0,slabl,nmcorex=>nmcore,iantiferro,lmxax
     use m_lattic,only: lat_plat, lat_qlat,rv_a_opos
     use m_supot,only: n1,n2,n3, lat_gmax
@@ -33,7 +33,6 @@ contains
     !! == Driver for fpgw (to prepare eigenfuncitons for fpgw) ==
     !! NOTE: following documents are not carefully examined. Not believe everything.
     ! i Inputs
-    ! i   ssite,sspec,slat,sham :struct defined in m_struc_def.
     ! i   osig,otau,oppi  augmentation matrices, s_rv1
     ! i   sham%rv_a_ohrs: real space Sigma_vxc
     ! i   nbas  :size of basis
@@ -522,7 +521,7 @@ contains
   end subroutine m_sugw_init
   subroutine gwcphi(isp,nsp,nlmax,ndham,nev,nbas,lmxax,nlindx,ndima,aus, cphi,cphiw)
     use m_struc_def
-    use m_lmfinit,only: ispec,sspec=>v_sspec
+    use m_lmfinit,only: ispec
     use m_locpot,only: rotp
     use m_mkpot,only: sab_rv
     !- Project (phi,phidot) onto MT sphere, Kotani's GW conventions

@@ -51,7 +51,7 @@ contains
   subroutine m_mkpot_init()
     use m_supot,only: n1,n2,n3
     use m_density,only: osmrho, orhoat !main input to represent electron density
-    use m_lmfinit,only: lso,nbas,sspec=>v_sspec, nlibu,lmaxu,lldau,nsp,lat_alat,lxcf,lpzex
+    use m_lmfinit,only: lso,nbas, nlibu,lmaxu,lldau,nsp,lat_alat,lxcf,lpzex
     use m_struc_def,only: s_rv1,s_sblock
     integer:: i,is,ib,kmax,lmxa,lmxh,nelt2,nlma,nlmh,iprint
     call tcn('m_mkpot_init')
@@ -85,7 +85,7 @@ contains
   subroutine mkpot(job,smrho,orhoat, smpot,osig,otau,oppi,fes,ohsozz,ohsopm, novxc_)!- Make the potential from the density (smrho, orhoat) !dipole_) 
     ! job=0 => not make core and augmentation matrices
     ! job=1 => make core and augmentation matrices     ! xxxxxx problematic option dipole_ removed. (for <i|{\bf r}|j> matrix for novxc)
-    use m_lmfinit,only:lso,nbas,ispec,sspec=>v_sspec,nlibu,lmaxu,lldau,nsp,alat=>lat_alat,lxcf,lpzex
+    use m_lmfinit,only:lso,nbas,ispec,nlibu,lmaxu,lldau,nsp,alat=>lat_alat,lxcf,lpzex
     use m_lattic,only: plat=>lat_plat, vol=>lat_vol,rv_a_opos
     use m_supot,only: n1,n2,n3
     use m_MPItk,only: master_mpi
@@ -319,7 +319,7 @@ contains
   end subroutine mkpot
   subroutine dfaugm(osig, otau, oppi, ohsozz,ohsopm )
     use m_struc_def,only:s_rv1,s_cv1,s_sblock
-    use m_lmfinit,only: lso,nkaphh,nsp,nbas,ispec,sspec=>v_sspec
+    use m_lmfinit,only: lso,nkaphh,nsp,nbas,ispec
     !o  osig,otau,oppi,ohsozz  :memory allocated (ohsoz is for SOC)
     !r Remarks
     !r   sig and tau are l diagonal, ppi is full matrix
@@ -379,7 +379,7 @@ end module m_mkpot
   !$$$! nov2021:   dipole option is added whether we calculate <i|{\bf r}|j> matrix (by differece).
   !$$$      use m_supot,only: n1,n2,n3
   !$$$      use m_density,only: osmrho, orhoat !main input density
-  !$$$      use m_lmfinit,only: nkaph,nsp,nbas,ssite=>v_ssite,sspec=>v_sspec
+  !$$$      use m_lmfinit,only: nkaph,nsp,nbas,ssite=>v_ssite,kmxt_i=>kmxt,lmxa_i=>lmxa,lmxh_i=>lmxh
   !$$$      integer:: i,lfrzw,ib,is,kmax,lmxa,lmxh,nlma,nlmh,iidipole,ilfzw
   !$$$      logical:: novxc_
   !$$$      write(stdo,"(a)")' m_mkpot_novxc_dipole: Making one-particle potential without XC part ...'
@@ -400,9 +400,9 @@ end module m_mkpot
   !$$$      spotxd=0d0
   !$$$      do  ib = 1, nbas
   !$$$         is = int(ssite(ib)%spec)
-  !$$$         lmxa=sspec(is)%lmxa
-  !$$$         lmxh=sspec(is)%lmxb
-  !$$$         kmax=sspec(is)%kmxt
+  !$$$         lmxa=lmxa_i(is)
+  !$$$         lmxh=lmxb_i(is)
+  !$$$         kmax=kmxt_i(is)
   !$$$         nlma = (lmxa+1)**2
   !$$$         nlmh = (lmxh+1)**2
   !$$$         do iidipole=1,3        !see dfaugm

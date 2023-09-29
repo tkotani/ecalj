@@ -6,7 +6,7 @@ module m_pwmat
 ! Matrix elements (IPW,IPW) and (IPW,envelope function)
 subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
   use m_struc_def     
-  use m_lmfinit,only: alat=>lat_alat,ispec,sspec=>v_sspec,n0,nkap0,pi,pi4,rmt_i=>rmt
+  use m_lmfinit,only: alat=>lat_alat,ispec,n0,nkap0,pi,pi4,rmt_i=>rmt
   use m_lattic,only:  qlat=>lat_qlat, vol=>lat_vol,plat=>lat_plat,rv_a_opos
   use m_uspecb,only:uspecb
   use m_orbl,only: Orblib,ktab,ltab,offl,norb

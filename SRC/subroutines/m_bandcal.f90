@@ -342,7 +342,7 @@ contains
   end subroutine m_bandcal_symsmrho
   subroutine mkorbm(isp,nev,iq,qp,evec, orbtm) !decomposed orbital moments within MT
     use m_ll,only:ll
-    use m_lmfinit,only: ispec,sspec=>v_sspec,nbas,nlmax,nsp,nspc,n0,nppn,lmxax
+    use m_lmfinit,only: ispec,nbas,nlmax,nsp,nspc,n0,nppn,lmxax
     use m_igv2x,only: napw,ndimh,ndimhx,igvapw=>igv2x
     use m_mkpot,only: sab_rv
     use m_subzi, only: wtkb=>rv_a_owtkb
@@ -443,7 +443,7 @@ contains
     deallocate(aus)
   end subroutine mkorbm
   subroutine mkdmtu(isp,iq,qp,nev,evec,dmatu) !Get density matrix dmatu for LDA+U (phi-projected density matrix)
-    use m_lmfinit,only: ispec,sspec=>v_sspec,nbas,nlmax,nsp,nspc,n0,nppn,nlibu,lmaxu,nlibu,lldau,idu
+    use m_lmfinit,only: ispec,nbas,nlmax,nsp,nspc,n0,nppn,nlibu,lmaxu,nlibu,lldau,idu
     use m_mkpot,only: phzdphz
     use m_subzi, only: wtkb=>rv_a_owtkb
     use m_igv2x,only: ndimh
@@ -452,7 +452,6 @@ contains
     use m_locpot,only: rotp
     ! ----------------------------------------------------------------------
     !i Inputs
-    !i   sspec : lmxa idu
     !i   wtkb  :eigenvalue weights for BZ integration of occupied states
     !i   isp   :current spin channel (1 or 2)
     !i   iq    :qp index, used only to address element in wtkb
@@ -543,7 +542,7 @@ contains
   end subroutine mkdmtu
 end module m_bandcal
 subroutine dfqkkl( oqkkl ) !Allocates arrays to accumulate output site density
-  use m_lmfinit,only: nsp,nbas,ispec,sspec=>v_sspec,nkaphh,lmxa_i=>lmxa,kmxt_i=>kmxt,lmxb_i=>lmxb
+  use m_lmfinit,only: nsp,nbas,ispec,nkaphh,lmxa_i=>lmxa,kmxt_i=>kmxt,lmxb_i=>lmxb
   use m_struc_def,only:s_rv5   !o oqkkl : memory is allocated for qkkl
   implicit none
   type(s_rv5) :: oqkkl(3,nbas)

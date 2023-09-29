@@ -14,7 +14,7 @@ subroutine rhomom(sv_p_orhoat, qmom,vsum)
   use m_struc_def
   use m_lmfinit,only: z_i=>z,nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,lmxb_i=>lmxb,lmxl_i=>lmxl,spec_a,&
        kmxt_i=>kmxt,lfoca_i=>lfoca,rfoca_i=>rfoca,rg_i=>rg
-  use m_lmfinit,only: nsp,nbas,sspec=>v_sspec,jnlml,ispec
+  use m_lmfinit,only: nsp,nbas,jnlml,ispec
   use m_lgunit,only:stdo
   use m_hansr,only:corprm
   implicit none

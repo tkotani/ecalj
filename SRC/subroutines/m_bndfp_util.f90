@@ -5,7 +5,7 @@ module m_bndfp_util
 contains
   subroutine mkekin(osig,otau,oppi,oqkkl,vconst,smpot,smrho,sumev, ekinval) !- Evaluate the valence kinetic energy
     use m_struc_def
-    use m_lmfinit,only:nsp,nspc,stdo,nbas,ispec,sspec=>v_sspec,nlmto
+    use m_lmfinit,only:nsp,nspc,stdo,nbas,ispec,nlmto
     use m_lmfinit,only: lmxa_i=>lmxa,lmxb_i=>lmxb,kmxt_i=>kmxt
     use m_lattic,only: lat_vol
     use m_supot,only: n1,n2,n3
@@ -305,7 +305,7 @@ contains
 100 format(/1x,'MAKDOS :  range of gaussians is ',f5.2,'W (',i4,' bins).'/11x,'Error estimate in DOS : ',1pe9.2,' per state.')
   end subroutine makdos
   subroutine phispinsym_ssite_set()
-    use m_lmfinit,only: nbas,nsp,sspec=>v_sspec,n0,ispec,lmxa_i=>lmxa
+    use m_lmfinit,only: nbas,nsp,n0,ispec,lmxa_i=>lmxa
     use m_MPItk,only:master_mpi
     use m_struc_def
     use m_lgunit,only:stdo
@@ -337,12 +337,10 @@ contains
     enddo
   end subroutine phispinsym_ssite_set
   subroutine iorbtm()! Printout of orbital moments
-    use m_lmfinit,only: ispec,sspec=>v_sspec,nsp,nbas,slabl,lmxax
+    use m_lmfinit,only: ispec,nsp,nbas,slabl,lmxax
     use m_bandcal,only: orbtm=>orbtm_rv
     use m_lgunit,only:stdo
     !i Inputs
-    !i   sspec :struct containing species-specific information
-    !i     Elts read: name
     !i   ics   :species table: class ic belongs to species ics(ic)
     !i   nl    :(global maximum l) + 1
     !i   nclass:number of inequivalent classes

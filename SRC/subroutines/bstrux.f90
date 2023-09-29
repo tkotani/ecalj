@@ -46,7 +46,7 @@ contains
   end subroutine bstrux_set
   subroutine m_bstrux_init() !q for qplist --> not yet for sugw.
     use m_qplist,only: qplist,iqini,iqend
-    use m_lmfinit,only: lfrce,nlmax,kmxt,nspec,nbas,ispec,sspec=>v_sspec,rsma
+    use m_lmfinit,only: lfrce,nlmax,kmxt,nspec,nbas,ispec,rsma
     use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat,rv_a_opos
     use m_igv2x,only: napw, igvapw=>igv2x, ndimh,m_Igv2x_setiq !igvapwin=>igv2x,
     integer:: kmaxx,ia,isa,lmxa,lmxb,kmax,nlmb,nlma,mode,inn(3),ig,iq,ndimhmax
@@ -80,7 +80,7 @@ contains
   subroutine bstrux(mode,ia,pa,rsma,q,kmax,nlma,ndimh,napw,igapw,  b, db)
     use m_smhankel,only: hxpbl,hxpgbl
     use m_struc_def
-    use m_lmfinit,only:alat=>lat_alat,lhh,nkaphh,nkapii,ispec,sspec=>v_sspec,nbas
+    use m_lmfinit,only:alat=>lat_alat,lhh,nkaphh,nkapii,ispec,nbas
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol,rv_a_opos
     use m_uspecb,only: uspecb
     use m_orbl,only: Orblib, norb,ltab,ktab,offl

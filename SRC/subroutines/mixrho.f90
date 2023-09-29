@@ -33,7 +33,7 @@ contains
   subroutine mixrho(iter, qval,  sv_p_orhnew, sv_p_orhold, smrnew, smrho,rmsdel)! Mix old and new charge densities =  Takao's version: real space mixing of smrho. It works OK. However, we may need to fix it so that this is well-defined chi=|rho-f(rho)|**2 minimization mixing.
     use m_struc_def
     use m_supot,only: iv_a_okv,rv_a_ogv,n1,n2,n3
-    use m_lmfinit,only:lat_alat,nbas,stdl,ispec,sspec=>v_sspec,nsp,&
+    use m_lmfinit,only:lat_alat,nbas,stdl,ispec,nsp,&
          broyinit,nmixinit,betainit,killj,wtinit,wc,bexist,mix_nsave !elinls=>elinl,
     use m_lattic,only: lat_vol
     use m_supot,only:  lat_ng,n1,n2,n3
@@ -624,23 +624,13 @@ contains
        endif
     enddo
   end subroutine mixrho
-
-
   subroutine pvmix3 ( nbas , nsp , beta , locmix &
        , wt , kmxr , nlm0 , k9 , qkl , sv_p_orhold , sv_p_orhnew , difx  )
     use m_struc_def  
-    use m_lmfinit,only: ispec,sspec=>v_sspec
+    use m_lmfinit,only: ispec
     !- Linearly mix local densities, possibly subtracting G_kL expansion
     ! ----------------------------------------------------------------------
     !i Inputs
-    !i   ssite :struct for site-specific information; see routine usite
-    !i     Elts read: spec
-    !i     Stored:    *
-    !i     Passed to: *
-    !i   sspec :struct for species-specific information; see routine uspec
-    !i     Elts read: a nr rmt rg lmxl
-    !i     Stored:    *
-    !i     Passed to: *
     !i   nbas  :size of basis
     !i   nsp   :2 for spin-polarized case, otherwise 1
     !i   beta  :linear mixing parameter
@@ -672,25 +662,16 @@ contains
     !u Updates
     !u   21 Nov 01 First created
     ! ----------------------------------------------------------------------
-    !     implicit none
-    ! ... Passed parameters
+    implicit none
     integer :: nbas,nsp,kmxr,nlm0,locmix,k9
     type(s_rv1) :: sv_p_orhold(3,nbas)
-
     type(s_rv1) :: sv_p_orhnew(3,nbas)
-
-    ! ino wt(3)      real(8):: difx , beta , wt(2) , qkl(0:kmxr,nlm0,nsp,4,nbas)
     real(8):: difx , beta , wt(3) , qkl(0:kmxr,nlm0,nsp,4,nbas)
-    !    type(s_site)::ssite(*)
-    !    type(s_spec)::sspec(*)
-
-    ! ... Local parameters
     integer :: ib,is,igetss,nr,nlml,m,lmxl,k9l
     integer::  i !orsm(4) ,
     real(8) ,allocatable :: ri_rv(:)
     real(8) ,allocatable :: rwgt_rv(:)
     double precision :: a,rmt,rg,difa,rf
-    ! ... Heap
     real(8),allocatable:: w_orsm(:,:)
     real(8):: wdummy
     complex(8):: cdummy(1,1,1,1)
@@ -900,7 +881,7 @@ contains
        , locmix , k9 , nbas , kmxr , nlm0 , nsp , sv_p_orhold &
        , sv_p_orhnew , co , cn , ng2 , ng02 , cnst , nda , a , qkl , rms2 &
        , nmixr )
-    use m_lmfinit,only:ispec,sspec=>v_sspec
+    use m_lmfinit,only:ispec
     use m_struc_def
     use m_ftox
     !- Copy rho into holding array, read prior iterations from disk
@@ -917,14 +898,6 @@ contains
     !i  locmix :switch governing linear transformation of local densities
     !i          for mixing; see Local variables in subroutine mixrho.
     !i  nbas   :size of basis
-    !i  ssite  :struct for site-specific information; see routine usite
-    !i     Elts read: spec
-    !i     Stored:    *
-    !i     Passed to: rhogkl
-    !i   sspec :struct for species-specific information; see routine uspec
-    !i     Elts read: a nr rmt lmxl
-    !i     Stored:    *
-    !i     Passed to: rhogkl
     !i   nsp   :2 for spin-polarized case, otherwise 1
     !i   orhold:input local density this iteration,
     !i         :transformed into unscaled rho1+rho2 and rho1-rho2 (pvmix9)
@@ -1319,19 +1292,11 @@ contains
   subroutine pvmix7 ( nbas , nsp , nda , a , n1 , n2 , n3 , locmix , wt , k9 , kmxr , nlm0 , qkl &
        , ng , ng2, ng02 , kv , ips0 , gv , crho , wk , sv_p_orhold , smrho &
        ,wgtsmooth)
-    use m_lmfinit,only: ispec,sspec=>v_sspec
+    use m_lmfinit,only: ispec
     use m_struc_def 
     !- Restore mixed density into specific arrays
     ! ----------------------------------------------------------------------
     !i Inputs
-    !i   ssite :struct for site-specific information; see routine usite
-    !i     Elts read: spec
-    !i     Stored:    *
-    !i     Passed to: *
-    !i   sspec :struct for species-specific information; see routine uspec
-    !i     Elts read: a nr rmt lmxl rg
-    !i     Stored:    *
-    !i     Passed to: *
     !i   nbas  :size of basis
     !i   nsp   :2 for spin-polarized case, otherwise 1
     !i   nda   :leading dimension of a
@@ -2367,14 +2332,6 @@ contains
     !i                        3 combination 1+2
     !i         : 100s digit = 1 add -1 * nuclear density Y0 Z delta(r)
     !i   kmax  :make expansion coffs to polynomial cutoff kmax
-    !i   ssite :struct for site-specific information; see routine usite
-    !i     Elts read: spec
-    !i     Stored:    *
-    !i     Passed to: *
-    !i   sspec :struct for species-specific information; see routine uspec
-    !i     Elts read: lmxl z qc a nr rmt rg
-    !i     Stored:    *
-    !i     Passed to: corprm
     !i   orhoat:vector of offsets containing site density
     !o Outputs
     !o   qkl  :Expansion coefficients, stored as a single long vector.

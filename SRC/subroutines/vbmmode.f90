@@ -1,5 +1,6 @@
-subroutine vbmmode()!Get VBM and CBM relative to vaccum (a simple approximaiton. need fixing.).
-  use m_lmfinit,only: sspec=>v_sspec,ispec,nbas,vol,nspec,rmt_i=>rmt,z_i=>z
+!>Get VBM and CBM relative to vaccum (a simple approximaiton. need fixing.).
+subroutine vbmmode()
+  use m_lmfinit,only: ispec,nbas,vol,nspec,rmt_i=>rmt,z_i=>z
   use m_ext,only:sname
   implicit none
   character(120):: vbmlll

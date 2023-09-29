@@ -51,13 +51,10 @@ contains
     msg   = '         File mismatch:'
     procid = mpipid(1)
     master = 0
-!    mlog = cmdopt('--mlog',6,0,strn)
     if(ipr>=10)write(stdo,"(/'rdovfa: read and overlap free-atom densities',' (mesh density) ...')")
     alat=lat_alat
     plat=lat_plat
-!    ngabc=lat_nabc
     vol=lat_vol
-!    call fftz30(n1,n2,n3,n1,n2,n3)
     hfc=0d0
     exi=0d0
     hfc=0d0
@@ -69,13 +66,10 @@ contains
        spid(is)=slabl(is)
        a= spec_a(is)
        nr=nr_i(is)
-       allocate(rv_a_orhofa(is)%v(nr*nsp))
-       rv_a_orhofa(is)%v=0d0
+       allocate(rv_a_orhofa(is)%v(nr*nsp),   source=0d0)
        if(allocated(sspec(is)%rv_a_orhoc)) deallocate(sspec(is)%rv_a_orhoc)
-       allocate(sspec(is)%rv_a_orhoc(nr*nsp) )
-       sspec(is)%rv_a_orhoc=0d0
-       allocate(rv_a_ov0a(is)%v(nr*nsp))
-       rv_a_ov0a(is)%v(:)=0d0
+       allocate(sspec(is)%rv_a_orhoc(nr*nsp),source=0d0)
+       allocate(rv_a_ov0a(is)%v(nr*nsp),     source=0d0)
        rmt=rmt_i(is)
        z=z_i(is)
        lfoc=lfoca_i(is)
@@ -336,7 +330,6 @@ contains
     complex(8),allocatable:: b(:,:)
     data q /0d0,0d0,0d0/
     integer:: ibini,ibend
-
     call tcn('ovlocr')
     ipr  = iprint()
     sqloc = 0
@@ -393,9 +386,7 @@ contains
     enddo
     call tcx('ovlocr')
   end subroutine ovlocr
-  subroutine p1ovlc(kmxv,nlml,hfc,b,b0,a)
-    !- Adds contribution to P_kl expansion of density from one basis function
-    ! ----------------------------------------------------------------------
+  subroutine p1ovlc(kmxv,nlml,hfc,b,b0,a)!- Adds contribution to P_kl expansion of density from one basis function
     !i Inputs
     !i   nlml  :density expanded to nlml
     !i   kmxv  :k-cutoff for P_kl expansion
@@ -404,8 +395,6 @@ contains
     !i   b0    :P_kl expansion of on-site density
     !o Outputs
     !o   a     :cumulative P_kl expansion of density for this site
-    !u Updates
-    ! ----------------------------------------------------------------------
     implicit none
     integer :: nlml,kmxv
     double precision :: a(0:kmxv,nlml),b0(0:kmxv,1),hfc
@@ -418,8 +407,6 @@ contains
        a(k,1) = a(k,1) - hfc*b0(k,1)
 10  enddo
   end subroutine p1ovlc
-
-
   subroutine p2ovlc(ib,nsp,rsmv,kmxv,nr,nlml,acof,rofi,rwgt, &
        nxi0,nxi,exi,hfc,rsmfa,rhofa,rhoc,lfoca,qcsm,qloc,amom,rho1,rho2)
     use m_lgunit,only:stdo
@@ -741,5 +728,4 @@ contains
     endif
     call tcx('ovlpfa')
   end subroutine ovlpfa
-
 end module m_rdovfa

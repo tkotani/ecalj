@@ -462,9 +462,7 @@ contains
     use m_smvxcm,only: smvxcm
     !- Makes derivative of smoothed xc potential wrt density.
     implicit none
-    ! ... Passed parameters
     integer :: nbas,nsp,n1,n2,n3
-    !  type(s_spec)::sspec(*)
     complex(8):: vxcp(n1,n2,n3,nsp),vxcm(n1,n2,n3,nsp), &
          dvxc(n1,n2,n3,nsp),smrho(n1,n2,n3,nsp), &
          wn1(n1,n2,n3,nsp),wn2(n1,n2,n3,nsp), &
@@ -629,7 +627,6 @@ contains
     implicit none
     integer :: ng,iv(ng,3),i_copy_size
     real(8):: qmom(1) , g2(ng) , yl(ng,1) , cs(ng) , sn(ng) , qlat(3,3)
-    !  type(s_spec)::sspec(*)
     double complex cv(ng)
     integer :: ig,ib,ilm,is,iv0,l,lmxl,m,nlm,nlmx,lfoc
     parameter (nlmx=64)

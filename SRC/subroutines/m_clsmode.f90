@@ -1,6 +1,6 @@
 !>CLS: Core-level spectroscopy !We use CLSinput instead of --cls option.
 module m_clsmode 
-  use m_lmfinit, only: lmet=>bz_lmet,nbas,nsp,sspec=>v_sspec,nlmax,nspc,lso,stdo
+  use m_lmfinit, only: lmet=>bz_lmet,nbas,nsp,nlmax,nspc,lso,stdo
   use m_suham,only:   ndham=>ham_ndham
   use m_mkqp,only: nkp=>bz_nkp
   use m_MPItk,only: master_mpi
@@ -17,22 +17,12 @@ contains
     character(512):: aaachar
     !! --- Options for core level specta (CLS) ---
     if (cmdopt0('--cls')) then
-       !if (lmet/=2) call rx('For CLS restart with METAL=2')
        icls = 1
-       !     clsopt = strn(6:)
-       !     call suclst(nsitmx,nbas,nsp,ssite,sspec,clsopt,
-       !     .     isite,iclsl,iclsn,nsites)
-       !     open(newunit=ific,file='CLSinput') !2022apr28
-       !     do i=1,nsites
-       !     write(ific,ftox)isite(i),iclsl(i),iclsn(i),' ! site,core-l,core-n'
-       !     enddo
-       !     close(ific)
        open(newunit=ific,file='CLSinput') !2022apr28
        i=0
        do
           i=i+1
           read(ific,*,err=1018,end=1018) isite(i),iclsl(i),iclsn(i)
-          !     write(stdo,ftox)'xxx clsmode for',isite(i),iclsl(i),iclsn(i),' ! site,core-l,core-n'
        enddo
 1018   continue
        close(ific)
@@ -40,9 +30,7 @@ contains
        do i=1,nsites
           write(stdo,ftox)'clsmode for',isite(i),iclsl(i),iclsn(i),' ! site,core-l,core-n'
        enddo
-
-       if (16*3*nlmax*ndham*nbas*nsp*nkp/1000000 > 24 .AND. master_mpi) then
-          !     ! this path is go through by crn test.
+       if (16*3*nlmax*ndham*nbas*nsp*nkp/1000000 > 24 .AND. master_mpi) then ! this path is go through by crn test.
           aaachar= &
                ' CLS: '//trim(i2char( 16*3*nlmax*ndham*nsites*nsp*nkp/1000000))// &
                ' Mb memory for aus: nlmax='//trim(i2char( nlmax))// &

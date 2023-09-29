@@ -5,7 +5,7 @@ module m_makusq !Accumulate coefficients (u,s,z) in all augmentation spheres for
   private
   contains
 subroutine makusq(nsites,isite,nev,isp,iq,q,evec, auszall)!Accumulate coefficients (u,s,z) in all augmentation spheres for evec(:,iq,isp)
-  use m_lmfinit,only: ispec,sspec=>v_sspec,nbas,nlmax,nsp,nspc,nkapii,lhh,rsma
+  use m_lmfinit,only: ispec,nbas,nlmax,nsp,nspc,nkapii,lhh,rsma
   use m_suham,only: ndham=>ham_ndham
   use m_igv2x,only: ndimh 
   use m_uspecb,only:uspecb

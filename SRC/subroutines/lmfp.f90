@@ -3,7 +3,7 @@ module m_lmfp !Driver for iteration loop for lmf-MPIK (electronic and MD)
   private
 contains
   subroutine lmfp(llmfgw)
-    use m_lmfinit,only: lhf, maxit,nbas,nsp, ham_seref,  sspec=>v_sspec, ispec, slabl,&
+    use m_lmfinit,only: lhf, maxit,nbas,nsp, ham_seref,  ispec, slabl,&
          nlibu,stdo,lrout,leks,plbnd,lpzex, nitrlx, indrx_iv,natrlx,xyzfrz,pdim,qtol,etol,alat
     use m_lattic,only: qlat=>lat_qlat,rv_a_opos,plat=>lat_plat
     use m_bandcal,only: dmatu
@@ -27,8 +27,6 @@ contains
     !! (Most of) all data in modules are 'protected' (m_density contains iterative quantities)
     !! Thus data in m_lmfinit, m_lattic, m_mksy, m_ext, ... are fixed during iteration.
     !! Currently rhoat, smrho, smpot in m_supot are iterated. ham_ehf _ehk changed by iterations.
-    !     sspec :struct for species-specific information. I think fixed during iteration. See m_lmfinit.
-    !     ssite :struct for site-specific information
     ! Memo for LDA+U. See m_ldau module.
     !     lmaxu : max l for a U (used for dimensioning)
     !     nlibu : total number of U blocks
@@ -83,8 +81,8 @@ contains
     call Mpi_barrier(MPI_COMM_WORLD,ierr)
     call Mpibc1_real(vs,1,'lmv7: vs: version id of rst file')
     k=-1 !try to read rst files containing density
-    if(vs==2d0) k = iors(nit1,'read') ! read rst file. sspec ssite maybe modified
-    if(vs/=2d0) k = iors_old(nit1,'read') ! read rst file. sspec ssite maybe modified
+    if(vs==2d0) k = iors(nit1,'read') ! read rst file. 
+    if(vs/=2d0) k = iors_old(nit1,'read') ! read rst file. 
     call Mpibc1_int(k,1,'lmv7:lmfp_k')
     if(k<0) then 
        call rdovfa()  ! Initial potential from atm file (lmfa) if rst can not read

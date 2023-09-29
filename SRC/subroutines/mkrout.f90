@@ -14,7 +14,7 @@ module m_mkrout
   private
 contains
   subroutine m_mkrout_init()
-    use m_lmfinit,only: sspec=>v_sspec,ispec,nsp,lfrce,lrout,nbas
+    use m_lmfinit,only: ispec,nsp,lfrce,lrout,nbas
     use m_bandcal,only: oqkkl,oeqkkl,frcband
     use m_mkpot,only: hab_rv,sab_rv
     use m_suham,only: ham_ndham
@@ -205,7 +205,7 @@ contains
        else
           sumtc = sumtc + stc0
           sumt0 = sumt0 + stc0
-          orhoat_out(3,ib)%v(1:nsp*nr)= sspec(is)%rv_a_orhoc(1:nr*nsp) !call dpcopy(sspec(is)%rv_a_orhoc, orhoat_out(3,ib)%v,1,nr* nsp,1d0 ) !core
+          orhoat_out(3,ib)%v(1:nsp*nr)= sspec(is)%rv_a_orhoc(1:nr*nsp) 
        endif
        deallocate(rofi_rv,rwgt_rv)
     enddo ibloop

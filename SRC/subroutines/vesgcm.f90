@@ -5,7 +5,7 @@ module m_vesgcm
   public vesgcm
   contains
   subroutine vesgcm(qmom,ng,gv,kv,cv,cg1,cgsum,smpot,f,gpot0,hpot0,qsmc,zsum,vrmt)! Adds contribution from gaussians+smHanmekels to 0th estat pot.
-    use m_lmfinit,only:alat=>lat_alat,ispec,sspec=>v_sspec,nbas,cy=>rv_a_ocy,nlmx,k0
+    use m_lmfinit,only:alat=>lat_alat,ispec,nbas,cy=>rv_a_ocy,nlmx,k0
     use m_lattic,only: vol=>lat_vol,rv_a_opos
     use m_lgunit,only:stdo
     use m_supot,only: k1=>n1,k2=>n2,k3=>n3

@@ -8,7 +8,7 @@ module m_freeat !free-standing spherical atom calculaitons for initial contditio
 contains
   subroutine freeat() !For all species, we make free atom self-consistent, and get density to files.
     use m_ext,only:sname
-    use m_lmfinit,only: smalit,lxcf,ham_seref,nsp,nspec, sspec=>v_sspec,& 
+    use m_lmfinit,only: smalit,lxcf,ham_seref,nsp,nspec, & 
          idmod,slabl,vmtz,eref,rs3,eh3,nmcore,coreh,coreq,pnux=>pnusp,pzsp,qnu
     use m_ftox
     !Inputs  are module variables of m_lmfinit
@@ -31,7 +31,6 @@ contains
     open(newunit=ifiwv,file='veswavatm.'//trim(sname)//'.chk')
     hfct = 0d0
     do  is = 1, nspec ! Takao found that Li requires -0.5 to have positive smooth rho.
-!       if(sspec(is)%z<3.5) then !At least for Li, fitting is not good (negative smooth rho).
        if(z_i(is)<3.5) then !At least for Li, fitting is not good (negative smooth rho).
           exi(1:7) = [real(8):: -0.5, -1,-2,-4,-6,-9,-15]
           nxi = 7
@@ -41,7 +40,7 @@ contains
        endif
        nrmix= smalit
        spid = slabl(is) 
-       rfoca= rfoca_i(is) !sspec(is)%rfoca
+       rfoca= rfoca_i(is) 
        qcor = coreq(:,is)
        chole= coreh(is)
        call gtpcor(is,kcor,lcor,qcor)
@@ -520,13 +519,6 @@ contains
 50     enddo
        close(ifi)
     endif
-!!! print out qbyl
-    !      open('qinrmt.'//trim(sname))
-    !      do  ib = 1, nbas
-    !        ispec(ib)
-    !        write(ifqbyl,"(i3,10f12.6)") sspec(ispec)%lmxa, (sum(qbyl_rv(il,1:nsp,ib)),il=1,lmaxa)
-    !      enddo
-    !      close(ifqbyl)
   end subroutine pratfs
   subroutine ppratf(e,z,nr,nre,rofi,a,b,v,g,pzero,pmax,ctp) ! Find outermost node and maximum of wavefct
     !i Inputs

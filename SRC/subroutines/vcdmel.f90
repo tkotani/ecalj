@@ -4,7 +4,7 @@ module m_vcdmel! Valence-core dipole matrix elements
   private
 contains  
   subroutine vcdmel(nlmax,ndham,ndimh,nq,nsp,nspc,ef,evl,aus,nsite,isite,iclsl,iclsn,dosw)! Valence-core dipole matrix elements
-    use m_lmfinit,only: rv_a_ocg,iv_a_ojcg,iv_a_oidxcg,ispec,sspec=>v_sspec,n0,lmxax
+    use m_lmfinit,only: rv_a_ocg,iv_a_ojcg,iv_a_oidxcg,ispec,n0,lmxax
     use m_mkqp,only: iv_a_oidtet ,bz_nabc, bz_ntet
     use m_struc_def
     use m_ext,only: sname     !extention for file

@@ -44,7 +44,7 @@ contains
     call tcx('hambl')
   endsubroutine hambl
   subroutine smhsbl(vavg,q,ndimh, napw,igapw, h,s)!- Smoothed Bloch Hamiltonian (constant potential) and overlap matrix
-    use m_lmfinit,only: alat=>lat_alat,nbas,nkaphh,lhh, ispec,sspec=>v_sspec,lmxa_i=>lmxa
+    use m_lmfinit,only: alat=>lat_alat,nbas,nkaphh,lhh, ispec,lmxa_i=>lmxa
     use m_lattic,only: lat_plat,rv_a_opos,qlat=>lat_qlat,vol=>lat_vol
     use m_uspecb,only:uspecb
     use m_orbl,only: Orblib1,Orblib2,ktab1,ltab1,offl1,norb1,ktab2,ltab2,offl2,norb2

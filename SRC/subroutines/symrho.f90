@@ -41,7 +41,7 @@ subroutine symrat(sv_p_orhoat , qbyl , hbyl , f )
   use m_mksym,only: oistab , symops, ag,ngrp,ipc_iv=>iclasst
   use m_lattic,only: lat_qlat,lat_plat,rv_a_opos
   use m_lgunit,only:stdo
-  use m_lmfinit,only: ispec,sspec=>v_sspec,lfrce,nbas,nsp,n0
+  use m_lmfinit,only: ispec,lfrce,nbas,nsp,n0
   !     - Symmetrize the atomic charge densities and the forces.
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -210,7 +210,7 @@ subroutine psymr1 ( nrclas,ipa,nr,nlml,nsp,nlmx,sym,rho,sv_p_orhoat,icmp )
 end subroutine psymr1
 subroutine prrhat(sv_p_orhoat )
   use m_struc_def
-  use m_lmfinit,only: nsp,nbas, sspec=>v_sspec,ispec
+  use m_lmfinit,only: nsp,nbas, ispec
   use m_lgunit,only:stdo
   type(s_rv1) :: sv_p_orhoat(3,nbas)
   integer:: ib , lmxl , nr , nlml , is , igetss

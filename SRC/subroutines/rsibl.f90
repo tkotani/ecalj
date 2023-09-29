@@ -14,10 +14,6 @@ contains
     !i Inputs
     !i   lfrce :if nonzero, accumulate contribution to force
     !i   nbas  :size of basis
-    !i   sspec :struct for species-specific information; see routine uspec
-    !i     Elts read: ngcut
-    !i     Stored:    *
-    !i     Passed to: tbhsi rsibl1 uspecb
     !i   lfrce :1 calculate contribution to forces
     !i   nbas  :size of basis
     !i   q     :Bloch vector
@@ -352,7 +348,7 @@ contains
   subroutine rsibl_ev(isp,q,iq,ndimh,nspc,napw,igapw,nevec,evec,k1,k2,k3, n_eiglist,eiglist)
     use m_struc_def
     use m_w_psir
-    use m_lmfinit,only:  lat_alat,nspec,ispec,sspec=>v_sspec,nbas,z_i=>z
+    use m_lmfinit,only:  lat_alat,nspec,ispec,nbas,z_i=>z
     use m_lattic,only: lat_qlat,lat_vol
     use m_supot,only: n1,n2,n3, lat_ng, lat_gmax
     use m_lattic,only: lat_plat,rv_a_opos
@@ -362,18 +358,6 @@ contains
     !i Inputs
     !i  x lfrce :if nonzero, accumulate contribution to force
     !i   nbas  :size of basis
-    !i   ssite :struct for site-specific information; see routine usite
-    !i     Elts read: spec pos
-    !i     Stored:    *
-    !i     Passed to: rsibl1
-    !i   sspec :struct for species-specific information; see routine uspec
-    !i     Elts read: ngcut
-    !i     Stored:    *
-    !i     Passed to: tbhsi rsibl1 uspecb
-    !i   slat  :struct for lattice information; see routine ulat
-    !i     Elts read: alat plat qlat gmax nabc ng ogv okv vol
-    !i     Stored:    *
-    !i     Passed to: *
     !i   lfrce :1 calculate contribution to forces
     !i   nbas  :size of basis
     !i   q     :Bloch vector

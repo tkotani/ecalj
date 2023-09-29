@@ -4,7 +4,7 @@ module m_sugcut
   private
 contains  
 subroutine sugcut(mode) 
-  use m_lmfinit,only: nspec,alat=>lat_alat,tol=>lat_tolft,n0,nkap0,nkaphh,lhh,nkapii,sspec=>v_sspec,slabl
+  use m_lmfinit,only: nspec,alat=>lat_alat,tol=>lat_tolft,n0,nkap0,nkaphh,lhh,nkapii,slabl
   use m_supot,only: gv=>rv_a_ogv,ng=>lat_ng
   use m_uspecb,only:uspecb
   use m_lgunit,only:stdo
@@ -15,7 +15,7 @@ subroutine sugcut(mode)
   !i         :2 make cutoffs for extended local orbitals
   !i         :3 combination 1+2
   !o Outputs
-  !o    sspec%ngcut
+  !o    ngcut
   !u Updates
   !u   16 Aug 04 New mode for getting cutoffs, local orbs.
   !u             Changed argument list
