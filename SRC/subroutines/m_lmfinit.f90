@@ -13,7 +13,7 @@ module m_lmfinit ! 'call m_lmfinit_init' sets all initial data from ctrl are pro
   real(8),parameter:: fpi=16d0*datan(1d0), y0=1d0/dsqrt(fpi), pi=4d0*datan(1d0), srfpi = dsqrt(4d0*pi),pi4=fpi,&
        NULLR =-99999, fs = 20.67098d0, degK = 6.3333d-6 ! defaults for MD
   logical,parameter:: T=.true., F=.false.
-  integer,protected:: lat_nkqmx,lat_nkdmx,nat, lxcf, smalit,lstonr(3)=0,nbas=NULLI,nspec,&
+  integer,protected:: lat_nkqmx,lat_nkdmx, lxcf, smalit,lstonr(3)=0,nbas=NULLI,nspec,&
        nspc,master=0,nspx, maxit,gga,ftmesh(3),nmto=0,lrsigx=0,nsp=1,lrel=1,lso=0,&
        lmxbx=-1,lmxax,bz_lshft(3)=0, bz_lmet,bz_n,bz_lmull,bz_fsmommethod,str_mxnbr,&
        iter_maxit=1, mix_nsave, pwmode,ncutovl ,ndimx,natrlx,pdim, leks,lrout,plbnd, pot_nlma, pot_nlml,ham_nspx, nlmto,& !total number of MTOs 
@@ -655,15 +655,16 @@ contains
       pot_nlml=nvl
       allocate(jnlml(nbas), source=[1,(1+sum( (lmxl(ispec(1:i))+1)**2 ),i=1,nbas-1)]) !offset of lmxl
       !  Make nat = number of real atoms as nbas - # sites w/ floating orbitals !we will remove floating orbtail (2023plan)
-      if (master_mpi) then
-         nat = nbas
-         do  i = 1, nbas
-            j=ispec(i) 
-            l=v_sspec(j)%lmxa
-            if (l == -1) nat = nat-1
-         enddo
-      endif
-      call mpibc1_int(nat,1,'m_lmfinit_nat')
+      ! if (master_mpi) then
+      !    nat = nbas
+      !    do  i = 1, nbas
+      !       j=ispec(i) 
+      !       l=v_sspec(j)%lmxa
+      !       if (l == -1) nat = nat-1
+      !    enddo
+      !    write(stdo,ftox) 'nnnnnnbas nat=',nbas,nat
+      ! endif
+      ! call mpibc1_int(nat,1,'m_lmfinit_nat')
       deallocate(idxdn) 
       !! --- takao embed contents in susite here. This is only for lmf and lmfgw.
       allocate(iv_a_oips(nbas),source=[(ispec(ib), ib=1,nbas)])

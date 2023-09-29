@@ -9,7 +9,7 @@ contains
     use m_density,only: osmrho, orhoat,v1pot,v0pot,pnuall,pnzall,eferm !Main I/O. these are allocated. In addition sspc is written
     use m_supot,only: n1,n2,n3
     use m_struc_func,only: mpibc1_s_spec 
-    use m_lmfinit,only: alat=>lat_alat,nsp,lrel,ispec,sspec=>v_sspec, nbas,nat,nspec,n0, idmodis=>idmod,slabl,readpnu
+    use m_lmfinit,only: alat=>lat_alat,nsp,lrel,ispec,sspec=>v_sspec, nbas,nspec,n0, idmodis=>idmod,slabl,readpnu
     use m_lattic,only: plat=>lat_plat,vol=>lat_vol,qlat=>lat_qlat
     use m_ext,only:sname
     use m_ftox
@@ -22,10 +22,8 @@ contains
     !!           chfa rsmfa
     !!
     !i   nbas  :size of basis
-    !i   nat   :number atoms in basis with augmentation sites
-    !i         :Note: if nat<nbas, there is a requirement that
-    !i         :lmxa>-1 for nat sites, and
-    !i         :and lmxa=-1 for nbas-nat sites
+    !i         :number atoms in basis with augmentation sites
+    !i         :Note: there is a requirement that lmxa>-1 for augmentation sites.
     !!
     !r Remarks
     !r   The density consists of a smooth part (smrho) plus nbas atom-centered densities inside the MT spheres.
@@ -118,7 +116,7 @@ contains
        endif
 710    format(/9x,'written by -  ',a,' on ',a,' at: ',a)
        call mpibc1_int(nbas0,1,'iors_nbas0')
-       call mpibc1_int(nat0,1,'iors_nat0')
+!       call mpibc1_int(nat0,1,'iors_nat0')
        call mpibc1_real(plat,9,'iors_plat')
        call mpibc1_int(nit,1,'iors_nit')
        !   --- Read smooth charge density ---
@@ -196,8 +194,8 @@ contains
              read(jfi) is0,spid0,lmxa0,lmxl0,nr0,rmt0,a0,z0,qc
              if (ib > nbas) goto 20
              if (ipr >= 40) then
-                if (ib <= nat) write(stdo,380) ib,is0,spid0
-                if (ib > nat) write(stdo,380) ib,is0,spid0, ' (skip)'
+                write(stdo,380) ib,is0,spid0
+!                if (ib > nat) write(stdo,380) ib,is0,spid0, ' (skip)'
              endif
 380          format('   atom',i4,'    species',i4,':',a:a)
              !     ... read(but don't use) extra info since record is present
@@ -289,7 +287,8 @@ contains
           call mpibc1_real( v1pot(ib)%v,size(v1pot(ib)%v) , 'iors_v1' )
 20        continue
        enddo
-       if (isanrg(ibaug, nat,nat,  msg,'nat', .FALSE. )) goto 999
+!       write(6,*) 'iiiiiii',isanrg(ibaug, nat,nat,  msg,'nat', .FALSE. ),ibaug,nat
+!       if (isanrg(ibaug, nat,nat,  msg,'nat', .FALSE. )) goto 999
        !   --- Read data on free-atom core states and fit to fa density ---
        line = 'species data'
        do  30  is = 1, nspec

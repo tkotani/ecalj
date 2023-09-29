@@ -1,9 +1,8 @@
-module m_amix !nothing saved in this module. Bundle subroutines/functions for amix
+!> Anderson mixing of a vector
+module m_amix !nothing saved in this module. Bundle linpack subroutines/functions for amix
   public:: amix
 contains
-  integer function amix(nelts,npmix,mmix,ido,beta,ipr,tm,  wk,t,rmsdel)
-    !- Anderson mixing of a vector
-    ! ----------------------------------------------------------------
+  integer function amix(nelts,npmix,mmix,ido,beta,ipr,tm,  wk,t,rmsdel) 
     !i Inputs
     !i   npmix: +/- number of previous iterations to fold into mix
     !i         npmix = 0 => linear mixing (x* = x0)

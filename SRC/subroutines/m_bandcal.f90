@@ -282,7 +282,7 @@ contains
 1018        continue!write(stdo,ftox)'ikp qp=',ikp,ftof(qp,3),'is mapped to',ftof(matmul(symops(:,:,igrp),qp),3),' by symops igp=',igrp
             qpr = qplist(:,ikp)
             isp2 = 2
-            call rotevec(igrp,qp, qpr,ndimhx,napw,nev,evec(:,1:nev), evecrot(:,1:nev))
+            call rotevec(igrp,qp, qpr,ndimhx,napw,nev,evec(:,1:nev), evecrot(:,1:nev))! evec at qp is roteted to be evecrot at qpr by symops(:,:,igrp)
             if( lso/=0)              call mkorbm(isp2, nev, ikp,qpr, evecrot,  orbtm_rv)
             if( nlibu>0 .AND. nev>0) call mkdmtu(isp2,      ikp,qpr, nev, evecrot,  dmatu)
             if( cmdopt0('--cls'))    call m_clsmode_set1(nev,isp2,ikp,qpr,nev,evecrot) 
@@ -347,7 +347,6 @@ contains
     use m_subzi, only: wtkb=>rv_a_owtkb
     use m_qplist,only: nkp
     use m_suham,only: ndham=>ham_ndham, ndhamx=>ham_ndhamx
-    ! ----------------------------------------------------------------------
     !i   isp   :current spin channel (1 or 2)
     !i   nsp   :2 for spin-polarized case, otherwise 1
     !i   nspc  :2 for coupled spins; otherwise 1
@@ -391,7 +390,6 @@ contains
     complex(8),allocatable ::aus(:,:,:,:,:)
 !    real(8):: sab(nab,n0,2)
     allocate(aus(nlmax,ndham*nspc,3,nsp,nbas))
-    aus=0d0
     call makusq(nbas,[-999], nev, isp,1,qp,evec, aus )
 !    lmxax = ll(nlmax)
     iot = dcmplx(0d0,1d0)

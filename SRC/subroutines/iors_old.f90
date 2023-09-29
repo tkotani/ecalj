@@ -10,7 +10,7 @@ contains
     use m_density,only: osmrho, orhoat,eferm !these are allocated
     use m_supot,only: n1,n2,n3
     use m_struc_func,only: mpibc1_s_spec!,mpibc1_s_site
-    use m_lmfinit,only: lat_alat,nsp,lrel,ispec,sspec=>v_sspec, nbas,nat,nspec,n0,idmodis=>idmod,slabl,rsma
+    use m_lmfinit,only: lat_alat,nsp,lrel,ispec,sspec=>v_sspec, nbas,nspec,n0,idmodis=>idmod,slabl,rsma
     use m_lattic,only: lat_plat
     use m_ext,only:sname
     use m_density,only: pnuall,pnzall,v0pot,v1pot
@@ -29,10 +29,6 @@ contains
     !!
     ! xxx   fid   :string containing identification
     !i   nbas  :size of basis
-    !i   nat   :number atoms in basis with augmentation sites
-    !i         :Note: if nat<nbas, there is a requirement that
-    !i         :lmxa>-1 for nat sites, and
-    !i         :and lmxa=-1 for nbas-nat sites
     !i   ifi   :file logical unit, but >0 for read, <0 for write
     !i   lbin  :=T file I/O in binary mode
     !i         :xxxF file I/O in ascii mode
@@ -216,15 +212,6 @@ contains
           if (ipr >= 40) write(stdo,710) trim(fid),trim(usernm),trim(hostnm),trim(datimp)
 710       format(9x,'id -  ',a,/9x,'written by -  ',a,' on ',a,' at: ',a)
           !       Number of real atoms may not increase
-          if (nat > nat0) then
-             if (isanrg(nat0,  nat,nat,msg,'nat', .TRUE. )) goto 999
-          elseif (nat == nat0 .AND. nbas /= nbas0) then
-             write(stdo,ftox)'(warning) mismatch in nbas'//&
-                  'expected nbas=',nbas,'but rst file has nbas=',nbas0
-             !       OK to reduce nat (e.g. E.S.); these sites will be skipped
-          elseif (nat < nat0) then
-             write(stdo,*)'   (warning) rst mismatch in nat ... skipping sites'
-          endif
           if (nsp0 < nsp) write(stdo,*)'   (warning) rst file not spin pol .. splitting spins'
           if (isanrg(npan0, npan,npan,msg,'npan', .TRUE. )) goto 999
           lfail = isanrg(lrel0, lrel,lrel,msgw,'lrel',.false.)
@@ -327,8 +314,8 @@ contains
              read(jfi) is0,spid0,lmxa0,lmxl0,nr0,rmt0,a0,z0,qc
              if (ib > nbas) goto 20
              if (ipr >= 40) then
-                if (ib <= nat) write(stdo,380) ib,is0,spid0
-                if (ib > nat) write(stdo,380) ib,is0,spid0, ' (skip)'
+                write(stdo,380) ib,is0,spid0
+!                if (ib > nat) write(stdo,380) ib,is0,spid0, ' (skip)'
              endif
 380          format('   atom',i4,'    species',i4,':',a:a)
              !     ... read(but don't use) extra info since record is present
@@ -459,7 +446,7 @@ contains
           sspec(is)%qc=qc
 20        continue
        enddo
-       if (isanrg(ibaug, nat,nat,  msg,'nat', .FALSE. )) goto 999
+!       if (isanrg(ibaug, nat,nat,  msg,'nat', .FALSE. )) goto 999
        !        if ( lshear.and.irsrot) then
        !          wk(1:9)=lat_dist !rhoat rotation by lat_dist matrix
        !          call dgemm('N','T',3,1,3,1d0,plat,3,qlat0,3,0d0,wk,3)
@@ -583,7 +570,7 @@ contains
        else if (abs(vs) <= 1.031) then
           write(jfi) nbas,nsp,npan,lrel,nspec
        else
-          write(jfi) nbas,nat,nsp,npan,lrel,nspec
+          write(jfi) nbas,0,nsp,npan,lrel,nspec
        endif
        write(jfi) nit
        write(jfi) alat,vol,plat

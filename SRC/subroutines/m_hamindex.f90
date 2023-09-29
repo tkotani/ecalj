@@ -83,7 +83,7 @@ contains
     real(8),allocatable:: symtmp(:,:,:)
     logical:: qpgexist
     character(8)::  spid(nbas)
-    integer:: ndima,npqn,ificlass,nat,ipqn,ifinlaindx,isp,konf,ngall
+    integer:: ndima,npqn,ificlass,ipqn,ifinlaindx,isp,konf,ngall
     logical,save:: done=.false.
     real(8):: tolq
     character(1):: lorb(1:3)=['p','d','l'],dig(1:9)=['1','2','3','4','5','6','7','8','9'],&

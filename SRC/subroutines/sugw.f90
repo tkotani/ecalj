@@ -82,7 +82,7 @@ contains
          ifiqg,iflband(2),ifqeigen,ifsyml,igets,igetss,iix,iline, &
          im1,im2,ipb(nbas),ipqn,ipr,iprint,iq,is,isp,ispc,j,job,k1, &
          k2,k3,konf,konfig(0:n0),l,lchk,ldim,loldpw, &
-         lmaxa,lsig,mx,mxint,nat, &
+         lmaxa,lsig,mx,mxint,&!nat, &
          ncore,ndima,nevl,nev,nglob,ngp,ngp_p, &
          ngpmx,nline,nlinemax,nlmax,nmx,nn1,nn2,nnn, &
          nphimx,npqn,nqbz,nqibz,nqnum,nqnumx,nqtot,nr,iqibz,imx, &

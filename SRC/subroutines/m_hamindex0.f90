@@ -53,7 +53,7 @@ contains
     real(8):: dum,qb(3,3),ddd(3),ppin(3), tolq, rlatp(3,3),xmx2(3),qqq(3),diffs,ddf
     real(8),allocatable:: symtmp(:,:,:)
     logical:: siginit, qpgexist,debug=.false., llmfgw,prpushed
-    integer:: ificlass,nat,lmaxa,ipqn,ifinlaindx,isp,konf
+    integer:: ificlass,lmaxa,ipqn,ifinlaindx,isp,konf
     real(8) ::xx(5),pnu(n0,2),pnz(n0,2)
     integer:: ipb(ctrl_nbas),ipc(ctrl_nbas),ipcx(ctrl_nbas),mxint
     character lsym(0:n0-1)*1, lorb(3)*6, dig(9)*1, strn4*9

@@ -14,7 +14,7 @@ subroutine makusq(nsites,isite,nev,isp,iq,q,evec, auszall)!Accumulate coefficien
   intent(in)::    nsites,isite,nev,isp,iq,q,evec
   intent(out)::                                   auszall
   integer,parameter:: n0=10,nkap0=3
-  integer:: isp,iq,nev,nsites,isite(nsites),nkape,ib,nkapi,is,nr,kmax,lmxa,lmxl,lmxh,i,nlma
+  integer:: isp,iq,nev,nsites,isite(nsites),ib,nkapi,is,nr,kmax,lmxa,lmxl,lmxh,i,nlma
   real(8):: q(3),eh(n0,nkap0),rsmh(n0,nkap0),a,rmt
   complex(8):: evec(ndimh,nspc,nev)
   complex(8),target:: auszall(nlmax,ndham*nspc,3,nsp,nsites,iq)
@@ -34,9 +34,8 @@ subroutine makusq(nsites,isite,nev,isp,iq,q,evec, auszall)!Accumulate coefficien
      if (lmxa == -1) cycle
      call uspecb(is,rsmh,eh)
      nkapi= nkapii(is)
-     nkape= nkapii(is)
      nlma = (lmxa+1)**2
-     radset: block !   --- Set up all radial head and tail functions, and their BC's
+     SetupAllRadialheadANDtailFunctionsANDtheirBCs: block
        real(8):: rofi_rv(nr), &
             fh_rv(nr*(lmxh+1)*nkapi),   xh_rv(nr*(lmxh+1)*nkapi),   vh(0:lmxh,nkapi), dh(0:lmxh,nkapi), &
             fp_rv(nr*(lmxa+1)*(kmax+1)),xp_rv(nr*(lmxa+1)*(kmax+1)),vp(0:lmxa,0:kmax),dp(0:lmxa,0:kmax)
@@ -49,39 +48,33 @@ subroutine makusq(nsites,isite,nev,isp,iq,q,evec, auszall)!Accumulate coefficien
          complex(8),pointer:: ausz(:,:,:,:)
          logical:: s12
          ausz => auszall(:,:,:,:,i,iq) !the coefficient for the projection onto (u,s,gz) for this site
-         call bstrux_set(ib,q) !Get bstr
+         call bstrux_set(ib,q) !Get structure constant bstr
          ispcloop: do ispc = 1, nspc ! nspc=1 for so=0,2, nspc=2 for so=1. See m_lmfinit.f90)
             ksp = max(ispc,isp)
-            do  ivec = 1, nev ! Loop over eigenfunctions
-               do  k = 0, kmax
-                  do  ilma = 1, nlma
-                     cPkL(k,ilma) =  sum(evec(1:ndimh,ispc,ivec)*bstr(1:ndimh,ilma,k))
-                  enddo
-               enddo
-               !call rlocb1(ndimh, nlma, kmax, evec(1,ispc,ivec), bstr,cPkl)
-               call orblib(ib) !Return norb,ltab,ktab,offl
-               do  io1 = 1, norb ! Contribution from head part
+            Eigenfunctionloop: do  ivec = 1, nev 
+               forall(ilma=1:nlma) cPkL(:,ilma)=matmul(evec(1:ndimh,ispc,ivec),bstr(1:ndimh,ilma,:))
+               call orblib(ib)   !Return norb,ltab,ktab,offl
+               ContributionFromHeadPart: do  io1 = 1, norb
                   l1  = ltab(io1)
                   ik1 = ktab(io1)
                   nlm11 = l1**2+1
                   nlm12 = nlm11 + blks(io1)-1
                   i1 = offl(io1)-nlm11+1 !  i1 = hamiltonian offset for first orbital in block
-                  if (ik1 <= nkape) s12=.true.
-                  if (ik1 >  nkape) s12=.false.
+                  s12= merge(.true.,.false.,ik1 <= nkapi)
                   do  ilm1 = nlm11, nlm12
                      l = ll(ilm1)
-                     if(s12)  ausz(ilm1,ivec,1:2,ksp)= ausz(ilm1,ivec,1:2,ksp) + [vh(l,ik1),dh(l,ik1)] * evec(ilm1+i1,ispc,ivec)
+                     if(s12)      ausz(ilm1,ivec,1:2,ksp)= ausz(ilm1,ivec,1:2,ksp) + [vh(l,ik1),dh(l,ik1)] * evec(ilm1+i1,ispc,ivec)
                      if(.not.s12) ausz(ilm1,ivec,3,ksp) = ausz(ilm1,ivec,3,ksp) + evec(ilm1+i1,ispc,ivec)
                   enddo
-               enddo
-               do ilma = 1, nlma ! Contribution from tail part
+               enddo ContributionFromHeadPart
+               ContributionFromTailPart: do ilma = 1, nlma 
                   l = ll(ilma)
                   ausz(ilma,ivec,1:2,ksp)=ausz(ilma,ivec,1:2,ksp)+[sum(vp(l,:)*cPkL(:,ilma)),sum(dp(l,:)*cPkL(:,ilma))]
-               enddo
-            enddo
+               enddo ContributionFromTailPart
+            enddo Eigenfunctionloop
          enddo ispcloop
        endblock puqs11
-     endblock radset
+     endblock SetupAllRadialheadANDtailFunctionsANDtheirBCs
   enddo
   call tcx('makusq')
 end subroutine makusq
