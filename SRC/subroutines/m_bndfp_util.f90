@@ -6,6 +6,7 @@ contains
   subroutine mkekin(osig,otau,oppi,oqkkl,vconst,smpot,smrho,sumev, ekinval) !- Evaluate the valence kinetic energy
     use m_struc_def
     use m_lmfinit,only:nsp,nspc,stdo,nbas,ispec,sspec=>v_sspec,nlmto
+    use m_lmfinit,only: lmxa_i=>lmxa,lmxb_i=>lmxb,kmxt_i=>kmxt
     use m_lattic,only: lat_vol
     use m_supot,only: n1,n2,n3
     use m_orbl,only: Orblib,ktab,ltab,offl,norb,ntab,blks
@@ -147,9 +148,9 @@ contains
     sraugm = 0d0
     do  ib = 1, nbas !Integral rhout*veff, part from augmentation ---
        is = ispec(ib) 
-       lmxa=sspec(is)%lmxa
-       kmax=sspec(is)%kmxt
-       lmxh=sspec(is)%lmxb
+       lmxa=lmxa_i(is)
+       kmax=kmxt_i(is)
+       lmxh=lmxb_i(is)
        if (lmxa == -1) cycle
        call orblib(ib) ! norb , ltab , ktab , offl ,ntab,blks
        nlma = (lmxa+1)**2
@@ -304,7 +305,7 @@ contains
 100 format(/1x,'MAKDOS :  range of gaussians is ',f5.2,'W (',i4,' bins).'/11x,'Error estimate in DOS : ',1pe9.2,' per state.')
   end subroutine makdos
   subroutine phispinsym_ssite_set()
-    use m_lmfinit,only: nbas,nsp,sspec=>v_sspec,n0,ispec !ssite=>v_ssite
+    use m_lmfinit,only: nbas,nsp,sspec=>v_sspec,n0,ispec,lmxa_i=>lmxa
     use m_MPItk,only:master_mpi
     use m_struc_def
     use m_lgunit,only:stdo
@@ -315,12 +316,10 @@ contains
     real(8),pointer:: pnu(:,:),pnz(:,:)
     if(master_mpi)write(6,*)' --phispinsym use spin-averaged potential for phi and phidot'
     do ib = 1,nbas
-       !     pnu = ssite(ib)%pnu
-       !     pnz = ssite(ib)%pz
        pnu=>pnuall(:,1:nsp,ib)
        pnz=>pnzall(:,1:nsp,ib)
-       is   = ispec(ib) !ssite(ib)%spec
-       lmxa = sspec(is)%lmxa
+       is   = ispec(ib) 
+       lmxa = lmxa_i(is)
        do l=0,lmxa
           pmean = sum(pnu(l+1,1:nsp))/nsp
           if(master_mpi .AND. nsp==2) write(stdo,"('  ibas l=',2i3,' pnu=',2f10.5,' -->',f10.5)") &
@@ -333,8 +332,6 @@ contains
              pnz(l+1,1:nsp) = pmean
           endif
        enddo
-       !     ssite(ib)%pnu=pnu
-       !     ssite(ib)%pz=pnz
        pnuall(:,1:nsp,ib)=pnu(:,1:nsp)
        pnzall(:,1:nsp,ib)=pnz(:,1:nsp)
     enddo

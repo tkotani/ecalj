@@ -1,6 +1,6 @@
 !! getq mode.  Current version is not for spin dependent nor many restrictions.! spin symmetic (or nspin=1, not 2 channell binded and so on...
 subroutine getqmode()  !no output. getq mode just output. Not return variables.
-  use m_lmfinit, only: nspec,sspec=>v_sspec,ispec,nbas,stdo
+  use m_lmfinit, only: nspec,sspec=>v_sspec,ispec,nbas,stdo,lmxax
   use m_ext,only:sname   ! read veswavatm.* and qbyl.*
   implicit none
   logical:: debug,cmdopt0
@@ -10,7 +10,7 @@ subroutine getqmode()  !no output. getq mode just output. Not return variables.
   debug    = cmdopt0('--debugbndfp')
   write(stdo,"(a)") 'getqmode(): Q from ql given by lmf'
   write(stdo,"(a)") 'WARN current version is only for spin symmetric; and not more than 2(2l+1) occupancy'
-  lmxa = maxval(sspec(1:nspec)%lmxa)
+  lmxa = lmxax 
   allocate(qrmt(0:lmxa,nspec),qset(0:lmxa,nspec),qatot(nspec))
   qrmt= -1d-10
   open(newunit=ifiwv,file='veswavatm.'//trim(sname))

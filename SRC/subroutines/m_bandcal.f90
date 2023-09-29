@@ -1,5 +1,6 @@
 !>band structure calculation
 module m_bandcal 
+  use m_lmfinit,only: lmxa_i=>lmxa,rmt_i=>rmt
   use m_struc_def,only: s_rv1,s_rv5
   use m_suham,  only: ndhamx=>ham_ndhamx,nspx=>ham_nspx
   use m_qplist, only: nkp
@@ -396,8 +397,8 @@ contains
     ichan = 0
     ibloop: do  ib = 1, nbas
        is = ispec(ib)
-       lmxa=sspec(is)%lmxa
-       rmt= sspec(is)%rmt
+       lmxa=lmxa_i(is)
+       rmt= rmt_i(is)
        lmxa = min(lmxa,lmxax)
        if (lmxa == -1) cycle 
        nlma = (lmxa+1)**2
@@ -493,8 +494,8 @@ contains
     do  ib = 1, nbas
        if (lldau(ib) == 0) goto 10
        is = ispec(ib)
-       lmxa=sspec(is)%lmxa
-       rmt= sspec(is)%rmt
+       lmxa=lmxa_i(is) 
+       rmt= rmt_i(is)
        do  l = 0, min(lmxa,3)
           if (idu(l+1,is) /= 0) then
              iblu = iblu+1
@@ -542,7 +543,7 @@ contains
   end subroutine mkdmtu
 end module m_bandcal
 subroutine dfqkkl( oqkkl ) !Allocates arrays to accumulate output site density
-  use m_lmfinit,only: nsp,nbas,ispec,sspec=>v_sspec,nkaphh
+  use m_lmfinit,only: nsp,nbas,ispec,sspec=>v_sspec,nkaphh,lmxa_i=>lmxa,kmxt_i=>kmxt,lmxb_i=>lmxb
   use m_struc_def,only:s_rv5   !o oqkkl : memory is allocated for qkkl
   implicit none
   type(s_rv5) :: oqkkl(3,nbas)
@@ -550,11 +551,11 @@ subroutine dfqkkl( oqkkl ) !Allocates arrays to accumulate output site density
   do  ib = 1, nbas
      is = ispec(ib) 
      nkaph=nkaphh(is)
-     lmxa=sspec(is)%lmxa
+     lmxa=lmxa_i(is)
      if (lmxa == -1) cycle
      nlma = (lmxa+1)**2
-     nlmh = (sspec(is)%lmxb+1)**2
-     kmax =  sspec(is)%kmxt
+     nlmh = (lmxb_i(is)+1)**2
+     kmax =  kmxt_i(is)
      if(allocated(oqkkl(1,ib)%v)) deallocate(oqkkl(1,ib)%v,oqkkl(2,ib)%v,oqkkl(3,ib)%v)
      allocate(oqkkl(1,ib)%v(0:kmax,0:kmax, nlma,nlma ,nsp), source=0d0)! Pkl*Pkl
      allocate(oqkkl(2,ib)%v(nkaph, 0:kmax, nlmh,nlma ,nsp), source=0d0)! Pkl*Hsm

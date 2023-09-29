@@ -1,5 +1,6 @@
 module m_sugw
   use m_lgunit,only:stdo
+  use m_lmfinit,only: z_i=>z,nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,spec_a
   private
   public:: m_sugw_init
 contains
@@ -158,33 +159,17 @@ contains
     !!--------------------
     call getpr(ipr)
     alat=lat_alat
-!    n1 = lat_nabc(1)
-!    n2 = lat_nabc(2)
-!    n3 = lat_nabc(3)
     plat =lat_plat
     qlat =lat_qlat
     gmax =lat_gmax
-!    call fftz30(n1,n2,n3,k1,k2,k3)
     lchk = 1
     lwvxc = .not. cmdopt0('--novxc')
-    ! !!  Count number of atoms : exclude floating orbitals
-    !nat = 0
-    ! do  i = 1, nbas
-    !    is = ispec(i) !ssite(i)%spec
-    !    lmaxa = sspec(is)%lmxa
-    !    if (lmaxa > -1) then
-    !       nat = nat + 1
-    !    endif
-    !    ipb(i) = nat
-    ! enddo
-    !if(nat/=nbas) call rx('sugw: gw is only for no floating orbital case') !2022jan
     ldim=nlmto
     pwmode= ham_pwmode
     ndima = 0
-!    lmxax = -1
     do  ib = 1, nbas
        is=ispec(ib)
-       lmaxa=sspec(is)%lmxa
+       lmaxa=lmxa_i(is)
        pnz=>pnzall(:,1:nsp,ib)
        if(sum(abs(pnz(:,1:nsp)-pnzall(:,1:nsp,ib)))>1d-9) call rx('sugw xxx1aaa')
 !       lmxax = max(lmxax,lmaxa)
@@ -205,18 +190,18 @@ contains
     ef0 = 1d99        
     allocate(ips(nbas),lmxa(nbas),bas(3,nbas))
     bas(:,1:nbas)=rv_a_opos(:,1:nbas) 
-    lmxa(1:nbas) = sspec(ispec(1:nbas))%lmxa 
+    lmxa(1:nbas) = lmxa_i(ispec(1:nbas))
     print *,'iantiferro=',iantiferro
     nphimx = 0
     do  ib = 1, nbas
        is=ispec(ib) 
        pnu=>pnuall(:,1:nsp,ib)
        pnz=>pnzall(:,1:nsp,ib)
-       a=sspec(is)%a
-       nr=sspec(is)%nr
-       z=sspec(is)%z
-       rmt(ib)=sspec(is)%rmt
-       lmaxa = sspec(is)%lmxa
+       a=spec_a(is)
+       nr=nr_i(is)
+       z= z_i(is)
+       rmt(ib)=rmt_i(is)
+       lmaxa = lmxa_i(is)
        nmcore= nmcorex(is)
        if (lmaxa > -1) then
           call atwf(0,a,lmaxa,nr,nsp,pnu,pnz,rsml,ehl,rmt(ib),z,rdummy,i1,ncore,konfig,ecore,rdummy,rdummy,nmcore)
@@ -231,11 +216,11 @@ contains
        is=ispec(ib) 
        pnu=>pnuall(:,1:nsp,ib)
        pnz=>pnzall(:,1:nsp,ib)
-       a=sspec(is)%a
-       nr=sspec(is)%nr
-       z=sspec(is)%z
-       rmt(ib)=sspec(is)%rmt
-       lmaxa = sspec(is)%lmxa
+       a= spec_a(is)
+       nr=nr_i(is)
+       z= z_i(is)
+       rmt(ib)= rmt_i(is)
+       lmaxa =  lmxa_i(is)
        spid=slabl(is)
        if (lmaxa > -1) then
           call atwf ( 0 , a , lmaxa , nr , nsp , pnu , pnz , rsml , ehl &
@@ -571,7 +556,7 @@ contains
     do ib = 1, nbas
        do iv = 1, nev
           ilm = 0
-          do  l = 0, sspec(ispec(ib))%lmxa
+          do  l = 0, lmxa_i(ispec(ib))
              do im = 1, 2*l+1
                 ilm = ilm+1
                 auasaz=aus(ilm,iv,1:3,isp,ib) !coefficient for (u,s,gz)

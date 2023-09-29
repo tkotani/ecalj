@@ -1,4 +1,6 @@
 module m_rdovfa
+  use m_lmfinit,only: z_i=>z,nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,lmxb_i=>lmxb,lmxl_i=>lmxl,spec_a,&
+       kmxt_i=>kmxt,lfoca_i=>lfoca,rfoca_i=>rfoca,rsmv_i=>rsmv
   use m_ll,only:ll
   public rdovfa
 contains
@@ -65,8 +67,8 @@ contains
     endif
     isloop: do  10  is = 1, nspec
        spid(is)=slabl(is)
-       a=sspec(is)%a
-       nr=sspec(is)%nr
+       a= spec_a(is)
+       nr=nr_i(is)
        allocate(rv_a_orhofa(is)%v(nr*nsp))
        rv_a_orhofa(is)%v=0d0
        if(allocated(sspec(is)%rv_a_orhoc)) deallocate(sspec(is)%rv_a_orhoc)
@@ -74,10 +76,10 @@ contains
        sspec(is)%rv_a_orhoc=0d0
        allocate(rv_a_ov0a(is)%v(nr*nsp))
        rv_a_ov0a(is)%v(:)=0d0
-       rmt=sspec(is)%rmt
-       z=sspec(is)%z
-       lfoc=sspec(is)%lfoca
-       rfoc=sspec(is)%rfoca
+       rmt=rmt_i(is)
+       z=z_i(is)
+       lfoc=lfoca_i(is)
+       rfoc=rfoca_i(is)
        if (procid == master) then
           if (z == 0 .AND. rmt == 0) then
              nxi(is) = 0
@@ -130,8 +132,8 @@ contains
           call fsanrg(a0,a,a,0d-9,msg,'a',.true.)
           l_dummy_isanrg=isanrg(nr0,nr,nr,msg,'nr',.true.)
        endif
-       sspec(is)%a=a
-       sspec(is)%nr=nr
+       !sspec(is)%a=a
+       !sspec(is)%nr=nr
        sspec(is)%qc=qc
        sspec(is)%rsmfa=rsmfa(is)
        sspec(is)%ctail=ccof
@@ -155,14 +157,14 @@ contains
     if(allocated(sv_p_orhoat)) deallocate(sv_p_orhoat)
     allocate(sv_p_orhoat(3,nbas))
     ibloop: do  20  ib = 1, nbas
-       is = ispec(ib) !int(ssite(ib)%spec)
-       a=sspec(is)%a
-       nr=sspec(is)%nr
-       rmt=sspec(is)%rmt
-       lmxl=sspec(is)%lmxl
-       z=sspec(is)%z
+       is = ispec(ib) 
+       a=   spec_a(is)
+       nr=  nr_i(is)
+       rmt= rmt_i(is)
+       lmxl=lmxl_i(is)
+       z=z_i(is)
        qc=sspec(is)%qc
-       lfoc=sspec(is)%lfoca
+       lfoc=lfoca_i(is)
        nlml = (lmxl+1)**2
        allocate(sv_p_orhoat(1,ib)%v(nr*nlml*nsp))
        allocate(sv_p_orhoat(2,ib)%v(nr*nlml*nsp))
@@ -211,7 +213,7 @@ contains
       if(v0fix.and.procid == master) then
          do ib=1,nbas
             is = ispec(ib) 
-            nr=sspec(is)%nr
+            nr = nr_i(is)
             do ir=1,nr
                ov0mean = 0d0
                do isp=1,nsp
@@ -345,18 +347,17 @@ contains
     ibini= 1
     ibend= nbas
     do  ib = ibini,ibend
-       is=ispec(ib) !ssite(ib)%spec
-       p1(:)=rv_a_opos(:,ib) !ssite(ib)%pos(:)
-       lmxl=sspec(is)%lmxl
-       !kmxv=sspec(is)%kmxv
-       rsmv=sspec(is)%rsmv
+       is=ispec(ib) 
+       p1(:)=rv_a_opos(:,ib) 
+       lmxl=lmxl_i(is)
+       rsmv=rsmv_i(is)
        nlml = (lmxl+1)**2
        allocate(acof(0:kmxv,nlml,nsp),b(0:kmxv,nlml))
        acof=0d0
        b=0d0
-       a=sspec(is)%a
-       nr=sspec(is)%nr
-       rmt=sspec(is)%rmt
+       a= spec_a(is)
+       nr=nr_i(is)
+       rmt=rmt_i(is)
        call corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoca,rfoca, z)
        qcsm = qcorg+qcorh
        if (lmxl == -1) goto 10
@@ -365,8 +366,8 @@ contains
        call radwgt(rmt,a,nr,rwgt)
        !   ... Loop over other sites, add up tail expansion
        do  jb = 1, nbas
-          js=ispec(jb) !ssite(jb)%spec
-          p2(:)=rv_a_opos(:,jb) !ssite(jb)%pos(:)
+          js=ispec(jb) 
+          p2(:)=rv_a_opos(:,jb) 
           do  je = 1, nxi(js)
              rsmh = rsmfa(js)
              eh   = exi(je,js)
@@ -611,10 +612,10 @@ contains
     rhobkg = fac*qbg/vol
     do  ib = 1, nbas
        is=ispec(ib)
-       a=sspec(is)%a
-       nr=sspec(is)%nr
-       rmt=sspec(is)%rmt
-       lmxl=sspec(is)%lmxl
+       a=spec_a(is)
+       nr=nr_i(is)
+       rmt=rmt_i(is)
+       lmxl=lmxl_i(is)
        if (lmxl == -1) goto 10
        nlml=(lmxl+1)**2
        call rxx(nr .gt. nrmx,  'addbkgloc: increase nrmx')
@@ -693,8 +694,8 @@ contains
     ibini=1
     ibend=nbas
     do ib=ibini,ibend
-       is=ispec(ib) !ssite(ib)%spec
-       pos=rv_a_opos(:,ib) !ssite(ib)%pos
+       is=ispec(ib) 
+       pos=rv_a_opos(:,ib) 
        nx = nxi(is)
        !   ... Loop over Hankels at this site
        sam(1) = 0

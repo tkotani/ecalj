@@ -352,7 +352,7 @@ contains
   subroutine rsibl_ev(isp,q,iq,ndimh,nspc,napw,igapw,nevec,evec,k1,k2,k3, n_eiglist,eiglist)
     use m_struc_def
     use m_w_psir
-    use m_lmfinit,only:  lat_alat,nspec,ispec,sspec=>v_sspec,nbas
+    use m_lmfinit,only:  lat_alat,nspec,ispec,sspec=>v_sspec,nbas,z_i=>z
     use m_lattic,only: lat_qlat,lat_vol
     use m_supot,only: n1,n2,n3, lat_ng, lat_gmax
     use m_lattic,only: lat_plat,rv_a_opos
@@ -517,7 +517,7 @@ contains
        if ( .TRUE. ) then
           call w_psir(ng , nspc , nvec , psi , n1 , n2 , n3 , k1 , k2 &
                , k3 , iv_a_okv , isp, q ,iq,  n_eiglist,eiglist &
-               , plat,alat, nbas, rv_a_opos, sspec(ispec(1:nbas))%z, psir )
+               , plat,alat, nbas, rv_a_opos, z_i(ispec(1:nbas)), psir )
        endif
     enddo ivecloop
     deallocate(psi,vpsi,wk,psir,cosi,sini,wk2)

@@ -1,4 +1,5 @@
 module m_makusq !Accumulate coefficients (u,s,z) in all augmentation spheres for evec(:,iq,isp)
+  use m_lmfinit,only: nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,lmxl_i=>lmxl,spec_a,kmxt_i=>kmxt,lmxb_i=>lmxb
   use m_ll,only:ll
   public makusq
   private
@@ -24,13 +25,13 @@ subroutine makusq(nsites,isite,nev,isp,iq,q,evec, auszall)!Accumulate coefficien
      if (nsites == nbas) ib = i
      if (nsites /= nbas) ib = isite(i)
      is = ispec(ib)
-     lmxa=sspec(is)%lmxa
-     lmxl=sspec(is)%lmxl
-     kmax=sspec(is)%kmxt
-     nr=  sspec(is)%nr
-     lmxh=sspec(is)%lmxb
-     rmt =sspec(is)%rmt
-     a =  sspec(is)%a
+     lmxa=lmxa_i(is)
+     lmxl=lmxl_i(is)
+     kmax=kmxt_i(is)
+     nr=  nr_i(is)
+     lmxh=lmxb_i(is)
+     rmt =rmt_i(is)
+     a =  spec_a(is)
      if (lmxa == -1) cycle
      call uspecb(is,rsmh,eh)
      nkapi= nkapii(is)

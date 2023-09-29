@@ -1,6 +1,6 @@
 !>for writing PROCAR (VASP format)
 module m_procar 
-  use m_lmfinit,only: nlmax,nsp,nbas,stdo,sspec=>v_sspec,ispec,nlmax,nspc,n0
+  use m_lmfinit,only: nlmax,nsp,nbas,stdo,sspec=>v_sspec,ispec,nlmax,nspc,n0,lmxa_i=>lmxa
   use m_suham,only: ndham=>ham_ndham,ndhamx=>ham_ndhamx,nspx=>ham_nspx
   use m_igv2x,only: igv2x,napw
   use m_mkpot,only: sab_rv 
@@ -71,10 +71,10 @@ contains
        write(iprocar,*)
        dwgtt=0d0
        do ib = 1, nbas
-          is  = ispec(ib)!ssite(ib)%spec
+          is  = ispec(ib)
           ilm = 0
           dwgt=0d0
-          do  l = 0, sspec(is)%lmxa
+          do  l = 0, lmxa_i(is)
              do  m = -l, l
                 ilm = ilm+1 !ilm,ib --> evec(ix,
                 auasaz = auspp(ilm,iband,1:3,isp,ib)

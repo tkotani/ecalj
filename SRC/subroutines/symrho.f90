@@ -1,4 +1,5 @@
 module m_symrhoat
+  use m_lmfinit,only: nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,lmxl_i=>lmxl,spec_a
   public symrhoat
   private
   contains
@@ -79,7 +80,7 @@ subroutine symrat(sv_p_orhoat , qbyl , hbyl , f )
   allocate(ips_iv(nbas))
   allocate(pos0_rv(3,nbas))
   do ibas=1,nbas
-     pos0_rv(:,ibas)= rv_a_opos(:,ibas) !ssite(i_spackv)%pos
+     pos0_rv(:,ibas)= rv_a_opos(:,ibas) 
   enddo
   nclass = maxval(ipc_iv )
   allocate(ipa_iv(nbas))
@@ -92,9 +93,9 @@ subroutine symrat(sv_p_orhoat , qbyl , hbyl , f )
      if (nrclas > 0) then
         ib0 = ipa_iv(1) !ival ( ipa_iv,1 )
         is = ispec(ib0) 
-        lmxl=sspec(is)%lmxl
-        lmxa=sspec(is)%lmxa
-        nr=sspec(is)%nr
+        lmxl=lmxl_i(is)
+        lmxa=lmxa_i(is)
+        nr=nr_i(is)
         nlml = (lmxl+1)**2
         !   ... Make the projectors; make to at least to l=1 for forces
         nlmx = max0(nlml,4)
@@ -218,10 +219,10 @@ subroutine prrhat(sv_p_orhoat )
   double precision :: a,rmt
   do  ib = 1, nbas
      is = ispec(ib) 
-     lmxl=sspec(is)%lmxl
-     a=sspec(is)%a
-     nr=sspec(is)%nr
-     rmt=sspec(is)%rmt
+     lmxl=lmxl_i(is)
+     a=spec_a(is)
+     nr=nr_i(is)
+     rmt=rmt_i(is)
      if (lmxl == -1) goto 10
      allocate(rofi_rv(nr))
      allocate(rwgt_rv(nr))

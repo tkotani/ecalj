@@ -1,7 +1,8 @@
 !> m_hAMIndex0 contains informatio of SYMOPS,LATTC,CLASS,NLAindx.
 module m_hamindex0 
   use m_lmfinit,only: ham_pwmode,pwemax,ldim=>nlmto,noutmx,nsp_in=>nsp, &
-       lat_alat,ctrl_nbas=>nbas,ispec,sspec=>v_sspec,n0,nkap0,zbak_read=>zbak,slabl,z
+       lat_alat,ctrl_nbas=>nbas,ispec,sspec=>v_sspec,n0,nkap0,zbak_read=>zbak,slabl,z,&
+       lmxa_i=>lmxa
   use m_lattic,only: lat_qlat,lat_plat,rv_a_opos
   use NaNum,only: NaN       !for initialization, but not working well
   integer,protected,public:: pwmode,ngrp=NaN, nbas=NaN
@@ -75,7 +76,7 @@ contains
     do ib=1,nbas
        is=ispec(ib) 
        spid(ib) =slabl(is) 
-       lmxa(ib) =sspec(is)%lmxa !we assume lmxa>-1
+       lmxa(ib) =lmxa_i(is) 
        zz(ib)=z(is)
     enddo
     !! get space group information ---- translation informations also in miat tiat invgx, shtvg

@@ -1,5 +1,5 @@
-module m_mixrho !mixing routine of smrho, rh. NOTE: TK thinks this routine is too compicated to maintain. !It may
-  ! be better to rewrite all with keeping the functionality. 
+module m_mixrho !mixing routine of smrho, rh. NOTE: TK thinks this routine is too compicated to maintain. !It may be better to rewrite all with keeping the functionality. 
+  use m_lmfinit,only: z_i=>z,nr_i=>nr,rmt_i=>rmt,lmxl_i=>lmxl,spec_a,rg_i=>rg,rsmv_i=>rsmv
   use m_ll,only:ll
   use m_lgunit,only:stdo,stml !  integer,parameter,public:: kmxv=15
   public:: mixrho
@@ -19,7 +19,6 @@ contains
           irem=i+1
           return
        endif
-       !         print *,'mpipid i=',mpipid(1),i,trim(nnn)
     enddo
     do i=5001,irem
        inquire(unit=i,opened=nexist)
@@ -40,6 +39,9 @@ contains
     use m_supot,only:  lat_ng,n1,n2,n3
     use m_ext,only:    sname
     use m_ftox
+    implicit none
+!    intent(in)::    iter,qval,   sv_p_orhnew 
+!    intent(inout)::                           sv_p_orhold, smrnew, smrho,rmsdel
     !!     Warn. For Co case, I found broyden mixing works wrong.
     !!     ITER    NIT=30 MIX=B3,n=5,b=.7,w=1,0
     !!     However, as in copt, Broyden mixing is efficient.
@@ -174,7 +176,6 @@ contains
     !m MPI
     !m   master process handles the mix files and broadcasts. All processes
     !m   then mix.
-    implicit none
     real(8),save:: rmsdelsave,beta
     integer,save:: broy,nmix,mxsav
     real(8),save:: wt(3)
@@ -214,14 +215,12 @@ contains
     real(8) ,allocatable :: rwgt_rv(:)
     real(8) ,allocatable :: wn1_rv(:)
     real(8) ,allocatable :: wn2_rv(:)
-    !    equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
     parameter (nlm0=49)
     double precision :: a,beta0,dif,difx,difxu,fac,rms,rmt, &
          sumo,summ,sums,top,vol,alat,tpiba,pi,dquns,rmsuns,ddot,q1, &
          qin(2),qout(2),qscr(2),qmix(2),qcell,rms2,rms2f,rsmv,qmx, &
          dgets,rmsdel,srfpi,xx
     double complex xxc
-    !      logical parmxp
     character sout*80,fnam*8
     integer ::iwdummy ,isp,nnnx,ng02,ng2, iprint!,ifile_handle
     real(8):: smmin,sss,wgtsmooth,wdummy(1,1,1,1)!,elinl
@@ -235,8 +234,6 @@ contains
     logical:: init=.true., initd=.true.
     complex(8)::cdummy(1)
     call tcn('mixrho')
-    !    if (mixmod == 'none') return
-    !  Initial setup for mixrho (charge mixing). This is used in mixrho-parmax.
     call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
     call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
     call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
@@ -273,8 +270,6 @@ contains
     nmix = nmixinit
     broy = broyinit
     if(bexist) beta=betainit
-
-    !    write(stdo,ftox)'wwwwwwmix2',broy,nmix,ftof(wt),'beta=',ftof(beta),ftof(elinl),ftof(wc),killj!,trim(fnam)
     !r Periodic file deletion (nkill):  parmxp returns nkill as -nkill when
     !r   mod(iter,nkill) is zero, as a signal that the current mixing
     !r   file is to be deleted after it is used.  Here nitj is the sum of
@@ -287,14 +282,6 @@ contains
 
     rmsdel = rmsdelsave
     if (nmix == 0) broy = 0
-    ! ... Initial printout
-    !      call awrit7(' Mix density with beta=%;4d'//
-    !     .  '%?;n;, Lindhard E=%;3d;;'//
-    !     .  '%?;(n==1);, Broyden scheme using n=%,1i;%j;'//
-    !     .  '%?;(n==0);, Anderson scheme using n=%,1i;%j;',
-    !     .  ' ',80,stdo,beta,isw(elinl.ne.0),elinl,broy,nmix,
-    !     .  broy,nmix)
-    !      call rx('done')
     if (nsp == 1) wt(2)=0d0
     if (sum(wt**2)==0d0) call rx('MIXRHO: bad mixing weights wt=0')
     call dscal(3,1/dsqrt(wt(1)**2+wt(2)**2+wt(3)**2),wt,1)
@@ -328,11 +315,11 @@ contains
     !!== elind mode ==> removed
     do  ib = 1, nbas
        is = ispec(ib) 
-       a   =sspec(is)%a
-       nr  =sspec(is)%nr
-       rmt =sspec(is)%rmt
-       lmxl=sspec(is)%lmxl
-       rsmv=sspec(is)%rsmv
+       a   =spec_a(is)
+       nr  =nr_i(is)
+       rmt =rmt_i(is)
+       lmxl=lmxl_i(is)
+       rsmv=rsmv_i(is)
        if (lmxl < 0) cycle
        nlml = (lmxl+1)**2
        if (nlml > nlm0) call rxi('mixrho: nlml > nlm0, need',nlml)
@@ -353,9 +340,9 @@ contains
     ! ... Count number of elts from local densities for fancy mixing scheme
     nda = 0
     do  ib = 1, nbas
-       is = ispec(ib)!int(ssite(ib)%spec)
-       nr = sspec(is)%nr
-       lmxl = sspec(is)%lmxl
+       is = ispec(ib)
+       nr = nr_i(is)
+       lmxl = lmxl_i(is)
        nlml = (lmxl+1)**2
        if (lmxl == -1) goto 20
        !       include spherical part of local densities only
@@ -422,12 +409,6 @@ contains
        open(ifi,file=trim(fnam)//'.'//trim(sname),form='unformatted')
     endif
     call MPI_BCAST(ifi,1,MPI_INTEGER,master,MPI_COMM_WORLD,ierr)
-    !    if (mlog) then
-    !       call gettime(datim)
-    !       call awrit3(' mixrho '//datim//' Process %i of %i on ' &
-    !            //shortname(procid)(1:namelen(procid))// &
-    !            ' bcast ifi = %i',' ',256,stml,procid,numprocs,ifi)
-    !    endif
     k9 = 10
     call pvmix5 ( nmix , mxsav , fnam , ifi , rmsdel , locmix &
          , k9 , nbas , kmxr , nlm0 ,  nsp , sv_p_orhold &
@@ -449,14 +430,7 @@ contains
     else
        close(ifi)
     endif
-
-    ! --- Printout smooth density mixing data ---
-    !    if (nnnew+nnmix > 0 .AND. ipr >= 20) call awrit2( &
-    !         ' mixrho: (warning) scr. and lin-mixed densities had'// &
-    !         ' %i and %i negative points',' ',80,stdo,nnnew,nnmix)
     call rhoqm(smrnew,n1,n2,n3,nsp,vol,qscr)
-    !     if (ipr .gt. 30) write(stdo,100)
-    !    .  sumo*fac,sumu*fac,sums*fac,rms,summ*fac
     if (ipr >45) then
        write(stdo,100) &
             qin(1),qout(1),qscr(1),rms,beta*qscr(1)+(1-beta)*qin(1)
@@ -524,12 +498,12 @@ contains
     ! ... 15. Restore local densities: rho+ +/- rho-  -> rho+, rho-'
     call dpzero(qmix,2)
     do  ib = 1, nbas
-       is = ispec(ib)!int(ssite(ib)%spec)
-       a=sspec(is)%a
-       nr=sspec(is)%nr
-       rmt=sspec(is)%rmt
-       lmxl=sspec(is)%lmxl
-       rsmv=sspec(is)%rsmv
+       is = ispec(ib)
+       a=spec_a(is)
+       nr=nr_i(is)
+       rmt=rmt_i(is)
+       lmxl=lmxl_i(is)
+       rsmv=rsmv_i(is)
        if (lmxl < 0) cycle
        nlml = (lmxl+1)**2
        if (nlml > nlm0) call rxi('mixrho: nlml > nlm0, need',nlml)
@@ -604,39 +578,8 @@ contains
     !    if (nmix < 0) dmxp(7) = -nmix
     !    if (beta0 /= beta) betakeep = beta
     rmsdelsave = rmsdel
-    ! dmxp(12) = difx
-    ! dmxp(13) = iabs(nmix)
-    ! dmxp(14) = broy
-    ! dmxp(15) = beta
-    ! if (broy == 1) dmxp(15) = 1
-    ! dmxp(25) = 0
-    ! if (wt(1) /= 0 .OR. wt(2) /= 0) dmxp(25) = 1
-    ! if (wt(3) /= 0) dmxp(25) = dmxp(25) + 10
-
-    ! ... Printout
     if (ipr >= 10 .AND. abs(qcell) > 1d-6) write(stdo, &
          '('' add q='',f10.6,'' to preserve neutrality'')') qcell
-
-    !     if (ipr >= 30) then
-    !        if (elinl /= 0) then
-    !           write(stdo,450) ' unscreened ',rmsuns,difxu
-    !           write(stdo,450) '   screened ',rms,difx,rmsdel
-    ! 450       format(a,'rms difference:  smooth',f10.6,'   local',f10.6: &
-    !                '   tot',f10.6)
-    !        endif
-    !    
-    !    elseif (ipr >= 20) then
-    !       call awrit3(' rms smooth dq=%;3g  max local dq=%;3g  dq=%;3g', &
-    !            ' ',80,stdo,rms,difx,rmsdel)
-    !    endif
-    !    if (ipl > 0 .AND. ipr > 0) then
-    !       call awrit6('%xfp %?;n;elind %;4g  ;%j;'// &
-    !            '%?#(n==1)#Broyden n %1i wc %;3g#%2j#%-3j'// &
-    !            '%?#(n==0)#Anderson n %i beta %j%;3g#%3j#', &
-    !            sout,80,0,isw(elinl.ne.0),elinl,broy,nmix,wc,beta)
-    !       call awrit3('%a  sm-dq %;3g  mx loc %;3g  dq %;3g',sout,80, &
-    !            -stdl,rms,difx,rmsdel)
-    !    endif
     call tcx('mixrho')
     nnnew = 0
     nnmix = 0
@@ -752,18 +695,14 @@ contains
     real(8):: wdummy
     complex(8):: cdummy(1,1,1,1)
     real(8):: rdummy(1,1,1)
-
     difx  = 0
     do  ib = 1, nbas
-       is = ispec(ib)!int(ssite(ib)%spec)
-
-       a=sspec(is)%a
-       nr=sspec(is)%nr
-       rmt=sspec(is)%rmt
-       rg=sspec(is)%rg
-
-       lmxl = int(sspec(is)%lmxl)
-
+       is = ispec(ib)
+       a=spec_a(is)
+       nr=nr_i(is)
+       rmt=rmt_i(is)
+       rg=rg_i(is)
+       lmxl = int(lmxl_i(is))
        if (lmxl == -1) goto 10
        nlml = (lmxl+1)**2
        allocate(ri_rv(nr))
@@ -771,13 +710,11 @@ contains
        call radmsh ( rmt , a , nr , ri_rv)
        call radwgt ( rmt , a , nr , rwgt_rv)
        rf = rmt/3
-
        if (locmix >= 2) then
           allocate(w_orsm(nr*nlml*nsp,4))
        else
           allocate(w_orsm(1,4)) !dummy
        endif
-
        do  m = 1, 4
           if (locmix >= 2) then
              !           Generate on a mesh the smooth density to be subtracted
@@ -788,7 +725,6 @@ contains
              call pkl2ro ( i , 1 , rg , kmxr , nr , nlml , nsp , ri_rv &
                   , rwgt_rv , kmxr , nlm0 , cdummy , qkl ( 0 , 1 , 1 , m , ib) , &
                   w_orsm(1,m) , rdummy , difa)
-
              !           Undo scaling of rho1+rho2 for linear mix
              if (locmix == 3 .AND. (m == 2 .OR. m == 4)) then
                 !             qlk(1,2) -> scaled rho1+rho2, rho1-rho2
@@ -811,15 +747,6 @@ contains
              w_orsm(1,m) = 1
           endif
        enddo
-
-       !   ... Constraints on rnew, smoothed rho
-       !        i = 10
-       !        if (wt(1) .eq. 0) i = 110
-       !        if (wt(2) .eq. 0) i = 210
-       !        call pvmix8(i,nr,nlml,nsp,w(orhnew(1,ib)),w(orhnew(2,ib)))
-       !        call pvmix8(i,nr,nlml,nsp,w(orsm(1)),w(orsm(2)))
-       !        call pvmix8(i,nr,nlml,nsp,w(orsm(3)),w(orsm(4)))
-
        !   ... Linear mix, this site
        call pvmix4 ( nr , nlml , nsp , ri_rv , locmix , wt , beta , &
             ib , w_orsm ( 1 , 1 ) , w_orsm ( 1 , 2 ) , w_orsm ( 1 , 3 ) , &
@@ -1097,13 +1024,11 @@ contains
 
        !   ... Site densities, depending on locmix
        do  ib = 1, nbas
-          is = ispec(ib)!int(ssite(ib)%spec)
-
-
-          aat=sspec(is)%a
-          nr=sspec(is)%nr
-          rmt=sspec(is)%rmt
-          lmxl=sspec(is)%lmxl
+          is = ispec(ib)
+          aat=spec_a(is)
+          nr=nr_i(is)
+          rmt=rmt_i(is)
+          lmxl=lmxl_i(is)
 
           if (lmxl == -1) cycle
           rf = rmt/3
@@ -1145,15 +1070,8 @@ contains
              k9l = k9 - mod(k9,10)
              call pvmix9 ( k9l , 0 , nr , nlml * nsp , 0 , rf , rofi_rv , &
                   sv_p_orhold( 1 , ib )%v , sv_p_orhold( 2 , ib )%v )
-
-
              call pvmix9 ( k9l , 0 , nr , nlml * nsp , 0 , rf , rofi_rv , &
                   sv_p_orhnew( 1 , ib )%v , sv_p_orhnew( 2 , ib )%v )
-
-
-             !         call prrmsh('1 post',w(orofi),w(orhold(1,1)),nr,nr,nlml*nsp)
-             !         call prrmsh('2 post',w(orofi),w(orhold(2,1)),nr,nr,nlml*nsp)
-             !         Copy (scaled) spherical part of rho1+rho2, rho1-rho2 to a
              do  i = 1, nsp
                 off = 1+nr*nlml*(i-1)
                 call dpscop ( sv_p_orhold( 1 , ib )%v , a ( na + 00 , i , 1 , &
@@ -1238,25 +1156,16 @@ contains
           if (locmix <= 1 .OR. locmix == 3) then
              call pvmix9 ( k9l , - 1 , nr , nlml * nsp , 0 , rf , rofi_rv &
                   , sv_p_orhold( 1 , ib )%v , sv_p_orhold( 2 , ib )%v )
-
-
              call pvmix9 ( k9l , - 1 , nr , nlml * nsp , 0 , rf , rofi_rv &
                   , sv_p_orhnew( 1 , ib )%v , sv_p_orhnew( 2 , ib )%v )
-
-
-             !         call prrmsh('1 rest',w(orofi),w(orhold(1,1)),nr,nr,nlml*nsp)
-             !         call prrmsh('2 rest',w(orofi),w(orhold(2,1)),nr,nr,nlml*nsp)
           endif
-
           !   ... Increment index na to a
           if (locmix <= 1) then
              na = na + 2*nr
           elseif (locmix >= 2) then
              na = na + 2*np
           endif
-
           if (allocated(rofi_rv)) deallocate(rofi_rv)
-
        enddo                     !Loop over sites
        na = na-1
        if (nda /= na) call rx('mixrho: bug in pvmix5')
@@ -1281,36 +1190,12 @@ contains
        endif
        call MPI_BCAST(readerror,1,MPI_LOGICAL, &
             master,MPI_COMM_WORLD,ierr)
-       ! if (mlog) then
-       !    call gettime(datim)
-       !    call awrit3(' mixrho '//datim//' Process %i of %i on ' &
-       !         //shortname(procid)(1:namelen(procid))// &
-       !         ' bcast readerror = %l',' ', &
-       !         256,stml,procid,numprocs,readerror)
-       ! endif
        if (readerror) goto 31
        call MPI_BCAST(nmixr,1,MPI_INTEGER,master,MPI_COMM_WORLD,ierr)
-       ! if (mlog) then
-       !    call gettime(datim)
-       !    call awrit3(' mixrho '//datim//' Process %i of %i on ' &
-       !         //shortname(procid)(1:namelen(procid))// &
-       !         ' bcast nmixr = %i',' ', &
-       !         256,stml,procid,numprocs,nmixr)
-       ! endif
        call MPI_BCAST(na,1,MPI_INTEGER,master,MPI_COMM_WORLD,ierr)
-       ! if (mlog) then
-       !    call gettime(datim)
-       !    call awrit3(' mixrho '//datim//' Process %i of %i on ' &
-       !         //shortname(procid)(1:namelen(procid))// &
-       !         ' bcast na = %i',' ', &
-       !         256,stml,procid,numprocs,na)
-       ! endif
        if (nda*nsp /= na) then
           if (procid == master) then
              write(stdo,ftox)' mixrho:  expecting',nda*nsp,'elements but found',na,'discarding file'
-             !             call awrit2 &
-             !                  ( %i elements but found %i ...' &
-             !                  //' discarding file',' ',80,stdo,nda*nsp,na)
           endif
           nmixr = 0
           goto 31
@@ -1334,13 +1219,6 @@ contains
        if (nmixr > 0) then
           call MPI_BCAST(a,nda*nsp*(mxsav+2)*2,MPI_DOUBLE_PRECISION, &
                master,MPI_COMM_WORLD,ierr)
-          ! if (mlog) then
-          !    call gettime(datim)
-          !    call awrit3(' mixrho '//datim//' Process %i of %i on ' &
-          !         //shortname(procid)(1:namelen(procid))// &
-          !         ' bcast (mix) a %i d.p. numbers',' ', &
-          !         256,stml,procid,numprocs,nda*nsp*(mxsav+2)*2)
-          ! endif
        endif
 31     continue
        if (iprint() >= 20) then !this is needed for test
@@ -1528,30 +1406,23 @@ contains
     na = 1 + ng02
     k9l = k9 - mod(k9,10)
     do  ib = 1, nbas
-       is = ispec(ib)!int(ssite(ib)%spec)
-
-       aat=sspec(is)%a
-       nr=sspec(is)%nr
-       rmt=sspec(is)%rmt
-       lmxl=sspec(is)%lmxl
-
+       is = ispec(ib)
+       aat=spec_a(is)
+       nr=nr_i(is)
+       rmt=rmt_i(is)
+       lmxl=lmxl_i(is)
        if (lmxl == -1) cycle
        rf = rmt/3
-       rg = sspec(is)%rg
+       rg = rg_i(is)
        nlml = (lmxl+1)**2
        allocate(rofi_rv(nr))
        allocate(rwgt_rv(nr))
        call radmsh ( rmt , aat , nr , rofi_rv)
        call radwgt ( rmt , aat , nr , rwgt_rv)
-
        !       Scale rho1+rho2 to match scaled spherical parts and sm parts
        !       call prrmsh('1 mix7a',w(orofi),w(orhold(1,ib)),nr,nr,nlml*nsp)
        call pvmix9 ( k9l , 0 , nr , nlml * nsp , 0 , rf , rofi_rv , &
             sv_p_orhold( 1 , ib )%v , sv_p_orhold( 2 , ib )%v )
-
-
-       !       call prrmsh('1 mix7b',w(orofi),w(orhold(1,ib)),nr,nr,nlml*nsp)
-
        !       Overwrite sph. rhold with scaled mixed rho; do not unscale
        if (locmix <= 1 .OR. locmix == 3) then
           do  i = 1, nsp
@@ -1588,44 +1459,23 @@ contains
              call pkl2ro ( i , 1 , rg , kmxr , nr , nlml , nsp , rofi_rv , &
                   rwgt_rv , kmxr , nlm0 , cdummy , qkl ( 0 , 1 , 1 , m , ib ) &
                   , w_orsm ( 1 , m ) , rdummy , xx )
-
           enddo
-          !         Don't undo scaling of smoothed density since rho1+rho2 scaled
-          !          call pvmix9(k9l,-1,nr,nlml*nsp,0,rf,w(orofi),
-          !     .      w(orsm(1)),w(orsm(2)))
-          !         Add to rhold(1,2)
           call daxpy ( nr * nlml * nsp , 1d0 , w_orsm ( 1 , 1 ) , 1 , sv_p_orhold( 1 , ib )%v &
                , 1 )
-
           call daxpy ( nr * nlml * nsp , 1d0 , w_orsm ( 1 , 2 ) , 1 , sv_p_orhold( 2 , ib )%v &
                , 1 )
-
           deallocate(w_orsm)
-          !          call rlse(orsm(2))
-          !          call rlse(orsm(1))
           na = na + 2*np
        endif
-       !       call prrmsh('1 mix7d',w(orofi),w(orhold(1,ib)),nr,nr,nlml*nsp)
-
        call pvmix9 ( k9l , - 1 , nr , nlml * nsp , 0 , rf , rofi_rv &
             , sv_p_orhold( 1 , ib )%v , sv_p_orhold( 2 , ib )%v )
-
-
-
-       !      call prrmsh('rho1,mixed',w(orofi),w(orhold(1,ib)),nr,nr,nlml*nsp)
-       !      call prrmsh('rho2,mixed',w(orofi),w(orhold(2,ib)),nr,nr,nlml*nsp)
-
        if (allocated(rwgt_rv)) deallocate(rwgt_rv)
        if (allocated(rofi_rv)) deallocate(rofi_rv)
-       ! i  bug fix,  unecessary
-       ! i         call rlse(orsm(1))
-
     enddo                     !Loop over sites
     na = na-1
     if (nda /= na) call rx('mixrho: bug in pvmix7')
   end subroutine pvmix7
-  subroutine pvmix9(mode,linv,nr,nlml,off,rf,rofi,rho1,rho2)
-    !- Transformation of local densities rho1,rho2 for mixing
+  subroutine pvmix9(mode,linv,nr,nlml,off,rf,rofi,rho1,rho2)    !- Transformation of local densities rho1,rho2 for mixing
     ! ----------------------------------------------------------------------
     !i Inputs
     !i   mode  :transformation mode; see Remarks
@@ -2554,14 +2404,13 @@ contains
     j1 = 1
     do  ib = ib1, ib2
        is = ispec(ib)
-       lmxl=sspec(is)%lmxl
-       z=sspec(is)%z
+       lmxl=lmxl_i(is)
+       z=z_i(is)
        qc=sspec(is)%qc
-       a=sspec(is)%a
-       nr=sspec(is)%nr
-       rmt=sspec(is)%rmt
-       rg=sspec(is)%rg
-
+       a=spec_a(is)
+       nr=nr_i(is)
+       rmt=rmt_i(is)
+       rg=rg_i(is)
        if (lmxl == -1) goto 10
        call corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
        qc = qcorg+qcorh
@@ -2590,16 +2439,6 @@ contains
 222    format(2x,'ib=',i3,i5,i6,10f12.6)
 220    format(9x,i4,i6,f12.6,10f12.6)
 221    format(/' rhogkl:    k   ilm      qkl (2l+1)!! ...')
-       !$$$#if DEBUG
-       !$$$        if (ib .eq. 1) then
-       !$$$          print *, 'ib=',ib
-       !$$$          call prtrkl ( mode , kmax , rg , nr , nlml , nsp , rofi_rv ,
-       !$$$     .     sv_p_orhoat( 1 , ib )%v , sv_p_orhoat( 2 , ib )%v , sv_p_orhoat( 3 , ib )%v
-       !$$$     .     , qkl ( 0 , j1 ) )
-       !$$$
-       !$$$
-       !$$$        endif
-       !$$$#endif
        j1 = j1+nlml
 10     continue
     enddo

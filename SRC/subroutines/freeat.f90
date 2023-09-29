@@ -1,4 +1,6 @@
 module m_freeat !free-standing spherical atom calculaitons for initial contdition
+  use m_lmfinit,only: z_i=>z,nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,lmxb_i=>lmxb,lmxl_i=>lmxl,spec_a,&
+       kmax_i=>kmxt,lfoca_i=>lfoca,rfoca_i=>rfoca
   use m_lgunit,only: stdo,stdl
   use m_rseq,only: rseq
   public freeat,freats
@@ -29,7 +31,8 @@ contains
     open(newunit=ifiwv,file='veswavatm.'//trim(sname)//'.chk')
     hfct = 0d0
     do  is = 1, nspec ! Takao found that Li requires -0.5 to have positive smooth rho.
-       if(sspec(is)%z<3.5) then !At least for Li, fitting is not good (negative smooth rho).
+!       if(sspec(is)%z<3.5) then !At least for Li, fitting is not good (negative smooth rho).
+       if(z_i(is)<3.5) then !At least for Li, fitting is not good (negative smooth rho).
           exi(1:7) = [real(8):: -0.5, -1,-2,-4,-6,-9,-15]
           nxi = 7
        else !this is original setting. For CrN. This is necessary(maybe long range cutoff is required).
@@ -38,20 +41,20 @@ contains
        endif
        nrmix= smalit
        spid = slabl(is) 
-       rfoca= sspec(is)%rfoca
+       rfoca= rfoca_i(is) !sspec(is)%rfoca
        qcor = coreq(:,is)
        chole= coreh(is)
        call gtpcor(is,kcor,lcor,qcor)
-       z   = sspec(is)%z
-       rmt = sspec(is)%rmt
-       a   = sspec(is)%a
-       nrmt= sspec(is)%nr
+       z   = z_i(is) 
+       rmt = rmt_i(is) 
+       a   = spec_a(is)
+       nrmt= nr_i(is) 
        rsmfa=.5d0*rmt            ! moved to here 2022-6-27
        if (z == 0 .AND. rmt == 0) cycle !floating orbital
        pnu(:,1)=  pnux(1:n0,1,is) 
        if(nsp==2) pnu(:,2)= pnu(:,1)
        qat(1:n0,1:nsp)=  qnu(1:n0,1:nsp,is) 
-       lmxa = sspec(is)%lmxa
+       lmxa = lmxa_i(is) 
        pz(:,1) =  pzsp(1:n0,1,is) 
        if(nsp==2) pz(:,2)= pz(:,1) !       write(6,ftox)'xxx isp pz=',is,ftof(pz(1:lmxa+1,1),6)
        write(stdo,"(a)")'freats:'

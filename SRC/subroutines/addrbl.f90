@@ -15,7 +15,8 @@ contains
   subroutine addrbl(isp,q,iq,smpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,evec,evl,nevl, smrho,sumqv,sumev,sv_p_oqkkl,sv_p_oeqkkl,f) !Adds to the smooth and local output density and to eigval sum
     use m_struc_def
     use m_suham,only: ndham=>ham_ndham,ndhamx=>ham_ndhamx,nspx=>ham_nspx
-    use m_lmfinit,only:alat=>lat_alat,nbas, ispec,sspec=>v_sspec,nsp,nspc,lmet=>bz_lmet, zbak ,lfrce !zbak is added positive bg charge.
+    use m_lmfinit,only:alat=>lat_alat,nbas, ispec,nsp,nspc,lmet=>bz_lmet, zbak ,lfrce,lmxa_i=>lmxa
+    !zbak is added positive bg charge.
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol
     use m_supot,only: n1,n2,n3
     use m_igv2x,only: napw,ndimh,ndimhx,igapw=>igv2x
@@ -89,7 +90,7 @@ contains
 !    if (lwtkb < 0) return
     call tcn('addrbl')
     nlmto = ndimh-napw
-    lmxax = maxval(sspec(ispec(1:nbas))%lmxa)
+    lmxax = maxval(lmxa_i(ispec(1:nbas)))
     nlmax = (lmxax+1)**2
     tpiba = 2d0*4d0*datan(1d0)/alat
     if(napw>0) then
@@ -258,9 +259,8 @@ contains
        enddo
     endif
   end subroutine mkewgt
-  subroutine fsmbl(vavg,q,ndimh,nlmto,nevec,evl,evec,ewgt, f) 
-    !- Force from smoothed hamiltonian (constant potential) and overlap
-    use m_lmfinit,only: lhh,nkaphh,ispec,nbas,sspec=>v_sspec
+  subroutine fsmbl(vavg,q,ndimh,nlmto,nevec,evl,evec,ewgt, f) !- Force from smoothed hamiltonian (constant potential) and overlap
+    use m_lmfinit,only: lhh,nkaphh,ispec,nbas
     use m_uspecb,only:uspecb
     use m_struc_def
     use m_orbl,only: Orblib1,Orblib2,ktab1,ltab1,offl1,norb1,ktab2,ltab2,offl2,norb2
@@ -269,13 +269,6 @@ contains
     ! ----------------------------------------------------------------------
     !i Inputs
     !i   nbas  :size of basis
-    !i   sspec :struct for species-specific information; see routine uspec
-    !i     Elts read: *
-    !i     Stored:    *
-    !i     Passed to: uspecb
-    !i   slat  :struct for lattice information; see routine ulat
-    !i     Stored:    *
-    !i     Passed to: hhigbl
     !i   vavg  :constant potential (MT zero) to be added to h
     !i   q     :Bloch wave vector
     !i   ndimh :dimension of hamiltonian
@@ -364,19 +357,11 @@ contains
     use m_uspecb,only:uspecb
     use m_orbl,only: Orblib1,ktab1,ltab1,offl1,norb1
     use m_lattic,only: rv_a_opos
-    use m_lmfinit,only: nbas,sspec=>v_sspec,ispec
+    use m_lmfinit,only: nbas,ispec
     !- Force from smoothed hamiltonian (constant potential), PW contribution
     ! ----------------------------------------------------------------------
     !i Inputs
     !i   nbas  :size of basis
-    !i   ssite :struct for site-specific information; see routine usite
-    !i     Elts read: spec pos
-    !i     Stored:    *
-    !i     Passed to: *
-    !i   sspec :struct for species-specific information; see routine uspec
-    !i     Elts read: *
-    !i     Stored:    *
-    !i     Passed to: uspecb
     !i   vavg  :constant potential (MT zero) to be added to h
     !i   ndimh :dimension of hamiltonian
     !i   nlmto :dimension of lmto part of hamiltonian

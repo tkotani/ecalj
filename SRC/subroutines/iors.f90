@@ -294,9 +294,9 @@ contains
        !   --- Read data on free-atom core states and fit to fa density ---
        line = 'species data'
        do  30  is = 1, nspec
-          a   =sspec(is)%a
-          nr  =sspec(is)%nr
-          lmxa=sspec(is)%lmxa
+          a   =spec_a(is)
+          nr  =init_nr(is)
+          lmxa=init_lmxa(is)
           if (lmxa == -1) goto 30
           if (procid == master) then
              read(jfi,err=999,end=999) nr0,a0,qc,cof,eh,stc !,lfoc0 !,rfoc0

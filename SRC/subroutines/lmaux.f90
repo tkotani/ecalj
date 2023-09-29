@@ -1,4 +1,6 @@
 module m_lmaux !main part of lmchk ! check crystal structure symmetry and get WSR
+  use m_lmfinit,only: z_i=>z,nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,lmxb_i=>lmxb,lmxl_i=>lmxl,spec_a,&
+       kmax_i=>kmxt,lfoca_i=>lfoca
   use m_xlgen,only:xlgen
   use m_lgunit,only:stdo
   public:: lmaux
@@ -56,18 +58,18 @@ contains
     nclass=ctrl_nclass
     modep=99999 !bug fix 2022-6-29 (no initialization before. No problem as long as lmchk works.)
     lpbc = 0
-    nclasp=ctrl_nclass !sarray%nclasp
+    nclasp=ctrl_nclass 
     avw=lat_avw
     plat=lat_plat
     nkd=lat_nkd
     nkq=lat_nkq
-    rmaxs=str_rmax !sstr%rmax
+    rmaxs=str_rmax 
     nclspp = max(nclass,nspec)
     allocate(rv_a_ormax(nclspp))
-    rv_a_ormax = sspec(oics(1:nclasp))%rmt
+    rv_a_ormax = rmt_i(oics(1:nclasp))
     allocate(lmxa(nclasp),z(nclasp))
-    lmxa(1:nclasp) = sspec(oics(1:nclasp))%lmxa !sarray%
-    z   (1:nclasp) = sspec(oics(1:nclasp))%z
+    lmxa(1:nclasp) = lmxa_i(oics(1:nclasp)) 
+    z   (1:nclasp) = z_i(oics(1:nclasp))
     nbasp = nbas !+ npadl + npadr
     nbaspp = nbas !2*nbasp - nbas
     j = 10
@@ -85,7 +87,7 @@ contains
 !    if (lpbc == 0) then
        i = 3 !3dim
        j = -1
-    mxcsiz = str_mxnbr !int(sstr%mxnbr)
+    mxcsiz = str_mxnbr 
     call pshpr(iprint()-20)
     call pairs ( nbas , nbasp , alat , plat ,(/ rmaxs / 2/) , rv_a_opos &
          , (/- 1/), w_dummy , nttab , iv_a_ontab , iv_a_oiax , mxcsiz ) !, i,j
@@ -121,8 +123,8 @@ contains
        allocate(zz_rv(nspec))
        allocate(rmt_rv(nspec))
        do i=1,nspec
-          zz_rv (i) = sspec(i)%z
-          rmt_rv(i) = sspec(i)%rmt
+          zz_rv (i) = z_i(i)
+          rmt_rv(i) = rmt_i(i)
        enddo
        allocate(lock_iv(nspec))
        lock_iv(:)=0
@@ -137,7 +139,7 @@ contains
           call rx('LMAUX: not implemented for lpbc>1')
        endif
        call makrm0 ( 101 , nspec , nbas , alat , plat , rv_a_opos , &
-            slabl , iv_a_oips , modep , lock_iv , zz_rv , rmt_rv ) !sarray%
+            slabl , iv_a_oips , modep , lock_iv , zz_rv , rmt_rv ) 
        !   ... Scale sphere radii satisfying constraints
        call sclwsr ( 20 , nbas , nbasp , nspec , alat , plat , rv_a_opos &
             , iv_a_oips , modep , slabl , zz_rv , lock_iv , 1d0 , wsrmax &
@@ -717,9 +719,6 @@ contains
                , llock , volnes , dovl1 , dovl2 , wsr )
 
           if (ipr >= 30) then
-             !            call awrit2(' SCLWSR:  initial sphere packing = %;1d%%'//
-             !     .      ' scaled to %;1d%% (no empty spheres)',
-             !     .      ' ',120,stdo,100*volold,100*volnes)
              write(stdo,"(' SCLWSR:  Initial sphere packing = ',f10.5, &
                   ' scaled to (no empty spheres)',f10.5)")  100*volold,100*volnes
           endif
@@ -756,13 +755,6 @@ contains
        if (allocated(ntab_iv)) deallocate(ntab_iv)
        return
     endif
-
-    !      if (ipr .ge. 10) write(stdo,309)
-    !     .  vol,100*volold,100*volnew
-    !  309 format(/' SCLWSR: vol=',f11.3,
-    !     .  '  sphere fraction=',f5.1,
-    !     .  '%(initial)  ',f5.1,'%(scaled)')
-
     if (ipr >= 10) then
        write(stdo,"(' SCLWSR:  vol = ',f10.5,' a.u.**3 ', &
             ' Initial sphere packing = ',f10.5, &
@@ -1599,8 +1591,8 @@ contains
     open(newunit=ifp,file='SiteInfo.lmchk')
 
     do  20  ibas = 1, nbasp
-       ic = ips(ibas) !class id
-       is = ispec(ibas) !ssite(ibas)%spec
+       ic = ips(ibas) 
+       is = ispec(ibas) 
        if (ipr <= 10) goto 20
        if (ibas == nbas+1) write(stdo,'(''  ... Padding basis'')')
        !        call r8tos8(dclabl(ic),clabl)
@@ -1635,13 +1627,6 @@ contains
        write(stdo,ftox)' Cell volume= ',ftof(vol,3),'Sum of sphere volumes=', &
             ftof(volsph,3),'(',ftof(volsph/vol,1),' %)'
     endif
-    !$$$      elseif (ipr .ge. 10) then
-    !$$$        volspp = 2*volspp-volsph
-    !$$$        call info5(0,1,0,
-    !$$$     .  ' Cell volume= %1,5;5d'//
-    !$$$     .  ' Sum of sphere volumes= %1,5;5d + %1,5;5d(2 x pad) '//
-    !$$$     .  ' ratio=%1;5d',vol,volsph,volspp-volsph,volspp/vol,0)
-    !$$$      endif
 
     ! --- Check sphere overlaps ---
     fovl = 0
@@ -1650,24 +1635,20 @@ contains
     if ( .NOT. lrmt .AND. ipr > 10) write(stdo,463)
     do  301  ibas = 1, nbasp
        ic = ips(ibas)
-       is = ispec(ibas) !ssite(ibas)%spec
+       is = ispec(ibas) 
        if (ipr >= 10) then
-          !          call r8tos8(dclabl(ic),clabl)
           clabl = trim(dclabl(is))//i2char(ic)
           if (dclabl(1) == '') clabl=i2char(ic) 
-          !     all awrit1('%x%,4i',clabl,8,0,ic)
        endif
        do  30  jbas = ibas, nbasp
           jc = ips(jbas)
-          js = ispec(jbas) !ssite(jbas)%spec
+          js = ispec(jbas)
           if (rmax(ic) == 0 .AND. rmax(jc) == 0) then
              goto 30
           endif
           if (ipr >= 10) then
-             !          call r8tos8(dclabl(jc),clablj)
              clablj=trim(dclabl(js))//i2char(jc) !jc)
              if (dclabl(1) == '')clablj=i2char(jc)
-             !     all awrit1('%x%,4i',clablj,8,0,jc)
           endif
           if (ibas == jbas) then
              if (ddot(3,dlat,1,dlat,1) == 0) goto 30
@@ -1721,13 +1702,7 @@ contains
                3x,'Dist  sumrs   Ovlp    %')
 30     END DO
 301 END DO
-
-    !      if (ipr .gt. 0)
-    !     .  call awrit1('%N ovlchk: fovl= %;6g',' ',80,i1mach(2),fovl)
-
   end subroutine ovlchk
-
-
   subroutine sumsro(rp,np,ips,a,b,rho,nttab,iax,rpos,rosum)
     !- Add a r.s. superposition of spherical densities at a set of points
     ! ----------------------------------------------------------------------
@@ -2314,9 +2289,6 @@ contains
           rtab(3,nttab) = dpos(3) + lat(3,ilat)
           rr = rtab(1,nttab)**2+rtab(2,nttab)**2+rtab(3,nttab)**2
 
-          !*        call awrit5('try ib,jb,ilat= %i %i %i rr=%;4d: %l',' ',80,
-          !*     .    6,ib,jb,ilat,rr,rr.lt.rcut)
-
           !   --- Add to iax table if this pair in range ---
           if (rr < rcutba) then
 
@@ -2576,7 +2548,6 @@ contains
 34     enddo
        !    .. imin holds among (1..ib2) next lowest element
        iwk(imin) = iwk(imin) + 1
-       !       call awrit2('iwk %n:1i',' ',180,6,ncl,iwk(1))
 
        !   ... If no match with previous, increment new id
        if (abs(pos(1,iminp)-dmatch(1)) > tol .OR. &

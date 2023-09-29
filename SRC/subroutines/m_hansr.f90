@@ -1,5 +1,6 @@
 !>Smooth Hankel functions in real space. JMP39: https://doi.org/doi:10.1063/1.532437.
 module m_hansr 
+  use m_lmfinit,only: z_i=>z,rmt_i=>rmt,lmxb_i=>lmxb,lfoca_i=>lfoca,rfoca_i=>rfoca,rg_i=>rg
   ! JMP39:
   ! Bott, E., M. Methfessel, W. Krabs, and P. C. Schmidt.
   ! “Nonsingular Hankel Functions as a New Basis for Electronic Structure Calculations.”
@@ -688,17 +689,17 @@ contains
     integer:: lfoc , lmxb , l,isp
     real(8):: pnu(n0),pz(n0),ccof,q0,q1,qc,rmt,rsm,x0(0:n0), xi(0:n0),dgetss
     real(8),parameter:: fpi = 16d0*datan(1d0), srfpi = dsqrt(fpi), y0 = 1d0/srfpi
-    lfoc=sspec(is)%lfoca
-    rfoc=sspec(is)%rfoca
+    lfoc=lfoca_i(is)
+    rfoc=rfoca_i(is)
+    lmxb=lmxb_i(is)
+    z=   z_i(is)
+    rmt = rmt_i(is)
     qc=  sspec(is)%qc
-    z=   sspec(is)%z
     ccof=sspec(is)%ctail
     ceh= sspec(is)%etail
-    lmxb=sspec(is)%lmxb
     pnu= pnux(1:n0,1,is) 
     pz = pzx(1:n0,1,is)  
-    rmt = sspec(is)%rmt
-    if ( rfoc <= 1d-5 ) rfoc = (sspec(is)%rg)
+    if ( rfoc <= 1d-5 ) rfoc = rg_i(is)
     qsc = 0
     isp=1 !we assme int pz(:,1)=pz(:,2) int pnu as well
     do  l = 0, lmxb

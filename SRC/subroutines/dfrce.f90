@@ -1,7 +1,7 @@
 !>Correction to force theorem, Harris functional
 module m_dfrce 
   use m_lmfinit,only: nsp,nbas,nspec,ispec,spec_a,sspec=>v_sspec,rmt_i=>rmt,&
-       nr_i=>nr,lmxa_i=>lmxa,lmxl_i=>lmxl,spec_z=>z
+       nr_i=>nr,lmxa_i=>lmxa,lmxl_i=>lmxl,spec_z=>z,rg_i=>rg
   use m_ll,only:ll
   public dfrce
 contains
@@ -338,7 +338,7 @@ contains
     is=ispec(ib)
     tau=rv_a_opos(:,ib) 
     lmxl=lmxl_i(is)
-    rg=sspec(is)%rg
+    rg=rg_i(is)
     call corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
     nlm = (lmxl+1)**2
     if (nlm > nlmx) call rxi('pvdf1: increase nlmx to',nlm)
@@ -421,7 +421,7 @@ contains
        js=ispec(jb) 
        tau=rv_a_opos(:,jb)
        lmxl=lmxl_i(js)
-       rg=sspec(js)%rg
+       rg=rg_i(js)
        nlm = (lmxl+1)**2
        ! ... For this jb, mesh density for all G vectors
        if (nlm > nlmx) call rxi('pvdf1: increase nlmx to',nlm)
@@ -647,7 +647,7 @@ contains
        is=ispec(ib)
        tau=rv_a_opos(:,ib) 
        lmxl=lmxl_i(is)
-       rg=sspec(is)%rg
+       rg=rg_i(is)
        if (lmxl == -1) goto 10
        call corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
        !     call suphas(q0,tau,ng,iv,n1,n2,n3,qlat,cs,sn)

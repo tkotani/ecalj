@@ -1,4 +1,6 @@
 module m_mkrout
+  use m_lmfinit,only: nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,lmxb_i=>lmxb,lmxl_i=>lmxl,spec_a,&
+       kmxt_i=>kmxt
   use m_ll,only:ll
   use m_struc_def,only:s_rv1
   use m_uspecb,only:uspecb
@@ -27,8 +29,8 @@ contains
     if( .NOT. allocated(orhoat_out)) allocate(orhoat_out(3,nbas))
     do  ib = 1, nbas
        is =  ispec(ib) 
-       nr =  sspec(is)%nr
-       lmxl= sspec(is)%lmxl
+       nr =  nr_i(is)
+       lmxl= lmxl_i(is)
        nlml = (lmxl+1)**2
        if (lmxl > -1) then
           if(allocated(orhoat_out(1,ib)%v)) then
@@ -99,15 +101,15 @@ contains
     if(master_mpi) inquire(file='mmtarget.aftest',exist=mmtargetx)
     ibloop: do  ib = 1, nbas
        is = ispec(ib)
-       lmxa=sspec(is)%lmxa
+       lmxa=lmxa_i(is) 
        if (lmxa == -1) cycle 
-       lmxl=sspec(is)%lmxl
-       kmax=sspec(is)%kmxt
+       lmxl=lmxl_i(is)
+       kmax=kmxt_i(is)
        nkaph=nkaphh(is)
-       a=sspec(is)%a
-       nr=sspec(is)%nr
-       rmt=sspec(is)%rmt
-       lmxh=sspec(is)%lmxb
+       a=spec_a(is)
+       nr=nr_i(is)
+       rmt=rmt_i(is)
+       lmxh=lmxb_i(is)
        stc0=sspec(is)%stc
        call corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
        call uspecb(is,rsmh,eh)

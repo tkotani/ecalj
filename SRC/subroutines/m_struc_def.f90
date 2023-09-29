@@ -34,22 +34,9 @@ module m_struc_def
   type s_cv4
      complex(8),allocatable:: cv4(:,:,:,:)
   end type s_cv4
-  type s_spec  !I think all of them are fixed during iteration cycle of lmf-MPIK
+  type s_spec  
      real(8),allocatable :: rv_a_orhoc(:) !pointer to core density
-     real(8):: z     !atomic number
-     real(8):: rmt   !augmentation radius
      real(8):: rsmfa !rsm to fit free atom density
-     real(8):: rg    !rsm for gaussians to fix multipole moments
-     integer:: lmxa  !  l cutoff for augmentation expansion
-     integer:: lmxl  !  l cutoff for local density and potential
-     integer:: lmxb  !  highest l in basis
-     integer:: kmxt  !  k cutoffs for tail augmentation expansion of P_kl
-     real(8):: rsmv  !  rsmv  =rmt*.5d0 in defspc from m_lmfinit. smoothing radius of gaussian
-     real(8):: a  !a for mesh
-     integer:: nr !nr for mesh
-     integer:: lfoca ! switch specifying treatment of core density
-     real(8):: rfoca ! smoothing radius for frozen core overlap approx
-! followings are given at lmfa. And read by rdovfa->iofa, I think.     
      real(8):: ctail !coefficients to fit of free-atom core tail by unsm. Hankel
      real(8):: etail !energy to fit of free-atom core tail
      real(8):: stc   !core kinetic energy
@@ -59,3 +46,14 @@ module m_struc_def
      real(8):: chfa(n0,2) ! coefficients to fit of free-atom density tails
   end type s_spec
 end module m_struc_def
+!     real(8):: z     !atomic number
+!     real(8):: rg    !rsm for gaussians to fix multipole moments
+!     integer:: lmxa  !  l cutoff for augmentation expansion
+!     integer:: lmxl  !  l cutoff for local density and potential
+!     integer:: lmxb  !  highest l in basis
+!     integer:: kmxt  !  k cutoffs for tail augmentation expansion of P_kl
+!     real(8):: rsmv  !  rsmv  =rmt*.5d0 in defspc from m_lmfinit. smoothing radius of gaussian
+!     real(8):: a  !a for mesh
+!     integer:: lfoca ! switch specifying treatment of core density
+!     real(8):: rfoca ! smoothing radius for frozen core overlap approx
+! followings are given at lmfa. And read by rdovfa->iofa, I think.     

@@ -1,5 +1,6 @@
 !>Get one-particle potential. See http://dx.doi.org/10.7566/JPSJ.84.034702
-module m_mkpot 
+module m_mkpot
+  use m_lmfinit,only: z_i=>z,lmxa_i=>lmxa,lmxb_i=>lmxb,kmxt_i=>kmxt
   use m_lmfinit,only: nbas,stdo,qbg=>zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nppn,lfrce,stdl, nchan=>pot_nlma, nvl=>pot_nlml
   use m_struc_def,only: s_rv1,s_cv1,s_sblock,s_rv4,s_cv5
   public:: m_mkpot_init, m_mkpot_energyterms, m_mkpot_novxc, m_mkpot_deallocate !,m_Mkpot_novxc_dipole
@@ -219,7 +220,7 @@ contains
           write(ifi,'("PRIMCOORD")')
           write(ifi,'(2i5)') nbas,1
           do i = 1, nbas
-             write(ifi,'(i4,2x,3f10.5)')sspec(ispec(i))%z,(rv_a_opos(i2,i)*alat*0.529177208,i2=1,3)
+             write(ifi,'(i4,2x,3f10.5)')z_i(ispec(i)),(rv_a_opos(i2,i)*alat*0.529177208,i2=1,3)
           enddo
           write(ifi,'("BEGIN_BLOCK_DATAGRID_3D")')
           write(ifi,'("charge_density_spin_",i1)') isp
@@ -341,9 +342,9 @@ contains
     do  ib = 1, nbas
        is = ispec(ib)
        nkaph=nkaphh(is)
-       lmxa=sspec(is)%lmxa !max l of augmenation
-       lmxh=sspec(is)%lmxb !max l of head 
-       kmax=sspec(is)%kmxt !0:kmax for radial index, ! nkaph:number of orbital types for a given L quantum no. in basis
+       lmxa=lmxa_i(is) !max l of augmenation
+       lmxh=lmxb_i(is) !max l of head 
+       kmax=kmxt_i(is) !0:kmax for radial index, ! nkaph:number of orbital types for a given L quantum no. in basis
        nlma = (lmxa+1)**2
        nlmh = (lmxh+1)**2
        if (lmxa == -1) cycle

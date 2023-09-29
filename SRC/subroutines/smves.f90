@@ -1,11 +1,13 @@
-module m_smves !smooth part of electrostatic potential.
+!>smooth part of electrostatic potential.
+module m_smves 
+  use m_lmfinit,only: rmt_i=>rmt,lmxl_i=>lmxl,spec_a,rg_i=>rg
   use m_ll,only:ll
   private
   public smves
 contains
   subroutine smves(qmom,gpot0,vval,hpot0,sgp0,smrho,smpot,vconst,smq,qsmc,f,rhvsm,zvnsm,zsum,vrmt,qbg) ! Electrostatic potential of the 0th component (represented by PlaneWave + Gaussians + smHankels)
     use m_supot,only: iv_a_okv, rv_a_ogv
-    use m_lmfinit,only: rv_a_ocy,nsp,stdo,nbas,sspec=>v_sspec,ispec
+    use m_lmfinit,only: rv_a_ocy,nsp,stdo,nbas,ispec
     use m_lattic,only: vol=>lat_vol
     use m_supot,only: ng=>lat_ng,n1,n2,n3
     use m_MPItk,only: master_mpi
@@ -15,7 +17,6 @@ contains
     use m_vesgcm,only: vesgcm
     use m_ftox
     !i   nbas  :size of basis
-    !i   sspec :struct containing species-specific information
     !i   n1,n2,n3 dimensions of smrho,smpot for smooth mesh density
     !i   qmom  :multipole moments of on-site densities (rhomom.f)
     !i   smrho :smooth density on real-space mesh
@@ -166,7 +167,7 @@ contains
     vbar = 0d0
     sbar = 0d0
     do  ib = 1, nbas
-       rmt = sspec(ispec(ib))%rmt
+       rmt = rmt_i(ispec(ib))
        vbar = vbar + rmt**2 * vrmt(ib) 
        sbar = sbar + rmt**2
     enddo
@@ -182,7 +183,7 @@ contains
     ! ... Adjust vbar, vval, gpot0 by vconst
     iv0 = 0
     do  ib = 1, nbas
-       lmxl = sspec(ispec(ib))%lmxl
+       lmxl = lmxl_i(ispec(ib))
        if (lmxl > -1) then
           nlm = (lmxl+1)**2
           vrmt(ib) = vrmt(ib) + vconst
@@ -222,7 +223,7 @@ contains
     do  ib = 1, nbas
        is = ispec(ib)
        call corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
-       lmxl = sspec(is)%lmxl
+       lmxl = lmxl_i(is)
        if (lmxl > -1) then
           nlm = (lmxl+1)**2
           hsum = -srfpi*dexp(ceh*rfoc*rfoc*0.25d0)/ceh ! hsum = integral of charge in sm. Hankel
@@ -249,7 +250,7 @@ contains
   subroutine mshvmt(ng,gv, kv,cv,smpot,vval)
     use m_struc_def
     use m_lattic,only:lat_plat,rv_a_opos
-    use m_lmfinit,only:lat_alat,nbas,ispec,sspec=>v_sspec
+    use m_lmfinit,only:lat_alat,nbas,ispec
     use m_supot,only: n1,n2,n3
     use m_ropyln,only: ropyln
     use m_ropbes,only: ropbes
@@ -309,8 +310,8 @@ contains
     do  ib = 1, nbas
        is=ispec(ib)
        tau=rv_a_opos(:,ib) 
-       rmt=sspec(is)%rmt
-       lmxl=sspec(is)%lmxl
+       rmt=rmt_i(is)
+       lmxl=lmxl_i(is)
        if (lmxl == -1) goto 10
        nlm = (lmxl+1)**2
        if (nlm > nlmx) call rxi('mshvmt: increase nlmx to',nlm)
@@ -348,17 +349,12 @@ contains
     call tcx('mshvmt')
   end subroutine mshvmt
 
-  subroutine symvvl(vval,vrmt)
+  subroutine symvvl(vval,vrmt) !Symmetrizes the potential at the MT boundary.
     use m_mksym,only: symops,ag,ngrp,ipc=>iclasst
     use m_struc_def
     use m_lattic,only:lat_plat,rv_a_opos
     use m_lgunit,only:stdo
-    use m_lmfinit,only:ispec,sspec=>v_sspec,nbas
-    !- Symmetrizes the potential at the MT boundary.
-    ! ----------------------------------------------------------------------
-    !i Inputs
-    !i   sspec :struct for species-specific information; see routine uspec
-    !i     Elts read: lmxl rmt
+    use m_lmfinit,only:ispec,nbas
     !o Outputs
     ! o  vval  :On input,  unsymmetrized potential
     ! o        :On output, elements of potential for sites in the same
@@ -390,11 +386,11 @@ contains
 !    ngrp=lat_nsgrp
     do ibas=1,nbas
        ips(ibas)  = ispec(ibas) 
-       pos(:,ibas)= rv_a_opos(:,ibas) !ssite(i_spackv)%pos
+       pos(:,ibas)= rv_a_opos(:,ibas)
     enddo
     nclass = maxval(ipc)
     do  ib = 1, nbas
-       lmxl ( ib ) = int(sspec(ips(ib))%lmxl)
+       lmxl(ib)=lmxl_i(ips(ib))
     enddo
     do  ic = 1, nclass
        !   ... Make nrclas,ipa,posc
@@ -450,7 +446,7 @@ contains
     use m_lgunit,only:stml
     use m_smhankel,only:hhugbl,hgugbl,ggugbl
     use m_lattic,only: rv_a_opos
-    use m_lmfinit,only: ispec,sspec=>v_sspec,nbas
+    use m_lmfinit,only: ispec,nbas
     use m_hansr,only:corprm
     !i   qmom  :multipole moments of on-site densities (rhomom.f)
     ! o Inputs/Outputs
@@ -510,8 +506,8 @@ contains
     do ib=ibini,ibend
        is=ispec(ib) 
        tau1=rv_a_opos(:,ib) 
-       lmax1=sspec(is)%lmxl
-       rg1=sspec(is)%rg
+       lmax1=lmxl_i(is)
+       rg1=rg_i(is)
        call corprm(is,qcorg1,qcorh1,qsc1,cofg1,cofh1,ceh1,lfoc1, rh1,z1)
        nlm1 = (lmax1+1)**2
        if (lmax1 > -1) then
@@ -519,8 +515,8 @@ contains
           do  jb = 1, nbas!  Loop over sites where charge lump sees the potential
              js=ispec(jb)
              tau2=rv_a_opos(:,jb) 
-             lmax2=sspec(js)%lmxl
-             rg2=sspec(js)%rg
+             lmax2=lmxl_i(js)
+             rg2=rg_i(js)
              if (lmax2 > -1) then
                 call corprm(js,qcorg2,qcorh2,qsc2,cofg2,cofh2,ceh2, lfoc2,rh2,z2)
                 nlm2 = (lmax2+1)**2
@@ -616,9 +612,7 @@ contains
     call gvputf(ng,1,kv,n1,n2,n3,ccc,smpot)! smpot(G) =8pi/G**2 smrho(G)
     call tcx('vesft')
   end subroutine vesft
-subroutine symqmp(nrclas,nlml,nlmx,plat,posc,ngrp,g,ag,qwk,ipa,sym,qmp,nn)
-  !- Symmetrize multipole moments for a single class
-  ! ----------------------------------------------------------------------
+subroutine symqmp(nrclas,nlml,nlmx,plat,posc,ngrp,g,ag,qwk,ipa,sym,qmp,nn)  !- Symmetrize multipole moments for a single class
   !i Inputs
   !i   nrclas:number of atoms in the ith class
   !i   nlml  :L-cutoff for charge density on radial mesh

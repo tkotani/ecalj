@@ -1,5 +1,5 @@
 subroutine vbmmode()!Get VBM and CBM relative to vaccum (a simple approximaiton. need fixing.).
-  use m_lmfinit,only: sspec=>v_sspec,ispec,nbas,vol,nspec
+  use m_lmfinit,only: sspec=>v_sspec,ispec,nbas,vol,nspec,rmt_i=>rmt,z_i=>z
   use m_ext,only:sname
   implicit none
   character(120):: vbmlll
@@ -14,7 +14,7 @@ subroutine vbmmode()!Get VBM and CBM relative to vaccum (a simple approximaiton.
   !! vesintatm is given by lmfa. electrostatic potential integrals.
   allocate(vesatm(nspec))
   do ispe=1,nspec
-     if(sspec(ispe)%z==0d0 .AND. sspec(ispe)%rmt==0d0 ) cycle
+     if(z_i(ispe)==0d0 .AND. rmt_i(ispe)==0d0 ) cycle
      read(ifvesintatm,*,err=9898,end=9898) vesatm(ispe)
   enddo
   close(ifvesintatm)
@@ -25,7 +25,7 @@ subroutine vbmmode()!Get VBM and CBM relative to vaccum (a simple approximaiton.
   sumvesloc=0d0
   sumvesatm=0d0
   do ib=1,nbas
-     if(sspec(ispec(ib))%z==0d0 .AND. sspec(ispec(ib))%rmt==0d0 )  cycle
+     if(z_i(ispec(ib))==0d0 .AND. rmt_i(ispec(ib))==0d0 )  cycle
      read(ifvesintloc,*) vesloc
      sumvesloc = sumvesloc + vesloc
      sumvesatm = sumvesatm + vesatm(ispec(ib))

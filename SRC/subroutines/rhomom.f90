@@ -1,12 +1,8 @@
+!>Multipole moments Q_L = Q_aL^Zc+ Q_aL^v (See.Eq.(28) JPSJ034702)
 module m_rhomom
   public rhomom
   private
   contains
-subroutine rhomom (sv_p_orhoat, qmom,vsum) ! Multipole moments Q_L = Q_aL^Zc+ Q_aL^v (See.Eq.(28) JPSJ034702)
-  use m_struc_def
-  use m_lmfinit,only: nsp,nbas,sspec=>v_sspec,jnlml,ispec
-  use m_lgunit,only:stdo
-  use m_hansr,only:corprm
   !i   orhoat:vector of offsets containing site density
   !i jnlml(ib): address of (ilm,ib) index. qmom(j:j+nlml-1) is for ib. Search jnlm below.
   !o   qmom  :Multipole moments, stored as a single long vector.
@@ -14,7 +10,16 @@ subroutine rhomom (sv_p_orhoat, qmom,vsum) ! Multipole moments Q_L = Q_aL^Zc+ Q_
   !o   vsum  :sum over all sites ib of difference vs1_ib - vs2_ib
   !o         :vs1_ib = integral in sphere of estat potential[true rho]
   !o         :vs2_ib = integral in sphere of estat potential[sm rho]
+subroutine rhomom(sv_p_orhoat, qmom,vsum)
+  use m_struc_def
+  use m_lmfinit,only: z_i=>z,nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,lmxb_i=>lmxb,lmxl_i=>lmxl,spec_a,&
+       kmxt_i=>kmxt,lfoca_i=>lfoca,rfoca_i=>rfoca,rg_i=>rg
+  use m_lmfinit,only: nsp,nbas,sspec=>v_sspec,jnlml,ispec
+  use m_lgunit,only:stdo
+  use m_hansr,only:corprm
   implicit none
+  intent(in) ::    sv_p_orhoat
+  intent(out)::                 qmom,vsum
   type(s_rv1) :: sv_p_orhoat(3,nbas)
   integer:: ipr,iprint,j1,ib,is,igetss,lmxl,nr,nlml,ilm,j,lfoc
   real(8) ,allocatable :: rofi(:),rwgt(:), h_rv(:), v_rv(:)
@@ -24,12 +29,12 @@ subroutine rhomom (sv_p_orhoat, qmom,vsum) ! Multipole moments Q_L = Q_aL^Zc+ Q_
   if (ipr >= 45) write(stdo,"(/' rhomom:   ib   ilm      qmom',8x,'Qval',7x, 'Qc',8x,'Z')")
   do  ib = 1, nbas
      is = ispec(ib) 
-     lmxl=sspec(is)%lmxl
-     z  = sspec(is)%z
-     a  = sspec(is)%a
-     nr = sspec(is)%nr
-     rmt= sspec(is)%rmt
-     rg = sspec(is)%rg
+     lmxl=lmxl_i(is)
+     z  = z_i(is)
+     a  = spec_a(is)
+     nr = nr_i(is)
+     rmt= rmt_i(is)
+     rg = rg_i(is)
      j1 = jnlml(ib)! (ilm,ib) index
      if (lmxl == -1) cycle
      call corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)

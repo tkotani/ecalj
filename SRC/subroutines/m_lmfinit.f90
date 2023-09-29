@@ -1,5 +1,19 @@
 !> Ititial data for lmf-MPIK lmchk lmfa read from ctrl file
 !> We add some extra foobar to v_sspec%foobar in rdovfa/iors. pos can be from AtomPos (see lmfp.f90)
+!      do j=1,nspec 
+!         v_sspec(j)%z=     z(j)      !nucleus
+!         v_sspec(j)%a=     spec_a(j) !a for radial mesh
+!         v_sspec(j)%nr=    nr(j)     !nr for radial mesh
+!         v_sspec(j)%rmt=   rmt(j)    ! MT radius
+!         v_sspec(j)%rsmv=  rmt(j)*.5d0 !rsmv(j) :smoothing radius for P_kl expansion
+!         v_sspec(j)%kmxt=  kmxt(j) !kmax the max number radial funciton index of P_kl(r)
+!         v_sspec(j)%lmxa=  lmxa(j) !lmx for augmentation
+!         v_sspec(j)%lmxb=  lmxb(j) !lmx for basis
+!         v_sspec(j)%lmxl=  lmxl(j) !lmx for rho and density
+!         v_sspec(j)%rfoca= rfoca(j) !smoothing radius for frozen core overlap approx
+!         v_sspec(j)%lfoca= lfoca(j) !lfoca=1,usually (frozen core mode)
+!         v_sspec(j)%rg=    rg(j)   !rsm for gaussians to fix multipole moments
+!      enddo
 module m_lmfinit ! 'call m_lmfinit_init' sets all initial data from ctrl are processed and stored in m_lmfinit_init.
   use m_ftox
   use m_ext,only :sname        ! sname contains extension. foobar of ctrl.foobar
@@ -35,7 +49,7 @@ module m_lmfinit ! 'call m_lmfinit_init' sets all initial data from ctrl are pro
        nkapii(:),nkaphh(:),ispec(:),ifrlx(:,:),ndelta(:), iantiferro(:), iv_a_oips (:),  lpz(:),lpzex(:),lhh(:,:) ,jnlml(:)
   real(8),allocatable,protected:: rsmh1(:,:),rsmh2(:,:),eh1(:,:),eh2(:,:),rs3(:),alpha(:,:),uh(:,:),jh(:,:),eh3(:),&
        qpol(:,:),stni(:),pnusp(:,:,:),qnu(:,:,:),pnuspdefault(:,:),qnudefault(:,:),qnudummy(:,:),&
-       coreq(:,:),rg(:),rsma(:),rfoca(:), rmt(:),pzsp(:,:,:), amom(:,:),spec_a(:),z(:),eref(:)
+       coreq(:,:),rg(:),rsma(:),rfoca(:), rmt(:),pzsp(:,:,:), amom(:,:),spec_a(:),z(:),eref(:),rsmv(:)
   character*(8),allocatable,protected:: coreh(:)
   real(8),allocatable,protected:: pos(:,:), delta(:,:),mpole(:),dpole(:,:)
   !  WARNINIG: pos is initial position read from ctrl. We use lattic.f90 (search pos in bndfp.f90 and setpos in lmfp.f90 as well.)
@@ -530,23 +544,8 @@ contains
             if(pzsp(lp1,1,j)>0)              idxdn(lp1,nkaphh(j),j)=1 
          enddo
       enddo
+      allocate(rsmv,source=.5d0*rmt)
       allocate(v_sspec(nspec))
-      do j=1,nspec !additional data supplied from rdovfa.f90 and iors.f90. See m_struc_def.f90. 
-         v_sspec(j)%z=z(j)       !nucleus
-         v_sspec(j)%a=spec_a(j)  !a for radial mesh
-         v_sspec(j)%nr=nr(j)     !nr for radial mesh
-         v_sspec(j)%kmxt=kmxt(j) !kmax. the max number radial funciton index of P_kl(r)
-         v_sspec(j)%lfoca=lfoca(j) !lfoca=1,usually (frozen core)
-         v_sspec(j)%rsmv= rmt(j)*.5d0 !rsmv(j) :smoothing radius for P_kl expansion
-         v_sspec(j)%lmxa=lmxa(j) !lmx for augmentation
-         v_sspec(j)%lmxb=lmxb(j) !lmx for basis
-         v_sspec(j)%lmxl=lmxl(j) !lmx for rho and density
-         v_sspec(j)%rfoca=rfoca(j)
-         v_sspec(j)%rg=rg(j)   !size of Gaussian
-         v_sspec(j)%rmt=rmt(j) ! MT radius
-         !write(stdo,"(/' species data:  augmentation',27x,'density'/' spec       rmt   rsma lmxa kmxa',5x,' lmxl     rg   rsmv foca   rfoca')")
-         !write(stdo,"(1x,a,f6.3,f7.3,2i5,6x,i4,2f7.3,i5,f8.3)") spec_a(j),rmt(j),rsma(js),lmxa(j),kmxt(j), lmxl(j),rg(j),rsmv,lfoca(j),rfoca(j)
-      enddo
       if(master_mpi) write(stdo,ftox)'pnu list       ibas isp  pnu(0:lmxa) '
       do j=1,nbas
          is=ispec(j) 

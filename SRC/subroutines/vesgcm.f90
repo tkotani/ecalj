@@ -1,4 +1,5 @@
 module m_vesgcm
+  use m_lmfinit,only: lmxl_i=>lmxl,rmt_i=>rmt,rg_i=>rg
   use m_ll,only:ll
   private
   public vesgcm
@@ -67,8 +68,8 @@ module m_vesgcm
   do  ib = 1, nbas
      is=ispec(ib)
      tau=rv_a_opos(:,ib) 
-     lmxl=sspec(is)%lmxl
-     rg=sspec(is)%rg
+     lmxl=lmxl_i(is)
+     rg=rg_i(is)
      if (lmxl == -1) goto 10
      call corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
      qc = qcorg+qcorh
@@ -126,7 +127,7 @@ module m_vesgcm
     do ib = 1, nbas
        is=ispec(ib)
        tau= alat * rv_a_opos(:,ib) 
-       rmt= sspec(is)%rmt +1d-32 !  Add a negligibly small amount to rmt to handle case rmt=0
+       rmt= rmt_i(is) +1d-32 !  Add a negligibly small amount to rmt to handle case rmt=0
        do i = 2, ng
           v(:) = gv(i,:)*tpiba
           g2 = (sum(v**2))**.5 

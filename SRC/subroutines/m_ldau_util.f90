@@ -2,6 +2,7 @@
 module m_ldau_util
   use m_lgunit,only:stdo
   use m_MPItk,only: master_mpi
+  use m_lmfinit,only: lmxa_i=>lmxa
   use m_ftox
   public ldau, sudmtu,chkdmu,mixmag,symdmu
   private
@@ -534,7 +535,7 @@ contains
     close(ifi)
   end subroutine mixmag
   subroutine chkdmu(eks, dmatu,dmatuo,vorb,eorb)
-    use m_lmfinit,only: stdl,nbas,nsp,nlibu,lmaxu,ispec,sspec=>v_sspec,lldau, &
+    use m_lmfinit,only: stdl,nbas,nsp,nlibu,lmaxu,ispec,lldau, &
          tolu=>mix_tolu,umix=>mix_umix,stdo,idu,uh,jh,ham_lsig,addinv
     use m_mksym,only: g=>symops,istab=>oistab, ng =>ngrp
     use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
@@ -608,7 +609,7 @@ contains
     do  ib = 1, nbas
        if (lldau(ib) /= 0) then
           is = ispec(ib) 
-          lmxa=sspec(is)%lmxa
+          lmxa=lmxa_i(is)
           do  l = 0, min(lmxa,3)
              if (idu(l+1,is) /= 0) then
                 iblu = iblu+1
@@ -638,7 +639,7 @@ contains
     do  ib = 1, nbas
        if (lldau(ib) /= 0) then
           is = ispec(ib)
-          lmxa=sspec(is)%lmxa
+          lmxa=lmxa_i(is)
           do  l = 0, min(lmxa,3)
              if (idu(l+1,is) /= 0) then
                 iblu = iblu+1
@@ -684,7 +685,7 @@ contains
   end subroutine chkdmu
   subroutine sudmtu(dmatu,vorb) !not touch module variables
     use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
-    use m_lmfinit,only: nbas,nsp,nlibu,lmaxu,lldau,ispec,sspec=>v_sspec,stdo,slabl,idu,uh,jh
+    use m_lmfinit,only: nbas,nsp,nlibu,lmaxu,lldau,ispec,stdo,slabl,idu,uh,jh
     use m_mksym,only: g=>symops,istab=>oistab, ng =>ngrp
     !- Initialize site density matrix and vorb  for LDA+U
     ! ----------------------------------------------------------------------
@@ -693,10 +694,6 @@ contains
     !i   nsp   :2 for spin-polarized case, otherwise 1
     !i   nlibu : nlibu total number of U blocks
     !i   lmaxu :dimensioning parameter for U matrix
-    !i   sspec :struct for species-specific information; see routine uspec
-    !i     Elts read: lmxa idu uh jh
-    !i     Stored:   *
-    !i     Passed to: symdmu rotycs
     !i   idvsh :0 dmatu and vorb returned in real harmonics
     !i         :1 dmatu and vorb returned in spherical harmonics
     !i   lldau :lldau(ib)=0 => no U on this site otherwise
@@ -777,7 +774,7 @@ contains
        do  ib = 1, nbas
           if (lldau(ib) /= 0) then
              is = ispec(ib) 
-             lmxa=sspec(is)%lmxa
+             lmxa=lmxa_i(is)
              do l = 0, min(lmxa,3)
                 if (idu(l+1,is) /= 0) then
                    iblu = iblu+1
@@ -820,7 +817,7 @@ contains
        do  ib = 1, nbas
           if (lldau(ib) /= 0) then
              is = ispec(ib)
-             lmxa=sspec(is)%lmxa
+             lmxa=lmxa_i(is)
              do l = 0,min(lmxa,3)
                 if (idu(l+1,is) /= 0) then
                    iblu = iblu+1
@@ -899,7 +896,7 @@ contains
     do  20  ib = 1, nbas
        if (lldau(ib) == 0) goto 20
        is = ispec(ib) 
-       lmxa=sspec(is)%lmxa
+       lmxa=lmxa_i(is)
        spid=slabl(is) 
        i = min(lmxa,3)
        if(master_mpi) write(stdo,ftox)'Species '//spid//'mode',idu(1:i+1,is),'U',ftof(uh(1:i+1,is),2),'J',ftof(jh(1:i+1,is),2)
@@ -944,14 +941,13 @@ contains
     call rx('bad occnum file, site l= '//trim(xn(ib))//trim(xn(l)))
   end subroutine sudmtu
   subroutine rotycs(mode,a,nbas,nsp,lmaxu,lldau) !- Rotate matrix a from real to spherical harmonics for LDA+U objects densmat and vorb
-    use m_lmfinit,only:idu,ispec,sspec=>v_sspec
+    use m_lmfinit,only:idu,ispec
     !i mode =1 from real a to spherical a
     !i      -1 from spherical a to real a
     !i a: matrix to be transformed a(m,m,isp,iblu)  could be vorb or dmat
     !i nbas : number of sites
     !i nsp  : number of spins
     !i lmaxu: lmax for U
-    !i sspec: species info
     !i lldau  :lldau(ib)=0 => no U on this site otherwise
     !i        :U on site ib with dmat in dmats(*,lldau(ib))
     !o a rotated in place
@@ -988,8 +984,8 @@ contains
     iblu = 0
     do  ib = 1, nbas
        if (lldau(ib)==0) cycle
-       is  = ispec(ib) !ssite(ib)%spec
-       do  l = 0, min(sspec(is)%lmxa,3)
+       is  = ispec(ib) 
+       do  l = 0, min(lmxa_i(is),3)
           if (idu(l+1,is) ==0) cycle
           iblu = iblu+1
           do  isp = 1, 2
@@ -1009,7 +1005,7 @@ contains
   end subroutine rotycs
   subroutine praldm(ifi,ipr1,ipr2,sharm,nbas,nsp,lmaxu,lldau,strn,dmatu) !- Writes out a site density-matrix-like object for all sites
     use m_struc_def
-    use m_lmfinit,only:idu,ispec,sspec=>v_sspec
+    use m_lmfinit,only:idu,ispec
     !i Inputs
     !i   ifi   :if zero, write to stdo, in screen style format
     !i         :else, write to file ifi in high-precision format
@@ -1034,7 +1030,7 @@ contains
     do  ib = 1, nbas
        if (lldau(ib) /= 0) then
           is = ispec(ib) 
-          lmxa=sspec(is)%lmxa
+          lmxa=lmxa_i(is)
           do  l = 0, min(lmxa,3)
              if (idu(l+1,is) /= 0) then
                 iblu = iblu+1
@@ -1109,7 +1105,7 @@ contains
   subroutine symdmu(nlibu,dmatu,nbas,nsp,lmaxu,ng,g, istab,lldau,rms)!- Symmetrize LDA+U density matrix dmatu
     use m_struc_def
     use m_ftox
-    use m_lmfinit,only:idu,ispec,sspec=>v_sspec
+    use m_lmfinit,only:idu,ispec
     use m_lgunit,only:stdo
     !i Inputs
     !i   dmatu :density matrix for LDA+U
@@ -1118,8 +1114,6 @@ contains
     !i   nbas  :size of basis
     !i   nsp   :2 for spin-polarized case, otherwise 1
     !i   lmaxu :dimensioning parameter for U matrix
-    !i   sspec :struct for species-specific information; see routine uspec
-    !i         Elts read: lmxa idu
     !i   ng    :number of group operations.  Program does nothing if ng=0
     !i   g     :point group operations
     !i   istab :table of site permutations for each group op (mksym.f,symtbl.f)
@@ -1175,7 +1169,7 @@ contains
     do  ib = 1, nbas
        if (lldau(ib) /= 0) then
           is = ispec(ib) !ssite(ib)%spec
-          lmxa=sspec(is)%lmxa
+          lmxa=lmxa_i(is)
           ofjbl = -1
           do  l = 0, min(lmxa,3)
              if (idu(l+1,is) /= 0) then

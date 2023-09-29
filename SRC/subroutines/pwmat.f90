@@ -6,7 +6,7 @@ module m_pwmat
 ! Matrix elements (IPW,IPW) and (IPW,envelope function)
 subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
   use m_struc_def     
-  use m_lmfinit,only: alat=>lat_alat,ispec,sspec=>v_sspec,n0,nkap0,pi,pi4
+  use m_lmfinit,only: alat=>lat_alat,ispec,sspec=>v_sspec,n0,nkap0,pi,pi4,rmt_i=>rmt
   use m_lattic,only:  qlat=>lat_qlat, vol=>lat_vol,plat=>lat_plat,rv_a_opos
   use m_uspecb,only:uspecb
   use m_orbl,only: Orblib,ktab,ltab,offl,norb
@@ -80,7 +80,7 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
      bas(:,ib)=rv_a_opos(:,ib)
      ips(ib) = ispec(ib)
      is = ispec(ib) 
-     rmax(ib) = sspec(is)%rmt
+     rmax(ib) = rmt_i(is)
   enddo
   nlmto = ndimh-napw
   call ipwovl(alat,plat,qlat,ngp,igv,ngp,igv,nbas,rmax,bas,ppovl)! --- Overlaps between IPW's ---
@@ -110,7 +110,7 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
      call ropyln(1,qpg(1),qpg(2),qpg(3),lmxax,1,yl,qpg2)
      do  ib = 1, nbas
         phase = exp( -img * sum( qpg*bas(:,ib)*alat )  )
-        is = ispec(ib) !ssite(ib)%spec
+        is = ispec(ib) 
         call uspecb(is,rsmh,eh)
         call orblib(ib) !return norb,ltab,ktab,offl
         call gtbsl8(norb,ltab,ktab,rsmh,eh,ntab,blks)

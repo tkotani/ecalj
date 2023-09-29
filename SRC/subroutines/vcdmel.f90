@@ -1,4 +1,5 @@
 module m_vcdmel! Valence-core dipole matrix elements
+  use m_lmfinit,only: z_i=>z,nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,spec_a
   public vcdmel
   private
 contains  
@@ -48,11 +49,11 @@ contains
        pnu=>pnuall(:,:,ib)
        pnz=>pnzall(:,:,ib)
        clabl=slabl(is) 
-       a=sspec(is)%a
-       nr=sspec(is)%nr
-       rmt=sspec(is)%rmt
-       z=sspec(is)%z
-       lmxa=sspec(is)%lmxa
+       a= spec_a(is)
+       nr=nr_i(is)
+       rmt=rmt_i(is)
+       z=z_i(is)
+       lmxa=lmxa_i(is)
        if (lmxa > lmxax) call rxi('vcdmel needs lmxax ',lmxa)
        if (lmxa == -1) cycle 
        allocate(rofi_rv(nr))
@@ -80,8 +81,8 @@ contains
           do  i = 1, nsite
              lcls = iclsl(i)
              ib   = isite(i)
-             is   = ispec(ib) !ssite(ib)%spec
-             lmxa = sspec(is)%lmxa
+             is   = ispec(ib) 
+             lmxa = lmxa_i(is)
              nlma = (lmxa+1)**2
              if(lmxa>-1) call pvcdm2(i,nsite,ndham,ndimh,nlma,nlmax,aus(1,1,1,isp,i,iq),ume ( 0,isp,i ),sme ( 0,isp,i ),lcls ,&
                      rv_a_ocg,iv_a_ojcg,iv_a_oidxcg, s_rv(1,isp,iq))

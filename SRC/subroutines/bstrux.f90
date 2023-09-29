@@ -1,6 +1,7 @@
 module m_bstrux ! Structure constants for P_kL expansion of Bloch lmto + PW around site ia
   ! bstr is stored in p_bstr(ia,iq)%cv3(ndimh,nlma,0:kmax) by m_bstrx_init
   ! "call bstrux_set(ia,iq)" rerurns  bstr(ndimh,nlma,0:kmax).
+  use m_lmfinit,only: lmxa_i=>lmxa, kmxt_i=>kmxt
   use m_struc_def,only: s_cv3,s_cv4
   use m_lgunit,only:stdo
   use m_MPItk,only:procid
@@ -61,8 +62,8 @@ contains
        ibasloop: do ia=1,nbas !  --- Make strux to expand all orbitals at site ia ---
           isa=ispec(ia) 
           pa=rv_a_opos(:,ia) 
-          lmxa=sspec(isa)%lmxa !max l of augmentation
-          kmax=sspec(isa)%kmxt !max of radial k
+          lmxa=lmxa_i(isa) !max l of augmentation
+          kmax=kmxt_i(isa) !max of radial k
           nlma = (lmxa+1)**2
           if (lmxa == -1) cycle
           allocate(                p_bstr(ia,iq)%cv3(ndimh,nlma,0:kmax) )

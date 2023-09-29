@@ -3,7 +3,7 @@ module m_iors_old ! This module is for reading old version of rst file before 20
   use m_struc_def      
   use m_lgunit,only:stdo
   use m_lmfinit,only: z_i=>z,nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,lmxb_i=>lmxb,lmxl_i=>lmxl,spec_a,&
-       kmax_i=>kmxt,lfoca_i=>lfoca
+       kmxt_i=>kmxt,lfoca_i=>lfoca,rsmv_i=>rsmv
   public iors_old
 !  type(s_rv1),public,allocatable :: v1pot(:),v0pot(:)
   private
@@ -308,7 +308,7 @@ contains
              z=z_i(is)
              lmxa=lmxa_i(is)
              lmxl=lmxl_i(is)
-             kmax=kmax_i(is)
+             kmax=kmxt_i(is)
              if (lmxa == -1) goto 20
           endif
           ibaug = ibaug+1
@@ -436,15 +436,6 @@ contains
 !          call mpibc1_real( ssite(ib)%rv_a_ov1 , size(ssite(ib)%rv_a_ov1) , 'iors_v1' )
           call mpibc1_real( v0pot(ib)%v,size(v0pot(ib)%v) , 'iors_v0' )
           call mpibc1_real( v1pot(ib)%v,size(v1pot(ib)%v) , 'iors_v1' )
-          !          endif
-          !     ... store data in strucs
-          !sspec(is)%a=a
-          !sspec(is)%nr=nr
-          !sspec(is)%rmt=rmt
-          !sspec(is)%z=z
-          !sspec(is)%lmxa=lmxa
-          !sspec(is)%lmxl=lmxl
-          !sspec(is)%kmxt=kmax
           sspec(is)%qc=qc
 20        continue
        enddo
@@ -580,36 +571,30 @@ contains
        !   --- Write smooth charge density ---
        write(jfi) n1,n2,n3
        call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp , osmrho, lbin , jfi,rwrw )
-
        !   --- Write information related to dynamics ---
        wk=1d99 !call dpzero(wk,100)
        wk(1)= eferm !sbz%ef !dummy ! we use wk(1) only wk(2:100) are dummy
        call dpdump(wk,100,jfi) !,'write')
        do  110  ib = 1, nbas
-          !pos  =ssite(ib)%pos
-          !force=ssite(ib)%force
-          !          vel  =ssite(ib)%vel
           write(jfi) ib,pos,forcexxx!,vel
 110    enddo
        !   --- Write information for local densities ---
        if (ipr >= 50) write(stdo,364)
        do  120  ib = 1, nbas
           !ic=ssite(ib)%class
-          is=ispec(ib) !ssite(ib)%spec
-          spid=slabl(is) !sspec(is)%name
+          is=ispec(ib) 
+          spid=slabl(is) 
           a= spec_a(is)
           nr=nr_i(is)
           rmt=rmt_i(is)
           z=z_i(is)
           qc=sspec(is)%qc
-          idmod=idmodis(:,is) !sspec(is)%idmod
-          ! rsma=sspec(is)%rsma
+          idmod=idmodis(:,is) 
           lmxa=lmxa_i(is)
           lmxl=lmxl_i(is)
           lmxb=lmxb_i(is)
-          ! kmxv=sspec(is)%kmxv
-          rsmv=sspec(is)%rsmv
-          kmax=sspec(is)%kmxt
+          rsmv=rsmv_i(is)
+          kmax=kmxt_i(is) 
           pnu=>pnuall(:,:,ib)
           pnz=>pnzall(:,:,ib)
           !pnu=ssite(ib)%pnu(:,1:nsp)
@@ -643,12 +628,12 @@ contains
 120    enddo
        !   --- Write data on free-atom core states and fit to fa density ---
        do  130  is = 1, nspec
-          a  =sspec(is)%a
-          nr =sspec(is)%nr
+!          a  =sspec(is)%a
+!          nr =sspec(is)%nr
           qc =sspec(is)%qc
-          lmxa=sspec(is)%lmxa
-          lfoc=sspec(is)%lfoca
-          rfoc=sspec(is)%rfoca
+          lmxa=lmxa_i(is)
+!          lfoc=sspec(is)%lfoca
+!          rfoc=sspec(is)%rfoca
           cof =sspec(is)%ctail
           eh  =sspec(is)%etail
           stc =sspec(is)%stc

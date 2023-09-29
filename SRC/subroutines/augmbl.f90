@@ -1,4 +1,5 @@
 module m_augmbl !Add augmentation part to H and S. aughsoc add SO part to H.
+  use m_lmfinit,only: lmxa_i=>lmxa,lmxb_i=>lmxb,kmxt_i=>kmxt
   !Inputs are Site integrals, sig,tau,pi,hso See JPSJ.kotani
   use m_ll,only:ll
   public augmbl,aughsoc
@@ -48,9 +49,9 @@ contains
     do ibas = 1,nbas
        isa = ispec(ibas) 
        pa  = rv_a_opos(:,ibas) 
-       lmxa= sspec(isa)%lmxa !max l of augmentation
-       lmxb= sspec(isa)%lmxb !max l of basis
-       kmax= sspec(isa)%kmxt !max of radial k
+       lmxa= lmxa_i(isa) !max l of augmentation
+       lmxb= lmxb_i(isa) !max l of basis
+       kmax= kmxt_i(isa) !max of radial k
        nlmb = (lmxb+1)**2
        nlma = (lmxa+1)**2
        if (lmxa == -1) cycle
@@ -187,9 +188,9 @@ contains
     q=qp 
     do ibas = 1,nbas
        isa =ispec(ibas) 
-       lmxa=sspec(isa)%lmxa !max l of augmentation
-       lmxb=sspec(isa)%lmxb !max l of basis
-       kmax=sspec(isa)%kmxt !max of radial k
+       lmxa=lmxa_i(isa) !max l of augmentation
+       lmxb=lmxb_i(isa) !max l of basis
+       kmax=kmxt_i(isa) !max of radial k
        nlmb = (lmxb+1)**2
        nlma = (lmxa+1)**2
        if (lmxa == -1) cycle

@@ -1,5 +1,7 @@
 module m_locpot !- Make the potential at atomic sites and augmentation matrices.
   use m_ftox
+  use m_lmfinit,only: z_i=>z,nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,lmxb_i=>lmxb,lmxl_i=>lmxl,spec_a,&
+       kmxt_i=>kmxt,rg_i=>rg
   use m_ll,only:ll
   use m_lmfinit,only: lmxax,nsp,nbas
   use m_MPItk,only: master_mpi
@@ -106,21 +108,21 @@ contains
          is=ispec(ib)
          pnu=>pnuall(:,:,ib)
          pnz=>pnzall(:,:,ib)
-         z=   sspec(is)%z
+         z=   z_i(is)
          qc=  sspec(is)%qc
-         rg=  sspec(is)%rg
-         a=   sspec(is)%a
-         nr=  sspec(is)%nr
-         rmt= sspec(is)%rmt
-         lmxa=sspec(is)%lmxa
-         lmxl=sspec(is)%lmxl
-         lmxb=sspec(is)%lmxb
-         kmax=sspec(is)%kmxt
+         rg=  rg_i(is)
+         a=   spec_a(is)
+         nr=  nr_i(is)
+         rmt= rmt_i(is)
+         lmxa=lmxa_i(is)
+         lmxl=lmxl_i(is)
+         lmxb=lmxb_i(is)
+         kmax=kmxt_i(is)
          spid=slabl(is) 
          zz(ib)=z
          nlml = (lmxl+1)**2
          lfltwf = (.not.frzwfa(is)).and.(.not.ham_frzwf).and.job==1 ! modify b.c. of Rad.wave func.
-         j1 = jnlml(ib) !1+sum((sspec(ispec(1:ib-1))%lmxl+1)**2) !j1=1+nlml+nlml...
+         j1 = jnlml(ib) 
          if(lmxa == -1) cycle ! floating orbital
          call corprm(is, qcorg,qcorh,qsca(ib),cofg,cofh,ceh,lfoc,rfoc,z)
          call gtpcor(is, kcor,lcor,qcor) !qcor(1:2) is meaningful only when kcor/=0 

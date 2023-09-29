@@ -1,4 +1,5 @@
 subroutine pnunew(eferm) != Makes new boundary conditions pnu for phi,phidot =
+  use m_lmfinit,only: z_i=>z,nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,spec_a
   use m_ftox
   use m_MPItk,only: master_mpi
   use m_lmfinit,only:nbas,nsp,ispec,sspec=>v_sspec,ham_frzwf,idmodis=>idmod,slabl, pmin,pmax,n0,frzwfa,pnufix
@@ -68,8 +69,8 @@ subroutine pnunew(eferm) != Makes new boundary conditions pnu for phi,phidot =
      if(allocated(pnu)) deallocate(pnu,pnz)
      allocate(pnu,source=pnuall(:,:,ib))
      allocate(pnz,source=pnzall(:,:,ib))
-     lmxa=sspec(is)%lmxa
-     rmt=sspec(is)%rmt
+     lmxa=lmxa_i(is) 
+     rmt=rmt_i(is)
      idmod=idmodis(:,is)
      if (lmxa .eq. -1) cycle
      spid=slabl(is)
@@ -94,10 +95,10 @@ subroutine pnunew(eferm) != Makes new boundary conditions pnu for phi,phidot =
            endif
            if (dabs(qbyl(m,isp,ib)) .gt. 1d-8) then
               ebar = hbyl(m,isp,ib)/qbyl(m,isp,ib)
-              is=ispec(ib) !ssite(ib)%spec
-              z=sspec(is)%z
-              a=sspec(is)%a
-              nr=sspec(is)%nr
+              is=ispec(ib) 
+              z=z_i(is)
+              a=spec_a(is)
+              nr=nr_i(is)
               allocate(g_rv(nr*2))
               allocate(rofi_rv(nr*2))
               call radmsh ( rmt,a,nr,rofi_rv )
