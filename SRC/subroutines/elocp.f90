@@ -6,6 +6,7 @@ module m_elocp ! envlope parameters for extended local orbitals
 contains
   subroutine elocp()! Make envlope parameters for extended local orbitals
     use m_lmfinit,only: stdo,nspec,nbas,nsp,ispec,sspec=>v_sspec,n0,nkapii,slabl,vmtz,rs3,eh3
+    use m_lmfinit,only: z_i=>z,nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,lmxb_i=>lmxb, spec_a
     use m_density,only: v0pot,pnuall,pnzall
     !o Outputs
     !o   ehl,rsml
@@ -32,12 +33,12 @@ contains
        pnu=>pnuall(:,:,ib)
        pnz=>pnzall(:,:,ib)
        spid = slabl(is) 
-       a=sspec(is)%a
-       nr=sspec(is)%nr
-       rmt=sspec(is)%rmt
-       z=sspec(is)%z
-       lmxa=sspec(is)%lmxa
-       lmxb=sspec(is)%lmxb
+       a=spec_a(is)
+       nr=nr_i(is)
+       rmt=rmt_i(is)
+       z=z_i(is)
+       lmxa=lmxa_i(is)
+       lmxb=lmxb_i(is)
        if (lmxa == -1) cycle
        if (pnz(idamax(lmxb+1,pnz,1),1) < 10) cycle
        eloc = .true.
@@ -52,10 +53,10 @@ contains
     ips_iv=ispec
     ! ... Loop over species containing extended local orbitals
     do  is = 1, nspec
-       spid=slabl(is) !sspec(is)%name
-       z=sspec(is)%z
-       lmxa=sspec(is)%lmxa
-       lmxb=sspec(is)%lmxb
+       spid=slabl(is)
+       z= z_i(is)
+       lmxa=lmxa_i(is)
+       lmxb=lmxb_i(is)
        if (lmxa == -1) cycle
        nrspec = iabs ( iclbsj ( is,ips_iv,- nbas,nbas ) )
        if (nrspec == 0) cycle
@@ -69,9 +70,9 @@ contains
           if (pnzi(idamax(lmxb+1,pnzi,1),1) < 10) cycle
           vseli = vseli + vsel(:,:,ib)/dble(nrspec)
        enddo
-       a=sspec(is)%a
-       nr=sspec(is)%nr
-       rmt=sspec(is)%rmt
+       a=  spec_a(is)
+       nr= nr_i(is)
+       rmt=rmt_i(is)
        call radmsh(rmt,a,nr,rofi)
        call loctsh ( 2,spid,xx,a,nr,nr,nsp,lmxa,rofi & !mode1102
            ,wdummy,pnui,pnzi,rs3(is),eh3(is),vmtz(is),vseli,rsmls,ehls )

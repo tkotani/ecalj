@@ -1,12 +1,14 @@
-module m_dfrce !Correction to force theorem, Harris functional
+!>Correction to force theorem, Harris functional
+module m_dfrce 
+  use m_lmfinit,only: nsp,nbas,nspec,ispec,spec_a,sspec=>v_sspec,rmt_i=>rmt,&
+       nr_i=>nr,lmxa_i=>lmxa,lmxl_i=>lmxl,spec_z=>z
   use m_ll,only:ll
   public dfrce
 contains
   subroutine dfrce(job,orhoat,orhoat_out,qmom,smrho,smrout, dfh)
-    use m_lmfinit,only: nvl=>pot_nlml
+    use m_lmfinit,only: nvl=>pot_nlml,lat_alat
     use m_supot,only: rv_a_ogv,iv_a_okv
     use m_struc_def
-    use m_lmfinit,only:lat_alat,nsp,nbas,nspec,ispec,sspec=>v_sspec
     use m_lattic,only: lat_qlat, lat_vol,lat_plat
     use m_supot,only: lat_ng,n1,n2,n3
     use m_lgunit,only:stdo
@@ -37,20 +39,12 @@ contains
     !!  smrout: output density that the Hamiltonian generated
     !u Updates
     !u   01 Jul 05 handle sites with lmxa=-1 -> no augmentation
-    !u   18 Dec 03 adapted to modified smvxc
-    !u   15 Feb 02 (ATP) Added MPI parallelization
-    !u   17 Sep 01 Adapted for local orbitals
-    !u   21 Jun 00 spin polarized
-    !u   18 Jun 98 adapted from nfp dfrce.f
-    !u   16 Jun 98 MvS parallelized for SGI
-    ! ----------------------------------------------------------------------
     implicit none
     type(s_rv1) :: orhoat_out(3,*)
     type(s_rv1) :: orhoat(3,*)
     real(8):: dfh(3,nbas) , qmom(*)
     double complex smrho(n1,n2,n3,*),smrout(n1,n2,n3,*)
     integer :: job,ng,iprint,ib,is,lmxl,iv0,nlm, ip,m,i,ltop,nlmtop,igets,igetss,nn
-!    equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
     complex(8) ,allocatable :: ceps_zv(:)
     complex(8) ,allocatable :: cnomi_zv(:)
     complex(8) ,allocatable :: smro_zv(:)
@@ -72,9 +66,7 @@ contains
     character(40) :: strn
     real(8),allocatable:: cs_(:),sn_(:)
     call tcn('dfrce')
-    ! --- Setup ---
     dfh=0d0
-!    ngabc=lat_nabc
     ng=lat_ng
     vol=lat_vol
     alat=lat_alat
@@ -90,7 +82,7 @@ contains
     ! ... Set up for vectorized Y_lm and gaussians
     ltop = 0
     do   is = 1, nspec
-       lmxl = sspec(is)%lmxl
+       lmxl = lmxl_i(is)
        ltop = max0(ltop,lmxl)
     enddo
     nlmtop = (ltop+1)**2
@@ -173,7 +165,7 @@ contains
     iv0 = 0
     do ib = 1, nbas
        is = ispec(ib)
-       lmxl = sspec(is)%lmxl
+       lmxl = lmxl_i(is)
        nlm = (lmxl+1)**2
        iiv0(ib) = iv0
        iv0 = iv0+nlm
@@ -182,7 +174,7 @@ contains
     ibend=nbas
     do ib = ibini, ibend
        is   = ispec(ib)
-       lmxl = sspec(is)%lmxl
+       lmxl = lmxl_i(is)
        if (lmxl == -1) goto 20
        nlm = (lmxl+1)**2
        call pvdf1 ( job , nsp , ib , iiv0(ib), qmom &
@@ -224,7 +216,6 @@ contains
   end subroutine dfrce
   subroutine pvdf1(job,nsp,ib,iv0,qmom, qmout,ng,gv,g2,yl,iv,qlat,kmax,cnomin,ceps,cdvxc,cvin , orhoat, fes1,fes2,fxc)
     use m_struc_def 
-    use m_lmfinit,only: nbas,ispec,sspec=>v_sspec
     use m_lmfinit,only:lat_alat,pnuall,pnzall
     use m_lattic,only: lat_vol,rv_a_opos
     use m_supot,only: n1,n2,n3
@@ -266,8 +257,7 @@ contains
          cnomin(ng),cdvxc(ng,nsp),cvin(ng)
     integer :: ig,ilm,l,lmxl,m,nlm,nlmx,k,is,jv0,jb,js,n0, nrmx
     parameter (nlmx=64, nrmx=1501, n0=10)
-    integer :: lmxa,nr,nxi,ie,ixi,job0,kcor,lcor,lfoc,i, ngabc(3),nlml
-!    equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
+    integer :: lmxa,nr,nxi,ie,ixi,job0,kcor,lcor,lfoc,i, nlml
     double precision :: alat,ceh,cofg,cofh,qcorg,qcorh,qsc,rfoc,rg, &
          vol,z,v(3),df(0:20),feso(3),qcor(2),gpot0(nlmx,3),fesdn(3), &
          fesgg(3),pnu(n0),pnz(n0),a,rmt,qloc,exi(n0),hfc(n0,2), &
@@ -277,7 +267,6 @@ contains
     real(8),parameter:: pi = 4d0*datan(1d0),tpi=2d0*pi,y0 = 1d0/dsqrt(4d0*pi)
     data q0 /0d0,0d0,0d0/
     call tcn('pvdf1')
-!    ngabc=lat_nabc
     alat=lat_alat
     vol=lat_vol
     call stdfac(20,df)
@@ -295,14 +284,14 @@ contains
     phase = exp(-img*tpi*sum(q0*tau)) * exp(-img*tpi*matmul(tau, matmul(qlat, transpose(iv))))
     ! --- Unscreened rigid charge density shift, job 1, in cdn0 ---
     if (job0 == 1) then
-       z=sspec(is)%z
+       z=spec_z(is)
        pnu=pnuall(1:n0,1,ib)
        pnz=pnzall(1:n0,1,ib)
-       lmxa=sspec(is)%lmxa
-       a=sspec(is)%a
-       nr=sspec(is)%nr
-       rmt=sspec(is)%rmt
-       lmxl=sspec(is)%lmxl
+       lmxa=lmxa_i(is)
+       a=  spec_a(is)
+       nr= nr_i(is)
+       rmt=rmt_i(is)
+       lmxl=lmxl_i(is)
        nxi=sspec(is)%nxi
        exi=sspec(is)%exi
        hfc=sspec(is)%chfa
@@ -348,7 +337,7 @@ contains
     ! --- Coefficients defining local valence + core density ---
     is=ispec(ib)
     tau=rv_a_opos(:,ib) 
-    lmxl=sspec(is)%lmxl
+    lmxl=lmxl_i(is)
     rg=sspec(is)%rg
     call corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
     nlm = (lmxl+1)**2
@@ -431,7 +420,7 @@ contains
     do  40  jb = 1, nbas
        js=ispec(jb) 
        tau=rv_a_opos(:,jb)
-       lmxl=sspec(js)%lmxl
+       lmxl=lmxl_i(js)
        rg=sspec(js)%rg
        nlm = (lmxl+1)**2
        ! ... For this jb, mesh density for all G vectors
@@ -471,7 +460,6 @@ contains
   subroutine pvdf2(nbas,nsp,n1,n2,n3, smrho,vxcp,vxcm,wn1,wn2,wn3,dvxc)
     use m_struc_def
     use m_smvxcm,only: smvxcm
-    use m_lmfinit,only:ispec,sspec=>v_sspec
     !- Makes derivative of smoothed xc potential wrt density.
     implicit none
     ! ... Passed parameters
@@ -603,7 +591,6 @@ contains
   end subroutine pvdf3
   subroutine pvdf4(qmom,ng,g2,yl,cs,sn,iv,qlat,cv)
     use m_struc_def
-    use m_lmfinit,only: nbas,ispec,sspec=>v_sspec
     use m_lattic,only: lat_vol,rv_a_opos
     use m_supot,only: n1,n2,n3
     use m_hansr,only:corprm
@@ -645,7 +632,6 @@ contains
     !  type(s_spec)::sspec(*)
     double complex cv(ng)
     integer :: ig,ib,ilm,is,iv0,l,lmxl,m,nlm,nlmx,lfoc
-!    equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
     parameter (nlmx=64)
     double precision :: tau(3),df(0:20),vol,rg,qcorg,qcorh,qsc, &
          cofg,cofh,ceh,rfoc,z,q0(3),gam,gamf,cfoc,cvol,aa
@@ -654,14 +640,13 @@ contains
     data q0 /0d0,0d0,0d0/
     call tcn('pvdf4')
     call stdfac(20,df)
-!    ngabc=lat_nabc
     vol=lat_vol
     ! --- FT of gaussian density, all sites, for list of G vectors ---
     iv0 = 0
     do  10  ib = 1, nbas
        is=ispec(ib)
        tau=rv_a_opos(:,ib) 
-       lmxl=sspec(is)%lmxl
+       lmxl=lmxl_i(is)
        rg=sspec(is)%rg
        if (lmxl == -1) goto 10
        call corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)

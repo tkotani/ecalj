@@ -14,6 +14,8 @@ contains
     use m_ext,only:sname
     use m_ftox
     use m_chgmsh,only:chgmsh
+    use m_lmfinit,only:init_z=>z,init_nr=>nr,init_kmxt=>kmxt,init_rmt=>rmt,init_lmxa=>lmxa,&
+         init_lmxl=>lmxl,init_kmxt=>kmxt,init_lmxb=>lmxb,lfoca
     !! I/O data
     !!     smrho, rhoat
     !      sspec:
@@ -180,13 +182,13 @@ contains
           is=ispec(ib) !  is = -1 -> spec struc does not have these parameters
           if (is /= -1) then
              spid=slabl(is)
-             a=spec_a(is)
-             nr=sspec(is)%nr
-             rmt=sspec(is)%rmt
-             z=sspec(is)%z
-             lmxa=sspec(is)%lmxa
-             lmxl=sspec(is)%lmxl
-             kmax=sspec(is)%kmxt
+             a=   spec_a(is)
+             nr=  init_nr(is)
+             rmt= init_rmt(is)
+             z=   init_z(is)
+             lmxa=init_lmxa(is)
+             lmxl=init_lmxl(is)
+             kmax=init_kmxt(is)
              if (lmxa == -1) goto 20
           endif
           ibaug = ibaug+1
@@ -345,13 +347,13 @@ contains
        !   ... Copy or rescale cores, in case foca was switched on or off
        do  ib = 1, nbas
           is = ispec(ib)
-          a=sspec(is)%a
-          nr=sspec(is)%nr
-          rmt=sspec(is)%rmt
-          lmxa=sspec(is)%lmxa
+          a=  spec_a(is)
+          nr= init_nr(is)
+          rmt=init_rmt(is)
+          lmxa=init_lmxa(is)
           qc=sspec(is)%qc
           if (lmxa == -1) goto 40
-          if (sspec(is)%lfoca > 0) then
+          if (lfoca(is) > 0) then
              call dpcopy ( sspec(is)%rv_a_orhoc , orhoat( 3 , ib )%v , 1 , nr * nsp , 1d0 )
           else
              allocate(rwgt_rv(nr))
@@ -403,16 +405,16 @@ contains
        do  120  ib = 1, nbas
           is=ispec(ib)   
           spid=slabl(is) 
-          a=sspec(is)%a
-          nr=sspec(is)%nr
-          rmt=sspec(is)%rmt
-          z=sspec(is)%z
-          qc=sspec(is)%qc
+          a= spec_a(is)
+          nr=init_nr(is)
+          rmt=init_rmt(is)
+          z=  init_z(is)
           idmod=idmodis(:,is)
-          lmxa=sspec(is)%lmxa
-          lmxl=sspec(is)%lmxl
-          lmxb=sspec(is)%lmxb
-          kmax=sspec(is)%kmxt
+          lmxa=init_lmxa(is)
+          lmxl=init_lmxl(is)
+          lmxb=init_lmxb(is)
+          kmax=init_kmxt(is)
+          qc= sspec(is)%qc
           pnu=>pnuall(:,1:nsp,ib)
           pnz=>pnzall(:,1:nsp,ib)
           if (lmxa == -1) cycle
@@ -437,10 +439,10 @@ contains
 120    enddo
        !   --- Write data on free-atom core states and fit to fa density ---
        do  130  is = 1, nspec
-          a  =sspec(is)%a
-          nr =sspec(is)%nr
+          a  = spec_a(is)
+          nr = init_nr(is)
+          lmxa=init_lmxa(is)
           qc =sspec(is)%qc
-          lmxa=sspec(is)%lmxa
           cof =sspec(is)%ctail
           eh  =sspec(is)%etail
           stc =sspec(is)%stc

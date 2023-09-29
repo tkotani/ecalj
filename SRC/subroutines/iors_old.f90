@@ -2,6 +2,8 @@
 module m_iors_old ! This module is for reading old version of rst file before 2022-5-14. Fixed at 2022-5-11. Working for NiSe for Teb
   use m_struc_def      
   use m_lgunit,only:stdo
+  use m_lmfinit,only: z_i=>z,nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,lmxb_i=>lmxb,lmxl_i=>lmxl,spec_a,&
+       kmax_i=>kmxt,lfoca_i=>lfoca
   public iors_old
 !  type(s_rv1),public,allocatable :: v1pot(:),v0pot(:)
   private
@@ -300,13 +302,13 @@ contains
           is=ispec(ib) !ssite(ib)%spec
           if (is /= -1) then
              spid=slabl(is) !sspec(is)%name
-             a=sspec(is)%a
-             nr=sspec(is)%nr
-             rmt=sspec(is)%rmt
-             z=sspec(is)%z
-             lmxa=sspec(is)%lmxa
-             lmxl=sspec(is)%lmxl
-             kmax=sspec(is)%kmxt
+             a=spec_a(is)
+             nr=nr_i(is)
+             rmt=rmt_i(is)
+             z=z_i(is)
+             lmxa=lmxa_i(is)
+             lmxl=lmxl_i(is)
+             kmax=kmax_i(is)
              if (lmxa == -1) goto 20
           endif
           ibaug = ibaug+1
@@ -455,14 +457,14 @@ contains
        !   --- Read data on free-atom core states and fit to fa density ---
        line = 'species data'
        do  30  is = 1, nspec
-          a   =sspec(is)%a
-          nr  =sspec(is)%nr
-          lmxa=sspec(is)%lmxa
+          a   =spec_a(is)
+          nr  =nr_i(is)
+          lmxa=lmxa_i(is)
           if (lmxa == -1) goto 30
           if (procid == master) then
              read(jfi,err=999,end=999) nr0,a0,qc,cof,eh,stc,lfoc0,rfoc0
-             sspec(is)%lfoca=lfoc0
-             sspec(is)%rfoca=rfoc0
+!             sspec(is)%lfoca=lfoc0
+!             sspec(is)%rfoca=rfoc0
              lfail = isanrg(nr0,nr,nr,msgw,'nr',.false.)
              call fsanrg(a0,a,a,0d-9,msg,'spec a',.true.)
           endif
@@ -512,11 +514,11 @@ contains
        !   ... Copy or rescale cores, in case foca was switched on or off
        do  ib = 1, nbas
           is = ispec(ib) !int(ssite(ib)%spec)
-          a=sspec(is)%a
-          nr=sspec(is)%nr
-          rmt=sspec(is)%rmt
-          lmxa=sspec(is)%lmxa
-          lfoc=sspec(is)%lfoca
+          a=   spec_a(is)
+          nr=  nr_i(is)
+          rmt= rmt_i(is)
+          lmxa=lmxa_i(is)
+          lfoc=lfoca_i(is)
           qc=sspec(is)%qc
           if (lmxa == -1) goto 40
           if (lfoc > 0) then
@@ -595,17 +597,17 @@ contains
           !ic=ssite(ib)%class
           is=ispec(ib) !ssite(ib)%spec
           spid=slabl(is) !sspec(is)%name
-          a=sspec(is)%a
-          nr=sspec(is)%nr
-          rmt=sspec(is)%rmt
-          z=sspec(is)%z
+          a= spec_a(is)
+          nr=nr_i(is)
+          rmt=rmt_i(is)
+          z=z_i(is)
           qc=sspec(is)%qc
           idmod=idmodis(:,is) !sspec(is)%idmod
-!          rsma=sspec(is)%rsma
-          lmxa=sspec(is)%lmxa
-          lmxl=sspec(is)%lmxl
-          lmxb=sspec(is)%lmxb
-          !kmxv=sspec(is)%kmxv
+          ! rsma=sspec(is)%rsma
+          lmxa=lmxa_i(is)
+          lmxl=lmxl_i(is)
+          lmxb=lmxb_i(is)
+          ! kmxv=sspec(is)%kmxv
           rsmv=sspec(is)%rsmv
           kmax=sspec(is)%kmxt
           pnu=>pnuall(:,:,ib)

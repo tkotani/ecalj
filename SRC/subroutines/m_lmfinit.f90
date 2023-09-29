@@ -656,17 +656,6 @@ contains
       pot_nlma=nvi
       pot_nlml=nvl
       allocate(jnlml(nbas), source=[1,(1+sum( (lmxl(ispec(1:i))+1)**2 ),i=1,nbas-1)]) !offset of lmxl
-      !  Make nat = number of real atoms as nbas - # sites w/ floating orbitals !we will remove floating orbtail (2023plan)
-      ! if (master_mpi) then
-      !    nat = nbas
-      !    do  i = 1, nbas
-      !       j=ispec(i) 
-      !       l=v_sspec(j)%lmxa
-      !       if (l == -1) nat = nat-1
-      !    enddo
-      !    write(stdo,ftox) 'nnnnnnbas nat=',nbas,nat
-      ! endif
-      ! call mpibc1_int(nat,1,'m_lmfinit_nat')
       deallocate(idxdn) 
       !! --- takao embed contents in susite here. This is only for lmf and lmfgw.
       allocate(iv_a_oips(nbas),source=[(ispec(ib), ib=1,nbas)])
@@ -720,7 +709,7 @@ contains
         if(master_mpi) write(stdo,*)
         do  ib = 1, nbas
            is = ispec(ib)
-           do  lx = 0, min(v_sspec(is)%lmxa,3)
+           do  lx = 0, min(lmxa(is),3)
               if (idu(lx+1,is) /= 0) then
                  if (lldau(ib) ==0) lldau(ib) = nlibu+1
                  nlibu = nlibu+1
