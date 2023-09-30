@@ -111,8 +111,8 @@ contains
     !!   CLASS, lmfgw_kdivider, NLAindx
     !------------------------------------------------------------------
     use m_keyvalue,only: getkeyvalue
-    use m_hamindex0,only: readhamindex0,nclass_in=>nclass,iclass_in=>iclasst, &
-         nindx_in=>nindx,lindx_in=>lindx,ibasindx_in=>ibasindx,nphimx_in=>nphimx
+    use m_hamindex0,only: readhamindex0,nclass_in=>nclass,iclass_in=>iclasst
+    use m_hamindex0,only: nindx_in=>nindx,lindx_in=>lindx,ibasindx_in=>ibasindx,nphimx_in=>nphimx
     implicit none
     integer:: iq0p
     integer:: ldim,      & ! = sum ( (lmxa(1:nbas)+1)**2 )

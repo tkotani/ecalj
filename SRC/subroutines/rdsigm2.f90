@@ -386,23 +386,21 @@ contains
        enddo OrbitalBlock
     endif MTOpart
     
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    
-    APWpart: if(napw_in/=0) then
-       write(*,*) ' Probably OK-->Remove this stop to use this branch.' &
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  This is just a hint for future.
+    APWpart: if(napw_in/=0) then !unused block. We need bloch periodicity for interpolation.
+       write(stdo,*) ' Probably OK-->Remove this stop to make this branch effective.' &
             //' But need to confirm two apw sections in this routines.(phase factors) ' &
             //' Idea of this routine: <i|\sigma|j>_qout= <g(i)|\sigma|g(i)>_qin, where qin=g(qout)'
        stop 'abort'
        ikt  = getikt(q)    !index for q
        ikt2 = getikt(qtarget) !index for qtarget
-       print *,' rotsig ikt ikt2=',ikt,ikt2
-       if(napw_in /= napwk(ikt) ) then
-          call rx('rotsig: napw_in /= napw(ikt)')
-       endif
+       !write(stdo,*)' rotsig ikt ikt2=',ikt,ikt2
+       if(napw_in /= napwk(ikt) ) call rx('rotsig: napw_in /= napw(ikt)')
        do ig = 1,napw_in
           qpg = q + matmul( qlat(:,:),igv2(:,ig,ikt))      !q+G
           qpgr = matmul(symops(:,:,igg),qpg)               !rotated q+G
           nnn=nint(matmul(platt,qpgr-qtarget))
-          print *,ig,'nnn  ikt2=',nnn,ikt2
+          !print *,ig,'nnn  ikt2=',nnn,ikt2
           ig2 = igv2rev(nnn(1),nnn(2),nnn(3),ikt2)
           phase= exp( -img2pi*sum(qpgr*shtvg(:,igg)) )
           do ix=1,ndimh

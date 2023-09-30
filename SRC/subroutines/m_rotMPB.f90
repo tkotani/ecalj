@@ -4,10 +4,8 @@ module m_rotMPB2
   !! I don't know why.
   !! This has developed for eibz mode jun2012, not tested completely.
   !! In future, this routine can be for some application.
-  use m_pbindex,only: norbt, ibas_tbl,l_tbl,k_tbl,offset_tbl,offset_rev_tbl, &
-       max_ibas_tbl,max_l_tbl,max_k_tbl,max_offset_tbl
-  use m_hamindex, only: qlat,plat,invgx, &
-       miat,tiat,shtvg,symops,nbas,ngrp
+  use m_pbindex,only: norbt, ibas_tbl,l_tbl,k_tbl,offset_tbl,offset_rev_tbl,max_ibas_tbl,max_l_tbl,max_k_tbl,max_offset_tbl
+  use m_hamindex, only: qlat,plat,invgx, miat,tiat,shtvg,symops,nbas,ngrp
   use m_readqgcou,only: imxc,ngvecc,qtt_,nqnum,ngc,ngveccrev
   use m_rotwave,only: Rotmto2,Rotipw2
   implicit none

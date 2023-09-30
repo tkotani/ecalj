@@ -1,6 +1,6 @@
 module m_freeat !free-standing spherical atom calculaitons for initial contdition
-  use m_lmfinit,only: z_i=>z,nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,lmxb_i=>lmxb,lmxl_i=>lmxl,spec_a,&
-       kmax_i=>kmxt,lfoca_i=>lfoca,rfoca_i=>rfoca
+  use m_lmfinit,only: z_i=>z,nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,lmxb_i=>lmxb,lmxl_i=>lmxl,spec_a
+  use m_lmfinit,only: kmax_i=>kmxt,lfoca_i=>lfoca,rfoca_i=>rfoca
   use m_lgunit,only: stdo,stdl
   use m_rseq,only: rseq
   public freeat,freats
@@ -8,8 +8,7 @@ module m_freeat !free-standing spherical atom calculaitons for initial contditio
 contains
   subroutine freeat() !For all species, we make free atom self-consistent, and get density to files.
     use m_ext,only:sname
-    use m_lmfinit,only: smalit,lxcf,ham_seref,nsp,nspec, & 
-         idmod,slabl,vmtz,eref,rs3,eh3,nmcore,coreh,coreq,pnux=>pnusp,pzsp,qnu
+    use m_lmfinit,only: smalit,lxcf,ham_seref,nsp,nspec,idmod,slabl,vmtz,eref,rs3,eh3,nmcore,coreh,coreq,pnux=>pnusp,pzsp,qnu
     use m_ftox
     !Inputs  are module variables of m_lmfinit
     !Outputs are via iofa, atmpnu are pnu (logarismic derivatives of atoms).

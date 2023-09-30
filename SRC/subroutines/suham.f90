@@ -12,8 +12,7 @@ module m_suham
 contains
   subroutine m_suham_init() !Get Hamiltonian dimension ham_ndham= Hamiltonian dimensition= nAPW +nlmto
     use m_struc_def
-    use m_lmfinit,only:lso,nspc,nsp,nlmto, pwmode=>ham_pwmode,pwemax &!,pwemin &
-         ,alat=>lat_alat, lat_tolft, pot_nlma, pot_nlml ,stdo,nlmto
+    use m_lmfinit,only:lso,nspc,nsp,nlmto, pwmode=>ham_pwmode,pwemax,alat=>lat_alat, lat_tolft, pot_nlma, pot_nlml ,stdo,nlmto
     use m_supot,only: lat_ng, rv_a_ogv
     use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat
     !Main output is ndham = estimate for upper dimension of hamiltonian, including possible APW part

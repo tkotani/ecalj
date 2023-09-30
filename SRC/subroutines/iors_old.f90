@@ -2,8 +2,8 @@
 module m_iors_old ! This module is for reading old version of rst file before 2022-5-14. Fixed at 2022-5-11. Working for NiSe for Teb
   use m_struc_def      
   use m_lgunit,only:stdo
-  use m_lmfinit,only: z_i=>z,nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,lmxb_i=>lmxb,lmxl_i=>lmxl,spec_a,&
-       kmxt_i=>kmxt,lfoca_i=>lfoca,rsmv_i=>rsmv
+  use m_lmfinit,only:z_i=>z,nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,lmxb_i=>lmxb,lmxl_i=>lmxl,spec_a,kmxt_i=>kmxt
+  use m_lmfinit,only:lfoca_i=>lfoca,rsmv_i=>rsmv
   public iors_old
 !  type(s_rv1),public,allocatable :: v1pot(:),v0pot(:)
   private

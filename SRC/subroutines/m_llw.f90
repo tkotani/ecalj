@@ -1,31 +1,24 @@
 !>Gamma-cell averaged W
 module m_llw
-  !      use m_readq0p,only: Readq0p,
-  !     &     wqt,q0i,nq0i ,nq0iadd,ixyz
   use m_rdpp,only: nblochpmx
-  use m_genallcf_v3,only: nclass,natom,nspin,nl,nn, &
-       nlmto,nlnmx, nctot,alat, deltaw,clabl,iclass, & !il, in, im, nlnm, &
-       plat, pos, ecore, tpioa
+  use m_genallcf_v3,only: nclass,natom,nspin,nl,nn, nlmto,nlnmx, nctot,alat, deltaw,clabl,iclass, plat, pos, ecore, tpioa
   use m_freq,only: frhis,freq_r,freq_i, nwhis,nw_i,nw,npm,niw !output of getfreq
   use m_qbze,only: Setqbze, nqbze,nqibze,qbze,qibze
-  use m_read_bzdata,only: Read_bzdata, ngrp2=>ngrp,nqbz,nqibz,n1,n2,n3,ginv, &
-       dq_,qbz,wbz,qibz,wibz, ntetf,idtetf,ib1bz, qbzw,nqbzw, q0i,nq0i ,nq0iadd,ixyz
+  use m_read_bzdata,only: Read_bzdata, ngrp2=>ngrp,nqbz,nqibz,n1,n2,n3,ginv,dq_,qbz,wbz,qibz,wibz, ntetf,idtetf,ib1bz
+  use m_read_bzdata,only: qbzw,nqbzw, q0i,nq0i ,nq0iadd,ixyz
   use m_readVcoud,only: vcousq,zcousq,ngb
   use m_rdpp,only: nbloch,mrecl
   implicit none
-  !-----------------------------
   public:: WVRllwR,WVIllwI,  MPI__sendllw,MPI__sendllw2
   complex(8),allocatable,protected,public:: llw(:,:), llwI(:,:)
   complex(8),allocatable,protected,public:: wmuk(:,:)
   logical,protected,public:: w4pmode
   integer,protected,public:: ngbq0
-  !-----------------------------
   private
   complex(8),allocatable:: zw0(:,:),zw(:,:)
   complex(8),allocatable:: epstinv(:,:),epstilde(:,:)
   real(8),parameter:: pi=4d0*datan(1d0),fourpi = 4d0*pi
 contains
-
   subroutine WVRllwR(q,iq,zxq,nmbas1,nmbas2)
     use m_readqg,only: Readqg0
     intent(in)::       q,iq,    nmbas1,nmbas2 !zxq can be twiced when nspin=2
@@ -243,9 +236,9 @@ contains
 
   !----------------------------------------------------------
   subroutine MPI__sendllw2(iqxend) !for hx0fp0
-    use m_mpi,only: MPI__hx0fp0_rankdivider2,MPI__task,MPI__Initialize,MPI__Finalize,MPI__root, &
-         MPI__Broadcast,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,MPI__rank,MPI__size, &
-         MPI__ranktab,MPI__consoleout,MPI__barrier
+    use m_mpi,only: MPI__hx0fp0_rankdivider2,MPI__task,MPI__Initialize,MPI__Finalize,MPI__root
+    use m_mpi,only: MPI__Broadcast,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,MPI__rank,MPI__size
+    use m_mpi,only: MPI__ranktab,MPI__consoleout,MPI__barrier
     intent(in)::             iqxend
     integer:: iq0,dest,src,iq,iqxend
     !! === Recieve llw and llwI at node 0, where q=0(iq=1) is calculated. ===
@@ -268,8 +261,7 @@ contains
   end subroutine MPI__sendllw2
   !----------------------------------------------------------
   subroutine MPI__sendllw(iqxend) !for hx0fp0_sc
-    use m_mpi,only:  MPI__Broadcast,MPI__DbleCOMPLEXsendQ,MPI__DbleCOMPLEXrecvQ, &
-    MPI__size,MPI__Qranktab,MPI__rankQ,MPI__rootQ
+    use m_mpi,only:  MPI__Broadcast,MPI__DbleCOMPLEXsendQ,MPI__DbleCOMPLEXrecvQ,MPI__size,MPI__Qranktab,MPI__rankQ,MPI__rootQ
     ! === Recieve llw and llwI at node 0, where q=0(iq=1) is calculated. ===
     intent(in)::            iqxend
     integer:: iq0,dest,src,iq,iqxend

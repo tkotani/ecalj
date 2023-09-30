@@ -1,7 +1,6 @@
 !>Correction to force theorem, Harris functional
 module m_dfrce 
-  use m_lmfinit,only: nsp,nbas,nspec,ispec,spec_a,rmt_i=>rmt,&
-       nr_i=>nr,lmxa_i=>lmxa,lmxl_i=>lmxl,spec_z=>z,rg_i=>rg
+  use m_lmfinit,only: nsp,nbas,nspec,ispec,spec_a,rmt_i=>rmt,nr_i=>nr,lmxa_i=>lmxa,lmxl_i=>lmxl,spec_z=>z,rg_i=>rg
   use m_ll,only:ll
   use m_fatom,only: sspec
   public dfrce

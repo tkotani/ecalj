@@ -13,8 +13,7 @@ contains
     use m_ext,only:sname
     use m_ftox
     use m_chgmsh,only:chgmsh
-    use m_lmfinit,only:init_z=>z,init_nr=>nr,init_kmxt=>kmxt,init_rmt=>rmt,init_lmxa=>lmxa,&
-         init_lmxl=>lmxl,init_kmxt=>kmxt,init_lmxb=>lmxb,lfoca
+    use m_lmfinit,only:z_i=>z,nr_i=>nr,kmxt_i=>kmxt,rmt_i=>rmt,lmxa_i=>lmxa,lmxl_i=>lmxl,lmxb_i=>lmxb,lfoca
     use m_fatom,only:sspec,mpibc1_s_spec 
     !! I/O data
     !!     smrho, rhoat
@@ -183,12 +182,12 @@ contains
           if (is /= -1) then
              spid=slabl(is)
              a=   spec_a(is)
-             nr=  init_nr(is)
-             rmt= init_rmt(is)
-             z=   init_z(is)
-             lmxa=init_lmxa(is)
-             lmxl=init_lmxl(is)
-             kmax=init_kmxt(is)
+             nr=  nr_i(is)
+             rmt= rmt_i(is)
+             z=   z_i(is)
+             lmxa=lmxa_i(is)
+             lmxl=lmxl_i(is)
+             kmax=kmxt_i(is)
              if (lmxa == -1) goto 20
           endif
           ibaug = ibaug+1
@@ -295,8 +294,8 @@ contains
        line = 'species data'
        do  30  is = 1, nspec
           a   =spec_a(is)
-          nr  =init_nr(is)
-          lmxa=init_lmxa(is)
+          nr  =nr_i(is)
+          lmxa=lmxa_i(is)
           if (lmxa == -1) goto 30
           if (procid == master) then
              read(jfi,err=999,end=999) nr0,a0,qc,cof,eh,stc !,lfoc0 !,rfoc0
@@ -348,9 +347,9 @@ contains
        do  ib = 1, nbas
           is = ispec(ib)
           a=  spec_a(is)
-          nr= init_nr(is)
-          rmt=init_rmt(is)
-          lmxa=init_lmxa(is)
+          nr= nr_i(is)
+          rmt=rmt_i(is)
+          lmxa=lmxa_i(is)
           qc=sspec(is)%qc
           if (lmxa == -1) goto 40
           if (lfoca(is) > 0) then
@@ -406,14 +405,14 @@ contains
           is=ispec(ib)   
           spid=slabl(is) 
           a= spec_a(is)
-          nr=init_nr(is)
-          rmt=init_rmt(is)
-          z=  init_z(is)
+          nr=nr_i(is)
+          rmt=rmt_i(is)
+          z=  z_i(is)
           idmod=idmodis(:,is)
-          lmxa=init_lmxa(is)
-          lmxl=init_lmxl(is)
-          lmxb=init_lmxb(is)
-          kmax=init_kmxt(is)
+          lmxa=lmxa_i(is)
+          lmxl=lmxl_i(is)
+          lmxb=lmxb_i(is)
+          kmax=kmxt_i(is)
           qc= sspec(is)%qc
           pnu=>pnuall(:,1:nsp,ib)
           pnz=>pnzall(:,1:nsp,ib)
@@ -440,8 +439,8 @@ contains
        !   --- Write data on free-atom core states and fit to fa density ---
        do  130  is = 1, nspec
           a  = spec_a(is)
-          nr = init_nr(is)
-          lmxa=init_lmxa(is)
+          nr = nr_i(is)
+          lmxa=lmxa_i(is)
           qc =sspec(is)%qc
           cof =sspec(is)%ctail
           eh  =sspec(is)%etail

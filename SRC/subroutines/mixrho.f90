@@ -33,8 +33,7 @@ contains
   subroutine mixrho(iter, qval,  sv_p_orhnew, sv_p_orhold, smrnew, smrho,rmsdel)! Mix old and new charge densities =  Takao's version: real space mixing of smrho. It works OK. However, we may need to fix it so that this is well-defined chi=|rho-f(rho)|**2 minimization mixing.
     use m_struc_def
     use m_supot,only: iv_a_okv,rv_a_ogv,n1,n2,n3
-    use m_lmfinit,only:lat_alat,nbas,stdl,ispec,nsp,&
-         broyinit,nmixinit,betainit,killj,wtinit,wc,bexist,mix_nsave !elinls=>elinl,
+    use m_lmfinit,only:lat_alat,nbas,stdl,ispec,nsp,broyinit,nmixinit,betainit,killj,wtinit,wc,bexist,mix_nsave
     use m_lattic,only: lat_vol
     use m_supot,only:  lat_ng,n1,n2,n3
     use m_ext,only:    sname

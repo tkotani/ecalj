@@ -1,6 +1,5 @@
 module m_mkrout
-  use m_lmfinit,only: nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,lmxb_i=>lmxb,lmxl_i=>lmxl,spec_a,&
-       kmxt_i=>kmxt
+  use m_lmfinit,only: nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,lmxb_i=>lmxb,lmxl_i=>lmxl,spec_a,kmxt_i=>kmxt
   use m_ll,only:ll
   use m_struc_def,only:s_rv1
   use m_uspecb,only:uspecb

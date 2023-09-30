@@ -1,6 +1,6 @@
 module m_rdovfa
-  use m_lmfinit,only: z_i=>z,nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,lmxb_i=>lmxb,lmxl_i=>lmxl,spec_a,&
-       kmxt_i=>kmxt,lfoca_i=>lfoca,rfoca_i=>rfoca,rsmv_i=>rsmv
+  use m_lmfinit,only: z_i=>z,nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,lmxb_i=>lmxb,lmxl_i=>lmxl,spec_a
+  use m_lmfinit,only: kmxt_i=>kmxt,lfoca_i=>lfoca,rfoca_i=>rfoca,rsmv_i=>rsmv
   use m_ll,only:ll
   public rdovfa
 contains

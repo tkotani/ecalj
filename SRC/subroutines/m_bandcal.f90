@@ -7,8 +7,8 @@ module m_bandcal
   use m_mkqp,only: ntet=> bz_ntet, bz_nabc
   use m_qplist,only: qplist,niqisp,iqproc,isproc
   use m_igv2x,only: m_igv2x_setiq, napw,ndimh,ndimhx,igv2x
-  use m_lmfinit,only: lrsig=>ham_lsig, lso,ham_scaledsigma,lmet=>bz_lmet,nbas,epsovl=>ham_oveps,nspc,plbnd,lfrce,&
-       pwmode=>ham_pwmode,pwemax,stdl,nsp,nlibu,lmaxu,lmxax
+  use m_lmfinit,only: lrsig=>ham_lsig, lso,ham_scaledsigma,lmet=>bz_lmet,nbas,epsovl=>ham_oveps,nspc,plbnd,lfrce
+  use m_lmfinit,only: pwmode=>ham_pwmode,pwemax,stdl,nsp,nlibu,lmaxu,lmxax
   use m_MPItk,only: mlog, master_mpi, procid,strprocid, numprocs=>nsize, mlog_mpiiq
   use m_subzi, only: nevmx,rv_a_owtkb
   use m_supot, only: n1,n2,n3

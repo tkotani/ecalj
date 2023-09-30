@@ -3,16 +3,12 @@ module m_w0w0i
   use m_ll,only:ll
   use m_llw,only: llw,llwI,wmuk,ngbq0,w4pmode
   use m_read_bzdata,only: q0i,nq0i, ixyz
-  use m_genallcf_v3,only:  tpioa
-  !! See the Friedlich's paper.
+  use m_genallcf_v3,only:  tpioa   
   implicit none
-
   public:: W0w0i
   complex(8),allocatable,protected,public :: w0(:),w0i(:),llmat(:,:)
-
   private
 contains
-  !----------------------------------------------------------
   subroutine finalizew4p()
     !      use m_w0w0i,only: llmat
     integer:: i,igb,ifw4p
@@ -73,13 +69,11 @@ contains
     enddo
     !! modivy files WVR and WVI
     call ModifyWV0()
-    !!
     if(w4pmode) call FinalizeW4p() !W for phonon mode finalized.
   end subroutine w0w0i
   !-------------------------------------------------
   subroutine modifyWV0()
-    use m_qbze,only: &
-         nqbze,nqibze,qbze,qibze
+    use m_qbze,only: nqbze,nqibze,qbze,qibze
     use m_rdpp,only: nblochpmx,mrecl
     use m_freq,only: niw ,nw,nw_i
     integer:: ifrcwx,iq,ircw,iw,nini,nend,mreclx

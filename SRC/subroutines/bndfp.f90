@@ -41,28 +41,27 @@ contains
     use m_bndfp_util,only: mkekin,makdos,phispinsym_ssite_set,iorbtm
     use m_supot,only: n1,n2,n3 !for charge mesh
     use m_suham,only: ndham=>ham_ndham, ndhamx=>ham_ndhamx,nspx=>ham_nspx
-    use m_lmfinit, only: ncutovl,lso,ndos=>bz_ndos,bz_w,fsmom=>bz_fsmom, bz_dosmax,lmet=>bz_lmet,bz_fsmommethod,bz_n, &
-         ldos,qbg=>zbak,lfrce,pwmode=>ham_pwmode,lrsig=>ham_lsig,epsovl=>ham_oveps, &
-         ham_scaledsigma, alat=>lat_alat,stdo,stdl, nlmax,nbas,nsp, bz_dosmax, &
-         lmaxu,nlibu,lldau,lpztail,leks,lrout,  nchan=>pot_nlma, nvl=>pot_nlml,nspc,pnufix !lmfinit contains fixed input 
+    use m_lmfinit,only: ncutovl,lso,ndos=>bz_ndos,bz_w,fsmom=>bz_fsmom, bz_dosmax,lmet=>bz_lmet,bz_fsmommethod,bz_n
+    use m_lmfinit,only: ldos,qbg=>zbak,lfrce,pwmode=>ham_pwmode,lrsig=>ham_lsig,epsovl=>ham_oveps
+    use m_lmfinit,only: ham_scaledsigma, alat=>lat_alat,stdo,stdl, nlmax,nbas,nsp, bz_dosmax
+    use m_lmfinit,only: lmaxu,nlibu,lldau,lpztail,leks,lrout,  nchan=>pot_nlma, nvl=>pot_nlml,nspc,pnufix !lmfinit contains fixed input 
     use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
     use m_mkqp,only: nkabc=> bz_nabc,ntet=> bz_ntet,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, plat=>lat_plat,pos=>rv_a_opos
     use m_rdsigm2,only: m_rdsigm2_init
-    use m_subzi, only: m_subzi_init, rv_a_owtkb,m_subzi_bzintegration 
-    use m_rsibl, only : Rsibl_ev ! to plot wavefunction in the fat band mode
+    use m_subzi,only: m_subzi_init, rv_a_owtkb,m_subzi_bzintegration 
+    use m_rsibl,only: Rsibl_ev ! to plot wavefunction in the fat band mode
     use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq,xmpbnd2 !, procid,master
-    use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate, m_mkpot_energyterms,m_mkpot_novxc,& ! & m_mkpot_novxc_dipole,
-         osmpot, qmom, vconst, osig,otau,oppi, qval , qsc , fes1_rv , fes2_rv
+    use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate, m_mkpot_energyterms,m_mkpot_novxc !  m_mkpot_novxc_dipole,
+    use m_mkpot,only: osmpot, qmom, vconst, osig,otau,oppi, qval , qsc , fes1_rv , fes2_rv
     use m_clsmode,only: m_clsmode_init,m_clsmode_set1,m_clsmode_finalize
-    use m_qplist,only:  qplist,nkp,xdatt,labeli,labele,dqsyml,etolc,etolv, &
-         nqp2n_syml,nqp_syml,nqpe_syml,nqps_syml,nsyml,kpproc,iqini,iqend    ! MPIK divider. iqini:iqend are node-dependent
+    use m_qplist,only: qplist,nkp,xdatt,labeli,labele,dqsyml,etolc,etolv
+    use m_qplist,only: nqp2n_syml,nqp_syml,nqpe_syml,nqps_syml,nsyml,kpproc,iqini,iqend    ! MPIK divider. iqini:iqend are node-dependent
     use m_igv2x,only: napw,ndimh,ndimhx,igv2x
     use m_procar,only: m_procar_init,dwgtall,nchanp,m_procar_closeprocar,m_procar_writepdos
-    use m_bandcal,only: m_bandcal_init,m_bandcal_2nd,m_bandcal_clean,m_bandcal_allreduce, &
-         smrho_out,oqkkl,oeqkkl, ndimhx_,nevls,m_bandcal_symsmrho,evlall
+    use m_bandcal,only: m_bandcal_init,m_bandcal_2nd,m_bandcal_clean,m_bandcal_allreduce
+    use m_bandcal,only: smrho_out,oqkkl,oeqkkl, ndimhx_,nevls,m_bandcal_symsmrho,evlall
     use m_mkrout,only: m_mkrout_init,orhoat_out,frcbandsym,hbyl_rv,qbyl_rv
-!    use m_addrbl,only: m_addrbl_allocate_swtk,swtk
     use m_sugw,only: m_sugw_init
     use m_mkehkf,only: m_mkehkf_etot1,m_mkehkf_etot2
     use m_gennlat_sig,only: m_gennlat_init_sig

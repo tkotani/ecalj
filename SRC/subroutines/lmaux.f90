@@ -1,6 +1,5 @@
 module m_lmaux !main part of lmchk ! check crystal structure symmetry and get WSR
-  use m_lmfinit,only: z_i=>z,nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,lmxb_i=>lmxb,lmxl_i=>lmxl,spec_a,&
-       kmax_i=>kmxt,lfoca_i=>lfoca
+  use m_lmfinit,only: z_i=>z,nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,lmxb_i=>lmxb,lmxl_i=>lmxl,spec_a,kmax_i=>kmxt,lfoca_i=>lfoca
   use m_xlgen,only:xlgen
   use m_lgunit,only:stdo
   public:: lmaux

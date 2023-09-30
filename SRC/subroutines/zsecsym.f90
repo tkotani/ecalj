@@ -131,8 +131,8 @@ deallocate(zsect)
 return
 contains
   subroutine rotwvigg2(igg,q,qtarget,ndimh,napw_in,nband,evec,evecout,ierr) !wave funciton rotation. This is originally rotwvigg. 2023-9-13 copied from rotwv.f90 so as to modify origianl rotwvigg for another purpose. no shared I/O
-    use m_hamindex,only: symops,invgx,miat,tiat,shtvg,qlat,plat,dlmm,ngrp,norbmto, &
-         ibastab,ltab,ktab,offl,offlrev,igv2,igv2rev,napwk,nbas,pwmode
+    use m_hamindex,only: symops,invgx,miat,tiat,shtvg,qlat,plat,dlmm,ngrp,norbmto,ibastab,ltab,ktab,offl,offlrev
+    use m_hamindex,only: igv2,igv2rev,napwk,nbas,pwmode
     use m_ftox
     implicit none
     intent(in)::        igg,q,qtarget,ndimh,napw_in,nband,evec

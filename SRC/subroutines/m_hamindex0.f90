@@ -1,20 +1,15 @@
 !> m_hAMIndex0 contains informatio of SYMOPS,LATTC,CLASS,NLAindx.
 module m_hamindex0 
-  use m_lmfinit,only: ham_pwmode,pwemax,ldim=>nlmto,noutmx,nsp_in=>nsp, &
-       lat_alat,ctrl_nbas=>nbas,ispec,n0,nkap0,zbak_read=>zbak,slabl,z,&
-       lmxa_i=>lmxa
+  use m_lmfinit,only: ham_pwmode,pwemax,ldim=>nlmto,noutmx,nsp_in=>nsp,lat_alat,ctrl_nbas=>nbas,ispec,n0,nkap0
+  use m_lmfinit,only: zbak_read=>zbak,slabl,z,lmxa_i=>lmxa
   use m_lattic,only: lat_qlat,lat_plat,rv_a_opos
   use NaNum,only: NaN       !for initialization, but not working well
   integer,protected,public:: pwmode,ngrp=NaN, nbas=NaN
-  integer,allocatable,protected,public:: & !offH (:), &
-       ltab(:),ktab(:),offl(:),offlrev(:,:,:),ibastab(:), &
-       iqimap(:),iqmap(:),igmap(:),invgx(:),miat(:,:),ibasindex(:), &
-       igv2(:,:,:),napwk(:),igv2rev(:,:,:,:),iclasst(:)
-  real(8),allocatable,protected,public:: &
-       symops(:,:,:),ag(:,:),tiat(:,:,:),shtvg(:,:), dlmm(:,:,:,:),qq(:,:), &
+  integer,allocatable,protected,public:: ltab(:),ktab(:),offl(:),offlrev(:,:,:),ibastab(:), &
+       iqimap(:),iqmap(:),igmap(:),invgx(:),miat(:,:),ibasindex(:), igv2(:,:,:),napwk(:),igv2rev(:,:,:,:),iclasst(:)
+  real(8),allocatable,protected,public:: symops(:,:,:),ag(:,:),tiat(:,:,:),shtvg(:,:), dlmm(:,:,:,:),qq(:,:), &
        qtt(:,:),qtti(:,:),zz(:)
   real(8),protected,public:: plat(3,3)=NaN,qlat(3,3)=NaN,zbak
-
   real(8),protected,public::alat
   integer,protected,public::lmxax,nsp,ndima,norb,npqn,nclass,nphimx
   integer,allocatable,public:: konft(:,:,:),iqnum(:,:),lmxa(:),nlindx(:,:,:),pqn(:)

@@ -2,12 +2,8 @@
 !  "call get_zmel_init" return zmel 
 !  All dependencies (use foobar below ) are inputs (must be protected).
 module m_zmel
-  use m_genallcf_v3,only: &
-       nclass,natom,nspin,nl,nn,nnv,nnc, &
-       nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, niw, &
-       alat,delta,deltaw,esmr,iclass,nlnmv,  nlnmc,  icore,ncore , &
-       plat, pos,z,ecore, &
-       mnl=>nlnm , nl,nn,nlnmx ,il, in, im 
+  use m_genallcf_v3,only: nclass,natom,nspin,nl,nn,nnv,nnc, nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, niw
+  use m_genallcf_v3,only: alat,delta,deltaw,esmr,iclass,nlnmv,nlnmc,icore,ncore,plat,pos,z,ecore,mnl=>nlnm,nl,nn,nlnmx,il,in,im
   use m_hamindex,only: ngrp, symgg=>symops,invg=>invgx
   use m_rdpp,only: Rdpp, nxx,lx,nx,mdimx,nbloch,cgr,ppbrd,nblocha,done_rdpp
   use m_readeigen,only: Readcphif 
@@ -369,8 +365,8 @@ contains
        geigq2, nt0,  &!  q2=q-rk ---> kp 1:nt0  occupied
        shtv,q, qi, symope, qlat, qt, &
        zmelp)
-    use m_read_ppovl,only: getppx2,igggi,igcgp2i,nxi,nxe,nyi,nye,nzi,nze, &
-         nvggg,nvgcgp2,ngvecc, nggg,ngcgp,ngcread, ggg,ppovlinv, ngc2,ngvecc2
+    use m_read_ppovl,only: getppx2,igggi,igcgp2i,nxi,nxe,nyi,nye,nzi,nze,nvggg,nvgcgp2,ngvecc
+    use m_read_ppovl,only: nggg,ngcgp,ngcread, ggg,ppovlinv, ngc2,ngvecc2
     implicit none
     integer:: itp,igc
     integer,intent(in) :: ngp1, ngvecp1(3,ngp1), ngp2

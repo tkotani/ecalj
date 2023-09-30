@@ -535,8 +535,7 @@ contains
     close(ifi)
   end subroutine mixmag
   subroutine chkdmu(eks, dmatu,dmatuo,vorb,eorb)
-    use m_lmfinit,only: stdl,nbas,nsp,nlibu,lmaxu,ispec,lldau, &
-         tolu=>mix_tolu,umix=>mix_umix,stdo,idu,uh,jh,ham_lsig,addinv
+    use m_lmfinit,only: stdl,nbas,nsp,nlibu,lmaxu,ispec,lldau,tolu=>mix_tolu,umix=>mix_umix,stdo,idu,uh,jh,ham_lsig,addinv
     use m_mksym,only: g=>symops,istab=>oistab, ng =>ngrp
     use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
     !use m_ldauu,only: ldau

@@ -3,8 +3,7 @@
 !     .      , lat_nkd , rv_a_oqlv , lat_nkq , rv_a_omad )
 subroutine madmat(dmad)
   use m_lmfinit,only: stdo,nbas,alat=>lat_alat
-  use m_lattic,only: awald=>lat_awald,vol=>lat_vol,dlat=>rv_a_odlv &
-       ,nkd=>lat_nkd,glat=>rv_a_oqlv, nkg=>lat_nkq,bas=>rv_a_opos
+  use m_lattic,only: awald=>lat_awald,vol=>lat_vol,dlat=>rv_a_odlv,nkd=>lat_nkd,glat=>rv_a_oqlv, nkg=>lat_nkq,bas=>rv_a_opos
   use m_shortn3_plat,only: shortn3_plat,nout,nlatout
   use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat
   !- Coefficients to Madelung matrix
