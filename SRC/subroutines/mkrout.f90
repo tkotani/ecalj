@@ -541,9 +541,9 @@ contains
                          endif
                       enddo
                    enddo
-                endif
+                enddo
              enddo
-          enddo
+          endif
        enddo
     enddo
     !     call tcx('mkcfus')

@@ -78,13 +78,13 @@ subroutine pnunew(eferm) != Makes new boundary conditions pnu for phi,phidot =
      if (ipr >40) write(stdo,"(/' site',i5,'   species',i4,':',a)") ib,is,spid
      if (ipr >40) write(stdo,"(' l isp idmod     ql',9x,'ebar',7x,' pold',8x,'ptry',8x,'pfree',8x,'pnew',8x)")
      lloop: do  l = 0, lmxa
+        m = l+1
+        lpz = pnz(m,1) .ne. 0
         isploop: do  isp = 1, nsp
-           m = l+1
            p1 = 2d10
            pznew = 2d10
            lfrzv = (mod(idmod(m),10).ne.0 .and. mod(idmod(m),10).ne.3).or. ham_frzwf !lfrzw .ne. 0
            lfrzz = lfrzv !freezing swiches
-           lpz = pnz(m,1) .ne. 0
            lsemicorepz = .false.
            if(lpz)then
               nnv = int(mod(pnu(m,1),10d0))-l-1
@@ -205,7 +205,6 @@ subroutine pnunew(eferm) != Makes new boundary conditions pnu for phi,phidot =
                  if (ptry .lt. pfree) pnz(m,isp) = pfree + (pnz(m,isp)-mod(pnz(m,isp),10d0))
               endif
               if (ipr>40) write(stdo,"(i2,i2,i6,'      ---   ',6f12.6)")l,isp,idmod(m),ez,pold,ptry,pfree,pnz(m,isp)
-           elseif (lpz) then
            endif
         enddo isploop
         phispinsym= cmdopt0('--phispinsym') !! spin averaged pnu takaoAug2019
