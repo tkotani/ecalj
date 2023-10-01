@@ -431,22 +431,21 @@ contains
          wk(nr,nlml,nsp),rhoc(nr,nsp), efg(5), z,rmt,rg,a,cofg,cofh,ceh,rfoc,xcore,qloc,qlocc, &
          aloc,alocc,rhoexc(nsp),rhoex(nsp),rhoec(nsp),rhovxc(nsp), valvef,vvesat, cpnves,rhobg,&
          rhochs(nr),rhonsm(nr),df(0:20),cof(nlml), rhocsm(nr),tmp(nsp),xil(0:0),xill(nr),&
-         afoc,ag,b,cof0,fac,qv1,qv2,qcor1,qcor2, r,rep1(nsp),rep2(nsp),rep1x(nsp),rep2x(nsp),rep1c(nsp),rep2c(nsp), &
+         afoc,ag2,b,cof0,fac,qv1,qv2,qcor1,qcor2, r,rep1(nsp),rep2(nsp),rep1x(nsp),rep2x(nsp),rep1c(nsp),rep2c(nsp), &
          rhves1,rhves2,rmu1(nsp),rmu2(nsp),rvs1,rvs2, rvsm(nsp),rvtr(nsp),samh,sfac,sgpotb,sum1,sum2,sumg,sumh,top, &
          ves1,vales1,vales2,vcpn1,vcpn2,vefc1,vefv1,vefv2,vesc1,vesc2, &
          vesn1,vesn2,vnucl,vsum,vtr,ddot,a1,a2,smrhoc, qs(nsp),ves1int,ves2int, w2(nsp),fl(1,1,1),gnu,gg(nr)
-    real(8),parameter:: pi = 4d0*datan(1d0),srfpi = dsqrt(4d0*pi),y0 = 1d0/srfpi
+    real(8),parameter:: pi = 4d0*datan(1d0),srfpi = dsqrt(4d0*pi),y0 = 1d0/srfpi,pi4=4d0*pi
     logical:: debug=.false.,topl
     call tcn('locpt2')
     call stdfac(20,df)
     ipr = iprint()
-    alocc = 0d0
     b = rmt/(dexp(a*nr-a)-1)
-    ag = 1d0/rg
+    ag2 = 1d0/rg**2
     afoc = 1d0/rfoc
     nrml = nr*nlml
-    fac = 4d0*pi*(ag*ag/pi)**1.5d0
-    gg =  rofi**2 * dexp(-ag*ag*rofi**2) ! ... Renormalize gaussian
+    fac = pi4*(ag2/pi)**1.5d0
+    gg =  rofi**2 * dexp(-ag2*rofi**2) ! ... Renormalize gaussian
     sumg=fac*sum(rwgt(2:nr)*gg(2:nr))
     if(dabs(sumg-1d0)>1d-4)write(stdo,ftox)' locpot (warning): large gaussian, integral=',ftod(sumg)
     sfac = 1d0/sumg
@@ -457,10 +456,10 @@ contains
        xill(i)=xil(0)
     enddo
     rhonsm(:) = -z*fac *gg(:) ! nucleus Gaussian (negative sign) 
-    rhochs = srfpi*cofh*xill(:)*rofi(:)**2       ! pseudocore
-    rhocsm = srfpi*cofg*fac *gg(:)   + rhochs(:) ! pcore= pseudocore - Gaussian
+    rhochs(:) = srfpi*cofh*xill(:)*rofi(:)**2       ! pseudocore
+    rhocsm(:) = srfpi*cofg*fac *gg(:)   + rhochs(:) ! pcore= pseudocore - Gaussian
     sumh  = sum(rwgt*rhochs)
-    samh = -y0*cofh*4d0*pi*dexp(ceh*rfoc*rfoc*0.25d0)/ceh
+    samh = -y0*cofh*pi4*dexp(ceh*rfoc*rfoc*0.25d0)/ceh
     if(ipr>=20.AND.dabs(samh)>1d-6) write(stdo,ftox)'    sm core charge in MT=',ftof(sumh),&
          '=total-spillout=',ftof(samh),'-',ftof(samh-sumh)
     rhol1 = rho1
@@ -470,9 +469,7 @@ contains
     do  isp = 1, nsp
        do  ilm = 1, nlml
           l = ll(ilm)
-          cof(ilm) = qmom(ilm+j1-1)*4d0*pi/df(2*l+1)
-          fac = sfac*(ag*ag/pi)**1.5d0 * (2d0*ag*ag)**l
-          rhol2(:,ilm,isp) = rho2(:,ilm,isp) + cof(ilm)*fac* rofi(:)**l*gg(:)/nsp
+          rhol2(:,ilm,isp)=rho2(:,ilm,isp)+ qmom(ilm+j1-1)*pi4/df(2*l+1)*sfac*(ag2/pi)**1.5d0 *(2d0*ag2)**l *rofi(:)**l*gg(:)/nsp
        enddo
        rhol2(:,1,isp)=rhol2(:,1,isp)+y0/nsp*(rhocsm(:)+rhonsm(:)) !rhol2:full smooth compensated density rho2+gval +gnuc + pcore 
     enddo
@@ -492,15 +489,15 @@ contains
       rhoct =sum(rhoc(:,1:nsp),dim=2)
       rhol1t(:,1)=rhol1t(:,1)+srfpi*rhobg*rofi(:)**2 ! ... Add background density to spherical rhol1 and rhol2
       rhol2t(:,1)=rhol2t(:,1)+srfpi*rhobg*rofi(:)**2
-      qv1   = srfpi*ddot(nr,rwgt,1,rho1t,1) ! ... Sphere charges; also check sphere neutrality for safety
+      qv1   = srfpi*ddot(nr,rwgt,1,rho1t,1) ! Sphere charges
       qv2   = srfpi*ddot(nr,rwgt,1,rho2t,1)
       qloc  = qv1-qv2
       qcor1 =       ddot(nr,rwgt,1,rhoct,1)
       qcor2 =       ddot(nr,rwgt,1,rhocsm,1)
       qlocc = qcor1-qcor2
-      sum1  = srfpi*ddot(nr,rwgt,1,rhol1t,1) - z
-      sum2  = srfpi*ddot(nr,rwgt,1,rhol2t,1)
-      if(dabs(sum1-sum2)>1d-6)call rx1('locpt2: sphere not neutral: charge = %d',sum1-sum2)
+      sum1  = srfpi*ddot(nr,rwgt,1,rhol1t,1) - z !MT charge of n^ZcV of 1st component .See TK
+      sum2  = srfpi*ddot(nr,rwgt,1,rhol2t,1)     !MT charge of n^ZcV of 2nd component
+      if(dabs(sum1-sum2)>1d-6) call rx1('locpt2: sphere not neutral: charge = %d',sum1-sum2)
       !     v1=Ves[rho1t]: true ES pot without nuclear contribution
       call poinsp(z,vval(j1),nlml,a,b,v1,rofi,rhol1t,wk,nr,rvs1,rhves1,  vnucl,vsum)
       efg(1:5)=merge(v1(5,5:9,1)/rofi(5)**2,0d0,nlml >= 9 .AND. z > 0.01)
@@ -510,7 +507,7 @@ contains
       do  ilm = 1, nlml
          l = ll(ilm)
          cof0 = 4d0*pi/df(2*l+1)
-         fac = sfac*(ag*ag/pi)**1.5d0 * (2d0*ag*ag)**l
+         fac = sfac*(ag2/pi)**1.5d0 * (2d0*ag2)**l
          gpotb(ilm) = sum(rwgt*v2(:,ilm,1)*cof0*fac*rofi(:)**l* gg(:) )
          sgpotb = sgpotb + qmom(ilm+j1-1)*gpotb(ilm)
       enddo
@@ -597,7 +594,6 @@ contains
     call tcx('locpt2')
   end subroutine locpt2
   subroutine elfigr(nc,stdo,z,efg1)    !- Computation of electric field gradient
-    ! ----------------------------------------------------------------------
     !i Inputs
     !i   nc    :number of classes or sites
     !i   stdo  :standard output
