@@ -1,14 +1,12 @@
-subroutine poiss0(z,a,b,rofi,rho,nr,vhrmax,v,rhovh,vsum,nsp)!- Hartree potential for spherical rho.
+subroutine poiss0(z,rofi,rho,nr,vhrmax, v,rhovh,vsum,nsp)!- Hartree potential for spherical rho.
   !i Inputs:
   !i   z     :nuclear charge
-  !i   a     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
-  !i   b     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
   !i   rho   :spherical charge density times 4*pi*r*r
   !i   nr    :number of mesh points
   !i   vhrmax:value of v(nr)
   !i   nsp   :=1 spin degenerate, =2 non-degenerate
+  !i   rofi  :radial mesh points
   !o Outputs:
-  !o   rofi  :radial mesh points
   !o   v     :spherical Hartree potential
   !o   vsum  :integral over that potential which is zero at rmax.
   !o   rhovh :integral of rho*vh, where vh is the electrostatic
@@ -17,21 +15,14 @@ subroutine poiss0(z,a,b,rofi,rho,nr,vhrmax,v,rhovh,vsum,nsp)!- Hartree potential
   !r    Solves Poisson's equation for given spherical charge density
   !r    and a specified value vhrmax at rofi(nr).
   !r    rho =  4*pi*r*r*rhotrue  but  v = vtrue
-  implicit double precision (a-h,o-z)
+  implicit none !double precision (a-h,o-z)
   integer :: nr,nsp
-  double precision :: rofi(nr),v(nr,nsp),rho(nr,nsp),rhovh(nsp),pi,ea,rpb,a,b,z
-  double precision :: rmax,r2,r3,r4,f2,f3,f4,x23,x34,cc,bb,dd,df,drdi,r,srdrdi,g,f,y2,y3,y4,ro,vnow,wgt,a2b4,vhrmax,vsum,vhat0
+  real(8) :: rofi(nr),v(nr,nsp),rho(nr,nsp),rhovh(nsp),z,a,b
+  real(8) :: rmax,r2,r3,r4,f2,f3,f4,x23,x34,cc,bb,dd,df,drdi,r,srdrdi,g,f,y2,y3,y4,ro,vnow,wgt,a2b4,vhrmax,vsum,vhat0
+  real(8),parameter:: pi = 4d0*datan(1d0)
   integer :: ir,isp
-  real(8):: qtotxxx
-  pi = 4d0*datan(1d0)
-  ea = dexp(a)
-  rpb = b
-  do  5  ir = 1, nr
-     rofi(ir) = rpb - b
-     rpb = rpb*ea
-5 enddo
-  rmax = rofi(nr)
   ! --- Approximate rho/r**2 by cc + bb*r + dd*r*r near zero  ---
+  rmax = rofi(nr)
   r2 = rofi(2)
   r3 = rofi(3)
   r4 = rofi(4)
@@ -49,6 +40,8 @@ subroutine poiss0(z,a,b,rofi,rho,nr,vhrmax,v,rhovh,vsum,nsp)!- Hartree potential
   bb = ((r2+r3)*x34 - (r3+r4)*x23) / (r3*r3*(r4-r2))
   dd = (f2 - bb*r2 - cc)/r2**2
   ! --- Numerov for inhomogeneous solution ---
+  a = log(rofi(3)/rofi(2)-1d0) !rofi(i)=b(e^(a*(i-1))-1). We get a and b
+  b= rofi(3)/(exp(2d0*a)-1d0)
   a2b4 = a*a/4d0
   v(1,1) = 1d0
   df = 0d0
@@ -85,7 +78,6 @@ subroutine poiss0(z,a,b,rofi,rho,nr,vhrmax,v,rhovh,vsum,nsp)!- Hartree potential
      v(ir,1) = v(ir,1) + (vhrmax - vnow)
 27 enddo
   ! --- Integral vh and  rho * vh ---
-  vhint=0d0
   rhovh(1:nsp) = 0d0
   vsum = 0d0
   vhat0 = 0d0

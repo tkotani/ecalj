@@ -382,8 +382,7 @@ contains
        if (opt1 .le. 1) then
           !C         call prrmsh('vtot',rofi,v(1,is),nr,nr,1)
           vrmax = 0
-          call poiss0(z(is),a(is),b(is),rofi,rho(1,is),nr,vrmax,v(1,is), &
-               xx(2),xx(4),nsp)
+          call poiss0(z(is),rofi,rho(1,is),nr,vrmax,v(1,is),xx(2),xx(4),nsp)
           !C         call prrmsh('ves',rofi,v(1,is),nr,nr,1)
        endif
 

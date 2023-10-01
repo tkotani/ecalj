@@ -98,14 +98,14 @@ subroutine pvrhom(rmt,a,nlml,nr,nsp,rho1,rho2,rhoc,cofg,cofh,rg,ceh,rfoc,z,qmomj
   b = rofi(nr)/(dexp(a*nr-a)-1d0)
   facs = 1d0/(3-nsp)
   q1=sum( rwgt* (facs*(srfpi*(rho1(:,1,1)+rho1(:,1,nsp)) + rhoc(:,1) + rhoc(:,nsp))))
-  h=0d0 
-  call poiss0(z,a,b,rofi,h,nr,0d0,   v, vhrho,vsum,1)
+  call poiss0(z,rofi,h,nr,0d0,   v, vhrho,vsum,1)
   vsum1 = sum(rwgt(2:nr)*rofi(2:nr)**2*(v(2:nr)-2d0*z/rofi(2:nr)))
   ! ... Smooth density, including compensating gaussians
   cg = qmomj(1) + cofg - y0*z ! this is true Q^Zc_aL in Eq.(25) for ilm=1.
   facc = fpi*(ag*ag/pi)**1.5d0
 !  q2= srfpi*sum(rwgt*( facs*(rho2(:,1,1)+rho2(:,1,nsp)) + cg*facc*gnu + cofh*xi0*rofi**2))
-  call poiss0(0d0,a,b,rofi,h,nr,0d0, v, vhrho,vsum,1)
+  h=0d0 
+  call poiss0(0d0,rofi,[(0d0,i=1,nr)],nr,0d0, v, vhrho,vsum,1)
   vsum2 = fpi*sum(rwgt*rofi**2*v)
 end subroutine pvrhom
 endmodule m_rhomom

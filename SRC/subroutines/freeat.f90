@@ -802,7 +802,7 @@ contains
        call addzbk(rofi,nr,nsp,rhoin,rhozbk,-1d0)
        if(abs(rmax-rofi(nr,1))>1d-6) call rx('atomsr.F:something wrong. abs(rmax-rofi(nr,1))>1d-3')
        vhrmax=2d0*(qelectron-z)/rmax
-       call poiss0(z,a,b,rofi,rhoin,nr,vhrmax,v,rvh,vsum,nsp) !  Hartree potential
+       call poiss0(z,rofi,rhoin,nr,vhrmax,v,rvh,vsum,nsp) !  Hartree potential
        vsum = vsum + 4d0*pi*(z-qelectron)*rmax**2
        call addzbk(rofi,nr,nsp,rhoin,rhozbk,1d0)
        vnucl = v(1,1)  
