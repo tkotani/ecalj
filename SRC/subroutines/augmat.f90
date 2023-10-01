@@ -80,7 +80,7 @@ contains
        qum(l1,l2,lm,2,2,isp) = qss
        qum(l1,l2,lm,2,3,isp) = qsz
        qum(l1,l2,lm,3,3,isp) = qzz
-       qum(l2,l1,lm,2,1,isp) = qus !transposed symmetric
+       qum(l2,l1,lm,2,1,isp) = qus !transposed symmetric. NOTE l1 <-> l2
        qum(l2,l1,lm,3,1,isp) = quz !
        qum(l2,l1,lm,3,2,isp) = qsz !
     enddo Moments
@@ -113,11 +113,11 @@ contains
           endif
           vum(l1,l2,mlm,1,1,isp) = vuu
           vum(l1,l2,mlm,1,2,isp) = vus
-          vum(l1,l2,mlm,2,2,isp) = vss
           vum(l1,l2,mlm,1,3,isp) = vuz
+          vum(l1,l2,mlm,2,2,isp) = vss
           vum(l1,l2,mlm,2,3,isp) = vsz
           vum(l1,l2,mlm,3,3,isp) = vzz
-          vum(l2,l1,mlm,2,1,isp) = vus  !transposed symmetric
+          vum(l2,l1,mlm,2,1,isp) = vus !transposed symmetric
           vum(l2,l1,mlm,3,1,isp) = vuz !
           vum(l2,l1,mlm,3,2,isp) = vsz !
        enddo

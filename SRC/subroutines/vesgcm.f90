@@ -86,7 +86,7 @@ module m_vesgcm
         enddo
      enddo
      hpot0(ib) = 0d0
-     cof(1) = cof(1) + 4*pi*y0*(qcorg-z)
+!     cof(1) = cof(1) + 4*pi*y0*(qcorg-z)
      cg1=0d0
      do  i = 1, ng
         v(:) = gv(i,:)

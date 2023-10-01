@@ -14,7 +14,7 @@ contains
     implicit none
     character spid*8
     logical :: eloc
-    integer :: ib,ibs,iclbsj,ipr,iprint,is,k,l,lmxa,lmxb,nglob,nkap0,nr,nrmx,nrspec
+    integer :: ib,ibs,ipr,iprint,is,k,l,lmxa,lmxb,nglob,nkap0,nr,nrmx,nrspec
     parameter (nrmx=1501, nkap0=3)
     integer:: nkape,idamax,nkapex
     integer,allocatable :: ips_iv(:)
@@ -257,4 +257,28 @@ contains
     if (allocated(g_rv)) deallocate(g_rv)
     if (allocated(h_rv)) deallocate(h_rv)
   end subroutine loctsh
+  integer function iclbsj(ic,ipc,nbas,nrbas)  !- Returns an index to nrbas atom in basis given the class
+    !i   ic    :class index
+    !i   ipc   :class index: site ib belongs to class ipc(ib) 
+    !i   nbas  : abs  = number of atoms in the basis. NOTe: sign <0 to return with -n if there are fewer than nrbas
+    !i         :  members of class ic, where n=number members of class ic
+    !i   nrbas :the nrbas-th basis atom of class ic is sought
+    !o Outputs: iclbsj:the nrbas-th atom belonging to class ic
+    implicit none
+    integer :: ic,nbas,ipc(*),nrbas,ib,ibas,n
+    n = 0
+    iclbsj=1
+    do ibas = 1, abs(nbas)
+       if(ipc(ibas) == ic) n = n+1
+       if(n == nrbas) then
+          iclbsj = ibas
+          return
+       endif
+    enddo
+    if(nbas<0) then
+       iclbsj=-n
+       return
+    endif
+    call rxiii('ICLBSJ: sought atom no.#1 in class #2 but only #3 atoms exist. #1#2#3=',nrbas,ic,n)
+  end function iclbsj
 end module m_elocp

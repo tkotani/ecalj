@@ -259,7 +259,7 @@ contains
     parameter (nlmx=64, nrmx=1501, n0=10)
     integer :: lmxa,nr,nxi,ie,ixi,job0,kcor,lcor,lfoc,i, nlml
     double precision :: alat,ceh,cofg,cofh,qcorg,qcorh,qsc,rfoc,rg, &
-         vol,z,v(3),df(0:20),feso(3),qcor(2),gpot0(nlmx,3),fesdn(3), &
+         vol,z,v(3),df(0:20),qcor(2),gpot0(nlmx,3),fesdn(3), & !,feso(3)
          fesgg(3),pnu(n0),pnz(n0),a,rmt,qloc,exi(n0),hfc(n0,2), &
          qfat,gam,qall,qc,qval,qg,e,aa,q0(3),ssum
     double precision :: rwgt(nrmx),cc,gamf,cfoc,cvol,rsmfa
@@ -352,7 +352,7 @@ contains
 22     enddo
 20  enddo
     !     cof(1) = cof(1) + 4*pi*y0*(qcorg+qsc-z)
-    cof(1) = cof(1) + 4*pi*y0*(qcorg-z)
+!    cof(1) = cof(1) + 4*pi*y0*(qcorg-z)
     ! --- Shift in n0, ves~ for list of G vectors ---
     gam = 0.25d0*rg*rg
     gamf = 0.25d0*rfoc*rfoc
@@ -415,7 +415,7 @@ contains
 
     ! --- Integral of dves~ (output-input local charge) for all sites ---
     fes2=0d0
-    feso=0d0 
+!    feso=0d0 
     jv0 = 0
     do  40  jb = 1, nbas
        js=ispec(jb) 
@@ -448,7 +448,7 @@ contains
           do  62  m = -l, l
              ilm = ilm+1
              gpot0(ilm,:) = gpot0(ilm,:)*4d0*pi/df(2*l+1)
-             feso(:) = feso(:) + qmom(jv0+ilm)*gpot0(ilm,:)
+!             feso(:) = feso(:) + qmom(jv0+ilm)*gpot0(ilm,:)
              fes2(:) = fes2(:) + qmout(jv0+ilm)*gpot0(ilm,:)
 62        enddo
 60     enddo
@@ -660,7 +660,7 @@ contains
              cof(ilm) = cfac*qmom(ilm+iv0)*4d0*pi/df(2*l+1)
 21        enddo
 20     enddo
-       cof(1) = cof(1) + 4*pi*y0*(qcorg-z)
+!       cof(1) = cof(1) + 4*pi*y0*(qcorg-z)
        gam = 0.25d0*rg*rg
        gamf = 0.25d0*rfoc*rfoc
        cfoc = -4d0*pi*y0*cofh/vol

@@ -29,8 +29,7 @@ contains
     !i   novxc
     !i   orhoat:vector of offsets containing site density
     !i   qmom  :multipole moments of on-site densities (rhomom.f)
-    !i   vval  :electrostatic potential at MT boundary; needed
-    !i         :to computed matrix elements of local orbitals.
+    !i   vval  :electrostatic potential at MT boundary; needed to computed matrix elements of local orbitals.
     !i   gpot0 :integrals of local gaussians * phi0~
     !i         :phi0~ is the estatic potential of the interstitial
     !i   job   := 1 make core and augmentation matrices, :=0 not
@@ -75,7 +74,7 @@ contains
     type(s_cv5) :: oppi(3,nbas)
     type(s_sblock):: ohsozz(3,nbas),ohsopm(3,nbas)
     type(s_rv4) :: otau(3,nbas), osig(3,nbas)
-    real(8):: qmom(1) , vval(1), cpnvsa,rhoexc(nsp),rhoex(nsp),rhoec(nsp),rhovxc(nsp), &
+    real(8):: qmom(*) , vval(*), cpnvsa,rhoexc(nsp),rhoex(nsp),rhoec(nsp),rhovxc(nsp), &
          qval,sqloc,sqlocc,saloc, valvef,vvesat,xcore,gpot0(1),phzdphz(nppn,n0,nsp,nbas),rhobg,&
          eh(n0,nkap0),rsmh(n0,nkap0), ehl(n0),rsml(n0),z,a,rmt,qc,ceh,rfoc, &
          qcorg,qcorh,qsc,cofg,cofh,qsca,rg,qv,cpnvs, qloc,qlocc,xcor, aloc,alocc,rs3,vmtz,qcor(2),qc0,qsc0, ov0mean,pmean
@@ -136,8 +135,8 @@ contains
               '  nlml=',i2,'  rg=',f5.3,'  Vfloat=',l1)") ib,z,rmt,nr,a,nlml,rg,lfltwf
          if(ipr>=30.and. kcor/=0 .and. sum(abs(qcor))/=0 ) write(stdo,ftox)&
               ' core hole: kcor=',kcor,'lcor=',lcor,'qcor amom=',ftof(qcor)
-         call rxx(nr .gt. nrmx,  'locpot: increase nrmx')
-         call rxx(nlml .gt. nlmx,'locpot: increase nlmx')
+         !call rxx(nr .gt. nrmx,  'locpot: increase nrmx')
+         !call rxx(nlml .gt. nlmx,'locpot: increase nlmx')
          locpt2augmat: block
            real(8)::rhol1(nr,nlml,nsp),rhol2(nr,nlml,nsp),v1(nr,nlml,nsp),v2(nr,nlml,nsp),v1es(nr,nlml,nsp),v2es(nr,nlml,nsp),&
                 gpotb(nlml),rofi(nr),rwgt(nr)
@@ -443,23 +442,25 @@ contains
        call hansmr(rofi(i),ceh,1d0/rfoc,xil,0)
        xill(i)=xil(0)
     enddo
-    rhonsm(:) = -z*fac *gg(:) ! nucleus Gaussian (negative sign) 
-    rhochs(:) = srfpi*cofh*xill(:)*rofi(:)**2       ! pseudocore
-    rhocsm(:) = srfpi*cofg*fac *gg(:)   + rhochs(:) ! pcore= pseudocore - Gaussian
-    sumh  = sum(rwgt*rhochs)
-    samh = -y0*cofh*pi4*dexp(ceh*rfoc*rfoc*0.25d0)/ceh
-    if(ipr>=20.AND.dabs(samh)>1d-6) write(stdo,ftox)'    sm core charge in MT=',ftof(sumh),&
-         '=total-spillout=',ftof(samh),'-',ftof(samh-sumh)
+    rhonsm(:) = -z*fac *gg(:) ! nucleus Gaussian    (negative sign) 
+    rhochs(:) = srfpi*cofh*xill(:)*rofi(:)**2      ! n^c_sH,a(r)   pseudocore density smHankel
+    rhocsm(:) = rhochs(:)+ srfpi*cofg*fac*gg(:)    ! M[n^Zc]:2nd = pcore= n^sH + Gaussians !2nd component of Eq.24
+    sumh  = sum(rwgt*rhochs)                           !
+    samh = -y0*cofh*pi4*dexp(ceh*rfoc*rfoc*0.25d0)/ceh !total sm core charge (smHamkel)
+    if(ipr>=20.AND.dabs(samh)>1d-6) &
+         write(stdo,ftox)'    sm core charge in MT=',ftof(sumh),'= total-spillout=',ftof(samh),'-',ftof(samh-sumh)
     rhol1 = rho1
-    rhol1(:,1,:)= rhol1(:,1,:)+ y0*rhoc(:,:) ! full electron density = rho1 + rhoc 
-    !     gval : qmom * compensating gaussians
+    rhol1(:,1,:)= rhol1(:,1,:)+ y0*rhoc(:,:) ! True electron density = rhol1 -2Z/r = rho1 + y0*(rhoc -2Z/r) !1st component of Eq.(24)
+    !     gval : qmom * compensating gaussians gg = \sum_L QaL^v GaL 
     !     Distribute core+nuclear charge equally over spins
     do  isp = 1, nsp
        do  ilm = 1, nlml
           l = ll(ilm)
           rhol2(:,ilm,isp)=rho2(:,ilm,isp)+ qmom(ilm+j1-1)*pi4/df(2*l+1)*sfac*(ag2/pi)**1.5d0 *(2d0*ag2)**l *rofi(:)**l*gg(:)/nsp
        enddo
-       rhol2(:,1,isp)=rhol2(:,1,isp)+y0/nsp*(rhocsm(:)+rhonsm(:)) !rhol2:full smooth compensated density rho2+gval +gnuc + pcore 
+!       rhol2(:,1,isp)= rhol2(:,1,isp) + y0/nsp*(rhocsm(:)+rhonsm(:)) !rhol2 = n^c_sH,a + Gaussians(qmom) + rho2 Eq.(30)
+       rhol2(:,1,isp)= rhol2(:,1,isp) + y0/nsp*rhochs ! rhol2 = n^c_sH,a + Gaussians(qmom) + rho2.  Eq.(30)
+       ! but Eq(30) has typo. wrong: n^Zc_2,a+... ==> right: n^c_sH,a+...
     enddo
     if(nsp==2) then
        aloc = srfpi*sum(rwgt*((rho1(:,1,1)-rho1(:,1,2))-(rho2(:,1,1)-rho2(:,1,2))))
@@ -475,7 +476,7 @@ contains
       rhol1t=sum(rhol1(:,:,1:nsp),dim=3)
       rhol2t=sum(rhol2(:,:,1:nsp),dim=3)
       rhoct =sum(rhoc(:,1:nsp),dim=2)
-      rhol1t(:,1)=rhol1t(:,1)+srfpi*rhobg*rofi(:)**2 ! ... Add background density to spherical rhol1 and rhol2
+      rhol1t(:,1)=rhol1t(:,1)+srfpi*rhobg*rofi(:)**2 ! ... Add background density to spherical parts of rhol1 and rhol2
       rhol2t(:,1)=rhol2t(:,1)+srfpi*rhobg*rofi(:)**2
       qv1   = srfpi*sum(rwgt*rho1t(:,1)) ! Sphere charges
       qv2   = srfpi*sum(rwgt*rho2t(:,1))
@@ -483,19 +484,27 @@ contains
       qcor1 =       sum(rwgt*rhoct)
       qcor2 =       sum(rwgt*rhocsm)
       qlocc = qcor1-qcor2
-      sum1  = srfpi*sum(rwgt*rhol1t(:,1)) - z !MT charge of n^ZcV of 1st component .See TK
-      sum2  = srfpi*sum(rwgt*rhol2t(:,1))     !MT charge of n^ZcV of 2nd component
+      sum1  = srfpi*sum(rwgt*rhol1t(:,1)) - z !MT charge of \bar{n}^ZcV of 1st component  Eq.(29) See JPSJ
+      sum2  = srfpi*sum(rwgt*rhol2t(:,1))     !MT charge of \bar{n}^ZcV of 2nd component  Eq.(30)
+!!!!!!!!!!!!
+!      write(6,*)'sum1 sum2=',sum1,sum2
+!      stop
+!!!!!!!!!!!1      
+      
       if(dabs(sum1-sum2)>1d-6) call rx1('locpt2: sphere not neutral: charge = %d',sum1-sum2)
       !     v1=Ves[rho1t]: true ES pot without nuclear contribution
       call poinsp(z,vval(j1),nlml,v1,rofi,rhol1t,wk,nr,rvs1,rhves1,  vnucl,vsum)
       efg(1:5)=merge(v1(5,5:9,1)/rofi(5)**2,0d0,nlml >= 9 .AND. z > 0.01)
-      call poinsp(0d0,vval(j1),nlml,v2,rofi,rhol2t,wk,nr,rvs2,rhves2, vnucl,vsum)! v2=Ves[rhol2=rho2+gval+gcor+gnuc]
-      ! --- gpotb = integrals of compensating gaussians times smooth ves ---
+      call poinsp(0d0,vval(j1),nlml,v2,rofi,rhol2t,wk,nr,rvs2,rhves2, vnucl,vsum)! v2=Ves[rhol2]
+      ! gpotb = integrals of compensating gaussians times smooth ves ---
       do  ilm = 1, nlml
          l = ll(ilm)
          gpotb(ilm) = pi4/df(2*l+1)*sfac*(ag2/pi)**1.5d0*(2d0*ag2)**l*sum(rwgt*v2(:,ilm,1)*rofi(:)**l* gg(:) )
       enddo
       sgpotb = sum([(qmom(ilm+j1-1)*gpotb(ilm),ilm=1,nlml)])
+!!!!!!!!!!!!!!!!      
+!      sgpotb = sgpotb - (cofg - y0*z)*gpotb(1)
+!!!!!!!!!!!!!!!!      
       ! --- Electrostatic integrals involving spherical terms only ---
       vesc1 = sum(rwgt(2:nr)*rhoct(2:nr)*(y0*v1(2:nr,1,1) - 2d0*z/rofi(2:nr)))
       vesn2 = sum(rwgt*rhonsm*y0*v2(:,1,1))
@@ -568,14 +577,14 @@ contains
     xcore  = vefc1
     vefv2  = vefv2 + sgpotb
     valvef = vefv1 - vefv2
-    if (ipr >= 40) then
+!    if (ipr >= 40) then
        write(stdo,"(/' local terms:     true',11x,'smooth',9x,'local')")
        write(stdo,"(' rhoeps:  ',3f15.6/' rhomu:   ',3f15.6)") sum(rep1),sum(rep2),sum(rhoexc),rmu1(1),rmu2(1),rhovxc(1)
        if(nsp==2)write(stdo,"(' spin2:   ',3f15.6/' total:   ',3f15.6)")rmu1(2),rmu2(2),rhovxc(2),sum(rmu1),sum(rmu2),sum(rhovxc)
        write(stdo,"(' val*vef  ',3f15.6/' val chg: ',3f15.6)") vefv1,vefv2,valvef,qv1,qv2,qloc
        if(nsp == 2) write(stdo,"(' val mmom: ',f15.6,'  core mmom:',f11.6)") aloc,alocc
        write(stdo,"(' core chg:',3f15.6)") qcor1,qcor2,qlocc
-    endif
+!    endif
     call tcx('locpt2')
   end subroutine locpt2
   subroutine elfigr(nc,stdo,z,efg1)    !- Computation of electric field gradient at Nucleus

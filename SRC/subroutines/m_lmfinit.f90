@@ -210,7 +210,7 @@ contains
       !  See 'call gaugm' at the end of augmat.
       call rval2('HAM_GMAX',  rr=rr, defa=[0d0]);          lat_gmaxin=rr
       call rval2('HAM_FTMESH',rv=rv, defa=[0d0,0d0,0d0]);  ftmesh=rv
-      call rval2('HAM_TOL',   rr=rr, defa=[1d-6]); tolft=rr
+      call rval2('HAM_TOL',   rr=rr, defa=[1d-6]); tolft=rr  
       call rval2('HAM_FRZWF', rr=rr, defa=[real(8):: 0]); ham_frzwf= nint(rr)==1 
       call rval2('HAM_XCFUN', rr=rr, defa=[real(8):: 2]); lxcf=nint(rr) ! XC functional. 1:Ceperly-Alder, 2:Barth-Hedin, 103:PBE-GGA
       call rval2('HAM_FORCES',rr=rr, defa=[real(8):: 0]); lfrce=nint(rr) !0 or 1
@@ -242,10 +242,10 @@ contains
          call rval2('SPEC_EH2@' //xn(j),rv=rv, nreq=nn2); eh2(1:nn2,j)=rv        ! 2nd MTO sets 
          if(nn2>0) nkapi=2
          if(nn2>0) nkapii(j)=2
-         call rval2('SPEC_LMX@'//xn(j), rr=rr, defa=[real(8):: 999]);     lmxb(j)=min(nint(rr), max(nn1,nn2)-1) !lmax for MTO basis
+         call rval2('SPEC_LMX@'//xn(j), rr=rr, defa=[real(8):: 999]);     lmxb(j)=min(nint(rr), max(nn1,nn2)-1)! lmax for MTO basis
          call rval2('SPEC_LMXA@'//xn(j),rr=rr, defa=[real(8):: lmxb(j)]); lmxa(j)=nint(rr)
-         if(rmt(j)==0d0) lmxa(j)=-1 !lmax for augmentation
-         call rval2('SPEC_LMXL@'//xn(j),rr=rr, defa=[real(8):: lmxa(j)]); lmxl(j)=nint(rr) !'lmax for accumulating rho,V in sphere'
+         if(rmt(j)==0d0) lmxa(j)=-1                                                        ! lmax for augmentation
+         call rval2('SPEC_LMXL@'//xn(j),rr=rr, defa=[real(8):: lmxa(j)]); lmxl(j)=nint(rr) ! lmax for accumulating rho,V in sphere
          call rval2('SPEC_P@'//xn(j),   rv=rv,nout=n); pnusp(1:n,1,j)=rv
          call rval2('SPEC_Q@'//xn(j),   rv=rv,nout=n); qnu(1:n,1,j)=rv
          if(nsp==2) then
@@ -297,14 +297,14 @@ contains
       call rval2('BZ_BZJOB',rv=rv, nout=n); bz_lshft(1:n)=nint(rv)! '=0 centers BZ mesh at origin, =1 centers off origin' 
       call fill3in(n,bz_lshft)
       call rval2('BZ_METAL', rr=rr, defa=[real(8):: 3]); bz_lmet=nint(rr) !0 or 3. '0 insulator only; 3 for metal
-      call rval2('BZ_TETRA', rr=rr, defa=[real(8):: 1]); bz_tetrahedron= nint(rr)==1 ! & tetrahedron switch 1 or 0.
+      call rval2('BZ_TETRA', rr=rr, defa=[real(8):: 1]); bz_tetrahedron= nint(rr)==1 ! tetrahedron switch 1 or 0.
       if(cmdopt0('--tdos') .OR. cmdopt0('--pdos')) then
          write(stdo,*)' --tdos or --pdos enforces BZ_METAL=3 and BZ_TETRA=T'
          bz_lmet=3
          bz_tetrahedron=.true.
       endif
       call rval2('BZ_N', rr=rr, defa=[real(8):: 0]); bz_n=nint(rr) 
-      !          BZ_N>0: Polynomial order for Methfessel-Paxton sampling', N=0: Conventional Gaussian sampling'// &
+      !          BZ_N>0: Polynomial order for Methfessel-Paxton sampling', N=0: Conventional Gaussian sampling
       !          BZ_N<0: Broadening by Fermi-Dirac distribution'.     Use in conjunction with BZ_W
       call rval2('BZ_W', rr=rr, defa=[5d-3]); bz_w=rr ! For BZ_N>=0,Line broadening for sampling. For BZ_N<0, Temperature for Fermi distribution (Ry)
       call rval2('BZ_ZBAK',  rr=rr, defa=[0d0]); zbak=rr !Homogeneous background charge to shift Fermi energy.
@@ -395,6 +395,8 @@ contains
          rg(j)   = 0.25d0*rmt(j)
          rfoca(j)= 0.4d0*rmt(j)
          if(nr(j) == 0) nr(j) = i0
+         call rxx( nr(j)         > nrmx,'m_lmfinit: increase nrmx')
+         call rxx((lmxl(j)+1)**2 > nlmx,'m_lmfinit: increase nlmx')!nlml
          nnx = findloc([(pzsp(i,1,j)>0d0,i=1,n0)],value=.true.,back=.true.,dim=1)
          lmxb(j) = max(lmxb(j),nnx-1) ! lmxb corrected by pzsp
          if(nnx>0) then !          

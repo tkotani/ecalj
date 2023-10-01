@@ -228,10 +228,10 @@ contains
           nlm = (lmxl+1)**2
           hsum = -srfpi*dexp(ceh*rfoc*rfoc*0.25d0)/ceh ! hsum = integral of charge in sm. Hankel
           hpot0(ib) = hpot0(ib) + vconst*hsum
-          zvnsm = zvnsm + (qcorg-z)*y0*gpot0(iv0+1) + cofh*hpot0(ib)
+          zvnsm = zvnsm  + cofh*hpot0(ib) !+ (qcorg-z)*y0*gpot0(iv0+1)
           do  ilm = 1, nlm
              rhvsm = rhvsm + qmom(iv0+ilm)*gpot0(iv0+ilm)
-             sumx = sumx + qmom(iv0+ilm)*gpot0(iv0+ilm)
+             sumx = sumx   + qmom(iv0+ilm)*gpot0(iv0+ilm)
           enddo
           iv0 = iv0+nlm
        endif
@@ -265,8 +265,7 @@ contains
     !i   n1,n2,n3 dimensions of smrho,smpot for smooth mesh density
     !i   smpot :estat potential
     !o Outputs
-    !o   vval  :coffs to YL expansion of es potential at MT boundary
-    !o         :for each site, computed from the mesh density.
+    !o   vval  :coffs to YL expansion of es potential at MT boundary for each site, computed from the mesh density.
     !r Remarks
     !r   A PW exp(i.q.r) has a one-center expansion at radius r
     !r      sum_L C_L Y_L(r) where C_L = 4 pi i^l j_l(|rq|) Y_L(q)
@@ -286,7 +285,6 @@ contains
     integer :: i,ib,is,lmxx,nlmx,iv0,lmxl,nlm,m,ilm,l,ipr
     double precision :: alat,pi,tpiba,tau(3),rmt,fac,plat(3,3)
     double complex vvali,fprli
-!    equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
     parameter (lmxx=6, nlmx=(lmxx+1)**2)
     double precision,allocatable:: phil(:,:),yl(:,:)
     double precision,allocatable:: gv2(:,:),agv(:),cgp(:),sgp(:)
@@ -527,12 +525,12 @@ contains
                 do  ilm1 = 1, nlm1
                    l1 = ll(ilm1)
                    qm1 = qmom(iv0+ilm1)
-                   if (ilm1 == 1) qm1 = qm1 + y0*(qcorg1-z1)
+!                   if (ilm1 == 1) qm1 = qm1 + y0*(qcorg1-z1)
                    cof1 = qm1*fpi/df(2*l1+1)
                    do  ilm2 = 1, nlm2
                       l2 = ll(ilm2)
                       qm2 = qmom(jv0+ilm2)
-                      if (ilm2 == 1) qm2 = qm2 + y0*(qcorg2-z2)
+!                      if (ilm2 == 1) qm2 = qm2 + y0*(qcorg2-z2)
                       cof2 = qm2*fpi/df(2*l2+1)
                       xugg(ip) = xugg(ip) + cof1*cof2*s(ilm1,ilm2)
                       xgpot0(jv0+ilm2,ip) = xgpot0(jv0+ilm2,ip) + s(ilm1,ilm2)*cof1*fpi/df(2*l2+1)
@@ -548,7 +546,7 @@ contains
                    do  ilm2 = 1, nlm2
                       l2 = ll(ilm2)
                       qm2 = qmom(jv0+ilm2)
-                      if (ilm2 == 1) qm2 = qm2 + y0*(qcorg2-z2)
+!                      if (ilm2 == 1) qm2 = qm2 + y0*(qcorg2-z2)
                       cof2 = qm2*fpi/df(2*l2+1)
                       xugg(ip) = xugg(ip) + cofh1*s(1,ilm2)*cof2
                       ff = ff + 0.5d0*cofh1*cof2*ds(1,ilm2,1:3)
@@ -558,7 +556,7 @@ contains
                    do  ilm1 = 1, nlm1
                       l1 = ll(ilm1)
                       qm1 = qmom(iv0+ilm1)
-                      if (ilm1 == 1) qm1 = qm1 + y0*(qcorg1-z1)
+!                      if (ilm1 == 1) qm1 = qm1 + y0*(qcorg1-z1)
                       cof1 = qm1*fpi/df(2*l1+1)
                       xugg(ip) = xugg(ip) + cof1*s(1,ilm1)*cofh2
                       ff = ff - 0.5d0*cof1*cofh2*ds(1,ilm1,1:3)

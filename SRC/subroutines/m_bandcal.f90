@@ -1,4 +1,5 @@
 !>band structure calculation
+!How to learng this? Instead of reading all sources, understand I/O. See bndfp.f90 and 'use m_bandcal'.
 module m_bandcal 
   use m_lmfinit,only: lmxa_i=>lmxa,rmt_i=>rmt
   use m_struc_def,only: s_rv1,s_rv5
@@ -68,7 +69,7 @@ contains
     endif
     if(nlibu>0)  dmatu=0d0    !density matrix for U initialization
     if(lrout/=0) then
-       allocate( oeqkkl(3,nbas), oqkkl(3,nbas))
+       allocate( oeqkkl(3,nbas), oqkkl(3,nbas)) !pointer arrays.
        call dfqkkl( oqkkl  )!allocate and zero clear
        call dfqkkl( oeqkkl )!
        allocate( smrho_out(n1*n2*n3*nsp),source=(0d0,0d0) )
@@ -207,7 +208,7 @@ contains
     deallocate(evl)
     call tcx('m_bandcal_init')
   end subroutine m_bandcal_init
-  subroutine m_bandcal_2nd(lrout)! accumule evec things by addrbl
+  subroutine m_bandcal_2nd(lrout)! accumulate eval,evec-related quantities by addrbl
     implicit none
     integer:: iq,ispinit,isp,nev,lrout,ifig,i,ibas,idat
     real(8):: qp(3),def=0d0,xv(3)
@@ -310,7 +311,7 @@ contains
     if(allocated(oqkkl)) deallocate( oqkkl)
     if(allocated(oeqkkl))deallocate( oeqkkl)
   end subroutine m_bandcal_clean
-  subroutine m_bandcal_allreduce()!lwtkb) !  Allreduce density-related quantities
+  subroutine m_bandcal_allreduce()!  Allreduce density-related quantities
     integer:: nnn,ib,i
     if(debug) print *,'goto m_bandcal_allreduce'
     call mpibc2_real(sumqv,size(sumqv),'bndfp_sumqv')

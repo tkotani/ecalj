@@ -85,3 +85,6 @@ Start LMF nio --afsym --quit=band
 i mmom= 0.0000 ehf(eV)=-86704.366275 ehk(eV)=-86704.366116 sev(eV)=-142.258023
 Start LMF nio --afsym --quit=band
 i mmom= 0.0000 ehf(eV)=-86704.366275 ehk(eV)=-86704.366116 sev(eV)=-142.258023
+Start LMFA nio
+Start LMFGWD --jobgw=0 nio
+Start LMCHK nio

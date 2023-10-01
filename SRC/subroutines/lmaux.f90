@@ -349,8 +349,6 @@ contains
     nrmix(2) = 2
     lxcfun = 1
     do  is = 1, nspec
-
-       !C       nrspec(is) = iabs(iclbsj(is,ips,-nbas,nbas))
        spid = slabl(is)
        rsmfa = 1
        rfoca = 1
@@ -863,12 +861,9 @@ contains
     double precision :: alat,bas(3,nbas),dovl1(3),dovl2(3),wsmax, &
          volfac,gamma,omax1(3),omax2(3),plat(3,3),wsr(nspec),z(nspec)
     character(8) :: slabl(nspec)
-    ! Local variables:
-    integer :: ib,jb,is,iclbsj,ip,k1,k2,k3, &
-         kb,ks,kco,kpr,nloop,stdo,ipr,npcol,locki
+    integer :: ib,jb,is,ip,k1,k2,k3,kb,ks,kco,kpr,nloop,stdo,ipr,npcol,locki
     double precision :: a,amax,amax1,amax2,amax3,amax4,avw,b,bmax,d, &
-         dm(0:3),dovlap,dscl(nspec), &
-         dsclmx,dr(3),fpi3,gw,opo1,omo2,p,q,r,ratio, &
+         dm(0:3),dovlap,dscl(nspec), dsclmx,dr(3),fpi3,gw,opo1,omo2,p,q,r,ratio, &
          rik,riko,s,t,tiny,u,v,vol,vola,volb, &
          wsri,wsrk,x,avwsr,Vconst
     logical :: fin
@@ -2678,5 +2673,25 @@ subroutine defwsr(wsr,z)
   if (iprint() >= 120) write(stdo,300) iz,wsr
 300 format(/' DEFWSR: default radius for z=',i2,': ',f8.2)
 end subroutine defwsr
+integer function iclbsj(ic,ipc,nbas,nrbas)  !- Returns an index to nrbas atom in basis given the class
+  !i   ic    :class index
+  !i   ipc   :class index: site ib belongs to class ipc(ib) 
+  !i   nbas  : abs  = number of atoms in the basis. NOTe: sign <0 to return with -n if there are fewer than nrbas
+  !i         :  members of class ic, where n=number members of class ic
+  !i   nrbas :the nrbas-th basis atom of class ic is sought
+  !o Outputs: iclbsj:the nrbas-th atom belonging to class ic
+  implicit none
+  integer :: ic,nbas,ipc(*),nrbas,ib,ibas,n
+  n = 0
+  iclbsj=1
+  do ibas = 1, nbas
+     if(ipc(ibas) == ic) n = n+1
+     if(n == nrbas) then
+        iclbsj = ibas
+        return
+     endif
+  enddo
+  call rxiii('ICLBSJlmaux: sought atom no.#1 in class #2 but only #3 atoms exist. #1#2#3=',nrbas,ic,n)
+end function iclbsj
 end module m_lmaux
 

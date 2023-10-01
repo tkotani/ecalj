@@ -40,9 +40,9 @@ contains
     use m_mixrho,only: mixrho
     use m_bndfp_util,only: mkekin,makdos,phispinsym_ssite_set,iorbtm
     use m_supot,only: n1,n2,n3 !for charge mesh
-    use m_suham,only: ndham=>ham_ndham, ndhamx=>ham_ndhamx,nspx=>ham_nspx
+    use m_suham,only: ndham=>ham_ndham, ndhamx=>ham_ndhamx,nspx=>ham_nspx !nspx=nsp/nspc
     use m_lmfinit,only: ncutovl,lso,ndos=>bz_ndos,bz_w,fsmom=>bz_fsmom, bz_dosmax,lmet=>bz_lmet,bz_fsmommethod,bz_n
-    use m_lmfinit,only: ldos,qbg=>zbak,lfrce,pwmode=>ham_pwmode,lrsig=>ham_lsig,epsovl=>ham_oveps
+    use m_lmfinit,only: ldos,qbg=>zbak,lfrce,pwmode=>ham_pwmode,lrsig=>ham_lsig,epsovl=>ham_oveps !try to avoid line continuation in fortran
     use m_lmfinit,only: ham_scaledsigma, alat=>lat_alat,stdo,stdl, nlmax,nbas,nsp, bz_dosmax
     use m_lmfinit,only: lmaxu,nlibu,lldau,lpztail,leks,lrout,  nchan=>pot_nlma, nvl=>pot_nlml,nspc,pnufix !lmfinit contains fixed input 
     use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
@@ -210,7 +210,7 @@ contains
          Procarmode:block
            nevmin = minval(nevls(1:nkp,1:nspx))
            if(fullmesh .AND. procaron) call m_procar_writepdos(evlallm,nevmin,eferm,kpproc) 
-           if(fullmesh .AND. procaron) call rx0('Done pdos: --mkprocar & --fullmesh. Check by "grep k-point PROCAR.*.*"')
+           if(fullmesh .AND. procaron) call rx0('Done pdos: --mkprocar .and. --fullmesh. Check by "grep k-point PROCAR.*.*"')
          endblock Procarmode
          Boltztrap:if( cmdopt0('--boltztrap')) then
             call writeboltztrap(evlallm,eferm) ! boltztrap data
@@ -228,15 +228,11 @@ contains
          deallocate(evlallm)
       endif
     endblock PLOTmode
-    call m_subzi_bzintegration(evlall,eferm,sev,qvalm,vmag) !Get the Fermi energy, vmag and wtkb, from evlall
+    call m_subzi_bzintegration(evlall,eferm,sev,qvalm,vmag) !Get the Fermi energy, vmag and wtkb, from evlall (vmag is for fsmom(fixedmoment) mode).
     allocate(evlallm,mold=evlall)
-    do isp=1,nsp/nspc
-       evlallm(:,isp,:)=evlall(:,isp,:)+vmag*(isp-1.5d0)
-    enddo
+    do isp=1,nspx; evlallm(:,isp,:)=evlall(:,isp,:)+vmag*(isp-1.5d0); enddo
     if(master_mpi) then; iq=1
-       do jsp=1,nspx
-          write(stdl,"('fp evl',8f8.4)")(evlallm(i,jsp,iq),i=1,nevls(iq,jsp))
-       enddo
+       do jsp=1,nspx; write(stdl,"('fp evl',8f8.4)")(evlallm(i,jsp,iq),i=1,nevls(iq,jsp)); enddo
     endif
     evtop=maxval(evlallm,evlallm <eferm)
     ecbot=minval(evlallm,evlallm >eferm)
@@ -258,8 +254,7 @@ contains
     GenerateTotalDOS: if(master_mpi .AND. (tdos .OR. ldos/=0)) then !   emin=dosw(1) emax=dosw(2) dos range
        dosw(1)= emin-0.01d0 ! lowest energy limit to plot dos
        dosw(2)= eferm+bz_dosmax !max energy limit to plot dos
-       write(stdo,ftox)' bndfp:Generating TDOS: efermi(eV)=',ftof(rydberg()*eferm),&
-            'DOSwindow emin emax(eV)= ',ftof(rydberg()*dosw)
+       write(stdo,ftox)' bndfp:Generating TDOS: efermi(eV)=',ftof(rydberg()*eferm),'DOSwindow emin emax(eV)= ',ftof(rydberg()*dosw)
        allocate( dosi_rv(ndos,nspx),dos_rv(ndos,nspx)) !for xxxdif
        if(cmdopt0('--tdostetf')) ltet= .FALSE. ! Set tetrahedron=F
        if(ltet) then
@@ -287,15 +282,13 @@ contains
        if(tdos) call rx0('Done tdos mode:')
     endif GenerateTotalDOS
     if(master_mpi) write(stdo,ftox)
-    if(master_mpi.and.cmdopt0('--afsym')) write(stdo,ftox)&
-         ' --afsym mode: AF symmetry lets us make bands of isp=2 from isp=1!'
+    if(master_mpi.and.cmdopt0('--afsym')) write(stdo,ftox)' --afsym mode: AF symmetry lets us make bands of isp=2 from isp=1!'
     WRITEeigenvaluesConsole: if(master_mpi .AND. iprint()>=35) then
     if(master_mpi) write(stdo,"('                 ikp isp         q           nev ndimh')")
        do    iq  = 1,nkp
              qp  = qplist(:,iq)
           do jsp = 1,nspx
-             write(stdo,"(' band-efermi(eV):',i3,i2,x,3f7.3,' ',i3,' ',i3)") & !up to 50th band
-                  iq,jsp,qp,nevls(iq,jsp),ndimhx_(iq,jsp)
+             write(stdo,"(' band-efermi(eV):',i3,i2,x,3f7.3,' ',i3,' ',i3)") iq,jsp,qp,nevls(iq,jsp),ndimhx_(iq,jsp)
              write(stdo,"('  ',10f8.3)") rydberg()*(evlallm(1:nevls(iq,jsp),jsp,iq)-eferm)
           enddo
        enddo

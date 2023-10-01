@@ -53,7 +53,7 @@ subroutine rhomom(sv_p_orhoat, qmom,vsum)
   220 format(i13,i6,f12.6,f12.6,2f9.2)
 end subroutine rhomom
 subroutine pvrhom(rmt,a,nlml,nr,nsp,rho1,rho2,rhoc,cofg,cofh,rg,ceh,rfoc,z,qmomj,vsum1,vsum2)
-  !Multipole moments for one site. Q_L = Q_aL^Zc+ Q_aL^v (See.Eq.(28) JPSJ034702)
+  !Multipole moments qmom = Q_L = Q_aL^Zc+ Q_aL^v (See.Eq.(28),(30) in JPSJ034702)
   use m_hansr,only: hansmr
   use m_ll,only:ll
   !i   nlml  :L-cutoff for charge
@@ -71,7 +71,7 @@ subroutine pvrhom(rmt,a,nlml,nr,nsp,rho1,rho2,rhoc,cofg,cofh,rg,ceh,rfoc,z,qmomj
   !i   rfoc  :smoothing radius for hankel head fitted to core tail
   !i   z     :nuclear charge
   !o   qmomj  :multipole moments for one site
-  !r       qmomj= Q_aL^Zc+ Q_aL^v (See.Eq.(28) JPSJ034702)
+  !r       qmomj= Q_aL^Zc + Q_aL^v (See.Eq.(28) JPSJ034702)
   !             = Q_aL^Zc + \integral r^l (rho1-rho2)
   !Warn qmomj(ilm=1) may diffrer from this definition. Add + cofg - y0*z for true qmom. See code below.
   implicit none
@@ -93,19 +93,21 @@ subroutine pvrhom(rmt,a,nlml,nr,nsp,rho1,rho2,rhoc,cofg,cofh,rg,ceh,rfoc,z,qmomj
      xi0(i)=xi(0)
   enddo
   qcor1 = sum([(sum(rwgt*rhoc(:,isp)),isp=1,nsp)])      ! component1 True core charge inside rmax
-  qcor2 = srfpi*cofh*sum(rwgt*xi0*rofi**2) + srfpi*cofg ! component2 Smooth core charge inside rmax
-  qmomj(1) = qmomj(1) + (qcor1 - qcor2)/srfpi  !Add (true core q) - (sm core q) !qmomj is defined with coff is comp2
-  b = rofi(nr)/(dexp(a*nr-a)-1d0)
-  facs = 1d0/(3-nsp)
-  q1=sum( rwgt* (facs*(srfpi*(rho1(:,1,1)+rho1(:,1,nsp)) + rhoc(:,1) + rhoc(:,nsp))))
-  call poiss0(z,rofi,h,nr,0d0,   v, vhrho,vsum,1)
+  qmomj(1) = qmomj(1) + qcor1/srfpi -y0*z - cofh*sum(rwgt*xi0*rofi**2) !this is Eq.(25).
+!  qcor2 = srfpi*cofh*sum(rwgt*xi0*rofi**2) + srfpi*cofg ! component2 Smooth core charge inside rmax sH and Gaussian parts
+!  qmomj(1) = qmomj(1) + (qcor1 - qcor2)/srfpi  !Add (true core q) - (sm core q) !qmomj is defined with coff is comp2
+  
+!  b = rofi(nr)/(dexp(a*nr-a)-1d0)
+!  facs = 1d0/(3-nsp)
+!  q1=sum( rwgt* (facs*(srfpi*(rho1(:,1,1)+rho1(:,1,nsp)) + rhoc(:,1) + rhoc(:,nsp))))
+  call poiss0(z,  rofi, h,            nr,0d0, v, vhrho,vsum,1)
   vsum1 = sum(rwgt(2:nr)*rofi(2:nr)**2*(v(2:nr)-2d0*z/rofi(2:nr)))
-  ! ... Smooth density, including compensating gaussians
-  cg = qmomj(1) + cofg - y0*z ! this is true Q^Zc_aL in Eq.(25) for ilm=1.
-  facc = fpi*(ag*ag/pi)**1.5d0
-!  q2= srfpi*sum(rwgt*( facs*(rho2(:,1,1)+rho2(:,1,nsp)) + cg*facc*gnu + cofh*xi0*rofi**2))
-  h=0d0 
   call poiss0(0d0,rofi,[(0d0,i=1,nr)],nr,0d0, v, vhrho,vsum,1)
   vsum2 = fpi*sum(rwgt*rofi**2*v)
+! ... Smooth density, including compensating gaussians
+!  cg = qmomj(1) + cofg - y0*z ! this is Q^Zc_aL in Eq.(25) for ilm=1.
+!  facc = fpi*(ag*ag/pi)**1.5d0
+!  q2= srfpi*sum(rwgt*( facs*(rho2(:,1,1)+rho2(:,1,nsp)) + cg*facc*gnu + cofh*xi0*rofi**2))
+!  h=0d0 
 end subroutine pvrhom
 endmodule m_rhomom

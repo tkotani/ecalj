@@ -1,12 +1,12 @@
 !>Get one-particle potential. See http://dx.doi.org/10.7566/JPSJ.84.034702
-module m_mkpot
+module m_mkpot !How to learng this? Instead of reading all source, understand I/O.
   use m_lmfinit,only: z_i=>z,lmxa_i=>lmxa,lmxb_i=>lmxb,kmxt_i=>kmxt
   use m_lmfinit,only: nbas,stdo,qbg=>zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nppn,lfrce,stdl, nchan=>pot_nlma, nvl=>pot_nlml
   use m_struc_def,only: s_rv1,s_cv1,s_sblock,s_rv4,s_cv5
   public:: m_mkpot_init, m_mkpot_energyterms, m_mkpot_novxc, m_mkpot_deallocate !,m_Mkpot_novxc_dipole
   ! Potential terms, call m_mkpot_init. Generated at mkpot-locpot-augmat-gaugm
   type(s_sblock),allocatable,protected,public  :: ohsozz(:,:),ohsopm(:,:) !SOC matrix
-  type(s_cv5),allocatable,protected,public  :: oppi(:,:) !pi-integral Eq.(C.6) 
+  type(s_cv5),allocatable,protected,public  :: oppi(:,:) !pi-integral Eq.(C.6)  in the JPSJ.84.034702
   type(s_rv4),allocatable,protected,public  :: otau(:,:) !tau            (C.5) 
   type(s_rv4),allocatable,protected,public  :: osig(:,:) !sigma          (C.4) 
   complex(8),allocatable,protected ,public  :: osmpot(:,:,:,:)!0th component of Eq.(34)
@@ -17,7 +17,7 @@ module m_mkpot
   ! Energy terms by call m_mkpot_energyterms
   real(8),protected,public:: utot,rhoexc,xcore,valvef,amom, valves,cpnves,rhovxc
   ! NoVxc terms  by call m_mkpot_novxc
-  type(s_cv5),allocatable,protected,public  :: oppix(:,:) !pi-integral without xc term
+  type(s_cv5),allocatable,protected,public  :: oppix(:,:)    !pi-integral without xc term
   complex(8),allocatable,protected ,public  :: spotx(:,:,:,:)!0th component of Eq.(34) without xc term
   private
   !! nov2021 dipole contribution added  (not working...)! oppixd,spotxd: dipole part to oppix,spotx
@@ -294,7 +294,8 @@ contains
     amom = smag+saloc !magnetic moment
     if(iprint() >= 30) then
        write(stdo,"(' mkpot:',/'   Energy terms(Ry):',7x,'smooth',11x,'local',11x,'total')")
-       write(stdo,680) 'rhoval*veff',valfsm,valftr,valvef, & !\int rho Veff
+       write(stdo,680) &
+            'rhoval*veff',valfsm,valftr,valvef, & !\int rho Veff
             'rhoval*ves ',rhvsm,vvesat,valves, & !\int rho Ves
             'psnuc*ves  ',zvnsm,cpnvsa,cpnves, & !\int rho(Z+core) Ves
             'Eestatic   ',usm,uat,utot, & ! electrostatic energy

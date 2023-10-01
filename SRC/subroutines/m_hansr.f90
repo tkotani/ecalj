@@ -651,7 +651,7 @@ contains
     pnu= pnux(1:n0,1,is) 
     pz = pzx(1:n0,1,is)  
     if ( rfoc <= 1d-5 ) rfoc = rg_i(is)  !we assme int pz(:,1)=pz(:,2) int pnu as well
-    qsc = sum([(4*l+2,l=0,lmxb)], mask=[(pz(l+1)>0d0.and.floor(mod(pz(l+1),10d0)) < int(pnu(l+1)),l=0,lmxb)])
+    qsc = sum([(4*l+2,l=0,lmxb)], mask=[(pz(l+1)>0d0.and.floor(mod(pz(l+1),10d0))<floor(pnu(l+1)),l=0,lmxb)])
     if (ccof /= 0) then ! ... Scale smoothed hankel coeff for exact spillout charge
        call hansmr(rmt,0d0,1/rfoc,x0,1)
        call hansmr(rmt,ceh,1/rfoc,xi,1)
@@ -664,9 +664,9 @@ contains
        q1 = q1*y0
        ccof = ccof*q0/q1
     endif
-    qcorh = merge(-ccof*dexp(ceh*rfoc*rfoc/4d0)/ceh, 0d0,lfoc>0) ! Set gaussian and smhankel charges
-    qcorg = merge(qc-qcorh, qc,lfoc>0)
-    cofh = -y0*qcorh*ceh*dexp(-ceh*rfoc*rfoc/4d0)! Coeffients to the the gaussian and smhankel
-    cofg = y0*qcorg
+    qcorh = merge(-ccof*dexp(ceh*rfoc*rfoc/4d0)/ceh, 0d0,lfoc>0) ! gaussian charge
+    qcorg = merge(qc-qcorh, qc,lfoc>0)                           ! smhankel charges  
+    cofh = -y0*qcorh*ceh*dexp(-ceh*rfoc*rfoc/4d0)! Coeffients to the the gaussian 
+    cofg =  y0*qcorg                             ! smhankel  
   end subroutine corprm
 end module m_hansr
