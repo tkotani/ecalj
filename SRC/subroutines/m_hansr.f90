@@ -44,9 +44,6 @@ contains
     !r   in a narrow region for r~rc1 and l>6, where the precision degrades
     !r   somewhat, worsening with higher l.  For all cases tested, the
     !r   relative error continued to be ~<10^-13 for l<=9.
-    !u Updates
-    !u   11 May 07 (S. Lozovoi) small bug fixes; similarity with hansmz
-    ! ---------------------------------------------------------------
     implicit none
     integer :: nrx,nr,lmn,lmx,idx(nrx,2),nxi,lxi(nxi),job
     real(8) :: rsq(nr),e,exi(nxi)
@@ -221,7 +218,6 @@ contains
     !r   polynomial, and a 20th order.  Failing that, it evaluates the
     !r   polynomial to whatever order is needed to bring the convergence
     !r   to a relative precision of 'tol'.
-    ! ---------------------------------------------------------------
     implicit none
     integer :: nrx,nr,lmin,lmax,nmax,nm1,nm2
     real(8) :: rsq(nrx),e,xi(nrx,lmin:lmax),rsm,rmax
@@ -365,12 +361,10 @@ contains
          b17=0.0025737049320207806669d0, b27=0.0004628727666611496482d0, &
          b18=0.0001159960791581844571d0, b28=0.0000157743458828120915d0)
     ! ... f1(w=x-1/2) is erfc(x) for 0<x<1.3, if xx is y0*dexp(-x*x)
-    f1(w) = xx*(((((((t17*w+t16)*w+t15)*w+t14)*w+t13)*w+t12)* &
-         w+t11)*w+t10)/((((((((b18*w+b17)*w+b16)*w+b15)*w+b14)* &
+    f1(w) = xx*(((((((t17*w+t16)*w+t15)*w+t14)*w+t13)*w+t12)*w+t11)*w+t10)/((((((((b18*w+b17)*w+b16)*w+b15)*w+b14)* &
          w+b13)*w+b12)*w+b11)*w+1)
     ! ... f2(w=x-2) is erfc(x) for x>1.3, if xx is y0*dexp(-x*x)
-    f2(w) = xx*(((((((t27*w+t26)*w+t25)*w+t24)*w+t23)*w+t22)* &
-         w+t21)*w+t20)/((((((((b28*w+b27)*w+b26)*w+b25)*w+b24)* &
+    f2(w) = xx*(((((((t27*w+t26)*w+t25)*w+t24)*w+t23)*w+t22)*w+t21)*w+t20)/((((((((b28*w+b27)*w+b26)*w+b25)*w+b24)* &
          w+b23)*w+b22)*w+b21)*w+1)
     ! --- Setup ---
     if (lmax < lmin .OR. nr == 0) return
@@ -421,19 +415,15 @@ contains
        endif
        wk2(ir) = facgl*wk(ir)
 20  enddo
-    ! --- xi(ir,l) for l>1 by upward recursion ---
+    ! --- 
     facgl = 2*a**2
-    do  30  l = lmin+2, lmax
+    do l = lmin+2, lmax !xi(ir,l) for l>1 by upward recursion ---
        xx = 2*l-1
-       do  7  ir = 1, nr
-          xi(ir,l) = (xx*xi(ir,l-1) - e*xi(ir,l-2) - wk2(ir))/rsq(ir)
-          wk2(ir) = facgl*wk2(ir)
-7      enddo
-30  enddo
+       xi(1:nr,l) = (xx*xi(1:nr,l-1) - e*xi(1:nr,l-2) - wk2(1:nr))/rsq(1:nr)
+       wk2(1:nr) = facgl*wk2(1:nr)
+    enddo
   end subroutine hansr2
-  subroutine hanr(rsq,lmin,lmax,nrx,nr,e,xi) !!     ... Asymtotic case, r>>rsm
-    !- Vector of unsmoothed hankel functions for l=0...lmax, negative e.
-    ! ---------------------------------------------------------------
+  subroutine hanr(rsq,lmin,lmax,nrx,nr,e,xi) !!     ... Asymtotic case, r>>rsm - Vector of unsmoothed hankel functions for l=0...lmax, negative e.
     !i Inputs
     !i   rsq,nr  vector of points r**2, and number of points.
     !i   e       energy of Hankel.
@@ -443,52 +433,19 @@ contains
     !o   xi      radial Hankel functions/r**l for: xi(1..nr, lmin:lmax)
     !o           Solid hankel function is hl(ilm) = xi(l)*cy(ilm)*yl(ilm)
     !o           Energy derivative is    hlp(ilm) = x(l-1)/2*cy(ilm)*yl(ilm)
-    ! ---------------------------------------------------------------
     implicit none
     integer :: nrx,nr,lmin,lmax,l,ir
-    real(8) :: rsq(nr),e,xi(nrx,lmin:lmax),sre,r2,r,h0,xx,akap
-    if (lmin /= 0 .AND. lmin /= -1) call rx('hanr: input lmin must be -1 or 0')
-    if (lmax < lmin .OR. nr <= 0) return
-    akap = dsqrt(-e)
-    ! --- Make xi(lmin), xi(lmin+1) ---   ! ... xi(-1) for lmax=-1 only
-    if (lmin == -1 .AND. lmax == -1) then
-       do   ir = 1, nr
-          r = dsqrt(rsq(ir))
-          sre = akap*r
-          h0 = dexp(-sre)/r
-          xi(ir,-1) = -h0*sre/e
-       enddo
-    elseif (lmin == -1) then
-       do    ir = 1, nr
-          r = dsqrt(rsq(ir))
-          sre = akap*r
-          h0 = dexp(-sre)/r
-          xi(ir,0) = h0
-          xi(ir,-1) = -h0*sre/e
-       enddo
-       ! ... xi(0) for lmax=0 only
-    elseif (lmax == 0) then
-       do   ir = 1, nr
-          r2 = rsq(ir)
-          r = dsqrt(r2)
-          xi(ir,0) = dexp(-akap*r)/r
-       enddo
-    else
-       do   ir = 1, nr
-          r = dsqrt(rsq(ir))
-          sre = akap*r
-          h0 = dexp(-sre)/r
-          xi(ir,0) = h0
-          xi(ir,1) = h0*(1d0+sre)/rsq(ir)
-       enddo
-    endif
-    ! --- xi(*,lmin+2:lmax) by upward recursion ---
-    do  30  l = lmin+2, lmax
-       xx = 2*l-1
-       do  ir = 1, nr
-          xi(ir,l) = (xx*xi(ir,l-1) - e*xi(ir,l-2))/rsq(ir)
-       enddo
-30  enddo
+    real(8) :: rsq(nr),e,xi(nrx,lmin:lmax),sre,r2,r,h0,xx,akap,srer(nr),rr(nr)
+    if(lmin/=0 .AND.lmin/= -1) call rx('hanr: input lmin must be -1 or 0')
+    if(lmax<lmin.OR.nr<= 0) return
+    rr(1:nr)= dsqrt(rsq(1:nr))
+    srer(1:nr)=dsqrt(-e)*rr(1:nr)
+    if(lmin<=-1.and.-1<=lmax) xi(1:nr,-1)= -dexp(-srer)/rr*srer/e
+    if(lmin<=0 .and. 0<=lmax) xi(1:nr,0) =  dexp(-srer)/rr
+    if(lmin<=1 .and. 1<=lmax) xi(1:nr,1) =  dexp(-srer)/rr*(1d0+srer)/rsq
+    do l = lmin+2, lmax !xi(*,lmin+2:lmax) by upward recursion ---
+       xi(1:nr,l) = ((2*l-1)*xi(1:nr,l-1) - e*xi(1:nr,l-2))/rsq(1:nr)
+    enddo
   end subroutine hanr
   subroutine hansmd(mode,r,e,rsm,lmax,hs,dhs,ddhs,hsp,dhsp,ddhsp) !Value and some derivatives of smoothed radial Hankel functions
     !i Inputs
@@ -532,32 +489,25 @@ contains
     !r      hp'' = -(2l+3)/2 h_l + h_l+1*r/2
     !r
     !r  Note connection with hansmr, which makes xi(l) = h(l) / r^l
-    !u Updates
-    !u   28 Aug 04 Also generate ddhsp
-    !u   16 Jun 04 First created
-    ! ---------------------------------------------------------------
     implicit none
     integer :: mode,lmax,idx,l,mode0,mode1
     real(8) :: r,e,rsm, hs(0:lmax),dhs(0:lmax),ddhs(0:lmax),hsp(0:lmax),dhsp(0:lmax),ddhsp(0:lmax), xi(-1:lmax+2)
     if (lmax < 0) return
     mode0 = mod(mode,10)
     mode1 = mod(mode/10,10)
-    !call hansr(rsm,-1,lmax+2,1,lmax+2,e,r**2,1,1,idx,wk,11,xi)
     call hansr(rsm,-1,lmax+2,1,[lmax+2],[e],[r**2],1,1,[idx],11,xi)
-    do  54  l = 0, lmax
-       hs(l)   = xi(l)
-       if (mode0 /= 0) then
-          dhs(l)  = xi(l)*l/r - xi(l+1)
-          if (mode0 == 1) ddhs(l) = xi(l)*l*(l+1)/r**2 - (2*l+3)/r*xi(l+1) + xi(l+2)
-          if (mode0 == 2) ddhs(l) =                    - (2*l+3)/r*xi(l+1) + xi(l+2)
-          if (mode0 == 3) ddhs(l) = xi(l)*l*(l-1)/r**2 - (2*l+1)/r*xi(l+1) + xi(l+2)
-       endif
-       if (mode1 /= 0) then
-          hsp(l)   = xi(l-1)*r/2
-          dhsp(l)  = (xi(l-1)*l - xi(l)*r)/2
-          ddhsp(l) = - (2*l+3)*xi(l)/2 + xi(l+1)*r/2
-       endif
-54  enddo
+    hs=xi(0:lmax)
+    if(mode0/= 0) then
+       dhs(:)  = [(xi(l)*l/r - xi(l+1),l=0,lmax)]
+       if (mode0 == 1) ddhs = [(xi(l)*l*(l+1)/r**2 - (2*l+3)/r*xi(l+1) + xi(l+2), l=0,lmax)]
+       if (mode0 == 2) ddhs = [(                   - (2*l+3)/r*xi(l+1) + xi(l+2), l=0,lmax)]
+       if (mode0 == 3) ddhs = [(xi(l)*l*(l-1)/r**2 - (2*l+1)/r*xi(l+1) + xi(l+2), l=0,lmax)]
+    endif
+    if (mode1 /= 0) then
+       hsp   = [(xi(l-1)*r/2,                    l=0,lmax)]
+       dhsp  = [((xi(l-1)*l - xi(l)*r)/2,        l=0,lmax)]
+       ddhsp = [(- (2*l+3)*xi(l)/2 + xi(l+1)*r/2,l=0,lmax)]
+    endif
     if(mode1 /= 0) hsp(0) = xi(-1)/2
   end subroutine hansmd
   subroutine hansmr(r,e,a,xi,lmax) !Smoothed hankel functions for l=0...lmax, negative e.
@@ -582,7 +532,7 @@ contains
     real(8) :: r,e,a,xi(0:lmax),a0(0:40),a2,add,akap,al,cc,dudr,ema2r2,fac, &
          gl,r2n,radd,rfac,rhs,rlim,srpi,sum,ta,ta2l,tol,u,uminus,uplus,w,derfc
     parameter (nmax=1000, tol=1d-20, srpi=1.77245385090551602729817d0)
-    if (e > 0d0) call rx('hansmr: e gt 0')
+    if (e > 0d0  ) call rx('hansmr: e gt 0')
     if (lmax > 40) call rx('hansmr: lmax gt 40')
     rlim = 1.5d0/a
     akap = dsqrt(dabs(e))
@@ -693,21 +643,15 @@ contains
     lfoc=lfoca_i(is)
     rfoc=rfoca_i(is)
     lmxb=lmxb_i(is)
-    z=   z_i(is)
+    z =   z_i(is)
     rmt = rmt_i(is)
-    qc=  sspec(is)%qc
-    ccof=sspec(is)%ctail
-    ceh= sspec(is)%etail
+    qc  = sspec(is)%qc
+    ccof= sspec(is)%ctail
+    ceh=  sspec(is)%etail
     pnu= pnux(1:n0,1,is) 
     pz = pzx(1:n0,1,is)  
-    if ( rfoc <= 1d-5 ) rfoc = rg_i(is)
-    qsc = 0
-    isp=1 !we assme int pz(:,1)=pz(:,2) int pnu as well
-    do  l = 0, lmxb
-       if (int(pz(l+1)) /= 0) then
-          if (int(mod(pz(l+1),10d0)) < int(pnu(l+1))) qsc = qsc + 4*l+2
-       endif
-    enddo
+    if ( rfoc <= 1d-5 ) rfoc = rg_i(is)  !we assme int pz(:,1)=pz(:,2) int pnu as well
+    qsc = sum([(4*l+2,l=0,lmxb)], mask=[(pz(l+1)>0d0.and.floor(mod(pz(l+1),10d0)) < int(pnu(l+1)),l=0,lmxb)])
     if (ccof /= 0) then ! ... Scale smoothed hankel coeff for exact spillout charge
        call hansmr(rmt,0d0,1/rfoc,x0,1)
        call hansmr(rmt,ceh,1/rfoc,xi,1)
@@ -720,12 +664,8 @@ contains
        q1 = q1*y0
        ccof = ccof*q0/q1
     endif
-    qcorg = qc
-    qcorh = 0d0
-    if (lfoc > 0) then
-       qcorh = -ccof*dexp(ceh*rfoc*rfoc/4d0)/ceh ! Set gaussian and smhankel charges
-       qcorg = qc-qcorh
-    endif
+    qcorh = merge(-ccof*dexp(ceh*rfoc*rfoc/4d0)/ceh, 0d0,lfoc>0) ! Set gaussian and smhankel charges
+    qcorg = merge(qc-qcorh, qc,lfoc>0)
     cofh = -y0*qcorh*ceh*dexp(-ceh*rfoc*rfoc/4d0)! Coeffients to the the gaussian and smhankel
     cofg = y0*qcorg
   end subroutine corprm

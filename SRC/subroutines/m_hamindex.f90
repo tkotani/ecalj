@@ -1,4 +1,4 @@
-!>Read HAMindex for GW calculaitons.
+!>Read HAMindex 
 module m_hamindex   
   public:: Readhamindex
   integer,protected,public:: pwmode,ndham,lmxax, nqi, ngrp, lxx, kxx,norbmto, nqtt, ndimham, napwmx, ngpmx, imx,nbas
@@ -47,7 +47,7 @@ contains
   end subroutine readhamindex
 end module m_hamindex
 
-!>Write hamiltonian index file 'HAMindex' for rdsigm2 and GW parts
+!>Write 'HAMindex'
 module m_hamindexW   
   public m_hamindexW_init
 contains

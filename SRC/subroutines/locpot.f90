@@ -1,4 +1,5 @@
-module m_locpot !- Make the potential at atomic sites and augmentation matrices.
+!> Make the potential at atomic sites and augmentation matrices.
+module m_locpot 
   use m_ftox
   use m_lmfinit,only: z_i=>z,nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,lmxb_i=>lmxb,lmxl_i=>lmxl,spec_a,kmxt_i=>kmxt,rg_i=>rg
   use m_ll,only:ll
@@ -493,22 +494,16 @@ contains
       rhol2t(:,1)=rhol2t(:,1)+srfpi*rhobg*rofi(:)**2
       qv1   = srfpi*ddot(nr,rwgt,1,rho1t,1) ! ... Sphere charges; also check sphere neutrality for safety
       qv2   = srfpi*ddot(nr,rwgt,1,rho2t,1)
+      qloc  = qv1-qv2
       qcor1 =       ddot(nr,rwgt,1,rhoct,1)
       qcor2 =       ddot(nr,rwgt,1,rhocsm,1)
       qlocc = qcor1-qcor2
-      qloc  = qv1-qv2
       sum1  = srfpi*ddot(nr,rwgt,1,rhol1t,1) - z
       sum2  = srfpi*ddot(nr,rwgt,1,rhol2t,1)
-      qlocc = qcor1-qcor2
-      qloc  = qv1-qv2
       if(dabs(sum1-sum2)>1d-6)call rx1('locpt2: sphere not neutral: charge = %d',sum1-sum2)
       !     v1=Ves[rho1t]: true ES pot without nuclear contribution
       call poinsp(z,vval(j1),nlml,a,b,v1,rofi,rhol1t,wk,nr,rvs1,rhves1,  vnucl,vsum)
-      if (nlml >= 9 .AND. z > 0.01) then
-         efg(1:5)=v1(5,5:9,1)/rofi(5)**2
-      else
-         efg(1:5)=0d0
-      endif
+      efg(1:5)=merge(v1(5,5:9,1)/rofi(5)**2,0d0,nlml >= 9 .AND. z > 0.01)
       call poinsp(0d0,vval(j1),nlml,a,b,v2,rofi,rhol2t,wk,nr,rvs2,rhves2, vnucl,vsum)! v2=Ves[rhol2=rho2+gval+gcor+gnuc]
       ! --- gpotb = integrals of compensating gaussians times smooth ves ---
       sgpotb = 0d0
@@ -579,10 +574,10 @@ contains
           vefv1 = vefv1 + rvtr(isp)
           vefv2 = vefv2 + rvsm(isp)
        enddo
-       topl = dmax1(dabs(rvsm(1)),dabs(rvtr(1)))>1d-6.and.ipr>=40
-       if(topl.AND.nsp == 1)write(stdo,"(i4,3x,2f15.6)") ilm,rvtr(1),rvsm(1)
-       if(topl.AND.nsp == 2)write(stdo,"(i4,3x,3f12.6,2x,3f12.6,2x)") ilm,rvtr(1),rvtr(2),&
-            rvtr(1)+rvtr(2),rvsm(1),rvsm(2),rvsm(1)+rvsm(2)
+       if(dmax1(dabs(rvsm(1)),dabs(rvtr(1)))>1d-6.and.ipr>=40) then
+          if(nsp==1)write(stdo,"(i4,3x,2f15.6)") ilm,rvtr(1),rvsm(1)
+          if(nsp==2)write(stdo,"(i4,3x,3f12.6,2x,3f12.6,2x)")ilm,rvtr(1),rvtr(2),rvtr(1)+rvtr(2),rvsm(1),rvsm(2),rvsm(1)+rvsm(2)
+       endif
     enddo
     rhoexc = rep1 - rep2
     rhoex  = rep1x - rep2x

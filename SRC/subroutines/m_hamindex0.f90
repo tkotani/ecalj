@@ -20,16 +20,15 @@ module m_hamindex0
   private
   logical,private:: debug=.false.
 contains
-  ! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-  subroutine m_hamindex0_init()
-    use m_mksym,only: osymgr=>symops,oag=>ag,ngrpin=>ngrp,iclasstin=>iclasst
+  subroutine m_hamindex0_init() !-- Set up m_hamiltonian. Index for Hamiltonian. --
+    ! m_hamindex0_init sets all module variables in m_hamindex0, then write to HAMindex0
+    ! readhamindex0 read all module variables in m_hamindex0 from HAMindex0
+    !
+    ! No floating orbital case  !    ldim  = ham_ldham(1)
+    use m_mksym,only: osymgr=>symops,oag=>ag,ngrpin=>ngrp,iclasstin=>iclasst 
     use m_mksym_util,only:mptauof
     use m_MPItk,only: master_mpi
     use m_density,only: pnzall,pnuall
-    !!-- Set up m_hamiltonian. Index for Hamiltonian. --
-    !!  Generated index are stored into m_hamindex
-    !!  Only include q-point information for GW (QGpsi).
-    !!#Inputs
     !r As you see in subroutine rotwvigg, the index for Hamiltonian reads as;
     !      do iorb=1,norbmto             !orbital-blocks are specified by ibas, l, and k.
     !        ibas  = ibastab(iorb)
@@ -62,28 +61,22 @@ contains
     nsp=nsp_in
     plat=lat_plat
     qlat=lat_qlat
-    !! symmetry operation ---
-    allocate(symops(3,3,ngrp),ag(3,ngrp))
-    call dcopy ( ngrp * 9 , osymgr , 1 , symops , 1 )
-    call dcopy ( ngrp * 3 , oag , 1 , ag , 1 )
-    allocate(invgx(ngrp),miat(nbas,ngrp),tiat(3,nbas,ngrp), & !iclasst(nbas),
-         shtvg(3,ngrp),spid(nbas),lmxa(nbas),zz(nbas))
+    allocate(symops,source=osymgr)
+    allocate(ag,    source=oag)
+    allocate(invgx(ngrp),miat(nbas,ngrp),tiat(3,nbas,ngrp),shtvg(3,ngrp),spid(nbas),lmxa(nbas),zz(nbas))
     do ib=1,nbas
-       is=ispec(ib) 
+       is =ispec(ib) 
        spid(ib) =slabl(is) 
        lmxa(ib) =lmxa_i(is) 
-       zz(ib)=z(is)
+       zz(ib)   =z(is)
     enddo
-    !! get space group information ---- translation informations also in miat tiat invgx, shtvg
-    call mptauof( symops, ngrp,plat,nbas,rv_a_opos, iclasstin,miat,tiat,invgx,shtvg )
+    call mptauof(symops,ngrp,plat,nbas,rv_a_opos, iclasstin,miat,tiat,invgx,shtvg ) ! translation informations in miat tiat invgx, shtvg
     ndima = 0
     norb=0
     do  ib = 1, nbas
-       is  = ispec(ib) !ssite(ib)%spec
-       pnz(:,1:nsp) = pnzall(:,1:nsp,ib) !ssite(ib)%pz
-       do  l = 0, lmxa(ib)
-          npqn = 2
-          if (pnz(l+1,1) /= 0) npqn = 3
+       pnz(:,1:nsp) = pnzall(:,1:nsp,ib)
+       do l = 0, lmxa(ib)
+          npqn = merge(3,2,pnz(l+1,1) /= 0)
           ndima = ndima + npqn*(2*l+1)
           norb= norb + npqn
        enddo
@@ -94,12 +87,9 @@ contains
     do ib = 1, nbas
        pnu(:,1:nsp)=pnuall(:,1:nsp,ib) 
        pnz(:,1:nsp)=pnzall(:,1:nsp,ib) 
-       do  isp = 1, nsp
+       do    isp = 1, nsp
           do  l  = 0, lmxa(ib)
-             konft(l,ib,isp) = pnu(l+1,isp)
-             if( mod(pnz(l+1,isp),10d0)<pnu(l+1,isp) .AND. pnz(l+1,isp)>0) then
-                konft(l,ib,isp) = mod(pnz(l+1,isp),10d0)
-             endif
+             konft(l,ib,isp) = merge(mod(pnz(l+1,isp),10d0),pnu(l+1,isp), mod(pnz(l+1,isp),10d0)<pnu(l+1,isp).AND.pnz(l+1,isp)>0)
           enddo
        enddo
     enddo
@@ -112,28 +102,23 @@ contains
     ndima = 0
     do  ipqn = 1, 3
        do  ib = 1, nbas
-          lmaxa=lmxa(ib)
-          pnu=pnuall(:,1:nsp,ib) !ssite(ib)%pnu
-          pnz=pnzall(:,1:nsp,ib) !ssite(ib)%pz
-          do  l = 0, lmaxa
-             npqn = 2
-             if (pnz(l+1,1) /= 0) npqn = 3
-             if (ipqn <= npqn) then
-                iorb=iorb+1
-                konf = pnu(l+1,1)
-                if (ipqn == 3) konf = mod(pnz(l+1,1),10d0)
-                strn4 = dig(konf)//lsym(l)//'_'//lorb(ipqn)
-                !               print *,'nnnnn',ndima+1,ndima+2*l+1,ipqn,l,ib
-                nlindx(ipqn,l,ib)=ndima
-                nindx   (ndima+1:ndima+2*l+1)=ipqn
-                lindx   (ndima+1:ndima+2*l+1)=l
-                ibasindx(ndima+1:ndima+2*l+1)=ib
-                caption (ndima+1:ndima+2*l+1)=strn4
-                pqn(ndima+1:ndima+2*l+1)=konf !principle quantum number
-                nphimx=max(nphimx,ipqn)
-                write(ifinlaindx,'(i6,i3,i4,i6,4x,a)')ipqn,l,ib,     ndima,strn4
-                ndima = ndima + (2*l+1)
-             endif
+          pnu=pnuall(:,1:nsp,ib) 
+          pnz=pnzall(:,1:nsp,ib)
+          do  l = 0, lmxa(ib)
+             npqn = merge(3,2,pnz(l+1,1) /= 0)
+             if(ipqn>npqn) cycle
+             iorb=iorb+1
+             konf= merge(mod(pnz(l+1,1),10d0), pnu(l+1,1),ipqn == 3)
+             strn4 = dig(konf)//lsym(l)//'_'//lorb(ipqn)
+             nlindx(ipqn,l,ib)=ndima
+             nindx   (ndima+1:ndima+2*l+1)=ipqn
+             lindx   (ndima+1:ndima+2*l+1)=l
+             ibasindx(ndima+1:ndima+2*l+1)=ib
+             caption (ndima+1:ndima+2*l+1)=strn4
+             pqn(ndima+1:ndima+2*l+1)=konf !principle quantum number
+             nphimx=max(nphimx,ipqn)
+             write(ifinlaindx,'(i6,i3,i4,i6,4x,a)')ipqn,l,ib,     ndima,strn4
+             ndima = ndima + (2*l+1)
           enddo
        enddo
     enddo
@@ -157,12 +142,12 @@ contains
     open(newunit=ifi,file='HAMindex0',form='unformatted')
     read(ifi) alat,plat,qlat,nbas,lmxax,nsp,ngrp,ndima,norb,npqn,nclass,nphimx
     allocate( konft(0:lmxax,1:nbas,1:nsp),lmxa(1:nbas),nlindx(1:npqn,0:lmxax,1:nbas))
-    read(ifi) konft(0:lmxax,1:nbas,1:nsp),lmxa(1:nbas),nlindx(1:npqn,0:lmxax,1:nbas)
     allocate( iclasst(1:nbas),spid(1:nbas),zz(1:nbas))
-    read(ifi) iclasst(1:nbas),spid(1:nbas),zz(1:nbas)
     allocate( nindx(1:ndima),lindx(1:ndima),ibasindx(1:ndima),caption(1:ndima),pqn(1:ndima))
-    read(ifi) nindx(1:ndima),lindx(1:ndima),ibasindx(1:ndima),caption(1:ndima),pqn(1:ndima)
     allocate( symops(1:3,1:3,1:ngrp),invgx(1:ngrp),shtvg(1:3,1:ngrp))
+    read(ifi) konft(0:lmxax,1:nbas,1:nsp),lmxa(1:nbas),nlindx(1:npqn,0:lmxax,1:nbas)
+    read(ifi) iclasst(1:nbas),spid(1:nbas),zz(1:nbas)
+    read(ifi) nindx(1:ndima),lindx(1:ndima),ibasindx(1:ndima),caption(1:ndima),pqn(1:ndima)
     read(ifi) symops(1:3,1:3,1:ngrp),invgx(1:ngrp),shtvg(1:3,1:ngrp)
     close(ifi)
   end subroutine readhamindex0
