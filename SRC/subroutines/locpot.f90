@@ -502,9 +502,7 @@ contains
          gpotb(ilm) = pi4/df(2*l+1)*sfac*(ag2/pi)**1.5d0*(2d0*ag2)**l*sum(rwgt*v2(:,ilm,1)*rofi(:)**l* gg(:) )
       enddo
       sgpotb = sum([(qmom(ilm+j1-1)*gpotb(ilm),ilm=1,nlml)])
-!!!!!!!!!!!!!!!!      
-!      sgpotb = sgpotb - (cofg - y0*z)*gpotb(1)
-!!!!!!!!!!!!!!!!      
+      sgpotb = sgpotb - (cofg-y0*z)*gpotb(1)  !remove core qmom contribution. See cofg-y0*z in rhomom.f90
       ! --- Electrostatic integrals involving spherical terms only ---
       vesc1 = sum(rwgt(2:nr)*rhoct(2:nr)*(y0*v1(2:nr,1,1) - 2d0*z/rofi(2:nr)))
       vesn2 = sum(rwgt*rhonsm*y0*v2(:,1,1))

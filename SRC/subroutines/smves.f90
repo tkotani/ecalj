@@ -5,7 +5,7 @@ module m_smves
   private
   public smves
 contains
-  subroutine smves(qmom,gpot0,vval,hpot0,sgp0,smrho,smpot,vconst,smq,qsmc,f,rhvsm,zvnsm,zsum,vrmt,qbg) ! Electrostatic potential of the 0th component (represented by PlaneWave + Gaussians + smHankels)
+  subroutine smves(qmom,gpot0,vval,hpot0,sgp0,sgp00,smrho,smpot,vconst,smq,qsmc,f,rhvsm,zvnsm,zsum,vrmt,qbg) ! Electrostatic potential of the 0th component (represented by PlaneWave + Gaussians + smHankels)
     use m_supot,only: iv_a_okv, rv_a_ogv
     use m_lmfinit,only: rv_a_ocy,nsp,stdo,nbas,ispec
     use m_lattic,only: vol=>lat_vol
@@ -142,7 +142,7 @@ contains
     integer:: ib , igetss , ilm , ipr , iprint , is , iv0 , lfoc, &
          lgunit , lmxl , m , nlm , j1 , j2 , j3,iwdummy, ifivsmconst
     real(8):: qmom(1) , f(3,nbas) , gpot0(1) , vval(1) , hpot0(nbas) &
-         , vrmt(nbas),qsmc,smq,rhvsm,sgp0,vconst,zsum,zvnsm,qbg
+         , vrmt(nbas),qsmc,smq,rhvsm,sgp0,vconst,zsum,zvnsm,qbg,sgp00
     real(8):: ceh,cofg,cofh,dgetss,hsum,qcorg,qcorh,qsc, &
          rfoc,rmt,s1,s2,sbar,sumx,sum1,sum2,u00,u0g,ugg,usm,vbar,z,R,eint
     complex(8):: smrho(n1,n2,n3,nsp),smpot(n1,n2,n3,nsp)
@@ -220,6 +220,7 @@ contains
     rhvsm = u00 + u0g + vconst*smq
     sumx = 0d0
     iv0 = 0
+    sgp00=0d0
     do  ib = 1, nbas
        is = ispec(ib)
        call corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
@@ -229,6 +230,7 @@ contains
           hsum = -srfpi*dexp(ceh*rfoc*rfoc*0.25d0)/ceh ! hsum = integral of charge in sm. Hankel
           hpot0(ib) = hpot0(ib) + vconst*hsum
           zvnsm = zvnsm  + cofh*hpot0(ib) !+ (qcorg-z)*y0*gpot0(iv0+1)
+          sgp00 = sgp00  - (qcorg-z)*y0*gpot0(iv0+1)
           do  ilm = 1, nlm
              rhvsm = rhvsm + qmom(iv0+ilm)*gpot0(iv0+ilm)
              sumx = sumx   + qmom(iv0+ilm)*gpot0(iv0+ilm)
@@ -236,7 +238,7 @@ contains
           iv0 = iv0+nlm
        endif
     enddo
-    sgp0 = sumx
+    sgp0 = sumx 
     usm = 0.5d0*(rhvsm+zvnsm)
     if (ipr >= 30) write (stdo,"('   smooth rhoves',f14.6,'   charge',f13.6)") usm,smq
     smrho(:,:,:,1)=smrho(:,:,:,1)-qbg/vol! ... subtract background

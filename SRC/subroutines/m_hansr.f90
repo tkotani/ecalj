@@ -622,8 +622,8 @@ contains
     !r   the augmentation sphere.
     !r
     !r   cofg and cofh are the coefficients in front of the standard gaussian and smoothed hankel functions for l=0.
-    !r   That is: the pseudocore density is 
-    !r      cofg*g0(rg;r)*Y0 + cofh*h0(rfoca;r)*Y0        (1) (See 0th part Eq.(28).
+    !      n_sH,a = cofh*h0(rfoca;r)*Y0 !Eq(23)
+    !           cofg*g0(rg;r)*Y0 has the same moment of n_sH,a. 
     !r   ceh and rfoc are the energy and sm.-radius for the hankel part.
     !r   cofg is set so that qc = integral of eq. 1 above.
     !r
@@ -664,9 +664,9 @@ contains
        q1 = q1*y0
        ccof = ccof*q0/q1
     endif
-    qcorh = merge(-ccof*dexp(ceh*rfoc*rfoc/4d0)/ceh, 0d0,lfoc>0) ! gaussian charge
-    qcorg = merge(qc-qcorh, qc,lfoc>0)                           ! smhankel charges  
-    cofh = -y0*qcorh*ceh*dexp(-ceh*rfoc*rfoc/4d0)! Coeffients to the the gaussian 
-    cofg =  y0*qcorg                             ! smhankel  
+    qcorh = merge(-ccof*dexp(ceh*rfoc*rfoc/4d0)/ceh, 0d0,lfoc>0) ! spilout charge
+    qcorg = merge(qc-qcorh, qc,lfoc>0)                           ! charges  
+    cofh = -y0*qcorh*ceh*dexp(-ceh*rfoc*rfoc/4d0)! Coeffients of the smHankel to reproduce cores.
+    cofg =  y0*qcorg                             ! charge for Y0 
   end subroutine corprm
 end module m_hansr

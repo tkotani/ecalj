@@ -206,7 +206,7 @@ contains
     real(8):: hpot0_rv(nbas), dq,cpnvsa,qsmc,smq,smag,sum2,rhoex,rhoec,rhvsm,sgp0,sqloc,sqlocc,saloc,uat,usm,valfsm,valftr, &
          valvfa,vvesat,vsum,zsum,zvnsm,rvvxcv(nsp),rvvxc(nsp),rvmusm(nsp),rmusm(nsp), rvepsm(nsp),vxcavg(nsp),repat(nsp),&
          repatx(nsp),repatc(nsp),rmuat(nsp),repsm(nsp),repsmx(nsp),repsmc(nsp),rhobg,gpot0(nvl),vab_rv(3,3,n0*nsp*nbas),&
-         vval(nchan),fes(3,nbas)
+         vval(nchan),fes(3,nbas), sgp00
     real(8),parameter:: minimumrho=1d-14,pi=4d0*datan(1d0),tpi=2d0*pi
     character(80) :: outs
     character strn*120
@@ -242,7 +242,7 @@ contains
             'E=9/5*q*q/r=',1.8d0*qbg*qbg/rhobg
     endif Printsmoothbackgroundcharge
     call rhomom(orhoat, qmom,vsum) !multipole moments
-    call smves(qmom,gpot0,vval,hpot0_rv,sgp0,smrho,smpot,vconst,smq,qsmc,fes,rhvsm,zvnsm,zsum,vesrmt,qbg) ! 0th part of electrostatic potential Ves and Ees
+    call smves(qmom,gpot0,vval,hpot0_rv,sgp0,sgp00,smrho,smpot,vconst,smq,qsmc,fes,rhvsm,zvnsm,zsum,vesrmt,qbg) ! 0th part of electrostatic potential Ves and Ees
     smag = merge(2d0*dreal(sum(smrho(:,:,:,1)))*vol/(n1*n2*n3) - smq,0d0,nsp==2) !mag mom
     ADDsmoothExchangeCorrelationPotential: if( .NOT. present(novxc_)) then 
        novxc=.false.
@@ -280,7 +280,7 @@ contains
     ! Also add fcvxc0(1) to smooth part because rvmusm+fcvxc0 is perturbative approximation for rvmusm when cores are not treated perturbatively.
     valves = rhvsm + vvesat ! ... Valence density times VEelectroStatic
     valfsm = rhvsm + sum(rvmusm) - sgp0 - vconst*qbg !rho*Ves +rho*Vxc - Qmom*Ves -vconst*qbg
-    valftr = valvfa + sgp0    ! atomic rho*veff + Qmom*Ves
+    valftr = valvfa + sgp0+ sgp00        ! atomic rho*veff + Qmom*Ves
     valvef = valfsm + valftr
     cpnves = zvnsm + cpnvsa! ... Integral of core+nucleus times Ves(estatic potential)
     rhoexc = sum(repsm) + sum(repat) ! Exc=\int rho*exc 
