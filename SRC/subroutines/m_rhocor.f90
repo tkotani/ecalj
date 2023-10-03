@@ -45,7 +45,7 @@ contains
     integer :: mode,nr,nrmx,n0,kcor,lcor,lmax,ncore,nmcore
     parameter (nrmx=1501,n0=10)
     double precision :: a,qcor(2),sumec,sumtc,z,ecore(*),gcore(nr,2,*)
-    double precision :: v0(nr),rhoc(nr),rofi(nr),pnu(n0,2),pnz(n0,2)
+    double precision :: v0(nr,nsp),rhoc(nr,nsp),rofi(nr),pnu(n0,2),pnz(n0,2)
     integer :: ipr,isp,jpr,k,kkk,l,nsc,konf(n0),konfsc(n0),isc(n0)
     double precision :: deg,qcore,qsc,tol,g(2*nrmx),ec(100),b,smec(2), smtc(2)
     character ch*2
@@ -85,17 +85,12 @@ contains
     jpr = 0
     if (ipr >= 30) jpr = 1
     tol = 1d-8
-    call dpzero(rhoc,   nr*nsp)
+    rhoc=0d0
     b = rofi(nr)/(dexp(a*(nr-1))-1)
-    call rhocor(mode,z,lmax,nsp,konf,a,b,nr,rofi,v0,g,kcor,lcor, &
-         qcor,tol,ec,smec,smtc,rhoc,gcore,nmcore,jpr)
+    call rhocor(mode,z,lmax,nsp,konf,a,b,nr,rofi,v0,g,kcor,lcor,qcor,tol,ec,smec,smtc,rhoc,gcore,nmcore,jpr)
     if (mode == 1) call dcopy(ncore,ec,1,ecore,1)
-    sumec = smec(1)
-    sumtc = smtc(1)
-    if (nsp == 2) then
-       sumec = smec(1)+smec(2)
-       sumtc = smtc(1)+smtc(2)
-    endif
+    sumec = sum(smec(1:nsp))
+    sumtc = sum(smtc(1:nsp))
   end subroutine getcor
   subroutine rhocor(isw,z,lmax,nsp,konfig,a,b,nr,rofi,v,g,kcor,lcor, & !Generates the (spherical) charge density from the core states
        qcor,tol,ec,sumec,sumtc,rho,gcore,nmcore,ipr) !nmcore jun2012

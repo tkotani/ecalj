@@ -5,7 +5,7 @@ module m_smves
   private
   public smves
 contains
-  subroutine smves(qmom,gpot0,vval,hpot0,sgp0,sgp00,smrho,smpot,vconst,smq,qsmc,f,rhvsm,zvnsm,zsum,vrmt,qbg) ! Electrostatic potential of the 0th component (represented by PlaneWave + Gaussians + smHankels)
+  subroutine smves(qmom,gpot0,vval,hpot0,sgp0,sgp00,smrho,smpot,vconst,smq,qsmc,f,rhvsm0,rhvsm,zvnsm,zsum,vrmt,qbg) ! Electrostatic potential of the 0th component (represented by PlaneWave + Gaussians + smHankels)
     use m_supot,only: iv_a_okv, rv_a_ogv
     use m_lmfinit,only: rv_a_ocy,nsp,stdo,nbas,ispec
     use m_lattic,only: vol=>lat_vol
@@ -128,8 +128,7 @@ contains
     !u Updates
     !b Bugs
     !b   Possible to make vval(l=0) for sites with lmxl=-1, which tells
-    !b   value of ves at point.  However, vval doesn't have the
-    !b   space allocated.  So skip for now.
+    !b   value of ves at point.  However, vval doesn't have the space allocated.  So skip for now.
     !u Updates
     !u   01 Jul 05 handle sites with lmxl=-1
     !u   19 Sep 02 (WRL) Added background term
@@ -144,7 +143,7 @@ contains
     real(8):: qmom(1) , f(3,nbas) , gpot0(1) , vval(1) , hpot0(nbas) &
          , vrmt(nbas),qsmc,smq,rhvsm,sgp0,vconst,zsum,zvnsm,qbg,sgp00
     real(8):: ceh,cofg,cofh,dgetss,hsum,qcorg,qcorh,qsc, &
-         rfoc,rmt,s1,s2,sbar,sumx,sum1,sum2,u00,u0g,ugg,usm,vbar,z,R,eint
+         rfoc,rmt,s1,s2,sbar,sumx,sum1,sum2,u00,u0g,ugg,usm,vbar,z,R,eint, rhvsm0
     complex(8):: smrho(n1,n2,n3,nsp),smpot(n1,n2,n3,nsp)
     complex(8) ,allocatable :: cg1_zv(:), cgsum_zv(:), cv_zv(:)
     real(8),parameter::pi = 4d0*datan(1d0), srfpi = dsqrt(4d0*pi), y0= 1d0/srfpi
@@ -215,8 +214,13 @@ contains
     call ugcomp(qmom,gpot0,hpot0,ugg,f) 
     if(ipr>=50)write (stdo,"(/' after ugcomp: forces are'/(i4,3f12.6))")(ib,(f(m,ib),m=1,3),ib=1,nbas)
     if(ipr>=50)write(stdo,"(' u00,u0g,ugg=',3f14.6)") u00,u0g,ugg
+
+
+
+    
     ! --- Collect energy terms; make zvnuc for smooth problem ---
     zvnsm = 0d0
+    rhvsm0= u00 + u0g + vconst*smq
     rhvsm = u00 + u0g + vconst*smq
     sumx = 0d0
     iv0 = 0
@@ -232,6 +236,10 @@ contains
           zvnsm = zvnsm  + cofh*hpot0(ib) !+ (qcorg-z)*y0*gpot0(iv0+1)
           sgp00 = sgp00  - (qcorg-z)*y0*gpot0(iv0+1)
           do  ilm = 1, nlm
+             
+!             write(stdo,ftox)'ggggg222smves  gpot0=',ilm,ftof(gpot0(iv0+ilm))
+
+             
              rhvsm = rhvsm + qmom(iv0+ilm)*gpot0(iv0+ilm)
              sumx = sumx   + qmom(iv0+ilm)*gpot0(iv0+ilm)
           enddo

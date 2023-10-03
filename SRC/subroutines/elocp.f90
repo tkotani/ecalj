@@ -44,7 +44,7 @@ contains
        eloc = .true.
        call radmsh(rmt,a,nr,rofi)
        call loctsh ( 1,spid,z,a,nr,nr,nsp,lmxa,rofi & !mode1101
-           ,v0pot(ib)%v,pnu,pnz,xx,xx,vmtz(is),vsel ( 1,1,ib ) ,rsml,ehl )
+           ,v0pot(ib)%v, pnu,pnz,xx,xx,vmtz(is),vsel ( 1,1,ib ) ,rsml,ehl )
     enddo
     if ( .NOT. eloc) goto 999
     if (ipr >= 30) write(stdo,"(/' elocp:')")

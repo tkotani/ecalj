@@ -269,8 +269,8 @@ contains
           allocate(orhoat(1,ib)%v(nr*nlml*nsp)) !FP local densities rho1,rho2,rhoc and potentials v0, v1
           allocate(orhoat(2,ib)%v(nr*nlml*nsp))
           allocate(orhoat(3,ib)%v(nr*nsp))
-          allocate(v0pot(ib)%v(nr*nsp))
-          allocate(v1pot(ib)%v(nr*nsp))
+          allocate(v0pot(ib)%v(nr,nsp))
+          allocate(v1pot(ib)%v(nr,nsp))
           if (procid == master) then
              call readrho(ifi,nr,nlml0,nsp0,nlml,nsp,orhoat(1,ib)%v)
              call readrho(ifi,nr,nlml0,nsp0,nlml,nsp,orhoat(2,ib)%v)

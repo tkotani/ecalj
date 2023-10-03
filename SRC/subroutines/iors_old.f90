@@ -407,8 +407,8 @@ contains
 !          if (allocated(ssite(ib)%rv_a_ov1)) deallocate(ssite(ib)%rv_a_ov1)
 !          allocate(ssite(ib)%rv_a_ov1(abs(nr*nsp)))
           ! cccccccccccccccccccccccccc
-          allocate(v0pot(ib)%v(nr*nsp))
-          allocate(v1pot(ib)%v(nr*nsp))
+          allocate(v0pot(ib)%v(nr,nsp))
+          allocate(v1pot(ib)%v(nr,nsp))
           ! ccccccccccccccccccccccccccc
           if (procid == master) then
              call dpdbyl(orhoat(1,ib)%v, nr0 , nlml0 , nlml , nsp0 , nsp , lbin , jfi,'read'  )

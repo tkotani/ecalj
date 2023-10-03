@@ -10,7 +10,7 @@ contains
     use m_supot,only: lat_ng,rv_a_ogv,iv_a_okv,rv_a_ogv,n1,n2,n3
     use m_lmfinit,only:lat_alat,nsp,nbas,nspec,ispec,qbg=>zbak,slabl,v0fix
     use m_lattic,only: lat_plat,lat_vol
-    use m_struc_def,only: s_rv1
+    use m_struc_def,only: s_rv1,s_rv2
     use m_ext,only: sname
     use m_lgunit,only:stdo,stdl
     use m_ftox
@@ -33,7 +33,7 @@ contains
     parameter ( nrmx=1501, n0=10 )
     integer:: nxi(nspec)
     type(s_rv1) :: rv_a_orhofa(nspec)
-    type(s_rv1) :: rv_a_ov0a(nspec)
+    type(s_rv2) :: rv_a_ov0a(nspec)
     real(8):: rsmfa(nspec),exi(n0,nspec), hfc(n0,2,nspec),hfct(n0,2,nspec),&
          alat,plat(3,3),a,rmt,z,rfoc,z0,rmt0,a0,qc,ccof, &
          ceh,stc,ztot,ctot,corm,ssum,fac,sum1,sum2,sqloc,dq,vol,smom, slmom,qcor(2)
@@ -67,7 +67,7 @@ contains
        allocate(rv_a_orhofa(is)%v(nr*nsp),   source=0d0)
        if(allocated(sspec(is)%rv_a_orhoc)) deallocate(sspec(is)%rv_a_orhoc)
        allocate(sspec(is)%rv_a_orhoc(nr*nsp),source=0d0)
-       allocate(rv_a_ov0a(is)%v(nr*nsp),     source=0d0)
+       allocate(rv_a_ov0a(is)%v(nr,nsp),     source=0d0)
        rmt=rmt_i(is)
        z=z_i(is)
        lfoc=lfoca_i(is)
@@ -173,8 +173,8 @@ contains
           if (allocated(rwgt_rv)) deallocate(rwgt_rv)
        endif
        if (lmxl > -1) then
-          allocate(v0pot(ib)%v(nr*nsp))
-          allocate(v1pot(ib)%v(nr*nsp))
+          allocate(v0pot(ib)%v(nr,nsp))
+          allocate(v1pot(ib)%v(nr,nsp))
           v0pot(ib)%v=rv_a_ov0a( is )%v
           v1pot(ib)%v=rv_a_ov0a( is )%v
           call dpcopy ( sspec ( is ) %rv_a_orhoc , sv_p_orhoat( 3 , ib )%v, 1 , nr * nsp , 1d0 )
@@ -206,16 +206,16 @@ contains
             do ir=1,nr
                ov0mean = 0d0
                do isp=1,nsp
-                  ov0mean = ov0mean + v0pot(ib)%v( ir + nr*(isp-1) )
+                  ov0mean = ov0mean + v0pot(ib)%v(ir,isp)
                enddo
                ov0mean = ov0mean/nsp !spin averaged
                do isp=1,nsp
-                  v0pot(ib)%v(ir + nr*(isp-1))= ov0mean
+                  v0pot(ib)%v(ir,isp)= ov0mean
                enddo
             enddo
             write(stdo,*)' v0fix=T: writing v0pot',ib,nr
             open(newunit=ifi,file='v0pot.'//trim(charext(ib)),form='unformatted')
-            write(ifi) v0pot(ib)%v(1:nr)
+            write(ifi) v0pot(ib)%v
             close(ifi)
          enddo
       endif

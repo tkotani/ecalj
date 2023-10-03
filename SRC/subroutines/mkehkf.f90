@@ -2,25 +2,26 @@ module m_mkehkf
   use m_ftox
 contains
   subroutine m_mkehkf_etot1(sev, etot)
-    use m_struc_def
     use m_lmfinit,only: nsp,stdo,stdl
-    use m_mkpot,only: utot,rhoexc,xcore,valvef,amom !readonly
-    use m_mkrout,only: sumec,sumtc,sumt0 !readonly
+    use m_mkpot,only: utot,rhoexc,xcore,valvef,amom 
+    use m_mkrout,only: sumec,sumt0 
     !- Make Harris energy 
     !i   sev   :band sum
     !o   etot  :Harris energy 
     implicit none
-    real(8):: sev , etot ,ekin,ttcor, eh,eks,sumtv
+    real(8):: sev , etot ,ekin, eh,eks,sumtv,ekincore
     integer :: ipr
     call tcn('m_mkehkf_etot1')
     call getpr(ipr)
-    sumtv = sev - valvef
-    ttcor = sumec - xcore + sumt0 !Ek core
-    ekin  = sumtv + ttcor
+    sumtv = sev - valvef         !kineric energy for valence
+    ekincore = sumec-xcore + sumt0  !kinetic energy (sumec-xcore is sum for lfoc=1 atoms, sumt0 is sum for lfoc=0 atoms)
+    ! This is in the spilits of Harris energy.
+    ! Test for Zrt shows this is advantatious than ttcor=sumt0 for lfoc=0
+    ekin  = sumtv + ekincore
     etot  = ekin + utot + rhoexc
     eh    = etot
     if (ipr > 0) then
-       write(stdo,660) sev,valvef,sumtv,ttcor,rhoexc,utot,eh !sumec,xcore,
+       write(stdo,660) sev,valvef,sumtv, ekincore,rhoexc,utot,eh !sumec,xcore,
 660    format(/' m_mkehkf_etot1: Harris energy: (B.1) in JPSJ84,034702' &
             /' Eb(band sum)= ',f15.6,' Vin*nin=',f15.6,' Ek=Eb-Vin*nin=',f15.6 &
             /' Ek(core)=',f15.6,' Exc=',f15.6,' Ees=',f15.6,' Eharris=',f15.6)
@@ -29,12 +30,10 @@ contains
     endif
     call tcx('m_mkehkf_etot1')
   end subroutine m_mkehkf_etot1
-  subroutine m_mkehkf_etot2(sumtv, etot)
-    use m_struc_def
-    use m_lmfinit,only: nsp,stdo,stdl
-    use m_mkpot,only: utot,rhoexc,xcore,valvef,amom !readonly
-    use m_mkrout,only: sumec,sumtc,sumt0 !readonly
-    !- Make Kohn-Sham energy
+  subroutine m_mkehkf_etot2(sumtv, etot) !Make Kohn-Sham energy
+    use m_lmfinit,only: nsp,stdo,stdl,nbas,ispec
+    use m_mkpot,only: utot,rhoexc,xcore,valvef,amom 
+    use m_mkrout,only: sumtc
     !i  sumtv :valence kinetic energy 
     !o   etot :Hohnberg-Kohn-Sham energy
     implicit none
@@ -42,7 +41,7 @@ contains
     integer :: ipr
     call tcn('m_mkehkf_etot2')
     call getpr(ipr)
-    ekin = sumtv + sumtc
+    ekin = sumtv + sumtc !sumtc is sum of the kinetic energies for cores
     etot = ekin + utot + rhoexc
     eks  = etot
     if (ipr > 0) then

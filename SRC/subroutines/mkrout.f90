@@ -73,8 +73,8 @@ contains
     !o Outputs
     !o   orhoat:vector of offsets containing site density
     !o   sumec = sum of foca=0 core eigenvalues
-    !o   sumtc = sum of all core kinetic energies
-    !o   sumt0 = sum of frozen core kinetic energies
+    !o   sumtc = sum of all core kinetic energies for ehk
+    !o   sumt0 = sum of foca=1 core kinetic energies
     !o   qbyl  :l-decomposed charge
     !o   hbyl  :l-decomposed eigenvalue sum
     !r Remarks u and s are linear combinations of and phi,phidot defined as: u has val=1, slo=1 at rmax, s has val=0, slo=1
@@ -199,15 +199,14 @@ contains
        if (lfoc == 0) then ! Make new core density and core eigenvalue sum ---
           call pshpr(ipr+11)
           call getcor(0,z,a,pnu,pnz,nr,lmxa,rofi_rv,v1pot(ib)%v & 
-              ,kcor,lcor,qcor,smec,smtc,orhoat_out( 3,ib )%v,ncore,[0d0],[0d0],nmcore(is))
+              ,kcor,lcor,qcor,smec,smtc, orhoat_out(3,ib)%v,ncore,[0d0],[0d0],nmcore(is))
           call poppr
-          sumtc = sumtc + smtc
           sumec = sumec + smec
        else
-          sumtc = sumtc + stc0
           sumt0 = sumt0 + stc0
           orhoat_out(3,ib)%v(1:nsp*nr)= sspec(is)%rv_a_orhoc(1:nr*nsp) 
        endif
+       sumtc = sumtc + merge(smtc,stc0,lfoc==0) !sum of kinetic energy of cores for ehk
        deallocate(rofi_rv,rwgt_rv)
     enddo ibloop
     if (ipr >= 30 .AND. lrout > 0) then ! write(stdo,"(a)")' mkrout: site(class) decomposed charge and magnetic moment. class->lmchk'

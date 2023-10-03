@@ -230,8 +230,7 @@ contains
           rsml=rsmlss(:,is)
           ehl= ehlss(:,is)
           call atwf ( 03 , a , lmaxa , nr , nsp , pnu , pnz , rsml , ehl &
-               , rmt ( ib ) , z , v0pot(ib)%v , nphimx , ncore , konfig , ecore &
-               , gcore , gval ,nmcore)
+               , rmt ( ib ) , z , v0pot(ib)%v , nphimx , ncore , konfig , ecore , gcore , gval ,nmcore)
           if(nr     >nrmx   ) nrmx    = nr
           if(ncore  >ncoremx) ncoremx = ncore
           !     !         Header data for this atom
@@ -276,29 +275,15 @@ contains
                   do ie=-12,10
                      pnux= [0d0,0d0,0d0,4.65d0 + ie*0.05d0] !pnu is changing
                      if(ie==7) cycle
-                     call makrwf(z,rmt(ib),l,v0pot(ib)%v(1+(i-1)*nr:nr*i),a,nr,rofi,pnux,2, gfun,gpfun,enu, phi,dphi,phip,dphip,p)
+                     call makrwf(z,rmt(ib),l,v0pot(ib)%v(:,i),a,nr,rofi,pnux,2, gfun,gpfun,enu, phi,dphi,phip,dphip,p)
                      call gintxx(gfun(1:nr,1),gfun(1:nr,1),a,b,nr,sum1)
                      rgfun=[(rofi(ir)*gfun(ir,1),ir=1,nr)]
                      if(abs(sum1-1d0)>0.01d0) call rx('sugw: need to check normalization 111')
                      call gintxx(rgfun,gfun(1:nr,1),a,b,nr,sum2)
-                     write(stdo,ftox)'\int phiphi : ib l isp=',ib,l,i, &
-                          ' pnu \int rphiphi=',ftof(pnux,3),ftof(sum2,3)
+                     write(stdo,ftox)'\int phiphi : ib l isp=',ib,l,i,' pnu \int rphiphi=',ftof(pnux,3),ftof(sum2,3)
                   enddo
                   write(stdo,*)
                enddo
-               ! l = 3            !0, lmaxa
-               ! do i = 1, nsp
-               !    do ie=-10,10
-               !       enu= eferm + 0.2d0*ie !enu is changing
-               !       call makrwf(1,z,rmt(ib),l,v0pot(ib)%v(1+(i-1)*nr:nr*i),a,nr,rofi,1d10,2, gfun,gpfun,enu, phi,dphi,phip,dphip,p)
-               !       call gintxx(gfun(1:nr,1),gfun(1:nr,1),a,b,nr,sum1)
-               !       rgfun=[(rofi(ir)*gfun(ir,1),ir=1,nr)]
-               !       if(abs(sum1-1d0)>0.01d0) call rx('sugw: need to check normalization 222')
-               !       call gintxx(rgfun,gfun(1:nr,1),a,b,nr,sum2)
-               !       write(stdo,ftox)'\int phiphi : ib l isp=',ib,l,i,' enu \int rphiphi=',ftof(enu,3),ftof(sum2,3)
-               !    enddo
-               !    write(stdo,*)
-               ! enddo
             endif
           endblock radint
           deallocate(rofi,rwgt,gcore,gval)
@@ -322,8 +307,7 @@ contains
     !! == GW setup loop over k-points ==
     if (lchk>=1 ) then
        open(newunit=ifinormchk,file='norm.'//trim(sprocid)//'.chk')
-       write(ifinormchk,"(a)") &
-            '#     eval          IPW        IPW(diag)    Onsite(tot)      Total ! lmfgw'
+       write(ifinormchk,"(a)") '#     eval          IPW        IPW(diag)    Onsite(tot)      Total ! lmfgw'
     endif
     !! --- Evecs and matrix elements of vxc for irr qp ---
     !!    Note: this routine should use only irr qp.
