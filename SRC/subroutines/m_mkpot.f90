@@ -282,8 +282,10 @@ contains
     ! Associate term (n0~-n0) Ves(n0~) with local part because of the ppi matrix elements
     ! Also add fcvxc0(1) to smooth part because rvmusm+fcvxc0 is perturbative approximation for rvmusm when cores are not treated perturbatively.
     valves = rhvsm + vvesat ! ... Valence density times VEelectroStatic
-    valfsm = rhvsm+sgp00 + sum(rvmusm) - vconst*qbg !rho0*Ves +rho0*Vxc - Qmom*Ves -vconst*qbg
-!    valfsm = rhvsm0 + sum(rvmusm) - vconst*qbg !rho0*Ves +rho0*Vxc - Qmom*Ves -vconst*qbg
+
+    !valfsm = rhvsm+sgp00 + sum(rvmusm) - vconst*qbg !rho0*Ves +rho0*Vxc - Qmom*Ves -vconst*qbg
+    valfsm = rhvsm0 + sum(rvmusm) - vconst*qbg !rho0*Ves +rho0*Vxc -vconst*qbg
+    
     valftr = valvfa        !  veff*(rho1- (rho2+Qval))
     valvef = valfsm + valftr
     cpnves = zvnsm + cpnvsa! ... Integral of core+nucleus times Ves(estatic potential)
