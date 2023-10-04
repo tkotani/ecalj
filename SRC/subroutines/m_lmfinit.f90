@@ -110,7 +110,7 @@ contains
     character(128) :: nm
     logical :: cmdopt0,  debug,sexist=.false., ipr10,fullmesh,lzz, logarr(100)
     integer :: i,is,iprint, iprt,isw,ifi,j,k,l,lfrzw,lrs,k1,k2,mpipid, lmxbj,lmxaj,nlbj,&
-         ibas,ierr,lc, iqnu=0, ifzbak,nn1,nn2,nnx,lmxxx,nlaj,isp,&
+         ibas,ierr,lc, iqnu=0, ifzbak,nn1,nn2,nnx,nlaj,isp,&
          inumaf,iin,iout,ik,iprior,ibp1,indx,iposn,m,nvi,nvl,nn1xx,nn2xx, nnn,ib,&
          lmxcg,lmxcy,lnjcg,lnxcg,nlm,nout,nn,i0,ivec(10),iosite,io_tim(2),verbos,&
          lp1,ii,sw,it,levelinit=0, lx,lxxx, reclnr,nrecs,nrecs2 ,nkapi!,mxorb
