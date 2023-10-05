@@ -208,7 +208,7 @@ contains
     smq = dreal(sum(smrho(:,:,:,1)))               *vol/(n1*n2*n3)  !Integral n0
     s1  = dreal(sum(smrho(:,:,:,1)*smpot(:,:,:,1)))*vol/(n1*n2*n3)  !Integral n0*phi0~
     u0g = s1 - u00
-    call ugcomp(qmom,gpot0,hpot0,ugg,f) !Gaussian part added
+    call ugcomp(qmom,gpot0,hpot0,ugg,f) !Gaussian and smHankel parts added
     if(ipr>=50)write (stdo,"(/' after ugcomp: forces are'/(i4,3f12.6))")(ib,(f(m,ib),m=1,3),ib=1,nbas)
     if(ipr>=50)write(stdo,"(' u00,u0g,ugg=',3f14.6)") u00,u0g,ugg
    
@@ -531,7 +531,7 @@ contains
                 if (lfoc1 > 0 .OR. lfoc2 > 0) then ! Additional h*h, h*g, g*h terms for foca ---
                    call hhugbl(0,tau1,tau2,[rh1],[rh2],[ceh1],[ceh2],1,1,ndim0,ndim0, s0,ds0)!smHankel-smHankel
                    xugg(ip) = xugg(ip) + cofh1*s0(1,1)*cofh2
-                   xhpot0(jb,ip) = xhpot0(jb,ip) + cofh1*s0(1,1)
+                   xhpot0(jb,ip) = xhpot0(jb,ip) + cofh1*s0(1,1) !smooth Hankel part
                    ff = ff + 0.5d0*cofh1*cofh2*ds0(1,1,1:3)
                    call hgugbl(tau1,tau2,rh1,rg2,ceh1,1,nlm2,ndim,ndim, s,ds)!gaussian-smHankel
                    do  ilm2 = 1, nlm2
@@ -551,7 +551,7 @@ contains
                       cof1 = qm1*fpi/df(2*l1+1)
                       xugg(ip) = xugg(ip) + cof1*s(1,ilm1)*cofh2
                       ff = ff - 0.5d0*cof1*cofh2*ds(1,ilm1,1:3)
-                      xhpot0(jb,ip) = xhpot0(jb,ip) + cof1*s(1,ilm1)
+                      xhpot0(jb,ip) = xhpot0(jb,ip) + cof1*s(1,ilm1) !Gaussian part
                    enddo
                 endif
                 if (jb /= ib) then
