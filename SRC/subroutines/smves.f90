@@ -135,7 +135,7 @@ contains
     implicit none
     integer:: ib , igetss , ilm , ipr , iprint , is , iv0 , lfoc, &
          lgunit , lmxl , m , nlm , j1 , j2 , j3,iwdummy, ifivsmconst
-    real(8):: qmom(nlmxlx,nbas) , f(3,nbas) , gpot0(1) , vval(nlmxlx,nbas) , hpot0(nbas) &
+    real(8):: qmom(nlmxlx,nbas) , f(3,nbas) , gpot0(nlmxlx,nbas) , vval(nlmxlx,nbas) , hpot0(nbas) &
          , vrmt(nbas),qsmc,smq,rhvsm,vconst,zsum,zvnsm,qbg
     real(8):: ceh,cofg,cofh,dgetss,hsum,qcorg,qcorh,qsc, &
          rfoc,rmt,s1,s2,sbar,sumx,sum1,sum2,u00,u0g,ugg,usm,vbar,z,R,eint, rhvsm0
@@ -182,7 +182,7 @@ contains
           nlm = (lmxl+1)**2
           vrmt(ib) = vrmt(ib) + vconst
           vval(1,ib) = vval(1,ib) + vconst/y0
-          gpot0(1+iv0) = gpot0(1+iv0) + vconst/y0
+          gpot0(1,ib) = gpot0(1,ib) + vconst/y0
           iv0 = iv0 + nlm
        endif
     enddo
@@ -226,8 +226,8 @@ contains
           hpot0(ib) = hpot0(ib) + vconst*hsum
           zvnsm = zvnsm  + cofh*hpot0(ib) !+ (qcorg-z)*y0*gpot0(iv0+1)
           do  ilm = 1, nlm
-             rhvsm = rhvsm + qmom(ilm,ib)*gpot0(iv0+ilm)
-             sumx = sumx   + qmom(ilm,ib)*gpot0(iv0+ilm)
+             rhvsm = rhvsm + qmom(ilm,ib)*gpot0(ilm,ib)
+             sumx = sumx   + qmom(ilm,ib)*gpot0(ilm,ib)
           enddo
           iv0 = iv0+nlm
        endif
@@ -278,11 +278,11 @@ contains
     real(8):: gv(ng,3),vval(nlmxlx,nbas)
     double complex smpot(n1,n2,n3),cv(ng)
     integer :: i,ib,is,lmxx,nlmx,iv0,lmxl,nlm,m,ilm,l,ipr
-    double precision :: alat,pi,tpiba,tau(3),rmt,fac,plat(3,3)
+    real(8) :: alat,pi,tpiba,tau(3),rmt,fac,plat(3,3)
     double complex vvali,fprli
     parameter (lmxx=6, nlmx=(lmxx+1)**2)
-    double precision,allocatable:: phil(:,:),yl(:,:)
-    double precision,allocatable:: gv2(:,:),agv(:),cgp(:),sgp(:)
+    real(8),allocatable:: phil(:,:),yl(:,:)
+    real(8),allocatable:: gv2(:,:),agv(:),cgp(:),sgp(:)
     call tcn('mshvmt')
     allocate(phil(ng,0:lmxx),yl(ng,nlmx))
     allocate(gv2(ng,3),agv(ng),cgp(ng),sgp(ng))
@@ -325,10 +325,6 @@ contains
        do  l  = 0, lmxl
           do  m = -l, l
              ilm = ilm+1
-!             vvali = 0
-!             do  i = 2, ng
-!                vvali = vvali + (phil(i,l)*yl(i,ilm))*(cv(i)*dcmplx(cgp(i),-sgp(i)))
-!             enddo
              vval(ilm,ib) = fprli*sum((phil(2:ng,l)*yl(2:ng,ilm))*(cv(2:ng)*dcmplx(cgp(2:ng),-sgp(2:ng))))
           enddo
           fprli = fprli*(0d0,1d0)*rmt
@@ -340,7 +336,6 @@ contains
     deallocate(gv2,agv,cgp,sgp)
     call tcx('mshvmt')
   end subroutine mshvmt
-
   subroutine symvvl(vval,vrmt) !Symmetrizes the potential at the MT boundary.
     use m_mksym,only: symops,ag,ngrp,ipc=>iclasst
     use m_struc_def
@@ -368,14 +363,13 @@ contains
     real(8):: vval(nlmxlx,nbas),vrmt(nbas)
     integer :: ic,ib,ilm,mxint,nclass,ipa(nbas),nrclas,iv0
     integer :: ips(nbas),lmxl(nbas) !ipc(nbas),
-    double precision :: pos(3,nbas),posc(3,nbas),plat(3,3),pi,y0
+    real(8) :: pos(3,nbas),posc(3,nbas),plat(3,3),pi,y0
     integer:: igetss,nlml ,ipr,nn,ibas
     real(8) ,allocatable :: qwk_rv(:)
     real(8) ,allocatable :: sym_rv(:)
     call tcn('symvvl')
     call getpr(ipr)
     plat=lat_plat
-!    ngrp=lat_nsgrp
     do ibas=1,nbas
        ips(ibas)  = ispec(ibas) 
        pos(:,ibas)= rv_a_opos(:,ibas)
@@ -400,11 +394,7 @@ contains
              nlml = (lmxl(ib)+1)**2
              if (ipr >= 50) write(stdo,800) ic,nrclas,nlml
 800          format(' Symmetry class',i3,'   nrclas=',i3,'   nlml=',i3)
-!             allocate(qwk_rv(nlml))
-!             allocate(sym_rv(nlml*nlml*nrclas))
              call symqmp ( nrclas,nlml,nlml,plat,posc,ngrp,symops,ag,ipa,vval,nn )!,ipa,sym_rv,vval,nn )
-!             if (allocated(sym_rv)) deallocate(sym_rv)
-!             if (allocated(qwk_rv)) deallocate(qwk_rv)
           endif
        endif
     enddo
@@ -458,19 +448,18 @@ contains
     !u   22 Apr 00 Adapted from nfp ugcomp
     ! ----------------------------------------------------------------------
     implicit none
-    real(8):: qmom(nlmxlx,nbas),gpot0(*),f(3,nbas),hpot0(nbas),ugg
-    integer :: ndim,ndim0,i,ib,ilm1,ilm2,is,iv0,jb,js,jv0,nvl,l1,l2, &
+    real(8):: qmom(nlmxlx,nbas),gpot0(nlmxlx,nbas),f(3,nbas),hpot0(nbas),ugg
+    integer :: ndim,ndim0,i,ib,ilm1,ilm2,is,jb,js,l1,l2, &
          lfoc1,lfoc2,lmax1,lmax2,m,nlm1,nlm2
     parameter (ndim=49, ndim0=2)
-    double precision :: ceh1,ceh2,cof1,cof2,cofg1,cofg2,cofh1,cofh2,fpi, &
+    real(8) :: ceh1,ceh2,cof1,cof2,cofg1,cofg2,cofh1,cofh2,fpi, &
          pi,qcorg1,qcorg2,qcorh1,qcorh2,qsc1,qsc2,qm1,qm2,rg1,rg2,rh1, &
          rh2,srfpi,y0,z1,z2
-    double precision :: df(0:20),ff(3),tau1(3),tau2(3)
-    double complex s(ndim,ndim),ds(ndim,ndim,3),s0(ndim0,ndim0), &
-         ds0(ndim0,ndim0,3)!,wk(ndim0,ndim0),dwk(ndim0,ndim0,3)
+    real(8) :: df(0:20),ff(3),tau1(3),tau2(3)
+    double complex s(ndim,ndim),ds(ndim,ndim,3),s0(ndim0,ndim0),ds0(ndim0,ndim0,3)
     integer :: nlmx,npmx,ip,mp,nbmx
     parameter (nlmx=64, npmx=1, nbmx=256)
-    double precision :: xf(3,nbas,npmx),xhpot0(nbas,npmx), xgpot0(nlmx*nbas,npmx),xugg(npmx)
+    real(8) :: xf(3,nbas,npmx),xhpot0(nbas,npmx), xgpot0(nlmxlx,nbas,npmx),xugg(npmx)
     integer:: ibini,ibend
     call tcn('ugcomp')
     call stdfac(20,df)
@@ -482,7 +471,6 @@ contains
     if (npmx < mp) call rxi('ugcomp: increase npmx, needed',mp)
     ! --- Loop over sites where charge lump making pot is centered ---
     ugg = 0d0
-    iv0 = 0
     ip = 1
     xugg=0d0   !call dpzero(xugg, mp)
     xgpot0=0d0 !call dpzero(xgpot0, nlmx*nbas*mp)
@@ -520,7 +508,7 @@ contains
                       qm2 = qmom(ilm2,jb)
                       cof2 = qm2*fpi/df(2*l2+1)
                       xugg(ip) = xugg(ip) + cof1*cof2*s(ilm1,ilm2)
-                      xgpot0(jv0+ilm2,ip) = xgpot0(jv0+ilm2,ip) + s(ilm1,ilm2)*cof1*fpi/df(2*l2+1)
+                      xgpot0(ilm2,jb,ip) = xgpot0(ilm2,jb,ip) + s(ilm1,ilm2)*cof1*fpi/df(2*l2+1)
                       ff = ff + 0.5d0*cof1*cof2*ds(ilm1,ilm2,1:3) !Forces
                    enddo
                 enddo
@@ -536,7 +524,7 @@ contains
                       cof2 = qm2*fpi/df(2*l2+1)
                       xugg(ip) = xugg(ip) + cofh1*s(1,ilm2)*cof2
                       ff = ff + 0.5d0*cofh1*cof2*ds(1,ilm2,1:3)
-                      xgpot0(jv0+ilm2,ip) = xgpot0(jv0+ilm2,ip) + s(1,ilm2)*cofh1*fpi/df(2*l2+1)
+                      xgpot0(ilm2,jb,ip) = xgpot0(ilm2,jb,ip) + s(1,ilm2)*cofh1*fpi/df(2*l2+1)
                    enddo
                    call hgugbl(tau2,tau1,rh2,rg1,ceh2,1,nlm1,ndim,ndim, s,ds) !gaussian-smHamel
                    do  ilm1 = 1, nlm1
@@ -555,16 +543,14 @@ contains
                 jv0 = jv0+nlm2
              endif
           enddo
-          iv0 = iv0+nlm1
        endif
     enddo
-    nvl = iv0
     do 80 ip = 1, mp
        do ib = 1, nbas
           f(1:3,ib) = f(1:3,ib) + xf(1:3,ib,ip)
           hpot0(ib) = hpot0(ib) + xhpot0(ib,ip)
+          gpot0(:,ib) = gpot0(:,ib) + xgpot0(:,ib,ip)
        enddo
-       gpot0(1:nvl) = gpot0(1:nvl) + xgpot0(1:nvl,ip)
        ugg = ugg + xugg(ip)
 80  enddo
     call tcx('ugcomp')
@@ -615,24 +601,18 @@ subroutine symqmp(nrclas,nlml,nlmx,plat,posc,ngrp,g,ag,ipa,qmp,nn)  !- Symmetriz
   !o   sym   :symmetry projectors for each member of the class
   !o   nn    :number of elements symmetrized
   implicit none
-  integer :: nrclas,nlmx,ipa(nrclas),nlml,ngrp,nn
-  double precision :: plat(3,3),posc(3,nrclas),g(3,3,ngrp),ag(3,ngrp)
-  double precision :: sym(nlmx,nlmx,nrclas),qwk(nlml),qmp(nlmxlx,nbas)
-  integer :: ia,ilm,ixx,iyy(1)
-  double precision :: wgt,xx,qlat(3,3)
+  integer :: nrclas,nlmx,ipa(nrclas),nlml,ngrp,nn,ia,ilm,ixx,iyy(1)
+  real(8) :: plat(3,3),posc(3,nrclas),g(3,3,ngrp),ag(3,ngrp),sym(nlmx,nlmx,nrclas),qwk(nlml),qmp(nlmxlx,nbas),wgt,xx,qlat(3,3)
   call tcn('symqmp')
   if (nlml > nlmx) call rxi('symqmp: increase nlmx to',nlml)
   call dinv33(plat,1,qlat,xx)
-  ! ... Make the symmetry projectors
-  call symprj(nrclas,nlmx,ngrp,ixx,iyy,g,ag,plat,qlat,posc,sym)
-  ! ... Accumulate symmetrized qmpol on first site
+  call symprj(nrclas,nlmx,ngrp,ixx,iyy,g,ag,plat,qlat,posc,sym)! ... Make the symmetry projectors
   qwk=0d0
   do  ia = 1, nrclas
-     call pxsmr1(1d0,1,nlml,1,sym(1,1,ia),qmp(:,ipa(ia)),qwk,nn)
+     call pxsmr1(1d0,1,nlml,1,sym(1,1,ia),qmp(:,ipa(ia)),qwk,nn) ! ... Accumulate symmetrized qmpol on first site
   enddo
-  ! ... Rotate and copy to all sites in class
   wgt = nrclas
-  do  ia = 1, nrclas
+  do  ia = 1, nrclas ! ... Rotate and copy to all sites in class
      qmp(:,ipa(ia))=0d0
      call pysmr1(wgt,1,nlml,1,sym(1,1,ia),qwk,qmp(:,ipa(ia)),nn)
   enddo

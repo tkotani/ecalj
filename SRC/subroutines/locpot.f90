@@ -77,7 +77,7 @@ contains
     type(s_sblock):: ohsozz(3,nbas),ohsopm(3,nbas)
     type(s_rv4) :: otau(3,nbas), osig(3,nbas)
     real(8):: qmom(nlmxlx,nbas) , vval(nlmxlx,nbas), cpnvsa,rhoexc(nsp),rhoex(nsp),rhoec(nsp),rhovxc(nsp), &
-         qval,sqloc,sqlocc,saloc, valvef,vvesat,xcore,gpot0(*),phzdphz(nppn,n0,nsp,nbas),rhobg,&
+         qval,sqloc,sqlocc,saloc, valvef,vvesat,xcore,gpot0(nlmxlx,nbas),phzdphz(nppn,n0,nsp,nbas),rhobg,&
          eh(n0,nkap0),rsmh(n0,nkap0), ehl(n0),rsml(n0),z,a,rmt,qc,ceh,rfoc, &
          qcorg,qcorh,qsc,cofg,cofh,qsca,rg,qv,cpnvs, qloc,qlocc,xcor, aloc,alocc,rs3,vmtz,qcor(2),qc0,qsc0, ov0mean,pmean
     real(8),target::hab(3,3,n0,nsp,nbas),vab(3,3,n0,nsp,nbas),sab(3,3,n0,nsp,nbas)
@@ -154,7 +154,7 @@ contains
            call radwgt(rmt,a,nr,rwgt)
            if(cmdopt0('--wrhomt'))call wrhomt('rhoMT.','density',ib,orhoat(1,ib)%v,rofi,nr,nlml,nsp) ! Write true density to file rhoMT.ib
            call locpt2(ib,z,rmt,rg,a,nr,nsp,cofg,cofh, & ! Make potential and energy terms at this site ---
-                ceh,rfoc,lfoc,nlml,qmom(:,ib),vval(:,ib),rofi,rwgt, orhoat(1,ib)%v,orhoat(2,ib)%v,orhoat(3,ib)%v,   gpot0(j1), &
+                ceh,rfoc,lfoc,nlml,qmom(:,ib),vval(:,ib),rofi,rwgt, orhoat(1,ib)%v,orhoat(2,ib)%v,orhoat(3,ib)%v,   gpot0(:,ib), &
                 rhol1,rhol2,v1,v2,v1es,v2es,&
                 valvs(ib),cpnvs(ib),rhexc(:,ib),rhex(:,ib),rhec(:,ib),rhvxc(:,ib),&
                 valvt(ib),xcor(ib) ,qloc(ib),qlocc(ib),aloc(ib),alocc(ib),gpotb, rhobg,efg(1,ib),ifivesint,lxcf,    v1out) 
@@ -237,8 +237,8 @@ contains
               !          if(idipole/=0) call adddipole(v1,rofi,nr,nlml,nsp,idipole,ssite(ib)%pos(idipole)*alat)
               !             call adddipole(v2,rofi,nr,nlml,nsp,idipole,ssite(ib)%pos(idipole)*alat)
               lsox = merge(1, lso, .NOT. novxc .AND. cmdopt0('--socmatrix') )
-              lmxh = lmxb !MTO l of basis minimum 
-              if (ipr >= 20) write(stdo,"('     potential shift to crystal energy zero:',f12.6)") y0*(gpot0(j1)-gpotb(1))
+              lmxh = lmxb !MTO l of basis minimum
+              if (ipr >= 20) write(stdo,"('     potential shift to crystal energy zero:',f12.6)") y0*(gpot0(1,ib)-gpotb(1))
               augmatblock: block
                 use m_gaugm,only:  gaugm
                 use m_augmat,only: vlm2us,momusl
@@ -268,19 +268,19 @@ contains
                 if(lldau(ib)>0)call vlm2us(lmaxu,rmt,idu(:,is),lmxa, count( idu(:,ispec(1:ib-1))>0 ), & !offset to the Ublock for ib
                      vorb,phzdphz(:,:,:,ib),rotp(:,:,:,:,ib), vumm)!LDA+U: vumm of (u,s,gz) from vorb for phi.
                 kmax1=kmax+1
-                call gaugm(nr,nsp,lsox,rofi,rwgt,lmxa,lmxl,nlml,v2,gpotb,gpot0(j1),hab_,vab_,sab_,sodb,qum,vum,& !...Pkl*Pkl !tail x tail
+                call gaugm(nr,nsp,lsox,rofi,rwgt,lmxa,lmxl,nlml,v2,gpotb,gpot0(:,ib),hab_,vab_,sab_,sodb,qum,vum,& !...Pkl*Pkl !tail x tail
                      lmaxu,vumm,lldau(ib),idu(:,is),&
                      lmxa,nlma,nlma,& !lmxa=lcutoff for augmentation
                      kmax1,kmax1,lmxa,lxa, fp,xp,vp,dp,&
                      kmax1,kmax1,lmxa,lxa, fp,xp,vp,dp,&
                      osig(1,ib)%v, otau(1,ib)%v, oppi(1,ib)%cv, ohsozz(1,ib)%sdiag, ohsopm(1,ib)%soffd)
-                call gaugm(nr,nsp,lsox,rofi,rwgt,lmxa,lmxl,nlml,v2,gpotb,gpot0(j1),hab_,vab_,sab_,sodb,qum,vum,& !...Hsm*Pkl! head x tail
+                call gaugm(nr,nsp,lsox,rofi,rwgt,lmxa,lmxl,nlml,v2,gpotb,gpot0(:,ib),hab_,vab_,sab_,sodb,qum,vum,& !...Hsm*Pkl! head x tail
                      lmaxu,vumm,lldau(ib),idu(:,is),&
                      lmxh, nlmh,nlma, &!lmxh=lcutoff for basis (lmxh<=lmxa is assumed)
                      nkaph,nkapi,lmxh,lhh(:,is),fh,xh,vh,dh,&
                      kmax1,kmax1,lmxa,lxa,      fp,xp,vp,dp,&
                      osig(2,ib)%v, otau(2,ib)%v, oppi(2,ib)%cv, ohsozz(2,ib)%sdiag, ohsopm(2,ib)%soffd)
-                call gaugm(nr,nsp,lsox,rofi,rwgt,lmxa,lmxl,nlml,v2,gpotb,gpot0(j1),hab_,vab_,sab_,sodb,qum,vum,& !...Hsm*Hsm! head x head
+                call gaugm(nr,nsp,lsox,rofi,rwgt,lmxa,lmxl,nlml,v2,gpotb,gpot0(:,ib),hab_,vab_,sab_,sodb,qum,vum,& !...Hsm*Hsm! head x head
                      lmaxu,vumm,lldau(ib),idu(:,is),&
                      lmxh,nlmh,nlmh,&
                      nkaph,nkapi,lmxh,lhh(:,is),fh,xh,vh,dh,&

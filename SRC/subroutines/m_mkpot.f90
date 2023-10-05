@@ -205,7 +205,7 @@ contains
     integer:: job,i1,i2,i3,i,iprint,isw,isum, ifi,isp,j,k !dipole,
     real(8):: hpot0_rv(nbas), dq,cpnvsa,qsmc,smq,smag,sum2,rhoex,rhoec,rhvsm,sqloc,sqlocc,saloc,uat,usm,valfsm, &
          valvfa,vvesat,vsum,zsum,zvnsm,rvvxcv(nsp),rvvxc(nsp),rvmusm(nsp),rmusm(nsp), rvepsm(nsp),vxcavg(nsp),repat(nsp),&
-         repatx(nsp),repatc(nsp),rmuat(nsp),repsm(nsp),repsmx(nsp),repsmc(nsp),rhobg,gpot0(nvl),vab_rv(3,3,n0*nsp*nbas),&
+         repatx(nsp),repatc(nsp),rmuat(nsp),repsm(nsp),repsmx(nsp),repsmc(nsp),rhobg,gpot0(nlmxlx,nbas),vab_rv(3,3,n0*nsp*nbas),&
          vval(nlmxlx,nbas),fes(3,nbas),rhvsm0
     real(8),parameter:: minimumrho=1d-14,pi=4d0*datan(1d0),tpi=2d0*pi
     character(80) :: outs

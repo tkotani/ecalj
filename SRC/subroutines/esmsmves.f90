@@ -13,8 +13,8 @@ contains
     implicit none
     include "mpif.h"
     integer, intent(in) :: ng, kv(ng,3)
-    real(8), intent(in) :: gv(ng,3), qmom(nlmxlx,nbas), qbg
-    real(8), intent(out) :: f(3,nbas), gpot0(*), hpot0(nbas), vrmt(nbas)
+    real(8), intent(in) :: gv(ng,3),    qmom(nlmxlx,nbas), qbg
+    real(8), intent(out) :: f(3,nbas), gpot0(nlmxlx,nbas), hpot0(nbas), vrmt(nbas)
     real(8), intent(out) :: zsum, qsmc
     complex(8), intent(in)  :: smrho(n1, n2, n3, 2), cgsum(ng)
     complex(8), intent(out) :: smpot(n1, n2, n3), cv(ng), cg1(ng)

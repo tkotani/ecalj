@@ -51,7 +51,7 @@ module m_vesgcm
     ! ----------------------------------------------------------------------
     implicit none
     integer :: ng,kv(ng,3), i,ib,ilm,iprint,is,iv0,kb,kmax,l, lmxl,m,nlm,lfoc
-    real(8)::qsmc,zsum,qmom(nlmxlx,nbas),gv(ng,3),f(3,nbas),gpot0(*),hpot0(nbas),vrmt(nbas),ceh,cofg,cofh,g2,qc,&
+    real(8)::qsmc,zsum,qmom(nlmxlx,nbas),gv(ng,3),f(3,nbas),gpot0(nlmxlx,nbas),hpot0(nbas),vrmt(nbas),ceh,cofg,cofh,g2,qc,&
          qcorg,qcorh,qsc,rfoc, rg,sum1,sum2,sum3,tpiba,xx,z,cof(nlmx),df(0:20),tau(3),v(3),gvr,rmt,fac, gvb,fadd(3)
     complex(8):: smpot(k1,k2,k3),cv(ng),cg1(ng),cgsum(ng),gkl(0:k0,nlmx),img=(0d0,1d0)
     real(8),parameter::pi = 4d0*datan(1d0), y0 = 1d0/dsqrt(4d0*pi)
@@ -65,6 +65,7 @@ module m_vesgcm
   kmax = 0
   qsmc = 0d0
   zsum = 0d0
+  gpot0=0d0
   do  ib = 1, nbas
      is=ispec(ib)
      tau=rv_a_opos(:,ib) 
@@ -82,7 +83,7 @@ module m_vesgcm
         do m = -l,l
            ilm = ilm+1
            cof(ilm) = qmom(ilm,ib)*4d0*pi/df(2*l+1)
-           gpot0(ilm+iv0) = 0d0
+!           gpot0(ilm,ib) = 0d0
         enddo
      enddo
      hpot0(ib) = 0d0
@@ -94,7 +95,7 @@ module m_vesgcm
 
         do  ilm = 1, nlm
            cg1(i) = cg1(i) + cof(ilm)*gkl(0,ilm)/vol
-           gpot0(ilm+iv0) = gpot0(ilm+iv0) + dconjg(cv(i))*gkl(0,ilm)
+           gpot0(ilm,ib) = gpot0(ilm,ib) + dconjg(cv(i))*gkl(0,ilm)
         enddo
         call hklft(v,rfoc,ceh,tau,alat,kmax,1,k0,cy,gkl)
         cg1(i) = cg1(i) + cofh*gkl(0,1)/vol
@@ -104,7 +105,7 @@ module m_vesgcm
      !   ... Multiply factors into gpot0
      do  ilm = 1, nlm
         l = ll(ilm)
-        gpot0(ilm+iv0) = gpot0(ilm+iv0)*4d0*pi/df(2*l+1)
+        gpot0(ilm,ib) = gpot0(ilm,ib)*4d0*pi/df(2*l+1)
      enddo
      ! ... Force of smooth density on the compensating gaussians
      fadd = [ (-sum(dimag(dconjg(cv(:))*cg1(:))*gv(:,i)), i=1,3)]*vol*tpiba
