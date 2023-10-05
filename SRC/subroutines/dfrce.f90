@@ -7,12 +7,13 @@ module m_dfrce
 contains
   subroutine dfrce(job,orhoat,orhoat_out,qmom,smrho,smrout, dfh)
     use m_lmfinit,only: nvl=>pot_nlml,lat_alat
-    use m_supot,only: rv_a_ogv,iv_a_okv
+    use m_supot,only: gv=>rv_a_ogv,iv_a_okv
     use m_struc_def
     use m_lattic,only: lat_qlat, lat_vol,lat_plat
     use m_supot,only: lat_ng,n1,n2,n3
     use m_lgunit,only:stdo
     use m_rhomom,only: rhomom
+    use m_ropyln,only: ropyln     !- Set up vectors g, g2, yl from list of vectors gv
     !i Inputs
     !i   n1..3 :dimensions smrho
     !i   nvl   :sum of local (lmxl+1)**2, lmxl = density l-cutoff
@@ -41,28 +42,28 @@ contains
     type(s_rv1) :: orhoat_out(3,*)
     type(s_rv1) :: orhoat(3,*)
     real(8):: dfh(3,nbas), qmom(nlmxlx,nbas)
-    complex(8):: smrho(n1,n2,n3,*),smrout(n1,n2,n3,*)
-    integer :: job,ng,iprint,ib,is,lmxl,nlm, ip,m,i,ltop,nlmtop,igets,igetss,nn
+    complex(8):: smrho(n1,n2,n3,nsp),smrout(n1,n2,n3,nsp)
+    integer :: job,ng,iprint,ib,is,lmxl,nlm, ip,m,i,lmxlx,nlmtop,nn
     complex(8) ,allocatable :: ceps_zv(:)
     complex(8) ,allocatable :: cnomi_zv(:)
-    complex(8) ,allocatable :: smro_zv(:)
-    complex(8) ,allocatable :: dvxc_zv(:)
+    complex(8) ,allocatable :: smro_zv(:,:,:,:)
+    complex(8) ,allocatable :: dvxc_zv(:,:,:,:)
     complex(8) ,allocatable :: vxcp_zv(:)
     complex(8) ,allocatable :: vxcm_zv(:)
     complex(8) ,allocatable :: cdvx_zv(:)
     real(8) ,allocatable :: qmout_rv(:,:)
-    complex(8) ,allocatable :: cvin_zv(:)
-    real(8) ,allocatable :: yl_rv(:)
-    real(8) ,allocatable :: g2_rv(:)
-    real(8) ,allocatable :: g_rv(:)
-    integer ,allocatable :: iv_iv(:,:)
+    complex(8) ,allocatable :: cv(:)
+    real(8) ,allocatable :: yl(:,:)
+    real(8) ,allocatable :: g2(:)
+    real(8) ,allocatable :: g_rv(:,:)
+    integer ,allocatable :: iv(:,:)
     complex(8) ,allocatable :: wn1_zv(:)
     complex(8) ,allocatable :: wn2_zv(:)
     complex(8) ,allocatable :: wn3_zv(:)
-    real(8):: vol,plat(3,3),qlat(3,3),alat,vsum,pi,tpiba, fes1(3),fes2(3),fxc(3),c,avgdf(3)
-    integer::ibini,ibend 
+    real(8):: vol,plat(3,3),qlat(3,3),alat,vsum,tpiba, fes1(3),fes2(3),fxc(3),c=1000d0,avgdf(3)
+      real(8),parameter:: pi = 4d0*datan(1d0),tpi = 2d0*pi,y0 = 1d0/dsqrt(4d0*pi)
+    integer::ibini,ibend ,i1,i2,i3
     character(40) :: strn
-    real(8),allocatable:: cs_(:),sn_(:)
     call tcn('dfrce')
     write(stdo,*)'dfrce job=',job
     dfh=0d0
@@ -71,60 +72,71 @@ contains
     alat=lat_alat
     plat=lat_plat
     qlat=lat_qlat
-    c = 1000
     nn   = n1*n2*n3
-    ! ... Arrays needed for pvdf1
-!    allocate(ceps_zv(ng),source=1d0)
-    allocate(cnomi_zv(ng))
-    allocate(cvin_zv(ng))
-    allocate(cdvx_zv(ng*nsp))
-    ! ... Set up for vectorized Y_lm and gaussians
-    ltop = 0
-    do   is = 1, nspec
-       lmxl = lmxl_i(is)
-       ltop = max0(ltop,lmxl)
-    enddo
-    nlmtop = (ltop+1)**2
-    allocate(yl_rv(ng*nlmtop))
-    allocate(g2_rv(ng))
-    allocate(g_rv(ng*3))
-    call suylg ( ltop , alat , ng , rv_a_ogv , g_rv , g2_rv , yl_rv)
+    allocate(cnomi_zv(ng),cv(ng),cdvx_zv(ng*nsp))
+    lmxlx= maxval(lmxl_i)
+    nlmtop = (lmxlx+1)**2
+    allocate(yl(ng,nlmtop),g2(ng),g_rv(ng,3))
+!    call suylg(lmxlx , alat , ng , gv , g_rv , g2 , yl)
+    tpiba = 2d0*pi/alat
+    g_rv(:,:) = tpiba*gv(:,:)
+    call ropyln(ng,g_rv(1,1),g_rv(1,2),g_rv(1,3),lmxlx,ng,yl,g2) !Make the yl's and g2
     if (allocated(g_rv)) deallocate(g_rv)
-    allocate(iv_iv(ng,3))
-    iv_iv = nint(matmul(rv_a_ogv,plat))
+    allocate(iv(ng,3))
+    iv = nint(matmul(gv,plat))
     ! --- Make ves(rhoin,q) ---
-    allocate(smro_zv(nn))
-    allocate(cs_(ng), sn_(ng))
+    allocate(smro_zv(n1,n2,n3,1))
     call dcopy(2*nn, smrho,1,smro_zv,1)
     if(nsp==2) call daxpy(2*nn, 1d0, smrho (1,1,1,2), 1, smro_zv, 1)
     call fftz3 ( smro_zv , n1 , n2 , n3 , n1 , n2 , n3 , 1 , 0 , - 1 )
-    call gvgetf ( ng , 1 , iv_a_okv , n1 , n2 , n3 , smro_zv , cvin_zv )
-    call pvdf4 (  qmom , ng , g2_rv , yl_rv , cs_ , sn_ , iv_iv , qlat , cvin_zv )
+    call gvgetf ( ng , 1 , iv_a_okv , n1 , n2 , n3 , smro_zv , cv )
+    pvdf4:block
+      use m_lattic,only: rv_a_opos
+      use m_hansr,only:corprm
+      integer :: ig,ib,ilm,l,m,nlm,lfoc
+      real(8):: tau(3),df(0:20),rg,qcorg,qcorh,qsc,cofg,cofh,ceh,rfoc,z,gam,gamf,cfoc,cvol
+      complex(8):: cof(nlmxlx),cfac,phase(ng),img=(0d0,1d0)
+      call stdfac(20,df)
+      ibloop: do 10  ib = 1, nbas !FT of gaussian density, all sites, for list of G vectors ---
+         is  = ispec(ib)
+         tau = rv_a_opos(:,ib) 
+         lmxl= lmxl_i(is)
+         rg=rg_i(is)
+         if (lmxl == -1) cycle
+         call corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
+         phase = exp(-img*tpi*matmul(tau, matmul(qlat, transpose(iv))))
+         nlm = (lmxl+1)**2
+         ilm = 0
+         do  20  l = 0, lmxl
+            cfac = (-img)**l
+            do m = -l, l
+               ilm = ilm+1
+               cof(ilm) = cfac*qmom(ilm,ib)*4d0*pi/df(2*l+1)
+            enddo
+20       enddo
+         gam = 0.25d0*rg*rg
+         gamf = 0.25d0*rfoc*rfoc
+         cfoc = -4d0*pi*y0*cofh/vol
+         cvol = 1d0/vol
+         do ig = 1, ng
+            cv(ig) = cv(ig) + cvol*dexp(-gam*g2(ig))*sum(yl(ig,1:nlm)*cof(1:nlm)*phase(ig)) &
+                 +            cfoc*dexp(gamf*(ceh-g2(ig)))/(ceh-g2(ig))*phase(ig)  !Add foca hankel part
+         enddo
+10    enddo ibloop
+      cv(1) = 0d0
+      cv(2:ng) = (8*pi)*cv(2:ng)/g2(2:ng) ! --- Potential is 8pi/G**2 * density; overwrite cv with potential ---
+    endblock pvdf4
     if (allocated(smro_zv)) deallocate(smro_zv)
-    deallocate(cs_,sn_)
     ! --- Make dVxc(in)/dn ---
-    allocate(dvxc_zv(nn*nsp))
-    allocate(smro_zv(nn*nsp))
-    allocate(vxcp_zv(nn*nsp))
-    allocate(vxcm_zv(nn*nsp))
-    allocate(wn1_zv(nn*nsp))
-    allocate(wn2_zv(nn*nsp))
-    allocate(wn3_zv(nn*nsp))
-    call dpcopy ( smrho , smro_zv , 1 , 2 * nn * nsp , 1d0 )
-    call pvdf2 ( nbas , nsp, n1 , n2 , n3 , smro_zv , vxcp_zv , vxcm_zv , wn1_zv, wn2_zv , wn3_zv , dvxc_zv )
-    deallocate(wn3_zv)
-    deallocate(wn2_zv)
-    deallocate(wn1_zv)
-    deallocate(vxcm_zv)
-    deallocate(vxcp_zv)
-    ! --- cdvx = FFT ((n0_out-n0_in) dVxc/dn) ---
-    !     Use total n0_out-n0_in but keep vxc spin polarized
-    call dpzero ( smro_zv , 2 * nn )
-    do  i = 1, nsp
-       call daxpy (2*nn,  1d0, smrout( 1 , 1 , 1 , i ), 1, smro_zv,1)
-       call daxpy (2*nn, -1d0, smrho ( 1 , 1 , 1 , i ), 1, smro_zv,1)
+    allocate(dvxc_zv(n1,n2,n3,nsp))
+    call pvdf2(nsp, n1 , n2 , n3 , smrho, dvxc_zv )
+    ! --- cdvx = FFT ((n0_out-n0_in) dVxc/dn) ---  Use total n0_out-n0_in but keep vxc spin polarized
+    allocate(smro_zv,mold=smrho) 
+    smro_zv(:,:,:,1) = smrout(:,:,:,1)-smrho(:,:,:,1)
+    if(nsp==2) smro_zv(:,:,:,1)=smro_zv(:,:,:,1)+ smrout(:,:,:,2)-smrho(:,:,:,2)
+    do  i  = 1, nsp
+       dvxc_zv(:,:,:,i) = dvxc_zv(:,:,:,i)*smro_zv(:,:,:,1) !- Overwrites dvxc with (nout-nin)*dvxc
     enddo
-    call pvdf3 ( n1 , n2 , n3 , nsp , smro_zv , dvxc_zv )
     call fftz3 ( dvxc_zv , n1 , n2 , n3 , n1 , n2 , n3 , nsp , 0 , - 1 )
     call gvgetf ( ng , nsp , iv_a_okv , n1 , n2 , n3 , dvxc_zv , cdvx_zv )
     ! --- Cnomi = (n0_out(q) - n0_in(q)) ---
@@ -153,8 +165,8 @@ contains
        lmxl = lmxl_i(is)
        if (lmxl == -1) cycle
        nlm = (lmxl+1)**2
-       call pvdf1 ( job , nsp , ib , qmom , qmout_rv , ng , rv_a_ogv , g2_rv , yl_rv , iv_iv , qlat , 0 &
-            , cnomi_zv , cdvx_zv , cvin_zv , orhoat ( 1 , ib ) , fes1 , fes2 , fxc )
+       call pvdf1 ( job , nsp , ib , qmom , qmout_rv , ng , gv , g2 , yl , iv , qlat , 0 &
+            , cnomi_zv , cdvx_zv , cv , orhoat ( 1 , ib ) , fes1 , fes2 , fxc )
        do  i = 1, 3
           dfh(i,ib) = -(fes1(i) + fes2(i) + fxc(i))
        enddo
@@ -162,27 +174,21 @@ contains
             ib,(c*(fes1(m)+fes2(m)),m=1,3),(c*fxc(m),m=1,3),(c*dfh(m,ib),m=1,3)
     enddo
     avgdf=0d0
-    do  ib = 1, nbas
-       do   i = 1, 3
-          avgdf(i) = avgdf(i) + dfh(i,ib)/nbas
-       enddo
+    do ib = 1, nbas
+       avgdf = avgdf + dfh(:,ib)/nbas
     enddo
-    ! ... Shift all forces to make avg correction zero
     do  ib = 1, nbas
-       do  i = 1, 3
-          dfh(i,ib) = dfh(i,ib) - avgdf(i)
-       enddo
+       dfh(:,ib) = dfh(:,ib) - avgdf !Shift all forces to make avg correction zero
     enddo
     if (iprint() >= 30) write(stdo,331) (c*avgdf(m),m=1,3)
 331 format(' shift forces to make zero average correction:',8x,3f8.2)
     if (allocated(qmout_rv)) deallocate(qmout_rv)
-    if (allocated(iv_iv)) deallocate(iv_iv)
-    if (allocated(g2_rv)) deallocate(g2_rv)
-    if (allocated(yl_rv)) deallocate(yl_rv)
+    if (allocated(iv)) deallocate(iv)
+    if (allocated(g2)) deallocate(g2)
+    if (allocated(yl)) deallocate(yl)
     if (allocated(cdvx_zv)) deallocate(cdvx_zv)
-    if (allocated(cvin_zv)) deallocate(cvin_zv)
+    if (allocated(cv)) deallocate(cv)
     if (allocated(cnomi_zv)) deallocate(cnomi_zv)
-!    if (allocated(ceps_zv)) deallocate(ceps_zv)
     call tcx('dfrce')
   end subroutine dfrce
   subroutine pvdf1(job,nsp,ib,qmom, qmout,ng,gv,g2,yl,iv,qlat,kmax,cnomin,cdvxc,cvin , orhoat, fes1,fes2,fxc)
@@ -193,7 +199,6 @@ contains
     use m_hansr,only:corprm
     ! need to modify texts.
     !- Estimate shift in local density for one site
-    ! ----------------------------------------------------------------------
     !i Inputs
     !i   ng,gv,kmax
     !i   orhoat
@@ -220,7 +225,7 @@ contains
     integer:: ng , nsp ,  kmax , ib , job , iv(ng,3),i_copy_size
     type(s_rv1) :: orhoat(3)
     real(8):: qmom(nlmxlx,nbas) , qmout(nlmxlx,nbas) , gv(ng,3) , tau(3) , fes1(3) , &
-         fes2(3) , fxc(3) , g2(ng) , yl(ng,1) , cs(ng) , sn(ng) , qlat(3,3)
+         fes2(3) , fxc(3) , g2(ng) , yl(ng,1)  , qlat(3,3)
     complex(8):: cdn0(ng,nsp),cdn(ng),cdv(ng), cnomin(ng),cdvxc(ng,nsp),cvin(ng)
     integer :: ig,ilm,l,lmxl,m,nlm,nlmx,k,is,jv0,jb,js,n0, nrmx
     parameter (nlmx=64, nrmx=1501, n0=10)
@@ -414,235 +419,31 @@ contains
     fes2=fes2-fesgg
     call tcx('pvdf1')
   end subroutine pvdf1
-  subroutine pvdf2(nbas,nsp,n1,n2,n3, smrho,vxcp,vxcm,wn1,wn2,wn3,dvxc)
+  subroutine pvdf2(nsp,n1,n2,n3, smrho,dvxc)!- Makes derivative of smoothed xc potential wrt density.
     use m_struc_def
     use m_smvxcm,only: smvxcm
-    !- Makes derivative of smoothed xc potential wrt density.
     implicit none
-    integer :: nbas,nsp,n1,n2,n3
-    complex(8):: vxcp(n1,n2,n3,nsp),vxcm(n1,n2,n3,nsp), &
-         dvxc(n1,n2,n3,nsp),smrho(n1,n2,n3,nsp), &
-         wn1(n1,n2,n3,nsp),wn2(n1,n2,n3,nsp), &
-         wn3(n1,n2,n3,nsp)
-    ! ... Local parameters
-    integer:: i1,i2,i3,i,nn
-    real(8):: fac,dmach,f1,f2,f,alfa,dfdr,rrho,dvdr, &
+    integer :: nsp,n1,n2,n3,i
+    complex(8):: vxcp(n1,n2,n3,nsp),vxcm(n1,n2,n3,nsp),vxc0(n1,n2,n3,nsp), &
+         dvxc(n1,n2,n3,nsp),smrho(n1,n2,n3,nsp),dsmrho(n1,n2,n3,nsp), wn1(n1,n2,n3,nsp),wn2(n1,n2,n3,nsp),wn3(n1,n2,n3,nsp)
+    real(8):: fac,dmach,f1,f2,f,alfa,dfdr,rrho(n1,n2,n3),dvdr, &
          rmusm(nsp),rvmusm(nsp),rvepsm(nsp),repsm(nsp),repsmx(nsp),repsmc(nsp), ff(1,1)
-    !fcexc0(nsp),fcex0(nsp),fcec0(nsp),fcvxc0(nsp),
     fac = dmach(1)**(1d0/3d0)
     alfa = 2d0/3d0
-    nn = n1*n2*n3
     call pshpr(0)
-    ! ... Add fac (rho+ + rho-)/2 into rho+, rho- for spin pol case,
-    !     Add fac * rho into rho if not spin polarized
-    if (nsp == 1) then
-       call dpcopy(smrho,smrho,1,nn*2,1d0+fac)
-    else
-       do  i3 = 1, n3
-          do  i2 = 1, n2
-             do  i1 = 1, n1
-                rrho = smrho(i1,i2,i3,1) + smrho(i1,i2,i3,2)
-                smrho(i1,i2,i3,1) = smrho(i1,i2,i3,1) + rrho*fac/2
-                smrho(i1,i2,i3,2) = smrho(i1,i2,i3,2) + rrho*fac/2
-             enddo
-          enddo
-       enddo
-    endif
-    ! ... vxcp = vxc (smrho+drho)
-    call dpzero(vxcp, nn*2*nsp)
-    call dpzero(wn1, nn*2*nsp)
-    call dpzero(wn2, nn*2*nsp)
-    call dpzero(wn3, nn*2)
-    call smvxcm(0,smrho, vxcp,dvxc,wn1,wn2,wn3,repsm,repsmx,repsmc,rmusm, &
-         rvmusm,rvepsm,ff) !,fcexc0,fcex0,fcec0,fcvxc0
-    ! ... Replace fac*rho with -fac*rho
-    if (nsp == 1) then
-       call dpcopy(smrho,smrho,1,nn*2,(1d0-fac)/(1d0+fac))
-    else
-       do  i3 = 1, n3
-          do  i2 = 1, n2
-             do  i1 = 1, n1
-                rrho = (smrho(i1,i2,i3,1) + smrho(i1,i2,i3,2))/(1d0+fac)
-                smrho(i1,i2,i3,1) = smrho(i1,i2,i3,1) - rrho*fac
-                smrho(i1,i2,i3,2) = smrho(i1,i2,i3,2) - rrho*fac
-             enddo
-          enddo
-       enddo
-    endif
-    ! ... vxcm = vxc (smrho-drho)
-    call dpzero(vxcm, nn*2*nsp)
-    call smvxcm(0,smrho,  vxcm,dvxc,wn1,wn2,wn3,repsm,repsmx,repsmc,rmusm, &
-         rvmusm,rvepsm,ff) !,fcexc0,fcex0,fcec0,fcvxc0
-    ! ... Restore rho+, rho-
-    if (nsp == 1) then
-       call dpcopy(smrho,smrho,1,nn*2,1/(1d0-fac))
-    else
-       do  i3 = 1, n3
-          do  i2 = 1, n2
-             do  i1 = 1, n1
-                rrho = (smrho(i1,i2,i3,1) + smrho(i1,i2,i3,2))/(1d0-fac)
-                smrho(i1,i2,i3,1) = smrho(i1,i2,i3,1) + rrho*fac/2
-                smrho(i1,i2,i3,2) = smrho(i1,i2,i3,2) + rrho*fac/2
-             enddo
-          enddo
-       enddo
-    endif
-    ! ... Overwrite vxcp with df/drho
+    dsmrho(:,:,:,1) = sum(smrho(:,:,:,:),dim=4)/nsp*fac ! small separation for numerial deivative
+    if(nsp==2) dsmrho(:,:,:,2) = dsmrho(:,:,:,1)
+    vxcp=0d0; vxcm=0d0; vxc0=0d0; wn1=0d0; wn2=0d0; wn3=0d0
+    call smvxcm(0,smrho+dsmrho,  vxcp,dvxc,wn1,wn2,wn3,repsm,repsmx,repsmc,rmusm, rvmusm,rvepsm,ff) ! ... vxcp = vxc (smrho+drho)
+    call smvxcm(0,smrho-dsmrho,  vxcm,dvxc,wn1,wn2,wn3,repsm,repsmx,repsmc,rmusm, rvmusm,rvepsm,ff)! ... vxcm = vxc (smrho-drho)
+    call smvxcm(0,smrho,         vxc0,dvxc,wn1,wn2,wn3,repsm,repsmx,repsmc,rmusm, rvmusm,rvepsm,ff) 
+    wn1=0d0
     do i = 1, nsp
-       do i3=1,n3
-          do i2=1,n2
-             do i1=1,n1
-                rrho = (smrho(i1,i2,i3,1)+smrho(i1,i2,i3,nsp))/(3-nsp)
-                if (rrho > 0) then
-                   f1 = vxcm(i1,i2,i3,i)*(rrho*(1-fac))**alfa
-                   f2 = vxcp(i1,i2,i3,i)*(rrho*(1+fac))**alfa
-                   dfdr = (f2-f1)/(2d0*fac*rrho)
-                   vxcp(i1,i2,i3,i) = dfdr
-                else
-                   vxcp(i1,i2,i3,i) = 0d0
-                endif
-             enddo
-          enddo
-       enddo
-    enddo
-    ! ... vxcm = vxc (smrho)
-    call dpzero(vxcm, nn*2*nsp)
-    call smvxcm(0,smrho, vxcm,dvxc,wn1,wn2,wn3,repsm,repsmx,repsmc,rmusm, &
-         rvmusm,rvepsm,ff) !,fcexc0,fcex0,fcec0,fcvxc0
-    ! ... dvxc/drho into dvxc
-    do  i = 1, nsp
-       do i3=1,n3
-          do i2=1,n2
-             do i1=1,n1
-                rrho = (smrho(i1,i2,i3,1)+smrho(i1,i2,i3,nsp))/(3-nsp)
-                if (rrho > 0) then
-                   f = vxcm(i1,i2,i3,i) * rrho**alfa
-                   dvdr = (vxcp(i1,i2,i3,i) - alfa*f/rrho) / rrho**alfa
-                   dvxc(i1,i2,i3,i) = dvdr
-                else
-                   dvxc(i1,i2,i3,i) = 0d0
-                endif
-             enddo
-          enddo
-       enddo
+       rrho = (smrho(:,:,:,1)+smrho(:,:,:,nsp))/(3-nsp)
+       dvxc(:,:,:,i) = ( (vxcp(:,:,:,i)*(rrho*(1+fac))**alfa - vxcm(:,:,:,i)*(rrho*(1-fac))**alfa)/(2d0*fac*rrho) &
+            - alfa*vxc0(:,:,:,i)*rrho**alfa/rrho )/ rrho**alfa !probably three point formula of numerical derivative.
+       dvxc(:,:,:,i)=merge(dvxc(:,:,:,i),wn1(:,:,:,1),rrho>0)
     enddo
     call poppr
   end subroutine pvdf2
-  subroutine pvdf3(n1,n2,n3,nsp,deln0,dvxc)
-    !- Overwrites dvxc with (nout-nin)*dvxc
-    implicit none
-    integer :: n1,n2,n3,nsp
-    complex(8):: deln0(n1,n2,n3),dvxc(n1,n2,n3,nsp)
-    integer :: i1,i2,i3,i
-    do  i  = 1, nsp
-       do  i3 = 1, n3
-          do  i2 = 1, n2
-             do  i1 = 1, n1
-                dvxc(i1,i2,i3,i) = dvxc(i1,i2,i3,i)*deln0(i1,i2,i3)
-             enddo
-          enddo
-       enddo
-    enddo
-  end subroutine pvdf3
-  subroutine pvdf4(qmom,ng,g2,yl,cs,sn,iv,qlat,cv)
-    use m_struc_def
-    use m_lattic,only: lat_vol,rv_a_opos
-    use m_supot,only: n1,n2,n3
-    use m_hansr,only:corprm
-    !- Makes smoothed ves from smoothed density and qmom, incl nuc. charge
-    ! ----------------------------------------------------------------------
-    !i Inputs
-    !i   sspec :struct for species-specific information; see routine uspec
-    !i     Elts read: lmxl rg
-    !i     Stored:    *
-    !i     Passed to: corprm
-    !i   slat  :struct for lattice information; see routine ulat
-    !i     Elts read: nabc vol
-    !i     Stored:    *
-    !i     Passed to: *
-    !i   qmom  :multipole moments of on-site densities (rhomom.f)
-    !i   ng    :number of G-vectors
-    !i   g2    :square of G-vectors
-    !i   yl    :spherical harmonics
-    !i   cs    :vector of cosines for the ng vectors
-    !i   sn    :vector of sines for the ng vectors
-    !i   iv
-    !i   qlat  :primitive reciprocal lattice vectors, in units of 2*pi/alat
-    !o Outputs
-    !o   cv    :local gaussian density added to cv
-    !o         :estatatic potential make from density
-    !r Remarks
-    !r   Local charge consists of a sum of gaussians that compensate for
-    !r   the difference in multipole moments of true and smooth local charge
-    !r   and a contribution from the smooth core charge.
-    !r     g(qmpol) + g(qcore-z) + h(ncore)
-    !r
-    !r   Adapted from vesgcm to make strictly FT ves(nloc)
-    !u Updates
-    !u   01 Jul 05 handle sites with lmxa=-1 -> no augmentation
-    ! ----------------------------------------------------------------------
-    implicit none
-    integer :: ig,ib,ilm,is,l,lmxl,m,nlm,lfoc
-    integer,parameter:: nlmx=64
-    integer :: ng,iv(ng,3)
-    real(8)::  qmom(nlmxlx,nbas), g2(ng) , yl(ng,nlmx) , cs(ng) , sn(ng) , qlat(3,3)
-    complex(8):: cv(ng)
-    real(8):: tau(3),df(0:20),vol,rg,qcorg,qcorh,qsc, &
-         cofg,cofh,ceh,rfoc,z,q0(3),gam,gamf,cfoc,cvol,aa
-    complex(8):: cof(nlmx),cfac,phase(ng),img=(0d0,1d0)
-    real(8),parameter:: pi = 4d0*datan(1d0),tpi = 2d0*pi,y0 = 1d0/dsqrt(4d0*pi)
-    data q0 /0d0,0d0,0d0/
-    call tcn('pvdf4')
-    call stdfac(20,df)
-    vol=lat_vol
-    ibloop: do 10  ib = 1, nbas !FT of gaussian density, all sites, for list of G vectors ---
-       is  = ispec(ib)
-       tau = rv_a_opos(:,ib) 
-       lmxl= lmxl_i(is)
-       rg=rg_i(is)
-       if (lmxl == -1) cycle
-       call corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
-       phase = exp(-img*tpi*sum(q0*tau)) * exp(-img*tpi*matmul(tau, matmul(qlat, transpose(iv))))
-       nlm = (lmxl+1)**2
-       if (nlm > nlmx) call rxi('pvdf4: increase nlmx to',nlm)
-       ilm = 0
-       do  20  l = 0, lmxl
-          cfac = (-img)**l
-          do m = -l, l
-             ilm = ilm+1
-             cof(ilm) = cfac*qmom(ilm,ib)*4d0*pi/df(2*l+1)
-          enddo
-20     enddo
-       gam = 0.25d0*rg*rg
-       gamf = 0.25d0*rfoc*rfoc
-       cfoc = -4d0*pi*y0*cofh/vol
-       cvol = 1d0/vol
-       do ig = 1, ng
-          cv(ig) = cv(ig) + cvol*dexp(-gam*g2(ig))*sum(yl(ig,1:nlm)*cof(1:nlm)*phase(ig)) &
-               +            cfoc*dexp(gamf*(ceh-g2(ig)))/(ceh-g2(ig))*phase(ig)  !Add foca hankel part
-       enddo
-10  enddo ibloop
-    cv(1) = 0d0
-    cv(2:ng) = (8*pi)*cv(2:ng)/g2(2:ng) ! --- Potential is 8pi/G**2 * density; overwrite cv with potential ---
-    call tcx('pvdf4')
-  end subroutine pvdf4
-  subroutine suylg(ltop,alat,ng,gv,g,g2,yl)
-    use m_ropyln,only: ropyln     !- Set up vectors g, g2, yl from list of vectors gv
-    !i   ltop  :l-cutoff for YL
-    !i   alat  :length scale of lattice and basis vectors, a.u.
-    !i   ng    :number of G-vectors
-    !i   gv    :list of reciprocal lattice vectors G (gvlist.f)
-    !o Outputs
-    !o   g     :gv scaled by (2 pi / alat)
-    !o   g2    :square of g
-    !o   yl    :YL(g)
-    implicit none
-    integer :: ltop,ng
-    real(8):: alat,gv(ng,3),g(ng,3),yl(ng,1),g2(ng)
-    integer:: i
-    real(8):: pi=4d0*datan(1d0),tpiba
-    tpiba = 2d0*pi/alat
-    g(:,:) = tpiba*gv(:,:)
-    call ropyln(ng,g(1,1),g(1,2),g(1,3),ltop,ng,yl,g2) !Make the yl's and g2
-  end subroutine suylg
 end module m_dfrce
