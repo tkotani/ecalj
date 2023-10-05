@@ -44,7 +44,7 @@ contains
     type(s_rv1) :: orhoat(3,*)
     real(8):: dfh(3,nbas), qmom(nlmxlx,nbas)
     complex(8):: smrho(n1,n2,n3,*),smrout(n1,n2,n3,*)
-    integer :: job,ng,iprint,ib,is,lmxl,iv0,nlm, ip,m,i,ltop,nlmtop,igets,igetss,nn
+    integer :: job,ng,iprint,ib,is,lmxl,nlm, ip,m,i,ltop,nlmtop,igets,igetss,nn
     complex(8) ,allocatable :: ceps_zv(:)
     complex(8) ,allocatable :: cnomi_zv(:)
     complex(8) ,allocatable :: smro_zv(:)
@@ -62,7 +62,7 @@ contains
     complex(8) ,allocatable :: wn2_zv(:)
     complex(8) ,allocatable :: wn3_zv(:)
     real(8):: vol,plat(3,3),qlat(3,3),alat,vsum,pi,tpiba,elind=0d0, fes1(3),fes2(3),fxc(3),c,avgdf(3)
-    integer::ibini,ibend,iiv0(nbas)
+    integer::ibini,ibend 
     character(40) :: strn
     real(8),allocatable:: cs_(:),sn_(:)
     call tcn('dfrce')
@@ -161,15 +161,6 @@ contains
     endif
 201 format(/' Harris correction to forces: ',a/ &
          '  ib',9x,'delta-n dVes',13x,'delta-n dVxc',15x,'total')
-    ! ... Setup array iv0 offset of qmom to ibas
-    iv0 = 0
-    do ib = 1, nbas
-       is = ispec(ib)
-       lmxl = lmxl_i(is)
-       nlm = (lmxl+1)**2
-       iiv0(ib) = iv0
-       iv0 = iv0+nlm
-    enddo
     ibini=1
     ibend=nbas
     do ib = ibini, ibend
@@ -177,17 +168,13 @@ contains
        lmxl = lmxl_i(is)
        if (lmxl == -1) goto 20
        nlm = (lmxl+1)**2
-       call pvdf1 ( job , nsp , ib , iiv0(ib), qmom &
-            , qmout_rv , ng , rv_a_ogv , g2_rv , yl_rv , iv_iv , qlat , 0 &
-            , cnomi_zv , ceps_zv , cdvx_zv , cvin_zv , orhoat ( 1 , &
-            ib ) , fes1 , fes2 , fxc )
+       call pvdf1 ( job , nsp , ib , qmom , qmout_rv , ng , rv_a_ogv , g2_rv , yl_rv , iv_iv , qlat , 0 &
+            , cnomi_zv , ceps_zv , cdvx_zv , cvin_zv , orhoat ( 1 , ib ) , fes1 , fes2 , fxc )
        do  i = 1, 3
           dfh(i,ib) = -(fes1(i) + fes2(i) + fxc(i))
        enddo
-       if (iprint() >= 30) &
-            write(stdo,200) ib,(c*(fes1(m)+fes2(m)),m=1,3), &
-            (c*fxc(m),m=1,3),(c*dfh(m,ib),m=1,3)
-200    format(i4,3f8.2,1x,3f8.2,1x,3f8.2:1x,3f8.2)
+       if(iprint()>=30) write(stdo,"(i4,3f8.2,1x,3f8.2,1x,3f8.2:1x,3f8.2)") &
+            ib,(c*(fes1(m)+fes2(m)),m=1,3),(c*fxc(m),m=1,3),(c*dfh(m,ib),m=1,3)
 20     continue
     enddo
     avgdf=0d0
@@ -214,7 +201,7 @@ contains
     if (allocated(ceps_zv)) deallocate(ceps_zv)
     call tcx('dfrce')
   end subroutine dfrce
-  subroutine pvdf1(job,nsp,ib,iv0,qmom, qmout,ng,gv,g2,yl,iv,qlat,kmax,cnomin,ceps,cdvxc,cvin , orhoat, fes1,fes2,fxc)
+  subroutine pvdf1(job,nsp,ib,qmom, qmout,ng,gv,g2,yl,iv,qlat,kmax,cnomin,ceps,cdvxc,cvin , orhoat, fes1,fes2,fxc)
     use m_struc_def 
     use m_lmfinit,only:lat_alat,pnuall,pnzall
     use m_lattic,only: lat_vol,rv_a_opos
@@ -230,7 +217,6 @@ contains
     !i        2  shift in core+nuclear density
     !i      +10  to screen the rigid shift by the response function
     !i   ib      which site is being shifted
-    !i   iv0     offset to qmom
     !i   qmom,qmout moments of input and output densities
     !i   cnomin  difference betw. smoothed output and input density n0
     !i   cvin    electrostatic potential of input density Ves[n0~_in]
@@ -249,7 +235,7 @@ contains
     !o   fes1,fes2,fxc
     ! ----------------------------------------------------------------------
     implicit none
-    integer:: ng , nsp , iv0 , kmax , ib , job , iv(ng,3),i_copy_size
+    integer:: ng , nsp ,  kmax , ib , job , iv(ng,3),i_copy_size
     type(s_rv1) :: orhoat(3)
     real(8):: qmom(nlmxlx,nbas) , qmout(nlmxlx,nbas) , gv(ng,3) , tau(3) , fes1(3) , &
          fes2(3) , fxc(3) , g2(ng) , yl(ng,1) , cs(ng) , sn(ng) , qlat(3,3)
@@ -388,7 +374,6 @@ contains
           call rxi('dfrce: nonsensical job',job)
        endif
        !   ... Electrostatic potential shift = 1/eps dv [n0~]
-        !       g2 = tpiba*tpiba*(gv(ig,1)**2+gv(ig,2)**2+gv(ig,3)**2)
        cdv(ig)  = cdn(ig) * (8*pi/g2(ig))
        fes1(:) = fes1(:) + dconjg(cnomin(ig)) * tpia*v(:)*cdv(ig)
        do  i = 1, nsp
@@ -423,7 +408,6 @@ contains
        nlm = (lmxl+1)**2
        ! ... For this jb, mesh density for all G vectors
        if (nlm > nlmx) call rxi('pvdf1: increase nlmx to',nlm)
-       !     call suphas(q0,tau,ng,iv,n1,n2,n3,qlat,cs,sn)
        phase = exp(-img*tpi*sum(q0*tau)) * exp(-img*tpi*matmul(tau, matmul(qlat, transpose(iv))))
        gpot0=0d0
        gam = 0.25d0*rg*rg
@@ -446,7 +430,6 @@ contains
           do  62  m = -l, l
              ilm = ilm+1
              gpot0(ilm,:) = gpot0(ilm,:)*4d0*pi/df(2*l+1)
-!             feso(:) = feso(:) + qmom(jv0+ilm)*gpot0(ilm,:)
              fes2(:) = fes2(:) + qmout(ilm,jb)*gpot0(ilm,:)
 62        enddo
 60     enddo
@@ -626,7 +609,7 @@ contains
     integer :: ng,iv(ng,3),i_copy_size
     real(8)::  qmom(nlmxlx,nbas), g2(ng) , yl(ng,1) , cs(ng) , sn(ng) , qlat(3,3)
     complex(8):: cv(ng)
-    integer :: ig,ib,ilm,is,iv0,l,lmxl,m,nlm,nlmx,lfoc
+    integer :: ig,ib,ilm,is,l,lmxl,m,nlm,nlmx,lfoc
     parameter (nlmx=64)
     real(8):: tau(3),df(0:20),vol,rg,qcorg,qcorh,qsc, &
          cofg,cofh,ceh,rfoc,z,q0(3),gam,gamf,cfoc,cvol,aa
@@ -637,7 +620,6 @@ contains
     call stdfac(20,df)
     vol=lat_vol
     ! --- FT of gaussian density, all sites, for list of G vectors ---
-    iv0 = 0
     do  10  ib = 1, nbas
        is=ispec(ib)
        tau=rv_a_opos(:,ib) 
@@ -645,7 +627,6 @@ contains
        rg=rg_i(is)
        if (lmxl == -1) goto 10
        call corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
-       !     call suphas(q0,tau,ng,iv,n1,n2,n3,qlat,cs,sn)
        phase = exp(-img*tpi*sum(q0*tau)) * exp(-img*tpi*matmul(tau, matmul(qlat, transpose(iv))))
        nlm = (lmxl+1)**2
        if (nlm > nlmx) call rxi('pvdf4: increase nlmx to',nlm)
@@ -658,7 +639,6 @@ contains
              cof(ilm) = cfac*qmom(ilm,ib)*4d0*pi/df(2*l+1)
 21        enddo
 20     enddo
-!       cof(1) = cof(1) + 4*pi*y0*(qcorg-z)
        gam = 0.25d0*rg*rg
        gamf = 0.25d0*rfoc*rfoc
        cfoc = -4d0*pi*y0*cofh/vol
@@ -672,7 +652,6 @@ contains
           aa = dexp(gamf*(ceh-g2(ig)))/(ceh-g2(ig))
           cv(ig) = cv(ig) + cfoc*aa*phase(ig)
 30     enddo
-       iv0 = iv0+nlm
 10  enddo
     ! --- Potential is 8pi/G**2 * density; overwrite cv with potential ---
     cv(1) = (0d0,0d0)

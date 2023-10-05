@@ -4,7 +4,7 @@ module m_esmsmves
   private
 contains
   subroutine esmsmves(qmom,ng,gv,kv,cv,cg1,cgsum,smrho,qbg,smpot,f,gpot0,hpot0,qsmc,zsum,vrmt)
-    use m_lmfinit,only: nsp, alat=>lat_alat,nbas
+    use m_lmfinit,only: nsp, alat=>lat_alat,nbas,nlmxlx
     use m_MPItk,only:  master_mpi,mlog
     use m_lattic,only: vol=>lat_vol,plat=>lat_plat
     use m_lgunit,only:stdo
@@ -13,7 +13,7 @@ contains
     implicit none
     include "mpif.h"
     integer, intent(in) :: ng, kv(ng,3)
-    real(8), intent(in) :: gv(ng,3), qmom(*), qbg
+    real(8), intent(in) :: gv(ng,3), qmom(nlmxlx,nbas), qbg
     real(8), intent(out) :: f(3,nbas), gpot0(*), hpot0(nbas), vrmt(nbas)
     real(8), intent(out) :: zsum, qsmc
     complex(8), intent(in)  :: smrho(n1, n2, n3, 2), cgsum(ng)
