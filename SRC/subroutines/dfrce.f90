@@ -46,7 +46,7 @@ contains
     integer :: job,ng,iprint,ib,is,lmxl,nlm, ip,m,i,lmxlx,nlmtop,nn
     complex(8) ,allocatable :: ceps_zv(:)
     complex(8) ,allocatable :: cnomi_zv(:)
-    complex(8) ,allocatable :: smro_zv(:,:,:,:)
+    complex(8) ,allocatable :: smro_zv(:,:,:,:),smav(:,:,:)
     complex(8) ,allocatable :: dvxc_zv(:,:,:,:)
     complex(8) ,allocatable :: vxcp_zv(:)
     complex(8) ,allocatable :: vxcm_zv(:)
@@ -61,7 +61,7 @@ contains
     complex(8) ,allocatable :: wn2_zv(:)
     complex(8) ,allocatable :: wn3_zv(:)
     real(8):: vol,plat(3,3),qlat(3,3),alat,vsum,tpiba, fes1(3),fes2(3),fxc(3),c=1000d0,avgdf(3)
-      real(8),parameter:: pi = 4d0*datan(1d0),tpi = 2d0*pi,y0 = 1d0/dsqrt(4d0*pi)
+    real(8),parameter:: pi = 4d0*datan(1d0),tpi = 2d0*pi,y0 = 1d0/dsqrt(4d0*pi)
     integer::ibini,ibend ,i1,i2,i3
     character(40) :: strn
     call tcn('dfrce')
@@ -76,20 +76,16 @@ contains
     allocate(cnomi_zv(ng),cv(ng),cdvx_zv(ng*nsp))
     lmxlx= maxval(lmxl_i)
     nlmtop = (lmxlx+1)**2
-    allocate(yl(ng,nlmtop),g2(ng),g_rv(ng,3))
-!    call suylg(lmxlx , alat , ng , gv , g_rv , g2 , yl)
+    allocate(yl(ng,nlmtop),g2(ng),g_rv(ng,3),iv(ng,3))
     tpiba = 2d0*pi/alat
     g_rv(:,:) = tpiba*gv(:,:)
     call ropyln(ng,g_rv(1,1),g_rv(1,2),g_rv(1,3),lmxlx,ng,yl,g2) !Make the yl's and g2
     if (allocated(g_rv)) deallocate(g_rv)
-    allocate(iv(ng,3))
     iv = nint(matmul(gv,plat))
-    ! --- Make ves(rhoin,q) ---
-    allocate(smro_zv(n1,n2,n3,1))
-    call dcopy(2*nn, smrho,1,smro_zv,1)
-    if(nsp==2) call daxpy(2*nn, 1d0, smrho (1,1,1,2), 1, smro_zv, 1)
-    call fftz3 ( smro_zv , n1 , n2 , n3 , n1 , n2 , n3 , 1 , 0 , - 1 )
-    call gvgetf ( ng , 1 , iv_a_okv , n1 , n2 , n3 , smro_zv , cv )
+    allocate(smav,source=sum(smrho(:,:,:,:),dim=4))
+    call fftz3 ( smav , n1 , n2 , n3 , n1 , n2 , n3 , 1 , 0 , - 1 )
+    call gvgetf ( ng , 1 , iv_a_okv , n1 , n2 , n3 , smav , cv ) 
+    deallocate(smav)
     pvdf4:block
       use m_lattic,only: rv_a_opos
       use m_hansr,only:corprm
@@ -105,15 +101,11 @@ contains
          if (lmxl == -1) cycle
          call corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
          phase = exp(-img*tpi*matmul(tau, matmul(qlat, transpose(iv))))
+         do ilm=1,(lmxl+1)**2 !l = 0, lmxl
+            l=ll(ilm)
+            cof(ilm) = (-img)**l*qmom(ilm,ib)*4d0*pi/df(2*l+1)
+         enddo
          nlm = (lmxl+1)**2
-         ilm = 0
-         do  20  l = 0, lmxl
-            cfac = (-img)**l
-            do m = -l, l
-               ilm = ilm+1
-               cof(ilm) = cfac*qmom(ilm,ib)*4d0*pi/df(2*l+1)
-            enddo
-20       enddo
          gam = 0.25d0*rg*rg
          gamf = 0.25d0*rfoc*rfoc
          cfoc = -4d0*pi*y0*cofh/vol
@@ -126,7 +118,6 @@ contains
       cv(1) = 0d0
       cv(2:ng) = (8*pi)*cv(2:ng)/g2(2:ng) ! --- Potential is 8pi/G**2 * density; overwrite cv with potential ---
     endblock pvdf4
-    if (allocated(smro_zv)) deallocate(smro_zv)
     ! --- Make dVxc(in)/dn ---
     allocate(dvxc_zv(n1,n2,n3,nsp))
     call pvdf2(nsp, n1 , n2 , n3 , smrho, dvxc_zv )
@@ -139,18 +130,14 @@ contains
     enddo
     call fftz3 ( dvxc_zv , n1 , n2 , n3 , n1 , n2 , n3 , nsp , 0 , - 1 )
     call gvgetf ( ng , nsp , iv_a_okv , n1 , n2 , n3 , dvxc_zv , cdvx_zv )
-    ! --- Cnomi = (n0_out(q) - n0_in(q)) ---
     call fftz3 ( smro_zv , n1 , n2 , n3 , n1 , n2 , n3 , 1 , 0 , - 1 )
-    call gvgetf ( ng , 1 , iv_a_okv , n1 , n2 , n3 , smro_zv , cnomi_zv  )
-    if (allocated(smro_zv)) deallocate(smro_zv)
-    if (allocated(dvxc_zv)) deallocate(dvxc_zv)
-    ! --- Multipole moments of the output density ---
+    call gvgetf ( ng , 1 , iv_a_okv , n1 , n2 , n3 , smro_zv , cnomi_zv  ) !Cnomi = (n0_out(q) - n0_in(q)) ---
+    deallocate(smro_zv,dvxc_zv)
     allocate(qmout_rv(nlmxlx,nbas))
     call pshpr(0)
-    call rhomom (orhoat_out , qmout_rv , vsum )
+    call rhomom (orhoat_out , qmout_rv , vsum ) !Multipole moments of the output density ---
     call poppr
     qmout_rv = qmout_rv- qmom
-    ! --- For each site, get correction to force ---
     if (iprint() >= 30) then
        strn = 'shift in free-atom density'
        if (job == 11) strn = 'screened shift in free-atom density'
@@ -158,37 +145,20 @@ contains
        write(stdo,201) strn
     endif
 201 format(/' Harris correction to forces: ',a/'  ib',9x,'delta-n dVes',13x,'delta-n dVxc',15x,'total')
-    ibini=1
-    ibend=nbas
-    do ib = ibini, ibend
+    do ib = 1,nbas
        is   = ispec(ib)
        lmxl = lmxl_i(is)
        if (lmxl == -1) cycle
        nlm = (lmxl+1)**2
-       call pvdf1 ( job , nsp , ib , qmom , qmout_rv , ng , gv , g2 , yl , iv , qlat , 0 &
-            , cnomi_zv , cdvx_zv , cv , orhoat ( 1 , ib ) , fes1 , fes2 , fxc )
-       do  i = 1, 3
-          dfh(i,ib) = -(fes1(i) + fes2(i) + fxc(i))
-       enddo
+       call pvdf1(job,nsp,ib,qmom,qmout_rv,ng,gv,g2,yl,iv,qlat,0,cnomi_zv,cdvx_zv,cv,orhoat(1,ib),fes1,fes2,fxc)
+       dfh(:,ib) = -(fes1(:) + fes2(:) + fxc(:))
        if(iprint()>=30) write(stdo,"(i4,3f8.2,1x,3f8.2,1x,3f8.2:1x,3f8.2)") &
             ib,(c*(fes1(m)+fes2(m)),m=1,3),(c*fxc(m),m=1,3),(c*dfh(m,ib),m=1,3)
     enddo
-    avgdf=0d0
-    do ib = 1, nbas
-       avgdf = avgdf + dfh(:,ib)/nbas
-    enddo
-    do  ib = 1, nbas
-       dfh(:,ib) = dfh(:,ib) - avgdf !Shift all forces to make avg correction zero
-    enddo
-    if (iprint() >= 30) write(stdo,331) (c*avgdf(m),m=1,3)
-331 format(' shift forces to make zero average correction:',8x,3f8.2)
-    if (allocated(qmout_rv)) deallocate(qmout_rv)
-    if (allocated(iv)) deallocate(iv)
-    if (allocated(g2)) deallocate(g2)
-    if (allocated(yl)) deallocate(yl)
-    if (allocated(cdvx_zv)) deallocate(cdvx_zv)
-    if (allocated(cv)) deallocate(cv)
-    if (allocated(cnomi_zv)) deallocate(cnomi_zv)
+    avgdf = sum(dfh,dim=2)/nbas
+    forall(ib = 1:nbas) dfh(:,ib) = dfh(:,ib) - avgdf !Shift all forces to make avg correction zero
+    if(iprint() >= 30) write(stdo,"(' shift forces to make zero average correction:',8x,3f8.2)") (c*avgdf(m),m=1,3)
+    deallocate(qmout_rv,iv,g2,yl,cdvx_zv,cv,cnomi_zv)
     call tcx('dfrce')
   end subroutine dfrce
   subroutine pvdf1(job,nsp,ib,qmom, qmout,ng,gv,g2,yl,iv,qlat,kmax,cnomin,cdvxc,cvin , orhoat, fes1,fes2,fxc)
@@ -220,14 +190,13 @@ contains
     !o           by a gaussian of the equivalent multipole moment.
     !o   cdv:    shift in the electrostatic potential
     !o   fes1,fes2,fxc
-    ! ----------------------------------------------------------------------
     implicit none
     integer:: ng , nsp ,  kmax , ib , job , iv(ng,3),i_copy_size
     type(s_rv1) :: orhoat(3)
     real(8):: qmom(nlmxlx,nbas) , qmout(nlmxlx,nbas) , gv(ng,3) , tau(3) , fes1(3) , &
          fes2(3) , fxc(3) , g2(ng) , yl(ng,1)  , qlat(3,3)
     complex(8):: cdn0(ng,nsp),cdn(ng),cdv(ng), cnomin(ng),cdvxc(ng,nsp),cvin(ng)
-    integer :: ig,ilm,l,lmxl,m,nlm,nlmx,k,is,jv0,jb,js,n0, nrmx
+    integer :: ig,ilm,l,lmxl,m,nlm,nlmx,k,is,jb,js,n0, nrmx
     parameter (nlmx=64, nrmx=1501, n0=10)
     integer :: lmxa,nr,nxi,ie,ixi,job0,kcor,lcor,lfoc,i, nlml
     real(8):: alat,ceh,cofg,cofh,qcorg,qcorh,qsc,rfoc,rg, &
@@ -295,7 +264,6 @@ contains
 15           enddo
 142       enddo
 141    enddo
-       !   ... Add gaussian to conserve local charge
        !     ... Add gaussian to conserve local charge.  If density corresponds
        !         to the free-atom density, qfat+qloc = qval+qsc; then qg=0
        cc = qg/vol/nsp
@@ -372,15 +340,8 @@ contains
           fesgg(k) = fesgg(k) + qmout(ilm,ib)*gpot0(ilm,k)
        enddo
     enddo
-    !      print 339, 'n0(out-in) * g dves ',fes1
-    !      print 339, 'd(g) qmom(out-in) ves[n0~]',fesgg
-    !      print 339, 'n0~(out-in) * dvxc   ',fxc
-    !  339 format(a,6p,3f8.2)
-
     ! --- Integral of dves~ (output-input local charge) for all sites ---
     fes2=0d0
-!    feso=0d0 
-    jv0 = 0
     do  40  jb = 1, nbas
        js=ispec(jb) 
        tau=rv_a_opos(:,jb)
@@ -414,7 +375,6 @@ contains
              fes2(:) = fes2(:) + qmout(ilm,jb)*gpot0(ilm,:)
 62        enddo
 60     enddo
-       jv0 = jv0+nlm
 40  enddo
     fes2=fes2-fesgg
     call tcx('pvdf1')

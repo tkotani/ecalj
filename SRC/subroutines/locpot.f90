@@ -153,7 +153,7 @@ contains
            call radmsh(rmt,a,nr,rofi)
            call radwgt(rmt,a,nr,rwgt)
            if(cmdopt0('--wrhomt'))call wrhomt('rhoMT.','density',ib,orhoat(1,ib)%v,rofi,nr,nlml,nsp) ! Write true density to file rhoMT.ib
-           call locpt2(ib,j1,z,rmt,rg,a,nr,nsp,cofg,cofh, & ! Make potential and energy terms at this site ---
+           call locpt2(ib,z,rmt,rg,a,nr,nsp,cofg,cofh, & ! Make potential and energy terms at this site ---
                 ceh,rfoc,lfoc,nlml,qmom(:,ib),vval(:,ib),rofi,rwgt, orhoat(1,ib)%v,orhoat(2,ib)%v,orhoat(3,ib)%v,   gpot0(j1), &
                 rhol1,rhol2,v1,v2,v1es,v2es,&
                 valvs(ib),cpnvs(ib),rhexc(:,ib),rhex(:,ib),rhec(:,ib),rhvxc(:,ib),&
@@ -310,7 +310,7 @@ contains
     deallocate(efg,zz)!,rhol1,rhol2,v1,v2,v1es,v2es)
     call tcx('locpot')
   end subroutine locpot
-  subroutine locpt2(ib,j1,z,rmt,rg,a,nr,nsp,cofg,cofh,ceh,rfoc,lfoc, & !- Makes the potential at one site, and associated energy terms.
+  subroutine locpt2(ib,z,rmt,rg,a,nr,nsp,cofg,cofh,ceh,rfoc,lfoc, & !- Makes the potential at one site, and associated energy terms.
        nlml,qmom,vval,rofi,rwgt,rho1,rho2,rhoc,gpot0,&
        rhol1,rhol2,v1,v2,v1es,v2es,&
        vvesat,cpnves,rhoexc,rhoex,rhoec,rhovxc, valvef,xcore,qloc, & 
@@ -410,7 +410,7 @@ contains
     !r                 vbg= -(4pi/3)*(rmt^2-r^2)*rhobg to v1 and v2
     !r   in spherical components .
     implicit none
-    integer:: nr,nsp,lfoc,nlml,ib,j1, ipr,iprint,i,isp,ilm,l,lxcfun,nglob,nrml, ifivesint
+    integer:: nr,nsp,lfoc,nlml,ib, ipr,iprint,i,isp,ilm,l,lxcfun,nglob,nrml, ifivesint
     real(8):: rofi(nr),rwgt(nr), qmom(nlml),vval(nlmxlx),gpotb(nlml),gpot0(nlml), &
          rho1(nr,nlml,nsp),rhol1(nr,nlml,nsp), rho2(nr,nlml,nsp),rho2s(nr,nlml,nsp),rhol2(nr,nlml,nsp), &
          v1(nr,nlml,nsp),v1es(nr,nlml,nsp), v2(nr,nlml,nsp),v2es(nr,nlml,nsp), &
