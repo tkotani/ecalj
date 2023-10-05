@@ -19,7 +19,7 @@ module m_lmfinit ! 'call m_lmfinit_init' sets all initial data from ctrl are pro
        lmxbx=-1,lmxax,bz_lshft(3)=0, bz_lmet,bz_n,bz_lmull,bz_fsmommethod,str_mxnbr,&
        iter_maxit=1, mix_nsave, pwmode,ncutovl ,ndimx,natrlx,pdim, leks,lrout,plbnd, pot_nlma, pot_nlml,ham_nspx, nlmto,& !total number of MTOs 
        lrlxr,nkillr,nitrlx, broyinit,nmixinit,killj ,&
-       ham_pwmode,ham_nlibu, nlmax,lfrce,bz_nevmx,ham_nbf,ham_lsig,bz_nabcin(3)=NULLI, bz_ndos,ldos, lmaxu,nlibu
+       ham_pwmode,ham_nlibu, nlmax,lfrce,bz_nevmx,ham_nbf,ham_lsig,bz_nabcin(3)=NULLI, bz_ndos,ldos, lmaxu,nlibu,nlmxlx
   logical,protected :: ham_frzwf,ham_ewald, lhf,lcd4,bz_tetrahedron, addinv,&
        readpnu,v0fix,pnufix,bexist,rdhessr, lpztail=.false., xyzfrz(3),readpnuskipf
   real(8),protected:: pmin(n0)=0d0,pmax(n0)=0d0,tolft,scaledsigma, ham_oveps,ham_scaledsigma, cc,&!speed of light
@@ -117,7 +117,7 @@ contains
     real(8):: pnuspx(20) ,temp33(9),seref, xxx, avwsr, d2,plat(3,3),rydberg,rr, vsn,vers,xv(2*n0),xvv(3)
     real(8),allocatable ::rv(:)
     character*(8),allocatable::clabl(:)
-    integer,allocatable:: ipc(:),initc(:),ics(:), idxdn(:,:,:) !,wowk(:),jma(:),
+    integer,allocatable:: idxdn(:,:,:) 
     real(8),allocatable:: pnuspc(:,:,:),qnuc(:,:,:,:),pp(:,:,:,:),ves(:),zc(:) !    debug = cmdopt0('--debug')
     if(master_mpi) write(stdo,"(a)")'m_lmfinit: '//trim(prgnam)
     HelpExit: if(master_mpi.and.cmdopt0('--help')) then !minimum help
@@ -639,6 +639,7 @@ contains
       nspx  = nsp/nspc
       nvi= sum([( (lmxa(ispec(ib))+1)**2,ib=1,nbas )])
       nvl= sum([( (lmxl(ispec(ib))+1)**2,ib=1,nbas )])
+      nlmxlx = maxval([( (lmxl(ispec(ib))+1)**2,ib=1,nbas )])
       pot_nlma=nvi
       pot_nlml=nvl
       allocate(jnlml(nbas), source=[1,(1+sum( (lmxl(ispec(1:i))+1)**2 ),i=1,nbas-1)]) !offset of lmxl

@@ -1,7 +1,7 @@
 !> Make the potential at atomic sites and augmentation matrices.
 module m_locpot 
   use m_ftox
-  use m_lmfinit,only: z_i=>z,nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,lmxb_i=>lmxb,lmxl_i=>lmxl,spec_a,kmxt_i=>kmxt,rg_i=>rg
+  use m_lmfinit,only: z_i=>z,nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,lmxb_i=>lmxb,lmxl_i=>lmxl,spec_a,kmxt_i=>kmxt,rg_i=>rg,nlmxlx
   use m_ll,only:ll
   use m_lmfinit,only: lmxax,nsp,nbas
   use m_MPItk,only: master_mpi
@@ -76,8 +76,8 @@ contains
     type(s_cv5) :: oppi(3,nbas)
     type(s_sblock):: ohsozz(3,nbas),ohsopm(3,nbas)
     type(s_rv4) :: otau(3,nbas), osig(3,nbas)
-    real(8):: qmom(*) , vval(*), cpnvsa,rhoexc(nsp),rhoex(nsp),rhoec(nsp),rhovxc(nsp), &
-         qval,sqloc,sqlocc,saloc, valvef,vvesat,xcore,gpot0(1),phzdphz(nppn,n0,nsp,nbas),rhobg,&
+    real(8):: qmom(*) , vval(nlmxlx,nbas), cpnvsa,rhoexc(nsp),rhoex(nsp),rhoec(nsp),rhovxc(nsp), &
+         qval,sqloc,sqlocc,saloc, valvef,vvesat,xcore,gpot0(*),phzdphz(nppn,n0,nsp,nbas),rhobg,&
          eh(n0,nkap0),rsmh(n0,nkap0), ehl(n0),rsml(n0),z,a,rmt,qc,ceh,rfoc, &
          qcorg,qcorh,qsc,cofg,cofh,qsca,rg,qv,cpnvs, qloc,qlocc,xcor, aloc,alocc,rs3,vmtz,qcor(2),qc0,qsc0, ov0mean,pmean
     real(8),target::hab(3,3,n0,nsp,nbas),vab(3,3,n0,nsp,nbas),sab(3,3,n0,nsp,nbas)
@@ -154,7 +154,7 @@ contains
            call radwgt(rmt,a,nr,rwgt)
            if(cmdopt0('--wrhomt'))call wrhomt('rhoMT.','density',ib,orhoat(1,ib)%v,rofi,nr,nlml,nsp) ! Write true density to file rhoMT.ib
            call locpt2(ib,j1,z,rmt,rg,a,nr,nsp,cofg,cofh, & ! Make potential and energy terms at this site ---
-                ceh,rfoc,lfoc,nlml,qmom,vval,rofi,rwgt, orhoat(1,ib)%v,orhoat(2,ib)%v,orhoat(3,ib)%v,   gpot0(j1), &
+                ceh,rfoc,lfoc,nlml,qmom,vval(:,ib),rofi,rwgt, orhoat(1,ib)%v,orhoat(2,ib)%v,orhoat(3,ib)%v,   gpot0(j1), &
                 rhol1,rhol2,v1,v2,v1es,v2es,&
                 valvs(ib),cpnvs(ib),rhexc(:,ib),rhex(:,ib),rhec(:,ib),rhvxc(:,ib),&
                 valvt(ib),xcor(ib) ,qloc(ib),qlocc(ib),aloc(ib),alocc(ib),gpotb, rhobg,efg(1,ib),ifivesint,lxcf,    v1out) 
@@ -412,7 +412,7 @@ contains
     !r   in spherical components .
     implicit none
     integer:: nr,nsp,lfoc,nlml,ib,j1, ipr,iprint,i,isp,ilm,l,lxcfun,nglob,nrml, ifivesint
-    real(8):: rofi(nr),rwgt(nr), qmom(nlml),vval(1),gpotb(nlml),gpot0(nlml), &
+    real(8):: rofi(nr),rwgt(nr), qmom(nlml),vval(nlmxlx),gpotb(nlml),gpot0(nlml), &
          rho1(nr,nlml,nsp),rhol1(nr,nlml,nsp), rho2(nr,nlml,nsp),rho2s(nr,nlml,nsp),rhol2(nr,nlml,nsp), &
          v1(nr,nlml,nsp),v1es(nr,nlml,nsp), v2(nr,nlml,nsp),v2es(nr,nlml,nsp), &
          wk(nr,nlml,nsp),rhoc(nr,nsp), efg(5), z,rmt,rg,a,cofg,cofh,ceh,rfoc,xcore,qloc,qlocc, &
@@ -483,7 +483,7 @@ contains
       sum2  = srfpi*sum(rwgt*rhol2t(:,1))     !MT charge of \bar{n}^ZcV of 2nd component  Eq.(30)
       if(dabs(sum1-sum2)>1d-6) call rx1('locpt2: sphere not neutral: charge = %d',sum1-sum2)
       block     
-        call poinsp(z,vval(j1),nlml,v1out,rofi,rhol1t,wk,nr,rvs1,rhves1,  vnucl,vsum)
+        call poinsp(z,vval,nlml,v1out,rofi,rhol1t,wk,nr,rvs1,rhves1,  vnucl,vsum)
         ! v1out is with the b.c. vval detemined by \bar{n0}^Zcv. This is needed for pnunew (set energy at the center of gravity).
         if (nsp == 2) v1out(:,:,2)=v1out(:,:,1)
         call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rhol1,lxcfun,rep1,rep1x,rep1c,rmu1,v1out,fl,qs) !v1out is for radial basis and pnu.
@@ -522,14 +522,10 @@ contains
       vcpn2  = vesn2 + vesc2
       cpnves = vcpn1 - vcpn2
     endblock rhototal
-    v1(:,:,1) = v1es(:,:,1) 
-    v2(:,:,1) = v2es(:,:,1) 
-    if (nsp == 2) then
-       v1es(:,:,2)=v1es(:,:,1)
-       v2es(:,:,2)=v2es(:,:,1)
-       v1(:,:,2)  =v1es(:,:,1) 
-       v2(:,:,2)  =v2es(:,:,1) 
-    endif
+    if(nsp==2) v1es(:,:,2)=v1es(:,:,1)
+    if(nsp==2) v2es(:,:,2)=v2es(:,:,1)
+    forall(isp=1:nsp) v1(:,:,isp) =v1es(:,:,1) 
+    forall(isp=1:nsp) v2(:,:,isp) =v2es(:,:,1) 
     call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rhol1,lxcfun,rep1,rep1x,rep1c,rmu1,v1,fl,qs) !add xc to v1
     rho2s=rho2
     do  isp = 1, nsp

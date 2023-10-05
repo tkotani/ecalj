@@ -1,13 +1,13 @@
 !>smooth part of electrostatic potential.
 module m_smves 
-  use m_lmfinit,only: rmt_i=>rmt,lmxl_i=>lmxl,spec_a,rg_i=>rg
+  use m_lmfinit,only: rmt_i=>rmt,lmxl_i=>lmxl,spec_a,rg_i=>rg,nlmxlx,nbas
   use m_ll,only:ll
   private
   public smves
 contains
   subroutine smves(qmom,gpot0,vval,hpot0,smrho,smpot,vconst,smq,qsmc,f,rhvsm0,rhvsm,zvnsm,zsum,vrmt,qbg) ! Electrostatic potential of the 0th component (represented by PlaneWave + Gaussians + smHankels)
     use m_supot,only: iv_a_okv, rv_a_ogv
-    use m_lmfinit,only: rv_a_ocy,nsp,stdo,nbas,ispec
+    use m_lmfinit,only: rv_a_ocy,nsp,stdo,ispec
     use m_lattic,only: vol=>lat_vol
     use m_supot,only: ng=>lat_ng,n1,n2,n3
     use m_MPItk,only: master_mpi
@@ -137,7 +137,7 @@ contains
     implicit none
     integer:: ib , igetss , ilm , ipr , iprint , is , iv0 , lfoc, &
          lgunit , lmxl , m , nlm , j1 , j2 , j3,iwdummy, ifivsmconst
-    real(8):: qmom(1) , f(3,nbas) , gpot0(1) , vval(1) , hpot0(nbas) &
+    real(8):: qmom(*) , f(3,nbas) , gpot0(1) , vval(nlmxlx,nbas) , hpot0(nbas) &
          , vrmt(nbas),qsmc,smq,rhvsm,vconst,zsum,zvnsm,qbg
     real(8):: ceh,cofg,cofh,dgetss,hsum,qcorg,qcorh,qsc, &
          rfoc,rmt,s1,s2,sbar,sumx,sum1,sum2,u00,u0g,ugg,usm,vbar,z,R,eint, rhvsm0
@@ -183,7 +183,7 @@ contains
        if (lmxl > -1) then
           nlm = (lmxl+1)**2
           vrmt(ib) = vrmt(ib) + vconst
-          vval(1+iv0) = vval(1+iv0) + vconst/y0
+          vval(1,ib) = vval(1,ib) + vconst/y0
           gpot0(1+iv0) = gpot0(1+iv0) + vconst/y0
           iv0 = iv0 + nlm
        endif
@@ -208,13 +208,10 @@ contains
     smq = dreal(sum(smrho(:,:,:,1)))               *vol/(n1*n2*n3)  !Integral n0
     s1  = dreal(sum(smrho(:,:,:,1)*smpot(:,:,:,1)))*vol/(n1*n2*n3)  !Integral n0*phi0~
     u0g = s1 - u00
-    call ugcomp(qmom,gpot0,hpot0,ugg,f) 
+    call ugcomp(qmom,gpot0,hpot0,ugg,f) !Gaussian part added
     if(ipr>=50)write (stdo,"(/' after ugcomp: forces are'/(i4,3f12.6))")(ib,(f(m,ib),m=1,3),ib=1,nbas)
     if(ipr>=50)write(stdo,"(' u00,u0g,ugg=',3f14.6)") u00,u0g,ugg
-
-
-
-    
+   
     ! --- Collect energy terms; make zvnuc for smooth problem ---
     zvnsm = 0d0
     rhvsm0= u00 + u0g + vconst*smq
@@ -250,7 +247,7 @@ contains
   subroutine mshvmt(ng,gv, kv,cv,smpot,vval)
     use m_struc_def
     use m_lattic,only:lat_plat,rv_a_opos
-    use m_lmfinit,only:lat_alat,nbas,ispec
+    use m_lmfinit,only:lat_alat,ispec
     use m_supot,only: n1,n2,n3
     use m_ropyln,only: ropyln
     use m_ropbes,only: ropbes
@@ -280,7 +277,7 @@ contains
     ! ----------------------------------------------------------------------
     implicit none
     integer :: ng,kv(ng,3)
-    real(8):: gv(ng,3),vval(1)
+    real(8):: gv(ng,3),vval(nlmxlx,nbas)
     double complex smpot(n1,n2,n3),cv(ng)
     integer :: i,ib,is,lmxx,nlmx,iv0,lmxl,nlm,m,ilm,l,ipr
     double precision :: alat,pi,tpiba,tau(3),rmt,fac,plat(3,3)
@@ -325,17 +322,16 @@ contains
           sgp(i) = dsin(fac)
        enddo
        !   --- Sum_G 4*pi*(i*rmt)**l j_l(|rmt*G|)/(rmt*G)**l YL(G) G**l ---
-       !       call dpzero(vval(iv0+1),nlm)
        ilm = 0
        fprli = 4*pi
        do  l  = 0, lmxl
           do  m = -l, l
              ilm = ilm+1
-             vvali = 0
-             do  i = 2, ng
-                vvali = vvali + (phil(i,l)*yl(i,ilm))*(cv(i)*dcmplx(cgp(i),-sgp(i)))
-             enddo
-             vval(ilm+iv0) = fprli*vvali
+!             vvali = 0
+!             do  i = 2, ng
+!                vvali = vvali + (phil(i,l)*yl(i,ilm))*(cv(i)*dcmplx(cgp(i),-sgp(i)))
+!             enddo
+             vval(ilm,ib) = fprli*sum((phil(2:ng,l)*yl(2:ng,ilm))*(cv(2:ng)*dcmplx(cgp(2:ng),-sgp(2:ng))))
           enddo
           fprli = fprli*(0d0,1d0)*rmt
        enddo
@@ -352,7 +348,7 @@ contains
     use m_struc_def
     use m_lattic,only:lat_plat,rv_a_opos
     use m_lgunit,only:stdo
-    use m_lmfinit,only:ispec,nbas
+    use m_lmfinit,only:ispec
     !o Outputs
     ! o  vval  :On input,  unsymmetrized potential
     ! o        :On output, elements of potential for sites in the same
@@ -371,11 +367,11 @@ contains
     !u   23 Aug 01 Newly created.
     ! ----------------------------------------------------------------------
     implicit none
-    real(8):: vval(1),vrmt(nbas)
+    real(8):: vval(nlmxlx,nbas),vrmt(nbas)
     integer :: ic,ib,ilm,mxint,nclass,ipa(nbas),nrclas,iv0
     integer :: ips(nbas),lmxl(nbas) !ipc(nbas),
     double precision :: pos(3,nbas),posc(3,nbas),plat(3,3),pi,y0
-    integer:: igetss,nlml ,ipr,jpr,nn,ibas
+    integer:: igetss,nlml ,ipr,nn,ibas
     real(8) ,allocatable :: qwk_rv(:)
     real(8) ,allocatable :: sym_rv(:)
     call tcn('symvvl')
@@ -391,52 +387,47 @@ contains
        lmxl(ib)=lmxl_i(ips(ib))
     enddo
     do  ic = 1, nclass
-       !   ... Make nrclas,ipa,posc
-       call psymr0(lmxl,ic,nbas,ipc,pos,posc,ipa,nrclas)
+       !   ... Make nrclas,ipa,posc !       call psymr0(lmxl,ic,nbas,ipc,pos,posc,ipa,nrclas)
+       nrclas = 0
+       do  ib = 1, nbas
+          if (ipc(ib) == ic) then
+             nrclas = nrclas+1
+             ipa(nrclas) = ib
+             posc(:,nrclas) = pos(:,ib)
+          endif
+       enddo
        if (nrclas > 0) then
-          ib = findloc([(ipc(ibas)==ic,ibas=1,nbas)],dim=1,value=.true.) !iclbas(ic,ipc) !findloc(ipc,value=ic) !
+          ib = findloc([(ipc(ibas)==ic,ibas=1,nbas)],dim=1,value=.true.) 
           if (lmxl(ib) > -1) then
              nlml = (lmxl(ib)+1)**2
              if (ipr >= 50) write(stdo,800) ic,nrclas,nlml
 800          format(' Symmetry class',i3,'   nrclas=',i3,'   nlml=',i3)
-             allocate(qwk_rv(nlml))
-             allocate(sym_rv(nlml*nlml*nrclas))
-             call symqmp ( nrclas,nlml,nlml,plat,posc,ngrp,symops,ag,qwk_rv,ipa,sym_rv,vval,nn )
-             if (allocated(sym_rv)) deallocate(sym_rv)
-             if (allocated(qwk_rv)) deallocate(qwk_rv)
+!             allocate(qwk_rv(nlml))
+!             allocate(sym_rv(nlml*nlml*nrclas))
+             call symqmp ( nrclas,nlml,nlml,plat,posc,ngrp,symops,ag,ipa,vval,nn )!,ipa,sym_rv,vval,nn )
+!             if (allocated(sym_rv)) deallocate(sym_rv)
+!             if (allocated(qwk_rv)) deallocate(qwk_rv)
           endif
        endif
     enddo
     ! ... Extract vrmt = l=0 term for each site, and printout
     pi = 4d0*datan(1d0)
     y0 = 1d0/dsqrt(4d0*pi)
-    if (ipr >= 45) write(stdo,221)
-221 format(/' site class  ilm      vval',6x,'ves(rmax)')
-    iv0 = 0
     do  ib = 1, nbas
-       if (lmxl(ib) == -1) goto 10
+       if (lmxl(ib) == -1) cycle
+       vrmt(ib) = vval(1,ib)*y0
+    enddo
+    write(stdo,"(/' site class  ilm      vval',6x,'ves(rmax)')")
+    do  ib = 1, nbas
+       if (lmxl(ib) == -1) cycle
        nlml = (lmxl(ib)+1)**2
-       vrmt(ib) = vval(1+iv0)*y0
        ic = ipc(ib)
-       jpr = 0
-       if (ipr > 60) jpr = 2
-       if( ib == findloc([(ipc(ibas)==ic,ibas=1,nbas)],dim=1,value=.true.)) then ! (ib == iclbas(ic,ipc)) then !findloc(ipc,value=ic) ) then !
-          if (ipr >= 45) jpr = 1
-          if (ipr >= 50) jpr = 2
-       endif
-       if (jpr > 0) then
-          do  ilm = 1, nlml
-             if (ilm == 1) then
-                write(stdo,650) ib,ic,ilm,vval(ilm+iv0),vrmt(ib)
-             elseif (dabs(vval(ilm+iv0)) > 1d-6  .AND. jpr > 1) then
-                write(stdo,651)    ilm,vval(ilm+iv0)
-             endif
-650          format(i4,2i6,2f12.6)
-651          format(10x,i6,f12.6)
+       if(ib==findloc([(ipc(ibas)==ic,ibas=1,nbas)],dim=1,value=.true.).or.ipr>60) then ! (ib == iclbas(ic,ipc)) then !findloc(ipc,value=ic) ) then !
+          do ilm = 1, nlml
+             if (ilm == 1) then;                    write(stdo,"(i4,2i6,2f12.6)") ib,ic,ilm,vval(ilm,ib),vrmt(ib)
+             elseif(dabs(vval(ilm,ib))>1d-6.AND.ipr>=50) then; write(stdo,"(10x,i6,f12.6)") ilm,vval(ilm,ib); endif
           enddo
        endif
-       iv0 = iv0 + nlml
-10     continue
     enddo
     call tcx('symvvl')
   end subroutine symvvl
@@ -444,7 +435,7 @@ contains
     use m_lgunit,only:stml
     use m_smhankel,only:hhugbl,hgugbl,ggugbl
     use m_lattic,only: rv_a_opos
-    use m_lmfinit,only: ispec,nbas
+    use m_lmfinit,only: ispec
     use m_hansr,only:corprm
     !i   qmom  :multipole moments of on-site densities (rhomom.f)
     ! o Inputs/Outputs
@@ -610,7 +601,7 @@ contains
     call gvputf(ng,1,kv,n1,n2,n3,ccc,smpot)! smpot(G) =8pi/G**2 smrho(G)
     call tcx('vesft')
   end subroutine vesft
-subroutine symqmp(nrclas,nlml,nlmx,plat,posc,ngrp,g,ag,qwk,ipa,sym,qmp,nn)  !- Symmetrize multipole moments for a single class
+subroutine symqmp(nrclas,nlml,nlmx,plat,posc,ngrp,g,ag,ipa,qmp,nn)  !- Symmetrize multipole moments for a single class
   !i Inputs
   !i   nrclas:number of atoms in the ith class
   !i   nlml  :L-cutoff for charge density on radial mesh
@@ -629,13 +620,10 @@ subroutine symqmp(nrclas,nlml,nlmx,plat,posc,ngrp,g,ag,qwk,ipa,sym,qmp,nn)  !- S
   !o Outputs
   !o   sym   :symmetry projectors for each member of the class
   !o   nn    :number of elements symmetrized
-  !u Updates
-  !u   23 Aug 01 adapted from psymql
-  ! ----------------------------------------------------------------------
   implicit none
   integer :: nrclas,nlmx,ipa(nrclas),nlml,ngrp,nn
   double precision :: plat(3,3),posc(3,nrclas),g(3,3,ngrp),ag(3,ngrp)
-  double precision :: sym(nlmx,nlmx,nrclas),qwk(nlml),qmp(*)
+  double precision :: sym(nlmx,nlmx,nrclas),qwk(nlml),qmp(nlmxlx,nbas)
   integer :: ia,ilm,ixx,iyy(1)
   double precision :: wgt,xx,qlat(3,3)
   call tcn('symqmp')
@@ -644,19 +632,19 @@ subroutine symqmp(nrclas,nlml,nlmx,plat,posc,ngrp,g,ag,qwk,ipa,sym,qmp,nn)  !- S
   ! ... Make the symmetry projectors
   call symprj(nrclas,nlmx,ngrp,ixx,iyy,g,ag,plat,qlat,posc,sym)
   ! ... Accumulate symmetrized qmpol on first site
-  call dpzero(qwk, nlml)
+  qwk=0d0
   do  ia = 1, nrclas
-     call pxsmr1(1d0,1,nlml,1,sym(1,1,ia),qmp(1+ipa(ia)),qwk,nn)
+     call pxsmr1(1d0,1,nlml,1,sym(1,1,ia),qmp(:,ipa(ia)),qwk,nn)
   enddo
   ! ... Rotate and copy to all sites in class
   wgt = nrclas
   do  ia = 1, nrclas
-     call dpzero(qmp(1+ipa(ia)), nlml)
-     call pysmr1(wgt,1,nlml,1,sym(1,1,ia),qwk,qmp(1+ipa(ia)),nn)
+     qmp(:,ipa(ia))=0d0
+     call pysmr1(wgt,1,nlml,1,sym(1,1,ia),qwk,qmp(:,ipa(ia)),nn)
   enddo
   nn = 0
   do  ilm = 1, nlml
-     if (dabs(qmp(ilm+ipa(1))) > 1d-6) nn = nn+1
+     if(dabs(qmp(ilm,ipa(1))) > 1d-6) nn = nn+1
   enddo
   call tcx('symqmp')
 end subroutine symqmp

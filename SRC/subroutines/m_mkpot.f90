@@ -28,7 +28,7 @@ contains
     use m_supot,only: n1,n2,n3
     use m_density,only: osmrho, orhoat !main input density
     logical:: novxc_
-    real(8),allocatable :: fes1_rvx(:)! gpot0(:),vval(:),vab_rv(:,:,:) !dummy
+    real(8),allocatable :: fes1_rvx(:)
     type(s_sblock),allocatable:: ohsozzx(:,:),ohsopmx(:,:) !dummy for SOC
     type(s_rv4),allocatable   :: otaux(:,:) !dummy
     type(s_rv4),allocatable   :: osigx(:,:) !dummy
@@ -85,7 +85,7 @@ contains
   subroutine mkpot(job,smrho,orhoat, smpot,osig,otau,oppi,fes,ohsozz,ohsopm, novxc_)!- Make the potential from the density (smrho, orhoat) !dipole_) 
     ! job=0 => not make core and augmentation matrices
     ! job=1 => make core and augmentation matrices     ! xxxxxx problematic option dipole_ removed. (for <i|{\bf r}|j> matrix for novxc)
-    use m_lmfinit,only:lso,nbas,ispec,nlibu,lmaxu,lldau,nsp,alat=>lat_alat,lxcf,lpzex
+    use m_lmfinit,only:lso,nbas,ispec,nlibu,lmaxu,lldau,nsp,alat=>lat_alat,lxcf,lpzex,nlmxlx
     use m_lattic,only: plat=>lat_plat, vol=>lat_vol,rv_a_opos
     use m_supot,only: n1,n2,n3
     use m_MPItk,only: master_mpi
@@ -206,7 +206,7 @@ contains
     real(8):: hpot0_rv(nbas), dq,cpnvsa,qsmc,smq,smag,sum2,rhoex,rhoec,rhvsm,sqloc,sqlocc,saloc,uat,usm,valfsm, &
          valvfa,vvesat,vsum,zsum,zvnsm,rvvxcv(nsp),rvvxc(nsp),rvmusm(nsp),rmusm(nsp), rvepsm(nsp),vxcavg(nsp),repat(nsp),&
          repatx(nsp),repatc(nsp),rmuat(nsp),repsm(nsp),repsmx(nsp),repsmc(nsp),rhobg,gpot0(nvl),vab_rv(3,3,n0*nsp*nbas),&
-         vval(nchan),fes(3,nbas),rhvsm0
+         vval(nlmxlx,nbas),fes(3,nbas),rhvsm0
     real(8),parameter:: minimumrho=1d-14,pi=4d0*datan(1d0),tpi=2d0*pi
     character(80) :: outs
     character strn*120
