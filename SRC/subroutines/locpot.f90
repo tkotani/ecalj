@@ -15,7 +15,7 @@ module m_locpot
   private
   real(8),parameter:: pi = 4d0*datan(1d0),srfpi = dsqrt(4d0*pi),y0 = 1d0/srfpi  !integer:: idipole
 contains
-  subroutine locpot(job,novxc,orhoat,qmom,vval,gpot0, osig,otau,oppi,ohsozz,ohsopm,phzdphz,hab,vab,sab, & 
+    subroutine locpot(job,novxc,orhoat,qmom,vval,gpot0, osig,otau,oppi,ohsozz,ohsopm,phzdphz,hab,vab,sab, & 
        vvesat,cpnvsa, rhoexc,rhoex,rhoec,rhovxc, valvef,xcore, sqloc,sqlocc,saloc, qval,qsc )
     use m_density,only: v0pot,v1pot,pnzall,pnuall !output
     use m_lmfinit,only: lxcf,lhh,nkapii,nkaphh,lmaxu,lldau,n0,nppn,nrmx,nkap0,nlmx,nbas,nsp,lso,ispec,frzwfa,lmxax
@@ -76,7 +76,7 @@ contains
     type(s_cv5) :: oppi(3,nbas)
     type(s_sblock):: ohsozz(3,nbas),ohsopm(3,nbas)
     type(s_rv4) :: otau(3,nbas), osig(3,nbas)
-    real(8):: qmom(*) , vval(nlmxlx,nbas), cpnvsa,rhoexc(nsp),rhoex(nsp),rhoec(nsp),rhovxc(nsp), &
+    real(8):: qmom(nlmxlx,nbas) , vval(nlmxlx,nbas), cpnvsa,rhoexc(nsp),rhoex(nsp),rhoec(nsp),rhovxc(nsp), &
          qval,sqloc,sqlocc,saloc, valvef,vvesat,xcore,gpot0(*),phzdphz(nppn,n0,nsp,nbas),rhobg,&
          eh(n0,nkap0),rsmh(n0,nkap0), ehl(n0),rsml(n0),z,a,rmt,qc,ceh,rfoc, &
          qcorg,qcorh,qsc,cofg,cofh,qsca,rg,qv,cpnvs, qloc,qlocc,xcor, aloc,alocc,rs3,vmtz,qcor(2),qc0,qsc0, ov0mean,pmean
@@ -154,7 +154,7 @@ contains
            call radwgt(rmt,a,nr,rwgt)
            if(cmdopt0('--wrhomt'))call wrhomt('rhoMT.','density',ib,orhoat(1,ib)%v,rofi,nr,nlml,nsp) ! Write true density to file rhoMT.ib
            call locpt2(ib,j1,z,rmt,rg,a,nr,nsp,cofg,cofh, & ! Make potential and energy terms at this site ---
-                ceh,rfoc,lfoc,nlml,qmom,vval(:,ib),rofi,rwgt, orhoat(1,ib)%v,orhoat(2,ib)%v,orhoat(3,ib)%v,   gpot0(j1), &
+                ceh,rfoc,lfoc,nlml,qmom(:,ib),vval(:,ib),rofi,rwgt, orhoat(1,ib)%v,orhoat(2,ib)%v,orhoat(3,ib)%v,   gpot0(j1), &
                 rhol1,rhol2,v1,v2,v1es,v2es,&
                 valvs(ib),cpnvs(ib),rhexc(:,ib),rhex(:,ib),rhec(:,ib),rhvxc(:,ib),&
                 valvt(ib),xcor(ib) ,qloc(ib),qlocc(ib),aloc(ib),alocc(ib),gpotb, rhobg,efg(1,ib),ifivesint,lxcf,    v1out) 
@@ -451,7 +451,7 @@ contains
     do  isp = 1, nsp
        do  ilm = 1, nlml
           l = ll(ilm)
-          rhol2(:,ilm,isp)=rho2(:,ilm,isp)+ qmom(ilm+j1-1) *pi4/df(2*l+1)*sfac*(ag2/pi)**1.5d0 *(2d0*ag2)**l *rofi(:)**l*gg(:)/nsp
+          rhol2(:,ilm,isp)=rho2(:,ilm,isp)+ qmom(ilm) *pi4/df(2*l+1)*sfac*(ag2/pi)**1.5d0 *(2d0*ag2)**l *rofi(:)**l*gg(:)/nsp
        enddo
        rhol2(:,1,isp)= rhol2(:,1,isp) + y0/nsp*rhochs ! rhol2 = n^c_sH,a + Gaussians(qmom) + rho2.  Eq.(30)
        ! caution: Eq(30) has typo. wrong: n^Zc_2,a+... ==> right: n^c_sH,a+...

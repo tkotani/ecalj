@@ -1,6 +1,6 @@
 !>Correction to force theorem, Harris functional
 module m_dfrce 
-  use m_lmfinit,only: nsp,nbas,nspec,ispec,spec_a,rmt_i=>rmt,nr_i=>nr,lmxa_i=>lmxa,lmxl_i=>lmxl,spec_z=>z,rg_i=>rg
+  use m_lmfinit,only: nsp,nbas,nspec,ispec,spec_a,rmt_i=>rmt,nr_i=>nr,lmxa_i=>lmxa,lmxl_i=>lmxl,spec_z=>z,rg_i=>rg,nlmxlx
   use m_ll,only:ll
   use m_fatom,only: sspec
   public dfrce
@@ -42,8 +42,8 @@ contains
     implicit none
     type(s_rv1) :: orhoat_out(3,*)
     type(s_rv1) :: orhoat(3,*)
-    real(8):: dfh(3,nbas) , qmom(*)
-    double complex smrho(n1,n2,n3,*),smrout(n1,n2,n3,*)
+    real(8):: dfh(3,nbas), qmom(nlmxlx,nbas)
+    complex(8):: smrho(n1,n2,n3,*),smrout(n1,n2,n3,*)
     integer :: job,ng,iprint,ib,is,lmxl,iv0,nlm, ip,m,i,ltop,nlmtop,igets,igetss,nn
     complex(8) ,allocatable :: ceps_zv(:)
     complex(8) ,allocatable :: cnomi_zv(:)
@@ -52,7 +52,7 @@ contains
     complex(8) ,allocatable :: vxcp_zv(:)
     complex(8) ,allocatable :: vxcm_zv(:)
     complex(8) ,allocatable :: cdvx_zv(:)
-    real(8) ,allocatable :: qmout_rv(:)
+    real(8) ,allocatable :: qmout_rv(:,:)
     complex(8) ,allocatable :: cvin_zv(:)
     real(8) ,allocatable :: yl_rv(:)
     real(8) ,allocatable :: g2_rv(:)
@@ -61,7 +61,7 @@ contains
     complex(8) ,allocatable :: wn1_zv(:)
     complex(8) ,allocatable :: wn2_zv(:)
     complex(8) ,allocatable :: wn3_zv(:)
-    double precision :: vol,plat(3,3),qlat(3,3),alat,vsum,pi,tpiba,elind=0d0, fes1(3),fes2(3),fxc(3),c,avgdf(3)
+    real(8):: vol,plat(3,3),qlat(3,3),alat,vsum,pi,tpiba,elind=0d0, fes1(3),fes2(3),fxc(3),c,avgdf(3)
     integer::ibini,ibend,iiv0(nbas)
     character(40) :: strn
     real(8),allocatable:: cs_(:),sn_(:)
@@ -141,11 +141,11 @@ contains
     !      call zprm3('rho-out(q)',w(osmro),n1,n2,n3)
 
     ! --- Multipole moments of the output density ---
-    allocate(qmout_rv(nvl))
+    allocate(qmout_rv(nlmxlx,nbas))
     call pshpr(0)
     call rhomom (orhoat_out , qmout_rv , vsum )
     call poppr
-    qmout_rv = qmout_rv- qmom(1:nvl)
+    qmout_rv = qmout_rv- qmom
     ! --- Lindhard dielectric function ---
     if (job > 10) then
        pi = 4d0*datan(1d0)
@@ -251,18 +251,16 @@ contains
     implicit none
     integer:: ng , nsp , iv0 , kmax , ib , job , iv(ng,3),i_copy_size
     type(s_rv1) :: orhoat(3)
-    real(8):: qmom(*) , qmout(*) , gv(ng,3) , tau(3) , fes1(3) , &
+    real(8):: qmom(nlmxlx,nbas) , qmout(nlmxlx,nbas) , gv(ng,3) , tau(3) , fes1(3) , &
          fes2(3) , fxc(3) , g2(ng) , yl(ng,1) , cs(ng) , sn(ng) , qlat(3,3)
-    double complex cdn0(ng,nsp),cdn(ng),cdv(ng),ceps(ng), &
-         cnomin(ng),cdvxc(ng,nsp),cvin(ng)
+    complex(8):: cdn0(ng,nsp),cdn(ng),cdv(ng),ceps(ng), cnomin(ng),cdvxc(ng,nsp),cvin(ng)
     integer :: ig,ilm,l,lmxl,m,nlm,nlmx,k,is,jv0,jb,js,n0, nrmx
     parameter (nlmx=64, nrmx=1501, n0=10)
     integer :: lmxa,nr,nxi,ie,ixi,job0,kcor,lcor,lfoc,i, nlml
-    double precision :: alat,ceh,cofg,cofh,qcorg,qcorh,qsc,rfoc,rg, &
+    real(8):: alat,ceh,cofg,cofh,qcorg,qcorh,qsc,rfoc,rg, &
          vol,z,v(3),df(0:20),qcor(2),gpot0(nlmx,3),fesdn(3), & !,feso(3)
          fesgg(3),pnu(n0),pnz(n0),a,rmt,qloc,exi(n0),hfc(n0,2), &
-         qfat,gam,qall,qc,qval,qg,e,aa,q0(3),ssum
-    double precision :: rwgt(nrmx),cc,gamf,cfoc,cvol,rsmfa
+         qfat,gam,qall,qc,qval,qg,e,aa,q0(3),ssum, rwgt(nrmx),cc,gamf,cfoc,cvol,rsmfa
     complex(8):: tpia,cxx,gc0,xc0,cof(nlmx),phase(ng),img=(0d0,1d0)
     real(8),parameter:: pi = 4d0*datan(1d0),tpi=2d0*pi,y0 = 1d0/dsqrt(4d0*pi)
     data q0 /0d0,0d0,0d0/
@@ -348,7 +346,7 @@ contains
        cxx = cxx*dcmplx(0d0,-1d0)
        do  22  m = -l,l
           ilm = ilm+1
-          cof(ilm) = cxx*qmom(ilm+iv0)*4d0*pi/df(2*l+1)
+          cof(ilm) = cxx*qmom(ilm,ib)*4d0*pi/df(2*l+1)
 22     enddo
 20  enddo
     !     cof(1) = cof(1) + 4*pi*y0*(qcorg+qsc-z)
@@ -390,7 +388,7 @@ contains
           call rxi('dfrce: nonsensical job',job)
        endif
        !   ... Electrostatic potential shift = 1/eps dv [n0~]
-       !       g2 = tpiba*tpiba*(gv(ig,1)**2+gv(ig,2)**2+gv(ig,3)**2)
+        !       g2 = tpiba*tpiba*(gv(ig,1)**2+gv(ig,2)**2+gv(ig,3)**2)
        cdv(ig)  = cdn(ig) * (8*pi/g2(ig))
        fes1(:) = fes1(:) + dconjg(cnomin(ig)) * tpia*v(:)*cdv(ig)
        do  i = 1, nsp
@@ -405,7 +403,7 @@ contains
        do  ilm = 1, nlm
           l = ll(ilm)
           gpot0(ilm,k) = gpot0(ilm,k)*4d0*pi/df(2*l+1)
-          fesgg(k) = fesgg(k) + qmout(iv0+ilm)*gpot0(ilm,k)
+          fesgg(k) = fesgg(k) + qmout(ilm,ib)*gpot0(ilm,k)
        enddo
     enddo
     !      print 339, 'n0(out-in) * g dves ',fes1
@@ -449,7 +447,7 @@ contains
              ilm = ilm+1
              gpot0(ilm,:) = gpot0(ilm,:)*4d0*pi/df(2*l+1)
 !             feso(:) = feso(:) + qmom(jv0+ilm)*gpot0(ilm,:)
-             fes2(:) = fes2(:) + qmout(jv0+ilm)*gpot0(ilm,:)
+             fes2(:) = fes2(:) + qmout(ilm,jb)*gpot0(ilm,:)
 62        enddo
 60     enddo
        jv0 = jv0+nlm
@@ -468,8 +466,8 @@ contains
          wn1(n1,n2,n3,nsp),wn2(n1,n2,n3,nsp), &
          wn3(n1,n2,n3,nsp)
     ! ... Local parameters
-    integer :: i1,i2,i3,i,nn
-    double precision :: fac,dmach,f1,f2,f,alfa,dfdr,rrho,dvdr, &
+    integer:: i1,i2,i3,i,nn
+    real(8):: fac,dmach,f1,f2,f,alfa,dfdr,rrho,dvdr, &
          rmusm(nsp),rvmusm(nsp),rvepsm(nsp),repsm(nsp),repsmx(nsp),repsmc(nsp), ff(1,1)
     !fcexc0(nsp),fcex0(nsp),fcec0(nsp),fcvxc0(nsp),
     fac = dmach(1)**(1d0/3d0)
@@ -575,7 +573,7 @@ contains
     !- Overwrites dvxc with (nout-nin)*dvxc
     implicit none
     integer :: n1,n2,n3,nsp
-    double complex deln0(n1,n2,n3),dvxc(n1,n2,n3,nsp)
+    complex(8):: deln0(n1,n2,n3),dvxc(n1,n2,n3,nsp)
     integer :: i1,i2,i3,i
     do  i  = 1, nsp
        do  i3 = 1, n3
@@ -626,11 +624,11 @@ contains
     ! ----------------------------------------------------------------------
     implicit none
     integer :: ng,iv(ng,3),i_copy_size
-    real(8):: qmom(1) , g2(ng) , yl(ng,1) , cs(ng) , sn(ng) , qlat(3,3)
-    double complex cv(ng)
+    real(8)::  qmom(nlmxlx,nbas), g2(ng) , yl(ng,1) , cs(ng) , sn(ng) , qlat(3,3)
+    complex(8):: cv(ng)
     integer :: ig,ib,ilm,is,iv0,l,lmxl,m,nlm,nlmx,lfoc
     parameter (nlmx=64)
-    double precision :: tau(3),df(0:20),vol,rg,qcorg,qcorh,qsc, &
+    real(8):: tau(3),df(0:20),vol,rg,qcorg,qcorh,qsc, &
          cofg,cofh,ceh,rfoc,z,q0(3),gam,gamf,cfoc,cvol,aa
     complex(8):: cof(nlmx),cfac,phase(ng),img=(0d0,1d0)
     real(8),parameter:: pi = 4d0*datan(1d0),tpi = 2d0*pi,y0 = 1d0/dsqrt(4d0*pi)
@@ -657,7 +655,7 @@ contains
           cfac = cfac*dcmplx(0d0,-1d0)
           do  21  m = -l, l
              ilm = ilm+1
-             cof(ilm) = cfac*qmom(ilm+iv0)*4d0*pi/df(2*l+1)
+             cof(ilm) = cfac*qmom(ilm,ib)*4d0*pi/df(2*l+1)
 21        enddo
 20     enddo
 !       cof(1) = cof(1) + 4*pi*y0*(qcorg-z)
@@ -701,9 +699,9 @@ contains
     ! ----------------------------------------------------------------------
     implicit none
     integer :: ltop,ng
-    double precision :: alat,gv(ng,3),g(ng,3),yl(ng,1),g2(ng)
-    integer :: i
-    double precision :: pi,tpiba
+    real(8):: alat,gv(ng,3),g(ng,3),yl(ng,1),g2(ng)
+    integer:: i
+    real(8):: pi,tpiba
     ! ... Make (2*pi/alat)*gv in g
     pi = 4d0*datan(1d0)
     tpiba = 2d0*pi/alat
@@ -746,11 +744,9 @@ contains
     ! ----------------------------------------------------------------------
     !     implicit none
     integer :: job,ng
-    double precision :: gv(ng,3),tpiba,elind
-    double complex cn(ng)
-    ! Local variables
+    real(8):: gv(ng,3),tpiba,elind, g2,xx,yy,eps,pi
+    complex(8):: cn(ng)
     integer :: i
-    double precision :: g2,xx,yy,eps,pi
     logical:: l_dummy_isanrg,isanrg
     pi = 4d0*datan(1d0)
     ! ino isanrg is logical function,       call isanrg(job,0,4,'lindsc:','job', .true.)

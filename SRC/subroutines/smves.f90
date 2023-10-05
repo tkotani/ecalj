@@ -18,7 +18,7 @@ contains
     use m_ftox
     !i   nbas  :size of basis
     !i   n1,n2,n3 dimensions of smrho,smpot for smooth mesh density
-    !i   qmom  :multipole moments of on-site densities (rhomom.f)
+    !i   qmom  :multipole moments (rhomom.f)!   NOTE:2023-10-5 Full moment Q_aL^Zc in Eq.(25).
     !i   smrho :smooth density on real-space mesh
     !i   qbg   : back ground charge
     !io  vconst:constant potential to be added to total
@@ -88,8 +88,6 @@ contains
     !r      phi0~ = ves[n0~]
     !r      g_RL  = gaussian in RL channel
     !r      h_R   = l=0 sm hankel in RL channel, (represents core densities)
-    !r    qmom_RL = multipole moment in RL channel of (n_R(r) - n0_R(r))
-    !r              so that int n_RL(r)-n0_RL(r) = qmom_RL * g_RL(r)
     !r      gpot0 = vector of integrals g_RL * phi0~
     !r            =  integral g_RL * (phi0 = phi[n0])
     !r              +integral g_RL * (phi0~-phi0 = phi[n0~-n0])
@@ -137,7 +135,7 @@ contains
     implicit none
     integer:: ib , igetss , ilm , ipr , iprint , is , iv0 , lfoc, &
          lgunit , lmxl , m , nlm , j1 , j2 , j3,iwdummy, ifivsmconst
-    real(8):: qmom(*) , f(3,nbas) , gpot0(1) , vval(nlmxlx,nbas) , hpot0(nbas) &
+    real(8):: qmom(nlmxlx,nbas) , f(3,nbas) , gpot0(1) , vval(nlmxlx,nbas) , hpot0(nbas) &
          , vrmt(nbas),qsmc,smq,rhvsm,vconst,zsum,zvnsm,qbg
     real(8):: ceh,cofg,cofh,dgetss,hsum,qcorg,qcorh,qsc, &
          rfoc,rmt,s1,s2,sbar,sumx,sum1,sum2,u00,u0g,ugg,usm,vbar,z,R,eint, rhvsm0
@@ -228,8 +226,8 @@ contains
           hpot0(ib) = hpot0(ib) + vconst*hsum
           zvnsm = zvnsm  + cofh*hpot0(ib) !+ (qcorg-z)*y0*gpot0(iv0+1)
           do  ilm = 1, nlm
-             rhvsm = rhvsm + qmom(iv0+ilm)*gpot0(iv0+ilm)
-             sumx = sumx   + qmom(iv0+ilm)*gpot0(iv0+ilm)
+             rhvsm = rhvsm + qmom(ilm,ib)*gpot0(iv0+ilm)
+             sumx = sumx   + qmom(ilm,ib)*gpot0(iv0+ilm)
           enddo
           iv0 = iv0+nlm
        endif
@@ -437,7 +435,7 @@ contains
     use m_lattic,only: rv_a_opos
     use m_lmfinit,only: ispec
     use m_hansr,only:corprm
-    !i   qmom  :multipole moments of on-site densities (rhomom.f)
+    !i   qmom  :multipole moments of on-site densities (rhomom.f). defined at Eq.(25)
     ! o Inputs/Outputs
     ! o  Let n0  = smooth potential without compensating gaussians
     ! o      n0~ = smooth potential with compensating gaussians
@@ -460,7 +458,7 @@ contains
     !u   22 Apr 00 Adapted from nfp ugcomp
     ! ----------------------------------------------------------------------
     implicit none
-    real(8):: qmom(*),gpot0(*),f(3,nbas),hpot0(nbas),ugg
+    real(8):: qmom(nlmxlx,nbas),gpot0(*),f(3,nbas),hpot0(nbas),ugg
     integer :: ndim,ndim0,i,ib,ilm1,ilm2,is,iv0,jb,js,jv0,nvl,l1,l2, &
          lfoc1,lfoc2,lmax1,lmax2,m,nlm1,nlm2
     parameter (ndim=49, ndim0=2)
@@ -515,13 +513,11 @@ contains
                 ff = 0d0
                 do  ilm1 = 1, nlm1
                    l1 = ll(ilm1)
-                   qm1 = qmom(iv0+ilm1)
-!                   if (ilm1 == 1) qm1 = qm1 + y0*(qcorg1-z1)
+                   qm1 = qmom(ilm1,ib)
                    cof1 = qm1*fpi/df(2*l1+1)
                    do  ilm2 = 1, nlm2
                       l2 = ll(ilm2)
-                      qm2 = qmom(jv0+ilm2)
-!                      if (ilm2 == 1) qm2 = qm2 + y0*(qcorg2-z2)
+                      qm2 = qmom(ilm2,jb)
                       cof2 = qm2*fpi/df(2*l2+1)
                       xugg(ip) = xugg(ip) + cof1*cof2*s(ilm1,ilm2)
                       xgpot0(jv0+ilm2,ip) = xgpot0(jv0+ilm2,ip) + s(ilm1,ilm2)*cof1*fpi/df(2*l2+1)
@@ -536,8 +532,7 @@ contains
                    call hgugbl(tau1,tau2,rh1,rg2,ceh1,1,nlm2,ndim,ndim, s,ds)!gaussian-smHankel
                    do  ilm2 = 1, nlm2
                       l2 = ll(ilm2)
-                      qm2 = qmom(jv0+ilm2)
-!                      if (ilm2 == 1) qm2 = qm2 + y0*(qcorg2-z2)
+                      qm2 = qmom(ilm2,jb)
                       cof2 = qm2*fpi/df(2*l2+1)
                       xugg(ip) = xugg(ip) + cofh1*s(1,ilm2)*cof2
                       ff = ff + 0.5d0*cofh1*cof2*ds(1,ilm2,1:3)
@@ -546,8 +541,7 @@ contains
                    call hgugbl(tau2,tau1,rh2,rg1,ceh2,1,nlm1,ndim,ndim, s,ds) !gaussian-smHamel
                    do  ilm1 = 1, nlm1
                       l1 = ll(ilm1)
-                      qm1 = qmom(iv0+ilm1)
-!                      if (ilm1 == 1) qm1 = qm1 + y0*(qcorg1-z1)
+                      qm1 = qmom(ilm1,ib)
                       cof1 = qm1*fpi/df(2*l1+1)
                       xugg(ip) = xugg(ip) + cof1*s(1,ilm1)*cofh2
                       ff = ff - 0.5d0*cof1*cofh2*ds(1,ilm1,1:3)

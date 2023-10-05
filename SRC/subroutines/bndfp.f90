@@ -43,7 +43,7 @@ contains
     use m_suham,only: ndham=>ham_ndham, ndhamx=>ham_ndhamx,nspx=>ham_nspx !nspx=nsp/nspc
     use m_lmfinit,only: ncutovl,lso,ndos=>bz_ndos,bz_w,fsmom=>bz_fsmom, bz_dosmax,lmet=>bz_lmet,bz_fsmommethod,bz_n
     use m_lmfinit,only: ldos,qbg=>zbak,lfrce,pwmode=>ham_pwmode,lrsig=>ham_lsig,epsovl=>ham_oveps !try to avoid line continuation in fortran
-    use m_lmfinit,only: ham_scaledsigma, alat=>lat_alat,stdo,stdl, nlmax,nbas,nsp, bz_dosmax
+    use m_lmfinit,only: ham_scaledsigma, alat=>lat_alat,stdo,stdl, nlmax,nbas,nsp, bz_dosmax,nlmxlx
     use m_lmfinit,only: lmaxu,nlibu,lldau,lpztail,leks,lrout,  nchan=>pot_nlma, nvl=>pot_nlml,nspc,pnufix !lmfinit contains fixed input 
     use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
     use m_mkqp,only: nkabc=> bz_nabc,ntet=> bz_ntet,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
@@ -128,7 +128,7 @@ contains
     integer:: idummy, unlink,ifih,ifii,ib,ix,ifimag,nevmin,nnn,ikp
     real(8):: ekinval,eharris,eksham,  dosw(2),dum(1),evtop,ecbot,qp(3),rydberg,xxx,eeem,dumx
     real(8):: fh_rv(3,nbas),vmag,eee,dosi(2),dee,efermxxx,emin,qvalm(2)
-    real(8),allocatable:: dosi_rv(:,:),dos_rv(:,:),qmom_in(:),evlallm(:,:,:)
+    real(8),allocatable:: dosi_rv(:,:),dos_rv(:,:),evlallm(:,:,:)
     real(8),parameter::  NULLR =-99999,pi=4d0*datan(1d0)
     real(8):: elind=0d0
     call tcn ('bndfp')
@@ -304,41 +304,42 @@ contains
        call m_clsmode_finalize(eferm,ndimh,ndhamx,nspx,nkp,dosw,evlallm)
        call rx0('Done cls mode:')
     endif CorelevelSpectroscopy2
-    if(lso/=0)  call iorbtm() !WriteOribitalMoment
+    if(lso/=0)   call iorbtm() !WriteOribitalMoment
     if(lrout/=0) call m_bandcal_symsmrho()  !Getsmrho_out Symmetrize smooth density ! Assemble output density, energies and forces 
     call m_mkrout_init() !Get force frcbandsym, symmetrized atomic densities orhoat_out, and weights hbyl,qbyl
     call pnunew(eferm) !pnuall are revised. !  New boundary conditions pnu for phi and phidot
     !  call writeqpyl() !Set if you like to print writeqbyl
     call m_mkehkf_etot1(sev, eharris) !Evaluate_HarrisFoukner_energy (note: we now use NonMagneticCORE mode as default)
-    EvaluateKohnShamTotalEnergyandForce:if(lrout/=0) then
-       allocate(qmom_in(nvl))
-       qmom_in=qmom !multipole moments.
-       eksham = 0d0 !   ... Evaluate KS total energy and output magnetic moment
-       if(leks>=1) then
-          call mkekin(osig,otau,oppi,oqkkl,vconst,osmpot,smrho_out,sev,  ekinval)
-          call m_mkpot_energyterms(smrho_out, orhoat_out) !qmom is revised for given orhoat_out
-          if(cmdopt0('--density')) then
-             call mpi_barrier(MPI_comm_world,ierr)
-             call rx0('end of --density mode')
-          endif
-          call m_mkehkf_etot2(ekinval, eksham)
-       endif
-       if(lfrce> 0) then !Add together force terms 
-          ! fes1_rv: contribution to HF forces from estat + xc potential.  This is for input  density !=3rd term in (B.5) in JPSJ.84.034705
-          ! fes2_rv: contribution to KS forces from estat + xc potential.  This is for output density
-          ! frcbandsym : 1st term in (B.5)  (puley? need check)
-          ! fh_rv      : 2nd term in (B.5)  (need check)
-          if(allocated(force)) deallocate(force)
-          allocate(force(3,nbas))
-          call dfrce (lfrce,orhoat,orhoat_out,qmom_in,osmrho,smrho_out,  fh_rv)
-          call totfrc(leks, fes1_rv, fes2_rv, fh_rv, frcbandsym, force) ! force : total
-       endif
-       deallocate(qmom_in)
-       ! Mix inputs(osmrho,orhoat) and outputs(osmrho_out,orhoat_out), resulting orhoat and osmrho.
-       call mixrho(iter,qval-qbg,orhoat_out,orhoat,smrho_out,osmrho,qdiff)!mixrho keeps history in it.
-    else
+    if(lrout==0) then
        eksham = 0d0
-    endif EvaluateKohnShamTotalEnergyandForce
+    else   
+       EvaluateKohnShamTotalEnergyandForce:block
+         real(8):: qmom_in(nlmxlx,nbas)
+         qmom_in=qmom !multipole moments.
+         eksham = 0d0 !   ... Evaluate KS total energy and output magnetic moment
+         if(leks>=1) then
+            call mkekin(osig,otau,oppi,oqkkl,vconst,osmpot,smrho_out,sev,  ekinval)
+            call m_mkpot_energyterms(smrho_out, orhoat_out) !qmom is revised for given orhoat_out
+            if(cmdopt0('--density')) then
+               call mpi_barrier(MPI_comm_world,ierr)
+               call rx0('end of --density mode')
+            endif
+            call m_mkehkf_etot2(ekinval, eksham)
+         endif
+         if(lfrce> 0) then !Add together force terms 
+            ! fes1_rv: contribution to HF forces from estat + xc potential.  This is for input  density !=3rd term in (B.5) in JPSJ.84.034705
+            ! fes2_rv: contribution to KS forces from estat + xc potential.  This is for output density
+            ! frcbandsym : 1st term in (B.5)  (puley? need check)
+            ! fh_rv      : 2nd term in (B.5)  (need check)
+            if(allocated(force)) deallocate(force)
+            allocate(force(3,nbas))
+            call dfrce (lfrce,orhoat,orhoat_out,qmom_in,osmrho,smrho_out,  fh_rv)
+            call totfrc(leks, fes1_rv, fes2_rv, fh_rv, frcbandsym, force) ! force : total
+         endif
+         ! Mix inputs(osmrho,orhoat) and outputs(osmrho_out,orhoat_out), resulting orhoat and osmrho.
+         call mixrho(iter,qval-qbg,orhoat_out,orhoat,smrho_out,osmrho,qdiff)!mixrho keeps history in it.
+       endblock EvaluateKohnShamTotalEnergyandForce
+    endif
     ham_ehf= eharris !Harris total energy
     ham_ehk= eksham  !Hohenberg-Kohn-Sham total energy
     call m_mkpot_deallocate()

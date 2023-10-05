@@ -13,7 +13,7 @@ module m_rhomom
 subroutine rhomom(sv_p_orhoat, qmom,vsum)
   use m_struc_def
   use m_lmfinit,only: z_i=>z,nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,lmxb_i=>lmxb,lmxl_i=>lmxl,spec_a
-  use m_lmfinit,only: kmxt_i=>kmxt,lfoca_i=>lfoca,rfoca_i=>rfoca,rg_i=>rg, nsp,nbas,jnlml,ispec
+  use m_lmfinit,only: kmxt_i=>kmxt,lfoca_i=>lfoca,rfoca_i=>rfoca,rg_i=>rg, nsp,nbas,jnlml,ispec,nlmxlx
   use m_lgunit,only:stdo
   use m_hansr,only:corprm
   implicit none
@@ -22,7 +22,7 @@ subroutine rhomom(sv_p_orhoat, qmom,vsum)
   type(s_rv1) :: sv_p_orhoat(3,nbas)
   integer:: ipr,iprint,j1,ib,is,igetss,lmxl,nr,nlml,ilm,j,lfoc
   real(8) ,allocatable :: rofi(:),rwgt(:), h_rv(:), v_rv(:)
-  real(8):: qmom(*) , vsum,vs1(nbas),vs2(nbas), z,qc,a,rmt,qcorg,qcorh,qsc,cofg,cofh,rg,ceh,rfoc
+  real(8):: qmom(nlmxlx,nbas) , vsum,vs1(nbas),vs2(nbas), z,qc,a,rmt,qcorg,qcorh,qsc,cofg,cofh,rg,ceh,rfoc
   real(8),parameter:: fpi  = 16d0*datan(1d0), y0 = 1d0/dsqrt(fpi),pi = 4d0*datan(1d0), srfpi = dsqrt(4d0*pi)
   ipr  = iprint()
   if (ipr >= 45) write(stdo,"(/' rhomom:   ib   ilm      qmom',8x,'Qval',7x, 'Qc',8x,'Z')")
@@ -34,18 +34,18 @@ subroutine rhomom(sv_p_orhoat, qmom,vsum)
      nr = nr_i(is)
      rmt= rmt_i(is)
      rg = rg_i(is)
-     j1 = jnlml(ib)! (ilm,ib) index
+!     j1 = jnlml(ib)! (ilm,ib) index
      if (lmxl == -1) cycle
      call corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
      qc = qcorg+qcorh
      nlml = (lmxl+1)**2
      associate(rho1=>sv_p_orhoat(1,ib)%v,rho2=>sv_p_orhoat(2,ib)%v,rhoc=>sv_p_orhoat(3,ib)%v,vsum1=>vs1(ib),vsum2=>vs2(ib))
-       call pvrhom(rmt,a,nlml,nr,nsp,rho1,rho2,rhoc, cofg,cofh,rg,ceh,rfoc,z, qmom(j1),vsum1,vsum2)
+       call pvrhom(rmt,a,nlml,nr,nsp,rho1,rho2,rhoc, cofg,cofh,rg,ceh,rfoc,z, qmom(:,ib),vsum1,vsum2)
      endassociate
      if(ipr >= 45) then
-        write(stdo,220) ib,1,qmom(j1),qmom(j1)/y0,qc,z
+        write(stdo,220) ib,1,qmom(1,ib),qmom(1,ib)/y0,qc,z
         do ilm = 2, nlml
-           if (dabs(qmom(j1+ilm-1)) > 1d-6) write(stdo,220) ib,ilm,qmom(j1+ilm-1)
+           if (dabs(qmom(ilm,ib)) > 1d-6) write(stdo,220) ib,ilm,qmom(ilm,ib)
         enddo
      endif
   enddo
@@ -85,7 +85,7 @@ subroutine pvrhom(rmt,a,nlml,nr,nsp,rho1,rho2,rhoc,cofg,cofh,rg,ceh,rfoc,z,qmomj
      l=ll(ilm)
      qmomj(ilm)= sum([ (sum(rwgt*rofi**l*(rho1(:,ilm,isp)-rho2(:,ilm,isp))), isp=1,nsp) ]) !Q_aL^v Eq.(28)
   enddo
-  qmomj(1) = qmomj(1) + cofg-y0*z ! cofg= sum([(sum(rwgt*rhoc(:,isp)),isp=1,nsp)])/srfpi - cofh*sum(rwgt*xi0*rofi**2) ! this is Eq.(25).
+  qmomj(1) = qmomj(1) -y0*z + cofg ! Eq.(25). -y0*z = QaL[-Z_a\delta(\bfr)]  ; cofg = QaL[ n^c_a(\bfr) - n^c_sH,a(\bfr)]
   call poiss0(z,  rofi, h,            nr,0d0, v, vhrho,vsum,1)
   vsum1 = sum(rwgt(2:nr)*rofi(2:nr)**2*(v(2:nr)-2d0*z/rofi(2:nr)))
   call poiss0(0d0,rofi,[(0d0,i=1,nr)],nr,0d0, v, vhrho,vsum,1)

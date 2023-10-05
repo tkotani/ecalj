@@ -1,6 +1,6 @@
 !>Get one-particle potential. See http://dx.doi.org/10.7566/JPSJ.84.034702
 module m_mkpot !How to learng this? Instead of reading all source, understand I/O.
-  use m_lmfinit,only: z_i=>z,lmxa_i=>lmxa,lmxb_i=>lmxb,kmxt_i=>kmxt
+  use m_lmfinit,only: z_i=>z,lmxa_i=>lmxa,lmxb_i=>lmxb,kmxt_i=>kmxt,nlmxlx
   use m_lmfinit,only: nbas,stdo,qbg=>zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nppn,lfrce,stdl, nchan=>pot_nlma, nvl=>pot_nlml
   use m_struc_def,only: s_rv1,s_cv1,s_sblock,s_rv4,s_cv5
   public:: m_mkpot_init, m_mkpot_energyterms, m_mkpot_novxc, m_mkpot_deallocate !,m_Mkpot_novxc_dipole
@@ -11,7 +11,7 @@ module m_mkpot !How to learng this? Instead of reading all source, understand I/
   type(s_rv4),allocatable,protected,public  :: osig(:,:) !sigma          (C.4) 
   complex(8),allocatable,protected ,public  :: osmpot(:,:,:,:)!0th component of Eq.(34)
   real(8),allocatable,protected,public:: fes1_rv(:), fes2_rv(:) !force terms
-  real(8),allocatable,protected,public:: hab_rv(:,:,:), sab_rv(:,:,:,:,:), qmom(:),vesrmt(:)
+  real(8),allocatable,protected,public:: hab_rv(:,:,:), sab_rv(:,:,:,:,:), qmom(:,:),vesrmt(:)
   real(8),protected,public:: qval,vconst,qsc
   real(8),allocatable,protected,public:: phzdphz(:,:,:,:) !val and slo at Rmt for local orbitals.
   ! Energy terms by call m_mkpot_energyterms
@@ -34,7 +34,7 @@ contains
     type(s_rv4),allocatable   :: osigx(:,:) !dummy
     write(stdo,"(a)")' m_mkpot_novxc: Making one-particle potential without XC part ...'
     allocate( vesrmt(nbas))
-    allocate( qmom(nvl)) !rhomom
+    allocate( qmom(nlmxlx,nbas)) !rhomom
     allocate( hab_rv(3,3,n0*nsp*nbas))
     allocate( sab_rv(3,3,n0,nsp,nbas))
     allocate( phzdphz(nppn,n0,nsp,nbas))
@@ -58,7 +58,7 @@ contains
     if(iprint()>=10) write(stdo,"(a)")' m_mkpot_init: Making one-particle potential ...'
     allocate( vesrmt(nbas))
     allocate( osmpot(n1,n2,n3,nsp)) 
-    allocate( qmom(nvl))
+    allocate( qmom(nlmxlx,nbas))
     allocate( hab_rv(3,3,n0*nsp*nbas))
     allocate( sab_rv(3,3,n0,nsp,nbas))
     allocate( phzdphz(nppn,n0,nsp,nbas))
