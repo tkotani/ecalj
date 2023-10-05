@@ -18,7 +18,6 @@ contains
     !i   nvl   :sum of local (lmxl+1)**2, lmxl = density l-cutoff
     !i   orhoat:vector of offsets containing site density
     !i   orhoat_out:pointer to local densities
-    !i   elind :Lindhard parameter, used for Lindhard screening
     !i   qmom  :multipole moments of on-site densities (rhomom.f)
     !i   smrho :smooth density on uniform mesh
     !i   smrho :smooth (input) density that generated the hamiltonian
@@ -30,15 +29,14 @@ contains
     !l         :<=0  do not calculate correction to force
     !l         :  1  shift in free-atom density
     !l         :  2  shift in core+nuclear density
-    !l         :+10  to screen the rigid shift by the Lindhard function
+    
+    !l         :+10  to screen the rigid shift by the Lindhard function (only for test elind=0 case only (2023-10-05)
     !r Remarks
     !! Density
-    !!  orhoat: input atomic density that generaed Hamiltonian
+    !!  orhoat:    input atomic density that generaed Hamiltonian
     !!  orhoat_out: new atomic density that the Hamiltonian generated
     !!  smrho:  input  density that generaed Hamiltonian
     !!  smrout: output density that the Hamiltonian generated
-    !u Updates
-    !u   01 Jul 05 handle sites with lmxa=-1 -> no augmentation
     implicit none
     type(s_rv1) :: orhoat_out(3,*)
     type(s_rv1) :: orhoat(3,*)
@@ -61,11 +59,12 @@ contains
     complex(8) ,allocatable :: wn1_zv(:)
     complex(8) ,allocatable :: wn2_zv(:)
     complex(8) ,allocatable :: wn3_zv(:)
-    real(8):: vol,plat(3,3),qlat(3,3),alat,vsum,pi,tpiba,elind=0d0, fes1(3),fes2(3),fxc(3),c,avgdf(3)
+    real(8):: vol,plat(3,3),qlat(3,3),alat,vsum,pi,tpiba, fes1(3),fes2(3),fxc(3),c,avgdf(3)
     integer::ibini,ibend 
     character(40) :: strn
     real(8),allocatable:: cs_(:),sn_(:)
     call tcn('dfrce')
+    write(stdo,*)'dfrce job=',job
     dfh=0d0
     ng=lat_ng
     vol=lat_vol
@@ -75,7 +74,7 @@ contains
     c = 1000
     nn   = n1*n2*n3
     ! ... Arrays needed for pvdf1
-    allocate(ceps_zv(ng))
+!    allocate(ceps_zv(ng),source=1d0)
     allocate(cnomi_zv(ng))
     allocate(cvin_zv(ng))
     allocate(cdvx_zv(ng*nsp))
@@ -133,25 +132,12 @@ contains
     call gvgetf ( ng , 1 , iv_a_okv , n1 , n2 , n3 , smro_zv , cnomi_zv  )
     if (allocated(smro_zv)) deallocate(smro_zv)
     if (allocated(dvxc_zv)) deallocate(dvxc_zv)
-    ! ... Debugging slot smrho(out) for out-in
-    !      print *, '*** debugging ... subs smrout for out-in'
-    !      call dpcopy(smrout,w(osmro),1,2*nn,1d0)
-    !      call fftz3(w(osmro),n1,n2,n3,n1,n2,n3,1,0,-1)
-    !      call gvgetf(ng,1,w(okv),n1,n2,n3,w(osmro),w(ocnomi))
-    !      call zprm3('rho-out(q)',w(osmro),n1,n2,n3)
-
     ! --- Multipole moments of the output density ---
     allocate(qmout_rv(nlmxlx,nbas))
     call pshpr(0)
     call rhomom (orhoat_out , qmout_rv , vsum )
     call poppr
     qmout_rv = qmout_rv- qmom
-    ! --- Lindhard dielectric function ---
-    if (job > 10) then
-       pi = 4d0*datan(1d0)
-       tpiba = 2*pi/alat
-       call lindsc ( 3 , ng , rv_a_ogv , tpiba , elind , ceps_zv )
-    endif
     ! --- For each site, get correction to force ---
     if (iprint() >= 30) then
        strn = 'shift in free-atom density'
@@ -159,23 +145,21 @@ contains
        if (job == 12) strn = 'screened shift in core+nuclear density'
        write(stdo,201) strn
     endif
-201 format(/' Harris correction to forces: ',a/ &
-         '  ib',9x,'delta-n dVes',13x,'delta-n dVxc',15x,'total')
+201 format(/' Harris correction to forces: ',a/'  ib',9x,'delta-n dVes',13x,'delta-n dVxc',15x,'total')
     ibini=1
     ibend=nbas
     do ib = ibini, ibend
        is   = ispec(ib)
        lmxl = lmxl_i(is)
-       if (lmxl == -1) goto 20
+       if (lmxl == -1) cycle
        nlm = (lmxl+1)**2
        call pvdf1 ( job , nsp , ib , qmom , qmout_rv , ng , rv_a_ogv , g2_rv , yl_rv , iv_iv , qlat , 0 &
-            , cnomi_zv , ceps_zv , cdvx_zv , cvin_zv , orhoat ( 1 , ib ) , fes1 , fes2 , fxc )
+            , cnomi_zv , cdvx_zv , cvin_zv , orhoat ( 1 , ib ) , fes1 , fes2 , fxc )
        do  i = 1, 3
           dfh(i,ib) = -(fes1(i) + fes2(i) + fxc(i))
        enddo
        if(iprint()>=30) write(stdo,"(i4,3f8.2,1x,3f8.2,1x,3f8.2:1x,3f8.2)") &
             ib,(c*(fes1(m)+fes2(m)),m=1,3),(c*fxc(m),m=1,3),(c*dfh(m,ib),m=1,3)
-20     continue
     enddo
     avgdf=0d0
     do  ib = 1, nbas
@@ -198,10 +182,10 @@ contains
     if (allocated(cdvx_zv)) deallocate(cdvx_zv)
     if (allocated(cvin_zv)) deallocate(cvin_zv)
     if (allocated(cnomi_zv)) deallocate(cnomi_zv)
-    if (allocated(ceps_zv)) deallocate(ceps_zv)
+!    if (allocated(ceps_zv)) deallocate(ceps_zv)
     call tcx('dfrce')
   end subroutine dfrce
-  subroutine pvdf1(job,nsp,ib,qmom, qmout,ng,gv,g2,yl,iv,qlat,kmax,cnomin,ceps,cdvxc,cvin , orhoat, fes1,fes2,fxc)
+  subroutine pvdf1(job,nsp,ib,qmom, qmout,ng,gv,g2,yl,iv,qlat,kmax,cnomin,cdvxc,cvin , orhoat, fes1,fes2,fxc)
     use m_struc_def 
     use m_lmfinit,only:lat_alat,pnuall,pnzall
     use m_lattic,only: lat_vol,rv_a_opos
@@ -225,10 +209,8 @@ contains
     !o Outputs
     !o   cdn0:   Job 1:  shift in valence part of the free atom density
     !o           Job 12: shift in atom density (1/eps - 1)
-    !o   cdn:    Job 1:  dn^(u) where dn is the unscreened shift in
-    !o           in the free-atom density.
-    !o           Job 12: dn^(u) 1/eps where dn is unscreened shift in
-    !o           the charge density.  Local density approximated
+    !o   cdn:    Job 1:  dn^(u) where dn is the unscreened shift in the free-atom density.
+    !o           Job 12: dn^(u) 1/eps where dn is unscreened shift in the charge density.  Local density approximated
     !o   NB:     In all cases, the local part of density is approximated
     !o           by a gaussian of the equivalent multipole moment.
     !o   cdv:    shift in the electrostatic potential
@@ -239,7 +221,7 @@ contains
     type(s_rv1) :: orhoat(3)
     real(8):: qmom(nlmxlx,nbas) , qmout(nlmxlx,nbas) , gv(ng,3) , tau(3) , fes1(3) , &
          fes2(3) , fxc(3) , g2(ng) , yl(ng,1) , cs(ng) , sn(ng) , qlat(3,3)
-    complex(8):: cdn0(ng,nsp),cdn(ng),cdv(ng),ceps(ng), cnomin(ng),cdvxc(ng,nsp),cvin(ng)
+    complex(8):: cdn0(ng,nsp),cdn(ng),cdv(ng), cnomin(ng),cdvxc(ng,nsp),cvin(ng)
     integer :: ig,ilm,l,lmxl,m,nlm,nlmx,k,is,jv0,jb,js,n0, nrmx
     parameter (nlmx=64, nrmx=1501, n0=10)
     integer :: lmxa,nr,nxi,ie,ixi,job0,kcor,lcor,lfoc,i, nlml
@@ -335,8 +317,6 @@ contains
           cof(ilm) = cxx*qmom(ilm,ib)*4d0*pi/df(2*l+1)
 22     enddo
 20  enddo
-    !     cof(1) = cof(1) + 4*pi*y0*(qcorg+qsc-z)
-!    cof(1) = cof(1) + 4*pi*y0*(qcorg-z)
     ! --- Shift in n0, ves~ for list of G vectors ---
     gam = 0.25d0*rg*rg
     gamf = 0.25d0*rfoc*rfoc
@@ -360,16 +340,12 @@ contains
        aa = dexp(gamf*(ceh-g2(ig)))/(ceh-g2(ig))
        cdn(ig) = cdn(ig) + cfoc*aa*phase(ig)
        !   ... Make the screened shift in input density n0~
-       !       Job 1: cdn0 = (valence part of) cdn^u ; cdn = cdn^u
-       if (job0 == 1) then
+       if (job0 == 1) then    !cdn0 = (valence part of) cdn^u ; cdn = cdn^u
           cdn(ig) = cdn(ig) + (cdn0(ig,1) + cdn0(ig,nsp))/(3-nsp)
-          if (job > 10) cdn(ig) = cdn(ig) / ceps(ig)
-          !       Job 12: cdn0 = cdn^u (1/eps - 1); cdn = cdn^s = cdn^u / eps
-       elseif (job == 12) then
+       elseif(job == 12) then !cdn0 = cdn^u (1/eps - 1)=0d0; cdn = cdn^s = cdn^u / eps
           do  i = 1, nsp
-             cdn0(ig,i) = cdn(ig) * (1/ceps(ig)-1) / nsp
+             cdn0(ig,i) = 0d0 !eps=1 case only.
           enddo
-          cdn(ig) = cdn(ig) / ceps(ig)
        else
           call rxi('dfrce: nonsensical job',job)
        endif
@@ -606,11 +582,11 @@ contains
     !u   01 Jul 05 handle sites with lmxa=-1 -> no augmentation
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: ng,iv(ng,3),i_copy_size
-    real(8)::  qmom(nlmxlx,nbas), g2(ng) , yl(ng,1) , cs(ng) , sn(ng) , qlat(3,3)
+    integer :: ig,ib,ilm,is,l,lmxl,m,nlm,lfoc
+    integer,parameter:: nlmx=64
+    integer :: ng,iv(ng,3)
+    real(8)::  qmom(nlmxlx,nbas), g2(ng) , yl(ng,nlmx) , cs(ng) , sn(ng) , qlat(3,3)
     complex(8):: cv(ng)
-    integer :: ig,ib,ilm,is,l,lmxl,m,nlm,nlmx,lfoc
-    parameter (nlmx=64)
     real(8):: tau(3),df(0:20),vol,rg,qcorg,qcorh,qsc, &
          cofg,cofh,ceh,rfoc,z,q0(3),gam,gamf,cfoc,cvol,aa
     complex(8):: cof(nlmx),cfac,phase(ng),img=(0d0,1d0)
@@ -619,52 +595,39 @@ contains
     call tcn('pvdf4')
     call stdfac(20,df)
     vol=lat_vol
-    ! --- FT of gaussian density, all sites, for list of G vectors ---
-    do  10  ib = 1, nbas
-       is=ispec(ib)
-       tau=rv_a_opos(:,ib) 
-       lmxl=lmxl_i(is)
+    ibloop: do 10  ib = 1, nbas !FT of gaussian density, all sites, for list of G vectors ---
+       is  = ispec(ib)
+       tau = rv_a_opos(:,ib) 
+       lmxl= lmxl_i(is)
        rg=rg_i(is)
-       if (lmxl == -1) goto 10
+       if (lmxl == -1) cycle
        call corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
        phase = exp(-img*tpi*sum(q0*tau)) * exp(-img*tpi*matmul(tau, matmul(qlat, transpose(iv))))
        nlm = (lmxl+1)**2
        if (nlm > nlmx) call rxi('pvdf4: increase nlmx to',nlm)
        ilm = 0
-       cfac = dcmplx(0d0,1d0)
        do  20  l = 0, lmxl
-          cfac = cfac*dcmplx(0d0,-1d0)
-          do  21  m = -l, l
+          cfac = (-img)**l
+          do m = -l, l
              ilm = ilm+1
              cof(ilm) = cfac*qmom(ilm,ib)*4d0*pi/df(2*l+1)
-21        enddo
+          enddo
 20     enddo
        gam = 0.25d0*rg*rg
        gamf = 0.25d0*rfoc*rfoc
        cfoc = -4d0*pi*y0*cofh/vol
        cvol = 1d0/vol
-       do  30  ig = 1, ng
-          aa = dexp(-gam*g2(ig))*cvol
-          do  32  ilm = 1, nlm
-             cv(ig) = cv(ig) + aa*yl(ig,ilm)*cof(ilm)*phase(ig)
-32        enddo
-          !     ... Add foca hankel part
-          aa = dexp(gamf*(ceh-g2(ig)))/(ceh-g2(ig))
-          cv(ig) = cv(ig) + cfoc*aa*phase(ig)
-30     enddo
-10  enddo
-    ! --- Potential is 8pi/G**2 * density; overwrite cv with potential ---
-    cv(1) = (0d0,0d0)
-    do  40  ig = 2, ng
-       cv(ig) = (8*pi)*cv(ig)/g2(ig)
-40  enddo
+       do ig = 1, ng
+          cv(ig) = cv(ig) + cvol*dexp(-gam*g2(ig))*sum(yl(ig,1:nlm)*cof(1:nlm)*phase(ig)) &
+               +            cfoc*dexp(gamf*(ceh-g2(ig)))/(ceh-g2(ig))*phase(ig)  !Add foca hankel part
+       enddo
+10  enddo ibloop
+    cv(1) = 0d0
+    cv(2:ng) = (8*pi)*cv(2:ng)/g2(2:ng) ! --- Potential is 8pi/G**2 * density; overwrite cv with potential ---
     call tcx('pvdf4')
   end subroutine pvdf4
   subroutine suylg(ltop,alat,ng,gv,g,g2,yl)
-    use m_ropyln,only: ropyln
-    !- Set up vectors g, g2, yl from list of vectors gv
-    ! ----------------------------------------------------------------------
-    !i Inputs
+    use m_ropyln,only: ropyln     !- Set up vectors g, g2, yl from list of vectors gv
     !i   ltop  :l-cutoff for YL
     !i   alat  :length scale of lattice and basis vectors, a.u.
     !i   ng    :number of G-vectors
@@ -673,91 +636,13 @@ contains
     !o   g     :gv scaled by (2 pi / alat)
     !o   g2    :square of g
     !o   yl    :YL(g)
-    !u Updates
-    !u   30 May 00 adapted from nfp su_ylg
-    ! ----------------------------------------------------------------------
     implicit none
     integer :: ltop,ng
     real(8):: alat,gv(ng,3),g(ng,3),yl(ng,1),g2(ng)
     integer:: i
-    real(8):: pi,tpiba
-    ! ... Make (2*pi/alat)*gv in g
-    pi = 4d0*datan(1d0)
+    real(8):: pi=4d0*datan(1d0),tpiba
     tpiba = 2d0*pi/alat
-    do  i = 1, ng
-       g(i,1) = tpiba*gv(i,1)
-       g(i,2) = tpiba*gv(i,2)
-       g(i,3) = tpiba*gv(i,3)
-    enddo
-    ! ... Make the yl's and g2
-    call ropyln(ng,g(1,1),g(1,2),g(1,3),ltop,ng,yl,g2)
+    g(:,:) = tpiba*gv(:,:)
+    call ropyln(ng,g(1,1),g(1,2),g(1,3),ltop,ng,yl,g2) !Make the yl's and g2
   end subroutine suylg
-  subroutine lindsc(job,ng,gv,tpiba,elind,cn)! Make screened density, using a Lindhard response function
-    !i Inputs
-    !i   job  1s digit specifies what cn contains on output;
-    !i          0 cn is untouched
-    !i          1 cn is overwritten by eps^-1 cn
-    !i          2 cn is overwritten by (eps^-1-1) cn
-    !i          3 cn is overwritten by eps^-1.  Input cn is irrelevant
-    !i   ng    :number of G-vectors
-    !i   gv    :list of dimensionless reciprocal lattice vectors (gvlist.f)
-    !i   tpiba :2*pi/lattice constant
-    !i   elind :Lindhard screening parameter
-    !o Outputs
-    !o   cn:     overwritten by
-    !o           cn untouched                (job = 0)
-    !o           eps^-1 (input cn)           (job = 1)
-    !o           (eps^-1 - 1)(input cn)      (job = 2)
-    !o           eps                         (job = 3)
-    !o           eps^-1                      (job = 4)
-    !r Remarks
-    !r   The Thomas-Fermi dielectric response is:
-    !r     eps_TF(q) = 1 + 4 (k_F a_0) / pi (q a_0)^2
-    !r               = 1 + 4 k_F / pi q^2 (Rydberg units)
-    !r   The Lindhard function is
-    !r     eps(q) = 1 + 4 k_F / pi q^2 * [...] , where
-    !r              [...] = 1/2 + (1-x*x)/4x ln((1+x)/(1-x)) and
-    !r              x = q / 2 k_F.
-    !u Updates
-    !u   28 Oct 01 routine revamped.  Original was ridiculously complicated.
-    ! ----------------------------------------------------------------------
-    !     implicit none
-    integer :: job,ng
-    real(8):: gv(ng,3),tpiba,elind, g2,xx,yy,eps,pi
-    complex(8):: cn(ng)
-    integer :: i
-    logical:: l_dummy_isanrg,isanrg
-    pi = 4d0*datan(1d0)
-    ! ino isanrg is logical function,       call isanrg(job,0,4,'lindsc:','job', .true.)
-    l_dummy_isanrg=isanrg(job,0,4,'lindsc:','job', .true.)
-    if (job == 0) return
-    cn(1) = 0
-    ! ... Early exit if elind is zero => eps = 1
-    if (elind == 0) then
-       if (job == 1) then
-       elseif (job == 2) then
-          call dpzero(cn,ng*2)
-       elseif (job == 3) then
-          do  i = 2, ng
-             cn(i) = 1
-          enddo
-       endif
-       return
-    endif
-    do  22  i = 2, ng
-       g2 = tpiba*tpiba*(gv(i,1)**2+gv(i,2)**2+gv(i,3)**2)
-       xx = sqrt(g2/elind)/2
-       yy = 0.5d0 + (1-xx**2)/(4*xx)*dlog(dabs((1+xx)/(1-xx)))
-       eps = 1 + 4*dsqrt(elind)/(pi*g2)*yy
-       if (job == 1) then
-          cn(i) = cn(i) / eps
-       elseif (job == 2) then
-          cn(i) = cn(i) * (1/eps-1)
-       elseif (job == 3) then
-          cn(i) = eps
-       elseif (job == 4) then
-          cn(i) = 1 / eps
-       endif
-22  enddo
-  end subroutine lindsc
 end module m_dfrce

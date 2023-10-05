@@ -83,7 +83,7 @@ contains
     !i   leks  :>0 make the Hohnberg-Kohn-Sham energy
     !i         :>1 use the HKS forces
     !i   lrout : =1 generate output density and attendant quantities, =0 do not
-    !i   lfrce : =1 generate force, or 0
+    !i   lfrce : =1 generate force
     !i   lpnu=1  : =1 means new pnu's
     !i   dmxp  :vector of mixing parameters; see mixrho.f for dmxp(1..25)
     !i         :Additionally:
