@@ -489,48 +489,41 @@ contains
         call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rhol1,lxcfun,rep1,rep1x,rep1c,rmu1,v1out,fl,qs) !v1out is for radial basis and pnu.
         xcore = sum([(sum(rwgt(2:nr)*rhoc(2:nr,isp)*(y0*v1out(2:nr,1,isp)-2d0*z/rofi(2:nr))),isp=1,nsp)]) ! Vin*rhoc
       endblock
-      block
+      v1esv2es: block
         call poinsp(0d0,[(0d0,i=1,nlml)],nlml,v2es,rofi,rhol2t,wk,nr,rvs2,rhves2, vnucl,vsum)! Ves[rhol2], Ves=0 at MTboundaries (vval=0).
         rmax=rofi(nr)
         do ilm = 1,nlml
            l = ll(ilm)
            gpotb(ilm) = pi4/df(2*l+1)*sfac*(ag2/pi)**1.5d0*(2d0*ag2)**l*sum(rwgt*v2es(:,ilm,1)*rofi(:)**l* gg(:) )
-           dEdQ(ilm) = (gpot0(ilm) - gpotb(ilm))*rmax**l  ! {\cal Q}^V_aL*rmax**l in Eq.(35) 
-        enddo
-        call poinsp(z,  dEdQ,nlml,v1es,rofi,rhol1t,wk,nr,rvs1,rhves1,  vnucl,vsum)!v1es=Ves[rho1t]: true ES pot without nuclear contribution
-        call poinsp(0d0,dEdQ,nlml,v2es,rofi,rhol2t,wk,nr,rvs2,rhves2, vnucl,vsum)! v2es=Ves[rhol2]
-      endblock
+           dEdQ(ilm)  = (gpot0(ilm) - gpotb(ilm))*rmax**l  ! {\cal Q}^V_aL*rmax**l in Eq.(35) 
+        enddo !NOTE     dEdQ gives the boundariy condition at MT
+        call poinsp(z,  dEdQ,nlml,v1es,rofi,rhol1t,wk,nr,rvs1,rhves1, vnucl,vsum)! v1es-2*z(1/rofi(2:nr)-1/rmt) is the es part of 1st comp. of Eq.(34).
+        call poinsp(0d0,dEdQ,nlml,v2es,rofi,rhol2t,wk,nr,rvs2,rhves2, vnucl,vsum)!                         v2es is the es part of 2nd comp. of Eq.(34).
+      endblock v1esv2es
       do ilm = 1, nlml ! gpotb = integrals of compensating gaussians times the estatic 2nd component v2es
          l = ll(ilm) 
          gpotb(ilm) = pi4/df(2*l+1)*sfac*(ag2/pi)**1.5d0*(2d0*ag2)**l*sum(rwgt*v2es(:,ilm,1)*rofi(:)**l* gg(:) )
       enddo
       ! --- Electrostatic integrals involving spherical terms only ---
       efg(1:5)=merge(v1es(5,5:9,1)/rofi(5)**2,0d0,nlml >= 9 .AND. z > 0.01)
-      vesc1 = sum(rwgt(2:nr)*rhoct(2:nr)*(y0*v1es(2:nr,1,1) - 2d0*z/rofi(2:nr)))
-      vesn2 = sum(rwgt*rhonsm*y0*v2es(:,1,1))
-      vesc2 = sum(rwgt*rhocsm*y0*v2es(:,1,1))
-      vnucl = sum(rwgt(2:nr)*rhol1t(2:nr,1)*(1d0/rofi(2:nr)-1d0/rmt))
-      ves1int = 4d0*pi*(sum(rwgt*y0*v1es(:,1,1)*rofi(:)**2) - z*rofi(nr)**2)
-      ves2int = 4d0*pi*sum(rwgt*y0*v2es(:,1,1)*rofi(:)**2)
-      if(master_mpi)write(ifivesint,"(3f23.15,a)")ves1int-ves2int,ves1int,ves2int,' ! vesint1-vesint2 ves1int ves2int'
-      vnucl = 2d0*srfpi*vnucl + 2d0*z/rmt + y0*dEdQ(1) !vval(j1)
-      vesn1 = -z*vnucl
-      vales1 = rvs1-vesc1 ! ... Valence density times electrostatic potential
-      vales2 = rvs2-vesn2-vesc2
-      vvesat = vales1-vales2
-      vcpn1  = vesc1 + vesn1 ! ... Core plus nucleus times estatic potential
-      vcpn2  = vesn2 + vesc2
-      cpnves = vcpn1 - vcpn2
+      vnucl = 2d0*srfpi*sum(rwgt(2:nr)*rhol1t(2:nr,1)*(1d0/rofi(2:nr)-1d0/rmt)) + 2d0*z/rmt + y0*dEdQ(1)!=v1es+vcore at ir=0 without 2z/r. b.c. y0*dEdQ(1)
+      !                                                  vesrhol1t(zero at rmt) +  2d0*(-z/r + z/rmt) + y0*dEdQ(1)!1st term of Eq.34.
+      vvesat = rvs1 - rvs2    ! density(without core) \times electrostatic potential
+      cpnves = (-z*vnucl)     ! CoreContribution without self-interaction
+      ! note that +2*y0*z/rofi(ir) is to remove self-interaction of a core.
+      if(master_mpi) then
+         ves1int = pi4*(sum(rwgt*y0*v1es(:,1,1)*rofi(:)**2) - z*rofi(nr)**2)
+         ves2int = pi4*sum(rwgt*y0*v2es(:,1,1)*rofi(:)**2)
+         write(ifivesint,"(3f23.15,a)")ves1int-ves2int,ves1int,ves2int,' ! vesint1-vesint2 ves1int ves2int'
+      endif   
     endblock rhototal
     if(nsp==2) v1es(:,:,2)=v1es(:,:,1)
     if(nsp==2) v2es(:,:,2)=v2es(:,:,1)
     forall(isp=1:nsp) v1(:,:,isp) =v1es(:,:,1) 
     forall(isp=1:nsp) v2(:,:,isp) =v2es(:,:,1) 
     call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rhol1,lxcfun,rep1,rep1x,rep1c,rmu1,v1,fl,qs) !add xc to v1
-    rho2s=rho2
-    do  isp = 1, nsp
-       rho2s(1:nr,1,isp)=rho2s(1:nr,1,isp) + merge(y0/nsp*rhochs(1:nr),0d0,lfoc==1)    !add xc to v2
-    enddo
+    rho2s = rho2
+    forall(isp=1:nsp) rho2s(1:nr,1,isp)=rho2s(1:nr,1,isp) + merge(y0/nsp*rhochs(1:nr),0d0,lfoc==1)    !add xc to v2
     call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rho2s,lxcfun,rep2,rep2x,rep2c,rmu2,v2,fl,qs)
     if (ipr>=40 .AND. nsp == 1) write(stdo,"(/' ilm',09x,'rho*vtrue',07x,'rho*vsm')")
     if (ipr>=40 .AND. nsp == 2) write(stdo,"(/' ilm',19x,'rho*vtrue',30x,'rho*vsm'/13x, &
@@ -555,14 +548,14 @@ contains
     rhoec  = rep1c - rep2c
     rhovxc = rmu1  - rmu2
     valvef = vefv1 - vefv2  ! v1*rho1_val  - v2*rho2_val 
-!    if (ipr >= 40) then
+    if (ipr >= 20) then
        write(stdo,"(/' local terms:     true',11x,'smooth',9x,'local')")
        write(stdo,"(' rhoeps:  ',3f15.6/' rhomu:   ',3f15.6)") sum(rep1),sum(rep2),sum(rhoexc),rmu1(1),rmu2(1),rhovxc(1)
        if(nsp==2)write(stdo,"(' spin2:   ',3f15.6/' total:   ',3f15.6)")rmu1(2),rmu2(2),rhovxc(2),sum(rmu1),sum(rmu2),sum(rhovxc)
        write(stdo,"(' val*vef  ',3f15.6/' val chg: ',3f15.6)") vefv1,vefv2,valvef,qv1,qv2,qloc
        if(nsp == 2) write(stdo,"(' val mmom: ',f15.6,'  core mmom:',f11.6)") aloc,alocc
        write(stdo,"(' core chg:',3f15.6)") qcor1,qcor2,qlocc
-!    endif
+    endif
     call tcx('locpt2')
   end subroutine locpt2
   subroutine elfigr(nc,stdo,z,efg1)    !- Computation of electric field gradient at Nucleus
