@@ -621,9 +621,10 @@ contains
     !r   qcorg and qcorh are the charges in the Gaussian and smHankels. The hankel part is used when the core is allowed to spill out of
     !r   the augmentation sphere.
     !r
-    !r   cofg and cofh are the coefficients in front of the standard gaussian and smoothed hankel functions for l=0.
+    !r   cofh is the coefficients as 
     !      n_sH,a = cofh*h0(rfoca;r)*Y0 !Eq(23)
-    !           cofg*g0(rg;r)*Y0 has the same moment of n_sH,a. 
+    !    cofg = y0* \int_0^rmt (core(r) - n_sH,a(r)) dr = y0*(qc-qcorh) because core(r) and n_sH,a(r) are the same for r>rmt
+    !
     !r   ceh and rfoc are the energy and sm.-radius for the hankel part.
     !r   cofg is set so that qc = integral of eq. 1 above.
     !r
@@ -631,9 +632,10 @@ contains
     !r   For lfoc>0 there is no Hankel part; Gaussian carries difference between qc and charge in Hankel part.
     !r
     !r   To add to the radial density 4*pi*r**2*rho_true, multiply cofg,cofh by srfpi.
+    !
     !l Local variables
     !l    ccof :coefficient for core tail, for a smoothed Hankel.
-    !l          ccof is differs from spec->ctail because ctail is constructed for an unsmoothed Hankel.
+    !l          ccof differs from spec->ctail because ctail is constructed for an unsmoothed Hankel.
     implicit none
     integer :: is,i_copy_size
     real(8):: qcorg , qcorh , qsc , cofg , cofh , ceh , rfoc , z
@@ -652,7 +654,7 @@ contains
     pz = pzx(1:n0,1,is)  
     if ( rfoc <= 1d-5 ) rfoc = rg_i(is)  !we assme int pz(:,1)=pz(:,2) int pnu as well
     qsc = sum([(4*l+2,l=0,lmxb)], mask=[(pz(l+1)>0d0.and.floor(mod(pz(l+1),10d0))<floor(pnu(l+1)),l=0,lmxb)])
-    if (ccof /= 0) then ! ... Scale smoothed hankel coeff for exact spillout charge
+    if(ccof /= 0) then ! ... Scale smoothed hankel coeff for exact spillout charge
        call hansmr(rmt,0d0,1/rfoc,x0,1)
        call hansmr(rmt,ceh,1/rfoc,xi,1)
        q1 = srfpi/ceh*(-dexp(rfoc**2/4*ceh) - rmt**3*(xi(1)-dexp(rfoc**2/4*ceh)*x0(1))) !q1 = spillout charge in sm. Hankel
@@ -664,8 +666,8 @@ contains
        q1 = q1*y0
        ccof = ccof*q0/q1
     endif
-    qcorh = merge(-ccof*dexp(ceh*rfoc*rfoc/4d0)/ceh, 0d0,lfoc>0) ! spilout charge
-    qcorg = merge(qc-qcorh, qc,lfoc>0)                           ! charges  
+    qcorh = merge(-ccof*dexp(ceh*rfoc*rfoc/4d0)/ceh, 0d0,lfoc>0) ! hankel charge
+    qcorg = merge(qc-qcorh, qc,lfoc>0)                           ! counter charge  
     cofh = -y0*qcorh*ceh*dexp(-ceh*rfoc*rfoc/4d0)! Coeffients of the smHankel to reproduce cores.
     cofg =  y0*qcorg                             ! charge for Y0 
   end subroutine corprm
