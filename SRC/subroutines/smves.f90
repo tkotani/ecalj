@@ -133,7 +133,7 @@ contains
     !u   22 Apr 00 Adapted from nfp ves_smooth.f
     ! ----------------------------------------------------------------------
     implicit none
-    integer:: ib , igetss , ilm , ipr , iprint , is , iv0 , lfoc, &
+    integer:: ib , igetss , ilm , ipr , iprint , is ,  lfoc, &
          lgunit , lmxl , m , nlm , j1 , j2 , j3,iwdummy, ifivsmconst
     real(8):: qmom(nlmxlx,nbas) , f(3,nbas) , gpot0(nlmxlx,nbas) , vval(nlmxlx,nbas) , hpot0(nbas) &
          , vrmt(nbas),qsmc,smq,rhvsm,vconst,zsum,zvnsm,qbg
@@ -175,7 +175,6 @@ contains
        close(ifivsmconst)
     endif
     ! ... Adjust vbar, vval, gpot0 by vconst
-    iv0 = 0
     do  ib = 1, nbas
        lmxl = lmxl_i(ispec(ib))
        if (lmxl > -1) then
@@ -183,7 +182,6 @@ contains
           vrmt(ib) = vrmt(ib) + vconst
           vval(1,ib) = vval(1,ib) + vconst/y0
           gpot0(1,ib) = gpot0(1,ib) + vconst/y0
-          iv0 = iv0 + nlm
        endif
     enddo
     if (ipr >= 40) then
@@ -215,7 +213,6 @@ contains
     rhvsm0= u00 + u0g + vconst*smq
     rhvsm = u00 + u0g + vconst*smq
     sumx = 0d0
-    iv0 = 0
     do  ib = 1, nbas
        is = ispec(ib)
        call corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
@@ -229,7 +226,6 @@ contains
              rhvsm = rhvsm + qmom(ilm,ib)*gpot0(ilm,ib)
              sumx = sumx   + qmom(ilm,ib)*gpot0(ilm,ib)
           enddo
-          iv0 = iv0+nlm
        endif
     enddo
     usm = 0.5d0*(rhvsm+zvnsm)
@@ -238,21 +234,17 @@ contains
     smq=smq-qbg
     if (nsp == 2) then!     Restore spin 1 density, copy potential to second spin channel
        smrho(:,:,:,1)= smrho(:,:,:,1)-smrho(:,:,:,2)
-       smpot(:,:,:,2)=smpot(:,:,:,1)
+       smpot(:,:,:,2)= smpot(:,:,:,1)
     endif
     call tcx('smves')
   end subroutine smves
-  subroutine mshvmt(ng,gv, kv,cv,smpot,vval)
+  subroutine mshvmt(ng,gv, kv,cv,smpot,vval)!- Makes potential at MT surfaces given potential on a uniform mesh
     use m_struc_def
     use m_lattic,only:lat_plat,rv_a_opos
     use m_lmfinit,only:lat_alat,ispec
     use m_supot,only: n1,n2,n3
     use m_ropyln,only: ropyln
     use m_ropbes,only: ropbes
-    !- Makes potential at MT surfaces given potential on a uniform mesh
-    ! ----------------------------------------------------------------------
-    !i Inputs
-    !i   nbas  :size of basis
     !i   ng    :number of G-vectors
     !i   gv    :list of reciprocal lattice vectors G (gvlist.f)
     !i   kv    :indices for gather/scatter operations (gvlist.f)
@@ -277,7 +269,7 @@ contains
     integer :: ng,kv(ng,3)
     real(8):: gv(ng,3),vval(nlmxlx,nbas)
     double complex smpot(n1,n2,n3),cv(ng)
-    integer :: i,ib,is,lmxx,nlmx,iv0,lmxl,nlm,m,ilm,l,ipr
+    integer :: i,ib,is,lmxx,nlmx,lmxl,nlm,m,ilm,l,ipr
     real(8) :: alat,pi,tpiba,tau(3),rmt,fac,plat(3,3)
     double complex vvali,fprli
     parameter (lmxx=6, nlmx=(lmxx+1)**2)
@@ -290,16 +282,13 @@ contains
     pi = 4d0*datan(1d0)
     alat=lat_alat
     plat =lat_plat
-!    ngabc=lat_nabc
     tpiba = 2*pi/alat
     call gvgetf(ng,1,kv,n1,n2,n3,smpot,cv)
-    ! --- YL(G)*G**l, agv=|G| for each g ---
     call dpcopy(gv,gv2,1,3*ng,tpiba)
-    call ropyln(ng,gv2(1,1),gv2(1,2),gv2(1,3),lmxx,ng,yl,agv)
+    call ropyln(ng,gv2(1,1),gv2(1,2),gv2(1,3),lmxx,ng,yl,agv) !YL(G)*G**l, agv=|G| for each g ---
     do  i = 1, ng
        agv(i) = sqrt(agv(i))
     enddo
-    iv0 = 0
     do  ib = 1, nbas
        is=ispec(ib)
        tau=rv_a_opos(:,ib) 
@@ -329,7 +318,6 @@ contains
           enddo
           fprli = fprli*(0d0,1d0)*rmt
        enddo
-       iv0 = iv0 + nlm
 10     continue
     enddo
     deallocate(phil,yl)
@@ -361,7 +349,7 @@ contains
     ! ----------------------------------------------------------------------
     implicit none
     real(8):: vval(nlmxlx,nbas),vrmt(nbas)
-    integer :: ic,ib,ilm,mxint,nclass,ipa(nbas),nrclas,iv0
+    integer :: ic,ib,ilm,mxint,nclass,ipa(nbas),nrclas
     integer :: ips(nbas),lmxl(nbas) !ipc(nbas),
     real(8) :: pos(3,nbas),posc(3,nbas),plat(3,3),pi,y0
     integer:: igetss,nlml ,ipr,nn,ibas
@@ -457,9 +445,9 @@ contains
          rh2,srfpi,y0,z1,z2
     real(8) :: df(0:20),ff(3),tau1(3),tau2(3)
     double complex s(ndim,ndim),ds(ndim,ndim,3),s0(ndim0,ndim0),ds0(ndim0,ndim0,3)
-    integer :: nlmx,npmx,ip,mp,nbmx
-    parameter (nlmx=64, npmx=1, nbmx=256)
-    real(8) :: xf(3,nbas,npmx),xhpot0(nbas,npmx), xgpot0(nlmxlx,nbas,npmx),xugg(npmx)
+    integer :: nlmx,npmx,nbmx
+    parameter (nlmx=64, nbmx=256)
+    real(8) :: xf(3,nbas),xhpot0(nbas), xgpot0(nlmxlx,nbas),xugg
     integer:: ibini,ibend
     call tcn('ugcomp')
     call stdfac(20,df)
@@ -467,92 +455,79 @@ contains
     fpi = 4d0*pi
     srfpi = dsqrt(fpi)
     y0 = 1d0/srfpi
-    mp = 1
-    if (npmx < mp) call rxi('ugcomp: increase npmx, needed',mp)
     ! --- Loop over sites where charge lump making pot is centered ---
     ugg = 0d0
-    ip = 1
-    xugg=0d0   !call dpzero(xugg, mp)
-    xgpot0=0d0 !call dpzero(xgpot0, nlmx*nbas*mp)
-    xf=0d0     !, 3*nbas*mp)
+    xugg=0d0   
+    xgpot0=0d0 
+    xf=0d0     
     xhpot0=0d0
-    ibini=1
-    ibend=nbas
-    do ib=ibini,ibend
+    do ib=1,nbas
        is=ispec(ib) 
        tau1=rv_a_opos(:,ib) 
        lmax1=lmxl_i(is)
+       if (lmax1 ==-1) cycle
        rg1=rg_i(is)
        call corprm(is,qcorg1,qcorh1,qsc1,cofg1,cofh1,ceh1,lfoc1, rh1,z1)
        nlm1 = (lmax1+1)**2
-       if (lmax1 > -1) then
-          jv0 = 0
-          do  jb = 1, nbas!  Loop over sites where charge lump sees the potential
-             js=ispec(jb)
-             tau2=rv_a_opos(:,jb) 
-             lmax2=lmxl_i(js)
-             rg2=rg_i(js)
-             if (lmax2 > -1) then
-                call corprm(js,qcorg2,qcorh2,qsc2,cofg2,cofh2,ceh2, lfoc2,rh2,z2)
-                nlm2 = (lmax2+1)**2
-                if (nlm1 > ndim) call rxi('ugcomp: ndim < nlm1=',nlm1)
-                if (nlm2 > ndim) call rxi('ugcomp: ndim < nlm2=',nlm2)
-                call ggugbl(tau1,tau2,rg1,rg2,nlm1,nlm2,ndim,ndim,s,ds)  !gaussian-gaussian
-                ff = 0d0
-                do  ilm1 = 1, nlm1
-                   l1 = ll(ilm1)
-                   qm1 = qmom(ilm1,ib)
-                   cof1 = qm1*fpi/df(2*l1+1)
-                   do  ilm2 = 1, nlm2
-                      l2 = ll(ilm2)
-                      qm2 = qmom(ilm2,jb)
-                      cof2 = qm2*fpi/df(2*l2+1)
-                      xugg(ip) = xugg(ip) + cof1*cof2*s(ilm1,ilm2)
-                      xgpot0(ilm2,jb,ip) = xgpot0(ilm2,jb,ip) + s(ilm1,ilm2)*cof1*fpi/df(2*l2+1)
-                      ff = ff + 0.5d0*cof1*cof2*ds(ilm1,ilm2,1:3) !Forces
-                   enddo
-                enddo
-                if (lfoc1 > 0 .OR. lfoc2 > 0) then ! Additional h*h, h*g, g*h terms for foca ---
-                   call hhugbl(0,tau1,tau2,[rh1],[rh2],[ceh1],[ceh2],1,1,ndim0,ndim0, s0,ds0)!smHankel-smHankel
-                   xugg(ip) = xugg(ip) + cofh1*s0(1,1)*cofh2
-                   xhpot0(jb,ip) = xhpot0(jb,ip) + cofh1*s0(1,1) !smooth Hankel part
-                   ff = ff + 0.5d0*cofh1*cofh2*ds0(1,1,1:3)
-                   call hgugbl(tau1,tau2,rh1,rg2,ceh1,1,nlm2,ndim,ndim, s,ds)!gaussian-smHankel
-                   do  ilm2 = 1, nlm2
-                      l2 = ll(ilm2)
-                      qm2 = qmom(ilm2,jb)
-                      cof2 = qm2*fpi/df(2*l2+1)
-                      xugg(ip) = xugg(ip) + cofh1*s(1,ilm2)*cof2
-                      ff = ff + 0.5d0*cofh1*cof2*ds(1,ilm2,1:3)
-                      xgpot0(ilm2,jb,ip) = xgpot0(ilm2,jb,ip) + s(1,ilm2)*cofh1*fpi/df(2*l2+1)
-                   enddo
-                   call hgugbl(tau2,tau1,rh2,rg1,ceh2,1,nlm1,ndim,ndim, s,ds) !gaussian-smHamel
-                   do  ilm1 = 1, nlm1
-                      l1 = ll(ilm1)
-                      qm1 = qmom(ilm1,ib)
-                      cof1 = qm1*fpi/df(2*l1+1)
-                      xugg(ip) = xugg(ip) + cof1*s(1,ilm1)*cofh2
-                      ff = ff - 0.5d0*cof1*cofh2*ds(1,ilm1,1:3)
-                      xhpot0(jb,ip) = xhpot0(jb,ip) + cof1*s(1,ilm1) !Gaussian part
-                   enddo
-                endif
-                if (jb /= ib) then
-                   xf(1:3,ib,ip) = xf(1:3,ib,ip) - ff
-                   xf(1:3,jb,ip) = xf(1:3,jb,ip) + ff
-                endif
-                jv0 = jv0+nlm2
-             endif
+       do  jb = 1, nbas!  Loop over sites where charge lump sees the potential
+          js=ispec(jb)
+          tau2=rv_a_opos(:,jb) 
+          lmax2=lmxl_i(js)
+          if(lmax2==-1) cycle
+          rg2=rg_i(js)
+          call corprm(js,qcorg2,qcorh2,qsc2,cofg2,cofh2,ceh2, lfoc2,rh2,z2)
+          nlm2 = (lmax2+1)**2
+          if (nlm1 > ndim) call rxi('ugcomp: ndim < nlm1=',nlm1)
+          if (nlm2 > ndim) call rxi('ugcomp: ndim < nlm2=',nlm2)
+          call ggugbl(tau1,tau2,rg1,rg2,nlm1,nlm2,ndim,ndim,s,ds)  !gaussian-gaussian
+          ff = 0d0
+          do  ilm1 = 1, nlm1
+             l1 = ll(ilm1)
+             qm1 = qmom(ilm1,ib)
+             cof1 = qm1*fpi/df(2*l1+1)
+             do  ilm2 = 1, nlm2
+                l2 = ll(ilm2)
+                qm2 = qmom(ilm2,jb)
+                cof2 = qm2*fpi/df(2*l2+1)
+                xugg = xugg + cof1*cof2*s(ilm1,ilm2)
+                xgpot0(ilm2,jb) = xgpot0(ilm2,jb) + s(ilm1,ilm2)*cof1*fpi/df(2*l2+1)
+                ff = ff + 0.5d0*cof1*cof2*ds(ilm1,ilm2,1:3) !Forces
+             enddo
           enddo
-       endif
-    enddo
-    do 80 ip = 1, mp
-       do ib = 1, nbas
-          f(1:3,ib) = f(1:3,ib) + xf(1:3,ib,ip)
-          hpot0(ib) = hpot0(ib) + xhpot0(ib,ip)
-          gpot0(:,ib) = gpot0(:,ib) + xgpot0(:,ib,ip)
+          if (lfoc1 > 0 .OR. lfoc2 > 0) then ! Additional h*h, h*g, g*h terms for foca ---
+             call hhugbl(0,tau1,tau2,[rh1],[rh2],[ceh1],[ceh2],1,1,ndim0,ndim0, s0,ds0)!smHankel-smHankel
+             xugg = xugg + cofh1*s0(1,1)*cofh2
+             xhpot0(jb) = xhpot0(jb) + cofh1*s0(1,1) !smooth Hankel part
+             ff = ff + 0.5d0*cofh1*cofh2*ds0(1,1,1:3)
+             call hgugbl(tau1,tau2,rh1,rg2,ceh1,1,nlm2,ndim,ndim, s,ds)!gaussian-smHankel
+             do  ilm2 = 1, nlm2
+                l2 = ll(ilm2)
+                qm2 = qmom(ilm2,jb)
+                cof2 = qm2*fpi/df(2*l2+1)
+                xugg = xugg + cofh1*s(1,ilm2)*cof2
+                ff = ff + 0.5d0*cofh1*cof2*ds(1,ilm2,1:3)
+                xgpot0(ilm2,jb) = xgpot0(ilm2,jb) + s(1,ilm2)*cofh1*fpi/df(2*l2+1)
+             enddo
+             call hgugbl(tau2,tau1,rh2,rg1,ceh2,1,nlm1,ndim,ndim, s,ds) !gaussian-smHamel
+             do  ilm1 = 1, nlm1
+                l1 = ll(ilm1)
+                qm1 = qmom(ilm1,ib)
+                cof1 = qm1*fpi/df(2*l1+1)
+                xugg = xugg + cof1*s(1,ilm1)*cofh2
+                ff = ff - 0.5d0*cof1*cofh2*ds(1,ilm1,1:3)
+                xhpot0(jb) = xhpot0(jb) + cof1*s(1,ilm1) !Gaussian part
+             enddo
+          endif
+          if (jb /= ib) then
+             xf(1:3,ib) = xf(1:3,ib) - ff
+             xf(1:3,jb) = xf(1:3,jb) + ff
+          endif
        enddo
-       ugg = ugg + xugg(ip)
-80  enddo
+    enddo
+    f(1:3,:) = f(1:3,:) + xf(1:3,:)
+    hpot0(:) = hpot0(:) + xhpot0(:)
+    gpot0(:,:) = gpot0(:,:) + xgpot0(:,:)
+    ugg = ugg + xugg
     call tcx('ugcomp')
   end subroutine ugcomp
   subroutine vesft(ng,gv,kv,cv,smrho,smpot,ssum)!Make electrostatic potential of density given in recip space
@@ -581,45 +556,45 @@ contains
     call gvputf(ng,1,kv,n1,n2,n3,ccc,smpot)! smpot(G) =8pi/G**2 smrho(G)
     call tcx('vesft')
   end subroutine vesft
-subroutine symqmp(nrclas,nlml,nlmx,plat,posc,ngrp,g,ag,ipa,qmp,nn)  !- Symmetrize multipole moments for a single class
-  !i Inputs
-  !i   nrclas:number of atoms in the ith class
-  !i   nlml  :L-cutoff for charge density on radial mesh
-  !i   nlmx  :dimensions sym: sym is generated for ilm=1..nlmx
-  !i   plat  :primitive lattice vectors, in units of alat
-  !i   posc  :work array holding basis vectors for this class
-  !i   ngrp  :number of group operations
-  !i   g     :point group operations
-  !i   ag    :translation part of space group
-  !i   qwk   :work array of dimension nlml
-  !i   ipa   :ipa(1..nrclas) = table of offsets to qmp corresponding
-  !i         :to each member of the class
-  ! o Inputs/Outputs
-  ! o  qmp   :On input,  unsymmetrized multipole moments
-  ! o        :On output, multipole moments are symmetrized
-  !o Outputs
-  !o   sym   :symmetry projectors for each member of the class
-  !o   nn    :number of elements symmetrized
-  implicit none
-  integer :: nrclas,nlmx,ipa(nrclas),nlml,ngrp,nn,ia,ilm,ixx,iyy(1)
-  real(8) :: plat(3,3),posc(3,nrclas),g(3,3,ngrp),ag(3,ngrp),sym(nlmx,nlmx,nrclas),qwk(nlml),qmp(nlmxlx,nbas),wgt,xx,qlat(3,3)
-  call tcn('symqmp')
-  if (nlml > nlmx) call rxi('symqmp: increase nlmx to',nlml)
-  call dinv33(plat,1,qlat,xx)
-  call symprj(nrclas,nlmx,ngrp,ixx,iyy,g,ag,plat,qlat,posc,sym)! ... Make the symmetry projectors
-  qwk=0d0
-  do  ia = 1, nrclas
-     call pxsmr1(1d0,1,nlml,1,sym(1,1,ia),qmp(:,ipa(ia)),qwk,nn) ! ... Accumulate symmetrized qmpol on first site
-  enddo
-  wgt = nrclas
-  do  ia = 1, nrclas ! ... Rotate and copy to all sites in class
-     qmp(:,ipa(ia))=0d0
-     call pysmr1(wgt,1,nlml,1,sym(1,1,ia),qwk,qmp(:,ipa(ia)),nn)
-  enddo
-  nn = 0
-  do  ilm = 1, nlml
-     if(dabs(qmp(ilm,ipa(1))) > 1d-6) nn = nn+1
-  enddo
-  call tcx('symqmp')
-end subroutine symqmp
+  subroutine symqmp(nrclas,nlml,nlmx,plat,posc,ngrp,g,ag,ipa,qmp,nn)  !- Symmetrize multipole moments for a single class
+    !i Inputs
+    !i   nrclas:number of atoms in the ith class
+    !i   nlml  :L-cutoff for charge density on radial mesh
+    !i   nlmx  :dimensions sym: sym is generated for ilm=1..nlmx
+    !i   plat  :primitive lattice vectors, in units of alat
+    !i   posc  :work array holding basis vectors for this class
+    !i   ngrp  :number of group operations
+    !i   g     :point group operations
+    !i   ag    :translation part of space group
+    !i   qwk   :work array of dimension nlml
+    !i   ipa   :ipa(1..nrclas) = table of offsets to qmp corresponding
+    !i         :to each member of the class
+    ! o Inputs/Outputs
+    ! o  qmp   :On input,  unsymmetrized multipole moments
+    ! o        :On output, multipole moments are symmetrized
+    !o Outputs
+    !o   sym   :symmetry projectors for each member of the class
+    !o   nn    :number of elements symmetrized
+    implicit none
+    integer :: nrclas,nlmx,ipa(nrclas),nlml,ngrp,nn,ia,ilm,ixx,iyy(1)
+    real(8) :: plat(3,3),posc(3,nrclas),g(3,3,ngrp),ag(3,ngrp),sym(nlmx,nlmx,nrclas),qwk(nlml),qmp(nlmxlx,nbas),wgt,xx,qlat(3,3)
+    call tcn('symqmp')
+    if (nlml > nlmx) call rxi('symqmp: increase nlmx to',nlml)
+    call dinv33(plat,1,qlat,xx)
+    call symprj(nrclas,nlmx,ngrp,ixx,iyy,g,ag,plat,qlat,posc,sym)! ... Make the symmetry projectors
+    qwk=0d0
+    do  ia = 1, nrclas
+       call pxsmr1(1d0,1,nlml,1,sym(1,1,ia),qmp(:,ipa(ia)),qwk,nn) ! ... Accumulate symmetrized qmpol on first site
+    enddo
+    wgt = nrclas
+    do  ia = 1, nrclas ! ... Rotate and copy to all sites in class
+       qmp(:,ipa(ia))=0d0
+       call pysmr1(wgt,1,nlml,1,sym(1,1,ia),qwk,qmp(:,ipa(ia)),nn)
+    enddo
+    nn = 0
+    do  ilm = 1, nlml
+       if(dabs(qmp(ilm,ipa(1))) > 1d-6) nn = nn+1
+    enddo
+    call tcx('symqmp')
+  end subroutine symqmp
 end module m_smves

@@ -28,7 +28,6 @@ contains
     !i   nlm2  :L-max for  Hankels at p2
     !i   ndim1 :leading dimensions of s,ds
     !i   ndim2 :second dimensions of s,ds
-    !    wk:work space of same size as s,  dwk:work space of same size as ds
     !r Remarks
     !r   Gradient is wrt p1; use -ds for grad wrt p2.
     !u Updates
@@ -551,7 +550,7 @@ contains
     phase = exp(img*sp) 
     nrx = max(nkd,nkq)
     allocate(wk(nrx*(2*lmax+10)),yl(nrx*(lmax+1)**2))
-    call hsmq ( 1,0,[ll(nlm)],[e],[rsm],0000,qshortn(q),p1,nrx,nlm,yl,awald,alat,qlv, nkq,dlv, nkd,vol,hsm,hsmp )
+    call hsmq ( 1,0,[ll(nlm)],[e],[rsm],0000,qshortn(q),p1,nrx,nlm,yl, awald,alat,qlv,nkq,dlv,nkd,vol, hsm,hsmp )
     if (rsm > faca/awald) then
        call gklbl(p1,rsm,e,q,kmax-1,nlm,k0, hkl) 
     else
@@ -573,7 +572,7 @@ contains
   subroutine fklbl(p,rsm,kmax,nlm,k0, fkl) !Bloch sum of smooth Hankels for e=0 and q=(0,0,0).
     use m_lmfinit,only: alat=>lat_alat,tol=>lat_tol
     use m_shortn3_plat,only: shortn3_plat,nout,nlatout
-    use m_hsmq,only: hsmq,hsmqe0
+    use m_hsmq,only: hsmqe0
     use m_qplist,only:qshortn
     !i Inputs
     !i   p     :Function is centered at p
@@ -608,8 +607,7 @@ contains
     p1= matmul(plat,ppin+nlatout(:,1)) !p1 is shortened p for qlat modulo
     nrx = max(nkd,nkq)
     allocate(wk(nrx*(2*lmax+10)), yl(nrx*(lmax+1)**2))
-    call hsmqe0 ( lmax,rsm,0,qshortn(q),p1,nrx,nlm,wk,yl,&
-         awald,alat,qlv,nkq,dlv,nkd,vol,fsm  )
+    call hsmqe0 ( lmax,rsm,0,qshortn(q),p1,nrx,nlm,yl, awald,alat,qlv,nkq,dlv,nkd,vol, fsm  )
     if (rsm > faca/awald) then
        call gklbl(p1,rsm,e,q,kmax-1,nlm,k0, fkl) 
     else
@@ -728,7 +726,7 @@ contains
     integer:: kmax,kdim,ilm2,ilm1
     kmax = 0
     kdim = 0
-    call gfigbl(p1,p2,rsm1,rsm2,nlm1,nlm2,kmax,ndim1,ndim2,kdim, s,ds)  
+    call gfigbl(p1,p2,rsm1,rsm2,nlm1,nlm2,kmax,ndim1,ndim2,kdim, s,ds)  !See Eq.(11.48)
     do  ilm2 = 1, nlm2
        do  ilm1 = 1, nlm1
           s(ilm1,ilm2)    = 2d0*s(ilm1,ilm2)

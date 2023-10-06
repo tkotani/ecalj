@@ -294,13 +294,13 @@ contains
     if(iprint() >= 30) then
        write(stdo,"(' mkpot:',/'   Energy terms(Ry):',7x,'smooth',11x,'local',11x,'total')")
        write(stdo,680) &
-            'rhoval*veff',valfsm,valvfa,valvef, & !\int rho Veff
-            'rhoval*ves ',rhvsm,vvesat,valves, & !\int rho Ves
-            'psnuc*ves  ',zvnsm,cpnvsa,cpnves, & !\int rho(Z+core) Ves
-            'Eestatic   ',usm,uat,utot, & ! electrostatic energy
-            'rho*exc    ',sum(repsm),sum(repat),rhoexc, &
-            'rho*vxc    ',sum(rmusm),sum(rmuat),rhovxc, &
-            'valence chg',smq,sqloc,smq+sqloc !valence electron density, smooth part + local part
+            'rhoval*veff ',valfsm,valvfa,valvef, & !\int rho Veff
+            'rhoval*ves  ',rhvsm,vvesat,valves, & !\int rho Ves
+            '(z+core)*ves',zvnsm,cpnvsa,cpnves, & !\int rho(Z+core) Ves
+            'Eestatic    ',usm,uat,utot, & ! electrostatic energy
+            'rho*exc     ',sum(repsm),sum(repat),rhoexc, &
+            'rho*vxc     ',sum(rmusm),sum(rmuat),rhovxc, &
+            'valence chg ',smq,sqloc,smq+sqloc !valence electron density, smooth part + local part
        if(nsp == 2) write (stdo,680) 'valence mag',smag,saloc,amom
        write(stdo,680) 'core charge',qsmc,sqlocc,qsmc+sqlocc
        write(stdo,"('   Charges:  valence',f12.5,'   cores',f12.5,'   nucleii',f12.5/'   hom background',f12.5, &

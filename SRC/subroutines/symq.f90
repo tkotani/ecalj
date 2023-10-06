@@ -113,8 +113,7 @@ subroutine symprj(nrclas,nlml,ngrp,nbas,istab,g,ag,plat,qlat,pos, sym) !- Set up
   !o   sym   :symmetry projectors for each site within this class
   implicit none
   integer :: nlml,nrclas,ngrp,nbas,istab(nbas,ngrp)
-  double precision :: sym(nlml,nlml,nrclas),plat(3,3),qlat(3,3), &
-       g(3,3,ngrp),ag(3,ngrp),pos(3,nrclas),d(3)
+  double precision :: sym(nlml,nlml,nrclas),plat(3,3),qlat(3,3), g(3,3,ngrp),ag(3,ngrp),pos(3,nrclas),d(3)
   integer:: lmxl , ig , ja , m , ia=99999 , iprint , ilm , l , jlm,  jlm1 , jlm2
   real(8),allocatable :: rmat_rv(:,:)
   double precision :: wgt
@@ -139,20 +138,18 @@ subroutine symprj(nrclas,nlml,ngrp,nbas,istab,g,ag,plat,qlat,pos, sym) !- Set up
      sym(:,:,ia)= sym(:,:,ia) + wgt*rmat_rv
 10 enddo
   if( iprint() >= 60 ) then
-     do 20  ja = 1, nrclas
-        write(6,727) ja
-727     format(/' projection matrices for ja=',i3)
+     do ja = 1, nrclas
+        write(6,"(/' projection matrices for ja=',i3)") ja
         ilm = 0
-        do  22  l = 0, lmxl
+        do  l = 0, lmxl
            jlm1 = l*l+1
            jlm2 = (l+1)**2
-           do  24  m = 1, 2*l+1
+           do  m = 1, 2*l+1
               ilm = ilm+1
-              write(6,210) (sym(ilm,jlm,ja),jlm=jlm1,jlm2)
-210           format(1x,9f12.6)
-24         enddo
-22      enddo
-20   enddo
+              write(6,"(1x,9f12.6)") (sym(ilm,jlm,ja),jlm=jlm1,jlm2)
+           enddo
+        enddo
+     enddo
   endif
   deallocate(rmat_rv)
 end subroutine symprj
@@ -160,11 +157,9 @@ subroutine pxsmr1(wgt,nr,nlml,nsp,sym,rho1, rho2,nn)! Add wgt*sym*rho1 into rho2
   implicit none
   integer :: nr,nlml,nsp,nn,ilm,jlm,i,isp
   real(8) :: sym(nlml,nlml),rho1(nr,nlml,nsp), rho2(nr,nlml,nsp),wgt
-  !double precision :: ccc
   nn = 0
   do  ilm = 1, nlml
      do  jlm = 1, nlml
-!        ccc = wgt*sym(ilm,jlm);!        if (dabs(ccc) < 1d-9) cycle
         nn = nn+1
         rho2(:,ilm,:) = rho2(:,ilm,:) + wgt*sym(ilm,jlm)*rho1(:,jlm,:)
      enddo

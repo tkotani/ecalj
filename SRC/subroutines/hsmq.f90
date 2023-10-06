@@ -5,11 +5,12 @@ module m_hsmq !Bloch sum of smooth Hankel. lm expansion
   ! https://doi.org/doi:10.1063/1.532437.
   public:: hsmq,hsmqe0
 contains
-  subroutine hsmq(nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,yl,awald,alat,qlv,nG,dlv,nD,vol,hsm,hsmp) !Bloch-sum of smooth Hankel functions and energy derivatives at p by Ewald summation, for nxi groups of parameters (lxi,exi,rsm).
+  subroutine hsmq(nxi,lmxa,lxi,exi,rsm,job1,q,p,nrx,nlmx,yl,awald,alat,qlv,nG,dlv,nD,vol,hsm,hsmp) !Bloch-sum of smooth Hankel functions and energy derivatives at p by Ewald summation, for nxi groups of parameters (lxi,exi,rsm).
     use m_ropyln,only: ropyln
     use m_shortn3_plat,only: shortn3_plat,nout,nlatout,plat=>platx,qlat=>qlatx
     implicit none
-    intent(in)::  nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,   awald,alat,qlv,nG,dlv,nD,vol
+    intent(in)::  nxi,lmxa,lxi,exi,rsm,job1,q,p,nrx,nlmx,   awald,alat,qlv,nG,dlv,nD,vol
+    intent(out)::                                        yl,                             hsm,hsmp
     !i Inputs:
     !i  nxi,lxi,exi,rsm:  number of (l,energy,rsm) groups, and list
     !i  dlv,nD:  direct lattice vectors, and number
@@ -51,7 +52,7 @@ contains
     !Shorten p: pp=matmul(transpose(qlat),p); call shortn3_plat(pp); p1 = matmul(plat,pp+nlatout(:,1))
     if (nrx < max(nD,nG)) call rx('hsmq: nrx < nD or nG')
     if(nxi > 20) call rx('hsmq: increase dim of lx')
-    job1 = mod(job/10,10)
+!    job1 = mod(job/10,10)
     p1=p
     lx(1:nxi) = lxi(1:nxi)+lmxa ! ... lx(ie) = lxi(ie) + lmxa
     lmax = maxval(lx(1:nxi))
@@ -165,11 +166,12 @@ contains
        endblock hansblock
 30  enddo
   end subroutine hsmq
-  subroutine hsmqe0(lmax,rsm,job,q,p,nrx,nlmx,wk,yl,awald,alat,qlv,nG,dlv,nD,vol,hsm)
+  subroutine hsmqe0(lmax,rsm,job1,q,p,nrx,nlmx,yl,awald,alat,qlv,nG,dlv,nD,vol,hsm)! Bloch-sum of smooth Hankel functions for energy 0
     use m_ropyln,only: ropyln
     use m_shortn3_plat,only: shortn3_plat,nout,nlatout,plat=>platx,qlat=>qlatx
-    !  use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat
-    !- Bloch-sum of smooth Hankel functions for energy 0
+    implicit none
+    intent(in)::    lmax,rsm,job1,q,p,nrx,nlmx,   awald,alat,qlv,nG,dlv,nD,vol
+    intent(out)::                              yl,                             hsm
     ! ---------------------------------------------------------------
     !i Inputs:
     !i  rsm,lmax:smoothing radius, l cutoff for hsm
@@ -198,11 +200,11 @@ contains
     !i  wk:      work array, dimensioned at least nrx*(2*lmax+10)
     !o Outputs:
     !o   yl:     ylm(1..nD,1..(lmax+1)**2) for points alat*(p-dlv(1..nD))
-    !o   wk:     (*,1) holds r**2
-    !o           (*,2) holds Y0 exp(-(r/rsm)**2) (rsm>0 only)
-    !o           (*,3) holds cos(q.dlv)
-    !o           (*,4) holds sin(q.dlv)
     !o   hsm:    smoothed Hankels for e=0,q=0 for l=0..lmax
+    ! wk:     (*,1) holds r**2
+    !         (*,2) holds Y0 exp(-(r/rsm)**2) (rsm>0 only)
+    !         (*,3) holds cos(q.dlv)
+    !         (*,4) holds sin(q.dlv)
     !r Remarks
     !r   hsmqe0 is an adaptation of hsmq for for e=0, and possibly q=0.
     !r   For l=0, hsm(q=0,e->0) diverges.  To achieve a finite hsm(l=0,e=0),
@@ -215,12 +217,11 @@ contains
     !u  25 Jun 03 (Kino) call pvhsmq with arrays for lmax, e=0
     !u   7 May 98 handles case rsm>1/a by strict q-space summation
     ! ---------------------------------------------------------------
-    implicit none
     integer :: lmax,nG,nD,nlmx,nrx,job, ir,ilm,l,m,ir1,lc,ls,job0,job1,job2,job3,lm,nDx, lx1(1),i1,i2
     real(8) :: qdotr,a2,sp,gam,tpiba,p1(3),ex1(1), &
          x1,x2,xx,xx1((lmax+1)**2),xx2((lmax+1)**2),r,h0,q0(3),a,faca,cosp,sinp
     real(8):: alat,awald,vol,rsm,p(3),q(3), &
-         wk(nrx,*),yl(nrx,*),qlv(3,*),dlv(3,*),y0fac(nrx),rsq(nrx)
+         wk(nrx,(2*lmax+10)),yl(nrx,*),qlv(3,*),dlv(3,*),y0fac(nrx),rsq(nrx)
     complex(8):: hsm((lmax+1)**2)  
     parameter (faca=1d0)
     complex(8):: xxc,img=(0d0,1d0),phasex,phase(nrx)
@@ -228,11 +229,10 @@ contains
     real(8):: pp(3)
     real(8),parameter:: pi = 4d0*datan(1d0), y0 = 1/dsqrt(4d0*pi),  tpi = 2d0*pi
     dcmpre(x1,x2) = dabs(x1-x2) .lt. 1d-8
-    job1 = mod(job/10,10)
     if (nrx < max(nD,nG)) call rx('hsmqe0: nrx < nD or nG')
     ! ... Shorten pp=matmul(transpose(qlat),p); call shortn3_plat(pp);p1 = matmul(plat,pp+nlatout(:,1))
-    p1=p !call dcopy(3,p,1,p1,1)
-    hsm=0d0 !call dpzero(hsm, 2*nlmx)
+    p1=p 
+    hsm=0d0 
     q0=q
     a = awald ! ... If rsm ge 1/a, set a = 1/rsm and skip r.s. part
     nDx = nD
@@ -245,7 +245,7 @@ contains
     a2 = a*a
     ! --- Setup for Q-space part ---
     qqblock: block
-      real(8):: qq(nG,3)!,rsq(nG)
+      real(8):: qq(nG,3)
       complex(8):: xxcc(nG)
       if (nG > 0) then
          tpiba = 2d0*pi/alat
@@ -316,13 +316,10 @@ contains
 31     enddo
     endif
     ! ... Make sin(qR)*(H(rsm,r)-H(1/a,r)), cos(qR)*(H(rsm,r)-H(1/a,r))
-!    sp = tpi*sum(q*(p-p1))  !  if (job3 >= 2) sp = sp-tpi*sum(q*p1)
-!    phasex= exp(img*sp)
     llooop: do l = 0, lmax
        i1=l*l+1
        i2=l*l+2*l+1
        hsm(i1:i2)  = hsm(i1:i2) + [(sum([(yl(ir,ilm)*phase(ir)*wk(ir,l+lc),ir=1,nDx)]), ilm=i1,i2)]
-!       if(sp /= 0d0) hsm(i1:i2) = phasex*hsm(i1:i2)
     enddo llooop
     lqzero = dcmpre(sum(dabs(q0)),0d0)
     if (lqzero) hsm(1) = hsm(1) + rsm**2/(4d0*vol*y0) !! --- Add extra term for l=0 when e=0 and q=0 ---
