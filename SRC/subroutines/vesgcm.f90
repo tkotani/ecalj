@@ -83,11 +83,10 @@ module m_vesgcm
         do m = -l,l
            ilm = ilm+1
            cof(ilm) = qmom(ilm,ib)*4d0*pi/df(2*l+1)
-!           gpot0(ilm,ib) = 0d0
         enddo
      enddo
      hpot0(ib) = 0d0
-!     cof(1) = cof(1) + 4*pi*y0*(qcorg-z)
+!     cof(1) = cof(1) + 4*pi*y0*(qcorg-z) !this is commented out beause qmom contains this contribution 2023-10-6
      cg1=0d0
      do  i = 1, ng
         v(:) = gv(i,:)

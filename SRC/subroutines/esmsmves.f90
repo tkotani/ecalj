@@ -135,7 +135,6 @@ contains
     if ( master_mpi ) write(stdo,*) "eh=",eh
     call tcx('esmsmves')
     return
-
   contains
     !-----------------------------------------------------------------------
     subroutine esmhartp(cgsum, smrho, gv, kv, ng, eh,  n1, n2, n3, cv, cg1, cwork, smpot, fname)

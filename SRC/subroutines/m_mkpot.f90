@@ -204,7 +204,7 @@ contains
     logical,optional:: novxc_
     integer:: job,i1,i2,i3,i,iprint,isw,isum, ifi,isp,j,k !dipole,
     real(8):: hpot0_rv(nbas), dq,cpnvsa,qsmc,smq,smag,sum2,rhoex,rhoec,rhvsm,sqloc,sqlocc,saloc,uat,usm,valfsm, &
-         valvfa,vvesat,vsum,zsum,zvnsm,rvvxcv(nsp),rvvxc(nsp),rvmusm(nsp),rmusm(nsp), rvepsm(nsp),vxcavg(nsp),repat(nsp),&
+         valvfa,vvesat,vsum,zsum,rvvxcv(nsp),rvvxc(nsp),rvmusm(nsp),rmusm(nsp), rvepsm(nsp),vxcavg(nsp),repat(nsp),&
          repatx(nsp),repatc(nsp),rmuat(nsp),repsm(nsp),repsmx(nsp),repsmc(nsp),rhobg,gpot0(nlmxlx,nbas),vab_rv(3,3,n0*nsp*nbas),&
          vval(nlmxlx,nbas),fes(3,nbas),rhvsm0
     real(8),parameter:: minimumrho=1d-14,pi=4d0*datan(1d0),tpi=2d0*pi
@@ -242,14 +242,14 @@ contains
             'E=9/5*q*q/r=',1.8d0*qbg*qbg/rhobg
     endif Printsmoothbackgroundcharge
     call rhomom(orhoat, qmom,vsum) !multipole moments
-    call smves(qmom,gpot0,vval,hpot0_rv,smrho,smpot,vconst,smq,qsmc,fes,rhvsm0,rhvsm,zvnsm,zsum,vesrmt,qbg)!0th part of electrostatic potential Ves and Ees
+    call smves(qmom,gpot0,vval,hpot0_rv,smrho,smpot,vconst,smq,qsmc,fes,rhvsm0,rhvsm,zsum,vesrmt,qbg)!0th part of electrostatic potential Ves and Ees
     smag = merge(2d0*dreal(sum(smrho(:,:,:,1)))*vol/(n1*n2*n3) - smq,0d0,nsp==2) !mag mom
     ADDsmoothExchangeCorrelationPotential: if( .NOT. present(novxc_)) then 
        novxc=.false.
        block
          complex(8):: smvxc_zv(n1*n2*n3*nsp),smvx_zv(n1*n2*n3*nsp), smvc_zv(n1*n2*n3*nsp),smexc_zv(n1*n2*n3)
          real(8):: fxc_rv(3,nbas)
-         smvxc_zv=0d0; smvx_zv=0d0; smvc_zv=0d0; smexc_zv=0d0; fxc_rv=0d0
+         smvxc_zv=0d0; smvx_zv=0d0; smvc_zv=0d0; smexc_zv=0d0; fxc_rv=0d0 !We use n0+n^sH_a to obtain smpot.
          call smvxcm(lfrce, smrho,smpot,smvxc_zv,smvx_zv,smvc_zv, smexc_zv,repsm,repsmx,repsmc,rmusm,rvmusm,rvepsm, fxc_rv )!0th of Exc Vxc
          if( lfrce /= 0 ) fes = fes+fxc_rv
        endblock
@@ -273,30 +273,23 @@ contains
     if(sum(lpzex)/=0) call m_bstrux_init()!computes structure constant (C_akL Eq.(38) in /JPSJ.84.034702) when we have extended local orbital.
     call locpot(job,novxc,orhoat,qmom,vval,gpot0, & !,idipole ) !Make local potential at atomic sites and augmentation matrices 
          osig,otau,oppi,ohsozz,ohsopm, phzdphz,hab_rv,vab_rv,sab_rv,  &
-         vvesat,cpnvsa, repat,repatx,repatc,rmuat, valvfa,xcore, sqloc,sqlocc,saloc,qval,qsc )
+         vvesat,repat,repatx,repatc,rmuat, valvfa,xcore, sqloc,sqlocc,saloc,qval,qsc )
     if(cmdopt0('--density') .AND. master_mpi .AND. secondcall) return
-    ! Integral of valence density times estatic potential
-    ! Associate term (n0~-n0) Ves(n0~) with local part because of the ppi matrix elements
-    ! Also add fcvxc0(1) to smooth part because rvmusm+fcvxc0 is perturbative approximation for rvmusm when cores are not treated perturbatively.
-    valves = rhvsm  + vvesat                   ! Valence density times VEelectroStatic
-    valfsm = rhvsm0 + sum(rvmusm) - vconst*qbg ! rho0*Ves +rho0*Vxc -vconst*qbg
-    valvef = valfsm + valvfa                   ! veff0*rho0_val + veff1*rho1_val-veff2*rho2_val
-    cpnves = zvnsm + cpnvsa  ! ... Integral of core+nucleus times Ves(estatic potential)
+    valfsm = rhvsm0 + sum(rvmusm) - vconst*qbg ! 0th comp. of rho_val*Veff= rho0*Ves +rho0*Vxc -vconst*qbg 
+    valvef = valfsm + valvfa                   ! Veff*n_val= veff0*rho0_val + veff1*rho1_val-veff2*rho2_val
+    usm = 0.5d0*rhvsm   ! 0th comp. of Eq.(27). rhvsm= \int 0thEes*(n0+n^c_sH +gaussians)
+    uat = 0.5d0*vvesat  ! vvesat= \int 1stEes*(n1+n^c)+\int (1stEes-zcontribution)*z  - \int 2ndEes*(n2+n_sH+gaussians)
+    utot = usm + uat !Ees total electro static energy. Eq.(27)
     rhoexc = sum(repsm) + sum(repat) ! Exc=\int rho*exc 
     rhoex  = sum(repsmx)+ sum(repatx)! Ex 
     rhoec  = sum(repsmc)+ sum(repatc)! Ec
     rhovxc = sum(rmusm) + sum(rmuat) ! \int rho*Vxc
-    usm = 0.5d0*(rhvsm+zvnsm)
-    uat = 0.5d0*(vvesat+cpnvsa)
-    utot = usm + uat !Ees total electro static energy
     dq = smq+sqloc + qsmc+sqlocc + qbg -zsum !smooth part + local part + smoothcore + core local + qbackground -Z
     amom = smag+saloc !magnetic moment
     if(iprint() >= 30) then
        write(stdo,"(' mkpot:',/'   Energy terms(Ry):',7x,'smooth',11x,'local',11x,'total')")
        write(stdo,680) &
             'rhoval*veff ',valfsm,valvfa,valvef, & !\int rho Veff
-            'rhoval*ves  ',rhvsm,vvesat,valves, & !\int rho Ves
-            '(z+core)*ves',zvnsm,cpnvsa,cpnves, & !\int rho(Z+core) Ves
             'Eestatic    ',usm,uat,utot, & ! electrostatic energy
             'rho*exc     ',sum(repsm),sum(repat),rhoexc, &
             'rho*vxc     ',sum(rmusm),sum(rmuat),rhovxc, &

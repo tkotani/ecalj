@@ -5,7 +5,7 @@ module m_smves
   private
   public smves
 contains
-  subroutine smves(qmom,gpot0,vval,hpot0,smrho,smpot,vconst,smq,qsmc,f,rhvsm0,rhvsm,zvnsm,zsum,vrmt,qbg) ! Electrostatic potential of the 0th component (represented by PlaneWave + Gaussians + smHankels)
+  subroutine smves(qmom,gpot0,vval,hpot0,smrho,smpot,vconst,smq,qsmc,f,rhvsm0,rhvsm,zsum,vrmt,qbg) ! Electrostatic potential of the 0th component (represented by PlaneWave + Gaussians + smHankels)
     use m_supot,only: iv_a_okv, rv_a_ogv
     use m_lmfinit,only: rv_a_ocy,nsp,stdo,ispec
     use m_lattic,only: vol=>lat_vol
@@ -16,7 +16,6 @@ contains
     use m_hansr,only:corprm
     use m_vesgcm,only: vesgcm
     use m_ftox
-    !i   nbas  :size of basis
     !i   n1,n2,n3 dimensions of smrho,smpot for smooth mesh density
     !i   qmom  :multipole moments (rhomom.f)!   NOTE:2023-10-5 Full moment Q_aL^Zc in Eq.(25).
     !i   smrho :smooth density on real-space mesh
@@ -24,114 +23,18 @@ contains
     !io  vconst:constant potential to be added to total
     !io        vconst is the average estat at the MT boundary.
     !o Outputs (see also Remarks)
-    !o   gpot0 :integrals of compensating gaussians g_RL * phi0~
-    !o         :For accuracy, integral is split into
-    !o         :g_RL phi0 (vesgcm) + g_RL phi [n0~-n0] (ugcomp)
-    !o         :vesgcm projects g_RL to the mesh to do the integral
-    !o         :ugcomp does its integrals analytically (structure constants)
-    !o         :NB: There is a local analog of gpot0 generated in locpt2.
-    !o   vval  :coffs to YL expansion of es potential at MT boundary
-    !o   hpot0 :integrals of semicore smooth Hankels * phi0~
-    !o   smpot :smooth potential phi0~ (includes compensating gaussians)
-    !o   smq   :integral of smooth density n0
-    !o   qsmc  :pseudocore charge
-    !o   f     :electrostatic contribution to force.
-    !o   rhvsm :integral n0~ [phi0~ + vconst]
-    !o         :(electrostatic energy of sm. density n0~) + vconst*smq
-    !o   zvnsm :integral (qcorg-z + rhoc) phi0~
-    !o   vrmt  :electrostatic potential at rmt, with G=0 term in smpot=0
-    !l Local variables
-    !l   u00   :integral n0 phi[n0] = n0 phi0
-    !l   u0g   :integral n0 [phi0~-phi0]
-    !l   ugg   :integral [n0~-n0] [phi0~-phi0]
-    !l         :Note: ugg is not used.
-    !r Remarks
-    !r  The total density is a sum of three terms,
-    !r
-    !r    n0(mesh) + sum_RL (n_RL(r) - n0_RL(r))
-    !r
-    !r  The first term is the smooth density on a mesh of points; the
-    !r  second is the true density and is defined on a radial mesh for each
-    !r  sphere; the last is the 1-center expansion of the smooth density on
-    !r  the radial mesh.  (Note: because of l-truncation, n0_R(r) is not
-    !r  identical to the one-center expansion of n0(mesh).  The sum of the
-    !r  three terms converges rapidly with l because errors in n_R(r) are
-    !r  mostly canceled by errors in n0_R(r).)
-    !r
-    !r  We add and subtract a set of compensating gaussian orbitals
-    !r
-    !r    n0 + sum_RL Q_RL g_RL + sum_RL (n_RL(r) - n0_RL(r) - Q_RL g_RL)
-    !r
-    !r  which render the integral of the local part (the last 3 terms)
-    !r  zero in each RL channel.  The g_RL must be localized enough that
-    !r  their spillout beyond the MT radius is negligible.
-    !r
-    !r  We define
-    !r
-    !r    n0~ = n0 + compensating gaussians sum_RL Q_RL g_RL
-    !r
-    !r  In the interstitial, the electrostatic potential of n0~ is the true
-    !r  estat potential.  The potential of n0 is called phi0 and the
-    !r  potential of n0~ is called phi0~.  The total electrostatic energy
-    !r  is computed as
-    !r
-    !r    the electrostatic energy of  n0~ + integral n0*vconst +
-    !r    the electrostatic energy of (neutral) local parts
-    !r
-    !r  vconst may either be passed as an input (mode=0) or it is
-    !r  generated here as the average ves(RMT).
-    !r  This routine computes the estat potential and energy from the
-    !r  first two terms.  Some variables used in smves and its subroutines:
-    !r    Let n0  = smooth density without the compensating sum_RL Q_RL g_RL
-    !r        n0~ = n0 + sum_RL Q_RL g_RL
-    !r      phi0  = ves[n0]
-    !r      phi0~ = ves[n0~]
-    !r      g_RL  = gaussian in RL channel
-    !r      h_R   = l=0 sm hankel in RL channel, (represents core densities)
-    !r      gpot0 = vector of integrals g_RL * phi0~
-    !r            =  integral g_RL * (phi0 = phi[n0])
-    !r              +integral g_RL * (phi0~-phi0 = phi[n0~-n0])
-    !r               The integral is partitioned to minimize mesh errors.
-    !r               The first part is done by projecting g_RL to a mesh
-    !r               and integrating the product g_RL*phi0 on the mesh
-    !r               The second is done analytically by structure constants
-    !r      hpot0 = integrals h_R * phi0~ (contributions from core)
-    !r            = integrals h_R * (phi0 = phi[n0])
-    !r             +integrals h_R * (phi0~-phi0 = phi[n0~-n0])
-    !r       u00   :integral n0 phi[n0] = integral n0 phi0
-    !r       u0g   :integral n0 [phi0~-phi0]
-    !r   Therefore :u00 + u0g = integral n0~ phi0~
-    !r       smq   :integral n0
-    !r       vconst:constant potential to be added to total.
-    !r             :It is computed from average (v(RMT))
-    !r       rhvsm :u00 + u0g +  + vconst*smq
-    !r             := integral n0~ phi0~ + vconst*smq
-    !r       zvnsm :integral core density * phi0~
-    !r
-    !r  Subroutines called by smves:
-    !r    vesft    computes the electrostatic potential of n0 = phi0
-    !r             (i.e. without the compensating gaussians).  This
-    !r             is pretty trivial, since nabla^2 -> G^2 in G-space
-    !r
-    !r    vesgcm   1. makes the first term in gpot0
-    !r                = integral g_RL * (phi0 = phi[n0])
-    !r             2. makes the first term in hpot0
-    !r             3. adds ves[n0~-n0] to the mesh estat potential
-    !r
-    !r    ugcomp   1. makes the second term in gpot0
-    !r             2. makes the second term in hpot0
-    !u Updates
-    !b Bugs
-    !b   Possible to make vval(l=0) for sites with lmxl=-1, which tells
-    !b   value of ves at point.  However, vval doesn't have the space allocated.  So skip for now.
-    !u Updates
-    !u   01 Jul 05 handle sites with lmxl=-1
-    !u   19 Sep 02 (WRL) Added background term
-    !u   24 Aug 01 Extended to calc vval.  Altered argument list.
-    !u   20 Apr 01 Generates vrmt
-    !u   21 Jun 00 spin polarized
-    !u   22 Apr 00 Adapted from nfp ves_smooth.f
-    ! ----------------------------------------------------------------------
+    !o   gpot0 :integrals of compensating gaussians  G_RL * ves0 !ves0 is the electro static part of V of Eq.(34)
+    !           Note that ves made from two contribution ves0_n0 and ves_(n^c_sH +Gaissians). See Eq.(28) (typo n^Zc_0==>n^c_sm,a).
+    !o         :For accuracy, integral is split into 
+    !o         :  G_RL*ves0_n0 (vesgcm) +  G_RL*ves0_(n^c_sH,a+Gaussians) (ugcomp)
+    !o   vval  :coffs to YL expansion of es potential at MT boundary. This is needed to know eigenvalues for pnunew.
+    !o   hpot0 : similar with gpot0 but for smHankels
+    !o   smpot : ves0 (incluing mesh expansion of contributions from gaussians and smHankels).
+    !o   smq   : integral of smooth density n0
+    !o   qsmc  : \int n^c_sH
+    !o   f     : electrostatic contribution to force.
+    !o   rhvsm : electrostatic energy of 0th comp + vconst*smq
+    !o   vrmt  : electrostatic potential at rmt, with G=0 term in smpot=0
     implicit none
     integer:: ib , igetss , ilm , ipr , iprint , is ,  lfoc, &
          lgunit , lmxl , m , nlm , j1 , j2 , j3,iwdummy, ifivsmconst
@@ -152,12 +55,12 @@ contains
     call vesgcm (qmom,ng,rv_a_ogv,iv_a_okv,cv_zv,cg1_zv,cgsum_zv ,&
          smpot,f,gpot0,hpot0,qsmc,zsum,vrmt ) !Add estatic potential of  gaussians and smHankels to smpot
     if(ipr>=40)write(stdo,"(/' after vesgcomp: forces are:'/(i4,3f12.6))")(ib,(f(m,ib),m=1,3),ib=1,nbas)
-    call esmsmves(qmom, ng,rv_a_ogv,iv_a_okv,cv_zv,cg1_zv,cgsum_zv, & !ESM method supplied from M.OBATA
-         smrho, qbg, smpot,f,gpot0,hpot0,qsmc,zsum,vrmt )
+    ESMsuppliedfromMOBATA: block
+      call esmsmves(qmom, ng,rv_a_ogv,iv_a_okv,cv_zv,cg1_zv,cgsum_zv,smrho, qbg, smpot,f,gpot0,hpot0,qsmc,zsum,vrmt )
+    endblock ESMsuppliedfromMOBATA
     call mshvmt(ng,rv_a_ogv,iv_a_okv, cv_zv, smpot,vval )
     call symvvl(vval,vrmt) !Compute e.s. potential at MT boundary vrmt
     deallocate(cgsum_zv,cg1_zv,cv_zv)
-    ! --- Make 
     vbar = 0d0
     sbar = 0d0
     do  ib = 1, nbas
@@ -167,8 +70,7 @@ contains
     enddo
     vbar = vbar/sbar ! vbar =avg v(RMT) and optionally added to vconst
     vconst = -vbar 
-    if(ipr>=20) write (stdo,232) vconst
-232 format(' smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst=',f9.6)
+    if(ipr>=20) write (stdo,"(' smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst=',f9.6)") vconst
     if(master_mpi) then
        open(newunit=ifivsmconst,file='vessm.'//trim(sname))
        write(ifivsmconst,"(d23.15,a)") vconst, '!-(averaged electro static potential at MTs)'
@@ -198,20 +100,16 @@ contains
     if (qbg /= 0) then
        R = (3d0/pi/4d0*vol)**(1d0/3d0)
        eint = qbg*2*9d0/10d0/R
-       if(ipr>=30) write(stdo,ftox)' cell interaction energy from homogeneous'// &
-            ' background (q=',ftof(qbg),') is ',ftof(eint)
+       if(ipr>=30) write(stdo,ftox)' cell interaction energy from homogeneous background (q=',ftof(qbg),') is ',ftof(eint)
     endif
     smq = dreal(sum(smrho(:,:,:,1)))               *vol/(n1*n2*n3)  !Integral n0
-    s1  = dreal(sum(smrho(:,:,:,1)*smpot(:,:,:,1)))*vol/(n1*n2*n3)  !Integral n0*phi0~
-    u0g = s1 - u00
+    s1  = dreal(sum(smrho(:,:,:,1)*smpot(:,:,:,1)))*vol/(n1*n2*n3)  !Integral n0*smpot
     call ugcomp(qmom,gpot0,hpot0,ugg,f) !Gaussian and smHankel parts added
     if(ipr>=50)write (stdo,"(/' after ugcomp: forces are'/(i4,3f12.6))")(ib,(f(m,ib),m=1,3),ib=1,nbas)
-    if(ipr>=50)write(stdo,"(' u00,u0g,ugg=',3f14.6)") u00,u0g,ugg
-   
     ! --- Collect energy terms; make zvnuc for smooth problem ---
     zvnsm = 0d0
-    rhvsm0= u00 + u0g + vconst*smq
-    rhvsm = u00 + u0g + vconst*smq
+    rhvsm0= s1 + vconst*smq !\int smpot*n1 !smpot is the 0th component of the electrostatic potential part in Eq.(34).
+    rhvsm = s1 + vconst*smq
     sumx = 0d0
     do  ib = 1, nbas
        is = ispec(ib)
@@ -228,7 +126,8 @@ contains
           enddo
        endif
     enddo
-    usm = 0.5d0*(rhvsm+zvnsm)
+    rhvsm = rhvsm + zvnsm
+    usm = 0.5d0*rhvsm
     if (ipr >= 30) write (stdo,"('   smooth rhoves',f14.6,'   charge',f13.6)") usm,smq
     smrho(:,:,:,1)=smrho(:,:,:,1)-qbg/vol! ... subtract background
     smq=smq-qbg
