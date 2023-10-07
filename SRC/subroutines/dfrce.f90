@@ -167,7 +167,9 @@ contains
     use m_lattic,only: lat_vol,rv_a_opos
     use m_supot,only: n1,n2,n3
     use m_hansr,only:corprm
-    ! need to modify texts.
+    implicit none
+    intent(in)::   job,nsp,ib,qmom, qmout,ng,gv,g2,yl,iv,qlat,kmax,cnomin,cdvxc,cvin!,qloc
+    intent(out)::                                                                               fes1,fes2,fxc
     !- Estimate shift in local density for one site
     !i Inputs
     !i   ng,gv,kmax
@@ -181,16 +183,14 @@ contains
     !i   cvin    electrostatic potential of input density Ves[n0~_in]
     !i   ceps    response function
     !i   cdvxc   dVxc/dn (nout-nin)
-    !o Outputs
-    !o   cdn0:   Job 1:  shift in valence part of the free atom density
-    !o           Job 12: shift in atom density (1/eps - 1)
-    !o   cdn:    Job 1:  dn^(u) where dn is the unscreened shift in the free-atom density.
-    !o           Job 12: dn^(u) 1/eps where dn is unscreened shift in the charge density.  Local density approximated
-    !o   NB:     In all cases, the local part of density is approximated
-    !o           by a gaussian of the equivalent multipole moment.
+    !l internal
     !o   cdv:    shift in the electrostatic potential
     !o   fes1,fes2,fxc
-    implicit none
+    !l   cdn0:  Job 1:  shift in valence part of the free atom density
+    !l           Job/=1: =0
+    !l   cdn:   Job 1:  dn^(u) where dn is the unscreened shift in the free-atom density.
+    !l           Job/=1: =no shift
+    !o   NB:     In all cases, the local part of density is approximated a gaussian of the equivalent multipole moment.
     integer:: ng , nsp ,  kmax , ib , job , iv(ng,3),i_copy_size
     type(s_rv1) :: orhoat(3)
     real(8):: qmom(nlmxlx,nbas) , qmout(nlmxlx,nbas) , gv(ng,3) , tau(3) , fes1(3) , &
@@ -259,8 +259,7 @@ contains
              e = exi(ixi)
              cc = -4d0*pi*hfc(ixi,i)*y0/vol
              do  15  ig = 1, ng
-                aa = cc*dexp(gam*(e-g2(ig)))/(e-g2(ig))
-                cdn0(ig,i) = cdn0(ig,i) + aa*phase(ig) !dcmplx(cs(ig),sn(ig))
+                cdn0(ig,i) = cdn0(ig,i) + cc*dexp(gam*(e-g2(ig)))/(e-g2(ig))*phase(ig)
 15           enddo
 142       enddo
 141    enddo
@@ -354,9 +353,7 @@ contains
        gpot0=0d0
        gam = 0.25d0*rg*rg
        do  50  ig = 2, ng
-          aa = dexp(-gam*g2(ig))
-          gc0 = dcmplx(0d0,1d0)*aa* &
-               dconjg(tpia*cdv(ig))*phase(ig) !dcmplx(cs(ig),sn(ig))
+          gc0 = dcmplx(0d0,1d0)*dexp(-gam*g2(ig))* dconjg(tpia*cdv(ig))*phase(ig) !dcmplx(cs(ig),sn(ig))
           ilm = 0
           do  55  l = 0, lmxl
              gc0 = gc0*dcmplx(0d0,-1d0)
