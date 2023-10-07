@@ -86,7 +86,7 @@ module m_vesgcm
         enddo
      enddo
      hpot0(ib) = 0d0
-!     cof(1) = cof(1) + 4*pi*y0*(qcorg-z) !this is commented out beause qmom contains this contribution 2023-10-6
+!  cof(1) = cof(1) + 4*pi*y0*(qcorg-z) !this is commented out beause qmom contains this contribution after 2023-10-6
      cg1=0d0
      do  i = 1, ng
         v(:) = gv(i,:)

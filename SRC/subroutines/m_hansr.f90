@@ -607,7 +607,7 @@ contains
     !i       pnusp, pzsp
     !o Outputs
     !o   cofg  :coefficient to Gaussian part of pseudocore density assigned so that pseudocore charge = true core charge
-    !o   cofh  :coefficient to smHankel part of pseudocore density. Hankel contribution is determined by inputs (qcorh,ceh,rfoc)
+    !o   cofh  :coefficient to smHankel part for n^c_sH,a (See Eq.. Hankel contribution is determined by inputs (qcorh,ceh,rfoc)
     !           and should accurately represent the true core density for r>rmt
     !o   qcorg :charge in the gaussian part
     !o   qcorh :charge in the Hankel part
@@ -634,8 +634,6 @@ contains
     !r   To add to the radial density 4*pi*r**2*rho_true, multiply cofg,cofh by srfpi.
     !
     !l Local variables
-    !l    ccof :coefficient for core tail, for a smoothed Hankel.
-    !l          ccof differs from spec->ctail because ctail is constructed for an unsmoothed Hankel.
     implicit none
     integer :: is,i_copy_size
     real(8):: qcorg , qcorh , qsc , cofg , cofh , ceh , rfoc , z
@@ -654,10 +652,11 @@ contains
     pz = pzx(1:n0,1,is)  
     if ( rfoc <= 1d-5 ) rfoc = rg_i(is)  !we assme int pz(:,1)=pz(:,2) int pnu as well
     qsc = sum([(4*l+2,l=0,lmxb)], mask=[(pz(l+1)>0d0.and.floor(mod(pz(l+1),10d0))<floor(pnu(l+1)),l=0,lmxb)])
-    if(ccof /= 0) then ! ... Scale smoothed hankel coeff for exact spillout charge
+    if(ccof /= 0) then ! ... Correct smHankel coefficient ccof to reproduce exact spillout charge
+       !       ccof differs from spec->ctail because ctail is constructed for an unsmoothed Hankel.
        call hansmr(rmt,0d0,1/rfoc,x0,1)
        call hansmr(rmt,ceh,1/rfoc,xi,1)
-       q1 = srfpi/ceh*(-dexp(rfoc**2/4*ceh) - rmt**3*(xi(1)-dexp(rfoc**2/4*ceh)*x0(1))) !q1 = spillout charge in sm. Hankel
+       q1 = srfpi/ceh*(-dexp(rfoc**2/4*ceh) - rmt**3*(xi(1)-dexp(rfoc**2/4*ceh)*x0(1))) !q1 = spillout charge in smHankel
        rsm = 0.05d0
        call hansmr(rmt,0d0,1/rsm,x0,1)
        call hansmr(rmt,ceh,1/rsm,xi,1)
