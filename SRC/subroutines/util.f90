@@ -178,12 +178,9 @@ character(20) function xxt(num1,num2)
   if(num>99999) xxt = char(48+mod(num/100000,10))//xxt
   if(num>999999) call rx( ' xxt:can not produce')
 END function xxt
-real(8) function tripl(a,b,c)
-  !! == tripl (determinant of 3x3 matrix) ==
-  !     implicit none
+real(8) function tripl(a,b,c)  ! tripl (determinant of 3x3 matrix) ==
   double precision :: a(3),b(3),c(3)
-  tripl = a(1)*b(2)*c(3) + a(2)*b(3)*c(1) + a(3)*b(1)*c(2) &
-       -a(3)*b(2)*c(1) - a(2)*b(1)*c(3) - a(1)*b(3)*c(2)
+  tripl = a(1)*b(2)*c(3) + a(2)*b(3)*c(1) + a(3)*b(1)*c(2) -a(3)*b(2)*c(1) - a(2)*b(1)*c(3) - a(1)*b(3)*c(2)
 END function tripl
 pure subroutine cross(a,b,c)
   implicit none
@@ -193,7 +190,6 @@ pure subroutine cross(a,b,c)
   c(1)=a(2)*b(3)-a(3)*b(2)
   c(2)=a(3)*b(1)-a(1)*b(3)
   c(3)=a(1)*b(2)-a(2)*b(1)
-  return
 end subroutine cross
 subroutine minv33tp(plat,qlat)
   implicit none
@@ -207,24 +203,18 @@ subroutine minv33tp(plat,qlat)
   qlat = qlat/det
 end subroutine minv33tp
 subroutine minv33(matrix,inverse) !Inverts 3X3 matrix
-  !o   inverse
   implicit none
   real(8), intent(in) :: matrix(3,3)
   real(8), intent(out) :: inverse(3,3)
   real(8) :: det,ddot,crossf(3)
-!  inverse(:,1)= crossf(matrix(:,2),matrix(:,3))
-!  inverse(:,2)= crossf(matrix(:,3),matrix(:,1))
-!  inverse(:,3)= crossf(matrix(:,1),matrix(:,2))
   call cross(matrix(1,2),matrix(1,3),inverse     )
   call cross(matrix(1,3),matrix     ,inverse(1,2))
   call cross(matrix     ,matrix(1,2),inverse(1,3))
   det = sum(matrix(:,1)*inverse(:,1)) !ddot(3,matrix,1,inverse,1)
-!  if (abs(det) ==0d0) call rx( 'minv33: vanishing determinant')
   inverse = transpose(inverse)
   inverse = inverse/det
 end subroutine minv33
-subroutine dinv33(matrix,iopt,invrse,det)
-  !- Inverts 3x3 matrix
+subroutine dinv33(matrix,iopt,invrse,det)  !- Inverts 3x3 matrix
   ! ----------------------------------------------------------------
   !i Inputs
   !i   matrix:  matrix to be inverted
@@ -259,38 +249,21 @@ subroutine dinv33(matrix,iopt,invrse,det)
   endif
   call dscal(9,1/det,invrse,1)
 end subroutine dinv33
-subroutine dpcopy(afrom,ato,n1,n2,fac) !- Copy and scale a portion of a vector
+subroutine dpcopy(afrom,ato,n1,n2,fac)
   implicit none
-  integer :: n1,n2,i
-  double precision :: afrom(1),ato(1),fac
-  if (fac /= 1d0) goto 100
-  call dcopy(n2-n1+1,afrom(n1),1,ato(n1),1)
-  return
-100 continue
+  integer :: n1,n2
+  real(8) :: afrom(1),ato(1),fac
   ato(n1:n2) = fac*afrom(n1:n2)
 end subroutine dpcopy
 subroutine dpzero(array,leng)
-  integer :: leng,i
-  double precision :: array(leng)
+  integer :: leng
+  real(8) :: array(leng)
   array=0d0
 end subroutine dpzero
 subroutine dpscop(afrom,ato,nel,n1,n2,fac)
-  !- shift and copy.
-  !i nel number of elements
-  !i n1  offset in afrom
-  !i n2  ofset in ato
-  !     implicit none
-  integer :: n1,n2,i,iadd,ntop,nel
-  double precision :: afrom(1),ato(1),fac
-  if(fac == 1d0) then
-     call dcopy(nel,afrom(n1),1,ato(n2),1)
-     return
-  endif   
-  iadd = n2-n1
-  ntop = n1+nel-1
-  do    i = n1, ntop
-     ato(i+iadd) = fac*afrom(i)
-  enddo
+  integer :: n1,n2,nel
+  real(8) :: afrom(1),ato(1),fac
+  ato(n2:n2+nel-1)= fac*afrom(n1:n1+nel-1) 
 end subroutine dpscop
 !> taken from https://community.intel.com/t5/Intel-Fortran-Compiler/Weird-Fortran/td-p/1185072?
 !> for f90
