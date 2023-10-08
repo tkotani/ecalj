@@ -1803,160 +1803,82 @@ contains
          gmax < gtol .AND. (isw3 == 1 .OR. isw3 == 3))) j = 0
     broyj = j
   end function broyj
-  subroutine rhogkl ( ib,nsp,mode,sv_p_orhoat,kmax,qkl )!- G_kL expansion of valence sphere densities
+  subroutine rhogkl(ib,nsp,mode,sv_p_orhoat,kmax,qkl )!- G_kL expansion of valence sphere densities
     use m_lgunit,only:stdo
     use m_struc_def  
     use m_lmfinit,only: ispec
     use m_hansr,only:corprm
     use m_freeatom,only:sspec
-    !i Inputs
-    !i  ib1,ib2: compute expansion coefficents for sites ib1..ib2
-    !i   nsp   :1 make qkl for first spin (possibly the only one)
-    !i         :2 make qkl combining spins 1 and 2
-    !i   mode  : a compound of digits specifying what is to be included
-    !i         : in the expansion coefficients
-    !i         : 1s   digit = 1 include local density rho1-rho2
-    !i         :              2 include local density rho1
-    !i         :              3 include local density rho2
-    !i         : 10s  digit = 1 include core density rhoc
-    !i                        2 include -1 * core density from sm-hankel
-    !i                        3 combination 1+2
-    !i         : 100s digit = 1 add -1 * nuclear density Y0 Z delta(r)
-    !i   kmax  :make expansion coffs to polynomial cutoff kmax
-    !i   orhoat:vector of offsets containing site density
-    !o Outputs
+    !i   mode  : 2 for rho1, 3 for rho2
+    !i   kmax  : make expansion coffs to polynomial cutoff kmax
+    !i   orhoat: vector of offsets containing site density
     !o   qkl  :Expansion coefficients, stored as a single long vector.
-    !o        := integral pkl Y_L integrand
-    !o        :where integrand is according to mode
-    !r Remarks
-    !r    In the spin-polarized case, up- and down- spins are combined.
-    !u Updates
-    !u   19 Oct 01 Adapted from rhomom.f
-    ! ----------------------------------------------------------------------
-    implicit none
-    integer:: ib1,ib2,nsp,mode,kmax
-    type(s_rv1) :: sv_p_orhoat(3,1)
-    real(8):: qkl(0:kmax,1)
-    integer:: ipr,iprint, nrmx,ib,is &
-        ,igetss,lmxl,nr,nlml,ilm,j,lfoc,k,l,m
-    real(8) ,allocatable :: rofi_rv(:)
-    real(8) ,allocatable :: rwgt_rv(:)
-    real(8) ,allocatable :: h_rv(:)
-    parameter( nrmx=1501)
-    double precision :: z,qc,a,rmt,qcorg,qcorh,qsc,cofg,cofh,rg, ceh,rfoc,df(0:20)
-    ipr  = iprint()
-    call stdfac(20,df)
-    is = ispec(ib)
-    lmxl=lmxl_i(is)
-    z=z_i(is)
-    qc=sspec(is)%qc
-    a=spec_a(is)
-    nr=nr_i(is)
-    rmt=rmt_i(is)
-    rg=rg_i(is)
-    if (lmxl == -1) return
-    call corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
-    qc = qcorg+qcorh
-    nlml = (lmxl+1)**2
-    allocate(rofi_rv(nr),rwgt_rv(nr))
-    call radmsh ( rmt,a,nr,rofi_rv )
-    call radwgt ( rmt,a,nr,rwgt_rv )
-    call pvrgkl ( mode,kmax,nlml,nr,nsp,rofi_rv,rwgt_rv,sv_p_orhoat(1,ib )%v,sv_p_orhoat( 2,ib )%v,sv_p_orhoat( 3,ib )%v &
-         ,cofh,rg,ceh,rfoc,z,qkl)
-    if(ipr <40) return
-    write(stdo,221)
-    write(stdo,222) ib,0,1,(qkl(k,1), k=0,kmax)
-    ilm = 1
-    do  l = 1, lmxl
-       do  m = -l, l
-          ilm = ilm+1
-          j = ilm
-          if (dabs(qkl(0,j))*df(2*l+1) > 1d-6) write(stdo,220) 0,ilm,(qkl(k,j)*df(2*l+1),k=0,kmax)
-       enddo
-    enddo
-222 format(2x,'ib=',i3,i5,i6,10f12.6)
-220 format(9x,i4,i6,f12.6,10f12.6)
-221 format(/' rhogkl:    k   ilm      qkl (2l+1)!! ...')
-  end subroutine rhogkl
-  subroutine pvrgkl(mode,kmax,nlml,nr,nsp,rofi,rwgt,rho1,rho2,rhoc, cofh,rg,ceh,rfoc,z,qkl)
-    use m_hansr,only:hansmr
-    use m_ll,only:ll
-    !- Multipole moments for one site
-    ! ----------------------------------------------------------------------
-    !i Inputs
-    !i   mode  : a compound of digits specifying what is to be included
-    !i         : in the expansion coefficients
-    !i         : 1s   digit = 1 include local density rho1-rho2
-    !i         :              2 include local density rho1
-    !i         :              3 include local density rho2
-    !i         : 10s  digit = 1 include core density rhoc
-    !i                        2 include -1 * core density from sm-hankel
-    !i                        3 combination 1+2
-    !i         : 100s digit = 1 add -1 * nuclear density Y0 Z delta(r)
-    !i   kmax  :k-cutoff for polynomial expansion of radial part
-    !i   nlml  :L-cutoff for charge
-    !i   nr    :number of radial mesh points
-    !i   nsp   :number of spins
-    !i   rofi  :radial mesh points
-    !i   rwgt  :radial integration weights
-    !i   rho1  :local true density*r**2, tabulated on a radial mesh
-    !i   rho2  :local smoothed density*r**2, tabulated on a radial mesh
-    !i   rhoc  :core density
-    !i   cofh  :coefficient to Hankel part of pseudocore density (corprm)
-    !i   rg    :smoothing radius for compensating gaussians
-    !i   ceh   :energy of hankel function to fit core tail
-    !i   rfoc  :smoothing radius for hankel head fitted to core tail
-    !i   z     :nuclear charge
-    !o Outputs
-    !o   qkl  :expansion coefficients for rho
-    !w Workarea:
-    !w   pkl:
-    !r Remarks
-    !r   Q_kL = integral p_kl (rho1-rho2) + l=0 contr. from core spillout
+    !o        := integral pkl Y_L integrand where integrand is according to mode
+    !r Remarks1
+    !r   Q_kL = integral p_kl (rho1-rho2) + l=0 contr. from core spillout.  Ser rhomom
     !r   The core spillout term is:
     !r      qcore(rhoc)-z  - sm_qcore-sm_qnuc
     !r   pvrgkl makes this Q_kL when mode=131; partial contr for other modes
     !r   NB: p0l = a**l and scaling factor for k=0 is 4*pi/(a**l * (2l+1)!!)
     !r       => q0l = 4*pi/(2l+1)!! q_l, where q_l is the multipole moment
     ! ----------------------------------------------------------------------
-    !r Remarks
+    !r Remarks2
     !r   P_kL are polyonomials orthogonal in the following sense:
     !r                                          (4a^2)^k a^l k! (2l+1)!!
     !r    int P_kL G_k'L' = delta_kk'*delta_ll'  ----------------------
     !r                                                    4pi
-    !r   and are defined in J. Math. Phys. 39, 3393 (1988).
+    !r   See defined in J. Math. Phys. 39, 3393 (1988).
     !r   Combining eqns 12.7 and 5.19 in that paper, we obtain
     !r    p_kl = a**l / (2a**2)^(k+l) (2l+1)!! / (2k+2l+1)!! phi_kl
     !r    p_0l = a**l
     !r    p_1l = a**l (2*(ar)**2/(2l+3) - 1)
     !r    p_kl = [(2*(ar)**2 - (4k+2l-1))p_k-1,l - 2(k-1)p_k-2,l]  / (2k+2l+1)
-    !     implicit none
-    integer :: mode,kmax,nlml,nr,nsp
-    double precision :: ceh,cofh,rfoc,rg,z
-    double precision :: rofi(nr),rwgt(nr),qkl(0:kmax,nlml), rhoc(nr,nsp),   pkl(nr,0:kmax,0:10) !xxxxxxx
-    real(8),target:: rho1(nr,nlml,nsp),rho2(nr,nlml,nsp)
-    real(8),pointer :: rho(:,:,:)
-    integer :: n0,i,ilm,l,m,lmxl,isp,k,lx,kk
-    parameter (n0=10)
-    double precision :: ag,fac,y0,xi(0:n0),factk,     df(0:20),wk(nr),smrch,f1,f2
-    real(8),parameter:: fpi  = 16d0*datan(1d0)
-    lmxl = ll(nlml)
-    call vecpkl(rofi,rg,nr,kmax,lmxl,nr,kmax,pkl)
+    implicit none
+    integer:: ib1,ib2,nsp,mode,kmax
+    type(s_rv1) :: sv_p_orhoat(3,1)
+    real(8):: qkl(0:kmax,1),z,qc,a,rmt,qcorg,qcorh,qsc,cofg,cofh,rg, ceh,rfoc,df(0:20)
+    integer:: ipr,iprint, ib,is,lmxl,nr,nlml,ilm,j,lfoc,k,l,m
+    real(8) ,allocatable :: rofi(:), rwgt(:)
+    real(8),parameter:: fpi = 16d0*datan(1d0)
+    ipr  = iprint()
+    is = ispec(ib)
+    lmxl=lmxl_i(is)
+    if (lmxl == -1) return
+    z=z_i(is)
+    qc=sspec(is)%qc
+    a=spec_a(is)
+    nr=nr_i(is)
+    rmt=rmt_i(is)
+    rg=rg_i(is)
+    call corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
+    qc = qcorg+qcorh
+    nlml = (lmxl+1)**2
+    allocate(rofi(nr),rwgt(nr))
+    call radmsh(rmt,a,nr,rofi )
+    call radwgt(rmt,a,nr,rwgt )
+    QKL_Pkl: block
+      real(8),target :: rho1(nr,nlml,nsp),rho2(nr,nlml,nsp), rhoc(nr,nsp)
+      real(8):: dfactl(0:lmxl),kfact(0:kmax) ,pkl(nr,0:kmax,0:lmxl),a       !call vecpkl(rofi,rg,nr,kmax,lmxl,nr,kmax,pkl)
+      real(8),pointer :: rho(:,:,:)
+      real(8):: ag
+      integer:: isp,kk,lx
+      rho1=reshape(sv_p_orhoat(1,ib)%v,shape(rho1))
+      rho2=reshape(sv_p_orhoat(2,ib)%v,shape(rho2))
+      rhoc=reshape(sv_p_orhoat(3,ib)%v,shape(rhoc))
+!      call pvrgkl(mode,kmax,nlml,nr,nsp,rofi,rwgt,rho1,rho2,rhoc,rg,z,qkl)
+      a = 1d0/rg
+      do l = 0, lmxl
+         pkl(:,0,l) = a**l *rofi**l !Scale by r^l 
+         pkl(:,1,l) = a**l*(2*a*a*rofi**2/(2*l+3)-1d0) *rofi**l
+         do  k = 2, kmax ! --- Recursion for higher k ---
+            pkl(:,k,l) = 1d0/(2*k+2*l+1)*((2*a*a*rofi**2-(4*k+2*l-1))*pkl(:,k-1,l) - 2*(k-1)*pkl(:,k-2,l))
+         enddo
+      enddo
       if (mode == 2) rho=>rho1
       if (mode == 3) rho=>rho2
       if( .not.(mode==2.or.mode==3)) call rxi('rhogkl: bad mode=',mode)
-    GETcoefficientsOFG_kLseeradpkl: block
-      real(8):: dfactl(0:lmxl),kfact(0:kmax) !,pkl(nr,0:kmax,0:lmxl),rsm,a
       dfactl(0:lmxl)=[(product([(2*lx+1,lx=0,l)]),   l=0,lmxl)]
       kfact(0:kmax)= [(product([(max(1,kk),kk=0,k)]),k=0,kmax)]
-!      a = 1d0/rsm
-!      do l = 0, lmxl
-!         pkl(:,0,l) = a**l *rofi**l !Scale by r^l 
-!         pkl(:,1,l) = a**l*(2*a*a*rofi**2/(2*l+3)-1d0) *rofi**l
-!         do  k = 2, kmax ! --- Recursion for higher k ---
-!            pkl(:,k,l) = 1d0/(2*k+2*l+1)*((2*a*a*rofi**2-(4*k+2*l-1))*pkl(:,k-1,l) - 2*(k-1)*pkl(:,k-2,l))
-!         enddo
-!      enddo
       ag = 1/rg
       ilm = 0
       do  l = 0, lmxl
@@ -1967,29 +1889,24 @@ contains
             enddo
          enddo
       enddo
-    endblock GETcoefficientsOFG_kLseeradpkl
-  end subroutine pvrgkl
-  subroutine vecpkl(r,rsm,nr,kmax,lmax,nrx,k0,p)! Vector of p_kl polynomials, or r^l p_kl
-    !o Outputs
-    !o   p     :radial part of spherical polynomials P_kL; see Remarks
-    !oxxx   gp    :radial derivative of p from l=0..lmax-1 (depending on lrl).
-    !     implicit none
-    integer :: nr,kmax,lmax,nrx,k0,lrl
-    double precision :: r(nrx),rsm,p(nrx,0:k0,0:*) !, gp(nrx,0:k0,0:*)
-    integer :: i,l,k
-    double precision :: a,xx,xx2,xx3
-    if (kmax < 0 .OR. lmax < 0) return
-    if (kmax > k0) call rx('vecpkl: kmax gt k0')
-    if (rsm <= 0)  call rx('vecpkl: rsm <= 0')
-    a = 1d0/rsm
-    do l = 0, lmax
-       p(:,0,l) = a**l *r**l !Scale by r^l 
-       p(:,1,l) = a**l*(2*a*a*r**2/(2*l+3)-1d0) *r**l
-       do  k = 2, kmax ! --- Recursion for higher k ---
-          p(:,k,l) = 1d0/(2*k+2*l+1)*((2*a*a*r**2-(4*k+2*l-1))*p(:,k-1,l) - 2*(k-1)*p(:,k-2,l))
+    endblock QKL_Pkl
+    checkrwrite: if(ipr >=40) then
+       write(stdo,221)
+       write(stdo,222) ib,0,1,(qkl(k,1), k=0,kmax)
+       call stdfac(20,df)
+       ilm = 1
+       do  l = 1, lmxl
+          do  m = -l, l
+             ilm = ilm+1
+             j = ilm
+             if (dabs(qkl(0,j))*df(2*l+1) > 1d-6) write(stdo,220) 0,ilm,(qkl(k,j)*df(2*l+1),k=0,kmax)
+          enddo
        enddo
-    enddo
-  end subroutine vecpkl
+222    format(2x,'ib=',i3,i5,i6,10f12.6)
+220    format(9x,i4,i6,f12.6,10f12.6)
+221    format(/' rhogkl:    k   ilm      qkl (2l+1)!! ...')
+    endif checkrwrite
+  end subroutine rhogkl
   subroutine splrho(mode,nsp,nr,nlml,rho1,rho2,rhoc)  !- Overwrite spin pol local rho+,rho- with rho,rho+ - rho-, or reverse
     !i   mode  :1s digit
     !i         :0 input (rho+,rho-) -> (rho+ + rho-, rho+ - rho-)
@@ -1998,9 +1915,6 @@ contains
     !i         :1 suppress splitting of rho2
     !i         :2 suppress splitting of rhoc
     !i         :3 suppress both
-    !i   nsp   :2 for spin-polarized case, otherwise 1
-    !i   nr    :number of radial mesh points
-    !i   nlml  :L-cutoff
     !i   rho1  :local true density, tabulated on a radial mesh
     !i   rho2  :local smoothed density, tabulated on a radial mesh
     !i   rhoc  :core density
@@ -2022,6 +1936,6 @@ contains
        rhocold=rhoc
        rhoc(:,1)=fac*(rhocold(:,1)+rhocold(:,2))
        rhoc(:,2)=fac*(rhocold(:,1)-rhocold(:,2))        !       call dsumdf(nr,     fac,rhoc,0,1,rhoc(1,2),0,1)
-    endif  !    if (mod(mod(mode/10,10)/2,2) == 0)  call dsumdf(nr,     fac,rhoc,0,1,rhoc(1,2),0,1)
+    endif  
   end subroutine splrho
 end module m_mixrho
