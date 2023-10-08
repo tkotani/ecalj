@@ -1922,11 +1922,11 @@ contains
     call corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
     qc = qcorg+qcorh
     nlml = (lmxl+1)**2
-    allocate(rofi_rv(nr),rwgt_rv(nr),h_rv(nr*(kmax+1)*(lmxl+1)))
+    allocate(rofi_rv(nr),rwgt_rv(nr))
     call radmsh ( rmt,a,nr,rofi_rv )
     call radwgt ( rmt,a,nr,rwgt_rv )
     call pvrgkl ( mode,kmax,nlml,nr,nsp,rofi_rv,rwgt_rv,sv_p_orhoat(1,ib )%v,sv_p_orhoat( 2,ib )%v,sv_p_orhoat( 3,ib )%v &
-         ,h_rv,cofh,rg,ceh,rfoc,z,qkl)
+         ,cofh,rg,ceh,rfoc,z,qkl)
     if(ipr <40) return
     write(stdo,221)
     write(stdo,222) ib,0,1,(qkl(k,1), k=0,kmax)
@@ -1942,7 +1942,7 @@ contains
 220 format(9x,i4,i6,f12.6,10f12.6)
 221 format(/' rhogkl:    k   ilm      qkl (2l+1)!! ...')
   end subroutine rhogkl
-  subroutine pvrgkl(mode,kmax,nlml,nr,nsp,rofi,rwgt,rho1,rho2,rhoc, pkl,cofh,rg,ceh,rfoc,z,qkl)
+  subroutine pvrgkl(mode,kmax,nlml,nr,nsp,rofi,rwgt,rho1,rho2,rhoc, cofh,rg,ceh,rfoc,z,qkl)
     use m_hansr,only:hansmr
     use m_ll,only:ll
     !- Multipole moments for one site
@@ -1983,25 +1983,44 @@ contains
     !r   NB: p0l = a**l and scaling factor for k=0 is 4*pi/(a**l * (2l+1)!!)
     !r       => q0l = 4*pi/(2l+1)!! q_l, where q_l is the multipole moment
     ! ----------------------------------------------------------------------
+    !r Remarks
+    !r   P_kL are polyonomials orthogonal in the following sense:
+    !r                                          (4a^2)^k a^l k! (2l+1)!!
+    !r    int P_kL G_k'L' = delta_kk'*delta_ll'  ----------------------
+    !r                                                    4pi
+    !r   and are defined in J. Math. Phys. 39, 3393 (1988).
+    !r   Combining eqns 12.7 and 5.19 in that paper, we obtain
+    !r    p_kl = a**l / (2a**2)^(k+l) (2l+1)!! / (2k+2l+1)!! phi_kl
+    !r    p_0l = a**l
+    !r    p_1l = a**l (2*(ar)**2/(2l+3) - 1)
+    !r    p_kl = [(2*(ar)**2 - (4k+2l-1))p_k-1,l - 2(k-1)p_k-2,l]  / (2k+2l+1)
     !     implicit none
     integer :: mode,kmax,nlml,nr,nsp
     double precision :: ceh,cofh,rfoc,rg,z
-    double precision :: rofi(1),rwgt(nr),qkl(0:kmax,nlml), rhoc(nr,nsp),   pkl(nr,0:kmax,0:*)
+    double precision :: rofi(nr),rwgt(nr),qkl(0:kmax,nlml), rhoc(nr,nsp),   pkl(nr,0:kmax,0:10) !xxxxxxx
     real(8),target:: rho1(nr,nlml,nsp),rho2(nr,nlml,nsp)
     real(8),pointer :: rho(:,:,:)
     integer :: n0,i,ilm,l,m,lmxl,isp,k,lx,kk
     parameter (n0=10)
-    double precision :: ag,fac,y0,xi(0:n0),fpi,factk,     df(0:20),wk(nr),smrch,f1,f2
-    fpi  = 16d0*datan(1d0)
+    double precision :: ag,fac,y0,xi(0:n0),factk,     df(0:20),wk(nr),smrch,f1,f2
+    real(8),parameter:: fpi  = 16d0*datan(1d0)
     lmxl = ll(nlml)
-    call vecpkl(rofi,rg,nr,kmax,lmxl,nr,kmax,wk,1,pkl,pkl)
-    if (mode == 2) rho=>rho1
-    if (mode == 3) rho=>rho2
-    if( .not.(mode==2.or.mode==3)) call rxi('rhogkl: bad mode=',mode)
+    call vecpkl(rofi,rg,nr,kmax,lmxl,nr,kmax,pkl)
+      if (mode == 2) rho=>rho1
+      if (mode == 3) rho=>rho2
+      if( .not.(mode==2.or.mode==3)) call rxi('rhogkl: bad mode=',mode)
     GETcoefficientsOFG_kLseeradpkl: block
-      real(8):: dfactl(0:lmxl),kfact(0:kmax)
+      real(8):: dfactl(0:lmxl),kfact(0:kmax) !,pkl(nr,0:kmax,0:lmxl),rsm,a
       dfactl(0:lmxl)=[(product([(2*lx+1,lx=0,l)]),   l=0,lmxl)]
       kfact(0:kmax)= [(product([(max(1,kk),kk=0,k)]),k=0,kmax)]
+!      a = 1d0/rsm
+!      do l = 0, lmxl
+!         pkl(:,0,l) = a**l *rofi**l !Scale by r^l 
+!         pkl(:,1,l) = a**l*(2*a*a*rofi**2/(2*l+3)-1d0) *rofi**l
+!         do  k = 2, kmax ! --- Recursion for higher k ---
+!            pkl(:,k,l) = 1d0/(2*k+2*l+1)*((2*a*a*rofi**2-(4*k+2*l-1))*pkl(:,k-1,l) - 2*(k-1)*pkl(:,k-2,l))
+!         enddo
+!      enddo
       ag = 1/rg
       ilm = 0
       do  l = 0, lmxl
@@ -2014,117 +2033,26 @@ contains
       enddo
     endblock GETcoefficientsOFG_kLseeradpkl
   end subroutine pvrgkl
-  subroutine vecpkl(r,rsm,nr,kmax,lmax,nrx,k0,wk,lrl,p,gp)! Vector of p_kl polynomials, or r^l p_kl
-    !i   r     :vector of points
-    !i   rsm   :smoothing radius
-    !i   nr    :number of points
-    !i   kmax  :make p for k=0..kmax
-    !i   lmax  :make p for l=0..lmax
-    !i   nrx   :leading dimension of p
-    !i   k0    :second dimension of p
-    !i   wk    :work array of length nr
-    !i   lrl   :if 1s digit = 0, returns p_kl; otherwise returns r^l p_kl
-    !i         :if 10s digit nonzero, returns gp; otherwise gp is not touched.
+  subroutine vecpkl(r,rsm,nr,kmax,lmax,nrx,k0,p)! Vector of p_kl polynomials, or r^l p_kl
     !o Outputs
     !o   p     :radial part of spherical polynomials P_kL; see Remarks
-    !o   gp    :radial derivative of p from l=0..lmax-1 (depending on lrl).
-    !r Remarks
-    !r   P_kL are polyonomials orthogonal in the following sense:
-    !r                                          (4a^2)^k a^l k! (2l+1)!!
-    !r    int P_kL G_k'L' = delta_kk'*delta_ll'  ----------------------
-    !r                                                    4pi
-    !r   and are defined in J. Math. Phys. 39, 3393 (1988).
-    !r   Combining eqns 12.7 and 5.19 in that paper, we obtain
-    !r    p_kl = a**l / (2a**2)^(k+l) (2l+1)!! / (2k+2l+1)!! phi_kl
-    !r    p_0l = a**l
-    !r    p_1l = a**l (2*(ar)**2/(2l+3) - 1)
-    !r    p_kl = [(2*(ar)**2 - (4k+2l-1))p_k-1,l - 2(k-1)p_k-2,l]
-    !r           / (2k+2l+1)
-    !u Updates
-    !u   22 Aug 01 bug fix for gp when kmax=0
-    !u   25 Jan 00 veckl generates gp as well as p.
-    ! ----------------------------------------------------------------------
+    !oxxx   gp    :radial derivative of p from l=0..lmax-1 (depending on lrl).
     !     implicit none
     integer :: nr,kmax,lmax,nrx,k0,lrl
-    double precision :: r(nrx),wk(nr),rsm,p(nrx,0:k0,0:*), &
-         gp(nrx,0:k0,0:*)
+    double precision :: r(nrx),rsm,p(nrx,0:k0,0:*) !, gp(nrx,0:k0,0:*)
     integer :: i,l,k
     double precision :: a,xx,xx2,xx3
     if (kmax < 0 .OR. lmax < 0) return
     if (kmax > k0) call rx('vecpkl: kmax gt k0')
-    if (rsm <= 0) call rx('vecpkl: rsm <= 0')
+    if (rsm <= 0)  call rx('vecpkl: rsm <= 0')
     a = 1d0/rsm
-    ! --- Set wk = 2*a**2*r**2 ---
-    xx = 2*a*a
-    do  6  i = 1, nr
-       wk(i) = xx*r(i)**2
-6   enddo
-    ! --- Do explicitly for k=0,1 ---
-    do    l = 0, lmax
-       xx = a**l
-       do    i = 1, nr
-          p(i,0,l) = xx
+    do l = 0, lmax
+       p(:,0,l) = a**l *r**l !Scale by r^l 
+       p(:,1,l) = a**l*(2*a*a*r**2/(2*l+3)-1d0) *r**l
+       do  k = 2, kmax ! --- Recursion for higher k ---
+          p(:,k,l) = 1d0/(2*k+2*l+1)*((2*a*a*r**2-(4*k+2*l-1))*p(:,k-1,l) - 2*(k-1)*p(:,k-2,l))
        enddo
     enddo
-    if (kmax > 0) then
-       do   l = 0, lmax
-          xx = a**l
-          xx2 = 1/dble(2*l+3)
-          do   i = 1, nr
-             p(i,1,l)=xx*(wk(i)*xx2-1d0)
-          enddo
-       enddo
-    endif
-    ! --- Recursion for higher k ---
-    do    k = 2, kmax
-       xx3 = 2*(k-1)
-       do    l = 0, lmax
-          xx2 = (4*k+2*l-1)
-          xx = 1/dble(2*k+2*l+1)
-          do    i = 1, nr
-             p(i,k,l) = xx*((wk(i)-xx2)*p(i,k-1,l) - xx3*p(i,k-2,l))
-          enddo
-       enddo
-    enddo
-    ! --- Radial derivative of p ---
-    if (mod(lrl/10,10) /= 0) then
-       !  ... Set wk = 2*a**2*r**2
-       xx = 2*a*a
-       do  16  i = 1, nr
-          wk(i) = xx*r(i)
-16     enddo
-       do    k = 0, kmax
-          do    l = 0, lmax-1
-             xx2 = dble(2*k+2*l+3)/(a*(2*l+3))
-             do    i = 1, nr
-                gp(i,k,l) = wk(i)*(p(i,k,l) - xx2*p(i,k,l+1))
-             enddo
-          enddo
-       enddo
-    endif
-    ! --- Scale by r^l if lrl nonzero ---
-    if (mod(lrl,10) == 0) return
-    do  50  i = 1, nr
-       wk(i) = 1
-50  enddo
-    do  52  l = 1, lmax
-       !   ... gP scales as  r*l gP +  l*r^l-1 P
-       if (mod(lrl/10,10) /= 0 .AND. l < lmax) then
-          do   k = 0, kmax
-             do   i = 1, nr
-                gp(i,k,l) = wk(i)*r(i)*gp(i,k,l) + l*wk(i)*p(i,k,l)
-             enddo
-          enddo
-       endif
-       do  54  i = 1, nr
-          wk(i) = wk(i)*r(i)
-54     enddo
-       do   k = 0, kmax
-          do   i = 1, nr
-             p(i,k,l) = p(i,k,l)*wk(i)
-          enddo
-       enddo
-52  enddo
   end subroutine vecpkl
   subroutine splrho(mode,nsp,nr,nlml,rho1,rho2,rhoc)  !- Overwrite spin pol local rho+,rho- with rho,rho+ - rho-, or reverse
     !i   mode  :1s digit
