@@ -1525,10 +1525,7 @@ contains
     na = na + nx
     rms2 = dsqrt(4*rms2/(na-0))
   end subroutine pqmxup
-  subroutine pkl2ro(mode,ib,rsm,kmax,nr,nlml,nsp,rofi,rwgt,k0,nlm0,fklc,fklr,rho1,rho2,qmx)
-    !- Put PkL or GkL expansion of a function on a radial mesh for one site
-    ! ----------------------------------------------------------------------
-    !i Inputs
+  subroutine pkl2ro(mode,ib,rsm,kmax,nr,nlml,nsp,rofi,rwgt,k0,nlm0,fklc,fklr,rho1,rho2,qmx) !- Put PkL or GkL expansion of a function on a radial mesh for one site
     !i   mode  :a compound of digits :
     !i         :1s digit
     !i         :  0 add P_kL expansion of rho to rho1 (and possibly rho2)
@@ -1660,7 +1657,6 @@ contains
     call splrho(i+1,nsp,nr,nlml,rho1,rho2,[sum1])
   end subroutine pkl2ro
   subroutine rhoqm(smrho,n1,n2,n3,nsp,vol,qsum)    !- Return charge, magnetic moment of smooth density
-    ! ----------------------------------------------------------------------
     !i Inputs
     !i   smrho :smooth density on uniform mesh
     !i   n1..n3:
@@ -1990,51 +1986,33 @@ contains
     !     implicit none
     integer :: mode,kmax,nlml,nr,nsp
     double precision :: ceh,cofh,rfoc,rg,z
-    double precision :: rofi(1),rwgt(1),qkl(0:kmax,nlml), rhoc(nr,nsp),   pkl(nr,0:kmax,0:*)
+    double precision :: rofi(1),rwgt(nr),qkl(0:kmax,nlml), rhoc(nr,nsp),   pkl(nr,0:kmax,0:*)
     real(8),target:: rho1(nr,nlml,nsp),rho2(nr,nlml,nsp)
     real(8),pointer :: rho(:,:,:)
-    integer :: n0,i,ilm,l,m,lmxl,isp,k
+    integer :: n0,i,ilm,l,m,lmxl,isp,k,lx,kk
     parameter (n0=10)
-    double precision :: ag,fac,y0,xi(0:n0),fpi,factk,dfact,     df(0:20),wk(nr),smrch,f1,f2
+    double precision :: ag,fac,y0,xi(0:n0),fpi,factk,     df(0:20),wk(nr),smrch,f1,f2
     fpi  = 16d0*datan(1d0)
-    y0   = 1d0/dsqrt(fpi)
     lmxl = ll(nlml)
-    call stdfac(20,df)
     call vecpkl(rofi,rg,nr,kmax,lmxl,nr,kmax,wk,1,pkl,pkl)
-    call dpzero(qkl,nlml*(kmax+1))
-    ! ... rho1-rho2 contribution (or rho1, or rho2, depending on mode)
     if (mode == 2) rho=>rho1
     if (mode == 3) rho=>rho2
     if( .not.(mode==2.or.mode==3)) call rxi('rhogkl: bad mode=',mode)
-    ilm = 0
-    do  l = 0, lmxl
-       do  m = -l, l
-          ilm = ilm+1
-          do  k = 0, kmax
-             do  i = 1, nr !     If rg is small enough, these should all integrate to 1
-                do  isp = 1, nsp
-                   qkl(k,ilm) = qkl(k,ilm) + rwgt(i) * pkl(i,k,l) * rho(i,ilm,isp) !(f1*rho1(i,ilm,isp) + f2*rho2(i,ilm,isp))
-                enddo
-             enddo
-          enddo
-       enddo
-    enddo
-    ! ... Scale to get coefficients of the G_kL; see radpkl
-    ag = 1/rg
-    ilm = 0
-    dfact = 1
-    do  l = 0, lmxl
-       do  m = -l, l
-          ilm = ilm+1
-          factk = 1d0
-          do  k = 0, kmax
-             fac = fpi / ((4*ag*ag)**k * ag**l * factk * dfact)
-             qkl(k,ilm) = qkl(k,ilm) * fac
-             factk = factk*(k+1)
-          enddo
-       enddo
-       dfact = dfact*(2*l+3)
-    enddo
+    GETcoefficientsOFG_kLseeradpkl: block
+      real(8):: dfactl(0:lmxl),kfact(0:kmax)
+      dfactl(0:lmxl)=[(product([(2*lx+1,lx=0,l)]),   l=0,lmxl)]
+      kfact(0:kmax)= [(product([(max(1,kk),kk=0,k)]),k=0,kmax)]
+      ag = 1/rg
+      ilm = 0
+      do  l = 0, lmxl
+         do  m = -l, l
+            ilm = ilm+1
+            do  k = 0, kmax
+               qkl(k,ilm)=fpi*sum([(sum(rwgt(:)*pkl(:,k,l)*rho(:,ilm,isp)),isp=1,nsp)])/ ((4*ag**2)**k*ag**l*kfact(k)*dfactl(l))
+            enddo
+         enddo
+      enddo
+    endblock GETcoefficientsOFG_kLseeradpkl
   end subroutine pvrgkl
   subroutine vecpkl(r,rsm,nr,kmax,lmax,nrx,k0,wk,lrl,p,gp)! Vector of p_kl polynomials, or r^l p_kl
     !i   r     :vector of points
@@ -2277,59 +2255,4 @@ contains
        enddo
     enddo
   end subroutine lgstar
-  subroutine dsumdf(n,scal,a1,ofa1,l1,a2,ofa2,l2)! Returns scaled sum and difference of two vectors
-    ! ----------------------------------------------------------------
-    !i Inputs
-    !i   n    :number elements to scale and combine
-    !i   scal :scale sum and difference by scal; see Outputs
-    !i   a1   :first vector
-    !i   ofa1 :offset to first entry in a1
-    !i   l1   :skip length in a1
-    !i   a2   :second vector
-    !i   ofa2 :offset to first entry in a2
-    !i   l2   :skip length in a2
-    !o Outputs
-    !o   a1   :a1 <- scal*(a1+a2)
-    !o   a2   :a1 <- scal*(a1-a2)
-    ! ----------------------------------------------------------------
-    implicit none
-    integer :: n,l1,l2,ofa1,ofa2
-    double precision :: scal, a1(1), a2(1)
-    real(8) ,allocatable :: a_rv(:)   ! --- a1-a2-> temp;  a1+a2 -> a1;  temp -> a2 ---
-    allocate(a_rv(n))
-    call dcopy ( n,a1 ( 1 + ofa1 ),l1,a_rv,1 )
-    call daxpy ( n,- 1d0,a2 ( 1 + ofa2 ),l2,a_rv,1 )
-    call daxpy (n,1d0,a2(1+ofa2),l2,a1(1+ofa1),l1)
-    call dcopy ( n,a_rv,1,a2 ( 1 + ofa2 ),l2 )
-    deallocate(a_rv)
-    if (scal == 1) return
-    call dscal(n,scal,a1(1+ofa1),l1)
-    call dscal(n,scal,a2(1+ofa2),l1)
-  end subroutine dsumdf
-  subroutine dpdump(array,length,ifile)! Binary I/O of an array
-    integer:: length,ifile
-    double precision :: array(length)
-    if (ifile > 0) read(ifile) array
-    if (ifile < 0) write(-ifile) array
-  end subroutine dpdump
-  logical function lddump(array,length,ifile)! Binary I/O of an array, returning T if I/O without error or EOF
-    integer :: length,ifile
-    double precision :: array(length),xx,yy
-    lddump = .true.
-    if (ifile > 0) then
-       yy = array(length)
-       xx = -1.9283746d0*datan(1d0) !       (some random number)
-       array(length) = xx
-       read(ifile,end=90,err=91) array
-       if (xx /= array(length)) return
-       array(length) = yy
-       goto 90
-90     continue
-91     continue
-       lddump = .false.
-    else
-       write(-ifile) array
-    endif
-  end function lddump
-
 end module m_mixrho
