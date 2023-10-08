@@ -1,4 +1,4 @@
-module m_mixrho !mixing routine of smrho, rh. NOTE: TK thinks this routine is too compicated to maintain. !It may be better to rewrite all with keeping the functionality. 
+module m_mixrho !mixing routine of density given by smrho and orho
   use m_lmfinit,only: z_i=>z,nr_i=>nr,rmt_i=>rmt,lmxl_i=>lmxl,spec_a,rg_i=>rg,rsmv_i=>rsmv
   use m_ll,only:ll
   use m_lgunit,only:stdo,stml !  integer,parameter,public:: kmxv=15
@@ -81,21 +81,7 @@ contains
     ! o                      : 11 if both nonzero
 
     !l Local variables
-    !l   locmix :governs linear transformation of local densities for mixing
-    !l          :Note see Bugs, below
-    !l          :0  This was the only mode in versions 6.11 and earlier.
-    !l          :   The smooth part of the density and the spherical part of
-    !l          :   the local densities are mixed in an Anderson or Broyden scheme.
-    !l          :   In the remaining options,
-    !l          :   local densities are rotated into
-    !l          :     rho1,rho2 -> w(r)*(rho1+rho2), rho1-rho2
-    !l          :   where w(r) is defined in pvmix9, mode controlled by k9.
-    !l          :   For now, k9=10.
-    !l          :   This has no effect for linear mixing, but affects the
-    !l          :   Anderson or Broyden weights in the spherical part.
-    !l          :1  Same as locmix=0, but for the transformation
-    !l              CAUTION: not tested in a long time
-    !l          :2  Local densities are further mapped onto a G_kL expansion.
+    !l   locmix=3 :2  Local densities are further mapped onto a G_kL expansion.
     !l          :   whose coefficients are included in the Anderson/Broyden
     !l          :   mixing schemes, including the nonspherical densities.
     !l          :   the residual (what is left of rho beyond the G_kL expansion)
@@ -116,8 +102,8 @@ contains
     !l   rms    : RMS difference in output-input sm. density, screened
     !l   sumo   : integral of smrho
     !l   sums   : integral of screened smoothed output rho
-    !l   kmxs   : k-cutoff for G_kL expansion of screening charge projected
-    !l          : into local densities; see Remarks
+    !lxxx   kmxs   : k-cutoff for G_kL expansion of screening charge projected
+    !lxxx          : into local densities; see Remarks
     !l   kmxr   : k-cutoff for G_kL expansion used to smooth local densities
     !l          : for mixing
     !l   ng0    : condensed number of G vectors. That rho(G) is hermitian
@@ -177,20 +163,13 @@ contains
     !m   then mix.
     real(8),save:: rmsdelsave,beta
     integer,save:: broy,nmix,mxsav
-    real(8),save:: wt(3)
-    !    logical,save:: bexist
-    !    character,save:: fnaminit*8
-
+    real(8),save:: wt(2)
     include "mpif.h"
     integer :: numprocs, ierr, status(MPI_STATUS_SIZE)
     integer :: MAX_PROCS
     parameter (MAX_PROCS = 100)
-!    integer :: resultlen
-!    character*(MPI_MAX_PROCESSOR_NAME) name
-!    character(10) :: shortname(0:MAX_PROCS-1)
     character(20) :: ext
     character(26) :: datim
-!    integer :: namelen(0:MAX_PROCS-1)
     double precision :: starttime, endtime
     integer :: iunit
     character(120) :: strn
@@ -198,14 +177,14 @@ contains
     integer::  iter,procid,master
     type(s_rv1) :: sv_p_orhold(3,1)
     type(s_rv1) :: sv_p_orhnew(3,1)
-    double precision :: qval,elind=0d0
+    double precision :: qval!,elind=0d0
     double complex smrnew(n1,n2,n3,nsp),smrho(n1,n2,n3,nsp)
     integer :: i,i1,i2,i3,ib,ipl,ipr,is,k0, &
          lmxl,ng,nglob,nlml,nr,nmixr,nda,ifi,nlm0, &
          kkk,nnnew,nnmix,igetss,nx, &
          nkill,isw,naa,kmxr,kmxs,locmix,offx,off2
     integer:: ng0 !,  oa,oaa !, ocn ,owk,oqkl
-    integer ,allocatable :: ips0_iv(:)
+!    integer ,allocatable :: ips0_iv(:)
     real(8),allocatable :: co_rv(:)
     complex(8) ,allocatable :: cg1_zv(:)
     complex(8) ,allocatable :: cg2_zv(:)
@@ -258,30 +237,21 @@ contains
     endif
     rms2 = 0
     fnam = 'mixm' !fnaminit
-    wt(1:2)   = wtinit
-    !     In case parmxp doesn't touch wt, unset flag 
-    wt(3) = 0 !2023feb
     nmix = nmixinit
     broy = broyinit
     if(bexist) beta=betainit
-    !r Periodic file deletion (nkill):  parmxp returns nkill as -nkill when
-    !r   mod(iter,nkill) is zero, as a signal that the current mixing
-    !r   file is to be deleted after it is used.  Here nitj is the sum of
-    !r   the number of iterations prior to the current group.
-    nkill = max(killj,0)
-    if (nkill > 1) then
-       if (mod(iter,nkill) == 0) nkill=-nkill
-    endif
+    nkill = max(killj,0) ! Periodic file deletion (nkill):   
+    if (nkill>1 .and. mod(iter,nkill) == 0) nkill=-nkill
     if (nkill == 1) nkill=-nkill
-
     rmsdel = rmsdelsave
     if (nmix == 0) broy = 0
+    wt(1:2)   = wtinit     
     if (nsp == 1) wt(2)=0d0
     if (sum(wt**2)==0d0) call rx('MIXRHO: bad mixing weights wt=0')
-    call dscal(3,1/dsqrt(wt(1)**2+wt(2)**2+wt(3)**2),wt,1)
+    wt= wt/sum(wt**2)**.5 !call dscal(2,1/dsqrt(wt(1)**2+wt(2)**2),wt,1)
     if (nmix < 0) nmix = mxsav
     ! ... Initial charges
-    call rhoqm(smrho,n1,n2,n3,nsp,vol,qin)
+    call rhoqm(smrho, n1,n2,n3,nsp,vol,qin)
     call rhoqm(smrnew,n1,n2,n3,nsp,vol,qout)
     fac = vol/(n1*n2*n3)
     !!== RMS differences screened and input sm density; count neg points ==
@@ -352,7 +322,7 @@ contains
 20     continue
     enddo
 
-    if(mixrealsmooth()) then
+!    if(mixrealsmooth()) then
        ng02 = n1*n2*n3
        ng2 = ng02
        nda = nda + ng02
@@ -365,29 +335,29 @@ contains
        ! cccccccccccccccccccccc
        w_ocn= w_ocn*wgtsmooth !
        co_rv= co_rv*wgtsmooth !
-    else
-       ! ... 8. FFT smooth densities -> rho(G) for mixing
-       ! ... Find and include number of smooth mesh points.
-       allocate(ips0_iv(ng))
-       call lgstar ( 0,ng,1,rv_a_ogv,ng0,ips0_iv,cdummy )
-       ng02= ng0*2
-       ng2=ng*2
-       nda = nda + ng02
-       allocate(w_ocnc(ng*nsp),co_rvc(ng*nsp),w_ocn(2*ng*nsp),co_rv(ng*2*nsp))
-       allocate(w_owk(kkk*nsp))
-       call dpcopy(smrnew,w_owk,1,kkk*2*nsp,1d0)
-       call fftz3(w_owk,n1,n2,n3,n1,n2,n3,nsp,0,-1)
-       call gvgetf ( ng,nsp,iv_a_okv,n1,n2,n3,w_owk, w_ocnc)
-       call lgstar ( 1,ng,nsp,rv_a_ogv,i,ips0_iv,w_ocnc)
-       call dcopy(ng*nsp*2,w_ocnc,1,w_ocn,1)
-       deallocate(w_ocnc)
-       call dpcopy(smrho,w_owk,1,kkk*2*nsp,1d0)
-       call fftz3(w_owk,n1,n2,n3,n1,n2,n3,nsp,0,-1)
-       call gvgetf ( ng,nsp,iv_a_okv,n1,n2,n3,w_owk, co_rvc)
-       call lgstar ( 1,ng,nsp,rv_a_ogv,i,ips0_iv,co_rvc)
-       call dcopy(ng*nsp*2,co_rvc,1,co_rv,1)
-       deallocate(w_owk,co_rvc)
-    endif
+    ! else
+    !    ! ... 8. FFT smooth densities -> rho(G) for mixing
+    !    ! ... Find and include number of smooth mesh points.
+    !    allocate(ips0_iv(ng))
+    !    call lgstar ( 0,ng,1,rv_a_ogv,ng0,ips0_iv,cdummy )
+    !    ng02= ng0*2
+    !    ng2=ng*2
+    !    nda = nda + ng02
+    !    allocate(w_ocnc(ng*nsp),co_rvc(ng*nsp),w_ocn(2*ng*nsp),co_rv(ng*2*nsp))
+    !    allocate(w_owk(kkk*nsp))
+    !    call dpcopy(smrnew,w_owk,1,kkk*2*nsp,1d0)
+    !    call fftz3(w_owk,n1,n2,n3,n1,n2,n3,nsp,0,-1)
+    !    call gvgetf ( ng,nsp,iv_a_okv,n1,n2,n3,w_owk, w_ocnc)
+    !    call lgstar ( 1,ng,nsp,rv_a_ogv,i,ips0_iv,w_ocnc)
+    !    call dcopy(ng*nsp*2,w_ocnc,1,w_ocn,1)
+    !    deallocate(w_ocnc)
+    !    call dpcopy(smrho,w_owk,1,kkk*2*nsp,1d0)
+    !    call fftz3(w_owk,n1,n2,n3,n1,n2,n3,nsp,0,-1)
+    !    call gvgetf ( ng,nsp,iv_a_okv,n1,n2,n3,w_owk, co_rvc)
+    !    call lgstar ( 1,ng,nsp,rv_a_ogv,i,ips0_iv,co_rvc)
+    !    call dcopy(ng*nsp*2,co_rvc,1,co_rv,1)
+    !    deallocate(w_owk,co_rvc)
+    ! endif
     allocate(w_oa(nda,nsp,(mxsav+2),2),source=0d0)
 !    if(locmix >= 2) then
        allocate(w_oqkl(2*(kmxr+1)*nlm0*nsp*4*nbas))
@@ -456,7 +426,7 @@ contains
        naa = 0
        if (wt(1) /= 0) naa = naa+nda
        if (wt(2) /= 0) naa = naa+nda
-       if (wt(3) /= 0) naa = naa+nx
+!       if (wt(3) /= 0) naa = naa+nx
        offx = 0                !offset to extra elements (none now)
        off2 = (nsp-1)*nda      !offset to spin down part of a
        allocate(w_oaa(naa*(mxsav+2)*2))
@@ -486,13 +456,13 @@ contains
     ! ... 14. Poke mixed smooth and local densities into smrho,rhoold
     allocate(w_owk(kkk))
     call pvmix7 (   nbas,nsp,nda,w_oa,n1,n2,n3,locmix,wt,kmxr,nlm0,w_oqkl &
-        ,ng,ng2, ng02,iv_a_okv,ips0_iv,rv_a_ogv,co_rv,w_owk,&
+        ,ng,ng2, ng02,iv_a_okv,rv_a_ogv,co_rv,w_owk,&
          sv_p_orhold,smrho, wgtsmooth )
     deallocate(w_oqkl)
     deallocate(w_owk,w_oa)
     if (allocated(co_rv)) deallocate(co_rv)
     deallocate(w_ocn)
-    if (allocated(ips0_iv)) deallocate(ips0_iv)
+!    if (allocated(ips0_iv)) deallocate(ips0_iv)
     ! ... 15. Restore local densities: rho+ +/- rho-  -> rho+, rho-'
     call dpzero(qmix,2)
     do  ib = 1, nbas
@@ -662,7 +632,7 @@ contains
     integer :: nbas,nsp,kmxr,nlm0,locmix
     type(s_rv1) :: sv_p_orhold(3,nbas)
     type(s_rv1) :: sv_p_orhnew(3,nbas)
-    real(8):: difx,beta,wt(3),qkl(0:kmxr,nlm0,nsp,4,nbas)
+    real(8):: difx,beta,wt(2),qkl(0:kmxr,nlm0,nsp,4,nbas)
     integer :: ib,is,igetss,nr,nlml,m,lmxl
     integer::  i !orsm(4) ,
     real(8) ,allocatable :: ri_rv(:)
@@ -735,7 +705,7 @@ contains
     !o   rho1,rho2,rho3 are overwritten by the linearly mixed densities
     !implicit none
     integer :: nr,nlml,nsp,ib,locmix
-    double precision :: dif,beta,wt(3)
+    double precision :: dif,beta,wt(2)
     double precision :: ri(nr),rwgt(nr), &
          rho1(nr,nlml,nsp),rho2(nr,nlml,nsp),rho3(nr,nsp), &
          rhn1(nr,nlml,nsp),rhn2(nr,nlml,nsp),rhn3(nr,nsp), &
@@ -1056,7 +1026,7 @@ contains
     endif
   end subroutine pvmix6
   subroutine pvmix7 ( nbas,nsp,nda,a,n1,n2,n3,locmix,wt,kmxr,nlm0,qkl &
-      ,ng,ng2, ng02,kv,ips0,gv,crho,wk,sv_p_orhold,smrho &
+      ,ng,ng2, ng02,kv,gv,crho,wk,sv_p_orhold,smrho &
        ,wgtsmooth)
     use m_lmfinit,only: ispec
     use m_struc_def 
@@ -1076,7 +1046,6 @@ contains
     !i   ng    :number of FT G-vectors
     !i   ng0   :condensed number of G vector (excluding hermitian equiv)
     !i   kv    :indices for gather/scatter operations (gvlist.f)
-    !i   ips0  :permutation array mapping ng0 vectors to ng vectors (lgstar)
     !i   gv    :list of reciprocal lattice vectors G (gvlist.f)
     !i   crho  :FT coefficients of smrho(G)
     !i   wk    :complex work array of dimension (n1,n2,n3)
@@ -1092,7 +1061,7 @@ contains
     !u Updates
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: nsp,n1,n2,n3,ng,ng02,nda,na,nr,nbas,locmix, kv(ng,3),ips0(ng),kmxr,nlm0,ng2
+    integer :: nsp,n1,n2,n3,ng,ng02,nda,na,nr,nbas,locmix, kv(ng,3),kmxr,nlm0,ng2
     type(s_rv1) :: sv_p_orhold(3,1)
     real(8):: gv(ng,3),a(nda,nsp),qkl(0:kmxr,nlm0,nsp,4,nbas),rf,wt(2), wgtsmooth
     double complex smrho(n1,n2,n3,nsp),wk(n1,n2,n3)
@@ -1111,27 +1080,12 @@ contains
     logical:: mixrealsmooth
 
     ! ... Restore mixed smoothed density
-    if(mixrealsmooth()) then
+!    if(mixrealsmooth()) then
        do  i = 1, nsp
           call dscal(ng02,-1d0/wgtsmooth,crho(1,i),1)
           call daxpy(ng02,1d0/wgtsmooth,a(1,i),1,crho(1,i),1)
           call daxpy(n1*n2*n3,1d0,crho(1,i),1,smrho(1,1,1,i),2)
        enddo
-    else
-       do  i = 1, nsp
-          !       Add difference of mixed, old to minimize perturbation
-          ! ccccccccccccccc
-          !        print *,' vvv pvmix7 TEST!!! a=0 test'
-          !        a=0d0
-          ! ccccccccccccc
-          call dscal(ng02,-1d0,crho(1,i),1)
-          call daxpy(ng02,1d0,a(1,i),1,crho(1,i),1)
-          call lgstar(2,ng,1,gv,m,ips0,dcmplx(crho(1:,i)))
-          call gvputf(ng,1,kv,n1,n2,n3,crho(1,i),wk)
-          call fftz3(wk,n1,n2,n3,n1,n2,n3,1,0,1)
-          call daxpy(2*n1*n2*n3,1d0,wk,1,smrho(1,1,1,i),1)
-       enddo
-    endif
 
     ! ... Update local densities
     na = 1 + ng02
@@ -1220,7 +1174,7 @@ contains
     !i   off2  :offset to spin-down (should be 0 for nsp=1)
     !i   nx    :number of extra data to weight with w3
     !i   na    :dimension of a2 and number of data with nonzero weight
-    !i   wt    :1,2 for P,Q (up+dn) and (up-dn), and wt(3) for extra
+    !i   wt    :1,2 for P,Q (up+dn) and (up-dn)
     !i   a     :(na,1:2,i,1) output vector for prev. iteration i
     !i         :(na,1:2,i,2) input  vector for prev. iteration i
     !o Outputs
@@ -1234,7 +1188,7 @@ contains
     ! ------------------------------------------------------------------
     !     implicit none
     integer :: mode,nda,npq,nx,mxsav,na,offx,off2
-    double precision :: wt(3),a(nda,0:mxsav+1,2),a2(na,0:mxsav+1,2), &
+    double precision :: wt(2),a(nda,0:mxsav+1,2),a2(na,0:mxsav+1,2), &
          rms2,ddot
     integer :: is,ia,ja
 
@@ -1267,15 +1221,6 @@ contains
 12     enddo
 10  enddo
 11  continue
-    if (wt(3) /= 0) then
-       do  20  ia = 1, nx
-          ja = ja+1
-          do  22  is = 0, mxsav+1
-             a2(ja,is,1) = a(ia+offx,is,1)*wt(3)
-             a2(ja,is,2) = a(ia+offx,is,2)*wt(3)
-22        enddo
-20     enddo
-    endif
     rms2 = dsqrt(dabs(ddot(na,a2,1,a2,1)     - &
          2*ddot(na,a2,1,a2(1,0,2),1) + &
          ddot(na,a2(1,0,2),1,a2(1,0,2),1))/(na-0))
@@ -1290,7 +1235,7 @@ contains
     !i   off2  :offset to spin-down (should be 0 for nsp=1)
     !i   nx    :number of extra data
     !i   na    :dimensions a2; number of data with nonzero weight
-    !i   wt    :1,2 for P,Q (up+dn) and (up-dn), and wt(3) for extra
+    !i   wt    :1,2 for P,Q (up+dn) and (up-dn)
     !i   a2    :mixed q,mom scaled by weights, or portion of a with nonzero weights
     !o Outputs
     !o   a     :a2 is unscaled and restored into a
@@ -1300,7 +1245,7 @@ contains
     ! ----------------------------------------------------------------------
     !     implicit none
     integer :: nda,na,npq,nx,mxsav,offx,off2
-    double precision :: wt(3),a(nda,0:mxsav+1,2), &
+    double precision :: wt(2),a(nda,0:mxsav+1,2), &
          a2(na,0:mxsav+1,2),sum,diff
     integer :: is,ia,ja
 
@@ -1352,15 +1297,6 @@ contains
           enddo
        enddo
        ja = npq
-    endif
-    ! --- Extra mixing data ---
-    if (wt(3) /= 0) then
-       do  is = 0, mxsav+1
-          do  ia = 1, nx
-             a(ia+offx,is,1) = a2(ia+ja,is,1)/wt(3)
-             a(ia+offx,is,2) = a2(ia+ja,is,2)/wt(3)
-          enddo
-       enddo
     endif
   end subroutine pqsclb
   subroutine pqsclc(nda,npq,nx,mxsav,a)    !- Copy a(:,0,2) into a(:,0,1)
@@ -2088,99 +2024,4 @@ contains
        rhoc(:,2)=fac*(rhocold(:,1)-rhocold(:,2))        !       call dsumdf(nr,     fac,rhoc,0,1,rhoc(1,2),0,1)
     endif  !    if (mod(mod(mode/10,10)/2,2) == 0)  call dsumdf(nr,     fac,rhoc,0,1,rhoc(1,2),0,1)
   end subroutine splrho
-  subroutine lgstar(mode,ng,n,gv,ng0,ips0,cg)  !- Compresses F.T. of a real function, using fact it is hermitian
-    !i   mode  :0, count number of inequivalent points ng0,
-    !i             and make ips0.  cg is not used.
-    !i         :1  same as mode 0, but also compress cg
-    !i         :2  use ips0 to undo compression of cg
-    !i   ng    :number of G-vectors
-    !i   n     :cg array holds n functions;
-    !i   gv    :list of reciprocal lattice vectors G (gvlist.f)
-    !o   ng0   :(mode=2) number of inequivalent points
-    !i   ips0  :(mode=2) permutation array.
-    !i   cg    :list of g-vectors for each of n functions
-    !o Outputs
-    !o   ng0   :(mode=0,1) number of inequivalent points
-    !o   ips0  :(mode=0,1) array of permutation indices.  A negative value
-    !o         :signifies the point's hermitian counterpart falls earlier in
-    !o         :the list, and points to that element.
-    !r Remarks
-    !r   Hacked from svgsym, using only one symmetry operation
-    !r   to reduce (G,-G) pairs to a single element.
-    !u Updates
-    ! ----------------------------------------------------------------------
-    !     implicit none
-    integer :: mode,ng,n,ips0(ng),ng0,iprint
-    double precision :: gv(ng,3)
-    double complex cg(ng,n)
-    integer :: i,i0,i00,irep,k,j,j0,lwarn,m
-    double precision :: v(3),df
-    if (mode < 0 .OR. mode > 2) call rxi('lgstar, bad mode',mode)
-    lwarn = 0
-    if (mode == 2) goto 200
-    ! --- mode = 0,1 ---
-    ng0 = 0
-    do  5  i = 1, ng
-       ips0(i) = 0
-5   enddo
-    ! --- Main loop: look for next unclassified vector ---
-    i00 = 1
-    do  10  irep = 1, ng+1
-       i0 = 0
-       do  12  i = i00, ng
-          i0 = i
-          if (ips0(i) == 0) goto 80
-12     enddo
-       goto 81
-80     continue
-       !   ... Apply all point ops, find in list, add to phase sum
-       ng0 = ng0 + 1
-       ips0(i0) = ng0
-       if (mode == 1)  then
-          do  21  m = 1, n
-             cg(ng0,m) = cg(i0,m)
-21        enddo
-       endif
-       do  20  k = 1, 1
-          v(1) = gv(i0,1)
-          v(2) = gv(i0,2)
-          v(3) = gv(i0,3)
-          do  22  j = i0+1,ng
-             df = (v(1)+gv(j,1))**2+(v(2)+gv(j,2))**2+(v(3)+gv(j,3))**2
-             j0 = j
-             if (df < 1d-8) goto 70
-22        enddo
-          !     ... No matching vector here ... should only happen for G=0
-          i00 = i0
-          goto 10
-70        continue
-          ips0(j0) = -i0
-          if (mode == 1) then
-             if (abs(cg(i0,1)-dconjg(cg(j0,1))) > 1d-9) lwarn = lwarn+1
-          endif
-20     enddo
-       i00 = i0
-10  enddo
-    call rxi('bug in lgstar, irep=',irep)
-81  continue
-    if (lwarn > 1 .AND. iprint() >= 10) print 345, lwarn
-345 format(' lgstar (warning):',i6, ' points not hermitian')
-    return
-    ! --- mode = 2 ---
-200 continue
-    ! ... Unpack original points first
-    do    m = 1, n
-       do    i = ng, 1, -1
-          k = ips0(i)
-          if (k > 0) cg(i,m) = cg(k,m)
-       enddo
-    enddo
-    ! ... Unpack hermitian points
-    do    m = 1, n
-       do    i = 1, ng
-          k = -ips0(i)
-          if (k > 0) cg(i,m) = dconjg(cg(k,m))
-       enddo
-    enddo
-  end subroutine lgstar
 end module m_mixrho
