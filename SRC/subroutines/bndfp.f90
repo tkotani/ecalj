@@ -338,6 +338,13 @@ contains
          endif
          ! Mix inputs(osmrho,orhoat) and outputs(osmrho_out,orhoat_out), resulting orhoat and osmrho.
          call mixrho(iter,qval-qbg,orhoat_out,orhoat,smrho_out,osmrho,qdiff)!mixrho keeps history in it.
+         !
+         call mpi_barrier(MPI_comm_world,ierr)
+!         write(stdo,ftox)'mixrho-------------------------------'
+!         write(stdo,ftox)'mixrho: output smrho =',maxval(dreal(osmrho)),minval(dreal(osmrho)),sum(dreal(osmrho))
+!         do ib=1,nbas
+!            write(stdo,ftox)'mixrho: output orhoat=',ib,sum(abs(orhoat(1,ib)%v)),sum(abs(orhoat(2,ib)%v)),sum(abs(orhoat(3,ib)%v))
+!         enddo   
        endblock EvaluateKohnShamTotalEnergyandForce
     endif
     ham_ehf= eharris !Harris total energy

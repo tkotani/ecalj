@@ -35,4 +35,4 @@ BZ      NKABC={nk} BZJOB={bzj} W=.002 NPTS=1001 NKABC2=6 SAVDOS=t
         EMESH=12 10 -1 -.025 .5 .5 INVIT=f NOINV=f
 EWALD   AS=2.0 TOL=1e-6 ALAT0=a
 % const w1=1 w2=1
-ITER    MIX=B3,n=5,b=.7,w={w1},{w2}  NIT={nit}
+ITER    MIX=B3 n=5 b=.7 w={w1},{w2} NIT={nit}

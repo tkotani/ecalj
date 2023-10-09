@@ -266,7 +266,6 @@ contains
     !!== Main Mixing part ==
     !!=== 11. Spin polarized case: separate weighting for spin channels ===
     if (nsp == 2) then ! .OR. nx > 0) then
-       if (wt(2) /= 0 .AND. nsp == 1) call rx1('mixrho wt(2)=%d invalid when nsp=1',wt(2))
        naa = 0
        if (wt(1) /= 0) naa = naa+nda
        if (wt(2) /= 0) naa = naa+nda
@@ -610,10 +609,10 @@ contains
     call MPI_BCAST(readerror,1,MPI_LOGICAL,   master,MPI_COMM_WORLD,ierr)
     if(readerror) goto 9999
     call MPI_BCAST(na,1,MPI_INTEGER,master,MPI_COMM_WORLD,ierr)
-    if (nda*nsp /= na) then
-       if (procid == master) write(stdo,ftox)' mixrho:  expecting',nda*nsp,'elements but found',na,'discarding file'
-       goto 9999
-    endif
+!    if (nda*nsp /= na) then
+!       if (procid == master) write(stdo,ftox)' mixrho:  expecting',nda*nsp,'elements but found',na,'discarding file'
+!       goto 9999
+!    endif
     if (procid == master) then
        readerror = .false.
        do  30  j = 1,  min(mxsav,nmixr)
@@ -958,7 +957,7 @@ contains
           i = iprint()
           if (km /= jmix) i = i-20
           allocate(wk_rv(nda*2*(jmix+2)))
-          i = broyj ( nda,a ( 1,im - 1,2 ),dx_rv,km,0, i,beta,0d0,0d0,0d0,wctrue,wk_rv,nda,xmp1_rv )
+          i = broyj ( nda,a(1,im-1,2),dx_rv,km, i,beta,0d0,0d0,0d0,wctrue,wk_rv,nda,xmp1_rv )
           deallocate(wk_rv)
        enddo
        ! --- Check for interactive change of nmix ---   ! NB negative sign signals request for permanent change in nmix
@@ -1013,7 +1012,7 @@ contains
     real(8) :: add,r,rl,sum1
     real(8) :: rhoc(nr,nsp)
     lmxl = ll(nlml)
-    mode4 = mod(mode/10000,10)
+    mode4 = 0!mod(mode/10000,10)
     block
       real(8):: pkl(nr,0:kmax,0:lmxl)
       do  i = 2, nr
@@ -1026,11 +1025,6 @@ contains
             rho1(2:nr,ilm,isp) = [(sum(fklr(:,ilm,isp)*pkl(i,:,l))*rofi(i)**(l+2),i=2,nr)]
          enddo
       enddo
-      if(mode4 == 0 .OR. nsp /= 2) return
-      nchg(:,:)=merge(0d0,(rho1(:,:,1)+rho1(:,:,2)),mode4==1) ! zero out charge
-      nspn(:,:)=merge(0d0,(rho1(:,:,1)-rho1(:,:,2)),mode4==2) ! zero out spin
-      rho1(:,:,1)=.5d0*(nchg(:,:)+nspn(:,:)) 
-      rho1(:,:,2)=.5d0*(nchg(:,:)-nspn(:,:)) 
     endblock
   end subroutine pkl2ro
   subroutine rhoqm(smrho,n1,n2,n3,nsp,vol, qsum)    !- Return charge, magnetic moment of smooth density
@@ -1045,7 +1039,7 @@ contains
     qsum(1) = vol/(n1*n2*n3)*sum(sumi)
     if(nsp==2) qsum(2) = vol/(n1*n2*n3)*(sumi(1)-sumi(2))
   end subroutine rhoqm
-  integer function broyj(n,xin,gin,ir,isw,ipr,beta,dxmx,xtol,gtol, wc,wk,ndw,xnew)   !- One Broyden step in finding gin = f[xin]-xin = 0
+  integer function broyj(n,xin,gin,ir,ipr,beta,dxmx,xtol,gtol, wc,wk,ndw,xnew)   !- One Broyden step in finding gin = f[xin]-xin = 0
     !i Inputs
     !i   n:     number of variables
     !i   ir:    Number of iterations of x and g.
@@ -1087,11 +1081,10 @@ contains
     parameter (zero=0d0,one=1d0,nn=20)
     real(8) :: a(nn,nn),cm(nn),w(nn),d(nn,nn)
     real(8) :: betx,diff,gmax,xmax
-    !     real(8) wl(nn,3),u(nn,nn),v(nn,nn)
     save w,cm,a,w0
-    isw1 = mod(isw/10,10)
-    isw2 = mod(isw/100,10)
-    isw3 = mod(isw/1000,10)
+    isw1 = 0!mod(isw/10,10)
+    isw2 = 0!mod(isw/100,10)
+    isw3 = 0!mod(isw/1000,10)
     if (ir > nn) call rxi('broyj: increase nn, need',ir)
     ! --- First iteration: simple mixing ---
     if (ir == 1) then

@@ -23,14 +23,10 @@ define test1.exec
 	$(bindir)/lmfa  $(TARGET) -vmet=3 -vlmf=1 -vnk=8 -vnit=3 --pr31 > $1 2>&1
 	$(LMFP)   $(TARGET) -vmet=3 -vlmf=1 -vnk=8 -vnit=3 -vw2=0 --pr31 >> $1 2>&1
 	rm mixm.$(TARGET)
-	$(LMFP)   $(TARGET) -vmet=3 -vlmf=1 -vnk=8 -vnit=3 -vw1=0 \
-		--pr31 --no-iactiv >> $1 2>&1
+	$(LMFP)   $(TARGET) -vmet=3 -vlmf=1 -vnk=8 -vnit=3 -vw1=0 --pr31 >> $1 2>&1
 	rm mixm.$(TARGET)
-	$(LMFP)   $(TARGET) -vmet=3 -vlmf=1 -vnk=8 -vnit=3 -vw1=1 \
-		--pr31 --no-iactiv --time=5 >> $1 2>&1
-	$(LMFP)  $(TARGET) -vmet=3  -vnk=8 -vnit=3 --pr31 \
-		--no-iactiv -vso=t \
-		--band:fn=syml >> $1 2>&1  #-vlmf=1
+	$(LMFP)  $(TARGET) -vmet=3 -vlmf=1 -vnk=8 -vnit=3 --pr31 --time=5 >> $1 2>&1
+	$(LMFP)  $(TARGET) -vmet=3 -vnk=8 -vnit=3 --pr31  -vso=t --band:fn=syml >> $1 2>&1 
 endef
 
 #----- subroutine test2.exec
