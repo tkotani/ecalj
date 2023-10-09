@@ -324,7 +324,9 @@ contains
        call pvmix6(broy,nmix,nmixr,mxsav,beta,wc,naa,w_oa)
     endif
     ! ... 14. Poke mixed smooth and local densities into smrho,rhoold
+    write(6,*) 'sssssssss111',sum(smrho)
     call pvmix7(nbas,nsp,nda,w_oa,n1,n2,n3,wt,kmxr,nlmlx,w_oqkl,ng,ng2, ng02,iv_a_okv,rv_a_ogv,co_rv,sv_p_orhold,smrho, wgtsmooth )
+    write(6,*) 'sssssssss222',sum(smrho)
     deallocate(w_oqkl,w_oa,co_rv,cn_rv)
     ! ... 15. Restore local densities: rho+ +/- rho-  -> rho+, rho-'
     qmix=0d0
@@ -356,10 +358,10 @@ contains
     summ = sum(smrho) ! ... Net interstitial charge and cell charge
     qcell= qval - summ*fac - qmix(1) !     Net system charge
     xx = qcell/(vol*nsp)
-    if(iprint()>10) write(6,"(a,d13.5,d13.5)")' mixrho: add corrections to qcell smrho =',qcell,xx
+    if(iprint()>10) write(6,"(a,4d13.5)")' mixrho: add corrections to qcell smrho =',qcell,xx,qmix(1),summ
     smrho=smrho+xx ! Add constant to smrho to force charge neutrality
     rmsdelsave = rmsdel
-    if(ipr >= 10 .AND. abs(qcell) > 1d-6) write(stdo,'('' add q='',f10.6,'' to preserve neutrality'')') qcell
+    if(ipr>=10 .AND. abs(qcell) > 1d-6) write(stdo,'('' add q='',f10.6,'' to preserve neutrality'')') qcell
     nnnx=count(dreal(smrho)<0d0)
     smmin=minval(dreal(smrho))
     if(nnnx>0 ) write(6,"(a,i8,d13.5)") ' mixrho: warning. negative smrho; isp number min=',nnnx,smmin
@@ -438,7 +440,7 @@ contains
           i = 1001
           if (wt(1) == 0) i = 11001
           if (wt(2) == 0) i = 21001
-          call pkl2ro ( i,rg,kmxr,nr,nlml,nsp,ri_rv,rwgt_rv,kmxr,nlmlx,cdummy,qkl ( 0,1,1,m,ib), w_orsm(1,m),rdummy,difa)
+          call pkl2ro ( i,rg,kmxr,nr,nlml,nsp,ri_rv,rwgt_rv,nlmlx,qkl(0,1,1,m,ib), w_orsm(1,m))
           if ((m == 2 .OR. m == 4)) then !Undo scaling of rho1+rho2 for linear mix
              !             qlk(1,2) -> scaled rho1+rho2, rho1-rho2,  qkl(3,4) -> scaled rhn1+rhn2, rhn1-rhn2
              call pvmix9 ( 10,- 1,nr,nlml * nsp,0,rf,ri_rv      ,w_orsm(1,m-1),w_orsm(1,m))
@@ -582,7 +584,7 @@ contains
     double precision :: starttime, endtime
     character(120) :: strn
     logical :: mlog!,cmdopt
-    logical :: readerror
+    logical :: readerror!,lddump
     integer :: ng2,ng02,nda,nmix,mxsav,ifi,nbas,nr,nsp,kmxr,nlmlx
     type(s_rv1) :: sv_p_orhold(3,1)
     type(s_rv1) :: sv_p_orhnew(3,1)
@@ -609,8 +611,7 @@ contains
        nlml = (lmxl+1)**2
        allocate(rofi_rv(nr))
        call radmsh ( rmt,spec_a(is),nr,rofi_rv)
-       !   copy spherical part of local rho to a
-       call pvmix9 ( 10,0,nr,nlml * nsp,0,rf,rofi_rv, sv_p_orhold( 1,ib )%v,sv_p_orhold( 2,ib )%v )
+       call pvmix9 ( 10,0,nr,nlml * nsp,0,rf,rofi_rv, sv_p_orhold( 1,ib )%v,sv_p_orhold( 2,ib )%v ) !   copy spherical part of local rho to a
        call pvmix9 ( 10,0,nr,nlml * nsp,0,rf,rofi_rv, sv_p_orhnew( 1,ib )%v,sv_p_orhnew( 2,ib )%v )
        do  i = 1, nsp
           off = 1+nr*nlml*(i-1)
@@ -635,9 +636,8 @@ contains
           call dpscop(qkl(0,1,i,2,ib),a(na+np,i,1,2),np,1,1,1d0)
           call dpscop(qkl(0,1,i,3,ib),a(na+00,i,1,1),np,1,1,1d0)
           call dpscop(qkl(0,1,i,4,ib),a(na+np,i,1,1),np,1,1,1d0)
-          !           locmix=3, : undo increment unless final spin
-          if (i < nsp) na = na - 2*nr
-       enddo                 ! end of spin loop
+          if (i < nsp) na = na - 2*nr            !           locmix=3, : undo increment unless final spin
+       enddo     
        call pvmix9 ( 10,- 1,nr,nlml * nsp,0,rf,rofi_rv,sv_p_orhold( 1,ib )%v,sv_p_orhold( 2,ib )%v )
        call pvmix9 ( 10,- 1,nr,nlml * nsp,0,rf,rofi_rv,sv_p_orhnew( 1,ib )%v,sv_p_orhnew( 2,ib )%v )
        na = na + 2*np
@@ -661,26 +661,28 @@ contains
     endif
     call MPI_BCAST(readerror,1,MPI_LOGICAL,   master,MPI_COMM_WORLD,ierr)
     if(readerror) goto 9999
-    call MPI_BCAST(nmixr,1,MPI_INTEGER,master,MPI_COMM_WORLD,ierr)
     call MPI_BCAST(na,1,MPI_INTEGER,master,MPI_COMM_WORLD,ierr)
     if (nda*nsp /= na) then
        if (procid == master) write(stdo,ftox)' mixrho:  expecting',nda*nsp,'elements but found',na,'discarding file'
-       nmixr = 0
        goto 9999
     endif
-    if(procid == master) then
+    if (procid == master) then
        readerror = .false.
-       do  j = 1, min(mxsav,nmixr)
+       do  30  j = 1,  min(mxsav,nmixr)
           read(ifi,end=90,err=90) a(1:nda,1:nsp,j+1,1)
           read(ifi,end=90,err=90) a(1:nda,1:nsp,j+1,2)
           nmixr = j
           cycle
 90        continue
+          write(stdo,ftox) 'pvmix5: reading only nmixr=',nmixr
           exit
-       enddo
+30     enddo
     endif
-    if(nmixr > 0)call MPI_BCAST(a,nda*nsp*(mxsav+2)*2,MPI_DOUBLE_PRECISION,master,MPI_COMM_WORLD,ierr)
-9999  continue
+313 continue
+    call MPI_BCAST(nmixr,1,MPI_INTEGER,master,MPI_COMM_WORLD,ierr)
+    if(nmixr > 0) call MPI_BCAST(a,nda*nsp*(mxsav+2)*2,MPI_DOUBLE_PRECISION, master,MPI_COMM_WORLD,ierr)
+31  continue
+9999 continue
     if (iprint() >= 20) then !this is needed for test
        write(stdo,fmt=ftox, advance='no')' mixrho: sought',nmix,'iter from file '//trim(fnam)
        write(stdo,fmt='("; read ",g0," RMS DQ=",es8.2e1)',advance='no') nmixr, rms2
@@ -826,7 +828,7 @@ contains
           i = 1001
           if (wt(1) == 0) i = 11001
           if (wt(2) == 0) i = 21001
-          call pkl2ro ( i,rg,kmxr,nr,nlml,nsp,rofi_rv,rwgt_rv,kmxr,nlmlx,cdummy,qkl ( 0,1,1,m,ib ),w_orsm ( 1,m ),rdummy,xx )
+          call pkl2ro ( i,rg,kmxr,nr,nlml,nsp,rofi_rv,rwgt_rv,nlmlx,qkl ( 0,1,1,m,ib ),w_orsm(1,m))
        enddo
        call daxpy ( nr * nlml * nsp,1d0,w_orsm ( 1,1 ),1,sv_p_orhold( 1,ib )%v ,1 )
        call daxpy ( nr * nlml * nsp,1d0,w_orsm ( 1,2 ),1,sv_p_orhold( 2,ib )%v ,1 )
@@ -1036,7 +1038,7 @@ contains
     endif
     call dcopy(nda,xmp1_rv,1,a ( 1,0,2 ),1 ) !Save x^(m+2) into a(*,0,2) and exit ---
   end subroutine pqmixb
-  subroutine pkl2ro(mode,rsm,kmax,nr,nlml,nsp,rofi,rwgt,k0,nlmlx,fklc,fklr,rho1,rho2,qmx) !- Put PkL or GkL expansion of a function on a radial mesh for one site
+  subroutine pkl2ro(mode,rsm,kmax,nr,nlml,nsp,rofi,rwgt,nlmlx,fklr,rho1) !- Put PkL or GkL expansion of a function on a radial mesh for one site
     !i   mode  :a compound of digits :
     !i         :1s digit
     !i         :  0 add P_kL expansion of rho to rho1 (and possibly rho2)
@@ -1078,44 +1080,35 @@ contains
     !u   21 Nov 01 First created
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: mode,ib,k0,kmax,nlmlx,nr,nlml,nsp
+    integer :: mode,kmax,nlmlx,nr,nlml,nsp
     double precision :: qmx,rsm
     double precision :: rofi(nr),rwgt(nr)
     double precision :: rho1(nr,nlml,nsp),rho2(nr,nlml,nsp),nchg(nr,nlml),nspn(nr,nlml)
-    complex(8)::  fklc(0:k0,nlmlx,nsp)
-    double precision :: fklr(0:k0,nlmlx,nsp)
+    double precision :: fklr(0:kmax,nlmlx,nsp)
     integer :: i,ilm,isp,k,l,lmxl,mode4,np !,mode0,mode1,mode2,mode3
     double precision :: add,pi,r,rl,srfpi,sum1
-    double precision :: fkl(0:kmax,nlmlx,2),rhoc(nr,nsp)
+    double precision :: rhoc(nr,nsp)
     pi = 4d0*datan(1d0)
     srfpi = dsqrt(4*pi)
     lmxl = ll(nlml)
-!    mode0 = 1!mod(mode,10)
-!    mode1 = 0!mod(mode/10,10)
-!    mode2 = 0!mod(mode/100,10)
-!    mode3 = 1!mod(mode/1000,10)
     mode4 = mod(mode/10000,10)
     block
-      real(8):: pkl(0:kmax,0:lmxl)
-      rho1=0d0 !call dpzero(rho1,nr*nlml*nsp)
-      !      if (1/=0 .AND. 0/=0) rho2=0d0 !call dpzero(rho2,nr*nlml*nsp)
+      real(8):: pkl(nr,0:kmax,0:lmxl)
+      rho1=0d0 
       do  i = 2, nr
          r = rofi(i)
-         call radgkl(r,rsm,kmax,lmxl,kmax,pkl)
+         call radgkl(r,rsm,kmax,lmxl,kmax,pkl(i,:,:))
          do  ilm = 1, nlml
             l = ll(ilm)
             rl = r**l
             do  isp = 1, nsp
-                  do  k = 0, kmax
-                     add = fklr(k,ilm,isp)*pkl(k,l)*r*r*rl
-                     rho1(i,ilm,isp) = rho1(i,ilm,isp) + add
-                  enddo
+               rho1(i,ilm,isp) = rho1(i,ilm,isp) + sum(fklr(:,ilm,isp)*pkl(i,:,l))*r*r*rl 
             enddo
          enddo
       enddo
       if(mode4 == 0 .OR. nsp /= 2) return
-      nchg(:,:)=merge(0d0,(rho1(:,:,1)+rho1(:,:,2)),mode==1) ! zero out charge
-      nspn(:,:)=merge(0d0,(rho1(:,:,1)-rho1(:,:,2)),mode==2) ! zero out spin
+      nchg(:,:)=merge(0d0,(rho1(:,:,1)+rho1(:,:,2)),mode4==1) ! zero out charge
+      nspn(:,:)=merge(0d0,(rho1(:,:,1)-rho1(:,:,2)),mode4==2) ! zero out spin
       rho1(:,:,1)=.5d0*(nchg(:,:)+nspn(:,:)) 
       rho1(:,:,2)=.5d0*(nchg(:,:)-nspn(:,:)) 
     endblock
