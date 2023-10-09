@@ -140,18 +140,16 @@ contains
     real(8),save:: wt(2)
     include "mpif.h"
     integer :: numprocs, ierr, status(MPI_STATUS_SIZE)
-    integer :: MAX_PROCS
-    parameter (MAX_PROCS = 100)
     character(20) :: ext
     character(26) :: datim
-    double precision :: starttime, endtime
+    real(8) :: starttime, endtime
     character(120) :: strn
     logical :: mlog!,cmdopt
     integer::  iter,procid,master
     type(s_rv1) :: sv_p_orhold(3,1)
     type(s_rv1) :: sv_p_orhnew(3,1)
-    double precision :: qval
-    double complex smrnew(n1,n2,n3,nsp),smrho(n1,n2,n3,nsp)
+    real(8) :: qval
+    complex(8):: smrnew(n1,n2,n3,nsp),smrho(n1,n2,n3,nsp)
     integer :: i,i1,i2,i3,ib,ipl,ipr,is,k0, lmxl,ng,nglob,nlml,nr,nmixr,nda,ifi, &
          kkk,nnnew,nnmix,igetss,nx,nkill,isw,naa,kmxr,kmxs,locmix,offx,off2,nlmlx,ng0
     real(8),allocatable :: co_rv(:)
@@ -162,7 +160,7 @@ contains
     real(8) ,allocatable :: rwgt_rv(:)
     real(8) ,allocatable :: wn1_rv(:)
     real(8) ,allocatable :: wn2_rv(:)
-    double precision :: a,beta0,dif,difx,difxu,fac,rms,rmt, &
+    real(8) :: a,beta0,dif,difx,difxu,fac,rms,rmt, &
          sumo,summ,sums,top,vol,alat,tpiba,pi,dquns,rmsuns,ddot,q1, &
          qin(2),qout(2),qscr(2),qmix(2),qcell,rms2,rms2f,rsmv,qmx, &
          dgets,rmsdel,srfpi,xx
@@ -415,7 +413,7 @@ contains
     integer::  i !orsm(4) ,
     real(8) ,allocatable :: ri_rv(:)
     real(8) ,allocatable :: rwgt_rv(:)
-    double precision :: a,rmt,rg,difa,rf
+    real(8) :: a,rmt,rg,difa,rf
     real(8),allocatable:: w_orsm(:,:)
     real(8):: wdummy
     complex(8):: cdummy(1,1,1,1)
@@ -476,14 +474,14 @@ contains
     !o   rho1,rho2,rho3 are overwritten by the linearly mixed densities
     !implicit none
     integer :: nr,nlml,nsp,ib!,locmix
-    double precision :: dif,beta,wt(2)
-    double precision :: ri(nr),rwgt(nr), &
+    real(8) :: dif,beta,wt(2)
+    real(8) :: ri(nr),rwgt(nr), &
          rho1(nr,nlml,nsp),rho2(nr,nlml,nsp),rho3(nr,nsp), &
          rhn1(nr,nlml,nsp),rhn2(nr,nlml,nsp),rhn3(nr,nsp), &
          rhos1(nr,nlml,nsp),rhos2(nr,nlml,nsp), &
          rhns1(nr,nlml,nsp),rhns2(nr,nlml,nsp)
     integer :: i,ir,iprint,np,npc
-    double precision :: vsph,ddot,qnew,qold,qmix,rmt, amnew,amold,amix
+    real(8) :: vsph,ddot,qnew,qold,qmix,rmt, amnew,amold,amix
     real(8),parameter:: pi = 4d0*datan(1d0),srfpi = dsqrt(4d0*pi)
     call splrho(0,nsp,nr,nlml,rho1,rho2,rho3) ! ... rho+,rho- -> rho,amag  and some integrated quantities
     call splrho(0,nsp,nr,nlml,rhn1,rhn2,rhn3)
@@ -577,11 +575,9 @@ contains
     implicit none
     include "mpif.h"
     integer :: procid, master, numprocs, ierr, status(MPI_STATUS_SIZE)
-    integer :: MAX_PROCS
-    parameter (MAX_PROCS = 100)
     character(20) :: ext
     character(26) :: datim
-    double precision :: starttime, endtime
+    real(8) :: starttime, endtime
     character(120) :: strn
     logical :: mlog!,cmdopt
     logical :: readerror!,lddump
@@ -593,7 +589,7 @@ contains
     character fnam*8
     integer :: ib,na,i,j,k,m,np,iprint,nmixr,is,igetss, off,nlml,lmxl 
     real(8) ,allocatable :: rofi_rv(:)
-    double precision :: ddot,rmt,aat,rf
+    real(8) :: ddot,rmt,aat,rf
     character outs*80
     call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr)
     master = 0
@@ -711,9 +707,9 @@ contains
     ! ------------------------------------------------------------------
     !     implicit none
     integer :: nda,nmix,mmix,mxsav,broy
-    double precision :: beta,a(nda,0:mxsav+1,2)
+    real(8) :: beta,a(nda,0:mxsav+1,2)
     integer :: j,iprint!,amix
-    double precision :: tjmax,tj(10),norm(100),kpvt(10),wc,wctrue,rms2
+    real(8) :: tjmax,tj(10),norm(100),kpvt(10),wc,wctrue,rms2
     parameter (tjmax = 5d0)
     ! ... This is the result of linear mixing, q=0 smooth rho      sqmix = a(1,0,1)*beta + a(1,0,2)*(1-beta)
     real(8),allocatable:: aaa(:)
@@ -773,13 +769,13 @@ contains
     integer :: nsp,n1,n2,n3,ng,ng02,nda,na,nr,nbas, kv(ng,3),kmxr,nlmlx,ng2
     type(s_rv1) :: sv_p_orhold(3,1)
     real(8):: gv(ng,3),a(nda,nsp),qkl(0:kmxr,nlmlx,nsp,4,nbas),rf,wt(2), wgtsmooth
-    double complex smrho(n1,n2,n3,nsp),wk(n1,n2,n3)
+    complex(8):: smrho(n1,n2,n3,nsp),wk(n1,n2,n3)
     real(8):: crho(ng2,nsp)
     real(8) ,allocatable :: rofi_rv(:)
     real(8) ,allocatable :: rwgt_rv(:)
 
     integer :: ib,is,igetss,i,m,lmxl,nlml,off,np,orsm(2)
-    double precision :: aat,rmt,rg,xx
+    real(8) :: aat,rmt,rg,xx
     ! ... Heap
     integer ::iwdummy
     complex(8):: cdummy(1,1,1,1)
@@ -847,9 +843,9 @@ contains
     !r   This routine returns in rho1,rho2 some linear combination of them, depending on mode.
     !r   If linv=1, the inverse transform is done.
     integer :: mode,nr,nlml,linv,off
-    double precision :: rho1(nr,nlml),rho2(nr,nlml),rofi(nr),rf,rho1old(nr,nlml),rho2old(nr,nlml)
+    real(8) :: rho1(nr,nlml),rho2(nr,nlml),rofi(nr),rf,rho1old(nr,nlml),rho2old(nr,nlml)
     integer :: i,ilm,mode0,mode1
-    double precision :: ri
+    real(8) :: ri
     logical:: l_dummy_isanrg,isanrg
     mode0 = mod(mode,10) !mode = 1 or 10
     if(mode0==1) rho1old=rho1
@@ -887,7 +883,7 @@ contains
     ! ------------------------------------------------------------------
     !     implicit none
     integer :: mode,nda,npq,mxsav,na,offx,off2
-    double precision :: wt(2),a(nda,0:mxsav+1,2),a2(na,0:mxsav+1,2), rms2,ddot
+    real(8) :: wt(2),a(nda,0:mxsav+1,2),a2(na,0:mxsav+1,2), rms2,ddot
     integer :: is,ia,ja
     ja = 0
     if (wt(1) == 0 .AND. wt(2) == 0) goto 11
@@ -934,7 +930,7 @@ contains
     !o   a     :a2 is unscaled and restored into a
     !     implicit none
     integer :: nda,na,npq,mxsav,offx,off2
-    double precision :: wt(2),a(nda,0:mxsav+1,2), &
+    real(8) :: wt(2),a(nda,0:mxsav+1,2), &
          a2(na,0:mxsav+1,2),sum,diff
     integer :: is,ia,ja
     if (wt(1) == 0 .AND. wt(2) == 0) then
@@ -1040,24 +1036,13 @@ contains
   end subroutine pqmixb
   subroutine pkl2ro(mode,rsm,kmax,nr,nlml,nsp,rofi,rwgt,nlmlx,fklr,rho1) !- Put PkL or GkL expansion of a function on a radial mesh for one site
     !i   mode  :a compound of digits :
-    !i         :1s digit
-    !i         :  0 add P_kL expansion of rho to rho1 (and possibly rho2)
-    !i         :    Here, fkl are coffs to P_kL expansion
-    !i         :  1 add G_kL expansion of rho to rho1 (and possibly rho2)
-    !i         :    Here, fkl are coffs to G_kL expansion
-    !i         :10s digit
-    !i         :  0 add expansion to rho1 only; rho2 is not touched
-    !i         :  1 add expansion to both rho1 and rho2
-    !i         :100s digit
-    !i         :  0 coefficients fkl are real (uses fklr)
-    !i         :  1 coefficients fkl are complex (uses fklc)
-    !i         :1000s digit
-    !i         :  0 do not initialize rho1,rho2 before adding expansion
-    !i         :  1 initialize rho1,rho2 before adding expansion
+    !i         :1s digit      !i         :  1 add G_kL expansion of rho to rho1 (and possibly rho2)    !i         :    Here, fkl are coffs to G_kL expansion
+    !i         :10s digit     !i         :  0 add expansion to rho1 only; rho2 is not touched
+    !i         :100s digit    !i         :  0 coefficients fkl are real (uses fklr)
+    !i         :1000s digit   !i         :  1 initialize rho1,rho2 before adding expansion
     !i         :10000s digit for spin polarized case
     !i         :  1 zero out charge, rho1+ + rho1- (and rho2+ + rho2-)
     !i         :  2 zero out spin, rho1+ - rho1- (and rho2+ + rho2-)
-    !i   ib    :site index (used in addressing fkl expansion)
     !i   rsm   :smoothing radius for P_kL (or G_kL) expansion
     !i   kmax  :k-cutoff for P_kL (or G_kL) expansion
     !i   nr    :number of radial mesh points
@@ -1065,7 +1050,6 @@ contains
     !i   nsp   :2 if fkl is spin-pol; 1 if not
     !i   rofi  :radial mesh points
     !i   rwgt  :radial mesh weights
-    !i   k0    :leading dimension of fkl
     !i   nlmlx  :second dimension of fkl
     !i   fklc  :complex coefficients to P_kL (or G_kL) expansion for this site
     !i         :(only one of fklc or fklr is used; see mode)
@@ -1080,30 +1064,27 @@ contains
     !u   21 Nov 01 First created
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: mode,kmax,nlmlx,nr,nlml,nsp
-    double precision :: qmx,rsm
-    double precision :: rofi(nr),rwgt(nr)
-    double precision :: rho1(nr,nlml,nsp),rho2(nr,nlml,nsp),nchg(nr,nlml),nspn(nr,nlml)
-    double precision :: fklr(0:kmax,nlmlx,nsp)
-    integer :: i,ilm,isp,k,l,lmxl,mode4,np !,mode0,mode1,mode2,mode3
-    double precision :: add,pi,r,rl,srfpi,sum1
-    double precision :: rhoc(nr,nsp)
+    integer :: mode,kmax,nlmlx,nr,nlml,nsp,i,ilm,isp,k,l,lmxl,mode4,np 
+    real(8) :: qmx,rsm
+    real(8) :: rofi(nr),rwgt(nr)
+    real(8) :: rho1(nr,nlml,nsp),rho2(nr,nlml,nsp),nchg(nr,nlml),nspn(nr,nlml)
+    real(8) :: fklr(0:kmax,nlmlx,nsp)
+    real(8) :: add,pi,r,rl,srfpi,sum1
+    real(8) :: rhoc(nr,nsp)
     pi = 4d0*datan(1d0)
     srfpi = dsqrt(4*pi)
     lmxl = ll(nlml)
     mode4 = mod(mode/10000,10)
     block
       real(8):: pkl(nr,0:kmax,0:lmxl)
-      rho1=0d0 
       do  i = 2, nr
-         r = rofi(i)
-         call radgkl(r,rsm,kmax,lmxl,kmax,pkl(i,:,:))
-         do  ilm = 1, nlml
-            l = ll(ilm)
-            rl = r**l
-            do  isp = 1, nsp
-               rho1(i,ilm,isp) = rho1(i,ilm,isp) + sum(fklr(:,ilm,isp)*pkl(i,:,l))*r*r*rl 
-            enddo
+         call radgkl(rofi(i),rsm,kmax,lmxl,kmax,pkl(i,:,:))
+      enddo
+      rho1=0d0 !we need this for gfortran bug? 2023-10-9
+      do ilm = 1, nlml
+         l = ll(ilm)
+         do  isp = 1, nsp
+               rho1(2:nr,ilm,isp) = [(sum(fklr(:,ilm,isp)*pkl(i,:,l))*rofi(i)**(l+2),i=2,nr)]
          enddo
       enddo
       if(mode4 == 0 .OR. nsp /= 2) return
@@ -1159,15 +1140,15 @@ contains
     ! ----------------------------------------------------------------------
     implicit none
     integer :: isw,ir,n,ipr,ndw
-    double precision :: beta,dxmx,wc,xin(n),gin(n),xnew(n),xtol,gtol, wk(ndw,2,0:ir)
+    real(8) :: beta,dxmx,wc,xin(n),gin(n),xnew(n),xtol,gtol, wk(ndw,2,0:ir)
     ! Local variables
     integer :: i,ip,j,k,irm1,irm2,lm,ln,nn,i1mach,isw1,isw2,isw3 !dinv
     integer :: ierr
-    double precision :: aij,cmj,dfnorm,fac1,fac2,gmi,one,zero,ddot,w0
+    real(8) :: aij,cmj,dfnorm,fac1,fac2,gmi,one,zero,ddot,w0
     parameter (zero=0d0,one=1d0,nn=20)
-    double precision :: a(nn,nn),cm(nn),w(nn),d(nn,nn)
-    double precision :: betx,diff,gmax,xmax
-    !     double precision wl(nn,3),u(nn,nn),v(nn,nn)
+    real(8) :: a(nn,nn),cm(nn),w(nn),d(nn,nn)
+    real(8) :: betx,diff,gmax,xmax
+    !     real(8) wl(nn,3),u(nn,nn),v(nn,nn)
     save w,cm,a,w0
     isw1 = mod(isw/10,10)
     isw2 = mod(isw/100,10)
