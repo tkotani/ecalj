@@ -153,9 +153,9 @@ contains
     real(8):: smmin,sss,wgtsmooth,qval !elinl
     real(8) :: starttime, endtime
     real(8) :: a,beta0,dif,difx,difxu,fac,rms,rmt,summ,top,tpiba,dquns,rmsuns,ddot,q1,&
-         qin(2),qout(2),qscr(2),qmix(2),qcell,rms2,rms2f,rsmv,qmx, rmsdel,xx
+         qin(2),qout(2),qscr(2),qcell,rms2,rms2f,rsmv,qmx, rmsdel,xx
     real(8),allocatable :: rofi_rv(:),rwgt_rv(:), wn1_rv(:),wn2_rv(:),co_rv(:)
-    real(8),allocatable:: w_oqkl(:), w_oa(:,:,:,:),w_oaa(:),cn_rv(:)
+    real(8),allocatable:: w_oqkl(:), w_oa(:,:,:,:),w_oaa(:),cn_rv(:),rho1bk(:),rho2bk(:)
     complex(8):: smrnew(n1,n2,n3,nsp),smrho(n1,n2,n3,nsp)
     complex(8),allocatable :: cg1_zv(:), cg2_zv(:),fkl_zv(:)
     complex(8),allocatable:: smrnewbk(:,:,:,:),w_owk(:),cn_rvc(:),co_rvc(:)
@@ -167,7 +167,6 @@ contains
     mlog = .false. !cmdopt('--mlog',6,0,strn)
     ipl = 1
     kkk = n1*n2*n3 !    locmix = 3 !original lmv7 by mark. !    kmxs = 3
-    qmix(2) = 0
     kmxr = 8
     if(initd) then
        mxsav = mix_nsave !out 
@@ -200,19 +199,22 @@ contains
     nda=0
     do ib = 1, nbas
        is = ispec(ib) 
-       a   =spec_a(is)
-       nr  =nr_i(is)
-       rmt =rmt_i(is)
        lmxl=lmxl_i(is)
-       rsmv=rsmv_i(is)
        if (lmxl < 0) cycle
+       nr  =nr_i(is)
        nlml = (lmxl+1)**2
-       allocate(rofi_rv(nr))
-       call radmsh ( rmt,a,nr,rofi_rv)
-       call pvmix9 ( 1,0,nr,nlml * nsp,0,0d0,rofi_rv,sv_p_orhold( 1,ib )%v     ,sv_p_orhold( 2,ib )%v )
-       call pvmix9 ( 1,0,nr,nlml * nsp,0,0d0,rofi_rv,sv_p_orhnew( 1,ib )%v     ,sv_p_orhnew( 2,ib )%v )
-       deallocate(rofi_rv)
-       nda = nda + 2*(kmxr+1)*(lmxl+1)**2 + 2*nr_i(is) ! include spherical part of local densities and spherical part of rho1-rho2
+       allocate(rho1bk,source=sv_p_orhold(1,ib)%v)
+       allocate(rho2bk,source=sv_p_orhold(2,ib)%v)
+       sv_p_orhold(1,ib)%v=rho1bk+rho2bk
+       sv_p_orhold(2,ib)%v=rho1bk-rho2bk
+       !call pvmix9 ( 1,0,nr,nlml * nsp,0,0d0,rofi_rv,sv_p_orhold( 1,ib )%v     ,sv_p_orhold( 2,ib )%v )
+       rho1bk=sv_p_orhnew(1,ib)%v
+       rho2bk=sv_p_orhnew(2,ib)%v
+       sv_p_orhnew(1,ib)%v=rho1bk+rho2bk
+       sv_p_orhnew(2,ib)%v=rho1bk-rho2bk
+       !call pvmix9 ( 1,0,nr,nlml * nsp,0,0d0,rofi_rv,sv_p_orhnew( 1,ib )%v     ,sv_p_orhnew( 2,ib )%v )
+       deallocate(rho1bk,rho2bk) !,rofi_rv)
+       nda = nda + 2*(kmxr+1)*(lmxl+1)**2 + 2*nr_i(is) ! include spherical part of local densities and non-spherical part of rho1-rho2
     enddo      
     ! if(mixrealsmooth()) then
     ng02 = n1*n2*n3
@@ -295,37 +297,38 @@ contains
     call pvmix7(nbas,nsp,nda,w_oa,n1,n2,n3,wt,kmxr,nlmlx,w_oqkl,ng,ng2, ng02,iv_a_okv,rv_a_ogv,co_rv,sv_p_orhold,smrho, wgtsmooth )
 !    write(6,*) 'sssssssss222',sum(smrho)
     deallocate(w_oqkl,w_oa,co_rv,cn_rv)
-    ! ... 15. Restore local densities: rho+ +/- rho-  -> rho+, rho-'
-    qmix=0d0
-    do ib = 1, nbas
+    
+    qmx=0d0
+    do ib = 1, nbas ! ... 15. Restore local densities: rho+ +/- rho-  -> rho+, rho-'
        is = ispec(ib)
        lmxl=lmxl_i(is)
        if (lmxl < 0) cycle
-       a=spec_a(is)
-       nr=nr_i(is)
-       rmt=rmt_i(is)
-       rsmv=rsmv_i(is)
+       allocate(rho1bk,source=sv_p_orhold(1,ib)%v)
+       allocate(rho2bk,source=sv_p_orhold(2,ib)%v)
+       sv_p_orhold(1,ib)%v=.5d0*(rho1bk+rho2bk)
+       sv_p_orhold(2,ib)%v=.5d0*(rho1bk-rho2bk) !    call pvmix9 ( 1,- 1,nr,nlml * nsp,0,0d0,rofi_rv,     sv_p_orhold( 1,ib )%v,sv_p_orhold( 2,ib )%v )
+       rho1bk=sv_p_orhnew(1,ib)%v
+       rho2bk=sv_p_orhnew(2,ib)%v
+       sv_p_orhnew(1,ib)%v=.5d0*(rho1bk+rho2bk)
+       sv_p_orhnew(2,ib)%v=.5d0*(rho1bk-rho2bk)  !    call pvmix9 ( 1,- 1,nr,nlml * nsp,0,0d0,rofi_rv,     sv_p_orhnew( 1,ib )%v,sv_p_orhnew( 2,ib )%v )
+       deallocate(rho1bk,rho2bk)
        nlml = (lmxl+1)**2
-       allocate(rofi_rv(nr),rwgt_rv(nr),wn1_rv(nr),wn2_rv(nr))
-       call radmsh ( rmt,a,nr,rofi_rv)
-       call radwgt ( rmt,a,nr,rwgt_rv)
-       call pvmix9 ( 1,- 1,nr,nlml * nsp,0,0d0,rofi_rv,     sv_p_orhold( 1,ib )%v,sv_p_orhold( 2,ib )%v )
-       call pvmix9 ( 1,- 1,nr,nlml * nsp,0,0d0,rofi_rv,     sv_p_orhnew( 1,ib )%v,sv_p_orhnew( 2,ib )%v )
-       do i = 1, nsp !   ... Add net local charge to qmix
+       nr=nr_i(is)
+       allocate(rwgt_rv(nr))
+       call radwgt( rmt_i(is),spec_a(is),nr,rwgt_rv)
+       do i = 1, nsp !  Net local site charge q1-q2
           off2 = 1 + nr*nlml*(i-1)
-          call dpscop ( sv_p_orhold( 1,ib )%v,wn1_rv,nr,off2,1,1d0 )
-          call dpscop ( sv_p_orhold( 2,ib )%v,wn2_rv,nr,off2,1,1d0 )
-          qmx = srfpi*(ddot(nr,wn1_rv,1,rwgt_rv,1)- ddot ( nr,wn2_rv,1,rwgt_rv,1))
-          if(i == 2) qmix(2) = qmix(2) + qmx-q1
-          q1 = qmx
-          qmix(1) = qmix(1) + qmx
+          associate(rho1s=> sv_p_orhold(1,ib)%v(off2:off2+nr-1),& 
+               rho2s=> sv_p_orhold(2,ib)%v(off2:off2+nr-1)) 
+            qmx = qmx+srfpi*sum((rho1s-rho2s)*rwgt_rv)
+          endassociate
        enddo
-       deallocate(rwgt_rv,rofi_rv,wn2_rv,wn1_rv)
-    enddo                     !Loop over sites
+       deallocate(rwgt_rv)
+    enddo      
     summ = sum(smrho) ! ... Net interstitial charge and cell charge
-    qcell= qval - summ*fac - qmix(1) !     Net system charge
+    qcell= qval - summ*fac - qmx !     Net system charge
     xx = qcell/(vol*nsp)
-    if(iprint()>10) write(6,"(a,4d13.5)")' mixrho: add corrections to qcell smrho =',qcell,xx,qmix(1),summ
+    if(iprint()>10) write(6,"(a,4d13.5)")' mixrho: add corrections to qcell smrho =',qcell,xx,qmx,summ
     smrho=smrho+xx ! Add constant to smrho to force charge neutrality
     rmsdelsave = rmsdel
     if(ipr>=10 .AND. abs(qcell) > 1d-6) write(stdo,'('' add q='',f10.6,'' to preserve neutrality'')') qcell
@@ -333,9 +336,14 @@ contains
     smmin=minval(dreal(smrho))
     if(nnnx>0 ) write(6,"(a,i8,d13.5)") ' mixrho: warning. negative smrho; isp number min=',nnnx,smmin
     if(nnnx<=0) write(6,"(a)") ' mixrho: all smrho are positive'
-    ! ... Force density positive     !     call rhopos(smrho,n1,n2,n3,n1,n2,n3)
+    ! ... old code call rhopos(smrho,n1,n2,n3,n1,n2,n3) to enforce density positive
     call tcx('mixrho')
   end subroutine mixrho
+
+
+
+
+  
   subroutine pvmix3 ( nbas,nsp,beta,wt,kmxr,nlmlx,qkl,sv_p_orhold,sv_p_orhnew,difx  )
     use m_struc_def  
     use m_lmfinit,only: ispec
@@ -369,12 +377,11 @@ contains
     type(s_rv1) :: sv_p_orhold(3,nbas)
     type(s_rv1) :: sv_p_orhnew(3,nbas)
     real(8):: difx,beta,wt(2),qkl(0:kmxr,nlmlx,nsp,4,nbas)
-    integer :: ib,is,igetss,nr,nlml,m,lmxl
-    integer::  mode4 !orsm(4) ,
+    integer :: ib,is,igetss,nr,nlml,m,lmxl,ir,mode4
     real(8) ,allocatable :: ri_rv(:)
     real(8) ,allocatable :: rwgt_rv(:)
     real(8) :: a,rmt,rg,difa,rf
-    real(8),allocatable:: w_orsm(:,:)
+    real(8),allocatable:: w_orsm(:,:,:,:)
     difx  = 0
     do  ib = 1, nbas
        is = ispec(ib)
@@ -385,97 +392,30 @@ contains
        rmt=rmt_i(is)
        rg=rg_i(is)
        nlml = (lmxl+1)**2
-       allocate(ri_rv(nr),rwgt_rv(nr),w_orsm(nr*nlml*nsp,4))
+       allocate(ri_rv(nr),rwgt_rv(nr),w_orsm(nr,nlml,nsp,4))
        call radmsh( rmt,a,nr,ri_rv)
        call radwgt( rmt,a,nr,rwgt_rv)
        rf = rmt/3
-       do  m = 1, 4          !           Generate on a mesh the smooth density to be subtracted 
-          mode4=0 !i = 1001
-          if (wt(1) == 0) mode4=1!i = 11001
-          if (wt(2) == 0) mode4=2!i = 21001
-          call pkl2ro (mode4,rg,kmxr,nr,nlml,nsp,ri_rv,rwgt_rv,nlmlx,qkl(0,1,1,m,ib), w_orsm(1,m))
-          if ((m == 2 .OR. m == 4)) then !Undo scaling of rho1+rho2 for linear mix
-             !             qlk(1,2) -> scaled rho1+rho2, rho1-rho2,  qkl(3,4) -> scaled rhn1+rhn2, rhn1-rhn2
-             call pvmix9 ( 10,- 1,nr,nlml * nsp,0,rf,ri_rv      ,w_orsm(1,m-1),w_orsm(1,m))
-          endif
+       do m=1,4
+          call pkl2ro (mode4,rg,kmxr,nr,nlml,nsp,ri_rv,rwgt_rv,nlmlx,qkl(0,1,1,m,ib), w_orsm(:,:,:,m))
        enddo
-       call pvmix4 ( nr,nlml,nsp,rmt,wt,beta, ib,w_orsm ( 1,1 ),w_orsm ( 1,2 ),w_orsm ( 1,3 ),& !   ... Linear mix, this site
-            w_orsm ( 1,4 ),sv_p_orhold( 1,ib )%v,sv_p_orhold( 2,ib )%v &
-           ,sv_p_orhold( 3,ib )%v,sv_p_orhnew ( 1,ib ) %v,sv_p_orhnew( 2,ib ) %v,sv_p_orhnew ( 3,ib ) %v,rwgt_rv,difa )
-       difx  = dmax1(difx,difa)
+!       call pvmix9( 0,-1,nr,nlml * nsp,0,rf,ri_rv      ,w_orsm(:,:,:,1),w_orsm(:,:,:,2))
+!       call pvmix9( 0,-1,nr,nlml * nsp,0,rf,ri_rv      ,w_orsm(:,:,:,3),w_orsm(:,:,:,4))
+       forall(ir=1:nr) w_orsm(ir,:,:,1)=w_orsm(ir,:,:,1)* exp((ri_rv(ir)/rf)**2) !scale up orsm
+       forall(ir=1:nr) w_orsm(ir,:,:,3)=w_orsm(ir,:,:,3)* exp((ri_rv(ir)/rf)**2)
+       associate( rhos1=>w_orsm(:,:,:,1),rhos2=>w_orsm(:,:,:,2),rhns1=>w_orsm(:,:,:,3),rhns2=>w_orsm(:,:,:,4),&
+            rho1=>sv_p_orhold(1,ib)%v, rho2=>sv_p_orhold(2,ib)%v, rho3=>sv_p_orhold(3,ib)%v, &
+            rhn1=>sv_p_orhnew(1,ib)%v, rhn2=>sv_p_orhnew(2,ib)%v, rhn3=>sv_p_orhnew(3,ib)%v)
+         rho1=(1-beta)*rho1 +beta*rhn1 -reshape((1-beta)*rhos1+beta*rhns1 ,shape(rho1))
+         rho2=(1-beta)*rho2 +beta*rhn2 -reshape((1-beta)*rhos2+beta*rhns2 ,shape(rho2))
+         rho3=(1-beta)*rho3 +beta*rhn3
+       endassociate
+!       difx  = dmax1(difx,difa)
        deallocate(rwgt_rv,ri_rv,w_orsm)
     enddo
   end subroutine pvmix3
-  subroutine pvmix4(nr,nlml,nsp,rmt,wt,beta,ib,rhos1,rhos2,rhns1,rhns2,rho1,rho2,rho3,rhn1,rhn2,rhn3,rwgt,dif)!Linear mixing of local densities for one site
-    !i   locmix=3
-    !i   beta  :Linear mixing beta
-    !i   ib    :site index (printout only)
-    !i   rhos1 :input local true density, G_kL expansion
-    !i   rhos2 :input local smoothed density, G_kL expansion
-    !i   rhns1 :output local true density, G_kL expansion
-    !i   rhns2 :output local smoothed density, G_kL expansion
-    !i   rho1  :input local true density (generates output rho)
-    !i   rho2  :input local smoothed density (generates output rho)
-    !i   rho3  :input core charge (generates output rho)
-    !i   rhn1  :output local true density (generated by input rho)
-    !i   rhn2  :output local smoothed density (generated by input rho)
-    !i   rhn3  :output core charge (generated by input rho)
-    !i   rwgt  :radial mesh weights
-    !o Outputs
-    !o   dif   :integral (rho_out - rho_in)**2
-    !o   rho1,rho2,rho3 are overwritten by the linearly mixed densities
-    !implicit none
-    integer :: nr,nlml,nsp,ib!,locmix
-    real(8) :: dif,beta,wt(2)
-    real(8) :: ri(nr),rwgt(nr), &
-         rho1(nr,nlml,nsp),rho2(nr,nlml,nsp),rho3(nr,nsp), &
-         rhn1(nr,nlml,nsp),rhn2(nr,nlml,nsp),rhn3(nr,nsp), &
-         rhos1(nr,nlml,nsp),rhos2(nr,nlml,nsp), &
-         rhns1(nr,nlml,nsp),rhns2(nr,nlml,nsp)
-    integer :: i,ir,iprint,np,npc
-    real(8) :: vsph,ddot,qnew,qold,qmix,rmt, amnew,amold,amix
-    call splrho(0,nsp,nr,nlml,rho1,rho2,rho3) ! ... rho+,rho- -> rho,amag  and some integrated quantities
-    call splrho(0,nsp,nr,nlml,rhn1,rhn2,rhn3)
-    qnew = srfpi*ddot(nr,rhn2,1,rwgt,1)
-    qold = srfpi*ddot(nr,rho2,1,rwgt,1)
-    amnew = srfpi*ddot(nr,rhn2(1,1,nsp),1,rwgt,1)
-    amold = srfpi*ddot(nr,rho2(1,1,nsp),1,rwgt,1)
-    vsph = (4d0*pi/3d0)*rmt**3
-    dif  = ( sum([( merge(1d0,0d0,wt(i)/=0)*sum(rwgt*(rhn2(:,1,i)-rho2(:,1,i))**2),i=1,nsp)]) /vsph)**.5
-    ! --- Overwrite rho with (1-beta)*rho + beta*rhn ;  ! wt(1)=0 =>only mix spin part (set i=2)  wt(2)=0 =>only mix charge part (set i=1)
-    np = nr*nlml*nsp
-    np = merge(nr*nlml,np,wt(1)==0.or.wt(2)==0) 
-    i = 1
-    if(wt(1) == 0) i=2
-    if(wt(2) == 0) i=1
-    call dscal(np,1-beta,rho1(1,1,i),1)
-    call daxpy(np,beta,rhn1(1,1,i),1,rho1(1,1,i),1)
-    call dscal(np,1-beta,rho2(1,1,i),1)
-    call daxpy(np,beta,rhn2(1,1,i),1,rho2(1,1,i),1)
-    npc = nr*nsp
-    if (wt(1) == 0 .OR. wt(2) == 0) npc = nr
-    call dscal(npc,1-beta,rho3(1,i),1)
-    call daxpy(npc,beta,rhn3(1,i),1,rho3(1,i),1)
-    qmix = srfpi*(ddot(nr,rho2,1,rwgt,1))        ! ... Charges and mag. moments of mixed density
-    if (nsp == 2) amix = srfpi*ddot(nr,rho2(1,1,nsp),1,rwgt,1)
-    call splrho(20,nsp,nr,nlml,rhos1,rhos2,rho3) ! --- Subtract smoothed (1-beta)*rhos + beta*rhns ---
-    call splrho(20,nsp,nr,nlml,rhns1,rhns2,rhn3)
-    np = nr*nlml*nsp
-    call daxpy(np,-(1-beta),rhos1,1,rho1,1)
-    call daxpy(np,-beta,rhns1,1,rho1,1)
-    call daxpy(np,-(1-beta),rhos2,1,rho2,1)
-    call daxpy(np,-beta,rhns2,1,rho2,1)
-    call splrho(21,nsp,nr,nlml,rhos1,rhos2,rho3)
-    call splrho(21,nsp,nr,nlml,rhns1,rhns2,rhn3)
-    call splrho(1,nsp,nr,nlml,rho1,rho2,rho3) ! ... Restore rho,amag -> rho+,rho-
-    call splrho(1,nsp,nr,nlml,rhn1,rhn2,rhn3)
-    if (iprint()>45 ) then
-       write(stdo,"(' site ',i4,f12.6,5f14.6)") ib,qold,qnew,qnew,dif,qmix
-       if (nsp == 2) write(stdo,"(' mmom   ',2f14.6,28x,f14.6)") amold,amnew,amix
-    endif
-  end subroutine pvmix4
   subroutine pvmix5(nmix,mxsav,fnam,ifi,rmsdel,nbas,kmxr,nlmlx,nsp,sv_p_orhold & !- Copy rho into holding array, read prior iterations from disk
-      ,sv_p_orhnew,co,cn,ng2,ng02,nda,a,qkl,rms2 ,nmixr )
+      ,sv_p_orhnew,co,cn,ng2,ng02,nda, a,qkl,rms2 ,nmixr )
     use m_lmfinit,only:ispec
     use m_struc_def
     use m_ftox
@@ -558,8 +498,8 @@ contains
        nlml = (lmxl+1)**2
        allocate(rofi_rv(nr))
        call radmsh ( rmt,spec_a(is),nr,rofi_rv)
-       call pvmix9 ( 10,0,nr,nlml * nsp,0,rf,rofi_rv, sv_p_orhold( 1,ib )%v,sv_p_orhold( 2,ib )%v ) !   copy spherical part of local rho to a
-       call pvmix9 ( 10,0,nr,nlml * nsp,0,rf,rofi_rv, sv_p_orhnew( 1,ib )%v,sv_p_orhnew( 2,ib )%v )
+       call pvmix9 ( 0,0,nr,nlml * nsp,0,rf,rofi_rv, sv_p_orhold( 1,ib )%v,sv_p_orhold( 2,ib )%v ) !   copy spherical part of local rho to a
+       call pvmix9 ( 0,0,nr,nlml * nsp,0,rf,rofi_rv, sv_p_orhnew( 1,ib )%v,sv_p_orhnew( 2,ib )%v )
        do  i = 1, nsp
           off = 1+nr*nlml*(i-1)
           call dpscop ( sv_p_orhold( 1,ib )%v,a ( na + 00,i,1,2 ),nr,off,1,1d0 )
@@ -585,8 +525,8 @@ contains
           call dpscop(qkl(0,1,i,4,ib),a(na+np,i,1,1),np,1,1,1d0)
           if (i < nsp) na = na - 2*nr            !           locmix=3, : undo increment unless final spin
        enddo     
-       call pvmix9 ( 10,- 1,nr,nlml * nsp,0,rf,rofi_rv,sv_p_orhold( 1,ib )%v,sv_p_orhold( 2,ib )%v )
-       call pvmix9 ( 10,- 1,nr,nlml * nsp,0,rf,rofi_rv,sv_p_orhnew( 1,ib )%v,sv_p_orhnew( 2,ib )%v )
+       call pvmix9 ( 0,- 1,nr,nlml * nsp,0,rf,rofi_rv,sv_p_orhold( 1,ib )%v,sv_p_orhold( 2,ib )%v )
+       call pvmix9 ( 0,- 1,nr,nlml * nsp,0,rf,rofi_rv,sv_p_orhnew( 1,ib )%v,sv_p_orhnew( 2,ib )%v )
        na = na + 2*np
        if (allocated(rofi_rv)) deallocate(rofi_rv)
     enddo                     !Loop over sites
@@ -724,9 +664,9 @@ contains
     real(8):: crho(ng2,nsp)
     real(8) ,allocatable :: rofi_rv(:)
     real(8) ,allocatable :: rwgt_rv(:)
-    integer :: ib,is,mode4,m,lmxl,nlml,off,np,orsm(2),i
+    integer :: ib,is,mode4,m,lmxl,nlml,off,np,orsm(2),i,ir
     real(8) :: aat,rmt,rg,xx
-    real(8),allocatable:: w_orsm(:,:)
+    real(8),allocatable:: w_orsm(:,:,:,:)
 !    logical:: mixrealsmooth=T
     do  i = 1, nsp
        call dscal(ng02,-1d0/wgtsmooth,crho(1,i),1)
@@ -748,32 +688,36 @@ contains
        allocate(rwgt_rv(nr))
        call radmsh ( rmt,aat,nr,rofi_rv)
        call radwgt ( rmt,aat,nr,rwgt_rv)
+       
        !       Scale rho1+rho2 to match scaled spherical parts and sm parts
-       call pvmix9 ( 10,0,nr,nlml * nsp,0,rf,rofi_rv,       sv_p_orhold( 1,ib )%v,sv_p_orhold( 2,ib )%v )
+!       call pvmix9 ( 0,0,nr,nlml * nsp,0,rf,rofi_rv,       sv_p_orhold( 1,ib )%v,sv_p_orhold( 2,ib )%v ) !scale down
+       
        !       Overwrite sph. rhold with scaled mixed rho; do not unscale
        do  i = 1, nsp
           off = 1+nr*nlml*(i-1)
-          call dpscop ( a ( na + 00,i ),sv_p_orhold( 1,ib )%v,nr               ,1,off,1d0 )
-          call dpscop ( a ( na + nr,i ),sv_p_orhold( 2,ib )%v,nr               ,1,off,1d0 )
+          sv_p_orhold(1,ib)%v(off:off+nr-1)= a(na:   na+nr-1,  i )* exp((rofi_rv(:)/rf)**2) !scale up
+          sv_p_orhold(2,ib)%v(off:off+nr-1)= a(na+nr:na+2*nr-1,i )!* exp((rofi_rv(:)/rf)**2)
+!          call dpscop ( a( na + 00,i ), sv_p_orhold( 1,ib )%v,nr               ,1,off,1d0 ) !a is scale downed ???
+!          call dpscop ( a( na + nr,i ), sv_p_orhold( 2,ib )%v,nr               ,1,off,1d0 )
        enddo
        na = na + 2*nr
        !   ... Mixing mode 2,3: add mixed sm density to existing rhold
        np = (1+kmxr)*nlml
-       allocate(w_orsm(nr*nlml*nsp,2))
+       allocate(w_orsm(nr,nlml,nsp,2))
        do  m = 1, 2
           do  i = 1, nsp
              call dpscop(a(na+np*(m-1),i),qkl(0,1,i,m,ib),np,1,1,1d0)
           enddo
-          mode4=0 !i = 1001
-          if (wt(1) == 0) mode4=1 !i = 11001
-          if (wt(2) == 0) mode4=2 !i = 21001
-          call pkl2ro ( mode4,rg,kmxr,nr,nlml,nsp,rofi_rv,rwgt_rv,nlmlx,qkl ( 0,1,1,m,ib ),w_orsm(1,m))
+          call pkl2ro ( mode4,rg,kmxr,nr,nlml,nsp,rofi_rv,rwgt_rv,nlmlx,qkl ( 0,1,1,m,ib ),w_orsm(:,:,:,m))
+          if(m==1) forall(ir=1:nr) w_orsm(ir,:,:,m)=w_orsm(ir,:,:,m)* exp((rofi_rv(ir)/rf)**2) !scale up
        enddo
-       call daxpy ( nr * nlml * nsp,1d0,w_orsm ( 1,1 ),1,sv_p_orhold( 1,ib )%v ,1 )
-       call daxpy ( nr * nlml * nsp,1d0,w_orsm ( 1,2 ),1,sv_p_orhold( 2,ib )%v ,1 )
+       sv_p_orhold(1,ib)%v = sv_p_orhold(1,ib)%v + reshape(w_orsm(:,:,:,1),shape(sv_p_orhold(1,ib)%v)) 
+       sv_p_orhold(2,ib)%v = sv_p_orhold(2,ib)%v + reshape(w_orsm(:,:,:,2),shape(sv_p_orhold(2,ib)%v))
+!       call daxpy ( nr * nlml * nsp,1d0,w_orsm ( :,:,:,1 ),1,sv_p_orhold( 1,ib )%v ,1 )
+!       call daxpy ( nr * nlml * nsp,1d0,w_orsm ( :,:,:,2 ),1,sv_p_orhold( 2,ib )%v ,1 )
        deallocate(w_orsm)
        na = na + 2*np
-       call pvmix9 ( 10,- 1,nr,nlml * nsp,0,rf,rofi_rv  ,sv_p_orhold( 1,ib )%v,sv_p_orhold( 2,ib )%v )
+!       call pvmix9 ( 0,- 1,nr,nlml * nsp,0,rf,rofi_rv  ,sv_p_orhold( 1,ib )%v,sv_p_orhold( 2,ib )%v ) !scale up
        if (allocated(rwgt_rv)) deallocate(rwgt_rv)
        if (allocated(rofi_rv)) deallocate(rofi_rv)
     enddo                     !Loop over sites
@@ -781,28 +725,11 @@ contains
     if (nda /= na) call rx('mixrho: bug in pvmix7')
   end subroutine pvmix7
   subroutine pvmix9(mode,linv,nr,nlml,off,rf,rofi,rho1,rho2)    !- Transformation of local densities rho1,rho2 for mixing
-    !mode =1 or 10
-    !r Remarks
-    !r   This routine returns in rho1,rho2 some linear combination of them, depending on mode.
-    !r   If linv=1, the inverse transform is done.
     integer :: mode,nr,nlml,linv,off
     real(8) :: rho1(nr,nlml),rho2(nr,nlml),rofi(nr),rf,rho1old(nr,nlml),rho2old(nr,nlml)
     integer :: i,ilm,mode0,mode1
-    real(8) :: ri
-    logical:: l_dummy_isanrg,isanrg
-    mode0 = mod(mode,10) !mode = 1 or 10
-    if(mode0==1) rho1old=rho1
-    if(mode0==1) rho2old=rho2
-    if(linv==0.and.mode0==1) then !forward
-       rho1=rho1old+rho2old         
-       rho2=rho1old-rho2old
-    endif   
-    if(linv/=0.and.mode0==1) then ! inverse
-       rho1= .5d0*(rho1old+rho2old) 
-       rho2= .5d0*(rho1old-rho2old)
-    endif
-    if(linv==0.and.mode0/=1) forall(i = 1:nr) rho1(i+off,:) = rho1(i+off,:) * exp(-(rofi(i)/rf)**2)
-    if(linv/=0.and.mode0/=1) forall(i = 1:nr) rho1(i+off,:) = rho1(i+off,:) * exp((rofi(i)/rf)**2)
+    if(linv== 0) forall(i = 1:nr) rho1(i+off,:) = rho1(i+off,:) * exp(-(rofi(i)/rf)**2)
+    if(linv==-1) forall(i = 1:nr) rho1(i+off,:) = rho1(i+off,:) * exp((rofi(i)/rf)**2)
   end subroutine pvmix9
   subroutine pqsclf(nda,npq,offx,off2,na,mxsav,wt,a,a2,rms2)    !- Split into (a+ + a-) and (a+ - a-); include extra data
     !i Inputs
@@ -1015,14 +942,13 @@ contains
     mode4 = 0!mod(mode/10000,10)
     block
       real(8):: pkl(nr,0:kmax,0:lmxl)
-      do  i = 2, nr
+      do i = 2, nr
          call radgkl(rofi(i),rsm,kmax,lmxl,kmax,pkl(i,:,:))
       enddo
-      rho1=0d0 !we need this for gfortran bug? 2023-10-9
       do ilm = 1, nlml
          l = ll(ilm)
          do  isp = 1, nsp
-            rho1(2:nr,ilm,isp) = [(sum(fklr(:,ilm,isp)*pkl(i,:,l))*rofi(i)**(l+2),i=2,nr)]
+            rho1(1:nr,ilm,isp) = [0d0,(sum(fklr(:,ilm,isp)*pkl(i,:,l))*rofi(i)**(l+2),i=2,nr)]
          enddo
       enddo
     endblock
@@ -1300,16 +1226,6 @@ contains
     endif checkrwrite
   end subroutine rhogkl
   subroutine splrho(mode,nsp,nr,nlml,rho1,rho2,rhoc)  !- Overwrite spin pol local rho+,rho- with rho,rho+ - rho-, or reverse
-    !i   mode  :1s digit
-    !i         :0 input (rho+,rho-) -> (rho+ + rho-, rho+ - rho-)
-    !i         :1 input (rho+ + rho-, rho+ - rho-) -> (rho+,rho-)
-    !i         :10s digit
-    !i         :1 suppress splitting of rho2
-    !i         :2 suppress splitting of rhoc
-    !i         :3 suppress both
-    !i   rho1  :local true density, tabulated on a radial mesh
-    !i   rho2  :local smoothed density, tabulated on a radial mesh
-    !i   rhoc  :core density
     implicit none
     integer :: mode,nsp,nr,nlml
     real(8):: rho1(nr,nlml,nsp),rho2(nr,nlml,nsp),rhoc(nr,nsp),rho1old(nr,nlml,nsp),rho2old(nr,nlml,nsp),rhocold(nr,nsp),fac
