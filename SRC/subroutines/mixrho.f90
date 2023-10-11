@@ -5,6 +5,7 @@ module m_mixrho !mixing routine of density given by smrho and orho
   public:: mixrho
   private
   real(8),parameter::pi = 4d0*datan(1d0), srfpi = dsqrt(4d0*pi)
+  logical:: old2023mixing=.true.
 contains
   subroutine mixrho(iter, qval,  sv_p_orhnew, sv_p_orho, smrnew, smrho,rmsdel)! Mix old and new charge densities =  Takao's version: real space mixing of smrho. It works OK. However, we may need to fix it so that this is well-defined chi=|rho-f(rho)|**2 minimization mixing.
     use m_struc_def
@@ -248,12 +249,9 @@ contains
             qin(1),qout(1),qscr(1),rms,beta*qscr(1)+(1-beta)*qin(1)
        if(nsp == 2) write(stdo,"(' mmom   ',2f14.6,28x,f14.6)") qin(2),qout(2),beta*qscr(2)+(1-beta)*qin(2)
     endif
-    ! --- 10. Linear mixing of local densities  ---
-    call pvmix3 ( nbas,nsp,beta,kmxr,nlmlx,w_oqkl,sv_p_orho,sv_p_orhnew,difx )
+    call pvmix3( nbas,nsp,beta,kmxr,nlmlx,w_oqkl,sv_p_orho,sv_p_orhnew,difx ) !Linear mixing of remnants. And take out qkl part
     difxu = difx
-    !!== Main Mixing part ==
-    !!=== 11. Spin polarized case: separate weighting for spin channels ===
-    if (nsp == 2) then ! .OR. nx > 0) then
+    if (nsp == 2) then 
        naa = 0
        wt(1:2)   = wtinit     
        if (nsp == 1) wt(2)=0d0
@@ -269,21 +267,17 @@ contains
           write(stdo,ftox)' Constrained spin mixing wt =',ftof(wt),' Constrained rms DQ=',ftod(rms2f)
           rmsdel = rms2f
        endif
-       !!=== 12. Mix the soup of densities ===
        beta0 = beta
-       call pvmix6(broy,nmix,nmixr,mxsav,beta,wc,naa,w_oaa)
-       !!=== 13. Restore matrix a to rho+, rho===
-       call pqsclb(nda*nsp,nda,offx,off2,naa,mxsav,wt,w_oa,w_oaa)
+       call pvmix6(broy,nmix,nmixr,mxsav,beta,wc,naa,w_oaa) !main part of mixing
+       call pqsclb(nda*nsp,nda,offx,off2,naa,mxsav,wt,w_oa,w_oaa) !Restore matrix a to rho+, rho===
         w_oa(:,:,1,1)=w_oa(:,:,1,2) 
        deallocate(w_oaa)
     else
        naa = nda
-       !!=== 12. Mix the soup of densities ===
        beta0 = beta
-       call pvmix6(broy,nmix,nmixr,mxsav,beta,wc,naa,w_oa)
+       call pvmix6(broy,nmix,nmixr,mxsav,beta,wc,naa,w_oa) !main part of mixing
     endif
-    ! ... Get smrho,rhoold
-    call pvmix7(nbas,nsp,nda,w_oa,n1,n2,n3,kmxr,nlmlx,w_oqkl,ng,ng02,iv_a_okv,rv_a_ogv,wgtsmooth, smrho,sv_p_orho)
+    call pvmix7(nbas,nsp,nda,w_oa,n1,n2,n3,kmxr,nlmlx,w_oqkl,ng,ng02,iv_a_okv,rv_a_ogv,wgtsmooth, smrho,sv_p_orho) !Get mixed smrho,orho
     deallocate(w_oqkl,w_oa,co_rv,cn_rv)
     qmx=0d0
     do ib = 1, nbas ! ... 15. Restore local densities: rho+ +/- rho-  -> rho+, rho-'
@@ -293,11 +287,11 @@ contains
        allocate(rho1bk,source=sv_p_orho(1,ib)%v)
        allocate(rho2bk,source=sv_p_orho(2,ib)%v)
        sv_p_orho(1,ib)%v=.5d0*(rho1bk+rho2bk)
-       sv_p_orho(2,ib)%v=.5d0*(rho1bk-rho2bk) !    call pvmix9 ( 1,- 1,nr,nlml * nsp,0,0d0,rofi_rv,     sv_p_orho( 1,ib )%v,sv_p_orho( 2,ib )%v )
+       sv_p_orho(2,ib)%v=.5d0*(rho1bk-rho2bk) 
        rho1bk=sv_p_orhnew(1,ib)%v
        rho2bk=sv_p_orhnew(2,ib)%v
        sv_p_orhnew(1,ib)%v=.5d0*(rho1bk+rho2bk)
-       sv_p_orhnew(2,ib)%v=.5d0*(rho1bk-rho2bk)  !    call pvmix9 ( 1,- 1,nr,nlml * nsp,0,0d0,rofi_rv,     sv_p_orhnew( 1,ib )%v,sv_p_orhnew( 2,ib )%v )
+       sv_p_orhnew(2,ib)%v=.5d0*(rho1bk-rho2bk)
        deallocate(rho1bk,rho2bk)
        nlml = (lmxl+1)**2
        nr=nr_i(is)
@@ -377,6 +371,10 @@ contains
        do m=1,4
           call pkl2ro(rg,kmxr,nr,nlml,nsp,ri_rv,rwgt_rv,nlmlx,qkl(0,1,1,m,ib), w_orsm(:,:,:,m))
        enddo
+       if(old2023mixing) then
+          forall(ir=1:nr) w_orsm(ir,:,:,1)=w_orsm(ir,:,:,1)* exp((ri_rv(ir)/rf)**2) !scale up orsm
+          forall(ir=1:nr) w_orsm(ir,:,:,3)=w_orsm(ir,:,:,3)* exp((ri_rv(ir)/rf)**2)
+       endif
        associate( rhos1=>w_orsm(:,:,:,1),rhos2=>w_orsm(:,:,:,2),rhns1=>w_orsm(:,:,:,3),rhns2=>w_orsm(:,:,:,4),&
             rho1=>sv_p_orho(1,ib)%v, rho2=>sv_p_orho(2,ib)%v, rho3=>sv_p_orho(3,ib)%v, &
             rhn1=>sv_p_orhnew(1,ib)%v, rhn2=>sv_p_orhnew(2,ib)%v, rhn3=>sv_p_orhnew(3,ib)%v)
@@ -476,14 +474,20 @@ contains
          rhonew1=reshape(sv_p_orhnew(1,ib)%v, shape(rhonew1))
          rhonew2=reshape(sv_p_orhnew(2,ib)%v, shape(rhonew2))
          call radmsh( rmt,spec_a(is),nr,rofi_rv)
+         if(old2023mixing) then
+            forall(ir = 1:nr) rhoold1(ir,:,:) = rhoold1(ir,:,:) * exp(-(rofi_rv(ir)/rf)**2)
+            forall(ir = 1:nr) rhonew1(ir,:,:) = rhonew1(ir,:,:) * exp(-(rofi_rv(ir)/rf)**2)
+         endif
          do  i = 1, nsp ! spherical part 
             a(na:na+nr-1,     i,1,2)= rhoold1(:,1,i) !old
             a(na+nr:na+2*nr-1,i,1,2)= rhoold2(:,1,i)
             a(na:na+nr-1 ,    i,1,1)= rhonew1(:,1,i) !new
             a(na+nr:na+2*nr-1,i,1,1)= rhonew2(:,1,i)
          enddo
-         forall(ir = 1:nr) rhoold1(ir,:,:) = rhoold1(ir,:,:) * exp(-(rofi_rv(ir)/rf)**2)
-         forall(ir = 1:nr) rhonew1(ir,:,:) = rhonew1(ir,:,:) * exp(-(rofi_rv(ir)/rf)**2)
+         if(.not.old2023mixing) then
+            forall(ir = 1:nr) rhoold1(ir,:,:) = rhoold1(ir,:,:) * exp(-(rofi_rv(ir)/rf)**2)
+            forall(ir = 1:nr) rhonew1(ir,:,:) = rhonew1(ir,:,:) * exp(-(rofi_rv(ir)/rf)**2)
+         endif
          call rhogkl( ib,nsp,rhoold1,  kmxr,nlml,nlmlx,nr,qkl(:,:,:,1,ib ) ) !old
          call rhogkl( ib,nsp,rhoold2,  kmxr,nlml,nlmlx,nr,qkl(:,:,:,2,ib ) )
          call rhogkl( ib,nsp,rhonew1,  kmxr,nlml,nlmlx,nr,qkl(:,:,:,3,ib ) ) !new
@@ -498,7 +502,7 @@ contains
          enddo
        endblock
        na = na + 2*np
-    enddo                     !Loop over sites
+    enddo         
     if(nda/= na-1) call rx('mixrho: bug in pvmix5 nda/=na-1')
     na   = nda*nsp
     rms2 = (sum((a(:,:,1,1)-a(:,:,1,2))**2)/(nda*nsp))**.5*nsp ! *nsp is right?
@@ -625,7 +629,8 @@ contains
        call radwgt(rmt,aat,nr,rwgt_rv)
        do  i = 1, nsp
           off = 1+nr*nlml*(i-1)
-          sv_p_orho(1,ib)%v(off:off+nr-1)= a(na:   na+nr-1,  i ) ! Overwrite spherical orho 
+          sv_p_orho(1,ib)%v(off:off+nr-1)= a(na:   na+nr-1,  i ) ! Overwrite spherical orho
+          if(old2023mixing) sv_p_orho(1,ib)%v(off:off+nr-1)= a(na:   na+nr-1,  i )* exp((rofi_rv(:)/rf)**2) !scale up readin a
           sv_p_orho(2,ib)%v(off:off+nr-1)= a(na+nr:na+2*nr-1,i )
        enddo
        na = na + 2*nr
@@ -636,6 +641,7 @@ contains
              qkl(:,1:nlml,i,m,ib)= reshape(a(na+np*(m-1):na+np*(m-1)+np-1,i),[kmxr+1,nlml])
           enddo
           call pkl2ro(rg,kmxr,nr,nlml,nsp,rofi_rv,rwgt_rv,nlmlx,qkl(0,1,1,m,ib),w_orsm(:,:,:,m))
+          if(old2023mixing.and.m==1) forall(ir=1:nr) w_orsm(ir,:,:,m)=w_orsm(ir,:,:,m)* exp((rofi_rv(ir)/rf)**2) !scale up orsm
        enddo
        sv_p_orho(1,ib)%v = sv_p_orho(1,ib)%v + reshape(w_orsm(:,:,:,1),shape(sv_p_orho(1,ib)%v)) !Add mixed qkl density to existing orho
        sv_p_orho(2,ib)%v = sv_p_orho(2,ib)%v + reshape(w_orsm(:,:,:,2),shape(sv_p_orho(2,ib)%v))
