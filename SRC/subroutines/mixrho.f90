@@ -179,10 +179,6 @@ contains
     if (nkill == 1) nkill=-nkill
     rmsdel = rmsdelsave
     if (nmix == 0) broy = 0
-    wt(1:2)   = wtinit     
-    if (nsp == 1) wt(2)=0d0
-    if (sum(wt**2)==0d0) call rx('MIXRHO: bad mixing weights wt=0')
-    wt= wt/sum(wt**2)**.5 
     if (nmix < 0) nmix = mxsav
     call rhoqm(smrho, n1,n2,n3,nsp,vol,qin ) ! ... Initial charges
     call rhoqm(smrnew,n1,n2,n3,nsp,vol,qout)
@@ -253,12 +249,16 @@ contains
        if(nsp == 2) write(stdo,"(' mmom   ',2f14.6,28x,f14.6)") qin(2),qout(2),beta*qscr(2)+(1-beta)*qin(2)
     endif
     ! --- 10. Linear mixing of local densities  ---
-    call pvmix3 ( nbas,nsp,beta,wt ,kmxr,nlmlx,w_oqkl,sv_p_orho,sv_p_orhnew,difx )
+    call pvmix3 ( nbas,nsp,beta,kmxr,nlmlx,w_oqkl,sv_p_orho,sv_p_orhnew,difx )
     difxu = difx
     !!== Main Mixing part ==
     !!=== 11. Spin polarized case: separate weighting for spin channels ===
     if (nsp == 2) then ! .OR. nx > 0) then
        naa = 0
+       wt(1:2)   = wtinit     
+       if (nsp == 1) wt(2)=0d0
+       if (sum(wt**2)==0d0) call rx('MIXRHO: bad mixing weights wt=0')
+       wt= wt/sum(wt**2)**.5 
        if (wt(1) /= 0) naa = naa+nda
        if (wt(2) /= 0) naa = naa+nda
        offx = 0                !offset to extra elements (none now)
@@ -283,7 +283,7 @@ contains
        call pvmix6(broy,nmix,nmixr,mxsav,beta,wc,naa,w_oa)
     endif
     ! ... Get smrho,rhoold
-    call pvmix7(nbas,nsp,nda,w_oa,n1,n2,n3,wt,kmxr,nlmlx,w_oqkl,ng,ng02,iv_a_okv,rv_a_ogv,wgtsmooth, smrho,sv_p_orho)
+    call pvmix7(nbas,nsp,nda,w_oa,n1,n2,n3,kmxr,nlmlx,w_oqkl,ng,ng02,iv_a_okv,rv_a_ogv,wgtsmooth, smrho,sv_p_orho)
     deallocate(w_oqkl,w_oa,co_rv,cn_rv)
     qmx=0d0
     do ib = 1, nbas ! ... 15. Restore local densities: rho+ +/- rho-  -> rho+, rho-'
@@ -325,7 +325,7 @@ contains
     call tcx('mixrho') ! ... old code=> call rhopos(smrho,n1,n2,n3,n1,n2,n3) to enforce density positive
   end subroutine mixrho
 !-------------------------------------------------------------------------------------
-  subroutine pvmix3 ( nbas,nsp,beta,wt,kmxr,nlmlx,qkl,sv_p_orho,sv_p_orhnew,difx  )! Linearly mix local densities, possibly subtracting G_kL expansion
+  subroutine pvmix3 ( nbas,nsp,beta,kmxr,nlmlx,qkl,sv_p_orho,sv_p_orhnew,difx  )! Linearly mix local densities, possibly subtracting G_kL expansion
     use m_struc_def  
     use m_lmfinit,only: ispec
     !i   beta  :linear mixing parameter
@@ -354,7 +354,7 @@ contains
     integer :: nbas,nsp,kmxr,nlmlx,locmix
     type(s_rv1) :: sv_p_orho(3,nbas)
     type(s_rv1) :: sv_p_orhnew(3,nbas)
-    real(8):: difx,beta,wt(2),qkl(0:kmxr,nlmlx,nsp,4,nbas)
+    real(8):: difx,beta,qkl(0:kmxr,nlmlx,nsp,4,nbas)
     integer :: ib,is,igetss,nr,nlml,m,lmxl,ir,mode4
     real(8) ,allocatable :: ri_rv(:)
     real(8) ,allocatable :: rwgt_rv(:)
@@ -377,8 +377,6 @@ contains
        do m=1,4
           call pkl2ro(rg,kmxr,nr,nlml,nsp,ri_rv,rwgt_rv,nlmlx,qkl(0,1,1,m,ib), w_orsm(:,:,:,m))
        enddo
-       forall(ir=1:nr) w_orsm(ir,:,:,1)=w_orsm(ir,:,:,1)* exp((ri_rv(ir)/rf)**2) !scale up orsm
-       forall(ir=1:nr) w_orsm(ir,:,:,3)=w_orsm(ir,:,:,3)* exp((ri_rv(ir)/rf)**2)
        associate( rhos1=>w_orsm(:,:,:,1),rhos2=>w_orsm(:,:,:,2),rhns1=>w_orsm(:,:,:,3),rhns2=>w_orsm(:,:,:,4),&
             rho1=>sv_p_orho(1,ib)%v, rho2=>sv_p_orho(2,ib)%v, rho3=>sv_p_orho(3,ib)%v, &
             rhn1=>sv_p_orhnew(1,ib)%v, rhn2=>sv_p_orhnew(2,ib)%v, rhn3=>sv_p_orhnew(3,ib)%v)
@@ -478,14 +476,14 @@ contains
          rhonew1=reshape(sv_p_orhnew(1,ib)%v, shape(rhonew1))
          rhonew2=reshape(sv_p_orhnew(2,ib)%v, shape(rhonew2))
          call radmsh( rmt,spec_a(is),nr,rofi_rv)
-         forall(ir = 1:nr) rhoold1(ir,:,:) = rhoold1(ir,:,:) * exp(-(rofi_rv(ir)/rf)**2)
-         forall(ir = 1:nr) rhonew1(ir,:,:) = rhonew1(ir,:,:) * exp(-(rofi_rv(ir)/rf)**2)
          do  i = 1, nsp ! spherical part 
             a(na:na+nr-1,     i,1,2)= rhoold1(:,1,i) !old
             a(na+nr:na+2*nr-1,i,1,2)= rhoold2(:,1,i)
             a(na:na+nr-1 ,    i,1,1)= rhonew1(:,1,i) !new
             a(na+nr:na+2*nr-1,i,1,1)= rhonew2(:,1,i)
          enddo
+         forall(ir = 1:nr) rhoold1(ir,:,:) = rhoold1(ir,:,:) * exp(-(rofi_rv(ir)/rf)**2)
+         forall(ir = 1:nr) rhonew1(ir,:,:) = rhonew1(ir,:,:) * exp(-(rofi_rv(ir)/rf)**2)
          call rhogkl( ib,nsp,rhoold1,  kmxr,nlml,nlmlx,nr,qkl(:,:,:,1,ib ) ) !old
          call rhogkl( ib,nsp,rhoold2,  kmxr,nlml,nlmlx,nr,qkl(:,:,:,2,ib ) )
          call rhogkl( ib,nsp,rhonew1,  kmxr,nlml,nlmlx,nr,qkl(:,:,:,3,ib ) ) !new
@@ -575,7 +573,7 @@ contains
        call rx('pvmix6: bad value for broy')
     endif
   end subroutine pvmix6
-  subroutine pvmix7(nbas,nsp,nda,a,n1,n2,n3,wt,kmxr,nlmlx,qkl,ng,ng02,kv,gv,wgtsmooth, smrho,sv_p_orho) !read from array a
+  subroutine pvmix7(nbas,nsp,nda,a,n1,n2,n3,kmxr,nlmlx,qkl,ng,ng02,kv,gv,wgtsmooth, smrho,sv_p_orho) !read from array a
     use m_lmfinit,only: ispec
     use m_struc_def 
     !i   nda   :leading dimension of a
@@ -600,7 +598,7 @@ contains
     implicit none
     integer :: nsp,n1,n2,n3,ng,ng02,nda,na,nr,nbas, kv(ng,3),kmxr,nlmlx
     type(s_rv1) :: sv_p_orho(3,1)
-    real(8):: gv(ng,3),a(nda,nsp),qkl(0:kmxr,nlmlx,nsp,4,nbas),rf,wt(2), wgtsmooth
+    real(8):: gv(ng,3),a(nda,nsp),qkl(0:kmxr,nlmlx,nsp,4,nbas),rf, wgtsmooth
     complex(8):: smrho(n1,n2,n3,nsp),wk(n1,n2,n3)
     real(8) ,allocatable :: rofi_rv(:)
     real(8) ,allocatable :: rwgt_rv(:)
@@ -625,24 +623,21 @@ contains
        allocate(rwgt_rv(nr))
        call radmsh(rmt,aat,nr,rofi_rv)
        call radwgt(rmt,aat,nr,rwgt_rv)
-       !       Overwrite sph. rhold with scaled mixed rho; do not unscale
        do  i = 1, nsp
           off = 1+nr*nlml*(i-1)
-          sv_p_orho(1,ib)%v(off:off+nr-1)= a(na:   na+nr-1,  i )* exp((rofi_rv(:)/rf)**2) !scale up readin a
+          sv_p_orho(1,ib)%v(off:off+nr-1)= a(na:   na+nr-1,  i ) ! Overwrite spherical orho 
           sv_p_orho(2,ib)%v(off:off+nr-1)= a(na+nr:na+2*nr-1,i )
        enddo
        na = na + 2*nr
-       !   ... Mixing mode 2,3: add mixed sm density to existing rhold
        np = (1+kmxr)*nlml
        allocate(w_orsm(nr,nlml,nsp,2))
        do  m = 1, 2
           do  i = 1, nsp
              qkl(:,1:nlml,i,m,ib)= reshape(a(na+np*(m-1):na+np*(m-1)+np-1,i),[kmxr+1,nlml])
           enddo
-          call pkl2ro (rg,kmxr,nr,nlml,nsp,rofi_rv,rwgt_rv,nlmlx,qkl ( 0,1,1,m,ib ),w_orsm(:,:,:,m))
-          if(m==1) forall(ir=1:nr) w_orsm(ir,:,:,m)=w_orsm(ir,:,:,m)* exp((rofi_rv(ir)/rf)**2) !scale up orsm
+          call pkl2ro(rg,kmxr,nr,nlml,nsp,rofi_rv,rwgt_rv,nlmlx,qkl(0,1,1,m,ib),w_orsm(:,:,:,m))
        enddo
-       sv_p_orho(1,ib)%v = sv_p_orho(1,ib)%v + reshape(w_orsm(:,:,:,1),shape(sv_p_orho(1,ib)%v)) !Add scale up orsm
+       sv_p_orho(1,ib)%v = sv_p_orho(1,ib)%v + reshape(w_orsm(:,:,:,1),shape(sv_p_orho(1,ib)%v)) !Add mixed qkl density to existing orho
        sv_p_orho(2,ib)%v = sv_p_orho(2,ib)%v + reshape(w_orsm(:,:,:,2),shape(sv_p_orho(2,ib)%v))
        deallocate(w_orsm)
        na = na + 2*np
@@ -650,7 +645,7 @@ contains
        if (allocated(rofi_rv)) deallocate(rofi_rv)
     enddo               
     na = na-1
-    if(nda /= na) call rx('mixrho: bug in pvmix7')
+    if(nda/=na) call rx('mixrho: bug in pvmix7')
   end subroutine pvmix7
   subroutine pqsclf(nda,npq,offx,off2,na,mxsav,wt,a,a2,rms2)    !- Split into (a+ + a-) and (a+ - a-); include extra data
     !i Inputs
@@ -682,24 +677,14 @@ contains
        ja = 0
        do  12  ia = 1, npq
           if (wt(1) /= 0) then
-             ja = ja+1
-             !           Given (rhnew+ + rhnew-)*wt(1), (rhold+ + rhold-)*wt(1)
+             ja = ja+1             !           Given (rhnew+ + rhnew-)*wt(1), (rhold+ + rhold-)*wt(1)
              a2(ja,is,1) = (a(ia,is,1) + a(ia+off2,is,1))*wt(1)
              a2(ja,is,2) = (a(ia,is,2) + a(ia+off2,is,2))*wt(1)
-          elseif (wt(1) /= 0) then
-             ja = ja+1
-             a2(ja,is,1) = a(ia,is,1)*wt(1)
-             a2(ja,is,2) = a(ia,is,2)*wt(1)
           endif
           if (wt(2) /= 0) then
-             ja = ja+1
-             !           Given (rhnew+ - rhnew-)*wt(2), (rhold+ - rhold-)*wt(2)
+             ja = ja+1             !           Given (rhnew+ - rhnew-)*wt(2), (rhold+ - rhold-)*wt(2)
              a2(ja,is,1) = (a(ia,is,1) - a(ia+off2,is,1))*wt(2)
              a2(ja,is,2) = (a(ia,is,2) - a(ia+off2,is,2))*wt(2)
-          elseif (wt(2) /= 0) then
-             ja = ja+1
-             a2(ja,is,1) = a(ia+off2,is,1)*wt(2)
-             a2(ja,is,2) = a(ia+off2,is,2)*wt(2)
           endif
 12     enddo
 10  enddo
@@ -811,7 +796,6 @@ contains
        ! --- Check for interactive change of nmix ---   ! NB negative sign signals request for permanent change in nmix
        im = imix
        if(iabs(imix) > mmix .AND. imix /= im) write(stdo,ftox)' (warning) only ',mmix,' iter available'
-       !    if(im /= imix) goto 1
     enddo
     nmix = imix
     if(nmix == 0 ) return
@@ -924,9 +908,6 @@ contains
     real(8) :: a(nn,nn),cm(nn),w(nn),d(nn,nn)
     real(8) :: betx,diff,gmax,xmax
     save w,cm,a,w0
-    isw1 = 0!mod(isw/10,10)
-    isw2 = 0!mod(isw/100,10)
-    isw3 = 0!mod(isw/1000,10)
     if (ir > nn) call rxi('broyj: increase nn, need',ir)
     ! --- First iteration: simple mixing ---
     if (ir == 1) then
@@ -1039,11 +1020,6 @@ contains
 110 enddo
     diff = dsqrt(diff/n)
     j = ir+1
-    if (isw3 /= 0 .AND. (gmax == 0 .OR. &
-         gmax < gtol .AND. xmax < xtol .AND. isw3 == 4 .OR. &
-         gmax < gtol .AND. (isw3 == 1 .OR. isw3 == 3)  .OR. &
-         xmax < xtol .AND. (isw3 == 2 .OR. isw3 == 3)  .OR. &
-         gmax < gtol .AND. (isw3 == 1 .OR. isw3 == 3))) j = 0
     broyj = j
   end function broyj
   subroutine rhogkl(ib,nsp,rho,kmax,nlml,nlmlx,nr,qkl )!- G_kL expansion of valence sphere densities
@@ -1076,7 +1052,7 @@ contains
     !r    p_1l = a**l (2*(ar)**2/(2l+3) - 1)
     !r    p_kl = [(2*(ar)**2 - (4k+2l-1))p_k-1,l - 2(k-1)p_k-2,l]  / (2k+2l+1)
     implicit none
-    integer:: ib1,ib2,nsp,mode,kmax,nlmlx
+    integer::nsp,mode,kmax,nlmlx
     type(s_rv1) :: sv_p_orhoat(3,nbas)
     real(8):: qkl(0:kmax,nlmlx,nsp),z,qc,a,rmt,qcorg,qcorh,qsc,cofg,cofh,rg, ceh,rfoc,df(0:20),rho(nr,nlml,nsp) 
     integer:: ipr,iprint, ib,is,lmxl,nr,nlml,ilm,j,lfoc,k,l,m,isp
@@ -1094,19 +1070,12 @@ contains
     rg=rg_i(is)
     call corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
     qc = qcorg+qcorh
-!    nlml = (lmxl+1)**2
     allocate(rofi(nr),rwgt(nr))
     call radmsh(rmt,a,nr,rofi )
     call radwgt(rmt,a,nr,rwgt )
     QKL_Pkl: block
-      real(8):: dfactl(0:lmxl),kfact(0:kmax) ,pkl(nr,0:kmax,0:lmxl),a
-      !call vecpkl(rofi,rg,nr,kmax,lmxl,nr,kmax,pkl)
-!      real(8),pointer :: rho(:,:,:)
-      real(8):: ag
+      real(8):: dfactl(0:lmxl),kfact(0:kmax) ,pkl(nr,0:kmax,0:lmxl),a,ag
       integer::kk,lx
-!      rho=reshape(rhoin,shape(rho))
-!      rho1=reshape(sv_p_orhoat(1,ib)%v,shape(rho1))
-!      rho2=reshape(sv_p_orhoat(2,ib)%v,shape(rho2))
       a = 1d0/rg
       do l = 0, lmxl
          pkl(:,0,l) = a**l *rofi**l !Scale by r^l 
@@ -1115,9 +1084,6 @@ contains
             pkl(:,k,l) = 1d0/(2*k+2*l+1)*((2*a*a*rofi**2-(4*k+2*l-1))*pkl(:,k-1,l) - 2*(k-1)*pkl(:,k-2,l))
          enddo
       enddo
-!      if (mode == 2) rho=>rho1
-!      if (mode == 3) rho=>rho2
-!      if( .not.(mode==2.or.mode==3)) call rxi('rhogkl: bad mode=',mode)
       dfactl(0:lmxl)=[(product([(2*lx+1,lx=0,l)]),   l=0,lmxl)]
       kfact(0:kmax)= [(product([(max(1,kk),kk=0,k)]),k=0,kmax)]
       ag = 1/rg
