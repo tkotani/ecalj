@@ -5,9 +5,9 @@ module m_mixrho !mixing routine of density given by smrho and orho
   public:: mixrho
   private
   real(8),parameter::pi = 4d0*datan(1d0), srfpi = dsqrt(4d0*pi)
-  logical:: old2023mixing=.true.
+  logical:: old2023mixing=.true. ! old2023mixing=F sets newmixing mode. I think it will be better but not tested well.
 contains
-  subroutine mixrho(iter, qval,  sv_p_orhnew, sv_p_orho, smrnew, smrho,rmsdel)! Mix old and new charge densities =  Takao's version: real space mixing of smrho. It works OK. However, we may need to fix it so that this is well-defined chi=|rho-f(rho)|**2 minimization mixing.
+  subroutine mixrho(iter, qval,  sv_p_orhnew, sv_p_orho, smrnew, smrho,rmsdel) ! Mixing old and new charge densities: real space mixing of smrho. It works OK. However, we may need to fix it so that this is well-defined chi=|rho-f(rho)|**2 minimization mixing.
     use m_struc_def
     use m_supot,only: iv_a_okv,rv_a_ogv,n1,n2,n3
     use m_lmfinit,only:alat=>lat_alat,nbas,stdl,ispec,nsp,broyinit,nmixinit,betainit,killj,wtinit,wc,bexist,mix_nsave
@@ -16,7 +16,6 @@ contains
     use m_ext,only:    sname
     use m_ftox
     implicit none
-    !!     Warn. For Co case, I found broyden mixing works wrong.! ITER    NIT=30 MIX=B3,n=5,b=.7,w=1,0 However, as in copt, Broyden mixing is efficient.
     ! i iter
     ! i qval  :total valence charge, used to estimate Lindhard parameter
     ! i Read mixing parameter from m_lmfinit
@@ -26,6 +25,36 @@ contains
     !         :On output, the mixed density
     ! i/o  smrho :On input, smooth density that generated the hamiltonian H
     !         :On output mixed smooth density
+    
+    !Mechanism of mixing
+    ! We mix smrho and rho_onsite, where we divide rho_site=  rho_spherical + rho_GkL + rho_remnant
+    ! We apply (smrho, rho_sherical, rho_GkL) by a mixer, but rho_remnant is just liner mixed.
+    !
+    ! step1. (smrho, rho_sherical, coefficients of rho_GkL) are packed into an array a by 'call packdensity'.
+    ! step2. rho_remnant is extracted and linealy mixed.
+    ! step3. Main mixing step of (smrho, rho_sherical, coefficients of rho_GkL)
+    !       The mixer is 'call mixdensity'.
+    ! step4. call unpack density gives new mixed denisty from rho_remnant, and mixed (smrho, rho_sherical, coefficients of rho_GkL).
+    !
+    ! Caution:  Mark notes that G-kL expansion may be not good enough to represent rim density well; not good for rho1+rho2.
+    ! --> In .not.old2023mixing, TK removed a factor exp(+(r/rf)**2). Probably the rim density problem?
+    !
+    
+    !l   rms2   : <(rout-rin)**2>, where rin and rout are the input and
+    !l          : screened output densities represented as a vector,
+    !l          : including smoothed and local parts.  rmsdel changes with
+    !l          : the choice of transformation of local densities;see locmix
+    !l          : above.
+    !l   rmsdel : (linked to dmxp(11)).
+    !l          : On input, rmsdel=<(rout-rin)**2>, defined as rms2, above.
+    !l          : On output, rmsdel is overwritten by rms2.
+    !l   rms    : RMS difference in output-input sm. density
+    !l   kmxr   : k-cutoff for G_kL expansion used to smooth local densities for mixing
+    !l   ng0    : condensed number of G vectors. That rho(G) is hermitian is exploited to reduce ng to ng0
+    !l   qcell  : cell charge
+
+    !! Warn. For Co case, I found broyden mixing works wrong.! ITER    NIT=30 MIX=B3,n=5,b=.7,w=1,0 However, as in copt, Broyden mixing is efficient.
+    
     ! o Mixing parameters from m_lmfinit
     ! o         : broy  :mixing scheme: 0->Anderson 1->Broyden
     ! o         : beta  :linear mixing beta: nmix = (1-beta)nin + beta*nout
@@ -46,36 +75,11 @@ contains
     ! o         : broy   : actual mixing scheme used
     ! o         : beta   : actual mixing beta used
     ! o         : tj  : Anderson mixing coefficients
-    ! o         :(25)        : (spin polarized case only)
+    ! o         :         : (spin polarized case only)
     ! o                      : 1  if weight for n^+ + n^- is nonzero
     ! o                      : 10 if weight for n^+ - n^- is nonzero
     ! o                      : 11 if both nonzero
 
-    !l Local variables
-    !l   locmix=3 :2  Local densities are further mapped onto a G_kL expansion.
-    !l          :   whose coefficients are included in the Anderson/Broyden
-    !l          :   mixing schemes, including the nonspherical densities.
-    !l          :   the residual (what is left of rho beyond the G_kL expansion)  is linearly mixed.
-    !l          :   But l=0 part is of the G_kL expansion is projected out.
-    !l          :
-    !l   rms2   : <(rout-rin)**2>, where rin and rout are the input and
-    !l          : screened output densities represented as a vector,
-    !l          : including smoothed and local parts.  rmsdel changes with
-    !l          : the choice of transformation of local densities;see locmix
-    !l          : above.
-    !l   rmsdel : (linked to dmxp(11)).
-    !l          : On input, rmsdel=<(rout-rin)**2>, defined as rms2, above.
-    !l          : On output, rmsdel is overwritten by rms2.
-    !l   rms    : RMS difference in output-input sm. density, screened
-    !l   kmxr   : k-cutoff for G_kL expansion used to smooth local densities for mixing
-    !l   ng0    : condensed number of G vectors. That rho(G) is hermitian is exploited to reduce ng to ng0
-    !l   qcell  : cell charge
-
-    !b   Mixing scheme needs some revision.  For now, uses locmix=3 and k9=10
-    !b   Problem:  Mark notes that G-kL expansion may be not good enough to represent rim density well; not good for rho1+rho2.
-    !    TK fixed a minor bug exp(+(r/rf)**2) looked strange. Probably the rim density problem?
-    !
-    !  For nonspherical parts, mix coefficient to multipole in the Anderson/Broyden scheme; linearly mix the rest.
     type(s_rv1) :: sv_p_orho(3,1)
     type(s_rv1) :: sv_p_orhnew(3,1)
     character sout*80,fnam*8
@@ -163,9 +167,8 @@ contains
     allocate(w_oa(nda,nsp,(mxsav+2),2),source=0d0)
     allocate(w_oqkl(2*(kmxr+1)*nlmlx*nsp*4*nbas))
     w_oqkl=0d0
-    ! --- 9. Read prior iterations from disk; update with current iter ---
     if (procid==master) open(newunit=ifi,file=trim(fnam)//'.'//trim(sname),form='unformatted')
-    call pvmix5(nmix,mxsav,fnam,ifi,rmsdel,nbas,kmxr,nlmlx, nsp,sv_p_orho & !Setup mixing array w_oa
+    call packdensity(nmix,mxsav,fnam,ifi,rmsdel,nbas,kmxr,nlmlx, nsp,sv_p_orho & !Setup mixing array w_oa
         ,sv_p_orhnew,co_rv,cn_rv,ng2,ng02,nda, w_oa,w_oqkl,rms2,nmixr ) !w_oa contains mixingsource
     rmsdel = rms2
     nmix = min(nmix,nmixr)
@@ -214,16 +217,16 @@ contains
           rmsdel = rms2f
        endif
        beta0 = beta
-       call pvmix6(broy,nmix,nmixr,mxsav,beta,wc,naa,w_oaa) !main part of mixing
+       call mixdensity(broy,nmix,nmixr,mxsav,beta,wc,naa,w_oaa) !main part of mixing
        call pqsclb(nda*nsp,nda,offx,off2,naa,mxsav,wt,w_oa,w_oaa) !Restore matrix a to rho+, rho===
         w_oa(:,:,1,1)=w_oa(:,:,1,2) 
        deallocate(w_oaa)
     else
        naa = nda
        beta0 = beta
-       call pvmix6(broy,nmix,nmixr,mxsav,beta,wc,naa,w_oa) !main part of mixing
+       call mixdensity(broy,nmix,nmixr,mxsav,beta,wc,naa,w_oa) !main part of mixing
     endif
-    call pvmix7(nbas,nsp,nda,w_oa,n1,n2,n3,kmxr,nlmlx,w_oqkl,ng,ng02,iv_a_okv,rv_a_ogv,wgtsmooth, smrho,sv_p_orho) !Get mixed smrho,orho
+    call unpackdensity(nbas,nsp,nda,w_oa,n1,n2,n3,kmxr,nlmlx,w_oqkl,ng,ng02,iv_a_okv,rv_a_ogv,wgtsmooth, smrho,sv_p_orho) !Get mixed smrho,orho
     deallocate(w_oqkl,w_oa,co_rv,cn_rv)
     qmx=0d0
     do ib = 1, nbas ! ... 15. Restore local densities: rho+ +/- rho-  -> rho+, rho-'
@@ -279,13 +282,13 @@ contains
     !i          : qkl(:,:,isp,4,ib) = rho2(rhnew), G_kL expansion
     ! o Inputs/Outputs
     ! o  orho :On input, local densities generating hamiltonian
-    ! o         :transformed into unscaled rho1+rho2 and rho1-rho2 (pvmix9)
+    ! o         :transformed into unscaled rho1+rho2 and rho1-rho2 
     ! o         :If a G_kL expansion has been generated (if locmix>=2)
     ! o         :this expansion is first subtracted from w(orho).
     ! o         :On output, w(orho) is overwritten by the linear
     ! o         :combination (1-beta)*w(orho) + beta*w(orhnew)
     ! o  orhnew :On input, local densities gen. by ham. (maybe screened)
-    ! o         :transformed into unscaled rho1+rho2 and rho1-rho2 (pvmix9)
+    ! o         :transformed into unscaled rho1+rho2 and rho1-rho2 
     ! o         :If a G_kL expansion has been generated (if locmix>=2)
     ! o         :this expansion is first subtracted from w(orhnew).
     !o Outputs
@@ -332,7 +335,7 @@ contains
        deallocate(rwgt_rv,ri_rv,w_orsm)
     enddo
   end subroutine pvmix3
-  subroutine pvmix5(nmix,mxsav,fnam,ifi,rmsdel,nbas,kmxr,nlmlx,nsp,sv_p_orho,sv_p_orhnew,co,cn,ng2,ng02,nda, a,qkl,rms2 ,nmixr)  !Set up mixing array
+  subroutine packdensity(nmix,mxsav,fnam,ifi,rmsdel,nbas,kmxr,nlmlx,nsp,sv_p_orho,sv_p_orhnew,co,cn,ng2,ng02,nda, a,qkl,rms2 ,nmixr)  !Set up mixing array
     use m_lmfinit,only:ispec
     use m_struc_def
     use m_ftox
@@ -343,9 +346,9 @@ contains
     !i  rmsdel :Same as rms2 (see Outputs), from prior iteration.
     !i         :If no prior iteration, rsmdel=0.  For printout only.
     !i   orho:input local density this iteration,
-    !i         :transformed into unscaled rho1+rho2 and rho1-rho2 (pvmix9)
+    !i         :transformed into unscaled rho1+rho2 and rho1-rho2 
     !i   orhnew:output local density this iteration,
-    !i         :transformed into unscaled rho1+rho2 and rho1-rho2 (pvmix9)
+    !i         :transformed into unscaled rho1+rho2 and rho1-rho2 
     !i   co    :input smooth density this iteration, in FT form
     !i   cn    :output smooth density this iteration, in FT form
     !i   ng    :leading dimension of co,cn
@@ -449,7 +452,7 @@ contains
        endblock
        na = na + 2*np
     enddo         
-    if(nda/= na-1) call rx('mixrho: bug in pvmix5 nda/=na-1')
+    if(nda/= na-1) call rx('mixrho: bug in packdensity nda/=na-1')
     na   = nda*nsp
     rms2 = (sum((a(:,:,1,1)-a(:,:,1,2))**2)/(nda*nsp))**.5*nsp ! *nsp is right?
     if(mxsav == 0) return
@@ -465,7 +468,7 @@ contains
             nmixr = j
             cycle
 90          continue
-            write(stdo,ftox) 'pvmix5: reading only nmixr=',nmixr
+            write(stdo,ftox) 'packdensity: reading only nmixr=',nmixr
             exit
          enddo
          goto 312
@@ -485,8 +488,8 @@ contains
        if (rmsdel/= 0) write(stdo,"('  last it=',es8.2e1)",advance='no')rmsdel
        write(stdo,*)
     endif
-  end subroutine pvmix5
-  subroutine pvmix6(broy,nmix,mmix,mxsav,beta,wc,nda,a)!- Mixing of the total density
+  end subroutine packdensity
+  subroutine mixdensity(broy,nmix,mmix,mxsav,beta,wc,nda,a)!- Mixing of the total density
     use m_amix,only: amix
     !i  broy   : 0 for Anderson mixing,   : 1 for Broyden mixing
     !i  nmix   : nmix: number of iter to try and mix
@@ -520,14 +523,14 @@ contains
        call pqmixb(nda,nmix,mmix,mxsav,beta,wc,rms2,a,wctrue) ! --- Broyden mixing, Duane Johnson's approach ---
        call dcopy(nda,a(1,0,2),1,a(1,0,1),1)
     else
-       call rx('pvmix6: bad value for broy')
+       call rx('mixdensity: bad value for broy')
     endif
-  end subroutine pvmix6
-  subroutine pvmix7(nbas,nsp,nda,a,n1,n2,n3,kmxr,nlmlx,qkl,ng,ng02,kv,gv,wgtsmooth, smrho,sv_p_orho) !read from array a
+  end subroutine mixdensity
+  subroutine unpackdensity(nbas,nsp,nda,a,n1,n2,n3,kmxr,nlmlx,qkl,ng,ng02,kv,gv,wgtsmooth, smrho,sv_p_orho) !read from array a
     use m_lmfinit,only: ispec
     use m_struc_def 
     !i   nda   :leading dimension of a
-    !i   a     :mixed density from pvmix6, smoothed + local densities
+    !i   a     :mixed density from mixdensity, smoothed + local densities
     !i         :For local parts, a contains SCALED rho1+rho2, rho1-rho2
     !i         :locmix = 3, a contains spherical part on mesh a full rho, GkL expansion
     !i   n1..3 :FT mesh
@@ -539,7 +542,7 @@ contains
     !i   wk    :complex work array of dimension (n1,n2,n3)
     !i   smrho :smooth density that generated the hamiltonian
     !i   orho:local  density that generated the hamiltonian,
-    !i         :a portion of which which has been linearly mixed (pvmix4)
+    !i         :a portion of which which has been linearly mixed 
     !i         :orho(1) contains rho1+rho2
     !i         :orho(2) contains rho1-rho2
     !o Outputs
@@ -597,8 +600,8 @@ contains
        if (allocated(rofi_rv)) deallocate(rofi_rv)
     enddo               
     na = na-1
-    if(nda/=na) call rx('mixrho: bug in pvmix7')
-  end subroutine pvmix7
+    if(nda/=na) call rx('mixrho: bug in unpackdensity')
+  end subroutine unpackdensity
   subroutine pqmixb(nda,nmix,mmix,mxsav,beta,wc,rms2,a,wctrue) !Broyden mixing of a vector, Duane Johnson's approach
     use m_ftox
     !i  mmix: number of iterates available to mix
