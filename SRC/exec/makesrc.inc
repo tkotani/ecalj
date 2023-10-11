@@ -27,7 +27,6 @@ vbmmode.o\
 getqmode.o\
 m_MPItk.o \
 xcfunc.o\
-m_struc_func.o\
 m_lmfinit.o\
 util.o\
 m_hamindex0.o \
@@ -50,7 +49,6 @@ gtbsl1.o \
 gtpcor.o \
 m_hansr.o \
 hsmq.o \
-iclbas.o \
 iofa.o \
 iors.o \
 iors_old.o \
