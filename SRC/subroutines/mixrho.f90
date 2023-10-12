@@ -812,30 +812,17 @@ contains
     !r   q = a2(1) = wt1*(a(1)+a(2)) and mom = a2(2) = wt2*(a(1)-a(2))
     !r   If wt(1) or wt(2) is zero, a2 holds q or mom only.
     !r   na: no. elts to mix: 2*na if wt1,wt2 ne 0, otherwise na
-    ! ------------------------------------------------------------------
     implicit none
     integer :: mode,ndansp,nda,mxsav,na,offx,off2,is,ia,ja
     real(8) :: wt(2),a(ndansp,0:mxsav+1,2),a2(na,0:mxsav+1,2), rms2,ddot
-    ja = 0
     if (abs(wt(1))<1d-12 .AND. abs(wt(2))<1d-12) goto 11
     do is = 0, mxsav+1
-       ja = 0
-       if (abs(wt(1))>1d-12) then
-          do  ia = 1, nda
-             ja = ja+1             !           Given (rhnew+ + rhnew-)*wt(1), (rhold+ + rhold-)*wt(1)
-             a2(ja,is,:) = (a(ia,is,:) + a(ia+off2,is,:))*wt(1)
-          enddo
-       endif
-       if (abs(wt(2))>1d-12) then
-          do ia=1,nda
-             ja = ja+1             !           Given (rhnew+ - rhnew-)*wt(2), (rhold+ - rhold-)*wt(2)
-             a2(ja,is,:) = (a(ia,is,:) - a(ia+off2,is,:))*wt(2)
-          enddo
-       endif
+       if(abs(wt(1))>1d-12) a2(1:nda,is,:) = (a(1:nda,is,:) + a(1+off2:nda+off2,is,:))*wt(1) !  (rhnew+ + rhnew-)*wt(1), (rhold+ + rhold-)*wt(1)
+       ja=merge(nda,0,abs(wt(1))>1d-12)
+       if(abs(wt(2))>1d-12) a2(ja+1:ja+nda,is,:)= (a(1:nda,is,:) -a(1+off2:nda+off2,is,:))*wt(2) ! (rhnew+ - rhnew-)*wt(2), (rhold+ - rhold-)*wt(2)
     enddo
 11  continue
     rms2 = dsqrt(dabs(ddot(na,a2,1,a2,1) - 2*ddot(na,a2,1,a2(1,0,2),1) + ddot(na,a2(1,0,2),1,a2(1,0,2),1))/(na-0))
-    if (ja /= na) call rx('pqsclf: element mismatch')
   end subroutine pqsclf
   subroutine pqsclb(ndansp,nda,offx,off2,na,mxsav,wt,a,a2)    !- Undo split into wt1*q and wt2*mom done by pqsclf
     !i   ndansp   :leading dimension of a
@@ -848,48 +835,36 @@ contains
     !o Outputs
     !o   a     :a2 is unscaled and restored into a
     implicit none
-    integer :: ndansp,na,nda,mxsav,offx,off2,is,ia,ja
+    integer :: ndansp,na,nda,mxsav,offx,off2,is,ia
     real(8) :: wt(2),a(ndansp,0:mxsav+1,2),    a2(na,0:mxsav+1,2),summ(2),diff(2)
     logical:: wt1zero,wt2zero
     wt1zero = abs(wt(1))<1d-12
     wt2zero = abs(wt(2))<1d-12
-    if ( wt1zero.AND. wt2zero) then
-       ja = 0
-    elseif ((.not.wt1zero) .AND. (.not.wt2zero) ) then
+    if ((.not.wt1zero) .AND. (.not.wt2zero) ) then
        do  is = 0, mxsav+1
-          ja = 1
           do  ia = 1, nda
-             ja=ia
              a(ia,is,:)     = (a2(ia,is,:)/wt(1) + a2(ia+nda,is,:)/wt(2))/2!   mixed  rhonew-,rhold-
           enddo
           do  ia = 1, nda
-             ja=ia
              a(ia+nda,is,:) = (a2(ia,is,:)/wt(1) - a2(ia+nda,is,:)/wt(2))/2
           enddo
        enddo
-       ja = 2*nda
     elseif ((.not.wt1zero) ) then
        do  ia = 1, nda
           do  is = 0, mxsav+1
-             ja = ia+off2
-             summ = a2(ia,is,:)/wt(1)
-             diff = (a(ia,is,:) - a(ja,is,:))
-             a(ia,is,:) = (summ + diff)/2
-             a(ja,is,:) = (summ - diff)/2
+             diff = (a(ia,is,:) - a(ia+off2,is,:))
+             a(ia,is,:)      = (a2(ia,is,:)/wt(1) + diff)/2
+             a(ia+off2,is,:) = (a2(ia,is,:)/wt(1) - diff)/2
           enddo
        enddo
-       ja = nda
     elseif ((.not.wt2zero) ) then
        do  ia = 1, nda
           do  is = 0, mxsav+1
-             ja = ia+nda              !         given rhnew+ + rhnew- ; mixed  rhnew+ - rhnew-
-             summ  = (a(ia,is,:) + a(ja,is,:))
-             diff = a2(ia,is,:)/wt(2)
-             a(ia,is,:) = (summ + diff)/2
-             a(ja,is,:) = (summ - diff)/2  !         sum = given rhold+ + rhold- ; diff = mixed  rhold+ - rhold-
+             summ  = (a(ia,is,:) + a(ia+nda,is,:))          !  given rhnew+ + rhnew- ; mixed  rhnew+ - rhnew-
+             a(ia,is,:)     = (summ + a2(ia,is,:)/wt(2))/2
+             a(ia+nda,is,:) = (summ - a2(ia,is,:)/wt(2))/2  !summ = given rhold+ + rhold- ; diff = mixed  rhold+ - rhold-
           enddo
        enddo
-       ja = nda
     endif
   end subroutine pqsclb
 end module m_mixrho
