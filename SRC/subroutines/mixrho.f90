@@ -834,13 +834,15 @@ contains
        do  12  ia = 1, npq
           if (abs(wt(1))>1d-12) then
              ja = ja+1             !           Given (rhnew+ + rhnew-)*wt(1), (rhold+ + rhold-)*wt(1)
-             a2(ja,is,1) = (a(ia,is,1) + a(ia+off2,is,1))*wt(1)
-             a2(ja,is,2) = (a(ia,is,2) + a(ia+off2,is,2))*wt(1)
+!             a2(ja,is,1) = (a(ia,is,1) + a(ia+off2,is,1))*wt(1)
+!             a2(ja,is,2) = (a(ia,is,2) + a(ia+off2,is,2))*wt(1)
+             a2(ja,is,:) = (a(ia,is,:) + a(ia+off2,is,:))*wt(1)
           endif
           if (abs(wt(2))>1d-12) then
              ja = ja+1             !           Given (rhnew+ - rhnew-)*wt(2), (rhold+ - rhold-)*wt(2)
-             a2(ja,is,1) = (a(ia,is,1) - a(ia+off2,is,1))*wt(2)
-             a2(ja,is,2) = (a(ia,is,2) - a(ia+off2,is,2))*wt(2)
+!             a2(ja,is,1) = (a(ia,is,1) - a(ia+off2,is,1))*wt(2)
+!             a2(ja,is,2) = (a(ia,is,2) - a(ia+off2,is,2))*wt(2)
+             a2(ja,is,:) = (a(ia,is,:) - a(ia+off2,is,:))*wt(2)
           endif
 12     enddo
 10  enddo
@@ -860,7 +862,7 @@ contains
     !o   a     :a2 is unscaled and restored into a
     implicit none
     integer :: nda,na,npq,mxsav,offx,off2,is,ia,ja
-    real(8) :: wt(2),a(nda,0:mxsav+1,2),    a2(na,0:mxsav+1,2),sum,diff
+    real(8) :: wt(2),a(nda,0:mxsav+1,2),    a2(na,0:mxsav+1,2),summ(2),diff(2)
     logical:: wt1zero,wt2zero
     wt1zero = abs(wt(1))<1d-12
     wt2zero = abs(wt(2))<1d-12
@@ -870,27 +872,20 @@ contains
        do  is = 0, mxsav+1
           ja = 1
           do  ia = 1, npq
-             a(ia,is,1)     = (a2(ja,is,1)/wt(1) + a2(ja+1,is,1)/wt(2))/2
-             a(ia,is,2)     = (a2(ja,is,2)/wt(1) + a2(ja+1,is,2)/wt(2))/2!   mixed  rhonew-,rhold-
-             a(ia+npq,is,1) = (a2(ja,is,1)/wt(1) - a2(ja+1,is,1)/wt(2))/2
-             a(ia+npq,is,2) = (a2(ja,is,2)/wt(1) - a2(ja+1,is,2)/wt(2))/2
+             a(ia,is,:)     = (a2(ja,is,:)/wt(1) + a2(ja+1,is,:)/wt(2))/2!   mixed  rhonew-,rhold-
+             a(ia+npq,is,:) = (a2(ja,is,:)/wt(1) - a2(ja+1,is,:)/wt(2))/2
              ja = ja+2
           enddo
        enddo
        ja = 2*npq
     elseif ((.not.wt1zero) ) then
-       diff = 0
        do  ia = 1, npq
           do  is = 0, mxsav+1
              ja = ia+off2
-             sum  = a2(ia,is,1)/wt(1)
-             diff = (a(ia,is,1) - a(ja,is,1))
-             a(ia,is,1) = (sum + diff)/2
-             a(ja,is,1) = (sum - diff)/2
-             sum  = a2(ia,is,2)/wt(1)
-             diff = (a(ia,is,2) - a(ja,is,2))
-             a(ia,is,2) = (sum + diff)/2
-             a(ja,is,2) = (sum - diff)/2
+             summ = a2(ia,is,:)/wt(1)
+             diff = (a(ia,is,:) - a(ja,is,:))
+             a(ia,is,:) = (summ + diff)/2
+             a(ja,is,:) = (summ - diff)/2
           enddo
        enddo
        ja = npq
@@ -898,14 +893,10 @@ contains
        do  ia = 1, npq
           do  is = 0, mxsav+1
              ja = ia+npq              !         given rhnew+ + rhnew- ; mixed  rhnew+ - rhnew-
-             sum  = (a(ia,is,1) + a(ja,is,1))
-             diff = a2(ia,is,1)/wt(2)
-             a(ia,is,1) = (sum + diff)/2
-             a(ja,is,1) = (sum - diff)/2  !         sum = given rhold+ + rhold- ; diff = mixed  rhold+ - rhold-
-             sum  = (a(ia,is,2) + a(ja,is,2))
-             diff = a2(ia,is,2)/wt(2)
-             a(ia,is,2) = (sum + diff)/2
-             a(ja,is,2) = (sum - diff)/2
+             summ  = (a(ia,is,:) + a(ja,is,:))
+             diff = a2(ia,is,:)/wt(2)
+             a(ia,is,:) = (summ + diff)/2
+             a(ja,is,:) = (summ - diff)/2  !         sum = given rhold+ + rhold- ; diff = mixed  rhold+ - rhold-
           enddo
        enddo
        ja = npq
