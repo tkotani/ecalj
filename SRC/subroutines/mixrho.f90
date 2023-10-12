@@ -186,25 +186,23 @@ contains
        naa = 0
        wt(1:2)   = wtinit     
        if(sum(wt**2)==0d0) call rx('MIXRHO: bad mixing weights wt=0')
-       wt= wt/sum(wt**2)**.5 
-       if (wt(1) /= 0) naa = naa+nda
-       if (wt(2) /= 0) naa = naa+nda
+       wt= wt/sum(wt**2)**.5  !we need this just to keep fe_gwsc !without this, mixing changes things slightly.
+       if (abs(wt(1))>1d-12) naa = naa+nda
+       if (abs(wt(2))>1d-12) naa = naa+nda
        offx = 0                !offset to extra elements (none now)
        off2 = (nsp-1)*nda      !offset to spin down part of a
        allocate(w_oaa(naa*(mxsav+2)*2),source=0d0)
        call pqsclf(nda*nsp,nda,offx,off2,naa,mxsav,wt, w_oa,w_oaa,rms2f)
-       if (wt(1)*wt(2) ==0d0 ) then
+       if (abs(wt(1)*wt(2))<1d-12 ) then
           write(stdo,ftox)' Constrained spin mixing wt =',ftof(wt),' Constrained rms DQ=',ftod(rms2f)
           rmsdel = rms2f
        endif
-       beta0 = beta
        call mixdensity(broy,nmix,nmixr,mxsav,beta,wc,naa,w_oaa) !main part of mixing
        call pqsclb(nda*nsp,nda,offx,off2,naa,mxsav,wt,w_oa,w_oaa) !Restore matrix a to rho+, rho===
         w_oa(:,:,1,1)=w_oa(:,:,1,2) 
        deallocate(w_oaa)
     else
        naa = nda
-       beta0 = beta
        call mixdensity(broy,nmix,nmixr,mxsav,beta,wc,naa,w_oa) !main part of mixing
     endif
     call getrhoremnant(nbas,nsp,beta,kmxr,nlmlx,w_oqkl,sv_p_orho,sv_p_orhnew) !Linear mixing of remnants of rho. 
@@ -890,8 +888,6 @@ contains
     endif checkrwrite
   end subroutine rhogkl
   subroutine pqsclf(nda,npq,offx,off2,na,mxsav,wt,a,a2,rms2)    !- Split into (a+ + a-) and (a+ - a-); include extra data
-    !i Inputs
-    !i   mode  :1 a is already split into (a+ + a-) and (a+ - a-)
     !i   nda   :leading dimension of a
     !i   npq   :number of elements to spin-split with wt(1),wt(2)
     !i   offx  :(nx>0)offset to location in a of extra elements
@@ -913,16 +909,16 @@ contains
     integer :: mode,nda,npq,mxsav,na,offx,off2,is,ia,ja
     real(8) :: wt(2),a(nda,0:mxsav+1,2),a2(na,0:mxsav+1,2), rms2,ddot
     ja = 0
-    if (wt(1) == 0 .AND. wt(2) == 0) goto 11
+    if (abs(wt(1))<1d-12 .AND. abs(wt(2))<1d-12) goto 11
     do  10  is = 0, mxsav+1
        ja = 0
        do  12  ia = 1, npq
-          if (wt(1) /= 0) then
+          if (abs(wt(1))>1d-12) then
              ja = ja+1             !           Given (rhnew+ + rhnew-)*wt(1), (rhold+ + rhold-)*wt(1)
              a2(ja,is,1) = (a(ia,is,1) + a(ia+off2,is,1))*wt(1)
              a2(ja,is,2) = (a(ia,is,2) + a(ia+off2,is,2))*wt(1)
           endif
-          if (wt(2) /= 0) then
+          if (abs(wt(2))>1d-12) then
              ja = ja+1             !           Given (rhnew+ - rhnew-)*wt(2), (rhold+ - rhold-)*wt(2)
              a2(ja,is,1) = (a(ia,is,1) - a(ia+off2,is,1))*wt(2)
              a2(ja,is,2) = (a(ia,is,2) - a(ia+off2,is,2))*wt(2)
@@ -946,9 +942,12 @@ contains
     implicit none
     integer :: nda,na,npq,mxsav,offx,off2,is,ia,ja
     real(8) :: wt(2),a(nda,0:mxsav+1,2),    a2(na,0:mxsav+1,2),sum,diff
-    if (wt(1) == 0 .AND. wt(2) == 0) then
+    logical:: wt1zero,wt2zero
+    wt1zero = abs(wt(1))<1d-12
+    wt2zero = abs(wt(2))<1d-12
+    if ( wt1zero.AND. wt2zero) then
        ja = 0
-    elseif (wt(1) /= 0 .AND. wt(2) /= 0) then
+    elseif ((.not.wt1zero) .AND. (.not.wt2zero) ) then
        do  is = 0, mxsav+1
           ja = 1
           do  ia = 1, npq
@@ -960,7 +959,7 @@ contains
           enddo
        enddo
        ja = 2*npq
-    elseif (wt(1) /= 0) then
+    elseif ((.not.wt1zero) ) then
        diff = 0
        do  ia = 1, npq
           do  is = 0, mxsav+1
@@ -976,7 +975,7 @@ contains
           enddo
        enddo
        ja = npq
-    elseif (wt(2) /= 0) then
+    elseif ((.not.wt2zero) ) then
        do  ia = 1, npq
           do  is = 0, mxsav+1
              ja = ia+npq              !         given rhnew+ + rhnew- ; mixed  rhnew+ - rhnew-
