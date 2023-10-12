@@ -183,14 +183,14 @@ contains
     if(ipr>45)write(stdo,"(' charges:',7x,'old',11x,'new',9x,'rms diff',5f14.6)") qin(1),qout(1),rms 
     if (nsp == 2) then 
        write(stdo,"(' mmom   ',2f14.6,28x,f14.6)") qin(2),qout(2)!,beta*qscr(2)+(1-beta)*qin(2)
-       naa = 0
        wt(1:2)   = wtinit     
        if(sum(wt**2)==0d0) call rx('MIXRHO: bad mixing weights wt=0')
        wt= wt/sum(wt**2)**.5  !we need this just to keep fe_gwsc !without this, mixing changes things slightly.
+       naa = 0
        if (abs(wt(1))>1d-12) naa = naa+nda
        if (abs(wt(2))>1d-12) naa = naa+nda
-       offx = 0                !offset to extra elements (none now)
-       off2 = (nsp-1)*nda      !offset to spin down part of a
+       offx = 0        !offset to extra elements (none now)
+       off2 = nda      !offset to spin down part of a
        allocate(w_oaa(naa*(mxsav+2)*2),source=0d0)
        call pqsclf(nda*nsp,nda,offx,off2,naa,mxsav,wt, w_oa,w_oaa,rms2f)
        if (abs(wt(1)*wt(2))<1d-12 ) then
@@ -662,13 +662,12 @@ contains
     !o   broyj
     !r Remarks
     !r   Adapted from Duane Johnson
-    ! ----------------------------------------------------------------------
     implicit none
     integer,parameter::nn=20
     integer :: ir,n,ipr,ndw,i,ip,j,k,irm1,irm2,lm,ln,ierr
     real(8) :: beta,dxmx,wc,xin(n),gin(n),xnew(n),xtol,gtol, wk(ndw,2,0:ir), aij,cmj,dfnorm,fac1,fac2,gmi,ddot,w0
     real(8) :: a(nn,nn),cm(nn),w(nn),d(nn,nn), betx,diff,gmax,xmax
-    save w,cm,a,w0
+    save w,cm,a,w0 ! NOTE here!!!!
     if (ir > nn) call rxi('broyj: increase nn, need',ir)
     if (ir == 1) then !First iteration: simple mixing ---
        w0 = wc
@@ -680,15 +679,11 @@ contains
        !   --- Coefficient matrices and the sum for corrections ---
        fac2 = 1d0/(sum(wk(:,1,ir)**2)**.5+1d-12) !dfnorm = |g(i)-g(i-1)|, used for normalization
        fac1 = beta*fac2
-       !   ... Shuffle each prior u,vt to prior+1 iteration
        irm1 = ir-1
        irm2 = ir-2
-       do  j = irm2, 1, -1
-          wk(:,1,j+1)=wk(:,1,j)
-          wk(:,2,j+1)=wk(:,2,j)
-       enddo
-       wk(:,1,1) = fac1*wk(:,1,ir) + fac2*wk(:,1,0) !   ... Make u,vt for this iteration
-       wk(:,2,1) = fac2*wk(:,1,ir)
+       wk(:,:, 2:irm2+1)=wk(:,:, 1:irm2) !Shuffle each prior u,vt to prior+1 iteration
+       wk(:,1, 1) = fac1*wk(:,1,ir)+fac2*wk(:,1,0) !   ... Make u,vt for this iteration
+       wk(:,2, 1) = fac2*wk(:,1,ir)
        do  j = 1, irm2 !Make  a and b = ( w0**2 I + a )^-1 (symmetric) ---
           a(irm1,j) = sum(wk(:,2,ir-j)*wk(:,2,1))
           a(j,irm1) = a(irm1,j)
@@ -697,12 +692,7 @@ contains
        a(irm1,irm1) = sum(wk(:,2,1)*wk(:,2,1))
        cm(irm1) = sum(wk(:,2,1)*gin)
        w(irm1) = wc
-       do   lm = 1, irm1 !!   ... Set up and calculate beta matrix
-          do  ln = 1, irm1
-             d(ln,lm) = a(ln,lm)*w(ln)*w(lm)
-          enddo
-          d(lm,lm) = w0**2 + a(lm,lm)*w(lm)*w(lm)
-       enddo
+       forall(lm=1:irm1,ln=1:irm1) d(ln,lm) = a(ln,lm)*w(ln)*w(lm) + merge(w0**2,0d0,lm==ln) ! Set up and calculate beta matrix
        call matinv2(irm1,d(1:irm1,1:irm1),ierr) !Invert to make d ---
        xnew = xin + beta*gin !xnew <- vector for the new iteration ---
        do i = 1, irm1
@@ -758,7 +748,6 @@ contains
     lmxl=lmxl_i(is)
     if (lmxl == -1) return
     z=z_i(is)
-!    qc=sspec(is)%qc
     a=spec_a(is)
     nr=nr_i(is)
     rmt=rmt_i(is)
@@ -806,9 +795,9 @@ contains
 221    format(/' rhogkl:    k   ilm      qkl (2l+1)!! ...')
     endif checkrwrite
   end subroutine rhogkl
-  subroutine pqsclf(nda,npq,offx,off2,na,mxsav,wt,a,a2,rms2)    !- Split into (a+ + a-) and (a+ - a-); include extra data
-    !i   nda   :leading dimension of a
-    !i   npq   :number of elements to spin-split with wt(1),wt(2)
+  subroutine pqsclf(ndansp,nda,offx,off2,na,mxsav,wt,a,a2,rms2)    !- Split into (a+ + a-) and (a+ - a-); include extra data
+    !i   ndansp   :leading dimension of a
+    !i   nda   :number of elements to spin-split with wt(1),wt(2)
     !i   offx  :(nx>0)offset to location in a of extra elements
     !i   off2  :offset to spin-down (should be 0 for nsp=1)
     !i   na    :dimension of a2 and number of data with nonzero weight
@@ -825,34 +814,32 @@ contains
     !r   na: no. elts to mix: 2*na if wt1,wt2 ne 0, otherwise na
     ! ------------------------------------------------------------------
     implicit none
-    integer :: mode,nda,npq,mxsav,na,offx,off2,is,ia,ja
-    real(8) :: wt(2),a(nda,0:mxsav+1,2),a2(na,0:mxsav+1,2), rms2,ddot
+    integer :: mode,ndansp,nda,mxsav,na,offx,off2,is,ia,ja
+    real(8) :: wt(2),a(ndansp,0:mxsav+1,2),a2(na,0:mxsav+1,2), rms2,ddot
     ja = 0
     if (abs(wt(1))<1d-12 .AND. abs(wt(2))<1d-12) goto 11
-    do  10  is = 0, mxsav+1
+    do is = 0, mxsav+1
        ja = 0
-       do  12  ia = 1, npq
-          if (abs(wt(1))>1d-12) then
+       if (abs(wt(1))>1d-12) then
+          do  ia = 1, nda
              ja = ja+1             !           Given (rhnew+ + rhnew-)*wt(1), (rhold+ + rhold-)*wt(1)
-!             a2(ja,is,1) = (a(ia,is,1) + a(ia+off2,is,1))*wt(1)
-!             a2(ja,is,2) = (a(ia,is,2) + a(ia+off2,is,2))*wt(1)
              a2(ja,is,:) = (a(ia,is,:) + a(ia+off2,is,:))*wt(1)
-          endif
-          if (abs(wt(2))>1d-12) then
+          enddo
+       endif
+       if (abs(wt(2))>1d-12) then
+          do ia=1,nda
              ja = ja+1             !           Given (rhnew+ - rhnew-)*wt(2), (rhold+ - rhold-)*wt(2)
-!             a2(ja,is,1) = (a(ia,is,1) - a(ia+off2,is,1))*wt(2)
-!             a2(ja,is,2) = (a(ia,is,2) - a(ia+off2,is,2))*wt(2)
              a2(ja,is,:) = (a(ia,is,:) - a(ia+off2,is,:))*wt(2)
-          endif
-12     enddo
-10  enddo
+          enddo
+       endif
+    enddo
 11  continue
     rms2 = dsqrt(dabs(ddot(na,a2,1,a2,1) - 2*ddot(na,a2,1,a2(1,0,2),1) + ddot(na,a2(1,0,2),1,a2(1,0,2),1))/(na-0))
     if (ja /= na) call rx('pqsclf: element mismatch')
   end subroutine pqsclf
-  subroutine pqsclb(nda,npq,offx,off2,na,mxsav,wt,a,a2)    !- Undo split into wt1*q and wt2*mom done by pqsclf
-    !i   nda   :leading dimension of a
-    !i   npq   :number of P,Q
+  subroutine pqsclb(ndansp,nda,offx,off2,na,mxsav,wt,a,a2)    !- Undo split into wt1*q and wt2*mom done by pqsclf
+    !i   ndansp   :leading dimension of a
+    !i   nda   :number of P,Q
     !i   offx  :offset to location in a of extra elements
     !i   off2  :offset to spin-down (should be 0 for nsp=1)
     !i   na    :dimensions a2; number of data with nonzero weight
@@ -861,8 +848,8 @@ contains
     !o Outputs
     !o   a     :a2 is unscaled and restored into a
     implicit none
-    integer :: nda,na,npq,mxsav,offx,off2,is,ia,ja
-    real(8) :: wt(2),a(nda,0:mxsav+1,2),    a2(na,0:mxsav+1,2),summ(2),diff(2)
+    integer :: ndansp,na,nda,mxsav,offx,off2,is,ia,ja
+    real(8) :: wt(2),a(ndansp,0:mxsav+1,2),    a2(na,0:mxsav+1,2),summ(2),diff(2)
     logical:: wt1zero,wt2zero
     wt1zero = abs(wt(1))<1d-12
     wt2zero = abs(wt(2))<1d-12
@@ -871,15 +858,18 @@ contains
     elseif ((.not.wt1zero) .AND. (.not.wt2zero) ) then
        do  is = 0, mxsav+1
           ja = 1
-          do  ia = 1, npq
-             a(ia,is,:)     = (a2(ja,is,:)/wt(1) + a2(ja+1,is,:)/wt(2))/2!   mixed  rhonew-,rhold-
-             a(ia+npq,is,:) = (a2(ja,is,:)/wt(1) - a2(ja+1,is,:)/wt(2))/2
-             ja = ja+2
+          do  ia = 1, nda
+             ja=ia
+             a(ia,is,:)     = (a2(ia,is,:)/wt(1) + a2(ia+nda,is,:)/wt(2))/2!   mixed  rhonew-,rhold-
+          enddo
+          do  ia = 1, nda
+             ja=ia
+             a(ia+nda,is,:) = (a2(ia,is,:)/wt(1) - a2(ia+nda,is,:)/wt(2))/2
           enddo
        enddo
-       ja = 2*npq
+       ja = 2*nda
     elseif ((.not.wt1zero) ) then
-       do  ia = 1, npq
+       do  ia = 1, nda
           do  is = 0, mxsav+1
              ja = ia+off2
              summ = a2(ia,is,:)/wt(1)
@@ -888,18 +878,18 @@ contains
              a(ja,is,:) = (summ - diff)/2
           enddo
        enddo
-       ja = npq
+       ja = nda
     elseif ((.not.wt2zero) ) then
-       do  ia = 1, npq
+       do  ia = 1, nda
           do  is = 0, mxsav+1
-             ja = ia+npq              !         given rhnew+ + rhnew- ; mixed  rhnew+ - rhnew-
+             ja = ia+nda              !         given rhnew+ + rhnew- ; mixed  rhnew+ - rhnew-
              summ  = (a(ia,is,:) + a(ja,is,:))
              diff = a2(ia,is,:)/wt(2)
              a(ia,is,:) = (summ + diff)/2
              a(ja,is,:) = (summ - diff)/2  !         sum = given rhold+ + rhold- ; diff = mixed  rhold+ - rhold-
           enddo
        enddo
-       ja = npq
+       ja = nda
     endif
   end subroutine pqsclb
 end module m_mixrho
