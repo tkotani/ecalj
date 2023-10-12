@@ -88,7 +88,7 @@ contains
     character(20) :: ext
     logical::  mixrealsmooth, init=.true., initd=.true. !noelind,
     integer :: numprocs, ierr,isp,nnnx,ng02,ng2, iprint, iter,procid,master
-    integer :: i,ib,ipl,ipr,is,k0, lmxl,nlml,nr,nmixr,nda,ifi,kkk,nnnew,nnmix,nx,nkill,isw,naa,kmxr,kmxs,locmix,offx,off2,nlmlx,ng0
+    integer :: i,ib,ipl,ipr,is,k0, lmxl,nlml,nr,nmixr,nda,ifi,kkk,nnnew,nnmix,nx,nkill,naa,kmxr,kmxs,locmix,offx,off2,nlmlx,ng0
     integer,save:: broy,nmix,mxsav
     real(8),save:: rmsdelsave,beta,wt(2)
     real(8):: smmin,sss,wgtsmooth,qval !elinl
@@ -647,16 +647,6 @@ contains
     !i   ir:    Number of iterations of x and g.
     !i          1 initiates a new sequence of mixing;
     !i          broyj uses linear mixing for this iteration.
-    !i   isw    1s digit (not implemented)
-    !i          0  find minimum
-    !i          1  find maximum
-    !i         10s digit not used
-    !i        100s digit not used
-    !i       1000s digit governs convergence criterion:
-    !i          1 return when |grad| < gtol
-    !i          2 return when max dx < xtol
-    !i          3 return when either (1) or (2) satisfied
-    !i          4 return when both (1) and (2) are satisfied
     !i   beta:  linear mixing parameter (ir=1 only)
     !i   xin:   input vector, this iteration
     !i   gin:   output-input vector, f[xin]-xin, this iteration
@@ -674,127 +664,58 @@ contains
     !r   Adapted from Duane Johnson
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: isw,ir,n,ipr,ndw
-    real(8) :: beta,dxmx,wc,xin(n),gin(n),xnew(n),xtol,gtol, wk(ndw,2,0:ir)
-    ! Local variables
-    integer :: i,ip,j,k,irm1,irm2,lm,ln,nn,i1mach,isw1,isw2,isw3 !dinv
-    integer :: ierr
-    real(8) :: aij,cmj,dfnorm,fac1,fac2,gmi,one,zero,ddot,w0
-    parameter (zero=0d0,one=1d0,nn=20)
-    real(8) :: a(nn,nn),cm(nn),w(nn),d(nn,nn)
-    real(8) :: betx,diff,gmax,xmax
+    integer,parameter::nn=20
+    integer :: ir,n,ipr,ndw,i,ip,j,k,irm1,irm2,lm,ln,ierr
+    real(8) :: beta,dxmx,wc,xin(n),gin(n),xnew(n),xtol,gtol, wk(ndw,2,0:ir), aij,cmj,dfnorm,fac1,fac2,gmi,ddot,w0
+    real(8) :: a(nn,nn),cm(nn),w(nn),d(nn,nn), betx,diff,gmax,xmax
     save w,cm,a,w0
     if (ir > nn) call rxi('broyj: increase nn, need',ir)
-    ! --- First iteration: simple mixing ---
-    if (ir == 1) then
+    if (ir == 1) then !First iteration: simple mixing ---
        w0 = wc
-       betx = beta
-       gmax = 0
-       do  k = 1, n
-          gmax = max(gmax,abs(gin(k)))
-       enddo
-       If (dxmx > 0d0 .AND. gmax > dxmx) then
-          betx = beta*dxmx/gmax
-       endif
-       do    k = 1, n
-          xnew(k) = xin(k) + betx*gin(k)
-       enddo
-       ! --- Subsequent iterations: Broyden mixing ---
-    else
-       !   ... Make xold, gold
-       do  20  k = 1, n
-          wk(k,1,0) = xin(k) - wk(k,1,0)
-          wk(k,1,ir) = gin(k) - wk(k,2,0)
-20     enddo
-
+       gmax = maxval(gin)
+       xnew = xin + merge( beta*dxmx/gmax,beta,dxmx>0d0.AND.gmax>dxmx)*gin
+    else ! --- Subsequent iterations: Broyden mixing ---
+       wk(:,1,0) =xin-wk(:,1,0) !Make xold, gold
+       wk(:,1,ir)=gin-wk(:,2,0)
        !   --- Coefficient matrices and the sum for corrections ---
-       !   ... dfnorm = |g(i)-g(i-1)|, used for normalization
-       dfnorm = dsqrt(ddot(n,wk(1,1,ir),1,wk(1,1,ir),1))
-       fac2 = one/(dfnorm+1d-12)
+       fac2 = 1d0/(sum(wk(:,1,ir)**2)**.5+1d-12) !dfnorm = |g(i)-g(i-1)|, used for normalization
        fac1 = beta*fac2
        !   ... Shuffle each prior u,vt to prior+1 iteration
        irm1 = ir-1
        irm2 = ir-2
-       do  30  j = irm2, 1, -1
-          call dcopy(n,wk(1,1,j),1,wk(1,1,j+1),1)
-          call dcopy(n,wk(1,2,j),1,wk(1,2,j+1),1)
-30     enddo
-       !   ... Make u,vt for this iteration
-       do    k = 1, n
-          wk(k,1,1) = fac1*wk(k,1,ir) + fac2*wk(k,1,0)
-          wk(k,2,1) = fac2*wk(k,1,ir)
+       do  j = irm2, 1, -1
+          wk(:,1,j+1)=wk(:,1,j)
+          wk(:,2,j+1)=wk(:,2,j)
        enddo
-
-       !   --- Make  a and b = ( w0**2 I + a )^-1 (symmetric) ---
-       do  42  j = 1, irm2
-          aij = zero
-          cmj = zero
-          do    k = 1, n
-             cmj = cmj + wk(k,2,ir-j)*gin(k)
-             aij = aij + wk(k,2,ir-j)*wk(k,2,1)
-          enddo
-          a(irm1,j) = aij
-          a(j,irm1) = aij
-          cm(j) = cmj
-42     enddo
-       aij = zero
-       cmj = zero
-       do  k = 1, n
-          cmj = cmj + wk(k,2,1)*gin(k)
-          aij = aij + wk(k,2,1)*wk(k,2,1)
+       wk(:,1,1) = fac1*wk(:,1,ir) + fac2*wk(:,1,0) !   ... Make u,vt for this iteration
+       wk(:,2,1) = fac2*wk(:,1,ir)
+       do  j = 1, irm2 !Make  a and b = ( w0**2 I + a )^-1 (symmetric) ---
+          a(irm1,j) = sum(wk(:,2,ir-j)*wk(:,2,1))
+          a(j,irm1) = a(irm1,j)
+          cm(j) = sum(wk(:,2,ir-j)*gin)
        enddo
-       a(irm1,irm1) = aij
-       cm(irm1) = cmj
+       a(irm1,irm1) = sum(wk(:,2,1)*wk(:,2,1))
+       cm(irm1) = sum(wk(:,2,1)*gin)
        w(irm1) = wc
-
-       !   ... Set up and calculate beta matrix
-       do   lm = 1, irm1
+       do   lm = 1, irm1 !!   ... Set up and calculate beta matrix
           do  ln = 1, irm1
              d(ln,lm) = a(ln,lm)*w(ln)*w(lm)
           enddo
           d(lm,lm) = w0**2 + a(lm,lm)*w(lm)*w(lm)
        enddo
-       !   --- Invert to make d ---
-       call matinv2(irm1,d(1:irm1,1:irm1),ierr)
-       !   --- xnew <- vector for the new iteration ---
-       do   k = 1, n
-          xnew(k) = xin(k) + beta*gin(k)
+       call matinv2(irm1,d(1:irm1,1:irm1),ierr) !Invert to make d ---
+       xnew = xin + beta*gin !xnew <- vector for the new iteration ---
+       do i = 1, irm1
+          gmi =  sum([(cm(ip)*d(ip,i)*w(ip),ip=1,irm1)])
+          xnew = xnew - gmi*wk(:,1,ir-i)*w(i)
        enddo
-       do  70  i = 1, irm1
-          gmi = zero
-          do  ip = 1, irm1
-             gmi = gmi + cm(ip)*d(ip,i)*w(ip)
-          enddo
-          do  k = 1, n
-             xnew(k) = xnew(k) - gmi*wk(k,1,ir-i)*w(i)
-          enddo
-70     enddo
-       !   ... Cap to maximum allowed shift xnew-xin
-       if (dxmx > 0d0) then
-          diff = 0
-          do  k = 1, n
-             diff = max(diff,abs(xnew(k)-xin(k)))
-          enddo
-          if (diff > dxmx) then
-             betx = dxmx/diff
-             do   k = 1, n
-                xnew(k) = xin(k) + betx*(xnew(k)-xin(k))
-             enddo
-          endif
+       if(dxmx>0d0) then !  ... Cap to maximum allowed shift xnew-xin
+          diff = maxval(abs(xnew-xin))
+          if(diff>dxmx) xnew = xin + dxmx/diff*(xnew-xin)
        endif
     endif
-    ! --- Cleanup, setup for next call ---
-    xmax = 0
-    gmax = 0
-    diff = 0
-    do  110  k = 1, n
-       xmax = max(xmax,abs(xnew(k)-xin(k)))
-       gmax = max(gmax,dabs(gin(k)))
-       diff = diff + (xnew(k)-xin(k))**2
-       wk(k,2,0) = gin(k)
-       wk(k,1,0) = xin(k)
-110 enddo
-    diff = dsqrt(diff/n)
+    wk(:,2,0) = gin
+    wk(:,1,0) = xin
     j = ir+1
     broyj = j
   end function broyj
@@ -803,7 +724,6 @@ contains
     use m_struc_def  
     use m_lmfinit,only: ispec
     use m_hansr,only:corprm
-!    use m_ftom,only:sspec
     !i   kmax  : make expansion coffs to polynomial cutoff kmax
     !i   orhoat: vector of offsets containing site density
     !o   qkl  :Expansion coefficients, stored as a single long vector.
@@ -812,7 +732,6 @@ contains
     !r   Q_kL = integral p_kl (rho1-rho2) + l=0 contr. from core spillout.  Ser rhomom
     !r   The core spillout term is:
     !r      qcore(rhoc)-z  - sm_qcore-sm_qnuc
-    !r   pvrgkl makes this Q_kL when mode=131; partial contr for other modes
     !r   NB: p0l = a**l and scaling factor for k=0 is 4*pi/(a**l * (2l+1)!!)
     !r       => q0l = 4*pi/(2l+1)!! q_l, where q_l is the multipole moment
     ! ----------------------------------------------------------------------
