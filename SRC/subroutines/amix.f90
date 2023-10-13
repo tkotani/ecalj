@@ -60,7 +60,6 @@ contains
     integer :: i,j,nwk,inert(3),nmix,kelt,nmake,ido,iprint,lwork
     double precision :: ddot,det(2),sumsqr,sing,sinmax
     parameter (sinmax=100000d0)
-
     amix = 0
     if (nelts == 0) return
     !     if (ipr .ge. 20 .and. ido .ne. 2) print *
@@ -69,24 +68,18 @@ contains
     ! nmake is the number of elements mixed per matrix inversion
     nmake = nelts
     if (ido/10 == 1) nmake = 1
-
     ! --  d_0 = f-x  =>  wk(*,0,1) --
     call daxpy(nelts,-1d0,wk(1,0,2),1,wk,1)
-
     ! --  Copy x_0 and d_0 to end of wk:  x*, d* constructed there --
     call dmcpy(wk,nwk,1,wk(1,mmix+1,1),nwk,1,nelts,2)
-
     ! --- Obtain the tj ---
 11  continue
     nmix = iabs(npmix)
     kelt = kelt+1
-
     ! --  Make < (d_0 - d_j) (d_0 - d_k) > and  < d_0 (d_0 - d_j) >  --
     if (ido == 2) goto 40
 10  continue
     if (nmix < 0) call rx( 'amix: bad nmix')
-
-
     ! -- Regular Anderson mixing branch --
     sumsqr=-1d99
     if (ido/10 == 0) then
@@ -150,7 +143,6 @@ contains
     endif
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     
-    
     ! --  Reduce nmix if any t_j exceeds tm --
     do  30  j = 1, nmix
        if (dabs(t(j)) <= dabs(tm)) goto 30
@@ -170,7 +162,6 @@ contains
        call daxpy(nelts,1d0,wk(1,0,2),1,wk,1)
        return
     endif
-
     ! --- Make (d,x)* = (d,x)_0 - \sum_j t_j ((d,x)_0 - (d,x)_j) ---
     do  45  j = 1, nmix
        call daxpy(nmake,-t(j),wk(kelt,0,1),1,wk(kelt,mmix+1,1),1)
@@ -180,7 +171,6 @@ contains
           call daxpy(nmake, t(j),wk(kelt,j,2),1,wk(kelt,mmix+1,2),1)
        endif
 45  enddo
-
     ! -- Do next element for silly case --
     if (ido/10 == 1) then
        if (nmix > 0 .AND. iprint() >= 40) &
@@ -188,37 +178,28 @@ contains
 135    format(i4,3x,'tj:',7(f8.5,2x))
        if (kelt < nelts) goto 11
     endif
-
     ! --  Copy arrays to new positions --
     do  50  i = mmix, 1, -1
        call dmcpy(wk(1,i-1,1),nwk,1,wk(1,i,1),nwk,1,nelts,2)
 50  enddo
-
     ! --  x* + beta d*  (or x + beta d* if npmix<0) --
     call daxpy(nelts,beta,wk(1,mmix+1,1),1,wk(1,mmix+1,2),1)
-
     ! --  Calculate rms change --
     rmsdel = dsqrt(ddot(nelts,wk,1,wk,1)/nelts)
-
     ! --- Printout ---
     if (ipr < 30) goto 60
     write(*,133) nmix,mmix,nelts,beta,tm,rmsdel
-133 format(' AMIX: nmix=',i1,' mmix=',i1,'  nelts=',i6, &
-         '  beta=',f7.5,'  tm=',f8.5,'  rmsdel=',1pd9.2)
+133 format(' AMIX: nmix=',i1,' mmix=',i1,'  nelts=',i6,'  beta=',f7.5,'  tm=',f8.5,'  rmsdel=',1pd9.2)
     if (nmix > 0) write(*,134) (t(j), j=1,nmix)
 134 format(3x,'tj:',7(f8.5,2x))
-
     if (ipr < 61 .AND. (ipr < 41 .OR. nelts > 100)) goto 60
     write(*,110)
-    do  12  i = 1, nelts
-       if (dabs(wk(i,0,1)) + dabs(wk(i,mmix+1,2)-wk(i,0,2)) >= 5d-7) &
-            write(*,111) i,wk(i,0,2),wk(i,0,2)+wk(i,0,1), &
-            wk(i,0,1),wk(i,mmix+1,2)
-12  enddo
-
+    do i = 1, nelts
+       if(dabs(wk(i,0,1))+dabs(wk(i,mmix+1,2)-wk(i,0,2))>=5d-7) write(*,111)i,wk(i,0,2),wk(i,0,2)+wk(i,0,1),wk(i,0,1),wk(i,mmix+1,2)
+    enddo
     ! --- Restore d* and x* + beta d* from end of wk --
-60  call dmcpy(wk(1,mmix+1,1),nwk,1,wk,nwk,1,nelts,2)
-
+60  continue
+    call dmcpy(wk(1,mmix+1,1),nwk,1,wk,nwk,1,nelts,2)
 104 format(1p,4d18.11)
 111 format(i5,4f14.6)
 110 format(14x,'Old',11x,' New',9x,'Diff',10x,'Mixed')

@@ -687,13 +687,22 @@ program hx0fp0
   call MPI__barrier()
 !  if(cmdopt0('--rcxq0')) call rx0('end of --rcxq0 mode to generete rcxq0')
   if( .NOT. epsmode) call MPI__sendllw2(iqxend) !!! mpi send LLW to root.
-
   !! == W(0) divergent part and W(0) non-analytic constant part.==
   !!   Note that this is only for q=0 -->iq=1
   !! get w0 and w0i (diagonal element at Gamma point
   !! This return w0, and w0i
   if(( .NOT. epsmode) .AND. MPI__rank==0) call w0w0i(nw_i,nw,nq0i,niw,q0i) !llw,llwI,
   ! === w0,w0i are stored to zw for q=0 ===    !! === w_ks*wk are stored to zw for iq >nqibz ===
+  call cputid(0)
+  if(ixc==11)   call rx0( ' OK! hx0fp0 mode=11     read <Q0P> normal sergeyv')
+  if(ixc==111)  call rx0( ' OK! hx0fp0 mode=111    normal sergeyv')
+  if(ixc==10011)call rx0( ' OK! hx0fp0 mode=10011  crpa normal sergeyv')
+  if(ixc==12)   call rx0( ' OK! hx0fp0 mode=12  Ecor sergeyv mode')
+  if(ixc==101)  call rx0( ' OK! hx0fp0 mode=101 Ecor ')
+  if(ixc==202)  call rx0( ' OK! hx0fp0 mode=202 sergeyv epsPP NoLFC')
+  if(ixc==203)  call rx0( ' OK! hx0fp0 mode=203 sergeyv eps LFC ')
+  if(ixc==222)  call rx0( ' OK! hx0fp0 mode=222 chi+- NoLFC sergeyv')
+END PROGRAM hx0fp0
 
   !$$$!! --- legas mode is not working now. Need fixing... voltot ntot are not given.
   !$$$      if(epsmode.and.legas) then
@@ -804,17 +813,17 @@ program hx0fp0
   !$$$c$$$          write (ifcor,*)ecelgas
   !$$$c$$$        endif
   !$$$      endif
-  call cputid(0)
-  !      call MPI__Finalize
-  if(ixc==11)   call rx0( ' OK! hx0fp0 mode=11     read <Q0P> normal sergeyv')
-  if(ixc==111)  call rx0( ' OK! hx0fp0 mode=111    normal sergeyv')
-  if(ixc==10011)call rx0( ' OK! hx0fp0 mode=10011  crpa normal sergeyv')
-  if(ixc==12)   call rx0( ' OK! hx0fp0 mode=12  Ecor sergeyv mode')
-  if(ixc==101)  call rx0( ' OK! hx0fp0 mode=101 Ecor ')
-  if(ixc==202)  call rx0( ' OK! hx0fp0 mode=202 sergeyv epsPP NoLFC')
-  if(ixc==203)  call rx0( ' OK! hx0fp0 mode=203 sergeyv eps LFC ')
-  if(ixc==222)  call rx0( ' OK! hx0fp0 mode=222 chi+- NoLFC sergeyv')
-END PROGRAM hx0fp0
+!   call cputid(0)
+!   !      call MPI__Finalize
+!   if(ixc==11)   call rx0( ' OK! hx0fp0 mode=11     read <Q0P> normal sergeyv')
+!   if(ixc==111)  call rx0( ' OK! hx0fp0 mode=111    normal sergeyv')
+!   if(ixc==10011)call rx0( ' OK! hx0fp0 mode=10011  crpa normal sergeyv')
+!   if(ixc==12)   call rx0( ' OK! hx0fp0 mode=12  Ecor sergeyv mode')
+!   if(ixc==101)  call rx0( ' OK! hx0fp0 mode=101 Ecor ')
+!   if(ixc==202)  call rx0( ' OK! hx0fp0 mode=202 sergeyv epsPP NoLFC')
+!   if(ixc==203)  call rx0( ' OK! hx0fp0 mode=203 sergeyv eps LFC ')
+!   if(ixc==222)  call rx0( ' OK! hx0fp0 mode=222 chi+- NoLFC sergeyv')
+! END PROGRAM hx0fp0
 
 ! !--------------------------------------------------------------------
 ! real*8 function eclda_bh(rs)
