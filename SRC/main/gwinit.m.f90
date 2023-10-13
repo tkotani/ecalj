@@ -297,6 +297,7 @@ program gwinit_v2
   write(ifi,"(a,f8.3,a,a)") '!QforEPSIBZ on ! Use all q in IBZ for the calculation of eps mode.'
   write(ifi,"(a)") 'QforEPSunita on'
   write(ifi,"(a)") '<QforEPS>'
+  write(ifi,"(a)") ' 0 0 0.00001   '
   write(ifi,"(a)") ' 0 0 0.001     '
   write(ifi,"(a)") ' 0 0 0.0014142 '
   write(ifi,"(a)") ' 0 0 0.002     '
