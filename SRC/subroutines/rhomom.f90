@@ -75,9 +75,9 @@ subroutine pvrhom(rmt,a,nlml,nr,nsp,rho1,rho2,rhoc,cofg,cofh,z, qmomj,vsum1,vsum
      qmomj(ilm)= sum([ (sum(rwgt*rofi**l*(rho1(:,ilm,isp)-rho2(:,ilm,isp))), isp=1,nsp) ]) !Q_aL^v Eq.(28)
   enddo
   qmomj(1) = qmomj(1) -y0*z + cofg ! Eq.(25). Add Q_al^Zc.  -y0*z = QaL[-Z_a\delta(\bfr)] ; cofg=QaL[ n^c_a(\bfr) - n^c_sH,a(\bfr)]
-  call poiss0(z,  rofi, h,            nr,0d0, v, vhrho,vsum,1)
+  call poiss0(z,  rofi, [(0d0,i=1,2*nr)],  nr,0d0, v, vhrho,vsum,1)
   vsum1 = sum(rwgt(2:nr)*rofi(2:nr)**2*(v(2:nr)-2d0*z/rofi(2:nr)))
-  call poiss0(0d0,rofi,[(0d0,i=1,nr)],nr,0d0, v, vhrho,vsum,1)
+  call poiss0(0d0,rofi,[(0d0,i=1,2*nr)],nr,0d0, v, vhrho,vsum,1)
   vsum2 = fpi*sum(rwgt*rofi**2*v)
 end subroutine pvrhom
 endmodule m_rhomom

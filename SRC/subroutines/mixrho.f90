@@ -573,30 +573,28 @@ contains
     !r  x^(m): input vector for iteration m
     !r  F^(m): difference between output and input vector in iteration m
     implicit none
-    integer :: nda,nmix,mmix,mxsav,im,km,i,iprint,i1mach,imix,jmix
+    integer :: nda,nmix,mmix,mxsav,im,km,i,iprint,i1mach,jmix,ibroy
     real(8) :: beta,rms2,wctrue,a(nda,0:mxsav+1,2), wc
     real(8) :: xmp1_rv(nda), f_rv(nda), ui_rv(nda), vti_rv(nda), xold_rv(nda), df_rv(nda), dx_rv(nda)
     real(8),allocatable:: wk_rv(:)
-    imix = merge(mmix,nmix, nmix < 0) !imix is a local copy of nmix
-    jmix = min(mmix,iabs(imix))
+    nmix = merge(mmix,nmix, nmix < 0) 
+    jmix = min(mmix,iabs(nmix))
+    allocate(wk_rv(nda*2*(jmix+2)))
     do km = 1, jmix
        im = jmix-km+1
-       dx_rv=a(:,im-1,1)- a(:,im-1,2)
+       dx_rv = a(:,im-1,1)- a(:,im-1,2)
        rms2 = (sum(dx_rv**2)/nda)**.5
        wctrue= merge(min(max(-wc/100/dsqrt(nda*rms2**2),1d0),1d4),wc,wc < 0) !Determine wc_true if wc < 0 ---
        if(km == 1) wctrue = .01d0
        i = iprint()
        if (km /= jmix) i = i-20
-       allocate(wk_rv(nda*2*(jmix+2)))
-       i = broyj ( nda,a(1,im-1,2),dx_rv,km, i,beta,0d0,0d0,0d0,wctrue,wk_rv,nda,xmp1_rv )
-       deallocate(wk_rv)
+       ibroy = broyj ( nda,a(1,im-1,2),dx_rv,km, i,beta,0d0,0d0,0d0,wctrue,wk_rv,nda,xmp1_rv )
     enddo
-    nmix = imix
     if(nmix == 0 ) return
     if(iprint() > 60 .OR. (iprint() >= 40 .AND. nda <= 100)) then
        write(stdo,"(14x,'Old',11X,' New',9X,'Diff',10X,'Mixed')") 
        do i = 1, nda
-          if(dabs(a(i,0,1)-a(i,0,2))>= 5d-9 ) write(stdo,"(i5,4f14.6)")i,a( i,0,2 ),a( i,0,1 ),a(i,0,1)-a( i,0,2 ),xmp1_rv(i) 
+          if(dabs(a(i,0,1)-a(i,0,2))>= 5d-9) write(stdo,"(i5,4f14.6)")i,a( i,0,2 ),a( i,0,1 ),a(i,0,1)-a( i,0,2 ),xmp1_rv(i) 
        enddo
     endif
     a(:,0,2)=xmp1_rv !Save x^(m+2) into a(*,0,2)

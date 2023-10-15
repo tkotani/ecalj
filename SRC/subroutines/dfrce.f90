@@ -343,10 +343,10 @@ contains
     use m_struc_def
     use m_smvxcm,only: smvxcm
     implicit none
-    integer :: nsp,n1,n2,n3,i
+    integer :: nsp,n1,n2,n3,i,i1,i2,i3
     complex(8):: vxcp(n1,n2,n3,nsp),vxcm(n1,n2,n3,nsp),vxc0(n1,n2,n3,nsp), &
          dvxc(n1,n2,n3,nsp),smrho(n1,n2,n3,nsp),dsmrho(n1,n2,n3,nsp), wn1(n1,n2,n3,nsp),wn2(n1,n2,n3,nsp),wn3(n1,n2,n3,nsp)
-    real(8):: fac,dmach,f1,f2,f,alfa,dfdr,rrho(n1,n2,n3),dvdr, &
+    real(8):: fac,dmach,f1,f2,f,alfa,dfdr,rrho,dvdr, &
          rmusm(nsp),rvmusm(nsp),rvepsm(nsp),repsm(nsp),repsmx(nsp),repsmc(nsp), ff(1,1)
     fac = dmach(1)**(1d0/3d0)
     alfa = 2d0/3d0
@@ -359,10 +359,15 @@ contains
     call smvxcm(0,smrho,         vxc0,dvxc,wn1,wn2,wn3,repsm,repsmx,repsmc,rmusm, rvmusm,rvepsm,ff) 
     wn1=0d0
     do i = 1, nsp
-       rrho = (smrho(:,:,:,1)+smrho(:,:,:,nsp))/(3-nsp)
-       dvxc(:,:,:,i) = ( (vxcp(:,:,:,i)*(rrho*(1+fac))**alfa - vxcm(:,:,:,i)*(rrho*(1-fac))**alfa)/(2d0*fac*rrho) &
-            - alfa*vxc0(:,:,:,i)*rrho**alfa/rrho )/ rrho**alfa !probably three point formula of numerical derivative.
-       dvxc(:,:,:,i)=merge(dvxc(:,:,:,i),wn1(:,:,:,1),rrho>0)
+       do concurrent(i1=1:n1,i2=1:n2,i3=1:n3)
+          rrho = (smrho(i1,i2,i3,1)+smrho(i1,i2,i3,nsp))/(3-nsp)
+          if(rrho>0) then
+             dvxc(i1,i2,i3,i)=((vxcp(i1,i2,i3,i)*(rrho*(1+fac))**alfa - vxcm(i1,i2,i3,i)*(rrho*(1-fac))**alfa)/(2d0*fac*rrho) &
+                  - alfa*vxc0(i1,i2,i3,i)*rrho**alfa/rrho)/rrho**alfa
+          else
+             dvxc(i1,i2,i3,i)=wn1(i1,i2,i3,1)
+          endif
+       enddo
     enddo
     call poppr
   end subroutine pvdf2

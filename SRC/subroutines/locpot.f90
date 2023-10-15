@@ -430,10 +430,10 @@ contains
        xill(i)=xil(0)
     enddo
     rhochs(:) = srfpi*cofh*xill(:)*rofi(:)**2   ! n^c_sH,a(r) smoothedcore density smHankel
-    if(ipr>=20.AND.dabs(samh)>1d-6) then
-         sumh  = sum(rwgt*rhochs)                           !
-         samh = -y0*cofh*pi4*dexp(ceh*rfoc*rfoc*0.25d0)/ceh !total sm core charge (smHamkel)
-         write(stdo,ftox)'    sm core charge in MT=',ftof(sumh),'= total-spillout=',ftof(samh),'-',ftof(samh-sumh)
+    if(ipr>=20) then
+       sumh  = sum(rwgt*rhochs)                           !
+       samh = -y0*cofh*pi4*dexp(ceh*rfoc*rfoc*0.25d0)/ceh !total sm core charge (smHamkel)
+       if(dabs(samh)>1d-6)write(stdo,ftox)'    sm core charge in MT=',ftof(sumh),'= total-spillout=',ftof(samh),'-',ftof(samh-sumh)
     endif     
     rhol1 = rho1
     rhol1(:,1,:)= rhol1(:,1,:)+ y0*rhoc(:,:) ! True electron density = rhol1 -2Z/r = rho1 + y0*(rhoc -2Z/r) !1st component of Eq.(24)
