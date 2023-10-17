@@ -9,8 +9,8 @@ def gwsc_args():
     arguments settings
     Returns
       target: target material name ctrl.target
-       nloop: numbdr of QSGW iterations starting from current result (nloop=0 is replaced by nloop=1 internally)
-       ncore: number of MPI thereads in lmf
+      nloop: numbdr of QSGW iterations starting from current result (nloop=0 is replaced by nloop=1 internally)
+      ncore: number of MPI thereads in lmf
       ncore2: number of MPI thereads in lxsC etc.
       option: options
     '''
@@ -21,6 +21,7 @@ def gwsc_args():
     parser.add_argument("nloop",   help='iteration number of QSGW loop')
     parser.add_argument("material_name",help='material name')
     parser.add_argument('--phispinsym',action='store_true',help='spin-symmetrized augmentation')
+    parser.add_argument('--afsym',action='store_true',help='AF symmetry mode')
     args=parser.parse_args()
     print(args)
     target=args.material_name
@@ -36,6 +37,7 @@ def gwsc_args():
         ncore2=ncore
     option=''
     if args.phispinsym==True: option=' --phispinsym'
+    if args.afsym==True: option=option+' --afsym'
     return(target,nloop,ncore,ncore2,option)
 
 def gen_dir(dirname):
@@ -70,10 +72,11 @@ def run_program(commandline,ncore=0):
         mpi_size:
         command line: 
     '''
-    import subprocess
+    import subprocess,datetime
+    xdate=datetime.datetime.today().isoformat()
     mpirun='mpirun -np %d '%ncore if ncore!=0 else ''
-    run_command = mpirun + commandline+';date'
-    print(run_command,flush=True)
+    run_command = mpirun + commandline
+    print(xdate+'  '+run_command,flush=True)
     info=subprocess.run(run_command,shell=True)
     if info.returncode!=0: #if return error
         print('Error in '+run_command,flush=True)

@@ -23,16 +23,18 @@ gen_dir('SEBK')
 gen_dir('STDOUT')
 sigm_name='sigm.%s'%target
 rst_name ='rst.%s'%target
-#serch sigm and sigm.target files
-if os.path.isfile('sigm') and os.path.isfile(sigm_name):
-    shutil.move(sigm_name, sigm_name+'.bakup')
-    os.symlink('sigm',sigm_name)
-    print('--- sigm is used. sigm.$TARGET is softlink to it  ---',flush=True)
+
+# Set up sigm file and softlike sigm.foobar ##########################
+if os.path.islink(sigm_name):
+    pass
 elif os.path.isfile(sigm_name):
-    shutil.move(sigm_name, sigm)
+    shutil.move(sigm_name, 'sigm')
     os.symlink('sigm',sigm_name)
-    print('--- sigm.$TARGET is moved to sigm. sigm.$TARGET is softlink now.  ---',flush=True)
-#main iteration ###################################
+if os.path.isfile('sigm'):
+    shutil.copy('sigm', sigm_name+'.bakup')
+    print('--- sigm is softlined to '+sigm_name, ' ---',flush=True)
+
+# main iteration ###################################
 if(Iter0!=-1): print('We found QPU.%run'%Iter0)
 targets=' '+target+' '+option+' '
 for i in range(1,nloop+1): #nloop is the additional number of iteration
