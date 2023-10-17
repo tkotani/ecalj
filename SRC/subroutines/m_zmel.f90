@@ -476,7 +476,7 @@ contains
        ias  = iasx(ia)
        iap  = iatomp(ia)
        icp  = iclass(iap)
-       write(6,*)'iiiiiiiiiiiiiiiiiiiii',ic,nv,nc,nc1,ias, iap,icp
+!       write(6,*)'iiiiiiiiiiiiiiiiiiiii',ic,nv,nc,nc1,ias, iap,icp
        prodloop: do concurrent(i=1:mdim(icp))   ! loop over optimal product basis
           !     sum(Ln) bkq(Ln,t') * <phi(Ln) phi(L'n') B(i)> !bkq is complex but < > is real
           ib = imdim(iap)-1+i  !   <psi(k+q,t') | psi(k,t) B(i)>

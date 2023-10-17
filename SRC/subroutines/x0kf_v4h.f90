@@ -283,6 +283,7 @@ contains
     !! zmel(ngb, nctot+nt0,ncc+ntp0) in m_zmel
     !        nkmin:nt0,           nkqmin:ntp0
     !     nt0=nkmax-nkmin+1  , ntp0=nkqmax-nkqmin+1
+    kold = -999 
     zmel0mode : block
       real(8)::  q1a,q2a,rfac00
       complex(8),allocatable:: zmel0(:,:,:)
@@ -291,7 +292,6 @@ contains
          q1a=sum(q00**2)**.5
          q2a=sum(q**2)**.5
          rfac00=q2a/(q2a-q1a)
-         kold = -999 
          zmel0modeicount: do icount = 1,ncount
             k = kc(icount)
             nkmin_  = nkmin(k)
