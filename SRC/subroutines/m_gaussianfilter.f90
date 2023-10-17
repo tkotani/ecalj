@@ -51,6 +51,14 @@ contains
        do j=1,nwhis
           gfmat(j,i)= gfm(j)/ggg
        enddo
+       
+       ! do j=1,nwhis
+       !    gfm(j)= frc(j) * exp( -(frc(i)-frc(j))**2/(2d0*egauss))
+       ! enddo
+       ! ggg = sum(gfm) ! omega*e2(omega) sum rule
+       ! do j=1,nwhis
+       !    gfmat(j,i) = gfm(j)/frc(j)/ggg
+       ! enddo
     enddo
     deallocate(frc,gfm)
   end function gaussianfilterhis
