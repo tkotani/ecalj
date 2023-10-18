@@ -153,6 +153,7 @@ contains
 !!! tetrakbt
     real(8):: temperature     ![K], temporally
     logical:: interbandonly=.false.,intrabandonly=.false.,cmdopt0
+    real(8),parameter:: tolx=1d-5
     !---------------------------------------------------------------------
     call getkeyvalue("GWinput","tetrakbt",usetetrakbt,default=.false.)
     write(6,"(' tetwt5: job efermi usetetrakbt:=',i2,d13.6,l)") job,efermi,usetetrakbt
@@ -277,8 +278,8 @@ contains
                       jb = jbx - noccx_kq + nband
                    endif
                    !! --intraband mode  takao@nov2021
-                   if(intrabandonly .AND. (ib/=jb) .AND. job==1) cycle
-                   if(interbandonly .AND. (ib==jb) .AND. job==1) cycle
+                   if(intrabandonly.and.job==1.and. sum(abs(ek_(ib,0:3)-ek_(jb,0:3)))>=tolx ) cycle
+                   if(interbandonly.and.job==1.and. sum(abs(ek_(ib,0:3)-ek_(jb,0:3)))<tolx  ) cycle
                    !! This mechanism treat ek_ and ekq_ as occpied or unoccupied.
                    if(jpm==1) then
                       eocc   => ek_ (ib,0:3)

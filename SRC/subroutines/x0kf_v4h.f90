@@ -311,6 +311,7 @@ contains
             jpm = jpmc(icount) ! \pm omega. Usual mode is only for jpm=1
             igb2=1 !do igb2=1,nmbas  !we assume igb1=igb2=1 in this mode
             igb1=1 !do ibg1=1,igb2
+            if(abs(zmel0(igb1,it,itp))>1d10) cycle
             rcxq(igb1,igb2,iw,jpm)=rcxq(igb1,igb2,iw,jpm) &
                  + rfac00**2*(abs(zmel(igb1,it,itp))-abs(zmel0(igb1,it,itp)))**2 * whwc(icount)
          enddo zmel0modeicount
