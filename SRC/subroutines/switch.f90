@@ -1,6 +1,6 @@
 !A collection of switches. Many of the switches can be obsolate or not so meaningful now.
 real(8) function tolq() !tolerance to judge identical q vectors when rotated
-  tolq=1d-4 
+  tolq=1d-7
 END function tolq
 logical function mtosigmaonly() !this is also in fpgw/gwsrc/switches.
   mtosigmaonly=.true.
