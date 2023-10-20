@@ -1,13 +1,7 @@
-program heftet
-  ! - Calculates the Fermi energy by tetrahedron method.
-  ! This routine is from hsfp0
-  ! So it contains many unused variables.
-  !-------------------------------------------------------------
-  use m_read_bzdata,only: read_bzdata, &
-       idteti,qbz,qibz,dq_,nqibz,ntetf,nteti,ginv,nqbz
-  use m_genallcf_v3,only: genallcf_v3, nclass,natom,nspin,nl,nn,nnv,nnc, &
-       nlmto,nlnmx, nctot,niw,  alat, delta,deltaw,esmr,clabl,iclass, &!il,in,im,nlnm, &
-       plat, pos,z,ecore, konf,nlnx
+program heftet ! Calculates the Fermi energy by tetrahedron method. 
+  use m_read_bzdata,only: read_bzdata, idteti,qbz,qibz,dq_,nqibz,ntetf,nteti,ginv,nqbz
+  use m_genallcf_v3,only: genallcf_v3, nclass,natom,nspin,nl,nn,nnv,nnc, nlmto,nlnmx, nctot,niw
+  use m_genallcf_v3,only: alat, delta,deltaw,esmr,clabl,iclass, plat, pos,z,ecore, konf,nlnx
   use m_hamindex,only:   Readhamindex,qtt,nqtt
   use m_readeigen,only: init_readeigen,readeval
   use m_tetrakbt,only: tetrakbt_init, kbt
@@ -19,31 +13,20 @@ program heftet
   use m_lgunit,only: stdo
   use m_bzints,only: bzints2x,efrang3
   implicit none
-  integer :: mxclass,ngnmax, &
-       ibas,ibasx,ngpmx,nxx,ngcmx,nbloch,ifqpnt,ifwd, &
-       nprecx,nblochpmx2,nwt,niwt, nqnum,mdimx,nblochpmx, &
-       ifrcw,ifrcwi,  noccxv,maxocc,noccx,ifvcfpout,iqall,iaf,ntq, &
-       i,k, nq,is,ip,iq,idxk,ifoutsex,iclose,nq0i,ig,iimdim, &
-       ifreqx,ifreqw,iwx,iexpa,mxkp,nqibzxx,ntet,nene,iqi, ix,iw, &
-       nlnx4,niwx,irot,invr,invrot,ivsum, ifoutsec,ntqx, &
-       nq2,ntq2, &
-       ndble=8,ifev(2)
-  real(8) ::tpia,vol,voltot,rs,alpha, &
-       qfermi,efx,valn,efnew,edummy,efz,qm,xsex,egex, &
-       zfac1,zfac2,dscdw1,dscdw2,dscdw,zfac,efxx2, &
-       lowesteb
+  integer :: mxclass,ngnmax, ibas,ibasx,ngpmx,nxx,ngcmx,nbloch,ifqpnt,ifwd, &
+       nprecx,nblochpmx2,nwt,niwt, nqnum,mdimx,nblochpmx, ifrcw,ifrcwi,  noccxv,maxocc,noccx,ifvcfpout,iqall,iaf,ntq, &
+       i,k, nq,is,ip,iq,idxk,ifoutsex,iclose,nq0i,ig,iimdim, ifreqx,ifreqw,iwx,iexpa,mxkp,nqibzxx,ntet,nene,iqi, ix,iw, &
+       nlnx4,niwx,irot,invr,invrot,ivsum, ifoutsec,ntqx, nq2,ntq2,     ndble=8,ifev(2)
+  real(8) ::tpia,vol,voltot,rs,alpha, qfermi,efx,valn,efnew,edummy,efz,qm,xsex,egex, &
+       zfac1,zfac2,dscdw1,dscdw2,dscdw,zfac,efxx2,        lowesteb
   logical :: lqall
   integer,allocatable :: itq(:)
   real(8),allocatable    :: q(:,:)
-  integer,allocatable :: ngvecpB(:,:,:),ngveccB(:,:,:), &
-       ngvecp(:,:), ngvecc(:,:),ngpn(:),ngcni(:),iqib(:), &
+  integer,allocatable :: ngvecpB(:,:,:),ngveccB(:,:,:), ngvecp(:,:), ngvecc(:,:),ngpn(:),ngcni(:),iqib(:), &
        kount(:,:), nx(:,:),nblocha(:),lx(:),ngveccBr(:,:,:)
-  real(8),allocatable:: vxcfp(:,:,:), &
-       wqt(:), wgt0(:,:),q0i(:,:), &
-       ppbrd (:,:,:,:,:,:,:),cgr(:,:,:,:),eqt(:), &
-       ppbrdx(:,:,:,:,:,:,:),aaa(:,:),symope(:,:,:), &
-       ppb(:),pdb(:),dpb(:),ddb(:), eq(:,:), &
-       eqx(:,:,:),eqx0(:,:,:),ekc(:),coh(:,:)
+  real(8),allocatable:: vxcfp(:,:,:), wqt(:), wgt0(:,:),q0i(:,:), &
+       ppbrd (:,:,:,:,:,:,:),cgr(:,:,:,:),eqt(:), ppbrdx(:,:,:,:,:,:,:),aaa(:,:),symope(:,:,:), &
+       ppb(:),pdb(:),dpb(:),ddb(:), eq(:,:), eqx(:,:,:),eqx0(:,:,:),ekc(:),coh(:,:)
   complex(8),allocatable:: geigB(:,:,:,:) ,zsec(:,:,:)
   logical :: exchange, legas
   real(8):: qreal(3), tripl!ntot,nocctotg2,
@@ -51,34 +34,27 @@ program heftet
   integer(4) ::ib,igp,iii,ivsumxxx,isx
   real(8),allocatable   :: eex1(:,:,:),exsp1(:,:,:),qqex1(:,:,:,:)
   integer,allocatable:: ieord(:),itex1(:,:,:)
-  real(8)    :: qqex(1:3), eex,exsp,eee, exwgt,qq(3), &
-       elda, eqp01, eqp02
+  real(8)    :: qqex(1:3), eex,exsp,eee, exwgt,qq(3),        elda, eqp01, eqp02
   integer:: itmx,ipex,itpex,itex,nnex,isig,iex,ifexspx,ifexspxx , itx, iqx
   character(12) :: filenameex
   logical :: exspwrite=.false.
   integer:: nptdos=101 !,iflegas
   logical :: metal      ,qbzreg
   integer:: nkp,itt,ifief ,imode,iftote,it
-  real(8) :: elo,ehi,e1,e2,efermi,dum,dosef,efxx,rydberg,dum111(1,1,1) &
-       ,tol=1d-10,toql=1d-8, volwgt
+  real(8) :: elo,ehi,e1,e2,efermi,dum,dosef,efxx,rydberg,dum111(1,1,1)  , tol=1d-10,toql=1d-8, volwgt
   real(8),allocatable:: dos(:)
   integer:: nwin,bzcase=1,ifi
-  real(8)::ddq(3),bandgap,tolq=1d-8
-  ! space group infermation
+  real(8)::ddq(3),bandgap,tolq=1d-8   ! space group infermation
   integer(4),allocatable :: iclasst(:), invgx(:), miat(:,:)
-  real(8),allocatable    :: tiat(:,:,:),shtvg(:,:)
-  ! tetra
-  real(8),allocatable :: qz(:,:),qbzxx(:),wbzxx(:),wtet(:,:,:,:), &
-       eband(:,:,:),eband2(:,:,:), ene(:)
-  integer(4),allocatable ::idtetx(:,:),idtet(:,:),ipq(:),iene(:,:,:),ibzx(:)
-  ! fermi_kbt
+  real(8),allocatable    :: tiat(:,:,:),shtvg(:,:)   ! tetra
+  real(8),allocatable :: qz(:,:),qbzxx(:),wbzxx(:),wtet(:,:,:,:), eband(:,:,:),eband2(:,:,:), ene(:)
+  integer(4),allocatable ::idtetx(:,:),idtet(:,:),ipq(:),iene(:,:,:),ibzx(:)   ! fermi_kbt
   integer:: nptdos_kbt = 100001, ifief_kbt, nbandx
   real(8), allocatable:: dos_kbt(:), dosef_kbt
   real(8) :: efermi_kbt, e11, e22
   real(8),parameter:: pi= 4d0*datan(1d0)
   logical:: usetetrakbt, cmdopt2
   character(20):: outs=''
-
   call MPI__Initialize()
   call M_lgunit_init()
   if(cmdopt2('--job=',outs)) then
@@ -90,14 +66,9 @@ program heftet
   write(6,*) '--- heftet: calculation mode =',imode
   if(imode<1 .OR. imode>5) call rx( 'mode out of range(1-4)')
   call read_BZDATA()
-  ! ccccccccccccccccccccccccccccccccc
   write(6,ftox)' heftet: nqibz, ntetf,nteti,nqbz ', nqibz,ntetf,nteti,nqbz
-  ! ccccccccccccccccccccccccccccccccc
-
   call genallcf_v3(incwfx=-1) !in module m_genallcf_v3
-  call Readhbe()
-  !      write(6,"(' nqbz nqibz ngrp=',3i8)") nqbz,nqibz,ngrp
-  !      if(ngrp/= ngrp2) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
+  call Readhbe()   !      write(6,"(' nqbz nqibz ngrp=',3i8)") nqbz,nqibz,ngrp  ! if(ngrp/= ngrp2) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
   if(nclass /= natom ) call rx( ' hsfp0: nclass /= natom ')
   tpia = 2d0*pi/alat
   voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
@@ -118,7 +89,6 @@ program heftet
   !$$$        write (6,*)' egas  Exact Fermi momentum  qf  =', qfermi
   !$$$        write (6,*)' egas  Exact Fermi energy    Ef  =', efx
   !$$$      endif
-  !--------------------
   write(6, *) ' --- computational conditions --- '
   write(6,'("    deltaw  =",f13.6)') deltaw
   write(6,'("    esmr    =",f13.6)') esmr
@@ -129,15 +99,8 @@ program heftet
   read(ifi,*)
   read(ifi,*) valn !Get number of valence electron valn
   close(ifi)
-
   if(imode==1 .OR. imode==5) then
      call Readhamindex()
-!!!!!!!!!!!!!!!!!!!!!!
-!     write(stdo,ftox)'mmmmmmmmmmm',nqtt
-!     do i=1,nqtt
-!        write(stdo,ftox)'mmmmmmmm',i,ftof(qtt(:,i))
-!     enddo
-!!!!!!!!!!!!     
      call init_readeigen() !initialization of readEigen
      nbandx= nband
      nkp   = nqibz
@@ -153,7 +116,6 @@ program heftet
         enddo
      enddo
      call efrang3(nspin,nqbz,nbandx,valn,eband2,  e1,e2,elo,ehi,bandgap)
-     ! read eband
      if(qbzreg() .AND. bzcase==1 ) then
         allocate( eband(nbandx,nspin,nqibz))
         do is  = 1,nspin
@@ -169,7 +131,7 @@ program heftet
      if(nq/= nqibz) call rx( ' heftet: nq TOTE/= nqibz')
      nbandx = ntq
      allocate( eband(nbandx,nspin,nqibz), qz(3,nqibz) )
-     qz=qibz !call dcopy (3*nqibz,qibz,1,qz,1)
+     qz=qibz 
      do  is  = 1,nspin !Readin eband
         if(is==2) then
            open(newunit=iftote,file='TOTE.DN')
@@ -198,15 +160,13 @@ program heftet
      nkp =nqibz
      call efrang3(nspin,nkp,nbandx,valn,eband,  e1,e2,elo,ehi,bandgap)
   endif
-
   write(6,"(' end of efrang3: e1 e2 nteti=',2d15.7,i6)") e1,e2,nteti
   write(6,"(' elo ehi = ',2d15.7,i6)") elo,ehi
   write(6,*)'e1=',e1
   write(6,*)'e2=',e2
   if(e1 /= e2) then
      if( .NOT. ( qbzreg() .AND. bzcase==1 ) ) then
-        write(6,*)"Fermi energy finder for off-regular mesh"// &
-             "(Chi_RegQbz off)or bzcase==2 is not implimented yet..."
+        write(6,*)"Fermi energy finder for off-regular mesh (Chi_RegQbz off)or bzcase==2 is not implimented yet..."
         call rx("Ef finder for off-regular mesh. NotYet implimented")
      endif
   endif
@@ -218,8 +178,7 @@ program heftet
   if(e1 == e2) then ! --- Find band gap  e1=e2 is at the middle of gap---
      efermi     = e1
      write(6,*)'heftet: only filled or empty bands encountered.'
-     write(ifief,"(2d23.15,a)") efermi,bandgap, &
-          ' ! This efermi bandgap are obtained by heftet: '
+     write(ifief,"(2d23.15,a)") efermi,bandgap," ! efermi, bandgap are obtained by heftet"
      write(ifief,"(a)")'heftet: only filled or empty bands encountered.'
   else ! --- Find the Fermi energy by the Tetrahedron method ---
      write(6,*)' goto bzints2 for dos'
@@ -227,15 +186,13 @@ program heftet
      volwgt = (3.d0 - nspin) / ntetf ! ntetf was =6*n1*n2*n3
      write (6,"(1x,'heftet : ---- Tetrahedron Integration ---- ')")
      do itt = 1, 10
-        call bzints2x(volwgt,eband,dum111,nkp,nbandx,nbandx, &
-             nspin,e1,e2,dos,nptdos,efermi,1,nteti,idteti)
-        call fermi2( valn,dos,nptdos,e1,e2,   efermi,e1,e2,dosef)
-        !! write(*,"(i3,7x,5(d13.6,1x))")itt, efermi, e1, e2, e2-e1, dosef
-        if(e2 - e1 < tol) goto 4
+        call bzints2x(volwgt,eband,dum111,nkp,nbandx,nbandx,nspin,e1,e2,dos,nptdos,efermi,1,nteti,idteti)
+        call fermi2( valn,dos,nptdos,e1,e2,   efermi,e1,e2,dosef) ! write(*,"(i3,7x,5(d13.6,1x))")itt, efermi, e1, e2, e2-e1, dosef
+        if(e2 - e1 < tol) goto 444
      enddo
      write(*,*) 'heftet:bug in fermi level finder or tol too small'
      call rx( 'heftet:bug in fermi level finder or tol too small')
-4    continue
+444  continue
      ! Fermi energy at finite temperature (EFERMI_kbt); Okumura (Feb.2020)
      call getkeyvalue("GWinput","tetrakbt",usetetrakbt,default=.false.)
      if (imode==5 .AND. usetetrakbt) then
@@ -243,12 +200,8 @@ program heftet
         e11 = efermi - 10*kbt
         e22 = efermi + 10*kbt
         nptdos_kbt = 10001
-        call bzints2x(volwgt,eband,dum111,nkp,nbandx,nbandx, &
-             nspin,e11,e22,dos_kbt, nptdos_kbt ,efermi,1,nteti,idteti)
-        call fermi_kbt( &
-             valn,dos_kbt,nptdos_kbt,e11,e22, &
-             kbt, efermi,   & ! & !efermi: Fermi level at 0K
-             efermi_kbt)     !,e11,e22,dosef_kbt) !!efermi_kbt: Fermi level at finite tempearture.
+        call bzints2x(volwgt,eband,dum111,nkp,nbandx,nbandx, nspin,e11,e22,dos_kbt, nptdos_kbt ,efermi,1,nteti,idteti)
+        call fermi_kbt(valn,dos_kbt,nptdos_kbt,e11,e22, kbt, efermi, efermi_kbt) !Fermi level at finite tempearture.
         deallocate(dos_kbt)
         open(newunit=ifief_kbt,file='EFERMI_kbt')
         write(ifief_kbt,"(2d23.15,a)") efermi_kbt, kbt,' ! This efermi kbt are obtained by heftet:'
@@ -256,23 +209,17 @@ program heftet
      endif
      deallocate(dos)
      bandgap=0d0
-     write(ifief,"(2d23.15,a)") efermi,bandgap," ! This efermi bandgap are obtained by heftet"
+     write(ifief,"(2d23.15,a)") efermi,bandgap," ! efermi bandgap are obtained by heftet"
   endif
   close(ifief)
-  ! eband check
-  if(imode/=1 .OR. imode/=5) then
-     do  is  = 1,nspin
-        do  iqi = 1,nqibz
-           if( eband(nbandx,is,iqi) <efermi) then
-              write(6,*)' heftet: WARNING! eband(maxband) is less than efermi:'// &
-                   'you might have to enlarge nbandx to get efermi by tetrahedron'
-              goto 666
-           endif
-        enddo
-     enddo
+  ebandchek: if(imode/=1 .OR. imode/=5) then
+     if(any(eband(nbandx,:,:)<efermi)) then
+        write(6,*)' heftet: WARNING! eband(maxband) is less than efermi: enlarge nbandx to get efermi by tetrahedron?'
+        goto 666
+     endif   
      write(6,*) ' check OK! eband(nbandx,:,:) is greater than efermi.'
 666  continue
-  endif
+  endif ebandchek
   if(imode==1) then
      write(6,"(' Tet EFERMI gap = ',2f24.15)") efermi,bandgap
      call rx0( ' OK! heftet mode=1 EFERMI generated ')

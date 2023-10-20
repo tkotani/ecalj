@@ -277,7 +277,7 @@ contains
                    else
                       jb = jbx - noccx_kq + nband
                    endif
-                   !! --intraband mode  takao@nov2021
+                   !! --interband mode, --intraband mode  takao@nov2021 modified@2023oct
                    if(intrabandonly.and.job==1.and. sum(abs(ek_(ib,0:3)-ek_(jb,0:3)))>=tolx ) cycle
                    if(interbandonly.and.job==1.and. sum(abs(ek_(ib,0:3)-ek_(jb,0:3)))<tolx  ) cycle
                    !! This mechanism treat ek_ and ekq_ as occpied or unoccupied.

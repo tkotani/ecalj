@@ -487,16 +487,13 @@ contains
           enddo
        enddo
     endif
-
     do   ikp = 1, nkp
        do   isp = 1, nsp
           do   iba = 1, nband
-             if( eband(1,isp,ikp) < elo ) elo = eband(1,isp,ikp)
+             if( eband(1,isp,ikp)     < elo ) elo = eband(1,isp,ikp)
              if( eband(nband,isp,ikp) > ehi ) ehi = eband(nband,isp,ikp)
-             if( eband(iba,isp,ikp) < ebbot(iba+(isp-1)*nband) ) &
-                  ebbot(iba+(isp-1)*nband) =  eband(iba,isp,ikp)
-             if( eband(iba,isp,ikp) > ebtop(iba+(isp-1)*nband) ) &
-                  ebtop(iba+(isp-1)*nband) =  eband(iba,isp,ikp)
+             if( eband(iba,isp,ikp) < ebbot(iba+(isp-1)*nband) ) ebbot(iba+(isp-1)*nband) =  eband(iba,isp,ikp)
+             if( eband(iba,isp,ikp) > ebtop(iba+(isp-1)*nband) ) ebtop(iba+(isp-1)*nband) =  eband(iba,isp,ikp)
           enddo
        enddo
     enddo
