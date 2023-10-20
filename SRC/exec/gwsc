@@ -3,7 +3,7 @@
 '''
 QSGW calculation with MPI.
 '''
-import os, datetime, shutil, glob
+import os, datetime, shutil, glob,sys
 from gwutil import *
 target,nloop,ncore,ncore2,option=gwsc_args()
 epath=os.path.dirname(os.path.abspath(__file__))
@@ -28,18 +28,18 @@ rst_name ='rst.%s'%target
 if os.path.islink(sigm_name):
     pass
 elif os.path.isfile(sigm_name):
-    shutil.move(sigm_name, 'sigm')
-    os.symlink('sigm',sigm_name)
+    shutil.move(sigm_name,'sigm')
+
 if os.path.isfile('sigm'):
-    shutil.copy('sigm', sigm_name+'.bakup')
-    print('--- sigm is softlined to '+sigm_name, ' ---',flush=True)
+   if not os.path.islink(sigm_name): os.symlink('sigm',sigm_name)
+   print('--- sigm is softlinked to '+sigm_name, ' ---',flush=True)
 
 # main iteration ###################################
 if(Iter0!=-1): print('We found QPU.%run'%Iter0)
 targets=' '+target+' '+option+' '
 for i in range(1,nloop+1): #nloop is the additional number of iteration
     niter=i+Iter0
-    if(niter==0 and os.path.isfile(sigm_name)): rm_files(glob.glob('sigm*'))
+    #if(niter==0 and os.path.isfile(sigm_name)): rm_files(glob.glob('sigm*'))
     print('===== %dth iteration start ======'%niter,flush=True)
     if os.path.isfile(sigm_name):
         print("---> We use existing sigm file",flush=True)
