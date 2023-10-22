@@ -1,5 +1,5 @@
 module m_mkrout
-  use m_lmfinit,only: nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,lmxb_i=>lmxb,lmxl_i=>lmxl,spec_a,kmxt_i=>kmxt
+  use m_lmfinit,only: nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,lmxb_i=>lmxb,lmxl_i=>lmxl,spec_a,kmxt_i=>kmxt,lfoca_i=>lfoca,z_i=>z
   use m_ll,only:ll
   use m_struc_def,only:s_rv1
   use m_uspecb,only:uspecb
@@ -56,7 +56,6 @@ contains
     use m_struc_def
     use m_elocp,only: rsmlss=>rsml, ehlss=>ehl
     use m_density,only: v0pot,v1pot,pnuall,pnzall !read
-    use m_hansr,only:corprm
     use m_rhocor,only: getcor
     use m_makusp,only: makusp
     use m_MPItk,only: master_mpi
@@ -86,7 +85,7 @@ contains
     integer:: ib,ipr,iprint,is,k,kcor,kmax,lcor,lfoc,lgunit,lmxa,lmxh,lmxl,nlma,nlmh,nlml,nlml1,r,ncore,ifx
     real(8) :: a,ceh,pi,qcor(2),rfoc,rmt,smec,smtc,stc0, sum1,sum2,sums1,sums2,xx,y0,z,res,rsml(n0),ehl(n0)
     integer :: nkapi,nkape,nr, lh(nkap0),nkaph
-    real(8) :: eh(n0,nkap0),rsmh(n0,nkap0),qcorg,qcorh,qsc,cofg,cofh
+    real(8) :: eh(n0,nkap0),rsmh(n0,nkap0)
     real(8),pointer:: pnu(:,:),pnz(:,:)
     real(8):: dat(6,nbas)
     logical:: mmtargetx=.false.
@@ -112,7 +111,8 @@ contains
        rmt=rmt_i(is)
        lmxh=lmxb_i(is)
        stc0=sspec(is)%stc
-       call corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
+       z=z_i(is)
+       lfoc=lfoca_i(is)
        call uspecb(is,rsmh,eh)
        nkapi=nkapii(is)
        call orblib(ib)!norb,ltab,ktab,norb, ntab,blks

@@ -28,19 +28,19 @@ subroutine rhomom(sv_p_orhoat, qmom,vsum)
   do  ib = 1, nbas
      is = ispec(ib) 
      lmxl=lmxl_i(is)
+     if (lmxl == -1) cycle
      z  = z_i(is)
      a  = spec_a(is)
      nr = nr_i(is)
      rmt= rmt_i(is)
      rg = rg_i(is)
-     if (lmxl == -1) cycle
      call corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
-     qc = qcorg+qcorh
      nlml = (lmxl+1)**2
      associate(rho1=>sv_p_orhoat(1,ib)%v,rho2=>sv_p_orhoat(2,ib)%v,rhoc=>sv_p_orhoat(3,ib)%v)
-       call pvrhom(rmt,a,nlml,nr,nsp,rho1,rho2,rhoc,cofg,cofh,z, qmom(:,ib),vs1(ib),vs2(ib))
+       call pvrhom(rmt,a,nlml,nr,nsp,rho1,rho2,rhoc,cofg,z, qmom(:,ib),vs1(ib),vs2(ib))
      endassociate
      if(ipr>=45) then
+        qc = qcorg+qcorh
         write(stdo,220) ib,1,qmom(1,ib),qmom(1,ib)/y0,qc,z
         do ilm = 2, nlml; if (dabs(qmom(ilm,ib)) > 1d-6) write(stdo,220) ib,ilm,qmom(ilm,ib); enddo
      endif
@@ -48,7 +48,7 @@ subroutine rhomom(sv_p_orhoat, qmom,vsum)
   vsum=sum(vs1-vs2)
   220 format(i13,i6,f12.6,f12.6,2f9.2)
 end subroutine rhomom
-subroutine pvrhom(rmt,a,nlml,nr,nsp,rho1,rho2,rhoc,cofg,cofh,z, qmomj,vsum1,vsum2)  !Multipole moments qmom = Q_L = Q_aL^Zc+ Q_aL^v (See.Eq.(28),(30) in JPSJ034702)
+subroutine pvrhom(rmt,a,nlml,nr,nsp,rho1,rho2,rhoc,cofg,z, qmomj,vsum1,vsum2)  !Multipole moments qmom = Q_L = Q_aL^Zc+ Q_aL^v (See.Eq.(28),(30) in JPSJ034702)
   use m_hansr,only: hansmr
   use m_ll,only:ll
   !i   nlml  :L-cutoff for charge
@@ -60,12 +60,11 @@ subroutine pvrhom(rmt,a,nlml,nr,nsp,rho1,rho2,rhoc,cofg,cofh,z, qmomj,vsum1,vsum
   !i   rho2  :local smoothed density*r**2, tabulated on a radial mesh
   !i   rhoc  :core density
   !i   cofg  : Q_aL^c
-  !i   cofh  : coefficient of smHankel for pseudocore density
   !i   z     :nuclear charge
   !o   qmomj :multipole moments = Q_aL^Zc + Q_aL^v (See.Eq.(28) JPSJ034702) = Q_aL^Zc + \integral r^l (rho1-rho2)
   implicit none
   integer :: nlml,nr,nsp,i,ilm,l,m,lmxl,isp
-  real(8) :: cofg,cofh,z,rmt,rofi(nr),rwgt(nr),h(nr),qmomj(nlml),rhoc(nr,nsp), &
+  real(8) :: cofg,z,rmt,rofi(nr),rwgt(nr),h(nr),qmomj(nlml),rhoc(nr,nsp), &
        rho1(nr,nlml,nsp),rho2(nr,nlml,nsp),a,vsum1,vsum2,vhrho,vsum,cg,af,q2,v(nr)
   real(8),parameter:: pi=4d0*datan(1d0), srfpi = dsqrt(4d0*pi),y0 = 1d0/srfpi,fpi = 4d0*pi
   call radmsh( rmt , a , nr , rofi )

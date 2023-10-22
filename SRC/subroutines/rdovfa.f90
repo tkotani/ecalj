@@ -239,8 +239,7 @@ contains
     call ovlocr(nbas,n0,nxi,exi,hfc,rsmfa,rv_a_orhofa,sv_p_orhoat,sqloc,slmom)
     ! --- Add compensating uniform electron density to compensate background
     call adbkql ( sv_p_orhoat , nbas , nsp , qbg , vol , - 1d0 )!, sspec )!, ssite )
-    if (abs(qbg)/=0d0.and. ipr>=10) write(stdo,ftox) ' Uniform '// &
-         'density added to neutralize background q=',ftof(qbg)
+    if (abs(qbg)/=0d0.and. ipr>=10) write(stdo,ftox) ' Uniform density added to neutralize background q=',ftof(qbg)
     dq = sum1+sqloc+ctot-ztot+qbg !charge
     if (nsp == 1) then
        if (ipr >= 10) write(stdo,895) sum1,sqloc,sum1+sqloc,ctot,-ztot,qbg,dq
@@ -254,8 +253,7 @@ contains
        if (ipr >= 10) write (stdl,710) sum1+sqloc,sum1,sqloc,qbg,dq
 710    format('ov qvl',f11.6,'  sm',f11.6,'  loc',f11.6,'   bg',f10.6,'  dQ',f10.6)
     else
-       if (ipr >= 10) write(stdo,896) sum1,smom,sqloc,slmom, &
-            sum1+sqloc,smom+slmom,ctot,corm,-ztot,qbg,dq
+       if (ipr >= 10) write(stdo,896) sum1,smom,sqloc,slmom,sum1+sqloc,smom+slmom,ctot,corm,-ztot,qbg,dq
 896    format(/' Smooth charge on mesh:    ',f16.6,4x,'moment', f12.6, &
             /    ' Sum of local charges:     ',f16.6,4x,'moments',f11.6, &
             /    ' Total valence charge:     ',f16.6,4x,'moment', f12.6, &
@@ -275,7 +273,7 @@ contains
     call tcx('rdovfa')
   end subroutine rdovfa
 
-  subroutine ovlocr(nbas,nxi0,nxi,exi,hfc,rsmfa,rv_a_orhofa, sv_p_orhoat , sqloc, slmom )
+  subroutine ovlocr(nbas,nxi0,nxi,exi,hfc,rsmfa,rv_a_orhofa, sv_p_orhoat , sqloc, slmom )!- Makes the site densities for overlapped free atoms.
     use m_lmfinit,only: nsp,ispec
     use m_struc_def
     use m_lgunit,only:stdo
@@ -283,9 +281,6 @@ contains
     use m_lattic,only: rv_a_opos
     use m_smhankel,only: hxpos
     use m_hansr,only:corprm
-    !- Makes the site densities for overlapped free atoms.
-    ! ----------------------------------------------------------------------
-    !i Inputs
     !i   nbas  :size of basis
     !i   ssite :struct containing site-specific information
     !i   sspec :struct containing species-specific information
@@ -330,30 +325,27 @@ contains
     sqloc = 0
     slmom = 0
     if (ipr >= 30) write (stdo,300)
-300 format(/' Free atom and overlapped crystal site charges:' &
-         /'   ib    true(FA)    smooth(FA)  true(OV)    smooth(OV)    local')
+300 format(/' Free atom and overlapped crystal site charges:'/'   ib    true(FA)    smooth(FA)  true(OV)    smooth(OV)    local')
     ibini= 1
     ibend= nbas
     do  ib = ibini,ibend
        is=ispec(ib) 
-       p1(:)=rv_a_opos(:,ib) 
        lmxl=lmxl_i(is)
+       if (lmxl == -1) cycle
+       p1(:)=rv_a_opos(:,ib) 
        rsmv=rsmv_i(is)
        nlml = (lmxl+1)**2
-       allocate(acof(0:kmxv,nlml,nsp),b(0:kmxv,nlml))
-       acof=0d0
-       b=0d0
+       allocate(acof(0:kmxv,nlml,nsp),source=0d0)
+       allocate(b(0:kmxv,nlml),source=(0d0,0d0))
        a= spec_a(is)
        nr=nr_i(is)
        rmt=rmt_i(is)
        call corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoca,rfoca, z)
        qcsm = qcorg+qcorh
-       if (lmxl == -1) goto 10
        allocate(rofi(nr),rwgt(nr))
        call radmsh(rmt,a,nr,rofi)
        call radwgt(rmt,a,nr,rwgt)
-       !   ... Loop over other sites, add up tail expansion
-       do  jb = 1, nbas
+       do  jb = 1, nbas !add up tail expansion
           js=ispec(jb) 
           p2(:)=rv_a_opos(:,jb) 
           do  je = 1, nxi(js)
@@ -375,9 +367,7 @@ contains
            ,lfoca,qcsm,qloc,amom,sv_p_orhoat(1,ib)%v,sv_p_orhoat( 2,ib )%v )
        sqloc = sqloc + qloc
        slmom = slmom + amom
-       deallocate(rofi,rwgt)
-10     continue
-       deallocate(acof,b)
+       deallocate(rofi,rwgt,acof,b)
     enddo
     call tcx('ovlocr')
   end subroutine ovlocr
@@ -395,20 +385,13 @@ contains
     double precision :: a(0:kmxv,nlml),b0(0:kmxv,1),hfc
     double complex b(0:kmxv,nlml)
     integer :: k,ilm
-    do  10  k = 0, kmxv
-       do  12  ilm = 1, nlml
-          a(k,ilm) = a(k,ilm) + hfc*dble(b(k,ilm))
-12     enddo
-       a(k,1) = a(k,1) - hfc*b0(k,1)
-10  enddo
+    a(:,:) = a(:,:) + hfc*b(:,:)
+    a(:,1) = a(:,1) - hfc*b0(:,1)
   end subroutine p1ovlc
-  subroutine p2ovlc(ib,nsp,rsmv,kmxv,nr,nlml,acof,rofi,rwgt, &
+  subroutine p2ovlc(ib,nsp,rsmv,kmxv,nr,nlml,acof,rofi,rwgt, & !- Assemble local density from P_kl expansion for one site
        nxi0,nxi,exi,hfc,rsmfa,rhofa,rhoc,lfoca,qcsm,qloc,amom,rho1,rho2)
     use m_lgunit,only:stdo
     use m_hansr,only: hansmr
-    !- Assemble local density from P_kl expansion for one site
-    ! ----------------------------------------------------------------------
-    !i Inputs
     !i   ib    :site for which to assemble local density
     !i   nsp   :number of spin channels
     !i   rsmv  :smoothing radius for P_kl expansion
@@ -436,41 +419,22 @@ contains
     !i   rho2  :local smoothed density, tabulated on a radial mesh
     !o   qloc  :sphere charge
     !o   amom  :sphere magnetic moment
-    !r Remarks
-    !u Updates
-    ! ----------------------------------------------------------------------
     implicit none
-    ! ... Passed parameters
     integer :: nr,nxi0,ib,nsp,kmxv,nlml,nxi,lfoca
     double precision :: qcsm,qloc,rhofa(nr,nsp),rho1(nr,nlml,nsp), &
          rho2(nr,nlml,nsp),rofi(nr),rwgt(nr),rhohd(nr,nsp),exi(1), &
          hfc(nxi0,nsp),rhoc(nr,nsp),acof(0:kmxv,nlml,nsp),rsmv,rsmfa,amom
-    ! ... Local parameters
-    !      integer stdo !kmx,lmx,
-    !      parameter (kmx=20, lmx=6)
     integer :: i,ie,ilm,ipr,iprint,k,l,lmax,lmxl,isp
     double precision :: asm,gam,pi,qall,qexa,qin,qlc,qnum,qout,qsmo,qut, &
          r,rl,rmt,srfpi,sum,sumfa,sumhd,sumsm,sumtr,y0, &
          xi(0:10),x0(0:2),ddot !pkl(0:kmx,0:lmx)
     real(8),allocatable:: pkl(:,:)
-
     ipr   = iprint()
-    !      stdo  = lgunit(1)
     pi    = 4d0*datan(1d0)
     srfpi = dsqrt(4*pi)
     y0    = 1d0/srfpi
     lmxl  = ll(nlml)
     allocate(pkl(0:kmxv,0:lmxl))
-    !      if (lmxl .gt. lmx) call rxi('ovlocr: increase lmx, need',lmxl)
-
-    !     do  ilm = 1, nlml
-    !       do  k = 0, kmxv
-    !         if (dabs(acof(k,ilm,1)).gt.1d-6)
-    !    .      write(stdo,780) ilm,k,acof(k,ilm,1),acof(k,ilm,nsp)
-    ! 780     format('ilm,k',2i5,2f14.8)
-    !       enddo
-    !     enddo
-
     ! --- Assemble smooth on-site head density in rhohd ---
     qnum = 0d0
     qexa = 0d0
@@ -594,11 +558,11 @@ contains
     rhobkg = fac*qbg/vol
     do  ib = 1, nbas
        is=ispec(ib)
+       lmxl=lmxl_i(is)
+       if (lmxl == -1) goto 10
        a=spec_a(is)
        nr=nr_i(is)
        rmt=rmt_i(is)
-       lmxl=lmxl_i(is)
-       if (lmxl == -1) goto 10
        nlml=(lmxl+1)**2
        call rxx(nr .gt. nrmx,  'addbkgloc: increase nrmx')
        call rxx(nlml .gt. nlmx,'addbkgloc: increase nlmx')
@@ -654,13 +618,10 @@ contains
     implicit none
     integer :: nbas,nxi(1),nxi0,ng,ngmx
     real(8):: gv(ngmx,3) , rsmfa(1) , exi(nxi0,1) , hfc(nxi0,2,1)
-    !  type(s_site)::ssite(*)
     double complex cv(ng,*)
     integer :: ipr,iprint,ib,is,nx,i,ixi,ig,isp
-    double precision :: v(3),pi,y0,alat,vol,tpiba,sum(2),px,py,pz,pos(3), &
-         sam(2),e,cof,rsm,gam,v2,aa,scalp
-    double complex phase
-    equivalence (px,pos(1)),(py,pos(2)),(pz,pos(3))
+    double precision :: v(3),pi,y0,alat,vol,tpiba,ssum(2),px,py,pz,pos(3),sam(2),e,cof,rsm,gam,v2,aa,scalp
+    complex(8):: img=(0d0,1d0), phase
     integer:: ibini,ibend
     call tcn('ovlpfa')
     ipr  = iprint()
@@ -670,8 +631,7 @@ contains
     vol=lat_vol
     tpiba = 2*pi/alat
     call dpzero(cv,2*ng*nsp)
-    sum(1) = 0d0
-    sum(2) = 0d0
+    ssum = 0d0
     if(ipr>=30) write(stdo,*)' ovlpfa: overlap smooth part of FA densities'
     ibini=1
     ibend=nbas
@@ -680,8 +640,7 @@ contains
        pos=rv_a_opos(:,ib) 
        nx = nxi(is)
        !   ... Loop over Hankels at this site
-       sam(1) = 0
-       sam(2) = 0
+       sam = 0
        do  isp = 1, nsp
           do  ixi = 1, nx
              e = exi(ixi,is)
@@ -689,23 +648,17 @@ contains
              rsm = rsmfa(is)
              gam = 0.25d0*rsm**2
              sam(isp) = sam(isp) - cof*y0*4d0*pi*dexp(gam*e)/e
-             !       ... Loop over reciprocal lattice vectors
-             do  ig = 1, ng
-                v(1) = gv(ig,1)*tpiba
-                v(2) = gv(ig,2)*tpiba
-                v(3) = gv(ig,3)*tpiba
+             do ig = 1, ng              !       ... Loop over reciprocal lattice vectors
+                v(:) = gv(ig,:)*tpiba
                 v2 = v(1)**2+v(2)**2+v(3)**2
-                aa = -4d0*pi*dexp(gam*(e-v2))/(e-v2)
-                scalp = -alat*(px*v(1)+py*v(2)+pz*v(3))
-                phase = dcmplx(dcos(scalp),dsin(scalp))
-                cv(ig,isp) = cv(ig,isp) + cof*aa*phase*y0/vol
+                phase= exp(-img*alat*sum(pos*v)) 
+                cv(ig,isp) = cv(ig,isp) + -4d0*pi*dexp(gam*(e-v2))/(e-v2)* cof*phase*y0/vol
              enddo
           enddo
-          sum(isp) = sum(isp) + sam(isp)
+          ssum(isp) = ssum(isp) + sam(isp)
        enddo
        if (ipr > 30 .AND. nx > 0) then
-          write(stdo,ftox)' site',ib,'spec',is,'pos',ftof(pos,4), &
-               'Qsmooth',sam(1)+sam(2),'mom', sam(1)-sam(2)
+          write(stdo,ftox)' site',ib,'spec',is,'pos',ftof(pos,4),'Qsmooth',sam(1)+sam(2),'mom', sam(1)-sam(2)
           if (ipr >= 40) then
              write(stdo,700) 'energy:',(exi(i,is),i=1,nx)
              write(stdo,700) 'coeff:',(hfc(i,1,is),i=1,nx)
@@ -717,9 +670,8 @@ contains
     enddo
     ipr  = iprint()
     if(ipr>30) then
-       write(stdo,ftox)' total smooth Q = ',sum(1)+sum(2)
-       !     write(stdo,ftox)' FT(0,0,0)=',(cv(1,1)+cv(1,nsp))*vol/(3-nsp))
-       if(nsp==2) write(stdo,ftox)' total moment=',sum(1)-sum(2)
+       write(stdo,ftox)' total smooth Q = ',sum(ssum)  !   write(stdo,ftox)' FT(0,0,0)=',(cv(1,1)+cv(1,nsp))*vol/(3-nsp))
+       if(nsp==2) write(stdo,ftox)' total moment=',ssum(1)-ssum(2)
     endif
     call tcx('ovlpfa')
   end subroutine ovlpfa

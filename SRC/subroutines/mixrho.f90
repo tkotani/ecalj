@@ -711,7 +711,6 @@ contains
     use m_lgunit,only:stdo
     use m_struc_def  
     use m_lmfinit,only: ispec
-    use m_hansr,only:corprm
     !i   kmax  : make expansion coffs to polynomial cutoff kmax
     !i   orhoat: vector of offsets containing site density
     !o   qkl  :Expansion coefficients, stored as a single long vector.
@@ -736,7 +735,7 @@ contains
     implicit none
     integer::nsp,mode,kmax,nlmlx
     type(s_rv1) :: sv_p_orhoat(3,nbas)
-    real(8):: qkl(0:kmax,nlmlx,nsp),z,qc,a,rmt,qcorg,qcorh,qsc,cofg,cofh,rg, ceh,rfoc,df(0:20),rho(nr,nlml,nsp) 
+    real(8):: qkl(0:kmax,nlmlx,nsp),z,a,rmt,rg, ceh,rfoc,df(0:20),rho(nr,nlml,nsp) 
     integer:: ipr,iprint, ib,is,lmxl,nr,nlml,ilm,j,lfoc,k,l,m,isp
     real(8),allocatable :: rofi(:), rwgt(:)
     real(8),parameter:: fpi = 16d0*datan(1d0)
@@ -749,8 +748,6 @@ contains
     nr=nr_i(is)
     rmt=rmt_i(is)
     rg=rg_i(is)
-    call corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
-    qc = qcorg+qcorh
     allocate(rofi(nr),rwgt(nr))
     call radmsh(rmt,a,nr,rofi )
     call radwgt(rmt,a,nr,rwgt )

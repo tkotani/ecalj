@@ -12,7 +12,7 @@ logical function mixrealsmooth()
   logical,save :: init=.true.
   integer:: iprint
   ! Takao think mixrho should give a correct guess from informations
-  ! of |rho_in - f(rho_in)|**2
+  ! of |rho_in - f(rho_in)|**2lo
   ! In our procedure now, takao think the weight from smooth part is rather small.
   ! Thus our mixing procedure is mainly controlled by atoic part.
   ! This works OK but may be not best...

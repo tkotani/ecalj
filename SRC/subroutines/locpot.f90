@@ -141,7 +141,7 @@ contains
          locpt2augmat: block
            real(8)::rhol1(nr,nlml,nsp),rhol2(nr,nlml,nsp),v1(nr,nlml,nsp),v2(nr,nlml,nsp),v1es(nr,nlml,nsp),v2es(nr,nlml,nsp),&
                 gpotb(nlml),rofi(nr),rwgt(nr),v1out(nr,nlml,nsp)
-           real(8),pointer ::rho1(:,:,:),rho2(:,:,:),rhoc(:,:)
+           !real(8),pointer ::rho1(:,:,:),rho2(:,:,:),rhoc(:,:)
            !real(8),allocatable ::rho1(:,:,:),rho2(:,:,:),rhoc(:,:) !nr,nlml,nsp),rhoc(nr,nsp)
            !allocate(rho1,source=reshape(orhoat(1,ib)%v,[nr,nlml,nsp]))
            !allocate(rho2,source=reshape(orhoat(2,ib)%v,[nr,nlml,nsp]))
