@@ -17,11 +17,11 @@ module m_lmfinit ! 'call m_lmfinit_init' sets all initial data from ctrl are pro
   integer,protected:: lat_nkqmx,lat_nkdmx, lxcf, smalit,lstonr(3)=0,nbas=NULLI,nspec,&
        nspc,master=0,nspx, maxit,gga,ftmesh(3),nmto=0,lrsigx=0,nsp=1,lrel=1,lso=0,&
        lmxbx=-1,lmxax,bz_lshft(3)=0, bz_lmet,bz_n,bz_lmull,bz_fsmommethod,str_mxnbr,&
-       iter_maxit=1, mix_nsave, pwmode,ncutovl ,ndimx,natrlx,pdim, leks,lrout,plbnd, pot_nlma, pot_nlml,ham_nspx, nlmto,& !total number of MTOs 
+       iter_maxit=1, mix_nsave, pwmode,ncutovl ,ndimx,natrlx, leks,lrout,plbnd, pot_nlma, pot_nlml,ham_nspx, nlmto,& !total number of MTOs 
        lrlxr,nkillr,nitrlx, broyinit,nmixinit,killj ,&
        ham_pwmode,ham_nlibu, nlmax,lfrce,bz_nevmx,ham_nbf,ham_lsig,bz_nabcin(3)=NULLI, bz_ndos,ldos, lmaxu,nlibu,nlmxlx
   logical,protected :: ham_frzwf,ham_ewald, lhf,lcd4,bz_tetrahedron, addinv,&
-       readpnu,v0fix,pnufix,bexist,rdhessr, lpztail=.false., xyzfrz(3),readpnuskipf
+       readpnu,v0fix,pnufix,bexist,rdhessr, lpztail=.false., readpnuskipf
   real(8),protected:: pmin(n0)=0d0,pmax(n0)=0d0,tolft,scaledsigma, ham_oveps,ham_scaledsigma, cc,&!speed of light
        dlat,alat=NULLR,dalat=NULLR,vol,avw,vmtz(mxspec)=-.5d0,&
        bz_efmax,bz_zval,bz_fsmom,bz_semsh(10),zbak,bz_range=5d0,bz_dosmax,&
@@ -71,21 +71,20 @@ contains
     !         :1 for Ceperly-Alder
     !         :2 for Barth-Hedin (ASW fit)
     !         :103 for PBE
-    !   v_sspec : SPEC data.
-    !      do j=1,nspec 
-    !         v_sspec(j)%z=     z(j)      !nucleus
-    !         v_sspec(j)%a=     spec_a(j) !a for radial mesh
-    !         v_sspec(j)%nr=    nr(j)     !nr for radial mesh
-    !         v_sspec(j)%rmt=   rmt(j)    ! MT radius
-    !         v_sspec(j)%rsmv=  rmt(j)*.5d0 !rsmv(j) :smoothing radius for P_kl expansion
-    !         v_sspec(j)%kmxt=  kmxt(j) !kmax the max number radial funciton index of P_kl(r)
-    !         v_sspec(j)%lmxa=  lmxa(j) !lmx for augmentation
-    !         v_sspec(j)%lmxb=  lmxb(j) !lmx for basis
-    !         v_sspec(j)%lmxl=  lmxl(j) !lmx for rho and density
-    !         v_sspec(j)%rfoca= rfoca(j) !smoothing radius for frozen core overlap approx
-    !         v_sspec(j)%lfoca= lfoca(j) !lfoca=1,usually (frozen core mode)
-    !         v_sspec(j)%rg=    rg(j)   !rsm for gaussians to fix multipole moments
-    !      enddo
+    !   
+    !         z=     z(j)      !nucleus
+    !         a=     spec_a(j) !a for radial mesh
+    !         nr=    nr(j)     !nr for radial mesh
+    !         rmt=   rmt(j)    ! MT radius
+    !         rsmv=  rmt(j)*.5d0 !rsmv(j) :smoothing radius for P_kl expansion
+    !         kmxt=  kmxt(j) !kmax the max number radial funciton index of P_kl(r)
+    !         lmxa=  lmxa(j) !lmx for augmentation
+    !         lmxb=  lmxb(j) !lmx for basis
+    !         lmxl=  lmxl(j) !lmx for rho and density
+    !         rfoca= rfoca(j) !smoothing radius for frozen core overlap approx
+    !         lfoca= lfoca(j) !lfoca=1,usually (frozen core mode)
+    !         rg=    rg(j)   !rsm for gaussians to fix multipole moments
+    
     !  MTO is specified by (n,l,m). (n=1,2,3. n=1:EH1, n=2:EH2, n=3:PZ)
     !   nbas  :number of atoms in the basis
     !   nkaphh :The maximum number of radial functions centered at particular R and l channel used in the lmto basis. 
@@ -401,7 +400,7 @@ contains
          lmxb(j) = max(lmxb(j),nnx-1) ! lmxb corrected by pzsp
          if(nnx>0) then !          
             lpz(j)=1
-            if(sum(floor(pzsp(1:lmxa(j)+1,1,j)/10))>0 ) lpzex(j)=1 !          endif
+            if(sum(floor(pzsp(1:lmxa(j)+1,1,j)/10))>0 ) lpzex(j)=1
          endif
          if(maxval(pzsp(1:n0,1,j))>10d0) lpztail= .TRUE. ! PZ +10 mode exist or not.
          nkaphh(j) = nkapii(j) + lpz(j) !number of radial basis of MTOs for j.
@@ -475,7 +474,7 @@ contains
             enddo
          endif
 1111  enddo PnuQnuSetting
-      SkipLDAU: if(sexist) then
+      SkipLDAUwhensigmexistforidu10plus: if(sexist) then
          do j=1,nspec
             if(sum(abs(idu(:,j)))/=0) then
                do lxxx=0+1,3+1
@@ -488,7 +487,7 @@ contains
                idu(0+1:3+1,j) = mod(idu(0+1:3+1,j),10)
             endif
          enddo
-      endif SkipLDAU
+      endif SkipLDAUwhensigmexistforidu10plus
       lmxax = maxval(lmxa) !Maximum L-cutoff
       maxit=iter_maxit
       nlmax=(max(lmxbx,lmxax)+1)**2
@@ -504,7 +503,7 @@ contains
       lnxcg = 3400
       nlm=(lmxcy+1)**2
       allocate(rv_a_ocy(nlm),rv_a_ocg(lnjcg),iv_a_ojcg(lnjcg),iv_a_oidxcg(lnxcg))
-      call sylmnc(rv_a_ocy , lmxcy ) ! for Clebsh-Gordon coefficients for lmf part
+      call sylmnc(rv_a_ocy , lmxcy ) ! Clebsh-Gordon coefficients for lmf part
       call scg(lmxcg , rv_a_ocg , iv_a_oidxcg , iv_a_ojcg ) !set CG coefficients for lmf part.
       if (master_mpi) then
          inquire(file='sigm.'//trim(sname),exist=sexist)
@@ -727,52 +726,35 @@ contains
       endif ShowMTOsetting
       ForceDYNsetting: block ! Atomic position Relaxation setup (DYN mode)
         integer:: i,j,k,iprint !,ifrlx(3)
-        logical:: force,mdxx
-        ! nitrlx = num of iteration cycle for atomic relaxiation (outer loop)
-        if(lrlxr==0)nitrlx=0 !no relaxiation. Only sc calculation for given atomic position.
+        logical:: force  ! nitrlx = num of iteration cycle for atomic relaxiation (outer loop)
+        if(lrlxr==0) nitrlx=0 ! =0 --> no relaxiation. Only sc calculation for given atomic position.
         if(lrlxr>0 .AND. lrlxr<4 ) call rx('lmf not set up for MD yet')
         if(nitrlx>0) then !nitrlx >0 is for atomic position relaxiation lmf.f90
            allocate(indrx_iv(2,3*nbas))
            force = lfrce>0
-           if ( .NOT. force .OR. lrlxr== 0) goto 9299
-           mdxx =  lrlxr <= 3
-           j = 0
-           if (mdxx) then
-              xyzfrz = .false.
-              goto 9299
-           elseif (force) then
+           if(.NOT.force .OR. lrlxr== 0) goto 9299
+           if(force) then
+              j = 0
               do  i = 1, nbas
                  do  k = 1, 3
                     if (ifrlx(k,i) == 1) then
                        j = j + 1
                        indrx_iv(1,j) = k
                        indrx_iv(2,j) = i
-                       xyzfrz(k) = .false.
                     endif
                  enddo
               enddo
            endif
            natrlx = j
-           if (natrlx == 0) goto 9299
-           pdim = 0
-           if ( .NOT. mdxx) then
-              if (lrlxr == 4) pdim = natrlx*7
-              if (lrlxr == 5) pdim = natrlx*(7+natrlx)
-              if (lrlxr == 6) pdim = natrlx*(12+2*natrlx)
-           endif
-           if (iprint() >= 30) then
-              if (lrlxr == 4) then
-                 write(stdo,*)' m_lmfinit RLXSTP: Molecular statics (conjugate gradients) ..'
-              elseif (lrlxr == 5) then
-                 write(stdo,*)' m_lmfinit RLXSTP: Molecular statics (Fletcher-Powell) ..'
-              else
-                 write(stdo,*)' m_lmfinit RLXSTP: Molecular statics (Broyden) ..'
-              endif
+           if (iprint() >= 30.and.natrlx>0) then
+              if    (lrlxr == 4) then; write(stdo,*)' m_lmfinit RLXSTP: Molecular statics (conjugate gradients) ..'
+              elseif(lrlxr == 5) then; write(stdo,*)' m_lmfinit RLXSTP: Molecular statics (Fletcher-Powell) ..'
+              else;                    write(stdo,*)' m_lmfinit RLXSTP: Molecular statics (Broyden) ..' ;   endif
               write(stdo,ftox)'   relaxing',natrlx,'variables,',nitrlx,'iterations'
               write(stdo,ftox)'   x-tol g-tol step=', xtolr,gtolr,stepr
            endif
-9299       continue
         endif
+9299    continue
       endblock ForceDYNsetting
     endblock Stage3InitialSetting
     call MPI_BARRIER( MPI_COMM_WORLD, ierr)
