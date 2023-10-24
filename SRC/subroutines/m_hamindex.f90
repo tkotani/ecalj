@@ -19,7 +19,7 @@ contains
     integer:: ifi
     readhamindex_init=.true.
     open(newunit=ifi,file='HAMindex',form='unformatted')
-    read(ifi)ngrp,nbas,kxx,lxx,imx,norbmto,pwmode,zbak,ndham,AFmode,ngrpAF
+    read(ifi)ngrp,nbas,kxx,lxx,norbmto,pwmode,zbak,ndham,AFmode,ngrpAF
     ngall=ngrp+ngrpAF
     allocate(symops(3,3,ngall),ag(3,ngall),invgx(ngall),miat(nbas,ngall),tiat(3,nbas,ngall),shtvg(3,ngall))
     read(ifi)symops,ag,invgx,miat,tiat,shtvg
@@ -37,7 +37,7 @@ contains
     allocate(qtt(3,nqtt),qtti(3,nqi)) 
     allocate(iqmap(nqtt),igmap(nqtt),iqimap(nqtt))
     read(ifi)qtt,qtti,iqmap,igmap,iqimap !,ngvecp,ngvecprev
-    read(ifi)plat,qlat,napwmx
+    read(ifi)plat,qlat,napwmx,imx
     if(napwmx/=0)then !for APW rotation used in rotwvigg
        nqtt=nqtt
        allocate( igv2(3,napwmx,nqtt), napwk(nqtt),igv2rev(-imx:imx,-imx:imx,-imx:imx,nqtt))
@@ -86,7 +86,7 @@ contains
     if(done) call rx('writehamindex is already done')
     done=.true.
     open(newunit=ifi,file='HAMindex',form='unformatted')
-    write(ifi)ngrp,nbas,kxx,lxx,imx,norbmto,pwmode,zbak,ndham,AFmode,ngrpAF
+    write(ifi)ngrp,nbas,kxx,lxx,norbmto,pwmode,zbak,ndham,AFmode,ngrpAF
     ngall=ngrp+ngrpAF
     write(ifi)symops(:,:,1:ngall),ag(:,1:ngall),invgx(1:ngall),miat(:,1:ngall),tiat(:,:,1:ngall),shtvg(:,1:ngall)
     write(ifi)lmxax
@@ -170,7 +170,7 @@ contains
       endif
       write(ifi)nqtt,nqi,ngpmx
       write(ifi)qtt,qtti,iqmap,igmap,iqimap
-      write(ifi)plat,qlat,napwmx
+      write(ifi)plat,qlat,napwmx,imx
       if(napwmx/=0) write(ifi) igv2,napwk,igv2rev !for APW rotation used in rotwvigg
       write(ifi) alat,rv_a_opos
     endblock QGpsimodeWriteHamindex
