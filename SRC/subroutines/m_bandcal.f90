@@ -208,9 +208,9 @@ contains
     deallocate(evl)
     call tcx('m_bandcal_init')
   end subroutine m_bandcal_init
-  subroutine m_bandcal_2nd(lrout)! accumulate eval,evec-related quantities by addrbl
+  subroutine m_bandcal_2nd()! accumulate eval,evec-related quantities by addrbl
     implicit none
-    integer:: iq,ispinit,isp,nev,lrout,ifig,i,ibas,idat
+    integer:: iq,ispinit,isp,nev,ifig,i,ibas,idat
     real(8):: qp(3),def=0d0,xv(3)
     real(8),allocatable:: evl(:,:)
     complex(8),allocatable :: evec(:,:)!,evecbackup(:,:)
@@ -253,7 +253,7 @@ contains
        call addrbl(isp,qp,iq, osmpot,vconst,osig,otau,oppi,evec,evl,nev, smrho_out, sumqv, sumev, oqkkl,oeqkkl, frcband)
 
        afsymifffffffffffffffff:  if(cmdopt0('--afsym')) then
-          if(idat==1) write(stdo,ftox)'--afsym:'
+          if(idat==1) write(stdo,ftox)'m_bandcal: afsymblock'
           afsymblock: block !isp2 is given by isp=1
             use m_rotwave,only:  rotevec
             use m_mksym,only: symops,ngrp,ngrpAF,ag

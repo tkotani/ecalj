@@ -14,9 +14,10 @@ module m_bstrux ! Structure constants for P_kL expansion of Bloch lmto + PW arou
   type(s_cv4),allocatable,protected,private,target:: p_dbstr(:,:)
   real(8),allocatable,private:: qall(:,:)
   private
+  integer,private:: iqii,iqee
 contains
   subroutine bstrux_set(ia,qin)!set bstr and dbstr for given ibas and q
-    use m_qplist,only: iqini,iqend
+!    use m_qplist,only: iqini,iqend
     use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat
     use m_lmfinit,only: lfrce
     use m_ftox
@@ -27,7 +28,7 @@ contains
 !!!!!!!!!!!!!!!!!!!! 2023-04-25 obatadebug
     q=qin !    call shorbz(qin,q,qlat,plat) !Get q. Is this fine?
     iq=-999
-    do iqx=iqini,iqend
+    do iqx=iqii,iqee
        if( sum( (q-qall(:,iqx))**2 )<eps) then
           iq=iqx
           exit
@@ -36,10 +37,10 @@ contains
     Errorexit:if(iq==-999) then !error exit
        write(stdo,ftox)'qin=',ftof(qin)
        write(stdo,ftox)'  q=',ftof(q)
-       do iqx=iqini,iqend
+       do iqx=iqii,iqee
           write(stdo,ftox)'bstrux_set iq q=',procid,iqx,ftof(qall(:,iqx))
        enddo
-       call rx('err:bstrux_set')
+       call rx('err:bstrux_set can not find given qin')
     endif Errorexit
     bstr => p_bstr(ia,iq)%cv3
     if(lfrce/=0) dbstr=> p_dbstr(ia,iq)%cv4
@@ -49,12 +50,18 @@ contains
     use m_lmfinit,only: lfrce,nlmax,kmxt,nspec,nbas,ispec,rsma
     use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat,rv_a_opos
     use m_igv2x,only: napw, igvapw=>igv2x, ndimh,m_Igv2x_setiq !igvapwin=>igv2x,
-    integer:: kmaxx,ia,isa,lmxa,lmxb,kmax,nlmb,nlma,mode,inn(3),ig,iq,ndimhmax
+    use m_mkqp,only: bz_nkp
+    integer:: kmaxx,ia,isa,lmxa,lmxb,kmax,nlmb,nlma,mode,inn(3),ig,iq,ndimhmax!,iqii,iqee
     real(8):: pa(3),qin(3),q(3),qlatinv(3,3),qss(3),qxx(3)
+    logical:: cmdopt0
     call tcn('m_bstrux_init')
     if(allocated(qall)) deallocate(qall,p_bstr,p_dbstr)
-    allocate(qall(3,iqini:iqend),p_bstr(nbas,iqini:iqend),p_dbstr(nbas,iqini:iqend))
-    iqloop: do 1200 iq = iqini, iqend ! iqini:iqend for each rank
+    iqii=iqini
+    iqee=iqend
+    if(cmdopt0('--afsym')) iqii= 1
+    if(cmdopt0('--afsym')) iqee= bz_nkp
+    allocate(qall(3,iqii:iqee),p_bstr(nbas,iqii:iqee),p_dbstr(nbas,iqii:iqee))
+    iqloop: do 1200 iq = iqii, iqee ! iqii:iqee for each rank
        qin = qplist(:,iq)
        call m_Igv2x_setiq(iq) ! Get napw,ndimh,igvapw and so on for given iq
 !!!!!!!!!!!!!!!!!!!! 2023-04-25 obatadebug call shorbz(qin,q,qlat,plat) !Get q. Is this fine?

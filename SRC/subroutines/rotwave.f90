@@ -48,7 +48,7 @@ contains
        ikt  = findloc([(sum(abs(q      -qplist(:,i)))<1d-8,i=1,nkp)],value=.true.,dim=1)  !=index for q
        ikt2 = findloc([(sum(abs(qtarget-qplist(:,i)))<1d-8,i=1,nkp)],value=.true.,dim=1)
        write(stdo,ftox)'rotevec: ikt q=',ikt,ftof(q,3),' ikt2 q=',ikt2,ftof(qtarget,3),'q-qtarget=',ftof(matmul(platt,q-qtarget),3)
-       if(napw_in /= napwkqp(ikt) ) call rxii('rotwave: napw_in /= napw(ikt)',napw_in,napwkqp(ikt))
+       if(napw_in /= napwkqp(ikt) ) call rxii('rotevec: napw_in /= napw(ikt)',napw_in,napwkqp(ikt))
        igloop: do ig = 1,napw_in
           getig2: block
             integer:: i1

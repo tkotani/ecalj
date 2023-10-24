@@ -295,7 +295,7 @@ contains
     endif WRITEeigenvaluesConsole
     AccumurateSuminBZforwtkb: if(lrout>0) then 
        call mpi_barrier(MPI_comm_world,ierr)
-       call m_bandcal_2nd(lrout)  !accumulate smrho_out and so on.
+       call m_bandcal_2nd()  !accumulate smrho_out and so on.
        call m_bandcal_allreduce() 
     endif AccumurateSuminBZforwtkb
     CorelevelSpectroscopy2: if(cmdopt0('--cls')) then !m_clsmode_set1 is called in m_bandcal
