@@ -5,15 +5,11 @@ module m_symrhoat
   contains
 subroutine symrhoat(sv_p_orhoat, qbyl, hbyl, f)!- Symmetrize charge density and related quantities
   use m_supot,only: rv_a_ogv , iv_a_oips0 , zv_a_obgv ,iv_a_okv
-!  use m_mksym,only: iv_a_oistab , rv_a_osymgr, rv_a_oag
   use m_struc_def
   use m_lmfinit,only: nbas,nsp,lfrce
   use m_lgunit,only:stdo
-  !i Inputs
   !i   lfrce    :>0 symmetrize forces
   !i Inputs/Outputs
-  ! ox  smrho :smooth density
-  ! ox        :Symmetrized on output
   ! o  orhoat:vector of offsets containing site density
   ! o        :Symmetrized on output
   ! o  qbyl  :site- and l-decomposed charges
@@ -36,15 +32,12 @@ subroutine symrhoat(sv_p_orhoat, qbyl, hbyl, f)!- Symmetrize charge density and 
   if ( iprint ( ) > 60 ) call prrhat (sv_p_orhoat )
   call tcx('symrhoat')
 end subroutine symrhoat
-subroutine symrat(sv_p_orhoat , qbyl , hbyl , f )
+subroutine symrat(sv_p_orhoat , qbyl , hbyl , f ) !Symmetrize the atomic charge densities and the forces.
   use m_struc_def
   use m_mksym,only: oistab , symops, ag,ngrp,ipc_iv=>iclasst
   use m_lattic,only: lat_qlat,lat_plat,rv_a_opos
   use m_lgunit,only:stdo
   use m_lmfinit,only: ispec,lfrce,nbas,nsp,n0
-  !     - Symmetrize the atomic charge densities and the forces.
-  ! ----------------------------------------------------------------------
-  !i Inputs
   !i   nbas  :size of basis
   !i   nsp   :2 for spin-polarized case, otherwise 1
   !i   lfrce    :>0 symmetrize forces
@@ -57,10 +50,6 @@ subroutine symrat(sv_p_orhoat , qbyl , hbyl , f )
   ! o        :Symmetrized on output
   ! o  f     :forces
   ! o        :Symmetrized on output
-  !r Remarks
-  !u Updates
-  !u   01 Jul 05 handle sites with lmxa=-1 -> no augmentation
-  ! ----------------------------------------------------------------------
   implicit none
   type(s_rv1) :: sv_p_orhoat(3,nbas)
   real(8):: f(3,nbas),qbyl(n0,nsp,nbas),hbyl(n0,nsp,nbas)
@@ -85,40 +74,33 @@ subroutine symrat(sv_p_orhoat , qbyl , hbyl , f )
   nclass = maxval(ipc_iv )
   allocate(ipa_iv(nbas))
   allocate(pos_rv(3*nbas))
-  if (iprint() >= 40) then
-     write(stdo,"(a)")'                qbyl        hbyl        ebar   '
-  endif
+  if (iprint() >= 40) write(stdo,"(a)")'                qbyl        hbyl        ebar   '
   do  ic = 1, nclass
      call psymr0 ( - 2,ic,nbas,ipc_iv,pos0_rv,pos_rv, ipa_iv,nrclas )
-     if (nrclas > 0) then
-        ib0 = ipa_iv(1) !ival ( ipa_iv,1 )
-        is = ispec(ib0) 
-        lmxl=lmxl_i(is)
-        lmxa=lmxa_i(is)
-        nr=nr_i(is)
-        nlml = (lmxl+1)**2
-        !   ... Make the projectors; make to at least to l=1 for forces
-        nlmx = max0(nlml,4)
-        allocate(sym_rv(nlmx*nlmx*nrclas))
-        call symprj(nrclas,nlmx,ngrp,nbas,oistab,symops,ag,plat,qlat,pos_rv,sym_rv )
-        !   ... Apply the projectors to rhoat
-        if (lmxl > -1) then
-           allocate(rho_rv(nr*nlml*nsp))
-           call psymr1 ( nrclas,ipa_iv,nr,nlml,nsp,nlmx,sym_rv, rho_rv,sv_p_orhoat,1 )
-           call psymr1 ( nrclas,ipa_iv,nr,nlml,nsp,nlmx,sym_rv, rho_rv,sv_p_orhoat,2 )
-           !   ... Symmetrize site charges and eigval sum
-           call psymrq ( nrclas,nsp,ipa_iv,lmxa,qbyl,hbyl ) !write qbyl
-        endif
-        !   ... Symmetrize the forces
-        if ( lfrce /= 0 ) call psymrf ( nrclas,ipa_iv,nlmx,sym_rv, f )
-        if (allocated(rho_rv)) deallocate(rho_rv)
-        if (allocated(sym_rv)) deallocate(sym_rv)
+     if (nrclas <=0) cycle
+     ib0 = ipa_iv(1) !ival ( ipa_iv,1 )
+     is = ispec(ib0) 
+     lmxl=lmxl_i(is)
+     lmxa=lmxa_i(is)
+     nr=nr_i(is)
+     nlml = (lmxl+1)**2
+     !   ... Make the projectors; make to at least to l=1 for forces
+     nlmx = max0(nlml,4)
+     allocate(sym_rv(nlmx*nlmx*nrclas))
+     call symprj(nrclas,nlmx,ngrp,nbas,oistab,symops,ag,plat,qlat,pos_rv,sym_rv )
+     !   ... Apply the projectors to rhoat
+     if (lmxl > -1) then
+        allocate(rho_rv(nr*nlml*nsp))
+        call psymr1 ( nrclas,ipa_iv,nr,nlml,nsp,nlmx,sym_rv, rho_rv,sv_p_orhoat,1 )
+        call psymr1 ( nrclas,ipa_iv,nr,nlml,nsp,nlmx,sym_rv, rho_rv,sv_p_orhoat,2 )
+        !   ... Symmetrize site charges and eigval sum
+        call psymrq ( nrclas,nsp,ipa_iv,lmxa,qbyl,hbyl ) !write qbyl
+        deallocate(rho_rv)
      endif
+     !   ... Symmetrize the forces
+     if ( lfrce /= 0 ) call psymrf ( nrclas,ipa_iv,nlmx,sym_rv, f )
+     deallocate(sym_rv)
   enddo
-  if (allocated(pos_rv)) deallocate(pos_rv)
-  if (allocated(ipa_iv)) deallocate(ipa_iv)
-  if (allocated(pos0_rv)) deallocate(pos0_rv)
-  if (allocated(ips_iv)) deallocate(ips_iv)
   call tcx('symrat')
 end subroutine symrat
 subroutine psymrf(nrclas,ipa,nlmx,s,f)
@@ -167,10 +149,8 @@ subroutine psymrq(nrclas,nsp,ipa,lmxa,qbyl,hbyl)!- Symmetrize l-decomposed site 
      !        write(stdo,770) (ipa(ia),ia = 1,nrclas)
      !  770   format(' symmetrized qbyl,hbyl for class containing atom site ib=',20i3)
      !  770   format(' atom site ib=',255i3)
-     if (nsp == 1) write(stdo,780) &
-          (ipa(1),l,qsum(l+1,1),hsum(l+1,1), hsum(l+1,1)/qsum(l+1,1), l=0,lmxa)
-     if (nsp == 2) write(stdo,781) &
-          (ipa(1),l,(qsum(l+1,isp),hsum(l+1,isp),hsum(l+1,isp)/qsum(l+1,isp),isp=1,nsp), l=0,lmxa)
+     if (nsp == 1) write(stdo,780)(ipa(1),l,qsum(l+1,1),hsum(l+1,1), hsum(l+1,1)/qsum(l+1,1), l=0,lmxa)
+     if (nsp == 2) write(stdo,781)(ipa(1),l,(qsum(l+1,isp),hsum(l+1,isp),hsum(l+1,isp)/qsum(l+1,isp),isp=1,nsp), l=0,lmxa)
 780  format('ib=',i3,' l=',i2,3f12.6)
 781  format('ib=',i3,' l=',i2,3f12.6,'   spin 2',3f12.6)
      write(stdo,*)'-----------------------------------------------'
@@ -292,129 +272,51 @@ subroutine symsmrho(smrho) !- Symmetrize the smooth charge density
   implicit none
   double complex smrho(n1,n2,n3,nsp)
   integer:: ng,isp
-  complex(8) ,allocatable :: csym_zv(:)
-  complex(8) ,allocatable :: cv_zv(:)
-!  equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
+  complex(8) ,allocatable :: csym_zv(:), cv_zv(:)
   call tcn('symsmrho')
-!  ngabc=lat_nabc
-  ng=lat_ng
-!  ngrp=lat_nsgrp
   if (ngrp > 1) then
-     allocate(cv_zv(ng))
-     allocate(csym_zv(ng))
+     ng=lat_ng
+     allocate(cv_zv(ng),csym_zv(ng))
      call fftz3(smrho,n1,n2,n3,n1,n2,n3,nsp,0,-1)
      do  isp = 1, nsp
-        call gvgetf ( ng,1,iv_a_okv,n1,n2,n3,smrho(1,1,1,isp), cv_zv )
+        call gvgetf( ng,1,iv_a_okv,n1,n2,n3,smrho(1,1,1,isp), cv_zv )
         call gvsym ( ng,rv_a_ogv,iv_a_oips0,zv_a_obgv,cv_zv,   csym_zv )
         csym_zv=csym_zv - cv_zv
-        call gvaddf ( ng,iv_a_okv,n1,n2,n3,csym_zv, smrho(1,1,1,isp) )
+        call gvaddf( ng,iv_a_okv,n1,n2,n3,csym_zv, smrho(1,1,1,isp) )
      enddo
      call fftz3(smrho,n1,n2,n3,n1,n2,n3,nsp,0,1)
-     if (allocated(csym_zv)) deallocate(csym_zv)
-     if (allocated(cv_zv)) deallocate(cv_zv)
-     ! ... Force density to be real and positive
-     !       call rhopos(smrho,n1,n2,n3)
-     !        do  10  i23 = 1, n2*n3
-     !        do  10  i1  = 1, n1
-     !   10   smrho(i1,i23,1) = dble(smrho(i1,i23,1))
+     deallocate(csym_zv,cv_zv)
   else
      write(stdo,*)' Smooth density not symmetrized (ngrp=1)'
   endif
   call tcx('symsmrho')
 end subroutine symsmrho
-! subroutine rhopos(smrho,n1,n2,n3)!- Make smrho real and positive
-!   use m_lgunit,only:stdo
-!   implicit none
-!   integer :: n1,n2,n3,n1,n2,n3
-!   double complex smrho(n1,n2,n3)
-!   integer :: i1,i2,i3,nneg
-!   double precision :: rmin,xx
-!   nneg = 0
-!   rmin = 999
-!   do    i3 = 1, n3
-!      do    i2 = 1, n2
-!         do    i1 = 1, n1
-!            xx = dble(smrho(i1,i2,i3))
-!            rmin = min(rmin,xx)
-!            if (xx < 0) then
-!               nneg = nneg+1
-!               xx = 1d-8
-!            endif
-!            smrho(i1,i2,i3) = xx
-!         enddo
-!      enddo
-!   enddo
-!   if (nneg > 0) write(stdo,333) nneg,rmin
-! 333 format(' rhopos (warning): mesh density negative at',i6,' points.  min=',f13.8)
-! end subroutine rhopos
 subroutine gvsym(ng,gv,ips0,bgv,c,csym)  !- Symmetrize a function c, given in the form of a list
-  ! ----------------------------------------------------------------------
-  !i Inputs
   !i   gv,ng   Lattice vectors, and number
   !i   ips0    pointer to first vector in star of this vector; see sgvsym
   !i   bgv     phase factor sum; see sgvsym
   !i   c       unsymmetrized function
   !o Outputs:
   !o   csym    symmetrized function
-  !r Remarks:
-  !u    7 Sep 98 Adapted from nfp gvsym.f
-  ! ----------------------------------------------------------------------
   implicit none
   integer :: ng,ips0(ng)
   double precision :: gv(ng,3)
   double complex bgv(ng),c(ng),csym(ng)
-  integer :: i,j,i0,kstar,ipr,iprint,nstar
-
-  ! ... Sum up coefficients for first vector in each star
-  do  10  i = 1, ng
-     csym(i) = (0d0,0d0)
-10 enddo
-  do  12  i = 1, ng
-     j = ips0(i)
-     csym(j) = csym(j) + bgv(i)*c(i)
-12 enddo
-
-  ! ... Normalize
-  do  20  i0 = 1, ng
+  integer :: i,j,i0,kstar,ipr,iprint,nstar   ! ... Sum up coefficients for first vector in each star
+  csym=0d0
+  do i = 1, ng
+     csym(ips0(i)) = csym(ips0(i)) + bgv(i)*c(i)
+  enddo
+  do i0 = 1, ng
      if (ips0(i0) == i0) then
         kstar = 0
-        do  22  i = i0, ng
+        do i = i0, ng
            if (ips0(i) == i0) kstar = kstar+1
-22      enddo
+        enddo
         csym(i0) = csym(i0)/kstar
      endif
-20 enddo
-
-  ! ... Make all the coefficients
-  do  30  i = 1, ng
-     j = ips0(i)
-     csym(i) = csym(j)*dconjg(bgv(i))
-30 enddo
-
-  ! ... Printout
-  ipr = iprint()
-  if (ipr <= 55) return
-  print 255
-  nstar = 0
-  do  40  i0 = 1, ng
-     if (ips0(i0) == i0) then
-        nstar = nstar+1
-        if (ipr >= 60) print *, ' '
-        do  44  i = i0, ng
-           if (ips0(i) == i0) then
-              if (i == i0) then
-                 print 251, nstar,i,gv(i,1),gv(i,2),gv(i,3), &
-                      c(i),csym(i)
-              else
-                 if (ipr >= 60) &
-                      print 252, i,gv(i,1),gv(i,2),gv(i,3), &
-                      c(i),csym(i)
-              endif
-251           format(i4,i5,3f6.1,2f12.8,1x,2f12.8)
-252           format(4x,i5,3f6.1,2f12.8,1x,2f12.8)
-255           format(/' star  ig',8x,'recip',17x,'c_in',20x,'c_sym')
-           endif
-44      enddo
-     endif
-40 enddo
+  enddo
+  do i = 1, ng
+     csym(i) = csym(ips0(i))* dconjg(bgv(i))
+  enddo
 end subroutine gvsym

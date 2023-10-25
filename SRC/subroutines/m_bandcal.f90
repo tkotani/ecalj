@@ -228,19 +228,12 @@ contains
     sumev = 0d0
     sumqv = 0d0
     allocate(evl(ndhamx,nspx))
-!    open(newunit=ifig,file='eigze_'//trim(strprocid),form='unformatted')
     iqloop: do 12010 idat=1,niqisp !iq = iqini, iqend !This is a big iq loop
        iq = iqproc(idat)
        qp = qplist(:,iq)  !write(stdo,ftox)'m_bandcal_init: procid iq=',procid,iq,ftof(qp)
        isp= isproc(idat)
        if(cmdopt0('--afsym').and.isp==2) cycle
        call m_Igv2x_setiq(iq) ! Get napw and so on for given qp
-       !read(ifig) nev,ndimhx  !ndimhx <---supplied by m_Igv2x_set
-       !allocate(evec(ndimhx,nev))
-       !read(ifig) evl(1:nev,isp)
-       !read(ifig) evec(1:ndimhx,1:nev)
-       !evl(nev+1:ndhamx,isp)=1d99 !to skip these data
-
        nev   = neviqis(idat)
        ndimhx= ndimhxiqis(idat)
        allocate(evec(ndimhx,nev))
@@ -299,7 +292,6 @@ contains
           frcband(:,ibas) = frcband(:,ibas) - xv(:) ! Average forces so net force on system is zero (APW case)
        enddo
     endif
-!    close(ifig)
     deallocate(evl)
     call tcx('m_bandcal_2nd')
   end subroutine m_bandcal_2nd
@@ -390,11 +382,8 @@ contains
     real(8):: suml(11),s11,s22,s12,s33,s31,s32,s13,s23, suma,rmt,orbtm(lmxax+1,nsp,*) 
     complex(8):: au,as,az,iot=(0d0,1d0),evec(ndimh,nsp,nev),auasaz(3)
     complex(8),allocatable ::aus(:,:,:,:,:)
-!    real(8):: sab(nab,n0,2)
     allocate(aus(nlmax,ndham*nspc,3,nsp,nbas))
     call makusq(nbas,[-999], nev, isp,1,qp,evec, aus )
-!    lmxax = ll(nlmax)
-    iot = dcmplx(0d0,1d0)
     ichan = 0
     ibloop: do  ib = 1, nbas
        is = ispec(ib)
@@ -483,63 +472,52 @@ contains
     double complex add,au,as,az,ap1,ap2
     double precision :: dlphi,rmt,dlphip,phi,phip,dphi,dphip,r(2,2),det,phz,dphz
     integer :: lmxa,ilm1,ilm2,l,iv,m1,m2,ib,is,igetss,iblu,ispc, ksp
-    complex(8),allocatable ::aus(:,:,:,:,:)
-    double complex evec(ndimh,nsp,nev)
+    complex(8) ::aus(nlmax,ndham*nspc,3,nsp,nbas), evec(ndimh,nsp,nev)
     real(8)::qp(3)
     complex(8):: auas(2)
-    allocate(aus(nlmax,ndham*nspc,3,nsp,nbas))! aus(2*nlmax*ndhamx*3*nsp*nbas))
-    aus=0d0
     call makusq(nbas,[0] , nev,  isp, 1, qp, evec, aus )
     iblu = 0
     do  ib = 1, nbas
-       if (lldau(ib) == 0) goto 10
-       is = ispec(ib)
+       if(lldau(ib) == 0) cycle
+       is  = ispec(ib)
        lmxa=lmxa_i(is) 
-       rmt= rmt_i(is)
-       do  l = 0, min(lmxa,3)
-          if (idu(l+1,is) /= 0) then
-             iblu = iblu+1
-             !           In noncollinear case, isp=1 always => need internal ispc=1..2
-             !           ksp is the current spin index in both cases:
-             !           ksp = isp  in the collinear case
-             !               = ispc in the noncollinear case
-             !           ispc=1 for independent spins, and spin index when nspc=2
-             do  ispc = 1, nspc
-                ksp = max(ispc,isp)
-                phz    = phzdphz(1,l+1,ksp,ib)
-                dphz   = phzdphz(2,l+1,ksp,ib)
-                ilm1 = l*l
-                do  m1 = -l, l
-                   ilm1 = ilm1+1
-                   ilm2 = l*l
-                   do  m2 = -l, l
-                      ilm2 = ilm2+1
-                      add = (0d0,0d0)
-                      !  Since (au,as,az) are coefficients to (u,s,gz), (gz is local orbital with val=slo=0 at MT)
-                      !  Local orbital contribution adds to u,s
-                      !  deltau = -phi(rmax) * az   deltas = -dphi(rmax) * az
-                      do  iv = 1, nev
-                         az = aus(ilm1,iv,3,ksp,ib)
-                         au = aus(ilm1,iv,1,ksp,ib) - phz*az
-                         as = aus(ilm1,iv,2,ksp,ib) - dphz*az !u,s components
-                         auas= matmul([au,as],rotp(l,ksp,:,:,ib)) ! rotation (u,s) to (phi,phidot) comp.
-                         ap1 = auas(1) !au*r(1,1) + as*r(2,1) !projection to phi components.
-                         az = aus(ilm2,iv,3,ksp,ib)
-                         au = aus(ilm2,iv,1,ksp,ib) - phz*az
-                         as = aus(ilm2,iv,2,ksp,ib) - dphz*az
-                         auas= matmul([au,as],rotp(l,ksp,:,:,ib))
-                         ap2 = auas(1) !au*r(1,1) + as*r(2,1)
-                         add = add + ap1*dconjg(ap2)*wtkb(iv,isp,iq)
-                      enddo
-                      dmatu(m1,m2,ksp,iblu) = dmatu(m1,m2,ksp,iblu) + add !dmatu is for phi-projected density matrix
+       rmt = rmt_i(is)
+       do l = 0, min(lmxa,3)
+          if (idu(l+1,is) ==0) cycle
+          iblu = iblu+1
+          do  ispc = 1, nspc 
+             ksp = max(ispc,isp) !! ksp is the current spin index in both cases:  ksp = isp  in the collinear case, = ispc in the noncollinear case
+             phz    = phzdphz(1,l+1,ksp,ib)
+             dphz   = phzdphz(2,l+1,ksp,ib)
+             ilm1 = l*l
+             do  m1 = -l, l
+                ilm1 = ilm1+1
+                ilm2 = l*l
+                do  m2 = -l, l
+                   ilm2 = ilm2+1
+                   add = (0d0,0d0)
+                   !  Since (au,as,az) are coefficients to (u,s,gz), (gz is local orbital with val=slo=0 at MT)
+                   !  Local orbital contribution adds to u,s
+                   !  deltau = -phi(rmax) * az   deltas = -dphi(rmax) * az
+                   do  iv = 1, nev
+                      az = aus(ilm1,iv,3,ksp,ib)
+                      au = aus(ilm1,iv,1,ksp,ib) - phz*az
+                      as = aus(ilm1,iv,2,ksp,ib) - dphz*az !u,s components
+                      auas= matmul([au,as],rotp(l,ksp,:,:,ib)) ! rotation (u,s) to (phi,phidot) comp.
+                      ap1 = auas(1) !au*r(1,1) + as*r(2,1) !projection to phi components.
+                      az = aus(ilm2,iv,3,ksp,ib)
+                      au = aus(ilm2,iv,1,ksp,ib) - phz*az
+                      as = aus(ilm2,iv,2,ksp,ib) - dphz*az
+                      auas= matmul([au,as],rotp(l,ksp,:,:,ib))
+                      ap2 = auas(1) !au*r(1,1) + as*r(2,1)
+                      add = add + ap1*dconjg(ap2)*wtkb(iv,isp,iq)
                    enddo
+                   dmatu(m1,m2,ksp,iblu) = dmatu(m1,m2,ksp,iblu) + add !dmatu is for phi-projected density matrix
                 enddo
              enddo
-          endif
+          enddo
        enddo
-10     continue
     enddo
-    deallocate(aus)
   end subroutine mkdmtu
 end module m_bandcal
 subroutine dfqkkl( oqkkl ) !Allocates arrays to accumulate output site density

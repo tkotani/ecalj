@@ -1,5 +1,4 @@
-subroutine radmsh(rmax,a,nr,rofi)
-  !- Makes shifted logarithmic mesh
+subroutine radmsh(rmax,a,nr,rofi)   !- Makes shifted logarithmic mesh
   implicit none
   integer :: nr,ir
   double precision :: rmax,a,rofi(nr),b,rpb,ea
@@ -12,8 +11,7 @@ subroutine radmsh(rmax,a,nr,rofi)
      rpb = rpb*ea
   enddo
 end subroutine radmsh
-subroutine radwgt(rmax,a,nr,wt)
-  !- Makes weights for numerical integration on shifted log mesh
+subroutine radwgt(rmax,a,nr,wt)  !- Makes weights for numerical integration on shifted log mesh
   !  Integral f(r) dr = sum_i f_i * wt_i (Simpson rule)
   !  Thus sum_i wt_i = rmax
   !     implicit none
@@ -34,10 +32,7 @@ subroutine radwgt(rmax,a,nr,wt)
   wt(nr) = wt(nr)/2
   wt(1)=0d0 !to avoid skipping ir=1 for cases. 2023-jan
 end subroutine radwgt
-subroutine radmwt(opt,rmax,a,nr,rofi,wt)
-  !- Makes mesh and weights for numerical integration on shifted log mesh
-  ! ----------------------------------------------------------------------
-  !i Inputs
+subroutine radmwt(opt,rmax,a,nr,rofi,wt)  !- Makes mesh and weights for numerical integration on shifted log mesh
   !i   opt   :0 for uniform weight
   !i         :1 for r^2 weight
   !i   rmax  :augmentation radius, in a.u.,
@@ -54,7 +49,6 @@ subroutine radmwt(opt,rmax,a,nr,rofi,wt)
   !r  Thus sum_i wt_i = rmax (opt=0), or rmax^3/3 (opt=1)
   !u Updates
   !u   22 Feb 03 First created
-  ! ----------------------------------------------------------------------
   implicit none
   integer :: nr,opt
   double precision :: rmax,a,rofi(nr),wt(nr)
@@ -78,75 +72,13 @@ subroutine radmwt(opt,rmax,a,nr,rofi,wt)
   wt(1) = wt(1)/2
   wt(nr) = wt(nr)/2
 end subroutine radmwt
-subroutine radsum(nrx,nr,nlml,nsp,wt,rho,sum)
-  !- Numerical integration of a function on a shifted log mesh
-  !u   19 Jun 00 added extra arguments
-  !     implicit none
+subroutine radsum(nrx,nr,nlml,nsp,wt,rho,sum)   !- Numerical integration of a function on a shifted log mesh
   integer :: nrx,nr,nlml,nsp
   double precision :: wt(nr),rho(nrx,nlml,nsp),sum,ddot
   sum = ddot(nr,wt,1,rho,1)
   if (nsp == 2) sum = sum + ddot(nr,wt,1,rho(1,1,2),1)
 end subroutine radsum
-subroutine radext(mode,nr,nrx,fac,a,rmax,nrbig,rbig,rofi,rwgt)
-  !- Find radius, mesh suitable for extending orbitals outside MT sphere
-  ! ----------------------------------------------------------------------
-  !i Inputs
-  !i   mode  :1s digit
-  !i         :0  nrbig,rbig are input; do not make them
-  !i         :1  set rbig = smaller of   rofi(nrx)  and  fac*rmax
-  !i         :10s digit
-  !i         :if nonzero, make rofi and rwgt
-  !i   nr    :number of radial mesh points on regular mesh
-  !i   nrx   :maximum allowed number of radial mesh points
-  !i   fac   :approximate factor to scale rmax, rbig ~ fac*rmax
-  !i         :NB: true factor is constrained because rbig must
-  !i         :conform to radial mesh specified by (rmax,a,nr)
-  !i   a     :mesh points are given by
-  !i         :rofi(i) = rmax [e^(a(i-1))-1] / [e^(a(nr-1))-1]
-  !i   rmax  :augmentation radius, in a.u.,
-  !o Outputs
-  ! o  nrbig :number of points on extended mesh.
-  ! o        :NB: nrbig is input if 1s digit mode=0
-  ! o        :In the latter case, nrbig must be consistent with the mesh
-  ! o        :points specified by (a,nr,rmax) and also rbig.
-  ! o  rbig  :sphere radius of extended mesh
-  ! o        :NB: rbig is input if 1s digit mode=0
-  !o   rofi  :(10s digit mode > 0)
-  !o         :radial mesh points: rofi(1..nrbig) will be generated
-  !o         :rofi(nrbig) is rmax for extended mesh
-  !o   rwgt  :(10s digit mode > 0)
-  !o         :radial mesh weights: rwgt(1..nrbig) will be generated
-  !o         :rwgt is actually designed for two integration radii:
-  !o         :int(0,rmax) = I(1..nr) and int(rmax,rbig) = I(nr..nrbig).
-  !o         :Integral int(1..nrbig) must be done in two steps, by summing
-  !o         :I(1..nr) and I(nr..nrbig)
-  !r Remarks
-  !r
-  !u Updates
-  !u   24 Sep 04 First created
-  ! ----------------------------------------------------------------------
-  implicit none
-  integer :: mode,nr,nrx,nrbig,idn
-  double precision :: rmax,fac,rbig,a,rofi(*),rwgt(*)
-  if (mod(mode,10) == 1) then
-     rbig = rmax * (dexp(a*nrx-a)-1d0)/(dexp(a*nr-a)-1d0)
-     if (rbig > fac*rmax) then !     If rbig>fac*rmax, estimate from exp((nrbig-nr)a) = fac
-        idn = dlog(fac)/a
-        if (mod(idn,2) == 1) idn = idn-1
-        nrbig = min(nr+idn,nrx)
-        rbig = rmax * (dexp(a*nrbig-a)-1d0)/(dexp(a*nr-a)-1d0)
-     endif
-  endif
-  if (mod(mode/10,10) /= 0) then ! --- Points and weights on extended mesh ---
-     call radmsh(rbig,a,nrbig,rofi)
-     call radwgt(rbig,a,nrbig,rwgt)
-     if (nr < nrbig) rwgt(nr) = rwgt(nr)/2
-  endif
-end subroutine radext
-subroutine radgra(a,b,nr,r,v,gradv)
-  !- radial gradient
-  ! ------------------------------------------------------------------
-  !i Inputs:
+subroutine radgra(a,b,nr,r,v,gradv)  !- radial gradient
   !i    a,b,nr,r(nr),v(nr)
   !o Outputs:
   !o    gradv(nr)

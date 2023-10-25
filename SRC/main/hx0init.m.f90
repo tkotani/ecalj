@@ -18,17 +18,12 @@ program hx0init !initializaiton of x0 calculaiton (W-v)
   use m_readqg,only: Readngmx2,ngpmx,ngcmx
   use m_hamindex,only:   Readhamindex
   use m_readeigen,only: Init_readeigen,Init_readeigen2,Readeval
-  use m_read_bzdata,only: Read_bzdata,  nqbz,nqibz,n1,n2,n3,ginv, &
-       dq_,qbz,wbz,qibz,wibz,  ntetf,idtetf,ib1bz, qbzw,nqbzw,nq0i ,nq0iadd !for tetrahedron
-  use m_genallcf_v3,only: Genallcf_v3, nclass,natom,nspin,nl,nn, &
-       nlmto,nlnmx, nctot, alat, clabl,iclass, il, in, im, nlnm, plat, pos, ecore
-  !! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
-  use m_rdpp,only: Rdpp, nxx,lx,nx,mdimx,nbloch,cgr,ppbrd ,nblochpmx,mrecl,nprecx
-  !! Set data for "call get_zmelt" zmelt= matrix element <phi |phi MPB>.
-  use m_zmel,only: Mptauof_zmel, Setppovlz 
+  use m_read_bzdata,only: Read_bzdata, nqbz,nqibz,n1,n2,n3,ginv, dq_,qbz,wbz,qibz,wibz, ntetf,idtetf,ib1bz,qbzw,nqbzw,nq0i,nq0iadd !for tetrahedron
+  use m_genallcf_v3,only:Genallcf_v3,nclass,natom,nspin,nl,nn,nlmto,nlnmx,nctot,alat,clabl,iclass,il,in,im,nlnm,plat,pos,ecore
+  use m_rdpp,only: Rdpp, nxx,lx,nx,mdimx,nbloch,cgr,ppbrd ,nblochpmx,mrecl,nprecx ! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
+  use m_zmel,only: Mptauof_zmel, Setppovlz  !! Set data for "call get_zmelt" zmelt= matrix element <phi |phi MPB>.
   use m_itq,only: Setitq !set itq,ntq,nband,ngcmx,ngpmx to m_itq
-  !! Frequency
-  use m_freq,only: Getfreq2, frhis,freq_r,freq_i, nwhis,nw_i,nw,npm,niw !output of getfreq
+  use m_freq,only: Getfreq2, frhis,freq_r,freq_i, nwhis,nw_i,nw,npm,niw !output of getfreq ! Frequency
   use m_tetwt,only: Tetdeallocate, Gettetwt, whw,ihw,nhw,jhw,ibjb,nbnbx,nhwtot,n1b,n2b,nbnb
   use m_w0w0i,only:       W0w0i,     w0,w0i,llmat
   use m_readVcoud,only:   Readvcoud, vcousq,zcousq,ngb,ngc
@@ -38,15 +33,12 @@ program hx0init !initializaiton of x0 calculaiton (W-v)
 !  use m_eibz,only:    Seteibz, nwgt!,neibz,igx,igxt,eibzsym
   use m_x0kf,only:    X0kf_v4hz, X0kf_v4hz_init,x0kf_v4hz_init_write,x0kf_v4hz_init_read !, X0kf_v4hz_symmetrize
   use m_llw,only:     WVRllwR,WVIllwI,w4pmode,MPI__sendllw
-  use m_mpi,only: MPI__hx0fp0_rankdivider2Q, MPI__Qtask, &
-       MPI__Initialize, MPI__Finalize,MPI__root, &
-       MPI__Broadcast, MPI__rank,MPI__size, MPI__consoleout,MPI__barrier
+  use m_mpi,only: MPI__hx0fp0_rankdivider2Q, MPI__Qtask, MPI__Initialize, MPI__Finalize,MPI__root
+  use m_mpi,only: MPI__Broadcast, MPI__rank,MPI__size, MPI__consoleout,MPI__barrier
   use m_lgunit,only: m_lgunit_init
-  !! ------------------------------------------------------------------------
   implicit none
-  integer:: MPI__Ss,MPI__Se
+  integer:: MPI__Ss,MPI__Se, iq,isf,kx,ixc,iqxini,iqxend,is,iw,ifwd,ngrpx,verbose,nmbas1,nmbas2,nmbas_in,ifif
   real(8),parameter:: pi = 4d0*datan(1d0),fourpi = 4d0*pi, sqfourpi= sqrt(fourpi)
-  integer:: iq,isf,kx,ixc,iqxini,iqxend,is,iw,ifwd,ngrpx,verbose,nmbas1,nmbas2,nmbas_in,ifif
   real(8):: ua=1d0, qp(3), quu(3), hartree, rydberg, schi=-9999
   real(8),allocatable :: symope(:,:), ekxx1(:,:),ekxx2(:,:)
   complex(8),allocatable:: zxq(:,:,:),zxqi(:,:,:), rcxq(:,:,:,:)
@@ -57,8 +49,6 @@ program hx0init !initializaiton of x0 calculaiton (W-v)
   character(20):: outs=''
   integer:: ipart
   logical:: cmdopt2
-!  integer,allocatable:: nwgt(:,:)
-  !-------------------------------------------------------------------------
   call MPI__Initialize()
   call M_lgunit_init()
   call MPI__consoleout('hx0fp0_sc')

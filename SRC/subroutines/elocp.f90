@@ -281,4 +281,60 @@ contains
     endif
     call rxiii('ICLBSJ: sought atom no.#1 in class #2 but only #3 atoms exist. #1#2#3=',nrbas,ic,n)
   end function iclbsj
+  subroutine radext(mode,nr,nrx,fac,a,rmax,nrbig,rbig,rofi,rwgt)
+    !- Find radius, mesh suitable for extending orbitals outside MT sphere
+    ! ----------------------------------------------------------------------
+    !i Inputs
+    !i   mode  :1s digit
+    !i         :0  nrbig,rbig are input; do not make them
+    !i         :1  set rbig = smaller of   rofi(nrx)  and  fac*rmax
+    !i         :10s digit
+    !i         :if nonzero, make rofi and rwgt
+    !i   nr    :number of radial mesh points on regular mesh
+    !i   nrx   :maximum allowed number of radial mesh points
+    !i   fac   :approximate factor to scale rmax, rbig ~ fac*rmax
+    !i         :NB: true factor is constrained because rbig must
+    !i         :conform to radial mesh specified by (rmax,a,nr)
+    !i   a     :mesh points are given by
+    !i         :rofi(i) = rmax [e^(a(i-1))-1] / [e^(a(nr-1))-1]
+    !i   rmax  :augmentation radius, in a.u.,
+    !o Outputs
+    ! o  nrbig :number of points on extended mesh.
+    ! o        :NB: nrbig is input if 1s digit mode=0
+    ! o        :In the latter case, nrbig must be consistent with the mesh
+    ! o        :points specified by (a,nr,rmax) and also rbig.
+    ! o  rbig  :sphere radius of extended mesh
+    ! o        :NB: rbig is input if 1s digit mode=0
+    !o   rofi  :(10s digit mode > 0)
+    !o         :radial mesh points: rofi(1..nrbig) will be generated
+    !o         :rofi(nrbig) is rmax for extended mesh
+    !o   rwgt  :(10s digit mode > 0)
+    !o         :radial mesh weights: rwgt(1..nrbig) will be generated
+    !o         :rwgt is actually designed for two integration radii:
+    !o         :int(0,rmax) = I(1..nr) and int(rmax,rbig) = I(nr..nrbig).
+    !o         :Integral int(1..nrbig) must be done in two steps, by summing
+    !o         :I(1..nr) and I(nr..nrbig)
+    !r Remarks
+    !r
+    !u Updates
+    !u   24 Sep 04 First created
+    ! ----------------------------------------------------------------------
+    implicit none
+    integer :: mode,nr,nrx,nrbig,idn
+    double precision :: rmax,fac,rbig,a,rofi(*),rwgt(*)
+    if (mod(mode,10) == 1) then
+       rbig = rmax * (dexp(a*nrx-a)-1d0)/(dexp(a*nr-a)-1d0)
+       if (rbig > fac*rmax) then !     If rbig>fac*rmax, estimate from exp((nrbig-nr)a) = fac
+          idn = dlog(fac)/a
+          if (mod(idn,2) == 1) idn = idn-1
+          nrbig = min(nr+idn,nrx)
+          rbig = rmax * (dexp(a*nrbig-a)-1d0)/(dexp(a*nr-a)-1d0)
+       endif
+    endif
+    if (mod(mode/10,10) /= 0) then ! --- Points and weights on extended mesh ---
+       call radmsh(rbig,a,nrbig,rofi)
+       call radwgt(rbig,a,nrbig,rwgt)
+       if (nr < nrbig) rwgt(nr) = rwgt(nr)/2
+    endif
+  end subroutine radext
 end module m_elocp
