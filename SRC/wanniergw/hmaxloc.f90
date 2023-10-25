@@ -187,14 +187,10 @@ program hmaxloc
   integer:: inii,if102,iwf2
   logical:: leauto,leinauto,iprint
   complex(8):: cccx(7)
-  ! cccccccccccccccccccccccccccccccccccccccxxxxxxx
-  !      open(1107,file='xxx1')
-  !      open(1108,file='xxx2')
-  ! cccccccccccccccccccccccccccccccccccccccccc
-
-  !---------------------------------------
+  integer:: ierr
+  include 'mpif.h'
+  call mp_init(ierr)
   hartree=2d0*rydberg()
-
   iii=verbose()
   write(6,*)' verbose=',iii
 
