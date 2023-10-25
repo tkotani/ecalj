@@ -59,12 +59,8 @@ program hx0zmel ! Calculate matrix elements zmel needed for calculating x0.
   !  write(6,*)' ngcmx ngpmx=',ngcmx,ngpmx !ngcmx: max of PWs for W, ngpmx: max of PWs for phi
   !! Get space-group transformation information. See header of mptaouof.
   !! But we only use symops=E in hx0fp0 mode. c.f. hsfp0.sc
-  ngrpx = 1 !no space-group symmetry operation in hx0fp0. ng=1 means E only.
-  allocate(symope(3,3))
-  symope(1:3,1) = [1d0,0d0,0d0]
-  symope(1:3,2) = [0d0,1d0,0d0]
-  symope(1:3,3) = [0d0,0d0,1d0]
-  call Mptauof_zmel(symope,ngrpx) ! call Rdpp(ngrpx,symope) is moved to Mptauof_zmel \in m_zmel
+  allocate(symope,source=reshape([1d0,0d0,0d0, 0d0,1d0,0d0, 0d0,0d0,1d0],[3,3]))
+  call Mptauof_zmel(symope,ng=1) ! call Rdpp(ngrpx,symope) is moved to Mptauof_zmel \in m_zmel
   call Setitq()             ! Set itq in m_zmel
   call Readhamindex()
   call Init_readeigen() ! Initialization of readEigen !readin m_hamindex

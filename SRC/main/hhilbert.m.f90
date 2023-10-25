@@ -72,12 +72,8 @@ program hhilbert
   !  write(6,*)' ngcmx ngpmx=',ngcmx,ngpmx !ngcmx: max of PWs for W, ngpmx: max of PWs for phi
   !! Get space-group transformation information. See header of mptaouof.
   !! But we only use symops=E in hx0fp0 mode. c.f. hsfp0.sc
-  ngrpx = 1 !no space-group symmetry operation in hx0fp0. ng=1 means E only.
-  allocate(symope(3,3))
-  symope(1:3,1) = [1d0,0d0,0d0]
-  symope(1:3,2) = [0d0,1d0,0d0]
-  symope(1:3,3) = [0d0,0d0,1d0]
-  call Mptauof_zmel(symope,ngrpx)
+  allocate(symope,source=reshape([1d0,0d0,0d0, 0d0,1d0,0d0, 0d0,0d0,1d0],[3,3]))
+  call Mptauof_zmel(symope,ng=1)
   !! Rdpp gives ppbrd: radial integrals and cgr = rotated cg coeffecients.
   !!   --> call Rdpp(ngrpx,symope) is moved to Mptauof_zmel \in m_zmel
   call Readhamindex()
@@ -91,17 +87,14 @@ program hhilbert
   ! nblochpmx = nbloch + ngcmx ! Maximum of MPB = PBpart +  IPWpartforMPB
   iqxini = 1
   iqxend = nqibz + nq0i + nq0iadd ! [iqxini:iqxend] range of q points.
-  !! Rank divider
-  call MPI__hx0fp0_rankdivider2Q(iqxini,iqxend)
+  call MPI__hx0fp0_rankdivider2Q(iqxini,iqxend) !! Rank divider
   if(sum(qibze(:,1)**2)>1d-10) call rx(' hhilbert: sanity check. |q(iqx)| /= 0')
   !!-Hilbert transformation -----------
   do 1201 iq = iqxini,iqxend
-     if( .NOT. MPI__Qtask(iq) ) cycle
+     if(.NOT. MPI__Qtask(iq) ) cycle
      qp = qibze(:,iq)
-     !! Read Coulomb matrix
-     call Readvcoud(qp,iq,NoVcou=.false.) !Readin vcousq,zcousq ngb ngc for the Coulomb matrix
-     !! Read rcxq
-     open(newunit=ircxq,file='rcxq.'//trim(i2char(iq)),form='unformatted')
+     call Readvcoud(qp,iq,NoVcou=.false.) !Read Coulomb matrix !Readin vcousq,zcousq ngb ngc for the Coulomb matrix
+     open(newunit=ircxq,file='rcxq.'//trim(i2char(iq)),form='unformatted') ! Read rcxq
      read(ircxq) nmbas1,nmbas2
      if(allocated(rcxq)) deallocate(rcxq)
      allocate( rcxq(nmbas1,nmbas2,nwhis,npm))
@@ -110,23 +103,18 @@ program hhilbert
      !! Hilbert transform . Genrerate Real part from Imaginary part. ======
      if(realomega) allocate( zxq(nmbas1,nmbas2,nw_i:nw) )
      if(imagomega) allocate( zxqi(nmbas1,nmbas2,niw)    )
-     write(6,'("goto dpsion5: nwhis nw_i niw nw_w nmbas1 nmbas2=",6i5)') &
-          nwhis,nw_i,nw,niw,nmbas1,nmbas2
-     call dpsion5( realomega, imagomega, rcxq, nmbas1,nmbas2, zxq, zxqi, &
-          chipm, schi,is,  ecut,ecuts)
+     write(6,'("goto dpsion5: nwhis nw_i niw nw_w nmbas1 nmbas2=",6i5)') nwhis,nw_i,nw,niw,nmbas1,nmbas2
+     call dpsion5( realomega, imagomega, rcxq, nmbas1,nmbas2, zxq, zxqi, chipm, schi,is,  ecut,ecuts)
      deallocate(rcxq)
      if(debug) print *,'sumchk zxq=',sum(zxq),sum(zxqi),sum(abs(zxq)),sum(abs(zxqi))
-     !! ===  RealOmega === W-V: WVR and WVI. Wing elemments: llw, llwi LLWR, LLWI
-     if (realomega) then
+     RealOmeg: if (realomega) then !RealOmega === W-V: WVR and WVI. Wing elemments: llw, llwi LLWR, LLWI
         call WVRllwR(qp,iq,zxq,nmbas1,nmbas2)
         deallocate(zxq)
-     endif
-     !! === ImagOmega ===
-     if (imagomega) then
+     endif RealOmeg
+     ImagOmeg:if (imagomega) then
         call WVIllwI(qp,iq,zxqi,nmbas1,nmbas2)
         deallocate(zxqi)
-     endif
-     !! === ImagOmega end ===
+     endif ImagOmeg
 1201 enddo
   !! == Divergent part and non-analytic constant part of W(0) ==
   call MPI__barrier()

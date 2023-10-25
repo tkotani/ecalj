@@ -14,13 +14,11 @@ program hx0fp0_sc
   !    (3) During the main loop, a few of module variables are rewritten by module functions
   !        (tetrahedron weight, matrix elements ...). Be careful, and clarify it.
   !    (4) Do now write long fortran program. One MPI loop and one OpenMP loop.
-
   use m_ReadEfermi,only: Readefermi,ef
   use m_readqg,only: Readngmx2,ngpmx,ngcmx
   use m_hamindex,only:   Readhamindex
   use m_readeigen,only: Init_readeigen,Init_readeigen2,Readeval
-  use m_read_bzdata,only: Read_bzdata, nqbz,nqibz,n1,n2,n3,ginv, &
-       dq_,qbz,wbz,qibz,wibz, ntetf,idtetf,ib1bz, qbzw,nqbzw &
+  use m_read_bzdata,only: Read_bzdata, nqbz,nqibz,n1,n2,n3,ginv, dq_,qbz,wbz,qibz,wibz, ntetf,idtetf,ib1bz, qbzw,nqbzw &
        ,wqt=>wt,q0i,nq0i ,nq0iadd,ixyz
   use m_genallcf_v3,only: Genallcf_v3, nclass,natom,nspin,nl,nn, &
        nlmto,nlnmx, nctot, alat, clabl,iclass, il, in, im, nlnm, plat, pos, ecore
@@ -33,19 +31,16 @@ program hx0fp0_sc
   use m_tetwt,only: Tetdeallocate, Gettetwt, whw,ihw,nhw,jhw,ibjb,nbnbx,nhwtot,n1b,n2b,nbnb
   use m_w0w0i,only:       W0w0i,     w0,w0i,llmat
   use m_readVcoud,only:   Readvcoud, vcousq,zcousq,ngb,ngc
-  use m_readgwinput,only: ReadGwinputKeys, &
-       egauss,ecut,ecuts,nbcut,nbcut2,mtet,ebmx,nbmx,imbas
+  use m_readgwinput,only: ReadGwinputKeys, egauss,ecut,ecuts,nbcut,nbcut2,mtet,ebmx,nbmx,imbas
   use m_qbze,only:    Setqbze, nqbze,nqibze,qbze,qibze
   use m_readhbe,only: Readhbe, nband 
   use m_x0kf,only:    X0kf_v4hz, X0kf_v4hz_init,x0kf_v4hz_init_write,x0kf_v4hz_init_read
   !X0kf_v4hz_symmetrize, 
   use m_llw,only:     WVRllwR,WVIllwI,w4pmode,MPI__sendllw
-  use m_mpi,only: MPI__hx0fp0_rankdivider2Q, MPI__Qtask, &
-       MPI__Initialize, MPI__Finalize,MPI__root, &
+  use m_mpi,only: MPI__hx0fp0_rankdivider2Q, MPI__Qtask, MPI__Initialize, MPI__Finalize,MPI__root, &
        MPI__Broadcast, MPI__rank,MPI__size, MPI__consoleout,MPI__barrier
   use m_lgunit,only: m_lgunit_init
 !  use m_eibz,only:    Seteibz, nwgt,neibz,igx,igxt,eibzsym
-  !! ------------------------------------------------------------------------
   implicit none
   integer:: MPI__Ss,MPI__Se
   real(8),parameter:: pi = 4d0*datan(1d0),fourpi = 4d0*pi, sqfourpi= sqrt(fourpi)
@@ -77,8 +72,6 @@ program hx0fp0_sc
      endif
      call MPI__Broadcast(ixc)
   endif
-  !      irr = cmdopt2('--part=',outs)
-
   if(MPI__root) iprintx= .TRUE. 
   crpa = .false.
   if(ixc==11) then
@@ -107,9 +100,7 @@ program hx0fp0_sc
   !! But we only use symops=E in hx0fp0 mode. c.f. hsfp0.sc
   ngrpx = 1 !no space-group symmetry operation in hx0fp0. ng=1 means E only.
   allocate(symope(3,3))
-  symope(1:3,1) = [1d0,0d0,0d0]
-  symope(1:3,2) = [0d0,1d0,0d0]
-  symope(1:3,3) = [0d0,0d0,1d0]
+  symope = reshape([1d0,0d0,0d0, 0d0,1d0,0d0, 0d0,0d0,0d0],[3,3])
   call Mptauof_zmel(symope,ngrpx)
   !! Rdpp gives ppbrd: radial integrals and cgr = rotated cg coeffecients.
   !!       --> call Rdpp(ngrpx,symope) is moved to Mptauof_zmel \in m_zmel
@@ -145,13 +136,11 @@ program hx0fp0_sc
   eibzmode = .false. !eibz4x0()                ! EIBZ mode
   !call Seteibz(iqxini,iqxend,iprintx) ! EIBZ mode
   allocate( nwgt(1,iqxini:iqxend))
-  
   !!    call Setw4pmode() !W4phonon. !still developing...
   !! Rank divider
   call MPI__hx0fp0_rankdivider2Q(iqxini,iqxend)
   MPI__Ss = 1
   MPI__Se = nspin
-
   !! == Calculate x0(q,iw) and W == main loop 1001 for iq.
   !! NOTE:o iq=1 (q=0,0,0) write 'EPS0inv', which is used for iq>nqibz for ixc=11 mode
   !! Thus it is necessary to do iq=1 in advance to performom iq >nqibz.
@@ -166,14 +155,13 @@ program hx0fp0_sc
   !! I think, iq,igb1,igb2,(it,itp) are suitable for decomposition (computation, and memory distribution).
   !!     !note The pair (it,itp) gives very limited range of allowed iw.
   !!
-
   if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
-  do 1101 iq = iqxini,iqxend !for whw and index for x0kf_v4hz
+  iqloop: do 1101 iq = iqxini,iqxend !for whw and index for x0kf_v4hz
      if( .NOT. MPI__Qtask(iq) ) cycle
      call cputid (0)
      qp = qibze(:,iq)
      write(6,"('do 1001: iq q=',i5,3f9.4)")iq,qp
-     do 1103 is = MPI__Ss,MPI__Se !is=1,nspin
+     ispinloop: do is = MPI__Ss,MPI__Se !is=1,nspin
         write(6,"(' ### ',2i4,' out of nqibz+n0qi+nq0iadd nsp=',2i4,' ### ')")iq,is,nqibz+nq0i+nq0iadd,nspin
         if(debug) write(6,*)' niw nw=',niw,nw
         isf = is
@@ -187,11 +175,10 @@ program hx0fp0_sc
         !eibzmode=eibzmode,!nwgt=nwgt(:,iq),
         call X0kf_v4hz_init_write(iq,is)
         call tetdeallocate()
-1103 enddo
-1101 enddo
-
+     enddo ispinloop
+1101 enddo iqloop
   !! Obtain rcxq -------------------
-  iqloop: do 1001 iq = iqxini,iqxend
+  iqloopr: do 1001 iq = iqxini,iqxend
      if( .NOT. MPI__Qtask(iq) ) cycle
      call cputid (0)
      qp = qibze(:,iq)
@@ -207,8 +194,7 @@ program hx0fp0_sc
      endif
      nmbas1 = nmbas_in !We (will) use nmbas1 and nmbas2 for block division of matrices.
      nmbas2 = nmbas_in
-     !! We set ppovlz for calling get_zmelt (get matrix elements) \in m_zmel \in subroutine x0kf_v4hz
-     call Setppovlz(qp,matz=.true.) !.not.eibzmode)
+     call Setppovlz(qp,matz=.true.) !.not.eibzmode) !ppovlz is used in x0kf_v4hz-m_zmel
      allocate( rcxq(nmbas1,nmbas2,nwhis,npm))
      rcxq = 0d0
      isploop: do is = MPI__Ss,MPI__Se !is=1,nspin. rcxq is acuumulated for spins
@@ -233,8 +219,7 @@ program hx0fp0_sc
      write(ircxq) rcxq
      close(ircxq)
      deallocate(rcxq)
-1001 enddo iqloop
-
+1001 enddo iqloopr
   !!-Hilbert transformation -----------
   do 1201 iq = iqxini,iqxend
      if( .NOT. MPI__Qtask(iq) ) cycle
@@ -270,7 +255,6 @@ program hx0fp0_sc
   !! Get effective W0,W0i, and L(omega=0) matrix. Modify WVR WVI
   !!  With w0 and w0i, we modify W0W0i. Files WVI and WVR are modified. jun2020
   if(MPI__rank==0) call W0w0i(nw_i,nw,nq0i,niw,q0i)
-
   write(6,*) '--- end of hx0fp0_sc --- irank=',MPI__rank
   call cputid(0)
   if(ixc==11     ) call rx0( ' OK! hx0fp0_sc ixc=11 Sergey F. mode')

@@ -69,7 +69,7 @@ program hx0init !initializaiton of x0 calculaiton (W-v)
   if(cmdopt2('--job=',outs)) then
      read(outs,*) ixc
   else
-     if( MPI__root ) then
+     if(MPI__root ) then
         read(5,*) ixc
      endif
      call MPI__Broadcast(ixc)
@@ -82,7 +82,7 @@ program hx0init !initializaiton of x0 calculaiton (W-v)
      crpa=.true.
   else
      write(6,*)'we only allow ixc==11 or 10011. Given ixc=',ixc
-     call Rx( 'error: give allowed arg for hx0fp0_sc.')
+     call rx('error: give allowed arg for hx0fp0_sc.')
   endif
   !!
   if(MPI__root) iprintx= .TRUE. 
@@ -99,11 +99,7 @@ program hx0init !initializaiton of x0 calculaiton (W-v)
   !  write(6,*)' ngcmx ngpmx=',ngcmx,ngpmx ! ngcmx: max of PWs for W, ngpmx: max of PWs for phi
   !! Get space-group transformation information. See header of mptaouof.
   !! But we only use symops=E in hx0fp0 mode. c.f. hsfp0.sc
-  ngrpx = 1 !no space-group symmetry operation in hx0fp0. ng=1 means E only.
-  allocate(symope(3,3))
-  symope(1:3,1) = [1d0,0d0,0d0]
-  symope(1:3,2) = [0d0,1d0,0d0]
-  symope(1:3,3) = [0d0,0d0,1d0]
+  allocate(symope,source=reshape([1d0,0d0,0d0, 0d0,1d0,0d0, 0d0,0d0,1d0],[3,3]))
   call Mptauof_zmel(symope,ngrpx)
   !! Rdpp gives ppbrd: radial integrals and cgr = rotated cg coeffecients.
   !!       --> call Rdpp(ngrpx,symope) is moved to Mptauof_zmel \in m_zmel

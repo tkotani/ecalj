@@ -11,14 +11,12 @@ program hrcxq
   !    (3) During the main loop, a few of module variables are rewritten by module functions
   !        (tetrahedron weight, matrix elements ...). Be careful, and clarify it.
   !    (4) Do now write long fortran program. One MPI loop and one OpenMP loop.
-
   use m_ReadEfermi,only: Readefermi,ef
   use m_readqg,only: Readngmx2,ngpmx,ngcmx
   use m_hamindex,only: Readhamindex
   use m_readeigen,only: Init_readeigen,Init_readeigen2,Readeval
   use m_read_bzdata,only: Read_bzdata, nqbz,nqibz,n1,n2,n3,ginv, &
-       dq_,qbz,wbz,qibz,wibz, ntetf,idtetf,ib1bz, qbzw,nqbzw,nq0i ,nq0iadd !for tetrahedron
-  !     &     idteti, nstar,irk,nstbz
+       dq_,qbz,wbz,qibz,wibz, ntetf,idtetf,ib1bz, qbzw,nqbzw,nq0i ,nq0iadd !for tetrahedron   !     &     idteti, nstar,irk,nstbz
   use m_genallcf_v3,only: Genallcf_v3, nclass,natom,nspin,nl,nn, &
        nlmto,nlnmx, nctot, alat, clabl,iclass, il, in, im, nlnm, plat, pos, ecore
   !! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
@@ -27,8 +25,7 @@ program hrcxq
   use m_zmel,only: Mptauof_zmel, Setppovlz !Ppbafp_v2_zmel,
   use m_itq,only: Setitq !set itq,ntq,nband,ngcmx,ngpmx to m_itq
   !! Frequency
-  use m_freq,only: Getfreq2, &
-       frhis,freq_r,freq_i, nwhis,nw_i,nw,npm,niw !output of getfreq
+  use m_freq,only: Getfreq2, frhis,freq_r,freq_i, nwhis,nw_i,nw,npm,niw !output of getfreq
   !! Antiferro
   !     use m_anf,only: anfcond,
   !     & laf,ibasf !,ldima,pos,natom
@@ -37,19 +34,16 @@ program hrcxq
   use m_w0w0i,only:       W0w0i,     w0,w0i,llmat
   !      use m_readq0p,only:     Readq0p,   wqt,q0i,nq0i ,nq0iadd,ixyz
   use m_readVcoud,only:   Readvcoud, vcousq,zcousq,ngb,ngc
-  use m_readgwinput,only: ReadGwinputKeys, &
-       egauss,ecut,ecuts,nbcut,nbcut2,mtet,ebmx,nbmx,imbas
+  use m_readgwinput,only: ReadGwinputKeys, egauss,ecut,ecuts,nbcut,nbcut2,mtet,ebmx,nbmx,imbas
   use m_qbze,only:    Setqbze, nqbze,nqibze,qbze,qibze
   use m_readhbe,only: Readhbe, nband !, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
 !  use m_eibz,only:    Seteibz, nwgt,neibz,igx,igxt,eibzsym
   use m_x0kf,only:    X0kf_v4hz, X0kf_v4hz_init,x0kf_v4hz_init_write,x0kf_v4hz_init_read,x0kf_zmel !X0kf_v4hz_symmetrize, 
   use m_llw,only:     WVRllwR,WVIllwI,w4pmode,MPI__sendllw
   !! MPI
-  use m_mpi,only: MPI__hx0fp0_rankdivider2Q, MPI__Qtask, &
-       MPI__Initialize, MPI__Finalize,MPI__root, &
+  use m_mpi,only: MPI__hx0fp0_rankdivider2Q, MPI__Qtask, MPI__Initialize, MPI__Finalize,MPI__root, &
        MPI__Broadcast, MPI__rank,MPI__size, MPI__consoleout,MPI__barrier
   use m_lgunit,only: m_lgunit_init
-  !! ------------------------------------------------------------------------
   implicit none
   integer:: MPI__Ss,MPI__Se
   real(8),parameter:: pi = 4d0*datan(1d0),fourpi = 4d0*pi, sqfourpi= sqrt(fourpi)
@@ -58,14 +52,12 @@ program hrcxq
   real(8),allocatable :: symope(:,:), ekxx1(:,:),ekxx2(:,:)
   complex(8),allocatable:: zxq(:,:,:),zxqi(:,:,:),zzr(:,:), rcxq(:,:,:,:)
   logical :: debug=.false. , realomega, imagomega, nolfco=.false.
-  logical :: hx0, iprintx=.false.,chipm=.false., localfieldcorrectionllw
-  !eibzmode, eibz4x0,
+  logical :: hx0, iprintx=.false.,chipm=.false., localfieldcorrectionllw   !eibzmode, eibz4x0,
   integer:: i_red_npm, i_red_nwhis,  i_red_nmbas2,ierr,ircxq,npmx
   character(10) :: i2char
   character(20):: outs=''
   integer:: ipart
   logical:: cmdopt2
-  !-------------------------------------------------------------------------
   call MPI__Initialize()
   call M_lgunit_init()
   call MPI__consoleout('hx0fp0_sc')
@@ -84,12 +76,8 @@ program hrcxq
   !  write(6,*)' ngcmx ngpmx=',ngcmx,ngpmx !ngcmx: max of PWs for W, ngpmx: max of PWs for phi
   !! Get space-group transformation information. See header of mptaouof.
   !! But we only use symops=E in hx0fp0 mode. c.f. hsfp0.sc
-  ngrpx = 1 !no space-group symmetry operation in hx0fp0. ng=1 means E only.
-  allocate(symope(3,3))
-  symope(1:3,1) = [1d0,0d0,0d0]
-  symope(1:3,2) = [0d0,1d0,0d0]
-  symope(1:3,3) = [0d0,0d0,1d0]
-  call Mptauof_zmel(symope,ngrpx)
+  allocate(symope,source=reshape([1d0,0d0,0d0, 0d0,1d0,0d0, 0d0,0d0,1d0],[3,3]))
+  call Mptauof_zmel(symope,ng=1)
   !! Rdpp gives ppbrd: radial integrals and cgr = rotated cg coeffecients.
   !!       --> call Rdpp(ngrpx,symope) is moved to Mptauof_zmel \in m_zmel
   call Setitq()         ! Set itq in m_zmel
@@ -112,10 +100,8 @@ program hrcxq
   call MPI__hx0fp0_rankdivider2Q(iqxini,iqxend)
   MPI__Ss = 1
   MPI__Se = nspin
-
-  !! Obtain rcxq -------------------
   if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
-  do 1001 iq = iqxini,iqxend
+  obtainrcxq: do 1001 iq = iqxini,iqxend
      if( .NOT. MPI__Qtask(iq) ) cycle
      call cputid (0)
      qp = qibze(:,iq)
@@ -130,18 +116,17 @@ program hrcxq
      endif
      nmbas1 = nmbas_in !We (will) use nmbas1 and nmbas2 for block division of matrices.
      nmbas2 = nmbas_in
-     !! We set ppovlz for calling get_zmelt (get matrix elements) \in m_zmel \in subroutine x0kf_v4hz
-     call Setppovlz(qp,matz=.true. ) !.not.eibzmode)
+     call Setppovlz(qp,matz=.true. ) !.not.eibzmode) !! We set ppovlz for calling get_zmelt (get matrix elements) \in m_zmel \in subroutine x0kf_v4hz
      allocate( rcxq(nmbas1,nmbas2,nwhis,npm))
      rcxq = 0d0
-     do 1003 is = MPI__Ss,MPI__Se !is=1,nspin. rcxq is acuumulated for spins
+     do is = MPI__Ss,MPI__Se !is=1,nspin. rcxq is acuumulated for spins
         write(6,"(' ### ',2i4,' out of nqibz+n0qi+nq0iadd nsp=',2i4,' ### ')")iq,is,nqibz+nq0i+nq0iadd,nspin
         isf = is
         call X0kf_v4hz_init_read(iq,is) !readin icount data (index sets and tetrahedron weight)
         call x0kf_v4hz(qp, is,isf, iq, nmbas_in, rcxq=rcxq,iqxini=iqxini)
         !, eibzmode=eibzmode
         !  rcxq is accumulating
-1003 enddo
+     enddo
      !! Symmetrize and convert to Enu basis (diagonalized basis for the Coulomb matrix).
      !!   That is, we get dconjg(tranpsoce(zcousq))*rcxq*zcousq for eibzmode
      ! Remove eibzmode symmetrizer 2023Jan22
@@ -156,7 +141,7 @@ program hrcxq
      write(ircxq) rcxq
      close(ircxq)
      deallocate(rcxq)
-1001 enddo
+1001 enddo obtainrcxq
   write(6,*) '--- end of hrcxq --- irank=',MPI__rank
   call cputid(0)
   call rx0( ' OK! hrcxq')

@@ -189,7 +189,7 @@ program hmaxloc
   complex(8):: cccx(7)
   integer:: ierr
   include 'mpif.h'
-  call mp_init(ierr)
+  call mpi_init(ierr)
   hartree=2d0*rydberg()
   iii=verbose()
   write(6,*)' verbose=',iii
@@ -649,7 +649,7 @@ program hmaxloc
         write(ifwand,*)nqbz,nwf,iko_ixs(is),iko_fxs(is)
      enddo
      isx = iclose('wan.d')
-     call rx0s('hmaxloc: ixc=1 ok')
+     call rx0('hmaxloc: ixc=1 ok')
   endif
 
   !! loop over spin -----------------------
@@ -1301,7 +1301,7 @@ program hmaxloc
 950 format(a14,3f23.16)
 990 format(3f12.6)
   call cputid(0)
-  call rx0s('hmaxloc: ixc=2 ok')
+  call rx0('hmaxloc: ixc=2 ok')
 END PROGRAM hmaxloc
 
 real(8) function nocctotg2(ispin, ef,esmr,qbz,wbz, nband,nqbz)
