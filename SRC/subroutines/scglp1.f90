@@ -1,4 +1,4 @@
-subroutine scglp1(mlm,kz,cz,kx1,kx2,cx1,cx2,ky1,ky2,cy1,cy2)  !- Makes Clebsch-Gordan coefficients coupling to l+1 for one mlm. See ropylg and m_smhankel
+subroutine scglp1(mlm, kz,cz,kx1,kx2,cx1,cx2,ky1,ky2,cy1,cy2)  !- Makes Clebsch-Gordan coefficients coupling to l+1 for one mlm. See ropylg and m_smhankel
   use m_ll,only:ll
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -15,18 +15,10 @@ subroutine scglp1(mlm,kz,cz,kx1,kx2,cx1,cx2,ky1,ky2,cy1,cy2)  !- Makes Clebsch-G
   !o   cy1   :coefficient for 1st y component for ll(mlm)+1
   !o   cy2   :coefficient for 2nd y component for ll(mlm)+1
   !r Remarks
-  !r   Gradients can be generated from smoothed Hankels as follows:
-  !r   Coefficients must still be multiplied by sqrt(3/4pi)
-  !u Updates
-  !u   1 May 00 Adapted from nfp scglp1.f
-  ! ----------------------------------------------------------------------
+  !r   Gradients can be generated from smoothed Hankels as follows: Coefficients must still be multiplied by sqrt(3/4pi)
   implicit none
-  ! ... Passed parameters
-  integer :: mlm,kz,kx1,kx2,ky1,ky2
-  double precision :: cz,cx1,cx2,cy1,cy2
-  ! ... Local parameters
-  integer :: l,lav,m,mm,isg,kav,ma,mb
-  double precision :: bot,top,tap,cofa,cofb
+  integer :: mlm,kz,kx1,kx2,ky1,ky2,l,lav,m,mm,isg,kav,ma,mb
+  real(8) :: cz,cx1,cx2,cy1,cy2,bot,top,tap,cofa,cofb
   l = ll(mlm)
   lav = l*l+l+1
   m = mlm-lav
@@ -64,4 +56,3 @@ subroutine scglp1(mlm,kz,cz,kx1,kx2,cx1,cx2,ky1,ky2,cy1,cy2)  !- Makes Clebsch-G
      cy2 = isg*cofb
   endif
 end subroutine scglp1
-

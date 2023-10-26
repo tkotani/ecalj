@@ -47,14 +47,12 @@ contains
        l = ll(i2)
        if (mode == 0) l = 0
        bet1(i2)   = exp(e2(l)*rsm2(l)*rsm2(l)/4d0)
-       s(:,i2)    = 8d0*pi/e2(l)*(s(:,i2)    - bet1(i2)*wk(:,i2))
+       s(:,i2)    = 8d0*pi/e2(l)*( s(:,i2)   - bet1(i2)* wk(:,i2))
        ds(:,i2,:) = 8d0*pi/e2(l)*(ds(:,i2,:) - bet1(i2)*dwk(:,i2,:))
     enddo
-    gam1 = 0.25d0*rsm1(0)**2
-    gam2 = 0.25d0*rsm2(0)**2
-    xx1 = fpi*dexp(gam1*e1(0))/(vol*e1(0))
-    xx2 = fpi*dexp(gam2*e2(0))/(vol*e2(0))
-    s(1,1) = s(1,1) -2*xx1*xx2*vol/e2(0) ! ... Extra term for l1=l2=0
+    gam1 = .25d0*rsm1(0)**2
+    gam2 = .25d0*rsm2(0)**2
+    s(1,1) = s(1,1) -2*fpi*dexp(gam1*e1(0))/(vol*e1(0))* fpi*dexp(gam2*e2(0))/(vol*e2(0)) *vol/e2(0) ! ... Extra term for l1=l2=0
   end subroutine hhugbl
   subroutine hgugbl(p1,p2,rsm1,rsm2,e1,nlm1,nlm2,ndim1,ndim2, s,ds)! Estatic energy integrals between Bloch Hankels and gaussians, and grad
     !i Inputs
@@ -181,13 +179,13 @@ contains
     implicit none
     integer :: nlm1,nlm2,kmax,ndim1,ndim2,k0,mlm1,mlm2 !jcg(1),indxcg(1),
     real(8):: q(3), dr(3),rsm1,rsm2,e1,e2 !cg(1),cy(1) 
+    real(8) :: gam1,fpi,gam2,gamx,rsmx,qq,fac1,fac2,e,cz,cx1, cx2,cy1,cy2,fac,add
     complex(8):: s(ndim1,ndim2,0:k0),ds(ndim1,ndim2,0:k0,3)
     integer :: ktop0,lmax1,lmax2,lmaxx,nlmx,nlmxp1,ktop,ktopp1, &
          k,ilm,kz,kx1,kx2,ky1,ky2,ilm1,l1,ilm2,l2,ii,indx,icg1,icg2, icg,lm,ip
-    real(8) :: gam1,fpi,gam2,gamx,rsmx,qq,fac1,fac2,e,cz,cx1, cx2,cy1,cy2,fac,add,dgets
     fpi = 16d0*datan(1.d0)
-    gam1 = 0.25d0*rsm1*rsm1
-    gam2 = 0.25d0*rsm2*rsm2
+    gam1 = .25d0*rsm1*rsm1
+    gam2 = .25d0*rsm2*rsm2
     gamx = gam1+gam2
     rsmx = 2d0*dsqrt(gamx)
     qq = sum(q**2)**.5 
@@ -1461,7 +1459,7 @@ contains
        enddo   
     enddo
   end subroutine hxpos
-  subroutine ropylg2(lmax2,kmax,nlm,kmax0,nlm0,hkl, ghkl) !ghkl derivative of hkl wrt (x,y,z)
+  subroutine ropylg2(lmax2,kmax,nlm,kmax0,nlm0,hkl, ghkl) !ghkl are derivatives of hkl wrt (x,y,z)
     implicit none !hkl(k,ilm) \propto r^k Y_ilm
     integer :: kmax,nlm,kmax0,nlm0,ilm,k,kx1,kx2,ky1,ky2,kz,lmax2,m,nlm1
     complex(8):: hkl(0:kmax0,nlm0),ghkl(0:kmax0,nlm0,3)

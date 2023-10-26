@@ -159,12 +159,11 @@ contains
     endif
   end subroutine ropcsm
   subroutine ropylg(lp,lmax,ndim,nrx,nr,x,y,z,r2,yl,gyl)!- Gradients of YL's (polynomials) for a set of points, with YL as input
-    ! ----------------------------------------------------------------------
+    use m_ll,only:ll
     !i Inputs
     !i   lp    :if nonzero, adds term  r^l grad (r^-l Yl).
     !i   lmax  :maximum l for a given site
     !i   ndim  :dimensions gyl.  Must be at least (lmax+1)**2
-    !i   nrx   :leading dimension of yl,gyl
     !i   nr    :number of points
     !i   x,y,z :cartesian coordinates of points
     !i   r2    :x^2+y^2+z^2
@@ -172,43 +171,19 @@ contains
     !i         :and must be made through lmax+1 (i.e. nlm=1..(lmax+2)**2)
     !o Outputs
     !o   gyl   :gradient of yl
-    !l Local variables
-    !l         :
-    !r Remarks
-    !r
-    !u Updates
-    ! ----------------------------------------------------------------------
     implicit none
-    integer :: lp,lmax,ndim,nrx,nr
-    double precision :: x(nr),y(nr),z(nr),yl(nrx,*),gyl(nrx,ndim,3),r2(*)
-    integer :: ilm,kx1,kx2,ky1,ky2,kz,l,m,i
-    double precision :: cx1,cx2,cy1,cy2,cz,f
+    integer :: lp,lmax,ndim,nrx,nr, ilm,kx1,kx2,ky1,ky2,kz,l,m,i
+    real(8) :: x(nr),y(nr),z(nr),yl(nr,*),gyl(nr,ndim,3),r2(*),cx1,cx2,cy1,cy2,cz,f
     if ((lmax+1)**2 > ndim) call rx('ropylg: ndim too small')
-    ! --- Gradients of yl's ---
-    ilm = 0
-    do    l = 0, lmax
-       do    m = -l, l
-          ilm = ilm+1
-          call scglp1(ilm,kz,cz,kx1,kx2,cx1,cx2,ky1,ky2,cy1,cy2)
-          do    i = 1, nr
-             f = (2*l+1)/r2(i)
-             gyl(i,ilm,1) = (yl(i,ilm)*x(i) - cx1*yl(i,kx1) - cx2*yl(i,kx2))*f
-             gyl(i,ilm,2) = (yl(i,ilm)*y(i) - cy1*yl(i,ky1) - cy2*yl(i,ky2))*f
-             gyl(i,ilm,3) = (yl(i,ilm)*z(i) - cz*yl(i,kz))*f
-          enddo
-       enddo
-    enddo
-    if (lp == 0) return
-    ! --- Add r**l (grad r**-l) yl ---
-    ilm = 0
-    do    l = 0, lmax
-       do    m = -l, l
-          ilm = ilm+1
-          do    i = 1, nr
-             gyl(i,ilm,1) = gyl(i,ilm,1) - l*x(i)/r2(i)*yl(i,ilm)
-             gyl(i,ilm,2) = gyl(i,ilm,2) - l*y(i)/r2(i)*yl(i,ilm)
-             gyl(i,ilm,3) = gyl(i,ilm,3) - l*z(i)/r2(i)*yl(i,ilm)
-          enddo
+    do ilm = 1,(lmax+1)**2
+       l=ll(ilm)
+       call scglp1(ilm,kz,cz,kx1,kx2,cx1,cx2,ky1,ky2,cy1,cy2)
+       do i = 1, nr
+          gyl(i,ilm,1:3) = (2*l+1)/r2(i)* [& !! --- Gradients of yl's ---
+               yl(i,ilm)*x(i) - cx1*yl(i,kx1) - cx2*yl(i,kx2),&
+               yl(i,ilm)*y(i) - cy1*yl(i,ky1) - cy2*yl(i,ky2),&
+               yl(i,ilm)*z(i)                                 - cz*yl(i,kz)] &
+               - merge(1,0,lp/= 0) * l/r2(i)*yl(i,ilm)*[x(i), y(i), z(i)] !Add r**l (grad r**-l) yl if lp/=0
        enddo
     enddo
   end subroutine ropylg
