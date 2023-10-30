@@ -73,7 +73,7 @@ contains
     call gvlst2(alat,plat, q, n1, n2, n3, 0d0,gmax,[0],509, ng, ng, iv_a_okv, rv_a_ogv, igv)
     call poppr
     if(napw > 0) then
-       allocate(ivp(napw))        !       call gvgvcomp(ng,igv,napw,igapw,ivp)
+       allocate(ivp(napw))    
        do ig = 1, napw
           ivp(ig) = findloc([( sum(abs(igv(jg,:)-igapw(:,ig)))==0,jg=1,ng)],value=.true.,dim=1)
        enddo
@@ -88,10 +88,9 @@ contains
     q0=0d0
     if(nlmto>0) call hsibl1 ( net,etab,nrt,rtab,ltop,alat,q0,ng,rv_a_ogv,w_ogq,w_og2,w_oyl,w_ohe, w_ohr )
     deallocate(w_og2)
-    nblk = 16
+    nblk = nevec
     !  --- Loop over eigenstates ---
-    allocate(psi(ng,nspc,nblk),vpsi(ng,nspc,nblk),wk(ng,nspc,nblk))
-    allocate(psir(k1,k2,k3),cosi(ng),sini(ng),wk2(ng))
+    allocate(psi(ng,nspc,nblk),vpsi(ng,nspc,nblk),wk(ng,nspc,nblk),psir(k1,k2,k3),cosi(ng),sini(ng),wk2(ng))
     ivecini= 1
     ivecend= nevec
     do  ivec = ivecini,ivecend, nblk !blocked calculation for future
@@ -176,7 +175,7 @@ contains
     integer :: iprt(n0,nkap0,*),ipet(n0,nkap0,*)
     double precision :: vol,yl(ng,*),ylw(ng,*),he(ng,*),hr(ng,*), &
          wk2(ng),cosgp(ng),singp(ng),etab(*),rtab(*),gq(ng,3),f(3,nbas),ewgt(nvec+ivec-1),qlat(3,3)
-    complex(8):: psi0(:,:,:),psi(:,:,:), evec(ndimh,nspc,ivec),vpsi(:,:,:)  !psi(ng,nspc,nvec)
+    complex(8):: psi0(ng,nspc,nvec),psi(ng,nspc,nvec), evec(ndimh,nspc,ivec),vpsi(ng,nspc,nvec),psix(ng,nspc,nvec)
     integer:: blks(n0*nkap0),ntab(n0*nkap0),ncut(n0,nkap0),lh(nkap0),nkapi
     double precision :: e,rsm,eh(n0,nkap0),rsmh(n0,nkap0),f0(3)
     double precision :: xx(n0),wt,p(3)
@@ -224,22 +223,25 @@ contains
             enddo
           endblock rsibl5block 
        enddo
-       if(mode == 1) psi=0d0
-       do  i = 1,ng  ! psi= exp(i G R_i) * psi0
+       do i = 1,ng  ! psi= exp(i G R_i) * psi0
           psi(i,:,:) = psi(i,:,:)+ psi0(i,:,:)*phase(i)
        enddo
        if (mode == 1) then
           rsibl4block: block
-          real(8):: xx(ng)
-          do i = 1, nvec
-             xx = sum(dimag(vpsi(:,:,i))*dreal(psi(:,:,i)) - dreal(vpsi(:,:,i))*dimag(psi(:,:,i)),dim=2)
-             f0(:) = 2d0*vol*matmul(xx,gq(:,:))
-             wt = ewgt(i+ivec-1)
-             f(:,ib) = f(:,ib) + wt*f0(:)
-             do  kb = 1, nbas !!             This shouldn't be necessary
-                f(:,kb) = f(:,kb) - wt*f0(:)/nbas
-             enddo
-          enddo
+            real(8):: xx(ng)
+            psix=0d0
+            do  i = 1,ng  ! psi= exp(i G R_i) * psi0
+               psix(i,:,:) = psi0(i,:,:)*phase(i)
+            enddo
+            do i = 1, nvec
+               xx = sum(dimag(vpsi(:,:,i))*dreal(psix(:,:,i)) - dreal(vpsi(:,:,i))*dimag(psix(:,:,i)),dim=2)
+               f0(:) = 2d0*vol*matmul(xx,gq(:,:))
+               wt = ewgt(i+ivec-1)
+               f(:,ib) = f(:,ib) + wt*f0(:)
+               do  kb = 1, nbas !!             This shouldn't be necessary
+                  f(:,kb) = f(:,kb) - wt*f0(:)/nbas
+               enddo
+            enddo
           endblock rsibl4block
        endif
     enddo
