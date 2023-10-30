@@ -99,29 +99,29 @@ contains
     endif
     ! --- Decide how many states to include and make their weights --- ... Case band weights not passed: make sampling weights
     if (lmet==0) then
-       call rxx(nspc.ne.1,'lwtkb=0 not implemented in noncoll case')
+       call rxx(nspc/=1,'lwtkb=0 not implemented in noncoll case')
        wgt = abs(wtkp(iq))/nsp
        call mkewgt(lmet,wgt,qval,ndimh,evl(1,isp),nevec,ewgt,sumev,sumqv(1,isp))
-       call dscal(nevec,wgt,ewgt,1)
+       ewgt=wgt*ewgt != call dscal(nevec,wgt,ewgt,1)
     else ! ... Case band weights are passed
-       call dcopy(nevl,wtkb(1,isp,iq),1,ewgt,1)
-       do  i = nevl, 1, -1
-          nevec = i
-          if (abs(wtkb(i,isp,iq)) > epsnevec()) exit
-       enddo
+       ewgt(1:nevl)=wtkb(1:nevl,isp,iq) !call dcopy(nevl,wtkb(1,isp,iq),1,ewgt,1)
+       nevec=findloc(abs(wtkb(1:nevl,isp,iq)) > epsnevec(),value=.true.,dim=1,back=.true.)
+!       do  i = nevl, 1, -1
+!          nevec = i
+!          if (abs(wtkb(i,isp,iq)) > epsnevec()) exit
+!       enddo
     endif
     if(lfrce>0) then ! ... Force from smooth analytic hamiltonian and overlap
-       call rxx(nspc.ne.1,'forces not implemented in noncoll case')
+       call rxx(nspc/=1,'forces not implemented in noncoll case')
        vavg = vconst
        if(nlmto>0) call fsmbl (vavg,q,ndimh,nlmto, nevec,evl(1,isp),evec,ewgt,f )
        if(napw>0)  call fsmbpw(vavg,  ndimh,nlmto, nevec,evl(1,isp),evec,ewgt,napw, qpgv, qpg2v,ylv,nlmax,lmxax,alat,dsqrt(vol),f)
        if(allocated(ylv)) deallocate(qpgv,qpg2v,ylv)
     endif
     call rsibl(lfrce, isp,q,iq,ndimh,nspc,napw,igapw,nevec,evec,ewgt,n1,n2,n3,smpot,smrho,f ) ! ... Add to smooth density
-    ! ... Add to local density coefficients
     call rlocbl(lfrce,nbas,isp,q,ndham,ndimh,nspc,napw,igapw,nevec,evec,ewgt,evl,sv_p_osig,sv_p_otau,sv_p_oppi,1,&
-         sv_p_oqkkl,sv_p_oeqkkl,f) !lekkl=1
-    ! Weightsforspinmoments: if (lswtk>0 .AND. nspc==2) then!
+         sv_p_oqkkl,sv_p_oeqkkl,f) !lekkl=1 ! ... Add to local density coefficients
+    !Hint for future. Weightsforspinmoments: if (lswtk>0 .AND. nspc==2) then!
     !    allocate(evecc,source=evec) ! evecc=evec call zcopy(ndimhx**2,evec,1,evecc,1)
     !    allocate(work,mold=evec) 
     !    call zgetrf(nevl,nevl,evecc,ndimhx,ipiv,i)
@@ -135,63 +135,6 @@ contains
     ! endif Weightsforspinmoments
     call tcx('addrbl')
   end subroutine addrbl
-  subroutine addsds(ndimh,evl,wgt,emin,emax,ndos,dos) !Add to sampling dos   
-    use m_lmfinit,only: bz_w,bz_n
-    !i   ndimh :hamiltonian dimension
-    !i   evl   :eigenvalues
-    !i   wgt   :eigenvalue weights
-    !i   emin  :lower bound for DOS
-    !i   emax  :upper bound for DOS
-    !i   esmear:Parameter that describes gaussian broadening.
-    !i         :Integer part >0 for for generalized gaussian broadening
-    !i         :and is the the Methfessel-Paxton integration order
-    !i         :Fractional part is the broadening width.
-    !i         :Integer part <0 => Fermi-Dirac broadening used
-    !i         :Fractional part is the temperature
-    !i         :(see delstp.f)
-    !i         :integer part above 100's digit is stripped.
-    !i   ndos  :dimensions dos
-    !o Outputs
-    !o   dos   :DOS accumulated for these eigenvalues
-    !l Local variables
-    !l         :
-    !r Remarks
-    !r
-    !u Updates
-    !u   17 Jan 05 Extension of esmear to Fermi distribution
-    ! ----------------------------------------------------------------------
-    implicit none
-    ! ... Passed parameters
-    integer :: ndimh,ndos
-    double precision :: evl(1),dos(ndos,2),wgt,emin,emax,esmear
-    ! ... Local parameters
-    integer :: nord,ie,i1,i2,i
-    double precision :: width,de,eigval,ei,sn,dn,fn,x
-    !      width = dabs(esmear) - int(dabs(esmear))
-    !     nord = dsign(1d0,esmear) * mod(int(dabs(esmear)),100)
-    width= abs(bz_w)
-    nord = bz_n
-    de = (emax-emin)/(ndos-1)
-    do  ie = 1, ndimh
-       eigval = evl(ie)
-       i1 = (eigval-emin-width*5d0)/de + 1
-       i2 = (eigval-emin+width*5d0)/de + 2
-       i1 = max0(i1,1)
-       i1 = min0(i1,ndos)
-       i2 = max0(i2,1)
-       i2 = min0(i2,ndos)
-       do  i = i1, i2
-          ei = emin + (i-1)*de
-          x = (eigval-ei)/width
-          call delstp(nord,x,dn,fn,sn)
-          dos(i,2) = dos(i,2) + wgt*fn
-          dos(i,1) = dos(i,1) + (wgt/width)*dn
-       enddo
-       do i = i2+1,ndos
-          dos(i,2) = dos(i,2) + wgt
-       enddo
-    enddo
-  end subroutine addsds
   subroutine mkewgt(lmet,wgt,qval,ndimh,evl, nevec,ewgt,sumev,sumqv)
     use m_lmfinit,only: bz_w,bz_n,stdo
     use m_ftox
@@ -243,7 +186,6 @@ contains
     if(qval/2>ndimh)call rx('MKEWGT: Basis with ndimh='//trim(xt(ndimh))//' is insufficient to carry q/2='//ftof(qval/2)//' states')
     ! --- Nonmetal case ---
     if (lmet == 0) then
-       !        if (numq .ne. 1) call rxi('mkewgt: nonmetal but numq=',numq)
        fevec = qval/2d0
        nevec = fevec + 0.500001d0
        wtop = fevec-(nevec-1)
@@ -259,14 +201,12 @@ contains
     endif
   end subroutine mkewgt
   subroutine fsmbl(vavg,q,ndimh,nlmto,nevec,evl,evec,ewgt, f) !- Force from smoothed hamiltonian (constant potential) and overlap
-    use m_lmfinit,only: lhh,nkaphh,ispec,nbas
+    use m_lmfinit,only: lhh,nkaphh,ispec,nbas,n0,nkap0
     use m_uspecb,only:uspecb
     use m_struc_def
     use m_orbl,only: Orblib1,Orblib2,ktab1,ltab1,offl1,norb1,ktab2,ltab2,offl2,norb2
     use m_smhankel,only: hhigbl
     use m_lattic,only: rv_a_opos
-    ! ----------------------------------------------------------------------
-    !i Inputs
     !i   nbas  :size of basis
     !i   vavg  :constant potential (MT zero) to be added to h
     !i   q     :Bloch wave vector
@@ -277,21 +217,13 @@ contains
     !i   ewgt  :eigenvector weights
     !o Outputs
     !o   f
-    !r Remarks
-    !u Updates
-    !u   05 Jul 08 Decouple ndimh from nlmto, for PW basis
-    !u   10 Apr 02 Redimensioned eh,rsmh to accommodate larger lmax
-    !u   15 Feb 02 (ATP) Added MPI parallelization
-    !u   10 Sep 01 Extended to local orbitals.
-    !u   23 May 00 Adapted from nfp fsm_q.f
-    ! ----------------------------------------------------------------------
     implicit none
     integer :: ndimh,nlmto,nevec
     real(8):: q(3)
     double precision :: evl(ndimh),f(3,nbas),ewgt(nevec),vavg
     double complex evec(ndimh,ndimh)
-    integer :: nlms,k0,n0,nkap0
-    parameter (nlms=25, k0=1, n0=10, nkap0=3)
+    integer :: nlms,k0
+    parameter (nlms=25, k0=1)
     integer:: i1,i2,ib1,ib2,ilm1,ilm2,io1,io2,iq,is1,is2,l1,l2,in1,in2,ivec,m,nlm1,nlm2
     integer :: lh1(nkap0),lh2(nkap0),nkap1,nkap2,nlm21,nlm22,nlm11,nlm12
     integer:: blks1(n0*nkap0),ntab1(n0*nkap0)
@@ -351,14 +283,11 @@ contains
     enddo
     call tcx ('fsmbl')
   end subroutine fsmbl
-  subroutine fsmbpw(vavg,ndimh,nlmto,nevec,evl,evec,ewgt,napw,qpgv,qpg2v,ylv,nlmax,lmxax,alat,sqv, f)
-    use m_struc_def
+  subroutine fsmbpw(vavg,ndimh,nlmto,nevec,evl,evec,ewgt,napw,qpgv,qpg2v,ylv,nlmax,lmxax,alat,sqv, f) !Force from smoothed hamiltonian (constant potential), PW contribution
     use m_uspecb,only:uspecb
     use m_orbl,only: Orblib1,ktab1,ltab1,offl1,norb1
     use m_lattic,only: rv_a_opos
-    use m_lmfinit,only: nbas,ispec
-    !- Force from smoothed hamiltonian (constant potential), PW contribution
-    ! ----------------------------------------------------------------------
+    use m_lmfinit,only: nbas,ispec,n0,nkap0
     !i Inputs
     !i   nbas  :size of basis
     !i   vavg  :constant potential (MT zero) to be added to h
@@ -378,13 +307,8 @@ contains
     !i   sqv   :square root of volume
     !o Outputs
     !o   f     :PW contribution to force is added to f
-    !r Remarks
-    !u Updates
-    !u   04 Jul 08 (T. Kotani) first created
-    ! ----------------------------------------------------------------------
     implicit none
     integer :: ndimh,napw,nlmax,nlmto,nevec,lmxax
-    integer,parameter:: n0=10, nkap0=3
     real(8),parameter:: pi = 4d0*datan(1d0), fpi = 4*pi
     real(8):: evl(ndimh),f(3,nbas),ewgt(nevec),vavg,qpgv(3,napw),qpg2v(napw),qpg2,alat,sqv
     real(8):: gam,denom, e1(n0,nkap0),rsm1(n0,nkap0),p1(3),xx(n0),wt,ylv(napw,nlmax),ssum(3)
@@ -394,15 +318,13 @@ contains
     integer:: ibl1,oi1,ol1
     if (nevec <= 0) return
     call tcn ('fsmbpw')
-    srm1l(0:lmxax) = [1d0,(img**l1,l1=1,lmxax)]
+    srm1l(0:lmxax) = [(1d0,0d0),(img**l1,l1=1,lmxax)]
     ib1loop: do 1000 ib1=1,nbas
-       is1=ispec(ib1) !ssite(ib1)%spec
-       p1=rv_a_opos(:,ib1) !ssite(ib1)%pos
+       is1=ispec(ib1) 
+       p1=rv_a_opos(:,ib1) 
        call uspecb(is1,rsm1,e1)
        call orblib1(ib1) !norb1,ltab1,ktab1,xx,offl1,xx)
-       call gtbsl8(norb1,ltab1,ktab1,rsm1,e1,ntab1,blks1)
-       !   ... Hsm (i1) \times i(q+G)[(q+G)**2+const] PW (i2) Takao. Taken from smhsbl.f
-       !       i1--> Hsm, i2--> PW
+       call gtbsl8(norb1,ltab1,ktab1,rsm1,e1,ntab1,blks1)  !   ... Hsm (i1) \times i(q+G)[(q+G)**2+const] PW (i2). i1--> Hsm, i2--> PW
        igloop: do 2000 ig = 1, napw
           i2 = ig + nlmto
           qpg2 = qpg2v(ig)
@@ -412,16 +334,12 @@ contains
              in1 = ktab1(io1)
              ol1 = ltab1(io1)**2
              oi1 = offl1(io1)
-             denom = e1(l1+1,in1) - qpg2
-             gam   = 1d0/4d0*rsm1(l1+1,in1)**2
-             fach  = -fpi/denom * phase * srm1l(l1) * exp(gam*denom)
-             iorbblock: do 3010 ibl1 = 1,blks1(io1) 
-                ovl = fach * ylv(ig,ol1+ibl1)/sqv ! Eq. 9.4 in JMP39 3393
-                do ivec = 1, nevec  !        gradient PW * (H - E S)
-                   ccc = [(ovl * img*qpgv(m,ig) * (qpg2 + vavg - evl(ivec)),m=1,3)]
-                   f(:,ib1) = f(:,ib1) - 2d0*ewgt(ivec)*[(dconjg(evec(oi1+ibl1,ivec))*ccc(m)*evec(i2,ivec),m=1,3)]
-                enddo
-3010         enddo iorbblock
+             fach  = -fpi/denom * phase * srm1l(l1) * exp(1d0/4d0*rsm1(l1+1,in1)**2* (e1(l1+1,in1) - qpg2))
+             iorbblock: do ibl1 = 1,blks1(io1) 
+                ovl = fach * ylv(ig,ol1+ibl1)/sqv ! Eq. 9.4 in JMP39 3393 !!gradient PW * (H - E S)
+                f(:,ib1) = f(:,ib1) - 2d0*[( sum([(dconjg(evec(oi1+ibl1,ivec)) *(ovl*img*qpgv(m,ig)*(qpg2+vavg-evl(ivec)) &
+                     *evec(i2,ivec)*ewgt(ivec)),ivec=1,nevec)]) ,  m=1,3)] 
+             enddo iorbblock
 3000      enddo iorbloop
 2000   enddo igloop
 1000 enddo ib1loop

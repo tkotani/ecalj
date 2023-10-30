@@ -15,7 +15,6 @@ module m_smhankel   !2023-4-28 memo: TK added qshortn(q). This allows q is not n
   private
 contains
   subroutine hhugbl(mode,p1,p2,rsm1,rsm2,e1,e2,nlm1,nlm2,ndim1,ndim2, s,ds) ! Estatic energy integrals between Bloch Hankels, and gradients.
-    !i Inputs
     !i   mode  :0 rsm1,rsm2,e1,e2 are scalars
     !i         :1 rsm1,rsm2,e1,e2 are l-dependent
     !i   p1    :first center
@@ -30,8 +29,6 @@ contains
     !i   ndim2 :second dimensions of s,ds
     !r Remarks
     !r   Gradient is wrt p1; use -ds for grad wrt p2.
-    !u Updates
-    !u   23 May 00 Made rsm1,e1,rsm2,e2 l-dependent
     implicit none
     integer :: mode,nlm1,nlm2,ndim1,ndim2, kmax,kdim,i2,i1 ,l 
     real(8) :: add,q(3),gam1,gam2,xx1,xx2,zer(0:nlm1),bet1(nlm1),fac(nlm1), rsm1(0:*),rsm2(0:*),e1(0:*),e2(0:*),p1(3),p2(3)
@@ -44,11 +41,9 @@ contains
     call hhigbl(mode,p1,p2,q,rsm1,rsm2,e1,e2, nlm1,nlm2,kmax,ndim1,ndim2,kdim,   s, ds)
     call hhigbl(mode,p1,p2,q,rsm1,rsm2,e1,zer,nlm1,nlm2,kmax,ndim1,ndim2,kdim,  wk,dwk)
     do  i2 = 1, nlm2
-       l = ll(i2)
-       if (mode == 0) l = 0
-       bet1(i2)   = exp(e2(l)*rsm2(l)*rsm2(l)/4d0)
-       s(:,i2)    = 8d0*pi/e2(l)*( s(:,i2)   - bet1(i2)* wk(:,i2))
-       ds(:,i2,:) = 8d0*pi/e2(l)*(ds(:,i2,:) - bet1(i2)*dwk(:,i2,:))
+       l = merge(0,ll(i2),mode==0)
+       s(:,i2)    = 8d0*pi/e2(l)*( s(:,i2)   - exp(e2(l)*rsm2(l)*rsm2(l)/4d0)* wk(:,i2)  )
+       ds(:,i2,:) = 8d0*pi/e2(l)*(ds(:,i2,:) - exp(e2(l)*rsm2(l)*rsm2(l)/4d0)*dwk(:,i2,:))
     enddo
     gam1 = .25d0*rsm1(0)**2
     gam2 = .25d0*rsm2(0)**2
@@ -77,15 +72,13 @@ contains
     real(8) :: q(3),e2
     q=[0d0,0d0,0d0]
     kmax = 0
-    kdim = 0
     e2 = 0d0
     call hhigbl(0,p1,p2,q,[(rsm1,l=0,ll(nlm1))],[(rsm2,l=0,ll(nlm2))],[(e1,l=0,ll(nlm1))],[(e2,l=0,ll(nlm2))],&
-         nlm1,nlm2 ,kmax ,ndim1 ,ndim2 ,kdim, s,ds)
+         nlm1,nlm2 ,kmax,ndim1,ndim2, k0=0,s=s,ds=ds)
     s(1:nlm1,1:nlm2)   = 2d0* s(1:nlm1,1:nlm2)
     ds(1:nlm1,1:nlm2,:)= 2d0*ds(1:nlm1,1:nlm2,:)
   end subroutine hgugbl
   subroutine hhigbl(mode,p1,p2,q,rsm1,rsm2,e1,e2,nlm1,nlm2,kmax,ndim1,ndim2,k0, s,ds)!Integrals between smooth hankels with k-th power of Laplace operator
-    !i Inputs
     !i   mode  :1's digit
     !i         :0 rsm1,rsm2,e1,e2 are scalars
     !i         :1 rsm1,rsm2,e1,e2 are l-dependent vectors
@@ -131,7 +124,7 @@ contains
        if (mod(mode,10) == 0) then
           l1t = lmx1
        else
-          call gtbsl2(l1,lmx1,e1,rsm1, l1t)
+          l1t = gtbsl2(l1,lmx1,e1,rsm1)
        endif
        l2t = -1
        do l2 = 0, lmx2
@@ -139,7 +132,7 @@ contains
           if (mod(mode,10) == 0) then
              l2t = lmx2
           else
-             call gtbsl2(l2,lmx2,e2,rsm2, l2t)
+             l2t = gtbsl2(l2,lmx2,e2,rsm2)
           endif
           lm11 = l1**2+1
           lm12 = (l1t+1)**2
@@ -151,7 +144,6 @@ contains
     enddo
   end subroutine hhigbl
   subroutine phhigb(dr,q,rsm1,rsm2,e1,e2,mlm1,nlm1,mlm2,nlm2,kmax,ndim1,ndim2,k0, s,ds)!Integrals between smooth hankels with k-th power of Laplace operator
-    !i Inputs
     !i   dr    :p1-p2
     !i   q     :wave number for Bloch sum
     !i   rsm1  :smoothing radius of Hankels at p1
@@ -182,7 +174,7 @@ contains
     real(8) :: gam1,fpi,gam2,gamx,rsmx,qq,fac1,fac2,e,cz,cx1, cx2,cy1,cy2,fac,add
     complex(8):: s(ndim1,ndim2,0:k0),ds(ndim1,ndim2,0:k0,3)
     integer :: ktop0,lmax1,lmax2,lmaxx,nlmx,nlmxp1,ktop,ktopp1, &
-         k,ilm,kz,kx1,kx2,ky1,ky2,ilm1,l1,ilm2,l2,ii,indx,icg1,icg2, icg,lm,ip
+         k,ilm,kz,kx1,kx2,ky1,ky2,ilm1,l1,ilm2,l2,ii,indx,icg1,icg2, icg,ip
     fpi = 16d0*datan(1.d0)
     gam1 = .25d0*rsm1*rsm1
     gam2 = .25d0*rsm2*rsm2
@@ -200,33 +192,22 @@ contains
     hklblock: block
       complex(8):: hkl1(0:ktop0,nlmxp1),hkl2(0:ktop0,nlmxp1), ghkl(0:ktop0,nlmxp1,3),hsm(nlmxp1),hsmp(nlmxp1)
       if (ktopp1 > ktop0) call rxi('hhigbl: need ktop0 ge',ktopp1)
-      ! --- Set up functions for connecting vector p2-p1 ---
-      if (dabs(e1-e2) > 1d-5) then
-         fac1 = exp(gam2*(e2-e1))/(e1-e2)
-         fac2 = exp(gam1*(e1-e2))/(e2-e1)
-         if (dabs(e1) > 1d-6) then
-            call hklbl(dr,rsmx,e1,q,ktopp1,nlmxp1,ktop0,hkl1) 
-         else
-            if (qq > 1d-6) call rx('hhigbl: e1=0 only allowed if q=0')
-            call fklbl(dr,rsmx,ktopp1,nlmxp1,ktop0,hkl1) 
-         endif
-         if (dabs(e2) > 1d-6) then
-            call hklbl(dr,rsmx,e2,q,ktopp1,nlmxp1,ktop0,hkl2) 
-         else
-            if (qq > 1d-6) call rx('hhigbl: e2=0 only allowed if q=0')
-            call fklbl(dr,rsmx,ktopp1,nlmxp1,ktop0,hkl2) 
-         endif
-         hkl1(0:ktopp1,1:nlmxp1) = fac1*hkl1(0:ktopp1,1:nlmxp1) + fac2*hkl2(0:ktopp1,1:nlmxp1)
+      if (dabs(e1-e2) > 1d-5) then !Set up functions for connecting vector p2-p1 ---
+         if(qq > 1d-6.and.dabs(e1) <= 1d-6) call rx('hhigbl: e1=0 only allowed if q=0')
+         if(qq > 1d-6.and.dabs(e2) <= 1d-6) call rx('hhigbl: e2=0 only allowed if q=0')
+         if(dabs(e1) > 1d-6) then; call hklbl(dr,rsmx,e1,q,ktopp1,nlmxp1,ktop0,hkl1) 
+         else;                     call fklbl(dr,rsmx,ktopp1,nlmxp1,ktop0,hkl1) ;   endif
+         if(dabs(e2) > 1d-6) then; call hklbl(dr,rsmx,e2,q,ktopp1,nlmxp1,ktop0,hkl2) 
+         else;                     call fklbl(dr,rsmx,ktopp1,nlmxp1,ktop0,hkl2) ;   endif
+         hkl1(0:ktopp1,1:nlmxp1)=exp(gam2*(e2-e1))/(e1-e2)*hkl1(0:ktopp1,1:nlmxp1)+exp(gam1*(e1-e2))/(e2-e1)*hkl2(0:ktopp1,1:nlmxp1)
       else
          e = .5d0*(e1+e2)
          if(qq<1d-6 .AND. dabs(e) < 1d-6) call rx('hhigbl: case q=0 and e1=e2=0 not available')
          call hklbl(dr,rsmx,e,q,ktopp1,nlmxp1,ktop0,hkl2) 
          call hsmbl(dr,rsmx,e,q,lmaxx+1,hsm,hsmp) 
-         do ilm = 1, nlmxp1
-            hkl1(0,ilm) = hsmp(ilm) - gamx*hsm(ilm)
-            do    k = 1, ktopp1
-               hkl1(k,ilm) = -e*hkl1(k-1,ilm) - hkl2(k-1,ilm)
-            enddo
+         hkl1(0,:) = hsmp(:) - gamx*hsm(:)
+         do k = 1, ktopp1
+            hkl1(k,:) = -e*hkl1(k-1,:) - hkl2(k-1,:)
          enddo
       endif
       call ropylg2(lmaxx**2,ktop,nlmx,ktop0,nlmxp1,hkl1, ghkl) !gradiend of hkl
@@ -236,16 +217,12 @@ contains
             l2 = ll(ilm2)
             ii = max0(ilm1,ilm2)
             indx = (ii*(ii-1))/2 + min0(ilm1,ilm2)
-            icg1 = indxcg(indx)
-            icg2 = indxcg(indx+1)-1
-            do  11  icg = icg1, icg2
+            do  11  icg = indxcg(indx), indxcg(indx+1)-1
                ilm = jcg(icg)
-               lm = ll(ilm)
-               k = (l1+l2-lm)/2
-               fac = fpi*(-1d0)**l1*cg(icg)
-               do   ip = 0, kmax
-                  s(ilm1,ilm2,ip)    = s(ilm1,ilm2,ip)    + fac*hkl1(k+ip,ilm)
-                  ds(ilm1,ilm2,ip,:) = ds(ilm1,ilm2,ip,:) + fac*ghkl(k+ip,ilm,:)
+               k = (l1+l2-ll(ilm))/2
+               do ip = 0, kmax
+                  s(ilm1,ilm2,ip)    = s(ilm1,ilm2,ip)    + fpi*(-1d0)**l1*cg(icg)*hkl1(k+ip,ilm)
+                  ds(ilm1,ilm2,ip,:) = ds(ilm1,ilm2,ip,:) + fpi*(-1d0)**l1*cg(icg)*ghkl(k+ip,ilm,:)
                enddo
 11          enddo
 111      enddo
@@ -301,11 +278,11 @@ contains
     l1t = -1
     do 20  l1 = 0, lmx1
        if (l1 <= l1t) cycle
-       call gtbsl2(l1,lmx1,e1,rsm1,l1t)
+       l1t = gtbsl2(l1,lmx1,e1,rsm1)
        l2t = -1
        do l2 = 0, lmx2
           if (l2 <= l2t) cycle
-          call gtbsl2(l2,lmx2,e2,rsm2,l2t)
+          l2t= gtbsl2(l2,lmx2,e2,rsm2)
           lm11 = l1**2+1
           lm12 = (l1t+1)**2
           lm21 = l2**2+1
@@ -340,7 +317,7 @@ contains
     integer :: mlm1,nlm1,mlm2,nlm2,kmax,ndim1,ndim2 !jcg(1),indxcg(1),
     real(8) :: dr(3),q(3),rsm1, rsm2,e1,e2 !,cg(1),cy(1)
     complex(8):: s(ndim1,ndim2,0:kmax)
-    integer :: nlm0,ktop0,icg,icg1,icg2,ii,ilm,ilm1,ilm2,indx,ip,k, ktop,l1,l2,lm,lmax1,lmax2,lmaxx,nlmx
+    integer :: nlm0,ktop0,icg,ii,ilm,ilm1,ilm2,indx,ip,k, ktop,l1,l2,lm,lmax1,lmax2,lmaxx,nlmx
     parameter( nlm0=100, ktop0=10 )
     real(8) :: fpi,e,fac,fac1,fac2,gam1,gam2,gamx,rsmx
     complex(8):: hkl1(0:ktop0,nlm0),hkl2(0:ktop0,nlm0), hsm(nlm0),hsmp(nlm0)
@@ -358,15 +335,9 @@ contains
     if (ktop > ktop0) call rx('hhibl: increase ktop0')
     ! ... Set up functions for connecting vector p1-p2
     if (dabs(e1-e2) > 1d-5) then
-       fac1 = dexp(gam2*(e2-e1))/(e1-e2)
-       fac2 = dexp(gam1*(e1-e2))/(e2-e1)
        call hklbl(dr,rsmx,e1,q,ktop,nlmx,ktop0, hkl1) 
        call hklbl(dr,rsmx,e2,q,ktop,nlmx,ktop0, hkl2) 
-       do  ilm = 1, nlmx
-          do k = 0, ktop
-             hkl1(k,ilm) = fac1*hkl1(k,ilm) + fac2*hkl2(k,ilm)
-         enddo
-      enddo
+       hkl1(0:ktop,1:nlmx) = dexp(gam2*(e2-e1))/(e1-e2) *hkl1(0:ktop,1:nlmx) + dexp(gam1*(e1-e2))/(e2-e1) *hkl2(0:ktop,1:nlmx)
     else
        e = .5d0*(e1+e2)
        call hklbl(dr,rsmx,e,q,ktop,nlmx,ktop0, hkl2) 
@@ -384,16 +355,9 @@ contains
           l2 = ll(ilm2)
           ii = max0(ilm1,ilm2)
           indx = (ii*(ii-1))/2 + min0(ilm1,ilm2)
-          icg1 = indxcg(indx)
-          icg2 = indxcg(indx+1)-1
-          do icg = icg1, icg2
+          do icg = indxcg(indx), indxcg(indx+1)-1
              ilm = jcg(icg)
-             lm = ll(ilm)
-             k = (l1+l2-lm)/2
-             fac = fpi*(-1d0)**l1*cg(icg)
-             do  ip = 0, kmax
-                s(ilm1,ilm2,ip) = s(ilm1,ilm2,ip) + fac*hkl1(k+ip,ilm)
-             enddo
+             s(ilm1,ilm2,0:kmax) = s(ilm1,ilm2,0:kmax) + fpi*(-1d0)**l1*cg(icg)* [(hkl1((l1+l2-ll(ilm))/2+ip,ilm),ip=0,kmax)]
           enddo
 111    enddo
 1111 enddo
@@ -490,10 +454,10 @@ contains
     real(8) :: alat,rsm,vol,q(3),p(3) 
     complex(8):: gkl(0:k0,nlm)
     integer :: ilm,ir,k,lmax,nlm0
-    real(8) :: a,gamma,r2,scalp,tpi,tpiba,vfac,r(3),yl(nlm)
+    real(8) :: a,gamma,r2,scalp,tpiba,vfac,r(3),yl(nlm)
     complex(8):: eiphi,add,add0
     complex(8):: img=(0d0,1d0)
-    tpi = 8d0*datan(1d0)
+    real(8),parameter:: tpi = 8d0*datan(1d0)
     a = 1d0/rsm
     gamma = .25d0/(a*a)
     vfac = 1d0/vol
@@ -547,14 +511,14 @@ contains
     sp = 2*pi*sum(q*(p-p1))
     phase = exp(img*sp) 
     nrx = max(nkd,nkq)
-    allocate(wk(nrx*(2*lmax+10)),yl(nrx*(lmax+1)**2))
+    allocate(yl(nrx*(lmax+1)**2))
     call hsmq ( 1,0,[ll(nlm)],[e],[rsm],0000,qshortn(q),p1,nrx,nlm,yl, awald,alat,qlv,nkq,dlv,nkd,vol, hsm,hsmp )
     if (rsm > faca/awald) then
        call gklbl(p1,rsm,e,q,kmax-1,nlm,k0, hkl) 
     else
        call gklq(lmax,rsm,q,p1,e, kmax - 1,k0,alat,nrx,yl,hkl )
     endif
-    deallocate(wk,yl)
+    deallocate(yl)
     ! --- H_kL by recursion ---
     do   ilm = 1, nlm
        gklsav = hkl(0,ilm)
@@ -604,14 +568,14 @@ contains
     call shortn3_plat(ppin) 
     p1= matmul(plat,ppin+nlatout(:,1)) !p1 is shortened p for qlat modulo
     nrx = max(nkd,nkq)
-    allocate(wk(nrx*(2*lmax+10)), yl(nrx*(lmax+1)**2))
+    allocate( yl(nrx*(lmax+1)**2))
     call hsmqe0 ( lmax,rsm,0,qshortn(q),p1,nrx,nlm,yl, awald,alat,qlv,nkq,dlv,nkd,vol, fsm  )
     if (rsm > faca/awald) then
        call gklbl(p1,rsm,e,q,kmax-1,nlm,k0, fkl) 
     else
        call gklq(lmax,rsm,q,p1,e,kmax-1,k0,alat, nrx,yl,fkl )
     endif
-    deallocate(wk,yl)
+    deallocate(yl)
     do    ilm = 1, nlm ! ... Upward recursion in k: mainly sets fkl = -4*pi * g(k-1,l)
        gklsav = fkl(0,ilm)
        fkl(0,ilm) = fsm(ilm)
@@ -811,7 +775,7 @@ contains
     l2 = -1
     do  20  l1 = 0, lmaxh ! Loop over sequences of l with a common rsm,e ---
        if (l1 <= l2) goto 20
-       call gtbsl2(l1,lmaxh,eh,rsmh,l2)
+       l2=gtbsl2(l1,lmaxh,eh,rsmh)
        rsm  = rsmh(l1+1)
        e    = eh(l1+1)
        if (rsm <= 0 .OR. e > 0) goto 20
@@ -871,7 +835,7 @@ contains
     !u Updates
     !u   25 May 00 Made rsmh,eh l-dependent
     implicit none
-    integer :: k0,kmax,ndim1,ndim2,nlmg,nlmh,icg,icg1,icg2,ii,ilg,ilh,ilm,ilm1,ilm2,indx,ip,jlm,k,ktop, ktop0,l1,l2,lg,lh,lm,&
+    integer :: k0,kmax,ndim1,ndim2,nlmg,nlmh,icg,ii,ilg,ilh,ilm,ilm1,ilm2,indx,ip,jlm,k,ktop, ktop0,l1,l2,lg,lh,lm,&
          lmaxg,lmaxh,lmaxx,m,nlm0,nlmx
     real(8) :: rsmg,rsmh(1),eg,eh(1),ph(3),pg(3),q(3),ee,fac,gamg,gamh,rsmx,dr(3),e,rsm
     complex(8):: s(ndim1,ndim2,0:k0),ds(ndim1,ndim2,0:k0,3)
@@ -887,18 +851,12 @@ contains
     ktop0 = ktop+1
     nlm0  = (lmaxx+2)**2
     allocate( hkl(0:ktop0,nlm0),dhkl(0:ktop0,nlm0,3))
-    do    k = 0, kmax
-       do    jlm = 1, nlmh
-          do    ilm = 1, nlmg
-             s(ilm,jlm,k)    = 0d0
-             ds(ilm,jlm,k,:) = 0d0
-          enddo
-       enddo
-    enddo
+    s=0d0
+    ds=0d0
     l2 = -1
     do  20  l1 = 0, lmaxh ! --- Loop over sequences of l with a common rsm,e ---
        if (l1 <= l2) goto 20
-       call gtbsl2(l1,lmaxh,eh,rsmh,l2)
+       l2=gtbsl2(l1,lmaxh,eh,rsmh)
        rsm  = rsmh(l1+1)
        e    = eh(l1+1)
        if (rsm <= 0 .OR. e > 0) goto 20
@@ -918,9 +876,7 @@ contains
              lh = ll(ilh)
              ii = max0(ilg,ilh)
              indx = (ii*(ii-1))/2 + min0(ilg,ilh)
-             icg1 = indxcg(indx)
-             icg2 = indxcg(indx+1)-1
-             do  11  icg = icg1, icg2
+             do  11  icg = indxcg(indx), indxcg(indx+1)-1
                 ilm = jcg(icg)
                 lm = ll(ilm)
                 k = (lg+lh-lm)/2
@@ -1051,16 +1007,12 @@ contains
     a = 1d0/rsmg ! ... Scale to get coefficients of the PkL
     lmaxg = ll(nlmg)
     call factorial_init(kmax,2*lmaxg+1)
-    ilmg = 0
-    do l = 0, lmaxg
-       nm = 2*l+1
-       do m = 1, nm
-          ilmg = ilmg+1
-          do  k = 0, kmax
-             fac = fpi/ ((4*a*a)**k * a**l *factorial(k)*factorial2(2*l+1))
-              c(k,ilmg,1:nlmh)     =   s(ilmg,1:nlmh,k)*fac
-             dc(k,ilmg,1:nlmh,1:3) = -ds(ilmg,1:nlmh,k,1:3)*fac
-          enddo
+    do ilmg = 1,(lmaxg+1)**2
+       l=ll(ilmg)
+       do  k = 0, kmax
+          fac = fpi/ ((4*a*a)**k * a**l *factorial(k)*factorial2(2*l+1))
+          c (k,ilmg,1:nlmh)     =   s(ilmg,1:nlmh,k)*fac
+          dc(k,ilmg,1:nlmh,1:3) = -ds(ilmg,1:nlmh,k,1:3)*fac
        enddo
     enddo
     deallocate(s,ds)
@@ -1082,64 +1034,122 @@ contains
     !i   k0    :leading dimension of gkl
     !o   gkl: G_kL * exp(e*rsm**2/4) generated for (0:kmax,0:lmax)
     implicit none
-    integer :: k0,kmax,lmax,nrx,job !,nkd
+    integer :: k0,kmax,lmax,nrx,job, ilm,ir,k,l,m,nlm,job0,job1,li,le
     real(8) :: alat,rsm,p(3),q(3),yl(nrx,(lmax+1)**2) !,dlv(3,nkd)
     complex(8) :: gkl(0:k0,(lmax+1)**2),img=(0d0,1d0),phase
-    real(8):: e
-    integer :: ilm,ir,k,l,m,nlm,job0,job1
-    real(8) :: qdotr,pi,tpi,y0,ta2,x,y,a2,g0fac,xx1,xx2,x1,x2, y2,sp,cosp,sinp,pp(3)
+    complex(8):: wkc1(nkd),wkc2(nkd),wkz(nkd)       !    wkz = wk(1:nkd,3)+img*wk(1:nkd,4) !phase
+    real(8) :: qdotr,ta2,a2,g0fac,xx1,xx2,x1,sp,pp(3),wk1(nkd,0:lmax),wk2(nkd,0:lmax),wkfac(nkd),r2(nkd),e
+    real(8),parameter:: pi  = 4*datan(1d0),tpi = 2*pi,y0  = 1/dsqrt(4*pi)
     if (kmax < 0 .OR. lmax < 0 .OR. rsm == 0d0) return
     nlm = (lmax+1)**2
-    pi  = 4*datan(1d0)
-    tpi = 2*pi
-    y0  = 1/dsqrt(4*pi)
     a2  = 1/rsm**2
     ta2 = 2*a2
     gkl=0d0
-    wkblock: block
-      integer:: li,le
-      real(8):: wk1(nkd,0:lmax),wk2(nkd,0:lmax),wkfac(nkd),r2(nkd)
-      complex(8):: wkc1(nkd),wkc2(nkd),wkz(nkd)       !    wkz = wk(1:nkd,3)+img*wk(1:nkd,4) !phase
-      wkz =[(exp(img*tpi*sum(q*dlv(:,ir))),  ir=1,nkd)]
-      r2  = alat**2*[(sum((p-dlv(:,ir))**2),ir=1,nkd)] ! wk(1:nkd,1) !wk(:,1) is length**2 !wk(:,1)= alat**2*(p-dlv)**2 
-      wkfac(1:nkd) = y0*dexp(-r2*a2) 
-      kloop2: do  301  k = 0, kmax, 2 ! --- Outer loop over k (in blocks of 2), and over l ---
-         lloop: do  30  l = 0, lmax
-            g0fac = 1/rsm*ta2**(l+1)/pi * dexp(e*rsm*rsm/4)
-            if (k == 0) then !Make radial part of the G_kl(1..nkd) for k= 0, 1
-               do  32  ir = 1, nkd
-                  xx1 = g0fac*wkfac(ir)
-                  xx2 = (ta2*r2(ir)-3-2*l)* ta2 * xx1
-                  wk1(ir,l) = xx1
-                  wk2(ir,l) = xx2
-32             enddo
-            else ! Make radial part of the G_kl(1..nkd) for k, k+1 from k-1, k-2 and cos(q.dlv) * G_kl and sin(q.dlv) * G_kl
-               x = 2*(k-1)*(2*k + 2*l-1)
-               y = 4*k + 2*l-1
-               x2 = 2*k*(2*(k+1) + 2*l-1)
-               y2 = 4*(k+1) + 2*l-1
-               do  34  ir = 1, nkd
+    wkz =[(exp(img*tpi*sum(q*dlv(:,ir))),  ir=1,nkd)]
+    r2  = alat**2*[(sum((p-dlv(:,ir))**2),ir=1,nkd)] ! wk(1:nkd,1) !wk(:,1) is length**2 !wk(:,1)= alat**2*(p-dlv)**2 
+    wkfac(1:nkd) = y0*dexp(-r2*a2) 
+    kloop2:   do 301  k = 0, kmax, 2 ! --- Outer loop over k (in blocks of 2), and over l ---
+       lloop: do  30  l = 0, lmax
+          g0fac = 1/rsm*ta2**(l+1)/pi * dexp(e*rsm*rsm/4)
+          if (k == 0) then !Make radial part of the G_kl(1..nkd) for k= 0, 1
+             wk1(:,l) = [(g0fac*wkfac(ir),ir=1,nkd)]
+             wk2(:,l) = [((ta2*r2(ir)-3-2*l)* ta2,ir=1,nkd)]*wk1(:,l)
+          else ! Make radial part of the G_kl(1..nkd) for k, k+1 from k-1, k-2 and cos(q.dlv) * G_kl and sin(q.dlv) * G_kl
+             associate( x => 2*(k-1)*(2*k + 2*l-1), y => 4*k + 2*l-1, x2 => 2*k*(2*(k+1) + 2*l-1), y2 => 4*(k+1) + 2*l-1)
+               do  ir = 1, nkd
                   xx1 = ta2*((ta2*r2(ir)-y)*wk2(ir,l)  - x*ta2*wk1(ir,l))
-                  xx2 = ta2*((ta2*r2(ir)-y2)*xx1      -x2*ta2*wk2(ir,l))
+                  xx2 = ta2*((ta2*r2(ir)-y2)*xx1       -x2*ta2*wk2(ir,l))
                   wk1(ir,l) = xx1
                   wk2(ir,l) = xx2
-34             enddo
-            endif
-            do ir=1,nkd
-               wkc1(ir) = wkz(ir)*wk1(ir,l)
-               wkc2(ir) = wkz(ir)*wk2(ir,l)
-            enddo
-            !   ... For each point, add G_kl Y_L exp(i q.dlv) into Bloch G_kL
-            li=l*l+1
-            le=l*l+2*l+1
-            gkl(k,li:le)   = gkl(k,li:le)    +[(sum([(wkc1(ir)*yl(ir,ilm),ir=nkd,1,-1)]), ilm=li,le)]
-            if(k<kmax) then
-               gkl(k+1,li:le)=gkl(k+1,li:le) +[(sum([(wkc2(ir)*yl(ir,ilm),ir=nkd,1,-1)]), ilm=li,le)]
-            endif
-30       enddo lloop
-301   enddo kloop2
-    endblock wkblock
+               enddo
+             endassociate
+          endif
+          li=l*l+1
+          le=l*l+2*l+1 !For each point, add G_kl Y_L exp(i q.dlv) into Bloch G_kL
+          gkl(k,li:le) =             gkl(k,li:le)   +[(sum([(wkz(ir)*wk1(ir,l)*yl(ir,ilm),ir=nkd,1,-1)]), ilm=li,le)]
+          if(k<kmax) gkl(k+1,li:le)= gkl(k+1,li:le) +[(sum([(wkz(ir)*wk2(ir,l)*yl(ir,ilm),ir=nkd,1,-1)]), ilm=li,le)]
+30     enddo lloop
+301 enddo kloop2
   end subroutine gklq
+  subroutine hxpos(rsmh,rsmg,eh,kmax,nlmh,k0, c) ! Coefficients to expand smooth hankels at (0,0,0) into P_kl's.
+    !i Inputs
+    !i   rsmh  :vector of l-dependent smoothing radii of smoothed hankel
+    !i         :rsmh must be specified for 1..ll(nlmh)+1
+    !i   rsmg  :smoothing radius of gaussian
+    !i   eh    :vector of l-dependent energies of smoothed Hankel
+    !i         :eh must be specified for 1..ll(nlmh)+1
+    !i   kmax  :polynomial cutoff
+    !i   nlmh  :L-cutoff for smoothed Hankel functions and P_kL
+    !i   k0    :leading dimension of coefficient array c
+    !o Outputs
+    !o   c     :structure constants c(k,M,L); see Remarks
+    !o         :c(*,ilm) for rsmh(ll(ilm))<=0 are SET TO ZERO
+    !r Remarks
+    !r   Expansion is:  H_L = sum(k) c(k,L) * P_kL
+    !r   As rsmg -> 0, expansion turns into a Taylor series of H_L.
+    !r   As rsmg increases the error is spread out over a progressively
+    !r   larger radius, thus reducing the error for larger r while
+    !r   reducing accuracy at small r.
+    !r
+    !r    Only diagonal elements ilmh=ilmg are nonzero and returned.
+    !r    Routine is equivalent to hxpml with ph=pg.
+    integer :: k0,kmax,nlmh,ik,i,ilm1,ilm2
+    real(8) :: eh(1),rsmg,rsmh(1),c(0:k0,nlmh)
+    integer :: ndim,ilm,k,l,lmax,m,nm,ktop,l1,l2,lmaxh
+    real(8) :: a,dfact,eg,fac,factk,sig,rsm
+    real(8):: s(nlmh,0:kmax),e,gamg,gamh,rsmx,gam,asm,akap,hh,gg
+    real(8),parameter:: fpi = 16d0*datan(1d0)
+    real(8),parameter:: pi = 4d0*datan(1d0),y0 = 1d0/dsqrt(4*pi)
+    if (nlmh == 0) return
+    eg = 0d0
+    lmaxh = ll(nlmh)
+    l2 = -1
+    do  20  l1  = 0, lmaxh ! --- Loop over sequences of l with a common rsm,e ---
+       if (l1 <= l2) cycle
+       l2=gtbsl2(l1,lmaxh,eh,rsmh)
+       rsm  = rsmh(l1+1)
+       e    = eh(l1+1)
+       if (rsm <= 0 .OR. e > 0) cycle
+       ilm1 = l1**2+1
+       ilm2 = (l2+1)**2
+       gamh = 0.25d0*rsm*rsm
+       gamg = 0.25d0*rsmg*rsmg
+       rsmx = 2d0*dsqrt(gamg+gamh)
+       ktop = l2+kmax
+       block 
+         real(8) :: h0k(0:ktop) !   ... Make hankels for l=0 and k=0..kmax
+         !call hklos(rsmx,e,ktop,h0k)
+         if(e > 0d0) call rx('hklos: e is positive')! ... Make smooth Hankel at zero
+         gam = rsmx*rsmx/4d0
+         asm = 0.5d0/dsqrt(gam)
+         akap = sqrt(abs(e))
+         hh = 4d0*asm**3*exp(gam*e)/sqrt(pi)/(2*asm*asm)-akap*erfc(akap/(2*asm))
+         h0k(0) = hh*y0
+         gg = exp(gam*e) * (asm*asm/pi)**1.5d0
+         do k = 1,ktop ! ... Upward recursion for laplace**k h0
+            hh = -e*hh - 4*pi*gg
+            h0k(k) = hh*y0 ! k,L-dependent smooth hankel functions at (0,0,0)
+            !r   Only the functions for l=0 are generated (remaining are zero). Equivalent to hkl_ml for p=(0,0,0) and lmax=0.
+            gg = -2*asm*asm*(2*k+1)*gg
+         enddo
+         do  ilm = ilm1, ilm2 ! .. Evaluate what is left of Clebsch-Gordan sum
+            l = ll(ilm) 
+            s(ilm,0:kmax) = y0*dexp(gamg*(eg-e)) * (-1)**l * h0k(l+0:l+kmax) ! Make integrals with gaussians G_kL
+         enddo
+       endblock
+20  enddo
+!    call ghios(rsmg,rsmh,eg,eh,nlmh,kmax,nlmh,s)
+    a = 1d0/rsmg    ! ... Scale integrals to get coefficients of the P_kL
+    lmax = ll(nlmh)
+    call factorial_init(kmax,2*lmax+1)
+    c=0d0
+    do  l = 0, lmax
+       if(rsmh(l+1) <= 0) cycle
+       do i=l**2+1,l**2+2*l+1
+          c(0:kmax,i) = [(s(i,k)*fpi/( (4*a*a)**k * a**l* factorial(k)*factorial2(2*l+1)), k=0,kmax)]
+       enddo   
+    enddo
+  end subroutine hxpos
   subroutine hsmbl(p,rsm,e,q,lmax, hsm,hsmp)  !Bloch-sum of smooth Hankel functions and energy derivatives
     use m_lmfinit,only: alat=>lat_alat,tol=>lat_tol
     use m_shortn3_plat,only: shortn3_plat,nout,nlatout
@@ -1187,7 +1197,6 @@ contains
   end subroutine hsmbl
   subroutine hsmblq(p,e,q,a,lmax,alat,vol, dl,dlp) ! k-space part of smooth hankel bloch sum
     use m_qplist,only:qshortn
-    !i Inputs
     !i   p     :Function is centered at p (units of alat)
     !i   e     :energy of smoothed Hankel
     !i   q     :wave number for Bloch sum
@@ -1233,10 +1242,9 @@ contains
     integer :: ilm,ir,l,lmax,m,nm
     real(8) :: q(3),p(3)
     complex(8):: dl(1),dlp(1)
-    logical ::lzero
     real(8) :: a,a2,akap,alat,asm,asm2,cc,ccsm,derfc,e,emkr,gl,qdotr,r1,r2,rsm,srpi,ta,ta2,tasm,tasm2,umins,uplus,tpi,kap
     real(8) :: yl((lmxx+1)**2),chi1(-1:10),chi2(-1:10),r(3)
-    complex(8):: cfac,zikap,expikr,zuplus,zerfc
+    complex(8):: cfac,zikap,expikr,zuplus,zerfc,img=(0d0,1d0)
     real(8),parameter :: srfmax=16d0, fmax=srfmax*srfmax
     if (e>0d0) call rx('EH >0 not supported') !lpos removed
     if (lmax > lmxx) call rxi('hsmbld: increase lmxx to',lmax)
@@ -1256,209 +1264,50 @@ contains
        r = alat*(p-dlv(:,ir))
        call sylm(r,yl,lmax,r2)
        r1 = dsqrt(r2)
-       lzero = .false.
-       ! --- Make the xi's from -1 to lmax ---
-       if (r1 < 1d-6) then
-          chi1(1:lmax) = 0d0
-          chi2(1:lmax) = 0d0
-          chi1(0) = ta*dexp(e/(2d0*ta2))/srpi - akap*derfc(akap/ta)
-          chi1(-1) = derfc(akap/ta)/akap
-          chi2(0) = tasm*dexp(e/(2d0*tasm2))/srpi - akap*derfc(akap/tasm)
-          chi2(-1) = derfc(akap/tasm)/akap
+       if (r1 < 1d-6) then !Make the xi's from -1 to lmax ---
+          chi1(-1:lmax) = [derfc(akap/ta)/akap,   ta*dexp(e/(2d0*ta2))/srpi -akap*derfc(akap/ta),      (0d0,l=1,lmax)]
+          chi2(-1:lmax) = [derfc(akap/tasm)/akap, tasm*dexp(e/(2d0*tasm2))/srpi -akap*derfc(akap/tasm),(0d0,l=1,lmax)]
        else
           !         If large, these are -log(uplus),-log(umins); then chi->0
           !r        If both (akap*rsm/2 -/+ r/rsm) >> 1, we have
-          !r        -log u(+/-) -> (akap*rsm/2 -/+ r/rsm)^2 -/+ akap*r
-          !r                    =  (akap*rsm/2)^2 + (r/rsm)^2 >> 1
+          !r        -log u(+/-) -> (akap*rsm/2 -/+ r/rsm)^2 -/+ akap*r   =  (akap*rsm/2)^2 + (r/rsm)^2 >> 1
           !r         u(+/-)     -> exp[-(akap*rsm/2)^2 - (r/rsm)^2] -> 0
           !r        Also if akap*r >> 1,   chi < dexp(-akap*r1) -> 0
           emkr = dexp(-akap*r1)
-          if (.5d0*akap/a+r1*a > srfmax .AND. &
-               .5d0*akap/a-r1*a > srfmax .OR. akap*r1 > fmax) then
-             lzero = .true.
+          if (.5d0*akap/a+r1*a > srfmax .AND. .5d0*akap/a-r1*a > srfmax .OR. akap*r1 > fmax) then
+             chi1(-1:lmax) = 0
           else
              uplus = derfc(.5d0*akap/a+r1*a)/emkr
              umins = derfc(.5d0*akap/a-r1*a)*emkr
-             chi1(0) = 0.5d0*(umins-uplus)/r1
-             chi1(-1) = (umins+uplus)/(2.d0*akap)
-          endif
-          if (lzero) then
-             chi1(-1:lmax) = 0
-             lzero = .false.
-          else
+             chi1(-1:0) = [(umins+uplus)/(2.d0*akap), 0.5d0*(umins-uplus)/r1]
              gl = cc*dexp(-a2*r2)/ta2
-             do  32  l = 1, lmax
+             do l = 1, lmax
                 chi1(l) = ((2*l-1)*chi1(l-1)-e*chi1(l-2)-gl)/r2
                 gl = ta2*gl
-32           enddo
+             enddo
           endif
-          !        chi2 is complex; so is chi1, but the imaginary part
-          !        is the same, so the difference is real
-          if (.5d0*akap/asm+r1*asm > srfmax .AND. &
-               .5d0*akap/asm-r1*asm > srfmax .OR. akap*r1 > fmax)then
-             lzero = .true.
+          !        chi2 is complex; so is chi1, but the imaginary part    is the same, so the difference is real
+          if(.5d0*akap/asm+r1*asm > srfmax .AND..5d0*akap/asm-r1*asm > srfmax .OR. akap*r1 > fmax)then
+             chi2(-1:lmax) = 0
           else
              uplus = derfc(.5d0*akap/asm+r1*asm)/emkr
              umins = derfc(.5d0*akap/asm-r1*asm)*emkr
-             chi2(0) = 0.5d0*(umins-uplus)/r1
-             chi2(-1) = (umins+uplus)/(2d0*akap)
-          endif
-          if (lzero) then
-             do  40  l = -1, lmax
-                chi2(l) = 0
-40           enddo
-             lzero = .false.
-          else
+             chi2(-1:0) = [(umins+uplus)/(2d0*akap), 0.5d0*(umins-uplus)/r1]
              gl = ccsm*dexp(-asm2*r2)/tasm2
-             do  33  l = 1, lmax
+             do l = 1, lmax
                 chi2(l) = ((2*l-1)*chi2(l-1)-e*chi2(l-2)-gl)/r2
                 gl = tasm2*gl
-33           enddo
+             enddo
           endif
        endif
-       qdotr = tpi*(q(1)*dlv(1,ir)+q(2)*dlv(2,ir)+q(3)*dlv(3,ir))
-       cfac = cdexp(dcmplx(0d0,qdotr))
-       ilm = 0
-       do  38  l = 0, lmax
-          nm = 2*l+1
-          do  39  m = 1, nm
-             ilm = ilm+1
-             dl(ilm) = dl(ilm) + yl(ilm)*(chi2(l)-chi1(l))*cfac
-             dlp(ilm) = dlp(ilm) + yl(ilm)*0.5d0*(chi2(l-1)-chi1(l-1))*cfac
-39        enddo
-          cfac = cfac*dcmplx(0d0,1d0)
-38     enddo
+       cfac = exp(img*tpi*(q(1)*dlv(1,ir)+q(2)*dlv(2,ir)+q(3)*dlv(3,ir)))
+       do ilm = 1,(lmax+1)**2
+          l=ll(ilm)
+          dl(ilm)  = dl(ilm)  + yl(ilm)*(chi2(l)-chi1(l))*cfac  *img**l
+          dlp(ilm) = dlp(ilm) + yl(ilm)*0.5d0*(chi2(l-1)-chi1(l-1))*cfac*img**l
+       enddo
 20  enddo
   end subroutine hsmbld
-  subroutine ghios(rsmg,rsmh,eg,eh,nlmh,kmax,ndim, s) ! Integrals between 3D Gaussians and smooth Hankels at same site.
-    !i Inputs
-    !i   rsmg  :smoothing radius of gaussian
-    !i   rsmh  :vector of l-dependent smoothing radii of smoothed hankel
-    !i         :rsmh must be specified for 1..ll(nlmh)+1
-    !i   eg    :gkL scaled by exp(eg*rsm**2/4)
-    !i   eh    :vector of l-dependent energies of smoothed Hankel
-    !i         :eh must be specified for 1..ll(nlmh)+1
-    !i   nlmh  :L-cutoff for smoothed Hankel functions and P_kL
-    !i   kmax  :polynomial cutoff
-    !i   ndim  :nl*nl*nbas
-    !o Outputs
-    !o   s     :real-space structure constants c(k,M,L); see Remarks
-    !o         :s(ilm,*) for rsmh(ll(ilm)) <= 0 are UNTOUCHED
-    !r Remarks
-    !r   s(L,M,k) contains integral of G_L^*(r) (lap)^k H_M(r)
-    !r
-    !r   Only diagonal elements ilm=jlm are nonzero and returned.
-    !r   Equivalent to ghiml called for pg=ph.
-    !u Updates
-    !u   18 May 00 Made rsmh,eh l-dependent
-    implicit none
-    integer :: kmax,ndim,nlmh, ilm,k,ktop,l,lmaxh,l1,l2,ilm1,ilm2
-    real(8) :: eg,eh(*),rsmg,rsmh(*),s(ndim,0:kmax),fac,gamg,gamh,rsmx,rsm,e
-    real(8),parameter:: fpi = 16d0*datan(1d0), y0 = 1d0/dsqrt(fpi)
-    if (nlmh == 0) return
-    lmaxh = ll(nlmh)
-    l2 = -1
-    do  20  l1  = 0, lmaxh ! --- Loop over sequences of l with a common rsm,e ---
-       if (l1 <= l2) cycle
-       call gtbsl2(l1,lmaxh,eh,rsmh,l2)
-       rsm  = rsmh(l1+1)
-       e    = eh(l1+1)
-       if (rsm <= 0 .OR. e > 0) cycle
-       ilm1 = l1**2+1
-       ilm2 = (l2+1)**2
-       gamh = 0.25d0*rsm*rsm
-       gamg = 0.25d0*rsmg*rsmg
-       rsmx = 2d0*dsqrt(gamg+gamh)
-       ktop = l2+kmax
-       block 
-         real(8) :: h0k(0:ktop) !   ... Make hankels for l=0 and k=0..kmax
-         call hklos(rsmx,e,ktop,h0k)
-         do  ilm = ilm1, ilm2 ! .. Evaluate what is left of Clebsch-Gordan sum
-            l = ll(ilm)
-            s(ilm,0:kmax) = y0*dexp(gamg*(eg-e)) * (-1)**l * h0k(l+0:l+kmax)
-         enddo
-       endblock
-20  enddo
-  end subroutine ghios
-  subroutine hklos(rsm,e,kmax, h0k) ! k,L-dependent smooth hankel functions at (0,0,0)
-    !i Inputs
-    !i   rsm   :smoothing radius
-    !i   e     :energy of smoothed Hankel
-    !i   kmax  :polynomial cutoff
-    !o Outputs
-    !i   h0k   :Smoothed Hankel at origin
-    !r Remarks
-    !r   Only the functions for l=0 are generated (remaining are zero)
-    !r   Equivalent to hkl_ml for p=(0,0,0) and lmax=0.
-    implicit none
-    integer :: kmax,k
-    real(8) :: rsm,e,h0k(0:kmax)
-    real(8) :: akap,asm,cc,derfc,gam,gg,hh
-    real(8),parameter:: pi = 4d0*datan(1d0),y0 = 1d0/dsqrt(4*pi)
-    if(e > 0d0) call rx('hklos: e is positive')! ... Make smooth Hankel at zero
-    gam = rsm*rsm/4d0
-    asm = 0.5d0/dsqrt(gam)
-    akap = sqrt(abs(e))
-    hh = 4d0*asm**3*exp(gam*e)/sqrt(pi)/(2*asm*asm)-akap*erfc(akap/(2*asm))
-    h0k(0) = hh*y0
-    gg = exp(gam*e) * (asm*asm/pi)**1.5d0
-    do k = 1,kmax ! ... Upward recursion for laplace**k h0
-       hh = -e*hh - 4*pi*gg
-       h0k(k) = hh*y0
-       gg = -2*asm*asm*(2*k+1)*gg
-    enddo
-  end subroutine hklos
-  subroutine gtbsl2(l1,lmxh,eh,rsmh, l2) ! Returns the highest l with rsm,e common to those of a given l
-    implicit none
-    integer :: l1,l2,lmxh
-    real(8) :: rsmh(0:lmxh),eh(0:lmxh), e,rsm
-    l2 = findloc([(rsmh(l2+1)/=rsmh(l1).or.eh(l2+1)/=eh(l1), l2=l1,lmxh-1)],value=.true.,dim=1) + l1-1
-    if(l2==l1-1) l2=lmxh
-  end subroutine gtbsl2
-  subroutine hxpos(rsmh,rsmg,eh,kmax,nlmh,k0, c) ! Coefficients to expand smooth hankels at (0,0,0) into P_kl's.
-    !i Inputs
-    !i   rsmh  :vector of l-dependent smoothing radii of smoothed hankel
-    !i         :rsmh must be specified for 1..ll(nlmh)+1
-    !i   rsmg  :smoothing radius of gaussian
-    !i   eh    :vector of l-dependent energies of smoothed Hankel
-    !i         :eh must be specified for 1..ll(nlmh)+1
-    !i   kmax  :polynomial cutoff
-    !i   nlmh  :L-cutoff for smoothed Hankel functions and P_kL
-    !i   k0    :leading dimension of coefficient array c
-    !o Outputs
-    !o   c     :structure constants c(k,M,L); see Remarks
-    !o         :c(*,ilm) for rsmh(ll(ilm))<=0 are SET TO ZERO
-    !r Remarks
-    !r   Expansion is:  H_L = sum(k) c(k,L) * P_kL
-    !r   As rsmg -> 0, expansion turns into a Taylor series of H_L.
-    !r   As rsmg increases the error is spread out over a progressively
-    !r   larger radius, thus reducing the error for larger r while
-    !r   reducing accuracy at small r.
-    !r
-    !r    Only diagonal elements ilmh=ilmg are nonzero and returned.
-    !r    Routine is equivalent to hxpml with ph=pg.
-    integer :: k0,kmax,nlmh,ik,i1,i2,i
-    real(8) :: eh(1),rsmg,rsmh(1),c(0:k0,nlmh)
-    integer :: ndim,ilm,k,l,lmax,m,nm
-    real(8) :: a,dfact,eg,fac,factk,sig
-    real(8):: s(nlmh,0:kmax)
-    real(8),parameter:: fpi = 16d0*datan(1d0)
-    if (nlmh == 0) return
-    eg = 0d0
-    call ghios(rsmg,rsmh,eg,eh,nlmh,kmax,nlmh,s)! Make integrals with gaussians G_kL
-    a = 1d0/rsmg    ! ... Scale integrals to get coefficients of the P_kL
-    lmax = ll(nlmh)
-    call factorial_init(kmax,2*lmax+1)
-    c=0d0
-    do  l = 0, lmax
-       if(rsmh(l+1) <= 0) cycle
-       i1=l**2+1
-       i2=l**2+2*l+1
-       do i=i1,i2
-          c(0:kmax,i) = [(s(i,k)*fpi/( (4*a*a)**k * a**l* factorial(k)*factorial2(2*l+1)), k=0,kmax)]
-       enddo   
-    enddo
-  end subroutine hxpos
   subroutine ropylg2(lmax2,kmax,nlm,kmax0,nlm0,hkl, ghkl) !ghkl are derivatives of hkl wrt (x,y,z)
     implicit none !hkl(k,ilm) \propto r^k Y_ilm
     integer :: kmax,nlm,kmax0,nlm0,ilm,k,kx1,kx2,ky1,ky2,kz,lmax2,m,nlm1
@@ -1480,4 +1329,12 @@ contains
        enddo
     enddo
   end subroutine ropylg2
+  pure function gtbsl2(l1,lmxh,eh,rsmh) result(l2) ! Returns the highest l with rsm,e common to those of a given l
+    implicit none
+    intent(in)::       l1,lmxh,eh,rsmh
+    integer :: l1,l2,lmxh
+    real(8) :: rsmh(0:lmxh),eh(0:lmxh), e,rsm
+    l2 = findloc([(rsmh(l2+1)/=rsmh(l1).or.eh(l2+1)/=eh(l1), l2=l1,lmxh-1)],value=.true.,dim=1) + l1-1
+    if(l2==l1-1) l2=lmxh
+  end function gtbsl2
 end module m_smhankel

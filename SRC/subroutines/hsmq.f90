@@ -158,11 +158,7 @@ contains
             hsmp(i1:i2,ie) = hsmp(i1:i2,ie) + &
                  [( sum([(yl(ir,ilm)*wkc(ir,l)*phase(ir),ir=1,nDx)])/2d0, ilm=i1,i2)]
          enddo
-         !... Put in phase to undo shortening, or different phase convention
-!         sp = tpi*sum(q*(p-p1))!if (job3 >= 2) sp = sp-tpi*sum(q*p1) 
          le=(lx(ie)+1)**2
-!         if(sp/=0d0) hsm(1:le,ie)  = exp(img*sp)* hsm(1:le,ie) 
-!         if(sp/=0d0) hsmp(1:le,ie) = exp(img*sp)* hsmp(1:le,ie)
        endblock hansblock
 30  enddo
   end subroutine hsmq
@@ -579,7 +575,7 @@ contains
     endif
   end function erfcee
   subroutine pvhsmq(job,nx,lmxa,lxi,exi,a,vol,n,qsq,nyl,yl,nlmx,cssn,hl,hlp) ! Makes H_L(1/a,e,r) by summation over reciprocal lattice vectors.
-    !o    hl,hlp
+    !o  hl,hlp
     !  job=1 : make hl only (not hlp)
     !  Skips any ie for which lxi(ie)<lmxa. This is a kernel called by hsmq.
     implicit none
@@ -603,7 +599,7 @@ contains
           if (lxi(ie) > lxi(je)) cycle
           hl (1:(lxi(ie)+1)**2,ie)= hl (1:(lxi(ie)+1)**2,je)
           hlp(1:(lxi(ie)+1)**2,ie)= hlp(1:(lxi(ie)+1)**2,je)
-          goto 20
+          cycle
        enddo
        nlm=(lx+1)**2
        i1 = 1
