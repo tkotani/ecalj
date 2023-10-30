@@ -90,7 +90,7 @@ program hx0init !initializaiton of x0 calculaiton (W-v)
   !! Get space-group transformation information. See header of mptaouof.
   !! But we only use symops=E in hx0fp0 mode. c.f. hsfp0.sc
   allocate(symope,source=reshape([1d0,0d0,0d0, 0d0,1d0,0d0, 0d0,0d0,1d0],[3,3]))
-  call Mptauof_zmel(symope,ngrpx)
+  call Mptauof_zmel(symope,ng=1)
   !! Rdpp gives ppbrd: radial integrals and cgr = rotated cg coeffecients.
   !!       --> call Rdpp(ngrpx,symope) is moved to Mptauof_zmel \in m_zmel
   call Setitq()             ! Set itq in m_zmel
