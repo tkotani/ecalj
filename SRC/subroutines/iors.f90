@@ -82,7 +82,7 @@ contains
     line = 'header'
     ffmt = '(5f15.10)'
     ifmt = '(20i5)'
-    if(ipr>0) write(stdo,"(/a)")' iors  : '//trim(rwrw)//' rst restart file (binary mesh density)'
+    if(ipr>0) write(stdo,"(/a)")'iors: '//trim(rwrw)//' rst restart file (binary mesh density)'
     open(newunit=ifi,file='rst.'//trim(sname),form='unformatted')
     ! --- Input ---
     if (trim(rwrw)=='read') then

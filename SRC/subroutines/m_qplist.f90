@@ -42,7 +42,7 @@ contains
     real(8):: QpGcut_psi,q(3)
     real(8)::qq(3)
     call tcn('m_qplist_init')
-    if(master_mpi) write(stdo,*) 'm_qplistinit:start'
+    if(master_mpi) write(stdo,ftox)'m_qplistinit:start'
     nkk1=nkabc(1)
     nkk2=nkabc(2)
     nkk3=nkabc(3)

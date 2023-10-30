@@ -2,6 +2,7 @@ module m_mixrho !mixing routine of density given by smrho and orho
   use m_lmfinit,only: z_i=>z,nr_i=>nr,rmt_i=>rmt,lmxl_i=>lmxl,spec_a,rg_i=>rg,rsmv_i=>rsmv,nbas
   use m_ll,only:ll
   use m_lgunit,only:stdo,stml !  integer,parameter,public:: kmxv=15
+!  use m_MPItk,only: master_mpi
   public:: mixrho
   private
   real(8),parameter::pi = 4d0*datan(1d0), srfpi = dsqrt(4d0*pi)
@@ -184,7 +185,7 @@ contains
     endif
     if(ipr>45)write(stdo,"(' charges:',7x,'old',11x,'new',9x,'rms diff',5f14.6)") qin(1),qout(1),rms 
     if (nsp == 2) then 
-       write(stdo,"(' mmom   ',2f14.6,28x,f14.6)") qin(2),qout(2)!,beta*qscr(2)+(1-beta)*qin(2)
+       if(ipr>0) write(stdo,"(' mmom   ',2f14.6,28x,f14.6)") qin(2),qout(2)!,beta*qscr(2)+(1-beta)*qin(2)
        wt(1:2)   = wtinit     
        if(sum(wt**2)==0d0) call rx('MIXRHO: bad mixing weights wt=0')
        wt= wt/sum(wt**2)**.5  !we need this just to keep fe_gwsc !without this, mixing changes things slightly.
@@ -245,8 +246,8 @@ contains
     if(ipr>=10 .AND. abs(qcell) > 1d-6) write(stdo,'('' add q='',f10.6,'' to preserve neutrality'')') qcell
     nnnx=count(dreal(smrho)<0d0)
     smmin=minval(dreal(smrho))
-    if(nnnx>0 ) write(6,"(a,i8,d13.5)") ' mixrho: warning. negative smrho; isp number min=',nnnx,smmin
-    if(nnnx<=0) write(6,"(a)") ' mixrho: all smrho are positive'
+    if(nnnx>0 .and.ipr>0) write(stdo,"(a,i8,d13.5)") ' mixrho: warning. negative smrho; isp number min=',nnnx,smmin
+    if(nnnx<=0.and.ipr>0) write(stdo,"(a)") ' mixrho: all smrho are positive'
     call tcx('mixrho') ! ... old code=> call rhopos(smrho,n1,n2,n3,n1,n2,n3) to enforce density positive
   end subroutine mixrho
   subroutine getrhoremnant(nbas,nsp,beta,kmxr,nlmlx,qkl,sv_p_orho,sv_p_orhnew) ! Linearly mix local densities, possibly subtracting G_kL expansion

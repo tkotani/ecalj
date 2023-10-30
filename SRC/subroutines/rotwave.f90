@@ -14,7 +14,7 @@ contains
     !   phi(r) = \sum_i evec(i,iband) |F_i> ==> Rotated[phi](r)=\sum_i evecout(i,iband) |F_i>  by sym(:,:,ig).
     !   Rotated[phi](r)= phi[sym^-1(r)], where   sym(r)=r'= symops*r + shftvg.
     !This comment is Checked at 2023-9-13
-    integer::i,ig,ndimh,napw_in,nband,iorb,nnn(3),igx,init1,init2,iend1,iend2,nlmto,ierr,igg,ikt2,ikt,l,ibas,ig2,k!,ndeltaG(3)
+    integer::i,ig,ndimh,napw_in,nband,iorb,nnn(3),igx,init1,init2,iend1,iend2,nlmto,ierr,igg,ikt2,ikt,l,ibas,ig2,k,i1
     real(8)::q(3),gout(3),delta(3),ddd(3),qpg(3),platt(3,3),qtarget(3),qx(3),det,qpgr(3),ddd2(3),qpgr2(3)
     complex(8):: evec(ndimh,nband),evecout(ndimh,nband),phase(nbas)
     real(8),parameter:: tolq=1d-4
@@ -47,49 +47,33 @@ contains
     APWpart: if(napw_in/=0) then 
        ikt  = findloc([(sum(abs(q      -qplist(:,i)))<1d-8,i=1,nkp)],value=.true.,dim=1)  !=index for q
        ikt2 = findloc([(sum(abs(qtarget-qplist(:,i)))<1d-8,i=1,nkp)],value=.true.,dim=1)
-       write(stdo,ftox)'rotevec: ikt q=',ikt,ftof(q,3),' ikt2 q=',ikt2,ftof(qtarget,3),'q-qtarget=',ftof(matmul(platt,q-qtarget),3)
+       !write(stdo,ftox)'rotevec: ikt q=',ikt,ftof(q,3),' ikt2 q=',ikt2,ftof(qtarget,3),'q-qtarget=',ftof(matmul(platt,q-qtarget),3)
        if(napw_in /= napwkqp(ikt) ) call rxii('rotevec: napw_in /= napw(ikt)',napw_in,napwkqp(ikt))
        igloop: do ig = 1,napw_in
-          getig2: block
-            integer:: i1
-            qpg  = q + matmul(qlat(:,:),igv2qp(:,ig,ikt))! q+G
-            qpgr = matmul(symops(:,:,igg),qpg)           ! rotated q+G
-            nnn  = nint(matmul(platt,qpgr-qtarget))    ! integer representation for G= qpgr - qtarget
-            !            qpgr2 = qtarget + matmul(qlat(:,:),nnn) 
-            !            write(stdo,ftox)'sssss qpg',ig,'nnn=',igv2qp(:,ig,ikt),ftof(sum(qpg**2)**.5,3),&
-            !                 'nnn=',nnn,'diff=',ftof(sum(qpgr2**2)**.5-sum(qpg**2)**.5,3)
-            !ikt,ikt2,ftof(sum(qpg**2)**.5,3),'qpgr=',ftof(sum(qpgr**2)**.5,3),
-            ig2 = igv2revqp(nnn(1),nnn(2),nnn(3),ikt2) ! get index of G
-            debugq: if(ig2>=999999) then
-               call rx('rotwave: q+G rotation error. (we have to set PWmode=11 for --afsym)')
-!               errig2=.true.
-!               cycle
-               do i1=1,napwkqp(ikt) ;write(stdo,ftox)'yyy0 q ',ftof(q,3),      ikt, i1,' ',igv2qp(:,i1,ikt)
-               enddo
-               do i1=1,napwkqp(ikt2);write(stdo,ftox)'yyy1 qt',ftof(qtarget,3),ikt2,i1,' ',igv2qp(:,i1,ikt2)
-               enddo
-               write(stdo,ftox)'rotevec: q=',ftof( q,3),'qtarget=',ftof(qtarget,3),'qr=',ftof(matmul(symops(:,:,igg),q),3)
-               write(stdo,ftox)'       qpg=',ftof(qpg,3),'qpgr=', ftof(qpgr,3),'igv2revqp ikt2=',nnn(1),nnn(2),nnn(3)
-               call rx('rotwvigg can not find index of mapped G vector ig2')
-            endif debugq
-          endblock getig2
+          qpg  = q + matmul(qlat(:,:),igv2qp(:,ig,ikt))! q+G
+          qpgr = matmul(symops(:,:,igg),qpg)           ! rotated q+G
+          nnn  = nint(matmul(platt,qpgr-qtarget))    ! integer representation for G= qpgr - qtarget
+          ig2 = igv2revqp(nnn(1),nnn(2),nnn(3),ikt2) ! get index of G
+          debugq: if(ig2>=999999) then
+             call rx('rotwave: q+G rotation error. (We have to set PWmode=11 for --afsym)')
+!             do i1=1,napwkqp(ikt) ;write(stdo,ftox)'yyy0 q ',ftof(q,3),      ikt, i1,' ',igv2qp(:,i1,ikt);   enddo
+!             do i1=1,napwkqp(ikt2);write(stdo,ftox)'yyy1 qt',ftof(qtarget,3),ikt2,i1,' ',igv2qp(:,i1,ikt2);  enddo
+!             write(stdo,ftox)'rotevec: q=',ftof( q,3),'qtarget=',ftof(qtarget,3),'qr=',ftof(matmul(symops(:,:,igg),q),3)
+!             write(stdo,ftox)'       qpg=',ftof(qpg,3),'qpgr=', ftof(qpgr,3),'igv2revqp ikt2=',nnn(1),nnn(2),nnn(3)
+!             call rx('rotwvigg can not find index of mapped G vector ig2')
+          endif debugq
           evecout(nlmto+ig2,:)= evec(nlmto+ig,:) * exp( -img2pi*sum(qpgr*shtvg(:,igg)) )
        enddo igloop
-       if(errig2) call rx('errig2')
     endif APWpart
   endsubroutine rotevec
-  subroutine rotmto(qin,nbloch,nband, &
-       norbt,ibas_tbl,l_tbl,k_tbl,offset_tbl,offset_rev_tbl,max_ibas_tbl,max_l_tbl,max_k_tbl, &
+  subroutine rotmto(qin,nbloch,nband,norbt,ibas_tbl,l_tbl,k_tbl,offset_tbl,offset_rev_tbl,max_ibas_tbl,max_l_tbl,max_k_tbl, &!Rotation of a function of ProductBasis or MT part of wave function. !    ! (then MTO itself is rotated. a little diffent from here).
        sym,shtvg,dlmm,lxxa,miat,tiat,igxt,nbas,  cphiin, &
        cphiout)
     implicit none
-    intent(in)::    qin,nbloch,nband, &
-         norbt,ibas_tbl,l_tbl,k_tbl,offset_tbl,offset_rev_tbl,max_ibas_tbl,max_l_tbl,max_k_tbl, &
+    intent(in)::    qin,nbloch,nband,norbt,ibas_tbl,l_tbl,k_tbl,offset_tbl,offset_rev_tbl,max_ibas_tbl,max_l_tbl,max_k_tbl, &
          sym,shtvg,dlmm,lxxa,miat,tiat,igxt,nbas,  cphiin
     intent(out):: &
          cphiout
-    !!== Rotation of a function of ProductBasis or MT part of wave function.
-    !! (then MTO itself is rotated. a little diffent from here).
     !! qin  = qtti(:,iqi)
     !! cphiin cphi(1:ldim2,1:nband,iqi,isp) eigenfunction @ qtti(:,iqi)
     !! dlmm   dlmm(-l:l,-l:l,l,igg)
@@ -120,8 +104,7 @@ contains
        cphiout(ini2:iend2,:)= matmul(dlmm(-l:l,-l:l,l),cphiin(ini1:iend1,:))*phase(ibas)
     enddo
   endsubroutine rotmto
-  subroutine rotmto2(qin,nbloch,nband, &
-       norbt,ibas_tbl,l_tbl,k_tbl,offset_tbl,offset_rev_tbl,max_ibas_tbl,max_l_tbl,max_k_tbl, &
+  subroutine rotmto2(qin,nbloch,nband,norbt,ibas_tbl,l_tbl,k_tbl,offset_tbl,offset_rev_tbl,max_ibas_tbl,max_l_tbl,max_k_tbl, & !== Similar with rotmto but just for rotation matrix ==
        sym,shtvg,dlmm,lxxa,miat,tiat,igxt,nbas, &
        zrotm)
     implicit none
@@ -130,7 +113,6 @@ contains
          sym,shtvg,dlmm,lxxa,miat,tiat,igxt,nbas
     intent(inout):: &
          zrotm
-    !!== Similar with rotmto but just for rotation matrix ==
     !! output: zrotm is the rotation matrix
     integer:: ibas,ibaso,nbloch,nband,norbt,iorb,nbas
     integer:: ibas_tbl(norbt),l_tbl(norbt),k_tbl(norbt),offset_tbl(norbt)

@@ -209,7 +209,7 @@ subroutine pnunew(eferm) != Makes new boundary conditions pnu for phi,phidot =
         enddo isploop
         phispinsym= cmdopt0('--phispinsym') !! spin averaged pnu takaoAug2019
         if(phispinsym) then
-           if(ipr>0.and.m==lmxa+1) write(6,*)'pnunew: --phispinsym enforces spin-averaged pnu' 
+           if(ib==1.and.ipr>0.and.m==lmxa+1) write(stdo,*)'pnunew: --phispinsym enforces spin-averaged pnu' 
            pmean = sum(pnu(m,1:nsp))/nsp
            pnu(m,1:nsp) = pmean
            if (lpz) then

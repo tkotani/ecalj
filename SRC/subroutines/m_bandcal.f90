@@ -246,7 +246,7 @@ contains
        call addrbl(isp,qp,iq, osmpot,vconst,osig,otau,oppi,evec,evl,nev, smrho_out, sumqv, sumev, oqkkl,oeqkkl, frcband)
 
        afsymifffffffffffffffff:  if(cmdopt0('--afsym')) then
-          if(idat==1) write(stdo,ftox)'m_bandcal: afsymblock'
+          if(idat==1.and.master_mpi) write(stdo,ftox)'m_bandcal: afsymblock'
           afsymblock: block !isp2 is given by isp=1
             use m_rotwave,only:  rotevec
             use m_mksym,only: symops,ngrp,ngrpAF,ag
@@ -277,6 +277,7 @@ contains
 1018        continue!write(stdo,ftox)'ikp qp=',ikp,ftof(qp,3),'is mapped to',ftof(matmul(symops(:,:,igrp),qp),3),' by symops igp=',igrp
             qpr = qplist(:,ikp)
             isp2 = 2
+            call m_Igv2x_setiq(ikp) ! Get napw and so on for given qp
             call rotevec(igrp,qp, qpr,ndimhx,napw,nev,evec(:,1:nev), evecrot(:,1:nev))! evec at qp is roteted to be evecrot at qpr by symops(:,:,igrp)
             if( lso/=0)              call mkorbm(isp2, nev, ikp,qpr, evecrot,  orbtm_rv)
             if( nlibu>0 .AND. nev>0) call mkdmtu(isp2,      ikp,qpr, nev, evecrot,  dmatu)

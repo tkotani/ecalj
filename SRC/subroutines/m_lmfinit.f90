@@ -122,7 +122,7 @@ contains
     HelpExit: if(master_mpi.and.cmdopt0('--help')) then !minimum help
        write(stdo,"( &
             /'Usage: lmf,lmfa,lmf-MPIK,lmchk [--OPTION] [-var-assign] [extension]'&
-            /' For usage, see ecalj/Document/* and so on!' &
+            /' For usage, see ecalj/Document/help_lmf-MPIK.org and so on!' &
             /' Some options---'&
             /'  -vfoobar=expr',  t17,'Define numerical variable foobar' &
             /'  --help',      t17,'Show this document'&
@@ -479,7 +479,7 @@ contains
             if(sum(abs(idu(:,j)))/=0) then
                do lxxx=0+1,3+1
                   if(idu(lxxx,j)>10) then
-                     write(stdo,"(a,2i4)")'For IDU>10 with sigm.*, we set UH=JH=0 for l,ibas=',lxxx,j
+                     if(master_mpi) write(stdo,"(a,2i4)")'For IDU>10 with sigm.*, we set UH=JH=0 for l,ibas=',lxxx,j
                      uh(lxxx,j) = 0d0
                      jh(lxxx,j) = 0d0
                   endif
@@ -516,11 +516,11 @@ contains
       call mpibc1_int(ham_lsig,1,'bndfp_ham_lsig')
       ham_scaledsigma=scaledsigma
       ham_pwmode=pwmode
-      !r  pwmode Controls PW part of basis.  1st digit=
-      !r         0 => no PW part of basis
-      !r         1 => include PWs in basis. |q+G|^2 <pwemax
-      !r         2 => include only PWs in basis   
-      !  +10 means we do q cutoff at q=0.  |G|^2 <pwemax
+      !r  pwmode Controls PW part of basis.  
+      !         0 => no PW part of basis
+      !         1 => include PWs in basis by |q|^2   <pwemax
+      !         2 => include only PWs in basis   
+      !      11,12=>  we do q cutoff by      |q+G|^2 <pwemax
       ham_oveps=oveps
       idxdn=0 !=1  when MTO of (lp1,ik,j) included in the Hamiltonian
       do j=1,nspec
@@ -533,17 +533,15 @@ contains
          enddo
       enddo
       allocate(rsmv,source=.5d0*rmt)
-      if(master_mpi) write(stdo,ftox)'pnu list       ibas isp  pnu(0:lmxa) '
+      if(master_mpi) write(stdo,*)
+      if(master_mpi) write(stdo,ftox)'pnu === pnu setting ==='
+      if(master_mpi) write(stdo,ftox)'pnu   ibas isp   pnu(0:lmxa)  pz(0:lmxa)'
       do j=1,nbas
          is=ispec(j) 
          pnuall(:,1:nsp,j) = pnusp(1:n0,1:nsp,is)
          pnzall(:,1:nsp,j) = pzsp(1:n0,1:nsp,is)
-         if(master_mpi) then
-            do isp=1,nsp       
-               write(stdo,ftox)'pnu: j isp pnu=',j,isp,ftof(pnuall(1:lmxa(is)+1,isp,j),3)
-               write(stdo,ftox)'pnz: j isp  pz=',j,isp,ftof(pnzall(1:lmxa(is)+1,isp,j),3)
-            enddo
-         endif
+         if(master_mpi) write(stdo,ftox)('pnu: ',j,isp,ftof(pnuall(1:lmxa(is)+1,isp,j),3),' ',&
+              ftof(pnzall(1:lmxa(is)+1,isp,j),3), isp=1,nsp)
       enddo
       !! ... Suppress symmetry operations for special circumstances
       ! addinv=T only when we expect Hamiltonian is real even with keeping spin direction.

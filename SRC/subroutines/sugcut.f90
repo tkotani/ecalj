@@ -37,8 +37,8 @@ subroutine sugcut(mode)
      if (mode == 1) write(stdo,887) tol
      if (mode == 2) write(stdo,888) tol
      write(stdo,774)
-887  format(/' sugcut:  make orbital-dependent reciprocal vector',' cutoffs for tol=',1p,e9.2)
-888  format(/' sugcut:  orbital-dependent cutoffs for local',' orbitals, tol=',1p,e9.2)
+887  format(/'sugcut:  make orbital-dependent reciprocal vector',' cutoffs for tol=',1p,e9.2)
+888  format(/'sugcut:  make orbital-dependent cutoffs for local',' orbitals, tol=',1p,e9.2)
   endif
   gg = -1
   if(mode==1) ngcut=0

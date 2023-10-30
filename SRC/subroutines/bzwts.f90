@@ -746,7 +746,7 @@ contains
     !!= takao interted a block taken from original version of bzwtsf.F June-2 2011.=
     vhold= 0d0
     ef0  = efermi
-    write(stdo,*)' Seek potential shift for fixed-spin mom ...'
+    if(ipr>0) write(stdo,*)' Seek potential shift for fixed-spin mom ...'
 
     !!== do loop for new guess at potential shift ==
     ! bisection method takao

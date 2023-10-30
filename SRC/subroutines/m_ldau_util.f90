@@ -767,7 +767,7 @@ contains
        endif
        if(havesh ==1) bbb='spherical harmonics' !complex harmonics
        if(havesh ==0) bbb='real harmonics'      !real harmonics 
-       if(master_mpi) write(stdo,*)' sudmtu: reading density matrix from file dmats in '//trim(bbb)
+       if(master_mpi) write(stdo,ftox)'sudmtu: reading density matrix from file dmats in '//trim(bbb)
        rewind idmat
        iblu = 0
        do  ib = 1, nbas
@@ -799,7 +799,7 @@ contains
           endif
        enddo
     elseif(occe) then         !if no occunum.* initial dmatu=0
-       write(stdo,*) 'sudmtu: initial (diagonal) density-matrix from occ numbers'
+       write(stdo,ftox)'sudmtu: initial (diagonal) density-matrix from occ numbers'
        open(newunit=foccn,file='occnum.'//trim(sname))
        havesh = 1
 12     continue
@@ -922,7 +922,7 @@ contains
        havesh = 0
     endif
     if (master_mpi.and.ng /= 0) then
-       write(stdo,ftox)' sudmtu:  RMS change in vorb from symmetrization = ',ftof(xx)
+       write(stdo,ftox)'sudmtu:  RMS change in vorb from symmetrization = ',ftof(xx)
        if (xx > .01d0) write(stdo,*)'          (warning) RMS change unexpectely large'
        write(stdo,*)
     endif
@@ -1153,8 +1153,7 @@ contains
     ! --- Setup for spinor part ---
     lwarn = 0
     do  ig = 1, ng
-       xx = ddet33(g(1,ig))
-       !       Extract to rdmat pure rotation part of g; make Euler angles
+       xx = ddet33(g(1,ig))  !   Extract to rdmat pure rotation part of g; make Euler angles
        if (xx > 0) then
           call dpcopy(g(1,ig),rmat,1,9,1d0)
        else
@@ -1162,7 +1161,7 @@ contains
        endif
        if (dabs(xx*g(9,ig)-1) > 1d-6) lwarn = lwarn+1
     enddo
-    if (lwarn > 0) write(stdo,ftox)'symdmu (warning): ',lwarn,'symops rotate z axis'
+    if(lwarn>0.and.master_mpi) write(stdo,ftox)'symdmu (warning): ',lwarn,'symops rotate z axis'
     ! --- For each site density-matrix, do ---
     iblu = 0
     do  ib = 1, nbas
