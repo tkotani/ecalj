@@ -1,166 +1,66 @@
-module m_ropyln
+module m_ropyln ! Normalized spheric harmonic polynomials (vectorizes).
   public ropyln,ropylg
   private
 contains
-  subroutine ropyln(n,x,y,z,lmax,nd,yl,rsq) !- Normalized spheric harmonic polynomials (vectorizes).
-    !i Inputs
+  subroutine ropyln(n,x,y,z,lmax,nd, yl,rsq) ! Normalized spheric harmonic polynomials (vectorizes).
     !i   n     :number of points for which to calculate yl
-    !i   x     :x component of Cartesian coordinate
-    !i   y     :y component of Cartesian coordinate
-    !i   z     :z component of Cartesian coordinate
+    !i   x,y,z:f Cartesian coordinate
     !i   lmax  :compute yl for l=0..lmax
     !i   nd    :leading dimension of yl; nd must be >= n
     !o Outputs
-    !o   yl    :Ylm(i,ilm) are the (real) spherical harmonics
-    !o         :for l=0..lmax and point i.
+    !o   yl  :Ylm(i,ilm) are the real spherical harmonics for l=0..lmax and point i.
+    !         yl = real harmonics (see Takao's GW note) * r^l
     !o   rsq   :rsq(i) square of length of point i
-    !r Remarks
-    !r   yl = real harmonics (see Takao's GW note) * r^l
-    !u Updates
-    !u  25 Jun 03 (Kino) initialize cx to zero
     implicit none
-    integer:: nd , n , i , m , lmax , l , kk=-999
-    real(8) ,allocatable :: cm_rv(:)
-    real(8) ,allocatable :: sm_rv(:)
-    real(8) ,allocatable :: q_rv(:)
-    real(8) ,allocatable :: h_rv(:)
-    double precision :: x(*),y(*),z(*),yl(nd,*),rsq(*),cx(3)
-    double precision :: fpi,f2m
-    !     call tcn('ropyln')
+    integer:: nd , n , i , m , lmax , l , kk=-999,lav,k1,mm,k2
+    real(8):: yl(nd,*), x(n),y(n),z(n),rsq(n),cx(3),f2m,a,b,xx,yy
+    real(8),parameter:: fpi = 16*datan(1d0)
+    real(8),allocatable :: cm_rv(:),sm_rv(:), q_rv(:,:), h_rv(:)
     if (n > nd) call rx('ropyln: nd too small')
-    fpi = 16*datan(1d0)
-    allocate(cm_rv(n),sm_rv(n),q_rv(n*2),h_rv(n))
-    do  2  i = 1, n
-       rsq(i) = x(i)*x(i)+y(i)*y(i)+z(i)*z(i)
-2   enddo
-    cx = 0d0
-    ! --- Loop over m: cx are normalizations for l, l-1, l-2 ---
-    f2m = 1d0
-    do  10  m = 0, lmax
-       call ropcsm ( m , n , x , y , h_rv , cm_rv , sm_rv )
+    allocate(cm_rv(n),sm_rv(n),q_rv(n,2),h_rv(n))
+    rsq = x**2+y**2+z**2
+    cx = 0d0 
+    mloop: do  10  m = 0, lmax     ! --- Loop over m: cx are normalizations for l, l-1, l-2 ---
        if (m == 0) then
+          cm_rv=1d0
+          sm_rv=0d0
+       elseif (m == 1) then
+          cm_rv=x
+          sm_rv=y
+       elseif (m >= 2) then
+          h_rv=cm_rv
+          cm_rv = x*cm_rv - y*sm_rv
+          sm_rv = y*h_rv +  x*sm_rv
+       endif
+       if (m == 0) then !call ropcsm ( m , n , x , y , h_rv , cm_rv , sm_rv )
           cx(1) = dsqrt(1/fpi)
        else
-          f2m = f2m*2*m*(2*m-1)
+          f2m = product([(dble(2*mm*(2*mm-1)),mm=1,m)])
           cx(1) = dsqrt((2*m+1)*2/fpi/f2m)
        endif
-       do  11  l = m, lmax
-          call ropqln ( m , l , n , rsq , z , cx , q_rv , kk )
-          call ropynx ( m , l , kk , n , q_rv , cm_rv , sm_rv, nd , yl )
-          cx(3) = cx(2)
-          cx(2) = cx(1)
-          cx(1) = cx(1)*dsqrt(dble((l+1-m)*(2*l+3))/dble((l+1+m)*(2*l+1)))
-11     enddo
-10  enddo
-    if (allocated(h_rv)) deallocate(h_rv)
-    if (allocated(q_rv)) deallocate(q_rv)
-    if (allocated(sm_rv)) deallocate(sm_rv)
-    if (allocated(cm_rv)) deallocate(cm_rv)
+       lloop: do  11  l = m, lmax   !  These routines are the time-critical steps.
+          if (l == m) then
+             kk = 1    !  Returns kk, which points to the current component of q_rv.
+             q_rv(:,kk) = product([(dble(2*mm+1),mm=0,m-1),cx(1)])
+          elseif(l == m+1) then
+             kk = 2
+             q_rv(:,kk) = product([(dble(2*mm+1),mm=0,m),cx(1)])*z(:)
+          elseif (l >= m+2) then
+             k1 = kk+1
+             if (k1 == 3) k1 = 1
+             k2 = kk
+             q_rv(:,k1) = -(l+m-1d0)/(l-m)*cx(1)/cx(3)*rsq(:)*q_rv(:,k1) + (2*l-1d0)/(l-m)*cx(1)/cx(2)*z(:)*q_rv(:,k2)
+             kk = k1
+          endif
+          lav = l*(l+1)+1
+          yl(:,lav+m)          = cm_rv(:)*q_rv(:,kk)
+          if(m/=0) yl(:,lav-m) = sm_rv(:)*q_rv(:,kk)
+          cx(1:3) = [cx(1)*dsqrt(dble((l+1-m)*(2*l+3))/dble((l+1+m)*(2*l+1))), cx(1), cx(2)]
+11     enddo lloop
+10  enddo mloop
   end subroutine ropyln
-  subroutine ropqln(m,l,n,r2,z,cx,q,kk) !- Makes qml for m,l. Must be called in sequence l=m,m+1... for fixed m
-    !  Returns kk, which points to the current component of q.
-    !  These subroutines are utility routines called by ropyln.f.
-    !  Kept separate from ropyln because some optimizing compilers have bugs
-    !  (e.g. intel ifort version 11).
-    !  These routines are the time-critical steps.
-    !     implicit none
-    integer :: mm,n,i,l,m,kk,k2,k1
-    double precision :: q(n,2),r2(n),z(n),cx(3)
-    double precision :: a,b,xx,yy
-    ! --- Case l=m ---
-    if (l == m) then
-       a = 1d0
-       do  1  mm = 0, m-1
-          a = a*(2*mm+1)
-1      enddo
-       kk = 1
-       a = a*cx(1)
-       do  2  i = 1, n
-          q(i,kk) = a
-2      enddo
-       return
-    endif
-    ! --- Case l=m+1 ---
-    if (l == m+1) then
-       b = 1d0
-       do  3  mm = 0, m
-          b = b*(2*mm+1)
-3      enddo
-       b = b*cx(1)
-       kk = 2
-       do  4  i = 1, n
-          q(i,kk) = b*z(i)
-4      enddo
-       return
-    endif
-    ! --- Case l=m+2 and higher by recursion ---
-    if (l >= m+2) then
-       k2 = kk
-       k1 = kk+1
-       if (k1 == 3) k1 = 1
-       xx = -(l+m-1d0)/(l-m)*cx(1)/cx(3)
-       yy = (2*l-1d0)/(l-m)*cx(1)/cx(2)
-       do  6  i = 1, n
-          q(i,k1) = xx*r2(i)*q(i,k1)+yy*z(i)*q(i,k2)
-6      enddo
-       kk = k1
-       return
-    endif
-  end subroutine ropqln
-  subroutine ropynx(m,l,kk,n,q,cm,sm,nd,yl)
-         implicit none
-    integer :: lav,n,nd,l,i,m,kk
-    double precision :: q(n,2),cm(n),sm(n),yl(nd,1)
-    lav = l*(l+1)+1
-    do  1  i = 1, n
-       yl(i,lav+m) = cm(i)*q(i,kk)
-1   enddo
-    if (m == 0) return
-    do  2  i = 1, n
-       yl(i,lav-m) = sm(i)*q(i,kk)
-2   enddo
-  end subroutine ropynx
-  subroutine ropcsm(m,n,x,y,w,cm,sm) !- Makes cm and sm. Must be called in sequence m=0,1,2...
-    implicit none
-    integer :: m,n,i
-    double precision :: x(n),y(n),w(n),cm(n),sm(n)
-    ! --- Case m=0 ---
-    if (m == 0) then
-       do  1  i = 1, n
-          cm(i) = 1d0
-1      enddo
-       do  2  i = 1, n
-          sm(i) = 0d0
-2      enddo
-       return
-    endif
-    ! --- Case m=1 ---
-    if (m == 1) then
-       do  3  i = 1, n
-          cm(i) = x(i)
-3      enddo
-       do  4  i = 1, n
-          sm(i) = y(i)
-4      enddo
-       return
-    endif
-    ! --- Case m ge 2 ---
-    if (m >= 2) then
-       do  5  i = 1, n
-          w(i) = cm(i)
-5      enddo
-       do  6  i = 1, n
-          cm(i) = x(i)*cm(i) - y(i)*sm(i)
-6      enddo
-       do  7  i = 1, n
-          sm(i) = y(i)*w(i) + x(i)*sm(i)
-7      enddo
-       return
-    endif
-  end subroutine ropcsm
   subroutine ropylg(lp,lmax,ndim,nrx,nr,x,y,z,r2,yl,gyl)!- Gradients of YL's (polynomials) for a set of points, with YL as input
     use m_ll,only:ll
-    !i Inputs
     !i   lp    :if nonzero, adds term  r^l grad (r^-l Yl).
     !i   lmax  :maximum l for a given site
     !i   ndim  :dimensions gyl.  Must be at least (lmax+1)**2

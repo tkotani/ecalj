@@ -86,8 +86,7 @@ contains
     complex(8):: evec(ndimh,nspc,ndimh,nspc),smrho(n1,n2,n3,isp),smpot(n1,n2,n3,isp)
     real(8),allocatable:: qpgv(:,:),qpg2v(:),ylv(:,:)
     complex(8),allocatable:: evecc(:,:,:,:),work(:,:,:,:)
-    qval= qval_- zbak
-!    if (lwtkb < 0) return
+    qval= qval_- zbak !    if (lwtkb < 0) return
     call tcn('addrbl')
     nlmto = ndimh-napw
     lmxax = maxval(lmxa_i(ispec(1:nbas)))
@@ -391,14 +390,11 @@ contains
     real(8):: gam,denom, e1(n0,nkap0),rsm1(n0,nkap0),p1(3),xx(n0),wt,ylv(napw,nlmax),ssum(3)
     integer :: i1,i2,ib1,ilm1,io1,iq,is1,l1,in1,ig,ivec,nglob, nlm11,nlm12,m
     integer:: blks1(n0*nkap0),ntab1(n0*nkap0),lh1(nkap0),nkap1
-    complex(8):: phase,fach,ovl,ccc(3),sum, srm1l(0:n0),evec(ndimh,ndimh),img=(0d0,1d0)
+    complex(8):: phase,fach,ovl,ccc(3),sum, srm1l(0:lmxax),evec(ndimh,ndimh),img=(0d0,1d0)
     integer:: ibl1,oi1,ol1
     if (nevec <= 0) return
     call tcn ('fsmbpw')
-    srm1l(0)=1d0
-    do  l1 = 1, lmxax
-       srm1l(l1) = img**l1
-    enddo
+    srm1l(0:lmxax) = [1d0,(img**l1,l1=1,lmxax)]
     ib1loop: do 1000 ib1=1,nbas
        is1=ispec(ib1) !ssite(ib1)%spec
        p1=rv_a_opos(:,ib1) !ssite(ib1)%pos
@@ -420,13 +416,10 @@ contains
              gam   = 1d0/4d0*rsm1(l1+1,in1)**2
              fach  = -fpi/denom * phase * srm1l(l1) * exp(gam*denom)
              iorbblock: do 3010 ibl1 = 1,blks1(io1) 
-                !             s(i1,i2) = ovl
-                !             h(i1,i2) = (qpg2 + vavg) * ovl
                 ovl = fach * ylv(ig,ol1+ibl1)/sqv ! Eq. 9.4 in JMP39 3393
                 do ivec = 1, nevec  !        gradient PW * (H - E S)
                    ccc = [(ovl * img*qpgv(m,ig) * (qpg2 + vavg - evl(ivec)),m=1,3)]
-                   ssum = ewgt(ivec)*[(dconjg(evec(oi1+ibl1,ivec))*ccc(m)*evec(i2,ivec),m=1,3)]
-                   f(:,ib1) = f(:,ib1) - 2d0*ssum
+                   f(:,ib1) = f(:,ib1) - 2d0*ewgt(ivec)*[(dconjg(evec(oi1+ibl1,ivec))*ccc(m)*evec(i2,ivec),m=1,3)]
                 enddo
 3010         enddo iorbblock
 3000      enddo iorbloop
