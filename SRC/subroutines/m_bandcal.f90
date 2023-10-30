@@ -1,7 +1,6 @@
-!>band structure calculation
-!How to learng this? Instead of reading all sources, understand I/O. See bndfp.f90 and 'use m_bandcal'.
+!>band structure calculation !How to learng this? Instead of reading all sources, understand I/O. See bndfp.f90 and 'use m_bandcal'.
 module m_bandcal 
-  use m_lmfinit,only: lmxa_i=>lmxa,rmt_i=>rmt
+  use m_lmfinit,only: lmxa_i=>lmxa,rmt_i=>rmt,afsym
   use m_struc_def,only: s_rv1,s_rv5
   use m_suham,  only: ndhamx=>ham_ndhamx,nspx=>ham_nspx
   use m_qplist, only: nkp
@@ -31,8 +30,7 @@ module m_bandcal
   complex(8),allocatable,protected,public::  smrho_out(:),dmatu(:,:,:,:)
   type(s_rv5),allocatable,protected,public:: oeqkkl(:,:), oqkkl(:,:)
   !------------------------------------------------
-  logical,private:: debug,sigmamode,call_m_bandcal_2nd,procaron,writeham
-  logical,private:: dmatuinit=.true.
+  logical,private:: debug,sigmamode,call_m_bandcal_2nd,procaron,writeham,dmatuinit=.true.
   real(8),private:: sumqv(3,2),sumev(3,2)
   integer,allocatable,private::neviqis(:),ndimhxiqis(:)
   real(8),allocatable,private::evliqis(:,:)
@@ -48,7 +46,7 @@ contains
     real(8),allocatable    :: evl(:,:)  !eigenvalue (nband,nspin)
     complex(8),allocatable :: evec(:,:) !eigenvector( :,nband)
     logical:: ltet,cmdopt0,dmatuinit=.true.,wsene
-    character(3):: charnum3
+    character(3):: charnum3 
 !    real(8)::  evlall(ndhamx,nspx,nkp)
     call tcn('m_bandcal_init')
     if(master_mpi) write(stdo,ftox)' m_bandcal_init: start'
@@ -89,7 +87,7 @@ contains
        iq = iqproc(idat)
        qp = qplist(:,iq) !write(stdo,ftox)'m_bandcal_init: procid iq=',procid,iq,ftof(qp)
        isp= isproc(idat) !NOTE: isp=1:nspx=nsp/nspc
-       if(cmdopt0('--afsym').and.isp==2) cycle
+       if(afsym.and.isp==2) cycle !cmdopt0('--afsym').and.isp==2) cycle
        call m_Igv2x_setiq(iq) ! Get napw,ndimh,ndimhx, and igv2x
        allocate(hamm(ndimh,nspc,ndimh,nspc),ovlm(ndimh,nspc,ndimh,nspc)) !spin offdiagonal included
        ! hambl calls augmbl. See Appendix C in http://dx.doi.org/10.7566/JPSJ.84.034702
@@ -185,7 +183,7 @@ contains
        nevls(iq,isp)  = nev        !nov2014 isp and isp is confusing...
        ndimhx_(iq,isp)= ndimhx     !Hamiltonian dimension
        evlall(1:ndhamx,isp,iq) = evl(1:ndhamx,isp)
-       if(cmdopt0('--afsym')) then
+       if(afsym) then !cmdopt0('--afsym')) then
           evlall(1:ndhamx,2,iq) = evl(1:ndhamx,1)
           nevls(iq,2)  = nev        
           ndimhx_(iq,2)= ndimhx     !Hamiltonian dimension
@@ -232,7 +230,7 @@ contains
        iq = iqproc(idat)
        qp = qplist(:,iq)  !write(stdo,ftox)'m_bandcal_init: procid iq=',procid,iq,ftof(qp)
        isp= isproc(idat)
-       if(cmdopt0('--afsym').and.isp==2) cycle
+       if(afsym.and.isp==2) cycle !cmdopt0('--afsym').and.isp==2) cycle
        call m_Igv2x_setiq(iq) ! Get napw and so on for given qp
        nev   = neviqis(idat)
        ndimhx= ndimhxiqis(idat)
@@ -244,8 +242,7 @@ contains
        if(nlibu>0 .AND. nev>0) call mkdmtu(isp, iq,qp, nev, evec,  dmatu)
        if(cmdopt0('--cls'))    call m_clsmode_set1(nev,isp,iq,qp,nev,evec) !all inputs
        call addrbl(isp,qp,iq, osmpot,vconst,osig,otau,oppi,evec,evl,nev, smrho_out, sumqv, sumev, oqkkl,oeqkkl, frcband)
-
-       afsymifffffffffffffffff:  if(cmdopt0('--afsym')) then
+       afsymGETevecFROMisponeANDaccumulate:  if(afsym) then !cmdopt0('--afsym')) then
           if(idat==1.and.master_mpi) write(stdo,ftox)'m_bandcal: afsymblock'
           afsymblock: block !isp2 is given by isp=1
             use m_rotwave,only:  rotevec
@@ -266,25 +263,22 @@ contains
                enddo
             enddo
             DebugWrite: block
-              write(stdo,ftox)'error afsymmode'
-              write(stdo,ftox)' igrp ikp',igrp,ikp,'qp=',ftof(qp,3),'qplist=',ftof(qplist(:,ikp),3) !,'deltaG=',ndeltaG
+              write(stdo,ftox)'igrp ikp',igrp,ikp,'qp=',ftof(qp,3),'qplist=',ftof(qplist(:,ikp),3) !,'deltaG=',ndeltaG
               write(stdo,ftox)'qp=',ftof(qp,3)
-              do ikpx=1,nkp
-                 write(stdo,ftox)'qplist=',ikpx,ftof(qplist(:,ikpx),3)
-              enddo
-              call rx('can not find qtarget by afsym')
+              do ikpx=1,nkp; write(stdo,ftox)'qplist=',ikpx,ftof(qplist(:,ikpx),3); enddo
+              call rx('sygmrpAF afsym mode: can not find qtarget by afsym')
             endblock DebugWrite
 1018        continue!write(stdo,ftox)'ikp qp=',ikp,ftof(qp,3),'is mapped to',ftof(matmul(symops(:,:,igrp),qp),3),' by symops igp=',igrp
             qpr = qplist(:,ikp)
             isp2 = 2
-            call m_Igv2x_setiq(ikp) ! Get napw and so on for given qp
+            call m_Igv2x_setiq(ikp) ! Get napw and so on for given qp !Bug fix at 2023-10-29. This set igv.
             call rotevec(igrp,qp, qpr,ndimhx,napw,nev,evec(:,1:nev), evecrot(:,1:nev))! evec at qp is roteted to be evecrot at qpr by symops(:,:,igrp)
             if( lso/=0)              call mkorbm(isp2, nev, ikp,qpr, evecrot,  orbtm_rv)
             if( nlibu>0 .AND. nev>0) call mkdmtu(isp2,      ikp,qpr, nev, evecrot,  dmatu)
             if( cmdopt0('--cls'))    call m_clsmode_set1(nev,isp2,ikp,qpr,nev,evecrot) 
             call addrbl(isp2,qpr,ikp, osmpot,vconst,osig,otau,oppi,evecrot,evl,nev, smrho_out, sumqv, sumev, oqkkl,oeqkkl, frcband)
           endblock afsymblock
-       endif afsymifffffffffffffffff
+       endif afsymGETevecFROMisponeANDaccumulate
        deallocate(evec)
 12010 enddo iqloop
     if (pwemax>0 .AND. mod(pwmode,10)>0 .AND. lfrce/=0) then

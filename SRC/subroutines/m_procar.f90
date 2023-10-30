@@ -1,6 +1,6 @@
 !>for writing PROCAR (VASP format)
 module m_procar 
-  use m_lmfinit,only: nlmax,nsp,nbas,stdo,ispec,nlmax,nspc,n0,lmxa_i=>lmxa
+  use m_lmfinit,only: nlmax,nsp,nbas,stdo,ispec,nlmax,nspc,n0,lmxa_i=>lmxa,afsym
   use m_suham,only: ndham=>ham_ndham,ndhamx=>ham_ndhamx,nspx=>ham_nspx
   use m_igv2x,only: igv2x,napw
   use m_mkpot,only: sab_rv 
@@ -135,7 +135,7 @@ contains
     nkk3=nkabc(3)
     !! pdos mode (--mkprocar and --fullmesh). ===
     if(debug) print *,'mmmm procid sum dwgt check=',procid,sum(dwgtall)
-    if(cmdopt0('--afsym')) then
+    if(afsym) then !cmdopt0('--afsym')) then
        call xmpbnd2(kpproc,nbas*nchanp*ndhamx,nkp,dwgtall(:,:,:,1,:)) !all eigenvalues broadcasted
        call xmpbnd2(kpproc,nbas*nchanp*ndhamx,nkp,dwgtall(:,:,:,2,:)) !all eigenvalues broadcasted
     else

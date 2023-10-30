@@ -51,17 +51,18 @@ contains
        if(napw_in /= napwkqp(ikt) ) call rxii('rotevec: napw_in /= napw(ikt)',napw_in,napwkqp(ikt))
        igloop: do ig = 1,napw_in
           qpg  = q + matmul(qlat(:,:),igv2qp(:,ig,ikt))! q+G
-          qpgr = matmul(symops(:,:,igg),qpg)           ! rotated q+G
-          nnn  = nint(matmul(platt,qpgr-qtarget))    ! integer representation for G= qpgr - qtarget
-          ig2 = igv2revqp(nnn(1),nnn(2),nnn(3),ikt2) ! get index of G
-          debugq: if(ig2>=999999) then
-             call rx('rotwave: q+G rotation error. (We have to set PWmode=11 for --afsym)')
+          qpgr = matmul(symops(:,:,igg),qpg)           ! rotated. g(q+G) = q'+G' = qpgr
+          nnn  = nint(matmul(platt,qpgr-qtarget))      ! integer representation for G'= qpgr - q'
+          ig2 = igv2revqp(nnn(1),nnn(2),nnn(3),ikt2)   ! get index of G'
+          if(ig2>=999999) call rx('rotwave: q+G rotation error. (We have to set PWmode=11 for symgrpAF)')
+!          debugq: if(ig2>=999999) then
+!             call rx('rotwave: q+G rotation error. (We have to set PWmode=11 for symgrpAF)')
 !             do i1=1,napwkqp(ikt) ;write(stdo,ftox)'yyy0 q ',ftof(q,3),      ikt, i1,' ',igv2qp(:,i1,ikt);   enddo
 !             do i1=1,napwkqp(ikt2);write(stdo,ftox)'yyy1 qt',ftof(qtarget,3),ikt2,i1,' ',igv2qp(:,i1,ikt2);  enddo
 !             write(stdo,ftox)'rotevec: q=',ftof( q,3),'qtarget=',ftof(qtarget,3),'qr=',ftof(matmul(symops(:,:,igg),q),3)
 !             write(stdo,ftox)'       qpg=',ftof(qpg,3),'qpgr=', ftof(qpgr,3),'igv2revqp ikt2=',nnn(1),nnn(2),nnn(3)
 !             call rx('rotwvigg can not find index of mapped G vector ig2')
-          endif debugq
+!          endif debugq
           evecout(nlmto+ig2,:)= evec(nlmto+ig,:) * exp( -img2pi*sum(qpgr*shtvg(:,igg)) )
        enddo igloop
     endif APWpart

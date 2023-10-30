@@ -43,7 +43,7 @@ contains
     use m_suham,only: ndham=>ham_ndham, ndhamx=>ham_ndhamx,nspx=>ham_nspx !nspx=nsp/nspc
     use m_lmfinit,only: ncutovl,lso,ndos=>bz_ndos,bz_w,fsmom=>bz_fsmom, bz_dosmax,lmet=>bz_lmet,bz_fsmommethod,bz_n
     use m_lmfinit,only: ldos,qbg=>zbak,lfrce,pwmode=>ham_pwmode,lrsig=>ham_lsig,epsovl=>ham_oveps !try to avoid line continuation in fortran
-    use m_lmfinit,only: ham_scaledsigma, alat=>lat_alat,stdo,stdl, nlmax,nbas,nsp, bz_dosmax,nlmxlx
+    use m_lmfinit,only: ham_scaledsigma, alat=>lat_alat,stdo,stdl, nlmax,nbas,nsp, bz_dosmax,nlmxlx,afsym
     use m_lmfinit,only: lmaxu,nlibu,lldau,lpztail,leks,lrout,  nchan=>pot_nlma, nvl=>pot_nlml,nspc,pnufix !lmfinit contains fixed input 
     use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
     use m_mkqp,only: nkabc=> bz_nabc,ntet=> bz_ntet,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
@@ -190,7 +190,8 @@ contains
     if(writeham) call rx0('Done --writeham: --fullmesh may be needed. HamiltonianMTO* genereted')
     call mpibc2_int(ndimhx_,size(ndimhx_),'bndfp_ndimhx_') 
     call mpibc2_int(nevls,  size(nevls),  'bndfp_nevls')   
-    if(cmdopt0('--afsym')) then
+!    if(cmdopt0('--afsym')) then
+    if(afsym) then
        call xmpbnd2(kpproc,ndhamx,nkp,evlall(:,1,:)) !all eigenvalues are distributed ndhamx blocks
        call xmpbnd2(kpproc,ndhamx,nkp,evlall(:,2,:)) 
     else
@@ -282,7 +283,8 @@ contains
        if(tdos) call rx0('Done tdos mode:')
     endif GenerateTotalDOS
     if(master_mpi) write(stdo,ftox)
-    if(master_mpi.and.cmdopt0('--afsym')) write(stdo,ftox)' --afsym mode: AF symmetry lets us make bands of isp=2 from isp=1!'
+!    if(master_mpi.and.cmdopt0('--afsym')) write(stdo,ftox)' --afsym mode: AF symmetry lets us make bands of isp=2 from isp=1!'
+    if(master_mpi.and.afsym) write(stdo,ftox)' afsym mode: AF symmetry lets us make bands of isp=2 from isp=1!'
     WRITEeigenvaluesConsole: if(master_mpi .AND. iprint()>=35) then
     if(master_mpi) write(stdo,"('                 ikp isp         q           nev ndimh')")
        do    iq  = 1,nkp

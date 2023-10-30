@@ -1,7 +1,7 @@
 module m_bstrux ! Structure constants for P_kL expansion of Bloch lmto + PW around site ia
   ! bstr is stored in p_bstr(ia,iq)%cv3(ndimh,nlma,0:kmax) by m_bstrx_init
   ! "call bstrux_set(ia,iq)" rerurns  bstr(ndimh,nlma,0:kmax).
-  use m_lmfinit,only: lmxa_i=>lmxa, kmxt_i=>kmxt
+  use m_lmfinit,only: lmxa_i=>lmxa, kmxt_i=>kmxt,afsym
   use m_struc_def,only: s_cv3,s_cv4
   use m_lgunit,only:stdo
   use m_MPItk,only:procid
@@ -58,8 +58,10 @@ contains
     if(allocated(qall)) deallocate(qall,p_bstr,p_dbstr)
     iqii=iqini
     iqee=iqend
-    if(cmdopt0('--afsym')) iqii= 1
-    if(cmdopt0('--afsym')) iqee= bz_nkp
+!    if(cmdopt0('--afsym')) iqii= 1
+    !    if(cmdopt0('--afsym')) iqee= bz_nkp
+    if(afsym) iqii=1
+    if(afsym) iqee=bz_nkp
     allocate(qall(3,iqii:iqee),p_bstr(nbas,iqii:iqee),p_dbstr(nbas,iqii:iqee))
     iqloop: do 1200 iq = iqii, iqee ! iqii:iqee for each rank
        qin = qplist(:,iq)

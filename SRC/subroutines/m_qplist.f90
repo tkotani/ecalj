@@ -298,7 +298,7 @@ contains
   ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
   subroutine m_qplist_qspdivider() ! MPIK k point divider. From iqini to iqend for each processor. ! Set iqini,iqend ispx for each rank (procid)
     use m_MPItk,only: procid,master,master_mpi,mlog, numprocs=>nsize
-    use m_lmfinit,only: nsp,nspc
+    use m_lmfinit,only: nsp,nspc,afsym
     use m_ext,only: sname
     use m_dstrbp,only: dstrbp
     implicit none
@@ -306,7 +306,8 @@ contains
     logical:: cmdopt0
     call tcn('m_qplist_qpsdivider')
     nspxx=nsp/nspc !nspc is 2 for spin-coupled case
-    if(cmdopt0('--afsym')) nspxx=1
+!    if(cmdopt0('--afsym')) nspxx=1
+    if(afsym) nspxx=1
     allocate(kpproc(0:numprocs))
     call dstrbp(nkp*nspxx, numprocs,1,kpproc(0))
     ! i=1,nkp*nspxx is divided into [kpproc(procid),kpporc(procid+1)-1] for each procid.

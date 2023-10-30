@@ -21,7 +21,7 @@ module m_lmfinit ! 'call m_lmfinit_init' sets all initial data from ctrl are pro
        lrlxr,nkillr,nitrlx, broyinit,nmixinit,killj ,&
        ham_pwmode,ham_nlibu, nlmax,lfrce,bz_nevmx,ham_nbf,ham_lsig,bz_nabcin(3)=NULLI, bz_ndos,ldos, lmaxu,nlibu,nlmxlx
   logical,protected :: ham_frzwf,ham_ewald, lhf,lcd4,bz_tetrahedron, addinv,&
-       readpnu,v0fix,pnufix,bexist,rdhessr, lpztail=.false., readpnuskipf
+       readpnu,v0fix,pnufix,bexist,rdhessr, lpztail=.false., readpnuskipf, afsym
   real(8),protected:: pmin(n0)=0d0,pmax(n0)=0d0,tolft,scaledsigma, ham_oveps,ham_scaledsigma, cc,&!speed of light
        dlat,alat=NULLR,dalat=NULLR,vol,avw,vmtz(mxspec)=-.5d0,&
        bz_efmax,bz_zval,bz_fsmom,bz_semsh(10),zbak,bz_range=5d0,bz_dosmax,&
@@ -317,6 +317,7 @@ contains
       call rval2('BZ_FSMOMMETHOD', rr=rr, defa=[real(8):: 0]); bz_fsmommethod=nint(rr) !'Method of Fixed-spin moment 0:original 1:discrete')
       call rval2('SYMGRP', ch=ch); symg=adjustl(ch) ! Generators for symmetry group'
       call rval2('SYMGRPAF', ch=ch); symgaf=adjustl(ch) ! Extra Generator for adding anti ferro symmetry'
+      afsym=merge(.true.,.false.,len_trim(symgaf)/=0)
       call rval2('EWALD_AS',rr=rr,defa=[2d0]);   lat_as=rr  !'Ewald smoothing parameter
       call rval2('EWALD_TOL',rr=rr,defa=[1d-8]); lat_tol=rr !'Ewald tolerance')
       call rval2('EWALD_NKDMX',rr=rr,defa=[real(8):: 300]); lat_nkdmx=nint(rr) !'Ewald tolerance'
