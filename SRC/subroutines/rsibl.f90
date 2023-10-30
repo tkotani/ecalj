@@ -37,24 +37,26 @@ contains
     complex(8):: evec(ndimh,nspc,nevec),smrho(k1,k2,k3,isp), smpot(k1,k2,k3,isp)
     integer :: n0,nkap0,nermx,npmx,nblk,nlmto
     parameter (n0=10,nkap0=3,nermx=100,npmx=128)
-    integer:: nrt , net , ng , ltop , nlmtop , ogq , og2 , ohe , ohr , oyl , oylw , oiv , iprint
+    integer:: nrt , net , ng , ltop , nlmtop , ogq , og2 , ohe , ohr , oiv , iprint
     integer,allocatable :: iv_a_okv(:)
     real(8),allocatable :: rv_a_ogv(:,:)
     integer :: iprt(n0,nkap0,nermx),ipet(n0,nkap0,nermx),i_copy_size
     double precision :: alat,qlat(3,3),plat(3,3),q0(3),gmax,xx(1)
-    complex(8):: w(1,1,1)!dummy 
-    real(8):: wff(1)     !dummy
+!    complex(8):: w(1,1,1)!dummy 
+!    real(8):: wff(1)     !dummy
     double precision :: vol
     double precision :: etab(nermx),rtab(nermx)
-    integer :: ivec,nvec
+    integer :: nvec
     integer,allocatable:: ivp(:)
-    complex(8),allocatable::psi(:,:,:),psir(:,:,:),vpsi(:,:,:), wk(:,:,:)
+    complex(8),allocatable::psi(:,:,:),psir(:,:,:),vpsi(:,:,:), psi0(:,:,:,:)
     real(8),allocatable:: cosi(:),sini(:),wk2(:)
-    integer:: ivecini,ivecend,ig,ixx(1),jg
+    integer:: ig,ixx(1),jg,i
     integer,allocatable:: igv(:,:)
-    real(8),allocatable:: w_ogq(:),w_oyl(:),w_oylw(:),w_og2(:),w_ohe(:),w_ohr(:)
+    real(8),allocatable:: w_ogq(:,:),yl(:,:),w_og2(:),he(:,:),hr(:,:)
     complex(8),allocatable:: w_osmbuf(:)
     real(8),allocatable:: w_ofrbuf(:)
+    real(8),parameter:: pi = 4d0*datan(1d0),tpi = 2d0*pi
+    
     nproc  = mpipid(0)
     procid = mpipid(1)
     if (nevec <= 0) return
@@ -82,62 +84,65 @@ contains
     call tbhsi(nspec,nermx,net,etab,ipet,nrt,rtab,iprt,ltop) ! --- Tables of energies, rsm, indices to them ---
     ! --- Allocate and occupy arrays for yl, energy factors, rsm factors ---
     nlmtop = (ltop+1)**2
-    allocate(w_ogq(ng*3),w_oyl(ng*nlmtop),w_oylw(ng*nlmtop), w_og2(ng), w_ohe(ng*net), w_ohr(ng*nrt))
+    allocate(w_ogq(ng,3),yl(ng,nlmtop), w_og2(ng), he(ng,net), hr(ng,nrt))
     ! H_L(G)= \frac{-4 pi}{e-G^2} {cal Y}_L(-iG) exp(gamma(e-G^2))
     ! hsibl1 calculaets he=1/(e-G^2) and hr=exp(-gamma G^2). The other parts are calculated in rsibl5.
     q0=0d0
-    if(nlmto>0) call hsibl1 ( net,etab,nrt,rtab,ltop,alat,q0,ng,rv_a_ogv,w_ogq,w_og2,w_oyl,w_ohe, w_ohr )
+    if(nlmto>0) call hsibl1 ( net,etab,nrt,rtab,ltop,alat,q0,ng,rv_a_ogv,w_ogq,w_og2, yl,he,hr )
     deallocate(w_og2)
     nblk = nevec
-    !  --- Loop over eigenstates ---
-    allocate(psi(ng,nspc,nblk),vpsi(ng,nspc,nblk),wk(ng,nspc,nblk),psir(k1,k2,k3),cosi(ng),sini(ng),wk2(ng))
-    ivecini= 1
-    ivecend= nevec
-    do  ivec = ivecini,ivecend, nblk !blocked calculation for future
-       nvec = min(nblk, nevec-ivec+1)
-       call rsibl1(0,q,nbas,ng,w_ogq,igv,n1,n2,n3,qlat,cosi,sini,w_oyl,w_oylw,w_ohe,w_ohr,wk, &
-            wk2,vol,iprt,ipet,etab,rtab,ndimh,nlmto,nspc,ewgt,ivec,nvec,evec,w,psi,wff)
-       if(napw>0) psi(ivp(:),:,1:nvec) = psi(ivp(:),:,1:nvec) + evec(nlmto+1:nlmto+napw,:,ivec:ivec+nvec-1)/vol**.5 !add PW(G) to psi
-       ! psi= H(G) + PW(G) 
-       rsibl2block: block  !   ... Add to real-space mesh, optionally make smpot*psi for forces
-         integer:: i,ispc
-         real(8):: wgt1
-         do  ispc = 1, nspc !nspc=2 for SO=1, nspc=1 otherwise. nspx=nspc/nps
-            do  i = 1, nvec
-               call gvputf(ng,1,iv_a_okv,k1,k2,k3,psi(1,ispc,i),psir)
-               call fftz3(psir,n1,n2,n3,k1,k2,k3,1,0,1)
-               wgt1 = ewgt(ivec+i-1)
-               smrho(:,:,:,isp+ispc-1)=smrho(:,:,:,isp+ispc-1)+ wgt1*dconjg(psir(:,:,:))*psir(:,:,:) !realspace density
-               if (lfrce /= 0) then
-                  psir(:,:,:) = psir(:,:,:)*smpot(:,:,:,isp+ispc-1)
-                  call fftz3(psir,n1,n2,n3,k1,k2,k3,1,0,-1)
-                  call gvgetf(ng,1,iv_a_okv,k1,k2,k3,psir,vpsi(1,ispc,i))
-               endif
+    allocate(psi(ng,nspc,nblk),vpsi(ng,nspc,nblk),psi0(ng,nspc,nblk,nbas),psir(k1,k2,k3))
+    call rsibl1(q,nbas,ng,w_ogq,igv,n1,n2,n3,qlat,yl,he,hr, psi0,vol,iprt,ipet,etab,rtab,ndimh,nlmto,nspc,ewgt,nevec,evec)
+    psi(:,:,:) = sum(psi0(:,:,:,1:nbas),dim=4)
+    if(napw>0) psi(ivp(:),:,1:nevec) = psi(ivp(:),:,1:nevec) + evec(nlmto+1:nlmto+napw,:,1:nevec)/vol**.5 !add PW(G) to psi
+    ! psi= H(G) + PW(G) 
+    rsibl2block: block  !   ... Add to real-space mesh, optionally make smpot*psi for forces
+      use m_sugcut,only:ngcut
+      use m_lattic,only:rv_a_opos
+      use m_lmfinit,only: ispec
+      complex(8):: phase(ng),img=(0d0,1d0),psix(ng,nspc,nevec)
+      integer:: i,ispc,is,ib,kb
+      real(8):: wgt1
+      real(8):: xx(ng),p(3),f0(3)
+      do  ispc = 1, nspc !nspc=2 for SO=1, nspc=1 otherwise. nspx=nspc/nps
+         do  i = 1, nevec
+            call gvputf(ng,1,iv_a_okv,k1,k2,k3,psi(1,ispc,i),psir)
+            call fftz3(psir,n1,n2,n3,k1,k2,k3,1,0,1)
+            wgt1 = ewgt(i)
+            smrho(:,:,:,isp+ispc-1)=smrho(:,:,:,isp+ispc-1)+ wgt1*dconjg(psir(:,:,:))*psir(:,:,:) !realspace density
+            if (lfrce /= 0) then
+               psir(:,:,:) = psir(:,:,:)*smpot(:,:,:,isp+ispc-1)
+               call fftz3(psir,n1,n2,n3,k1,k2,k3,1,0,-1)
+               call gvgetf(ng,1,iv_a_okv,k1,k2,k3,psir,vpsi(1,ispc,i))
+            endif
+         enddo
+      enddo
+      AddForce: if (lfrce /= 0) then
+         do ib = 1, nbas
+            is=ispec(ib) 
+            p=rv_a_opos(:,ib) 
+            phase = exp(-img*tpi*sum(p*q)) * exp(-img*tpi*matmul(p, matmul(qlat, transpose(igv))))
+            do i = 1, nevec
+               xx = sum(dimag(vpsi(:,:,i))*dreal(psi0(:,:,i,ib)) - dreal(vpsi(:,:,i))*dimag(psi0(:,:,i,ib)),dim=2)
+               f0(:) = 2d0*vol*matmul(xx,w_ogq(:,:))
+               f(:,ib) = f(:,ib)   + ewgt(i)*f0(:) !Add 2*Re( (v psi+) grad(psi) ) to f
+               do kb = 1, nbas !!             This shouldn't be necessary?
+                  f(:,kb) = f(:,kb) - ewgt(i)*f0(:)/nbas
+               enddo
             enddo
          enddo
-       endblock rsibl2block
-       !    --- Add to forces ---
-       if (lfrce /= 0) then
-          call rsibl1(1,q,nbas,ng,w_ogq,igv,n1,n2, &
-               n3,qlat,cosi,sini,w_oyl,w_oylw,w_ohe,w_ohr, &
-               wk,wk2,vol,iprt,ipet,etab,rtab,ndimh,nlmto,nspc, &
-               ewgt,ivec,nvec,evec,vpsi(:,:,1:nvec),psi(:,:,1:nvec),f)
-       endif
-    enddo
+      endif AddForce
+    endblock rsibl2block
     call tcx('rsibl')
   end subroutine rsibl
-
-  subroutine rsibl1(mode,q,nbas,ng,gq,iv,n1,n2,n3,qlat,cosgp,singp,yl,ylw,he,hr,psi0,wk2,vol,iprt,ipet,etab,rtab,& ! Make wave function for a block of evecs, or add contr. to forces
-       ndimh,nlmto,nspc,ewgt,ivec,nvec,evec,vpsi,psi,f)
+  subroutine rsibl1(q,nbas,ng,gq,iv,n1,n2,n3,qlat,yl,he,hr,psi0,vol,iprt,ipet,etab,rtab,ndimh,nlmto,nspc,ewgt,nevec,evec) ! Make wave function for a block of evecs, or add contr. to forces
     use m_uspecb,only:uspecb
     use m_struc_def 
     use m_orbl,only: Orblib,ktab,ltab,offl,norb
     use m_sugcut,only:ngcut
-    use m_lattic,only:rv_a_opos
+    use m_lattic,only: pos=>rv_a_opos
     use m_lmfinit,only: ispec
     !i Inputs
-    !i   mode  :0 make wave function
-    !i         :1 Add 2*Re( (v psi+) grad(psi) ) to f
     !i   q     :Bloch wave number
     !i   nbas  :size of basis
     !i   ng    :number of G-vectors
@@ -145,14 +150,10 @@ contains
     !i   iv    :g-vectors as integer multiples of qlat (suphs0)
     !i   n1..3 :size uniform mesh for smooth density and potential
     !i   qlat  :primitive reciprocal lattice vectors, in units of 2*pi/alat
-    !i   cosgp :cos(phase) for each g-vector
-    !i   singp :sin(phase) for each g-vector
     !i   yl    :spherical harmonics for ng vectors
-    !i   ylw   :work array of same dimension as yl
     !i   he    :table of energy factors
     !i   hr    :table of smoothing radius factors
-    !i   psi0  :work array (dim ng*2*nspc*nev): psi sans phase factors
-    !i   wk2   :work array of dimension ng
+    !o   psi0  : psi sans phase factors
     !i   vol   :cell volume
     !o   iprt  :index to which entry in rt a given orbital belongs
     !i   ipet  :index to which entry in etab a given orbital belongs
@@ -161,39 +162,36 @@ contains
     !i   ndimh :dimensions evec
     !i   nspc  :2 for coupled spins; otherwise 1
     !i   ewgt  :weights for each of the trial fermi levels
-    !i   ivec  :first of current block of eigenvectors
-    !i   nvec  :number of eigenstates to generate
-    !i   evec  :eigenvectors
+    !i   nevec  :number of eigenstates to generate
+    !i   evec  :eigenevectors
     !i   vspi  :potential * wave function, needed only for mode=1
     !o Outputs
     !o   psi   :wave function (mode=0); work area (mode=1)
     !o   f     :term added to forces (mode=1)
     implicit none
     real(8):: q(3)
-    integer :: mode,nbas,ng,ndimh,nlmto,nspc,ivec,nvec,iv(ng,3), n1,n2,n3,n0,nkap0,i_copy_size
+    integer :: nbas,ng,ndimh,nlmto,nspc,nevec,iv(ng,3), n1,n2,n3,n0,nkap0
     parameter (n0=10,nkap0=3)
     integer :: iprt(n0,nkap0,*),ipet(n0,nkap0,*)
-    double precision :: vol,yl(ng,*),ylw(ng,*),he(ng,*),hr(ng,*), &
-         wk2(ng),cosgp(ng),singp(ng),etab(*),rtab(*),gq(ng,3),f(3,nbas),ewgt(nvec+ivec-1),qlat(3,3)
-    complex(8):: psi0(ng,nspc,nvec),psi(ng,nspc,nvec), evec(ndimh,nspc,ivec),vpsi(ng,nspc,nvec),psix(ng,nspc,nvec)
+    real(8) :: vol,yl(ng,*),he(ng,*),hr(ng,*), &
+         etab(*),rtab(*),gq(ng,3),f(3,nbas),ewgt(nevec),qlat(3,3)
+    complex(8):: psi0(ng,nspc,nevec,nbas), evec(ndimh,nspc,nevec),vpsi(ng,nspc,nevec)!,psix(ng,nspc,nevec)
     integer:: blks(n0*nkap0),ntab(n0*nkap0),ncut(n0,nkap0),lh(nkap0),nkapi
     double precision :: e,rsm,eh(n0,nkap0),rsmh(n0,nkap0),f0(3)
-    double precision :: xx(n0),wt,p(3)
-    integer :: ib,is,io,jo,l2,kp,ie,ir,ioff,nlm1,nlm2,iq,kb,lt,i
-    integer::ncutt
+    double precision :: xx(n0),wt
+    integer :: ib,is,io,jo,l2,kp,ie,ir,ioff,nlm1,nlm2,iq,kb,lt,i,ig, ncutt
     complex(8):: phase(ng),img=(0d0,1d0)
     real(8),parameter:: pi = 4d0*datan(1d0),tpi = 2d0*pi
-    psi=0d0 
-    if(nlmto == 0) return
+    real(8):: fac
+    integer:: ilm,l
+    psi0=0d0
     do ib = 1, nbas
        is=ispec(ib) 
-       p=rv_a_opos(:,ib) 
        ncut=ngcut(:,:,is)
-       phase = exp(-img*tpi*sum(p*q)) * exp(-img*tpi*matmul(p, matmul(qlat, transpose(iv))))
+       phase = [(exp(-img*tpi*sum(pos(:,ib)*(q+matmul(qlat,iv(ig,:))))),ig=1,ng)]
        call orblib(ib) !Return norb,ltab,ktab,offl
        call uspecb(is,rsmh,eh)
        call gtbsl1(1,norb,ltab,ktab,rsmh,eh,ntab,blks)
-       psi0=0d0
        do io = 1, norb
           if (blks(io) == 0) cycle
           jo = ntab(io)
@@ -207,43 +205,16 @@ contains
           nlm2 = nlm1 + blks(io)-1
           rsm = rtab(ir)
           e   = etab(ie)
-          ncutt=ncut(lt+1,kp)
-          rsibl5block: block !- Add contribution to wave function from one block of orbitals
-            real(8),parameter:: pi=3.1415926535897931d0
-            real(8):: fac
-            integer:: ilm,l,i
-            fac = 4d0*pi*dexp(e*rsm*rsm*0.25d0)/vol
-            ! ... Combine G-dependent energy, rsm and YL factors
-            do  ilm = nlm1, nlm2 ! ... Make vector evec*phase
-               l=ll(ilm)
-               do i = 1, min(ng,ncutt)
-                  psi0(i,1:nspc,1:nvec) = psi0(i,1:nspc,1:nvec)  + he(i,ie)*hr(i,ir)*yl(i,ilm) &
-                  *(0d0,-1d0)**(l+2)*fac*evec(ilm-nlm1+ioff+1,1:nspc,ivec:ivec+nvec-1) ! 4 pi exp(e gamma) and {cal Y}_L(-iG), and make psi0(G), which is H(-iG), with hr and he.
-               enddo
-            enddo
-          endblock rsibl5block 
+          ncutt=ncut(lt+1,kp) 
+          fac = 4d0*pi*dexp(e*rsm*rsm*0.25d0)/vol
+          do  ilm = nlm1, nlm2 ! ... Make vector evec*phase ! ... Combine G-dependent energy, rsm and YL factors
+             l=ll(ilm)
+             do i = 1, min(ng,ncutt)
+                psi0(i,1:nspc,1:nevec,ib) = psi0(i,1:nspc,1:nevec,ib)&
+                     + he(i,ie)*hr(i,ir)* yl(i,ilm) *(0d0,-1d0)**(l+2)* fac*phase(i) *evec(ilm-nlm1+ioff+1,1:nspc,1:nevec) 
+             enddo
+          enddo
        enddo
-       do i = 1,ng  ! psi= exp(i G R_i) * psi0
-          psi(i,:,:) = psi(i,:,:)+ psi0(i,:,:)*phase(i)
-       enddo
-       if (mode == 1) then
-          rsibl4block: block
-            real(8):: xx(ng)
-            psix=0d0
-            do  i = 1,ng  ! psi= exp(i G R_i) * psi0
-               psix(i,:,:) = psi0(i,:,:)*phase(i)
-            enddo
-            do i = 1, nvec
-               xx = sum(dimag(vpsi(:,:,i))*dreal(psix(:,:,i)) - dreal(vpsi(:,:,i))*dimag(psix(:,:,i)),dim=2)
-               f0(:) = 2d0*vol*matmul(xx,gq(:,:))
-               wt = ewgt(i+ivec-1)
-               f(:,ib) = f(:,ib) + wt*f0(:)
-               do  kb = 1, nbas !!             This shouldn't be necessary
-                  f(:,kb) = f(:,kb) - wt*f0(:)/nbas
-               enddo
-            enddo
-          endblock rsibl4block
-       endif
     enddo
   end subroutine rsibl1
 end module m_rsibl
