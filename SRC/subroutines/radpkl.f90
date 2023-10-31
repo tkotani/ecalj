@@ -1,6 +1,4 @@
-subroutine radpkl(r,rsm,kmax,lmax,n0,p)
-  !- Radial parts of polynomials P_kL /  r**l
-  ! ----------------------------------------------------------------------
+subroutine radpkl(r,rsm,kmax,lmax,n0,p)   !- Radial parts of polynomials P_kL /  r**l
   !i Inputs
   !i   r     :radius
   !i   rsm   :smoothing radius
@@ -20,9 +18,7 @@ subroutine radpkl(r,rsm,kmax,lmax,n0,p)
   !r    p_kl = a**l / (2a**2)^(k+l) (2l+1)!! / (2k+2l+1)!! phi_kl
   !r    p_0l = a**l
   !r    p_1l = a**l (2*(ar)**2/(2l+3) - 1)
-  !r    p_kl = [(2*(ar)**2 - (4k+2l-1))p_k-1,l - 2(k-1)p_k-2,l]
-  !r           / (2k+2l+1)
-  ! ----------------------------------------------------------------------
+  !r    p_kl = [(2*(ar)**2 - (4k+2l-1))p_k-1,l - 2(k-1)p_k-2,l] / (2k+2l+1)
   implicit none
   integer :: kmax,lmax,n0
   double precision :: r,rsm,p(0:n0,0:lmax)
