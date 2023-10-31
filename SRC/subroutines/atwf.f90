@@ -135,7 +135,7 @@ contains
     call phidx(0,z,l,v,rofi,nr,nptdif,tol,enu,val,slo,nn,g,gp,phi,dphi,phip,dphip,p)!,0d0,[0d0],0d0,[0d0])
   end subroutine makrwf
   subroutine rwftai(rmt,a,nrmt,nrbig,ribig,phi,dphi,tphi,l, ehl,rsml,g)!Extend radial wave function outside MT boundary
-    use m_hansr,only :hansr
+    use m_hansr,only :hansr,hansmr,hansmronly
     ! Compute radial wave function on extended mesh using rsml,ehl for tail, scale gz so that value matches envelope h(rsm,eh)
     !i Inputs 
     !i   rmt   :augmentation radius, in a.u., by species
@@ -152,7 +152,7 @@ contains
     !l   rbig   :rmax of extended mesh
     !l   nxtn   :number of points between rmt and rbig
     implicit none
-    integer :: mode,nrmt,nrbig,l,idn,nxtn,ir,info,mode0
+    integer :: mode,nrmt,nrbig,l,idn,nxtn,ir,info,mode0,i
     integer,parameter:: nrx=1501,IPRTDB=10
     real(8):: a,rmt,phi,dphi,tphi,ribig(*),g(nrbig,2),ehl,rsml,rbig,rwgt(nrx),xi(nrx,0:l),r2(nrx),fac1,fac2,rsm,ekin,eh,alfa,beta
     rbig = ribig(nrbig)
@@ -160,7 +160,14 @@ contains
     call radwgt(rbig,a,nrbig,rwgt)
     rwgt(nrmt) = rwgt(nrmt)/2
     r2(1:nxtn) = [(ribig(ir-1+nrmt)**2,ir=1,nxtn)]
-    call hansr(rsml,0,l,1,[l],[ehl],[r2],nrx,nxtn,[idn],11,xi)
+    if(hansmronly) then
+       do ir=1,nxtn
+          call hansmr(r2(ir)**.5,ehl,1d0/rsml,xi(ir,0:l),l)
+          xi(ir,0:l)=[(xi(ir,i)*(r2(ir)**.5)**i,i=0,l)]
+       enddo
+    else   
+       call hansr(rsml,0,l,1,[l],[ehl],[r2],nrx,nxtn,[idn],11,xi)
+    endif   
     fac1 = g(nrmt,1)/rmt/xi(1,l) ! Hankel function scaled to match g at nrmt
     fac2 = g(nrmt,2)/rmt/xi(1,l)
     g(1:nrmt,:)=g(1:nrmt,:)/fac1 

@@ -1,5 +1,5 @@
 module m_mtchae !- Matches augmentation function to envelope function
-  public mtchae,mtchre
+  public mtchre
 contains
   subroutine mtchae(mode,rsm,eh,l,r,phi,dphi,phip,dphip,alfa,beta)!- Matches augmentation function to envelope function
     use m_lgunit,only:stdo
@@ -567,7 +567,7 @@ contains
     endif
   end subroutine mtchr2
   subroutine hansmd(mode,r,e,rsm,lmax,hs,dhs,ddhs,hsp,dhsp,ddhsp) !Value and some derivatives of smoothed radial Hankel functions
-    use m_hansr,only:hansr
+    use m_hansr,only:hansr,hansmr,hansmronly
     !i Inputs
     !i   mode  :tells hansmd what derivatives to make.
     !i         :1s digit concerns 2nd radial derivative
@@ -610,24 +610,44 @@ contains
     !r
     !r  Note connection with hansmr, which makes xi(l) = h(l) / r^l
     implicit none
-    integer :: mode,lmax,idx,l,mode0,mode1
+    integer :: mode,lmax,idx,l,mode0,mode1,i
     real(8) :: r,e,rsm, hs(0:lmax),dhs(0:lmax),ddhs(0:lmax),hsp(0:lmax),dhsp(0:lmax),ddhsp(0:lmax), xi(-1:lmax+2)
+    real(8):: ra,sre,akap,arsm,earsm,x,xx,erfcee,um,up
+    real(8)::     y0 = 1/dsqrt(16*datan(1d0))
     if (lmax < 0) return
-    mode0 = mod(mode,10)
-    mode1 = mod(mode/10,10)
-    call hansr(rsm,-1,lmax+2,1,[lmax+2],[e],[r**2],1,1,[idx],11,xi)
+    mode0 = 2 !mod(mode,10)
+    mode1 = 1 !mod(mode/10,10)
+    if(hansmronly) then
+        call hansmr(r,e,1d0/rsm,xi(0:lmax+2),lmax+2) 
+       ra = r/rsm
+       akap = dsqrt(-e)
+       sre = akap*r
+       arsm = akap*rsm/2
+       earsm = dexp(-arsm**2)/2
+       xx = earsm*y0*dexp(-(r/rsm)**2)/r
+       x = ra-arsm
+       if(x>0 ) um=dexp(-sre)/r-xx*erfcee(x) ! ---   Evaluate um,up ---
+       if(x<=0) um=xx*erfcee(x)
+       up= xx*erfcee(ra + arsm) !assumes x gt 0
+       xi(-1) = (um + up)*r/akap
+       xi(1:lmax+2)=[(xi(i)*r**i,i=1,lmax+2)]
+    else       
+       call hansr(rsm,-1,lmax+2,1,[lmax+2],[e],[r**2],1,1,[idx],11,xi)
+    endif
     hs=xi(0:lmax)
     if(mode0/= 0) then
        dhs(:)  = [(xi(l)*l/r - xi(l+1),l=0,lmax)]
-       if (mode0 == 1) ddhs = [(xi(l)*l*(l+1)/r**2 - (2*l+3)/r*xi(l+1) + xi(l+2), l=0,lmax)]
-       if (mode0 == 2) ddhs = [(                   - (2*l+3)/r*xi(l+1) + xi(l+2), l=0,lmax)]
-       if (mode0 == 3) ddhs = [(xi(l)*l*(l-1)/r**2 - (2*l+1)/r*xi(l+1) + xi(l+2), l=0,lmax)]
+       ddhs = [(                   - (2*l+3)/r*xi(l+1) + xi(l+2), l=0,lmax)]
+       !       if (mode0 == 1) ddhs = [(xi(l)*l*(l+1)/r**2 - (2*l+3)/r*xi(l+1) + xi(l+2), l=0,lmax)]
+       !       if (mode0 == 2) ddhs = [(                   - (2*l+3)/r*xi(l+1) + xi(l+2), l=0,lmax)]
+       !       if (mode0 == 3) ddhs = [(xi(l)*l*(l-1)/r**2 - (2*l+1)/r*xi(l+1) + xi(l+2), l=0,lmax)]
     endif
-    if (mode1 /= 0) then
-       hsp   = [(xi(l-1)*r/2,                    l=0,lmax)]
-       dhsp  = [((xi(l-1)*l - xi(l)*r)/2,        l=0,lmax)]
-       ddhsp = [(- (2*l+3)*xi(l)/2 + xi(l+1)*r/2,l=0,lmax)]
-    endif
-    if(mode1 /= 0) hsp(0) = xi(-1)/2
+    !    if (mode1 /= 0) then
+    hsp   = [(xi(l-1)*r/2,                    l=0,lmax)]
+    dhsp  = [((xi(l-1)*l - xi(l)*r)/2,        l=0,lmax)]
+    ddhsp = [(- (2*l+3)*xi(l)/2 + xi(l+1)*r/2,l=0,lmax)]
+    !    endif
+    !       if(mode1 /= 0)
+    hsp(0) = xi(-1)/2
   end subroutine hansmd
 endmodule m_mtchae

@@ -5,9 +5,92 @@ module m_hansr
   ! “Nonsingular Hankel Functions as a New Basis for Electronic Structure Calculations.”
   ! Journal of Mathematical Physics 39, no. 6 (June 1, 1998): 3393–3425.
   ! https://doi.org/doi:10.1063/1.532437.
-  public hansr,hansmr ! hansmr is equilvaent to hansr except numerical accuracy problem. See note.
+  public hansmr,hansr,hansmronly !hansmr is equilvaent to hansr except numerical accuracy problem. See note.
+  logical:: hansmronly=.true. !new test 2023-10-31
   private
 contains
+  subroutine hansmr(r,e,a,xi,lmax) !Smoothed hankel functions for l=0...lmax, negative e.
+    !o  Outputs: xi(0:lmax)
+    !r   xi is the radial part divided by r**l.
+    !r   A solid smoothed hankel is from xi as   hl(ilm) = xi(l)*cy(ilm)*yl(ilm)
+    !r   See J. Math. Phys. 39, 3393 (1998).
+    !r    xi(l)= 2/sqrt(pi) * 2^l int_a^inf u^2l dexp(-r^2*u^2+kap2/4u^2) du
+    !NOTE: Except numerical minor differences, hansr is equivalent to hansr in m_hansr.
+    !  hansmr may have numerical problem for rms<1d-9 (tailsm.f90).
+    !  hansmr is used for core fitting parts, while hansr is for valence part. 
+    !        hansr: r is divided into three section. Less smoothness but numerically good overall
+    !        hansmr: better smoothness but less accurate probably when rsm<1d-9 <== But this does not cause problems
+    !                since we usually use rsm = 2/3*R_muffintin
+    !               (Thus we need special treatements as in tailsm.f90). 2022-6-29
+    implicit none
+    integer :: lmax,l,n,nmax
+    real(8) :: r,e,a,xi(0:lmax),a0(0:40),a2,add,akap,al,cc,dudr,ema2r2,fac, &
+         gl,r2n,radd,rfac,rhs,rlim,srpi,sum,ta,ta2l,tol,u,uminus,uplus,w,derfc
+    parameter (nmax=1000, tol=1d-20, srpi=1.77245385090551602729817d0)
+    if (e > 0d0  ) call rx('hansmr: e gt 0')
+    if (lmax > 40) call rx('hansmr: lmax gt 40')
+    rlim = 1.5d0/a
+    akap = dsqrt(dabs(e))
+    ta = a+a
+    a2 = a*a
+    cc = 4d0*a2*a*dexp(e/(ta*ta))/srpi
+    if (a*r > 10d0) then !call bessl if exp(-a*a*r*r) is very small ---
+       call bessl(e*r*r,lmax,a0,xi)
+       rfac = r
+       do  l = 0, lmax
+          rfac = rfac*(1d0/(r*r))
+          xi(l) = rfac*xi(l)
+       enddo
+    elseif(r<=rlim) then    ! --- Power series for small r ---
+       a0(0) = cc/(ta*a) - akap*derfc(akap/ta)
+       rhs = cc
+       fac = 1d0
+       al = a0(0)
+       do  l = 1, lmax
+          al = -(e*al+rhs)/(2*l*(2*l+1))
+          rhs = -rhs*a2/l
+          fac = -2d0*fac*l
+          a0(l) = fac*al
+       enddo
+       ta2l = 1d0
+       do  l = 0, lmax
+          rhs = cc*ta2l
+          sum = a0(l)
+          add = sum
+          r2n = 1d0
+          do n = 1, nmax
+             add = -(e*add+rhs)/( 2*n*(2*n+(l+l+1)) )
+             r2n = r2n*(r*r)
+             radd = add*r2n
+             sum = sum+radd
+             if (dabs(radd) < tol) goto 22
+             rhs = -rhs*a2/n
+          enddo
+          print *, 'hansmr (warning): power series did not converge'
+22        continue
+          xi(l) = sum
+          ta2l = ta2l*(2d0*a2)
+       enddo
+    else     ! --- Big r: make xi0,xi1 explicitly; the higher l by recursion ---
+       ema2r2 = dexp(-a*a*r*r)
+       uminus = derfc(akap/ta-r*a)*dexp(-akap*r)
+       uplus = derfc(akap/ta+r*a)*dexp(+akap*r)
+       u = .5d0*(uminus-uplus)
+       w = -.5d0*(uminus+uplus)
+       dudr = akap*w + ta*dexp(e/(ta*ta))*ema2r2/srpi
+       xi(0) = u/r
+       if (lmax >= 1) then
+          xi(1) = (u/r - dudr)/(r*r)
+          gl = cc*ema2r2
+          if (lmax >= 2) then
+             do  l = 2, lmax
+                xi(l) = ((2*l-1)*xi(l-1) -e*xi(l-2) - gl)/(r*r)
+                gl = 2d0*a2*gl
+             enddo
+          endif
+       endif
+    endif
+  end subroutine hansmr
   subroutine hansr(rsm,lmn,lmx,nxi,lxi,exi,rsq,nrx,nr,idx,job,xi) !- Vector of smoothed Hankel functions, set of negative e's
     !i Inputs
     !i   rsm     smoothing radius of smoothed Hankel
@@ -365,87 +448,6 @@ contains
        xi(1:nr,l) = ((2*l-1)*xi(1:nr,l-1) - e*xi(1:nr,l-2))/rsq(1:nr)
     enddo
   end subroutine hanr
-  subroutine hansmr(r,e,a,xi,lmax) !Smoothed hankel functions for l=0...lmax, negative e.
-    !o  Outputs: xi(0:lmax)
-    !r   xi is the radial part divided by r**l.
-    !r   A solid smoothed hankel is from xi as   hl(ilm) = xi(l)*cy(ilm)*yl(ilm)
-    !r   See J. Math. Phys. 39, 3393 (1998).
-    !r    xi(l)= 2/sqrt(pi) * 2^l int_a^inf u^2l dexp(-r^2*u^2+kap2/4u^2) du
-    !NOTE: Except numerical minor differences, hansr is equivalent to hansr in m_hansr.
-    !  hansmr may have numerical problem for rms<1d-9 (tailsm.f90).
-    !  hansmr is used for core fitting parts, while hansr is for valence part. 
-    !        hansr: r is divided into three section. Less smoothness but numerically good overall
-    !        hansmr: better smoothness but less accurate probably when rsm<1d-9
-    !               (Thus we need special treatements as in tailsm.f90). 2022-6-29
-    implicit none
-    integer :: lmax,l,n,nmax
-    real(8) :: r,e,a,xi(0:lmax),a0(0:40),a2,add,akap,al,cc,dudr,ema2r2,fac, &
-         gl,r2n,radd,rfac,rhs,rlim,srpi,sum,ta,ta2l,tol,u,uminus,uplus,w,derfc
-    parameter (nmax=1000, tol=1d-20, srpi=1.77245385090551602729817d0)
-    if (e > 0d0  ) call rx('hansmr: e gt 0')
-    if (lmax > 40) call rx('hansmr: lmax gt 40')
-    rlim = 1.5d0/a
-    akap = dsqrt(dabs(e))
-    ta = a+a
-    a2 = a*a
-    cc = 4d0*a2*a*dexp(e/(ta*ta))/srpi
-    if (a*r > 10d0) then !call bessl if exp(-a*a*r*r) is very small ---
-       call bessl(e*r*r,lmax,a0,xi)
-       rfac = r
-       do  l = 0, lmax
-          rfac = rfac*(1d0/(r*r))
-          xi(l) = rfac*xi(l)
-       enddo
-    elseif(r<=rlim) then    ! --- Power series for small r ---
-       a0(0) = cc/(ta*a) - akap*derfc(akap/ta)
-       rhs = cc
-       fac = 1d0
-       al = a0(0)
-       do  l = 1, lmax
-          al = -(e*al+rhs)/(2*l*(2*l+1))
-          rhs = -rhs*a2/l
-          fac = -2d0*fac*l
-          a0(l) = fac*al
-       enddo
-       ta2l = 1d0
-       do  l = 0, lmax
-          rhs = cc*ta2l
-          sum = a0(l)
-          add = sum
-          r2n = 1d0
-          do n = 1, nmax
-             add = -(e*add+rhs)/( 2*n*(2*n+(l+l+1)) )
-             r2n = r2n*(r*r)
-             radd = add*r2n
-             sum = sum+radd
-             if (dabs(radd) < tol) goto 22
-             rhs = -rhs*a2/n
-          enddo
-          print *, 'hansmr (warning): power series did not converge'
-22        continue
-          xi(l) = sum
-          ta2l = ta2l*(2d0*a2)
-       enddo
-    else     ! --- Big r: make xi0,xi1 explicitly; the higher l by recursion ---
-       ema2r2 = dexp(-a*a*r*r)
-       uminus = derfc(akap/ta-r*a)*dexp(-akap*r)
-       uplus = derfc(akap/ta+r*a)*dexp(+akap*r)
-       u = .5d0*(uminus-uplus)
-       w = -.5d0*(uminus+uplus)
-       dudr = akap*w + ta*dexp(e/(ta*ta))*ema2r2/srpi
-       xi(0) = u/r
-       if (lmax >= 1) then
-          xi(1) = (u/r - dudr)/(r*r)
-          gl = cc*ema2r2
-          if (lmax >= 2) then
-             do  l = 2, lmax
-                xi(l) = ((2*l-1)*xi(l-1) -e*xi(l-2) - gl)/(r*r)
-                gl = 2d0*a2*gl
-             enddo
-          endif
-       endif
-    endif
-  end subroutine hansmr
 end module m_hansr
 
 subroutine corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc, rfoc,z) !Returns parameters for Zc part of Eq.(28) TK.JPSJ034702

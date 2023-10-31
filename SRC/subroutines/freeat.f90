@@ -1087,7 +1087,7 @@ contains
   end subroutine gintsl
 subroutine tailsm(lrhot,nr,nrmt,nsp,a,b,rmt,rsm,nxi0,nxi,exi,rofi, rho,rhot,hfc,hfct)  !- Fit tails of rho to smoothed Hankel functions
   use m_lgunit,only:stdo
-  use m_hansr,only :hansr,hansmr
+  use m_hansr,only :hansr,hansmr,hansmronly
   ! ----------------------------------------------------------------------
   !i Inputs
   !i   lrhot :0 make fit for rho only; 1 make fit for rho and rhot
@@ -1121,9 +1121,9 @@ subroutine tailsm(lrhot,nr,nrmt,nsp,a,b,rmt,rsm,nxi0,nxi,exi,rofi, rho,rhot,hfc,
   double precision :: a,b,rmt,rsm
   double precision :: hfc(nxi0,nsp),exi(nxi),rho(*),rofi(nr),hfct(nxi0,nsp),rhot(*)
   logical :: lzero
-  integer:: lx0(20) , isp , ie , ir , ipr
+  integer:: lx0(20) , isp , ie , ir , ipr,ixi
   integer,allocatable :: idx_rv(:)
-  real(8) ,allocatable :: xi_rv(:)
+  real(8) ,allocatable :: xi_rv(:,:)
   double precision :: sr,x0(0:2),xi(0:2),fpi,qout,qcst(20),qcst0(20), err,rsq(nr)
   print *,'tailsm: init'
   fpi = 16*datan(1d0)
@@ -1131,12 +1131,20 @@ subroutine tailsm(lrhot,nr,nrmt,nsp,a,b,rmt,rsm,nxi0,nxi,exi,rofi, rho,rhot,hfc,
   ! --- Tabulate smoothed Hankels on a radial mesh ---
   rsq = rofi**2
   lx0=0d0
-  allocate(xi_rv(nr*nxi))
+  allocate(xi_rv(nr,nxi))
   allocate(idx_rv(nr*2))
   !     Patch to properly handle case when rsm=0
   lzero = rsq(1) .eq. 0 .and. rsm .eq. 0
   if (lzero) rsq(1) = rsq(2)/100
-  call hansr ( rsm , 0 , 0 , nxi , lx0 , exi , rsq , nr , nr , idx_rv, 0 , xi_rv )
+  if(hansmronly) then
+     do ir=1,nr
+        do ixi=1,nxi
+           call hansmr(rofi(ir),exi(ixi),1d0/rsm,xi_rv(ir,ixi),0)
+        enddo
+     enddo
+  else
+     call hansr( rsm , 0 , 0 , nxi , lx0 , exi , rsq , nr , nr , idx_rv, 0 , xi_rv )
+  endif
   if (lzero) rsq(1) = 0
   deallocate(idx_rv)
   ! --- Fit smoothed hankels to rho ---

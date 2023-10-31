@@ -3,7 +3,7 @@ module m_makusp
   private
 contains
   subroutine makusp(n0,z,nsp,rmax,lmxa,v,a,nr,pnu,pnz,rsml,ehl, ul,sl,gz,ruu,rus,rss)!Augmentation func. of pure val,slo (times r) for spherical V and b.c.
-    use m_hansr,only: hansr
+    use m_hansr,only: hansr,hansmr,hansmronly
     use m_atwf,only: makrwf
     !r  ul: linear combination of phi,phidot val=1 slo=0
     !r  sl: linear combination of phi,phidot val=0 slo=1   ul and sl are r * u and r * s, respectively.
@@ -59,8 +59,13 @@ contains
           if (lpzi /= 0) then
              call makrwf(z,rmax,l,v(1,i),a,nr,rofi,pnz(1,i),2, gzl,gp,ez,phz,dphz,phip,dphip,p)
              if (lpzi > 1) then !  Scale extended local orbital
-                call hansr(rsml(l),0,l,1,[l],[ehl(l)],[rmax**2],1,1,[idx],11,xi)
-                fac1 = gzl(nr,1)/rmax/xi(l)
+                if(hansmronly) then
+                   call hansmr(rmax,ehl(l),1d0/rsml(l),xi,l) 
+                   fac1 = gzl(nr,1)/rmax/xi(l)/rmax**l
+                else
+                   call hansr(rsml(l),0,l,1,[l],[ehl(l)],[rmax**2],1,1,[idx],11,xi)
+                   fac1 = gzl(nr,1)/rmax/xi(l)
+                endif
                 gzl=gzl/fac1 
              endif
           endif
