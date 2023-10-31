@@ -81,7 +81,7 @@ contains
     deallocate(smav)
     pvdf4:block
       use m_lattic,only: rv_a_opos
-      use m_hansr,only:corprm
+!      use m_hansr,only:corprm
       integer :: ig,ib,ilm,l,m,nlm,lfoc
       real(8):: tau(3),df(0:20),rg,qcorg,qcorh,qsc,cofg,cofh,ceh,rfoc,z,gam,gamf,cfoc,cvol
       complex(8):: cof(nlmxlx),cfac,phase(ng),img=(0d0,1d0)
@@ -156,7 +156,7 @@ contains
     use m_lmfinit,only:lat_alat,pnuall,pnzall
     use m_lattic,only: lat_vol,rv_a_opos
     use m_supot,only: n1,n2,n3
-    use m_hansr,only:corprm
+!    use m_hansr,only:corprm
     implicit none
     intent(in)::   job,nsp,ib,qmom, qmout,ng,gv,g2,yl,iv,qlat,kmax,cnomin,cdvxc,cvin,qloc
     intent(out)::                                                                               fes1,fes2,fxc

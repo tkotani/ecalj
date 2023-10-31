@@ -13,7 +13,7 @@ contains
     use m_MPItk,only: master_mpi
     use m_ext,only: sname
     use m_esmsmves,only: esmsmves
-    use m_hansr,only:corprm
+!    use m_hansr,only:corprm
     use m_vesgcm,only: vesgcm
     use m_ftox
     !i   n1,n2,n3 dimensions of smrho,smpot for smooth mesh density
@@ -311,7 +311,7 @@ contains
     use m_smhankel,only:hhugbl,hgugbl,ggugbl
     use m_lattic,only: rv_a_opos
     use m_lmfinit,only: ispec
-    use m_hansr,only:corprm
+!    use m_hansr,only:corprm
     !i   qmom  :multipole moments of on-site densities (rhomom.f). defined at Eq.(25)
     ! o Inputs/Outputs
     ! o  Let n0  = smooth potential without compensating gaussians

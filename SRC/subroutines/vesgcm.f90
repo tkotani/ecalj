@@ -9,7 +9,7 @@ module m_vesgcm
     use m_lattic,only: vol=>lat_vol,rv_a_opos
     use m_lgunit,only:stdo
     use m_supot,only: k1=>n1,k2=>n2,k3=>n3
-    use m_hansr,only:corprm
+!    use m_hansr,only:corprm
     !i   cy    :Normalization constants for spherical harmonics
     !i   qmom  :multipole moments of on-site the local density:
     !i         :integral r^l (rho1-rho2) + l=0 contr. from core spillout

@@ -10,8 +10,8 @@ module m_smhankel   !2023-4-28 memo: TK added qshortn(q). This allows q is not n
   ! Journal of Mathematical Physics 39, no. 6 (June 1, 1998): 3393–3425.
   ! https://doi.org/doi:10.1063/1.532437.
   implicit none
-  public hxpbl,hxpgbl, hhibl,hhigbl, hhugbl,hgugbl,ggugbl, hxpos !*bl means blochsum. *g* means gradient. xp means expansion. hhig means integral of h*h
-         !xp=expansion !hh integral  !hg integral       !expansion 
+  public hxpbl,hxpgbl,  hhibl,hhigbl,hhugbl, hgugbl, ggugbl, hxpos !*bl means blochsum. *g* means gradient. xp means expansion. hhig means integral of h*h
+         !xp=expansion !hh integral         !hg integral    !ggintegral   !expansion 
   private
 contains
   subroutine hhugbl(mode,p1,p2,rsm1,rsm2,e1,e2,nlm1,nlm2,ndim1,ndim2, s,ds) ! Estatic energy integrals between Bloch Hankels, and gradients.

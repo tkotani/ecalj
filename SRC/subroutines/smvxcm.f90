@@ -329,7 +329,7 @@ contains
     use m_struc_def  
     use m_lattic,only: rv_a_opos
     use m_lmfinit,only: ispec
-    use m_hansr,only:corprm
+!    use m_hansr,only:corprm
     !i   cy    :Normalization constants for spherical harmonics
     !i   ng    :number of G-vectors
     !i   gv    :list of reciprocal lattice vectors G (gvlist.f)
@@ -491,7 +491,7 @@ contains
     use m_struc_def           
     use m_lmfinit,only:lat_alat
     use m_lattic,only: lat_vol,rv_a_opos
-    use m_hansr,only: corprm
+!    use m_hansr,only: corprm
     !i   nbas  :size of basis
     !i   ng    :number of G-vectors
     !i   gv    :list of reciprocal lattice vectors G (gvlist.f)

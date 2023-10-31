@@ -9,7 +9,7 @@ contains
 
     use m_supot,only: ng=>lat_ng,rv_a_ogv,iv_a_okv,rv_a_ogv,n1,n2,n3
     use m_lmfinit,only:alat=>lat_alat,nsp,nbas,nspec,ispec,qbg=>zbak,slabl,v0fix
-    use m_lattic,only: plat=>lat_plat,vol=>lat_vol
+    use m_lattic,only: vol=>lat_vol
     use m_struc_def,only: s_rv1,s_rv2
     use m_ext,only: sname
     use m_lgunit,only:stdo,stdl
@@ -24,8 +24,7 @@ contains
     !o Outputs
     !o   orhoat: vector of offsets containing site density, in standard
     !o           3-component form (true rho, smoothed rho, core rho)
-    !o   smrho :smoothed interstitial density
-    !o         : smrho is complex and smrho = smrho(n1,n2,n3)
+    !o   smrho :smoothed interstitial density, complex (for computational convenience)
     ! ----------------------------------------------------------------------
     implicit none
     integer :: procid, master, mpipid, nrmx, n0,i_spec
@@ -243,7 +242,7 @@ contains
     use m_smhankel,only: hxpbl
     use m_lattic,only: rv_a_opos
     use m_smhankel,only: hxpos
-    use m_hansr,only:corprm
+!    use m_hansr,only:corprm
     !i   nbas  :size of basis
     !i   nxi   :number of Hankels
     !i   nxi0  :leading dimension of hfc
@@ -262,8 +261,7 @@ contains
     type(s_rv1) :: rv_a_orhofa(nbas)
     real(8):: rsmfa(1),exi(nxi0,1),hfc(nxi0,2,1),sqloc,slmom
     integer:: ib,ipr,iprint,is,jb,je,js,lfoca,lmxl,nlmh,nlml,nr,i
-    real(8) :: ceh,cofg,cofh,eh,qcorg,qcorh,qsc,qcsm,qloc,rfoca,rmt,rsmh,rsmv,z,amom
-    real(8) :: a,p1(3), p2(3)
+    real(8) :: ceh,cofg,cofh,eh,qcorg,qcorh,qsc,qcsm,qloc,rfoca,rmt,rsmh,rsmv,z,amom, a,p1(3), p2(3)
     real(8),allocatable:: acof(:,:,:),b0(:,:),rofi(:),rwgt(:)
     complex(8),allocatable:: b(:,:)
     integer:: ibini,ibend
@@ -370,7 +368,7 @@ contains
          rho2(nr,nlml,nsp),rofi(nr),rwgt(nr),rhohd(nr,nsp),exi(1), &
          hfc(nxi0,nsp),rhoc(nr,nsp),acof(0:kmxv,nlml,nsp),rsmv,rsmfa,amom
     real(8) :: asm,gam,pi,qall,qexa,qin,qlc,qnum,qout,qsmo,qut, &
-         r,rl,rmt,srfpi,sum,sumfa,sumhd,sumsm,sumtr,y0, xi(0:10),x0(0:2),ddot !pkl(0:kmx,0:lmx)
+         r,rl,rmt,srfpi,ssum,sumfa,sumhd,sumsm,sumtr,y0, xi(0:10),x0(0:2),ddot !pkl(0:kmx,0:lmx)
     real(8),allocatable:: pkl(:,:)
     ipr   = iprint()
     pi    = 4d0*datan(1d0)
@@ -386,11 +384,11 @@ contains
     asm = 1d0/rsmfa
     lmax = 0
     do  ie = 1, nxi
-       sum = 0d0
+       ssum = 0d0
        do  i = 1, nr
           r = rofi(i)
           call hansmr(r,exi(ie),asm,xi,lmax)
-          sum = sum + srfpi*rwgt(i)*xi(0)*r*r
+          ssum = ssum + srfpi*rwgt(i)*xi(0)*r*r
           do  isp = 1, nsp
              rhohd(i,isp) = rhohd(i,isp) + srfpi*hfc(ie,isp)*xi(0)*r*r !Assemble smooth on-site head density in rhohd ---
           enddo
@@ -403,7 +401,7 @@ contains
        qout = srfpi/exi(ie)*(-dexp(rsmfa**2/4*exi(ie)) - rmt**3*(xi(1)-dexp(rsmfa**2/4*exi(ie))*x0(1)))
        qin = qall-qout
        do  isp = 1, nsp
-          qnum = qnum + hfc(ie,isp)*sum
+          qnum = qnum + hfc(ie,isp)*ssum
           qexa = qexa + hfc(ie,isp)*qin
           qsmo = qsmo + hfc(ie,isp)*qall
           qut  = qut  + hfc(ie,isp)*qout
@@ -413,56 +411,34 @@ contains
     do  i = 1, nr
        r = rofi(i)
        call radpkl(r,rsmv,kmxv,lmxl,kmxv,pkl)
-       do  isp = 1, nsp
-          do  ilm = 1, nlml
-             l = ll(ilm)
-             rl = 0.d0
-             if ( r > 0.d0 ) rl = r**l
-             do  k = 0, kmxv
-                rho2(i,ilm,isp) = rho2(i,ilm,isp) + acof(k,ilm,isp)*pkl(k,l)*r*r*rl !Assemble overlapped tail density in rho2 ---
-             enddo
+       do  ilm = 1, nlml
+          l = ll(ilm)
+          rl = 0d0
+          if( r > 0d0 ) rl = r**l
+          do k = 0, kmxv
+             rho2(i,ilm,:) = rho2(i,ilm,:) + acof(k,ilm,:)*pkl(k,l)*r*r*rl !Assemble overlapped tail density in rho2 ---
           enddo
        enddo
     enddo
-    ! ... Make the true density in rho1, smooth density in rho2
-    call dpcopy(rho2,rho1,1,nr*nlml*nsp,1d0)
-    do   isp = 1, nsp
-       do   i = 1, nr
-          rho1(i,1,isp) = rho1(i,1,isp) + y0*rhofa(i,isp)
-          rho2(i,1,isp) = rho2(i,1,isp) + y0*rhohd(i,isp)
-       enddo
+    rho1=rho2
+    do   i = 1, nr ! ... Make the true density in rho1, smooth density in rho2     !call dpcopy(rho2,rho1,1,nr*nlml*nsp,1d0)
+       rho1(i,1,:) = rho1(i,1,:) + y0*rhofa(i,:)
+       rho2(i,1,:) = rho2(i,1,:) + y0*rhohd(i,:)
     enddo
-    ! ... Do some integrals
-    sumfa = 0d0
-    sumsm = 0d0
-    sumhd = 0d0
-    sumtr = 0d0
-    qlc = 0d0
-    do   isp = 1, nsp
-       do   i = 1, nr
-          sumfa = sumfa + rwgt(i)*rhofa(i,isp)
-          sumhd = sumhd + rwgt(i)*rhohd(i,isp)
-          sumtr = sumtr + rwgt(i)*rho1(i,1,isp)
-          sumsm = sumsm + rwgt(i)*rho2(i,1,isp)
-          qlc = qlc + rwgt(i)*rhoc(i,isp)
-       enddo
-    enddo
-    sumsm = sumsm*srfpi
-    sumtr = sumtr*srfpi
+    sumfa = sum([(rwgt(i)*sum(rhofa(i,:)),i=1,nr)])
+    sumhd = sum([(rwgt(i)*sum(rhohd(i,:)),i=1,nr)])
+    sumsm = sum([(rwgt(i)*sum(rho2(i,1,:)),i=1,nr)])*srfpi
+    sumtr = sum([(rwgt(i)*sum(rho1(i,1,:)),i=1,nr)])*srfpi
+    qlc   = sum([(rwgt(i)*sum(rhoc(i,:)),i=1,nr)])
     qloc = sumtr-sumsm
-    amom = -srfpi* &
-         (ddot(nr,rwgt,1,rho1(1,1,nsp),1)-ddot(nr,rwgt,1,rho1(1,1,1),1) &
-         -ddot(nr,rwgt,1,rho2(1,1,nsp),1)+ddot(nr,rwgt,1,rho2(1,1,1),1))
+    amom = -srfpi* sum([(rwgt*(rho1(:,1,isp)-rho2(:,1,isp))*(3-2*isp),isp=1,nsp)])
+    !amom = -srfpi* (ddot(nr,rwgt,1,rho1(1,1,nsp),1)-ddot(nr,rwgt,1,rho1(1,1,1),1)-ddot(nr,rwgt,1,rho2(1,1,nsp),1)+ddot(nr,rwgt,1,rho2(1,1,1),1))
     if (lfoca == 0) qloc = qloc + qlc - qcsm
-    if (ipr >= 30) then
-       write(stdo,810) ib,sumfa,sumhd,sumtr,sumsm,qloc
-       if (nsp == 2) write(stdo,811) ddot(nr,rwgt,1,rhofa,1)-ddot(nr,rwgt,1,rhofa(1,2),1), &
+    if(ipr>=30)            write(stdo,"(i5,6f12.6)") ib,sumfa,sumhd,sumtr,sumsm,qloc
+    if(ipr>=30.and.nsp==2) write(stdo,"(' amom',6f12.6)") ddot(nr,rwgt,1,rhofa,1)-ddot(nr,rwgt,1,rhofa(1,2),1), &
             ddot(nr,rwgt,1,rhohd,1)-ddot(nr,rwgt,1,rhohd(1,2),1), &
             srfpi*(ddot(nr,rwgt,1,rho1,1)-ddot(nr,rwgt,1,rho1(1,1,2),1)), &
             srfpi*(ddot(nr,rwgt,1,rho2,1)-ddot(nr,rwgt,1,rho2(1,1,2),1)), amom
-    endif
-810 format(i5,6f12.6)
-811 format(' amom',6f12.6)
   end subroutine p2ovlc
   subroutine adbkql( sv_p_orhoat,nbas,nsp,qbg,vol,fac )!- Add uniform bkg charge density to local smooth rho
     use m_struc_def
@@ -470,13 +446,12 @@ contains
     !i orhoat: pointers to local density in spheres
     !i nbas: number of atoms in basis
     !i qbg: background charge
-    !i sspec: species structure
     !i nsp: spins
     !i vol: vol of cell
     !i fac: fac * backg density is added
     implicit none
     integer :: nrmx,nlmx,nlml,lmxl,nbas, nsp,ib,nr,is
-    parameter (nrmx=1501,nlmx=64)
+    parameter (nrmx=1501)
     type(s_rv1) :: sv_p_orhoat(3,nbas)
     real(8):: qbg,fac,rhobkg,vol,a,rmt,rofi(nrmx)
     rhobkg = fac*qbg/vol
@@ -489,7 +464,6 @@ contains
        rmt=rmt_i(is)
        nlml=(lmxl+1)**2
        call rxx(nr   > nrmx,'addbkgloc: increase nrmx')
-       call rxx(nlml > nlmx,'addbkgloc: increase nlmx')
        call radmsh(rmt,a,nr,rofi)
        call addbkgl(sv_p_orhoat(1,ib )%v,sv_p_orhoat(2,ib)%v, rhobkg,nr,nsp,rofi,nlml )
     enddo
