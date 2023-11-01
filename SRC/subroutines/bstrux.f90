@@ -1,6 +1,7 @@
-module m_bstrux ! Structure constants for P_kL expansion of Bloch lmto + PW around site ia
-  ! bstr is stored in p_bstr(ia,iq)%cv3(ndimh,nlma,0:kmax) by m_bstrx_init
-  ! "call bstrux_set(ia,iq)" rerurns  bstr(ndimh,nlma,0:kmax).
+!>Structure constants for P_kL expansion of Bloch lmto + PW around site ia
+module m_bstrux 
+  ! bstr are stored in p_bstr(ia,iq)%cv3(ndimh,nlma,0:kmax) by m_bstrx_init
+  ! "call bstrux_set(ia,iq)" rerurns  bstr(ndimh,nlma,0:kmax) and dbstr.
   use m_lmfinit,only: lmxa_i=>lmxa, kmxt_i=>kmxt,afsym
   use m_struc_def,only: s_cv3,s_cv4
   use m_lgunit,only:stdo
@@ -68,16 +69,13 @@ contains
   end subroutine m_bstrux_init
   subroutine bstrux(ia,pa,rsma,q,kmax,nlma,ndimh,napw,igapw,  b, db) !Structure constants for P_kL expansion of Bloch lmto + PW around site ia
     use m_smhankel,only: hxpbl,hxpgbl
-    use m_lmfinit,only:alat=>lat_alat,lhh,nkaphh,nkapii,ispec,nbas
+    use m_lmfinit,only:alat=>lat_alat,lhh,nkaphh,nkapii,ispec,nbas,n0,nkap0
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol,rv_a_opos
     use m_uspecb,only: uspecb
     use m_orbl,only: Orblib, norb,ltab,ktab,offl
     use m_smhankel,only: hxpos
+    use m_ropyln,only: ropyln
     !i Inputs
-    !i   cg    :Clebsch Gordon coefficients, stored in condensed form (scg.f)
-    !i   indxcg:index for Clebsch Gordon coefficients
-    !i   jcg   :L q.n. for the C.G. coefficients stored in condensed form (scg.f)
-    !i   cy    :Normalization constants for spherical harmonics
     !i   nbas  :size of basis
     !i   ia    :augmentation around site ia
     !i   pa    :position of site ia
@@ -90,112 +88,59 @@ contains
     !i   igapw :list of APW PWs
     !i   qlat  :primitive reciprocal lattice vectors, in units of 2*pi/alat
     !i   alat  :length scale of lattice and basis vectors, a.u.
-    !l Local variables
-    !l   nlmto :number of lmto's = ndimh - napw
-    !o Outputs
     !o     b(ndimh,nlma, 0:kmax)
     !o    db(ndimh,nlma, 0:kmax, 3)     ! Gradient is wrt head shift; use -db for grad wrt pa
-    !r Remarks
-    !r   Coefficients b are referred to as C_kL in the LMTO book.
+    !l Local variables
+    !l   nlmto :number of lmto's = ndimh - napw
+    !r Remarks  Coefficients b are referred to as C_kL in the LMTO book.
     implicit none
-    real(8):: pa(3) , q(3)
-    double precision :: rsma
-    integer :: kmax,ndimh,ia,nlma,napw
-    integer :: igapw(3,napw)
+    integer :: kmax,ndimh,ia,nlma,napw, nlmto,ib,is,ik,nkapi,nlmh,k,lmxa,l,ig,ilm,m, igapw(3,napw),lh(nkap0)
     complex(8):: b(ndimh,nlma,0:kmax), db(ndimh,nlma,0:kmax,3)
-    integer :: nlmto,nlmbx,ib,is,ik,n0,nkap0,nkapi,nlmh
-    parameter (nlmbx=25,n0=10,nkap0=3)
-    integer :: lh(nkap0),ilm
-    double precision :: eh(n0,nkap0),rsmh(n0,nkap0)
-    double precision :: p(3),xx,srvol
-    real(8),allocatable:: bos(:,:)
+    real(8):: pa(3), q(3),rsma,eh(n0,nkap0),rsmh(n0,nkap0),p(3),xx,srvol
+    real(8):: gamma,qpg(3),tpiba,qpg2(1),facexp,rsmal,pgint,dfac(0:kmax),fac2l(0:nlma),yl(nlma),fac
+    complex(8):: srm1=(0d0,1d0),gfourier,phase,facilm
+    real(8),parameter:: pi = 4d0*datan(1d0),fpi = 4*pi
     call tcn('bstrux')
     srvol = dsqrt(vol)
     nlmto = ndimh-napw
     b=0d0 
     db=0d0
-    ! --- b for MTO  (Written as C_kl in LMTO book) ---
-    if(nlmto > 0) then
-       allocate(bos(0:kmax,ndimh),source=0d0)
-       do  ib = 1, nbas
-          is= ispec(ib) 
-          p = rv_a_opos(:,ib) 
-          call uspecb(is,rsmh,eh)
-          call orblib(ib) !Return norb,ltab,ktab,offl
-          do  ik = 1, nkaphh(is) ! Loop over blocks of envelope functions
-             nlmh = (lhh(ik,is)+1)**2
-             b0tob: block
-               integer::ol,oi,ik1,iorb,iblk,k,ntab(norb),blks(norb)
-               complex(8):: b0(0:kmax,nlma,nlmh),db0(0:kmax,nlma,nlmh,3)
-               call hxpgbl(p,pa,q,rsmh(1,ik),rsma,eh(1,ik),kmax,nlmh,nlma,kmax,nlmh,nlma,b0,db0)
-               if (ib == ia) then
-                  call hxpos(rsmh(1,ik),rsma,eh(1,ik),kmax,nlmh,kmax,bos)    !Subtract on-site strux for ib=ia, leaving tail expansion
-                  forall(ilm = 1:nlmh) b0(0:kmax,ilm,ilm) = b0(0:kmax,ilm,ilm)-bos(0:kmax,ilm)
-               endif
-!               call prlcb1(ndimh,ik,norb,ltab,ktab,rsmh,offl,nlmh,  nlma,kmax,b0,db0,b,db)
-           endblock b0tob
-          enddo
-       enddo
-    endif
-    call paugqp(kmax,nlma,kmax,ndimh,napw,igapw,alat,qlat,srvol,q,pa,rsma,b,b,db)
-    call tcx('bstrux')
-  end subroutine bstrux
-  subroutine prlcb1(ndimh,ik,norb,ltab,ktab,rsmh,offl,nlmbx,nlma,kmax,b0,db0,b,db)
-    use m_lmfinit,only: n0,nkap0
-    implicit none
-    integer :: kmax,ndimh,ik,nlma,nlmbx
-    integer :: norb,ltab(norb),ktab(norb),offl(norb)
-    double precision :: rsmh(n0,nkap0)
-    double complex b0(0:kmax,nlma,nlmbx),b(ndimh,nlma,0:kmax)
-    complex(8),optional::db0(0:kmax,nlma,nlmbx,3),db(ndimh,nlma,0:kmax,3)
-    integer :: i1,ik1,k,ilma,ilmb,iorb,l1,nlm1,nlm2
-    integer :: blks(norb),ntab(norb),ol,oi,iblk
-    double precision :: xx
-    !     Block into groups of consecutive l
-    call gtbsl1(0,norb,ltab,ktab,rsmh,xx,ntab,blks)
-    do  iorb = 1, norb
-       ik1 = ktab(iorb)
-       if(ik1 /= ik) cycle
-       ol = ltab(iorb)**2
-       oi = offl(iorb)
-       do iblk = 1, blks(iorb)
-          b(oi+iblk,:,0:kmax) = transpose(b0(0:kmax,:,ol+iblk))
-          do  k = 0, kmax
-             db(oi+iblk,:,k,:) = db0(k,:,ol+iblk,:)
-          enddo
+    if(nlmto==0) goto 500 
+    do ib= 1, nbas !MTO part 
+       is= ispec(ib) 
+       p = rv_a_opos(:,ib) 
+       call uspecb(is,rsmh,eh)
+       call orblib(ib) !Return norb,ltab,ktab,offl
+       do ik = 1, nkaphh(is) ! Loop over blocks of envelope functions
+          nlmh = (lhh(ik,is)+1)**2
+          b0tob: block
+            integer::ol,oi,ik1,iorb,iblk,k,ntab(norb),blks(norb)
+            complex(8):: b0(0:kmax,nlma,nlmh),db0(0:kmax,nlma,nlmh,3)
+            real(8):: bos(0:kmax,nlmh) 
+            call hxpgbl(p,pa,q,rsmh(1,ik),rsma,eh(1,ik),kmax,nlmh,nlma,kmax,nlmh,nlma,b0,db0)
+            if (ib == ia) then
+               call hxpos(rsmh(1,ik),rsma,eh(1,ik),kmax,nlmh,kmax,bos)    !Subtract on-site strux for ib=ia, leaving tail expansion
+               forall(ilm = 1:nlmh) b0(0:kmax,ilm,ilm) = b0(0:kmax,ilm,ilm)-bos(0:kmax,ilm)
+            endif
+            call gtbsl1(0,norb,ltab,ktab,rsmh,xx,ntab,blks)
+            do  iorb = 1, norb
+               ik1 = ktab(iorb)
+               if(ik1 /= ik) cycle
+               ol = ltab(iorb)**2 !atomic  offset
+               oi = offl(iorb)    !overall offset
+               do iblk = 1, blks(iorb)
+                  do  k = 0, kmax
+                     b(oi+iblk,:,k)    = b0(k, :,ol+iblk)  
+                     db(oi+iblk,:,k,:) = db0(k,:,ol+iblk,:)
+                  enddo
+               enddo
+            enddo
+          endblock b0tob
        enddo
     enddo
-  end subroutine prlcb1
-  subroutine paugqp(kmax,nlma,k0,ndimh,napw,igapw,alat,qlat,srvol,q,pa,rsma, b0,b1,db) !- Make PW part of strux b
-    use m_ropyln,only: ropyln
-    !i   kmax  :Pkl polynomial cutoff
-    !i   nlma  :augmentation L-cutoff
-    !i   k0    :dimensionsb
-    !i   ndimh :hamiltonian dimension
-    !i   napw  :number of augmented PWs in basis
-    !i   igapw :vector of APWs, in units of reciprocal lattice vectors
-    !i   alat  :length scale of lattice and basis vectors, a.u.
-    !i   srvol :sqrt(vol)
-    !i   qlat  :primitive reciprocal lattice vectors, in units of 2*pi/alat
-    !i   q     :q-point for Bloch sum
-    !i   pa    :position of site ia
-    !i   rsma  :augmentation smoothing radius
-    !o Outputs
-    !o   b     :PW part of 1-center epansion is poked into b
-    implicit none
-    integer :: kmax,nlma,k0,napw,igapw(3,napw),ndimh
-    double precision :: rsma,alat,qlat(3,3),q(3),srvol,pa(3)
-    complex(8):: b0(0:k0,nlma,ndimh),b1(ndimh,nlma,0:k0), db(ndimh,nlma,0:k0,3)
-    integer :: k,lmxa,l,ig,ilm,m,nlmto
-    double precision :: gamma,qpg(3),pi,tpiba,qpg2(1),ddot,facexp, &
-         rsmal,pgint,dfac(0:kmax),fac2l(0:nlma),yl(nlma),fpi,fac ,qk
-    double complex srm1,srm1l,gfourier,phase,facilm,b
-    parameter (srm1=(0d0,1d0))
-    if (napw == 0) return
-    nlmto = ndimh - napw
-    pi = 4d0*datan(1d0)
-    fpi = 4*pi
-    tpiba = 2d0*pi/alat
+500 continue
+    if(napw == 0) goto 1000
+    tpiba = 2d0*pi/alat !APW part ! call paugqp(kmax,nlma,ndimh,napw,igapw,alat,qlat,srvol,q,pa,rsma,b,db)
     gamma = rsma**2/4d0
     lmxa = ll(nlma)
     fac2l(0) = 1d0
@@ -209,7 +154,7 @@ contains
     do  ig = 1, napw
        qpg = tpiba * ( q + matmul(qlat,igapw(1:3,ig)) )
        call ropyln(1,qpg(1),qpg(2),qpg(3),lmxa,1,yl,qpg2)
-       phase = exp(srm1*alat*ddot(3,qpg,1,pa,1))
+       phase = exp(srm1*alat*sum(qpg*pa))
        facexp = exp(-gamma*qpg2(1))
        do ilm=1,(lmxa+1)**2
           l=ll(ilm)
@@ -218,10 +163,12 @@ contains
           do  k = 0, kmax
              pgint =  dfac(k)*fac*(4/rsma**2)**k    ! Eq. 12.8 in JMP39 3393
              gfourier = (-qpg2(1))**k*facilm*facexp ! Eq.5.17
-             b1(ig+nlmto,ilm,k)   = gfourier/pgint/srvol*phase
-             db(ig+nlmto,ilm,k,:) = -srm1*qpg(:) * b1(ig+nlmto,ilm,k)
+             b(ig+nlmto,ilm,k)   = gfourier/pgint/srvol*phase
+             db(ig+nlmto,ilm,k,:) = -srm1*qpg(:) * b(ig+nlmto,ilm,k)
           enddo
        enddo
-    enddo
-  end subroutine paugqp
+    enddo 
+1000 continue
+    call tcx('bstrux')
+  end subroutine bstrux
 end module m_bstrux

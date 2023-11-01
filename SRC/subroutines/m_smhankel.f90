@@ -550,7 +550,7 @@ contains
     integer:: nlm0,lmax,nrx,owk,oyl,job, ilm,k
     parameter ( nlm0=196 )
     real(8) :: q(3),p1(3),faca,fpi,y0,e
-    complex(8):: fsm(nlm0),gklsav,gklnew,fkl(0:k0,nlm)
+    complex(8):: fsm(nlm0),gklsav,gklnew,fkl(0:k0,nlm),gkl(0:k0,nlm)
     parameter (faca=1d0)
     real(8),allocatable:: wk(:),yl(:)
     if (nlm == 0) return
@@ -566,17 +566,14 @@ contains
     nrx = max(nkd,nkq)
     allocate( yl(nrx*(lmax+1)**2))
     call hsmqe0 ( lmax,rsm,0,qshortn(q),p1,nrx,nlm,yl, awald,alat,qlv,nkq,dlv,nkd,vol, fsm  )
-    if (rsm > faca/awald) then; call gklbl(p1,rsm,e,q,kmax-1,nlm,k0, fkl) 
-    else;                       call gklq(lmax,rsm,q,p1,e,kmax-1,k0,alat, nrx,yl,fkl )
+    if (rsm > faca/awald) then; call gklbl(p1,rsm,e,q,kmax-1,nlm,k0, gkl) 
+    else;                       call gklq(lmax,rsm,q,p1,e,kmax-1,k0,alat, nrx,yl,gkl )
     endif
     deallocate(yl)
     do ilm = 1, nlm ! ... Upward recursion in k: mainly sets fkl = -4*pi * g(k-1,l)
-       gklsav = fkl(0,ilm)
        fkl(0,ilm) = fsm(ilm)
        do    k = 1, kmax
-          gklnew = fkl(k,ilm)
-          fkl(k,ilm) = -fpi*gklsav
-          gklsav = gklnew
+          fkl(k,ilm) = -fpi*gkl(k-1,ilm) 
        enddo
     enddo
     fkl(1,1) = fkl(1,1) + fpi*y0/vol !! ... Add extra term to F(k=1,l=0)
