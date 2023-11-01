@@ -3,7 +3,7 @@ module m_tetirr
   private
   contains
   subroutine tetirr(qb,n1,n2,n3,ipq,ntet,idtet)
-  use m_lmfinit,only: stdo
+  use m_lgunit,only: stdo
   !-  Finds inequivalent tetrahedra and counts them
   ! ----------------------------------------------------------------------
   !i Inputs:

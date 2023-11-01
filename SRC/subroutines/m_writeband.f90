@@ -4,7 +4,8 @@ module m_writeband
   private
 contains
   subroutine writeband(evlall,eferm,evtop,ecbot) !write band file. bnd* and bandplot.isp*.glt
-    use m_lmfinit,only:stdo,nsp,alat=>lat_alat
+    use m_lgunit,only:stdo
+    use m_lmfinit,only:nsp,alat=>lat_alat
     use m_qplist,only: nkp,nsyml,xdatt,nqp_syml,nqp2n_syml,qplist,labeli,labele,nqps_syml,nqpe_syml,dqsyml,etolv,etolc
     use m_suham,only: ndham=>ham_ndham, ndhamx=>ham_ndhamx,nspx=>ham_nspx
     use m_bandcal,only:nevls

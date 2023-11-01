@@ -49,7 +49,8 @@ subroutine rhomom(sv_p_orhoat, qmom,vsum)
   220 format(i13,i6,f12.6,f12.6,2f9.2)
 end subroutine rhomom
 subroutine pvrhom(rmt,a,nlml,nr,nsp,rho1,rho2,rhoc,cofg,z, qmomj,vsum1,vsum2)  !Multipole moments qmom = Q_L = Q_aL^Zc+ Q_aL^v (See.Eq.(28),(30) in JPSJ034702)
-  use m_hansr,only: hansmr
+  use m_hansmr,only: hansmr,hansmronly
+  use m_hansr,only:  hansr
   use m_ll,only:ll
   !i   nlml  :L-cutoff for charge
   !i   nr    :number of radial mesh points

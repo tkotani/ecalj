@@ -1,27 +1,28 @@
 !>Smooth Hankel functions in real space. JMP39: https://doi.org/doi:10.1063/1.532437.
-module m_hansr 
+module m_hansmr 
   ! JMP39:
   ! Bott, E., M. Methfessel, W. Krabs, and P. C. Schmidt.
   ! “Nonsingular Hankel Functions as a New Basis for Electronic Structure Calculations.”
   ! Journal of Mathematical Physics 39, no. 6 (June 1, 1998): 3393–3425.
   ! https://doi.org/doi:10.1063/1.532437.
-  public hansmr,hansr,hansmronly !hansmr is equilvaent to hansr except numerical accuracy problem. See note.
-  logical:: hansmronly=.true. !new test 2023-10-31
+  public hansmr,hansmronly !hansmr is equilvaent to hansr except numerical accuracy problem. See note.
+  logical:: hansmronly=.true. !new test 2023-10-31. If =.false., we use hansr instead of hansmr in places (recover Mark's original setting at 2009).
   private
 contains
-  subroutine hansmr(r,e,a,xi,lmax) !Smoothed hankel functions for l=0...lmax, negative e.
+  subroutine hansmr(r,e,a,xi,lmax) !Smoothed hankel functions for l=0...lmax, negative e. a=1/rsm
     !o  Outputs: xi(0:lmax)
     !r   xi is the radial part divided by r**l.
     !r   A solid smoothed hankel is from xi as   hl(ilm) = xi(l)*cy(ilm)*yl(ilm)
     !r   See J. Math. Phys. 39, 3393 (1998).
     !r    xi(l)= 2/sqrt(pi) * 2^l int_a^inf u^2l dexp(-r^2*u^2+kap2/4u^2) du
-    !NOTE: Except numerical minor differences, hansr is equivalent to hansr in m_hansr.
-    !  hansmr may have numerical problem for rms<1d-9 (tailsm.f90).
-    !  hansmr is used for core fitting parts, while hansr is for valence part. 
-    !        hansr: r is divided into three section. Less smoothness but numerically good overall
-    !        hansmr: better smoothness but less accurate probably when rsm<1d-9 <== But this does not cause problems
-    !                since we usually use rsm = 2/3*R_muffintin
-    !               (Thus we need special treatements as in tailsm.f90). 2022-6-29
+    !  hansmr is usef for core fitting parts, while hansr is for valence part.
+    !      Probably,
+    !      hansr: r is divided into three section. Less smoothness but numericall good overall
+    !      hansmr: better smoothness but less numericall problematic probably when rsm<1d-9
+    !      (Thus we need special treatements as in tailsm.f90). 2022-6-29
+    !Except numerical minor differences, hansr is equivalent to hansr in m_hansr. See note in hansr
+
+    !TK thinks that the current version of hansmr is equivalent with hansr? (2023-11-1)
     implicit none
     integer :: lmax,l,n,nmax
     real(8) :: r,e,a,xi(0:lmax),a0(0:40),a2,add,akap,al,cc,dudr,ema2r2,fac, &
@@ -90,7 +91,18 @@ contains
           endif
        endif
     endif
-  end subroutine hansmr
+  endsubroutine hansmr
+endmodule m_hansmr
+module m_hansr !hansmr is equilvaent to hansr except numerical accuracy problem. See note.
+  ! JMP39:
+  ! Bott, E., M. Methfessel, W. Krabs, and P. C. Schmidt.
+  ! “Nonsingular Hankel Functions as a New Basis for Electronic Structure Calculations.”
+  ! Journal of Mathematical Physics 39, no. 6 (June 1, 1998): 3393–3425.
+  ! https://doi.org/doi:10.1063/1.532437.
+  public hansr 
+  logical:: hansmronly=.true. !new test 2023-10-31
+  private
+contains
   subroutine hansr(rsm,lmn,lmx,nxi,lxi,exi,rsq,nrx,nr,idx,job,xi) !- Vector of smoothed Hankel functions, set of negative e's
     !i Inputs
     !i   rsm     smoothing radius of smoothed Hankel
@@ -132,6 +144,7 @@ contains
     real(8) :: rc1,rc2,akap,rl,rl0,rc20
     parameter (tol=1d-15)
     logical :: ltmp,lsort,lscal
+    call rx('unusedxxxxxxxxxxxxx')
     lscal = mod(job,10) .ne. 0
     lsort = mod(job/10,10) .ne. 0
     ! --- Check lmx; handle case rsm=0 ---
@@ -254,7 +267,7 @@ contains
           xi(ir,1:lxi(ie),ie) = [(xi(ir,l,ie)*(rsq(ir)**.5)**l,l=1,lxi(ie))]
        enddo
     enddo
-  end subroutine hansr
+  endsubroutine hansr
   subroutine hansr1(rsq,lmin,lmax,nrx,nr,e,rsm,rmax,xi)!Power series for points within rc1. Vector of smoothed hankel functions for l=0...lmax, negative e
     !  by power series expansion.
     !i Inputs
@@ -447,14 +460,14 @@ contains
     do l = lmin+2, lmax !xi(*,lmin+2:lmax) by upward recursion ---
        xi(1:nr,l) = ((2*l-1)*xi(1:nr,l-1) - e*xi(1:nr,l-2))/rsq(1:nr)
     enddo
-  end subroutine hanr
-end module m_hansr
+  endsubroutine hanr
+endmodule m_hansr
 
 subroutine corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc, rfoc,z) !Returns parameters for Zc part of Eq.(28) TK.JPSJ034702
   use m_lmfinit,only: pnux=>pnusp,pzx=>pzsp,n0
   use m_lmfinit,only: z_i=>z,rmt_i=>rmt,lmxb_i=>lmxb,lfoca_i=>lfoca,rfoca_i=>rfoca,rg_i=>rg
   use m_fatom,only:sspec
-  use m_hansr,only:hansmr
+  use m_hansmr,only:hansmr
   !i  is: species index
   !o Outputs
   !o   cofg  :coefficient to Gaussian part of pseudocore density assigned so that pseudocore charge = true core charge
@@ -520,5 +533,4 @@ subroutine corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc, rfoc,z) !Returns parame
   qcorg = merge(qc-qcorh, qc,lfoc>0)                           ! counter charge  
   cofh = -y0*qcorh*ceh*dexp(-ceh*rfoc*rfoc/4d0)! Coeffients of the smHankel to reproduce cores.
   cofg =  y0*qcorg                             ! charge for Y0 
-end subroutine corprm
-
+endsubroutine corprm

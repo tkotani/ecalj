@@ -1,8 +1,9 @@
 module m_mkehkf
   use m_ftox
+  use m_lgunit,only:stdo,stdl
 contains
   subroutine m_mkehkf_etot1(sev, etot)
-    use m_lmfinit,only: nsp,stdo,stdl
+    use m_lmfinit,only: nsp
     use m_mkpot,only: utot,rhoexc,xcore,valvef,amom 
     use m_mkrout,only: sumec,sumt0 
     !- Make Harris energy 
@@ -31,7 +32,7 @@ contains
     call tcx('m_mkehkf_etot1')
   end subroutine m_mkehkf_etot1
   subroutine m_mkehkf_etot2(sumtv, etot) !Make Kohn-Sham energy
-    use m_lmfinit,only: nsp,stdo,stdl,nbas,ispec
+    use m_lmfinit,only: nsp,nbas,ispec
     use m_mkpot,only: utot,rhoexc,xcore,valvef,amom 
     use m_mkrout,only: sumtc
     !i  sumtv :valence kinetic energy 

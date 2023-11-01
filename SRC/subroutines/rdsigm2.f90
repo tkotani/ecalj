@@ -40,7 +40,8 @@ contains
   end subroutine dsene
   ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
   subroutine m_rdsigm2_init() !get hrr (fourier transformation of self-energy in full BZ)
-    use m_lmfinit,only : nbas,pwmode=>ham_pwmode,stdo,ldim=>nlmto
+    use m_lmfinit,only : nbas,pwmode=>ham_pwmode,ldim=>nlmto
+    use m_lgunit,only:stdo
     use m_mksym,only: laf=>AFmode !symops_af!,napwmx
     use m_MPItk,only: procid,master
     use m_ext,only:sname
@@ -103,7 +104,7 @@ contains
   subroutine rdsigm2(nspsigm,ifis, nk1,nk2,nk3,ldim,qsmesh, mtosigmaonly,ndimsig) ! Expand self-energy (read by ifis) to all the q point on mesh.
     use m_mksym,only: symops,ngrp,ngrpAF,laf=>AFmode
     use m_hamindex,only: napwk
-    use m_lmfinit,only: stdo
+    use m_lgunit,only:stdo
     use m_lattic,only: plat=>lat_plat
     use m_ftox
     !! nbas is in this structure
@@ -250,7 +251,7 @@ contains
   end subroutine rdsigm2
   ! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
   subroutine hamfb3k(qin,iq,nk1,nk2,nk3,ipq,napw_in,ndimh,ldima,ldimb,qb,ldim,ifac, hq,iaf, gfbz)! Generate gfbz (full BZ) from hq (1st BZ).
-    use m_lmfinit,only: stdo
+    use m_lgunit,only:stdo
     !i q iq: q and index for q
     !i   nk1,nk2,nk3:  no. divisions for the qp in 3 recip. latt. vecs
     !i   ipq   :ipq(i1,i2,i3) points to the irreducible qp into which

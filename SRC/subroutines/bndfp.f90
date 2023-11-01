@@ -24,6 +24,7 @@
 !! NOTE: check lmv7->lmfp(iteration loop)->bndfp
 module m_bndfp
   use m_density,only: orhoat,osmrho,eferm  !input/output unprotected  ! NOTE:variable in m_density are not protected
+  use m_lgunit,only:stdo,stdl
   real(8),protected,public:: ham_ehf, ham_ehk, sev  !output
   real(8),protected,public:: qdiff                  !output
   real(8),protected,allocatable,public:: force(:,:) !output
@@ -43,7 +44,7 @@ contains
     use m_suham,only: ndham=>ham_ndham, ndhamx=>ham_ndhamx,nspx=>ham_nspx !nspx=nsp/nspc
     use m_lmfinit,only: ncutovl,lso,ndos=>bz_ndos,bz_w,fsmom=>bz_fsmom, bz_dosmax,lmet=>bz_lmet,bz_fsmommethod,bz_n
     use m_lmfinit,only: ldos,qbg=>zbak,lfrce,pwmode=>ham_pwmode,lrsig=>ham_lsig,epsovl=>ham_oveps !try to avoid line continuation in fortran
-    use m_lmfinit,only: ham_scaledsigma, alat=>lat_alat,stdo,stdl, nlmax,nbas,nsp, bz_dosmax,nlmxlx,afsym
+    use m_lmfinit,only: ham_scaledsigma, alat=>lat_alat, nlmax,nbas,nsp, bz_dosmax,nlmxlx,afsym
     use m_lmfinit,only: lmaxu,nlibu,lldau,lpztail,leks,lrout,  nchan=>pot_nlma, nvl=>pot_nlml,nspc,pnufix !lmfinit contains fixed input 
     use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
     use m_mkqp,only: nkabc=> bz_nabc,ntet=> bz_ntet,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet

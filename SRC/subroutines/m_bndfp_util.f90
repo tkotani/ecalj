@@ -1,11 +1,12 @@
 !>utils called in bndfp
 module m_bndfp_util
   use m_ll,only:ll
+  use m_lgunit,only:stdo
   public mkekin,makdos,phispinsym_ssite_set,iorbtm
 contains
   subroutine mkekin(osig,otau,oppi,oqkkl,vconst,smpot,smrho,sumev, ekinval) !- Evaluate the valence kinetic energy
     use m_struc_def
-    use m_lmfinit,only:nsp,nspc,stdo,nbas,ispec,nlmto
+    use m_lmfinit,only:nsp,nspc,nbas,ispec,nlmto
     use m_lmfinit,only: lmxa_i=>lmxa,lmxb_i=>lmxb,kmxt_i=>kmxt
     use m_lattic,only: lat_vol
     use m_supot,only: n1,n2,n3

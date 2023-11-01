@@ -9,7 +9,8 @@ module m_mksym_util
   integer,parameter:: ngmx = 48
 contains
   subroutine mksym(modeAddinversion,slabl,ssymgr,iv_a_oips, iclass,nclass,npgrp,nsgrp,rv_a_oag,rv_a_osymgr,iv_a_oics,iv_a_oistab)! Setup symmetry group. Split species into classes, Also assign class labels to each class
-    use m_lmfinit,only: nbas,stdo,nspec           
+    use m_lmfinit,only: nbas,nspec
+    use m_lgunit,only:stdo
     use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat,rv_a_opos
     use m_mpitk,only: master_mpi
     implicit none

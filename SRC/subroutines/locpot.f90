@@ -310,7 +310,8 @@ contains
        rhol1,rhol2,v1,v2,v1es,v2es,&
        vvesat,rhoexc,rhoex,rhoec,rhovxc, valvef,xcore,qloc, & 
        qlocc,aloc,alocc,gpotb,rhobg,efg,ifivesint,lxcfun  , v1out) 
-    use m_hansr,only:hansmr
+    use m_hansmr,only: hansmr,hansmronly
+    use m_hansr,only:  hansr
     !i Inputs
     !i   z     :nuclear charge
     !i   rmt   :augmentation radius

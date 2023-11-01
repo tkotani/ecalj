@@ -64,8 +64,9 @@ contains
   !--------------------------------------------
   subroutine m_writeham_write()
     use m_lmfinit,only: lso,nsp,ispec
-    use m_lmfinit,only: nlmto,stdo,slabl ,norbmto,ibastab,ltab,ktab,offl, ib_table,k_table,l_table
+    use m_lmfinit,only: nlmto,slabl ,norbmto,ibastab,ltab,ktab,offl, ib_table,k_table,l_table
     use m_mksym, only: ngrp,symops
+    use m_lgunit,only:stdo
     integer:: ldim,iorb,ib,is,i,jobgw
     character spid*8
     !! --- get index for hamiltonian for m_hamindex takao june2009

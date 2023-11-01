@@ -1,6 +1,7 @@
 !>CLS: Core-level spectroscopy !We use CLSinput instead of --cls option.
 module m_clsmode 
-  use m_lmfinit, only: lmet=>bz_lmet,nbas,nsp,nlmax,nspc,lso,stdo
+  use m_lmfinit, only: lmet=>bz_lmet,nbas,nsp,nlmax,nspc,lso
+  use m_lgunit,only:stdo
   use m_suham,only:   ndham=>ham_ndham
   use m_mkqp,only: nkp=>bz_nkp
   use m_MPItk,only: master_mpi

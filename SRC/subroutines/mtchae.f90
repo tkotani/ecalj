@@ -567,7 +567,8 @@ contains
     endif
   end subroutine mtchr2
   subroutine hansmd(mode,r,e,rsm,lmax,hs,dhs,ddhs,hsp,dhsp,ddhsp) !Value and some derivatives of smoothed radial Hankel functions
-    use m_hansr,only:hansr,hansmr,hansmronly
+    use m_hansmr,only: hansmr,hansmronly
+    use m_hansr,only:  hansr
     !i Inputs
     !i   mode  :tells hansmd what derivatives to make.
     !i         :1s digit concerns 2nd radial derivative

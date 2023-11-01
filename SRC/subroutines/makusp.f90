@@ -3,7 +3,8 @@ module m_makusp
   private
 contains
   subroutine makusp(n0,z,nsp,rmax,lmxa,v,a,nr,pnu,pnz,rsml,ehl, ul,sl,gz,ruu,rus,rss)!Augmentation func. of pure val,slo (times r) for spherical V and b.c.
-    use m_hansr,only: hansr,hansmr,hansmronly
+    use m_hansmr,only: hansmr,hansmronly
+    use m_hansr,only:  hansr
     use m_atwf,only: makrwf
     !r  ul: linear combination of phi,phidot val=1 slo=0
     !r  sl: linear combination of phi,phidot val=0 slo=1   ul and sl are r * u and r * s, respectively.

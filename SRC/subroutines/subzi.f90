@@ -4,8 +4,9 @@ module m_subzi ! Obtain weight wtkb(ib,isp,iq) for brillowine zone integation
 !  integer,protected:: lswtk=0
 contains
   subroutine m_subzi_init()
+    use m_lgunit,only:stdo
     use m_ext,only: sname
-    use m_lmfinit, only: nsp,nspc, nevmxin=>bz_nevmx, lmet=>bz_lmet, qbg=>zbak,stdo
+    use m_lmfinit, only: nsp,nspc, nevmxin=>bz_nevmx, lmet=>bz_lmet, qbg=>zbak
     use m_mkqp,only: ntet=> bz_ntet ,bz_nkp
     use m_suham,only: ndham=>ham_ndham,ndhamx=>ham_ndhamx
     use m_mkpot,only:  qval
@@ -73,8 +74,9 @@ contains
     call tcx('m_subzi_init')
   end subroutine m_subzi_init
   subroutine m_subzi_bzintegration(evlall, eferm,sev,sumqv,vmag) 
+    use m_lgunit,only:stdo
     use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq
-    use m_lmfinit,only: lso,nsp,ham_scaledsigma,nlibu,lmaxu,bz_w,lmet=>bz_lmet,stdo,nbas,epsovl=>ham_oveps,nspc,bz_n
+    use m_lmfinit,only: lso,nsp,ham_scaledsigma,nlibu,lmaxu,bz_w,lmet=>bz_lmet,nbas,epsovl=>ham_oveps,nspc,bz_n
     use m_lmfinit,only: bz_fsmommethod,qbg=>zbak,fsmom=>bz_fsmom,ndos=>bz_ndos
     use m_mkqp,only: nkabc=> bz_nabc,ntet=> bz_ntet,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
     use m_lmfinit,only: nchan=>pot_nlma, nvl=>pot_nlml

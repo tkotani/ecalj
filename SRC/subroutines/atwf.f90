@@ -135,7 +135,8 @@ contains
     call phidx(0,z,l,v,rofi,nr,nptdif,tol,enu,val,slo,nn,g,gp,phi,dphi,phip,dphip,p)!,0d0,[0d0],0d0,[0d0])
   end subroutine makrwf
   subroutine rwftai(rmt,a,nrmt,nrbig,ribig,phi,dphi,tphi,l, ehl,rsml,g)!Extend radial wave function outside MT boundary
-    use m_hansr,only :hansr,hansmr,hansmronly
+    use m_hansmr,only: hansmr,hansmronly
+    use m_hansr,only:  hansr
     ! Compute radial wave function on extended mesh using rsml,ehl for tail, scale gz so that value matches envelope h(rsm,eh)
     !i Inputs 
     !i   rmt   :augmentation radius, in a.u., by species

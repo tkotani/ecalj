@@ -125,7 +125,8 @@ contains
     call tcx('momusl')
   end subroutine momusl
   subroutine vlm2us(lmaxu,rmt,idu,lmxa,iblu,vorb,phzdphz,rotp,vumm)!- Rotate vorb from (phi,phidot) to (u,s) and store in vumm
-    use m_lmfinit,only: nppn,stdo
+    use m_lmfinit,only: nppn
+    use m_lgunit,only:stdo
     use m_ftox
     !i   lmaxu :dimensioning parameter for U matrix
     !i   lmxa  :augmentation l-cutoff

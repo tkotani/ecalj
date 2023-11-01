@@ -27,7 +27,8 @@ contains
     call tcx('m_ldau_init')
   end subroutine m_ldau_init
   subroutine m_ldau_vorbset(eks,dmatu) ! Get vorb,eorb for given dmatu, and reserve dmato=previous dmatu.
-    use m_lmfinit,only: nlibu,nsp,lmaxu,lmaxu,nsp,nlibu,nbas,stdo
+    use m_lgunit,only:stdo
+    use m_lmfinit,only: nlibu,nsp,lmaxu,lmaxu,nsp,nlibu,nbas
     intent(in)::            eks,dmatu
     complex(8):: dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
     complex(8):: vorbav(-lmaxu:lmaxu,-lmaxu:lmaxu)
@@ -44,7 +45,8 @@ contains
     call tcx('m_ldau_vorbset')
   end subroutine m_ldau_vorbset
   subroutine vorbmodifyaftest_experimental()
-    use m_lmfinit,only: nlibu,nsp,lmaxu,lmaxu,nsp,nlibu,nbas,stdo
+    use m_lgunit,only:stdo
+    use m_lmfinit,only: nlibu,nsp,lmaxu,lmaxu,nsp,nlibu,nbas
     complex(8):: vorbav(-lmaxu:lmaxu,-lmaxu:lmaxu)
     integer,parameter:: nx=1000
     real(8):: alpha,mmtarget, uhhist(nx),uhx,sss(1),fac,mmsite(nbas),mmhist(0:nx)

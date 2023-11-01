@@ -1,5 +1,6 @@
 subroutine writeboltztrap(evlall,eferm) !write input file for boltztrap !test by gomi at year2020 around
-  use m_lmfinit,only: nlmax,nsp,nbas,stdo,nlmax,nspc,qbg=>zbak,alat=>lat_alat
+  use m_lgunit,only:stdo
+  use m_lmfinit,only: nlmax,nsp,nbas,nlmax,nspc,qbg=>zbak,alat=>lat_alat
   use m_suham,only: ndhamx=>ham_ndhamx,ndham=>ham_ndham
   use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize,procid
   use m_qplist,only: nkp,xdatt,qplist

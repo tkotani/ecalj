@@ -1,3 +1,4 @@
+!>Bloch sum of smooth Hankel functions. JMP39: https://doi.org/doi:10.1063/1.532437.
 module m_hsmq !Bloch sum of smooth Hankel. lm expansion
   ! JMP39: Bott, E., M. Methfessel, W. Krabs, and P. C. Schmidt.
   ! “Nonsingular Hankel Functions as a New Basis for Electronic Structure Calculations.”

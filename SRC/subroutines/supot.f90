@@ -9,7 +9,8 @@ module m_supot
   integer,protected,target,private::  ngabc(3)
 contains
   subroutine m_supot_init()! Initialization for G vectors bgv,ips0,gv,kv !See gvlst2 and sgvsym
-    use m_lmfinit,only : lcd4,nsp,alat=>lat_alat,ftmesh,gmax=>lat_gmaxin,stdo
+    use m_lmfinit,only : lcd4,nsp,alat=>lat_alat,ftmesh,gmax=>lat_gmaxin
+    use m_lgunit,only:stdo
     use m_mksym,only:  ngrp,symops,ag
     use m_lattic,only: plat=>lat_plat,rv_a_opos,qlat=>lat_qlat,vol=>lat_vol, awald=>lat_awald,nkd=>lat_nkd, nkq=>lat_nkq
     use m_shortn3,only: mshsiz

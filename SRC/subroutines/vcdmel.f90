@@ -110,7 +110,7 @@ contains
     call tcx ('vcdmel')
   end subroutine vcdmel
   subroutine pvcdm1(ncls,lcls,gcore,z,lmxa,v,a,nr,rofi,ul,sl,nsp,lmxax,ume,sme) !- Radial matrix elements < (u,s) | r | core >
-    use m_lmfinit,only: stdo
+    use m_lgunit,only:stdo
     use m_rseq,only: rseq
     use m_ftox
     implicit none

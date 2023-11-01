@@ -136,7 +136,8 @@ contains
     call tcx('addrbl')
   end subroutine addrbl
   subroutine mkewgt(lmet,wgt,qval,ndimh,evl, nevec,ewgt,sumev,sumqv)
-    use m_lmfinit,only: bz_w,bz_n,stdo
+    use m_lgunit,only:stdo
+    use m_lmfinit,only: bz_w,bz_n
     use m_ftox
     !- State-dependent weights for sampling BZ integration.
     ! ----------------------------------------------------------------------

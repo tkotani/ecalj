@@ -52,7 +52,7 @@ module m_hamindexW
   public m_hamindexW_init
 contains
   subroutine m_hamindexW_init() !Set up m_hamiltonian. Index for Hamiltonian. --
-    use m_lmfinit,only: pwmode=>ham_pwmode,pwemax,ldim=>nlmto,noutmx,nsp,stdo,alat=>lat_alat,nbas,ispec,n0,nkap0,zbak,slabl,z
+    use m_lmfinit,only: pwmode=>ham_pwmode,pwemax,ldim=>nlmto,noutmx,nsp,alat=>lat_alat,nbas,ispec,n0,nkap0,zbak,slabl,z
     use m_lmfinit,only: kxx,lxx,norbmto,lmxax,ltab,ktab,offl,offlrev,ibastab
     use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat,rv_a_opos
     use m_suham,only: ndham=>ham_ndham !max dimension of hamiltonian +napwad (for so=0,2)

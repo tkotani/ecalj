@@ -7,7 +7,8 @@ module m_smves
 contains
   subroutine smves(qmom,gpot0,vval,hpot0,smrho,smpot,vconst,smq,qsmc,f,rhvsm0,rhvsm,zsum,vrmt,qbg) ! Electrostatic potential of the 0th component (represented by PlaneWave + Gaussians + smHankels)
     use m_supot,only: iv_a_okv, rv_a_ogv
-    use m_lmfinit,only: rv_a_ocy,nsp,stdo,ispec
+    use m_lgunit,only:stdo
+    use m_lmfinit,only: rv_a_ocy,nsp,ispec
     use m_lattic,only: vol=>lat_vol
     use m_supot,only: ng=>lat_ng,n1,n2,n3
     use m_MPItk,only: master_mpi

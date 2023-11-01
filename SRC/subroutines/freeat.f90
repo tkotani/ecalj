@@ -1087,9 +1087,8 @@ contains
   end subroutine gintsl
 subroutine tailsm(lrhot,nr,nrmt,nsp,a,b,rmt,rsm,nxi0,nxi,exi,rofi, rho,rhot,hfc,hfct)  !- Fit tails of rho to smoothed Hankel functions
   use m_lgunit,only:stdo
-  use m_hansr,only :hansr,hansmr,hansmronly
-  ! ----------------------------------------------------------------------
-  !i Inputs
+  use m_hansmr,only: hansmr,hansmronly
+  use m_hansr,only:  hansr
   !i   lrhot :0 make fit for rho only; 1 make fit for rho and rhot
   !i   nr    :number of radial mesh points
   !i   nrmt  :number of points between 0..rmt

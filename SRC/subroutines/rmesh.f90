@@ -1,8 +1,5 @@
-subroutine rmesh(z,rmax,lrel,lgrad,nrmx,a,nr)
-  use m_lmfinit,only: stdo
-  !- Generate parameters for shifted logarithmic radial mesh
-  ! ----------------------------------------------------------------------
-  !i Inputs
+subroutine rmesh(z,rmax,lrel,lgrad,nrmx,a,nr) !- Generate parameters for shifted logarithmic radial mesh
+  use m_lgunit,only:stdo
   !i   z     :nuclear charge
   !i   rmax  :augmentation radius, in a.u.
   !i   lrel  :0 for non-relativistic

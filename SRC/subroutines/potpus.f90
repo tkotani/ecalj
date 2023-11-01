@@ -3,7 +3,8 @@ module m_potpus
   private
 contains
   subroutine potpus(z,rmax,lmxa,v,vdif,a,nr,nsp,lso,pnu,pnz,ehl,rsml,rs3,vmtz,phzdphz,hab,vab,sab,sodb,rotp) ! Get phzdphz and matrix hab,vab,sab,sodb for (u,s,gz)
-    use m_lmfinit,only: stdo,lrel,cc,n0,nppn
+    use m_lmfinit,only: lrel,cc,n0,nppn
+    use m_lgunit,only:stdo
     use m_ftox
     use m_atwf,only: makrwf,rwftai
     !r   A local orbital gz first type is defined as

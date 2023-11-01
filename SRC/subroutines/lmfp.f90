@@ -3,8 +3,9 @@ module m_lmfp !Driver for iteration loop for lmf-MPIK (electronic and MD)
   private
 contains
   subroutine lmfp(llmfgw)
+    use m_lgunit,only:stdo
     use m_lmfinit,only: lhf, maxit,nbas,nsp, ham_seref,  ispec, slabl
-    use m_lmfinit,only: nlibu,stdo,lrout,leks,plbnd,lpzex, nitrlx, indrx_iv,natrlx,qtol,etol,alat
+    use m_lmfinit,only: nlibu,lrout,leks,plbnd,lpzex, nitrlx, indrx_iv,natrlx,qtol,etol,alat
     use m_lattic,only: qlat=>lat_qlat,rv_a_opos,plat=>lat_plat
     use m_bandcal,only: dmatu
     use m_mkpot,only:   amom

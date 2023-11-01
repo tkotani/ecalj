@@ -1,5 +1,6 @@
 subroutine fradhd(nkaps,eh,rsmh,lh,lmxh,nr,rofi,fh,xh,vh,dh) !Radial envelope head functions and gradients
-  use m_hansr,only: hansmr,hansr,hansmronly
+  use m_hansmr,only: hansmr,hansmronly
+  use m_hansr,only:  hansr
   !i Inputs
   !i   nkaps :1s digit: number of envelope function types per l q.n.
   !i   eh    :energies of smoothed Hankel (l- and kappa- dependent)

@@ -1,5 +1,6 @@
 !>band structure calculation !How to learng this? Instead of reading all sources, understand I/O. See bndfp.f90 and 'use m_bandcal'.
 module m_bandcal 
+  use m_lgunit,only:stdo,stdl
   use m_lmfinit,only: lmxa_i=>lmxa,rmt_i=>rmt,afsym
   use m_struc_def,only: s_rv1,s_rv5
   use m_suham,  only: ndhamx=>ham_ndhamx,nspx=>ham_nspx
@@ -8,7 +9,7 @@ module m_bandcal
   use m_qplist,only: qplist,niqisp,iqproc,isproc
   use m_igv2x,only: m_igv2x_setiq, napw,ndimh,ndimhx,igv2x
   use m_lmfinit,only: lrsig=>ham_lsig, lso,ham_scaledsigma,lmet=>bz_lmet,nbas,epsovl=>ham_oveps,nspc,plbnd,lfrce
-  use m_lmfinit,only: pwmode=>ham_pwmode,pwemax,stdl,nsp,nlibu,lmaxu,lmxax
+  use m_lmfinit,only: pwmode=>ham_pwmode,pwemax,nsp,nlibu,lmaxu,lmxax
   use m_MPItk,only: mlog, master_mpi, procid,strprocid, numprocs=>nsize, mlog_mpiiq
   use m_subzi, only: nevmx,rv_a_owtkb
   use m_supot, only: n1,n2,n3
@@ -17,7 +18,6 @@ module m_bandcal
   use m_procar,only: m_procar_init,m_procar_closeprocar
   use m_clsmode,only: m_clsmode_set1
   use m_addrbl,only: addrbl!,swtk,Swtkzero
-  use m_lgunit,only:stdo
   use m_augmbl,only: aughsoc
   use m_makusq,only: makusq
   use m_zhev,only: zhev_tk4

@@ -1,6 +1,7 @@
 !! getq mode.  Current version is not for spin dependent nor many restrictions.! spin symmetic (or nspin=1, not 2 channell binded and so on...
 subroutine getqmode()  !no output. getq mode just output. Not return variables.
-  use m_lmfinit, only: nspec,ispec,nbas,stdo,lmxax
+  use m_lmfinit, only: nspec,ispec,nbas,lmxax
+  use m_lgunit,only:stdo
   use m_ext,only:sname   ! read veswavatm.* and qbyl.*
   implicit none
   logical:: debug,cmdopt0

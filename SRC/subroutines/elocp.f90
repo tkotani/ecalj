@@ -5,9 +5,10 @@ module m_elocp ! envlope parameters for extended local orbitals
   private
 contains
   subroutine elocp()! Make envlope parameters for extended local orbitals
-    use m_lmfinit,only: stdo,nspec,nbas,nsp,ispec,n0,nkapii,slabl,vmtz,rs3,eh3
+    use m_lmfinit,only: nspec,nbas,nsp,ispec,n0,nkapii,slabl,vmtz,rs3,eh3
     use m_lmfinit,only: z_i=>z,nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,lmxb_i=>lmxb, spec_a
     use m_density,only: v0pot,pnuall,pnzall
+    use m_lgunit,only: stdo
     !o Outputs
     !o   ehl,rsml
     !o         : smoothing radius and energy set for extended local orbitals
@@ -85,8 +86,9 @@ contains
   end subroutine elocp
   subroutine loctsh(mode0,spid,z,a,nr,nrmt,nsp,lmxb,rofi,v,pnu,pnz,rs3,eh3,vmtz, vsel,rsml,ehl)!Fit value and slope of local orbitals to smoothed Hankel
     use m_mtchae,only:mtchre
-    use m_lmfinit,only: stdo
-    use m_hansr,only:hansmr
+    use m_lgunit,only:stdo
+    use m_hansmr,only: hansmr,hansmronly
+    use m_hansr,only:  hansr
     use m_atwf,only: makrwf
     use m_ftox
     !i Inputs mode=110x allowed now. Only x is supplied

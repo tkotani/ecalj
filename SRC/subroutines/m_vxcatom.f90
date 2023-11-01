@@ -1583,7 +1583,8 @@ subroutine vxc0gc(nr,nsp,rofi,rwgt,rho,vxc,exc,rep,rmu,lxcfun)
 end subroutine vxc0gc
 
 subroutine vxc0sp(a,b,rofi,rho,nr,v,rho0,rep,rmu,nsp,exrmx)
-  use m_lmfinit,only: lxcf_g=>lxcf, stdo
+  use m_lgunit,only:stdo
+  use m_lmfinit,only: lxcf_g=>lxcf
   use m_ropyln,only: ropyln
   use m_xclda,only: evxcv,evxcp,vxcgr2
   !!- Adds xc part to spherical potential, makes integrals rmu and rep

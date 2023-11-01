@@ -2,7 +2,7 @@
 module m_smhankel   !2023-4-28 memo: TK added qshortn(q). This allows q is not need to be within BZ.
   use m_ll,only:ll
   use m_factorial,only: factorial_init,factorial2,factorial
-  use m_lmfinit,only: cg=>rv_a_ocg,indxcg=>iv_a_oidxcg,jcg=>iv_a_ojcg,cy=>rv_a_ocy
+  use m_lmfinit,only: cg=>rv_a_ocg,indxcg=>iv_a_oidxcg,jcg=>iv_a_ojcg,cy=>rv_a_ocy,icgi,icge
   use m_lattic,only: vol=>lat_vol,plat=>lat_plat,qlat=>lat_qlat, awald=>lat_awald
   use m_lattic,only: dlv=>rv_a_odlv, nkd=>lat_nkd, qlv=>rv_a_oqlv,nkq=>lat_nkq
   ! JMP39: Bott, E., M. Methfessel, W. Krabs, and P. C. Schmidt.
@@ -174,7 +174,7 @@ contains
     real(8) :: gam1,fpi,gam2,gamx,rsmx,qq,fac1,fac2,e,cz,cx1, cx2,cy1,cy2,fac,add
     complex(8):: s(ndim1,ndim2,0:k0),ds(ndim1,ndim2,0:k0,3)
     integer :: ktop0,lmax1,lmax2,lmaxx,nlmx,nlmxp1,ktop,ktopp1, &
-         k,ilm,kz,kx1,kx2,ky1,ky2,ilm1,l1,ilm2,l2,ii,indx,icg1,icg2, icg,ip
+         k,ilm,kz,kx1,kx2,ky1,ky2,ilm1,l1,ilm2,l2,ii,indx,icg,ip
     fpi = 16d0*datan(1.d0)
     gam1 = .25d0*rsm1*rsm1
     gam2 = .25d0*rsm2*rsm2
@@ -215,9 +215,7 @@ contains
          l1 = ll(ilm1)
          do  111  ilm2 = mlm2, nlm2
             l2 = ll(ilm2)
-            ii = max0(ilm1,ilm2)
-            indx = (ii*(ii-1))/2 + min0(ilm1,ilm2)
-            do  11  icg = indxcg(indx), indxcg(indx+1)-1
+            do  11  icg = icgi(ilm1,ilm2),icge(ilm1,ilm2) 
                ilm = jcg(icg)
                k = (l1+l2-ll(ilm))/2
                do ip = 0, kmax
@@ -353,9 +351,7 @@ contains
        l1 = ll(ilm1)
        do  111  ilm2 = mlm2, nlm2
           l2 = ll(ilm2)
-          ii = max0(ilm1,ilm2)
-          indx = (ii*(ii-1))/2 + min0(ilm1,ilm2)
-          do icg = indxcg(indx), indxcg(indx+1)-1
+          do icg = icgi(ilm1,ilm2),icge(ilm1,ilm2)
              ilm = jcg(icg)
              s(ilm1,ilm2,0:kmax) = s(ilm1,ilm2,0:kmax) + fpi*(-1d0)**l1*cg(icg)* [(hkl1((l1+l2-ll(ilm))/2+ip,ilm),ip=0,kmax)]
           enddo
@@ -570,13 +566,11 @@ contains
     nrx = max(nkd,nkq)
     allocate( yl(nrx*(lmax+1)**2))
     call hsmqe0 ( lmax,rsm,0,qshortn(q),p1,nrx,nlm,yl, awald,alat,qlv,nkq,dlv,nkd,vol, fsm  )
-    if (rsm > faca/awald) then
-       call gklbl(p1,rsm,e,q,kmax-1,nlm,k0, fkl) 
-    else
-       call gklq(lmax,rsm,q,p1,e,kmax-1,k0,alat, nrx,yl,fkl )
+    if (rsm > faca/awald) then; call gklbl(p1,rsm,e,q,kmax-1,nlm,k0, fkl) 
+    else;                       call gklq(lmax,rsm,q,p1,e,kmax-1,k0,alat, nrx,yl,fkl )
     endif
     deallocate(yl)
-    do    ilm = 1, nlm ! ... Upward recursion in k: mainly sets fkl = -4*pi * g(k-1,l)
+    do ilm = 1, nlm ! ... Upward recursion in k: mainly sets fkl = -4*pi * g(k-1,l)
        gklsav = fkl(0,ilm)
        fkl(0,ilm) = fsm(ilm)
        do    k = 1, kmax
@@ -617,7 +611,7 @@ contains
     real(8) :: ph(3),pg(3),rsmg,rsmh  !,cg(1),cy(1)
     complex(8):: s(ndim1,ndim2,0:kdim),ds(ndim1,ndim2,0:kdim,3)
     integer :: nlm0,ktop0,m,lmaxh,lmaxg,lmaxx,nlmx,nlmxp1,ktop,ktopp1, &
-         ilm,kz,kx1,kx2,ky1,ky2,k,jlm,ilg,lg,ilh,lh,ii,indx,icg1,icg2, icg,lm,ip,nlmxx
+         ilm,kz,kx1,kx2,ky1,ky2,k,jlm,ilg,lg,ilh,lh,ii,indx, icg,lm,ip,nlmxx
     real(8) :: dr(3),gamh,gamg,rsmx,cz,cx1,cx2,cy1,cy2,fac
     complex(8),allocatable:: hkl(:,:),ghkl(:,:,:)
     if (nlmh == 0 .OR. nlmg == 0) return
@@ -641,23 +635,18 @@ contains
     call ropylg2(lmaxx*lmaxx,ktop,nlmx,ktop0,nlm0,hkl, ghkl) !gradiend of hkl
     s=0d0
     ds=0d0
-    ! --- Combine with Clebsch-Gordan coefficients ---
-    do  1111  ilg = 1, nlmg
+    do  1111  ilg = 1, nlmg !Combine with Clebsch-Gordan coefficients ---
        lg = ll(ilg)
        do  111  ilh = 1, nlmh
           lh = ll(ilh)
-          ii = max0(ilg,ilh)
-          indx = (ii*(ii-1))/2 + min0(ilg,ilh)
-          icg1 = indxcg(indx)
-          icg2 = indxcg(indx+1)-1
-          do  11  icg = icg1, icg2
+          do 11  icg = icgi(ilg,ilh),icge(ilg,ilh)
              ilm = jcg(icg)
              lm = ll(ilm)
              k = (lg+lh-lm)/2
              fac = (-1d0)**lg*cg(icg)
              do  12  ip = 0, kmax
-                s(ilg,ilh,ip) = s(ilg,ilh,ip) + fac*hkl(k+ip,ilm)
-                ds(ilg,ilh,ip,:) = ds(ilg,ilh,ip,:)+fac*ghkl(k+ip,ilm,:)
+                s(ilg,ilh,ip)    = s(ilg,ilh,ip)   + fac*hkl(k+ip,ilm)
+                ds(ilg,ilh,ip,:) = ds(ilg,ilh,ip,:)+ fac*ghkl(k+ip,ilm,:)
 12           enddo
 11        enddo
 111    enddo
@@ -758,7 +747,7 @@ contains
     integer :: nlmg,nlmh,kmax,ndim1,ndim2 !,jcg(1),indxcg(1)
     real(8) :: rsmg,rsmh(1),eg,eh(1), ph(3),pg(3),q(3) !,cg(1),cy(1)
     complex(8):: s(ndim1,ndim2,0:kmax)
-    integer :: nlm0,ktop0,icg,icg1,icg2,ii,ilg,ilh,ilm,indx,ip,jlm,k,ktop,lg,lh,lm,lmaxg,lmaxh,lmaxx,m,nlmx,l1,l2,ilm1,ilm2
+    integer :: nlm0,ktop0,icg,ii,ilg,ilh,ilm,indx,ip,jlm,k,ktop,lg,lh,lm,lmaxg,lmaxh,lmaxx,m,nlmx,l1,l2,ilm1,ilm2
     complex(8),allocatable:: hkl(:,:)
     real(8) :: ee,fac,gamg,gamh,rsmx,dr(3),e,rsm
     if (nlmh == 0 .OR. nlmg == 0) return
@@ -793,9 +782,7 @@ contains
           lg = ll(ilg)
           do  111  ilh = ilm1, ilm2
              lh = ll(ilh)
-             ii = max0(ilg,ilh)
-             indx = (ii*(ii-1))/2 + min0(ilg,ilh)
-             do  11  icg = indxcg(indx), indxcg(indx+1)-1
+             do  11  icg = icgi(ilg,ilh),icge(ilg,ilh)
                 ilm = jcg(icg)
                 lm = ll(ilm)
                 k = (lg+lh-lm)/2
@@ -874,9 +861,7 @@ contains
           lg = ll(ilg)
           do  111  ilh = ilm1, ilm2
              lh = ll(ilh)
-             ii = max0(ilg,ilh)
-             indx = (ii*(ii-1))/2 + min0(ilg,ilh)
-             do  11  icg = indxcg(indx), indxcg(indx+1)-1
+             do  11  icg = icgi(ilg,ilh),icge(ilg,ilh) 
                 ilm = jcg(icg)
                 lm = ll(ilm)
                 k = (lg+lh-lm)/2

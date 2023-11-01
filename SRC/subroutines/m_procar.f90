@@ -1,6 +1,7 @@
 !>for writing PROCAR (VASP format)
 module m_procar 
-  use m_lmfinit,only: nlmax,nsp,nbas,stdo,ispec,nlmax,nspc,n0,lmxa_i=>lmxa,afsym
+  use m_lgunit,only:stdo
+  use m_lmfinit,only: nlmax,nsp,nbas,ispec,nlmax,nspc,n0,lmxa_i=>lmxa,afsym
   use m_suham,only: ndham=>ham_ndham,ndhamx=>ham_ndhamx,nspx=>ham_nspx
   use m_igv2x,only: igv2x,napw
   use m_mkpot,only: sab_rv 

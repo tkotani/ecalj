@@ -5,7 +5,7 @@ contains
   subroutine bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,& ! BZ integration for fermi level, band sum and qp weights
        metal,tetra,norder,npts,width,rnge,wtkp,eb, efermi,sumev,wtkb,dosef,qval,ent,lfill)
     use m_ftox
-    use m_lmfinit,only: stdo,stdl
+    use m_lgunit,only: stdo,stdl
     use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
     use m_MPItk,only: master_mpi
     use m_bzints,only:bzints
@@ -631,7 +631,7 @@ contains
   subroutine bzwtsf2(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval, & !!== FSMOMMETHOD=1 == June2011 takao
        fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb,&! lswtk,swtk &
        efermi,sumev,wtkb,qval,lfill,vmag) !,lwtkb
-    use m_lmfinit,only: stdo
+    use m_lgunit,only:stdo
     use m_ftox
 
     !- BZ integration for fermi level, band sum and qp weights, fixed-spin
@@ -816,7 +816,7 @@ contains
   subroutine bzwtsf(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval, & !== FSMOMMETHOD=0 ogiginal version(modified version. fmom=0 is allowed.)==
        fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb, & !- BZ integration for fermi level, band sum and qp weights, fixed-spin
        efermi,sumev,wtkb,qval,lfill,vmag) !,lwtkb lswtk, swtk,
-    use m_lmfinit,only: stdo
+    use m_lgunit,only:stdo
     use m_ftox
     !i Inputs
     !i   nbmx  :leading dimension of eb
@@ -1092,7 +1092,7 @@ contains
   end subroutine intnos
   subroutine maknos(nqp,nband,nbmx,nsp,wgts,evl,n,w,tol,emin,emax, ndos,dos)!- Make density of states from bands
     use m_ftox
-    use m_lmfinit,only:stdo
+    use m_lgunit,only:stdo
     !i  Input
     !i    nqp : number of q-points; nband : number of bands;
     !i    nsp : 2 for spin polarised bands, 1 otherwise;
@@ -1164,7 +1164,7 @@ contains
   end subroutine maknos
   subroutine splwts(nqp,nband,nbmx,nsp,wgts,evl,n,w,efermi, & !make sampling weights for integrals under the Fermi surface
        metal,sumev,bndwts,wtot,entrpy,dosef,cv)
-    use m_lmfinit,only: stdo
+    use m_lgunit,only:stdo
     use m_ftox
     !i  Input
     !i    nqp : number of q-points; nband : number of bands

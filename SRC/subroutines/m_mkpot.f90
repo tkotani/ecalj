@@ -1,7 +1,8 @@
 !>Get one-particle potential. See http://dx.doi.org/10.7566/JPSJ.84.034702
 module m_mkpot !How to learng this? Instead of reading all source, understand I/O.
+  use m_lgunit,only:stdo,stdl
   use m_lmfinit,only: z_i=>z,lmxa_i=>lmxa,lmxb_i=>lmxb,kmxt_i=>kmxt,nlmxlx
-  use m_lmfinit,only: nbas,stdo,qbg=>zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nppn,lfrce,stdl, nchan=>pot_nlma, nvl=>pot_nlml
+  use m_lmfinit,only: nbas,qbg=>zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nppn,lfrce, nchan=>pot_nlma, nvl=>pot_nlml
   use m_struc_def,only: s_rv1,s_cv1,s_sblock,s_rv4,s_cv5
   public:: m_mkpot_init, m_mkpot_energyterms, m_mkpot_novxc, m_mkpot_deallocate !,m_Mkpot_novxc_dipole
   ! Potential terms, call m_mkpot_init. Generated at mkpot-locpot-augmat-gaugm

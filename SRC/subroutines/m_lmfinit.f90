@@ -6,46 +6,49 @@ module m_lmfinit ! 'call m_lmfinit_init' sets all initial data from ctrl are pro
   use m_MPItk,only: master_mpi
   use m_lgunit,only: stdo,stdl
   
-  use m_density,only: pnuall,pnzall !NOTE: These are set here! log-derivative of radial functions. m_denisty is not protected.
-  use m_fatom,only: sspec !allocttion only: free atom density (detremined by lmfa) Not protected.
+  use m_fatom,only:   sspec !allocation only in m_lmfinit: free atom density (detremined by lmfa) WARN: Not protected.
+  use m_density,only: pnuall,pnzall !NOTE: These are set here! log-derivative of radial functions. m_denisty is NOT protected.
   
   implicit none 
-  integer,parameter:: noutmx=48,NULLI=-99999,nkap0=3,mxspec=256,lstrn=1000,n0=10,nppn=2,nrmx=1501,nlmx=64,n00=n0*nkap0,k0=3
-  real(8),parameter:: fpi=16d0*datan(1d0), y0=1d0/dsqrt(fpi), pi=4d0*datan(1d0), srfpi = dsqrt(4d0*pi),pi4=fpi,&
+  public:: m_lmfinit_init,icgi,icge
+  integer,public,parameter:: noutmx=48,NULLI=-99999,nkap0=3,mxspec=256,lstrn=1000,n0=10,nppn=2,nrmx=1501,nlmx=64,n00=n0*nkap0,k0=3
+  real(8),public,parameter:: fpi=16d0*datan(1d0), y0=1d0/dsqrt(fpi), pi=4d0*datan(1d0), srfpi = dsqrt(4d0*pi),pi4=fpi,&
        NULLR =-99999, fs = 20.67098d0, degK = 6.3333d-6 ! defaults for MD
-  logical,parameter:: T=.true., F=.false.
-  integer,protected:: lat_nkqmx,lat_nkdmx, lxcf, smalit,lstonr(3)=0,nbas=NULLI,nspec,&
+  logical,public,parameter:: T=.true., F=.false.
+  integer,public,protected:: lat_nkqmx,lat_nkdmx, lxcf, smalit,lstonr(3)=0,nbas=NULLI,nspec,&
        nspc,master=0,nspx, maxit,gga,ftmesh(3),nmto=0,lrsigx=0,nsp=1,lrel=1,lso=0,&
        lmxbx=-1,lmxax,bz_lshft(3)=0, bz_lmet,bz_n,bz_lmull,bz_fsmommethod,str_mxnbr,&
        iter_maxit=1, mix_nsave, pwmode,ncutovl ,ndimx,natrlx, leks,lrout,plbnd, pot_nlma, pot_nlml,ham_nspx, nlmto,& !total number of MTOs 
        lrlxr,nkillr,nitrlx, broyinit,nmixinit,killj ,&
        ham_pwmode,ham_nlibu, nlmax,lfrce,bz_nevmx,ham_nbf,ham_lsig,bz_nabcin(3)=NULLI, bz_ndos,ldos, lmaxu,nlibu,nlmxlx
-  logical,protected :: ham_frzwf,ham_ewald, lhf,lcd4,bz_tetrahedron, addinv,&
+  logical,public,protected :: ham_frzwf,ham_ewald, lhf,lcd4,bz_tetrahedron, addinv,&
        readpnu,v0fix,pnufix,bexist,rdhessr, lpztail=.false., readpnuskipf, afsym
-  real(8),protected:: pmin(n0)=0d0,pmax(n0)=0d0,tolft,scaledsigma, ham_oveps,ham_scaledsigma, cc,&!speed of light
+  real(8),public,protected:: pmin(n0)=0d0,pmax(n0)=0d0,tolft,scaledsigma, ham_oveps,ham_scaledsigma, cc,&!speed of light
        dlat,alat=NULLR,dalat=NULLR,vol,avw,vmtz(mxspec)=-.5d0,&
        bz_efmax,bz_zval,bz_fsmom,bz_semsh(10),zbak,bz_range=5d0,bz_dosmax,&
        lat_as,lat_tol,lat_rpad=0d0, str_rmax=nullr, etol,qtol,mix_tolu,mix_umix, pwemax,oveps,& !,pwemin=0d0
        ham_seref, bz_w,lat_platin(3,3),lat_alat,lat_avw,lat_tolft,lat_gmaxin,socaxis(3), xtolr,gtolr,stepr, wtinit(2),wc,betainit 
-  character(lstrn),protected:: sstrnsymg, symg=' ',   symgaf=' '!for Antiferro
-  character(128),protected :: iter_mix=' ' !mix
-  character(8),protected:: alabl
-  character*8,allocatable,protected:: slabl(:)
-  logical,allocatable,protected:: cstrmx(:),frzwfa(:)
-  integer,allocatable,protected:: lmxb(:),lmxa(:),idmod(:,:),idu(:,:),kmxt(:),lfoca(:),lmxl(:),nr(:),nmcore(:),&
+  character(lstrn),public,protected:: sstrnsymg, symg=' ',   symgaf=' '!for Antiferro
+  character(128),public,protected :: iter_mix=' ' !mix
+  character(8),public,protected:: alabl
+  character(8),public,allocatable,protected:: slabl(:)
+  logical,public,allocatable,protected:: cstrmx(:),frzwfa(:)
+  integer,public,allocatable,protected:: lmxb(:),lmxa(:),idmod(:,:),idu(:,:),kmxt(:),lfoca(:),lmxl(:),nr(:),nmcore(:),&
        nkapii(:),nkaphh(:),ispec(:),ifrlx(:,:),ndelta(:), iantiferro(:), iv_a_oips (:),  lpz(:),lpzex(:),lhh(:,:) ,jnlml(:)
-  real(8),allocatable,protected:: rsmh1(:,:),rsmh2(:,:),eh1(:,:),eh2(:,:),rs3(:),alpha(:,:),uh(:,:),jh(:,:),eh3(:),&
+  real(8),public,allocatable,protected:: rsmh1(:,:),rsmh2(:,:),eh1(:,:),eh2(:,:),rs3(:),alpha(:,:),uh(:,:),jh(:,:),eh3(:),&
        qpol(:,:),stni(:),pnusp(:,:,:),qnu(:,:,:),pnuspdefault(:,:),qnudefault(:,:),qnudummy(:,:),&
        coreq(:,:),rg(:),rsma(:),rfoca(:), rmt(:),pzsp(:,:,:), amom(:,:),spec_a(:),z(:),eref(:),rsmv(:)
-  character*(8),allocatable,protected:: coreh(:)
-  real(8),allocatable,protected:: pos(:,:), delta(:,:),mpole(:),dpole(:,:)
-  !  WARNINIG: pos is initial position read from ctrl. We use lattic.f90 (search pos in bndfp.f90 and setpos in lmfp.f90 as well.)
-  real(8),allocatable,protected:: rv_a_ocg (:), rv_a_ocy(:)  !ClebshGordon coefficient (GW part use clebsh_t)
-  integer,allocatable,protected:: iv_a_oidxcg(:),iv_a_ojcg(:)!ClebshGordon coefficient (GW part use clebsh_t)
-  integer,allocatable,protected:: lldau(:), indrx_iv(:,:) 
-  integer,allocatable,target:: ltabx(:,:),ktabx(:,:),offlx(:,:),ndimxx(:),norbx(:),blksx(:,:),ntabx(:,:)
-  integer,protected :: lxx,kxx,norbmto,norbxx !oribtal index
-  integer,allocatable,protected:: ib_table(:),k_table(:),l_table(:),ltab(:),ktab(:),offl(:), offlrev(:,:,:),ibastab(:)
+  character*(8),public,allocatable,protected:: coreh(:)
+  real(8),public,allocatable,protected:: pos(:,:), delta(:,:),mpole(:),dpole(:,:)
+  !WARNINIG: pos is initial position read from ctrl. We use lattic.f90 (search pos in bndfp.f90 and setpos in lmfp.f90 as well.)
+  real(8),public,allocatable,protected:: rv_a_ocg (:), rv_a_ocy(:)  !ClebshGordon coefficient (GW part use clebsh_t)
+  integer,public,allocatable,protected:: iv_a_oidxcg(:),iv_a_ojcg(:)!ClebshGordon coefficient (GW part use clebsh_t)
+  !functions icgi,icge are for ClebshGordon coefficients. To understand how to use CG coefficients, See samples in m_smhankel.f90 and so on.
+  integer,public,allocatable,protected:: lldau(:), indrx_iv(:,:) 
+  integer,public,allocatable,target:: ltabx(:,:),ktabx(:,:),offlx(:,:),ndimxx(:),norbx(:),blksx(:,:),ntabx(:,:)
+  integer,public,protected :: lxx,kxx,norbmto,norbxx !oribtal index
+  integer,public,allocatable,protected:: ib_table(:),k_table(:),l_table(:),ltab(:),ktab(:),offl(:), offlrev(:,:,:),ibastab(:)
+  private
 contains
   subroutine m_lmfinit_init(prgnam) ! All the initial data are set in module variables from ctrlp.*
     use m_gtv2,only: gtv2_setrcd,rval2
@@ -769,4 +772,18 @@ contains
     if (nin==2) res(3) = res(2)
     if (nin==1) res(2:3) = res(1)
   end subroutine fill3in
+  pure integer function icgi(ilm1,ilm2) !starting point of cg coefficients for ilm1,ilm2
+    implicit none
+    intent(in)::             ilm1,ilm2
+    integer:: ilm1,ilm2,indx
+    indx = (max0(ilm1,ilm2)*(max0(ilm1,ilm2)-1))/2 + min0(ilm1,ilm2)
+    icgi = iv_a_oidxcg(indx)
+  endfunction icgi
+  pure integer function icge(ilm1,ilm2) !end point of cg coefficients for ilm1,ilm2
+    implicit none
+    intent(in)::             ilm1,ilm2
+    integer:: ilm1,ilm2,indx
+    indx = (max0(ilm1,ilm2)*(max0(ilm1,ilm2)-1))/2 + min0(ilm1,ilm2)
+    icge = iv_a_oidxcg(indx+1)-1
+  endfunction icge
 end module m_lmfinit

@@ -334,7 +334,8 @@ contains
   end subroutine p1ovlc
   subroutine p2ovlc(ib,nsp,rsmv,kmxv,nr,nlml,acof,rofi,rwgt,nxi0,nxi,exi,hfc,rsmfa,rhofa,rhoc,lfoca,qcsm,qloc,amom,rho1,rho2) !Assemble local density from P_kl expansion for one site
     use m_lgunit,only:stdo
-    use m_hansr,only: hansmr
+    use m_hansmr,only: hansmr,hansmronly
+    use m_hansr,only:  hansr
     !i   ib    :site for which to assemble local density
     !i   nsp   :number of spin channels
     !i   rsmv  :smoothing radius for P_kl expansion

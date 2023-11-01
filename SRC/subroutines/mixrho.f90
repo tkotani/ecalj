@@ -9,8 +9,9 @@ module m_mixrho !mixing routine of density given by smrho and orho
   logical:: old2023mixing=.true. ! old2023mixing=F sets newmixing mode. I think it will be better but not tested well.
 contains
   subroutine mixrho(iter, qval,  sv_p_orhnew, sv_p_orho, smrnew, smrho,rmsdel) ! Mixing old and new charge densities: real space mixing of smrho. It works OK. However, we may need to fix it so that this is well-defined chi=|rho-f(rho)|**2 minimization mixing.
+    use m_lgunit,only:stdl
     use m_supot,only: iv_a_okv,rv_a_ogv,n1,n2,n3
-    use m_lmfinit,only:alat=>lat_alat,nbas,stdl,ispec,nsp,broyinit,nmixinit,betainit,killj,wtinit,wc,bexist,mix_nsave
+    use m_lmfinit,only:alat=>lat_alat,nbas,ispec,nsp,broyinit,nmixinit,betainit,killj,wtinit,wc,bexist,mix_nsave
     use m_lattic,only: vol=>lat_vol
     use m_supot,only:  ng=>lat_ng,n1,n2,n3
     use m_ext,only:    sname

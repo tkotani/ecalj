@@ -153,7 +153,8 @@ contains
   end subroutine dfrce
   subroutine pvdf1(job,nsp,ib,qmom, qmout,ng,gv,g2,yl,iv,qlat,kmax,cnomin,cdvxc,cvin,qloc, fes1,fes2,fxc)
     use m_struc_def 
-    use m_lmfinit,only:lat_alat,pnuall,pnzall
+    use m_lmfinit,only:lat_alat
+    use m_density,only: pnuall,pnzall
     use m_lattic,only: lat_vol,rv_a_opos
     use m_supot,only: n1,n2,n3
 !    use m_hansr,only:corprm
