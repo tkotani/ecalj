@@ -6,7 +6,7 @@ module m_hansmr
   ! Journal of Mathematical Physics 39, no. 6 (June 1, 1998): 3393–3425.
   ! https://doi.org/doi:10.1063/1.532437.
   public hansmr,hansmronly !hansmr is equilvaent to hansr except numerical accuracy problem. See note.
-  logical:: hansmronly=.true. !new test 2023-10-31. If =.false., we use hansr instead of hansmr in places (recover Mark's original setting at 2009).
+  logical:: hansmronly=.false. !new test 2023-10-31. If =.false., we use hansr instead of hansmr in places (recover Mark's original setting at 2009).
   private
 contains
   subroutine hansmr(r,e,a,xi,lmax) !Smoothed hankel functions for l=0...lmax, negative e. a=1/rsm
@@ -144,7 +144,6 @@ contains
     real(8) :: rc1,rc2,akap,rl,rl0,rc20
     parameter (tol=1d-15)
     logical :: ltmp,lsort,lscal
-    call rx('unusedxxxxxxxxxxxxx')
     lscal = mod(job,10) .ne. 0
     lsort = mod(job/10,10) .ne. 0
     ! --- Check lmx; handle case rsm=0 ---

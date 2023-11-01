@@ -17,56 +17,38 @@ module m_bstrux ! Structure constants for P_kL expansion of Bloch lmto + PW arou
   integer,private:: iqii,iqee
 contains
   subroutine bstrux_set(ia,qin)!set bstr and dbstr for given ibas and q
-!    use m_qplist,only: iqini,iqend
     use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat
-    use m_lmfinit,only: lfrce
-    use m_ftox
-    use m_lgunit,only:stdo
     implicit none
     real(8):: qin(3),q(3),eps=1d-10
-    integer:: iq,iqx,ia
-!!!!!!!!!!!!!!!!!!!! 2023-04-25 obatadebug
-    q=qin !    call shorbz(qin,q,qlat,plat) !Get q. Is this fine?
-    iq=-999
-    do iqx=iqii,iqee
-       if( sum( (q-qall(:,iqx))**2 )<eps) then
-          iq=iqx
-          exit
-       endif
-    enddo
-    Errorexit:if(iq==-999) then !error exit
+    integer:: iq,iqx,ia !!!!! 2023-04-25 obatadebug    q=qin !    call shorbz(qin,q,qlat,plat) !Get q. Is this fine?
+    iq = findloc([(sum( (qin-qall(:,iqx))**2 )<eps,iqx=iqii,iqee)],value=.true.,dim=1)+iqii-1
+    Errorexit:if(iq<=0) then !error exit
        write(stdo,ftox)'qin=',ftof(qin)
-       write(stdo,ftox)'  q=',ftof(q)
-       do iqx=iqii,iqee
-          write(stdo,ftox)'bstrux_set iq q=',procid,iqx,ftof(qall(:,iqx))
-       enddo
+       do iqx=iqii,iqee; write(stdo,ftox)'bstrux_set iq q=',procid,iqx,ftof(qall(:,iqx));  enddo
        call rx('err:bstrux_set can not find given qin')
     endif Errorexit
     bstr => p_bstr(ia,iq)%cv3
-    if(lfrce/=0) dbstr=> p_dbstr(ia,iq)%cv4
+    dbstr=> p_dbstr(ia,iq)%cv4
   end subroutine bstrux_set
   subroutine m_bstrux_init() !q for qplist --> not yet for sugw.
     use m_qplist,only: qplist,iqini,iqend
-    use m_lmfinit,only: lfrce,nlmax,kmxt,nspec,nbas,ispec,rsma
+    use m_lmfinit,only: nlmax,kmxt,nspec,nbas,ispec,rsma
     use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat,rv_a_opos
     use m_igv2x,only: napw, igvapw=>igv2x, ndimh,m_Igv2x_setiq !igvapwin=>igv2x,
     use m_mkqp,only: bz_nkp
-    integer:: kmaxx,ia,isa,lmxa,lmxb,kmax,nlmb,nlma,mode,inn(3),ig,iq,ndimhmax!,iqii,iqee
+    integer:: kmaxx,ia,isa,lmxa,lmxb,kmax,nlmb,nlma,inn(3),ig,iq,ndimhmax!,iqii,iqee
     real(8):: pa(3),qin(3),q(3),qlatinv(3,3),qss(3),qxx(3)
     logical:: cmdopt0
     call tcn('m_bstrux_init')
     if(allocated(qall)) deallocate(qall,p_bstr,p_dbstr)
     iqii=iqini
     iqee=iqend
-!    if(cmdopt0('--afsym')) iqii= 1
-    !    if(cmdopt0('--afsym')) iqee= bz_nkp
     if(afsym) iqii=1
     if(afsym) iqee=bz_nkp
     allocate(qall(3,iqii:iqee),p_bstr(nbas,iqii:iqee),p_dbstr(nbas,iqii:iqee))
     iqloop: do 1200 iq = iqii, iqee ! iqii:iqee for each rank
        qin = qplist(:,iq)
-       call m_Igv2x_setiq(iq) ! Get napw,ndimh,igvapw and so on for given iq
-!!!!!!!!!!!!!!!!!!!! 2023-04-25 obatadebug call shorbz(qin,q,qlat,plat) !Get q. Is this fine?
+       call m_Igv2x_setiq(iq) ! Get napw,ndimh,igvapw and so on for given iq !!! 2023-04-25 obatadebug call shorbz(qin,q,qlat,plat) !Get q. Is this fine?
        q=qin
        ibasloop: do ia=1,nbas !  --- Make strux to expand all orbitals at site ia ---
           isa=ispec(ia) 
@@ -76,31 +58,22 @@ contains
           nlma = (lmxa+1)**2
           if (lmxa == -1) cycle
           allocate(                p_bstr(ia,iq)%cv3(ndimh,nlma,0:kmax) )
-          if(lfrce/=0) allocate(  p_dbstr(ia,iq)%cv4(ndimh,nlma,0:kmax,3) )
-          mode = 2
-          if(lfrce/=0) mode=1
+          allocate(  p_dbstr(ia,iq)%cv4(ndimh,nlma,0:kmax,3) )
           qss = q !+ [1d-8,2d-8,3d-8] for stabilizing deneracy ordering (this works well?) --> this conflict with qshortn 
-          call bstrux(mode,ia,pa,rsma(isa),qss,kmax,nlma,ndimh,napw,igvapw, p_bstr(ia,iq)%cv3,p_dbstr(ia,iq)%cv4)
+          call bstrux(ia,pa,rsma(isa),qss,kmax,nlma,ndimh,napw,igvapw, p_bstr(ia,iq)%cv3,p_dbstr(ia,iq)%cv4)
        enddo ibasloop
        qall(:,iq)=q  !write(stdo,ftox)'m_bstrux_init qin',procid,iq,ftof(qin),ftof(qall(:,iq))
 1200 enddo iqloop
     call tcx('m_bstrux_init')
   end subroutine m_bstrux_init
-  subroutine bstrux(mode,ia,pa,rsma,q,kmax,nlma,ndimh,napw,igapw,  b, db)
+  subroutine bstrux(ia,pa,rsma,q,kmax,nlma,ndimh,napw,igapw,  b, db) !Structure constants for P_kL expansion of Bloch lmto + PW around site ia
     use m_smhankel,only: hxpbl,hxpgbl
-    use m_struc_def
     use m_lmfinit,only:alat=>lat_alat,lhh,nkaphh,nkapii,ispec,nbas
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol,rv_a_opos
     use m_uspecb,only: uspecb
     use m_orbl,only: Orblib, norb,ltab,ktab,offl
     use m_smhankel,only: hxpos
-    !- Structure constants for P_kL expansion of Bloch lmto + PW around site ia
-    ! ----------------------------------------------------------------------
     !i Inputs
-    !i   mode  :Whether b or both db are used, and determines ordering
-    !i   mode  :0 Only b            b = b(0:kmax, nlma, ndimh)
-    !i          1 Both b and db     b = b(ndimh, nlma, 0:kmax)
-    !i          2 Only b            b = b(ndimh, nlma, 0:kmax)
     !i   cg    :Clebsch Gordon coefficients, stored in condensed form (scg.f)
     !i   indxcg:index for Clebsch Gordon coefficients
     !i   jcg   :L q.n. for the C.G. coefficients stored in condensed form (scg.f)
@@ -120,47 +93,30 @@ contains
     !l Local variables
     !l   nlmto :number of lmto's = ndimh - napw
     !o Outputs
-    !o   b     : mode0  b(0:kmax,nlma, ndimh)
-    !o         : mode1  b(ndimh, nlma, 0:kmax)
-    !o         : mode2  b(ndimh, nlma, 0:kmax)
-    !o   db    : mode1  db(ndimh,nlma, 0:kmax, 3)
-    !o         :        Gradient is wrt head shift; use -db for grad wrt pa
+    !o     b(ndimh,nlma, 0:kmax)
+    !o    db(ndimh,nlma, 0:kmax, 3)     ! Gradient is wrt head shift; use -db for grad wrt pa
     !r Remarks
     !r   Coefficients b are referred to as C_kL in the LMTO book.
-    !r   bstrux requires an F90 compiler
-    !u Updates
-    !u   14 Jan 09 Bug fix, mode=2
-    !u   05 Jul 08 (T. Kotani) adapted from augmbl; new PW part.
-    ! ----------------------------------------------------------------------
     implicit none
     real(8):: pa(3) , q(3)
     double precision :: rsma
-    integer :: kmax,ndimh,mode,ia,nlma,napw
+    integer :: kmax,ndimh,ia,nlma,napw
     integer :: igapw(3,napw)
-    double complex b(*)  !b(0:kmax,nlma,ndimh) mode 0;
-    !b(ndimh,nlma,0:kmax) mode 1,2
-    double complex db(*) !db(ndimh,nlma,0:kmax,3)
+    complex(8):: b(ndimh,nlma,0:kmax), db(ndimh,nlma,0:kmax,3)
     integer :: nlmto,nlmbx,ib,is,ik,n0,nkap0,nkapi,nlmh
     parameter (nlmbx=25,n0=10,nkap0=3)
-    integer :: lh(nkap0)
+    integer :: lh(nkap0),ilm
     double precision :: eh(n0,nkap0),rsmh(n0,nkap0)
     double precision :: p(3),xx,srvol
-    complex(8),allocatable:: b0(:),db0(:)
-    real(8),allocatable:: bos(:)
+    real(8),allocatable:: bos(:,:)
     call tcn('bstrux')
     srvol = dsqrt(vol)
     nlmto = ndimh-napw
-    !     Zero out strux to eliminate contributions from local orbitals
-    call dpzero(b,(kmax+1)*nlma*ndimh*2)
-    if (mode == 1) call dpzero(db,(kmax+1)*nlma*ndimh*3*2)
+    b=0d0 
+    db=0d0
     ! --- b for MTO  (Written as C_kl in LMTO book) ---
-    if (nlmto > 0) then
-       allocate(b0((kmax+1)*nlma*nlmbx),bos((kmax+1)*nlmbx))
-       call dpzero(b0,(kmax+1)*nlma*nlmbx*2)
-       if (mode == 1) then
-          call dpzero(db,(kmax+1)*nlma*ndimh*3*2)
-          allocate(db0((kmax+1)*nlma*nlmbx*3))
-       endif
+    if(nlmto > 0) then
+       allocate(bos(0:kmax,ndimh),source=0d0)
        do  ib = 1, nbas
           is= ispec(ib) 
           p = rv_a_opos(:,ib) 
@@ -168,66 +124,26 @@ contains
           call orblib(ib) !Return norb,ltab,ktab,offl
           do  ik = 1, nkaphh(is) ! Loop over blocks of envelope functions
              nlmh = (lhh(ik,is)+1)**2
-             if (nlmh > nlmbx) call rxi('augmbl: need nlmbx',nlmh)
-             if (nlmh > nlma .AND. ia == ib) call rx('augmbl: nlmh > nlma')
-             if (mode == 0 .OR. mode == 2) then
-                call hxpbl(p,pa,q,rsmh(1,ik),rsma,eh(1,ik),kmax,nlmh,nlma,kmax,nlma,b0)
-             elseif (mode == 1) then
-                call hxpgbl(p,pa,q,rsmh(1,ik),rsma,eh(1,ik),kmax,nlmh,nlma,kmax,nlmbx,nlma,b0,db0)
-             else
-                call rxi('bfactor: bad mode',mode)
-             endif
-             if (ib == ia) then
-                call hxpos(rsmh(1,ik),rsma,eh(1,ik),kmax,nlmh,kmax,bos)
-                call paugq2(kmax,nlmh,nlma,bos,b0)
-             endif
-             !         Note: indices of b are ordered differently by mode (see Outputs)
-             if (mode == 0) then
-                call paugq1(kmax,nlma,kmax,ik,norb,ltab,ktab,rsmh,offl, b0,b)
-             elseif (mode == 1) then
-                call prlcb1(1,ndimh,ik,norb,ltab,ktab,rsmh,offl,nlmbx,  nlma,kmax,b0,db0,b,db)
-             elseif (mode == 2) then
-                call prlcb1(mode=0,ndimh=ndimh,ik=ik,norb=norb,ltab=ltab, &
-                     ktab=ktab,rsmh=rsmh,offl=offl,nlmbx=nlmbx, &
-                     nlma=nlma,kmax=kmax,b0=b0,b=b)
-             endif
+             b0tob: block
+               integer::ol,oi,ik1,iorb,iblk,k,ntab(norb),blks(norb)
+               complex(8):: b0(0:kmax,nlma,nlmh),db0(0:kmax,nlma,nlmh,3)
+               call hxpgbl(p,pa,q,rsmh(1,ik),rsma,eh(1,ik),kmax,nlmh,nlma,kmax,nlmh,nlma,b0,db0)
+               if (ib == ia) then
+                  call hxpos(rsmh(1,ik),rsma,eh(1,ik),kmax,nlmh,kmax,bos)    !Subtract on-site strux for ib=ia, leaving tail expansion
+                  forall(ilm = 1:nlmh) b0(0:kmax,ilm,ilm) = b0(0:kmax,ilm,ilm)-bos(0:kmax,ilm)
+               endif
+!               call prlcb1(ndimh,ik,norb,ltab,ktab,rsmh,offl,nlmh,  nlma,kmax,b0,db0,b,db)
+           endblock b0tob
           enddo
        enddo
-       deallocate(b0,bos)
-       if (mode == 1) deallocate(db0)
     endif
-    call paugqp(mode,kmax,nlma,kmax,ndimh,napw,igapw,alat,qlat,srvol,q,pa,rsma,b,b,db)
+    call paugqp(kmax,nlma,kmax,ndimh,napw,igapw,alat,qlat,srvol,q,pa,rsma,b,b,db)
     call tcx('bstrux')
   end subroutine bstrux
-  subroutine prlcb1(mode,ndimh,ik,norb,ltab,ktab,rsmh,offl,nlmbx,nlma,kmax,b0,db0,b,db)
+  subroutine prlcb1(ndimh,ik,norb,ltab,ktab,rsmh,offl,nlmbx,nlma,kmax,b0,db0,b,db)
     use m_lmfinit,only: n0,nkap0
-    !    integer,parameter:: n0=10,nkap0=3
-    !- Poke strux and grads from b0,db0 to full arrays b,db
-    ! ----------------------------------------------------------------------
-    !i Inputs
-    !i   mode  :0 poke b only
-    !i         :1 poke b and db
-    !i   ndimh :dimension of hamiltonian
-    !i   ib    :site of strux head
-    !i   nlmbx :dimensions b,db
-    !i   nlma  :augmentation L-cutoff
-    !i   kmax  :Pkl polynomial cutoff
-    !i   b0    :L-ordered strux for one ik block and pair of sites
-    !i   db0   :gradient of b0
-    !o Outputs
-    !o   b     :subblock corresponding to b0 is poked into b
-    !o   db    :subblock corresponding to db0 is poked into db
-    !r Remarks
-    !r   b0,db0 have normal L ordering in both row and column dimensions.
-    !r   b,db   have normal L ordering in rows 
-    !r   This routine is identical in function to paugq1 (augmbl.f) except:
-    !r     the gradient db of b can optionally be filled
-    !r     array indices to b are ordered differently
-    !u Updates
-    !u   25 Aug 04 Adapted to extended local orbitals
-    ! ----------------------------------------------------------------------
     implicit none
-    integer :: mode,kmax,ndimh,ik,nlma,nlmbx
+    integer :: kmax,ndimh,ik,nlma,nlmbx
     integer :: norb,ltab(norb),ktab(norb),offl(norb)
     double precision :: rsmh(n0,nkap0)
     double complex b0(0:kmax,nlma,nlmbx),b(ndimh,nlma,0:kmax)
@@ -243,72 +159,15 @@ contains
        ol = ltab(iorb)**2
        oi = offl(iorb)
        do iblk = 1, blks(iorb)
-          if (mode == 0) then
-             b(oi+iblk,1:nlma,:) = transpose(b0(:,1:nlma, ol+iblk))
-          else
-             b(oi+iblk,:,0:kmax) = transpose(b0(0:kmax,:,ol+iblk))
-             do  k = 0, kmax
-                db(oi+iblk,:,k,:) = db0(k,:,ol+iblk,:)
-             enddo
-          endif
+          b(oi+iblk,:,0:kmax) = transpose(b0(0:kmax,:,ol+iblk))
+          do  k = 0, kmax
+             db(oi+iblk,:,k,:) = db0(k,:,ol+iblk,:)
+          enddo
        enddo
     enddo
   end subroutine prlcb1
-  subroutine paugq1(kmax,nlma,k0,ik,norb,ltab,ktab,rsmh,offl,b0, b)
-    !- Poke strux from b0 to full array b
-    ! ----------------------------------------------------------------------
-    !i Inputs
-    !i   kmax  :Pkl polynomial cutoff
-    !i   nlma  :augmentation L-cutoff
-    !i   k0    :dimensions b0 and b
-    !i   ik    :energy
-    !o   norb  :number of orbital types for ib; see Remarks
-    !o   ltab  :table of l-quantum numbers for each type
-    !o   ktab  :table of energy index for each type
-    !o   offl  :offl(norb) offset in h to this block of orbitals
-    !i   b0    :L-ordered strux for one ik block and pair of sites
-    !o Outputs
-    !o   b     :subblock corresponding to b0 is poked into b
-    !r Remarks
-    !r   b0 has normal L ordering in both row and column dimensions.
-    !r   b  has normal L ordering in row 
-    !r   This routine is identical in function to prlcb1 (rlocbl.f) except:
-    !r     no gradient db in this routine
-    !r     array indices to b are ordered differently
-    !u Updates
-    !u   25 Aug 04 Adapted to extended local orbitals
-    ! ----------------------------------------------------------------------
-    implicit none
-    integer :: kmax,nlma,k0,norb,ltab(norb),ktab(norb),offl(norb),ik
-    integer :: n0,nkap0
-    parameter (n0=10,nkap0=3)
-    double precision :: rsmh(n0,nkap0)
-    double complex b0(0:k0,nlma,1),b(0:k0,nlma,1)
-    integer :: ilmb,ilma,k,iorb,l1,ik1,i1,nlm1,nlm2
-    integer :: blks(norb),ntab(norb),oi,ol,nn
-    double precision :: xx
-    call gtbsl1(0,norb,ltab,ktab,rsmh,xx,ntab,blks) !! Block into groups of consecutive l
-    do  iorb = 1, norb
-       ik1 = ktab(iorb) ! Loop only over orbitals belonging to this energy block
-       nn = blks(iorb)
-       if (ik1==ik .AND. nn/= 0) then !blks(iorb): size of block of iorb
-          l1 = ltab(iorb)
-          oi = offl(iorb)
-          ol = l1**2
-          b(0:kmax,   1:nlma,oi+1:oi+nn) = b0(0:kmax,1:nlma,ol+1:ol+nn)
-          b(kmax+1:k0,1:nlma,oi+1:oi+nn) = 0d0
-       endif
-    enddo
-  end subroutine paugq1
-  subroutine paugqp(mode,kmax,nlma,k0,ndimh,napw,igapw,alat,qlat,srvol,q,pa,rsma, b0,b1,db)
+  subroutine paugqp(kmax,nlma,k0,ndimh,napw,igapw,alat,qlat,srvol,q,pa,rsma, b0,b1,db) !- Make PW part of strux b
     use m_ropyln,only: ropyln
-    !- Make PW part of strux b
-    ! ----------------------------------------------------------------------
-    !i Inputs
-    !i   mode  :0 Make  b = b0(0:kmax,nlma,ndimh)
-    !i          1 Make  b = b1(ndimh,nlma,0:kmax)
-    !i            and  db = db(ndimh,nlma,0:kmax,3)
-    !i          2 Make  b = b1(ndimh,nlma,0:kmax)
     !i   kmax  :Pkl polynomial cutoff
     !i   nlma  :augmentation L-cutoff
     !i   k0    :dimensionsb
@@ -323,12 +182,8 @@ contains
     !i   rsma  :augmentation smoothing radius
     !o Outputs
     !o   b     :PW part of 1-center epansion is poked into b
-    !r Remarks
-    !u Updates
-    !u   05 Jul 08 (T. Kotani) first created
-    ! ----------------------------------------------------------------------
     implicit none
-    integer :: mode,kmax,nlma,k0,napw,igapw(3,napw),ndimh
+    integer :: kmax,nlma,k0,napw,igapw(3,napw),ndimh
     double precision :: rsma,alat,qlat(3,3),q(3),srvol,pa(3)
     complex(8):: b0(0:k0,nlma,ndimh),b1(ndimh,nlma,0:k0), db(ndimh,nlma,0:k0,3)
     integer :: k,lmxa,l,ig,ilm,m,nlmto
@@ -343,10 +198,9 @@ contains
     tpiba = 2d0*pi/alat
     gamma = rsma**2/4d0
     lmxa = ll(nlma)
-    !   fac2l(l)=(2l-1)!! data fac2l /1,1,3,15,105,945,10395,135135,2027025,34459425/ See msrtx3.f
     fac2l(0) = 1d0
     do  l = 1, lmxa+1
-       fac2l(l) = fac2l(l-1) * (2*l-1)
+       fac2l(l) = fac2l(l-1) * (2*l-1) !   fac2l(l)=(2l-1)!! data fac2l /1,1,3,15,105,945,10395,135135,2027025,34459425/ See msrtx3.f
     enddo
     dfac(0) = 1d0
     do  k = 1, kmax
@@ -357,82 +211,17 @@ contains
        call ropyln(1,qpg(1),qpg(2),qpg(3),lmxa,1,yl,qpg2)
        phase = exp(srm1*alat*ddot(3,qpg,1,pa,1))
        facexp = exp(-gamma*qpg2(1))
-       ilm = 0
-       rsmal = 1d0 !takao 1 to 1d0 June2011 (may give little effects).
-       srm1l = 1d0 !
-       if (mode == 0) then
-          do  l = 0, lmxa
-             do  m = 1, 2*l+1
-                ilm = ilm + 1
-                facilm = srm1l*yl(ilm)
-                fac = fac2l(l+1)/rsmal/fpi
-                qk = 1
-                do  k = 0, kmax
-                   pgint =  dfac(k)*fac        ! Eq. 12.8 in JMP39 3393
-                   gfourier = qk*facilm*facexp ! Eq. 5.17
-                   b0(k,ilm,ig+nlmto) = gfourier/pgint/srvol*phase
-                   fac = fac * 4/rsma**2
-                   qk = -qpg2(1) * qk
-                enddo
-             enddo
-             rsmal = rsmal*rsma
-             srm1l = srm1l * srm1
+       do ilm=1,(lmxa+1)**2
+          l=ll(ilm)
+          facilm = srm1**l*yl(ilm)
+          fac = fac2l(l+1)/rsma**l/fpi
+          do  k = 0, kmax
+             pgint =  dfac(k)*fac*(4/rsma**2)**k    ! Eq. 12.8 in JMP39 3393
+             gfourier = (-qpg2(1))**k*facilm*facexp ! Eq.5.17
+             b1(ig+nlmto,ilm,k)   = gfourier/pgint/srvol*phase
+             db(ig+nlmto,ilm,k,:) = -srm1*qpg(:) * b1(ig+nlmto,ilm,k)
           enddo
-       elseif (mode == 1 .OR. mode == 2) then
-          do  l = 0, lmxa
-             do  m = 1, 2*l+1
-                ilm = ilm + 1
-                facilm = srm1l*yl(ilm)
-                fac = fac2l(l+1)/rsmal/fpi
-                qk = 1
-                if (mode == 1) then
-                   do  k = 0, kmax
-                      pgint =  dfac(k)*fac        ! Eq. 12.8 in JMP39 3393
-                      gfourier = qk*facilm*facexp ! Eq.5.17
-                      b = gfourier/pgint/srvol*phase
-                      b1(ig+nlmto,ilm,k) = b
-                      db(ig+nlmto,ilm,k,1) = -srm1*qpg(1) * b
-                      db(ig+nlmto,ilm,k,2) = -srm1*qpg(2) * b
-                      db(ig+nlmto,ilm,k,3) = -srm1*qpg(3) * b
-                      fac = fac * 4/rsma**2
-                      qk = -qpg2(1) * qk
-                   enddo
-                else
-                   do  k = 0, kmax
-                      pgint =  dfac(k)*fac        ! Eq. 12.8 in JMP39 3393
-                      gfourier = qk*facilm*facexp ! Eq.5.17
-                      b = gfourier/pgint/srvol*phase
-                      b1(ig+nlmto,ilm,k) = b
-                      fac = fac * 4/rsma**2
-                      qk = -qpg2(1) * qk
-                   enddo
-                endif
-             enddo
-             rsmal = rsmal*rsma
-             srm1l = srm1l * srm1
-          enddo
-       else
-          call rxi('paugqp: bad mode',mode)
-       endif
+       enddo
     enddo
   end subroutine paugqp
-  subroutine paugq2(kmax,nlmh,nlma,bos,b0) !Subtract on-site strux for ib=ia, leaving tail expansion
-    !i   kmax  :polynomial cutoff in PkL expansion
-    !i   nlmh  :L-cutoff for this (site,energy) block
-    !i   nlma  :dimensions b0
-    !i   bos   :on-site strux
-    !o Outputs
-    !o   b0    :On-site part of strux subtracted
-    !r Remarks
-    !r   b0 has normal L ordering in both row and column dimensions.
-    implicit none
-    integer :: kmax,nlmh,nlma
-    real(8):: bos(0:kmax,nlmh)
-    complex(8):: b0(0:kmax,nlma,1)
-    integer :: ilm,k
-    do  ilm = 1, nlmh
-       b0(0:kmax,ilm,ilm) = b0(0:kmax,ilm,ilm)-bos(0:kmax,ilm)
-    enddo
-  end subroutine paugq2
 end module m_bstrux
-
