@@ -61,16 +61,6 @@ contains
        a = 1/rsm(1)
        nDx = 1
     endif
-!    if (nG > 0 .AND. a /= 0 .and. rsm(1) > faca/a) then
-!       ltmp = .true.
-!       do   ie = 1, nxi
-!          ltmp = ltmp .and. abs(rsm(ie)-rsm(1))<1d-12
-!       enddo
-!       if (ltmp) then
-!          a = 1/rsm(1)
-!          nDx = 1
-!       endif
-!    endif
     a2 = a*a
     qqblock: block
       real(8):: qq(nG,3)!,rsq(nG)
@@ -221,11 +211,9 @@ contains
     q0=q
     a = awald ! ... If rsm ge 1/a, set a = 1/rsm and skip r.s. part
     nDx = nD
-    if (nG > 0) then
-       if (rsm > faca/a) nDx = 1
-       if (nDx == 1) then
-          a = 1/rsm
-       endif
+    if (nG > 0.and. rsm > faca/a) then
+       nDx = 1
+       a = 1/rsm
     endif
     a2 = a*a
     qqblock: block ! --- Setup for Q-space part ---

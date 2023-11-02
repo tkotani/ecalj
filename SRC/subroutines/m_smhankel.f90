@@ -173,7 +173,7 @@ contains
     real(8):: q(3), dr(3),rsm1,rsm2,e1,e2 !cg(1),cy(1) 
     real(8) :: gam1,fpi,gam2,gamx,rsmx,qq,fac1,fac2,e,cz,cx1, cx2,cy1,cy2,fac,add
     complex(8):: s(ndim1,ndim2,0:k0),ds(ndim1,ndim2,0:k0,3)
-    integer :: ktop0,lmax1,lmax2,lmaxx,nlmx,nlmxp1,ktop,ktopp1, &
+    integer :: lmax1,lmax2,lmaxx,nlmx,nlmxp1,ktop,ktopp1, &
          k,ilm,kz,kx1,kx2,ky1,ky2,ilm1,l1,ilm2,l2,ii,indx,icg,ip
     fpi = 16d0*datan(1.d0)
     gam1 = .25d0*rsm1*rsm1
@@ -186,31 +186,29 @@ contains
     lmaxx = lmax1+lmax2
     nlmx = (lmaxx+1)**2
     nlmxp1 = (lmaxx+2)**2
-    ktop = max0(lmax1,lmax2)+kmax
+    ktop   = max0(lmax1,lmax2)+kmax !Note difference of kmax and ktop
     ktopp1 = ktop+1
-    ktop0=ktopp1
     hklblock: block
-      complex(8):: hkl1(0:ktop0,nlmxp1),hkl2(0:ktop0,nlmxp1), ghkl(0:ktop0,nlmxp1,3),hsm(nlmxp1),hsmp(nlmxp1)
-      if (ktopp1 > ktop0) call rxi('hhigbl: need ktop0 ge',ktopp1)
+      complex(8):: hkl1(0:ktopp1,nlmxp1),hkl2(0:ktopp1,nlmxp1), ghkl(0:ktopp1,nlmxp1,3),hsm(nlmxp1),hsmp(nlmxp1)
       if (dabs(e1-e2) > 1d-5) then !Set up functions for connecting vector p2-p1 ---
          if(qq > 1d-6.and.dabs(e1) <= 1d-6) call rx('hhigbl: e1=0 only allowed if q=0')
          if(qq > 1d-6.and.dabs(e2) <= 1d-6) call rx('hhigbl: e2=0 only allowed if q=0')
-         if(dabs(e1) > 1d-6) then; call hklbl(dr,rsmx,e1,q,ktopp1,nlmxp1,ktop0,hkl1) 
-         else;                     call fklbl(dr,rsmx,ktopp1,nlmxp1,ktop0,hkl1) ;   endif
-         if(dabs(e2) > 1d-6) then; call hklbl(dr,rsmx,e2,q,ktopp1,nlmxp1,ktop0,hkl2) 
-         else;                     call fklbl(dr,rsmx,ktopp1,nlmxp1,ktop0,hkl2) ;   endif
+         if(dabs(e1) > 1d-6) then; call hklbl(dr,rsmx,e1,q,ktopp1,nlmxp1,ktopp1,hkl1) 
+         else;                     call fklbl(dr,rsmx,ktopp1,nlmxp1,ktopp1,hkl1) ;   endif
+         if(dabs(e2) > 1d-6) then; call hklbl(dr,rsmx,e2,q,ktopp1,nlmxp1,ktopp1,hkl2) 
+         else;                     call fklbl(dr,rsmx,ktopp1,nlmxp1,ktopp1,hkl2) ;   endif
          hkl1(0:ktopp1,1:nlmxp1)=exp(gam2*(e2-e1))/(e1-e2)*hkl1(0:ktopp1,1:nlmxp1)+exp(gam1*(e1-e2))/(e2-e1)*hkl2(0:ktopp1,1:nlmxp1)
       else
          e = .5d0*(e1+e2)
          if(qq<1d-6 .AND. dabs(e) < 1d-6) call rx('hhigbl: case q=0 and e1=e2=0 not available')
-         call hklbl(dr,rsmx,e,q,ktopp1,nlmxp1,ktop0,hkl2) 
+         call hklbl(dr,rsmx,e,q,ktopp1,nlmxp1,ktopp1,hkl2) 
          call hsmbl(dr,rsmx,e,q,lmaxx+1,hsm,hsmp) 
          hkl1(0,:) = hsmp(:) - gamx*hsm(:)
          do k = 1, ktopp1
             hkl1(k,:) = -e*hkl1(k-1,:) - hkl2(k-1,:)
          enddo
       endif
-      call ropylg2(lmaxx**2,ktop,nlmx,ktop0,nlmxp1,hkl1, ghkl) !gradiend of hkl
+      call ropylg2(lmaxx**2,ktop,nlmx,ktopp1,nlmxp1,hkl1, ghkl) !gradiend of hkl
       do  1111  ilm1 = mlm1, nlm1 ! ... Combine with Clebsch-Gordan coefficients
          l1 = ll(ilm1)
          do  111  ilm2 = mlm2, nlm2
@@ -315,10 +313,8 @@ contains
     integer :: mlm1,nlm1,mlm2,nlm2,kmax,ndim1,ndim2 !jcg(1),indxcg(1),
     real(8) :: dr(3),q(3),rsm1, rsm2,e1,e2 !,cg(1),cy(1)
     complex(8):: s(ndim1,ndim2,0:kmax)
-    integer :: nlm0,ktop0,icg,ii,ilm,ilm1,ilm2,indx,ip,k, ktop,l1,l2,lm,lmax1,lmax2,lmaxx,nlmx
-    parameter( nlm0=100, ktop0=10 )
+    integer :: icg,ii,ilm,ilm1,ilm2,indx,ip,k, ktop,l1,l2,lm,lmax1,lmax2,lmaxx,nlmx
     real(8) :: fpi,e,fac,fac1,fac2,gam1,gam2,gamx,rsmx
-    complex(8):: hkl1(0:ktop0,nlm0),hkl2(0:ktop0,nlm0), hsm(nlm0),hsmp(nlm0)
     fpi = 16d0*datan(1.d0)
     gam1 = 0.25d0*rsm1*rsm1
     gam2 = 0.25d0*rsm2*rsm2
@@ -329,34 +325,34 @@ contains
     lmaxx = lmax1+lmax2
     nlmx = (lmaxx+1)**2
     ktop = max0(lmax1,lmax2)+kmax
-    if (nlmx > nlm0) call rxi('increase nlm0 in hhibl need',nlmx)
-    if (ktop > ktop0) call rx('hhibl: increase ktop0')
-    ! ... Set up functions for connecting vector p1-p2
-    if (dabs(e1-e2) > 1d-5) then
-       call hklbl(dr,rsmx,e1,q,ktop,nlmx,ktop0, hkl1) 
-       call hklbl(dr,rsmx,e2,q,ktop,nlmx,ktop0, hkl2) 
-       hkl1(0:ktop,1:nlmx) = dexp(gam2*(e2-e1))/(e1-e2) *hkl1(0:ktop,1:nlmx) + dexp(gam1*(e1-e2))/(e2-e1) *hkl2(0:ktop,1:nlmx)
-    else
-       e = .5d0*(e1+e2)
-       call hklbl(dr,rsmx,e,q,ktop,nlmx,ktop0, hkl2) 
-       call hsmbl(dr,rsmx,e,q,lmaxx, hsm,hsmp) 
-       do  ilm = 1, nlmx
-          hkl1(0,ilm) = hsmp(ilm) - gamx*hsm(ilm)
-          do   k = 1, ktop
-             hkl1(k,ilm) = -e*hkl1(k-1,ilm) - hkl2(k-1,ilm)
-          enddo
-       enddo
-    endif
-    do  1111  ilm1 = mlm1, nlm1 !Combine with Clebsch-Gordan coefficients
-       l1 = ll(ilm1)
-       do  111  ilm2 = mlm2, nlm2
-          l2 = ll(ilm2)
-          do icg = icgi(ilm1,ilm2),icge(ilm1,ilm2)
-             ilm = jcg(icg)
-             s(ilm1,ilm2,0:kmax) = s(ilm1,ilm2,0:kmax) + fpi*(-1d0)**l1*cg(icg)* [(hkl1((l1+l2-ll(ilm))/2+ip,ilm),ip=0,kmax)]
-          enddo
-111    enddo
-1111 enddo
+    block
+      complex(8):: hkl1(0:ktop,nlmx),hkl2(0:ktop,nlmx), hsm(nlmx),hsmp(nlmx)
+      if (dabs(e1-e2) > 1d-5) then !Set up functions for connecting vector p1-p2
+         call hklbl(dr,rsmx,e1,q,ktop,nlmx,ktop, hkl1) 
+         call hklbl(dr,rsmx,e2,q,ktop,nlmx,ktop, hkl2) 
+         hkl1(0:ktop,1:nlmx) = dexp(gam2*(e2-e1))/(e1-e2) *hkl1(0:ktop,1:nlmx) + dexp(gam1*(e1-e2))/(e2-e1) *hkl2(0:ktop,1:nlmx)
+      else
+         e = .5d0*(e1+e2)
+         call hklbl(dr,rsmx,e,q,ktop,nlmx,ktop, hkl2) 
+         call hsmbl(dr,rsmx,e,q,lmaxx, hsm,hsmp) 
+         do  ilm = 1, nlmx
+            hkl1(0,ilm) = hsmp(ilm) - gamx*hsm(ilm)
+            do   k = 1, ktop
+               hkl1(k,ilm) = -e*hkl1(k-1,ilm) - hkl2(k-1,ilm)
+            enddo
+         enddo
+      endif
+      do  1111  ilm1 = mlm1, nlm1 !Combine with Clebsch-Gordan coefficients
+         l1 = ll(ilm1)
+         do  111  ilm2 = mlm2, nlm2
+            l2 = ll(ilm2)
+            do icg = icgi(ilm1,ilm2),icge(ilm1,ilm2)
+               ilm = jcg(icg)
+               s(ilm1,ilm2,0:kmax) = s(ilm1,ilm2,0:kmax) + fpi*(-1d0)**l1*cg(icg)* [(hkl1((l1+l2-ll(ilm))/2+ip,ilm),ip=0,kmax)]
+            enddo
+111      enddo
+1111  enddo
+    endblock
   end subroutine phhibl
   subroutine gklbl(p,rsm,e,q,kmax,nlm,k0, gkl) ! Bloch-sums of k,L-dependent gaussians
     use m_lmfinit,only:alat=> lat_alat
@@ -415,7 +411,6 @@ contains
     real(8) :: yl(nlm),r(3),qdotr,r1,r2, p(3),q(3),alat,rsm
     complex(8):: gkl(0:k0,nlm),cfac,img=(0d0,1d0)
     integer :: ilm,ir,k,l,lmax,m,nm
-    integer,parameter:: nlm0=144
     real(8),parameter:: tpi = 8d0*datan(1d0)
     real(8),allocatable:: wk(:,:)
     lmax = ll(nlm)
@@ -449,7 +444,7 @@ contains
     integer :: k0,kmax,nlm !,nkq
     real(8) :: alat,rsm,vol,q(3),p(3) 
     complex(8):: gkl(0:k0,nlm)
-    integer :: ilm,ir,k,lmax,nlm0
+    integer :: ilm,ir,k,lmax
     real(8) :: a,gamma,r2,scalp,tpiba,vfac,r(3),yl(nlm)
     complex(8):: eiphi,add,add0
     complex(8):: img=(0d0,1d0)
@@ -489,17 +484,15 @@ contains
     !r   H_kL = laplace^k H_L
     !r   Uses the recursion relation H_k+1,L = -e*H_kL - 4*pi*G_kL
     implicit none
-    integer,parameter:: nlm0=144
     integer :: k0,kmax,nlm
     real(8):: e,rsm,q(3),p(3) 
-    complex(8):: hkl(0:k0,nlm), hsm(nlm0),hsmp(nlm0),phase,gklsav,gklnew
+    complex(8):: hkl(0:k0,nlm),gkl(0:k0,nlm), hsm(nlm),hsmp(nlm),phase
     integer:: ilm,job,k,lmax,nrx, owk,oyl
-    real(8),parameter:: pi = 4d0*datan(1d0),fpi = 4d0*pi,faca=1d0
+    real(8),parameter:: pi = 4d0*datan(1d0),fpi = 4d0*pi
     real(8) :: sp,p1(3),ppin(3)
     real(8),allocatable:: wk(:),yl(:)
     complex(8):: img=(0d0,1d0)
     if (nlm == 0) return
-    if (nlm > nlm0) call rxi('increase nlm0 in hklbl need',nlm)
     lmax = ll(nlm)
     ppin=matmul(transpose(qlat),p) 
     call shortn3_plat(ppin) 
@@ -509,20 +502,17 @@ contains
     nrx = max(nkd,nkq)
     allocate(yl(nrx*(lmax+1)**2))
     call hsmq ( 1,0,[ll(nlm)],[e],[rsm],0000,qshortn(q),p1,nrx,nlm,yl, awald,alat,qlv,nkq,dlv,nkd,vol, hsm,hsmp )
-    if (rsm > faca/awald) then
-       call gklbl(p1,rsm,e,q,kmax-1,nlm,k0, hkl) 
+    if (rsm > 1d0/awald) then
+       call gklbl(p1,rsm,e,q,kmax-1,nlm,k0, gkl) 
     else
-       call gklq(lmax,rsm,q,p1,e, kmax - 1,k0,alat,nrx,yl,hkl )
+       call gklq(lmax,rsm,q,p1,e, kmax - 1,k0,alat,nrx,yl,gkl )
     endif
     deallocate(yl)
     ! --- H_kL by recursion ---
-    do   ilm = 1, nlm
-       gklsav = hkl(0,ilm)
+    do    ilm = 1, nlm
        hkl(0,ilm) = hsm(ilm)
-       do    k = 1, kmax
-          gklnew = hkl(k,ilm)
-          hkl(k,ilm) = -e*hkl(k-1,ilm) - fpi*gklsav
-          gklsav = gklnew
+       do k = 1, kmax
+          hkl(k,ilm) = -e*hkl(k-1,ilm) - fpi*gkl(k-1,ilm)
        enddo
     enddo
     if (sp /= 0) hkl(0:kmax,:) = phase*hkl(0:kmax,:)! ... Put in phase to undo shortening
@@ -547,16 +537,13 @@ contains
     implicit none
     integer :: kmax,nlm,k0
     real(8):: p(3),rsm,ppin(3)
-    integer:: nlm0,lmax,nrx,owk,oyl,job, ilm,k
-    parameter ( nlm0=196 )
-    real(8) :: q(3),p1(3),faca,fpi,y0,e
-    complex(8):: fsm(nlm0),gklsav,gklnew,fkl(0:k0,nlm),gkl(0:k0,nlm)
-    parameter (faca=1d0)
+    integer::lmax,nrx,owk,oyl,job, ilm,k
+    real(8) :: q(3),p1(3),fpi,y0,e
+    complex(8):: fsm(nlm),fkl(0:k0,nlm),gkl(0:k0,nlm)
     real(8),allocatable:: wk(:),yl(:)
     if (nlm == 0) return
     fpi = 16d0*datan(1d0)
     y0 = 1d0/dsqrt(fpi)
-    if (nlm > nlm0) call rx('fklbl: increase nlm0')
     lmax = ll(nlm)
     e = 0d0
     q = 0d0
@@ -566,8 +553,8 @@ contains
     nrx = max(nkd,nkq)
     allocate( yl(nrx*(lmax+1)**2))
     call hsmqe0 ( lmax,rsm,0,qshortn(q),p1,nrx,nlm,yl, awald,alat,qlv,nkq,dlv,nkd,vol, fsm  )
-    if (rsm > faca/awald) then; call gklbl(p1,rsm,e,q,kmax-1,nlm,k0, gkl) 
-    else;                       call gklq(lmax,rsm,q,p1,e,kmax-1,k0,alat, nrx,yl,gkl )
+    if (rsm > 1d0/awald) then; call gklbl(p1,rsm,e,q,kmax-1,nlm,k0, gkl) 
+    else;                      call gklq(lmax,rsm,q,p1,e,kmax-1,k0,alat, nrx,yl,gkl )
     endif
     deallocate(yl)
     do ilm = 1, nlm ! ... Upward recursion in k: mainly sets fkl = -4*pi * g(k-1,l)
@@ -607,7 +594,7 @@ contains
     integer :: nlmg,nlmh,kmax,ndim1,ndim2,kdim !jcg(*),indxcg(*),
     real(8) :: ph(3),pg(3),rsmg,rsmh  !,cg(1),cy(1)
     complex(8):: s(ndim1,ndim2,0:kdim),ds(ndim1,ndim2,0:kdim,3)
-    integer :: nlm0,ktop0,m,lmaxh,lmaxg,lmaxx,nlmx,nlmxp1,ktop,ktopp1, &
+    integer ::m,lmaxh,lmaxg,lmaxx,nlmx,nlmxp1,ktop,ktopp1, &
          ilm,kz,kx1,kx2,ky1,ky2,k,jlm,ilg,lg,ilh,lh,ii,indx, icg,lm,ip,nlmxx
     real(8) :: dr(3),gamh,gamg,rsmx,cz,cx1,cx2,cy1,cy2,fac
     complex(8),allocatable:: hkl(:,:),ghkl(:,:,:)
@@ -623,13 +610,9 @@ contains
     nlmxp1 = (lmaxx+2)**2
     ktop = max0(lmaxg,lmaxh) + kmax
     ktopp1 = ktop+1
-    nlm0 = nlmxp1
-    ktop0 = ktopp1
-    allocate(hkl(0:ktop0,nlm0),ghkl(0:ktop0,nlm0,3))
-    if (nlmxp1 > nlm0)  call rxi('gfigbl: need nlm0 ge',nlmxp1)
-    if (ktopp1 > ktop0) call rxi('gfigbl: need ktop0 ge',ktopp1)
-    call fklbl(dr,rsmx,ktopp1,nlmxp1,ktop0, hkl)  ! hkl for connecting vector dr
-    call ropylg2(lmaxx*lmaxx,ktop,nlmx,ktop0,nlm0,hkl, ghkl) !gradiend of hkl
+    allocate(hkl(0:ktopp1,nlmxp1),ghkl(0:ktopp1,nlmxp1,3))
+    call fklbl(dr,rsmx,ktopp1,nlmxp1,ktopp1, hkl)  ! hkl for connecting vector dr
+    call ropylg2(lmaxx*lmaxx,ktop,nlmx,ktopp1,nlmxp1,hkl, ghkl) !gradiend of hkl
     s=0d0
     ds=0d0
     do  1111  ilg = 1, nlmg !Combine with Clebsch-Gordan coefficients ---
@@ -744,7 +727,7 @@ contains
     integer :: nlmg,nlmh,kmax,ndim1,ndim2 !,jcg(1),indxcg(1)
     real(8) :: rsmg,rsmh(1),eg,eh(1), ph(3),pg(3),q(3) !,cg(1),cy(1)
     complex(8):: s(ndim1,ndim2,0:kmax)
-    integer :: nlm0,ktop0,icg,ii,ilg,ilh,ilm,indx,ip,jlm,k,ktop,lg,lh,lm,lmaxg,lmaxh,lmaxx,m,nlmx,l1,l2,ilm1,ilm2
+    integer :: icg,ii,ilg,ilh,ilm,indx,ip,jlm,k,ktop,lg,lh,lm,lmaxg,lmaxh,lmaxx,m,nlmx,l1,l2,ilm1,ilm2
     complex(8),allocatable:: hkl(:,:)
     real(8) :: ee,fac,gamg,gamh,rsmx,dr(3),e,rsm
     if (nlmh == 0 .OR. nlmg == 0) return
@@ -754,17 +737,15 @@ contains
     lmaxx = lmaxg+lmaxh
     nlmx = (lmaxx+1)**2
     ktop = max0(lmaxg,lmaxh)+kmax
-    ktop0 = ktop
-    nlm0  = nlmx
-    allocate( hkl(0:ktop0,nlm0))
+    allocate( hkl(0:ktop,nlmx))
     s(1:nlmg,1:nlmh,0:kmax) = 0d0
     l2 = -1
     do  20  l1 = 0, lmaxh ! Loop over sequences of l with a common rsm,e ---
-       if (l1 <= l2) goto 20
+       if (l1 <= l2) cycle
        l2=gtbsl2(l1,lmaxh,eh,rsmh)
        rsm  = rsmh(l1+1)
        e    = eh(l1+1)
-       if (rsm <= 0 .OR. e > 0) goto 20
+       if (rsm <= 0 .OR. e > 0) cycle
        ilm1 = l1**2+1
        ilm2 = (l2+1)**2
        lmaxx= lmaxg+l2
@@ -773,18 +754,18 @@ contains
        gamg = 0.25d0*rsmg*rsmg
        rsmx = 2d0*dsqrt(gamg+gamh)
        ktop = max0(lmaxg,l2)+kmax
-       call hklbl(dr,rsmx,e,q,ktop,nlmx,ktop0, hkl)
+       call hklbl(dr,rsmx,e,q,ktop,nlmx,ktop, hkl)
        ee = dexp(gamg*(eg-e)) ! Combine with Clebsch-Gordan coefficients
-       do  1111  ilg = 1, nlmg
+       do  1111   ilg = 1, nlmg
           lg = ll(ilg)
-          do  111  ilh = ilm1, ilm2
+          do 111  ilh = ilm1, ilm2
              lh = ll(ilh)
-             do  11  icg = icgi(ilg,ilh),icge(ilg,ilh)
+             do icg = icgi(ilg,ilh),icge(ilg,ilh)
                 ilm = jcg(icg)
                 lm = ll(ilm)
                 k = (lg+lh-lm)/2
                 s(ilg,ilh,:) = s(ilg,ilh,:) + ee*(-1d0)**lg*cg(icg)*hkl(k:k+kmax,ilm)
-11           enddo
+             enddo
 111       enddo
 1111   enddo
 20  enddo
@@ -819,8 +800,8 @@ contains
     !u Updates
     !u   25 May 00 Made rsmh,eh l-dependent
     implicit none
-    integer :: k0,kmax,ndim1,ndim2,nlmg,nlmh,icg,ii,ilg,ilh,ilm,ilm1,ilm2,indx,ip,jlm,k,ktop, ktop0,l1,l2,lg,lh,lm,&
-         lmaxg,lmaxh,lmaxx,m,nlm0,nlmx
+    integer :: k0,kmax,ndim1,ndim2,nlmg,nlmh,icg,ii,ilg,ilh,ilm,ilm1,ilm2,indx,ip,jlm,k,ktop,ktopp1,l1,l2,lg,lh,lm,&
+         lmaxg,lmaxh,lmaxx,m,nlm1,nlmx
     real(8) :: rsmg,rsmh(1),eg,eh(1),ph(3),pg(3),q(3),ee,fac,gamg,gamh,rsmx,dr(3),e,rsm
     complex(8):: s(ndim1,ndim2,0:k0),ds(ndim1,ndim2,0:k0,3)
     complex(8),allocatable:: hkl(:,:),dhkl(:,:,:)
@@ -831,10 +812,10 @@ contains
     lmaxg = ll(nlmg)
     lmaxx = lmaxg+lmaxh
     nlmx = (lmaxx+1)**2
-    ktop = max0(lmaxg,lmaxh)+kmax
-    ktop0 = ktop+1
-    nlm0  = (lmaxx+2)**2
-    allocate( hkl(0:ktop0,nlm0),dhkl(0:ktop0,nlm0,3))
+    nlm1 = (lmaxx+2)**2
+    ktop   = max0(lmaxg,lmaxh)+kmax
+    ktopp1 = ktop+1
+    allocate( hkl(0:ktopp1,nlm1),dhkl(0:ktopp1,nlm1,3))
     s=0d0
     ds=0d0
     l2 = -1
@@ -852,7 +833,7 @@ contains
        gamg = 0.25d0*rsmg*rsmg
        rsmx = 2d0*dsqrt(gamg+gamh)
        ktop = max0(lmaxg,l2)+kmax
-       call hklgbl(dr,rsmx,e,q,ktop,nlmx,ktop0,nlm0, hkl,dhkl)
+       call hklgbl(dr,rsmx,e,q, ktop,nlmx,ktopp1,nlm1, hkl,dhkl)
        ee = dexp(gamg*(eg-e))
        do  1111  ilg = 1, nlmg !   ... Combine with Clebsch-Gordan coefficients
           lg = ll(ilg)
@@ -910,18 +891,14 @@ contains
     integer :: k0,kmax,ndim,nlmg,nlmh!,jcg(1),indxcg(1)
     real(8) :: eh(1),rsmg,rsmh(1),ph(3),pg(3),q(3) !,cg(1),cy(1)
     complex(8):: c(0:k0,ndim,nlmh)
-    integer :: ndim1,ndim2,ktop0,ilmg,ilmh,k,l,lmaxg,m,nm
+    integer :: ndim1,ndim2,ilmg,ilmh,k,l,lmaxg,m,nm
     real(8) :: a,dfact,eg,fac,factk,fpi
     complex(8),allocatable:: s(:,:,:)
     if (nlmg == 0 .OR. nlmh == 0) return
     fpi = 16d0*datan(1d0)
-    nlmg = nlmg
-    nlmh = nlmh
-    ktop0 = kmax
     allocate(s(nlmg,nlmh,0:kmax))
-    ! ... Integrals of gaussians and smoothed Hankels
     eg = 0d0
-    call ghibl(pg,ph,q,rsmg,rsmh,eg,eh,nlmg,nlmh,kmax,nlmg,nlmh, s) !,cg,indxcg,jcg,cy
+    call ghibl(pg,ph,q,rsmg,rsmh,eg,eh,nlmg,nlmh,kmax,nlmg,nlmh, s) !Integrals of gaussians and smoothed Hankels
     a = 1d0/rsmg
     lmaxg = ll(nlmg)
     call factorial_init(kmax,2*lmaxg+1)
@@ -973,19 +950,15 @@ contains
     integer :: k0,kmax,ndimg,ndimh,nlmg,nlmh
     real(8) :: eh(1),rsmg,rsmh(1),ph(3),pg(3),q(3),a,dfact,eg,fac,factk,fpi
     complex(8):: c(0:k0,ndimg,ndimh),dc(0:k0,ndimg,ndimh,3)
-    integer :: ndim1,ndim2,ktop0,ilmg,ilmh,k,l,lmaxg,m,nm
+    integer :: ndim1,ndim2,ilmg,ilmh,k,l,lmaxg,m,nm
     complex(8),allocatable:: s(:,:,:),ds(:,:,:,:)
     if (nlmg == 0 .OR. nlmh == 0) return
     fpi = 16d0*datan(1d0)
     ndim1 = nlmg
     ndim2 = nlmh
-    ktop0 = kmax
-    allocate(s(ndim1,ndim2,0:ktop0),ds(ndim1,ndim2,0:ktop0,3))
-    if (kmax > ktop0) call rxi('hxpgbl: increase ktop0, need',kmax)
-    if (nlmg > ndim1) call rxi('hxpgbl: increase ndim1, need',nlmg)
-    if (nlmh > ndim2) call rxi('hxpgbl: increase ndim2, need',nlmh)
+    allocate(s(ndim1,ndim2,0:kmax),ds(ndim1,ndim2,0:kmax,3))
     eg = 0d0
-    call ghigbl(pg,ph,q,rsmg,rsmh,eg,eh,nlmg,nlmh,kmax,ndim1,ndim2,ktop0,s,ds) ! ... Integrals of Hankels with Gaussians
+    call ghigbl(pg,ph,q,rsmg,rsmh,eg,eh,nlmg,nlmh,kmax,nlmg,nlmh,kmax,s,ds) ! ... Integrals of Hankels with Gaussians
     a = 1d0/rsmg ! ... Scale to get coefficients of the PkL
     lmaxg = ll(nlmg)
     call factorial_init(kmax,2*lmaxg+1)
@@ -1080,8 +1053,7 @@ contains
     integer :: ndim,ilm,k,l,lmax,m,nm,ktop,l1,l2,lmaxh
     real(8) :: a,dfact,eg,fac,factk,sig,rsm
     real(8):: s(nlmh,0:kmax),e,gamg,gamh,rsmx,gam,asm,akap,hh,gg
-    real(8),parameter:: fpi = 16d0*datan(1d0)
-    real(8),parameter:: pi = 4d0*datan(1d0),y0 = 1d0/dsqrt(4*pi)
+    real(8),parameter:: fpi = 16d0*datan(1d0), pi = 4d0*datan(1d0),y0 = 1d0/dsqrt(4*pi)
     if (nlmh == 0) return
     eg = 0d0
     lmaxh = ll(nlmh)
@@ -1101,7 +1073,6 @@ contains
        block 
          real(8) :: h0k(0:ktop) !   ... Make hankels for l=0 and k=0..kmax
          !call hklos(rsmx,e,ktop,h0k)
-         if(e > 0d0) call rx('hklos: e is positive')! ... Make smooth Hankel at zero
          gam = rsmx*rsmx/4d0
          asm = 0.5d0/dsqrt(gam)
          akap = sqrt(abs(e))
@@ -1195,8 +1166,7 @@ contains
     integer :: lmax !nkq,
     real(8) :: a,alat,e,vol, q(3),p(3)
     complex(8):: dl((lmax+1)**2),dlp((lmax+1)**2),img=(0d0,1d0)
-    integer :: lmxx,nlm,ilm,ir
-    parameter (lmxx=11)
+    integer ::nlm,ilm,ir
     real(8) :: r(3),tpi,gamma,fpibv,tpiba,scalp,r2,den0,den1
     real(8) :: yl((lmax+1)**2)
     complex(8):: eiphi
@@ -1220,16 +1190,14 @@ contains
   end subroutine hsmblq
   subroutine hsmbld(p,rsm,e,q,a,lmax,alat, dl,dlp) !Adds real space part of reduced structure constants (ewald).
     implicit none
-    integer,parameter :: lmxx=11
     integer :: ilm,ir,l,lmax,m,nm
     real(8) :: q(3),p(3)
     complex(8):: dl(1),dlp(1)
     real(8) :: a,a2,akap,alat,asm,asm2,cc,ccsm,derfc,e,emkr,gl,qdotr,r1,r2,rsm,srpi,ta,ta2,tasm,tasm2,umins,uplus,tpi,kap
-    real(8) :: yl((lmxx+1)**2),chi1(-1:10),chi2(-1:10),r(3)
+    real(8) :: yl((lmax+1)**2),chi1(-1:10),chi2(-1:10),r(3)
     complex(8):: cfac,zikap,expikr,zuplus,zerfc,img=(0d0,1d0)
     real(8),parameter :: srfmax=16d0, fmax=srfmax*srfmax
     if (e>0d0) call rx('EH >0 not supported') !lpos removed
-    if (lmax > lmxx) call rxi('hsmbld: increase lmxx to',lmax)
     tpi = 8.d0*datan(1.d0)
     srpi = dsqrt(tpi/2.d0)
     akap = dsqrt(-e)
@@ -1263,9 +1231,8 @@ contains
              umins = derfc(.5d0*akap/a-r1*a)*emkr
              chi1(-1:0) = [(umins+uplus)/(2.d0*akap), 0.5d0*(umins-uplus)/r1]
              gl = cc*dexp(-a2*r2)/ta2
-             do l = 1, lmax
-                chi1(l) = ((2*l-1)*chi1(l-1)-e*chi1(l-2)-gl)/r2
-                gl = ta2*gl
+             do l = 1, lmax !resursion
+                chi1(l) = ((2*l-1)*chi1(l-1)-e*chi1(l-2)-ta2**(l-1)*gl)/r2
              enddo
           endif
           !        chi2 is complex; so is chi1, but the imaginary part    is the same, so the difference is real
@@ -1277,8 +1244,7 @@ contains
              chi2(-1:0) = [(umins+uplus)/(2d0*akap), 0.5d0*(umins-uplus)/r1]
              gl = ccsm*dexp(-asm2*r2)/tasm2
              do l = 1, lmax
-                chi2(l) = ((2*l-1)*chi2(l-1)-e*chi2(l-2)-gl)/r2
-                gl = tasm2*gl
+                chi2(l) = ((2*l-1)*chi2(l-1)-e*chi2(l-2)-tasm2**(l-1)*gl)/r2
              enddo
           endif
        endif

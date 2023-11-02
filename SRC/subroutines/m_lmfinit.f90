@@ -1,7 +1,7 @@
 !> Ititial data for lmf-MPIK lmchk lmfa read from ctrl file
 !> pos can be from AtomPos (see lmfp.f90)
 module m_lmfinit ! 'call m_lmfinit_init' sets all initial data from ctrl are processed and stored in m_lmfinit_init.
-  use m_ftox
+  use m_ftox !for write(*,ftox) ftof(values)
   use m_ext,only :sname        ! sname contains extension. foobar of ctrl.foobar
   use m_MPItk,only: master_mpi
   use m_lgunit,only: stdo,stdl
@@ -402,10 +402,8 @@ contains
          call rxx((lmxl(j)+1)**2 > nlmx,'m_lmfinit: increase nlmx')!nlml
          nnx = findloc([(pzsp(i,1,j)>0d0,i=1,n0)],value=.true.,back=.true.,dim=1)
          lmxb(j) = max(lmxb(j),nnx-1) ! lmxb corrected by pzsp
-         if(nnx>0) then !          
-            lpz(j)=1
-            if(sum(floor(pzsp(1:lmxa(j)+1,1,j)/10))>0 ) lpzex(j)=1
-         endif
+         if(nnx>0) lpz(j)=1
+         if(nnx>0.and.sum(floor(pzsp(1:lmxa(j)+1,1,j)/10))>0 ) lpzex(j)=1
          if(maxval(pzsp(1:n0,1,j))>10d0) lpztail= .TRUE. ! PZ +10 mode exist or not.
          nkaphh(j) = nkapii(j) + lpz(j) !number of radial basis of MTOs for j.
       enddo nspecloop0
@@ -478,7 +476,7 @@ contains
             enddo
          endif
 1111  enddo PnuQnuSetting
-      SkipLDAUwhensigmexistforidu10plus: if(sexist) then
+      SkipLDAUwhenSigmExistFORidu10plus: if(sexist) then
          do j=1,nspec
             if(sum(abs(idu(:,j)))/=0) then
                do lxxx=0+1,3+1
@@ -491,7 +489,7 @@ contains
                idu(0+1:3+1,j) = mod(idu(0+1:3+1,j),10)
             endif
          enddo
-      endif SkipLDAUwhensigmexistforidu10plus
+      endif SkipLDAUwhenSigmExistFORidu10plus
       lmxax = maxval(lmxa) !Maximum L-cutoff
       maxit=iter_maxit
       nlmax=(max(lmxbx,lmxax)+1)**2
@@ -739,10 +737,9 @@ contains
               j = 0
               do  i = 1, nbas
                  do  k = 1, 3
-                    if (ifrlx(k,i) == 1) then
+                    if(ifrlx(k,i) == 1) then
                        j = j + 1
-                       indrx_iv(1,j) = k
-                       indrx_iv(2,j) = i
+                       indrx_iv(1:2,j) = [k,i]
                     endif
                  enddo
               enddo
