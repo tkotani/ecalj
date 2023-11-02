@@ -116,3 +116,4 @@ v 0d0 0d0 0.04d0
 mlo_maxit 10
 mlo_EUinner 5
 mlo_WTseed 128
+mlo_WTband 2048

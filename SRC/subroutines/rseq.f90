@@ -1,11 +1,10 @@
+!> Solves radial wave equation for given BCs and number of nodes
 module m_rseq
   use m_lmfinit,only: c=>cc
   public rseq,rsq1
   private
 contains
-  subroutine rseq(eb1,eb2,e,tol,z,l,nod,val,slo,v,g,q,a,b,rofi,nr,nre) !- Solves radial wave equation for given BCs and number of nodes
-    ! ----------------------------------------------------------------------
-    !i Inputs:
+  subroutine rseq(eb1,eb2,e,tol,z,l,nod,val,slo,v,g,q,a,b,rofi,nr,nre) ! Solves radial wave equation for given BCs and number of nodes
     !i   eb1,eb2 lower and upper bounds for the eigenvalue
     !i   tol     tolerance: maximum relative error in energy;
     !i           absolute error if |energy| < 1
@@ -30,11 +29,7 @@ contains
     !r   Output wavefunction normalized to 1 ... so g(nr) .ne. val*wsr
     !r   Note: if r = b(exp(a*z)-1) then Jacobian dr=a(r+b) dz
     !r
-    !u Updates
-    ! takao       open(7838,file='RSEQ_ERROR') is written when rseq is not converged.
-    !u   08 Feb 01 if rseq fails to converge, but the number of nodes is
-    !u             correct, rseq returns with a warning instead of aborting
-    ! ----------------------------------------------------------------
+    !NOTE:   'RSEQ_ERROR' can be caused.
     implicit none
     integer :: l,nod,nr,nre
     double precision :: eb1,eb2,e,tol,z,val,slo,v(nr),g(nr,2),q,rofi(nr), a,b
@@ -133,18 +128,15 @@ contains
 99  continue
     if (ipr >= 110 .OR. nit >= nitmax) &
          write(*,701) e,q,nr,nre,kc,de
-701 format(' e=',f13.5,'  q=',f10.5,'   nr/nre/kc=',3i4, &
-         '   de=',1p,d10.2)
+701 format(' e=',f13.5,'  q=',f10.5,'   nr/nre/kc=',3i4, '   de=',1p,d10.2)
     if (nit > nitmax .AND. ipr >20) then
        if (nod /= node) then
           write(*,814) nitmax,l,nod,node,e
-814       format(' RSEQ : nit gt',i3,' and bad nodes for l=',i1, &
-               '.  Sought',i2,' but found',i2,'.  e=',1pd11.4)
+814       format(' RSEQ : nit gt',i3,' and bad nodes for l=',i1,'.  Sought',i2,' but found',i2,'.  e=',1pd11.4)
           call rx('RSEQ: bad nodes')
        else
           write(*,816) l,nod,abs(de),e
-816       format(' RSEQ (warning) eval for l=',i1,' node=',i1, &
-               ' did not converge: de=',1pd9.2,' e=',1pd11.4)
+816       format(' RSEQ (warning) eval for l=',i1,' node=',i1,' did not converge: de=',1pd9.2,' e=',1pd11.4)
           block
             character(256):: aaaa
             write(aaaa,816) l,nod,abs(de),e
@@ -156,8 +148,7 @@ contains
        endif
     endif
   end subroutine rseq
-  subroutine rsq1(i0,e,l,z,v,kr,g,val,slo,nn,a,b,rofi,nr)
-    !- Integrate the scalar relativistic eqn outward to rofi(kr)
+  subroutine rsq1(i0,e,l,z,v,kr,g,val,slo,nn,a,b,rofi,nr)    !- Integrate the scalar relativistic eqn outward to rofi(kr)
     ! ----------------------------------------------------------------
     !i Inputs:
     !i   i0      *If i0<5, integrate from origin to rofi(kr)
@@ -241,7 +232,6 @@ contains
           df3   = x*g(ir,2) - y*g(ir,1)
 3      enddo
     endif
-
     ! --- Integrate over rest of points ------
     do  4  ir = i1, kr
        r     = rofi(ir)
@@ -266,10 +256,7 @@ contains
     val = g(kr,1)
     slo = dg3/(a*(rofi(kr) + b))
   end subroutine rsq1
-  subroutine rsq2(e,l,z,v,nre,ncmin,val1,slo1,g,val,slo,nn,nc, a,b,rofi,nr)
-    !- Integrate the scalar relativistic eqn inward from nre to nc
-    ! ----------------------------------------------------------------
-    !i Inputs:
+  subroutine rsq2(e,l,z,v,nre,ncmin,val1,slo1,g,val,slo,nn,nc, a,b,rofi,nr) !- Integrate the scalar relativistic eqn inward from nre to nc
     !i   e     :energy
     !i   l     :angular momentum
     !i   z     :nuclear charge
@@ -430,8 +417,7 @@ contains
     !        write(*,*) rofi(ir), g(ir,1)
     !      enddo
   end subroutine rsq2
-  subroutine fctp0(l,nr,rofi,v,z,nctp0)
-    !- Initialize things for FCTP, which finds classical turning point
+  subroutine fctp0(l,nr,rofi,v,z,nctp0)    !- Initialize things for FCTP, which finds classical turning point
     ! ----------------------------------------------------------------------
     !i Inputs:
     !i   l     :angular momentum
@@ -463,8 +449,7 @@ contains
     nctp0 = ir-1
     if (veff(nctp0) >= veff(nr)-3.d0) nctp0 = nr
   end subroutine fctp0
-  subroutine fctp(a,b,e,l,nctp0,nr,rofi,v,z,nctp)
-    !- Finds classical turning point
+  subroutine fctp(a,b,e,l,nctp0,nr,rofi,v,z,nctp)    !- Finds classical turning point
     !  ---------------------------------------------------------------------
     !i Inputs:
     !i   a     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]

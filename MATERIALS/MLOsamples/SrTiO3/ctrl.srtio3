@@ -72,7 +72,7 @@ SPEC
 
 
 
-% const pwemax=3 nk1=4 nk2=4 nk3=4 nit=80  gmax=12  nspin=1 metal=3 so=0 xcfun=1 ssig=1.0 tetra=T 
+% const pwemax=3 nk1=6 nk2=6 nk3=6 nit=80  gmax=12  nspin=1 metal=3 so=0 xcfun=1 ssig=1.0 tetra=T 
 BZ    #ZBAK=0.1 For exmple, at Si ZBAK=0.1 gives 8-0.1=7.9 total electrons
       NKABC={nk1} {nk2} {nk3} # division of BZ for q points.
       METAL={metal}

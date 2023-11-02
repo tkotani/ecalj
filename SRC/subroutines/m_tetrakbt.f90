@@ -438,7 +438,7 @@ contains
     enddo
     int_simpson = (funcgx2(e_start,eeref)+sumval+funcgx2(e_end,eeref))*hdiv/3d0
   end function int_simpson
-  subroutine integtetn(e, ee, integb)  !> Calculate primitive integral of integb = 1/pi Imag[\int^ee dE' 1/(E' -e(k))] = \int^ee dE' S[E']
+  subroutine integtetn(e, ee, integb)  ! Calculate primitive integral of integb = 1/pi Imag[\int^ee dE' 1/(E' -e(k))] = \int^ee dE' S[E']
     !! \remark
     !!  S[E] : is area of the cross-section between the omega-constant plane and the tetrahedron. [here we assumee e1<e2<e3<e4].
     !!  Normalization is not considered! Rath&Freeman Integration of imaginary part on Eq.(17)

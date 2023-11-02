@@ -333,42 +333,42 @@ contains
     call tcx('m_qplist_qpsdivider')
   end subroutine m_qplist_qspdivider
 end module m_qplist
-!mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-module read_lmfgw_kdivider
-  use m_lgunit,only:stdo
-  character*256,allocatable:: extp(:)
-  integer,allocatable,protected:: iprocq(:,:)
-contains
-  subroutine readlmfgw_kdivider()
-    integer:: ifiproc,nqixx, nspxx, nrank,ispiqq,iqqxx,ispxx,ixxx,procid,iqq,isp
-    character*256:: ext,extn
-    !! === readin lmfgw_kdivider, and get extensions
-    open(newunit=ifiproc,file= 'lmfgw_kdivider')
-    read(ifiproc,*) ext  !extension is read here
-    read(ifiproc,*) nqixx, nspxx, nrank
-    allocate(iprocq(nqixx,nspxx))
-    do isp=1,nspxx
-       do iqq=1,nqixx
-          read(ifiproc,*) iqqxx, ispxx, ixxx
-          if(iqqxx/=iqq) stop 'iqqxx/=iqq'
-          if(ispxx/=isp) stop 'ispxx/=isp'
-          iprocq(iqq,isp) = ixxx
-          write(stdo,"('iqq isp irank=',i8,i2,i6)") iqq,isp, iprocq(iqq,isp)
-       enddo
-    enddo
-    close(ifiproc)
-    !! for mpi files.
-    allocate(extp(0:nrank-1))
-    extp(0) = trim(ext)
-    write(stdo,"('  0 ext= ',a,a)") trim(extp(0)),' ----------'
-    do procid=1,nrank-1
-       write(extn,"(i10)") procid
-       extp(procid)=trim(adjustl(ext))//'_'//trim(adjustl(extn))
-       write(stdo,"(i3,' ext= ',a,a)") procid,trim(extp(procid)),' ----------'
-    enddo
-  end subroutine readlmfgw_kdivider
-end module read_lmfgw_kdivider
-!mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+! !mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+! module m_read_lmfgw_kdivider
+!   use m_lgunit,only:stdo
+!   character*256,allocatable:: extp(:)
+!   integer,allocatable,protected:: iprocq(:,:)
+! contains
+!   subroutine readlmfgw_kdivider()
+!     integer:: ifiproc,nqixx, nspxx, nrank,ispiqq,iqqxx,ispxx,ixxx,procid,iqq,isp
+!     character*256:: ext,extn
+!     !! === readin lmfgw_kdivider, and get extensions
+!     open(newunit=ifiproc,file= 'lmfgw_kdivider')
+!     read(ifiproc,*) ext  !extension is read here
+!     read(ifiproc,*) nqixx, nspxx, nrank
+!     allocate(iprocq(nqixx,nspxx))
+!     do isp=1,nspxx
+!        do iqq=1,nqixx
+!           read(ifiproc,*) iqqxx, ispxx, ixxx
+!           if(iqqxx/=iqq) stop 'iqqxx/=iqq'
+!           if(ispxx/=isp) stop 'ispxx/=isp'
+!           iprocq(iqq,isp) = ixxx
+!           write(stdo,"('iqq isp irank=',i8,i2,i6)") iqq,isp, iprocq(iqq,isp)
+!        enddo
+!     enddo
+!     close(ifiproc)
+!     !! for mpi files.
+!     allocate(extp(0:nrank-1))
+!     extp(0) = trim(ext)
+!     write(stdo,"('  0 ext= ',a,a)") trim(extp(0)),' ----------'
+!     do procid=1,nrank-1
+!        write(extn,"(i10)") procid
+!        extp(procid)=trim(adjustl(ext))//'_'//trim(adjustl(extn))
+!        write(stdo,"(i3,' ext= ',a,a)") procid,trim(extp(procid)),' ----------'
+!     enddo
+!   end subroutine readlmfgw_kdivider
+! end module m_read_lmfgw_kdivider
+! !mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
 module m_readqplist 
   use m_lgunit,only:stdo
   integer,protected:: ndat

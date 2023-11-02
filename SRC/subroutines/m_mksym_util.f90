@@ -1179,4 +1179,14 @@ contains
        igann=igann*dble(ix)
     enddo
   end function igann
+  subroutine skipbl(t,nt,i)  !- Parses string for first nonblank character
+    !     implicit none
+    integer :: nt,i
+    character(1) :: t(0:nt)
+    if (i >= nt) return
+99  if (t(i) /= ' ') return
+    i = i+1
+    if (i >= nt) return
+    goto 99
+  end subroutine skipbl
 end module m_mksym_util

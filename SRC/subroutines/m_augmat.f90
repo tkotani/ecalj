@@ -1,4 +1,5 @@
-module m_augmat !- Make augmentation matrices sig,tau,pi for one site
+!> Make augmentation matrices sig,tau,pi for one site
+module m_augmat 
   use m_ll,only: ll
   use m_lmfinit,only: n0
   public vlm2us,momusl

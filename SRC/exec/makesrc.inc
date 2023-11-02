@@ -1,6 +1,7 @@
 #NOTE: when you add your foobar.F, choose one of *_list.
 
 ELIB_list=\
+tbhsi.o\
 m_fatom.o\
 m_HamPMT.o\
 m_cmdpath.o\
@@ -34,11 +35,11 @@ m_hamindex.o \
 m_struc_def.o \
 m_gtv.o \
 m_rhocor.o\
-atwf.o \
+m_atwf.o \
 besslr.o \
-bzints.o \
+m_bzints.o \
 bzmesh.o \
-bzwts.o \
+m_bzwts.o \
 chgmsh.o \
 defpq.o \
 delstp.o \
@@ -69,7 +70,6 @@ ropyln.o \
 rseq.o \
 scg.o \
 slinz.o \
-strx00.o \
 subzi.o \
 sugcut.o \
 suham.o \
@@ -84,7 +84,7 @@ switch.o \
 rdsigm2.o\
 xcpbe.o \
 m_ext.o\
-amix.o \
+m_amix.o \
 cmdopt.o \
 cputid.o \
 sort.o \
@@ -99,18 +99,17 @@ mpibc.o \
 poldvm.o \
 polint.o \
 rfalsi.o \
-strings.o \
 zhev.o \
 tc.o \
 scglp1.o \
-addrbl.o \
+m_addrbl.o \
 atqval.o \
-augmat.o \
-augmbl.o \
-bndfp.o \
+m_augmat.o \
+m_augmbl.o \
+m_bndfp.o \
 m_bndfp_util.o\
 m_writeband.o\
-bstrux.o \
+m_bstrux.o \
 dfrce.o \
 elocp.o \
 esmsmves.o \
@@ -120,7 +119,7 @@ gaugm.o \
 hambl.o \
 hklft.o \
 hsibl.o \
-lmfp.o \
+m_lmfp.o \
 locpot.o \
 makusp.o \
 makusq.o \
@@ -137,7 +136,6 @@ rsibl.o \
 smves.o \
 supot.o \
 symrho.o \
-tbhsi.o \
 totfrc.o \
 vcdmel.o \
 vesgcm.o \
@@ -200,7 +198,6 @@ tetwt5.o \
 m_tetrakbt.o \
 m_tetwt.o \
 x0kf_v4h.o \
-zsvd.o \
 m_zmel.o \
 m_freq.o \
 keyvalue.o \

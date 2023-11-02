@@ -96,7 +96,6 @@ subroutine rfalsi(xn,fn,xtol,ftol,dxmn,dxmx,isw,wk,ir)!- Find root of a function
   equivalence (f0x,fx(0)),(f1x,fx(1)),(f2x,fx(2))
   logical :: ltmp,cnvgx,cnvgf,lextr,root1,root2,cst1,cst2
   double precision :: d1mach
-
   ! ... Recover local variables from work array
   stdo = i1mach(2)
   if (ir == 0) call dpzero(wk,11)

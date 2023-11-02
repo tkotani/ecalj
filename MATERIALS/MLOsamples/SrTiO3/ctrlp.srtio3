@@ -1,15 +1,4 @@
-10 440 99 # of line; # of reclen;#  of all lines
-
-VERS    LM=7 FP=7        
-IO      SHOW=1 VERBOS=35 TIM=0,0 
 SYMGRP find   
-STRUC     ALAT=7.368044963027494     PLAT=1.0       0.0       0.0                 0.0       1.0       0.0                 0.0       0.0       1.0  NBAS=5     NL=4  NBAS=5  NSPEC=3
-SITE     ATOM=Sr POS=0.5       0.5       0.5     ATOM=Ti POS=0.0       0.0       0.0     ATOM=O POS=0.5       0.0       0.0     ATOM=O POS=0.0       0.5       0.0     ATOM=O POS=0.0       0.0       0.5
-SPEC    ATOM=Sr Z=38 R=3.0      PZ=4.9,4.9      EH=-1 -1 -1 -1  RSMH=1.5 1.5 1.5 1.5      EH2=-2 -2 -2  RSMH2=1.5 1.5 1.5      KMXA=5  LMX=3 LMXA=4 NMCORE=1    ATOM=Ti Z=22 R=2.03      PZ=0,3.9      EH=-1 -1 -1 -1  RSMH=1.01 1.01 1.01 1.01      EH2=-2 -2 -2  RSMH2=1.01 1.01 1.01      KMXA=5  LMX=3 LMXA=4 NMCORE=1    ATOM=O Z=8 R=1.55      EH=-1 -1 -1  RSMH=0.77 0.77 0.77      EH2=-2 -2  RSMH2=0.77 0.77      KMXA=5  LMX=3 LMXA=4 NMCORE=1
-BZ          NKABC=4 4 4      METAL=3              DOSMAX=1.5 NPTS=2001 SAVDOS=1      TETRA=1 N=-1 W=0.01
-ITER MIX=A5 b=0.2 CONV=1e-05 CONVC=1e-05 NIT=80 UMIX=0.2
-HAM   NSPIN=1         FORCES=0      GMAX=12      REL=1      XCFUN=1      PWMODE=1      PWEMAX=3      READP=1      READPSKIPF=1      PNUFIX=1      FRZWF=0      RDSIG=12      ScaledSigma=1.0      SO=0      OVEPS=1d-8
-@@@@@@@@@@@@@@@@@
 VERS_LM 7
 VERS_FP 7
 IO_SHOW 1
@@ -66,7 +55,7 @@ SPEC_KMXA@3 5
 SPEC_LMX@3 3
 SPEC_LMXA@3 4
 SPEC_NMCORE@3 1
-BZ_NKABC 4 4 4
+BZ_NKABC 6 6 6
 BZ_METAL 3
 BZ_DOSMAX 1.5
 BZ_NPTS 2001

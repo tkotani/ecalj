@@ -1,7 +1,5 @@
-! Sort routines
-subroutine dvheap(m,n,vecs,iprm,tol,opts)
-  !- Heapsort array of double-precision vectors
-  ! ----------------------------------------------------------------
+!> Sort routines
+subroutine dvheap(m,n,vecs,iprm,tol,opts) !- Heapsort array of double-precision vectors
   !i Inputs
   !i   m     :length of each vector
   !i   n     :number of vectors to be sorted

@@ -112,8 +112,7 @@ subroutine vcoulq_4(q,nbloch,ngc,nbas,lx,lxx,nx,nxx,alat,qlat,vol,ngvecc, &
      call sylm(qg/sqrt(absqg2(ig1)),yl,lxx,r2s) !spherical factor Y( q+G )
      do lm =1,(lxx+1)**2
         l = ll(lm)
-        pjyl_(lm,ig1) = fpi*img**l *cy(lm)*yl(lm)  * sqrt(absqg2(ig1))**l  !*phase
-        ! <jlyl | exp i q+G r> projection of exp(i q+G r) to jl yl  on MT
+        pjyl_(lm,ig1) = fpi*img**l *cy(lm)*yl(lm)  * sqrt(absqg2(ig1))**l  ! <jlyl | exp i q+G r> projection of exp(i q+G r) to jl yl  on MT
      enddo
   enddo
 

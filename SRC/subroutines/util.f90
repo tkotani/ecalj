@@ -1,5 +1,5 @@
 !> A Collection of utility routines and small math routines.
-module m_lgunit !> file handles for standard output log, and mpilog
+module m_lgunit ! file handles for standard output log, and mpilog
   !  stdo: file handle for standard output
   !  stdl: handle for log
   !  stml: mpilog

@@ -11,10 +11,7 @@ subroutine gtbsl8(norb,ltab,ktab,rsmh,eh, ntab,blks)
 end subroutine gtbsl8
 !> Marks blocks of contiguous l for which rsm and e are unchanged
 subroutine gtbsl1(mode,norb,ltab,ktab,rsmh,eh, ntab,blks)
-  !  requires l be consecutive and kappa index be constant  in contiguous block
-  !  orbital types with rsmh<=0 are excluded
-  ! ----------------------------------------------------------------------
-  !i Inputs
+  !  requires l be consecutive and kappa index be constant  in contiguous block  ! orbital types with rsmh<=0 are excluded
   !i   mode  :=1 rsm must match for each orbital type in contiguous block
   !i             of eh  must match for each orbital type in contiguous block
   !i          =0 not check the matches
@@ -31,9 +28,7 @@ subroutine gtbsl1(mode,norb,ltab,ktab,rsmh,eh, ntab,blks)
   !o         :a single block when appropriate, depending on mode.
   !o         :blks(iorb)=0 if the block have been subsumed into prior block 
   !r Remarks
-  !r   Routine groups envelope functions, strux into larger blocks.
-  !r   for efficient generation of strux and matrix elements.
-  ! ----------------------------------------------------------------------
+  !r   Routine groups envelope functions, strux into larger blocks.  for efficient generation of strux and matrix elements.
   implicit none
   integer :: nkap0,n0,mode,norb
   integer :: ltab(norb),ktab(norb), ntab(norb),blks(norb)

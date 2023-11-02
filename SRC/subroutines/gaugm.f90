@@ -1,25 +1,24 @@
 !>Generic routine to make augmentation matrices
 module m_gaugm 
-  use m_lmfinit,only: n0
-  use m_ll,only:ll
   public gaugm
   private
 contains
-  subroutine gaugm(nr,nsp,lso,rofi,rwgt,lmxa,lmxl,nlml,vsm,gpotb,gpot0,hab,vab,sab,sodb,qum,vum,&
+  subroutine gaugm(nr,nsp,lso,rofi,rwgt,lmxa,lmxl,nlml,vsm,gpot0b,hab,vab,sab,sodb,qum,vum,&
        lmaxu,vumm,lldau,idu,&
        lmux,nlx1,nlx2,&
        nf1,nf1s,lmx1,lx1,f1,x1,v1,d1, &
        nf2,nf2s,lmx2,lx2,f2,x2,v2,d2, &
        sig,tau,ppi,hsozz,hsopm) !OUTPUT: augmentation integrals. 
-    use m_lmfinit,only: cg=>rv_a_ocg,jcg=>iv_a_ojcg,indxcg=>iv_a_oidxcg
+    use m_lmfinit,only: cg=>rv_a_ocg,jcg=>iv_a_ojcg,indxcg=>iv_a_oidxcg,n0
     use m_lgunit,only: stdo
+    use m_ll,only:ll
     implicit none
     integer :: nr,nsp,lmxa,lmxl,nlml,lmux,lso, & 
          nf1,nf1s,lmx1,nlx1,lx1(nf1),nf2,nf2s,lmx2,nlx2,lx2(nf2)
     integer :: lmaxu,lldau,idu(4)
     complex(8):: vumm(-lmaxu:lmaxu,-lmaxu:lmaxu,3,3,2,0:lmaxu)
     real(8) :: rofi(nr),rwgt(nr),vsm(nr,nlml,nsp), &
-         qum(0:lmxa,0:lmxa,0:lmxl,3,3,nsp),gpotb(1),gpot0(1), &
+         qum(0:lmxa,0:lmxa,0:lmxl,3,3,nsp),gpot0b(nlml), &
          hab(3,3,0:n0-1,nsp),vab(3,3,0:n0-1,nsp),sab(3,3,0:n0-1,nsp), &
          f1(nr,0:lmx1,nf1),x1(nr,0:lmx1,nf1),v1(0:lmx1,nf1),d1(0:lmx1,nf1), &
          f2(nr,0:lmx2,nf2),x2(nr,0:lmx2,nf2),v2(0:lmx2,nf2),d2(0:lmx2,nf2), &
@@ -88,7 +87,7 @@ contains
                 endif
              enddo
           enddo
-          !Multiple mom. Qm = integrals (f1~*f2~ - f1*f2) r**l
+          !Multiple mom. Qm = integrals (f1~*f2~ - f1*f2) r**l Eq.C(7) JPSJ.84.034702(2015)
           do  l1 = 0, lx1(i1)
              do  l2 = 0, lx2(i2)
                 do  lm = 0, lmxl
@@ -99,7 +98,7 @@ contains
                 enddo
              enddo
           enddo
-          !Add ppi0 and multipole part qm to ppir
+          !Add ppi0 and multipole part qm to ppir Eq.(C-6)
           nlm1 = (lx1(i1)+1)**2
           nlm2 = (lx2(i2)+1)**2
           do  ilm1 = 1, nlm1
@@ -113,7 +112,7 @@ contains
                    mlm = jcg(icg)
                    if (mlm <= nlml) then
                       lm = ll(mlm)
-                      ppir(i1,i2,ilm1,ilm2,i) = ppir(i1,i2,ilm1,ilm2,i) + cg(icg)*qm(i1,i2,l1,l2,lm)*(gpot0(mlm)-gpotb(mlm))
+                      ppir(i1,i2,ilm1,ilm2,i) = ppir(i1,i2,ilm1,ilm2,i) + cg(icg)*qm(i1,i2,l1,l2,lm)*gpot0b(mlm)
                    endif
                 enddo
              enddo
@@ -216,8 +215,6 @@ contains
        elseif (abs(m2) == 0) then!             Case m=0
           if (m1 == 1)  somatpm =       a1*dsqrt(0.5d0)
           if (m1 == -1) somatpm =    -img*a1*dsqrt(0.5d0)
-!       else
-!          call rx('mksomat this can not occur 111')
        endif
     else! <l,m1|L+|l,m2> for spin (2,1) block
        if (abs(m2) > 1 .AND. (abs(m2)+1) <= l) then!               Case A
@@ -262,8 +259,6 @@ contains
        elseif (abs(m2) == 0) then !               Case m=0
           if (m1 == 1) somatpm =  -a1*dsqrt(0.5d0)
           if (m1 == -1) somatpm=  -img*a1*dsqrt(0.5d0)
-!       else
-!          call rx('mksomat this can not occur 222')
        endif
     end if
   endfunction socxy
@@ -993,19 +988,14 @@ end module m_gaugm
     ! o        :  <f1~ v1(l=0) f2~> - <f1^ v2~(l=0) f2^>
     ! o        :  where the first term is calculated from vab
     !o Outputs
-    !o  hsozz  :spin-orbit contribution to ppi, spin diagonal block
-    !o         :(LzSz part)
+    !o  hsozz  :spin-orbit contribution to ppi, spin diagonal block      :(LzSz part)
     !o         :isp=1: makes up-up block
     !o         :isp=2: makes down-down block
-    !o  hsopm  :spin-orbit contribution to ppi, spin off-diagonal block
-    !o         :(LxSx + LySy part)
+    !o  hsopm  :spin-orbit contribution to ppi, spin off-diagonal block  :(LxSx + LySy part)
     !o         :isp=1: makes up-down block
     !o         :isp=2: makes down-up block
     !u Updates
     !u   03 Feb 05 (A. Chantis) calculate matrix elements of L.S
-    !r Remarks
-    !r   See Remarks for routine gaugm, above.
-    ! ----------------------------------------------------------------------
 
     ! ----------------------------------------------------------------------
     !i Inputs

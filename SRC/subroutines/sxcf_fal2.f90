@@ -672,7 +672,7 @@ subroutine sxcf_fal3z(&
            if(verbose()>50) call cputid(0)
 
            zwz=0d0       
-           do ix = 1,nx        !*npm            ! imaginary frequency w'-loop
+           do ix = 1,nx          ! imaginary frequency w'-loop
               nrec= ix
               if(debug) write(6,*)' wvi nrec=',nrec
               read(ifrcwi,rec=nrec) zw ! Readin W-v on imag axis

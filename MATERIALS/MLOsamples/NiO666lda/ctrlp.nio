@@ -1,16 +1,4 @@
-11 504 95 # of line; # of reclen;#  of all lines
-
-VERS    LM=7 FP=7        
-IO      SHOW=1 VERBOS=55 TIM=3,3
 SYMGRP find   
-STRUC   ALAT=7.88 PLAT=0.5 0.5 1.0  0.5 1.0 0.5  1.0 0.5 0.5  NBAS=4  NSPEC=3
-SITE    ATOM=Niup POS=0.0   0.0   0.0        ATOM=Nidn POS=1.0  1.0  1.0        ATOM=O    POS=0.5   0.5   0.5        ATOM=O    POS=1.5  1.5  1.5
-SPEC    ATOM=Niup Z=28 R=2.19 PZ=0,0,3.9  P=0,0,4.2      EH=-1 -1 -1 -1  RSMH=1.09 1.09 1.09 1.09      EH2=-2 -2 -2   RSMH2=1.09 1.09 1.09      KMXA=5  LMX=3 LMXA=4 NMCORE=1      MMOM=0 0 1    ATOM=Nidn Z=28 R=2.19 PZ=0,0,3.9  P=0,0,4.2      EH=-1 -1 -1 -1  RSMH=1.09 1.09 1.09 1.09      EH2=-2 -2 -2    RSMH2=1.09 1.09 1.09      KMXA=5  LMX=3 LMXA=4 NMCORE=1      MMOM=0 0 -1    ATOM=O Z=8 R=1.75      EH=-1 -1 -1  RSMH=0.88 0.88 0.88      EH2=-2 -2    RSMH2=0.88 0.88      KMXA=5  LMX=3 LMXA=4 NMCORE=1
-BZ    NKABC=6 6 6        METAL=0      BZJOB=0
-ITER MIX=A2,b=0.5,n=3 CONV=1e-05 CONVC=1e-05 NIT=30
-HAM   NSPIN=2         FORCES=0      GMAX=12      REL=1      XCFUN=1      PWMODE=1      PWEMAX=2      ELIND=0      FRZWF=0      RDSIG=12 RSRNGE=5.5      SIGP[MODE=3, EMAX=2]      OVEPS=1d-8
-OPTIONS PFLOAT=1 
-@@@@@@@@@@@@@@@@@
 VERS_LM 7
 VERS_FP 7
 IO_SHOW 1

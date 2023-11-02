@@ -131,7 +131,6 @@ contains
     complex(8),allocatable:: b(:,:,:)
     complex(8),pointer:: ppi1(:),ppi2(:),ppi3(:)
     type(s_sblock),pointer:: Lzz(:),Lmp(:)
-    complex(8),allocatable:: SSbPP(:),SSbHP(:),SSbPH(:),SSbHH(:) !tailtail, headtail, headhead
     complex(8):: img=(0d0,1d0), facso(3,3), f1,f2,f3
     real(8)::d2
     logical,save:: init=.true.
@@ -197,16 +196,13 @@ contains
        call bstrux_set(ibas,q) !Make strux b to expand all orbitals at site ia
        if(allocated(b)) deallocate(b)
        allocate( b(0:kmax,nlma,ndimh) )
-       do lm=1,nlma
-          b(:,lm,:) = transpose(bstr(:,lm,:))
-       enddo
+       b = reshape(bstr,shape(b),order=[3,2,1])
        nkaph=nkaphh(isa)
        nh= nkaph*nlmb     ! size of head nh
        np= (kmax+1)*nlma  ! size of tail np
        !! Get Lzz,Lmp,Lmp(spinfliped)= (Lz,L-,L+)  See mkpot-locpot-augmat-gaugm-pvagm1,pvaglc to generate hsozz,hsopm
        Lzz => ohsozz(:,ibas)   ! Lz block  1:P*P, 2:H*P, 3:H*H for up and dn
        if(lso==1) Lmp => ohsopm(:,ibas) ! <up|L-|dn> for isp=1 , <dn|L+|up> for isp=2. See gaugm.F, pvagm1,pvaglc
-       allocate(SSbPP(np*np),SSbHP(np*nh),SSbPH(np*nh),SSbHH(nh*nh))
        nspx=nsp
        if(lso==1) nspx=3
        do isp=1,nspx
@@ -215,40 +211,32 @@ contains
           ! hso(:,:,isp=3) is (1,2) block  =L- in the case of 001 spin axis.
           if(isp/=3)  isp1=isp
           if(isp==3)  isp1=1
-          if(lso==1) then      !P*P, H*P, H*H,
-             ! WARN!  Except 001 case, we need to assume --phispinsym (radial functions are the same in both spins).
-             !     We currently calculate only spin-diagonal Sz, and <up|L-|dn>, <dn|L+|up> (See text arount the
-             !     end of augmat).
-             !  Folloing construction of SSbPP is generally under the assumption of --phispinsym.
-
-             ! SSb* is the atomic site contribution from ibas (augmentation parts. see m_bandcal_init->hambl->augmbl)
-             f1=facso(1,isp); f2=facso(2,isp); f3=facso(3,isp)
-             !                Lz                      L-                          L+
-             SSbPP(:)= f1*Lzz(1)%sdiag(:,isp1) +f2*Lmp(1)%soffd(:,1)  + f3*Lmp(1)%soffd(:,2)
-             SSbHP(:)= f1*Lzz(2)%sdiag(:,isp1) +f2*Lmp(2)%soffd(:,1)  + f3*Lmp(2)%soffd(:,2)
-             SSbPH(:)= f1*dconjg(Lzz(2)%sdiag(:,isp1)) +f2*dconjg(Lmp(2)%soffd(:,2))+f3*dconjg(Lmp(2)%soffd(:,1))
-             SSbHH(:)= f1*Lzz(3)%sdiag(:,isp1) +f2*Lmp(3)%soffd(:,1)  + f3*Lmp(3)%soffd(:,2)
-          else
-             fac = 1.5d0-isp
-             SSbPP(:) = fac*Lzz(1)%sdiag(:,isp)
-             SSbHP(:) = fac*Lzz(2)%sdiag(:,isp)
-             SSbPH(:) = fac*dconjg(Lzz(2)%sdiag(:,isp))
-             SSbHH(:) = fac*Lzz(3)%sdiag(:,isp)
-          endif
           augq2zhso: block 
             integer::l1,ik1,i1,j,l2,ik2,i2,k,ilm1,jlm1,ilm2,iorb,jorb,k1
             complex(8):: &
                  hsohh(nkaph,nkaph,  nlmb,nlmb),& !HH
                  hsohp(nkaph,0:kmax, nlmb,nlma),&! HP
                  hsoph(nkaph,0:kmax, nlmb,nlma),&! PH (index ordering is transposed. the same as HP)
-                 hsopp(0:kmax,0:kmax,nlma,nlma),& ! PP
+                 hsopp(0:kmax,0:kmax,nlma,nlma),&! PP
                  g(0:kmax,nlma)
-            !call augq2zhso(ibas,nkaph,lmxb,nlmb,kmax,nlma,b,ndimh, SSbHH,SSbHP,SSbPH,SSbPP, hso(:,:,isp))
-            hsohh=reshape(SSbHH,shape(hsohh))
-            hsohp=reshape(SSbHP,shape(hsohp))
-            hsoph=reshape(SSbPH,shape(hsoph))
-            hsopp=reshape(SSbPP,shape(hsopp))
-            !write(6,*)'hhhhhhhsss',sum(hsohh),sum(hsohp),sum(hsoph),sum(hsopp)
+            if(lso==1) then      !P*P, H*P, H*H,
+               ! WARN!  Except 001 case, we need to assume --phispinsym (radial functions are the same in both spins).
+               !     We currently calculate only spin-diagonal Sz, and <up|L-|dn>, <dn|L+|up> (See text arount the
+               !     end of augmat).
+               !  Folloing hsofoobar, we assume --phispinsym.
+               f1=facso(1,isp); f2=facso(2,isp); f3=facso(3,isp)
+               !                Lz                      L-                          L+
+               hsopp= f1*Lzz(1)%sdiag(:,:,:,:,isp1)         +f2*Lmp(1)%soffd(:,:,:,:,1)        + f3*Lmp(1)%soffd(:,:,:,:,2) 
+               hsohp= f1*Lzz(2)%sdiag(:,:,:,:,isp1)         +f2*Lmp(2)%soffd(:,:,:,:,1)        + f3*Lmp(2)%soffd(:,:,:,:,2)
+               hsoph= f1*dconjg(Lzz(2)%sdiag(:,:,:,:,isp1)) +f2*dconjg(Lmp(2)%soffd(:,:,:,:,2))+ f3*dconjg(Lmp(2)%soffd(:,:,:,:,1))
+               hsohh= f1*Lzz(3)%sdiag(:,:,:,:,isp1)         +f2*Lmp(3)%soffd(:,:,:,:,1)        + f3*Lmp(3)%soffd(:,:,:,:,2) 
+            else
+               fac = 1.5d0-isp
+               hsopp= fac*Lzz(1)%sdiag(:,:,:,:,isp)
+               hsohp= fac*Lzz(2)%sdiag(:,:,:,:,isp)
+               hsoph= fac*dconjg(Lzz(2)%sdiag(:,:,:,:,isp))
+               hsohh= fac*Lzz(3)%sdiag(:,:,:,:,isp) 
+            endif
             call orblib(ibas) !return norb,ltab,ktab,offl...
             do iorb = 1, norb
                l1  = ltab(iorb)
@@ -281,7 +269,7 @@ contains
             enddo
           endblock augq2zhso
        enddo
-       deallocate(b,SSbPP,SSbHP,SSbPH,SSbHH)
+       deallocate(b)
     enddo
     call tcx ('aughsoc')
   end subroutine aughsoc

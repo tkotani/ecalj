@@ -194,8 +194,6 @@ contains
             ! ccccccccccccccccccccccccccccccccccccccccccccccccc
           endblock fhblock
        endif
-!       call mkrou6(rofi_rv,orhoat_out( 1,ib )%v,nr,nlml,nsp,xx,xx,res )!Contribution to mag outsite rmt: extrapolate tail to infinity
-!       if(ipr>=30.AND.res/=0) write(stdo,"(7x,'contr. to mm extrapolated for r>rmt:',f11.6,' est. true mm =',f9.6)")res,res-sums1
        if (lfoc == 0) then ! Make new core density and core eigenvalue sum ---
           call pshpr(ipr+11)
           call getcor(0,z,a,pnu,pnz,nr,lmxa,rofi_rv,v1pot(ib)%v & 
@@ -280,9 +278,9 @@ contains
        blka(k+1) = nlma
     enddo
     ! ... Contracted density-matrix chh,chp,cpp from qhh,qhp,qpp
-    call mkrou4(nsp,nlml,cg,jcg,indxcg, nkaph,norb,ltab,ktab,blks,lmxh,nlmh, nkaph,norb,ltab,ktab,blks,lmxh,nlmh, qhh,chh) !H H product
-    call mkrou4(nsp,nlml,cg,jcg,indxcg, nkaph,norb,ltab,ktab,blks,lmxh,nlmh, kmax+1,kmax+1,ltba,ktba,blka,lmxa,nlma, qhp,chp) !H Pkl product
-    call mkrou4(nsp,nlml,cg,jcg,indxcg, kmax+1,kmax+1,ltba,ktba,blka,lmxa,nlma, kmax+1,kmax+1,ltba,ktba,blka,lmxa,nlma, qpp,cpp)!Pkl Pkl product
+    call mkrou4(nsp,nlml, nkaph,norb,ltab,ktab,blks,lmxh,nlmh, nkaph,norb,ltab,ktab,blks,lmxh,nlmh, qhh,chh) !H H product
+    call mkrou4(nsp,nlml, nkaph,norb,ltab,ktab,blks,lmxh,nlmh, kmax+1,kmax+1,ltba,ktba,blka,lmxa,nlma, qhp,chp) !H Pkl product
+    call mkrou4(nsp,nlml, kmax+1,kmax+1,ltba,ktba,blka,lmxa,nlma, kmax+1,kmax+1,ltba,ktba,blka,lmxa,nlma, qpp,cpp)!Pkl Pkl product
     ! ... Contracted density matrix as coffs to products of (u,s,gz)
     call mkcfus(nsp,lmxa,nlml, nkaph,nkapi,vh,dh,lmxh, nkaph,nkapi,vh,dh,lmxh, chh,dmatl) !H H product
     call mkcfus(nsp,lmxa,nlml, nkaph,nkapi,vh,dh,lmxh, kmax+1,kmax+1,vp,dp,lmxa, chp,dmatl) !H Pkl product
@@ -375,13 +373,8 @@ contains
     enddo
     call tcx('mkrou2')
   end subroutine mkrou2
-  subroutine mkrou4(nsp,nlml,cg,jcg,indxcg, &
-       nk1,norb1,ltab1,ktab1,blks1,lmx1,ndim1, &
-       nk2,norb2,ltab2,ktab2,blks2,lmx2,ndim2, &
-       qkk12,ckk)
-    !- Assemble contracted density-matrix (in Y_lm form)
-    ! ----------------------------------------------------------------------
-    !i Inputs
+  subroutine mkrou4(nsp,nlml, nk1,norb1,ltab1,ktab1,blks1,lmx1,ndim1, nk2,norb2,ltab2,ktab2,blks2,lmx2,ndim2, qkk12,ckk)!Assemble contracted density-matrix (in Y_lm form)
+    use m_lmfinit,only: cg=>rv_a_ocg,indxcg=>iv_a_oidxcg,jcg=>iv_a_ojcg
     !i   nsp   :2 for spin-polarized case, otherwise 1
     !i   nlml  :charge density L-cutoff
     !i   cg    :Clebsch Gordon coefficients, stored in condensed form (scg.f)
@@ -414,17 +407,11 @@ contains
     !r      ckk(k1,k2,l1,l2,M),
     !r   where k1 ranges over the orbital types of the first function
     !r   and   k2 ranges over the orbital types of the second function.
-    !u Updates
-    ! ----------------------------------------------------------------------
     implicit none
     integer :: nsp,nlml,norb1,lmx1,ndim1,norb2,lmx2,ndim2,nk1,nk2
-    integer :: jcg(1),indxcg(1)
-    integer :: ltab1(norb1),ktab1(norb1),blks1(norb1), &
-         ltab2(norb2),ktab2(norb2),blks2(norb2)
-    real(8) :: qkk12(nk1,nk2,ndim1,ndim2,nsp),cg(1), &
-         ckk(nk1,nk2,0:lmx1,0:lmx2,nlml,nsp)
-    integer :: ilm1,io1,l1,nlm11,nlm12,k1, &
-         ilm2,io2,l2,nlm21,nlm22,k2, icg,mlm,ix,isp
+    integer :: ltab1(norb1),ktab1(norb1),blks1(norb1), ltab2(norb2),ktab2(norb2),blks2(norb2)
+    real(8) :: qkk12(nk1,nk2,ndim1,ndim2,nsp),      ckk(nk1,nk2,0:lmx1,0:lmx2,nlml,nsp)
+    integer :: ilm1,io1,l1,nlm11,nlm12,k1, ilm2,io2,l2,nlm21,nlm22,k2, icg,mlm,ix,isp
     !     call tcn('mkrou4')
     do  isp = 1, nsp
        do  io2 = 1, norb2
@@ -624,6 +611,8 @@ contains
     ainv(1,2) = -a(1,2)/det
     ainv(2,1) = -a(2,1)/det
   end subroutine dinv22
+end module m_mkrout
+
   ! subroutine mkrou6(rofi,rho,nr,nlml,nsp,rho0,decay,res) !- Fit tail of spin density; integrate charge beyond MT sphere
   !   !i Inputs
   !   !i   rofi  :radial mesh points
@@ -669,4 +658,3 @@ contains
   !   decay = b
   !   rho0 = a
   ! end subroutine mkrou6
-end module m_mkrout

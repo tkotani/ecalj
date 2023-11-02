@@ -99,12 +99,9 @@ contains
       real(8):: qloc(nbas),aloc(nbas),qlocc(nbas),alocc(nbas) 
       real(8):: rhexc(nsp,nbas),rhex(nsp,nbas),rhec(nsp,nbas),rhvxc(nsp,nbas)
       real(8):: xcor(nbas),qv(nbas),qsca(nbas)
-      valvs=0d0;valvt=0d0 
-      qloc=0d0;aloc=0d0;qlocc=0d0;alocc=0d0
+      valvs=0d0;valvt=0d0;  qloc=0d0;aloc=0d0;qlocc=0d0;alocc=0d0
       rhexc=0d0;rhex=0d0;rhec=0d0;rhvxc=0d0 ;xcor=0d0;qv=0d0;qsca=0d0
-      sumtc = 0d0
-      sumec = 0d0
-      sumt0 = 0d0
+      sumtc=0d0; sumec=0d0; sumt0=0d0
       ibloop: do  ib = 1, nbas
          is=ispec(ib)
          pnu=>pnuall(:,:,ib)
@@ -136,8 +133,6 @@ contains
               '  nlml=',i2,'  rg=',f5.3,'  Vfloat=',l1)") ib,z,rmt,nr,a,nlml,rg,lfltwf
          if(ipr>=30.and. kcor/=0 .and. sum(abs(qcor))/=0 ) write(stdo,ftox)&
               ' core hole: kcor=',kcor,'lcor=',lcor,'qcor amom=',ftof(qcor)
-         !call rxx(nr .gt. nrmx,  'locpot: increase nrmx')
-         !call rxx(nlml .gt. nlmx,'locpot: increase nlmx')
          locpt2augmat: block
            real(8)::rhol1(nr,nlml,nsp),rhol2(nr,nlml,nsp),v1(nr,nlml,nsp),v2(nr,nlml,nsp),v1es(nr,nlml,nsp),v2es(nr,nlml,nsp),&
                 gpotb(nlml),rofi(nr),rwgt(nr),v1out(nr,nlml,nsp)
@@ -264,21 +259,18 @@ contains
                 if(lldau(ib)>0)call vlm2us(lmaxu,rmt,idu(:,is),lmxa, count( idu(:,ispec(1:ib-1))>0 ), & !offset to the Ublock for ib
                      vorb,phzdphz(:,:,:,ib),rotp(:,:,:,:,ib), vumm)!LDA+U: vumm of (u,s,gz) from vorb for phi.
                 kmax1=kmax+1
-                call gaugm(nr,nsp,lsox,rofi,rwgt,lmxa,lmxl,nlml,v2,gpotb,gpot0(:,ib),hab_,vab_,sab_,sodb,qum,vum,& !...Pkl*Pkl !tail x tail
-                     lmaxu,vumm,lldau(ib),idu(:,is),&
-                     lmxa,nlma,nlma,& !lmxa=lcutoff for augmentation
+                call gaugm(nr,nsp,lsox,rofi,rwgt,lmxa,lmxl,nlml,v2,gpot0(:,ib)-gpotb,hab_,vab_,sab_,sodb,qum,vum,& !...Pkl*Pkl !tail x tail
+                     lmaxu,vumm,lldau(ib),idu(:,is),  lmxa,nlma,nlma,& !lmxa=lcutoff for augmentation
                      kmax1,kmax1,lmxa,lxa, fp,xp,vp,dp,&
                      kmax1,kmax1,lmxa,lxa, fp,xp,vp,dp,&
                      osig(1,ib)%v, otau(1,ib)%v, oppi(1,ib)%cv, ohsozz(1,ib)%sdiag, ohsopm(1,ib)%soffd)
-                call gaugm(nr,nsp,lsox,rofi,rwgt,lmxa,lmxl,nlml,v2,gpotb,gpot0(:,ib),hab_,vab_,sab_,sodb,qum,vum,& !...Hsm*Pkl! head x tail
-                     lmaxu,vumm,lldau(ib),idu(:,is),&
-                     lmxh, nlmh,nlma, &!lmxh=lcutoff for basis (lmxh<=lmxa is assumed)
+                call gaugm(nr,nsp,lsox,rofi,rwgt,lmxa,lmxl,nlml,v2,gpot0(:,ib)-gpotb,hab_,vab_,sab_,sodb,qum,vum,& !...Hsm*Pkl! head x tail
+                     lmaxu,vumm,lldau(ib),idu(:,is),  lmxh, nlmh,nlma, &!lmxh=lcutoff for basis (lmxh<=lmxa is assumed)
                      nkaph,nkapi,lmxh,lhh(:,is),fh,xh,vh,dh,&
                      kmax1,kmax1,lmxa,lxa,      fp,xp,vp,dp,&
                      osig(2,ib)%v, otau(2,ib)%v, oppi(2,ib)%cv, ohsozz(2,ib)%sdiag, ohsopm(2,ib)%soffd)
-                call gaugm(nr,nsp,lsox,rofi,rwgt,lmxa,lmxl,nlml,v2,gpotb,gpot0(:,ib),hab_,vab_,sab_,sodb,qum,vum,& !...Hsm*Hsm! head x head
-                     lmaxu,vumm,lldau(ib),idu(:,is),&
-                     lmxh,nlmh,nlmh,&
+                call gaugm(nr,nsp,lsox,rofi,rwgt,lmxa,lmxl,nlml,v2,gpot0(:,ib)-gpotb,hab_,vab_,sab_,sodb,qum,vum,& !...Hsm*Hsm! head x head
+                     lmaxu,vumm,lldau(ib),idu(:,is),  lmxh,nlmh,nlmh,&
                      nkaph,nkapi,lmxh,lhh(:,is),fh,xh,vh,dh,&
                      nkaph,nkapi,lmxh,lhh(:,is),fh,xh,vh,dh,&
                      osig(3,ib)%v, otau(3,ib)%v, oppi(3,ib)%cv, ohsozz(3,ib)%sdiag, ohsopm(3,ib)%soffd)
@@ -548,6 +540,90 @@ contains
     endif
     call tcx('locpt2')
   end subroutine locpt2
+  subroutine poinsp(z,vval,nlm,v,rofi,rho,rho0,nr,rhoves,rhves1, vnucl,vsum) !- Solves non-spherical poisson Equation inside sphere
+    use m_ll,only:ll
+    !i   z     :nuclear charge
+    !i   vval  :boundary conditions: potential for channel ilm = vval(ilm)
+    !i   nlm   :L-cutoff for density
+    !i   a     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
+    !i   b     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
+    !i   rofi  :radial mesh points
+    !i   rho   :density, represented as sum_ilm rho(r,ilm) Y_L(ilm)
+    !i   rho0  :work array, holding spherical charge density times 4*pi*r*r
+    !i   nr    :number of radial mesh points
+    !o   v     :electrostatic potential, satisfying boundary c. vval above
+    !o         :It does not include nuclear contribution -2z/r
+    !o   rhoves:electrostatic energy
+    !o   rhves1:contribution to electrostatic energy from nonspherical rho
+    !o   vnucl :potential at the nucleus
+    !o   vsum  :integral over that potential which is zero at rmax.
+    !r Remarks
+    !r   Poisson's equation is d2u/dr2 = u*l*(l+1)/r**2 - 8pi*rho/r
+    implicit none
+    integer :: nlm,nr,nsp,ir,ilm,l,lp1
+    real(8) :: z,a,b,rhoves,rhves1,vnucl,vsum,rho(nr,nlm),vval(nlm),v(nr,nlm),rofi(nr),        vhrho(2),rho0(nr)
+    real(8) :: ea,a2b4,rpb,rmax,fllp1,df,r, drdi,srdrdi,g,x,f,y2,y3,y4,vnow,vhom,alfa,sum,wgt
+    real(8),parameter::fpi = 16d0*datan(1d0),srfpi = dsqrt(fpi),y0 = 1d0/srfpi,atepi = 2d0*fpi
+    nsp = 1
+    a= log(rofi(3)/rofi(2)-1d0) !rofi(i)=b(e^(a*(i-1))-1). We get a and b
+    b= rofi(3)/(exp(2d0*a)-1d0)
+    a2b4 = a*a/4d0
+    rmax = rofi(nr)
+    rho0(1:nr) = rho(1:nr,1)*srfpi
+    call poiss0(z,rofi,rho0,nr,vval(1)*y0,v,vhrho,vsum,nsp) !Call poiss0 for l=0 to get good pot for small r 
+    rhoves = vhrho(1)
+    vnucl = v(1,1)
+    v(1:nr,1) = v(1:nr,1)*srfpi
+    rhves1 = 0d0
+    ilmloop: do  80  ilm = 2, nlm
+       l = ll(ilm)
+       lp1 = l+1
+       fllp1 = l*(l+1d0)
+       ! --- Numerov for inhomogeneous solution --- ---
+       v(1,ilm) = 0d0
+       df = 0d0
+       do ir = 2, 3
+          r = rofi(ir)
+          drdi = a*(r+b)
+          srdrdi = dsqrt(drdi)
+          g = (r**lp1)/srdrdi
+          v(ir,ilm) = r**l
+          x = fllp1*drdi*drdi/(r*r) + a2b4
+          f = g*(1d0-x/12d0)
+          if (ir == 2) y2 = -atepi*rho(2,ilm)*drdi*srdrdi/r
+          if (ir == 3) y3 = -atepi*rho(3,ilm)*drdi*srdrdi/r
+          df = f-df
+       enddo
+       do ir=4,nr
+          r = rofi(ir)
+          drdi = a*(r+b)
+          srdrdi = dsqrt(drdi)
+          y4 = -atepi*drdi*srdrdi*rho(ir,ilm)/r
+          df = df+g*x+(y4+10d0*y3+y2)/12d0
+          f = f+df
+          x = fllp1*drdi*drdi/(r*r) + a2b4
+          g = f/(1d0-x/12d0)
+          v(ir,ilm) = g*srdrdi/r
+          y2 = y3
+          y3 = y4
+       enddo
+       ! --- Add homogeneous solution --- ---
+       vnow = v(nr,ilm)
+       vhom = rmax**l
+       alfa = (vval(ilm)-vnow)/vhom
+       sum = 0d0
+       do ir = 2, nr
+          r = rofi(ir)
+          wgt = 2*(mod(ir+1,2)+1)
+          if (ir == nr) wgt = 1d0
+          v(ir,ilm) = v(ir,ilm) + alfa*(r**l)
+          sum = sum+wgt*(r+b)*rho(ir,ilm)*v(ir,ilm)
+       enddo
+       rhves1 = rhves1 + a*sum/3d0
+       v(1,ilm) = 0d0
+80  enddo ilmloop
+    rhoves = rhoves + rhves1
+  end subroutine poinsp
   subroutine elfigr(nc,stdo,z,efg1)    !- Computation of electric field gradient at Nucleus
     !i Inputs
     !i   nc    :number of classes or sites
@@ -685,88 +761,4 @@ contains
     write (jfi) rhol
     close(jfi)
   end subroutine wrhomt
-  subroutine poinsp(z,vval,nlm,v,rofi,rho,rho0,nr,rhoves,rhves1, vnucl,vsum) !- Solves non-spherical poisson Equation inside sphere
-    use m_ll,only:ll
-    !i   z     :nuclear charge
-    !i   vval  :boundary conditions: potential for channel ilm = vval(ilm)
-    !i   nlm   :L-cutoff for density
-    !i   a     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
-    !i   b     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
-    !i   rofi  :radial mesh points
-    !i   rho   :density, represented as sum_ilm rho(r,ilm) Y_L(ilm)
-    !i   rho0  :work array, holding spherical charge density times 4*pi*r*r
-    !i   nr    :number of radial mesh points
-    !o   v     :electrostatic potential, satisfying boundary c. vval above
-    !o         :It does not include nuclear contribution -2z/r
-    !o   rhoves:electrostatic energy
-    !o   rhves1:contribution to electrostatic energy from nonspherical rho
-    !o   vnucl :potential at the nucleus
-    !o   vsum  :integral over that potential which is zero at rmax.
-    !r Remarks
-    !r   Poisson's equation is d2u/dr2 = u*l*(l+1)/r**2 - 8pi*rho/r
-    implicit none
-    integer :: nlm,nr,nsp,ir,ilm,l,lp1
-    real(8) :: z,a,b,rhoves,rhves1,vnucl,vsum,rho(nr,nlm),vval(nlm),v(nr,nlm),rofi(nr),        vhrho(2),rho0(nr)
-    real(8) :: ea,a2b4,rpb,rmax,fllp1,df,r, drdi,srdrdi,g,x,f,y2,y3,y4,vnow,vhom,alfa,sum,wgt
-    real(8),parameter::fpi = 16d0*datan(1d0),srfpi = dsqrt(fpi),y0 = 1d0/srfpi,atepi = 2d0*fpi
-    nsp = 1
-    a= log(rofi(3)/rofi(2)-1d0) !rofi(i)=b(e^(a*(i-1))-1). We get a and b
-    b= rofi(3)/(exp(2d0*a)-1d0)
-    a2b4 = a*a/4d0
-    rmax = rofi(nr)
-    rho0(1:nr) = rho(1:nr,1)*srfpi
-    call poiss0(z,rofi,rho0,nr,vval(1)*y0,v,vhrho,vsum,nsp) !Call poiss0 for l=0 to get good pot for small r 
-    rhoves = vhrho(1)
-    vnucl = v(1,1)
-    v(1:nr,1) = v(1:nr,1)*srfpi
-    rhves1 = 0d0
-    ilmloop: do  80  ilm = 2, nlm
-       l = ll(ilm)
-       lp1 = l+1
-       fllp1 = l*(l+1d0)
-       ! --- Numerov for inhomogeneous solution --- ---
-       v(1,ilm) = 0d0
-       df = 0d0
-       do ir = 2, 3
-          r = rofi(ir)
-          drdi = a*(r+b)
-          srdrdi = dsqrt(drdi)
-          g = (r**lp1)/srdrdi
-          v(ir,ilm) = r**l
-          x = fllp1*drdi*drdi/(r*r) + a2b4
-          f = g*(1d0-x/12d0)
-          if (ir == 2) y2 = -atepi*rho(2,ilm)*drdi*srdrdi/r
-          if (ir == 3) y3 = -atepi*rho(3,ilm)*drdi*srdrdi/r
-          df = f-df
-       enddo
-       do ir=4,nr
-          r = rofi(ir)
-          drdi = a*(r+b)
-          srdrdi = dsqrt(drdi)
-          y4 = -atepi*drdi*srdrdi*rho(ir,ilm)/r
-          df = df+g*x+(y4+10d0*y3+y2)/12d0
-          f = f+df
-          x = fllp1*drdi*drdi/(r*r) + a2b4
-          g = f/(1d0-x/12d0)
-          v(ir,ilm) = g*srdrdi/r
-          y2 = y3
-          y3 = y4
-       enddo
-       ! --- Add homogeneous solution --- ---
-       vnow = v(nr,ilm)
-       vhom = rmax**l
-       alfa = (vval(ilm)-vnow)/vhom
-       sum = 0d0
-       do ir = 2, nr
-          r = rofi(ir)
-          wgt = 2*(mod(ir+1,2)+1)
-          if (ir == nr) wgt = 1d0
-          v(ir,ilm) = v(ir,ilm) + alfa*(r**l)
-          sum = sum+wgt*(r+b)*rho(ir,ilm)*v(ir,ilm)
-       enddo
-       rhves1 = rhves1 + a*sum/3d0
-       v(1,ilm) = 0d0
-80  enddo ilmloop
-    rhoves = rhoves + rhves1
-  end subroutine poinsp
 end module m_locpot

@@ -84,7 +84,7 @@ contains
     call tcx('elocp')
     if (allocated(ips_iv)) deallocate(ips_iv)
   end subroutine elocp
-  subroutine loctsh(mode0,spid,z,a,nr,nrmt,nsp,lmxb,rofi,v,pnu,pnz,rs3,eh3,vmtz, vsel,rsml,ehl)!Fit value and slope of local orbitals to smoothed Hankel
+  subroutine loctsh(modei,spid,z,a,nr,nrmt,nsp,lmxb,rofi,v,pnu,pnz,rs3,eh3,vmtz, vsel,rsml,ehl)!Fit value and slope of local orbitals to smoothed Hankel
     use m_mtchae,only:mtchre
     use m_lgunit,only:stdo
     use m_hansmr,only: hansmr,hansmronly
@@ -142,7 +142,6 @@ contains
     double precision :: rsml(n0,2),ehl(n0,2),vsel(4,n0)
     character spid*8,orbit(2)*4,flg(2)*1
     integer:: ipr,iprint,i,l,info,mode0, modei,loclo=-99999,nfit,iprt,isw
-    !, mode1,mode2,mode3,mode4
     real(8) ,allocatable :: g_rv(:)
     real(8) ,allocatable :: gp_rv(:)
     real(8) ,allocatable :: h_rv(:)
@@ -167,41 +166,38 @@ contains
     allocate(gp_rv(2*nr*4))
     ! --- Loop over local orbitals ---
     i=1 !isp=1 for averaged spin mode
+!    modei = mode0
     do  l = 0, lmxb
        rsml(l+1,i) = 0
        ehl(l+1,i) = 0
-       if (pnz(l+1,i) < 10) goto 10!
+       if (pnz(l+1,i) < 10) cycle
        if (int(pnu(l+1,i)-1) == int(mod(pnz(l+1,i),10d0))) then     ! Case local orbital deeper than valence
           loclo = 1
-          if (mode0 == 0) goto 10
-          modei = mode0
        elseif (int(pnu(l+1,i)+1) == int(mod(pnz(l+1,i),10d0))) then !  Case local orbital higher than the valence state
           loclo = 0
-          goto 10 
-          modei = 0 !mode1
+          cycle
        else!   Local orbital neither low nor high: error
           write(aaa,ftox)'Exit -1 loctsh',l,ftof(pnz(l+1,i),3),'incompatible with valence P=',ftof(pnu(l+1,i),3)
           call rx(trim(aaa))
        endif
        pnul = mod(pnz(l+1,i),10d0)
        nfit = nfit + 1
-       if (nfit == 1 .AND. modei > 1) then
+       if (nfit == 1 .AND. modei==2) then
           write(stdo,ftox)'Fit local orbitals to sm hankels, species '//trim(spid),ftof(rmt)
           if(ipr >= IPRT) write (stdo,261)
        endif
-       !   ... Make value, slope, kinetic energy
-       if (mod(modei,2) == 1) then
+       if (modei==1) then
           if (nsp == 2) then ! .AND. mode3 == 1) then
              vv(:,1)= .5d0*(v(:,1)+v(:,2)) !spin averaged
              vv(:,2)= .5d0*(v(:,1)-v(:,2)) !up - dn
           else
              vv= v
           endif
-          !     ... Wave function and potential parameters at MT sphere
+          !    Make value, slope, kinetic energy ... Wave function and potential parameters at MT sphere
           call makrwf(z,rmt,l,vv(1,i),a,nrmt,rofi,pnz(1,i),4,g_rv,gp_rv,eval,phi,dphi,phip,dphip,p)
+          vmine = eval - (v(nrmt,i)-2*z/rmt)
           vsel(1,l+1) = phi
           vsel(2,l+1) = dphi
-          vmine = eval - (v(nrmt,i)-2*z/rmt)
           vsel(3,l+1) = vmine
           vsel(4,l+1) = eval
        else
@@ -211,27 +207,18 @@ contains
           eval  = vsel(4,l+1)
        endif
        !   ... Set conditions on envelope functions
-       if (modei > 1) then
+       if (modei ==2) then
           rsmin = rs3
           rsmax = 5
           rsmax = rmt !if (mode2 == 1) 
           if (eval < emin) call rx1('increase emin in loctsh: eval=%;4g',eval)
           !   ... Match val,slo, and K.E. of Hankel to phi,dphi,vmine
-          if (modei == 2 .OR. modei == 3) then
-             rsm = 0
-             eh = min(eval-vmtz,emax)
-             call mtchre(103,l,rsmin,rsmax,emin,emax,rmt,rmt,phi,dphi,vmine,dphi,rsm,eh,ekin,info)
-             !   ... Vary rsm to match sm Hankel to phi,dphi
-          elseif (modei == 4 .OR. modei == 5) then
-             call rx('this branch not checked')
-             rsm = rsmin
-             call mtchre(100,l,rsmin,rsmax,emin,emax,rmt,rmt,phi,dphi,phi,dphi,rsm,eh,ekin,info)
-          else
-             call rxi('loctsh: not implemented fitting mode=',modei)
-          endif
+          rsm = 0
+          eh = min(eval-vmtz,emax)
+          call mtchre(103,l,rsmin,rsmax,emin,emax,rmt,rmt,phi,dphi,vmine,dphi,rsm,eh,ekin,info)
+          !   ... Vary rsm to match sm Hankel to phi,dphi
           if (ipr >= IPRT) then!   ... Printout of fit functions
-             call radext(11,nr,nrx,2d0,a,rmt,nrbig,rbig,rofix,rwgtx)
-             !         make sphere charge for r>rmt for printout
+             call radext(nr,nrx,2d0,a,rmt,nrbig,rbig,rofix,rwgtx)             !         make sphere charge for r>rmt for printout
              lp1 = l+1
              sum1 = 0
              do  ir = 1, nr
@@ -253,11 +240,7 @@ contains
           rsml(l+1,i) = rsm
           ehl(l+1,i) = eh
        endif
-10     continue
     enddo
-    if (allocated(gp_rv)) deallocate(gp_rv)
-    if (allocated(g_rv)) deallocate(g_rv)
-    if (allocated(h_rv)) deallocate(h_rv)
   end subroutine loctsh
   integer function iclbsj(ic,ipc,nbas,nrbas)  !- Returns an index to nrbas atom in basis given the class
     !i   ic    :class index
@@ -283,15 +266,7 @@ contains
     endif
     call rxiii('ICLBSJ: sought atom no.#1 in class #2 but only #3 atoms exist. #1#2#3=',nrbas,ic,n)
   end function iclbsj
-  subroutine radext(mode,nr,nrx,fac,a,rmax,nrbig,rbig,rofi,rwgt)
-    !- Find radius, mesh suitable for extending orbitals outside MT sphere
-    ! ----------------------------------------------------------------------
-    !i Inputs
-    !i   mode  :1s digit
-    !i         :0  nrbig,rbig are input; do not make them
-    !i         :1  set rbig = smaller of   rofi(nrx)  and  fac*rmax
-    !i         :10s digit
-    !i         :if nonzero, make rofi and rwgt
+  subroutine radext(nr,nrx,fac,a,rmax,nrbig,rbig,rofi,rwgt)    !- Find radius, mesh suitable for extending orbitals outside MT sphere
     !i   nr    :number of radial mesh points on regular mesh
     !i   nrx   :maximum allowed number of radial mesh points
     !i   fac   :approximate factor to scale rmax, rbig ~ fac*rmax
@@ -307,24 +282,17 @@ contains
     ! o        :points specified by (a,nr,rmax) and also rbig.
     ! o  rbig  :sphere radius of extended mesh
     ! o        :NB: rbig is input if 1s digit mode=0
-    !o   rofi  :(10s digit mode > 0)
-    !o         :radial mesh points: rofi(1..nrbig) will be generated
+    !o   rofi  ::radial mesh points: rofi(1..nrbig) will be generated
     !o         :rofi(nrbig) is rmax for extended mesh
-    !o   rwgt  :(10s digit mode > 0)
-    !o         :radial mesh weights: rwgt(1..nrbig) will be generated
+    !o   rwgt  ::radial mesh weights: rwgt(1..nrbig) will be generated
     !o         :rwgt is actually designed for two integration radii:
     !o         :int(0,rmax) = I(1..nr) and int(rmax,rbig) = I(nr..nrbig).
     !o         :Integral int(1..nrbig) must be done in two steps, by summing
     !o         :I(1..nr) and I(nr..nrbig)
-    !r Remarks
-    !r
-    !u Updates
-    !u   24 Sep 04 First created
-    ! ----------------------------------------------------------------------
     implicit none
     integer :: mode,nr,nrx,nrbig,idn
     double precision :: rmax,fac,rbig,a,rofi(*),rwgt(*)
-    if (mod(mode,10) == 1) then
+!    if (mod(mode,10) == 1) then
        rbig = rmax * (dexp(a*nrx-a)-1d0)/(dexp(a*nr-a)-1d0)
        if (rbig > fac*rmax) then !     If rbig>fac*rmax, estimate from exp((nrbig-nr)a) = fac
           idn = dlog(fac)/a
@@ -332,11 +300,11 @@ contains
           nrbig = min(nr+idn,nrx)
           rbig = rmax * (dexp(a*nrbig-a)-1d0)/(dexp(a*nr-a)-1d0)
        endif
-    endif
-    if (mod(mode/10,10) /= 0) then ! --- Points and weights on extended mesh ---
+!    endif
+!    if (mod(mode/10,10) /= 0) then ! --- Points and weights on extended mesh ---
        call radmsh(rbig,a,nrbig,rofi)
        call radwgt(rbig,a,nrbig,rwgt)
        if (nr < nrbig) rwgt(nr) = rwgt(nr)/2
-    endif
+!    endif
   end subroutine radext
 end module m_elocp

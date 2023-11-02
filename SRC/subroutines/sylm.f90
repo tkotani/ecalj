@@ -1,7 +1,4 @@
-subroutine sylm(r,yl,lmx,r2s)
-  !- Generate unnormalized spherical harmonic polynomials
-  ! ----------------------------------------------------------------
-  !i Inputs
+subroutine sylm(r,yl,lmx,r2s)   !- Generate unnormalized spherical harmonic polynomials
   !i   r     :vector with 3 components
   !i   lmax  :maximum l for which ylm is calculated
   !o Outputs:
@@ -19,21 +16,15 @@ subroutine sylm(r,yl,lmx,r2s)
   !r     l=0:              sqrt(1/4F)
   !r     l=1:              sqrt(3/F)   sqrt(3/F)  sqrt(3/F)
   !r     l=2:  sqrt(5/12F) sqrt(5/3F)  sqrt(5/F)  sqrt(5/3F) sqrt(5/12F)
-  !u Updates
-  !u   18 Sep 06 Set tolerance to smaller number for gen. Ylm
-  ! ----------------------------------------------------------------
-  !     implicit none
-  ! Passed parameters
+   implicit none
   integer :: lmx
   double precision :: r2s
   double precision :: r(3),yl(*)
-  ! Local parameters
   integer :: i,l,lav,lavml,lavmm,lavpl,lavpm,lm1,lmm,lp1,m,mp1,n,nt
   double precision :: r2,st,x,y,z,z2
   double precision :: c(15),s(15),p(15,15)
   equivalence (x,c(2)),(y,s(2)),(z,p(2,1))
   data c(1),s(1),p(1,1),p(2,2) /1.d0,0.d0,1.d0,1.d0/
-
   n = (lmx+1)**2
   yl(1) = 1.d0
   x = r(1)
@@ -88,9 +79,7 @@ subroutine sylm(r,yl,lmx,r2s)
 4    enddo
 5 enddo
 end subroutine sylm
-
-subroutine sylmnc(c,lmx)
-  !- Normalization constants for the spherical harmonics
+subroutine sylmnc(c,lmx)   !- Normalization constants for the spherical harmonics
   ! ----------------------------------------------------------------
   !i Inputs
   !i   lmx

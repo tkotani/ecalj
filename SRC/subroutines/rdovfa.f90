@@ -98,7 +98,6 @@ contains
        call mpibc1(rv_a_orhofa( is )%v,nr0 * nsp,4,mlog,'rdovfa' ,'rhofa' )
        call mpibc1(sspec(is)%rv_a_orhoc,nr0*nsp,4,mlog,'rdovfa','rhoca')
        call mpibc1( rv_a_ov0a( is )%v,nr0 * nsp,4,mlog,'rdovfa', 'v0a' )
-       i = mpipid(3)
        if(procid == master.and. ipr >= 30 .AND. rmt0 /= 0) write(stdo,400) trim(spid(is)),spidr,rmt0,nr0,a0
 400       format(' rdovfa: expected ',a,',',T27,' read ',a, ' with rmt=',f8.4,'  mesh',i6,f7.3)
        if(nr <= 0)   nr = nr0
@@ -116,7 +115,6 @@ contains
        sspec(is)%exi=exi(:,is)
        sspec(is)%chfa=hfc(:,:,is)
 10  enddo isloop
-    i = mpipid(3)
     do i_spec=1,nspec ! Re-broadcast entire species structure, and arrays used below
        call mpibc1_s_spec(sspec(i_spec))!,'rdovfa_sspec')
     enddo

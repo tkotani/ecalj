@@ -1,16 +1,4 @@
-11 167 64 # of line; # of reclen;#  of all lines
-
-VERS    LM=7 FP=7        
-IO      SHOW=1 VERBOS=35 TIM=0,0 
 SYMGRP find   
-STRUC     ALAT=10.263012186848634     PLAT=0 0.5 0.5  0.5 0 0.5  0.5 0.5 0     NL=4  NBAS=2  NSPEC=1
-SITE     ATOM=Si POS=0.0 0.0 0.0     ATOM=Si POS=0.25 0.25 0.25
-SPEC    ATOM=Si Z=14 R=2.16      EH=-1 -1 -1 -1  RSMH=1.08 1.08 1.08 1.08      EH2=-2 -2 -2  RSMH2=1.08 1.08 1.08      KMXA=5  LMX=3 LMXA=4 NMCORE=1
-BZ    NKABC=6 6 6       METAL=3              DOSMAX=1.5 NPTS=2001 SAVDOS=1
-ITER MIX=A2,b=0.5,n=3 CONV=1e-05 CONVC=1e-05 NIT=15
-HAM   NSPIN=1         FORCES=0      GMAX=12      REL=1      XCFUN=1      PWMODE=1      PWEMAX=3      FRZWF=0      RDSIG=12      SIGP[MODE=3]      RSRNGE=10.0      SO=0
-OPTIONS PFLOAT=1 
-@@@@@@@@@@@@@@@@@
 VERS_LM 7
 VERS_FP 7
 IO_SHOW 1

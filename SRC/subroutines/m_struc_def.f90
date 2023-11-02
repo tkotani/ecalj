@@ -21,8 +21,8 @@ module m_struc_def
      complex(8),allocatable:: cv(:)
   end type s_cv1
   type s_sblock
-     complex(8),allocatable:: sdiag(:,:) !(1,1) and (2,2) spin block as sdiag(:,isp)
-     complex(8),allocatable:: soffd(:,:) !(1,2) and (2,1) spin block as soffd(:,isp)
+     complex(8),allocatable:: sdiag(:,:,:,:,:) !(1,1) and (2,2) spin block as sdiag(:,:,:,:, isp)
+     complex(8),allocatable:: soffd(:,:,:,:,:) !(1,2) and (2,1) spin block as soffd(:,:,:,:, isp)
   end type s_sblock
   type s_nv2
      integer,allocatable:: nv2(:,:)

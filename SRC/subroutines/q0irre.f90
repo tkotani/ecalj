@@ -824,7 +824,7 @@ real(8) function auxfun6xnx(q0x, alpv, alat, qlat, ngc, ngvect &
   wtq1  = xn/nq
   wtq2 = (1d0-xn)/nq
   q2oq1 = sqrt(xn/(xn-1d0))
-  qb= q2oq1 !*qa
+  qb= q2oq1 
 
   auxfun6xnx = 0d0
   do i=1,nq

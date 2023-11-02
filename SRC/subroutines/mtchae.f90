@@ -1,9 +1,8 @@
 module m_mtchae !- Matches augmentation function to envelope function
   public mtchre
 contains
-  subroutine mtchae(mode,rsm,eh,l,r,phi,dphi,phip,dphip,alfa,beta)!- Matches augmentation function to envelope function
-    use m_lgunit,only:stdo
-!    use m_hansr,only:hansmd
+  subroutine mtchae(mode,rsm,eh,l,r,phi,dphi,alfa,beta)!- Matches augmentation function to envelope function
+    use m_lgunit,only:stdo !    use m_hansr,only:hansmd
     !i Inputs
     !i   mode  :0 match phi,dphi to h at r
     !i         :1 match phi to h,hdot at r
@@ -16,8 +15,6 @@ contains
     !i   r     :radius at which to perform matching
     !i   phi   :wave function at r
     !i   dphi  :logarithmic derivative of phi at r
-    !i   phip  :radial derivative of phi  (used when mode=0)
-    !i   dphip :radial derivative of dphi (used when mode=0)
     !l Local variables
     !l   hs    :sm hankel at r
     !l   dhs   :radial derivative of hs
@@ -33,10 +30,6 @@ contains
     !o         (mode 2)
     !o   alfa  :log deriv of hs (phi not used)
     !o   beta  :K.E. of hs
-    !r Remarks
-    !u Updates
-    !u   16 Jun 04 First created
-    ! ----------------------------------------------------------------------
     implicit none
     integer :: mode,l
     double precision :: dphi,dphip,eh,phi,phip,r,rsm,alfa,beta
@@ -51,27 +44,10 @@ contains
     !     (phi  phip ) (alfa)   (hs )    (alfa)    1  (dphip -phip) (hs )
     !     (          ) (    ) = (   ) -> (    ) = --- (           ) (   )
     !     (dphi dphip) (beta)   (dhs)    (beta)   det (-dphi  phi ) (dhs)
-    if (mode == 0) then
-       det  = phi*dphip - dphi*phip
-       alfa = (hs(l)*dphip - dhs(l)*phip)/det
-       beta = (dhs(l)*phi - hs(l)*dphi)/det
-
-       ! --- Match phi,dphi to a linear combination of hs,hsdot ---
-       !     (hs  hsp ) (alfa)   (phi )    (alfa)    1  (dhsp -hsp) (phi )
-       !     (        ) (    ) = (    ) -> (    ) = --- (         ) (    )
-       !     (dhs dhsp) (beta)   (dphi)    (beta)   det (-dhs  hs ) (dphi)
-    elseif (mode == 1) then
-       det  = hs(l)*dhsp(l) - dhs(l)*hsp(l)
-       alfa = (phi*dhsp(l) - dphi*hsp(l))/det
-       beta = (dphi*hs(l) - phi*dhs(l))/det
-
-       ! --- Match phi to hs; return dhs/hs in alfa, K.E. in beta ---
-    elseif (mode == 2) then
+    if (mode == 2) then! --- Match phi to hs; return dhs/hs in alfa, K.E. in beta ---
        alfa = dhs(l)/hs(l)
        beta = -ddhs(l)/hs(l)
-
-       ! --- Match phi,dphi to a linear combination of hs,hsdot; ---
-       !     return log derivative in alfa, K.E. in beta
+       ! --- Match phi,dphi to a linear combination of hs,hsdot; return log derivative in alfa, K.E. in beta
     elseif (mode == 3) then
        det  = hs(l)*dhsp(l) - dhs(l)*hsp(l)
        a    = (phi*dhsp(l) - dphi*hsp(l))/det
@@ -81,8 +57,6 @@ contains
        alfa = slo/val
        slo  = -(a*ddhs(l) + b*ddhsp(l))
        beta = slo/val
-    else
-       call rxi('mtchae: bad mode',mode)
     endif
   end subroutine mtchae
   subroutine mtchre(mode,l,rsmin,rsmax,emin,emax,r1,r2,phi1,dphi1, & !- Finds envelope function parameters that match conditions on sphere
@@ -165,17 +139,12 @@ contains
     !r         5  call rfalsi for a new estimate for rsm, or until
     !r            iteration converges.
     !r
-    !u Updates
-    !u   16 Jun 04 First created
-    ! ----------------------------------------------------------------------
     !     implicit none
     ! ... Passed parameters
     integer :: mode,l,ir
-    double precision :: dphi1,dphi2,eh,phi1,phi2,r1,r2,rsm,rsmin,rsmax, &
-         emin,emax,ekin
+    double precision :: dphi1,dphi2,eh,phi1,phi2,r1,r2,rsm,rsmin,rsmax,    emin,emax,ekin
     ! ... Local parameters
-    integer :: iter,IPRT1,IPRTW,ipr,maxit,mode0,mode2,ir1, &
-         ipass
+    integer :: iter,IPRT1,IPRTW,ipr,maxit,mode0,mode2,ir1,         ipass
     double precision :: tol,eh0,dxrsm
     parameter (tol=1d-12,IPRT1=100/1,IPRTW=50/1,maxit=50,dxrsm=.05d0)
     double precision :: xnow,alfa,beta,xclose,bclose,eclose,tclose,wk(12)
@@ -206,7 +175,6 @@ contains
        else
           !        call info2(IPRT1,0,0,' found rsm=%;4d',rsm,0)
        endif
-
        ! --- Vary eh to match phi to h ---
     elseif (mode0 == 1 .OR. mode0 == 11) then
        !     call info2(IPRT1,0,-1, &
@@ -224,11 +192,9 @@ contains
        else
           !        call info2(IPRT1,0,0,' found eh=%;4d',eh,0)
        endif
-
        ! --- Vary rsm (and eh) to match K.E. (and log der) to h ---
        !     See Remarks for description of procedure for mode3
     elseif (mode0 >= 2 .AND. mode0 <= 4) then
-
        !   ... debugging ...
        !       open(66,file='out')
        !       do  eh = -5d0, -.02d0, .25d0
@@ -239,7 +205,6 @@ contains
        !       enddo
        !       close(66)
        !       stop
-
        !   ... Setup: xnow is current guess for rsm.  Initialize w/ min val.
        xnow = min(rsmin,rsmax)
        !       dxmx = max(rsmin,rsmax) - xnow
@@ -254,9 +219,7 @@ contains
        !       call pshpr(min(ipr,1))
        call pshpr(ipr-10)
        if (ipr >= IPRT1) write(stdo,261)
-261    format(' l  it  ir',6x,'Rsm',9x,'Eh',7x,'slope/val',6x,'K.E.',5x, &
-            'target K.E.')
-
+261    format(' l  it  ir',6x,'Rsm',9x,'Eh',7x,'slope/val',6x,'K.E.',5x, 'target K.E.')
        !   ... mode 3-specific setup: find some (rsm,eh) satisfying slope cond.
        !       Loop through rsm(=xnow) in uniform increments;
        !       Find first rsm which can match dh/h to dphi1/phi1
@@ -280,14 +243,10 @@ contains
           endif
        endif
        !       End of mode 3-specific setup
-
        !   ... Iteratively try to match K.E. with mode-specific constraints
-120    continue
-       !       mode 2-specific : No matching of slope
+120    continue       !       mode 2-specific : No matching of slope
        if (mode0 == 2) then
-
-          !       mode 3-specific : eh determined from dphi1/phi1=dh/h
-       elseif (mode0 == 3) then
+       elseif (mode0 == 3) then !eh determined from dphi1/phi1=dh/h
           eh0 = eh
           call mtchr2(1,l,emin,emax,eh0,r1,phi1,dphi1,xnow,eh,ekin,ir1)
           !         Failed to match log derivative.  Resort to best prior case
@@ -305,17 +264,13 @@ contains
              goto 80
           endif
        endif
-
        !   ... K.E. for xnow = current guess for rsm.
-       if (mode0 /= 4) then
-          !         phi1 only dummy here
-          call mtchae(2,xnow,eh,l,r1,phi1,phi1,0d0,0d0,alfa,ekin)
+       if (mode0 /= 4) then          !         phi1 only dummy here
+          call mtchae(2,xnow,eh,l,r1,phi1,phi1,alfa,ekin)
        else
-          call mtchae(3,xnow,eh,l,r1,phi1,dphi1,0d0,0d0,alfa,ekin)
+          call mtchae(3,xnow,eh,l,r1,phi1,dphi1,alfa,ekin)
        endif
        beta = ekin - phi2
-       !        print *, '!!'
-       !        beta = xnow
        rsm = xnow
        !       Keep running track of closest approach in case no match found
        if (abs(beta) < bclose) then
@@ -329,16 +284,13 @@ contains
        call poppr
        if (ir > 1) call rxi('bug in mtchre, ir=',ir)
        iter = iter+1
-       if (ipr >= IPRT1) &
-            write (stdo,60) l,iter,ir,wk(1),eh,alfa,beta+phi2,phi2
+       if (ipr >= IPRT1)  write (stdo,60) l,iter,ir,wk(1),eh,alfa,beta+phi2,phi2
 60     format(i2,i4,i4,5f12.6)
-
        !   ... rfalsi unable to find K.E... Use closest point
        if (xnow < min(rsmin,rsmax)-1d-6 .OR. &
             xnow > max(rsmin,rsmax)+1d-6) then
           ir = -2
           goto 80
-
           !   ... rfalsi either has converged or requires another iteration
        else
           if (iter < maxit .AND. ir < 0) goto 120
@@ -349,60 +301,34 @@ contains
     else
        call rxi('mtchre: bad mode,',mode)
     endif
-
     ! ... Cleanup and exit
-    if (ir < 0 .AND. mode2 == 1) call rxi( &
-         'mtchre: failed to match phi to envelope, mode',mod(mode,100))
+    if (ir < 0 .AND. mode2 == 1) call rxi('mtchre: failed to match phi to envelope, mode',mod(mode,100))
     ir = 0
     if (mode0 /= mod(mode,100)) ir = 1
     call poppr
     return
-
-    ! --- Handle mode2 when matching failed ---
-    !     ir should be set before jumping here
+    ! --- Handle mode2 when matching failed ---     !     ir should be set before jumping here
 80  continue
     xnow = xclose
     eh0  = eclose
     ekin = tclose
-
-    !      call poppr
-    !      call mtchr2(1,l,emin,emax,eh0,r1,phi1,dphi1,xnow,eh,ir1)
-    !      if (ir1 .lt. 0) then
-    !        call rx('bug in mtchre: cannot match log deriv')
-    !      endif
-
     ! ... Closest point at boundary point in rsm or eh; no further search
-    if (xclose == min(rsmin,rsmax) .OR. &
-         xclose == max(rsmin,rsmax) .OR. ipass == 2 &
-         .OR. .TRUE. ) then
-
+    if (xclose == min(rsmin,rsmax) .OR. xclose == max(rsmin,rsmax) .OR. ipass == 2 .OR. .TRUE. ) then
        !       get K.E. at closest point.  phi1 only dummy here
        rsm  = xclose
        eh   = eclose
        ekin = tclose
-       call mtchae(2,rsm,eh,l,r1,phi1,phi1,0d0,0d0,alfa,beta)
-
+       call mtchae(2,rsm,eh,l,r1,phi1,phi1,alfa,beta)
        ! ... Not implemented: find K.E. closest to target
     else
        print *, xclose
        call rx('mtchre : not implemented')
     endif
-
     call poppr
-
-    !  if (ir == -2) &
-    !       call info5(IPRTW,0,0,' mtchre (warning) failed to match K.E. '// &
-    !       'of sm H(l=%i):  sought %;3d; best value %;3d',l,phi2,ekin,0,0)
-    if (ir == -1) call rxi( &
-         'mtchre: failed to match phi to envelope, mode',mod(mode,100))
-
+    if (ir == -1) call rxi('mtchre: failed to match phi to envelope, mode',mod(mode,100))
   end subroutine mtchre
-
-  subroutine mtchr2(mode,l,x1,x2,x0,r,phi,dphi,rsm,eh,ekin,info)
+  subroutine mtchr2(mode,l,x1,x2,x0,r,phi,dphi,rsm,eh,ekin,info) ! Match rsm or eh to value and slope of phi at surface of sphere
     use m_lgunit,only:stdo
-    !- Match rsm or eh to value and slope of phi at surface of sphere
-    ! ----------------------------------------------------------------------
-    !i Inputs
     !i   mode  :controls how matching is done
     !i         :0 vary rsm to match h(rsm,eh) to phi,dphi at r
     !i         :  where phi=val, dphi=slope
@@ -433,53 +359,33 @@ contains
     !o         :1 successful match second mode choice
     !o         :-1 (min,emax) do not bound search
     !o         :-2 root finding unsuccessful after maxit iterations
-    !r Remarks
-    !r
-    !u Updates
-    !u   16 Jun 04 First created
-    ! ----------------------------------------------------------------------
-    !     implicit none
-    ! ... Passed parameters
+    implicit none
     integer :: mode,l,info
     double precision :: dphi,eh,phi,r,rsm,x1,x2,x0,ekin
-    ! ... Local parameters
     integer :: ir,iter,IPRT,ipr,maxit
     double precision :: xnow,dxmx,alfa,beta,tol,wk(12)
     parameter (tol=1d-12,IPRT=100/1,maxit=50)
-
-    !      stdo = lgunit(1)
     call getpr(ipr)
-    !     call pshpr(ipr-10)
-    !     ipr=100
-
-    !     Mode-indpendent setup
     iter = 0
     ir = 0
     info = 0
-
     if (ipr >= IPRT) write(stdo,261) mode,l,r
-261 format(' mtchr2 mode',i2,'  l =',i2,'  r =',f10.6, &
-         /' l  it  ir',6x,'Rsm',9x,'Eh',8x,'phi''/phi     target')
-
+261 format(' mtchr2 mode',i2,'  l =',i2,'  r =',f10.6,/' l  it  ir',6x,'Rsm',9x,'Eh',8x,'phi''/phi     target')
     ! ... Vary rsm to match phi to h.  Do iteratively:
     if (mode == 0 .OR. mode == 2) then
-       !       Setup
        xnow = min(x1,x2)
        dxmx = max(x1,x2) - xnow
        if (xnow < 0) call rx1('mtchr2: bad lower rsm : ',xnow)
 100    continue
-
        !       Match phi,dphi to hs,hsdot; find point where hsdot=0.
        !       call mtchae(1,xnow,eh,l,r,phi,dphi,0d0,0d0,alfa,beta)
        !       alfa = alfa/phi
        !       beta = beta/phi
        !       Match dphi/phi to dhs/hs. dhs/hs is monotonic in rsm for rsm<r
-       call mtchae(2,xnow,eh,l,r,phi,dphi,0d0,0d0,alfa,ekin)
+       call mtchae(2,xnow,eh,l,r,phi,dphi,alfa,ekin)
        beta = alfa - dphi/phi
-
        !     mode=2 : match phi to hs; match dphi to K.E. of hs
        !     not ready
-
        rsm = xnow
        call pshpr(0)
        call rfalsi(xnow,beta,tol,tol,tol/10,dxmx,10,wk,ir)
@@ -488,31 +394,21 @@ contains
        iter = iter+1
        if (ipr >= IPRT)write (stdo,60) l,iter,ir,wk(1),eh,alfa,dphi/phi
 60     format(i2,i4,i4,2f12.6,1x,1p,4e12.3)
-
        !  ... after 2rd iteration try estimate x0, if supplied
-       if (iter == 2 .AND. x0 > min(x1,x2) &
-            .AND. x0 < x2) xnow = x0
-
+       if (iter == 2 .AND. x0 > min(x1,x2) .AND. x0 < x2) xnow = x0
        !   ... rfalsi unable to bound the search : handle error
-       if (xnow < min(x1,x2)-1d-6 .OR. &
-            xnow > max(x1,x2)+1d-6) then
-          info = -1
-          !   ... rfalsi either has converged or requires another iteration
-       else
+       if (xnow < min(x1,x2)-1d-6 .OR. xnow > max(x1,x2)+1d-6) then
+          info = -1 
+       else           !   ... rfalsi either has converged or requires another iteration
           if (iter < maxit .AND. ir < 0) goto 100
           if (iter >= maxit) info = -2
           rsm = xnow
        endif
-
-       ! ... Vary eh iteratively to match log deriv of phi to that of h.
-    elseif (mode == 1) then
-
-       !       Setup:
+    elseif (mode == 1) then ! ... Vary eh iteratively to match log deriv of phi to that of h.
        xnow = min(x1,x2)
        dxmx = max(x1,x2) - xnow
        if (xnow >= 0) call rx1('mtchr2: bad upper eh : ',xnow)
 200    continue
-
        !       Try and match phi to hs,hsdot, and find point where hsdot=0.
        !        call mtchae(1,rsm,xnow,l,r,phi,dphi,0d0,0d0,alfa,beta)
        !        alfa = alfa/phi
@@ -520,44 +416,26 @@ contains
 
        !       Try and match dphi/phi to alfa=dhs/hs.
        !       NB: dhs/hs is monotonic in eh for rsm<r
-       call mtchae(2,rsm,xnow,l,r,phi,dphi,0d0,0d0,alfa,ekin)
+       call mtchae(2,rsm,xnow,l,r,phi,dphi,alfa,ekin)
        beta = alfa - dphi/phi
-
        eh = xnow
-       !       call pshpr(100)
-       !       if (iter .eq. 26) then
-       !         print *, iter
-       !       endif
        call pshpr(0)
        call rfalsi(xnow,beta,tol,tol,tol/10,dxmx,10,wk,ir)
        call poppr
        if (ir > 1) call rxi('bug in mtchr2, ir=',ir)
-
        iter = iter+1
        if (ipr >= IPRT) write(stdo,60)l,iter,ir,rsm,wk(1),alfa,dphi/phi
-       !        if (ipr.ge.IPRT)
-       !     .    write(stdo,60)l,iter,ir,rsm,wk(1),alfa,dphi/phi,
-       !     .    xnow-wk(1),alfa-dphi/phi
-
-       !  ... after 2rd iteration try estimate x0, if supplied
-       if (iter == 2 .AND. x0 > min(x1,x2) &
-            .AND. x0 < x2) xnow = x0
-
+       !        if (ipr.ge.IPRT) write(stdo,60)l,iter,ir,rsm,wk(1),alfa,dphi/phi,xnow-wk(1),alfa-dphi/phi
+       if (iter == 2 .AND. x0 > min(x1,x2) .AND. x0 < x2) xnow = x0 !after 2rd iteration try estimate x0, if supplied
        !   ... rfalsi unable to bound the search : handle error
-       if (xnow < min(x1,x2)-1d-6 .OR. &
-            xnow > max(x1,x2)+1d-6) then
-          info = -1
-          !   ... rfalsi either has converged or requires another iteration
+       if (xnow < min(x1,x2)-1d-6 .OR. xnow > max(x1,x2)+1d-6) then
+          info = -1           !   ... rfalsi either has converged or requires another iteration
        else
           if (iter < maxit .AND. ir < 0) goto 200
           if (iter >= maxit) info = -2
           eh = xnow
        endif
        if (ipr >= IPRT) print '('' exit mtchr2 info ='',i2)',info
-       !        if (info .eq. -1) then
-       !        print *, 'exit mtchr2 info=',info
-       !        endif
-
        ! ... Vary rs to match K.E. of h to dphi.  Do iteratively, matching
        !     phi to hs; find point where K.E. matches.
     elseif (mode == 2) then
@@ -570,44 +448,28 @@ contains
     use m_hansmr,only: hansmr,hansmronly
     use m_hansr,only:  hansr
     !i Inputs
-    !i   mode  :tells hansmd what derivatives to make.
-    !i         :1s digit concerns 2nd radial derivative
-    !i         :0 make neither 1st or 2nd radial derivative.
-    !i         :>0 make 1st and second radial derivative:
-    !i         :1 ddhs = radial part of Laplacian, 1/r d^2 (r*h_l) / dr^2
-    !i         :2 ddhs = 1/r d^2 (r*h_l) / dr^2  - l(l+1)/r^2 h_l
-    !i         :  NB: ddhs = laplacian of 3-dimensional hs_l YL
-    !i         :3 ddhs = d^2 (h_l) / dr^2
-    !i         :1s digit concerns energy derivative
-    !i         :0 make none of hsp,dhsp,ddhsp
-    !i         :1 make all  of hsp,dhsp,ddhsp
     !i   r     :radius
     !i   e     :hankel energy
     !i   rsm   :hankel smoothing radius
     !i   lmax  :make function values for l between (0:lmax)
     !o  Outputs:
     !o   hs    : function values of the radial sm. hankel h(e,r,0:lmax)
-    !o         : A solid hankel is H=h*Y_L, where Y_L are the spherical
-    !o         : harmonics for unit radius (no scaling by r**l)
+    !o         : A solid hankel is H=h*Y_L, where Y_L are the spherical harmonics for unit radius (no scaling by r**l)
     !o   dhs   : radial derivative of hs
-    !o   ddhs  : radial part of Laplacian of hs, i.e. 1/r d^2 (r h) /dr^2
-    !o         : OR some other second derivative (see mode)
+    !o   ddhs  : radial part of Laplacian of hs, i.e. 1/r d^2 (r h) /dr^2 OR some other second derivative (see mode)
     !o   hsp   : energy derivative of hs
     !o   dhsp  : mixed energy + radial derivative of hs
     !o   ddhsp : 3-d laplacian of hsp YL
     !r Remarks
+    !i        ddhs = 1/r d^2 (r*h_l) / dr^2  - l(l+1)/r^2 h_l :  NB: ddhs = laplacian of 3-dimensional hs_l YL
     !r  See J. Math. Phys. 39, 3393 (1998).
-    !r    For radial derivative, see JMP 39, 3393, Eq. 4.7
-    !r      h'  = l/r h_l - h_l+1
-    !r    Second radial derivative:
-    !r      h'' = l(l-1)/r^2 xi_l - (2l+1)/r xi_l+1 + xi_l+2
-    !r      1/r d^2/dr^2 (r*h_l) = l(l+1)/r^2 h_l - (2l+3)/r h_l+1 + h_l+2
+    !r    For radial derivative, see JMP 39, 3393, Eq. 4.7   h'  = l/r h_l - h_l+1
+    !r    Second radial derivative:                          h'' = l(l-1)/r^2 xi_l - (2l+1)/r xi_l+1 + xi_l+2 1/r d^2/dr^2 (r*h_l)
+    !r                                                           = l(l+1)/r^2 h_l - (2l+3)/r h_l+1 + h_l+2
     !r    Energy derivative:  see JMP 39, 3393, Eq. 7.5
     !r      hp_l = r/2 h_l-1  Special case l=0: hp_0 = 1/2 h_-1 ?
-    !r    Mixed energy + radial derivative:
-    !r      hp'_l = h(l-1)*l/2 - h(l)*r/2
-    !r    Mixed energy + kinetic energy
-    !r      hp'' = -(2l+3)/2 h_l + h_l+1*r/2
+    !r    Mixed energy + radial derivative: hp'_l = h(l-1)*l/2 - h(l)*r/2
+    !r    Mixed energy + kinetic energy     hp'' = -(2l+3)/2 h_l + h_l+1*r/2
     !r
     !r  Note connection with hansmr, which makes xi(l) = h(l) / r^l
     implicit none
@@ -636,19 +498,11 @@ contains
        call hansr(rsm,-1,lmax+2,1,[lmax+2],[e],[r**2],1,1,[idx],11,xi)
     endif
     hs=xi(0:lmax)
-    if(mode0/= 0) then
-       dhs(:)  = [(xi(l)*l/r - xi(l+1),l=0,lmax)]
-       ddhs = [(                   - (2*l+3)/r*xi(l+1) + xi(l+2), l=0,lmax)]
-       !       if (mode0 == 1) ddhs = [(xi(l)*l*(l+1)/r**2 - (2*l+3)/r*xi(l+1) + xi(l+2), l=0,lmax)]
-       !       if (mode0 == 2) ddhs = [(                   - (2*l+3)/r*xi(l+1) + xi(l+2), l=0,lmax)]
-       !       if (mode0 == 3) ddhs = [(xi(l)*l*(l-1)/r**2 - (2*l+1)/r*xi(l+1) + xi(l+2), l=0,lmax)]
-    endif
-    !    if (mode1 /= 0) then
+    dhs(:)  = [(xi(l)*l/r - xi(l+1),l=0,lmax)]
+    ddhs = [(                   - (2*l+3)/r*xi(l+1) + xi(l+2), l=0,lmax)]
     hsp   = [(xi(l-1)*r/2,                    l=0,lmax)]
     dhsp  = [((xi(l-1)*l - xi(l)*r)/2,        l=0,lmax)]
     ddhsp = [(- (2*l+3)*xi(l)/2 + xi(l+1)*r/2,l=0,lmax)]
-    !    endif
-    !       if(mode1 /= 0)
     hsp(0) = xi(-1)/2
   end subroutine hansmd
 endmodule m_mtchae

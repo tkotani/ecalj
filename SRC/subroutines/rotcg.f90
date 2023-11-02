@@ -1,4 +1,5 @@
-subroutine rotcg(lmxax,symops,ng,cgr) ! -- Rotated CG coefficients.
+!> Rotated CG coefficients.
+subroutine rotcg(lmxax,symops,ng,cgr) 
   !! output: cgr
   !! NOTE: key is the line
   !!      cgr(lm1,lm2,lm,ig) = sum(cgn(lx-l:lx+l,lm1,lm2)*dlmm(-l:l,m,l,ig))
@@ -82,18 +83,10 @@ subroutine rotcg(lmxax,symops,ng,cgr) ! -- Rotated CG coefficients.
      do ig  = 1, ng
         do lm2 = 1, nlmxa
            do lm1 = 1, nlmxa
-              ! ilm is move to 1st argument.!
               cgr(lm1,lm2,lm,ig) = sum(cgn(lx-l:lx+l,lm1,lm2)*dlmm(-l:l,m,l,ig))
-              !        sumr = 0d0
-              !        do md = -l,l
-              !          lmd = l**2 +l +1 + md
-              !          sumr = sumr + cgn(lm1,lm2,lmd)*dlmm(md,m,l,ig)
-              !        enddo
-              !        cgr(lm1,lm2,lm,ig) = sumr
            enddo
         enddo
      enddo
   enddo
   deallocate( cg,dlmm,cgn,jcg,indxcg)
-  !c      write(6,*)' rotcg end:'
 end subroutine rotcg

@@ -63,8 +63,8 @@ subroutine zsecsym(zsec,ntq,nq,nband,nbandmx,nspinmx,nspin, eibzsym,ngrp,tiii,q,
         deallocate(ovl)
         evaliq = READEVAL(q(:,iqxx), is)
         nsym = sum(eibzsym(:,:,iqxx))
-        do it=1,1             !no-time reversal yet !it=1,-1,-2 !c.f. x0kf_v4h
-           do igrp=1,ngrp      !A-rotator
+        itloop:do it=1,1             !no-time reversal yet !it=1,-1,-2 !c.f. x0kf_v4h
+           igrploop: do igrp=1,ngrp      !A-rotator
               if( eibzsym(igrp,it,iqxx)==0) cycle
               nblk=0
               iblki=0
@@ -99,11 +99,9 @@ subroutine zsecsym(zsec,ntq,nq,nband,nbandmx,nspinmx,nspin, eibzsym,ngrp,tiii,q,
                  ii1=iblki(iblk1)
                  ie1=iblke(iblk1)
                  ne1=ie1-ii1+1
-                 call rotwvigg2(igrp,q(:,iqxx),q(:,iqxx),nhdim, &
-                      napw,ne1,evec(:,ii1:ie1),evecrot(:,ii1:ie1),ierr )
-                 rmatjj(1:ne1,1:ne1,iblk1) = &
-                      matmul(evec_inv(ii1:ie1,:),evecrot(:,ii1:ie1))
-              enddo             ! iblk1
+                 call rotwvigg2(igrp,q(:,iqxx),q(:,iqxx),nhdim,napw,ne1,evec(:,ii1:ie1),evecrot(:,ii1:ie1),ierr )
+                 rmatjj(1:ne1,1:ne1,iblk1) = matmul(evec_inv(ii1:ie1,:),evecrot(:,ii1:ie1))
+              enddo
               do iblk1=1,nblk
                  do iblk2=1,nblk
                     ii1=iblki(iblk1)
@@ -112,15 +110,13 @@ subroutine zsecsym(zsec,ntq,nq,nband,nbandmx,nspinmx,nspin, eibzsym,ngrp,tiii,q,
                     ii2=iblki(iblk2)
                     ie2=iblke(iblk2)
                     ne2=ie2-ii2+1
-                    zsect(ii1:ie1,ii2:ie2)= zsect(ii1:ie1,ii2:ie2) &
-                         + matmul( dconjg(transpose(rmatjj(1:ne1,1:ne1,iblk1))), &
-                         matmul(zsec(ii1:ie1,ii2:ie2,iqxx), &
-                         rmatjj(1:ne2,1:ne2,iblk2)) )
-                 enddo           ! iblk2
-              enddo             ! iblk1
+                    zsect(ii1:ie1,ii2:ie2)= zsect(ii1:ie1,ii2:ie2) + matmul(  dconjg(transpose(rmatjj(1:ne1,1:ne1,iblk1))), &
+                         matmul(zsec(ii1:ie1,ii2:ie2,iqxx),rmatjj(1:ne2,1:ne2,iblk2))  )
+                 enddo    
+              enddo       
               deallocate(rmatjj)
-           enddo               ! igrp
-        enddo                 ! it
+           enddo igrploop
+        enddo itloop
         deallocate(evec, evec_inv, evecrot)
         zsec(:,:,iqxx) = zsect(:,:)/dble(nsym)
         close(ifevec_)
@@ -181,18 +177,9 @@ contains
           call rx('rotwv: napw_in /= napw(ikt)')
        endif
        do ig = 1,napw_in
-!          if(pwmode>10) then
-             qpg  = q + matmul( qlat(:,:),igv2(:,ig,ikt))  !q+G
-             qpgr = matmul(symops(:,:,igg),qpg)            !rotated q+G
-             nnn= nint(matmul(platt,qpgr-qtarget)) !integer representation of G= qpgr - qtarget
-!          else   
-!             block
-!               real(8):: gg(3),ggr(3) 
-!               gg  = matmul(qlat(:,:),igv2(:,ig,ikt))  !q+G
-!               ggr = matmul(symops(:,:,igg),gg)            !rotated G
-!               nnn = nint(matmul(platt,ggr)) !integer representation of G= qpgr - qtarget
-!             endblock
-!          endif
+          qpg  = q + matmul( qlat(:,:),igv2(:,ig,ikt))  !q+G
+          qpgr = matmul(symops(:,:,igg),qpg)            !rotated q+G
+          nnn= nint(matmul(platt,qpgr-qtarget)) !integer representation of G= qpgr - qtarget
           ig2 = igv2rev(nnn(1),nnn(2),nnn(3),ikt2) !get index of G
           if(ig2>=999999) then
              block
@@ -223,23 +210,5 @@ contains
     getikt  = findloc([(sum(abs(qin-qtt(:,i)))<1d-8,i=1,nqtt)],value=.true.,dim=1)  !=index for q
     if(getikt<=0) call rx('getikt zsecsym can not find ikt for given q')
   endfunction getikt
-  ! integer function getikt(qin) !return !> get index ikt such that for qin(:)=qq(:,ikt)
-  !   use m_hamindex,only: qq,nqtt
-  !   intent(in)::          qin
-  !   integer::i
-  !   real(8):: qin(3)
-  !   getikt=-99999
-  !   do i=1, nqtt !*2 !nkt
-  !      if(debug) write(stdo,*)i,qin, qq(:,i)
-  !      if(sum (abs(qin-qq(:,i)))<1d-8) then
-  !         getikt=i
-  !         return
-  !      endif
-  !   enddo
-  !   write(stdo,ftox)' getikt: xxx error nqtt qin=',nqtt,qin
-  !   do i=1, nqtt ; write(*,"('i qq=',i3,3f11.5)")i, qq(:,i);  enddo
-  !   call rx('getikt can not find ikt for given q')
-  ! end function getikt
-  ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
 end subroutine zsecsym
 endmodule m_zsecsym

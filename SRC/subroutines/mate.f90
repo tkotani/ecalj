@@ -1,7 +1,5 @@
-subroutine gauss(n,a,b,x,w)
-  ! subroutine gauss for gaussian integration   76.08.12.
-  ! the integral of f(x) from a to b is given by the sum
-  ! over i from 1 to n of w(i)*f(x(i)).
+subroutine gauss(n,a,b,x,w)  ! subroutine gauss for gaussian integration   76.08.12.
+  ! the integral of f(x) from a to b is given by the sum over i from 1 to n of w(i)*f(x(i)).
   ! maximum n is 48
   implicit real*8(a-h,o-z)
   implicit integer(i-n)

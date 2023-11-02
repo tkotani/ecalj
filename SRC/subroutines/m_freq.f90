@@ -18,8 +18,7 @@ module m_freq
   private
   real(8),private:: emin,emax,omg2max
 contains
-  !> Get data set for m_freq. All arguments are input.
-  subroutine getfreq3(lqall,epsmode,realomega,imagomega,ua,iprint)!,tetra
+  subroutine getfreq3(lqall,epsmode,realomega,imagomega,ua,iprint) ! Get data set for m_freq. All arguments are input.
     intent(in)::        lqall,epsmode,realomega,imagomega,ua,iprint
     real(8):: wemax
     integer:: iq
@@ -109,7 +108,7 @@ contains
     !! Determine nw. Is this correct?
     do iw=3,nwhis
        omg2 = (frhis(iw-2)+frhis(iw-1))/2d0
-       if (omg2 > wemax/2d0 ) then !>dw*(nw_input-3)) then !omg is in unit of Hartree
+       if (omg2 > wemax/2d0 ) then ! dw*(nw_input-3)) then !omg is in unit of Hartree
           nw=iw
           exit
        endif

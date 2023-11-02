@@ -499,10 +499,10 @@ contains
       lat_nkqmx=lat_nkdmx
       lat_platin=plat
       lat_tolft=tolft
-      lmxcg=8 ! set cg coefficients for lmf --- Choose dimensions for arrays
+      lmxcg=10 ! set cg coefficients for lmf --- Choose dimensions for arrays
       lmxcy=12
-      lnjcg = 22700 !  for (lmxcg .le. 10);  lnjcg = 62200; lnxcg = 7400
-      lnxcg = 3400
+      lnjcg = 62200 !  for (lmxcg .le. 10);  lnjcg = 62200; lnxcg = 7400
+      lnxcg = 7400  !3400
       nlm=(lmxcy+1)**2
       allocate(rv_a_ocy(nlm),rv_a_ocg(lnjcg),iv_a_ojcg(lnjcg),iv_a_oidxcg(lnxcg))
       call sylmnc(rv_a_ocy , lmxcy ) ! Clebsh-Gordon coefficients for lmf part

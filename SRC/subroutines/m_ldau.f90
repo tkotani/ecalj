@@ -108,7 +108,7 @@ contains
     else
        do iblu =1,2       !6
           fac=1d0
-          if(iblu==2) fac=-1d0 !>3) fac=-1d0
+          if(iblu==2) fac=-1d0 
           vorb(:,:,1,iblu) = vorb(:,:,1,iblu) - uhx*fac*vorbav(:,:)
        enddo
     endif

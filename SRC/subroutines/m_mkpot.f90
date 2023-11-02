@@ -40,8 +40,7 @@ contains
     allocate( sab_rv(3,3,n0,nsp,nbas))
     allocate( phzdphz(nppn,n0,nsp,nbas))
     allocate( fes1_rvx(3*nbas))
-    allocate( spotx(n1,n2,n3,nsp)) !smooth potential without XC
-    spotx=0d0
+    allocate( spotx(n1,n2,n3,nsp),source=(0d0,0d0)) !smooth potential without XC
     allocate( ohsozzx(3,nbas), ohsopmx(3,nbas)) !dummy
     allocate( osigx(3,nbas), otaux(3,nbas), oppix(3,nbas))
     call dfaugm(osigx, otaux, oppix, ohsozzx,ohsopmx) !for sig,tau,ppi without XC(LDA)
@@ -353,11 +352,11 @@ contains
        allocate(oppi(3,ib)%cv(nkaph,nkaph,nlmh,nlmh,nsp))
        if(lso/=0 .OR. cmdopt0('--socmatrix')) then !spin-orbit copling matrix elements
           nelt = (kmax+1)*(kmax+1)*nlma*nlma !ohsopm (L- and L+) is irrelevant for lso=2
-          allocate(ohsozz(1,ib)%sdiag(nelt,nsp),ohsopm(1,ib)%soffd(nelt,nsp)) ! Pkl*Pkl zz and pm component
+          allocate(ohsozz(1,ib)%sdiag(0:kmax,0:kmax,nlma,nlma,nsp),ohsopm(1,ib)%soffd(0:kmax,0:kmax,nlma,nlma,nsp)) ! Pkl*Pkl zz and pm component
           nelt = nkaph*(kmax+1)*nlmh*nlma 
-          allocate(ohsozz(2,ib)%sdiag(nelt,nsp), ohsopm(2,ib)%soffd(nelt,nsp))! Hsm*Pkl
+          allocate(ohsozz(2,ib)%sdiag(nkaph,0:kmax,nlmh,nlma,nsp), ohsopm(2,ib)%soffd(nkaph,0:kmax,nlmh,nlma,nsp))! Hsm*Pkl
           nelt = nkaph*nkaph*nlmh*nlmh 
-          allocate(ohsozz(3,ib)%sdiag(nelt,nsp), ohsopm(3,ib)%soffd(nelt,nsp))! Hsm*Hsm
+          allocate(ohsozz(3,ib)%sdiag(nkaph,nkaph,nlmh,nlmh,nsp), ohsopm(3,ib)%soffd(nkaph,nkaph,nlmh,nlmh,nsp))! Hsm*Hsm
        endif
     enddo
   end subroutine dfaugm
