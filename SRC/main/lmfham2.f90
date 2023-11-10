@@ -46,14 +46,15 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
   real(8),allocatable:: xq(:),eval1(:,:),eval2(:,:),eval3(:,:),eval_w(:,:,:)
   integer,allocatable:: m_indx(:),n_indx(:),l_indx(:),ibas_indx(:),ibasiwf(:),idmto(:),idmto_(:)
   real(8),allocatable:: evl(:,:),ovl(:), bbv(:,:),wbz(:),proj(:),projs(:),projss(:)
-  complex(8),allocatable:: upu(:,:,:,:), zmn(:,:),zmn0(:,:),WTbandii(:),WTinnerii(:),zmns(:,:)
+  complex(8),allocatable:: upu(:,:,:,:), zmn(:,:),zmn0(:,:),WTbandii(:),WTinnerii(:),zmns(:,:),ezmns(:,:)
   complex(8),parameter:: img=(0d0,1d0)
   complex(8),allocatable::ovlm(:,:),ovlmx(:,:),hamm(:,:),ovec(:,:)!,emat(:,:)
   complex(8),allocatable:: uumat(:,:,:,:),evecc(:,:), amnk(:,:,:),cnk(:,:,:),umnk(:,:,:),evecc1(:,:,:),evecc2(:,:,:)
   complex(8),allocatable:: hmmr2(:,:,:,:),ommr2(:,:,:,:),wmat(:,:),wmat2(:,:),cnk0(:,:,:)
   character(256):: fband,fband1
   logical:: cmdopt2,noinner,eLinnerauto,ELhardauto,eUinnerauto,convn,eUouterauto,skipdfinner,EUautosp,debug=.false.
-  real(8):: WTseed,eoffset, projcut,ewid,ewideV,eUinnercut,eouter,CUouter,WTouter,EUouter,CLhard,eUoutereV,CUinner,eLhardeVoffset
+  real(8):: WTseed,eoffset, projcut,ewid,ewideV,eUinnercut,eouter,CUouter,WTouter,EUouter,CLhard,eUoutereV,CUinner,eLhardeVoffset,&
+       eUBinner
   character:: outs*20
   character(256):: aaa='',bbb=''
   integer:: nband_,nqbz_,iki_,ikf_,nMLO_,ilowest,ieLhard,iUinneradd
@@ -364,7 +365,7 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
 !!! Omega = -1/2 \sum_b,k Tr {|\nabla Pk|^2} + WTband*Tr{Pk H}_inner - WTinner*Tr{Pk}_inner - WTseed*Tr{Pk <psi_m|seed_i><seed_i|psi_n|}
            ! zmn = \frac{\delta Omega}{\delta Pmn^k}
            allocate (zmn0(ndz,ndz),source=(0d0,0d0)) ! (1-3) Zmn(k) > phi,eval
-           allocate (zmn(ndz,ndz),zmns(ndz,ndz), evecc(ndz,ndz),eval(ndz),WTbandii(ndz),WTinnerii(ndz))
+           allocate (zmn(ndz,ndz),zmns(ndz,ndz), evecc(ndz,ndz),eval(ndz),WTbandii(ndz),WTinnerii(ndz)) !,ezmns(ndz,ndz)
            do ibb = 1,nbb
               zmn0(1:ndz,1:ndz) = zmn0(1:ndz,1:ndz) - 2d0*wbb(ibb)*upu(iki:ikf,iki:ikf,ibb,iq)
            enddo
@@ -373,9 +374,9 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
            WTseedBlock: block
              if(WTseed/=0d0) then !projection to Seed functions
                 zmns = matmul(cnk0(iki:ikf,1:nMLO,iq),dconjg(transpose(cnk0(iki:ikf,1:nMLO,iq))))
-!                forall(i=1:nds) zmns(:,i) = zmns(:,i)*evl(i-iki+1,iq)
-!                zmns = 0.5d0*(zmns+transpose(dconjg(zmns)))
                 zmn(iki:ikf,iki:ikf)= zmn(iki:ikf,iki:ikf) - WTseed*zmns !gain
+!                forall(i=1:ndz,j=1:ndz) ezmns(i,j) = - zmns(i,j)*(WTband*evl(i,iq)-WTinner)**.5*(WTband*evl(j,iq)-WTinner)**.5
+!                zmn(iki:ikf,iki:ikf)= zmn(iki:ikf,iki:ikf) + ezmns
              endif
 !                zmnsa=[(sum([(abs(zmns(i,i)),i=iki,ikff)]),ikff=iki,ikf)]
 !                do i=iki,ikf
@@ -389,8 +390,12 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
                 !!              zmn=zmn-WTseed*matmul(cnk0(iki:ikf,1:nMLO,iq), & !projection to Seed functions
                 !!                   dconjg(transpose(cnk0(iki:ikf,1:nMLO,iq)))) !NOTE: this did not work for Si666 at least
            endblock WTseedBlock
-           WTbandinnerBlock: do concurrent(i=iki:ikf) !Add penalty for compoments outside of inner window. Soft inner window.
-              zmn(i,i)= zmn(i,i) + (WTband*evl(i,iq)-WTinner) *filter2((eUinner-evl(i,iq))/ewid) *filter2((evl(i,iq)-eLinner)/ewid) !inner window
+           WTbandinnerBlock: do concurrent(i=iki:ikf) !Add gain for inner window. Soft inner window.
+              zmn(i,i)= zmn(i,i) + WTband*evl(i,iq) *filter2((eUinner-evl(i,iq))/ewid) *filter2((evl(i,iq)-eLinner)/ewid) !Nice for Si666
+              zmn(i,i)= zmn(i,i) - WTinner          *filter2((eUinner-evl(i,iq))/ewid) *filter2((evl(i,iq)-eLinner)/ewid) !
+              !Main difference of following filters are just the shift of cutoff center.
+              !  zmn(i,i)= zmn(i,i) + WTband*evl(i,iq)* (1-filter2((evl(i,iq)-eUinner)/ewid)-filter2((eLinner-evl(i,iq))/ewid)) !inner window
+              !  zmn(i,i)= zmn(i,i) - WTinner*          (1-filter2((evl(i,iq)-eUinner)/ewid)-filter2((eLinner-evl(i,iq))/ewid)) !inner window
               zmn(i,i)= zmn(i,i) + WTouter*filter2((evl(i,iq)-eUouter)/ewid)  !outer penaltiy
            enddo WTbandinnerBlock
            HardInnerBlock: block ! hard innerwindow
@@ -531,11 +536,29 @@ contains
     if(x<0d0) then
        filter2=0d0
     elseif(x>30d0) then
-       filter2=1d0
+       filter2= 1d0
     else
-       filter2= 1d0-2d0/(exp(x)+1d0)
+       filter2= 1d0*(1d0-2d0/(exp(x)+1d0))
     endif
   end function filter2
+  ! pure real(8) function filter2(x) !step like function 0(x<0) to 1(x>0)
+    ! if(x<-30d0) then
+    !    filter2=0d0
+    ! elseif(x>30d0)then
+    !    filter2=1d0
+    ! else
+    !    filter2= 1d0/(exp(-x)+1d0)
+    ! endif
+    ! return !===========================
+  !   real(8),intent(in) :: x
+  !   if(x<0d0) then
+  !      filter2=0d0
+  !   elseif(x>30d0) then
+  !      filter2=1d0
+  !   else
+  !      filter2= 1d0*(1d0-2d0/(exp(x)+1d0))!+0.1d0
+  !   endif
+  ! end function filter2
 END PROGRAM
 
 

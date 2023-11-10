@@ -150,5 +150,5 @@ vv 29     1.0000000000000000     1.0000000000000000     1.0000000000000000
   1 Fe 1 2 3 4 5 6 7 8 9
 </Worb>
 mlo_EUinner 5
-mlo_WTseed 128
-mlo_WTband 2048
+mlo_WTseed  128
+!mlo_WTband 2048

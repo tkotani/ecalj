@@ -240,45 +240,28 @@ NiO:    WTseed:128,WTband:2048 ==> WTseed=0
 SrTiO3: WTseed:128,WTband:2048
 
 
-===========================================================
+==============================================================
 2023-11-10:10:30 WTbandwithinWTinner WTinner (Rougly WTband< WTinner) WTseed=0,WTband=1024,WTinner=2048
-Si666:  EUinner5:  good 
-Si666:  EUinner10: better X-K but slightly deformed at CBM
+(NOTE: Old fileter and new filter are different only the sense of the slight shift of cutoff centers.)
+Si666:  EUinner5: good 
+        EUinner7: slightly 
+        EUinner10: better X-K but slightly deformed at CBM
+
+C:      EUinner7: good.
+        5,6 are a little strange
+          (WTband=0,WTseed=128: gives similar)
+
 SrTiO3: EUinner5: very good
 NiO:    EUinner5:  good
         EUinner10  very slightly different at U-T
         EUinner0: Unoccupied deformed
-===========================================================
+
+Fe: EUinner5 good, EUinner15 better higher bands.
+             WTseed128 seems better. EUinner15 better higher bands
+===============================================================
 
 
-MLO cases.---------------------
-1.Semiconductor. Fill up to 
-2.Extract specific local bands spannning some range of energy window.
-
-
-Problem.====================================================================================
-WTband seems not effective. NiO, WTband works virtually(But probably, not a good solution).
-WTseed=128 seems good.
-NiO. EUinner=5 WT=128,0 cause problem 
-     because high band ~<5eV included. Take reasonable limit. 
-     ===> 
-For hybrid systems, 
-Character-dependent EUinner? Sudden-cutoff problem (not good cancellation)?
--------------------------------------------------------------
-
-
-
-
-1. semiconductor
-2. real space local set basis.
-
-Conclusion:
- A. Fillband in range of energy window: Set Einner at the top of band (iteration automatically). 
- B  local orbital model. 
-
-
-paralell.
-k point convergence (and real-space representation).
+paralell: k point convergence (and real-space representation).
 
 
 * TODO
