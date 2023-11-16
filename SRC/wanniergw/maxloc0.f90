@@ -195,12 +195,9 @@ subroutine q2q0(q,plat,q0)
   return
 end subroutine q2q0
 !-----------------------------------------------------------------------
-subroutine  getbb(plat,alat,n1,n2,n3, &
-     nbb,wbb,wbbsum,bb)
-
+subroutine  getbb(plat,alat,n1,n2,n3, nbb,wbb,wbbsum,bb)
   ! determine bb matrix
   ! finite difference method for k-space grids
-
   ! Ref.
   ! Appendix B, Marzari and Vanderbilt, PRB56, 12847 (1997)
   implicit integer (i-n)
@@ -210,16 +207,12 @@ subroutine  getbb(plat,alat,n1,n2,n3, &
   real(8) :: plat(3,3),qlat(3,3),wbb(12),bb(3,12), &
        vtmp(3,7),avtmp(7)
   logical :: lcub,lort,labc
-
   ! for inverting matrix
   integer(4):: ndim,nmx,nev
   complex(8),allocatable :: cmat(:,:)
   real(8),   allocatable :: rmat(:,:),work(:)
-
-
   ! begin
   call minv33tp(plat,qlat) ! inverse and tranpose
-
   ! eck write
   !      write(*,*)'n1,n2,n3'
   !      write(*,*)n1,n2,n3
@@ -231,7 +224,6 @@ subroutine  getbb(plat,alat,n1,n2,n3, &
   !      write(*,990)qlat(:,1)
   !      write(*,990)qlat(:,2)
   !      write(*,990)qlat(:,3)
-
   ! check if 1D or not
   if (n1 == 1 .AND. n2 == 1) then
      write(*,*)'getbb: 1D'

@@ -398,7 +398,7 @@ contains
     ir1 = 1
     if(rsq(1) < 1d-12) then
        ir1 = 2
-       chi(1,-1:0) = [-h0/akap,akap*erfc(arsm) - 4d0*a*earsm/dsqrt(4d0*datan(1d0))] !  chi(-1) -> erfc(akap/2a)/akap for r=0
+       chi(1,-1:0) = [-erfc(arsm)/akap,akap*erfc(arsm) - 4d0*a*earsm/dsqrt(4d0*datan(1d0))] !  chi(-1) -> erfc(akap/2a)/akap for r=0
     endif
     do ir = ir1, nr !Make chi(r,rsm->0,l) - chi(r,rsm,l) for l=-1, 0
        r2 = rsq(ir)

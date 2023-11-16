@@ -489,7 +489,7 @@ contains
           write(ifigwb) evl(1:ndimh,isp),cphi(:,:,isp),pwz,vxclda(1:ndimh),nev
           deallocate(testc,pwz)
           close(ifigwb)
-          if ( .NOT. cmdopt0('--novxc')) then
+          if (lwvxc) then ! .NOT. cmdopt0('--novxc')) then
              close(ifiv)
              close(ifievec)
           endif

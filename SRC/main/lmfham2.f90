@@ -1,8 +1,8 @@
-!> PMT --1ststep--> MTP --2ndstep--> MLO. This is for 2ndstep
-program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> from MTP
-  ! that of the MTO-projected basis |MTP>. Conversion from MTP(hmmr1,ommr1,nband) to MLO(hmmr2,ommr2,nMLO).
-  ! In advance, run lmfham1 to get |MTP> (MTPare given by a projection from MTOs to PMT space.
-  ! That is, |MTP_i> = M |PMT_i>, where M is a mapping from MTP to the space of PMT.
+!> PMT --1ststep--> MPO --2ndstep--> MLO. This is for 2ndstep
+program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> from MPO
+  ! that of the MTO-projected basis |MPO>. Conversion from MPO(hmmr1,ommr1,nband) to MLO(hmmr2,ommr2,nMLO).
+  ! In advance, run lmfham1 to get |MPO> (MPOare given by a projection from MTOs to PMT space.
+  ! That is, |MPO_i> = M |PMT_i>, where M is a mapping from MPO to the space of PMT.
   !  
   ! We use a modified procedure of this method of  [2]I.Souza, N.Marzari and D.Vanderbilt, PRB65,035109(2002) 
   !
@@ -25,7 +25,7 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
   use m_HamPMT,only: ReadHamPMTInfo, nspin=>nsp, natom=>nbas,plat,alat,npair,nlat,nqwgt, ldim, nqbz=>nkp,qbz=>qplist,&
        n1=>nkk1,n2=>nkk2,n3=>nkk3,pos,npairmx,nspx !,ib_table,l_table,k_table
   use m_read_Worb,only:s_read_Worb,nclass_mlwf,cbas_mlwf,norb=>nbasclass_mlwf,classname_mlwf ! iclassin,iphi,iphidot,nphi,nphix
-  use m_HamRsMTP,only: ReadHamRsMTP,hmmr1=>hammr,ommr1=>ovlmr,nband=>ndimMTO,ib_tableM,l_tableM,k_tableM !Real-space Hamiltonian on the basis |MTo>.
+  use m_HamRsMPO,only: ReadHamRsMPO,hmmr1=>hammr,ommr1=>ovlmr,nband=>ndimMTO,ib_tableM,l_tableM,k_tableM !Real-space Hamiltonian on the basis |MTo>.
   !      Main output of lmfham2 is  hmmr2,       ommr2,       nMLO,         ib_tableM(idmto(1:nwf)),... for |MLO>
   implicit none
   integer:: i,iq,is,ix,j,ifbb,ifoc,nbb,isc,ifq0p, nox,iki,ikf,nsc1,ndz,nin,nout,nsc2,ibb
@@ -58,24 +58,24 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
   character:: outs*20
   character(256):: aaa='',bbb=''
   integer:: nband_,nqbz_,iki_,ikf_,nMLO_,ilowest,ieLhard,iUinneradd
-  call setcmdpath() !Set self-command path (this is for call system at m_lmfinit)
-  call m_ext_init()         ! Get sname, e.g. trim(sname)=si of ctrl.si
+  call setcmdpath()            ! Set self-command path (this is for call system at m_lmfinit)
+  call m_ext_init()            ! Get sname, e.g. trim(sname)=si of ctrl.si
   call m_MPItk_init('lmfham2') ! mpi initialization
   call m_lgunit_init() !set stdo,stdl
   call m_lmfinit_init('LMF')! Read ctrlp into module m_lmfinit.
   if(cmdopt2('--job=',outs)) read(outs,*) job 
   write(stdo,ftox)'=== Start lmfham2 --job=',job
-  if(job/=0.and.job/=1) call rx0(' Set --job=0 or 1')
-  call mpibc1_int(job,1,'lmfham2_job') !set job of --job=job in arguments of lmf-MPIK.
+  if(job/=0.and.job/=1) call rx0(' Set --job=0 or 1') !error exit
+  call mpibc1_int(job,1,'lmfham2_job') !Set job of --job=job in arguments of lmf-MPIK.
   call ReadHamPMTInfo()! Read infomation for Hamiltonian (lattice structures and index of basis).
-  call ReadHamRsMTP()  ! Read Real-space |MTo>-basis Hamiltonian and overlap.
+  call ReadHamRsMPO()  ! Read Real-space |MTo>-basis Hamiltonian and overlap.
   call pshpr(30)
   call readqplistsy()
   hartree=2d0*rydberg()
   tpia = 2d0*pi/alat
   ginv = transpose(plat)
-  ReadInfoFromGWinput: block
-    call s_read_Worb() ! Input orbital index for MLO, stored into idmto (s,p,d=1,2,3,4,5,6,7,8,9)
+  ReadInfoFromGWinput: block ! Input orbital index for MLO, stored into idmto (s,p,d=1,2,3,4,5,6,7,8,9)
+    call s_read_Worb() !read setting from GWinput
     nMLO=sum(norb(1:nclass_mlwf)) !number of MLO
     allocate(idmto(nMLO),lindex(nMLO))
     ibx=0
@@ -89,8 +89,7 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
           iorb=iorb+1
           idmto(iorb)=i
           lindex(iorb)=l_tableM(i)
-       endif
-       !write(stdo,"('MHAM: i ib(atom) l m k(EH,EH2,PZ)=',5i3)") i,ib_table(i),ibx
+       endif        !write(stdo,"('MHAM: i ib(atom) l m k(EH,EH2,PZ)=',5i3)") i,ib_table(i),ibx
        ibold=ib_tableM(i)
     enddo SETidmto
     write(stdo,ftox)' idmto=',idmto
@@ -100,15 +99,15 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
     call getkeyvalue("GWinput","mlo_EUinner", eUinnereV,default= 1d8) ! inner energy windowU eV relative to VBM
     call getkeyvalue("GWinput","mlo_CUouter", CUouter,default=0.1d0)
     call getkeyvalue("GWinput","mlo_CUinner", CUinner,default=0.5d0)
-    call getkeyvalue("GWinput","mlo_WTband" , WTband,default=1024d0)    ! Weight to minimize band energies
-    call getkeyvalue("GWinput",'mlo_WTseed' , WTseed,default=0d0)    ! Weight for seed.
     call getkeyvalue("GWinput","mlo_WTinner", WTinner,default=2048d0) ! inner energy window WeighTing
+    call getkeyvalue("GWinput","mlo_WTband" , WTband,default=1024d0)    ! Weight to minimize band energies
+    call getkeyvalue("GWinput",'mlo_WTseed' , WTseed,default=128d0)    ! Weight for seed.
     call getkeyvalue("GWinput","mlo_ELinner", eLinnereV,default=-1d8) ! inner energy windowL eV relative to VBM
     call getkeyvalue("GWinput","mlo_ewid",    ewideV, default=1d0)    ! inner energy window softing eV
     call getkeyvalue("GWinput","mlo_WTouter", WTouter,default=2048d0*16d0) ! inner energy window WeighTing
     call getkeyvalue("GWinput","mlo_CLhard",CLhard,default=0.33d0)
     call getkeyvalue("GWinput","mlo_ELhard",ELhardeV,default=-1d8)
-    call getkeyvalue("GWinput","mlo_EUinnerAUTOsp",EUautosp,default=.false.) !hardly used
+    call getkeyvalue("GWinput","mlo_EUinnerAUTOsp",EUautosp,default=.false.) !only test
     ELhardauto=.true.
     if(ELhardeV>-1d7) ELhardauto=.false.
     if(master_mpi) then
@@ -116,28 +115,22 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
        write(stdo,ftox)'        : mlo_conv =',ftof(conv1)
        write(stdo,ftox)'        : mlo_mix  =',ftof(alpha1,2)
        write(stdo,ftox)'        : mlo_WTseed   =',ftof(WTseed,2)
-       if(WTband/=0d0) write(stdo,ftox)'        : mlo_WTband   =',ftof(WTband,2)
+       write(stdo,ftox)'        : mlo_WTband   =',ftof(WTband,2)
        write(stdo,ftox)'        : mlo_WTinner  =',ftof(WTinner,2)
        if(eUinnereV>1d5) then
-!           write(stdo,ftox)'        :  mlo_EUinner = by mlo_CUinner'
-           write(stdo,ftox)'        :  mlo_CUinner =',ftof(CUinner,2)
+          write(stdo,ftox)'        :  mlo_CUinner =',ftof(CUinner,2)
        endif   
-       if(eUinnereV<=1d5) write(stdo,ftox)'        :  mlo_EUinner(eV)=',ftof(eUinnereV,2)
-       if(eLinnereV>-1d5)write(stdo,ftox)'        :  mlo_ELinner(eV)=',ftof(eLinnereV,2)
+       write(stdo,ftox)'        :  mlo_EUinner(eV)=',ftod(eUinnereV,2)
+       write(stdo,ftox)'        :  mlo_ELinner(eV)=',ftod(eLinnereV,2)
        write(stdo,ftox)'        :  mlo_ewid(eV)=',ftof(ewideV,2)
        write(stdo,ftox)'        : mlo_WTouter  =',ftof(WTouter,2)  
        write(stdo,ftox)'        :  mlo_CUouter =',ftof(CUouter,2)
-!       if(CUouter>0 )      write(stdo,ftox)'        :  mlo_CUouter =',ftof(CUouter,2)
-!       if(CUouter<=0)      write(stdo,ftox)'        :  mlo_EUouter(eV) =',ftof(EUoutereV,2)
        if(.not.ELhardauto) write(stdo,ftox)'        : mlo_ELhard(eV)=',ftof(ELhardeV,2)
        if(ELhardauto)      write(stdo,ftox)'        : mlo_ELhard(eV) = by mlo_CLhard'
        if(ELhardauto)      write(stdo,ftox)'        :  mlo_CLhard =',ftof(CLhard,2)
-!       if(ELhardauto)      write(stdo,ftox)'        :  mlo_ELhardoffset(eV) =',ftof(ELhardeVoffset,3)
-!       write(stdo,ftox)' Reading: mlo_ ELinner EUinner(eV)=',ftof(hardinnerLeV,2),ftof(eHhardeV,2)
     endif
     eLinner= eLinnereV/rydberg()+eferm
     eUinner= eUinnereV/rydberg()+eferm
-!    eUouter= eUoutereV/rydberg()+eferm
     eUouterauto=.true. !merge(.true.,.false.,eUouter>1d5)
     eUinnerauto=merge(.true.,.false.,eUinner>1d5)
     ewid= ewideV/rydberg() !in Ry.
@@ -151,11 +144,9 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
     write(stdo,ftox)' nbb wbb(in unit of 2pi/alat)=',nbb,ftof(wbb(1:nbb),3)
     allocate(bbv,source=bb)
   endblock bbvector
-  !iko_i=1; iko_f=nband 
   iki=1     !minval(iko_i)
-  ikf=nband !maxval(iko_f) !  nox = ikf - iki + 1. nband is for MTP Hamiltonian
-  if(job==1) goto 1011 !Goto Souza's iteration job=1 mode
-  
+  ikf=nband !maxval(iko_f) !  nox = ikf - iki + 1. nband is for MPO Hamiltonian
+  if(job==1) goto 1011 !Goto Souza's iteration --job=1 mode
   GetCNmatFile_job0: block  !job=0 mode to get CNmat file (connection matrix uumat and so on).
     real(8):: qp(3)
     complex(8):: emat(nband,nband),osq(1:nband,1:nband),o2al(1:nband,1:nband,nqbz),phase,ovlmm(nband,nMLO),&
@@ -172,7 +163,7 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
           qp=qbz(:,iqbz)
           ovlm = 0d0
           hamm = 0d0
-          do i=1,nband !Get MTP Hamiltonian at qp by FF from the real-space MTP Hamiltonian (lmfham1)
+          do i=1,nband !Get MPO Hamiltonian at qp by FF from the real-space MPO Hamiltonian (lmfham1)
              do j=1,nband
                 ib1 = ib_tableM(i) !atomic-site index in the primitive cell
                 ib2 = ib_tableM(j)
@@ -193,7 +184,7 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
           enddo
           o2al(:,:,iqbz) = matmul(osq, evec(:,:,iqbz)) !o2al(basis index, band index, iqbz index) O^(1/2)*evec
           forall(i=1:nband) ovlmm(i,:) = ovlmx(i,idmto(:))
-          amnk(:,:,iqbz)= matmul(transpose(dconjg(evec(1:nband,iki:ikf,iqbz))),ovlmm) !amnk= <Psi^MTP|MTO>
+          amnk(:,:,iqbz)= matmul(transpose(dconjg(evec(1:nband,iki:ikf,iqbz))),ovlmm) !amnk(:,:)= <Psi^MPO(:)|MPOseed(:)>
        enddo
        do iqbz=1,nqbz
           do ibb=1,nbb
@@ -212,10 +203,9 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
     if(job==0) call rx0('OK! end of lmhfam2 job=0 for generating CNmat')
   endblock GetCNmatFile_Job0
 
-1011 continue !=== job==1 mode start ========================================
+1011 continue !=== --job==1 mode start ========================================
   open(newunit=ifuumat,file='CNmat',form='unformatted')
   allocate(hmmr2(nMLO,nMLO,npairmx,nspin),ommr2(nMLO,nMLO,npairmx,nspin),source=(0d0,0d0))
-  allocate(ovlm(1:nband,1:nband),ovlmx(1:nband,1:nband),hamm(1:nband,1:nband))
   allocate(evl(nband,nqbz), ovec(nband,nband),ovl(nband))
   allocate(amnk(iki:ikf,nMLO,nqbz),idmto_(nMLO))
   allocate(wbz(nqbz),source=1d0/nqbz)
@@ -238,8 +228,8 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
        if(allocated(cnk0)) deallocate(cnk0)
        allocate(cnk0(iki:ikf,nMLO,nqbz),source=cnk)
      endblock callamnk2unk
-     !amnk=<Psi^MTP(it,iqbz)|MTO(1:nMLO) >.  Note that amnk was in Eq.22 in Ref.II. <psi|Gaussian>. We replace Gaussian with MTO.
-     !cnk =<Psi^MTP(it,iqbz)|MTO_orth(1:nMLO)>.  |MTO_orth>= |MTO> O^{-1/2} !initial condition
+     !amnk=<Psi^MPO(it,iqbz)|MPO(1:nMLO) >.  Note that amnk was in Eq.22 in Ref.II. <psi|Gaussian>. We replace Gaussian with MLO.
+     !cnk =<Psi^MPO(it,iqbz)|MPO_orth(1:nMLO)>.  |MPO_orth>= |MPO> O^{-1/2} !initial condition
      zesumold=1d10
      alpha = 1d0
      upu   = 0d0
@@ -247,7 +237,7 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
      convn=.false.
      SouzaStep1loop: do isc = 1,nsc1 ! choose Hilbert space -- determine cnk
         AUTOeLhard:block
-          if(eLhardauto) then! Search bottom of MTP Hamiltonian for given MTOsets to generate MLO.
+          if(eLhardauto) then! Search bottom of MPO Hamiltonian for given MTOsets to generate MLO.
              ieLhard=9999
              do iq = 1,nqbz
                 proj = [ (sum(cnk(i,:,iq)*dconjg(cnk(i,:,iq))),i=iki,ikf) ]
@@ -258,7 +248,7 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
           else
              eLhard= eLhardeV/rydberg()+eferm
           endif
-          if(isc==1.or.convn.or.isc==nsc1) write(stdo,ftox)' isc eLhard =',isc,ftof((eLhard-eferm)*rydberg(),3),'eV'
+          if(isc==1.or.convn.or.isc==nsc1) write(stdo,ftox)' eLhard =',ftof((eLhard-eferm)*rydberg(),3),'eV'
         endblock AUTOeLhard
         AUTOeUblock:block
           integer::ikff,imlo,ik,ibandx,ibandxx,iUinneri,n
@@ -306,11 +296,11 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
           enddo
           if((isc==1.or.convn.or.isc==nsc1)) then !.and.iq==1)then
              aaa=merge('auto.given by CUouter='//ftof(CUouter),repeat(' ',256), eUouterauto)
-             write(stdo,ftox)' isc eUouter=',isc,ftof((eUouter-eferm)*rydberg(),3),'eV',trim(aaa)
+             write(stdo,ftox)' eUouter=',ftof((eUouter-eferm)*rydberg(),3),'eV',trim(aaa)
              aaa=''
              if(eUinnerauto) aaa='auto.default'//' EUinner by proj>CUinner='//ftof(CUinner) 
              if(eUautosp)    aaa=trim(aaa)//' EUinnerAUTOsp on.'
-             write(stdo,ftox)' isc eUinner=',isc,ftof((eUinner-eferm)*rydberg(),3),'eV',trim(aaa)
+             write(stdo,ftox)' eUinner=',ftof((eUinner-eferm)*rydberg(),3),'eV',trim(aaa)
           endif
         endblock AUTOeUblock
         iqloop: do iq = 1,nqbz
@@ -339,7 +329,6 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
 ! !                write(stdo,ftox)'...'
 ! !             endif
 !            endblock eU2block
-           
            nout = ikf - iki + 1 
            ndz  = nout 
            if(isc /= 1) alpha = alpha1
@@ -361,7 +350,7 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
               enddo
            enddo
            deallocate(wmat,wmat2)
-!!! Within the space of MTP_n(k) (as function of k), we minimize Omega
+!!! Within the space of MPO_n(k) (as function of k), we minimize Omega
 !!! Omega = -1/2 \sum_b,k Tr {|\nabla Pk|^2} + WTband*Tr{Pk H}_inner - WTinner*Tr{Pk}_inner - WTseed*Tr{Pk <psi_m|seed_i><seed_i|psi_n|}
            ! zmn = \frac{\delta Omega}{\delta Pmn^k}
            allocate (zmn0(ndz,ndz),source=(0d0,0d0)) ! (1-3) Zmn(k) > phi,eval
@@ -391,12 +380,13 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
                 !!                   dconjg(transpose(cnk0(iki:ikf,1:nMLO,iq)))) !NOTE: this did not work for Si666 at least
            endblock WTseedBlock
            WTbandinnerBlock: do concurrent(i=iki:ikf) !Add gain for inner window. Soft inner window.
-              zmn(i,i)= zmn(i,i) + WTband*evl(i,iq) *filter2((eUinner-evl(i,iq))/ewid) *filter2((evl(i,iq)-eLinner)/ewid) !Nice for Si666
-              zmn(i,i)= zmn(i,i) - WTinner          *filter2((eUinner-evl(i,iq))/ewid) *filter2((evl(i,iq)-eLinner)/ewid) !
-              !Main difference of following filters are just the shift of cutoff center.
-              !  zmn(i,i)= zmn(i,i) + WTband*evl(i,iq)* (1-filter2((evl(i,iq)-eUinner)/ewid)-filter2((eLinner-evl(i,iq))/ewid)) !inner window
-              !  zmn(i,i)= zmn(i,i) - WTinner*          (1-filter2((evl(i,iq)-eUinner)/ewid)-filter2((eLinner-evl(i,iq))/ewid)) !inner window
-              zmn(i,i)= zmn(i,i) + WTouter*filter2((evl(i,iq)-eUouter)/ewid)  !outer penaltiy
+              !This new filter seems dependent too much on pxbarameters.
+              !zmn(i,i)= zmn(i,i) + WTband*evl(i,iq) *filter2((evl(i,iq)-eLinner)/ewid) *filter2((eUinner-evl(i,iq))/ewid) !WTband is notso meaninful
+              !zmn(i,i)= zmn(i,i) - WTinner          *filter2((evl(i,iq)-eLinner)/ewid) *filter2((eUinner-evl(i,iq))/ewid) !
+              !Main difference of following filters are just the shift of cutoff center. For Si666 new one can give better agreements.
+              zmn(i,i)=zmn(i,i) + (WTband*evl(i,iq)-WTinner)*(1-filter2((evl(i,iq)-eUinner)/ewid)-filter2((eLinner-evl(i,iq))/ewid)) !inner window
+              !zmn(i,i)=zmn(i,i) - WTinner*10*(1-filter2((evl(i,iq)-eferm)/(0.01))) !not good
+              zmn(i,i)=zmn(i,i) + WTouter*filter2((evl(i,iq)-eUouter)/ewid)  !outer penaltiy
            enddo WTbandinnerBlock
            HardInnerBlock: block ! hard innerwindow
              real(8),parameter:: zhard=-1d8, zavoid=1d8
@@ -541,25 +531,9 @@ contains
        filter2= 1d0*(1d0-2d0/(exp(x)+1d0))
     endif
   end function filter2
-  ! pure real(8) function filter2(x) !step like function 0(x<0) to 1(x>0)
-    ! if(x<-30d0) then
-    !    filter2=0d0
-    ! elseif(x>30d0)then
-    !    filter2=1d0
-    ! else
-    !    filter2= 1d0/(exp(-x)+1d0)
-    ! endif
-    ! return !===========================
-  !   real(8),intent(in) :: x
-  !   if(x<0d0) then
-  !      filter2=0d0
-  !   elseif(x>30d0) then
-  !      filter2=1d0
-  !   else
-  !      filter2= 1d0*(1d0-2d0/(exp(x)+1d0))!+0.1d0
-  !   endif
-  ! end function filter2
 END PROGRAM
+
+
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

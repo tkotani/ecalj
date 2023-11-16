@@ -91,6 +91,7 @@ subroutine fexit0(retval,strng)! retval:  return value passed to operating syste
   parameter (master = 0)
   include "mpif.h"
   procid = mpipid(1)
+  call mpi_barrier(MPI_comm_world,ierr)
   if (procid == master) then
      if(cpusec() /= 0) then
         timeu = 's'
@@ -106,8 +107,8 @@ subroutine fexit0(retval,strng)! retval:  return value passed to operating syste
         call ftime(datim)
         write(stdo,"('CPU time:', f9.3,a1,5x,a,' on process=',i0)") tnew,timeu,datim,procid
      endif
+     call tcprt(stdo)
   endif
-  if(procid==master) call tcprt(stdo)
   if(retval/=0) then
      write(stdo,"(a,i0,a,i0,a,3d15.8)")"ERROR Exit ",retval,' procid= ',procid,' '//trim(strng)
      call MPI_Abort(MPI_COMM_WORLD, 911)

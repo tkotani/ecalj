@@ -70,7 +70,7 @@ contains
   !c$$$          enddo
   !c$$$        enddo
   !c$$$      enddo
-  subroutine HamPMTtoHamRsMTP(facw,ecutw,eww) !Convert HamPMT(k mesh) to HamRsMTP(real space)
+  subroutine HamPMTtoHamRsMPO(facw,ecutw,eww) !Convert HamPMT(k mesh) to HamRsMPO(real space)
     use m_zhev,only:zhev_tk4
     use m_readqplist,only: eferm
     use m_mpi,only: MPI__reduceSum
@@ -168,7 +168,7 @@ contains
     endif   
     call mpi_barrier(MPI_comm_world,ierr)
     if(master_mpi) write(stdo,*)" Wrote HamRsMTO file! End of lmfham1"
-  end subroutine HamPMTtoHamRsMTP
+  end subroutine HamPMTtoHamRsMPO
   subroutine GramSchmidt(nv,n,zmel) 
     integer:: igb=1,it,itt,n,nv
     complex(8):: ov(n),vec(nv),dnorm2(nv),zmel(nv,n)
@@ -183,14 +183,14 @@ contains
     enddo
   end subroutine GramSchmidt
 end module m_HamPMT
-module m_HamRsMTP ! read real-space MTP Hamiltonian
+module m_HamRsMPO ! read real-space MPO Hamiltonian
   use m_lgunit,only:stdo
   use m_ftox
   integer,protected:: ndimMTO,npairmx,nspx  !ndimMTO<ldim if we throw away f MTOs, for example. 
   integer,allocatable,protected:: ib_tableM(:),l_tableM(:),k_tableM(:)
   complex(8),allocatable,protected:: ovlmr(:,:,:,:),hammr(:,:,:,:)
 contains
-  subroutine ReadHamRsMTP()! read RealSpace MTO Hamiltonian
+  subroutine ReadHamRsMPO()! read RealSpace MTO Hamiltonian
     use m_MPItk,only: master_mpi
     integer:: ifihmto
     open(newunit=ifihmto,file='HamRsMTO',form='unformatted')
@@ -203,8 +203,8 @@ contains
     read(ifihmto) ib_tableM(1:ndimMTO),k_tableM(1:ndimMTO),l_tableM(1:ndimMTO)
     close(ifihmto)
     if(master_mpi) write(stdo,*)'OK: Read HamRsMTO file! Use i-ioffib for setting <Worb>'
-  end subroutine ReadHamRsMTP
-end module m_HamRsMTP
+  end subroutine ReadHamRsMPO
+end module m_HamRsMPO
 subroutine Hreduction(iprx,facw,ecutw,eww,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, hammout,ovlmout)!Reduce H(ndimPMT) to H(ndimMTO)
   use m_zhev,only:zhev_tk4
   use m_readqplist,only: eferm

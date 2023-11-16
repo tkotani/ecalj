@@ -32,11 +32,10 @@ contains
     dbstr=> p_dbstr(ia,iq)%cv4
   end subroutine bstrux_set
   subroutine m_bstrux_init() !q for qplist --> not yet for sugw.
-    use m_qplist,only: qplist,iqini,iqend
+    use m_qplist,only: qplist,iqini,iqend,nkp
     use m_lmfinit,only: nlmax,kmxt,nspec,nbas,ispec,rsma
     use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat,rv_a_opos
     use m_igv2x,only: napw, igvapw=>igv2x, ndimh,m_Igv2x_setiq !igvapwin=>igv2x,
-    use m_mkqp,only: bz_nkp
     integer:: kmaxx,ia,isa,lmxa,lmxb,kmax,nlmb,nlma,inn(3),ig,iq,ndimhmax!,iqii,iqee
     real(8):: pa(3),qin(3),q(3),qlatinv(3,3),qss(3),qxx(3)
     logical:: cmdopt0
@@ -44,21 +43,22 @@ contains
     if(allocated(qall)) deallocate(qall,p_bstr,p_dbstr)
     iqii=iqini
     iqee=iqend
-    if(afsym) iqii=1
-    if(afsym) iqee=bz_nkp
+    if(afsym) iqii=1   ! AF rotation map q points to another q point (rotwave); thus we need p_bstr(:,iq_mapped).
+    if(afsym) iqee=nkp ! bugfix at 2023-11-18
+    !                    For simplicity, we calculate p_bstr(:,iq) for all iq for all processes. This may be not efficients but works.
     allocate(qall(3,iqii:iqee),p_bstr(nbas,iqii:iqee),p_dbstr(nbas,iqii:iqee))
     iqloop: do 1200 iq = iqii, iqee ! iqii:iqee for each rank
        qin = qplist(:,iq)
        call m_Igv2x_setiq(iq) ! Get napw,ndimh,igvapw and so on for given iq !!! 2023-04-25 obatadebug call shorbz(qin,q,qlat,plat) !Get q. Is this fine?
        q=qin
        ibasloop: do ia=1,nbas !  --- Make strux to expand all orbitals at site ia ---
-          isa=ispec(ia) 
-          pa=rv_a_opos(:,ia) 
-          lmxa=lmxa_i(isa) !max l of augmentation
-          kmax=kmxt_i(isa) !max of radial k
+          isa=  ispec(ia) 
+          pa =  rv_a_opos(:,ia) 
+          lmxa= lmxa_i(isa) !max l of augmentation
+          kmax= kmxt_i(isa) !max of radial k
           nlma = (lmxa+1)**2
           if (lmxa == -1) cycle
-          allocate(                p_bstr(ia,iq)%cv3(ndimh,nlma,0:kmax) )
+          allocate(   p_bstr(ia,iq)%cv3(ndimh,nlma,0:kmax)   )
           allocate(  p_dbstr(ia,iq)%cv4(ndimh,nlma,0:kmax,3) )
           qss = q !+ [1d-8,2d-8,3d-8] for stabilizing deneracy ordering (this works well?) --> this conflict with qshortn 
           call bstrux(ia,pa,rsma(isa),qss,kmax,nlma,ndimh,napw,igvapw, p_bstr(ia,iq)%cv3,p_dbstr(ia,iq)%cv4)

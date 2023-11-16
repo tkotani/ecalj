@@ -79,7 +79,7 @@ contains
     !o         : swtk = diagonal part of  (z)^-1 sigmz z
     implicit none
     integer:: i , k , nevec , lmxax , lmxa , nlmax , nlmto , ig, isp,iq,nevl,ipiv(ndimh*2) !,lfrce
-    real(8):: q(3), evl(ndham,nsp), sumev(2,3), sumqv(3,2), f(3,*),emax,emin,qval,vconst,vavg,wgt,tpiba,ewgt(ndimh*nspc),epsnevec
+    real(8):: q(3),evl(ndham,nsp),sumev(2,3),sumqv(3,2),f(3,*),emax,emin,qval,vconst,vavg,wgt,tpiba,ewgt(ndimh*nspc),epsnevec,eee
     type(s_cv5) :: sv_p_oppi(3,1)
     type(s_rv4) :: sv_p_otau(3,1),   sv_p_osig(3,1)
     type(s_rv5) :: sv_p_oeqkkl(3,1), sv_p_oqkkl(3,1)
@@ -105,11 +105,13 @@ contains
        ewgt=wgt*ewgt != call dscal(nevec,wgt,ewgt,1)
     else ! ... Case band weights are passed
        ewgt(1:nevl)=wtkb(1:nevl,isp,iq) !call dcopy(nevl,wtkb(1,isp,iq),1,ewgt,1)
-       nevec=findloc(abs(wtkb(1:nevl,isp,iq)) > epsnevec(),value=.true.,dim=1,back=.true.)
-!       do  i = nevl, 1, -1
-!          nevec = i
-!          if (abs(wtkb(i,isp,iq)) > epsnevec()) exit
-!       enddo
+!       eee=epsnevec()
+!       nevec=findloc(abs(wtkb(1:nevl,isp,iq)) > eee,value=.true.,dim=1,back=.true.) !ifort 19.1.2.254 can not handle this.
+!       nevec=findloc(abs(wtkb(1:nevl,isp,iq)) > epsnevec(),value=.true.,dim=1,back=.true.) !ifort 19.1.2.254 can not handle this.
+       do  i = nevl, 1, -1
+          nevec = i
+          if (abs(wtkb(i,isp,iq)) > epsnevec()) exit
+       enddo
     endif
     if(lfrce>0) then ! ... Force from smooth analytic hamiltonian and overlap
        call rxx(nspc/=1,'forces not implemented in noncoll case')
@@ -335,7 +337,8 @@ contains
              in1 = ktab1(io1)
              ol1 = ltab1(io1)**2
              oi1 = offl1(io1)
-             fach  = -fpi/denom * phase * srm1l(l1) * exp(1d0/4d0*rsm1(l1+1,in1)**2* (e1(l1+1,in1) - qpg2))
+             denom = e1(l1+1,in1) - qpg2
+             fach  = -fpi/denom * phase * srm1l(l1) * exp(1d0/4d0*rsm1(l1+1,in1)**2*denom)
              iorbblock: do ibl1 = 1,blks1(io1) 
                 ovl = fach * ylv(ig,ol1+ibl1)/sqv ! Eq. 9.4 in JMP39 3393 !!gradient PW * (H - E S)
                 f(:,ib1) = f(:,ib1) - 2d0*[( sum([(dconjg(evec(oi1+ibl1,ivec)) *(ovl*img*qpgv(m,ig)*(qpg2+vavg-evl(ivec)) &
