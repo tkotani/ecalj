@@ -15,45 +15,33 @@ program hrcxq
   use m_readqg,only: Readngmx2,ngpmx,ngcmx
   use m_hamindex,only: Readhamindex
   use m_readeigen,only: Init_readeigen,Init_readeigen2,Readeval
-  use m_read_bzdata,only: Read_bzdata, nqbz,nqibz,n1,n2,n3,ginv, &
-       dq_,qbz,wbz,qibz,wibz, ntetf,idtetf,ib1bz, qbzw,nqbzw,nq0i ,nq0iadd !for tetrahedron   !     &     idteti, nstar,irk,nstbz
-  use m_genallcf_v3,only: Genallcf_v3, nclass,natom,nspin,nl,nn, &
-       nlmto,nlnmx, nctot, alat, clabl,iclass, il, in, im, nlnm, plat, pos, ecore
-  !! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
-  use m_rdpp,only: Rdpp, nxx,lx,nx,mdimx,nbloch,cgr,ppbrd ,nblochpmx,mrecl,nprecx
-  !! Set data for "call get_zmelt" zmelt= matrix element <phi |phi MPB>.
-  use m_zmel,only: Mptauof_zmel, Setppovlz !Ppbafp_v2_zmel,
+  use m_read_bzdata,only: Read_bzdata, nqbz,nqibz,n1,n2,n3,ginv,dq_,qbz,wbz,qibz,wibz, ntetf,idtetf,ib1bz, qbzw,nqbzw,nq0i ,nq0iadd !for tetrahedron   !     &     idteti, nstar,irk,nstbz
+  use m_genallcf_v3,only: Genallcf_v3,nclass,natom,nspin,nl,nn,nlmto,nlnmx,nctot,alat,clabl,iclass,il,in,im,nlnm,plat,pos,ecore
+  use m_rdpp,only: Rdpp,nxx,lx,nx,mdimx,nbloch,cgr,ppbrd ,nblochpmx,mrecl,nprecx !! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
+  use m_zmel,only: Mptauof_zmel,Setppovlz !Set data for "call get_zmelt" zmelt= matrix element <phi |phi MPB>.
   use m_itq,only: Setitq !set itq,ntq,nband,ngcmx,ngpmx to m_itq
-  !! Frequency
-  use m_freq,only: Getfreq2, frhis,freq_r,freq_i, nwhis,nw_i,nw,npm,niw !output of getfreq
-  !! Antiferro
-  !     use m_anf,only: anfcond,
-  !     & laf,ibasf !,ldima,pos,natom
-  !! Tetwt
-  use m_tetwt,only: Tetdeallocate, Gettetwt, whw,ihw,nhw,jhw,ibjb,nbnbx,nhwtot,n1b,n2b,nbnb
-  use m_w0w0i,only:       W0w0i,     w0,w0i,llmat
-  !      use m_readq0p,only:     Readq0p,   wqt,q0i,nq0i ,nq0iadd,ixyz
-  use m_readVcoud,only:   Readvcoud, vcousq,zcousq,ngb,ngc
-  use m_readgwinput,only: ReadGwinputKeys, egauss,ecut,ecuts,nbcut,nbcut2,mtet,ebmx,nbmx,imbas
-  use m_qbze,only:    Setqbze, nqbze,nqibze,qbze,qibze
-  use m_readhbe,only: Readhbe, nband !, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
-!  use m_eibz,only:    Seteibz, nwgt,neibz,igx,igxt,eibzsym
-  use m_x0kf,only:    X0kf_v4hz, X0kf_v4hz_init,x0kf_v4hz_init_write,x0kf_v4hz_init_read,x0kf_zmel !X0kf_v4hz_symmetrize, 
+  use m_freq,only: Getfreq2,frhis,freq_r,freq_i,nwhis,nw_i,nw,npm,niw ! Frequency !output of getfreq
+  use m_tetwt,only: Tetdeallocate,Gettetwt,whw,ihw,nhw,jhw,ibjb,nbnbx,nhwtot,n1b,n2b,nbnb
+  use m_w0w0i,only:       W0w0i,    w0,w0i,llmat   !      use m_readq0p,only:     Readq0p,  wqt,q0i,nq0i ,nq0iadd,ixyz
+  use m_readVcoud,only:   Readvcoud,vcousq,zcousq,ngb,ngc
+  use m_readgwinput,only: ReadGwinputKeys,egauss,ecut,ecuts,nbcut,nbcut2,mtet,ebmx,nbmx,imbas
+  use m_qbze,only:    Setqbze,nqbze,nqibze,qbze,qibze
+  use m_readhbe,only: Readhbe,nband !,nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg !  use m_eibz,only:    Seteibz,nwgt,neibz,igx,igxt,eibzsym
+  use m_x0kf,only:    X0kf_v4hz,X0kf_v4hz_init,x0kf_v4hz_init_write,x0kf_v4hz_init_read,x0kf_zmel !X0kf_v4hz_symmetrize,
   use m_llw,only:     WVRllwR,WVIllwI,w4pmode,MPI__sendllw
-  !! MPI
-  use m_mpi,only: MPI__hx0fp0_rankdivider2Q, MPI__Qtask, MPI__Initialize, MPI__Finalize,MPI__root, &
-       MPI__Broadcast, MPI__rank,MPI__size, MPI__consoleout,MPI__barrier
-  use m_lgunit,only: m_lgunit_init
+  use m_mpi,only: MPI__hx0fp0_rankdivider2Q,MPI__Qtask,MPI__Initialize,MPI__Finalize,MPI__root,&
+       MPI__Broadcast,MPI__rank,MPI__size,MPI__consoleout,MPI__barrier
+  use m_lgunit,only: m_lgunit_init,stdo
   implicit none
   integer:: MPI__Ss,MPI__Se
-  real(8),parameter:: pi = 4d0*datan(1d0),fourpi = 4d0*pi, sqfourpi= sqrt(fourpi)
+  real(8),parameter:: pi = 4d0*datan(1d0),fourpi = 4d0*pi,sqfourpi= sqrt(fourpi)
   integer:: iq,isf,kx,ixc,iqxini,iqxend,is,iw,ifwd,ngrpx,verbose,nmbas1,nmbas2,nmbas_in,ifif
-  real(8):: ua=1d0, qp(3), quu(3), hartree, rydberg, schi=-9999
-  real(8),allocatable :: symope(:,:), ekxx1(:,:),ekxx2(:,:)
-  complex(8),allocatable:: zxq(:,:,:),zxqi(:,:,:),zzr(:,:), rcxq(:,:,:,:)
-  logical :: debug=.false. , realomega, imagomega, nolfco=.false.
-  logical :: hx0, iprintx=.false.,chipm=.false., localfieldcorrectionllw   !eibzmode, eibz4x0,
-  integer:: i_red_npm, i_red_nwhis,  i_red_nmbas2,ierr,ircxq,npmx
+  real(8):: ua=1d0,qp(3),quu(3),hartree,rydberg,schi=-9999
+  real(8),allocatable :: symope(:,:),ekxx1(:,:),ekxx2(:,:)
+  complex(8),allocatable:: zxq(:,:,:),zxqi(:,:,:),zzr(:,:),rcxq(:,:,:,:)
+  logical :: debug=.false. ,realomega,imagomega,nolfco=.false.
+  logical :: hx0,iprintx=.false.,chipm=.false.,localfieldcorrectionllw   !eibzmode,eibz4x0,
+  integer:: i_red_npm,i_red_nwhis, i_red_nmbas2,ierr,ircxq,npmx
   character(10) :: i2char
   character(20):: outs=''
   integer:: ipart
@@ -69,11 +57,10 @@ program hrcxq
   if(nclass /= natom) call Rx( ' hx0fp0_sc: nclass /= natom ') !WE ASSUME iclass(iatom)= iatom
   call Readefermi() !Readin EFERMI
   call Readhbe()    !Read dimensions
-  call ReadGWinputKeys() !Readin dataset in GWinput
-  !      call Readq0p()    !Readin Offset Gamma
+  call ReadGWinputKeys() !Readin dataset in GWinput   !      call Readq0p()    !Readin Offset Gamma
   call Readngmx2()  !Get ngpmx and ngcmx in m_readqg
   call Setqbze()    ! extented BZ points list
-  !  write(6,*)' ngcmx ngpmx=',ngcmx,ngpmx !ngcmx: max of PWs for W, ngpmx: max of PWs for phi
+  !  write(stdo,*)' ngcmx ngpmx=',ngcmx,ngpmx !ngcmx: max of PWs for W,ngpmx: max of PWs for phi
   !! Get space-group transformation information. See header of mptaouof.
   !! But we only use symops=E in hx0fp0 mode. c.f. hsfp0.sc
   allocate(symope,source=reshape([1d0,0d0,0d0, 0d0,1d0,0d0, 0d0,0d0,1d0],[3,3]))
@@ -84,10 +71,9 @@ program hrcxq
   call Readhamindex()
   call Init_readeigen() ! Initialization of readEigen !readin m_hamindex
   call Init_readeigen2()
-  !! Getfreq gives frhis,freq_r,freq_i, nwhis,nw,npm
   realomega = .true.
   imagomega = .true.
-  call Getfreq2(.false.,realomega,imagomega,ua,iprintx)!tetra,
+  call Getfreq2(.false.,realomega,imagomega,ua,iprintx) ! Getfreq gives frhis,freq_r,freq_i, nwhis,nw,npm !tetra,
   !! We first accumulate Imaginary parts. Then do K-K transformation to get real part.
   ! nblochpmx = nbloch + ngcmx ! Maximum of MPB = PBpart +  IPWpartforMPB
   iqxini = 1
@@ -105,7 +91,7 @@ program hrcxq
      if( .NOT. MPI__Qtask(iq) ) cycle
      call cputid (0)
      qp = qibze(:,iq)
-     write(6,"('do 1001: iq q=',i5,3f9.4)")iq,qp
+     write(stdo,"('do 1001: iq q=',i5,3f9.4)")iq,qp
      call Readvcoud(qp,iq,NoVcou=.false.) !Readin vcousq,zcousq ngb ngc for the Coulomb matrix
      if(iq > nqibz .AND. ( .NOT. localfieldcorrectionllw())  ) then
         nolfco =.true.
@@ -120,7 +106,7 @@ program hrcxq
      allocate( rcxq(nmbas1,nmbas2,nwhis,npm))
      rcxq = 0d0
      do is = MPI__Ss,MPI__Se !is=1,nspin. rcxq is acuumulated for spins
-        write(6,"(' ### ',2i4,' out of nqibz+n0qi+nq0iadd nsp=',2i4,' ### ')")iq,is,nqibz+nq0i+nq0iadd,nspin
+        write(stdo,"(' ### ',2i4,' out of nqibz+n0qi+nq0iadd nsp=',2i4,' ### ')")iq,is,nqibz+nq0i+nq0iadd,nspin
         isf = is
         call X0kf_v4hz_init_read(iq,is) !readin icount data (index sets and tetrahedron weight)
         call x0kf_v4hz(qp, is,isf, iq, nmbas_in, rcxq=rcxq,iqxini=iqxini)
@@ -130,10 +116,7 @@ program hrcxq
      !! Symmetrize and convert to Enu basis (diagonalized basis for the Coulomb matrix).
      !!   That is, we get dconjg(tranpsoce(zcousq))*rcxq*zcousq for eibzmode
      ! Remove eibzmode symmetrizer 2023Jan22
-     !     if(eibzmode)  then
-     !        call x0kf_v4hz_symmetrize( qp, iq, &
-     !             nolfco, zzr, nmbas_in, chipm, eibzmode=eibzmode, eibzsym=eibzsym(:,:,iq), &
-     !             rcxq=rcxq)              !  crystal symmetry of rcxq is recovered for EIBZ mode.
+     !     if(eibzmode) call x0kf_v4hz_symmetrize( qp, iq, nolfco, zzr, nmbas_in, chipm, eibzmode=eibzmode, eibzsym=eibzsym(:,:,iq), rcxq=rcxq) !  crystal symmetry of rcxq is recovered for EIBZ mode.
      !     endif
      !! only output in this program
      open(newunit=ircxq,file='rcxq.'//trim(i2char(iq)),form='unformatted')
@@ -142,7 +125,7 @@ program hrcxq
      close(ircxq)
      deallocate(rcxq)
 1001 enddo obtainrcxq
-  write(6,*) '--- end of hrcxq --- irank=',MPI__rank
+  write(stdo,*) '--- end of hrcxq --- irank=',MPI__rank
   call cputid(0)
   call rx0( ' OK! hrcxq')
 end program hrcxq

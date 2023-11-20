@@ -35,7 +35,7 @@ program hx0init !initializaiton of x0 calculaiton (W-v)
   use m_llw,only:     WVRllwR,WVIllwI,w4pmode,MPI__sendllw
   use m_mpi,only: MPI__hx0fp0_rankdivider2Q, MPI__Qtask, MPI__Initialize, MPI__Finalize,MPI__root
   use m_mpi,only: MPI__Broadcast, MPI__rank,MPI__size, MPI__consoleout,MPI__barrier
-  use m_lgunit,only: m_lgunit_init
+  use m_lgunit,only: m_lgunit_init,stdo
   implicit none
   integer:: MPI__Ss,MPI__Se, iq,isf,kx,ixc,iqxini,iqxend,is,iw,ifwd,ngrpx,verbose,nmbas1,nmbas2,nmbas_in,ifif
   real(8),parameter:: pi = 4d0*datan(1d0),fourpi = 4d0*pi, sqfourpi= sqrt(fourpi)
@@ -54,8 +54,8 @@ program hx0init !initializaiton of x0 calculaiton (W-v)
   call MPI__consoleout('hx0fp0_sc')
   call cputid (0)
   if(verbose()>=100) debug= .TRUE. 
-  write(6,*) ' --- hx0fp0_sc Choose modes below ----------------'
-  write(6,*) '  ixc= 11,10011'
+  write(stdo,*) ' --- hx0fp0_sc Choose modes below ----------------'
+  write(stdo,*) '  ixc= 11,10011'
   if(cmdopt2('--job=',outs)) then
      read(outs,*) ixc
   else
@@ -66,15 +66,14 @@ program hx0init !initializaiton of x0 calculaiton (W-v)
   endif
   crpa = .false.
   if(ixc==11) then
-     write(6,*) " OK ixc=11 normal mode "
+     write(stdo,*) " OK ixc=11 normal mode "
   elseif(ixc==10011) then
-     write(6,*) " OK ixc=10011 crpa mode "
+     write(stdo,*) " OK ixc=10011 crpa mode "
      crpa=.true.
   else
-     write(6,*)'we only allow ixc==11 or 10011. Given ixc=',ixc
+     write(stdo,*)'we only allow ixc==11 or 10011. Given ixc=',ixc
      call rx('error: give allowed arg for hx0fp0_sc.')
   endif
-  !!
   if(MPI__root) iprintx= .TRUE. 
   hartree= 2d0*rydberg()
   call Genallcf_v3(incwfx=0) !Basic data. incwfin= 0 takes 'ForX0 for core' in GWinput
@@ -86,7 +85,7 @@ program hx0init !initializaiton of x0 calculaiton (W-v)
   !      call Readq0p()    !Readin Offset Gamma
   call Readngmx2()  !Get ngpmx and ngcmx in m_readqg
   call Setqbze()    ! extented BZ points list
-  !  write(6,*)' ngcmx ngpmx=',ngcmx,ngpmx ! ngcmx: max of PWs for W, ngpmx: max of PWs for phi
+  !  write(stdo,*)' ngcmx ngpmx=',ngcmx,ngpmx ! ngcmx: max of PWs for W, ngpmx: max of PWs for phi
   !! Get space-group transformation information. See header of mptaouof.
   !! But we only use symops=E in hx0fp0 mode. c.f. hsfp0.sc
   allocate(symope,source=reshape([1d0,0d0,0d0, 0d0,1d0,0d0, 0d0,0d0,1d0],[3,3]))
@@ -122,14 +121,13 @@ program hx0init !initializaiton of x0 calculaiton (W-v)
      close(ifwd)
   endif
   allocate(ekxx1(nband,nqbz),ekxx2(nband,nqbz)) ! For eigenvalues.
-  !eibzmode = .false. !eibz4x0()                ! EIBZ mode
-  !call Seteibz(iqxini,iqxend,iprintx) ! EIBZ mode
-  !!    call Setw4pmode() !W4phonon. !still developing...
+  ! eibzmode = .false. !eibz4x0()                ! EIBZ mode
+  ! call Seteibz(iqxini,iqxend,iprintx) ! EIBZ mode
+  ! call Setw4pmode() !W4phonon. !still developing...
   call MPI__hx0fp0_rankdivider2Q(iqxini,iqxend)! Rank divider
   MPI__Ss = 1
-  MPI__Se = nspin
-!  allocate( nwgt(1,iqxini:iqxend))
-  !! === do 1001 loop over iq ============================================
+  MPI__Se = nspin 
+  !  allocate( nwgt(1,iqxini:iqxend)) !eibz
   !! external index :iq (q vector IBZ), ,igb1,igb2 (MPB index), jpm,iw (omega)
   !! internal index : k (k vector BZ), it,itp (band)
   !!   !note The allowed pairs of (it,itp) are limited for given iw.
@@ -138,9 +136,9 @@ program hx0init !initializaiton of x0 calculaiton (W-v)
   iqloop:do 1101 iq = iqxini,iqxend
      if( .NOT. MPI__Qtask(iq) ) cycle
      qp = qibze(:,iq)
-     write(6,"('do 1001: iq q=',i5,3f9.4)")iq,qp
+     write(stdo,"('do 1001: iq q=',i5,3f9.4)")iq,qp
      isloop: do 1103 is = MPI__Ss,MPI__Se !is=1,nspin
-        write(6,"(' ### ',2i4,' out of nqibz+n0qi+nq0iadd nsp=',2i4,' ### ')")iq,is,nqibz+nq0i+nq0iadd,nspin
+        write(stdo,"(' ### ',2i4,' out of nqibz+n0qi+nq0iadd nsp=',2i4,' ### ')")iq,is,nqibz+nq0i+nq0iadd,nspin
         isf = is
         do kx = 1, nqbz
            ekxx1(1:nband,kx) = readeval(qbz(:,kx),    is ) ! read eigenvalue
@@ -148,13 +146,12 @@ program hx0init !initializaiton of x0 calculaiton (W-v)
         enddo
         call gettetwt(qp,iq,is,isf,ekxx1,ekxx2,nband=nband) !,eibzmode=eibzmode) !,nwgt(:,iq) Tetrahedron weight for x0kf_v4hz
         ierr=x0kf_v4hz_init(0,qp,is,isf,iq,nmbas_in, crpa=crpa)
-        ierr=x0kf_v4hz_init(1,qp,is,isf,iq,nmbas_in, crpa=crpa)
-        !eibzmode=eibzmode, nwgt=nwgt(:,iq)
+        ierr=x0kf_v4hz_init(1,qp,is,isf,iq,nmbas_in, crpa=crpa)         !eibzmode=eibzmode, nwgt=nwgt(:,iq)
         call X0kf_v4hz_init_write(iq,is)!Write whw and indexs to invoke hrcxq
         call tetdeallocate()
 1103 enddo isloop
 1101 enddo iqloop
-  write(6,*) '--- end of hx0init --- irank=',MPI__rank
+  write(stdo,*) '--- end of hx0init --- irank=',MPI__rank
   call cputid(0)
   if(ixc==11     ) call rx0( ' OK! hx0init ixc=11 ')
   if(ixc==10011  ) call rx0( ' OK! hx0init ixc=10011')

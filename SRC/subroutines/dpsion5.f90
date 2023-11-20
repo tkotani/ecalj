@@ -1,11 +1,12 @@
-subroutine dpsion5(realomega,imagomega,rcxq,nmbas1,nmbas2, zxq,zxqi, chipm,schi,isp,ecut,ecuts)
+!> Calculate W-v zxqi(on the imaginary axis) and zxq(real axis) from sperctum weight rcxq.
+subroutine dpsion5(realomega,imagomega,rcxq,nmbas1,nmbas2, zxq,zxqi, chipm,schi,isp,ecut,ecuts) 
   use m_freq,only:  frhis, freqr=>freq_r,freqi=>freq_i, nwhis, npm, nw_i, nw_w=>nw, niwt=>niw
   use m_readgwinput,only: egauss
   use m_GaussianFilter,only: GaussianFilter
+  use m_lgunit,only:stdo
   implicit none
-  intent(in)::     realomega,imagomega,rcxq,nmbas1,nmbas2,            chipm,schi,isp,ecut,ecuts
+  intent(in)::     realomega,imagomega,rcxq,nmbas1,nmbas2,           chipm,schi,isp,ecut,ecuts
   intent(out)::                                            zxq,zxqi
-  !     - Calculate W-v zxqi(on the imaginary axis) and zxq(real axis) from sperctum weight rcxq.
   !     r v4 works for timereversal=F (npm=2 case).
   !     r  See rcxq_zcxq for rcxq, which contains the spectrum weight for given bins along the real-axis.
   !     r ! Note that zxq and zxqi are not accumlating
@@ -21,81 +22,28 @@ subroutine dpsion5(realomega,imagomega,rcxq,nmbas1,nmbas2, zxq,zxqi, chipm,schi,
   !     io   zxqi:  W-v along the imag axis on freqi(niwt)
   !     !
   !     1 Feb2006:  v4 for timereversal=F
-  !     ! July2005: v3Add spin chipm mode
-  !     ! July2005: This version alter rcxq----it is used as work area.
-  !     ! sergey faleev Apr 2002 ; Rebuiled by takao
-  !------------------------------------------------------------------
-  integer(4):: igb1,igb2, iw,iwp,ix,ifxx,nmbas1,nmbas2 ! nw_w,niwt,,nwhis,npm,nw_i,
-  real(8) :: pi,px,omp,om,om2,om1, &
-       aaa,d_omg            !frhis(nwhis+1), freqr(0:nw_w),  freqi(niwt),
-  logical :: realomega, imagomega
-  complex(8):: rcxq(nmbas1,nmbas2, nwhis,npm) !sf 13June
-  !     logical   :: iepsmode
-  logical :: chipm
-  integer(4)::isp,ispx      !, nmbas
-  !     complex(8):: rcxqmean(nwhis,npm,nmbas,nmbas)  !takao sep2006 add nmbas
-  !...  ecut mode
-  real(8):: ecut,ecuts,wcut,dee,schi !,wcutef
-  logical ::debug=.false.
-  real(8),allocatable :: his_L(:),his_R(:),his_C(:)
-  integer(4) it
-  real(8):: domega_r,domega_c,domega_l,delta_l,delta_r
-  real(8),allocatable ::rmat(:,:,:),rmati(:,:,:),rmatt(:,:,:),imatt(:,:,:)
-  complex(8),allocatable :: rmatiC(:,:,:),imattC(:,:,:)
-  complex(8) ::beta,wfac
-  complex(8):: zz
-  complex(8),allocatable :: zxqn(:,:),zxqn1(:,:,:),rx0mean1(:,:,:),rx0mean(:)
-  complex(8),allocatable:: rrr(:)
-  integer(4):: jpm,ipm,verbose,isgi
-  !     complex(8):: x0mean(nw_i:nw_w,nmbas,nmbas)
-  complex(8):: zxq (nmbas1,nmbas2, nw_i: nw_w), & !  iw=0 means omg=0,
-  ! w=1:nw_w corresponds to iw's bit of the frequensy histogram
-       zxqi(nmbas1,nmbas2,niwt),img !npm), img  !zxqi(...,npm) may2006
+  integer:: igb1,igb2, iw,iwp,ix,ifxx,nmbas1,nmbas2,isp,ispx,it, ii,i,ibas1,ibas2,nmnm
+  logical :: evaltest     
+  real(8):: px,omp,om,om2,om1, aaa,d_omg            !frhis(nwhis+1), freqr(0:nw_w),  freqi(niwt),
+  real(8):: ecut,ecuts,wcut,dee,schi, domega_r,domega_c,domega_l,delta_l,delta_r
+  complex(8):: rcxq(nmbas1,nmbas2, nwhis,npm) 
+  complex(8):: zxq(nmbas1,nmbas2, nw_i:nw_w),zxqi(nmbas1,nmbas2,niwt),img=(0d0,1d0) ! iw=0 means omg=0
+  logical :: realomega, imagomega,chipm,debug=.false.
+  real(8),allocatable :: his_L(:),his_R(:),his_C(:),rmat(:,:,:),rmati(:,:,:),rmatt(:,:,:),imatt(:,:,:)
+  complex(8) ::beta,wfac, zz
+  complex(8),allocatable :: rmatiC(:,:,:),imattC(:,:,:),zxqn(:,:),zxqn1(:,:,:),rx0mean1(:,:,:),rx0mean(:), rrr(:)
+  integer:: jpm,ipm,verbose,isgi   !     complex(8):: x0mean(nw_i:nw_w,nmbas,nmbas)
   real(8),allocatable:: ebb(:)
-  integer(4):: ii,i,ibas1,ibas2
-  logical :: evaltest       !,testtr
-  !     ------------------------------------------------
-  write(6,'(" -- dpsion5: start...   ",$)')
-  write(6,"('  nw_w nwhis=',2i5)") nw_w,nwhis
-
-  !     ! Gaussian filtering of rcxq. Smearging Imag(X0). We may use egauss = 0.05 a.u.\sim 1eV for example.
-  !     ! Jun2020
-  if(abs(egauss)>1d-15) then
-     call GaussianFilter(rcxq,nmbas1,nmbas2,egauss,iprint=.true.)
-  endif
-
-  if(debug) then
-     write(6,*)' nmbas1 nmbas2 nwhis npm =',  nmbas1,nmbas2,nwhis,npm
-     write(6,*)' sumchk rcxq=', sum(abs(rcxq))
-  endif
-  pi  = 4d0*datan(1d0)
-  img = (0d0,1d0)
+  real(8),parameter:: pi  = 4d0*datan(1d0)
+  write(stdo,'(" -- dpsion5: start...   ",$)')
+  write(stdo,"('  nw_w nwhis=',2i5)") nw_w,nwhis
+  if(abs(egauss)>1d-15) call GaussianFilter(rcxq,nmbas1,nmbas2,egauss,iprint=.true.) !Smearging Imag(X0). Use egauss = 0.05 a.u.\sim 1eV for example.
+  if(debug)write(stdo,*)' nmbas1 nmbas2 nwhis npm =',  nmbas1,nmbas2,nwhis,npm,' sumchk rcxq=', sum(abs(rcxq))
   call cputid(0)
   ispx = isp
-  if(schi<0) then
-     ispx = 3-isp           !flip
-  endif
-
-  !     ! Check freqr
-  if(realomega) then
-     if( nwhis <= nw_w ) then
-        write(6,*)nwhis,nw_w
-        call rx( ' dpsion5: nwhis<=nw_w')
-     endif
-     if( freqr(0)/=0d0 ) call rx( ' dpsion5: freqr(0)/=0d0')
-     !     ! I think current version allows any freqr(iw), independent from frhis.
-     !$$$  aaa = 0d0
-     !$$$  if(nw_w>0) then
-     !$$$  do iw = 1,nw_w
-     !$$$  aaa = aaa + abs( freqr(iw) - (frhis(iw)+frhis(iw+1))/2d0 )
-     !$$$  if(debug) write(6,"(' iw freqr frhis_m=',i5,2f13.6)" )
-     !$$$  &        iw,freqr(iw),  (frhis(iw)+frhis(iw+1))/2d0
-     !$$$  enddo
-     !$$$  if(aaa>1d-10)call rx( 'dpsion5:freqr/=frhis_m is not implimented yet')
-     !$$$  endif
-  endif                     !realomega
-
-  !--------------------------------------------------------------
+  if(schi<0)  ispx = 3-isp  
+  if(realomega.and.nwhis <= nw_w) call rxii( ' dpsion5: nwhis<=nw_w',nwhis,nw_w)
+  if(realomega.and.freqr(0)/=0d0) call rx( ' dpsion5: freqr(0)/=0d0') ! I think current version allows any freqr(iw), independent from frhis.
   !     ! Each histogram bins are  [his_Left, his_Right], and  his_Center is middle.
   !     ! his_C(0) is at zero. his_R(0) and his_L(0) are not defined.
   if(debug) write(6,*)' dpsion5: RRR 2222222222 '

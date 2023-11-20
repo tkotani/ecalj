@@ -48,7 +48,7 @@ contains
     read(ix0) nkmin,nkmax,nkqmin,nkqmax
     close(ix0)
   end subroutine X0kf_v4hz_init_read
-  function X0kf_v4hz_init(job,q,isp_k,isp_kq, iq, nmbas, crpa) result(ierr)
+  function X0kf_v4hz_init(job,q,isp_k,isp_kq, iq, nmbas, crpa) result(ierr) !index accumulation
     intent(in)::          job,q,isp_k,isp_kq, iq, nmbas, crpa
     !! === initialzation for calling x0kf_v4h. !,eibzmode ,nwgt
     !! Get ncount index for x0kf_v4h in the private variables
@@ -59,21 +59,13 @@ contains
     integer::  irot=1,ierr         !, ntqxx,nbmax!,nctot
     integer:: k,isp_k,isp_kq, iq, jpm, ibib, iw,igb2,igb1,it,itp,job,icount, nmbas
     real(8):: q(3), imagweight, wpw_k, wpw_kq
-    logical :: iww2=.true., crpa !eibzmode, 
+    logical ::  crpa !eibzmode, iww2=.true.,
     write(stdo,'(" x0kf_v4hz_init: job q =",i3,3f8.4)') job,q
-    if(npm==1) then
-       ncc=0
-    else
-       ncc=nctot !stored to private variable
-    endif
-    if(job==0) then
-       allocate( nkmin(nqbz),nkmax(nqbz),nkqmin(nqbz),nkqmax(nqbz)) !,skipk(nqbz) )
-    elseif(job==1) then
-       allocate( whwc(ncount), kc(ncount), iwc(ncount), itc(ncount), itpc(ncount), jpmc(ncount) )
-    endif
+    ncc=merge(0,nctot,npm==1)
+    if(job==0) allocate( nkmin(nqbz),  nkmax(nqbz),nkqmin(nqbz),nkqmax(nqbz))
+    if(job==1) allocate( whwc(ncount), kc(ncount), iwc(ncount), itc(ncount), itpc(ncount), jpmc(ncount) )
     icount=0
-    do 110 k = 1,nqbz
-!      if( (eibzmode .AND. nwgt(k)==0) .OR. sum(nbnb(k,1:npm))==0   ) cycle
+    do 110 k = 1,nqbz !      if( (eibzmode .AND. nwgt(k)==0) .OR. sum(nbnb(k,1:npm))==0   ) cycle
        if(job==0) then
           nkmin(k) = 999999
           nkmax(k)= -999999
@@ -88,14 +80,10 @@ contains
              enddo
           enddo
        endif
+       if(npm==2.AND.nkqmin(k)/=1)call rx( " When npm==2, nkqmin==1 should be.")! write(stdo,*)' nkqmin nkqmax  nkmin nkmax=',nkqmin,nkqmax,nkmin,nkmax
        !     nkqmin(k)  = nkqmin(k)          ! nkqmin = the num of min   n2 =unocc for jpm=1
        !     nt0   = nkmax(k)
        !     ntp0  = nkqmax(k) - nkqmin(k) +1
-       !! sanity check
-       if( npm==2 .AND. nkqmin(k)/=1) then
-          write(stdo,*)' npm==2 nkqmin nkqmax  nkmin nkmax=',nkqmin,nkqmax,nkmin,nkmax
-          call rx( " When npm==2, nkqmin==1 should be.")
-       endif
        !        if(nkmin(k)/=1) call rx( " nkmin==1 should be.") !nov 2021 commneted out for --intraband only
        !      ib_k =[1:nctot]              core
        !      ib_k =[nctot+nkmin:nctot+nkmax]  valence
@@ -113,59 +101,37 @@ contains
              !! n1b,n2b --> core after valence.  it,itp --> valence after core
              !          it_(ibib, jpm,k)= -999
              !          itp_(ibib,jpm,k)= -999
-             if(n1b(ibib,k,jpm) <= nband) then
-                it = nctot + n1b(ibib,k,jpm) !valence
-                if(it > nctot + nkmax(k) ) cycle
-             else
-                it = n1b(ibib,k,jpm) - nband !core
+             if(ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 >nwhis) call rx( "x0kf_v4hz: iw>nwhis") ! sanity check
+             if(n1b(ibib,k,jpm) > nkmax(k) ) cycle
+             if(n2b(ibib,k,jpm) > nkqmax(k)) cycle
+             it =merge(nctot +n1b(ibib,k,jpm),             n1b(ibib,k,jpm)-nband,             n1b(ibib,k,jpm)<=nband) !val or core
+             itp=merge(ncc   +n2b(ibib,k,jpm)-nkqmin(k)+1, n2b(ibib,k,jpm)-nkqmin(k)+1-nband, n2b(ibib,k,jpm)<=nband) !val or core
+             ! if(.not.(nbcut==0 .AND. nbcut2==999999)) then ! nbcut mechanism
+             !    if(jpm==1) then
+             !       if( n1b(ibib,k,jpm) <= nbcut .AND. nbcut2<n2b(ibib,k,jpm) ) then
+             !          if(iww2) then
+             !             write(stdo,"(' nband_chi0 nbcut nbcut2 n2b n1b=',4i6)") nbcut,n2b(ibib,k,jpm),n1b(ibib,k,jpm)
+             !             iww2=.false.
+             !          endif
+             !          cycle
+             !       endif
+             !    else               !jpm==2
+             !       if( n2b(ibib,k,jpm) <= nbcut .AND. nbcut2<n1b(ibib,k,jpm) ) then
+             !          if(iww2) then
+             !             write(stdo,"(' nband_chi0 nbcut nbcut2 n2b n1b=',4i6)") nbcut,n2b(ibib,k,jpm),n1b(ibib,k,jpm)
+             !             iww2=.false.
+             !          endif
+             !          cycle
+             !       endif
+             !    endif
+             ! endif
+             if(crpa) then ! constraint RPA mode (juelich verison)
+                wpw_k =merge(readpkm4crpa(n1b(ibib,k,jpm),   rk(:,k), isp_k), 0d0, n1b(ibib,k,jpm)<=nband)
+                wpw_kq=merge(readpkm4crpa(n2b(ibib,k,jpm), q+rk(:,k), isp_kq),0d0, n2b(ibib,k,jpm)<= nband)
              endif
-             if( n2b(ibib,k,jpm) <= nband) then
-                itp = ncc + n2b(ibib,k,jpm) - nkqmin(k) + 1 !val
-                if(itp > ncc + nkqmax(k)-nkqmin(k)+1 ) cycle
-             else
-                itp =  n2b(ibib,k,jpm) - nkqmin(k) + 1 - nband !core
-             endif
-             !! nbcut mechanism
-             if(nbcut==0 .AND. nbcut2==999999) then
-                continue
-             else
-                if(jpm==1) then
-                   if( n1b(ibib,k,jpm) <= nbcut .AND. nbcut2<n2b(ibib,k,jpm) ) then
-                      if(iww2) then
-                         write(stdo,"(' nband_chi0 nbcut nbcut2 n2b n1b=',4i6)") nbcut,n2b(ibib,k,jpm),n1b(ibib,k,jpm)
-                         iww2=.false.
-                      endif
-                      cycle
-                   endif
-                else               !jpm==2
-                   if( n2b(ibib,k,jpm) <= nbcut .AND. nbcut2<n1b(ibib,k,jpm) ) then
-                      if(iww2) then
-                         write(stdo,"(' nband_chi0 nbcut nbcut2 n2b n1b=',4i6)") nbcut,n2b(ibib,k,jpm),n1b(ibib,k,jpm)
-                         iww2=.false.
-                      endif
-                      cycle
-                   endif
-                endif
-             endif
-             !! sanity check
-             if (ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 >nwhis) call rx( "x0kf_v4hz: iw>nwhis")
-             !! constraint RPA mode (juelich verison)
-             if(crpa) then
-                if(n1b(ibib,k,jpm) <= nband) then
-                   wpw_k= readpkm4crpa(n1b(ibib,k,jpm),   rk(:,k), isp_k)
-                else
-                   wpw_k=0d0
-                endif
-                if(n2b(ibib,k,jpm) <= nband) then
-                   wpw_kq= readpkm4crpa(n2b(ibib,k,jpm), q+rk(:,k), isp_kq)
-                else
-                   wpw_kq= 0d0
-                endif
-             endif
-             do iw = ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 !iiww=iw+ihw(ibib,k)-1
+             iwloop: do iw = ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 !iiww=iw+ihw(ibib,k)-1
                 imagweight = whw(jhw(ibib,k,jpm)+iw-ihw(ibib,k,jpm))
-                if(crpa)     imagweight = imagweight*(1d0-wpw_k*wpw_kq)
-!                if(eibzmode) imagweight = nwgt(k)*imagweight
+                if(crpa) imagweight = imagweight*(1d0-wpw_k*wpw_kq) !         if(eibzmode) imagweight = nwgt(k)*imagweight
                 icount = icount+1
                 if(job==1) then
                    whwc (icount)= imagweight
@@ -173,10 +139,9 @@ contains
                    iwc  (icount)= iw
                    itc  (icount)= it
                    itpc (icount)= itp
-                   jpmc (icount)= jpm
-                   !        write(stdo,"(a,6i5,d13.5)")'uuuuu k it itp iw jpm whw=',icount,k,it,itp,iw,jpm,whwc(icount)
+                   jpmc (icount)= jpm !     write(stdo,"(a,6i5,d13.5)")'uuuuu k it itp iw jpm whw=',icount,k,it,itp,iw,jpm,whwc(icount)
                 endif
-             enddo                 ! iw
+             enddo iwloop
 125       enddo ibibloop
 1251   enddo jpmloop
 110 enddo 
