@@ -10,7 +10,7 @@ module m_x0kf
   use m_readqg,only: ngpmx,ngcmx
   use m_qbze,only: nqbze
   use m_readhbe,only: nband
-  use m_readgwinput,only: nbcut,nbcut2
+!  use m_readgwinput,only: nbcut,nbcut2
   use m_hamindex,only: ngrp
   ! q-dependent quantities
   use m_readVcoud,only: zcousq,ngc,ngb
@@ -62,15 +62,12 @@ contains
     logical ::  crpa !eibzmode, iww2=.true.,
     write(stdo,'(" x0kf_v4hz_init: job q =",i3,3f8.4)') job,q
     ncc=merge(0,nctot,npm==1)
-    if(job==0) allocate( nkmin(nqbz),  nkmax(nqbz),nkqmin(nqbz),nkqmax(nqbz))
+    if(job==0) allocate( nkmin(nqbz),nkqmin(nqbz),source= 999999)
+    if(job==0) allocate( nkmax(nqbz),nkqmax(nqbz),source=-999999)
     if(job==1) allocate( whwc(ncount), kc(ncount), iwc(ncount), itc(ncount), itpc(ncount), jpmc(ncount) )
     icount=0
     do 110 k = 1,nqbz !      if( (eibzmode .AND. nwgt(k)==0) .OR. sum(nbnb(k,1:npm))==0   ) cycle
        if(job==0) then
-          nkmin(k) = 999999
-          nkmax(k)= -999999
-          nkqmin(k)= 999999
-          nkqmax(k)=-999999
           do jpm=1,npm         !npm
              do ibib = 1, nbnb(k,jpm)
                 nkmin(k)  = min(n1b(ibib,k,jpm),nkmin(k))
