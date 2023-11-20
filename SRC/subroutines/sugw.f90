@@ -317,6 +317,7 @@ contains
        !        if (dipolematrix.and.iq>nqbz) exit
        iq = iqproc(idat)
        isp= isproc(idat)
+!       write(6,*)'qqqqqqqqid procid iq isp=',procid,iq,isp
        qp  = qplist(:,iq)     !  ... For this qp, G vectors for PW basis and hamiltonian dimension
        ngp = ngplist(iq)
        lwvxc = iq<=iqibzmax

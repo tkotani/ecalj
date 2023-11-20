@@ -307,7 +307,7 @@ contains
     call tcn('m_qplist_qpsdivider')
     nspxx=nsp/nspc !nspc is 2 for spin-coupled case
 !    if(cmdopt0('--afsym')) nspxx=1
-    if(afsym) nspxx=1
+    if((.not.cmdopt0('--jobgw')).and.afsym) nspxx=1
     allocate(kpproc(0:numprocs))
     call dstrbp(nkp*nspxx, numprocs,1,kpproc(0))
     ! i=1,nkp*nspxx is divided into [kpproc(procid),kpporc(procid+1)-1] for each procid.
