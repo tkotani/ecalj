@@ -7,12 +7,12 @@ contains
     use m_lgunit,only:stdo
     use m_ftox
     use m_atwf,only: makrwf,rwftai
-    !r   A local orbital gz first type is defined as
-    !r      gz = r * ( phi_z - phi_z(rmax) u - (phi_z)'(rmax) s )
-    !r   By construction, gz/r has both value = 0 and slope = 0 at rmax.
+    !r   A local orbital gz first type is defined as  gz = r * ( phi_z - phi_z(rmax) u - (phi_z)'(rmax) s )
+    !    By construction, gz/r has both value = 0 and slope = 0 at rmax.
     !
     !r   A local orbital gz the second type is defined as gz=r*phi_z. For r>rmax a smooth Hankel tail (spec'd by ehl,rsml) is attached as MTO.
-    !    (t.k. will remove this second type probably in future. 2023jan plan)
+    !    (t.k. will remove this second type probably in future. 2023jan plan).
+    !
     !i Inputs
     !i   z     :nuclear charge
     !i   rmax  :augmentation radius, in a.u.
@@ -73,10 +73,9 @@ contains
     !r   as specified by pnz.
     !r      pnz = 0      : no local orbital
     !r      10 > pnz > 0 : local orbital of the first type
-    !r      pnz > 10     : local orbital of the second type (extented).
+    !r      pnz > 10     : local orbital of the second type (extented). --->probably removed in future
     !
-    !r   From the boundary conditions (1s digit+fractional part of pnz),
-    !r   wave function phi_z can be generated for r<rmax.
+    !r   From the boundary conditions (1s digit+fractional part of pnz), wave function phi_z can be generated for r<rmax.
     !
     !r  NOTE:
     !   hab,vab,sab are matrix elements of the true wave function (including
@@ -89,21 +88,14 @@ contains
     integer,parameter:: nrx=1501
     integer :: lmxa,lso,nr,nsp, ipr,ir,i,j,k,l,lpzi(0:n0),nrbig
     real(8):: z,rmax,a,rofi(nrx),v(nr,nsp),ehl(n0),rsml(n0), &
-         pnu(n0,nsp),pnz(n0,nsp),phzdphz(nppn,n0,nsp), & !,pp(n0,2,5)
-         hab(3,3,n0,nsp),sab(3,3,n0,nsp),vab(3,3,n0,nsp),vdif(nr,nsp), &
-         sodb(3,3,n0,nsp,2),rs3,vmtz, dmat(3,3),det,vi, &
-         hmat(3,3),phmins,phplus,q,r,smat(3,3),tmc, &
-         umegam,umegap,vmat(3,3),vl,xx,xxx,yyy,zzz, &
-         b,ghg,ghgp,gphgp, g(nr,2),gp(nr,2*4),gz(nr,2),&
-         ev,phi,dphi,phip,dphip,p, &
-         ez,phz,dphz,phzp,dphzp,pz,phz2,dphz2,rwgtx(nrx)
+         pnu(n0,nsp),pnz(n0,nsp),phzdphz(nppn,n0,nsp), hab(3,3,n0,nsp),sab(3,3,n0,nsp),vab(3,3,n0,nsp),vdif(nr,nsp), &
+         sodb(3,3,n0,nsp,2),rs3,vmtz, dmat(3,3),det,vi, hmat(3,3),phmins,phplus,q,r,smat(3,3),tmc, &
+         umegam,umegap,vmat(3,3),vl,xx,xxx,yyy,zzz, b,ghg,ghgp,gphgp, g(nr,2),gp(nr,2*4),gz(nr,2),&
+         ev,phi,dphi,phip,dphip,p, ez,phz,dphz,phzp,dphzp,pz,phz2,dphz2,rwgtx(nrx)
     real(8),allocatable:: gzbig(:,:)    !     double precision gbig(nrx*2),gpbig(nrx*8),vbig(nrx,2)
     real(8):: vavg(nr),dv(nr),sop(0:lmxa,nsp,nsp,3), &     !     Spin-Orbit related parameters
-         sopz(0:lmxa,nsp,nsp,3), &
-         psi(nr,0:lmxa,nsp),dpsi(nr,0:lmxa,nsp), &
-         pzi(nr,0:lmxa,nsp),ezum(0:8,nsp), &
-         enumx(0:8,nsp), x21,x11,x22,x12,vx00,vx01,vx10,vx11, &
-         vx0z,vxz0,vx1z,vxz1,vxzz,vxzu,vxuz,vxzs,vxsz, xxxx(1,1),&
+         sopz(0:lmxa,nsp,nsp,3), psi(nr,0:lmxa,nsp),dpsi(nr,0:lmxa,nsp), pzi(nr,0:lmxa,nsp),ezum(0:8,nsp), &
+         enumx(0:8,nsp), x21,x11,x22,x12,vx00,vx01,vx10,vx11, vx0z,vxz0,vx1z,vxz1,vxzz,vxzu,vxuz,vxzs,vxsz, xxxx(1,1),&
          rwgt(nr),szz_,vzz_,hzz_,vx13,vx23, rotp(0:lmxa,nsp,2,2),rbig,fac=2d0
     real(8),target:: m(2,2,0:lmxa,nsp)
     call getpr(ipr)
@@ -269,10 +261,8 @@ contains
           endif
           if(lpzi(l)/=0) phzdphz(1:2,k,i) = [phz, dphz]
           det = phi*dphip - dphi*phip
-          rotp(l,i,1,1) = dphip/det !see sugw for how to use rotp (u,s) to (phi,phidot)
-          rotp(l,i,1,2) = -dphi/det
-          rotp(l,i,2,1) = -phip/det
-          rotp(l,i,2,2) = phi/det
+          rotp(l,i,1,1:2) = [dphip/det,-dphi/det] !see sugw for how to use rotp (u,s) to (phi,phidot)
+          rotp(l,i,2,1:2) = [-phip/det,  phi/det]
 10     enddo lloop
 80  enddo isploop
     if(lso==0) return
