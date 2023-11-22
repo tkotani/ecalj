@@ -113,6 +113,7 @@ contains
          nr=  nr_i(is)
          rmt= rmt_i(is)
          lmxa=lmxa_i(is)
+         if(lmxa == -1) cycle ! floating orbital
          lmxl=lmxl_i(is)
          lmxb=lmxb_i(is)
          kmax=kmxt_i(is)
@@ -121,7 +122,6 @@ contains
          nlml = (lmxl+1)**2
          lfltwf = (.not.frzwfa(is)).and.(.not.ham_frzwf).and.job==1 ! modify b.c. of Rad.wave func.
          j1 = jnlml(ib) 
-         if(lmxa == -1) cycle ! floating orbital
          call corprm(is, qcorg,qcorh,qsca(ib),cofg,cofh,ceh,lfoc,rfoc,z)
          call gtpcor(is, kcor,lcor,qcor) !qcor(1:2) is meaningful only when kcor/=0 
          call atqval(lmxa,pnu,pnz,z,kcor,lcor,qcor, qc0,qv(ib),qsc0)
@@ -174,30 +174,20 @@ contains
              phispinsym= cmdopt0('--phispinsym')
              if(phispinsym) then
                 if(master_mpi.AND.nsp==2)write(6,*) 'locpot: --phispinsym mode: use spin-averaged potential for phi and phidot'
-                do ir=1,nr
-                   ov0mean = sum([(v0pot(ib)%v(ir,isp),isp=1,nsp)])/nsp
-                   v0pot(ib)%v(ir,:)= ov0mean
-                enddo
+                forall(ir=1:nr) v0pot(ib)%v(ir,:)= sum([(v0pot(ib)%v(ir,isp),isp=1,nsp)])/nsp
              endif
            endblock phispinsymB
            v0fixblock: block ! experimental case --v0fix
              character charext*8
+             real(8):: ov0(nr)
              if(v0fix) then
                 inquire(file='v0pot.'//trim(charext(ib)),exist=readov0)
                 write(6,*)'v0fixmode=',readov0,ib,nr
-                if(readov0) then
-                   v0potb:block
-                     real(8):: ov0(nr)
-                     open(newunit=ifi,file='v0pot.'//trim(charext(ib)),form='unformatted')
-                     read(ifi) ov0(1:nr)
-                     close(ifi)
-                     do ir=1,nr
-                        v0pot(ib)%v(ir,:)= ov0(ir)
-                     enddo
-                   endblock v0potb
-                else
-                   call rx('no v0pot files')
-                endif
+                if(.not.readov0) call rx('no v0pot files')
+                open(newunit=ifi,file='v0pot.'//trim(charext(ib)),form='unformatted')
+                read(ifi) ov0(1:nr)
+                close(ifi)
+                forall(ir=1:nr) v0pot(ib)%v(ir,:)= ov0(ir)
              endif
            endblock v0fixblock
            if(master_mpi .AND. nsp==2)then
@@ -207,9 +197,8 @@ contains
            endif
            v1pot(ib)%v(1:nr,1:nsp) = y0*v1out(1:nr,1,1:nsp) ! Store the potential used in mkrout to calculate the core
            if(lfoc==0) xcore = xcore + xcor(ib)
-           if(kcor/=0.and.(dabs(qcor(2)-alocc(ib)) > 0.01d0)) then !  Check for core moment mismatch ; add to total moment
-              if(ipr>=10)write(stdo,ftox) ' (warning) core moment mismatch spec=',is,'input file=',qcor(2),'core density=',alocc
-           endif
+           if(kcor/=0.and.(dabs(qcor(2)-alocc(ib))>0.01d0).and.ipr>=10) & !  Check for core moment mismatch ; add to total moment
+                write(stdo,ftox) ' (warning) core moment mismatch spec=',is,'input file=',qcor(2),'core density=',alocc
            ! Make augmentation matrices sig, tau, ppi ---
            if (job==1) then !     ... Smooth Hankel tails for local orbitals
               rsmh= 0d0
@@ -236,10 +225,9 @@ contains
                 use m_potpus,only: potpus
                 integer :: k,nlma,nlmh,i, lxa(0:kmax),kmax1
                 real(8):: v0(nr,nsp),rsmaa,&
-                     vdif(nr,nsp),sodb(3,3,n0,nsp,2), vum((lmxa+1)**2,nlml,3,3,nsp), fh(nr*(lmxh+1)*nkap0),xh(nr*(lmxh+1)*nkap0), &
-                     vh((lmxh+1)*nkap0),fp(nr*(lmxa+1)*(kmax+1)), &
-                     dh((lmxh+1)*nkap0),xp(nr*(lmxa+1)*(kmax+1)), &
-                     vp((lmxa+1)*(kmax+1)),dp((lmxa+1)*(kmax+1)),qum((lmxa+1)**2,(lmxl+1),3,3,nsp)
+                     vdif(nr,nsp),sodb(3,3,n0,nsp,2), vum((lmxa+1)**2,nlml,3,3,nsp),qum((lmxa+1)**2,(lmxl+1),3,3,nsp),  &
+                     fh(nr*(lmxh+1)*nkap0),   xh(nr*(lmxh+1)*nkap0),   vh((lmxh+1)*nkap0),   dh((lmxh+1)*nkap0), &
+                     fp(nr*(lmxa+1)*(kmax+1)),xp(nr*(lmxa+1)*(kmax+1)),vp((lmxa+1)*(kmax+1)),dp((lmxa+1)*(kmax+1))
                 complex(8):: vumm(-lmaxu:lmaxu,-lmaxu:lmaxu,3,3,2,0:lmaxu)
                 real(8),pointer:: hab_(:,:,:,:),sab_(:,:,:,:),vab_(:,:,:,:)
                 rsmaa=rsma(is)
@@ -254,8 +242,8 @@ contains
                 call potpus(z,rmt,lmxa,v0,vdif,a,nr,nsp,lsox,pnu,pnz,ehl,rsml,rs3,vmtz, & !hab,vab,sab and phzdphz, and rotp
                      phzdphz(:,:,:,ib),hab_,vab_,sab_,sodb,rotp(:,:,:,:,ib)) 
                 call momusl(z,rmt,lmxa,pnu,pnz,rsml,ehl,lmxl,nlml,a,nr,nsp,rofi,rwgt,v0,v1, qum,vum)!Moments and potential integrals of ul*ul, ul*sl, sl*s
-                call fradhd(nkaph,eh,rsmh,lhh(:,is),lmxh,nr,rofi, fh,xh,vh,dh)
-                call fradpk(kmax,rsmaa,lmxa,nr,rofi,        fp,xp,vp,dp)
+                call fradhd(nkaph,eh,rsmh,lhh(:,is),lmxh,nr,rofi, fh,xh,vh,dh) !head
+                call fradpk(kmax,rsmaa,lmxa,             nr,rofi, fp,xp,vp,dp) !tail
                 if(lldau(ib)>0)call vlm2us(lmaxu,rmt,idu(:,is),lmxa, count( idu(:,ispec(1:ib-1))>0 ), & !offset to the Ublock for ib
                      vorb,phzdphz(:,:,:,ib),rotp(:,:,:,:,ib), vumm)!LDA+U: vumm of (u,s,gz) from vorb for phi.
                 kmax1=kmax+1
@@ -535,8 +523,7 @@ contains
        write(stdo,"(' rhoeps:  ',3f15.6/' rhomu:   ',3f15.6)") sum(rep1),sum(rep2),sum(rhoexc),rmu1(1),rmu2(1),rhovxc(1)
        if(nsp==2) write(stdo,"(' spin2:   ',3f15.6/' total:   ',3f15.6)")rmu1(2),rmu2(2),rhovxc(2),sum(rmu1),sum(rmu2),sum(rhovxc)
        write(stdo,"(' val*vef  ',3f15.6/' val chg: ',3f15.6)") vefv1,vefv2,valvef,qv1,qv2,qloc
-       if(nsp==2) write(stdo,"(' val mmom: ',f15.6,'  core mmom:',f11.6)") aloc,alocc
-!       write(stdo,"(' core chg:',3f15.6)") qcor1 !,qcor2,qlocc
+       if(nsp==2) write(stdo,"(' val mmom: ',f15.6,'  core mmom:',f11.6)") aloc,alocc !       write(stdo,"(' core chg:',3f15.6)") qcor1 !,qcor2,qlocc
     endif
     call tcx('locpt2')
   end subroutine locpt2
