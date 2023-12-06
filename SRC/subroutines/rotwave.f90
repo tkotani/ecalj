@@ -1,6 +1,48 @@
 module m_rotwave ! PMT wave funciton rotation ! space-group rotation of eigenfunctions, MTpartAPW expansion and MPB.
   public:: Rotmto,Rotmto2,Rotipw,Rotipw2,Rotevec
 contains
+  subroutine rotmatMTO(igg,q,qtarget,ndimh, rotmat) ! Rotation matrix for MTO
+!    use m_qplist,only: igv2qp,igv2revqp,napwkqp,qplist,nkp
+    use m_mksym,only:   symops,miat,tiat,shtvg,dlmm,ngrp
+    use m_lmfinit,only: norbmto,ibastab,ltab,ktab,offl,offlrev,nbas
+    use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat
+    use m_lgunit,only: stdo
+    use m_ftox
+    implicit none
+    intent(in)::     igg,q,qtarget,ndimh 
+    intent(out)::                          rotmat              
+    !   phi(r) = \sum_i evec(i,iband) |F_i> ==> Rotated[phi](r)=\sum_i evecout(i,iband) |F_i>  by sym(:,:,ig).
+    !   Rotated[phi](r)= phi[sym^-1(r)], where   sym(r)=r'= symops*r + shftvg.
+    !This comment is Checked at 2023-9-13
+    integer::i,ig,ndimh,nband,iorb,nnn(3),igx,init1,init2,iend1,iend2,nlmto,ierr,igg,ikt2,ikt,l,ibas,ig2,k,i1
+    real(8)::q(3),gout(3),delta(3),ddd(3),qpg(3),platt(3,3),qtarget(3),qx(3),det,qpgr(3),ddd2(3),qpgr2(3)
+    complex(8):: phase(nbas),rotmat(ndimh,ndimh)
+    real(8),parameter:: tolq=1d-4
+    complex(8),parameter:: img=(0d0,1d0), img2pi=2*4d0*datan(1d0)*img
+    character(256)::aaa
+    logical::errig2=.false.
+    platt = transpose(plat) ! inverse of qlat
+    call rangedq( matmul(platt,(qtarget-matmul(symops(:,:,igg),q)) ), qx) ! Check equivalence of q and qtarget
+    if(sum(abs(qx))>tolq) then
+       write(aaa,"(a,3f7.3,2x,3f7.3)")' 111 qtarget is not a star of q',q,qtarget
+       call rx( '111 rotwvigg: qtarget is not symops(:,:,ig)*q'//trim(aaa))
+    endif
+    rotmat=0d0
+    nlmto = ndimh
+    phase = [(exp(-img2pi*sum(qtarget*tiat(:,ibas,igg))), ibas=1,nbas)]
+    OrbitalBlock: do iorb=1,norbmto 
+       ibas = ibastab(iorb) 
+       l   = ltab(iorb)
+       k   = ktab(iorb)
+       init1 = offl(iorb)+1
+       iend1 = offl(iorb)+2*l+1
+       init2 = offlrev(miat(ibas,igg),l,k)+1
+       iend2 = offlrev(miat(ibas,igg),l,k)+2*l+1
+       !          evecout(init2:iend2,:)= matmul(dlmm(-l:l,-l:l,l,igg),evec(init1:iend1,:))*phase(ibas)
+       rotmat(init2:iend2,init1:iend1)=dlmm(-l:l,-l:l,l,igg)*phase(ibas)
+    enddo OrbitalBlock
+  end subroutine rotmatMTO
+
   subroutine rotevec(igg,q,qtarget,ndimh,napw_in,nband,evec, evecout) ! Rotation of coefficients evec in PMT basis for q in qplist.
     use m_qplist,only: igv2qp,igv2revqp,napwkqp,qplist,nkp
     use m_mksym,only:   symops,miat,tiat,shtvg,dlmm,ngrp
@@ -42,6 +84,7 @@ contains
           !write(stdo,ftox)'iorb',iorb,'data from',init1,iend1,'to', init2,iend2,'ibas l k',ibas,l,k,&
           !     'igg=',igg,' miat',miat(ibas,igg),'tiat=',ftof(tiat(:,ibas,igg),3)
           evecout(init2:iend2,:)= matmul(dlmm(-l:l,-l:l,l,igg),evec(init1:iend1,:))*phase(ibas)
+!          rotmat(init2:iend2,init1:iend1)=dlmm(-l:l,-l:-l,l,igg)*phase(ibas)
        enddo OrbitalBlock
     endif MTOpart
     APWpart: if(napw_in/=0) then 
