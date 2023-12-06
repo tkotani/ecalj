@@ -247,7 +247,8 @@ subroutine Hreduction(iprx,facw,ecutw,eww,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, ham
     do j=1,ndimMTO
        do i=1,ndimPMTx
           facww = facw*fermidist((evlmto(j)-ewcutf)/eww) 
-          wnm(i,j) = fac(i,j)*fac(i,j)**facww
+!          wnm(i,j) = fac(i,j)*fac(i,j)**facww
+          wnm(i,j) = fac(i,j)*abs(fac(i,j))**facww !2023-12-5 abs(fac) needed with PWMODE=11 to keep symmetry
        enddo
        !do i=1,ndimPMTx; if(j<4.and.abs(fac(i,j))>.1d0) write(6,*)' j=',j,i,' fac=',abs(fac(i,j)); enddo
     enddo

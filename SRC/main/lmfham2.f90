@@ -97,11 +97,11 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
     call getkeyvalue("GWinput","mlo_conv",conv1,default=1d-4)
     call getkeyvalue("GWinput","mlo_mix",alpha1,default=.5d0) 
     call getkeyvalue("GWinput","mlo_EUinner", eUinnereV,default= 1d8) ! inner energy windowU eV relative to VBM
-    call getkeyvalue("GWinput","mlo_CUouter", CUouter,default=0.1d0)
+    call getkeyvalue("GWinput","mlo_CUouter", CUouter,default=0d0) !0.1d0)
     call getkeyvalue("GWinput","mlo_CUinner", CUinner,default=0.5d0)
     call getkeyvalue("GWinput","mlo_WTinner", WTinner,default=2048d0) ! inner energy window WeighTing
     call getkeyvalue("GWinput","mlo_WTband" , WTband,default=1024d0)    ! Weight to minimize band energies
-    call getkeyvalue("GWinput",'mlo_WTseed' , WTseed,default=128d0)    ! Weight for seed.
+    call getkeyvalue("GWinput",'mlo_WTseed' , WTseed,default=0d0) !128d0)    ! Weight for seed.
     call getkeyvalue("GWinput","mlo_ELinner", eLinnereV,default=-1d8) ! inner energy windowL eV relative to VBM
     call getkeyvalue("GWinput","mlo_ewid",    ewideV, default=1d0)    ! inner energy window softing eV
     call getkeyvalue("GWinput","mlo_WTouter", WTouter,default=2048d0*16d0) ! inner energy window WeighTing
@@ -175,10 +175,12 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
              enddo
           enddo
           nmx=nband
+          
           ovlmx=ovlm
-          call zhev_tk4(nband,ovlm,emat,nmx,nev, ovl, ovec, oveps) !Diangonale overlap matrix. (ovlm - e ) ovec=0
+          call zhev_tk4(nband,ovlm,emat,nmx,nev, ovl, ovec, oveps)                   !Diangonale overlap matrix. (ovlm - e ) ovec=0
           ovlm=ovlmx
           call zhev_tk4(nband,hamm,ovlm,nmx,nev, evl(:,iqbz), evec(:,:,iqbz), oveps) !Diangonale (hamm- evl ovlm) z=0
+          
           do concurrent (i=1:nband,j=1:nband)
              osq(i,j)=sum(ovec(i,:)*ovl(:)**0.5d0*dconjg(ovec(j,:))) !O^(1/2)
           enddo
