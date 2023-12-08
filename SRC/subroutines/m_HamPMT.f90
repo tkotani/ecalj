@@ -4,10 +4,10 @@ module m_HamPMT
   use m_lgunit,only:stdo
   use m_ftox
   use m_lmfinit,only: oveps
-  real(8),allocatable,protected:: plat(:,:),pos(:,:),qplist(:,:),qlat(:,:)
+  real(8),allocatable,protected:: plat(:,:),pos(:,:),qplist(:,:),qlat(:,:),symops(:,:,:)
   integer,allocatable,protected:: nlat(:,:,:,:),npair(:,:),ib_table(:),l_table(:),k_table(:),ispec_table(:),nqwgt(:,:,:)
   character(8),allocatable,protected:: slabl_table(:)
-  integer,protected:: nkk1,nkk2,nkk3,nbas,nkp,npairmx,ldim,jsp,lso,nsp,nspx !ldim is number of MTOs
+  integer,protected:: nkk1,nkk2,nkk3,nbas,nkp,npairmx,ldim,jsp,lso,nsp,nspx,ngrp !ldim is number of MTOs
   real(8),protected:: alat
   complex(8),allocatable,protected:: ovlmr(:,:,:,:),hammr(:,:,:,:)
   integer:: ndimMTO 
@@ -28,7 +28,9 @@ contains
     read(ififft) npair,npairmx
     allocate( nlat(3,npairmx,nbas,nbas), nqwgt(npairmx,nbas,nbas) )
     read(ififft) nlat,nqwgt
-    read(ififft) ldim,lso,nsp ! size of Hamiltonian: PMT part
+    read(ififft) ngrp
+    allocate(symops(3,3,ngrp))
+    read(ififft) ldim,lso,nsp,symops ! size of Hamiltonian: PMT part
     allocate(ib_table(ldim),l_table(ldim),k_table(ldim),ispec_table(ldim),slabl_table(ldim))
     read(ififft)ib_table,l_table,k_table,ispec_table,slabl_table
     close(ififft)

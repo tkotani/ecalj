@@ -2,7 +2,12 @@ module m_rotwave ! PMT wave funciton rotation ! space-group rotation of eigenfun
   public:: Rotmto,Rotmto2,Rotipw,Rotipw2,Rotevec
 contains
   subroutine rotmatMTO(igg,q,qtarget,ndimh, rotmat) ! Rotation matrix for MTO
-!    use m_qplist,only: igv2qp,igv2revqp,napwkqp,qplist,nkp
+    !usage:
+    !   qpr = matmul(symops(:,:,igrp),qp)
+    !   call rotmatMTO(igrp,qp,qpr,ndimMTO, rotmat)
+    !   hamm(1:ndimMTO,1:ndimMTO)=matmul(rotmat,matmul(hamm0(1:ndimMTO,1:ndimMTO),dconjg(transpose(rotmat))))
+    !   ovlm(1:ndimMTO,1:ndimMTO)=matmul(rotmat,matmul(ovlm0(1:ndimMTO,1:ndimMTO),dconjg(transpose(rotmat))))
+    !   use m_qplist,only: igv2qp,igv2revqp,napwkqp,qplist,nkp
     use m_mksym,only:   symops,miat,tiat,shtvg,dlmm,ngrp
     use m_lmfinit,only: norbmto,ibastab,ltab,ktab,offl,offlrev,nbas
     use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat
@@ -27,7 +32,7 @@ contains
        write(aaa,"(a,3f7.3,2x,3f7.3)")' 111 qtarget is not a star of q',q,qtarget
        call rx( '111 rotwvigg: qtarget is not symops(:,:,ig)*q'//trim(aaa))
     endif
-    rotmat=0d0
+    rotmat= 0d0
     nlmto = ndimh
     phase = [(exp(-img2pi*sum(qtarget*tiat(:,ibas,igg))), ibas=1,nbas)]
     OrbitalBlock: do iorb=1,norbmto 
@@ -38,9 +43,8 @@ contains
        iend1 = offl(iorb)+2*l+1
        init2 = offlrev(miat(ibas,igg),l,k)+1
        iend2 = offlrev(miat(ibas,igg),l,k)+2*l+1
-       !          evecout(init2:iend2,:)= matmul(dlmm(-l:l,-l:l,l,igg),evec(init1:iend1,:))*phase(ibas)
        rotmat(init2:iend2,init1:iend1)=dlmm(-l:l,-l:l,l,igg)*phase(ibas)
-    enddo OrbitalBlock
+    enddo OrbitalBlock     ! evecout(init2:iend2,:)= matmul(dlmm(-l:l,-l:l,l,igg),evec(init1:iend1,:))*phase(ibas)
   end subroutine rotmatMTO
 
   subroutine rotevec(igg,q,qtarget,ndimh,napw_in,nband,evec, evecout) ! Rotation of coefficients evec in PMT basis for q in qplist.

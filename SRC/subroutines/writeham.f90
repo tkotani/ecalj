@@ -91,7 +91,8 @@ contains
        write(stdo,"(i3,x,3i3,x,a)")i, ib_table(i),l_table(i),k_table(i),trim(spid)
 !       write(ifspec,"(i3,x,a,x,3i4)") i,trim(spid),ib_table(i),l_table(i),k_table(i) !sakakibara
     enddo
-    if(writeham) write(ififft)ldim,lso,nsp !ldim lmto
+    if(writeham) write(ififft)ngrp
+    if(writeham) write(ififft)ldim,lso,nsp, symops !ldim lmto
     if(writeham) write(ififft)ib_table,l_table,k_table,ispec(ib_table(1:ldim)),slabl(ispec(ib_table(1:ldim)))
     if(writeham) close(ififft)
 !    if(writeham) close(ifspec)
