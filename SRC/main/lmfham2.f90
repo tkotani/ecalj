@@ -50,7 +50,7 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
   integer,allocatable:: ikbidx(:,:),lindex(:)
   real(8),allocatable:: omgik(:),zesum(:),evals(:),WTbandq(:),WTinnerq(:)
   real(8),allocatable:: xq(:),eval1(:,:),eval2(:,:),eval3(:,:),eval_w(:,:,:),evli(:,:)
-  integer,allocatable:: m_indx(:),n_indx(:),l_indx(:),ibas_indx(:),ibasiwf(:),idmto(:),idmto_(:)
+  integer,allocatable:: m_indx(:),n_indx(:),l_indx(:),ibas_indx(:),ibasiwf(:),idmto(:),idmto_(:),iqii(:,:)
   real(8),allocatable:: evl(:,:),ovl(:), bbv(:,:),wbz(:),proj(:),projs(:),projss(:)
   complex(8),allocatable:: upu(:,:,:,:), zmn(:,:),zmn0(:,:),WTbandii(:),WTinnerii(:),zmns(:,:),ezmns(:,:)
   complex(8),parameter:: img=(0d0,1d0)
@@ -65,9 +65,13 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
   character(256):: aaa='',bbb=''
   integer:: nband_,nqbz_,iki_,ikf_,nMLO_,ilowest,ieLhard,iUinneradd,igrp,ndimmto
   real(8),allocatable:: qibz(:,:)
-  integer,allocatable:: irotq(:),irotg(:),ndiff(:,:),iqbzrep(:)
+  integer,allocatable:: irotq(:),irotg(:),ndiff(:,:),iqbzrep(:),iqirot(:,:),igirot(:,:),nirot(:), igadd(:,:),setiq(:),igncount(:)
+
+  logical,allocatable:: igiqibz(:,:)
+  real(8),allocatable:: qbzii(:,:,:)
+
   real(8)::qx(3),qtarget(3),eps=1d-8,qp(3)
-  integer:: ig,iqibz,nqibz
+  integer:: ig,iqibz,nqibz,icount
   call setcmdpath()            ! Set self-command path (this is for call system at m_lmfinit)
   call m_ext_init()            ! Get sname, e.g. trim(sname)=si of ctrl.si
   call m_MPItk_init('lmfham2') ! mpi initialization
@@ -183,15 +187,44 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
        iqibz=iqibz+1
        qibz(:,iqibz) = qp
        irotq(iqbz)=iqibz
-       irotg(iqbz)=1
+       irotg(iqbz)=1 !identical symops
        ndiff(:,iqbz)=0
        iqbzrep(iqibz) = iqbz !representative 
 88     continue
     enddo
     nqibz=iqibz
+
+    allocate(iqii(ngrp,nqibz),igiqibz(ngrp,nqibz),qbzii(3,ngrp,nqibz)) !igadd(ngrp,nqibz),setiq(nqbz),igncount(nqibz),source=0)
+    igiqibz=.false.
+    do iqbz=1,nqbz
+       iqibz= irotq(iqbz)
+       ig   = irotg(iqbz)
+       igiqibz(ig,iqibz) =.true.
+       iqii(ig,iqibz)=iqbz
+       qbzii(:,ig,iqibz) = qbz(:,iqbz)
+    enddo
+   
+!    if(sum(igncount)/=nqbz) call rx('lmfham2: sum(igncount)=/nqbz')
+    !iqirot(nqibz,ngrp),igirot(nqibz,ngrp),nirot(nqibz))
+  !   do iqibz=1,nqibz
+  !      icount=0
+  !      do ig=1,ngrp
+  !         do iqbz=1,nqbz
+  !            qx= matmul(transpose(plat),  qbz(:,iqbz)-matmul(symops(:,:,ig),qibz(:,iqibz)))
+  !            qx=qx-nint(qx)
+  !            if(sum(abs(qx))<eps) then
+  !               icount=icount+1
+  !               iqirot(iqibz,icount)=iqbz
+  !               igirot(iqibz,icount)=ig
+  !            endif
+  !         enddo
+  !      enddo
+  !      nirot(iqibz)=icount
+  !      write(6,*)' iqibz ncount=',nirot(iqibz)
+  !   enddo
   endblock GetQIBZ
   write(6,*) 'nqbz nqibz ngrp=',nqbz,nqibz,ngrp
-  
+!  
   if(job==1) goto 1011 !Goto Souza's iteration --job=1 mode
   GetCNmatFile_job0: block  !job=0 mode to get CNmat file (connection matrix uumat and so on).
     real(8):: qp(3),eps=1d-8
@@ -461,37 +494,63 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
      enddo SouzaStep1loop
      deallocate(upu) 
      forall(iqibz=1:nqibz) cnki(:,:,iqibz)=cnk(:,:,iqbzrep(iqibz))
+
+     
      !! NOTE: cnk(iki:ikf,nMLO,nqbz) is the final results of Step1loop, which minimize Omega_I (Wannier space)
      !!   cnk(iko_i(iq):iko_f(iq),nMLO,iq) gives nMLO-dimentional space.
      GetHamiltonianforMTObyProjection: block  !We do not use Marzari's unitary rotation
        integer:: il,im,in,ib1,ib2,jsp
-       complex(8):: phase,proj(iki:ikf,iki:ikf),pa(iki:ikf,nMLO),ham(nMLO,nMLO),ovlx(nMLO,nMLO),rotmatp(nMLO,nMLO)
+       complex(8):: phase,proj(iki:ikf,iki:ikf),pa(iki:ikf,nMLO),pai(iki:ikf,nMLO),ham(nMLO,nMLO),ovlx(nMLO,nMLO),rotmatp(nMLO,nMLO)
        jsp=is
-       do iqbz = 1,nqbz
-          qp   = qbz(:,iqbz) !      write(6,*)' xxxx iq q=',iq,qp
-          iqibz= irotq(iqbz)
-          call rotmatMTO(igg=irotg(iqbz),q=qibz(:,iqibz),qtarget=qp+matmul(qlat,ndiff(:,iqibz)),ndimh=nband, rotmat=rotmat)
-          rotmatp=rotmat(idmto_(:),idmto_(:))
-          do concurrent(i=iki:ikf, j=iki:ikf)     !inner bandindex
-             proj(i,j) = sum(cnki(i,:,iqibz)*dconjg(cnki(j,:,iqibz))) !sum for MLOindex
-          enddo
-          pa(iki:ikf,1:nMLO) = matmul(proj,amnki(iki:ikf,1:nMLO,iqibz))
-          pa = matmul(pa,dconjg(transpose(rotmatp)))
-          do concurrent(i=1:nMLO,j=1:nMLO)
-             ham(i,j)  = sum(dconjg(pa(:,i))*evl(iki:ikf,iqbz)*pa(:,j)) !sum(dconjg(pa(:,i))*pa(:,j))!
-             ovlx(i,j) = sum(dconjg(pa(:,i))*pa(:,j))
-          enddo !          write(6,*)'sumcheck ham=',iqbz,sum(abs(ham))
-          do concurrent(i=1:nMLO,j=1:nMLO) !Real space Hamiltonian. H(k)->H(T) FT to real space
-             ib1 = ib_tableM(i) 
-             ib2 = ib_tableM(j) 
-             do it =1,npair(ib1,ib2)! hammr_ij (T)= \sum_k hamm(k) exp(ikT). it is the index for T
-                phase = 1d0/dble(nqbz)* exp(img*2d0*pi* sum(qp*matmul(plat,nlat(:,it,ib1,ib2))))
-                hmmr2(i,j,it,jsp)= hmmr2(i,j,it,jsp)+ ham(i,j)*phase
-                ommr2(i,j,it,jsp)= ommr2(i,j,it,jsp)+ ovlx(i,j)*phase
+       do iqibz = 1,nqibz
+          forall(i=iki:ikf,j=iki:ikf) proj(i,j)=sum(cnki(i,:,iqibz)*dconjg(cnki(j,:,iqibz))) !sum for MLOindex
+          pai(iki:ikf,1:nMLO) = matmul(proj,amnki(iki:ikf,1:nMLO,iqibz))
+          do ig = 1,ngrp
+             if(.not.igiqibz(ig,iqibz)) cycle
+             qp = qbzii(:,ig,iqibz) !qbz !+ matmul(qlat,ndiff(:,iqibz))
+             call rotmatMTO(igg=ig,q=qibz(:,iqibz),qtarget=qp,ndimh=nband, rotmat=rotmat)
+             pa = matmul(pai,dconjg(transpose(rotmat(idmto_(:),idmto_(:)))))
+             do concurrent(i=1:nMLO,j=1:nMLO)
+                ham(i,j)  = sum(dconjg(pa(:,i))*evli(iki:ikf,iqibz)*pa(:,j)) !sum(dconjg(pa(:,i))*pa(:,j))!
+                ovlx(i,j) = sum(dconjg(pa(:,i))*pa(:,j))
+             enddo 
+             do concurrent(i=1:nMLO,j=1:nMLO) !Real space Hamiltonian. H(k)->H(T) FT to real space
+                ib1 = ib_tableM(i) 
+                ib2 = ib_tableM(j) 
+                do it =1,npair(ib1,ib2)! hammr_ij (T)= \sum_k hamm(k) exp(ikT). it is the index for T
+                   phase = 1d0/dble(nqbz)* exp(img*2d0*pi* sum(qp*matmul(plat,nlat(:,it,ib1,ib2))))
+                   hmmr2(i,j,it,jsp)= hmmr2(i,j,it,jsp)+ ham(i,j)*phase
+                   ommr2(i,j,it,jsp)= ommr2(i,j,it,jsp)+ ovlx(i,j)*phase
+                enddo
              enddo
           enddo
        enddo
+       ! do iqbz = 1,nqbz
+       !    qp   = qbz(:,iqbz) !      write(6,*)' xxxx iq q=',iq,qp
+       !    iqibz= irotq(iqbz)
+       !    call rotmatMTO(igg=irotg(iqbz),q=qibz(:,iqibz),qtarget=qp+matmul(qlat,ndiff(:,iqibz)),ndimh=nband, rotmat=rotmat)
+       !    rotmatp=rotmat(idmto_(:),idmto_(:))
+       !    do concurrent(i=iki:ikf, j=iki:ikf)     !inner bandindex
+       !       proj(i,j) = sum(cnki(i,:,iqibz)*dconjg(cnki(j,:,iqibz))) !sum for MLOindex
+       !    enddo
+       !    pa(iki:ikf,1:nMLO) = matmul(proj,amnki(iki:ikf,1:nMLO,iqibz))
+       !    pa = matmul(pa,dconjg(transpose(rotmatp)))
+       !    do concurrent(i=1:nMLO,j=1:nMLO)
+       !       ham(i,j)  = sum(dconjg(pa(:,i))*evl(iki:ikf,iqbz)*pa(:,j)) !sum(dconjg(pa(:,i))*pa(:,j))!
+       !       ovlx(i,j) = sum(dconjg(pa(:,i))*pa(:,j))
+       !    enddo !          write(6,*)'sumcheck ham=',iqbz,sum(abs(ham))
+       !    do concurrent(i=1:nMLO,j=1:nMLO) !Real space Hamiltonian. H(k)->H(T) FT to real space
+       !       ib1 = ib_tableM(i) 
+       !       ib2 = ib_tableM(j) 
+       !       do it =1,npair(ib1,ib2)! hammr_ij (T)= \sum_k hamm(k) exp(ikT). it is the index for T
+       !          phase = 1d0/dble(nqbz)* exp(img*2d0*pi* sum(qp*matmul(plat,nlat(:,it,ib1,ib2))))
+       !          hmmr2(i,j,it,jsp)= hmmr2(i,j,it,jsp)+ ham(i,j)*phase
+       !          ommr2(i,j,it,jsp)= ommr2(i,j,it,jsp)+ ovlx(i,j)*phase
+       !       enddo
+       !    enddo
+       ! enddo
      endblock GetHamiltonianforMTObyProjection
+     
      write(6,*)' get hmmr2. Goto band_lmfham2.dat ---------'
      bandplotMLO: block
        real(8):: qp(3),evlm(nMLO,ndat)
