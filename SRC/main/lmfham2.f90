@@ -56,7 +56,7 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
   complex(8),parameter:: img=(0d0,1d0)
   complex(8),allocatable::ovlm(:,:),ovlmx(:,:),hamm(:,:),ovec(:,:)!,emat(:,:)
   complex(8),allocatable:: uumat(:,:,:,:),evecc(:,:), amnk(:,:,:),cnk(:,:,:),umnk(:,:,:),evecc1(:,:,:),evecc2(:,:,:)
-  complex(8),allocatable:: hmmr2(:,:,:,:),ommr2(:,:,:,:),wmat(:,:),wmat2(:,:),cnk0(:,:,:)
+  complex(8),allocatable:: hmmr2(:,:,:,:),ommr2(:,:,:,:),wmat(:,:),wmat2(:,:),cnk0(:,:,:),rotmat(:,:)
   character(256):: fband,fband1
   logical:: cmdopt2,noinner,eLinnerauto,ELhardauto,eUinnerauto,convn,eUouterauto,skipdfinner,EUautosp,debug=.false.
   real(8):: WTseed,eoffset, projcut,ewid,ewideV,eUinnercut,eouter,CUouter,WTouter,EUouter,CLhard,eUoutereV,CUinner,eLhardeVoffset,&
@@ -64,6 +64,10 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
   character:: outs*20
   character(256):: aaa='',bbb=''
   integer:: nband_,nqbz_,iki_,ikf_,nMLO_,ilowest,ieLhard,iUinneradd,igrp,ndimmto
+  real(8),allocatable:: qibz(:,:)
+  integer,allocatable:: irotq(:),irotg(:),ndiff(:,:)
+  real(8)::qx(3),qtarget(3),eps=1d-8,qp(3)
+  integer:: ig,iqibz,nqibz
   call setcmdpath()            ! Set self-command path (this is for call system at m_lmfinit)
   call m_ext_init()            ! Get sname, e.g. trim(sname)=si of ctrl.si
   call m_MPItk_init('lmfham2') ! mpi initialization
@@ -159,46 +163,47 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
   endblock bbvector
   iki=1     !minval(iko_i)
   ikf=nband !maxval(iko_f) !  nox = ikf - iki + 1. nband is for MPO Hamiltonian
+  allocate(qibz(3,nqbz),irotq(nqbz),irotg(nqbz),ndiff(3,nqbz),rotmat(nband,nband))
+  GetQIBZ: block
+    iqibz=0
+    do iqbz=1,nqbz
+       qp = qbz(:,iqbz)
+       do ig=1,ngrp
+          do i=1,iqibz
+             qx= matmul(transpose(plat),  qp-matmul(symops(:,:,ig),qibz(:,i)))
+             qx=qx-nint(qx) !qx-ndiff
+             if(sum(abs(qx))<eps) then
+                irotq(iqbz)=i
+                irotg(iqbz)=ig
+                ndiff(:,iqbz) = nint(qx)
+                goto 88
+             endif
+          enddo
+       enddo
+       iqibz=iqibz+1
+       qibz(:,iqibz) = qp
+       irotq(iqbz)=iqibz
+       irotg(iqbz)=1
+       ndiff(:,iqbz)=0
+88     continue
+    enddo
+    nqibz=iqibz
+  endblock GetQIBZ
+  write(6,*) 'nqbz nqibz ngrp=',nqbz,nqibz,ngrp
   if(job==1) goto 1011 !Goto Souza's iteration --job=1 mode
   GetCNmatFile_job0: block  !job=0 mode to get CNmat file (connection matrix uumat and so on).
     real(8):: qp(3),eps=1d-8
     complex(8):: emat(nband,nband),osq(1:nband,1:nband),o2al(1:nband,1:nband,nqbz),phase,ovlmm(nband,nMLO),&
          evec(nband,nband,nqbz),evecx(1:nband,1:nband), ovec(nband,nband),amnk(iki:ikf,nMLO,nqbz),&
          ovlm(1:nband,1:nband),ovlmx(1:nband,1:nband), hamm(1:nband,1:nband),uumat(iki:ikf,iki:ikf,nbb,nqbz)
-    real(8):: qibz(3,nqbz),qx(3),qtarget(3)
-    integer:: irotq(nqbz),irotg(nqbz),ig,iqibz,nqibz,ndiff(3,nqbz)
     allocate(evl(nband,nqbz),ovl(nband))!NOTE: 20230805. When I declear evl in this block, ifort18.05 gives wrong results.
     write(stdo,ftox)'Going to get CNmat ... : nband for |MLO1>=',nband,'iki ikf=',iki,ikf
     open(newunit=ifuumat,file='CNmat',form='unformatted')
     uuispinloop: do 1010 is = 1,nspin
        write(stdo,ftox)'Generating connection matrix ispinloop: is =',is,'  out of',nspin, 'nqbz=',nqbz
-       iqibz=0
-       GetIQBZ: do iqbz=1,nqbz
-          qp = qbz(:,iqbz)
-          do ig=1,ngrp
-             do i=1,iqibz
-                qx= matmul(transpose(plat),  qp-matmul(symops(:,:,ig),qibz(:,i)))
-                qx=qx-nint(qx) !qx-ndiff
-                if(sum(abs(qx))<eps) then
-                   irotq(iqbz)=i
-                   irotg(iqbz)=ig
-                   ndiff(:,iqbz) = nint(qx)
-                   goto 88
-                endif
-             enddo
-          enddo
-          iqibz=iqibz+1
-          qibz(:,iqibz) = qp
-          irotq(iqbz)=iqibz
-          irotg(iqbz)=1
-          ndiff(:,iqbz)=0
-88        continue
-       enddo GetIQBZ
-       nqibz=iqibz
-       write(6,*) 'nqbz nqibz ngrp=',nqbz,nqibz,ngrp
        emat=0d0
        forall(i=1:nband) emat(i,i)=1d0
-       eveciblock: block
+       evecIQBZ: block
          complex(8):: eveci(nband,nband,nqibz),oveci(nband,nband,nqibz),rotmat(nband,nband),ovlmi(nband,nband,nqibz)
          real(8)::ovli(nband,nqibz),evli(nband,nqibz)
          qibzeigen: block
@@ -249,26 +254,15 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
             !call zhev_tk4(nband,hamm,ovlm,nmx,nev, evl(:,iqbz), evec(:,:,iqbz), oveps) !Diangonale (hamm- evl ovlm) z=0
             
             iqibz= irotq(iqbz)
-            igrp = irotg(iqbz)
-            qpi  = qibz(:,iqibz)
-            qtarget= qp + matmul(qlat,ndiff(:,iqibz))
-            call rotmatMTO(igg=igrp,q=qpi,qtarget=qtarget,ndimh=nband, rotmat=rotmat)
-!            write(stdo,ftox)'iqibz...=',iqibz,igrp,ftof(qpi),' ',ftof(qtarget),'rotsum=',sum(rotmat)
+            qtarget= qp+matmul(qlat,ndiff(:,iqibz))
+            call rotmatMTO(igg=irotg(iqbz),q=qibz(:,iqibz),qtarget=qtarget,ndimh=nband, rotmat=rotmat)!write(stdo,ftox)'iqibz...=',iqibz,igrp,ftof(qpi),' ',ftof(qtarget),'rotsum=',sum(rotmat)
             ovec=          matmul(rotmat,oveci(:,:,iqibz))
             evec(:,:,iqbz)=matmul(rotmat,eveci(:,:,iqibz))
             ovlmx = matmul(rotmat,matmul(ovlmi(:,:,iqibz),dconjg(transpose(rotmat))))
             ovl = ovli(:,iqibz)
             evl(:,iqbz)=evli(:,iqibz)
-            
-            !ovec= matmul(rotmat,oveci(:,:,iqibz))
-            !evec(:,:,iqbz)=matmul(rotmat,eveci(:,:,iqibz))
-!            write(stdo,ftox) 'ooo111',ftof(abs(ovec(1:5,3))),sum(abs(oveci(:,:,iqibz))),iqibz
-!            ovec=matmul(rotmat,oveci(:,:,iqibz))
-!!            write(stdo,ftox) 'ooo222',ftof(abs(ovec(1:5,3)))
-            !evec(:,:,iqbz)=matmul(rotmat,eveci(:,:,iqibz))
-!            write(stdo,ftox) 'eee111',ftof(abs(evec(1:5,3,iqbz))),sum(abs(eveci(:,:,iqibz))),iqibz
-!!            evec(:,:,iqbz)=matmul(rotmat,eveci(:,:,iqibz))
-!            write(stdo,ftox) 'eee222',ftof(abs(evec(1:5,3,iqbz)))
+!    write(stdo,ftox) 'ooo111',ftof(abs(ovec(1:5,3))),sum(abs(oveci(:,:,iqibz))),iqibz;  write(stdo,ftox) 'ooo222',ftof(abs(ovec(1:5,3)))
+!    write(stdo,ftox) 'eee111',ftof(abs(evec(1:5,3,iqbz))),sum(abs(eveci(:,:,iqibz))),iqibz;write(stdo,ftox) 'eee222',ftof(abs(evec(1:5,3,iqbz)))
             
             do concurrent (i=1:nband,j=1:nband)
                osq(i,j)=sum(ovec(i,:)*ovl(:)**0.5d0*dconjg(ovec(j,:))) !O^(1/2)
@@ -289,7 +283,7 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
          write(ifuumat) evl   !eigenvalue
          write(ifuumat) uumat !connection matrix
          write(ifuumat) amnk  !initial projection
-       endblock eveciblock
+       endblock evecIQBZ
 1010 enddo uuispinloop
     close(ifuumat)
     if(job==0) call rx0('OK! end of lmhfam2 job=0 for generating CNmat')
@@ -534,9 +528,19 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
        jsp=is
        do iqbz = 1,nqbz
           qq(:) = qbz(:,iqbz) !          write(6,*)' xxxx iq q=',iq,qq
+
+!          iqibz= irotq(iqbz)
+!          igrp = irotg(iqbz)
+!          qpi  = qibz(:,iqibz)
+!          qtarget= qp + matmul(qlat,ndiff(:,iqibz))
+!          call rotmatMTO(igg=igrp,q=qpi,qtarget=qtarget,ndimh=nband, rotmat=rotmat)
+          
           do concurrent(i=iki:ikf, j=iki:ikf)     !inner bandindex
              proj(i,j) = sum(cnk(i,:,iqbz)*dconjg(cnk(j,:,iqbz))) !sum for MLOindex
+!             proj(i,j) = sum(cnki(i,:,iqibz)*dconjg(cnki(j,:,iqibz))) !sum for MLOindex
           enddo
+!          proj = matmul(rotmat,matmul(proj,dconjg(transpose(rotmat))))
+          
           pa(iki:ikf,1:nMLO) = matmul(proj,amnk(iki:ikf,1:nMLO,iqbz)) 
           do concurrent(i=1:nMLO,j=1:nMLO)
              ham(i,j)  = sum(dconjg(pa(:,i))*evl(iki:ikf,iqbz)*pa(:,j)) !sum(dconjg(pa(:,i))*pa(:,j))!
