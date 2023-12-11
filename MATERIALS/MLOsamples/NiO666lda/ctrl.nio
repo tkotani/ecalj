@@ -142,7 +142,7 @@ HAM   NSPIN={nspin}   # Set NSPIN=2 for spin-polarize case; then set SPEC_MMOM (
 		#    (subs/evxc.F had a problem when =2 if rho(up)=0 or rho(down)=0).
                 # =103 PBE-GGA
 
-      PWMODE=1  # 0: MTO basis only (LMTO) PW basis is not used.
+      PWMODE=11  # 0: MTO basis only (LMTO) PW basis is not used.
                 # 1: APW+MTO        (PMT)
                 # 2: APW basis only (LAPW) MTO basis is not used.
                 # NOTE: q-independent number of APW (determined at q=0).

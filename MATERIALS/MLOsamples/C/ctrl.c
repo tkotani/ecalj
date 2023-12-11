@@ -45,9 +45,7 @@ SPEC
       #NOTE: lmfa(rhocor) generates spin-averaged rho for any MMOM,jun2012
       #Q=0 0.5 1 0 #s,p,d,f initial condition 
       #MMOM and Q are to set electron population. grep conf: in lmfa output
-
-
-
+  
 % const pwemax=3 nk1=8 nk2=8 nk3=8 nit=30  gmax=12  nspin=1 metal=3 so=0 xcfun=1 ssig=1.0
 BZ    NKABC={nk1} {nk2} {nk3} # division of BZ for q points.
       METAL={metal}

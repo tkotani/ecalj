@@ -69,7 +69,7 @@ for i in range(1,nloop+1): #nloop is the additional number of iteration
     run_program(epath+'/hsfp0_sc --job=1 >lsx',ncore2) # Exchange Sigma
     mv_files(glob.glob('stdout*'),'STDOUT')
     run_program(epath+'/hx0init --job=11 > lx0init',ncore2)    #x0 part
-    run_program(epath+'/hx0zmel > lx0zmel',ncore2)   #x0 part
+#    run_program(epath+'/hx0zmel > lx0zmel',ncore2)   #x0 part
     run_program(epath+'/hrcxq > lrcxq',ncore2)       #x0 part
     run_program(epath+'/hhilbert > lhilbert',ncore2) #x0 part
     mv_files(glob.glob('stdout*'),'STDOUT')

@@ -533,7 +533,6 @@ contains
           do ik1=0,nk1-1
              do ik2=0,nk2-1
                 do ik3=0,nk3-1
-                   ! rint *,' ik1,ik2,ik3=',ik1,ik2,ik3
                    nd=[ik1,ik2,ik3]
                    if( ik1 >nk1/2) nd= nd-[nk1, 0,  0]
                    if( ik2 >nk2/2) nd= nd-[0, nk2,  0]
@@ -550,8 +549,7 @@ contains
                    nlatS(ik1,ik2,ik3,ib1,ib2)= nnn+1
                    nlatE(ik1,ik2,ik3,ib1,ib2)= nnn+nout
                    do ix=1,nout
-                      nlat(:,nnn+ix,ib1,ib2)= &
-                           nd + [nk1*nlatout(1,ix), nk2*nlatout(2,ix), nk3*nlatout(3,ix)]
+                      nlat(:,nnn+ix,ib1,ib2)= nd + [nk1*nlatout(1,ix), nk2*nlatout(2,ix), nk3*nlatout(3,ix)]
                       nqwgt(nnn+ix,ib1,ib2)= nout
                    enddo
                    do ix=1,nout
@@ -635,7 +633,6 @@ contains
     !o         :fac must be dimensioned at least nfac
     !o         :or 3*nfac if fac is returned sorted.
     !o   nfac  :length of fac
-    ! ----------------------------------------------------------------------
     implicit none
     integer,parameter:: npfac=5,pfac(1:npfac)=[2,3,5,7,11]
     integer :: fac(*),fmax,job,nfac
