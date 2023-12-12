@@ -297,6 +297,7 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
      read(ifuumat) evl,evli
      read(ifuumat) uumat
      read(ifuumat) amnk
+!     write(6,*)'isp amnksum=',is,sum(abs(amnk))
      if(master_mpi) &
           write(stdo,ftox)'### isploop: is=',is,'out of',nspin,'ChooseSpace by cnk(init:iend,1:nMLO,1:nqbz)=',iki,ikf,nMLO,nqbz
      allocate(upu(iki:ikf,iki:ikf,nbb,nqbz),cnk(iki:ikf,nMLO,nqbz),&
@@ -311,7 +312,6 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
        allocate(cnk0(iki:ikf,nMLO,nqbz),source=cnk)
      endblock callamnk2unk
      forall(iqibz=1:nqibz) amnki(iki:ikf,1:nMLO,iqibz)=amnk(iki:ikf,1:nMLO,iqbzrep(iqibz))
-     deallocate(amnk)
      !amnk=<Psi^MPO(it,iqbz)|MPO(1:nMLO) >.  Note that amnk was in Eq.22 in Ref.II. <psi|Gaussian>. We replace Gaussian with MPO.
      !cnk =<Psi^MPO(it,iqbz)|MPO_orth(1:nMLO)>.  |MPO_orth>= |MPO> O^{-1/2} !initial condition
      zesumold=1d10
@@ -474,7 +474,6 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
         evalssold = evalss
         if(isc==nsc1) write(stdo,ftox)' Step1: not converged'
      enddo SouzaStep1loop
-     deallocate(upu) 
      forall(iqibz=1:nqibz) cnki(:,:,iqibz)=cnk(:,:,iqbzrep(iqibz))
      
      !! NOTE: cnk(iki:ikf,nMLO,nqbz) is the final results of Step1loop, which minimize Omega_I (Wannier space)
@@ -591,7 +590,7 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
        close(ifglt1)
        write(stdo,ftox)'OK! Run gnuplot -p '//trim(fname2)//'.Red points are by hmmr2 for Hamiltonian on {|MLO2>}'
     endblock Modifiedbandplotglt
-    deallocate(cnk,omgik,evals,wtbandq,wtinnerq,proj,projs,projss)
+    deallocate(cnk,omgik,evals,wtbandq,wtinnerq,proj,projs,projss,upu,cnk0i)
 1000 enddo ispinloop
   call rx0('OK! end of lmfham2 -----------------')
 contains
