@@ -19,7 +19,7 @@ set x2tics ('G'   0.8660254038,\
 'T'   3.4409213423,\
 'G'   3.8739340442)
 tpia=2*3.1415926/     7.88000
-ef=  0.014190
+ef=  0.017165
 plot \
 "band_lmfham1_spin2.dat" u ($1):(13.605*($2-ef)) pt 2 lc rgb "green",\
 "band_lmfham2_spin2.dat" u ($1):(13.605*($2-ef)) pt 2 lc rgb "red",\

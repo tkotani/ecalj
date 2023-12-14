@@ -193,5 +193,8 @@ QforEPSunita on
 4 O   2 3 4
 5 O   2 3 4
 </Worb> 
-mlo_EUinner 9
 
+mlo_EUinner 9
+mlo_WTseed 0
+mlo_WTband 512
+mlo_WTinner 2048

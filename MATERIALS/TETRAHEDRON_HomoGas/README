@@ -1,7 +1,7 @@
 This shows how to use the tetrahedron method.
 The main rouitne is hhomogas.m.F. 
 
-Please run job file (it will take a minnute or so in your lattop.)
+Please run job file (it will take a minnute or so in your laptop.)
 Look into job file before execting it.
 When job finishes, you will get x0homo.dat 
 (the original results is saved as x0homo.result.dat). 

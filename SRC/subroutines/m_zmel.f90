@@ -69,11 +69,22 @@ contains
     real(8) :: q(3)
     complex(8),allocatable :: ppovl_(:,:),ppovl(:,:)!,ppovlzinv(:,:)
 !    logical:: eibz4x0
-    integer:: i
+    integer:: i,ngc_r,ippovl0
+    real(8):: qx(3),tolq=1d-8
     if(allocated(ppovlz)) deallocate(ppovlz)
     if(allocated(ppovl)) deallocate(ppovl)
     allocate( ppovl(ngc,ngc),ppovlz(ngb,ngb))
-    call readppovl0(q,ngc,ppovl) !q was qq
+!    call readppovl0(q,ngc,ppovl) !q was qq
+    open(newunit=ippovl0,file='PPOVL0',form='unformatted')
+    do
+       read(ippovl0) qx,ngc_r
+       if(sum(abs(qx-q))<tolq) then
+          if(ngc_r/=ngc) call rx( 'readin ppovl: ngc_r/=ngc')
+          read(ippovl0) ppovl
+          exit
+       endif
+    enddo
+    close(ippovl0)
     ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
     ppovlz(nbloch+1:nbloch+ngc,:)=matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
     deallocate(ppovl)
@@ -204,7 +215,7 @@ contains
   !   endif
   !   close(izmel)
   ! end subroutine rwzmel
-  subroutine Get_zmel_init(q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc,iprx)
+  subroutine get_zmel_init(q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc,iprx)
     intent(in)::           q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc,iprx
     ! ns1:ns2 is the range of middle states (count including core index (i=1,nctot). Thus kth valence is at nctot+k.
     !! Get zmel= <phiq(q,ncc+nqmax,ispq) |phim(q-rkvec, ns1:ns2, ispm) MPB(rkvec,ngb)> ZO^-1
@@ -227,6 +238,7 @@ contains
     nmini = ns1          !starting index of middle state  (nctot+nvalence order)
     nmmax = ns2-nctot    !end      index of middle state  (nctot+nvalence order)
     ZmeltMain: Block
+      use m_genallcf_v3,only: plat
       use m_readeigen,only : readgeigf
       integer:: it,ia,kx,verbose,nstate,imdim(natom),nt0,ntp0,invr, iatomp(natom),ispq_rk
       real(8):: symope(3,3),shtv(3),tr(3,natom),qk(3)
@@ -241,8 +253,8 @@ contains
       complex(8) :: geig1(ngpmx,nband),geig2(ngpmx,nband)
       logical:: debug=.false.
       if(init) then
-         call minv33(qlat,qlatinv)
          allocate( cphiq(nlmto,nband), cphim(nlmto,nband), cphitemp(nlmto,nband))
+         qlatinv=transpose(plat)
          init=.false.
       endif
       if(sum(abs(q-q_bk))>tolq .OR. ispq/=ispq_bk)  then
@@ -260,9 +272,6 @@ contains
       invr  = invg(irot)       !invrot (irot,invg,ngrp) ! Rotate atomic positions invrot*R = R' + T
       tr    = tiat(:,:,invr)
       iatomp= miat(:,invr)
-!      write(6,*)'iiiiiiiatomp1=',iatomp
-!      write(6,*)'iiiiiiiatomp2=',invr,irot
-!      write(6,*)'iiiiiinvg=',invg
       symope= symgg(:,:,irot)
       shtv  = matmul(symope,shtvg(:,invr))
       allocate( ppb(nlnmx,nlnmx,mdimx,nclass)) ! ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)>

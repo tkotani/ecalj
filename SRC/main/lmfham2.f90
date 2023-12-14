@@ -121,8 +121,8 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
     call getkeyvalue("GWinput","mlo_CUouter", CUouter,default=0d0) !0.1d0)
     call getkeyvalue("GWinput","mlo_CUinner", CUinner,default=0.5d0)
     call getkeyvalue("GWinput","mlo_WTinner", WTinner,default=2048d0) ! inner energy window WeighTing
-    call getkeyvalue("GWinput","mlo_WTband" , WTband,default=1024d0)    ! Weight to minimize band energies
-    call getkeyvalue("GWinput",'mlo_WTseed' , WTseed,default=0d0) !128d0)    ! Weight for seed.
+    call getkeyvalue("GWinput","mlo_WTband" , WTband,default=512d0) !1024d0)    ! Weight to minimize band energies
+    call getkeyvalue("GWinput",'mlo_WTseed' , WTseed,default=0d0)    ! Weight for seed.
     call getkeyvalue("GWinput","mlo_ELinner", eLinnereV,default=-1d8) ! inner energy windowL eV relative to VBM
     call getkeyvalue("GWinput","mlo_ewid",    ewideV, default=1d0)    ! inner energy window softing eV
     call getkeyvalue("GWinput","mlo_WTouter", WTouter,default=2048d0*16d0) ! inner energy window WeighTing
@@ -488,14 +488,17 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
           forall(i=iki:ikf,j=iki:ikf) proj(i,j)=sum(cnki(i,:,iqibz)*dconjg(cnki(j,:,iqibz))) !sum for MLOindex
           pai(iki:ikf,1:nMLO) = matmul(proj,amnki(iki:ikf,1:nMLO,iqibz))
           do ig = 1,ngrp
-             !if(.not.igiqibz(ig,iqibz0)) cycle
-             !qp = qbzii(:,ig,iqibz)
-             qp = matmul(symops(:,:,ig),qibz(:,iqibz))
+             !case1=== 
+             if(.not.igiqibz(ig,iqibz)) cycle
+             qp = qbzii(:,ig,iqibz)
+             fac0= 1d0/dble(nqbz)/ngrp
+             !case2===
+             ! qp = matmul(symops(:,:,ig),qibz(:,iqibz))
+             ! fac0= 1d0/dble(nqbz) *nigiq(iqibz)/ngrp
              call rotmatMTO(igg=ig,q=qibz(:,iqibz),qtarget=qp,ndimh=nband, rotmat=rotmat)
              pa = matmul(pai,dconjg(transpose(rotmat(idmto_(:),idmto_(:)))))
              forall(i=1:nMLO,j=1:nMLO) ham(i,j)  = sum(dconjg(pa(:,i))*evli(iki:ikf,iqibz)*pa(:,j))
              forall(i=1:nMLO,j=1:nMLO) ovlx(i,j) = sum(dconjg(pa(:,i))*pa(:,j))
-             fac0= 1d0/dble(nqbz) *nigiq(iqibz)/ngrp
              associate(ib=>ib_tableM)
                do concurrent(i=1:nMLO,j=1:nMLO) !Real space Hamiltonian. H(k)->H(T) FT to real space
                   do it =1,npair(ib(i),ib(j))! hammr_ij (T)= \sum_k hamm(k) exp(ikT). it is the index for T

@@ -45,7 +45,7 @@ SPEC
 
 
 
-% const pwemax=3 nk1=8 nk2=8 nk3=8 nit=30  gmax=12  nspin=1 metal=3 so=0 xcfun=1
+% const pwemax=3 nk1=10 nk2=10 nk3=10 nit=30  gmax=12  nspin=1 metal=3 so=0 xcfun=1
 BZ    NKABC={nk1} {nk2} {nk3} # division of BZ for q points.
       METAL={metal}
                 # METAL=3 is safe setting (double path method but not repeat diagonalization), 
