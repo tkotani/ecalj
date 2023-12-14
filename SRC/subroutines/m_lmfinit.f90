@@ -554,7 +554,8 @@ contains
       if( (lrlxr>=1.AND.lrlxr<=3) .OR. cmdopt0('--cls') .OR. cmdopt0('--nosym') .OR. cmdopt0('--pdos')) then
          symg = 'e'
          addinv = .false. 
-      elseif( lso==0 .and. sum(abs(idu))/=0 .and. (.not.sexist) ) then ! Add inversion means Hamiltonian is real (time-reversal).
+!     elseif( lso==0 .and. sum(abs(idu))/=0 .and. (.not.sexist) ) then ! Add inversion means Hamiltonian is real (time-reversal).
+      elseif( lso==0 .and. sum(abs(idu))==0 .and. (.not.sexist) ) then ! Add inversion means Hamiltonian is real (time-reversal). !bugfix by obata 2023-12-12
          addinv=.true. 
       else
          addinv=.false. 
