@@ -1,28 +1,27 @@
-#!/bin/bash -eu
-trap 'echo "ERROR exit"' ERR
-if [ $# -ne 3 ] || [ $1 != "-np" ] ; then
-    echo "An example of usage: epsPP0 -np 4 si"
-    echo "epsPP0 gives interband contributions at q=0 wihout local-field correction"
-    exit 101
-fi
-nfpgw=`dirname $0`
-MPI_SIZE=$2
-TARGET=$3
+#!/usr/bin/env python3
+# -*- coding:utf-8 -*-
+'''
+epsPP0 (epsinter and epsintra )
+'''
+import os, datetime, shutil, glob,sys
+from gwutil import *
+target,ncore,option=gw_args('epsPP0',note='Calculate epsinter,epsintra,epsall')
+epath=os.path.dirname(os.path.abspath(__file__))
+initxt="### START epsPP0 MPI size=  %d TARGET= %s"%(ncore,target)
+print(initxt,flush=True)
 ######## THIS iS for no lfc mode.
-echo "### START epsPP0@"$nfpgw,' $MPI_SIZE= '$MPI_SIZE, ' $TARGET= '$TARGET
-set -x
-$nfpgw/lmf-MPIK --novxc $TARGET --jobgw=0 >& llmfgw00  #generate information files
-$nfpgw/qg4gw --job=2 >& lqg4gw02  
-mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK $TARGET --novxc --jobgw=1 >& llmfgw01 #generate eigenfunctions for GW.
-$nfpgw/rdata4gw_v2 --job=0 >& lrdata4gw_v2 # Prepare all files for GW
-$nfpgw/heftet --job=1 >& leftet  # A file EFERMI for hx0fp0 generated
-$nfpgw/hbasfp0 --job=4 >& lbas   # Product basis generation mode=4
-mpirun -np $MPI_SIZE $nfpgw/hvccfp0 --job=202 >& lvcc # Coulomb matrix for lbas 
-mpirun -np $MPI_SIZE $nfpgw/hx0fp0 --zmel0 --job=202 --interbandonly >& lx0_interband #EPS for interband
-mpirun -np $MPI_SIZE $nfpgw/hx0fp0 --job=202 --intrabandonly >& lx0_intraband #EPS for intraband
-$nfpgw/readeps.py
-set +x
-echo OK! ==== All calclation finished for epsPP0. Plot epsinter.dat ====
-echo '  We generated epsinter,epsintra,epsall.*. See *.glt files'
-echo '  Files epsinter.dat and epsintra.dat contain multiple eps data sets to confirm setting. gnuplot eps*.glt show these sets superposed.'
-echo '  WARN: If the superposition check is not good, let t.kotani fix the problem.'
+targets=' '+target+' --novxc --jobgw=0 '+option+' '
+run_program(epath+'/lmf-MPIK'+targets+'--jobgw=0 >llmfgw00') #generate information files
+run_program(epath+'/qg4gw --job=2 > lqg4gw02')
+run_program(epath+'/lmf-MPIK'+targets+'--novxc --jobgw=1 >llmfgw01',ncore) #generate eigenfunctions for GW.
+run_program(epath+'/rdata4gw_v2 --job=0 > lrdata4gw_v2') # Prepare all files for GW
+run_program(epath+'/heftet --job=1 > leftet')       # A file EFERMI for hx0fp0
+run_program(epath+'/hbasfp0 --job=4 >lbas')         # Product basis generation
+run_program(epath+'/hvccfp0 --job=202 > lvcc',ncore) # Coulomb matrix for lbas
+run_program(epath+'/hx0fp0 --zmel0 --job=202 --interbandonly > lx0_interband',ncore) #EPS for intraband
+run_program(epath+'/hx0fp0 --job=202 --intrabandonly > lx0_intraband',ncore) #EPS for intraband
+run_program(epath+'/readeps.py > lreadeps')
+print('OK! ==== All calclation finished for epsPP0. Plot epsinter.dat ====')
+print('  We generated epsinter,epsintra,epsall.*. See *.glt files')
+print('  Files epsinter.dat and epsintra.dat contain multiple eps data sets to confirm setting. gnuplot eps*.glt show these sets superposed.')
+print('  WARN: If the superposition check is not good, let t.kotani fix the problem.')

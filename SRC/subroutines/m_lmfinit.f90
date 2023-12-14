@@ -436,7 +436,7 @@ contains
               pzsp_r =0d0
               pnusp_r=0d0
               open(newunit=ifipnu,file='atmpnu.'//trim(charext(j))//'.'//trim(sname))
-              write(stdo,*)'READP=T: read pnu from atmpnu.*'
+              if(master_mpi) write(stdo,*)'READP=T: read pnu from atmpnu.*'
               do
                  read(ifipnu,*,end=1015) pnur,iz,lr,isp
                  if(iz==1) pzsp_r (lr+1,isp,j)= pnur ! +10d0 caused probelm for 3P of Fe.

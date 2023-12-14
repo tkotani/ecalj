@@ -4,6 +4,28 @@
 QSGW calculation with MPI.
 '''
 import os, datetime, shutil, glob
+def gw_args(pname,note):
+    '''
+    arguments settings
+    Returns
+      target: target material name ctrl.target
+      ncore: number of MPI thereads in lmf
+      option: options
+    '''
+    import argparse
+    parser=argparse.ArgumentParser(prog=pname,description=note)
+    parser.add_argument("-np",     help='number of mpi cores in lmf',action='store')
+    parser.add_argument("material_name",help=':name of extension')
+    parser.add_argument('--phispinsym',action='store_true',help='spin-symmetrized augmentation')
+#    parser.add_argument('--afsym',action='store_true',help='AF symmetry mode')
+    args=parser.parse_args()
+    print(args)
+    target=args.material_name
+    ncore=int(args.np)
+    option=''
+    if args.phispinsym==True: option=' --phispinsym'
+    return(target,ncore,option)
+
 def gwsc_args():
     '''
     arguments settings
@@ -21,7 +43,7 @@ def gwsc_args():
     parser.add_argument("nloop",   help='iteration number of QSGW loop')
     parser.add_argument("material_name",help='material name')
     parser.add_argument('--phispinsym',action='store_true',help='spin-symmetrized augmentation')
-    parser.add_argument('--afsym',action='store_true',help='AF symmetry mode')
+#    parser.add_argument('--afsym',action='store_true',help='AF symmetry mode')
     args=parser.parse_args()
     print(args)
     target=args.material_name
@@ -37,7 +59,7 @@ def gwsc_args():
         ncore2=ncore
     option=''
     if args.phispinsym==True: option=' --phispinsym'
-    if args.afsym==True: option=option+' --afsym'
+#    if args.afsym==True: option=option+' --afsym'
     return(target,nloop,ncore,ncore2,option)
 
 def gen_dir(dirname):

@@ -1,4 +1,4 @@
-set title "IntraBand part of Epsilon(omega(eV))"
+set title "InterBand part of Epsilon(omega(eV))"
 set xlabel "(eV)"
 set datafile fortran
 set xran[0:30]
