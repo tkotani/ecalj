@@ -10,8 +10,8 @@ epath=os.path.dirname(os.path.abspath(__file__))
 initxt="### START epsPP0 MPI size=  %d TARGET= %s"%(ncore,target)
 print(initxt,flush=True)
 ######## THIS iS for no lfc mode.
-targets=' '+target+' --novxc --jobgw=0 '+option+' '
-run_program(epath+'/lmf-MPIK'+targets+'--jobgw=0 >llmfgw00') #generate information files
+targets=' '+target + option+' '
+run_program(epath+'/lmf-MPIK'+targets+'--jobgw=0 --novxc >llmfgw00') #generate information files
 run_program(epath+'/qg4gw --job=2 > lqg4gw02')
 run_program(epath+'/lmf-MPIK'+targets+'--novxc --jobgw=1 >llmfgw01',ncore) #generate eigenfunctions for GW.
 run_program(epath+'/rdata4gw_v2 --job=0 > lrdata4gw_v2') # Prepare all files for GW
