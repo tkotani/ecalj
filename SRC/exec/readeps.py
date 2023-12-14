@@ -87,9 +87,9 @@ for idat in dintra:
 f.close()    
 f=open('epsintra.glt','w')
 fdata=''
-for iddat in range(3,nfile+3):
+for iddat in range(4,nfile+3):
     fdata=fdata+' '+'"epsintra.dat" using ($2)*13.605:($'+str(iddat)+') w l title "RealPart:'+ files[iddat-3]+'",\\\n'
-for iddat in range(3,nfile+3):
+for iddat in range(4,nfile+3):
     fdata=fdata+' '+'"epsintra.dat" using ($2)*13.605:($'+str(iddat+nfile)+') w l title  "ImagPart:'+ files[iddat-3]+'",\\\n'
 aaa='set title "IntraBand part of Epsilon(omega(eV))"\nset xlabel "(eV)"\nset datafile fortran\nset xran[0:30]\nset yran[-30:30]\n'+\
     'plot\\\n' + fdata

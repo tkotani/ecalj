@@ -53,8 +53,8 @@ contains
     !lmxax=lmxax
     if(master_mpi) call pshpr(60)
     allocate(iclasst(nbas),oics(nbas),oistab(nbas,ngmx))
-    if(ipr10) write(stdo,"(a)")   'SpaceGroupSym of Lattice: ========start========================== '
-    write(stdo,"(a)") ' SYMGRP = '//trim(strn)
+    if(ipr10) write(stdo,"(a)")  'SpaceGroupSym of Lattice: ========start========================== '
+    if(ipr10) write(stdo,"(a)") ' SYMGRP = '//trim(strn)
     call mksym(lc,slabl,strn,ips, iclasst,nclasst,npgrp,ngrp,oag,osymgr,oics,oistab)
     if(ipr10) write(stdo,"(a)") 'SpaceGroupSym of Lattice: ========end =========================== '
     allocate(symops,source=osymgr)
