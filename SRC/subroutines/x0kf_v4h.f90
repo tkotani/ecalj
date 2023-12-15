@@ -103,25 +103,6 @@ contains
              if(n2b(ibib,k,jpm) > nkqmax(k)) cycle
              it =merge(nctot +n1b(ibib,k,jpm),             n1b(ibib,k,jpm)-nband,             n1b(ibib,k,jpm)<=nband) !val or core
              itp=merge(ncc   +n2b(ibib,k,jpm)-nkqmin(k)+1, n2b(ibib,k,jpm)-nkqmin(k)+1-nband, n2b(ibib,k,jpm)<=nband) !val or core
-             ! if(.not.(nbcut==0 .AND. nbcut2==999999)) then ! nbcut mechanism
-             !    if(jpm==1) then
-             !       if( n1b(ibib,k,jpm) <= nbcut .AND. nbcut2<n2b(ibib,k,jpm) ) then
-             !          if(iww2) then
-             !             write(stdo,"(' nband_chi0 nbcut nbcut2 n2b n1b=',4i6)") nbcut,n2b(ibib,k,jpm),n1b(ibib,k,jpm)
-             !             iww2=.false.
-             !          endif
-             !          cycle
-             !       endif
-             !    else               !jpm==2
-             !       if( n2b(ibib,k,jpm) <= nbcut .AND. nbcut2<n1b(ibib,k,jpm) ) then
-             !          if(iww2) then
-             !             write(stdo,"(' nband_chi0 nbcut nbcut2 n2b n1b=',4i6)") nbcut,n2b(ibib,k,jpm),n1b(ibib,k,jpm)
-             !             iww2=.false.
-             !          endif
-             !          cycle
-             !       endif
-             !    endif
-             ! endif
              if(crpa) then ! constraint RPA mode (juelich verison)
                 wpw_k =merge(readpkm4crpa(n1b(ibib,k,jpm),   rk(:,k), isp_k), 0d0, n1b(ibib,k,jpm)<=nband)
                 wpw_kq=merge(readpkm4crpa(n2b(ibib,k,jpm), q+rk(:,k), isp_kq),0d0, n2b(ibib,k,jpm)<= nband)
