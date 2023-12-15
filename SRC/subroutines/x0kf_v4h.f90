@@ -128,7 +128,7 @@ contains
              endif
              iwloop: do iw = ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 !iiww=iw+ihw(ibib,k)-1
                 imagweight = whw(jhw(ibib,k,jpm)+iw-ihw(ibib,k,jpm))
-                if(crpa) imagweight = imagweight*(1d0-wpw_k*wpw_kq) !         if(eibzmode) imagweight = nwgt(k)*imagweight
+                if(crpa) imagweight = imagweight*(1d0-wpw_k*wpw_kq) ! if(eibzmode) imagweight = nwgt(k)*imagweight
                 icount = icount+1
                 if(job==1) then
                    whwc (icount)= imagweight
@@ -136,7 +136,7 @@ contains
                    iwc  (icount)= iw
                    itc  (icount)= it
                    itpc (icount)= itp
-                   jpmc (icount)= jpm !     write(stdo,"(a,6i5,d13.5)")'uuuuu k it itp iw jpm whw=',icount,k,it,itp,iw,jpm,whwc(icount)
+                   jpmc (icount)= jpm !  write(stdo,"(a,6i5,d13.5)")'uuuuu k it itp iw jpm whw=',icount,k,it,itp,iw,jpm,whwc(icount)
                 endif
              enddo iwloop
 125       enddo ibibloop
@@ -153,11 +153,7 @@ contains
     integer:: k,isp_k,isp_kq,iq 
     real(8):: q(3)
     integer::  irot=1 !, neibz,icc,ig,ikp,i,j,itimer,icount,iele !,eibzmoden
-    if(npm==1) then
-       ncc=0
-    else
-       ncc=nctot !stored to private variable
-    endif
+    ncc= merge(0,nctot,npm==1) !stored to private variable
     call Get_zmel_init(q+rk(:,k),q,irot,q, nkmin(k)+nctot,nkmax(k)+nctot,isp_k, nkqmin(k),nkqmax(k),isp_kq, nctot,ncc,iprx=.false.)
     call Dconjg_zmel() 
   end subroutine x0kf_zmel
@@ -210,6 +206,7 @@ contains
     integer::  neibz,icc,ig,ikp,i,j,itimer,icount,iele!,ngbb !eibzsym(ngrp,-1:1),,eibzmoden
     integer:: ieqbz,kold,nxxxx !igx(ngrp*2,nqbz),igxt(ngrp*2,nqbz),
     integer::nkmin_,nkqmin_,izmel,ispold,nmini,nqini,nmtot,nqtot ,ispold2,ierr,iwmax,ifi0
+    logical:: cmdopt0
     !! Main loop over k-points ---------------------------------------------------------
     !! z1p = <M_ibg1 psi_it | psi_itp> < psi_itp | psi_it M_ibg2 >
     !     ! zxq(iw,ibg1,igb2) = \sum_ibib imgw(iw,ibib)* z1p(ibib, igb1,igb2) !ibib means band pair (occ,unocc)
@@ -246,11 +243,10 @@ contains
     !        nkmin:nt0,           nkqmin:ntp0
     !     nt0=nkmax-nkmin+1  , ntp0=nkqmax-nkqmin+1
     kold = -999 
-    zmel0mode : block
-      real(8)::  q1a,q2a,rfac00
-      complex(8),allocatable:: zmel0(:,:,:)
-      logical:: cmdopt0
-      if(cmdopt0('--zmel0')) then
+    zmel0mode: if(cmdopt0('--zmel0')) then
+       zmel0block : block
+         real(8)::  q1a,q2a,rfac00
+         complex(8),allocatable:: zmel0(:,:,:)
          q1a=sum(q00**2)**.5
          q2a=sum(q**2)**.5
          rfac00=q2a/(q2a-q1a)
@@ -278,8 +274,8 @@ contains
                  + rfac00**2*(abs(zmel(igb1,it,itp))-abs(zmel0(igb1,it,itp)))**2 * whwc(icount)
          enddo zmel0modeicount
          goto 2000 
-      endif
-    endblock zmel0mode
+       endblock zmel0block
+    endif zmel0mode
     mainloop: do 1000 icount = 1,ncount
        k = kc(icount)
        nkmin_  = nkmin(k)
@@ -293,28 +289,24 @@ contains
        !! z1p = <M_ibg1(q) psi_it(k) | psi_itp(q+k)> < psi_itp | psi_it M_ibg2 >
        !! zxq(iw,ibg1,igb2) = sum_ibib wwk(iw,ibib)* z1p(ibib, igb1,igb2)
        !! n1b,n2b --> core after valence.  it,itp --> valence after core
-       it  = itc(icount)  !occ      k
-       itp = itpc(icount) !unocc    q+k
-       iw  = iwc(icount)  !omega-bin
-       jpm = jpmc(icount)      ! \pm omega
+!       it  = itc(icount)  !occ      k
+!       itp = itpc(icount) !unocc    q+k
+!       iw  = iwc(icount)  !omega-bin
+!       jpm = jpmc(icount)      ! \pm omega
        do igb2=1,nmbas  !this part dominates cpu time most time consuming...........
-          do igb1=1,igb2
-             rcxq(igb1,igb2,iw,jpm)=rcxq(igb1,igb2,iw,jpm) + dconjg(zmel(igb1,it,itp))*zmel(igb2,it,itp)*whwc(icount)
-             !NOTE:   whwc is ImgWeight by tetrahedron method. If we skip zmel part, we should get joint DOS.
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!             if(it==16.and.itp==17) &
-!             if(abs(zmel(igb1,it,itp))**2>1d-10.and.iw<120) &
-!                  write(stdo,ftox) "iiittt iq k isp=",iq,k,isp_k,' iw it itp=',iw,it+nkmin(k)-1,itp+nkqmin(k)-1,&
-!                  ftod(abs(zmel(igb1,it,itp))**2) !,ftod(zmel(igb2,it,itp))
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!             
+          do igb1=1,nmbas !igb2
+             rcxq(     igb1,igb2,iwc(icount),jpmc(icount))= &
+                  rcxq(igb1,igb2,iwc(icount),jpmc(icount)) &
+                  +dconjg(zmel(igb1,itc(icount),itpc(icount)))*zmel(igb2,itc(icount),itpc(icount)) *whwc(icount)
+             !NOTE: whwc is ImgWeight by tetrahedron method. If we skip zmel part, we should get joint DOS.
           enddo
        enddo
 1000 enddo mainloop
 2000 continue 
     deallocate(nkmin,nkmax,nkqmin,nkqmax,whwc,kc,itc,itpc,iwc,jpmc)
-    do concurrent (jpm=1:npm, iw=1:nwhis, igb2= 1:nmbas)       !note: eibzmode assumes nmbas1=nmbas2
-       rcxq(igb2,1:igb2-1,iw,jpm) = dconjg(rcxq(1:igb2-1,igb2,iw,jpm)) ! Hermitianize. jun2012takao moved from dpsion5 ====
-    enddo
+!    do concurrent (jpm=1:npm, iw=1:nwhis, igb2= 1:nmbas)       !note: eibzmode assumes nmbas1=nmbas2
+!       rcxq(igb2,1:igb2-1,iw,jpm) = dconjg(rcxq(1:igb2-1,igb2,iw,jpm)) ! Hermitianize. jun2012takao moved from dpsion5 ====
+!    enddo
     write(stdo,"(' --- x0kf_v4hz: end')") !, 3d13.5)")
     if(debug)write(stdo,"(' --- ', 3d13.5)")sum(abs(rcxq(1:nmbas,1:nmbas,1:nwhis,1:npm))),sum((rcxq(1:nmbas,1:nmbas,1:nwhis,1:npm)))
   end subroutine x0kf_v4hz
