@@ -43,6 +43,7 @@ def gwsc_args():
     parser.add_argument("nloop",   help='iteration number of QSGW loop')
     parser.add_argument("material_name",help='material name')
     parser.add_argument('--phispinsym',action='store_true',help='spin-symmetrized augmentation')
+#    parser.add_argument('--emptyrun',action='store_true',help='test for gprof for memory')
 #    parser.add_argument('--afsym',action='store_true',help='AF symmetry mode')
     args=parser.parse_args()
     print(args)
@@ -59,6 +60,7 @@ def gwsc_args():
         ncore2=ncore
     option=''
     if args.phispinsym==True: option=' --phispinsym'
+#    if args.emptyrun==True: option=option+' --emptyrun'
 #    if args.afsym==True: option=option+' --afsym'
     return(target,nloop,ncore,ncore2,option)
 

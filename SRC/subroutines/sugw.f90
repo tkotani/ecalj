@@ -135,16 +135,15 @@ contains
     character(8) :: xt
     logical,optional:: socmatrix !dipolematrix,
     integer:: ispSS,ispEE
+    logical:: emptyrun
     include "mpif.h"
     call tcn ('m_sugw_init')
+    emptyrun=cmdopt0('--emptyrun')
     if(master_mpi) write(stdo,"(a)") 'm_sugw_init: start'
     sigmamode = mod(lrsig,10) .ne. 0
     write(6,"('MagField to eval. -vmag/2 for isp=1, +vmag/2 for isp=2. vmag=',d13.6)")vmag
     call getpr(ipr)
     alat=lat_alat
-!    n1 = lat_nabc(1)
-!    n2 = lat_nabc(2)
-!    n3 = lat_nabc(3)
     open(newunit=ifimag,file='MagField',status='old',err=112)! june2013 magfield is added
     read(ifimag,*,err=112) vnow
     close(ifimag)
@@ -317,7 +316,6 @@ contains
        !        if (dipolematrix.and.iq>nqbz) exit
        iq = iqproc(idat)
        isp= isproc(idat)
-!       write(6,*)'qqqqqqqqid procid iq isp=',procid,iq,isp
        qp  = qplist(:,iq)     !  ... For this qp, G vectors for PW basis and hamiltonian dimension
        ngp = ngplist(iq)
        lwvxc = iq<=iqibzmax
@@ -327,140 +325,139 @@ contains
        allocate(ham(ndimh,ndimh),ovl(ndimh,ndimh),evec(ndimh,ndimh), vxc(ndimh,ndimh))
        allocate(cphi(ndima,ndimh,nsp),cphiw(ndimh,nsp))
        !        if(dipolematrix) allocate(dipo(ndimh,ndimh,3))
-!       ispSS=1
-!       ispEE=nsp
-!       if(iq==iqini .AND. ispini==2) ispSS=2
-!       if(iq==iqend .AND. ispend==1) ispEE=1
        if(lso/=0 .OR. socmatrix) then
           allocate(hammhso(ndimh,ndimh,3))
           call aughsoc(qp, ohsozz,ohsopm, ndimh, hammhso)
        endif
-!       isploop: do 1002 isp = ispSS,ispEE
-          open(newunit=ifigwb,file='gwb'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
-          if(lwvxc) then
-             open(newunit=ifievec,   file='evec'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
-             open(newunit=ifiv,      file='vxc'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
-             write(ifievec) ndimh, ldim
-             write(ifiv)    ndimh, ldim
-          endif
-          !! note. This was intended for dipole but wrong since x,y,z are not periodic
-          !   if(dipolematrix)then  !From spotd,and ppixd, dipo(=x,y,z)=<F_i|x,y,z|F_j> . Experimental.
-          !   write(stdo,'("dipole matrix calculated")')  !is this is ambiguous for x+dx shifts but good for wannier?
-          !    call hambl(isp,qp,spotxd(:,:,:,:,1),vconst,sv_p_osig,sv_p_otau,sv_p_oppixd(:,:,1),dipo(:,:,1),ovl)
-          !    call hambl(isp,qp,spotxd(:,:,:,:,2),vconst,sv_p_osig,sv_p_otau,sv_p_oppixd(:,:,2),dipo(:,:,2),ovl)
-          !    call hambl(isp,qp,spotxd(:,:,:,:,3),vconst,sv_p_osig,sv_p_otau,sv_p_oppixd(:,:,3),dipo(:,:,3),ovl)
-          !          endif
-          !! LDA Hamiltonian and overlap matrices for this qp ---
-          call hambl(isp,qp,spotx,vconst,osig, otau, oppix, vxc,ovl)!vxc=<F_i|H(LDA)-vxc(LDA)|F_j>
-          call hambl(isp,qp,smpot,vconst,osig, otau, oppi, ham,ovl)!ham=<F_i|H(LDA)|F_j> and ovl=<F_i|F_j>
-          if(lso==2) ham(:,:)=ham(:,:)+hammhso(:,:,isp) !diagonal part of SOC matrix added for Lz.Sz mode.
-          !xxx   qp  = qplist(:,iq)-[1d-6,2d-6,3d-6] !A trick to shift qp to avoid ambiguity of degeneracy
-          !          if(dipolematrix) then
-          !             dipo(:,:,1)= dipo(:,:,1)-vxc ! dipo(i,j,1) = <Fi|x|Fj>
-          !             dipo(:,:,2)= dipo(:,:,2)-vxc ! dipo(i,j,2) = <Fi|y|Fj>
-          !             dipo(:,:,3)= dipo(:,:,3)-vxc ! dipo(i,j,3) = <Fi|z|Fj>
-          !          endif
-          vxc = ham - vxc ! vxc(LDA) part
+       open(newunit=ifigwb,file='gwb'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
+       if(lwvxc) then
+          open(newunit=ifievec,   file='evec'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
+          open(newunit=ifiv,      file='vxc'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
+          write(ifievec) ndimh, ldim
+          write(ifiv)    ndimh, ldim
+       endif
+       !! note. This was intended for dipole but wrong since x,y,z are not periodic
+       !   if(dipolematrix)then  !From spotd,and ppixd, dipo(=x,y,z)=<F_i|x,y,z|F_j> . Experimental.
+       !   write(stdo,'("dipole matrix calculated")')  !is this is ambiguous for x+dx shifts but good for wannier?
+       !    call hambl(isp,qp,spotxd(:,:,:,:,1),vconst,sv_p_osig,sv_p_otau,sv_p_oppixd(:,:,1),dipo(:,:,1),ovl)
+       !    call hambl(isp,qp,spotxd(:,:,:,:,2),vconst,sv_p_osig,sv_p_otau,sv_p_oppixd(:,:,2),dipo(:,:,2),ovl)
+       !    call hambl(isp,qp,spotxd(:,:,:,:,3),vconst,sv_p_osig,sv_p_otau,sv_p_oppixd(:,:,3),dipo(:,:,3),ovl)
+       !          endif
+       if(emptyrun) then !set dummy to avoid error exit
+          evec=1d0 
+          evl(:,isp)=[(i*0.1,i=1,ndimh)]
+          nev=ndimh
           if (lwvxc) write(ifiv) vxc
-          !          if (dipolematrix) write(ifiv) dipo,ovl
           if (socmatrix .AND. isp==1) write(ifiv) hammhso
-          !! LDA + sigma Hamiltonian for this qp ---
-          if(sigmamode) then ! See m_bandcal.F
-             call getsenex(qp, isp, ndimh,ovl)
-             ham(:,:) = ham(:,:) + ham_scaledsigma*senex
-             call dsene() !delete senex
+          goto 1212
+       endif   
+       !! LDA Hamiltonian and overlap matrices for this qp ---
+       call hambl(isp,qp,spotx,vconst,osig, otau, oppix, vxc,ovl)!vxc=<F_i|H(LDA)-vxc(LDA)|F_j>
+       call hambl(isp,qp,smpot,vconst,osig, otau, oppi, ham,ovl)!ham=<F_i|H(LDA)|F_j> and ovl=<F_i|F_j>
+       if(lso==2) ham(:,:)=ham(:,:)+hammhso(:,:,isp) !diagonal part of SOC matrix added for Lz.Sz mode.
+       !xxx   qp  = qplist(:,iq)-[1d-6,2d-6,3d-6] !A trick to shift qp to avoid ambiguity of degeneracy
+       !          if(dipolematrix) then
+       !             dipo(:,:,1)= dipo(:,:,1)-vxc ! dipo(i,j,1) = <Fi|x|Fj>
+       !             dipo(:,:,2)= dipo(:,:,2)-vxc ! dipo(i,j,2) = <Fi|y|Fj>
+       !             dipo(:,:,3)= dipo(:,:,3)-vxc ! dipo(i,j,3) = <Fi|z|Fj>
+       !          endif
+       vxc = ham - vxc ! vxc(LDA) part
+       if (lwvxc) write(ifiv) vxc
+       !          if (dipolematrix) write(ifiv) dipo,ovl
+       if (socmatrix .AND. isp==1) write(ifiv) hammhso
+       !! LDA + sigma Hamiltonian for this qp ---
+       if(sigmamode) then ! See m_bandcal.F
+          call getsenex(qp, isp, ndimh,ovl)
+          ham(:,:) = ham(:,:) + ham_scaledsigma*senex
+          call dsene() !delete senex
+       endif
+       !!   --- Branch jobgw = 1 : make cphi, matrix elements ---
+       if (mod(iq,10) /= 1) call pshpr(iprint()-6)
+       if (nspc == 2) call rx('diagonalization not ready for nspc=2')
+       epsovl = ham_oveps
+       evec=-1d99
+       evl(:,isp)=1d99
+       call zhev_tk4(ndimh,ham,ovl,ndimh,nev,evl(1,isp),evec,epsovl)
+1212   continue
+       if (lwvxc) write(ifievec) qp, evec(1:ndimh,1:ndimh),nev
+       if(emptyrun) then
+          allocate(pwz(ngp,ndimh)) !dummy
+          goto 1214
+       endif   
+       write(stdo,"(' sugw:  kpt isp=',i8,i2,' of ',i8, ' k= ',3f9.5, ' ndimh= ',i5, &
+            ' irank=',i4, ' lwvxc=',l,' nev=',i5)")  iq,isp,nqnum,qp,ndimh,procid,lwvxc,nev
+       write(stdo,"(9f8.4)") (evl(i,isp), i=1,nev)
+       if (ndham>nev ) evl(1+nev:ndham,isp)=1d20 ! See rdata4gw_v2
+       if(mod(iq,10) /= 1) call poppr
+       if(debug) write(stdo,"(' sugw:procid iq isp lwvxc= ',3i3,' ',l)")procid, iq,isp,lwvxc
+       if(magexist) then
+          if(isp==1) evl(1:ndimh,isp)=evl(1:ndimh,isp) - vnow/2d0
+          if(isp==2) evl(1:ndimh,isp)=evl(1:ndimh,isp) + vnow/2d0
+       endif
+       !$$$!! wave function rotation test  for nqzz and and qzz(:,i)
+       !$$$  for qtarget, call rotwv(q,qtarget,ndimh,napw,ndimh, evec,evecout,ierr) 
+       nlmax = (lmxax+1)**2 
+       allocate(aus_zv(nlmax*ndham*3*nsp*nbas))     ! Project wf into augmentation spheres, Kotani conventions ---
+       aus_zv=0d0
+       call makusq(nbas,[-999], nev,  isp, 1 , qp , evec , aus_zv ) 
+       call gwcphi(isp,nsp,nlmax,ndham,nev,nbas,lmxax,nlindx,ndima,aus_zv,&
+            cphi(1,1,isp),cphiw(1,isp ))!cphi coefficients for phi,phidot,pz(val=slope=0). pz is by wf2lo.
+       deallocate(aus_zv)
+       !     ! We keep note in the followings, but be careful (may contain bugs)...
+       !     !  --- Overlap of IPWs, PW expansion of eigenfunctions pwz ---
+       !     !      The IPW basis consisting of PWs with holes knocked out of spheres,
+       !     !      IPWs must be orthogonalized: IPW -> IPWbar; see PRB 76, 165106.
+       !     !         |IPWbar_G> = sum_G2 |IPW_G2> O^-1_G2,G1, where O_G1,G2=<IPW_G1|IPW_G2>
+       !     ! == Definitions ==
+       !     * ppovl = overlap of IPWs (Generated by pwmat and pwmat2)
+       !     ppovl_G1,G2 = O_G1,G2 = <IPW_G1 IPW_G2>
+       !     * pwh = PW expansion of basis function (Generated by pwmat2 only)
+       !     basis_j> = sum_G2 PWH_G2,j |IPW_G2>
+       !     * Matrix elements (overlap) of IPW and basis function (Generated by pwmat only)
+       !     phovl_G1,j = sum_G2 ppovl_G1,G2 pwh'_G2,j  (matrix form PHOVL = O * PWH')
+       !     Note: phovl is only used as an intermediate construction, old branch
+       !     * Note: pwh' is expanded to the LMTO cutoff gmax while
+       !     pwh  is expanded to the GW cutoff QpGcut_psi
+       !     Thus O^-1 PHOVL will not identically recover PWH.
+       !     The original branch (loldpw=0) uses effectively PWH'; the new one uses PWH.
+       !     This is a major distinction between the two (see Remarks)
+       !     * PW expansion of eigenfunction:
+       !     |psi_n> = sum_j z_jn |basis_j>
+       !     * Define pwz_G,n = sum_j PWH_G2,j z_jn  (in matrix form: PWZ = PWH Z)
+       !     Then
+       !     |psi_n> = sum_j,G2 z_jn PWH_G2,j |IPW_G2> = sum_G2 PWZ_G2,n |IPW_G2>
+       !     Overlap of IPW and eigenfunction:
+       !     PZOVL_G1,n = <IPW(G1) psi_n> = sum_G2 O_G1_G2 PWZ_G2,n
+       !     PZOVL = O * PWZ (matrix form) <--- old
+       !     Note: pzovl is only used as an intermediate construction, old branch
+       if(ngp > 0) then
+          allocate(ppovl(ngp,ngp),pwz(ngp,ndimh))
+          allocate(phovl(ngp,ndimh))
+          !     Pass qx to pwmat (or pwmat2):
+          !     qx = (unshortened) q if 2s digit loldpw = 0
+          !     qx = (shortened)  qp if 2s digit loldpw = 1
+          !     Old convention: call pwmat
+          !     if (mod(loldpw,2) .eq. 0) then
+          !
+          !     !  We have  q+G(igvx; internal in pwmat) = qp + G(igv2)
+          !     !  Thus, we have
+          !     !           igv(internally in pwmat) = igv2 + qlatinv*(qp-q)
+          !     !            inn = qlatinv*(qp-q)
+          call pwmat(nbas,ndimh,napw,igv2x,qp,ngp,nlmax,ngvecp(1,1,iq),gmax, ppovl, phovl )
+          pwz=matmul(phovl,evec)
+          deallocate(phovl)
+          if (lchk >= 1) then
+             allocate(pzovl(ngp,ndimh))
+             pzovl = pwz
+             allocate(ppovld(ngp)) ! extract diagonal before ppovl overwritten
+             do  i = 1, ngp
+                ppovld(i) = ppovl(i,i)
+             enddo
           endif
-          !!   --- Branch jobgw = 1 : make cphi, matrix elements ---
-          if (mod(iq,10) /= 1) call pshpr(iprint()-6)
-          if (nspc == 2) call rx('diagonalization not ready for nspc=2')
-          epsovl = ham_oveps
-          evec=-1d99
-          evl(:,isp)=1d99
-          call zhev_tk4(ndimh,ham,ovl,ndimh,nev,evl(1,isp),evec,epsovl)
-          write(6,"(' sugw:  kpt isp=',i8,i2,' of ',i8, ' k= ',3f9.5, ' ndimh= ',i5, &
-               ' irank=',i4, ' lwvxc=',l,' nev=',i5)")  iq,isp,nqnum,qp,ndimh,procid,lwvxc,nev
-          !call prtev(evec,ndimh,evl(1,isp),ndimh,nev)
-          write(stdo,"(9f8.4)") (evl(i,isp), i=1,nev)
-          if (ndham>nev ) evl(1+nev:ndham,isp)=1d20 ! See rdata4gw_v2
-          if(mod(iq,10) /= 1) call poppr
-          if(debug) write(6,"(' sugw:procid iq isp lwvxc= ',3i3,' ',l)")procid, iq,isp,lwvxc
-          if (lwvxc) write(ifievec) qp, evec(1:ndimh,1:ndimh),nev
-          if(magexist) then
-             if(isp==1) evl(1:ndimh,isp)=evl(1:ndimh,isp) - vnow/2d0
-             if(isp==2) evl(1:ndimh,isp)=evl(1:ndimh,isp) + vnow/2d0
-          endif
-          !$$$!! wave function rotation test  for nqzz and and qzz(:,i)
-          !$$$  for qtarget, call rotwv(q,qtarget,ndimh,napw,ndimh, evec,evecout,ierr)
-          ! Project wf into augmentation spheres, Kotani conventions ---
-          nlmax = (lmxax+1)**2 
-          allocate(aus_zv(nlmax*ndham*3*nsp*nbas))
-          aus_zv=0d0
-          call makusq(nbas,[-999], nev,  isp, 1 , qp , evec , aus_zv )
-          call gwcphi(isp,nsp,nlmax,ndham,nev,nbas,lmxax,nlindx,ndima,aus_zv,&
-               cphi(1,1,isp),cphiw(1,isp ))!cphi coefficients for phi,phidot,pz(val=slope=0). pz is by wf2lo.
-          deallocate(aus_zv)
-          !     ! We keep note in the followings, but be careful (may contain bugs)...
-          !     !  --- Overlap of IPWs, PW expansion of eigenfunctions pwz ---
-          !     !      The IPW basis consisting of PWs with holes knocked out of spheres,
-          !     !      IPWs must be orthogonalized: IPW -> IPWbar; see PRB 76, 165106.
-          !     !         |IPWbar_G> = sum_G2 |IPW_G2> O^-1_G2,G1, where O_G1,G2=<IPW_G1|IPW_G2>
-          !     ! == Definitions ==
-          !     * ppovl = overlap of IPWs (Generated by pwmat and pwmat2)
-          !     ppovl_G1,G2 = O_G1,G2 = <IPW_G1 IPW_G2>
-          !     * pwh = PW expansion of basis function (Generated by pwmat2 only)
-          !     basis_j> = sum_G2 PWH_G2,j |IPW_G2>
-          !     * Matrix elements (overlap) of IPW and basis function (Generated by pwmat only)
-          !     phovl_G1,j = sum_G2 ppovl_G1,G2 pwh'_G2,j  (matrix form PHOVL = O * PWH')
-          !     Note: phovl is only used as an intermediate construction, old branch
-          !     * Note: pwh' is expanded to the LMTO cutoff gmax while
-          !     pwh  is expanded to the GW cutoff QpGcut_psi
-          !     Thus O^-1 PHOVL will not identically recover PWH.
-          !     The original branch (loldpw=0) uses effectively PWH'; the new one uses PWH.
-          !     This is a major distinction between the two (see Remarks)
-          !     * PW expansion of eigenfunction:
-          !     |psi_n> = sum_j z_jn |basis_j>
-          !     * Define pwz_G,n = sum_j PWH_G2,j z_jn  (in matrix form: PWZ = PWH Z)
-          !     Then
-          !     |psi_n> = sum_j,G2 z_jn PWH_G2,j |IPW_G2> = sum_G2 PWZ_G2,n |IPW_G2>
-          !     Overlap of IPW and eigenfunction:
-          !     PZOVL_G1,n = <IPW(G1) psi_n> = sum_G2 O_G1_G2 PWZ_G2,n
-          !     PZOVL = O * PWZ (matrix form) <--- old
-          !     Note: pzovl is only used as an intermediate construction, old branch
-          if(ngp > 0) then
-             allocate(ppovl(ngp,ngp),pwz(ngp,ndimh))
-             allocate(phovl(ngp,ndimh))
-             !     Pass qx to pwmat (or pwmat2):
-             !     qx = (unshortened) q if 2s digit loldpw = 0
-             !     qx = (shortened)  qp if 2s digit loldpw = 1
-             !     Old convention: call pwmat
-             !     if (mod(loldpw,2) .eq. 0) then
-!
-             !     !  We have  q+G(igvx; internal in pwmat) = qp + G(igv2)
-             !     !  Thus, we have
-             !     !           igv(internally in pwmat) = igv2 + qlatinv*(qp-q)
-             !     !            inn = qlatinv*(qp-q)
-             call pwmat(nbas,ndimh,napw,igv2x,qp,ngp,nlmax,ngvecp(1,1,iq),gmax, ppovl, phovl )
-             pwz=matmul(phovl,evec)
-             deallocate(phovl)
-             if (lchk >= 1) then
-                allocate(pzovl(ngp,ndimh))
-                pzovl = pwz
-                allocate(ppovld(ngp)) ! extract diagonal before ppovl overwritten
-                do  i = 1, ngp
-                   ppovld(i) = ppovl(i,i)
-                enddo
-             endif
-             call matcinv(ngp,ppovl)! inversion of hermitian ppovl
-             pwz = matmul(ppovl,pwz)
-             deallocate(ppovl)
-          endif
-          if(debug) write (6,"('q ndimh=',3f10.5,i10)") qp, ndimh
-          !     Interstitial part of eigenfunction overlap:
-          !     <psi_n||psi_n'>
-          !     = sum_G1,G2 (pwz_G1,n|IPW_G1>)+  (pwz_G2,n'|IPW_G2>)
-          !     = sum_G1,G2 (pwz_G1,n)+ ppovl_G1,G2 (PWZ_G2,n')
-          !     = (PWZ)+ O (PWZ) = (PZOVL)+ (PWZ)  (old style)
-          if (lchk >= 1 .AND. ngp > 0) then
+          call matcinv(ngp,ppovl)! inversion of hermitian ppovl
+          pwz = matmul(ppovl,pwz)
+          deallocate(ppovl)
+          if (lchk >= 1) then
              allocate(testc(ndimh,ndimh),testcd(ndimh))
              testc=matmul(transpose(dconjg(pzovl)),pwz)
              deallocate(pzovl)
@@ -474,30 +471,33 @@ contains
                 xx(1) = cphiw(i1,isp)
                 do  i2 = 1, ndimh
                    xx(3) = testc(i1,i2)
-                   xx(4) = testcd(i1) 
-                   !if(i1==i2)write(ifinormchk,'(f12.5,5f14.6)')evl(i1,isp),xx(3),xx(4),xx(1),xx(1)+xx(3)
+                   xx(4) = testcd(i1)      !if(i1==i2)write(ifinormchk,'(f12.5,5f14.6)')evl(i1,isp),xx(3),xx(4),xx(1),xx(1)+xx(3)
                    if(i1==i2)write(ifinormchk,'(f12.5,5f14.6)')evl(i1,isp),xx(3),xx(4),xx(1),xx(1)+xx(3)
                 enddo
              enddo
              deallocate(testc,testcd)
              write(ifinormchk,*)
-          endif    
-          allocate(testc(ndimh,ndimh))
-          testc=matmul(transpose(dconjg(evec)),vxc)
-          do i1 = 1, ndimh
-             vxclda(i1) =  sum(testc(i1,1:ndimh) * evec(1:ndimh,i1))  !<i|Vxc^lda|i>
-          enddo
-          write(ifigwb) evl(1:ndimh,isp),cphi(:,:,isp),pwz,vxclda(1:ndimh),nev
-          deallocate(testc,pwz)
-          close(ifigwb)
-          if (lwvxc) then ! .NOT. cmdopt0('--novxc')) then
-             close(ifiv)
-             close(ifievec)
           endif
-!1002   enddo isploop
+       endif
+       if(debug) write (stdo,"('q ndimh=',3f10.5,i10)") qp, ndimh
+       !     Interstitial part of eigenfunction overlap:
+       !     <psi_n||psi_n'>
+       !     = sum_G1,G2 (pwz_G1,n|IPW_G1>)+  (pwz_G2,n'|IPW_G2>)
+       !     = sum_G1,G2 (pwz_G1,n)+ ppovl_G1,G2 (PWZ_G2,n')
+       !     = (PWZ)+ O (PWZ) = (PZOVL)+ (PWZ)  (old style)
+       allocate(testc(ndimh,ndimh),source=matmul(transpose(dconjg(evec)),vxc))
+       forall(i1 = 1:ndimh) vxclda(i1) = sum(testc(i1,1:ndimh) * evec(1:ndimh,i1))  !<i|Vxc^lda|i>
+       deallocate(testc)
+1214   continue
+       write(ifigwb) evl(1:ndimh,isp),cphi(:,:,isp),pwz,vxclda(1:ndimh),nev
+       deallocate(pwz)
+       close(ifigwb)
+       if (lwvxc) then ! .NOT. cmdopt0('--novxc')) then
+          close(ifiv)
+          close(ifievec)
+       endif
        if(allocated(hammhso)) deallocate(hammhso)
        deallocate(ham,ovl,evec,vxc,cphi,cphiw)
-       continue 
 1001 enddo iqloop
     deallocate(evl)
     close(ifiqg)

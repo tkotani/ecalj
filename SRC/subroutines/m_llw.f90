@@ -25,12 +25,12 @@ contains
     integer:: iq,iq0,nwmax,nwmin,iw,imode,ix,igb1,igb2,ifllw
     integer:: nmbas1,nmbas2,ngc0,ifw4p,ifrcw,mreclx
     real(8):: frr,q(3),vcou1,quu(3),eee
-    logical::  localfieldcorrectionllw
+    logical::  localfieldcorrectionllw,cmdopt0,emptyrun
     logical,save:: init=.true.
     complex(8):: zxq(nmbas1,nmbas2,nw_i:nw)
     character(10):: i2char
-    !     !
     mreclx=mrecl
+    emptyrun=cmdopt0('--emptyrun')
     write(6,*)'WVRllwR init zxq dddxxx',nmbas1,nmbas2,nw_i,nq0i,nblochpmx !,zxq(1,1,iw) !, sum(abs(zxq))
     if(init) then !initialization related to w4pmode, zw, tpioa...
        allocate( llw(nw_i:nw,nq0i) )
@@ -41,8 +41,6 @@ contains
           allocate( wmuk(2:nblochpmx,3))
           wmuk=1d99
        endif
-       !! we have to call WVRllwR beveor WVIllwI
-       !         tpioa=2d0*pi/alat
        allocate( zw(nblochpmx,nblochpmx) )
     endif
     !! ngb is q-dependent. released at the end of WVIllwi
@@ -58,8 +56,8 @@ contains
     if(iq<=nqibz) then        !for mmmw
        open(newunit=ifrcw, file='WVR.'//i2char(iq),form='unformatted',access='direct',recl=mreclx)
        do 1015 iw  = nwmin,nwmax
+          if(emptyrun)goto 1012
           frr= dsign(freq_r(abs(iw)),dble(iw))
-          !            imode = 1
           if(iq==1) then
              ix=1
              zw0(:,1)=0d0
@@ -67,8 +65,7 @@ contains
           else
              ix=0
           endif
-          !     !  Eqs.(37),(38) in PRB81 125102 (Friedlich)
-          do igb1=ix+1,ngb
+          do igb1=ix+1,ngb !  Eqs.(37),(38) in PRB81 125102 (Friedlich)
              do igb2=ix+1,ngb
                 epstilde(igb1,igb2)= -vcousq(igb1)*zxq(igb1,igb2,iw)*vcousq(igb2)
                 if(igb1==igb2) epstilde(igb1,igb2)=1+epstilde(igb1,igb2)
@@ -92,6 +89,7 @@ contains
              enddo
           enddo
           zw(1:ngb,1:ngb) = zw0
+1012      continue
           write(ifrcw, rec= iw-nw_i+1 ) zw !  WP = vsc-v
           call tr_chkwrite("freq_r iq iw realomg trwv=", zw, iw, frr,nblochpmx, nbloch,ngb,iq)
 1015   enddo
@@ -102,6 +100,7 @@ contains
        !         print *,'dddvcou1=',iq,nqibz,iq0,q
        !         print *,'dddvcou1=',vcou1,tpioa,fourpi,sum(q**2)
        do 1115 iw  = nwmin,nwmax
+          if(emptyrun) exit
           frr= dsign(freq_r(abs(iw)),dble(iw))
           !            write(6,*)'ddddxxx111a',iw,sum(abs(zxq(:,:,iw))),zxq(1,1,iw),'sss',sum(abs(vcousq(1:ngb)))
           !            imode = 1
@@ -131,8 +130,7 @@ contains
                    write(6,*)q,iq0,ngb,ngbq0
                    call rx('hx0p0_sc: ngb/=ngbq0')
                 endif
-                wmuk(2:ngb,ixyz(iq0))=epstinv(1,2:ngb)/epstinv(1,1)
-                ! this is dot(q(:)*w_mu(:,igb)). See PRB125102(2016) eq.(36)
+                wmuk(2:ngb,ixyz(iq0))=epstinv(1,2:ngb)/epstinv(1,1) ! this is dot(q(:)*w_mu(:,igb)). See PRB125102(2016) eq.(36)
              endif
           else
              if(iq0<=nq0i) llw(iw,iq0)= 1d0 - vcou1*zxq(1,1,iw)
@@ -142,11 +140,7 @@ contains
                iq,iw,freq_r(iw),llw(iw,iq0),1d0-vcou1*zxq(1,1,iw)
           continue               !iw
 1115   enddo
-       !         open(newunit=ifllw,file='LLWR.'//i2char(iq),form='unformatted')
-       !         write(ifllw) llw
-       !         close(ifllw)
     endif
-    !      deallocate( zw0, epstilde, epstinv)
   end subroutine WVRllwR
 
   !--------------------------------------------------------
@@ -155,11 +149,18 @@ contains
     integer:: nmbas1,nmbas2,mreclx
     integer:: iq,iq0,nwmax,nwmin,iw,imode,ix,igb1,igb2,ifllwi,ifrcwi
     real(8):: frr,q(3),vcou1
-    logical::  localfieldcorrectionllw
+    logical::  localfieldcorrectionllw,cmdopt0,emptyrun
     logical,save:: init=.true.
     complex(8):: zxqi(nmbas1,nmbas2,niw)
     character(10):: i2char
     mreclx=mrecl
+!    if(cmdopt0('--emptyrun')) then
+!       if(init) allocate( llwI(niw,nq0i) )
+!       if(init) llwI= 1d99
+!       init=.false.
+!       return 
+    !    endif
+    emptyrun=cmdopt0('--emptyrun')
     if(init) then
        allocate( llwI(niw,nq0i) )
        init=.false.
@@ -172,6 +173,7 @@ contains
     if( iq<=nqibz ) then
        open(newunit=ifrcwi,file='WVI.'//i2char(iq),form='unformatted',access='direct',recl=mreclx)
        do 1016 iw  = 1,niw
+          if(emptyrun) goto 1014
           !!  Eqs.(37),(38) in PRB81 125102
           if(iq==1) then
              ix=1
@@ -194,6 +196,7 @@ contains
                 if(igb1==igb2) zw0(igb1,igb2)= zw0(igb1,igb2)-vcousq(igb1)*vcousq(igb2)
              enddo
           enddo
+1014      continue
           zw(1:ngb,1:ngb) = zw0 ! zw(nblochpmx,nblochpmx)
           write(ifrcwi, rec= iw)  zw !  WP = vsc-v
           call tr_chkwrite("freq_i iq iw imgomg trwv=",zw,iw,freq_i(iw),nblochpmx,nbloch,ngb,iq)
@@ -204,6 +207,7 @@ contains
        iq0 = iq - nqibz
        vcou1 = fourpi/sum(q**2*tpioa**2) ! --> vcousq(1)**2!  !fourpi/sum(q**2*tpioa**2-eee)
        do 1116 iw  = 1,niw
+          if(emptyrun) exit
           if(localfieldcorrectionllw()) then
              ix=0
              do igb1=ix+1,ngb

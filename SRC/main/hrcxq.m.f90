@@ -48,7 +48,7 @@ program hrcxq
   logical:: cmdopt2
   call MPI__Initialize()
   call M_lgunit_init()
-  call MPI__consoleout('hx0fp0_sc')
+  call MPI__consoleout('hrcxq')
   call cputid (0)
   if(verbose()>=100) debug= .TRUE. 
   hartree= 2d0*rydberg()
@@ -106,7 +106,8 @@ program hrcxq
      allocate( rcxq(nmbas1,nmbas2,nwhis,npm))
      rcxq = 0d0
      do is = MPI__Ss,MPI__Se !is=1,nspin. rcxq is acuumulated for spins
-        write(stdo,"(' ### ',2i4,' out of nqibz+n0qi+nq0iadd nsp=',2i4,' ### ')")iq,is,nqibz+nq0i+nq0iadd,nspin
+        write(stdo,"(' ### ',2i4,' out of nqibz+n0qi+nq0iadd nsp mmbas1,2=',4i5,' ### ')")&
+             iq,is,nqibz+nq0i+nq0iadd,nspin,nmbas1,nmbas2
         isf = is
         call X0kf_v4hz_init_read(iq,is) !readin icount data (index sets and tetrahedron weight)
         call x0kf_v4hz(qp, is,isf, iq, nmbas_in, rcxq=rcxq,iqxini=iqxini)

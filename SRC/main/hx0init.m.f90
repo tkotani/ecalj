@@ -26,7 +26,7 @@ program hx0init !initializaiton of x0 calculaiton (W-v)
   use m_freq,only: Getfreq2, frhis,freq_r,freq_i, nwhis,nw_i,nw,npm,niw !output of getfreq ! Frequency
   use m_tetwt,only: Tetdeallocate, Gettetwt, whw,ihw,nhw,jhw,ibjb,nbnbx,nhwtot,n1b,n2b,nbnb
   use m_w0w0i,only:       W0w0i,     w0,w0i,llmat
-  use m_readVcoud,only:   Readvcoud, vcousq,zcousq,ngb,ngc
+!  use m_readVcoud,only:   Readvcoud, vcousq,zcousq,ngb,ngc
   use m_readgwinput,only: ReadGwinputKeys, egauss,ecut,ecuts,mtet,ebmx,nbmx,imbas
   use m_qbze,only:    Setqbze, nqbze,nqibze,qbze,qibze
   use m_readhbe,only: Readhbe, nband 
@@ -51,7 +51,7 @@ program hx0init !initializaiton of x0 calculaiton (W-v)
   logical:: cmdopt2
   call MPI__Initialize()
   call M_lgunit_init()
-  call MPI__consoleout('hx0fp0_sc')
+  call MPI__consoleout('hx0init')
   call cputid (0)
   if(verbose()>=100) debug= .TRUE. 
   write(stdo,*) ' --- hx0fp0_sc Choose modes below ----------------'

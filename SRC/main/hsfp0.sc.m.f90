@@ -160,11 +160,10 @@ program hsfp0_sc
     nspinmx = nspin
     call anfcond()
     if(laf) nspinmx=1  ! Antiferro case. Only calculate up spin
-    if( mpi__root .AND. mpi__rank/=0) call rx('mpi__root .AND. mpi__rank/=0') 
-    do irank = 0,mpi__size-1  ! irank=0 may write NTQXX if it exists. irank>0 is reading mode.
-       if(mpi__rank==irank) call Setitq_hsfp0sc(nbmx_sig,ebmx_sig,eftrue,nspinmx) !read NTQXX and set nbandmx
-       if(irank==0) call MPI__barrier() !barrier for writing NTQXX at irank=0
-    enddo
+    if(mpi__root .AND. mpi__rank/=0) call rx('mpi__root .AND. mpi__rank/=0')
+    if(mpi__root) call Setitq_hsfp0sc(nbmx_sig,ebmx_sig,eftrue,nspinmx) !read or set NTQXX and nbandmx
+    call MPI__barrier() !barrier for writing NTQXX at irank=0
+    if(.not.mpi__root) call Setitq_hsfp0sc(nbmx_sig,ebmx_sig,eftrue,nspinmx) !read NTQXX and nbandmx
   endblock InitializationBlock
   SchedulingSelfEnergyCalculation: Block
     use m_sxcf_count,only: sxcf_scz_count

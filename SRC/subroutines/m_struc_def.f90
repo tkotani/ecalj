@@ -2,6 +2,9 @@
 module m_struc_def 
   public s_rv1, s_rv2, s_nv2, s_cv1, s_cv2,s_cv3,s_cv4, s_sblock,s_rv5,s_rv4,s_cv5
   private
+  type s_i
+     integer,allocatable:: i(:)
+  end type s_i
   type s_rv1
      real(8),allocatable:: v(:)
   end type s_rv1

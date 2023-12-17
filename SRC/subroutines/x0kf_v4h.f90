@@ -11,17 +11,17 @@ module m_x0kf
   use m_qbze,only: nqbze
   use m_readhbe,only: nband
   use m_hamindex,only: ngrp
-  use m_readVcoud,only: zcousq,ngc,ngb
+!  use m_readVcoud,only: zcousq,ngc,ngb
   use m_tetwt,only:     whw,ihw,nhw,jhw,n1b,n2b,nbnb,nbnbx,nhwtot
   use m_ftox
   implicit none
   public:: X0kf_v4hz_init, X0kf_v4hz,X0kf_v4hz_init_write,X0kf_v4hz_init_read,kc,ncount,x0kf_zmel
   private
   integer,allocatable:: kc(:)
-  integer:: ncount
+  integer:: ncount,ncoun
   integer,allocatable:: nkmin(:), nkmax(:),nkqmin(:),nkqmax(:)
   real(8),allocatable:: whwc(:)
-  integer,allocatable:: iwc(:),itc(:),itpc(:),jpmc(:)
+  integer,allocatable:: iwc(:),itc(:),itpc(:),jpmc(:),icouc(:)
   complex(8),allocatable :: zmel0(:,:,:) 
 contains
   subroutine X0kf_v4hz_init_write(iq,is)
@@ -29,10 +29,10 @@ contains
     character(10) :: i2char
     open(newunit=ix0,file='x0icount.'//trim(i2char(iq))//'_'//trim(i2char(is)),form='unformatted')
     write(ix0)ncount
-    write(ix0) whwc, kc, iwc, itc,itpc, jpmc
+    write(ix0) whwc, kc, iwc, itc,itpc, jpmc,icouc
     write(ix0) nkmin,nkmax,nkqmin,nkqmax
     deallocate(nkmin,nkmax,nkqmin,nkqmax)!,skipk)
-    deallocate( whwc, kc, iwc, itc, itpc, jpmc )
+    deallocate( whwc, kc, iwc, itc, itpc, jpmc,icouc )
     close(ix0)
   end subroutine X0kf_v4hz_init_write
   subroutine X0kf_v4hz_init_read(iq,is)
@@ -41,9 +41,9 @@ contains
     open(newunit=ix0,file='x0icount.'//trim(i2char(iq))//'_'//trim(i2char(is)),form='unformatted')
     read(ix0)ncount
     if(allocated(whwc)) deallocate( whwc, kc, iwc, itc, itpc, jpmc, nkmin,nkmax,nkqmin,nkqmax)
-    allocate( whwc(ncount), kc(ncount), iwc(ncount), itc(ncount), itpc(ncount), jpmc(ncount) )
+    allocate( whwc(ncount), kc(ncount), iwc(ncount), itc(ncount), itpc(ncount), jpmc(ncount),icouc(ncount) )
     allocate( nkmin(nqbz),nkmax(nqbz),nkqmin(nqbz),nkqmax(nqbz))
-    read(ix0) whwc, kc, iwc, itc,itpc, jpmc
+    read(ix0) whwc, kc, iwc, itc,itpc, jpmc,icouc
     read(ix0) nkmin,nkmax,nkqmin,nkqmax
     close(ix0)
   end subroutine X0kf_v4hz_init_read
@@ -53,16 +53,16 @@ contains
     !! Call job=0 and job=1 successively. 
     !!   ncount, ngb and nqibz are the key to estimate computational efforts.
     !! See x0kf_v4hz. We have OUTPUT to private variables nkmin ... jpmc.
-    integer::  irot=1,ierr         !, ntqxx,nbmax!,nctot
-    integer:: k,isp_k,isp_kq, iq, jpm, ibib, iw,igb2,igb1,it,itp,job,icount, nmbas,ncc
+    integer::  irot=1,ierr,k,isp_k,isp_kq, iq, jpm, ibib, iw,igb2,igb1,it,itp,job,icount, nmbas,ncc,icoun
     real(8):: q(3), imagweight, wpw_k, wpw_kq
-    logical ::  crpa ,showicount=.false. 
+    logical ::  crpa ,showicount=.false.
     write(stdo,'(" x0kf_v4hz_init: job q =",i3,3f8.4)') job,q
     ncc=merge(0,nctot,npm==1)
     if(job==0) allocate( nkmin(nqbz),nkqmin(nqbz),source= 999999)
     if(job==0) allocate( nkmax(nqbz),nkqmax(nqbz),source=-999999)
-    if(job==1) allocate( whwc(ncount), kc(ncount), iwc(ncount), itc(ncount), itpc(ncount), jpmc(ncount) )
+    if(job==1) allocate( whwc(ncount), kc(ncount), iwc(ncount), itc(ncount), itpc(ncount), jpmc(ncount),icouc(ncount) )
     icount=0
+    icoun=0
     AccumulateIndex4icount: do 110 k = 1,nqbz 
        if(job==0) then
           do jpm=1,npm         !npm
@@ -87,6 +87,7 @@ contains
                 wpw_k =merge(readpkm4crpa(n1b(ibib,k,jpm),   rk(:,k), isp_k), 0d0, n1b(ibib,k,jpm)<=nband)
                 wpw_kq=merge(readpkm4crpa(n2b(ibib,k,jpm), q+rk(:,k), isp_kq),0d0, n2b(ibib,k,jpm)<= nband)
              endif
+             icoun=icoun+1
              iwloop: do iw = ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 !iiww=iw+ihw(ibib,k)-1
                 imagweight = whw(jhw(ibib,k,jpm)+iw-ihw(ibib,k,jpm))
                 if(crpa) imagweight = imagweight*(1d0-wpw_k*wpw_kq) ! if(eibzmode) imagweight = nwgt(k)*imagweight
@@ -98,6 +99,7 @@ contains
                    itc  (icount)= it
                    itpc (icount)= itp
                    jpmc (icount)= jpm
+                   icouc(icount)= icoun
                    if(showicount)write(stdo,ftox)'x0kf_v4hz_init: icount jpm k it itp iw jpm whw=',&
                         icount,jpm, k,it,itp,iw, ftof(whwc(icount))
                 endif
@@ -106,8 +108,9 @@ contains
 1251   enddo jpmloop
 110 enddo AccumulateIndex4icount
     ncount = icount
+    ncoun  = icoun
     ierr=0
-    if(job==0) write(stdo,"('x0kf_v4hz_init: job=0 ncount ngb nqibz=',3i8)") ncount, ngb, nqibz
+    if(job==0) write(stdo,"('x0kf_v4hz_init: job=0 ncount nqibz=',3i8)") ncount, nqibz
   endfunction x0kf_v4hz_init
   subroutine X0kf_v4hz (q, isp_k,isp_kq, iq, nmbas,  rcxq,epsppmode,iqxini, q00)
     intent(in)   ::     q, isp_k,isp_kq, iq, nmbas,       epsppmode,iqxini, q00 !q00 is optional
@@ -154,8 +157,9 @@ contains
     integer::  irot=1         !, ntqxx,nbmax!,nctot
     integer::  neibz,icc,ig,ikp,i,j,itimer,icount,iele!,ngbb !eibzsym(ngrp,-1:1),,eibzmoden
     integer:: ieqbz,kold,nxxxx !igx(ngrp*2,nqbz),igxt(ngrp*2,nqbz),
-    integer::nkmin_,nkqmin_,izmel,ispold,nmini,nqini,nmtot,nqtot ,ispold2,ierr,iwmax,ifi0
-    logical:: cmdopt0
+    integer:: izmel,ispold,nmtot,nqtot ,ispold2,ierr,iwmax,ifi0,icoucold
+    logical:: cmdopt0,emptyrun
+    complex(8):: zmelzmel(nmbas,nmbas)
     !! Main loop over k-points ---------------------------------------------------------
     ! z1p = <M_ibg1 psi_it | psi_itp> < psi_itp | psi_it M_ibg2 >
     !  zxq(iw,ibg1,igb2) = \sum_ibib imgw(iw,ibib)* z1p(ibib, igb1,igb2) !ibib means band pair (occ,unocc)
@@ -172,7 +176,6 @@ contains
     ! NOTE:
     !  q+rk n2b vec_kq  vec_kq_g geig_kq cphi_kq  ngp_kq ngvecp_kq  isp_kq
     !    rk n1b vec_k   vec_k_g  geig_k  cphi_k   ngp_k  ngvecp_k   isp_k
-
     !! -------------------------------------------------------------------------------
     ! note: for usual correlation mode, I think nctot=0
     !!--- For dielectric funciton, we use irot=1 kvec=rkvec=q
@@ -182,15 +185,14 @@ contains
     !                         occ    | unocc
     !                      (nkmin=1)
     !                      (cphi_k  | cphi_kq !in x0kf)
-
     !!     rkvec= rk(:,k)   ! <phi(q+rk,nqmax)|phi(rk,nctot+nmmax)  MPB(q,ngb )>
     !!     qbz_kr= rk(:,k)  !
     !!     qibz_k= rk(:,k)  ! k
-
     !! Get_zmelt in m_zmel gives the matrix element zmel,  ZO^-1 <MPB psi|psi> , where ZO is ppovlz
     !! zmel(ngb, nctot+nt0,ncc+ntp0) in m_zmel
     !        nkmin:nt0,           nkqmin:ntp0
     !     nt0=nkmax-nkmin+1  , ntp0=nkqmax-nkqmin+1
+    emptyrun=cmdopt0('--emptyrun')
     zmel0mode: if(cmdopt0('--zmel0')) then !this is for epsPP0. Use zmel-zmel0 for matrix elements.
        zmel0block : block
          real(8)::  q1a,q2a,rfac00
@@ -201,10 +203,6 @@ contains
          rfac00=q2a/(q2a-q1a)
          zmel0modeicount: do icount = 1,ncount
             k = kc(icount)
-            nkmin_  = nkmin(k)
-            nkqmin_ = nkqmin(k)
-            nmini= nkmin_
-            nqini= nkqmin_
             if(kold/=k) then
                call x0kf_zmel(q00,iqxini,k, isp_k,isp_kq)
                if(allocated(zmel0)) deallocate(zmel0)
@@ -225,37 +223,37 @@ contains
          goto 2000 
        endblock zmel0block
     endif zmel0mode
-    kold = -999 
+    kold = -999
+    icoucold=-999
+    ! rcxq(ibg1,igb2,iw) = sum_ibib wwk(iw,ibib)* <M_ibg1(q) psi_it(k)| psi_itp(q+k)> < psi_itp | psi_it M_ibg2 >
     mainloop4rcxqsum: do 1000 icount = 1,ncount
+       if(emptyrun) cycle
        k = kc(icount)
-       nkmin_  = nkmin(k)
-       nkqmin_ = nkqmin(k)
-       nmini= nkmin_
-       nqini= nkqmin_
        if(kold/=k) then 
           call x0kf_zmel(q, iq,k, isp_k,isp_kq) !Return zmel(igb q,  k it occ,   q+k itp unocc)
           kold=k
        endif
-       !! z1p = <M_ibg1(q) psi_it(k)| psi_itp(q+k)> < psi_itp | psi_it M_ibg2 >
-       !! zxq(iw,ibg1,igb2) = sum_ibib wwk(iw,ibib)* z1p(ibib, igb1,igb2)
-       !! n1b,n2b --> core after valence.  it,itp index is valence after core (maybe corrected in future)
-       !  it  = itc(icount)  !occ      k
-       !  itp = itpc(icount) !unocc    q+k
-       !  iw  = iwc(icount)  !omega-bin
-       !  jpm = jpmc(icount)      ! \pm omega
-       do igb2=1,nmbas  !this part dominates cpu time most time consuming...........
-          do igb1=1,igb2 !nmbas !igb2
-             rcxq(     igb1,igb2,iwc(icount),jpmc(icount))= &
-                  rcxq(igb1,igb2,iwc(icount),jpmc(icount)) &
-                  +dconjg(zmel(igb1,itc(icount),itpc(icount)))*zmel(igb2,itc(icount),itpc(icount)) *whwc(icount)
-             !NOTE: whwc is ImgWeight by tetrahedron method. If we skip zmel part, we should get joint DOS.
-          enddo
-       enddo
+       associate( it  => itc(icount),&  !occ      k
+            itp => itpc(icount),& !unocc    q+k
+            iw  => iwc(icount),&  !omega-bin
+            jpm => jpmc(icount)) ! \pm omega
+         if(icoucold/=icouc(icount)) then
+            do concurrent(igb2=1:nmbas) ! mul:nmbas**2/2, plus:nmbas**2/2
+               zmelzmel(1:igb2,igb2) = dconjg(zmel(1:igb2,it,itp))*zmel(igb2,it,itp)
+            enddo
+            icoucold=icouc(icount)
+         endif
+         do concurrent(igb2=1:nmbas)  !time consuming........... mul:nmbas**2/2, plus:nmbas**2/2
+            rcxq(1:igb2,igb2,iw,jpm)= rcxq(1:igb2,igb2,iw,jpm) + zmelzmel(1:igb2,igb2) *whwc(icount)
+         enddo
+       endassociate
+       !2  rcxq(:,:,iw,jpm)= rcxq(:,:,iw,jpm) + whwc(icount)*zmelzmel
+       !2x call caxpy(nmbas*nmbas,whwc(icount),zmelzmel(1:nmbas,1:nmbas),1,rcxq(1:nmbas,1:nmbas,iw,jpm),1) !not working why?
 1000 enddo mainloop4rcxqsum
 2000 continue 
-    deallocate(nkmin,nkmax,nkqmin,nkqmax,whwc,kc,itc,itpc,iwc,jpmc)
-    do concurrent (jpm=1:npm, iw=1:nwhis, igb2= 1:nmbas)       !note: eibzmode assumes nmbas1=nmbas2
-       rcxq(igb2,1:igb2-1,iw,jpm) = dconjg(rcxq(1:igb2-1,igb2,iw,jpm)) ! Hermitianize. jun2012takao moved from dpsion5 ====
+    deallocate(nkmin,nkmax,nkqmin,nkqmax,whwc,kc,itc,itpc,iwc,jpmc,icouc)
+    do concurrent (jpm=1:npm, iw=1:nwhis, igb2= 1:nmbas)   !Hermitianize
+       rcxq(igb2,1:igb2-1,iw,jpm) = dconjg(rcxq(1:igb2-1,igb2,iw,jpm)) 
     enddo
     write(stdo,ftox) " --- x0kf_v4hz: end"
     if(debug)write(stdo,"(' --- ', 3d13.5)")sum(abs(rcxq(1:nmbas,1:nmbas,1:nwhis,1:npm))),sum((rcxq(1:nmbas,1:nmbas,1:nwhis,1:npm)))

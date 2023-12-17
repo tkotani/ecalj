@@ -118,6 +118,8 @@ contains
     complex(8),pointer::zsec(:,:), ww(:,:)
     integer,allocatable :: ifrcw(:),ifrcwi(:),ndiv(:),nstatei(:,:),nstatee(:,:),irkip(:,:,:,:)
     logical,parameter:: cache=.true.
+    logical:: emptyrun
+    emptyrun=cmdopt0('--emptyrun')
     if(nw_i/=0) call rx('Current version we assume nw_i=0. Time-reversal symmetry')
     iqini = 1
     iqend = nqibz             
@@ -168,7 +170,7 @@ contains
             call Setppovlz(qibz_k,matz=.true.)  !Set ppovlz overlap matrix used in Get_zmel_init in m_zmel
             kxold=kx
          endif
-         call Get_zmel_init(q,qibz_k,irot,qbz_kr, ns1,ns2,isp, 1,ntqxx,isp, nctot,ncc=0,iprx=debug) !Return zmel(ngb,ns1:ns2,ntqxx)
+         if(.not.emptyrun) call Get_zmel_init(q,qibz_k,irot,qbz_kr, ns1,ns2,isp, 1,ntqxx,isp, nctot,ncc=0,iprx=debug) !Return zmel(ngb,ns1:ns2,ntqxx)
        endblock ZmelBlock
        ExchangeMode: if(exchange) then      
           ExchangeSelfEnergy: Block
@@ -179,6 +181,7 @@ contains
             wtff = [(1d0,it=ns1,nctot), (wfacx(-1d99, ef, ekc(it), esmr),it=max(nctot+1,ns1),ns2)] !bugfix 2023-5-18 ns1==>max(nctot+1,ns1)
             if(corehole) wtff(ns1:nctot) = wtff(ns1:nctot) * wcorehole(ns1:nctot,isp)
             do concurrent(itp=1:ntqxx, itpp=1:ntqxx)
+               if(emptyrun) cycle !probably not so slow but for no error for --emptyrun
                zsec(itp,itpp)=zsec(itp,itpp) - wtt* &
                     sum( [(sum(dconjg(zmel(:,it,itp))*vcoud_(:)*zmel(:,it,itpp))*wtff(it),it=ns1,ns2)] )
             enddo
@@ -190,7 +193,7 @@ contains
          integer:: nm
          complex(8):: zmelc  (1:ntqxx,ns1:ns2,1:ngb)
          complex(8):: zmelcww(1:ntqxx,ns1:ns2,1:ngb)
-         zmelc = reshape(dconjg(zmel),shape=shape(zmelc),order=[3,2,1])
+         if(.not.emptyrun) zmelc = reshape(dconjg(zmel),shape=shape(zmelc),order=[3,2,1]) !notslow. but for no error for --emptyrun 
          if(timemix) call timeshow(" CorrelationSelfEnergyImagAxis:")
          CorrelationSelfEnergyImagAxis: Block !Fig.1 PHYSICAL REVIEW B 76, 165106(2007)! Integration along ImAxis for zwz(omega) 
            use m_readfreq_r,only: wt=>wwx,x=>freqx
@@ -222,6 +225,7 @@ contains
            enddo itpitdo
            zmelcww=0d0
            iwimag:do ixx=0,niw !niw is ~10. ixx=0 is for omega=0 nw_i=0 (Time reversal) or nw_i =-nw
+              if(emptyrun) cycle
               !   iwimag:do concurrent(ixx=0:niw)  !concurrent may(or maynot) be problematic because zmelcww is for reduction 
               if(ixx==0)read(ifrcw(kx),rec=1+(0-nw_i)) zw !direct access Wc(0) = W(0)-v ! nw_i=0 (Time reversal) or nw_i =-nw
               if(ixx>0) read(ifrcwi(kx),rec=ixx) zw       ! direct access read Wc(i*omega)=W(i*omega)-v
@@ -278,6 +282,7 @@ contains
                  ww=>zw(1:ngb,1:ngb)
                  wv3(:,:,iw)=(ww+transpose(dconjg(ww)))/2d0 !hermite part
               enddo ! wv3 should contain zw(ix+0:ix+2) now
+              if(emptyrun) cycle
               ikeep=ix
               do itp=1,ntqxx !lbound(zsec,1),ubound(zsec,1)
                  do it =ns1,ns2r ! for it for given itp,ix
@@ -290,6 +295,7 @@ contains
            if(timemix) call timeshow(" End of CorrelationSelfEnergyRealAxis:")
          EndBlock CorrelationSelfEnergyRealAxis
          nm = (ns2-ns1+1)*ngb
+         if(emptyrun) return
          zsec= zsec+ matmul(reshape(zmelcww,[ntqxx,nm]),reshape(&
               reshape(zmel,shape=[ns2-ns1+1,ngb,ntqxx],order=[2,1,3]), [nm,ntqxx])) !time-consuming probably.
          forall(itp=1:ntqxx) zsec(itp,itp)=dreal(zsec(itp,itp))+img*min(dimag(zsec(itp,itp)),0d0) !enforce Imzsec<0

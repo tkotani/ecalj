@@ -46,8 +46,9 @@ program hhilbert
   character(10) :: i2char
   character(20):: outs=''
   integer:: ipart
-  logical:: cmdopt2
+  logical:: cmdopt2,cmdopt0,emptyrun
   call MPI__Initialize()
+  emptyrun=cmdopt0('--emptyrun')
   call M_lgunit_init()
   call MPI__consoleout('hhilbert')
   if(MPI__root) iprintx= .TRUE. 
@@ -93,24 +94,27 @@ program hhilbert
      if(realomega) allocate( zxq(nmbas1,nmbas2,nw_i:nw) )
      if(imagomega) allocate( zxqi(nmbas1,nmbas2,niw)    )
      write(stdo,'("goto dpsion5: nwhis nw_i niw nw_w nmbas1 nmbas2=",6i5)') nwhis,nw_i,nw,niw,nmbas1,nmbas2
-     call dpsion5(realomega, imagomega, rcxq, nmbas1,nmbas2, zxq, zxqi, chipm, schi,is,  ecut,ecuts) ! Hilbert transform . Get Real part from Imag part.
+     call dpsion5(realomega, imagomega, rcxq, nmbas1,nmbas2, zxq,zxqi, chipm, schi,is, ecut,ecuts) ! Hilbert transform . Get Real part from Imag part. .not.
      deallocate(rcxq)
      if(debug) print *,'sumchk zxq=',sum(zxq),sum(zxqi),sum(abs(zxq)),sum(abs(zxqi))
      RealOmeg: if (realomega) then !RealOmega === W-V: WVR and WVI. Wing elemments: llw, llwi LLWR, LLWI
-        call WVRllwR(qp,iq,zxq,nmbas1,nmbas2)
+        call WVRllwR(qp,iq,zxq,nmbas1,nmbas2) !emptyrun in it
         deallocate(zxq)
      endif RealOmeg
      ImagOmeg:if (imagomega) then
-        call WVIllwI(qp,iq,zxqi,nmbas1,nmbas2)
+        call WVIllwI(qp,iq,zxqi,nmbas1,nmbas2) 
         deallocate(zxqi)
      endif ImagOmeg
 1201 enddo iqloop
+  if(emptyrun) then
+     call rx0( ' OK! hhilbert xxx')
+  endif   
   ! == Divergent part and non-analytic constant part of W(0) ==
   call MPI__barrier()
   call MPI__sendllw(iqxend) !!! Send all LLW data to mpi_root.
   !! Get effective W0,W0i, and L(omega=0) matrix. Modify WVR WVI
   !!  With w0 and w0i, we modify W0W0i. Files WVI and WVR are modified. jun2020
-  if(MPI__rank==0) call W0w0i(nw_i,nw,nq0i,niw,q0i)
+  if(MPI__rank==0) call W0w0i(nw_i,nw,nq0i,niw,q0i) !use moudle m_llw
   write(stdo,*) '--- end of hhilbert --- irank=',MPI__rank
   call cputid(0)
   call rx0( ' OK! hhilbert')
