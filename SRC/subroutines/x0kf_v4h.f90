@@ -10,16 +10,15 @@ module m_x0kf
   use m_readqg,only: ngpmx,ngcmx
   use m_qbze,only: nqbze
   use m_readhbe,only: nband
-!  use m_readgwinput,only: nbcut,nbcut2
   use m_hamindex,only: ngrp
-  ! q-dependent quantities
   use m_readVcoud,only: zcousq,ngc,ngb
   use m_tetwt,only:     whw,ihw,nhw,jhw,n1b,n2b,nbnb,nbnbx,nhwtot
+  use m_ftox
   implicit none
-  public:: X0kf_v4hz_init, X0kf_v4hz,X0kf_v4hz_init_write,X0kf_v4hz_init_read,x0kf_zmel,kc,ncount ! X0kf_v4hz_symmetrize, 
+  public:: X0kf_v4hz_init, X0kf_v4hz,X0kf_v4hz_init_write,X0kf_v4hz_init_read,kc,ncount,x0kf_zmel
   private
   integer,allocatable:: kc(:)
-  integer:: ncount,ncc
+  integer:: ncount
   integer,allocatable:: nkmin(:), nkmax(:),nkqmin(:),nkqmax(:)
   real(8),allocatable:: whwc(:)
   integer,allocatable:: iwc(:),itc(:),itpc(:),jpmc(:)
@@ -48,25 +47,23 @@ contains
     read(ix0) nkmin,nkmax,nkqmin,nkqmax
     close(ix0)
   end subroutine X0kf_v4hz_init_read
-  function X0kf_v4hz_init(job,q,isp_k,isp_kq, iq, nmbas, crpa) result(ierr) !index accumulation
+  function X0kf_v4hz_init(job,q,isp_k,isp_kq, iq, nmbas, crpa) result(ierr) !index accumulation. Initialzation for calling x0kf_v4h
     intent(in)::          job,q,isp_k,isp_kq, iq, nmbas, crpa
-    !! === initialzation for calling x0kf_v4h. !,eibzmode ,nwgt
     !! Get ncount index for x0kf_v4h in the private variables
-    !! Call job=0 and job=1 successively.
+    !! Call job=0 and job=1 successively. 
     !!   ncount, ngb and nqibz are the key to estimate computational efforts.
-    !! See x0kf_v4hz.
-    !     ! We have OUTPUT to private variables nkmin ... jpmc.
+    !! See x0kf_v4hz. We have OUTPUT to private variables nkmin ... jpmc.
     integer::  irot=1,ierr         !, ntqxx,nbmax!,nctot
-    integer:: k,isp_k,isp_kq, iq, jpm, ibib, iw,igb2,igb1,it,itp,job,icount, nmbas
+    integer:: k,isp_k,isp_kq, iq, jpm, ibib, iw,igb2,igb1,it,itp,job,icount, nmbas,ncc
     real(8):: q(3), imagweight, wpw_k, wpw_kq
-    logical ::  crpa !eibzmode, iww2=.true.,
+    logical ::  crpa ,showicount=.false. 
     write(stdo,'(" x0kf_v4hz_init: job q =",i3,3f8.4)') job,q
     ncc=merge(0,nctot,npm==1)
     if(job==0) allocate( nkmin(nqbz),nkqmin(nqbz),source= 999999)
     if(job==0) allocate( nkmax(nqbz),nkqmax(nqbz),source=-999999)
     if(job==1) allocate( whwc(ncount), kc(ncount), iwc(ncount), itc(ncount), itpc(ncount), jpmc(ncount) )
     icount=0
-    do 110 k = 1,nqbz !      if( (eibzmode .AND. nwgt(k)==0) .OR. sum(nbnb(k,1:npm))==0   ) cycle
+    AccumulateIndex4icount: do 110 k = 1,nqbz 
        if(job==0) then
           do jpm=1,npm         !npm
              do ibib = 1, nbnb(k,jpm)
@@ -78,31 +75,14 @@ contains
           enddo
        endif
        if(npm==2.AND.nkqmin(k)/=1)call rx( " When npm==2, nkqmin==1 should be.")! write(stdo,*)' nkqmin nkqmax  nkmin nkmax=',nkqmin,nkqmax,nkmin,nkmax
-       !     nkqmin(k)  = nkqmin(k)          ! nkqmin = the num of min   n2 =unocc for jpm=1
-       !     nt0   = nkmax(k)
-       !     ntp0  = nkqmax(k) - nkqmin(k) +1
-       !        if(nkmin(k)/=1) call rx( " nkmin==1 should be.") !nov 2021 commneted out for --intraband only
-       !      ib_k =[1:nctot]              core
-       !      ib_k =[nctot+nkmin:nctot+nkmax]  valence
-       !      ib_kq =[1:ncc]             core
-       !      ib_kq =[ncc+nkqmin:ncc+nkqmax]  valence range [nkqmin,nkqmax]
-       !   If jpm=1, ncc=0.
-       !   If jpm=2, ncc=ncore. nkqmin(k)=1 should be.
-       ! There is a little confusion. n1b index contains cores are after valence.
-       ! You can see codes to treat the confusion.
-       ! NOTE:
-       !  q+rk n2b vec_kq  vec_kq_g geig_kq cphi_kq  ngp_kq ngvecp_kq  isp_kq
-       !    rk n1b vec_k   vec_k_g  geig_k  cphi_k   ngp_k  ngvecp_k   isp_k
        jpmloop: do 1251 jpm  = 1, npm ! npm=1 usually (or =2)
           ibibloop: do 125 ibib = 1, nbnb(k,jpm) !---  ibib loop, ibib is decomposed to band index pair, it and itp
-             !! n1b,n2b --> core after valence.  it,itp --> valence after core
-             !          it_(ibib, jpm,k)= -999
-             !          itp_(ibib,jpm,k)= -999
+             !! n1b,n2b --> core after valence.  it,itp --> valence after core 
              if(ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 >nwhis) call rx( "x0kf_v4hz: iw>nwhis") ! sanity check
              if(n1b(ibib,k,jpm) > nkmax(k) ) cycle
              if(n2b(ibib,k,jpm) > nkqmax(k)) cycle
-             it =merge(nctot +n1b(ibib,k,jpm),             n1b(ibib,k,jpm)-nband,             n1b(ibib,k,jpm)<=nband) !val or core
-             itp=merge(ncc   +n2b(ibib,k,jpm)-nkqmin(k)+1, n2b(ibib,k,jpm)-nkqmin(k)+1-nband, n2b(ibib,k,jpm)<=nband) !val or core
+             it =merge(nctot +n1b(ibib,k,jpm),             n1b(ibib,k,jpm)-nband,             n1b(ibib,k,jpm)<=nband) !bandindex val or core
+             itp=merge(ncc   +n2b(ibib,k,jpm)-nkqmin(k)+1, n2b(ibib,k,jpm)-nkqmin(k)+1-nband, n2b(ibib,k,jpm)<=nband) !bandindex val or core
              if(crpa) then ! constraint RPA mode (juelich verison)
                 wpw_k =merge(readpkm4crpa(n1b(ibib,k,jpm),   rk(:,k), isp_k), 0d0, n1b(ibib,k,jpm)<=nband)
                 wpw_kq=merge(readpkm4crpa(n2b(ibib,k,jpm), q+rk(:,k), isp_kq),0d0, n2b(ibib,k,jpm)<= nband)
@@ -117,35 +97,25 @@ contains
                    iwc  (icount)= iw
                    itc  (icount)= it
                    itpc (icount)= itp
-                   jpmc (icount)= jpm !  write(stdo,"(a,6i5,d13.5)")'uuuuu k it itp iw jpm whw=',icount,k,it,itp,iw,jpm,whwc(icount)
+                   jpmc (icount)= jpm
+                   if(showicount)write(stdo,ftox)'x0kf_v4hz_init: icount jpm k it itp iw jpm whw=',&
+                        icount,jpm, k,it,itp,iw, ftof(whwc(icount))
                 endif
              enddo iwloop
 125       enddo ibibloop
 1251   enddo jpmloop
-110 enddo 
+110 enddo AccumulateIndex4icount
     ncount = icount
     ierr=0
     if(job==0) write(stdo,"('x0kf_v4hz_init: job=0 ncount ngb nqibz=',3i8)") ncount, ngb, nqibz
-  end function x0kf_v4hz_init
-  !! --------------------------------------------------------------------------------
-  subroutine X0kf_zmel ( q,iq,k, isp_k,isp_kq) ! zmel= <phi phi |M_I> for chi0, or chi0_pm 
-    use m_zmel,only: Dconjg_zmel
-    intent(in)   ::      q,iq,k, isp_k,isp_kq   
-    integer:: k,isp_k,isp_kq,iq 
-    real(8):: q(3)
-    integer::  irot=1 !, neibz,icc,ig,ikp,i,j,itimer,icount,iele !,eibzmoden
-    ncc= merge(0,nctot,npm==1) !stored to private variable
-    call Get_zmel_init(q+rk(:,k),q,irot,q, nkmin(k)+nctot,nkmax(k)+nctot,isp_k, nkqmin(k),nkqmax(k),isp_kq, nctot,ncc,iprx=.false.)
-    call Dconjg_zmel() 
-  end subroutine x0kf_zmel
+  endfunction x0kf_v4hz_init
   subroutine X0kf_v4hz (q, isp_k,isp_kq, iq, nmbas,  rcxq,epsppmode,iqxini, q00)
-    use m_ftox
-    intent(in)   ::     q, isp_k,isp_kq, iq, nmbas,     epsppmode,iqxini
+    intent(in)   ::     q, isp_k,isp_kq, iq, nmbas,       epsppmode,iqxini, q00 !q00 is optional
+    intent(out)  ::                                  rcxq
     !! === calculate chi0, or chi0_pm === ! eibzmode, 
     !! We calculate imaginary part of chi0 along real axis.
     !!
     !! NOTE: rcxq is i/o variable for accumulation. We use E_mu basis when chipm=F.
-    !!
     !!
     !! ppovl= <I|J> = O , V_IJ=<I|v|J>
     !! (V_IJ - vcoud_mu O_IJ) Zcousq(J, mu)=0, where Z is normalized with O_IJ.
@@ -180,8 +150,6 @@ contains
     logical :: iww2=.true.
     complex(8):: img=(0d0,1d0),zmelt2 !,zzz(ngbb)
     integer ::  nkmax1,nkqmax1, ib1, ib2, ngcx,ix,iy,igb !nkqmin, nkqmax,
-!    logical :: eibzmode
-!    integer::  nwgt(nqbz)
     real(8)::  wpw_k,wpw_kq,qa,q0a!, vec_kcrpa(3),vec_kqcrpa(3)
     integer::  irot=1         !, ntqxx,nbmax!,nctot
     integer::  neibz,icc,ig,ikp,i,j,itimer,icount,iele!,ngbb !eibzsym(ngrp,-1:1),,eibzmoden
@@ -189,9 +157,9 @@ contains
     integer::nkmin_,nkqmin_,izmel,ispold,nmini,nqini,nmtot,nqtot ,ispold2,ierr,iwmax,ifi0
     logical:: cmdopt0
     !! Main loop over k-points ---------------------------------------------------------
-    !! z1p = <M_ibg1 psi_it | psi_itp> < psi_itp | psi_it M_ibg2 >
-    !     ! zxq(iw,ibg1,igb2) = \sum_ibib imgw(iw,ibib)* z1p(ibib, igb1,igb2) !ibib means band pair (occ,unocc)
-
+    ! z1p = <M_ibg1 psi_it | psi_itp> < psi_itp | psi_it M_ibg2 >
+    !  zxq(iw,ibg1,igb2) = \sum_ibib imgw(iw,ibib)* z1p(ibib, igb1,igb2) !ibib means band pair (occ,unocc)
+    !
     !  zzmel(1:nbloch, ib_k,ib_kq)
     !      ib_k =[1:nctot]              core
     !      ib_k =[nctot+nkmin:nctot+nkmax]  valence
@@ -223,11 +191,11 @@ contains
     !! zmel(ngb, nctot+nt0,ncc+ntp0) in m_zmel
     !        nkmin:nt0,           nkqmin:ntp0
     !     nt0=nkmax-nkmin+1  , ntp0=nkqmax-nkqmin+1
-    kold = -999 
-    zmel0mode: if(cmdopt0('--zmel0')) then
+    zmel0mode: if(cmdopt0('--zmel0')) then !this is for epsPP0. Use zmel-zmel0 for matrix elements.
        zmel0block : block
          real(8)::  q1a,q2a,rfac00
          complex(8),allocatable:: zmel0(:,:,:)
+         kold = -999 
          q1a=sum(q00**2)**.5
          q2a=sum(q**2)**.5
          rfac00=q2a/(q2a-q1a)
@@ -241,15 +209,15 @@ contains
                call x0kf_zmel(q00,iqxini,k, isp_k,isp_kq)
                if(allocated(zmel0)) deallocate(zmel0)
                allocate(zmel0,source=zmel)
-               call x0kf_zmel(q,      iq,k, isp_k,isp_kq) !Get zmel(igb q,  k it occ,   q+k itp unocc)
+               call x0kf_zmel(q,      iq,k, isp_k,isp_kq)
                kold=k
             endif
             it  = itc(icount)  !occ      k
             itp = itpc(icount) !unocc    q+k
             iw  = iwc(icount)  !omega-bin
             jpm = jpmc(icount) ! \pm omega. Usual mode is only for jpm=1
-            igb2=1 !do igb2=1,nmbas  !we assume igb1=igb2=1 in this mode
-            igb1=1 !do ibg1=1,igb2
+            igb2=1 !We assume igb1=igb2=1 in this mode
+            igb1=1 
             if(abs(zmel0(igb1,it,itp))>1d10) cycle
             rcxq(igb1,igb2,iw,jpm)=rcxq(igb1,igb2,iw,jpm) &
                  + rfac00**2*(abs(zmel(igb1,it,itp))-abs(zmel0(igb1,it,itp)))**2 * whwc(icount)
@@ -257,7 +225,8 @@ contains
          goto 2000 
        endblock zmel0block
     endif zmel0mode
-    mainloop: do 1000 icount = 1,ncount
+    kold = -999 
+    mainloop4rcxqsum: do 1000 icount = 1,ncount
        k = kc(icount)
        nkmin_  = nkmin(k)
        nkqmin_ = nkqmin(k)
@@ -267,352 +236,36 @@ contains
           call x0kf_zmel(q, iq,k, isp_k,isp_kq) !Return zmel(igb q,  k it occ,   q+k itp unocc)
           kold=k
        endif
-       !! z1p = <M_ibg1(q) psi_it(k) | psi_itp(q+k)> < psi_itp | psi_it M_ibg2 >
+       !! z1p = <M_ibg1(q) psi_it(k)| psi_itp(q+k)> < psi_itp | psi_it M_ibg2 >
        !! zxq(iw,ibg1,igb2) = sum_ibib wwk(iw,ibib)* z1p(ibib, igb1,igb2)
-       !! n1b,n2b --> core after valence.  it,itp --> valence after core
-!       it  = itc(icount)  !occ      k
-!       itp = itpc(icount) !unocc    q+k
-!       iw  = iwc(icount)  !omega-bin
-!       jpm = jpmc(icount)      ! \pm omega
+       !! n1b,n2b --> core after valence.  it,itp index is valence after core (maybe corrected in future)
+       !  it  = itc(icount)  !occ      k
+       !  itp = itpc(icount) !unocc    q+k
+       !  iw  = iwc(icount)  !omega-bin
+       !  jpm = jpmc(icount)      ! \pm omega
        do igb2=1,nmbas  !this part dominates cpu time most time consuming...........
-          do igb1=1,nmbas !igb2
+          do igb1=1,igb2 !nmbas !igb2
              rcxq(     igb1,igb2,iwc(icount),jpmc(icount))= &
                   rcxq(igb1,igb2,iwc(icount),jpmc(icount)) &
                   +dconjg(zmel(igb1,itc(icount),itpc(icount)))*zmel(igb2,itc(icount),itpc(icount)) *whwc(icount)
              !NOTE: whwc is ImgWeight by tetrahedron method. If we skip zmel part, we should get joint DOS.
           enddo
        enddo
-1000 enddo mainloop
+1000 enddo mainloop4rcxqsum
 2000 continue 
     deallocate(nkmin,nkmax,nkqmin,nkqmax,whwc,kc,itc,itpc,iwc,jpmc)
-!    do concurrent (jpm=1:npm, iw=1:nwhis, igb2= 1:nmbas)       !note: eibzmode assumes nmbas1=nmbas2
-!       rcxq(igb2,1:igb2-1,iw,jpm) = dconjg(rcxq(1:igb2-1,igb2,iw,jpm)) ! Hermitianize. jun2012takao moved from dpsion5 ====
-!    enddo
-    write(stdo,"(' --- x0kf_v4hz: end')") !, 3d13.5)")
+    do concurrent (jpm=1:npm, iw=1:nwhis, igb2= 1:nmbas)       !note: eibzmode assumes nmbas1=nmbas2
+       rcxq(igb2,1:igb2-1,iw,jpm) = dconjg(rcxq(1:igb2-1,igb2,iw,jpm)) ! Hermitianize. jun2012takao moved from dpsion5 ====
+    enddo
+    write(stdo,ftox) " --- x0kf_v4hz: end"
     if(debug)write(stdo,"(' --- ', 3d13.5)")sum(abs(rcxq(1:nmbas,1:nmbas,1:nwhis,1:npm))),sum((rcxq(1:nmbas,1:nmbas,1:nwhis,1:npm)))
   end subroutine x0kf_v4hz
-end module m_x0kf
-!subroutine x0kf_vhz_symmetrize here removed. See old source code ~2022.
-!   subroutine X0kf_v4hz_symmetrize(q, iq, nolfco, zzr,nmbas, chipmzzr, eibzmode, eibzsym, rcxq)
-!     use m_readqgcou,only: qtt_, nqnum
-!     use m_rotMPB2,only:  rotMPB2
-!     intent(in)::                    q, iq, nolfco, zzr,nmbas, chipmzzr, eibzmode, eibzsym
-!     !! === symmetrization for EPIBZ mode ===
-!     integer(4):: nnc,iq,iatom,nctot,nbmx &
-!          ,jpm,ibib,itps,nt0,ntp0,ngp_kq,ngp_k,it,itp,iw,igb2,igb1, nn,no,isx,iclose,k
-!     real(8):: q(3),ebmx
-!     complex(8):: rcxq (nmbas,nmbas,nwhis,npm)
-!     complex(8):: imag=(0d0,1d0),trc,aaa !phase(natom),
-!     integer(4):: nadd(3)
-!     logical,parameter:: debug=.false.
-!     complex(8) :: zmelt1,zmelt2,zmeltt(ngb)      !...........................sf 21May02
-!     real(8) :: imagweight !............................sf 21May02
-!     real(8):: eband(nband)!,ebandr(nband),ebandqr(nband)
-!     integer(4):: verbose
-!     logical   :: nolfco !iepsmode
-!     integer(4):: nmbas, imb1,imb2, imb !nmbas1x !nmbas2,nmbas1,
-!     real(8):: vec_kq_g(3),vec_k_g(3),vec_kq(3),vec_k(3),quu(3),tolq=1d-8,quu1(3),quu2(3)!tolqu=1d-4,
-!     integer(4):: nbcut,nbcut2
-!     logical :: iww1=.true.,iww2=.true.
-!     complex(8):: img=(0d0,1d0)
-!     integer(4):: nkmin,  nkmax, nkqmin, nkqmax,nkmax1,nkqmax1
-!     integer(4):: ib1, ib2,      ngcx,ix,iy
-!     complex(8),target :: zzr(ngb,nmbas) !ppovlz(ngb,ngb),
-!     integer:: igb
-!     logical:: checkbelong,eibzmode, chipmzzr
-!     complex(8)::  zcousqc(ngb,ngb) !zcousq(ngb,ngb) ,
-!     integer::  eibzsym(ngrp,-1:1),neibz,icc,ig,eibzmoden,ikp,i,j,itimer,icount,iele
-!     integer:: irotm,nrotmx,ixx,iyy,itt,ntimer, nccc, nxx,iagain,irotm1,irotm2
-!     integer,allocatable:: i1(:,:),i2(:,:),nrotm(:)
-!     complex(8),allocatable:: zrotm(:,:),zrr(:,:),zrrc(:,:),zrr_(:,:,:),zrrc_(:,:,:),zmmm(:), &
-!          zrrx(:,:),rcxq_core(:,:), zcousqr(:,:,:),rcxq0(:,:),rcxq00(:,:),rcxq000(:,:),rcxqwww(:,:)
-!     integer:: irot=1
-!     integer:: ntqxx,nbmax
-!     !! == Symmetrizer of EIBZ PRB.81,125102(2010) Eq.(51) july2012takao ==
-!     !! This may be not so effective ---> only for limited cases?
-!     !! --- zrotm(J,J') = <Mbar^k_J| \hat{A}^k_i Mbar^k_J'>. ---
-!     !! We do \sum_i T_alpha_i [ zrotm_i^dagger (I,I') P_I'J' zrom_i(J'J) ]
-!     !! (exactrly speaking, we insert conversion matrix between Enu basis and M_I basis).
-!     !!
-!     !! input qin = q
-!     !! \hat{A}^k_i  is specified by symops(:,:,igx),and igxt (-1 for time-reversal).
-!     !! Note that k= \hat{A}^k_i(k) (S_A^k)
-!     !! See Eq.(51) around in PRB81 125102(2010)
-!     !!
-!     !! === zmelt conversion ===
-!     if(nolfco .AND. nmbas==1) then
-!        write(stdo,*)' nmbas=1 nolfco=T ---> not need to symmetrize'
-!        goto 9999
-!     endif
-!     !!
-!     if(eibzmode) then
-!        call iqindx2(q, ginv, qtt_, nqnum, ikp,quu) !to get ikp for timereversal mode
-!        if(sum(abs(q-quu))>tolq) call rx( 'x0kf_v4h_symmetrize: eibz 111 q/quu')
-!        neibz = sum(eibzsym(:,1))+sum(eibzsym(:,-1))
-!        ! timer=-1 means time reversal. eibzsym(ig,itimer) where ig: space rotation.
-!        write(stdo,"(' --- goto symmetrization --- ikp neibz q=',2i3,3f12.8)")ikp,neibz,q
-!        call cputid2(' --- x0kf: start symmetrization  ',0)
-!        ntimer=1
-!        if(sum(eibzsym(:,-1))>0) ntimer=2 !timereversal case
-!        allocate(zrotm(ngb,ngb),nrotm(ngrp*2))
-!        !!
-!        !! == Assemble rotantion matrx zrr,zrrc ==
-!        !! Rotation matrix zrrx can be a sparse matrix.
-!        !! Thus it is stored to  "i1(nrotmx,nccc),i2(nrotmx,nccc),zrr(nrotmx,icc),nrotm(icc)".
-!        !! See folloings: matmul(rcxqwww,zrrx) is given by
-!        !!     do irotm1 = 1,nrotm(icc)
-!        !!       rcxq0(:,i2(irotm1,icc)) = rcxqwww(:,i1(irotm1,icc)) * zrr(irotm1,i2(irotm1,icc))
-
-!        allocate(zrrx(nmbas,nmbas))
-!        nrotmx = 10000 !trial value
-!        do 1011  !this loop is only in order to to set large enough nrotmx.
-!           if(allocated(i1)) deallocate(i1,i2,zrr,zrrc)
-!           nccc=ngrp*2
-!           allocate(i1(nrotmx,nccc),i2(nrotmx,nccc),zrr(nrotmx,nccc),zrrc(nrotmx,nccc))
-!           i1=-99999
-!           i2=-99999
-!           zrr=-99999d0
-!           zrrc=-99999d0
-!           call cputid2(' --- x0kf:11111   :',0)
-!           icc=0
-!           do itimer=1,-1,-2
-!              if(ntimer==1 .AND. itimer==-1) exit
-!              if(itimer==1 ) itt=1
-!              if(itimer==-1) itt=2
-!              do ig=1,ngrp
-!                 if(eibzsym(ig,itimer)==1) then
-!                    icc=icc+1
-!                    !! Get rotation matrix zrrx, which can be a sparse matrix. Thus stored to zrr.
-!                    call rotMPB2(nbloch,ngb,q,ig,itimer,ginv,zrotm)
-!                    if(nolfco .AND. chipmzzr) then
-!                       !!   We assume <svec_I | svec_J >= \delta_IJ, In addition, we use fact that we have no IPW parts in svec.
-!                       !!   If IPW part exist, we may have to take into account <IPW|IPW> matrix, e.g. as in ppovlz.
-!                       !!   svec --> zzr
-!                       if(itimer==1) then
-!                          zrrx= matmul(transpose(dconjg(zzr)), matmul(zrotm, zzr))
-!                       else
-!                          zrrx= matmul(transpose(zzr), matmul(dconjg(zrotm), zzr))
-!                       endif
-!                    elseif(nolfco) then
-!                       call rx( 'x0kf_v4h_symmetrize: this case is not implemented xxxxxxxxxxxxxx')
-!                    else
-!                       !! zrotm(J,J') is the rotation matrix = <Mbar^k_J| \hat{A}^k_i Mbar^k_J'>
-!                       !! See rotMPB2 defined in readeigen.F.
-!                       !! zrrx(mu nu)= dconjg(Zcousq(I, mu)) *zrotm(I,J)* Zcousq(J, nu)
-!                       !! zrrx is very sparse matrix. Size is \sim ngb or something.
-
-!                       !$$$                if(itimer==1) then
-!                       !$$$                  call matmmsparse(zcousqinv,zrotm,zcousq,zrrx,ngb,1d-8,iele)
-!                       !$$$                  ! this means zrrx= matmul(zcousqinv,matmul(zrotm, zcousq))
-!                       !$$$                else
-!                       !$$$                  call matmmsparse(dconjg(zcousqinv),dconjg(zrotm),zcousq,zrrx,ngb,1d-8,iele)
-!                       !$$$                  ! this means zrrx= matmul(dconjg(zcousqinv),matmul(dconjg(zrotm), zcousq))
-!                       !$$$                endif
-!                       if(itimer==1) then
-!                          zrrx=zrotm
-!                          !                  call matmmsparse(zcousqinv,zrotm,zcousq,zrrx,ngb,1d-8,iele)
-!                          ! this means zrrx= matmul(zcousqinv,matmul(zrotm, zcousq))
-!                       else
-!                          zrrx=dconjg(zrotm)
-!                          !                  call matmmsparse(dconjg(zcousqinv),dconjg(zrotm),zcousq,zrrx,ngb,1d-8,iele)
-!                          ! this means zrrx= matmul(dconjg(zcousqinv),matmul(dconjg(zrotm), zcousq))
-!                       endif
-!                    endif
-!                    i1(:,icc)=0
-!                    i2(:,icc)=0
-!                    irotm=0
-!                    iagain=0
-!                    do ix=1,ngb
-!                       do iy=1,ngb
-!                          if(abs(zrrx(ix,iy))>1d-8) then
-!                             irotm=irotm+1
-!                             if(irotm>nrotmx) then
-!                                iagain=1
-!                             endif
-!                             if(iagain/=1) then
-!                                i1(irotm,icc)=ix
-!                                i2(irotm,icc)=iy
-!                                zrr(irotm,icc) = zrrx(ix,iy)
-!                                zrrc(irotm,icc)= dconjg(zrr(irotm,icc))
-!                             endif
-!                          endif
-!                       enddo
-!                    enddo
-!                    if(iagain==1) then
-!                       nrotmx=irotm !enlarge allocation and do things again.
-!                       write(stdo,*)' warn:(slow speed) xxxx goto 1011 xxxxxx nrotmx+=nrotmx+10000 again'
-!                       goto 1011
-!                       ! nlarge nrotmx ang try it again.
-!                    endif
-!                    nrotm(icc)=irotm
-!                    if(debug) write(stdo,*)'ig itimer icc nrotm=',ig,itimer,icc,nrotm(icc) ,iele
-!                 endif
-!              enddo
-!           enddo
-!           exit
-!           continue !only when nrotmx overflow.
-! 1011   enddo
-
-!        !! === main part to obtain symmetrized rcxq  ===
-!        !! neibz is total number of symmetrization operation.
-!        !!      rcxq is rotated and accumulated; finally divied by neibz
-!        zcousqc = dconjg(transpose(zcousq))
-!        if(debug) call cputid2(' --- x0kf:qqqqq222ini:',0)
-!        ! OMP parallel private(rcxq000,icc,itt,icount,rcxqwww,rcxq00,rcxq0,rcxq_core)
-!        allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb),rcxqwww(ngb,ngb),rcxq_core(ngb,ngb))
-!        ! OMP master
-!        !$         write(stdo,'(a,i5,a,i5)') 'OMP parallel nwhis, threads=',omp_get_num_threads(),' nwhis=',nwhis
-!        ! OMP end master
-!        ! OMP do
-!        do iw=1,nwhis
-!           do jpm=1,npm
-!              rcxq000 = 0d0
-!              icc=0
-!              do itimer=1,-1,-2
-!                 if(itimer==1 ) itt=1
-!                 if(itimer==-1) itt=2
-!                 icount=0
-!                 if(itimer==1) then
-!                    rcxqwww = rcxq(:,:,iw,jpm)
-!                 else
-!                    rcxqwww = transpose(rcxq(:,:,iw,jpm))
-!                 endif
-!                 rcxq00 = 0d0
-!                 do ig=1,ngrp
-!                    if(eibzsym(ig,itimer)==1) then
-!                       icount=icount+1
-!                       icc=icc+1
-!                       rcxq0 =0d0
-
-!                       !$$$               if(itimer==1) then
-!                       !$$$               do irotm1 = 1,nrotm(icc)
-!                       !$$$               do irotm2 = 1,nrotm(icc)
-!                       !$$$               rcxq0(i2(irotm2,icc),i2(irotm1,icc)) =rcxq0(i2(irotm2,icc),i2(irotm1,icc))
-!                       !$$$     &              +    zrrc(irotm2,icc)* rcxq(i1(irotm2,icc),i1(irotm1,icc),iw,jpm)*zrr(irotm1,icc)
-!                       !$$$               enddo
-!                       !$$$               enddo
-!                       !$$$               else
-!                       !$$$               do irotm1 = 1,nrotm(icc)
-!                       !$$$               do irotm2 = 1,nrotm(icc)
-!                       !$$$               rcxq0(i2(irotm1,icc),i2(irotm2,icc)) =rcxq0(i2(irotm1,icc),i2(irotm2,icc)) !transpose
-!                       !$$$     &              +    zrrc(irotm2,icc)* rcxq(i2(irotm2,icc),i1(irotm1,icc),iw,jpm)*zrr(irotm1,icc)
-!                       !$$$               enddo
-!                       !$$$               enddo
-!                       !$$$               endif
-
-!                       !!  Followings are equivalent with
-!                       !!            rcxq00= rcxq00 + matmul(zrrc_(:,:,icc),matmul(rcxqwww,zrr_(:,:,icc)))
-!                       do irotm1 = 1,nrotm(icc)
-!                          !                 if(abs(zrr(irotm1,icc))<1d-8) cycle
-!                          rcxq0(:,i2(irotm1,icc)) =rcxq0(:,i2(irotm1,icc)) + rcxqwww(:,i1(irotm1,icc)) * zrr(irotm1,icc)
-!                       enddo
-!                       do irotm2 = 1,nrotm(icc)
-!                          !                 if(abs(zrrc(irotm2,icc))<1d-8) cycle
-!                          rcxq00(i2(irotm2,icc),:)= rcxq00(i2(irotm2,icc),:) + zrrc(irotm2,icc) * rcxq0(i1(irotm2,icc),:)
-!                       enddo
-
-!                       !               if(itimer==1) then
-!                       !                 rcxq000 = rcxq000 + rcxq00
-!                       !               else
-!                       !                 rcxq000 = rcxq000 + transpose(rcxq00)
-!                       !               endif
-
-!                       !$$$               do irotm = 1,nrotm(icc)
-!                       !$$$                iyy = i1(irotm,icc)
-!                       !$$$                iy  = i2(irotm,icc)
-!                       !$$$                rcxq0(:,iy)= rcxq0(:,iy)+ rcxq(:,iyy,iw,jpm)* zrr(irotm,icc)
-!                       !$$$               enddo
-!                       !$$$               do irotm = 1,nrotm(icc)
-!                       !$$$                iyy = i1(irotm,icc)
-!                       !$$$                iy  = i2(irotm,icc)
-!                       !$$$                rcxq00(iy,:)= rcxq00(iy,:)+ dconjg(zrr(irotm,icc)) * rcxq0(iyy,:)
-!                       !$$$               enddo
-!                       !$$$
-!                       ! cccccccccccccccccccccccccccccccccccccccccccccccccccccc
-!                       !               if(iw==1.and.jpm==1) then
-!                       !                  write(stdo,"('bbbbbbb ig icc iw jpm rcxq', 4i3, 13d13.6)")
-!                       !     &                 ig,icc,iw,jpm, sum(abs(rcxq00)), rcxq00(1,1),sum(abs(rcxqwww)),sum((rcxqwww))
-!                       !               endif
-!                       ! ccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-!                    endif
-!                 enddo
-
-!                 !$$$           if(itimer==1) then
-!                 !$$$             rcxq000(:,:) = matmul(zcousqc,matmul(rcxq00,zcousq))
-!                 !$$$c$$$c               call zgemm("N","N",ngb,ngb,ngb, (1d0,0d0), rcxq00, ngb, zcousq,ngb, (0d0,0d0), rzc,ngb)
-!                 !$$$c$$$c               call zgemm("N","N",ngb,ngb,ngb, (1d0,0d0), zcousqc,ngb, rzc,ngb, (0d0,0d0), rcxq000,ngb)
-!                 !$$$           elseif(icount>0) then
-!                 !$$$c$$$c           write(stdo,*)'qqqqq icount=',icount
-!                 !$$$c$$$c           rcxq000(:,:) = rcxq000(:,:) + transpose(matmul(transpose(zcousq),matmul(rcxq00,dconjg(zcousq))))
-!                 !$$$             rcxq000(:,:) = rcxq000(:,:) +   matmul(matmul(zcousqc,transpose(rcxq00)),zcousq)
-!                 !$$$           endif
-
-!                 if(itimer==1) then
-!                    rcxq000=rcxq00
-!                 else
-!                    rcxq000=rcxq000+rcxq00
-!                 endif
-!              enddo
-!              rcxq_core = rcxq000/neibz
-! !#if 1
-! !             !! matmul(rcxq(:,:,iw,jpm),zcousq) fails in ifort 14.0.3.
-! !             !! It looks that ifort 14.0.3 has a bug
-! !             !! But, zgemm works. So I changed like that.
-! !             call zgemm('N','N',ngb,ngb,ngb,(1.0d0,0.0d0),rcxq_core,ngb,zcousq, ngb, (0.0d0,0.0d0),rcxq000,ngb)
-! !             call zgemm('N','N',ngb,ngb,ngb,(1.0d0,0.0d0),zcousqc  ,ngb,rcxq000,ngb, (0.0d0,0.0d0),rcxq_core,ngb)
-! !             rcxq(:,:,iw,jpm) = rcxq_core
-! !#else
-!              rcxq(:,:,iw,jpm) = matmul(zcousqc,matmul(rcxq_core,zcousq))
-! !#endif
-!           enddo
-!        enddo
-!        ! OMP end  do
-!        deallocate(rcxq00,rcxq000,rcxq0,rcxqwww)
-!        ! OMP end parallel
-!        deallocate(zrotm,i1,i2)
-
-!        !$$$        allocate(zcousqr(ngb,ngb,neibz),rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxqtr(ngb,ngb))
-!        !$$$        icc=0
-!        !$$$        do itimer=1,-1,-2
-!        !$$$        do ig=1,ngrp
-!        !$$$          if(eibzsym(ig,itimer)==1) then
-!        !$$$            icc=icc+1
-!        !$$$            if(itimer==1) then
-!        !$$$              call rotMPB(zcousq,nbloch,ngb,q,ig,itimer,ginv,zcousqr(1,1,icc))
-!        !$$$            else
-!        !$$$!! time reversal mapping ---
-!        !$$$              call rotMPB(dconjg(zcousq),nbloch,ngb,q,ig,itimer,ginv,zcousqr(1,1,icc))
-!        !$$$            endif
-!        !$$$          endif
-!        !$$$        enddo
-!        !$$$        enddo
-!        !$$$
-!        !$$$        do iw=1,nwhis
-!        !$$$        do jpm=1,npm
-!        !$$$          rcxq0=0d0
-!        !$$$          icc=0
-!        !$$$c          do itimer=1,1 !1,-1,-2
-!        !$$$          do itimer=1,-1,-2
-!        !$$$          do ig=1,ngrp
-!        !$$$            if(eibzsym(ig,itimer)==1) then
-!        !$$$             icc=icc+1
-!        !$$$             rcxq00(:,:) = matmul(dconjg(transpose(zcousqr(:,:,icc))),
-!        !$$$     &                          matmul(rcxq(:,:,iw,jpm),zcousqr(:,:,icc)))
-!        !$$$!! time reversal mapping ---
-!        !$$$             if(itimer==-1) rcxq00(:,:) = transpose(rcxq00)
-!        !$$$             rcxq0(:,:) = rcxq0(:,:)+ rcxq00(:,:)
-!        !$$$            endif
-!        !$$$          enddo
-!        !$$$          enddo
-!        !$$$          rcxq(:,:,iw,jpm)=rcxq0(:,:)/neibz
-!        !$$$        enddo
-!        !$$$        enddo
-!        !$$$        deallocate(zcousqr,rcxq0,rcxq00,rcxqtr)
-!        if(debug) call cputid2(' --- qqqqq222end:',0)
-!     endif
-! 9999 continue
-!     write(stdo,"(' --- x0kf_v4hz_symmetrize: end')")
-!   end subroutine x0kf_v4hz_symmetrize
-!end module m_x0kf
-
+  subroutine X0kf_zmel( q,iq,k, isp_k,isp_kq) ! Return zmel= <phi phi |M_I> in m_zmel
+    intent(in)   ::     q,iq,k, isp_k,isp_kq   
+    integer:: k,isp_k,isp_kq,iq 
+    real(8):: q(3)
+    call get_zmel_init(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot, ns2=nkmax(k)+nctot, ispm=isp_k, &
+         nqini=nkqmin(k), nqmax=nkqmax(k), ispq=isp_kq,&
+         nctot=nctot, ncc=merge(0,nctot,npm==1), iprx=.false., zmelconjg=.true.)
+  end subroutine x0kf_zmel
+end module m_x0kf !subroutine x0kf_vhz_symmetrize here removed. See old source code ~2022.

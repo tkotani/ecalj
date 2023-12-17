@@ -14,7 +14,7 @@ module m_zmel
   use m_readVcoud,only: zcousq,ngc,ngb !! zcousq is the eigenfuncition of the Coulomb matrix
   ! OUTPUT: zmel(nbb,nmtot, nqtot) ,nbb:mixproductbasis, nmtot:middlestate, nqtot:endstate
   complex(8),allocatable,protected,public :: zmel(:,:,:)
-  public:: Get_zmel_init,Dconjg_zmel, Mptauof_zmel,Setppovlz,Setppovlz_chipm ! Call mptauof_zmel and setppovlz in advance to get_zmel_init
+  public:: Get_zmel_init, Mptauof_zmel,Setppovlz,Setppovlz_chipm ! Call mptauof_zmel and setppovlz in advance to get_zmel_init
   private
   integer,allocatable,private :: miat(:,:)
   real(8),allocatable,private :: tiat(:,:,:),shtvg(:,:)
@@ -28,9 +28,6 @@ module m_zmel
   integer:: nbb,nbbx=0!nbb:1st dimension of zmel. MPB
   real(8), parameter :: pi=3.1415926535897932D0
 contains
-  subroutine Dconjg_zmel()    
-    zmel = dconjg(zmel)
-  end subroutine Dconjg_zmel
   subroutine setppovlz(q,matz) ! Set ppovlz for given q
     intent(in)::       q,matz
     logical:: matz
@@ -106,8 +103,8 @@ contains
       enddo
     endblock ppbafp_v2_zmel
   end subroutine mptauof_zmel
-  subroutine get_zmel_init(q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc,iprx)
-    intent(in)::           q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc,iprx
+  subroutine get_zmel_init(q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc, iprx,zmelconjg)
+    intent(in)::           q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc, iprx,zmelconjg
     ! ns1:ns2 is the range of middle states (count including core index (i=1,nctot). Thus kth valence is at nctot+k.
     !! Get zmel= <phiq(q,ncc+nqmax,ispq) |phim(q-rkvec, ns1:ns2, ispm) MPB(rkvec,ngb)> ZO^-1
     !! kvec is in the IBZ, rk = Rot_irot(kvec)
@@ -126,6 +123,7 @@ contains
     integer:: isp,nmmax,ns1,ns2,nqmax,irot,ispq,ispm,nmini,nqini, nctot,ncc
     real(8) ::  quu(3),q(3), kvec(3),rkvec(3)
     real(8),parameter::tolq=1d-8
+    logical,optional:: zmelconjg
     nmini = ns1          !starting index of middle state  (nctot+nvalence order)
     nmmax = ns2-nctot    !end      index of middle state  (nctot+nvalence order)
     ZmeltMain: Block
@@ -185,7 +183,7 @@ contains
            !r <psi(k+q,t') | core(k,t) B(R,i)> = S[RLn]  cphik(RLn,k+q,t')^*  * ppb
            !i nt0        = no. k states
            !i ntp0       = no. kq states
-           !i cphik coeefficients of MT part or valence eigenfunction.
+           !i cphik,cphikq:  coefficients of MT part or valence eigenfunction.
            !i icore      = index for core states
            !i ncore      = no. core states in each class
            !i ppb        = <Phi(RLn) Phi(RL'n') B(R,i)>
@@ -197,11 +195,6 @@ contains
            !o zpsi2b     =  the matrix elements
            complex(8):: zppb(nlnmx,nlnmx),zz(nlnmx,ntp0)
            integer:: iasx(natom),i,iap,ias,ib,ic,icp,nc,nc1,nv,ics,itp
-           !    call psicb_v3  ( nctot,ncc,nmmax,nqmax,iclass,expikt, &
-           !         cphim(1,nmini), & ! middle phi
-           !         cphiq(1,nqini), & ! end phi
-           !         ppb,  nblocha, imdim,iatomp, mdimx,nlmto,nbloch,nlnmx,natom,nclass, icore,ncore,nl,nnc, &
-           !         zmelt(1:nbloch,:,:))
            if(sum(ncore(iclass(1:natom)))/= nctot) call rx( "psicb_v3:sum(ncore) wrong")
            if(ncc/=0 .AND. ncc/=nctot) call rx( "psicb_v3: ncc/=0 and ncc/=ncctot")
            associate(nmmax=>ntp0,phase=>expikt,mdim=>nblocha, &
@@ -370,10 +363,9 @@ contains
       endif
       deallocate(zmelt)
     EndBlock ZmeltMain
+    if(present(zmelconjg)) zmel=dconjg(zmel)
   end subroutine get_zmel_init
 end module m_zmel
-
-
 
 !  subroutine GramSchmidt_zmel() !oct15 2021 !experimenal
 !    integer:: igb=1,it,itt

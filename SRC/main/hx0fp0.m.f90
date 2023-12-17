@@ -30,7 +30,7 @@ program hx0fp0
   use m_qbze,only: Setqbze, nqbze,nqibze,qbze,qibze
   use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
   use m_readVcoud,only: Readvcoud,vcousq,zcousq,ngb,ngc
-  use m_x0kf,only: X0kf_v4hz, X0kf_v4hz_init,x0kf_zmel,ncount,kc !X0kf_v4hz_symmetrize,
+  use m_x0kf,only: X0kf_v4hz, X0kf_v4hz_init,ncount,kc !X0kf_v4hz_symmetrize,
 !  use m_eibz,only:Seteibz, nwgt,neibz,igx,igxt,eibzsym
   use m_llw,only: WVRllwR,WVIllwI,MPI__sendllw2
   use m_w0w0i,only: w0w0i
