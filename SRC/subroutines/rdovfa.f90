@@ -41,6 +41,7 @@ contains
     complex(8) ,allocatable :: cv_zv(:)
     character msg*23, strn*120
     logical :: lfail, l_dummy_isanrg,isanrg
+    include 'mpif.h'
     call tcn('rdovfa')
     ipr   = iprint()
     msg   = '         File mismatch:'
@@ -84,10 +85,11 @@ contains
              lfail = iofa ( spidr,n0,nxi ( is ),exi ( 1,is ),hfc &
                   ( 1,1,is ),hfct ( 1,1,is ),rsmfa ( is ),z0,rmt0 &
                  ,a0,nr0,qc,ccof,ceh,stc,rv_a_orhofa( is )%v,sspec &
-                  ( is ) %rv_a_orhoc,rv_a_ov0a ( is ) %v,ifi,'read' )    < 0
-             if (lfail) call rxs('missing species data, species ',spid(is))
+                 ( is ) %rv_a_orhoc,rv_a_ov0a ( is ) %v,ifi,'read' )    < 0
+             if(lfail) call rx('you did lmfa? Readin freeatom')
           endif
        endif
+       call mpi_barrier(MPI_COMM_WORLD,ierr)
        call mpibc1(nr0,1,2,mlog,'rdovfa','nr0')
        call mpibc1(nxi(is),1,2,mlog,'rdovfa','nxi')
        call mpibc1(exi(1,is),nxi(is),4,mlog,'rdovfa','exi')

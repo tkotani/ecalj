@@ -89,6 +89,8 @@ integer function iofa(spid,nxi0,nxi,exi,hfc,hfct,rsm,z,rmt,a,nr,qc,ccof,ceh,stc,
   endif
   iofa = 0
   return
-998 if(ipr > 0) write(stdo,'('' iofa  : missing species id ... nothing read'')')
+998 continue
+  iofa=-1
+  if(ipr > 0) write(stdo,'('' iofa  : missing species id ... nothing read'')')
 333 format(1p,4e26.16)
 end function iofa
