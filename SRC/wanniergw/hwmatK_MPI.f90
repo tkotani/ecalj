@@ -49,7 +49,7 @@ program hwmatK_MPI
   use m_genallcf_v3,niwg=>niw
   use m_keyvalue,only: getkeyvalue
   use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
-  use m_zmel,only: ppbafp_v2
+  use m_zmel_old,only: ppbafp_v2
   use m_hamindex0,only: readhamindex0,iclasst
   ! RS: MPI module
   use rsmpi

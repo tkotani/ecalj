@@ -14,7 +14,7 @@ FFLAGS_COMMON= -g -fimplicit-none -finit-integer=NaN -finit-real=NaN $(module)
 FFLAGS = -O2  $(FFLAGS_COMMON)
 FFLAGS_LESS = -O0   $(FFLAGS_COMMON)
 FFLAGS_LESS2 = -O0  $(FFLAGS_COMMON)
-FFLAGS_LESS3 = -O0  $(FFLAGS_COMMON)
+FFLAGS_LESS3 = -O0 -g  -fbacktrace $(FFLAGS_COMMON)
 FFLAGS_NONE = -O0   $(FFLAGS_COMMON)
 
 
@@ -43,6 +43,8 @@ $(obj_path)/iopen.o: $(maxloc)/iopen.f90
 	
 # ##### Patch section #############
 $(obj_path)/mkqp.o: $(subr)/mkqp.f90
+	$(FC) $(FFLAGS_LESS3) -c $< -o $@
+$(obj_path)/m_zmel.o: $(subr)/m_zmel.f90
 	$(FC) $(FFLAGS_LESS3) -c $< -o $@
 
 # $(obj_path)/hunti.o: $(subr)/hunti.f90

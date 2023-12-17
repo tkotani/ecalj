@@ -79,7 +79,7 @@ module m_sxcf_main
   use m_readqg,only   : Readqg0
   use m_readeigen,only: Readeval
   use m_keyvalue,only   : Getkeyvalue
-  use m_zmel,only : Get_zmel_init, Setppovlz, Setppovlz_chipm, zmel
+  use m_zmel,only : Get_zmel_init, Setppovlz,  zmel !Setppovlz_chipm,
   use m_itq,only: itq,ntq,nbandmx
   use m_genallcf_v3,only: nlmto,nspin,nctot,niw,ecore !,symgg
   use m_read_bzdata,only: qibz,qbz,wk=>wbz,nqibz,nqbz,wklm,lxklm,nq0i, wqt=>wt,q0i, irk
