@@ -34,7 +34,7 @@ contains
     integer :: modeAddinversion,nsgrp,npgrp,ibas,iwdummy1(1),idest,ig,iprint,igets,isym(10),j1,j2,lpgf,nclass,ngen, nggen,incli
     integer:: iv_a_oips(nbas),iclass(nbas),ifind, iv_a_oics(nbas),iv_a_oistab(ngmx*nbas)
     character(8) :: slabl(*),ssymgr*(*)
-    character(120) :: gens
+    character(1000) :: gens
     real(8) :: gen(3,3,ngnmx), rv_a_oag(3,ngmx),rv_a_osymgr(3,3,ngmx)
     integer,allocatable ::  iv_a_onrc (:), iv_a_oipc(:) 
     logical:: symfind
