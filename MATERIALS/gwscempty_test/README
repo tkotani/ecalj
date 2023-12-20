@@ -1,0 +1,3 @@
+# empty run test. Not meaningful result. Only allocation check. And where is time-consuing.
+Search --emptyrun for SRC/*/*.f90 and examine SRC/exec/gwscempy 
+gwscempty -np 8 0 lagao3
