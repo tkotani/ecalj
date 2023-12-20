@@ -125,7 +125,7 @@ contains
     iqend = nqibz             
     allocate(zsecall(ntq,ntq,nqibz,nspinmx)) 
     zsecall = 0d0
-    if(.not.exchange) then! Read WV* containing W-v in MPB
+    if(.not.exchange.and.(.not.emptyrun)) then! Read WV* containing W-v in MPB
        allocate(ifrcw(iqini:iqend),ifrcwi(iqini:iqend))
        do kx=iqini,iqend
           if(any(kx==kxc(:))) then !only for requied files for this rank
@@ -277,12 +277,12 @@ contains
                     irs=1
                  endif
               endif
+              if(emptyrun) cycle
               do iw=irs,2 !Set wv3(:,:,0:2). 0:2 means ix:ix+2
                  read(ifrcw(kx),rec=iw+ix-nw_i+1) zw ! direct access Wc(omega) = W(omega) - v
                  ww=>zw(1:ngb,1:ngb)
                  wv3(:,:,iw)=(ww+transpose(dconjg(ww)))/2d0 !hermite part
               enddo ! wv3 should contain zw(ix+0:ix+2) now
-              if(emptyrun) cycle
               ikeep=ix
               do itp=1,ntqxx !lbound(zsec,1),ubound(zsec,1)
                  do it =ns1,ns2r ! for it for given itp,ix

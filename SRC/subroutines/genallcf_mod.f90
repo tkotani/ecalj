@@ -10,7 +10,7 @@ module m_genallcf_v3 ! Readin starting data dat in GWinput
        nocc(:,:,:),nunocc(:,:,:),nindxc(:,:),lcutmxa(:)
   integer,protected,public:: nclass,natom,nspin,nl,nn,nnv,nnc,&
        nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot, niw
-  real(8),protected,public::  plat(3,3),alat,deltaw,esmr,delta,tpioa
+  real(8),protected,public::  plat(3,3),alat,deltaw,esmr,delta,tpioa,qval
   real(8), allocatable,protected,public:: pos(:,:),z(:),ecore(:,:) !,symgg(:,:,:)
   character(8),allocatable,protected,public:: spid(:)
   character(8),allocatable,protected,public :: clabl(:)
@@ -50,7 +50,7 @@ contains
     if(done_genallcf_v3) call rx('genallcf_v3 is already called')
     done_genallcf_v3=.true.
     open(newunit=ifi,file='LMTO',form='unformatted')
-    read(ifi) natom,alat,plat,nspin,nl,nnv,nnc,nrx!,n1,n2,n3
+    read(ifi) natom,alat,plat,nspin,nl,nnv,nnc,nrx,qval !,n1,n2,n3
     allocate(pos(3,natom))    !positions of atoms
     nclass = natom  !We set nclass = natom through the GW calculations
     allocate(clabl(natom),z(natom),spid(1:natom))

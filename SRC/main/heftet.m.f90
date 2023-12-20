@@ -1,7 +1,7 @@
 program heftet ! Calculates the Fermi energy by tetrahedron method. 
   use m_read_bzdata,only: read_bzdata, idteti,qbz,qibz,dq_,nqibz,ntetf,nteti,ginv,nqbz
   use m_genallcf_v3,only: genallcf_v3, nclass,natom,nspin,nl,nn,nnv,nnc, nlmto,nlnmx, nctot,niw
-  use m_genallcf_v3,only: alat, delta,deltaw,esmr,clabl,iclass, plat, pos,z,ecore, konf,nlnx
+  use m_genallcf_v3,only: alat, delta,deltaw,esmr,clabl,iclass, plat, pos,z,ecore, konf,nlnx,valn=>qval
   use m_hamindex,only:   Readhamindex,qtt,nqtt
   use m_readeigen,only: init_readeigen,readeval
   use m_tetrakbt,only: tetrakbt_init, kbt
@@ -17,7 +17,7 @@ program heftet ! Calculates the Fermi energy by tetrahedron method.
        nprecx,nblochpmx2,nwt,niwt, nqnum,mdimx,nblochpmx, ifrcw,ifrcwi,  noccxv,maxocc,noccx,ifvcfpout,iqall,iaf,ntq, &
        i,k, nq,is,ip,iq,idxk,ifoutsex,iclose,nq0i,ig,iimdim, ifreqx,ifreqw,iwx,iexpa,mxkp,nqibzxx,ntet,nene,iqi, ix,iw, &
        nlnx4,niwx,irot,invr,invrot,ivsum, ifoutsec,ntqx, nq2,ntq2,     ndble=8,ifev(2)
-  real(8) ::tpia,vol,voltot,rs,alpha, qfermi,efx,valn,efnew,edummy,efz,qm,xsex,egex, &
+  real(8) ::tpia,vol,voltot,rs,alpha, qfermi,efx,efnew,edummy,efz,qm,xsex,egex, &
        zfac1,zfac2,dscdw1,dscdw2,dscdw,zfac,efxx2,        lowesteb
   logical :: lqall
   integer,allocatable :: itq(:)
@@ -93,12 +93,12 @@ program heftet ! Calculates the Fermi energy by tetrahedron method.
   write(6,'("    deltaw  =",f13.6)') deltaw
   write(6,'("    esmr    =",f13.6)') esmr
   write(6,'("    alat voltot =",2f13.6)') alat, voltot
-  open(newunit=ifi,file='efermi.lmf')
-  read(ifi,*)
-  read(ifi,*)
-  read(ifi,*)
-  read(ifi,*) valn !Get number of valence electron valn
-  close(ifi)
+!  open(newunit=ifi,file='efermi.lmf')
+!  read(ifi,*)
+!  read(ifi,*)
+!  read(ifi,*)
+!  read(ifi,*) valn !Get number of valence electron valn
+!  close(ifi)
   if(imode==1 .OR. imode==5) then
      call Readhamindex()
      call init_readeigen() !initialization of readEigen

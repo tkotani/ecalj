@@ -7,7 +7,7 @@ program rdata4gw_v2
        zz,aa,bb,ec=>ec_d, gx_raw=>gx_d,gcore=>gcore_d,plat, alat, efermi, &
        bas,laf,ibasf,nqbz,  nqnum,ngpmx,ngcmx,nqnumc,nqtt, &
        QpGcut_psi,QpGcut_cou,qtt, &
-       ngvecptt,ngvecctt,ngptt,ngctt, ngplist,ndimhall,iqindex,qplist,nqirr
+       ngvecptt,ngvecctt,ngptt,ngctt, ngplist,ndimhall,iqindex,qplist,nqirr, qval !qval at 2023-12-20
   use m_read_bzdata,only: Read_bzdata, &
        nqibz,qibz, nq0i,nq0iadd,wt,q0i,iq0pin
   use m_lgunit,only: m_lgunit_init
@@ -569,7 +569,7 @@ program rdata4gw_v2
   write(stdo,*) " --- Write LMTO file(crystal structure and so on) ---"
   nl=lmxax+1
   open(newunit=ifigwin,file='LMTO',form='unformatted')
-  write(ifigwin) nbas,alat,plat,nsp,nl,nnv,nnc,nrmx
+  write(ifigwin) nbas,alat,plat,nsp,nl,nnv,nnc,nrmx,qval
   write(ifigwin) bas,zz(iclass(1:nbas)),spid(1:nbas)
   write(ifigwin) laf,ibasf
   close(ifigwin)

@@ -4,7 +4,7 @@ module m_sugw
   private
   public:: m_sugw_init
 contains
-  subroutine m_sugw_init (socmatrix,eferm,vmag) !dipolematrix,
+  subroutine m_sugw_init (socmatrix,eferm,vmag,qval) !dipolematrix,
     use m_ext,only:   sname
     use m_suham,only: ndham=>ham_ndham !max dimension of hamiltonian +napwad (for so=0,2)
     use m_lmfinit,only: ham_pwmode,pwemax,ham_oveps,lrsig=>ham_lsig,nlmto,lso
@@ -29,9 +29,11 @@ contains
     use m_zhev,only: zhev_tk4
     use m_hambl,only: hambl
     implicit none
+    intent(in)::          socmatrix,eferm,vmag,qval
     !! == Driver for fpgw (to prepare eigenfuncitons for fpgw) ==
     !! NOTE: following documents are not carefully examined. Not believe everything.
     ! i Inputs
+    ! ! qval is passed to gwb
     ! i   osig,otau,oppi  augmentation matrices, s_rv1
     ! i   sham%rv_a_ohrs: real space Sigma_vxc
     ! i   nbas  :size of basis
@@ -75,7 +77,7 @@ contains
     !! ----------------------------------------------------------------------
     integer:: ham_lsig
     integer:: jobgw=1 , lh(n0)
-    real(8):: rsml(n0), ehl(n0) ,eferm
+    real(8):: rsml(n0), ehl(n0) ,eferm,qval
     logical :: lwvxc,cmdopt0
     integer :: i,i1,i2,iat,ib,ibr,icore,ierr,ifeigen,&! & ifi,
          ifiqg,iflband(2),ifqeigen,ifsyml,igets,igetss,iix,iline, &
@@ -298,7 +300,7 @@ contains
     if(master_mpi) then
        open(newunit=ifigwbhead,file='gwb.head',form='unformatted')
        write(ifigwbhead)nbas,nsp,ndima,ndham,maxval(lmxa(1:nbas)),ncoremx/nsp,nrmx,plat,alat,nqirr,nqibz
-       write(ifigwbhead)bas,lmxa,qplist,ngplist,ndimhall
+       write(ifigwbhead)bas,lmxa,qplist,ngplist,ndimhall,qval
        close(ifigwbhead)
     endif
     deallocate(ips,lmxa)

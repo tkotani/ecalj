@@ -86,7 +86,7 @@ module m_lmf2gw
   real(8),allocatable :: &
        zz(:),aa(:),bb(:),ec_d (:,:,:),evl_d(:,:,:), &
        gx_d(:,:,:,:,:),gcore_d(:,:,:,:), bas(:,:)
-  real(8):: plat(3,3), alat, efermi
+  real(8):: plat(3,3), alat, efermi,qval
   complex(8),allocatable:: cphi_d(:,:,:,:)
   complex(8),allocatable:: geig_d(:,:,:,:)
   !      real(8),allocatable :: qirr(:,:)
@@ -147,7 +147,7 @@ contains
     open(newunit=ifigwb,file='gwb.head',form='unformatted')
     read (ifigwb) nbas,nsp,ldim2,nbandmx,lmxamx,ncoremx,nrmx,plat,alat,nqirr
     allocate(bas(3,nbas),lmxaa(nbas),qplist(3,nqirr),ngplist(nqirr),ndimhall(nqirr))
-    read(ifigwb) bas,lmxaa,qplist,ngplist,ndimhall
+    read(ifigwb) bas,lmxaa,qplist,ngplist,ndimhall,qval
     close(ifigwb)
     call readhamindex0()
     nclass=nclass_in

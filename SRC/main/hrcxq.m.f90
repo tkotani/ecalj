@@ -45,9 +45,10 @@ program hrcxq
   character(10) :: i2char
   character(20):: outs=''
   integer:: ipart
-  logical:: cmdopt2
+  logical:: cmdopt2,emptyrun,cmdopt0
   call MPI__Initialize()
   call M_lgunit_init()
+  emptyrun=cmdopt0('--emptyrun')
   call MPI__consoleout('hrcxq')
   call cputid (0)
   if(verbose()>=100) debug= .TRUE. 
@@ -102,9 +103,8 @@ program hrcxq
      endif
      nmbas1 = nmbas_in !We (will) use nmbas1 and nmbas2 for block division of matrices.
      nmbas2 = nmbas_in
+     allocate( rcxq(nmbas1,nmbas2,nwhis,npm),source=(0d0,0d0))
      call Setppovlz(qp,matz=.true. ) !.not.eibzmode) !! We set ppovlz for calling get_zmelt (get matrix elements) \in m_zmel \in subroutine x0kf_v4hz
-     allocate( rcxq(nmbas1,nmbas2,nwhis,npm))
-     rcxq = 0d0
      do is = MPI__Ss,MPI__Se !is=1,nspin. rcxq is acuumulated for spins
         write(stdo,"(' ### ',2i4,' out of nqibz+n0qi+nq0iadd nsp mmbas1,2=',4i5,' ### ')")&
              iq,is,nqibz+nq0i+nq0iadd,nspin,nmbas1,nmbas2
@@ -122,7 +122,9 @@ program hrcxq
      !! only output in this program
      open(newunit=ircxq,file='rcxq.'//trim(i2char(iq)),form='unformatted')
      write(ircxq) nmbas1,nmbas2
+     if(emptyrun) goto 1012 !skip writing rcxq
      write(ircxq) rcxq
+1012 continue 
      close(ircxq)
      deallocate(rcxq)
 1001 enddo obtainrcxq

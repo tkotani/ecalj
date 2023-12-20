@@ -56,7 +56,7 @@ contains
     if(iq<=nqibz) then        !for mmmw
        open(newunit=ifrcw, file='WVR.'//i2char(iq),form='unformatted',access='direct',recl=mreclx)
        do 1015 iw  = nwmin,nwmax
-          if(emptyrun)goto 1012
+          if(emptyrun) exit
           frr= dsign(freq_r(abs(iw)),dble(iw))
           if(iq==1) then
              ix=1
@@ -173,7 +173,7 @@ contains
     if( iq<=nqibz ) then
        open(newunit=ifrcwi,file='WVI.'//i2char(iq),form='unformatted',access='direct',recl=mreclx)
        do 1016 iw  = 1,niw
-          if(emptyrun) goto 1014
+          if(emptyrun) exit
           !!  Eqs.(37),(38) in PRB81 125102
           if(iq==1) then
              ix=1

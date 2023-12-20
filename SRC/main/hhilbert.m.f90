@@ -89,14 +89,22 @@ program hhilbert
      read(ircxq) nmbas1,nmbas2
      if(allocated(rcxq)) deallocate(rcxq)
      allocate( rcxq(nmbas1,nmbas2,nwhis,npm))
+     if(emptyrun) goto 1203
      read(ircxq) rcxq
+1203 continue
      close(ircxq)
      if(realomega) allocate( zxq(nmbas1,nmbas2,nw_i:nw) )
      if(imagomega) allocate( zxqi(nmbas1,nmbas2,niw)    )
      write(stdo,'("goto dpsion5: nwhis nw_i niw nw_w nmbas1 nmbas2=",6i5)') nwhis,nw_i,nw,niw,nmbas1,nmbas2
-     call dpsion5(realomega, imagomega, rcxq, nmbas1,nmbas2, zxq,zxqi, chipm, schi,is, ecut,ecuts) ! Hilbert transform . Get Real part from Imag part. .not.
+     if(.not.emptyrun) then !skip but the computational cost of dpsion5 is not yet examined.
+        call dpsion5(realomega, imagomega, rcxq, nmbas1,nmbas2, zxq,zxqi, chipm, schi,is, ecut,ecuts) ! Hilbert transform . Get Real part from Imag part. .not.
+     endif   
      deallocate(rcxq)
      if(debug) print *,'sumchk zxq=',sum(zxq),sum(zxqi),sum(abs(zxq)),sum(abs(zxqi))
+     if(emptyrun) then
+        deallocate(zxqi,zxq)
+        cycle
+     endif   
      RealOmeg: if (realomega) then !RealOmega === W-V: WVR and WVI. Wing elemments: llw, llwi LLWR, LLWI
         call WVRllwR(qp,iq,zxq,nmbas1,nmbas2) !emptyrun in it
         deallocate(zxq)

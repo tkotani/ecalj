@@ -177,7 +177,7 @@ contains
     endif READsigm ! ndimsig is the dim of the self-energy. We now set "ndimsig=ldim",which means we use only projection onto MTO spaces even when PMT. 
     if(sigmamode .AND. master_mpi) write(stdo,*)' ScaledSigma=',ham_scaledsigma
     GWdriver: if(llmfgw) then        !         call m_sugw_init(cmdopt0('--dipolematrix'),cmdopt0('--socmatrix'),eferm)
-       call m_sugw_init(cmdopt0('--socmatrix'),eferm,vmag)
+       call m_sugw_init(cmdopt0('--socmatrix'),eferm,vmag,qval)
        call tcx('bndfp')
        call rx0('sugw mode')  !exit program here normally.
     endif GWdriver
@@ -252,6 +252,7 @@ contains
        write(ifi,"(i6,'# iter CAUTION! This file is overwritten by lmf-MPIK SC loop')")iter
        close(ifi)
     endif
+    
     GenerateTotalDOS: if(master_mpi .AND. (tdos .OR. ldos/=0)) then !   emin=dosw(1) emax=dosw(2) dos range
        dosw(1)= emin-0.01d0 ! lowest energy limit to plot dos
        dosw(2)= eferm+bz_dosmax !max energy limit to plot dos
