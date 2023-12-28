@@ -11,19 +11,19 @@ program lmfham1 ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|MPO> 
   use m_zhev,only:   Zhev_tk4
   use m_MPItk,only: m_MPItk_init, m_MPItk_finalize, nsize, procid,master_mpi !  use m_ext,only:      m_ext_init,sname
   use m_keyvalue,only: Getkeyvalue
-  use m_lmfinit,only:  m_lmfinit_init,oveps
+  use m_lmfinit,only:  m_lmfinit_init,oveps,nbas
   use m_ext,only: m_ext_init
   use m_cmdpath,only: Setcmdpath
   implicit none
-  integer:: i,j,ikp,ib1,ib2,it,nmx,nev,jsp
-  complex(8)::img=(0d0,1d0),phase 
+  integer:: i,j,ikp,ib1,ib2,it,nmx,nev,jsp,ikpd
+  complex(8)::img=(0d0,1d0),phase,aaaa 
   real(8),allocatable:: evl(:)
   real(8)::qp(3),pi=4d0*atan(1d0)
   real(8)::facw,ecutw,eww,rydberg
   logical:: lprint=.true.,savez=.false.,getz=.false. 
   integer:: ndatx,ifsy1,ifsy2,ifsy,iix(36),nsc1,iqini,iqend,ndiv
   logical:: symlcase=.true.
-  character(256):: fband(2)=['band_lmfham1_spin1.dat','band_lmfham1_spin2.dat']
+  character(256):: fband(2)=['band_lmfham1_spin1.dat','band_lmfham1_spin2.dat'],cccx
   character(8):: prgnam=''
   include "mpif.h"
   call setcmdpath() !Set self-command path (this is for call system at m_lmfinit)
@@ -38,7 +38,32 @@ program lmfham1 ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|MPO> 
   if(master_mpi) write(stdo,ftox)'mlo_facw _ecutw (eV)=',ftof(facw),ftof(ecutw/rydberg())!,ftof(eww)
   ecutw= ecutw/rydberg()
   eww  = eww  /rydberg()
-  if(symlcase) call readqplistsy()      ! When symlcase=T, read qplist.dat (q points list, see bndfp.F). 
+  if(symlcase) call readqplistsy()      ! When symlcase=T, read qplist.dat (q points list, see bndfp.F).
+
+  ! !! delta fun check for FFT: k --> T --> k 
+  ! !!    \delta_{kk'} = \sum_{T \in T(i,j)} W_T exp( i (k-k') T)
+  ! do ikpd=1,nkp
+  !    write(stdo,*)'test for ikpd=',ikpd
+  !    do ikp=1,nkp
+  !       qp = qplist(:,ikp) - qplist(:,ikpd)
+  !       do ib1=1,nbas
+  !          do ib2=1,nbas
+  !             aaaa=0d0
+  !             do it = 1,npair(ib1,ib2) 
+  !                aaaa =  aaaa + 1d0/(nkp*nqwgt(it,ib1,ib2))*exp(img*2d0*pi* sum(qp*matmul(plat,nlat(:,it,ib1,ib2))))
+  !             enddo
+  !             cccx=''
+  !             if(ikp==ikpd) cccx=' <--'
+  !             if(abs(aaaa)>1d-8) then
+  !                write(stdo,ftox)'\delta-fun test ikpd ikp',ikpd,ikp,ftof(qplist(:,ikp)),&
+  !                     ib1,ib2,ftof(aaaa),trim(cccx)
+  !             endif   
+  !          enddo
+  !       enddo
+  !    enddo
+  ! enddo
+  ! stop 'xxxxxxxxxxxxxxxxxxxxxx'
+        
   call HamPMTtoHamRsMPO(facw,ecutw,eww) ! HamRsMTO (real-space Hamiltonian hammr,ovlmr,ndimMTO) is generated,and written to a file HamRsMTO
   call ReadHamRsMPO()                   ! Read real-space Hamiltonian hammr,ovlmr from HamRsMTO.
   if(symlcase) then
@@ -51,7 +76,7 @@ program lmfham1 ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|MPO> 
   if(symlcase) ndatx=ndat
   GetEigenvaluesForSYML: block! Get Hamitonian at k points from hammr,ovlmr (Realspace Hamiltonian), then diagnalize.
     real(8):: evl(ndimMTO,ndatx,nspx)
-    integer:: ierr
+    integer:: ierr,ifixx
     evl=0d0
     ! bands by original ecalj (by job_band), and TB hamiltonian read by ReadHamiltonianPMTInfo.
     ndiv= ndatx/nsize !!MPI division
@@ -71,6 +96,7 @@ program lmfham1 ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|MPO> 
        Spinloop: do jsp=1,nspx !nsp is the number of spin.  When lso=1(Lz.Sz), nspx=1
           Hamblock: block
             complex(8):: ovlm(1:ndimMTO,1:ndimMTO),hamm(1:ndimMTO,1:ndimMTO),t_zv(ndimMTO,ndimMTO)
+            real(8):: rydberg
             ovlm = 0d0
             hamm = 0d0
             FourierTransormationFROMrealspcaeTOqspace:do i=1,ndimMTO 
@@ -84,7 +110,19 @@ program lmfham1 ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|MPO> 
                   enddo
                enddo
             enddo FourierTransormationFROMrealspcaeTOqspace
-            call zhev_tk4(ndimMTO,hamm,ovlm,nmx,nev, evl(:,ikp,jsp),t_zv, oveps)!Diangonalize (hamm- evl ovlm) z=0
+           !if(ikp==1) then
+           !   open(newunit=ifixx,file='datxxx')
+           !   do i=1,ndimMTO
+           !      write(ifixx,ftox)i,ftof(abs(hamm(1:ndimMTO,i)))
+           !      write(ifixx,ftox)i,ftof(abs(ovlm(1:ndimMTO,i)))
+           !   enddo
+           !   close(ifixx)
+           !   stop
+           !endif
+!           write(stdo,ftox) ' checkfinaleigen zhev_tk4',ikp,ftof(qp,3),'nmx ndimMTO',nmx,ndimMTO
+           call zhev_tk4(ndimMTO,hamm,ovlm,0,nev, evl(:,ikp,jsp),t_zv, oveps)!Diangonalize (hamm- evl ovlm) z=0
+!           write(stdo,ftox) '  evl   =',nev,ftof(evl(1:10,ikp,jsp)*rydberg())
+!           write(stdo,ftox) '  evl   =',nev,ftof(evl(11:20,ikp,jsp)*rydberg())
           endblock Hamblock
        enddo Spinloop
     enddo GetHamiltonianFromRealSpacehammrANDdiagonalize

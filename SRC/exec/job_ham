@@ -21,8 +21,8 @@ mpirun -np $3 $nfpgw/lmfham1 $1 >& out_lmfham1
 # Get |MLO> Get MLO Hamiltonian
 #$nfpgw/lmfham2 --job=0 >& out_lmfham2_0
 #$nfpgw/lmfham2 --job=1 >& out_lmfham2_1
-echo 'OK! end of job_ham. Next steps are'
-echo 'Edit edit  mlo_foobar in GWinput, and Run'
-echo '>lmfham2 --job=0'
-echo '>lmfham2 --job=1, then Check bandplot.lmfham2.*.glt'
-
+echo 
+echo '1.Edit mlo_foobar in GWinput, and Run'
+echo '2.>lmfham2 si --job=0'
+echo '3.>lmfham2 si --job=1, then Check bandplot.lmfham2.*.glt'
+echo 'OK! end of job_ham. Run next steps above'

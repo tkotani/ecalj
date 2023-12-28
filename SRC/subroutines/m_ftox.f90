@@ -28,7 +28,7 @@ contains
     character(:),allocatable:: farg
     integer,optional:: ixx
     integer::ix,i
-    character(1000):: mmm
+    character(10000):: mmm
     ix=6
     if(present(ixx)) ix=ixx
     write(mmm,"(*(g0,x))") (ftod(argv(i),ix),i=1,size(argv))
@@ -41,7 +41,7 @@ contains
     real(8):: argv(:)
     character(:),allocatable:: farg
     integer,optional:: ixx
-    character(1000):: mmm
+    character(10000):: mmm
     integer::ix,i
     if(size(argv)==0) then
       allocate(farg,source='')
@@ -59,7 +59,7 @@ contains
     complex(8):: argv(:)
     character(:),allocatable:: farg
     integer,optional:: ixx
-    character(1000):: mmm
+    character(10000):: mmm
     integer:: i,ix
     if(size(argv)==0) then
       allocate(farg,source='')
@@ -77,7 +77,7 @@ contains
     complex(8):: argv(:)
     character(:),allocatable:: farg
     integer,optional:: ixx
-    character(1000):: mmm
+    character(10000):: mmm
     integer:: i,ix
     if(size(argv)==0) then
       allocate(farg,source='')
@@ -95,7 +95,7 @@ contains
     real(8):: argv(:)
     character(:),allocatable:: farg
     integer,optional:: ixx
-    character(1000):: mmm
+    character(10000):: mmm
     if(size(argv)==0) then
       allocate(farg,source='')
       return

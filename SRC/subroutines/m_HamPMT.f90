@@ -104,7 +104,7 @@ contains
     if(lso==1) ldim=ldim*2 !L.S mode
     nspx=nsp
     if(lso==1) nspx=1
-    if(master_mpi) write(stdo,"('Reading HamiltonianPMT: ndimMTO ldim lso=',i6,4i3)") ndimMTO,ldim,lso
+    if(master_mpi) write(stdo,ftox)'Reading HamiltonianPMT: ndimMTO ldim lso=',ndimMTO,ldim,lso
     allocate(ovlmr(1:ndimMTO,1:ndimMTO,npairmx,nspx), hammr(1:ndimMTO,1:ndimMTO,npairmx,nspx))
     hammr=0d0
     ovlmr=0d0
@@ -126,17 +126,27 @@ contains
        GETham_ndimMTO: block
          real(8):: evlmlo(ndimMTO)
          call Hreduction(.false.,facw,ecutw,eww,ndimPMT,hamm(1:ndimPMT,1:ndimPMT),ovlm(1:ndimPMT,1:ndimPMT), & !Get reduced Hamitonian for ndimMTO
-              ndimMTO,ix,fff1,      hamm(1:ndimMTO,1:ndimMTO),ovlm(1:ndimMTO,1:ndimMTO)) 
-!          Checkfinaleigen: block
-!            complex(8):: evec(ndimMTO**2), hh(ndimMTO,ndimMTO),oo(ndimMTO,ndimMTO)
-!            if(sum([qp(2),qp(3)]**2)<1d-3) then !check write
-!               hh = hamm(1:ndimMTO,1:ndimMTO) 
-!               oo = ovlm(1:ndimMTO,1:ndimMTO)
-!               nmx= ndimMTO
-! !              write(6,*)'checkfinaleigen zhev_tk4'
-!               call zhev_tk4(ndimMTO,hh,oo, nmx,nev,evlmlo, evec, oveps) !epsovl)
-!            endif
-!          endblock Checkfinaleigen
+              ndimMTO,ix,fff1,      hamm(1:ndimMTO,1:ndimMTO),ovlm(1:ndimMTO,1:ndimMTO))
+         
+         if(iq==3) then !            if(sum([qp(2),qp(3)]**2)<1d-3) then !check write
+         Checkfinaleigen: block
+           real(8):: rydberg
+           complex(8):: evec(ndimMTO**2), hh(ndimMTO,ndimMTO),oo(ndimMTO,ndimMTO)
+           hh = hamm(1:ndimMTO,1:ndimMTO) 
+           oo = ovlm(1:ndimMTO,1:ndimMTO)
+           nmx= ndimMTO
+           !do i=1,ndimMTO
+           !   write(stdo,ftox)i,ftof(abs(hh(1:ndimMTO,i)))
+           !   write(stdo,ftox)i,ftof(abs(oo(1:ndimMTO,i)))
+           !enddo   
+           write(stdo,ftox) ' checkfinaleigen zhev_tk4',ftof(qp,3)
+           call zhev_tk4(ndimMTO,hh,oo, nmx,nev,evlmlo, evec, oveps) !epsovl)
+           write(stdo,ftox) '  evlmto=',nev,ftof(evlmlo(1:10)*rydberg())
+           write(stdo,ftox) '  evlmto=',nev,ftof(evlmlo(11:20)*rydberg())
+         endblock Checkfinaleigen
+         endif
+         !            endif
+         
        endblock GETham_ndimMTO
        GETrealspaceHamiltonian: block ! H(k) ->  H(T) FourierTransformation to real space
          do i=1,ndimMTO

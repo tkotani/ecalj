@@ -87,7 +87,8 @@ contains
        iq = iqproc(idat)
        qp = qplist(:,iq) !write(stdo,ftox)'m_bandcal_init: procid iq=',procid,iq,ftof(qp)
        isp= isproc(idat) !NOTE: isp=1:nspx=nsp/nspc
-       if(afsym.and.isp==2) cycle !cmdopt0('--afsym').and.isp==2) cycle
+       if((.not.writeham).and.(afsym.and.isp==2)) cycle !cmdopt0('--afsym').and.isp==2) cycle
+       !if(afsym.and.isp==2) cycle !cmdopt0('--afsym').and.isp==2) cycle
        call m_Igv2x_setiq(iq) ! Get napw,ndimh,ndimhx, and igv2x
        allocate(hamm(ndimh,nspc,ndimh,nspc),ovlm(ndimh,nspc,ndimh,nspc)) !spin offdiagonal included
        ! hambl calls augmbl. See Appendix C in http://dx.doi.org/10.7566/JPSJ.84.034702

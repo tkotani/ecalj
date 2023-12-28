@@ -121,7 +121,7 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
     call getkeyvalue("GWinput","mlo_CUouter", CUouter,default=0d0) !0.1d0)
     call getkeyvalue("GWinput","mlo_CUinner", CUinner,default=0.5d0)
     call getkeyvalue("GWinput","mlo_WTinner", WTinner,default=2048d0) ! inner energy window WeighTing
-    call getkeyvalue("GWinput","mlo_WTband" , WTband,default=512d0) !1024d0)    ! Weight to minimize band energies
+    call getkeyvalue("GWinput","mlo_WTband" , WTband,default=512d0) !1024d0)    ! Weight to minimize band energies. 64 or less of Cu.
     call getkeyvalue("GWinput",'mlo_WTseed' , WTseed,default=0d0)    ! Weight for seed.
     call getkeyvalue("GWinput","mlo_ELinner", eLinnereV,default=-1d8) ! inner energy windowL eV relative to VBM
     call getkeyvalue("GWinput","mlo_ewid",    ewideV, default=1d0)    ! inner energy window softing eV
