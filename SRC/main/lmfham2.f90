@@ -208,7 +208,7 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
 !  
   if(job==1) goto 1011 !Goto Souza's iteration --job=1 mode
   GetCNmatFile_job0: block  !job=0 mode to get CNmat file (connection matrix uumat and so on).
-    real(8):: qp(3),eps=1d-8
+    real(8):: eps=1d-8
     complex(8):: emat(nband,nband),osq(1:nband,1:nband),o2al(1:nband,1:nband,nqbz),phase,ovlmm(nband,nMLO),&
          evec(nband,nband,nqbz),evecx(1:nband,1:nband), ovec(nband,nband),amnk(iki:ikf,nMLO,nqbz),&
          ovlm(1:nband,1:nband),ovlmx(1:nband,1:nband), hamm(1:nband,1:nband),uumat(iki:ikf,iki:ikf,nbb,nqbz)
@@ -539,7 +539,7 @@ program lmfham2 ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> 
      
      write(6,*)' get hmmr2. Goto band_lmfham2.dat ---------'
      bandplotMLO: block
-       real(8):: qp(3),evlm(nMLO,ndat)
+       real(8):: evlm(nMLO,ndat)
        complex(8):: phase,hamm(nMLO,nMLO),ovlm(nMLO,nMLO),evec(nMLO,nMLO)
        integer:: iband
        jsp=is
