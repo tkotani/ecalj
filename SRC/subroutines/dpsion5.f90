@@ -38,7 +38,8 @@ subroutine dpsion5(realomega,imagomega,rcxqin,nmbas1,nmbas2, zxq,zxqi, chipm,sch
   if(chipm.and.npm==2) call rx( 'x0kf_v4h:npm==2 .AND. chipm is not meaningful probably')  ! Note rcxq here is negative 
   write(stdo,'(" -- dpsion5: start...  nw_w nwhis=",2i5)') nw_w,nwhis
   call cputid(0)
-  if(abs(egauss)>1d-15) call GaussianFilter(rcxq,nmbas1,nmbas2,egauss,iprint=.true.) !Smearging Imag(X0). Use egauss = 0.05 a.u.\sim 1eV for example.
+  if(abs(egauss)>1d-15) call GaussianFilter(rcxqin,nmbas1,nmbas2,egauss,iprint=.true.) !Smearging Imag(X0). Use egauss = 0.05 a.u.\sim 1eV for example.
+  rcxq=rcxqin
   ispx = merge(isp,3-isp,schi>=0) !  if(schi<0)  ispx = 3-isp  
   if(realomega.and.nwhis <= nw_w) call rxii( ' dpsion5: nwhis<=nw_w',nwhis,nw_w)
   if(realomega.and.freqr(0)/=0d0) call rx( ' dpsion5: freqr(0)/=0d0') ! I think current version allows any freqr(iw), independent from frhis.
@@ -46,7 +47,6 @@ subroutine dpsion5(realomega,imagomega,rcxqin,nmbas1,nmbas2, zxq,zxqi, chipm,sch
   allocate( his_L(-nwhis:nwhis),source=[-frhis(nwhis+1:1+1:-1),0d0,frhis(1  :nwhis)  ])
   allocate( his_R(-nwhis:nwhis),source=[-frhis(nwhis  :1  :-1),0d0,frhis(1+1:nwhis+1)])
   allocate( his_C(-nwhis:nwhis),source=(his_L+his_R)/2d0) ! bins are [his_Left,his_Right] !his_C(0) is at zero. his_R(0) and his_L(0) are not defined.
-  rcxq=rcxqin
   do iw= 1, nwhis
      wfac=merge(exp(-(his_C(iw)/ecut)**2 ),1d0, ecut<1d9)  ! rcxq is used as work---> rcxq= Average value of Im chi.    Note rcxq is "negative" (
      rcxq(:,:,iw,:)= -wfac/(his_r(iw)-his_l(iw))*rcxq(:,:,iw,:)
