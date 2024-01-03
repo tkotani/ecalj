@@ -15,7 +15,7 @@ program hhilbert
   use m_readqg,only: Readngmx2,ngpmx,ngcmx
   use m_hamindex,only:   Readhamindex
   use m_readeigen,only: Init_readeigen,Init_readeigen2,Readeval
-  use m_read_bzdata,only: Read_bzdata, ngrp2=>ngrp,nqbz,nqibz,n1,n2,n3,ginv,dq_,qbz,wbz,qibz,wibz,&
+  use m_read_bzdata,only: Read_bzdata, nqbz,nqibz,n1,n2,n3,ginv,dq_,qbz,wbz,qibz,wibz,&
        ntetf,idtetf,ib1bz,qbzw,nqbzw,q0i,nq0i,nq0iadd !for tetrahedron
   use m_genallcf_v3,only: Genallcf_v3,nclass,natom,nspin,nl,nn,nlmto,nlnmx,nctot,alat,clabl,iclass,il,in,im,nlnm,plat,pos,ecore
   use m_rdpp,only: Rdpp,  nxx,lx,nx,mdimx,nbloch,cgr,ppbrd ,nblochpmx,mrecl,nprecx
@@ -36,16 +36,16 @@ program hhilbert
   implicit none
   integer:: MPI__Ss,MPI__Se
   real(8),parameter:: pi = 4d0*datan(1d0),fourpi = 4d0*pi, sqfourpi= sqrt(fourpi)
-  integer:: iq,isf,kx,ixc,iqxini,iqxend,is,iw,ifwd,ngrpx,verbose,nmbas1,nmbas2,nmbas_in,ifif
+  integer:: iq,isf,kx,ixc,iqxini,iqxend,is,iw,ifwd,ngrpx,verbose,nmbas,nmbas_in,ifif
   real(8):: ua=1d0, qp(3), quu(3), hartree, rydberg, schi=-9999
   real(8),allocatable :: symope(:,:), ekxx1(:,:),ekxx2(:,:)
-  complex(8),allocatable:: zxq(:,:,:),zxqi(:,:,:),zzr(:,:), rcxq(:,:,:,:)
+  complex(8),allocatable:: zxq(:,:,:),zxqi(:,:,:),zzr(:,:), rcxq(:,:,:,:), rcxqin(:,:)
   logical :: debug=.false. , realomega, imagomega, nolfco=.false.
-  logical :: hx0, eibzmode, crpa, eibz4x0,iprintx=.false.,chipm=.false., localfieldcorrectionllw
+  logical :: hx0, iprintx=.false.,chipm=.false., localfieldcorrectionllw !eibzmode, crpa, eibz4x0,
   integer:: i_red_npm, i_red_nwhis,  i_red_nmbas2,ierr,ircxq,npmx
   character(10) :: i2char
   character(20):: outs=''
-  integer:: ipart
+  integer:: ipart,igb2,imb,iwhis
   logical:: cmdopt2,cmdopt0,emptyrun
   call MPI__Initialize()
   emptyrun=cmdopt0('--emptyrun')
@@ -84,20 +84,27 @@ program hhilbert
   iqloop: do 1201 iq = iqxini,iqxend
      if(.NOT. MPI__Qtask(iq) ) cycle
      qp = qibze(:,iq)
-     call Readvcoud(qp,iq,NoVcou=.false.) !Read Coulomb matrix !Readin vcousq,zcousq ngb ngc for the Coulomb matrix
      open(newunit=ircxq,file='rcxq.'//trim(i2char(iq)),form='unformatted') ! Read rcxq
-     read(ircxq) nmbas1,nmbas2
-     if(allocated(rcxq)) deallocate(rcxq)
-     allocate( rcxq(nmbas1,nmbas2,nwhis,npm))
+     read(ircxq) nmbas
      if(emptyrun) goto 1203
-     read(ircxq) rcxq
+     allocate( rcxqin(nmbas*(nmbas+1)/2,npm))
+     allocate( rcxq(nmbas,nmbas,nwhis,npm))
+     do iwhis=1,nwhis
+        read(ircxq) rcxqin
+        do concurrent(igb2=1:nmbas) !upper-light block of zmel*zmel
+           imb= (igb2-1)*igb2/2
+           rcxq(1:igb2,igb2,iwhis,:)   =        rcxqin(imb+1:imb+igb2,  :)   !right-upper half
+           rcxq(igb2,1:igb2-1,iwhis,:) = dconjg(rcxqin(imb+1:imb+igb2-1,:))  
+        enddo
+     enddo
+     deallocate(rcxqin)
 1203 continue
      close(ircxq)
-     if(realomega) allocate( zxq(nmbas1,nmbas2,nw_i:nw) )
-     if(imagomega) allocate( zxqi(nmbas1,nmbas2,niw)    )
-     write(stdo,'("goto dpsion5: nwhis nw_i niw nw_w nmbas1 nmbas2=",6i5)') nwhis,nw_i,nw,niw,nmbas1,nmbas2
+     if(realomega) allocate( zxq(nmbas,nmbas,nw_i:nw),source=(0d0,0d0) )
+     if(imagomega) allocate( zxqi(nmbas,nmbas,niw),source=(0d0,0d0)    )
+     write(stdo,'("goto dpsion5: nwhis nw_i niw nw_w nmbas=",6i5)') nwhis,nw_i,nw,niw,nmbas
      if(.not.emptyrun) then !skip but the computational cost of dpsion5 is not yet examined.
-        call dpsion5(realomega, imagomega, rcxq, nmbas1,nmbas2, zxq,zxqi, chipm, schi,is, ecut,ecuts) ! Hilbert transform . Get Real part from Imag part. .not.
+        call dpsion5(realomega, imagomega, rcxq, nmbas,nmbas, zxq,zxqi, chipm, schi,is, ecut,ecuts) ! Hilbert transform . Get Real part from Imag part. .not.
      endif   
      deallocate(rcxq)
      if(debug) print *,'sumchk zxq=',sum(zxq),sum(zxqi),sum(abs(zxq)),sum(abs(zxqi))
@@ -105,12 +112,13 @@ program hhilbert
         deallocate(zxqi,zxq)
         cycle
      endif   
+     call Readvcoud(qp,iq,NoVcou=.false.) !Read Coulomb matrix !Readin vcousq,zcousq ngb ngc for the Coulomb matrix
      RealOmeg: if (realomega) then !RealOmega === W-V: WVR and WVI. Wing elemments: llw, llwi LLWR, LLWI
-        call WVRllwR(qp,iq,zxq,nmbas1,nmbas2) !emptyrun in it
+        call WVRllwR(qp,iq,zxq,nmbas,nmbas) !emptyrun in it
         deallocate(zxq)
      endif RealOmeg
      ImagOmeg:if (imagomega) then
-        call WVIllwI(qp,iq,zxqi,nmbas1,nmbas2) 
+        call WVIllwI(qp,iq,zxqi,nmbas,nmbas) 
         deallocate(zxqi)
      endif ImagOmeg
 1201 enddo iqloop

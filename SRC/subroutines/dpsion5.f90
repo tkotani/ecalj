@@ -1,12 +1,13 @@
 !> Calculate W-v zxqi(on the imaginary axis) and zxq(real axis) from sperctum weight rcxq.
-subroutine dpsion5(realomega,imagomega,rcxqin,nmbas1,nmbas2, zxq,zxqi, chipm,schi,isp,ecut,ecuts) 
+subroutine dpsion5(realomega,imagomega,rcxq,nmbas1,nmbas2, zxq,zxqi, chipm,schi,isp,ecut,ecuts) 
   use m_freq,only:  frhis, freqr=>freq_r,freqi=>freq_i, nwhis, npm, nw_i, nw_w=>nw, niwt=>niw
   use m_readgwinput,only: egauss
   use m_GaussianFilter,only: GaussianFilter
   use m_lgunit,only:stdo
   implicit none
-  intent(in)::     realomega,imagomega,rcxqin,nmbas1,nmbas2,           chipm,schi,isp,ecut,ecuts
-  intent(out)::                                              zxq,zxqi
+  intent(in)::     realomega,imagomega,     nmbas1,nmbas2,           chipm,schi,isp,ecut,ecuts
+  intent(out)::                        rcxq,                zxq,zxqi
+  !                                    rcxq is use for work 
   !     r v4 works for timereversal=F (npm=2 case).
   !     r  See rcxq_zcxq for rcxq, which contains the spectrum weight for given bins along the real-axis.
   !     r ! Note that zxq and zxqi are not accumlating
@@ -25,7 +26,7 @@ subroutine dpsion5(realomega,imagomega,rcxqin,nmbas1,nmbas2, zxq,zxqi, chipm,sch
   integer:: igb1,igb2, iw,iwp,ix,ifxx,nmbas1,nmbas2,isp,ispx,it, ii,i,ibas1,ibas2,nmnm
   logical :: evaltest     
   real(8):: px,omp,om,om2,om1, aaa,d_omg, ecut,ecuts,wcut,dee,schi, domega_r,domega_c,domega_l,delta_l,delta_r
-  complex(8):: rcxq(nmbas1,nmbas2, nwhis,npm) ,rcxqin(nmbas1,nmbas2, nwhis,npm) 
+  complex(8):: rcxq(nmbas1,nmbas2, nwhis,npm) !,rcxqin(nmbas1,nmbas2, nwhis,npm) 
   complex(8):: zxq(nmbas1,nmbas2, nw_i:nw_w),zxqi(nmbas1,nmbas2,niwt),img=(0d0,1d0),beta,wfac, zz
   logical :: realomega, imagomega,chipm,debug=.false.
   real(8),allocatable :: his_L(:),his_R(:),his_C(:),rmat(:,:,:),rmati(:,:,:),rmatt(:,:,:),imatt(:,:,:)
@@ -38,17 +39,17 @@ subroutine dpsion5(realomega,imagomega,rcxqin,nmbas1,nmbas2, zxq,zxqi, chipm,sch
   if(chipm.and.npm==2) call rx( 'x0kf_v4h:npm==2 .AND. chipm is not meaningful probably')  ! Note rcxq here is negative 
   write(stdo,'(" -- dpsion5: start...  nw_w nwhis=",2i5)') nw_w,nwhis
   call cputid(0)
-  if(abs(egauss)>1d-15) call GaussianFilter(rcxqin,nmbas1,nmbas2,egauss,iprint=.true.) !Smearging Imag(X0). Use egauss = 0.05 a.u.\sim 1eV for example.
-  rcxq=rcxqin
+  if(abs(egauss)>1d-15) call GaussianFilter(rcxq,nmbas1,nmbas2,egauss,iprint=.true.) !Smearging Imag(X0). Use egauss = 0.05 a.u.\sim 1eV for example.
+!  rcxq=rcxqin
   ispx = merge(isp,3-isp,schi>=0) !  if(schi<0)  ispx = 3-isp  
-  if(realomega.and.nwhis <= nw_w) call rxii( ' dpsion5: nwhis<=nw_w',nwhis,nw_w)
-  if(realomega.and.freqr(0)/=0d0) call rx( ' dpsion5: freqr(0)/=0d0') ! I think current version allows any freqr(iw), independent from frhis.
-  if(debug) write(stdo,*)' dpsion5: RRR 2222222222 sumchk 111 rcxq=', sum(abs(rcxq))
+  if(realomega.and.nwhis <= nw_w) call rxii('dpsion5: nwhis<=nw_w',nwhis,nw_w)
+  if(realomega.and.freqr(0)/=0d0) call rx( 'dpsion5: freqr(0)/=0d0') ! I think current version allows any freqr(iw), independent from frhis.
   allocate( his_L(-nwhis:nwhis),source=[-frhis(nwhis+1:1+1:-1),0d0,frhis(1  :nwhis)  ])
   allocate( his_R(-nwhis:nwhis),source=[-frhis(nwhis  :1  :-1),0d0,frhis(1+1:nwhis+1)])
   allocate( his_C(-nwhis:nwhis),source=(his_L+his_R)/2d0) ! bins are [his_Left,his_Right] !his_C(0) is at zero. his_R(0) and his_L(0) are not defined.
   do iw= 1, nwhis
-     wfac=merge(exp(-(his_C(iw)/ecut)**2 ),1d0, ecut<1d9)  ! rcxq is used as work---> rcxq= Average value of Im chi.    Note rcxq is "negative" (
+     wfac=merge(exp(-(his_C(iw)/ecut)**2 ),1d0, ecut<1d9)
+     ! rcxq= Average value of Im chi.    Note rcxq is "negative" (
      rcxq(:,:,iw,:)= -wfac/(his_r(iw)-his_l(iw))*rcxq(:,:,iw,:)
   enddo
   if(debug) write(stdo,*)'sumchk 122 rcxq=', sum(abs(rcxq))

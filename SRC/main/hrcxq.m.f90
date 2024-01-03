@@ -15,7 +15,7 @@ program hrcxq
   use m_readqg,only: Readngmx2,ngpmx,ngcmx
   use m_hamindex,only: Readhamindex
   use m_readeigen,only: Init_readeigen,Init_readeigen2,Readeval
-  use m_read_bzdata,only: Read_bzdata, nqbz,nqibz,n1,n2,n3,ginv,dq_,qbz,wbz,qibz,wibz, ntetf,idtetf,ib1bz, qbzw,nqbzw,nq0i ,nq0iadd !for tetrahedron   !     &     idteti, nstar,irk,nstbz
+  use m_read_bzdata,only:Read_bzdata,nqbz,nqibz,n1,n2,n3,ginv,dq_,qbz,wbz,qibz,wibz, ntetf,idtetf,ib1bz, qbzw,nqbzw,q0i,nq0i,nq0iadd !for tetrahedron   !     &     idteti, nstar,irk,nstbz
   use m_genallcf_v3,only: Genallcf_v3,nclass,natom,nspin,nl,nn,nlmto,nlnmx,nctot,alat,clabl,iclass,il,in,im,nlnm,plat,pos,ecore
   use m_rdpp,only: Rdpp,nxx,lx,nx,mdimx,nbloch,cgr,ppbrd ,nblochpmx,mrecl,nprecx !! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
   use m_zmel,only: Mptauof_zmel,Setppovlz !Set data for "call get_zmelt" zmelt= matrix element <phi |phi MPB>.
@@ -33,19 +33,18 @@ program hrcxq
        MPI__Broadcast,MPI__rank,MPI__size,MPI__consoleout,MPI__barrier
   use m_lgunit,only: m_lgunit_init,stdo
   implicit none
-  integer:: MPI__Ss,MPI__Se
   real(8),parameter:: pi = 4d0*datan(1d0),fourpi = 4d0*pi,sqfourpi= sqrt(fourpi)
-  integer:: iq,isf,kx,ixc,iqxini,iqxend,is,iw,ifwd,ngrpx,verbose,nmbas1,nmbas2,nmbas_in,ifif
+  integer:: iq,isf,kx,ixc,iqxini,iqxend,is,iw,ifwd,ngrpx,verbose,nmbas,nmbas_in,ifif
+  integer:: i_red_npm,i_red_nwhis, i_red_nmbas2,ierr,ircxq,npmx
+  integer:: ipart,iwhis,igb1,imb,igb2
   real(8):: ua=1d0,qp(3),quu(3),hartree,rydberg,schi=-9999
-  real(8),allocatable :: symope(:,:),ekxx1(:,:),ekxx2(:,:)
-  complex(8),allocatable:: zxq(:,:,:),zxqi(:,:,:),zzr(:,:),rcxq(:,:,:,:)
   logical :: debug=.false. ,realomega,imagomega,nolfco=.false.
   logical :: hx0,iprintx=.false.,chipm=.false.,localfieldcorrectionllw   !eibzmode,eibz4x0,
-  integer:: i_red_npm,i_red_nwhis, i_red_nmbas2,ierr,ircxq,npmx
+  logical:: cmdopt2,emptyrun,cmdopt0
   character(10) :: i2char
   character(20):: outs=''
-  integer:: ipart
-  logical:: cmdopt2,emptyrun,cmdopt0
+  real(8),allocatable :: symope(:,:),ekxx1(:,:),ekxx2(:,:)
+  complex(8),allocatable:: zxq(:,:,:),zxqi(:,:,:),zzr(:,:),rcxq(:,:,:),rcxqin(:,:,:,:)
   call MPI__Initialize()
   call M_lgunit_init()
   emptyrun=cmdopt0('--emptyrun')
@@ -85,10 +84,8 @@ program hrcxq
   !!    call Setw4pmode() !W4phonon. !still developing...
   !! Rank divider
   call MPI__hx0fp0_rankdivider2Q(iqxini,iqxend)
-  MPI__Ss = 1
-  MPI__Se = nspin
   if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
-  obtainrcxq: do 1001 iq = iqxini,iqxend
+  Obtainrcxq: do 1001 iq = iqxini,iqxend
      if( .NOT. MPI__Qtask(iq) ) cycle
      call cputid (0)
      qp = qibze(:,iq)
@@ -101,34 +98,57 @@ program hrcxq
         nolfco = .false.
         nmbas_in = ngb
      endif
-     nmbas1 = nmbas_in !We (will) use nmbas1 and nmbas2 for block division of matrices.
-     nmbas2 = nmbas_in
-     allocate( rcxq(nmbas1,nmbas2,nwhis,npm),source=(0d0,0d0))
-     call Setppovlz(qp,matz=.true. ) !.not.eibzmode) !! We set ppovlz for calling get_zmelt (get matrix elements) \in m_zmel \in subroutine x0kf_v4hz
-     do is = MPI__Ss,MPI__Se !is=1,nspin. rcxq is acuumulated for spins
-        write(stdo,"(' ### ',2i4,' out of nqibz+n0qi+nq0iadd nsp mmbas1,2=',4i5,' ### ')")&
-             iq,is,nqibz+nq0i+nq0iadd,nspin,nmbas1,nmbas2
+     nmbas = nmbas_in 
+     allocate( rcxq(nmbas*(nmbas+1)/2,nwhis,npm),source=(0d0,0d0))
+     call Setppovlz(qp,matz=.true. ) ! We set ppovlz for calling get_zmelt (get matrix elements) \in m_zmel \in subroutine x0kf_v4hz
+     GetImpartPolarizationFunction_rcxq: do is = 1,nspin !is=1,nspin. rcxq is acuumulated for spins
+        write(stdo,"(' ### ',2i4,' out of nqibz+n0qi+nq0iadd nsp mmbas=',4i5,' ### ')")iq,is,nqibz+nq0i+nq0iadd,nspin,nmbas
         isf = is
-        call X0kf_v4hz_init_read(iq,is) !readin icount data (index sets and tetrahedron weight)
-        call x0kf_v4hz(qp, is,isf, iq, nmbas_in, rcxq=rcxq,iqxini=iqxini)
-        !, eibzmode=eibzmode
-        !  rcxq is accumulating
-     enddo
-     !! Symmetrize and convert to Enu basis (diagonalized basis for the Coulomb matrix).
-     !!   That is, we get dconjg(tranpsoce(zcousq))*rcxq*zcousq for eibzmode
-     ! Remove eibzmode symmetrizer 2023Jan22
-     !     if(eibzmode) call x0kf_v4hz_symmetrize( qp, iq, nolfco, zzr, nmbas_in, chipm, eibzmode=eibzmode, eibzsym=eibzsym(:,:,iq), rcxq=rcxq) !  crystal symmetry of rcxq is recovered for EIBZ mode.
-     !     endif
-     !! only output in this program
-     open(newunit=ircxq,file='rcxq.'//trim(i2char(iq)),form='unformatted')
-     write(ircxq) nmbas1,nmbas2
-     if(emptyrun) goto 1012 !skip writing rcxq
-     write(ircxq) rcxq
-1012 continue 
-     close(ircxq)
-     deallocate(rcxq)
+        call X0kf_v4hz_init_read(iq,is) !Readin icount data (index sets and tetrahedron weight) into m_x0kf
+        call x0kf_v4hz(qp, is,isf, iq, nmbas, rcxq=rcxq,iqxini=iqxini)
+     enddo GetImpartPolarizationFunction_rcxq 
+     HilbertTransformationByDpsion5: block
+       write(stdo,'("Hilbert transformation by dpsion5: nwhis nw_i niw nw_w nmbas=",6i5)') nwhis,nw_i,nw,niw,nmbas
+       if(realomega) allocate( zxq(nmbas,nmbas,nw_i:nw),source=(0d0,0d0) )
+       if(imagomega) allocate( zxqi(nmbas,nmbas,niw),source=(0d0,0d0)   )
+       allocate(rcxqin(nmbas,nmbas,nwhis,npm))
+       do iwhis=1,nwhis
+          do concurrent(igb2=1:nmbas) !upper-light block of zmel*zmel
+             imb= (igb2-1)*igb2/2
+             rcxqin(1:igb2,igb2,iwhis,:)   =        rcxq(imb+1:imb+igb2,  iwhis,:)   !right-upper half
+             rcxqin(igb2,1:igb2-1,iwhis,:) = dconjg(rcxq(imb+1:imb+igb2-1,iwhis,:))  
+          enddo
+       enddo
+       deallocate(rcxq)
+       if(.not.emptyrun) then !skip but the computational cost of dpsion5 is not yet examined.
+          call dpsion5(realomega, imagomega, rcxqin, nmbas,nmbas, zxq,zxqi, chipm, schi,is, ecut,ecuts) !Hilbert transform . Real part from Imag part. 
+       endif
+       deallocate(rcxqin)
+       if(debug) print *,'sumchk zxq=',sum(zxq),sum(abs(zxq)),' zxqi=',sum(zxqi),sum(abs(zxqi))
+       if(emptyrun) then
+          deallocate(zxqi,zxq)
+          cycle
+       endif
+     endblock HilbertTransformationByDpsion5
+     GetWV: block !W-V in Random phase approximation: Files WVR and WVI. Note we have wing elemments: llw, llwi LLWR, LLWI
+       RealOmeg: if (realomega) then
+          call WVRllwR(qp,iq,zxq,nmbas,nmbas) !emptyrun in it
+          deallocate(zxq)
+       endif RealOmeg
+       ImagOmeg:if (imagomega) then
+          call WVIllwI(qp,iq,zxqi,nmbas,nmbas) 
+          deallocate(zxqi)
+       endif ImagOmeg
+     endblock GetWV
 1001 enddo obtainrcxq
+  GetEffectiveWVatGammaCell: block !Get W-v(q=0) :Divergent part and non-analytic constant part of W(0) calculated from llw
+    ! == Get W(q=0) : Divergent part and non-analytic constant part of W(0) ==
+    call MPI__barrier()
+    call MPI__sendllw(iqxend) !!! Send all LLW data to mpi_root.
+    ! Get effective W0,W0i, and L(omega=0) matrix. Modify WVR WVI with w0 and w0. Files WVI and WVR are modified.
+    if(MPI__rank==0) call W0w0i(nw_i,nw,nq0i,niw,q0i) !use moudle m_llw
+  endblock GetEffectiveWVatGammaCell
   write(stdo,*) '--- end of hrcxq --- irank=',MPI__rank
   call cputid(0)
-  call rx0( ' OK! hrcxq')
+  call rx0( ' OK! hrcxq hhilbert')
 end program hrcxq

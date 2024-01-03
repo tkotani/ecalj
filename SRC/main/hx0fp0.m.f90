@@ -178,7 +178,7 @@ program hx0fp0
   character(20):: outs=''
   logical,save:: initzmel0=.true.
   real(8):: q0a,qa
-  complex(8),allocatable:: rcxq0(:,:,:,:)
+  complex(8),allocatable:: rcxq0(:,:,:,:),rcxqh(:,:,:)
   call MPI__Initialize()
   call M_lgunit_init()
   call MPI__consoleout('hx0fp0')
@@ -480,6 +480,7 @@ program hx0fp0
      zxq=0d0;  zxqi=0d0;  rcxq = 0d0
      kold=-999
      isold=-999
+     allocate(rcxqh(nmbas_in*(nmbas_in+1)/2,nwhis,npm),source=(0d0,0d0))
      isloop: do 1003 is = 1,nspinmx
         write(6,"(' ##### ',2i4,' out of nqibz+n0qi nsp=',2i4,' ##### ')")iq, is, nqibz + nq0i,nspin
         if(debug) write(6,*)' niw nw=',niw,nw
@@ -489,7 +490,8 @@ program hx0fp0
            write(6,*)" chi_+- mode nolfc=",nolfco
            if(is==1) isf=2
            if(is==2) isf=1
-           rcxq=0d0
+           !rcxq=0d0
+           rcxqh=0d0
         endif
         do kx = 1, nqbz
            ekxx1(1:nband, kx)  = readeval(qbz(:,kx),   is )
@@ -501,36 +503,23 @@ program hx0fp0
         write(6,*)'epsppmode=',epsppmode
         ierr = x0kf_v4hz_init(0, q, is, isf, iq, nmbas_in,crpa)
         ierr = x0kf_v4hz_init(1, q, is, isf, iq, nmbas_in,crpa)
-        call x0kf_v4hz(q,is,isf,iq,nmbas_in,rcxq,epsppmode,iqxini,q00=q00) !,eibzmode
+        call x0kf_v4hz(q,is,isf,iq,nmbas_in,rcxqh,epsppmode,iqxini,q00=q00) !,eibzmode
         call tetdeallocate() !--> deallocate(ihw,nhw,jhw, whw,ibjb,n1b,n2b)
-        !  rcxq is the accumulating variable for spins
-        !!    Symmetrize and convert to Enu basis by dconjg(tranpsoce(zcousq)*rcxq8zcousq if eibzmode
-        ! if(is==nspinmx .OR. chipm) then !Apr2015. TK think " .OR. chipm" is required for chipm mode
-        !    ! ecause rcxq is calculated for each is, symmetrized and its contribution
+        ! rcxq is the accumulating variable for spins
+        ! Symmetrize and convert to Enu basis by dconjg(tranpsoce(zcousq)*rcxq8zcousq if eibzmode
+        !    if(is==nspinmx .OR. chipm) then !Apr2015. TK think " .OR. chipm" is required for chipm mode
+        !    ! because rcxq is calculated for each is, symmetrized and its contribution
         !    ! s added to zxq in dpsion5.
         !    call x0kf_v4hz_symmetrize(q,iq,nolfco,zzr,nmbas_in,chipm,eibzmode,eibzsym(:,:,iq),rcxq)
         !    !  crystal symmetry of rcxq is recovered for EIBZ mode.
-        ! endif
+        !    endif
         if(debug) write(6,"(a)") ' --- goto dpsion5 --- '
         if(is==nspinmx .OR. chipm) then
-           ! if(cmdopt0('--rcxq0')) then
-           !    open(newunit=ifi0,file='rcxq0',form='unformatted')
-           !    write(ifi0)rcxq
-           !    close(ifi0)
-           !    goto 1001
-           ! elseif(cmdopt0('--zmel0')) then
-           !    if(initzmel0) then
-           !       open(newunit=ifi0,file='rcxq0',form='unformatted')
-           !       allocate(rcxq0,mold=rcxq)
-           !       read(ifi0)rcxq0
-           !       close(ifi0)
-           !       initzmel0=.false.
-           !    endif
-           !    q0a=sum(q00**2)**.5
-           !    qa=sum(q**2)**.5
-           !    if(abs(q0a-qa)>1d-12) rcxq = qa**2/(qa**2-q0a**2)*(rcxq - rcxq0)
-           ! endif
-           write(6,"('  nmbas1,nmbas2=',2i10)") nmbas1,nmbas2
+           do concurrent(igb2=1:nmbas_in) !upper-light block of rcxq to full matrix
+              imb= (igb2-1)*igb2/2
+              rcxq(1:igb2,igb2,:,:)   =        rcxqh(imb+1:imb+igb2,  :,:)  !right-upper half
+              rcxq(igb2,1:igb2-1,:,:) = dconjg(rcxqh(imb+1:imb+igb2-1,:,:))
+           enddo !     write(6,"('  nmbas1,nmbas2=',2i10)") nmbas1,nmbas2
            call dpsion5(realomega, imagomega, &
                 rcxq, nmbas1,nmbas2, zxq, zxqi, &
                 chipm, schi,is,  ecut,ecuts)
@@ -543,7 +532,7 @@ program hx0fp0
         endif
         continue  
 1003 enddo isloop
-     if(allocated(rcxq)) deallocate(rcxq)
+     deallocate(rcxq,rcxqh)
      realomegamode: if(realomega .AND. ( .NOT. epsmode)) then ! ===  RealOmega === W-V: WVR and WVI. Wing elemments: llw, llwi LLWR, LLWI
         call WVRllwR(q,iq,zxq,nmbas1,nmbas2)
         deallocate(zxq)

@@ -19,9 +19,9 @@ moddir= $(obj_path)
 tags  = ..
 
 progslm = lmf-MPIK lmfa lmchk lmfham1 lmfham2
-progsgw = hbasfp0 hvccfp0 hx0fp0 hsfp0 hqpe qg4gw gwinit heftet rdata4gw_v2 hx0fp0_sc hsfp0_sc hqpe_sc hmagnon hx0init hhilbert hrcxq hx0zmel
+progsgw = hbasfp0 hvccfp0 hx0fp0 hsfp0 hqpe qg4gw gwinit heftet rdata4gw_v2 hsfp0_sc hqpe_sc hmagnon hx0init hrcxq hx0zmel
 progsw  = hmaxloc huumat_MPI hpsig_MPI wanplot hwmatK_MPI hsocmat
-#hhomogas 
+#hhomogas hx0fp0_sc hhilbert
 
 # targets generaged by make prog2
 #progslm2 = mkhamloc plotmodel initmlo mkinput 

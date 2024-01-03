@@ -31,7 +31,7 @@ contains
     character(10):: i2char
     mreclx=mrecl
     emptyrun=cmdopt0('--emptyrun')
-    write(6,*)'WVRllwR init zxq dddxxx',nmbas1,nmbas2,nw_i,nq0i,nblochpmx !,zxq(1,1,iw) !, sum(abs(zxq))
+!    write(6,*)'WVRllwR init zxq dddxxx',nmbas1,nmbas2,nw_i,nq0i,nblochpmx !,zxq(1,1,iw) !, sum(abs(zxq))
     if(init) then !initialization related to w4pmode, zw, tpioa...
        allocate( llw(nw_i:nw,nq0i) )
        init=.false.
