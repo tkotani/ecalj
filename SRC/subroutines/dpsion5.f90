@@ -8,21 +8,18 @@ subroutine dpsion5(realomega,imagomega,rcxq,nmbas1,nmbas2, zxq,zxqi, chipm,schi,
   intent(in)::     realomega,imagomega,     nmbas1,nmbas2,           chipm,schi,isp,ecut,ecuts
   intent(out)::                        rcxq,                zxq,zxqi
   !                                    rcxq is use for work 
-  !     r v4 works for timereversal=F (npm=2 case).
-  !     r  See rcxq_zcxq for rcxq, which contains the spectrum weight for given bins along the real-axis.
-  !     r ! Note that zxq and zxqi are not accumlating
-  !     i frhis(1:nwhis+1) :: specify histgram bins i-th bin is [frhis(i), frhis(i+1)].
-  !     i          We suppose "freqr(i)=moddle of i-th bin; freqr(0)=0."
-  !     i          (I think called routine hilbertmat itself is not limited by this condition).
-  !     i freqr (0:nw_w) : Calcualte zxq for these real energies.
-  !     i freqi (1:niwt) : Calcualte zxqi for these imaginary energies.
-  !     i   realomega  : A switch to calculate zxq or not.
-  !     i   imagomega: : A switch to calculate zxqi or not.
-  !     iw rcxq may be altered ---used as work area.
-  !     io   zxq :  W-v along the real axis on freqr(0:nw_w)
-  !     io   zxqi:  W-v along the imag axis on freqi(niwt)
-  !     !
-  !     1 Feb2006:  v4 for timereversal=F
+  !  works for timereversal=F (npm=2 case).
+  !input
+  !i   frhis(1:nwhis+1) : specify histgram bins i-th bin is [frhis(i), frhis(i+1)].
+  !i   rcxq: the spectrum weight for given bins along the real-axis.
+  !i   freqr (0:nw_w) : Calcualte zxq for these real energies.
+  !i   freqi (1:niwt) : Calcualte zxqi for these imaginary energies.
+  !i   realomega  : A switch to calculate zxq or not.
+  !i   imagomega: : A switch to calculate zxqi or not.
+  !o   zxq:  W-v along the real axis on freqr(0:nw_w). not accumlating
+  !o   zxqi: W-v along the imag axis on freqi(niwt). not accumlating
+  !r  We suppose "freqr(i)=moddle of i-th bin; freqr(0)=0."
+  !r  (I think called routine hilbertmat itself is not limited by this condition).
   integer:: igb1,igb2, iw,iwp,ix,ifxx,nmbas1,nmbas2,isp,ispx,it, ii,i,ibas1,ibas2,nmnm
   logical :: evaltest     
   real(8):: px,omp,om,om2,om1, aaa,d_omg, ecut,ecuts,wcut,dee,schi, domega_r,domega_c,domega_l,delta_l,delta_r
@@ -38,6 +35,8 @@ subroutine dpsion5(realomega,imagomega,rcxq,nmbas1,nmbas2, zxq,zxqi, chipm,schi,
   !emptyrun= cmdopt0('--emptyrun') !we have not yet examined where is time-consuming part.
   if(chipm.and.npm==2) call rx( 'x0kf_v4h:npm==2 .AND. chipm is not meaningful probably')  ! Note rcxq here is negative 
   write(stdo,'(" -- dpsion5: start...  nw_w nwhis=",2i5)') nw_w,nwhis
+!  zxq =0d0
+!  zxqi=0d0
   call cputid(0)
   if(abs(egauss)>1d-15) call GaussianFilter(rcxq,nmbas1,nmbas2,egauss,iprint=.true.) !Smearging Imag(X0). Use egauss = 0.05 a.u.\sim 1eV for example.
 !  rcxq=rcxqin

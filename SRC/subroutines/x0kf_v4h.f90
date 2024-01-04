@@ -217,10 +217,10 @@ contains
             itp = itpc(icoun) !unocc    q+k
             jpm = jpmc(icoun) ! \pm omega. Usual mode is only for jpm=1
             if(kold/=k) then
-               call x0kf_zmel(q00,iqxini,k, isp_k,isp_kq)
+               call x0kf_zmel(q00,k, isp_k,isp_kq)
                if(allocated(zmel0)) deallocate(zmel0)
                allocate(zmel0,source=zmel)
-               call x0kf_zmel(q,      iq,k, isp_k,isp_kq)
+               call x0kf_zmel(q, k, isp_k,isp_kq)
                kold=k
             endif
             do iw=iwini(icoun),iwend(icoun)
@@ -249,7 +249,7 @@ contains
        if(emptyrun) cycle !    icoun=icouc(icount)
        k = kc(icoun)
        if(kold/=k) then !get zmel for k
-          call x0kf_zmel(q, iq,k, isp_k,isp_kq) !Return zmel(igb q,  k it occ,   q+k itp unocc)
+          call x0kf_zmel(q, k, isp_k,isp_kq) !Return zmel(igb q,  k it occ,   q+k itp unocc)
           kold=k
        endif
        associate( &
@@ -257,15 +257,14 @@ contains
             it  => itc (icoun),&  !occ      at k
             itp => itpc(icoun))   !unocc    at q+k
          do concurrent(igb2=1:nmbas) !upper-light block of zmel*zmel
-            imb= (igb2-1)*igb2/2
-            zmelzmel(imb+1:imb+igb2)= dconjg(zmel(1:igb2,it,itp))*zmel(igb2,it,itp) !right-upper half
+            zmelzmel(1+(igb2-1)*igb2/2:igb2+(igb2-1)*igb2/2)= dconjg(zmel(1:igb2,it,itp))*zmel(igb2,it,itp) !right-upper half
          enddo
-         do iw=iwini(icoun),iwend(icoun)
-            nwj(iw,jpm)=nwj(iw,jpm)+1 !onlyfor check counter
-            icount= icouini(icoun)+ iw-iwini(icoun)
-            rcxq(:,iw,jpm)= rcxq(:,iw,jpm) + whwc(icount)*zmelzmel(:)
-            !call zaxpy(nmbas*(nmbas+1)/2,whwc(icount),zmelzmel,1,rcxq(:,iw,jpm),1)
-         enddo
+         forall(iw=iwini(icoun):iwend(icoun)) rcxq(:,iw,jpm)= rcxq(:,iw,jpm) + whwc(iw-iwini(icoun)+icouini(icoun))*zmelzmel(:)
+         forall(iw=iwini(icoun):iwend(icoun)) nwj(iw,jpm)=nwj(iw,jpm)+iwend(icoun)-iwini(icoun)+1 !onlyfor check counter
+         !do iw=iwini(icoun),iwend(icoun)
+         !  icount=> icouini(icoun)+ iw-iwini(icoun)
+         !  rcxq(:,iw,jpm)= rcxq(:,iw,jpm) + whwc(icount)*zmelzmel(:)
+         !enddo
        endassociate
 1000 enddo mainloop4rcxqsum
 2000 continue 
@@ -276,8 +275,8 @@ contains
     write(stdo,ftox) " --- x0kf_v4hz: end"
     if(debug)write(stdo,"(' --- ', 3d13.5)")sum(abs(rcxq(:,1:nwhis,1:npm))),sum((rcxq(:,1:nwhis,1:npm)))
   end subroutine x0kf_v4hz
-  subroutine X0kf_zmel( q,iq,k, isp_k,isp_kq) ! Return zmel= <phi phi |M_I> in m_zmel
-    intent(in)   ::     q,iq,k, isp_k,isp_kq   
+  subroutine X0kf_zmel( q,k, isp_k,isp_kq) ! Return zmel= <phi phi |M_I> in m_zmel
+    intent(in)   ::     q,k, isp_k,isp_kq   
     integer:: k,isp_k,isp_kq,iq 
     real(8):: q(3)
     call get_zmel_init(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot, ns2=nkmax(k)+nctot, ispm=isp_k, &

@@ -92,7 +92,7 @@ program hx0zmel ! Calculate matrix elements zmel needed for calculating x0.
         icountloop: do 2001 icount = 1,ncount
            k = kc(icount)
            if(k/=kold .OR. is/=isold) then
-              call x0kf_zmel(qp,iq,k, is,isf)
+              call x0kf_zmel(qp,k,is,isf)
               kold=k
               isold=is
            endif

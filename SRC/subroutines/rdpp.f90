@@ -11,44 +11,37 @@ module m_rdpp !Read PPBRD_V2_*, radial integerals <p|p b> and rotated cg coeffic
 contains
   subroutine Rdpp( ngrp, symope) 
     implicit none
-    integer:: ngrp !,nl,nn,nclass
-    integer :: ngpmx,nqbz,nqibz, nband, n1,n2,n3,iq0, ifppb(nclass)
+    integer :: is,iqi,iq,ic,isp,ip1,ip2,ioff,nxic,ifplane ,ngpmx_dum, ngcmx_dum,iqbzx,idxk,ngp,ngc,ig1,nwordr
+    integer:: ngrp,ngpmx,nqbz,nqibz, nband, n1,n2,n3,iq0, ifppb(nclass)
     real(8) ::  symope(3,3,ngrp),  pi
-    integer :: is,iqi,iq,ic,isp,ip1,ip2,ioff,nxic, &
-         ifplane ,ngpmx_dum, ngcmx_dum,iqbzx,idxk,ngp,ngc,ig1,nwordr
     character(11) :: filename(nclass)
     write(6,*)" rdpp: nclass=",nclass
     if(done_rdpp) call rx('rdpp is already called')
-    !!  Radial integrals ppbrd
-    allocate( nblocha(nclass) ,lx(nclass), &
-         nx(0:2*(nl-1),nclass))
+    allocate( nblocha(nclass) ,lx(nclass), nx(0:2*(nl-1),nclass))
     do ic = 1,nclass
        filename(ic)='PPBRD_V2_'//char( 48+ic/10 )//char( 48+mod(ic,10))
        open(newunit=ifppb(ic),file=trim(filename(ic)),form='unformatted')
        read(ifppb(ic)) nblocha(ic),lx(ic),nx(0:2*(nl-1),ic)
     enddo
     nxx = maxval( nx )
-    allocate( ppbrd ( 0:nl-1, nn, 0:nl-1,nn, 0:2*(nl-1),nxx, nspin*nclass), &
-         cgr(nl**2,nl**2,(2*nl-1)**2,ngrp) )
+    allocate( ppbrd ( 0:nl-1, nn, 0:nl-1,nn, 0:2*(nl-1),nxx, nspin*nclass), cgr(nl**2,nl**2,(2*nl-1)**2,ngrp) ) 
     write(6,*)' ppbrd size',nl,nn,nxx,nclass,nspin
     do ic = 1,nclass
        do isp= 1,nspin
           nxic = maxval( nx(0:2*(nl-1),ic) )
-          read(ifppb(ic)) ppbrd(:,:,:,:,:,1:nxic, isp+nspin*(ic-1))
+          read(ifppb(ic)) ppbrd(:,:,:,:,:,1:nxic, isp+nspin*(ic-1)) !  Radial integrals ppbrd
        enddo
        close(ifppb(ic))
     enddo
     ! Belows overide the values given by genallc.
-    mdimx  = maxval(nblocha)
+    mdimx  = maxval(nblocha) 
     nbloch = sum(nblocha)
-    nblochpmx = nbloch + ngcmx ! Maximum of MPB = PBpart +  IPWpartforMPB
-    !! ---------- WV.d
+    nblochpmx = nbloch + ngcmx ! Maximum of MPB = PBpart +  IPWpartforMPB     !! ---------- WV.d
     nprecx = ndble          ! We use double precision arrays only.
     mrecl  = nprecx*2*nblochpmx*nblochpmx !/nwordr()!record size
-    ! --- rotated CG setup
     write(6,*)' rdpp mdimx=',mdimx
     cgr=1d99
-    call rotcg(nl-1,symope,ngrp,cgr)
+    call rotcg(nl-1,symope,ngrp,cgr) ! --- rotated CG setup
     done_rdpp=.true.
     write(6,*)' rdpp:end '
   end subroutine rdpp
