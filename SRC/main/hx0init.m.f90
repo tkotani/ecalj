@@ -31,7 +31,7 @@ program hx0init !initializaiton of x0 calculaiton (W-v)
   use m_qbze,only:    Setqbze, nqbze,nqibze,qbze,qibze
   use m_readhbe,only: Readhbe, nband 
 !  use m_eibz,only:    Seteibz, nwgt!,neibz,igx,igxt,eibzsym
-  use m_x0kf,only:    X0kf_v4hz, X0kf_v4hz_init,x0kf_v4hz_init_write,x0kf_v4hz_init_read !, X0kf_v4hz_symmetrize
+  use m_x0kf,only:    X0kf_v4hz_init,x0kf_v4hz_init_write
   use m_llw,only:     WVRllwR,WVIllwI,w4pmode,MPI__sendllw
   use m_mpi,only: MPI__hx0fp0_rankdivider2Q, MPI__Qtask, MPI__Initialize, MPI__Finalize,MPI__root
   use m_mpi,only: MPI__Broadcast, MPI__rank,MPI__size, MPI__consoleout,MPI__barrier
@@ -89,10 +89,9 @@ program hx0init !initializaiton of x0 calculaiton (W-v)
   !! Get space-group transformation information. See header of mptaouof.
   !! But we only use symops=E in hx0fp0 mode. c.f. hsfp0.sc
   allocate(symope,source=reshape([1d0,0d0,0d0, 0d0,1d0,0d0, 0d0,0d0,1d0],[3,3]))
-  call Mptauof_zmel(symope,ng=1)
-  !! Rdpp gives ppbrd: radial integrals and cgr = rotated cg coeffecients.
-  !!       --> call Rdpp(ngrpx,symope) is moved to Mptauof_zmel \in m_zmel
-  call Setitq()             ! Set itq in m_zmel
+  call Mptauof_zmel(symope,ng=1) ! Rdpp gives ppbrd: radial integrals and cgr = rotated cg coeffecients.
+  !  --> call Rdpp(ngrpx,symope) is moved to Mptauof_zmel \in m_zmel. This set mrecl
+!  call Setitq()             ! Set itq in m_zmel
   call Readhamindex()
   call Init_readeigen() ! Initialization of readEigen !readin m_hamindex
   !      call Init_readeigen2()

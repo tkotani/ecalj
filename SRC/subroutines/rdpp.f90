@@ -1,4 +1,4 @@
-module m_rdpp !Read PPBRD_V2_*, radial integerals <p|p b> and rotated cg coefficients cgr.
+module m_rdpp !Read PPBRDV2_*, radial integerals <p|p b> and rotated cg coefficients cgr.
   use m_genallcf_v3,only: nl,nn,nclass,nspin 
   use m_readqg,only: ngcmx
   public:: Rdpp

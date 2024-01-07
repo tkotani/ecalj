@@ -629,8 +629,7 @@ subroutine basnfp_v2 (nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate
 
   ! Calculate radial matrix elements.
   print *,' Calculate radial matrix elements...'
-  allocate( ppbrd(0:nl-1,nn,0:nl-1,nn,0:2*(nl-1) &
-       ,maxval(nxx(0:2*(nl-1))) ) )
+  allocate( ppbrd(0:nl-1,nn,0:nl-1,nn,0:2*(nl-1) ,maxval(nxx(0:2*(nl-1))) ) )
   ppbrd =.9999999999999d99 !for safe
   filenamep = 'PPBRD_V2_'//char( 48+ic/10 )//char(48+mod(ic,10))
   open(newunit=ifppb,file=trim(filenamep),form='unformatted')
