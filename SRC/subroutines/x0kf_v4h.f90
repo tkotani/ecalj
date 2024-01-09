@@ -15,10 +15,10 @@ module m_x0kf
   use m_tetwt,only:     whw,ihw,nhw,jhw,n1b,n2b,nbnb,nbnbx,nhwtot
   use m_ftox
   implicit none
-  public:: X0kf_v4hz_init, X0kf_v4hz,X0kf_v4hz_init_write,X0kf_v4hz_init_read,kc,ncount,x0kf_zmel
+  public:: X0kf_v4hz_init, X0kf_v4hz,x0kf_zmel,X0kf_v4hz_init_write,X0kf_v4hz_init_read
+  integer,public,allocatable:: kc(:)
+  integer,public:: ncount,ncoun
   private
-  integer,allocatable:: kc(:)
-  integer:: ncount,ncoun
   integer,allocatable:: nkmin(:), nkmax(:),nkqmin(:),nkqmax(:)
   real(8),allocatable:: whwc(:)
   integer,allocatable:: iwini(:),iwend(:),itc(:),itpc(:),jpmc(:),icouini(:)
