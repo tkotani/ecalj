@@ -145,30 +145,19 @@ contains
     !! nlmto   = total number of atomic basis functions within MT
     !! nqbz    = number of k-points in the 1st BZ
     !     !
-    real(8),optional::q00(3)
     logical,optional ::epsppmode
-    integer:: k,isp_k,isp_kq,iq, jpm, ibib, iw,igb2,igb1,it,itp
     integer,optional::iqxini
-    real(8):: q(3)
-    complex(8):: rcxq (nmbas*(nmbas+1)/2,nwhis,npm) !only upper-right of rcxq
-    complex(8) :: imag=(0d0,1d0),trc,aaa
-    integer::   nadd(3), igc !nband,!ngpmx, ngcmx,nqbze, ngc,
-    complex(8),allocatable :: zmelt(:,:,:)
-    complex(8),allocatable::  z1p(:,:)
-    logical,parameter:: debug=.false.
-    real(8) :: imagweight
-    integer:: nmbas !, imb1,imb2, imb verbose,
-    logical :: iww2=.true.
-    complex(8):: img=(0d0,1d0),zmelt2 !,zzz(ngbb)
-    integer ::  nkmax1,nkqmax1, ib1, ib2, ngcx,ix,iy,igb !nkqmin, nkqmax,
-    real(8)::  wpw_k,wpw_kq,qa,q0a!, vec_kcrpa(3),vec_kqcrpa(3)
-    integer::  irot=1         !, ntqxx,nbmax!,nctot
-    integer::  neibz,icc,ig,ikp,i,j,itimer,icount,iele!,ngbb !eibzsym(ngrp,-1:1),,eibzmoden
-    integer:: ieqbz,kold,nxxxx !igx(ngrp*2,nqbz),igxt(ngrp*2,nqbz),
+    real(8),optional::q00(3)
+    integer:: k,isp_k,isp_kq,iq, jpm, ibib, iw,igb2,igb1,it,itp, nmbas 
+    integer:: nkmax1,nkqmax1, ib1, ib2, ngcx,ix,iy,igb ,   irot=1         
     integer:: izmel,ispold,nmtot,nqtot ,ispold2,ierr,iwmax,ifi0,icoucold,icoun
-    logical:: cmdopt0,emptyrun
-    complex(8):: zmelzmel(nmbas*(nmbas+1)/2)
-    integer:: nwj(nwhis,npm),imb
+    integer:: nwj(nwhis,npm),imb, nadd(3), igc ,neibz,icc,ig,ikp,i,j,itimer,icount, kold 
+    real(8):: q(3),imagweight, wpw_k,wpw_kq,qa,q0a
+    complex(8):: rcxq (nmbas*(nmbas+1)/2,nwhis,npm) !only upper-right of rcxq
+    complex(8):: img=(0d0,1d0),zmelt2, zmelzmel(nmbas*(nmbas+1)/2)
+    complex(8),allocatable :: zmelt(:,:,:)
+    logical :: iww2=.true., cmdopt0,emptyrun
+    logical,parameter:: debug=.false.
     !! Main loop over k-points ---------------------------------------------------------
     ! z1p = <M_ibg1 psi_it | psi_itp> < psi_itp | psi_it M_ibg2 >
     !  zxq(iw,ibg1,igb2) = \sum_ibib imgw(iw,ibib)* z1p(ibib, igb1,igb2) !ibib means band pair (occ,unocc)
@@ -231,22 +220,25 @@ contains
                rcxq(1,iw,jpm)=rcxq(1,iw,jpm) +rfac00**2*(abs(zmel(1,it,itp))-abs(zmel0(1,it,itp)))**2 *whwc(icount)
             enddo
          enddo zmel0modeicount
-         goto 2000 
        endblock zmel0block
+       goto 2000 
     endif zmel0mode
     kold = -999
     icoucold=-999
     ! rcxq(ibg1,igb2,iw) = sum_ibib wwk(iw,ibib)* <M_ibg1(q) psi_it(k)| psi_itp(q+k)> < psi_itp | psi_it M_ibg2 >
     mainloop4rcxqsum: do 1000 icoun=1,ncoun ! = 1,ncount
-       checkwritenwj: if((kold/=k.or.icoun==ncoun).and.kold/=-999) then
-          do jpm=1,npm
-             do iw=1,nwhis
-                write(stdo,ftox)'ccccccc iq k iw jpm',iq,kold,iw,jpm,nwj(iw,jpm)
-             enddo
-          enddo
-          nwj=0
-       endif checkwritenwj
-       if(emptyrun) cycle
+!       checkwritenwj: if((kold/=k.or.icoun==ncoun).and.kold/=-999) then
+!          do jpm=1,npm
+!             do iw=1,nwhis
+!                write(stdo,ftox)'icounloop: iq k iw jpm',iq,kold,iw,jpm,nwj(iw,jpm)
+!             enddo
+!          enddo
+!          nwj=0
+!       endif checkwritenwj
+       if(emptyrun) then
+          write(stdo,ftox)'icoun: iq k jpm it itp n(iw)=',icoun,iq,k,jpm,it,itp,iwend(icoun)-iwini(icoun)+1
+          cycle
+       endif   
        !####################### time-consuming part 
        k = kc(icoun)
        if(kold/=k) then !get zmel for k
@@ -261,11 +253,12 @@ contains
             zmelzmel(1+(igb2-1)*igb2/2:igb2+(igb2-1)*igb2/2)= dconjg(zmel(1:igb2,it,itp))*zmel(igb2,it,itp) !right-upper half
          enddo
          forall(iw=iwini(icoun):iwend(icoun)) rcxq(:,iw,jpm)= rcxq(:,iw,jpm) + whwc(iw-iwini(icoun)+icouini(icoun))*zmelzmel(:)
-         forall(iw=iwini(icoun):iwend(icoun)) nwj(iw,jpm)=nwj(iw,jpm)+iwend(icoun)-iwini(icoun)+1 !onlyfor check counter
+!         forall(iw=iwini(icoun):iwend(icoun)) nwj(iw,jpm)=nwj(iw,jpm)+iwend(icoun)-iwini(icoun)+1 !onlyfor check counter
        endassociate
        !#####################  
 1000 enddo mainloop4rcxqsum
-2000 continue 
+2000 continue
+    
     deallocate(nkmin,nkmax,nkqmin,nkqmax,whwc,kc,itc,itpc,iwini,iwend,jpmc,icouini)
 !    do concurrent (jpm=1:npm, iw=1:nwhis, igb2= 1:nmbas)   !Hermitianize
 !       rcxq(igb2,1:igb2-1,iw,jpm) = dconjg(rcxq(1:igb2-1,igb2,iw,jpm)) 

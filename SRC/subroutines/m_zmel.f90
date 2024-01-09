@@ -238,7 +238,10 @@ contains
       !!    ppovlinv(ngc,ngc) <Gc|Gc> matrix
       !
       ! ggitp(Gc+G2)= \sum_G1 <(Symope(Gc)+G2)-G1> geigq1(G1,itp)*exp(-i*G1*shtv)*exp(-i(q-Gadd)*shtv)
-      !NOTE: nvgcgp2(:,igcgp2) means symope(Gc)+ G2
+      ! NOTE: nvgcgp2(:,igcgp2) means symope(Gc)+ G2
+      !========================================================
+      ! NOTE \bfr'= g (\bfr) +\delta_g. Then mapping is ROT[f(\bfr)]= f(g^-1(\bfr)+\delta_{g^-1})
+      ! zmelp0(igc'(Gc'),it(G2),itp(G1)) = <Gc'G2|G1> geigq(G1,itp) geigqk*(G2,it) = <Gc' itp(G2)|it(G1)>
       melpln2t: block !> Mattrix elements <Plane psi |psi> from interstitial plane wave.
         use m_read_ppovl,only: getppx2,igggi,igcgp2i,nxi,nxe,nyi,nye,nzi,nze,nvggg,nvgcgp2,ngvecc
         use m_read_ppovl,only: nggg,ngcgp,ngcread, ggg,ppovlinv, ngc2,ngvecc2
@@ -276,9 +279,6 @@ contains
           forall(igc=1:ngc) zmelp0(igc,:,:)=phase(igc)*zmelp0(igc,:,:) 
           deallocate(igcgp2i_)
         endassociate
-        !========================================================
-        ! NOTE \bfr'= g (\bfr) +\delta_g. Then mapping is ROT[f(\bfr)]= f(g^-1(\bfr)+\delta_{g^-1})
-        ! zmelp0(igc'(Gc'),it(G2),itp(G1)) = <Gc'G2|G1> geigq(G1,itp) geigqk*(G2,it) = <Gc' itp(G2)|it(G1)>
         call matm(ppovlinv,zmelp0,zmelt(nbloch+1:nbloch+ngc,nctot+1:nctot+nt0,ncc+1:ncc+ntp0),ngc,ngc,ntp0*nt0)
         deallocate(ggitp)
       endblock melpln2t
