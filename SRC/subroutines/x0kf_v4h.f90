@@ -246,7 +246,8 @@ contains
           enddo
           nwj=0
        endif checkwritenwj
-       if(emptyrun) cycle !    icoun=icouc(icount)
+       if(emptyrun) cycle
+       !####################### time-consuming part 
        k = kc(icoun)
        if(kold/=k) then !get zmel for k
           call x0kf_zmel(q, k, isp_k,isp_kq) !Return zmel(igb q,  k it occ,   q+k itp unocc)
@@ -261,11 +262,8 @@ contains
          enddo
          forall(iw=iwini(icoun):iwend(icoun)) rcxq(:,iw,jpm)= rcxq(:,iw,jpm) + whwc(iw-iwini(icoun)+icouini(icoun))*zmelzmel(:)
          forall(iw=iwini(icoun):iwend(icoun)) nwj(iw,jpm)=nwj(iw,jpm)+iwend(icoun)-iwini(icoun)+1 !onlyfor check counter
-         !do iw=iwini(icoun),iwend(icoun)
-         !  icount=> icouini(icoun)+ iw-iwini(icoun)
-         !  rcxq(:,iw,jpm)= rcxq(:,iw,jpm) + whwc(icount)*zmelzmel(:)
-         !enddo
        endassociate
+       !#####################  
 1000 enddo mainloop4rcxqsum
 2000 continue 
     deallocate(nkmin,nkmax,nkqmin,nkqmax,whwc,kc,itc,itpc,iwini,iwend,jpmc,icouini)
