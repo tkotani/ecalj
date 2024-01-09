@@ -30,8 +30,8 @@ contains
     if(allocated(ppovlz)) deallocate(ppovlz)
     if(allocated(ppovl)) deallocate(ppovl)
     allocate( ppovl(ngc,ngc),ppovlz(ngb,ngb))
-    open(newunit=ippovl0,file='PPOVL0',form='unformatted')
-    do
+    open(newunit=ippovl0,file='PPOVL0',form='unformatted') !inefficient search for PPOVLO for given q
+    do 
        read(ippovl0) qx,ngc_r
        if(sum(abs(qx-q))<tolq) then
           if(ngc_r/=ngc) call rx( 'readin ppovl: ngc_r/=ngc')
@@ -196,12 +196,14 @@ contains
          mdim  = nblocha(icp)
          ncorec= merge(ncore(ic),0,nctot>0)
          nccc  = merge(ncore(ic),0,ncc>0)
-         associate( dcphiqk=>dconjg(cphim(ias:iae,nmini:)), cphiq=>cphiq(ias:iae,nqini:),&
-              ppbc=>ppb(nc1:ncnv,icore(1:ncorec,ic),:,icp)) !all readin but we need only bands nmini: or nqini:
+         associate(      dcphiqk=>dconjg(cphim(ias:iae,nmini:nmmax)),&
+              tdcphiqk=>transpose(dconjg(cphim(ias:iae,nmini:nmmax))),&
+              cphiq   =>cphiq(ias:iae,nqini:nqmax),&
+              tppb    =>reshape(ppb(nc1:ncnv,nc1:ncnv,:,icp),shape=[nv,nv,mdim],order=[2,1,3]),& !all readin but we need only bands nmini: or nqini:
+              ppbc    =>ppb(nc1:ncnv,icore(1:ncorec,ic),:,icp)) !all readin but we need only bands nmini: or nqini:
            !=== this may be time-consuming block ==================
-           do concurrent(i=1:mdim) !valence-valence ,it=1:nt0,itp=1:ntp0) 
-              zmelt(i-1+ims,nctot+1:nctot+nt0,ncc+1:ncc+ntp0)= phase(ia) * matmul( transpose(dcphiqk(:,1:nt0)), &
-                   matmul(transpose(ppb(nc1:ncnv,nc1:ncnv,i,icp)),cphiq(:,1:ntp0)) ) ! zmelt(ib,it,itp) =<B cphiqk_it |cphiq_itp>
+           do concurrent(i=1:mdim) !valence-valence 
+              zmelt(i-1+ims,nctot+1:nctot+nt0,ncc+1:ncc+ntp0)=phase(ia)*matmul(tdcphiqk,matmul(tppb(:,:,i),cphiq))
            enddo
            !========================================================
            do concurrent(it=1:ncorec) !core-valence
@@ -241,46 +243,42 @@ contains
         use m_read_ppovl,only: getppx2,igggi,igcgp2i,nxi,nxe,nyi,nye,nzi,nze,nvggg,nvgcgp2,ngvecc
         use m_read_ppovl,only: nggg,ngcgp,ngcread, ggg,ppovlinv, ngc2,ngvecc2
         integer:: ngveccR(1:3,1:ngc),igcgp2,nn(3),iggg,igp1,itp,igc,igp2
-        complex(8):: zmelp0(ngc,nt0,ntp0),phase(ngc) ,ggitp_(ngc,ngp2)
+        complex(8):: zmelp0(ngc,nt0,ntp0),phase(ngc) !,ggitp_(ngc,ngp2)
         complex(8),allocatable::ggitp(:,:),gggmat(:,:)
         integer,allocatable:: igcgp2i_(:,:)
         call getppx2(qlat,kvec) ! read and allocate ppovlinv
         if(ngc/=ngcread) call rx( 'melpln2t: ngc/= ngcx by getppx:PPOVLG')
         call rotgvec(symope, 1, ngc, [ngc], qlat, ngvecc, ngveccR)
         allocate(ggitp(ngcgp,ntp0),gggmat(ngcgp,ngp1),source=(0d0,0d0))
-        do concurrent(igcgp2=1:ngcgp,igp1=1:ngp1)
+        do concurrent(igcgp2=1:ngcgp,igp1=1:ngp1) !G synthesized 
            nn = ngvecpB1(:,igp1)- nvgcgp2(:,igcgp2) - nadd ! G1 -(Gc+G2) - Gadd.  Note that -Gadd= -rk + qt -qkt
            if(nn(1)<nxi .OR. nxe<nn(1) .OR. nn(2)<nyi .OR. nye<nn(2) .OR. nn(3)<nzi .OR. nze<nn(3)) cycle
            iggg = igggi(nn(1),nn(2),nn(3)) !inversion table
-           if(iggg<0) cycle ! ggg(iggg) = <qt+G1 -(rk+Gc) -(qk+G2) >, where
-           gggmat(igcgp2,igp1)=ggg(iggg)
+           if(iggg>=0) gggmat(igcgp2,igp1)=ggg(iggg)
         enddo
         allocate(igcgp2i_(ngc,ngp2))
-        do concurrent (igc=1:ngc,igp2=1:ngp2) !igc for B
+        do concurrent (igc=1:ngc,igp2=1:ngp2) !igc for B !G synthesized 
            nn = ngveccR(:,igc) + ngvecpB2(:,igp2)
            igcgp2i_(igc,igp2)=igcgp2i(nn(1),nn(2),nn(3))
         enddo
         phase(:)=[(exp( -img*tpi*sum((matmul(symope,kvec)+matmul(qlat,ngveccR(:,igc)))*shtv) ),igc=1,ngc)]
         !=== this may be time-consuming block (or maynot)==================
         associate(&
-             geigqtemp=> readgeigf(q, ispq),&       !read IPW part at q   !G1 for ngp1
+             geigq  => readgeigf(q, ispq),&           !read IPW part at q   !G1 for ngp1
              dgeigqk=> dconjg(readgeigf(qk,ispqk))) !read IPW part at qk  !G2 for ngp2
-          associate( geigq=> geigqtemp(1:ngp1,itq(nqini:nqmax)))
-            ggitp(:,:)=ggitp(:,:)+ matmul(gggmat,geigq)
-            deallocate(gggmat)
-            do concurrent (itp= 1:ntp0)
-               do concurrent (igp2=1:ngp2) 
-                  ggitp_(:,igp2) = ggitp(igcgp2i_(:,igp2),itp)
-               enddo 
+          ggitp(:,:)= matmul(gggmat,geigq(1:ngp1,itq(nqini:nqmax)))
+          deallocate(gggmat)
+          do concurrent (itp= 1:ntp0)
+             associate( ggitp_=>reshape([((ggitp(igcgp2i_(igc,igp2),itp),igc=1,ngc),igp2=1,ngp2)],shape=[ngc,ngp2]))
                zmelp0(:,:,itp)= matmul(ggitp_,dgeigqk(1:ngp2,nmini:nmmax))
-            enddo
-            forall(igc=1:ngc) zmelp0(igc,:,:)=phase(igc)*zmelp0(igc,:,:) 
-            deallocate(igcgp2i_)
-            ! NOTE \bfr'= g (\bfr) +\delta_g. Then mapping is ROT[f(\bfr)]= f(g^-1(\bfr)+\delta_{g^-1})
-            ! zmelp0(igc'(Gc'),it(G2),itp(G1)) = <Gc'G2|G1> geigq(G1,itp) geigqk*(G2,it) = <Gc' itp(G2)|it(G1)>
-          endassociate
+             endassociate
+          enddo
+          forall(igc=1:ngc) zmelp0(igc,:,:)=phase(igc)*zmelp0(igc,:,:) 
+          deallocate(igcgp2i_)
         endassociate
         !========================================================
+        ! NOTE \bfr'= g (\bfr) +\delta_g. Then mapping is ROT[f(\bfr)]= f(g^-1(\bfr)+\delta_{g^-1})
+        ! zmelp0(igc'(Gc'),it(G2),itp(G1)) = <Gc'G2|G1> geigq(G1,itp) geigqk*(G2,it) = <Gc' itp(G2)|it(G1)>
         call matm(ppovlinv,zmelp0,zmelt(nbloch+1:nbloch+ngc,nctot+1:nctot+nt0,ncc+1:ncc+ntp0),ngc,ngc,ntp0*nt0)
         deallocate(ggitp)
       endblock melpln2t
