@@ -89,7 +89,28 @@ Take
 >diff C/GWinput C121212GW/GWinput
 to know how to modify GWinput.
 
+Main job is run by gw_lmfh by gw_lmfh. An example of qsub script is
+----------------------------------
+#!/bin/bash
+#$ -N mp
+#$ -pe smp 16
+#$ -cwd
+#$ -M takaokotani@gmail.com
+#$ -m be
+#$ -V
+#$ -S /bin/bash
+n=$0
+nfpgw=`pwd`
+mat=${nfpgw##*/}
+mat='c'
+echo $mat
+export OMP_NUM_THREADS=1
+EXEPATH=/home/takao/bin/
+$EXEPATH/gw_lmfh -np 16 $mat >& out
+----------------------------------
+Then we finally get QPU file.
 QPU contains human-readable self-energy information.
+In the default setting, it took ~200 min in our machine.
 
 >cleargw . 
 clean up too much files below the current directory.
