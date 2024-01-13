@@ -195,6 +195,7 @@ contains
     chipmm=merge(chipm, .false.,present(chipm))
     nolfcc=merge(nolfco,.false.,present(nolfco))
     call Readvcoud(q,iq,NoVcou=chipmm) !Readin vcousq,zcousq ngb ngc for the Coulomb matrix
+    
     if(chipmm .AND. nolfcc) then
        nmbas_in = nmbas0
     elseif(nolfcc) then
@@ -205,6 +206,7 @@ contains
        nmbas_in = ngb
     endif
     nmbas = nmbas_in
+    
     if(chipmm .AND. nolfcc) then
        call setppovlz_chipm(zzr,nmbas) !!!!!!!! zzr??? optional chipm,nolfco zzr(1:nbloch,1:nmbas)
     else

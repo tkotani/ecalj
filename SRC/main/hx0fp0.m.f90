@@ -459,13 +459,13 @@ program hx0fp0
      endif
      !! Set ppovlz: zmelt conversion. Non-orthogonality and Enu(coulomb-diagonal basis) related.
      !!     ppovlz is used in get_zmelt2 in m_zmel (called in x0kf_v4h).
-     if(chipm .AND. nolfco) then
-        call setppovlz_chipm(zzr,nmbas1)
-     elseif(nolfco .AND. nmbas1==1) then !for <e^iqr|x0|e^iqr>
-        call Setppovlz(q,matz=.true.)
-     else                     !may2013  this removes O^-1 factor from zmelt
-        call Setppovlz(q,matz=.true.) !.not.eibzmode)
-     endif
+!     if(chipm .AND. nolfco) then
+!        call setppovlz_chipm(zzr,nmbas1)
+!     elseif(nolfco .AND. nmbas1==1) then !for <e^iqr|x0|e^iqr>
+!        call Setppovlz(q,matz=.true.)
+!     else                     !may2013  this removes O^-1 factor from zmelt
+!        call Setppovlz(q,matz=.true.) !.not.eibzmode)
+!     endif
      !! rcxq: imaginary part after x0kf_v4h and symmetrization.
      !! zxq ans zxqi are the main output after Hilbert transformation
      if(nolfco) then
@@ -503,7 +503,7 @@ program hx0fp0
         write(6,*)'epsppmode=',epsppmode
         ierr = x0kf_v4hz_init(0, q, is, isf, iq, nmbas_in,crpa)
         ierr = x0kf_v4hz_init(1, q, is, isf, iq, nmbas_in,crpa)
-        call x0kf_v4hz(q,is,isf,iq,nmbas_in,q00,chipm,nolfco,zzr,nmbas0) !,eibzmode
+        call x0kf_v4hz(q,is,isf,iq, nmbas,q00,chipm,nolfco,zzr,nmbas0) !,eibzmode
         call tetdeallocate() !--> deallocate(ihw,nhw,jhw, whw,ibjb,n1b,n2b)
         ! rcxq is the accumulating variable for spins
         ! Symmetrize and convert to Enu basis by dconjg(tranpsoce(zcousq)*rcxq8zcousq if eibzmode
@@ -515,14 +515,14 @@ program hx0fp0
         !    endif
         if(debug) write(6,"(a)") ' --- goto dpsion5 --- '
         if(is==nspinmx .OR. chipm) then
-           do concurrent(igb2=1:nmbas_in) !upper-light block of rcxq to full matrix
+           do concurrent(igb2=1:nmbas) !upper-light block of rcxq to full matrix
               imb= (igb2-1)*igb2/2
               rcxq(1:igb2,igb2,:,:)   =        rcxqh(imb+1:imb+igb2,  :,:)  !right-upper half
               rcxq(igb2,1:igb2-1,:,:) = dconjg(rcxqh(imb+1:imb+igb2-1,:,:))
            enddo !     write(6,"('  nmbas1,nmbas2=',2i10)") nmbas1,nmbas2
            deallocate(rcxqh)
            call dpsion5(realomega, imagomega, &
-                rcxq, nmbas1,nmbas2, zxq, zxqi, &
+                rcxq, nmbas,nmbas, zxq, zxqi, &
                 chipm, schi,is,  ecut,ecuts)
            if(nolfco .AND. epsmode) then
               do iw=nw_i,nw
