@@ -26,11 +26,11 @@ program hx0fp0
        whw,ihw,nhw,jhw,ibjb,nbnbx,nhwtot,n1b,n2b,nbnb
   use m_w0w0i,only: W0w0i, w0,w0i ! w0 and w0i (head part at Gamma point)
   use m_ll,only: ll
-  use m_readgwinput,only: ReadGwinputKeys, ecut,ecuts,mtet,ebmx,nbmx,nmbas,imbas,egauss
+  use m_readgwinput,only: ReadGwinputKeys, ecut,ecuts,mtet,ebmx,nbmx,nmbas0=>nmbas,nmbas,imbas,egauss
   use m_qbze,only: Setqbze, nqbze,nqibze,qbze,qibze
   use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
   use m_readVcoud,only: Readvcoud,vcousq,zcousq,ngb,ngc
-  use m_x0kf,only: X0kf_v4hz, X0kf_v4hz_init,ncount,kc !X0kf_v4hz_symmetrize,
+  use m_x0kf,only: X0kf_v4hz, X0kf_v4hz_init,ncount,kc,rcxqh=>rcxq !X0kf_v4hz_symmetrize,
 !  use m_eibz,only:Seteibz, nwgt,neibz,igx,igxt,eibzsym
   use m_llw,only: WVRllwR,WVIllwI,MPI__sendllw2
   use m_w0w0i,only: w0w0i
@@ -178,7 +178,7 @@ program hx0fp0
   character(20):: outs=''
   logical,save:: initzmel0=.true.
   real(8):: q0a,qa
-  complex(8),allocatable:: rcxq0(:,:,:,:),rcxqh(:,:,:)
+  complex(8),allocatable:: rcxq0(:,:,:,:)
   call MPI__Initialize()
   call M_lgunit_init()
   call MPI__consoleout('hx0fp0')
@@ -491,7 +491,7 @@ program hx0fp0
            if(is==1) isf=2
            if(is==2) isf=1
            !rcxq=0d0
-           rcxqh=0d0
+!           rcxqh=0d0
         endif
         do kx = 1, nqbz
            ekxx1(1:nband, kx)  = readeval(qbz(:,kx),   is )
@@ -503,7 +503,7 @@ program hx0fp0
         write(6,*)'epsppmode=',epsppmode
         ierr = x0kf_v4hz_init(0, q, is, isf, iq, nmbas_in,crpa)
         ierr = x0kf_v4hz_init(1, q, is, isf, iq, nmbas_in,crpa)
-        call x0kf_v4hz(q,is,isf,iq,nmbas_in,rcxqh,epsppmode,iqxini,q00=q00) !,eibzmode
+        call x0kf_v4hz(q,is,isf,iq,nmbas_in,q00,chipm,nolfco,zzr,nmbas0) !,eibzmode
         call tetdeallocate() !--> deallocate(ihw,nhw,jhw, whw,ibjb,n1b,n2b)
         ! rcxq is the accumulating variable for spins
         ! Symmetrize and convert to Enu basis by dconjg(tranpsoce(zcousq)*rcxq8zcousq if eibzmode
@@ -520,6 +520,7 @@ program hx0fp0
               rcxq(1:igb2,igb2,:,:)   =        rcxqh(imb+1:imb+igb2,  :,:)  !right-upper half
               rcxq(igb2,1:igb2-1,:,:) = dconjg(rcxqh(imb+1:imb+igb2-1,:,:))
            enddo !     write(6,"('  nmbas1,nmbas2=',2i10)") nmbas1,nmbas2
+           deallocate(rcxqh)
            call dpsion5(realomega, imagomega, &
                 rcxq, nmbas1,nmbas2, zxq, zxqi, &
                 chipm, schi,is,  ecut,ecuts)
@@ -532,7 +533,7 @@ program hx0fp0
         endif
         continue  
 1003 enddo isloop
-     deallocate(rcxq,rcxqh)
+     deallocate(rcxq)
      realomegamode: if(realomega .AND. ( .NOT. epsmode)) then ! ===  RealOmega === W-V: WVR and WVI. Wing elemments: llw, llwi LLWR, LLWI
         call WVRllwR(q,iq,zxq,nmbas1,nmbas2)
         deallocate(zxq)

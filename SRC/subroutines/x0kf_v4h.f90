@@ -11,15 +11,16 @@ module m_x0kf
   use m_qbze,only: nqbze
   use m_readhbe,only: nband
   use m_hamindex,only: ngrp
-!  use m_readVcoud,only: zcousq,ngc,ngb
   use m_tetwt,only:     whw,ihw,nhw,jhw,n1b,n2b,nbnb,nbnbx,nhwtot
   use m_ftox
+  use m_readVcoud,only:   Readvcoud,vcousq,zcousq,ngb,ngc
   implicit none
   public:: X0kf_v4hz_init, X0kf_v4hz,x0kf_zmel,X0kf_v4hz_init_write,X0kf_v4hz_init_read
   integer,public,allocatable:: kc(:)
   integer,public:: ncount,ncoun
-  private
-  integer,allocatable:: nkmin(:), nkmax(:),nkqmin(:),nkqmax(:)
+  complex(8),allocatable,public:: rcxq(:,:,:) !main output
+  private 
+  integer,allocatable:: nkmin(:), nkmax(:),nkqmin(:),nkqmax(:) 
   real(8),allocatable:: whwc(:)
   integer,allocatable:: iwini(:),iwend(:),itc(:),itpc(:),jpmc(:),icouini(:)
   complex(8),allocatable :: zmel0(:,:,:) 
@@ -120,9 +121,11 @@ contains
     ierr=0
     if(job==0) write(stdo,"('x0kf_v4hz_init: job=0 ncount ncoun nqibz=',3i8)") ncount, ncoun,nqibz
   endfunction x0kf_v4hz_init
-  subroutine X0kf_v4hz (q, isp_k,isp_kq, iq, nmbas,  rcxq,epsppmode,iqxini, q00)
-    intent(in)   ::     q, isp_k,isp_kq, iq, nmbas,       epsppmode,iqxini, q00 !q00 is optional
-    intent(out)  ::                                  rcxq
+  subroutine X0kf_v4hz (q, isp_k,isp_kq, iq, nmbas,   q00,chipm,nolfco,zzr,nmbas0)
+    use m_zmel,only: Setppovlz,Setppovlz_chipm   ! & NOTE: these data set are stored in this module, and used
+!  subroutine X0kf_v4hz (q, isp_k,isp_kq, iq, nmbas,  rcxq,epsppmode,iqxini, q00)
+    intent(in)   ::     q, isp_k,isp_kq, iq,    q00 !q00 is optional
+!    intent(out)  ::                                  rcxq
     !! === calculate chi0, or chi0_pm === ! eibzmode, 
     !! We calculate imaginary part of chi0 along real axis.
     !!
@@ -144,21 +147,21 @@ contains
     ! note: zmel: matrix element <phi phi |M>
     !! nlmto   = total number of atomic basis functions within MT
     !! nqbz    = number of k-points in the 1st BZ
-    !     !
-    logical,optional ::epsppmode
-    integer,optional::iqxini
     real(8),optional::q00(3)
-    integer:: k,isp_k,isp_kq,iq, jpm, ibib, iw,igb2,igb1,it,itp, nmbas 
+    integer,optional::nmbas0
+    integer:: k,isp_k,isp_kq,iq, jpm, ibib, iw,igb2,igb1,it,itp, nmbas ,nmbas_in
     integer:: nkmax1,nkqmax1, ib1, ib2, ngcx,ix,iy,igb ,   irot=1         
     integer:: izmel,ispold,nmtot,nqtot ,ispold2,ierr,iwmax,ifi0,icoucold,icoun
     integer:: nwj(nwhis,npm),imb, nadd(3), igc ,neibz,icc,ig,ikp,i,j,itimer,icount, kold 
     real(8):: q(3),imagweight, wpw_k,wpw_kq,qa,q0a
-    complex(8):: rcxq (nmbas*(nmbas+1)/2,nwhis,npm) !only upper-right of rcxq
-    complex(8):: img=(0d0,1d0),zmelt2, zmelzmel(nmbas*(nmbas+1)/2)
+!    complex(8):: rcxq (nmbas*(nmbas+1)/2,nwhis,npm) !only upper-right of rcxq
+    complex(8):: img=(0d0,1d0),zmelt2!, zmelzmel(nmbas*(nmbas+1)/2)
+    complex(8),optional:: zzr(:,:)
     complex(8),allocatable :: zmelt(:,:,:)
-    logical :: iww2=.true., cmdopt0,emptyrun
+    logical :: iww2=.true., cmdopt0,emptyrun,nolfcc,chipmm, localfieldcorrectionllw
     logical,parameter:: debug=.false.
-    !! Main loop over k-points ---------------------------------------------------------
+    logical,optional:: chipm,nolfco
+    
     ! z1p = <M_ibg1 psi_it | psi_itp> < psi_itp | psi_it M_ibg2 >
     !  zxq(iw,ibg1,igb2) = \sum_ibib imgw(iw,ibib)* z1p(ibib, igb1,igb2) !ibib means band pair (occ,unocc)
     !
@@ -167,10 +170,7 @@ contains
     !      ib_k =[nctot+nkmin:nctot+nkmax]  valence
     !      ib_kq =[1:ncc]             core
     !      ib_kq =[ncc+nkqmin:ncc+nkqmax]  valence range [nkqmin,nkqmax]
-    !   If jpm=1, ncc=0.
-    !   If jpm=2, ncc=ncore. nkqmin(k)=1 should be.
-    ! There is a little confusion. n1b index contains cores are after valence.
-    ! You can see codes to treat the confusion.
+    !   If jpm=1, ncc=0.  !   If jpm=2, ncc=ncore. nkqmin(k)=1 should be.
     ! NOTE:
     !  q+rk n2b vec_kq  vec_kq_g geig_kq cphi_kq  ngp_kq ngvecp_kq  isp_kq
     !    rk n1b vec_k   vec_k_g  geig_k  cphi_k   ngp_k  ngvecp_k   isp_k
@@ -186,11 +186,33 @@ contains
     !!     rkvec= rk(:,k)   ! <phi(q+rk,nqmax)|phi(rk,nctot+nmmax)  MPB(q,ngb )>
     !!     qbz_kr= rk(:,k)  !
     !!     qibz_k= rk(:,k)  ! k
-    !! Get_zmelt in m_zmel gives the matrix element zmel,  ZO^-1 <MPB psi|psi> , where ZO is ppovlz
-    !! zmel(ngb, nctot+nt0,ncc+ntp0) in m_zmel
-    !        nkmin:nt0,           nkqmin:ntp0
-    !     nt0=nkmax-nkmin+1  , ntp0=nkqmax-nkqmin+1
+    !! Get_zmelt in m_zmel gives the matrix element zmel,  ZO^-1 <MPB psi|psi> , where ZO is ppovlz 
+    !! zmel(ngb, nctot+nt0,  ncc+ntp0) in m_zmel
+    !            nkmin:nt0, nkqmin:ntp0, where nt0=nkmax-nkmin+1  , ntp0=nkqmax-nkqmin+1
     emptyrun=cmdopt0('--emptyrun')
+
+    ! ! !!!!!!!!!!!!!!!!!!!!!!    
+    chipmm=merge(chipm, .false.,present(chipm))
+    nolfcc=merge(nolfco,.false.,present(nolfco))
+    call Readvcoud(q,iq,NoVcou=chipmm) !Readin vcousq,zcousq ngb ngc for the Coulomb matrix
+    if(chipmm .AND. nolfcc) then
+       nmbas_in = nmbas0
+    elseif(nolfcc) then
+       nmbas_in=1
+    elseif(iq > nqibz .AND. ( .NOT. localfieldcorrectionllw())  ) then
+       nmbas_in = 1
+    else          ! We usually use localfieldcorrectionllw()=T
+       nmbas_in = ngb
+    endif
+    nmbas = nmbas_in
+    if(chipmm .AND. nolfcc) then
+       call setppovlz_chipm(zzr,nmbas) !!!!!!!! zzr??? optional chipm,nolfco zzr(1:nbloch,1:nmbas)
+    else
+       call Setppovlz(q,matz=.true.)
+    endif
+    ! !!!!!!!!!!!!!!!!!!!!!!!!
+    if(.not. allocated(rcxq)) allocate( rcxq(nmbas*(nmbas+1)/2,nwhis,npm),source=(0d0,0d0))
+    
     zmel0mode: if(cmdopt0('--zmel0')) then !this is for epsPP0. Use zmel-zmel0 for matrix elements.
        zmel0block : block
          real(8)::  q1a,q2a,rfac00
@@ -199,8 +221,7 @@ contains
          q1a=sum(q00**2)**.5
          q2a=sum(q**2)**.5
          rfac00=q2a/(q2a-q1a)
-         zmel0modeicount: do icoun = 1,ncoun !ncount
-            !icoun=icouc(icount)
+         zmel0modeicount: do icoun = 1,ncoun !ncount             !icoun=icouc(icount)
             k   = kc(icoun)
             it  = itc (icoun)  !occ      k
             itp = itpc(icoun) !unocc    q+k
@@ -212,11 +233,9 @@ contains
                call x0kf_zmel(q, k, isp_k,isp_kq)
                kold=k
             endif
-            do iw=iwini(icoun),iwend(icoun)
+            do iw=iwini(icoun),iwend(icoun) !!iw  = iwc(icount)  !omega-bin
                icount= icouini(icoun)+iw-iwini(icoun)
-               !iw  = iwc(icount)  !omega-bin
-               !We assume rcxq(1) in this mode
-               if(abs(zmel0(igb1,it,itp))>1d10) cycle
+               if(abs(zmel0(igb1,it,itp))>1d10) cycle !We assume rcxq(1) in this mode
                rcxq(1,iw,jpm)=rcxq(1,iw,jpm) +rfac00**2*(abs(zmel(1,it,itp))-abs(zmel0(1,it,itp)))**2 *whwc(icount)
             enddo
          enddo zmel0modeicount
@@ -249,20 +268,19 @@ contains
             jpm => jpmc(icoun),&  !\pm omega 
             it  => itc (icoun),&  !occ      at k
             itp => itpc(icoun))   !unocc    at q+k
-         do concurrent(igb2=1:nmbas) !upper-light block of zmel*zmel
-            zmelzmel(1+(igb2-1)*igb2/2:igb2+(igb2-1)*igb2/2)= dconjg(zmel(1:igb2,it,itp))*zmel(igb2,it,itp) !right-upper half
-         enddo
-         forall(iw=iwini(icoun):iwend(icoun)) rcxq(:,iw,jpm)= rcxq(:,iw,jpm) + whwc(iw-iwini(icoun)+icouini(icoun))*zmelzmel(:)
-!         forall(iw=iwini(icoun):iwend(icoun)) nwj(iw,jpm)=nwj(iw,jpm)+iwend(icoun)-iwini(icoun)+1 !onlyfor check counter
+         block
+           complex(8):: zmelzmel(nmbas*(nmbas+1)/2)
+           do concurrent(igb2=1:nmbas) !upper-light block of zmel*zmel
+              zmelzmel(1+(igb2-1)*igb2/2:igb2+(igb2-1)*igb2/2)= dconjg(zmel(1:igb2,it,itp))*zmel(igb2,it,itp) !right-upper half
+           enddo
+           forall(iw=iwini(icoun):iwend(icoun)) rcxq(:,iw,jpm)= rcxq(:,iw,jpm) + whwc(iw-iwini(icoun)+icouini(icoun))*zmelzmel(:) !zaxpy
+           !         forall(iw=iwini(icoun):iwend(icoun)) nwj(iw,jpm)=nwj(iw,jpm)+iwend(icoun)-iwini(icoun)+1 !onlyfor check counter
+         endblock
        endassociate
        !#####################  
 1000 enddo mainloop4rcxqsum
 2000 continue
-    
     deallocate(nkmin,nkmax,nkqmin,nkqmax,whwc,kc,itc,itpc,iwini,iwend,jpmc,icouini)
-!    do concurrent (jpm=1:npm, iw=1:nwhis, igb2= 1:nmbas)   !Hermitianize
-!       rcxq(igb2,1:igb2-1,iw,jpm) = dconjg(rcxq(1:igb2-1,igb2,iw,jpm)) 
-!    enddo
     write(stdo,ftox) " --- x0kf_v4hz: end"
     if(debug)write(stdo,"(' --- ', 3d13.5)")sum(abs(rcxq(:,1:nwhis,1:npm))),sum((rcxq(:,1:nwhis,1:npm)))
   end subroutine x0kf_v4hz
@@ -271,7 +289,6 @@ contains
     integer:: k,isp_k,isp_kq,iq 
     real(8):: q(3)
     call get_zmel_init(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot, ns2=nkmax(k)+nctot, ispm=isp_k, &
-         nqini=nkqmin(k), nqmax=nkqmax(k), ispq=isp_kq,&
-         nctot=nctot, ncc=merge(0,nctot,npm==1), iprx=.false., zmelconjg=.true.)
+         nqini=nkqmin(k), nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1), iprx=.false., zmelconjg=.true.)
   end subroutine x0kf_zmel
 end module m_x0kf !subroutine x0kf_vhz_symmetrize here removed. See old source code ~2022.

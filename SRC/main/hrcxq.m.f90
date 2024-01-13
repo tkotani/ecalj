@@ -18,16 +18,15 @@ program hrcxq
   use m_read_bzdata,only:Read_bzdata,nqbz,nqibz,n1,n2,n3,ginv,dq_,qbz,wbz,qibz,wibz, ntetf,idtetf,ib1bz, qbzw,nqbzw,q0i,nq0i,nq0iadd !for tetrahedron   !     &     idteti, nstar,irk,nstbz
   use m_genallcf_v3,only: Genallcf_v3,nclass,natom,nspin,nl,nn,nlmto,nlnmx,nctot,alat,clabl,iclass,il,in,im,nlnm,plat,pos,ecore
   use m_rdpp,only: Rdpp,nxx,lx,nx,mdimx,nbloch,cgr,ppbrd ,nblochpmx,mrecl,nprecx !! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
-  use m_zmel,only: Mptauof_zmel,Setppovlz !Set data for "call get_zmelt" zmelt= matrix element <phi |phi MPB>.
+  use m_zmel,only: Mptauof_zmel !Set data for "call get_zmelt" zmelt= matrix element <phi |phi MPB>.
   use m_itq,only: Setitq !set itq,ntq,nband,ngcmx,ngpmx to m_itq
   use m_freq,only: Getfreq2,frhis,freq_r,freq_i,nwhis,nw_i,nw,npm,niw ! Frequency !output of getfreq
   use m_tetwt,only: Tetdeallocate,Gettetwt,whw,ihw,nhw,jhw,ibjb,nbnbx,nhwtot,n1b,n2b,nbnb
   use m_w0w0i,only:       W0w0i,    w0,w0i,llmat   !      use m_readq0p,only:     Readq0p,  wqt,q0i,nq0i ,nq0iadd,ixyz
-  use m_readVcoud,only:   Readvcoud,vcousq,zcousq,ngb,ngc
   use m_readgwinput,only: ReadGwinputKeys,egauss,ecut,ecuts,mtet,ebmx,nbmx,imbas
   use m_qbze,only:    Setqbze,nqbze,nqibze,qbze,qibze
   use m_readhbe,only: Readhbe,nband !,nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg !  use m_eibz,only:    Seteibz,nwgt,neibz,igx,igxt,eibzsym
-  use m_x0kf,only:    X0kf_v4hz,x0kf_v4hz_init_read!X0kf_v4hz_init,,x0kf_v4hz_init_write !X0kf_v4hz_symmetrize,
+  use m_x0kf,only:    X0kf_v4hz,x0kf_v4hz_init_read,rcxq  !X0kf_v4hz_init,,x0kf_v4hz_init_write !X0kf_v4hz_symmetrize,
   use m_llw,only:     WVRllwR,WVIllwI,w4pmode,MPI__sendllw
   use m_mpi,only: MPI__hx0fp0_rankdivider2Q,MPI__Qtask,MPI__Initialize,MPI__Finalize,MPI__root,&
        MPI__Broadcast,MPI__rank,MPI__size,MPI__consoleout,MPI__barrier
@@ -45,7 +44,7 @@ program hrcxq
   character(10) :: i2char
   character(20):: outs=''
   real(8),allocatable :: symope(:,:),ekxx1(:,:),ekxx2(:,:)
-  complex(8),allocatable:: zxq(:,:,:),zxqi(:,:,:),zzr(:,:),rcxq(:,:,:),rcxqin(:,:,:,:)
+  complex(8),allocatable:: zxq(:,:,:),zxqi(:,:,:),zzr(:,:),rcxqin(:,:,:,:)
   call MPI__Initialize()
   call M_lgunit_init()
   emptyrun=cmdopt0('--emptyrun')
@@ -85,23 +84,17 @@ program hrcxq
      call cputid (0)
      qp = qibze(:,iq)
      write(stdo,ftox)'do 1001: iq q=',iq,ftof(qp,4) !4 means four digits below decimal point (optional).
-     call Readvcoud(qp,iq,NoVcou=.false.) !Readin vcousq,zcousq ngb ngc for the Coulomb matrix
-     if(iq > nqibz .AND. ( .NOT. localfieldcorrectionllw())  ) then
-        nolfco =.true.
-        nmbas_in = 1
-     else          ! We usually use localfieldcorrectionllw()=T
-        nolfco = .false.
-        nmbas_in = ngb
-     endif
-     nmbas = nmbas_in 
-     allocate( rcxq(nmbas*(nmbas+1)/2,nwhis,npm),source=(0d0,0d0))
-     call Setppovlz(qp,matz=.true. ) ! Set ppovlz for calling get_zmelt (get matrix elements) \in m_zmel \in subroutine x0kf_v4hz
+!     if(iq > nqibz .AND. ( .NOT. localfieldcorrectionllw())  ) then
+!        nmbas = 1
+!     else          ! We usually use localfieldcorrectionllw()=T
+!        nmbas = ngb
+!     endif
      GetImpartPolarizationFunction_rcxq: block
        do is = 1,nspin ! rcxq is being acuumulated for spins
           write(stdo,ftox)' ### ',iq,is,' out of nqibz+n0qi+nq0iadd nsp=',nqibz+nq0i+nq0iadd,nspin
           isf = is
           call X0kf_v4hz_init_read(iq,is) !Readin icount data (index sets and tetrahedron weight) into m_x0kf
-          call x0kf_v4hz(qp, is,isf, iq, nmbas, rcxq=rcxq,iqxini=iqxini)
+          call x0kf_v4hz(qp, is,isf, iq, nmbas) 
        enddo
        allocate(rcxqin(nmbas,nmbas,nwhis,npm))
        do iwhis=1,nwhis

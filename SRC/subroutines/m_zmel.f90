@@ -1,5 +1,4 @@
-!> Get the matrix element zmel =  ZO^-1 <MPB psi|psi> , where ZO is ppovlz(inverse of overlap matrix)
-!  "call get_zmel_init" return zmel 
+!> Get the matrix element zmel =  ZO^-1 <MPB psi|psi> , where ZO is ppovlz(inverse of overlap matrix) !  "call get_zmel_init" return zmel 
 !  All dependencies (use foobar below ) are inputs (must be protected).
 module m_zmel
   use m_genallcf_v3,only: nclass,natom,nspin,nl,nn,nnv,nnc, nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, niw
@@ -290,18 +289,3 @@ contains
     if(present(zmelconjg)) zmel=dconjg(zmel)
   end subroutine get_zmel_init
 end module m_zmel
-
-!  subroutine GramSchmidt_zmel() !oct15 2021 !experimenal
-!    integer:: igb=1,it,itt
-!    complex(8):: ov(nmtot),vec(nqtot),dnorm2(nmtot)
-!    real(8):: dnorm
-!    do it = 1,nmtot        ! occ
-!       vec(:)= zmel(igb,it,:)
-!       do itt = 1,it-1
-!          ov(itt) = sum( dconjg(zmel(igb,itt,:))*vec(:))/dnorm2(itt)
-!       enddo
-!       vec = vec - matmul(ov(1:it-1),zmel(igb,1:it-1,:))
-!       dnorm2(it) = sum(dconjg(vec)*vec)
-!       zmel(igb,it,:) = vec
-!    enddo
-!  end subroutine GramSchmidt_zmel
