@@ -121,9 +121,9 @@ contains
     ierr=0
     if(job==0) write(stdo,"('x0kf_v4hz_init: job=0 ncount ncoun nqibz=',3i8)") ncount, ncoun,nqibz
   endfunction x0kf_v4hz_init
-  subroutine X0kf_v4hz (q, isp_k,isp_kq, iq, nmbas,   q00,chipm,nolfco,zzr,nmbas0)
+  subroutine X0kf_v4hz (q, isp_k,isp_kq, iq, npr,   q00,chipm,nolfco,zzr,nmbas)
     use m_zmel,only: Setppovlz,Setppovlz_chipm   ! & NOTE: these data set are stored in this module, and used
-!  subroutine X0kf_v4hz (q, isp_k,isp_kq, iq, nmbas,  rcxq,epsppmode,iqxini, q00)
+!  subroutine X0kf_v4hz (q, isp_k,isp_kq, iq, npr,  rcxq,epsppmode,iqxini, q00)
     intent(in)   ::     q, isp_k,isp_kq, iq,    q00 !q00 is optional
 !    intent(out)  ::                                  rcxq
     !! === calculate chi0, or chi0_pm === ! eibzmode, 
@@ -139,7 +139,7 @@ contains
     !! ppovlz(I, mu) = \sum_J O_IJ Zcousq(J, mu)
     !!
     !! OUTPUT:
-    !!  rcxq (nmbas,nmbas,nwhis,npm): for given q,
+    !!  rcxq (npr,npr,nwhis,npm): for given q,
     !!       rcxq(I,J,iw,ipm) =
     !!       Im (chi0(omega))= \sum_k <I_q psi_k|psi_(q+k)> <psi_(q+k)|psi_k> \delta(\omega- (e_i-ej))
     !!      When npm=2 we calculate negative energy part. (time-reversal asymmetry)
@@ -148,14 +148,14 @@ contains
     !! nlmto   = total number of atomic basis functions within MT
     !! nqbz    = number of k-points in the 1st BZ
     real(8),optional::q00(3)
-    integer,optional::nmbas0
-    integer:: k,isp_k,isp_kq,iq, jpm, ibib, iw,igb2,igb1,it,itp, nmbas ,nmbas_in
+    integer,optional::nmbas
+    integer:: k,isp_k,isp_kq,iq, jpm, ibib, iw,igb2,igb1,it,itp, npr ,npr_in
     integer:: nkmax1,nkqmax1, ib1, ib2, ngcx,ix,iy,igb ,   irot=1         
     integer:: izmel,ispold,nmtot,nqtot ,ispold2,ierr,iwmax,ifi0,icoucold,icoun
     integer:: nwj(nwhis,npm),imb, nadd(3), igc ,neibz,icc,ig,ikp,i,j,itimer,icount, kold 
     real(8):: q(3),imagweight, wpw_k,wpw_kq,qa,q0a
-!    complex(8):: rcxq (nmbas*(nmbas+1)/2,nwhis,npm) !only upper-right of rcxq
-    complex(8):: img=(0d0,1d0),zmelt2!, zmelzmel(nmbas*(nmbas+1)/2)
+!    complex(8):: rcxq (npr*(npr+1)/2,nwhis,npm) !only upper-right of rcxq
+    complex(8):: img=(0d0,1d0),zmelt2!, zmelzmel(npr*(npr+1)/2)
     complex(8),optional:: zzr(:,:)
     complex(8),allocatable :: zmelt(:,:,:)
     logical :: iww2=.true., cmdopt0,emptyrun,nolfcc,chipmm, localfieldcorrectionllw
@@ -195,25 +195,22 @@ contains
     chipmm=merge(chipm, .false.,present(chipm))
     nolfcc=merge(nolfco,.false.,present(nolfco))
     call Readvcoud(q,iq,NoVcou=chipmm) !Readin vcousq,zcousq ngb ngc for the Coulomb matrix
-    
-    if(chipmm .AND. nolfcc) then
-       nmbas_in = nmbas0
+    if(chipmm) then ! .AND. nolfcc) then
+       npr = nmbas
     elseif(nolfcc) then
-       nmbas_in=1
-    elseif(iq > nqibz .AND. ( .NOT. localfieldcorrectionllw())  ) then
-       nmbas_in = 1
+       npr=1
+    elseif(iq > nqibz .AND. (.NOT.localfieldcorrectionllw())  ) then
+       npr = 1
     else          ! We usually use localfieldcorrectionllw()=T
-       nmbas_in = ngb
+       npr = ngb
     endif
-    nmbas = nmbas_in
-    
     if(chipmm .AND. nolfcc) then
-       call setppovlz_chipm(zzr,nmbas) !!!!!!!! zzr??? optional chipm,nolfco zzr(1:nbloch,1:nmbas)
+       call setppovlz_chipm(zzr,npr) !!!!!!!! zzr??? optional chipm,nolfco zzr(1:nbloch,1:npr)
     else
        call Setppovlz(q,matz=.true.)
     endif
     ! !!!!!!!!!!!!!!!!!!!!!!!!
-    if(.not. allocated(rcxq)) allocate( rcxq(nmbas*(nmbas+1)/2,nwhis,npm),source=(0d0,0d0))
+    if(.not. allocated(rcxq)) allocate( rcxq(npr*(npr+1)/2,nwhis,npm),source=(0d0,0d0))
     
     zmel0mode: if(cmdopt0('--zmel0')) then !this is for epsPP0. Use zmel-zmel0 for matrix elements.
        zmel0block : block
@@ -271,8 +268,8 @@ contains
             it  => itc (icoun),&  !occ      at k
             itp => itpc(icoun))   !unocc    at q+k
          block
-           complex(8):: zmelzmel(nmbas*(nmbas+1)/2)
-           do concurrent(igb2=1:nmbas) !upper-light block of zmel*zmel
+           complex(8):: zmelzmel(npr*(npr+1)/2)
+           do concurrent(igb2=1:npr) !upper-light block of zmel*zmel
               zmelzmel(1+(igb2-1)*igb2/2:igb2+(igb2-1)*igb2/2)= dconjg(zmel(1:igb2,it,itp))*zmel(igb2,it,itp) !right-upper half
            enddo
            forall(iw=iwini(icoun):iwend(icoun)) rcxq(:,iw,jpm)= rcxq(:,iw,jpm) + whwc(iw-iwini(icoun)+icouini(icoun))*zmelzmel(:) !zaxpy
