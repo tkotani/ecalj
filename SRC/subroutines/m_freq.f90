@@ -47,7 +47,7 @@ contains
     logical,optional:: npmtwo !! Added Aug2017 for hmagnon
     logical:: realomega,imagomega,iprint,epsmode,qbzreg
     real(8):: omg2max,ua
-    call Findemaxmin(nband,qbze,nqbze,nspin, emax,emin)
+    call findemaxmin(nband,qbze,nqbze,nspin, emax,emin)
     if( .NOT. qbzreg()) then
        allocate(qbz2(3,nqbz))
        do iq=1,nqbz
@@ -290,20 +290,19 @@ subroutine getwemax(lqall,wemax) !!> this routine is just in order to get |e_ip-
   we  = max(abs(emaxv - ef), abs(omegav-ef),abs(omegac- ef) , abs(eminc-ef) )
   wemax= we+ffac*esmr
 end subroutine getwemax
-  !      nw  = idint (we/2d0/dw) + 3
-  !      write(6,*)' --------------------------------'
-  !      write(6,*)' emaxv= ',emaxv
-  !      write(6,*)' eminc= ',eminc
-  !      write(6,*)' omegav ip it=',omegav ,ipx1,itx1
-  !      write(6,*)' omegac ip it=',omegac ,ipx2,itx2
-  !      write(6,*)' we max for <ef', emaxv - omegav
-  !      write(6,*)' we max for >ef', omegac- eminc
-  !      write(6,("(' wemax=  ',f13.4)") wemax
-  !      write(6,*)"write nw to NW"
-  !      open(1101,file='NW')
-  !      write(1101,*) nw
-  !      close(1101)
-  !      write(6, *) ' --- computational conditions --- '
-  !      write(6,'("    deltaw  =",f13.6)') deltaw
-  !      write(6,'("    esmr    =",f13.6)') esmr
-  !      write(6,'("    niw nw dw   =",2i6,f13.6)') niw,nw,dw
+subroutine findemaxmin(nband,qbz,nqbz,nspin, emax,emin)
+  use m_readeigen, only: readeval
+  implicit none
+  integer :: nband,nqbz,nspin,isp,kx,i 
+  real(8)::emax,emin,qbz(3,nqbz),eee
+  real(8),allocatable:: ekxxx(:,:,:)
+  allocate( ekxxx(nband,nqbz,nspin))
+  do isp =1, nspin
+     do kx = 1, nqbz
+        ekxxx(1:nband,kx,isp) = readeval(qbz(:,kx), isp)
+     enddo
+  enddo
+  Emax = maxval(ekxxx,mask=ekxxx<1d9) !not eee<1d9 corresponds to 1d20 for padding in lmf2gw.F and sugw.Fago
+  Emin = minval(ekxxx)
+  deallocate(ekxxx)
+end subroutine findemaxmin

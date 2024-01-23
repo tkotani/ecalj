@@ -4,7 +4,7 @@ program hmlo ! Get bands for given k points for MLOGenerates MTO-only Hamiltonia
   use m_zhev,only:zhev_tk4
   use m_HamRsMTO,  only: hammr,ovlmr,ndimMTO,  ReadHamRsMTO,ix,npairmx,nspx
   use m_readqplist,only: eferm,qplistsy,ndat,xdat, Readqplistsy
-  use m_mpi,only: MPI__hx0fp0_rankdivider2Q, MPI__Qtask, &
+  use m_mpi,only: MPI__Qtask, &
        MPI__Initialize, MPI__Finalize,MPI__root, &
        MPI__Broadcast, MPI__rank,MPI__size, MPI__consoleout,MPI__barrier
   implicit none

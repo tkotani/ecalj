@@ -148,19 +148,6 @@ contains
              endif
           enddo
        enddo
-       !$$$cccccccccccccccccccccc
-       !$$$          do kx  = 1, nqbz
-       !$$$          do jpm = 1, npm
-       !$$$          do ix=1,nbnb(kx,jpm)
-       !$$$            write(6,"('jpm kx  minval n1b n2b=',3i5,2x,2i10)")jpm,kx,ix,
-       !$$$     &       n1b(ix,kx,jpm),n2b(ix,kx,jpm)
-       !$$$          enddo
-       !$$$          enddo
-       !$$$          enddo
-       !          call MPI__Finalize
-       !          call rx0( ' OK! hx0fp0_sc ixc=11 Sergey F. mode')
-       !          stop 'vvvvvvvvvvvvvv111'
-       ! cccccccccccccccccccc
     endif
     if(sum(abs(nbnb-nbnbtt))/=0)then
        do ik=1,nqbz

@@ -240,9 +240,9 @@ contains
 
   !----------------------------------------------------------
   subroutine MPI__sendllw2(iqxend) !for hx0fp0
-    use m_mpi,only: MPI__hx0fp0_rankdivider2,MPI__task,MPI__Initialize,MPI__Finalize,MPI__root
+    use m_mpi,only: MPI__task,MPI__Initialize,MPI__Finalize,MPI__root
     use m_mpi,only: MPI__Broadcast,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,MPI__rank,MPI__size
-    use m_mpi,only: MPI__ranktab,MPI__consoleout,MPI__barrier
+    use m_mpi,only: MPI__ranktab
     intent(in)::             iqxend
     integer:: iq0,dest,src,iq,iqxend
     !! === Recieve llw and llwI at node 0, where q=0(iq=1) is calculated. ===

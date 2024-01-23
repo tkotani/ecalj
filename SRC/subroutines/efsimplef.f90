@@ -453,29 +453,6 @@ real(8) function enumef( wgtx,ektx,ein,esmr,nbnqnsp)
   enumef = wwg
   !     write(6,*)' ein enumef=', ein, enumef
 END function enumef
-!---------------------------------------------------------------
-subroutine findemaxmin(nband,qbz,nqbz,nspin, emax,emin)
-  use m_readeigen, only: readeval
-  implicit none
-  integer :: nband,nqbz,nspin,isp,kx,i !,ifev(2)
-  real(8)::emax,emin,qbz(3,nqbz),eee
-  real(8),allocatable:: ekxxx(:,:,:)
-  allocate( ekxxx(nband,nqbz,nspin))
-  Emax=-1d9
-  do isp =1, nspin
-     do kx = 1, nqbz
-        ekxxx(1:nband,kx,isp) = readeval(qbz(:,kx), isp)
-        do i=1,nband
-           eee= ekxxx(i,kx,isp)
-           !            print *,i,eee
-           if(eee>Emax .AND. eee<1d9) Emax=eee !not eee<1d9 corresponds to 1d20 for padding in lmf2gw.F and sugw.Fago
-        enddo
-     enddo
-  enddo
-  !      Emax = maxval(ekxxx(1:nband)
-  Emin = minval(ekxxx)
-  deallocate(ekxxx)
-end subroutine findemaxmin
 !$$$      subroutine findemaxmin(ifev,nband,nqbz,nspin,
 !$$$     o   emax,emin)
 !$$$      implicit none

@@ -217,12 +217,3 @@ integer function mpipid(mode)  !- Returns MPI procid
      mpipid = 0
   endif
 end function mpipid
-!      subroutine fmain
-!      integer n
-!      n = mpipid(0)
-!      print *, 'mpipid for number of processors:', n
-!      n = mpipid(1)
-!      print *, 'mpipid for processor id:', n
-!      call MPI_FINALIZE(n)
-!      end
-
