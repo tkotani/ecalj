@@ -380,18 +380,20 @@ program hsfp0
         call rx( 'hsfp0 ixc=3/6:  ecore>evalence ')
      endif
      if(ixc==6) then
-        call efsimplef2a(nspin,wibz,qibz,ginv, &
-             nband,nqibz &
-             ,konf,z,nl,natom,iclass,nclass &
-             ,valn, legas, esmr2, qbz,nqbz,efnew)
+        call efsimplef2ax(legas,esmr2, valn,efnew)!Get num of val electron valn and Fermi energy ef. legas=T give ef for given valn.
+!        call efsimplef2a(nspin,wibz,qibz,ginv, &
+!             nband,nqibz &
+!             ,konf,z,nl,natom,iclass,nclass &
+!             ,valn, legas, esmr2, qbz,nqbz,efnew)
         ef2 = efnew
         write(6,*)' end of efsimple ef2 esmr2=',ef2,esmr2
      endif
   else                      ! if(esmr/=0d0) then
      !     --- determine Fermi energy ef for given valn (legas case) or corresponding charge given by z and konf.
      !     When esmr is negative, esmr is geven automatically by efsimplef.
-     call efsimplef2a(nspin,wibz,qibz,ginv, nband,nqibz &
-          ,konf,z,nl,natom,iclass,nclass,valn, legas, esmr, qbz,nqbz,efnew)
+        call efsimplef2ax(legas,esmr, valn,efnew)!Get num of val electron valn and Fermi energy ef. legas=T give ef for given valn.
+!     call efsimplef2a(nspin,wibz,qibz,ginv, nband,nqibz &
+!          ,konf,z,nl,natom,iclass,nclass,valn, legas, esmr, qbz,nqbz,efnew)
      ef = efnew
      if (ixc==5) ef2 = ef
      !     - check total ele number -------
