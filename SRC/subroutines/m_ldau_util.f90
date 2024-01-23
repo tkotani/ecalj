@@ -564,7 +564,6 @@ contains
     !o  eorb  : U contribution to LDA+U total energy
     ! ----------------------------------------------------------------------
     integer:: ierr
-    include "mpif.h"
     integer:: idvsh=0
     real(8):: eks, eorbxxx,eorb
     complex(8) dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
@@ -726,15 +725,10 @@ contains
     character str*80,spid*8,aaa*24, xn*8
     complex(8) :: dmwk_zv(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
     real(8):: uhx,uhxx
-    ! ... MPI
-    include "mpif.h"
-    integer :: procid,master,mpipid,ierr
     logical :: mlog,occe,dexist,readtemp,cmdopt0
     real(8)::sss
     character(128):: bbb
     call rxx(nsp.ne.2,'LDA+U must be spin-polarized!')
-    procid = mpipid(1)
-    master = 0
     call getpr(ipr)
     !! When LDAU is dummy (usually just in order to print our dmats file).
 
@@ -753,7 +747,7 @@ contains
     ! endif
 
     ! Read in dmatu if file  dmats.ext  exists ---
-    if(procid /= master) goto 1185
+    if(.not.master_mpi) goto 1185 !procid /= master) goto 1185
     inquire(file='dmats.'//trim(sname),exist=dexist)
     inquire(file='occnum.'//trim(sname),exist=occe) !if no dmats, try occnum.
     if(dexist) then
@@ -1064,10 +1058,10 @@ contains
     integer :: ifi,ipr1,ipr2,l,ib,lmaxu,nsp,nspc,iblu,sharm
     complex(8) :: dmats(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,iblu)
     character strn*(*)
-    integer :: isp,ipr,m1,m2,mpipid,nlm
+    integer :: isp,ipr,m1,m2,nlm
     character strnl*120,strn1*30,lll*60
     if (nspc == 2) call rx('prdmts not ready for nspc=2')
-    if (mpipid(1) /= 0) return
+    if (.not.master_mpi) return 
     call getpr(ipr)
     nlm = 2*l+1
     if (ifi /= 0) then

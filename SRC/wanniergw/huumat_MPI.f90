@@ -115,9 +115,6 @@ program h_uumatrix
   integer(4),allocatable:: iqk4(:,:)
   real(8),allocatable:: wqk4(:,:)
 
-  ! m, MPI
-  !      include 'mpif.h'
-  !      integer(4):: ierr,istatus(MPI_STATUS_SIZE),iclose,input3(3)
   integer(4):: ierr,iclose,input3(3),n1,n2,ig
   integer(4):: myproc,nproc,nproc1,nproc2,nq_proc,ii,jj,kk,iftmp,if101
   integer(4),allocatable:: iq_proc(:)

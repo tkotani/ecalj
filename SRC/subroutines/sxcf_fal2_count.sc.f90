@@ -62,14 +62,15 @@ contains
     if(ixc==3.and.nctot==0) return
     rankdivider: block !  We divide irkip_all into irkip for nodes. irkip is dependent on rank.
       !  Total number of none zero irkip for all ranks is the number of nonzero irkip_all
-      integer:: irkip_all(nspinmx,nqibz,ngrp,nqibz),iqq,is
+      integer:: irkip_all(nspinmx,nqibz,ngrp,nqibz),iqq,is,nq
       do is = 1,nspinmx
          do iqq=1,nqibz
             irkip_all(is,:,:,iqq)=irk
          enddo
       enddo
       allocate( irkip(nspinmx,nqibz,ngrp,nqibz) ) ! nrkip is weight correspoinding to irkip for a node.
-      call MPI__sxcf_rankdivider(irkip_all,nspinmx,nqibz,ngrp,nqibz,  irkip)
+      nq=nqibz
+      call MPI__sxcf_rankdivider(irkip_all,nspinmx,nqibz,ngrp,nq,  irkip)
     endblock rankdivider
     PreIcountBlock: Block!Get Size: nstateMax(ncount),ndiv(icount),nstatei(j,icount),nstatee(j,icount)
       use m_keyvalue,only: getkeyvalue

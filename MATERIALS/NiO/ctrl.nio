@@ -31,7 +31,11 @@ SYMGRP find   # 'find' evaluate space-group symmetry (just from lattice) automat
 #id  = NiO
 # NOTE set MMOM. (it will be included in this...)
 %const bohr=0.529177 a=7.88
-STRUC   ALAT={a} PLAT= 0.5 0.5 1.0  0.5 1.0 0.5  1.0 0.5 0.5
+STRUC   ALAT={a}
+     PLAT= 0.5 0.5 1.0
+           0.5 1.0 0.5
+	   1.0 0.5 0.5
+	   
      NL=4  NBAS= 4  NSPEC=3
 SITE    ATOM=Niup POS=  .0   .0   .0 AF=1
         ATOM=Nidn POS= 1.0  1.0  1.0 AF=-1

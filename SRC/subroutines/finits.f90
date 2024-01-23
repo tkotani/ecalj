@@ -74,13 +74,13 @@ subroutine rxx(test,string)
 end subroutine rxx
 
 subroutine fexit0(retval,strng)! retval:  return value passed to operating system. /=0 for error exit
-  use m_MPItk,only:  m_MPItk_finalize
+  use m_MPItk,only:  m_MPItk_finalize,master_mpi
   use m_lgunit,only:stdo,stdl
   implicit none
   integer :: retval,iopt,abret
   character*(*) strng
   double precision :: args,arg2,arg3,argss(3)
-  integer :: iprint,i,i2,scrwid,mpipid,ix
+  integer :: iprint,i,i2,scrwid,ix
   double precision :: cpusec,tnew
   character(1) :: timeu
   character(256) :: strn
@@ -90,9 +90,8 @@ subroutine fexit0(retval,strng)! retval:  return value passed to operating syste
   integer :: master,procid,ierr
   parameter (master = 0)
   include "mpif.h"
-  procid = mpipid(1)
   call mpi_barrier(MPI_comm_world,ierr)
-  if (procid == master) then
+  if (master_mpi) then !procid == master) then
      if(cpusec() /= 0) then
         timeu = 's'
         tnew = cpusec()

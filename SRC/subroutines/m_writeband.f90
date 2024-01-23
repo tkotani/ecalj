@@ -348,7 +348,7 @@ contains
     character*(*)::ext
     logical::cmdopt2!,mlog
     integer, dimension(:),allocatable :: kpproc
-    integer::numprocs,procid,ierr,itete,iteti,mpipid
+    integer::numprocs,procid,ierr,itete,iteti
     include "mpif.h"
     print *,' pdosdata file=','pdosdata.'//trim(ext)
     open(newunit=ifip,form='unformatted',file='pdosdata.'//trim(ext))
@@ -458,10 +458,8 @@ contains
     logical:: mlog
     integer, dimension(:),allocatable :: kpproc
     complex(8),allocatable:: ham(:,:,:)
-    integer::numprocs,procid,ierr,itete,iteti,mpipid,ikp
-    !#if MPIK
+    integer::numprocs,procid,ierr,itete,iteti,ikp
     include "mpif.h"
-    !#endif
     open(newunit=ifip,form='unformatted',file='tetraf.dat')
     read(ifip) ndhamx,nkp,ntete
     allocate(idtete(0:4,6*nkp))

@@ -14,7 +14,7 @@ contains
     use m_ext,only: sname
     use m_lgunit,only:stdo,stdl
     use m_ftox
-    use m_MPItk,only: mlog
+    use m_MPItk,only: mlog,master_mpi
     use m_fatom,only:sspec,mpibc1_s_spec
     !i Inputs
     !i   nbas  :size of basis
@@ -27,7 +27,7 @@ contains
     !o   smrho :smoothed interstitial density, complex (for computational convenience)
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: procid, master, mpipid, nrmx, n0,i_spec
+    integer :: nrmx, n0,i_spec
     parameter ( nrmx=1501, n0=10 )
     integer:: nxi(nspec)
     type(s_rv1) :: rv_a_orhofa(nspec)
@@ -45,14 +45,12 @@ contains
     call tcn('rdovfa')
     ipr   = iprint()
     msg   = '         File mismatch:'
-    procid = mpipid(1)
-    master = 0
     if(ipr>=10) write(stdo,"(/'rdovfa: read and overlap free-atom densities',' (mesh density) ...')")
     hfc=0d0
     exi=0d0
     hfc=0d0
     hfct=0d0
-    if (procid == master) open(newunit=ifi,file='atm.'//trim(sname))  !! Read free-atom density for all species ---
+    if (master_mpi) open(newunit=ifi,file='atm.'//trim(sname))  !! Read free-atom density for all species ---
     isloop: do  10  is = 1, nspec
        spid(is)=slabl(is)
        a= spec_a(is)
@@ -65,7 +63,7 @@ contains
        z=z_i(is)
        lfoc=lfoca_i(is)
        rfoc=rfoca_i(is)
-       if (procid == master) then
+       if (master_mpi) then
           if (z == 0 .AND. rmt == 0) then
              nxi(is) = 0
              rsmfa(is) = 0
@@ -100,7 +98,7 @@ contains
        call mpibc1(rv_a_orhofa( is )%v,nr0 * nsp,4,mlog,'rdovfa' ,'rhofa' )
        call mpibc1(sspec(is)%rv_a_orhoc,nr0*nsp,4,mlog,'rdovfa','rhoca')
        call mpibc1( rv_a_ov0a( is )%v,nr0 * nsp,4,mlog,'rdovfa', 'v0a' )
-       if(procid == master.and. ipr >= 30 .AND. rmt0 /= 0) write(stdo,400) trim(spid(is)),spidr,rmt0,nr0,a0
+       if(master_mpi.and. ipr >= 30 .AND. rmt0 /= 0) write(stdo,400) trim(spid(is)),spidr,rmt0,nr0,a0
 400       format(' rdovfa: expected ',a,',',T27,' read ',a, ' with rmt=',f8.4,'  mesh',i6,f7.3)
        if(nr <= 0)   nr = nr0
        if(a <= 1d-6) a = a0
@@ -120,7 +118,7 @@ contains
     do i_spec=1,nspec ! Re-broadcast entire species structure, and arrays used below
        call mpibc1_s_spec(sspec(i_spec))!,'rdovfa_sspec')
     enddo
-    if (procid == master) close(ifi)
+    if (master_mpi) close(ifi)
     ! --- Define arrays for local densities rho1,rho2,rhoc and v0,v1 ---
     ztot = 0d0
     ctot = 0d0
@@ -176,7 +174,7 @@ contains
     v0wrireblock:block
       integer:: ir,isp
       character(8):: charext
-      if(v0fix.and.procid == master) then
+      if(v0fix.and.master_mpi) then
          do ib=1,nbas
             is = ispec(ib) 
             nr = nr_i(is)

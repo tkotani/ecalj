@@ -10,6 +10,7 @@ contains
     use m_lgunit,only:stdo
     use m_xclda,only: evxcp,evxcv
     use m_ftox
+    use m_MPItk,only: master_mpi
     !i We only allow lxcfun (set at m_lmfinit) are one of
     !         :  1 Ceperly-Alder
     !         :  2  Barth-Hedin (ASW fit)
@@ -54,13 +55,9 @@ contains
     real(8),parameter:: minimumrho=1d-14
     logical::enforce_positive_smrho
     logical:: iprx=.true.
-    include 'mpif.h'
-    integer:: procid=0,ier=0,i1,i2,i3
-    integer,parameter::master=0
-    call mpi_comm_rank(mpi_comm_world,procid,ier)
-    iprx=.false.
-    if(procid==master) iprx= .TRUE. 
+    integer:: ier=0,i1,i2,i3
     call tcn('smvxc')
+    iprx=master_mpi
     ng    = lat_ng
     vol  = lat_vol
     alat = lat_alat

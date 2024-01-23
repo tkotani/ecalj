@@ -4,6 +4,7 @@ module m_iors_old ! This module is for reading old version of rst file before 20
   use m_lgunit,only:stdo
   use m_lmfinit,only:z_i=>z,nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,lmxb_i=>lmxb,lmxl_i=>lmxl,spec_a,kmxt_i=>kmxt
   use m_lmfinit,only:lfoca_i=>lfoca,rsmv_i=>rsmv
+  use m_MPItk,only: master_mpi
   public iors_old
 !  type(s_rv1),public,allocatable :: v1pot(:),v0pot(:)
   private
@@ -96,8 +97,6 @@ contains
     logical:: lbin=.true.
     integer::  nit , ifi , i_site,i_spec!,i_copy_size !mode=1 ,
     character*256:: fid=''
-    ! ... Local parameters
-    integer :: procid,master,mpipid,nproc
     integer :: i,i0,i1,i2,i3,i4,ib,ipr,iprint,ic,is,is0,isp,jb,k1,k2,k3, &
          igetss,jfi,k11,k21,k31,kmax,kmax0,l,lfoc,lfoc0,lmxa, & !kmxv,
          lmxa0,lmxb,lmxb0,lmxl,lmxl0,lmxr,lmxv,lmxv0,lrel0,n11,n21, &
@@ -122,11 +121,6 @@ contains
     character(*)::rwrw
     data vec0 /0d0,0d0,0d0/
     open(newunit=ifi,file='rst.'//trim(sname),form='unformatted')
-    ! ... MPI setup
-    nproc  = mpipid(0)
-    procid = mpipid(1)
-    master = 0
-!    mlog = cmdopt('--mlog',6,0,ignore)
     alat=lat_alat
     plat=lat_plat
     call dinv33(plat,1,qlat,fac)
@@ -169,26 +163,24 @@ contains
     ! --- Input ---
     if (trim(rwrw)=='read') then
        jfi = ifi
-       if (procid == master) then
+       if (master_mpi) then
           rewind jfi
        endif
 !       use    = '         use from  restart file:'
 !       ignore = '         ignore in restart file:'
        line = 'header'
        ! MPI check to see if at least 1st record can be read. Abort with error message if file is missing (lfail = .true.)
-       lfail = .false.
-       if (nproc > 0) then
-          if (procid == master) then
-             lfail = .true.
-             read(jfi,end=996,err=996) vs1
-             lfail = .false.
-             rewind jfi
-996          continue
-          endif
-          call mpibc1_logical(lfail,1,'iors_read error')
-          if (lfail) goto 998
+       lfail = .false.        !       if (nproc > 0) then
+       if (master_mpi) then
+          lfail = .true.
+          read(jfi,end=996,err=996) vs1
+          lfail = .false.
+          rewind jfi
+996       continue
        endif
-       if (procid == master) then
+       call mpibc1_logical(lfail,1,'iors_read error')
+       if (lfail) goto 998        !       endif
+       if (master_mpi) then
           read(jfi,end=998,err=998) vs1
           read(jfi) fid0
           read(jfi) datimp,usernm,hostnm
@@ -227,7 +219,7 @@ contains
        allocate(osmrho(k1*k2*k3,nsp))
        osmrho=0d0
        line = 'smoothed density'
-       if (procid == master) then
+       if (master_mpi) then
           read(jfi,err=999,end=999) n11,n21,n31
           if (n11 == n1 .AND. n21 == n2 .AND. n31 == n3) then
              call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp0 , osmrho, lbin , jfi,rwrw )
@@ -269,7 +261,7 @@ contains
 115    continue
        !   --- Read information related to dynamics ---
        !       For compatibility with nfp, read record into wk
-       if (procid == master) then
+       if (master_mpi) then
           !call dpdump(wk,100,jfi)
           read(jfi) wk
        endif
@@ -280,7 +272,7 @@ contains
        !   --- Read atomic positions,forces,velocities ---
        line = 'site data'
        do  ib = 1, nbas0
-          if (procid == master) then
+          if (master_mpi) then
              read(jfi,err=999,end=999) jb,pos,forcexxx!,vel
           endif
           if (ib > nbas) goto 10
@@ -312,7 +304,7 @@ contains
              if (lmxa == -1) goto 20
           endif
           ibaug = ibaug+1
-          if (procid== master) then
+          if (master_mpi) then
              read(jfi) is0,spid0,lmxa0,lmxl0,nr0,rmt0,a0,z0,qc
              if (ib > nbas) goto 20
              if (ipr >= 40) then
@@ -334,7 +326,7 @@ contains
           pnz=>pnzall(:,:,ib)
           idmod=0
           idmoz=0
-          if (procid == master) then
+          if (master_mpi) then
              do  isp = 1, nsp0
                 read(jfi) (pnu(l+1,isp), l=0,lmxa0)
                 read(jfi) (pnz(l+1,isp), l=0,lmxa0)
@@ -355,7 +347,7 @@ contains
                      pnz(l+1,isp) = 0
              enddo
           enddo
-          if (procid == master) then
+          if (master_mpi) then
              read(jfi) (idmod(l+1), l=0,lmxa0)
              read(jfi) (idmoz(l+1), l=0,lmxa0)
           endif
@@ -372,7 +364,7 @@ contains
              nlml = (lmxl+1)**2
              if (nr <= 0)   nr = nr0
              if (a <= 1d-6) a = a0
-             if (procid == master) then
+             if (master_mpi) then
                 !     ... Sanity checks, or inform about changed parameters
                 !         if (is0 .ne. is) call xxerri('species pointer',is,is0)
                 call fsanrg(rmt0,rmt,rmt,1d-3,msg,'rmt',.true.)
@@ -410,7 +402,7 @@ contains
           allocate(v0pot(ib)%v(nr,nsp))
           allocate(v1pot(ib)%v(nr,nsp))
           ! ccccccccccccccccccccccccccc
-          if (procid == master) then
+          if (master_mpi) then
              call dpdbyl(orhoat(1,ib)%v, nr0 , nlml0 , nlml , nsp0 , nsp , lbin , jfi,'read'  )
              call dpdbyl(orhoat(2,ib)%v, nr0 , nlml0 , nlml , nsp0 , nsp , lbin , jfi,'read'  )
              call dpdbyl(orhoat(3,ib)%v, nr0,1,1,nsp0, nsp , lbin , jfi,'read'  )
@@ -452,7 +444,7 @@ contains
           nr  =nr_i(is)
           lmxa=lmxa_i(is)
           if (lmxa == -1) goto 30
-          if (procid == master) then
+          if (master_mpi) then
              read(jfi,err=999,end=999) nr0,a0,qc,cof,eh,stc,lfoc0,rfoc0
 !             sspec(is)%lfoca=lfoc0
 !             sspec(is)%rfoca=rfoc0
@@ -467,7 +459,7 @@ contains
           if (allocated(sspec(is)%rv_a_orhoc)) deallocate(sspec(is)%rv_a_orhoc)
           allocate(sspec(is)%rv_a_orhoc(abs(nr*nsp)))
           if (nr*nsp<0) sspec(is)%rv_a_orhoc(:)=0.0d0
-          if (procid == master) then
+          if (master_mpi) then
              if (nr /= nr0) call rx('iors not set up to convert core radial mesh')
              read(jfi)sspec(is)%rv_a_orhoc(1:nr*nsp0) ! call dpdump ( sspec(is)%rv_a_orhoc , nr * nsp0 , jfi )
              if (nsp > nsp0) then !spin-split core density
@@ -479,7 +471,7 @@ contains
           call mpibc1_real(sspec(is)%rv_a_orhoc, size(sspec(is)%rv_a_orhoc), 'iors_rhoca'  )
           call dpzero(exi,n0)
           call dpzero(hfc,n0*2)
-          if (procid == master) then
+          if (master_mpi) then
              read(jfi,err=999,end=999) rsmfa,nxi
              read(jfi,err=999,end=999) &
                   ((exi(i),hfc(i,isp),i=1,nxi),isp=1,nsp0)
@@ -533,7 +525,7 @@ contains
        enddo
        ! --- Output ---
     else
-       if (procid /= master) then
+       if (.not.master_mpi) then
           iors_old = 0
           return
        endif

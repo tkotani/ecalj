@@ -65,7 +65,7 @@ contains
     double precision zval,eb(nbmx,nsp,nkp),width,rnge,wtkp(nkp),&
          wtkb(nevx,nsp,nkp),efermi,sumev,dosef(2),qval(2),ent
     integer:: it , itmax , n , nptdos , nspx , nbmxx , nevxx , ib &
-         , ikp , ipr , job , nbpw , i1mach , nev, mkdlst , ifi , i , j , lry , procid , mpipid , master, nulli , isw
+         , ikp , ipr , job , nbpw , i1mach , nev, mkdlst , ifi , i , j , lry  , nulli , isw
     real(8) ,allocatable :: dos_rv(:,:)
     real(8) ,allocatable :: bot_rv(:)
     real(8) ,allocatable :: top_rv(:)
@@ -78,11 +78,8 @@ contains
     real(8) ,allocatable :: tlst_rv(:)
     parameter (nulli=-99999)
     integer:: iprint, w(1)
-    procid = mpipid(1)
-    master = 0
     call tcn('bzwts')
     ipr=iprint()
-    !    print *,'iiiiiiiiiiii ipr=',ipr
     qval(1) = 0
     qval(2) = 0
     ent = 0
@@ -268,7 +265,7 @@ contains
        endif
        ! ... (optional) Tabulate specific heat in file for list of T's
        if (cmdopt0('--cvK:') .and. n .lt. 0 .and. metal) then
-          if (procid .eq. master) then
+          if (master_mpi) then
              lRy = 0
              ryy='K'
              itmax=8

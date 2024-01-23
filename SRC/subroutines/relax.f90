@@ -8,6 +8,7 @@ contains
     use m_lmfinit,only: nbas,nitrlx,slabl,ifrlx,ispec
     use m_lmfinit,only: lrlxr,rdhessr,nkillr,xtolr,gtolr,stepr
     use m_ext,only:     sname
+    use m_MPItk,only: master_mpi
     use m_struc_def
     !- Relax atomic positions and volume using variable metric algorithm
     ! ----------------------------------------------------------------------
@@ -42,7 +43,7 @@ contains
     ! ----------------------------------------------------------------------
     implicit none
     integer,parameter:: nm=3
-    integer :: it,nit,natrlx,icom,procid,master,mpipid,nitr
+    integer :: it,nit,natrlx,icom,nitr
     integer :: indrlx(2,natrlx)
     real(8):: force(3,*), w(natrlx,natrlx) , p(natrlx,6), bas(:,:),basin(:,:)
     integer :: i,j,ipr,ifi,ix,lgunit,ltb,natrlx2,natrlx3, &
@@ -55,21 +56,10 @@ contains
     save ir,wkg
     data wkg /28*0d0/
     character(256)::lll=''
-    !      stdo = lgunit(1)
-    !      stdl = lgunit(2)
-    master = 0
-    procid = mpipid(1)
-    if (procid == master) call pshpr(iprint()+30)
+    if (master_mpi) call pshpr(iprint()+30)
     call tcn('relax')
     bas=basin
-    ! --- Setup ---
     nit =  nitrlx
-!    lrlxr   = nint(mdprm(1))
-!    rdhessr = nint(mdprm(2)) .eq. 1
-!    xtolr   = mdprm(3)
-!    gtolr   = mdprm(4)
-!    stepr   = mdprm(5)
-!    nkillr  = nint(mdprm(6))
     lshr   = lrlxr .gt. 100
     lrlx   = mod(lrlxr,100)
     call getpr(ipr)
@@ -92,7 +82,7 @@ contains
        call dcopy(natrlx,1d0,0,w,natrlx+1)
        !   ... Read Hessian from disc
        if (rdhessr) then
-          if (procid == master) then
+          if (master_mpi) then
              open(newunit=ifi,file='hssn.'//trim(sname),form='unformatted')
              readhess=.false.
              read(ifi,end=9888,err=9888) natrlx2,natrlx3 !,11
@@ -147,7 +137,7 @@ contains
        call rx1('RELAX: gradzr returned ir=%i ... aborting',ir)
     endif
     if ((lrlx == 4 .OR. lrlx == 5) .AND. ipr >= 20) then
-       if (procid == master) then
+       if (master_mpi) then
           if(ir==-0) lll='converged to tolerance'
           if(ir==-1) lll='new line minimization'
           if(ir==-2) lll='bracketed root this line'
@@ -164,7 +154,7 @@ contains
                '|g|=',ftof(dsqrt(ddot(natrlx,p(1,2),1,p(1,2),1)))
        endif
     elseif (lrlx == 6) then
-       if (procid == master) then
+       if (master_mpi) then
           write(stdl,ftox)' fp rlx Br ',-ir,'dxmx',ftof(p(idamax(natrlx,p(1,ns),1),ns)), &
                '|g|=',ftof(dsqrt(ddot(natrlx,p(1,2),1,p(1,2),1)))
           if(ipr>=20) write(stdo,ftox)' fp rlx Br',-ir,'dxmx',ftof(p(idamax(natrlx,p(1,ns),1),ns)), &
@@ -186,14 +176,14 @@ contains
     call prelx1(1,1,lshr,natrlx,indrlx,p,bas)
     ! --- Write Hessian to disc ---
     if (rdhessr .AND. (icom == 1 .OR. it == nit) .OR. .TRUE. ) then
-       if (procid == master) then
+       if (master_mpi) then
           open(newunit=ifi,file='hssn.'//trim(sname),form='unformatted')
           write(ifi) natrlx,natrlx,11
           write(ifi) w
           close(ifi)
        endif
     endif
-    if (procid == master) call poppr
+    if (master_mpi) call poppr
     call getpr(ipr)
     ! --- Periodically remove hessian ---
     if (nkillr > 0) then

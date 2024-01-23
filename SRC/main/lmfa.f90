@@ -1,6 +1,6 @@
 program lmfa
   use m_ext,only:      m_Ext_init,sname
-  use m_MPItk,only:    m_MPItk_init,m_MPItk_finalize,nsize,master_mpi
+  use m_MPItk,only:    m_MPItk_init,nsize,master_mpi
   use m_lgunit,only:   m_lgunit_init, stdo,stdl
   use m_cmdpath,only: setcmdpath
   use m_lmfinit,only:m_Lmfinit_init

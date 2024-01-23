@@ -10,7 +10,7 @@ contains
     use m_mkqp,only: ntet=> bz_ntet ,bz_nkp
     use m_suham,only: ndham=>ham_ndham,ndhamx=>ham_ndhamx
     use m_mkpot,only:  qval
-    use m_MPItk,only: master_mpi
+!    use m_MPItk,only: master_mpi
     !- Brillouin-integration setup
     !i Inputs
     !i   lmet  :See Remarks
@@ -50,7 +50,7 @@ contains
     double precision :: zval,ef0,def,esmear
     integer :: ifi,lerr,iprint,n
     character(11) :: strni(2)
-    integer :: procid,master,mpipid,nevx0,nq0,nsp0
+    integer :: nevx0,nq0,nsp0
     data strni /'sampling','tetrahedron'/
     call tcn('m_subzi_init')
     if(cmdopt0('--cls') .OR. cmdopt0('--tdos') .OR. cmdopt0('--mkprocar'))  nevmx = ndhamx
@@ -61,8 +61,6 @@ contains
     zval=qval-qbg
     ltet = ntet>0
     nevmx=nevmxin !initial contdition except  cmdopt0('--band').or.fullmesh
-    procid = mpipid(1)
-    master = 0
     if(lmet>0) allocate(rv_a_owtkb(ndham,nsp,nkp))
     if(nevmx == 0) then
        nevmx = (int(zval) + 1)/2
@@ -75,7 +73,7 @@ contains
   end subroutine m_subzi_init
   subroutine m_subzi_bzintegration(evlall, eferm,sev,sumqv,vmag) 
     use m_lgunit,only:stdo
-    use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq
+    use m_MPItk,only: mlog, strprocid, numprocs=>nsize, mlog_MPIiq
     use m_lmfinit,only: lso,nsp,ham_scaledsigma,nlibu,lmaxu,bz_w,lmet=>bz_lmet,nbas,epsovl=>ham_oveps,nspc,bz_n
     use m_lmfinit,only: bz_fsmommethod,qbg=>zbak,fsmom=>bz_fsmom,ndos=>bz_ndos
     use m_mkqp,only: nkabc=> bz_nabc,ntet=> bz_ntet,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet

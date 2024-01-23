@@ -1,7 +1,6 @@
 subroutine cputid(ifilein) ! ifilein = file number ==> screen (id=6)
   use m_lgunit,only:stdo
   implicit none
-  include 'mpif.h'
   real(8) :: cpuetime, etw(2),cpulast, etime
   real(8) :: cpu0=-1d0
   save cpu0

@@ -1,5 +1,6 @@
 !>utils called in bndfp
 module m_bndfp_util
+  use m_MPItk,only:master_mpi
   use m_ll,only:ll
   use m_lgunit,only:stdo
   public mkekin,makdos,phispinsym_ssite_set,iorbtm
@@ -132,14 +133,11 @@ contains
     logical :: lgors
     parameter (n0=10,nkap0=3)
     double precision :: qum1,qum2,sraugm,srhov,srmesh,sum1,sum2,sumh,sumq,sumt,vol,xx
-!    equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
-    include 'mpif.h'
     integer:: procid=0,ier=0,io,iorb
     integer,parameter::master=0
     logical:: iprx
-    call mpi_comm_rank(mpi_comm_world,procid,ier)
-    iprx=.false.
-    if(procid==master) iprx= .TRUE. 
+!    call mpi_comm_rank(mpi_comm_world,procid,ier)
+    iprx= master_mpi
     call tcn('mkekin')
     call getpr(ipr)
 !    ngabc=lat_nabc
@@ -307,7 +305,6 @@ contains
   end subroutine makdos
   subroutine phispinsym_ssite_set()
     use m_lmfinit,only: nbas,nsp,n0,ispec,lmxa_i=>lmxa
-    use m_MPItk,only:master_mpi
     use m_struc_def
     use m_lgunit,only:stdo
     use m_density,only: pnuall,pnzall

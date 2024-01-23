@@ -75,7 +75,7 @@ contains
   subroutine HamPMTtoHamRsMPO(facw,ecutw,eww) !Convert HamPMT(k mesh) to HamRsMPO(real space)
     use m_zhev,only:zhev_tk4
     use m_readqplist,only: eferm
-    use m_mpi,only: MPI__reduceSum
+!    use m_mpi,only: MPI__reduceSum
     implicit none
     integer:: ifihmto
     integer::ikpd,ikp,ib1,ib2,ifih,it,iq,nev,nmx,ifig=-999,i,j,ndimPMT,lold,m
@@ -85,7 +85,6 @@ contains
     real(8)::qp(3),pi=4d0*atan(1d0),fff,ef,fff1=2,fff2=2,fff3=0 ,facw,ecutw,eww,xxx
     integer:: nn,ib,k,l,ix5,imin,ixx,j2,j1,j3,nx,ix(ldim),iqini,iqend,ndiv
     integer:: ndimMTO !ndimMTO<ldim if we throw away f MTOs, for example. 
-    include "mpif.h"
     integer:: ib_tableM(ldim),k_tableM(ldim),l_tableM(ldim),ierr
     nn=0
     do i=1,ldim  !only MTOs. Further restrictions.
@@ -178,7 +177,6 @@ contains
        write(ifihmto) ib_tableM(1:ndimMTO),k_tableM(1:ndimMTO),l_tableM(1:ndimMTO)
        close(ifihmto)
     endif   
-    call mpi_barrier(MPI_comm_world,ierr)
     if(master_mpi) write(stdo,*)" Wrote HamRsMTO file! End of lmfham1"
   end subroutine HamPMTtoHamRsMPO
   subroutine GramSchmidt(nv,n,zmel) 

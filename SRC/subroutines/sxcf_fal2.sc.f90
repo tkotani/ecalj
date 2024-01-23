@@ -89,7 +89,6 @@ module m_sxcf_main
   use m_readqg,only:  ngpmx,ngcmx
   use m_readhbe,only: nband,mrecg
   use m_readgwinput,only: ua_,  corehole,wcorehole
-  use m_mpi,only: MPI__sxcf_rankdivider
   use m_ftox
   use m_lgunit,only:stdo
   use m_sxcf_count,only: ncount,ispc,kxc,irotc,ipc,krc,nstateMax,nstti,nstte,nstte2, nwxic, nwxc

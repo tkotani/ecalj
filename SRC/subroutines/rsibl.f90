@@ -56,7 +56,7 @@ contains
     implicit none
     integer,parameter:: nermx=100
     real(8),parameter:: pi = 4d0*datan(1d0),tpi = 2d0*pi
-    integer :: procid, master, nproc, mpipid, lfrce,isp,k1,k2,k3,ndimh,nevec,iq,nspc, napw,igapw(3,napw),ng
+    integer :: lfrce,isp,k1,k2,k3,ndimh,nevec,iq,nspc, napw,igapw(3,napw),ng
     real(8):: q(3), ewgt(nevec) , f(3,nbas), wgt1,p(3),f0(3),xx(1),q0(3),etab(nermx),rtab(nermx)
     complex(8):: evec(ndimh,nspc,nevec),smrho(k1,k2,k3,isp), smpot(k1,k2,k3,isp),img=(0d0,1d0)
     integer :: nlmto,nrt , net , ltop , nlmtop , ogq , og2 , ohe , ohr , oiv , iprint
@@ -64,8 +64,6 @@ contains
     integer,allocatable :: iv_a_okv(:), ivp(:), igv(:,:)
     real(8),allocatable :: ogv(:,:),w_ogq(:,:),yl(:,:),w_og2(:),he(:,:),hr(:,:)
     complex(8),allocatable::psi(:,:,:),psir(:,:,:),vpsi(:,:,:), psi0(:,:,:,:),phase(:)
-    nproc  = mpipid(0)
-    procid = mpipid(1)
     if (nevec <= 0) return
     call tcn('rsibl')
     nlmto = ndimh-napw

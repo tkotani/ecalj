@@ -22,7 +22,7 @@ contains
     real(8), save :: sa0, tresm, z1esm, z2esm, z0esm, vesmp, vesmm, eesmp, eesmm
     logical, save :: esm_init = .true.
     logical ::  twrite = .true.
-    integer :: ig, i, j, mpipid, ifiese, ierr, ib, is !, i_copy_size, in3, in2, in1!, nsp
+    integer :: ig, i, j, ifiese, ierr, ib, is !, i_copy_size, in3, in2, in1!, nsp
     real(8), parameter ::angstr=1d0/0.5291769, ev=2d0/27.2113834, eps=1d-10
     real(8) :: eh, tau(3), vg(3), ddot, gvr, rmt, fac, gvb, g2
     real(8) :: pi, epi, tpiba, tpiba2
@@ -98,8 +98,7 @@ contains
           endif
           write(stdo,*)
        endif
-       call mpi_barrier(mpi_comm_world,ierr)
-       !        call mpibc1_int (jesm,  1         ,'esmsmves_jesm')
+       call mpi_barrier(mpi_comm_world,ierr)        !        call mpibc1_int (jesm,  1         ,'esmsmves_jesm')
        call mpibc1_int (jtresm,1,'esmsmves_jtresm')
        call mpibc1_real(tresm, 1,'esmsmves_tresm')
        call mpibc1_real(z1esm, 1,'esmsmves_z1esm')

@@ -138,7 +138,7 @@ contains
     logical,optional:: socmatrix !dipolematrix,
     integer:: ispSS,ispEE
     logical:: emptyrun
-    include "mpif.h"
+!    include "mpif.h"
     call tcn ('m_sugw_init')
     emptyrun=cmdopt0('--emptyrun')
     if(master_mpi) write(stdo,"(a)") 'm_sugw_init: start'
