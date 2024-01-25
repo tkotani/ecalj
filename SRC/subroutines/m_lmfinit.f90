@@ -320,7 +320,8 @@ contains
       call rval2('BZ_FSMOMMETHOD', rr=rr, defa=[real(8):: 0]); bz_fsmommethod=nint(rr) !'Method of Fixed-spin moment 0:original 1:discrete')
       call rval2('SYMGRP', ch=ch); symg=adjustl(ch) ! Generators for symmetry group'
       call rval2('SYMGRPAF', ch=ch); symgaf=adjustl(ch) ! Extra Generator for adding anti ferro symmetry'
-      afsym=merge(.true.,.false.,len_trim(symgaf)/=0)
+      afsym=merge(.true.,.false., len_trim(symgaf)/=0.and.lso/=1)
+      
       call rval2('EWALD_AS',rr=rr,defa=[2d0]);   lat_as=rr  !'Ewald smoothing parameter
       call rval2('EWALD_TOL',rr=rr,defa=[1d-8]); lat_tol=rr !'Ewald tolerance')
       call rval2('EWALD_NKDMX',rr=rr,defa=[real(8):: 300]); lat_nkdmx=nint(rr) !'Ewald tolerance'
