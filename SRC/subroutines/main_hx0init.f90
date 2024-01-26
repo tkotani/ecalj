@@ -1,4 +1,4 @@
-program hx0init !initializaiton of x0 calculaiton (W-v)
+subroutine hx0init() !initializaiton of x0 calculaiton (W-v)
   !!  Calculate W-V for QSGW mode. Cleaned up jun2020.
   !!  We calculate dielectric chi0 by the follwoing three steps.
   !!    gettetwt: tetrahedron weights
@@ -154,4 +154,4 @@ program hx0init !initializaiton of x0 calculaiton (W-v)
   call cputid(0)
   if(ixc==11     ) call rx0( ' OK! hx0init ixc=11 ')
   if(ixc==10011  ) call rx0( ' OK! hx0init ixc=10011')
-end program hx0init
+end subroutine hx0init

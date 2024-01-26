@@ -1,4 +1,4 @@
-program hsfp0
+subroutine hsfp0()
   use m_ReadEfermi,only: Readefermi,ef_read=>ef
   use m_readqg,only: Readqg0,Readngmx2,ngpmx,ngcmx
   use m_hamindex,only:   Readhamindex
@@ -931,7 +931,7 @@ contains !followings are only for writing files.
     enddo
     write(6,*)' End of ExSpectrum section ---'
   end subroutine Hswrite4
-end program hsfp0
+end subroutine hsfp0
 
 subroutine rsexx2 (nspin, itq, q, ntq,nq,ginv, symgg,ng, vxco)
   implicit real*8 (a-h,o-z)

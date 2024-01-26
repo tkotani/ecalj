@@ -1,6 +1,6 @@
 !! Generate input files used in GW calculations
 !!  Read gwb.* and module variables in m_lmf2gw (set by call lmf2gw() for inputs.
-program rdata4gw_v2
+subroutine rdata4gw_v2()
   use m_lmf2gw,only:Lmf2gw, nindx,lindx,ibasindx,nbandmx,nphimx, &
        nsp,nbas,nclass,ncoremx,lmxamx,ldim2, &
        iantiferro,spid,iclass,lmxa=>lmxa_d,nr,konf=>konf_d,ncore=>ncore_d, &
@@ -575,7 +575,7 @@ program rdata4gw_v2
   close(ifigwin)
   write(stdo,*)" OK! end of rdata4gw_v2 "
   call rx0( ' OK! rdata4gw_v2')
-END PROGRAM rdata4gw_v2
+end subroutine rdata4gw_v2
 subroutine rrefine(rofio,nro,rofin,nrn,go, gn )
   implicit none
   integer:: nro,nrn,ir

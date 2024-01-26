@@ -1,5 +1,4 @@
-program gwinit_v2
-  !!  Generate GWinput.tmp.
+subroutine gwinit_v2() !  Generate GWinput.tmp.
   ! ----------------------------------------------------------------------
   ! nput file        (this doc touched at 2022jan)
   !i    HAMindex0 via readhamindex0
@@ -370,4 +369,4 @@ program gwinit_v2
   write(ifi,"(a)")'!vis_wan_outputformat xsf       ! opendx, cube, xsf , default=xsf'
   write(ifi,"(a)" ) '! ################################################# '
   stop ' OK! We have generated GWinput.tmp! '
-END PROGRAM gwinit_v2
+end subroutine gwinit_v2

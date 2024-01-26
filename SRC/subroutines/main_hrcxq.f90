@@ -1,5 +1,5 @@
-program hrcxq
-  !  Calculate Im(chi0), writint to rcxq.* files.
+!> Calculate Im(chi0) and do Hilbert transformation.
+subroutine hrcxq()
   !  Output: rxcq.iq files.
   !   After set up a kind of enviromental variables, by calling module functions,
   !   we read tetrahedron weight via 'call X0kf_v4hz_init_read(iq,is)'.
@@ -134,4 +134,4 @@ program hrcxq
   write(stdo,ftox) '--- end of hrcxq --- irank=',MPI__rank
   call cputid(0)
   call rx0( ' OK! hrcxq hhilbert')
-end program hrcxq
+end subroutine hrcxq

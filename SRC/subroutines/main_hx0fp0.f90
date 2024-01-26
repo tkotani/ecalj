@@ -2,7 +2,7 @@
 !!
 !! eps_lmf_cphipm mode is now commented out; you may need to recover this if necessary
 !! (only epsPP_lmf_chipm mode works).
-program hx0fp0
+subroutine hx0fp0()
   use m_ReadEfermi,only: Readefermi,ef
   use m_readqg,only:     Readqg,Readngmx2,ngpmx,ngcmx
   use m_hamindex,only:   Readhamindex
@@ -80,7 +80,7 @@ program hx0fp0
   real(8), allocatable :: freqr2(:)  , ekxxx(:,:,:)   !      logical::imagonly=.false.,realonly=.false. !,readgwinput
   integer::maxocc2, &
        ixc,iqxini,iqxend,iqxendx, &
-       !     &   ifhbe,    &   nprecb,mrecb,mrece,nlmtot,nqbzt,nband,
+                                !     &   ifhbe,    &   nprecb,mrecb,mrece,nlmtot,nqbzt,nband,
        i,ngrpmx,mxx,ini,ix,ngrpx,&! & ngcmx,ngpmx nq0i,nq0ix,
        ndummy1,ndummy2,ifcphi,is,nwp, &! & ifvcfpout,,mdimx,nbloch
        ifepscond ,nw0,iw,ifinin,iw0,ifwwk,noccxv,noccx &
@@ -195,7 +195,8 @@ program hx0fp0
   write(6,"(a)") '             202: epsNoLFC! 203: eps!  222: chi^+- NoLFC'
   write(6,"(a)")  '-------------------------------------------------------'
   if(cmdopt2('--job=',outs)) then; read(outs,*) ixc
-  elseif(MPI__root) then         ; read(5,*)    ixc; endif
+  elseif(MPI__root) then         ; read(5,*)    ixc
+  endif
   call MPI__Broadcast(ixc)
   call cputid(0)
   !! List of Switches: !  normalm: normal eps mode; !  crpa: crpa mode !  epsmode: (normalm or epsmode)!  omitqbz: qbz>nqbz+1 are calulated
@@ -209,7 +210,8 @@ program hx0fp0
   elseif(ixc==203) then; write(6,*)"OK ixc=203 eps wLFC";        epsmode = .true.; imagomega=.false.; omitqbz=.true.   
   elseif(ixc==222) then; write(6,*)"OK ixc=222 chipm noLFC";     epsmode = .true.; imagomega=.false.; omitqbz=.true.;nolfco=.true.
      chipm=.true.    !  elseif(ixc==12) realomega=.false.; ecorr_on=901; then ! Total energy test mode --> need fixing 
-  else; call rx( ' hx0fp0: given mode ixc is not appropriate') ; endif
+  else; call rx( ' hx0fp0: given mode ixc is not appropriate')
+  endif
   call Read_BZDATA(hx0)
   write(6,"(' nqbz nqibz ngrp=',3i5)") nqbz,nqibz,ngrp
   if(MPI__root) then
@@ -235,7 +237,7 @@ program hx0fp0
   write(6,*)' num of zero weight q0p=',neps
   write(6,"(i3,f14.6,2x,3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i)
   write(6,"(' ngcmx ngpmx nqbz nq0i= ',2i8)") ngcmx,ngpmx,nqbz,nq0i
-!  do i = 1,nq0i+1; ini = nqbz*(i-1); do ix=1,nqbz;write(6,"('hx0fp0 qbze q0i=',i8,3f10.4,2x,3f10.4)") ini+ix,qbze(:,ini+ix);enddo
+  !  do i = 1,nq0i+1; ini = nqbz*(i-1); do ix=1,nqbz;write(6,"('hx0fp0 qbze q0i=',i8,3f10.4,2x,3f10.4)") ini+ix,qbze(:,ini+ix);enddo
   !! Get space-group transformation information. See header of mptaouof.
   !! Here we use ngrpx=1 ==> "no symmetry operation in hx0fp0", c.f. hsfp0.sc.m.F case.
   !! ngrpx=1 (no symmetry operation in hx0fp0), whereas we use ngrp in eibzmode=T.
@@ -296,7 +298,7 @@ program hx0fp0
   else
      iqxini= 1
   endif
-!  if(cmdopt0('--rcxq0')) iqxend=iqxini
+  !  if(cmdopt0('--rcxq0')) iqxend=iqxini
   if( chipm ) then !transverse spin susceptibility
      allocate(aimbas(nmbas))
      aimbas(1:nmbas)   = abs(imbas(1:nmbas))
@@ -368,7 +370,7 @@ program hx0fp0
   !! EIBZ mode
   eibzmode = .false. !eibz4x0()
   allocate( nwgt(1,iqxini:iqxend))
- 
+
   !call seteibz(iqxini,iqxend,iprintx)
   !! Calculate x0(q,iw) and W == main loop 1001 for iq.
   !! NOTE: iq=1 (q=0,0,0) write 'EPS0inv', which is used for iq>nqibz for ixc=11 mode
@@ -376,7 +378,7 @@ program hx0fp0
   !! (or need to modify do 1001 loop).
   !! iq>nqibz for ixc=11 is not time-consuming (right???)
   call MPI__hx0fp0_rankdivider2(iqxini,iqxend)
-
+  
   !! llw, and llwI are for L(omega) for Q0P in PRB81,125102
   allocate( llw(nw_i:nw,nq0i), llwI(niw,nq0i) )
   !! ======== Loop over iq ================================
@@ -571,28 +573,28 @@ program hx0fp0
            elseif(chipm) then ! ChiPM mode without LFC
               allocate( x0meanx(npr,npr) )
               !if(nolfco) then 
-                 !$$$  c! --- three lines below may work for test purpose for legas. But not sure.
-                 !$$$  c       vcmean= sum( dconjg(gbvec) * matmul(vcoul,gbvec) )
-                 !$$$  c       write(ifchipmn,'(3f12.8,2x,f8.5,2x,2e23.15)')
-                 !$$$  c     & q, 2*schi*frr, 1d0-vcmean*2*x0mean(iw,1,1)  !4*pi*alat**2/sum(q**2)/4d0/pi**2*x0mean(iw)
-                 x0meanx = x0mean(iw,:,:)/2d0 !in Ry unit.
-!              else ! ChiPM mode with LFC... NoLFC part
-!                 zxq(1:ngb,1:ngb,iw) = zxq(1:ngb,1:ngb,iw)/2d0 ! in Ry.
-!                 do imb1=1,npr
-!                    do imb2=1,npr
-!                       x0meanx(imb1,imb2)= &
-!                            sum( svec(1:nbloch,imb1)* &
-!                            matmul(zxq(1:nbloch,1:nbloch,iw),svec(1:nbloch,imb2)))
-!                    enddo
-!                 enddo                 !     x0meanx= <m|chi^+-(\omega)|m>/<m|m>**2
-!              endif
+              !$$$  c! --- three lines below may work for test purpose for legas. But not sure.
+              !$$$  c       vcmean= sum( dconjg(gbvec) * matmul(vcoul,gbvec) )
+              !$$$  c       write(ifchipmn,'(3f12.8,2x,f8.5,2x,2e23.15)')
+              !$$$  c     & q, 2*schi*frr, 1d0-vcmean*2*x0mean(iw,1,1)  !4*pi*alat**2/sum(q**2)/4d0/pi**2*x0mean(iw)
+              x0meanx = x0mean(iw,:,:)/2d0 !in Ry unit.
+              !              else ! ChiPM mode with LFC... NoLFC part
+              !                 zxq(1:ngb,1:ngb,iw) = zxq(1:ngb,1:ngb,iw)/2d0 ! in Ry.
+              !                 do imb1=1,npr
+              !                    do imb2=1,npr
+              !                       x0meanx(imb1,imb2)= &
+              !                            sum( svec(1:nbloch,imb1)* &
+              !                            matmul(zxq(1:nbloch,1:nbloch,iw),svec(1:nbloch,imb2)))
+              !                    enddo
+              !                 enddo                 !     x0meanx= <m|chi^+-(\omega)|m>/<m|m>**2
+              !              endif
               do imb1=1,npr
                  do imb2=1,npr
                     x0meanx(imb1,imb2) = x0meanx(imb1,imb2)/mmnorm(imb1)/mmnorm(imb2)
                  enddo
               enddo
               write(ifchipmn_mat,'(3f12.8,2x,f20.15,2x,255e23.15)')q, 2*schi*frr, x0meanx(:,:)
-!              if( .NOT. nolfco) write(ifchipm_fmat) q, 2*schi*frr, zxq(1:nbloch,1:nbloch,iw)
+              !              if( .NOT. nolfco) write(ifchipm_fmat) q, 2*schi*frr, zxq(1:nbloch,1:nbloch,iw)
               deallocate(x0meanx)
            endif
 1015    enddo iwloop
@@ -601,14 +603,14 @@ program hx0fp0
         if( allocated(gbvec) ) deallocate(gbvec)
         if(chipm) then
            close(ifchipmn_mat) 
-!           if( .NOT. nolfco) then
-!              close(ifchipm_fmat) 
-!           endif
+           !           if( .NOT. nolfco) then
+           !              close(ifchipm_fmat) 
+           !           endif
         else
-!           filepsnolfc ='EPS'//charnum4(iqixc2)//'.nolfc.dat'
+           !           filepsnolfc ='EPS'//charnum4(iqixc2)//'.nolfc.dat'
            close(ifepsdatnolfc) ! = iclose( filepsnolfc)
            if( .NOT. nolfco) then
-!              fileps = 'EPS'//charnum4(iqixc2)//'.dat'
+              !              fileps = 'EPS'//charnum4(iqixc2)//'.dat'
               close(ifepsdat) !  = iclose(fileps)
            endif
         endif
@@ -629,7 +631,7 @@ program hx0fp0
      endif
 1001 enddo iqloop
   call MPI__barrier()
-!  if(cmdopt0('--rcxq0')) call rx0('end of --rcxq0 mode to generete rcxq0')
+  !  if(cmdopt0('--rcxq0')) call rx0('end of --rcxq0 mode to generete rcxq0')
   if( .NOT. epsmode) call MPI__sendllw2(iqxend) !!! mpi send LLW to root.
   !! == W(0) divergent part and W(0) non-analytic constant part.==
   !!   Note that this is only for q=0 -->iq=1
@@ -646,8 +648,8 @@ program hx0fp0
   if(ixc==202)  call rx0( ' OK! hx0fp0 mode=202 sergeyv epsPP NoLFC')
   if(ixc==203)  call rx0( ' OK! hx0fp0 mode=203 sergeyv eps LFC ')
   if(ixc==222)  call rx0( ' OK! hx0fp0 mode=222 chi+- NoLFC sergeyv')
-END PROGRAM hx0fp0
-
+endsubroutine hx0fp0
+   
   !$$$!! --- legas mode is not working now. Need fixing... voltot ntot are not given.
   !$$$      if(epsmode.and.legas) then
   !$$$        call rx( ' LEGAS mode is not maintained well. Need some fixing.')

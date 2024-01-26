@@ -1,4 +1,4 @@
-program hsfp0_sc
+subroutine hsfp0_sc()
   !> Calculates the self-energy \Sigma in GW approximation,  checked 2020jul
   !!  including Off-diagonal components.
   !!  (hsfp0.F is for diagonal part only).
@@ -341,7 +341,7 @@ contains
        close(ifsec2(is))
     endif      
   end subroutine HsWriteResult
-end program hsfp0_sc
+end subroutine hsfp0_sc
 
 subroutine rsexx (nspin, q, ntq,nq,ginv, vxco)
   use m_lgunit,only:m_lgunit_init,stdo

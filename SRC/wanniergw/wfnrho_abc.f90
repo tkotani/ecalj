@@ -6,7 +6,7 @@ subroutine calc_phiall_abc2(nq_wfn,nband_wfn,q_wfn,bindx_wfn, &
      phipw,phiaug,phitot)
   !      use m_readeigen,only: readcphif,readgeig
   ! cccccccccccccccccccccccccccccccccccc
-  use m_QG,only:ngp
+  use m_qg,only:ngp
   ! cccccccccccccccccccccccccccccccccccc
   !      use m_LMTO
   !      use m_FFT3D

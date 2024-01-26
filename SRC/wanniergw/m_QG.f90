@@ -1,5 +1,5 @@
 ! Information for plane-wave basis
-module m_QG
+module m_qg
   implicit none
   integer ::  nqnum, ngpmx_qg, nnnn
   integer ::  nqnumc, ngcmx

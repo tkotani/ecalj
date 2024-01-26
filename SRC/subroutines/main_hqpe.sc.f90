@@ -2,7 +2,7 @@
 !     This uses amix in order to guess a better Sigma-Vxc from previous iterations.
 !     * iSigma_en==5 is for diagonal-only Sigma-Vxc in LDA basis set.
 !      (Then you need evec0, which contains eigenvector of LDA).
-program hqpe_sc
+subroutine hqpe_sc()
   !------------------------------------------------------------------
   !     calculates quasiparticle energies
   !     E(k,t) = e(k,t) + Z [SEx(k,t) + SEc(k,t) - xcLDA(k,t)]
@@ -524,7 +524,7 @@ program hqpe_sc
   close(ifse_out)
 9999 continue
   call rx0s( ' OK! hqpe_sc ')
-END program
+end subroutine hqpe_sc
 
 !------------------------------------------------------
 subroutine testfff(a,b,nnn)

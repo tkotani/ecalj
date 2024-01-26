@@ -3,6 +3,7 @@ subroutine dpsion5(realomega,imagomega,rcxq,nmbas1,nmbas2, zxq,zxqi, chipm,schi,
   use m_freq,only:  frhis, freqr=>freq_r,freqi=>freq_i, nwhis, npm, nw_i, nw_w=>nw, niwt=>niw
   use m_readgwinput,only: egauss
   use m_GaussianFilter,only: GaussianFilter
+  use m_ftox
   use m_lgunit,only:stdo
   implicit none
   intent(in)::     realomega,imagomega,     nmbas1,nmbas2,           chipm,schi,isp,ecut,ecuts
@@ -34,7 +35,7 @@ subroutine dpsion5(realomega,imagomega,rcxq,nmbas1,nmbas2, zxq,zxqi, chipm,schi,
   logical:: emptyrun,cmdopt0
   !emptyrun= cmdopt0('--emptyrun') !we have not yet examined where is time-consuming part.
   if(chipm.and.npm==2) call rx( 'x0kf_v4h:npm==2 .AND. chipm is not meaningful probably')  ! Note rcxq here is negative 
-  write(stdo,'(" -- dpsion5: start...  nw_w nwhis=",2i5)') nw_w,nwhis
+  write(stdo,ftox)" -- dpsion5: start... nw_w nwhis=",nw_w,nwhis
 !  zxq =0d0
 !  zxqi=0d0
   call cputid(0)

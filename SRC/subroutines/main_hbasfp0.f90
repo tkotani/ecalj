@@ -1,4 +1,4 @@
-program hbasfp0 ! Generates orthonormal optimal product basis and required radial integrals in MTs.
+subroutine hbasfp0() ! Generates orthonormal optimal product basis and required radial integrals in MTs.
   !Input files
   !  PHIVC  : radial functions Valence and Core
   !  Read settings by genallc_v3 (GWinput)
@@ -135,4 +135,4 @@ program hbasfp0 ! Generates orthonormal optimal product basis and required radia
   if(ix==7) call rx0s( ' OK! hbasfp0 ix=7 Exx val-val mode  ')
   if(ix==8) call rx0s( ' OK! hbasfp0 ix=8 normal(ix==0) + <B|spin den>. Enforce lcutmx=0.')
 998 if(ix==5) call rx0s( ' OK! hbasfp0 ix=5 ex core mode  ')
-END PROGRAM hbasfp0
+end subroutine hbasfp0

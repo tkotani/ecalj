@@ -13,7 +13,7 @@
 !     without modifying gwsrc/RSMPI_qkgroup_mod.F.
 
 
-module RSMPI_rotkindex
+module rsmpi_rotkindex
   use rsmpi
   use rsmpi_qkgroup
   implicit none

@@ -16,7 +16,7 @@
 !     For this purpose, a local communicator "comm_qkgroup" is created
 !                                            by using "MPI_Comm_Split".
 
-module RSMPI_qkgroup
+module rsmpi_qkgroup
   use rsmpi
   implicit none
   ! S:

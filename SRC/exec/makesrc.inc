@@ -1,6 +1,28 @@
 #NOTE: when you add your foobar.F, choose one of *_list.
 
 ELIB_list=\
+main_hrcxq.o \
+main_lmv7.o \
+main_qg4gw.o \
+main_lmfa.o \
+main_lmfham1.o \
+main_lmfham2.o \
+main_hbasfp0.o \
+main_gwinit.o \
+main_hmagnon.o \
+main_heftet.o \
+main_hmlo.o \
+main_hqpe.o \
+main_hqpe.sc.o \
+main_hqpe_qsgw.o \
+main_hsfp0.o \
+main_hsfp0.sc.o \
+main_hsigmconv.o \
+main_hvccfp0.o \
+main_hx0fp0.o \
+main_rdata4gw_v2.o \
+main_lmchk.o \
+main_hx0init.o \
 tbhsi.o\
 m_fatom.o\
 m_HamPMT.o\
@@ -146,13 +168,12 @@ smvxcm.o \
 m_vxcatom.o \
 w_psir.o \
 gintxx.o \
-rotwave.o
-
-
-MPI_list= MPI_fpgw2.o
-
-
-MLOC_list= \
+rotwave.o\
+\
+\
+MPI_fpgw2.o\
+\
+\
 iopen.o \
 maxloc0.o \
 maxloc1.o \
@@ -180,9 +201,9 @@ RSMPI_qkgroup_mod.o \
 RSMPI_rotkindex_mod.o \
 RSMPI_utils.o\
 ent_MPI.o\
-wmatK_mpi.o
-
-GWLIB_list=\
+wmatK_mpi.o \
+\
+\
 m_readwan.o \
 lmf2gw.o\
 zsecsym.o \
@@ -248,7 +269,6 @@ m_gaussianfilter.o\
 m_llw.o\
 m_readfreq_r.o\
 qpe1.qsgw.o\
-eibzgen.o
-
-MLO_list=\
+eibzgen.o \
+\
 m_hamMTO.o

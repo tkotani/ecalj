@@ -1,5 +1,4 @@
-program hqpe
-  ! Jul,2000 t.kotani started from hqpe by Ferdi.Aryasetiawan
+subroutine hqpe()   ! Jul,2000 t.kotani started from hqpe by Ferdi.Aryasetiawan
   ! calculates quasiparticle energies
   ! E(k,t) = e(k,t) + Z [SEx(k,t) + SEc(k,t) - xcLDA(k,t)]
   ! e(k,t) = LDA eigenvalue
@@ -163,4 +162,4 @@ program hqpe
      if (jin > 0) jin = 999999
   end do
   call rx0s( ' OK! hqpe ')
-END PROGRAM hqpe
+end subroutine hqpe

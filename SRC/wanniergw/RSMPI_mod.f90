@@ -1,5 +1,5 @@
 !>    mpi utility for wannier part R. Sakuma 2007
-module RSMPI
+module rsmpi
   implicit none
   include "mpif.h"
   ! S:     FILES

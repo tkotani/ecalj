@@ -3,7 +3,7 @@
 !!
 !! eps_lmf_cphipm mode is now commented out; you may need to recover this if necessary
 !! (only epsPP_magnon_chipm mode works).
-program hmagnon
+subroutine hmagnon()
   use m_readwan,only: write_qdata, wan_readeigen, wan_readeval, wan_readeval2, &
        readscr, checkorb, checkorb2, diagwan, diagwan_tr, wan_imat, &
        writehmat, writeddmat, &
@@ -1084,7 +1084,7 @@ call cputid(0)
 !      call MPI__Finalize
 write(6,"('eta for 1-eta*WK:',f13.8)") eta
 call rx0( ' OK! hmagnon mode')
-END PROGRAM
+END subroutine hmagnon
 
 
 

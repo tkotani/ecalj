@@ -41,7 +41,7 @@ contains
     integer,parameter::recln=511
     logical ::cmdopt0,ipr10=.false.
     character strn*(recln),strn2*(recln),outs(recln)
-    real(8):: osymgr (3,3,ngmx),oag(3,ngmx)
+    real(8):: osymgr(3,3,ngmx), oag(3,ngmx)
     real(8),parameter:: tol=1d-4
     integer,allocatable:: iclasstAll(:)
     call tcn('m_mksym_init')

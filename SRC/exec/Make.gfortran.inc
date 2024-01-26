@@ -1,5 +1,6 @@
 ### NOTE. we use mpi compilar, but lmfa, lmdos lmchk lmf2gw lmfham1 are only for -np 1
-FC = mpif90 -Wsurprising -Wmaybe-uninitialized
+FC = mpif90 -Wsurprising -Wmaybe-uninitialized -fPIC
+#for .so ?
 #
 LK = mpif90 
 LIBMATH = -lmkl_rt
@@ -10,7 +11,7 @@ module = -J$(moddir) -I$(moddir)
 
 #2023feb: For newer gfortran, we need -fallow-argument-mismatch
 FFLAGS_COMMON= -g -fimplicit-none -finit-integer=NaN -finit-real=NaN $(module)
-#FFLAGS_COMMON= -g -fallow-argument-mismatch -fimplicit-none -finit-integer=NaN -finit-real=NaN $(module)
+#FFLAGS_COMMON= -g -fallow-argument-mismatch -fimplicit-none -finit-integer=NaN -finit-real=NaN $(module) 
 FFLAGS = -O2  $(FFLAGS_COMMON)
 FFLAGS_LESS = -O0   $(FFLAGS_COMMON)
 FFLAGS_LESS2 = -O0  $(FFLAGS_COMMON)

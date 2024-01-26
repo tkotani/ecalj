@@ -41,7 +41,7 @@ contains
     type(s_rv1) :: orhoat(3,*)
     real(8):: dfh(3,nbas), qmom(nlmxlx,nbas)
     complex(8):: smrho(n1,n2,n3,nsp),smrout(n1,n2,n3,nsp)
-    integer :: job,iprint,ib,is,lmxl,nlm, ip,m,i,lmxlx,nlmtop,nn
+    integer :: job,iprint,is,lmxl, ip,i,lmxlx,nlmtop,nn,ib,m,nlm
     complex(8) ,allocatable :: ceps_zv(:)
     complex(8) ,allocatable :: cnomi_zv(:)
     complex(8) ,allocatable :: smro_zv(:,:,:,:),smav(:,:,:)
@@ -82,7 +82,7 @@ contains
     pvdf4:block
       use m_lattic,only: rv_a_opos
 !      use m_hansr,only:corprm
-      integer :: ig,ib,ilm,l,m,nlm,lfoc
+      integer :: ig,ilm,l,lfoc
       real(8):: tau(3),df(0:20),rg,qcorg,qcorh,qsc,cofg,cofh,ceh,rfoc,z,gam,gamf,cfoc,cvol
       complex(8):: cof(nlmxlx),cfac,phase(ng),img=(0d0,1d0)
       call stdfac(20,df)
@@ -112,7 +112,7 @@ contains
       cv(2:ng) = (8*pi)*cv(2:ng)/g2(2:ng) ! --- Potential is 8pi/G**2 * density; overwrite cv with potential ---
     endblock pvdf4
     allocate(dvxc_zv(n1,n2,n3,nsp))
-    call pvdf2(nsp, n1 , n2 , n3 , smrho, dvxc_zv ) !Make dVxc(in)/dn 
+    call pvdf2(n1 , n2 , n3 , smrho, dvxc_zv ) !Make dVxc(in)/dn 
     allocate(smro_zv,mold=smrho) 
     smro_zv(:,:,:,1) = smrout(:,:,:,1)-smrho(:,:,:,1)
     if(nsp==2) smro_zv(:,:,:,1)=smro_zv(:,:,:,1)+ smrout(:,:,:,2)-smrho(:,:,:,2)
@@ -139,7 +139,7 @@ contains
          real(8):: rwgt(nr)
          call radwgt(rmt_i(is),spec_a(is),nr,rwgt)
          call radsum(nr,nr,nlm,nsp,rwgt,orhoat(1,ib)%v-orhoat(2,ib)%v, qloc)
-         call pvdf1(job,nsp,ib,qmom,qmout_rv,ng,gv,g2,yl,iv,qlat,0,cnomi_zv,cdvx_zv,cv,qloc, fes1,fes2,fxc)
+         call pvdf1(job,ib,qmom,qmout_rv,ng,gv,g2,yl,iv,qlat,0,cnomi_zv,cdvx_zv,cv,qloc, fes1,fes2,fxc)
          dfh(:,ib) = -(fes1(:) + fes2(:) + fxc(:))
          if(iprint()>=30)&
               write(stdo,"(i4,3f8.2,1x,3f8.2,1x,3f8.2:1x,3f8.2)")ib,(c*(fes1(m)+fes2(m)),m=1,3),(c*fxc(m),m=1,3),(c*dfh(m,ib),m=1,3)
@@ -151,7 +151,7 @@ contains
     deallocate(qmout_rv,iv,g2,yl,cdvx_zv,cv,cnomi_zv)
     call tcx('dfrce')
   end subroutine dfrce
-  subroutine pvdf1(job,nsp,ib,qmom, qmout,ng,gv,g2,yl,iv,qlat,kmax,cnomin,cdvxc,cvin,qloc, fes1,fes2,fxc)
+  subroutine pvdf1(job,ib,qmom, qmout,ng,gv,g2,yl,iv,qlat,kmax,cnomin,cdvxc,cvin,qloc, fes1,fes2,fxc)
     use m_struc_def 
     use m_lmfinit,only:lat_alat
     use m_density,only: pnuall,pnzall
@@ -159,7 +159,7 @@ contains
     use m_supot,only: n1,n2,n3
 !    use m_hansr,only:corprm
     implicit none
-    intent(in)::   job,nsp,ib,qmom, qmout,ng,gv,g2,yl,iv,qlat,kmax,cnomin,cdvxc,cvin,qloc
+    intent(in)::   job,ib,qmom, qmout,ng,gv,g2,yl,iv,qlat,kmax,cnomin,cdvxc,cvin,qloc
     intent(out)::                                                                               fes1,fes2,fxc
     !- Estimate shift in local density for one site
     !i   ng,gv,kmax,qloc
@@ -179,7 +179,7 @@ contains
     !l   cdn:   Job 1:  dn^(u) where dn is the unscreened shift in the free-atom density.
     !l           Job/=1: =no shift
     !o   NB:     In all cases, the local part of density is approximated a gaussian of the equivalent multipole moment.
-    integer:: ng , nsp ,  kmax , ib , job , iv(ng,3),i_copy_size
+    integer:: ng , kmax , ib , job , iv(ng,3),i_copy_size
     type(s_rv1) :: orhoat(3)
     real(8):: qmom(nlmxlx,nbas) , qmout(nlmxlx,nbas) , gv(ng,3) , tau(3) , fes1(3) , &
          fes2(3) , fxc(3) , g2(ng) , yl(ng,1)  , qlat(3,3)
@@ -340,11 +340,11 @@ contains
     fes2=fes2-fesgg
     call tcx('pvdf1')
   end subroutine pvdf1
-  subroutine pvdf2(nsp,n1,n2,n3, smrho,dvxc)!- Makes derivative of smoothed xc potential wrt density.
+  subroutine pvdf2(n1,n2,n3, smrho,dvxc)!- Makes derivative of smoothed xc potential wrt density.
     use m_struc_def
     use m_smvxcm,only: smvxcm
     implicit none
-    integer :: nsp,n1,n2,n3,i,i1,i2,i3
+    integer :: n1,n2,n3,i,i1,i2,i3
     complex(8):: vxcp(n1,n2,n3,nsp),vxcm(n1,n2,n3,nsp),vxc0(n1,n2,n3,nsp), &
          dvxc(n1,n2,n3,nsp),smrho(n1,n2,n3,nsp),dsmrho(n1,n2,n3,nsp), wn1(n1,n2,n3,nsp),wn2(n1,n2,n3,nsp),wn3(n1,n2,n3,nsp)
     real(8):: fac,dmach,f1,f2,f,alfa,dfdr,rrho,dvdr, &

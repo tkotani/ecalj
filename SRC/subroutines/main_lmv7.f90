@@ -4,7 +4,7 @@
 !
 ! We use a module-based programing. In principle, all the variables are generared and stored in modules with 'protection'.
 ! This assure that we can not modify data in a module by other modules.
-program lmf ! Bootstrap sequence of modules initialzation. The variables in modules are proteted except m_density. Use variables with 'use only'.
+subroutine lmf() ! Bootstrap sequence of modules initialzation. The variables in modules are proteted except m_density. Use variables with 'use only'.
   use m_ext,only:      m_ext_init,sname
   use m_MPItk,only:    m_MPItk_init, nsize, master_mpi
   use m_lgunit,only:   m_lgunit_init, stdo,stdl
@@ -152,5 +152,6 @@ contains
     endblock
 1010 continue
   endsubroutine readatompos
-endprogram lmf
-include "show_programinfo.fpp" !this is for 'call show_programinfo' ! preprocessed from show_programinfo.f90 by Makefile
+end subroutine lmf
+
+include "../exec/show_programinfo.fpp" !this is for 'call show_programinfo' ! preprocessed from show_programinfo.f90 by Makefile

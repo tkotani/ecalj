@@ -800,7 +800,7 @@ END function fac2l
 real(8) function derie2 (x,y,n)
   !     return derivative at n
   integer:: n,i
-  real(8):: x(n), y(n), dxdi(n),dydi(n),polinta,ii(n),dydx(n)
+  real(8):: x(n), y(n), dydi(n),polinta,ii(n),dydx(n)
   do i=1,n-1
      dydx(i) = (y(i+1)-y(i))/(x(i+1)-x(i))
      ii(i) = i + 0.5d0
