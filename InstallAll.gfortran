@@ -1,16 +1,11 @@
 #!/bin/bash
 #set -o verbose
-function my_error() {
+function my_error(){
     exit 1
 }
 
-CORES=`nproc`
-echo $CORES
-
 MATH=-lmkl_rt
-
-# Make directory for ecalj binaries and scripts.
-BINDIR=${HOME}/bin
+BINDIR=${HOME}/bin  ## Make directory for ecalj binaries and scripts.
 [ -d ${BINDIR} ] || mkdir ${BINDIR} 
 echo Going to install required binaries and scripts to ${BINDIR} !
 
@@ -24,15 +19,16 @@ cd StructureTool/
 ./makelink $BINDIR
 popd
 
-### Use SRC/exec/Makefile
+### Use SRC/exec/CmakeLists.txt to make executables.
 pushd .
 cd SRC/exec
-make -j PLATFORM=gfortran LIBMATH="$MATH" ||my_error
-make -j PLATFORM=gfortran BINDIR=$BINDIR install ||my_error
+cmake -DPLATFORM=gfortran .
+make -j ||my_error 
+cp `find . -mindepth 1 -maxdepth 1 -executable -type f` ${BINDIR} ||my_error
 popd
 
+#############
 echo '=== goto test ==='
-### Test 
 cd SRC/TestInstall/
 make mpi_size=4 all
 

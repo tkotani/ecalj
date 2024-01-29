@@ -1,29 +1,10 @@
-! subroutine readppovl0(q,ngc,ppovl)
-!   implicit none
-!   integer, intent(in) :: ngc
-!   complex(8), intent(out) :: ppovl(ngc,ngc)
-!   real(8), intent(in) :: q(3)
-!   integer:: ngc_r,ippovl0
-!   real(8):: qx(3),tolq=1d-8
-!   open(newunit=ippovl0,file='PPOVL0',form='unformatted')
-!   do
-!      read(ippovl0) qx,ngc_r
-!      if(sum(abs(qx-q))<tolq) then
-!         if(ngc_r/=ngc) call rx( 'readin ppovl: ngc_r/=ngc')
-!         read(ippovl0) ppovl
-!         exit
-!      endif
-!   enddo
-!   close(ippovl0)
-! end subroutine readppovl0
-
 !> Return QGcou and QGpsi ===
 module m_readQG
   use m_read_bzdata,only: ginv
   use NaNum,only:NaN
   implicit none
   !--------------------------------------------
-  public:: Readqg, Readqg0, Readngmx, Readngmx2
+  public:: readqg, readqg0, readngmx, readngmx2
   integer,protected,public:: ngpmx=NaN, ngcmx=NaN!,nblochpmx
   !--------------------------------------------
 
