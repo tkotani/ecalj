@@ -118,7 +118,7 @@ contains
     integer,intent(in):: nbas
     real(8),intent(in):: plat(3,3),alat,pos(3,nbas),z(nbas),q(3)
     character(6):: thisfunc='w_psir'
-    integer :: i1,i2,i3,i,ispc,ieig,iq1,iq
+    integer :: i1,i2,i3,i,ispc,ieig,iq
     logical:: l_execute
     character(40):: fnamer,fnamei
     integer:: ifiler,ifilei,stat

@@ -1,0 +1,37 @@
+obj_path = OBJ.$(PLATFORM)
+main  = ../main/
+subr  = ../subroutines/
+maxloc= ../wanniergw/
+moddir= $(obj_path)
+tags  = ..
+
+### version info included in main/show_programinfo.f90 (shown at lmf-MPIK lmfa)
+result_fc_version :=$(shell LANG=us; ${FC} --version |head -1)
+result_uname_a := $(shell uname -orin)
+result_linked_at := $(shell LANG=us; date)
+result_etc_issue := $(shell grep -v \"^\$\" /etc/issue | head -1 )
+result_git_commit1 := $(shell git log|head -1)
+result_git_commit2 := $(shell git log|head -2|tail -n 1)
+result_git_commit3 := $(shell git log|head -3|tail -n 1)
+result_fflags := $(shell echo ${FFLAGS} | head -1|cut -b -100)
+result_libloc := $(shell echo ${LIBLOC} | head -1)
+VERSIONFLAGS = \
+-D___UNAME_A___="\"$(result_uname_a)\""   \
+-D___LINK_TIME___="\"$(result_linked_at)\"" \
+-D___ETC_ISSUE___="\"$(result_etc_issue)\"" \
+-D___GIT_BRANCH___="\"$(result_git_branch)\"" \
+-D___GIT_COMMIT1___="\"$(result_git_commit1)\"" \
+-D___GIT_COMMIT2___="\"$(result_git_commit2)\"" \
+-D___GIT_COMMIT3___="\"$(result_git_commit3)\"" \
+-D___PLATFORM___="\"$(PLATFORM)\"" \
+-D___FC_VERSION___="\"$(result_fc_version)\"" \
+-D___FFLAGS___="\"$(result_fflags)\"" \
+-D___LIBLOC___="\"$(result_libloc)\""
+
+show:
+	@echo generating show_programinfo.fpp 
+	@cpp $(VERSIONFLAGS) show_programinfo.template >  show_programinfo.fpp
+
+tags: $(progs)
+	@echo '--- TAGS for emacs is generated at SRC/TAGS ---'
+	(cd $(tags); etags */*.f90)

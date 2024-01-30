@@ -342,9 +342,8 @@ subroutine rdata4gw_v2()
      write(ifec,*) spid(ibas) !ECORE
      write(ifec,*) ' z,atom=class,nr,a,b,nsp ' !ECORE
      write(ifec,"(1x,f5.1,2i10,f13.5,d14.6,i4)") zz(ic),ic1,nr(ic),aa(ic),bb(ic),nsp !ECORE
-     write(ifec,*)' configuration   !!! LocalOrbital 2=upper 1=lower' !ECORE
-     write(ifec,"($,1x,10i3)") (vkonf(l,ic),  l=0,lmxa(ic)) !ECORE
-     write(ifec,"('      ',10i3)") (konf(l,ic)/10,l=0,lmxa(ic)) ! principl quantum  number of valence minimum
+     write(ifec,*)' configuration'!   !!! LocalOrbital 2=upper 1=lower' !ECORE
+     write(ifec,ftox)(vkonf(l,ic),l=0,lmxa(ic)) !principl quantum  number of valence minimum
      ! related to LocalOrbital part lower(=1) upper(=2).
      write(ifec,*)' l,n, ecore(up), ecore(down) ' !ECORE
      icore = 0
@@ -354,7 +353,7 @@ subroutine rdata4gw_v2()
            n    = kkk - l
            ncindx(icore)= n
            lcindx(icore)= l
-           write(ifec,"(1x,2i3,2d17.6)") l,n,ec(icore,ic,1:nsp) !ECORE
+           write(ifec,ftox) l,n,ftod(ec(icore,ic,1:nsp),16) !ECORE
         enddo
      enddo
      write(ifphi) ncore(ic), ncoremx !core

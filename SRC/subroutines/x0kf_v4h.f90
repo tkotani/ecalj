@@ -23,7 +23,7 @@ module m_x0kf
   integer,allocatable:: nkmin(:), nkmax(:),nkqmin(:),nkqmax(:) 
   real(8),allocatable:: whwc(:)
   integer,allocatable:: iwini(:),iwend(:),itc(:),itpc(:),jpmc(:),icouini(:)
-  complex(8),allocatable :: zmel0(:,:,:) 
+!  complex(8),allocatable :: zmel0(:,:,:) 
 contains
   subroutine X0kf_v4hz_init_write(iq,is)
     integer:: iq,is,ix0

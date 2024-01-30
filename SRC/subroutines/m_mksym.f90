@@ -37,7 +37,7 @@ contains
     implicit none
     integer,parameter::  ngmx = 48
     character,intent(in)::  prgnam*(*)
-    integer:: ibas,lc,j,iprint,nclass,ngrpTotal,k,npgrpAll,ig
+    integer:: ibas,lc,j,iprint,nclass,ngrpTotal,k,npgrpAll
     integer,parameter::recln=511
     logical ::cmdopt0,ipr10=.false.
     character strn*(recln),strn2*(recln),outs(recln)

@@ -23,9 +23,6 @@ SUFFIXES =
 .SUFFIXES: .hpux_make_needs_suffix_list
 
 
-# Produce verbose output by default.
-VERBOSE = 1
-
 # Suppress display of executed commands.
 $(VERBOSE).SILENT:
 
@@ -166,19 +163,6 @@ lmfham1/fast:
 .PHONY : lmfham1/fast
 
 #=============================================================================
-# Target rules for targets named hx0init
-
-# Build rule for target.
-hx0init: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 hx0init
-.PHONY : hx0init
-
-# fast build rule for target.
-hx0init/fast:
-	$(MAKE) -f CMakeFiles/hx0init.dir/build.make CMakeFiles/hx0init.dir/build
-.PHONY : hx0init/fast
-
-#=============================================================================
 # Target rules for targets named hx0fp0
 
 # Build rule for target.
@@ -216,6 +200,45 @@ hvccfp0: cmake_check_build_system
 hvccfp0/fast:
 	$(MAKE) -f CMakeFiles/hvccfp0.dir/build.make CMakeFiles/hvccfp0.dir/build
 .PHONY : hvccfp0/fast
+
+#=============================================================================
+# Target rules for targets named hx0init
+
+# Build rule for target.
+hx0init: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 hx0init
+.PHONY : hx0init
+
+# fast build rule for target.
+hx0init/fast:
+	$(MAKE) -f CMakeFiles/hx0init.dir/build.make CMakeFiles/hx0init.dir/build
+.PHONY : hx0init/fast
+
+#=============================================================================
+# Target rules for targets named showpp
+
+# Build rule for target.
+showpp: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 showpp
+.PHONY : showpp
+
+# fast build rule for target.
+showpp/fast:
+	$(MAKE) -f CMakeFiles/showpp.dir/build.make CMakeFiles/showpp.dir/build
+.PHONY : showpp/fast
+
+#=============================================================================
+# Target rules for targets named hmaxloc
+
+# Build rule for target.
+hmaxloc: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 hmaxloc
+.PHONY : hmaxloc
+
+# fast build rule for target.
+hmaxloc/fast:
+	$(MAKE) -f CMakeFiles/hmaxloc.dir/build.make CMakeFiles/hmaxloc.dir/build
+.PHONY : hmaxloc/fast
 
 #=============================================================================
 # Target rules for targets named lmchk
@@ -346,19 +369,6 @@ hmagnon: cmake_check_build_system
 hmagnon/fast:
 	$(MAKE) -f CMakeFiles/hmagnon.dir/build.make CMakeFiles/hmagnon.dir/build
 .PHONY : hmagnon/fast
-
-#=============================================================================
-# Target rules for targets named hmaxloc
-
-# Build rule for target.
-hmaxloc: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 hmaxloc
-.PHONY : hmaxloc
-
-# fast build rule for target.
-hmaxloc/fast:
-	$(MAKE) -f CMakeFiles/hmaxloc.dir/build.make CMakeFiles/hmaxloc.dir/build
-.PHONY : hmaxloc/fast
 
 #=============================================================================
 # Target rules for targets named lmfa
@@ -8588,10 +8598,12 @@ help:
 	@echo "... qg4gw"
 	@echo "... lmfham2"
 	@echo "... lmfham1"
-	@echo "... hx0init"
 	@echo "... hx0fp0"
 	@echo "... hwmatK_MPI"
 	@echo "... hvccfp0"
+	@echo "... hx0init"
+	@echo "... showpp"
+	@echo "... hmaxloc"
 	@echo "... lmchk"
 	@echo "... ecaljF"
 	@echo "... hqpe"
@@ -8604,7 +8616,6 @@ help:
 	@echo "... huumat_MPI"
 	@echo "... hbasfp0"
 	@echo "... hmagnon"
-	@echo "... hmaxloc"
 	@echo "... lmfa"
 	@echo "... hpsig_MPI"
 	@echo "... hqpe_sc"
