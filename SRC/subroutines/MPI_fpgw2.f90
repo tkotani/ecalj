@@ -132,25 +132,6 @@ contains
     endif
     return
   end subroutine MPI__Initialize_magnon
-  ! !     !======================================================
-  ! subroutine MPI__InitializeQ !MPI__InitializeQSPBM not so much used now...
-  !   implicit none
-  !   character(1024*4) :: cwd, stdout
-  !   integer :: narg, iargc
-  !   character(len=1024) :: arg
-  !   integer, allocatable :: ranklistQ(:)
-  !   integer, allocatable :: vrankQ(:)
-  !   integer :: i, j, n
-  !   call getcwd(cwd)          ! get current working directory
-  !   call MPI_Init( mpi__info ) ! current working directory is changed if mpirun is not used
-  !   call MPI_Comm_rank ( MPI_COMM_WORLD, mpi__rank,  mpi__info )
-  !   call MPI_Comm_size ( MPI_COMM_WORLD, mpi__size,  mpi__info )
-  !   mpi__root = ( mpi__rank == 0 )
-  !   if( mpi__root ) then
-  !      call chdir(cwd)        ! recover current working directory
-  !   endif
-  !   return
-  ! end subroutine MPI__InitializeQ!SPBM
   subroutine MPI__consoleout(idn)
     use m_lgunit,only:stdo,stdl
     implicit none

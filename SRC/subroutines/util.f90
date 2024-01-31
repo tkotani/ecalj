@@ -390,10 +390,6 @@ subroutine stdfac(n,df) !- Set up array of double factorials.
   real(8):: df(0:n)
   df=[(product([(dble(ik),ik=m,1,-2)]),m=0,n)]
 end subroutine stdfac
-integer function nargf()
-  integer :: iargc
-  nargf = iargc() + 1
-end function nargf
 subroutine ftime(datim)!fortran-callable date and time
   character datim*(*)
   call fdate(datim)!datim=datim(1:24) !takao. If this is not, write(6,*) gives CR at the ene of datim*26.

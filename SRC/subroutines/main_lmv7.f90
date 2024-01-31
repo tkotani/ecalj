@@ -5,6 +5,7 @@
 ! We use a module-based programing. In principle, all the variables are generared and stored in modules with 'protection'.
 ! This assure that we can not modify data in a module by other modules.
 subroutine lmf() ! Bootstrap sequence of modules initialzation. The variables in modules are proteted except m_density. Use variables with 'use only'.
+  use m_args,only: argall
   use m_ext,only:      m_ext_init,sname
   use m_MPItk,only:    m_MPItk_init, nsize, master_mpi
   use m_lgunit,only:   m_lgunit_init, stdo,stdl
@@ -29,7 +30,7 @@ subroutine lmf() ! Bootstrap sequence of modules initialzation. The variables in
   use m_writeband,only: writepdos,writedossawada
   use m_ftox
   implicit none
-  integer:: iarg,iprint,iargc,jobgw=-1
+  integer:: iarg,iprint,jobgw=-1
   logical:: cmdopt0,cmdopt2, writeham,sigx
   character:: outs*20,aaa*512,sss*128
   character(8):: prgnam='LMF'
@@ -42,11 +43,7 @@ subroutine lmf() ! Bootstrap sequence of modules initialzation. The variables in
      read(outs,*) jobgw
      if(jobgw/=0.and.jobgw/=1) call rx0(' Set --jobgw=0 or 1')
   endif 
-  aaa=''
-  do iarg=1,iargc()
-     call getarg(iarg,sss) !  print *,iarg,trim(sss)
-     aaa=trim(aaa)//' '//trim(sss) !command-line options with defalut --time=1,1
-  enddo
+  aaa=argall
   if(master_mpi.and.len_trim(aaa)==0) then
      write(stdo,*)' usage: mpirun -np 4 lmf-MPIK foobar [options]'
      write(stdo,*)'     GW preparation mode. Then we need '
@@ -61,7 +58,6 @@ subroutine lmf() ! Bootstrap sequence of modules initialzation. The variables in
   if(master_mpi) write(stdl,"(a)") trim(aaa)
   if(master_mpi) write(stdo,"(a,g0)")'mpisize=',nsize
   if(master_mpi) write(stdl,"(a,g0)")'mpisize=',nsize
-  if(iargc()==0) call rx0('no args: lmf-MPIK --help show help')
   Helpmode:if(cmdopt0('--help')) then  !help and quit
      call m_lmfinit_init(prgnam) ! show help and quit for --input
      call rx0('end of help mode')

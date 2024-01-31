@@ -138,21 +138,16 @@ contains
        call rx0('End of help mode')
     endif HelpExit
     ConvertCtrl2CtrlpByPython: block
-      character(512):: aaa,cmdl,argv
-      integer:: iargc
+      use m_args,only: argall
+      character(512):: cmdl
       logical:: fileexist
       if(master_mpi) then
          inquire(file='ctrl.'//trim(sname),exist=fileexist)
          if(.NOT.fileexist) call rx("No ctrl file found!! ctrl."//trim(sname))
-         aaa=''
-         do i = 1, iargc()
-            call getarg( i, argv )
-            aaa=trim(aaa)//' '//trim(argv) !command inputs are connected
-         enddo
          open(newunit=ifi,file='save.'//trim(sname),position='append')
-         write(ifi,"(a)")'Start '//trim(prgnam)//trim(aaa)
+         write(ifi,"(a)")'Start '//trim(prgnam)//trim(argall)
          close(ifi)
-         cmdl=trim(cmdpath)//'ctrl2ctrlp.py '//trim(aaa)//'<ctrl.'//trim(sname)//' >ctrlp.'//trim(sname)
+         cmdl=trim(cmdpath)//'ctrl2ctrlp.py '//trim(argall)//'<ctrl.'//trim(sname)//' >ctrlp.'//trim(sname)
          write(stdo,"(a)")'cmdl for python='//trim(cmdl)
          call system(cmdl) !See  results ctrlp.* given by ctrl2ctrl.py 
       endif

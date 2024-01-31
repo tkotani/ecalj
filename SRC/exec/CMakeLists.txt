@@ -1,4 +1,5 @@
 #Make libecaljF.so and all binaries.
+#Run >  PLATFORM=gfortran cmake .
 Project (ecalj)
 cmake_minimum_required(VERSION 3.2)
 #SET(CMAKE_VERBOSE_MAKEFILE ON)
@@ -11,9 +12,9 @@ message(STATUS "PLATFORM = ${PLATFORM}")
 #set(PLATFORM "gfortran")
 set(LIBRARY_NAME ecaljF) # library name
 add_custom_target(showpp ALL make -f Makeshow) #time stamp file show_programino.fpp is generated.
-set(CMAKE_BINARY_DIR ${CMAKE_BINARY_DIR}/${PLATFORM})
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib) # directory for *.so 
-set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/mod) # directory *.mod
+
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PLATFORM}/lib) # directory for *.so
+set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/${PLATFORM}/mod) # directory *.mod
 # compile options ##########################################
 if(PLATFORM MATCHES "gfortran")
     set(CMAKE_Fortran_COMPILER mpif90)    # compiler
@@ -54,10 +55,15 @@ elseif(PLATFORM MATCHES "ifort_dbg")
     set(LIB ${LIBRARY_NAME} mkl)  #set LIB variable
 endif()
 
-###################################
+#### Generate library and binaries ###############################
 add_library(${LIBRARY_NAME} SHARED ${SOURCES}) # Library
 foreach(target IN ITEMS ${MAINS})
     get_filename_component(exename ${target} NAME_WE ) #set DIR variable
     add_executable(${exename} ${target}) # exe
     target_link_libraries(${exename} ${LIB})
 endforeach()
+
+#set(BINDIR $ENV{HOME}/bin)
+#set(BINDIR $ENV{BINDIR}) 
+#message(STATUS "BINDIR = ${BINDIR}")
+#add_custom_target(inst cp `find . -mindepth 1 -maxdepth 1 -executable -type f` ${BINDIR})

@@ -1,4 +1,5 @@
 subroutine lmchk()
+  use m_args,only: argall
   use m_ext,only:     m_Ext_init,sname
   use m_MPItk,only:   m_MPItk_init,nsize,master_mpi
   use m_lgunit,only:  m_lgunit_init, stdo,stdl
@@ -10,17 +11,13 @@ subroutine lmchk()
   implicit none
   logical:: cmdopt0,cmdopt2
   character:: outs*20,aaa*512,sss*128
-  integer:: iarg,iargc,k
+  integer:: iarg,k
   character(8):: prgnam='LMCHK'
   call m_ext_init()        ! Get sname, e.g. trim(sname)=si of ctrl.si
   call m_MPItk_init(prgnam)
   call m_lgunit_init()
   if(nsize/=1) call rx('Current lmchk is only for single core')
-  aaa=''
-  do iarg=1,iargc()
-     call getarg(iarg,sss)
-     aaa=aaa//' '//trim(sss)
-  enddo
+  aaa=argall
   aaa= '=== START '//trim(prgnam)//'  '//trim(aaa)//' ==='
   if(master_mpi) call show_programinfo(stdo)
   if(master_mpi) write(stdo,"(a)") trim(aaa)

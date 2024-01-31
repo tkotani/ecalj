@@ -9,8 +9,8 @@ subroutine lmfa()
   logical:: cmdopt0
   character:: aaa*512
   character(8) :: prgnam='LMFA', charext
-  call m_ext_init()  ! Get sname, e.g. trim(sname)=si of ctrl.si
   call m_MPItk_init(prgnam)
+  call m_ext_init()  ! Get sname, e.g. trim(sname)=si of ctrl.si
   call m_lgunit_init()
   if(nsize/=1) call rx('Current lmfa is only for single core')
   aaa= '=== START LFMA ==='

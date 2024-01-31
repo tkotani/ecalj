@@ -1,5 +1,28 @@
-!> get extension of ctrl.foobar
-module m_ext 
+!> Get arglist. Get extension of ctrl.foobar
+module m_args
+  character(120),public,protected,allocatable::arglist(:)
+  character(1024),public,protected:: argall
+  public:: m_setargs
+  integer:: narg
+  logical:: init=.true.
+contains
+  subroutine m_setargs()
+    integer:: iarg,iargc
+    character(120) :: strn
+    if(.not.init) return
+    narg = iargc()
+    allocate(arglist(narg))
+    argall=''
+    do iarg=1,iargc()
+       call getarg(iarg,strn)
+       arglist(iarg)=trim(strn)
+       argall=trim(argall)//' '//trim(strn)
+    enddo
+    init=.false.
+  endsubroutine m_setargs
+end module m_args
+module m_ext
+  use m_args,only: m_setargs,arglist,narg
   character(512),public,protected::sname='temp'
   public:: m_ext_init
 contains
@@ -7,13 +30,56 @@ contains
     logical :: master
     integer:: ifi,ipos,i,na
     character*256:: sss,s222,argv
-    na= iargc()
-    do i = 1, na
-       call getarg( i, argv )
-       if(argv(1:1)/='-') then
-          sname=trim(argv)
-          exit
+    call m_setargs()
+    do i = 1, narg
+       if(arglist(i)(1:1)/='-') then
+          sname=trim(arglist(i))
+          goto 999
        endif
     enddo
+    call rx0('no args: Need to set foobar for ctrl.foobar')
+999 continue
   end subroutine m_ext_init
 end module m_ext
+logical function cmdopt0(argstr)! Check a command-line argument exist. 
+  use m_args,only: m_setargs,arglist,narg
+  !i Inputs  argstr: command-line string to search; search to strln chars
+  !o Outputs cmdopt: T if argument found, else F
+  implicit none
+  character(*):: argstr
+  integer ::     nargs,strln !dummy
+  logical :: lsequ
+  integer :: iarg,nargf,idum,nxarg,strlnx
+  character(120) :: strn
+  cmdopt0 = .false.
+  call m_setargs()
+  do iarg=1,narg
+     strlnx = len_trim(argstr) !override input strln
+     if(arglist(iarg)(1:strlnx)==trim(argstr)) then
+        cmdopt0 = .true.
+        return
+     endif
+  enddo
+end function cmdopt0
+logical function cmdopt2(argstr,outstr)  ! return it in outstr
+  use m_args,only: m_setargs,arglist,narg
+  !i Inputs argstr: command-line string to search; search to strln chars
+  !o Outputs cmdopt: T if argument found, else F
+  !o   outstr: output string
+  implicit none
+  character(*):: argstr,outstr
+  integer ::     nargs,strln !dummy
+  logical :: lsequ
+  integer :: iarg,nargf,idum,nxarg,strlnx
+  character(120) :: strn
+  cmdopt2 = .false.
+    call m_setargs()
+  do iarg=1,narg
+     strlnx = len_trim(argstr) !override input strln
+     if(arglist(iarg)(1:strlnx)==trim(argstr)) then
+        cmdopt2 = .true.
+        outstr = arglist(iarg)(strlnx+1:)
+        return
+     endif
+  enddo
+end function cmdopt2
