@@ -137,19 +137,6 @@ qg4gw/fast:
 .PHONY : qg4gw/fast
 
 #=============================================================================
-# Target rules for targets named lmfham2
-
-# Build rule for target.
-lmfham2: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 lmfham2
-.PHONY : lmfham2
-
-# fast build rule for target.
-lmfham2/fast:
-	$(MAKE) -f CMakeFiles/lmfham2.dir/build.make CMakeFiles/lmfham2.dir/build
-.PHONY : lmfham2/fast
-
-#=============================================================================
 # Target rules for targets named lmfham1
 
 # Build rule for target.
@@ -174,6 +161,19 @@ lmf: cmake_check_build_system
 lmf/fast:
 	$(MAKE) -f CMakeFiles/lmf.dir/build.make CMakeFiles/lmf.dir/build
 .PHONY : lmf/fast
+
+#=============================================================================
+# Target rules for targets named hx0init
+
+# Build rule for target.
+hx0init: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 hx0init
+.PHONY : hx0init
+
+# fast build rule for target.
+hx0init/fast:
+	$(MAKE) -f CMakeFiles/hx0init.dir/build.make CMakeFiles/hx0init.dir/build
+.PHONY : hx0init/fast
 
 #=============================================================================
 # Target rules for targets named hx0fp0
@@ -215,30 +215,30 @@ hvccfp0/fast:
 .PHONY : hvccfp0/fast
 
 #=============================================================================
-# Target rules for targets named hx0init
+# Target rules for targets named lmfham2
 
 # Build rule for target.
-hx0init: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 hx0init
-.PHONY : hx0init
+lmfham2: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 lmfham2
+.PHONY : lmfham2
 
 # fast build rule for target.
-hx0init/fast:
-	$(MAKE) -f CMakeFiles/hx0init.dir/build.make CMakeFiles/hx0init.dir/build
-.PHONY : hx0init/fast
+lmfham2/fast:
+	$(MAKE) -f CMakeFiles/lmfham2.dir/build.make CMakeFiles/lmfham2.dir/build
+.PHONY : lmfham2/fast
 
 #=============================================================================
-# Target rules for targets named showpp
+# Target rules for targets named show_programinfo.f90
 
 # Build rule for target.
-showpp: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 showpp
-.PHONY : showpp
+show_programinfo.f90: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 show_programinfo.f90
+.PHONY : show_programinfo.f90
 
 # fast build rule for target.
-showpp/fast:
-	$(MAKE) -f CMakeFiles/showpp.dir/build.make CMakeFiles/showpp.dir/build
-.PHONY : showpp/fast
+show_programinfo.f90/fast:
+	$(MAKE) -f CMakeFiles/show_programinfo.f90.dir/build.make CMakeFiles/show_programinfo.f90.dir/build
+.PHONY : show_programinfo.f90/fast
 
 #=============================================================================
 # Target rules for targets named hmaxloc
@@ -2134,6 +2134,33 @@ home/takao/ecalj/SRC/subroutines/hambl.s: home/takao/ecalj/SRC/subroutines/hambl
 home/takao/ecalj/SRC/subroutines/hambl.f90.s:
 	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/hambl.f90.s
 .PHONY : home/takao/ecalj/SRC/subroutines/hambl.f90.s
+
+home/takao/ecalj/SRC/subroutines/hello.o: home/takao/ecalj/SRC/subroutines/hello.f90.o
+
+.PHONY : home/takao/ecalj/SRC/subroutines/hello.o
+
+# target to build an object file
+home/takao/ecalj/SRC/subroutines/hello.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/hello.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/hello.f90.o
+
+home/takao/ecalj/SRC/subroutines/hello.i: home/takao/ecalj/SRC/subroutines/hello.f90.i
+
+.PHONY : home/takao/ecalj/SRC/subroutines/hello.i
+
+# target to preprocess a source file
+home/takao/ecalj/SRC/subroutines/hello.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/hello.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/hello.f90.i
+
+home/takao/ecalj/SRC/subroutines/hello.s: home/takao/ecalj/SRC/subroutines/hello.f90.s
+
+.PHONY : home/takao/ecalj/SRC/subroutines/hello.s
+
+# target to generate assembly for a file
+home/takao/ecalj/SRC/subroutines/hello.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/hello.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/hello.f90.s
 
 home/takao/ecalj/SRC/subroutines/hilbertmat.o: home/takao/ecalj/SRC/subroutines/hilbertmat.f90.o
 
@@ -8561,6 +8588,33 @@ home/takao/ecalj/SRC/wanniergw/xsfformat2.f90.s:
 	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/xsfformat2.f90.s
 .PHONY : home/takao/ecalj/SRC/wanniergw/xsfformat2.f90.s
 
+show_programinfo.o: show_programinfo.f90.o
+
+.PHONY : show_programinfo.o
+
+# target to build an object file
+show_programinfo.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/show_programinfo.f90.o
+.PHONY : show_programinfo.f90.o
+
+show_programinfo.i: show_programinfo.f90.i
+
+.PHONY : show_programinfo.i
+
+# target to preprocess a source file
+show_programinfo.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/show_programinfo.f90.i
+.PHONY : show_programinfo.f90.i
+
+show_programinfo.s: show_programinfo.f90.s
+
+.PHONY : show_programinfo.s
+
+# target to generate assembly for a file
+show_programinfo.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/show_programinfo.f90.s
+.PHONY : show_programinfo.f90.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -8569,14 +8623,14 @@ help:
 	@echo "... depend"
 	@echo "... rdata4gw_v2"
 	@echo "... qg4gw"
-	@echo "... lmfham2"
 	@echo "... lmfham1"
 	@echo "... lmf"
+	@echo "... hx0init"
 	@echo "... hx0fp0"
 	@echo "... hwmatK_MPI"
 	@echo "... hvccfp0"
-	@echo "... hx0init"
-	@echo "... showpp"
+	@echo "... lmfham2"
+	@echo "... show_programinfo.f90"
 	@echo "... hmaxloc"
 	@echo "... lmchk"
 	@echo "... ecaljF"
@@ -8782,6 +8836,9 @@ help:
 	@echo "... home/takao/ecalj/SRC/subroutines/hambl.o"
 	@echo "... home/takao/ecalj/SRC/subroutines/hambl.i"
 	@echo "... home/takao/ecalj/SRC/subroutines/hambl.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/hello.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/hello.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/hello.s"
 	@echo "... home/takao/ecalj/SRC/subroutines/hilbertmat.o"
 	@echo "... home/takao/ecalj/SRC/subroutines/hilbertmat.i"
 	@echo "... home/takao/ecalj/SRC/subroutines/hilbertmat.s"
@@ -9496,6 +9553,9 @@ help:
 	@echo "... home/takao/ecalj/SRC/wanniergw/xsfformat2.o"
 	@echo "... home/takao/ecalj/SRC/wanniergw/xsfformat2.i"
 	@echo "... home/takao/ecalj/SRC/wanniergw/xsfformat2.s"
+	@echo "... show_programinfo.o"
+	@echo "... show_programinfo.i"
+	@echo "... show_programinfo.s"
 .PHONY : help
 
 
