@@ -16,8 +16,8 @@ NO_MPI=0
 
 source $nfpgw/run_arg #this must be after all input arguments are processed
 
-run_arg '---' $MPI_SIZE $nfpgw /lmf-MPIK llmf_ef   $MATERIAL --quit=band  ${@:4:($#-2)}
-run_arg '---' $MPI_SIZE $nfpgw /lmf-MPIK llmf_band $MATERIAL --band  ${@:4:($#-2)}
+run_arg '---' $MPI_SIZE $nfpgw /lmf llmf_ef   $MATERIAL --quit=band  ${@:4:($#-2)}
+run_arg '---' $MPI_SIZE $nfpgw /lmf llmf_band $MATERIAL --band  ${@:4:($#-2)}
 
 if [ ! `echo ${@:4:($#-2)}|grep -o NoGnuplot` ] ; then
 gnuplot -persist bandplot.isp1.glt

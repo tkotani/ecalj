@@ -3,7 +3,7 @@ TARGET=gas_epsPP_lmfh
 MATERIAL=gas
 $(TARGET).exec:
 	$(bindir)/lmfa $(MATERIAL) > llmfa
-	$(bindir)/lmf-MPIK $(MATERIAL) > llmf
+	$(bindir)/lmf $(MATERIAL) > llmf
 	rm EPS*
 	$(bindir)/epsPP_lmfh -np $(mpi_size) $(MATERIAL)
 	@echo  >> ../summary.txt

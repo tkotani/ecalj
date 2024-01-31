@@ -16,9 +16,9 @@ fi
 rm -f HamiltonianPMT*
 #Get efermi.lmf
 echo 'runnnig efermi determination for pwmode=0'
-mpirun -np $3 ~/ecalj/lm7K/lmf-MPIK $1 --quit=band --phispinsym > lmf_efermi
+mpirun -np $3 ~/ecalj/lm7K/lmf $1 --quit=band --phispinsym > lmf_efermi
 echo 'runnnig hamiltonian generation for pwmode=0'
-mpirun -np $3 ~/ecalj/lm7K/lmf-MPIK $1 --writeham --mkprocar --fullmesh --phispinsym
+mpirun -np $3 ~/ecalj/lm7K/lmf $1 --writeham --mkprocar --fullmesh --phispinsym
 
 # Get Hamiltonian file, namded as HamiltonianMTO
 cat HamiltonianPMT.* >HamiltonianPMT

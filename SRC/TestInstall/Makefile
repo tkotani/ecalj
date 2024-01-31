@@ -9,7 +9,7 @@ GW_TEST += gas_pw_gw_lmfh si_gwsc gas_gwsc nio_gwsc fe_gwsc ni_crpa srvo3_crpa
 TL_DIR   = $(ecalroot)/TOOLS
 TL_PROG  = diffnum diffnum2 diffnum0.py comp compall comp.eval
 LM_DIR   = $(ecalroot)/SRC/exec
-LM_PROG  = lmfa lmf-MPIK run_arg job_pdos job_tdos ctrl2ctrlp.py a2vec.py
+LM_PROG  = lmfa lmf run_arg job_pdos job_tdos ctrl2ctrlp.py a2vec.py
 GW_DIR   = $(ecalroot)/SRC/exec
 GW_PROG  = gwutil.py gwsc qg4gw hvccfp0 hsfp0_sc hqpe_sc hmaxloc hpsig_MPI huumat_MPI hwmatK_MPI hx0init hrcxq 
 GW_PROG += rdata4gw_v2 heftet hbasfp0 dqpu
@@ -78,8 +78,8 @@ endif
 	@-grep 'FAILED' $(work)/summary.txt > /dev/null && echo "   FAILED in some tests! See " $(work)/summary.txt  || echo "   OK! All passed! "
 ####################################################### subroutines
 bindir=../../bin/
-LMF=$(bindir)/lmf-MPIK
-LMFP=mpirun -np $(mpi_size) $(bindir)/lmf-MPIK
+LMF=$(bindir)/lmf
+LMFP=mpirun -np $(mpi_size) $(bindir)/lmf
 comp=test.comp
 # test1
 defatol1=1e-5

@@ -6,7 +6,7 @@ $(TARGET).exec:
 	# exec lmfa command.
 	$(bindir)/lmfa $(MATERIAL) > llmfa
 	# exec lmf command.
-	$(bindir)/lmf-MPIK $(MATERIAL) > llmf_lda
+	$(bindir)/lmf $(MATERIAL) > llmf_lda
 	# exec gw_lmfh command.
 	rm  QPU
 	$(bindir)/gw_lmfh -np $(mpi_size) $(MATERIAL)

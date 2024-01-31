@@ -43,16 +43,16 @@ for i in range(1,nloop+1): #nloop is the additional number of iteration
     print('===== %dth iteration start ======'%niter,flush=True)
     if os.path.isfile(sigm_name):
         print("---> We use existing sigm file",flush=True)
-        run_program(epath+'/lmf-MPIK'+targets+'>llmf',ncore)
+        run_program(epath+'/lmf'+targets+'>llmf',ncore)
     else:
         print("---> No sigm. LDA caculation for eigenfunctions ",flush=True)
-        run_program(epath+'/lmf-MPIK'+targets+'>llmf_lda',ncore)
+        run_program(epath+'/lmf'+targets+'>llmf_lda',ncore)
         shutil.copy(rst_name,rst_name+'.lda')
     rm_files(glob.glob('ewindow.%s*')+glob.glob('qbyl.%s*'%target)+glob.glob('eigze*.%s*'%target)+glob.glob('mixm*%s*'%target))
     #gw initialize
-    run_program(epath+'/lmf-MPIK'+targets+'--jobgw=0 >llmfgw00')
+    run_program(epath+'/lmf'+targets+'--jobgw=0 >llmfgw00')
     run_program(epath+'/qg4gw --job=1 > lqg4gw')
-    run_program(epath+'/lmf-MPIK'+targets+'--jobgw=1 >llmfgw01',ncore)
+    run_program(epath+'/lmf'+targets+'--jobgw=1 >llmfgw01',ncore)
     ##### main stage of gw ####
     run_program(epath+'/rdata4gw_v2 > lrdata4gw_v2') #prepare files
     mv_files(glob.glob('norm*'),'STDOUT')
@@ -86,7 +86,7 @@ for i in range(1,nloop+1): #nloop is the additional number of iteration
     if i==0 and Iter0!=0 and nloop!=0:
         run0='RUN0'
         gen_dir(run0)
-        run_program(epath+'/lmf-MPIK'+targets+'>llmf_oneshot',ncore)
+        run_program(epath+'/lmf'+targets+'>llmf_oneshot',ncore)
         cp_files(['ctrl.%s'%target,rst_name,sigm_name,'llmf_oneshot','save.%s'%target],run0)
     rundir='RUN.ITER%d'%niter
     gen_dir(rundir)
@@ -94,7 +94,7 @@ for i in range(1,nloop+1): #nloop is the additional number of iteration
     print('===== %dth iteration over ====='%niter,flush=True)
 ### finally we have llmf_gwscend ###
 rm_files(glob.glob('ewindow.%s*')+glob.glob('qbyl.%s*'%target)+glob.glob('eigze*.%s*'%target)+glob.glob('mixm*%s*'%target))
-run_program(epath+'/lmf-MPIK'+targets+'>llmf_gwscemd.%d'%niter,ncore)
+run_program(epath+'/lmf'+targets+'>llmf_gwscemd.%d'%niter,ncore)
 run_program('echo end of llmf_gwscemd')
 if nloop==0:
     run0='RUN0'

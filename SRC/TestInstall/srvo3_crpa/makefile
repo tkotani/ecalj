@@ -8,7 +8,7 @@ $(TARGET).exec:
 	# exec lmfa command.
 	$(bindir)/lmfa $(MATERIAL) > llmfa
 	# exec lmf command.
-	mpirun -np $(mpi_size) $(bindir)/lmf-MPIK $(MATERIAL) > llmf
+	mpirun -np $(mpi_size) $(bindir)/lmf $(MATERIAL) > llmf
 	# exec epsPP_lmfh command.
 	rm Sc*
 	$(bindir)/genMLWFx $(MATERIAL) -np $(mpi_size) 

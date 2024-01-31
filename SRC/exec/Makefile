@@ -163,6 +163,19 @@ lmfham1/fast:
 .PHONY : lmfham1/fast
 
 #=============================================================================
+# Target rules for targets named lmf
+
+# Build rule for target.
+lmf: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 lmf
+.PHONY : lmf
+
+# fast build rule for target.
+lmf/fast:
+	$(MAKE) -f CMakeFiles/lmf.dir/build.make CMakeFiles/lmf.dir/build
+.PHONY : lmf/fast
+
+#=============================================================================
 # Target rules for targets named hx0fp0
 
 # Build rule for target.
@@ -317,19 +330,6 @@ heftet: cmake_check_build_system
 heftet/fast:
 	$(MAKE) -f CMakeFiles/heftet.dir/build.make CMakeFiles/heftet.dir/build
 .PHONY : heftet/fast
-
-#=============================================================================
-# Target rules for targets named lmf-MPIK
-
-# Build rule for target.
-lmf-MPIK: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 lmf-MPIK
-.PHONY : lmf-MPIK
-
-# fast build rule for target.
-lmf-MPIK/fast:
-	$(MAKE) -f CMakeFiles/lmf-MPIK.dir/build.make CMakeFiles/lmf-MPIK.dir/build
-.PHONY : lmf-MPIK/fast
 
 #=============================================================================
 # Target rules for targets named huumat_MPI
@@ -947,32 +947,32 @@ home/takao/ecalj/SRC/main/lmchk.f90.s:
 	$(MAKE) -f CMakeFiles/lmchk.dir/build.make CMakeFiles/lmchk.dir/home/takao/ecalj/SRC/main/lmchk.f90.s
 .PHONY : home/takao/ecalj/SRC/main/lmchk.f90.s
 
-home/takao/ecalj/SRC/main/lmf-MPIK.o: home/takao/ecalj/SRC/main/lmf-MPIK.f90.o
+home/takao/ecalj/SRC/main/lmf.o: home/takao/ecalj/SRC/main/lmf.f90.o
 
-.PHONY : home/takao/ecalj/SRC/main/lmf-MPIK.o
+.PHONY : home/takao/ecalj/SRC/main/lmf.o
 
 # target to build an object file
-home/takao/ecalj/SRC/main/lmf-MPIK.f90.o:
-	$(MAKE) -f CMakeFiles/lmf-MPIK.dir/build.make CMakeFiles/lmf-MPIK.dir/home/takao/ecalj/SRC/main/lmf-MPIK.f90.o
-.PHONY : home/takao/ecalj/SRC/main/lmf-MPIK.f90.o
+home/takao/ecalj/SRC/main/lmf.f90.o:
+	$(MAKE) -f CMakeFiles/lmf.dir/build.make CMakeFiles/lmf.dir/home/takao/ecalj/SRC/main/lmf.f90.o
+.PHONY : home/takao/ecalj/SRC/main/lmf.f90.o
 
-home/takao/ecalj/SRC/main/lmf-MPIK.i: home/takao/ecalj/SRC/main/lmf-MPIK.f90.i
+home/takao/ecalj/SRC/main/lmf.i: home/takao/ecalj/SRC/main/lmf.f90.i
 
-.PHONY : home/takao/ecalj/SRC/main/lmf-MPIK.i
+.PHONY : home/takao/ecalj/SRC/main/lmf.i
 
 # target to preprocess a source file
-home/takao/ecalj/SRC/main/lmf-MPIK.f90.i:
-	$(MAKE) -f CMakeFiles/lmf-MPIK.dir/build.make CMakeFiles/lmf-MPIK.dir/home/takao/ecalj/SRC/main/lmf-MPIK.f90.i
-.PHONY : home/takao/ecalj/SRC/main/lmf-MPIK.f90.i
+home/takao/ecalj/SRC/main/lmf.f90.i:
+	$(MAKE) -f CMakeFiles/lmf.dir/build.make CMakeFiles/lmf.dir/home/takao/ecalj/SRC/main/lmf.f90.i
+.PHONY : home/takao/ecalj/SRC/main/lmf.f90.i
 
-home/takao/ecalj/SRC/main/lmf-MPIK.s: home/takao/ecalj/SRC/main/lmf-MPIK.f90.s
+home/takao/ecalj/SRC/main/lmf.s: home/takao/ecalj/SRC/main/lmf.f90.s
 
-.PHONY : home/takao/ecalj/SRC/main/lmf-MPIK.s
+.PHONY : home/takao/ecalj/SRC/main/lmf.s
 
 # target to generate assembly for a file
-home/takao/ecalj/SRC/main/lmf-MPIK.f90.s:
-	$(MAKE) -f CMakeFiles/lmf-MPIK.dir/build.make CMakeFiles/lmf-MPIK.dir/home/takao/ecalj/SRC/main/lmf-MPIK.f90.s
-.PHONY : home/takao/ecalj/SRC/main/lmf-MPIK.f90.s
+home/takao/ecalj/SRC/main/lmf.f90.s:
+	$(MAKE) -f CMakeFiles/lmf.dir/build.make CMakeFiles/lmf.dir/home/takao/ecalj/SRC/main/lmf.f90.s
+.PHONY : home/takao/ecalj/SRC/main/lmf.f90.s
 
 home/takao/ecalj/SRC/main/lmfa.o: home/takao/ecalj/SRC/main/lmfa.f90.o
 
@@ -1351,33 +1351,6 @@ home/takao/ecalj/SRC/subroutines/chgmsh.s: home/takao/ecalj/SRC/subroutines/chgm
 home/takao/ecalj/SRC/subroutines/chgmsh.f90.s:
 	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/chgmsh.f90.s
 .PHONY : home/takao/ecalj/SRC/subroutines/chgmsh.f90.s
-
-home/takao/ecalj/SRC/subroutines/cmdopt.o: home/takao/ecalj/SRC/subroutines/cmdopt.f90.o
-
-.PHONY : home/takao/ecalj/SRC/subroutines/cmdopt.o
-
-# target to build an object file
-home/takao/ecalj/SRC/subroutines/cmdopt.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/cmdopt.f90.o
-.PHONY : home/takao/ecalj/SRC/subroutines/cmdopt.f90.o
-
-home/takao/ecalj/SRC/subroutines/cmdopt.i: home/takao/ecalj/SRC/subroutines/cmdopt.f90.i
-
-.PHONY : home/takao/ecalj/SRC/subroutines/cmdopt.i
-
-# target to preprocess a source file
-home/takao/ecalj/SRC/subroutines/cmdopt.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/cmdopt.f90.i
-.PHONY : home/takao/ecalj/SRC/subroutines/cmdopt.f90.i
-
-home/takao/ecalj/SRC/subroutines/cmdopt.s: home/takao/ecalj/SRC/subroutines/cmdopt.f90.s
-
-.PHONY : home/takao/ecalj/SRC/subroutines/cmdopt.s
-
-# target to generate assembly for a file
-home/takao/ecalj/SRC/subroutines/cmdopt.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/cmdopt.f90.s
-.PHONY : home/takao/ecalj/SRC/subroutines/cmdopt.f90.s
 
 home/takao/ecalj/SRC/subroutines/cputid.o: home/takao/ecalj/SRC/subroutines/cputid.f90.o
 
@@ -4943,6 +4916,33 @@ home/takao/ecalj/SRC/subroutines/main_lmchk.f90.s:
 	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_lmchk.f90.s
 .PHONY : home/takao/ecalj/SRC/subroutines/main_lmchk.f90.s
 
+home/takao/ecalj/SRC/subroutines/main_lmf.o: home/takao/ecalj/SRC/subroutines/main_lmf.f90.o
+
+.PHONY : home/takao/ecalj/SRC/subroutines/main_lmf.o
+
+# target to build an object file
+home/takao/ecalj/SRC/subroutines/main_lmf.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_lmf.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_lmf.f90.o
+
+home/takao/ecalj/SRC/subroutines/main_lmf.i: home/takao/ecalj/SRC/subroutines/main_lmf.f90.i
+
+.PHONY : home/takao/ecalj/SRC/subroutines/main_lmf.i
+
+# target to preprocess a source file
+home/takao/ecalj/SRC/subroutines/main_lmf.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_lmf.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_lmf.f90.i
+
+home/takao/ecalj/SRC/subroutines/main_lmf.s: home/takao/ecalj/SRC/subroutines/main_lmf.f90.s
+
+.PHONY : home/takao/ecalj/SRC/subroutines/main_lmf.s
+
+# target to generate assembly for a file
+home/takao/ecalj/SRC/subroutines/main_lmf.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_lmf.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_lmf.f90.s
+
 home/takao/ecalj/SRC/subroutines/main_lmfa.o: home/takao/ecalj/SRC/subroutines/main_lmfa.f90.o
 
 .PHONY : home/takao/ecalj/SRC/subroutines/main_lmfa.o
@@ -5023,33 +5023,6 @@ home/takao/ecalj/SRC/subroutines/main_lmfham2.s: home/takao/ecalj/SRC/subroutine
 home/takao/ecalj/SRC/subroutines/main_lmfham2.f90.s:
 	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_lmfham2.f90.s
 .PHONY : home/takao/ecalj/SRC/subroutines/main_lmfham2.f90.s
-
-home/takao/ecalj/SRC/subroutines/main_lmv7.o: home/takao/ecalj/SRC/subroutines/main_lmv7.f90.o
-
-.PHONY : home/takao/ecalj/SRC/subroutines/main_lmv7.o
-
-# target to build an object file
-home/takao/ecalj/SRC/subroutines/main_lmv7.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_lmv7.f90.o
-.PHONY : home/takao/ecalj/SRC/subroutines/main_lmv7.f90.o
-
-home/takao/ecalj/SRC/subroutines/main_lmv7.i: home/takao/ecalj/SRC/subroutines/main_lmv7.f90.i
-
-.PHONY : home/takao/ecalj/SRC/subroutines/main_lmv7.i
-
-# target to preprocess a source file
-home/takao/ecalj/SRC/subroutines/main_lmv7.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_lmv7.f90.i
-.PHONY : home/takao/ecalj/SRC/subroutines/main_lmv7.f90.i
-
-home/takao/ecalj/SRC/subroutines/main_lmv7.s: home/takao/ecalj/SRC/subroutines/main_lmv7.f90.s
-
-.PHONY : home/takao/ecalj/SRC/subroutines/main_lmv7.s
-
-# target to generate assembly for a file
-home/takao/ecalj/SRC/subroutines/main_lmv7.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_lmv7.f90.s
-.PHONY : home/takao/ecalj/SRC/subroutines/main_lmv7.f90.s
 
 home/takao/ecalj/SRC/subroutines/main_qg4gw.o: home/takao/ecalj/SRC/subroutines/main_qg4gw.f90.o
 
@@ -8598,6 +8571,7 @@ help:
 	@echo "... qg4gw"
 	@echo "... lmfham2"
 	@echo "... lmfham1"
+	@echo "... lmf"
 	@echo "... hx0fp0"
 	@echo "... hwmatK_MPI"
 	@echo "... hvccfp0"
@@ -8612,7 +8586,6 @@ help:
 	@echo "... gwinit"
 	@echo "... hsfp0"
 	@echo "... heftet"
-	@echo "... lmf-MPIK"
 	@echo "... huumat_MPI"
 	@echo "... hbasfp0"
 	@echo "... hmagnon"
@@ -8677,9 +8650,9 @@ help:
 	@echo "... home/takao/ecalj/SRC/main/lmchk.o"
 	@echo "... home/takao/ecalj/SRC/main/lmchk.i"
 	@echo "... home/takao/ecalj/SRC/main/lmchk.s"
-	@echo "... home/takao/ecalj/SRC/main/lmf-MPIK.o"
-	@echo "... home/takao/ecalj/SRC/main/lmf-MPIK.i"
-	@echo "... home/takao/ecalj/SRC/main/lmf-MPIK.s"
+	@echo "... home/takao/ecalj/SRC/main/lmf.o"
+	@echo "... home/takao/ecalj/SRC/main/lmf.i"
+	@echo "... home/takao/ecalj/SRC/main/lmf.s"
 	@echo "... home/takao/ecalj/SRC/main/lmfa.o"
 	@echo "... home/takao/ecalj/SRC/main/lmfa.i"
 	@echo "... home/takao/ecalj/SRC/main/lmfa.s"
@@ -8722,9 +8695,6 @@ help:
 	@echo "... home/takao/ecalj/SRC/subroutines/chgmsh.o"
 	@echo "... home/takao/ecalj/SRC/subroutines/chgmsh.i"
 	@echo "... home/takao/ecalj/SRC/subroutines/chgmsh.s"
-	@echo "... home/takao/ecalj/SRC/subroutines/cmdopt.o"
-	@echo "... home/takao/ecalj/SRC/subroutines/cmdopt.i"
-	@echo "... home/takao/ecalj/SRC/subroutines/cmdopt.s"
 	@echo "... home/takao/ecalj/SRC/subroutines/cputid.o"
 	@echo "... home/takao/ecalj/SRC/subroutines/cputid.i"
 	@echo "... home/takao/ecalj/SRC/subroutines/cputid.s"
@@ -9121,6 +9091,9 @@ help:
 	@echo "... home/takao/ecalj/SRC/subroutines/main_lmchk.o"
 	@echo "... home/takao/ecalj/SRC/subroutines/main_lmchk.i"
 	@echo "... home/takao/ecalj/SRC/subroutines/main_lmchk.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_lmf.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_lmf.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_lmf.s"
 	@echo "... home/takao/ecalj/SRC/subroutines/main_lmfa.o"
 	@echo "... home/takao/ecalj/SRC/subroutines/main_lmfa.i"
 	@echo "... home/takao/ecalj/SRC/subroutines/main_lmfa.s"
@@ -9130,9 +9103,6 @@ help:
 	@echo "... home/takao/ecalj/SRC/subroutines/main_lmfham2.o"
 	@echo "... home/takao/ecalj/SRC/subroutines/main_lmfham2.i"
 	@echo "... home/takao/ecalj/SRC/subroutines/main_lmfham2.s"
-	@echo "... home/takao/ecalj/SRC/subroutines/main_lmv7.o"
-	@echo "... home/takao/ecalj/SRC/subroutines/main_lmv7.i"
-	@echo "... home/takao/ecalj/SRC/subroutines/main_lmv7.s"
 	@echo "... home/takao/ecalj/SRC/subroutines/main_qg4gw.o"
 	@echo "... home/takao/ecalj/SRC/subroutines/main_qg4gw.i"
 	@echo "... home/takao/ecalj/SRC/subroutines/main_qg4gw.s"

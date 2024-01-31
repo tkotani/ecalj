@@ -16,9 +16,9 @@ echo "### START epsPP_lmfh: MPI size= " $MPI_SIZE, "TARGET= " $TARGET
 ######## THIS IS for no lfc mode. See hbasfp0 and hx0fp0 c2 case.
 $echo_run echo $nfpgw
 $echo_run echo $TARGET
-run_arg '---' $NO_MPI  $nfpgw  /lmf-MPIK  llmfgw00 $TARGET --jobgw=0 --novxc
+run_arg '---' $NO_MPI  $nfpgw  /lmf llmfgw00 $TARGET --jobgw=0 --novxc
 run_arg '---' $NO_MPI  $nfpgw  /qg4gw lqg4gw02  --job=2 #Generate requied q+G v
-run_arg '---' $MPI_SIZE $nfpgw /lmf-MPIK llmfgw01 $TARGET --jobgw=1
+run_arg '---' $MPI_SIZE $nfpgw /lmf llmfgw01 $TARGET --jobgw=1
 run_arg '---' $NO_MPI   $nfpgw /rdata4gw_v2 lrdata4gw_v2 #prepare files
 rm gwa gwb.*
 run_arg '---' $NO_MPI $nfpgw   /heftet leftet --job=1 # A file EFERMI for hx0fp0

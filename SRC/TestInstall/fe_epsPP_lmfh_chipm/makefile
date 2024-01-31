@@ -10,7 +10,7 @@ $(TARGET).exec:
 	# exec lmfa command.
 	$(bindir)/lmfa $(MATERIAL) > llmfa
 	# exec lmf command.
-	mpirun -np 4 $(bindir)/lmf-MPIK $(MATERIAL) > llmf
+	mpirun -np 4 $(bindir)/lmf $(MATERIAL) > llmf
 	# exec epsPP_lmfh_chipm command.
 	rm ChiPM*
 	$(bindir)/epsPP_lmfh_chipm -np $(mpi_size) $(MATERIAL)

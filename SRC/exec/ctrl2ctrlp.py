@@ -2,7 +2,7 @@
 # Convert ctrl file to ctrlp, stdin to stdout
 # example: ctrl can contain
 #    %const a=2.4 b=2.3 c=a*b R=c
-#  , where >lmf-MPIK -va=3.8 replace value of a.
+#  , where >lmf -va=3.8 replace value of a.
 # Except %const, such as %if, are not supported. T.K. 2023feb
 import sys,re
 from math import *

@@ -8,7 +8,7 @@ echo $#
 echo $1
 
 $nfpgw/lmfa $1 >llmfa
-$nfpgw/lmf-MPIK --jobgw=0  $1 > llmfgw00
+$nfpgw/lmf --jobgw=0  $1 > llmfgw00
 $nfpgw/gwinit   #This changes the <QPNT> setting.
 
 echo "-------------------------------------------------------------------"
