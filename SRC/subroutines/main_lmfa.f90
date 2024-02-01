@@ -1,4 +1,4 @@
-subroutine lmfa() !bind(C)
+subroutine lmfa() bind(C)
   use m_ext,only:      m_Ext_init,sname
   use m_MPItk,only:    m_MPItk_init,nsize,master_mpi
   use m_lgunit,only:   m_lgunit_init, stdo,stdl

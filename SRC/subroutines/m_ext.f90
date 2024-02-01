@@ -2,7 +2,7 @@
 module m_args
   character(120),public,protected,allocatable::arglist(:)
   character(1024),public,protected:: argall
-  public:: m_setargs
+  public:: m_setargs,m_setargsc
   integer:: narg
   logical:: init=.true.
   integer,private:: nx=64
@@ -11,6 +11,7 @@ contains
     integer:: iarg,iargc
     character(120) :: strn
     if(.not.init) return
+    if(allocated(arglist)) return !If arglist is already allocated, do nothing
     narg = iargc()
     allocate(arglist(narg))
     argall=''
@@ -21,9 +22,7 @@ contains
     enddo
     init=.false.
   endsubroutine m_setargs
-!  subroutine m_setargs()
-!  endsubroutine m_setargs
-  subroutine setargsc(cname,nsize) bind(C) !Pass narg and arglist from python instead of m_setargs
+  subroutine m_setargsc(cname,nsize) bind(C) !Pass narg and arglist from python instead of m_setargs
     implicit none
     integer:: nsize,i,n
     character(1):: cname(nsize)
@@ -32,6 +31,7 @@ contains
     forall(i=1:nsize) string(i:i)=cname(i)
     string=adjustl(string)
     argall=string
+    if(allocated(arglist2)) deallocate(arglist2)
     allocate(arglist2(nx))
     narg=0
     do
@@ -41,12 +41,13 @@ contains
        arglist2(narg)=trim(string(:n))
        string=adjustl(string(n+1:))
     enddo
+    if(allocated(arglist)) deallocate(arglist)
     allocate(arglist(1:narg))
     call move_alloc(from=arglist2,to=arglist)
     do i=1,narg
-       write(*,*)i, trim(arglist(i))
+       write(*,*)'m_setargsc=',i, trim(arglist(i))
     enddo   
-  end subroutine setargsc
+  end subroutine m_setargsc
 end module m_args
 
 module m_ext
@@ -60,6 +61,7 @@ contains
     character*256:: sss,s222,argv
     call m_setargs()
     do i = 1, narg
+      !write(*,*)'m_ext_init=',i, trim(arglist(i))
        if(arglist(i)(1:1)/='-') then
           sname=trim(arglist(i))
           goto 999
@@ -69,7 +71,6 @@ contains
 999 continue
   end subroutine m_ext_init
 end module m_ext
-
 logical function cmdopt0(argstr)! Check a command-line argument exist. 
   use m_args,only: m_setargs,arglist,narg
   !i Inputs  argstr: command-line string to search; search to strln chars

@@ -1,0 +1,4 @@
+#! /bin/bash
+BINDIR=${HOME}/bin  ## Make directory for ecalj binaries and scripts.
+cp `find . -mindepth 1 -maxdepth 1 -executable -type f` ${BINDIR}
+#cp `find . -name "libecaljF.so"` ${BINDIR}
