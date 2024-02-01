@@ -12,6 +12,7 @@ subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|
   use m_lmfinit,only:  m_lmfinit_init,oveps,nbas
   use m_ext,only: m_ext_init
   use m_cmdpath,only: Setcmdpath
+  use m_prgnam,only: set_prgnam
   implicit none
   integer:: i,j,ikp,ib1,ib2,it,nmx,nev,jsp,ikpd,ierr
   complex(8)::img=(0d0,1d0),phase,aaaa 
@@ -27,7 +28,8 @@ subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|
   call setcmdpath() !Set self-command path (this is for call system at m_lmfinit)
   call m_ext_init()         ! Get sname, e.g. trim(sname)=si of ctrl.si
   call mpi_init(ierr)
-  call m_MPItk_init('lmfham1') ! mpi initialization
+  call set_prgnam('lmfham1') ! mpi initialization
+  call m_MPItk_init() ! mpi initialization
   call m_lgunit_init() !set stdo,stdl
   call m_lmfinit_init('lmfham1')! Read ctrlp into module m_lmfinit.
   call ReadHamPMTInfo()   ! Read infomation for PMT Hamiltonian (lattice structures and index of basis).

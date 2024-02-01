@@ -354,6 +354,7 @@ subroutine rsexx (nspin, q, ntq,nq,ginv, vxco)
   integer:: ikpx=999999
   write(stdo,*)' OPEN VXCFP '
   open(newunit=ifvxcfp,file='VXCFP',form='unformatted')
+  read(ifvxcfp) ldim,nqbz  
   write(stdo,*)' rsexx ldim,nqbz',ldim,nqbz
   allocate(qqq(3,nqbz),vxcfpx(ldim,nqbz,nspin))
   do ikp = 1,nqbz

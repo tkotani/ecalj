@@ -32,6 +32,7 @@ subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |
   use m_mksym,only:    m_mksym_init
   use m_mkqp,only:     m_mkqp_init
   use m_rotwave,only:  rotmatMTO
+  use m_prgnam,only: set_prgnam
   !      Main output of lmfham2 is  hmmr2,       ommr2,       nMLO,         ib_tableM(idmto(1:nwf)),... for |MLO>
   implicit none
   integer:: i,iq,is,ix,j,ifbb,ifoc,nbb,isc,ifq0p, nox,iki,ikf,nsc1,ndz,nin,nout,nsc2,ibb
@@ -75,7 +76,8 @@ subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |
   call setcmdpath()            ! Set self-command path (this is for call system at m_lmfinit)
   call m_ext_init()            ! Get sname, e.g. trim(sname)=si of ctrl.si
   call mpi_init(ierr)
-  call m_MPItk_init('lmfham2') ! mpi initialization
+  call set_prgnam('lmfham2')
+  call m_MPItk_init() ! mpi initialization
   call m_lgunit_init() !set stdo,stdl
   call m_lmfinit_init('LMF')! Read ctrlp into module m_lmfinit.
   

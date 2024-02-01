@@ -8,15 +8,17 @@ subroutine lmchk()
   use m_lattic,only:  m_Lattic_init
   use m_mksym,only:   m_mksym_init
   use m_lmaux,only:   lmaux
+  use m_prgnam,only: set_prgnam
   implicit none
   logical:: cmdopt0,cmdopt2
   character:: outs*20,aaa*512,sss*128
   integer:: iarg,k,ierr
-  character(8):: prgnam='LMCHK'
+  character(32):: prgnam='LMCHK'
   call m_ext_init()        ! Get sname, e.g. trim(sname)=si of ctrl.si
 !  call mpi_init()
   call mpi_init(ierr)
-  call m_MPItk_init(prgnam)
+  call set_prgnam(prgnam)
+  call m_MPItk_init()
   call m_lgunit_init()
   if(nsize/=1) call rx('Current lmchk is only for single core')
   aaa=argall
