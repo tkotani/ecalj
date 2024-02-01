@@ -71,9 +71,10 @@ subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |
   real(8),allocatable:: qbzii(:,:,:)
 
   real(8)::qx(3),qtarget(3),eps=1d-8,qp(3)
-  integer:: ig,iqibz,nqibz,icount
+  integer:: ig,iqibz,nqibz,icount,ierr
   call setcmdpath()            ! Set self-command path (this is for call system at m_lmfinit)
   call m_ext_init()            ! Get sname, e.g. trim(sname)=si of ctrl.si
+  call mpi_init(ierr)
   call m_MPItk_init('lmfham2') ! mpi initialization
   call m_lgunit_init() !set stdo,stdl
   call m_lmfinit_init('LMF')! Read ctrlp into module m_lmfinit.

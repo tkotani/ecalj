@@ -11,9 +11,11 @@ subroutine lmchk()
   implicit none
   logical:: cmdopt0,cmdopt2
   character:: outs*20,aaa*512,sss*128
-  integer:: iarg,k
+  integer:: iarg,k,ierr
   character(8):: prgnam='LMCHK'
   call m_ext_init()        ! Get sname, e.g. trim(sname)=si of ctrl.si
+!  call mpi_init()
+  call mpi_init(ierr)
   call m_MPItk_init(prgnam)
   call m_lgunit_init()
   if(nsize/=1) call rx('Current lmchk is only for single core')

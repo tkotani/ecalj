@@ -23,7 +23,7 @@ contains
     integer :: fext
     character(10):: i2char
     prgnam=prgnamx
-    call mpi_init(ierr)
+!    call mpi_init(ierr)
     call mpi_comm_size(MPI_COMM_WORLD, nsize,ierr)
     call mpi_comm_rank(MPI_COMM_WORLD, id,ierr)
     allocate(shortname(0:nsize-1))

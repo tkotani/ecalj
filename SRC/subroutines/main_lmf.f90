@@ -30,11 +30,12 @@ subroutine lmf() ! Bootstrap sequence of modules initialzation. The variables in
   use m_writeband,only: writepdos,writedossawada
   use m_ftox
   implicit none
-  integer:: iarg,iprint,jobgw=-1
+  integer:: iarg,iprint,jobgw=-1,ierr
   logical:: cmdopt0,cmdopt2, writeham,sigx
   character:: outs*20,aaa*512,sss*128
   character(8):: prgnam='LMF'
   call m_ext_init()         ! Get sname, e.g. trim(sname)=si of ctrl.si
+  call mpi_init(ierr)
   call m_MPItk_init(prgnam) ! MPI initialization
   call m_lgunit_init()      ! Set file handle of stdo(console) and stdl(log)
   call setcmdpath()         ! Set self-command path (this is for call system at m_lmfinit)

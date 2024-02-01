@@ -1,4 +1,4 @@
-subroutine lmfa()
+subroutine lmfa() !bind(C)
   use m_ext,only:      m_Ext_init,sname
   use m_MPItk,only:    m_MPItk_init,nsize,master_mpi
   use m_lgunit,only:   m_lgunit_init, stdo,stdl
@@ -9,6 +9,7 @@ subroutine lmfa()
   logical:: cmdopt0
   character:: aaa*512
   character(8) :: prgnam='LMFA', charext
+  integer:: ierr
   call m_MPItk_init(prgnam)
   call m_ext_init()  ! Get sname, e.g. trim(sname)=si of ctrl.si
   call m_lgunit_init()

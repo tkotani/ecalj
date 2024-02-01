@@ -26,6 +26,7 @@ subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|
   include "mpif.h"
   call setcmdpath() !Set self-command path (this is for call system at m_lmfinit)
   call m_ext_init()         ! Get sname, e.g. trim(sname)=si of ctrl.si
+  call mpi_init(ierr)
   call m_MPItk_init('lmfham1') ! mpi initialization
   call m_lgunit_init() !set stdo,stdl
   call m_lmfinit_init('lmfham1')! Read ctrlp into module m_lmfinit.

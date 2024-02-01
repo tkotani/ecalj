@@ -5,6 +5,7 @@ module m_args
   public:: m_setargs
   integer:: narg
   logical:: init=.true.
+  integer,private:: nx=64
 contains
   subroutine m_setargs()
     integer:: iarg,iargc
@@ -20,7 +21,34 @@ contains
     enddo
     init=.false.
   endsubroutine m_setargs
+!  subroutine m_setargs()
+!  endsubroutine m_setargs
+  subroutine setargsc(cname,nsize) bind(C) !Pass narg and arglist from python instead of m_setargs
+    implicit none
+    integer:: nsize,i,n
+    character(1):: cname(nsize)
+    character(512):: string=''
+    character(120),allocatable::arglist2(:)
+    forall(i=1:nsize) string(i:i)=cname(i)
+    string=adjustl(string)
+    argall=string
+    allocate(arglist2(nx))
+    narg=0
+    do
+       n=index(string,' ')
+       if(n==1) exit
+       narg=narg+1
+       arglist2(narg)=trim(string(:n))
+       string=adjustl(string(n+1:))
+    enddo
+    allocate(arglist(1:narg))
+    call move_alloc(from=arglist2,to=arglist)
+    do i=1,narg
+       write(*,*)i, trim(arglist(i))
+    enddo   
+  end subroutine setargsc
 end module m_args
+
 module m_ext
   use m_args,only: m_setargs,arglist,narg
   character(512),public,protected::sname='temp'
@@ -41,6 +69,7 @@ contains
 999 continue
   end subroutine m_ext_init
 end module m_ext
+
 logical function cmdopt0(argstr)! Check a command-line argument exist. 
   use m_args,only: m_setargs,arglist,narg
   !i Inputs  argstr: command-line string to search; search to strln chars
