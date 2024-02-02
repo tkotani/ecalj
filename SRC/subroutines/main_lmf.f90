@@ -4,7 +4,7 @@
 !
 ! We use a module-based programing. In principle, all the variables are generared and stored in modules with 'protection'.
 ! This assure that we can not modify data in a module by other modules.
-subroutine lmf() ! Bootstrap sequence of modules initialzation. The variables in modules are proteted except m_density. Use variables with 'use only'.
+subroutine lmf() bind(C) ! Bootstrap sequence of modules initialzation. The variables in modules are proteted except m_density. Use variables with 'use only'.
   use m_args,only: argall
   use m_ext,only:      m_ext_init,sname
   use m_MPItk,only:    m_MPItk_init, nsize, master_mpi
@@ -36,7 +36,7 @@ subroutine lmf() ! Bootstrap sequence of modules initialzation. The variables in
   character:: outs*20,aaa*512,sss*128
   character(32):: prgnam='LMF'
   call m_ext_init()         ! Get sname, e.g. trim(sname)=si of ctrl.si
-  call mpi_init(ierr)
+!  call mpi_init(ierr)
   call set_prgnam(prgnam) ! MPI initialization
   call m_MPItk_init() ! MPI initialization
   call m_lgunit_init()      ! Set file handle of stdo(console) and stdl(log)

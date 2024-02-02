@@ -62,7 +62,7 @@ contains
       mlog = cmdopt0('--mlog') !! set log for --mlog (not maintained well)
       if (mlog) write (stml, "(a)") ' lmf '//datim//' Process ' &
          //trim(i2char(procid))//' of '//trim(i2char(nproc - 1))//' on '//trim(shortname(procid))
-      call MPI_BARRIER(MPI_COMM_WORLD, ierr)
+!      call MPI_BARRIER(MPI_COMM_WORLD, ierr)
       if (procid == master) ext = ''
       if (procid /= master) ext = '_'//trim(i2char(procid))
       master_mpi = .false.
@@ -73,7 +73,7 @@ contains
       character(26):: datim
       character(20):: hostnm
       real(8):: cpusec
-      call MPI_BARRIER(MPI_COMM_WORLD, ierr)
+!      call MPI_BARRIER(MPI_COMM_WORLD, ierr)
       if (master_mpi) then
          call fdate(datim)
          datim = datim(1:26) !takao. when datim(1:24) write(6,*) do not gives CR at the ene of datim*26.

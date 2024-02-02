@@ -1,4 +1,4 @@
-subroutine lmchk()
+subroutine lmchk() bind(C)
   use m_args,only: argall
   use m_ext,only:     m_Ext_init,sname
   use m_MPItk,only:   m_MPItk_init,nsize,master_mpi
@@ -16,7 +16,7 @@ subroutine lmchk()
   character(32):: prgnam='LMCHK'
   call m_ext_init()        ! Get sname, e.g. trim(sname)=si of ctrl.si
 !  call mpi_init()
-  call mpi_init(ierr)
+!  call mpi_init(ierr)
   call set_prgnam(prgnam)
   call m_MPItk_init()
   call m_lgunit_init()
