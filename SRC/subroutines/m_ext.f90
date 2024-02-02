@@ -22,15 +22,14 @@ contains
     enddo
     init=.false.
   endsubroutine m_setargs
-  subroutine m_setargsc(cname,nsize) bind(C) !Pass narg and arglist from python instead of m_setargs
+  subroutine m_setargsc(cname) bind(C) !Pass narg and arglist from python instead of m_setargs
     implicit none
-    integer:: nsize,i,n
-    character(1):: cname(nsize)
-    character(512):: string=''
+    integer:: i,n
+    character(1):: cname(*)
+    character(1024)::convcchar,string
     character(120),allocatable::arglist2(:)
-    forall(i=1:nsize) string(i:i)=cname(i)
-    string=adjustl(string)
-    argall=string
+    argall= trim(convcchar(cname))
+    string=argall
     if(allocated(arglist2)) deallocate(arglist2)
     allocate(arglist2(nx))
     narg=0

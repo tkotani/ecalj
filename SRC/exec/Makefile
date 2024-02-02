@@ -111,316 +111,17 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named rdata4gw_v2
+# Target rules for targets named hsfp0_sc
 
 # Build rule for target.
-rdata4gw_v2: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 rdata4gw_v2
-.PHONY : rdata4gw_v2
+hsfp0_sc: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 hsfp0_sc
+.PHONY : hsfp0_sc
 
 # fast build rule for target.
-rdata4gw_v2/fast:
-	$(MAKE) -f CMakeFiles/rdata4gw_v2.dir/build.make CMakeFiles/rdata4gw_v2.dir/build
-.PHONY : rdata4gw_v2/fast
-
-#=============================================================================
-# Target rules for targets named qg4gw
-
-# Build rule for target.
-qg4gw: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 qg4gw
-.PHONY : qg4gw
-
-# fast build rule for target.
-qg4gw/fast:
-	$(MAKE) -f CMakeFiles/qg4gw.dir/build.make CMakeFiles/qg4gw.dir/build
-.PHONY : qg4gw/fast
-
-#=============================================================================
-# Target rules for targets named lmfham1
-
-# Build rule for target.
-lmfham1: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 lmfham1
-.PHONY : lmfham1
-
-# fast build rule for target.
-lmfham1/fast:
-	$(MAKE) -f CMakeFiles/lmfham1.dir/build.make CMakeFiles/lmfham1.dir/build
-.PHONY : lmfham1/fast
-
-#=============================================================================
-# Target rules for targets named lmf
-
-# Build rule for target.
-lmf: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 lmf
-.PHONY : lmf
-
-# fast build rule for target.
-lmf/fast:
-	$(MAKE) -f CMakeFiles/lmf.dir/build.make CMakeFiles/lmf.dir/build
-.PHONY : lmf/fast
-
-#=============================================================================
-# Target rules for targets named hx0init
-
-# Build rule for target.
-hx0init: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 hx0init
-.PHONY : hx0init
-
-# fast build rule for target.
-hx0init/fast:
-	$(MAKE) -f CMakeFiles/hx0init.dir/build.make CMakeFiles/hx0init.dir/build
-.PHONY : hx0init/fast
-
-#=============================================================================
-# Target rules for targets named hx0fp0
-
-# Build rule for target.
-hx0fp0: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 hx0fp0
-.PHONY : hx0fp0
-
-# fast build rule for target.
-hx0fp0/fast:
-	$(MAKE) -f CMakeFiles/hx0fp0.dir/build.make CMakeFiles/hx0fp0.dir/build
-.PHONY : hx0fp0/fast
-
-#=============================================================================
-# Target rules for targets named hwmatK_MPI
-
-# Build rule for target.
-hwmatK_MPI: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 hwmatK_MPI
-.PHONY : hwmatK_MPI
-
-# fast build rule for target.
-hwmatK_MPI/fast:
-	$(MAKE) -f CMakeFiles/hwmatK_MPI.dir/build.make CMakeFiles/hwmatK_MPI.dir/build
-.PHONY : hwmatK_MPI/fast
-
-#=============================================================================
-# Target rules for targets named hvccfp0
-
-# Build rule for target.
-hvccfp0: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 hvccfp0
-.PHONY : hvccfp0
-
-# fast build rule for target.
-hvccfp0/fast:
-	$(MAKE) -f CMakeFiles/hvccfp0.dir/build.make CMakeFiles/hvccfp0.dir/build
-.PHONY : hvccfp0/fast
-
-#=============================================================================
-# Target rules for targets named lmfham2
-
-# Build rule for target.
-lmfham2: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 lmfham2
-.PHONY : lmfham2
-
-# fast build rule for target.
-lmfham2/fast:
-	$(MAKE) -f CMakeFiles/lmfham2.dir/build.make CMakeFiles/lmfham2.dir/build
-.PHONY : lmfham2/fast
-
-#=============================================================================
-# Target rules for targets named show_programinfo.f90
-
-# Build rule for target.
-show_programinfo.f90: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 show_programinfo.f90
-.PHONY : show_programinfo.f90
-
-# fast build rule for target.
-show_programinfo.f90/fast:
-	$(MAKE) -f CMakeFiles/show_programinfo.f90.dir/build.make CMakeFiles/show_programinfo.f90.dir/build
-.PHONY : show_programinfo.f90/fast
-
-#=============================================================================
-# Target rules for targets named hmaxloc
-
-# Build rule for target.
-hmaxloc: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 hmaxloc
-.PHONY : hmaxloc
-
-# fast build rule for target.
-hmaxloc/fast:
-	$(MAKE) -f CMakeFiles/hmaxloc.dir/build.make CMakeFiles/hmaxloc.dir/build
-.PHONY : hmaxloc/fast
-
-#=============================================================================
-# Target rules for targets named lmchk
-
-# Build rule for target.
-lmchk: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 lmchk
-.PHONY : lmchk
-
-# fast build rule for target.
-lmchk/fast:
-	$(MAKE) -f CMakeFiles/lmchk.dir/build.make CMakeFiles/lmchk.dir/build
-.PHONY : lmchk/fast
-
-#=============================================================================
-# Target rules for targets named ecaljF
-
-# Build rule for target.
-ecaljF: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 ecaljF
-.PHONY : ecaljF
-
-# fast build rule for target.
-ecaljF/fast:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/build
-.PHONY : ecaljF/fast
-
-#=============================================================================
-# Target rules for targets named hqpe
-
-# Build rule for target.
-hqpe: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 hqpe
-.PHONY : hqpe
-
-# fast build rule for target.
-hqpe/fast:
-	$(MAKE) -f CMakeFiles/hqpe.dir/build.make CMakeFiles/hqpe.dir/build
-.PHONY : hqpe/fast
-
-#=============================================================================
-# Target rules for targets named gwinit
-
-# Build rule for target.
-gwinit: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 gwinit
-.PHONY : gwinit
-
-# fast build rule for target.
-gwinit/fast:
-	$(MAKE) -f CMakeFiles/gwinit.dir/build.make CMakeFiles/gwinit.dir/build
-.PHONY : gwinit/fast
-
-#=============================================================================
-# Target rules for targets named hsfp0
-
-# Build rule for target.
-hsfp0: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 hsfp0
-.PHONY : hsfp0
-
-# fast build rule for target.
-hsfp0/fast:
-	$(MAKE) -f CMakeFiles/hsfp0.dir/build.make CMakeFiles/hsfp0.dir/build
-.PHONY : hsfp0/fast
-
-#=============================================================================
-# Target rules for targets named heftet
-
-# Build rule for target.
-heftet: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 heftet
-.PHONY : heftet
-
-# fast build rule for target.
-heftet/fast:
-	$(MAKE) -f CMakeFiles/heftet.dir/build.make CMakeFiles/heftet.dir/build
-.PHONY : heftet/fast
-
-#=============================================================================
-# Target rules for targets named huumat_MPI
-
-# Build rule for target.
-huumat_MPI: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 huumat_MPI
-.PHONY : huumat_MPI
-
-# fast build rule for target.
-huumat_MPI/fast:
-	$(MAKE) -f CMakeFiles/huumat_MPI.dir/build.make CMakeFiles/huumat_MPI.dir/build
-.PHONY : huumat_MPI/fast
-
-#=============================================================================
-# Target rules for targets named hbasfp0
-
-# Build rule for target.
-hbasfp0: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 hbasfp0
-.PHONY : hbasfp0
-
-# fast build rule for target.
-hbasfp0/fast:
-	$(MAKE) -f CMakeFiles/hbasfp0.dir/build.make CMakeFiles/hbasfp0.dir/build
-.PHONY : hbasfp0/fast
-
-#=============================================================================
-# Target rules for targets named hmagnon
-
-# Build rule for target.
-hmagnon: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 hmagnon
-.PHONY : hmagnon
-
-# fast build rule for target.
-hmagnon/fast:
-	$(MAKE) -f CMakeFiles/hmagnon.dir/build.make CMakeFiles/hmagnon.dir/build
-.PHONY : hmagnon/fast
-
-#=============================================================================
-# Target rules for targets named lmfa
-
-# Build rule for target.
-lmfa: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 lmfa
-.PHONY : lmfa
-
-# fast build rule for target.
-lmfa/fast:
-	$(MAKE) -f CMakeFiles/lmfa.dir/build.make CMakeFiles/lmfa.dir/build
-.PHONY : lmfa/fast
-
-#=============================================================================
-# Target rules for targets named hpsig_MPI
-
-# Build rule for target.
-hpsig_MPI: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 hpsig_MPI
-.PHONY : hpsig_MPI
-
-# fast build rule for target.
-hpsig_MPI/fast:
-	$(MAKE) -f CMakeFiles/hpsig_MPI.dir/build.make CMakeFiles/hpsig_MPI.dir/build
-.PHONY : hpsig_MPI/fast
-
-#=============================================================================
-# Target rules for targets named hqpe_sc
-
-# Build rule for target.
-hqpe_sc: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 hqpe_sc
-.PHONY : hqpe_sc
-
-# fast build rule for target.
-hqpe_sc/fast:
-	$(MAKE) -f CMakeFiles/hqpe_sc.dir/build.make CMakeFiles/hqpe_sc.dir/build
-.PHONY : hqpe_sc/fast
-
-#=============================================================================
-# Target rules for targets named wanplot
-
-# Build rule for target.
-wanplot: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 wanplot
-.PHONY : wanplot
-
-# fast build rule for target.
-wanplot/fast:
-	$(MAKE) -f CMakeFiles/wanplot.dir/build.make CMakeFiles/wanplot.dir/build
-.PHONY : wanplot/fast
+hsfp0_sc/fast:
+	$(MAKE) -f CMakeFiles/hsfp0_sc.dir/build.make CMakeFiles/hsfp0_sc.dir/build
+.PHONY : hsfp0_sc/fast
 
 #=============================================================================
 # Target rules for targets named hsocmat
@@ -436,6 +137,279 @@ hsocmat/fast:
 .PHONY : hsocmat/fast
 
 #=============================================================================
+# Target rules for targets named hqpe_sc
+
+# Build rule for target.
+hqpe_sc: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 hqpe_sc
+.PHONY : hqpe_sc
+
+# fast build rule for target.
+hqpe_sc/fast:
+	$(MAKE) -f CMakeFiles/hqpe_sc.dir/build.make CMakeFiles/hqpe_sc.dir/build
+.PHONY : hqpe_sc/fast
+
+#=============================================================================
+# Target rules for targets named hpsig_MPI
+
+# Build rule for target.
+hpsig_MPI: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 hpsig_MPI
+.PHONY : hpsig_MPI
+
+# fast build rule for target.
+hpsig_MPI/fast:
+	$(MAKE) -f CMakeFiles/hpsig_MPI.dir/build.make CMakeFiles/hpsig_MPI.dir/build
+.PHONY : hpsig_MPI/fast
+
+#=============================================================================
+# Target rules for targets named lmfa
+
+# Build rule for target.
+lmfa: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 lmfa
+.PHONY : lmfa
+
+# fast build rule for target.
+lmfa/fast:
+	$(MAKE) -f CMakeFiles/lmfa.dir/build.make CMakeFiles/lmfa.dir/build
+.PHONY : lmfa/fast
+
+#=============================================================================
+# Target rules for targets named fcheck
+
+# Build rule for target.
+fcheck: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 fcheck
+.PHONY : fcheck
+
+# fast build rule for target.
+fcheck/fast:
+	$(MAKE) -f CMakeFiles/fcheck.dir/build.make CMakeFiles/fcheck.dir/build
+.PHONY : fcheck/fast
+
+#=============================================================================
+# Target rules for targets named hmagnon
+
+# Build rule for target.
+hmagnon: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 hmagnon
+.PHONY : hmagnon
+
+# fast build rule for target.
+hmagnon/fast:
+	$(MAKE) -f CMakeFiles/hmagnon.dir/build.make CMakeFiles/hmagnon.dir/build
+.PHONY : hmagnon/fast
+
+#=============================================================================
+# Target rules for targets named huumat_MPI
+
+# Build rule for target.
+huumat_MPI: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 huumat_MPI
+.PHONY : huumat_MPI
+
+# fast build rule for target.
+huumat_MPI/fast:
+	$(MAKE) -f CMakeFiles/huumat_MPI.dir/build.make CMakeFiles/huumat_MPI.dir/build
+.PHONY : huumat_MPI/fast
+
+#=============================================================================
+# Target rules for targets named heftet
+
+# Build rule for target.
+heftet: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 heftet
+.PHONY : heftet
+
+# fast build rule for target.
+heftet/fast:
+	$(MAKE) -f CMakeFiles/heftet.dir/build.make CMakeFiles/heftet.dir/build
+.PHONY : heftet/fast
+
+#=============================================================================
+# Target rules for targets named gwinit
+
+# Build rule for target.
+gwinit: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 gwinit
+.PHONY : gwinit
+
+# fast build rule for target.
+gwinit/fast:
+	$(MAKE) -f CMakeFiles/gwinit.dir/build.make CMakeFiles/gwinit.dir/build
+.PHONY : gwinit/fast
+
+#=============================================================================
+# Target rules for targets named hqpe
+
+# Build rule for target.
+hqpe: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 hqpe
+.PHONY : hqpe
+
+# fast build rule for target.
+hqpe/fast:
+	$(MAKE) -f CMakeFiles/hqpe.dir/build.make CMakeFiles/hqpe.dir/build
+.PHONY : hqpe/fast
+
+#=============================================================================
+# Target rules for targets named ecaljF
+
+# Build rule for target.
+ecaljF: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 ecaljF
+.PHONY : ecaljF
+
+# fast build rule for target.
+ecaljF/fast:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/build
+.PHONY : ecaljF/fast
+
+#=============================================================================
+# Target rules for targets named lmchk
+
+# Build rule for target.
+lmchk: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 lmchk
+.PHONY : lmchk
+
+# fast build rule for target.
+lmchk/fast:
+	$(MAKE) -f CMakeFiles/lmchk.dir/build.make CMakeFiles/lmchk.dir/build
+.PHONY : lmchk/fast
+
+#=============================================================================
+# Target rules for targets named hmaxloc
+
+# Build rule for target.
+hmaxloc: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 hmaxloc
+.PHONY : hmaxloc
+
+# fast build rule for target.
+hmaxloc/fast:
+	$(MAKE) -f CMakeFiles/hmaxloc.dir/build.make CMakeFiles/hmaxloc.dir/build
+.PHONY : hmaxloc/fast
+
+#=============================================================================
+# Target rules for targets named show_programinfo.f90
+
+# Build rule for target.
+show_programinfo.f90: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 show_programinfo.f90
+.PHONY : show_programinfo.f90
+
+# fast build rule for target.
+show_programinfo.f90/fast:
+	$(MAKE) -f CMakeFiles/show_programinfo.f90.dir/build.make CMakeFiles/show_programinfo.f90.dir/build
+.PHONY : show_programinfo.f90/fast
+
+#=============================================================================
+# Target rules for targets named wanplot
+
+# Build rule for target.
+wanplot: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 wanplot
+.PHONY : wanplot
+
+# fast build rule for target.
+wanplot/fast:
+	$(MAKE) -f CMakeFiles/wanplot.dir/build.make CMakeFiles/wanplot.dir/build
+.PHONY : wanplot/fast
+
+#=============================================================================
+# Target rules for targets named lmfham2
+
+# Build rule for target.
+lmfham2: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 lmfham2
+.PHONY : lmfham2
+
+# fast build rule for target.
+lmfham2/fast:
+	$(MAKE) -f CMakeFiles/lmfham2.dir/build.make CMakeFiles/lmfham2.dir/build
+.PHONY : lmfham2/fast
+
+#=============================================================================
+# Target rules for targets named hvccfp0
+
+# Build rule for target.
+hvccfp0: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 hvccfp0
+.PHONY : hvccfp0
+
+# fast build rule for target.
+hvccfp0/fast:
+	$(MAKE) -f CMakeFiles/hvccfp0.dir/build.make CMakeFiles/hvccfp0.dir/build
+.PHONY : hvccfp0/fast
+
+#=============================================================================
+# Target rules for targets named hwmatK_MPI
+
+# Build rule for target.
+hwmatK_MPI: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 hwmatK_MPI
+.PHONY : hwmatK_MPI
+
+# fast build rule for target.
+hwmatK_MPI/fast:
+	$(MAKE) -f CMakeFiles/hwmatK_MPI.dir/build.make CMakeFiles/hwmatK_MPI.dir/build
+.PHONY : hwmatK_MPI/fast
+
+#=============================================================================
+# Target rules for targets named hx0fp0
+
+# Build rule for target.
+hx0fp0: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 hx0fp0
+.PHONY : hx0fp0
+
+# fast build rule for target.
+hx0fp0/fast:
+	$(MAKE) -f CMakeFiles/hx0fp0.dir/build.make CMakeFiles/hx0fp0.dir/build
+.PHONY : hx0fp0/fast
+
+#=============================================================================
+# Target rules for targets named hx0init
+
+# Build rule for target.
+hx0init: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 hx0init
+.PHONY : hx0init
+
+# fast build rule for target.
+hx0init/fast:
+	$(MAKE) -f CMakeFiles/hx0init.dir/build.make CMakeFiles/hx0init.dir/build
+.PHONY : hx0init/fast
+
+#=============================================================================
+# Target rules for targets named lmf
+
+# Build rule for target.
+lmf: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 lmf
+.PHONY : lmf
+
+# fast build rule for target.
+lmf/fast:
+	$(MAKE) -f CMakeFiles/lmf.dir/build.make CMakeFiles/lmf.dir/build
+.PHONY : lmf/fast
+
+#=============================================================================
+# Target rules for targets named lmfham1
+
+# Build rule for target.
+lmfham1: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 lmfham1
+.PHONY : lmfham1
+
+# fast build rule for target.
+lmfham1/fast:
+	$(MAKE) -f CMakeFiles/lmfham1.dir/build.make CMakeFiles/lmfham1.dir/build
+.PHONY : lmfham1/fast
+
+#=============================================================================
 # Target rules for targets named hrcxq
 
 # Build rule for target.
@@ -449,17 +423,56 @@ hrcxq/fast:
 .PHONY : hrcxq/fast
 
 #=============================================================================
-# Target rules for targets named hsfp0_sc
+# Target rules for targets named hsfp0
 
 # Build rule for target.
-hsfp0_sc: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 hsfp0_sc
-.PHONY : hsfp0_sc
+hsfp0: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 hsfp0
+.PHONY : hsfp0
 
 # fast build rule for target.
-hsfp0_sc/fast:
-	$(MAKE) -f CMakeFiles/hsfp0_sc.dir/build.make CMakeFiles/hsfp0_sc.dir/build
-.PHONY : hsfp0_sc/fast
+hsfp0/fast:
+	$(MAKE) -f CMakeFiles/hsfp0.dir/build.make CMakeFiles/hsfp0.dir/build
+.PHONY : hsfp0/fast
+
+#=============================================================================
+# Target rules for targets named qg4gw
+
+# Build rule for target.
+qg4gw: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 qg4gw
+.PHONY : qg4gw
+
+# fast build rule for target.
+qg4gw/fast:
+	$(MAKE) -f CMakeFiles/qg4gw.dir/build.make CMakeFiles/qg4gw.dir/build
+.PHONY : qg4gw/fast
+
+#=============================================================================
+# Target rules for targets named hbasfp0
+
+# Build rule for target.
+hbasfp0: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 hbasfp0
+.PHONY : hbasfp0
+
+# fast build rule for target.
+hbasfp0/fast:
+	$(MAKE) -f CMakeFiles/hbasfp0.dir/build.make CMakeFiles/hbasfp0.dir/build
+.PHONY : hbasfp0/fast
+
+#=============================================================================
+# Target rules for targets named rdata4gw_v2
+
+# Build rule for target.
+rdata4gw_v2: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 rdata4gw_v2
+.PHONY : rdata4gw_v2
+
+# fast build rule for target.
+rdata4gw_v2/fast:
+	$(MAKE) -f CMakeFiles/rdata4gw_v2.dir/build.make CMakeFiles/rdata4gw_v2.dir/build
+.PHONY : rdata4gw_v2/fast
 
 home/takao/ecalj/SRC/main/gwinit.o: home/takao/ecalj/SRC/main/gwinit.f90.o
 
@@ -8621,35 +8634,36 @@ help:
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
-	@echo "... rdata4gw_v2"
-	@echo "... qg4gw"
-	@echo "... lmfham1"
-	@echo "... lmf"
-	@echo "... hx0init"
-	@echo "... hx0fp0"
-	@echo "... hwmatK_MPI"
-	@echo "... hvccfp0"
-	@echo "... lmfham2"
-	@echo "... show_programinfo.f90"
-	@echo "... hmaxloc"
-	@echo "... lmchk"
-	@echo "... ecaljF"
-	@echo "... hqpe"
-	@echo "... rebuild_cache"
-	@echo "... edit_cache"
-	@echo "... gwinit"
-	@echo "... hsfp0"
-	@echo "... heftet"
-	@echo "... huumat_MPI"
-	@echo "... hbasfp0"
-	@echo "... hmagnon"
-	@echo "... lmfa"
-	@echo "... hpsig_MPI"
-	@echo "... hqpe_sc"
-	@echo "... wanplot"
-	@echo "... hsocmat"
-	@echo "... hrcxq"
 	@echo "... hsfp0_sc"
+	@echo "... rebuild_cache"
+	@echo "... hsocmat"
+	@echo "... hqpe_sc"
+	@echo "... hpsig_MPI"
+	@echo "... lmfa"
+	@echo "... fcheck"
+	@echo "... hmagnon"
+	@echo "... huumat_MPI"
+	@echo "... heftet"
+	@echo "... gwinit"
+	@echo "... edit_cache"
+	@echo "... hqpe"
+	@echo "... ecaljF"
+	@echo "... lmchk"
+	@echo "... hmaxloc"
+	@echo "... show_programinfo.f90"
+	@echo "... wanplot"
+	@echo "... lmfham2"
+	@echo "... hvccfp0"
+	@echo "... hwmatK_MPI"
+	@echo "... hx0fp0"
+	@echo "... hx0init"
+	@echo "... lmf"
+	@echo "... lmfham1"
+	@echo "... hrcxq"
+	@echo "... hsfp0"
+	@echo "... qg4gw"
+	@echo "... hbasfp0"
+	@echo "... rdata4gw_v2"
 	@echo "... home/takao/ecalj/SRC/main/gwinit.o"
 	@echo "... home/takao/ecalj/SRC/main/gwinit.i"
 	@echo "... home/takao/ecalj/SRC/main/gwinit.s"

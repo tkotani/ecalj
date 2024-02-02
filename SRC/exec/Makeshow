@@ -28,9 +28,12 @@ VERSIONFLAGS = \
 -D___FFLAGS___="\"$(result_fflags)\"" \
 -D___LIBLOC___="\"$(result_libloc)\""
 
+all: show tags
+
 show:
 	@echo generating show_programinfo.f90 
 	@cpp $(VERSIONFLAGS) show_programinfo.template >  show_programinfo.f90
+	@echo 'progran test; end test'> dummy.f90
 
 tags: $(progs)
 	@echo '--- TAGS for emacs is generated at SRC/TAGS ---'

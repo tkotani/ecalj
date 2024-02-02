@@ -1,19 +1,18 @@
 !>Get cmdpath, which is the full path to the command (fortran program) itself.
 module m_cmdpath
    character(1024), public :: cmdpath = ''
-   public setcmdpath, setcmdpathc !command path
+   public setcmdpath !command path
    private
 contains
-   subroutine setcmdpathc(cname, nsize) bind(C) !Set cmdpath, which is the full path to the command (fortran program) itself.
+   subroutine setcmdpathc(cname) bind(C) !Set cmdpath, which is the full path to the command (fortran program) itself.
       implicit none
       integer:: nsize, i
-      character(1):: cname(nsize)
-      character(1024):: string = ''
-      forall (i=1:nsize) string(i:i) = cname(i)
-      cmdpath = adjustl(string)
+      character(1):: cname(*)
+      character(1024):: convcchar
+      cmdpath = convcchar(cname)
       print *, 'cmdpath=', trim(cmdpath)
    end subroutine setcmdpathc
-   subroutine setcmdpath() !Set cmdpath, which is the full path to the command (fortran program) itself.
+   subroutine setcmdpath() bind(C)!Set cmdpath, which is the full path to the command (fortran program) itself.
       use ISO_C_BINDING
       implicit none
       interface

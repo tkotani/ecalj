@@ -13,37 +13,40 @@ else()
   set(PLATFORM "gfortran") #default
 endif() 
 message(STATUS "PLATFORM = ${PLATFORM}")
-#set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PLATFORM}/lib) # directory for *.so
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}) # directory for *.so
 set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/${PLATFORM}/mod) # directory for *.mod
 
 ### show_programinfo.f90 get date and so on for binary info. This should be newer than others ###
-# but I don't know how to do it. So I use add_custom_target with ALL
+### but I don't know how to do it. So I use add_custom_target with ALL
 add_custom_target(show_programinfo.f90  ALL COMMAND make -f Makeshow WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 
-### compile options ##########################################
-if(PLATFORM MATCHES "gfortran")
+### compile options ############################################################
+if(PLATFORM MATCHES "gfortran" OR PLATFORM MATCHES "gfortran_dbg")
   set(CMAKE_Fortran_COMPILER mpif90)    # compiler
   set(CMAKE_Fortran_FLAGS "-g -fimplicit-none -finit-integer=NaN -finit-real=NaN -fPIC") # compile flags
+  set(LIB ${LIBRARY_NAME} -lmkl_rt)  #set LIB variable
+  add_link_options(-lmkl_rt)
+else(PLATFORM MATCHES "ifort" OR PLATFORM MATCHES "ifort_dbg")
+  set(CMAKE_Fortran_COMPILER mpiifort)    # compiler
+  set(CMAKE_Fortran_FLAGS "-init:snan -fPIC") # compile flags
+  set(LIB ${LIBRARY_NAME} -lmkl)  #set LIB variable
+  add_link_options(-lmkl)
+endif()
+
+### source-dependent compile options ##########################################
+if(PLATFORM MATCHES "gfortran")
   foreach(target IN ITEMS ${SOURCES})
-    if(${target} MATCHES "../subroutines/mkqp.f90" OR #source-dependent compile options
-	${target} MATCHES "../wannier/iopen.f90" )
+    if(${target} MATCHES "../subroutines/mkqp.f90" OR ${target} MATCHES "../wannier/iopen.f90" )
       set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O0")
     else()
       set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O2")
     endif()
   endforeach()
-  set(LIB ${LIBRARY_NAME} mkl_rt)  #set LIB variable
 elseif(PLATFORM MATCHES "gfortran_dbg")
-  set(CMAKE_Fortran_COMPILER mpif90)    # compiler
-  set(CMAKE_Fortran_FLAGS "-g -fimplicit-none -finit-integer=NaN -finit-real=NaN -fPIC") # compile flags
   foreach(target IN ITEMS ${SOURCES})
     set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O0")
   endforeach()
-  set(LIB ${LIBRARY_NAME} mkl_rt)  #set LIB variable
 elseif(PLATFORM MATCHES "ifort")
-  set(CMAKE_Fortran_COMPILER mpiifort)    # compiler
-  set(CMAKE_Fortran_FLAGS "-init:snan -fPIC") # compile flags
   foreach(target IN ITEMS ${SOURCES})
     if(${target} MATCHES "../subroutines/m_qplist.f90") # OR ${target} MATCHES "../subroutines/x0kf_v4h.f90" )
       set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O0")
@@ -51,15 +54,12 @@ elseif(PLATFORM MATCHES "ifort")
       set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O2")
     endif()
   endforeach()
-  set(LIB ${LIBRARY_NAME} mkl)  #set LIB variable
 elseif(PLATFORM MATCHES "ifort_dbg")
-  set(CMAKE_Fortran_COMPILER mpiifort)    # compiler
-  set(CMAKE_Fortran_FLAGS "-traceback -init:snan -fPIC") # compile flags
   foreach(target IN ITEMS ${SOURCES})
-    set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O0")
+    set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O0  -g -traceback")
   endforeach()
-  set(LIB ${LIBRARY_NAME} mkl)  #set LIB variable
 endif()
+
 #### Generate library and binaries ###############################
 set_source_files_properties(${CMAKE_BINARY_DIR}/show_programinfo.f90 PROPERTIES COMPILE_FLAGS "-O0")
 add_library(${LIBRARY_NAME} SHARED ${SOURCES}) # Library
@@ -69,7 +69,7 @@ foreach(target IN ITEMS ${MAINS}) #main routines
   target_link_libraries(${exename} ${LIB}) #linked 
 endforeach()
 
-#add_custom_target(libecaljF ALL COMMAND cp ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libecaljF.so ${CMAKE_BINARY_DIR})
+add_custom_target(fcheck  ALL COMMAND ldd lmfa|grep mkl >mklloc.txt  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}) #check mkl location
 
 #set(BINDIR $ENV{HOME}/bin)
 #set(BINDIR $ENV{BINDIR}) 
