@@ -17,8 +17,13 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}) # directory for *.so
 set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/${PLATFORM}/mod) # directory for *.mod
 
 ### show_programinfo.f90 get date and so on for binary info. This should be newer than others ###
-### but I don't know how to do it. So I use add_custom_target with ALL
+### but I don't know how to do it. So I use add_custom_target with ALLch
 add_custom_target(show_programinfo.f90  ALL COMMAND make -f Makeshow WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+#find_package(BLAS)
+#find_package(MPI)
+#find_package(LAPACK)
+#message(STATUS ${BLAS_LIBARARIES})
+#message(STATUS ${LAPACK})
 
 ### compile options ############################################################
 if(PLATFORM MATCHES "gfortran" OR PLATFORM MATCHES "gfortran_dbg")
@@ -26,7 +31,7 @@ if(PLATFORM MATCHES "gfortran" OR PLATFORM MATCHES "gfortran_dbg")
   set(CMAKE_Fortran_FLAGS "-g -fimplicit-none -finit-integer=NaN -finit-real=NaN -fPIC") # compile flags
   set(LIB ${LIBRARY_NAME} -lmkl_rt)  #set LIB variable
   add_link_options(-lmkl_rt)
-else(PLATFORM MATCHES "ifort" OR PLATFORM MATCHES "ifort_dbg")
+elseif(PLATFORM MATCHES "ifort" OR PLATFORM MATCHES "ifort_dbg")
   set(CMAKE_Fortran_COMPILER mpiifort)    # compiler
   set(CMAKE_Fortran_FLAGS "-init:snan -fPIC") # compile flags
   set(LIB ${LIBRARY_NAME} -lmkl)  #set LIB variable
@@ -60,16 +65,21 @@ elseif(PLATFORM MATCHES "ifort_dbg")
   endforeach()
 endif()
 
+#not working. add_custom_target(dummys ALL COMMAND echo "call sgemm();end" >dummy.f90)
+add_executable(dummy ./dummy.f90 ) # exe
+target_link_libraries(dummy ${LIB} ${BLAS} ${MPI}) #linked 
+add_custom_target(fcheck ALL COMMAND ldd dummy|grep mkl >mklloc.txt  WORKING_DIRECTORY ${CMAKE_BINARY_DIR} DEPENDS dummy) #check mkl location
+
 #### Generate library and binaries ###############################
 set_source_files_properties(${CMAKE_BINARY_DIR}/show_programinfo.f90 PROPERTIES COMPILE_FLAGS "-O0")
 add_library(${LIBRARY_NAME} SHARED ${SOURCES}) # Library
 foreach(target IN ITEMS ${MAINS}) #main routines
   get_filename_component(exename ${target} NAME_WE ) #set DIR variable
   add_executable(${exename} ${target} ) # exe
-  target_link_libraries(${exename} ${LIB}) #linked 
+  target_link_libraries(${exename} ${LIB} ${BLAS} ${MPI}) #linked 
 endforeach()
 
-add_custom_target(fcheck  ALL COMMAND ldd lmfa|grep mkl >mklloc.txt  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}) #check mkl location
+
 
 #set(BINDIR $ENV{HOME}/bin)
 #set(BINDIR $ENV{BINDIR}) 

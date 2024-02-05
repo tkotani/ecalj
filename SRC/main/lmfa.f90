@@ -5,5 +5,5 @@ program main
       end subroutine lmfa
   end interface
   call mpi_init(ierr)
-  call lmfa()  
+  call lmfa()
 end program main
