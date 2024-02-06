@@ -488,7 +488,7 @@ subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |
        complex(8)::phase,proj(iki:ikf,iki:ikf),pa(iki:ikf,nMLO),pai(iki:ikf,nMLO),ham(nMLO,nMLO),ovlx(nMLO,nMLO),rotmatp(nMLO,nMLO)
        jsp=is
        do iqibz = 1,nqibz
-          forall(i=iki:ikf,j=iki:ikf) proj(i,j)=sum(cnki(i,:,iqibz)*dconjg(cnki(j,:,iqibz))) !sum for MLOindex
+          forall(i=iki:ikf,j=iki:ikf) proj(i,j)=sum(cnki(i,:,iqibz)*dconjg(cnki(j,:,iqibz))) !sum for MPOindex
           pai(iki:ikf,1:nMLO) = matmul(proj,amnki(iki:ikf,1:nMLO,iqibz))
           do ig = 1,ngrp
              !case1=== 

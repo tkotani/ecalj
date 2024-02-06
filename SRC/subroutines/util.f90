@@ -11,7 +11,7 @@ contains
     logical:: cmdopt0
     stdo=lgunit(1)
     stdl=lgunit(2)
-    if(cmdopt0('--mlog')) stml=lgunit(3)
+!    if(cmdopt0('--mlog')) stml=lgunit(3)
   end subroutine M_lgunit_init
   integer function lgunit(i)
     ! Returns stdout for i=1, log for i=2, mlog for i=3 (MPI logfile)
@@ -30,11 +30,12 @@ contains
        endif
        lgunit = lgunit2
     elseif (i .eq. 3) then
-       if(lgunit3==0) then
-        call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
-        open(newunit=lgunit3,file='mlog.'//trim(sname)//'_'//trim(i2char(procid)))
-       endif
-       lgunit = lgunit3
+      return
+!       if(lgunit3==0) then
+!        call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
+!        open(newunit=lgunit3,file='mlog.'//trim(sname)//'_'//trim(i2char(procid)))
+!       endif
+!       lgunit = lgunit3
     endif
   end function lgunit
 end module m_lgunit
