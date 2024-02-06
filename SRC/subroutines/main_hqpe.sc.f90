@@ -61,7 +61,7 @@ subroutine hqpe_sc()
   call m_lgunit_init()
   hartree=2d0*rydberg()
   !! Shift quasiparticle energies (eV)
-!  write (*,*)' q+band index for zero?'
+  !  write (*,*)' q+band index for zero?'
   !  read (*,*)jin
   jin=0
   call getkeyvalue("GWinput","EXonly",wex,default=0d0,status=ret)
@@ -516,7 +516,7 @@ subroutine hqpe_sc()
      allocate(sigin(1,1,1,1))
      sigin = 0d0
   endif
-  call mixsigma(sigma_m, lsigin, sigin, 2*ndimsig**2*nq*nspin)
+  call mixsigma(sigma_m, lsigin, sigin, ndimsig**2*nq*nspin)
   write(6,*)
   write(6,*) "=== Write sigm to files ========"
   rewind ifse_out
@@ -528,144 +528,139 @@ end subroutine hqpe_sc
 
 !------------------------------------------------------
 subroutine testfff(a,b,nnn)
-implicit integer (i-n)
-real(8):: a(nnn),b(nnn)
-do i=1,nnn
-if(i/=nnn) then
-b(i)= +  (-1d0)**i*a(i+1) + i/10d0
-else
-b(i)=   a(i)**2 - 1d0
-endif
-enddo
+  implicit integer (i-n)
+  real(8):: a(nnn),b(nnn)
+  do i=1,nnn
+     if(i/=nnn) then
+        b(i)= +  (-1d0)**i*a(i+1) + i/10d0
+     else
+        b(i)=   a(i)**2 - 1d0
+     endif
+  enddo
 end subroutine testfff
 
 !------------------------------------------------------
 subroutine onlydiag(sigm,ndimh)
-implicit integer (i-n)
-complex(8):: sigm(ndimh,ndimh)
-do ix=1,ndimh
-do iy=1,ndimh
-if(ix/=iy) sigm(ix,iy)=0d0
-enddo
-enddo
+  implicit integer (i-n)
+  complex(8):: sigm(ndimh,ndimh)
+  do ix=1,ndimh
+     do iy=1,ndimh
+        if(ix/=iy) sigm(ix,iy)=0d0
+     enddo
+  enddo
 end subroutine onlydiag
 
 !----------------------------------------------------------------------
 subroutine rwsigma(rw,ifss,sigma_m,qqqx_m,nspin,ntq,n1,n2,n3,nq ) !,eseavr)
-implicit integer (i-n)
-complex(8)::sigma_m(ntq,ntq,nq,nspin)
-character(*):: rw
-real(8)::qqqx_m(3,nq,nspin) !,eseavr(nq,nspin)
-ntm1=0;ntm2=0;ntm3=0
-if(rw=='read')  ifs= 1
-if(rw=='write') ifs=-1
-if(ifs>0) write(6,*) " rwsigma: Reading sigm (Binary)==="
-if(ifs<0) write(6,*) " rwsigma  Writing sigm (Binary)==="
-if(ifs>0) read ( ifss) nspin,ntq,n1,n2,n3,nq, ntm1,ntm2,ntm3
-if(ifs<0) write( ifss) nspin,ntq,n1,n2,n3,nq, ntm1,ntm2,ntm3
-do is=1,nspin
-do ip=1,nq
-if(ifs>0) read (ifss)  qqqx_m(1:3,ip,is)!,isr !,eseavr(ip,is)
-if(ifs>0) read (ifss)  sigma_m(1:ntq,1:ntq,ip,is)
-if(ifs<0) write(ifss) qqqx_m(1:3,ip,is),is !,eseavr(ip,is)
-if(ifs<0) write(ifss) sigma_m(1:ntq,1:ntq,ip,is)
-write(6,"('  === ',i5,i3,3f10.5)")ip,is,qqqx_m(1:3,ip,is)
-enddo
-enddo
-write(6,*)' === rwsigma:  sum check of sigma_m=',sum(abs(sigma_m))
-print *
+  implicit integer (i-n)
+  complex(8)::sigma_m(ntq,ntq,nq,nspin)
+  character(*):: rw
+  real(8)::qqqx_m(3,nq,nspin) !,eseavr(nq,nspin)
+  ntm1=0;ntm2=0;ntm3=0
+  if(rw=='read')  ifs= 1
+  if(rw=='write') ifs=-1
+  if(ifs>0) write(6,*) " rwsigma: Reading sigm (Binary)==="
+  if(ifs<0) write(6,*) " rwsigma  Writing sigm (Binary)==="
+  if(ifs>0) read ( ifss) nspin,ntq,n1,n2,n3,nq, ntm1,ntm2,ntm3
+  if(ifs<0) write( ifss) nspin,ntq,n1,n2,n3,nq, ntm1,ntm2,ntm3
+  do is=1,nspin
+     do ip=1,nq
+        if(ifs>0) read (ifss)  qqqx_m(1:3,ip,is)!,isr !,eseavr(ip,is)
+        if(ifs>0) read (ifss)  sigma_m(1:ntq,1:ntq,ip,is)
+        if(ifs<0) write(ifss) qqqx_m(1:3,ip,is),is !,eseavr(ip,is)
+        if(ifs<0) write(ifss) sigma_m(1:ntq,1:ntq,ip,is)
+        write(6,"('  === ',i5,i3,3f10.5)")ip,is,qqqx_m(1:3,ip,is)
+     enddo
+  enddo
+  write(6,*)' === rwsigma:  sum check of sigma_m=',sum(abs(sigma_m))
+  print *
 end subroutine rwsigma
 
 !----------------------------------------------------------------------
 subroutine mixsigma(sss, lsigin, sigin, nda)
-use m_amix,only: amix
-!  subroutine pqmixa(nda,nmix,mmix,mxsav,beta,rms2,a,tj)
-!- Mixing routine for sigma. Modified from pqmixa in subs/pqmix.f
-!- Anderson mixing of a vector
-!i  mmix: number of iterates available to mix
-! o nmix: nmix > 0: number of iter to try and mix
-!i        nmix < 0: use mmix instead of nmix.
-!o  nmix: (abs)  number of iter actually mixed.
-!o        (sign) <0, intended that caller update nmix for next call.
-!  MvS Feb 04 use sigin as input sigma if available (lsigin=T)
-!             Add mixnit as parameter
-use m_keyvalue,only: getkeyvalue
-implicit none
-logical :: lsigin
-integer :: nda,nmix,mmix
-integer,parameter:: mxsav=10
-double precision :: rms2,tj(mxsav),beta
-integer :: im,imix,jmix,onorm,okpvt,oa !,amix
-integer :: iprintxx,ifi,nitr,ndaf
-real(8)::sss(nda),sigin(nda)
-real(8):: tjmax
-real(8),allocatable::norm(:),a(:,:,:)
-integer,allocatable:: kpvt(:)
-integer::ret
-character(8) :: fff
-logical :: fexist
-real(8):: acc
-integer:: ido
-iprintxx = 30
-beta=1d0
-call getkeyvalue("GWinput","mixbeta",beta,default=1d0,status=ret)
-print '('' mixsigma: Anderson mixing sigma with mixing beta ='',f12.6)',beta
-!' ... reads prior iteration INCLUDING starting sigma for current iteration
-allocate ( a(nda,0:mxsav+1,2) )
-fff="mixsigma"
-INQUIRE (FILE =fff, EXIST = fexist)
-if(fexist)      write(6,*)'... reading file mixsigma'
-if( .NOT. fexist) write(6,*)'... No file mixsigma'
-open(newunit=ifi,file=fff,form='unformatted')
-if(fexist) then
-read(ifi,err=903,end=903) nitr,ndaf
-if (ndaf /= nda) goto 903
-read(ifi,err=903,end=903) a
-goto 902
-endif
-goto 901
+  use m_amix,only: amix
+  !  subroutine pqmixa(nda,nmix,mmix,mxsav,beta,rms2,a,tj)
+  !- Mixing routine for sigma. Modified from pqmixa in subs/pqmix.f
+  !- Anderson mixing of a vector
+  !i  mmix: number of iterates available to mix
+  ! o nmix: nmix > 0: number of iter to try and mix
+  !i        nmix < 0: use mmix instead of nmix.
+  !o  nmix: (abs)  number of iter actually mixed.
+  !o        (sign) <0, intended that caller update nmix for next call.
+  !  MvS Feb 04 use sigin as input sigma if available (lsigin=T)
+  !             Add mixnit as parameter
+  use m_keyvalue,only: getkeyvalue
+  implicit none
+  logical :: lsigin
+  integer :: nda,nmix,mmix
+  integer,parameter:: mxsav=10
+  double precision :: rms2,tj(mxsav),beta
+  integer :: im,imix,jmix,onorm,okpvt,oa !,amix
+  integer :: iprintxx,ifi,nitr,ndaf
+  complex(8)::sss(nda),sigin(nda),img=(0d0,1d0)
+  real(8):: tjmax
+  real(8),allocatable::norm(:),a(:,:,:)
+  integer,allocatable:: kpvt(:)
+  integer::ret
+  character(8) :: fff
+  logical :: fexist
+  real(8):: acc
+  integer:: ido
+  iprintxx = 30
+  beta=1d0
+  call getkeyvalue("GWinput","mixbeta",beta,default=1d0,status=ret)
+  write(6,*)'('' mixsigma: Anderson mixing sigma with mixing beta ='',f12.6)',beta
+  !' ... reads prior iteration INCLUDING starting sigma for current iteration
+  allocate ( a(2*nda,0:mxsav+1,2) )
+  fff="mixsigma"
+  INQUIRE (FILE =fff, EXIST = fexist)
+  if(fexist)      write(6,*)'... reading file mixsigma'
+  if( .NOT. fexist) write(6,*)'... No file mixsigma'
+  open(newunit=ifi,file=fff,form='unformatted')
+  if(fexist) then
+     read(ifi,err=903,end=903) nitr,ndaf
+     if (ndaf /= nda) goto 903
+     read(ifi,err=903,end=903) a
+     goto 902
+  endif
+  goto 901
 903 continue
-print 368
-368 format(5x,'(warning) file mismatch ... mixing file not read')
+  write(6,"(5x,'(warning) file mismatch ... mixing file not read')")
 901 continue
-nitr = 0
+  nitr = 0
 902 continue
-a(:,0,1) = sss      !output
-!     if input sigma available, use it instead of file a(:,0,2)
-if (lsigin) then
-write(6,*)'... using input sigma read from sigm file'
-a(:,0,2) = sigin  !input
-endif
-write(6,*)'sum sss=',sum(abs(sss))
-!     Restrict maximum number of prior iterations
-call getkeyvalue("GWinput","mixpriorit",imix,default=9,status=ret)
-mmix = min(max(nitr-1,0),imix)
-if (mmix > mxsav) mmix = mxsav
-!     this information already printed out by amix
-!     write(6,*)'mixing parameters for amix are fixed in mixsigma'
-!     write(6,*)'   beta       =', beta
-!     write(6,*)'   tjmax      =', tjmax
-!     write(6,*)'   mmix mxsav =', mmix,mxsav
-call getkeyvalue("GWinput","mixtj",acc,default=0d0,status=ret)
-if(acc/=0d0) then
-write(6,*)' readin mixtj from GWinput: mixtj=',acc
-tjmax=abs(acc)+1d-3
-if(mmix==1) then
-tj(1)=1d0
-else
-tj(1)= acc
-tj(2)= 1-acc
-mmix=2
-endif
-ido=2
-else
-tjmax=5d0
-ido=0
-endif
-imix = amix(nda,mmix,mxsav,ido,dabs(beta),iprintxx,tjmax, a,tj,rms2) !norm,kpvt,
-sss = a(:,0,2)
-rewind(ifi)
-write(ifi) nitr+1,nda
-write(ifi) a
-close(ifi)
+  a(1:nda,0,1)       = dreal(sss)      !output
+  a(nda+1:2*nda,0,1) = dimag(sss)      !output
+  !     if input sigma available, use it instead of file a(:,0,2)
+  if (lsigin) then
+     write(6,*)'... using input sigma read from sigm file'
+     a(1:nda,0,2)       = dreal(sigin)        !input
+     a(nda+1:2*nda,0,2) = dimag(sigin)  !input
+  endif
+  !     Restrict maximum number of prior iterations
+  call getkeyvalue("GWinput","mixpriorit",imix,default=9,status=ret)
+  mmix = min(max(nitr-1,0),imix)
+  if (mmix > mxsav) mmix = mxsav
+  call getkeyvalue("GWinput","mixtj",acc,default=0d0,status=ret)
+  if(acc/=0d0) then
+     write(6,*)' readin mixtj from GWinput: mixtj=',acc
+     tjmax=abs(acc)+1d-3
+     if(mmix==1) then
+        tj(1)=1d0
+     else
+        tj(1)= acc
+        tj(2)= 1-acc
+        mmix=2
+     endif
+     ido=2
+  else
+     tjmax=5d0
+     ido=0
+  endif
+  imix = amix(nda*2,mmix,mxsav,ido,dabs(beta),iprintxx,tjmax, a,tj,rms2) !norm,kpvt,
+  sss= a(1:nda,0,2) + img* a(nda+1:2*nda,0,2) 
+  rewind(ifi)
+  write(ifi) nitr+1,nda
+  write(ifi) a
+  close(ifi)
 end subroutine mixsigma
