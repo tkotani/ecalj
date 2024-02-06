@@ -32,7 +32,7 @@ all: show tags
 
 show:
 	@echo generating ./subroutines/show_programinfo.f90 
-	@cpp $(VERSIONFLAGS) show_programinfo.template >  ../subroutines/show_programinfo.f90
+	@cpp $(VERSIONFLAGS) ../subroutines/show_programinfo.template >  ../subroutines/show_programinfo.f90
 	
 #@echo 'call zgemm(); end'> dummy.f90
 

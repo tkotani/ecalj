@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 2.8)
 #SET(CMAKE_VERBOSE_MAKEFILE ON)
 enable_language(Fortran)
 add_custom_target(show_programinfo.f90 ALL COMMAND make -f Makeshow WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
-file(GLOB SOURCES  "../subroutines/*.f90" "../wanniergw/*.f90") # source files
+file(GLOB SOURCES  "../subroutines/*.f90" "../wanniergw/*.f90" "../subroutines/show_programinfo.f90") # source files
 file(GLOB MAINS    "../main/*.f90") # main source files
 set(LIBRARY_NAME ecaljF)            # library name is libecaljF.so
 if(DEFINED CACHE{PLATFORM} OR DEFINED ENV{PLATFORM})
