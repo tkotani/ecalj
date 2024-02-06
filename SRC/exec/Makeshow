@@ -31,8 +31,8 @@ VERSIONFLAGS = \
 all: show tags
 
 show:
-	@echo generating show_programinfo.f90 
-	@cpp $(VERSIONFLAGS) show_programinfo.template >  show_programinfo.f90
+	@echo generating ./subroutines/show_programinfo.f90 
+	@cpp $(VERSIONFLAGS) show_programinfo.template >  ../subroutines/show_programinfo.f90
 	
 #@echo 'call zgemm(); end'> dummy.f90
 
