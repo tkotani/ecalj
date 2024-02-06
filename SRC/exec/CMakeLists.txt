@@ -4,6 +4,7 @@ Project (ecalj)
 cmake_minimum_required(VERSION 2.8)
 #SET(CMAKE_VERBOSE_MAKEFILE ON)
 enable_language(Fortran)
+add_custom_target(show_programinfo.f90 ALL COMMAND make -f Makeshow WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 file(GLOB SOURCES  "../subroutines/*.f90" "../wanniergw/*.f90") # source files
 file(GLOB MAINS    "../main/*.f90") # main source files
 set(LIBRARY_NAME ecaljF)            # library name is libecaljF.so
@@ -18,7 +19,6 @@ set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/${PLATFORM}/mod) # direct
 
 ### show_programinfo.f90 get date and so on for binary info. This should be newer than others ###
 ### but I don't know how to do it. So I use add_custom_target with ALLch
-add_custom_target(show_programinfo.f90 ALL COMMAND make -f Makeshow WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 #find_package(BLAS)
 #find_package(MPI)
 #find_package(LAPACK)
