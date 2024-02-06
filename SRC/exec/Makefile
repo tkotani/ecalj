@@ -48,24 +48,13 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/takao/temp/ecalj/SRC/exec
+CMAKE_SOURCE_DIR = /home/takao/ecalj/SRC/exec
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/takao/temp/ecalj/SRC/exec
+CMAKE_BINARY_DIR = /home/takao/ecalj/SRC/exec
 
 #=============================================================================
 # Targets provided globally by CMake.
-
-# Special rule for the target rebuild_cache
-rebuild_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
-	/usr/bin/cmake -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
-.PHONY : rebuild_cache
-
-# Special rule for the target rebuild_cache
-rebuild_cache/fast: rebuild_cache
-
-.PHONY : rebuild_cache/fast
 
 # Special rule for the target edit_cache
 edit_cache:
@@ -78,11 +67,22 @@ edit_cache/fast: edit_cache
 
 .PHONY : edit_cache/fast
 
+# Special rule for the target rebuild_cache
+rebuild_cache:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
+	/usr/bin/cmake -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+.PHONY : rebuild_cache
+
+# Special rule for the target rebuild_cache
+rebuild_cache/fast: rebuild_cache
+
+.PHONY : rebuild_cache/fast
+
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/takao/temp/ecalj/SRC/exec/CMakeFiles /home/takao/temp/ecalj/SRC/exec/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/takao/ecalj/SRC/exec/CMakeFiles /home/takao/ecalj/SRC/exec/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/takao/temp/ecalj/SRC/exec/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/takao/ecalj/SRC/exec/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -111,30 +111,30 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named lmfham2
+# Target rules for targets named hqpe_sc
 
 # Build rule for target.
-lmfham2: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 lmfham2
-.PHONY : lmfham2
+hqpe_sc: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 hqpe_sc
+.PHONY : hqpe_sc
 
 # fast build rule for target.
-lmfham2/fast:
-	$(MAKE) -f CMakeFiles/lmfham2.dir/build.make CMakeFiles/lmfham2.dir/build
-.PHONY : lmfham2/fast
+hqpe_sc/fast:
+	$(MAKE) -f CMakeFiles/hqpe_sc.dir/build.make CMakeFiles/hqpe_sc.dir/build
+.PHONY : hqpe_sc/fast
 
 #=============================================================================
-# Target rules for targets named lmfham1
+# Target rules for targets named hpsig_MPI
 
 # Build rule for target.
-lmfham1: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 lmfham1
-.PHONY : lmfham1
+hpsig_MPI: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 hpsig_MPI
+.PHONY : hpsig_MPI
 
 # fast build rule for target.
-lmfham1/fast:
-	$(MAKE) -f CMakeFiles/lmfham1.dir/build.make CMakeFiles/lmfham1.dir/build
-.PHONY : lmfham1/fast
+hpsig_MPI/fast:
+	$(MAKE) -f CMakeFiles/hpsig_MPI.dir/build.make CMakeFiles/hpsig_MPI.dir/build
+.PHONY : hpsig_MPI/fast
 
 #=============================================================================
 # Target rules for targets named lmfa
@@ -150,17 +150,56 @@ lmfa/fast:
 .PHONY : lmfa/fast
 
 #=============================================================================
-# Target rules for targets named lmchk
+# Target rules for targets named huumat_MPI
 
 # Build rule for target.
-lmchk: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 lmchk
-.PHONY : lmchk
+huumat_MPI: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 huumat_MPI
+.PHONY : huumat_MPI
 
 # fast build rule for target.
-lmchk/fast:
-	$(MAKE) -f CMakeFiles/lmchk.dir/build.make CMakeFiles/lmchk.dir/build
-.PHONY : lmchk/fast
+huumat_MPI/fast:
+	$(MAKE) -f CMakeFiles/huumat_MPI.dir/build.make CMakeFiles/huumat_MPI.dir/build
+.PHONY : huumat_MPI/fast
+
+#=============================================================================
+# Target rules for targets named heftet
+
+# Build rule for target.
+heftet: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 heftet
+.PHONY : heftet
+
+# fast build rule for target.
+heftet/fast:
+	$(MAKE) -f CMakeFiles/heftet.dir/build.make CMakeFiles/heftet.dir/build
+.PHONY : heftet/fast
+
+#=============================================================================
+# Target rules for targets named gwinit
+
+# Build rule for target.
+gwinit: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 gwinit
+.PHONY : gwinit
+
+# fast build rule for target.
+gwinit/fast:
+	$(MAKE) -f CMakeFiles/gwinit.dir/build.make CMakeFiles/gwinit.dir/build
+.PHONY : gwinit/fast
+
+#=============================================================================
+# Target rules for targets named hmagnon
+
+# Build rule for target.
+hmagnon: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 hmagnon
+.PHONY : hmagnon
+
+# fast build rule for target.
+hmagnon/fast:
+	$(MAKE) -f CMakeFiles/hmagnon.dir/build.make CMakeFiles/hmagnon.dir/build
+.PHONY : hmagnon/fast
 
 #=============================================================================
 # Target rules for targets named fcheck
@@ -176,6 +215,32 @@ fcheck/fast:
 .PHONY : fcheck/fast
 
 #=============================================================================
+# Target rules for targets named hsfp0_sc
+
+# Build rule for target.
+hsfp0_sc: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 hsfp0_sc
+.PHONY : hsfp0_sc
+
+# fast build rule for target.
+hsfp0_sc/fast:
+	$(MAKE) -f CMakeFiles/hsfp0_sc.dir/build.make CMakeFiles/hsfp0_sc.dir/build
+.PHONY : hsfp0_sc/fast
+
+#=============================================================================
+# Target rules for targets named hqpe
+
+# Build rule for target.
+hqpe: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 hqpe
+.PHONY : hqpe
+
+# fast build rule for target.
+hqpe/fast:
+	$(MAKE) -f CMakeFiles/hqpe.dir/build.make CMakeFiles/hqpe.dir/build
+.PHONY : hqpe/fast
+
+#=============================================================================
 # Target rules for targets named ecaljF
 
 # Build rule for target.
@@ -187,6 +252,32 @@ ecaljF: cmake_check_build_system
 ecaljF/fast:
 	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/build
 .PHONY : ecaljF/fast
+
+#=============================================================================
+# Target rules for targets named lmchk
+
+# Build rule for target.
+lmchk: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 lmchk
+.PHONY : lmchk
+
+# fast build rule for target.
+lmchk/fast:
+	$(MAKE) -f CMakeFiles/lmchk.dir/build.make CMakeFiles/lmchk.dir/build
+.PHONY : lmchk/fast
+
+#=============================================================================
+# Target rules for targets named hsocmat
+
+# Build rule for target.
+hsocmat: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 hsocmat
+.PHONY : hsocmat
+
+# fast build rule for target.
+hsocmat/fast:
+	$(MAKE) -f CMakeFiles/hsocmat.dir/build.make CMakeFiles/hsocmat.dir/build
+.PHONY : hsocmat/fast
 
 #=============================================================================
 # Target rules for targets named dummy
@@ -202,6 +293,19 @@ dummy/fast:
 .PHONY : dummy/fast
 
 #=============================================================================
+# Target rules for targets named hmaxloc
+
+# Build rule for target.
+hmaxloc: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 hmaxloc
+.PHONY : hmaxloc
+
+# fast build rule for target.
+hmaxloc/fast:
+	$(MAKE) -f CMakeFiles/hmaxloc.dir/build.make CMakeFiles/hmaxloc.dir/build
+.PHONY : hmaxloc/fast
+
+#=============================================================================
 # Target rules for targets named show_programinfo.f90
 
 # Build rule for target.
@@ -213,6 +317,175 @@ show_programinfo.f90: cmake_check_build_system
 show_programinfo.f90/fast:
 	$(MAKE) -f CMakeFiles/show_programinfo.f90.dir/build.make CMakeFiles/show_programinfo.f90.dir/build
 .PHONY : show_programinfo.f90/fast
+
+#=============================================================================
+# Target rules for targets named wanplot
+
+# Build rule for target.
+wanplot: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 wanplot
+.PHONY : wanplot
+
+# fast build rule for target.
+wanplot/fast:
+	$(MAKE) -f CMakeFiles/wanplot.dir/build.make CMakeFiles/wanplot.dir/build
+.PHONY : wanplot/fast
+
+#=============================================================================
+# Target rules for targets named lmfham2
+
+# Build rule for target.
+lmfham2: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 lmfham2
+.PHONY : lmfham2
+
+# fast build rule for target.
+lmfham2/fast:
+	$(MAKE) -f CMakeFiles/lmfham2.dir/build.make CMakeFiles/lmfham2.dir/build
+.PHONY : lmfham2/fast
+
+#=============================================================================
+# Target rules for targets named hvccfp0
+
+# Build rule for target.
+hvccfp0: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 hvccfp0
+.PHONY : hvccfp0
+
+# fast build rule for target.
+hvccfp0/fast:
+	$(MAKE) -f CMakeFiles/hvccfp0.dir/build.make CMakeFiles/hvccfp0.dir/build
+.PHONY : hvccfp0/fast
+
+#=============================================================================
+# Target rules for targets named hwmatK_MPI
+
+# Build rule for target.
+hwmatK_MPI: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 hwmatK_MPI
+.PHONY : hwmatK_MPI
+
+# fast build rule for target.
+hwmatK_MPI/fast:
+	$(MAKE) -f CMakeFiles/hwmatK_MPI.dir/build.make CMakeFiles/hwmatK_MPI.dir/build
+.PHONY : hwmatK_MPI/fast
+
+#=============================================================================
+# Target rules for targets named hx0fp0
+
+# Build rule for target.
+hx0fp0: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 hx0fp0
+.PHONY : hx0fp0
+
+# fast build rule for target.
+hx0fp0/fast:
+	$(MAKE) -f CMakeFiles/hx0fp0.dir/build.make CMakeFiles/hx0fp0.dir/build
+.PHONY : hx0fp0/fast
+
+#=============================================================================
+# Target rules for targets named hx0init
+
+# Build rule for target.
+hx0init: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 hx0init
+.PHONY : hx0init
+
+# fast build rule for target.
+hx0init/fast:
+	$(MAKE) -f CMakeFiles/hx0init.dir/build.make CMakeFiles/hx0init.dir/build
+.PHONY : hx0init/fast
+
+#=============================================================================
+# Target rules for targets named lmf
+
+# Build rule for target.
+lmf: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 lmf
+.PHONY : lmf
+
+# fast build rule for target.
+lmf/fast:
+	$(MAKE) -f CMakeFiles/lmf.dir/build.make CMakeFiles/lmf.dir/build
+.PHONY : lmf/fast
+
+#=============================================================================
+# Target rules for targets named lmfham1
+
+# Build rule for target.
+lmfham1: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 lmfham1
+.PHONY : lmfham1
+
+# fast build rule for target.
+lmfham1/fast:
+	$(MAKE) -f CMakeFiles/lmfham1.dir/build.make CMakeFiles/lmfham1.dir/build
+.PHONY : lmfham1/fast
+
+#=============================================================================
+# Target rules for targets named hrcxq
+
+# Build rule for target.
+hrcxq: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 hrcxq
+.PHONY : hrcxq
+
+# fast build rule for target.
+hrcxq/fast:
+	$(MAKE) -f CMakeFiles/hrcxq.dir/build.make CMakeFiles/hrcxq.dir/build
+.PHONY : hrcxq/fast
+
+#=============================================================================
+# Target rules for targets named hsfp0
+
+# Build rule for target.
+hsfp0: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 hsfp0
+.PHONY : hsfp0
+
+# fast build rule for target.
+hsfp0/fast:
+	$(MAKE) -f CMakeFiles/hsfp0.dir/build.make CMakeFiles/hsfp0.dir/build
+.PHONY : hsfp0/fast
+
+#=============================================================================
+# Target rules for targets named qg4gw
+
+# Build rule for target.
+qg4gw: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 qg4gw
+.PHONY : qg4gw
+
+# fast build rule for target.
+qg4gw/fast:
+	$(MAKE) -f CMakeFiles/qg4gw.dir/build.make CMakeFiles/qg4gw.dir/build
+.PHONY : qg4gw/fast
+
+#=============================================================================
+# Target rules for targets named hbasfp0
+
+# Build rule for target.
+hbasfp0: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 hbasfp0
+.PHONY : hbasfp0
+
+# fast build rule for target.
+hbasfp0/fast:
+	$(MAKE) -f CMakeFiles/hbasfp0.dir/build.make CMakeFiles/hbasfp0.dir/build
+.PHONY : hbasfp0/fast
+
+#=============================================================================
+# Target rules for targets named rdata4gw_v2
+
+# Build rule for target.
+rdata4gw_v2: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 rdata4gw_v2
+.PHONY : rdata4gw_v2
+
+# fast build rule for target.
+rdata4gw_v2/fast:
+	$(MAKE) -f CMakeFiles/rdata4gw_v2.dir/build.make CMakeFiles/rdata4gw_v2.dir/build
+.PHONY : rdata4gw_v2/fast
 
 dummy.o: dummy.f90.o
 
@@ -241,7349 +514,8159 @@ dummy.f90.s:
 	$(MAKE) -f CMakeFiles/dummy.dir/build.make CMakeFiles/dummy.dir/dummy.f90.s
 .PHONY : dummy.f90.s
 
-home/takao/temp/ecalj/SRC/main/lmchk.o: home/takao/temp/ecalj/SRC/main/lmchk.f90.o
+home/takao/ecalj/SRC/main/gwinit.o: home/takao/ecalj/SRC/main/gwinit.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/main/lmchk.o
+.PHONY : home/takao/ecalj/SRC/main/gwinit.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/main/lmchk.f90.o:
-	$(MAKE) -f CMakeFiles/lmchk.dir/build.make CMakeFiles/lmchk.dir/home/takao/temp/ecalj/SRC/main/lmchk.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/main/lmchk.f90.o
+home/takao/ecalj/SRC/main/gwinit.f90.o:
+	$(MAKE) -f CMakeFiles/gwinit.dir/build.make CMakeFiles/gwinit.dir/home/takao/ecalj/SRC/main/gwinit.f90.o
+.PHONY : home/takao/ecalj/SRC/main/gwinit.f90.o
 
-home/takao/temp/ecalj/SRC/main/lmchk.i: home/takao/temp/ecalj/SRC/main/lmchk.f90.i
+home/takao/ecalj/SRC/main/gwinit.i: home/takao/ecalj/SRC/main/gwinit.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/main/lmchk.i
+.PHONY : home/takao/ecalj/SRC/main/gwinit.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/main/lmchk.f90.i:
-	$(MAKE) -f CMakeFiles/lmchk.dir/build.make CMakeFiles/lmchk.dir/home/takao/temp/ecalj/SRC/main/lmchk.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/main/lmchk.f90.i
+home/takao/ecalj/SRC/main/gwinit.f90.i:
+	$(MAKE) -f CMakeFiles/gwinit.dir/build.make CMakeFiles/gwinit.dir/home/takao/ecalj/SRC/main/gwinit.f90.i
+.PHONY : home/takao/ecalj/SRC/main/gwinit.f90.i
 
-home/takao/temp/ecalj/SRC/main/lmchk.s: home/takao/temp/ecalj/SRC/main/lmchk.f90.s
+home/takao/ecalj/SRC/main/gwinit.s: home/takao/ecalj/SRC/main/gwinit.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/main/lmchk.s
+.PHONY : home/takao/ecalj/SRC/main/gwinit.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/main/lmchk.f90.s:
-	$(MAKE) -f CMakeFiles/lmchk.dir/build.make CMakeFiles/lmchk.dir/home/takao/temp/ecalj/SRC/main/lmchk.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/main/lmchk.f90.s
+home/takao/ecalj/SRC/main/gwinit.f90.s:
+	$(MAKE) -f CMakeFiles/gwinit.dir/build.make CMakeFiles/gwinit.dir/home/takao/ecalj/SRC/main/gwinit.f90.s
+.PHONY : home/takao/ecalj/SRC/main/gwinit.f90.s
 
-home/takao/temp/ecalj/SRC/main/lmfa.o: home/takao/temp/ecalj/SRC/main/lmfa.f90.o
+home/takao/ecalj/SRC/main/hbasfp0.o: home/takao/ecalj/SRC/main/hbasfp0.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/main/lmfa.o
+.PHONY : home/takao/ecalj/SRC/main/hbasfp0.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/main/lmfa.f90.o:
-	$(MAKE) -f CMakeFiles/lmfa.dir/build.make CMakeFiles/lmfa.dir/home/takao/temp/ecalj/SRC/main/lmfa.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/main/lmfa.f90.o
+home/takao/ecalj/SRC/main/hbasfp0.f90.o:
+	$(MAKE) -f CMakeFiles/hbasfp0.dir/build.make CMakeFiles/hbasfp0.dir/home/takao/ecalj/SRC/main/hbasfp0.f90.o
+.PHONY : home/takao/ecalj/SRC/main/hbasfp0.f90.o
 
-home/takao/temp/ecalj/SRC/main/lmfa.i: home/takao/temp/ecalj/SRC/main/lmfa.f90.i
+home/takao/ecalj/SRC/main/hbasfp0.i: home/takao/ecalj/SRC/main/hbasfp0.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/main/lmfa.i
+.PHONY : home/takao/ecalj/SRC/main/hbasfp0.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/main/lmfa.f90.i:
-	$(MAKE) -f CMakeFiles/lmfa.dir/build.make CMakeFiles/lmfa.dir/home/takao/temp/ecalj/SRC/main/lmfa.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/main/lmfa.f90.i
+home/takao/ecalj/SRC/main/hbasfp0.f90.i:
+	$(MAKE) -f CMakeFiles/hbasfp0.dir/build.make CMakeFiles/hbasfp0.dir/home/takao/ecalj/SRC/main/hbasfp0.f90.i
+.PHONY : home/takao/ecalj/SRC/main/hbasfp0.f90.i
 
-home/takao/temp/ecalj/SRC/main/lmfa.s: home/takao/temp/ecalj/SRC/main/lmfa.f90.s
+home/takao/ecalj/SRC/main/hbasfp0.s: home/takao/ecalj/SRC/main/hbasfp0.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/main/lmfa.s
+.PHONY : home/takao/ecalj/SRC/main/hbasfp0.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/main/lmfa.f90.s:
-	$(MAKE) -f CMakeFiles/lmfa.dir/build.make CMakeFiles/lmfa.dir/home/takao/temp/ecalj/SRC/main/lmfa.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/main/lmfa.f90.s
+home/takao/ecalj/SRC/main/hbasfp0.f90.s:
+	$(MAKE) -f CMakeFiles/hbasfp0.dir/build.make CMakeFiles/hbasfp0.dir/home/takao/ecalj/SRC/main/hbasfp0.f90.s
+.PHONY : home/takao/ecalj/SRC/main/hbasfp0.f90.s
 
-home/takao/temp/ecalj/SRC/main/lmfham1.o: home/takao/temp/ecalj/SRC/main/lmfham1.f90.o
+home/takao/ecalj/SRC/main/heftet.o: home/takao/ecalj/SRC/main/heftet.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/main/lmfham1.o
+.PHONY : home/takao/ecalj/SRC/main/heftet.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/main/lmfham1.f90.o:
-	$(MAKE) -f CMakeFiles/lmfham1.dir/build.make CMakeFiles/lmfham1.dir/home/takao/temp/ecalj/SRC/main/lmfham1.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/main/lmfham1.f90.o
+home/takao/ecalj/SRC/main/heftet.f90.o:
+	$(MAKE) -f CMakeFiles/heftet.dir/build.make CMakeFiles/heftet.dir/home/takao/ecalj/SRC/main/heftet.f90.o
+.PHONY : home/takao/ecalj/SRC/main/heftet.f90.o
 
-home/takao/temp/ecalj/SRC/main/lmfham1.i: home/takao/temp/ecalj/SRC/main/lmfham1.f90.i
+home/takao/ecalj/SRC/main/heftet.i: home/takao/ecalj/SRC/main/heftet.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/main/lmfham1.i
+.PHONY : home/takao/ecalj/SRC/main/heftet.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/main/lmfham1.f90.i:
-	$(MAKE) -f CMakeFiles/lmfham1.dir/build.make CMakeFiles/lmfham1.dir/home/takao/temp/ecalj/SRC/main/lmfham1.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/main/lmfham1.f90.i
+home/takao/ecalj/SRC/main/heftet.f90.i:
+	$(MAKE) -f CMakeFiles/heftet.dir/build.make CMakeFiles/heftet.dir/home/takao/ecalj/SRC/main/heftet.f90.i
+.PHONY : home/takao/ecalj/SRC/main/heftet.f90.i
 
-home/takao/temp/ecalj/SRC/main/lmfham1.s: home/takao/temp/ecalj/SRC/main/lmfham1.f90.s
+home/takao/ecalj/SRC/main/heftet.s: home/takao/ecalj/SRC/main/heftet.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/main/lmfham1.s
+.PHONY : home/takao/ecalj/SRC/main/heftet.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/main/lmfham1.f90.s:
-	$(MAKE) -f CMakeFiles/lmfham1.dir/build.make CMakeFiles/lmfham1.dir/home/takao/temp/ecalj/SRC/main/lmfham1.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/main/lmfham1.f90.s
+home/takao/ecalj/SRC/main/heftet.f90.s:
+	$(MAKE) -f CMakeFiles/heftet.dir/build.make CMakeFiles/heftet.dir/home/takao/ecalj/SRC/main/heftet.f90.s
+.PHONY : home/takao/ecalj/SRC/main/heftet.f90.s
 
-home/takao/temp/ecalj/SRC/main/lmfham2.o: home/takao/temp/ecalj/SRC/main/lmfham2.f90.o
+home/takao/ecalj/SRC/main/hmagnon.o: home/takao/ecalj/SRC/main/hmagnon.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/main/lmfham2.o
+.PHONY : home/takao/ecalj/SRC/main/hmagnon.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/main/lmfham2.f90.o:
-	$(MAKE) -f CMakeFiles/lmfham2.dir/build.make CMakeFiles/lmfham2.dir/home/takao/temp/ecalj/SRC/main/lmfham2.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/main/lmfham2.f90.o
+home/takao/ecalj/SRC/main/hmagnon.f90.o:
+	$(MAKE) -f CMakeFiles/hmagnon.dir/build.make CMakeFiles/hmagnon.dir/home/takao/ecalj/SRC/main/hmagnon.f90.o
+.PHONY : home/takao/ecalj/SRC/main/hmagnon.f90.o
 
-home/takao/temp/ecalj/SRC/main/lmfham2.i: home/takao/temp/ecalj/SRC/main/lmfham2.f90.i
+home/takao/ecalj/SRC/main/hmagnon.i: home/takao/ecalj/SRC/main/hmagnon.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/main/lmfham2.i
+.PHONY : home/takao/ecalj/SRC/main/hmagnon.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/main/lmfham2.f90.i:
-	$(MAKE) -f CMakeFiles/lmfham2.dir/build.make CMakeFiles/lmfham2.dir/home/takao/temp/ecalj/SRC/main/lmfham2.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/main/lmfham2.f90.i
+home/takao/ecalj/SRC/main/hmagnon.f90.i:
+	$(MAKE) -f CMakeFiles/hmagnon.dir/build.make CMakeFiles/hmagnon.dir/home/takao/ecalj/SRC/main/hmagnon.f90.i
+.PHONY : home/takao/ecalj/SRC/main/hmagnon.f90.i
 
-home/takao/temp/ecalj/SRC/main/lmfham2.s: home/takao/temp/ecalj/SRC/main/lmfham2.f90.s
+home/takao/ecalj/SRC/main/hmagnon.s: home/takao/ecalj/SRC/main/hmagnon.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/main/lmfham2.s
+.PHONY : home/takao/ecalj/SRC/main/hmagnon.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/main/lmfham2.f90.s:
-	$(MAKE) -f CMakeFiles/lmfham2.dir/build.make CMakeFiles/lmfham2.dir/home/takao/temp/ecalj/SRC/main/lmfham2.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/main/lmfham2.f90.s
+home/takao/ecalj/SRC/main/hmagnon.f90.s:
+	$(MAKE) -f CMakeFiles/hmagnon.dir/build.make CMakeFiles/hmagnon.dir/home/takao/ecalj/SRC/main/hmagnon.f90.s
+.PHONY : home/takao/ecalj/SRC/main/hmagnon.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/MPI_fpgw2.o: home/takao/temp/ecalj/SRC/subroutines/MPI_fpgw2.f90.o
+home/takao/ecalj/SRC/main/hmaxloc.o: home/takao/ecalj/SRC/main/hmaxloc.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/MPI_fpgw2.o
+.PHONY : home/takao/ecalj/SRC/main/hmaxloc.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/MPI_fpgw2.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/MPI_fpgw2.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/MPI_fpgw2.f90.o
+home/takao/ecalj/SRC/main/hmaxloc.f90.o:
+	$(MAKE) -f CMakeFiles/hmaxloc.dir/build.make CMakeFiles/hmaxloc.dir/home/takao/ecalj/SRC/main/hmaxloc.f90.o
+.PHONY : home/takao/ecalj/SRC/main/hmaxloc.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/MPI_fpgw2.i: home/takao/temp/ecalj/SRC/subroutines/MPI_fpgw2.f90.i
+home/takao/ecalj/SRC/main/hmaxloc.i: home/takao/ecalj/SRC/main/hmaxloc.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/MPI_fpgw2.i
+.PHONY : home/takao/ecalj/SRC/main/hmaxloc.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/MPI_fpgw2.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/MPI_fpgw2.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/MPI_fpgw2.f90.i
+home/takao/ecalj/SRC/main/hmaxloc.f90.i:
+	$(MAKE) -f CMakeFiles/hmaxloc.dir/build.make CMakeFiles/hmaxloc.dir/home/takao/ecalj/SRC/main/hmaxloc.f90.i
+.PHONY : home/takao/ecalj/SRC/main/hmaxloc.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/MPI_fpgw2.s: home/takao/temp/ecalj/SRC/subroutines/MPI_fpgw2.f90.s
+home/takao/ecalj/SRC/main/hmaxloc.s: home/takao/ecalj/SRC/main/hmaxloc.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/MPI_fpgw2.s
+.PHONY : home/takao/ecalj/SRC/main/hmaxloc.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/MPI_fpgw2.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/MPI_fpgw2.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/MPI_fpgw2.f90.s
+home/takao/ecalj/SRC/main/hmaxloc.f90.s:
+	$(MAKE) -f CMakeFiles/hmaxloc.dir/build.make CMakeFiles/hmaxloc.dir/home/takao/ecalj/SRC/main/hmaxloc.f90.s
+.PHONY : home/takao/ecalj/SRC/main/hmaxloc.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/atqval.o: home/takao/temp/ecalj/SRC/subroutines/atqval.f90.o
+home/takao/ecalj/SRC/main/hpsig_MPI.o: home/takao/ecalj/SRC/main/hpsig_MPI.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/atqval.o
+.PHONY : home/takao/ecalj/SRC/main/hpsig_MPI.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/atqval.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/atqval.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/atqval.f90.o
+home/takao/ecalj/SRC/main/hpsig_MPI.f90.o:
+	$(MAKE) -f CMakeFiles/hpsig_MPI.dir/build.make CMakeFiles/hpsig_MPI.dir/home/takao/ecalj/SRC/main/hpsig_MPI.f90.o
+.PHONY : home/takao/ecalj/SRC/main/hpsig_MPI.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/atqval.i: home/takao/temp/ecalj/SRC/subroutines/atqval.f90.i
+home/takao/ecalj/SRC/main/hpsig_MPI.i: home/takao/ecalj/SRC/main/hpsig_MPI.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/atqval.i
+.PHONY : home/takao/ecalj/SRC/main/hpsig_MPI.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/atqval.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/atqval.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/atqval.f90.i
+home/takao/ecalj/SRC/main/hpsig_MPI.f90.i:
+	$(MAKE) -f CMakeFiles/hpsig_MPI.dir/build.make CMakeFiles/hpsig_MPI.dir/home/takao/ecalj/SRC/main/hpsig_MPI.f90.i
+.PHONY : home/takao/ecalj/SRC/main/hpsig_MPI.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/atqval.s: home/takao/temp/ecalj/SRC/subroutines/atqval.f90.s
+home/takao/ecalj/SRC/main/hpsig_MPI.s: home/takao/ecalj/SRC/main/hpsig_MPI.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/atqval.s
+.PHONY : home/takao/ecalj/SRC/main/hpsig_MPI.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/atqval.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/atqval.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/atqval.f90.s
+home/takao/ecalj/SRC/main/hpsig_MPI.f90.s:
+	$(MAKE) -f CMakeFiles/hpsig_MPI.dir/build.make CMakeFiles/hpsig_MPI.dir/home/takao/ecalj/SRC/main/hpsig_MPI.f90.s
+.PHONY : home/takao/ecalj/SRC/main/hpsig_MPI.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/basnfp.o: home/takao/temp/ecalj/SRC/subroutines/basnfp.f90.o
+home/takao/ecalj/SRC/main/hqpe.o: home/takao/ecalj/SRC/main/hqpe.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/basnfp.o
+.PHONY : home/takao/ecalj/SRC/main/hqpe.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/basnfp.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/basnfp.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/basnfp.f90.o
+home/takao/ecalj/SRC/main/hqpe.f90.o:
+	$(MAKE) -f CMakeFiles/hqpe.dir/build.make CMakeFiles/hqpe.dir/home/takao/ecalj/SRC/main/hqpe.f90.o
+.PHONY : home/takao/ecalj/SRC/main/hqpe.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/basnfp.i: home/takao/temp/ecalj/SRC/subroutines/basnfp.f90.i
+home/takao/ecalj/SRC/main/hqpe.i: home/takao/ecalj/SRC/main/hqpe.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/basnfp.i
+.PHONY : home/takao/ecalj/SRC/main/hqpe.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/basnfp.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/basnfp.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/basnfp.f90.i
+home/takao/ecalj/SRC/main/hqpe.f90.i:
+	$(MAKE) -f CMakeFiles/hqpe.dir/build.make CMakeFiles/hqpe.dir/home/takao/ecalj/SRC/main/hqpe.f90.i
+.PHONY : home/takao/ecalj/SRC/main/hqpe.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/basnfp.s: home/takao/temp/ecalj/SRC/subroutines/basnfp.f90.s
+home/takao/ecalj/SRC/main/hqpe.s: home/takao/ecalj/SRC/main/hqpe.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/basnfp.s
+.PHONY : home/takao/ecalj/SRC/main/hqpe.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/basnfp.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/basnfp.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/basnfp.f90.s
+home/takao/ecalj/SRC/main/hqpe.f90.s:
+	$(MAKE) -f CMakeFiles/hqpe.dir/build.make CMakeFiles/hqpe.dir/home/takao/ecalj/SRC/main/hqpe.f90.s
+.PHONY : home/takao/ecalj/SRC/main/hqpe.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/besslr.o: home/takao/temp/ecalj/SRC/subroutines/besslr.f90.o
+home/takao/ecalj/SRC/main/hqpe_sc.o: home/takao/ecalj/SRC/main/hqpe_sc.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/besslr.o
+.PHONY : home/takao/ecalj/SRC/main/hqpe_sc.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/besslr.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/besslr.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/besslr.f90.o
+home/takao/ecalj/SRC/main/hqpe_sc.f90.o:
+	$(MAKE) -f CMakeFiles/hqpe_sc.dir/build.make CMakeFiles/hqpe_sc.dir/home/takao/ecalj/SRC/main/hqpe_sc.f90.o
+.PHONY : home/takao/ecalj/SRC/main/hqpe_sc.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/besslr.i: home/takao/temp/ecalj/SRC/subroutines/besslr.f90.i
+home/takao/ecalj/SRC/main/hqpe_sc.i: home/takao/ecalj/SRC/main/hqpe_sc.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/besslr.i
+.PHONY : home/takao/ecalj/SRC/main/hqpe_sc.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/besslr.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/besslr.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/besslr.f90.i
+home/takao/ecalj/SRC/main/hqpe_sc.f90.i:
+	$(MAKE) -f CMakeFiles/hqpe_sc.dir/build.make CMakeFiles/hqpe_sc.dir/home/takao/ecalj/SRC/main/hqpe_sc.f90.i
+.PHONY : home/takao/ecalj/SRC/main/hqpe_sc.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/besslr.s: home/takao/temp/ecalj/SRC/subroutines/besslr.f90.s
+home/takao/ecalj/SRC/main/hqpe_sc.s: home/takao/ecalj/SRC/main/hqpe_sc.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/besslr.s
+.PHONY : home/takao/ecalj/SRC/main/hqpe_sc.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/besslr.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/besslr.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/besslr.f90.s
+home/takao/ecalj/SRC/main/hqpe_sc.f90.s:
+	$(MAKE) -f CMakeFiles/hqpe_sc.dir/build.make CMakeFiles/hqpe_sc.dir/home/takao/ecalj/SRC/main/hqpe_sc.f90.s
+.PHONY : home/takao/ecalj/SRC/main/hqpe_sc.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/boltztrap.o: home/takao/temp/ecalj/SRC/subroutines/boltztrap.f90.o
+home/takao/ecalj/SRC/main/hrcxq.o: home/takao/ecalj/SRC/main/hrcxq.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/boltztrap.o
+.PHONY : home/takao/ecalj/SRC/main/hrcxq.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/boltztrap.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/boltztrap.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/boltztrap.f90.o
+home/takao/ecalj/SRC/main/hrcxq.f90.o:
+	$(MAKE) -f CMakeFiles/hrcxq.dir/build.make CMakeFiles/hrcxq.dir/home/takao/ecalj/SRC/main/hrcxq.f90.o
+.PHONY : home/takao/ecalj/SRC/main/hrcxq.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/boltztrap.i: home/takao/temp/ecalj/SRC/subroutines/boltztrap.f90.i
+home/takao/ecalj/SRC/main/hrcxq.i: home/takao/ecalj/SRC/main/hrcxq.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/boltztrap.i
+.PHONY : home/takao/ecalj/SRC/main/hrcxq.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/boltztrap.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/boltztrap.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/boltztrap.f90.i
+home/takao/ecalj/SRC/main/hrcxq.f90.i:
+	$(MAKE) -f CMakeFiles/hrcxq.dir/build.make CMakeFiles/hrcxq.dir/home/takao/ecalj/SRC/main/hrcxq.f90.i
+.PHONY : home/takao/ecalj/SRC/main/hrcxq.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/boltztrap.s: home/takao/temp/ecalj/SRC/subroutines/boltztrap.f90.s
+home/takao/ecalj/SRC/main/hrcxq.s: home/takao/ecalj/SRC/main/hrcxq.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/boltztrap.s
+.PHONY : home/takao/ecalj/SRC/main/hrcxq.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/boltztrap.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/boltztrap.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/boltztrap.f90.s
+home/takao/ecalj/SRC/main/hrcxq.f90.s:
+	$(MAKE) -f CMakeFiles/hrcxq.dir/build.make CMakeFiles/hrcxq.dir/home/takao/ecalj/SRC/main/hrcxq.f90.s
+.PHONY : home/takao/ecalj/SRC/main/hrcxq.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/bz.o: home/takao/temp/ecalj/SRC/subroutines/bz.f90.o
+home/takao/ecalj/SRC/main/hsfp0.o: home/takao/ecalj/SRC/main/hsfp0.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/bz.o
+.PHONY : home/takao/ecalj/SRC/main/hsfp0.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/bz.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/bz.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/bz.f90.o
+home/takao/ecalj/SRC/main/hsfp0.f90.o:
+	$(MAKE) -f CMakeFiles/hsfp0.dir/build.make CMakeFiles/hsfp0.dir/home/takao/ecalj/SRC/main/hsfp0.f90.o
+.PHONY : home/takao/ecalj/SRC/main/hsfp0.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/bz.i: home/takao/temp/ecalj/SRC/subroutines/bz.f90.i
+home/takao/ecalj/SRC/main/hsfp0.i: home/takao/ecalj/SRC/main/hsfp0.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/bz.i
+.PHONY : home/takao/ecalj/SRC/main/hsfp0.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/bz.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/bz.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/bz.f90.i
+home/takao/ecalj/SRC/main/hsfp0.f90.i:
+	$(MAKE) -f CMakeFiles/hsfp0.dir/build.make CMakeFiles/hsfp0.dir/home/takao/ecalj/SRC/main/hsfp0.f90.i
+.PHONY : home/takao/ecalj/SRC/main/hsfp0.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/bz.s: home/takao/temp/ecalj/SRC/subroutines/bz.f90.s
+home/takao/ecalj/SRC/main/hsfp0.s: home/takao/ecalj/SRC/main/hsfp0.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/bz.s
+.PHONY : home/takao/ecalj/SRC/main/hsfp0.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/bz.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/bz.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/bz.f90.s
+home/takao/ecalj/SRC/main/hsfp0.f90.s:
+	$(MAKE) -f CMakeFiles/hsfp0.dir/build.make CMakeFiles/hsfp0.dir/home/takao/ecalj/SRC/main/hsfp0.f90.s
+.PHONY : home/takao/ecalj/SRC/main/hsfp0.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/bzmesh.o: home/takao/temp/ecalj/SRC/subroutines/bzmesh.f90.o
+home/takao/ecalj/SRC/main/hsfp0_sc.o: home/takao/ecalj/SRC/main/hsfp0_sc.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/bzmesh.o
+.PHONY : home/takao/ecalj/SRC/main/hsfp0_sc.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/bzmesh.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/bzmesh.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/bzmesh.f90.o
+home/takao/ecalj/SRC/main/hsfp0_sc.f90.o:
+	$(MAKE) -f CMakeFiles/hsfp0_sc.dir/build.make CMakeFiles/hsfp0_sc.dir/home/takao/ecalj/SRC/main/hsfp0_sc.f90.o
+.PHONY : home/takao/ecalj/SRC/main/hsfp0_sc.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/bzmesh.i: home/takao/temp/ecalj/SRC/subroutines/bzmesh.f90.i
+home/takao/ecalj/SRC/main/hsfp0_sc.i: home/takao/ecalj/SRC/main/hsfp0_sc.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/bzmesh.i
+.PHONY : home/takao/ecalj/SRC/main/hsfp0_sc.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/bzmesh.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/bzmesh.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/bzmesh.f90.i
+home/takao/ecalj/SRC/main/hsfp0_sc.f90.i:
+	$(MAKE) -f CMakeFiles/hsfp0_sc.dir/build.make CMakeFiles/hsfp0_sc.dir/home/takao/ecalj/SRC/main/hsfp0_sc.f90.i
+.PHONY : home/takao/ecalj/SRC/main/hsfp0_sc.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/bzmesh.s: home/takao/temp/ecalj/SRC/subroutines/bzmesh.f90.s
+home/takao/ecalj/SRC/main/hsfp0_sc.s: home/takao/ecalj/SRC/main/hsfp0_sc.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/bzmesh.s
+.PHONY : home/takao/ecalj/SRC/main/hsfp0_sc.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/bzmesh.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/bzmesh.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/bzmesh.f90.s
+home/takao/ecalj/SRC/main/hsfp0_sc.f90.s:
+	$(MAKE) -f CMakeFiles/hsfp0_sc.dir/build.make CMakeFiles/hsfp0_sc.dir/home/takao/ecalj/SRC/main/hsfp0_sc.f90.s
+.PHONY : home/takao/ecalj/SRC/main/hsfp0_sc.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/chgmsh.o: home/takao/temp/ecalj/SRC/subroutines/chgmsh.f90.o
+home/takao/ecalj/SRC/main/hsocmat.o: home/takao/ecalj/SRC/main/hsocmat.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/chgmsh.o
+.PHONY : home/takao/ecalj/SRC/main/hsocmat.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/chgmsh.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/chgmsh.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/chgmsh.f90.o
+home/takao/ecalj/SRC/main/hsocmat.f90.o:
+	$(MAKE) -f CMakeFiles/hsocmat.dir/build.make CMakeFiles/hsocmat.dir/home/takao/ecalj/SRC/main/hsocmat.f90.o
+.PHONY : home/takao/ecalj/SRC/main/hsocmat.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/chgmsh.i: home/takao/temp/ecalj/SRC/subroutines/chgmsh.f90.i
+home/takao/ecalj/SRC/main/hsocmat.i: home/takao/ecalj/SRC/main/hsocmat.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/chgmsh.i
+.PHONY : home/takao/ecalj/SRC/main/hsocmat.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/chgmsh.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/chgmsh.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/chgmsh.f90.i
+home/takao/ecalj/SRC/main/hsocmat.f90.i:
+	$(MAKE) -f CMakeFiles/hsocmat.dir/build.make CMakeFiles/hsocmat.dir/home/takao/ecalj/SRC/main/hsocmat.f90.i
+.PHONY : home/takao/ecalj/SRC/main/hsocmat.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/chgmsh.s: home/takao/temp/ecalj/SRC/subroutines/chgmsh.f90.s
+home/takao/ecalj/SRC/main/hsocmat.s: home/takao/ecalj/SRC/main/hsocmat.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/chgmsh.s
+.PHONY : home/takao/ecalj/SRC/main/hsocmat.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/chgmsh.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/chgmsh.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/chgmsh.f90.s
+home/takao/ecalj/SRC/main/hsocmat.f90.s:
+	$(MAKE) -f CMakeFiles/hsocmat.dir/build.make CMakeFiles/hsocmat.dir/home/takao/ecalj/SRC/main/hsocmat.f90.s
+.PHONY : home/takao/ecalj/SRC/main/hsocmat.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/cputid.o: home/takao/temp/ecalj/SRC/subroutines/cputid.f90.o
+home/takao/ecalj/SRC/main/huumat_MPI.o: home/takao/ecalj/SRC/main/huumat_MPI.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/cputid.o
+.PHONY : home/takao/ecalj/SRC/main/huumat_MPI.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/cputid.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/cputid.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/cputid.f90.o
+home/takao/ecalj/SRC/main/huumat_MPI.f90.o:
+	$(MAKE) -f CMakeFiles/huumat_MPI.dir/build.make CMakeFiles/huumat_MPI.dir/home/takao/ecalj/SRC/main/huumat_MPI.f90.o
+.PHONY : home/takao/ecalj/SRC/main/huumat_MPI.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/cputid.i: home/takao/temp/ecalj/SRC/subroutines/cputid.f90.i
+home/takao/ecalj/SRC/main/huumat_MPI.i: home/takao/ecalj/SRC/main/huumat_MPI.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/cputid.i
+.PHONY : home/takao/ecalj/SRC/main/huumat_MPI.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/cputid.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/cputid.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/cputid.f90.i
+home/takao/ecalj/SRC/main/huumat_MPI.f90.i:
+	$(MAKE) -f CMakeFiles/huumat_MPI.dir/build.make CMakeFiles/huumat_MPI.dir/home/takao/ecalj/SRC/main/huumat_MPI.f90.i
+.PHONY : home/takao/ecalj/SRC/main/huumat_MPI.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/cputid.s: home/takao/temp/ecalj/SRC/subroutines/cputid.f90.s
+home/takao/ecalj/SRC/main/huumat_MPI.s: home/takao/ecalj/SRC/main/huumat_MPI.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/cputid.s
+.PHONY : home/takao/ecalj/SRC/main/huumat_MPI.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/cputid.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/cputid.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/cputid.f90.s
+home/takao/ecalj/SRC/main/huumat_MPI.f90.s:
+	$(MAKE) -f CMakeFiles/huumat_MPI.dir/build.make CMakeFiles/huumat_MPI.dir/home/takao/ecalj/SRC/main/huumat_MPI.f90.s
+.PHONY : home/takao/ecalj/SRC/main/huumat_MPI.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/defpq.o: home/takao/temp/ecalj/SRC/subroutines/defpq.f90.o
+home/takao/ecalj/SRC/main/hvccfp0.o: home/takao/ecalj/SRC/main/hvccfp0.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/defpq.o
+.PHONY : home/takao/ecalj/SRC/main/hvccfp0.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/defpq.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/defpq.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/defpq.f90.o
+home/takao/ecalj/SRC/main/hvccfp0.f90.o:
+	$(MAKE) -f CMakeFiles/hvccfp0.dir/build.make CMakeFiles/hvccfp0.dir/home/takao/ecalj/SRC/main/hvccfp0.f90.o
+.PHONY : home/takao/ecalj/SRC/main/hvccfp0.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/defpq.i: home/takao/temp/ecalj/SRC/subroutines/defpq.f90.i
+home/takao/ecalj/SRC/main/hvccfp0.i: home/takao/ecalj/SRC/main/hvccfp0.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/defpq.i
+.PHONY : home/takao/ecalj/SRC/main/hvccfp0.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/defpq.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/defpq.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/defpq.f90.i
+home/takao/ecalj/SRC/main/hvccfp0.f90.i:
+	$(MAKE) -f CMakeFiles/hvccfp0.dir/build.make CMakeFiles/hvccfp0.dir/home/takao/ecalj/SRC/main/hvccfp0.f90.i
+.PHONY : home/takao/ecalj/SRC/main/hvccfp0.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/defpq.s: home/takao/temp/ecalj/SRC/subroutines/defpq.f90.s
+home/takao/ecalj/SRC/main/hvccfp0.s: home/takao/ecalj/SRC/main/hvccfp0.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/defpq.s
+.PHONY : home/takao/ecalj/SRC/main/hvccfp0.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/defpq.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/defpq.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/defpq.f90.s
+home/takao/ecalj/SRC/main/hvccfp0.f90.s:
+	$(MAKE) -f CMakeFiles/hvccfp0.dir/build.make CMakeFiles/hvccfp0.dir/home/takao/ecalj/SRC/main/hvccfp0.f90.s
+.PHONY : home/takao/ecalj/SRC/main/hvccfp0.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/delstp.o: home/takao/temp/ecalj/SRC/subroutines/delstp.f90.o
+home/takao/ecalj/SRC/main/hwmatK_MPI.o: home/takao/ecalj/SRC/main/hwmatK_MPI.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/delstp.o
+.PHONY : home/takao/ecalj/SRC/main/hwmatK_MPI.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/delstp.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/delstp.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/delstp.f90.o
+home/takao/ecalj/SRC/main/hwmatK_MPI.f90.o:
+	$(MAKE) -f CMakeFiles/hwmatK_MPI.dir/build.make CMakeFiles/hwmatK_MPI.dir/home/takao/ecalj/SRC/main/hwmatK_MPI.f90.o
+.PHONY : home/takao/ecalj/SRC/main/hwmatK_MPI.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/delstp.i: home/takao/temp/ecalj/SRC/subroutines/delstp.f90.i
+home/takao/ecalj/SRC/main/hwmatK_MPI.i: home/takao/ecalj/SRC/main/hwmatK_MPI.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/delstp.i
+.PHONY : home/takao/ecalj/SRC/main/hwmatK_MPI.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/delstp.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/delstp.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/delstp.f90.i
+home/takao/ecalj/SRC/main/hwmatK_MPI.f90.i:
+	$(MAKE) -f CMakeFiles/hwmatK_MPI.dir/build.make CMakeFiles/hwmatK_MPI.dir/home/takao/ecalj/SRC/main/hwmatK_MPI.f90.i
+.PHONY : home/takao/ecalj/SRC/main/hwmatK_MPI.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/delstp.s: home/takao/temp/ecalj/SRC/subroutines/delstp.f90.s
+home/takao/ecalj/SRC/main/hwmatK_MPI.s: home/takao/ecalj/SRC/main/hwmatK_MPI.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/delstp.s
+.PHONY : home/takao/ecalj/SRC/main/hwmatK_MPI.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/delstp.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/delstp.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/delstp.f90.s
+home/takao/ecalj/SRC/main/hwmatK_MPI.f90.s:
+	$(MAKE) -f CMakeFiles/hwmatK_MPI.dir/build.make CMakeFiles/hwmatK_MPI.dir/home/takao/ecalj/SRC/main/hwmatK_MPI.f90.s
+.PHONY : home/takao/ecalj/SRC/main/hwmatK_MPI.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/dfrce.o: home/takao/temp/ecalj/SRC/subroutines/dfrce.f90.o
+home/takao/ecalj/SRC/main/hx0fp0.o: home/takao/ecalj/SRC/main/hx0fp0.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/dfrce.o
+.PHONY : home/takao/ecalj/SRC/main/hx0fp0.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/dfrce.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/dfrce.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/dfrce.f90.o
+home/takao/ecalj/SRC/main/hx0fp0.f90.o:
+	$(MAKE) -f CMakeFiles/hx0fp0.dir/build.make CMakeFiles/hx0fp0.dir/home/takao/ecalj/SRC/main/hx0fp0.f90.o
+.PHONY : home/takao/ecalj/SRC/main/hx0fp0.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/dfrce.i: home/takao/temp/ecalj/SRC/subroutines/dfrce.f90.i
+home/takao/ecalj/SRC/main/hx0fp0.i: home/takao/ecalj/SRC/main/hx0fp0.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/dfrce.i
+.PHONY : home/takao/ecalj/SRC/main/hx0fp0.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/dfrce.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/dfrce.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/dfrce.f90.i
+home/takao/ecalj/SRC/main/hx0fp0.f90.i:
+	$(MAKE) -f CMakeFiles/hx0fp0.dir/build.make CMakeFiles/hx0fp0.dir/home/takao/ecalj/SRC/main/hx0fp0.f90.i
+.PHONY : home/takao/ecalj/SRC/main/hx0fp0.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/dfrce.s: home/takao/temp/ecalj/SRC/subroutines/dfrce.f90.s
+home/takao/ecalj/SRC/main/hx0fp0.s: home/takao/ecalj/SRC/main/hx0fp0.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/dfrce.s
+.PHONY : home/takao/ecalj/SRC/main/hx0fp0.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/dfrce.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/dfrce.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/dfrce.f90.s
+home/takao/ecalj/SRC/main/hx0fp0.f90.s:
+	$(MAKE) -f CMakeFiles/hx0fp0.dir/build.make CMakeFiles/hx0fp0.dir/home/takao/ecalj/SRC/main/hx0fp0.f90.s
+.PHONY : home/takao/ecalj/SRC/main/hx0fp0.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/diagcv2.o: home/takao/temp/ecalj/SRC/subroutines/diagcv2.f90.o
+home/takao/ecalj/SRC/main/hx0init.o: home/takao/ecalj/SRC/main/hx0init.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/diagcv2.o
+.PHONY : home/takao/ecalj/SRC/main/hx0init.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/diagcv2.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/diagcv2.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/diagcv2.f90.o
+home/takao/ecalj/SRC/main/hx0init.f90.o:
+	$(MAKE) -f CMakeFiles/hx0init.dir/build.make CMakeFiles/hx0init.dir/home/takao/ecalj/SRC/main/hx0init.f90.o
+.PHONY : home/takao/ecalj/SRC/main/hx0init.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/diagcv2.i: home/takao/temp/ecalj/SRC/subroutines/diagcv2.f90.i
+home/takao/ecalj/SRC/main/hx0init.i: home/takao/ecalj/SRC/main/hx0init.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/diagcv2.i
+.PHONY : home/takao/ecalj/SRC/main/hx0init.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/diagcv2.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/diagcv2.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/diagcv2.f90.i
+home/takao/ecalj/SRC/main/hx0init.f90.i:
+	$(MAKE) -f CMakeFiles/hx0init.dir/build.make CMakeFiles/hx0init.dir/home/takao/ecalj/SRC/main/hx0init.f90.i
+.PHONY : home/takao/ecalj/SRC/main/hx0init.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/diagcv2.s: home/takao/temp/ecalj/SRC/subroutines/diagcv2.f90.s
+home/takao/ecalj/SRC/main/hx0init.s: home/takao/ecalj/SRC/main/hx0init.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/diagcv2.s
+.PHONY : home/takao/ecalj/SRC/main/hx0init.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/diagcv2.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/diagcv2.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/diagcv2.f90.s
+home/takao/ecalj/SRC/main/hx0init.f90.s:
+	$(MAKE) -f CMakeFiles/hx0init.dir/build.make CMakeFiles/hx0init.dir/home/takao/ecalj/SRC/main/hx0init.f90.s
+.PHONY : home/takao/ecalj/SRC/main/hx0init.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/dpsion5.o: home/takao/temp/ecalj/SRC/subroutines/dpsion5.f90.o
+home/takao/ecalj/SRC/main/lmchk.o: home/takao/ecalj/SRC/main/lmchk.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/dpsion5.o
+.PHONY : home/takao/ecalj/SRC/main/lmchk.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/dpsion5.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/dpsion5.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/dpsion5.f90.o
+home/takao/ecalj/SRC/main/lmchk.f90.o:
+	$(MAKE) -f CMakeFiles/lmchk.dir/build.make CMakeFiles/lmchk.dir/home/takao/ecalj/SRC/main/lmchk.f90.o
+.PHONY : home/takao/ecalj/SRC/main/lmchk.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/dpsion5.i: home/takao/temp/ecalj/SRC/subroutines/dpsion5.f90.i
+home/takao/ecalj/SRC/main/lmchk.i: home/takao/ecalj/SRC/main/lmchk.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/dpsion5.i
+.PHONY : home/takao/ecalj/SRC/main/lmchk.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/dpsion5.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/dpsion5.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/dpsion5.f90.i
+home/takao/ecalj/SRC/main/lmchk.f90.i:
+	$(MAKE) -f CMakeFiles/lmchk.dir/build.make CMakeFiles/lmchk.dir/home/takao/ecalj/SRC/main/lmchk.f90.i
+.PHONY : home/takao/ecalj/SRC/main/lmchk.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/dpsion5.s: home/takao/temp/ecalj/SRC/subroutines/dpsion5.f90.s
+home/takao/ecalj/SRC/main/lmchk.s: home/takao/ecalj/SRC/main/lmchk.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/dpsion5.s
+.PHONY : home/takao/ecalj/SRC/main/lmchk.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/dpsion5.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/dpsion5.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/dpsion5.f90.s
+home/takao/ecalj/SRC/main/lmchk.f90.s:
+	$(MAKE) -f CMakeFiles/lmchk.dir/build.make CMakeFiles/lmchk.dir/home/takao/ecalj/SRC/main/lmchk.f90.s
+.PHONY : home/takao/ecalj/SRC/main/lmchk.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/dstrbp.o: home/takao/temp/ecalj/SRC/subroutines/dstrbp.f90.o
+home/takao/ecalj/SRC/main/lmf.o: home/takao/ecalj/SRC/main/lmf.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/dstrbp.o
+.PHONY : home/takao/ecalj/SRC/main/lmf.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/dstrbp.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/dstrbp.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/dstrbp.f90.o
+home/takao/ecalj/SRC/main/lmf.f90.o:
+	$(MAKE) -f CMakeFiles/lmf.dir/build.make CMakeFiles/lmf.dir/home/takao/ecalj/SRC/main/lmf.f90.o
+.PHONY : home/takao/ecalj/SRC/main/lmf.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/dstrbp.i: home/takao/temp/ecalj/SRC/subroutines/dstrbp.f90.i
+home/takao/ecalj/SRC/main/lmf.i: home/takao/ecalj/SRC/main/lmf.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/dstrbp.i
+.PHONY : home/takao/ecalj/SRC/main/lmf.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/dstrbp.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/dstrbp.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/dstrbp.f90.i
+home/takao/ecalj/SRC/main/lmf.f90.i:
+	$(MAKE) -f CMakeFiles/lmf.dir/build.make CMakeFiles/lmf.dir/home/takao/ecalj/SRC/main/lmf.f90.i
+.PHONY : home/takao/ecalj/SRC/main/lmf.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/dstrbp.s: home/takao/temp/ecalj/SRC/subroutines/dstrbp.f90.s
+home/takao/ecalj/SRC/main/lmf.s: home/takao/ecalj/SRC/main/lmf.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/dstrbp.s
+.PHONY : home/takao/ecalj/SRC/main/lmf.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/dstrbp.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/dstrbp.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/dstrbp.f90.s
+home/takao/ecalj/SRC/main/lmf.f90.s:
+	$(MAKE) -f CMakeFiles/lmf.dir/build.make CMakeFiles/lmf.dir/home/takao/ecalj/SRC/main/lmf.f90.s
+.PHONY : home/takao/ecalj/SRC/main/lmf.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/efsimplef.o: home/takao/temp/ecalj/SRC/subroutines/efsimplef.f90.o
+home/takao/ecalj/SRC/main/lmfa.o: home/takao/ecalj/SRC/main/lmfa.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/efsimplef.o
+.PHONY : home/takao/ecalj/SRC/main/lmfa.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/efsimplef.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/efsimplef.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/efsimplef.f90.o
+home/takao/ecalj/SRC/main/lmfa.f90.o:
+	$(MAKE) -f CMakeFiles/lmfa.dir/build.make CMakeFiles/lmfa.dir/home/takao/ecalj/SRC/main/lmfa.f90.o
+.PHONY : home/takao/ecalj/SRC/main/lmfa.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/efsimplef.i: home/takao/temp/ecalj/SRC/subroutines/efsimplef.f90.i
+home/takao/ecalj/SRC/main/lmfa.i: home/takao/ecalj/SRC/main/lmfa.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/efsimplef.i
+.PHONY : home/takao/ecalj/SRC/main/lmfa.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/efsimplef.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/efsimplef.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/efsimplef.f90.i
+home/takao/ecalj/SRC/main/lmfa.f90.i:
+	$(MAKE) -f CMakeFiles/lmfa.dir/build.make CMakeFiles/lmfa.dir/home/takao/ecalj/SRC/main/lmfa.f90.i
+.PHONY : home/takao/ecalj/SRC/main/lmfa.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/efsimplef.s: home/takao/temp/ecalj/SRC/subroutines/efsimplef.f90.s
+home/takao/ecalj/SRC/main/lmfa.s: home/takao/ecalj/SRC/main/lmfa.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/efsimplef.s
+.PHONY : home/takao/ecalj/SRC/main/lmfa.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/efsimplef.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/efsimplef.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/efsimplef.f90.s
+home/takao/ecalj/SRC/main/lmfa.f90.s:
+	$(MAKE) -f CMakeFiles/lmfa.dir/build.make CMakeFiles/lmfa.dir/home/takao/ecalj/SRC/main/lmfa.f90.s
+.PHONY : home/takao/ecalj/SRC/main/lmfa.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/eibzgen.o: home/takao/temp/ecalj/SRC/subroutines/eibzgen.f90.o
+home/takao/ecalj/SRC/main/lmfham1.o: home/takao/ecalj/SRC/main/lmfham1.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/eibzgen.o
+.PHONY : home/takao/ecalj/SRC/main/lmfham1.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/eibzgen.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/eibzgen.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/eibzgen.f90.o
+home/takao/ecalj/SRC/main/lmfham1.f90.o:
+	$(MAKE) -f CMakeFiles/lmfham1.dir/build.make CMakeFiles/lmfham1.dir/home/takao/ecalj/SRC/main/lmfham1.f90.o
+.PHONY : home/takao/ecalj/SRC/main/lmfham1.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/eibzgen.i: home/takao/temp/ecalj/SRC/subroutines/eibzgen.f90.i
+home/takao/ecalj/SRC/main/lmfham1.i: home/takao/ecalj/SRC/main/lmfham1.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/eibzgen.i
+.PHONY : home/takao/ecalj/SRC/main/lmfham1.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/eibzgen.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/eibzgen.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/eibzgen.f90.i
+home/takao/ecalj/SRC/main/lmfham1.f90.i:
+	$(MAKE) -f CMakeFiles/lmfham1.dir/build.make CMakeFiles/lmfham1.dir/home/takao/ecalj/SRC/main/lmfham1.f90.i
+.PHONY : home/takao/ecalj/SRC/main/lmfham1.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/eibzgen.s: home/takao/temp/ecalj/SRC/subroutines/eibzgen.f90.s
+home/takao/ecalj/SRC/main/lmfham1.s: home/takao/ecalj/SRC/main/lmfham1.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/eibzgen.s
+.PHONY : home/takao/ecalj/SRC/main/lmfham1.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/eibzgen.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/eibzgen.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/eibzgen.f90.s
+home/takao/ecalj/SRC/main/lmfham1.f90.s:
+	$(MAKE) -f CMakeFiles/lmfham1.dir/build.make CMakeFiles/lmfham1.dir/home/takao/ecalj/SRC/main/lmfham1.f90.s
+.PHONY : home/takao/ecalj/SRC/main/lmfham1.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/elocp.o: home/takao/temp/ecalj/SRC/subroutines/elocp.f90.o
+home/takao/ecalj/SRC/main/lmfham2.o: home/takao/ecalj/SRC/main/lmfham2.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/elocp.o
+.PHONY : home/takao/ecalj/SRC/main/lmfham2.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/elocp.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/elocp.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/elocp.f90.o
+home/takao/ecalj/SRC/main/lmfham2.f90.o:
+	$(MAKE) -f CMakeFiles/lmfham2.dir/build.make CMakeFiles/lmfham2.dir/home/takao/ecalj/SRC/main/lmfham2.f90.o
+.PHONY : home/takao/ecalj/SRC/main/lmfham2.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/elocp.i: home/takao/temp/ecalj/SRC/subroutines/elocp.f90.i
+home/takao/ecalj/SRC/main/lmfham2.i: home/takao/ecalj/SRC/main/lmfham2.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/elocp.i
+.PHONY : home/takao/ecalj/SRC/main/lmfham2.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/elocp.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/elocp.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/elocp.f90.i
+home/takao/ecalj/SRC/main/lmfham2.f90.i:
+	$(MAKE) -f CMakeFiles/lmfham2.dir/build.make CMakeFiles/lmfham2.dir/home/takao/ecalj/SRC/main/lmfham2.f90.i
+.PHONY : home/takao/ecalj/SRC/main/lmfham2.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/elocp.s: home/takao/temp/ecalj/SRC/subroutines/elocp.f90.s
+home/takao/ecalj/SRC/main/lmfham2.s: home/takao/ecalj/SRC/main/lmfham2.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/elocp.s
+.PHONY : home/takao/ecalj/SRC/main/lmfham2.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/elocp.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/elocp.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/elocp.f90.s
+home/takao/ecalj/SRC/main/lmfham2.f90.s:
+	$(MAKE) -f CMakeFiles/lmfham2.dir/build.make CMakeFiles/lmfham2.dir/home/takao/ecalj/SRC/main/lmfham2.f90.s
+.PHONY : home/takao/ecalj/SRC/main/lmfham2.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/esmsmves.o: home/takao/temp/ecalj/SRC/subroutines/esmsmves.f90.o
+home/takao/ecalj/SRC/main/qg4gw.o: home/takao/ecalj/SRC/main/qg4gw.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/esmsmves.o
+.PHONY : home/takao/ecalj/SRC/main/qg4gw.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/esmsmves.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/esmsmves.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/esmsmves.f90.o
+home/takao/ecalj/SRC/main/qg4gw.f90.o:
+	$(MAKE) -f CMakeFiles/qg4gw.dir/build.make CMakeFiles/qg4gw.dir/home/takao/ecalj/SRC/main/qg4gw.f90.o
+.PHONY : home/takao/ecalj/SRC/main/qg4gw.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/esmsmves.i: home/takao/temp/ecalj/SRC/subroutines/esmsmves.f90.i
+home/takao/ecalj/SRC/main/qg4gw.i: home/takao/ecalj/SRC/main/qg4gw.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/esmsmves.i
+.PHONY : home/takao/ecalj/SRC/main/qg4gw.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/esmsmves.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/esmsmves.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/esmsmves.f90.i
+home/takao/ecalj/SRC/main/qg4gw.f90.i:
+	$(MAKE) -f CMakeFiles/qg4gw.dir/build.make CMakeFiles/qg4gw.dir/home/takao/ecalj/SRC/main/qg4gw.f90.i
+.PHONY : home/takao/ecalj/SRC/main/qg4gw.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/esmsmves.s: home/takao/temp/ecalj/SRC/subroutines/esmsmves.f90.s
+home/takao/ecalj/SRC/main/qg4gw.s: home/takao/ecalj/SRC/main/qg4gw.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/esmsmves.s
+.PHONY : home/takao/ecalj/SRC/main/qg4gw.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/esmsmves.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/esmsmves.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/esmsmves.f90.s
+home/takao/ecalj/SRC/main/qg4gw.f90.s:
+	$(MAKE) -f CMakeFiles/qg4gw.dir/build.make CMakeFiles/qg4gw.dir/home/takao/ecalj/SRC/main/qg4gw.f90.s
+.PHONY : home/takao/ecalj/SRC/main/qg4gw.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/excore.o: home/takao/temp/ecalj/SRC/subroutines/excore.f90.o
+home/takao/ecalj/SRC/main/rdata4gw_v2.o: home/takao/ecalj/SRC/main/rdata4gw_v2.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/excore.o
+.PHONY : home/takao/ecalj/SRC/main/rdata4gw_v2.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/excore.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/excore.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/excore.f90.o
+home/takao/ecalj/SRC/main/rdata4gw_v2.f90.o:
+	$(MAKE) -f CMakeFiles/rdata4gw_v2.dir/build.make CMakeFiles/rdata4gw_v2.dir/home/takao/ecalj/SRC/main/rdata4gw_v2.f90.o
+.PHONY : home/takao/ecalj/SRC/main/rdata4gw_v2.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/excore.i: home/takao/temp/ecalj/SRC/subroutines/excore.f90.i
+home/takao/ecalj/SRC/main/rdata4gw_v2.i: home/takao/ecalj/SRC/main/rdata4gw_v2.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/excore.i
+.PHONY : home/takao/ecalj/SRC/main/rdata4gw_v2.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/excore.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/excore.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/excore.f90.i
+home/takao/ecalj/SRC/main/rdata4gw_v2.f90.i:
+	$(MAKE) -f CMakeFiles/rdata4gw_v2.dir/build.make CMakeFiles/rdata4gw_v2.dir/home/takao/ecalj/SRC/main/rdata4gw_v2.f90.i
+.PHONY : home/takao/ecalj/SRC/main/rdata4gw_v2.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/excore.s: home/takao/temp/ecalj/SRC/subroutines/excore.f90.s
+home/takao/ecalj/SRC/main/rdata4gw_v2.s: home/takao/ecalj/SRC/main/rdata4gw_v2.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/excore.s
+.PHONY : home/takao/ecalj/SRC/main/rdata4gw_v2.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/excore.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/excore.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/excore.f90.s
+home/takao/ecalj/SRC/main/rdata4gw_v2.f90.s:
+	$(MAKE) -f CMakeFiles/rdata4gw_v2.dir/build.make CMakeFiles/rdata4gw_v2.dir/home/takao/ecalj/SRC/main/rdata4gw_v2.f90.s
+.PHONY : home/takao/ecalj/SRC/main/rdata4gw_v2.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/extension.o: home/takao/temp/ecalj/SRC/subroutines/extension.f90.o
+home/takao/ecalj/SRC/main/wanplot.o: home/takao/ecalj/SRC/main/wanplot.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/extension.o
+.PHONY : home/takao/ecalj/SRC/main/wanplot.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/extension.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/extension.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/extension.f90.o
+home/takao/ecalj/SRC/main/wanplot.f90.o:
+	$(MAKE) -f CMakeFiles/wanplot.dir/build.make CMakeFiles/wanplot.dir/home/takao/ecalj/SRC/main/wanplot.f90.o
+.PHONY : home/takao/ecalj/SRC/main/wanplot.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/extension.i: home/takao/temp/ecalj/SRC/subroutines/extension.f90.i
+home/takao/ecalj/SRC/main/wanplot.i: home/takao/ecalj/SRC/main/wanplot.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/extension.i
+.PHONY : home/takao/ecalj/SRC/main/wanplot.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/extension.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/extension.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/extension.f90.i
+home/takao/ecalj/SRC/main/wanplot.f90.i:
+	$(MAKE) -f CMakeFiles/wanplot.dir/build.make CMakeFiles/wanplot.dir/home/takao/ecalj/SRC/main/wanplot.f90.i
+.PHONY : home/takao/ecalj/SRC/main/wanplot.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/extension.s: home/takao/temp/ecalj/SRC/subroutines/extension.f90.s
+home/takao/ecalj/SRC/main/wanplot.s: home/takao/ecalj/SRC/main/wanplot.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/extension.s
+.PHONY : home/takao/ecalj/SRC/main/wanplot.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/extension.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/extension.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/extension.f90.s
+home/takao/ecalj/SRC/main/wanplot.f90.s:
+	$(MAKE) -f CMakeFiles/wanplot.dir/build.make CMakeFiles/wanplot.dir/home/takao/ecalj/SRC/main/wanplot.f90.s
+.PHONY : home/takao/ecalj/SRC/main/wanplot.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/fftz3.o: home/takao/temp/ecalj/SRC/subroutines/fftz3.f90.o
+home/takao/ecalj/SRC/subroutines/MPI_fpgw2.o: home/takao/ecalj/SRC/subroutines/MPI_fpgw2.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/fftz3.o
+.PHONY : home/takao/ecalj/SRC/subroutines/MPI_fpgw2.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/fftz3.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/fftz3.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/fftz3.f90.o
+home/takao/ecalj/SRC/subroutines/MPI_fpgw2.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/MPI_fpgw2.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/MPI_fpgw2.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/fftz3.i: home/takao/temp/ecalj/SRC/subroutines/fftz3.f90.i
+home/takao/ecalj/SRC/subroutines/MPI_fpgw2.i: home/takao/ecalj/SRC/subroutines/MPI_fpgw2.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/fftz3.i
+.PHONY : home/takao/ecalj/SRC/subroutines/MPI_fpgw2.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/fftz3.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/fftz3.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/fftz3.f90.i
+home/takao/ecalj/SRC/subroutines/MPI_fpgw2.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/MPI_fpgw2.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/MPI_fpgw2.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/fftz3.s: home/takao/temp/ecalj/SRC/subroutines/fftz3.f90.s
+home/takao/ecalj/SRC/subroutines/MPI_fpgw2.s: home/takao/ecalj/SRC/subroutines/MPI_fpgw2.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/fftz3.s
+.PHONY : home/takao/ecalj/SRC/subroutines/MPI_fpgw2.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/fftz3.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/fftz3.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/fftz3.f90.s
+home/takao/ecalj/SRC/subroutines/MPI_fpgw2.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/MPI_fpgw2.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/MPI_fpgw2.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/finits.o: home/takao/temp/ecalj/SRC/subroutines/finits.f90.o
+home/takao/ecalj/SRC/subroutines/atqval.o: home/takao/ecalj/SRC/subroutines/atqval.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/finits.o
+.PHONY : home/takao/ecalj/SRC/subroutines/atqval.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/finits.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/finits.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/finits.f90.o
+home/takao/ecalj/SRC/subroutines/atqval.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/atqval.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/atqval.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/finits.i: home/takao/temp/ecalj/SRC/subroutines/finits.f90.i
+home/takao/ecalj/SRC/subroutines/atqval.i: home/takao/ecalj/SRC/subroutines/atqval.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/finits.i
+.PHONY : home/takao/ecalj/SRC/subroutines/atqval.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/finits.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/finits.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/finits.f90.i
+home/takao/ecalj/SRC/subroutines/atqval.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/atqval.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/atqval.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/finits.s: home/takao/temp/ecalj/SRC/subroutines/finits.f90.s
+home/takao/ecalj/SRC/subroutines/atqval.s: home/takao/ecalj/SRC/subroutines/atqval.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/finits.s
+.PHONY : home/takao/ecalj/SRC/subroutines/atqval.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/finits.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/finits.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/finits.f90.s
+home/takao/ecalj/SRC/subroutines/atqval.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/atqval.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/atqval.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/fpiint.o: home/takao/temp/ecalj/SRC/subroutines/fpiint.f90.o
+home/takao/ecalj/SRC/subroutines/basnfp.o: home/takao/ecalj/SRC/subroutines/basnfp.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/fpiint.o
+.PHONY : home/takao/ecalj/SRC/subroutines/basnfp.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/fpiint.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/fpiint.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/fpiint.f90.o
+home/takao/ecalj/SRC/subroutines/basnfp.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/basnfp.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/basnfp.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/fpiint.i: home/takao/temp/ecalj/SRC/subroutines/fpiint.f90.i
+home/takao/ecalj/SRC/subroutines/basnfp.i: home/takao/ecalj/SRC/subroutines/basnfp.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/fpiint.i
+.PHONY : home/takao/ecalj/SRC/subroutines/basnfp.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/fpiint.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/fpiint.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/fpiint.f90.i
+home/takao/ecalj/SRC/subroutines/basnfp.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/basnfp.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/basnfp.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/fpiint.s: home/takao/temp/ecalj/SRC/subroutines/fpiint.f90.s
+home/takao/ecalj/SRC/subroutines/basnfp.s: home/takao/ecalj/SRC/subroutines/basnfp.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/fpiint.s
+.PHONY : home/takao/ecalj/SRC/subroutines/basnfp.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/fpiint.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/fpiint.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/fpiint.f90.s
+home/takao/ecalj/SRC/subroutines/basnfp.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/basnfp.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/basnfp.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/fradhd.o: home/takao/temp/ecalj/SRC/subroutines/fradhd.f90.o
+home/takao/ecalj/SRC/subroutines/besslr.o: home/takao/ecalj/SRC/subroutines/besslr.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/fradhd.o
+.PHONY : home/takao/ecalj/SRC/subroutines/besslr.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/fradhd.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/fradhd.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/fradhd.f90.o
+home/takao/ecalj/SRC/subroutines/besslr.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/besslr.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/besslr.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/fradhd.i: home/takao/temp/ecalj/SRC/subroutines/fradhd.f90.i
+home/takao/ecalj/SRC/subroutines/besslr.i: home/takao/ecalj/SRC/subroutines/besslr.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/fradhd.i
+.PHONY : home/takao/ecalj/SRC/subroutines/besslr.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/fradhd.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/fradhd.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/fradhd.f90.i
+home/takao/ecalj/SRC/subroutines/besslr.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/besslr.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/besslr.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/fradhd.s: home/takao/temp/ecalj/SRC/subroutines/fradhd.f90.s
+home/takao/ecalj/SRC/subroutines/besslr.s: home/takao/ecalj/SRC/subroutines/besslr.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/fradhd.s
+.PHONY : home/takao/ecalj/SRC/subroutines/besslr.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/fradhd.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/fradhd.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/fradhd.f90.s
+home/takao/ecalj/SRC/subroutines/besslr.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/besslr.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/besslr.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/fradpk.o: home/takao/temp/ecalj/SRC/subroutines/fradpk.f90.o
+home/takao/ecalj/SRC/subroutines/boltztrap.o: home/takao/ecalj/SRC/subroutines/boltztrap.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/fradpk.o
+.PHONY : home/takao/ecalj/SRC/subroutines/boltztrap.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/fradpk.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/fradpk.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/fradpk.f90.o
+home/takao/ecalj/SRC/subroutines/boltztrap.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/boltztrap.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/boltztrap.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/fradpk.i: home/takao/temp/ecalj/SRC/subroutines/fradpk.f90.i
+home/takao/ecalj/SRC/subroutines/boltztrap.i: home/takao/ecalj/SRC/subroutines/boltztrap.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/fradpk.i
+.PHONY : home/takao/ecalj/SRC/subroutines/boltztrap.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/fradpk.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/fradpk.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/fradpk.f90.i
+home/takao/ecalj/SRC/subroutines/boltztrap.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/boltztrap.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/boltztrap.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/fradpk.s: home/takao/temp/ecalj/SRC/subroutines/fradpk.f90.s
+home/takao/ecalj/SRC/subroutines/boltztrap.s: home/takao/ecalj/SRC/subroutines/boltztrap.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/fradpk.s
+.PHONY : home/takao/ecalj/SRC/subroutines/boltztrap.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/fradpk.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/fradpk.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/fradpk.f90.s
+home/takao/ecalj/SRC/subroutines/boltztrap.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/boltztrap.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/boltztrap.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/freeat.o: home/takao/temp/ecalj/SRC/subroutines/freeat.f90.o
+home/takao/ecalj/SRC/subroutines/bz.o: home/takao/ecalj/SRC/subroutines/bz.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/freeat.o
+.PHONY : home/takao/ecalj/SRC/subroutines/bz.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/freeat.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/freeat.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/freeat.f90.o
+home/takao/ecalj/SRC/subroutines/bz.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/bz.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/bz.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/freeat.i: home/takao/temp/ecalj/SRC/subroutines/freeat.f90.i
+home/takao/ecalj/SRC/subroutines/bz.i: home/takao/ecalj/SRC/subroutines/bz.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/freeat.i
+.PHONY : home/takao/ecalj/SRC/subroutines/bz.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/freeat.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/freeat.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/freeat.f90.i
+home/takao/ecalj/SRC/subroutines/bz.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/bz.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/bz.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/freeat.s: home/takao/temp/ecalj/SRC/subroutines/freeat.f90.s
+home/takao/ecalj/SRC/subroutines/bz.s: home/takao/ecalj/SRC/subroutines/bz.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/freeat.s
+.PHONY : home/takao/ecalj/SRC/subroutines/bz.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/freeat.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/freeat.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/freeat.f90.s
+home/takao/ecalj/SRC/subroutines/bz.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/bz.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/bz.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/gaugm.o: home/takao/temp/ecalj/SRC/subroutines/gaugm.f90.o
+home/takao/ecalj/SRC/subroutines/bzmesh.o: home/takao/ecalj/SRC/subroutines/bzmesh.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/gaugm.o
+.PHONY : home/takao/ecalj/SRC/subroutines/bzmesh.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/gaugm.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/gaugm.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/gaugm.f90.o
+home/takao/ecalj/SRC/subroutines/bzmesh.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/bzmesh.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/bzmesh.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/gaugm.i: home/takao/temp/ecalj/SRC/subroutines/gaugm.f90.i
+home/takao/ecalj/SRC/subroutines/bzmesh.i: home/takao/ecalj/SRC/subroutines/bzmesh.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/gaugm.i
+.PHONY : home/takao/ecalj/SRC/subroutines/bzmesh.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/gaugm.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/gaugm.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/gaugm.f90.i
+home/takao/ecalj/SRC/subroutines/bzmesh.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/bzmesh.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/bzmesh.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/gaugm.s: home/takao/temp/ecalj/SRC/subroutines/gaugm.f90.s
+home/takao/ecalj/SRC/subroutines/bzmesh.s: home/takao/ecalj/SRC/subroutines/bzmesh.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/gaugm.s
+.PHONY : home/takao/ecalj/SRC/subroutines/bzmesh.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/gaugm.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/gaugm.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/gaugm.f90.s
+home/takao/ecalj/SRC/subroutines/bzmesh.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/bzmesh.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/bzmesh.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/genallcf_mod.o: home/takao/temp/ecalj/SRC/subroutines/genallcf_mod.f90.o
+home/takao/ecalj/SRC/subroutines/chgmsh.o: home/takao/ecalj/SRC/subroutines/chgmsh.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/genallcf_mod.o
+.PHONY : home/takao/ecalj/SRC/subroutines/chgmsh.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/genallcf_mod.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/genallcf_mod.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/genallcf_mod.f90.o
+home/takao/ecalj/SRC/subroutines/chgmsh.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/chgmsh.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/chgmsh.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/genallcf_mod.i: home/takao/temp/ecalj/SRC/subroutines/genallcf_mod.f90.i
+home/takao/ecalj/SRC/subroutines/chgmsh.i: home/takao/ecalj/SRC/subroutines/chgmsh.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/genallcf_mod.i
+.PHONY : home/takao/ecalj/SRC/subroutines/chgmsh.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/genallcf_mod.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/genallcf_mod.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/genallcf_mod.f90.i
+home/takao/ecalj/SRC/subroutines/chgmsh.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/chgmsh.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/chgmsh.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/genallcf_mod.s: home/takao/temp/ecalj/SRC/subroutines/genallcf_mod.f90.s
+home/takao/ecalj/SRC/subroutines/chgmsh.s: home/takao/ecalj/SRC/subroutines/chgmsh.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/genallcf_mod.s
+.PHONY : home/takao/ecalj/SRC/subroutines/chgmsh.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/genallcf_mod.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/genallcf_mod.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/genallcf_mod.f90.s
+home/takao/ecalj/SRC/subroutines/chgmsh.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/chgmsh.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/chgmsh.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/getbzdata1.o: home/takao/temp/ecalj/SRC/subroutines/getbzdata1.f90.o
+home/takao/ecalj/SRC/subroutines/cputid.o: home/takao/ecalj/SRC/subroutines/cputid.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/getbzdata1.o
+.PHONY : home/takao/ecalj/SRC/subroutines/cputid.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/getbzdata1.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/getbzdata1.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/getbzdata1.f90.o
+home/takao/ecalj/SRC/subroutines/cputid.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/cputid.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/cputid.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/getbzdata1.i: home/takao/temp/ecalj/SRC/subroutines/getbzdata1.f90.i
+home/takao/ecalj/SRC/subroutines/cputid.i: home/takao/ecalj/SRC/subroutines/cputid.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/getbzdata1.i
+.PHONY : home/takao/ecalj/SRC/subroutines/cputid.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/getbzdata1.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/getbzdata1.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/getbzdata1.f90.i
+home/takao/ecalj/SRC/subroutines/cputid.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/cputid.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/cputid.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/getbzdata1.s: home/takao/temp/ecalj/SRC/subroutines/getbzdata1.f90.s
+home/takao/ecalj/SRC/subroutines/cputid.s: home/takao/ecalj/SRC/subroutines/cputid.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/getbzdata1.s
+.PHONY : home/takao/ecalj/SRC/subroutines/cputid.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/getbzdata1.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/getbzdata1.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/getbzdata1.f90.s
+home/takao/ecalj/SRC/subroutines/cputid.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/cputid.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/cputid.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/getgv2.o: home/takao/temp/ecalj/SRC/subroutines/getgv2.f90.o
+home/takao/ecalj/SRC/subroutines/defpq.o: home/takao/ecalj/SRC/subroutines/defpq.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/getgv2.o
+.PHONY : home/takao/ecalj/SRC/subroutines/defpq.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/getgv2.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/getgv2.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/getgv2.f90.o
+home/takao/ecalj/SRC/subroutines/defpq.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/defpq.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/defpq.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/getgv2.i: home/takao/temp/ecalj/SRC/subroutines/getgv2.f90.i
+home/takao/ecalj/SRC/subroutines/defpq.i: home/takao/ecalj/SRC/subroutines/defpq.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/getgv2.i
+.PHONY : home/takao/ecalj/SRC/subroutines/defpq.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/getgv2.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/getgv2.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/getgv2.f90.i
+home/takao/ecalj/SRC/subroutines/defpq.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/defpq.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/defpq.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/getgv2.s: home/takao/temp/ecalj/SRC/subroutines/getgv2.f90.s
+home/takao/ecalj/SRC/subroutines/defpq.s: home/takao/ecalj/SRC/subroutines/defpq.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/getgv2.s
+.PHONY : home/takao/ecalj/SRC/subroutines/defpq.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/getgv2.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/getgv2.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/getgv2.f90.s
+home/takao/ecalj/SRC/subroutines/defpq.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/defpq.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/defpq.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/getq.o: home/takao/temp/ecalj/SRC/subroutines/getq.f90.o
+home/takao/ecalj/SRC/subroutines/delstp.o: home/takao/ecalj/SRC/subroutines/delstp.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/getq.o
+.PHONY : home/takao/ecalj/SRC/subroutines/delstp.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/getq.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/getq.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/getq.f90.o
+home/takao/ecalj/SRC/subroutines/delstp.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/delstp.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/delstp.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/getq.i: home/takao/temp/ecalj/SRC/subroutines/getq.f90.i
+home/takao/ecalj/SRC/subroutines/delstp.i: home/takao/ecalj/SRC/subroutines/delstp.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/getq.i
+.PHONY : home/takao/ecalj/SRC/subroutines/delstp.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/getq.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/getq.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/getq.f90.i
+home/takao/ecalj/SRC/subroutines/delstp.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/delstp.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/delstp.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/getq.s: home/takao/temp/ecalj/SRC/subroutines/getq.f90.s
+home/takao/ecalj/SRC/subroutines/delstp.s: home/takao/ecalj/SRC/subroutines/delstp.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/getq.s
+.PHONY : home/takao/ecalj/SRC/subroutines/delstp.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/getq.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/getq.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/getq.f90.s
+home/takao/ecalj/SRC/subroutines/delstp.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/delstp.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/delstp.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/getqmode.o: home/takao/temp/ecalj/SRC/subroutines/getqmode.f90.o
+home/takao/ecalj/SRC/subroutines/dfrce.o: home/takao/ecalj/SRC/subroutines/dfrce.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/getqmode.o
+.PHONY : home/takao/ecalj/SRC/subroutines/dfrce.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/getqmode.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/getqmode.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/getqmode.f90.o
+home/takao/ecalj/SRC/subroutines/dfrce.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/dfrce.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/dfrce.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/getqmode.i: home/takao/temp/ecalj/SRC/subroutines/getqmode.f90.i
+home/takao/ecalj/SRC/subroutines/dfrce.i: home/takao/ecalj/SRC/subroutines/dfrce.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/getqmode.i
+.PHONY : home/takao/ecalj/SRC/subroutines/dfrce.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/getqmode.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/getqmode.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/getqmode.f90.i
+home/takao/ecalj/SRC/subroutines/dfrce.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/dfrce.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/dfrce.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/getqmode.s: home/takao/temp/ecalj/SRC/subroutines/getqmode.f90.s
+home/takao/ecalj/SRC/subroutines/dfrce.s: home/takao/ecalj/SRC/subroutines/dfrce.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/getqmode.s
+.PHONY : home/takao/ecalj/SRC/subroutines/dfrce.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/getqmode.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/getqmode.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/getqmode.f90.s
+home/takao/ecalj/SRC/subroutines/dfrce.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/dfrce.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/dfrce.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/gintxx.o: home/takao/temp/ecalj/SRC/subroutines/gintxx.f90.o
+home/takao/ecalj/SRC/subroutines/diagcv2.o: home/takao/ecalj/SRC/subroutines/diagcv2.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/gintxx.o
+.PHONY : home/takao/ecalj/SRC/subroutines/diagcv2.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/gintxx.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/gintxx.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/gintxx.f90.o
+home/takao/ecalj/SRC/subroutines/diagcv2.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/diagcv2.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/diagcv2.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/gintxx.i: home/takao/temp/ecalj/SRC/subroutines/gintxx.f90.i
+home/takao/ecalj/SRC/subroutines/diagcv2.i: home/takao/ecalj/SRC/subroutines/diagcv2.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/gintxx.i
+.PHONY : home/takao/ecalj/SRC/subroutines/diagcv2.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/gintxx.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/gintxx.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/gintxx.f90.i
+home/takao/ecalj/SRC/subroutines/diagcv2.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/diagcv2.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/diagcv2.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/gintxx.s: home/takao/temp/ecalj/SRC/subroutines/gintxx.f90.s
+home/takao/ecalj/SRC/subroutines/diagcv2.s: home/takao/ecalj/SRC/subroutines/diagcv2.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/gintxx.s
+.PHONY : home/takao/ecalj/SRC/subroutines/diagcv2.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/gintxx.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/gintxx.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/gintxx.f90.s
+home/takao/ecalj/SRC/subroutines/diagcv2.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/diagcv2.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/diagcv2.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/gtbsl1.o: home/takao/temp/ecalj/SRC/subroutines/gtbsl1.f90.o
+home/takao/ecalj/SRC/subroutines/dpsion5.o: home/takao/ecalj/SRC/subroutines/dpsion5.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/gtbsl1.o
+.PHONY : home/takao/ecalj/SRC/subroutines/dpsion5.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/gtbsl1.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/gtbsl1.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/gtbsl1.f90.o
+home/takao/ecalj/SRC/subroutines/dpsion5.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/dpsion5.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/dpsion5.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/gtbsl1.i: home/takao/temp/ecalj/SRC/subroutines/gtbsl1.f90.i
+home/takao/ecalj/SRC/subroutines/dpsion5.i: home/takao/ecalj/SRC/subroutines/dpsion5.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/gtbsl1.i
+.PHONY : home/takao/ecalj/SRC/subroutines/dpsion5.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/gtbsl1.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/gtbsl1.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/gtbsl1.f90.i
+home/takao/ecalj/SRC/subroutines/dpsion5.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/dpsion5.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/dpsion5.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/gtbsl1.s: home/takao/temp/ecalj/SRC/subroutines/gtbsl1.f90.s
+home/takao/ecalj/SRC/subroutines/dpsion5.s: home/takao/ecalj/SRC/subroutines/dpsion5.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/gtbsl1.s
+.PHONY : home/takao/ecalj/SRC/subroutines/dpsion5.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/gtbsl1.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/gtbsl1.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/gtbsl1.f90.s
+home/takao/ecalj/SRC/subroutines/dpsion5.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/dpsion5.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/dpsion5.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/gtpcor.o: home/takao/temp/ecalj/SRC/subroutines/gtpcor.f90.o
+home/takao/ecalj/SRC/subroutines/dstrbp.o: home/takao/ecalj/SRC/subroutines/dstrbp.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/gtpcor.o
+.PHONY : home/takao/ecalj/SRC/subroutines/dstrbp.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/gtpcor.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/gtpcor.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/gtpcor.f90.o
+home/takao/ecalj/SRC/subroutines/dstrbp.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/dstrbp.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/dstrbp.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/gtpcor.i: home/takao/temp/ecalj/SRC/subroutines/gtpcor.f90.i
+home/takao/ecalj/SRC/subroutines/dstrbp.i: home/takao/ecalj/SRC/subroutines/dstrbp.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/gtpcor.i
+.PHONY : home/takao/ecalj/SRC/subroutines/dstrbp.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/gtpcor.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/gtpcor.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/gtpcor.f90.i
+home/takao/ecalj/SRC/subroutines/dstrbp.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/dstrbp.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/dstrbp.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/gtpcor.s: home/takao/temp/ecalj/SRC/subroutines/gtpcor.f90.s
+home/takao/ecalj/SRC/subroutines/dstrbp.s: home/takao/ecalj/SRC/subroutines/dstrbp.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/gtpcor.s
+.PHONY : home/takao/ecalj/SRC/subroutines/dstrbp.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/gtpcor.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/gtpcor.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/gtpcor.f90.s
+home/takao/ecalj/SRC/subroutines/dstrbp.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/dstrbp.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/dstrbp.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/hambl.o: home/takao/temp/ecalj/SRC/subroutines/hambl.f90.o
+home/takao/ecalj/SRC/subroutines/efsimplef.o: home/takao/ecalj/SRC/subroutines/efsimplef.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/hambl.o
+.PHONY : home/takao/ecalj/SRC/subroutines/efsimplef.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/hambl.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/hambl.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/hambl.f90.o
+home/takao/ecalj/SRC/subroutines/efsimplef.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/efsimplef.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/efsimplef.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/hambl.i: home/takao/temp/ecalj/SRC/subroutines/hambl.f90.i
+home/takao/ecalj/SRC/subroutines/efsimplef.i: home/takao/ecalj/SRC/subroutines/efsimplef.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/hambl.i
+.PHONY : home/takao/ecalj/SRC/subroutines/efsimplef.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/hambl.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/hambl.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/hambl.f90.i
+home/takao/ecalj/SRC/subroutines/efsimplef.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/efsimplef.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/efsimplef.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/hambl.s: home/takao/temp/ecalj/SRC/subroutines/hambl.f90.s
+home/takao/ecalj/SRC/subroutines/efsimplef.s: home/takao/ecalj/SRC/subroutines/efsimplef.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/hambl.s
+.PHONY : home/takao/ecalj/SRC/subroutines/efsimplef.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/hambl.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/hambl.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/hambl.f90.s
+home/takao/ecalj/SRC/subroutines/efsimplef.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/efsimplef.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/efsimplef.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/hilbertmat.o: home/takao/temp/ecalj/SRC/subroutines/hilbertmat.f90.o
+home/takao/ecalj/SRC/subroutines/eibzgen.o: home/takao/ecalj/SRC/subroutines/eibzgen.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/hilbertmat.o
+.PHONY : home/takao/ecalj/SRC/subroutines/eibzgen.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/hilbertmat.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/hilbertmat.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/hilbertmat.f90.o
+home/takao/ecalj/SRC/subroutines/eibzgen.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/eibzgen.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/eibzgen.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/hilbertmat.i: home/takao/temp/ecalj/SRC/subroutines/hilbertmat.f90.i
+home/takao/ecalj/SRC/subroutines/eibzgen.i: home/takao/ecalj/SRC/subroutines/eibzgen.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/hilbertmat.i
+.PHONY : home/takao/ecalj/SRC/subroutines/eibzgen.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/hilbertmat.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/hilbertmat.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/hilbertmat.f90.i
+home/takao/ecalj/SRC/subroutines/eibzgen.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/eibzgen.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/eibzgen.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/hilbertmat.s: home/takao/temp/ecalj/SRC/subroutines/hilbertmat.f90.s
+home/takao/ecalj/SRC/subroutines/eibzgen.s: home/takao/ecalj/SRC/subroutines/eibzgen.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/hilbertmat.s
+.PHONY : home/takao/ecalj/SRC/subroutines/eibzgen.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/hilbertmat.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/hilbertmat.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/hilbertmat.f90.s
+home/takao/ecalj/SRC/subroutines/eibzgen.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/eibzgen.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/eibzgen.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/hklft.o: home/takao/temp/ecalj/SRC/subroutines/hklft.f90.o
+home/takao/ecalj/SRC/subroutines/elocp.o: home/takao/ecalj/SRC/subroutines/elocp.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/hklft.o
+.PHONY : home/takao/ecalj/SRC/subroutines/elocp.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/hklft.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/hklft.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/hklft.f90.o
+home/takao/ecalj/SRC/subroutines/elocp.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/elocp.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/elocp.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/hklft.i: home/takao/temp/ecalj/SRC/subroutines/hklft.f90.i
+home/takao/ecalj/SRC/subroutines/elocp.i: home/takao/ecalj/SRC/subroutines/elocp.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/hklft.i
+.PHONY : home/takao/ecalj/SRC/subroutines/elocp.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/hklft.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/hklft.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/hklft.f90.i
+home/takao/ecalj/SRC/subroutines/elocp.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/elocp.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/elocp.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/hklft.s: home/takao/temp/ecalj/SRC/subroutines/hklft.f90.s
+home/takao/ecalj/SRC/subroutines/elocp.s: home/takao/ecalj/SRC/subroutines/elocp.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/hklft.s
+.PHONY : home/takao/ecalj/SRC/subroutines/elocp.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/hklft.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/hklft.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/hklft.f90.s
+home/takao/ecalj/SRC/subroutines/elocp.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/elocp.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/elocp.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/hsibl.o: home/takao/temp/ecalj/SRC/subroutines/hsibl.f90.o
+home/takao/ecalj/SRC/subroutines/esmsmves.o: home/takao/ecalj/SRC/subroutines/esmsmves.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/hsibl.o
+.PHONY : home/takao/ecalj/SRC/subroutines/esmsmves.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/hsibl.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/hsibl.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/hsibl.f90.o
+home/takao/ecalj/SRC/subroutines/esmsmves.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/esmsmves.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/esmsmves.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/hsibl.i: home/takao/temp/ecalj/SRC/subroutines/hsibl.f90.i
+home/takao/ecalj/SRC/subroutines/esmsmves.i: home/takao/ecalj/SRC/subroutines/esmsmves.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/hsibl.i
+.PHONY : home/takao/ecalj/SRC/subroutines/esmsmves.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/hsibl.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/hsibl.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/hsibl.f90.i
+home/takao/ecalj/SRC/subroutines/esmsmves.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/esmsmves.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/esmsmves.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/hsibl.s: home/takao/temp/ecalj/SRC/subroutines/hsibl.f90.s
+home/takao/ecalj/SRC/subroutines/esmsmves.s: home/takao/ecalj/SRC/subroutines/esmsmves.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/hsibl.s
+.PHONY : home/takao/ecalj/SRC/subroutines/esmsmves.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/hsibl.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/hsibl.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/hsibl.f90.s
+home/takao/ecalj/SRC/subroutines/esmsmves.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/esmsmves.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/esmsmves.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/hsmq.o: home/takao/temp/ecalj/SRC/subroutines/hsmq.f90.o
+home/takao/ecalj/SRC/subroutines/excore.o: home/takao/ecalj/SRC/subroutines/excore.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/hsmq.o
+.PHONY : home/takao/ecalj/SRC/subroutines/excore.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/hsmq.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/hsmq.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/hsmq.f90.o
+home/takao/ecalj/SRC/subroutines/excore.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/excore.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/excore.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/hsmq.i: home/takao/temp/ecalj/SRC/subroutines/hsmq.f90.i
+home/takao/ecalj/SRC/subroutines/excore.i: home/takao/ecalj/SRC/subroutines/excore.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/hsmq.i
+.PHONY : home/takao/ecalj/SRC/subroutines/excore.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/hsmq.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/hsmq.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/hsmq.f90.i
+home/takao/ecalj/SRC/subroutines/excore.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/excore.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/excore.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/hsmq.s: home/takao/temp/ecalj/SRC/subroutines/hsmq.f90.s
+home/takao/ecalj/SRC/subroutines/excore.s: home/takao/ecalj/SRC/subroutines/excore.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/hsmq.s
+.PHONY : home/takao/ecalj/SRC/subroutines/excore.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/hsmq.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/hsmq.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/hsmq.f90.s
+home/takao/ecalj/SRC/subroutines/excore.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/excore.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/excore.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/huntx.o: home/takao/temp/ecalj/SRC/subroutines/huntx.f90.o
+home/takao/ecalj/SRC/subroutines/extension.o: home/takao/ecalj/SRC/subroutines/extension.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/huntx.o
+.PHONY : home/takao/ecalj/SRC/subroutines/extension.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/huntx.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/huntx.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/huntx.f90.o
+home/takao/ecalj/SRC/subroutines/extension.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/extension.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/extension.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/huntx.i: home/takao/temp/ecalj/SRC/subroutines/huntx.f90.i
+home/takao/ecalj/SRC/subroutines/extension.i: home/takao/ecalj/SRC/subroutines/extension.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/huntx.i
+.PHONY : home/takao/ecalj/SRC/subroutines/extension.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/huntx.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/huntx.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/huntx.f90.i
+home/takao/ecalj/SRC/subroutines/extension.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/extension.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/extension.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/huntx.s: home/takao/temp/ecalj/SRC/subroutines/huntx.f90.s
+home/takao/ecalj/SRC/subroutines/extension.s: home/takao/ecalj/SRC/subroutines/extension.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/huntx.s
+.PHONY : home/takao/ecalj/SRC/subroutines/extension.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/huntx.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/huntx.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/huntx.f90.s
+home/takao/ecalj/SRC/subroutines/extension.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/extension.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/extension.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/iofa.o: home/takao/temp/ecalj/SRC/subroutines/iofa.f90.o
+home/takao/ecalj/SRC/subroutines/fftz3.o: home/takao/ecalj/SRC/subroutines/fftz3.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/iofa.o
+.PHONY : home/takao/ecalj/SRC/subroutines/fftz3.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/iofa.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/iofa.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/iofa.f90.o
+home/takao/ecalj/SRC/subroutines/fftz3.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/fftz3.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/fftz3.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/iofa.i: home/takao/temp/ecalj/SRC/subroutines/iofa.f90.i
+home/takao/ecalj/SRC/subroutines/fftz3.i: home/takao/ecalj/SRC/subroutines/fftz3.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/iofa.i
+.PHONY : home/takao/ecalj/SRC/subroutines/fftz3.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/iofa.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/iofa.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/iofa.f90.i
+home/takao/ecalj/SRC/subroutines/fftz3.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/fftz3.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/fftz3.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/iofa.s: home/takao/temp/ecalj/SRC/subroutines/iofa.f90.s
+home/takao/ecalj/SRC/subroutines/fftz3.s: home/takao/ecalj/SRC/subroutines/fftz3.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/iofa.s
+.PHONY : home/takao/ecalj/SRC/subroutines/fftz3.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/iofa.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/iofa.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/iofa.f90.s
+home/takao/ecalj/SRC/subroutines/fftz3.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/fftz3.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/fftz3.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/iors.o: home/takao/temp/ecalj/SRC/subroutines/iors.f90.o
+home/takao/ecalj/SRC/subroutines/finits.o: home/takao/ecalj/SRC/subroutines/finits.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/iors.o
+.PHONY : home/takao/ecalj/SRC/subroutines/finits.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/iors.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/iors.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/iors.f90.o
+home/takao/ecalj/SRC/subroutines/finits.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/finits.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/finits.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/iors.i: home/takao/temp/ecalj/SRC/subroutines/iors.f90.i
+home/takao/ecalj/SRC/subroutines/finits.i: home/takao/ecalj/SRC/subroutines/finits.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/iors.i
+.PHONY : home/takao/ecalj/SRC/subroutines/finits.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/iors.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/iors.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/iors.f90.i
+home/takao/ecalj/SRC/subroutines/finits.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/finits.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/finits.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/iors.s: home/takao/temp/ecalj/SRC/subroutines/iors.f90.s
+home/takao/ecalj/SRC/subroutines/finits.s: home/takao/ecalj/SRC/subroutines/finits.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/iors.s
+.PHONY : home/takao/ecalj/SRC/subroutines/finits.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/iors.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/iors.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/iors.f90.s
+home/takao/ecalj/SRC/subroutines/finits.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/finits.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/finits.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/iors_old.o: home/takao/temp/ecalj/SRC/subroutines/iors_old.f90.o
+home/takao/ecalj/SRC/subroutines/fpiint.o: home/takao/ecalj/SRC/subroutines/fpiint.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/iors_old.o
+.PHONY : home/takao/ecalj/SRC/subroutines/fpiint.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/iors_old.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/iors_old.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/iors_old.f90.o
+home/takao/ecalj/SRC/subroutines/fpiint.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/fpiint.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/fpiint.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/iors_old.i: home/takao/temp/ecalj/SRC/subroutines/iors_old.f90.i
+home/takao/ecalj/SRC/subroutines/fpiint.i: home/takao/ecalj/SRC/subroutines/fpiint.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/iors_old.i
+.PHONY : home/takao/ecalj/SRC/subroutines/fpiint.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/iors_old.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/iors_old.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/iors_old.f90.i
+home/takao/ecalj/SRC/subroutines/fpiint.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/fpiint.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/fpiint.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/iors_old.s: home/takao/temp/ecalj/SRC/subroutines/iors_old.f90.s
+home/takao/ecalj/SRC/subroutines/fpiint.s: home/takao/ecalj/SRC/subroutines/fpiint.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/iors_old.s
+.PHONY : home/takao/ecalj/SRC/subroutines/fpiint.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/iors_old.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/iors_old.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/iors_old.f90.s
+home/takao/ecalj/SRC/subroutines/fpiint.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/fpiint.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/fpiint.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/iprint.o: home/takao/temp/ecalj/SRC/subroutines/iprint.f90.o
+home/takao/ecalj/SRC/subroutines/fradhd.o: home/takao/ecalj/SRC/subroutines/fradhd.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/iprint.o
+.PHONY : home/takao/ecalj/SRC/subroutines/fradhd.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/iprint.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/iprint.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/iprint.f90.o
+home/takao/ecalj/SRC/subroutines/fradhd.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/fradhd.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/fradhd.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/iprint.i: home/takao/temp/ecalj/SRC/subroutines/iprint.f90.i
+home/takao/ecalj/SRC/subroutines/fradhd.i: home/takao/ecalj/SRC/subroutines/fradhd.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/iprint.i
+.PHONY : home/takao/ecalj/SRC/subroutines/fradhd.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/iprint.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/iprint.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/iprint.f90.i
+home/takao/ecalj/SRC/subroutines/fradhd.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/fradhd.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/fradhd.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/iprint.s: home/takao/temp/ecalj/SRC/subroutines/iprint.f90.s
+home/takao/ecalj/SRC/subroutines/fradhd.s: home/takao/ecalj/SRC/subroutines/fradhd.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/iprint.s
+.PHONY : home/takao/ecalj/SRC/subroutines/fradhd.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/iprint.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/iprint.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/iprint.f90.s
+home/takao/ecalj/SRC/subroutines/fradhd.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/fradhd.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/fradhd.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/iqindx.o: home/takao/temp/ecalj/SRC/subroutines/iqindx.f90.o
+home/takao/ecalj/SRC/subroutines/fradpk.o: home/takao/ecalj/SRC/subroutines/fradpk.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/iqindx.o
+.PHONY : home/takao/ecalj/SRC/subroutines/fradpk.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/iqindx.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/iqindx.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/iqindx.f90.o
+home/takao/ecalj/SRC/subroutines/fradpk.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/fradpk.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/fradpk.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/iqindx.i: home/takao/temp/ecalj/SRC/subroutines/iqindx.f90.i
+home/takao/ecalj/SRC/subroutines/fradpk.i: home/takao/ecalj/SRC/subroutines/fradpk.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/iqindx.i
+.PHONY : home/takao/ecalj/SRC/subroutines/fradpk.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/iqindx.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/iqindx.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/iqindx.f90.i
+home/takao/ecalj/SRC/subroutines/fradpk.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/fradpk.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/fradpk.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/iqindx.s: home/takao/temp/ecalj/SRC/subroutines/iqindx.f90.s
+home/takao/ecalj/SRC/subroutines/fradpk.s: home/takao/ecalj/SRC/subroutines/fradpk.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/iqindx.s
+.PHONY : home/takao/ecalj/SRC/subroutines/fradpk.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/iqindx.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/iqindx.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/iqindx.f90.s
+home/takao/ecalj/SRC/subroutines/fradpk.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/fradpk.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/fradpk.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/keyvalue.o: home/takao/temp/ecalj/SRC/subroutines/keyvalue.f90.o
+home/takao/ecalj/SRC/subroutines/freeat.o: home/takao/ecalj/SRC/subroutines/freeat.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/keyvalue.o
+.PHONY : home/takao/ecalj/SRC/subroutines/freeat.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/keyvalue.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/keyvalue.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/keyvalue.f90.o
+home/takao/ecalj/SRC/subroutines/freeat.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/freeat.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/freeat.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/keyvalue.i: home/takao/temp/ecalj/SRC/subroutines/keyvalue.f90.i
+home/takao/ecalj/SRC/subroutines/freeat.i: home/takao/ecalj/SRC/subroutines/freeat.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/keyvalue.i
+.PHONY : home/takao/ecalj/SRC/subroutines/freeat.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/keyvalue.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/keyvalue.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/keyvalue.f90.i
+home/takao/ecalj/SRC/subroutines/freeat.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/freeat.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/freeat.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/keyvalue.s: home/takao/temp/ecalj/SRC/subroutines/keyvalue.f90.s
+home/takao/ecalj/SRC/subroutines/freeat.s: home/takao/ecalj/SRC/subroutines/freeat.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/keyvalue.s
+.PHONY : home/takao/ecalj/SRC/subroutines/freeat.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/keyvalue.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/keyvalue.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/keyvalue.f90.s
+home/takao/ecalj/SRC/subroutines/freeat.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/freeat.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/freeat.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/lattic.o: home/takao/temp/ecalj/SRC/subroutines/lattic.f90.o
+home/takao/ecalj/SRC/subroutines/gaugm.o: home/takao/ecalj/SRC/subroutines/gaugm.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/lattic.o
+.PHONY : home/takao/ecalj/SRC/subroutines/gaugm.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/lattic.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/lattic.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/lattic.f90.o
+home/takao/ecalj/SRC/subroutines/gaugm.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/gaugm.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/gaugm.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/lattic.i: home/takao/temp/ecalj/SRC/subroutines/lattic.f90.i
+home/takao/ecalj/SRC/subroutines/gaugm.i: home/takao/ecalj/SRC/subroutines/gaugm.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/lattic.i
+.PHONY : home/takao/ecalj/SRC/subroutines/gaugm.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/lattic.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/lattic.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/lattic.f90.i
+home/takao/ecalj/SRC/subroutines/gaugm.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/gaugm.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/gaugm.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/lattic.s: home/takao/temp/ecalj/SRC/subroutines/lattic.f90.s
+home/takao/ecalj/SRC/subroutines/gaugm.s: home/takao/ecalj/SRC/subroutines/gaugm.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/lattic.s
+.PHONY : home/takao/ecalj/SRC/subroutines/gaugm.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/lattic.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/lattic.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/lattic.f90.s
+home/takao/ecalj/SRC/subroutines/gaugm.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/gaugm.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/gaugm.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/llnew.o: home/takao/temp/ecalj/SRC/subroutines/llnew.f90.o
+home/takao/ecalj/SRC/subroutines/genallcf_mod.o: home/takao/ecalj/SRC/subroutines/genallcf_mod.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/llnew.o
+.PHONY : home/takao/ecalj/SRC/subroutines/genallcf_mod.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/llnew.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/llnew.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/llnew.f90.o
+home/takao/ecalj/SRC/subroutines/genallcf_mod.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/genallcf_mod.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/genallcf_mod.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/llnew.i: home/takao/temp/ecalj/SRC/subroutines/llnew.f90.i
+home/takao/ecalj/SRC/subroutines/genallcf_mod.i: home/takao/ecalj/SRC/subroutines/genallcf_mod.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/llnew.i
+.PHONY : home/takao/ecalj/SRC/subroutines/genallcf_mod.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/llnew.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/llnew.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/llnew.f90.i
+home/takao/ecalj/SRC/subroutines/genallcf_mod.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/genallcf_mod.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/genallcf_mod.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/llnew.s: home/takao/temp/ecalj/SRC/subroutines/llnew.f90.s
+home/takao/ecalj/SRC/subroutines/genallcf_mod.s: home/takao/ecalj/SRC/subroutines/genallcf_mod.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/llnew.s
+.PHONY : home/takao/ecalj/SRC/subroutines/genallcf_mod.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/llnew.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/llnew.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/llnew.f90.s
+home/takao/ecalj/SRC/subroutines/genallcf_mod.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/genallcf_mod.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/genallcf_mod.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/lmaux.o: home/takao/temp/ecalj/SRC/subroutines/lmaux.f90.o
+home/takao/ecalj/SRC/subroutines/getbzdata1.o: home/takao/ecalj/SRC/subroutines/getbzdata1.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/lmaux.o
+.PHONY : home/takao/ecalj/SRC/subroutines/getbzdata1.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/lmaux.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/lmaux.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/lmaux.f90.o
+home/takao/ecalj/SRC/subroutines/getbzdata1.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/getbzdata1.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/getbzdata1.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/lmaux.i: home/takao/temp/ecalj/SRC/subroutines/lmaux.f90.i
+home/takao/ecalj/SRC/subroutines/getbzdata1.i: home/takao/ecalj/SRC/subroutines/getbzdata1.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/lmaux.i
+.PHONY : home/takao/ecalj/SRC/subroutines/getbzdata1.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/lmaux.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/lmaux.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/lmaux.f90.i
+home/takao/ecalj/SRC/subroutines/getbzdata1.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/getbzdata1.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/getbzdata1.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/lmaux.s: home/takao/temp/ecalj/SRC/subroutines/lmaux.f90.s
+home/takao/ecalj/SRC/subroutines/getbzdata1.s: home/takao/ecalj/SRC/subroutines/getbzdata1.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/lmaux.s
+.PHONY : home/takao/ecalj/SRC/subroutines/getbzdata1.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/lmaux.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/lmaux.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/lmaux.f90.s
+home/takao/ecalj/SRC/subroutines/getbzdata1.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/getbzdata1.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/getbzdata1.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/lmf2gw.o: home/takao/temp/ecalj/SRC/subroutines/lmf2gw.f90.o
+home/takao/ecalj/SRC/subroutines/getgv2.o: home/takao/ecalj/SRC/subroutines/getgv2.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/lmf2gw.o
+.PHONY : home/takao/ecalj/SRC/subroutines/getgv2.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/lmf2gw.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/lmf2gw.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/lmf2gw.f90.o
+home/takao/ecalj/SRC/subroutines/getgv2.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/getgv2.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/getgv2.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/lmf2gw.i: home/takao/temp/ecalj/SRC/subroutines/lmf2gw.f90.i
+home/takao/ecalj/SRC/subroutines/getgv2.i: home/takao/ecalj/SRC/subroutines/getgv2.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/lmf2gw.i
+.PHONY : home/takao/ecalj/SRC/subroutines/getgv2.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/lmf2gw.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/lmf2gw.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/lmf2gw.f90.i
+home/takao/ecalj/SRC/subroutines/getgv2.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/getgv2.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/getgv2.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/lmf2gw.s: home/takao/temp/ecalj/SRC/subroutines/lmf2gw.f90.s
+home/takao/ecalj/SRC/subroutines/getgv2.s: home/takao/ecalj/SRC/subroutines/getgv2.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/lmf2gw.s
+.PHONY : home/takao/ecalj/SRC/subroutines/getgv2.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/lmf2gw.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/lmf2gw.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/lmf2gw.f90.s
+home/takao/ecalj/SRC/subroutines/getgv2.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/getgv2.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/getgv2.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/locpot.o: home/takao/temp/ecalj/SRC/subroutines/locpot.f90.o
+home/takao/ecalj/SRC/subroutines/getq.o: home/takao/ecalj/SRC/subroutines/getq.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/locpot.o
+.PHONY : home/takao/ecalj/SRC/subroutines/getq.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/locpot.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/locpot.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/locpot.f90.o
+home/takao/ecalj/SRC/subroutines/getq.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/getq.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/getq.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/locpot.i: home/takao/temp/ecalj/SRC/subroutines/locpot.f90.i
+home/takao/ecalj/SRC/subroutines/getq.i: home/takao/ecalj/SRC/subroutines/getq.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/locpot.i
+.PHONY : home/takao/ecalj/SRC/subroutines/getq.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/locpot.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/locpot.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/locpot.f90.i
+home/takao/ecalj/SRC/subroutines/getq.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/getq.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/getq.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/locpot.s: home/takao/temp/ecalj/SRC/subroutines/locpot.f90.s
+home/takao/ecalj/SRC/subroutines/getq.s: home/takao/ecalj/SRC/subroutines/getq.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/locpot.s
+.PHONY : home/takao/ecalj/SRC/subroutines/getq.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/locpot.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/locpot.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/locpot.f90.s
+home/takao/ecalj/SRC/subroutines/getq.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/getq.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/getq.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_HamPMT.o: home/takao/temp/ecalj/SRC/subroutines/m_HamPMT.f90.o
+home/takao/ecalj/SRC/subroutines/getqmode.o: home/takao/ecalj/SRC/subroutines/getqmode.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_HamPMT.o
+.PHONY : home/takao/ecalj/SRC/subroutines/getqmode.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_HamPMT.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_HamPMT.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_HamPMT.f90.o
+home/takao/ecalj/SRC/subroutines/getqmode.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/getqmode.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/getqmode.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_HamPMT.i: home/takao/temp/ecalj/SRC/subroutines/m_HamPMT.f90.i
+home/takao/ecalj/SRC/subroutines/getqmode.i: home/takao/ecalj/SRC/subroutines/getqmode.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_HamPMT.i
+.PHONY : home/takao/ecalj/SRC/subroutines/getqmode.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_HamPMT.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_HamPMT.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_HamPMT.f90.i
+home/takao/ecalj/SRC/subroutines/getqmode.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/getqmode.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/getqmode.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_HamPMT.s: home/takao/temp/ecalj/SRC/subroutines/m_HamPMT.f90.s
+home/takao/ecalj/SRC/subroutines/getqmode.s: home/takao/ecalj/SRC/subroutines/getqmode.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_HamPMT.s
+.PHONY : home/takao/ecalj/SRC/subroutines/getqmode.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_HamPMT.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_HamPMT.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_HamPMT.f90.s
+home/takao/ecalj/SRC/subroutines/getqmode.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/getqmode.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/getqmode.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_MPItk.o: home/takao/temp/ecalj/SRC/subroutines/m_MPItk.f90.o
+home/takao/ecalj/SRC/subroutines/gintxx.o: home/takao/ecalj/SRC/subroutines/gintxx.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_MPItk.o
+.PHONY : home/takao/ecalj/SRC/subroutines/gintxx.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_MPItk.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_MPItk.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_MPItk.f90.o
+home/takao/ecalj/SRC/subroutines/gintxx.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/gintxx.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/gintxx.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_MPItk.i: home/takao/temp/ecalj/SRC/subroutines/m_MPItk.f90.i
+home/takao/ecalj/SRC/subroutines/gintxx.i: home/takao/ecalj/SRC/subroutines/gintxx.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_MPItk.i
+.PHONY : home/takao/ecalj/SRC/subroutines/gintxx.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_MPItk.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_MPItk.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_MPItk.f90.i
+home/takao/ecalj/SRC/subroutines/gintxx.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/gintxx.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/gintxx.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_MPItk.s: home/takao/temp/ecalj/SRC/subroutines/m_MPItk.f90.s
+home/takao/ecalj/SRC/subroutines/gintxx.s: home/takao/ecalj/SRC/subroutines/gintxx.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_MPItk.s
+.PHONY : home/takao/ecalj/SRC/subroutines/gintxx.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_MPItk.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_MPItk.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_MPItk.f90.s
+home/takao/ecalj/SRC/subroutines/gintxx.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/gintxx.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/gintxx.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_addrbl.o: home/takao/temp/ecalj/SRC/subroutines/m_addrbl.f90.o
+home/takao/ecalj/SRC/subroutines/gtbsl1.o: home/takao/ecalj/SRC/subroutines/gtbsl1.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_addrbl.o
+.PHONY : home/takao/ecalj/SRC/subroutines/gtbsl1.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_addrbl.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_addrbl.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_addrbl.f90.o
+home/takao/ecalj/SRC/subroutines/gtbsl1.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/gtbsl1.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/gtbsl1.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_addrbl.i: home/takao/temp/ecalj/SRC/subroutines/m_addrbl.f90.i
+home/takao/ecalj/SRC/subroutines/gtbsl1.i: home/takao/ecalj/SRC/subroutines/gtbsl1.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_addrbl.i
+.PHONY : home/takao/ecalj/SRC/subroutines/gtbsl1.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_addrbl.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_addrbl.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_addrbl.f90.i
+home/takao/ecalj/SRC/subroutines/gtbsl1.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/gtbsl1.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/gtbsl1.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_addrbl.s: home/takao/temp/ecalj/SRC/subroutines/m_addrbl.f90.s
+home/takao/ecalj/SRC/subroutines/gtbsl1.s: home/takao/ecalj/SRC/subroutines/gtbsl1.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_addrbl.s
+.PHONY : home/takao/ecalj/SRC/subroutines/gtbsl1.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_addrbl.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_addrbl.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_addrbl.f90.s
+home/takao/ecalj/SRC/subroutines/gtbsl1.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/gtbsl1.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/gtbsl1.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_amix.o: home/takao/temp/ecalj/SRC/subroutines/m_amix.f90.o
+home/takao/ecalj/SRC/subroutines/gtpcor.o: home/takao/ecalj/SRC/subroutines/gtpcor.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_amix.o
+.PHONY : home/takao/ecalj/SRC/subroutines/gtpcor.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_amix.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_amix.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_amix.f90.o
+home/takao/ecalj/SRC/subroutines/gtpcor.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/gtpcor.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/gtpcor.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_amix.i: home/takao/temp/ecalj/SRC/subroutines/m_amix.f90.i
+home/takao/ecalj/SRC/subroutines/gtpcor.i: home/takao/ecalj/SRC/subroutines/gtpcor.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_amix.i
+.PHONY : home/takao/ecalj/SRC/subroutines/gtpcor.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_amix.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_amix.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_amix.f90.i
+home/takao/ecalj/SRC/subroutines/gtpcor.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/gtpcor.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/gtpcor.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_amix.s: home/takao/temp/ecalj/SRC/subroutines/m_amix.f90.s
+home/takao/ecalj/SRC/subroutines/gtpcor.s: home/takao/ecalj/SRC/subroutines/gtpcor.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_amix.s
+.PHONY : home/takao/ecalj/SRC/subroutines/gtpcor.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_amix.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_amix.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_amix.f90.s
+home/takao/ecalj/SRC/subroutines/gtpcor.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/gtpcor.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/gtpcor.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_anf.o: home/takao/temp/ecalj/SRC/subroutines/m_anf.f90.o
+home/takao/ecalj/SRC/subroutines/hambl.o: home/takao/ecalj/SRC/subroutines/hambl.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_anf.o
+.PHONY : home/takao/ecalj/SRC/subroutines/hambl.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_anf.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_anf.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_anf.f90.o
+home/takao/ecalj/SRC/subroutines/hambl.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/hambl.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/hambl.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_anf.i: home/takao/temp/ecalj/SRC/subroutines/m_anf.f90.i
+home/takao/ecalj/SRC/subroutines/hambl.i: home/takao/ecalj/SRC/subroutines/hambl.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_anf.i
+.PHONY : home/takao/ecalj/SRC/subroutines/hambl.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_anf.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_anf.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_anf.f90.i
+home/takao/ecalj/SRC/subroutines/hambl.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/hambl.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/hambl.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_anf.s: home/takao/temp/ecalj/SRC/subroutines/m_anf.f90.s
+home/takao/ecalj/SRC/subroutines/hambl.s: home/takao/ecalj/SRC/subroutines/hambl.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_anf.s
+.PHONY : home/takao/ecalj/SRC/subroutines/hambl.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_anf.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_anf.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_anf.f90.s
+home/takao/ecalj/SRC/subroutines/hambl.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/hambl.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/hambl.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_atwf.o: home/takao/temp/ecalj/SRC/subroutines/m_atwf.f90.o
+home/takao/ecalj/SRC/subroutines/hello.o: home/takao/ecalj/SRC/subroutines/hello.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_atwf.o
+.PHONY : home/takao/ecalj/SRC/subroutines/hello.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_atwf.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_atwf.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_atwf.f90.o
+home/takao/ecalj/SRC/subroutines/hello.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/hello.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/hello.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_atwf.i: home/takao/temp/ecalj/SRC/subroutines/m_atwf.f90.i
+home/takao/ecalj/SRC/subroutines/hello.i: home/takao/ecalj/SRC/subroutines/hello.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_atwf.i
+.PHONY : home/takao/ecalj/SRC/subroutines/hello.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_atwf.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_atwf.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_atwf.f90.i
+home/takao/ecalj/SRC/subroutines/hello.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/hello.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/hello.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_atwf.s: home/takao/temp/ecalj/SRC/subroutines/m_atwf.f90.s
+home/takao/ecalj/SRC/subroutines/hello.s: home/takao/ecalj/SRC/subroutines/hello.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_atwf.s
+.PHONY : home/takao/ecalj/SRC/subroutines/hello.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_atwf.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_atwf.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_atwf.f90.s
+home/takao/ecalj/SRC/subroutines/hello.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/hello.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/hello.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_augmat.o: home/takao/temp/ecalj/SRC/subroutines/m_augmat.f90.o
+home/takao/ecalj/SRC/subroutines/hilbertmat.o: home/takao/ecalj/SRC/subroutines/hilbertmat.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_augmat.o
+.PHONY : home/takao/ecalj/SRC/subroutines/hilbertmat.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_augmat.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_augmat.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_augmat.f90.o
+home/takao/ecalj/SRC/subroutines/hilbertmat.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/hilbertmat.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/hilbertmat.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_augmat.i: home/takao/temp/ecalj/SRC/subroutines/m_augmat.f90.i
+home/takao/ecalj/SRC/subroutines/hilbertmat.i: home/takao/ecalj/SRC/subroutines/hilbertmat.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_augmat.i
+.PHONY : home/takao/ecalj/SRC/subroutines/hilbertmat.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_augmat.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_augmat.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_augmat.f90.i
+home/takao/ecalj/SRC/subroutines/hilbertmat.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/hilbertmat.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/hilbertmat.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_augmat.s: home/takao/temp/ecalj/SRC/subroutines/m_augmat.f90.s
+home/takao/ecalj/SRC/subroutines/hilbertmat.s: home/takao/ecalj/SRC/subroutines/hilbertmat.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_augmat.s
+.PHONY : home/takao/ecalj/SRC/subroutines/hilbertmat.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_augmat.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_augmat.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_augmat.f90.s
+home/takao/ecalj/SRC/subroutines/hilbertmat.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/hilbertmat.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/hilbertmat.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_augmbl.o: home/takao/temp/ecalj/SRC/subroutines/m_augmbl.f90.o
+home/takao/ecalj/SRC/subroutines/hklft.o: home/takao/ecalj/SRC/subroutines/hklft.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_augmbl.o
+.PHONY : home/takao/ecalj/SRC/subroutines/hklft.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_augmbl.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_augmbl.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_augmbl.f90.o
+home/takao/ecalj/SRC/subroutines/hklft.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/hklft.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/hklft.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_augmbl.i: home/takao/temp/ecalj/SRC/subroutines/m_augmbl.f90.i
+home/takao/ecalj/SRC/subroutines/hklft.i: home/takao/ecalj/SRC/subroutines/hklft.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_augmbl.i
+.PHONY : home/takao/ecalj/SRC/subroutines/hklft.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_augmbl.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_augmbl.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_augmbl.f90.i
+home/takao/ecalj/SRC/subroutines/hklft.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/hklft.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/hklft.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_augmbl.s: home/takao/temp/ecalj/SRC/subroutines/m_augmbl.f90.s
+home/takao/ecalj/SRC/subroutines/hklft.s: home/takao/ecalj/SRC/subroutines/hklft.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_augmbl.s
+.PHONY : home/takao/ecalj/SRC/subroutines/hklft.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_augmbl.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_augmbl.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_augmbl.f90.s
+home/takao/ecalj/SRC/subroutines/hklft.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/hklft.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/hklft.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_bandcal.o: home/takao/temp/ecalj/SRC/subroutines/m_bandcal.f90.o
+home/takao/ecalj/SRC/subroutines/hsibl.o: home/takao/ecalj/SRC/subroutines/hsibl.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_bandcal.o
+.PHONY : home/takao/ecalj/SRC/subroutines/hsibl.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_bandcal.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_bandcal.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_bandcal.f90.o
+home/takao/ecalj/SRC/subroutines/hsibl.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/hsibl.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/hsibl.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_bandcal.i: home/takao/temp/ecalj/SRC/subroutines/m_bandcal.f90.i
+home/takao/ecalj/SRC/subroutines/hsibl.i: home/takao/ecalj/SRC/subroutines/hsibl.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_bandcal.i
+.PHONY : home/takao/ecalj/SRC/subroutines/hsibl.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_bandcal.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_bandcal.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_bandcal.f90.i
+home/takao/ecalj/SRC/subroutines/hsibl.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/hsibl.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/hsibl.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_bandcal.s: home/takao/temp/ecalj/SRC/subroutines/m_bandcal.f90.s
+home/takao/ecalj/SRC/subroutines/hsibl.s: home/takao/ecalj/SRC/subroutines/hsibl.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_bandcal.s
+.PHONY : home/takao/ecalj/SRC/subroutines/hsibl.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_bandcal.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_bandcal.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_bandcal.f90.s
+home/takao/ecalj/SRC/subroutines/hsibl.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/hsibl.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/hsibl.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_bndfp.o: home/takao/temp/ecalj/SRC/subroutines/m_bndfp.f90.o
+home/takao/ecalj/SRC/subroutines/hsmq.o: home/takao/ecalj/SRC/subroutines/hsmq.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_bndfp.o
+.PHONY : home/takao/ecalj/SRC/subroutines/hsmq.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_bndfp.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_bndfp.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_bndfp.f90.o
+home/takao/ecalj/SRC/subroutines/hsmq.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/hsmq.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/hsmq.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_bndfp.i: home/takao/temp/ecalj/SRC/subroutines/m_bndfp.f90.i
+home/takao/ecalj/SRC/subroutines/hsmq.i: home/takao/ecalj/SRC/subroutines/hsmq.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_bndfp.i
+.PHONY : home/takao/ecalj/SRC/subroutines/hsmq.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_bndfp.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_bndfp.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_bndfp.f90.i
+home/takao/ecalj/SRC/subroutines/hsmq.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/hsmq.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/hsmq.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_bndfp.s: home/takao/temp/ecalj/SRC/subroutines/m_bndfp.f90.s
+home/takao/ecalj/SRC/subroutines/hsmq.s: home/takao/ecalj/SRC/subroutines/hsmq.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_bndfp.s
+.PHONY : home/takao/ecalj/SRC/subroutines/hsmq.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_bndfp.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_bndfp.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_bndfp.f90.s
+home/takao/ecalj/SRC/subroutines/hsmq.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/hsmq.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/hsmq.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_bndfp_util.o: home/takao/temp/ecalj/SRC/subroutines/m_bndfp_util.f90.o
+home/takao/ecalj/SRC/subroutines/huntx.o: home/takao/ecalj/SRC/subroutines/huntx.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_bndfp_util.o
+.PHONY : home/takao/ecalj/SRC/subroutines/huntx.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_bndfp_util.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_bndfp_util.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_bndfp_util.f90.o
+home/takao/ecalj/SRC/subroutines/huntx.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/huntx.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/huntx.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_bndfp_util.i: home/takao/temp/ecalj/SRC/subroutines/m_bndfp_util.f90.i
+home/takao/ecalj/SRC/subroutines/huntx.i: home/takao/ecalj/SRC/subroutines/huntx.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_bndfp_util.i
+.PHONY : home/takao/ecalj/SRC/subroutines/huntx.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_bndfp_util.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_bndfp_util.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_bndfp_util.f90.i
+home/takao/ecalj/SRC/subroutines/huntx.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/huntx.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/huntx.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_bndfp_util.s: home/takao/temp/ecalj/SRC/subroutines/m_bndfp_util.f90.s
+home/takao/ecalj/SRC/subroutines/huntx.s: home/takao/ecalj/SRC/subroutines/huntx.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_bndfp_util.s
+.PHONY : home/takao/ecalj/SRC/subroutines/huntx.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_bndfp_util.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_bndfp_util.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_bndfp_util.f90.s
+home/takao/ecalj/SRC/subroutines/huntx.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/huntx.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/huntx.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_bstrux.o: home/takao/temp/ecalj/SRC/subroutines/m_bstrux.f90.o
+home/takao/ecalj/SRC/subroutines/iofa.o: home/takao/ecalj/SRC/subroutines/iofa.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_bstrux.o
+.PHONY : home/takao/ecalj/SRC/subroutines/iofa.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_bstrux.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_bstrux.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_bstrux.f90.o
+home/takao/ecalj/SRC/subroutines/iofa.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/iofa.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/iofa.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_bstrux.i: home/takao/temp/ecalj/SRC/subroutines/m_bstrux.f90.i
+home/takao/ecalj/SRC/subroutines/iofa.i: home/takao/ecalj/SRC/subroutines/iofa.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_bstrux.i
+.PHONY : home/takao/ecalj/SRC/subroutines/iofa.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_bstrux.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_bstrux.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_bstrux.f90.i
+home/takao/ecalj/SRC/subroutines/iofa.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/iofa.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/iofa.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_bstrux.s: home/takao/temp/ecalj/SRC/subroutines/m_bstrux.f90.s
+home/takao/ecalj/SRC/subroutines/iofa.s: home/takao/ecalj/SRC/subroutines/iofa.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_bstrux.s
+.PHONY : home/takao/ecalj/SRC/subroutines/iofa.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_bstrux.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_bstrux.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_bstrux.f90.s
+home/takao/ecalj/SRC/subroutines/iofa.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/iofa.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/iofa.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_bzints.o: home/takao/temp/ecalj/SRC/subroutines/m_bzints.f90.o
+home/takao/ecalj/SRC/subroutines/iors.o: home/takao/ecalj/SRC/subroutines/iors.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_bzints.o
+.PHONY : home/takao/ecalj/SRC/subroutines/iors.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_bzints.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_bzints.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_bzints.f90.o
+home/takao/ecalj/SRC/subroutines/iors.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/iors.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/iors.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_bzints.i: home/takao/temp/ecalj/SRC/subroutines/m_bzints.f90.i
+home/takao/ecalj/SRC/subroutines/iors.i: home/takao/ecalj/SRC/subroutines/iors.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_bzints.i
+.PHONY : home/takao/ecalj/SRC/subroutines/iors.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_bzints.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_bzints.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_bzints.f90.i
+home/takao/ecalj/SRC/subroutines/iors.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/iors.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/iors.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_bzints.s: home/takao/temp/ecalj/SRC/subroutines/m_bzints.f90.s
+home/takao/ecalj/SRC/subroutines/iors.s: home/takao/ecalj/SRC/subroutines/iors.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_bzints.s
+.PHONY : home/takao/ecalj/SRC/subroutines/iors.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_bzints.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_bzints.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_bzints.f90.s
+home/takao/ecalj/SRC/subroutines/iors.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/iors.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/iors.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_bzwts.o: home/takao/temp/ecalj/SRC/subroutines/m_bzwts.f90.o
+home/takao/ecalj/SRC/subroutines/iors_old.o: home/takao/ecalj/SRC/subroutines/iors_old.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_bzwts.o
+.PHONY : home/takao/ecalj/SRC/subroutines/iors_old.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_bzwts.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_bzwts.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_bzwts.f90.o
+home/takao/ecalj/SRC/subroutines/iors_old.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/iors_old.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/iors_old.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_bzwts.i: home/takao/temp/ecalj/SRC/subroutines/m_bzwts.f90.i
+home/takao/ecalj/SRC/subroutines/iors_old.i: home/takao/ecalj/SRC/subroutines/iors_old.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_bzwts.i
+.PHONY : home/takao/ecalj/SRC/subroutines/iors_old.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_bzwts.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_bzwts.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_bzwts.f90.i
+home/takao/ecalj/SRC/subroutines/iors_old.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/iors_old.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/iors_old.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_bzwts.s: home/takao/temp/ecalj/SRC/subroutines/m_bzwts.f90.s
+home/takao/ecalj/SRC/subroutines/iors_old.s: home/takao/ecalj/SRC/subroutines/iors_old.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_bzwts.s
+.PHONY : home/takao/ecalj/SRC/subroutines/iors_old.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_bzwts.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_bzwts.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_bzwts.f90.s
+home/takao/ecalj/SRC/subroutines/iors_old.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/iors_old.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/iors_old.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_clsmode.o: home/takao/temp/ecalj/SRC/subroutines/m_clsmode.f90.o
+home/takao/ecalj/SRC/subroutines/iprint.o: home/takao/ecalj/SRC/subroutines/iprint.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_clsmode.o
+.PHONY : home/takao/ecalj/SRC/subroutines/iprint.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_clsmode.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_clsmode.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_clsmode.f90.o
+home/takao/ecalj/SRC/subroutines/iprint.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/iprint.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/iprint.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_clsmode.i: home/takao/temp/ecalj/SRC/subroutines/m_clsmode.f90.i
+home/takao/ecalj/SRC/subroutines/iprint.i: home/takao/ecalj/SRC/subroutines/iprint.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_clsmode.i
+.PHONY : home/takao/ecalj/SRC/subroutines/iprint.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_clsmode.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_clsmode.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_clsmode.f90.i
+home/takao/ecalj/SRC/subroutines/iprint.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/iprint.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/iprint.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_clsmode.s: home/takao/temp/ecalj/SRC/subroutines/m_clsmode.f90.s
+home/takao/ecalj/SRC/subroutines/iprint.s: home/takao/ecalj/SRC/subroutines/iprint.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_clsmode.s
+.PHONY : home/takao/ecalj/SRC/subroutines/iprint.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_clsmode.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_clsmode.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_clsmode.f90.s
+home/takao/ecalj/SRC/subroutines/iprint.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/iprint.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/iprint.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_cmdpath.o: home/takao/temp/ecalj/SRC/subroutines/m_cmdpath.f90.o
+home/takao/ecalj/SRC/subroutines/iqindx.o: home/takao/ecalj/SRC/subroutines/iqindx.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_cmdpath.o
+.PHONY : home/takao/ecalj/SRC/subroutines/iqindx.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_cmdpath.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_cmdpath.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_cmdpath.f90.o
+home/takao/ecalj/SRC/subroutines/iqindx.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/iqindx.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/iqindx.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_cmdpath.i: home/takao/temp/ecalj/SRC/subroutines/m_cmdpath.f90.i
+home/takao/ecalj/SRC/subroutines/iqindx.i: home/takao/ecalj/SRC/subroutines/iqindx.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_cmdpath.i
+.PHONY : home/takao/ecalj/SRC/subroutines/iqindx.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_cmdpath.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_cmdpath.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_cmdpath.f90.i
+home/takao/ecalj/SRC/subroutines/iqindx.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/iqindx.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/iqindx.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_cmdpath.s: home/takao/temp/ecalj/SRC/subroutines/m_cmdpath.f90.s
+home/takao/ecalj/SRC/subroutines/iqindx.s: home/takao/ecalj/SRC/subroutines/iqindx.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_cmdpath.s
+.PHONY : home/takao/ecalj/SRC/subroutines/iqindx.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_cmdpath.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_cmdpath.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_cmdpath.f90.s
+home/takao/ecalj/SRC/subroutines/iqindx.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/iqindx.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/iqindx.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_density.o: home/takao/temp/ecalj/SRC/subroutines/m_density.f90.o
+home/takao/ecalj/SRC/subroutines/keyvalue.o: home/takao/ecalj/SRC/subroutines/keyvalue.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_density.o
+.PHONY : home/takao/ecalj/SRC/subroutines/keyvalue.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_density.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_density.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_density.f90.o
+home/takao/ecalj/SRC/subroutines/keyvalue.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/keyvalue.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/keyvalue.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_density.i: home/takao/temp/ecalj/SRC/subroutines/m_density.f90.i
+home/takao/ecalj/SRC/subroutines/keyvalue.i: home/takao/ecalj/SRC/subroutines/keyvalue.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_density.i
+.PHONY : home/takao/ecalj/SRC/subroutines/keyvalue.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_density.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_density.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_density.f90.i
+home/takao/ecalj/SRC/subroutines/keyvalue.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/keyvalue.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/keyvalue.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_density.s: home/takao/temp/ecalj/SRC/subroutines/m_density.f90.s
+home/takao/ecalj/SRC/subroutines/keyvalue.s: home/takao/ecalj/SRC/subroutines/keyvalue.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_density.s
+.PHONY : home/takao/ecalj/SRC/subroutines/keyvalue.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_density.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_density.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_density.f90.s
+home/takao/ecalj/SRC/subroutines/keyvalue.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/keyvalue.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/keyvalue.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_eibz.o: home/takao/temp/ecalj/SRC/subroutines/m_eibz.f90.o
+home/takao/ecalj/SRC/subroutines/lattic.o: home/takao/ecalj/SRC/subroutines/lattic.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_eibz.o
+.PHONY : home/takao/ecalj/SRC/subroutines/lattic.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_eibz.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_eibz.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_eibz.f90.o
+home/takao/ecalj/SRC/subroutines/lattic.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/lattic.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/lattic.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_eibz.i: home/takao/temp/ecalj/SRC/subroutines/m_eibz.f90.i
+home/takao/ecalj/SRC/subroutines/lattic.i: home/takao/ecalj/SRC/subroutines/lattic.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_eibz.i
+.PHONY : home/takao/ecalj/SRC/subroutines/lattic.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_eibz.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_eibz.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_eibz.f90.i
+home/takao/ecalj/SRC/subroutines/lattic.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/lattic.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/lattic.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_eibz.s: home/takao/temp/ecalj/SRC/subroutines/m_eibz.f90.s
+home/takao/ecalj/SRC/subroutines/lattic.s: home/takao/ecalj/SRC/subroutines/lattic.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_eibz.s
+.PHONY : home/takao/ecalj/SRC/subroutines/lattic.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_eibz.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_eibz.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_eibz.f90.s
+home/takao/ecalj/SRC/subroutines/lattic.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/lattic.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/lattic.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_ext.o: home/takao/temp/ecalj/SRC/subroutines/m_ext.f90.o
+home/takao/ecalj/SRC/subroutines/llnew.o: home/takao/ecalj/SRC/subroutines/llnew.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_ext.o
+.PHONY : home/takao/ecalj/SRC/subroutines/llnew.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_ext.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_ext.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_ext.f90.o
+home/takao/ecalj/SRC/subroutines/llnew.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/llnew.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/llnew.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_ext.i: home/takao/temp/ecalj/SRC/subroutines/m_ext.f90.i
+home/takao/ecalj/SRC/subroutines/llnew.i: home/takao/ecalj/SRC/subroutines/llnew.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_ext.i
+.PHONY : home/takao/ecalj/SRC/subroutines/llnew.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_ext.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_ext.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_ext.f90.i
+home/takao/ecalj/SRC/subroutines/llnew.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/llnew.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/llnew.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_ext.s: home/takao/temp/ecalj/SRC/subroutines/m_ext.f90.s
+home/takao/ecalj/SRC/subroutines/llnew.s: home/takao/ecalj/SRC/subroutines/llnew.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_ext.s
+.PHONY : home/takao/ecalj/SRC/subroutines/llnew.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_ext.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_ext.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_ext.f90.s
+home/takao/ecalj/SRC/subroutines/llnew.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/llnew.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/llnew.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_fatom.o: home/takao/temp/ecalj/SRC/subroutines/m_fatom.f90.o
+home/takao/ecalj/SRC/subroutines/lmaux.o: home/takao/ecalj/SRC/subroutines/lmaux.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_fatom.o
+.PHONY : home/takao/ecalj/SRC/subroutines/lmaux.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_fatom.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_fatom.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_fatom.f90.o
+home/takao/ecalj/SRC/subroutines/lmaux.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/lmaux.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/lmaux.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_fatom.i: home/takao/temp/ecalj/SRC/subroutines/m_fatom.f90.i
+home/takao/ecalj/SRC/subroutines/lmaux.i: home/takao/ecalj/SRC/subroutines/lmaux.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_fatom.i
+.PHONY : home/takao/ecalj/SRC/subroutines/lmaux.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_fatom.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_fatom.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_fatom.f90.i
+home/takao/ecalj/SRC/subroutines/lmaux.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/lmaux.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/lmaux.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_fatom.s: home/takao/temp/ecalj/SRC/subroutines/m_fatom.f90.s
+home/takao/ecalj/SRC/subroutines/lmaux.s: home/takao/ecalj/SRC/subroutines/lmaux.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_fatom.s
+.PHONY : home/takao/ecalj/SRC/subroutines/lmaux.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_fatom.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_fatom.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_fatom.f90.s
+home/takao/ecalj/SRC/subroutines/lmaux.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/lmaux.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/lmaux.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_freq.o: home/takao/temp/ecalj/SRC/subroutines/m_freq.f90.o
+home/takao/ecalj/SRC/subroutines/lmf2gw.o: home/takao/ecalj/SRC/subroutines/lmf2gw.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_freq.o
+.PHONY : home/takao/ecalj/SRC/subroutines/lmf2gw.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_freq.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_freq.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_freq.f90.o
+home/takao/ecalj/SRC/subroutines/lmf2gw.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/lmf2gw.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/lmf2gw.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_freq.i: home/takao/temp/ecalj/SRC/subroutines/m_freq.f90.i
+home/takao/ecalj/SRC/subroutines/lmf2gw.i: home/takao/ecalj/SRC/subroutines/lmf2gw.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_freq.i
+.PHONY : home/takao/ecalj/SRC/subroutines/lmf2gw.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_freq.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_freq.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_freq.f90.i
+home/takao/ecalj/SRC/subroutines/lmf2gw.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/lmf2gw.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/lmf2gw.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_freq.s: home/takao/temp/ecalj/SRC/subroutines/m_freq.f90.s
+home/takao/ecalj/SRC/subroutines/lmf2gw.s: home/takao/ecalj/SRC/subroutines/lmf2gw.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_freq.s
+.PHONY : home/takao/ecalj/SRC/subroutines/lmf2gw.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_freq.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_freq.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_freq.f90.s
+home/takao/ecalj/SRC/subroutines/lmf2gw.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/lmf2gw.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/lmf2gw.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_ftox.o: home/takao/temp/ecalj/SRC/subroutines/m_ftox.f90.o
+home/takao/ecalj/SRC/subroutines/locpot.o: home/takao/ecalj/SRC/subroutines/locpot.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_ftox.o
+.PHONY : home/takao/ecalj/SRC/subroutines/locpot.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_ftox.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_ftox.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_ftox.f90.o
+home/takao/ecalj/SRC/subroutines/locpot.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/locpot.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/locpot.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_ftox.i: home/takao/temp/ecalj/SRC/subroutines/m_ftox.f90.i
+home/takao/ecalj/SRC/subroutines/locpot.i: home/takao/ecalj/SRC/subroutines/locpot.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_ftox.i
+.PHONY : home/takao/ecalj/SRC/subroutines/locpot.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_ftox.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_ftox.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_ftox.f90.i
+home/takao/ecalj/SRC/subroutines/locpot.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/locpot.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/locpot.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_ftox.s: home/takao/temp/ecalj/SRC/subroutines/m_ftox.f90.s
+home/takao/ecalj/SRC/subroutines/locpot.s: home/takao/ecalj/SRC/subroutines/locpot.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_ftox.s
+.PHONY : home/takao/ecalj/SRC/subroutines/locpot.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_ftox.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_ftox.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_ftox.f90.s
+home/takao/ecalj/SRC/subroutines/locpot.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/locpot.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/locpot.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_gaussianfilter.o: home/takao/temp/ecalj/SRC/subroutines/m_gaussianfilter.f90.o
+home/takao/ecalj/SRC/subroutines/m_HamPMT.o: home/takao/ecalj/SRC/subroutines/m_HamPMT.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_gaussianfilter.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_HamPMT.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_gaussianfilter.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_gaussianfilter.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_gaussianfilter.f90.o
+home/takao/ecalj/SRC/subroutines/m_HamPMT.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_HamPMT.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_HamPMT.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_gaussianfilter.i: home/takao/temp/ecalj/SRC/subroutines/m_gaussianfilter.f90.i
+home/takao/ecalj/SRC/subroutines/m_HamPMT.i: home/takao/ecalj/SRC/subroutines/m_HamPMT.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_gaussianfilter.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_HamPMT.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_gaussianfilter.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_gaussianfilter.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_gaussianfilter.f90.i
+home/takao/ecalj/SRC/subroutines/m_HamPMT.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_HamPMT.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_HamPMT.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_gaussianfilter.s: home/takao/temp/ecalj/SRC/subroutines/m_gaussianfilter.f90.s
+home/takao/ecalj/SRC/subroutines/m_HamPMT.s: home/takao/ecalj/SRC/subroutines/m_HamPMT.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_gaussianfilter.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_HamPMT.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_gaussianfilter.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_gaussianfilter.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_gaussianfilter.f90.s
+home/takao/ecalj/SRC/subroutines/m_HamPMT.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_HamPMT.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_HamPMT.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_gennlat.o: home/takao/temp/ecalj/SRC/subroutines/m_gennlat.f90.o
+home/takao/ecalj/SRC/subroutines/m_MPIcomm.o: home/takao/ecalj/SRC/subroutines/m_MPIcomm.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_gennlat.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_MPIcomm.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_gennlat.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_gennlat.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_gennlat.f90.o
+home/takao/ecalj/SRC/subroutines/m_MPIcomm.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_MPIcomm.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_MPIcomm.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_gennlat.i: home/takao/temp/ecalj/SRC/subroutines/m_gennlat.f90.i
+home/takao/ecalj/SRC/subroutines/m_MPIcomm.i: home/takao/ecalj/SRC/subroutines/m_MPIcomm.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_gennlat.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_MPIcomm.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_gennlat.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_gennlat.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_gennlat.f90.i
+home/takao/ecalj/SRC/subroutines/m_MPIcomm.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_MPIcomm.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_MPIcomm.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_gennlat.s: home/takao/temp/ecalj/SRC/subroutines/m_gennlat.f90.s
+home/takao/ecalj/SRC/subroutines/m_MPIcomm.s: home/takao/ecalj/SRC/subroutines/m_MPIcomm.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_gennlat.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_MPIcomm.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_gennlat.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_gennlat.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_gennlat.f90.s
+home/takao/ecalj/SRC/subroutines/m_MPIcomm.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_MPIcomm.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_MPIcomm.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_gtv.o: home/takao/temp/ecalj/SRC/subroutines/m_gtv.f90.o
+home/takao/ecalj/SRC/subroutines/m_MPItk.o: home/takao/ecalj/SRC/subroutines/m_MPItk.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_gtv.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_MPItk.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_gtv.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_gtv.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_gtv.f90.o
+home/takao/ecalj/SRC/subroutines/m_MPItk.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_MPItk.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_MPItk.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_gtv.i: home/takao/temp/ecalj/SRC/subroutines/m_gtv.f90.i
+home/takao/ecalj/SRC/subroutines/m_MPItk.i: home/takao/ecalj/SRC/subroutines/m_MPItk.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_gtv.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_MPItk.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_gtv.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_gtv.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_gtv.f90.i
+home/takao/ecalj/SRC/subroutines/m_MPItk.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_MPItk.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_MPItk.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_gtv.s: home/takao/temp/ecalj/SRC/subroutines/m_gtv.f90.s
+home/takao/ecalj/SRC/subroutines/m_MPItk.s: home/takao/ecalj/SRC/subroutines/m_MPItk.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_gtv.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_MPItk.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_gtv.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_gtv.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_gtv.f90.s
+home/takao/ecalj/SRC/subroutines/m_MPItk.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_MPItk.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_MPItk.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_hamMTO.o: home/takao/temp/ecalj/SRC/subroutines/m_hamMTO.f90.o
+home/takao/ecalj/SRC/subroutines/m_addrbl.o: home/takao/ecalj/SRC/subroutines/m_addrbl.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_hamMTO.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_addrbl.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_hamMTO.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_hamMTO.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_hamMTO.f90.o
+home/takao/ecalj/SRC/subroutines/m_addrbl.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_addrbl.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_addrbl.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_hamMTO.i: home/takao/temp/ecalj/SRC/subroutines/m_hamMTO.f90.i
+home/takao/ecalj/SRC/subroutines/m_addrbl.i: home/takao/ecalj/SRC/subroutines/m_addrbl.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_hamMTO.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_addrbl.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_hamMTO.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_hamMTO.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_hamMTO.f90.i
+home/takao/ecalj/SRC/subroutines/m_addrbl.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_addrbl.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_addrbl.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_hamMTO.s: home/takao/temp/ecalj/SRC/subroutines/m_hamMTO.f90.s
+home/takao/ecalj/SRC/subroutines/m_addrbl.s: home/takao/ecalj/SRC/subroutines/m_addrbl.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_hamMTO.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_addrbl.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_hamMTO.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_hamMTO.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_hamMTO.f90.s
+home/takao/ecalj/SRC/subroutines/m_addrbl.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_addrbl.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_addrbl.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_hamindex.o: home/takao/temp/ecalj/SRC/subroutines/m_hamindex.f90.o
+home/takao/ecalj/SRC/subroutines/m_amix.o: home/takao/ecalj/SRC/subroutines/m_amix.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_hamindex.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_amix.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_hamindex.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_hamindex.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_hamindex.f90.o
+home/takao/ecalj/SRC/subroutines/m_amix.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_amix.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_amix.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_hamindex.i: home/takao/temp/ecalj/SRC/subroutines/m_hamindex.f90.i
+home/takao/ecalj/SRC/subroutines/m_amix.i: home/takao/ecalj/SRC/subroutines/m_amix.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_hamindex.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_amix.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_hamindex.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_hamindex.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_hamindex.f90.i
+home/takao/ecalj/SRC/subroutines/m_amix.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_amix.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_amix.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_hamindex.s: home/takao/temp/ecalj/SRC/subroutines/m_hamindex.f90.s
+home/takao/ecalj/SRC/subroutines/m_amix.s: home/takao/ecalj/SRC/subroutines/m_amix.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_hamindex.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_amix.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_hamindex.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_hamindex.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_hamindex.f90.s
+home/takao/ecalj/SRC/subroutines/m_amix.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_amix.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_amix.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_hamindex0.o: home/takao/temp/ecalj/SRC/subroutines/m_hamindex0.f90.o
+home/takao/ecalj/SRC/subroutines/m_anf.o: home/takao/ecalj/SRC/subroutines/m_anf.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_hamindex0.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_anf.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_hamindex0.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_hamindex0.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_hamindex0.f90.o
+home/takao/ecalj/SRC/subroutines/m_anf.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_anf.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_anf.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_hamindex0.i: home/takao/temp/ecalj/SRC/subroutines/m_hamindex0.f90.i
+home/takao/ecalj/SRC/subroutines/m_anf.i: home/takao/ecalj/SRC/subroutines/m_anf.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_hamindex0.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_anf.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_hamindex0.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_hamindex0.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_hamindex0.f90.i
+home/takao/ecalj/SRC/subroutines/m_anf.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_anf.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_anf.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_hamindex0.s: home/takao/temp/ecalj/SRC/subroutines/m_hamindex0.f90.s
+home/takao/ecalj/SRC/subroutines/m_anf.s: home/takao/ecalj/SRC/subroutines/m_anf.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_hamindex0.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_anf.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_hamindex0.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_hamindex0.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_hamindex0.f90.s
+home/takao/ecalj/SRC/subroutines/m_anf.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_anf.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_anf.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_hansr.o: home/takao/temp/ecalj/SRC/subroutines/m_hansr.f90.o
+home/takao/ecalj/SRC/subroutines/m_atwf.o: home/takao/ecalj/SRC/subroutines/m_atwf.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_hansr.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_atwf.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_hansr.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_hansr.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_hansr.f90.o
+home/takao/ecalj/SRC/subroutines/m_atwf.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_atwf.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_atwf.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_hansr.i: home/takao/temp/ecalj/SRC/subroutines/m_hansr.f90.i
+home/takao/ecalj/SRC/subroutines/m_atwf.i: home/takao/ecalj/SRC/subroutines/m_atwf.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_hansr.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_atwf.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_hansr.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_hansr.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_hansr.f90.i
+home/takao/ecalj/SRC/subroutines/m_atwf.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_atwf.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_atwf.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_hansr.s: home/takao/temp/ecalj/SRC/subroutines/m_hansr.f90.s
+home/takao/ecalj/SRC/subroutines/m_atwf.s: home/takao/ecalj/SRC/subroutines/m_atwf.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_hansr.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_atwf.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_hansr.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_hansr.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_hansr.f90.s
+home/takao/ecalj/SRC/subroutines/m_atwf.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_atwf.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_atwf.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_homoelectron.o: home/takao/temp/ecalj/SRC/subroutines/m_homoelectron.f90.o
+home/takao/ecalj/SRC/subroutines/m_augmat.o: home/takao/ecalj/SRC/subroutines/m_augmat.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_homoelectron.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_augmat.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_homoelectron.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_homoelectron.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_homoelectron.f90.o
+home/takao/ecalj/SRC/subroutines/m_augmat.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_augmat.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_augmat.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_homoelectron.i: home/takao/temp/ecalj/SRC/subroutines/m_homoelectron.f90.i
+home/takao/ecalj/SRC/subroutines/m_augmat.i: home/takao/ecalj/SRC/subroutines/m_augmat.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_homoelectron.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_augmat.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_homoelectron.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_homoelectron.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_homoelectron.f90.i
+home/takao/ecalj/SRC/subroutines/m_augmat.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_augmat.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_augmat.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_homoelectron.s: home/takao/temp/ecalj/SRC/subroutines/m_homoelectron.f90.s
+home/takao/ecalj/SRC/subroutines/m_augmat.s: home/takao/ecalj/SRC/subroutines/m_augmat.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_homoelectron.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_augmat.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_homoelectron.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_homoelectron.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_homoelectron.f90.s
+home/takao/ecalj/SRC/subroutines/m_augmat.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_augmat.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_augmat.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_hvccfp0_util.o: home/takao/temp/ecalj/SRC/subroutines/m_hvccfp0_util.f90.o
+home/takao/ecalj/SRC/subroutines/m_augmbl.o: home/takao/ecalj/SRC/subroutines/m_augmbl.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_hvccfp0_util.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_augmbl.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_hvccfp0_util.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_hvccfp0_util.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_hvccfp0_util.f90.o
+home/takao/ecalj/SRC/subroutines/m_augmbl.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_augmbl.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_augmbl.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_hvccfp0_util.i: home/takao/temp/ecalj/SRC/subroutines/m_hvccfp0_util.f90.i
+home/takao/ecalj/SRC/subroutines/m_augmbl.i: home/takao/ecalj/SRC/subroutines/m_augmbl.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_hvccfp0_util.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_augmbl.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_hvccfp0_util.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_hvccfp0_util.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_hvccfp0_util.f90.i
+home/takao/ecalj/SRC/subroutines/m_augmbl.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_augmbl.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_augmbl.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_hvccfp0_util.s: home/takao/temp/ecalj/SRC/subroutines/m_hvccfp0_util.f90.s
+home/takao/ecalj/SRC/subroutines/m_augmbl.s: home/takao/ecalj/SRC/subroutines/m_augmbl.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_hvccfp0_util.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_augmbl.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_hvccfp0_util.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_hvccfp0_util.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_hvccfp0_util.f90.s
+home/takao/ecalj/SRC/subroutines/m_augmbl.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_augmbl.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_augmbl.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_igv2x.o: home/takao/temp/ecalj/SRC/subroutines/m_igv2x.f90.o
+home/takao/ecalj/SRC/subroutines/m_bandcal.o: home/takao/ecalj/SRC/subroutines/m_bandcal.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_igv2x.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_bandcal.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_igv2x.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_igv2x.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_igv2x.f90.o
+home/takao/ecalj/SRC/subroutines/m_bandcal.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_bandcal.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_bandcal.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_igv2x.i: home/takao/temp/ecalj/SRC/subroutines/m_igv2x.f90.i
+home/takao/ecalj/SRC/subroutines/m_bandcal.i: home/takao/ecalj/SRC/subroutines/m_bandcal.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_igv2x.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_bandcal.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_igv2x.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_igv2x.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_igv2x.f90.i
+home/takao/ecalj/SRC/subroutines/m_bandcal.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_bandcal.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_bandcal.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_igv2x.s: home/takao/temp/ecalj/SRC/subroutines/m_igv2x.f90.s
+home/takao/ecalj/SRC/subroutines/m_bandcal.s: home/takao/ecalj/SRC/subroutines/m_bandcal.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_igv2x.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_bandcal.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_igv2x.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_igv2x.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_igv2x.f90.s
+home/takao/ecalj/SRC/subroutines/m_bandcal.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_bandcal.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_bandcal.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_iqindx_qtt.o: home/takao/temp/ecalj/SRC/subroutines/m_iqindx_qtt.f90.o
+home/takao/ecalj/SRC/subroutines/m_bndfp.o: home/takao/ecalj/SRC/subroutines/m_bndfp.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_iqindx_qtt.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_bndfp.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_iqindx_qtt.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_iqindx_qtt.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_iqindx_qtt.f90.o
+home/takao/ecalj/SRC/subroutines/m_bndfp.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_bndfp.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_bndfp.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_iqindx_qtt.i: home/takao/temp/ecalj/SRC/subroutines/m_iqindx_qtt.f90.i
+home/takao/ecalj/SRC/subroutines/m_bndfp.i: home/takao/ecalj/SRC/subroutines/m_bndfp.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_iqindx_qtt.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_bndfp.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_iqindx_qtt.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_iqindx_qtt.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_iqindx_qtt.f90.i
+home/takao/ecalj/SRC/subroutines/m_bndfp.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_bndfp.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_bndfp.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_iqindx_qtt.s: home/takao/temp/ecalj/SRC/subroutines/m_iqindx_qtt.f90.s
+home/takao/ecalj/SRC/subroutines/m_bndfp.s: home/takao/ecalj/SRC/subroutines/m_bndfp.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_iqindx_qtt.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_bndfp.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_iqindx_qtt.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_iqindx_qtt.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_iqindx_qtt.f90.s
+home/takao/ecalj/SRC/subroutines/m_bndfp.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_bndfp.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_bndfp.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_iqindx_wan.o: home/takao/temp/ecalj/SRC/subroutines/m_iqindx_wan.f90.o
+home/takao/ecalj/SRC/subroutines/m_bndfp_util.o: home/takao/ecalj/SRC/subroutines/m_bndfp_util.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_iqindx_wan.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_bndfp_util.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_iqindx_wan.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_iqindx_wan.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_iqindx_wan.f90.o
+home/takao/ecalj/SRC/subroutines/m_bndfp_util.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_bndfp_util.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_bndfp_util.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_iqindx_wan.i: home/takao/temp/ecalj/SRC/subroutines/m_iqindx_wan.f90.i
+home/takao/ecalj/SRC/subroutines/m_bndfp_util.i: home/takao/ecalj/SRC/subroutines/m_bndfp_util.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_iqindx_wan.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_bndfp_util.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_iqindx_wan.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_iqindx_wan.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_iqindx_wan.f90.i
+home/takao/ecalj/SRC/subroutines/m_bndfp_util.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_bndfp_util.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_bndfp_util.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_iqindx_wan.s: home/takao/temp/ecalj/SRC/subroutines/m_iqindx_wan.f90.s
+home/takao/ecalj/SRC/subroutines/m_bndfp_util.s: home/takao/ecalj/SRC/subroutines/m_bndfp_util.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_iqindx_wan.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_bndfp_util.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_iqindx_wan.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_iqindx_wan.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_iqindx_wan.f90.s
+home/takao/ecalj/SRC/subroutines/m_bndfp_util.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_bndfp_util.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_bndfp_util.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_itq.o: home/takao/temp/ecalj/SRC/subroutines/m_itq.f90.o
+home/takao/ecalj/SRC/subroutines/m_bstrux.o: home/takao/ecalj/SRC/subroutines/m_bstrux.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_itq.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_bstrux.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_itq.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_itq.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_itq.f90.o
+home/takao/ecalj/SRC/subroutines/m_bstrux.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_bstrux.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_bstrux.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_itq.i: home/takao/temp/ecalj/SRC/subroutines/m_itq.f90.i
+home/takao/ecalj/SRC/subroutines/m_bstrux.i: home/takao/ecalj/SRC/subroutines/m_bstrux.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_itq.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_bstrux.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_itq.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_itq.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_itq.f90.i
+home/takao/ecalj/SRC/subroutines/m_bstrux.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_bstrux.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_bstrux.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_itq.s: home/takao/temp/ecalj/SRC/subroutines/m_itq.f90.s
+home/takao/ecalj/SRC/subroutines/m_bstrux.s: home/takao/ecalj/SRC/subroutines/m_bstrux.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_itq.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_bstrux.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_itq.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_itq.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_itq.f90.s
+home/takao/ecalj/SRC/subroutines/m_bstrux.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_bstrux.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_bstrux.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_ldau.o: home/takao/temp/ecalj/SRC/subroutines/m_ldau.f90.o
+home/takao/ecalj/SRC/subroutines/m_bzints.o: home/takao/ecalj/SRC/subroutines/m_bzints.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_ldau.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_bzints.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_ldau.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_ldau.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_ldau.f90.o
+home/takao/ecalj/SRC/subroutines/m_bzints.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_bzints.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_bzints.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_ldau.i: home/takao/temp/ecalj/SRC/subroutines/m_ldau.f90.i
+home/takao/ecalj/SRC/subroutines/m_bzints.i: home/takao/ecalj/SRC/subroutines/m_bzints.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_ldau.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_bzints.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_ldau.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_ldau.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_ldau.f90.i
+home/takao/ecalj/SRC/subroutines/m_bzints.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_bzints.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_bzints.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_ldau.s: home/takao/temp/ecalj/SRC/subroutines/m_ldau.f90.s
+home/takao/ecalj/SRC/subroutines/m_bzints.s: home/takao/ecalj/SRC/subroutines/m_bzints.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_ldau.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_bzints.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_ldau.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_ldau.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_ldau.f90.s
+home/takao/ecalj/SRC/subroutines/m_bzints.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_bzints.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_bzints.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_ldau_util.o: home/takao/temp/ecalj/SRC/subroutines/m_ldau_util.f90.o
+home/takao/ecalj/SRC/subroutines/m_bzwts.o: home/takao/ecalj/SRC/subroutines/m_bzwts.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_ldau_util.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_bzwts.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_ldau_util.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_ldau_util.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_ldau_util.f90.o
+home/takao/ecalj/SRC/subroutines/m_bzwts.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_bzwts.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_bzwts.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_ldau_util.i: home/takao/temp/ecalj/SRC/subroutines/m_ldau_util.f90.i
+home/takao/ecalj/SRC/subroutines/m_bzwts.i: home/takao/ecalj/SRC/subroutines/m_bzwts.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_ldau_util.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_bzwts.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_ldau_util.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_ldau_util.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_ldau_util.f90.i
+home/takao/ecalj/SRC/subroutines/m_bzwts.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_bzwts.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_bzwts.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_ldau_util.s: home/takao/temp/ecalj/SRC/subroutines/m_ldau_util.f90.s
+home/takao/ecalj/SRC/subroutines/m_bzwts.s: home/takao/ecalj/SRC/subroutines/m_bzwts.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_ldau_util.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_bzwts.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_ldau_util.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_ldau_util.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_ldau_util.f90.s
+home/takao/ecalj/SRC/subroutines/m_bzwts.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_bzwts.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_bzwts.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_llw.o: home/takao/temp/ecalj/SRC/subroutines/m_llw.f90.o
+home/takao/ecalj/SRC/subroutines/m_clsmode.o: home/takao/ecalj/SRC/subroutines/m_clsmode.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_llw.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_clsmode.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_llw.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_llw.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_llw.f90.o
+home/takao/ecalj/SRC/subroutines/m_clsmode.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_clsmode.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_clsmode.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_llw.i: home/takao/temp/ecalj/SRC/subroutines/m_llw.f90.i
+home/takao/ecalj/SRC/subroutines/m_clsmode.i: home/takao/ecalj/SRC/subroutines/m_clsmode.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_llw.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_clsmode.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_llw.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_llw.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_llw.f90.i
+home/takao/ecalj/SRC/subroutines/m_clsmode.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_clsmode.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_clsmode.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_llw.s: home/takao/temp/ecalj/SRC/subroutines/m_llw.f90.s
+home/takao/ecalj/SRC/subroutines/m_clsmode.s: home/takao/ecalj/SRC/subroutines/m_clsmode.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_llw.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_clsmode.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_llw.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_llw.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_llw.f90.s
+home/takao/ecalj/SRC/subroutines/m_clsmode.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_clsmode.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_clsmode.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_lmfinit.o: home/takao/temp/ecalj/SRC/subroutines/m_lmfinit.f90.o
+home/takao/ecalj/SRC/subroutines/m_cmdpath.o: home/takao/ecalj/SRC/subroutines/m_cmdpath.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_lmfinit.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_cmdpath.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_lmfinit.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_lmfinit.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_lmfinit.f90.o
+home/takao/ecalj/SRC/subroutines/m_cmdpath.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_cmdpath.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_cmdpath.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_lmfinit.i: home/takao/temp/ecalj/SRC/subroutines/m_lmfinit.f90.i
+home/takao/ecalj/SRC/subroutines/m_cmdpath.i: home/takao/ecalj/SRC/subroutines/m_cmdpath.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_lmfinit.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_cmdpath.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_lmfinit.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_lmfinit.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_lmfinit.f90.i
+home/takao/ecalj/SRC/subroutines/m_cmdpath.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_cmdpath.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_cmdpath.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_lmfinit.s: home/takao/temp/ecalj/SRC/subroutines/m_lmfinit.f90.s
+home/takao/ecalj/SRC/subroutines/m_cmdpath.s: home/takao/ecalj/SRC/subroutines/m_cmdpath.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_lmfinit.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_cmdpath.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_lmfinit.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_lmfinit.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_lmfinit.f90.s
+home/takao/ecalj/SRC/subroutines/m_cmdpath.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_cmdpath.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_cmdpath.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_lmfp.o: home/takao/temp/ecalj/SRC/subroutines/m_lmfp.f90.o
+home/takao/ecalj/SRC/subroutines/m_commMPI.o: home/takao/ecalj/SRC/subroutines/m_commMPI.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_lmfp.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_commMPI.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_lmfp.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_lmfp.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_lmfp.f90.o
+home/takao/ecalj/SRC/subroutines/m_commMPI.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_commMPI.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_commMPI.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_lmfp.i: home/takao/temp/ecalj/SRC/subroutines/m_lmfp.f90.i
+home/takao/ecalj/SRC/subroutines/m_commMPI.i: home/takao/ecalj/SRC/subroutines/m_commMPI.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_lmfp.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_commMPI.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_lmfp.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_lmfp.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_lmfp.f90.i
+home/takao/ecalj/SRC/subroutines/m_commMPI.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_commMPI.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_commMPI.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_lmfp.s: home/takao/temp/ecalj/SRC/subroutines/m_lmfp.f90.s
+home/takao/ecalj/SRC/subroutines/m_commMPI.s: home/takao/ecalj/SRC/subroutines/m_commMPI.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_lmfp.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_commMPI.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_lmfp.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_lmfp.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_lmfp.f90.s
+home/takao/ecalj/SRC/subroutines/m_commMPI.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_commMPI.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_commMPI.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_mkpot.o: home/takao/temp/ecalj/SRC/subroutines/m_mkpot.f90.o
+home/takao/ecalj/SRC/subroutines/m_density.o: home/takao/ecalj/SRC/subroutines/m_density.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_mkpot.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_density.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_mkpot.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_mkpot.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_mkpot.f90.o
+home/takao/ecalj/SRC/subroutines/m_density.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_density.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_density.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_mkpot.i: home/takao/temp/ecalj/SRC/subroutines/m_mkpot.f90.i
+home/takao/ecalj/SRC/subroutines/m_density.i: home/takao/ecalj/SRC/subroutines/m_density.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_mkpot.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_density.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_mkpot.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_mkpot.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_mkpot.f90.i
+home/takao/ecalj/SRC/subroutines/m_density.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_density.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_density.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_mkpot.s: home/takao/temp/ecalj/SRC/subroutines/m_mkpot.f90.s
+home/takao/ecalj/SRC/subroutines/m_density.s: home/takao/ecalj/SRC/subroutines/m_density.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_mkpot.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_density.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_mkpot.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_mkpot.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_mkpot.f90.s
+home/takao/ecalj/SRC/subroutines/m_density.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_density.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_density.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_mksym.o: home/takao/temp/ecalj/SRC/subroutines/m_mksym.f90.o
+home/takao/ecalj/SRC/subroutines/m_eibz.o: home/takao/ecalj/SRC/subroutines/m_eibz.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_mksym.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_eibz.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_mksym.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_mksym.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_mksym.f90.o
+home/takao/ecalj/SRC/subroutines/m_eibz.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_eibz.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_eibz.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_mksym.i: home/takao/temp/ecalj/SRC/subroutines/m_mksym.f90.i
+home/takao/ecalj/SRC/subroutines/m_eibz.i: home/takao/ecalj/SRC/subroutines/m_eibz.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_mksym.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_eibz.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_mksym.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_mksym.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_mksym.f90.i
+home/takao/ecalj/SRC/subroutines/m_eibz.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_eibz.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_eibz.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_mksym.s: home/takao/temp/ecalj/SRC/subroutines/m_mksym.f90.s
+home/takao/ecalj/SRC/subroutines/m_eibz.s: home/takao/ecalj/SRC/subroutines/m_eibz.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_mksym.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_eibz.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_mksym.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_mksym.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_mksym.f90.s
+home/takao/ecalj/SRC/subroutines/m_eibz.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_eibz.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_eibz.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_mksym_util.o: home/takao/temp/ecalj/SRC/subroutines/m_mksym_util.f90.o
+home/takao/ecalj/SRC/subroutines/m_ext.o: home/takao/ecalj/SRC/subroutines/m_ext.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_mksym_util.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_ext.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_mksym_util.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_mksym_util.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_mksym_util.f90.o
+home/takao/ecalj/SRC/subroutines/m_ext.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_ext.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_ext.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_mksym_util.i: home/takao/temp/ecalj/SRC/subroutines/m_mksym_util.f90.i
+home/takao/ecalj/SRC/subroutines/m_ext.i: home/takao/ecalj/SRC/subroutines/m_ext.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_mksym_util.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_ext.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_mksym_util.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_mksym_util.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_mksym_util.f90.i
+home/takao/ecalj/SRC/subroutines/m_ext.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_ext.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_ext.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_mksym_util.s: home/takao/temp/ecalj/SRC/subroutines/m_mksym_util.f90.s
+home/takao/ecalj/SRC/subroutines/m_ext.s: home/takao/ecalj/SRC/subroutines/m_ext.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_mksym_util.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_ext.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_mksym_util.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_mksym_util.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_mksym_util.f90.s
+home/takao/ecalj/SRC/subroutines/m_ext.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_ext.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_ext.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_orbl.o: home/takao/temp/ecalj/SRC/subroutines/m_orbl.f90.o
+home/takao/ecalj/SRC/subroutines/m_fatom.o: home/takao/ecalj/SRC/subroutines/m_fatom.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_orbl.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_fatom.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_orbl.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_orbl.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_orbl.f90.o
+home/takao/ecalj/SRC/subroutines/m_fatom.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_fatom.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_fatom.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_orbl.i: home/takao/temp/ecalj/SRC/subroutines/m_orbl.f90.i
+home/takao/ecalj/SRC/subroutines/m_fatom.i: home/takao/ecalj/SRC/subroutines/m_fatom.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_orbl.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_fatom.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_orbl.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_orbl.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_orbl.f90.i
+home/takao/ecalj/SRC/subroutines/m_fatom.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_fatom.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_fatom.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_orbl.s: home/takao/temp/ecalj/SRC/subroutines/m_orbl.f90.s
+home/takao/ecalj/SRC/subroutines/m_fatom.s: home/takao/ecalj/SRC/subroutines/m_fatom.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_orbl.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_fatom.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_orbl.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_orbl.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_orbl.f90.s
+home/takao/ecalj/SRC/subroutines/m_fatom.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_fatom.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_fatom.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_pbindex.o: home/takao/temp/ecalj/SRC/subroutines/m_pbindex.f90.o
+home/takao/ecalj/SRC/subroutines/m_freq.o: home/takao/ecalj/SRC/subroutines/m_freq.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_pbindex.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_freq.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_pbindex.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_pbindex.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_pbindex.f90.o
+home/takao/ecalj/SRC/subroutines/m_freq.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_freq.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_freq.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_pbindex.i: home/takao/temp/ecalj/SRC/subroutines/m_pbindex.f90.i
+home/takao/ecalj/SRC/subroutines/m_freq.i: home/takao/ecalj/SRC/subroutines/m_freq.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_pbindex.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_freq.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_pbindex.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_pbindex.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_pbindex.f90.i
+home/takao/ecalj/SRC/subroutines/m_freq.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_freq.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_freq.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_pbindex.s: home/takao/temp/ecalj/SRC/subroutines/m_pbindex.f90.s
+home/takao/ecalj/SRC/subroutines/m_freq.s: home/takao/ecalj/SRC/subroutines/m_freq.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_pbindex.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_freq.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_pbindex.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_pbindex.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_pbindex.f90.s
+home/takao/ecalj/SRC/subroutines/m_freq.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_freq.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_freq.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_pkm4crpa.o: home/takao/temp/ecalj/SRC/subroutines/m_pkm4crpa.f90.o
+home/takao/ecalj/SRC/subroutines/m_ftox.o: home/takao/ecalj/SRC/subroutines/m_ftox.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_pkm4crpa.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_ftox.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_pkm4crpa.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_pkm4crpa.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_pkm4crpa.f90.o
+home/takao/ecalj/SRC/subroutines/m_ftox.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_ftox.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_ftox.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_pkm4crpa.i: home/takao/temp/ecalj/SRC/subroutines/m_pkm4crpa.f90.i
+home/takao/ecalj/SRC/subroutines/m_ftox.i: home/takao/ecalj/SRC/subroutines/m_ftox.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_pkm4crpa.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_ftox.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_pkm4crpa.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_pkm4crpa.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_pkm4crpa.f90.i
+home/takao/ecalj/SRC/subroutines/m_ftox.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_ftox.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_ftox.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_pkm4crpa.s: home/takao/temp/ecalj/SRC/subroutines/m_pkm4crpa.f90.s
+home/takao/ecalj/SRC/subroutines/m_ftox.s: home/takao/ecalj/SRC/subroutines/m_ftox.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_pkm4crpa.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_ftox.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_pkm4crpa.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_pkm4crpa.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_pkm4crpa.f90.s
+home/takao/ecalj/SRC/subroutines/m_ftox.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_ftox.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_ftox.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_procar.o: home/takao/temp/ecalj/SRC/subroutines/m_procar.f90.o
+home/takao/ecalj/SRC/subroutines/m_gaussianfilter.o: home/takao/ecalj/SRC/subroutines/m_gaussianfilter.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_procar.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_gaussianfilter.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_procar.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_procar.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_procar.f90.o
+home/takao/ecalj/SRC/subroutines/m_gaussianfilter.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_gaussianfilter.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_gaussianfilter.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_procar.i: home/takao/temp/ecalj/SRC/subroutines/m_procar.f90.i
+home/takao/ecalj/SRC/subroutines/m_gaussianfilter.i: home/takao/ecalj/SRC/subroutines/m_gaussianfilter.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_procar.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_gaussianfilter.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_procar.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_procar.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_procar.f90.i
+home/takao/ecalj/SRC/subroutines/m_gaussianfilter.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_gaussianfilter.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_gaussianfilter.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_procar.s: home/takao/temp/ecalj/SRC/subroutines/m_procar.f90.s
+home/takao/ecalj/SRC/subroutines/m_gaussianfilter.s: home/takao/ecalj/SRC/subroutines/m_gaussianfilter.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_procar.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_gaussianfilter.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_procar.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_procar.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_procar.f90.s
+home/takao/ecalj/SRC/subroutines/m_gaussianfilter.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_gaussianfilter.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_gaussianfilter.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_q0p.o: home/takao/temp/ecalj/SRC/subroutines/m_q0p.f90.o
+home/takao/ecalj/SRC/subroutines/m_gennlat.o: home/takao/ecalj/SRC/subroutines/m_gennlat.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_q0p.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_gennlat.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_q0p.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_q0p.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_q0p.f90.o
+home/takao/ecalj/SRC/subroutines/m_gennlat.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_gennlat.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_gennlat.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_q0p.i: home/takao/temp/ecalj/SRC/subroutines/m_q0p.f90.i
+home/takao/ecalj/SRC/subroutines/m_gennlat.i: home/takao/ecalj/SRC/subroutines/m_gennlat.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_q0p.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_gennlat.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_q0p.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_q0p.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_q0p.f90.i
+home/takao/ecalj/SRC/subroutines/m_gennlat.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_gennlat.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_gennlat.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_q0p.s: home/takao/temp/ecalj/SRC/subroutines/m_q0p.f90.s
+home/takao/ecalj/SRC/subroutines/m_gennlat.s: home/takao/ecalj/SRC/subroutines/m_gennlat.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_q0p.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_gennlat.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_q0p.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_q0p.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_q0p.f90.s
+home/takao/ecalj/SRC/subroutines/m_gennlat.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_gennlat.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_gennlat.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_qbze.o: home/takao/temp/ecalj/SRC/subroutines/m_qbze.f90.o
+home/takao/ecalj/SRC/subroutines/m_gtv.o: home/takao/ecalj/SRC/subroutines/m_gtv.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_qbze.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_gtv.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_qbze.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_qbze.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_qbze.f90.o
+home/takao/ecalj/SRC/subroutines/m_gtv.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_gtv.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_gtv.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_qbze.i: home/takao/temp/ecalj/SRC/subroutines/m_qbze.f90.i
+home/takao/ecalj/SRC/subroutines/m_gtv.i: home/takao/ecalj/SRC/subroutines/m_gtv.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_qbze.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_gtv.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_qbze.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_qbze.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_qbze.f90.i
+home/takao/ecalj/SRC/subroutines/m_gtv.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_gtv.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_gtv.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_qbze.s: home/takao/temp/ecalj/SRC/subroutines/m_qbze.f90.s
+home/takao/ecalj/SRC/subroutines/m_gtv.s: home/takao/ecalj/SRC/subroutines/m_gtv.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_qbze.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_gtv.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_qbze.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_qbze.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_qbze.f90.s
+home/takao/ecalj/SRC/subroutines/m_gtv.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_gtv.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_gtv.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_qplist.o: home/takao/temp/ecalj/SRC/subroutines/m_qplist.f90.o
+home/takao/ecalj/SRC/subroutines/m_hamMTO.o: home/takao/ecalj/SRC/subroutines/m_hamMTO.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_qplist.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_hamMTO.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_qplist.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_qplist.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_qplist.f90.o
+home/takao/ecalj/SRC/subroutines/m_hamMTO.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_hamMTO.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_hamMTO.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_qplist.i: home/takao/temp/ecalj/SRC/subroutines/m_qplist.f90.i
+home/takao/ecalj/SRC/subroutines/m_hamMTO.i: home/takao/ecalj/SRC/subroutines/m_hamMTO.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_qplist.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_hamMTO.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_qplist.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_qplist.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_qplist.f90.i
+home/takao/ecalj/SRC/subroutines/m_hamMTO.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_hamMTO.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_hamMTO.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_qplist.s: home/takao/temp/ecalj/SRC/subroutines/m_qplist.f90.s
+home/takao/ecalj/SRC/subroutines/m_hamMTO.s: home/takao/ecalj/SRC/subroutines/m_hamMTO.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_qplist.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_hamMTO.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_qplist.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_qplist.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_qplist.f90.s
+home/takao/ecalj/SRC/subroutines/m_hamMTO.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_hamMTO.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_hamMTO.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_readQGcou.o: home/takao/temp/ecalj/SRC/subroutines/m_readQGcou.f90.o
+home/takao/ecalj/SRC/subroutines/m_hamindex.o: home/takao/ecalj/SRC/subroutines/m_hamindex.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_readQGcou.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_hamindex.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_readQGcou.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_readQGcou.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_readQGcou.f90.o
+home/takao/ecalj/SRC/subroutines/m_hamindex.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_hamindex.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_hamindex.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_readQGcou.i: home/takao/temp/ecalj/SRC/subroutines/m_readQGcou.f90.i
+home/takao/ecalj/SRC/subroutines/m_hamindex.i: home/takao/ecalj/SRC/subroutines/m_hamindex.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_readQGcou.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_hamindex.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_readQGcou.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_readQGcou.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_readQGcou.f90.i
+home/takao/ecalj/SRC/subroutines/m_hamindex.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_hamindex.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_hamindex.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_readQGcou.s: home/takao/temp/ecalj/SRC/subroutines/m_readQGcou.f90.s
+home/takao/ecalj/SRC/subroutines/m_hamindex.s: home/takao/ecalj/SRC/subroutines/m_hamindex.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_readQGcou.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_hamindex.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_readQGcou.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_readQGcou.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_readQGcou.f90.s
+home/takao/ecalj/SRC/subroutines/m_hamindex.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_hamindex.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_hamindex.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_readVcoud.o: home/takao/temp/ecalj/SRC/subroutines/m_readVcoud.f90.o
+home/takao/ecalj/SRC/subroutines/m_hamindex0.o: home/takao/ecalj/SRC/subroutines/m_hamindex0.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_readVcoud.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_hamindex0.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_readVcoud.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_readVcoud.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_readVcoud.f90.o
+home/takao/ecalj/SRC/subroutines/m_hamindex0.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_hamindex0.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_hamindex0.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_readVcoud.i: home/takao/temp/ecalj/SRC/subroutines/m_readVcoud.f90.i
+home/takao/ecalj/SRC/subroutines/m_hamindex0.i: home/takao/ecalj/SRC/subroutines/m_hamindex0.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_readVcoud.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_hamindex0.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_readVcoud.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_readVcoud.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_readVcoud.f90.i
+home/takao/ecalj/SRC/subroutines/m_hamindex0.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_hamindex0.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_hamindex0.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_readVcoud.s: home/takao/temp/ecalj/SRC/subroutines/m_readVcoud.f90.s
+home/takao/ecalj/SRC/subroutines/m_hamindex0.s: home/takao/ecalj/SRC/subroutines/m_hamindex0.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_readVcoud.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_hamindex0.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_readVcoud.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_readVcoud.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_readVcoud.f90.s
+home/takao/ecalj/SRC/subroutines/m_hamindex0.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_hamindex0.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_hamindex0.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_readeps.o: home/takao/temp/ecalj/SRC/subroutines/m_readeps.f90.o
+home/takao/ecalj/SRC/subroutines/m_hansr.o: home/takao/ecalj/SRC/subroutines/m_hansr.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_readeps.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_hansr.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_readeps.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_readeps.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_readeps.f90.o
+home/takao/ecalj/SRC/subroutines/m_hansr.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_hansr.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_hansr.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_readeps.i: home/takao/temp/ecalj/SRC/subroutines/m_readeps.f90.i
+home/takao/ecalj/SRC/subroutines/m_hansr.i: home/takao/ecalj/SRC/subroutines/m_hansr.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_readeps.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_hansr.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_readeps.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_readeps.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_readeps.f90.i
+home/takao/ecalj/SRC/subroutines/m_hansr.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_hansr.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_hansr.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_readeps.s: home/takao/temp/ecalj/SRC/subroutines/m_readeps.f90.s
+home/takao/ecalj/SRC/subroutines/m_hansr.s: home/takao/ecalj/SRC/subroutines/m_hansr.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_readeps.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_hansr.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_readeps.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_readeps.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_readeps.f90.s
+home/takao/ecalj/SRC/subroutines/m_hansr.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_hansr.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_hansr.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_readfreq_r.o: home/takao/temp/ecalj/SRC/subroutines/m_readfreq_r.f90.o
+home/takao/ecalj/SRC/subroutines/m_homoelectron.o: home/takao/ecalj/SRC/subroutines/m_homoelectron.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_readfreq_r.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_homoelectron.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_readfreq_r.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_readfreq_r.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_readfreq_r.f90.o
+home/takao/ecalj/SRC/subroutines/m_homoelectron.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_homoelectron.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_homoelectron.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_readfreq_r.i: home/takao/temp/ecalj/SRC/subroutines/m_readfreq_r.f90.i
+home/takao/ecalj/SRC/subroutines/m_homoelectron.i: home/takao/ecalj/SRC/subroutines/m_homoelectron.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_readfreq_r.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_homoelectron.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_readfreq_r.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_readfreq_r.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_readfreq_r.f90.i
+home/takao/ecalj/SRC/subroutines/m_homoelectron.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_homoelectron.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_homoelectron.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_readfreq_r.s: home/takao/temp/ecalj/SRC/subroutines/m_readfreq_r.f90.s
+home/takao/ecalj/SRC/subroutines/m_homoelectron.s: home/takao/ecalj/SRC/subroutines/m_homoelectron.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_readfreq_r.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_homoelectron.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_readfreq_r.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_readfreq_r.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_readfreq_r.f90.s
+home/takao/ecalj/SRC/subroutines/m_homoelectron.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_homoelectron.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_homoelectron.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_readgwinput.o: home/takao/temp/ecalj/SRC/subroutines/m_readgwinput.f90.o
+home/takao/ecalj/SRC/subroutines/m_hvccfp0_util.o: home/takao/ecalj/SRC/subroutines/m_hvccfp0_util.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_readgwinput.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_hvccfp0_util.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_readgwinput.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_readgwinput.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_readgwinput.f90.o
+home/takao/ecalj/SRC/subroutines/m_hvccfp0_util.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_hvccfp0_util.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_hvccfp0_util.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_readgwinput.i: home/takao/temp/ecalj/SRC/subroutines/m_readgwinput.f90.i
+home/takao/ecalj/SRC/subroutines/m_hvccfp0_util.i: home/takao/ecalj/SRC/subroutines/m_hvccfp0_util.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_readgwinput.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_hvccfp0_util.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_readgwinput.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_readgwinput.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_readgwinput.f90.i
+home/takao/ecalj/SRC/subroutines/m_hvccfp0_util.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_hvccfp0_util.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_hvccfp0_util.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_readgwinput.s: home/takao/temp/ecalj/SRC/subroutines/m_readgwinput.f90.s
+home/takao/ecalj/SRC/subroutines/m_hvccfp0_util.s: home/takao/ecalj/SRC/subroutines/m_hvccfp0_util.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_readgwinput.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_hvccfp0_util.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_readgwinput.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_readgwinput.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_readgwinput.f90.s
+home/takao/ecalj/SRC/subroutines/m_hvccfp0_util.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_hvccfp0_util.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_hvccfp0_util.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_readwan.o: home/takao/temp/ecalj/SRC/subroutines/m_readwan.f90.o
+home/takao/ecalj/SRC/subroutines/m_igv2x.o: home/takao/ecalj/SRC/subroutines/m_igv2x.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_readwan.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_igv2x.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_readwan.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_readwan.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_readwan.f90.o
+home/takao/ecalj/SRC/subroutines/m_igv2x.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_igv2x.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_igv2x.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_readwan.i: home/takao/temp/ecalj/SRC/subroutines/m_readwan.f90.i
+home/takao/ecalj/SRC/subroutines/m_igv2x.i: home/takao/ecalj/SRC/subroutines/m_igv2x.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_readwan.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_igv2x.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_readwan.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_readwan.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_readwan.f90.i
+home/takao/ecalj/SRC/subroutines/m_igv2x.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_igv2x.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_igv2x.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_readwan.s: home/takao/temp/ecalj/SRC/subroutines/m_readwan.f90.s
+home/takao/ecalj/SRC/subroutines/m_igv2x.s: home/takao/ecalj/SRC/subroutines/m_igv2x.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_readwan.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_igv2x.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_readwan.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_readwan.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_readwan.f90.s
+home/takao/ecalj/SRC/subroutines/m_igv2x.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_igv2x.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_igv2x.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_rhocor.o: home/takao/temp/ecalj/SRC/subroutines/m_rhocor.f90.o
+home/takao/ecalj/SRC/subroutines/m_iqindx_qtt.o: home/takao/ecalj/SRC/subroutines/m_iqindx_qtt.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_rhocor.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_iqindx_qtt.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_rhocor.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_rhocor.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_rhocor.f90.o
+home/takao/ecalj/SRC/subroutines/m_iqindx_qtt.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_iqindx_qtt.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_iqindx_qtt.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_rhocor.i: home/takao/temp/ecalj/SRC/subroutines/m_rhocor.f90.i
+home/takao/ecalj/SRC/subroutines/m_iqindx_qtt.i: home/takao/ecalj/SRC/subroutines/m_iqindx_qtt.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_rhocor.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_iqindx_qtt.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_rhocor.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_rhocor.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_rhocor.f90.i
+home/takao/ecalj/SRC/subroutines/m_iqindx_qtt.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_iqindx_qtt.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_iqindx_qtt.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_rhocor.s: home/takao/temp/ecalj/SRC/subroutines/m_rhocor.f90.s
+home/takao/ecalj/SRC/subroutines/m_iqindx_qtt.s: home/takao/ecalj/SRC/subroutines/m_iqindx_qtt.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_rhocor.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_iqindx_qtt.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_rhocor.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_rhocor.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_rhocor.f90.s
+home/takao/ecalj/SRC/subroutines/m_iqindx_qtt.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_iqindx_qtt.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_iqindx_qtt.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_rotMPB.o: home/takao/temp/ecalj/SRC/subroutines/m_rotMPB.f90.o
+home/takao/ecalj/SRC/subroutines/m_iqindx_wan.o: home/takao/ecalj/SRC/subroutines/m_iqindx_wan.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_rotMPB.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_iqindx_wan.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_rotMPB.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_rotMPB.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_rotMPB.f90.o
+home/takao/ecalj/SRC/subroutines/m_iqindx_wan.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_iqindx_wan.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_iqindx_wan.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_rotMPB.i: home/takao/temp/ecalj/SRC/subroutines/m_rotMPB.f90.i
+home/takao/ecalj/SRC/subroutines/m_iqindx_wan.i: home/takao/ecalj/SRC/subroutines/m_iqindx_wan.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_rotMPB.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_iqindx_wan.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_rotMPB.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_rotMPB.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_rotMPB.f90.i
+home/takao/ecalj/SRC/subroutines/m_iqindx_wan.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_iqindx_wan.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_iqindx_wan.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_rotMPB.s: home/takao/temp/ecalj/SRC/subroutines/m_rotMPB.f90.s
+home/takao/ecalj/SRC/subroutines/m_iqindx_wan.s: home/takao/ecalj/SRC/subroutines/m_iqindx_wan.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_rotMPB.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_iqindx_wan.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_rotMPB.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_rotMPB.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_rotMPB.f90.s
+home/takao/ecalj/SRC/subroutines/m_iqindx_wan.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_iqindx_wan.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_iqindx_wan.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_shortn3.o: home/takao/temp/ecalj/SRC/subroutines/m_shortn3.f90.o
+home/takao/ecalj/SRC/subroutines/m_itq.o: home/takao/ecalj/SRC/subroutines/m_itq.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_shortn3.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_itq.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_shortn3.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_shortn3.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_shortn3.f90.o
+home/takao/ecalj/SRC/subroutines/m_itq.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_itq.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_itq.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_shortn3.i: home/takao/temp/ecalj/SRC/subroutines/m_shortn3.f90.i
+home/takao/ecalj/SRC/subroutines/m_itq.i: home/takao/ecalj/SRC/subroutines/m_itq.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_shortn3.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_itq.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_shortn3.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_shortn3.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_shortn3.f90.i
+home/takao/ecalj/SRC/subroutines/m_itq.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_itq.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_itq.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_shortn3.s: home/takao/temp/ecalj/SRC/subroutines/m_shortn3.f90.s
+home/takao/ecalj/SRC/subroutines/m_itq.s: home/takao/ecalj/SRC/subroutines/m_itq.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_shortn3.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_itq.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_shortn3.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_shortn3.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_shortn3.f90.s
+home/takao/ecalj/SRC/subroutines/m_itq.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_itq.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_itq.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_shortn3_plat.o: home/takao/temp/ecalj/SRC/subroutines/m_shortn3_plat.f90.o
+home/takao/ecalj/SRC/subroutines/m_ldau.o: home/takao/ecalj/SRC/subroutines/m_ldau.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_shortn3_plat.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_ldau.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_shortn3_plat.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_shortn3_plat.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_shortn3_plat.f90.o
+home/takao/ecalj/SRC/subroutines/m_ldau.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_ldau.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_ldau.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_shortn3_plat.i: home/takao/temp/ecalj/SRC/subroutines/m_shortn3_plat.f90.i
+home/takao/ecalj/SRC/subroutines/m_ldau.i: home/takao/ecalj/SRC/subroutines/m_ldau.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_shortn3_plat.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_ldau.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_shortn3_plat.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_shortn3_plat.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_shortn3_plat.f90.i
+home/takao/ecalj/SRC/subroutines/m_ldau.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_ldau.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_ldau.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_shortn3_plat.s: home/takao/temp/ecalj/SRC/subroutines/m_shortn3_plat.f90.s
+home/takao/ecalj/SRC/subroutines/m_ldau.s: home/takao/ecalj/SRC/subroutines/m_ldau.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_shortn3_plat.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_ldau.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_shortn3_plat.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_shortn3_plat.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_shortn3_plat.f90.s
+home/takao/ecalj/SRC/subroutines/m_ldau.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_ldau.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_ldau.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_smhankel.o: home/takao/temp/ecalj/SRC/subroutines/m_smhankel.f90.o
+home/takao/ecalj/SRC/subroutines/m_ldau_util.o: home/takao/ecalj/SRC/subroutines/m_ldau_util.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_smhankel.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_ldau_util.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_smhankel.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_smhankel.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_smhankel.f90.o
+home/takao/ecalj/SRC/subroutines/m_ldau_util.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_ldau_util.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_ldau_util.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_smhankel.i: home/takao/temp/ecalj/SRC/subroutines/m_smhankel.f90.i
+home/takao/ecalj/SRC/subroutines/m_ldau_util.i: home/takao/ecalj/SRC/subroutines/m_ldau_util.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_smhankel.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_ldau_util.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_smhankel.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_smhankel.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_smhankel.f90.i
+home/takao/ecalj/SRC/subroutines/m_ldau_util.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_ldau_util.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_ldau_util.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_smhankel.s: home/takao/temp/ecalj/SRC/subroutines/m_smhankel.f90.s
+home/takao/ecalj/SRC/subroutines/m_ldau_util.s: home/takao/ecalj/SRC/subroutines/m_ldau_util.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_smhankel.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_ldau_util.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_smhankel.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_smhankel.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_smhankel.f90.s
+home/takao/ecalj/SRC/subroutines/m_ldau_util.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_ldau_util.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_ldau_util.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_struc_def.o: home/takao/temp/ecalj/SRC/subroutines/m_struc_def.f90.o
+home/takao/ecalj/SRC/subroutines/m_llw.o: home/takao/ecalj/SRC/subroutines/m_llw.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_struc_def.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_llw.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_struc_def.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_struc_def.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_struc_def.f90.o
+home/takao/ecalj/SRC/subroutines/m_llw.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_llw.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_llw.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_struc_def.i: home/takao/temp/ecalj/SRC/subroutines/m_struc_def.f90.i
+home/takao/ecalj/SRC/subroutines/m_llw.i: home/takao/ecalj/SRC/subroutines/m_llw.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_struc_def.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_llw.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_struc_def.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_struc_def.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_struc_def.f90.i
+home/takao/ecalj/SRC/subroutines/m_llw.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_llw.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_llw.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_struc_def.s: home/takao/temp/ecalj/SRC/subroutines/m_struc_def.f90.s
+home/takao/ecalj/SRC/subroutines/m_llw.s: home/takao/ecalj/SRC/subroutines/m_llw.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_struc_def.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_llw.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_struc_def.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_struc_def.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_struc_def.f90.s
+home/takao/ecalj/SRC/subroutines/m_llw.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_llw.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_llw.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_tetrakbt.o: home/takao/temp/ecalj/SRC/subroutines/m_tetrakbt.f90.o
+home/takao/ecalj/SRC/subroutines/m_lmfinit.o: home/takao/ecalj/SRC/subroutines/m_lmfinit.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_tetrakbt.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_lmfinit.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_tetrakbt.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_tetrakbt.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_tetrakbt.f90.o
+home/takao/ecalj/SRC/subroutines/m_lmfinit.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_lmfinit.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_lmfinit.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_tetrakbt.i: home/takao/temp/ecalj/SRC/subroutines/m_tetrakbt.f90.i
+home/takao/ecalj/SRC/subroutines/m_lmfinit.i: home/takao/ecalj/SRC/subroutines/m_lmfinit.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_tetrakbt.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_lmfinit.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_tetrakbt.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_tetrakbt.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_tetrakbt.f90.i
+home/takao/ecalj/SRC/subroutines/m_lmfinit.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_lmfinit.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_lmfinit.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_tetrakbt.s: home/takao/temp/ecalj/SRC/subroutines/m_tetrakbt.f90.s
+home/takao/ecalj/SRC/subroutines/m_lmfinit.s: home/takao/ecalj/SRC/subroutines/m_lmfinit.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_tetrakbt.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_lmfinit.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_tetrakbt.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_tetrakbt.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_tetrakbt.f90.s
+home/takao/ecalj/SRC/subroutines/m_lmfinit.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_lmfinit.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_lmfinit.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_tetwt.o: home/takao/temp/ecalj/SRC/subroutines/m_tetwt.f90.o
+home/takao/ecalj/SRC/subroutines/m_lmfp.o: home/takao/ecalj/SRC/subroutines/m_lmfp.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_tetwt.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_lmfp.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_tetwt.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_tetwt.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_tetwt.f90.o
+home/takao/ecalj/SRC/subroutines/m_lmfp.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_lmfp.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_lmfp.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_tetwt.i: home/takao/temp/ecalj/SRC/subroutines/m_tetwt.f90.i
+home/takao/ecalj/SRC/subroutines/m_lmfp.i: home/takao/ecalj/SRC/subroutines/m_lmfp.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_tetwt.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_lmfp.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_tetwt.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_tetwt.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_tetwt.f90.i
+home/takao/ecalj/SRC/subroutines/m_lmfp.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_lmfp.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_lmfp.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_tetwt.s: home/takao/temp/ecalj/SRC/subroutines/m_tetwt.f90.s
+home/takao/ecalj/SRC/subroutines/m_lmfp.s: home/takao/ecalj/SRC/subroutines/m_lmfp.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_tetwt.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_lmfp.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_tetwt.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_tetwt.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_tetwt.f90.s
+home/takao/ecalj/SRC/subroutines/m_lmfp.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_lmfp.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_lmfp.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_vxcatom.o: home/takao/temp/ecalj/SRC/subroutines/m_vxcatom.f90.o
+home/takao/ecalj/SRC/subroutines/m_mkpot.o: home/takao/ecalj/SRC/subroutines/m_mkpot.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_vxcatom.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_mkpot.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_vxcatom.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_vxcatom.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_vxcatom.f90.o
+home/takao/ecalj/SRC/subroutines/m_mkpot.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_mkpot.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_mkpot.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_vxcatom.i: home/takao/temp/ecalj/SRC/subroutines/m_vxcatom.f90.i
+home/takao/ecalj/SRC/subroutines/m_mkpot.i: home/takao/ecalj/SRC/subroutines/m_mkpot.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_vxcatom.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_mkpot.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_vxcatom.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_vxcatom.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_vxcatom.f90.i
+home/takao/ecalj/SRC/subroutines/m_mkpot.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_mkpot.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_mkpot.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_vxcatom.s: home/takao/temp/ecalj/SRC/subroutines/m_vxcatom.f90.s
+home/takao/ecalj/SRC/subroutines/m_mkpot.s: home/takao/ecalj/SRC/subroutines/m_mkpot.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_vxcatom.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_mkpot.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_vxcatom.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_vxcatom.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_vxcatom.f90.s
+home/takao/ecalj/SRC/subroutines/m_mkpot.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_mkpot.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_mkpot.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_w0w0i.o: home/takao/temp/ecalj/SRC/subroutines/m_w0w0i.f90.o
+home/takao/ecalj/SRC/subroutines/m_mksym.o: home/takao/ecalj/SRC/subroutines/m_mksym.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_w0w0i.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_mksym.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_w0w0i.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_w0w0i.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_w0w0i.f90.o
+home/takao/ecalj/SRC/subroutines/m_mksym.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_mksym.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_mksym.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_w0w0i.i: home/takao/temp/ecalj/SRC/subroutines/m_w0w0i.f90.i
+home/takao/ecalj/SRC/subroutines/m_mksym.i: home/takao/ecalj/SRC/subroutines/m_mksym.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_w0w0i.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_mksym.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_w0w0i.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_w0w0i.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_w0w0i.f90.i
+home/takao/ecalj/SRC/subroutines/m_mksym.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_mksym.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_mksym.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_w0w0i.s: home/takao/temp/ecalj/SRC/subroutines/m_w0w0i.f90.s
+home/takao/ecalj/SRC/subroutines/m_mksym.s: home/takao/ecalj/SRC/subroutines/m_mksym.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_w0w0i.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_mksym.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_w0w0i.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_w0w0i.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_w0w0i.f90.s
+home/takao/ecalj/SRC/subroutines/m_mksym.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_mksym.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_mksym.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_writeband.o: home/takao/temp/ecalj/SRC/subroutines/m_writeband.f90.o
+home/takao/ecalj/SRC/subroutines/m_mksym_util.o: home/takao/ecalj/SRC/subroutines/m_mksym_util.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_writeband.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_mksym_util.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_writeband.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_writeband.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_writeband.f90.o
+home/takao/ecalj/SRC/subroutines/m_mksym_util.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_mksym_util.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_mksym_util.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_writeband.i: home/takao/temp/ecalj/SRC/subroutines/m_writeband.f90.i
+home/takao/ecalj/SRC/subroutines/m_mksym_util.i: home/takao/ecalj/SRC/subroutines/m_mksym_util.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_writeband.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_mksym_util.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_writeband.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_writeband.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_writeband.f90.i
+home/takao/ecalj/SRC/subroutines/m_mksym_util.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_mksym_util.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_mksym_util.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_writeband.s: home/takao/temp/ecalj/SRC/subroutines/m_writeband.f90.s
+home/takao/ecalj/SRC/subroutines/m_mksym_util.s: home/takao/ecalj/SRC/subroutines/m_mksym_util.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_writeband.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_mksym_util.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_writeband.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_writeband.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_writeband.f90.s
+home/takao/ecalj/SRC/subroutines/m_mksym_util.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_mksym_util.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_mksym_util.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/m_zmel.o: home/takao/temp/ecalj/SRC/subroutines/m_zmel.f90.o
+home/takao/ecalj/SRC/subroutines/m_orbl.o: home/takao/ecalj/SRC/subroutines/m_orbl.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_zmel.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_orbl.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/m_zmel.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_zmel.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_zmel.f90.o
+home/takao/ecalj/SRC/subroutines/m_orbl.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_orbl.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_orbl.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/m_zmel.i: home/takao/temp/ecalj/SRC/subroutines/m_zmel.f90.i
+home/takao/ecalj/SRC/subroutines/m_orbl.i: home/takao/ecalj/SRC/subroutines/m_orbl.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_zmel.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_orbl.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/m_zmel.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_zmel.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_zmel.f90.i
+home/takao/ecalj/SRC/subroutines/m_orbl.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_orbl.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_orbl.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/m_zmel.s: home/takao/temp/ecalj/SRC/subroutines/m_zmel.f90.s
+home/takao/ecalj/SRC/subroutines/m_orbl.s: home/takao/ecalj/SRC/subroutines/m_orbl.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_zmel.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_orbl.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/m_zmel.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/m_zmel.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/m_zmel.f90.s
+home/takao/ecalj/SRC/subroutines/m_orbl.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_orbl.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_orbl.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/madmat.o: home/takao/temp/ecalj/SRC/subroutines/madmat.f90.o
+home/takao/ecalj/SRC/subroutines/m_pbindex.o: home/takao/ecalj/SRC/subroutines/m_pbindex.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/madmat.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_pbindex.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/madmat.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/madmat.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/madmat.f90.o
+home/takao/ecalj/SRC/subroutines/m_pbindex.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_pbindex.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_pbindex.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/madmat.i: home/takao/temp/ecalj/SRC/subroutines/madmat.f90.i
+home/takao/ecalj/SRC/subroutines/m_pbindex.i: home/takao/ecalj/SRC/subroutines/m_pbindex.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/madmat.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_pbindex.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/madmat.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/madmat.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/madmat.f90.i
+home/takao/ecalj/SRC/subroutines/m_pbindex.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_pbindex.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_pbindex.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/madmat.s: home/takao/temp/ecalj/SRC/subroutines/madmat.f90.s
+home/takao/ecalj/SRC/subroutines/m_pbindex.s: home/takao/ecalj/SRC/subroutines/m_pbindex.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/madmat.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_pbindex.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/madmat.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/madmat.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/madmat.f90.s
+home/takao/ecalj/SRC/subroutines/m_pbindex.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_pbindex.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_pbindex.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/main_gwinit.o: home/takao/temp/ecalj/SRC/subroutines/main_gwinit.f90.o
+home/takao/ecalj/SRC/subroutines/m_pkm4crpa.o: home/takao/ecalj/SRC/subroutines/m_pkm4crpa.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_gwinit.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_pkm4crpa.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/main_gwinit.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_gwinit.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_gwinit.f90.o
+home/takao/ecalj/SRC/subroutines/m_pkm4crpa.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_pkm4crpa.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_pkm4crpa.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/main_gwinit.i: home/takao/temp/ecalj/SRC/subroutines/main_gwinit.f90.i
+home/takao/ecalj/SRC/subroutines/m_pkm4crpa.i: home/takao/ecalj/SRC/subroutines/m_pkm4crpa.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_gwinit.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_pkm4crpa.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/main_gwinit.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_gwinit.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_gwinit.f90.i
+home/takao/ecalj/SRC/subroutines/m_pkm4crpa.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_pkm4crpa.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_pkm4crpa.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/main_gwinit.s: home/takao/temp/ecalj/SRC/subroutines/main_gwinit.f90.s
+home/takao/ecalj/SRC/subroutines/m_pkm4crpa.s: home/takao/ecalj/SRC/subroutines/m_pkm4crpa.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_gwinit.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_pkm4crpa.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/main_gwinit.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_gwinit.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_gwinit.f90.s
+home/takao/ecalj/SRC/subroutines/m_pkm4crpa.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_pkm4crpa.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_pkm4crpa.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/main_hbasfp0.o: home/takao/temp/ecalj/SRC/subroutines/main_hbasfp0.f90.o
+home/takao/ecalj/SRC/subroutines/m_procar.o: home/takao/ecalj/SRC/subroutines/m_procar.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hbasfp0.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_procar.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/main_hbasfp0.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_hbasfp0.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hbasfp0.f90.o
+home/takao/ecalj/SRC/subroutines/m_procar.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_procar.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_procar.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/main_hbasfp0.i: home/takao/temp/ecalj/SRC/subroutines/main_hbasfp0.f90.i
+home/takao/ecalj/SRC/subroutines/m_procar.i: home/takao/ecalj/SRC/subroutines/m_procar.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hbasfp0.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_procar.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/main_hbasfp0.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_hbasfp0.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hbasfp0.f90.i
+home/takao/ecalj/SRC/subroutines/m_procar.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_procar.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_procar.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/main_hbasfp0.s: home/takao/temp/ecalj/SRC/subroutines/main_hbasfp0.f90.s
+home/takao/ecalj/SRC/subroutines/m_procar.s: home/takao/ecalj/SRC/subroutines/m_procar.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hbasfp0.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_procar.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/main_hbasfp0.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_hbasfp0.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hbasfp0.f90.s
+home/takao/ecalj/SRC/subroutines/m_procar.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_procar.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_procar.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/main_heftet.o: home/takao/temp/ecalj/SRC/subroutines/main_heftet.f90.o
+home/takao/ecalj/SRC/subroutines/m_q0p.o: home/takao/ecalj/SRC/subroutines/m_q0p.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_heftet.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_q0p.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/main_heftet.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_heftet.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_heftet.f90.o
+home/takao/ecalj/SRC/subroutines/m_q0p.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_q0p.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_q0p.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/main_heftet.i: home/takao/temp/ecalj/SRC/subroutines/main_heftet.f90.i
+home/takao/ecalj/SRC/subroutines/m_q0p.i: home/takao/ecalj/SRC/subroutines/m_q0p.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_heftet.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_q0p.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/main_heftet.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_heftet.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_heftet.f90.i
+home/takao/ecalj/SRC/subroutines/m_q0p.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_q0p.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_q0p.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/main_heftet.s: home/takao/temp/ecalj/SRC/subroutines/main_heftet.f90.s
+home/takao/ecalj/SRC/subroutines/m_q0p.s: home/takao/ecalj/SRC/subroutines/m_q0p.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_heftet.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_q0p.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/main_heftet.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_heftet.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_heftet.f90.s
+home/takao/ecalj/SRC/subroutines/m_q0p.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_q0p.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_q0p.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/main_hmagnon.o: home/takao/temp/ecalj/SRC/subroutines/main_hmagnon.f90.o
+home/takao/ecalj/SRC/subroutines/m_qbze.o: home/takao/ecalj/SRC/subroutines/m_qbze.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hmagnon.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_qbze.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/main_hmagnon.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_hmagnon.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hmagnon.f90.o
+home/takao/ecalj/SRC/subroutines/m_qbze.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_qbze.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_qbze.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/main_hmagnon.i: home/takao/temp/ecalj/SRC/subroutines/main_hmagnon.f90.i
+home/takao/ecalj/SRC/subroutines/m_qbze.i: home/takao/ecalj/SRC/subroutines/m_qbze.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hmagnon.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_qbze.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/main_hmagnon.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_hmagnon.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hmagnon.f90.i
+home/takao/ecalj/SRC/subroutines/m_qbze.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_qbze.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_qbze.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/main_hmagnon.s: home/takao/temp/ecalj/SRC/subroutines/main_hmagnon.f90.s
+home/takao/ecalj/SRC/subroutines/m_qbze.s: home/takao/ecalj/SRC/subroutines/m_qbze.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hmagnon.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_qbze.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/main_hmagnon.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_hmagnon.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hmagnon.f90.s
+home/takao/ecalj/SRC/subroutines/m_qbze.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_qbze.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_qbze.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/main_hmlo.o: home/takao/temp/ecalj/SRC/subroutines/main_hmlo.f90.o
+home/takao/ecalj/SRC/subroutines/m_qplist.o: home/takao/ecalj/SRC/subroutines/m_qplist.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hmlo.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_qplist.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/main_hmlo.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_hmlo.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hmlo.f90.o
+home/takao/ecalj/SRC/subroutines/m_qplist.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_qplist.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_qplist.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/main_hmlo.i: home/takao/temp/ecalj/SRC/subroutines/main_hmlo.f90.i
+home/takao/ecalj/SRC/subroutines/m_qplist.i: home/takao/ecalj/SRC/subroutines/m_qplist.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hmlo.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_qplist.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/main_hmlo.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_hmlo.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hmlo.f90.i
+home/takao/ecalj/SRC/subroutines/m_qplist.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_qplist.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_qplist.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/main_hmlo.s: home/takao/temp/ecalj/SRC/subroutines/main_hmlo.f90.s
+home/takao/ecalj/SRC/subroutines/m_qplist.s: home/takao/ecalj/SRC/subroutines/m_qplist.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hmlo.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_qplist.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/main_hmlo.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_hmlo.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hmlo.f90.s
+home/takao/ecalj/SRC/subroutines/m_qplist.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_qplist.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_qplist.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/main_hqpe.o: home/takao/temp/ecalj/SRC/subroutines/main_hqpe.f90.o
+home/takao/ecalj/SRC/subroutines/m_readQGcou.o: home/takao/ecalj/SRC/subroutines/m_readQGcou.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hqpe.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_readQGcou.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/main_hqpe.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_hqpe.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hqpe.f90.o
+home/takao/ecalj/SRC/subroutines/m_readQGcou.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_readQGcou.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_readQGcou.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/main_hqpe.i: home/takao/temp/ecalj/SRC/subroutines/main_hqpe.f90.i
+home/takao/ecalj/SRC/subroutines/m_readQGcou.i: home/takao/ecalj/SRC/subroutines/m_readQGcou.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hqpe.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_readQGcou.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/main_hqpe.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_hqpe.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hqpe.f90.i
+home/takao/ecalj/SRC/subroutines/m_readQGcou.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_readQGcou.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_readQGcou.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/main_hqpe.s: home/takao/temp/ecalj/SRC/subroutines/main_hqpe.f90.s
+home/takao/ecalj/SRC/subroutines/m_readQGcou.s: home/takao/ecalj/SRC/subroutines/m_readQGcou.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hqpe.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_readQGcou.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/main_hqpe.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_hqpe.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hqpe.f90.s
+home/takao/ecalj/SRC/subroutines/m_readQGcou.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_readQGcou.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_readQGcou.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/main_hqpe.sc.o: home/takao/temp/ecalj/SRC/subroutines/main_hqpe.sc.f90.o
+home/takao/ecalj/SRC/subroutines/m_readVcoud.o: home/takao/ecalj/SRC/subroutines/m_readVcoud.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hqpe.sc.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_readVcoud.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/main_hqpe.sc.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_hqpe.sc.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hqpe.sc.f90.o
+home/takao/ecalj/SRC/subroutines/m_readVcoud.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_readVcoud.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_readVcoud.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/main_hqpe.sc.i: home/takao/temp/ecalj/SRC/subroutines/main_hqpe.sc.f90.i
+home/takao/ecalj/SRC/subroutines/m_readVcoud.i: home/takao/ecalj/SRC/subroutines/m_readVcoud.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hqpe.sc.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_readVcoud.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/main_hqpe.sc.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_hqpe.sc.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hqpe.sc.f90.i
+home/takao/ecalj/SRC/subroutines/m_readVcoud.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_readVcoud.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_readVcoud.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/main_hqpe.sc.s: home/takao/temp/ecalj/SRC/subroutines/main_hqpe.sc.f90.s
+home/takao/ecalj/SRC/subroutines/m_readVcoud.s: home/takao/ecalj/SRC/subroutines/m_readVcoud.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hqpe.sc.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_readVcoud.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/main_hqpe.sc.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_hqpe.sc.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hqpe.sc.f90.s
+home/takao/ecalj/SRC/subroutines/m_readVcoud.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_readVcoud.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_readVcoud.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/main_hqpe_qsgw.o: home/takao/temp/ecalj/SRC/subroutines/main_hqpe_qsgw.f90.o
+home/takao/ecalj/SRC/subroutines/m_readeps.o: home/takao/ecalj/SRC/subroutines/m_readeps.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hqpe_qsgw.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_readeps.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/main_hqpe_qsgw.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_hqpe_qsgw.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hqpe_qsgw.f90.o
+home/takao/ecalj/SRC/subroutines/m_readeps.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_readeps.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_readeps.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/main_hqpe_qsgw.i: home/takao/temp/ecalj/SRC/subroutines/main_hqpe_qsgw.f90.i
+home/takao/ecalj/SRC/subroutines/m_readeps.i: home/takao/ecalj/SRC/subroutines/m_readeps.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hqpe_qsgw.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_readeps.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/main_hqpe_qsgw.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_hqpe_qsgw.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hqpe_qsgw.f90.i
+home/takao/ecalj/SRC/subroutines/m_readeps.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_readeps.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_readeps.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/main_hqpe_qsgw.s: home/takao/temp/ecalj/SRC/subroutines/main_hqpe_qsgw.f90.s
+home/takao/ecalj/SRC/subroutines/m_readeps.s: home/takao/ecalj/SRC/subroutines/m_readeps.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hqpe_qsgw.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_readeps.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/main_hqpe_qsgw.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_hqpe_qsgw.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hqpe_qsgw.f90.s
+home/takao/ecalj/SRC/subroutines/m_readeps.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_readeps.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_readeps.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/main_hrcxq.o: home/takao/temp/ecalj/SRC/subroutines/main_hrcxq.f90.o
+home/takao/ecalj/SRC/subroutines/m_readfreq_r.o: home/takao/ecalj/SRC/subroutines/m_readfreq_r.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hrcxq.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_readfreq_r.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/main_hrcxq.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_hrcxq.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hrcxq.f90.o
+home/takao/ecalj/SRC/subroutines/m_readfreq_r.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_readfreq_r.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_readfreq_r.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/main_hrcxq.i: home/takao/temp/ecalj/SRC/subroutines/main_hrcxq.f90.i
+home/takao/ecalj/SRC/subroutines/m_readfreq_r.i: home/takao/ecalj/SRC/subroutines/m_readfreq_r.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hrcxq.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_readfreq_r.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/main_hrcxq.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_hrcxq.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hrcxq.f90.i
+home/takao/ecalj/SRC/subroutines/m_readfreq_r.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_readfreq_r.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_readfreq_r.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/main_hrcxq.s: home/takao/temp/ecalj/SRC/subroutines/main_hrcxq.f90.s
+home/takao/ecalj/SRC/subroutines/m_readfreq_r.s: home/takao/ecalj/SRC/subroutines/m_readfreq_r.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hrcxq.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_readfreq_r.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/main_hrcxq.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_hrcxq.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hrcxq.f90.s
+home/takao/ecalj/SRC/subroutines/m_readfreq_r.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_readfreq_r.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_readfreq_r.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/main_hsfp0.o: home/takao/temp/ecalj/SRC/subroutines/main_hsfp0.f90.o
+home/takao/ecalj/SRC/subroutines/m_readgwinput.o: home/takao/ecalj/SRC/subroutines/m_readgwinput.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hsfp0.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_readgwinput.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/main_hsfp0.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_hsfp0.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hsfp0.f90.o
+home/takao/ecalj/SRC/subroutines/m_readgwinput.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_readgwinput.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_readgwinput.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/main_hsfp0.i: home/takao/temp/ecalj/SRC/subroutines/main_hsfp0.f90.i
+home/takao/ecalj/SRC/subroutines/m_readgwinput.i: home/takao/ecalj/SRC/subroutines/m_readgwinput.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hsfp0.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_readgwinput.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/main_hsfp0.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_hsfp0.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hsfp0.f90.i
+home/takao/ecalj/SRC/subroutines/m_readgwinput.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_readgwinput.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_readgwinput.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/main_hsfp0.s: home/takao/temp/ecalj/SRC/subroutines/main_hsfp0.f90.s
+home/takao/ecalj/SRC/subroutines/m_readgwinput.s: home/takao/ecalj/SRC/subroutines/m_readgwinput.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hsfp0.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_readgwinput.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/main_hsfp0.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_hsfp0.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hsfp0.f90.s
+home/takao/ecalj/SRC/subroutines/m_readgwinput.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_readgwinput.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_readgwinput.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/main_hsfp0.sc.o: home/takao/temp/ecalj/SRC/subroutines/main_hsfp0.sc.f90.o
+home/takao/ecalj/SRC/subroutines/m_readwan.o: home/takao/ecalj/SRC/subroutines/m_readwan.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hsfp0.sc.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_readwan.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/main_hsfp0.sc.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_hsfp0.sc.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hsfp0.sc.f90.o
+home/takao/ecalj/SRC/subroutines/m_readwan.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_readwan.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_readwan.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/main_hsfp0.sc.i: home/takao/temp/ecalj/SRC/subroutines/main_hsfp0.sc.f90.i
+home/takao/ecalj/SRC/subroutines/m_readwan.i: home/takao/ecalj/SRC/subroutines/m_readwan.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hsfp0.sc.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_readwan.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/main_hsfp0.sc.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_hsfp0.sc.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hsfp0.sc.f90.i
+home/takao/ecalj/SRC/subroutines/m_readwan.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_readwan.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_readwan.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/main_hsfp0.sc.s: home/takao/temp/ecalj/SRC/subroutines/main_hsfp0.sc.f90.s
+home/takao/ecalj/SRC/subroutines/m_readwan.s: home/takao/ecalj/SRC/subroutines/m_readwan.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hsfp0.sc.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_readwan.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/main_hsfp0.sc.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_hsfp0.sc.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hsfp0.sc.f90.s
+home/takao/ecalj/SRC/subroutines/m_readwan.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_readwan.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_readwan.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/main_hsigmconv.o: home/takao/temp/ecalj/SRC/subroutines/main_hsigmconv.f90.o
+home/takao/ecalj/SRC/subroutines/m_rhocor.o: home/takao/ecalj/SRC/subroutines/m_rhocor.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hsigmconv.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_rhocor.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/main_hsigmconv.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_hsigmconv.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hsigmconv.f90.o
+home/takao/ecalj/SRC/subroutines/m_rhocor.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_rhocor.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_rhocor.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/main_hsigmconv.i: home/takao/temp/ecalj/SRC/subroutines/main_hsigmconv.f90.i
+home/takao/ecalj/SRC/subroutines/m_rhocor.i: home/takao/ecalj/SRC/subroutines/m_rhocor.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hsigmconv.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_rhocor.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/main_hsigmconv.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_hsigmconv.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hsigmconv.f90.i
+home/takao/ecalj/SRC/subroutines/m_rhocor.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_rhocor.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_rhocor.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/main_hsigmconv.s: home/takao/temp/ecalj/SRC/subroutines/main_hsigmconv.f90.s
+home/takao/ecalj/SRC/subroutines/m_rhocor.s: home/takao/ecalj/SRC/subroutines/m_rhocor.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hsigmconv.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_rhocor.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/main_hsigmconv.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_hsigmconv.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hsigmconv.f90.s
+home/takao/ecalj/SRC/subroutines/m_rhocor.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_rhocor.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_rhocor.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/main_hvccfp0.o: home/takao/temp/ecalj/SRC/subroutines/main_hvccfp0.f90.o
+home/takao/ecalj/SRC/subroutines/m_rotMPB.o: home/takao/ecalj/SRC/subroutines/m_rotMPB.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hvccfp0.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_rotMPB.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/main_hvccfp0.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_hvccfp0.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hvccfp0.f90.o
+home/takao/ecalj/SRC/subroutines/m_rotMPB.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_rotMPB.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_rotMPB.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/main_hvccfp0.i: home/takao/temp/ecalj/SRC/subroutines/main_hvccfp0.f90.i
+home/takao/ecalj/SRC/subroutines/m_rotMPB.i: home/takao/ecalj/SRC/subroutines/m_rotMPB.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hvccfp0.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_rotMPB.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/main_hvccfp0.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_hvccfp0.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hvccfp0.f90.i
+home/takao/ecalj/SRC/subroutines/m_rotMPB.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_rotMPB.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_rotMPB.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/main_hvccfp0.s: home/takao/temp/ecalj/SRC/subroutines/main_hvccfp0.f90.s
+home/takao/ecalj/SRC/subroutines/m_rotMPB.s: home/takao/ecalj/SRC/subroutines/m_rotMPB.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hvccfp0.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_rotMPB.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/main_hvccfp0.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_hvccfp0.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hvccfp0.f90.s
+home/takao/ecalj/SRC/subroutines/m_rotMPB.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_rotMPB.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_rotMPB.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/main_hx0fp0.o: home/takao/temp/ecalj/SRC/subroutines/main_hx0fp0.f90.o
+home/takao/ecalj/SRC/subroutines/m_shortn3.o: home/takao/ecalj/SRC/subroutines/m_shortn3.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hx0fp0.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_shortn3.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/main_hx0fp0.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_hx0fp0.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hx0fp0.f90.o
+home/takao/ecalj/SRC/subroutines/m_shortn3.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_shortn3.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_shortn3.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/main_hx0fp0.i: home/takao/temp/ecalj/SRC/subroutines/main_hx0fp0.f90.i
+home/takao/ecalj/SRC/subroutines/m_shortn3.i: home/takao/ecalj/SRC/subroutines/m_shortn3.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hx0fp0.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_shortn3.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/main_hx0fp0.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_hx0fp0.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hx0fp0.f90.i
+home/takao/ecalj/SRC/subroutines/m_shortn3.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_shortn3.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_shortn3.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/main_hx0fp0.s: home/takao/temp/ecalj/SRC/subroutines/main_hx0fp0.f90.s
+home/takao/ecalj/SRC/subroutines/m_shortn3.s: home/takao/ecalj/SRC/subroutines/m_shortn3.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hx0fp0.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_shortn3.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/main_hx0fp0.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_hx0fp0.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hx0fp0.f90.s
+home/takao/ecalj/SRC/subroutines/m_shortn3.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_shortn3.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_shortn3.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/main_hx0init.o: home/takao/temp/ecalj/SRC/subroutines/main_hx0init.f90.o
+home/takao/ecalj/SRC/subroutines/m_shortn3_plat.o: home/takao/ecalj/SRC/subroutines/m_shortn3_plat.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hx0init.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_shortn3_plat.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/main_hx0init.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_hx0init.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hx0init.f90.o
+home/takao/ecalj/SRC/subroutines/m_shortn3_plat.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_shortn3_plat.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_shortn3_plat.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/main_hx0init.i: home/takao/temp/ecalj/SRC/subroutines/main_hx0init.f90.i
+home/takao/ecalj/SRC/subroutines/m_shortn3_plat.i: home/takao/ecalj/SRC/subroutines/m_shortn3_plat.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hx0init.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_shortn3_plat.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/main_hx0init.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_hx0init.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hx0init.f90.i
+home/takao/ecalj/SRC/subroutines/m_shortn3_plat.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_shortn3_plat.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_shortn3_plat.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/main_hx0init.s: home/takao/temp/ecalj/SRC/subroutines/main_hx0init.f90.s
+home/takao/ecalj/SRC/subroutines/m_shortn3_plat.s: home/takao/ecalj/SRC/subroutines/m_shortn3_plat.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hx0init.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_shortn3_plat.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/main_hx0init.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_hx0init.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_hx0init.f90.s
+home/takao/ecalj/SRC/subroutines/m_shortn3_plat.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_shortn3_plat.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_shortn3_plat.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/main_lmchk.o: home/takao/temp/ecalj/SRC/subroutines/main_lmchk.f90.o
+home/takao/ecalj/SRC/subroutines/m_smhankel.o: home/takao/ecalj/SRC/subroutines/m_smhankel.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_lmchk.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_smhankel.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/main_lmchk.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_lmchk.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_lmchk.f90.o
+home/takao/ecalj/SRC/subroutines/m_smhankel.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_smhankel.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_smhankel.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/main_lmchk.i: home/takao/temp/ecalj/SRC/subroutines/main_lmchk.f90.i
+home/takao/ecalj/SRC/subroutines/m_smhankel.i: home/takao/ecalj/SRC/subroutines/m_smhankel.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_lmchk.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_smhankel.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/main_lmchk.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_lmchk.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_lmchk.f90.i
+home/takao/ecalj/SRC/subroutines/m_smhankel.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_smhankel.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_smhankel.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/main_lmchk.s: home/takao/temp/ecalj/SRC/subroutines/main_lmchk.f90.s
+home/takao/ecalj/SRC/subroutines/m_smhankel.s: home/takao/ecalj/SRC/subroutines/m_smhankel.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_lmchk.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_smhankel.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/main_lmchk.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_lmchk.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_lmchk.f90.s
+home/takao/ecalj/SRC/subroutines/m_smhankel.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_smhankel.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_smhankel.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/main_lmf.o: home/takao/temp/ecalj/SRC/subroutines/main_lmf.f90.o
+home/takao/ecalj/SRC/subroutines/m_struc_def.o: home/takao/ecalj/SRC/subroutines/m_struc_def.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_lmf.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_struc_def.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/main_lmf.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_lmf.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_lmf.f90.o
+home/takao/ecalj/SRC/subroutines/m_struc_def.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_struc_def.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_struc_def.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/main_lmf.i: home/takao/temp/ecalj/SRC/subroutines/main_lmf.f90.i
+home/takao/ecalj/SRC/subroutines/m_struc_def.i: home/takao/ecalj/SRC/subroutines/m_struc_def.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_lmf.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_struc_def.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/main_lmf.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_lmf.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_lmf.f90.i
+home/takao/ecalj/SRC/subroutines/m_struc_def.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_struc_def.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_struc_def.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/main_lmf.s: home/takao/temp/ecalj/SRC/subroutines/main_lmf.f90.s
+home/takao/ecalj/SRC/subroutines/m_struc_def.s: home/takao/ecalj/SRC/subroutines/m_struc_def.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_lmf.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_struc_def.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/main_lmf.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_lmf.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_lmf.f90.s
+home/takao/ecalj/SRC/subroutines/m_struc_def.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_struc_def.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_struc_def.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/main_lmfa.o: home/takao/temp/ecalj/SRC/subroutines/main_lmfa.f90.o
+home/takao/ecalj/SRC/subroutines/m_tetrakbt.o: home/takao/ecalj/SRC/subroutines/m_tetrakbt.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_lmfa.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_tetrakbt.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/main_lmfa.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_lmfa.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_lmfa.f90.o
+home/takao/ecalj/SRC/subroutines/m_tetrakbt.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_tetrakbt.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_tetrakbt.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/main_lmfa.i: home/takao/temp/ecalj/SRC/subroutines/main_lmfa.f90.i
+home/takao/ecalj/SRC/subroutines/m_tetrakbt.i: home/takao/ecalj/SRC/subroutines/m_tetrakbt.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_lmfa.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_tetrakbt.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/main_lmfa.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_lmfa.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_lmfa.f90.i
+home/takao/ecalj/SRC/subroutines/m_tetrakbt.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_tetrakbt.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_tetrakbt.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/main_lmfa.s: home/takao/temp/ecalj/SRC/subroutines/main_lmfa.f90.s
+home/takao/ecalj/SRC/subroutines/m_tetrakbt.s: home/takao/ecalj/SRC/subroutines/m_tetrakbt.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_lmfa.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_tetrakbt.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/main_lmfa.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_lmfa.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_lmfa.f90.s
+home/takao/ecalj/SRC/subroutines/m_tetrakbt.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_tetrakbt.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_tetrakbt.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/main_lmfham1.o: home/takao/temp/ecalj/SRC/subroutines/main_lmfham1.f90.o
+home/takao/ecalj/SRC/subroutines/m_tetwt.o: home/takao/ecalj/SRC/subroutines/m_tetwt.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_lmfham1.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_tetwt.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/main_lmfham1.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_lmfham1.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_lmfham1.f90.o
+home/takao/ecalj/SRC/subroutines/m_tetwt.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_tetwt.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_tetwt.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/main_lmfham1.i: home/takao/temp/ecalj/SRC/subroutines/main_lmfham1.f90.i
+home/takao/ecalj/SRC/subroutines/m_tetwt.i: home/takao/ecalj/SRC/subroutines/m_tetwt.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_lmfham1.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_tetwt.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/main_lmfham1.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_lmfham1.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_lmfham1.f90.i
+home/takao/ecalj/SRC/subroutines/m_tetwt.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_tetwt.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_tetwt.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/main_lmfham1.s: home/takao/temp/ecalj/SRC/subroutines/main_lmfham1.f90.s
+home/takao/ecalj/SRC/subroutines/m_tetwt.s: home/takao/ecalj/SRC/subroutines/m_tetwt.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_lmfham1.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_tetwt.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/main_lmfham1.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_lmfham1.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_lmfham1.f90.s
+home/takao/ecalj/SRC/subroutines/m_tetwt.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_tetwt.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_tetwt.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/main_lmfham2.o: home/takao/temp/ecalj/SRC/subroutines/main_lmfham2.f90.o
+home/takao/ecalj/SRC/subroutines/m_vxcatom.o: home/takao/ecalj/SRC/subroutines/m_vxcatom.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_lmfham2.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_vxcatom.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/main_lmfham2.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_lmfham2.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_lmfham2.f90.o
+home/takao/ecalj/SRC/subroutines/m_vxcatom.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_vxcatom.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_vxcatom.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/main_lmfham2.i: home/takao/temp/ecalj/SRC/subroutines/main_lmfham2.f90.i
+home/takao/ecalj/SRC/subroutines/m_vxcatom.i: home/takao/ecalj/SRC/subroutines/m_vxcatom.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_lmfham2.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_vxcatom.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/main_lmfham2.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_lmfham2.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_lmfham2.f90.i
+home/takao/ecalj/SRC/subroutines/m_vxcatom.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_vxcatom.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_vxcatom.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/main_lmfham2.s: home/takao/temp/ecalj/SRC/subroutines/main_lmfham2.f90.s
+home/takao/ecalj/SRC/subroutines/m_vxcatom.s: home/takao/ecalj/SRC/subroutines/m_vxcatom.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_lmfham2.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_vxcatom.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/main_lmfham2.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_lmfham2.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_lmfham2.f90.s
+home/takao/ecalj/SRC/subroutines/m_vxcatom.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_vxcatom.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_vxcatom.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/main_qg4gw.o: home/takao/temp/ecalj/SRC/subroutines/main_qg4gw.f90.o
+home/takao/ecalj/SRC/subroutines/m_w0w0i.o: home/takao/ecalj/SRC/subroutines/m_w0w0i.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_qg4gw.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_w0w0i.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/main_qg4gw.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_qg4gw.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_qg4gw.f90.o
+home/takao/ecalj/SRC/subroutines/m_w0w0i.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_w0w0i.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_w0w0i.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/main_qg4gw.i: home/takao/temp/ecalj/SRC/subroutines/main_qg4gw.f90.i
+home/takao/ecalj/SRC/subroutines/m_w0w0i.i: home/takao/ecalj/SRC/subroutines/m_w0w0i.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_qg4gw.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_w0w0i.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/main_qg4gw.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_qg4gw.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_qg4gw.f90.i
+home/takao/ecalj/SRC/subroutines/m_w0w0i.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_w0w0i.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_w0w0i.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/main_qg4gw.s: home/takao/temp/ecalj/SRC/subroutines/main_qg4gw.f90.s
+home/takao/ecalj/SRC/subroutines/m_w0w0i.s: home/takao/ecalj/SRC/subroutines/m_w0w0i.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_qg4gw.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_w0w0i.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/main_qg4gw.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_qg4gw.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_qg4gw.f90.s
+home/takao/ecalj/SRC/subroutines/m_w0w0i.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_w0w0i.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_w0w0i.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/main_rdata4gw_v2.o: home/takao/temp/ecalj/SRC/subroutines/main_rdata4gw_v2.f90.o
+home/takao/ecalj/SRC/subroutines/m_writeband.o: home/takao/ecalj/SRC/subroutines/m_writeband.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_rdata4gw_v2.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_writeband.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/main_rdata4gw_v2.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_rdata4gw_v2.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_rdata4gw_v2.f90.o
+home/takao/ecalj/SRC/subroutines/m_writeband.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_writeband.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_writeband.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/main_rdata4gw_v2.i: home/takao/temp/ecalj/SRC/subroutines/main_rdata4gw_v2.f90.i
+home/takao/ecalj/SRC/subroutines/m_writeband.i: home/takao/ecalj/SRC/subroutines/m_writeband.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_rdata4gw_v2.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_writeband.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/main_rdata4gw_v2.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_rdata4gw_v2.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_rdata4gw_v2.f90.i
+home/takao/ecalj/SRC/subroutines/m_writeband.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_writeband.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_writeband.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/main_rdata4gw_v2.s: home/takao/temp/ecalj/SRC/subroutines/main_rdata4gw_v2.f90.s
+home/takao/ecalj/SRC/subroutines/m_writeband.s: home/takao/ecalj/SRC/subroutines/m_writeband.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_rdata4gw_v2.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_writeband.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/main_rdata4gw_v2.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/main_rdata4gw_v2.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/main_rdata4gw_v2.f90.s
+home/takao/ecalj/SRC/subroutines/m_writeband.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_writeband.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_writeband.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/makusp.o: home/takao/temp/ecalj/SRC/subroutines/makusp.f90.o
+home/takao/ecalj/SRC/subroutines/m_zmel.o: home/takao/ecalj/SRC/subroutines/m_zmel.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/makusp.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_zmel.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/makusp.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/makusp.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/makusp.f90.o
+home/takao/ecalj/SRC/subroutines/m_zmel.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_zmel.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_zmel.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/makusp.i: home/takao/temp/ecalj/SRC/subroutines/makusp.f90.i
+home/takao/ecalj/SRC/subroutines/m_zmel.i: home/takao/ecalj/SRC/subroutines/m_zmel.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/makusp.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_zmel.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/makusp.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/makusp.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/makusp.f90.i
+home/takao/ecalj/SRC/subroutines/m_zmel.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_zmel.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_zmel.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/makusp.s: home/takao/temp/ecalj/SRC/subroutines/makusp.f90.s
+home/takao/ecalj/SRC/subroutines/m_zmel.s: home/takao/ecalj/SRC/subroutines/m_zmel.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/makusp.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_zmel.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/makusp.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/makusp.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/makusp.f90.s
+home/takao/ecalj/SRC/subroutines/m_zmel.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_zmel.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_zmel.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/makusq.o: home/takao/temp/ecalj/SRC/subroutines/makusq.f90.o
+home/takao/ecalj/SRC/subroutines/madmat.o: home/takao/ecalj/SRC/subroutines/madmat.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/makusq.o
+.PHONY : home/takao/ecalj/SRC/subroutines/madmat.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/makusq.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/makusq.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/makusq.f90.o
+home/takao/ecalj/SRC/subroutines/madmat.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/madmat.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/madmat.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/makusq.i: home/takao/temp/ecalj/SRC/subroutines/makusq.f90.i
+home/takao/ecalj/SRC/subroutines/madmat.i: home/takao/ecalj/SRC/subroutines/madmat.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/makusq.i
+.PHONY : home/takao/ecalj/SRC/subroutines/madmat.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/makusq.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/makusq.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/makusq.f90.i
+home/takao/ecalj/SRC/subroutines/madmat.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/madmat.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/madmat.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/makusq.s: home/takao/temp/ecalj/SRC/subroutines/makusq.f90.s
+home/takao/ecalj/SRC/subroutines/madmat.s: home/takao/ecalj/SRC/subroutines/madmat.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/makusq.s
+.PHONY : home/takao/ecalj/SRC/subroutines/madmat.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/makusq.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/makusq.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/makusq.f90.s
+home/takao/ecalj/SRC/subroutines/madmat.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/madmat.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/madmat.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/mate.o: home/takao/temp/ecalj/SRC/subroutines/mate.f90.o
+home/takao/ecalj/SRC/subroutines/main_gwinit.o: home/takao/ecalj/SRC/subroutines/main_gwinit.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mate.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_gwinit.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/mate.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/mate.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mate.f90.o
+home/takao/ecalj/SRC/subroutines/main_gwinit.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_gwinit.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_gwinit.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/mate.i: home/takao/temp/ecalj/SRC/subroutines/mate.f90.i
+home/takao/ecalj/SRC/subroutines/main_gwinit.i: home/takao/ecalj/SRC/subroutines/main_gwinit.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mate.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_gwinit.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/mate.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/mate.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mate.f90.i
+home/takao/ecalj/SRC/subroutines/main_gwinit.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_gwinit.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_gwinit.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/mate.s: home/takao/temp/ecalj/SRC/subroutines/mate.f90.s
+home/takao/ecalj/SRC/subroutines/main_gwinit.s: home/takao/ecalj/SRC/subroutines/main_gwinit.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mate.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_gwinit.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/mate.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/mate.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mate.f90.s
+home/takao/ecalj/SRC/subroutines/main_gwinit.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_gwinit.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_gwinit.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/matm.o: home/takao/temp/ecalj/SRC/subroutines/matm.f90.o
+home/takao/ecalj/SRC/subroutines/main_hbasfp0.o: home/takao/ecalj/SRC/subroutines/main_hbasfp0.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/matm.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hbasfp0.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/matm.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/matm.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/matm.f90.o
+home/takao/ecalj/SRC/subroutines/main_hbasfp0.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hbasfp0.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hbasfp0.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/matm.i: home/takao/temp/ecalj/SRC/subroutines/matm.f90.i
+home/takao/ecalj/SRC/subroutines/main_hbasfp0.i: home/takao/ecalj/SRC/subroutines/main_hbasfp0.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/matm.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hbasfp0.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/matm.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/matm.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/matm.f90.i
+home/takao/ecalj/SRC/subroutines/main_hbasfp0.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hbasfp0.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hbasfp0.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/matm.s: home/takao/temp/ecalj/SRC/subroutines/matm.f90.s
+home/takao/ecalj/SRC/subroutines/main_hbasfp0.s: home/takao/ecalj/SRC/subroutines/main_hbasfp0.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/matm.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hbasfp0.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/matm.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/matm.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/matm.f90.s
+home/takao/ecalj/SRC/subroutines/main_hbasfp0.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hbasfp0.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hbasfp0.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/mixrho.o: home/takao/temp/ecalj/SRC/subroutines/mixrho.f90.o
+home/takao/ecalj/SRC/subroutines/main_heftet.o: home/takao/ecalj/SRC/subroutines/main_heftet.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mixrho.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_heftet.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/mixrho.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/mixrho.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mixrho.f90.o
+home/takao/ecalj/SRC/subroutines/main_heftet.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_heftet.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_heftet.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/mixrho.i: home/takao/temp/ecalj/SRC/subroutines/mixrho.f90.i
+home/takao/ecalj/SRC/subroutines/main_heftet.i: home/takao/ecalj/SRC/subroutines/main_heftet.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mixrho.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_heftet.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/mixrho.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/mixrho.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mixrho.f90.i
+home/takao/ecalj/SRC/subroutines/main_heftet.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_heftet.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_heftet.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/mixrho.s: home/takao/temp/ecalj/SRC/subroutines/mixrho.f90.s
+home/takao/ecalj/SRC/subroutines/main_heftet.s: home/takao/ecalj/SRC/subroutines/main_heftet.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mixrho.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_heftet.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/mixrho.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/mixrho.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mixrho.f90.s
+home/takao/ecalj/SRC/subroutines/main_heftet.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_heftet.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_heftet.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/mkehkf.o: home/takao/temp/ecalj/SRC/subroutines/mkehkf.f90.o
+home/takao/ecalj/SRC/subroutines/main_hmagnon.o: home/takao/ecalj/SRC/subroutines/main_hmagnon.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mkehkf.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hmagnon.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/mkehkf.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/mkehkf.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mkehkf.f90.o
+home/takao/ecalj/SRC/subroutines/main_hmagnon.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hmagnon.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hmagnon.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/mkehkf.i: home/takao/temp/ecalj/SRC/subroutines/mkehkf.f90.i
+home/takao/ecalj/SRC/subroutines/main_hmagnon.i: home/takao/ecalj/SRC/subroutines/main_hmagnon.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mkehkf.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hmagnon.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/mkehkf.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/mkehkf.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mkehkf.f90.i
+home/takao/ecalj/SRC/subroutines/main_hmagnon.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hmagnon.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hmagnon.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/mkehkf.s: home/takao/temp/ecalj/SRC/subroutines/mkehkf.f90.s
+home/takao/ecalj/SRC/subroutines/main_hmagnon.s: home/takao/ecalj/SRC/subroutines/main_hmagnon.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mkehkf.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hmagnon.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/mkehkf.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/mkehkf.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mkehkf.f90.s
+home/takao/ecalj/SRC/subroutines/main_hmagnon.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hmagnon.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hmagnon.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/mkjp.o: home/takao/temp/ecalj/SRC/subroutines/mkjp.f90.o
+home/takao/ecalj/SRC/subroutines/main_hmlo.o: home/takao/ecalj/SRC/subroutines/main_hmlo.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mkjp.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hmlo.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/mkjp.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/mkjp.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mkjp.f90.o
+home/takao/ecalj/SRC/subroutines/main_hmlo.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hmlo.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hmlo.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/mkjp.i: home/takao/temp/ecalj/SRC/subroutines/mkjp.f90.i
+home/takao/ecalj/SRC/subroutines/main_hmlo.i: home/takao/ecalj/SRC/subroutines/main_hmlo.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mkjp.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hmlo.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/mkjp.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/mkjp.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mkjp.f90.i
+home/takao/ecalj/SRC/subroutines/main_hmlo.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hmlo.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hmlo.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/mkjp.s: home/takao/temp/ecalj/SRC/subroutines/mkjp.f90.s
+home/takao/ecalj/SRC/subroutines/main_hmlo.s: home/takao/ecalj/SRC/subroutines/main_hmlo.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mkjp.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hmlo.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/mkjp.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/mkjp.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mkjp.f90.s
+home/takao/ecalj/SRC/subroutines/main_hmlo.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hmlo.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hmlo.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/mkqg.o: home/takao/temp/ecalj/SRC/subroutines/mkqg.f90.o
+home/takao/ecalj/SRC/subroutines/main_hqpe.o: home/takao/ecalj/SRC/subroutines/main_hqpe.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mkqg.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hqpe.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/mkqg.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/mkqg.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mkqg.f90.o
+home/takao/ecalj/SRC/subroutines/main_hqpe.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hqpe.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hqpe.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/mkqg.i: home/takao/temp/ecalj/SRC/subroutines/mkqg.f90.i
+home/takao/ecalj/SRC/subroutines/main_hqpe.i: home/takao/ecalj/SRC/subroutines/main_hqpe.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mkqg.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hqpe.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/mkqg.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/mkqg.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mkqg.f90.i
+home/takao/ecalj/SRC/subroutines/main_hqpe.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hqpe.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hqpe.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/mkqg.s: home/takao/temp/ecalj/SRC/subroutines/mkqg.f90.s
+home/takao/ecalj/SRC/subroutines/main_hqpe.s: home/takao/ecalj/SRC/subroutines/main_hqpe.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mkqg.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hqpe.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/mkqg.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/mkqg.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mkqg.f90.s
+home/takao/ecalj/SRC/subroutines/main_hqpe.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hqpe.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hqpe.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/mkqp.o: home/takao/temp/ecalj/SRC/subroutines/mkqp.f90.o
+home/takao/ecalj/SRC/subroutines/main_hqpe.sc.o: home/takao/ecalj/SRC/subroutines/main_hqpe.sc.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mkqp.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hqpe.sc.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/mkqp.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/mkqp.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mkqp.f90.o
+home/takao/ecalj/SRC/subroutines/main_hqpe.sc.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hqpe.sc.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hqpe.sc.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/mkqp.i: home/takao/temp/ecalj/SRC/subroutines/mkqp.f90.i
+home/takao/ecalj/SRC/subroutines/main_hqpe.sc.i: home/takao/ecalj/SRC/subroutines/main_hqpe.sc.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mkqp.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hqpe.sc.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/mkqp.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/mkqp.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mkqp.f90.i
+home/takao/ecalj/SRC/subroutines/main_hqpe.sc.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hqpe.sc.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hqpe.sc.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/mkqp.s: home/takao/temp/ecalj/SRC/subroutines/mkqp.f90.s
+home/takao/ecalj/SRC/subroutines/main_hqpe.sc.s: home/takao/ecalj/SRC/subroutines/main_hqpe.sc.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mkqp.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hqpe.sc.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/mkqp.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/mkqp.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mkqp.f90.s
+home/takao/ecalj/SRC/subroutines/main_hqpe.sc.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hqpe.sc.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hqpe.sc.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/mkrout.o: home/takao/temp/ecalj/SRC/subroutines/mkrout.f90.o
+home/takao/ecalj/SRC/subroutines/main_hqpe_qsgw.o: home/takao/ecalj/SRC/subroutines/main_hqpe_qsgw.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mkrout.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hqpe_qsgw.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/mkrout.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/mkrout.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mkrout.f90.o
+home/takao/ecalj/SRC/subroutines/main_hqpe_qsgw.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hqpe_qsgw.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hqpe_qsgw.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/mkrout.i: home/takao/temp/ecalj/SRC/subroutines/mkrout.f90.i
+home/takao/ecalj/SRC/subroutines/main_hqpe_qsgw.i: home/takao/ecalj/SRC/subroutines/main_hqpe_qsgw.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mkrout.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hqpe_qsgw.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/mkrout.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/mkrout.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mkrout.f90.i
+home/takao/ecalj/SRC/subroutines/main_hqpe_qsgw.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hqpe_qsgw.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hqpe_qsgw.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/mkrout.s: home/takao/temp/ecalj/SRC/subroutines/mkrout.f90.s
+home/takao/ecalj/SRC/subroutines/main_hqpe_qsgw.s: home/takao/ecalj/SRC/subroutines/main_hqpe_qsgw.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mkrout.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hqpe_qsgw.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/mkrout.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/mkrout.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mkrout.f90.s
+home/takao/ecalj/SRC/subroutines/main_hqpe_qsgw.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hqpe_qsgw.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hqpe_qsgw.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/mpibc.o: home/takao/temp/ecalj/SRC/subroutines/mpibc.f90.o
+home/takao/ecalj/SRC/subroutines/main_hrcxq.o: home/takao/ecalj/SRC/subroutines/main_hrcxq.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mpibc.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hrcxq.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/mpibc.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/mpibc.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mpibc.f90.o
+home/takao/ecalj/SRC/subroutines/main_hrcxq.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hrcxq.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hrcxq.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/mpibc.i: home/takao/temp/ecalj/SRC/subroutines/mpibc.f90.i
+home/takao/ecalj/SRC/subroutines/main_hrcxq.i: home/takao/ecalj/SRC/subroutines/main_hrcxq.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mpibc.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hrcxq.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/mpibc.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/mpibc.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mpibc.f90.i
+home/takao/ecalj/SRC/subroutines/main_hrcxq.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hrcxq.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hrcxq.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/mpibc.s: home/takao/temp/ecalj/SRC/subroutines/mpibc.f90.s
+home/takao/ecalj/SRC/subroutines/main_hrcxq.s: home/takao/ecalj/SRC/subroutines/main_hrcxq.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mpibc.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hrcxq.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/mpibc.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/mpibc.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mpibc.f90.s
+home/takao/ecalj/SRC/subroutines/main_hrcxq.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hrcxq.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hrcxq.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/mtchae.o: home/takao/temp/ecalj/SRC/subroutines/mtchae.f90.o
+home/takao/ecalj/SRC/subroutines/main_hsfp0.o: home/takao/ecalj/SRC/subroutines/main_hsfp0.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mtchae.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hsfp0.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/mtchae.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/mtchae.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mtchae.f90.o
+home/takao/ecalj/SRC/subroutines/main_hsfp0.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hsfp0.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hsfp0.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/mtchae.i: home/takao/temp/ecalj/SRC/subroutines/mtchae.f90.i
+home/takao/ecalj/SRC/subroutines/main_hsfp0.i: home/takao/ecalj/SRC/subroutines/main_hsfp0.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mtchae.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hsfp0.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/mtchae.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/mtchae.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mtchae.f90.i
+home/takao/ecalj/SRC/subroutines/main_hsfp0.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hsfp0.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hsfp0.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/mtchae.s: home/takao/temp/ecalj/SRC/subroutines/mtchae.f90.s
+home/takao/ecalj/SRC/subroutines/main_hsfp0.s: home/takao/ecalj/SRC/subroutines/main_hsfp0.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mtchae.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hsfp0.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/mtchae.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/mtchae.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/mtchae.f90.s
+home/takao/ecalj/SRC/subroutines/main_hsfp0.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hsfp0.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hsfp0.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/pnunew.o: home/takao/temp/ecalj/SRC/subroutines/pnunew.f90.o
+home/takao/ecalj/SRC/subroutines/main_hsfp0.sc.o: home/takao/ecalj/SRC/subroutines/main_hsfp0.sc.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/pnunew.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hsfp0.sc.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/pnunew.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/pnunew.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/pnunew.f90.o
+home/takao/ecalj/SRC/subroutines/main_hsfp0.sc.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hsfp0.sc.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hsfp0.sc.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/pnunew.i: home/takao/temp/ecalj/SRC/subroutines/pnunew.f90.i
+home/takao/ecalj/SRC/subroutines/main_hsfp0.sc.i: home/takao/ecalj/SRC/subroutines/main_hsfp0.sc.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/pnunew.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hsfp0.sc.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/pnunew.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/pnunew.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/pnunew.f90.i
+home/takao/ecalj/SRC/subroutines/main_hsfp0.sc.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hsfp0.sc.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hsfp0.sc.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/pnunew.s: home/takao/temp/ecalj/SRC/subroutines/pnunew.f90.s
+home/takao/ecalj/SRC/subroutines/main_hsfp0.sc.s: home/takao/ecalj/SRC/subroutines/main_hsfp0.sc.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/pnunew.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hsfp0.sc.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/pnunew.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/pnunew.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/pnunew.f90.s
+home/takao/ecalj/SRC/subroutines/main_hsfp0.sc.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hsfp0.sc.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hsfp0.sc.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/poinsp.o: home/takao/temp/ecalj/SRC/subroutines/poinsp.f90.o
+home/takao/ecalj/SRC/subroutines/main_hsigmconv.o: home/takao/ecalj/SRC/subroutines/main_hsigmconv.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/poinsp.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hsigmconv.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/poinsp.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/poinsp.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/poinsp.f90.o
+home/takao/ecalj/SRC/subroutines/main_hsigmconv.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hsigmconv.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hsigmconv.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/poinsp.i: home/takao/temp/ecalj/SRC/subroutines/poinsp.f90.i
+home/takao/ecalj/SRC/subroutines/main_hsigmconv.i: home/takao/ecalj/SRC/subroutines/main_hsigmconv.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/poinsp.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hsigmconv.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/poinsp.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/poinsp.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/poinsp.f90.i
+home/takao/ecalj/SRC/subroutines/main_hsigmconv.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hsigmconv.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hsigmconv.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/poinsp.s: home/takao/temp/ecalj/SRC/subroutines/poinsp.f90.s
+home/takao/ecalj/SRC/subroutines/main_hsigmconv.s: home/takao/ecalj/SRC/subroutines/main_hsigmconv.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/poinsp.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hsigmconv.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/poinsp.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/poinsp.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/poinsp.f90.s
+home/takao/ecalj/SRC/subroutines/main_hsigmconv.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hsigmconv.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hsigmconv.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/poldvm.o: home/takao/temp/ecalj/SRC/subroutines/poldvm.f90.o
+home/takao/ecalj/SRC/subroutines/main_hvccfp0.o: home/takao/ecalj/SRC/subroutines/main_hvccfp0.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/poldvm.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hvccfp0.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/poldvm.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/poldvm.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/poldvm.f90.o
+home/takao/ecalj/SRC/subroutines/main_hvccfp0.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hvccfp0.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hvccfp0.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/poldvm.i: home/takao/temp/ecalj/SRC/subroutines/poldvm.f90.i
+home/takao/ecalj/SRC/subroutines/main_hvccfp0.i: home/takao/ecalj/SRC/subroutines/main_hvccfp0.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/poldvm.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hvccfp0.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/poldvm.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/poldvm.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/poldvm.f90.i
+home/takao/ecalj/SRC/subroutines/main_hvccfp0.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hvccfp0.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hvccfp0.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/poldvm.s: home/takao/temp/ecalj/SRC/subroutines/poldvm.f90.s
+home/takao/ecalj/SRC/subroutines/main_hvccfp0.s: home/takao/ecalj/SRC/subroutines/main_hvccfp0.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/poldvm.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hvccfp0.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/poldvm.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/poldvm.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/poldvm.f90.s
+home/takao/ecalj/SRC/subroutines/main_hvccfp0.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hvccfp0.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hvccfp0.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/polint.o: home/takao/temp/ecalj/SRC/subroutines/polint.f90.o
+home/takao/ecalj/SRC/subroutines/main_hx0fp0.o: home/takao/ecalj/SRC/subroutines/main_hx0fp0.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/polint.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hx0fp0.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/polint.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/polint.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/polint.f90.o
+home/takao/ecalj/SRC/subroutines/main_hx0fp0.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hx0fp0.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hx0fp0.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/polint.i: home/takao/temp/ecalj/SRC/subroutines/polint.f90.i
+home/takao/ecalj/SRC/subroutines/main_hx0fp0.i: home/takao/ecalj/SRC/subroutines/main_hx0fp0.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/polint.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hx0fp0.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/polint.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/polint.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/polint.f90.i
+home/takao/ecalj/SRC/subroutines/main_hx0fp0.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hx0fp0.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hx0fp0.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/polint.s: home/takao/temp/ecalj/SRC/subroutines/polint.f90.s
+home/takao/ecalj/SRC/subroutines/main_hx0fp0.s: home/takao/ecalj/SRC/subroutines/main_hx0fp0.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/polint.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hx0fp0.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/polint.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/polint.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/polint.f90.s
+home/takao/ecalj/SRC/subroutines/main_hx0fp0.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hx0fp0.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hx0fp0.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/potpus.o: home/takao/temp/ecalj/SRC/subroutines/potpus.f90.o
+home/takao/ecalj/SRC/subroutines/main_hx0init.o: home/takao/ecalj/SRC/subroutines/main_hx0init.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/potpus.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hx0init.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/potpus.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/potpus.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/potpus.f90.o
+home/takao/ecalj/SRC/subroutines/main_hx0init.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hx0init.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hx0init.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/potpus.i: home/takao/temp/ecalj/SRC/subroutines/potpus.f90.i
+home/takao/ecalj/SRC/subroutines/main_hx0init.i: home/takao/ecalj/SRC/subroutines/main_hx0init.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/potpus.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hx0init.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/potpus.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/potpus.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/potpus.f90.i
+home/takao/ecalj/SRC/subroutines/main_hx0init.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hx0init.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hx0init.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/potpus.s: home/takao/temp/ecalj/SRC/subroutines/potpus.f90.s
+home/takao/ecalj/SRC/subroutines/main_hx0init.s: home/takao/ecalj/SRC/subroutines/main_hx0init.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/potpus.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hx0init.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/potpus.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/potpus.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/potpus.f90.s
+home/takao/ecalj/SRC/subroutines/main_hx0init.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hx0init.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_hx0init.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/pplmat.o: home/takao/temp/ecalj/SRC/subroutines/pplmat.f90.o
+home/takao/ecalj/SRC/subroutines/main_lmchk.o: home/takao/ecalj/SRC/subroutines/main_lmchk.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/pplmat.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_lmchk.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/pplmat.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/pplmat.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/pplmat.f90.o
+home/takao/ecalj/SRC/subroutines/main_lmchk.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_lmchk.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_lmchk.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/pplmat.i: home/takao/temp/ecalj/SRC/subroutines/pplmat.f90.i
+home/takao/ecalj/SRC/subroutines/main_lmchk.i: home/takao/ecalj/SRC/subroutines/main_lmchk.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/pplmat.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_lmchk.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/pplmat.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/pplmat.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/pplmat.f90.i
+home/takao/ecalj/SRC/subroutines/main_lmchk.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_lmchk.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_lmchk.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/pplmat.s: home/takao/temp/ecalj/SRC/subroutines/pplmat.f90.s
+home/takao/ecalj/SRC/subroutines/main_lmchk.s: home/takao/ecalj/SRC/subroutines/main_lmchk.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/pplmat.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_lmchk.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/pplmat.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/pplmat.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/pplmat.f90.s
+home/takao/ecalj/SRC/subroutines/main_lmchk.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_lmchk.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_lmchk.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/pwmat.o: home/takao/temp/ecalj/SRC/subroutines/pwmat.f90.o
+home/takao/ecalj/SRC/subroutines/main_lmf.o: home/takao/ecalj/SRC/subroutines/main_lmf.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/pwmat.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_lmf.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/pwmat.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/pwmat.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/pwmat.f90.o
+home/takao/ecalj/SRC/subroutines/main_lmf.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_lmf.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_lmf.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/pwmat.i: home/takao/temp/ecalj/SRC/subroutines/pwmat.f90.i
+home/takao/ecalj/SRC/subroutines/main_lmf.i: home/takao/ecalj/SRC/subroutines/main_lmf.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/pwmat.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_lmf.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/pwmat.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/pwmat.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/pwmat.f90.i
+home/takao/ecalj/SRC/subroutines/main_lmf.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_lmf.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_lmf.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/pwmat.s: home/takao/temp/ecalj/SRC/subroutines/pwmat.f90.s
+home/takao/ecalj/SRC/subroutines/main_lmf.s: home/takao/ecalj/SRC/subroutines/main_lmf.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/pwmat.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_lmf.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/pwmat.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/pwmat.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/pwmat.f90.s
+home/takao/ecalj/SRC/subroutines/main_lmf.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_lmf.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_lmf.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/q0irre.o: home/takao/temp/ecalj/SRC/subroutines/q0irre.f90.o
+home/takao/ecalj/SRC/subroutines/main_lmfa.o: home/takao/ecalj/SRC/subroutines/main_lmfa.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/q0irre.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_lmfa.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/q0irre.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/q0irre.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/q0irre.f90.o
+home/takao/ecalj/SRC/subroutines/main_lmfa.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_lmfa.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_lmfa.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/q0irre.i: home/takao/temp/ecalj/SRC/subroutines/q0irre.f90.i
+home/takao/ecalj/SRC/subroutines/main_lmfa.i: home/takao/ecalj/SRC/subroutines/main_lmfa.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/q0irre.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_lmfa.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/q0irre.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/q0irre.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/q0irre.f90.i
+home/takao/ecalj/SRC/subroutines/main_lmfa.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_lmfa.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_lmfa.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/q0irre.s: home/takao/temp/ecalj/SRC/subroutines/q0irre.f90.s
+home/takao/ecalj/SRC/subroutines/main_lmfa.s: home/takao/ecalj/SRC/subroutines/main_lmfa.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/q0irre.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_lmfa.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/q0irre.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/q0irre.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/q0irre.f90.s
+home/takao/ecalj/SRC/subroutines/main_lmfa.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_lmfa.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_lmfa.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/qpe1.o: home/takao/temp/ecalj/SRC/subroutines/qpe1.f90.o
+home/takao/ecalj/SRC/subroutines/main_lmfham1.o: home/takao/ecalj/SRC/subroutines/main_lmfham1.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/qpe1.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_lmfham1.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/qpe1.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/qpe1.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/qpe1.f90.o
+home/takao/ecalj/SRC/subroutines/main_lmfham1.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_lmfham1.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_lmfham1.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/qpe1.i: home/takao/temp/ecalj/SRC/subroutines/qpe1.f90.i
+home/takao/ecalj/SRC/subroutines/main_lmfham1.i: home/takao/ecalj/SRC/subroutines/main_lmfham1.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/qpe1.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_lmfham1.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/qpe1.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/qpe1.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/qpe1.f90.i
+home/takao/ecalj/SRC/subroutines/main_lmfham1.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_lmfham1.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_lmfham1.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/qpe1.s: home/takao/temp/ecalj/SRC/subroutines/qpe1.f90.s
+home/takao/ecalj/SRC/subroutines/main_lmfham1.s: home/takao/ecalj/SRC/subroutines/main_lmfham1.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/qpe1.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_lmfham1.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/qpe1.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/qpe1.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/qpe1.f90.s
+home/takao/ecalj/SRC/subroutines/main_lmfham1.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_lmfham1.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_lmfham1.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/qpe1.qsgw.o: home/takao/temp/ecalj/SRC/subroutines/qpe1.qsgw.f90.o
+home/takao/ecalj/SRC/subroutines/main_lmfham2.o: home/takao/ecalj/SRC/subroutines/main_lmfham2.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/qpe1.qsgw.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_lmfham2.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/qpe1.qsgw.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/qpe1.qsgw.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/qpe1.qsgw.f90.o
+home/takao/ecalj/SRC/subroutines/main_lmfham2.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_lmfham2.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_lmfham2.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/qpe1.qsgw.i: home/takao/temp/ecalj/SRC/subroutines/qpe1.qsgw.f90.i
+home/takao/ecalj/SRC/subroutines/main_lmfham2.i: home/takao/ecalj/SRC/subroutines/main_lmfham2.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/qpe1.qsgw.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_lmfham2.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/qpe1.qsgw.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/qpe1.qsgw.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/qpe1.qsgw.f90.i
+home/takao/ecalj/SRC/subroutines/main_lmfham2.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_lmfham2.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_lmfham2.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/qpe1.qsgw.s: home/takao/temp/ecalj/SRC/subroutines/qpe1.qsgw.f90.s
+home/takao/ecalj/SRC/subroutines/main_lmfham2.s: home/takao/ecalj/SRC/subroutines/main_lmfham2.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/qpe1.qsgw.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_lmfham2.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/qpe1.qsgw.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/qpe1.qsgw.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/qpe1.qsgw.f90.s
+home/takao/ecalj/SRC/subroutines/main_lmfham2.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_lmfham2.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_lmfham2.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/qpe1.sc.o: home/takao/temp/ecalj/SRC/subroutines/qpe1.sc.f90.o
+home/takao/ecalj/SRC/subroutines/main_qg4gw.o: home/takao/ecalj/SRC/subroutines/main_qg4gw.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/qpe1.sc.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_qg4gw.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/qpe1.sc.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/qpe1.sc.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/qpe1.sc.f90.o
+home/takao/ecalj/SRC/subroutines/main_qg4gw.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_qg4gw.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_qg4gw.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/qpe1.sc.i: home/takao/temp/ecalj/SRC/subroutines/qpe1.sc.f90.i
+home/takao/ecalj/SRC/subroutines/main_qg4gw.i: home/takao/ecalj/SRC/subroutines/main_qg4gw.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/qpe1.sc.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_qg4gw.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/qpe1.sc.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/qpe1.sc.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/qpe1.sc.f90.i
+home/takao/ecalj/SRC/subroutines/main_qg4gw.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_qg4gw.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_qg4gw.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/qpe1.sc.s: home/takao/temp/ecalj/SRC/subroutines/qpe1.sc.f90.s
+home/takao/ecalj/SRC/subroutines/main_qg4gw.s: home/takao/ecalj/SRC/subroutines/main_qg4gw.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/qpe1.sc.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_qg4gw.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/qpe1.sc.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/qpe1.sc.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/qpe1.sc.f90.s
+home/takao/ecalj/SRC/subroutines/main_qg4gw.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_qg4gw.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_qg4gw.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/radgkl.o: home/takao/temp/ecalj/SRC/subroutines/radgkl.f90.o
+home/takao/ecalj/SRC/subroutines/main_rdata4gw_v2.o: home/takao/ecalj/SRC/subroutines/main_rdata4gw_v2.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/radgkl.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_rdata4gw_v2.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/radgkl.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/radgkl.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/radgkl.f90.o
+home/takao/ecalj/SRC/subroutines/main_rdata4gw_v2.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_rdata4gw_v2.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/main_rdata4gw_v2.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/radgkl.i: home/takao/temp/ecalj/SRC/subroutines/radgkl.f90.i
+home/takao/ecalj/SRC/subroutines/main_rdata4gw_v2.i: home/takao/ecalj/SRC/subroutines/main_rdata4gw_v2.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/radgkl.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_rdata4gw_v2.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/radgkl.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/radgkl.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/radgkl.f90.i
+home/takao/ecalj/SRC/subroutines/main_rdata4gw_v2.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_rdata4gw_v2.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/main_rdata4gw_v2.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/radgkl.s: home/takao/temp/ecalj/SRC/subroutines/radgkl.f90.s
+home/takao/ecalj/SRC/subroutines/main_rdata4gw_v2.s: home/takao/ecalj/SRC/subroutines/main_rdata4gw_v2.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/radgkl.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_rdata4gw_v2.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/radgkl.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/radgkl.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/radgkl.f90.s
+home/takao/ecalj/SRC/subroutines/main_rdata4gw_v2.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_rdata4gw_v2.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/main_rdata4gw_v2.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/radmsh.o: home/takao/temp/ecalj/SRC/subroutines/radmsh.f90.o
+home/takao/ecalj/SRC/subroutines/makusp.o: home/takao/ecalj/SRC/subroutines/makusp.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/radmsh.o
+.PHONY : home/takao/ecalj/SRC/subroutines/makusp.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/radmsh.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/radmsh.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/radmsh.f90.o
+home/takao/ecalj/SRC/subroutines/makusp.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/makusp.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/makusp.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/radmsh.i: home/takao/temp/ecalj/SRC/subroutines/radmsh.f90.i
+home/takao/ecalj/SRC/subroutines/makusp.i: home/takao/ecalj/SRC/subroutines/makusp.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/radmsh.i
+.PHONY : home/takao/ecalj/SRC/subroutines/makusp.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/radmsh.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/radmsh.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/radmsh.f90.i
+home/takao/ecalj/SRC/subroutines/makusp.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/makusp.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/makusp.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/radmsh.s: home/takao/temp/ecalj/SRC/subroutines/radmsh.f90.s
+home/takao/ecalj/SRC/subroutines/makusp.s: home/takao/ecalj/SRC/subroutines/makusp.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/radmsh.s
+.PHONY : home/takao/ecalj/SRC/subroutines/makusp.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/radmsh.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/radmsh.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/radmsh.f90.s
+home/takao/ecalj/SRC/subroutines/makusp.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/makusp.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/makusp.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/radpkl.o: home/takao/temp/ecalj/SRC/subroutines/radpkl.f90.o
+home/takao/ecalj/SRC/subroutines/makusq.o: home/takao/ecalj/SRC/subroutines/makusq.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/radpkl.o
+.PHONY : home/takao/ecalj/SRC/subroutines/makusq.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/radpkl.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/radpkl.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/radpkl.f90.o
+home/takao/ecalj/SRC/subroutines/makusq.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/makusq.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/makusq.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/radpkl.i: home/takao/temp/ecalj/SRC/subroutines/radpkl.f90.i
+home/takao/ecalj/SRC/subroutines/makusq.i: home/takao/ecalj/SRC/subroutines/makusq.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/radpkl.i
+.PHONY : home/takao/ecalj/SRC/subroutines/makusq.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/radpkl.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/radpkl.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/radpkl.f90.i
+home/takao/ecalj/SRC/subroutines/makusq.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/makusq.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/makusq.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/radpkl.s: home/takao/temp/ecalj/SRC/subroutines/radpkl.f90.s
+home/takao/ecalj/SRC/subroutines/makusq.s: home/takao/ecalj/SRC/subroutines/makusq.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/radpkl.s
+.PHONY : home/takao/ecalj/SRC/subroutines/makusq.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/radpkl.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/radpkl.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/radpkl.f90.s
+home/takao/ecalj/SRC/subroutines/makusq.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/makusq.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/makusq.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/rdovfa.o: home/takao/temp/ecalj/SRC/subroutines/rdovfa.f90.o
+home/takao/ecalj/SRC/subroutines/mate.o: home/takao/ecalj/SRC/subroutines/mate.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rdovfa.o
+.PHONY : home/takao/ecalj/SRC/subroutines/mate.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/rdovfa.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rdovfa.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rdovfa.f90.o
+home/takao/ecalj/SRC/subroutines/mate.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/mate.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/mate.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/rdovfa.i: home/takao/temp/ecalj/SRC/subroutines/rdovfa.f90.i
+home/takao/ecalj/SRC/subroutines/mate.i: home/takao/ecalj/SRC/subroutines/mate.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rdovfa.i
+.PHONY : home/takao/ecalj/SRC/subroutines/mate.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/rdovfa.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rdovfa.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rdovfa.f90.i
+home/takao/ecalj/SRC/subroutines/mate.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/mate.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/mate.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/rdovfa.s: home/takao/temp/ecalj/SRC/subroutines/rdovfa.f90.s
+home/takao/ecalj/SRC/subroutines/mate.s: home/takao/ecalj/SRC/subroutines/mate.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rdovfa.s
+.PHONY : home/takao/ecalj/SRC/subroutines/mate.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/rdovfa.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rdovfa.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rdovfa.f90.s
+home/takao/ecalj/SRC/subroutines/mate.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/mate.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/mate.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/rdpp.o: home/takao/temp/ecalj/SRC/subroutines/rdpp.f90.o
+home/takao/ecalj/SRC/subroutines/matm.o: home/takao/ecalj/SRC/subroutines/matm.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rdpp.o
+.PHONY : home/takao/ecalj/SRC/subroutines/matm.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/rdpp.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rdpp.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rdpp.f90.o
+home/takao/ecalj/SRC/subroutines/matm.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/matm.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/matm.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/rdpp.i: home/takao/temp/ecalj/SRC/subroutines/rdpp.f90.i
+home/takao/ecalj/SRC/subroutines/matm.i: home/takao/ecalj/SRC/subroutines/matm.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rdpp.i
+.PHONY : home/takao/ecalj/SRC/subroutines/matm.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/rdpp.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rdpp.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rdpp.f90.i
+home/takao/ecalj/SRC/subroutines/matm.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/matm.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/matm.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/rdpp.s: home/takao/temp/ecalj/SRC/subroutines/rdpp.f90.s
+home/takao/ecalj/SRC/subroutines/matm.s: home/takao/ecalj/SRC/subroutines/matm.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rdpp.s
+.PHONY : home/takao/ecalj/SRC/subroutines/matm.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/rdpp.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rdpp.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rdpp.f90.s
+home/takao/ecalj/SRC/subroutines/matm.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/matm.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/matm.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/rdsigm2.o: home/takao/temp/ecalj/SRC/subroutines/rdsigm2.f90.o
+home/takao/ecalj/SRC/subroutines/mixrho.o: home/takao/ecalj/SRC/subroutines/mixrho.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rdsigm2.o
+.PHONY : home/takao/ecalj/SRC/subroutines/mixrho.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/rdsigm2.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rdsigm2.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rdsigm2.f90.o
+home/takao/ecalj/SRC/subroutines/mixrho.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/mixrho.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/mixrho.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/rdsigm2.i: home/takao/temp/ecalj/SRC/subroutines/rdsigm2.f90.i
+home/takao/ecalj/SRC/subroutines/mixrho.i: home/takao/ecalj/SRC/subroutines/mixrho.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rdsigm2.i
+.PHONY : home/takao/ecalj/SRC/subroutines/mixrho.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/rdsigm2.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rdsigm2.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rdsigm2.f90.i
+home/takao/ecalj/SRC/subroutines/mixrho.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/mixrho.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/mixrho.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/rdsigm2.s: home/takao/temp/ecalj/SRC/subroutines/rdsigm2.f90.s
+home/takao/ecalj/SRC/subroutines/mixrho.s: home/takao/ecalj/SRC/subroutines/mixrho.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rdsigm2.s
+.PHONY : home/takao/ecalj/SRC/subroutines/mixrho.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/rdsigm2.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rdsigm2.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rdsigm2.f90.s
+home/takao/ecalj/SRC/subroutines/mixrho.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/mixrho.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/mixrho.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/readeigen.o: home/takao/temp/ecalj/SRC/subroutines/readeigen.f90.o
+home/takao/ecalj/SRC/subroutines/mkehkf.o: home/takao/ecalj/SRC/subroutines/mkehkf.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/readeigen.o
+.PHONY : home/takao/ecalj/SRC/subroutines/mkehkf.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/readeigen.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/readeigen.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/readeigen.f90.o
+home/takao/ecalj/SRC/subroutines/mkehkf.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/mkehkf.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/mkehkf.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/readeigen.i: home/takao/temp/ecalj/SRC/subroutines/readeigen.f90.i
+home/takao/ecalj/SRC/subroutines/mkehkf.i: home/takao/ecalj/SRC/subroutines/mkehkf.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/readeigen.i
+.PHONY : home/takao/ecalj/SRC/subroutines/mkehkf.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/readeigen.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/readeigen.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/readeigen.f90.i
+home/takao/ecalj/SRC/subroutines/mkehkf.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/mkehkf.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/mkehkf.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/readeigen.s: home/takao/temp/ecalj/SRC/subroutines/readeigen.f90.s
+home/takao/ecalj/SRC/subroutines/mkehkf.s: home/takao/ecalj/SRC/subroutines/mkehkf.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/readeigen.s
+.PHONY : home/takao/ecalj/SRC/subroutines/mkehkf.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/readeigen.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/readeigen.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/readeigen.f90.s
+home/takao/ecalj/SRC/subroutines/mkehkf.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/mkehkf.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/mkehkf.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/readqg.o: home/takao/temp/ecalj/SRC/subroutines/readqg.f90.o
+home/takao/ecalj/SRC/subroutines/mkjp.o: home/takao/ecalj/SRC/subroutines/mkjp.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/readqg.o
+.PHONY : home/takao/ecalj/SRC/subroutines/mkjp.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/readqg.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/readqg.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/readqg.f90.o
+home/takao/ecalj/SRC/subroutines/mkjp.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/mkjp.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/mkjp.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/readqg.i: home/takao/temp/ecalj/SRC/subroutines/readqg.f90.i
+home/takao/ecalj/SRC/subroutines/mkjp.i: home/takao/ecalj/SRC/subroutines/mkjp.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/readqg.i
+.PHONY : home/takao/ecalj/SRC/subroutines/mkjp.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/readqg.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/readqg.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/readqg.f90.i
+home/takao/ecalj/SRC/subroutines/mkjp.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/mkjp.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/mkjp.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/readqg.s: home/takao/temp/ecalj/SRC/subroutines/readqg.f90.s
+home/takao/ecalj/SRC/subroutines/mkjp.s: home/takao/ecalj/SRC/subroutines/mkjp.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/readqg.s
+.PHONY : home/takao/ecalj/SRC/subroutines/mkjp.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/readqg.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/readqg.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/readqg.f90.s
+home/takao/ecalj/SRC/subroutines/mkjp.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/mkjp.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/mkjp.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/relax.o: home/takao/temp/ecalj/SRC/subroutines/relax.f90.o
+home/takao/ecalj/SRC/subroutines/mkqg.o: home/takao/ecalj/SRC/subroutines/mkqg.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/relax.o
+.PHONY : home/takao/ecalj/SRC/subroutines/mkqg.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/relax.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/relax.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/relax.f90.o
+home/takao/ecalj/SRC/subroutines/mkqg.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/mkqg.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/mkqg.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/relax.i: home/takao/temp/ecalj/SRC/subroutines/relax.f90.i
+home/takao/ecalj/SRC/subroutines/mkqg.i: home/takao/ecalj/SRC/subroutines/mkqg.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/relax.i
+.PHONY : home/takao/ecalj/SRC/subroutines/mkqg.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/relax.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/relax.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/relax.f90.i
+home/takao/ecalj/SRC/subroutines/mkqg.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/mkqg.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/mkqg.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/relax.s: home/takao/temp/ecalj/SRC/subroutines/relax.f90.s
+home/takao/ecalj/SRC/subroutines/mkqg.s: home/takao/ecalj/SRC/subroutines/mkqg.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/relax.s
+.PHONY : home/takao/ecalj/SRC/subroutines/mkqg.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/relax.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/relax.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/relax.f90.s
+home/takao/ecalj/SRC/subroutines/mkqg.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/mkqg.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/mkqg.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/rfalsi.o: home/takao/temp/ecalj/SRC/subroutines/rfalsi.f90.o
+home/takao/ecalj/SRC/subroutines/mkqp.o: home/takao/ecalj/SRC/subroutines/mkqp.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rfalsi.o
+.PHONY : home/takao/ecalj/SRC/subroutines/mkqp.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/rfalsi.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rfalsi.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rfalsi.f90.o
+home/takao/ecalj/SRC/subroutines/mkqp.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/mkqp.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/mkqp.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/rfalsi.i: home/takao/temp/ecalj/SRC/subroutines/rfalsi.f90.i
+home/takao/ecalj/SRC/subroutines/mkqp.i: home/takao/ecalj/SRC/subroutines/mkqp.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rfalsi.i
+.PHONY : home/takao/ecalj/SRC/subroutines/mkqp.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/rfalsi.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rfalsi.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rfalsi.f90.i
+home/takao/ecalj/SRC/subroutines/mkqp.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/mkqp.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/mkqp.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/rfalsi.s: home/takao/temp/ecalj/SRC/subroutines/rfalsi.f90.s
+home/takao/ecalj/SRC/subroutines/mkqp.s: home/takao/ecalj/SRC/subroutines/mkqp.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rfalsi.s
+.PHONY : home/takao/ecalj/SRC/subroutines/mkqp.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/rfalsi.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rfalsi.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rfalsi.f90.s
+home/takao/ecalj/SRC/subroutines/mkqp.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/mkqp.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/mkqp.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/rgwinf_mod.o: home/takao/temp/ecalj/SRC/subroutines/rgwinf_mod.f90.o
+home/takao/ecalj/SRC/subroutines/mkrout.o: home/takao/ecalj/SRC/subroutines/mkrout.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rgwinf_mod.o
+.PHONY : home/takao/ecalj/SRC/subroutines/mkrout.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/rgwinf_mod.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rgwinf_mod.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rgwinf_mod.f90.o
+home/takao/ecalj/SRC/subroutines/mkrout.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/mkrout.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/mkrout.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/rgwinf_mod.i: home/takao/temp/ecalj/SRC/subroutines/rgwinf_mod.f90.i
+home/takao/ecalj/SRC/subroutines/mkrout.i: home/takao/ecalj/SRC/subroutines/mkrout.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rgwinf_mod.i
+.PHONY : home/takao/ecalj/SRC/subroutines/mkrout.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/rgwinf_mod.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rgwinf_mod.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rgwinf_mod.f90.i
+home/takao/ecalj/SRC/subroutines/mkrout.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/mkrout.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/mkrout.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/rgwinf_mod.s: home/takao/temp/ecalj/SRC/subroutines/rgwinf_mod.f90.s
+home/takao/ecalj/SRC/subroutines/mkrout.s: home/takao/ecalj/SRC/subroutines/mkrout.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rgwinf_mod.s
+.PHONY : home/takao/ecalj/SRC/subroutines/mkrout.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/rgwinf_mod.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rgwinf_mod.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rgwinf_mod.f90.s
+home/takao/ecalj/SRC/subroutines/mkrout.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/mkrout.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/mkrout.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/rhomom.o: home/takao/temp/ecalj/SRC/subroutines/rhomom.f90.o
+home/takao/ecalj/SRC/subroutines/mpibc.o: home/takao/ecalj/SRC/subroutines/mpibc.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rhomom.o
+.PHONY : home/takao/ecalj/SRC/subroutines/mpibc.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/rhomom.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rhomom.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rhomom.f90.o
+home/takao/ecalj/SRC/subroutines/mpibc.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/mpibc.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/mpibc.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/rhomom.i: home/takao/temp/ecalj/SRC/subroutines/rhomom.f90.i
+home/takao/ecalj/SRC/subroutines/mpibc.i: home/takao/ecalj/SRC/subroutines/mpibc.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rhomom.i
+.PHONY : home/takao/ecalj/SRC/subroutines/mpibc.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/rhomom.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rhomom.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rhomom.f90.i
+home/takao/ecalj/SRC/subroutines/mpibc.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/mpibc.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/mpibc.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/rhomom.s: home/takao/temp/ecalj/SRC/subroutines/rhomom.f90.s
+home/takao/ecalj/SRC/subroutines/mpibc.s: home/takao/ecalj/SRC/subroutines/mpibc.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rhomom.s
+.PHONY : home/takao/ecalj/SRC/subroutines/mpibc.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/rhomom.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rhomom.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rhomom.f90.s
+home/takao/ecalj/SRC/subroutines/mpibc.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/mpibc.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/mpibc.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/rlocbl.o: home/takao/temp/ecalj/SRC/subroutines/rlocbl.f90.o
+home/takao/ecalj/SRC/subroutines/mtchae.o: home/takao/ecalj/SRC/subroutines/mtchae.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rlocbl.o
+.PHONY : home/takao/ecalj/SRC/subroutines/mtchae.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/rlocbl.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rlocbl.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rlocbl.f90.o
+home/takao/ecalj/SRC/subroutines/mtchae.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/mtchae.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/mtchae.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/rlocbl.i: home/takao/temp/ecalj/SRC/subroutines/rlocbl.f90.i
+home/takao/ecalj/SRC/subroutines/mtchae.i: home/takao/ecalj/SRC/subroutines/mtchae.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rlocbl.i
+.PHONY : home/takao/ecalj/SRC/subroutines/mtchae.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/rlocbl.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rlocbl.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rlocbl.f90.i
+home/takao/ecalj/SRC/subroutines/mtchae.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/mtchae.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/mtchae.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/rlocbl.s: home/takao/temp/ecalj/SRC/subroutines/rlocbl.f90.s
+home/takao/ecalj/SRC/subroutines/mtchae.s: home/takao/ecalj/SRC/subroutines/mtchae.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rlocbl.s
+.PHONY : home/takao/ecalj/SRC/subroutines/mtchae.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/rlocbl.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rlocbl.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rlocbl.f90.s
+home/takao/ecalj/SRC/subroutines/mtchae.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/mtchae.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/mtchae.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/rmesh.o: home/takao/temp/ecalj/SRC/subroutines/rmesh.f90.o
+home/takao/ecalj/SRC/subroutines/pnunew.o: home/takao/ecalj/SRC/subroutines/pnunew.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rmesh.o
+.PHONY : home/takao/ecalj/SRC/subroutines/pnunew.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/rmesh.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rmesh.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rmesh.f90.o
+home/takao/ecalj/SRC/subroutines/pnunew.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/pnunew.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/pnunew.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/rmesh.i: home/takao/temp/ecalj/SRC/subroutines/rmesh.f90.i
+home/takao/ecalj/SRC/subroutines/pnunew.i: home/takao/ecalj/SRC/subroutines/pnunew.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rmesh.i
+.PHONY : home/takao/ecalj/SRC/subroutines/pnunew.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/rmesh.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rmesh.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rmesh.f90.i
+home/takao/ecalj/SRC/subroutines/pnunew.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/pnunew.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/pnunew.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/rmesh.s: home/takao/temp/ecalj/SRC/subroutines/rmesh.f90.s
+home/takao/ecalj/SRC/subroutines/pnunew.s: home/takao/ecalj/SRC/subroutines/pnunew.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rmesh.s
+.PHONY : home/takao/ecalj/SRC/subroutines/pnunew.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/rmesh.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rmesh.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rmesh.f90.s
+home/takao/ecalj/SRC/subroutines/pnunew.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/pnunew.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/pnunew.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/ropbes.o: home/takao/temp/ecalj/SRC/subroutines/ropbes.f90.o
+home/takao/ecalj/SRC/subroutines/poinsp.o: home/takao/ecalj/SRC/subroutines/poinsp.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/ropbes.o
+.PHONY : home/takao/ecalj/SRC/subroutines/poinsp.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/ropbes.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/ropbes.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/ropbes.f90.o
+home/takao/ecalj/SRC/subroutines/poinsp.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/poinsp.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/poinsp.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/ropbes.i: home/takao/temp/ecalj/SRC/subroutines/ropbes.f90.i
+home/takao/ecalj/SRC/subroutines/poinsp.i: home/takao/ecalj/SRC/subroutines/poinsp.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/ropbes.i
+.PHONY : home/takao/ecalj/SRC/subroutines/poinsp.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/ropbes.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/ropbes.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/ropbes.f90.i
+home/takao/ecalj/SRC/subroutines/poinsp.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/poinsp.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/poinsp.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/ropbes.s: home/takao/temp/ecalj/SRC/subroutines/ropbes.f90.s
+home/takao/ecalj/SRC/subroutines/poinsp.s: home/takao/ecalj/SRC/subroutines/poinsp.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/ropbes.s
+.PHONY : home/takao/ecalj/SRC/subroutines/poinsp.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/ropbes.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/ropbes.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/ropbes.f90.s
+home/takao/ecalj/SRC/subroutines/poinsp.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/poinsp.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/poinsp.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/roplat.o: home/takao/temp/ecalj/SRC/subroutines/roplat.f90.o
+home/takao/ecalj/SRC/subroutines/poldvm.o: home/takao/ecalj/SRC/subroutines/poldvm.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/roplat.o
+.PHONY : home/takao/ecalj/SRC/subroutines/poldvm.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/roplat.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/roplat.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/roplat.f90.o
+home/takao/ecalj/SRC/subroutines/poldvm.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/poldvm.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/poldvm.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/roplat.i: home/takao/temp/ecalj/SRC/subroutines/roplat.f90.i
+home/takao/ecalj/SRC/subroutines/poldvm.i: home/takao/ecalj/SRC/subroutines/poldvm.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/roplat.i
+.PHONY : home/takao/ecalj/SRC/subroutines/poldvm.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/roplat.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/roplat.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/roplat.f90.i
+home/takao/ecalj/SRC/subroutines/poldvm.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/poldvm.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/poldvm.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/roplat.s: home/takao/temp/ecalj/SRC/subroutines/roplat.f90.s
+home/takao/ecalj/SRC/subroutines/poldvm.s: home/takao/ecalj/SRC/subroutines/poldvm.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/roplat.s
+.PHONY : home/takao/ecalj/SRC/subroutines/poldvm.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/roplat.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/roplat.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/roplat.f90.s
+home/takao/ecalj/SRC/subroutines/poldvm.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/poldvm.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/poldvm.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/ropyln.o: home/takao/temp/ecalj/SRC/subroutines/ropyln.f90.o
+home/takao/ecalj/SRC/subroutines/polint.o: home/takao/ecalj/SRC/subroutines/polint.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/ropyln.o
+.PHONY : home/takao/ecalj/SRC/subroutines/polint.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/ropyln.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/ropyln.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/ropyln.f90.o
+home/takao/ecalj/SRC/subroutines/polint.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/polint.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/polint.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/ropyln.i: home/takao/temp/ecalj/SRC/subroutines/ropyln.f90.i
+home/takao/ecalj/SRC/subroutines/polint.i: home/takao/ecalj/SRC/subroutines/polint.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/ropyln.i
+.PHONY : home/takao/ecalj/SRC/subroutines/polint.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/ropyln.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/ropyln.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/ropyln.f90.i
+home/takao/ecalj/SRC/subroutines/polint.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/polint.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/polint.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/ropyln.s: home/takao/temp/ecalj/SRC/subroutines/ropyln.f90.s
+home/takao/ecalj/SRC/subroutines/polint.s: home/takao/ecalj/SRC/subroutines/polint.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/ropyln.s
+.PHONY : home/takao/ecalj/SRC/subroutines/polint.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/ropyln.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/ropyln.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/ropyln.f90.s
+home/takao/ecalj/SRC/subroutines/polint.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/polint.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/polint.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/rotcg.o: home/takao/temp/ecalj/SRC/subroutines/rotcg.f90.o
+home/takao/ecalj/SRC/subroutines/potpus.o: home/takao/ecalj/SRC/subroutines/potpus.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rotcg.o
+.PHONY : home/takao/ecalj/SRC/subroutines/potpus.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/rotcg.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rotcg.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rotcg.f90.o
+home/takao/ecalj/SRC/subroutines/potpus.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/potpus.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/potpus.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/rotcg.i: home/takao/temp/ecalj/SRC/subroutines/rotcg.f90.i
+home/takao/ecalj/SRC/subroutines/potpus.i: home/takao/ecalj/SRC/subroutines/potpus.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rotcg.i
+.PHONY : home/takao/ecalj/SRC/subroutines/potpus.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/rotcg.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rotcg.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rotcg.f90.i
+home/takao/ecalj/SRC/subroutines/potpus.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/potpus.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/potpus.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/rotcg.s: home/takao/temp/ecalj/SRC/subroutines/rotcg.f90.s
+home/takao/ecalj/SRC/subroutines/potpus.s: home/takao/ecalj/SRC/subroutines/potpus.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rotcg.s
+.PHONY : home/takao/ecalj/SRC/subroutines/potpus.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/rotcg.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rotcg.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rotcg.f90.s
+home/takao/ecalj/SRC/subroutines/potpus.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/potpus.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/potpus.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/rotgvec.o: home/takao/temp/ecalj/SRC/subroutines/rotgvec.f90.o
+home/takao/ecalj/SRC/subroutines/pplmat.o: home/takao/ecalj/SRC/subroutines/pplmat.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rotgvec.o
+.PHONY : home/takao/ecalj/SRC/subroutines/pplmat.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/rotgvec.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rotgvec.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rotgvec.f90.o
+home/takao/ecalj/SRC/subroutines/pplmat.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/pplmat.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/pplmat.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/rotgvec.i: home/takao/temp/ecalj/SRC/subroutines/rotgvec.f90.i
+home/takao/ecalj/SRC/subroutines/pplmat.i: home/takao/ecalj/SRC/subroutines/pplmat.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rotgvec.i
+.PHONY : home/takao/ecalj/SRC/subroutines/pplmat.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/rotgvec.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rotgvec.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rotgvec.f90.i
+home/takao/ecalj/SRC/subroutines/pplmat.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/pplmat.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/pplmat.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/rotgvec.s: home/takao/temp/ecalj/SRC/subroutines/rotgvec.f90.s
+home/takao/ecalj/SRC/subroutines/pplmat.s: home/takao/ecalj/SRC/subroutines/pplmat.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rotgvec.s
+.PHONY : home/takao/ecalj/SRC/subroutines/pplmat.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/rotgvec.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rotgvec.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rotgvec.f90.s
+home/takao/ecalj/SRC/subroutines/pplmat.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/pplmat.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/pplmat.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/rotwave.o: home/takao/temp/ecalj/SRC/subroutines/rotwave.f90.o
+home/takao/ecalj/SRC/subroutines/pwmat.o: home/takao/ecalj/SRC/subroutines/pwmat.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rotwave.o
+.PHONY : home/takao/ecalj/SRC/subroutines/pwmat.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/rotwave.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rotwave.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rotwave.f90.o
+home/takao/ecalj/SRC/subroutines/pwmat.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/pwmat.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/pwmat.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/rotwave.i: home/takao/temp/ecalj/SRC/subroutines/rotwave.f90.i
+home/takao/ecalj/SRC/subroutines/pwmat.i: home/takao/ecalj/SRC/subroutines/pwmat.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rotwave.i
+.PHONY : home/takao/ecalj/SRC/subroutines/pwmat.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/rotwave.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rotwave.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rotwave.f90.i
+home/takao/ecalj/SRC/subroutines/pwmat.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/pwmat.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/pwmat.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/rotwave.s: home/takao/temp/ecalj/SRC/subroutines/rotwave.f90.s
+home/takao/ecalj/SRC/subroutines/pwmat.s: home/takao/ecalj/SRC/subroutines/pwmat.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rotwave.s
+.PHONY : home/takao/ecalj/SRC/subroutines/pwmat.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/rotwave.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rotwave.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rotwave.f90.s
+home/takao/ecalj/SRC/subroutines/pwmat.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/pwmat.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/pwmat.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/rpaq.o: home/takao/temp/ecalj/SRC/subroutines/rpaq.f90.o
+home/takao/ecalj/SRC/subroutines/q0irre.o: home/takao/ecalj/SRC/subroutines/q0irre.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rpaq.o
+.PHONY : home/takao/ecalj/SRC/subroutines/q0irre.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/rpaq.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rpaq.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rpaq.f90.o
+home/takao/ecalj/SRC/subroutines/q0irre.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/q0irre.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/q0irre.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/rpaq.i: home/takao/temp/ecalj/SRC/subroutines/rpaq.f90.i
+home/takao/ecalj/SRC/subroutines/q0irre.i: home/takao/ecalj/SRC/subroutines/q0irre.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rpaq.i
+.PHONY : home/takao/ecalj/SRC/subroutines/q0irre.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/rpaq.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rpaq.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rpaq.f90.i
+home/takao/ecalj/SRC/subroutines/q0irre.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/q0irre.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/q0irre.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/rpaq.s: home/takao/temp/ecalj/SRC/subroutines/rpaq.f90.s
+home/takao/ecalj/SRC/subroutines/q0irre.s: home/takao/ecalj/SRC/subroutines/q0irre.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rpaq.s
+.PHONY : home/takao/ecalj/SRC/subroutines/q0irre.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/rpaq.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rpaq.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rpaq.f90.s
+home/takao/ecalj/SRC/subroutines/q0irre.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/q0irre.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/q0irre.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/rppovl.o: home/takao/temp/ecalj/SRC/subroutines/rppovl.f90.o
+home/takao/ecalj/SRC/subroutines/qpe1.o: home/takao/ecalj/SRC/subroutines/qpe1.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rppovl.o
+.PHONY : home/takao/ecalj/SRC/subroutines/qpe1.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/rppovl.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rppovl.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rppovl.f90.o
+home/takao/ecalj/SRC/subroutines/qpe1.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/qpe1.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/qpe1.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/rppovl.i: home/takao/temp/ecalj/SRC/subroutines/rppovl.f90.i
+home/takao/ecalj/SRC/subroutines/qpe1.i: home/takao/ecalj/SRC/subroutines/qpe1.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rppovl.i
+.PHONY : home/takao/ecalj/SRC/subroutines/qpe1.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/rppovl.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rppovl.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rppovl.f90.i
+home/takao/ecalj/SRC/subroutines/qpe1.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/qpe1.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/qpe1.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/rppovl.s: home/takao/temp/ecalj/SRC/subroutines/rppovl.f90.s
+home/takao/ecalj/SRC/subroutines/qpe1.s: home/takao/ecalj/SRC/subroutines/qpe1.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rppovl.s
+.PHONY : home/takao/ecalj/SRC/subroutines/qpe1.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/rppovl.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rppovl.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rppovl.f90.s
+home/takao/ecalj/SRC/subroutines/qpe1.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/qpe1.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/qpe1.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/rseq.o: home/takao/temp/ecalj/SRC/subroutines/rseq.f90.o
+home/takao/ecalj/SRC/subroutines/qpe1.qsgw.o: home/takao/ecalj/SRC/subroutines/qpe1.qsgw.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rseq.o
+.PHONY : home/takao/ecalj/SRC/subroutines/qpe1.qsgw.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/rseq.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rseq.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rseq.f90.o
+home/takao/ecalj/SRC/subroutines/qpe1.qsgw.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/qpe1.qsgw.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/qpe1.qsgw.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/rseq.i: home/takao/temp/ecalj/SRC/subroutines/rseq.f90.i
+home/takao/ecalj/SRC/subroutines/qpe1.qsgw.i: home/takao/ecalj/SRC/subroutines/qpe1.qsgw.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rseq.i
+.PHONY : home/takao/ecalj/SRC/subroutines/qpe1.qsgw.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/rseq.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rseq.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rseq.f90.i
+home/takao/ecalj/SRC/subroutines/qpe1.qsgw.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/qpe1.qsgw.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/qpe1.qsgw.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/rseq.s: home/takao/temp/ecalj/SRC/subroutines/rseq.f90.s
+home/takao/ecalj/SRC/subroutines/qpe1.qsgw.s: home/takao/ecalj/SRC/subroutines/qpe1.qsgw.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rseq.s
+.PHONY : home/takao/ecalj/SRC/subroutines/qpe1.qsgw.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/rseq.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rseq.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rseq.f90.s
+home/takao/ecalj/SRC/subroutines/qpe1.qsgw.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/qpe1.qsgw.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/qpe1.qsgw.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/rsibl.o: home/takao/temp/ecalj/SRC/subroutines/rsibl.f90.o
+home/takao/ecalj/SRC/subroutines/qpe1.sc.o: home/takao/ecalj/SRC/subroutines/qpe1.sc.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rsibl.o
+.PHONY : home/takao/ecalj/SRC/subroutines/qpe1.sc.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/rsibl.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rsibl.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rsibl.f90.o
+home/takao/ecalj/SRC/subroutines/qpe1.sc.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/qpe1.sc.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/qpe1.sc.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/rsibl.i: home/takao/temp/ecalj/SRC/subroutines/rsibl.f90.i
+home/takao/ecalj/SRC/subroutines/qpe1.sc.i: home/takao/ecalj/SRC/subroutines/qpe1.sc.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rsibl.i
+.PHONY : home/takao/ecalj/SRC/subroutines/qpe1.sc.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/rsibl.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rsibl.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rsibl.f90.i
+home/takao/ecalj/SRC/subroutines/qpe1.sc.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/qpe1.sc.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/qpe1.sc.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/rsibl.s: home/takao/temp/ecalj/SRC/subroutines/rsibl.f90.s
+home/takao/ecalj/SRC/subroutines/qpe1.sc.s: home/takao/ecalj/SRC/subroutines/qpe1.sc.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rsibl.s
+.PHONY : home/takao/ecalj/SRC/subroutines/qpe1.sc.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/rsibl.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rsibl.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rsibl.f90.s
+home/takao/ecalj/SRC/subroutines/qpe1.sc.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/qpe1.sc.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/qpe1.sc.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/rwbzdata.o: home/takao/temp/ecalj/SRC/subroutines/rwbzdata.f90.o
+home/takao/ecalj/SRC/subroutines/radgkl.o: home/takao/ecalj/SRC/subroutines/radgkl.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rwbzdata.o
+.PHONY : home/takao/ecalj/SRC/subroutines/radgkl.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/rwbzdata.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rwbzdata.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rwbzdata.f90.o
+home/takao/ecalj/SRC/subroutines/radgkl.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/radgkl.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/radgkl.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/rwbzdata.i: home/takao/temp/ecalj/SRC/subroutines/rwbzdata.f90.i
+home/takao/ecalj/SRC/subroutines/radgkl.i: home/takao/ecalj/SRC/subroutines/radgkl.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rwbzdata.i
+.PHONY : home/takao/ecalj/SRC/subroutines/radgkl.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/rwbzdata.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rwbzdata.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rwbzdata.f90.i
+home/takao/ecalj/SRC/subroutines/radgkl.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/radgkl.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/radgkl.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/rwbzdata.s: home/takao/temp/ecalj/SRC/subroutines/rwbzdata.f90.s
+home/takao/ecalj/SRC/subroutines/radgkl.s: home/takao/ecalj/SRC/subroutines/radgkl.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rwbzdata.s
+.PHONY : home/takao/ecalj/SRC/subroutines/radgkl.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/rwbzdata.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/rwbzdata.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/rwbzdata.f90.s
+home/takao/ecalj/SRC/subroutines/radgkl.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/radgkl.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/radgkl.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/scg.o: home/takao/temp/ecalj/SRC/subroutines/scg.f90.o
+home/takao/ecalj/SRC/subroutines/radmsh.o: home/takao/ecalj/SRC/subroutines/radmsh.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/scg.o
+.PHONY : home/takao/ecalj/SRC/subroutines/radmsh.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/scg.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/scg.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/scg.f90.o
+home/takao/ecalj/SRC/subroutines/radmsh.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/radmsh.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/radmsh.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/scg.i: home/takao/temp/ecalj/SRC/subroutines/scg.f90.i
+home/takao/ecalj/SRC/subroutines/radmsh.i: home/takao/ecalj/SRC/subroutines/radmsh.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/scg.i
+.PHONY : home/takao/ecalj/SRC/subroutines/radmsh.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/scg.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/scg.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/scg.f90.i
+home/takao/ecalj/SRC/subroutines/radmsh.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/radmsh.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/radmsh.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/scg.s: home/takao/temp/ecalj/SRC/subroutines/scg.f90.s
+home/takao/ecalj/SRC/subroutines/radmsh.s: home/takao/ecalj/SRC/subroutines/radmsh.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/scg.s
+.PHONY : home/takao/ecalj/SRC/subroutines/radmsh.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/scg.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/scg.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/scg.f90.s
+home/takao/ecalj/SRC/subroutines/radmsh.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/radmsh.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/radmsh.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/scglp1.o: home/takao/temp/ecalj/SRC/subroutines/scglp1.f90.o
+home/takao/ecalj/SRC/subroutines/radpkl.o: home/takao/ecalj/SRC/subroutines/radpkl.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/scglp1.o
+.PHONY : home/takao/ecalj/SRC/subroutines/radpkl.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/scglp1.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/scglp1.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/scglp1.f90.o
+home/takao/ecalj/SRC/subroutines/radpkl.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/radpkl.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/radpkl.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/scglp1.i: home/takao/temp/ecalj/SRC/subroutines/scglp1.f90.i
+home/takao/ecalj/SRC/subroutines/radpkl.i: home/takao/ecalj/SRC/subroutines/radpkl.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/scglp1.i
+.PHONY : home/takao/ecalj/SRC/subroutines/radpkl.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/scglp1.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/scglp1.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/scglp1.f90.i
+home/takao/ecalj/SRC/subroutines/radpkl.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/radpkl.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/radpkl.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/scglp1.s: home/takao/temp/ecalj/SRC/subroutines/scglp1.f90.s
+home/takao/ecalj/SRC/subroutines/radpkl.s: home/takao/ecalj/SRC/subroutines/radpkl.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/scglp1.s
+.PHONY : home/takao/ecalj/SRC/subroutines/radpkl.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/scglp1.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/scglp1.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/scglp1.f90.s
+home/takao/ecalj/SRC/subroutines/radpkl.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/radpkl.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/radpkl.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/show_programinfo.o: home/takao/temp/ecalj/SRC/subroutines/show_programinfo.f90.o
+home/takao/ecalj/SRC/subroutines/rdovfa.o: home/takao/ecalj/SRC/subroutines/rdovfa.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/show_programinfo.o
+.PHONY : home/takao/ecalj/SRC/subroutines/rdovfa.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/show_programinfo.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/show_programinfo.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/show_programinfo.f90.o
+home/takao/ecalj/SRC/subroutines/rdovfa.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rdovfa.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/rdovfa.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/show_programinfo.i: home/takao/temp/ecalj/SRC/subroutines/show_programinfo.f90.i
+home/takao/ecalj/SRC/subroutines/rdovfa.i: home/takao/ecalj/SRC/subroutines/rdovfa.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/show_programinfo.i
+.PHONY : home/takao/ecalj/SRC/subroutines/rdovfa.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/show_programinfo.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/show_programinfo.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/show_programinfo.f90.i
+home/takao/ecalj/SRC/subroutines/rdovfa.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rdovfa.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/rdovfa.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/show_programinfo.s: home/takao/temp/ecalj/SRC/subroutines/show_programinfo.f90.s
+home/takao/ecalj/SRC/subroutines/rdovfa.s: home/takao/ecalj/SRC/subroutines/rdovfa.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/show_programinfo.s
+.PHONY : home/takao/ecalj/SRC/subroutines/rdovfa.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/show_programinfo.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/show_programinfo.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/show_programinfo.f90.s
+home/takao/ecalj/SRC/subroutines/rdovfa.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rdovfa.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/rdovfa.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/slinz.o: home/takao/temp/ecalj/SRC/subroutines/slinz.f90.o
+home/takao/ecalj/SRC/subroutines/rdpp.o: home/takao/ecalj/SRC/subroutines/rdpp.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/slinz.o
+.PHONY : home/takao/ecalj/SRC/subroutines/rdpp.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/slinz.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/slinz.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/slinz.f90.o
+home/takao/ecalj/SRC/subroutines/rdpp.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rdpp.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/rdpp.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/slinz.i: home/takao/temp/ecalj/SRC/subroutines/slinz.f90.i
+home/takao/ecalj/SRC/subroutines/rdpp.i: home/takao/ecalj/SRC/subroutines/rdpp.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/slinz.i
+.PHONY : home/takao/ecalj/SRC/subroutines/rdpp.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/slinz.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/slinz.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/slinz.f90.i
+home/takao/ecalj/SRC/subroutines/rdpp.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rdpp.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/rdpp.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/slinz.s: home/takao/temp/ecalj/SRC/subroutines/slinz.f90.s
+home/takao/ecalj/SRC/subroutines/rdpp.s: home/takao/ecalj/SRC/subroutines/rdpp.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/slinz.s
+.PHONY : home/takao/ecalj/SRC/subroutines/rdpp.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/slinz.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/slinz.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/slinz.f90.s
+home/takao/ecalj/SRC/subroutines/rdpp.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rdpp.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/rdpp.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/smves.o: home/takao/temp/ecalj/SRC/subroutines/smves.f90.o
+home/takao/ecalj/SRC/subroutines/rdsigm2.o: home/takao/ecalj/SRC/subroutines/rdsigm2.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/smves.o
+.PHONY : home/takao/ecalj/SRC/subroutines/rdsigm2.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/smves.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/smves.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/smves.f90.o
+home/takao/ecalj/SRC/subroutines/rdsigm2.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rdsigm2.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/rdsigm2.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/smves.i: home/takao/temp/ecalj/SRC/subroutines/smves.f90.i
+home/takao/ecalj/SRC/subroutines/rdsigm2.i: home/takao/ecalj/SRC/subroutines/rdsigm2.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/smves.i
+.PHONY : home/takao/ecalj/SRC/subroutines/rdsigm2.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/smves.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/smves.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/smves.f90.i
+home/takao/ecalj/SRC/subroutines/rdsigm2.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rdsigm2.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/rdsigm2.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/smves.s: home/takao/temp/ecalj/SRC/subroutines/smves.f90.s
+home/takao/ecalj/SRC/subroutines/rdsigm2.s: home/takao/ecalj/SRC/subroutines/rdsigm2.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/smves.s
+.PHONY : home/takao/ecalj/SRC/subroutines/rdsigm2.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/smves.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/smves.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/smves.f90.s
+home/takao/ecalj/SRC/subroutines/rdsigm2.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rdsigm2.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/rdsigm2.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/smvxcm.o: home/takao/temp/ecalj/SRC/subroutines/smvxcm.f90.o
+home/takao/ecalj/SRC/subroutines/readeigen.o: home/takao/ecalj/SRC/subroutines/readeigen.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/smvxcm.o
+.PHONY : home/takao/ecalj/SRC/subroutines/readeigen.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/smvxcm.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/smvxcm.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/smvxcm.f90.o
+home/takao/ecalj/SRC/subroutines/readeigen.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/readeigen.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/readeigen.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/smvxcm.i: home/takao/temp/ecalj/SRC/subroutines/smvxcm.f90.i
+home/takao/ecalj/SRC/subroutines/readeigen.i: home/takao/ecalj/SRC/subroutines/readeigen.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/smvxcm.i
+.PHONY : home/takao/ecalj/SRC/subroutines/readeigen.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/smvxcm.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/smvxcm.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/smvxcm.f90.i
+home/takao/ecalj/SRC/subroutines/readeigen.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/readeigen.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/readeigen.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/smvxcm.s: home/takao/temp/ecalj/SRC/subroutines/smvxcm.f90.s
+home/takao/ecalj/SRC/subroutines/readeigen.s: home/takao/ecalj/SRC/subroutines/readeigen.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/smvxcm.s
+.PHONY : home/takao/ecalj/SRC/subroutines/readeigen.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/smvxcm.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/smvxcm.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/smvxcm.f90.s
+home/takao/ecalj/SRC/subroutines/readeigen.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/readeigen.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/readeigen.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/sort.o: home/takao/temp/ecalj/SRC/subroutines/sort.f90.o
+home/takao/ecalj/SRC/subroutines/readqg.o: home/takao/ecalj/SRC/subroutines/readqg.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/sort.o
+.PHONY : home/takao/ecalj/SRC/subroutines/readqg.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/sort.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/sort.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/sort.f90.o
+home/takao/ecalj/SRC/subroutines/readqg.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/readqg.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/readqg.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/sort.i: home/takao/temp/ecalj/SRC/subroutines/sort.f90.i
+home/takao/ecalj/SRC/subroutines/readqg.i: home/takao/ecalj/SRC/subroutines/readqg.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/sort.i
+.PHONY : home/takao/ecalj/SRC/subroutines/readqg.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/sort.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/sort.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/sort.f90.i
+home/takao/ecalj/SRC/subroutines/readqg.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/readqg.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/readqg.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/sort.s: home/takao/temp/ecalj/SRC/subroutines/sort.f90.s
+home/takao/ecalj/SRC/subroutines/readqg.s: home/takao/ecalj/SRC/subroutines/readqg.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/sort.s
+.PHONY : home/takao/ecalj/SRC/subroutines/readqg.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/sort.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/sort.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/sort.f90.s
+home/takao/ecalj/SRC/subroutines/readqg.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/readqg.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/readqg.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/stonerrsa.o: home/takao/temp/ecalj/SRC/subroutines/stonerrsa.f90.o
+home/takao/ecalj/SRC/subroutines/relax.o: home/takao/ecalj/SRC/subroutines/relax.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/stonerrsa.o
+.PHONY : home/takao/ecalj/SRC/subroutines/relax.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/stonerrsa.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/stonerrsa.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/stonerrsa.f90.o
+home/takao/ecalj/SRC/subroutines/relax.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/relax.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/relax.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/stonerrsa.i: home/takao/temp/ecalj/SRC/subroutines/stonerrsa.f90.i
+home/takao/ecalj/SRC/subroutines/relax.i: home/takao/ecalj/SRC/subroutines/relax.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/stonerrsa.i
+.PHONY : home/takao/ecalj/SRC/subroutines/relax.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/stonerrsa.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/stonerrsa.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/stonerrsa.f90.i
+home/takao/ecalj/SRC/subroutines/relax.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/relax.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/relax.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/stonerrsa.s: home/takao/temp/ecalj/SRC/subroutines/stonerrsa.f90.s
+home/takao/ecalj/SRC/subroutines/relax.s: home/takao/ecalj/SRC/subroutines/relax.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/stonerrsa.s
+.PHONY : home/takao/ecalj/SRC/subroutines/relax.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/stonerrsa.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/stonerrsa.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/stonerrsa.f90.s
+home/takao/ecalj/SRC/subroutines/relax.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/relax.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/relax.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/subzi.o: home/takao/temp/ecalj/SRC/subroutines/subzi.f90.o
+home/takao/ecalj/SRC/subroutines/rfalsi.o: home/takao/ecalj/SRC/subroutines/rfalsi.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/subzi.o
+.PHONY : home/takao/ecalj/SRC/subroutines/rfalsi.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/subzi.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/subzi.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/subzi.f90.o
+home/takao/ecalj/SRC/subroutines/rfalsi.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rfalsi.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/rfalsi.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/subzi.i: home/takao/temp/ecalj/SRC/subroutines/subzi.f90.i
+home/takao/ecalj/SRC/subroutines/rfalsi.i: home/takao/ecalj/SRC/subroutines/rfalsi.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/subzi.i
+.PHONY : home/takao/ecalj/SRC/subroutines/rfalsi.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/subzi.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/subzi.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/subzi.f90.i
+home/takao/ecalj/SRC/subroutines/rfalsi.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rfalsi.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/rfalsi.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/subzi.s: home/takao/temp/ecalj/SRC/subroutines/subzi.f90.s
+home/takao/ecalj/SRC/subroutines/rfalsi.s: home/takao/ecalj/SRC/subroutines/rfalsi.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/subzi.s
+.PHONY : home/takao/ecalj/SRC/subroutines/rfalsi.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/subzi.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/subzi.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/subzi.f90.s
+home/takao/ecalj/SRC/subroutines/rfalsi.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rfalsi.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/rfalsi.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/sugcut.o: home/takao/temp/ecalj/SRC/subroutines/sugcut.f90.o
+home/takao/ecalj/SRC/subroutines/rgwinf_mod.o: home/takao/ecalj/SRC/subroutines/rgwinf_mod.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/sugcut.o
+.PHONY : home/takao/ecalj/SRC/subroutines/rgwinf_mod.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/sugcut.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/sugcut.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/sugcut.f90.o
+home/takao/ecalj/SRC/subroutines/rgwinf_mod.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rgwinf_mod.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/rgwinf_mod.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/sugcut.i: home/takao/temp/ecalj/SRC/subroutines/sugcut.f90.i
+home/takao/ecalj/SRC/subroutines/rgwinf_mod.i: home/takao/ecalj/SRC/subroutines/rgwinf_mod.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/sugcut.i
+.PHONY : home/takao/ecalj/SRC/subroutines/rgwinf_mod.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/sugcut.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/sugcut.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/sugcut.f90.i
+home/takao/ecalj/SRC/subroutines/rgwinf_mod.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rgwinf_mod.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/rgwinf_mod.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/sugcut.s: home/takao/temp/ecalj/SRC/subroutines/sugcut.f90.s
+home/takao/ecalj/SRC/subroutines/rgwinf_mod.s: home/takao/ecalj/SRC/subroutines/rgwinf_mod.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/sugcut.s
+.PHONY : home/takao/ecalj/SRC/subroutines/rgwinf_mod.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/sugcut.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/sugcut.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/sugcut.f90.s
+home/takao/ecalj/SRC/subroutines/rgwinf_mod.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rgwinf_mod.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/rgwinf_mod.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/sugw.o: home/takao/temp/ecalj/SRC/subroutines/sugw.f90.o
+home/takao/ecalj/SRC/subroutines/rhomom.o: home/takao/ecalj/SRC/subroutines/rhomom.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/sugw.o
+.PHONY : home/takao/ecalj/SRC/subroutines/rhomom.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/sugw.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/sugw.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/sugw.f90.o
+home/takao/ecalj/SRC/subroutines/rhomom.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rhomom.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/rhomom.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/sugw.i: home/takao/temp/ecalj/SRC/subroutines/sugw.f90.i
+home/takao/ecalj/SRC/subroutines/rhomom.i: home/takao/ecalj/SRC/subroutines/rhomom.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/sugw.i
+.PHONY : home/takao/ecalj/SRC/subroutines/rhomom.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/sugw.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/sugw.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/sugw.f90.i
+home/takao/ecalj/SRC/subroutines/rhomom.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rhomom.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/rhomom.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/sugw.s: home/takao/temp/ecalj/SRC/subroutines/sugw.f90.s
+home/takao/ecalj/SRC/subroutines/rhomom.s: home/takao/ecalj/SRC/subroutines/rhomom.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/sugw.s
+.PHONY : home/takao/ecalj/SRC/subroutines/rhomom.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/sugw.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/sugw.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/sugw.f90.s
+home/takao/ecalj/SRC/subroutines/rhomom.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rhomom.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/rhomom.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/suham.o: home/takao/temp/ecalj/SRC/subroutines/suham.f90.o
+home/takao/ecalj/SRC/subroutines/rlocbl.o: home/takao/ecalj/SRC/subroutines/rlocbl.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/suham.o
+.PHONY : home/takao/ecalj/SRC/subroutines/rlocbl.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/suham.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/suham.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/suham.f90.o
+home/takao/ecalj/SRC/subroutines/rlocbl.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rlocbl.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/rlocbl.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/suham.i: home/takao/temp/ecalj/SRC/subroutines/suham.f90.i
+home/takao/ecalj/SRC/subroutines/rlocbl.i: home/takao/ecalj/SRC/subroutines/rlocbl.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/suham.i
+.PHONY : home/takao/ecalj/SRC/subroutines/rlocbl.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/suham.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/suham.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/suham.f90.i
+home/takao/ecalj/SRC/subroutines/rlocbl.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rlocbl.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/rlocbl.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/suham.s: home/takao/temp/ecalj/SRC/subroutines/suham.f90.s
+home/takao/ecalj/SRC/subroutines/rlocbl.s: home/takao/ecalj/SRC/subroutines/rlocbl.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/suham.s
+.PHONY : home/takao/ecalj/SRC/subroutines/rlocbl.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/suham.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/suham.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/suham.f90.s
+home/takao/ecalj/SRC/subroutines/rlocbl.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rlocbl.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/rlocbl.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/supot.o: home/takao/temp/ecalj/SRC/subroutines/supot.f90.o
+home/takao/ecalj/SRC/subroutines/rmesh.o: home/takao/ecalj/SRC/subroutines/rmesh.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/supot.o
+.PHONY : home/takao/ecalj/SRC/subroutines/rmesh.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/supot.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/supot.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/supot.f90.o
+home/takao/ecalj/SRC/subroutines/rmesh.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rmesh.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/rmesh.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/supot.i: home/takao/temp/ecalj/SRC/subroutines/supot.f90.i
+home/takao/ecalj/SRC/subroutines/rmesh.i: home/takao/ecalj/SRC/subroutines/rmesh.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/supot.i
+.PHONY : home/takao/ecalj/SRC/subroutines/rmesh.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/supot.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/supot.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/supot.f90.i
+home/takao/ecalj/SRC/subroutines/rmesh.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rmesh.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/rmesh.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/supot.s: home/takao/temp/ecalj/SRC/subroutines/supot.f90.s
+home/takao/ecalj/SRC/subroutines/rmesh.s: home/takao/ecalj/SRC/subroutines/rmesh.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/supot.s
+.PHONY : home/takao/ecalj/SRC/subroutines/rmesh.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/supot.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/supot.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/supot.f90.s
+home/takao/ecalj/SRC/subroutines/rmesh.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rmesh.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/rmesh.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/switch.o: home/takao/temp/ecalj/SRC/subroutines/switch.f90.o
+home/takao/ecalj/SRC/subroutines/ropbes.o: home/takao/ecalj/SRC/subroutines/ropbes.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/switch.o
+.PHONY : home/takao/ecalj/SRC/subroutines/ropbes.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/switch.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/switch.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/switch.f90.o
+home/takao/ecalj/SRC/subroutines/ropbes.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/ropbes.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/ropbes.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/switch.i: home/takao/temp/ecalj/SRC/subroutines/switch.f90.i
+home/takao/ecalj/SRC/subroutines/ropbes.i: home/takao/ecalj/SRC/subroutines/ropbes.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/switch.i
+.PHONY : home/takao/ecalj/SRC/subroutines/ropbes.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/switch.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/switch.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/switch.f90.i
+home/takao/ecalj/SRC/subroutines/ropbes.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/ropbes.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/ropbes.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/switch.s: home/takao/temp/ecalj/SRC/subroutines/switch.f90.s
+home/takao/ecalj/SRC/subroutines/ropbes.s: home/takao/ecalj/SRC/subroutines/ropbes.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/switch.s
+.PHONY : home/takao/ecalj/SRC/subroutines/ropbes.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/switch.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/switch.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/switch.f90.s
+home/takao/ecalj/SRC/subroutines/ropbes.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/ropbes.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/ropbes.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/switches.o: home/takao/temp/ecalj/SRC/subroutines/switches.f90.o
+home/takao/ecalj/SRC/subroutines/roplat.o: home/takao/ecalj/SRC/subroutines/roplat.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/switches.o
+.PHONY : home/takao/ecalj/SRC/subroutines/roplat.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/switches.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/switches.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/switches.f90.o
+home/takao/ecalj/SRC/subroutines/roplat.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/roplat.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/roplat.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/switches.i: home/takao/temp/ecalj/SRC/subroutines/switches.f90.i
+home/takao/ecalj/SRC/subroutines/roplat.i: home/takao/ecalj/SRC/subroutines/roplat.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/switches.i
+.PHONY : home/takao/ecalj/SRC/subroutines/roplat.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/switches.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/switches.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/switches.f90.i
+home/takao/ecalj/SRC/subroutines/roplat.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/roplat.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/roplat.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/switches.s: home/takao/temp/ecalj/SRC/subroutines/switches.f90.s
+home/takao/ecalj/SRC/subroutines/roplat.s: home/takao/ecalj/SRC/subroutines/roplat.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/switches.s
+.PHONY : home/takao/ecalj/SRC/subroutines/roplat.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/switches.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/switches.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/switches.f90.s
+home/takao/ecalj/SRC/subroutines/roplat.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/roplat.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/roplat.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2.o: home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2.f90.o
+home/takao/ecalj/SRC/subroutines/ropyln.o: home/takao/ecalj/SRC/subroutines/ropyln.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2.o
+.PHONY : home/takao/ecalj/SRC/subroutines/ropyln.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2.f90.o
+home/takao/ecalj/SRC/subroutines/ropyln.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/ropyln.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/ropyln.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2.i: home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2.f90.i
+home/takao/ecalj/SRC/subroutines/ropyln.i: home/takao/ecalj/SRC/subroutines/ropyln.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2.i
+.PHONY : home/takao/ecalj/SRC/subroutines/ropyln.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2.f90.i
+home/takao/ecalj/SRC/subroutines/ropyln.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/ropyln.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/ropyln.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2.s: home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2.f90.s
+home/takao/ecalj/SRC/subroutines/ropyln.s: home/takao/ecalj/SRC/subroutines/ropyln.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2.s
+.PHONY : home/takao/ecalj/SRC/subroutines/ropyln.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2.f90.s
+home/takao/ecalj/SRC/subroutines/ropyln.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/ropyln.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/ropyln.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2.sc.o: home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2.sc.f90.o
+home/takao/ecalj/SRC/subroutines/rotcg.o: home/takao/ecalj/SRC/subroutines/rotcg.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2.sc.o
+.PHONY : home/takao/ecalj/SRC/subroutines/rotcg.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2.sc.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2.sc.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2.sc.f90.o
+home/takao/ecalj/SRC/subroutines/rotcg.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rotcg.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/rotcg.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2.sc.i: home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2.sc.f90.i
+home/takao/ecalj/SRC/subroutines/rotcg.i: home/takao/ecalj/SRC/subroutines/rotcg.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2.sc.i
+.PHONY : home/takao/ecalj/SRC/subroutines/rotcg.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2.sc.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2.sc.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2.sc.f90.i
+home/takao/ecalj/SRC/subroutines/rotcg.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rotcg.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/rotcg.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2.sc.s: home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2.sc.f90.s
+home/takao/ecalj/SRC/subroutines/rotcg.s: home/takao/ecalj/SRC/subroutines/rotcg.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2.sc.s
+.PHONY : home/takao/ecalj/SRC/subroutines/rotcg.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2.sc.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2.sc.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2.sc.f90.s
+home/takao/ecalj/SRC/subroutines/rotcg.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rotcg.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/rotcg.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2_count.sc.o: home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2_count.sc.f90.o
+home/takao/ecalj/SRC/subroutines/rotgvec.o: home/takao/ecalj/SRC/subroutines/rotgvec.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2_count.sc.o
+.PHONY : home/takao/ecalj/SRC/subroutines/rotgvec.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2_count.sc.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2_count.sc.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2_count.sc.f90.o
+home/takao/ecalj/SRC/subroutines/rotgvec.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rotgvec.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/rotgvec.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2_count.sc.i: home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2_count.sc.f90.i
+home/takao/ecalj/SRC/subroutines/rotgvec.i: home/takao/ecalj/SRC/subroutines/rotgvec.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2_count.sc.i
+.PHONY : home/takao/ecalj/SRC/subroutines/rotgvec.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2_count.sc.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2_count.sc.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2_count.sc.f90.i
+home/takao/ecalj/SRC/subroutines/rotgvec.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rotgvec.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/rotgvec.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2_count.sc.s: home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2_count.sc.f90.s
+home/takao/ecalj/SRC/subroutines/rotgvec.s: home/takao/ecalj/SRC/subroutines/rotgvec.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2_count.sc.s
+.PHONY : home/takao/ecalj/SRC/subroutines/rotgvec.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2_count.sc.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2_count.sc.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2_count.sc.f90.s
+home/takao/ecalj/SRC/subroutines/rotgvec.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rotgvec.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/rotgvec.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/sylm.o: home/takao/temp/ecalj/SRC/subroutines/sylm.f90.o
+home/takao/ecalj/SRC/subroutines/rotwave.o: home/takao/ecalj/SRC/subroutines/rotwave.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/sylm.o
+.PHONY : home/takao/ecalj/SRC/subroutines/rotwave.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/sylm.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/sylm.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/sylm.f90.o
+home/takao/ecalj/SRC/subroutines/rotwave.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rotwave.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/rotwave.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/sylm.i: home/takao/temp/ecalj/SRC/subroutines/sylm.f90.i
+home/takao/ecalj/SRC/subroutines/rotwave.i: home/takao/ecalj/SRC/subroutines/rotwave.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/sylm.i
+.PHONY : home/takao/ecalj/SRC/subroutines/rotwave.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/sylm.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/sylm.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/sylm.f90.i
+home/takao/ecalj/SRC/subroutines/rotwave.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rotwave.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/rotwave.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/sylm.s: home/takao/temp/ecalj/SRC/subroutines/sylm.f90.s
+home/takao/ecalj/SRC/subroutines/rotwave.s: home/takao/ecalj/SRC/subroutines/rotwave.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/sylm.s
+.PHONY : home/takao/ecalj/SRC/subroutines/rotwave.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/sylm.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/sylm.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/sylm.f90.s
+home/takao/ecalj/SRC/subroutines/rotwave.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rotwave.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/rotwave.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/symq.o: home/takao/temp/ecalj/SRC/subroutines/symq.f90.o
+home/takao/ecalj/SRC/subroutines/rpaq.o: home/takao/ecalj/SRC/subroutines/rpaq.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/symq.o
+.PHONY : home/takao/ecalj/SRC/subroutines/rpaq.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/symq.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/symq.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/symq.f90.o
+home/takao/ecalj/SRC/subroutines/rpaq.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rpaq.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/rpaq.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/symq.i: home/takao/temp/ecalj/SRC/subroutines/symq.f90.i
+home/takao/ecalj/SRC/subroutines/rpaq.i: home/takao/ecalj/SRC/subroutines/rpaq.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/symq.i
+.PHONY : home/takao/ecalj/SRC/subroutines/rpaq.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/symq.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/symq.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/symq.f90.i
+home/takao/ecalj/SRC/subroutines/rpaq.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rpaq.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/rpaq.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/symq.s: home/takao/temp/ecalj/SRC/subroutines/symq.f90.s
+home/takao/ecalj/SRC/subroutines/rpaq.s: home/takao/ecalj/SRC/subroutines/rpaq.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/symq.s
+.PHONY : home/takao/ecalj/SRC/subroutines/rpaq.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/symq.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/symq.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/symq.f90.s
+home/takao/ecalj/SRC/subroutines/rpaq.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rpaq.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/rpaq.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/symrho.o: home/takao/temp/ecalj/SRC/subroutines/symrho.f90.o
+home/takao/ecalj/SRC/subroutines/rppovl.o: home/takao/ecalj/SRC/subroutines/rppovl.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/symrho.o
+.PHONY : home/takao/ecalj/SRC/subroutines/rppovl.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/symrho.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/symrho.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/symrho.f90.o
+home/takao/ecalj/SRC/subroutines/rppovl.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rppovl.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/rppovl.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/symrho.i: home/takao/temp/ecalj/SRC/subroutines/symrho.f90.i
+home/takao/ecalj/SRC/subroutines/rppovl.i: home/takao/ecalj/SRC/subroutines/rppovl.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/symrho.i
+.PHONY : home/takao/ecalj/SRC/subroutines/rppovl.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/symrho.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/symrho.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/symrho.f90.i
+home/takao/ecalj/SRC/subroutines/rppovl.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rppovl.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/rppovl.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/symrho.s: home/takao/temp/ecalj/SRC/subroutines/symrho.f90.s
+home/takao/ecalj/SRC/subroutines/rppovl.s: home/takao/ecalj/SRC/subroutines/rppovl.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/symrho.s
+.PHONY : home/takao/ecalj/SRC/subroutines/rppovl.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/symrho.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/symrho.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/symrho.f90.s
+home/takao/ecalj/SRC/subroutines/rppovl.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rppovl.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/rppovl.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/symstr.o: home/takao/temp/ecalj/SRC/subroutines/symstr.f90.o
+home/takao/ecalj/SRC/subroutines/rseq.o: home/takao/ecalj/SRC/subroutines/rseq.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/symstr.o
+.PHONY : home/takao/ecalj/SRC/subroutines/rseq.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/symstr.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/symstr.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/symstr.f90.o
+home/takao/ecalj/SRC/subroutines/rseq.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rseq.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/rseq.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/symstr.i: home/takao/temp/ecalj/SRC/subroutines/symstr.f90.i
+home/takao/ecalj/SRC/subroutines/rseq.i: home/takao/ecalj/SRC/subroutines/rseq.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/symstr.i
+.PHONY : home/takao/ecalj/SRC/subroutines/rseq.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/symstr.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/symstr.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/symstr.f90.i
+home/takao/ecalj/SRC/subroutines/rseq.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rseq.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/rseq.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/symstr.s: home/takao/temp/ecalj/SRC/subroutines/symstr.f90.s
+home/takao/ecalj/SRC/subroutines/rseq.s: home/takao/ecalj/SRC/subroutines/rseq.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/symstr.s
+.PHONY : home/takao/ecalj/SRC/subroutines/rseq.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/symstr.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/symstr.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/symstr.f90.s
+home/takao/ecalj/SRC/subroutines/rseq.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rseq.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/rseq.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/tbhsi.o: home/takao/temp/ecalj/SRC/subroutines/tbhsi.f90.o
+home/takao/ecalj/SRC/subroutines/rsibl.o: home/takao/ecalj/SRC/subroutines/rsibl.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/tbhsi.o
+.PHONY : home/takao/ecalj/SRC/subroutines/rsibl.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/tbhsi.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/tbhsi.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/tbhsi.f90.o
+home/takao/ecalj/SRC/subroutines/rsibl.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rsibl.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/rsibl.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/tbhsi.i: home/takao/temp/ecalj/SRC/subroutines/tbhsi.f90.i
+home/takao/ecalj/SRC/subroutines/rsibl.i: home/takao/ecalj/SRC/subroutines/rsibl.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/tbhsi.i
+.PHONY : home/takao/ecalj/SRC/subroutines/rsibl.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/tbhsi.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/tbhsi.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/tbhsi.f90.i
+home/takao/ecalj/SRC/subroutines/rsibl.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rsibl.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/rsibl.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/tbhsi.s: home/takao/temp/ecalj/SRC/subroutines/tbhsi.f90.s
+home/takao/ecalj/SRC/subroutines/rsibl.s: home/takao/ecalj/SRC/subroutines/rsibl.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/tbhsi.s
+.PHONY : home/takao/ecalj/SRC/subroutines/rsibl.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/tbhsi.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/tbhsi.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/tbhsi.f90.s
+home/takao/ecalj/SRC/subroutines/rsibl.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rsibl.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/rsibl.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/tc.o: home/takao/temp/ecalj/SRC/subroutines/tc.f90.o
+home/takao/ecalj/SRC/subroutines/rwbzdata.o: home/takao/ecalj/SRC/subroutines/rwbzdata.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/tc.o
+.PHONY : home/takao/ecalj/SRC/subroutines/rwbzdata.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/tc.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/tc.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/tc.f90.o
+home/takao/ecalj/SRC/subroutines/rwbzdata.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rwbzdata.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/rwbzdata.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/tc.i: home/takao/temp/ecalj/SRC/subroutines/tc.f90.i
+home/takao/ecalj/SRC/subroutines/rwbzdata.i: home/takao/ecalj/SRC/subroutines/rwbzdata.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/tc.i
+.PHONY : home/takao/ecalj/SRC/subroutines/rwbzdata.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/tc.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/tc.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/tc.f90.i
+home/takao/ecalj/SRC/subroutines/rwbzdata.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rwbzdata.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/rwbzdata.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/tc.s: home/takao/temp/ecalj/SRC/subroutines/tc.f90.s
+home/takao/ecalj/SRC/subroutines/rwbzdata.s: home/takao/ecalj/SRC/subroutines/rwbzdata.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/tc.s
+.PHONY : home/takao/ecalj/SRC/subroutines/rwbzdata.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/tc.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/tc.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/tc.f90.s
+home/takao/ecalj/SRC/subroutines/rwbzdata.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/rwbzdata.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/rwbzdata.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/tetirr.o: home/takao/temp/ecalj/SRC/subroutines/tetirr.f90.o
+home/takao/ecalj/SRC/subroutines/scg.o: home/takao/ecalj/SRC/subroutines/scg.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/tetirr.o
+.PHONY : home/takao/ecalj/SRC/subroutines/scg.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/tetirr.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/tetirr.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/tetirr.f90.o
+home/takao/ecalj/SRC/subroutines/scg.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/scg.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/scg.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/tetirr.i: home/takao/temp/ecalj/SRC/subroutines/tetirr.f90.i
+home/takao/ecalj/SRC/subroutines/scg.i: home/takao/ecalj/SRC/subroutines/scg.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/tetirr.i
+.PHONY : home/takao/ecalj/SRC/subroutines/scg.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/tetirr.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/tetirr.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/tetirr.f90.i
+home/takao/ecalj/SRC/subroutines/scg.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/scg.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/scg.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/tetirr.s: home/takao/temp/ecalj/SRC/subroutines/tetirr.f90.s
+home/takao/ecalj/SRC/subroutines/scg.s: home/takao/ecalj/SRC/subroutines/scg.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/tetirr.s
+.PHONY : home/takao/ecalj/SRC/subroutines/scg.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/tetirr.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/tetirr.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/tetirr.f90.s
+home/takao/ecalj/SRC/subroutines/scg.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/scg.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/scg.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/tetwt5.o: home/takao/temp/ecalj/SRC/subroutines/tetwt5.f90.o
+home/takao/ecalj/SRC/subroutines/scglp1.o: home/takao/ecalj/SRC/subroutines/scglp1.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/tetwt5.o
+.PHONY : home/takao/ecalj/SRC/subroutines/scglp1.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/tetwt5.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/tetwt5.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/tetwt5.f90.o
+home/takao/ecalj/SRC/subroutines/scglp1.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/scglp1.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/scglp1.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/tetwt5.i: home/takao/temp/ecalj/SRC/subroutines/tetwt5.f90.i
+home/takao/ecalj/SRC/subroutines/scglp1.i: home/takao/ecalj/SRC/subroutines/scglp1.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/tetwt5.i
+.PHONY : home/takao/ecalj/SRC/subroutines/scglp1.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/tetwt5.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/tetwt5.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/tetwt5.f90.i
+home/takao/ecalj/SRC/subroutines/scglp1.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/scglp1.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/scglp1.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/tetwt5.s: home/takao/temp/ecalj/SRC/subroutines/tetwt5.f90.s
+home/takao/ecalj/SRC/subroutines/scglp1.s: home/takao/ecalj/SRC/subroutines/scglp1.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/tetwt5.s
+.PHONY : home/takao/ecalj/SRC/subroutines/scglp1.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/tetwt5.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/tetwt5.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/tetwt5.f90.s
+home/takao/ecalj/SRC/subroutines/scglp1.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/scglp1.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/scglp1.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/totfrc.o: home/takao/temp/ecalj/SRC/subroutines/totfrc.f90.o
+home/takao/ecalj/SRC/subroutines/show_programinfo.o: home/takao/ecalj/SRC/subroutines/show_programinfo.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/totfrc.o
+.PHONY : home/takao/ecalj/SRC/subroutines/show_programinfo.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/totfrc.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/totfrc.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/totfrc.f90.o
+home/takao/ecalj/SRC/subroutines/show_programinfo.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/show_programinfo.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/show_programinfo.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/totfrc.i: home/takao/temp/ecalj/SRC/subroutines/totfrc.f90.i
+home/takao/ecalj/SRC/subroutines/show_programinfo.i: home/takao/ecalj/SRC/subroutines/show_programinfo.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/totfrc.i
+.PHONY : home/takao/ecalj/SRC/subroutines/show_programinfo.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/totfrc.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/totfrc.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/totfrc.f90.i
+home/takao/ecalj/SRC/subroutines/show_programinfo.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/show_programinfo.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/show_programinfo.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/totfrc.s: home/takao/temp/ecalj/SRC/subroutines/totfrc.f90.s
+home/takao/ecalj/SRC/subroutines/show_programinfo.s: home/takao/ecalj/SRC/subroutines/show_programinfo.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/totfrc.s
+.PHONY : home/takao/ecalj/SRC/subroutines/show_programinfo.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/totfrc.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/totfrc.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/totfrc.f90.s
+home/takao/ecalj/SRC/subroutines/show_programinfo.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/show_programinfo.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/show_programinfo.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/uspecb.o: home/takao/temp/ecalj/SRC/subroutines/uspecb.f90.o
+home/takao/ecalj/SRC/subroutines/slinz.o: home/takao/ecalj/SRC/subroutines/slinz.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/uspecb.o
+.PHONY : home/takao/ecalj/SRC/subroutines/slinz.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/uspecb.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/uspecb.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/uspecb.f90.o
+home/takao/ecalj/SRC/subroutines/slinz.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/slinz.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/slinz.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/uspecb.i: home/takao/temp/ecalj/SRC/subroutines/uspecb.f90.i
+home/takao/ecalj/SRC/subroutines/slinz.i: home/takao/ecalj/SRC/subroutines/slinz.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/uspecb.i
+.PHONY : home/takao/ecalj/SRC/subroutines/slinz.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/uspecb.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/uspecb.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/uspecb.f90.i
+home/takao/ecalj/SRC/subroutines/slinz.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/slinz.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/slinz.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/uspecb.s: home/takao/temp/ecalj/SRC/subroutines/uspecb.f90.s
+home/takao/ecalj/SRC/subroutines/slinz.s: home/takao/ecalj/SRC/subroutines/slinz.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/uspecb.s
+.PHONY : home/takao/ecalj/SRC/subroutines/slinz.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/uspecb.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/uspecb.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/uspecb.f90.s
+home/takao/ecalj/SRC/subroutines/slinz.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/slinz.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/slinz.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/util.o: home/takao/temp/ecalj/SRC/subroutines/util.f90.o
+home/takao/ecalj/SRC/subroutines/smves.o: home/takao/ecalj/SRC/subroutines/smves.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/util.o
+.PHONY : home/takao/ecalj/SRC/subroutines/smves.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/util.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/util.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/util.f90.o
+home/takao/ecalj/SRC/subroutines/smves.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/smves.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/smves.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/util.i: home/takao/temp/ecalj/SRC/subroutines/util.f90.i
+home/takao/ecalj/SRC/subroutines/smves.i: home/takao/ecalj/SRC/subroutines/smves.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/util.i
+.PHONY : home/takao/ecalj/SRC/subroutines/smves.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/util.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/util.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/util.f90.i
+home/takao/ecalj/SRC/subroutines/smves.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/smves.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/smves.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/util.s: home/takao/temp/ecalj/SRC/subroutines/util.f90.s
+home/takao/ecalj/SRC/subroutines/smves.s: home/takao/ecalj/SRC/subroutines/smves.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/util.s
+.PHONY : home/takao/ecalj/SRC/subroutines/smves.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/util.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/util.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/util.f90.s
+home/takao/ecalj/SRC/subroutines/smves.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/smves.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/smves.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/vbmmode.o: home/takao/temp/ecalj/SRC/subroutines/vbmmode.f90.o
+home/takao/ecalj/SRC/subroutines/smvxcm.o: home/takao/ecalj/SRC/subroutines/smvxcm.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/vbmmode.o
+.PHONY : home/takao/ecalj/SRC/subroutines/smvxcm.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/vbmmode.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/vbmmode.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/vbmmode.f90.o
+home/takao/ecalj/SRC/subroutines/smvxcm.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/smvxcm.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/smvxcm.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/vbmmode.i: home/takao/temp/ecalj/SRC/subroutines/vbmmode.f90.i
+home/takao/ecalj/SRC/subroutines/smvxcm.i: home/takao/ecalj/SRC/subroutines/smvxcm.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/vbmmode.i
+.PHONY : home/takao/ecalj/SRC/subroutines/smvxcm.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/vbmmode.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/vbmmode.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/vbmmode.f90.i
+home/takao/ecalj/SRC/subroutines/smvxcm.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/smvxcm.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/smvxcm.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/vbmmode.s: home/takao/temp/ecalj/SRC/subroutines/vbmmode.f90.s
+home/takao/ecalj/SRC/subroutines/smvxcm.s: home/takao/ecalj/SRC/subroutines/smvxcm.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/vbmmode.s
+.PHONY : home/takao/ecalj/SRC/subroutines/smvxcm.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/vbmmode.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/vbmmode.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/vbmmode.f90.s
+home/takao/ecalj/SRC/subroutines/smvxcm.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/smvxcm.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/smvxcm.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/vcdmel.o: home/takao/temp/ecalj/SRC/subroutines/vcdmel.f90.o
+home/takao/ecalj/SRC/subroutines/sort.o: home/takao/ecalj/SRC/subroutines/sort.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/vcdmel.o
+.PHONY : home/takao/ecalj/SRC/subroutines/sort.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/vcdmel.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/vcdmel.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/vcdmel.f90.o
+home/takao/ecalj/SRC/subroutines/sort.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/sort.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/sort.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/vcdmel.i: home/takao/temp/ecalj/SRC/subroutines/vcdmel.f90.i
+home/takao/ecalj/SRC/subroutines/sort.i: home/takao/ecalj/SRC/subroutines/sort.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/vcdmel.i
+.PHONY : home/takao/ecalj/SRC/subroutines/sort.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/vcdmel.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/vcdmel.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/vcdmel.f90.i
+home/takao/ecalj/SRC/subroutines/sort.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/sort.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/sort.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/vcdmel.s: home/takao/temp/ecalj/SRC/subroutines/vcdmel.f90.s
+home/takao/ecalj/SRC/subroutines/sort.s: home/takao/ecalj/SRC/subroutines/sort.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/vcdmel.s
+.PHONY : home/takao/ecalj/SRC/subroutines/sort.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/vcdmel.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/vcdmel.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/vcdmel.f90.s
+home/takao/ecalj/SRC/subroutines/sort.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/sort.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/sort.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/vesgcm.o: home/takao/temp/ecalj/SRC/subroutines/vesgcm.f90.o
+home/takao/ecalj/SRC/subroutines/stonerrsa.o: home/takao/ecalj/SRC/subroutines/stonerrsa.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/vesgcm.o
+.PHONY : home/takao/ecalj/SRC/subroutines/stonerrsa.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/vesgcm.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/vesgcm.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/vesgcm.f90.o
+home/takao/ecalj/SRC/subroutines/stonerrsa.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/stonerrsa.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/stonerrsa.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/vesgcm.i: home/takao/temp/ecalj/SRC/subroutines/vesgcm.f90.i
+home/takao/ecalj/SRC/subroutines/stonerrsa.i: home/takao/ecalj/SRC/subroutines/stonerrsa.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/vesgcm.i
+.PHONY : home/takao/ecalj/SRC/subroutines/stonerrsa.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/vesgcm.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/vesgcm.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/vesgcm.f90.i
+home/takao/ecalj/SRC/subroutines/stonerrsa.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/stonerrsa.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/stonerrsa.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/vesgcm.s: home/takao/temp/ecalj/SRC/subroutines/vesgcm.f90.s
+home/takao/ecalj/SRC/subroutines/stonerrsa.s: home/takao/ecalj/SRC/subroutines/stonerrsa.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/vesgcm.s
+.PHONY : home/takao/ecalj/SRC/subroutines/stonerrsa.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/vesgcm.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/vesgcm.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/vesgcm.f90.s
+home/takao/ecalj/SRC/subroutines/stonerrsa.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/stonerrsa.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/stonerrsa.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/w_psir.o: home/takao/temp/ecalj/SRC/subroutines/w_psir.f90.o
+home/takao/ecalj/SRC/subroutines/subzi.o: home/takao/ecalj/SRC/subroutines/subzi.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/w_psir.o
+.PHONY : home/takao/ecalj/SRC/subroutines/subzi.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/w_psir.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/w_psir.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/w_psir.f90.o
+home/takao/ecalj/SRC/subroutines/subzi.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/subzi.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/subzi.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/w_psir.i: home/takao/temp/ecalj/SRC/subroutines/w_psir.f90.i
+home/takao/ecalj/SRC/subroutines/subzi.i: home/takao/ecalj/SRC/subroutines/subzi.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/w_psir.i
+.PHONY : home/takao/ecalj/SRC/subroutines/subzi.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/w_psir.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/w_psir.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/w_psir.f90.i
+home/takao/ecalj/SRC/subroutines/subzi.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/subzi.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/subzi.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/w_psir.s: home/takao/temp/ecalj/SRC/subroutines/w_psir.f90.s
+home/takao/ecalj/SRC/subroutines/subzi.s: home/takao/ecalj/SRC/subroutines/subzi.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/w_psir.s
+.PHONY : home/takao/ecalj/SRC/subroutines/subzi.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/w_psir.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/w_psir.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/w_psir.f90.s
+home/takao/ecalj/SRC/subroutines/subzi.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/subzi.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/subzi.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/wfacx.o: home/takao/temp/ecalj/SRC/subroutines/wfacx.f90.o
+home/takao/ecalj/SRC/subroutines/sugcut.o: home/takao/ecalj/SRC/subroutines/sugcut.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/wfacx.o
+.PHONY : home/takao/ecalj/SRC/subroutines/sugcut.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/wfacx.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/wfacx.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/wfacx.f90.o
+home/takao/ecalj/SRC/subroutines/sugcut.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/sugcut.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/sugcut.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/wfacx.i: home/takao/temp/ecalj/SRC/subroutines/wfacx.f90.i
+home/takao/ecalj/SRC/subroutines/sugcut.i: home/takao/ecalj/SRC/subroutines/sugcut.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/wfacx.i
+.PHONY : home/takao/ecalj/SRC/subroutines/sugcut.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/wfacx.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/wfacx.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/wfacx.f90.i
+home/takao/ecalj/SRC/subroutines/sugcut.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/sugcut.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/sugcut.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/wfacx.s: home/takao/temp/ecalj/SRC/subroutines/wfacx.f90.s
+home/takao/ecalj/SRC/subroutines/sugcut.s: home/takao/ecalj/SRC/subroutines/sugcut.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/wfacx.s
+.PHONY : home/takao/ecalj/SRC/subroutines/sugcut.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/wfacx.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/wfacx.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/wfacx.f90.s
+home/takao/ecalj/SRC/subroutines/sugcut.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/sugcut.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/sugcut.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/wintzsg.o: home/takao/temp/ecalj/SRC/subroutines/wintzsg.f90.o
+home/takao/ecalj/SRC/subroutines/sugw.o: home/takao/ecalj/SRC/subroutines/sugw.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/wintzsg.o
+.PHONY : home/takao/ecalj/SRC/subroutines/sugw.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/wintzsg.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/wintzsg.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/wintzsg.f90.o
+home/takao/ecalj/SRC/subroutines/sugw.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/sugw.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/sugw.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/wintzsg.i: home/takao/temp/ecalj/SRC/subroutines/wintzsg.f90.i
+home/takao/ecalj/SRC/subroutines/sugw.i: home/takao/ecalj/SRC/subroutines/sugw.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/wintzsg.i
+.PHONY : home/takao/ecalj/SRC/subroutines/sugw.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/wintzsg.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/wintzsg.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/wintzsg.f90.i
+home/takao/ecalj/SRC/subroutines/sugw.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/sugw.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/sugw.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/wintzsg.s: home/takao/temp/ecalj/SRC/subroutines/wintzsg.f90.s
+home/takao/ecalj/SRC/subroutines/sugw.s: home/takao/ecalj/SRC/subroutines/sugw.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/wintzsg.s
+.PHONY : home/takao/ecalj/SRC/subroutines/sugw.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/wintzsg.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/wintzsg.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/wintzsg.f90.s
+home/takao/ecalj/SRC/subroutines/sugw.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/sugw.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/sugw.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/writeham.o: home/takao/temp/ecalj/SRC/subroutines/writeham.f90.o
+home/takao/ecalj/SRC/subroutines/suham.o: home/takao/ecalj/SRC/subroutines/suham.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/writeham.o
+.PHONY : home/takao/ecalj/SRC/subroutines/suham.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/writeham.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/writeham.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/writeham.f90.o
+home/takao/ecalj/SRC/subroutines/suham.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/suham.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/suham.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/writeham.i: home/takao/temp/ecalj/SRC/subroutines/writeham.f90.i
+home/takao/ecalj/SRC/subroutines/suham.i: home/takao/ecalj/SRC/subroutines/suham.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/writeham.i
+.PHONY : home/takao/ecalj/SRC/subroutines/suham.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/writeham.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/writeham.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/writeham.f90.i
+home/takao/ecalj/SRC/subroutines/suham.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/suham.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/suham.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/writeham.s: home/takao/temp/ecalj/SRC/subroutines/writeham.f90.s
+home/takao/ecalj/SRC/subroutines/suham.s: home/takao/ecalj/SRC/subroutines/suham.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/writeham.s
+.PHONY : home/takao/ecalj/SRC/subroutines/suham.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/writeham.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/writeham.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/writeham.f90.s
+home/takao/ecalj/SRC/subroutines/suham.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/suham.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/suham.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/wronkj.o: home/takao/temp/ecalj/SRC/subroutines/wronkj.f90.o
+home/takao/ecalj/SRC/subroutines/supot.o: home/takao/ecalj/SRC/subroutines/supot.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/wronkj.o
+.PHONY : home/takao/ecalj/SRC/subroutines/supot.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/wronkj.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/wronkj.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/wronkj.f90.o
+home/takao/ecalj/SRC/subroutines/supot.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/supot.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/supot.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/wronkj.i: home/takao/temp/ecalj/SRC/subroutines/wronkj.f90.i
+home/takao/ecalj/SRC/subroutines/supot.i: home/takao/ecalj/SRC/subroutines/supot.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/wronkj.i
+.PHONY : home/takao/ecalj/SRC/subroutines/supot.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/wronkj.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/wronkj.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/wronkj.f90.i
+home/takao/ecalj/SRC/subroutines/supot.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/supot.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/supot.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/wronkj.s: home/takao/temp/ecalj/SRC/subroutines/wronkj.f90.s
+home/takao/ecalj/SRC/subroutines/supot.s: home/takao/ecalj/SRC/subroutines/supot.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/wronkj.s
+.PHONY : home/takao/ecalj/SRC/subroutines/supot.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/wronkj.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/wronkj.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/wronkj.f90.s
+home/takao/ecalj/SRC/subroutines/supot.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/supot.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/supot.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/wse.o: home/takao/temp/ecalj/SRC/subroutines/wse.f90.o
+home/takao/ecalj/SRC/subroutines/switch.o: home/takao/ecalj/SRC/subroutines/switch.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/wse.o
+.PHONY : home/takao/ecalj/SRC/subroutines/switch.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/wse.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/wse.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/wse.f90.o
+home/takao/ecalj/SRC/subroutines/switch.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/switch.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/switch.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/wse.i: home/takao/temp/ecalj/SRC/subroutines/wse.f90.i
+home/takao/ecalj/SRC/subroutines/switch.i: home/takao/ecalj/SRC/subroutines/switch.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/wse.i
+.PHONY : home/takao/ecalj/SRC/subroutines/switch.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/wse.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/wse.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/wse.f90.i
+home/takao/ecalj/SRC/subroutines/switch.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/switch.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/switch.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/wse.s: home/takao/temp/ecalj/SRC/subroutines/wse.f90.s
+home/takao/ecalj/SRC/subroutines/switch.s: home/takao/ecalj/SRC/subroutines/switch.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/wse.s
+.PHONY : home/takao/ecalj/SRC/subroutines/switch.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/wse.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/wse.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/wse.f90.s
+home/takao/ecalj/SRC/subroutines/switch.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/switch.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/switch.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/x0kf_v4h.o: home/takao/temp/ecalj/SRC/subroutines/x0kf_v4h.f90.o
+home/takao/ecalj/SRC/subroutines/switches.o: home/takao/ecalj/SRC/subroutines/switches.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/x0kf_v4h.o
+.PHONY : home/takao/ecalj/SRC/subroutines/switches.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/x0kf_v4h.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/x0kf_v4h.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/x0kf_v4h.f90.o
+home/takao/ecalj/SRC/subroutines/switches.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/switches.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/switches.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/x0kf_v4h.i: home/takao/temp/ecalj/SRC/subroutines/x0kf_v4h.f90.i
+home/takao/ecalj/SRC/subroutines/switches.i: home/takao/ecalj/SRC/subroutines/switches.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/x0kf_v4h.i
+.PHONY : home/takao/ecalj/SRC/subroutines/switches.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/x0kf_v4h.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/x0kf_v4h.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/x0kf_v4h.f90.i
+home/takao/ecalj/SRC/subroutines/switches.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/switches.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/switches.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/x0kf_v4h.s: home/takao/temp/ecalj/SRC/subroutines/x0kf_v4h.f90.s
+home/takao/ecalj/SRC/subroutines/switches.s: home/takao/ecalj/SRC/subroutines/switches.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/x0kf_v4h.s
+.PHONY : home/takao/ecalj/SRC/subroutines/switches.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/x0kf_v4h.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/x0kf_v4h.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/x0kf_v4h.f90.s
+home/takao/ecalj/SRC/subroutines/switches.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/switches.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/switches.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/xcfunc.o: home/takao/temp/ecalj/SRC/subroutines/xcfunc.f90.o
+home/takao/ecalj/SRC/subroutines/sxcf_fal2.o: home/takao/ecalj/SRC/subroutines/sxcf_fal2.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/xcfunc.o
+.PHONY : home/takao/ecalj/SRC/subroutines/sxcf_fal2.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/xcfunc.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/xcfunc.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/xcfunc.f90.o
+home/takao/ecalj/SRC/subroutines/sxcf_fal2.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/sxcf_fal2.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/sxcf_fal2.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/xcfunc.i: home/takao/temp/ecalj/SRC/subroutines/xcfunc.f90.i
+home/takao/ecalj/SRC/subroutines/sxcf_fal2.i: home/takao/ecalj/SRC/subroutines/sxcf_fal2.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/xcfunc.i
+.PHONY : home/takao/ecalj/SRC/subroutines/sxcf_fal2.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/xcfunc.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/xcfunc.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/xcfunc.f90.i
+home/takao/ecalj/SRC/subroutines/sxcf_fal2.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/sxcf_fal2.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/sxcf_fal2.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/xcfunc.s: home/takao/temp/ecalj/SRC/subroutines/xcfunc.f90.s
+home/takao/ecalj/SRC/subroutines/sxcf_fal2.s: home/takao/ecalj/SRC/subroutines/sxcf_fal2.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/xcfunc.s
+.PHONY : home/takao/ecalj/SRC/subroutines/sxcf_fal2.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/xcfunc.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/xcfunc.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/xcfunc.f90.s
+home/takao/ecalj/SRC/subroutines/sxcf_fal2.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/sxcf_fal2.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/sxcf_fal2.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/xcpbe.o: home/takao/temp/ecalj/SRC/subroutines/xcpbe.f90.o
+home/takao/ecalj/SRC/subroutines/sxcf_fal2.sc.o: home/takao/ecalj/SRC/subroutines/sxcf_fal2.sc.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/xcpbe.o
+.PHONY : home/takao/ecalj/SRC/subroutines/sxcf_fal2.sc.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/xcpbe.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/xcpbe.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/xcpbe.f90.o
+home/takao/ecalj/SRC/subroutines/sxcf_fal2.sc.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/sxcf_fal2.sc.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/sxcf_fal2.sc.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/xcpbe.i: home/takao/temp/ecalj/SRC/subroutines/xcpbe.f90.i
+home/takao/ecalj/SRC/subroutines/sxcf_fal2.sc.i: home/takao/ecalj/SRC/subroutines/sxcf_fal2.sc.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/xcpbe.i
+.PHONY : home/takao/ecalj/SRC/subroutines/sxcf_fal2.sc.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/xcpbe.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/xcpbe.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/xcpbe.f90.i
+home/takao/ecalj/SRC/subroutines/sxcf_fal2.sc.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/sxcf_fal2.sc.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/sxcf_fal2.sc.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/xcpbe.s: home/takao/temp/ecalj/SRC/subroutines/xcpbe.f90.s
+home/takao/ecalj/SRC/subroutines/sxcf_fal2.sc.s: home/takao/ecalj/SRC/subroutines/sxcf_fal2.sc.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/xcpbe.s
+.PHONY : home/takao/ecalj/SRC/subroutines/sxcf_fal2.sc.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/xcpbe.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/xcpbe.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/xcpbe.f90.s
+home/takao/ecalj/SRC/subroutines/sxcf_fal2.sc.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/sxcf_fal2.sc.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/sxcf_fal2.sc.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/xlgen.o: home/takao/temp/ecalj/SRC/subroutines/xlgen.f90.o
+home/takao/ecalj/SRC/subroutines/sxcf_fal2_count.sc.o: home/takao/ecalj/SRC/subroutines/sxcf_fal2_count.sc.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/xlgen.o
+.PHONY : home/takao/ecalj/SRC/subroutines/sxcf_fal2_count.sc.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/xlgen.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/xlgen.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/xlgen.f90.o
+home/takao/ecalj/SRC/subroutines/sxcf_fal2_count.sc.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/sxcf_fal2_count.sc.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/sxcf_fal2_count.sc.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/xlgen.i: home/takao/temp/ecalj/SRC/subroutines/xlgen.f90.i
+home/takao/ecalj/SRC/subroutines/sxcf_fal2_count.sc.i: home/takao/ecalj/SRC/subroutines/sxcf_fal2_count.sc.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/xlgen.i
+.PHONY : home/takao/ecalj/SRC/subroutines/sxcf_fal2_count.sc.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/xlgen.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/xlgen.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/xlgen.f90.i
+home/takao/ecalj/SRC/subroutines/sxcf_fal2_count.sc.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/sxcf_fal2_count.sc.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/sxcf_fal2_count.sc.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/xlgen.s: home/takao/temp/ecalj/SRC/subroutines/xlgen.f90.s
+home/takao/ecalj/SRC/subroutines/sxcf_fal2_count.sc.s: home/takao/ecalj/SRC/subroutines/sxcf_fal2_count.sc.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/xlgen.s
+.PHONY : home/takao/ecalj/SRC/subroutines/sxcf_fal2_count.sc.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/xlgen.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/xlgen.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/xlgen.f90.s
+home/takao/ecalj/SRC/subroutines/sxcf_fal2_count.sc.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/sxcf_fal2_count.sc.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/sxcf_fal2_count.sc.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/ylmrtg.o: home/takao/temp/ecalj/SRC/subroutines/ylmrtg.f90.o
+home/takao/ecalj/SRC/subroutines/sylm.o: home/takao/ecalj/SRC/subroutines/sylm.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/ylmrtg.o
+.PHONY : home/takao/ecalj/SRC/subroutines/sylm.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/ylmrtg.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/ylmrtg.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/ylmrtg.f90.o
+home/takao/ecalj/SRC/subroutines/sylm.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/sylm.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/sylm.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/ylmrtg.i: home/takao/temp/ecalj/SRC/subroutines/ylmrtg.f90.i
+home/takao/ecalj/SRC/subroutines/sylm.i: home/takao/ecalj/SRC/subroutines/sylm.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/ylmrtg.i
+.PHONY : home/takao/ecalj/SRC/subroutines/sylm.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/ylmrtg.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/ylmrtg.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/ylmrtg.f90.i
+home/takao/ecalj/SRC/subroutines/sylm.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/sylm.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/sylm.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/ylmrtg.s: home/takao/temp/ecalj/SRC/subroutines/ylmrtg.f90.s
+home/takao/ecalj/SRC/subroutines/sylm.s: home/takao/ecalj/SRC/subroutines/sylm.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/ylmrtg.s
+.PHONY : home/takao/ecalj/SRC/subroutines/sylm.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/ylmrtg.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/ylmrtg.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/ylmrtg.f90.s
+home/takao/ecalj/SRC/subroutines/sylm.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/sylm.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/sylm.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/zhev.o: home/takao/temp/ecalj/SRC/subroutines/zhev.f90.o
+home/takao/ecalj/SRC/subroutines/symq.o: home/takao/ecalj/SRC/subroutines/symq.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/zhev.o
+.PHONY : home/takao/ecalj/SRC/subroutines/symq.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/zhev.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/zhev.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/zhev.f90.o
+home/takao/ecalj/SRC/subroutines/symq.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/symq.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/symq.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/zhev.i: home/takao/temp/ecalj/SRC/subroutines/zhev.f90.i
+home/takao/ecalj/SRC/subroutines/symq.i: home/takao/ecalj/SRC/subroutines/symq.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/zhev.i
+.PHONY : home/takao/ecalj/SRC/subroutines/symq.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/zhev.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/zhev.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/zhev.f90.i
+home/takao/ecalj/SRC/subroutines/symq.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/symq.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/symq.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/zhev.s: home/takao/temp/ecalj/SRC/subroutines/zhev.f90.s
+home/takao/ecalj/SRC/subroutines/symq.s: home/takao/ecalj/SRC/subroutines/symq.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/zhev.s
+.PHONY : home/takao/ecalj/SRC/subroutines/symq.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/zhev.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/zhev.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/zhev.f90.s
+home/takao/ecalj/SRC/subroutines/symq.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/symq.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/symq.f90.s
 
-home/takao/temp/ecalj/SRC/subroutines/zsecsym.o: home/takao/temp/ecalj/SRC/subroutines/zsecsym.f90.o
+home/takao/ecalj/SRC/subroutines/symrho.o: home/takao/ecalj/SRC/subroutines/symrho.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/zsecsym.o
+.PHONY : home/takao/ecalj/SRC/subroutines/symrho.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/subroutines/zsecsym.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/zsecsym.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/zsecsym.f90.o
+home/takao/ecalj/SRC/subroutines/symrho.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/symrho.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/symrho.f90.o
 
-home/takao/temp/ecalj/SRC/subroutines/zsecsym.i: home/takao/temp/ecalj/SRC/subroutines/zsecsym.f90.i
+home/takao/ecalj/SRC/subroutines/symrho.i: home/takao/ecalj/SRC/subroutines/symrho.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/zsecsym.i
+.PHONY : home/takao/ecalj/SRC/subroutines/symrho.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/subroutines/zsecsym.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/zsecsym.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/zsecsym.f90.i
+home/takao/ecalj/SRC/subroutines/symrho.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/symrho.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/symrho.f90.i
 
-home/takao/temp/ecalj/SRC/subroutines/zsecsym.s: home/takao/temp/ecalj/SRC/subroutines/zsecsym.f90.s
+home/takao/ecalj/SRC/subroutines/symrho.s: home/takao/ecalj/SRC/subroutines/symrho.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/zsecsym.s
+.PHONY : home/takao/ecalj/SRC/subroutines/symrho.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/subroutines/zsecsym.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/subroutines/zsecsym.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/subroutines/zsecsym.f90.s
+home/takao/ecalj/SRC/subroutines/symrho.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/symrho.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/symrho.f90.s
 
-home/takao/temp/ecalj/SRC/wanniergw/RSMPI_mod.o: home/takao/temp/ecalj/SRC/wanniergw/RSMPI_mod.f90.o
+home/takao/ecalj/SRC/subroutines/symstr.o: home/takao/ecalj/SRC/subroutines/symstr.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/RSMPI_mod.o
+.PHONY : home/takao/ecalj/SRC/subroutines/symstr.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/wanniergw/RSMPI_mod.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/RSMPI_mod.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/RSMPI_mod.f90.o
+home/takao/ecalj/SRC/subroutines/symstr.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/symstr.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/symstr.f90.o
 
-home/takao/temp/ecalj/SRC/wanniergw/RSMPI_mod.i: home/takao/temp/ecalj/SRC/wanniergw/RSMPI_mod.f90.i
+home/takao/ecalj/SRC/subroutines/symstr.i: home/takao/ecalj/SRC/subroutines/symstr.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/RSMPI_mod.i
+.PHONY : home/takao/ecalj/SRC/subroutines/symstr.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/wanniergw/RSMPI_mod.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/RSMPI_mod.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/RSMPI_mod.f90.i
+home/takao/ecalj/SRC/subroutines/symstr.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/symstr.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/symstr.f90.i
 
-home/takao/temp/ecalj/SRC/wanniergw/RSMPI_mod.s: home/takao/temp/ecalj/SRC/wanniergw/RSMPI_mod.f90.s
+home/takao/ecalj/SRC/subroutines/symstr.s: home/takao/ecalj/SRC/subroutines/symstr.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/RSMPI_mod.s
+.PHONY : home/takao/ecalj/SRC/subroutines/symstr.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/wanniergw/RSMPI_mod.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/RSMPI_mod.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/RSMPI_mod.f90.s
+home/takao/ecalj/SRC/subroutines/symstr.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/symstr.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/symstr.f90.s
 
-home/takao/temp/ecalj/SRC/wanniergw/RSMPI_qkgroup_mod.o: home/takao/temp/ecalj/SRC/wanniergw/RSMPI_qkgroup_mod.f90.o
+home/takao/ecalj/SRC/subroutines/tbhsi.o: home/takao/ecalj/SRC/subroutines/tbhsi.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/RSMPI_qkgroup_mod.o
+.PHONY : home/takao/ecalj/SRC/subroutines/tbhsi.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/wanniergw/RSMPI_qkgroup_mod.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/RSMPI_qkgroup_mod.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/RSMPI_qkgroup_mod.f90.o
+home/takao/ecalj/SRC/subroutines/tbhsi.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/tbhsi.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/tbhsi.f90.o
 
-home/takao/temp/ecalj/SRC/wanniergw/RSMPI_qkgroup_mod.i: home/takao/temp/ecalj/SRC/wanniergw/RSMPI_qkgroup_mod.f90.i
+home/takao/ecalj/SRC/subroutines/tbhsi.i: home/takao/ecalj/SRC/subroutines/tbhsi.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/RSMPI_qkgroup_mod.i
+.PHONY : home/takao/ecalj/SRC/subroutines/tbhsi.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/wanniergw/RSMPI_qkgroup_mod.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/RSMPI_qkgroup_mod.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/RSMPI_qkgroup_mod.f90.i
+home/takao/ecalj/SRC/subroutines/tbhsi.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/tbhsi.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/tbhsi.f90.i
 
-home/takao/temp/ecalj/SRC/wanniergw/RSMPI_qkgroup_mod.s: home/takao/temp/ecalj/SRC/wanniergw/RSMPI_qkgroup_mod.f90.s
+home/takao/ecalj/SRC/subroutines/tbhsi.s: home/takao/ecalj/SRC/subroutines/tbhsi.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/RSMPI_qkgroup_mod.s
+.PHONY : home/takao/ecalj/SRC/subroutines/tbhsi.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/wanniergw/RSMPI_qkgroup_mod.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/RSMPI_qkgroup_mod.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/RSMPI_qkgroup_mod.f90.s
+home/takao/ecalj/SRC/subroutines/tbhsi.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/tbhsi.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/tbhsi.f90.s
 
-home/takao/temp/ecalj/SRC/wanniergw/RSMPI_rotkindex_mod.o: home/takao/temp/ecalj/SRC/wanniergw/RSMPI_rotkindex_mod.f90.o
+home/takao/ecalj/SRC/subroutines/tc.o: home/takao/ecalj/SRC/subroutines/tc.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/RSMPI_rotkindex_mod.o
+.PHONY : home/takao/ecalj/SRC/subroutines/tc.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/wanniergw/RSMPI_rotkindex_mod.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/RSMPI_rotkindex_mod.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/RSMPI_rotkindex_mod.f90.o
+home/takao/ecalj/SRC/subroutines/tc.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/tc.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/tc.f90.o
 
-home/takao/temp/ecalj/SRC/wanniergw/RSMPI_rotkindex_mod.i: home/takao/temp/ecalj/SRC/wanniergw/RSMPI_rotkindex_mod.f90.i
+home/takao/ecalj/SRC/subroutines/tc.i: home/takao/ecalj/SRC/subroutines/tc.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/RSMPI_rotkindex_mod.i
+.PHONY : home/takao/ecalj/SRC/subroutines/tc.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/wanniergw/RSMPI_rotkindex_mod.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/RSMPI_rotkindex_mod.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/RSMPI_rotkindex_mod.f90.i
+home/takao/ecalj/SRC/subroutines/tc.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/tc.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/tc.f90.i
 
-home/takao/temp/ecalj/SRC/wanniergw/RSMPI_rotkindex_mod.s: home/takao/temp/ecalj/SRC/wanniergw/RSMPI_rotkindex_mod.f90.s
+home/takao/ecalj/SRC/subroutines/tc.s: home/takao/ecalj/SRC/subroutines/tc.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/RSMPI_rotkindex_mod.s
+.PHONY : home/takao/ecalj/SRC/subroutines/tc.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/wanniergw/RSMPI_rotkindex_mod.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/RSMPI_rotkindex_mod.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/RSMPI_rotkindex_mod.f90.s
+home/takao/ecalj/SRC/subroutines/tc.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/tc.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/tc.f90.s
 
-home/takao/temp/ecalj/SRC/wanniergw/RSMPI_utils.o: home/takao/temp/ecalj/SRC/wanniergw/RSMPI_utils.f90.o
+home/takao/ecalj/SRC/subroutines/tetirr.o: home/takao/ecalj/SRC/subroutines/tetirr.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/RSMPI_utils.o
+.PHONY : home/takao/ecalj/SRC/subroutines/tetirr.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/wanniergw/RSMPI_utils.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/RSMPI_utils.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/RSMPI_utils.f90.o
+home/takao/ecalj/SRC/subroutines/tetirr.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/tetirr.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/tetirr.f90.o
 
-home/takao/temp/ecalj/SRC/wanniergw/RSMPI_utils.i: home/takao/temp/ecalj/SRC/wanniergw/RSMPI_utils.f90.i
+home/takao/ecalj/SRC/subroutines/tetirr.i: home/takao/ecalj/SRC/subroutines/tetirr.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/RSMPI_utils.i
+.PHONY : home/takao/ecalj/SRC/subroutines/tetirr.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/wanniergw/RSMPI_utils.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/RSMPI_utils.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/RSMPI_utils.f90.i
+home/takao/ecalj/SRC/subroutines/tetirr.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/tetirr.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/tetirr.f90.i
 
-home/takao/temp/ecalj/SRC/wanniergw/RSMPI_utils.s: home/takao/temp/ecalj/SRC/wanniergw/RSMPI_utils.f90.s
+home/takao/ecalj/SRC/subroutines/tetirr.s: home/takao/ecalj/SRC/subroutines/tetirr.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/RSMPI_utils.s
+.PHONY : home/takao/ecalj/SRC/subroutines/tetirr.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/wanniergw/RSMPI_utils.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/RSMPI_utils.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/RSMPI_utils.f90.s
+home/takao/ecalj/SRC/subroutines/tetirr.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/tetirr.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/tetirr.f90.s
 
-home/takao/temp/ecalj/SRC/wanniergw/Worbwrite.o: home/takao/temp/ecalj/SRC/wanniergw/Worbwrite.f90.o
+home/takao/ecalj/SRC/subroutines/tetwt5.o: home/takao/ecalj/SRC/subroutines/tetwt5.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/Worbwrite.o
+.PHONY : home/takao/ecalj/SRC/subroutines/tetwt5.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/wanniergw/Worbwrite.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/Worbwrite.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/Worbwrite.f90.o
+home/takao/ecalj/SRC/subroutines/tetwt5.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/tetwt5.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/tetwt5.f90.o
 
-home/takao/temp/ecalj/SRC/wanniergw/Worbwrite.i: home/takao/temp/ecalj/SRC/wanniergw/Worbwrite.f90.i
+home/takao/ecalj/SRC/subroutines/tetwt5.i: home/takao/ecalj/SRC/subroutines/tetwt5.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/Worbwrite.i
+.PHONY : home/takao/ecalj/SRC/subroutines/tetwt5.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/wanniergw/Worbwrite.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/Worbwrite.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/Worbwrite.f90.i
+home/takao/ecalj/SRC/subroutines/tetwt5.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/tetwt5.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/tetwt5.f90.i
 
-home/takao/temp/ecalj/SRC/wanniergw/Worbwrite.s: home/takao/temp/ecalj/SRC/wanniergw/Worbwrite.f90.s
+home/takao/ecalj/SRC/subroutines/tetwt5.s: home/takao/ecalj/SRC/subroutines/tetwt5.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/Worbwrite.s
+.PHONY : home/takao/ecalj/SRC/subroutines/tetwt5.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/wanniergw/Worbwrite.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/Worbwrite.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/Worbwrite.f90.s
+home/takao/ecalj/SRC/subroutines/tetwt5.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/tetwt5.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/tetwt5.f90.s
 
-home/takao/temp/ecalj/SRC/wanniergw/cubeformat.o: home/takao/temp/ecalj/SRC/wanniergw/cubeformat.f90.o
+home/takao/ecalj/SRC/subroutines/totfrc.o: home/takao/ecalj/SRC/subroutines/totfrc.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/cubeformat.o
+.PHONY : home/takao/ecalj/SRC/subroutines/totfrc.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/wanniergw/cubeformat.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/cubeformat.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/cubeformat.f90.o
+home/takao/ecalj/SRC/subroutines/totfrc.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/totfrc.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/totfrc.f90.o
 
-home/takao/temp/ecalj/SRC/wanniergw/cubeformat.i: home/takao/temp/ecalj/SRC/wanniergw/cubeformat.f90.i
+home/takao/ecalj/SRC/subroutines/totfrc.i: home/takao/ecalj/SRC/subroutines/totfrc.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/cubeformat.i
+.PHONY : home/takao/ecalj/SRC/subroutines/totfrc.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/wanniergw/cubeformat.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/cubeformat.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/cubeformat.f90.i
+home/takao/ecalj/SRC/subroutines/totfrc.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/totfrc.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/totfrc.f90.i
 
-home/takao/temp/ecalj/SRC/wanniergw/cubeformat.s: home/takao/temp/ecalj/SRC/wanniergw/cubeformat.f90.s
+home/takao/ecalj/SRC/subroutines/totfrc.s: home/takao/ecalj/SRC/subroutines/totfrc.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/cubeformat.s
+.PHONY : home/takao/ecalj/SRC/subroutines/totfrc.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/wanniergw/cubeformat.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/cubeformat.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/cubeformat.f90.s
+home/takao/ecalj/SRC/subroutines/totfrc.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/totfrc.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/totfrc.f90.s
 
-home/takao/temp/ecalj/SRC/wanniergw/efsimplef_RSMPI.o: home/takao/temp/ecalj/SRC/wanniergw/efsimplef_RSMPI.f90.o
+home/takao/ecalj/SRC/subroutines/uspecb.o: home/takao/ecalj/SRC/subroutines/uspecb.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/efsimplef_RSMPI.o
+.PHONY : home/takao/ecalj/SRC/subroutines/uspecb.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/wanniergw/efsimplef_RSMPI.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/efsimplef_RSMPI.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/efsimplef_RSMPI.f90.o
+home/takao/ecalj/SRC/subroutines/uspecb.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/uspecb.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/uspecb.f90.o
 
-home/takao/temp/ecalj/SRC/wanniergw/efsimplef_RSMPI.i: home/takao/temp/ecalj/SRC/wanniergw/efsimplef_RSMPI.f90.i
+home/takao/ecalj/SRC/subroutines/uspecb.i: home/takao/ecalj/SRC/subroutines/uspecb.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/efsimplef_RSMPI.i
+.PHONY : home/takao/ecalj/SRC/subroutines/uspecb.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/wanniergw/efsimplef_RSMPI.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/efsimplef_RSMPI.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/efsimplef_RSMPI.f90.i
+home/takao/ecalj/SRC/subroutines/uspecb.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/uspecb.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/uspecb.f90.i
 
-home/takao/temp/ecalj/SRC/wanniergw/efsimplef_RSMPI.s: home/takao/temp/ecalj/SRC/wanniergw/efsimplef_RSMPI.f90.s
+home/takao/ecalj/SRC/subroutines/uspecb.s: home/takao/ecalj/SRC/subroutines/uspecb.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/efsimplef_RSMPI.s
+.PHONY : home/takao/ecalj/SRC/subroutines/uspecb.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/wanniergw/efsimplef_RSMPI.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/efsimplef_RSMPI.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/efsimplef_RSMPI.f90.s
+home/takao/ecalj/SRC/subroutines/uspecb.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/uspecb.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/uspecb.f90.s
 
-home/takao/temp/ecalj/SRC/wanniergw/ent_MPI.o: home/takao/temp/ecalj/SRC/wanniergw/ent_MPI.f90.o
+home/takao/ecalj/SRC/subroutines/util.o: home/takao/ecalj/SRC/subroutines/util.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/ent_MPI.o
+.PHONY : home/takao/ecalj/SRC/subroutines/util.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/wanniergw/ent_MPI.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/ent_MPI.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/ent_MPI.f90.o
+home/takao/ecalj/SRC/subroutines/util.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/util.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/util.f90.o
 
-home/takao/temp/ecalj/SRC/wanniergw/ent_MPI.i: home/takao/temp/ecalj/SRC/wanniergw/ent_MPI.f90.i
+home/takao/ecalj/SRC/subroutines/util.i: home/takao/ecalj/SRC/subroutines/util.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/ent_MPI.i
+.PHONY : home/takao/ecalj/SRC/subroutines/util.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/wanniergw/ent_MPI.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/ent_MPI.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/ent_MPI.f90.i
+home/takao/ecalj/SRC/subroutines/util.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/util.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/util.f90.i
 
-home/takao/temp/ecalj/SRC/wanniergw/ent_MPI.s: home/takao/temp/ecalj/SRC/wanniergw/ent_MPI.f90.s
+home/takao/ecalj/SRC/subroutines/util.s: home/takao/ecalj/SRC/subroutines/util.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/ent_MPI.s
+.PHONY : home/takao/ecalj/SRC/subroutines/util.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/wanniergw/ent_MPI.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/ent_MPI.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/ent_MPI.f90.s
+home/takao/ecalj/SRC/subroutines/util.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/util.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/util.f90.s
 
-home/takao/temp/ecalj/SRC/wanniergw/expand_mesh.o: home/takao/temp/ecalj/SRC/wanniergw/expand_mesh.f90.o
+home/takao/ecalj/SRC/subroutines/vbmmode.o: home/takao/ecalj/SRC/subroutines/vbmmode.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/expand_mesh.o
+.PHONY : home/takao/ecalj/SRC/subroutines/vbmmode.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/wanniergw/expand_mesh.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/expand_mesh.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/expand_mesh.f90.o
+home/takao/ecalj/SRC/subroutines/vbmmode.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/vbmmode.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/vbmmode.f90.o
 
-home/takao/temp/ecalj/SRC/wanniergw/expand_mesh.i: home/takao/temp/ecalj/SRC/wanniergw/expand_mesh.f90.i
+home/takao/ecalj/SRC/subroutines/vbmmode.i: home/takao/ecalj/SRC/subroutines/vbmmode.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/expand_mesh.i
+.PHONY : home/takao/ecalj/SRC/subroutines/vbmmode.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/wanniergw/expand_mesh.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/expand_mesh.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/expand_mesh.f90.i
+home/takao/ecalj/SRC/subroutines/vbmmode.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/vbmmode.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/vbmmode.f90.i
 
-home/takao/temp/ecalj/SRC/wanniergw/expand_mesh.s: home/takao/temp/ecalj/SRC/wanniergw/expand_mesh.f90.s
+home/takao/ecalj/SRC/subroutines/vbmmode.s: home/takao/ecalj/SRC/subroutines/vbmmode.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/expand_mesh.s
+.PHONY : home/takao/ecalj/SRC/subroutines/vbmmode.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/wanniergw/expand_mesh.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/expand_mesh.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/expand_mesh.f90.s
+home/takao/ecalj/SRC/subroutines/vbmmode.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/vbmmode.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/vbmmode.f90.s
 
-home/takao/temp/ecalj/SRC/wanniergw/iopen.o: home/takao/temp/ecalj/SRC/wanniergw/iopen.f90.o
+home/takao/ecalj/SRC/subroutines/vcdmel.o: home/takao/ecalj/SRC/subroutines/vcdmel.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/iopen.o
+.PHONY : home/takao/ecalj/SRC/subroutines/vcdmel.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/wanniergw/iopen.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/iopen.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/iopen.f90.o
+home/takao/ecalj/SRC/subroutines/vcdmel.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/vcdmel.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/vcdmel.f90.o
 
-home/takao/temp/ecalj/SRC/wanniergw/iopen.i: home/takao/temp/ecalj/SRC/wanniergw/iopen.f90.i
+home/takao/ecalj/SRC/subroutines/vcdmel.i: home/takao/ecalj/SRC/subroutines/vcdmel.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/iopen.i
+.PHONY : home/takao/ecalj/SRC/subroutines/vcdmel.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/wanniergw/iopen.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/iopen.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/iopen.f90.i
+home/takao/ecalj/SRC/subroutines/vcdmel.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/vcdmel.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/vcdmel.f90.i
 
-home/takao/temp/ecalj/SRC/wanniergw/iopen.s: home/takao/temp/ecalj/SRC/wanniergw/iopen.f90.s
+home/takao/ecalj/SRC/subroutines/vcdmel.s: home/takao/ecalj/SRC/subroutines/vcdmel.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/iopen.s
+.PHONY : home/takao/ecalj/SRC/subroutines/vcdmel.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/wanniergw/iopen.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/iopen.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/iopen.f90.s
+home/takao/ecalj/SRC/subroutines/vcdmel.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/vcdmel.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/vcdmel.f90.s
 
-home/takao/temp/ecalj/SRC/wanniergw/m_DATA4GW.o: home/takao/temp/ecalj/SRC/wanniergw/m_DATA4GW.f90.o
+home/takao/ecalj/SRC/subroutines/vesgcm.o: home/takao/ecalj/SRC/subroutines/vesgcm.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/m_DATA4GW.o
+.PHONY : home/takao/ecalj/SRC/subroutines/vesgcm.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/wanniergw/m_DATA4GW.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/m_DATA4GW.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/m_DATA4GW.f90.o
+home/takao/ecalj/SRC/subroutines/vesgcm.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/vesgcm.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/vesgcm.f90.o
 
-home/takao/temp/ecalj/SRC/wanniergw/m_DATA4GW.i: home/takao/temp/ecalj/SRC/wanniergw/m_DATA4GW.f90.i
+home/takao/ecalj/SRC/subroutines/vesgcm.i: home/takao/ecalj/SRC/subroutines/vesgcm.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/m_DATA4GW.i
+.PHONY : home/takao/ecalj/SRC/subroutines/vesgcm.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/wanniergw/m_DATA4GW.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/m_DATA4GW.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/m_DATA4GW.f90.i
+home/takao/ecalj/SRC/subroutines/vesgcm.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/vesgcm.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/vesgcm.f90.i
 
-home/takao/temp/ecalj/SRC/wanniergw/m_DATA4GW.s: home/takao/temp/ecalj/SRC/wanniergw/m_DATA4GW.f90.s
+home/takao/ecalj/SRC/subroutines/vesgcm.s: home/takao/ecalj/SRC/subroutines/vesgcm.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/m_DATA4GW.s
+.PHONY : home/takao/ecalj/SRC/subroutines/vesgcm.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/wanniergw/m_DATA4GW.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/m_DATA4GW.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/m_DATA4GW.f90.s
+home/takao/ecalj/SRC/subroutines/vesgcm.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/vesgcm.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/vesgcm.f90.s
 
-home/takao/temp/ecalj/SRC/wanniergw/m_FFT3D.o: home/takao/temp/ecalj/SRC/wanniergw/m_FFT3D.f90.o
+home/takao/ecalj/SRC/subroutines/w_psir.o: home/takao/ecalj/SRC/subroutines/w_psir.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/m_FFT3D.o
+.PHONY : home/takao/ecalj/SRC/subroutines/w_psir.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/wanniergw/m_FFT3D.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/m_FFT3D.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/m_FFT3D.f90.o
+home/takao/ecalj/SRC/subroutines/w_psir.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/w_psir.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/w_psir.f90.o
 
-home/takao/temp/ecalj/SRC/wanniergw/m_FFT3D.i: home/takao/temp/ecalj/SRC/wanniergw/m_FFT3D.f90.i
+home/takao/ecalj/SRC/subroutines/w_psir.i: home/takao/ecalj/SRC/subroutines/w_psir.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/m_FFT3D.i
+.PHONY : home/takao/ecalj/SRC/subroutines/w_psir.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/wanniergw/m_FFT3D.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/m_FFT3D.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/m_FFT3D.f90.i
+home/takao/ecalj/SRC/subroutines/w_psir.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/w_psir.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/w_psir.f90.i
 
-home/takao/temp/ecalj/SRC/wanniergw/m_FFT3D.s: home/takao/temp/ecalj/SRC/wanniergw/m_FFT3D.f90.s
+home/takao/ecalj/SRC/subroutines/w_psir.s: home/takao/ecalj/SRC/subroutines/w_psir.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/m_FFT3D.s
+.PHONY : home/takao/ecalj/SRC/subroutines/w_psir.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/wanniergw/m_FFT3D.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/m_FFT3D.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/m_FFT3D.f90.s
+home/takao/ecalj/SRC/subroutines/w_psir.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/w_psir.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/w_psir.f90.s
 
-home/takao/temp/ecalj/SRC/wanniergw/m_MLWF.o: home/takao/temp/ecalj/SRC/wanniergw/m_MLWF.f90.o
+home/takao/ecalj/SRC/subroutines/wfacx.o: home/takao/ecalj/SRC/subroutines/wfacx.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/m_MLWF.o
+.PHONY : home/takao/ecalj/SRC/subroutines/wfacx.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/wanniergw/m_MLWF.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/m_MLWF.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/m_MLWF.f90.o
+home/takao/ecalj/SRC/subroutines/wfacx.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/wfacx.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/wfacx.f90.o
 
-home/takao/temp/ecalj/SRC/wanniergw/m_MLWF.i: home/takao/temp/ecalj/SRC/wanniergw/m_MLWF.f90.i
+home/takao/ecalj/SRC/subroutines/wfacx.i: home/takao/ecalj/SRC/subroutines/wfacx.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/m_MLWF.i
+.PHONY : home/takao/ecalj/SRC/subroutines/wfacx.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/wanniergw/m_MLWF.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/m_MLWF.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/m_MLWF.f90.i
+home/takao/ecalj/SRC/subroutines/wfacx.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/wfacx.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/wfacx.f90.i
 
-home/takao/temp/ecalj/SRC/wanniergw/m_MLWF.s: home/takao/temp/ecalj/SRC/wanniergw/m_MLWF.f90.s
+home/takao/ecalj/SRC/subroutines/wfacx.s: home/takao/ecalj/SRC/subroutines/wfacx.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/m_MLWF.s
+.PHONY : home/takao/ecalj/SRC/subroutines/wfacx.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/wanniergw/m_MLWF.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/m_MLWF.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/m_MLWF.f90.s
+home/takao/ecalj/SRC/subroutines/wfacx.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/wfacx.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/wfacx.f90.s
 
-home/takao/temp/ecalj/SRC/wanniergw/m_QG.o: home/takao/temp/ecalj/SRC/wanniergw/m_QG.f90.o
+home/takao/ecalj/SRC/subroutines/wintzsg.o: home/takao/ecalj/SRC/subroutines/wintzsg.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/m_QG.o
+.PHONY : home/takao/ecalj/SRC/subroutines/wintzsg.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/wanniergw/m_QG.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/m_QG.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/m_QG.f90.o
+home/takao/ecalj/SRC/subroutines/wintzsg.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/wintzsg.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/wintzsg.f90.o
 
-home/takao/temp/ecalj/SRC/wanniergw/m_QG.i: home/takao/temp/ecalj/SRC/wanniergw/m_QG.f90.i
+home/takao/ecalj/SRC/subroutines/wintzsg.i: home/takao/ecalj/SRC/subroutines/wintzsg.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/m_QG.i
+.PHONY : home/takao/ecalj/SRC/subroutines/wintzsg.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/wanniergw/m_QG.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/m_QG.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/m_QG.f90.i
+home/takao/ecalj/SRC/subroutines/wintzsg.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/wintzsg.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/wintzsg.f90.i
 
-home/takao/temp/ecalj/SRC/wanniergw/m_QG.s: home/takao/temp/ecalj/SRC/wanniergw/m_QG.f90.s
+home/takao/ecalj/SRC/subroutines/wintzsg.s: home/takao/ecalj/SRC/subroutines/wintzsg.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/m_QG.s
+.PHONY : home/takao/ecalj/SRC/subroutines/wintzsg.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/wanniergw/m_QG.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/m_QG.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/m_QG.f90.s
+home/takao/ecalj/SRC/subroutines/wintzsg.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/wintzsg.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/wintzsg.f90.s
 
-home/takao/temp/ecalj/SRC/wanniergw/m_read_Worb.o: home/takao/temp/ecalj/SRC/wanniergw/m_read_Worb.f90.o
+home/takao/ecalj/SRC/subroutines/writeham.o: home/takao/ecalj/SRC/subroutines/writeham.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/m_read_Worb.o
+.PHONY : home/takao/ecalj/SRC/subroutines/writeham.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/wanniergw/m_read_Worb.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/m_read_Worb.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/m_read_Worb.f90.o
+home/takao/ecalj/SRC/subroutines/writeham.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/writeham.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/writeham.f90.o
 
-home/takao/temp/ecalj/SRC/wanniergw/m_read_Worb.i: home/takao/temp/ecalj/SRC/wanniergw/m_read_Worb.f90.i
+home/takao/ecalj/SRC/subroutines/writeham.i: home/takao/ecalj/SRC/subroutines/writeham.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/m_read_Worb.i
+.PHONY : home/takao/ecalj/SRC/subroutines/writeham.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/wanniergw/m_read_Worb.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/m_read_Worb.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/m_read_Worb.f90.i
+home/takao/ecalj/SRC/subroutines/writeham.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/writeham.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/writeham.f90.i
 
-home/takao/temp/ecalj/SRC/wanniergw/m_read_Worb.s: home/takao/temp/ecalj/SRC/wanniergw/m_read_Worb.f90.s
+home/takao/ecalj/SRC/subroutines/writeham.s: home/takao/ecalj/SRC/subroutines/writeham.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/m_read_Worb.s
+.PHONY : home/takao/ecalj/SRC/subroutines/writeham.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/wanniergw/m_read_Worb.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/m_read_Worb.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/m_read_Worb.f90.s
+home/takao/ecalj/SRC/subroutines/writeham.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/writeham.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/writeham.f90.s
 
-home/takao/temp/ecalj/SRC/wanniergw/maxloc0.o: home/takao/temp/ecalj/SRC/wanniergw/maxloc0.f90.o
+home/takao/ecalj/SRC/subroutines/wronkj.o: home/takao/ecalj/SRC/subroutines/wronkj.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/maxloc0.o
+.PHONY : home/takao/ecalj/SRC/subroutines/wronkj.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/wanniergw/maxloc0.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/maxloc0.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/maxloc0.f90.o
+home/takao/ecalj/SRC/subroutines/wronkj.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/wronkj.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/wronkj.f90.o
 
-home/takao/temp/ecalj/SRC/wanniergw/maxloc0.i: home/takao/temp/ecalj/SRC/wanniergw/maxloc0.f90.i
+home/takao/ecalj/SRC/subroutines/wronkj.i: home/takao/ecalj/SRC/subroutines/wronkj.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/maxloc0.i
+.PHONY : home/takao/ecalj/SRC/subroutines/wronkj.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/wanniergw/maxloc0.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/maxloc0.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/maxloc0.f90.i
+home/takao/ecalj/SRC/subroutines/wronkj.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/wronkj.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/wronkj.f90.i
 
-home/takao/temp/ecalj/SRC/wanniergw/maxloc0.s: home/takao/temp/ecalj/SRC/wanniergw/maxloc0.f90.s
+home/takao/ecalj/SRC/subroutines/wronkj.s: home/takao/ecalj/SRC/subroutines/wronkj.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/maxloc0.s
+.PHONY : home/takao/ecalj/SRC/subroutines/wronkj.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/wanniergw/maxloc0.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/maxloc0.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/maxloc0.f90.s
+home/takao/ecalj/SRC/subroutines/wronkj.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/wronkj.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/wronkj.f90.s
 
-home/takao/temp/ecalj/SRC/wanniergw/maxloc1.o: home/takao/temp/ecalj/SRC/wanniergw/maxloc1.f90.o
+home/takao/ecalj/SRC/subroutines/wse.o: home/takao/ecalj/SRC/subroutines/wse.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/maxloc1.o
+.PHONY : home/takao/ecalj/SRC/subroutines/wse.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/wanniergw/maxloc1.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/maxloc1.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/maxloc1.f90.o
+home/takao/ecalj/SRC/subroutines/wse.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/wse.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/wse.f90.o
 
-home/takao/temp/ecalj/SRC/wanniergw/maxloc1.i: home/takao/temp/ecalj/SRC/wanniergw/maxloc1.f90.i
+home/takao/ecalj/SRC/subroutines/wse.i: home/takao/ecalj/SRC/subroutines/wse.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/maxloc1.i
+.PHONY : home/takao/ecalj/SRC/subroutines/wse.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/wanniergw/maxloc1.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/maxloc1.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/maxloc1.f90.i
+home/takao/ecalj/SRC/subroutines/wse.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/wse.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/wse.f90.i
 
-home/takao/temp/ecalj/SRC/wanniergw/maxloc1.s: home/takao/temp/ecalj/SRC/wanniergw/maxloc1.f90.s
+home/takao/ecalj/SRC/subroutines/wse.s: home/takao/ecalj/SRC/subroutines/wse.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/maxloc1.s
+.PHONY : home/takao/ecalj/SRC/subroutines/wse.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/wanniergw/maxloc1.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/maxloc1.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/maxloc1.f90.s
+home/takao/ecalj/SRC/subroutines/wse.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/wse.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/wse.f90.s
 
-home/takao/temp/ecalj/SRC/wanniergw/maxloc2.o: home/takao/temp/ecalj/SRC/wanniergw/maxloc2.f90.o
+home/takao/ecalj/SRC/subroutines/x0kf_v4h.o: home/takao/ecalj/SRC/subroutines/x0kf_v4h.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/maxloc2.o
+.PHONY : home/takao/ecalj/SRC/subroutines/x0kf_v4h.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/wanniergw/maxloc2.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/maxloc2.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/maxloc2.f90.o
+home/takao/ecalj/SRC/subroutines/x0kf_v4h.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/x0kf_v4h.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/x0kf_v4h.f90.o
 
-home/takao/temp/ecalj/SRC/wanniergw/maxloc2.i: home/takao/temp/ecalj/SRC/wanniergw/maxloc2.f90.i
+home/takao/ecalj/SRC/subroutines/x0kf_v4h.i: home/takao/ecalj/SRC/subroutines/x0kf_v4h.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/maxloc2.i
+.PHONY : home/takao/ecalj/SRC/subroutines/x0kf_v4h.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/wanniergw/maxloc2.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/maxloc2.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/maxloc2.f90.i
+home/takao/ecalj/SRC/subroutines/x0kf_v4h.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/x0kf_v4h.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/x0kf_v4h.f90.i
 
-home/takao/temp/ecalj/SRC/wanniergw/maxloc2.s: home/takao/temp/ecalj/SRC/wanniergw/maxloc2.f90.s
+home/takao/ecalj/SRC/subroutines/x0kf_v4h.s: home/takao/ecalj/SRC/subroutines/x0kf_v4h.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/maxloc2.s
+.PHONY : home/takao/ecalj/SRC/subroutines/x0kf_v4h.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/wanniergw/maxloc2.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/maxloc2.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/maxloc2.f90.s
+home/takao/ecalj/SRC/subroutines/x0kf_v4h.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/x0kf_v4h.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/x0kf_v4h.f90.s
 
-home/takao/temp/ecalj/SRC/wanniergw/maxloc3.o: home/takao/temp/ecalj/SRC/wanniergw/maxloc3.f90.o
+home/takao/ecalj/SRC/subroutines/xcfunc.o: home/takao/ecalj/SRC/subroutines/xcfunc.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/maxloc3.o
+.PHONY : home/takao/ecalj/SRC/subroutines/xcfunc.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/wanniergw/maxloc3.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/maxloc3.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/maxloc3.f90.o
+home/takao/ecalj/SRC/subroutines/xcfunc.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/xcfunc.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/xcfunc.f90.o
 
-home/takao/temp/ecalj/SRC/wanniergw/maxloc3.i: home/takao/temp/ecalj/SRC/wanniergw/maxloc3.f90.i
+home/takao/ecalj/SRC/subroutines/xcfunc.i: home/takao/ecalj/SRC/subroutines/xcfunc.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/maxloc3.i
+.PHONY : home/takao/ecalj/SRC/subroutines/xcfunc.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/wanniergw/maxloc3.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/maxloc3.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/maxloc3.f90.i
+home/takao/ecalj/SRC/subroutines/xcfunc.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/xcfunc.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/xcfunc.f90.i
 
-home/takao/temp/ecalj/SRC/wanniergw/maxloc3.s: home/takao/temp/ecalj/SRC/wanniergw/maxloc3.f90.s
+home/takao/ecalj/SRC/subroutines/xcfunc.s: home/takao/ecalj/SRC/subroutines/xcfunc.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/maxloc3.s
+.PHONY : home/takao/ecalj/SRC/subroutines/xcfunc.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/wanniergw/maxloc3.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/maxloc3.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/maxloc3.f90.s
+home/takao/ecalj/SRC/subroutines/xcfunc.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/xcfunc.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/xcfunc.f90.s
 
-home/takao/temp/ecalj/SRC/wanniergw/maxloc4.o: home/takao/temp/ecalj/SRC/wanniergw/maxloc4.f90.o
+home/takao/ecalj/SRC/subroutines/xcpbe.o: home/takao/ecalj/SRC/subroutines/xcpbe.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/maxloc4.o
+.PHONY : home/takao/ecalj/SRC/subroutines/xcpbe.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/wanniergw/maxloc4.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/maxloc4.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/maxloc4.f90.o
+home/takao/ecalj/SRC/subroutines/xcpbe.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/xcpbe.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/xcpbe.f90.o
 
-home/takao/temp/ecalj/SRC/wanniergw/maxloc4.i: home/takao/temp/ecalj/SRC/wanniergw/maxloc4.f90.i
+home/takao/ecalj/SRC/subroutines/xcpbe.i: home/takao/ecalj/SRC/subroutines/xcpbe.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/maxloc4.i
+.PHONY : home/takao/ecalj/SRC/subroutines/xcpbe.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/wanniergw/maxloc4.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/maxloc4.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/maxloc4.f90.i
+home/takao/ecalj/SRC/subroutines/xcpbe.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/xcpbe.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/xcpbe.f90.i
 
-home/takao/temp/ecalj/SRC/wanniergw/maxloc4.s: home/takao/temp/ecalj/SRC/wanniergw/maxloc4.f90.s
+home/takao/ecalj/SRC/subroutines/xcpbe.s: home/takao/ecalj/SRC/subroutines/xcpbe.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/maxloc4.s
+.PHONY : home/takao/ecalj/SRC/subroutines/xcpbe.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/wanniergw/maxloc4.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/maxloc4.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/maxloc4.f90.s
+home/takao/ecalj/SRC/subroutines/xcpbe.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/xcpbe.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/xcpbe.f90.s
 
-home/takao/temp/ecalj/SRC/wanniergw/myYlm.o: home/takao/temp/ecalj/SRC/wanniergw/myYlm.f90.o
+home/takao/ecalj/SRC/subroutines/xlgen.o: home/takao/ecalj/SRC/subroutines/xlgen.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/myYlm.o
+.PHONY : home/takao/ecalj/SRC/subroutines/xlgen.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/wanniergw/myYlm.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/myYlm.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/myYlm.f90.o
+home/takao/ecalj/SRC/subroutines/xlgen.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/xlgen.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/xlgen.f90.o
 
-home/takao/temp/ecalj/SRC/wanniergw/myYlm.i: home/takao/temp/ecalj/SRC/wanniergw/myYlm.f90.i
+home/takao/ecalj/SRC/subroutines/xlgen.i: home/takao/ecalj/SRC/subroutines/xlgen.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/myYlm.i
+.PHONY : home/takao/ecalj/SRC/subroutines/xlgen.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/wanniergw/myYlm.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/myYlm.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/myYlm.f90.i
+home/takao/ecalj/SRC/subroutines/xlgen.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/xlgen.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/xlgen.f90.i
 
-home/takao/temp/ecalj/SRC/wanniergw/myYlm.s: home/takao/temp/ecalj/SRC/wanniergw/myYlm.f90.s
+home/takao/ecalj/SRC/subroutines/xlgen.s: home/takao/ecalj/SRC/subroutines/xlgen.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/myYlm.s
+.PHONY : home/takao/ecalj/SRC/subroutines/xlgen.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/wanniergw/myYlm.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/myYlm.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/myYlm.f90.s
+home/takao/ecalj/SRC/subroutines/xlgen.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/xlgen.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/xlgen.f90.s
 
-home/takao/temp/ecalj/SRC/wanniergw/mymath.o: home/takao/temp/ecalj/SRC/wanniergw/mymath.f90.o
+home/takao/ecalj/SRC/subroutines/ylmrtg.o: home/takao/ecalj/SRC/subroutines/ylmrtg.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/mymath.o
+.PHONY : home/takao/ecalj/SRC/subroutines/ylmrtg.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/wanniergw/mymath.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/mymath.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/mymath.f90.o
+home/takao/ecalj/SRC/subroutines/ylmrtg.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/ylmrtg.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/ylmrtg.f90.o
 
-home/takao/temp/ecalj/SRC/wanniergw/mymath.i: home/takao/temp/ecalj/SRC/wanniergw/mymath.f90.i
+home/takao/ecalj/SRC/subroutines/ylmrtg.i: home/takao/ecalj/SRC/subroutines/ylmrtg.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/mymath.i
+.PHONY : home/takao/ecalj/SRC/subroutines/ylmrtg.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/wanniergw/mymath.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/mymath.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/mymath.f90.i
+home/takao/ecalj/SRC/subroutines/ylmrtg.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/ylmrtg.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/ylmrtg.f90.i
 
-home/takao/temp/ecalj/SRC/wanniergw/mymath.s: home/takao/temp/ecalj/SRC/wanniergw/mymath.f90.s
+home/takao/ecalj/SRC/subroutines/ylmrtg.s: home/takao/ecalj/SRC/subroutines/ylmrtg.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/mymath.s
+.PHONY : home/takao/ecalj/SRC/subroutines/ylmrtg.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/wanniergw/mymath.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/mymath.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/mymath.f90.s
+home/takao/ecalj/SRC/subroutines/ylmrtg.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/ylmrtg.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/ylmrtg.f90.s
 
-home/takao/temp/ecalj/SRC/wanniergw/sp2cls.o: home/takao/temp/ecalj/SRC/wanniergw/sp2cls.f90.o
+home/takao/ecalj/SRC/subroutines/zhev.o: home/takao/ecalj/SRC/subroutines/zhev.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/sp2cls.o
+.PHONY : home/takao/ecalj/SRC/subroutines/zhev.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/wanniergw/sp2cls.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/sp2cls.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/sp2cls.f90.o
+home/takao/ecalj/SRC/subroutines/zhev.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/zhev.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/zhev.f90.o
 
-home/takao/temp/ecalj/SRC/wanniergw/sp2cls.i: home/takao/temp/ecalj/SRC/wanniergw/sp2cls.f90.i
+home/takao/ecalj/SRC/subroutines/zhev.i: home/takao/ecalj/SRC/subroutines/zhev.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/sp2cls.i
+.PHONY : home/takao/ecalj/SRC/subroutines/zhev.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/wanniergw/sp2cls.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/sp2cls.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/sp2cls.f90.i
+home/takao/ecalj/SRC/subroutines/zhev.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/zhev.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/zhev.f90.i
 
-home/takao/temp/ecalj/SRC/wanniergw/sp2cls.s: home/takao/temp/ecalj/SRC/wanniergw/sp2cls.f90.s
+home/takao/ecalj/SRC/subroutines/zhev.s: home/takao/ecalj/SRC/subroutines/zhev.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/sp2cls.s
+.PHONY : home/takao/ecalj/SRC/subroutines/zhev.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/wanniergw/sp2cls.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/sp2cls.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/sp2cls.f90.s
+home/takao/ecalj/SRC/subroutines/zhev.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/zhev.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/zhev.f90.s
 
-home/takao/temp/ecalj/SRC/wanniergw/wansub.o: home/takao/temp/ecalj/SRC/wanniergw/wansub.f90.o
+home/takao/ecalj/SRC/subroutines/zsecsym.o: home/takao/ecalj/SRC/subroutines/zsecsym.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/wansub.o
+.PHONY : home/takao/ecalj/SRC/subroutines/zsecsym.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/wanniergw/wansub.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/wansub.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/wansub.f90.o
+home/takao/ecalj/SRC/subroutines/zsecsym.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/zsecsym.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/zsecsym.f90.o
 
-home/takao/temp/ecalj/SRC/wanniergw/wansub.i: home/takao/temp/ecalj/SRC/wanniergw/wansub.f90.i
+home/takao/ecalj/SRC/subroutines/zsecsym.i: home/takao/ecalj/SRC/subroutines/zsecsym.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/wansub.i
+.PHONY : home/takao/ecalj/SRC/subroutines/zsecsym.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/wanniergw/wansub.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/wansub.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/wansub.f90.i
+home/takao/ecalj/SRC/subroutines/zsecsym.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/zsecsym.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/zsecsym.f90.i
 
-home/takao/temp/ecalj/SRC/wanniergw/wansub.s: home/takao/temp/ecalj/SRC/wanniergw/wansub.f90.s
+home/takao/ecalj/SRC/subroutines/zsecsym.s: home/takao/ecalj/SRC/subroutines/zsecsym.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/wansub.s
+.PHONY : home/takao/ecalj/SRC/subroutines/zsecsym.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/wanniergw/wansub.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/wansub.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/wansub.f90.s
+home/takao/ecalj/SRC/subroutines/zsecsym.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/zsecsym.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/zsecsym.f90.s
 
-home/takao/temp/ecalj/SRC/wanniergw/wfn2dx_2.o: home/takao/temp/ecalj/SRC/wanniergw/wfn2dx_2.f90.o
+home/takao/ecalj/SRC/wanniergw/RSMPI_mod.o: home/takao/ecalj/SRC/wanniergw/RSMPI_mod.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/wfn2dx_2.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/RSMPI_mod.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/wanniergw/wfn2dx_2.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/wfn2dx_2.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/wfn2dx_2.f90.o
+home/takao/ecalj/SRC/wanniergw/RSMPI_mod.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/RSMPI_mod.f90.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/RSMPI_mod.f90.o
 
-home/takao/temp/ecalj/SRC/wanniergw/wfn2dx_2.i: home/takao/temp/ecalj/SRC/wanniergw/wfn2dx_2.f90.i
+home/takao/ecalj/SRC/wanniergw/RSMPI_mod.i: home/takao/ecalj/SRC/wanniergw/RSMPI_mod.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/wfn2dx_2.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/RSMPI_mod.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/wanniergw/wfn2dx_2.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/wfn2dx_2.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/wfn2dx_2.f90.i
+home/takao/ecalj/SRC/wanniergw/RSMPI_mod.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/RSMPI_mod.f90.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/RSMPI_mod.f90.i
 
-home/takao/temp/ecalj/SRC/wanniergw/wfn2dx_2.s: home/takao/temp/ecalj/SRC/wanniergw/wfn2dx_2.f90.s
+home/takao/ecalj/SRC/wanniergw/RSMPI_mod.s: home/takao/ecalj/SRC/wanniergw/RSMPI_mod.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/wfn2dx_2.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/RSMPI_mod.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/wanniergw/wfn2dx_2.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/wfn2dx_2.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/wfn2dx_2.f90.s
+home/takao/ecalj/SRC/wanniergw/RSMPI_mod.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/RSMPI_mod.f90.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/RSMPI_mod.f90.s
 
-home/takao/temp/ecalj/SRC/wanniergw/wfn2dx_abc.o: home/takao/temp/ecalj/SRC/wanniergw/wfn2dx_abc.f90.o
+home/takao/ecalj/SRC/wanniergw/RSMPI_qkgroup_mod.o: home/takao/ecalj/SRC/wanniergw/RSMPI_qkgroup_mod.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/wfn2dx_abc.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/RSMPI_qkgroup_mod.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/wanniergw/wfn2dx_abc.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/wfn2dx_abc.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/wfn2dx_abc.f90.o
+home/takao/ecalj/SRC/wanniergw/RSMPI_qkgroup_mod.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/RSMPI_qkgroup_mod.f90.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/RSMPI_qkgroup_mod.f90.o
 
-home/takao/temp/ecalj/SRC/wanniergw/wfn2dx_abc.i: home/takao/temp/ecalj/SRC/wanniergw/wfn2dx_abc.f90.i
+home/takao/ecalj/SRC/wanniergw/RSMPI_qkgroup_mod.i: home/takao/ecalj/SRC/wanniergw/RSMPI_qkgroup_mod.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/wfn2dx_abc.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/RSMPI_qkgroup_mod.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/wanniergw/wfn2dx_abc.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/wfn2dx_abc.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/wfn2dx_abc.f90.i
+home/takao/ecalj/SRC/wanniergw/RSMPI_qkgroup_mod.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/RSMPI_qkgroup_mod.f90.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/RSMPI_qkgroup_mod.f90.i
 
-home/takao/temp/ecalj/SRC/wanniergw/wfn2dx_abc.s: home/takao/temp/ecalj/SRC/wanniergw/wfn2dx_abc.f90.s
+home/takao/ecalj/SRC/wanniergw/RSMPI_qkgroup_mod.s: home/takao/ecalj/SRC/wanniergw/RSMPI_qkgroup_mod.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/wfn2dx_abc.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/RSMPI_qkgroup_mod.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/wanniergw/wfn2dx_abc.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/wfn2dx_abc.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/wfn2dx_abc.f90.s
+home/takao/ecalj/SRC/wanniergw/RSMPI_qkgroup_mod.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/RSMPI_qkgroup_mod.f90.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/RSMPI_qkgroup_mod.f90.s
 
-home/takao/temp/ecalj/SRC/wanniergw/wfnrho_abc.o: home/takao/temp/ecalj/SRC/wanniergw/wfnrho_abc.f90.o
+home/takao/ecalj/SRC/wanniergw/RSMPI_rotkindex_mod.o: home/takao/ecalj/SRC/wanniergw/RSMPI_rotkindex_mod.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/wfnrho_abc.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/RSMPI_rotkindex_mod.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/wanniergw/wfnrho_abc.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/wfnrho_abc.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/wfnrho_abc.f90.o
+home/takao/ecalj/SRC/wanniergw/RSMPI_rotkindex_mod.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/RSMPI_rotkindex_mod.f90.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/RSMPI_rotkindex_mod.f90.o
 
-home/takao/temp/ecalj/SRC/wanniergw/wfnrho_abc.i: home/takao/temp/ecalj/SRC/wanniergw/wfnrho_abc.f90.i
+home/takao/ecalj/SRC/wanniergw/RSMPI_rotkindex_mod.i: home/takao/ecalj/SRC/wanniergw/RSMPI_rotkindex_mod.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/wfnrho_abc.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/RSMPI_rotkindex_mod.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/wanniergw/wfnrho_abc.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/wfnrho_abc.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/wfnrho_abc.f90.i
+home/takao/ecalj/SRC/wanniergw/RSMPI_rotkindex_mod.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/RSMPI_rotkindex_mod.f90.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/RSMPI_rotkindex_mod.f90.i
 
-home/takao/temp/ecalj/SRC/wanniergw/wfnrho_abc.s: home/takao/temp/ecalj/SRC/wanniergw/wfnrho_abc.f90.s
+home/takao/ecalj/SRC/wanniergw/RSMPI_rotkindex_mod.s: home/takao/ecalj/SRC/wanniergw/RSMPI_rotkindex_mod.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/wfnrho_abc.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/RSMPI_rotkindex_mod.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/wanniergw/wfnrho_abc.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/wfnrho_abc.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/wfnrho_abc.f90.s
+home/takao/ecalj/SRC/wanniergw/RSMPI_rotkindex_mod.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/RSMPI_rotkindex_mod.f90.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/RSMPI_rotkindex_mod.f90.s
 
-home/takao/temp/ecalj/SRC/wanniergw/wmatK.o: home/takao/temp/ecalj/SRC/wanniergw/wmatK.f90.o
+home/takao/ecalj/SRC/wanniergw/RSMPI_utils.o: home/takao/ecalj/SRC/wanniergw/RSMPI_utils.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/wmatK.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/RSMPI_utils.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/wanniergw/wmatK.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/wmatK.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/wmatK.f90.o
+home/takao/ecalj/SRC/wanniergw/RSMPI_utils.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/RSMPI_utils.f90.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/RSMPI_utils.f90.o
 
-home/takao/temp/ecalj/SRC/wanniergw/wmatK.i: home/takao/temp/ecalj/SRC/wanniergw/wmatK.f90.i
+home/takao/ecalj/SRC/wanniergw/RSMPI_utils.i: home/takao/ecalj/SRC/wanniergw/RSMPI_utils.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/wmatK.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/RSMPI_utils.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/wanniergw/wmatK.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/wmatK.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/wmatK.f90.i
+home/takao/ecalj/SRC/wanniergw/RSMPI_utils.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/RSMPI_utils.f90.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/RSMPI_utils.f90.i
 
-home/takao/temp/ecalj/SRC/wanniergw/wmatK.s: home/takao/temp/ecalj/SRC/wanniergw/wmatK.f90.s
+home/takao/ecalj/SRC/wanniergw/RSMPI_utils.s: home/takao/ecalj/SRC/wanniergw/RSMPI_utils.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/wmatK.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/RSMPI_utils.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/wanniergw/wmatK.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/wmatK.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/wmatK.f90.s
+home/takao/ecalj/SRC/wanniergw/RSMPI_utils.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/RSMPI_utils.f90.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/RSMPI_utils.f90.s
 
-home/takao/temp/ecalj/SRC/wanniergw/wmatK_mpi.o: home/takao/temp/ecalj/SRC/wanniergw/wmatK_mpi.f90.o
+home/takao/ecalj/SRC/wanniergw/Worbwrite.o: home/takao/ecalj/SRC/wanniergw/Worbwrite.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/wmatK_mpi.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/Worbwrite.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/wanniergw/wmatK_mpi.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/wmatK_mpi.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/wmatK_mpi.f90.o
+home/takao/ecalj/SRC/wanniergw/Worbwrite.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/Worbwrite.f90.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/Worbwrite.f90.o
 
-home/takao/temp/ecalj/SRC/wanniergw/wmatK_mpi.i: home/takao/temp/ecalj/SRC/wanniergw/wmatK_mpi.f90.i
+home/takao/ecalj/SRC/wanniergw/Worbwrite.i: home/takao/ecalj/SRC/wanniergw/Worbwrite.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/wmatK_mpi.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/Worbwrite.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/wanniergw/wmatK_mpi.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/wmatK_mpi.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/wmatK_mpi.f90.i
+home/takao/ecalj/SRC/wanniergw/Worbwrite.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/Worbwrite.f90.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/Worbwrite.f90.i
 
-home/takao/temp/ecalj/SRC/wanniergw/wmatK_mpi.s: home/takao/temp/ecalj/SRC/wanniergw/wmatK_mpi.f90.s
+home/takao/ecalj/SRC/wanniergw/Worbwrite.s: home/takao/ecalj/SRC/wanniergw/Worbwrite.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/wmatK_mpi.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/Worbwrite.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/wanniergw/wmatK_mpi.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/wmatK_mpi.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/wmatK_mpi.f90.s
+home/takao/ecalj/SRC/wanniergw/Worbwrite.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/Worbwrite.f90.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/Worbwrite.f90.s
 
-home/takao/temp/ecalj/SRC/wanniergw/write_mesh2d.o: home/takao/temp/ecalj/SRC/wanniergw/write_mesh2d.f90.o
+home/takao/ecalj/SRC/wanniergw/cubeformat.o: home/takao/ecalj/SRC/wanniergw/cubeformat.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/write_mesh2d.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/cubeformat.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/wanniergw/write_mesh2d.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/write_mesh2d.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/write_mesh2d.f90.o
+home/takao/ecalj/SRC/wanniergw/cubeformat.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/cubeformat.f90.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/cubeformat.f90.o
 
-home/takao/temp/ecalj/SRC/wanniergw/write_mesh2d.i: home/takao/temp/ecalj/SRC/wanniergw/write_mesh2d.f90.i
+home/takao/ecalj/SRC/wanniergw/cubeformat.i: home/takao/ecalj/SRC/wanniergw/cubeformat.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/write_mesh2d.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/cubeformat.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/wanniergw/write_mesh2d.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/write_mesh2d.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/write_mesh2d.f90.i
+home/takao/ecalj/SRC/wanniergw/cubeformat.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/cubeformat.f90.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/cubeformat.f90.i
 
-home/takao/temp/ecalj/SRC/wanniergw/write_mesh2d.s: home/takao/temp/ecalj/SRC/wanniergw/write_mesh2d.f90.s
+home/takao/ecalj/SRC/wanniergw/cubeformat.s: home/takao/ecalj/SRC/wanniergw/cubeformat.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/write_mesh2d.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/cubeformat.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/wanniergw/write_mesh2d.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/write_mesh2d.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/write_mesh2d.f90.s
+home/takao/ecalj/SRC/wanniergw/cubeformat.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/cubeformat.f90.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/cubeformat.f90.s
 
-home/takao/temp/ecalj/SRC/wanniergw/xsfformat2.o: home/takao/temp/ecalj/SRC/wanniergw/xsfformat2.f90.o
+home/takao/ecalj/SRC/wanniergw/efsimplef_RSMPI.o: home/takao/ecalj/SRC/wanniergw/efsimplef_RSMPI.f90.o
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/xsfformat2.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/efsimplef_RSMPI.o
 
 # target to build an object file
-home/takao/temp/ecalj/SRC/wanniergw/xsfformat2.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/xsfformat2.f90.o
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/xsfformat2.f90.o
+home/takao/ecalj/SRC/wanniergw/efsimplef_RSMPI.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/efsimplef_RSMPI.f90.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/efsimplef_RSMPI.f90.o
 
-home/takao/temp/ecalj/SRC/wanniergw/xsfformat2.i: home/takao/temp/ecalj/SRC/wanniergw/xsfformat2.f90.i
+home/takao/ecalj/SRC/wanniergw/efsimplef_RSMPI.i: home/takao/ecalj/SRC/wanniergw/efsimplef_RSMPI.f90.i
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/xsfformat2.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/efsimplef_RSMPI.i
 
 # target to preprocess a source file
-home/takao/temp/ecalj/SRC/wanniergw/xsfformat2.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/xsfformat2.f90.i
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/xsfformat2.f90.i
+home/takao/ecalj/SRC/wanniergw/efsimplef_RSMPI.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/efsimplef_RSMPI.f90.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/efsimplef_RSMPI.f90.i
 
-home/takao/temp/ecalj/SRC/wanniergw/xsfformat2.s: home/takao/temp/ecalj/SRC/wanniergw/xsfformat2.f90.s
+home/takao/ecalj/SRC/wanniergw/efsimplef_RSMPI.s: home/takao/ecalj/SRC/wanniergw/efsimplef_RSMPI.f90.s
 
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/xsfformat2.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/efsimplef_RSMPI.s
 
 # target to generate assembly for a file
-home/takao/temp/ecalj/SRC/wanniergw/xsfformat2.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/temp/ecalj/SRC/wanniergw/xsfformat2.f90.s
-.PHONY : home/takao/temp/ecalj/SRC/wanniergw/xsfformat2.f90.s
+home/takao/ecalj/SRC/wanniergw/efsimplef_RSMPI.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/efsimplef_RSMPI.f90.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/efsimplef_RSMPI.f90.s
+
+home/takao/ecalj/SRC/wanniergw/ent_MPI.o: home/takao/ecalj/SRC/wanniergw/ent_MPI.f90.o
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/ent_MPI.o
+
+# target to build an object file
+home/takao/ecalj/SRC/wanniergw/ent_MPI.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/ent_MPI.f90.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/ent_MPI.f90.o
+
+home/takao/ecalj/SRC/wanniergw/ent_MPI.i: home/takao/ecalj/SRC/wanniergw/ent_MPI.f90.i
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/ent_MPI.i
+
+# target to preprocess a source file
+home/takao/ecalj/SRC/wanniergw/ent_MPI.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/ent_MPI.f90.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/ent_MPI.f90.i
+
+home/takao/ecalj/SRC/wanniergw/ent_MPI.s: home/takao/ecalj/SRC/wanniergw/ent_MPI.f90.s
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/ent_MPI.s
+
+# target to generate assembly for a file
+home/takao/ecalj/SRC/wanniergw/ent_MPI.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/ent_MPI.f90.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/ent_MPI.f90.s
+
+home/takao/ecalj/SRC/wanniergw/expand_mesh.o: home/takao/ecalj/SRC/wanniergw/expand_mesh.f90.o
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/expand_mesh.o
+
+# target to build an object file
+home/takao/ecalj/SRC/wanniergw/expand_mesh.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/expand_mesh.f90.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/expand_mesh.f90.o
+
+home/takao/ecalj/SRC/wanniergw/expand_mesh.i: home/takao/ecalj/SRC/wanniergw/expand_mesh.f90.i
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/expand_mesh.i
+
+# target to preprocess a source file
+home/takao/ecalj/SRC/wanniergw/expand_mesh.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/expand_mesh.f90.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/expand_mesh.f90.i
+
+home/takao/ecalj/SRC/wanniergw/expand_mesh.s: home/takao/ecalj/SRC/wanniergw/expand_mesh.f90.s
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/expand_mesh.s
+
+# target to generate assembly for a file
+home/takao/ecalj/SRC/wanniergw/expand_mesh.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/expand_mesh.f90.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/expand_mesh.f90.s
+
+home/takao/ecalj/SRC/wanniergw/iopen.o: home/takao/ecalj/SRC/wanniergw/iopen.f90.o
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/iopen.o
+
+# target to build an object file
+home/takao/ecalj/SRC/wanniergw/iopen.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/iopen.f90.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/iopen.f90.o
+
+home/takao/ecalj/SRC/wanniergw/iopen.i: home/takao/ecalj/SRC/wanniergw/iopen.f90.i
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/iopen.i
+
+# target to preprocess a source file
+home/takao/ecalj/SRC/wanniergw/iopen.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/iopen.f90.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/iopen.f90.i
+
+home/takao/ecalj/SRC/wanniergw/iopen.s: home/takao/ecalj/SRC/wanniergw/iopen.f90.s
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/iopen.s
+
+# target to generate assembly for a file
+home/takao/ecalj/SRC/wanniergw/iopen.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/iopen.f90.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/iopen.f90.s
+
+home/takao/ecalj/SRC/wanniergw/m_DATA4GW.o: home/takao/ecalj/SRC/wanniergw/m_DATA4GW.f90.o
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/m_DATA4GW.o
+
+# target to build an object file
+home/takao/ecalj/SRC/wanniergw/m_DATA4GW.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/m_DATA4GW.f90.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/m_DATA4GW.f90.o
+
+home/takao/ecalj/SRC/wanniergw/m_DATA4GW.i: home/takao/ecalj/SRC/wanniergw/m_DATA4GW.f90.i
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/m_DATA4GW.i
+
+# target to preprocess a source file
+home/takao/ecalj/SRC/wanniergw/m_DATA4GW.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/m_DATA4GW.f90.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/m_DATA4GW.f90.i
+
+home/takao/ecalj/SRC/wanniergw/m_DATA4GW.s: home/takao/ecalj/SRC/wanniergw/m_DATA4GW.f90.s
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/m_DATA4GW.s
+
+# target to generate assembly for a file
+home/takao/ecalj/SRC/wanniergw/m_DATA4GW.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/m_DATA4GW.f90.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/m_DATA4GW.f90.s
+
+home/takao/ecalj/SRC/wanniergw/m_FFT3D.o: home/takao/ecalj/SRC/wanniergw/m_FFT3D.f90.o
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/m_FFT3D.o
+
+# target to build an object file
+home/takao/ecalj/SRC/wanniergw/m_FFT3D.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/m_FFT3D.f90.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/m_FFT3D.f90.o
+
+home/takao/ecalj/SRC/wanniergw/m_FFT3D.i: home/takao/ecalj/SRC/wanniergw/m_FFT3D.f90.i
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/m_FFT3D.i
+
+# target to preprocess a source file
+home/takao/ecalj/SRC/wanniergw/m_FFT3D.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/m_FFT3D.f90.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/m_FFT3D.f90.i
+
+home/takao/ecalj/SRC/wanniergw/m_FFT3D.s: home/takao/ecalj/SRC/wanniergw/m_FFT3D.f90.s
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/m_FFT3D.s
+
+# target to generate assembly for a file
+home/takao/ecalj/SRC/wanniergw/m_FFT3D.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/m_FFT3D.f90.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/m_FFT3D.f90.s
+
+home/takao/ecalj/SRC/wanniergw/m_MLWF.o: home/takao/ecalj/SRC/wanniergw/m_MLWF.f90.o
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/m_MLWF.o
+
+# target to build an object file
+home/takao/ecalj/SRC/wanniergw/m_MLWF.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/m_MLWF.f90.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/m_MLWF.f90.o
+
+home/takao/ecalj/SRC/wanniergw/m_MLWF.i: home/takao/ecalj/SRC/wanniergw/m_MLWF.f90.i
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/m_MLWF.i
+
+# target to preprocess a source file
+home/takao/ecalj/SRC/wanniergw/m_MLWF.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/m_MLWF.f90.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/m_MLWF.f90.i
+
+home/takao/ecalj/SRC/wanniergw/m_MLWF.s: home/takao/ecalj/SRC/wanniergw/m_MLWF.f90.s
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/m_MLWF.s
+
+# target to generate assembly for a file
+home/takao/ecalj/SRC/wanniergw/m_MLWF.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/m_MLWF.f90.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/m_MLWF.f90.s
+
+home/takao/ecalj/SRC/wanniergw/m_QG.o: home/takao/ecalj/SRC/wanniergw/m_QG.f90.o
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/m_QG.o
+
+# target to build an object file
+home/takao/ecalj/SRC/wanniergw/m_QG.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/m_QG.f90.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/m_QG.f90.o
+
+home/takao/ecalj/SRC/wanniergw/m_QG.i: home/takao/ecalj/SRC/wanniergw/m_QG.f90.i
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/m_QG.i
+
+# target to preprocess a source file
+home/takao/ecalj/SRC/wanniergw/m_QG.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/m_QG.f90.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/m_QG.f90.i
+
+home/takao/ecalj/SRC/wanniergw/m_QG.s: home/takao/ecalj/SRC/wanniergw/m_QG.f90.s
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/m_QG.s
+
+# target to generate assembly for a file
+home/takao/ecalj/SRC/wanniergw/m_QG.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/m_QG.f90.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/m_QG.f90.s
+
+home/takao/ecalj/SRC/wanniergw/m_read_Worb.o: home/takao/ecalj/SRC/wanniergw/m_read_Worb.f90.o
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/m_read_Worb.o
+
+# target to build an object file
+home/takao/ecalj/SRC/wanniergw/m_read_Worb.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/m_read_Worb.f90.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/m_read_Worb.f90.o
+
+home/takao/ecalj/SRC/wanniergw/m_read_Worb.i: home/takao/ecalj/SRC/wanniergw/m_read_Worb.f90.i
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/m_read_Worb.i
+
+# target to preprocess a source file
+home/takao/ecalj/SRC/wanniergw/m_read_Worb.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/m_read_Worb.f90.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/m_read_Worb.f90.i
+
+home/takao/ecalj/SRC/wanniergw/m_read_Worb.s: home/takao/ecalj/SRC/wanniergw/m_read_Worb.f90.s
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/m_read_Worb.s
+
+# target to generate assembly for a file
+home/takao/ecalj/SRC/wanniergw/m_read_Worb.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/m_read_Worb.f90.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/m_read_Worb.f90.s
+
+home/takao/ecalj/SRC/wanniergw/main_hmaxloc.o: home/takao/ecalj/SRC/wanniergw/main_hmaxloc.f90.o
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/main_hmaxloc.o
+
+# target to build an object file
+home/takao/ecalj/SRC/wanniergw/main_hmaxloc.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/main_hmaxloc.f90.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/main_hmaxloc.f90.o
+
+home/takao/ecalj/SRC/wanniergw/main_hmaxloc.i: home/takao/ecalj/SRC/wanniergw/main_hmaxloc.f90.i
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/main_hmaxloc.i
+
+# target to preprocess a source file
+home/takao/ecalj/SRC/wanniergw/main_hmaxloc.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/main_hmaxloc.f90.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/main_hmaxloc.f90.i
+
+home/takao/ecalj/SRC/wanniergw/main_hmaxloc.s: home/takao/ecalj/SRC/wanniergw/main_hmaxloc.f90.s
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/main_hmaxloc.s
+
+# target to generate assembly for a file
+home/takao/ecalj/SRC/wanniergw/main_hmaxloc.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/main_hmaxloc.f90.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/main_hmaxloc.f90.s
+
+home/takao/ecalj/SRC/wanniergw/main_hpsig_MPI.o: home/takao/ecalj/SRC/wanniergw/main_hpsig_MPI.f90.o
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/main_hpsig_MPI.o
+
+# target to build an object file
+home/takao/ecalj/SRC/wanniergw/main_hpsig_MPI.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/main_hpsig_MPI.f90.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/main_hpsig_MPI.f90.o
+
+home/takao/ecalj/SRC/wanniergw/main_hpsig_MPI.i: home/takao/ecalj/SRC/wanniergw/main_hpsig_MPI.f90.i
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/main_hpsig_MPI.i
+
+# target to preprocess a source file
+home/takao/ecalj/SRC/wanniergw/main_hpsig_MPI.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/main_hpsig_MPI.f90.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/main_hpsig_MPI.f90.i
+
+home/takao/ecalj/SRC/wanniergw/main_hpsig_MPI.s: home/takao/ecalj/SRC/wanniergw/main_hpsig_MPI.f90.s
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/main_hpsig_MPI.s
+
+# target to generate assembly for a file
+home/takao/ecalj/SRC/wanniergw/main_hpsig_MPI.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/main_hpsig_MPI.f90.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/main_hpsig_MPI.f90.s
+
+home/takao/ecalj/SRC/wanniergw/main_hsocmat.o: home/takao/ecalj/SRC/wanniergw/main_hsocmat.f90.o
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/main_hsocmat.o
+
+# target to build an object file
+home/takao/ecalj/SRC/wanniergw/main_hsocmat.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/main_hsocmat.f90.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/main_hsocmat.f90.o
+
+home/takao/ecalj/SRC/wanniergw/main_hsocmat.i: home/takao/ecalj/SRC/wanniergw/main_hsocmat.f90.i
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/main_hsocmat.i
+
+# target to preprocess a source file
+home/takao/ecalj/SRC/wanniergw/main_hsocmat.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/main_hsocmat.f90.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/main_hsocmat.f90.i
+
+home/takao/ecalj/SRC/wanniergw/main_hsocmat.s: home/takao/ecalj/SRC/wanniergw/main_hsocmat.f90.s
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/main_hsocmat.s
+
+# target to generate assembly for a file
+home/takao/ecalj/SRC/wanniergw/main_hsocmat.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/main_hsocmat.f90.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/main_hsocmat.f90.s
+
+home/takao/ecalj/SRC/wanniergw/main_huumat_MPI.o: home/takao/ecalj/SRC/wanniergw/main_huumat_MPI.f90.o
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/main_huumat_MPI.o
+
+# target to build an object file
+home/takao/ecalj/SRC/wanniergw/main_huumat_MPI.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/main_huumat_MPI.f90.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/main_huumat_MPI.f90.o
+
+home/takao/ecalj/SRC/wanniergw/main_huumat_MPI.i: home/takao/ecalj/SRC/wanniergw/main_huumat_MPI.f90.i
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/main_huumat_MPI.i
+
+# target to preprocess a source file
+home/takao/ecalj/SRC/wanniergw/main_huumat_MPI.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/main_huumat_MPI.f90.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/main_huumat_MPI.f90.i
+
+home/takao/ecalj/SRC/wanniergw/main_huumat_MPI.s: home/takao/ecalj/SRC/wanniergw/main_huumat_MPI.f90.s
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/main_huumat_MPI.s
+
+# target to generate assembly for a file
+home/takao/ecalj/SRC/wanniergw/main_huumat_MPI.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/main_huumat_MPI.f90.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/main_huumat_MPI.f90.s
+
+home/takao/ecalj/SRC/wanniergw/main_hwmatK_MPI.o: home/takao/ecalj/SRC/wanniergw/main_hwmatK_MPI.f90.o
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/main_hwmatK_MPI.o
+
+# target to build an object file
+home/takao/ecalj/SRC/wanniergw/main_hwmatK_MPI.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/main_hwmatK_MPI.f90.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/main_hwmatK_MPI.f90.o
+
+home/takao/ecalj/SRC/wanniergw/main_hwmatK_MPI.i: home/takao/ecalj/SRC/wanniergw/main_hwmatK_MPI.f90.i
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/main_hwmatK_MPI.i
+
+# target to preprocess a source file
+home/takao/ecalj/SRC/wanniergw/main_hwmatK_MPI.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/main_hwmatK_MPI.f90.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/main_hwmatK_MPI.f90.i
+
+home/takao/ecalj/SRC/wanniergw/main_hwmatK_MPI.s: home/takao/ecalj/SRC/wanniergw/main_hwmatK_MPI.f90.s
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/main_hwmatK_MPI.s
+
+# target to generate assembly for a file
+home/takao/ecalj/SRC/wanniergw/main_hwmatK_MPI.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/main_hwmatK_MPI.f90.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/main_hwmatK_MPI.f90.s
+
+home/takao/ecalj/SRC/wanniergw/main_wanplot.o: home/takao/ecalj/SRC/wanniergw/main_wanplot.f90.o
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/main_wanplot.o
+
+# target to build an object file
+home/takao/ecalj/SRC/wanniergw/main_wanplot.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/main_wanplot.f90.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/main_wanplot.f90.o
+
+home/takao/ecalj/SRC/wanniergw/main_wanplot.i: home/takao/ecalj/SRC/wanniergw/main_wanplot.f90.i
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/main_wanplot.i
+
+# target to preprocess a source file
+home/takao/ecalj/SRC/wanniergw/main_wanplot.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/main_wanplot.f90.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/main_wanplot.f90.i
+
+home/takao/ecalj/SRC/wanniergw/main_wanplot.s: home/takao/ecalj/SRC/wanniergw/main_wanplot.f90.s
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/main_wanplot.s
+
+# target to generate assembly for a file
+home/takao/ecalj/SRC/wanniergw/main_wanplot.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/main_wanplot.f90.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/main_wanplot.f90.s
+
+home/takao/ecalj/SRC/wanniergw/maxloc0.o: home/takao/ecalj/SRC/wanniergw/maxloc0.f90.o
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/maxloc0.o
+
+# target to build an object file
+home/takao/ecalj/SRC/wanniergw/maxloc0.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/maxloc0.f90.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/maxloc0.f90.o
+
+home/takao/ecalj/SRC/wanniergw/maxloc0.i: home/takao/ecalj/SRC/wanniergw/maxloc0.f90.i
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/maxloc0.i
+
+# target to preprocess a source file
+home/takao/ecalj/SRC/wanniergw/maxloc0.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/maxloc0.f90.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/maxloc0.f90.i
+
+home/takao/ecalj/SRC/wanniergw/maxloc0.s: home/takao/ecalj/SRC/wanniergw/maxloc0.f90.s
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/maxloc0.s
+
+# target to generate assembly for a file
+home/takao/ecalj/SRC/wanniergw/maxloc0.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/maxloc0.f90.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/maxloc0.f90.s
+
+home/takao/ecalj/SRC/wanniergw/maxloc1.o: home/takao/ecalj/SRC/wanniergw/maxloc1.f90.o
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/maxloc1.o
+
+# target to build an object file
+home/takao/ecalj/SRC/wanniergw/maxloc1.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/maxloc1.f90.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/maxloc1.f90.o
+
+home/takao/ecalj/SRC/wanniergw/maxloc1.i: home/takao/ecalj/SRC/wanniergw/maxloc1.f90.i
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/maxloc1.i
+
+# target to preprocess a source file
+home/takao/ecalj/SRC/wanniergw/maxloc1.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/maxloc1.f90.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/maxloc1.f90.i
+
+home/takao/ecalj/SRC/wanniergw/maxloc1.s: home/takao/ecalj/SRC/wanniergw/maxloc1.f90.s
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/maxloc1.s
+
+# target to generate assembly for a file
+home/takao/ecalj/SRC/wanniergw/maxloc1.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/maxloc1.f90.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/maxloc1.f90.s
+
+home/takao/ecalj/SRC/wanniergw/maxloc2.o: home/takao/ecalj/SRC/wanniergw/maxloc2.f90.o
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/maxloc2.o
+
+# target to build an object file
+home/takao/ecalj/SRC/wanniergw/maxloc2.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/maxloc2.f90.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/maxloc2.f90.o
+
+home/takao/ecalj/SRC/wanniergw/maxloc2.i: home/takao/ecalj/SRC/wanniergw/maxloc2.f90.i
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/maxloc2.i
+
+# target to preprocess a source file
+home/takao/ecalj/SRC/wanniergw/maxloc2.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/maxloc2.f90.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/maxloc2.f90.i
+
+home/takao/ecalj/SRC/wanniergw/maxloc2.s: home/takao/ecalj/SRC/wanniergw/maxloc2.f90.s
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/maxloc2.s
+
+# target to generate assembly for a file
+home/takao/ecalj/SRC/wanniergw/maxloc2.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/maxloc2.f90.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/maxloc2.f90.s
+
+home/takao/ecalj/SRC/wanniergw/maxloc3.o: home/takao/ecalj/SRC/wanniergw/maxloc3.f90.o
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/maxloc3.o
+
+# target to build an object file
+home/takao/ecalj/SRC/wanniergw/maxloc3.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/maxloc3.f90.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/maxloc3.f90.o
+
+home/takao/ecalj/SRC/wanniergw/maxloc3.i: home/takao/ecalj/SRC/wanniergw/maxloc3.f90.i
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/maxloc3.i
+
+# target to preprocess a source file
+home/takao/ecalj/SRC/wanniergw/maxloc3.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/maxloc3.f90.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/maxloc3.f90.i
+
+home/takao/ecalj/SRC/wanniergw/maxloc3.s: home/takao/ecalj/SRC/wanniergw/maxloc3.f90.s
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/maxloc3.s
+
+# target to generate assembly for a file
+home/takao/ecalj/SRC/wanniergw/maxloc3.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/maxloc3.f90.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/maxloc3.f90.s
+
+home/takao/ecalj/SRC/wanniergw/maxloc4.o: home/takao/ecalj/SRC/wanniergw/maxloc4.f90.o
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/maxloc4.o
+
+# target to build an object file
+home/takao/ecalj/SRC/wanniergw/maxloc4.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/maxloc4.f90.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/maxloc4.f90.o
+
+home/takao/ecalj/SRC/wanniergw/maxloc4.i: home/takao/ecalj/SRC/wanniergw/maxloc4.f90.i
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/maxloc4.i
+
+# target to preprocess a source file
+home/takao/ecalj/SRC/wanniergw/maxloc4.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/maxloc4.f90.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/maxloc4.f90.i
+
+home/takao/ecalj/SRC/wanniergw/maxloc4.s: home/takao/ecalj/SRC/wanniergw/maxloc4.f90.s
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/maxloc4.s
+
+# target to generate assembly for a file
+home/takao/ecalj/SRC/wanniergw/maxloc4.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/maxloc4.f90.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/maxloc4.f90.s
+
+home/takao/ecalj/SRC/wanniergw/myYlm.o: home/takao/ecalj/SRC/wanniergw/myYlm.f90.o
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/myYlm.o
+
+# target to build an object file
+home/takao/ecalj/SRC/wanniergw/myYlm.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/myYlm.f90.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/myYlm.f90.o
+
+home/takao/ecalj/SRC/wanniergw/myYlm.i: home/takao/ecalj/SRC/wanniergw/myYlm.f90.i
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/myYlm.i
+
+# target to preprocess a source file
+home/takao/ecalj/SRC/wanniergw/myYlm.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/myYlm.f90.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/myYlm.f90.i
+
+home/takao/ecalj/SRC/wanniergw/myYlm.s: home/takao/ecalj/SRC/wanniergw/myYlm.f90.s
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/myYlm.s
+
+# target to generate assembly for a file
+home/takao/ecalj/SRC/wanniergw/myYlm.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/myYlm.f90.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/myYlm.f90.s
+
+home/takao/ecalj/SRC/wanniergw/mymath.o: home/takao/ecalj/SRC/wanniergw/mymath.f90.o
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/mymath.o
+
+# target to build an object file
+home/takao/ecalj/SRC/wanniergw/mymath.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/mymath.f90.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/mymath.f90.o
+
+home/takao/ecalj/SRC/wanniergw/mymath.i: home/takao/ecalj/SRC/wanniergw/mymath.f90.i
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/mymath.i
+
+# target to preprocess a source file
+home/takao/ecalj/SRC/wanniergw/mymath.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/mymath.f90.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/mymath.f90.i
+
+home/takao/ecalj/SRC/wanniergw/mymath.s: home/takao/ecalj/SRC/wanniergw/mymath.f90.s
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/mymath.s
+
+# target to generate assembly for a file
+home/takao/ecalj/SRC/wanniergw/mymath.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/mymath.f90.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/mymath.f90.s
+
+home/takao/ecalj/SRC/wanniergw/sp2cls.o: home/takao/ecalj/SRC/wanniergw/sp2cls.f90.o
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/sp2cls.o
+
+# target to build an object file
+home/takao/ecalj/SRC/wanniergw/sp2cls.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/sp2cls.f90.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/sp2cls.f90.o
+
+home/takao/ecalj/SRC/wanniergw/sp2cls.i: home/takao/ecalj/SRC/wanniergw/sp2cls.f90.i
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/sp2cls.i
+
+# target to preprocess a source file
+home/takao/ecalj/SRC/wanniergw/sp2cls.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/sp2cls.f90.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/sp2cls.f90.i
+
+home/takao/ecalj/SRC/wanniergw/sp2cls.s: home/takao/ecalj/SRC/wanniergw/sp2cls.f90.s
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/sp2cls.s
+
+# target to generate assembly for a file
+home/takao/ecalj/SRC/wanniergw/sp2cls.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/sp2cls.f90.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/sp2cls.f90.s
+
+home/takao/ecalj/SRC/wanniergw/wansub.o: home/takao/ecalj/SRC/wanniergw/wansub.f90.o
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/wansub.o
+
+# target to build an object file
+home/takao/ecalj/SRC/wanniergw/wansub.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/wansub.f90.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/wansub.f90.o
+
+home/takao/ecalj/SRC/wanniergw/wansub.i: home/takao/ecalj/SRC/wanniergw/wansub.f90.i
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/wansub.i
+
+# target to preprocess a source file
+home/takao/ecalj/SRC/wanniergw/wansub.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/wansub.f90.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/wansub.f90.i
+
+home/takao/ecalj/SRC/wanniergw/wansub.s: home/takao/ecalj/SRC/wanniergw/wansub.f90.s
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/wansub.s
+
+# target to generate assembly for a file
+home/takao/ecalj/SRC/wanniergw/wansub.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/wansub.f90.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/wansub.f90.s
+
+home/takao/ecalj/SRC/wanniergw/wfn2dx_2.o: home/takao/ecalj/SRC/wanniergw/wfn2dx_2.f90.o
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/wfn2dx_2.o
+
+# target to build an object file
+home/takao/ecalj/SRC/wanniergw/wfn2dx_2.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/wfn2dx_2.f90.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/wfn2dx_2.f90.o
+
+home/takao/ecalj/SRC/wanniergw/wfn2dx_2.i: home/takao/ecalj/SRC/wanniergw/wfn2dx_2.f90.i
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/wfn2dx_2.i
+
+# target to preprocess a source file
+home/takao/ecalj/SRC/wanniergw/wfn2dx_2.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/wfn2dx_2.f90.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/wfn2dx_2.f90.i
+
+home/takao/ecalj/SRC/wanniergw/wfn2dx_2.s: home/takao/ecalj/SRC/wanniergw/wfn2dx_2.f90.s
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/wfn2dx_2.s
+
+# target to generate assembly for a file
+home/takao/ecalj/SRC/wanniergw/wfn2dx_2.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/wfn2dx_2.f90.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/wfn2dx_2.f90.s
+
+home/takao/ecalj/SRC/wanniergw/wfn2dx_abc.o: home/takao/ecalj/SRC/wanniergw/wfn2dx_abc.f90.o
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/wfn2dx_abc.o
+
+# target to build an object file
+home/takao/ecalj/SRC/wanniergw/wfn2dx_abc.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/wfn2dx_abc.f90.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/wfn2dx_abc.f90.o
+
+home/takao/ecalj/SRC/wanniergw/wfn2dx_abc.i: home/takao/ecalj/SRC/wanniergw/wfn2dx_abc.f90.i
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/wfn2dx_abc.i
+
+# target to preprocess a source file
+home/takao/ecalj/SRC/wanniergw/wfn2dx_abc.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/wfn2dx_abc.f90.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/wfn2dx_abc.f90.i
+
+home/takao/ecalj/SRC/wanniergw/wfn2dx_abc.s: home/takao/ecalj/SRC/wanniergw/wfn2dx_abc.f90.s
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/wfn2dx_abc.s
+
+# target to generate assembly for a file
+home/takao/ecalj/SRC/wanniergw/wfn2dx_abc.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/wfn2dx_abc.f90.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/wfn2dx_abc.f90.s
+
+home/takao/ecalj/SRC/wanniergw/wfnrho_abc.o: home/takao/ecalj/SRC/wanniergw/wfnrho_abc.f90.o
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/wfnrho_abc.o
+
+# target to build an object file
+home/takao/ecalj/SRC/wanniergw/wfnrho_abc.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/wfnrho_abc.f90.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/wfnrho_abc.f90.o
+
+home/takao/ecalj/SRC/wanniergw/wfnrho_abc.i: home/takao/ecalj/SRC/wanniergw/wfnrho_abc.f90.i
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/wfnrho_abc.i
+
+# target to preprocess a source file
+home/takao/ecalj/SRC/wanniergw/wfnrho_abc.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/wfnrho_abc.f90.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/wfnrho_abc.f90.i
+
+home/takao/ecalj/SRC/wanniergw/wfnrho_abc.s: home/takao/ecalj/SRC/wanniergw/wfnrho_abc.f90.s
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/wfnrho_abc.s
+
+# target to generate assembly for a file
+home/takao/ecalj/SRC/wanniergw/wfnrho_abc.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/wfnrho_abc.f90.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/wfnrho_abc.f90.s
+
+home/takao/ecalj/SRC/wanniergw/wmatK.o: home/takao/ecalj/SRC/wanniergw/wmatK.f90.o
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/wmatK.o
+
+# target to build an object file
+home/takao/ecalj/SRC/wanniergw/wmatK.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/wmatK.f90.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/wmatK.f90.o
+
+home/takao/ecalj/SRC/wanniergw/wmatK.i: home/takao/ecalj/SRC/wanniergw/wmatK.f90.i
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/wmatK.i
+
+# target to preprocess a source file
+home/takao/ecalj/SRC/wanniergw/wmatK.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/wmatK.f90.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/wmatK.f90.i
+
+home/takao/ecalj/SRC/wanniergw/wmatK.s: home/takao/ecalj/SRC/wanniergw/wmatK.f90.s
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/wmatK.s
+
+# target to generate assembly for a file
+home/takao/ecalj/SRC/wanniergw/wmatK.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/wmatK.f90.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/wmatK.f90.s
+
+home/takao/ecalj/SRC/wanniergw/wmatK_mpi.o: home/takao/ecalj/SRC/wanniergw/wmatK_mpi.f90.o
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/wmatK_mpi.o
+
+# target to build an object file
+home/takao/ecalj/SRC/wanniergw/wmatK_mpi.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/wmatK_mpi.f90.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/wmatK_mpi.f90.o
+
+home/takao/ecalj/SRC/wanniergw/wmatK_mpi.i: home/takao/ecalj/SRC/wanniergw/wmatK_mpi.f90.i
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/wmatK_mpi.i
+
+# target to preprocess a source file
+home/takao/ecalj/SRC/wanniergw/wmatK_mpi.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/wmatK_mpi.f90.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/wmatK_mpi.f90.i
+
+home/takao/ecalj/SRC/wanniergw/wmatK_mpi.s: home/takao/ecalj/SRC/wanniergw/wmatK_mpi.f90.s
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/wmatK_mpi.s
+
+# target to generate assembly for a file
+home/takao/ecalj/SRC/wanniergw/wmatK_mpi.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/wmatK_mpi.f90.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/wmatK_mpi.f90.s
+
+home/takao/ecalj/SRC/wanniergw/write_mesh2d.o: home/takao/ecalj/SRC/wanniergw/write_mesh2d.f90.o
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/write_mesh2d.o
+
+# target to build an object file
+home/takao/ecalj/SRC/wanniergw/write_mesh2d.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/write_mesh2d.f90.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/write_mesh2d.f90.o
+
+home/takao/ecalj/SRC/wanniergw/write_mesh2d.i: home/takao/ecalj/SRC/wanniergw/write_mesh2d.f90.i
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/write_mesh2d.i
+
+# target to preprocess a source file
+home/takao/ecalj/SRC/wanniergw/write_mesh2d.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/write_mesh2d.f90.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/write_mesh2d.f90.i
+
+home/takao/ecalj/SRC/wanniergw/write_mesh2d.s: home/takao/ecalj/SRC/wanniergw/write_mesh2d.f90.s
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/write_mesh2d.s
+
+# target to generate assembly for a file
+home/takao/ecalj/SRC/wanniergw/write_mesh2d.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/write_mesh2d.f90.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/write_mesh2d.f90.s
+
+home/takao/ecalj/SRC/wanniergw/xsfformat2.o: home/takao/ecalj/SRC/wanniergw/xsfformat2.f90.o
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/xsfformat2.o
+
+# target to build an object file
+home/takao/ecalj/SRC/wanniergw/xsfformat2.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/xsfformat2.f90.o
+.PHONY : home/takao/ecalj/SRC/wanniergw/xsfformat2.f90.o
+
+home/takao/ecalj/SRC/wanniergw/xsfformat2.i: home/takao/ecalj/SRC/wanniergw/xsfformat2.f90.i
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/xsfformat2.i
+
+# target to preprocess a source file
+home/takao/ecalj/SRC/wanniergw/xsfformat2.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/xsfformat2.f90.i
+.PHONY : home/takao/ecalj/SRC/wanniergw/xsfformat2.f90.i
+
+home/takao/ecalj/SRC/wanniergw/xsfformat2.s: home/takao/ecalj/SRC/wanniergw/xsfformat2.f90.s
+
+.PHONY : home/takao/ecalj/SRC/wanniergw/xsfformat2.s
+
+# target to generate assembly for a file
+home/takao/ecalj/SRC/wanniergw/xsfformat2.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/xsfformat2.f90.s
+.PHONY : home/takao/ecalj/SRC/wanniergw/xsfformat2.f90.s
 
 # Help Target
 help:
@@ -7591,835 +8674,946 @@ help:
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
-	@echo "... rebuild_cache"
 	@echo "... edit_cache"
-	@echo "... lmfham2"
-	@echo "... lmfham1"
+	@echo "... hqpe_sc"
+	@echo "... hpsig_MPI"
 	@echo "... lmfa"
-	@echo "... lmchk"
+	@echo "... huumat_MPI"
+	@echo "... heftet"
+	@echo "... gwinit"
+	@echo "... hmagnon"
 	@echo "... fcheck"
+	@echo "... hsfp0_sc"
+	@echo "... hqpe"
 	@echo "... ecaljF"
+	@echo "... lmchk"
+	@echo "... rebuild_cache"
+	@echo "... hsocmat"
 	@echo "... dummy"
+	@echo "... hmaxloc"
 	@echo "... show_programinfo.f90"
+	@echo "... wanplot"
+	@echo "... lmfham2"
+	@echo "... hvccfp0"
+	@echo "... hwmatK_MPI"
+	@echo "... hx0fp0"
+	@echo "... hx0init"
+	@echo "... lmf"
+	@echo "... lmfham1"
+	@echo "... hrcxq"
+	@echo "... hsfp0"
+	@echo "... qg4gw"
+	@echo "... hbasfp0"
+	@echo "... rdata4gw_v2"
 	@echo "... dummy.o"
 	@echo "... dummy.i"
 	@echo "... dummy.s"
-	@echo "... home/takao/temp/ecalj/SRC/main/lmchk.o"
-	@echo "... home/takao/temp/ecalj/SRC/main/lmchk.i"
-	@echo "... home/takao/temp/ecalj/SRC/main/lmchk.s"
-	@echo "... home/takao/temp/ecalj/SRC/main/lmfa.o"
-	@echo "... home/takao/temp/ecalj/SRC/main/lmfa.i"
-	@echo "... home/takao/temp/ecalj/SRC/main/lmfa.s"
-	@echo "... home/takao/temp/ecalj/SRC/main/lmfham1.o"
-	@echo "... home/takao/temp/ecalj/SRC/main/lmfham1.i"
-	@echo "... home/takao/temp/ecalj/SRC/main/lmfham1.s"
-	@echo "... home/takao/temp/ecalj/SRC/main/lmfham2.o"
-	@echo "... home/takao/temp/ecalj/SRC/main/lmfham2.i"
-	@echo "... home/takao/temp/ecalj/SRC/main/lmfham2.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/MPI_fpgw2.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/MPI_fpgw2.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/MPI_fpgw2.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/atqval.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/atqval.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/atqval.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/basnfp.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/basnfp.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/basnfp.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/besslr.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/besslr.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/besslr.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/boltztrap.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/boltztrap.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/boltztrap.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/bz.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/bz.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/bz.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/bzmesh.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/bzmesh.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/bzmesh.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/chgmsh.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/chgmsh.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/chgmsh.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/cputid.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/cputid.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/cputid.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/defpq.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/defpq.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/defpq.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/delstp.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/delstp.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/delstp.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/dfrce.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/dfrce.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/dfrce.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/diagcv2.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/diagcv2.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/diagcv2.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/dpsion5.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/dpsion5.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/dpsion5.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/dstrbp.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/dstrbp.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/dstrbp.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/efsimplef.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/efsimplef.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/efsimplef.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/eibzgen.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/eibzgen.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/eibzgen.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/elocp.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/elocp.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/elocp.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/esmsmves.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/esmsmves.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/esmsmves.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/excore.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/excore.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/excore.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/extension.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/extension.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/extension.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/fftz3.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/fftz3.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/fftz3.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/finits.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/finits.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/finits.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/fpiint.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/fpiint.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/fpiint.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/fradhd.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/fradhd.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/fradhd.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/fradpk.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/fradpk.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/fradpk.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/freeat.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/freeat.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/freeat.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/gaugm.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/gaugm.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/gaugm.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/genallcf_mod.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/genallcf_mod.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/genallcf_mod.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/getbzdata1.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/getbzdata1.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/getbzdata1.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/getgv2.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/getgv2.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/getgv2.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/getq.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/getq.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/getq.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/getqmode.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/getqmode.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/getqmode.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/gintxx.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/gintxx.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/gintxx.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/gtbsl1.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/gtbsl1.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/gtbsl1.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/gtpcor.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/gtpcor.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/gtpcor.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/hambl.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/hambl.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/hambl.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/hilbertmat.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/hilbertmat.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/hilbertmat.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/hklft.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/hklft.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/hklft.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/hsibl.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/hsibl.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/hsibl.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/hsmq.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/hsmq.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/hsmq.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/huntx.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/huntx.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/huntx.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/iofa.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/iofa.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/iofa.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/iors.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/iors.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/iors.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/iors_old.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/iors_old.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/iors_old.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/iprint.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/iprint.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/iprint.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/iqindx.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/iqindx.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/iqindx.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/keyvalue.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/keyvalue.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/keyvalue.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/lattic.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/lattic.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/lattic.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/llnew.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/llnew.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/llnew.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/lmaux.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/lmaux.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/lmaux.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/lmf2gw.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/lmf2gw.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/lmf2gw.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/locpot.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/locpot.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/locpot.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_HamPMT.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_HamPMT.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_HamPMT.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_MPItk.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_MPItk.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_MPItk.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_addrbl.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_addrbl.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_addrbl.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_amix.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_amix.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_amix.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_anf.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_anf.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_anf.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_atwf.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_atwf.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_atwf.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_augmat.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_augmat.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_augmat.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_augmbl.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_augmbl.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_augmbl.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_bandcal.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_bandcal.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_bandcal.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_bndfp.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_bndfp.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_bndfp.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_bndfp_util.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_bndfp_util.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_bndfp_util.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_bstrux.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_bstrux.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_bstrux.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_bzints.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_bzints.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_bzints.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_bzwts.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_bzwts.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_bzwts.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_clsmode.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_clsmode.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_clsmode.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_cmdpath.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_cmdpath.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_cmdpath.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_density.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_density.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_density.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_eibz.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_eibz.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_eibz.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_ext.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_ext.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_ext.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_fatom.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_fatom.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_fatom.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_freq.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_freq.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_freq.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_ftox.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_ftox.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_ftox.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_gaussianfilter.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_gaussianfilter.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_gaussianfilter.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_gennlat.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_gennlat.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_gennlat.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_gtv.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_gtv.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_gtv.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_hamMTO.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_hamMTO.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_hamMTO.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_hamindex.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_hamindex.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_hamindex.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_hamindex0.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_hamindex0.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_hamindex0.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_hansr.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_hansr.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_hansr.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_homoelectron.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_homoelectron.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_homoelectron.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_hvccfp0_util.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_hvccfp0_util.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_hvccfp0_util.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_igv2x.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_igv2x.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_igv2x.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_iqindx_qtt.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_iqindx_qtt.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_iqindx_qtt.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_iqindx_wan.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_iqindx_wan.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_iqindx_wan.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_itq.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_itq.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_itq.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_ldau.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_ldau.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_ldau.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_ldau_util.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_ldau_util.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_ldau_util.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_llw.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_llw.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_llw.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_lmfinit.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_lmfinit.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_lmfinit.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_lmfp.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_lmfp.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_lmfp.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_mkpot.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_mkpot.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_mkpot.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_mksym.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_mksym.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_mksym.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_mksym_util.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_mksym_util.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_mksym_util.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_orbl.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_orbl.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_orbl.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_pbindex.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_pbindex.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_pbindex.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_pkm4crpa.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_pkm4crpa.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_pkm4crpa.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_procar.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_procar.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_procar.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_q0p.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_q0p.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_q0p.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_qbze.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_qbze.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_qbze.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_qplist.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_qplist.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_qplist.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_readQGcou.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_readQGcou.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_readQGcou.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_readVcoud.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_readVcoud.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_readVcoud.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_readeps.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_readeps.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_readeps.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_readfreq_r.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_readfreq_r.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_readfreq_r.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_readgwinput.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_readgwinput.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_readgwinput.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_readwan.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_readwan.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_readwan.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_rhocor.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_rhocor.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_rhocor.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_rotMPB.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_rotMPB.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_rotMPB.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_shortn3.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_shortn3.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_shortn3.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_shortn3_plat.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_shortn3_plat.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_shortn3_plat.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_smhankel.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_smhankel.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_smhankel.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_struc_def.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_struc_def.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_struc_def.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_tetrakbt.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_tetrakbt.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_tetrakbt.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_tetwt.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_tetwt.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_tetwt.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_vxcatom.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_vxcatom.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_vxcatom.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_w0w0i.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_w0w0i.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_w0w0i.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_writeband.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_writeband.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_writeband.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_zmel.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_zmel.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/m_zmel.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/madmat.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/madmat.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/madmat.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_gwinit.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_gwinit.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_gwinit.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_hbasfp0.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_hbasfp0.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_hbasfp0.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_heftet.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_heftet.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_heftet.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_hmagnon.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_hmagnon.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_hmagnon.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_hmlo.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_hmlo.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_hmlo.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_hqpe.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_hqpe.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_hqpe.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_hqpe.sc.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_hqpe.sc.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_hqpe.sc.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_hqpe_qsgw.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_hqpe_qsgw.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_hqpe_qsgw.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_hrcxq.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_hrcxq.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_hrcxq.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_hsfp0.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_hsfp0.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_hsfp0.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_hsfp0.sc.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_hsfp0.sc.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_hsfp0.sc.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_hsigmconv.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_hsigmconv.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_hsigmconv.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_hvccfp0.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_hvccfp0.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_hvccfp0.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_hx0fp0.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_hx0fp0.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_hx0fp0.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_hx0init.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_hx0init.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_hx0init.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_lmchk.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_lmchk.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_lmchk.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_lmf.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_lmf.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_lmf.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_lmfa.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_lmfa.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_lmfa.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_lmfham1.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_lmfham1.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_lmfham1.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_lmfham2.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_lmfham2.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_lmfham2.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_qg4gw.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_qg4gw.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_qg4gw.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_rdata4gw_v2.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_rdata4gw_v2.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/main_rdata4gw_v2.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/makusp.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/makusp.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/makusp.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/makusq.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/makusq.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/makusq.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/mate.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/mate.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/mate.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/matm.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/matm.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/matm.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/mixrho.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/mixrho.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/mixrho.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/mkehkf.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/mkehkf.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/mkehkf.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/mkjp.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/mkjp.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/mkjp.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/mkqg.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/mkqg.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/mkqg.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/mkqp.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/mkqp.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/mkqp.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/mkrout.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/mkrout.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/mkrout.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/mpibc.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/mpibc.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/mpibc.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/mtchae.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/mtchae.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/mtchae.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/pnunew.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/pnunew.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/pnunew.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/poinsp.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/poinsp.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/poinsp.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/poldvm.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/poldvm.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/poldvm.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/polint.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/polint.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/polint.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/potpus.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/potpus.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/potpus.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/pplmat.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/pplmat.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/pplmat.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/pwmat.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/pwmat.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/pwmat.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/q0irre.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/q0irre.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/q0irre.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/qpe1.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/qpe1.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/qpe1.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/qpe1.qsgw.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/qpe1.qsgw.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/qpe1.qsgw.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/qpe1.sc.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/qpe1.sc.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/qpe1.sc.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/radgkl.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/radgkl.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/radgkl.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/radmsh.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/radmsh.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/radmsh.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/radpkl.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/radpkl.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/radpkl.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rdovfa.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rdovfa.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rdovfa.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rdpp.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rdpp.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rdpp.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rdsigm2.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rdsigm2.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rdsigm2.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/readeigen.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/readeigen.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/readeigen.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/readqg.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/readqg.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/readqg.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/relax.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/relax.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/relax.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rfalsi.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rfalsi.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rfalsi.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rgwinf_mod.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rgwinf_mod.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rgwinf_mod.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rhomom.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rhomom.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rhomom.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rlocbl.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rlocbl.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rlocbl.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rmesh.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rmesh.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rmesh.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/ropbes.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/ropbes.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/ropbes.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/roplat.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/roplat.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/roplat.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/ropyln.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/ropyln.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/ropyln.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rotcg.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rotcg.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rotcg.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rotgvec.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rotgvec.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rotgvec.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rotwave.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rotwave.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rotwave.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rpaq.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rpaq.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rpaq.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rppovl.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rppovl.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rppovl.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rseq.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rseq.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rseq.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rsibl.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rsibl.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rsibl.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rwbzdata.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rwbzdata.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/rwbzdata.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/scg.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/scg.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/scg.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/scglp1.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/scglp1.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/scglp1.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/show_programinfo.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/show_programinfo.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/show_programinfo.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/slinz.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/slinz.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/slinz.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/smves.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/smves.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/smves.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/smvxcm.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/smvxcm.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/smvxcm.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/sort.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/sort.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/sort.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/stonerrsa.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/stonerrsa.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/stonerrsa.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/subzi.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/subzi.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/subzi.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/sugcut.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/sugcut.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/sugcut.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/sugw.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/sugw.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/sugw.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/suham.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/suham.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/suham.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/supot.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/supot.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/supot.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/switch.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/switch.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/switch.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/switches.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/switches.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/switches.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2.sc.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2.sc.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2.sc.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2_count.sc.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2_count.sc.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/sxcf_fal2_count.sc.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/sylm.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/sylm.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/sylm.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/symq.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/symq.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/symq.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/symrho.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/symrho.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/symrho.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/symstr.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/symstr.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/symstr.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/tbhsi.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/tbhsi.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/tbhsi.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/tc.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/tc.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/tc.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/tetirr.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/tetirr.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/tetirr.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/tetwt5.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/tetwt5.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/tetwt5.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/totfrc.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/totfrc.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/totfrc.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/uspecb.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/uspecb.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/uspecb.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/util.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/util.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/util.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/vbmmode.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/vbmmode.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/vbmmode.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/vcdmel.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/vcdmel.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/vcdmel.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/vesgcm.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/vesgcm.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/vesgcm.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/w_psir.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/w_psir.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/w_psir.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/wfacx.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/wfacx.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/wfacx.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/wintzsg.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/wintzsg.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/wintzsg.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/writeham.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/writeham.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/writeham.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/wronkj.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/wronkj.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/wronkj.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/wse.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/wse.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/wse.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/x0kf_v4h.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/x0kf_v4h.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/x0kf_v4h.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/xcfunc.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/xcfunc.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/xcfunc.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/xcpbe.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/xcpbe.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/xcpbe.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/xlgen.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/xlgen.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/xlgen.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/ylmrtg.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/ylmrtg.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/ylmrtg.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/zhev.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/zhev.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/zhev.s"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/zsecsym.o"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/zsecsym.i"
-	@echo "... home/takao/temp/ecalj/SRC/subroutines/zsecsym.s"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/RSMPI_mod.o"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/RSMPI_mod.i"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/RSMPI_mod.s"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/RSMPI_qkgroup_mod.o"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/RSMPI_qkgroup_mod.i"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/RSMPI_qkgroup_mod.s"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/RSMPI_rotkindex_mod.o"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/RSMPI_rotkindex_mod.i"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/RSMPI_rotkindex_mod.s"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/RSMPI_utils.o"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/RSMPI_utils.i"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/RSMPI_utils.s"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/Worbwrite.o"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/Worbwrite.i"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/Worbwrite.s"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/cubeformat.o"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/cubeformat.i"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/cubeformat.s"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/efsimplef_RSMPI.o"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/efsimplef_RSMPI.i"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/efsimplef_RSMPI.s"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/ent_MPI.o"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/ent_MPI.i"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/ent_MPI.s"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/expand_mesh.o"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/expand_mesh.i"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/expand_mesh.s"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/iopen.o"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/iopen.i"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/iopen.s"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/m_DATA4GW.o"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/m_DATA4GW.i"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/m_DATA4GW.s"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/m_FFT3D.o"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/m_FFT3D.i"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/m_FFT3D.s"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/m_MLWF.o"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/m_MLWF.i"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/m_MLWF.s"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/m_QG.o"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/m_QG.i"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/m_QG.s"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/m_read_Worb.o"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/m_read_Worb.i"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/m_read_Worb.s"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/maxloc0.o"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/maxloc0.i"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/maxloc0.s"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/maxloc1.o"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/maxloc1.i"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/maxloc1.s"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/maxloc2.o"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/maxloc2.i"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/maxloc2.s"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/maxloc3.o"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/maxloc3.i"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/maxloc3.s"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/maxloc4.o"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/maxloc4.i"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/maxloc4.s"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/myYlm.o"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/myYlm.i"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/myYlm.s"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/mymath.o"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/mymath.i"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/mymath.s"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/sp2cls.o"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/sp2cls.i"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/sp2cls.s"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/wansub.o"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/wansub.i"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/wansub.s"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/wfn2dx_2.o"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/wfn2dx_2.i"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/wfn2dx_2.s"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/wfn2dx_abc.o"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/wfn2dx_abc.i"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/wfn2dx_abc.s"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/wfnrho_abc.o"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/wfnrho_abc.i"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/wfnrho_abc.s"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/wmatK.o"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/wmatK.i"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/wmatK.s"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/wmatK_mpi.o"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/wmatK_mpi.i"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/wmatK_mpi.s"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/write_mesh2d.o"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/write_mesh2d.i"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/write_mesh2d.s"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/xsfformat2.o"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/xsfformat2.i"
-	@echo "... home/takao/temp/ecalj/SRC/wanniergw/xsfformat2.s"
+	@echo "... home/takao/ecalj/SRC/main/gwinit.o"
+	@echo "... home/takao/ecalj/SRC/main/gwinit.i"
+	@echo "... home/takao/ecalj/SRC/main/gwinit.s"
+	@echo "... home/takao/ecalj/SRC/main/hbasfp0.o"
+	@echo "... home/takao/ecalj/SRC/main/hbasfp0.i"
+	@echo "... home/takao/ecalj/SRC/main/hbasfp0.s"
+	@echo "... home/takao/ecalj/SRC/main/heftet.o"
+	@echo "... home/takao/ecalj/SRC/main/heftet.i"
+	@echo "... home/takao/ecalj/SRC/main/heftet.s"
+	@echo "... home/takao/ecalj/SRC/main/hmagnon.o"
+	@echo "... home/takao/ecalj/SRC/main/hmagnon.i"
+	@echo "... home/takao/ecalj/SRC/main/hmagnon.s"
+	@echo "... home/takao/ecalj/SRC/main/hmaxloc.o"
+	@echo "... home/takao/ecalj/SRC/main/hmaxloc.i"
+	@echo "... home/takao/ecalj/SRC/main/hmaxloc.s"
+	@echo "... home/takao/ecalj/SRC/main/hpsig_MPI.o"
+	@echo "... home/takao/ecalj/SRC/main/hpsig_MPI.i"
+	@echo "... home/takao/ecalj/SRC/main/hpsig_MPI.s"
+	@echo "... home/takao/ecalj/SRC/main/hqpe.o"
+	@echo "... home/takao/ecalj/SRC/main/hqpe.i"
+	@echo "... home/takao/ecalj/SRC/main/hqpe.s"
+	@echo "... home/takao/ecalj/SRC/main/hqpe_sc.o"
+	@echo "... home/takao/ecalj/SRC/main/hqpe_sc.i"
+	@echo "... home/takao/ecalj/SRC/main/hqpe_sc.s"
+	@echo "... home/takao/ecalj/SRC/main/hrcxq.o"
+	@echo "... home/takao/ecalj/SRC/main/hrcxq.i"
+	@echo "... home/takao/ecalj/SRC/main/hrcxq.s"
+	@echo "... home/takao/ecalj/SRC/main/hsfp0.o"
+	@echo "... home/takao/ecalj/SRC/main/hsfp0.i"
+	@echo "... home/takao/ecalj/SRC/main/hsfp0.s"
+	@echo "... home/takao/ecalj/SRC/main/hsfp0_sc.o"
+	@echo "... home/takao/ecalj/SRC/main/hsfp0_sc.i"
+	@echo "... home/takao/ecalj/SRC/main/hsfp0_sc.s"
+	@echo "... home/takao/ecalj/SRC/main/hsocmat.o"
+	@echo "... home/takao/ecalj/SRC/main/hsocmat.i"
+	@echo "... home/takao/ecalj/SRC/main/hsocmat.s"
+	@echo "... home/takao/ecalj/SRC/main/huumat_MPI.o"
+	@echo "... home/takao/ecalj/SRC/main/huumat_MPI.i"
+	@echo "... home/takao/ecalj/SRC/main/huumat_MPI.s"
+	@echo "... home/takao/ecalj/SRC/main/hvccfp0.o"
+	@echo "... home/takao/ecalj/SRC/main/hvccfp0.i"
+	@echo "... home/takao/ecalj/SRC/main/hvccfp0.s"
+	@echo "... home/takao/ecalj/SRC/main/hwmatK_MPI.o"
+	@echo "... home/takao/ecalj/SRC/main/hwmatK_MPI.i"
+	@echo "... home/takao/ecalj/SRC/main/hwmatK_MPI.s"
+	@echo "... home/takao/ecalj/SRC/main/hx0fp0.o"
+	@echo "... home/takao/ecalj/SRC/main/hx0fp0.i"
+	@echo "... home/takao/ecalj/SRC/main/hx0fp0.s"
+	@echo "... home/takao/ecalj/SRC/main/hx0init.o"
+	@echo "... home/takao/ecalj/SRC/main/hx0init.i"
+	@echo "... home/takao/ecalj/SRC/main/hx0init.s"
+	@echo "... home/takao/ecalj/SRC/main/lmchk.o"
+	@echo "... home/takao/ecalj/SRC/main/lmchk.i"
+	@echo "... home/takao/ecalj/SRC/main/lmchk.s"
+	@echo "... home/takao/ecalj/SRC/main/lmf.o"
+	@echo "... home/takao/ecalj/SRC/main/lmf.i"
+	@echo "... home/takao/ecalj/SRC/main/lmf.s"
+	@echo "... home/takao/ecalj/SRC/main/lmfa.o"
+	@echo "... home/takao/ecalj/SRC/main/lmfa.i"
+	@echo "... home/takao/ecalj/SRC/main/lmfa.s"
+	@echo "... home/takao/ecalj/SRC/main/lmfham1.o"
+	@echo "... home/takao/ecalj/SRC/main/lmfham1.i"
+	@echo "... home/takao/ecalj/SRC/main/lmfham1.s"
+	@echo "... home/takao/ecalj/SRC/main/lmfham2.o"
+	@echo "... home/takao/ecalj/SRC/main/lmfham2.i"
+	@echo "... home/takao/ecalj/SRC/main/lmfham2.s"
+	@echo "... home/takao/ecalj/SRC/main/qg4gw.o"
+	@echo "... home/takao/ecalj/SRC/main/qg4gw.i"
+	@echo "... home/takao/ecalj/SRC/main/qg4gw.s"
+	@echo "... home/takao/ecalj/SRC/main/rdata4gw_v2.o"
+	@echo "... home/takao/ecalj/SRC/main/rdata4gw_v2.i"
+	@echo "... home/takao/ecalj/SRC/main/rdata4gw_v2.s"
+	@echo "... home/takao/ecalj/SRC/main/wanplot.o"
+	@echo "... home/takao/ecalj/SRC/main/wanplot.i"
+	@echo "... home/takao/ecalj/SRC/main/wanplot.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/MPI_fpgw2.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/MPI_fpgw2.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/MPI_fpgw2.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/atqval.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/atqval.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/atqval.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/basnfp.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/basnfp.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/basnfp.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/besslr.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/besslr.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/besslr.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/boltztrap.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/boltztrap.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/boltztrap.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/bz.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/bz.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/bz.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/bzmesh.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/bzmesh.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/bzmesh.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/chgmsh.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/chgmsh.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/chgmsh.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/cputid.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/cputid.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/cputid.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/defpq.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/defpq.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/defpq.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/delstp.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/delstp.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/delstp.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/dfrce.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/dfrce.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/dfrce.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/diagcv2.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/diagcv2.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/diagcv2.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/dpsion5.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/dpsion5.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/dpsion5.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/dstrbp.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/dstrbp.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/dstrbp.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/efsimplef.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/efsimplef.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/efsimplef.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/eibzgen.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/eibzgen.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/eibzgen.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/elocp.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/elocp.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/elocp.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/esmsmves.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/esmsmves.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/esmsmves.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/excore.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/excore.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/excore.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/extension.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/extension.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/extension.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/fftz3.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/fftz3.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/fftz3.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/finits.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/finits.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/finits.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/fpiint.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/fpiint.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/fpiint.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/fradhd.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/fradhd.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/fradhd.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/fradpk.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/fradpk.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/fradpk.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/freeat.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/freeat.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/freeat.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/gaugm.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/gaugm.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/gaugm.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/genallcf_mod.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/genallcf_mod.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/genallcf_mod.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/getbzdata1.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/getbzdata1.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/getbzdata1.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/getgv2.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/getgv2.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/getgv2.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/getq.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/getq.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/getq.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/getqmode.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/getqmode.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/getqmode.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/gintxx.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/gintxx.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/gintxx.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/gtbsl1.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/gtbsl1.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/gtbsl1.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/gtpcor.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/gtpcor.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/gtpcor.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/hambl.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/hambl.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/hambl.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/hello.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/hello.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/hello.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/hilbertmat.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/hilbertmat.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/hilbertmat.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/hklft.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/hklft.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/hklft.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/hsibl.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/hsibl.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/hsibl.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/hsmq.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/hsmq.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/hsmq.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/huntx.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/huntx.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/huntx.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/iofa.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/iofa.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/iofa.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/iors.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/iors.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/iors.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/iors_old.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/iors_old.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/iors_old.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/iprint.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/iprint.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/iprint.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/iqindx.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/iqindx.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/iqindx.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/keyvalue.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/keyvalue.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/keyvalue.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/lattic.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/lattic.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/lattic.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/llnew.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/llnew.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/llnew.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/lmaux.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/lmaux.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/lmaux.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/lmf2gw.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/lmf2gw.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/lmf2gw.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/locpot.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/locpot.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/locpot.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_HamPMT.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_HamPMT.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_HamPMT.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_MPIcomm.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_MPIcomm.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_MPIcomm.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_MPItk.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_MPItk.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_MPItk.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_addrbl.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_addrbl.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_addrbl.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_amix.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_amix.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_amix.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_anf.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_anf.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_anf.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_atwf.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_atwf.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_atwf.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_augmat.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_augmat.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_augmat.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_augmbl.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_augmbl.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_augmbl.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_bandcal.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_bandcal.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_bandcal.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_bndfp.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_bndfp.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_bndfp.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_bndfp_util.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_bndfp_util.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_bndfp_util.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_bstrux.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_bstrux.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_bstrux.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_bzints.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_bzints.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_bzints.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_bzwts.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_bzwts.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_bzwts.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_clsmode.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_clsmode.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_clsmode.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_cmdpath.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_cmdpath.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_cmdpath.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_commMPI.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_commMPI.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_commMPI.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_density.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_density.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_density.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_eibz.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_eibz.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_eibz.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_ext.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_ext.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_ext.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_fatom.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_fatom.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_fatom.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_freq.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_freq.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_freq.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_ftox.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_ftox.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_ftox.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_gaussianfilter.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_gaussianfilter.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_gaussianfilter.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_gennlat.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_gennlat.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_gennlat.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_gtv.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_gtv.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_gtv.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_hamMTO.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_hamMTO.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_hamMTO.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_hamindex.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_hamindex.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_hamindex.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_hamindex0.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_hamindex0.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_hamindex0.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_hansr.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_hansr.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_hansr.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_homoelectron.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_homoelectron.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_homoelectron.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_hvccfp0_util.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_hvccfp0_util.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_hvccfp0_util.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_igv2x.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_igv2x.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_igv2x.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_iqindx_qtt.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_iqindx_qtt.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_iqindx_qtt.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_iqindx_wan.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_iqindx_wan.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_iqindx_wan.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_itq.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_itq.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_itq.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_ldau.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_ldau.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_ldau.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_ldau_util.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_ldau_util.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_ldau_util.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_llw.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_llw.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_llw.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_lmfinit.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_lmfinit.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_lmfinit.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_lmfp.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_lmfp.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_lmfp.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_mkpot.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_mkpot.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_mkpot.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_mksym.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_mksym.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_mksym.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_mksym_util.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_mksym_util.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_mksym_util.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_orbl.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_orbl.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_orbl.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_pbindex.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_pbindex.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_pbindex.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_pkm4crpa.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_pkm4crpa.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_pkm4crpa.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_procar.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_procar.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_procar.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_q0p.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_q0p.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_q0p.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_qbze.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_qbze.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_qbze.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_qplist.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_qplist.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_qplist.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_readQGcou.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_readQGcou.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_readQGcou.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_readVcoud.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_readVcoud.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_readVcoud.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_readeps.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_readeps.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_readeps.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_readfreq_r.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_readfreq_r.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_readfreq_r.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_readgwinput.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_readgwinput.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_readgwinput.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_readwan.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_readwan.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_readwan.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_rhocor.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_rhocor.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_rhocor.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_rotMPB.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_rotMPB.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_rotMPB.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_shortn3.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_shortn3.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_shortn3.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_shortn3_plat.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_shortn3_plat.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_shortn3_plat.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_smhankel.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_smhankel.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_smhankel.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_struc_def.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_struc_def.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_struc_def.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_tetrakbt.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_tetrakbt.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_tetrakbt.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_tetwt.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_tetwt.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_tetwt.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_vxcatom.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_vxcatom.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_vxcatom.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_w0w0i.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_w0w0i.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_w0w0i.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_writeband.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_writeband.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_writeband.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_zmel.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_zmel.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_zmel.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/madmat.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/madmat.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/madmat.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_gwinit.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_gwinit.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_gwinit.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_hbasfp0.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_hbasfp0.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_hbasfp0.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_heftet.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_heftet.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_heftet.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_hmagnon.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_hmagnon.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_hmagnon.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_hmlo.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_hmlo.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_hmlo.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_hqpe.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_hqpe.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_hqpe.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_hqpe.sc.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_hqpe.sc.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_hqpe.sc.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_hqpe_qsgw.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_hqpe_qsgw.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_hqpe_qsgw.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_hrcxq.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_hrcxq.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_hrcxq.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_hsfp0.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_hsfp0.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_hsfp0.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_hsfp0.sc.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_hsfp0.sc.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_hsfp0.sc.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_hsigmconv.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_hsigmconv.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_hsigmconv.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_hvccfp0.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_hvccfp0.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_hvccfp0.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_hx0fp0.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_hx0fp0.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_hx0fp0.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_hx0init.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_hx0init.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_hx0init.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_lmchk.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_lmchk.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_lmchk.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_lmf.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_lmf.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_lmf.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_lmfa.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_lmfa.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_lmfa.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_lmfham1.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_lmfham1.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_lmfham1.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_lmfham2.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_lmfham2.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_lmfham2.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_qg4gw.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_qg4gw.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_qg4gw.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_rdata4gw_v2.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_rdata4gw_v2.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/main_rdata4gw_v2.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/makusp.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/makusp.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/makusp.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/makusq.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/makusq.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/makusq.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/mate.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/mate.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/mate.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/matm.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/matm.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/matm.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/mixrho.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/mixrho.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/mixrho.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/mkehkf.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/mkehkf.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/mkehkf.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/mkjp.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/mkjp.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/mkjp.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/mkqg.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/mkqg.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/mkqg.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/mkqp.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/mkqp.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/mkqp.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/mkrout.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/mkrout.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/mkrout.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/mpibc.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/mpibc.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/mpibc.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/mtchae.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/mtchae.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/mtchae.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/pnunew.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/pnunew.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/pnunew.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/poinsp.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/poinsp.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/poinsp.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/poldvm.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/poldvm.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/poldvm.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/polint.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/polint.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/polint.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/potpus.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/potpus.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/potpus.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/pplmat.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/pplmat.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/pplmat.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/pwmat.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/pwmat.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/pwmat.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/q0irre.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/q0irre.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/q0irre.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/qpe1.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/qpe1.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/qpe1.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/qpe1.qsgw.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/qpe1.qsgw.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/qpe1.qsgw.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/qpe1.sc.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/qpe1.sc.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/qpe1.sc.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/radgkl.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/radgkl.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/radgkl.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/radmsh.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/radmsh.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/radmsh.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/radpkl.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/radpkl.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/radpkl.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/rdovfa.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/rdovfa.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/rdovfa.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/rdpp.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/rdpp.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/rdpp.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/rdsigm2.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/rdsigm2.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/rdsigm2.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/readeigen.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/readeigen.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/readeigen.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/readqg.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/readqg.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/readqg.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/relax.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/relax.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/relax.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/rfalsi.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/rfalsi.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/rfalsi.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/rgwinf_mod.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/rgwinf_mod.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/rgwinf_mod.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/rhomom.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/rhomom.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/rhomom.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/rlocbl.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/rlocbl.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/rlocbl.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/rmesh.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/rmesh.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/rmesh.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/ropbes.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/ropbes.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/ropbes.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/roplat.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/roplat.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/roplat.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/ropyln.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/ropyln.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/ropyln.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/rotcg.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/rotcg.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/rotcg.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/rotgvec.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/rotgvec.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/rotgvec.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/rotwave.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/rotwave.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/rotwave.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/rpaq.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/rpaq.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/rpaq.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/rppovl.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/rppovl.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/rppovl.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/rseq.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/rseq.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/rseq.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/rsibl.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/rsibl.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/rsibl.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/rwbzdata.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/rwbzdata.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/rwbzdata.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/scg.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/scg.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/scg.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/scglp1.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/scglp1.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/scglp1.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/show_programinfo.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/show_programinfo.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/show_programinfo.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/slinz.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/slinz.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/slinz.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/smves.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/smves.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/smves.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/smvxcm.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/smvxcm.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/smvxcm.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/sort.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/sort.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/sort.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/stonerrsa.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/stonerrsa.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/stonerrsa.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/subzi.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/subzi.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/subzi.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/sugcut.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/sugcut.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/sugcut.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/sugw.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/sugw.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/sugw.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/suham.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/suham.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/suham.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/supot.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/supot.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/supot.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/switch.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/switch.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/switch.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/switches.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/switches.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/switches.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/sxcf_fal2.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/sxcf_fal2.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/sxcf_fal2.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/sxcf_fal2.sc.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/sxcf_fal2.sc.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/sxcf_fal2.sc.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/sxcf_fal2_count.sc.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/sxcf_fal2_count.sc.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/sxcf_fal2_count.sc.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/sylm.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/sylm.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/sylm.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/symq.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/symq.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/symq.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/symrho.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/symrho.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/symrho.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/symstr.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/symstr.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/symstr.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/tbhsi.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/tbhsi.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/tbhsi.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/tc.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/tc.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/tc.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/tetirr.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/tetirr.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/tetirr.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/tetwt5.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/tetwt5.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/tetwt5.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/totfrc.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/totfrc.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/totfrc.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/uspecb.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/uspecb.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/uspecb.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/util.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/util.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/util.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/vbmmode.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/vbmmode.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/vbmmode.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/vcdmel.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/vcdmel.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/vcdmel.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/vesgcm.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/vesgcm.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/vesgcm.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/w_psir.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/w_psir.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/w_psir.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/wfacx.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/wfacx.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/wfacx.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/wintzsg.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/wintzsg.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/wintzsg.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/writeham.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/writeham.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/writeham.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/wronkj.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/wronkj.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/wronkj.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/wse.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/wse.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/wse.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/x0kf_v4h.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/x0kf_v4h.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/x0kf_v4h.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/xcfunc.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/xcfunc.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/xcfunc.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/xcpbe.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/xcpbe.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/xcpbe.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/xlgen.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/xlgen.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/xlgen.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/ylmrtg.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/ylmrtg.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/ylmrtg.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/zhev.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/zhev.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/zhev.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/zsecsym.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/zsecsym.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/zsecsym.s"
+	@echo "... home/takao/ecalj/SRC/wanniergw/RSMPI_mod.o"
+	@echo "... home/takao/ecalj/SRC/wanniergw/RSMPI_mod.i"
+	@echo "... home/takao/ecalj/SRC/wanniergw/RSMPI_mod.s"
+	@echo "... home/takao/ecalj/SRC/wanniergw/RSMPI_qkgroup_mod.o"
+	@echo "... home/takao/ecalj/SRC/wanniergw/RSMPI_qkgroup_mod.i"
+	@echo "... home/takao/ecalj/SRC/wanniergw/RSMPI_qkgroup_mod.s"
+	@echo "... home/takao/ecalj/SRC/wanniergw/RSMPI_rotkindex_mod.o"
+	@echo "... home/takao/ecalj/SRC/wanniergw/RSMPI_rotkindex_mod.i"
+	@echo "... home/takao/ecalj/SRC/wanniergw/RSMPI_rotkindex_mod.s"
+	@echo "... home/takao/ecalj/SRC/wanniergw/RSMPI_utils.o"
+	@echo "... home/takao/ecalj/SRC/wanniergw/RSMPI_utils.i"
+	@echo "... home/takao/ecalj/SRC/wanniergw/RSMPI_utils.s"
+	@echo "... home/takao/ecalj/SRC/wanniergw/Worbwrite.o"
+	@echo "... home/takao/ecalj/SRC/wanniergw/Worbwrite.i"
+	@echo "... home/takao/ecalj/SRC/wanniergw/Worbwrite.s"
+	@echo "... home/takao/ecalj/SRC/wanniergw/cubeformat.o"
+	@echo "... home/takao/ecalj/SRC/wanniergw/cubeformat.i"
+	@echo "... home/takao/ecalj/SRC/wanniergw/cubeformat.s"
+	@echo "... home/takao/ecalj/SRC/wanniergw/efsimplef_RSMPI.o"
+	@echo "... home/takao/ecalj/SRC/wanniergw/efsimplef_RSMPI.i"
+	@echo "... home/takao/ecalj/SRC/wanniergw/efsimplef_RSMPI.s"
+	@echo "... home/takao/ecalj/SRC/wanniergw/ent_MPI.o"
+	@echo "... home/takao/ecalj/SRC/wanniergw/ent_MPI.i"
+	@echo "... home/takao/ecalj/SRC/wanniergw/ent_MPI.s"
+	@echo "... home/takao/ecalj/SRC/wanniergw/expand_mesh.o"
+	@echo "... home/takao/ecalj/SRC/wanniergw/expand_mesh.i"
+	@echo "... home/takao/ecalj/SRC/wanniergw/expand_mesh.s"
+	@echo "... home/takao/ecalj/SRC/wanniergw/iopen.o"
+	@echo "... home/takao/ecalj/SRC/wanniergw/iopen.i"
+	@echo "... home/takao/ecalj/SRC/wanniergw/iopen.s"
+	@echo "... home/takao/ecalj/SRC/wanniergw/m_DATA4GW.o"
+	@echo "... home/takao/ecalj/SRC/wanniergw/m_DATA4GW.i"
+	@echo "... home/takao/ecalj/SRC/wanniergw/m_DATA4GW.s"
+	@echo "... home/takao/ecalj/SRC/wanniergw/m_FFT3D.o"
+	@echo "... home/takao/ecalj/SRC/wanniergw/m_FFT3D.i"
+	@echo "... home/takao/ecalj/SRC/wanniergw/m_FFT3D.s"
+	@echo "... home/takao/ecalj/SRC/wanniergw/m_MLWF.o"
+	@echo "... home/takao/ecalj/SRC/wanniergw/m_MLWF.i"
+	@echo "... home/takao/ecalj/SRC/wanniergw/m_MLWF.s"
+	@echo "... home/takao/ecalj/SRC/wanniergw/m_QG.o"
+	@echo "... home/takao/ecalj/SRC/wanniergw/m_QG.i"
+	@echo "... home/takao/ecalj/SRC/wanniergw/m_QG.s"
+	@echo "... home/takao/ecalj/SRC/wanniergw/m_read_Worb.o"
+	@echo "... home/takao/ecalj/SRC/wanniergw/m_read_Worb.i"
+	@echo "... home/takao/ecalj/SRC/wanniergw/m_read_Worb.s"
+	@echo "... home/takao/ecalj/SRC/wanniergw/main_hmaxloc.o"
+	@echo "... home/takao/ecalj/SRC/wanniergw/main_hmaxloc.i"
+	@echo "... home/takao/ecalj/SRC/wanniergw/main_hmaxloc.s"
+	@echo "... home/takao/ecalj/SRC/wanniergw/main_hpsig_MPI.o"
+	@echo "... home/takao/ecalj/SRC/wanniergw/main_hpsig_MPI.i"
+	@echo "... home/takao/ecalj/SRC/wanniergw/main_hpsig_MPI.s"
+	@echo "... home/takao/ecalj/SRC/wanniergw/main_hsocmat.o"
+	@echo "... home/takao/ecalj/SRC/wanniergw/main_hsocmat.i"
+	@echo "... home/takao/ecalj/SRC/wanniergw/main_hsocmat.s"
+	@echo "... home/takao/ecalj/SRC/wanniergw/main_huumat_MPI.o"
+	@echo "... home/takao/ecalj/SRC/wanniergw/main_huumat_MPI.i"
+	@echo "... home/takao/ecalj/SRC/wanniergw/main_huumat_MPI.s"
+	@echo "... home/takao/ecalj/SRC/wanniergw/main_hwmatK_MPI.o"
+	@echo "... home/takao/ecalj/SRC/wanniergw/main_hwmatK_MPI.i"
+	@echo "... home/takao/ecalj/SRC/wanniergw/main_hwmatK_MPI.s"
+	@echo "... home/takao/ecalj/SRC/wanniergw/main_wanplot.o"
+	@echo "... home/takao/ecalj/SRC/wanniergw/main_wanplot.i"
+	@echo "... home/takao/ecalj/SRC/wanniergw/main_wanplot.s"
+	@echo "... home/takao/ecalj/SRC/wanniergw/maxloc0.o"
+	@echo "... home/takao/ecalj/SRC/wanniergw/maxloc0.i"
+	@echo "... home/takao/ecalj/SRC/wanniergw/maxloc0.s"
+	@echo "... home/takao/ecalj/SRC/wanniergw/maxloc1.o"
+	@echo "... home/takao/ecalj/SRC/wanniergw/maxloc1.i"
+	@echo "... home/takao/ecalj/SRC/wanniergw/maxloc1.s"
+	@echo "... home/takao/ecalj/SRC/wanniergw/maxloc2.o"
+	@echo "... home/takao/ecalj/SRC/wanniergw/maxloc2.i"
+	@echo "... home/takao/ecalj/SRC/wanniergw/maxloc2.s"
+	@echo "... home/takao/ecalj/SRC/wanniergw/maxloc3.o"
+	@echo "... home/takao/ecalj/SRC/wanniergw/maxloc3.i"
+	@echo "... home/takao/ecalj/SRC/wanniergw/maxloc3.s"
+	@echo "... home/takao/ecalj/SRC/wanniergw/maxloc4.o"
+	@echo "... home/takao/ecalj/SRC/wanniergw/maxloc4.i"
+	@echo "... home/takao/ecalj/SRC/wanniergw/maxloc4.s"
+	@echo "... home/takao/ecalj/SRC/wanniergw/myYlm.o"
+	@echo "... home/takao/ecalj/SRC/wanniergw/myYlm.i"
+	@echo "... home/takao/ecalj/SRC/wanniergw/myYlm.s"
+	@echo "... home/takao/ecalj/SRC/wanniergw/mymath.o"
+	@echo "... home/takao/ecalj/SRC/wanniergw/mymath.i"
+	@echo "... home/takao/ecalj/SRC/wanniergw/mymath.s"
+	@echo "... home/takao/ecalj/SRC/wanniergw/sp2cls.o"
+	@echo "... home/takao/ecalj/SRC/wanniergw/sp2cls.i"
+	@echo "... home/takao/ecalj/SRC/wanniergw/sp2cls.s"
+	@echo "... home/takao/ecalj/SRC/wanniergw/wansub.o"
+	@echo "... home/takao/ecalj/SRC/wanniergw/wansub.i"
+	@echo "... home/takao/ecalj/SRC/wanniergw/wansub.s"
+	@echo "... home/takao/ecalj/SRC/wanniergw/wfn2dx_2.o"
+	@echo "... home/takao/ecalj/SRC/wanniergw/wfn2dx_2.i"
+	@echo "... home/takao/ecalj/SRC/wanniergw/wfn2dx_2.s"
+	@echo "... home/takao/ecalj/SRC/wanniergw/wfn2dx_abc.o"
+	@echo "... home/takao/ecalj/SRC/wanniergw/wfn2dx_abc.i"
+	@echo "... home/takao/ecalj/SRC/wanniergw/wfn2dx_abc.s"
+	@echo "... home/takao/ecalj/SRC/wanniergw/wfnrho_abc.o"
+	@echo "... home/takao/ecalj/SRC/wanniergw/wfnrho_abc.i"
+	@echo "... home/takao/ecalj/SRC/wanniergw/wfnrho_abc.s"
+	@echo "... home/takao/ecalj/SRC/wanniergw/wmatK.o"
+	@echo "... home/takao/ecalj/SRC/wanniergw/wmatK.i"
+	@echo "... home/takao/ecalj/SRC/wanniergw/wmatK.s"
+	@echo "... home/takao/ecalj/SRC/wanniergw/wmatK_mpi.o"
+	@echo "... home/takao/ecalj/SRC/wanniergw/wmatK_mpi.i"
+	@echo "... home/takao/ecalj/SRC/wanniergw/wmatK_mpi.s"
+	@echo "... home/takao/ecalj/SRC/wanniergw/write_mesh2d.o"
+	@echo "... home/takao/ecalj/SRC/wanniergw/write_mesh2d.i"
+	@echo "... home/takao/ecalj/SRC/wanniergw/write_mesh2d.s"
+	@echo "... home/takao/ecalj/SRC/wanniergw/xsfformat2.o"
+	@echo "... home/takao/ecalj/SRC/wanniergw/xsfformat2.i"
+	@echo "... home/takao/ecalj/SRC/wanniergw/xsfformat2.s"
 .PHONY : help
 
 

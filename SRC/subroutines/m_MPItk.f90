@@ -44,7 +44,7 @@ contains
    subroutine m_MPItk_init()
       use m_prgnam, only: prgnamx
       !character::  prgnamx*(*)
-      integer:: mpipid
+!      integer:: mpipid
       logical:: cmdopt0
       integer :: fext
       character(10):: i2char
@@ -54,8 +54,8 @@ contains
       call mpi_comm_rank(MPI_COMM_WORLD, id, ierr)
       allocate (shortname(0:nsize - 1))
       call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
-      procid = mpipid(1) !
-      nproc = mpipid(0) ! num of processors
+      call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
+      call MPI_COMM_SIZE( MPI_COMM_WORLD, nproc, ierr )
       shortname(procid) = trim(name)
       strprocid = trim(i2char(procid))
       call Gettime(datim)

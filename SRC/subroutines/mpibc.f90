@@ -156,7 +156,8 @@ subroutine mpibc2(vec,n,cast,mlog,funnam,label) !Performs MPI_ALLREDUCE on a vec
   if (cast == 2) then
      allocate(ibuf(n), stat=ierr)
      call MPI_ALLREDUCE(vec,ibuf,n,  MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,ierr)
-     call icopy(n,ibuf,1,vec,1)
+     !call icopy(n,ibuf,1,vec,1)
+     vec=transfer(ibuf,vec)
      deallocate(ibuf, stat=ierr)
   elseif (cast == 4) then
      allocate(dbuf(n), stat=ierr)
@@ -181,39 +182,3 @@ subroutine mpibc2(vec,n,cast,mlog,funnam,label) !Performs MPI_ALLREDUCE on a vec
           shortname(procid)(1:namelen(procid))//' allreduce '//label
   endif
 end subroutine mpibc2
-subroutine icopy(n,dx,incx,dy,incy)   !     copies a vector, x, to a vector, y.  Adapted from:
-  integer :: dx(1),dy(1)
-  integer :: i,incx,incy,ix,iy,n
-  ix = 1
-  iy = 1
-  if (incx < 0) ix = (1-n)*incx + 1
-  if (incy < 0) iy = (1-n)*incy + 1
-  do  10  i = 1, n
-     dy(iy) = dx(ix)
-     ix = ix + incx
-     iy = iy + incy
-10 enddo
-end subroutine icopy
-integer function mpipid(mode)  !- Returns MPI procid
-  !i   mode  :0 return number of processors
-  !i         :1 return procid
-  !i         :2 calls MPI_BARRIER; returns ierr
-  !i         :Otherwise, return 0
-  !o   mpipid:procid or number of processors (see mode)
-  implicit none
-  include "mpif.h"
-  integer :: numprocs, ierr, procid
-  integer :: mode
-  if (mode == 0) then
-     call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
-     mpipid = numprocs
-  else if (mode == 1) then
-     call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
-     mpipid = procid
-  else if (mode == 2) then
-     call MPI_BARRIER( MPI_COMM_WORLD, ierr )
-     mpipid = ierr
-  else
-     mpipid = 0
-  endif
-end function mpipid

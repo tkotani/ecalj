@@ -1,11 +1,12 @@
 integer function iprint()!print verbose setting
+  use m_MPItk,only: master_mpi
   implicit none
   integer :: mpipid
   integer:: verbose_in,setprint,ix,set0,setprint0,vb
   integer,save:: verbose0=30,verbose=30
   include "mpif.h"
   iprint = verbose
-  if(mpipid(1)>0) iprint=0 !write only at master node
+  if(.not.master_mpi) iprint=0 !write only at master node
   return
   entry setprint0(verbose_in)!base
   verbose0=verbose_in

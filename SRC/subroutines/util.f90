@@ -19,11 +19,9 @@ contains
     implicit none
     character(10):: i2char
     character*100 ext
-    integer i, fopn, i1mach, fhndl,procid
+    integer :: i, fopn, i1mach, fhndl,ierr,procid
     integer,save:: lgunit1=0,lgunit2=0,lgunit3=0
-    include "mpif.h"
-    integer mpipid
-    procid = mpipid(1) 
+    include 'mpif.h'
     lgunit = 6
     if (i .eq. 1) return
     if (i .eq. 2) then
@@ -33,7 +31,8 @@ contains
        lgunit = lgunit2
     elseif (i .eq. 3) then
        if(lgunit3==0) then
-          open(newunit=lgunit3,file='mlog.'//trim(sname)//'_'//trim(i2char(procid)))
+        call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
+        open(newunit=lgunit3,file='mlog.'//trim(sname)//'_'//trim(i2char(procid)))
        endif
        lgunit = lgunit3
     endif
@@ -56,7 +55,6 @@ integer function ifile_handle() ! return unused file handle (5001-9999)
         irem=i+1
         return
      endif
-     !         print *,'mpipid i=',mpipid(1),i,trim(nnn)
   enddo
   do i=5001,irem
      inquire(unit=i,opened=nexist)
