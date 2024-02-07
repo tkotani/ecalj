@@ -1,4 +1,4 @@
 #! /bin/bash
 BINDIR=${HOME}/bin  ## Make directory for ecalj binaries and scripts.
-cp -f `find . -mindepth 1 -maxdepth 1 -executable -type f` mklloc.txt *.py ${BINDIR} >&/dev/null
+cp -f `find . -mindepth 1 -maxdepth 1 -executable -type f` mklloc.txt run* *.py ${BINDIR} >&/dev/null
 #cp `find . -name "libecaljF.so"` ${BINDIR}
