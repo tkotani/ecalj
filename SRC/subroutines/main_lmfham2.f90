@@ -1,3 +1,58 @@
+module m_setqibz_lmfham
+  real(8),allocatable,protected:: qibz(:,:),qbzii(:,:,:)
+  integer,allocatable,protected:: irotq(:),irotg(:),ndiff(:,:),iqbzrep(:)
+  logical,allocatable,protected:: igiqibz(:,:)
+  !integer,allocatable,protected:: nigiq(:)
+  integer:: nqibz
+  public:: set_qibz
+contains
+  subroutine set_qibz(plat,qbz,nqbz,symops,ngrp)
+   !complex(8),allocatable:: rotmat(:,:)
+   integer:: nqbz,ngrp,i,ig,ibz,iqibz,iqbz
+   real(8)::eps=1d-8
+   real(8):: plat(3,3),qbz(3,nqbz),symops(3,3,ngrp),qp(3),qx(3)
+    !   GetQIBZ: block
+    allocate(qibz(3,nqbz),irotq(nqbz),irotg(nqbz),ndiff(3,nqbz),iqbzrep(nqbz))
+    iqibz=0
+    do iqbz=1,nqbz
+       qp = qbz(:,iqbz)
+       do ig=1,ngrp
+          do i=1,iqibz
+             qx= matmul(transpose(plat),  qp-matmul(symops(:,:,ig),qibz(:,i)))
+             qx=qx-nint(qx) !qx-ndiff !translation of qx
+             if(sum(abs(qx))<eps) then
+                irotq(iqbz)=i
+                irotg(iqbz)=ig
+                ndiff(:,iqbz) = nint(qx)
+                goto 88
+             endif
+          enddo
+       enddo
+       iqibz=iqibz+1
+       qibz(:,iqibz) = qp
+       irotq(iqbz)=iqibz
+       irotg(iqbz)=1 !identical symops
+       ndiff(:,iqbz)=0
+       iqbzrep(iqibz) = iqbz !representative
+88 continue 
+    enddo
+    nqibz=iqibz
+    allocate(igiqibz(ngrp,nqibz),qbzii(3,ngrp,nqibz))!,nigiq(nqibz)) !iqii(ngrp,nqibz),
+    igiqibz=.false.
+    do concurrent(iqbz=1:nqbz)
+       iqibz= irotq(iqbz)
+       ig   = irotg(iqbz)
+       igiqibz(ig,iqibz) =.true.
+       !iqii(ig,iqibz)=iqbz
+       qbzii(:,ig,iqibz) = qbz(:,iqbz)
+    enddo
+!    forall( iqibz=1:nqibz) nigiq(iqibz) = count(igiqibz(:,iqibz))
+    !write(6,*) 'nqbz nqibz ngrp=',nqbz,nqibz,ngrp
+    !   endblock GetQIBZ
+  endsubroutine set_qibz
+end module m_setqibz_lmfham
+
+
 !> PMT --1ststep--> MPO --2ndstep--> MLO. This is for 2ndstep
 subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> from MPO
   ! that of the MTO-projected basis |MPO>. Conversion from MPO(hmmr1,ommr1,nband) to MLO(hmmr2,ommr2,nMLO).
@@ -13,6 +68,7 @@ subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |
   ! We use diffent idea of connectivity from [2]. Roughly speaking, we define connectivitiy of eigenfunctions between k and k+b,
   ! not by the overlap of periodic part of eigenfunctions, but by the coefficients on |MLO>.
   !
+  use m_setqibz_lmfham,only: set_qibz,qibz,irotq,irotg,ndiff,iqbzrep,qbzii,igiqibz,nqibz
   use m_ftox
   use m_lgunit,only: stdo,m_lgunit_init
   use m_zhev,only:zhev_tk4
@@ -35,6 +91,9 @@ subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |
   use m_prgnam,only: set_prgnam
   !      Main output of lmfham2 is  hmmr2,       ommr2,       nMLO,         ib_tableM(idmto(1:nwf)),... for |MLO>
   implicit none
+!  integer,allocatable:: irotq(:),irotg(:),ndiff(:,:),iqbzrep(:)
+!  real(8),allocatable:: qibz(:,:)
+
   integer:: i,iq,is,ix,j,ifbb,ifoc,nbb,isc,ifq0p, nox,iki,ikf,nsc1,ndz,nin,nout,nsc2,ibb
   integer:: inii,if102,iwf2,ib,itmp,itmp2,nqbz2,nspin2,ib1,ib2,iqb,iqbz,it,jsp,nmx,nev,isyml!,nqbz!,n1,n2,n3
   integer:: nMLO,ikx,ikxx,iadd,i1q,i2q,i1,i2,imp,inp,inx,imx,ibas,ibold,ibx,iorb
@@ -51,28 +110,24 @@ subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |
   integer,allocatable:: ikbidx(:,:),lindex(:)
   real(8),allocatable:: omgik(:),zesum(:),evals(:),WTbandq(:),WTinnerq(:)
   real(8),allocatable:: xq(:),eval1(:,:),eval2(:,:),eval3(:,:),eval_w(:,:,:),evli(:,:)
-  integer,allocatable:: m_indx(:),n_indx(:),l_indx(:),ibas_indx(:),ibasiwf(:),idmto(:),idmto_(:),iqii(:,:),nigiq(:)
+  integer,allocatable:: m_indx(:),n_indx(:),l_indx(:),ibas_indx(:),ibasiwf(:),idmto(:),idmto_(:)
   real(8),allocatable:: evl(:,:),ovl(:), bbv(:,:),wbz(:),proj(:),projs(:),projss(:)
   complex(8),allocatable:: upu(:,:,:,:), zmn(:,:),zmn0(:,:),WTbandii(:),WTinnerii(:),zmns(:,:),ezmns(:,:)
   complex(8),parameter:: img=(0d0,1d0)
   complex(8),allocatable::ovlm(:,:),ovlmx(:,:),hamm(:,:),ovec(:,:)!,emat(:,:)
   complex(8),allocatable:: uumat(:,:,:,:),evecc(:,:), amnk(:,:,:),cnk(:,:,:),cnki(:,:,:),umnk(:,:,:),evecc1(:,:,:),evecc2(:,:,:)
-  complex(8),allocatable:: hmmr2(:,:,:,:),ommr2(:,:,:,:),wmat(:,:),wmat2(:,:),cnk0(:,:,:),rotmat(:,:),amnki(:,:,:),cnk0i(:,:,:)
+  complex(8),allocatable:: hmmr2(:,:,:,:),ommr2(:,:,:,:),wmat(:,:),wmat2(:,:),cnk0(:,:,:),amnki(:,:,:),cnk0i(:,:,:)
   character(256):: fband,fband1
   logical:: cmdopt2,noinner,eLinnerauto,ELhardauto,eUinnerauto,convn,eUouterauto,skipdfinner,EUautosp,debug=.false.
-  real(8):: WTseed,eoffset, projcut,ewid,ewideV,eUinnercut,eouter,CUouter,WTouter,EUouter,CLhard,eUoutereV,CUinner,eLhardeVoffset,&
-       eUBinner
+  real(8):: WTseed,eoffset, projcut,ewid,ewideV,eUinnercut,eouter,CUouter,WTouter,EUouter,CLhard,eUoutereV,CUinner,eLhardeVoffset &
+  ,eUBinner 
   character:: outs*20
   character(256):: aaa='',bbb=''
   integer:: nband_,nqbz_,iki_,ikf_,nMLO_,ilowest,ieLhard,iUinneradd,igrp,ndimmto
-  real(8),allocatable:: qibz(:,:)
-  integer,allocatable:: irotq(:),irotg(:),ndiff(:,:),iqbzrep(:),iqirot(:,:),igirot(:,:),nirot(:), igadd(:,:),setiq(:),igncount(:)
-
-  logical,allocatable:: igiqibz(:,:)
-  real(8),allocatable:: qbzii(:,:,:)
-
+!  logical,allocatable:: igiqibz(:,:)
+!  real(8),allocatable:: qbzii(:,:,:)
   real(8)::qx(3),qtarget(3),eps=1d-8,qp(3)
-  integer:: ig,iqibz,nqibz,icount,ierr
+  integer:: ig,iqibz,icount,ierr
   call setcmdpath()            ! Set self-command path (this is for call system at m_lmfinit)
   call m_ext_init()            ! Get sname, e.g. trim(sname)=si of ctrl.si
   call mpi_init(ierr)
@@ -170,45 +225,47 @@ subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |
   endblock bbvector
   iki=1     !minval(iko_i)
   ikf=nband !maxval(iko_f) !  nox = ikf - iki + 1. nband is for MPO Hamiltonian
-  allocate(qibz(3,nqbz),irotq(nqbz),irotg(nqbz),ndiff(3,nqbz),rotmat(nband,nband),iqbzrep(nqbz))
-  GetQIBZ: block
-    iqibz=0
-    do iqbz=1,nqbz
-       qp = qbz(:,iqbz)
-       do ig=1,ngrp
-          do i=1,iqibz
-             qx= matmul(transpose(plat),  qp-matmul(symops(:,:,ig),qibz(:,i)))
-             qx=qx-nint(qx) !qx-ndiff !translation of qx
-             if(sum(abs(qx))<eps) then
-                irotq(iqbz)=i
-                irotg(iqbz)=ig
-                ndiff(:,iqbz) = nint(qx)
-                goto 88
-             endif
-          enddo
-       enddo
-       iqibz=iqibz+1
-       qibz(:,iqibz) = qp
-       irotq(iqbz)=iqibz
-       irotg(iqbz)=1 !identical symops
-       ndiff(:,iqbz)=0
-       iqbzrep(iqibz) = iqbz !representative 
-88     continue
-    enddo
-    nqibz=iqibz
-    allocate(iqii(ngrp,nqibz),igiqibz(ngrp,nqibz),qbzii(3,ngrp,nqibz),nigiq(nqibz))
-    igiqibz=.false.
-    do concurrent(iqbz=1:nqbz)
-       iqibz= irotq(iqbz)
-       ig   = irotg(iqbz)
-       igiqibz(ig,iqibz) =.true.
-       iqii(ig,iqibz)=iqbz
-       qbzii(:,ig,iqibz) = qbz(:,iqbz)
-    enddo
-    forall( iqibz=1:nqibz) nigiq(iqibz) = count(igiqibz(:,iqibz))
-  endblock GetQIBZ
-  write(6,*) 'nqbz nqibz ngrp=',nqbz,nqibz,ngrp
-!  
+
+  call set_qibz(plat,qbz,nqbz,symops,ngrp) !iqibzrep(iqibz) is the representative of iqibz
+! allocate(qibz(3,nqbz),irotq(nqbz),irotg(nqbz),ndiff(3,nqbz),rotmat(nband,nband),iqbzrep(nqbz))
+!   GetQIBZ: block
+!     iqibz=0
+!     do iqbz=1,nqbz
+!        qp = qbz(:,iqbz)
+!        do ig=1,ngrp
+!           do i=1,iqibz
+!              qx= matmul(transpose(plat),  qp-matmul(symops(:,:,ig),qibz(:,i)))
+!              qx=qx-nint(qx) !qx-ndiff !translation of qx
+!              if(sum(abs(qx))<eps) then
+!                 irotq(iqbz)=i
+!                 irotg(iqbz)=ig
+!                 ndiff(:,iqbz) = nint(qx)
+!                 goto 88
+!              endif
+!           enddo
+!        enddo
+!        iqibz=iqibz+1
+!        qibz(:,iqibz) = qp
+!        irotq(iqbz)=iqibz
+!        irotg(iqbz)=1 !identical symops
+!        ndiff(:,iqbz)=0
+!        iqbzrep(iqibz) = iqbz !representative 
+! 88     continue
+!     enddo
+!     nqibz=iqibz
+!     allocate(iqii(ngrp,nqibz),igiqibz(ngrp,nqibz),qbzii(3,ngrp,nqibz),nigiq(nqibz))
+!     igiqibz=.false.
+!     do concurrent(iqbz=1:nqbz)
+!        iqibz= irotq(iqbz)
+!        ig   = irotg(iqbz)
+!        igiqibz(ig,iqibz) =.true.
+!        !iqii(ig,iqibz)=iqbz
+!        qbzii(:,ig,iqibz) = qbz(:,iqbz)
+!     enddo
+!     forall( iqibz=1:nqibz) nigiq(iqibz) = count(igiqibz(:,iqibz))
+!   endblock GetQIBZ
+!   write(6,*) 'nqbz nqibz ngrp=',nqbz,nqibz,ngrp
+! !  
   if(job==1) goto 1011 !Goto Souza's iteration --job=1 mode
   GetCNmatFile_job0: block  !job=0 mode to get CNmat file (connection matrix uumat and so on).
     real(8):: eps=1d-8
@@ -484,8 +541,8 @@ subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |
      GetHamiltonianforMTObyProjection: block  !We do not use Marzari's unitary rotation
        integer:: il,im,in,ib1,ib2,jsp
        real(8):: fac0
-       complex(8)::img2pi=img*2d0*pi
-       complex(8)::phase,proj(iki:ikf,iki:ikf),pa(iki:ikf,nMLO),pai(iki:ikf,nMLO),ham(nMLO,nMLO),ovlx(nMLO,nMLO),rotmatp(nMLO,nMLO)
+       complex(8)::img2pi=img*2d0*pi, rotmat(nband,nband)
+       complex(8)::phase,proj(iki:ikf,iki:ikf),pa(iki:ikf,nMLO),pai(iki:ikf,nMLO),ham(nMLO,nMLO),ovlx(nMLO,nMLO)!,rotmatp(nMLO,nMLO)
        jsp=is
        do iqibz = 1,nqibz
           forall(i=iki:ikf,j=iki:ikf) proj(i,j)=sum(cnki(i,:,iqibz)*dconjg(cnki(j,:,iqibz))) !projector to MLO space. Sum for MPOindex
