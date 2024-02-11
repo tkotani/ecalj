@@ -228,7 +228,7 @@ subroutine Hreduction(iprx,facw,ecutw,eww,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, ham
   complex(8):: ovlmx(ndimPMT,ndimPMT),hammx(ndimPMT,ndimPMT),fac(ndimPMT,ndimMTO),ddd(ndimMTO,ndimMTO)
   complex(8):: hamm(ndimPMT,ndimPMT),ovlm(ndimPMT,ndimPMT)
   complex(8):: hammout(ndimMTO,ndimMTO),ovlmout(ndimMTO,ndimMTO)
-  complex(8),allocatable :: wnj(:,:),wnm(:,:)
+  complex(8),allocatable :: cmpo(:,:),wnm(:,:)
   real(8):: fff1,fff !epsovl=1d-8 epsovlm=0d0 ,
   logical:: iprx
   ovlmx= ovlm
@@ -241,9 +241,9 @@ subroutine Hreduction(iprx,facw,ecutw,eww,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, ham
   nmx = ndimPMT !  write(stdo,*)'Start Hreduction: 222'
   call zhev_tk4(ndimPMT,hamm(1:ndimPMT,1:ndimPMT),ovlm(1:ndimPMT,1:ndimPMT), nmx,nev, evl,evecpmt, oveps) !PMT
   ovlm=ovlmx
-  ndimPMTx=nev
+  ndimPMTx=nev !obtained. oveps may reduce ndimPMT to be ndimPMTx
   do j=1,ndimMTO !wnm is corrected matrix element of <psi_PMT|psi_MTO>
-     do i=1,ndimPMTx
+     do i=1,nev
         fac(i,j)= sum(dconjg(evecpmt(:,i))*matmul(ovlmx(:,ix(1:ndimMTO)),evecmto(1:ndimMTO,j)))
      enddo
   enddo
@@ -251,16 +251,14 @@ subroutine Hreduction(iprx,facw,ecutw,eww,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, ham
     integer:: ie,nidxevlmto,nidxevl,ibx,jx,idxevlmto(ndimMTO),idxevl(ndimPMT),jbx
     real(8):: eee,fffx,ecut,xxx,ewcutf,rydberg,facww
     real(8),allocatable::mulfac(:,:),mulfacw(:,:)
-    !    complex(8):: wnj(ndimPMTx,ndimMTO),wnm(ndimPMTx,ndimMTO)
-    allocate(wnj(ndimPMTx,ndimMTO),wnm(ndimPMTx,ndimMTO))!this is to avoid bug in ifort18.0.5
+    allocate(cmpo(ndimPMT,ndimMTO),wnm(ndimPMTx,ndimMTO))!this is to avoid bug in ifort18.0.5
     ewcutf = ecutw+eferm
     do j=1,ndimMTO
        do i=1,ndimPMTx
           facww = facw*fermidist((evlmto(j)-ewcutf)/eww) 
-!          wnm(i,j) = fac(i,j)*fac(i,j)**facww
           wnm(i,j) = fac(i,j)*abs(fac(i,j))**facww !2023-12-5 abs(fac) needed with PWMODE=11 to keep symmetry
-       enddo
-       !do i=1,ndimPMTx; if(j<4.and.abs(fac(i,j))>.1d0) write(6,*)' j=',j,i,' fac=',abs(fac(i,j)); enddo
+          !  wnm(i,j) = fac(i,j)*fac(i,j)**facww
+         enddo
     enddo
     call GramSchmidt(ndimPMTx,ndimMTO,wnm)
     if(iprx) then
@@ -272,11 +270,13 @@ subroutine Hreduction(iprx,facw,ecutw,eww,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, ham
     endif
     ! Mapping operator wnm*<psi_MTO|F_i>, where F_i is MTO basis.
     nx=ndimPMTx
-    wnj = matmul(wnm(1:ndimPMTx,1:ndimMTO),matmul(transpose(dconjg(evecmto(:,:))),ovlmx(ix(1:ndimMTO),ix(1:ndimMTO))))
+    cmpo(ndimPMTx+1:ndimPMT,1:ndimMTO)=0d0
+    cmpo(1:ndimPMTx,1:ndimMTO) = matmul(wnm(1:ndimPMTx,1:ndimMTO),&
+         matmul(transpose(dconjg(evecmto(:,:))),ovlmx(ix(1:ndimMTO),ix(1:ndimMTO))))
     do i=1,ndimMTO
        do j=1,ndimMTO
-          hammout(i,j)= sum( dconjg(wnj(1:nx,i))*evl(1:nx)*wnj(1:nx,j))
-          ovlmout(i,j)= sum( dconjg(wnj(1:nx,i))*wnj(1:nx,j) ) !<MLO|MLO>
+          hammout(i,j)= sum( dconjg(cmpo(1:nx,i))*evl(1:nx)*cmpo(1:nx,j))
+          ovlmout(i,j)= sum( dconjg(cmpo(1:nx,i))*cmpo(1:nx,j) ) !<MLO|MLO>
        enddo
     enddo
   endblock ModifyMatrixElements

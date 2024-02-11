@@ -45,7 +45,7 @@ subroutine hwmatK_MPI()
   use m_read_bzdata,only: Read_bzdata,qibz,irk,ginv,n1,n2,n3,nqbz,nqibz,nstar,nstbz,qbas=>qlat,qbz,wibz,wbz &
        ,nq0i=>nq0ix,wqt=>wt,q0i
   use m_readeigen,only: onoff_write_pkm4crpa,init_readeigen,init_readeigen2, &
-       init_readeigen_mlw_noeval,init_readeigen_phi_noeval,  nwf
+       init_readeigen_mlw_noeval,  nwf !,init_readeigen_phi_noeval
   use m_genallcf_v3,niwg=>niw
   use m_keyvalue,only: getkeyvalue
   use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
@@ -590,15 +590,15 @@ subroutine hwmatK_MPI()
   call onoff_write_pkm4crpa(lll)
   ! his is for writing pkm4crpa in init_readeigen_mlw_noeval.
 
-  if (latomic) then
-     call init_readeigen_phi_noeval()!nwf,nband,mrecb,mrecg)
-  else
+!  if (latomic) then
+!     call init_readeigen_phi_noeval()!nwf,nband,mrecb,mrecg)
+!  else
      !         if (l1d) then
      !           call init_readeigen_mlw_noeval1D(nwf,nband,mrecb,mrecg)
      !         else
      call init_readeigen_mlw_noeval()!nwf,nband,mrecb,mrecg)
      !         endif
-  endif
+!  endif
   if (Is_IO_Root_RSMPI()) then
      write(*,*)'Caution! evals are zero hereafter.'
      write(*,*)'nwf =',nwf

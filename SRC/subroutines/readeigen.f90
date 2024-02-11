@@ -1,5 +1,5 @@
-!! -----------------------------------------------------------
 !> Return eigenvalus and eigenfunctions for given q and isp.
+!! -----------------------------------------------------------
 !! We can get eigenfunctions for Wannier, as well. See hmagnon.F
 !! note: we have to call init_foobar to call readeval, readcphi, readgeig.
 !!----------------
@@ -16,7 +16,7 @@ module m_readeigen
   implicit none
   !-------------------------------
   public::Readeval, Readgeigf, Readcphif, Readcphifq, Init_readeigen, Init_readeigen2, Lowesteval
-  public::Onoff_write_pkm4crpa, Init_readeigen_mlw_noeval, Init_readeigen_phi_noeval, Readcphiw, Readgeigw
+  public::Onoff_write_pkm4crpa, Init_readeigen_mlw_noeval, Readcphiw, Readgeigw !Init_readeigen_phi_noeval, 
   integer,public:: nwf
   !------------------------------
   private
@@ -403,20 +403,14 @@ contains
           !           rnorm = 0d0
           !           cnorm = 0d0
           !           do ib = iko_ix,iko_fx
-          !              rnorm = rnorm + dreal(dconjg(cbwf(ib,iwf,ikp,is))
-          !     &                                     *cbwf(ib,iwf2,ikp,is))
-          !              cnorm = cnorm + dimag(dconjg(cbwf(ib,iwf,ikp,is))
-          !     &                                     *cbwf(ib,iwf2,ikp,is))
-          !              rnorm = rnorm + dreal(dconjg(dnk(ib,iwf,iqbz,is))
-          !     &                                    *dnk(ib,iwf2,iqbz,is))
-          !              cnorm = cnorm + dimag(dconjg(dnk(ib,iwf,iqbz,is))
-          !     &                                    *dnk(ib,iwf2,iqbz,is))
+          !              rnorm = rnorm + dreal(dconjg(cbwf(ib,iwf,ikp,is))*cbwf(ib,iwf2,ikp,is))
+          !              cnorm = cnorm + dimag(dconjg(cbwf(ib,iwf,ikp,is))*cbwf(ib,iwf2,ikp,is))
+          !              rnorm = rnorm + dreal(dconjg(dnk(ib,iwf,iqbz,is))*dnk(ib,iwf2,iqbz,is))
+          !              cnorm = cnorm + dimag(dconjg(dnk(ib,iwf,iqbz,is))*dnk(ib,iwf2,iqbz,is))
           !           enddo
           !           do ib = 1,nwf
-          !              rnorm = rnorm + dreal(dconjg(evec(ib,iwf,ikp,is))
-          !     &                                    *evec(ib,iwf2,ikp,is))
-          !              cnorm = cnorm + dimag(dconjg(evec(ib,iwf,ikp,is))
-          !     &                                    *evec(ib,iwf2,ikp,is))
+          !              rnorm = rnorm + dreal(dconjg(evec(ib,iwf,ikp,is))*evec(ib,iwf2,ikp,is))
+          !              cnorm = cnorm + dimag(dconjg(evec(ib,iwf,ikp,is))*evec(ib,iwf2,ikp,is))
           !           enddo
           !           if (iwf.eq.iwf2) rnorm = rnorm - 1d0
           !           write(7700,"(4i5,2f12.6)")is,ikp,iwf,iwf2,rnorm,cnorm
@@ -505,93 +499,93 @@ contains
     endif
     deallocate(cbwf)
   end subroutine init_readeigen_mlw_noeval
-  !-------------------------------------------------------------
-  subroutine init_readeigen_phi_noeval()
-    ! replace cphi and geig
-    ! for hwmat_phi
-    ! this should be called after init_readgeigen2
-    implicit none
-    integer:: iq,is,ifiqg,ikp, isx,mrecb_o,ikpisp,mrecg_o, &
-         nwf_o,nband_o,ifmlw,ifmlwe,nqbz,nqbz2,nqbze,nqbze2, &
-         iqbz,iqbz2,nwf2,nsp2,nlmto2,ngpmx2, &
-         ib,iwf,iwf2,iko_ix,iko_fx,in,ifcphi_o,ifgeig_o,ifdim
-    real(8):: q(3),rnorm,cnorm
-    complex(8),allocatable :: geig2(:,:),cphi2(:,:)
-    logical :: keepeigen
-    keepeig = keepeigen()
-    !      write(6,*)' init_readeigen_phi_noeval'
-    open(newunit=ifdim,file='PHIG.d')
-    read(ifdim,*) nsp2,nqbz2,nwf2,nlmto2,ngpmx2
-    close(ifdim)
-    if(nsp2 /= nsp) then
-       write(6,*)'nsp,nsp2',nsp,nsp2
-       call rx( 'init_readeigen_phi: ns')
-    endif
-    if(nlmto2 /= ldim2) then
-       write(6,*)'nlmto,nlmto2',ldim2,nlmto2
-       call rx( 'init_readeigen_phi: nlmto')
-    endif
-    if(ngpmx2 /= ngpmx) then
-       write(6,*)'ngpmx,ngpmx2',ngpmx,ngpmx2
-       call rx( 'init_readeigen_phi: ngpmx')
-    endif
-    nwf = nwf2
-    nqbz=nqbz2
-    deallocate(evud)
-    allocate(evud(nwf,nqtt,nsp))
-    evud = 0d0
-    mrecb_o = mrecb * nwf / nband
-    mrecg_o = mrecg * nwf / nband
-    close(ifcphi)
-    close(ifgeig)
-    open(newunit=ifgeig,file='GEIGg',form='unformatted',access='direct',recl=mrecg_o)
-    open(newunit=ifcphi,file='CPHIg',form='unformatted',access='direct',recl=mrecb_o)
-    if(keepeig) then
-       deallocate(geig,cphi)
-       allocate(geig(ngpmx,nwf,nqtt,nsp))
-       allocate(cphi(ldim2,nwf,nqtt,nsp))
-       do ikp= 1,nqtt
-          iqbz=ikp
-          do is= 1,nsp
-             ikpisp = is + nsp*(iqbz-1)
-             read(ifgeig, rec=ikpisp) geig(1:ngpmx,1:nwf,ikp,is)
-             read(ifcphi, rec=ikpisp) cphi(1:ldim2,1:nwf,ikp,is)
-          enddo
-       enddo
-    else
-    endif
-  end subroutine init_readeigen_phi_noeval
-  ! sssssssssssssssssssssssssssssssssssssssssssss
   subroutine readgeigW(q,ngp_in,isp, qu,geigen)
-    integer:: isp,iq,iqindx,ngp_in,ikpisp
-    real(8)   :: q(3),qu(3)
-    complex(8):: geigen(ngp_in,nwf)
-    if(init2) call rx( 'readgeig_mlw: modele is not initialized yet')
-    call iqindx2_(q, iq, qu) !qu is used q.  q-qu= G vectors.
-    if(ngp_in < ngp(iq)) then
-       write(6,*)'readgeig_mlw: ngpmx<ngp(iq)',iq,ngpmx,ngp(iq),q
-       call rx( 'readgeig_mlw: ngpmx<ngp(iq)')
-    endif
-    if(keepeig) then
-       geigen(1:ngp(iq),1:nwf) = geigW(1:ngp(iq),1:nwf,iq,isp)
-    else
-       ikpisp= isp + nsp*(iq-1)
-       read(ifgeigW, rec=ikpisp) geigen(1:ngpmx,1:nwf)
-    endif
-  end subroutine readgeigW
-  ! sssssssssssssssssssssssssssssssssssssssssssss
-  subroutine readcphiW(q,ldim2_dummy,isp,  qu,cphif)
-    integer:: isp,iq,iqindx,ldim2_dummy,ikpisp
-    real(8)   :: q(3),qu(3)
-    complex(8):: cphif(ldim2,nwf)
-    if(init2) call rx( 'readcphi_mlw: modele is not initialized yet')
-    call iqindx2_(q, iq, qu) !qu is used q.  q-qu= G vectors.
-    if(keepeig) then
-       cphif(1:ldim2,1:nwf) = cphiW(1:ldim2,1:nwf,iq,isp)
-    else
-       ikpisp= isp + nsp*(iq-1)
-       read(ifcphi_mlw, rec=ikpisp) cphif(1:ldim2,1:nwf)
-    endif
-  end subroutine readcphiW
+   integer:: isp,iq,iqindx,ngp_in,ikpisp
+   real(8)   :: q(3),qu(3)
+   complex(8):: geigen(ngp_in,nwf)
+   if(init2) call rx( 'readgeig_mlw: modele is not initialized yet')
+   call iqindx2_(q, iq, qu) !qu is used q.  q-qu= G vectors.
+   if(ngp_in < ngp(iq)) then
+      write(6,*)'readgeig_mlw: ngpmx<ngp(iq)',iq,ngpmx,ngp(iq),q
+      call rx( 'readgeig_mlw: ngpmx<ngp(iq)')
+   endif
+   if(keepeig) then
+      geigen(1:ngp(iq),1:nwf) = geigW(1:ngp(iq),1:nwf,iq,isp)
+   else
+      ikpisp= isp + nsp*(iq-1)
+      read(ifgeigW, rec=ikpisp) geigen(1:ngpmx,1:nwf)
+   endif
+ end subroutine readgeigW
+ ! sssssssssssssssssssssssssssssssssssssssssssss
+ subroutine readcphiW(q,ldim2_dummy,isp,  qu,cphif)
+   integer:: isp,iq,iqindx,ldim2_dummy,ikpisp
+   real(8)   :: q(3),qu(3)
+   complex(8):: cphif(ldim2,nwf)
+   if(init2) call rx( 'readcphi_mlw: modele is not initialized yet')
+   call iqindx2_(q, iq, qu) !qu is used q.  q-qu= G vectors.
+   if(keepeig) then
+      cphif(1:ldim2,1:nwf) = cphiW(1:ldim2,1:nwf,iq,isp)
+   else
+      ikpisp= isp + nsp*(iq-1)
+      read(ifcphi_mlw, rec=ikpisp) cphif(1:ldim2,1:nwf)
+   endif
+ end subroutine readcphiW
 end module m_readeigen
+ !-------------------------------------------------------------
+  ! subroutine init_readeigen_phi_noeval()
+  !   ! replace cphi and geig
+  !   ! for hwmat_phi
+  !   ! this should be called after init_readgeigen2
+  !   implicit none
+  !   integer:: iq,is,ifiqg,ikp, isx,mrecb_o,ikpisp,mrecg_o, &
+  !        nwf_o,nband_o,ifmlw,ifmlwe,nqbz,nqbz2,nqbze,nqbze2, &
+  !        iqbz,iqbz2,nwf2,nsp2,nlmto2,ngpmx2, &
+  !        ib,iwf,iwf2,iko_ix,iko_fx,in,ifcphi_o,ifgeig_o,ifdim
+  !   real(8):: q(3),rnorm,cnorm
+  !   complex(8),allocatable :: geig2(:,:),cphi2(:,:)
+  !   logical :: keepeigen
+  !   keepeig = keepeigen()
+  !   !      write(6,*)' init_readeigen_phi_noeval'
+  !   open(newunit=ifdim,file='PHIG.d')
+  !   read(ifdim,*) nsp2,nqbz2,nwf2,nlmto2,ngpmx2
+  !   close(ifdim)
+  !   if(nsp2 /= nsp) then
+  !      write(6,*)'nsp,nsp2',nsp,nsp2
+  !      call rx( 'init_readeigen_phi: ns')
+  !   endif
+  !   if(nlmto2 /= ldim2) then
+  !      write(6,*)'nlmto,nlmto2',ldim2,nlmto2
+  !      call rx( 'init_readeigen_phi: nlmto')
+  !   endif
+  !   if(ngpmx2 /= ngpmx) then
+  !      write(6,*)'ngpmx,ngpmx2',ngpmx,ngpmx2
+  !      call rx( 'init_readeigen_phi: ngpmx')
+  !   endif
+  !   nwf = nwf2
+  !   nqbz=nqbz2
+  !   deallocate(evud)
+  !   allocate(evud(nwf,nqtt,nsp))
+  !   evud = 0d0
+  !   mrecb_o = mrecb * nwf / nband
+  !   mrecg_o = mrecg * nwf / nband
+  !   close(ifcphi)
+  !   close(ifgeig)
+  !   open(newunit=ifgeig,file='GEIGg',form='unformatted',access='direct',recl=mrecg_o)
+  !   open(newunit=ifcphi,file='CPHIg',form='unformatted',access='direct',recl=mrecb_o)
+  !   if(keepeig) then
+  !      deallocate(geig,cphi)
+  !      allocate(geig(ngpmx,nwf,nqtt,nsp))
+  !      allocate(cphi(ldim2,nwf,nqtt,nsp))
+  !      do ikp= 1,nqtt
+  !         iqbz=ikp
+  !         do is= 1,nsp
+  !            ikpisp = is + nsp*(iqbz-1)
+  !            read(ifgeig, rec=ikpisp) geig(1:ngpmx,1:nwf,ikp,is)
+  !            read(ifcphi, rec=ikpisp) cphi(1:ldim2,1:nwf,ikp,is)
+  !         enddo
+  !      enddo
+  !   else
+  !   endif
+  ! end subroutine init_readeigen_phi_noeval
+  ! sssssssssssssssssssssssssssssssssssssssssssss
 

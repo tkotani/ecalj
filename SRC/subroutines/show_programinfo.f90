@@ -9,14 +9,14 @@ subroutine show_programinfo(io)
   integer:: io
   character(6),parameter:: info='INFO: '
   character(256):: FFL=""
-  character(256):: UA="tt480s 5.4.0-169-generic x86_64 GNU/Linux"
+  character(256):: UA="tt480s 5.4.0-170-generic x86_64 GNU/Linux"
   character(256):: EI="Ubuntu 20.04.6 LTS \n \l"
   character(256):: FV="GNU Fortran (Ubuntu 9.4.0-1ubuntu1~20.04.2) 9.4.0"
   character(256):: PF=""
   character(256):: LL=""
-  character(512):: GC1="commit 037d647cab33ff5a26b20bc32c6f978589047de2"
+  character(512):: GC1="commit f0e45535bc5ae0da49cd783e00ae76cb5b5d6972"
   character(512):: GC2="Author: Takao Kotani <takaokotani@gmail.com>"
-  character(512):: GC3="Date:   Tue Feb 6 19:51:17 2024 +0900"
+  character(512):: GC3="Date:   Sun Feb 11 10:44:36 2024 +0900"
   write(io,'(a,a,a,a)') info,trim(EI)
   write(io,'(a,a,a,a)') info,trim(FV)
   write(io,'(a,a,a)') info, trim(FFL)
@@ -24,7 +24,7 @@ subroutine show_programinfo(io)
   write(io,'(a,a,a)') info,'git: ',trim(GC1)
   write(io,'(a,a,a)') info,'   : ',trim(GC2)
   write(io,'(a,a,a)') info,'   : ',trim(GC3)
-  write(io,'(a,a,a)') info,'linked at ',trim("Tue Feb  6 20:53:19 JST 2024")
+  write(io,'(a,a,a)') info,'linked at ',trim("Sun Feb 11 10:47:01 JST 2024")
 end subroutine show_programinfo
 ! program test
 ! call show_programinfo(6)

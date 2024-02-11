@@ -225,47 +225,7 @@ subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |
   endblock bbvector
   iki=1     !minval(iko_i)
   ikf=nband !maxval(iko_f) !  nox = ikf - iki + 1. nband is for MPO Hamiltonian
-
   call set_qibz(plat,qbz,nqbz,symops,ngrp) !iqibzrep(iqibz) is the representative of iqibz
-! allocate(qibz(3,nqbz),irotq(nqbz),irotg(nqbz),ndiff(3,nqbz),rotmat(nband,nband),iqbzrep(nqbz))
-!   GetQIBZ: block
-!     iqibz=0
-!     do iqbz=1,nqbz
-!        qp = qbz(:,iqbz)
-!        do ig=1,ngrp
-!           do i=1,iqibz
-!              qx= matmul(transpose(plat),  qp-matmul(symops(:,:,ig),qibz(:,i)))
-!              qx=qx-nint(qx) !qx-ndiff !translation of qx
-!              if(sum(abs(qx))<eps) then
-!                 irotq(iqbz)=i
-!                 irotg(iqbz)=ig
-!                 ndiff(:,iqbz) = nint(qx)
-!                 goto 88
-!              endif
-!           enddo
-!        enddo
-!        iqibz=iqibz+1
-!        qibz(:,iqibz) = qp
-!        irotq(iqbz)=iqibz
-!        irotg(iqbz)=1 !identical symops
-!        ndiff(:,iqbz)=0
-!        iqbzrep(iqibz) = iqbz !representative 
-! 88     continue
-!     enddo
-!     nqibz=iqibz
-!     allocate(iqii(ngrp,nqibz),igiqibz(ngrp,nqibz),qbzii(3,ngrp,nqibz),nigiq(nqibz))
-!     igiqibz=.false.
-!     do concurrent(iqbz=1:nqbz)
-!        iqibz= irotq(iqbz)
-!        ig   = irotg(iqbz)
-!        igiqibz(ig,iqibz) =.true.
-!        !iqii(ig,iqibz)=iqbz
-!        qbzii(:,ig,iqibz) = qbz(:,iqbz)
-!     enddo
-!     forall( iqibz=1:nqibz) nigiq(iqibz) = count(igiqibz(:,iqibz))
-!   endblock GetQIBZ
-!   write(6,*) 'nqbz nqibz ngrp=',nqbz,nqibz,ngrp
-! !  
   if(job==1) goto 1011 !Goto Souza's iteration --job=1 mode
   GetCNmatFile_job0: block  !job=0 mode to get CNmat file (connection matrix uumat and so on).
     real(8):: eps=1d-8
@@ -414,7 +374,6 @@ subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |
              endif
              if(debug) then!.true.) then !
                 do imlo=1,nMLO
-                   !proj = [(sum(cnk(iki:ik,imlo,iq)*dconjg(cnk(iki:ik,imlo,iq))),ik=iki,ikf)] !proj for each imlo
                    proj = [(sum(cnk0i(iki:ik,imlo,iq)*dconjg(cnk0i(iki:ik,imlo,iq))),ik=iki,ikf)] !proj for each imlo
                    write(stdo,ftox)'imlo=',imlo,' weight=',ftof(proj(iki:25),2),' total=',ftof(proj(ikf),3)
                 enddo
@@ -542,11 +501,13 @@ subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |
        integer:: il,im,in,ib1,ib2,jsp
        real(8):: fac0
        complex(8)::img2pi=img*2d0*pi, rotmat(nband,nband)
-       complex(8)::phase,proj(iki:ikf,iki:ikf),pa(iki:ikf,nMLO),pai(iki:ikf,nMLO),ham(nMLO,nMLO),ovlx(nMLO,nMLO)!,rotmatp(nMLO,nMLO)
+       complex(8)::phase,proj(iki:ikf,iki:ikf),pa(iki:ikf,nMLO),cmlo(iki:ikf,nMLO),ham(nMLO,nMLO),ovlx(nMLO,nMLO)!,rotmatp(nMLO,nMLO)
        jsp=is
        do iqibz = 1,nqibz
           forall(i=iki:ikf,j=iki:ikf) proj(i,j)=sum(cnki(i,:,iqibz)*dconjg(cnki(j,:,iqibz))) !projector to MLO space. Sum for MPOindex
-          pai(iki:ikf,1:nMLO) = matmul(proj,amnki(iki:ikf,1:nMLO,iqibz))
+          cmlo(iki:ikf,1:nMLO) = matmul(proj,amnki(iki:ikf,1:nMLO,iqibz))
+          !pmtf(1:ndimPMT,1:nMLO) = matmul(cmpo(:,:,,matmul(eveci(:,iki:ikf,iqibz),cmlo)
+          
           do ig = 1,ngrp
              !case1=== 
              if(.not.igiqibz(ig,iqibz)) cycle
@@ -556,7 +517,7 @@ subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |
              ! qp = matmul(symops(:,:,ig),qibz(:,iqibz))
              ! fac0= 1d0/dble(nqbz) *nigiq(iqibz)/ngrp
              call rotmatMTO(igg=ig,q=qibz(:,iqibz),qtarget=qp,ndimh=nband, rotmat=rotmat)
-             pa = matmul(pai,dconjg(transpose(rotmat(idmto_(:),idmto_(:)))))
+             pa = matmul(cmlo,dconjg(transpose(rotmat(idmto_(:),idmto_(:)))))
              forall(i=1:nMLO,j=1:nMLO) ham(i,j)  = sum(dconjg(pa(:,i))*evli(iki:ikf,iqibz)*pa(:,j))
              forall(i=1:nMLO,j=1:nMLO) ovlx(i,j) = sum(dconjg(pa(:,i))*pa(:,j))
              associate(ib=>ib_tableM)
