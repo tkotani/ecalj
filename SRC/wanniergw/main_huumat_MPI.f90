@@ -25,7 +25,7 @@ subroutine h_uumatrix()
       ,kx,isf,kqxx,kp,job,nbnbx,nhwtot,noccxvx,nwmax,ihis,jhwtot,ik,ibib,ib1,ib2,ichkhis,ihww,j,imode,ngpmx
    integer:: nwin,incwfin,verbose,ifphi,nbas,nradmx,ncoremx,nrx,ic,icx,isp,l,n,irad,ifoc, ldim2,ixx,ngp1,ngp2,nq0it
    integer:: iqindx,nqbandx,nqband,j1min_c(2),j1max_c(2),nbmin,nbmax, nmin,nmax,iq2,ntmp,if99,ifile_handle
-   integer:: ixc,idummy,idummy2,i1,i2,i3,nbbloop, ifq0p,ifuu(2), ifbb,nbb,iko_ixs(2),iko_fxs(2),noxs(2), &
+   integer:: ixc,idummy,idummy2,i1,i2,i3,nbbloop, ifq0p,ifuu(2), ifbb,nbb,iko_ixs(2),iko_fxs(2) &
       iqibz,iqbz,ibb,itmp,itmp2,iti,itf, nqibz2,nqbz2,iqb,ibb2,iqtmp,ibbtmp,ndg(3),ndg1(3),ndg2(3), &
       nb1d,iq0i,nq,j1,j2,j1max,j2max,j1min,j2min,ispin ,l1,l2,lm1,lm2,ibas2,lm3,ig1,ig2,ir,ia1,ma,ia2,m2,l3,m1,lxx &
       ,ico,lxd,lx, ierr,iclose,input3(3),n1,n2,ig, nproc1,nproc2,nq_proc,ii,jj,kk,iftmp,if101,&
@@ -48,7 +48,7 @@ subroutine h_uumatrix()
    complex(8),allocatable:: geig1(:,:),geig2(:,:),cphi1(:,:),cphi2(:,:) ,uum(:,:,:), ppovl(:,:)
    complex(8):: ppj,phaseatom
    logical:: qbzreg, lbnds,cmdopt2
-   character(8) :: xt,head
+   character(8) :: xt,head(2:3,2)
    character(4) charnum4
    character(20):: outs=''
    call MPI__Initialize()
@@ -130,7 +130,7 @@ subroutine h_uumatrix()
    allocate(m_indx(ldim2),n_indx(ldim2),l_indx(ldim2),ibas_indx(ldim2))
    do ix =1,ldim2
       read(ifoc,*)m_indx(ix),n_indx(ix),l_indx(ix),ibas_indx(ix),ixx
-      if(ixx/=ix) stop  'failed to readin @MNLA_CPHI'
+      if(ixx/=ix) call rx('failed to readin @MNLA_CPHI')
    enddo
    close(ifoc)
    if (mpi__root) then
@@ -140,17 +140,29 @@ subroutine h_uumatrix()
    open(newunit=ifbb,file='BBVEC')
    read(ifbb,*)
    read(ifbb,*)nbb,nqbz2
-   if (nqbz /= nqbz2) stop 'readbb: nqbz is wrong!'
-   allocate (bbv(3,nbb),ikbidx(nbb,nqbz))
-   call  readbb(ifbb,nqbz,nspin,nbb, bbv, ikbidx, iko_ixs,iko_fxs,noxs)
+   if (nqbz /= nqbz2) call rx('readbb: nqbz is wrong!')
+   allocate(bbv(3,nbb),ikbidx(nbb,nqbz))    !call readbb(ifbb,nqbz,nspin,nbb, bbv, ikbidx, iko_ixs,iko_fxs,noxs)
+   do i = 1,nbb
+      read(ifbb,*)bbv(1,i),bbv(2,i),bbv(3,i)
+   enddo
+   do iq = 1,nqbz
+      read(ifbb,*) !itmp,u(1:3)
+      do ib = 1,nbb
+         read(ifbb,*)itmp,itmp2,ikbidx(ib,iq) !,u(1:3)
+      enddo
+   enddo
+   read(ifbb,*)
+   read(ifbb,*)nspin2
+   if (nspin /= nspin2) call rx('nspin is wrong!')
+   do is = 1,nspin
+      read(ifbb,*)iko_ixs(is),iko_fxs(is) !,noxs(is)
+   enddo
    close(ifbb)
+   head(2,1:2)=['UUU.','UUD.']
+   head(3,1:2)=['UUq0U.','UUq0D.']
    if(mpi__root) then
       do isp=1,nspin
-         if (ixc==2.and.isp==1) head='UUU.'
-         if (ixc==2.and.isp==2) head='UUD.'
-         if (ixc==3.and.isp==1) head='UUq0U.'
-         if (ixc==3.and.isp==2) head='UUq0D.'
-         open(newunit=ifuu(isp),file=trim(head)//charnum4(0),form='unformatted')
+         open(newunit=ifuu(isp),file=trim(head(ixc,isp))//charnum4(0),form='unformatted')
          if(ixc==2)then
             write(ifuu(isp))'nqbz,nbb,iko_ixs(isp),iko_fxs(isp)',isp
             write(ifuu(isp))nqbz,nbb,iko_ixs(isp),iko_fxs(isp)
@@ -178,9 +190,6 @@ subroutine h_uumatrix()
    nproc2 = nproc - nproc1
    allocate(iq_proc(nq_proc+1))
    iq_proc = 0
-   !iftmp = ifile_handle()
-   !open(iftmp,file='myproc'//xt(myproc))
-   !write(iftmp,*)'*** myproc,i,q(i)'
    kk = 0
    jjloop: do jj = 1,nproc
       do ii = 1,nq_proc+1
@@ -193,22 +202,9 @@ subroutine h_uumatrix()
       iqbz = iq_proc(ii)
       if (iqbz == 0) cycle
       write(*,*)'iq =',iqbz, 'out of',nq
-      !write(iftmp,*)'iq =',iqbz, 'out of',nq
-      if (ixc==2) head='UUU.'
-      if (ixc==3) head='UUq0U.'
-      open(newunit=ifuu(1),file=trim(head)//charnum4(iqbz),form='unformatted')
-      if(nspin==2) then
-         if (ixc==2) head='UUD.'
-         if (ixc==3) head='UUq0D.'
-         open(newunit=ifuu(2),file=trim(head)//charnum4(iqbz),form='unformatted')
-      endif
-      ! if (ixc == 2) then
-      !    ifuu(1) = iopen('UUU.'//charnum4(iqbz),0,-1,0)
-      !    if (nspin == 2) ifuu(2) = iopen('UUD.'//charnum4(iqbz),0,-1,0)
-      ! elseif (ixc == 3) then
-      !    ifuu(1) = iopen('UUq0U.'//charnum4(iqbz),0,-1,0)
-      !    if (nspin == 2) ifuu(2) = iopen('UUq0D.'//charnum4(iqbz),0,-1,0)
-      ! endif
+      do isp=1,nspin
+         open(newunit=ifuu(isp),file=trim(head(ixc,isp))//charnum4(iqbz),form='unformatted')
+      enddo
       if (ixc == 2) nbbloop = nbb
       if (ixc == 3) nbbloop = nq0i
       ibbloop: do 1080 ibb = 1,nbbloop
@@ -267,15 +263,13 @@ subroutine h_uumatrix()
          ibasloop: do 900 ibas = 1,nbas ! radial integral  ppbrd = <phi phi j_l>
             ic = ibas
             do ir =1,nrofi(ic)
-               call bessl(absqg2*rr(ir,ibas)**2,lxx,phij,psij)
-               !  phij(lx) \approx 1/(2l+1)!! for small absqg*rr(ir,ibas).
+               call bessl(absqg2*rr(ir,ibas)**2,lxx,phij,psij)  !  phij(lx) \approx 1/(2l+1)!! for small absqg*rr(ir,ibas).
                do lx = 0, lxx
                   if(rr(ir,ibas)==0d0) then
                      rprodx(ir,lx)=0d0
                   else
                      rprodx(ir,lx) = rr(ir,ibas)* phij(lx)* (absqg*rr(ir,ibas))**lx
-                  endif
-                  ! = r \times j_l(|dq|r)  !bessel function
+                  endif      ! = r \times j_l(|dq|r)  !bessel function
                enddo
             enddo
             ispinloop: do 125 isp = 1,nspin
@@ -296,49 +290,33 @@ subroutine h_uumatrix()
 125         enddo ispinloop
 900      enddo ibasloop
          ! --- Calcuate <u{q1x j1} | u_{q2x j2}> = < exp(i(q1x-q2x)r) psi^*{q1x j1} psi_{q2x j2} >
-         ! ... MT part
-         !r   ldim2 = nlmto; n_indx(1;ldim2) : n index (phi=1 phidot=2 localorbital=3)
-         !r   l_indx   (1:ldim2) : l index ;   ibas_indx(1:ldim2) : ibas index.
+         ! ... MT part    !r   ldim2 = nlmto; n_indx(1;ldim2) : n index (phi=1 phidot=2 localorbital=3);  l_indx(1:ldim2) : l index ;   ibas_indx(1:ldim2) : ibas index.
          uum = 0d0
          do 1050 ispin=1,nspin
             allocate(cphi1 (nlmto,nband),cphi2(nlmto,nband) )
-            cphi1= readcphif(q1,ispin) !call readcphi(q1, nlmto, ispin, quu, cphi1)
-            cphi2= readcphif(q2,ispin) !call readcphi(q2, nlmto, ispin, quu, cphi2)
+            cphi1 = readcphif(q1,ispin) !call readcphi(q1, nlmto, ispin, quu, cphi1)
+            cphi2 = readcphif(q2,ispin) !call readcphi(q2, nlmto, ispin, quu, cphi2)
             ia1loop: do 1020 ia1 = 1,nlmto
                ia2loop: do 1010 ia2 = 1,nlmto
-                  ibas1= ibas_indx(ia1)
-                  l1   = l_indx    (ia1)
-                  m1   = m_indx    (ia1)
-                  n1   = n_indx    (ia1) + nc_max(l1,ibas1)
-                  lm1  = l1**2+l1+1  + m1
-                  ibas2 = ibas_indx(ia2)
-                  l2   = l_indx    (ia2)
-                  m2   = m_indx    (ia2)
-                  n2   = n_indx    (ia2) + nc_max(l2,ibas2)
-                  lm2= l2**2 +l2+1 + m2
+                  ibas1= ibas_indx(ia1); l1=l_indx(ia1); m1=m_indx(ia1); n1=n_indx(ia1)+ nc_max(l1,ibas1); lm1= l1**2+l1+1+ m1
+                  ibas2= ibas_indx(ia2); l2=l_indx(ia2); m2=m_indx(ia2); n2=n_indx(ia2)+ nc_max(l2,ibas2); lm2= l2**2+l2+1+ m2
                   if(ibas2/=ibas1) cycle
                   phaseatom = exp( img* 2d0*pi*sum(dq*pos(:,ibas1)) )
                   do lm3= (l1-l2)**2+1, (l1+l2+1)**2 ! l3 takes |l1-l2|,...l1+l2
                      l3 = ll(lm3)
                      ylk= cy(lm3)*yl(lm3)
                      ppj = ppbrd(l1,n1,l2,n2,l3,ispin,ibas1) *cg(lm1,lm2, lm3) * fpi* img**l3* phaseatom * ylk
-                     ! cg(lm1,lm2,lm3)= \int Y_lm3(\hat(r)) Y_lm2(\hat(r)) Y_lm1(\hat(r)) \frac{d \Omega}{4\pi}
-                     ! This is based on inverse expansion. See Rose.Eq.3.8.
-                     do j1= iko_ixs(ispin),iko_fxs(ispin)
-                        do j2= iko_ixs(ispin),iko_fxs(ispin)
-                           uum(j1,j2,ispin) = uum(j1,j2,ispin) + dconjg(cphi1(ia1,j1))*cphi2(ia2,j2) * ppj
-                        enddo
+                     ! cg(lm1,lm2,lm3)= \int Y_lm3(\hat(r)) Y_lm2(\hat(r)) Y_lm1(\hat(r)) \frac{d \Omega}{4\pi}.  ! This is based on inverse expansion. See Rose.Eq.3.8.
+                     do concurrent(j1=iko_ixs(ispin):iko_fxs(ispin), j2=iko_ixs(ispin):iko_fxs(ispin))
+                        uum(j1,j2,ispin) = uum(j1,j2,ispin) + dconjg(cphi1(ia1,j1))*cphi2(ia2,j2) * ppj
                      enddo
                   enddo
 1010           enddo ia2loop
 1020        enddo ia1loop
-            ! ... Interstitial Plane Wave part
             geig1 = readgeigf(q1,ispin) !call readgeig(q1, ngpmx, ispin, quu, geig1)
             geig2 = readgeigf(q2,ispin) !call readgeig(q2, ngpmx, ispin, quu, geig2)
-            do j1= iko_ixs(ispin),iko_fxs(ispin)
-               do j2= iko_ixs(ispin),iko_fxs(ispin)
-                  uum(j1,j2,ispin)= uum(j1,j2,ispin)+ sum( dconjg(geig1(1:ngp1,j1))*matmul(ppovl,geig2(1:ngp2,j2)) )
-               enddo
+            do concurrent(j1= iko_ixs(ispin):iko_fxs(ispin),j2= iko_ixs(ispin):iko_fxs(ispin)) ! ... Interstitial Plane Wave part
+               uum(j1,j2,ispin)= uum(j1,j2,ispin)+ sum( dconjg(geig1(1:ngp1,j1))*matmul(ppovl,geig2(1:ngp2,j2)) )
             enddo
             deallocate(cphi1, cphi2)
 1050     enddo
@@ -353,47 +331,43 @@ subroutine h_uumatrix()
          enddo
          write(6,*)' ============ result --- diagonal --- ==============',nspin,j1min,j1max,j2min,j2max
          do ispin = 1,nspin; do j1=j1min,j1max; do j2=j2min,j2max
-                  if(j1==j2) write(6,"('uuuiq isp=',i5,i2,' j1j2=',2i2,' q1 q2-q1=',3f8.4,x,3f8.4,' <u|u>=',2f9.4,x,f9.3)") &
+            if(j1==j2) write(6,"('uuuiq isp=',i5,i2,' j1j2=',2i2,' q1 q2-q1=',3f8.4,x,3f8.4,' <u|u>=',2f9.4,x,f9.3)") &
                      iqbz,ispin,j1,j2,q1,q1-q2,uum(j1,j2,ispin),abs(uum(j1,j2,ispin))
-               enddo;  enddo; enddo
+         enddo;  enddo; enddo
          deallocate(ngvecpf1, ngvecpf2, ppovl, ppbrd, rprodx, phij, psij, rphiphi, cy, yl)
 1080  enddo ibbloop
       close(ifuu(1))
       if(nspin==2) close(ifuu(2))
-!      if(ixc==2) ifuu(1) = iclose('UUU.'//charnum4(iqbz))
-!      if(ixc==2.and.nspin == 2) ifuu(2) = iclose('UUD.'//charnum4(iqbz))
-!      if(ixc==3) ifuu(1) = iclose('UUq0U.'//charnum4(iqbz))
-!      if(ixc==3 .and. nspin == 2) ifuu(2) = iclose('UUq0D.'//charnum4(iqbz))
 1070 enddo iqbzloop
    deallocate(iq_proc,uum)
    if (mpi__root) write(6,*) ' ====== end ========================================'
    call mpi__finalize()
 end subroutine h_uumatrix
-subroutine checkagree(a,b,char)
-   real(8):: a(3),b(3)
-   character*(*) :: char
-   if(sum(abs(a-b))>1d-6) call rx(' Error in checkagree:'//trim(char))
-end subroutine checkagree
-subroutine  readbb(ifbb,nqbz,nspin,nbb, bbv, ikbidx, iko_ixs,iko_fxs,noxs)
-   implicit integer (i-n)
-   implicit real*8(a-h,o-z)
-   parameter (eps = 1d-4)
-   real(8) :: u(3),bbv(3,nbb)
-   integer :: iko_ixs(2),iko_fxs(2),noxs(2)
-   integer:: ikbidx(nbb,nqbz)
-   do i = 1,nbb
-      read(ifbb,*)bbv(1,i),bbv(2,i),bbv(3,i),dummy4
-   enddo
-   do iq = 1,nqbz
-      read(ifbb,*)itmp,u(1:3)
-      do ib = 1,nbb
-         read(ifbb,*)itmp,itmp2,ikbidx(ib,iq),u(1:3)
-      enddo
-   enddo
-   read(ifbb,*)
-   read(ifbb,*)nspin2
-   if (nspin /= nspin2) call rx('nspin is wrong!')
-   do is = 1,nspin
-      read(ifbb,*)iko_ixs(is),iko_fxs(is),noxs(is)
-   enddo
-end subroutine readbb
+!subroutine checkagree(a,b,char)
+!   real(8):: a(3),b(3)
+!   character*(*) :: char
+!   if(sum(abs(a-b))>1d-6) call rx(' Error in checkagree:'//trim(char))
+!end subroutine checkagree
+! subroutine  readbb(ifbb,nqbz,nspin,nbb, bbv, ikbidx, iko_ixs,iko_fxs,noxs)
+!    implicit integer (i-n)
+!    implicit real*8(a-h,o-z)
+!    parameter (eps = 1d-4)
+!    real(8) :: u(3),bbv(3,nbb)
+!    integer :: iko_ixs(2),iko_fxs(2),noxs(2)
+!    integer:: ikbidx(nbb,nqbz)
+!    do i = 1,nbb
+!       read(ifbb,*)bbv(1,i),bbv(2,i),bbv(3,i),dummy4
+!    enddo
+!    do iq = 1,nqbz
+!       read(ifbb,*)itmp,u(1:3)
+!       do ib = 1,nbb
+!          read(ifbb,*)itmp,itmp2,ikbidx(ib,iq),u(1:3)
+!       enddo
+!    enddo
+!    read(ifbb,*)
+!    read(ifbb,*)nspin2
+!    if (nspin /= nspin2) call rx('nspin is wrong!')
+!    do is = 1,nspin
+!       read(ifbb,*)iko_ixs(is),iko_fxs(is),noxs(is)
+!    enddo
+! end subroutine readbb
