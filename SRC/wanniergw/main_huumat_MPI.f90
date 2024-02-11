@@ -28,8 +28,8 @@ subroutine h_uumatrix()
    integer:: ixc,idummy,idummy2,i1,i2,i3,nbbloop, ifq0p,ifuu(2), ifbb,nbb,iko_ixs(2),iko_fxs(2),noxs(2), &
       iqibz,iqbz,ibb,itmp,itmp2,iti,itf, nqibz2,nqbz2,iqb,ibb2,iqtmp,ibbtmp,ndg(3),ndg1(3),ndg2(3), &
       nb1d,iq0i,nq,j1,j2,j1max,j2max,j1min,j2min,ispin ,l1,l2,lm1,lm2,ibas2,lm3,ig1,ig2,ir,ia1,ma,ia2,m2,l3,m1,lxx &
-      ,iopen,ico,lxd,lx, ierr,iclose,input3(3),n1,n2,ig, nproc1,nproc2,nq_proc,ii,jj,kk,iftmp,if101,&
-      timevalues(8) 
+      ,ico,lxd,lx, ierr,iclose,input3(3),n1,n2,ig, nproc1,nproc2,nq_proc,ii,jj,kk,iftmp,if101,&
+      timevalues(8)
    integer,allocatable :: ngvecpB(:,:,:),ngveccB(:,:), ngvecpf1(:,:), ngvecpf2(:,:), &
       nx(:,:),nblocha(:),ifppb(:) !ongveccBr(:,:,:)
    integer,allocatable:: ncindx(:,:), lcindx(:,:), nrad(:), nindx_r(:,:), lindx_r(:,:), nc_max(:,:), &
@@ -48,14 +48,14 @@ subroutine h_uumatrix()
    complex(8),allocatable:: geig1(:,:),geig2(:,:),cphi1(:,:),cphi2(:,:) ,uum(:,:,:), ppovl(:,:)
    complex(8):: ppj,phaseatom
    logical:: qbzreg, lbnds,cmdopt2
-   character(8) :: xt
+   character(8) :: xt,head
    character(4) charnum4
    character(20):: outs=''
    call MPI__Initialize()
    call M_lgunit_init()
    call date_and_time(values=timevalues)
    write(stdo,"('mpirank=',i5,' YYYY.MM.DD.HH.MM.msec=',9i4)")myproc,timevalues(1:3),timevalues(5:8)
-   if(myproc == 0) then
+   if(mpi__root) then
       if(cmdopt2('--job=',outs)) then
          read(outs,*) ixc
       else
@@ -98,7 +98,7 @@ subroutine h_uumatrix()
       read(ifphi) rr(1:nrofi(ic),ic)
       rmax(ic) = rr(nrofi(ic),ic)
       do isp = 1, nspin
-         if (myproc == 0)  write(6,*)'          ---  isp nrad ncore(ic)=',isp, nrad(ic),ncore(ic)
+         if (mpi__root)  write(6,*)'          ---  isp nrad ncore(ic)=',isp, nrad(ic),ncore(ic)
          do ico = 1, ncore(ic) !core
             l =  lcindx(ico,ic)
             n =  ncindx(ico,ic)
@@ -133,7 +133,7 @@ subroutine h_uumatrix()
       if(ixx/=ix) stop  'failed to readin @MNLA_CPHI'
    enddo
    close(ifoc)
-   if (myproc == 0) then
+   if (mpi__root) then
       write(6,*) ' Used k number in Q0P =', nq0i
       write(6,"(i3,2x, 3f14.6)" )(i,q0i(1:3,i),i=1,nq0i)
    endif
@@ -144,32 +144,22 @@ subroutine h_uumatrix()
    allocate (bbv(3,nbb),ikbidx(nbb,nqbz))
    call  readbb(ifbb,nqbz,nspin,nbb, bbv, ikbidx, iko_ixs,iko_fxs,noxs)
    close(ifbb)
-   if (ixc == 2) then
-      if (myproc == 0) then
-         ifuu(1) = iopen('UUU.'//charnum4(0),0,-1,0)
-         write(ifuu(1))'nqbz,nbb,iko_ixs(1),iko_fxs(1)'
-         write(ifuu(1))nqbz,nbb,iko_ixs(1),iko_fxs(1)
-         ifuu(1) = iclose('UUU.'//charnum4(0))
-         if (nspin == 2) then
-            ifuu(2) = iopen('UUD.'//charnum4(0),0,-1,0)
-            write(ifuu(2))'nqbz,nbb,iko_ixs(2),iko_fxs(2)'
-            write(ifuu(2))nqbz,nbb,iko_ixs(2),iko_fxs(2)
-            ifuu(2) = iclose('UUD.'//charnum4(0))
+   if(mpi__root) then
+      do isp=1,nspin
+         if (ixc==2.and.isp==1) head='UUU.'
+         if (ixc==2.and.isp==2) head='UUD.'
+         if (ixc==3.and.isp==1) head='UUq0U.'
+         if (ixc==3.and.isp==2) head='UUq0D.'
+         open(newunit=ifuu(isp),file=trim(head)//charnum4(0),form='unformatted')
+         if(ixc==2)then
+            write(ifuu(isp))'nqbz,nbb,iko_ixs(isp),iko_fxs(isp)',isp
+            write(ifuu(isp))nqbz,nbb,iko_ixs(isp),iko_fxs(isp)
+         elseif(ixc==3) then
+            write(ifuu(isp))'nqbz,nq0i,iko_ixs(isp),iko_fxs(isp)',isp
+            write(ifuu(isp))nqbz,nq0i,iko_ixs(isp),iko_fxs(isp)
          endif
-      endif
-   elseif (ixc == 3) then
-      if (myproc == 0) then
-         ifuu(1) = iopen('UUq0U.'//charnum4(0),0,-1,0)
-         write(ifuu(1))'nqbz,nq0i,iko_ixs(1),iko_fxs(1)'
-         write(ifuu(1))nqbz,nq0i,iko_ixs(1),iko_fxs(1)
-         ifuu(1) = iclose('UUq0U.'//charnum4(0))
-         if (nspin == 2) then
-            ifuu(2) = iopen('UUq0D.'//charnum4(0),0,-1,0)
-            write(ifuu(2))'nqbz,nq0i,iko_ixs(2),iko_fxs(2)'
-            write(ifuu(2))nqbz,nq0i,iko_ixs(2),iko_fxs(2)
-            ifuu(2) = iclose('UUq0D.'//charnum4(0))
-         endif
-      endif
+         close(ifuu(isp))
+      enddo
    endif
    ! --- Set q1(j1range) q2(j2range); Note that the true q when we generate eigenfunctions are q1x and q2x.
    ! q1-q1x should be a G vector.  So you may need to take into account the phase shift to <u|u> vectors.
@@ -188,32 +178,37 @@ subroutine h_uumatrix()
    nproc2 = nproc - nproc1
    allocate(iq_proc(nq_proc+1))
    iq_proc = 0
-   iftmp = ifile_handle() !100 + myproc
-   open(iftmp,file='myproc'//xt(myproc))
-   write(iftmp,*)'*** myproc,i,q(i)'
+   !iftmp = ifile_handle()
+   !open(iftmp,file='myproc'//xt(myproc))
+   !write(iftmp,*)'*** myproc,i,q(i)'
    kk = 0
    jjloop: do jj = 1,nproc
       do ii = 1,nq_proc+1
          if (jj > nproc1 .AND. ii > nq_proc) cycle
          kk = kk + 1
-         if (myproc == jj-1) then
-            iq_proc(ii) = kk
-            write(iftmp,*)myproc,ii,iq_proc(ii)
-         endif
-      enddo 
+         if (myproc == jj-1) iq_proc(ii) = kk             !write(iftmp,*)myproc,ii,iq_proc(ii)
+      enddo
    enddo jjloop
    iqbzloop: do 1070 ii = 1,nq_proc+1
       iqbz = iq_proc(ii)
       if (iqbz == 0) cycle
       write(*,*)'iq =',iqbz, 'out of',nq
-      write(iftmp,*)'iq =',iqbz, 'out of',nq
-      if (ixc == 2) then
-         ifuu(1) = iopen('UUU.'//charnum4(iqbz),0,-1,0)
-         if (nspin == 2) ifuu(2) = iopen('UUD.'//charnum4(iqbz),0,-1,0)
-      elseif (ixc == 3) then
-         ifuu(1) = iopen('UUq0U.'//charnum4(iqbz),0,-1,0)
-         if (nspin == 2) ifuu(2) = iopen('UUq0D.'//charnum4(iqbz),0,-1,0)
+      !write(iftmp,*)'iq =',iqbz, 'out of',nq
+      if (ixc==2) head='UUU.'
+      if (ixc==3) head='UUq0U.'
+      open(newunit=ifuu(1),file=trim(head)//charnum4(iqbz),form='unformatted')
+      if(nspin==2) then
+         if (ixc==2) head='UUD.'
+         if (ixc==3) head='UUq0D.'
+         open(newunit=ifuu(2),file=trim(head)//charnum4(iqbz),form='unformatted')
       endif
+      ! if (ixc == 2) then
+      !    ifuu(1) = iopen('UUU.'//charnum4(iqbz),0,-1,0)
+      !    if (nspin == 2) ifuu(2) = iopen('UUD.'//charnum4(iqbz),0,-1,0)
+      ! elseif (ixc == 3) then
+      !    ifuu(1) = iopen('UUq0U.'//charnum4(iqbz),0,-1,0)
+      !    if (nspin == 2) ifuu(2) = iopen('UUq0D.'//charnum4(iqbz),0,-1,0)
+      ! endif
       if (ixc == 2) nbbloop = nbb
       if (ixc == 3) nbbloop = nq0i
       ibbloop: do 1080 ibb = 1,nbbloop
@@ -289,12 +284,10 @@ subroutine h_uumatrix()
                      do  l2 = 0, nl-1
                         do  n2 = 1, nindx(l2+1,ic)
                            rphiphi(1)       = 0d0
-                           rphiphi(2:nrofi(ic)) = phitoto(2:nrofi(ic),l1,n1,ic,isp) &
-                              *phitoto(2:nrofi(ic),l2,n2,ic,isp)/rr(2:,ic) ! phi = u = r \phi
+                           rphiphi(2:nrofi(ic)) = phitoto(2:nrofi(ic),l1,n1,ic,isp)*phitoto(2:nrofi(ic),l2,n2,ic,isp)/rr(2:,ic) ! phi = u = r \phi
                            do  lx = 0, 2*(nl-1)
                               if(lx <abs(l1-l2) .OR. l1+l2<lx) cycle
-                              call gintxx( rprodx(1,lx), rphiphi,aa(ic),bb(ic),nrofi(ic), &
-                                 ppbrd(l1, n1,l2, n2, lx, isp,ibas) )
+                              call gintxx( rprodx(1,lx), rphiphi,aa(ic),bb(ic),nrofi(ic), ppbrd(l1, n1,l2, n2, lx, isp,ibas) )
                            enddo
                         enddo
                      enddo
@@ -360,20 +353,21 @@ subroutine h_uumatrix()
          enddo
          write(6,*)' ============ result --- diagonal --- ==============',nspin,j1min,j1max,j2min,j2max
          do ispin = 1,nspin; do j1=j1min,j1max; do j2=j2min,j2max
-            if(j1==j2) write(6,"('uuuiq isp=',i5,i2,' j1j2=',2i2,' q1 q2-q1=',3f8.4,x,3f8.4,' <u|u>=',2f9.4,x,f9.3)") &
-                    iqbz,ispin,j1,j2,q1,q1-q2,uum(j1,j2,ispin),abs(uum(j1,j2,ispin))
-         enddo;  enddo; enddo
+                  if(j1==j2) write(6,"('uuuiq isp=',i5,i2,' j1j2=',2i2,' q1 q2-q1=',3f8.4,x,3f8.4,' <u|u>=',2f9.4,x,f9.3)") &
+                     iqbz,ispin,j1,j2,q1,q1-q2,uum(j1,j2,ispin),abs(uum(j1,j2,ispin))
+               enddo;  enddo; enddo
          deallocate(ngvecpf1, ngvecpf2, ppovl, ppbrd, rprodx, phij, psij, rphiphi, cy, yl)
 1080  enddo ibbloop
-      if(ixc==2) ifuu(1) = iclose('UUU.'//charnum4(iqbz))
-      if(ixc==2.and.nspin == 2) ifuu(2) = iclose('UUD.'//charnum4(iqbz))
-      if(ixc==3) ifuu(1) = iclose('UUq0U.'//charnum4(iqbz))
-      if(ixc==3 .and. nspin == 2) ifuu(2) = iclose('UUq0D.'//charnum4(iqbz))
+      close(ifuu(1))
+      if(nspin==2) close(ifuu(2))
+!      if(ixc==2) ifuu(1) = iclose('UUU.'//charnum4(iqbz))
+!      if(ixc==2.and.nspin == 2) ifuu(2) = iclose('UUD.'//charnum4(iqbz))
+!      if(ixc==3) ifuu(1) = iclose('UUq0U.'//charnum4(iqbz))
+!      if(ixc==3 .and. nspin == 2) ifuu(2) = iclose('UUq0D.'//charnum4(iqbz))
 1070 enddo iqbzloop
    deallocate(iq_proc,uum)
-   if (myproc == 0) write(6,*) ' ====== end ========================================'
+   if (mpi__root) write(6,*) ' ====== end ========================================'
    call mpi__finalize()
-   !call RSMPI_Finalize()
 end subroutine h_uumatrix
 subroutine checkagree(a,b,char)
    real(8):: a(3),b(3)
@@ -385,7 +379,7 @@ subroutine  readbb(ifbb,nqbz,nspin,nbb, bbv, ikbidx, iko_ixs,iko_fxs,noxs)
    implicit real*8(a-h,o-z)
    parameter (eps = 1d-4)
    real(8) :: u(3),bbv(3,nbb)
-   integer :: iopen, iko_ixs(2),iko_fxs(2),noxs(2)
+   integer :: iko_ixs(2),iko_fxs(2),noxs(2)
    integer:: ikbidx(nbb,nqbz)
    do i = 1,nbb
       read(ifbb,*)bbv(1,i),bbv(2,i),bbv(3,i),dummy4
