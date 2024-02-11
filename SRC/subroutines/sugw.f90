@@ -4,7 +4,7 @@ module m_sugw
   private
   public:: m_sugw_init
 contains
-  subroutine m_sugw_init (socmatrix,eferm,vmag,qval) !dipolematrix,
+  subroutine m_sugw_init (socmatrix,eferm,vmag,qval,FPMTmodein) !dipolematrix,
     use m_ext,only:   sname
     use m_suham,only: ndham=>ham_ndham !max dimension of hamiltonian +napwad (for so=0,2)
     use m_lmfinit,only: ham_pwmode,pwemax,ham_oveps,lrsig=>ham_lsig,nlmto,lso
@@ -78,7 +78,8 @@ contains
     integer:: ham_lsig
     integer:: jobgw=1 , lh(n0)
     real(8):: rsml(n0), ehl(n0) ,eferm,qval
-    logical :: lwvxc,cmdopt0
+    logical :: lwvxc,cmdopt0,FPMTmode=.false.
+    logical,optional:: FPMTmodein
     integer :: i,i1,i2,iat,ib,ibr,icore,ierr,ifeigen,&! & ifi,
          ifiqg,iflband(2),ifqeigen,ifsyml,igets,igetss,iix,iline, &
          im1,im2,ipb(nbas),ipqn,ipr,iprint,iq,is,isp,ispc,j,job,k1, &
@@ -87,7 +88,7 @@ contains
          ncore,ndima,nevl,nev,nglob,ngp,ngp_p, &
          ngpmx,nline,nlinemax,nlmax,nmx,nn1,nn2,nnn, &
          nphimx,npqn,nqbz,nqibz,nqnum,nqnumx,nqtot,nr,iqibz,imx, &
-         ifigwb,ifigwa,ifinormchk,ifigw1,ifildima,ifigwn,ifigwbhead, &
+         ifigwb,ifigwb0,ifigwa,ifinormchk,ifigw1,ifildima,ifigwn,ifigwbhead, &
          ificlass,ifievec,ifievecx,ifigw2,ifiqbz,ifievv,idat
     complex(8),allocatable :: aus_zv(:)
     real(8),allocatable :: ww_rv(:)
@@ -99,9 +100,9 @@ contains
     real(8),allocatable:: wk(:,:), &
          bas(:,:),rofi(:),rwgt(:),gcore(:,:,:),gval(:,:,:,:,:),evl(:,:),vxclda(:)
     real(8),allocatable::  cphiw(:,:) !!ovv(:,:),evl_p(:,:), qq1(:,:),qq2(:,:),
-    complex(8),allocatable:: ham(:,:),ovl(:,:),evec(:,:),vxc(:,:),&! & dipo(:,:,:),
-         ppovl(:,:),phovl(:,:),pwh(:,:),pwz(:,:),pzovl(:,:), &
-         testc(:,:),testcd(:),ppovld(:),cphi(:,:,:),cphi_p(:,:,:), &
+    complex(8),allocatable:: ham(:,:),ovl(:,:),evec(:,:),evec0(:,:),vxc(:,:),&! & dipo(:,:,:),
+         ppovl(:,:),phovl(:,:),pwh(:,:),pwz(:,:),pzovl(:,:), pwz0(:,:),&
+         testc(:,:),testcd(:),ppovld(:),cphi(:,:,:),cphi0(:,:,:),cphi_p(:,:,:), &
          geig(:,:,:),geig_p(:,:,:),sene(:,:)
     integer::isize_ham(3)
     integer :: ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),norb
@@ -331,7 +332,8 @@ contains
           allocate(hammhso(ndimh,ndimh,3))
           call aughsoc(qp, ohsozz,ohsopm, ndimh, hammhso)
        endif
-       open(newunit=ifigwb,file='gwb'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
+       open(newunit=ifigwb, file='gwb' //trim(xt(iq))//trim(xt(isp)),form='unformatted')
+       open(newunit=ifigwb0,file='gwb0'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
        if(lwvxc) then
           open(newunit=ifievec,   file='evec'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
           open(newunit=ifiv,      file='vxc'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
@@ -399,11 +401,21 @@ contains
        !$$$!! wave function rotation test  for nqzz and and qzz(:,i)
        !$$$  for qtarget, call rotwv(q,qtarget,ndimh,napw,ndimh, evec,evecout,ierr) 
        nlmax = (lmxax+1)**2 
+
        allocate(aus_zv(nlmax*ndham*3*nsp*nbas))     ! Project wf into augmentation spheres, Kotani conventions ---
+
+       !evec0 2024-2-11
+       if(present(FPMTmodein)) FPMTmode=FPMTmodein
+       if(FPMTmode) then
+         allocate(evec0(ndimh,ndimh),source=(0d0,0d0))
+         forall(i=1:ndimh) evec0(i,i)=1d0
+         aus_zv=0d0
+         call makusq(nbas,[-999], nev,  isp, 1 , qp , evec0 , aus_zv ) 
+         call gwcphi(isp,nsp,nlmax,ndham,nev,nbas,lmxax,nlindx,ndima,aus_zv,  cphi0(1,1,isp),cphiw(1,isp ))!cphi0 is for |F^PMT> 
+       endif  
        aus_zv=0d0
-       call makusq(nbas,[-999], nev,  isp, 1 , qp , evec , aus_zv ) 
-       call gwcphi(isp,nsp,nlmax,ndham,nev,nbas,lmxax,nlindx,ndima,aus_zv,&
-            cphi(1,1,isp),cphiw(1,isp ))!cphi coefficients for phi,phidot,pz(val=slope=0). pz is by wf2lo.
+       call makusq(nbas,[-999], nev,  isp, 1 , qp , evec ,  aus_zv ) 
+       call gwcphi(isp,nsp,nlmax,ndham,nev,nbas,lmxax,nlindx,ndima,aus_zv,  cphi(1,1,isp),cphiw(1,isp ))!cphi coefficients for phi,phidot,pz(val=slope=0). pz is by wf2lo.
        deallocate(aus_zv)
        !     ! We keep note in the followings, but be careful (may contain bugs)...
        !     !  --- Overlap of IPWs, PW expansion of eigenfunctions pwz ---
@@ -446,7 +458,11 @@ contains
           !     !           igv(internally in pwmat) = igv2 + qlatinv*(qp-q)
           !     !            inn = qlatinv*(qp-q)
           call pwmat(nbas,ndimh,napw,igv2x,qp,ngp,nlmax,ngvecp(1,1,iq),gmax, ppovl, phovl )
-          pwz=matmul(phovl,evec)
+          if(FPMTmode) then
+            allocate(pwz0(ngp,ndimh))
+            pwz0=matmul(phovl,evec0)
+          endif  
+          pwz =matmul(phovl,evec)
           deallocate(phovl)
           if (lchk >= 1) then
              allocate(pzovl(ngp,ndimh))
@@ -457,6 +473,7 @@ contains
              enddo
           endif
           call matcinv(ngp,ppovl)! inversion of hermitian ppovl
+          if(FPMTmode) pwz0 = matmul(ppovl,pwz0)
           pwz = matmul(ppovl,pwz)
           deallocate(ppovl)
           if (lchk >= 1) then
@@ -494,12 +511,16 @@ contains
        write(ifigwb) evl(1:ndimh,isp),cphi(:,:,isp),pwz,vxclda(1:ndimh),nev
        deallocate(pwz)
        close(ifigwb)
-       if (lwvxc) then ! .NOT. cmdopt0('--novxc')) then
-          close(ifiv)
-          close(ifievec)
-       endif
+       if (lwvxc) close(ifiv)
+       if (lwvxc) close(ifievec)
        if(allocated(hammhso)) deallocate(hammhso)
        deallocate(ham,ovl,evec,vxc,cphi,cphiw)
+       if(FPMTmode) then
+         write(ifigwb0)   cphi0(:,:,isp),pwz0,nev
+         deallocate(pwz0)
+         close(ifigwb0)
+         deallocate(evec0,cphi0)
+      endif   
 1001 enddo iqloop
     deallocate(evl)
     close(ifiqg)

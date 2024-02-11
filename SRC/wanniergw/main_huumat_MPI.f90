@@ -5,7 +5,7 @@ subroutine h_uumatrix()
    ! Takashi Miyake, Mar 2008, parallelized.  originally written by Takao Kotani, April, 2004
    use m_readqg,only: readngmx,ngcmx,readqg0,readqg
    use m_hamindex,only:   Readhamindex,ngrp
-   use m_readeigen,only:init_readeigen,init_readeigen2,readcphif,readgeigf,readeval
+   use m_readeigen,only:init_readeigen,init_readeigen2,readcphif,readcphif0,readgeigf,readgeigf0,readeval
    use m_read_bzdata,only: read_bzdata, nqbz,nqibz,nqbzw,nteti,ntetf,qbas=>qlat, ginv, &
       dq_,wbz,qibz,wibz,qbzw, qbz, idtetf,ib1bz,idteti, nstar,irk,nstbz,  nq0i=>nq0ix,q0i
    use m_genallcf_v3,only: genallcf_v3, ncore2=>ncore,nrxx=>nrx, natom,nclass,nspin,nl,nn,nnv,nnc, &
@@ -47,7 +47,7 @@ subroutine h_uumatrix()
    complex(8),parameter:: img=(0d0,1d0)
    complex(8),allocatable:: geig1(:,:),geig2(:,:),cphi1(:,:),cphi2(:,:) ,uum(:,:,:), ppovl(:,:)
    complex(8):: ppj,phaseatom
-   logical:: qbzreg, lbnds,cmdopt2
+   logical:: qbzreg, lbnds,cmdopt2,cmdopt0
    character(8) :: xt,head(2:3,2)
    character(4) charnum4
    character(20):: outs=''
@@ -295,13 +295,18 @@ subroutine h_uumatrix()
          uum = 0d0
          ispinloop2: do 1050 ispin=1,nspin
             allocate(cphi1 (nlmto,nband),cphi2(nlmto,nband) )
-            cphi1 = readcphif(q1,ispin) !call readcphi(q1, nlmto, ispin, quu, cphi1)
-            cphi2 = readcphif(q2,ispin) !call readcphi(q2, nlmto, ispin, quu, cphi2)
-            ia1loop: do 1020 ia1 = 1,nlmto
-               ia2loop: do 1010 ia2 = 1,nlmto
-                  ibas1= ibas_indx(ia1); l1=l_indx(ia1); m1=m_indx(ia1); n1=n_indx(ia1)+ nc_max(l1,ibas1); lm1= l1**2+l1+1+ m1
-                  ibas2= ibas_indx(ia2); l2=l_indx(ia2); m2=m_indx(ia2); n2=n_indx(ia2)+ nc_max(l2,ibas2); lm2= l2**2+l2+1+ m2
+            if(cmdopt0('--fpmt')) then
+               cphi1 = readcphif0(q1,ispin)
+               cphi2 = readcphif0(q2,ispin)
+            else
+               cphi1 = readcphif(q1,ispin) !call readcphi(q1, nlmto, ispin, quu, cphi1)
+               cphi2 = readcphif(q2,ispin) !call readcphi(q2, nlmto, ispin, quu, cphi2)
+            endif
+            ia1loop: do 1020 ia1 = 1,nlmto; ibas1= ibas_indx(ia1)
+               ia2loop: do 1010 ia2 = 1,nlmto; ibas2= ibas_indx(ia2)
                   if(ibas2/=ibas1) cycle
+                  l1=l_indx(ia1); m1=m_indx(ia1); n1=n_indx(ia1)+ nc_max(l1,ibas1); lm1= l1**2+l1+1+ m1
+                  l2=l_indx(ia2); m2=m_indx(ia2); n2=n_indx(ia2)+ nc_max(l2,ibas2); lm2= l2**2+l2+1+ m2
                   phaseatom = exp( img* 2d0*pi*sum(dq*pos(:,ibas1)) )
                   do lm3= (l1-l2)**2+1, (l1+l2+1)**2 ! l3 takes |l1-l2|,...l1+l2
                      l3 = ll(lm3)
@@ -314,8 +319,13 @@ subroutine h_uumatrix()
                   enddo
 1010           enddo ia2loop
 1020        enddo ia1loop
-            geig1 = readgeigf(q1,ispin) !call readgeig(q1, ngpmx, ispin, quu, geig1)
-            geig2 = readgeigf(q2,ispin) !call readgeig(q2, ngpmx, ispin, quu, geig2)
+            if(cmdopt0('--fpmt')) then
+               geig1 = readgeigf0(q1,ispin)
+               geig2 = readgeigf0(q2,ispin)
+            else
+               geig1 = readgeigf(q1,ispin) !call readgeig(q1, ngpmx, ispin, quu, geig1)
+               geig2 = readgeigf(q2,ispin) !call readgeig(q2, ngpmx, ispin, quu, geig2)
+            endif
             do concurrent(j1= iko_ixs(ispin):iko_fxs(ispin),j2= iko_ixs(ispin):iko_fxs(ispin)) ! ... Interstitial Plane Wave part
                uum(j1,j2,ispin)= uum(j1,j2,ispin)+ sum( dconjg(geig1(1:ngp1,j1))*matmul(ppovl,geig2(1:ngp2,j2)) )
             enddo
@@ -331,9 +341,9 @@ subroutine h_uumatrix()
          enddo
          write(stdo,*)' ============ result --- diagonal --- ==============',nspin,j1min,j1max,j2min,j2max
          do ispin = 1,nspin; do j1=j1min,j1max; do j2=j2min,j2max
-            if(j1==j2) write(stdo,"('uuuiq isp=',i5,i2,' j1j2=',2i2,' q1 q2-q1=',3f8.4,x,3f8.4,' <u|u>=',2f9.4,x,f9.3)") &
+                  if(j1==j2) write(stdo,"('uuuiq isp=',i5,i2,' j1j2=',2i2,' q1 q2-q1=',3f8.4,x,3f8.4,' <u|u>=',2f9.4,x,f9.3)") &
                      iqbz,ispin,j1,j2,q1,q1-q2,uum(j1,j2,ispin),abs(uum(j1,j2,ispin))
-         enddo;  enddo; enddo
+               enddo;  enddo; enddo
          deallocate(ngvecpf1, ngvecpf2, ppovl, ppbrd, rprodx, phij, psij, rphiphi, cy, yl)
 1080  enddo ibbloop
       close(ifuu(1))

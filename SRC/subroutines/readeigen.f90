@@ -16,7 +16,7 @@ module m_readeigen
   implicit none
   !-------------------------------
   public::Readeval, Readgeigf, Readcphif, Readcphifq, Init_readeigen, Init_readeigen2, Lowesteval
-  public::Onoff_write_pkm4crpa, Init_readeigen_mlw_noeval, Readcphiw, Readgeigw !Init_readeigen_phi_noeval, 
+  public::Onoff_write_pkm4crpa, Init_readeigen_mlw_noeval, Readcphiw, Readgeigw, readcphif0,readgeigf0
   integer,public:: nwf
   !------------------------------
   private
@@ -73,10 +73,18 @@ contains
     complex(8):: geigen(ngpmx,nband)
     call readgeig(q,ngpmx,isp,qu,geigen)
   end function readgeigf
-  ! sssssssssssssssssssssssssssssssssssssssssssss
-  subroutine readgeig(q,ngp_in,isp, qu,geigen)
+  function readgeigf0(q,isp) result(geigen)
+   real(8),intent(in):: q(3)
+   integer,intent(in):: isp
+   real(8):: qu(3)
+   complex(8):: geigen(ngpmx,nband)
+   call readgeig(q,ngpmx,isp,qu,geigen,fpmt=.true.)
+ end function readgeigf0
+ ! sssssssssssssssssssssssssssssssssssssssssssss
+  subroutine readgeig(q,ngp_in,isp, qu,geigen,fpmt)
     use m_rotwave,only: Rotipw
     implicit none
+    logical,optional,intent(in):: fpmt
     real(8),intent(in) :: q(3)
     integer,intent(in) :: isp,ngp_in
     real(8),intent(out) :: qu(3)
@@ -101,7 +109,10 @@ contains
        write(6,"(a,3i5,3f10.4,2i5)")' ngp(iq) ngp(iqq)=',iq,iqq,igg,q,ngp(iq),ngp(iqq)
        call rx( 'readgeig:x2 ngp(iq)/=ngp(iqq)')
     endif
-    if(keepeig) then
+    if(present(fpmt)) then
+       ikpisp= isp + nsp*(iqi-1)
+       read(ifgeig, rec=ikpisp) geigenr(1:ngpmx,1:nband)
+    elseif(keepeig) then
        geigenr(1:ngp(iq),1:nband) = geig(1:ngp(iq),1:nband,iqi,isp)
     else
        ikpisp= isp + nsp*(iqi-1)
@@ -126,22 +137,32 @@ contains
     call readcphi(q,ldim2,isp, qu, cphif)
     quu=qu
   end function readcphif
-  ! sssssssssssssssssssssssssssssssssssssssssssss
+  function readcphif0(q,isp) result(cphif)
+   integer,intent(in):: isp
+   real(8),intent(in):: q(3)
+   real(8) :: qu(3)
+   complex(8):: cphif(ldim2,nband)
+   call readcphi(q,ldim2,isp, qu, cphif,fpmt=.true.)
+   quu=qu
+ end function readcphif0
+ ! sssssssssssssssssssssssssssssssssssssssssssss
   function readcphifq() result(qu)
     real(8):: qu(3)                  ! I think qu=q now.
     qu=quu
   end function readcphifq
   ! sssssssssssssssssssssssssssssssssssssssssssss
-  subroutine readcphi(q,ldim2,isp,  qu,cphif)
+  subroutine readcphi(q,ldim2,isp,  qu,cphif, fpmt)
     use m_rotwave,only: Rotmto
     implicit none
+    logical,optional,intent(in):: fpmt
     !!-- return mto part of eigenfunction for given q(1:3) and isp
     real(8), intent(in) :: q(3)
     integer, intent(in)  :: ldim2
     integer, intent(in)  :: isp
     real(8), intent(out)  :: qu(3)
     complex(8), intent(out)  :: cphif(ldim2,nband)
-    integer:: iq,iqindx,ikpisp,iqq,iorb,ibaso,ibas,k,l,ini1,ini2,iend1,iend2,igg,ig,iqi,i,igxt
+    integer:: iq,iqindx,ikpisp,iqq,iorb,ibaso,ibas,k,l,ini1,ini2,iend1,iend2,&
+         ifcphi0, igg,ig,iqi,i,igxt
     real(8)   :: qrot(3) ,qout(3)
     complex(8):: phase,cphifr(ldim2,nband),phaseatom !takao 1->*->nband
     complex(8),parameter:: img=(0d0,1d0) ! MIZUHO-IR
@@ -154,7 +175,10 @@ contains
     iqi=iqimap(iq) ! iqi is index for irr.=1 (cphi calculated. See qg4gw and sugw.F).
     ! qtt(:,iqq) = qtti(:,iqi) is satisfied.
     ! we have eigenfunctions calculated only for qtti(:,iqi).
-    if(keepeig) then
+    if(present(fpmt)) then
+      ikpisp= isp + nsp*(iqi-1)
+      read(ifcphi0, rec=ikpisp) cphifr(1:ldim2,1:nband)
+    elseif(keepeig) then
        cphifr(1:ldim2,1:nband) = cphi(1:ldim2,1:nband,iqi,isp)
     else
        ikpisp= isp + nsp*(iqi-1)

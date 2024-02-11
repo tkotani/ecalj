@@ -1,0 +1,49 @@
+#!/bin/bash
+# -------------------------------------------------------------------------
+# generate MLWF.
+# NOTE: Wannier is generated before wanplot (wanplot is only to make *.xsf file for plot).
+#       After wanplot, we goto calculate <wan wan |W |wan wan>
+# For cray, set machine="cray"
+#--------------------------------------------------------------------------
+### all input arguments are processed ###
+if [ $# -ne 3 ] || [ $2 != "-np" ] ; then
+    echo "An example of usage: genMLWF cu -np 4"
+    echo "Do job_band_* in advance to genMLWF to get superposition of Wannier band plot!"
+    exit 101
+fi
+nfpgw=`dirname $0`
+MATERIAL=$1
+MPI_SIZE=$3
+NO_MPI=0
+### end of processing input arguments ###
+if [ ! -e bnd001.spin1 ];then 
+    $echo_run echo "!!! Perform job_band in advance!" 
+    exit
+fi
+
+### Read funcitons run_arg and run_arg_tee defined in a file run_arg ###
+source $nfpgw/run_arg
+######## start here ##########
+$echo_run echo "### START genuumat: MPI size= " $MPI_SIZE, "MATERIAL= "$MATERIAL
+
+##### preparation of required inputs for GW (mainly prepare required eigenfuncitons) ######
+argin=0; run_arg $argin $NO_MPI   $nfpgw /lmf llmfgw00 $MATERIAL --jobgw=0
+argin=1; run_arg $argin $NO_MPI   $nfpgw /qg4gw      lqg4gw   #Generate requied q+G vectors.
+argin=1; run_arg $argin $MPI_SIZE $nfpgw /lmf llmfgw01 $MATERIAL --jobgw=1 --fpmt
+
+##### GW related part (up to preparation of MPB) ###########
+argin=0; run_arg $argin $NO_MPI $nfpgw /rdata4gw_v2 lrdata4gw_v2 --fpmt 
+argin=1; run_arg $argin $NO_MPI $nfpgw /heftet leftet # A file EFERMI for hx0fp0
+argin=0; run_arg $argin $NO_MPI $nfpgw /hbasfp0 lbas  # Product basis generation 
+argin=1 ;run_arg $argin $NO_MPI $nfpgw   /hmaxloc lmaxloc1     # b-vector BBVEC
+argin=2 ;run_arg $argin $MPI_SIZE $nfpgw /huumat_MPI luumat2 --fpmt   # UUmatrix for F^PMT <u_k,i|u_k+b,j>) matrix are caltulated.
+# Gather all UU*.* into a file UUU/UUD.
+cat UUU.* >UUU
+rm -f UUU.*
+if [ -e UUD.0000 ]; then 
+    cat UUD.* >UUD
+    rm -f UUD.*
+fi
+
+# -- Main part of Wannier (Both of Souza's and Marzari's and procedures sucessively).
+#argin=2; run_arg $argin $NO_MPI $nfpgw /hmaxloc lmaxloc2  #(band plot data are generated.)
