@@ -972,35 +972,32 @@ subroutine phigmat(iphi,iphidot,c1,c2,phitoto,phitotr, &
               phig(inlm,j,iwf,is) = sum
               !            write(*,*)inlm,iwf,sum
            enddo
-
         enddo
         ! end of iwf-loop
      enddo
      ! end of is-loop
   enddo
-
-  ! debug:
-  !      write(900,*)'   m    n    l   bas nlm   wf'
-  !      write(901,*)'   m    n    l   bas nlm   wf'
-  !      do iwf = 1,nwf
-  !      do inlm = 1,nlmto
-  !         ibas = ibas_indx(inlm)
-  !         in   = n_indx(inlm)
-  !         il   = l_indx(inlm)
-  !         im   = m_indx(inlm)
-  !         write(900,"(6i5,f12.6)")im,in,il,ibas,inlm,iwf,
-  !     &                            phig(inlm,1,iwf,1)
-  !         if (abs(phig(inlm,1,iwf,1)).gt.1.d-4)
-  !     &   write(901,"(6i5,f12.6)")im,in,il,ibas,inlm,iwf,
-  !     &                            phig(inlm,1,iwf,1)
-  !      enddo
-  !      enddo
-  !      write(901,*)'iwf, c1 c2'
-  !      do iwf=1,nwf
-  !         write(901,"(i5,2f12.6)")iwf,c1(1,iwf,1),c2(1,iwf,1)
-  !      enddo
-  !      stop 'debug: ok'
-
-  return
 end subroutine phigmat
-!-----------------------------------------------------------------------
+subroutine  readbb(ifbb,nqbz,nspin,nbb, bbv, ikbidx, iko_ixs,iko_fxs,noxs)
+   implicit integer (i-n)
+   implicit real*8(a-h,o-z)
+   parameter (eps = 1d-4)
+   real(8) :: u(3),bbv(3,nbb)
+   integer :: iko_ixs(2),iko_fxs(2),noxs(2)
+   integer:: ikbidx(nbb,nqbz)
+   do i = 1,nbb
+      read(ifbb,*)bbv(1,i),bbv(2,i),bbv(3,i),dummy4
+   enddo
+   do iq = 1,nqbz
+      read(ifbb,*)itmp,u(1:3)
+      do ib = 1,nbb
+         read(ifbb,*)itmp,itmp2,ikbidx(ib,iq),u(1:3)
+      enddo
+   enddo
+   read(ifbb,*)
+   read(ifbb,*)nspin2
+   if (nspin /= nspin2) call rx('nspin is wrong!')
+   do is = 1,nspin
+      read(ifbb,*)iko_ixs(is),iko_fxs(is),noxs(is)
+   enddo
+end subroutine readbb

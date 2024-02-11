@@ -25,11 +25,11 @@ subroutine h_uumatrix()
       ,kx,isf,kqxx,kp,job,nbnbx,nhwtot,noccxvx,nwmax,ihis,jhwtot,ik,ibib,ib1,ib2,ichkhis,ihww,j,imode,ngpmx
    integer:: nwin,incwfin,verbose,ifphi,nbas,nradmx,ncoremx,nrx,ic,icx,isp,l,n,irad,ifoc, ldim2,ixx,ngp1,ngp2,nq0it
    integer:: iqindx,nqbandx,nqband,j1min_c(2),j1max_c(2),nbmin,nbmax, nmin,nmax,iq2,ntmp,if99,ifile_handle
-   integer:: ixc,idummy,idummy2,i1,i2,i3,nbbloop, ifq0p,ifuu(2), ifbb,nbb,iko_ixs(2),iko_fxs(2) &
+   integer:: ixc,idummy,idummy2,i1,i2,i3,nbbloop, ifq0p,ifuu(2), ifbb,nbb,iko_ixs(2),iko_fxs(2), &
       iqibz,iqbz,ibb,itmp,itmp2,iti,itf, nqibz2,nqbz2,iqb,ibb2,iqtmp,ibbtmp,ndg(3),ndg1(3),ndg2(3), &
       nb1d,iq0i,nq,j1,j2,j1max,j2max,j1min,j2min,ispin ,l1,l2,lm1,lm2,ibas2,lm3,ig1,ig2,ir,ia1,ma,ia2,m2,l3,m1,lxx &
       ,ico,lxd,lx, ierr,iclose,input3(3),n1,n2,ig, nproc1,nproc2,nq_proc,ii,jj,kk,iftmp,if101,&
-      timevalues(8)
+      timevalues(8),ib,nspin2
    integer,allocatable :: ngvecpB(:,:,:),ngveccB(:,:), ngvecpf1(:,:), ngvecpf2(:,:), &
       nx(:,:),nblocha(:),ifppb(:) !ongveccBr(:,:,:)
    integer,allocatable:: ncindx(:,:), lcindx(:,:), nrad(:), nindx_r(:,:), lindx_r(:,:), nc_max(:,:), &
@@ -348,26 +348,3 @@ end subroutine h_uumatrix
 !   character*(*) :: char
 !   if(sum(abs(a-b))>1d-6) call rx(' Error in checkagree:'//trim(char))
 !end subroutine checkagree
-! subroutine  readbb(ifbb,nqbz,nspin,nbb, bbv, ikbidx, iko_ixs,iko_fxs,noxs)
-!    implicit integer (i-n)
-!    implicit real*8(a-h,o-z)
-!    parameter (eps = 1d-4)
-!    real(8) :: u(3),bbv(3,nbb)
-!    integer :: iko_ixs(2),iko_fxs(2),noxs(2)
-!    integer:: ikbidx(nbb,nqbz)
-!    do i = 1,nbb
-!       read(ifbb,*)bbv(1,i),bbv(2,i),bbv(3,i),dummy4
-!    enddo
-!    do iq = 1,nqbz
-!       read(ifbb,*)itmp,u(1:3)
-!       do ib = 1,nbb
-!          read(ifbb,*)itmp,itmp2,ikbidx(ib,iq),u(1:3)
-!       enddo
-!    enddo
-!    read(ifbb,*)
-!    read(ifbb,*)nspin2
-!    if (nspin /= nspin2) call rx('nspin is wrong!')
-!    do is = 1,nspin
-!       read(ifbb,*)iko_ixs(is),iko_fxs(is),noxs(is)
-!    enddo
-! end subroutine readbb
