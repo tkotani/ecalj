@@ -27,7 +27,7 @@ subroutine h_uumatrix()
    integer:: iqindx,nqbandx,nqband,j1min_c(2),j1max_c(2),nbmin,nbmax, nmin,nmax,iq2,ntmp,if99,ifile_handle
    integer:: ixc,idummy,idummy2,i1,i2,i3,nbbloop, ifq0p,ifuu(2), ifbb,nbb,iko_ixs(2),iko_fxs(2), &
       iqibz,iqbz,ibb,itmp,itmp2,iti,itf, nqibz2,nqbz2,iqb,ibb2,iqtmp,ibbtmp,ndg(3),ndg1(3),ndg2(3), &
-      nb1d,iq0i,nq,j1,j2,j1max,j2max,j1min,j2min,ispin ,l1,l2,lm1,lm2,ibas2,lm3,ig1,ig2,ir,ia1,ma,ia2,m2,l3,m1,lxx &
+      nb1d,iq0i,j1,j2,j1max,j2max,j1min,j2min,ispin ,l1,l2,lm1,lm2,ibas2,lm3,ig1,ig2,ir,ia1,ma,ia2,m2,l3,m1,lxx &
       ,ico,lxd,lx, ierr,iclose,input3(3),n1,n2,ig, nproc1,nproc2,nq_proc,ii,jj,kk,iftmp,if101,&
       timevalues(8),ib,nspin2
    integer,allocatable :: ngvecpB(:,:,:),ngveccB(:,:), ngvecpf1(:,:), ngvecpf2(:,:), &
@@ -59,17 +59,17 @@ subroutine h_uumatrix()
       if(cmdopt2('--job=',outs)) then
          read(outs,*) ixc
       else
-         write(6,*) ' --- Choose modes below -------------------'
-         write(6,*) '  (2) (q,q+b), (3) (q,q+q0)'
-         write(6,*) ' --- Put number above ! ------------'
+         write(stdo,*) ' --- Choose modes below -------------------'
+         write(stdo,*) '  (2) (q,q+b), (3) (q,q+q0)'
+         write(stdo,*) ' --- Put number above ! ------------'
          read(5,*) ixc
-         write(6,*) ' ixc=', ixc !computational mode index
+         write(stdo,*) ' ixc=', ixc !computational mode index
       endif
    endif
    call MPI__Broadcast(ixc)
    call read_BZDATA()
    allocate(qbzs(3,nqbz))
-   if (mpi__root) write(6,*)' ======== nqbz nqibz ngrp=',nqbz,nqibz,ngrp
+   if (mpi__root) write(stdo,*)' ======== nqbz nqibz ngrp=',nqbz,nqibz,ngrp
    call genallcf_v3(incwfx=0) !readin condition. use ForX0 for core in GWIN
    call Readhbe()    !Read dimensions of h,hb
    call getsrdpp2(nclass,nl,nxx)    ! --- read by rdpp ; Radial integrals ppbrd and plane wave part
@@ -98,7 +98,7 @@ subroutine h_uumatrix()
       read(ifphi) rr(1:nrofi(ic),ic)
       rmax(ic) = rr(nrofi(ic),ic)
       do isp = 1, nspin
-         if (mpi__root)  write(6,*)'          ---  isp nrad ncore(ic)=',isp, nrad(ic),ncore(ic)
+         if (mpi__root)  write(stdo,*)'          ---  isp nrad ncore(ic)=',isp, nrad(ic),ncore(ic)
          do ico = 1, ncore(ic) !core
             l =  lcindx(ico,ic)
             n =  ncindx(ico,ic)
@@ -134,8 +134,8 @@ subroutine h_uumatrix()
    enddo
    close(ifoc)
    if (mpi__root) then
-      write(6,*) ' Used k number in Q0P =', nq0i
-      write(6,"(i3,2x, 3f14.6)" )(i,q0i(1:3,i),i=1,nq0i)
+      write(stdo,*) ' Used k number in Q0P =', nq0i
+      write(stdo,"(i3,2x, 3f14.6)" )(i,q0i(1:3,i),i=1,nq0i)
    endif
    open(newunit=ifbb,file='BBVEC')
    read(ifbb,*)
@@ -184,9 +184,9 @@ subroutine h_uumatrix()
    j2min = j1min
    j2max = j1max
    allocate( uum(j1min:j1max,j2min:j2max,nspin) )
-   nq = nqbz
-   nq_proc = nq / nproc
-   nproc1 = nq - nq_proc*nproc
+!
+   nq_proc = nqbz / nproc
+   nproc1 = nqbz - nq_proc*nproc
    nproc2 = nproc - nproc1
    allocate(iq_proc(nq_proc+1))
    iq_proc = 0
@@ -198,10 +198,11 @@ subroutine h_uumatrix()
          if (myproc == jj-1) iq_proc(ii) = kk             !write(iftmp,*)myproc,ii,iq_proc(ii)
       enddo
    enddo jjloop
+!
    iqbzloop: do 1070 ii = 1,nq_proc+1
       iqbz = iq_proc(ii)
       if (iqbz == 0) cycle
-      write(*,*)'iq =',iqbz, 'out of',nq
+      write(*,*)'iq =',iqbz, 'out of',nqbz
       do isp=1,nspin
          open(newunit=ifuu(isp),file=trim(head(ixc,isp))//charnum4(iqbz),form='unformatted')
       enddo
@@ -236,8 +237,8 @@ subroutine h_uumatrix()
          ! --- q1x and q2x
          call readqg0('QGpsi',q1,  q1x, ngp1)
          call readqg0('QGpsi',q2,  q2x, ngp2)
-         write(6,"('uuuiq q1 q1x=',3f9.4,3x,3f9.4,i5)") q1,q1x,ngp1
-         write(6,"('uuuiq q2 q2x=',3f9.4,3x,3f9.4,i5)") q2,q2x,ngp2
+         write(stdo,"('uuuiq q1 q1x=',3f9.4,3x,3f9.4,i5)") q1,q1x,ngp1
+         write(stdo,"('uuuiq q2 q2x=',3f9.4,3x,3f9.4,i5)") q2,q2x,ngp2
          dq=q1-q2
          if(sum(abs(dq))<1d-8) dq=(/1d-10,0d0,0d0/)
          absdq = sqrt(sum(dq**2))
@@ -292,7 +293,7 @@ subroutine h_uumatrix()
          ! --- Calcuate <u{q1x j1} | u_{q2x j2}> = < exp(i(q1x-q2x)r) psi^*{q1x j1} psi_{q2x j2} >
          ! ... MT part    !r   ldim2 = nlmto; n_indx(1;ldim2) : n index (phi=1 phidot=2 localorbital=3);  l_indx(1:ldim2) : l index ;   ibas_indx(1:ldim2) : ibas index.
          uum = 0d0
-         do 1050 ispin=1,nspin
+         ispinloop2: do 1050 ispin=1,nspin
             allocate(cphi1 (nlmto,nband),cphi2(nlmto,nband) )
             cphi1 = readcphif(q1,ispin) !call readcphi(q1, nlmto, ispin, quu, cphi1)
             cphi2 = readcphif(q2,ispin) !call readcphi(q2, nlmto, ispin, quu, cphi2)
@@ -319,8 +320,7 @@ subroutine h_uumatrix()
                uum(j1,j2,ispin)= uum(j1,j2,ispin)+ sum( dconjg(geig1(1:ngp1,j1))*matmul(ppovl,geig2(1:ngp2,j2)) )
             enddo
             deallocate(cphi1, cphi2)
-1050     enddo
-884      continue
+1050     enddo ispinloop2
          do ispin = 1,nspin
             iti = iko_ixs(ispin)
             itf = iko_fxs(ispin)
@@ -329,9 +329,9 @@ subroutine h_uumatrix()
             if (ixc == 3) write(ifuu(ispin)) iqbz,ibb
             write(ifuu(ispin)) ((uum(j1,j2,ispin),j1=iti,itf),j2=iti,itf)
          enddo
-         write(6,*)' ============ result --- diagonal --- ==============',nspin,j1min,j1max,j2min,j2max
+         write(stdo,*)' ============ result --- diagonal --- ==============',nspin,j1min,j1max,j2min,j2max
          do ispin = 1,nspin; do j1=j1min,j1max; do j2=j2min,j2max
-            if(j1==j2) write(6,"('uuuiq isp=',i5,i2,' j1j2=',2i2,' q1 q2-q1=',3f8.4,x,3f8.4,' <u|u>=',2f9.4,x,f9.3)") &
+            if(j1==j2) write(stdo,"('uuuiq isp=',i5,i2,' j1j2=',2i2,' q1 q2-q1=',3f8.4,x,3f8.4,' <u|u>=',2f9.4,x,f9.3)") &
                      iqbz,ispin,j1,j2,q1,q1-q2,uum(j1,j2,ispin),abs(uum(j1,j2,ispin))
          enddo;  enddo; enddo
          deallocate(ngvecpf1, ngvecpf2, ppovl, ppbrd, rprodx, phij, psij, rphiphi, cy, yl)
@@ -340,11 +340,6 @@ subroutine h_uumatrix()
       if(nspin==2) close(ifuu(2))
 1070 enddo iqbzloop
    deallocate(iq_proc,uum)
-   if (mpi__root) write(6,*) ' ====== end ========================================'
+   if (mpi__root) write(stdo,*) ' ====== end ========================================'
    call mpi__finalize()
 end subroutine h_uumatrix
-!subroutine checkagree(a,b,char)
-!   real(8):: a(3),b(3)
-!   character*(*) :: char
-!   if(sum(abs(a-b))>1d-6) call rx(' Error in checkagree:'//trim(char))
-!end subroutine checkagree
