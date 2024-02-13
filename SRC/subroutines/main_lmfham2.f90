@@ -85,7 +85,7 @@ subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |
   call m_lattic_init()      ! lattice setup (for ewald sum)
   call m_mksym_init('LMF')  !symmetry go into m_lattic and m_mksym
   call m_mkqp_init() ! data of BZ go into m_mkqp
-  !  call m_qplist_init(plbnd=0,llmfgw=.false.) ! Get q point list at which we do band calculationsb
+  call m_qplist_init(plbnd=0,llmfgw=.false.) ! Get q point list at which we do band calculationsb
   !  call m_qplist_qspdivider()  !generate iqini:iqend,isini,isend  for each rank
 
   if(cmdopt2('--job=',outs)) read(outs,*) job
@@ -178,7 +178,7 @@ subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |
     complex(8):: emat(nband,nband),osq(1:nband,1:nband),o2al(1:nband,1:nband,nqbz),phase,ovlmm(nband,nMLO),&
          evec(nband,nband,nqbz),evecx(1:nband,1:nband), ovec(nband,nband),amnk(iki:ikf,nMLO,nqbz),&
          ovlm(1:nband,1:nband),ovlmx(1:nband,1:nband), hamm(1:nband,1:nband),uumat(iki:ikf,iki:ikf,nbb,nqbz)
-    allocate(evl(nband,nqbz),ovl(nband))!NOTE: 20230805. When I declear evl in this block, ifort18.05 gives wrong results.
+    allocate(evl(nband,nqbz),ovl(nband),eveci(1:nband,1:nband,nqbz)) !NOTE: 20230805. When I declear evl in this block, ifort18.05 gives wrong results.
     write(stdo,ftox)'Going to get CNmat ... : nband for |MLO1>=',nband,'iki ikf=',iki,ikf
     open(newunit=ifuumat,file='CNmat',form='unformatted')
     uuispinloop: do 1010 is = 1,nspin
@@ -462,15 +462,14 @@ subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |
              open(newunit=ificpmtmpo, file='Cpmtmpo' //trim(xt(iqibz))//trim(xt(jsp)),form='unformatted')
              read(ificpmtmpo) nPMT, nMPO
              if( nband/=nMPO) call rx('nband/=nMPO')
-             allocate(cpmtmpo_i(nPMT,nMPO),cpmtmlo_i(1:nPMT,1:nMLO),cpmtmlo(1:nPMT,1:nMLO))
+             if(allocated(rotmatr)) deallocate(cpmtmpo_i,cpmtmlo_i,cpmtmlo,rotmatr,rmatpmt)
+             allocate(cpmtmpo_i(nPMT,nMPO),cpmtmlo_i(1:nPMT,1:nMLO),cpmtmlo(1:nPMT,1:nMLO),rotmatr(nMLO,nMLO),rmatpmt(nPMT,nPMT))
              read(ificpmtmpo) cpmtmpo_i(nPMT,nMPO)  != matmul(evempmt,cmpo)                      |FMPO_i>= |FPMT_l>Cpmtmpo(l,i)
              close(ificpmtmpo)
              cpmtmlo_i(1:nPMT,1:nMLO) = matmul(cpmtmpo_i,matmul(eveci(:,iki:ikf,iqibz),cmloi))
              ! |FMLO_i> =  |PsiMPO_j> cmloi(j,i)
              !          =  |FMPO_k>   eveci(k,j)*cmloi(j,i)
              !          =  |FPMT_l>   cpmtmpo_i(l,k) * eveci(k,j)*cmloi(j,i)
-             if(allocated(rotmatr)) deallocate(rotmatr,rmatpmt)
-             allocate(rotmatr(nMLO,nMLO),rmatpmt(nPMT,nPMT))
           endif
 
           do ig = 1,ngrp

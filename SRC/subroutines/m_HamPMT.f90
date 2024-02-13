@@ -75,7 +75,7 @@ contains
    subroutine HamPMTtoHamRsMPO(facw,ecutw,eww) !Convert HamPMT(k mesh) to HamRsMPO(real space)
       use m_zhev,only:zhev_tk4
       use m_readqplist,only: eferm
-      use m_setqibz_lmfham,only: irotq
+      use m_setqibz_lmfham,only: irotg,irotq
 !    use m_mpi,only: MPI__reduceSum
       implicit none
       integer:: ifihmto
@@ -86,7 +86,7 @@ contains
       real(8)::qp(3),pi=4d0*atan(1d0),fff,ef,fff1=2,fff2=2,fff3=0 ,facw,ecutw,eww,xxx
       integer:: nn,ib,k,l,ix5,imin,ixx,j2,j1,j3,nx,ix(ldim),iqini,iqend,ndiv
       integer:: ndimMTO !ndimMTO<ldim if we throw away f MTOs, for example.
-      integer:: ib_tableM(ldim),k_tableM(ldim),l_tableM(ldim),ierr,ificpmtmpo
+      integer:: ib_tableM(ldim),k_tableM(ldim),l_tableM(ldim),ierr,ificpmtmpo,iqibz
       logical:: cmdopt0
       nn=0
       do i=1,ldim  !only MTOs. Further restrictions.
@@ -130,10 +130,12 @@ contains
             real(8):: evlmlo(ndimMTO),cmptmto(ndimPMT,ndimMTO)
             call Hreduction(.false.,facw,ecutw,eww,ndimPMT,hamm(1:ndimPMT,1:ndimPMT),ovlm(1:ndimPMT,1:ndimPMT), & !Get reduced Hamitonian for ndimMTO
                ndimMTO,ix,fff1,      hamm(1:ndimMTO,1:ndimMTO),ovlm(1:ndimMTO,1:ndimMTO),cpmtmpo)
-            if(cmdopt0('--fpmt').and.irotq(iq)==1) then !qibz only
+            if(cmdopt0('--fpmt').and.irotg(iq)==1) then !qibz only
 !               open(newunit=ificpmtmpo, file='Cpmtmpo' //trim(xt(iqibz))//trim(xt(jsp)),form='unformatted')
-               open(newunit=ificpmtmpo, file='Cpmtmpo' //trim(xt(iq))//trim(xt(jsp)),form='unformatted')
+               iqibz=irotq(iq)
+               open(newunit=ificpmtmpo, file='Cpmtmpo' //trim(xt(iqibz))//trim(xt(jsp)),form='unformatted')
                !write(ificmptmto) iq,irotq(iq) !iqbz and iqibz
+               write(ificpmtmpo) ndimPMT,ndimMTO
                write(ificpmtmpo) cpmtmpo  != matmul(evempmt,cmpo) |FMPO>=|FPMT>Cpmtmto
                close(ificpmtmpo)
             endif
@@ -285,7 +287,7 @@ subroutine Hreduction(iprx,facw,ecutw,eww,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, ham
          matmul(transpose(dconjg(evecmto(:,:))),ovlmx(ix(1:ndimMTO),ix(1:ndimMTO))))
       do i=1,ndimMTO
          do j=1,ndimMTO
-            hammout(i,j)= sum( dconjg(cmpo(1:nx,i))*evl(1:nx)*cmpo(1:nx,j)) !|MPO_i>=|PMT_j> cmpo(j,i)
+            hammout(i,j)= sum( dconjg(cmpo(1:nx,i))*evl(1:nx)*cmpo(1:nx,j)) !|FMPO_i>=|PsiPMT_j> cmpo(j,i)
             ovlmout(i,j)= sum( dconjg(cmpo(1:nx,i))*cmpo(1:nx,j) ) !<MPO|MPO>
          enddo
       enddo
