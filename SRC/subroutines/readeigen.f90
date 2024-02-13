@@ -161,8 +161,7 @@ contains
     integer, intent(in)  :: isp
     real(8), intent(out)  :: qu(3)
     complex(8), intent(out)  :: cphif(ldim2,nband)
-    integer:: iq,iqindx,ikpisp,iqq,iorb,ibaso,ibas,k,l,ini1,ini2,iend1,iend2,&
-         ifcphi0, igg,ig,iqi,i,igxt
+    integer:: iq,iqindx,ikpisp,iqq,iorb,ibaso,ibas,k,l,ini1,ini2,iend1,iend2,ifcphi0, igg,ig,iqi,i,igxt
     real(8)   :: qrot(3) ,qout(3)
     complex(8):: phase,cphifr(ldim2,nband),phaseatom !takao 1->*->nband
     complex(8),parameter:: img=(0d0,1d0) ! MIZUHO-IR
@@ -175,7 +174,7 @@ contains
     iqi=iqimap(iq) ! iqi is index for irr.=1 (cphi calculated. See qg4gw and sugw.F).
     ! qtt(:,iqq) = qtti(:,iqi) is satisfied.
     ! we have eigenfunctions calculated only for qtti(:,iqi).
-    if(present(fpmt)) then
+    if(present(fpmt)) then ! 2024-2-13
       ikpisp= isp + nsp*(iqi-1)
       read(ifcphi0, rec=ikpisp) cphifr(1:ldim2,1:nband)
     elseif(keepeig) then

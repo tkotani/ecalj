@@ -4267,6 +4267,33 @@ home/takao/ecalj/SRC/subroutines/m_rotMPB.f90.s:
 	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_rotMPB.f90.s
 .PHONY : home/takao/ecalj/SRC/subroutines/m_rotMPB.f90.s
 
+home/takao/ecalj/SRC/subroutines/m_setqibz_lmfham.o: home/takao/ecalj/SRC/subroutines/m_setqibz_lmfham.f90.o
+
+.PHONY : home/takao/ecalj/SRC/subroutines/m_setqibz_lmfham.o
+
+# target to build an object file
+home/takao/ecalj/SRC/subroutines/m_setqibz_lmfham.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_setqibz_lmfham.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_setqibz_lmfham.f90.o
+
+home/takao/ecalj/SRC/subroutines/m_setqibz_lmfham.i: home/takao/ecalj/SRC/subroutines/m_setqibz_lmfham.f90.i
+
+.PHONY : home/takao/ecalj/SRC/subroutines/m_setqibz_lmfham.i
+
+# target to preprocess a source file
+home/takao/ecalj/SRC/subroutines/m_setqibz_lmfham.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_setqibz_lmfham.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_setqibz_lmfham.f90.i
+
+home/takao/ecalj/SRC/subroutines/m_setqibz_lmfham.s: home/takao/ecalj/SRC/subroutines/m_setqibz_lmfham.f90.s
+
+.PHONY : home/takao/ecalj/SRC/subroutines/m_setqibz_lmfham.s
+
+# target to generate assembly for a file
+home/takao/ecalj/SRC/subroutines/m_setqibz_lmfham.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_setqibz_lmfham.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_setqibz_lmfham.f90.s
+
 home/takao/ecalj/SRC/subroutines/m_shortn3.o: home/takao/ecalj/SRC/subroutines/m_shortn3.f90.o
 
 .PHONY : home/takao/ecalj/SRC/subroutines/m_shortn3.o
@@ -9125,6 +9152,9 @@ help:
 	@echo "... home/takao/ecalj/SRC/subroutines/m_rotMPB.o"
 	@echo "... home/takao/ecalj/SRC/subroutines/m_rotMPB.i"
 	@echo "... home/takao/ecalj/SRC/subroutines/m_rotMPB.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_setqibz_lmfham.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_setqibz_lmfham.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_setqibz_lmfham.s"
 	@echo "... home/takao/ecalj/SRC/subroutines/m_shortn3.o"
 	@echo "... home/takao/ecalj/SRC/subroutines/m_shortn3.i"
 	@echo "... home/takao/ecalj/SRC/subroutines/m_shortn3.s"
