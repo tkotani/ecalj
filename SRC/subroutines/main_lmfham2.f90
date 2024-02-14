@@ -1,4 +1,4 @@
-!> PMT --1ststep--> MPO --2ndstep--> MLO. This is for 2ndstep
+!> PMT --> lmfham1 --> MPO --> lmfham2 --> MLO
 subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> from MPO
   ! that of the MTO-projected basis |MPO>. Conversion from MPO(hmmr1,ommr1,nband) to MLO(hmmr2,ommr2,nMLO).
   ! In advance, run lmfham1 to get |MPO> (MPOare given by a projection from MTOs to PMT space.
@@ -26,19 +26,14 @@ subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |
   use m_HamPMT,only: ReadHamPMTInfo, nspin=>nsp, natom=>nbas,plat,alat,npair,nlat,nqwgt, ldim, nqbz=>nkp,qbz=>qplist,&
        n1=>nkk1,n2=>nkk2,n3=>nkk3,pos,npairmx,nspx,ngrp,symops !,ib_table,l_table,k_table
   use m_read_Worb,only:s_read_Worb,nclass_mlwf,cbas_mlwf,norb=>nbasclass_mlwf,classname_mlwf ! iclassin,iphi,iphidot,nphi,nphix
-  use m_HamRsMPO,only: ReadHamRsMPO,hmmr1=>hammr,ommr1=>ovlmr,nband=>ndimMTO,ib_tableM,l_tableM,k_tableM !Real-space Hamiltonian on the basis |MTo>.
-
+  use m_HamRsMPO,only: ReadHamRsMPO,hmmr1=>hammr,ommr1=>ovlmr,nband=>ndimMTO,ib_tableM,l_tableM,k_tableM !Real-space Hamiltonian on the basis |MPO>.
   use m_qplist,only:   m_qplist_init!, m_qplist_qspdivider, nkp
   use m_lattic,only:   m_lattic_init,  qlat=>lat_qlat
   use m_mksym,only:    m_mksym_init
   use m_mkqp,only:     m_mkqp_init
   use m_rotwave,only:  rotmatMTO,rotmatPMT
   use m_prgnam,only: set_prgnam
-  !      Main output of lmfham2 is  hmmr2,       ommr2,       nMLO,         ib_tableM(idmto(1:nwf)),... for |MLO>
   implicit none
-  !  integer,allocatable:: irotq(:),irotg(:),ndiff(:,:),iqbzrep(:)
-  !  real(8),allocatable:: qibz(:,:)
-
   integer:: i,iq,is,ix,j,ifbb,ifoc,nbb,isc,ifq0p, nox,iki,ikf,nsc1,ndz,nin,nout,nsc2,ibb
   integer:: inii,if102,iwf2,ib,itmp,itmp2,nqbz2,nspin2,ib1,ib2,iqb,iqbz,it,jsp,nmx,nev,isyml!,nqbz!,n1,n2,n3
   integer:: nMLO,ikx,ikxx,iadd,i1q,i2q,i1,i2,imp,inp,inx,imx,ibas,ibold,ibx,iorb
@@ -63,15 +58,13 @@ subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |
   complex(8),allocatable:: uumat(:,:,:,:),evecc(:,:), amnk(:,:,:),cnk(:,:,:),cnki(:,:,:),umnk(:,:,:),&
        evecc1(:,:,:),evecc2(:,:,:),eveci(:,:,:)
   complex(8),allocatable:: hmmr2(:,:,:,:),ommr2(:,:,:,:),wmat(:,:),wmat2(:,:),cnk0(:,:,:),amnki(:,:,:),cnk0i(:,:,:)
-  character(256):: fband,fband1
+  character(256):: fband2,fband1
   logical:: cmdopt2,noinner,eLinnerauto,ELhardauto,eUinnerauto,convn,eUouterauto,skipdfinner,EUautosp,debug=.false.
   real(8):: WTseed,eoffset, projcut,ewid,ewideV,eUinnercut,eouter,CUouter,WTouter,EUouter,CLhard,eUoutereV,CUinner,eLhardeVoffset &
        ,eUBinner
   character:: outs*20
   character(256):: aaa='',bbb=''
   integer:: nband_,nqbz_,iki_,ikf_,nMLO_,ilowest,ieLhard,iUinneradd,igrp,ndimmto
-  !  logical,allocatable:: igiqibz(:,:)
-  !  real(8),allocatable:: qbzii(:,:,:)
   real(8)::qx(3),qtarget(3),eps=1d-8,qp(3)
   integer:: ig,iqibz,icount,ierr
   call setcmdpath()            ! Set self-command path (this is for call system at m_lmfinit)
@@ -81,13 +74,11 @@ subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |
   call m_MPItk_init() ! mpi initialization
   call m_lgunit_init() !set stdo,stdl
   call m_lmfinit_init('LMF')! Read ctrlp into module m_lmfinit.
-
   call m_lattic_init()      ! lattice setup (for ewald sum)
   call m_mksym_init('LMF')  !symmetry go into m_lattic and m_mksym
   call m_mkqp_init() ! data of BZ go into m_mkqp
   call m_qplist_init(plbnd=0,llmfgw=.false.) ! Get q point list at which we do band calculationsb
   !  call m_qplist_qspdivider()  !generate iqini:iqend,isini,isend  for each rank
-
   if(cmdopt2('--job=',outs)) read(outs,*) job
   write(stdo,ftox)'=== Start lmfham2 --job=',job
   if(job/=0.and.job/=1) call rx0(' Set --job=0 or 1') !error exit
@@ -505,9 +496,9 @@ subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |
        complex(8):: phase,hamm(nMLO,nMLO),ovlm(nMLO,nMLO),evec(nMLO,nMLO)
        integer:: iband
        jsp=is
-       fband='band_MLO_spin'//char(48+jsp)//'.dat'
+       fband2='band_MLO_spin'//char(48+jsp)//'.dat'
        fband1='band_MPO_spin'//char(48+jsp)//'.dat'
-       open(newunit=iband,file=trim(fband))
+       open(newunit=iband,file=trim(fband2))
        do iq= 1,ndat
           qp=qplistsy(:,iq)
           ovlm = 0d0
@@ -545,7 +536,7 @@ subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |
                write(ifglt1,ftox)"ef=",ftof(eferm)
                write(ifglt1,ftox)trim(aline)
                write(ifglt1,ftox)'"'//trim(fband1)//'" u ($1):(13.605*($2-ef)) pt 2 lc rgb "green",\'   !'
-               write(ifglt1,ftox)'"'//trim(fband)//'" u ($1):(13.605*($2-ef)) pt 2 lc rgb "red",\'   !'
+               write(ifglt1,ftox)'"'//trim(fband2)//'" u ($1):(13.605*($2-ef)) pt 2 lc rgb "red",\'   !'
             else
                write(ifglt1,ftox)trim(aline)
             endif
