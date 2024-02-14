@@ -1,4 +1,4 @@
-!> Read HamiltionanPMTinfo and HamiltonianPMT. Then convert HamPMT to HamRsMTO
+!> Read HamiltionanPMTinfo and HamiltonianPMT. Then convert HamPMT to HamRsMPO
 module m_HamPMT
    use m_MPItk,only: procid, master_mpi, nsize,master
    use m_lgunit,only:stdo
@@ -181,14 +181,14 @@ contains
          close(ifih)
          !! write RealSpace MTO Hamiltonian
          !ix(1:ndimMTO)=ix1(1:ndimMTO) !for atom idex
-         write(stdo,*)' Writing HamRsMTO... ndimMTO=',ndimMTO
-         open(newunit=ifihmto,file='HamRsMTO',form='unformatted')
+         write(stdo,*)' Writing HamRsMPO... ndimMTO=',ndimMTO
+         open(newunit=ifihmto,file='HamRsMPO',form='unformatted')
          write(ifihmto) ndimMTO,npairmx,nspx
          write(ifihmto) hammr(1:ndimMTO,1:ndimMTO,1:npairmx,1:nspx),ovlmr(1:ndimMTO,1:ndimMTO,1:npairmx,1:nspx) !,ix(1:ndimMTO)
          write(ifihmto) ib_tableM(1:ndimMTO),k_tableM(1:ndimMTO),l_tableM(1:ndimMTO)
          close(ifihmto)
       endif
-      if(master_mpi) write(stdo,*)" Wrote HamRsMTO file! End of lmfham1"
+      if(master_mpi) write(stdo,*)" Wrote HamRsMPO file! End of lmfham1"
    end subroutine HamPMTtoHamRsMPO
    subroutine GramSchmidt(nv,n,zmel)
       integer:: igb=1,it,itt,n,nv
@@ -214,7 +214,7 @@ contains
    subroutine ReadHamRsMPO()! read RealSpace MTO Hamiltonian
       use m_MPItk,only: master_mpi
       integer:: ifihmto
-      open(newunit=ifihmto,file='HamRsMTO',form='unformatted')
+      open(newunit=ifihmto,file='HamRsMPO',form='unformatted')
       read(ifihmto) ndimMTO,npairmx,nspx
 !    allocate(ix(ndimMTO))
       if(master_mpi) write(stdo,ftox)'MTOHamiltonian: ndimMTO,npairmx,nspx=',ndimMTO,npairmx,nspx
@@ -223,7 +223,7 @@ contains
       allocate(ib_tableM(1:ndimMTO),k_tableM(1:ndimMTO),l_tableM(1:ndimMTO))
       read(ifihmto) ib_tableM(1:ndimMTO),k_tableM(1:ndimMTO),l_tableM(1:ndimMTO)
       close(ifihmto)
-      if(master_mpi) write(stdo,*)'OK: Read HamRsMTO file! Use i-ioffib for setting <Worb>'
+      if(master_mpi) write(stdo,*)'OK: Read HamRsMPO file! Use i-ioffib for setting <Worb>'
    end subroutine ReadHamRsMPO
 end module m_HamRsMPO
 subroutine Hreduction(iprx,facw,ecutw,eww,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, hammout,ovlmout, cpmtmpo) !> Reduce H(ndimPMT) to H(ndimMTO)

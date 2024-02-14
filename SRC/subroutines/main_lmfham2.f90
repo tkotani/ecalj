@@ -13,7 +13,7 @@ subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |
   ! We use diffent idea of connectivity from [2]. Roughly speaking, we define connectivitiy of eigenfunctions between k and k+b,
   ! not by the overlap of periodic part of eigenfunctions, but by the coefficients on |MLO>.
   !
-  use m_setqibz_lmfham,only: set_qibz,qibz,irotq,irotg,ndiff,iqbzrep,qbzii,igiqibz,nqibz
+  use m_setqibz_lmfham,only: set_qibz,qibz,irotq,irotg,ndiff,iqbzrep,qbzii,igiqibz,nqibz,iqii
   use m_ftox
   use m_lgunit,only: stdo,m_lgunit_init
   use m_zhev,only:zhev_tk4
@@ -401,7 +401,7 @@ subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |
              do i=iki,ikf
                 if(evl(i,iq)<eLhard) then !avoided
                    zmn(i,:)=0d0; zmn(:,i)= 0d0; zmn(i,i)= zavoid
-                   !                elseif(evl(i,iq)<eUhardeV/rydberg()+eferm) then;zmn(i,:)=0d0; zmn(:,i)= 0d0; zmn(i,i)= zhard
+                   !  elseif(evl(i,iq)<eUhardeV/rydberg()+eferm) then;zmn(i,:)=0d0; zmn(:,i)= 0d0; zmn(i,i)= zhard
                 endif
              enddo
            endblock HardInnerBlock
@@ -440,11 +440,10 @@ subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |
         if(isc==nsc1) write(stdo,ftox)' Step1: not converged'
      enddo SouzaStep1loop
      forall(iqibz=1:nqibz) cnki(:,:,iqibz)=cnk(:,:,iqbzrep(iqibz))
-
      !! NOTE: cnk(iki:ikf,nMLO,nqbz) is the final results of Step1loop, which minimize Omega_I (Wannier space)
      !!   cnk(iko_i(iq):iko_f(iq),nMLO,iq) gives nMLO-dimentional space.
      GetHamiltonianforMTObyProjection: block  !We do not use Marzari's unitary rotation
-       integer:: il,im,in,ib1,ib2,jsp,ificpmtmpo,nPMT,nMPO
+       integer:: il,im,in,ib1,ib2,jsp,ificpmtmpo,nPMT,nMPO,ificp
        real(8):: fac0
        complex(8),allocatable:: rotmatr(:,:),rmatpmt(:,:),cpmtmpo_i(:,:),cpmtmlo_i(:,:),cpmtmlo(:,:)
        complex(8)::img2pi=img*2d0*pi, rotmat(nband,nband)
@@ -454,46 +453,37 @@ subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |
        character(8):: xt
        jsp=is
        do iqibz = 1,nqibz
-          forall(i=iki:ikf,j=iki:ikf) proj(i,j)=sum(cnki(i,:,iqibz)*dconjg(cnki(j,:,iqibz)))
-          ! MLO projector in the MPO space
-          cmloi(iki:ikf,1:nMLO) = matmul(proj,amnki(iki:ikf,1:nMLO,iqibz))
-           ! Get MLO by proj. |FMLO_i> = |PsiMPO_j> Cmloi(j,i)
+          forall(i=iki:ikf,j=iki:ikf) proj(i,j)=sum(cnki(i,:,iqibz)*dconjg(cnki(j,:,iqibz))) !projector
+          cmloi(iki:ikf,1:nMLO) = matmul(proj,amnki(iki:ikf,1:nMLO,iqibz)) !Get MLO by proj. |FMLO_i> = |PsiMPO_j> Cmloi(j,i)
           if(cmdopt0('--fpmt')) then
              open(newunit=ificpmtmpo, file='Cpmtmpo' //trim(xt(iqibz))//trim(xt(jsp)),form='unformatted')
              read(ificpmtmpo) nPMT, nMPO
              if( nband/=nMPO) call rx('nband/=nMPO')
              if(allocated(rotmatr)) deallocate(cpmtmpo_i,cpmtmlo_i,cpmtmlo,rotmatr,rmatpmt)
              allocate(cpmtmpo_i(nPMT,nMPO),cpmtmlo_i(1:nPMT,1:nMLO),cpmtmlo(1:nPMT,1:nMLO),rotmatr(nMLO,nMLO),rmatpmt(nPMT,nPMT))
-             read(ificpmtmpo) cpmtmpo_i(nPMT,nMPO)  != matmul(evempmt,cmpo)                      |FMPO_i>= |FPMT_l>Cpmtmpo(l,i)
+             read(ificpmtmpo) cpmtmpo_i(nPMT,nMPO)  !   |FMPO_i>= |FPMT_l>Cpmtmpo(l,i)
              close(ificpmtmpo)
              cpmtmlo_i(1:nPMT,1:nMLO) = matmul(cpmtmpo_i,matmul(eveci(:,iki:ikf,iqibz),cmloi))
              ! |FMLO_i> =  |PsiMPO_j> cmloi(j,i)
              !          =  |FMPO_k>   eveci(k,j)*cmloi(j,i)
              !          =  |FPMT_l>   cpmtmpo_i(l,k) * eveci(k,j)*cmloi(j,i)
           endif
-
           do ig = 1,ngrp
-             !case1===
              if(.not.igiqibz(ig,iqibz)) cycle
-             qp = qbzii(:,ig,iqibz)
+             iqbz= iqii(ig,iqibz)
+             qp  = qbzii(:,ig,iqibz)
              fac0= 1d0/dble(nqbz)/ngrp
-             !case2===
-             ! qp = matmul(symops(:,:,ig),qibz(:,iqibz))
-             ! fac0= 1d0/dble(nqbz) *nigiq(iqibz)/ngrp
-
              call rotmatMTO(igg=ig,q=qibz(:,iqibz),qtarget=qp,ndimh=nband,                 rotmat=rotmat)
              cmlo = matmul(cmloi,dconjg(transpose(rotmat(idmto_(:),idmto_(:))))) ! |FMLO_i> = |PsiMPO_j> cmlo(j,i)
-
              if(cmdopt0('--fpmt')) then
                 rotmatr=dconjg(transpose(rotmat(idmto_(:),idmto_(:))))
                 call rotmatPMT(igg=ig,q=qibz(:,iqibz),qtarget=qp,ndimh=nPMT, napw=nPMT-nMPO, rotmat=rmatpmt)
-                cpmtmlo(1:nPMT,1:nMLO) = matmul(matmul(rmatpmt, cpmtmlo_i),rotmatr) !|FMLO_i>= sum_j |FPMT_j> cpmtmlo(j,i)
-                !open(newunit=ificmptmlo, file='cpmtmlo' //trim(xt(iqbz))//trim(xt(jsp)),form='unformatted')
-                !write(ificmptmlo) nPMT,nMLO
-                !write(ificmptmlo) cpmtmlo
-                !close(ificmptmlo)
+                cpmtmlo(1:nPMT,1:nMLO)= matmul(matmul(rmatpmt,cpmtmlo_i),rotmatr) !|FMLO_i>= sum_j |FPMT_j> cpmtmlo(j,i)
+                open(newunit=ificp, file='Cpmtmlo_iqbzisp' //trim(xt(iqbz))//trim(xt(jsp)),form='unformatted')
+                write(ificp) nPMT,nMLO
+                write(ificp) cpmtmlo
+                close(ificp)
              endif
-
              forall(i=1:nMLO,j=1:nMLO) ham(i,j)  = sum(dconjg(cmlo(:,i))*evli(iki:ikf,iqibz)*cmlo(:,j))
              forall(i=1:nMLO,j=1:nMLO) ovlx(i,j) = sum(dconjg(cmlo(:,i))*cmlo(:,j))
              associate(ib=>ib_tableM)
@@ -508,40 +498,15 @@ subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |
           enddo
        enddo
        deallocate(cnki)
-       ! do iqbz = 1,nqbz
-       !    qp   = qbz(:,iqbz) !      write(6,*)' xxxx iq q=',iq,qp
-       !    iqibz= irotq(iqbz)
-       !    call rotmatMTO(igg=irotg(iqbz),q=qibz(:,iqibz),qtarget=qp+matmul(qlat,ndiff(:,iqibz)),ndimh=nband, rotmat=rotmat)
-       !    rotmatp=rotmat(idmto_(:),idmto_(:))
-       !    do concurrent(i=iki:ikf, j=iki:ikf)     !inner bandindex
-       !       proj(i,j) = sum(cnki(i,:,iqibz)*dconjg(cnki(j,:,iqibz))) !sum for MLOindex
-       !    enddo
-       !    pa(iki:ikf,1:nMLO) = matmul(proj,amnki(iki:ikf,1:nMLO,iqibz))
-       !    pa = matmul(pa,dconjg(transpose(rotmatp)))
-       !    do concurrent(i=1:nMLO,j=1:nMLO)
-       !       ham(i,j)  = sum(dconjg(pa(:,i))*evl(iki:ikf,iqbz)*pa(:,j)) !sum(dconjg(pa(:,i))*pa(:,j))!
-       !       ovlx(i,j) = sum(dconjg(pa(:,i))*pa(:,j))
-       !    enddo !          write(6,*)'sumcheck ham=',iqbz,sum(abs(ham))
-       !    do concurrent(i=1:nMLO,j=1:nMLO) !Real space Hamiltonian. H(k)->H(T) FT to real space
-       !       ib1 = ib_tableM(i)
-       !       ib2 = ib_tableM(j)
-       !       do it =1,npair(ib1,ib2)! hammr_ij (T)= \sum_k hamm(k) exp(ikT). it is the index for T
-       !          phase = 1d0/dble(nqbz)* exp(img*2d0*pi* sum(qp*matmul(plat,nlat(:,it,ib1,ib2))))
-       !          hmmr2(i,j,it,jsp)= hmmr2(i,j,it,jsp)+ ham(i,j)*phase
-       !          ommr2(i,j,it,jsp)= ommr2(i,j,it,jsp)+ ovlx(i,j)*phase
-       !       enddo
-       !    enddo
-       ! enddo
      endblock GetHamiltonianforMTObyProjection
-
      write(6,*)' get hmmr2. Goto band_lmfham2.dat ---------'
      bandplotMLO: block
        real(8):: evlm(nMLO,ndat)
        complex(8):: phase,hamm(nMLO,nMLO),ovlm(nMLO,nMLO),evec(nMLO,nMLO)
        integer:: iband
        jsp=is
-       fband='band_lmfham2_spin'//char(48+jsp)//'.dat'
-       fband1='band_lmfham1_spin'//char(48+jsp)//'.dat'
+       fband='band_MLO_spin'//char(48+jsp)//'.dat'
+       fband1='band_MPO_spin'//char(48+jsp)//'.dat'
        open(newunit=iband,file=trim(fband))
        do iq= 1,ndat
           qp=qplistsy(:,iq)
@@ -570,7 +535,7 @@ subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |
        integer:: ifglt1,ifglt
        character(256):: aline,fname,fname2
        jsp = is
-       fname2='bandplot.lmfham2.isp'//char(48+jsp)//'.glt'
+       fname2='bandplot_MLO.isp'//char(48+jsp)//'.glt'
        fname ='bandplot.isp'//char(48+jsp)//'.glt'
        open(newunit=ifglt,  file=trim(fname))
        open(newunit=ifglt1, file=trim(fname2))
@@ -592,7 +557,8 @@ subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |
       endblock Modifiedbandplotglt
       deallocate(cnk,omgik,evals,wtbandq,wtinnerq,proj,projs,projss,upu,cnk0i)
 1000 enddo ispinloop
-   call rx0('OK! end of lmfham2 -----------------')
+   if(job==0) call rx0('OK! end of lmfham --job=0 --------')
+   if(job==1) call rx0('OK! end of lmfham --job=1 --------')
 contains
    pure real(8) function filter2(x) !step like function 0(x<0) to 1(x>0)
       real(8),intent(in) :: x
@@ -605,154 +571,3 @@ contains
       endif
    end function filter2
 end subroutine lmfham2
-
-
-
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- ! ! --- Readin nlam index
- ! open(newunit=ifoc,file ='@MNLA_CPHI')
- ! ldim2 = ldim !nlmto
- ! read(ifoc,*)
- ! if(allocated(m_indx)) deallocate(m_indx,n_indx,l_indx,ibas_indx,ibasiwf)
- ! allocate(m_indx(ldim2),n_indx(ldim2),l_indx(ldim2),ibas_indx(ldim2))
- ! do ix =1,ldim2
- !    read(ifoc,*)m_indx(ix),n_indx(ix),l_indx(ix),ibas_indx(ix),ixx
- !    if(ixx/=ix) call rx('failed to readin @MNLA_CPHI')
- ! enddo
- ! close(ifoc)
- ! allocate(ibasiwf(nwf))
- ! do iwf=1,nwf
- !    ibasiwf(iwf) = ibas_indx(iphi(1,iwf))
- ! enddo
-
- ! !! write HrotRS
- ! ifh=ifile_handle()
- ! if(is==1) open(ifh,file='HrotRS.up',form='unformatted')
- ! if(is==2) open(ifh,file='HrotRS.dn',form='unformatted')
- ! write(ifh)alat,plat,natom
- ! write(ifh)pos
- ! write(ifh)ef
- ! write(ifh)nwf,nrws,n1,n2,n3
- ! write(ifh) irws,rws,drws,hrotr, ibasiwf !drws added by okumura Aug28,2017
- ! close(ifh)
-
-!     call write_hopping_output(is, hrotr, &
-!          rws,irws,alat,plat,qlat,pos,natom, &
-!          ibasiwf, nwf,nrws,spid , m_indx, l_indx, &
-!          nphix, iphi, ldim2)
- !      close(ifh)
-
- !! TEST okumura: iq=1,nq, q->qbz?   (2017/06/10)
-!!! qtt -> q, nqtt -> nqbz
- ! ! data list for wannier
- ! ifh=ifile_handle()
- ! open(ifh,file="wan4chi.d",form="unformatted")
- ! write(ifh) nwf,nspin,nqbz
- ! close(ifh)
-
- ! ! generate eigenvalue and eigenvector of Wannier Hamiltonian
- ! ! Index:: evecc_w (orbital,band,q-point,spin)
- ! write(6,*)
- ! if (is==1) allocate(eval_w(nwf,nqbz,nspin),evecc_w(nwf,nwf,nqbz,nspin))
- ! do iq = 1,nqbz
- !    if(iq<5 .OR. iq>nqbz-3)write(6,*)' got get_hrotkp_ws iq =',iq
- !    if(iq==5)write(6,*)' ...'
- !    call get_hrotkp_ws(hrotr,rws,drws,irws,qbz(:,iq), &
- !         nwf,nqbz,nrws, &
- !         hrotkp)
- !    call diag_hm(hrotkp,nwf,eval,evecc)
- !    eval_w(1:nwf,iq,is)=eval
- !    evecc_w(1:nwf,1:nwf,iq,is)=evecc
- ! enddo
-
- ! if(is==2) then
- !    ifh=ifile_handle()
- !    open(ifh,file='EValue_w',form='unformatted')
- !    write(ifh) nwf,nqbz,nspin
- !    write(ifh) eval_w(1:nwf,1:nqbz,1:nspin)
- !    close(ifh)
- !    ifh=ifile_handle()
- !    open(ifh,file='EVec_w',form='unformatted')
- !    write(ifh) nwf,nqbz,nspin
- !    write(ifh) qbz(1:3,1:nqbz)
- !    write(ifh) evecc_w(1:nwf,1:nwf,1:nqbz,1:nspin)
- !    close(ifh)
- ! endif
- ! ! end okumura
-
- ! !! other k-points
- ! write(ifbnd,*)ef,' ef'
- ! write(iftb,*)ef,' ef'
- ! write(iffb,*)'#',ef,' ef'
- ! if (lsh) write(ifsh,*)ef,' ef'
- ! allocate(eval1(nwf,nq),eval3(nwf,nq),evecc1(nwf,nwf,nq))
- ! if(lsh) allocate(eval2(nwf,nq),evecc2(nwf,nwf,nq))
- ! do iq = 1,nq
- !    !     write(6,*)' got get_hrotkp_ws iq =',iq
- !    ! (3-3) Hrot_mn(k')
- !    call get_hrotkp_ws(hrotr,rws,drws,irws,q(:,iq), &
- !         nwf,nqbz,nrws, &
- !         hrotkp)
- !    ! (3-4) diagonalize
- !    call diag_hm(hrotkp,nwf,eval,evecc)
- !    eval1(1:nwf,iq)=eval
- !    evecc1(1:nwf,1:nwf,iq)=evecc
- !    !     (3-4) diagonalize  -- Small Hamiltonian --
- !    if (lsh) then
- !       hrotkps(1:nsh,1:nsh) = hrotkp(nsh1:nsh2,nsh1:nsh2)
- !       call diag_hm(hrotkps,nsh,evals,eveccs)
- !       write(ifsh,*)'iq =',iq
- !       write(ifsh,990)q(1:3,iq)
- !       eval2(1:nsh,iq)= evals(1:nsh)
- !       evecc2(1:nwf,1:nwf,iq)=eveccs
- !    endif                 ! lsh
- !    ! (3-3) Hrot_mn(k')  -- Tight-binding ---
- !    call get_hrotkp_tb_ws(rcut,plat,alat, &
- !         hrotr,rws,drws,irws,q(:,iq),  ibasiwf,pos,natom, &
- !         nwf,nqbz,nrws, &
- !         hrotkp)
- !    !     (3-4) diagonalize -- Tight-binding --
- !    call diag_hm(hrotkp,nwf,eval,evecc)
- !    eval3(1:nwf,iq)=eval
- ! enddo
- ! do iband = 1,nwf
- !    do iq = 1,nq
- !       write(ifbnd,"(i5,3f13.5,'  ',f13.6,f13.6,i5,' !eee! x eval-ef(ev) iband' )") &
- !            iq,q(1:3,iq),  xq(iq),(eval1(iband,iq)-ef)*rydberg(),iband
- !       write(iftb,"(i5,3f13.5,'  ',f13.6,f13.6,i5,' !eee! x eval-ef(ev) iband' )") &
- !            iq,q(1:3,iq),  xq(iq),(eval3(iband,iq)-ef)*rydberg(),iband
- !       write(iffb,"(i5,3f13.5,'  ',f13.6,f13.6,i5,' ')",ADVANCE='NO') &
- !            iq,q(1:3,iq),  xq(iq),(eval1(iband,iq)-ef)*rydberg(),iband
- !       do iwf=1,nwf
- !          write(iffb,"(f13.6)",ADVANCE='NO') (abs(evecc1(iwf,iband,iq)))**2
- !       enddo
- !       write(iffb,*)
- !    enddo
- !    write(ifbnd,*)
- !    write(iftb,*)
- !    write(iffb,*)
- !    write(iffb,*)
- ! enddo
-!     deallocate(eval1,eval3,evecc1)
- ! if(lsh) then
- !    do iband = 1,nsh
- !       do iq = 1,nq
- !          write(ifsh,"(i5,3f13.5,'  ',f13.6,f13.6,i5,' !eee! x eval-ef(ev) iband' )") &
- !               iq,q(1:3,iq),  xq(iq),(eval2(iband,iq)-ef)*rydberg(),iband
- !       enddo
- !    enddo
- ! endif
-!     call writeham(ifham,is,ef,alat,plat,pos,qbz,wbz,rws,irws,hrotk,nspin,natom,nwf,nqbz,nrws)
-!     deallocate(cnk,umnk,eunk,hrotk,hrotr,hrotkp,evecc,eval,irws,rws,drws, &
-!          ibasiwf,m_indx,n_indx,l_indx,ibas_indx)
-!     if (lsh) deallocate(hrotkps,eveccs,evals,evecc2)
-!     close(ifbnd)
-!     close(iftb)
-!     close(iffb)
-!1000 enddo ispinloop
-!950 format(a14,3f23.16)
-!990 format(3f12.6)
-!  call cputid(0)
-!  call rx0s('lmfham2: ixc=2 ok')
-!END PROGRAM lmfham2
