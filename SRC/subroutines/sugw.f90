@@ -408,6 +408,7 @@ contains
        if(present(FPMTmodein)) FPMTmode=FPMTmodein
        if(FPMTmode) then
          allocate(evec0(ndimh,ndimh),source=(0d0,0d0))
+         allocate(cphi0(ndima,ndimh,nsp))
          forall(i=1:ndimh) evec0(i,i)=1d0
          aus_zv=0d0
          call makusq(nbas,[-999], nev,  isp, 1 , qp , evec0 , aus_zv ) 

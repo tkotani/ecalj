@@ -953,7 +953,7 @@ subroutine erange(iflg,emin,emax,ef,eqt,nband,nwf, &
      !     &       stop 'erange: outer enrgy window too high'
      neo = itf - iti + 1
      if (neo < nwf) then
-        print *,'neo,itf,iti=',neo,itf,iti
+        print *,'neo,itf,iti=',neo,itf,iti,nwf
         stop 'energy range: outer energy window error'
      endif
   elseif (iflg == 2) then
