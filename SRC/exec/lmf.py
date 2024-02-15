@@ -8,3 +8,4 @@ arglist=' '.join(sys.argv[1:])
 callF(ecaljF.setcmdpathc,[scriptpath]) # Set path for ctrl2ctrlp.py in m_setcmdpath
 callF(ecaljF.m_setargsc,[arglist])        # Set args in m_args
 callF(ecaljF.lmf) 
+	
