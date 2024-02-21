@@ -12,6 +12,7 @@ contains
     character(len=*):: recrdin(:)
     nrecs = size(recrdin)
     reclnr= len(recrdin(1))   !write(6,*)nrecs,reclnr
+    if(allocated(recrd)) deallocate(recrd)
     allocate(character(reclnr)::recrd(nrecs))
     recrd=recrdin
   end subroutine gtv2_setrcd

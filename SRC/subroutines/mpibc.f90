@@ -1,6 +1,7 @@
 !> MPI all reduce
 subroutine mpibc2_int(vec,nnn,label)
-  use m_MPItk,only: mlog
+!  use m_MPItk,only: mlog
+  logical:: mlog
   character funnam*(1), label*(*)
   integer::nnn,cast
   integer:: vec(nnn)
@@ -10,7 +11,8 @@ subroutine mpibc2_int(vec,nnn,label)
   call mpibc2(vec,nnn,cast,mlog,funnam,label)
 end subroutine mpibc2_int
 subroutine mpibc2_real(vec,nnn,label)
-  use m_MPItk,only: mlog
+!  use m_MPItk,only: mlog
+  logical:: mlog
   character funnam*(1), label*(*)
   integer::nnn,cast
   real(8):: vec(nnn)
@@ -20,7 +22,8 @@ subroutine mpibc2_real(vec,nnn,label)
   call mpibc2(vec,nnn,cast,mlog,funnam,label)
 end subroutine mpibc2_real
 subroutine mpibc2_complex(vec,nnn,label)
-  use m_MPItk,only: mlog
+!  use m_MPItk,only: mlog
+  logical:: mlog
   character funnam*(1), label*(*)
   integer::nnn,cast
   complex(8):: vec(nnn)
@@ -31,7 +34,8 @@ subroutine mpibc2_complex(vec,nnn,label)
 end subroutine mpibc2_complex
 ! master to world
 subroutine mpibc1_logical(vec,nnn,label)
-  use m_MPItk,only: mlog
+!  use m_MPItk,only: mlog
+  logical:: mlog
   character funnam*(1), label*(*)
   integer::nnn,cast
   real(8):: vec(nnn)
@@ -40,7 +44,8 @@ subroutine mpibc1_logical(vec,nnn,label)
   call mpibc1(vec,nnn,cast,mlog,funnam,label)
 end subroutine mpibc1_logical
 subroutine mpibc1_int(vec,nnn,label)
-  use m_MPItk,only: mlog
+!  use m_MPItk,only: mlog
+  logical:: mlog
   character funnam*(1), label*(*)
   integer::nnn,cast
   real(8):: vec(nnn)
@@ -49,7 +54,8 @@ subroutine mpibc1_int(vec,nnn,label)
   call mpibc1(vec,nnn,cast,mlog,funnam,label)
 end subroutine mpibc1_int
 subroutine mpibc1_real(vec,nnn,label)
-  use m_MPItk,only: mlog
+!  use m_MPItk,only: mlog
+  logical:: mlog
   character funnam*(1), label*(*)
   integer::nnn,cast
   real(8):: vec(nnn)
@@ -58,7 +64,8 @@ subroutine mpibc1_real(vec,nnn,label)
   call mpibc1(vec,nnn,cast,mlog,funnam,label)
 end subroutine mpibc1_real
 subroutine mpibc1_complex(vec,nnn,label)
-  use m_MPItk,only: mlog
+!  use m_MPItk,only: mlog
+  logical:: mlog
   character funnam*(1), label*(*)
   integer::nnn,cast
   complex(8):: vec(nnn)
@@ -76,7 +83,7 @@ subroutine mpibc1(vec,n,cast,mlog,funnam,label)  !- Broadcasts a vector from mas
   !i         : 2 int
   !i         : 4 double
   !i         : 6 double complex
-  !i   mlog  : T write message to mlog file
+  !i   mlog  : dummy
   !i   funnam:string used in writing message (function name)
   !i   label :string used in writing message (variable name)
   implicit none
@@ -127,7 +134,7 @@ subroutine mpibc2(vec,n,cast,mlog,funnam,label) !Performs MPI_ALLREDUCE on a vec
   !i         : 2 int
   !i         : 4 double
   !i         : 6 double complex
-  !i   mlog  : T write message to mlog file
+  !i   mlog  : dummy 
   !i   funnam:string used in writing message (function name)
   !i   label :string used in writing message (variable name)
   !r Remarks

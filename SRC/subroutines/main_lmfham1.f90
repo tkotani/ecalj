@@ -16,11 +16,11 @@ subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|
   use m_setqibz_lmfham,only: set_qibz
   implicit none
   integer:: i,j,ikp,ib1,ib2,it,nmx,nev,jsp,ikpd,ierr
-  complex(8)::img=(0d0,1d0),phase,aaaa 
+  complex(8)::img=(0d0,1d0),phase,aaaa
   real(8),allocatable:: evl(:)
   real(8)::qp(3),pi=4d0*atan(1d0)
   real(8)::facw,ecutw,eww,rydberg
-  logical:: lprint=.true.,savez=.false.,getz=.false. 
+  logical:: lprint=.true.,savez=.false.,getz=.false.
   integer:: ndatx,ifsy1,ifsy2,ifsy,iix(36),nsc1,iqini,iqend,ndiv
   logical:: symlcase=.true.
   character(256):: fband(2)=['band_MPO_spin1.dat','band_MPO_spin2.dat'],cccx
@@ -33,28 +33,28 @@ subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|
   call m_MPItk_init() ! mpi initialization
   call m_lgunit_init() !set stdo,stdl
   call m_lmfinit_init('lmfham1')! Read ctrlp into module m_lmfinit.
-  call ReadHamPMTInfo()  ! Read info from PMTHamiltonianInfo (lattice structures and index of basis). 
+  call ReadHamPMTInfo()  ! Read info from PMTHamiltonianInfo (lattice structures and index of basis).
   call set_qibz(plat,qplist,nkp,symops,ngrp) ! Setup m_setqibz_lmfham
-  call getkeyvalue("GWinput","mlo_facw",facw,default=.5d0)   
+  call getkeyvalue("GWinput","mlo_facw",facw,default=.5d0)
   call getkeyvalue("GWinput","mlo_ecutw",ecutw,default=999*rydberg())
   call getkeyvalue("GWinput","mlo_eww",eww,default=.1d0*rydberg()) !size of fixing inner window
   if(master_mpi) write(stdo,ftox)'mlo_facw _ecutw (eV)=',ftof(facw),ftof(ecutw/rydberg())!,ftof(eww)
   ecutw= ecutw/rydberg()
   eww  = eww  /rydberg()
   if(symlcase) call readqplistsy()      ! When symlcase=T, read qplist.dat (q points list, see bndfp.F).
-  !!! delta fun check for FFT: k --> T --> k ! \delta_{kk'} = \sum_{T \in T(i,j)} W_T exp( i (k-k') T)
+!!! delta fun check for FFT: k --> T --> k ! \delta_{kk'} = \sum_{T \in T(i,j)} W_T exp( i (k-k') T)
   ! do ikpd=1,nkp; write(stdo,*)'test for ikpd=',ikpd;  do ikp=1,nkp
   !   qp = qplist(:,ikp) - qplist(:,ikpd)
   !   do ib1=1,nbas; do ib2=1,nbas
   !     aaaa=0d0
-  !     do it = 1,npair(ib1,ib2) 
+  !     do it = 1,npair(ib1,ib2)
   !       aaaa=aaaa+ 1d0/(nkp*nqwgt(it,ib1,ib2))*exp(img*2d0*pi* sum(qp*matmul(plat,nlat(:,it,ib1,ib2))))
   !     enddo
   !     cccx=''
   !     if(ikp==ikpd) cccx=' <--'
   !     if(abs(aaaa)>1d-8) then
   !       write(stdo,ftox)'\delta-fun test ikpd ikp',ikpd,ikp,ftof(qplist(:,ikp)),ib1,ib2,ftof(aaaa),trim(cccx)
-  !     endif   
+  !     endif
   !   enddo; enddo
   ! enddo   ! enddo   ! stop 'xxxxxxxxxxxxxxxxxxxxxx'
   call HamPMTtoHamRsMPO(facw,ecutw,eww) ! MT-projected orbital(MPO) Hamiltoinan. HamRsMPO
@@ -65,7 +65,7 @@ subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|
      if(master_mpi) open(newunit=ifsy1,file=trim(fband(1)))
      if(master_mpi.and.nspx==2) open(newunit=ifsy2,file=trim(fband(2)))
      if(master_mpi) write(stdo,ftox)'Read qplist.dat: ndat =',ndat
-  endif   
+  endif
   nmx = ndimMTO
   ndatx = nkp
   if(symlcase) ndatx=ndat
@@ -85,7 +85,7 @@ subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|
        if(symlcase) then
           qp= qplistsy(:,ikp)
        else
-          qp= qplist(:,ikp) 
+          qp= qplist(:,ikp)
        endif
        if(master_mpi) write(stdo,"(' ikp along qplist, q=',i5,3f9.4)")ikp,qp! true q(i)= 2pi/alat * qplist(i,ikp)
        Spinloop: do jsp=1,nspx !nsp is the number of spin.  When lso=1(Lz.Sz), nspx=1
@@ -94,7 +94,7 @@ subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|
             real(8):: rydberg
             ovlm = 0d0
             hamm = 0d0
-            FourierTransormationFROMrealspcaeTOqspace:do i=1,ndimMTO !MPO Hamiltonian 
+            FourierTransormationFROMrealspcaeTOqspace:do i=1,ndimMTO !MPO Hamiltonian
                do      j=1,ndimMTO
                   ib1 = ib_tableM(i) !atomic-site index in the primitive cell
                   ib2 = ib_tableM(j)
@@ -105,12 +105,12 @@ subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|
                   enddo
                enddo
             enddo FourierTransormationFROMrealspcaeTOqspace
-           call zhev_tk4(ndimMTO,hamm,ovlm,0,nev, evl(:,ikp,jsp),t_zv, oveps)!Diangonalize (hamm- evl ovlm) z=0
-!           write(stdo,ftox) '  evl   =',nev,ftof(evl(1:10,ikp,jsp)*rydberg())
+            call zhev_tk4(ndimMTO,hamm,ovlm,0,nev, evl(:,ikp,jsp),t_zv, oveps)!Diangonalize (hamm- evl ovlm) z=0
+            !           write(stdo,ftox) '  evl   =',nev,ftof(evl(1:10,ikp,jsp)*rydberg())
           endblock Hamblock
        enddo Spinloop
     enddo GetHamiltonianFromRealSpacehammrANDdiagonalize
-    call mpibc2_real(evl,size(evl),'lmfham1_evl') 
+    call mpibc2_real(evl,size(evl),'lmfham1_evl')
     if(symlcase.and.master_mpi) then
        do ikp=1,ndatx
           do jsp=1,nspx
@@ -132,21 +132,21 @@ subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|
          fname1='bandplot_MPO.isp'//char(48+jsp)//'.glt'
          open(newunit=ifglt1, file=trim(fname1))
          open(newunit=ifglt,  file=trim(fname))
-         do 
+         do
             read(ifglt,"(a)",err=989,end=989)aline
-            if(trim(aline)=="plot \") then !"
-             write(ifglt1,ftox)"ef=",ftof(eferm)  
-             write(ifglt1,ftox)trim(aline)
-             write(ifglt1,ftox)'"'//trim(fband(jsp))//'" u ($1):(13.605*($2-ef)) pt 2 lc rgb "green",\' !' 
-            else
-             write(ifglt1,ftox)trim(aline)
-            endif   
-         enddo
-989      continue
-         close(ifglt1)
-         close(ifglt)
-         if(master_mpi) write(stdo,ftox)&
-              'OK! Run gnuplot -p '//trim(fname1)//'. Brown points are by HamRsMTO for Hamiltonian on {|MLO1>}'
+          if(trim(aline)=="plot \") then !"
+            write(ifglt1,ftox)"ef=",ftof(eferm)
+            write(ifglt1,ftox)trim(aline)
+            write(ifglt1,ftox)'"'//trim(fband(jsp))//'" u ($1):(13.605*($2-ef)) pt 2 lc rgb "green",\' !'
+          else
+            write(ifglt1,ftox)trim(aline)
+          endif
+        enddo
+989     continue
+        close(ifglt1)
+        close(ifglt)
+        if(master_mpi) write(stdo,ftox)&
+          'OK! Run gnuplot -p '//trim(fname1)//'. Brown points are by HamRsMTO for Hamiltonian on {|MLO1>}'
       enddo
     endblock Writebandplotlmfham1glt
     if(master_mpi) write(stdo,ftox)'Dim of |MLO1>based Hamiltonian HamRsMTO=',ndimMTO,'Atom-pair in real space=',npairmx

@@ -14,9 +14,9 @@ subroutine show_programinfo(io)
   character(256):: FV="GNU Fortran (Ubuntu 9.4.0-1ubuntu1~20.04.2) 9.4.0"
   character(256):: PF=""
   character(256):: LL=""
-  character(512):: GC1="commit 07488770362e31fca1bddfe582c80f3fd7ed5633"
+  character(512):: GC1="commit 6eb5a4c33f1cc1f0dbb836bb79a351cf81568183"
   character(512):: GC2="Author: Takao Kotani <takaokotani@gmail.com>"
-  character(512):: GC3="Date:   Thu Feb 15 10:15:16 2024 +0900"
+  character(512):: GC3="Date:   Wed Feb 21 17:09:55 2024 +0900"
   write(io,'(a,a,a,a)') info,trim(EI)
   write(io,'(a,a,a,a)') info,trim(FV)
   write(io,'(a,a,a)') info, trim(FFL)
@@ -24,7 +24,7 @@ subroutine show_programinfo(io)
   write(io,'(a,a,a)') info,'git: ',trim(GC1)
   write(io,'(a,a,a)') info,'   : ',trim(GC2)
   write(io,'(a,a,a)') info,'   : ',trim(GC3)
-  write(io,'(a,a,a)') info,'linked at ',trim("Tue Feb 20 20:42:34 JST 2024")
+  write(io,'(a,a,a)') info,'linked at ',trim("Wed Feb 21 17:55:00 JST 2024")
 end subroutine show_programinfo
 ! program test
 ! call show_programinfo(6)

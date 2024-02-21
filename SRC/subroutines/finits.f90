@@ -74,7 +74,7 @@ subroutine rxx(test,string)
 end subroutine rxx
 
 subroutine fexit0(retval,strng)! retval:  return value passed to operating system. /=0 for error exit
-  use m_MPItk,only:  m_MPItk_finalize,master_mpi,procid
+  use m_MPItk,only:  master_mpi,procid
   use m_lgunit,only:stdo,stdl
   implicit none
   integer :: retval,iopt,abret

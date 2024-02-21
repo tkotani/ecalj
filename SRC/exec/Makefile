@@ -6643,6 +6643,33 @@ home/takao/ecalj/SRC/subroutines/smvxcm.f90.s:
 	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/smvxcm.f90.s
 .PHONY : home/takao/ecalj/SRC/subroutines/smvxcm.f90.s
 
+home/takao/ecalj/SRC/subroutines/sopen.o: home/takao/ecalj/SRC/subroutines/sopen.f90.o
+
+.PHONY : home/takao/ecalj/SRC/subroutines/sopen.o
+
+# target to build an object file
+home/takao/ecalj/SRC/subroutines/sopen.f90.o:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/sopen.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/sopen.f90.o
+
+home/takao/ecalj/SRC/subroutines/sopen.i: home/takao/ecalj/SRC/subroutines/sopen.f90.i
+
+.PHONY : home/takao/ecalj/SRC/subroutines/sopen.i
+
+# target to preprocess a source file
+home/takao/ecalj/SRC/subroutines/sopen.f90.i:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/sopen.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/sopen.f90.i
+
+home/takao/ecalj/SRC/subroutines/sopen.s: home/takao/ecalj/SRC/subroutines/sopen.f90.s
+
+.PHONY : home/takao/ecalj/SRC/subroutines/sopen.s
+
+# target to generate assembly for a file
+home/takao/ecalj/SRC/subroutines/sopen.f90.s:
+	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/sopen.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/sopen.f90.s
+
 home/takao/ecalj/SRC/subroutines/sort.o: home/takao/ecalj/SRC/subroutines/sort.f90.o
 
 .PHONY : home/takao/ecalj/SRC/subroutines/sort.o
@@ -9416,6 +9443,9 @@ help:
 	@echo "... home/takao/ecalj/SRC/subroutines/smvxcm.o"
 	@echo "... home/takao/ecalj/SRC/subroutines/smvxcm.i"
 	@echo "... home/takao/ecalj/SRC/subroutines/smvxcm.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/sopen.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/sopen.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/sopen.s"
 	@echo "... home/takao/ecalj/SRC/subroutines/sort.o"
 	@echo "... home/takao/ecalj/SRC/subroutines/sort.i"
 	@echo "... home/takao/ecalj/SRC/subroutines/sort.s"

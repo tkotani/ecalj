@@ -14,7 +14,7 @@ contains
     use m_ext,only: sname
     use m_lgunit,only:stdo,stdl
     use m_ftox
-    use m_MPItk,only: mlog,master_mpi
+    use m_MPItk,only: master_mpi
     use m_fatom,only:sspec,mpibc1_s_spec
     !i Inputs
     !i   nbas  :size of basis
@@ -40,7 +40,7 @@ contains
     real(8) ,allocatable :: rwgt_rv(:)
     complex(8) ,allocatable :: cv_zv(:)
     character msg*23, strn*120
-    logical :: lfail, l_dummy_isanrg,isanrg
+    logical :: lfail, l_dummy_isanrg,isanrg,mlog
     include 'mpif.h'
     call tcn('rdovfa')
     ipr   = iprint()

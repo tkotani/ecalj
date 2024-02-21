@@ -29,5 +29,5 @@ subroutine lmfa() bind(C)
   endif
   call m_lmfinit_init(prgnam) ! Computational settings.
   call Freeat()  !Spherical atom calculation
-  call rx0("OK! end of "//trim(prgnam)//" ======================")
+  write(stdo,*)"OK! end of "//trim(prgnam)//" ======================"
 end subroutine lmfa

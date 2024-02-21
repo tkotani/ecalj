@@ -4,7 +4,7 @@ module m_cmdpath
    public setcmdpath !command path
    private
 contains
-   subroutine setcmdpathc(cname) bind(C) !Set cmdpath, which is the full path to the command (fortran program) itself.
+   subroutine setcmdpathc(cname) bind(C)!Set cmdpath, which is the fullpath to the command (fortran program) itself.
       implicit none
       integer:: nsize, i
       character(1):: cname(*)

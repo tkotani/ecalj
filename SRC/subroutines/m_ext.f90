@@ -1,4 +1,28 @@
 !> Get arglist. Get extension of ctrl.foobar
+function convcchar(instr) result(outstr) !convert char(1) to char(1024)
+   use iso_c_binding
+   integer:: i,nend
+   character(1):: instr(1024)
+   character(1024):: outstr,instr2
+   forall(i=1:1024) instr2(i:i) = instr(i)
+   nend = index(instr2, c_null_char)-1
+   outstr=''
+   outstr(1:nend)= instr2(1:nend)
+end function convcchar
+module m_prgnam
+   character(32):: prgnamx = ''
+contains
+   subroutine set_prgnam(prgnam)
+      character(*):: prgnam
+      prgnamx = prgnam
+   end subroutine set_prgnam
+   subroutine set_prgnamc(prgnamc) bind(C)
+      character(1024):: convcchar
+      character(1):: prgnamc(*)
+      prgnamx = trim(convcchar(prgnamc))
+      write (*, *) 'prgnamx=', trim(prgnamx)
+    end subroutine set_prgnamc
+end module m_prgnam
 module m_args
   character(120),public,protected,allocatable::arglist(:)
   character(1024),public,protected:: argall
@@ -48,7 +72,6 @@ contains
     enddo   
   end subroutine m_setargsc
 end module m_args
-
 module m_ext
   use m_args,only: m_setargs,arglist,narg
   character(512),public,protected::sname='temp'

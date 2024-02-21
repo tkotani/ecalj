@@ -5,7 +5,7 @@ module m_esmsmves
 contains
   subroutine esmsmves(qmom,ng,gv,kv,cv,cg1,cgsum,smrho,qbg,smpot,f,gpot0,hpot0,qsmc,zsum,vrmt)
     use m_lmfinit,only: nsp, alat=>lat_alat,nbas,nlmxlx
-    use m_MPItk,only:  master_mpi,mlog
+    use m_MPItk,only:  master_mpi
     use m_lattic,only: vol=>lat_vol,plat=>lat_plat
     use m_lgunit,only:stdo
     use m_supot,only:n1,n2,n3

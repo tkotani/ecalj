@@ -10,7 +10,7 @@ module m_bandcal
   use m_igv2x,only: m_igv2x_setiq, napw,ndimh,ndimhx,igv2x
   use m_lmfinit,only: lrsig=>ham_lsig, lso,ham_scaledsigma,lmet=>bz_lmet,nbas,epsovl=>ham_oveps,nspc,plbnd,lfrce
   use m_lmfinit,only: pwmode=>ham_pwmode,pwemax,nsp,nlibu,lmaxu,lmxax
-  use m_MPItk,only: mlog, master_mpi, procid,strprocid, numprocs=>nsize, mlog_mpiiq
+  use m_MPItk,only: master_mpi, procid,strprocid, numprocs=>nsize
   use m_subzi, only: nevmx,rv_a_owtkb
   use m_supot, only: n1,n2,n3
   use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate, osmpot,vconst, osig, otau, oppi,ohsozz,ohsopm

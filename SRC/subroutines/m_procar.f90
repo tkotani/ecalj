@@ -5,7 +5,7 @@ module m_procar
   use m_suham,only: ndham=>ham_ndham,ndhamx=>ham_ndhamx,nspx=>ham_nspx
   use m_igv2x,only: igv2x,napw
   use m_mkpot,only: sab_rv 
-  use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize,procid,xmpbnd2
+  use m_MPItk,only: master_mpi, strprocid, numprocs=>nsize,procid,xmpbnd2
   use m_qplist,only: nkp,xdatt,qplist
   public m_procar_init, m_procar_closeprocar, m_procar_writepdos, dwgtall,nchanp
 

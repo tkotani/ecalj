@@ -12,7 +12,7 @@ contains
     use m_ext,only:     sname
     use m_iors,only:    iors
     use m_iors_old,only: iors_old !only for reading vs=1.04 rst file (before 2022-5-14)
-    use m_MPItk,only:  mlog,master_mpi
+    use m_MPItk,only:  master_mpi
     use m_bndfp,only:  Bndfp,   ham_ehf,ham_ehk,qdiff,force,sev
     use m_ldau,only:   m_ldau_vorbset, eorb
     use m_bstrux,only: m_bstrux_init

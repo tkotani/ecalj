@@ -73,7 +73,7 @@ contains
   end subroutine m_subzi_init
   subroutine m_subzi_bzintegration(evlall, eferm,sev,sumqv,vmag) 
     use m_lgunit,only:stdo
-    use m_MPItk,only: mlog, strprocid, numprocs=>nsize, mlog_MPIiq
+    use m_MPItk,only:  numprocs=>nsize
     use m_lmfinit,only: lso,nsp,ham_scaledsigma,nlibu,lmaxu,bz_w,lmet=>bz_lmet,nbas,epsovl=>ham_oveps,nspc,bz_n
     use m_lmfinit,only: bz_fsmommethod,qbg=>zbak,fsmom=>bz_fsmom,ndos=>bz_ndos
     use m_mkqp,only: nkabc=> bz_nabc,ntet=> bz_ntet,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
