@@ -177,7 +177,7 @@ contains
     endif READsigm ! ndimsig is the dim of the self-energy. We now set "ndimsig=ldim",which means we use only projection onto MTO spaces even when PMT. 
     if(sigmamode .AND. master_mpi) write(stdo,*)' ScaledSigma=',ham_scaledsigma
     GWdriver: if(llmfgw) then        !         call m_sugw_init(cmdopt0('--dipolematrix'),cmdopt0('--socmatrix'),eferm)
-       call m_sugw_init(cmdopt0('--socmatrix'),eferm,vmag,qval,FPMTmodein=cmdopt0('--fpmt')) ! 2023-9-20 ! --fmpt at 2024-2-11
+       call m_sugw_init(cmdopt0('--socmatrix'),eferm,vmag,qval) !,FPMTmodein=cmdopt0('--fpmt')) ! 2023-9-20 ! --fmpt at 2024-2-11
        call tcx('bndfp')
        call rx0('sugw mode')  !exit program here normally.
     endif GWdriver

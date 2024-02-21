@@ -31,7 +31,7 @@ subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |
   use m_lattic,only:   m_lattic_init,  qlat=>lat_qlat
   use m_mksym,only:    m_mksym_init
   use m_mkqp,only:     m_mkqp_init
-  use m_rotwave,only:  rotmatMTO,rotmatPMT
+  use m_rotwave,only:  rotmatMTO!,rotmatPMT
   use m_prgnam,only: set_prgnam
   implicit none
   integer:: i,iq,is,ix,j,ifbb,ifoc,nbb,isc,ifq0p, nox,iki,ikf,nsc1,ndz,nin,nout,nsc2,ibb
@@ -434,49 +434,58 @@ subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |
      !! NOTE: cnk(iki:ikf,nMLO,nqbz) is the final results of Step1loop, which minimize Omega_I (Wannier space)
      !!   cnk(iko_i(iq):iko_f(iq),nMLO,iq) gives nMLO-dimentional space.
      GetHamiltonianforMTObyProjection: block  !We do not use Marzari's unitary rotation
-       integer:: il,im,in,ib1,ib2,jsp,ificpmtmpo,nPMT,nMPO,ificp
-       real(8):: fac0
-       complex(8),allocatable:: rotmatr(:,:),rmatpmt(:,:),cpmtmpo_i(:,:),cpmtmlo_i(:,:),cpmtmlo(:,:)
+       integer:: il,im,in,ib1,ib2,jsp,ificpmtmpo,nPMT,nMPO,ificp,nnqbz,ificmlo
+       real(8):: fac0,evll(nMLO)
+       complex(8),allocatable:: rotmatr(:,:),cmpoi(:,:),cpmtmlo_i(:,:),cpmtmlo(:,:) !,rmatpmt(:,:)
        complex(8)::img2pi=img*2d0*pi, rotmat(nband,nband)
        complex(8)::phase,proj(iki:ikf,iki:ikf),cmlo(iki:ikf,nMLO),cmloi(iki:ikf,nMLO),cmpomlo(iki:ikf,nMLO),&
-            ham(nMLO,nMLO),ovlx(nMLO,nMLO)
+            ham(nMLO,nMLO),ovlx(nMLO,nMLO),evecl(nMLO,nMLO),rotmatmlo(nMLO,nMLO)
        logical:: cmdopt0
        character(8):: xt
        jsp=is
        do iqibz = 1,nqibz
           forall(i=iki:ikf,j=iki:ikf) proj(i,j)=sum(cnki(i,:,iqibz)*dconjg(cnki(j,:,iqibz))) !projector
           cmloi(iki:ikf,1:nMLO) = matmul(proj,amnki(iki:ikf,1:nMLO,iqibz)) !Get MLO by proj. |FMLO_i> = |PsiMPO_j> Cmloi(j,i)
-          if(cmdopt0('--fpmt')) then
-             open(newunit=ificpmtmpo, file='Cpmtmpo' //trim(xt(iqibz))//trim(xt(jsp)),form='unformatted')
+          ! |PsiMLO_i> =  |PsiMPO_j> cmloi(j,i)*eveci  = |PsiPMT> cmpoi*eveci * cmloi*evecl
+          if(cmdopt0('--cmlo')) then
+             open(newunit=ificpmtmpo, file='Cmpo' //trim(xt(iqibz))//trim(xt(jsp)),form='unformatted')
              read(ificpmtmpo) nPMT, nMPO
              if( nband/=nMPO) call rx('nband/=nMPO')
-             if(allocated(rotmatr)) deallocate(cpmtmpo_i,cpmtmlo_i,cpmtmlo,rotmatr,rmatpmt)
-             allocate(cpmtmpo_i(nPMT,nMPO),cpmtmlo_i(1:nPMT,1:nMLO),cpmtmlo(1:nPMT,1:nMLO),rotmatr(nMLO,nMLO),rmatpmt(nPMT,nPMT))
-             read(ificpmtmpo) cpmtmpo_i(nPMT,nMPO)  !   |FMPO_i>= |FPMT_l>Cpmtmpo(l,i)
+             if(allocated(rotmatr)) deallocate(cmpoi,cpmtmlo_i,cpmtmlo,rotmatr) !,rmatpmt)
+             allocate(cmpoi(nPMT,nMPO),cpmtmlo_i(1:nPMT,1:nMLO),cpmtmlo(1:nPMT,1:nMLO),rotmatr(nMLO,nMLO)) !,rmatpmt(nPMT,nPMT))
+             read(ificpmtmpo) cmpoi(nPMT,nMPO)  !   |FMPO_i>= |PsiPMT_l> Cmpo(l,i)
              close(ificpmtmpo)
-             cpmtmlo_i(1:nPMT,1:nMLO) = matmul(cpmtmpo_i,matmul(eveci(:,iki:ikf,iqibz),cmloi))
-             ! |FMLO_i> =  |PsiMPO_j> cmloi(j,i)
-             !          =  |FMPO_k>   eveci(k,j)*cmloi(j,i)
-             !          =  |FPMT_l>   cpmtmpo_i(l,k) * eveci(k,j)*cmloi(j,i)
+             open(newunit=ificmlo, file='Cmlo' //trim(xt(iqibz))//trim(xt(jsp)),form='unformatted')
+             nnqbz = count(igiqibz(1:ngrp,iqibz))
+             write(ificmlo) nnqbz
+             do ig = 1,ngrp
+                if(.not.igiqibz(ig,iqibz)) cycle
+                iqbz= iqii(ig,iqibz)
+                qp  = qbzii(:,ig,iqibz)
+                write(ificmlo) iqbz, qp
+             enddo
           endif
-          do ig = 1,ngrp
+          igloop: do ig = 1,ngrp
              if(.not.igiqibz(ig,iqibz)) cycle
              iqbz= iqii(ig,iqibz)
              qp  = qbzii(:,ig,iqibz)
              fac0= 1d0/dble(nqbz)/ngrp
-             call rotmatMTO(igg=ig,q=qibz(:,iqibz),qtarget=qp,ndimh=nband,                 rotmat=rotmat)
+             call rotmatMTO(igg=ig,q=qibz(:,iqibz),qtarget=qp,ndimh=nband,   rotmat=rotmat)
+             rotmatmlo(:,:) = dconjg(transpose(rotmat(idmto_(:),idmto_(:))))
              cmlo = matmul(cmloi,dconjg(transpose(rotmat(idmto_(:),idmto_(:))))) ! |FMLO_i> = |PsiMPO_j> cmlo(j,i)
-             if(cmdopt0('--fpmt')) then
-                rotmatr=dconjg(transpose(rotmat(idmto_(:),idmto_(:))))
-                call rotmatPMT(igg=ig,q=qibz(:,iqibz),qtarget=qp,ndimh=nPMT, napw=nPMT-nMPO, rotmat=rmatpmt)
-                cpmtmlo(1:nPMT,1:nMLO)= matmul(matmul(rmatpmt,cpmtmlo_i),rotmatr) !|FMLO_i>= sum_j |FPMT_j> cpmtmlo(j,i)
-                open(newunit=ificp, file='Cpmtmlo_iqbzisp' //trim(xt(iqbz))//trim(xt(jsp)),form='unformatted')
-                write(ificp) nPMT,nMLO
-                write(ificp) cpmtmlo
-                close(ificp)
-             endif
              forall(i=1:nMLO,j=1:nMLO) ham(i,j)  = sum(dconjg(cmlo(:,i))*evli(iki:ikf,iqibz)*cmlo(:,j))
              forall(i=1:nMLO,j=1:nMLO) ovlx(i,j) = sum(dconjg(cmlo(:,i))*cmlo(:,j))
+             if(cmdopt0('--cmlo')) then !at iqibz
+                if(ig==1) then !at irreducible points
+                   nmx =nMLO
+                   call zhev_tk4(nMLO,ham,ovlx,nmx,nev, evll,evecl,oveps)! Diangonale (hamm - evl ovlm )evec=0
+                   write(ificmlo) iqibz,nPMT,nMLO,qibz(:,iqibz)
+                   write(ificmlo) matmul(matmul(cmpoi,eveci(:,iki:ikf,iqibz)),cmloi) !c1 !|FMLO_iqibz> = |PsiPMT_iqibz> cmpoi*eveci * cmloi
+                else   !for rotation
+                   write(ificmlo) iqbz,nMLO,nMLO,qp
+                   write(ificmlo) matmul(rotmatmlo,evecl) !c2 !rotation is |PsiMLO_iqbz>= |FMLO_iqibz>*rotmatmlo*evecl !cmlo contains rotation from iqibz to iqbz
+                endif
+             endif ! |PsiMLO_iqbz> = |Psi_PMT_iqibz> c1(iqibz)*c2(iqbz)
              associate(ib=>ib_tableM)
                do concurrent(i=1:nMLO,j=1:nMLO) !Real space Hamiltonian. H(k)->H(T) FT to real space
                   do it =1,npair(ib(i),ib(j))! hammr_ij (T)= \sum_k hamm(k) exp(ikT). it is the index for T
@@ -486,7 +495,8 @@ subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |
                   enddo
                enddo
              endassociate
-          enddo
+          enddo igloop
+          close(ificmlo)
        enddo
        deallocate(cnki)
      endblock GetHamiltonianforMTObyProjection
@@ -532,33 +542,33 @@ subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |
        open(newunit=ifglt1, file=trim(fname2))
        do
           read(ifglt,"(a)",err=989,end=989)aline
-            if(trim(aline)=="plot \") then !"
-               write(ifglt1,ftox)"ef=",ftof(eferm)
-               write(ifglt1,ftox)trim(aline)
-               write(ifglt1,ftox)'"'//trim(fband1)//'" u ($1):(13.605*($2-ef)) pt 2 lc rgb "green",\'   !'
-               write(ifglt1,ftox)'"'//trim(fband2)//'" u ($1):(13.605*($2-ef)) pt 2 lc rgb "red",\'   !'
-            else
-               write(ifglt1,ftox)trim(aline)
-            endif
-         enddo
-989      continue
-         close(ifglt)
-         close(ifglt1)
-         write(stdo,ftox)'OK! Run gnuplot -p '//trim(fname2)//'.Red points are by hmmr2 for Hamiltonian on {|MLO2>}'
-      endblock Modifiedbandplotglt
-      deallocate(cnk,omgik,evals,wtbandq,wtinnerq,proj,projs,projss,upu,cnk0i)
+          if(trim(aline)=="plot \" ) then !"
+                  write(ifglt1,ftox)"ef=",ftof(eferm)
+                  write(ifglt1,ftox)trim(aline)
+                  write(ifglt1,ftox)'"'//trim(fband1)//'" u ($1):(13.605*($2-ef)) pt 2 lc rgb "green",\'   !'
+                  write(ifglt1,ftox)'"'//trim(fband2)//'" u ($1):(13.605*($2-ef)) pt 2 lc rgb "red",\'   !'
+          else
+                  write(ifglt1,ftox)trim(aline)
+          endif
+       enddo
+989    continue
+       close(ifglt)
+       close(ifglt1)
+       write(stdo,ftox)'OK! Run gnuplot -p '//trim(fname2)//'.Red points are by hmmr2 for Hamiltonian on {|MLO2>}'
+     endblock Modifiedbandplotglt
+     deallocate(cnk,omgik,evals,wtbandq,wtinnerq,proj,projs,projss,upu,cnk0i)
 1000 enddo ispinloop
-   if(job==0) call rx0('OK! end of lmfham --job=0 --------')
-   if(job==1) call rx0('OK! end of lmfham --job=1 --------')
+  if(job==0) call rx0('OK! end of lmfham --job=0 --------')
+  if(job==1) call rx0('OK! end of lmfham --job=1 --------')
 contains
-   pure real(8) function filter2(x) !step like function 0(x<0) to 1(x>0)
-      real(8),intent(in) :: x
-      if(x<0d0) then
-         filter2=0d0
-      elseif(x>30d0) then
-         filter2= 1d0
-      else
-         filter2= 1d0*(1d0-2d0/(exp(x)+1d0))
-      endif
-   end function filter2
+  pure real(8) function filter2(x) !step like function 0(x<0) to 1(x>0)
+    real(8),intent(in) :: x
+    if(x<0d0) then
+       filter2=0d0
+    elseif(x>30d0) then
+       filter2= 1d0
+    else
+       filter2= 1d0*(1d0-2d0/(exp(x)+1d0))
+    endif
+  end function filter2
 end subroutine lmfham2

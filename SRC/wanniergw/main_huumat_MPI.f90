@@ -4,7 +4,7 @@ subroutine h_uumatrix()
    ! ixc=3: <u(k) | u(k+q0)>
    ! Takashi Miyake, Mar 2008, parallelized.  originally written by Takao Kotani, April, 2004
    use m_readqg,only: readngmx,ngcmx,readqg0,readqg
-   use m_hamindex,only:   Readhamindex,ngrp
+   use m_hamindex,only:   Readhamindex,ngrp,symops
    use m_readeigen,only:init_readeigen,init_readeigen2,readcphif,readcphif0,readgeigf,readgeigf0,readeval
    use m_read_bzdata,only: read_bzdata, nqbz,nqibz,nqbzw,nteti,ntetf,qbas=>qlat, ginv, &
       dq_,wbz,qibz,wibz,qbzw, qbz, idtetf,ib1bz,idteti, nstar,irk,nstbz,  nq0i=>nq0ix,q0i
@@ -16,6 +16,7 @@ subroutine h_uumatrix()
    use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
    use m_mpi,only: mpi__broadcast,mpi__root, nproc=>mpi__size,myproc=> mpi__rank,mpi__initialize,mpi__finalize
    use m_lgunit,only: m_lgunit_init,stdo
+   use m_setqibz_lmfham,only: set_qibz,irotg
    implicit none
    integer:: nw_input, i,ngrpmx,mxx,nqbze,nqibze,ini,ix,ngrpx &
       ,mdimx,nbloch,nblochpmx,ifvcfpout,ndummy1,ndummy2,ifcphi,is,nwp, &
@@ -36,7 +37,7 @@ subroutine h_uumatrix()
       m_indx(:),n_indx(:),l_indx(:),ibas_indx(:), nrofi(:)
    integer,allocatable:: ikidx(:),ikbidx(:,:), ibidx(:,:),ibidxs(:,:),ibidx0(:,:,:), ij1idx(:),ij2idx(:)
    integer,allocatable:: ncore(:),iq_proc(:)
-   real(8),allocatable :: ppbrd (:,:,:,:,:,:,:),cg(:,:,:),symope(:,:), phij(:),psij(:),rprodx(:,:),rphiphi(:), qbzs(:,:),qbz2(:,:)
+   real(8),allocatable :: ppbrd (:,:,:,:,:,:,:),cg(:,:,:),symope(:,:), phij(:),psij(:),rprodx(:,:),rphiphi(:)!, qbzs(:,:),qbz2(:,:)
    real(8):: q1(3),q2(3),dq(3),absqg2,absdq,r2s,absqg, ylk
    real(8):: dum1,dum2,dum3,wqtsum,epsrng,dnorm,dini, dwry,dwh,omg_c,omg2,xxx
    real(8):: ef,q(3),  qgbin(3),qx(3), qq(3),quu(3), deltaq(3),q1x(3),q2x(3)
@@ -68,7 +69,7 @@ subroutine h_uumatrix()
    endif
    call MPI__Broadcast(ixc)
    call read_BZDATA()
-   allocate(qbzs(3,nqbz))
+   !allocate(qbzs(3,nqbz))
    if (mpi__root) write(stdo,*)' ======== nqbz nqibz ngrp=',nqbz,nqibz,ngrp
    call genallcf_v3(incwfx=0) !readin condition. use ForX0 for core in GWIN
    call Readhbe()    !Read dimensions of h,hb
@@ -199,9 +200,11 @@ subroutine h_uumatrix()
       enddo
    enddo jjloop
 !
+   if (cmdopt0('--qibzonly')) call set_qibz(plat,qbz,nqbz,symops,ngrp)
    iqbzloop: do 1070 ii = 1,nq_proc+1
       iqbz = iq_proc(ii)
       if (iqbz == 0) cycle
+      if (cmdopt0('--qibzonly') .and. irotg(iqbz) /=1) cycle !only irreducible q point
       write(*,*)'iq =',iqbz, 'out of',nqbz
       do isp=1,nspin
          open(newunit=ifuu(isp),file=trim(head(ixc,isp))//charnum4(iqbz),form='unformatted')
@@ -295,13 +298,13 @@ subroutine h_uumatrix()
          uum = 0d0
          ispinloop2: do 1050 ispin=1,nspin
             allocate(cphi1 (nlmto,nband),cphi2(nlmto,nband) )
-            if(cmdopt0('--fpmt')) then
-               cphi1 = readcphif0(q1,ispin)
-               cphi2 = readcphif0(q2,ispin)
-            else
+            !if(cmdopt0('--fpmt')) then
+            !   cphi1 = readcphif0(q1,ispin)
+            !   cphi2 = readcphif0(q2,ispin)
+            !else
                cphi1 = readcphif(q1,ispin) !call readcphi(q1, nlmto, ispin, quu, cphi1)
                cphi2 = readcphif(q2,ispin) !call readcphi(q2, nlmto, ispin, quu, cphi2)
-            endif
+            !endif
             ia1loop: do 1020 ia1 = 1,nlmto; ibas1= ibas_indx(ia1)
                ia2loop: do 1010 ia2 = 1,nlmto; ibas2= ibas_indx(ia2)
                   if(ibas2/=ibas1) cycle
@@ -319,13 +322,13 @@ subroutine h_uumatrix()
                   enddo
 1010           enddo ia2loop
 1020        enddo ia1loop
-            if(cmdopt0('--fpmt')) then
-               geig1 = readgeigf0(q1,ispin)
-               geig2 = readgeigf0(q2,ispin)
-            else
+            !if(cmdopt0('--fpmt')) then
+            !   geig1 = readgeigf0(q1,ispin)
+            !   geig2 = readgeigf0(q2,ispin)
+            !else
                geig1 = readgeigf(q1,ispin) !call readgeig(q1, ngpmx, ispin, quu, geig1)
                geig2 = readgeigf(q2,ispin) !call readgeig(q2, ngpmx, ispin, quu, geig2)
-            endif
+            !endif
             do concurrent(j1= iko_ixs(ispin):iko_fxs(ispin),j2= iko_ixs(ispin):iko_fxs(ispin)) ! ... Interstitial Plane Wave part
                uum(j1,j2,ispin)= uum(j1,j2,ispin)+ sum( dconjg(geig1(1:ngp1,j1))*matmul(ppovl,geig2(1:ngp2,j2)) )
             enddo

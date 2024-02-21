@@ -4,7 +4,7 @@ module m_sugw
   private
   public:: m_sugw_init
 contains
-  subroutine m_sugw_init (socmatrix,eferm,vmag,qval,FPMTmodein) !dipolematrix,
+  subroutine m_sugw_init (socmatrix,eferm,vmag,qval) !,FPMTmodein) !dipolematrix,
     use m_ext,only:   sname
     use m_suham,only: ndham=>ham_ndham !max dimension of hamiltonian +napwad (for so=0,2)
     use m_lmfinit,only: ham_pwmode,pwemax,ham_oveps,lrsig=>ham_lsig,nlmto,lso
@@ -78,8 +78,8 @@ contains
     integer:: ham_lsig
     integer:: jobgw=1 , lh(n0)
     real(8):: rsml(n0), ehl(n0) ,eferm,qval
-    logical :: lwvxc,cmdopt0,FPMTmode=.false.
-    logical,optional:: FPMTmodein
+    logical :: lwvxc,cmdopt0!,FPMTmode=.false.
+    !logical,optional:: FPMTmodein
     integer :: i,i1,i2,iat,ib,ibr,icore,ierr,ifeigen,&! & ifi,
          ifiqg,iflband(2),ifqeigen,ifsyml,igets,igetss,iix,iline, &
          im1,im2,ipb(nbas),ipqn,ipr,iprint,iq,is,isp,ispc,j,job,k1, &
@@ -405,15 +405,15 @@ contains
        allocate(aus_zv(nlmax*ndham*3*nsp*nbas))     ! Project wf into augmentation spheres, Kotani conventions ---
 
        !evec0 2024-2-11
-       if(present(FPMTmodein)) FPMTmode=FPMTmodein
-       if(FPMTmode) then
-         allocate(evec0(ndimh,ndimh),source=(0d0,0d0))
-         allocate(cphi0(ndima,ndimh,nsp))
-         forall(i=1:ndimh) evec0(i,i)=1d0
-         aus_zv=0d0
-         call makusq(nbas,[-999], nev,  isp, 1 , qp , evec0 , aus_zv ) 
-         call gwcphi(isp,nsp,nlmax,ndham,nev,nbas,lmxax,nlindx,ndima,aus_zv,  cphi0(1,1,isp),cphiw(1,isp ))!cphi0 is for |F^PMT> 
-       endif  
+       !if(present(FPMTmodein)) FPMTmode=FPMTmodein
+      !  if(FPMTmode) then
+      !    allocate(evec0(ndimh,ndimh),source=(0d0,0d0))
+      !    allocate(cphi0(ndima,ndimh,nsp))
+      !    forall(i=1:ndimh) evec0(i,i)=1d0
+      !    aus_zv=0d0
+      !    call makusq(nbas,[-999], nev,  isp, 1 , qp , evec0 , aus_zv ) 
+      !    call gwcphi(isp,nsp,nlmax,ndham,nev,nbas,lmxax,nlindx,ndima,aus_zv,  cphi0(1,1,isp),cphiw(1,isp ))!cphi0 is for |F^PMT> 
+      !  endif  
        aus_zv=0d0
        call makusq(nbas,[-999], nev,  isp, 1 , qp , evec ,  aus_zv ) 
        call gwcphi(isp,nsp,nlmax,ndham,nev,nbas,lmxax,nlindx,ndima,aus_zv,  cphi(1,1,isp),cphiw(1,isp ))!cphi coefficients for phi,phidot,pz(val=slope=0). pz is by wf2lo.
@@ -459,10 +459,10 @@ contains
           !     !           igv(internally in pwmat) = igv2 + qlatinv*(qp-q)
           !     !            inn = qlatinv*(qp-q)
           call pwmat(nbas,ndimh,napw,igv2x,qp,ngp,nlmax,ngvecp(1,1,iq),gmax, ppovl, phovl )
-          if(FPMTmode) then
-            allocate(pwz0(ngp,ndimh))
-            pwz0=matmul(phovl,evec0)
-          endif  
+          !if(FPMTmode) then
+          !  allocate(pwz0(ngp,ndimh))
+          !  pwz0=matmul(phovl,evec0)
+          !endif  
           pwz =matmul(phovl,evec)
           deallocate(phovl)
           if (lchk >= 1) then
@@ -474,7 +474,7 @@ contains
              enddo
           endif
           call matcinv(ngp,ppovl)! inversion of hermitian ppovl
-          if(FPMTmode) pwz0 = matmul(ppovl,pwz0)
+          !if(FPMTmode) pwz0 = matmul(ppovl,pwz0)
           pwz = matmul(ppovl,pwz)
           deallocate(ppovl)
           if (lchk >= 1) then
@@ -516,12 +516,12 @@ contains
        if (lwvxc) close(ifievec)
        if(allocated(hammhso)) deallocate(hammhso)
        deallocate(ham,ovl,evec,vxc,cphi,cphiw)
-       if(FPMTmode) then
-         write(ifigwb0)   cphi0(:,:,isp),pwz0,nev
-         deallocate(pwz0)
-         close(ifigwb0)
-         deallocate(evec0,cphi0)
-      endif   
+       !if(FPMTmode) then
+       !  write(ifigwb0)   cphi0(:,:,isp),pwz0,nev
+       !  deallocate(pwz0)
+       !  close(ifigwb0)
+       !  deallocate(evec0,cphi0)
+       !endif   
 1001 enddo iqloop
     deallocate(evl)
     close(ifiqg)

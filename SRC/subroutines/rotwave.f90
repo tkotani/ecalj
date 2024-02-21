@@ -47,7 +47,7 @@ contains
       enddo OrbitalBlock     ! evecout(init2:iend2,:)= matmul(dlmm(-l:l,-l:l,l,igg),evec(init1:iend1,:))*phase(ibas)
    end subroutine rotmatMTO
 
-   subroutine rotmatPMT(igg,q,qtarget,ndimh,napw, rotmat) ! Rotation matrix for PMT
+   subroutine rotmatPMT_ProbablyOKbutNotCheckedYet(igg,q,qtarget,ndimh,napw, rotmat) ! Rotation matrix for PMT
       use m_qplist,only: igv2qp,igv2revqp,napwkqp,qplist,nkp
       use m_mksym,only:   symops,miat,tiat,shtvg,dlmm,ngrp
       use m_lmfinit,only: norbmto,ibastab,ltab,ktab,offl,offlrev,nbas
@@ -85,7 +85,7 @@ contains
             rotmat(nlmto+ig2, nlmto+ig)=  exp( -img2pi*sum(qpgr*shtvg(:,igg)) )
          enddo igloop
       endif APWpart
-   endsubroutine rotmatPMT
+    endsubroutine rotmatPMT_ProbablyOKbutNotCheckedYet
 
    subroutine rotevec(igg,q,qtarget,ndimh,napw_in,nband,evec, evecout) ! Rotation of coefficients evec in PMT basis for q in qplist.
       use m_qplist,only: igv2qp,igv2revqp,napwkqp,qplist,nkp

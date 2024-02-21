@@ -80,13 +80,13 @@ contains
       implicit none
       integer:: ifihmto
       integer::ikpd,ikp,ib1,ib2,ifih,it,iq,nev,nmx,ifig=-999,i,j,ndimPMT,lold,m
-      complex(8),allocatable:: hamm(:,:),ovlm(:,:), cpmtmpo(:,:) 
+      complex(8),allocatable:: hamm(:,:),ovlm(:,:), cmpo(:,:) 
       logical:: lprint=.true.,savez=.false.,getz=.false.,skipdiagtest=.false.
       complex(8):: img=(0d0,1d0),aaaa,phase
       real(8)::qp(3),pi=4d0*atan(1d0),fff,ef,fff1=2,fff2=2,fff3=0 ,facw,ecutw,eww,xxx
       integer:: nn,ib,k,l,ix5,imin,ixx,j2,j1,j3,nx,ix(ldim),iqini,iqend,ndiv
       integer:: ndimMTO !ndimMTO<ldim if we throw away f MTOs, for example.
-      integer:: ib_tableM(ldim),k_tableM(ldim),l_tableM(ldim),ierr,ificpmtmpo,iqibz
+      integer:: ib_tableM(ldim),k_tableM(ldim),l_tableM(ldim),ierr,ificmpo,iqibz
       logical:: cmdopt0
       nn=0
       do i=1,ldim  !only MTOs. Further restrictions.
@@ -121,41 +121,39 @@ contains
          if(jsp==1) iq=iq+1
          if(iq<iqini.or.iqend<iq) cycle
          if(master_mpi) write(stdo,"('=== Reading Ham for iq,spin,q=',2i4,3f9.5)") iq,jsp,qp
-         allocate(ovlm(1:ndimPMT,1:ndimPMT),hamm(1:ndimPMT,1:ndimPMT))
-         if(cmdopt0('--fpmt')) allocate(cpmtmpo(ndimPMT,ndimMTO))
+         allocate(ovlm(1:ndimPMT,1:ndimPMT),hamm(1:ndimPMT,1:ndimPMT),cmpo(ndimPMT,ndimMTO))
          read(ifih) ovlm(1:ndimPMT,1:ndimPMT)
          read(ifih) hamm(1:ndimPMT,1:ndimPMT)
          GETham_ndimMTO: block
+            logical:: cmdopt0
             character(8):: xt
             real(8):: evlmlo(ndimMTO),cmptmto(ndimPMT,ndimMTO)
             call Hreduction(.false.,facw,ecutw,eww,ndimPMT,hamm(1:ndimPMT,1:ndimPMT),ovlm(1:ndimPMT,1:ndimPMT), & !Get reduced Hamitonian for ndimMTO
-               ndimMTO,ix,fff1,      hamm(1:ndimMTO,1:ndimMTO),ovlm(1:ndimMTO,1:ndimMTO),cpmtmpo)
-            if(cmdopt0('--fpmt').and.irotg(iq)==1) then !qibz only
-!               open(newunit=ificpmtmpo, file='Cpmtmpo' //trim(xt(iqibz))//trim(xt(jsp)),form='unformatted')
+               ndimMTO,ix,fff1, hamm(1:ndimMTO,1:ndimMTO),ovlm(1:ndimMTO,1:ndimMTO),cmpo)
+            if(cmdopt0('--cmlo').and.irotg(iq)==1) then !qibz only
+               writempo: block
+               character(8):: xt
                iqibz=irotq(iq)
-               open(newunit=ificpmtmpo, file='Cpmtmpo' //trim(xt(iqibz))//trim(xt(jsp)),form='unformatted')
+               open(newunit=ificmpo, file='Cmpo' //trim(xt(iqibz))//trim(xt(jsp)),form='unformatted')
                !write(ificmptmto) iq,irotq(iq) !iqbz and iqibz
-               write(ificpmtmpo) ndimPMT,ndimMTO
-               write(ificpmtmpo) cpmtmpo  != matmul(evempmt,cmpo) |FMPO>=|FPMT>Cpmtmto
-               close(ificpmtmpo)
+               write(ificmpo) ndimPMT,ndimMTO
+               write(ificmpo) cmpo
+               close(ificmpo)
+             endblock writempo
             endif
-            if(iq==3) then !            if(sum([qp(2),qp(3)]**2)<1d-3) then !check write
-               Checkfinaleigen: block
-                  real(8):: rydberg
-                  complex(8):: evec(ndimMTO**2), hh(ndimMTO,ndimMTO),oo(ndimMTO,ndimMTO)
-                  hh = hamm(1:ndimMTO,1:ndimMTO)
-                  oo = ovlm(1:ndimMTO,1:ndimMTO)
-                  nmx= ndimMTO
-                  !do i=1,ndimMTO
-                  !   write(stdo,ftox)i,ftof(abs(hh(1:ndimMTO,i)))
-                  !   write(stdo,ftox)i,ftof(abs(oo(1:ndimMTO,i)))
-                  !enddo
-                  write(stdo,ftox) ' checkfinaleigen zhev_tk4',ftof(qp,3)
-                  call zhev_tk4(ndimMTO,hh,oo, nmx,nev,evlmlo, evec, oveps) !epsovl)
-                  write(stdo,ftox) '  evlmto=',nev,ftof(evlmlo(1:10)*rydberg())
-                  write(stdo,ftox) '  evlmto=',nev,ftof(evlmlo(11:20)*rydberg())
-               endblock Checkfinaleigen
-            endif
+            ! if(iq==3) then !            if(sum([qp(2),qp(3)]**2)<1d-3) then !check write
+            !    Checkfinaleigen: block
+            !       real(8):: rydberg
+            !       complex(8):: evec(ndimMTO**2), hh(ndimMTO,ndimMTO),oo(ndimMTO,ndimMTO)
+            !       hh = hamm(1:ndimMTO,1:ndimMTO)
+            !       oo = ovlm(1:ndimMTO,1:ndimMTO)
+            !       nmx= ndimMTO
+            !       write(stdo,ftox) ' checkfinaleigen zhev_tk4',ftof(qp,3)
+            !       call zhev_tk4(ndimMTO,hh,oo, nmx,nev,evlmlo, evec, oveps) !epsovl)
+            !       write(stdo,ftox) '  evlmto=',nev,ftof(evlmlo(1:10)*rydberg())
+            !       write(stdo,ftox) '  evlmto=',nev,ftof(evlmlo(11:20)*rydberg())
+            !    endblock Checkfinaleigen
+            ! endif
          endblock GETham_ndimMTO
          GETrealspaceHamiltonian: block ! H(k) ->  H(T) FourierTransformation to real space
             do i=1,ndimMTO
@@ -170,8 +168,7 @@ contains
                enddo
             enddo
          endblock GETrealspaceHamiltonian
-         deallocate(ovlm,hamm)
-         if(cmdopt0('--fpmt')) deallocate(cpmtmpo)
+         deallocate(ovlm,hamm,cmpo)
       enddo qploop
 2019  continue
       call mpibc2_complex(hammr,size(hammr),'m_HamPMT_hammr') !to master
@@ -226,7 +223,7 @@ contains
       if(master_mpi) write(stdo,*)'OK: Read HamRsMPO file! Use i-ioffib for setting <Worb>'
    end subroutine ReadHamRsMPO
 end module m_HamRsMPO
-subroutine Hreduction(iprx,facw,ecutw,eww,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, hammout,ovlmout, cpmtmpo) !> Reduce H(ndimPMT) to H(ndimMTO)
+subroutine Hreduction(iprx,facw,ecutw,eww,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, hammout,ovlmout, cmpo) !> Reduce H(ndimPMT) to H(ndimMTO)
    use m_zhev,only:zhev_tk4
    use m_readqplist,only: eferm
    use m_HamPMT,only: GramSchmidt!,epsovl
@@ -238,8 +235,8 @@ subroutine Hreduction(iprx,facw,ecutw,eww,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, ham
    complex(8):: evecmto(ndimMTO,ndimMTO),evecpmt(ndimPMT,ndimPMT)
    complex(8):: ovlmx(ndimPMT,ndimPMT),hammx(ndimPMT,ndimPMT),fac(ndimPMT,ndimMTO),ddd(ndimMTO,ndimMTO)
    complex(8):: hamm(ndimPMT,ndimPMT),ovlm(ndimPMT,ndimPMT)
-   complex(8):: hammout(ndimMTO,ndimMTO),ovlmout(ndimMTO,ndimMTO), cpmtmpo(ndimPMT,ndimMTO)
-   complex(8),allocatable :: cmpo(:,:),wnm(:,:)
+   complex(8):: hammout(ndimMTO,ndimMTO),ovlmout(ndimMTO,ndimMTO) , cmpo(ndimPMT,ndimMTO)
+   complex(8),allocatable :: wnm(:,:)
    real(8):: fff1,fff !epsovl=1d-8 epsovlm=0d0 ,
    logical:: iprx
    logical:: cmdopt0
@@ -263,7 +260,7 @@ subroutine Hreduction(iprx,facw,ecutw,eww,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, ham
       integer:: ie,nidxevlmto,nidxevl,ibx,jx,idxevlmto(ndimMTO),idxevl(ndimPMT),jbx
       real(8):: eee,fffx,ecut,xxx,ewcutf,rydberg,facww
       real(8),allocatable::mulfac(:,:),mulfacw(:,:)
-      allocate(cmpo(ndimPMT,ndimMTO),wnm(ndimPMTx,ndimMTO))!this is to avoid bug in ifort18.0.5
+      allocate(wnm(ndimPMTx,ndimMTO))!this is to avoid bug in ifort18.0.5
       ewcutf = ecutw+eferm
       do j=1,ndimMTO
          do i=1,ndimPMTx
@@ -292,7 +289,6 @@ subroutine Hreduction(iprx,facw,ecutw,eww,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, ham
          enddo
       enddo
    endblock ModifyMatrixElements
-   if(cmdopt0('--fpmt')) cpmtmpo=matmul(evecpmt,cmpo)
    return
 contains
    real(8) function fermidist(x)

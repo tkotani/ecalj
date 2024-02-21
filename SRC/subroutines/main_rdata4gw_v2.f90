@@ -143,12 +143,12 @@ subroutine rdata4gw_v2()
   integer:: ifigwb_,ifigwb0_,ndimh !ifigwx1_,ifigwx2_,
   character*256:: extn,aaa,fname
   real(8),allocatable :: qirr(:,:),vxclda(:,:,:)
-  logical:: fpmt=.false., cmdopt0
+  !logical:: fpmt=.false., cmdopt0
   call MPI__Initialize()
   call m_lgunit_init()
   call lmf2gw() !set variables, and CphiGeig
   call read_bzdata()
-  fpmt=cmdopt0('--fpmt')
+  !fpmt=cmdopt0('--fpmt')
   if(verbose()>50 ) debug= .TRUE. 
   allocate(vkonf(0:lmxamx,nclass), ovv(nphimx,nphimx,0:lmxamx, nclass,nsp) )
   allocate(lmxaa(1:nbas))
@@ -434,7 +434,7 @@ subroutine rdata4gw_v2()
   close(ifec)
   write(stdo,*) '########## goto Eigfun part ############## '
   allocate(cphix(ldim2,nbandmx), cphir(ldim2,nbandmx),geigr(1:ngpmx,1:nbandmx,1:nsp))
-  if(fpmt) allocate(cphix0(ldim2,nbandmx), cphir0(ldim2,nbandmx),geigr0(1:ngpmx,1:nbandmx,1:nsp))
+  !if(fpmt) allocate(cphix0(ldim2,nbandmx), cphir0(ldim2,nbandmx),geigr0(1:ngpmx,1:nbandmx,1:nsp))
   open(newunit=ifcphi,file='CPHI',form='unformatted',access='direct',recl=mrecb)
   open(newunit=ifgeig,file='GEIG',form='unformatted',access='direct',recl=mrecg)
   open(newunit=ifcphi0,file='CPHI0',form='unformatted',access='direct',recl=mrecb)
@@ -449,19 +449,19 @@ subroutine rdata4gw_v2()
      qirr(:,iqq)= qplist(:,iqq)
      isploop:do 1201 isp =1,nsp
         open(newunit=ifigwb_, file='gwb'//trim(xt(iqq))//trim(xt(isp)),form='unformatted')
-        if(fpmt) open(newunit=ifigwb0_,file='gwb0'//trim(xt(iqq))//trim(xt(isp)),form='unformatted')
+        !if(fpmt) open(newunit=ifigwb0_,file='gwb0'//trim(xt(iqq))//trim(xt(isp)),form='unformatted')
         geigr(1:ngpmx,1:ndimh,isp)=0d0
         evl(:,iqq,isp)=1d20
         read(ifigwb_) evl(1:ndimh,iqq,isp),cphir(1:ldim2,1:ndimh),geigr(1:ngp,1:ndimh,isp),vxclda(1:ndimh,iqq,isp),nev !nev is # of eigenfunctions.
-        if(fpmt) read(ifigwb0_) cphir0(1:ldim2,1:ndimh), geigr0(1:ngp,1:ndimh,isp)
+        !if(fpmt) read(ifigwb0_) cphir0(1:ldim2,1:ndimh), geigr0(1:ngp,1:ndimh,isp)
         do ibas=1,nbas
            do ix = 1,ldim2
               if(ibasindx(ix)==ibas) cphir (ix,1:nev) = cphir(ix, 1:nev)/sqrt(1d0+0.1d0*nindx(ix))
-              if(ibasindx(ix)==ibas.and.fpmt) cphir0 (ix,1:nev)= cphir0(ix, 1:nev)/sqrt(1d0+0.1d0*nindx(ix))
+              !if(ibasindx(ix)==ibas.and.fpmt) cphir0 (ix,1:nev)= cphir0(ix, 1:nev)/sqrt(1d0+0.1d0*nindx(ix))
            enddo
         enddo
         cphix=0d0 !     Augmentation wave part
-        if(fpmt) cphix0=0d0 !     Augmentation wave part
+        !if(fpmt) cphix0=0d0 !     Augmentation wave part
         do iband = 1,nev
            do ix= 1,ldim2
               l  = lindx(ix)
@@ -471,22 +471,22 @@ subroutine rdata4gw_v2()
               ic = iclass(ib)
               nm = nvmax(l,ic)
               cphix (iord(m,1:nm,l,ib),iband) = cphix (iord(m,1:nm,l,ib),iband) + zzpi(1:nm,n,l,ic,isp)*cphir(ix,iband)
-              if(fpmt) cphix0(iord(m,1:nm,l,ib),iband) = cphix0(iord(m,1:nm,l,ib),iband) + zzpi(1:nm,n,l,ic,isp)*cphir0(ix,iband)
+              !if(fpmt) cphix0(iord(m,1:nm,l,ib),iband) = cphix0(iord(m,1:nm,l,ib),iband) + zzpi(1:nm,n,l,ic,isp)*cphir0(ix,iband)
            enddo
         enddo
         iqqisp= isp + nsp*(iqq-1)
         write(ifcphi,  rec=iqqisp)  cphix(1:ldim2,1:nbandmx)
-        if(fpmt) write(ifcphi0, rec=iqqisp) cphix0(1:ldim2,1:nbandmx)
+        !if(fpmt) write(ifcphi0, rec=iqqisp) cphix0(1:ldim2,1:nbandmx)
         close(ifigwb_)
-        if(fpmt) close(ifigwb0_)
+        !if(fpmt) close(ifigwb0_)
         iqqisp= isp + nsp*(iqq-1)
         if(ngpmx/=0) write(ifgeig,  rec=iqqisp)  geigr(1:ngpmx,1:nbandmx,isp)
-        if(ngpmx/=0.and.fpmt) write(ifgeig0, rec=iqqisp) geigr0(1:ngpmx,1:nbandmx,isp)
+        !if(ngpmx/=0.and.fpmt) write(ifgeig0, rec=iqqisp) geigr0(1:ngpmx,1:nbandmx,isp)
 1201 enddo isploop
      write(ifv) qirr(1:3,iqq), vxclda(1:nbandmx,iqq,1:nsp) ! VXCFP
 1200 enddo irreducibleqloop
   close(ifgeig)
-  if(fpmt) close(ifgeig0)
+  !if(fpmt) close(ifgeig0)
   print *,' end of eigensection-----'
   open(newunit=ifev,file='EValue',form='unformatted')
   write(ifev) nbandmx, nqirr, nsp

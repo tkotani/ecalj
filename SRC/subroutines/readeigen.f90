@@ -39,13 +39,11 @@ module m_readeigen
   integer,allocatable,private:: l_tbl(:),k_tbl(:),ibas_tbl(:),offset_tbl(:),offset_rev_tbl(:,:,:)
   logical,private:: Wpkm4crpa=.false.
   real(8),private :: quu(3)
-
 contains
   subroutine onoff_write_pkm4crpa(lll)
     logical:: lll
     Wpkm4crpa=lll
   end subroutine onoff_write_pkm4crpa
-  ! sssssssssssssssssssssssssssssssssssssssssssss
   !> Return ev(1:nband) for given q(1:3) and isp
   pure function readeval(q,isp) result(ev)
     intent(in)  ::       q,isp
@@ -78,13 +76,13 @@ contains
    integer,intent(in):: isp
    real(8):: qu(3)
    complex(8):: geigen(ngpmx,nband)
-   call readgeig(q,ngpmx,isp,qu,geigen,fpmt=.true.)
+   call readgeig(q,ngpmx,isp,qu,geigen) !,fpmt=.true.)
  end function readgeigf0
  ! sssssssssssssssssssssssssssssssssssssssssssss
-  subroutine readgeig(q,ngp_in,isp, qu,geigen,fpmt)
+  subroutine readgeig(q,ngp_in,isp, qu,geigen)!,fpmt)
     use m_rotwave,only: Rotipw
     implicit none
-    logical,optional,intent(in):: fpmt
+    !logical,optional,intent(in):: fpmt
     real(8),intent(in) :: q(3)
     integer,intent(in) :: isp,ngp_in
     real(8),intent(out) :: qu(3)
@@ -109,10 +107,11 @@ contains
        write(6,"(a,3i5,3f10.4,2i5)")' ngp(iq) ngp(iqq)=',iq,iqq,igg,q,ngp(iq),ngp(iqq)
        call rx( 'readgeig:x2 ngp(iq)/=ngp(iqq)')
     endif
-    if(present(fpmt)) then
-       ikpisp= isp + nsp*(iqi-1)
-       read(ifgeig0, rec=ikpisp) geigenr(1:ngpmx,1:nband)
-    elseif(keepeig) then
+    !if(present(fpmt)) then
+    !   ikpisp= isp + nsp*(iqi-1)
+    !   read(ifgeig0, rec=ikpisp) geigenr(1:ngpmx,1:nband)
+    !else
+    if(keepeig) then
        geigenr(1:ngp(iq),1:nband) = geig(1:ngp(iq),1:nband,iqi,isp)
     else
        ikpisp= isp + nsp*(iqi-1)
@@ -142,7 +141,7 @@ contains
    real(8),intent(in):: q(3)
    real(8) :: qu(3)
    complex(8):: cphif(ldim2,nband)
-   call readcphi(q,ldim2,isp, qu, cphif,fpmt=.true.)
+   call readcphi(q,ldim2,isp, qu, cphif)!,fpmt=.true.)
    quu=qu
  end function readcphif0
  ! sssssssssssssssssssssssssssssssssssssssssssss
@@ -151,10 +150,10 @@ contains
     qu=quu
   end function readcphifq
   ! sssssssssssssssssssssssssssssssssssssssssssss
-  subroutine readcphi(q,ldim2,isp,  qu,cphif, fpmt)
+  subroutine readcphi(q,ldim2,isp,  qu,cphif)!, fpmt)
     use m_rotwave,only: Rotmto
     implicit none
-    logical,optional,intent(in):: fpmt
+    !logical,optional,intent(in):: fpmt
     !!-- return mto part of eigenfunction for given q(1:3) and isp
     real(8), intent(in) :: q(3)
     integer, intent(in)  :: ldim2
@@ -174,10 +173,11 @@ contains
     iqi=iqimap(iq) ! iqi is index for irr.=1 (cphi calculated. See qg4gw and sugw.F).
     ! qtt(:,iqq) = qtti(:,iqi) is satisfied.
     ! we have eigenfunctions calculated only for qtti(:,iqi).
-    if(present(fpmt)) then ! 2024-2-13
-      ikpisp= isp + nsp*(iqi-1)
-      read(ifcphi0, rec=ikpisp) cphifr(1:ldim2,1:nband)
-    elseif(keepeig) then
+    !if(present(fpmt)) then ! 2024-2-13
+    !  ikpisp= isp + nsp*(iqi-1)
+    !  read(ifcphi0, rec=ikpisp) cphifr(1:ldim2,1:nband)
+    !elseif...
+    if(keepeig) then
        cphifr(1:ldim2,1:nband) = cphi(1:ldim2,1:nband,iqi,isp)
     else
        ikpisp= isp + nsp*(iqi-1)
@@ -254,9 +254,9 @@ contains
     call readmnla_cphi()
     keepeig = keepeigen()
     init2=.false.
-    if(cmdopt0('--fpmt')) open(newunit=ifgeig0,file='GEIG0',form='unformatted',access='direct',recl=mrecg)
-    if(cmdopt0('--fpmt')) open(newunit=ifcphi0,file='CPHI0',form='unformatted',access='direct',recl=mrecb)
-    if(cmdopt0('--fpmt')) keepeig=.false.
+    !if(cmdopt0('--fpmt')) open(newunit=ifgeig0,file='GEIG0',form='unformatted',access='direct',recl=mrecg)
+    !if(cmdopt0('--fpmt')) open(newunit=ifcphi0,file='CPHI0',form='unformatted',access='direct',recl=mrecb)
+    !if(cmdopt0('--fpmt')) keepeig=.false.
     if(Keepeig     ) write(6,*)' KeepEigen=T; readin geig and cphi into m_readeigen'
     if( .NOT. Keepeig) write(6,*)' KeepEigen=F; not keep geig and cphi in m_readeigen'
     open(newunit=ifgeig,file='GEIG',form='unformatted',access='direct',recl=mrecg)
@@ -541,7 +541,6 @@ contains
       read(ifgeigW, rec=ikpisp) geigen(1:ngpmx,1:nwf)
    endif
  end subroutine readgeigW
- ! sssssssssssssssssssssssssssssssssssssssssssss
  subroutine readcphiW(q,ldim2_dummy,isp,  qu,cphif)
    integer:: isp,iq,iqindx,ldim2_dummy,ikpisp
    real(8)   :: q(3),qu(3)
