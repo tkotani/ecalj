@@ -17,23 +17,16 @@ module m_mpi !MPI utility for fpgw
   integer, allocatable :: mpi__ranktab(:)
   integer  :: mpi__MEq ! for magnon E(q) parallelization
 contains
-  subroutine MPI__Initialize
+  subroutine MPI__Initialize()
     implicit none
     character(1024*4) :: cwd, stdout
-    call getcwd(cwd)          ! get current working directory
+    call getcwd(cwd)           ! get current working directory
     call MPI_Init( mpi__info ) ! current working directory is changed if mpirun is not used
     call MPI_Comm_rank( MPI_COMM_WORLD, mpi__rank, mpi__info )
     call MPI_Comm_size( MPI_COMM_WORLD, mpi__size, mpi__info )
-    if( mpi__rank == 0 ) then
-       mpi__root = .true.
-    else
-       mpi__root = .false.
-    end if
-    if( mpi__root ) then
-       call chdir(cwd)        ! recover current working directory
-    endif
+    mpi__root= mpi__rank==0
+    if( mpi__root ) call chdir(cwd)        ! recover current working directory
   end subroutine MPI__Initialize
-  !     !======================================================
   subroutine MPI__Initialize_magnon()
     implicit none
     character(1024*4) :: cwd, stdout
@@ -41,33 +34,22 @@ contains
     call MPI_Init( mpi__info ) ! current working directory is changed if mpirun is not used
     call MPI_Comm_rank( MPI_COMM_WORLD, mpi__rankMG, mpi__info )
     call MPI_Comm_size( MPI_COMM_WORLD, mpi__sizeMG, mpi__info )
-    if( mpi__rankMG == 0 ) then
-       mpi__root = .true.
-    else
-       mpi__root = .false.
-    end if
-    if( mpi__root ) then
-       call chdir(cwd)        ! recover current working directory
-    endif
-    return
+    mpi__root=  mpi__rankMG == 0 
+    if( mpi__root ) call chdir(cwd)        ! recover current working directory
   end subroutine MPI__Initialize_magnon
   subroutine MPI__consoleout(idn)
     use m_lgunit,only:stdo,stdl
     implicit none
     character(1024*4) :: cwd, stdout
     character*(*):: idn
-    ! console-output from different nodes to different files
-    if( mpi__size > 1 ) then
-       if( mpi__root ) then
-          write(6,"(' MPI outputs in each rank are in stdout.{RankId}.',a)")idn
-          call flush(stdo)
-       end if
-       !        write(6,"('   stdout.',i4.4,'.',a)") mpi__rank,idn
-       write(stdout,"('stdout.',i4.4,'.',a)") mpi__rank,idn
-       open(unit=6,file=trim(stdout))
-       write(6,"(a,i3)")" ### console output for rank=",mpi__rank
-    endif
-    return
+    if( mpi__size == 1 ) return
+    if( mpi__root ) then
+      write(6,"(' MPI outputs in each rank are in stdout.{RankId}.',a)")idn
+      call flush(stdo)
+    end if
+    write(stdout,"('stdout.',i4.4,'.',a)") mpi__rank,idn
+    open(unit=6,file=trim(stdout))
+    write(6,"(a,i3)")" ### console output for rank=",mpi__rank
   end subroutine MPI__consoleout
   subroutine MPI__consoleout_magnon(idn,size_lim)
     use m_lgunit,only:stdo,stdl
@@ -75,22 +57,15 @@ contains
     character(1024*4) :: cwd, stdout
     character*(*):: idn
     integer , intent(in) :: size_lim
-    !C Reduce size for magnon (avoid memory leak)      
-    if (mpi__sizeMG > size_lim) then
-       mpi__sizeMG=size_lim
-    endif
-    ! console-output from different nodes to different files
-    if( mpi__sizeMG > 1 ) then
-       if( mpi__root ) then
-          write(6,"(' MPI outputs in each rank are in stdout.{RankId}.',a)")idn
-          call flush(stdo)
-       end if
-       !        write(6,"('   stdout.',i4.4,'.',a)") mpi__rank,idn
-       write(stdout,"('stdout.',i4.4,'.',a)") mpi__rankMG,idn
-       open(unit=6,file=trim(stdout))
-       write(6,"(a,i3)")" ### console output for rank=",mpi__rankMG
-    endif
-    return
+    if(mpi__sizeMG > size_lim) mpi__sizeMG=size_lim !Reduce size for magnon (avoid memory leak)      
+    if( mpi__sizeMG == 1 ) return
+    if( mpi__root ) then
+      write(6,"(' MPI outputs in each rank are in stdout.{RankId}.',a)")idn
+      call flush(stdo)
+    end if
+    write(stdout,"('stdout.',i4.4,'.',a)") mpi__rankMG,idn
+    open(unit=6,file=trim(stdout))
+    write(6,"(a,i3)")" ### console output for rank=",mpi__rankMG
   end subroutine MPI__consoleout_magnon
   subroutine MPI__Barrier
     implicit none
@@ -165,8 +140,7 @@ contains
     if( mpi__size == 1 ) return
     allocate(mpi__data(sizex))
     mpi__data = data
-    call MPI_Allreduce( mpi__data, data, sizex,&
-         MPI_DOUBLE_COMPLEX, MPI_SUM, MPI_COMM_WORLD, mpi__info )
+    call MPI_Allreduce( mpi__data, data, sizex, MPI_DOUBLE_COMPLEX, MPI_SUM, MPI_COMM_WORLD, mpi__info )
     deallocate( mpi__data )
   end subroutine MPI__AllreduceSum
   subroutine MPI__reduceSum( root, data, sizex )
@@ -177,8 +151,7 @@ contains
     if( mpi__size == 1 ) return
     allocate(mpi__data(sizex))
     mpi__data = data
-    call MPI_reduce( mpi__data, data, sizex,&
-         MPI_DOUBLE_COMPLEX, MPI_SUM, root, MPI_COMM_WORLD, mpi__info )
+    call MPI_reduce( mpi__data, data, sizex, MPI_DOUBLE_COMPLEX, MPI_SUM, root, MPI_COMM_WORLD, mpi__info )
     deallocate( mpi__data )
     return
   end subroutine MPI__reduceSum
@@ -269,4 +242,3 @@ contains
     return
   end subroutine MPI__hmagnon_rankdivider
 end module m_mpi
-

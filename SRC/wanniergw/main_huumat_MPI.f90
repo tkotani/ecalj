@@ -14,7 +14,7 @@ subroutine h_uumatrix()
   use m_pwmat,only: mkppovl2
   use m_ll,only: ll
   use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
-  use m_mpi,only: mpi__broadcast,mpi__root, nproc=>mpi__size,mpi__rank,mpi__initialize
+  use m_mpi,only: mpi__broadcast,mpi__root, mpi__size,mpi__rank,mpi__initialize
   use m_lgunit,only: m_lgunit_init,stdo
   use m_setqibz_lmfham,only: set_qibz,irotg
   use m_ftox
@@ -184,20 +184,10 @@ subroutine h_uumatrix()
   j2min = j1min
   j2max = j1max
   allocate( uum(j1min:j1max, j2min:j2max,nspin) ) ! uumatrix allocated
-  
-  allocate(iq_proc(nqbz),source=0)
-  nq_proc=0
-  do iqbz=1,nqbz
-    if(mod(iqbz-1,nproc)/=mpi__rank) cycle
-    nq_proc=nq_proc+1 
-    iq_proc(nq_proc)=iqbz !iqbz is at mpi__rank
-  enddo
-
   if(cmdopt0('--qibzonly')) call set_qibz(plat,qbz,nqbz,symops,ngrp) !If only at qibz, we need to set irotg
   !--qibzonly need to be improved to balance load in ranks.
-  iqbzloop: do 1070 ii = 1,nq_proc !+1
-    iqbz = iq_proc(ii)
-    if (iqbz == 0) cycle
+  iqbzloop: do 1070 iqbz = 1,nqbz 
+    if(mod(iqbz-1,mpi__size)/=mpi__rank) cycle !MPI
     if (cmdopt0('--qibzonly') .and. irotg(iqbz) /=1) cycle !only irreducible q point
     write(stdo,ftox)'iq =',iqbz, 'out of',nqbz
     do isp=1,nspin
@@ -291,10 +281,12 @@ subroutine h_uumatrix()
       ispinloop2: do 1050 ispin=1,nspin
         allocate(cphi1 (nlmto,nband),cphi2(nlmto,nband) )
         !if(cmdopt0('--fpmt')) then;  cphi1 = readcphif0(q1,ispin);  cphi2 = readcphif0(q2,ispin); else
-        cphi1 = readcphif(q1,ispin) 
+        cphi1 = readcphif(q1,ispin) !readin MT part of eigenfunctions 
         cphi2 = readcphif(q2,ispin) !endif
-        ia1loop: do 1020 ia1 = 1,nlmto; ibas1= ibas_indx(ia1)
-          ia2loop: do 1010 ia2 = 1,nlmto; ibas2= ibas_indx(ia2)
+        ia1loop: do 1020 ia1 = 1,nlmto
+          ibas1= ibas_indx(ia1)
+          ia2loop: do 1010 ia2 = 1,nlmto
+            ibas2= ibas_indx(ia2)
             if(ibas2/=ibas1) cycle
             l1=l_indx(ia1); m1=m_indx(ia1); n1=n_indx(ia1)+ nc_max(l1,ibas1); lm1= l1**2+l1+1+ m1
             l2=l_indx(ia2); m2=m_indx(ia2); n2=n_indx(ia2)+ nc_max(l2,ibas2); lm2= l2**2+l2+1+ m2
@@ -312,7 +304,7 @@ subroutine h_uumatrix()
 1010      enddo ia2loop
 1020    enddo ia1loop
         !if(cmdopt0('--fpmt')) then; geig1 = readgeigf0(q1,ispin); geig2 = readgeigf0(q2,ispin);else
-        geig1 = readgeigf(q1,ispin) 
+        geig1 = readgeigf(q1,ispin) !readin IPW part of eigenfunctions
         geig2 = readgeigf(q2,ispin)         !endif
         do concurrent(j1= iko_ixs(ispin):iko_fxs(ispin),j2= iko_ixs(ispin):iko_fxs(ispin)) ! ... Interstitial Plane Wave part
           uum(j1,j2,ispin)= uum(j1,j2,ispin)+ sum( dconjg(geig1(1:ngp1,j1))*matmul(ppovl,geig2(1:ngp2,j2)) )
@@ -320,14 +312,16 @@ subroutine h_uumatrix()
         deallocate(cphi1, cphi2)
         iti = iko_ixs(ispin)
         itf = iko_fxs(ispin)
-        write(ifuu(ispin)) -10
-        if (ixc == 2) write(ifuu(ispin)) iqbz,ibb,ikbidx(ibb,iqbz)
-        if (ixc == 3) write(ifuu(ispin)) iqbz,ibb
+        write(ifuu(ispin)) -10 !dummy
+        if(ixc==2) write(ifuu(ispin)) iqbz,ibb,ikbidx(ibb,iqbz)
+        if(ixc==3) write(ifuu(ispin)) iqbz,ibb
         write(ifuu(ispin)) ((uum(j1,j2,ispin),j1=iti,itf),j2=iti,itf)
-        do j1=j1min,j1max; do j2=j2min,j2max !checkwrite
-          if(j1==j2) write(stdo,"('uuuiq isp=',i5,i2,' j1j2=',2i2,' q1 q2-q1=',3f8.4,x,3f8.4,' <u|u>=',2f9.4,x,f9.3)") &
-            iqbz,ispin,j1,j2,q1,q1-q2,uum(j1,j2,ispin),abs(uum(j1,j2,ispin))
-        enddo; enddo
+        checkwirte: block
+          do j1=j1min,j1max; do j2=j2min,j2max !checkwrite
+            if(j1==j2) write(stdo,"('uuuiq isp=',i5,i2,' j1j2=',2i2,' q1 q2-q1=',3f8.4,x,3f8.4,' <u|u>=',2f9.4,x,f9.3)") &
+              iqbz,ispin,j1,j2,q1,q1-q2,uum(j1,j2,ispin),abs(uum(j1,j2,ispin))
+          enddo; enddo
+        endblock checkwirte
 1050  enddo ispinloop2
       write(stdo,*)' ============ result --- diagonal --- ==============',nspin,j1min,j1max,j2min,j2max
       deallocate(ngvecpf1, ngvecpf2, ppovl, ppbrd, rprodx, phij, psij, rphiphi, cy, yl)
@@ -335,7 +329,7 @@ subroutine h_uumatrix()
     close(ifuu(1))
     if(nspin==2) close(ifuu(2))
 1070 enddo iqbzloop
-  deallocate(iq_proc,uum)
+  deallocate(uum)
   if (mpi__root) write(stdo,*) ' ====== end ========================================'
   call mpi_finalize(ierr)
 end subroutine h_uumatrix
