@@ -65,10 +65,8 @@ subroutine hsfp0_sc()
   use m_itq,only: setitq_hsfp0sc,nbandmx, ntq
   use m_readhbe,only: Readhbe, nband !nprecb,mrecb,mrece,nlmtot,nqbzt,,mrecg
   use m_mpi,only: &
-       MPI__Initialize,MPI__real8send,MPI__real8recv, &
-       MPI__Finalize,MPI__root,MPI__Broadcast,MPI__rank,MPI__size,MPI__allreducesum, &
-       MPI__consoleout, &
-       MPI__barrier, MPI__reduceSum
+       MPI__Initialize,MPI__root,MPI__Broadcast,MPI__rank,MPI__size,MPI__allreducesum, &
+       MPI__consoleout,  MPI__barrier, MPI__reduceSum
   use m_lgunit,only:m_lgunit_init,stdo
   use m_ftox
   implicit none

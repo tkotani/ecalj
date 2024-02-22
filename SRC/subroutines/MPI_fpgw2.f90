@@ -1,102 +1,21 @@
 module m_mpi !MPI utility for fpgw
   implicit none
   include "mpif.h"
-
   integer :: mpi__info
   integer :: mpi__size
   integer :: mpi__sizeMG = 1
-  integer :: mpi__sizeQ = 1
-  integer :: mpi__sizeS = 1
-  integer :: mpi__sizeP = 1
-  integer :: mpi__sizeB = 1
-  integer :: mpi__sizeM = 1
-  integer :: mpi__sizeW = 1
-
   integer :: mpi__rank
   integer :: mpi__rankMG
   integer :: mpi__rankQ
-  !      integer :: mpi__rankS
-  !      integer :: mpi__rankP
-  !      integer :: mpi__rankB
-  !      integer :: mpi__rankM
-  !      integer :: mpi__rankW
-
   logical :: mpi__root
   logical :: mpi__rootQ
-  !      logical :: mpi__rootS
-  !      logical :: mpi__rootP
-  !      logical :: mpi__rootB
-  !      logical :: mpi__rootM
-
   integer :: mpi__comm = MPI_COMM_WORLD
   integer :: mpi__commQ
-  !      integer :: mpi__commS
-  !      integer :: mpi__commP
-  !      integer :: mpi__commB
-  !      integer :: mpi__commM
-
   integer:: ista(MPI_STATUS_SIZE )
-
   integer :: mpi__iini, mpi__iend
-
   logical, allocatable :: mpi__task(:)
   integer, allocatable :: mpi__ranktab(:)
-
-  !     ! for Q(nq) parallelization
-  logical, allocatable :: mpi__Qtask(:)
-  integer, allocatable :: mpi__Qranktab(:)
-
-  !     ! for S(nspin) parallelization
-  logical, allocatable :: mpi__Stask(:)
-  integer, allocatable :: mpi__Sranktab(:)
-  integer :: mpi__Snall
-  integer :: mpi__Sn, mpi__Ss, mpi__Se
-  integer, allocatable :: mpi__Svn(:), mpi__Svs(:), mpi__Sve(:)
-
-
-  !     ! for P(npm) parallelization
-  integer :: mpi__Pnall
-  integer :: mpi__Pn, mpi__Ps, mpi__Pe
-  integer, allocatable :: mpi__Pvn(:), mpi__Pvs(:), mpi__Pve(:)
-
-
-  !     ! for B(Kpoint&nbnb) parallelization
-  integer :: mpi__Bnall
-  integer :: mpi__Bn, mpi__Bs, mpi__Be
-  integer, allocatable :: mpi__Bvn(:), mpi__Bvs(:), mpi__Bve(:)
-  logical, allocatable :: mpi__Btask1(:)
-  logical, allocatable :: mpi__Btask2(:,:)
-  logical, allocatable :: mpi__Btask3(:,:,:)
-
-  !     ! for M(matrix) parallelization
-  integer :: mpi__Mnall
-  integer :: mpi__Mn, mpi__Ms, mpi__Me, mpi__Mf
-  integer, allocatable :: mpi__Mvn(:), mpi__Mvs(:), mpi__Mve(:)
-  integer :: mpi__Mhandle=0
-  integer :: mpi__Mdescv(9)
-  integer :: mpi__Mdescm(9)
-
-  !     ! for W(iwt) parallelization
-  integer :: mpi__Wnall
-  integer :: mpi__Wn, mpi__Ws, mpi__We
-  integer, allocatable :: mpi__Wvn(:), mpi__Wvs(:), mpi__Wve(:)
-
-  !     ! for magnon E(q) parallelization
-  integer  :: mpi__MEq
-
-
-  interface MPI__Send 
-     module procedure &
-          MPI__Send_i,  MPI__Send_iv, &
-          MPI__Send_d,  MPI__Send_dv
-  end interface MPI__Send
-
-  interface MPI__Recv
-     module procedure &
-          MPI__Recv_i,  MPI__Recv_iv, &
-          MPI__Recv_d,  MPI__Recv_dv 
-  end interface MPI__Recv
-
+  integer  :: mpi__MEq ! for magnon E(q) parallelization
 contains
   subroutine MPI__Initialize
     implicit none
@@ -177,10 +96,6 @@ contains
     implicit none
     call MPI_Barrier( MPI_COMM_WORLD, mpi__info )
   end subroutine MPI__Barrier
-  subroutine MPI__Finalize
-    implicit none
-    call MPI_Finalize ( mpi__info )
-  end subroutine MPI__Finalize
   subroutine MPI__getRange( mpi__indexi, mpi__indexe, indexi, indexe )
     implicit none
     integer, intent(out) :: mpi__indexi, mpi__indexe
@@ -206,62 +121,6 @@ contains
     integer, intent(inout) :: data
     call MPI_Bcast( data, 1, MPI_INTEGER, 0, MPI_COMM_WORLD, mpi__info )
   end subroutine MPI__Broadcast
-  subroutine MPI__send_d(data,dest)
-    implicit none
-    real(8):: data
-    integer :: n,dest,ierr
-    n=1
-    call MPI_Send(data,n,MPI_REAL8,dest,mpi__rank, MPI_COMM_WORLD,ierr)
-  end subroutine MPI__send_d
-  subroutine MPI__recv_d(data,src)
-    implicit none
-    real(8):: data
-    integer :: n,src,ierr
-    n=1
-    call MPI_Recv(data,n,MPI_REAL8,src,src, MPI_COMM_WORLD,ista,ierr)
-  end subroutine MPI__recv_d
-  subroutine MPI__send_dv(data,dest)
-    implicit none
-    real(8):: data(:)
-    integer :: n,dest,ierr
-    n=size(data)
-    call MPI_Send(data,n,MPI_REAL8,dest,mpi__rank, MPI_COMM_WORLD,ierr)
-  end subroutine MPI__send_dv
-  subroutine MPI__recv_dv(data,src)
-    implicit none
-    real(8):: data(:)
-    integer :: n,src,ierr
-    n=size(data)
-    call MPI_Recv(data,n,MPI_REAL8,src,src, MPI_COMM_WORLD,ista,ierr)
-  end subroutine MPI__recv_dv
-  subroutine MPI__send_i(data,dest)
-    implicit none
-    integer:: data
-    integer :: n,dest,ierr
-    n=1
-    call MPI_Send(data,n,MPI_INTEGER,dest,mpi__rank, MPI_COMM_WORLD,ierr)
-  end subroutine MPI__send_i
-  subroutine MPI__recv_i(data,src)
-    implicit none
-    integer:: data
-    integer :: n,src,ierr
-    n=1
-    call MPI_Recv(data,n,MPI_INTEGER,src,src, MPI_COMM_WORLD,ista,ierr)
-  end subroutine MPI__recv_i
-  subroutine MPI__send_iv(data,dest)
-    implicit none
-    integer:: data(:)
-    integer :: n,dest,ierr
-    n=size(data)
-    call MPI_Send(data,n,MPI_INTEGER,dest,mpi__rank, MPI_COMM_WORLD,ierr)
-  end subroutine MPI__send_iv
-  subroutine MPI__recv_iv(data,src)
-    implicit none
-    integer:: data(:)
-    integer :: n,src,ierr
-    n=size(data)
-    call MPI_Recv(data,n,MPI_INTEGER,src,src, MPI_COMM_WORLD,ista,ierr)
-  end subroutine MPI__recv_iv
   subroutine MPI__REAL8send(data,n,dest)
     implicit none
     real(8):: data(n)

@@ -14,7 +14,7 @@ subroutine hx0fp0()
   use m_hamindex,only: ngrp
   use m_pbindex,only: PBindex !,norbt,l_tbl,k_tbl,ibas_tbl,offset_tbl,offset_rev_tbl
   use m_readqgcou,only: readqgcou
-  use m_mpi,only: MPI__Initialize,MPI__Finalize,MPI__root, &
+  use m_mpi,only: MPI__Initialize,MPI__root, &
        MPI__Broadcast,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,MPI__rank,MPI__size, MPI__consoleout,MPI__barrier
   use m_rdpp,only: Rdpp, &   ! & NOTE: "call rdpp" generate following data.
        nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx,nprecx,mrecl,nblochpmx

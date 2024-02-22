@@ -18,7 +18,7 @@ subroutine hqpe_sc()
   use m_read_bzdata, only: Read_bzdata, nstar, nqibz2=>nqibz
   use m_anf,only: anfcond,laf
   use m_hamindex,only: Readhamindex, nhq=>ndham
-  use m_mpi,only: MPI__Initialize,MPI__Finalize
+  use m_mpi,only: MPI__Initialize
   use m_lgunit,only: m_lgunit_init
   implicit real*8 (a-h,o-z)
   implicit integer (i-n)

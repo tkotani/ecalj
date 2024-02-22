@@ -24,7 +24,7 @@ subroutine hmagnon()
        il,in,im,nlnm, &
        plat, pos,ecore
   use m_keyvalue,only: getkeyvalue
-  use m_mpi,only: MPI__task,MPI__Initialize,MPI__Finalize,MPI__root, &
+  use m_mpi,only: MPI__task,MPI__Initialize,MPI__root, &
        MPI__hmagnon_rankdivider, MPI__Initialize_magnon, MPI__consoleout_magnon, &
        MPI__Broadcast,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,MPI__rank=>mpi__rankMG,MPI__size=>mpi__sizeMG, &
        MPI__ranktab,MPI__consoleout,MPI__barrier,MPI__MEq,MPI__REAL8send,MPI__REAL8recv,MPI__AllreduceSum

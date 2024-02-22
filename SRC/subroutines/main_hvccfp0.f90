@@ -7,7 +7,7 @@ subroutine hvccfp0()   ! Coulomb matrix. <f_i | v| f_j>_q.
   use m_hamindex,only:    Readhamindex,plat,qlat
   use m_read_bzdata,only: Read_bzdata, ginv,nqbz,qbz,nqibz,qibz,nq0i,wqt=>wt,q0i,nq0iadd
   use m_readqg,only:   readqg,readngmx
-  use m_mpi,only: mpi__task,MPI__Initialize,MPI__Finalize,mpi__root, &
+  use m_mpi,only: mpi__task,MPI__Initialize,mpi__root, &
        MPI__Broadcast,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,mpi__rank,mpi__size, &
        mpi__ranktab,MPI__consoleout,mpi__iend,mpi__iini,mpi__getrange
   use m_readgwinput,only: ReadGwinputKeys, keeppositivecou
