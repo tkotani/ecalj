@@ -51,8 +51,7 @@ contains
     if (nspin == 1) zxq = 2d0*zxq !if paramagnetic, multiply x0 by 2
     nwmax = nw
     nwmin  = nw_i
-    write(6, *)" === trace check for W-V === nwmin nwmax=",nwmin,nwmax
-    write(6,*) 'qqqqqxx=',iq,q
+    write(6, *)" === trace check for W-V === nwmin nwmax=",nwmin,nwmax, 'qqqqqxx=',iq,q
     if(iq<=nqibz) then        !for mmmw
        open(newunit=ifrcw, file='WVR.'//i2char(iq),form='unformatted',access='direct',recl=mreclx)
        do 1015 iw  = nwmin,nwmax
@@ -97,13 +96,9 @@ contains
     else  ! llw, Wing elements of W. See PRB81 125102
        iq0 = iq - nqibz
        vcou1 = fourpi/sum(q**2*tpioa**2) ! --> vcousq(1)**2!  !fourpi/sum(q**2*tpioa**2-eee)
-       !         print *,'dddvcou1=',iq,nqibz,iq0,q
-       !         print *,'dddvcou1=',vcou1,tpioa,fourpi,sum(q**2)
        do 1115 iw  = nwmin,nwmax
           if(emptyrun) exit
           frr= dsign(freq_r(abs(iw)),dble(iw))
-          !            write(6,*)'ddddxxx111a',iw,sum(abs(zxq(:,:,iw))),zxq(1,1,iw),'sss',sum(abs(vcousq(1:ngb)))
-          !            imode = 1
           !! Full inversion to calculalte eps with LFC.
           if(localfieldcorrectionllw()) then
              ix=0
@@ -142,8 +137,6 @@ contains
 1115   enddo
     endif
   end subroutine WVRllwR
-
-  !--------------------------------------------------------
   subroutine WVIllwi(q,iq,zxqi,nmbas1,nmbas2)
     intent(in)::       q,iq,     nmbas1,nmbas2 !zxqi can be twiced when nspin=2
     integer:: nmbas1,nmbas2,mreclx
@@ -154,20 +147,12 @@ contains
     complex(8):: zxqi(nmbas1,nmbas2,niw)
     character(10):: i2char
     mreclx=mrecl
-!    if(cmdopt0('--emptyrun')) then
-!       if(init) allocate( llwI(niw,nq0i) )
-!       if(init) llwI= 1d99
-!       init=.false.
-!       return 
-    !    endif
     emptyrun=cmdopt0('--emptyrun')
     if(init) then
        allocate( llwI(niw,nq0i) )
        init=.false.
        llwI= 1d99
     endif
-    !      allocate( zw0(ngb,ngb) )
-    !      allocate( epstilde(ngb,ngb), epstinv(ngb,ngb))
     write(6,*)'WVRllwI: init'
     if (nspin == 1) zxqi = 2d0*zxqi ! if paramagnetic, multiply x0 by 2
     if( iq<=nqibz ) then
@@ -231,74 +216,56 @@ contains
           if(iq0<=nq0i) write(6,"('iq iw_img eps(wLFC) eps(noLFC)',i4,i4,2f10.4,2x,2f10.4)") &
                iq,iw,llwI(iw,iq0),1d0-vcou1*zxqi(1,1,iw)
 1116   enddo
-       !        open(newunit=ifllwi,file='LLWI.'//i2char(iq),form='unformatted')
-       !        write(ifllwi) llwi
-       !        close(ifllwi)
     endif
     deallocate(epstinv,epstilde,zw0)
   end subroutine WVILLWI
-
-  !----------------------------------------------------------
-  subroutine MPI__sendllw2(iqxend) !for hx0fp0
-    use m_mpi,only: MPI__task,MPI__Initialize,MPI__Finalize,MPI__root
-    use m_mpi,only: MPI__Broadcast,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,MPI__rank,MPI__size
-    use m_mpi,only: MPI__ranktab
+  subroutine MPI__sendllw2(iqxend,MPI__ranktab) !for hx0fp0
+    use m_mpi,only: MPI__root,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,MPI__rank,MPI__size
     intent(in)::             iqxend
-    integer:: iq0,dest,src,iq,iqxend
+    integer:: iq0,dest,src,iq,iqxend,MPI__ranktab(:)
     !! === Recieve llw and llwI at node 0, where q=0(iq=1) is calculated. ===
-    if(MPI__size/=1) then
-       do iq=nqibz+1,iqxend
-          iq0 = iq - nqibz
-          if(MPI__ranktab(iq)/=0) then !jan2012
-             if(MPI__ranktab(iq) == MPI__rank) then
-                dest=0
-                call MPI__DbleCOMPLEXsend(llw(nw_i,iq0),(nw-nw_i+1),dest)
-                call MPI__DbleCOMPLEXsend(llwI(1,iq0),niw,dest)
-             elseif(MPI__root) then
-                src=MPI__ranktab(iq)
-                call MPI__DbleCOMPLEXrecv(llw(nw_i,iq0),(nw-nw_i+1),src)
-                call MPI__DbleCOMPLEXrecv(llwI(1,iq0),niw,src)
-             endif
-          endif
-       enddo
-    endif
+    if(MPI__size==1) return
+    do iq=nqibz+1,iqxend
+      iq0 = iq - nqibz
+      if(MPI__ranktab(iq)==0) cycle 
+      if(MPI__ranktab(iq) == MPI__rank) then
+        dest=0
+        call MPI__DbleCOMPLEXsend(llw(nw_i,iq0),(nw-nw_i+1),dest)
+        call MPI__DbleCOMPLEXsend(llwI(1,iq0),niw,dest)
+      elseif(MPI__root) then
+        src=MPI__ranktab(iq)
+        call MPI__DbleCOMPLEXrecv(llw(nw_i,iq0),(nw-nw_i+1),src)
+        call MPI__DbleCOMPLEXrecv(llwI(1,iq0),niw,src)
+      endif
+    enddo
   end subroutine MPI__sendllw2
-  !----------------------------------------------------------
-  subroutine MPI__sendllw(iqxend) !for hx0fp0_sc
-    use m_mpi,only:  MPI__Broadcast,MPI__DbleCOMPLEXsendQ,MPI__DbleCOMPLEXrecvQ,MPI__size,MPI__Qranktab,MPI__rankQ,MPI__rootQ
+  subroutine MPI__sendllw(iqxend,MPI__Qranktab) !for hx0fp0_sc
+    use m_mpi,only: MPI__DbleCOMPLEXsendQ,MPI__DbleCOMPLEXrecvQ,MPI__size,MPI__rank,MPI__root
     ! === Recieve llw and llwI at node 0, where q=0(iq=1) is calculated. ===
     intent(in)::            iqxend
-    integer:: iq0,dest,src,iq,iqxend
-    if(MPI__size/=1) then
-       do iq=nqibz+1,iqxend
-          iq0 = iq - nqibz
-          if(MPI__Qranktab(iq)/=0) then !jan2012
-             if(MPI__Qranktab(iq) == MPI__rankQ) then
-                dest=0
-                if(iq0<=nq0i) then
-                   call MPI__DbleCOMPLEXsendQ(llw(nw_i,iq0),(nw-nw_i+1),dest)
-                   call MPI__DbleCOMPLEXsendQ(llwI(1,iq0),niw,dest)
-                endif
-                if(ixyz(iq0)/=0) then
-                   call MPI__DbleCOMPLEXsendQ(wmuk(2:ngbq0,ixyz(iq0)),ngbq0-1,dest)
-                endif
-             elseif(MPI__rootQ) then
-                src=MPI__Qranktab(iq)
-                if(iq0<=nq0i) then
-                   call MPI__DbleCOMPLEXrecvQ(llw(nw_i,iq0),(nw-nw_i+1),src)
-                   call MPI__DbleCOMPLEXrecvQ(llwI(1,iq0),niw,src)
-                endif
-                if(ixyz(iq0)/=0) then
-                   call MPI__DbleCOMPLEXrecvQ(wmuk(2:ngbq0,ixyz(iq0)),ngbq0-1,src)
-                endif
-             endif
-          endif
-       enddo
-    endif
+    integer:: iq0,dest,src,iq,iqxend,MPI__Qranktab(:)
+    if(MPI__size==1) return
+    do iq=nqibz+1,iqxend
+      iq0 = iq - nqibz
+      if(MPI__Qranktab(iq)==0) cycle
+      if(MPI__Qranktab(iq) == MPI__rank) then
+        dest=0
+        if(iq0<=nq0i) then
+          call MPI__DbleCOMPLEXsendQ(llw(nw_i,iq0),(nw-nw_i+1),dest)
+          call MPI__DbleCOMPLEXsendQ(llwI(1,iq0),niw,dest)
+        endif
+        if(ixyz(iq0)/=0) call MPI__DbleCOMPLEXsendQ(wmuk(2:ngbq0,ixyz(iq0)),ngbq0-1,dest)
+      elseif(MPI__root) then
+        src=MPI__Qranktab(iq)
+        if(iq0<=nq0i) then
+          call MPI__DbleCOMPLEXrecvQ(llw(nw_i,iq0),(nw-nw_i+1),src)
+          call MPI__DbleCOMPLEXrecvQ(llwI(1,iq0),niw,src)
+        endif
+        if(ixyz(iq0)/=0) call MPI__DbleCOMPLEXrecvQ(wmuk(2:ngbq0,ixyz(iq0)),ngbq0-1,src)
+      endif
+    enddo
   end subroutine MPI__sendllw
 end module m_llw
-
-
 !===================================================================
 subroutine tr_chkwrite(tagname,zw,iw,freqq,nblochpmx,nbloch,ngb,iq)
   implicit none
@@ -316,5 +283,3 @@ subroutine tr_chkwrite(tagname,zw,iw,freqq,nblochpmx,nbloch,ngb,iq)
   enddo  !  write(6,'(" realomg trwv=",2i6,4d22.14)') iq,iw,trwv(iw),trwv2(iw)
   write(6,'(a,f10.4,2i5,4d22.14)')tagname,freqq,iq,iw,trwv,trwv2
 end subroutine tr_chkwrite
-
-

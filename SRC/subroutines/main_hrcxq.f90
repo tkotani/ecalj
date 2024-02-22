@@ -27,9 +27,8 @@ subroutine hrcxq()
   use m_qbze,only:    Setqbze,nqbze,nqibze,qbze,qibze
   use m_readhbe,only: Readhbe,nband !,nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg !  use m_eibz,only:    Seteibz,nwgt,neibz,igx,igxt,eibzsym
   use m_x0kf,only:    X0kf_v4hz,x0kf_v4hz_init_read,rcxq  !X0kf_v4hz_init,,x0kf_v4hz_init_write !X0kf_v4hz_symmetrize,
-  use m_llw,only:     WVRllwR,WVIllwI,w4pmode,MPI__sendllw
-  use m_mpi,only: MPI__hx0fp0_rankdivider2Q,MPI__Qtask,MPI__Initialize,MPI__Finalize,MPI__root,&
-       MPI__Broadcast,MPI__rank,MPI__size,MPI__consoleout,MPI__barrier
+  use m_llw,only: WVRllwR,WVIllwI,w4pmode,MPI__sendllw
+  use m_mpi,only: MPI__Initialize,MPI__root,MPI__rank,MPI__size,MPI__consoleout,MPI__barrier
   use m_lgunit,only: m_lgunit_init,stdo
   use m_ftox
   implicit none
@@ -45,6 +44,8 @@ subroutine hrcxq()
   character(20):: outs=''
   real(8),allocatable :: symope(:,:),ekxx1(:,:),ekxx2(:,:)
   complex(8),allocatable:: zxq(:,:,:),zxqi(:,:,:),zzr(:,:),rcxqin(:,:,:,:)
+  logical,allocatable::   mpi__Qtask(:)
+  integer,allocatable::   mpi__Qrank(:)
   call MPI__Initialize()
   call M_lgunit_init()
   emptyrun=cmdopt0('--emptyrun')
@@ -76,7 +77,10 @@ subroutine hrcxq()
   ! nblochpmx = nbloch + ngcmx ! Maximum of MPB = PBpart +  IPWpartforMPB
   iqxini = 1
   iqxend = nqibz + nq0i + nq0iadd ! [iqxini:iqxend] range of q points.
-  call MPI__hx0fp0_rankdivider2Q(iqxini,iqxend) ! Rank divider
+!  call MPI__hx0fp0_rankdivider2Q(iqxini,iqxend) ! Rank divider
+  allocate( mpi__Qrank(iqxini:iqxend), source=[(mod(iq-1,mpi__size)           ,iq=iqxini,iqxend)])
+  allocate( mpi__Qtask(iqxini:iqxend), source=[(mod(iq-1,mpi__size)==mpi__rank,iq=iqxini,iqxend)])
+  write(6,*)'mpi_rank',mpi__rank,'mpi__Qtask=',mpi__Qtask
   if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
   Obtainrcxq: do 1001 iq = iqxini,iqxend
      if( .NOT. MPI__Qtask(iq) ) cycle
@@ -92,7 +96,7 @@ subroutine hrcxq()
        enddo
        allocate(rcxqin(nmbas,nmbas,nwhis,npm))
        do iwhis=1,nwhis
-          do concurrent(igb2=1:nmbas) !upper-light block of zmel*zmel
+          do concurrent(igb2=1:nmbas) !upper-right block of zmel*zmel
              imb= (igb2-1)*igb2/2
              rcxqin(1:igb2,igb2,iwhis,:)   =        rcxq(imb+1:imb+igb2,  iwhis,:)   !right-upper half
              rcxqin(igb2,1:igb2-1,iwhis,:) = dconjg(rcxq(imb+1:imb+igb2-1,iwhis,:))  
@@ -127,7 +131,7 @@ subroutine hrcxq()
   GetEffectiveWVatGammaCell: block !Get W-v(q=0) :Divergent part and non-analytic constant part of W(0) calculated from llw
     ! == Get W(q=0) : Divergent part and non-analytic constant part of W(0) ==
     call MPI__barrier()
-    call MPI__sendllw(iqxend) !!! Send all LLW data to mpi_root.
+    call MPI__sendllw(iqxend,MPI__Qrank) !!! Send all LLW data to mpi_root.
     ! Get effective W0,W0i, and L(omega=0) matrix. Modify WVR WVI with w0 and w0. Files WVI and WVR are modified.
     if(MPI__rank==0) call W0w0i(nw_i,nw,nq0i,niw,q0i) !use moudle m_llw
   endblock GetEffectiveWVatGammaCell

@@ -17,7 +17,7 @@ subroutine hsfp0()
   use m_zmel,only: Mptauof_zmel
   use m_itq,only: Setitq_hsfp0, itq,ntq
   use m_mpi,only: &
-       MPI__Initialize,MPI__real8send,MPI__real8recv,MPI__send_iv,MPI__recv_iv,MPI__sxcf_rankdivider, &
+       MPI__Initialize,MPI__real8send,MPI__real8recv,MPI__sxcf_rankdivider, &
        MPI__Finalize,MPI__root,MPI__Broadcast,MPI__rank,MPI__size,MPI__allreducesum, &
        MPI__consoleout, &
        MPI__barrier

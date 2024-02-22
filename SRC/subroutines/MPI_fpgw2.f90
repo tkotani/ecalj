@@ -335,7 +335,6 @@ contains
          MPI_INTEGER, MPI_MAX, MPI_COMM_WORLD, mpi__info )
     deallocate( mpi__data )
   end subroutine MPI__AllreduceMax
-
   !=========================================================================
   subroutine MPI__sxcf_rankdivider(irkip_all,nspinmx,nqibz,ngrp,nq,irkip)
     implicit none
@@ -383,69 +382,6 @@ contains
        enddo
     enddo
   end subroutine MPI__sxcf_rankdivider
-  subroutine MPI__hx0fp0_rankdivider(iqxini,iqxend,nqibz)
-    implicit none
-    integer, intent(in) :: iqxini, iqxend, nqibz
-    integer :: iq
-    allocate( mpi__task(1:iqxend),mpi__ranktab(1:iqxend) )
-    if( mpi__size == 1 ) then
-       mpi__task(:) = .true.
-       mpi__ranktab(:) = mpi__rank
-       return
-    end if
-    mpi__task(:) = .false.
-    do iq=iqxini, iqxend
-       if(iq==1.or. iq>nqibz) then
-          mpi__ranktab(iq) = 0
-       else
-          mpi__ranktab(iq) = mod(iq,mpi__size-1)+1
-       endif
-       !!
-       if( mpi__rank == 0 ) then
-          if( iq == 1 .or. iq>nqibz ) then
-             mpi__task(iq) = .true.
-          else
-             mpi__task(iq) = .false.
-          end if
-       else
-          if( iq == 1 .or. iq>nqibz ) then
-             mpi__task(iq) = .false.
-          else
-             if( mpi__rank == mod(iq,mpi__size-1)+1 ) then
-                mpi__task(iq) = .true.
-             else
-                mpi__task(iq) = .false.
-             end if
-          end if
-       end if
-    end do
-    return
-  end subroutine MPI__hx0fp0_rankdivider
-  subroutine MPI__hx0fp0_rankdivider2(iqxini,iqxend)
-    implicit none
-    integer, intent(in) :: iqxini, iqxend
-    integer :: iq,i
-    allocate( mpi__task(1:iqxend),mpi__ranktab(1:iqxend) )
-    mpi__task(:) = .false.
-    mpi__ranktab(1:iqxend)=999999
-    if( mpi__size == 1 ) then
-       mpi__task(:) = .true.
-       mpi__ranktab(:) = mpi__rank
-       write(6,*) "rankdivider"
-       return
-    end if
-    if(mpi__rank==0) write(6,*) "MPI_hx0fp0_rankdivider2:"
-    do iq=iqxini, iqxend
-       mpi__ranktab(iq) = mod(iq-1,mpi__size)  !rank_table for given iq. iq=1 must give rank=0
-       if( mpi__ranktab(iq) == mpi__rank) then
-          mpi__task(iq) = .true.               !mpi__task is nodeID-dependent.
-       endif
-       if(mpi__rank==0) then
-          write(6,"('  iq irank=',2i5)")iq,mpi__ranktab(iq)
-       endif
-    enddo
-    return
-  end subroutine MPI__hx0fp0_rankdivider2
   subroutine MPI__hmagnon_rankdivider(nqbz)
     implicit none
     integer, intent(in) :: nqbz
@@ -473,38 +409,5 @@ contains
     enddo
     return
   end subroutine MPI__hmagnon_rankdivider
-  subroutine MPI__hx0fp0_rankdivider2Q(iqxini,iqxend)
-    !! not mpi_commq is used in m_llw      
-    implicit none
-    integer, intent(in) :: iqxini, iqxend
-    integer :: iq,i
-    integer,allocatable:: ranklistQ(:)
-    integer :: mpi__group
-    integer :: mpi__groupQ
-    mpi__sizeQ = mpi__size
-    mpi__rankQ = mod(mpi__rank,mpi__sizeQ) !vrankQ(mpi__rank)
-    mpi__rootQ = ( mpi__rankQ == 0 )
-    mpi__commQ = MPI_COMM_WORLD !! mpi__commQ is used in m_llw
-    allocate( mpi__Qtask(1:iqxend), mpi__Qranktab(1:iqxend) )
-    mpi__Qtask(:) = .false.
-    mpi__Qranktab(1:iqxend)=999999
-    if( mpi__sizeQ == 1 ) then
-       mpi__Qtask(:) = .true.
-       mpi__Qranktab(:) = mpi__rankQ
-       return
-    end if
-    if(mpi__root) then
-       write(6,*) "MPI_hx0fp0_rankdivider2Q:"
-       write(6,'(a,$)')'mpi__Qtask='
-       write(6,'(10L2)')mpi__Qtask
-    endif
-    do iq=iqxini, iqxend
-       mpi__Qranktab(iq) = mod(iq-1,mpi__sizeQ)  ! rank_table for given iq. iq=1 must give rank=0
-       if( mpi__Qranktab(iq) == mpi__rankQ) then
-          mpi__Qtask(iq) = .true.                ! mpi__task is nodeID-dependent.
-       endif
-       if(mpi__root) write(6,"('  iq irank=',2i5)")iq,mpi__Qranktab(iq)
-    enddo
-  end subroutine MPI__hx0fp0_rankdivider2Q
 end module m_mpi
 

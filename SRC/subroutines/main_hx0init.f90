@@ -33,8 +33,7 @@ subroutine hx0init() !initializaiton of x0 calculaiton (W-v)
 !  use m_eibz,only:    Seteibz, nwgt!,neibz,igx,igxt,eibzsym
   use m_x0kf,only:    X0kf_v4hz_init,x0kf_v4hz_init_write
   use m_llw,only:     WVRllwR,WVIllwI,w4pmode,MPI__sendllw
-  use m_mpi,only: MPI__hx0fp0_rankdivider2Q, MPI__Qtask, MPI__Initialize, MPI__Finalize,MPI__root
-  use m_mpi,only: MPI__Broadcast, MPI__rank,MPI__size, MPI__consoleout,MPI__barrier
+  use m_mpi,only: MPI__Initialize, MPI__root, MPI__Broadcast, MPI__rank,MPI__size, MPI__consoleout,MPI__barrier
   use m_lgunit,only: m_lgunit_init,stdo
   implicit none
   integer:: MPI__Ss,MPI__Se, iq,isf,kx,ixc,iqxini,iqxend,is,iw,ifwd,ngrpx,verbose,nmbas1,nmbas2,nmbas_in,ifif
@@ -49,6 +48,8 @@ subroutine hx0init() !initializaiton of x0 calculaiton (W-v)
   character(20):: outs=''
   integer:: ipart
   logical:: cmdopt2
+  logical,allocatable::   mpi__Qtask(:)
+!  integer,allocatable::   mpi__Qrank(:)
   call MPI__Initialize()
   call M_lgunit_init()
   call MPI__consoleout('hx0init')
@@ -123,7 +124,9 @@ subroutine hx0init() !initializaiton of x0 calculaiton (W-v)
   ! eibzmode = .false. !eibz4x0()                ! EIBZ mode
   ! call Seteibz(iqxini,iqxend,iprintx) ! EIBZ mode
   ! call Setw4pmode() !W4phonon. !still developing...
-  call MPI__hx0fp0_rankdivider2Q(iqxini,iqxend)! Rank divider
+!  call MPI__hx0fp0_rankdivider2Q(iqxini,iqxend)! Rank divider
+!  allocate( mpi__Qrank(iqxini:iqxend), source=[(mod(iq-1,mpi__size)           ,iq=iqxini,iqxend)])
+  allocate( mpi__Qtask(iqxini:iqxend), source=[(mod(iq-1,mpi__size)==mpi__rank,iq=iqxini,iqxend)])
   MPI__Ss = 1
   MPI__Se = nspin 
   !  allocate( nwgt(1,iqxini:iqxend)) !eibz

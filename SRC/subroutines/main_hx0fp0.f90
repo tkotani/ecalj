@@ -14,8 +14,8 @@ subroutine hx0fp0()
   use m_hamindex,only: ngrp
   use m_pbindex,only: PBindex !,norbt,l_tbl,k_tbl,ibas_tbl,offset_tbl,offset_rev_tbl
   use m_readqgcou,only: readqgcou
-  use m_mpi,only: MPI__hx0fp0_rankdivider2,MPI__task,MPI__Initialize,MPI__Finalize,MPI__root, &
-       MPI__Broadcast,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,MPI__rank,MPI__size, MPI__ranktab,MPI__consoleout,MPI__barrier
+  use m_mpi,only: MPI__Initialize,MPI__Finalize,MPI__root, &
+       MPI__Broadcast,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,MPI__rank,MPI__size, MPI__consoleout,MPI__barrier
   use m_rdpp,only: Rdpp, &   ! & NOTE: "call rdpp" generate following data.
        nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx,nprecx,mrecl,nblochpmx
   use m_zmel,only: Mptauof_zmel, Setppovlz,Setppovlz_chipm   ! & NOTE: these data set are stored in this module, and used
@@ -180,6 +180,8 @@ subroutine hx0fp0()
   logical,save:: initzmel0=.true.
   real(8):: q0a,qa
   complex(8),allocatable:: rcxq0(:,:,:,:)
+  logical,allocatable::   mpi__task(:)
+  integer,allocatable::   mpi__ranktab(:)
   call MPI__Initialize()
   call M_lgunit_init()
   call MPI__consoleout('hx0fp0')
@@ -377,7 +379,9 @@ subroutine hx0fp0()
   !! Thus it is necessary to do iq=1 in advance to performom iq >nqibz.
   !! (or need to modify do 1001 loop).
   !! iq>nqibz for ixc=11 is not time-consuming (right???)
-  call MPI__hx0fp0_rankdivider2(iqxini,iqxend)
+!  call MPI__hx0fp0_rankdivider2(iqxini,iqxend)
+  allocate( mpi__ranktab(iqxini:iqxend), source=[(mod(iq-1,mpi__size)           ,iq=iqxini,iqxend)])
+  allocate( mpi__task(iqxini:iqxend),    source=[(mod(iq-1,mpi__size)==mpi__rank,iq=iqxini,iqxend)])
   
   !! llw, and llwI are for L(omega) for Q0P in PRB81,125102
   allocate( llw(nw_i:nw,nq0i), llwI(niw,nq0i) )
@@ -632,7 +636,7 @@ subroutine hx0fp0()
 1001 enddo iqloop
   call MPI__barrier()
   !  if(cmdopt0('--rcxq0')) call rx0('end of --rcxq0 mode to generete rcxq0')
-  if( .NOT. epsmode) call MPI__sendllw2(iqxend) !!! mpi send LLW to root.
+  if( .NOT. epsmode) call MPI__sendllw2(iqxend,MPI__ranktab) !!! mpi send LLW to root.
   !! == W(0) divergent part and W(0) non-analytic constant part.==
   !!   Note that this is only for q=0 -->iq=1
   !! get w0 and w0i (diagonal element at Gamma point
