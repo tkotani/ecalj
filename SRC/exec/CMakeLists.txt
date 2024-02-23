@@ -1,7 +1,7 @@
 #Make libecaljF.so and all binaries.
 #Run >  PLATFORM=gfortran cmake .
 Project (ecalj)
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.2)
 #SET(CMAKE_VERBOSE_MAKEFILE ON)
 enable_language(Fortran)
 # Note: we always renew show_programinfo.f90 because of Makeshow is always invoked. How to improve this?
