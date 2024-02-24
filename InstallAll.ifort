@@ -26,7 +26,7 @@ popd
 ### Use SRC/exec/CmakeLists.txt to make executables.
 pushd .
 cd SRC/exec
-PLATFORM=ifort FC=ifort cmake .
+FC=ifort cmake .
 make -j ||my_error 
 cp `find . -mindepth 1 -maxdepth 1 -executable -type f` ${BINDIR} ||my_error
 popd

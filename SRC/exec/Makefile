@@ -6697,33 +6697,6 @@ home/takao/ecalj/SRC/subroutines/sort.f90.s:
 	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/sort.f90.s
 .PHONY : home/takao/ecalj/SRC/subroutines/sort.f90.s
 
-home/takao/ecalj/SRC/subroutines/stonerrsa.o: home/takao/ecalj/SRC/subroutines/stonerrsa.f90.o
-
-.PHONY : home/takao/ecalj/SRC/subroutines/stonerrsa.o
-
-# target to build an object file
-home/takao/ecalj/SRC/subroutines/stonerrsa.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/stonerrsa.f90.o
-.PHONY : home/takao/ecalj/SRC/subroutines/stonerrsa.f90.o
-
-home/takao/ecalj/SRC/subroutines/stonerrsa.i: home/takao/ecalj/SRC/subroutines/stonerrsa.f90.i
-
-.PHONY : home/takao/ecalj/SRC/subroutines/stonerrsa.i
-
-# target to preprocess a source file
-home/takao/ecalj/SRC/subroutines/stonerrsa.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/stonerrsa.f90.i
-.PHONY : home/takao/ecalj/SRC/subroutines/stonerrsa.f90.i
-
-home/takao/ecalj/SRC/subroutines/stonerrsa.s: home/takao/ecalj/SRC/subroutines/stonerrsa.f90.s
-
-.PHONY : home/takao/ecalj/SRC/subroutines/stonerrsa.s
-
-# target to generate assembly for a file
-home/takao/ecalj/SRC/subroutines/stonerrsa.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/stonerrsa.f90.s
-.PHONY : home/takao/ecalj/SRC/subroutines/stonerrsa.f90.s
-
 home/takao/ecalj/SRC/subroutines/subzi.o: home/takao/ecalj/SRC/subroutines/subzi.f90.o
 
 .PHONY : home/takao/ecalj/SRC/subroutines/subzi.o
@@ -8479,33 +8452,6 @@ home/takao/ecalj/SRC/wanniergw/mymath.f90.s:
 	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/mymath.f90.s
 .PHONY : home/takao/ecalj/SRC/wanniergw/mymath.f90.s
 
-home/takao/ecalj/SRC/wanniergw/sp2cls.o: home/takao/ecalj/SRC/wanniergw/sp2cls.f90.o
-
-.PHONY : home/takao/ecalj/SRC/wanniergw/sp2cls.o
-
-# target to build an object file
-home/takao/ecalj/SRC/wanniergw/sp2cls.f90.o:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/sp2cls.f90.o
-.PHONY : home/takao/ecalj/SRC/wanniergw/sp2cls.f90.o
-
-home/takao/ecalj/SRC/wanniergw/sp2cls.i: home/takao/ecalj/SRC/wanniergw/sp2cls.f90.i
-
-.PHONY : home/takao/ecalj/SRC/wanniergw/sp2cls.i
-
-# target to preprocess a source file
-home/takao/ecalj/SRC/wanniergw/sp2cls.f90.i:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/sp2cls.f90.i
-.PHONY : home/takao/ecalj/SRC/wanniergw/sp2cls.f90.i
-
-home/takao/ecalj/SRC/wanniergw/sp2cls.s: home/takao/ecalj/SRC/wanniergw/sp2cls.f90.s
-
-.PHONY : home/takao/ecalj/SRC/wanniergw/sp2cls.s
-
-# target to generate assembly for a file
-home/takao/ecalj/SRC/wanniergw/sp2cls.f90.s:
-	$(MAKE) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/sp2cls.f90.s
-.PHONY : home/takao/ecalj/SRC/wanniergw/sp2cls.f90.s
-
 home/takao/ecalj/SRC/wanniergw/wansub.o: home/takao/ecalj/SRC/wanniergw/wansub.f90.o
 
 .PHONY : home/takao/ecalj/SRC/wanniergw/wansub.o
@@ -9449,9 +9395,6 @@ help:
 	@echo "... home/takao/ecalj/SRC/subroutines/sort.o"
 	@echo "... home/takao/ecalj/SRC/subroutines/sort.i"
 	@echo "... home/takao/ecalj/SRC/subroutines/sort.s"
-	@echo "... home/takao/ecalj/SRC/subroutines/stonerrsa.o"
-	@echo "... home/takao/ecalj/SRC/subroutines/stonerrsa.i"
-	@echo "... home/takao/ecalj/SRC/subroutines/stonerrsa.s"
 	@echo "... home/takao/ecalj/SRC/subroutines/subzi.o"
 	@echo "... home/takao/ecalj/SRC/subroutines/subzi.i"
 	@echo "... home/takao/ecalj/SRC/subroutines/subzi.s"
@@ -9647,9 +9590,6 @@ help:
 	@echo "... home/takao/ecalj/SRC/wanniergw/mymath.o"
 	@echo "... home/takao/ecalj/SRC/wanniergw/mymath.i"
 	@echo "... home/takao/ecalj/SRC/wanniergw/mymath.s"
-	@echo "... home/takao/ecalj/SRC/wanniergw/sp2cls.o"
-	@echo "... home/takao/ecalj/SRC/wanniergw/sp2cls.i"
-	@echo "... home/takao/ecalj/SRC/wanniergw/sp2cls.s"
 	@echo "... home/takao/ecalj/SRC/wanniergw/wansub.o"
 	@echo "... home/takao/ecalj/SRC/wanniergw/wansub.i"
 	@echo "... home/takao/ecalj/SRC/wanniergw/wansub.s"

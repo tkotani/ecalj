@@ -1,7 +1,22 @@
-#Make libecaljF.so and all binaries.
-#Run >  PLATFORM=gfortran cmake .
-Project (ecalj)
+# Make libecaljF.so and all binaries. Run > FC=gfortran cmake . for generating make file
+# run >VERBOSE=1 make to see detailed compile options
 cmake_minimum_required(VERSION 3.2)
+if(DEFINED CACHE{FC} OR DEFINED ENV{FC})
+  set(FC $ENV{FC})
+else()
+    message("")
+    message("Your choices to run cmake are")
+    message(" >FC=ifort cmake .")
+    message(" >FC=ifort DEBUG=1 cmake .")
+    message(" >FC=gfortran cmake .")
+    message(" >FC=gfortran DEBUG=1 cmake .")
+    message("You may run >VERBOSE=1 make -j, for detailed make messages.")
+    message("Note that '>rm CMakeCache.txt' is needed for starting over!")
+    message(FATAL_ERROR "Set FC=foobar explained above!")
+endif() 
+set(FCMOD ${FC})
+
+Project (ecalj)
 #SET(CMAKE_VERBOSE_MAKEFILE ON)
 enable_language(Fortran)
 # Note: we always renew show_programinfo.f90 because of Makeshow is always invoked. How to improve this?
@@ -9,14 +24,15 @@ add_custom_target(show_programinfo.f90 ALL COMMAND make -f Makeshow WORKING_DIRE
 file(GLOB SOURCES  "../subroutines/*.f90" "../wanniergw/*.f90" "../subroutines/show_programinfo.f90") # source files
 file(GLOB MAINS    "../main/*.f90") # main source files
 set(LIBRARY_NAME ecaljF)            # library name is libecaljF.so
-if(DEFINED CACHE{PLATFORM} OR DEFINED ENV{PLATFORM})
-  set(PLATFORM $ENV{PLATFORM})
-else()
-  set(PLATFORM "gfortran") #default
-endif() 
-message(STATUS "PLATFORM = ${PLATFORM}")
+
+#if(DEFINED CACHE{FC} OR DEFINED ENV{FC})
+#  set(FC $ENV{FC})
+#else()
+#  set(FC "gfortran") #default
+#endif() 
+
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}) # directory for *.so
-set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/${PLATFORM}/mod) # directory for *.mod
+set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/${FCMOD}/mod) # directory for *.mod
 
 ### show_programinfo.f90 get date and so on for binary info. This should be newer than others ###
 ### but I don't know how to do it. So I use add_custom_target with ALLch
@@ -26,21 +42,32 @@ set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/${PLATFORM}/mod) # direct
 #message(STATUS ${BLAS_LIBARARIES})
 #message(STATUS ${LAPACK})
 
+if(DEFINED CACHE{DEBUG} OR DEFINED ENV{DEBUG})
+  set(DEBUG $ENV{DEBUG})
+endif() 
+message(STATUS "DEBUG= ${DEBUG}")
+
 ### compile options ############################################################
-if(PLATFORM MATCHES "gfortran" OR PLATFORM MATCHES "gfortran_dbg")
+if(FC MATCHES "gfortran")
   set(CMAKE_Fortran_COMPILER mpif90)    # compiler
   set(CMAKE_Fortran_FLAGS "-g -fimplicit-none -finit-integer=NaN -finit-real=NaN -fPIC") # compile flags
   set(LIB ${LIBRARY_NAME} -lmkl_rt)  #set LIB variable
   add_link_options(-lmkl_rt)
-elseif(PLATFORM MATCHES "ifort" OR PLATFORM MATCHES "ifort_dbg")
+elseif(FC MATCHES "ifort")
   set(CMAKE_Fortran_COMPILER mpiifort)    # compiler
-  set(CMAKE_Fortran_FLAGS "-init:snan -fPIC") # compile flags
+  set(CMAKE_Fortran_FLAGS "-init:snan -fPIC -assume byterecl") # compile flags
   set(LIB ${LIBRARY_NAME} -mkl)  #set LIB variable
   add_link_options(-mkl)
 endif()
 
-### source-dependent compile options ##########################################
-if(PLATFORM MATCHES "gfortran")
+### source-dependent compile options 
+if(FC MATCHES "gfortran" AND DEFINED DEBUG)
+  message(STATUS "===== gfortran debug  =======================")
+  foreach(target IN ITEMS ${SOURCES})
+    set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O0")
+  endforeach()
+elseif(FC MATCHES "gfortran")
+  message(STATUS "===== gfortran release  =======================")
   foreach(target IN ITEMS ${SOURCES})
     if(${target} MATCHES "../subroutines/mkqp.f90" OR ${target} MATCHES "../wannier/iopen.f90" )
       set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O0")
@@ -48,11 +75,13 @@ if(PLATFORM MATCHES "gfortran")
       set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O2")
     endif()
   endforeach()
-elseif(PLATFORM MATCHES "gfortran_dbg")
+elseif(FC MATCHES "ifort" AND DEFINED DEBUG)
+  message(STATUS "===== ifort debug  =======================")
   foreach(target IN ITEMS ${SOURCES})
-    set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O0")
+    set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O0  -g -traceback")
   endforeach()
-elseif(PLATFORM MATCHES "ifort")
+elseif(FC MATCHES "ifort")
+  message(STATUS "====== ifort release =======================")
   foreach(target IN ITEMS ${SOURCES})
     if(${target} MATCHES "../subroutines/m_qplist.f90") # OR ${target} MATCHES "../subroutines/x0kf_v4h.f90" )
       set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O0")
@@ -60,18 +89,14 @@ elseif(PLATFORM MATCHES "ifort")
       set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O2")
     endif()
   endforeach()
-elseif(PLATFORM MATCHES "ifort_dbg")
-  foreach(target IN ITEMS ${SOURCES})
-    set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O0  -g -traceback")
-  endforeach()
 endif()
 
-#not working. add_custom_target(dummys ALL COMMAND echo "call sgemm();end" >dummy.f90)
+#Set mkl location
 add_executable(dummy ./dummy.f90 ) # exe
 target_link_libraries(dummy ${LIB} ${BLAS} ${MPI}) #linked 
-add_custom_target(fcheck ALL COMMAND ldd dummy|grep mkl >mklloc.txt  WORKING_DIRECTORY ${CMAKE_BINARY_DIR} DEPENDS dummy) #check mkl location
+add_custom_target(fcheck ALL COMMAND ldd dummy|grep mkl >mklloc.txt  WORKING_DIRECTORY ${CMAKE_BINARY_DIR} DEPENDS dummy) 
 
-#### Generate library and binaries ###############################
+# Generate library and binaries ###############################
 add_library(${LIBRARY_NAME} SHARED ${SOURCES}) # Library
 foreach(target IN ITEMS ${MAINS}) #main routines
   get_filename_component(exename ${target} NAME_WE ) #set DIR variable
@@ -79,9 +104,6 @@ foreach(target IN ITEMS ${MAINS}) #main routines
   target_link_libraries(${exename} ${LIB} ${BLAS} ${MPI}) #linked 
 endforeach()
 
-
-
 #set(BINDIR $ENV{HOME}/bin)
-#set(BINDIR $ENV{BINDIR}) 
 #message(STATUS "BINDIR = ${BINDIR}")
 #add_custom_target(inst cp `find . -mindepth 1 -maxdepth 1 -executable -type f` ${BINDIR})
