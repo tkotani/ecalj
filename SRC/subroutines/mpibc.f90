@@ -1,40 +1,32 @@
 !> MPI all reduce
 subroutine mpibc2_int(vec,nnn,label)
-!  use m_MPItk,only: mlog
   logical:: mlog
   character funnam*(1), label*(*)
   integer::nnn,cast
   integer:: vec(nnn)
-  !      print *,trim(label),nnn,vec(1)
   cast=2
   funnam=''
   call mpibc2(vec,nnn,cast,mlog,funnam,label)
 end subroutine mpibc2_int
 subroutine mpibc2_real(vec,nnn,label)
-!  use m_MPItk,only: mlog
   logical:: mlog
   character funnam*(1), label*(*)
   integer::nnn,cast
   real(8):: vec(nnn)
-  !      print *,trim(label),nnn,vec(1)
   cast=4
   funnam=''
   call mpibc2(vec,nnn,cast,mlog,funnam,label)
 end subroutine mpibc2_real
 subroutine mpibc2_complex(vec,nnn,label)
-!  use m_MPItk,only: mlog
   logical:: mlog
   character funnam*(1), label*(*)
   integer::nnn,cast
   complex(8):: vec(nnn)
-  !      print *,trim(label),nnn
   cast=6
   funnam=''
   call mpibc2(vec,nnn,cast,mlog,funnam,label)
 end subroutine mpibc2_complex
-! master to world
 subroutine mpibc1_logical(vec,nnn,label)
-!  use m_MPItk,only: mlog
   logical:: mlog
   character funnam*(1), label*(*)
   integer::nnn,cast
@@ -44,7 +36,6 @@ subroutine mpibc1_logical(vec,nnn,label)
   call mpibc1(vec,nnn,cast,mlog,funnam,label)
 end subroutine mpibc1_logical
 subroutine mpibc1_int(vec,nnn,label)
-!  use m_MPItk,only: mlog
   logical:: mlog
   character funnam*(1), label*(*)
   integer::nnn,cast
@@ -54,7 +45,6 @@ subroutine mpibc1_int(vec,nnn,label)
   call mpibc1(vec,nnn,cast,mlog,funnam,label)
 end subroutine mpibc1_int
 subroutine mpibc1_real(vec,nnn,label)
-!  use m_MPItk,only: mlog
   logical:: mlog
   character funnam*(1), label*(*)
   integer::nnn,cast
@@ -64,7 +54,6 @@ subroutine mpibc1_real(vec,nnn,label)
   call mpibc1(vec,nnn,cast,mlog,funnam,label)
 end subroutine mpibc1_real
 subroutine mpibc1_complex(vec,nnn,label)
-!  use m_MPItk,only: mlog
   logical:: mlog
   character funnam*(1), label*(*)
   integer::nnn,cast
@@ -104,8 +93,6 @@ subroutine mpibc1(vec,n,cast,mlog,funnam,label)  !- Broadcasts a vector from mas
   character funnam*(*), label*(*)
   if (n <= 0) return
   master = 0
-!  call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
-!  call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
   if (cast == 1) then
      call MPI_BCAST(vec,n,MPI_LOGICAL,   master,MPI_COMM_WORLD,ierr)
   elseif (cast == 2) then
@@ -117,12 +104,6 @@ subroutine mpibc1(vec,n,cast,mlog,funnam,label)  !- Broadcasts a vector from mas
   else
      call rxi('mpibc1: cast not implemented',cast)
   endif
-!  if (mlog) then
- !    call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
- !    shortname(procid)=name
- !    namelen(procid) = ierr-1
-!     call gettime(datim)
-!  endif
 end subroutine mpibc1
 subroutine mpibc2(vec,n,cast,mlog,funnam,label) !Performs MPI_ALLREDUCE on a vector (MPI)
   use m_MPItk, only: procid, numprocs=>nsize
@@ -160,34 +141,39 @@ subroutine mpibc2(vec,n,cast,mlog,funnam,label) !Performs MPI_ALLREDUCE on a vec
   integer :: obuf
   if (n <= 0) return
   master = 0
-!  call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
-!  call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
   if (cast == 2) then
      allocate(ibuf(n), stat=ierr)
      call MPI_ALLREDUCE(vec,ibuf,n,  MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,ierr)
-     !call icopy(n,ibuf,1,vec,1)
-     vec=transfer(ibuf,vec)
+     call icopy(n,ibuf,1,vec,1)     !vec=transfer(ibuf,vec) !this did not work in ifort ver2018 in ucgw
      deallocate(ibuf, stat=ierr)
   elseif (cast == 4) then
-     allocate(dbuf(n), stat=ierr)
+     allocate(dbuf(n), stat=ierr) 
      call MPI_ALLREDUCE(vec,dbuf,n,  MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
-     vec=transfer(dbuf,vec)
-!     call dcopy(n,dbuf,1,vec,1)
+     !vec=transfer(dbuf,vec) 
+     call dcopy(n,dbuf,1,vec,1)
      deallocate(dbuf, stat=ierr)
   elseif (cast == 6) then
      allocate(dbuf(2*n), stat=ierr)
      call MPI_ALLREDUCE(vec,dbuf,2*n,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
-     !call dcopy(2*n,dbuf,1,vec,1)
-     vec=transfer(dbuf,vec)
+     call dcopy(2*n,dbuf,1,vec,1)
+     !vec=transfer(dbuf,vec)
      deallocate(dbuf, stat=ierr)
   else
      call rxi('mpibc2: cast not implemented',cast)
   endif
-!  if (mlog) then
-!     call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
-!     shortname(procid)=name
-!     namelen(procid) = ierr-1
-!     call gettime(datim)
-!     write(stml,ftox)' '//trim(funnam)//' '//trim(datim)//' Process ',procid,numprocs,' allreduce '//trim(label)
-!  endif
 end subroutine mpibc2
+subroutine icopy(n,dx,incx,dy,incy)
+  !     copies a vector, x, to a vector, y.  Adapted from:
+  !     jack dongarra, linpack, 3/11/78.
+  integer :: dx(1),dy(1)
+  integer :: i,incx,incy,ix,iy,n
+  ix = 1
+  iy = 1
+  if (incx < 0) ix = (1-n)*incx + 1
+  if (incy < 0) iy = (1-n)*incy + 1
+  do  10  i = 1, n
+     dy(iy) = dx(ix)
+     ix = ix + incx
+     iy = iy + incy
+10 enddo
+end subroutine icopy

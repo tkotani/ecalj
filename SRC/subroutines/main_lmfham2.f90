@@ -486,15 +486,17 @@ subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |
               write(ificmlo) matmul(rotmatmlo,evecl) !c2 !rotation is |PsiMLO_iqbz>= |FMLO_iqibz>*rotmatmlo*evecl !cmlo contains rotation from iqibz to iqbz
             endif
           endif ! |PsiMLO_iqbz> = |Psi_PMT_iqibz> c1(iqibz)*c2(iqbz)
-          associate(ib=>ib_tableM)
-            do concurrent(i=1:nMLO,j=1:nMLO) !Real space Hamiltonian. H(k)->H(T) FT to real space
-              do it =1,npair(ib(i),ib(j))! hammr_ij (T)= \sum_k hamm(k) exp(ikT). it is the index for T
-                phase = exp( img2pi*sum(qp*matmul(plat,nlat(:,it,ib(i),ib(j)))) )
+          !associate(ib=>ib_tableM)
+          ib1=ib_tableM(i)
+          ib2=ib_tableM(j)
+            do i=1,nMLO; do j=1,nMLO !Real space Hamiltonian. H(k)->H(T) FT to real space
+              do it =1,npair(ib1,ib2)! hammr_ij (T)= \sum_k hamm(k) exp(ikT). it is the index for T
+                phase = exp( img2pi*sum(qp*matmul(plat,nlat(:,it,ib1,ib2))) )
                 hmmr2(i,j,it,jsp)= hmmr2(i,j,it,jsp)+ ham(i,j) *fac0*phase
                 ommr2(i,j,it,jsp)= ommr2(i,j,it,jsp)+ ovlx(i,j)*fac0*phase
               enddo
-            enddo
-          endassociate
+            enddo; enddo
+!          endassociate
         enddo igloop
         close(ificmlo)
       enddo
@@ -513,7 +515,7 @@ subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |
         qp=qplistsy(:,iq)
         ovlm = 0d0
         hamm = 0d0
-        do concurrent(i=1:nMLO,j=1:nMLO)
+        do i=1,nMLO; do j=1,nMLO
           ib1 = ib_tableM(i)
           ib2 = ib_tableM(j)
           do it =1,npair(ib1,ib2)
@@ -521,7 +523,7 @@ subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |
             hamm(i,j)= hamm(i,j)+ hmmr2(i,j,it,is)*phase
             ovlm(i,j)= ovlm(i,j)+ ommr2(i,j,it,is)*phase
           enddo
-        enddo
+        enddo; enddo
         nmx =nMLO
         call zhev_tk4(nMLO,hamm,ovlm,nmx,nev, evlm(:,iq), evec, oveps)! Diangonale (hamm - evl ovlm ) evec=0
         if(iq<6)  write(stdo,"(' iq q=',i3,*(a))") iq,' ',ftof(qp,3),' e=',ftof(evlm(1:12,iq),3)

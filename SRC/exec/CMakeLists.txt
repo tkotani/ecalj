@@ -35,8 +35,8 @@ if(PLATFORM MATCHES "gfortran" OR PLATFORM MATCHES "gfortran_dbg")
 elseif(PLATFORM MATCHES "ifort" OR PLATFORM MATCHES "ifort_dbg")
   set(CMAKE_Fortran_COMPILER mpiifort)    # compiler
   set(CMAKE_Fortran_FLAGS "-init:snan -fPIC") # compile flags
-  set(LIB ${LIBRARY_NAME} -lmkl)  #set LIB variable
-  add_link_options(-lmkl)
+  set(LIB ${LIBRARY_NAME} -mkl)  #set LIB variable
+  add_link_options(-mkl)
 endif()
 
 ### source-dependent compile options ##########################################

@@ -10,7 +10,7 @@ module m_mpi !MPI utility for fpgw
   logical :: mpi__root
   logical :: mpi__rootQ
   integer :: mpi__comm = MPI_COMM_WORLD
-  integer :: mpi__commQ
+!  integer :: mpi__commQ
   integer:: ista(MPI_STATUS_SIZE )
   integer :: mpi__iini, mpi__iend
   logical, allocatable :: mpi__task(:)
@@ -124,13 +124,13 @@ contains
     implicit none
     complex(8):: data(n)
     integer :: n,destQ,ierr
-    call MPI_Send(data,n,MPI_COMPLEX16,destQ,0,mpi__commQ,ierr)
+    call MPI_Send(data,n,MPI_COMPLEX16,destQ,0,MPI_COMM_WORLD,ierr)
   end subroutine MPI__DbleCOMPLEXsendQ
   subroutine MPI__DbleCOMPLEXrecvQ(data,n,srcQ)
     implicit none
     complex(8):: data(n)
     integer :: n,srcQ,ierr
-    call MPI_Recv(data,n,MPI_COMPLEX16,srcQ,0,mpi__commQ,ista,ierr)
+    call MPI_Recv(data,n,MPI_COMPLEX16,srcQ,0,MPI_COMM_WORLD,ista,ierr)
   end subroutine MPI__DbleCOMPLEXrecvQ
   subroutine MPI__AllreduceSum( data, sizex )
     implicit none

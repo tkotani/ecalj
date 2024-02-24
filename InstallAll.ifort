@@ -23,13 +23,15 @@ cd StructureTool/
 ./makelink $BINDIR
 popd
 
-### 
+### Use SRC/exec/CmakeLists.txt to make executables.
 pushd .
 cd SRC/exec
-make -j  PLATFORM=ifort LIBMATH="$MATH" ||my_error
-make -j  PLATFORM=ifort BINDIR=$BINDIR install ||my_error
+PLATFORM=ifort FC=ifort cmake .
+make -j ||my_error 
+cp `find . -mindepth 1 -maxdepth 1 -executable -type f` ${BINDIR} ||my_error
 popd
 
+#############
 echo '=== goto test ==='
 cd SRC/TestInstall/
 make mpi_size=4 all
