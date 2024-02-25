@@ -91,10 +91,13 @@ elseif(FC MATCHES "ifort")
   endforeach()
 endif()
 
-#Set mkl location
-add_executable(dummy ./dummy.f90 ) # exe
-target_link_libraries(dummy ${LIB} ${BLAS} ${MPI}) #linked 
-add_custom_target(fcheck ALL COMMAND ldd dummy|grep mkl >mklloc.txt  WORKING_DIRECTORY ${CMAKE_BINARY_DIR} DEPENDS dummy) 
+if(FC MATCHES "gfortran")   #Set mkl location
+  add_executable(dummy ./dummy.f90 ) # exe
+  target_link_libraries(dummy ${LIB} ${BLAS} ${MPI}) #linked 
+  add_custom_target(fcheck ALL COMMAND ldd dummy|egrep mkl >mklloc.txt  WORKING_DIRECTORY ${CMAKE_BINARY_DIR} DEPENDS dummy) 
+else()
+  add_custom_target(fcheck ALL COMMAND echo -n >mklloc.txt WORKING_DIRECTORY ${CMAKE_BINARY_DIR}) 
+endif()
 
 # Generate library and binaries ###############################
 add_library(${LIBRARY_NAME} SHARED ${SOURCES}) # Library
