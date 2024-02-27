@@ -10,8 +10,8 @@ subroutine scg(lmax,c,cindx,js)
   ! ----------------------------------------------------------------
   implicit none
   integer :: lmax
-  integer :: cindx(1),js(1)
-  double precision :: c(1)
+  integer :: cindx(*),js(*)
+  double precision :: c(*)
   integer :: i,i1,i2,i3,i31,i32,ic,j1,j1s,j2,j2s,k2,l1,l2,l3,lmindx, &
        m1=99999,m2=99999,m3=99999,mb,n1,n2,n3,nl,nm3=99999,s1,s2,s3,t1,t2,t3
   double precision :: q1,sr2,t,srpi,fs,f100,f102

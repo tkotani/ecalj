@@ -13,7 +13,7 @@ subroutine hklft(v,rsm,e,tau,alat,kmax,nlm,k0,cy,hkl)! Returns one Fourier compo
   !o   hkl   :FT of smoothed Hankels centered at tau
   implicit none
   integer:: k0,kmax,nlm,ilm,k,l,lmax,m
-  real(8):: alat,e,rsm,v(3),cy(1),tau(3),aa,fac,gam,v2,yl(nlm),vv(3)
+  real(8):: alat,e,rsm,v(3),cy(*),tau(3),aa,fac,gam,v2,yl(nlm),vv(3)
   complex(8):: img=(0d0,1d0),hkl(0:k0,nlm)
   real(8),parameter:: pi = 4d0*datan(1d0)
   if (nlm == 0) return
@@ -39,7 +39,7 @@ subroutine gklft(v,rsm,e,tau,alat,kmax,nlm,k0,cy,gkl)! Returns one Fourier compo
   !o   gkl   :FT of gaussian centered at tau
   implicit none
   integer:: k0,nlm, ilm,k,l,lmax,m,kmax
-  real(8):: alat,e,rsm,v(3),cy(1),tau(3), aa,fac,gam,scalp,v2,yl(nlm),vv(3)
+  real(8):: alat,e,rsm,v(3),cy(*),tau(3), aa,fac,gam,scalp,v2,yl(nlm),vv(3)
   complex(8):: phaseaa,qfac,img=(0d0,1d0), gkl(0:k0,nlm)
   real(8),parameter::pi = 4d0*datan(1d0)
   if (nlm == 0) return

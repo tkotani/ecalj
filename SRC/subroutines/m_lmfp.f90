@@ -75,9 +75,9 @@ contains
     if(master_mpi) then ! switch were here [irs1,irs2,irs3,irs5,irs1x10] ==> removed 2022-6-20
        open(newunit=ifi,file='rst.'//trim(sname),form='unformatted') ! Read atomic- and smooth-part density(rhoat smrho in m_density) from atm.* or rst.*
        read(ifi,end=996,err=996) vs !version id of rst file
-       close(ifi)
        write(stdo,ftox)'lmv7: Read rst version ID=',ftof(vs,2)
 996    continue
+       close(ifi)
     endif
     call Mpi_barrier(MPI_COMM_WORLD,ierr)
     call Mpibc1_real(vs,1,'lmv7: vs: version id of rst file')
@@ -87,6 +87,12 @@ contains
     call Mpibc1_int(k,1,'lmv7:lmfp_k')
     if(k<0) then 
        call rdovfa()  ! Initial potential from atm file (lmfa) if rst can not read
+!!!!!!!!!!!!!!!!!!!!
+       block
+         use m_density,only: orhoat
+         write(6,*)'rrrrrrdensity',sum(orhoat(1,1)%v),sum(abs(orhoat(1,1)%v))
+       endblock
+!!!!!!!!!!!!!!!!!!!!    
        nit1 = 0
        iatom=.true.
     else

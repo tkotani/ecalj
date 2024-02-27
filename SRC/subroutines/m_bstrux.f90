@@ -8,6 +8,7 @@ module m_bstrux
   use m_MPItk,only:procid
   use m_ll,only:ll
   use m_ftox
+  use m_nvfortran,only:findloc
   public:: bstrux_set, bstr, dbstr, m_bstrux_init
   complex(8),pointer,protected::  bstr(:,:,:)
   complex(8),pointer,protected:: dbstr(:,:,:,:)
@@ -22,7 +23,9 @@ contains
     implicit none
     real(8):: qin(3),q(3),eps=1d-10
     integer:: iq,iqx,ia !!!!! 2023-04-25 obatadebug    q=qin !    call shorbz(qin,q,qlat,plat) !Get q. Is this fine?
-    iq = findloc([(sum( (qin-qall(:,iqx))**2 )<eps,iqx=iqii,iqee)],value=.true.,dim=1)+iqii-1
+    logical:: lll(iqii:iqee)
+    lll=[(sum( (qin-qall(:,iqx))**2 )<eps,iqx=iqii,iqee)]
+    iq = findloc(lll,value=.true.,dim=1)+iqii-1
     Errorexit:if(iq<=0) then !error exit
        write(stdo,ftox)'qin=',ftof(qin)
        do iqx=iqii,iqee; write(stdo,ftox)'bstrux_set iq q=',procid,iqx,ftof(qall(:,iqx));  enddo
@@ -75,6 +78,7 @@ contains
     use m_orbl,only: Orblib, norb,ltab,ktab,offl
     use m_smhankel,only: hxpos
     use m_ropyln,only: ropyln
+    use m_ftox
     !i Inputs
     !i   nbas  :size of basis
     !i   ia    :augmentation around site ia
@@ -94,7 +98,7 @@ contains
     !l   nlmto :number of lmto's = ndimh - napw
     !r Remarks  Coefficients b are referred to as C_kL in the LMTO book.
     implicit none
-    integer :: kmax,ndimh,ia,nlma,napw, nlmto,ib,is,ik,nkapi,nlmh,k,lmxa,l,ig,ilm,m, igapw(3,napw),lh(nkap0)
+    integer :: kmax,ndimh,ia,nlma,napw, nlmto,ib,is,ik,nkapi,nlmh,k,lmxa,l,ig,ilm,m, igapw(3,napw),lh(nkap0),ikx
     complex(8):: b(ndimh,nlma,0:kmax), db(ndimh,nlma,0:kmax,3)
     real(8):: pa(3), q(3),rsma,eh(n0,nkap0),rsmh(n0,nkap0),p(3),xx,srvol
     real(8):: gamma,qpg(3),tpiba,qpg2(1),facexp,rsmal,pgint,dfac(0:kmax),fac2l(0:nlma),yl(nlma),fac
@@ -116,10 +120,10 @@ contains
           b0tob: block
             integer::ol,oi,ik1,iorb,iblk,k,ntab(norb),blks(norb)
             complex(8):: b0(0:kmax,nlma,nlmh),db0(0:kmax,nlma,nlmh,3)
-            real(8):: bos(0:kmax,nlmh) 
-            call hxpgbl(p,pa,q,rsmh(1,ik),rsma,eh(1,ik),kmax,nlmh,nlma,kmax,nlmh,nlma,b0,db0)
+            real(8):: bos(0:kmax,nlmh)
+            call hxpgbl(p,pa,q,rsmh(:,ik),rsma,eh(:,ik),kmax,nlmh,nlma,kmax,nlmh,nlma,b0,db0)
             if (ib == ia) then
-               call hxpos(rsmh(1,ik),rsma,eh(1,ik),kmax,nlmh,kmax,bos)    !Subtract on-site strux for ib=ia, leaving tail expansion
+               call hxpos(rsmh(:,ik),rsma,eh(:,ik),kmax,nlmh,kmax,bos)    !Subtract on-site strux for ib=ia, leaving tail expansion
                forall(ilm = 1:nlmh) b0(0:kmax,ilm,ilm) = b0(0:kmax,ilm,ilm)-bos(0:kmax,ilm)
             endif
             call gtbsl1(0,norb,ltab,ktab,rsmh,xx,ntab,blks)
@@ -130,8 +134,8 @@ contains
                oi = offl(iorb)    !overall offset
                do iblk = 1, blks(iorb)
                   do  k = 0, kmax
-                     b(oi+iblk,:,k)    = b0(k, :,ol+iblk)  
-                     db(oi+iblk,:,k,:) = db0(k,:,ol+iblk,:)
+                     b(oi+iblk,1:nlma,k)    = b0(k, 1:nlma,ol+iblk)  
+                     db(oi+iblk,1:nlma,k,1:3) = db0(k,1:nlma,ol+iblk,1:3)
                   enddo
                enddo
             enddo
@@ -139,6 +143,7 @@ contains
        enddo
     enddo
 500 continue
+!    write(6,*)'xxxxxxxxx1111111'
     if(napw == 0) goto 1000
     tpiba = 2d0*pi/alat !APW part ! call paugqp(kmax,nlma,ndimh,napw,igapw,alat,qlat,srvol,q,pa,rsma,b,db)
     gamma = rsma**2/4d0
@@ -169,6 +174,7 @@ contains
        enddo
     enddo 
 1000 continue
+!    write(6,*)'xxxxxxxxx111111122222222'
     call tcx('bstrux')
   end subroutine bstrux
 end module m_bstrux

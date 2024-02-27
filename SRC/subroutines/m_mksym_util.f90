@@ -2,6 +2,7 @@
 module m_mksym_util 
   use m_lgunit,only:stdo
   use m_ftox
+  use m_nvfortran,only: findloc
   public mksym,mptauof,rotdlmm
   private
   real(8),parameter:: toll=1d-4,tiny=1d-4,epsr=1d-12
@@ -565,12 +566,15 @@ contains
     real(8) :: dbas(3)
     character(135):: sg
     real(8):: rfrac(3)
+    integer:: iclbsjx
     call getpr(ipr)
     icmin = 1
     do ic = 1, nclass !Find the class with minimum number of atoms ---
        if(nrclas(ic) < nrclas(icmin) .AND. nrclas(ic) > 0) icmin = ic
     enddo
+    print *,'xxxxxxxxxxx111111111111'
     ibas = iclbsjx(ipc,nbas, icmin,1)
+    print *,'xxxxxxxxxxx1111111111112222222222'
     ! --- For each group op, see whether it only shifts basis by some T ---
     ng0 = ng
     ng = 0
@@ -719,8 +723,8 @@ contains
     !i   qlat  :primitive reciprocal lattice vectors, in units of 2*pi/alat
     !o Outputs  istab :table of site permutations for each group op; see mode
     implicit none
-    integer :: nbas,ng,mode, istab(nbas,1),ib,ic,ig,jb,jc,ka
-    real(8) :: pos(3,1),g(3,3,1),ag(3,1),qlat(9)
+    integer :: nbas,ng,mode, istab(nbas,*),ib,ic,ig,jb,jc,ka
+    real(8) :: pos(3,nbas),g(3,3,ng),ag(3,ng),qlat(9)
     character(8):: xt,xn
     do    ig = 1, ng !Make atom transformation table ---
        do ib = 1, nbas          
@@ -819,6 +823,7 @@ contains
     integer :: ib,ic,icn,ig,jb,m,i,is,ipr,idx,ispec,j
     logical :: lyetno
     character(80) :: outs,clabl=''
+    integer:: iclbsjx
     call getpr(ipr)
     nclass = nspec
     ics = [(i,i=1,nspec)]
@@ -891,11 +896,6 @@ contains
     vdiff  = matmul(transpose(vec(:,:)),qlat(:,:))
     latvec = all(reshape(abs(vdiff-nint(vdiff)),[n*3]) < tol)
   end function latvec
-  integer function iclbsjx(ipc,nbas, ic,nrbas) !the nrbas-th atom belonging to class ic (ipc(ibas)==ic)
-    implicit none
-    integer :: ic,nbas,ipc(nbas),nrbas,ib,ibas
-    iclbsjx = findloc( [(count([(ipc(ib)==ic,ib=1,ibas)]),ibas=1,nbas)], value=nrbas,dim=1)
-  end function iclbsjx
   subroutine mptauof(symops,ng,plat,nbas,bas, iclass,miat,tiat,invg,delta,afmode) !- Mapping of atomic sites by points group operations.
     use  m_lmfinit,only: iantiferro
     !i  Input
@@ -1190,3 +1190,23 @@ contains
     goto 99
   end subroutine skipbl
 end module m_mksym_util
+
+integer function iclbsjx(ipc,nbas, ic,nrbas) !the nrbas-th atom belonging to class ic (ipc(ibas)==ic)
+  use m_nvfortran,only: findloc,count
+  implicit none
+  integer :: ic,nbas,ipc(nbas),nrbas,ib,ibas
+  integer:: rrr(nbas),ccc(nbas)
+  do ibas=1,nbas
+     ccc(ibas)=count([(ipc(ib)==ic,ib=1,ibas)])
+  enddo
+  iclbsjx = findloc( ccc(1:nbas), value=nrbas,dim=1)
+!!!!not working in nvfortran24.1
+!  ccc(:)=[(countl([(ipc(ib)==ic,ib=1,ibas)]),ibas=1,nbas)]
+!  iclbsjx = findloci( ccc(1:nbas), value=nrbas,dim=1)
+  
+! iclbsjx = findloci([(countl([(ipc(ib)==ic,ib=1,ibas)]), ibas=1,nbas)], value=nrbas,dim=1)
+
+!  associate(ccc => [(countl([(ipc(ib)==ic,ib=1,ibas)]),ibas=1,nbas)] )
+!    iclbsjx = findloci( ccc(1:nbas), value=nrbas,dim=1)
+!  endassociate
+end function iclbsjx

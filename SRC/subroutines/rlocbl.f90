@@ -86,10 +86,10 @@ contains
     implicit none
     integer :: lfrce,nbas,isp,ndimh,nspc,nevec,lekkl, ndham,napw,igvapw(3,napw)
     integer :: is,nlmx,ktop0,npmx, kmaxx,nlmax,nlmto, ia,isa,ivec,kmax,lmxa,nlma,lmxha,nlmha,ispc,ksp
-    type(s_cv5),target:: sv_p_oppi(3,1)
-    type(s_rv4),target:: sv_p_otau(3,1)
-    type(s_rv4),target:: sv_p_osig(3,1)
-    type(s_rv5),target:: sv_p_oeqkkl(3,1), sv_p_oqkkl(3,1)
+    type(s_cv5),target:: sv_p_oppi(3,nbas)
+    type(s_rv4),target:: sv_p_otau(3,nbas)
+    type(s_rv4),target:: sv_p_osig(3,nbas)
+    type(s_rv5),target:: sv_p_oeqkkl(3,nbas), sv_p_oqkkl(3,nbas)
     real(8),pointer:: qpp(:,:,:,:,:),eqpp(:,:,:,:,:),qhp(:,:,:,:,:),qhh(:,:,:,:,:),eqhp(:,:,:,:,:),eqhh(:,:,:,:,:)
     real(8):: q(3),f(3,nbas)
     real(8),target:: ewgt(nevec),evl(ndham,isp)

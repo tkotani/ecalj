@@ -109,6 +109,7 @@ contains
 
        !! See Eq.(36) and appendix in http://dx.doi.org/10.7566/JPSJ.84.034702
        !! Hamm and ovlm are made from smooth part and augmentation part.
+!       write(6,*) 'goto Setup_hamiltonian_and_diagonalize : block lso=',lso
        Setup_hamiltonian_and_diagonalize : block
          integer:: iprint,ispc
          character:: charnum3
@@ -149,6 +150,7 @@ contains
                call dsene()
             endif
          endif
+!         write(6,*) ' endof hambl'
          if(wsene) close(iwsene)
          nmx=min(nevmx,ndimhx)!nmx:maximum number of eigenfunctions we will obtain. Smaller is faster.
          if(iprint()>=30) write(stdo,'(" bndfp: kpt ",i5," of ",i5, " k=",3f8.4, &
@@ -170,6 +172,7 @@ contains
            call zhev_tk4(ndimhx, hamm, ovlm, nmx, nev, evl(1, isp ), evec, epsovl)
          endblock diagonalize_hamilatonian
        endblock Setup_hamiltonian_and_diagonalize
+!       write(6,*) ' endof Setup_hamiltonian_and_diagonalize block'
        if(writeham.AND.master_mpi) write(stdo,"(9f8.4)") (evl(i,isp), i=1,nev)
        if(call_m_bandcal_2nd) then
           neviqis(idat)   =nev

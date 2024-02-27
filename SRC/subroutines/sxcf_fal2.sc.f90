@@ -92,6 +92,7 @@ module m_sxcf_main
   use m_ftox
   use m_lgunit,only:stdo
   use m_sxcf_count,only: ncount,ispc,kxc,irotc,ipc,krc,nstateMax,nstti,nstte,nstte2, nwxic, nwxc
+  use m_nvfortran,only:findloc
   implicit none
   public sxcf_scz_main, zsecall
   complex(8),allocatable,target:: zsecall(:,:,:,:) !output

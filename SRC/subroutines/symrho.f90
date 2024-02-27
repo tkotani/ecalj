@@ -128,7 +128,7 @@ subroutine psymrq(nrclas,nsp,ipa,lmxa,qbyl,hbyl)!- Symmetrize l-decomposed site 
   implicit none
   integer :: nrclas,nsp,lmxa,ipa(nrclas),n0
   parameter (n0=10)
-  double precision :: qbyl(n0,nsp,1),hbyl(n0,nsp,1)
+  double precision :: qbyl(n0,nsp,*),hbyl(n0,nsp,*)
   integer :: ia,ib,iprint,l,isp,icopy_size
   double precision :: qsum(n0,2),hsum(n0,2),fac
   call dpzero(qsum,2*n0)
@@ -172,7 +172,7 @@ subroutine psymr1 ( nrclas,ipa,nr,nlml,nsp,nlmx,sym,rho,sv_p_orhoat,icmp )
   implicit none
   integer :: nrclas,nsp
   integer:: ipa(nrclas),nlmx,nr,nlml,icmp
-  type(s_rv1) :: sv_p_orhoat(3,1)
+  type(s_rv1) :: sv_p_orhoat(3,*)
   double precision :: sym(nlmx,nlmx,nrclas),rho(nr,nlml,nsp)
   integer :: ia,ib,iprint,nn
   double precision :: wgt

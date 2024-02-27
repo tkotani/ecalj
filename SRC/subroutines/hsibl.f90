@@ -63,14 +63,18 @@ contains
        call pshpr(iprint()-30)
        call gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,[0],500,0,ng,ixx,xx,ixx)
        allocate(gvv(ng*3),kv(ng*3),iv(ng,3))
+!       write(6,*)'hsibl xxxxxx11111'
        call gvlst2(alat, plat, q, n1, n2, n3, gmin, gmax, [0], 509, ng, ng, kv, gvv, iv)!, iv)
        call poppr
        call tbhsi(nspec,nermx,net,etab,ipet,nrt,rtab,iprt,ltop) !Tables of energies, rsm, indices to them
        nlmtop = (ltop+1)**2
        allocate(gg(ng*3),yl(ng,nlmtop),g2(ng),he(ng,net),hr(ng,nrt),phase(ng,nbas))
+!       write(6,*)'hsibl xxxxxx222222211111'
        q0=0d0
        call hsibl1(net,etab,nrt,rtab,ltop,alat,q0,ng,gvv,  gg,g2,yl,he,hr)
+!       write(6,*)'hsibl xxxxxx222222211111xxxx'
        allocate( w_oc1( ng,ndimx), w_ocf1(ndimx), w_oc2( ng,ndimx), w_ocf2(ndimx), ff(k1*k2*k3))
+!       write(6,*)'hsibl xxxxxx3333333311111'
        ibini=1
        ibend=nbas
        do  ib1 = ibini,ibend

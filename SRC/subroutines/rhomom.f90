@@ -63,7 +63,14 @@ subroutine pvrhom(rmt,a,nlml,nr,nsp, rho1,rho2,cofg,z, qmomj,vsum1,vsum2)  !Mult
   real(8),parameter:: pi=4d0*datan(1d0), srfpi = dsqrt(4d0*pi),y0 = 1d0/srfpi,fpi = 4d0*pi
   call radmsh( rmt , a , nr , rofi )
   call radwgt( rmt , a , nr , rwgt )
-  qmomj= [(sum([ (sum(rwgt*rofi**ll(ilm)*(rho1(:,ilm,isp)-rho2(:,ilm,isp))), isp=1,nsp) ]),ilm=1,nlml)] !Q_aL^v Eq.(28)
+  qmomj=0d0
+  do isp=1,nsp
+     do  ilm=1,nlml
+        qmomj(ilm)= qmomj(ilm)+ sum(rwgt*rofi**ll(ilm)*(rho1(:,ilm,isp)-rho2(:,ilm,isp))) !, isp=1,nsp) ]),ilm=1,nlml)] !Q_aL^v Eq.(28)
+     enddo
+  enddo
+! next line gave wrong results for nvfortran  
+!  qmomj= [(sum([ (sum(rwgt*rofi**ll(ilm)*(rho1(:,ilm,isp)-rho2(:,ilm,isp))), isp=1,nsp) ]),ilm=1,nlml)] !Q_aL^v Eq.(28)
   qmomj(1) = qmomj(1) -y0*z + cofg ! Eq.(25). Add Q_al^Zc.  -y0*z = QaL[-Z_a\delta(\bfr)] ; cofg=QaL[ n^c_a(\bfr) - n^c_sH,a(\bfr)]
   call poiss0(z,  rofi, [(0d0,i=1,2*nr)],  nr,0d0, v, vhrho,vsum,1)
   vsum1 = sum(rwgt(2:nr)*rofi(2:nr)**2*(v(2:nr)-2d0*z/rofi(2:nr)))

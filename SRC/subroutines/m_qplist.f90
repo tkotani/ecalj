@@ -2,6 +2,7 @@
 module m_qplist 
   use m_ftox
   use m_lgunit,only:stdo
+  use m_nvfortran,only: findloc
   public :: m_qplist_init,m_qplist_qspdivider,qshortn
   integer,protected,public::   napwmxqp
   integer,allocatable,public:: igv2qp(:,:,:),igv2revqp(:,:,:,:),napwkqp(:)

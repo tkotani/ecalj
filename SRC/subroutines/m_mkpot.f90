@@ -195,7 +195,7 @@ contains
     !r    the electrostatic energy of (neutral) local parts
     !r
     implicit none
-    type(s_rv1) :: orhoat(*)
+    type(s_rv1) :: orhoat(3,nbas)
     type(s_cv5) :: oppi(*)
     type(s_sblock) :: ohsozz(*),ohsopm(*)
     type(s_rv4) :: otau(*), osig(*)
@@ -241,6 +241,9 @@ contains
        if(master_mpi)write(stdo,ftox)' Energy for background charge q=',ftod(qbg),'radius r=',rhobg,&
             'E=9/5*q*q/r=',1.8d0*qbg*qbg/rhobg
     endif Printsmoothbackgroundcharge
+!!!!!!!!!!!!!!!!!!!!
+    write(6,*)'vvvsssscheckaaa222',sum(orhoat(1,1)%v),sum(abs(orhoat(1,1)%v))
+!!!!!!!!!!!!!!!!!!!!    
     call rhomom(orhoat, qmom,vsum) !multipole moments
     call smves(qmom,gpot0,vval,hpot0_rv,smrho,smpot,vconst,smq,qsmc,fes,rhvsm0,rhvsm,zsum,vesrmt,qbg)!0th part of electrostatic potential Ves and Ees
     smag = merge(2d0*dreal(sum(smrho(:,:,:,1)))*vol/(n1*n2*n3) - smq,0d0,nsp==2) !mag mom

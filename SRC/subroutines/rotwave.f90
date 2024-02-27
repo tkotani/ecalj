@@ -1,4 +1,5 @@
 module m_rotwave ! PMT wave funciton rotation ! space-group rotation of eigenfunctions, MTpartAPW expansion and MPB.
+   use m_nvfortran,only:findloc
    public:: Rotmto,Rotmto2,Rotipw,Rotipw2,Rotevec
 contains
    subroutine rotmatMTO(igg,q,qtarget,ndimh, rotmat) ! Rotation matrix for MTO

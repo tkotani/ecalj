@@ -1,4 +1,5 @@
 module m_rdsigm2
+  use m_nvfortran,only:findloc
   public:: m_rdsigm2_init, Getsenex, Dsene, senex !getsenex returns the self-energy term.
   public:: ndimsig, sene
   integer,protected,public :: nk1,nk2,nk3

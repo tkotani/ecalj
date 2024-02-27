@@ -1,4 +1,5 @@
 module  m_rsibl
+  use m_nvfortran,only:findloc
   public rsibl
   private
 contains
@@ -74,8 +75,10 @@ contains
     call gvlst2(alat,plat,q,n1,n2,n3,0d0,gmax,[0],509,ng,ng, iv_a_okv,ogv,igv) ! q-dependent gv, kv, gv+q and iv   ! Note ogv has q already added to it!
     call poppr
     if(napw > 0) then
-       allocate(ivp(napw),source= &    
-            [(findloc([( sum(abs(igv(jg,:)-igapw(:,ig)))==0,jg=1,ng)],value=.true.,dim=1), ig=1,napw)] )
+       allocate(ivp(napw) )
+       do ig=1,napw
+          ivp(ig)= findloc( [( sum(abs(igv(jg,:)-igapw(:,ig)))==0,jg=1,ng)], value=.true.,dim=1)
+       enddo   
        if(any(ivp==0)) call rx('bug in rsibl.  Cannot find ivp')
     endif
     call tbhsi(nspec,nermx,net,etab,ipet,nrt,rtab,iprt,ltop) ! --- Tables of energies, rsm, indices to them ---

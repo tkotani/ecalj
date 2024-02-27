@@ -13,7 +13,7 @@ contains
     !o   rsq   :rsq(i) square of length of point i
     implicit none
     integer:: nd , n , i , m , lmax , l , kk=-999,lav,k1,mm,k2
-    real(8):: yl(nd,*), x(n),y(n),z(n),rsq(n),cx(3),f2m,a,b,xx,yy
+    real(8):: yl(nd,*), x(n),y(n),z(n),rsq(n),cx(3),f2m,a,b,xx,yy,fff(0:lmax+1)
     real(8),parameter:: fpi = 16*datan(1d0)
     real(8),allocatable :: cm_rv(:),sm_rv(:), q_rv(:,:), h_rv(:)
     if (n > nd) call rx('ropyln: nd too small')
@@ -35,16 +35,19 @@ contains
        if (m == 0) then !call ropcsm ( m , n , x , y , h_rv , cm_rv , sm_rv )
           cx(1) = dsqrt(1/fpi)
        else
-          f2m = product([(dble(2*mm*(2*mm-1)),mm=1,m)])
+          fff(1:m)=[(dble(2*mm*(2*mm-1)),mm=1,m)]
+          f2m = product(fff(1:m))
           cx(1) = dsqrt((2*m+1)*2/fpi/f2m)
        endif
        lloop: do  11  l = m, lmax   !  These routines are the time-critical steps.
           if (l == m) then
              kk = 1    !  Returns kk, which points to the current component of q_rv.
-             q_rv(:,kk) = product([(dble(2*mm+1),mm=0,m-1),cx(1)])
+             fff(0:m)=[(dble(2*mm+1),mm=0,m-1),cx(1)]
+             q_rv(:,kk) = product(fff(0:m))
           elseif(l == m+1) then
              kk = 2
-             q_rv(:,kk) = product([(dble(2*mm+1),mm=0,m),cx(1)])*z(:)
+             fff(0:m+1)=[(dble(2*mm+1),mm=0,m),cx(1)]
+             q_rv(:,kk) = product(fff(0:m+1))*z(:)
           elseif (l >= m+2) then
              k1 = kk+1
              if (k1 == 3) k1 = 1
@@ -53,8 +56,8 @@ contains
              kk = k1
           endif
           lav = l*(l+1)+1
-          yl(:,lav+m)          = cm_rv(:)*q_rv(:,kk)
-          if(m/=0) yl(:,lav-m) = sm_rv(:)*q_rv(:,kk)
+          yl(1:n,lav+m)          = cm_rv(:)*q_rv(:,kk)
+          if(m/=0) yl(1:n,lav-m) = sm_rv(:)*q_rv(:,kk)
           cx(1:3) = [cx(1)*dsqrt(dble((l+1-m)*(2*l+3))/dble((l+1+m)*(2*l+1))), cx(1), cx(2)]
 11     enddo lloop
 10  enddo mloop

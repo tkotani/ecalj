@@ -8,6 +8,8 @@ module m_lmfinit ! 'call m_lmfinit_init' sets all initial data from ctrl are pro
   
   use m_fatom,only:   sspec !allocation only in m_lmfinit: free atom density (detremined by lmfa) WARN: Not protected.
   use m_density,only: pnuall,pnzall !NOTE: These are set here! log-derivative of radial functions. m_denisty is NOT protected.
+
+  use m_nvfortran,only: findloc
   
   implicit none 
   public:: m_lmfinit_init,icgi,icge
@@ -559,14 +561,22 @@ contains
       sstrnsymg=trim(symg)
       nspc = merge(2,1,lso==1) ! nspc=2 for lso=1. nspx=nsp/nspc. Haittonian is ham(1:ndham*nspc, 1:ndham*nspc, 1:nsp/nspc)
       GETorbitalindex: block ! probably too confusing.
-        integer:: ib,l,lmr,ia, nnrlx,lmri,ik,nnrl,nnrli,li, iorb,is,k,iorbmto,iorbe,jorb,io
+        integer:: ib,l,lmr,ia, nnrlx,lmri,ik,nnrl,nnrli,li, iorb,is,k,iorbmto,iorbe,jorb,io,nnnx
         logical:: agree
         !o   norb  :number of orbital types for ib; see Remarks
         !o   ltab  :table of l-quantum numbers for each type
         !o   ktab  :table of energy index for each type
         !o   offl  :offl(norb) offset in h to this block of orbitals
         !o   ndim  :dimension of hamiltonian for this site
-        ndimx=maxval([ (sum([(sum((2*li+1)*idxdn(li+1,:,j)), li=0,n0-1)]), j=1,nspec) ])
+        ndimx=0
+        do j=1,nspec
+           nnnx=0
+           do li=0,n0-1
+              nnnx= nnnx + sum((2*li+1)*idxdn(li+1,:,j))
+           enddo
+           if(nnnx>ndimx) ndimx=nnnx
+        enddo
+!        ndimx=maxval([ (sum([(sum((2*li+1)*idxdn(li+1,:,j)), li=0,n0-1)]), j=1,nspec) ])
         allocate(ltabx(n00,nbas),ktabx(n00,nbas),offlx(n00,nbas),ndimxx(nbas),norbx(nbas))
         norbx=0
         ndimxx=0

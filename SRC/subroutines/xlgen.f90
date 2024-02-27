@@ -36,7 +36,7 @@ subroutine xlgen(plat,rmax,rmax2,nvmax,opts,mode,nv,vecs)! Generate a list of la
   ! ----------------------------------------------------------------
   implicit none
   integer :: nvmax,opts,mode(3)
-  double precision :: plat(3,3),vecs(3,1),rmax,rmax2
+  double precision :: plat(3,3),vecs(3,*),rmax,rmax2
   double precision :: rsqr,v2,vj(3)
   integer :: i,j,k,imx(3),nv,m,ivck(3),iprint,lgunit,iv,jv,oiwk,owk
   integer,allocatable:: w_oiwk(:)

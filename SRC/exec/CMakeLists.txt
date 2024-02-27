@@ -12,6 +12,7 @@ else()
     message(" >FC=gfortran DEBUG=1 cmake .")
     message("You may run >VERBOSE=1 make -j, for detailed make messages.")
     message("Note that '>rm CMakeCache.txt' is needed for starting over!")
+    #message(" default FC=${FC}")
     message(FATAL_ERROR "Set FC=foobar explained above!")
 endif() 
 set(FCMOD ${FC})
@@ -58,6 +59,11 @@ elseif(FC MATCHES "ifort")
   set(CMAKE_Fortran_FLAGS "-init:snan -fPIC -assume byterecl") # compile flags
   set(LIB ${LIBRARY_NAME} -mkl)  #set LIB variable
   add_link_options(-mkl)
+elseif(FC MATCHES "nvfortran")
+  set(CMAKE_Fortran_COMPILER mpifort)    # compiler
+  set(CMAKE_Fortran_FLAGS "-C -g -traceback -fPIC") #"-Mvect=simd -mcmodel=medium -fPIC") # compile flags
+  set(LIB ${LIBRARY_NAME} ) #-mkl)  #set LIB variable
+  add_link_options(-lmkl_intel_lp64 -lmkl_sequential -lmkl_core)
 endif()
 
 ### source-dependent compile options 
@@ -89,12 +95,21 @@ elseif(FC MATCHES "ifort")
       set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O2")
     endif()
   endforeach()
+elseif(FC MATCHES "nvfortran")
+  message(STATUS "====== nvfortran release =======================")
+  foreach(target IN ITEMS ${SOURCES})
+    if(${target} MATCHES "../subroutines/m_qplist.f90") # OR ${target} MATCHES "../subroutines/x0kf_v4h.f90" )
+      set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O0")
+    else()
+      set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O2")
+    endif()
+  endforeach()
 endif()
 
 #Set mkl location
 add_executable(dummy ./dummy.f90 ) # exe
 target_link_libraries(dummy ${LIB} ${BLAS} ${MPI}) #linked 
-add_custom_target(fcheck ALL COMMAND ldd dummy|grep mkl >mklloc.txt  WORKING_DIRECTORY ${CMAKE_BINARY_DIR} DEPENDS dummy) 
+#add_custom_target(fcheck ALL COMMAND ldd dummy|grep mkl >mklloc.txt  WORKING_DIRECTORY ${CMAKE_BINARY_DIR} DEPENDS dummy) 
 
 # Generate library and binaries ###############################
 add_library(${LIBRARY_NAME} SHARED ${SOURCES}) # Library
