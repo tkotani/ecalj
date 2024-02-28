@@ -50,21 +50,21 @@ for i in range(1,nloop+1): #nloop is the additional number of iteration
         shutil.copy(rst_name,rst_name+'.lda')
     rm_files(glob.glob('ewindow.%s*')+glob.glob('qbyl.%s*'%target)+glob.glob('eigze*.%s*'%target)+glob.glob('mixm*%s*'%target))
     #gw initialize
-    run_program(epath+'/lmf'+targets+'--jobgw=0 >llmfgw00')
-    run_program(epath+'/qg4gw --job=1 > lqg4gw')
+    run_program(epath+'/lmf'+targets+'--jobgw=0 >llmfgw00',1)
+    run_program(epath+'/qg4gw --job=1 > lqg4gw',1)
     run_program(epath+'/lmf'+targets+'--jobgw=1 >llmfgw01',ncore)
     ##### main stage of gw ####
-    run_program(epath+'/rdata4gw_v2 > lrdata4gw_v2') #prepare files
+    run_program(epath+'/rdata4gw_v2 > lrdata4gw_v2',1) #prepare files
     mv_files(glob.glob('norm*'),'STDOUT')
     rm_files(['gwa']+glob.glob('gwb*'))
-    run_program(epath+'/heftet --job=1 > leftet')       # A file EFERMI for hx0fp0
+    run_program(epath+'/heftet --job=1 > leftet',1)       # A file EFERMI for hx0fp0
     ### Core part of the self-energy (exchange only) ###
-    run_program(epath+'/hbasfp0 --job=3 >lbasC')          # Product basis generation
+    run_program(epath+'/hbasfp0 --job=3 >lbasC',1)          # Product basis generation
     run_program(epath+'/hvccfp0 --job=3 > lvccC', ncore) # Coulomb matrix for lbasC
     run_program(epath+'/hsfp0_sc --job=3 >lsxC',ncore2) # Sigma from core1
     mv_files(glob.glob('stdout*'),'STDOUT')
     ### Valence part of the self-energy Sigma ###
-    run_program(epath+'/hbasfp0 --job=0 > lbas')        # Product basis generation
+    run_program(epath+'/hbasfp0 --job=0 > lbas',1)        # Product basis generation
     run_program(epath+'/hvccfp0 --job=0 > lvcc',ncore) # Coulomb matrix for lbas
     run_program(epath+'/hsfp0_sc --job=1 >lsx',ncore2) # Exchange Sigma
     mv_files(glob.glob('stdout*'),'STDOUT')
@@ -75,7 +75,7 @@ for i in range(1,nloop+1): #nloop is the additional number of iteration
     mv_files(glob.glob('stdout*'),'STDOUT')
     run_program(epath+'/hsfp0_sc --job=2> lsc',ncore2) #correlation Sigma
     mv_files(glob.glob('stdout*'),'STDOUT')
-    run_program(epath+'/hqpe_sc > lqpe')        #all Sigma are combined.
+    run_program(epath+'/hqpe_sc > lqpe',1)        #all Sigma are combined.
     ### final part of iteration loop. Manupulate files ###
     remove(sigm_name)
     os.symlink('sigm',sigm_name)

@@ -506,7 +506,7 @@ subroutine sxcf_fal3z(&
            ntqxx= ntp0
            !! Get matrix element zmelt= rmelt + img*cmelt, defined in m_zmel.F---
 !           if(allocated(zmel)) call Deallocate_zmel()
-           call Get_zmel_init(q,qibz_k,irot,qbz_kr, 1,nbmax+nctot,isp, 1,ntqxx,isp, nctot,ncc=0,iprx=.false.)
+           call Get_zmel_init(q,qibz_k,irot,qbz_kr, 1,nbmax+nctot,isp, 1,ntqxx,isp, nctot,ncc=0,iprx=.false.,zmelconjg=.false.)
            if(kx<= nqibz) then
               wtt = wk(kr)      !         wtx = 1d0
            else

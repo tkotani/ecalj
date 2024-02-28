@@ -18,8 +18,9 @@ subroutine hqpe_sc()
   use m_read_bzdata, only: Read_bzdata, nstar, nqibz2=>nqibz
   use m_anf,only: anfcond,laf
   use m_hamindex,only: Readhamindex, nhq=>ndham
-  use m_mpi,only: MPI__Initialize
+  use m_mpi,only: MPI__Initialize, mpi__rank
   use m_lgunit,only: m_lgunit_init
+  use m_ftox
   implicit real*8 (a-h,o-z)
   implicit integer (i-n)
   logical :: sigma_mixing,lsi, lsigin
@@ -523,7 +524,8 @@ subroutine hqpe_sc()
   call rwsigma ('write',ifse_out,sigma_m,qqqx_m, nspin,ndimsig,n1,n2,n3,nq) !,eseavr)
   close(ifse_out)
 9999 continue
-  call rx0s( ' OK! hqpe_sc ')
+  if(mpi__rank==0) write(6,ftox) ' OK! hqpe_sc '
+  call mpi_finalize(ierr)
 end subroutine hqpe_sc
 
 !------------------------------------------------------

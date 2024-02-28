@@ -92,8 +92,9 @@ subroutine hrcxq()
           write(stdo,ftox)' ### ',iq,is,' out of nqibz+n0qi+nq0iadd nsp=',nqibz+nq0i+nq0iadd,nspin
           isf = is
           call X0kf_v4hz_init_read(iq,is) !Readin icount data (index sets and tetrahedron weight) into m_x0kf
-          call x0kf_v4hz(qp, is,isf, iq, nmbas) 
+          call x0kf_v4hz(qp, is,isf, iq, nmbas, chipm=.false.,nolfco=.false.) 
        enddo
+       write(stdo,ftox)'end of x0kf_v4hz'
        allocate(rcxqin(nmbas,nmbas,nwhis,npm))
        do iwhis=1,nwhis
           do concurrent(igb2=1:nmbas) !upper-right block of zmel*zmel
