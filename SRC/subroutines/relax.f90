@@ -88,10 +88,10 @@ contains
              read(ifi,end=9888,err=9888) natrlx2,natrlx3 !,11
              if(natrlx2/=natrlx) call rx('relax:natlx2/=natlx')
              read(ifi,end=9888,err=9888) w
-             close(ifi)
              readhess=.true.
 9888         continue
-             ! eadhess = rdm(ifi,2,natrlx*natrlx,' ',w,natrlx,natrlx)<0
+             close(ifi)
+! eadhess = rdm(ifi,2,natrlx*natrlx,' ',w,natrlx,natrlx)<0
              if (readhess) then
                 write(stdo,*)' RELAX: Hessian read from disc'
              else

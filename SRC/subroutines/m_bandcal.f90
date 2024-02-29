@@ -153,6 +153,7 @@ contains
 !         write(6,*) ' endof hambl'
          if(wsene) close(iwsene)
          nmx=min(nevmx,ndimhx)!nmx:maximum number of eigenfunctions we will obtain. Smaller is faster.
+         !write(6,*)'nnnnnnnnn nevmx ndimhx nmx',nevmx,ndimhx,nmx
          if(iprint()>=30) write(stdo,'(" bndfp: kpt ",i5," of ",i5, " k=",3f8.4, &
               " ndimh = nmto+napw = ",3i5,f13.5)') iq,nkp,qp,ndimh,ndimh-napw,napw
          if(writeham) then
@@ -235,6 +236,7 @@ contains
        if(afsym.and.isp==2) cycle !cmdopt0('--afsym').and.isp==2) cycle
        call m_Igv2x_setiq(iq) ! Get napw and so on for given qp
        nev   = neviqis(idat)
+       !write(6,*)'nnnnnnnnnn iq nev=',iq,nev
        ndimhx= ndimhxiqis(idat)
        allocate(evec(ndimhx,nev))
        evl(1:nev,isp)=evliqis(1:nev,idat)
@@ -332,7 +334,7 @@ contains
   end subroutine m_bandcal_symsmrho
   subroutine mkorbm(isp,nev,iq,qp,evec, orbtm) !decomposed orbital moments within MT
     use m_ll,only:ll
-    use m_lmfinit,only: ispec,nbas,nlmax,nsp,nspc,n0,nppn,lmxax
+    use m_lmfinit,only: ispec,nbas,nlmax,nsp,nspc,n0,nppn,lmxax,lso
     use m_igv2x,only: napw,ndimh,ndimhx,igvapw=>igv2x
     use m_mkpot,only: sab_rv
     use m_subzi, only: wtkb=>rv_a_owtkb
@@ -373,7 +375,7 @@ contains
     !u   30 Aug 04 (A. Chantis) first written, adapted from mkpdos
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: isp,nev,iq
+    integer :: isp,nev,iq,ispx
     integer :: lmxa,lmdim,ichan,ib,is,igetss,iv,ilm,l,m,nlma, lc,em,ispc,ksp
     real(8):: qp(3),diff
     real(8):: suml(11),s11,s22,s12,s33,s31,s32,s13,s23, suma,rmt,orbtm(lmxax+1,nsp,*) 
@@ -390,11 +392,7 @@ contains
        if (lmxa == -1) cycle 
        nlma = (lmxa+1)**2
        lmdim = nlma
-       !       In noncollinear case, isp=1 always => need internal ispc=1..2
-       !       ksp is the current spin index in both cases:
-       !       ksp = isp  in the collinear case
-       !           = ispc in the noncollinear case
-       !       ispc=1 for independent spins, and spin index when nspc=2
+       !nspc=2 if two spins are coupled(lso=1), nspc=1 otherwize 
        ispcloop: do  ispc = 1, nspc
           ksp = max(ispc,isp)
           ivloop: do  iv = 1, nev
@@ -421,7 +419,8 @@ contains
                    else
                       auasaz= aus(ilm,iv,:,ksp,ib)
                    endif ! (au as az) are for (u,s,gz) functions where gz=gz'=0 at MT
-                   orbtm(l+1,ksp,ib)= orbtm(l+1,ksp,ib) +m*wtkb(iv,isp,iq)*sum(dconjg(auasaz)*matmul(sab_rv(:,:,l+1,ksp,ib),auasaz))
+                   ispx=merge(1,isp,lso==1)
+                   orbtm(l+1,ksp,ib)= orbtm(l+1,ksp,ib) +m*wtkb(iv,ispx,iq)*sum(dconjg(auasaz)*matmul(sab_rv(:,:,l+1,ksp,ib),auasaz))
                 enddo mloop
              enddo lloop
           enddo ivloop ! print*, l, ksp,ib,'ORB.MOMNT=',(orbtm(l+1,ksp,ib),l=0,lmxa)

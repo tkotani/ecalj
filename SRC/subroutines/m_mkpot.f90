@@ -242,7 +242,7 @@ contains
             'E=9/5*q*q/r=',1.8d0*qbg*qbg/rhobg
     endif Printsmoothbackgroundcharge
 !!!!!!!!!!!!!!!!!!!!
-    write(6,*)'vvvsssscheckaaa222',sum(orhoat(1,1)%v),sum(abs(orhoat(1,1)%v))
+!    write(6,*)'vvvsssscheckaaa222',sum(orhoat(1,1)%v),sum(abs(orhoat(1,1)%v))
 !!!!!!!!!!!!!!!!!!!!    
     call rhomom(orhoat, qmom,vsum) !multipole moments
     call smves(qmom,gpot0,vval,hpot0_rv,smrho,smpot,vconst,smq,qsmc,fes,rhvsm0,rhvsm,zsum,vesrmt,qbg)!0th part of electrostatic potential Ves and Ees

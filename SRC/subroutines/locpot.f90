@@ -145,7 +145,7 @@ contains
            call radwgt(rmt,a,nr,rwgt)
            if(cmdopt0('--wrhomt'))call wrhomt('rhoMT.','density',ib,orhoat(1,ib)%v,rofi,nr,nlml,nsp) ! Write true density to file rhoMT.ib
 !!!!!!!!!!!!!!!!!!!!
-       write(6,*)'sssscheck222',sum(orhoat(1,ib)%v),sum(abs(orhoat(1,ib)%v))
+!       write(6,*)'sssscheck222',sum(orhoat(1,ib)%v),sum(abs(orhoat(1,ib)%v))
 !!!!!!!!!!!!!!!!!!!!    
            call locpt2(ib,z,rmt,rg,a,nr,nsp,cofg,cofh, & ! Make potential and energy terms at this site ---
                 ceh,rfoc,lfoc,nlml,qmom(:,ib),vval(:,ib),rofi,rwgt, orhoat(1,ib)%v,orhoat(2,ib)%v,orhoat(3,ib)%v,   gpot0(:,ib), &

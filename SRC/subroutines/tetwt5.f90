@@ -959,7 +959,7 @@ contains
   subroutine addsciss(delta, ef, nnn, eig)
     integer::nnn,i
     real(8):: eig(nnn),ef,delta
-    write(6,*)' asssciss delta=', delta
+!    write(6,*)' asssciss delta=', delta
     do i=1,nnn
        if(eig(i)>ef) eig(i)= eig(i)+delta
     enddo

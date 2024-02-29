@@ -233,7 +233,7 @@ contains
     !o Outputs: zos : DOS (or integrated DOS for lidos=T) for each spin and nchan
     implicit none
     integer :: nchan,nsp,nspx,nbmx,npts,ntet,idtet(0:4,*),n1,n2,n3,nevmx,isp,ib,i,itet,ichan,iq1234(4),nspc,jsp,ksp
-    real(8) :: eband(nbmx,nspx,1),emin,emax,wk(npts),zos(npts,nsp,nchan),doswt(nchan,nbmx,nsp,1),bin,eigen(4),v,wt,ebot,dmin1
+    real(8) :: eband(nbmx,nspx,*),emin,emax,wk(npts),zos(npts,nsp,nchan),doswt(nchan,nbmx,nsp,*),bin,eigen(4),v,wt,ebot,dmin1
     logical :: lidos
     if (npts <= 1 .OR. npts <= 2 .AND. .NOT. lidos) call rx1('dostet: npts(=%i) too small for DOS : require npts>2',npts)
     nspc = nsp / nspx

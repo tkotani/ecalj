@@ -148,10 +148,10 @@ contains
          enddo
          irpos=.true.
       enddo
-      close(ifipos)
-    endblock
 1010 continue
-  endsubroutine readatompos
+      close(ifipos)
+     endblock
+endsubroutine readatompos
 end subroutine lmf
 
 !include "../exec/show_programinfo.fpp" !this is for 'call show_programinfo' ! preprocessed from show_programinfo.f90 by Makefile

@@ -487,7 +487,7 @@ subroutine hqpe_sc()
         write(ifse_out) qqq(1:3,ikpx,is),is !,eseavr(ip,is) !,ntqxxmin ! ntqxx(ip)  sep2013
         sigmv(:,:,ip) = 1d20
         sigmv(1:ndimsig2,1:ndimsig2,ip) =  2d0*ev_se_ev(1:ndimsig2,1:ndimsig2) !in Ry.
-        write(6,*) 'ssssss1=', sum(abs(sigmv(:,:,ip)))
+        !write(6,*) 'ssssss1=', sum(abs(sigmv(:,:,ip)))
         write(ifse_out) sigmv(:,:,ip)
         !!      2*ev_se_ev bacause v_xc in sugw.f was in rydberg while SE was in hartree
 2003 enddo

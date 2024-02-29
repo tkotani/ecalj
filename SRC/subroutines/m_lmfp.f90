@@ -48,7 +48,7 @@ contains
     character(10):: i2char
     logical:: cmdopt2
     character(20):: outs=''
-    integer:: ierr,iv
+    integer:: ierr,iv,ifile_handle
     logical:: irpos,hsign,iatom
     character(256):: strn,strn2
     real(8):: hess(natrlx,natrlx),p_rv(natrlx,10),pos0(3,nbas),poss(3,nbas)

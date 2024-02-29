@@ -6,7 +6,7 @@ contains
   subroutine m_subzi_init()
     use m_lgunit,only:stdo
     use m_ext,only: sname
-    use m_lmfinit, only: nsp,nspc, nevmxin=>bz_nevmx, lmet=>bz_lmet, qbg=>zbak
+    use m_lmfinit, only: nsp,nspc, nevmxin=>bz_nevmx, lmet=>bz_lmet, qbg=>zbak,lso
     use m_mkqp,only: ntet=> bz_ntet ,bz_nkp
     use m_suham,only: ndham=>ham_ndham,ndhamx=>ham_ndhamx
     use m_mkpot,only:  qval
@@ -61,7 +61,10 @@ contains
     zval=qval-qbg
     ltet = ntet>0
     nevmx=nevmxin !initial contdition except  cmdopt0('--band').or.fullmesh
-    if(lmet>0) allocate(rv_a_owtkb(ndham,nsp,nkp))
+    if(lmet>0) then
+      if(lso==1) allocate(rv_a_owtkb(ndhamx,1,nkp))
+      if(lso/=1) allocate(rv_a_owtkb(ndham,nsp,nkp))
+    endif  
     if(nevmx == 0) then
        nevmx = (int(zval) + 1)/2
        if (lmet /= 0) nevmx = max(nevmx+nevmx/2,9)
