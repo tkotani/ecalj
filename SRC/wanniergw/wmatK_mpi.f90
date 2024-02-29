@@ -25,7 +25,7 @@ module m_zmel_old !for wannier part This will be removed soon.
   logical,private:: init=.true.
   complex(8),allocatable,private :: cphiq(:,:), cphim(:,:),cphitemp(:,:)
   integer:: nkmin, nkqmin, isp_k, isp_kq,nmtot,nqtot,ispq_bk,ispm_bk
-  logical:: debug=.false. !,zzmel0=.false.
+  logical:: debug=.true. !,zzmel0=.false.
   integer:: nbbx=0
   real(8), parameter :: pi=3.1415926535897932D0
 contains
@@ -181,43 +181,17 @@ contains
 end module m_zmel_old
 
 
-subroutine wmatqk_mpi(kount,irot,ef,ef2,esmr,esmr2,tr, &
-     ! akao to fit to new hvccfp0.
-     ! m, 070501
-     !     i          iatomp,rsite,nsp,isp, !ifcphi jan2004,ifrb,ifcb,ifrhb,ifchb,
-     iatomp, &
-     !     i          rws,irws,nrws,
-     rws1,rws2,nrws1,nrws2,nrws, &
-     nsp,isp, &! & ifcphi jan2004,ifrb,ifcb,ifrhb,ifchb,
-     ifrcw,ifrcwi, &
-     qbas,ginv, &
-     qibz,qbz,wk,nstbz,wik,nstar,irk, & ! & koun,,iindxk
-  
-     iclass,mdim,nlnmv,nlnmc, &
-     icore,ncore,imdim, &
-     ppb, &
-     freq_r,freqx,wx,expa,ua,dw,& ! & deltaw,freq
-     ecore, &
-       
+subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
+     rws1,rws2, nsp,isp, &! & ifcphi jan2004,ifrb,ifcb,ifrhb,ifchb,
+     ifrcw,ifrcwi, qbas,ginv, qibz,qbz,wk,nstbz,wik,nstar,irk, & ! & koun,,iindxk
+     iclass,mdim,nlnmv,nlnmc,  icore,ncore,imdim, &
+     ppb, freq_r,freqx,wx,expa,ua,dw,& ! & deltaw,freq
      nlmto,nqibz,nqbz,nctot, &
-     !     i          index_qbz, n_index_qbz,  !jan2004
      nl,nnc,nclass,natom, &
      nlnmx,mdimx,nbloch,ngrp,nw_i,nw,nrw,niw,niwx,nq, &
-       
-     !     &     nblochpmx ,ngpn,ngcni,ngpmx,ngcmx,geigB,ngvecpB,ngveccBr,
      nblochpmx ,ngpmx,ngcmx, &! & ngveccBr,!Jan2004
      wgt0,wqt,nq0i,q0i,symope,alat, shtv,nband, ifvcfpout, &
-       !     &     shtw,
-     exchange, &! & tote,screen,cohtest, ifexsp,
-  ! etra
-  ! etra     &     wtet,wtetef,
-  ! etra    &     ntqx,ibzx,tetraex,
-
-  !     i omega,iwini,iwend,
-  !     i     nbmx,ebmx, !takao 18June2003
-     pomatr, qrr,nnr,nor,nnmx,nomx,nkpo,& ! & oct2005 for pomat
-     nwf, &
-     rw_w,cw_w,rw_iw,cw_iw)
+     exchange, pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, nwf,  rw_w,cw_w,rw_iw,cw_iw)
   use m_zmel_old,only: drvmelp3
 
 
@@ -308,6 +282,7 @@ subroutine wmatqk_mpi(kount,irot,ef,ef2,esmr,esmr2,tr, &
   ! niwx    = max(niw,nw)
 
   !----------------------------------------------------------------------
+  use m_ftox
   use m_readqg,only: readqg0
   use m_readeigen,only:readcphiw
   use m_keyvalue,only: getkeyvalue
@@ -318,7 +293,7 @@ subroutine wmatqk_mpi(kount,irot,ef,ef2,esmr,esmr2,tr, &
   use rsmpi_qkgroup
   use rsmpi_rotkindex
   implicit none
-  integer(4) :: ntq, natom,nqbz,nqibz,ngrp,nq,nw_i,nw,niw, &
+  integer :: ntq, natom,nqbz,nqibz,ngrp,nq,nw_i,nw,niw, &
        nband,  nlmto, nq0i,nctot,mbytes,iwksize,nlmtobnd,nstate,nstatex, &
        irot,  iqisp,ikpisp,isp,nsp,  nlnmx, iq, ip, it,itp, it2, itp2,  iiclass,mdim(*), &
        ifrcw,ifrcwi, ifvcfpout,ndummy1,ndummy2,kx,kr,kr2,kr3,ngc,ngb,nbloch, &
@@ -338,9 +313,9 @@ subroutine wmatqk_mpi(kount,irot,ef,ef2,esmr,esmr2,tr, &
   !                       ! This shft is  to avoid some artificial resonance effects.
   !                       ! shtw can be zero for esmr/=0 given by takao.
 
-  integer(4):: ngpmx, ngcmx,  igc, nadd(3)
+  integer:: ngpmx, ngcmx,  igc, nadd(3)
   real(8) :: wgt0(nq0i,ngrp),wqt(nq0i),qk(3), qbasinv(3,3),qdiff(3),add(3),symope(3,3), &
-       qxx(3),q0i(1:3,1:nq0i),shtv(3),alat,ecore(nctot), &
+       qxx(3),q0i(1:3,1:nq0i),shtv(3),alat, & !,ecore(nctot), &
        ppb(1) !pdb(1),dpb(1),ddb(1)
   real(8),allocatable:: rmelt(:,:,:),cmelt(:,:,:), rmelt2(:,:,:),cmelt2(:,:,:), &
        rmelt3(:,:,:,:),cmelt3(:,:,:,:)
@@ -356,10 +331,10 @@ subroutine wmatqk_mpi(kount,irot,ef,ef2,esmr,esmr2,tr, &
   !- debug write ---------------------
   logical :: debug=.false.
 
-  integer(4) :: ibl,iii,ivsumxxx,ifexsp ,iopen
-  integer(4),save::ifzwz=-999
+  integer :: ibl,iii,ivsumxxx,ifexsp ,iopen
+  integer,save::ifzwz=-999
 
-  integer(4) :: iwini, iwend, ia
+  integer :: iwini, iwend, ia
   !      real(8)    :: esec, omega(ntq, iwini:iwend)
   real(8) :: rw_w(nwf,nwf,nwf,nwf,nrws,0:nrw), &
        cw_w(nwf,nwf,nwf,nwf,nrws,0:nrw), &
@@ -372,7 +347,7 @@ subroutine wmatqk_mpi(kount,irot,ef,ef2,esmr,esmr2,tr, &
        , cphiqtmp(nlmto,nband)
 
   ! cccccccccccccccccccccccccccccccccccccccccccccc faleev 2002
-  integer(4) :: nt_max, igb1,igb2,iigb, nw_w
+  integer :: nt_max, igb1,igb2,iigb, nw_w
   complex(8),allocatable:: zmel1(:)
   complex(8), allocatable :: zw_(:,:) !,zzmel(:,:)
   complex(8), allocatable :: zwz2(:,:),zw2(:,:,:,:) !0 variant
@@ -386,17 +361,17 @@ subroutine wmatqk_mpi(kount,irot,ef,ef2,esmr,esmr2,tr, &
 
   logical :: GaussSmear
   real(8) :: ddw !ebmx,
-  integer(4):: nbmxe,nstatetot !nbmx,
+  integer:: nbmxe,nstatetot !nbmx,
 
-  !      integer(4):: n_index_qbz
-  !      integer(4):: index_qbz(n_index_qbz,n_index_qbz,n_index_qbz)
+  !      integer:: n_index_qbz
+  !      integer:: index_qbz(n_index_qbz,n_index_qbz,n_index_qbz)
 
-  integer(4)::nlnmv(*),nlnmc(*),iclass(*),icore(*),ncore(*),imdim(*)
+  integer::nlnmv(*),nlnmc(*),iclass(*),icore(*),ncore(*),imdim(*)
 
-  integer(4)::verbose,nstbz(nqbz),iqini,iqend !bzcase,
+  integer::verbose,nstbz(nqbz),iqini,iqend !bzcase,
   real(8):: wgtq0p
 
-  integer(4):: iqindx,nrec,kxx
+  integer:: iqindx,nrec,kxx
   real(8)::quu(3),qibz_k(3),qbz_kr(3)
   logical :: onlyQ0P, onlyimagaxis ,noq0p !,noq0p,test_omitq0p,
 
@@ -405,43 +380,43 @@ subroutine wmatqk_mpi(kount,irot,ef,ef2,esmr,esmr2,tr, &
 
   real(8):: ua_,expa_(niw),ua2,freqw,freqw1,ratio,ua2_(niw)
   logical :: ua_auto
-  integer(4):: icc=0
+  integer:: icc=0
   real(8),allocatable:: uaa(:,:)
 
   !      logical ::testimx=.false.
   ! ccc zvz test cccccccccccccccccccccccccc
-  integer(4):: ngbx
+  integer:: ngbx
   !      complex(8):: vcoul(ngbx,ngbx)
   complex(8),allocatable:: vzz(:,:,:),aaa(:)
   complex(8):: zvz,zvz1
-  integer(4):: ib1,ib2,ifix
+  integer:: ib1,ib2,ifix
   ! ccccccccccccccccccccccccccccccccc
-  integer(4) ::nbcut,nbcutc
+  integer ::nbcut,nbcutc
   logical ::iww2=.true., oncew
 
 
   !...
   logical::smbasis
-  integer(4):: nn,no,ifpomat,iclose,isx,iqx
+  integer:: nn,no,ifpomat,iclose,isx,iqx
   complex(8),allocatable:: pomat(:,:)
   real(8):: q_r(3)
-  integer(4):: nnmx,nomx,nkpo, nnr(nkpo),nor(nkpo)
+  integer:: nnmx,nomx,nkpo, nnr(nkpo),nor(nkpo)
   complex(8):: pomatr(nnmx,nomx,nkpo)
   real(8):: qrr(3,nkpo)
 
   real(8):: elxx,ehxx,ekxx,efxx
-  integer(4):: ixsmin,iwm,iir,nwxi
+  integer:: ixsmin,iwm,iir,nwxi
   real(8)   :: fffr(3)
   complex(8):: zwzz(3)
 
   ! m
-  integer(4) :: nqbz2,nwf2,iko_ix,iko_fx,iqtmp,ifmlw,nko,iqk &
+  integer :: nqbz2,nwf2,iko_ix,iko_fx,iqtmp,ifmlw,nko,iqk &
        ,ifi,in1,in2,imp,ilp,ii,jj,nrws,nrws1,nrws2 &
        ,ir1,ir2,ir3,ir,nrw
   real(8) :: norm2,qtmp(3),rws1(3,nrws1),rws2(3,nrws2),tmp
   complex(8) :: ztmp,expiqR1(nrws1),expiqR2
   complex(8),allocatable :: cnk(:,:,:),zmel2(:,:,:),zmel3(:,:,:)
-  integer(4) :: itq(nwf)
+  integer :: itq(nwf)
   complex(8) :: weightc(nrws1),zmeltt1
 
   complex(8),allocatable:: ppovl(:,:),ppovlz(:,:),zcousq(:,:),zmeltt(:,:,:)
@@ -465,7 +440,7 @@ subroutine wmatqk_mpi(kount,irot,ef,ef2,esmr,esmr2,tr, &
   !--------------------------------------------------------------------
   debug=.false.
   if(verbose()>=90) debug= .TRUE. 
-
+   write(6,ftox)' nnnnnnnnnn wmatqk_mpi: nrws nrws1 nrws2       ',nrws,nrws1,nrws2
   !     ! === readin Vcoud and EPSwklm for newansisoW()=T ===
   !$$$      if(newansisoW()) then
   !$$$         ifidmlx = iopen('EPSwklm',0,0,0)
@@ -619,7 +594,7 @@ subroutine wmatqk_mpi(kount,irot,ef,ef2,esmr,esmr2,tr, &
         do
            read(ifvcoud) ngb0
            read(ifvcoud) qvv
-           !              write(6,"('readin qvv ngb0=',3f9.4,i5)")qvv,ngb0
+                         write(6,"('readin qvv ngb0=',3f9.4,5i5)")qvv,ngb0,ngc,ngb,nbloch
            !              write(6,"('readin qxx ngb0=',3f9.4,i5)")qxx
            if(allocated(vcoud)) deallocate(vcoud)
            allocate( zcousq(ngb0,ngb0),vcoud(ngb0) )
@@ -682,7 +657,7 @@ subroutine wmatqk_mpi(kount,irot,ef,ef2,esmr,esmr2,tr, &
         ppovlz(nbloch+1:nbloch+ngc,:) = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
         deallocate(zcousq,ppovl)
      endif
-
+!     write(6,*)'nnnnnnnnnnnn at 685'
      if( .NOT. newansisoW()) then
         if(exchange) then
            ! RS: set pointer to the right place
@@ -730,9 +705,10 @@ subroutine wmatqk_mpi(kount,irot,ef,ef2,esmr,esmr2,tr, &
         expiqR1(ir1) = exp(-img*tpi* sum(qbz_kr(:)*rws1(:,ir1)))
      enddo
 
-
      !! ===================================================================
+!     write(6,*)'nnnnnnnnnnnn at 735',ngb,nwf,nrws2
      allocate( rmelt3(ngb,nwf,nwf,nrws2),cmelt3(ngb,nwf,nwf,nrws2))
+!     write(6,*)'nnnnnnnnnnnn at ssss'
      rmelt3 = 0d0
      cmelt3 = 0d0
      !! loop over FBZ
@@ -1046,8 +1022,8 @@ contains
          nlnmv(nclass),nlnmc(nclass),mdim(nclass),iclass(natom), &
          coskt(natom),sinkt(natom),imdim(natom),iatomp(natom)
 
-    integer(4),allocatable::iasx(:)
-    integer(4) :: nzppb1,nzppb2
+    integer,allocatable::iasx(:)
+    integer :: nzppb1,nzppb2
     complex(8),allocatable :: zz(:,:), zppb(:,:)
     complex(8) :: alpha,beta
 
@@ -1271,7 +1247,7 @@ contains
   !$$$c -------------------------------------------------------------------
   !$$$      subroutine matzwz2(zw,zmel, ntp0,nstate,ngb, zwz)
   !$$$      implicit none
-  !$$$      integer(4) :: nstate,ntp0,itp,it,itp2,it2,ngb
+  !$$$      integer :: nstate,ntp0,itp,it,itp2,it2,ngb
   !$$$      complex(8) :: zw(ngb,ngb),zmel(ngb,nstate,ntp0),
   !$$$     c              zwz(ntp0,nstate,nstate,ntp0)
   !$$$      complex(8), allocatable :: CC(:,:,:)
@@ -1292,7 +1268,7 @@ contains
   ! -------------------------------------------------------------------
   subroutine matzwz3(zw,zmel1,zmel2, ntp0,nstate,ngb, zwz)
     implicit none
-    integer(4) :: nstate,ntp0,itp,it,itp2,it2,ngb
+    integer :: nstate,ntp0,itp,it,itp2,it2,ngb
     complex(8) :: zw(ngb,ngb),zmel1(ngb,nstate,ntp0), &
          zmel2(ngb,nstate,ntp0), &
          zwz(ntp0,nstate,nstate,ntp0)

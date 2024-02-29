@@ -104,9 +104,14 @@ elseif(FC MATCHES "nvfortran" AND DEFINED DEBUG)
 elseif(FC MATCHES "nvfortran")
   message(STATUS "====== nvfortran release =======================")
   foreach(target IN ITEMS ${SOURCES})
-    if(${target} MATCHES "../subroutines/pwmat.f90")
-      set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-C -g -traceback -O0")
-    elseif(${target} MATCHES "../wanniergw/wmatK_mpi.f90" or ${target} MATCHES "../subroutines/main_hwmatK_mpi.f90")
+    if(${target} MATCHES "../subroutines/pwmat.f90" 
+    OR ${target} MATCHES "../wanniergw/wmatK_mpi.f90" 
+    OR ${target} MATCHES "../wanniergw/main_hwmatK_mpi.f90" 
+    OR ${target} MATCHES "../wanniergw/rppovl.f90" 
+    OR ${target} MATCHES "../wanniergw/RSMPI_utils.f90"
+    OR ${target} MATCHES "../wanniergw/RSMPI_qkgroup_mod.f90"
+    OR ${target} MATCHES "../wanniergw/RSMPI_rotkindex_mod.f90" 
+    OR ${target} MATCHES "../subroutines/rseq.f90")
       set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-C -g -traceback -O0")
     else()
       set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O2")
