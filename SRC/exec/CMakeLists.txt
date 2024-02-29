@@ -4,15 +4,17 @@ cmake_minimum_required(VERSION 3.2)
 if(DEFINED CACHE{FC} OR DEFINED ENV{FC})
   set(FC $ENV{FC})
 else()
-    message("")
-    message("Your choices to run cmake are")
+    message("--- ")
+    message("=== Your choices to run cmake are: ===")
     message(" >FC=ifort cmake .")
     message(" >FC=ifort DEBUG=1 cmake .")
     message(" >FC=gfortran cmake .")
     message(" >FC=gfortran DEBUG=1 cmake .")
+    message(" >FC=nvfortran cmake .")
+    message(" >FC=nvfortran DEBUG=1 cmake .")
     message("You may run >VERBOSE=1 make -j, for detailed make messages.")
-    message("Note that '>rm CMakeCache.txt' is needed for starting over!")
-    message(FATAL_ERROR "Set FC=foobar explained above!")
+    message("Note that '>rm -rf CMakeCache.txt CMakeFiles' is needed for starting over!")
+    message(FATAL_ERROR "==> FC=foobar is needed! e.g, FC=gfortran cmake .")
 endif() 
 set(FCMOD ${FC})
 
@@ -58,6 +60,11 @@ elseif(FC MATCHES "ifort")
   set(CMAKE_Fortran_FLAGS "-init:snan -fPIC -assume byterecl") # compile flags
   set(LIB ${LIBRARY_NAME} -mkl)  #set LIB variable
   add_link_options(-mkl)
+elseif(FC MATCHES "nvfortran")
+  set(CMAKE_Fortran_COMPILER mpifort)    # compiler
+  set(CMAKE_Fortran_FLAGS "-fPIC") #"-Mvect=simd -mcmodel=medium -fPIC") # compile flags
+  set(LIB ${LIBRARY_NAME} ) #-mkl)  #set LIB variable
+  add_link_options(-lmkl_intel_lp64 -lmkl_sequential -lmkl_core)
 endif()
 
 ### source-dependent compile options 
@@ -89,15 +96,27 @@ elseif(FC MATCHES "ifort")
       set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O2")
     endif()
   endforeach()
+elseif(FC MATCHES "nvfortran" AND DEFINED DEBUG)
+  message(STATUS "====== nvfortran debug =======================")
+  foreach(target IN ITEMS ${SOURCES})
+    set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-C -g -traceback -O2") #why -O2 needed here???
+  endforeach()
+elseif(FC MATCHES "nvfortran")
+  message(STATUS "====== nvfortran release =======================")
+  foreach(target IN ITEMS ${SOURCES})
+    if(${target} MATCHES "../subroutines/pwmat.f90" 
+    OR ${target} MATCHES "../subroutines/rseq.f90")
+      set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-C -g -traceback -O0")
+    else()
+      set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O2")
+    endif()
+  endforeach()
 endif()
 
-if(FC MATCHES "gfortran")   #Set mkl location
-  add_executable(dummy ./dummy.f90 ) # exe
-  target_link_libraries(dummy ${LIB} ${BLAS} ${MPI}) #linked 
-  add_custom_target(fcheck ALL COMMAND ldd dummy|egrep mkl >mklloc.txt  WORKING_DIRECTORY ${CMAKE_BINARY_DIR} DEPENDS dummy) 
-else()
-  add_custom_target(fcheck ALL COMMAND echo -n >mklloc.txt WORKING_DIRECTORY ${CMAKE_BINARY_DIR}) 
-endif()
+#For setting mkl location
+add_executable(dummy ./dummy.f90 ) # exe
+target_link_libraries(dummy ${LIB} ${BLAS} ${MPI}) #linked 
+#add_custom_target(fcheck ALL COMMAND ldd dummy|grep mkl >mklloc.txt  WORKING_DIRECTORY ${CMAKE_BINARY_DIR} DEPENDS dummy) 
 
 # Generate library and binaries ###############################
 add_library(${LIBRARY_NAME} SHARED ${SOURCES}) # Library
