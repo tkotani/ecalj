@@ -181,6 +181,9 @@ contains
 end module m_zmel_old
 
 
+
+
+
 subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
      rws1,rws2, nsp,isp, &! & ifcphi jan2004,ifrb,ifcb,ifrhb,ifchb,
      ifrcw,ifrcwi, qbas,ginv, qibz,qbz,wk,nstbz,wik,nstar,irk, & ! & koun,,iindxk
@@ -193,8 +196,6 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
      wgt0,wqt,nq0i,q0i,symope,alat, shtv,nband, ifvcfpout, &
      exchange, pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, nwf,  rw_w,cw_w,rw_iw,cw_iw)
   use m_zmel_old,only: drvmelp3
-
-
   ! 2006 May Takashi Miyake, updated for new fpgw
   ! 2004 Sep Takashi Miyake, off-site W
   ! 2004 Jul Takashi Miyake,
@@ -441,6 +442,8 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
   debug=.false.
   if(verbose()>=90) debug= .TRUE. 
    write(6,ftox)' nnnnnnnnnn wmatqk_mpi: nrws nrws1 nrws2       ',nrws,nrws1,nrws2
+
+
   !     ! === readin Vcoud and EPSwklm for newansisoW()=T ===
   !$$$      if(newansisoW()) then
   !$$$         ifidmlx = iopen('EPSwklm',0,0,0)

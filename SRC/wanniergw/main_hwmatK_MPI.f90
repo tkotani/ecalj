@@ -649,16 +649,18 @@ subroutine hwmatK_MPI()
   if (laf) nspinmx =1
 
   close(ifqpnt)
+ call getkeyvalue("GWinput","wmat_all",lfull,default= .FALSE. )
 
-  ! m, 070521
-  if (Is_IO_Root_RSMPI()) &
-       call getkeyvalue("GWinput","wmat_all",lfull,default= .FALSE. )
-  call MPI_Bcast(lfull,1,MPI_LOGICAL,io_root_rsmpi, &
-       MPI_COMM_WORLD,ierror_rsmpi)
+if(lfull)then
+   write(6,*) 'because of the bug in nvfortran24.1 we can not pass nrws2 to wmatqk_MPI (kount,irot,nrws1,nrws2,nrws,'
+   write(6,*) ' Thus we call   wmatqk_MPI (kount,irot,1,1,1 , which means fixed value is passoed to.'
+   write(6,*) ' If you need wmat_all, need to fix this part. or use fixed code with ifort/gfortran'
+   call rx('wmat_all is not implemented because of the bug in nvfortran24.1')
+endif   
+
+  call MPI_Bcast(lfull,1,MPI_LOGICAL,io_root_rsmpi, MPI_COMM_WORLD,ierror_rsmpi)
   call RSMPI_Check("MPI_Bcast(lfull)",ierror_rsmpi)
-
   print *, "Here!!!!!!!!!!!!!", lfull, lwssc!, nrws
-
   if (lfull) then
      if (Is_IO_Root_RSMPI()) then
         call getkeyvalue("GWinput","wmat_rcut1",rcut1, default=0.01d0 )
@@ -994,7 +996,10 @@ subroutine hwmatK_MPI()
         write(*,*) 'wmatq in',irot_local,nrot_local_rotk
         shtv = matmul(symgg(:,:,irot),shtvg(:,invr))
         write(6,ftox)' nnnnnnnnnn before wmatqk_mpi: nrws nrws1 nrws2',nrws,nrws1,nrws2
-        call wmatqk_MPI (kount,irot,nrws1,nrws2,nrws,  tiat(1:3,1:natom,invr),miat(1:natom,invr), &
+
+
+        call wmatqk_MPI (kount,irot,     1,   1,   1,  tiat(1:3,1:natom,invr),miat(1:natom,invr), &
+!        call wmatqk_MPI (kount,irot,nrws1,nrws2,nrws,  tiat(1:3,1:natom,invr),miat(1:natom,invr), &
              rws1,rws2, nspin,is,  & !ifcphi,ifrb(is),ifcb(is),ifrhb(is),ifchb(is),
              ifrcw,ifrcwi, qbas,ginv,qibz,qbz,wbz,nstbz, wibz,nstar,irk,  &! & iindxk,
              iclass,nblocha,nlnmv, nlnmc,  icore,ncore, imdim, &
