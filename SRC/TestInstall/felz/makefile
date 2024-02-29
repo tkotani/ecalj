@@ -12,7 +12,7 @@ define test3.exec
 	# --- Test 3.  Check of miscellaneous special features, programs lmfa,lmf ---
 	#
 	@cat message.test3.$(TARGET)
-	$(bindir)/lmfa -vrel=1 -vso=0 $(TARGET) > $1 2>&1
+	mpirun -np 1 $(bindir)/lmfa -vrel=1 -vso=0 $(TARGET) > $1 2>&1
 	$(LMFP) -vrel=1 -vnit=3 -vso=2 $(TARGET) \
 		-vfsmom=-2 >> $1 2>&1
 endef
@@ -21,7 +21,7 @@ define test4a.exec
 	# --- Test case 4:  Spin-orbit coupling ---
 	#
 	@cat message.test4.$(TARGET)
-	$(bindir)/lmfa -vrel=1 -vnit=1 -vso=0 $(TARGET) > $1 2>&1
+	mpirun -np 1 $(bindir)/lmfa -vrel=1 -vnit=1 -vso=0 $(TARGET) > $1 2>&1
 	$(LMFP) -vrel=1 -vnit=1 -vso=2 $(TARGET) -vpwmode=11 >> $1 2>1
 	rm -f mixm.$(TARGET)
 	$(LMFP) -vrel=1 -vnit=1 -vso=2 $(TARGET) >> $1 2>1

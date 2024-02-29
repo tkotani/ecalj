@@ -3,7 +3,7 @@ TARGET=gas_gwsc666
 MATERIAL=gas
 $(TARGET).exec:
 	# exec lmfa command.
-	$(bindir)/lmfa $(MATERIAL) > llmfa
+	mpirun -np 1 $(bindir)/lmfa $(MATERIAL) > llmfa
 	# exec gwsc command.
 	rm log.$(MATERIAL) QPU
 	$(bindir)/gwsc 0 -np $(mpi_size) $(MATERIAL)

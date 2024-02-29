@@ -2,8 +2,8 @@ include ../../Makefile
 TARGET=gas_epsPP_lmfh
 MATERIAL=gas
 $(TARGET).exec:
-	$(bindir)/lmfa $(MATERIAL) > llmfa
-	$(bindir)/lmf $(MATERIAL) > llmf
+	mpirun -np 1 $(bindir)/lmfa $(MATERIAL) > llmfa
+	mpirun -np $(mpi_size) $(bindir)/lmf $(MATERIAL) > llmf
 	rm EPS*
 	$(bindir)/epsPP_lmfh -np $(mpi_size) $(MATERIAL)
 	@echo  >> ../summary.txt

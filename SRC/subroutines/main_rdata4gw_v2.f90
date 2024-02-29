@@ -565,13 +565,14 @@ subroutine rdata4gw_v2()
      ngc=ngctt(iqx)
      write(ippovli) qx,ngc
      write(ippovlg) qx,ngc
-     write(stdo,"(' iqi qx ngc=',i5,3f8.4,4i5)" ) iqi,qx,ngc
+     write(stdo,"(' iqi qx ngc iqx=',i5,3f8.4,14i5)" ) iqi,qx,ngc,iqx,sum(abs(ngvecp)),sum(abs(ngvecc)),ngc,ngp
      if(ppovl0l) write(ippovl0)   qx,ngc
      if(ngc==0) cycle
      allocate(ppovl(ngc,ngc),ppovlinv(ngc,ngc)) !This is necessary for matcinv
      call mkppovl2(alat,plat,qlat, ngc,ngvecc, ngc,ngvecc, nbas,rmax,bas, ppovl)
      if(ppovl0l)  write(ippovl0) ppovl(1:ngc,1:ngc)
      ppovlinv = ppovl
+     write(stdo,ftox)'mmmmmmmmmatcinv',sum(abs(ppovlinv))
      call matcinv(ngc,ppovlinv)
      deallocate(ppovl)
      !! ggg= < exp(i G r) > integral in the interstitial region.

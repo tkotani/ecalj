@@ -106,7 +106,7 @@ end subroutine symrat
 subroutine psymrf(nrclas,ipa,nlmx,s,f)
   implicit none
   integer :: nrclas,nlmx,ipa(nrclas)
-  double precision :: s(nlmx,nlmx,nrclas),f(3,1)
+  double precision :: s(nlmx,nlmx,nrclas),f(3,*)
   integer :: ia,ib
   double precision :: x(3)
   x = 0d0

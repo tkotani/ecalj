@@ -398,7 +398,7 @@ contains
     !r  CAUTION!: 2023: we do not allowe math operations in parenthesis. Give numerical number 6digits (if you like to recover, touch ctrl2ctrlp.py)
     implicit none
     character(*):: t
-    real(8) :: plat(3,3),g(3,3,*),h(3,3),hh(3,3),ag(3,1),vec(3)
+    real(8) :: plat(3,3),g(3,3,*),h(3,3),hh(3,3),ag(3,*),vec(3)
     integer :: nt,ng,i
     logical :: flgp
     character*1:: leftp='(' 

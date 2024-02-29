@@ -8,7 +8,7 @@ MATERIAL=cugase2
 # exec default case for $(TARGET).
 $(TARGET).exec:
 	# exec lmfa command.
-	$(bindir)/lmfa $(MATERIAL) > llmfa
+	mpirun -np 1 $(bindir)/lmfa $(MATERIAL) > llmfa
 	# exec gwsc command.
 	rm log.$(MATERIAL) QPU
 	$(bindir)/gwsc 0 -np $(mpi_size) $(MATERIAL)

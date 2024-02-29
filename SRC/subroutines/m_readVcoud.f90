@@ -28,7 +28,7 @@ contains
     ngb = ngc+nbloch
     if(NoVcou) return
     vcoudfile='Vcoud.'//trim(i2char(iq)) ! iq was iqqv this is closed at the end of do 1001
-    open(newunit=ifvcoud, file=trim(vcoudfile), action='read',form='unformatted')
+    open(newunit=ifvcoud, file=trim(vcoudfile),form='unformatted')
     read(ifvcoud) ngb0
     read(ifvcoud) qvv
     if(allocated(zcousq)) deallocate( zcousq,vcousq,vcoud )

@@ -182,7 +182,7 @@ contains
     integer:: ng , kmax , ib , job , iv(ng,3),i_copy_size
     type(s_rv1) :: orhoat(3)
     real(8):: qmom(nlmxlx,nbas) , qmout(nlmxlx,nbas) , gv(ng,3) , tau(3) , fes1(3) , &
-         fes2(3) , fxc(3) , g2(ng) , yl(ng,1)  , qlat(3,3)
+         fes2(3) , fxc(3) , g2(ng) , yl(ng,*)  , qlat(3,3)
     complex(8):: cdn0(ng,nsp),cdn(ng),cdv(ng), cnomin(ng),cdvxc(ng,nsp),cvin(ng)
     integer :: ig,ilm,l,lmxl,m,nlm,nlmx,k,is,jb,js,n0
     parameter (nlmx=64, n0=10)

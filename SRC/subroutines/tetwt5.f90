@@ -630,7 +630,7 @@ contains
     !r wtthis is accumulated
     implicit none
     integer:: itetx(4),ix,i,ieaord(4),isig,n,itmp
-    real(8):: kk_(3,1:8),xx_(1:8), kk(3,1:8),xx(1:8),ebf(1:4),ebfin(1:8) ,ee(4)  ,kin(3,4), xin(4)
+    real(8):: kk_(3,1:8),xx_(1:8), kk(3,1:8),xx(1:8),ebf(1:8),ebfin(1:8) ,ee(4)  ,kin(3,4), xin(4)
     integer:: nwhis
     real(8):: frhis(nwhis+1),wtthis(nwhis,4)
     logical :: chkwrt=.false.

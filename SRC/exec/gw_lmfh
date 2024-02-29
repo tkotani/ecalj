@@ -9,7 +9,7 @@ n=$0
 nfpgw=`dirname $0`
 TARGET=$3
 MPI_SIZE=$2
-NO_MPI=0
+NO_MPI=1
 source $nfpgw/run_arg
 ##### rm and mkdir ##############
 if [ -e NoCore ]; then #backword compatibility not so meaningful now.

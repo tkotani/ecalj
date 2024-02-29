@@ -15,7 +15,7 @@ define test3.exec
 	# --- Test 3.  Check of miscellaneous special features, programs lmfa,lmf ---
 	#
 	@cat message.test3.$(TARGET)
-	$(bindir)/lmfa --no-iactiv $(TARGET) -vzbak=$2 >  $1 2>&1
+	mpirun -np 1 $(bindir)/lmfa --no-iactiv $(TARGET) -vzbak=$2 >  $1 2>&1
 	$(LMFP)  --no-iactiv $(TARGET) -vzbak=$2 >> $1 2>&1
 endef
 

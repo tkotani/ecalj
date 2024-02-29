@@ -15,7 +15,7 @@ define test2.exec
 	# --- Test 2.  Core-level spectroscopy (EELS), Mulliken analysis, partial DOS ---
 	#
 	@cat message.test2.$(TARGET)
-	$(bindir)/lmfa $(TARGET) > $1 2>&1
+	mpirun -np 1 $(bindir)/lmfa $(TARGET) > $1 2>&1
 	$(LMFP) $(TARGET) >> $1 2>&1
 	#echo 'CLSinput is used for EELS mode (--cls). Works well. But not examined(2022-6-20)'
 	$(LMFP) -vnit=1 -vmetal=2 $(TARGET) >> $1 2>&1

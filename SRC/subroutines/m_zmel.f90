@@ -126,13 +126,10 @@ contains
     logical:: iprx
     logical:: zmelconjg
     integer:: nmtot,nqtot
-
     complex(8),allocatable,save :: cphiq(:,:), cphim(:,:) 
     real(8),save:: q_bk(3)=1d10,qk_bk(3)=1d10 !save cphiq and/or cphim (q,ispq) and (qk,ispm)
     integer,save:: ispq_bk,ispm_bk            
     logical,save:: init=.true.
-    write(6,*) 'start get_zmel init'
-
     if(allocated(zmel)) deallocate(zmel)
     nmini = ns1          !starting index of middle state  (nctot+nvalence order)
     nmmax = ns2-nctot    !end      index of middle state  (nctot+nvalence order)
@@ -142,7 +139,6 @@ contains
     iatomp= miat(:,invr)
     symope= symgg(:,:,irot)
     shtv  = matmul(symope,shtvg(:,invr))
-    write(6,*) 'allocate ppb'
     allocate( ppb(nlnmx,nlnmx,mdimx,nclass)) ! ppb= <Phi(SLn,r-R)_q,isp1 |Phi(SL'n',r-R)_qk,isp2 B_k(S,i,rot^{-1}(r-R))>
     ppb = ppbir(:,:,:,:,irot,ispq)           !MPB has no spin dependence
     imdim = [( sum(nblocha(iclass(1:ia-1)))+1  ,ia=1,natom)]
@@ -177,9 +173,7 @@ contains
     !           if(ncc/=0 .AND. ncc/=nctot) call rx( "psicb_v3: ncc/=0 and ncc/=ncctot")
     iasx=[(sum(nlnmv(iclass(1:ia-1)))+1,ia=1,natom)]
     icsx=[(sum(ncore(iclass(1:ia-1))),ia=1,natom)]
-    write(6,*) 'goto zmelMT allocate zmelt'
     allocate(zmelt(1:nbloch+ngc,nmtot,nqtot),source=(0d0,0d0))
-    write(6,*) 'goto zmelMT'
     ZmelWithinMT: block !- Calculates <psi_q(itp) |psi_qk(it) B_k(rot(r-R))> 
       complex(8):: phase(natom) 
       phase = [(exp(-img *tpi* sum(kvec*tr(:,ia))),ia=1,natom)] 
@@ -199,7 +193,6 @@ contains
          mdim  = nblocha(icp)
          ncorec= merge(ncore(ic),0,nctot>0)
          nccc  = merge(ncore(ic),0,ncc>0)
-!   write(6,*)'eeeeeee end of reshape000'
          associate(      dcphiqk=>dconjg(cphim(ias:iae,nmini:nmmax)),&
               tdcphiqk=>transpose(dconjg(cphim(ias:iae,nmini:nmmax))),&
               cphiq   =>cphiq(ias:iae,nqini:nqmax),&
@@ -209,7 +202,6 @@ contains
            do i=1,mdim
               tppb(:,:,i)=transpose(ppb(nc1:ncnv,nc1:ncnv,i,icp))
            enddo   
-!           write(6,*)'eeeeeee end of reshape1'
            !=== this may be time-consuming block ==================
            do concurrent(i=1:mdim) !valence-valence 
               zmelt(i-1+ims,nctot+1:nctot+nt0,ncc+1:ncc+ntp0)=phase(ia)*matmul(tdcphiqk,matmul(tppb(:,:,i),cphiq))
@@ -226,7 +218,6 @@ contains
       enddo iatomloop
     endblock ZmelWithinMT
     if(ngc==0)goto 9898
-    write(6,*) 'goto zmelipw'
     ZmelIPW:block ! calculates <psi(k',t') | psi(k,t) B(R,i)> for all R ! Valence x Valence = <IPW phi_valence |phi_valence>
       ispqk=ispm
       call readqg('QGpsi',q,     qt, ngp1, ngvecpB1) !q is mapped to qt in BZ
@@ -284,7 +275,6 @@ contains
           deallocate(gggmat)
           do concurrent (itp= 1:ntp0)
              associate( ggitp_=>reshape([((ggitp(igcgp2i_(igc,igp2),itp),igc=1,ngc),igp2=1,ngp2)],shape=[ngc,ngp2]))
-               write(6,*)'eeeeeee end of reshape2'
                zmelp0(:,:,itp)= matmul(ggitp_,dgeigqk(1:ngp2,nmini:nmmax))
              endassociate
           enddo

@@ -138,7 +138,7 @@ contains
     integer :: lmxb,nr,nrmt,nsp,n0,mode
     double precision :: a,z,rs3,eh3,vmtz
     parameter (n0=10)
-    double precision :: rofi(1),v(nr,nsp),pnz(n0,nsp),pnu(n0,nsp)
+    double precision :: rofi(nr),v(nr,nsp),pnz(n0,nsp),pnu(n0,nsp)
     double precision :: rsml(n0,2),ehl(n0,2),vsel(4,n0)
     character spid*8,orbit(2)*4,flg(2)*1
     integer:: ipr,iprint,i,l,info,mode0, modei,loclo=-99999,nfit,iprt,isw

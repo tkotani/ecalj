@@ -101,8 +101,8 @@ contains
     !o   f:  forces are symmetrized
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: nbas,ng, istab(nbas,1),i,j,ib,ig,jb,mode
-    double precision :: g(3,3,1),fwk(3,nbas),f(3,nbas)
+    integer :: nbas,ng, istab(nbas,*),i,j,ib,ig,jb,mode
+    double precision :: g(3,3,ng),fwk(3,nbas),f(3,nbas)
     fwk=f/ng !!call dpcopy(f,fwk,1,3*nbas,1d0/ng)
     f=0d0
     if (mode == 1) then

@@ -3,9 +3,9 @@ TARGET=gas_pw_gw_lmfh
 MATERIAL=gas
 $(TARGET).exec:
 	# exec lmfa command.
-	$(bindir)/lmfa $(MATERIAL) > llmfa
+	mpirun -np 1 $(bindir)/lmfa $(MATERIAL) > llmfa
 	# exec lmf command.
-	$(bindir)/lmf $(MATERIAL) > llmf_lda
+	mpirun -np $(mpi_size) $(bindir)/lmf $(MATERIAL) > llmf_lda
 	# exec gw_lmfh command.
 	rm QPU
 	$(bindir)/gw_lmfh -np $(mpi_size) $(MATERIAL)

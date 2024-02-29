@@ -8,9 +8,9 @@ MATERIAL=fe
 # exec default case for $(TARGET).
 $(TARGET).exec:
 	# exec lmfa command.
-	$(bindir)/lmfa $(MATERIAL) > llmfa
+	mpirun -np 1 $(bindir)/lmfa $(MATERIAL) > llmfa
 	# exec lmf command.
-	mpirun -np 4 $(bindir)/lmf $(MATERIAL) > llmf
+	mpirun -np $(mpi_size) $(bindir)/lmf $(MATERIAL) > llmf
 	# exec epsPP_lmfh_chipm command.
 	rm ChiPM*
 	$(bindir)/epsPP_lmfh_chipm -np $(mpi_size) $(MATERIAL)

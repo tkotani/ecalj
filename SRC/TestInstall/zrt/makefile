@@ -11,7 +11,7 @@ define test1.exec
 	# --- Test 1.  Basic check of programs lmfa,lmf ---
 	#
 	@cat message.test1.$(TARGET)
-	$(bindir)/lmfa -vfp=1 $(TARGET) --no-iactiv > $1 2>&1
+	mpirun -np 1 $(bindir)/lmfa -vfp=1 $(TARGET) --no-iactiv > $1 2>&1
 	$(LMFP)  -vnitq=1 -vforce=1 -vfp=1 $(TARGET) >> $1 2>&1
 	$(LMFP)  -vnitq=1 -vforce=1 -vfp=1 $(TARGET) >> $1 2>&1
 endef

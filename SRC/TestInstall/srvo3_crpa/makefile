@@ -6,7 +6,7 @@ MATERIAL=srvo3
 # exec default case for $(TARGET).
 $(TARGET).exec:
 	# exec lmfa command.
-	$(bindir)/lmfa $(MATERIAL) > llmfa
+	mpirun -np 1 $(bindir)/lmfa $(MATERIAL) > llmfa
 	# exec lmf command.
 	mpirun -np $(mpi_size) $(bindir)/lmf $(MATERIAL) > llmf
 	# exec epsPP_lmfh command.

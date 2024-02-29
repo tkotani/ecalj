@@ -188,7 +188,9 @@ subroutine h_uumatrix()
   !--qibzonly need to be improved to balance load in ranks.
   iqbzloop: do 1070 iqbz = 1,nqbz 
     if(mod(iqbz-1,mpi__size)/=mpi__rank) cycle !MPI
-    if (cmdopt0('--qibzonly') .and. irotg(iqbz) /=1) cycle !only irreducible q point
+    if (cmdopt0('--qibzonly')) then
+      if( irotg(iqbz)/=1)  cycle !only irreducible q point
+    endif  
     write(stdo,ftox)'iq =',iqbz, 'out of',nqbz
     do isp=1,nspin
       open(newunit=ifuu(isp),file=trim(head(ixc,isp))//charnum4(iqbz),form='unformatted')
