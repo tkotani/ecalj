@@ -40,6 +40,7 @@ subroutine hwmatK_MPI()
   ! Apr 2002 takao kotani. multiple argumentation wave per l.
   ! This hsfp0 is build from hsec10.f by F.Aryasetiawan.
   !------------------------------------------------------------
+   use m_ftox
   use m_readqg,only: readngmx2,ngcmx,ngpmx,readqg0,readqg
   use m_hamindex,only:   Readhamindex,symgg=>symops,ngrp,invg=>invgx
   use m_read_bzdata,only: Read_bzdata,qibz,irk,ginv,n1,n2,n3,nqbz,nqibz,nstar,nstbz,qbas=>qlat,qbz,wibz,wbz &
@@ -60,7 +61,7 @@ subroutine hwmatK_MPI()
        ua    = 1d0    ! constant in w(0)exp(-ua^2*w'^2) to take care of peak around w'=0
   !------------------------------------
   real(8)    :: esmr2,shtw
-  !      integer(4) :: mxclass,ngnmax,mbytes,mwords,iwksize,
+  !      integer :: mxclass,ngnmax,mbytes,mwords,iwksize,
   !     &   natom,nclass,ipos,igrp,
   !     &   iqibz,
   !     &   iqbz,
@@ -86,10 +87,10 @@ subroutine hwmatK_MPI()
        qfermi,efx,valn,efnew,edummy,efz,qm,xsex,egex, &
        zfac1,zfac2,dscdw1,dscdw2,dscdw,zfac,ef2=1d99,exx,exxq,exxelgas
   logical :: lqall,laf
-  integer(4),allocatable :: itq(:)
+  integer,allocatable :: itq(:)
   real(8),allocatable    :: q(:,:)
   ! takao
-  integer(4),allocatable :: ngvecpB(:,:,:),ngvecp(:,:), ngvecc(:,:),iqib(:),&
+  integer,allocatable :: ngvecpB(:,:,:),ngvecp(:,:), ngvecc(:,:),iqib(:),&
        kount(:), nx(:,:),nblocha(:),lx(:) !ngveccBr(:,:,:)
   real(8),allocatable:: vxcfp(:,:,:), &
        wgt0(:,:), &
@@ -108,75 +109,75 @@ subroutine hwmatK_MPI()
   logical ::nocore
 
   ! space group infermation
-  integer(4),allocatable :: invgx(:), miat(:,:)
+  integer,allocatable :: invgx(:), miat(:,:)
   real(8),allocatable    :: tiat(:,:,:),shtvg(:,:)
 
   ! tetra
   real(8),allocatable :: qz(:,:),qbzxx(:),wbzxx(:),wtet(:,:,:,:), &
        eband(:,:,:), ene(:) !,ecore(:,:)
-  integer(4),allocatable ::idtetx(:,:),idtet(:,:),ipq(:) &
+  integer,allocatable ::idtetx(:,:),idtet(:,:),ipq(:) &
        ,iene(:,:,:),ibzx(:) ! ,nstar(:)
-  integer(4) ::ib,iqx,igp,iii,ivsumxxx,isx,iflegas, iqpntnum
+  integer ::ib,iqx,igp,iii,ivsumxxx,isx,iflegas, iqpntnum
 
   real(8),allocatable   :: eex1(:,:,:),exsp1(:,:,:),qqex1(:,:,:,:)
-  integer(4),allocatable:: nspex(:,:),ieord(:),itex1(:,:,:)
+  integer,allocatable:: nspex(:,:),ieord(:),itex1(:,:,:)
   real(8)    :: qqex(1:3), eex,exsp,eee, exwgt,deltax0
-  integer(4) :: itmx,ipex,itpex,itex,nspexmx,nnex,isig,iex,ifexspx &
+  integer :: itmx,ipex,itpex,itex,nspexmx,nnex,isig,iex,ifexspx &
        ,ifexspxx ,ifefsm, ifemesh,nz
   character(3)  :: charnum3,sss
   character(12) :: filenameex
   logical :: exspwrite=.false.
   character(8) :: xt
 
-  integer(4) :: iwini,iwend
+  integer :: iwini,iwend
   real(8),allocatable:: omega(:,:)
   real(8) ::  omegamax,dwplot,omegamaxin
   !      logical :: sergeys
 
-  integer(4)::nqbze,ini,nq0it,idummy
+  integer::nqbze,ini,nq0it,idummy
   real(8),allocatable:: qbze(:,:)
 
   real(8)   :: ebmx(2)
-  integer(4):: nbmx(2)
+  integer:: nbmx(2)
 
   real(8):: volwgt
 
-  integer(4)::nwin, incwfin
+  integer::nwin, incwfin
   real(8)::efin,ddw,dwdummy
-  integer(4),allocatable::imdim(:)
+  integer,allocatable::imdim(:)
   real(8),allocatable::freqx(:),freqw(:),wwx(:),expa(:)
 
   logical:: GaussSmear !readgwinput,
-  integer(4)::ret
+  integer::ret
   character*(150):: ddd
 
 
-  integer(4)::  ngpn1,verbose,ngcn1,nwxx !bzcase, mrecg,
+  integer::  ngpn1,verbose,ngcn1,nwxx !bzcase, mrecg,
   real(8)   :: wgtq0p,quu(3)
 
   real(8),allocatable:: freq_r(:)
 
   logical ::smbasis
-  integer(4):: ifpomat,nkpo,nnmx,nomx,ikpo,nn_,no,nss(2)
+  integer:: ifpomat,nkpo,nnmx,nomx,ikpo,nn_,no,nss(2)
   real(8):: q_r(3)
   real(8),allocatable:: qrr(:,:)
-  integer(4),allocatable:: nnr(:),nor(:)
+  integer,allocatable:: nnr(:),nor(:)
   complex(8),allocatable:: pomatr(:,:,:),pomat(:,:)
 
   real(8)::sumimg
   logical :: allq0i                                             !S.F.Jan06
 
-  integer(4):: nw_i,ifile_handle,if102,if3111,if101
+  integer:: nw_i,ifile_handle,if102,if3111,if101
 
   logical:: latomic,lfull,lstatic,lwssc
   logical:: l1d,lll
   real(8):: rsite(3),rcut1,rcut2
   real(8),allocatable :: rws(:,:),drws(:),rws1(:,:),rws2(:,:)
-  integer(4):: nrws,nrws1,nrws2,ir1,ir2,ir3,ir,nrw
-  integer(4),allocatable:: irws(:),irws1(:),irws2(:)
+  integer:: nrws,nrws1,nrws2,ir1,ir2,ir3,ir,nrw
+  integer,allocatable:: irws(:),irws1(:),irws2(:)
 
   ! RS: variables for MPI
-  integer(4) :: input3(3),irot_local,ip_local,iq_local, nq0ixxx
+  integer :: input3(3),irot_local,ip_local,iq_local, nq0ixxx
   integer,allocatable :: nq_local(:),iqx_index(:,:)
   real(8),allocatable:: &
        rw_w_sum(:,:,:,:,:,:),rw_iw_sum(:,:,:,:,:,:), &
@@ -187,7 +188,7 @@ subroutine hwmatK_MPI()
   real(8),allocatable:: &
        rv_w(:,:,:,:,:),cv_w(:,:,:,:,:), &
        rv_iw(:,:,:,:,:),cv_iw(:,:,:,:,:)
-  real(8)::ef
+  real(8)::ef,shtv(3)
   ! For hmagnon (only omega=0 is used)
   integer::nw,nctot0,niw
   logical:: lomega0
@@ -232,13 +233,13 @@ subroutine hwmatK_MPI()
 
   !---  readin BZDATA. See gwsrc/rwbzdata.f
   !--------readin data set when you call read_BZDATA ---------------
-  !       integer(4)::ngrp,nqbz,nqibz,nqbzw,nteti,ntetf
+  !       integer::ngrp,nqbz,nqibz,nqbzw,nteti,ntetf
   ! ccc    ! &   ,n_index_qbz
-  !       integer(4):: n1,n2,n3
+  !       integer:: n1,n2,n3
   !       real(8):: qbas(3,3),ginv(3,3),qbasmc(3,3)
   !       real(8),allocatable:: qbz(:,:),wbz(:),qibz(:,:)
   !     &    ,wibz(:),qbzw(:,:)
-  !       integer(4),allocatable:: idtetf(:,:),ib1bz(:),idteti(:,:)
+  !       integer,allocatable:: idtetf(:,:),ib1bz(:),idteti(:,:)
   !     &    ,nstar(:),irk(:,:),nstbz(:)          !,index_qbz(:,:,:)
   !-----------------------------------------------------------------
   call read_BZDATA()
@@ -267,12 +268,12 @@ subroutine hwmatK_MPI()
   !      if(ngrp/= ngrp2)
   !     &  call RSMPI_Stop( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
   !---  These are allocated and setted.
-  !      integer(4)::  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
+  !      integer::  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
   !     o  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot,niw, !not readin nw
   !      real(8) :: alat,ef, diw,dw,delta,deltaw,esmr
   !      character(120):: symgrp
   !      character(6),allocatable :: clabl(:)
-  !      integer(4),allocatable:: iclass(:)
+  !      integer,allocatable:: iclass(:)
   !     &  ,nindxv(:,:),nindxc(:,:),ncwf(:,:,:) ,
   !     o    invg(:), il(:,:), in(:,:), im(:,:),   ilnm(:),  nlnm(:),
   !     o    ilv(:),inv(:),imv(:),  ilnmv(:), nlnmv(:),
@@ -648,16 +649,18 @@ subroutine hwmatK_MPI()
   if (laf) nspinmx =1
 
   close(ifqpnt)
+ call getkeyvalue("GWinput","wmat_all",lfull,default= .FALSE. )
 
-  ! m, 070521
-  if (Is_IO_Root_RSMPI()) &
-       call getkeyvalue("GWinput","wmat_all",lfull,default= .FALSE. )
-  call MPI_Bcast(lfull,1,MPI_LOGICAL,io_root_rsmpi, &
-       MPI_COMM_WORLD,ierror_rsmpi)
+if(lfull)then
+   write(6,*) 'because of the bug in nvfortran24.1 we can not pass nrws2 to wmatqk_MPI (kount,irot,nrws1,nrws2,nrws,'
+   write(6,*) ' Thus we call   wmatqk_MPI (kount,irot,1,1,1 , which means fixed value is passoed to.'
+   write(6,*) ' If you need wmat_all, need to fix this part. or use fixed code with ifort/gfortran'
+   call rx('wmat_all is not implemented because of the bug in nvfortran24.1')
+endif   
+
+  call MPI_Bcast(lfull,1,MPI_LOGICAL,io_root_rsmpi, MPI_COMM_WORLD,ierror_rsmpi)
   call RSMPI_Check("MPI_Bcast(lfull)",ierror_rsmpi)
-
-  print *, "Here!!!!!!!!!!!!!", lfull, lwssc, nrws
-
+  print *, "Here!!!!!!!!!!!!!", lfull, lwssc!, nrws
   if (lfull) then
      if (Is_IO_Root_RSMPI()) then
         call getkeyvalue("GWinput","wmat_rcut1",rcut1, default=0.01d0 )
@@ -729,11 +732,11 @@ subroutine hwmatK_MPI()
      nrws = nrws1*nrws2*nrws2
   endif
   print *, "Here!!!!!!!!!!!!!", lfull, lwssc, nrws
-  if (Is_IO_Root_RSMPI()) then
+!  if (Is_IO_Root_RSMPI()) then
      write(*,'(a14,i5,f12.6)')'nrws1, rcut1 =',nrws1,rcut1
      write(*,'(a14,i5,f12.6)')'nrws2, rcut2 =',nrws2,rcut2
-     write(*,'(a7,i7)')'nrws  =',nrws
-  endif
+     !write(*,*)'nnnnnnnnnnn rws  =',rws1,rws2
+!  endif
 
   !$$$c ---  q near zero
   !$$$      write(6,*) 'reading QOP'
@@ -991,46 +994,23 @@ subroutine hwmatK_MPI()
         nctot0=0
         ! cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         write(*,*) 'wmatq in',irot_local,nrot_local_rotk
+        shtv = matmul(symgg(:,:,irot),shtvg(:,invr))
+        write(6,ftox)' nnnnnnnnnn before wmatqk_mpi: nrws nrws1 nrws2',nrws,nrws1,nrws2
 
-        call wmatqk_MPI (kount, irot,ef,ef2,esmr,esmr2, &
-                                ! m, 070501
-                                !     i              tiat(1:3,1:natom,invr),miat( 1:natom,invr), rsite,
-             tiat(1:3,1:natom,invr),miat( 1:natom,invr), &
-                                !     i              rws,irws,nrws,
-             rws1,rws2,nrws1,nrws2,nrws, &
-                                ! 2
-             nspin,is,  & !ifcphi,ifrb(is),ifcb(is),ifrhb(is),ifchb(is),
-             ifrcw,ifrcwi, &
-             qbas,ginv,qibz,qbz,wbz,nstbz, wibz, &! & iindxk,
-             nstar,irk,   &  ! & kount,
 
-             !     i        iiclass,nblocha,i_mnlv,i_mnlc,iicore,incore,iimdim,
-             iclass,nblocha,nlnmv, nlnmc, &  ! & w(i_mnlv),w(i_mnlc)
-             icore,ncore, imdim, &
-             ppb, &! &  pdb,dpb,ddb,
-             freq_r,freqx, wwx, expa, &
-             ua,dwdummy,  &! & deltaw,
-             ecore(:,is), &
-             
+        call wmatqk_MPI (kount,irot,     1,   1,   1,  tiat(1:3,1:natom,invr),miat(1:natom,invr), &
+!        call wmatqk_MPI (kount,irot,nrws1,nrws2,nrws,  tiat(1:3,1:natom,invr),miat(1:natom,invr), &
+             rws1,rws2, nspin,is,  & !ifcphi,ifrb(is),ifcb(is),ifrhb(is),ifchb(is),
+             ifrcw,ifrcwi, qbas,ginv,qibz,qbz,wbz,nstbz, wibz,nstar,irk,  &! & iindxk,
+             iclass,nblocha,nlnmv, nlnmc,  icore,ncore, imdim, &
+             ppb,    freq_r,freqx, wwx, expa, ua, dwdummy,  &! & deltaw,
              nlmto,nqibz,nqbz,nctot0, &
-                                !     i        index_qbz, n_index_qbz,
              nl,nnc,nclass,natom, &
              nlnmx,mdimx,nbloch,ngrp,nw_i,nw,nrw,niw,niwx,nq, &
-             
-                                !     i     nblochpmx, ngpn,ngcni,ngpmx,ngcmx,
              nblochpmx,ngpmx,ngcmx, &
-                                !     i     geigB(1,1,1,is), ngvecpB,ngveccBr,
-                                !     i     ngveccBr,
              wgt0,wqt,nq0i,q0i, symgg(:,:,irot),alat, &
-             matmul(symgg(:,:,irot),shtvg(:,invr)),nband, &
-             ifvcfpout, &
-                                !     i     shtw,
-             exchange, &! & tote, screen, cohtest, ifexsp(is),
-        !     i        omega, iwini,iwend,
-        !     i     nbmx(2),ebmx(2), !takao 18June2003
-             pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, &         ! & oct2005 for pomat
-             nwf, &
-             rw_w,cw_w,rw_iw,cw_iw) ! acuumulation variable
+             shtv,nband, ifvcfpout, &
+             exchange, pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, nwf,  rw_w,cw_w,rw_iw,cw_iw) ! acuumulation variable
         write(*,*) 'wmatq out',irot_local,nrot_local_rotk
         ! cccccccccccccccccccccccccccccccccccccccc
         !        iii = ivsum(kount,nqibz*nq)
@@ -1144,7 +1124,7 @@ subroutine wwmat (is,ifwmat,nw_i,nw,nwf, &
      lcrpa, lomega0)
   implicit real*8(a-h,o-z)
   implicit integer (i-n)
-  integer(4) :: irws1(nrws1),irws2(nrws2)
+  integer :: irws1(nrws1),irws2(nrws2)
   real(8) :: rws1(3,nrws1),rws2(3,nrws2)
   real(8) :: rydberg,hartree
   real(8) :: freq(1:nw),freq2(1:nw)   
@@ -1243,7 +1223,7 @@ subroutine wvmat (is,ifwmat,nwf, &
 
   implicit real*8(a-h,o-z)
   implicit integer (i-n)
-  integer(4) :: irws1(nrws1),irws2(nrws2)
+  integer :: irws1(nrws1),irws2(nrws2)
   real(8) :: rydberg,hartree
   real(8) :: rws1(3,nrws1),rws2(3,nrws2)
   real(8) :: rw_w(nwf,nwf,nwf,nwf,nrws),cw_w(nwf,nwf,nwf,nwf,nrws)

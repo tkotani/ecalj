@@ -121,17 +121,15 @@ contains
     integer:: ngp1, ngp2, ngvecpB1(3,ngpmx),ngvecpB2(3,ngpmx),nadd(3)
     integer:: iasx(natom),i,iap,ias,ib,ic,icp,nc,nc1,nv,ics,itp,icsx(natom),iae,ims,ime
     real(8):: quu(3),q(3), kvec(3),rkvec(3),symope(3,3),shtv(3),tr(3,natom),qk(3),qkt(3),qt(3), qdiff(3)
-    real(8),allocatable :: ppb(:,:,:,:)
+    real(8),allocatable :: ppb(:,:,:,:),tppb(:,:,:)
     complex(8),allocatable::  zmelt(:,:,:)
     logical:: iprx
-    logical,optional:: zmelconjg
+    logical:: zmelconjg
     integer:: nmtot,nqtot
-
     complex(8),allocatable,save :: cphiq(:,:), cphim(:,:) 
     real(8),save:: q_bk(3)=1d10,qk_bk(3)=1d10 !save cphiq and/or cphim (q,ispq) and (qk,ispm)
     integer,save:: ispq_bk,ispm_bk            
     logical,save:: init=.true.
-
     if(allocated(zmel)) deallocate(zmel)
     nmini = ns1          !starting index of middle state  (nctot+nvalence order)
     nmmax = ns2-nctot    !end      index of middle state  (nctot+nvalence order)
@@ -198,12 +196,17 @@ contains
          associate(      dcphiqk=>dconjg(cphim(ias:iae,nmini:nmmax)),&
               tdcphiqk=>transpose(dconjg(cphim(ias:iae,nmini:nmmax))),&
               cphiq   =>cphiq(ias:iae,nqini:nqmax),&
-              tppb    =>reshape(ppb(nc1:ncnv,nc1:ncnv,:,icp),shape=[nv,nv,mdim],order=[2,1,3]),& !all readin but we need only bands nmini: or nqini:
               ppbc    =>ppb(nc1:ncnv,icore(1:ncorec,ic),:,icp)) !all readin but we need only bands nmini: or nqini:
+           !  tppb    =>reshape(ppb(nc1:ncnv,nc1:ncnv,1:mdim,icp),shape=[nv,nv,mdim],order=[2,1,3]),& !all readin but we need only bands nmini: or nqini:
+           allocate(tppb(nv,nv,mdim))
+           do i=1,mdim
+              tppb(:,:,i)=transpose(ppb(nc1:ncnv,nc1:ncnv,i,icp))
+           enddo   
            !=== this may be time-consuming block ==================
            do concurrent(i=1:mdim) !valence-valence 
               zmelt(i-1+ims,nctot+1:nctot+nt0,ncc+1:ncc+ntp0)=phase(ia)*matmul(tdcphiqk,matmul(tppb(:,:,i),cphiq))
            enddo
+           deallocate(tppb)
            !========================================================
            do concurrent(it=1:ncorec) !core-valence
               zmelt(ims:ime, ics+it,    ncc+1:ncc+ntp0)=phase(ia)* matmul(transpose(ppbc(:,it,1:mdim)),cphiq(:,1:ntp0))
@@ -286,6 +289,6 @@ contains
     allocate(zmel(nbb,ns1:ns2, nqtot))
     call matm(dconjg(transpose(ppovlz)), zmelt, zmel,nbb,ngb,nmtot*nqtot) !MultiplePPOVLZ
     deallocate(zmelt)
-    if(present(zmelconjg)) zmel=dconjg(zmel)
+    if(zmelconjg) zmel=dconjg(zmel)
   end subroutine get_zmel_init
 end module m_zmel

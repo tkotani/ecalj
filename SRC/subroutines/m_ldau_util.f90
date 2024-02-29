@@ -662,8 +662,8 @@ contains
     !    if(iprint()>0) write(6,ftox)'=== representation in spherical harmonics vorb ==='
     !    call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau, 'New vorb',vorb)
     if (master_mpi) then
-       idmat = ifile_handle()
-       open(idmat,file='dmats.'//trim(sname)) !havesh mush be 1
+       !idmat = ifile_handle()
+       open(newunit=idmat,file='dmats.'//trim(sname)) !havesh mush be 1
        if(iprint()>0) write(stdo,*)' ... Writing density matrix dmats.*... '
        !write(idmat,ftox)'# === dmats in sph harmonics (read by lmfp-m_ldau_init-sudmtu)==='
        call praldm(idmat,0,0,havesh,nbas,nsp,lmaxu,lldau,' dmats !spherical harmonics',dmatu)
@@ -794,6 +794,7 @@ contains
              enddo
           endif
        enddo
+       close(idmat)
     elseif(occe) then         !if no occunum.* initial dmatu=0
        write(stdo,ftox)'sudmtu: initial (diagonal) density-matrix from occ numbers'
        open(newunit=foccn,file='occnum.'//trim(sname))
@@ -859,7 +860,7 @@ contains
        havesh = idvsh
     endif
     if (ng /= 0) then
-       if(master_mpi)write(stdo,ftox)'sudmtu:  RMS change in dmats from symmetrization',ftof(xx)
+       if(master_mpi)write(stdo,ftox)'sudmtu:  RMS change in dmats from symmetrization',xx !ftof(xx)
        if (xx > .01d0) write(stdo,*)'(warning) RMS change unexpectely large'
        call daxpy ( ivsiz * 2 , - 1d0 , dmatu , 1 , dmwk_zv , 1 )
        if(ipr>=60) write(stdo,*)' change in dmat wrought by symmetrization'
@@ -905,8 +906,7 @@ contains
 20  enddo
     call praldm(0,60,60,havesh,nbas,nsp,lmaxu,lldau,' Unsymmetrized vorb',vorb)
 !!!! ==>     At this point, dmatu and vorb are in spherical harmonics (complex)
-
-    ! ... Symmetrize vorb to check (symdmu requires real harmonics)
+! ... Symmetrize vorb to check (symdmu requires real harmonics)
     call rotycs(-1,vorb,nbas,nsp,lmaxu,lldau)
     call symdmu (nlibu, vorb, nbas , nsp , lmaxu , ng , g , istab , lldau , xx )
     !     EITHER: vorb =>  spherical harmonics OR dmatu => real harmonics
@@ -918,7 +918,7 @@ contains
        havesh = 0
     endif
     if (master_mpi.and.ng /= 0) then
-       write(stdo,ftox)'sudmtu:  RMS change in vorb from symmetrization = ',ftof(xx)
+       write(stdo,ftox)'sudmtu:  RMS change in vorb from symmetrization = ',xx !ftof(xx)
        if (xx > .01d0) write(stdo,*)'          (warning) RMS change unexpectely large'
        write(stdo,*)
     endif
@@ -932,7 +932,7 @@ contains
     endif
     eorb = 0d0
     return
-99  continue 
+    99  continue 
     call rx('bad occnum file, site l= '//trim(xn(ib))//trim(xn(l)))
   end subroutine sudmtu
   subroutine rotycs(mode,a,nbas,nsp,lmaxu,lldau) !- Rotate matrix a from real to spherical harmonics for LDA+U objects densmat and vorb

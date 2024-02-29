@@ -133,8 +133,8 @@ subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|
          open(newunit=ifglt1, file=trim(fname1))
          open(newunit=ifglt,  file=trim(fname))
          do
-            read(ifglt,"(a)",err=989,end=989)aline
-          if(trim(aline)=="plot \") then !"
+          read(ifglt,"(a)",err=989,end=989)aline
+          if(aline(1:4)=='plot') then 
             write(ifglt1,ftox)"ef=",ftof(eferm)
             write(ifglt1,ftox)trim(aline)
             write(ifglt1,ftox)'"'//trim(fband(jsp))//'" u ($1):(13.605*($2-ef)) pt 2 lc rgb "green",\' !'

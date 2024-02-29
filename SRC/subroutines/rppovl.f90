@@ -95,6 +95,7 @@ contains
 1011 continue
     !! read file of iqi. iqi is determined for given qx.
     loopnum=loopnum+1
+!    write(6,"('iqi=,loop num=',i10,i10)") iqi,loopnum
     if(loopnum == 1) write(6,"('iqi=,loop num=',i10,i10)") iqi,loopnum
     if(loopnum == 10) write(6,"('iqi=,loop num=',i10,i10)") iqi,loopnum
     if(loopnum == 100) write(6,"('iqi=,loop num=',i10,i10)") iqi,loopnum

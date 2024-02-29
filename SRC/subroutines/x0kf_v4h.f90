@@ -124,7 +124,7 @@ contains
   subroutine X0kf_v4hz (q, isp_k,isp_kq, iq, npr,   q00,chipm,nolfco,zzr,nmbas)
     use m_zmel,only: Setppovlz,Setppovlz_chipm   ! & NOTE: these data set are stored in this module, and used
 !  subroutine X0kf_v4hz (q, isp_k,isp_kq, iq, npr,  rcxq,epsppmode,iqxini, q00)
-    intent(in)   ::     q, isp_k,isp_kq, iq,    q00 !q00 is optional
+    intent(in)   ::     q, isp_k,isp_kq, iq,       q00,chipm,nolfco,zzr,nmbas !q00 is optional
 !    intent(out)  ::                                  rcxq
     !! === calculate chi0, or chi0_pm === ! eibzmode, 
     !! We calculate imaginary part of chi0 along real axis.
@@ -147,6 +147,7 @@ contains
     ! note: zmel: matrix element <phi phi |M>
     !! nlmto   = total number of atomic basis functions within MT
     !! nqbz    = number of k-points in the 1st BZ
+    logical,optional:: chipm,nolfco
     real(8),optional::q00(3)
     integer,optional::nmbas
     integer:: k,isp_k,isp_kq,iq, jpm, ibib, iw,igb2,igb1,it,itp, npr ,npr_in
@@ -160,7 +161,6 @@ contains
     complex(8),allocatable :: zmelt(:,:,:)
     logical :: iww2=.true., cmdopt0,emptyrun,nolfcc,chipmm, localfieldcorrectionllw
     logical,parameter:: debug=.false.
-    logical,optional:: chipm,nolfco
     
     ! z1p = <M_ibg1 psi_it | psi_itp> < psi_itp | psi_it M_ibg2 >
     !  zxq(iw,ibg1,igb2) = \sum_ibib imgw(iw,ibib)* z1p(ibib, igb1,igb2) !ibib means band pair (occ,unocc)
@@ -189,11 +189,12 @@ contains
     !! Get_zmelt in m_zmel gives the matrix element zmel,  ZO^-1 <MPB psi|psi> , where ZO is ppovlz 
     !! zmel(ngb, nctot+nt0,  ncc+ntp0) in m_zmel
     !            nkmin:nt0, nkqmin:ntp0, where nt0=nkmax-nkmin+1  , ntp0=nkqmax-nkqmin+1
-    emptyrun=cmdopt0('--emptyrun')
 
-    ! ! !!!!!!!!!!!!!!!!!!!!!!    
-    chipmm=merge(chipm, .false.,present(chipm))
-    nolfcc=merge(nolfco,.false.,present(nolfco))
+    emptyrun=cmdopt0('--emptyrun')
+    chipmm=chipm
+    nolfcc=nolfco
+    !if(present(chipm)) chipmm=.true. !merge(chipm, .false.,present(chipm)) !nvfortran24.1 can not compile present(chipm)
+    !if(present(nolfco))nolfcc=.true. !merge(nolfco,.false.,present(nolfco))
     call Readvcoud(q,iq,NoVcou=chipmm) !Readin vcousq,zcousq ngb ngc for the Coulomb matrix
     if(chipmm) then ! .AND. nolfcc) then
        npr = nmbas

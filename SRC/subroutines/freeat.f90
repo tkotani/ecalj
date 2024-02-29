@@ -885,7 +885,6 @@ contains
 139 format(/' sumev=',f13.6,'    sumec =',f13.6,'   vnucl =',f13.6 /' rhovh=',f13.6,'    zvnucl=',f13.6,'   utot  =',f13.6 &
          /' rhomu=',f13.6,'    rhoeps=',f13.6,'   dsumec=',f13.6     /' ekin= ',f13.6,'    tcore =',f13.6,'   etot  =',f13.6)
     vrmax(1) = -2*z/rmax + sum(v(nr,1:nsp))/nsp
-    vrmax(2) = 0d0
     if(nsp==2) vrmax(2) = v(nr,1)-v(nr,2)
   end subroutine atomsc
   subroutine addzbk(rofi,nr,nsp,rho,rhozbk,scale)
@@ -1356,7 +1355,7 @@ end subroutine hnsmft
 subroutine sint(xi,xj,nrmt,a,b,rofi,irs,ire,sum)
   implicit none
   integer :: ire,irs,ir,nrmt,jr
-  double precision :: rofi(1),r,a,b,sum,xi(1),xj(1)
+  double precision :: rofi(*),r,a,b,sum,xi(*),xj(*)
   sum = 0d0
   do  1  ir = irs+1, ire-1
      jr = ir+1-nrmt
@@ -1372,7 +1371,7 @@ end subroutine sint
 subroutine fint(xi,nrmt,rho,a,b,rofi,irs,ire,sum)
   !     implicit none
   integer :: ire,irs,ir,nrmt
-  double precision :: rho(1),rofi(1),r,a,b,sqfpi,sum,xi(1)
+  double precision :: rho(*),rofi(*),r,a,b,sqfpi,sum,xi(*)
   sum = 0d0
   sqfpi = dsqrt(16*datan(1d0))
   do  1  ir = irs+1, ire-1

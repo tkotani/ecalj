@@ -62,7 +62,9 @@ contains
        ntab(iorb+1:iorbe)=0
        iorb=iorbe+1
     enddo
-    blks =[(sum( [ (2*ltabx(io,ia)+1, io=iorb,ntab(iorb)) ] ),iorb=1,norb)]
+    do iorb=1,norb
+       blks(iorb)= sum( [ (2*ltabx(io,ia)+1, io=iorb,ntab(iorb)) ] )
+    enddo   
   end subroutine gtbsl4
   
 end module m_orbl

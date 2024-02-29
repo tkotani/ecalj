@@ -22,7 +22,7 @@ define test2.exec
 	# --- Test 2.  Core-level spectroscopy (EELS), Mulliken analysis, partial DOS ---
 	#
 	@cat message.test2.$(TARGET)
-	$(bindir)/lmfa $(TARGET) > $1 2>&1
+	mpirun -np 1 $(bindir)/lmfa $(TARGET) > $1 2>&1
 	$(LMF) --cls:1,1,2 --mull:mode=2 -vnk=6 -vnit=1 $(TARGET) >> $1 2>&1
 	mv dos.$(TARGET) tdos.$(TARGET)
 	$(bindir)/lmdos --cls --dos:wtfn=cls:npts=1001:window=-.7,.8 -vnk=6 $(TARGET) >> $2 2>&1
@@ -40,7 +40,7 @@ define testjob1.exec
 	#
 	# --- Test 3.  job_tdos ---------
 	#
-	$(bindir)/lmfa $(TARGET) > /dev/null
+	mpirun -np 1 $(bindir)/lmfa $(TARGET) > /dev/null
 	$(bindir)/job_tdos $(TARGET) -np $(mpi_size) -vnk=6 NoGnuplot > ljob_tdos
 endef
 

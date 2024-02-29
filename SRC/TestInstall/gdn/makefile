@@ -13,7 +13,7 @@ define test1.exec
 	#
 	rm -f atm.* eula.* moms.* mixm.* rst.* rsta.* save.* log.* hssn.* wkp.* cv.* bsmv.* bnds.* dmats.* dmats-save.* sigm.* qpp.* 
 	@cat message.test1.$(TARGET)
-	$(bindir)/lmfa $(TARGET) > $1 2>&1
+	mpirun -np 1 $(bindir)/lmfa $(TARGET) > $1 2>&1
 	$(LMFP)  $(TARGET) >> $1 2>&1
 	mv rst.$(TARGET) rst-save.$(TARGET)
 	mv dmats.$(TARGET) dmats-save.$(TARGET)
@@ -22,7 +22,7 @@ define test1.exec
 	cp dmats-save.$(TARGET) dmats.$(TARGET)
 	$(LMFP)  $(TARGET) -vpwmode=1 >> $1 2>&1
 	rm -f rst.$(TARGET) wkp.$(TARGET) mixm.$(TARGET)
-	$(bindir)/lmfa $(TARGET) -vcoref=t >> $1 2>&1
+	mpirun -np 1 $(bindir)/lmfa $(TARGET) -vcoref=t >> $1 2>&1
 	$(LMFP)  $(TARGET) -vcoref=t >> $1 2>&1
 endef
 define test2.exec

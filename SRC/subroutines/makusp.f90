@@ -47,8 +47,8 @@ contains
     !l         :2 a smooth Hankel tail is attached (extended local orbital) and it is included explicitly in the basis.
     implicit none
     integer :: lmxa,nr,nsp,n0,i,l,k,lpz,lpzi,nrbig,idx
-    real(8):: a,rmax,z,rsml(0:lmxa),ehl(0:lmxa), v(nr,1),pnu(n0,2),pnz(n0,2), &
-         ul(nr,lmxa+1,1),sl(nr,lmxa+1,1),gz(nr,lmxa+1,1), ruu(nr,lmxa+1,2,1),rus(nr,lmxa+1,2,1),rss(nr,lmxa+1,2,1),&
+    real(8):: a,rmax,z,rsml(0:lmxa),ehl(0:lmxa), v(nr,*),pnu(n0,2),pnz(n0,2), &
+         ul(nr,lmxa+1,*),sl(nr,lmxa+1,*),gz(nr,lmxa+1,*), ruu(nr,lmxa+1,2,*),rus(nr,lmxa+1,2,*),rss(nr,lmxa+1,2,*),&
          dphi,dphip,enu,ez,p,phi,phip, g(nr,2),gp(nr,8),gzl(nr,2),phz,dphz,rofi(nr),rwgt(nr),xi(0:n0),wk(2),fac1
     call radmsh(rmax,a,nr,rofi)
     do  i = 1, nsp

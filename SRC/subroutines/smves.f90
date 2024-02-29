@@ -2,6 +2,7 @@
 module m_smves 
   use m_lmfinit,only: rmt_i=>rmt,lmxl_i=>lmxl,spec_a,rg_i=>rg,nlmxlx,nbas
   use m_ll,only:ll
+  use m_nvfortran,only:findloc
   private
   public smves
 contains

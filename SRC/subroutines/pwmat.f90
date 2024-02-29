@@ -1,5 +1,6 @@
 module m_pwmat
   use m_ll,only:ll
+  use m_nvfortran,only:findloc
   public pwmat,mkppovl2
   private
   contains

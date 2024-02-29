@@ -12,7 +12,7 @@ define test4c.exec
 	# --- Test case 4:  Spin-orbit coupling ---
 	#
 	@cat message.test4.$(TARGET)
-	$(bindir)/lmfa -vso=1 $(TARGET) -vpwmode=0 > $1 2>&1
+	mpirun -np 1 $(bindir)/lmfa -vso=1 $(TARGET) -vpwmode=0 > $1 2>&1
 	$(LMFP) -vso=1 -vnit=1 $(TARGET) --band:fn=syml -vpwmode=0 >> $1 2>&1
 endef
 ###########################################################

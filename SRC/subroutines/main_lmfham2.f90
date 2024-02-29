@@ -33,6 +33,7 @@ subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |
   use m_mkqp,only:     m_mkqp_init
   use m_rotwave,only:  rotmatMTO!,rotmatPMT
   use m_prgnam,only: set_prgnam
+  use m_nvfortran,only:findloc
   implicit none
   integer:: i,iq,is,ix,j,ifbb,ifoc,nbb,isc,ifq0p, nox,iki,ikf,nsc1,ndz,nin,nout,nsc2,ibb
   integer:: inii,if102,iwf2,ib,itmp,itmp2,nqbz2,nspin2,ib1,ib2,iqb,iqbz,it,jsp,nmx,nev,isyml!,nqbz!,n1,n2,n3
@@ -544,7 +545,7 @@ subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |
       open(newunit=ifglt1, file=trim(fname2))
       do
         read(ifglt,"(a)",err=989,end=989)aline
-        if(trim(aline)=="plot \" ) then !"
+        if(aline(1:4)=="plot" ) then !"
           write(ifglt1,ftox)"ef=",ftof(eferm)
           write(ifglt1,ftox)trim(aline)
           write(ifglt1,ftox)'"'//trim(fband1)//'" u ($1):(13.605*($2-ef)) pt 2 lc rgb "green",\'   !'

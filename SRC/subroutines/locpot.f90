@@ -66,8 +66,8 @@ contains
     !l   lfltwf:T  update potential used to define basis
     !i   idu  :idu(l+1,ibas)>01 => this l has a nonlocal U matrix
     ! ----------------------------------------------------------------------
-    integer::  job,ibx,ir,isp,l,lm, kcor,lcor, i,nglob,ipr,iprint,j1,ib,is,lmxl,lmxa,nr,lmxb,kmax,lfoc,nrml,nlml,ifivesint,ifi,&
-         lsox,lmxh, lh(nkap0),nkapi,nkaph,k
+    integer:: ib,job,ibx,ir,isp,l,lm, kcor,lcor, i,nglob,ipr,iprint,j1,is,lmxl,lmxa,nr,lmxb,kmax,lfoc,nrml,nlml,&
+         ifivesint,ifi, lsox,lmxh, lh(nkap0),nkapi,nkaph,k
     type(s_rv1) :: orhoat(3,nbas)
     type(s_cv5) :: oppi(3,nbas)
     type(s_sblock):: ohsozz(3,nbas),ohsopm(3,nbas)
@@ -82,7 +82,7 @@ contains
     real(8),pointer:: pnu(:,:),pnz(:,:)
     real(8),allocatable:: wk(:),efg(:,:),zz(:)
     logical,save:: secondcall=.false.
-    character*20::strib
+    character*20:: strib
     character strn*120
     call tcn('locpot')
     rhobg=qbg/vol
@@ -144,6 +144,9 @@ contains
            call radmsh(rmt,a,nr,rofi)
            call radwgt(rmt,a,nr,rwgt)
            if(cmdopt0('--wrhomt'))call wrhomt('rhoMT.','density',ib,orhoat(1,ib)%v,rofi,nr,nlml,nsp) ! Write true density to file rhoMT.ib
+!!!!!!!!!!!!!!!!!!!!
+!       write(6,*)'sssscheck222',sum(orhoat(1,ib)%v),sum(abs(orhoat(1,ib)%v))
+!!!!!!!!!!!!!!!!!!!!    
            call locpt2(ib,z,rmt,rg,a,nr,nsp,cofg,cofh, & ! Make potential and energy terms at this site ---
                 ceh,rfoc,lfoc,nlml,qmom(:,ib),vval(:,ib),rofi,rwgt, orhoat(1,ib)%v,orhoat(2,ib)%v,orhoat(3,ib)%v,   gpot0(:,ib), &
                 rhol1,rhol2,v1,v2,v1es,v2es,&
@@ -174,7 +177,9 @@ contains
              phispinsym= cmdopt0('--phispinsym')
              if(phispinsym) then
                 if(master_mpi.AND.nsp==2)write(6,*) 'locpot: --phispinsym mode: use spin-averaged potential for phi and phidot'
-                forall(ir=1:nr) v0pot(ib)%v(ir,:)= sum([(v0pot(ib)%v(ir,isp),isp=1,nsp)])/nsp
+                do ir =1,nr
+                   v0pot(ib)%v(ir,:)= sum([(v0pot(ib)%v(ir,isp),isp=1,nsp)])/nsp
+                enddo   
              endif
            endblock phispinsymB
            v0fixblock: block ! experimental case --v0fix
@@ -415,7 +420,7 @@ contains
        sumh  = sum(rwgt*rhochs)                           !
        samh = -y0*cofh*pi4*dexp(ceh*rfoc*rfoc*0.25d0)/ceh !total sm core charge (smHamkel)
        if(dabs(samh)>1d-6)write(stdo,ftox)'    sm core charge in MT=',ftof(sumh),'= total-spillout=',ftof(samh),'-',ftof(samh-sumh)
-    endif     
+    endif
     rhol1 = rho1
     rhol1(:,1,:)= rhol1(:,1,:)+ y0*rhoc(:,:) ! True electron density = rhol1 -2Z/r = rho1 + y0*(rhoc -2Z/r) !1st component of Eq.(24)
     !     gval : qmom * compensating gaussians gg = \sum_L QaL^v GaL 
@@ -453,8 +458,14 @@ contains
         call poinsp(z,vval,nlml,v1out,rofi,rhol1t,wk,nr,rvs1,rhves1,  vnucl,vsum)
         ! v1out is with the b.c. vval detemined by \bar{n0}^Zcv. This is needed for pnunew (set energy at the center of gravity).
         if (nsp == 2) v1out(:,:,2)=v1out(:,:,1)
+!        write(6,*)'sssscheck',sum(rhol1),sum(abs(rhol1))
         call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rhol1,lxcfun,rep1,rep1x,rep1c,rmu1,v1out,fl,qs) !v1out is for radial basis and pnu.
+        !xcore=0d0
+        !do isp=1,nsp
+        !   xcore=xcore+sum(rwgt(2:nr)*rhoc(2:nr,isp)*(y0*v1out(2:nr,1,isp)-2d0*z/rofi(2:nr)))
+        !enddo
         xcore = sum([(sum(rwgt(2:nr)*rhoc(2:nr,isp)*(y0*v1out(2:nr,1,isp)-2d0*z/rofi(2:nr))),isp=1,nsp)]) ! Vin*rhoc
+!        stop 'qqqqqqqqqqqqqqq'
       endblock Getv1out
       v1esv2esgpotb: block
         call poinsp(0d0,[(0d0,i=1,nlml)],nlml,v2es,rofi,rhol2t,wk,nr,rvs2,rhves2, vnucl,vsum)! Ves[rhol2], Ves=0 at MTboundaries (vval=0).
@@ -621,7 +632,7 @@ contains
     ! o        :output: Electric field gradient
     implicit none
     integer :: nc,stdo
-    real(8) :: z(nc),efg1(5,1)
+    real(8) :: z(nc),efg1(5,*)
     integer :: i,ifi,ic,ifesn,j,n,ier,imax,ixx,iyy
     real(8) :: v(3,3),vi(3,3),d(3),e(3),e2(3),tau(2,3)
     real(8) :: tr(3,3),ti(3,3),da(3)

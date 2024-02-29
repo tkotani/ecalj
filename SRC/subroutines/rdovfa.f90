@@ -254,10 +254,10 @@ contains
     !    slmom :sum of local magnetic moments
     implicit none
     integer:: kmxv=15 !k-cutoff for 1-center projection of free-atom rho. ! kmxv = cutoff to expand smoothed potential.    hardwired for now
-    integer:: nbas,nxi(1),nxi0
+    integer:: nbas,nxi(*),nxi0
     type(s_rv1) :: sv_p_orhoat(3,nbas)
     type(s_rv1) :: rv_a_orhofa(nbas)
-    real(8):: rsmfa(1),exi(nxi0,1),hfc(nxi0,2,1),sqloc,slmom
+    real(8):: rsmfa(*),exi(nxi0,*),hfc(nxi0,2,*),sqloc,slmom
     integer:: ib,ipr,iprint,is,jb,je,js,lfoca,lmxl,nlmh,nlml,nr,i
     real(8) :: ceh,cofg,cofh,eh,qcorg,qcorh,qsc,qcsm,qloc,rfoca,rmt,rsmh,rsmv,z,amom, a,p1(3), p2(3)
     real(8),allocatable:: acof(:,:,:),b0(:,:),rofi(:),rwgt(:)
@@ -295,7 +295,7 @@ contains
              rsmh = rsmfa(js)
              eh   = exi(je,js)
              nlmh = 1
-             call hxpbl ( p2,p1,[0d0,0d0,0d0],[rsmh], rsmv,[eh],kmxv,nlmh,nlml, kmxv,nlml,  b ) 
+             call hxpbl(p2,p1,[0d0,0d0,0d0],[rsmh],rsmv,[eh],kmxv,nlmh,nlml,kmxv,nlml, b) 
              allocate(b0(0:kmxv,nlmh),source=0d0)
              if (ib == jb) call hxpos([rsmh],rsmv,[eh],kmxv,nlmh,kmxv,b0)
              do  i = 1, nsp
@@ -304,7 +304,7 @@ contains
              deallocate(b0)
           enddo
        enddo
-       call p2ovlc ( ib,nsp,rsmv,kmxv,nr,nlml,acof,rofi &
+       call p2ovlc(ib,nsp,rsmv,kmxv,nr,nlml,acof,rofi &
            ,rwgt,nxi0,nxi(is),exi(1,is),hfc(1,1,is),rsmfa(is),rv_a_orhofa(is)%v,sv_p_orhoat(3,ib)%v &
            ,lfoca,qcsm,qloc,amom,sv_p_orhoat(1,ib)%v,sv_p_orhoat( 2,ib )%v )
        sqloc = sqloc + qloc
@@ -322,11 +322,13 @@ contains
     !i   b0    :P_kl expansion of on-site density
     !o Outputs
     !o   a     :cumulative P_kl expansion of density for this site
+    use m_ftox
     implicit none
     integer :: nlml,kmxv
     real(8) :: a(0:kmxv,nlml),b0(0:kmxv,1),hfc
     double complex b(0:kmxv,nlml)
     integer :: k,ilm
+!    write(6,ftox) 'ppppppp111111111',hfc,sum(b),sum(b0(:,1))
     a(:,:) = a(:,:) + hfc*b(:,:)
     a(:,1) = a(:,1) - hfc*b0(:,1)
   end subroutine p1ovlc
@@ -364,7 +366,7 @@ contains
     implicit none
     integer :: nr,nxi0,ib,nsp,kmxv,nlml,nxi,lfoca, i,ie,ilm,ipr,iprint,k,l,lmax,lmxl,isp
     real(8) :: qcsm,qloc,rhofa(nr,nsp),rho1(nr,nlml,nsp), &
-         rho2(nr,nlml,nsp),rofi(nr),rwgt(nr),rhohd(nr,nsp),exi(1), &
+         rho2(nr,nlml,nsp),rofi(nr),rwgt(nr),rhohd(nr,nsp),exi(*), &
          hfc(nxi0,nsp),rhoc(nr,nsp),acof(0:kmxv,nlml,nsp),rsmv,rsmfa,amom
     real(8) :: asm,gam,pi,qall,qexa,qin,qlc,qnum,qout,qsmo,qut, &
          r,rl,rmt,srfpi,ssum,sumfa,sumhd,sumsm,sumtr,y0, xi(0:10),x0(0:2),ddot !pkl(0:kmx,0:lmx)
@@ -420,6 +422,13 @@ contains
        enddo
     enddo
     rho1=rho2
+!!!!!!!!!!!!!!!!!!!!
+       block
+         use m_density,only: orhoat
+         write(6,*)'rrrrrrdensity111222xxx',sum(rho1),sum(abs(rho1)),sum(abs(acof)),sum(abs(pkl))
+       endblock
+!       stop
+!!!!!!!!!!!!!!!!!!!!    
     do   i = 1, nr ! ... Make the true density in rho1, smooth density in rho2     !call dpcopy(rho2,rho1,1,nr*nlml*nsp,1d0)
        rho1(i,1,:) = rho1(i,1,:) + y0*rhofa(i,:)
        rho2(i,1,:) = rho2(i,1,:) + y0*rhohd(i,:)
@@ -493,8 +502,8 @@ contains
     !o Outputs
     !o   cv    :Fourier coefficients
     implicit none
-    integer :: nbas,nxi(1),nxi0,ng
-    real(8)::gv(ng,3),rsmfa(1),exi(nxi0,1),hfc(nxi0,2,1),v(3),alat,vol,tpiba,ssum(2),pos(3),sam(2),e,cof,rsm,gam,v2
+    integer :: nbas,nxi(*),nxi0,ng
+    real(8)::gv(ng,3),rsmfa(*),exi(nxi0,*),hfc(nxi0,2,*),v(3),alat,vol,tpiba,ssum(2),pos(3),sam(2),e,cof,rsm,gam,v2
     integer :: ipr,iprint,ib,is,nx,i,ixi,ig,isp
     complex(8):: img=(0d0,1d0), phase,cv(ng,nsp)
     real(8),parameter:: pi   = 4d0*datan(1d0),  y0   = 1d0/dsqrt(4*pi)

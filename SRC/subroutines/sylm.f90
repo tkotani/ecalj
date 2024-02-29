@@ -91,7 +91,7 @@ subroutine sylmnc(c,lmx)   !- Normalization constants for the spherical harmonic
   !     implicit none
   ! Passed parameters
   integer :: lmx
-  double precision :: c(1)
+  double precision :: c(*)
   ! Local parameters
   integer :: i,i1,i2,l,lav,lp1,m,n1,n2,n3
   double precision :: fn2,fpi,tlp1,tpi,y0

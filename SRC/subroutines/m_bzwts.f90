@@ -402,10 +402,9 @@ contains
     !r    nbpw: a number no larger than the number of bits per integer word
     ! ----------------------------------------------------------------
     !     implicit none
-    integer bitmap(1), nbpw, n
+    integer bitmap(*), nbpw, n
     ! Local parameters
     integer nword,nbit,i
-
     nword = (n-1)/nbpw
     nbit = mod(n-1,nbpw)
     i = 2**(nbpw-nbit-1)
@@ -417,7 +416,7 @@ contains
     !r   See mark1
     ! ----------------------------------------------------------------
     !     implicit none
-    integer bitmap(1), nbpw, n
+    integer bitmap(*), nbpw, n
     ! Local parameters
     integer nword,nbit
     nword = (n-1)/nbpw

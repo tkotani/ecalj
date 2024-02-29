@@ -14,7 +14,7 @@ define test1.exec
 	# --- Test 1.  Basic check of programs lmfa,lmf ---
 	#
 	@cat message.test1.$(TARGET)
-	$(bindir)/lmfa $(TARGET) -vnsp=2 -cstrx=l12 --pr41,41 -vmet=3 \
+	mpirun -np 1 $(bindir)/lmfa $(TARGET) -vnsp=2 -cstrx=l12 --pr41,41 -vmet=3 \
 		-vtetra=0 -vnk1=2 -vlfrce=12 -vdist=1 -vnit=3 \
 		--time=5 --no-iactiv > $1 2>&1
 	$(LMFP)  $(TARGET) -vnsp=2 -cstrx=l12 --pr41,41 -vmet=3 \

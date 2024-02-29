@@ -6,7 +6,9 @@ subroutine gtbsl8(norb,ltab,ktab,rsmh,eh, ntab,blks)
   double precision :: rsmh(n0,nkap0),eh(n0,nkap0)
   integer :: iorb,jorb,ki,kj,li,lj,lk,kk,init,io
   ntab= [(iorb,iorb=1,norb)]
-  blks =[(sum( [ (2*ltab(io)+1, io=iorb,ntab(iorb)) ] ),iorb=1,norb)]
+  do iorb=1,norb
+     blks(iorb) =sum( [ (2*ltab(io)+1, io=iorb,ntab(iorb)) ])
+  enddo   
   where( [(rsmh(ltab(iorb)+1,ktab(iorb)) <= 0, iorb=1,norb)] ) blks = 0 
 end subroutine gtbsl8
 !> Marks blocks of contiguous l for which rsm and e are unchanged
@@ -59,6 +61,11 @@ subroutine gtbsl1(mode,norb,ltab,ktab,rsmh,eh, ntab,blks)
         kk = kj
      enddo
   enddo
-  blks =[(sum( [ (2*ltab(io)+1, io=iorb,ntab(iorb)) ] ),iorb=1,norb)]
-  where( [(rsmh(ltab(iorb)+1,ktab(iorb)) <= 0, iorb=1,norb)] ) blks = 0 
+  do iorb=1,norb
+     blks(iorb) = sum( [ (2*ltab(io)+1, io=iorb,ntab(iorb)) ] )
+     if(rsmh(ltab(iorb)+1,ktab(iorb)) <= 0) blks(iorb)=0
+  enddo
+!following did not work in nvfortran 24.1
+!     blks =[(sum( [ (2*ltab(io)+1, io=iorb,ntab(iorb)) ] ),iorb=1,norb)]
+!  where( [(rsmh(ltab(iorb)+1,ktab(iorb)) <= 0, iorb=1,norb)] ) blks = 0 
 end subroutine gtbsl1

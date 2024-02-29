@@ -70,6 +70,7 @@ module m_shortn3
   ! Set rlat at first, then call shortn3(pin)
   ! Shortest p= pin + matmul(rlat(:,:),nlatout(:,i)) for i=1,nout
   ! Only when pin is on the Volonoi boundaries, nout>1.
+  use m_nvfortran,only: findloc
   implicit none
   public:: gennlat,mshsiz,gvlst2,gvctof !shortn3_initialize, shortn3
   integer,parameter,private:: noutmx=48

@@ -182,7 +182,7 @@ contains
     implicit none
     integer :: lmet,ndimh,nevec!,numq
     double precision :: qval,wgt !esmear,
-    double precision :: evl(ndimh),ewgt(1),sumev(2),sumqv
+    double precision :: evl(ndimh),ewgt(*),sumev(2),sumqv
     integer :: i,i1,i2,ie,iprint,iq,k,nord
     double precision :: dn,eff,fevec,fn,sn,width,wtop,wx,x
     character(8):: xt

@@ -165,7 +165,7 @@ end subroutine mpibc2
 subroutine icopy(n,dx,incx,dy,incy)
   !     copies a vector, x, to a vector, y.  Adapted from:
   !     jack dongarra, linpack, 3/11/78.
-  integer :: dx(1),dy(1)
+  integer :: dx(*),dy(*)
   integer :: i,incx,incy,ix,iy,n
   ix = 1
   iy = 1

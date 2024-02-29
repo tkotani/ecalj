@@ -135,8 +135,10 @@ contains
          do  l = 0, lx(ie)
             i1=l*l+1
             i2=l*l+2*l+1
-            hsm(i1:i2,ie) = hsm(i1:i2,ie)   + [( sum([(yl(ir,ilm)*wkc(ir,l+1)*phase(ir),ir=1,nDx)]),    ilm=i1,i2)]
-            hsmp(i1:i2,ie) = hsmp(i1:i2,ie) + [( sum([(yl(ir,ilm)*wkc(ir,l)  *phase(ir),ir=1,nDx)])/2d0, ilm=i1,i2)]
+            do ilm=i1,i2
+               hsm(ilm,ie)  = hsm(ilm,ie)+ sum([(yl(ir,ilm)*wkc(ir,l+1)*phase(ir),ir=1,nDx)])
+               hsmp(ilm,ie) = hsmp(ilm,ie) + sum([(yl(ir,ilm)*wkc(ir,l)  *phase(ir),ir=1,nDx)])/2d0
+            enddo   
          enddo
          le=(lx(ie)+1)**2
        endblock hansblock
@@ -185,7 +187,7 @@ contains
     !r   is subtracted from hsm(l=0).
     !b Bugs and Limitations:  see hsmq.
     ! ---------------------------------------------------------------
-    integer :: lmax,nG,nD,nlmx,nrx,job, ir,ilm,l,m,ir1,lc,ls,job0,job1,job2,job3,lm,nDx, lx1(1),i1,i2
+    integer :: lmax,nG,nD,nlmx,nrx,job, ir,ilm,l,m,ir1,lc,ls,job0,job1,job2,job3,lm,nDx, lx1(1),i1,i2,ix
     real(8) :: qdotr,a2,sp,gam,tpiba,p1(3),ex1(1), x1,x2,xx,xx1((lmax+1)**2),xx2((lmax+1)**2),r,h0,q0(3),a,faca
     real(8):: alat,awald,vol,rsm,p(3),q(3), wk(nrx,(2*lmax+10)),yl(nrx,*),qlv(3,*),dlv(3,*),y0fac(nrx),rsq(nrx)
     complex(8):: hsm((lmax+1)**2)  
@@ -269,7 +271,9 @@ contains
     llooop: do l = 0, lmax
        i1=l*l+1
        i2=l*l+2*l+1
-       hsm(i1:i2)  = hsm(i1:i2) + [(sum([(yl(ir,ilm)*phase(ir)*wk(ir,l+lc),ir=1,nDx)]), ilm=i1,i2)]
+       do ix=i1,i2
+          hsm(ix)  = hsm(ix) + sum([(yl(ir,ix)*phase(ir)*wk(ir,l+lc),ir=1,nDx)])
+       enddo   
     enddo llooop
     if (dcmpre(sum(dabs(q0)))) hsm(1) = hsm(1) + rsm**2/(4d0*vol*y0) !! --- Add extra term for l=0 when e=0 and q=0 ---
   end subroutine hsmqe0
@@ -376,7 +380,7 @@ contains
     implicit none
     real(8),parameter::   pi = 4d0*datan(1d0),  y0 = 1/dsqrt(4d0*pi)
     integer :: nrx,nr,lmax
-    real(8):: rsq(1),e,chi(nrx,-1:*),rsm,wk(nr),wk2(nr),erfcee
+    real(8):: rsq(nr),e,chi(nrx,-1:*),rsm,wk(nr),wk2(nr),erfcee
     logical :: lpos
     integer :: l,ir,ir1
     real(8):: sre,r2,xx,ra,h0,arsm,earsm,kappa=0d0,ta=1d99, akap,a,r,um,up,x,facgl
@@ -437,7 +441,7 @@ contains
     !r   the infinite unsmoothed part is discarded.
     implicit none
     integer :: nrx,nr,lmax,l,ir,ir1
-    real(8) :: rsq(1),chi(nrx,0:lmax),rsm,wk(nr),wk2(nr), xx,ra,a,r,facgl,erfcee
+    real(8) :: rsq(nr),chi(nrx,0:lmax),rsm,wk(nr),wk2(nr), xx,ra,a,r,facgl,erfcee
     real(8),parameter::   pi = 4d0*datan(1d0),  y0 = 1/dsqrt(4d0*pi)
     if (lmax < 0 .OR. nr == 0) return
     a = 1/rsm

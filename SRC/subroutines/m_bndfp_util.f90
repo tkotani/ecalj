@@ -120,8 +120,8 @@ contains
     !r
     implicit none
     type(s_cv5),target :: oppi(3,nbas)
-    type(s_rv4),target :: otau(3,1)
-    type(s_rv4),target :: osig(3,1)
+    type(s_rv4),target :: otau(3,nbas)
+    type(s_rv4),target :: osig(3,nbas)
     type(s_rv5),target :: oqkkl(3,nbas)
     real(8),pointer:: QPP(:,:,:,:,:), QHP(:,:,:,:,:),QHH(:,:,:,:,:), &
          SIGHH(:,:,:,:),SIGHP(:,:,:,:),SIGPP(:,:,:,:), &

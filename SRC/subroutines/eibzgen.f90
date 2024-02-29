@@ -4,6 +4,7 @@ subroutine eibzgen(nqibz,symgg,ngrp,qibze,iqxini,iqxend,qbz,nqbz,timereversal,gi
      nwgt,igx,igxt,eibzsym,timerout)
   use m_genallcf_v3,only:  plat
   use m_hamindex,only: pwmode
+  use m_nvfortran,only: findloc
   implicit none
   integer:: nqibz,ngrp,iqxini,iqxend,iq,ig,igxx,neibzx,ieibz,ibz,nwgtsum,itimer,ntimer
   integer:: neibz(iqxini:iqxend),nwgt(nqbz,iqxini:iqxend),ik,nqbz,i,it

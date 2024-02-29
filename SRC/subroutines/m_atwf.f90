@@ -126,7 +126,7 @@ contains
     !r   phi is normalized, and p = <phidot**2>
     implicit none
     integer :: mode,l,nr,nptdif, konf,nn,nre,modep
-    real(8):: a,rmax,z,rofi(1),v(nr,1),pnu(1:l+1),g(nr,2),gp(nr,2,4),phi,phip,dphi,dphip,p,b,dnu,eb1,eb2,enu,slo(5),sum,val(5)
+    real(8):: a,rmax,z,rofi(nr),v(nr,1),pnu(1:l+1),g(nr,2),gp(nr,2,4),phi,phip,dphi,dphip,p,b,dnu,eb1,eb2,enu,slo(5),sum,val(5)
     real(8),parameter:: pi = 4d0*datan(1d0), tol = 1d-12
     if(abs(rmax-rofi(nr))>1d-8) call rx('makrwf: rmax/=rofi(nr)')
     nn = mod(pnu(l+1),10d0)-l-1 !number of nodes

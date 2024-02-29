@@ -1,4 +1,5 @@
 module m_zsecsym
+   use m_nvfortran,only:findloc
    private
    contains
    subroutine zsecsym(zsec,ntq,nq,nband,nbandmx,nspinmx,nspin, eibzsym,ngrp,tiii,q,is)!Symmetrize zsec for eibz4sig mode. Not recently checked!

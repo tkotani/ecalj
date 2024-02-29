@@ -1,4 +1,5 @@
 module  m_rsibl
+  use m_nvfortran,only:findloc
   public rsibl
   private
 contains
@@ -58,7 +59,7 @@ contains
     real(8),parameter:: pi = 4d0*datan(1d0),tpi = 2d0*pi
     integer :: lfrce,isp,k1,k2,k3,ndimh,nevec,iq,nspc, napw,igapw(3,napw),ng
     real(8):: q(3), ewgt(nevec) , f(3,nbas), wgt1,p(3),f0(3),xx(1),q0(3),etab(nermx),rtab(nermx)
-    complex(8):: evec(ndimh,nspc,nevec),smrho(k1,k2,k3,isp), smpot(k1,k2,k3,isp),img=(0d0,1d0)
+    complex(8):: evec(ndimh,nspc,nevec),smrho(k1,k2,k3,*), smpot(k1,k2,k3,*),img=(0d0,1d0)
     integer :: nlmto,nrt , net , ltop , nlmtop , ogq , og2 , ohe , ohr , oiv , iprint
     integer :: iprt(n0,nkap0,nermx),ipet(n0,nkap0,nermx),ispc,is,ib,kb, ig,ixx(1),jg,i
     integer,allocatable :: iv_a_okv(:), ivp(:), igv(:,:)
@@ -74,8 +75,10 @@ contains
     call gvlst2(alat,plat,q,n1,n2,n3,0d0,gmax,[0],509,ng,ng, iv_a_okv,ogv,igv) ! q-dependent gv, kv, gv+q and iv   ! Note ogv has q already added to it!
     call poppr
     if(napw > 0) then
-       allocate(ivp(napw),source= &    
-            [(findloc([( sum(abs(igv(jg,:)-igapw(:,ig)))==0,jg=1,ng)],value=.true.,dim=1), ig=1,napw)] )
+       allocate(ivp(napw) )
+       do ig=1,napw
+          ivp(ig)= findloc( [( sum(abs(igv(jg,:)-igapw(:,ig)))==0,jg=1,ng)], value=.true.,dim=1)
+       enddo   
        if(any(ivp==0)) call rx('bug in rsibl.  Cannot find ivp')
     endif
     call tbhsi(nspec,nermx,net,etab,ipet,nrt,rtab,iprt,ltop) ! --- Tables of energies, rsm, indices to them ---

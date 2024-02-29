@@ -1,5 +1,6 @@
 module m_supot
   use m_struc_def,only: s_rv1
+  use m_nvfortran,only:findloc
   complex(8) ,allocatable,protected ::  zv_a_obgv (:)
   integer,   allocatable,protected ::  iv_a_oips0 (:), iv_a_okv (:,:)
   real(8),   allocatable,protected ::  rv_a_ogv (:,:)
@@ -65,7 +66,7 @@ contains
     !r        = sum_G' f(G') exp(i G.r) sum_(G in star of G') exp(i(G-G').r)
     !r        = sum_G' f(G') exp(i G.r) bgv(star)
     integer :: ngrp,ng,ips0(ng),i,i00,irep,i0,nstar,k,j,j0,iprint,ksum,kstar,jx,jg,jjg,ierr
-    real(8)::df,scalp,gg0,gg,fac,vv,v(3),diffmin,g(3,3,1),ag(3,1),gv(ng,3)
+    real(8)::df,scalp,gg0,gg,fac,vv,v(3),diffmin,g(3,3,ngrp),ag(3,ngrp),gv(ng,3)
     real(8),parameter:: tpi = 8d0*datan(1d0),tol=1d-3,tol3=1d-3
     complex(8):: bgv(ng)
     complex(8),parameter:: img=(0d0,1d0)

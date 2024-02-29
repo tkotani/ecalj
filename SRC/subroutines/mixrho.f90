@@ -86,8 +86,8 @@ contains
     ! o                      : 10 if weight for n^+ - n^- is nonzero
     ! o                      : 11 if both nonzero
 
-    type(s_rv1) :: sv_p_orho(3,1)
-    type(s_rv1) :: sv_p_orhnew(3,1)
+    type(s_rv1) :: sv_p_orho(3,nbas)
+    type(s_rv1) :: sv_p_orhnew(3,nbas)
     character sout*80,fnam*8
     character(20) :: ext
     logical::  mixrealsmooth, init=.true., initd=.true. !noelind,
@@ -360,10 +360,10 @@ contains
     character(20) :: ext
     logical :: readerror!,lddump
     integer :: ng2,ng02,nda,nmix,mxsav,ifi,nbas,nr,nsp,kmxr,nlmlx
-    type(s_rv1) :: sv_p_orho(3,1)
-    type(s_rv1) :: sv_p_orhnew(3,1)
+    type(s_rv1) :: sv_p_orho(3,nbas)
+    type(s_rv1) :: sv_p_orhnew(3,nbas)
     real(8):: a(nda,nsp,mxsav+2,2),rms2,rmsdel
-    real(8):: co(ng2,nsp),cn(ng2,nsp),qkl(0:kmxr,nlmlx,nsp,4,1)
+    real(8):: co(ng2,nsp),cn(ng2,nsp),qkl(0:kmxr,nlmlx,nsp,4,nbas)
     character fnam*8
     integer :: ib,na,i,j,k,m,np,iprint,nmixr,is,igetss, off,nlml,lmxl 
     real(8) ,allocatable :: rofi_rv(:)
@@ -518,7 +518,7 @@ contains
     !o   orho:mixed local density is returned, in rho1+rho2,rho10rho2 form
     implicit none
     integer :: nsp,n1,n2,n3,ng,ng02,nda,na,nr,nbas, kv(ng,3),kmxr,nlmlx
-    type(s_rv1) :: sv_p_orho(3,1)
+    type(s_rv1) :: sv_p_orho(3,nbas)
     real(8):: gv(ng,3),a(nda,nsp),qkl(0:kmxr,nlmlx,nsp,4,nbas),rf, wgtsmooth
     complex(8):: smrho(n1,n2,n3,nsp),wk(n1,n2,n3)
     real(8) ,allocatable :: rofi_rv(:)
@@ -526,7 +526,9 @@ contains
     integer :: ib,is,mode4,m,lmxl,nlml,off,np,orsm(2),i,ir
     real(8) :: aat,rmt,rg,xx
     real(8),allocatable:: w_orsm(:,:,:,:)
-    forall(i=1:nsp)smrho(:,:,:,i)=1d0/wgtsmooth*reshape(a(:,i),[n1,n2,n3])
+    do i=1,nsp
+       smrho(:,:,:,i)=1d0/wgtsmooth*reshape(a(:,i),[n1,n2,n3])
+    enddo
     na = 1 + ng02
     do  ib = 1, nbas
        is = ispec(ib)
@@ -552,7 +554,9 @@ contains
        np = (1+kmxr)*nlml
        allocate(w_orsm(nr,nlml,nsp,2))
        do m = 1, 2
-          forall(i=1:nsp) qkl(:,1:nlml,i,m,ib)= reshape(a(na+np*(m-1):na+np*(m-1)+np-1,i),[kmxr+1,nlml])
+          do i=1,nsp
+             qkl(:,1:nlml,i,m,ib)= reshape(a(na+np*(m-1):na+np*(m-1)+np-1,i),[kmxr+1,nlml])
+          enddo   
           call pkl2ro(rg,kmxr,nr,nlml,nsp,rofi_rv,rwgt_rv,nlmlx,qkl(0,1,1,m,ib),w_orsm(:,:,:,m))
           if(old2023mixing.and.m==1) forall(ir=1:nr) w_orsm(ir,:,:,m)=w_orsm(ir,:,:,m)* exp((rofi_rv(ir)/rf)**2) !scale up orsm
        enddo
@@ -764,8 +768,12 @@ contains
             pkl(:,k,l) = 1d0/(2*k+2*l+1)*((2*a*a*rofi**2-(4*k+2*l-1))*pkl(:,k-1,l) - 2*(k-1)*pkl(:,k-2,l)) !Eq.(12.7) right?
          enddo
       enddo
-      dfactl(0:lmxl)=[(product([(2*lx+1,lx=0,l)]),   l=0,lmxl)]
-      kfact(0:kmax)= [(product([(max(1,kk),kk=0,k)]),k=0,kmax)]
+      do l=0,lmxl
+         dfactl(l)=product([(2*lx+1,lx=0,l)])
+      enddo
+      do k=0,kmax
+         kfact(k)= product([(max(1,kk),kk=0,k)])
+      enddo
       ag = 1/rg
       do isp=1,nsp
          do  ilm=1,(lmxl+1)**2

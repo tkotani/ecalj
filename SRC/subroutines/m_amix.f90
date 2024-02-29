@@ -256,8 +256,8 @@ contains
   end subroutine dmcpy
 
   subroutine dsisl(a,lda,n,kpvt,b)
-    integer :: lda,n,kpvt(1)
-    double precision :: a(lda,1),b(1)
+    integer :: lda,n,kpvt(*)
+    double precision :: a(lda,*),b(*)
 
     !     dsisl solves the double precision symmetric system
     !     a * x = b
@@ -433,9 +433,9 @@ contains
 
   subroutine dsidi(a,lda,n,kpvt,det,inert,job)
     integer :: lda,n,job
-    double precision :: a(lda,1),work(n)
+    double precision :: a(lda,*),work(n)
     double precision :: det(2)
-    integer :: kpvt(1),inert(3)
+    integer :: kpvt(*),inert(3)
 
     !     dsidi computes the determinant, inertia and inverse
     !     of a double precision symmetric matrix using the factors from
@@ -650,8 +650,8 @@ contains
   end subroutine dsidi
 
   subroutine dsifa(a,lda,n,kpvt,info)
-    integer :: lda,n,kpvt(1),info
-    double precision :: a(lda,1)
+    integer :: lda,n,kpvt(*),info
+    double precision :: a(lda,*)
 
     !     dsifa factors a double precision symmetric matrix by elimination
     !     with symmetric pivoting.

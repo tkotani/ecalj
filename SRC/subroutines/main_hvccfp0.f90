@@ -15,6 +15,7 @@ subroutine hvccfp0()   ! Coulomb matrix. <f_i | v| f_j>_q.
   use m_vcoulq,only: vcoulq_4,mkjb_4,mkjp_4,genjh
   use m_pwmat,only: mkppovl2
   use m_hvccfp0_util,only: mkradmatch,pmatorth,mkb0,strxq
+  use m_nvfortran,only:findloc
   implicit none
   integer :: ifvcfpout,ifhvccfp,is,  lmxcg,if1011,if3011, ifplane,ngpmx, ngcmx, nblochpmx, nbloch,&
        ibas,ic,lxx,nxx,nrx,l,n,k,isx,kdummy, nkdmx,nkqmx,lmax,nkdest,nkrest,ngp,ngc,nlxx,i,lnjcg,lnxcg, &

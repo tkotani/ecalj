@@ -92,6 +92,7 @@ module m_sxcf_main
   use m_ftox
   use m_lgunit,only:stdo
   use m_sxcf_count,only: ncount,ispc,kxc,irotc,ipc,krc,nstateMax,nstti,nstte,nstte2, nwxic, nwxc
+  use m_nvfortran,only:findloc
   implicit none
   public sxcf_scz_main, zsecall
   complex(8),allocatable,target:: zsecall(:,:,:,:) !output
@@ -110,7 +111,7 @@ contains
     character(10) :: i2char
     real(8),parameter :: wfaccut=1d-8,tolq=1d-8, pi=4d0*datan(1d0), fpi=4d0*pi, tpi=8d0*datan(1d0),ddw=10d0
     complex(8), parameter :: img=(0d0,1d0)
-    logical,parameter :: debug=.false.,timemix=.false.
+    logical,parameter :: debug=.false.,timemix=.true.
     complex(8),allocatable,target:: zwz(:,:,:),zw(:,:)
     real(8),allocatable:: we_(:,:),wfac_(:,:)
     complex(8),allocatable:: w3p(:),wtff(:)
@@ -135,7 +136,8 @@ contains
     endif
     kxold=-9999  ! To make MAINicountloop 3030 as parallel loop, set cache=.false.
     MAINicountloop: do 3030 icount=1,ncount!we accumulate zsec. !we only consider bzcase()==1 now
-       if(mod(icount,100)==1) write(stdo,ftox)'icount=',icount,'out of ncount=',ncount
+       !if(mod(icount,100)==1) 
+       write(stdo,ftox)'icount=',icount,'out of ncount=',ncount
        call flush(stdo)
        isp =ispc(icount)
        kx  =kxc(icount) !for W(kx), kx is irreducible !kx is main axis
@@ -163,26 +165,33 @@ contains
        ns2 =nstte(icount) ! 
        ns2r=nstte2(icount) !Range of middle states [ns1:ns2r] for CorrelationSelfEnergyRealAxis
        !if(eibz4sig()) wtt=wtt*nrkip(isp,kx,irot,ip); write(6,ftox)'do3030:isp kx ip',isp,kx,ip,'icou/ncou=',icount,ncount,'ns1:ns2=',ns1,ns2
+      write(6,*)'gotozmelblock'
        ZmelBlock:block !zmel(ib=ngb,it=ns1:ns2,itpp=1:ntqxx)= <M(qbz_kr,ib) phi(it,q-qbz_kr,isp) |phi(itpp,q,isp)> 
          if(cache.and.kxold/=kx) then !this is a cache mechanism of zmel vcoud when kxold=kx !we can skip this if no cache
             call Readvcoud(qibz_k,kx,NoVcou=.false.) !Readin ngc,ngb,vcoud ! Coulomb matrix
             call Setppovlz(qibz_k,matz=.true.)  !Set ppovlz overlap matrix used in Get_zmel_init in m_zmel
             kxold=kx
          endif
-         if(.not.emptyrun) call Get_zmel_init(q,qibz_k,irot,qbz_kr, ns1,ns2,isp, 1,ntqxx,isp, nctot,ncc=0,iprx=debug) !Return zmel(ngb,ns1:ns2,ntqxx)
+       write(6,*)'got get_zmel_init'
+         if(.not.emptyrun) call Get_zmel_init(q,qibz_k,irot,qbz_kr, ns1,ns2,isp, 1,ntqxx,isp, nctot,ncc=0,iprx=debug,zmelconjg=.false.) !Return zmel(ngb,ns1:ns2,ntqxx)
        endblock ZmelBlock
+       write(6,*)'end of gotozmelblock'
        ExchangeMode: if(exchange) then      
           ExchangeSelfEnergy: Block
             real(8):: wfacx,vcoud_(ngb),wtff(ns1:ns2) !range of middle states ns1:ns2
             !character(8):: xt ;call timeshow("ExchangeMODE1 icount="//trim(xt(icount)))
             vcoud_= vcoud                                    ! kx==1 must be for q=0     
             if(kx==1) vcoud_(1)=wklm(1)*fpi*sqrt(fpi)/wk(kx) ! voud_(1) is effective v(q=0) in the Gamma cell. 
-            wtff = [(1d0,it=ns1,nctot), (wfacx(-1d99, ef, ekc(it), esmr),it=max(nctot+1,ns1),ns2)] !bugfix 2023-5-18 ns1==>max(nctot+1,ns1)
+!            wtff = [(1d0,it=ns1,nctot), (wfacx(-1d99, ef, ekc(it), esmr),it=max(nctot+1,ns1),ns2)] !bugfix 2023-5-18 ns1==>max(nctot+1,ns1)
+            wtff(ns1:nctot) =1d0 !these are for nvfortran24.1
+            do it=max(nctot+1,ns1),ns2
+              wtff(it) = wfacx(-1d99, ef, ekc(it), esmr) !bugfix 2023-5-18 ns1==>max(nctot+1,ns1)
+            enddo 
             if(corehole) wtff(ns1:nctot) = wtff(ns1:nctot) * wcorehole(ns1:nctot,isp)
             do concurrent(itp=1:ntqxx, itpp=1:ntqxx)
                if(emptyrun) cycle !probably not so slow but for no error for --emptyrun
                zsec(itp,itpp)=zsec(itp,itpp) - wtt* &
-                    sum( [(sum(dconjg(zmel(:,it,itp))*vcoud_(:)*zmel(:,it,itpp))*wtff(it),it=ns1,ns2)] )
+                    sum( [(sum(dconjg(zmel(:,it,itp))*vcoud_(:)*zmel(:,it,itpp))*wtff(it),it=ns1,ns2)] ) !this may work even for nvfortran24.1
             enddo
           EndBlock ExchangeSelfEnergy
           if(timemix) call timeshow("ExchangeSelfEnergy cycle")
@@ -301,6 +310,7 @@ contains
        EndBlock CorrelationMode
        if(timemix) call timeshow("   end icount do 3030")
 3030 enddo MAINicountloop
+  write(stdo,ftox)'endof 3030loop'
   endsubroutine sxcf_scz_main
   pure subroutine matmaw(a,b,c,n1,n2,n3,ww)
     integer, intent(in) :: n1,n2,n3

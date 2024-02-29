@@ -189,7 +189,10 @@ contains
     indexcoremto: block
       lmx    = 2*(nl-1)
       lmx2   = (lmx+1)**2
-      nlmto  = sum([ (sum([((2*l+1)*nindxv(l+1,iclass(ic)),l=0,nl-1)]),ic=1,natom) ])
+      nlmto=0
+      do ic=1,natom
+         nlmto=nlmto+sum([((2*l+1)*nindxv(l+1,iclass(ic)),l=0,nl-1)])
+      enddo
       nlmto2 = nlmto*nlmto
       nn  =  maxval(nindxv(1:nl,1:nclass)+nindxc(1:nl,1:nclass))
       allocate(nindx(nl,nclass),nocc(nl,nn,nclass),nunocc(nl,nn,nclass))
@@ -206,12 +209,23 @@ contains
            enddo
         enddo
       endblock reindxblock
-      nlnx    = maxval([( sum(  nindx(1:nl,ic)),                   ic=1,nclass)])
-      nlnmx   = maxval([( sum([(nindx(l+1,ic)*(2*l+1),l=0,nl-1)]), ic=1,nclass)])
-      nlnxv   = maxval([( sum(  nindxv(1:nl,ic)),                  ic=1,nclass)])
-      nlnmxv  = maxval([( sum([(nindxv(l+1,ic)*(2*l+1),l=0,nl-1)]),ic=1,nclass)])
-      nlnxc   = maxval([( sum(  nindxc(1:nl,ic)),                  ic=1,nclass)])
-      nlnmxc  = maxval([( sum([(nindxc(l+1,ic)*(2*l+1),l=0,nl-1)]),ic=1,nclass)])
+      block
+        integer:: nnn1(nclass),nnn2(nclass),nnn3(nclass),nnn4(nclass),nnn5(nclass),nnn6(nclass)
+        do ic=1,nclass
+           nnn1(ic)=sum(nindx(1:nl,ic))
+           nnn2(ic)=sum([(nindx(l+1,ic)*(2*l+1),l=0,nl-1)])
+           nnn3(ic)=sum(  nindxv(1:nl,ic))
+           nnn4(ic)=sum([(nindxv(l+1,ic)*(2*l+1),l=0,nl-1)])
+           nnn5(ic)=sum(  nindxc(1:nl,ic))
+           nnn6(ic)=sum([(nindxc(l+1,ic)*(2*l+1),l=0,nl-1)])
+        enddo
+        nlnx    = maxval(nnn1) 
+        nlnmx   = maxval(nnn2)
+        nlnxv   = maxval(nnn3)
+        nlnmxv  = maxval(nnn4)
+        nlnxc   = maxval(nnn5)
+        nlnmxc  = maxval(nnn6)
+      endblock
       allocate( & ! index for core and MTO basis =====================
            il(nlnmx,nclass),   in(nlnmx,nclass),   im(nlnmx,nclass))
       do ic = 1,nclass
@@ -242,9 +256,11 @@ contains
          enddo
       enddo
       allocate(nlnmv(nclass),nlnmc(nclass),nlnm(nclass))
-      nlnmv  = [(sum([(nindxv(l+1,ic)*(2*l+1),l=0,nl-1)]),ic=1,nclass)] 
-      nlnmc  = [(sum([(nindxc(l+1,ic)*(2*l+1),l=0,nl-1)]),ic=1,nclass)]
-      nlnm  =  [(sum([(nindx(l+1,ic)*(2*l+1),l=0,nl-1)]), ic=1,nclass)]
+      do ic=1,nclass
+         nlnmv(ic) = sum([(nindxv(l+1,ic)*(2*l+1),l=0,nl-1)])
+         nlnmc(ic) = sum([(nindxc(l+1,ic)*(2*l+1),l=0,nl-1)])
+         nlnm(ic)  = sum([(nindx(l+1,ic)*(2*l+1),l=0,nl-1)])
+      enddo
     endblock indexcoremto
     coreblock: block
       allocate(icore(nl**2*nnc,nclass),ncore(nclass),source=99999)

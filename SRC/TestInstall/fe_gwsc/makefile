@@ -2,7 +2,7 @@ include ../../Makefile
 TARGET=fe_gwsc
 MATERIAL=fe
 $(TARGET).exec:
-	$(bindir)/lmfa $(MATERIAL) > llmfa
+	mpirun -np 1 $(bindir)/lmfa $(MATERIAL) > llmfa
 	rm log.$(MATERIAL) QPU QPD
 	$(bindir)/gwsc 0 -np $(mpi_size) $(MATERIAL)
 	@echo  >> ../summary.txt

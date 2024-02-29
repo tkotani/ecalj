@@ -2,6 +2,7 @@
 module m_readQG
   use m_read_bzdata,only: ginv
   use NaNum,only:NaN
+  use m_nvfortran,only:findloc
   implicit none
   !--------------------------------------------
   public:: readqg, readqg0, readngmx, readngmx2

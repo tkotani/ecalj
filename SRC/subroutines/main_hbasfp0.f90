@@ -128,11 +128,11 @@ subroutine hbasfp0() ! Generates orthonormal optimal product basis and required 
      call basnfp_v2(nocc(1,1,ic),nunocc(1,1,ic),nindx(1,ic),nl,nn,nrx, nrofi(ic),rr(1,ic),aa(ic),bb(ic),ic, &
           phitoto,phitotr,nsp,nclass, cutbasex, lcutmxa(ic),ix,alat,nc_max(0,ic) )
   enddo
-  if(ix==0) call rx0s( ' OK! hbasfp0 ix=0 normal mode ')
-  if(ix==3) call rx0s( ' OK! hbasfp0 ix=3 core mode ')
-  if(ix==4) call rx0s( ' OK! hbasfp0 ix=4 ptest mode  ')
-  if(ix==6) call rx0s( ' OK! hbasfp0 ix=6 Exx core-val mode  ')
-  if(ix==7) call rx0s( ' OK! hbasfp0 ix=7 Exx val-val mode  ')
-  if(ix==8) call rx0s( ' OK! hbasfp0 ix=8 normal(ix==0) + <B|spin den>. Enforce lcutmx=0.')
-998 if(ix==5) call rx0s( ' OK! hbasfp0 ix=5 ex core mode  ')
+  if(ix==0) call rx0( ' OK! hbasfp0 ix=0 normal mode ')
+  if(ix==3) call rx0( ' OK! hbasfp0 ix=3 core mode ')
+  if(ix==4) call rx0( ' OK! hbasfp0 ix=4 ptest mode  ')
+  if(ix==6) call rx0( ' OK! hbasfp0 ix=6 Exx core-val mode  ')
+  if(ix==7) call rx0( ' OK! hbasfp0 ix=7 Exx val-val mode  ')
+  if(ix==8) call rx0( ' OK! hbasfp0 ix=8 normal(ix==0) + <B|spin den>. Enforce lcutmx=0.')
+998 if(ix==5) call rx0( ' OK! hbasfp0 ix=5 ex core mode  ')
 end subroutine hbasfp0

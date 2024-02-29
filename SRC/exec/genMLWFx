@@ -14,7 +14,7 @@ fi
 nfpgw=`dirname $0`
 MATERIAL=$1
 MPI_SIZE=$3
-NO_MPI=0
+NO_MPI=1
 ### end of processing input arguments ###
 
 ### end of processing input arguments ###

@@ -408,7 +408,7 @@ contains
     !o   gkl   :Bloch-summed Gaussians
     implicit none
     integer :: k0,kmax,nlm !nkd,
-    real(8) :: yl(nlm),r(3),qdotr,r1,r2, p(3),q(3),alat,rsm
+    real(8) :: yl(nlm),r(3),qdotr,r1,r2, p(3),q(3),alat,rsm,v(3)
     complex(8):: gkl(0:k0,nlm),cfac,img=(0d0,1d0)
     integer :: ilm,ir,k,l,lmax,m,nm
     real(8),parameter:: tpi = 8d0*datan(1d0)
@@ -417,7 +417,8 @@ contains
     allocate(wk(0:kmax,0:lmax))
     gkl = 0d0
     do  ir = 1, nkd
-       call sylm(alat*(p(:)-dlv(:,ir)), yl,lmax,r2)
+       v=alat*(p(:)-dlv(:,ir))
+       call sylm(v, yl,lmax,r2)
        call radgkl(r2**.5d0,rsm,kmax,lmax,kmax,wk)
        cfac = exp(img*tpi*sum(q(:)*dlv(:,ir)))
        do ilm=1,nlm
@@ -469,6 +470,7 @@ contains
     use m_shortn3_plat,only: shortn3_plat,nout,nlatout
     use m_hsmq,only: hsmq
     use m_qplist,only:qshortn
+    use m_ftox
     !i Inputs
     !i   p     :Function is centered at p
     !i   rsm   :smoothing radius
@@ -516,6 +518,7 @@ contains
        enddo
     enddo
     if (sp /= 0) hkl(0:kmax,:) = phase*hkl(0:kmax,:)! ... Put in phase to undo shortening
+!    write(6,ftox)'sssssssumhkl=',sum(hkl)
   end subroutine hklbl
   subroutine fklbl(p,rsm,kmax,nlm,k0, fkl) !Bloch sum of smooth Hankels for e=0 and q=(0,0,0).
     use m_lmfinit,only: alat=>lat_alat,tol=>lat_tol
@@ -725,7 +728,7 @@ contains
     !u   18 May 00 Made rsmh,eh l-dependent
     implicit none
     integer :: nlmg,nlmh,kmax,ndim1,ndim2 !,jcg(1),indxcg(1)
-    real(8) :: rsmg,rsmh(1),eg,eh(1), ph(3),pg(3),q(3) !,cg(1),cy(1)
+    real(8) :: rsmg,rsmh(*),eg,eh(*), ph(3),pg(3),q(3) !,cg(1),cy(1)
     complex(8):: s(ndim1,ndim2,0:kmax)
     integer :: icg,ii,ilg,ilh,ilm,indx,ip,jlm,k,ktop,lg,lh,lm,lmaxg,lmaxh,lmaxx,m,nlmx,l1,l2,ilm1,ilm2
     complex(8),allocatable:: hkl(:,:)
@@ -802,7 +805,7 @@ contains
     implicit none
     integer :: k0,kmax,ndim1,ndim2,nlmg,nlmh,icg,ii,ilg,ilh,ilm,ilm1,ilm2,indx,ip,jlm,k,ktop,ktopp1,l1,l2,lg,lh,lm,&
          lmaxg,lmaxh,lmaxx,m,nlm1,nlmx
-    real(8) :: rsmg,rsmh(1),eg,eh(1),ph(3),pg(3),q(3),ee,fac,gamg,gamh,rsmx,dr(3),e,rsm
+    real(8) :: rsmg,rsmh(*),eg,eh(*),ph(3),pg(3),q(3),ee,fac,gamg,gamh,rsmx,dr(3),e,rsm
     complex(8):: s(ndim1,ndim2,0:k0),ds(ndim1,ndim2,0:k0,3)
     complex(8),allocatable:: hkl(:,:),dhkl(:,:,:)
     if (nlmh == 0 .OR. nlmg == 0) return
@@ -842,6 +845,7 @@ contains
              do  11  icg = icgi(ilg,ilh),icge(ilg,ilh) 
                 ilm = jcg(icg)
                 lm = ll(ilm)
+!                write(6,*)'xxxxxxxxvvvvvvvvv',ilg,ilh,lg,lh,ilm,nlm1
                 k = (lg+lh-lm)/2
                 fac = ee*(-1d0)**lg*cg(icg)
                 do  ip = 0, kmax
@@ -889,7 +893,7 @@ contains
     !b   Doesn't properly handle case rsmh<0
     implicit none
     integer :: k0,kmax,ndim,nlmg,nlmh!,jcg(1),indxcg(1)
-    real(8) :: eh(1),rsmg,rsmh(1),ph(3),pg(3),q(3) !,cg(1),cy(1)
+    real(8) :: eh(*),rsmg,rsmh(*),ph(3),pg(3),q(3) !,cg(1),cy(1)
     complex(8):: c(0:k0,ndim,nlmh)
     integer :: ndim1,ndim2,ilmg,ilmh,k,l,lmaxg,m,nm
     real(8) :: a,dfact,eg,fac,factk,fpi
@@ -948,7 +952,7 @@ contains
     !r   Grads are wrt to ph; take negative for grad wrt to pg.
     implicit none
     integer :: k0,kmax,ndimg,ndimh,nlmg,nlmh
-    real(8) :: eh(1),rsmg,rsmh(1),ph(3),pg(3),q(3),a,dfact,eg,fac,factk,fpi
+    real(8) :: eh(*),rsmg,rsmh(*),ph(3),pg(3),q(3),a,dfact,eg,fac,factk,fpi
     complex(8):: c(0:k0,ndimg,ndimh),dc(0:k0,ndimg,ndimh,3)
     integer :: ndim1,ndim2,ilmg,ilmh,k,l,lmaxg,m,nm
     complex(8),allocatable:: s(:,:,:),ds(:,:,:,:)
@@ -989,9 +993,9 @@ contains
     !i   k0    :leading dimension of gkl
     !o   gkl: G_kL * exp(e*rsm**2/4) generated for (0:kmax,0:lmax)
     implicit none
-    integer :: k0,kmax,lmax,nrx,job, ilm,ir,k,l,m,nlm,job0,job1,li,le
+    integer :: k0,kmax,lmax,nrx,job, ilm,ir,k,l,m,nlm,job0,job1,li,le,lx
     real(8) :: alat,rsm,p(3),q(3),yl(nrx,(lmax+1)**2) !,dlv(3,nkd)
-    complex(8) :: gkl(0:k0,(lmax+1)**2),img=(0d0,1d0),phase
+    complex(8) :: gkl(0:k0,(lmax+1)**2),img=(0d0,1d0),phase,sss(nkd)
     complex(8):: wkc1(nkd),wkc2(nkd),wkz(nkd)       !    wkz = wk(1:nkd,3)+img*wk(1:nkd,4) !phase
     real(8) :: qdotr,ta2,a2,g0fac,xx1,xx2,x1,sp,pp(3),wk1(nkd,0:lmax),wk2(nkd,0:lmax),wkfac(nkd),r2(nkd),e
     real(8),parameter:: pi  = 4*datan(1d0),tpi = 2*pi,y0  = 1/dsqrt(4*pi)
@@ -1000,8 +1004,12 @@ contains
     a2  = 1/rsm**2
     ta2 = 2*a2
     gkl=0d0
-    wkz =[(exp(img*tpi*sum(q*dlv(:,ir))),  ir=1,nkd)]
-    r2  = alat**2*[(sum((p-dlv(:,ir))**2),ir=1,nkd)] ! wk(1:nkd,1) !wk(:,1) is length**2 !wk(:,1)= alat**2*(p-dlv)**2 
+    !wkz =[(exp(img*tpi*sum(q*dlv(:,ir))),  ir=1,nkd)]
+    !r2  = alat**2*[(sum((p-dlv(:,ir))**2),ir=1,nkd)] ! wk(1:nkd,1) !wk(:,1) is length**2 !wk(:,1)= alat**2*(p-dlv)**2 
+    do ir=1,nkd
+       wkz(ir)=exp(img*tpi*sum(q*dlv(:,ir)))
+       r2(ir)=alat**2*sum((p-dlv(:,ir))**2)
+    enddo   
     wkfac(1:nkd) = y0*dexp(-r2*a2) 
     kloop2:   do 301  k = 0, kmax, 2 ! --- Outer loop over k (in blocks of 2), and over l ---
        lloop: do  30  l = 0, lmax
@@ -1021,8 +1029,14 @@ contains
           endif
           li=l*l+1
           le=l*l+2*l+1 !For each point, add G_kl Y_L exp(i q.dlv) into Bloch G_kL
-          gkl(k,li:le) =             gkl(k,li:le)   +[(sum([(wkz(ir)*wk1(ir,l)*yl(ir,ilm),ir=nkd,1,-1)]), ilm=li,le)]
-          if(k<kmax) gkl(k+1,li:le)= gkl(k+1,li:le) +[(sum([(wkz(ir)*wk2(ir,l)*yl(ir,ilm),ir=nkd,1,-1)]), ilm=li,le)]
+          !  gkl(k,li:le) =             gkl(k,li:le)   +[(sum([(wkz(ir)*wk1(ir,l)*yl(ir,ilm),ir=nkd,1,-1)]), ilm=li,le)] !bugfix for nvfortran24.1
+          !  if(k<kmax) gkl(k+1,li:le)= gkl(k+1,li:le) +[(sum([(wkz(ir)*wk2(ir,l)*yl(ir,ilm),ir=nkd,1,-1)]), ilm=li,le)]
+          do lx=li,le
+             sss=[(wkz(ir)*wk1(ir,l)*yl(ir,lx),ir=nkd,1,-1)]
+             gkl(k,lx) =             gkl(k,lx)  + sum(sss)
+             sss=[(wkz(ir)*wk2(ir,l)*yl(ir,lx),ir=nkd,1,-1)]
+             if(k<kmax) gkl(k+1,lx)= gkl(k+1,lx)+ sum(sss)
+          enddo
 30     enddo lloop
 301 enddo kloop2
   end subroutine gklq
@@ -1049,7 +1063,7 @@ contains
     !r    Only diagonal elements ilmh=ilmg are nonzero and returned.
     !r    Routine is equivalent to hxpml with ph=pg.
     integer :: k0,kmax,nlmh,ik,i,ilm1,ilm2
-    real(8) :: eh(1),rsmg,rsmh(1),c(0:k0,nlmh)
+    real(8) :: eh(*),rsmg,rsmh(*),c(0:k0,nlmh)
     integer :: ndim,ilm,k,l,lmax,m,nm,ktop,l1,l2,lmaxh
     real(8) :: a,dfact,eg,fac,factk,sig,rsm
     real(8):: s(nlmh,0:kmax),e,gamg,gamh,rsmx,gam,asm,akap,hh,gg
@@ -1124,7 +1138,7 @@ contains
     implicit none
     integer :: lmax
     real(8):: rsm,e,q(3),p(3),ppin(3)
-    complex(8):: hsm(1),hsmp(1)
+    complex(8):: hsm(*),hsmp(*)
     integer:: ilm,l,m
     real(8) :: p1(3),sp,rwald,asm
     real(8),parameter:: pi = 4d0*datan(1d0)
@@ -1192,7 +1206,7 @@ contains
     implicit none
     integer :: ilm,ir,l,lmax,m,nm
     real(8) :: q(3),p(3)
-    complex(8):: dl(1),dlp(1)
+    complex(8):: dl(*),dlp(*)
     real(8) :: a,a2,akap,alat,asm,asm2,cc,ccsm,derfc,e,emkr,gl,qdotr,r1,r2,rsm,srpi,ta,ta2,tasm,tasm2,umins,uplus,tpi,kap
     real(8) :: yl((lmax+1)**2),chi1(-1:10),chi2(-1:10),r(3)
     complex(8):: cfac,zikap,expikr,zuplus,zerfc,img=(0d0,1d0)
@@ -1278,11 +1292,14 @@ contains
     enddo
   end subroutine ropylg2
   pure function gtbsl2(l1,lmxh,eh,rsmh) result(l2) ! Returns the highest l with rsm,e common to those of a given l
+    use m_nvfortran,only:findloc
     implicit none
     intent(in)::       l1,lmxh,eh,rsmh
     integer :: l1,l2,lmxh
     real(8) :: rsmh(0:lmxh),eh(0:lmxh), e,rsm
-    l2 = findloc([(rsmh(l2+1)/=rsmh(l1).or.eh(l2+1)/=eh(l1), l2=l1,lmxh-1)],value=.true.,dim=1) + l1-1
+    logical:: lll(l1:lmxh-1)
+    lll=[(rsmh(l2+1)/=rsmh(l1).or.eh(l2+1)/=eh(l1), l2=l1,lmxh-1)]
+    l2 = findloc(lll,value=.true.,dim=1) + l1-1
     if(l2==l1-1) l2=lmxh
   end function gtbsl2
 end module m_smhankel

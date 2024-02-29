@@ -251,7 +251,7 @@ end subroutine dinv33
 subroutine dpcopy(afrom,ato,n1,n2,fac)
   implicit none
   integer :: n1,n2
-  real(8) :: afrom(1),ato(1),fac
+  real(8) :: afrom(*),ato(*),fac
   ato(n1:n2) = fac*afrom(n1:n2)
 end subroutine dpcopy
 subroutine dpzero(array,leng)
@@ -261,7 +261,7 @@ subroutine dpzero(array,leng)
 end subroutine dpzero
 subroutine dpscop(afrom,ato,nel,n1,n2,fac)
   integer :: n1,n2,nel
-  real(8) :: afrom(1),ato(1),fac
+  real(8) :: afrom(*),ato(*),fac
   ato(n2:n2+nel-1)= fac*afrom(n1:n1+nel-1) 
 end subroutine dpscop
 !> taken from https://community.intel.com/t5/Intel-Fortran-Compiler/Weird-Fortran/td-p/1185072?
@@ -380,14 +380,22 @@ end subroutine fsanrg
 subroutine setfac(n,fac) !- set up array of factorials.
   integer :: n,i,ik,m
   real(8):: fac(0:n)
-  fac=[(product([(dble(ik),ik=1,m)]),m=0,n)]
+  fac(0)=1d0
+  do m=1,n
+     fac(m)= product([(dble(ik),ik=1,m)])
+  enddo   
+!  fac=[(product([(dble(ik),ik=1,m)]),m=0,n)] !not working in nvfortran24.1
 end subroutine setfac
 subroutine stdfac(n,df) !- Set up array of double factorials.
   !  for odd numbers,  makes 1*3*5*..*n
   !  for even numbers, makes 2*4*6*..*n
   integer :: n,ik,m
   real(8):: df(0:n)
-  df=[(product([(dble(ik),ik=m,1,-2)]),m=0,n)]
+  df(0)=1d0
+  do m=1,n
+     df(m)=product([(dble(ik),ik=m,1,-2)])
+  enddo
+  !df=[(product([(dble(ik),ik=m,1,-2)]),m=0,n)]
 end subroutine stdfac
 subroutine ftime(datim)!fortran-callable date and time
   character datim*(*)

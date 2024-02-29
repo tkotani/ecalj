@@ -629,10 +629,10 @@ subroutine hx0fp0()
      if(allocated(zw0)) deallocate(zw0)
      if(allocated(zxq )) deallocate(zxq)
      if(allocated(zxqi)) deallocate(zxqi)
-     if ( .NOT. epsmode) then
-        close(ifrcwi)
-        close(ifrcw)
-     endif
+     !if ( .NOT. epsmode) then
+     !   close(ifrcwi)
+     !   close(ifrcw)
+     !endif
 1001 enddo iqloop
   call MPI__barrier()
   !  if(cmdopt0('--rcxq0')) call rx0('end of --rcxq0 mode to generete rcxq0')
