@@ -173,7 +173,8 @@ contains
             kxold=kx
          endif
        write(6,*)'got get_zmel_init'
-         if(.not.emptyrun) call Get_zmel_init(q,qibz_k,irot,qbz_kr, ns1,ns2,isp, 1,ntqxx,isp, nctot,ncc=0,iprx=debug,zmelconjg=.false.) !Return zmel(ngb,ns1:ns2,ntqxx)
+       if(.not.emptyrun) call Get_zmel_init(q,qibz_k,irot,qbz_kr,ns1,ns2,isp, 1,ntqxx,isp, nctot,ncc=0,iprx=debug,&
+            zmelconjg=.false.) !Return zmel(ngb,ns1:ns2,ntqxx)
        endblock ZmelBlock
        write(6,*)'end of gotozmelblock'
        ExchangeMode: if(exchange) then      

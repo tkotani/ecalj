@@ -420,7 +420,8 @@ contains
                       auasaz= aus(ilm,iv,:,ksp,ib)
                    endif ! (au as az) are for (u,s,gz) functions where gz=gz'=0 at MT
                    ispx=merge(1,isp,lso==1)
-                   orbtm(l+1,ksp,ib)= orbtm(l+1,ksp,ib) +m*wtkb(iv,ispx,iq)*sum(dconjg(auasaz)*matmul(sab_rv(:,:,l+1,ksp,ib),auasaz))
+                   orbtm(l+1,ksp,ib)= orbtm(l+1,ksp,ib) +m*wtkb(iv,ispx,iq)&
+                        *sum(dconjg(auasaz)*matmul(sab_rv(:,:,l+1,ksp,ib),auasaz))
                 enddo mloop
              enddo lloop
           enddo ivloop ! print*, l, ksp,ib,'ORB.MOMNT=',(orbtm(l+1,ksp,ib),l=0,lmxa)
