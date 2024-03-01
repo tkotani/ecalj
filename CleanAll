@@ -1,8 +1,6 @@
 #!/bin/bash -v
 pushd .
 cd SRC/exec
-make cleanall
-echo rm -rf OBJ*
-pwd
-rm -rf OBJ*
+make clean
+rm -rf CMkakeFiles* CMakeCache.txt
 popd
