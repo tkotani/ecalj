@@ -1,22 +1,22 @@
-# 0 "../subroutines/show_programinfo.template"
-# 0 "<built-in>"
-# 0 "<command-line>"
+# 1 "../subroutines/show_programinfo.template"
+# 1 "<built-in>"
+# 1 "<command-line>"
 # 1 "/usr/include/stdc-predef.h" 1 3 4
-# 0 "<command-line>" 2
+# 1 "<command-line>" 2
 # 1 "../subroutines/show_programinfo.template"
 subroutine show_programinfo(io)
   implicit none
   integer:: io
   character(6),parameter:: info='INFO: '
   character(256):: FFL=""
-  character(256):: UA="kr1 6.2.0-37-generic x86_64 GNU/Linux"
-  character(256):: EI="Ubuntu 22.04.3 LTS \n \l"
-  character(256):: FV="GNU Fortran (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0"
+  character(256):: UA="tt480s 5.4.0-170-generic x86_64 GNU/Linux"
+  character(256):: EI="Ubuntu 20.04.6 LTS \n \l"
+  character(256):: FV="GNU Fortran (Ubuntu 9.4.0-1ubuntu1~20.04.2) 9.4.0"
   character(256):: PF=""
   character(256):: LL=""
-  character(512):: GC1="commit b8ee9c28d90fdf44863f16fb108e0eb27ab543a0"
-  character(512):: GC2="Author: Takao Kotani <takaokotani@gmail.com>"
-  character(512):: GC3="Date:   Fri Mar 1 12:44:31 2024 +0900"
+  character(512):: GC1="commit b9f09768d1c56a19725fd0c476d5faea3e6dde04"
+  character(512):: GC2="Author: takao kotani <takaokotani@gmail.com>"
+  character(512):: GC3="Date:   Fri Mar 1 13:59:46 2024 +0900"
   write(io,'(a,a,a,a)') info,trim(EI)
   write(io,'(a,a,a,a)') info,trim(FV)
   write(io,'(a,a,a)') info, trim(FFL)
@@ -24,7 +24,7 @@ subroutine show_programinfo(io)
   write(io,'(a,a,a)') info,'git: ',trim(GC1)
   write(io,'(a,a,a)') info,'   : ',trim(GC2)
   write(io,'(a,a,a)') info,'   : ',trim(GC3)
-  write(io,'(a,a,a)') info,'linked at ',trim("Fri Mar  1 13:14:29 JST 2024")
+  write(io,'(a,a,a)') info,'linked at ',trim("Fri Mar  1 14:00:17 JST 2024")
 end subroutine show_programinfo
 ! program test
 ! call show_programinfo(6)
