@@ -991,32 +991,30 @@ subroutine hmaxloc()
       deallocate(dnk)
     endblock
 
-
-    call writeOmg(is,mmn,rn,bb,wbb,wbz,tpia, &
-      nwf,nqbz,nbb)
+    call writeOmg(is,mmn,rn,bb,wbb,wbz,tpia, nwf,nqbz,nbb)
     ! 070824
-    call getkeyvalue("GWinput","wan_write_rmn",lrmn,default=.false.)
-    if (lrmn) &
-      call writermn(is,mmn,bb,wbb,qbz,qbz0,wbz,rt, &
-      nwf,nqbz,nbb,n1,n2,n3)
-    ! 070830
-    call getkeyvalue("GWinput","wan_write_mmn",lmmn,default=.false.)
-    if (lmmn) &
-      call writemmn(is,mmn,bb,wbb,qbz,wbz,rt, &
-      nwf,nqbz,nbb,n1,n2,n3)
+    ! call getkeyvalue("GWinput","wan_write_rmn",lrmn,default=.false.)
+    ! if (lrmn) &
+    !   call writermn(is,mmn,bb,wbb,qbz,qbz0,wbz,rt, &
+    !   nwf,nqbz,nbb,n1,n2,n3)
+    ! ! 070830
+    ! call getkeyvalue("GWinput","wan_write_mmn",lmmn,default=.false.)
+    ! if (lmmn) &
+    !   call writemmn(is,mmn,bb,wbb,qbz,wbz,rt, &
+    !   nwf,nqbz,nbb,n1,n2,n3)
 
-    ! ccccccccccccccccccccccccccccccccccccccccccc
-    call get_rnm(mmn,bb,wbb,wbz, &
-      nwf,nqbz,nbb, &
-      r_nm)
-    do i=1,nwf
-      do j=1,nwf
-        if(i==j) cycle
-        write(6,ftox)'dddd: i,j, <wannier i|r|wannier j> ',i,j,ftof(alat/(2d0*pi)*r_nm(1:3,i,j)) &
-          ,'  ',ftod(alat/(2d0*pi)*sqrt(sum(abs(r_nm(1:3,i,j)**2))))
-      enddo
-    enddo
-    ! ccccccccccccccccccccccccccccccccccccccccccccccc
+    ! ! ccccccccccccccccccccccccccccccccccccccccccc
+    ! call get_rnm(mmn,bb,wbb,wbz, &
+    !   nwf,nqbz,nbb, &
+    !   r_nm)
+    ! do i=1,nwf
+    !   do j=1,nwf
+    !     if(i==j) cycle
+    !     write(6,ftox)'dddd: i,j, <wannier i|r|wannier j> ',i,j,ftof(alat/(2d0*pi)*r_nm(1:3,i,j)) &
+    !       ,'  ',ftod(alat/(2d0*pi)*sqrt(sum(abs(r_nm(1:3,i,j)**2))))
+    !   enddo
+    ! enddo
+    ! ! ccccccccccccccccccccccccccccccccccccccccccccccc
 
 
     deallocate(uumat,amnk,omgik,mmn,mmn0, &
