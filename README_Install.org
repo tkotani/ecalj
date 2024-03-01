@@ -1,32 +1,12 @@
-#+TITLE: install ecalj (checked 2023feb)
+#+TITLE: install ecalj (checked 2024feb)
 #+Author: takao kotani
 #+email: takaokotani@gmail.com
 
-* Souce codes, Test, make system are under SRC/
-SRC/ 
-├── TestInstall : Root of Install test 
-├── exec        : Makefile and scripts
-├── main        : All main *.f90
-├── subroutines : All subrouitnes. *.f90
-└── wanniergw  :  Maxloc Wannier related source codes *.f90 and scripts 
-                  Wannier part is separated because we will throw it away, because
-                  we are moving to MTO-based localized basis.
-All fortran codes are in main/ subrouitnes/ and wanniergw/
-We have a Makefile which generates all required binaries in exec/.
-Make can be invoked by InstallAll.ifort (or .*) in ecalj/. Look into InstallAll.ifort
-
 * How to install 
-To install, you have to do these five steps. 
- 1. Get ecalj package and some required softwares.
- 2. Make and install
- 3. Install test.
- 4. Install crystal structure tools. Viewer, converter, BZ and symmetry line generators. These are at ecalj/StructureTool.
- 5. Install VESTA and ecalj/GetSyml.
 ** Step 1. Get ecalj package and get tools.
-
 *** tools  and libraries
 We may need to install following tools and libraries.
-It dependes on systems. Here is a case of ubuntu.
+It dependes on systems. Here is a case of ubuntu and gfortran.
 #+begin_src bash
  sudo apt-get update
  sudo apt-get install git gitk gfortran mpich csh bash tcsh gawk emacs numpy matplotlib
@@ -44,21 +24,22 @@ git clone https://github.com/tkotani/ecalj.git # Get source code
 After you did the above git clone command, a directory ecalj/ appears.
 We can check history of ecalj by ">gitk --all" at ecalj/ directory after you got git clone.
 
-** Steps 2,3,4 are automatically performed 
+** Steps 2 InstallAll
 Do
 #+begin_src
-./InstallAll.foobar 
+FC=gfortran ./InstallAll
 #+end_src
-at ecalj/. Please examine ./InstallAll.foobar in advance
+at ecalj/. If you see "OK! All passed!", you have succeeded.
+(FC=foobar can be ifort or nvfortran)
+In advance, set BINDIR in the InstallAll. We copy all binaries to BINDIR.
 
-If you see "OK! All passed!", you have succeeded.
-
-Make command path to your bin/ like
+Set command path BINDIR. For example, write
 #+begin_src bash
 PATH="~/bin/:$PATH"
 #+end_src
+in your .bashrc.
 
-** Step 5. Install VEST and getsyml
+** Install VEST and getsyml
 We have to install VESTA and make sure that 'viewvesta' command works.
 You need to read [[file:GetSyml/README.org][GetSyml/README.org]] to install getsyml.py.
 It is useful to get Brillowin zone plot and symmetry line plot in it.
@@ -66,40 +47,43 @@ Generated syml.* is used for the band plot in ecalj.
 (syml is a little strange... we will fix)
 
 ** Additinal memo
-When Install.foobar have finished, 
-we have all required binaries and shell scripts in your ~/bin/ directory, 
-or somewhere else where BINDIR specified in InstallAll.foobar. 
+When InstallAll have finished, we have all required binaries and shell scripts in your ~/bin/ directory, 
+or somewhere else where BINDIR specified in InstallAll
 
-In the following explanation, we assume gfortran in ubuntu.
-We can also use ifort and others in your environment with
-minimum changes in Makefiles. 
-Let me have your InstallAll.foobar; it is very helpful for us.
 
-* Clean up:  
-If something wrong. 
-Do "./CleanAll" and redo ./InstallAll.foobar
-or do make cleanall at ecalj/SRC/exec (look into InstallAll.foobar)
 
-* Note to Make binaries
-See ecalj/InstallAll.foobar, which call make.
-This invoke ecalj/SRC/exec/Makefile.
-Let us assume gfortran case. Move to ecalj/SRC/exec/, 
-then do "make -j PLATFORM=gfortran LIBMATH=xxx". 
-Then make process start. (LIBMATH= -mkl or -mkl_rt)
-The ecalj/exec/Makefile contains lines
-#+begin_src bash
-  PLATFORM=gfortran   #default is PLATFORM=gfortran  
-  ...  
-  include Make.$(PLATFORM).inc
-#+end_src
-This means that this Makefile uses Make.gfortran.inc
-as a part of the Makefile. Thus we have to check settings in it 
-in advance to run "make PLATFORM=ifort", to overwrite 
-default setting to read Make.gfortran.inc.
+
+
+* Clean up by CleanAll:  
+If something wrong, run "./CleanAll" at ecalj/ and redo installation.
+Look into CleanAll.
+
+
+
+* Compilar bug: In cases, we have troubles due to the compilar.
+Usually we use -O2 in CMakeList.txt. 
+But we may need to use -O1 or -O0 for some files to avoid compilar bugs.
+We may set some conditional compilation setteings.
+* openmpi failed on ubuntu22.   I obseved that gfortran+openmpi failed for ubuntu22. Use mpich.
+  But I don't know cucrrent status.
+  
+
+
+* Souce codes, Test, make system are under SRC/
+SRC/ 
+├── TestInstall : Root of Install test 
+├── exec        : CMakeLists.txt and scripts
+├── main        : All main *.f90
+├── subroutines : All subrouitnes. *.f90. main_foobar.f90 are main routines, essentially. 
+└── wanniergw  :  Maxloc Wannier related source codes *.f90 
+                  Wannier part is separated because we will throw it away, because
+                  we are moving to MTO-based localized basis (MLO).
+
+All fortran codes are in main/ subrouitnes/ and wanniergw/
+We have a CMakeLists.txt which generates Makefile. Look into it.
 
 * Install test system at ecalj/SRC/TestInstall.
-We have a test system with make at
-ecalj/SRC/TestInstall. Look into Makefile,
+We have a test system with make at ecalj/SRC/TestInstall. Look into Makefile,
 which is the main contrller for test.
 At each directory such as TestInstall/copt/, we have 
 makefile, which is called from ecalj/SRC/TestInstall/Makefile
@@ -113,17 +97,4 @@ To test all of binaries, just do
 >make lmall   !tests only LDA part.  
 >make gwall   !tests only GW part.  
 
-* WARN! Some install problems 
-If you have some info. I will add it here.
-** Compilar bug: 
-In cases, we have troubles due to the compilar.
-Usually we use -O2 in Make.inc.*. 
-But we may need to use -O1 or -O0 for some files to avoid compilar bugs.
-See SRC/exec/Make.foobar.inc (as well as Make.foobar.inc).
-We set some conditional compilation setteings.
-
-** Ifort 2018 fails tests (or not compiled)
-   Version up, please.
-** openmpi failed on ubuntu22
-  I obseved that gfortran+openmpi failed for ubuntu22. Use mpich.
 

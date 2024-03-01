@@ -4,30 +4,30 @@ function my_error(){
     exit 1
 }
 FC=${FC}
+if [ -z "${FC}" ]; then
+   echo 'Usage: >FC=gfortran ./InstallAll'
+   exit
+fi
 
 BINDIR=${HOME}/bin  ## Make directory for ecalj binaries and scripts.
 [ -d ${BINDIR} ] || mkdir ${BINDIR} 
 echo Going to install required binaries and scripts to ${BINDIR} !
-
 # Make a link to getsyml to get syml.*
 rm -f ${BINDIR}/getsyml
 ln -s ${PWD}/GetSyml/getsyml.py ${BINDIR}/getsyml
-
-### viewvesta command to invoke VESTA
+# viewvesta command to invoke VESTA
 pushd .
 cd StructureTool/
 ./makelink $BINDIR
 popd
-
-### Use SRC/exec/CmakeLists.txt to make executables.
+# Use SRC/exec/CmakeLists.txt to make executables.
 pushd .
 cd SRC/exec
 FC=${FC} cmake .
 VERBOSE=1 make -j |grep -v shared |grep mpi ||my_error
 cp `find . -mindepth 1 -maxdepth 1 -executable -type f` ${BINDIR} ||my_error
 popd
-
-#############
+# Install test 
 echo '=== goto test ==='
 cd SRC/TestInstall/
 make mpi_size=4 all
