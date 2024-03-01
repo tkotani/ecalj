@@ -7,7 +7,7 @@ function my_error(){
 BINDIR=${HOME}/bin  ## Make directory for ecalj binaries and scripts.
 [ -d ${BINDIR} ] || mkdir ${BINDIR} 
 echo Going to install required binaries and scripts to ${BINDIR} !
-
+ 
 # Make a link to getsyml to get syml.*
 rm -f ${BINDIR}/getsyml
 ln -s ${PWD}/GetSyml/getsyml.py ${BINDIR}/getsyml
@@ -21,7 +21,7 @@ popd
 ### Use SRC/exec/CmakeLists.txt to make executables.
 pushd .
 cd SRC/exec
-FC=gfortran cmake .
+FC=nvfortran cmake .
 make -j ||my_error 
 cp `find . -mindepth 1 -maxdepth 1 -executable -type f` ${BINDIR} ||my_error
 popd
