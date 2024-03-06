@@ -488,10 +488,10 @@ subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |
             endif
           endif ! |PsiMLO_iqbz> = |Psi_PMT_iqibz> c1(iqibz)*c2(iqbz)
           !associate(ib=>ib_tableM)
-          ib1=ib_tableM(i)
-          ib2=ib_tableM(j)
             do i=1,nMLO; do j=1,nMLO !Real space Hamiltonian. H(k)->H(T) FT to real space
-              do it =1,npair(ib1,ib2)! hammr_ij (T)= \sum_k hamm(k) exp(ikT). it is the index for T
+              ib1=ib_tableM(i)
+              ib2=ib_tableM(j)
+                  do it =1,npair(ib1,ib2)! hammr_ij (T)= \sum_k hamm(k) exp(ikT). it is the index for T
                 phase = exp( img2pi*sum(qp*matmul(plat,nlat(:,it,ib1,ib2))) )
                 hmmr2(i,j,it,jsp)= hmmr2(i,j,it,jsp)+ ham(i,j) *fac0*phase
                 ommr2(i,j,it,jsp)= ommr2(i,j,it,jsp)+ ovlx(i,j)*fac0*phase
