@@ -126,7 +126,7 @@ subroutine lmf() bind(C) ! Bootstrap sequence of modules initialzation. The vari
   MainRoutine: block
     call lmfp(jobgw==1) 
   endblock MainRoutine
-  write(stdo,*)"OK! end of "//trim(prgnam)//" ======================"
+  if(master_mpi) write(stdo,*)"OK! end of "//trim(prgnam)//" ======================"
   !call rx0("OK! end of "//trim(prgnam)//" ======================")
 contains
   subroutine readatompos(pos,irpos)

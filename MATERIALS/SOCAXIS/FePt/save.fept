@@ -6,3 +6,39 @@ c so=0 mmom=3.2521968 ehf(eV)=-535698.5395703 ehk(eV)=-535698.5395982 sev(eV)=-3
 i so=0 mmom=3.2522553 ehf(eV)=-535698.5395688 ehk(eV)=-535698.5395972 sev(eV)=-367.9707584
 i so=1 soa1=0 soa2=0 soa3=1 mmom=3.2189814 ehf(eV)=-535698.8432677 ehk(eV)=-535698.8338371 sev(eV)=-368.2744573
 i so=1 soa1=1 soa2=1 soa3=0 mmom=3.2216341 ehf(eV)=-535698.8404701 ehk(eV)=-535698.8316219 sev(eV)=-368.2716597
+Start LMF fept --phispinsym -vso=0
+Start LMFA fept
+Start LMF fept --phispinsym -vso=0
+h mmom= 1.2959 ehf(eV)=-535701.283345 ehk(eV)=-535667.488516 sev(eV)=-351.940292
+i mmom= 2.0138 ehf(eV)=-535703.959720 ehk(eV)=-535656.746732 sev(eV)=-324.880483
+i mmom= 3.0089 ehf(eV)=-535698.899681 ehk(eV)=-535696.505012 sev(eV)=-349.912550
+i mmom= 3.0174 ehf(eV)=-535698.723397 ehk(eV)=-535698.463972 sev(eV)=-356.997542
+i mmom= 3.3319 ehf(eV)=-535699.306404 ehk(eV)=-535695.211335 sev(eV)=-357.384698
+i mmom= 3.3430 ehf(eV)=-535698.924826 ehk(eV)=-535698.427368 sev(eV)=-364.708607
+i mmom= 3.2848 ehf(eV)=-535698.877511 ehk(eV)=-535698.829036 sev(eV)=-365.945657
+i mmom= 3.2744 ehf(eV)=-535698.876889 ehk(eV)=-535698.869335 sev(eV)=-367.050077
+i mmom= 3.2670 ehf(eV)=-535698.879131 ehk(eV)=-535698.876975 sev(eV)=-367.867373
+i mmom= 3.2658 ehf(eV)=-535698.878043 ehk(eV)=-535698.876611 sev(eV)=-367.730309
+i mmom= 3.2649 ehf(eV)=-535698.877350 ehk(eV)=-535698.876485 sev(eV)=-367.698629
+i mmom= 3.2651 ehf(eV)=-535698.876950 ehk(eV)=-535698.876464 sev(eV)=-367.696469
+i mmom= 3.2658 ehf(eV)=-535698.876509 ehk(eV)=-535698.876243 sev(eV)=-367.625380
+Start LMF fept --phispinsym -vso=0
+i mmom= 3.2638 ehf(eV)=-535698.876558 ehk(eV)=-535698.876388 sev(eV)=-367.683840
+i mmom= 3.2638 ehf(eV)=-535698.876356 ehk(eV)=-535698.876302 sev(eV)=-367.639473
+i mmom= 3.2641 ehf(eV)=-535698.876301 ehk(eV)=-535698.876282 sev(eV)=-367.630409
+i mmom= 3.2640 ehf(eV)=-535698.876293 ehk(eV)=-535698.876273 sev(eV)=-367.634631
+i mmom= 3.2640 ehf(eV)=-535698.876302 ehk(eV)=-535698.876280 sev(eV)=-367.648055
+i mmom= 3.2641 ehf(eV)=-535698.876278 ehk(eV)=-535698.876249 sev(eV)=-367.651661
+i mmom= 3.2639 ehf(eV)=-535698.876274 ehk(eV)=-535698.876266 sev(eV)=-367.659387
+i mmom= 3.2643 ehf(eV)=-535698.876218 ehk(eV)=-535698.876218 sev(eV)=-367.647964
+i mmom= 3.2640 ehf(eV)=-535698.876242 ehk(eV)=-535698.876254 sev(eV)=-367.659541
+i mmom= 3.2642 ehf(eV)=-535698.876215 ehk(eV)=-535698.876231 sev(eV)=-367.653840
+i mmom= 3.2641 ehf(eV)=-535698.876224 ehk(eV)=-535698.876244 sev(eV)=-367.658828
+i mmom= 3.2642 ehf(eV)=-535698.876206 ehk(eV)=-535698.876227 sev(eV)=-367.655003
+i mmom= 3.2641 ehf(eV)=-535698.876220 ehk(eV)=-535698.876244 sev(eV)=-367.660581
+i mmom= 3.2642 ehf(eV)=-535698.876206 ehk(eV)=-535698.876230 sev(eV)=-367.657014
+c mmom= 3.2641 ehf(eV)=-535698.876212 ehk(eV)=-535698.876238 sev(eV)=-367.659621
+Start LMF fept --phispinsym -vso=0 --quit=band
+i mmom= 3.2638 ehf(eV)=-535698.865845 ehk(eV)=-535698.866101 sev(eV)=-367.647506
+Start LMF fept --phispinsym -vso=0 --quit=band
+i mmom= 3.2642 ehf(eV)=-535698.876204 ehk(eV)=-535698.876230 sev(eV)=-367.657865

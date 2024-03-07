@@ -133,7 +133,7 @@ contains
                call rangedq( matmul(platt,(qtarget-matmul(symops(:,:,ig),q)) ), qx)
                write(stdo,"(3d16.8,2x,3d16.8,2x,3d16.8)") qtarget-matmul(symops(:,:,ig),q),qx
             enddo
-            write(aaa,"(a,3f7.3)") 'm_hamindexW: no qtarget by symops:',ftof(q),' ',ftof(qtarget)
+            write(aaa,ftox) 'm_hamindexW: no qtarget by symops:',ftof(q),' ',ftof(qtarget)
             call rx('m_hamindex:'//trim(aaa))
          endif Errorexitq
 2012     continue

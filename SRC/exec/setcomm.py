@@ -22,7 +22,14 @@ def setcomm(fortranso):
     ''' Pass communicator to module m_comm.f90 
         Setcomm requires a shared library libfoobar.so, generaged by
         >mpif90 -shared -fPIC -o ecaljF.so m_comm.f90 fmath.f90'''
+    
     comm = MPI.COMM_WORLD
+    # commw = MPI.COMM_WORLD
+    # rank = commw.Get_rank()
+    # group = commw.Get_group()
+    # new_group = group.Incl([0]) if(rank==0) else group.Incl([1,2,3])
+    # comm = commw.Create(new_group)
+
     commi = comm.py2f()
     for mkll in mkl:
         CDLL(mkll, mode=ctypes.RTLD_GLOBAL)
@@ -31,10 +38,11 @@ def setcomm(fortranso):
     flib.setcomm(c_int32(commi))
     rank = comm.Get_rank()
     size = comm.Get_size()
+#    if(rank!=0): flib=None
     return flib,rank,size,comm
 
 ecaljF,rank,size,comm= setcomm(scriptpath+'/libecaljF.so') #We use libecaljF.so in the same directory as this script.
-
+print(rank,size,comm)
 class callF:
     def __init__(self,foobar,arguments=[]):
         '''Equivalent to 'call foobar(a,b,c,...)' in fortran, where we supply arguments=[a,b,c,...]. 

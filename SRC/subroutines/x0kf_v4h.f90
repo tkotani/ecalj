@@ -235,7 +235,7 @@ contains
             endif
             do iw=iwini(icoun),iwend(icoun) !!iw  = iwc(icount)  !omega-bin
                icount= icouini(icoun)+iw-iwini(icoun)
-               if(abs(zmel0(igb1,it,itp))>1d10) cycle !We assume rcxq(1) in this mode
+               if(abs(zmel0(1,it,itp))>1d10) cycle !We assume rcxq(1) in this mode
                rcxq(1,iw,jpm)=rcxq(1,iw,jpm) +rfac00**2*(abs(zmel(1,it,itp))-abs(zmel0(1,it,itp)))**2 *whwc(icount)
             enddo
          enddo zmel0modeicount

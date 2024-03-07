@@ -291,7 +291,7 @@ contains
        do    iq  = 1,nkp
              qp  = qplist(:,iq)
           do jsp = 1,nspx
-             write(stdo,"(' band-efermi(eV):',i3,i2,x,3f7.3,' ',i3,' ',i3)") iq,jsp,qp,nevls(iq,jsp),ndimhx_(iq,jsp)
+             write(stdo,ftox)' band-efermi(eV):',iq,jsp,ftof(qp,3),'nev=',nevls(iq,jsp),'ndimx=',ndimhx_(iq,jsp)
              write(stdo,"('  ',10f8.3)") rydberg()*(evlallm(1:nevls(iq,jsp),jsp,iq)-eferm)
           enddo
        enddo
