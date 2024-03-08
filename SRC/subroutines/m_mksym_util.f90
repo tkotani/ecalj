@@ -418,10 +418,10 @@ contains
        endif
        ag(:,ng)=0d0 
        flgp = .false. 
-       if (t(i:i+1) == '::') then !fractional
+       if (t(i:i+1) == '::') then !translation by fractional 
           flgp = .true.
           i=i+2
-       elseif (t(i:i) == ':') then !cartesian 
+       elseif (t(i:i) == ':') then !translation cartesian 
           i=i+1
        endif
        if (t(i:i) == leftp) then
@@ -437,6 +437,7 @@ contains
     real(8),parameter:: e(9)=[1d0,0d0,0d0, 0d0,1d0,0d0, 0d0,0d0,1d0]
     integer :: i,j,k,nrot,iii !    write(*,*)"parsopinput=@@@"//trim(t)//"@@@",i
     pi2 = 8*datan(1d0)
+    print *,'parsop=',t(i:i)
     if (t(i:i) == 'r' .OR. t(i:i) == 'R') then !rotation
        i = i+1
        read(t(i:i),'(i1)',err=99) nrot
@@ -474,7 +475,7 @@ contains
     endif
     return
 99  continue
-    call rx('PARSOP: parse error at '//trim(xn(i))//'t(i:)='//trim(t(i:)))
+    call rx('PARSOP: parse error at '//trim(xn(i))//' t(i:)='//trim(t(i:)))
   end subroutine parsop
   subroutine symlat(platcp,ngrp,grp,isym)  !- Generates the point symmetry operations of the lattice
     !i Inputs:

@@ -5,7 +5,7 @@
 #  , where >lmf -va=3.8 replace value of a.
 # Except %const, such as %if, are not supported. T.K. 2023feb
 import sys,re
-from math import *
+from math import sin,cos,tan,log,exp,sqrt,pi
 instr=sys.stdin.read()
 instrl=instr.split('\n')
 

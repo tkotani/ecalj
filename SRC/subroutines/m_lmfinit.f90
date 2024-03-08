@@ -5,7 +5,6 @@ module m_lmfinit ! 'call m_lmfinit_init' sets all initial data from ctrl are pro
   use m_ext,only :sname        ! sname contains extension. foobar of ctrl.foobar
   use m_MPItk,only: master_mpi
   use m_lgunit,only: stdo,stdl
-  
   use m_fatom,only:   sspec !allocation only in m_lmfinit: free atom density (detremined by lmfa) WARN: Not protected.
   use m_density,only: pnuall,pnzall !NOTE: These are set here! log-derivative of radial functions. m_denisty is NOT protected.
 
@@ -54,7 +53,6 @@ module m_lmfinit ! 'call m_lmfinit_init' sets all initial data from ctrl are pro
 contains
   subroutine m_lmfinit_init(prgnam) ! All the initial data are set in module variables from ctrlp.*
     use m_gtv2,only: gtv2_setrcd,rval2
-    use m_cmdpath,only:cmdpath
     use m_defpq,only:defpq
     ! Inputs
     !   file  : read ctrl.sname
@@ -62,7 +60,7 @@ contains
     ! Outputs
     !    All the module variables. Only several components of v_sspec are added by iors/rdovfa (readining atomic or previous results).
     !MEMO:2023-sep
-    ! Note our block coding: Search HelpExit ConvertCtrl2CtrlpByPython ReadCtrlp Stage1 Stage2 Stage3.
+    ! Note our block coding: Search ConvertCtrl2CtrlpByPython ReadCtrlp Stage1 Stage2 Stage3.
     !   At ConvertCtrl2CtrlpByPython, we convert ctrl.foobar to ctrlp.foobar by invoking a python script.
     !   BZ_  : Brillouin Zone related
     !   HAM_ :  Hamiltonian related
@@ -124,37 +122,23 @@ contains
     integer,allocatable:: idxdn(:,:,:) 
     real(8),allocatable:: pnuspc(:,:,:),qnuc(:,:,:,:),pp(:,:,:,:),ves(:),zc(:) !    debug = cmdopt0('--debug')
     if(master_mpi) write(stdo,"(a)")'m_lmfinit: '//trim(prgnam)
-    HelpExit: if(master_mpi.and.cmdopt0('--help')) then !minimum help
-       write(stdo,"( &
-            /'Usage: lmf,lmfa,lmf-MPIK,lmchk [--OPTION] [-var-assign] [extension]'&
-            /' For usage, see ecalj/Document/help_lmf-MPIK.org and so on!' &
-            /' Some options---'&
-            /'  -vfoobar=expr',  t17,'Define numerical variable foobar' &
-            /'  --help',      t17,'Show this document'&
-            /'  --pr=#1',     t17,'Set the verbosity (stack) to values #1' &
-            /'  --time=#1,#2',t17,'Print timing info to # levels (#1=summary; #2=on-the-fly)' &
-            /'  --jobgw=0 or --jobgw=1  lmf-MPIK works as the GW driver (previous lmfgw-MPIK)' &
-            /'  --quit=band, --quit=mkpot or --quit=dmat: Stop points. Surpress writing rst' &
-            /'  NOTE: lmf read rst.* prior to atm.* file (Removed --rs options at 2022-6-20)' &
-            /'  NOTE: Other command-line-options => Search call cmdopt in SRC/*/*.f90'  )")
-       call rx0('End of help mode')
-    endif HelpExit
-    ConvertCtrl2CtrlpByPython: block
-      use m_args,only: argall
-      character(512):: cmdl
-      logical:: fileexist
-      if(master_mpi) then
-         inquire(file='ctrl.'//trim(sname),exist=fileexist)
-         if(.NOT.fileexist) call rx("No ctrl file found!! ctrl."//trim(sname))
-         open(newunit=ifi,file='save.'//trim(sname),position='append')
-         write(ifi,"(a)")'Start '//trim(prgnam)//trim(argall)
-         close(ifi)
-         cmdl=trim(cmdpath)//'ctrl2ctrlp.py '//trim(argall)//'<ctrl.'//trim(sname)//' >ctrlp.'//trim(sname)
-         write(stdo,"(a)")'cmdl for python='//trim(cmdl)
-         call system(cmdl) !See  results ctrlp.* given by ctrl2ctrl.py 
-      endif
-      call MPI_BARRIER( MPI_COMM_WORLD, ierr)
-    end block ConvertCtrl2CtrlpByPython
+    ! ConvertCtrl2CtrlpByPython: block
+    !   use m_args,only: argall
+    !   character(512):: cmdl
+    !   logical:: fileexist
+    !   if(master_mpi) then
+    !      inquire(file='ctrl.'//trim(sname),exist=fileexist)
+    !      if(.NOT.fileexist) call rx("No ctrl file found!! ctrl."//trim(sname))
+    !      open(newunit=ifi,file='save.'//trim(sname),position='append')
+    !      write(ifi,"(a)")'Start '//trim(prgnam)//trim(argall)
+    !      close(ifi)
+    !      cmdl=trim(cmdpath)//'ctrl2ctrlp.py '//trim(argall)//'<ctrl.'//trim(sname)//' >ctrlp.'//trim(sname)
+    !      write(stdo,"(a)")'cmdl for python='//trim(cmdl)
+    !      call system(cmdl) !See  results ctrlp.* given by ctrl2ctrl.py 
+    !   endif
+    !   call MPI_BARRIER( MPI_COMM_WORLD, ierr)
+    ! end block ConvertCtrl2CtrlpByPython
+
     ReadCtrlp: block ! Readin ctrlp
       character(10000):: recrdx=''
       integer::ixx,lenmax
@@ -780,12 +764,16 @@ contains
     call MPI_BARRIER( MPI_COMM_WORLD, ierr)
     call tcx('m_lmfinit')
   end subroutine m_lmfinit_init
-  subroutine getiout(a,iin,iout) !a(1:iout) can be nonzero.
+  pure subroutine getiout(a,iin,iout) !a(1:iout) can be nonzero.
+    intent(in):: a,iin
+    intent(out):: iout
     integer:: iin,iout,i
     real(8):: a(iin)
     iout= findloc([(a(i)>0,i=1,iin)],dim=1,value=.true.,back=.true.)-1
   end subroutine getiout
-  subroutine fill3in(nin,res)!- fills res(2) or res(2:3) if res(1) or res(1:2) are given
+  pure subroutine fill3in(nin,res)!- fills res(2) or res(2:3) if res(1) or res(1:2) are given
+    intent(in):: nin
+    intent(out):: res
     integer :: nin,res(3)
     if (nin==2) res(3) = res(2)
     if (nin==1) res(2:3) = res(1)

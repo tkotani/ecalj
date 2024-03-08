@@ -1,6 +1,5 @@
 !> MPI utility routines and variablis by TK
 module m_MPItk
-  use m_ext, only: sname
   use m_lgunit, only: stml, stdl
   public :: m_MPItk_init, procid, strprocid,master, nsize, master_mpi, xmpbnd2
   private

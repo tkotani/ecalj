@@ -1,5 +1,5 @@
 subroutine lmchk() bind(C)
-  use m_args,only: argall
+  use m_args,only: argall,m_setargs
   use m_ext,only:     m_Ext_init,sname
   use m_MPItk,only:   m_MPItk_init,nsize,master_mpi
   use m_lgunit,only:  m_lgunit_init, stdo,stdl
@@ -10,10 +10,12 @@ subroutine lmchk() bind(C)
   use m_lmaux,only:   lmaux
   use m_prgnam,only: set_prgnam
   implicit none
+  include "mpif.h" 
   logical:: cmdopt0,cmdopt2
   character:: outs*20,aaa*512,sss*128
   integer:: iarg,k,ierr
   character(32):: prgnam='LMCHK'
+  call m_setargs()
   call m_ext_init()        ! Get sname, e.g. trim(sname)=si of ctrl.si
 !  call mpi_init()
 !  call mpi_init(ierr)
@@ -33,6 +35,9 @@ subroutine lmchk() bind(C)
      call m_lmfinit_init(prgnam) ! show help and quit for --input
      call rx0('end of help mode')
   endif
+  call ConvertCtrl2CtrlpByPython(prgnam)
+!  if(cmdopt0('--quit=ctrlp')) call rx0('--quit=ctrlp')
+  call MPI_BARRIER( MPI_COMM_WORLD, ierr)
   call m_lmfinit_init(prgnam) ! Computational settings go into m_lmfinit
   if(cmdopt2('--pr=',outs)) then
      read(outs,*) k

@@ -5,7 +5,7 @@
 ! We use a module-based programing. In principle, all the variables are generared and stored in modules with 'protection'.
 ! This assure that we can not modify data in a module by other modules.
 subroutine lmf() bind(C) ! Bootstrap sequence of modules initialzation. The variables in modules are proteted except m_density. Use variables with 'use only'.
-  use m_args,only: argall
+  use m_args,only: m_setargs,argall
   use m_ext,only:      m_ext_init,sname
   use m_MPItk,only:    m_MPItk_init, nsize, master_mpi
   use m_lgunit,only:   m_lgunit_init, stdo,stdl
@@ -31,40 +31,30 @@ subroutine lmf() bind(C) ! Bootstrap sequence of modules initialzation. The vari
   use m_ftox
   use m_prgnam,only: set_prgnam
   implicit none
+  include "mpif.h" 
   integer:: iarg,iprint,jobgw=-1,ierr
   logical:: cmdopt0,cmdopt2, writeham,sigx
   character:: outs*20,aaa*512,sss*128
   character(32):: prgnam='LMF'
-  call m_ext_init()         ! Get sname, e.g. trim(sname)=si of ctrl.si
+  call m_setargs()     ! Get argall
+  call set_prgnam(prgnam) 
 !  call mpi_init(ierr)
-  call set_prgnam(prgnam) ! MPI initialization
-  call m_MPItk_init() ! MPI initialization
-  call m_lgunit_init()      ! Set file handle of stdo(console) and stdl(log)
+  call m_MPItk_init()  ! MPI info
+  call m_ext_init()    ! Get sname, e.g. trim(sname)=si of ctrl.si
+  call m_lgunit_init() ! Set file handle of stdo(console) and stdl(log)
+  !print *, 'len_trim(argall)=',trim(argall),len_trim(argall),master_mpi
+  aaa='===START '//trim(prgnam)//' with  '//trim(argall)//' ==='
+  if(master_mpi) call show_programinfo(stdo)
+  if(master_mpi) write(stdo,"(a)") trim(aaa)
+  if(master_mpi) write(stdl,"(a)") trim(aaa)
+  if(master_mpi) write(stdo,"(a,g0)")'mpisize=',nsize
+  if(master_mpi) write(stdl,"(a,g0)")'mpisize=',nsize
   call setcmdpath()         ! Set self-command path (this is for call system at m_lmfinit)
   if(cmdopt2('--jobgw=',outs))then
      prgnam='LMFGWD' !GW set up mode
      read(outs,*) jobgw
      if(jobgw/=0.and.jobgw/=1) call rx0(' Set --jobgw=0 or 1')
   endif 
-  aaa=argall
-  if(master_mpi.and.len_trim(aaa)==0) then
-     write(stdo,*)' usage: mpirun -np 4 lmf-MPIK foobar [options]'
-     write(stdo,*)'     GW preparation mode. Then we need '
-     write(stdo,*)'     --jobgw=0 : init mode creates HAMindex0'
-     write(stdo,*)'     --jobgw=1 : GW setup for eigenfunctions: HAMindex gwa.* gwb.*'
-     write(stdo,*)' There are many possible [options]. grep cmdopt SRC/*/*.f90'
-     call rx(' Set command line inputs') 
-  endif
-  aaa='===START '//trim(prgnam)//' with  '//trim(aaa)//' ==='
-  if(master_mpi) call show_programinfo(stdo)
-  if(master_mpi) write(stdo,"(a)") trim(aaa)
-  if(master_mpi) write(stdl,"(a)") trim(aaa)
-  if(master_mpi) write(stdo,"(a,g0)")'mpisize=',nsize
-  if(master_mpi) write(stdl,"(a,g0)")'mpisize=',nsize
-  Helpmode:if(cmdopt0('--help')) then  !help and quit
-     call m_lmfinit_init(prgnam) ! show help and quit for --input
-     call rx0('end of help mode')
-  endif Helpmode
   WritePdosmode: if( cmdopt0('--writepdos') ) then  ! See job_pdos. New pdos mode (use --mkprocar and --fullmesh together).
      ! We use all k points (--fullmesh), instead of using crystal symmetry. See job_pdos
      if(master_mpi) write(stdo,*) '... Doing writepdos mode. Wait a while ...'
@@ -78,7 +68,9 @@ subroutine lmf() bind(C) ! Bootstrap sequence of modules initialzation. The vari
      call writedossawada()
      call rx0('done: end of --wdsawada mode.')
   endif WriteDOSsawadamode
+  call ConvertCtrl2CtrlpByPython(prgnam)
   if(cmdopt0('--quit=ctrlp')) call rx0('--quit=ctrlp')
+  call MPI_BARRIER( MPI_COMM_WORLD, ierr)
   call m_lmfinit_init(prgnam)! Read ctrlp into module m_lmfinit.
   call m_lattic_init()       ! lattice setup (for ewald sum)
   call m_mksym_init(prgnam)  !symmetry go into m_lattic and m_mksym
@@ -127,7 +119,6 @@ subroutine lmf() bind(C) ! Bootstrap sequence of modules initialzation. The vari
     call lmfp(jobgw==1) 
   endblock MainRoutine
   if(master_mpi) write(stdo,*)"OK! end of "//trim(prgnam)//" ======================"
-  !call rx0("OK! end of "//trim(prgnam)//" ======================")
 contains
   subroutine readatompos(pos,irpos)
     intent(out)::        pos,irpos
@@ -153,5 +144,28 @@ contains
      endblock
 endsubroutine readatompos
 end subroutine lmf
+
+subroutine ConvertCtrl2CtrlpByPython(prgnam)
+  use m_MPItk,only: master_mpi
+  use m_args,only: argall
+  use m_ext,only :sname        ! sname contains extension. foobar of ctrl.foobar
+  use m_cmdpath,only:cmdpath
+  use m_lgunit,only: stdo,stdl
+  implicit none
+  character(512):: cmdl
+  logical:: fileexist
+  integer::ifi
+  character,intent(in)::  prgnam*(*)
+  if(master_mpi) then
+     inquire(file='ctrl.'//trim(sname),exist=fileexist)
+     if(.NOT.fileexist) call rx("No ctrl file found!! ctrl."//trim(sname))
+     open(newunit=ifi,file='save.'//trim(sname),position='append')
+     write(ifi,"(a)")'Start '//trim(prgnam)//trim(argall)
+     close(ifi)
+     cmdl=trim(cmdpath)//'ctrl2ctrlp.py '//trim(argall)//'<ctrl.'//trim(sname)//' >ctrlp.'//trim(sname)
+     write(stdo,"(a)")'cmdl for python='//trim(cmdl)
+     call system(cmdl) !See  results ctrlp.* given by ctrl2ctrl.py 
+  endif
+end subroutine ConvertCtrl2CtrlpByPython
 
 !include "../exec/show_programinfo.fpp" !this is for 'call show_programinfo' ! preprocessed from show_programinfo.f90 by Makefile

@@ -266,7 +266,7 @@ contains
           read(jfi) wk
        endif
        call mpibc1_real(wk,1,'iors:eferm')
-       use=trim(use)//'use window,'
+!       use=trim(use)//'use window,'
        eferm=wk(1)
 !       call m_bndfp_ef_SET(wk(1)) !bz_ef00) !,bz_def00)
        !   --- Read atomic positions,forces,velocities ---
@@ -282,12 +282,12 @@ contains
 !       if (irs5 /= 0) then
 !          ignore=trim(ignore)//' pnu,'
 !       else
-          use=trim(use)//' pnu,'
+!          use=trim(use)//' pnu,'
 !       endif
-       if (ipr >= 10) then
-          write(stdo,*)trim(use)
+!       if (ipr >= 10) then
+!          write(stdo,*)trim(use)
 !          write(stdo,*)trim(ignore)
-       endif
+!       endif
        allocate(orhoat(3,nbas), v1pot(nbas),v0pot(nbas))
        ibaug = 0
        do  ib = 1, nbas
