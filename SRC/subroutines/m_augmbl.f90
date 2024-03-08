@@ -157,7 +157,7 @@ contains
           facso(:,3) = [complex(8):: -1d0,  d2*img+d2,  d2*img-d2 ]
           facso=0.5d0* facso  ! prefactor 1/2
        else
-          call rx('Given HAM_SOCAXIS is not yet implemented')
+          call rx('Given HAM_SOCAXIS is not yet implemented. Modify facso matrix in subrouitne aughsoc in m_augmbl.f90.')
        endif
     endif
 

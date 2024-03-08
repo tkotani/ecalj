@@ -13,24 +13,27 @@ Look into hammhso if necessary
 We set the SOC axis by HAM_SOCAXIS.
 
 ** FePt test
-MAE test force theorem
+MAE test force theorem 
+
 creat ctrls.fept by hand
->ctrlgenM1.py fept
-Set LMXA=6 
+
+LMXA=6 (all SITES)
 nk 16 16 12
 nspin=2 
 MMOM=0,0,2.2 for Fe
 xcfun=103 !GGA-PBE
 so=0
-NOTE: digits of atomic position is as accurate as possible (
+PWMODE=11
+NOTE: digits of atomic position is as accurate as possible
 
 
 # Step1. Self-consistent calculation.
 $ mpirun -np 4 ~/ecalj/SRC/exec/lmf fept --phispinsym -vso=0 |tee llmf
 The end of save file shows
->c so=0 mmom=3.2521968 ehf(eV)=-535698.5395 703 ehk(eV)=-535698.5395 982 sev(eV)=-367.9715004
+>c so=0 mmom=3.2521968 ehf(eV)=-535698.5395703 ehk(eV)=-535698.5395982 sev(eV)=-367.9715004
 
->c mmom= 3.2641        ehf(eV)=-535698.876212 ehk(eV)=-535698.876238 sev(eV)=-367.65962
+new:
+c mmom= 3.2629 ehf(eV)=-535698.880006 ehk(eV)=-535698.880018 sev(eV)=-367.647174
 
 
 # Step2: Extend sigm to sigm_fbz. Skip this step in the case of LDA/GGA cases.
@@ -47,9 +50,13 @@ The end of save file shows
 Thus we do not use symmetry in this mode.---------------
 
 
+
 # Step 4. Band energy for so=0 . Baseline calculation.
 $mpirun -np 4 ~/ecalj/SRC/exec/lmf-MPIK fept --phispinsym -vso=0 --quit=band |tee llmfso0
 >i so=0 mmom=3.2522553 ehf(eV)=-535698.5395688 ehk(eV)=-535698.5395972 sev(eV)=-367.9707584
+
+new: Start LMF fept --phispinsym -vso=0 --quit=band
+i mmom= 3.2629 ehf(eV)=-535698.880007 ehk(eV)=-535698.880035 sev(eV)=-367.648546
 
 (not rewrite rst file. Just perturbation from the last result).
 sev is the band energy for the potential in rst file.
@@ -65,11 +72,16 @@ A line is added to save.fept
 >i so=1 soa1=0 soa2=0 soa3=1 mmom=3.2189814 ehf(eV)=-535698.8432677 ehk(eV)=-535698.8338371 sev(eV)=-368.2744573
 sev is the band energy for the potential in rst file in addition to the SO term
 
+new:
+
 
 # Step 6. Band energy 110 direction SO=1
 A line is added to save.fept
 mpirun -np 4 ~/ecalj/SRC/exec/lmf-MPIK fept --phispinsym --quit=band -vso=1 -vsoa1=1 -vsoa2=1 -vsoa3=0
 >i so=1 soa1=1 soa2=1 soa3=0 mmom=3.2216341 ehf(eV)=-535698.8404701 ehk(eV)=-535698.8316219 sev(eV)=-368.2716597
+
+new:
+
 
 -----------
 The difference of sev is -368.2744573+368.2716597= 0.0027976= 2797 micro eV.

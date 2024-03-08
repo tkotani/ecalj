@@ -549,10 +549,24 @@ contains
       ! 2022-jan-20 new setting of addinv (addinv =.not.ctrl_noinv)
       !Add inversion to get !When we have TR, psi_-k(r) = (psi_k(r))^* (when we have SO/=1).
       !                      density |psi_-k(r)|^2 = |psi_k^*(r)|^2
+
+      ! # NOINV={noinv} (If F, we enfoce |psi_\sigma^fk|^2=|psi_\sigma^{-fk}|^2)
+      ! #    usually judged automatically. So this is for debugging).
+      ! # If NOINV=F, we assume H=H^* for each spin (k <-> -k symmetry). 
+      ! #   This is the case in DFT without spin-orbit coupling.
+      ! #   Then we use |psi_\sigma^fk|^2=|psi_\sigma^{-fk}|^2 to reduce comutational time.
+      ! # If so/=0, lmf automatically sets NOINV=T.
+      ! # You must get correct results evenif NOINV=T in the case of DFT without SO (for debug).
+      ! #
+      ! # WARN: Even if sigm exist, we use NOINV=F; exactly speaking, this is not correct.
+      ! #       sigm without SO can cause orbital moments, that is, breaking time-reversal symmetry.
+      ! # NOTE: because of inversion in space-group symmetry, we may have 
+      ! #       |phi_sigm^fk|^2 = |phi_sigm^{-fk}|^2. This is not for NOINV.
+    
       if( (lrlxr>=1.AND.lrlxr<=3) .OR. cmdopt0('--cls') .OR. cmdopt0('--nosym') .OR. cmdopt0('--pdos')) then
          symg = 'e'
          addinv = .false. 
-!     elseif( lso==0 .and. sum(abs(idu))/=0 .and. (.not.sexist) ) then ! Add inversion means Hamiltonian is real (time-reversal).
+!   elseif( lso==0 .and. sum(abs(idu))/=0 .and. (.not.sexist) ) then ! Add inversion means Hamiltonian is real (time-reversal).
       elseif( lso==0 .and. sum(abs(idu))==0 .and. (.not.sexist) ) then ! Add inversion means Hamiltonian is real (time-reversal). !bugfix by obata 2023-12-12
          addinv=.true. 
       else
