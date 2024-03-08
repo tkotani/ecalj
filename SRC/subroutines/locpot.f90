@@ -129,7 +129,7 @@ contains
             if(ipr>0)write(stdo,ftox)' is=',is,'qsc0=',ftof(qsc0),'qsca',ftof(qsca(ib)),'qc',ftof(qc),'qc0',ftof(qc0)
             call rxs('problem in locpot -- possibly low LMXA or orbital mismatch, species ',spid)
          endif
-         if(ipr>= 20) write(stdo,"('   site',i3,'  z=',f5.1,'  rmt=',f8.5,'  nr=',i3,'   a=',f5.3, &
+         if(ipr>= 20) write(stdo,"('   site',i3,'  z=',f7.3,'  rmt=',f8.5,'  nr=',i3,'   a=',f5.3, &
               '  nlml=',i2,'  rg=',f5.3,'  Vfloat=',l1)") ib,z,rmt,nr,a,nlml,rg,lfltwf
          if(ipr>=30.and. kcor/=0 .and. sum(abs(qcor))/=0 ) write(stdo,ftox)&
               ' core hole: kcor=',kcor,'lcor=',lcor,'qcor amom=',ftof(qcor)

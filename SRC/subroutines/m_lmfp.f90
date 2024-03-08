@@ -88,10 +88,10 @@ contains
     if(k<0) then 
        call rdovfa()  ! Initial potential from atm file (lmfa) if rst can not read
 !!!!!!!!!!!!!!!!!!!!
-       block
-         use m_density,only: orhoat
-         write(6,*)'rrrrrrdensity',sum(orhoat(1,1)%v),sum(abs(orhoat(1,1)%v))
-       endblock
+!       block
+!         use m_density,only: orhoat
+!         write(6,*)'rrrrrrdensity',sum(orhoat(1,1)%v),sum(abs(orhoat(1,1)%v))
+!       endblock
 !!!!!!!!!!!!!!!!!!!!    
        nit1 = 0
        iatom=.true.
@@ -104,7 +104,7 @@ contains
        ! We can make structure constant (C_akL Eq.(38) in /JPSJ.84.034702) here when we have no extended local orbital.
        ! NOTE: When we use extenteded local obtail, we run m_bstrux_init after elocp in mkpot.(we may remove extented local orbial in future)
        if(sum(lpzex)==0) then
-          if(.not.cmdopt0('--wsig_fbz')) call m_bstrux_init() ! Get structure constants for nbas and qplist
+          if(.not.cmdopt0('--wsig_fbz')) call m_bstrux_init() ! Get structure constants for nbas and qplist !skip this for --wsig_fbz
        endif   
        if( ipr>=30) then ! Write atom positions
           write(stdo,"(/1x,'Basis, after reading restart file'/' site spec',8x,'pos (Cartesian coordinates)',9x,&

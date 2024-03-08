@@ -252,7 +252,7 @@ contains
           if (master_mpi) then
              call fsanrg(rmt0,rmt,rmt,1d-3,msg,'rmt',.true.)
              call fsanrg(rmt0,rmt,rmt,1d-6,msg,'rmt',.false.)
-             call fsanrg(z0,z,z,1d-6,msg,'z',.true.)
+!             call fsanrg(z0,z,z,1d-6,msg,'z',.true.)
              call fsanrg(a0,a,a,0d-9,msg,'a',.true.)
              lfail = isanrg(nr0,nr,nr,msgw,'nr',.false.)
              if (isanrg(lmxl,  0,lmxa,  msg,'lmxl', .FALSE. )) goto 999
