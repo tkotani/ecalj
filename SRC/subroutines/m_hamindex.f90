@@ -57,12 +57,12 @@ contains
     use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat,rv_a_opos
     use m_suham,only: ndham=>ham_ndham !max dimension of hamiltonian +napwad (for so=0,2)
     use m_lmfinit,only:norbx,ltabx,ktabx,offlx,lmxax
-    use m_MPItk,only: master_mpi
+    use m_MPItk,only: master_mpi,comm
     use m_lgunit,only:stdo
     use m_ftox
     use m_mksym,only: rv_a_osymgr=>symops,rv_a_oag=>ag,iclasst,AFmode_mksym=>AFmode,ngrp,AFmode,symops,ag
     use m_mksym,only: invgx,miat,tiat,shtvg,dlmm,ngrpAF
-    use m_mpi,only: MPI__barrier
+!    use m_mpi,only: MPI__barrier
     implicit none
     integer:: nqi, nqtt, ndimham, napwmx, ngpmx, imx
     integer,allocatable::  offH (:), iqimap(:),iqmap(:),igmap(:),ibasindex(:), igv2(:,:,:),napwk(:),igv2rev(:,:,:,:)
@@ -76,11 +76,12 @@ contains
     real(8),allocatable:: symtmp(:,:,:)
     logical:: qpgexist
     character(8)::  spid(nbas)
-    integer:: ndima,npqn,ificlass,ipqn,ifinlaindx,isp,konf,ngall
+    integer:: ndima,npqn,ificlass,ipqn,ifinlaindx,isp,konf,ngall,info
     logical,save:: done=.false.
     character(1):: lorb(1:3)=['p','d','l'],dig(1:9)=['1','2','3','4','5','6','7','8','9']
     character(1):: lsym(0:n0-1)=['s','p','d','f','g','5','6','7','8','9']
     character(256)::aaa
+    include 'mpif.h'
     call tcn('m_hamindex_init')
     if(.not.master_mpi) goto 9999
     if(done) call rx('writehamindex is already done')
@@ -178,7 +179,7 @@ contains
     close(ifi)
     call poppr !print index is poped.
 9999 continue
-    call MPI__barrier()
+    call MPI_Barrier( comm, info )
     call tcx('m_hamindex_init')
   end subroutine m_hamindexW_init
 end module m_hamindexW

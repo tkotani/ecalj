@@ -16,24 +16,29 @@ module m_mpi !MPI utility for fpgw
   logical, allocatable :: mpi__task(:)
   integer, allocatable :: mpi__ranktab(:)
   integer  :: mpi__MEq ! for magnon E(q) parallelization
+  integer,private:: comm
 contains
-  subroutine MPI__Initialize()
+  subroutine MPI__Initialize(commin)
     implicit none
     character(1024*4) :: cwd, stdout
+    integer,optional:: commin
+    comm= merge(commin,MPI_COMM_WORLD,present(commin))
     call getcwd(cwd)           ! get current working directory
     call MPI_Init( mpi__info ) ! current working directory is changed if mpirun is not used
-    call MPI_Comm_rank( MPI_COMM_WORLD, mpi__rank, mpi__info )
-    call MPI_Comm_size( MPI_COMM_WORLD, mpi__size, mpi__info )
+    call MPI_Comm_rank( comm, mpi__rank, mpi__info )
+    call MPI_Comm_size( comm, mpi__size, mpi__info )
     mpi__root= mpi__rank==0
     if( mpi__root ) call chdir(cwd)        ! recover current working directory
   end subroutine MPI__Initialize
-  subroutine MPI__Initialize_magnon()
+  subroutine MPI__Initialize_magnon(commin)
     implicit none
     character(1024*4) :: cwd, stdout
+    integer,optional:: commin
+    comm= merge(commin,MPI_COMM_WORLD,present(commin))
     call getcwd(cwd)          ! get current working directory
     call MPI_Init( mpi__info ) ! current working directory is changed if mpirun is not used
-    call MPI_Comm_rank( MPI_COMM_WORLD, mpi__rankMG, mpi__info )
-    call MPI_Comm_size( MPI_COMM_WORLD, mpi__sizeMG, mpi__info )
+    call MPI_Comm_rank( comm, mpi__rankMG, mpi__info )
+    call MPI_Comm_size( comm, mpi__sizeMG, mpi__info )
     mpi__root=  mpi__rankMG == 0 
     if( mpi__root ) call chdir(cwd)        ! recover current working directory
   end subroutine MPI__Initialize_magnon
@@ -69,7 +74,7 @@ contains
   end subroutine MPI__consoleout_magnon
   subroutine MPI__Barrier
     implicit none
-    call MPI_Barrier( MPI_COMM_WORLD, mpi__info )
+    call MPI_Barrier( comm, mpi__info )
   end subroutine MPI__Barrier
   subroutine MPI__getRange( mpi__indexi, mpi__indexe, indexi, indexe )
     implicit none
@@ -94,43 +99,43 @@ contains
   subroutine MPI__Broadcast( data )
     implicit none
     integer, intent(inout) :: data
-    call MPI_Bcast( data, 1, MPI_INTEGER, 0, MPI_COMM_WORLD, mpi__info )
+    call MPI_Bcast( data, 1, MPI_INTEGER, 0, comm, mpi__info )
   end subroutine MPI__Broadcast
   subroutine MPI__REAL8send(data,n,dest)
     implicit none
     real(8):: data(n)
     integer :: n,dest,ierr
-    call MPI_Send(data,n,MPI_REAL8,dest,mpi__rank, MPI_COMM_WORLD,ierr)
+    call MPI_Send(data,n,MPI_REAL8,dest,mpi__rank, comm,ierr)
   end subroutine MPI__REAL8send
   subroutine MPI__REAL8recv(data,n,src)
     implicit none
     real(8):: data(n)
     integer :: n,src,ierr
-    call MPI_Recv(data,n,MPI_REAL8,src,src, MPI_COMM_WORLD,ista,ierr)
+    call MPI_Recv(data,n,MPI_REAL8,src,src, comm,ista,ierr)
   end subroutine MPI__REAL8recv
   subroutine MPI__DbleCOMPLEXsend(data,n,dest)
     implicit none
     complex(8):: data(n)
     integer :: n,dest,ierr
-    call MPI_Send(data,n,MPI_COMPLEX16,dest,mpi__rank, MPI_COMM_WORLD,ierr)
+    call MPI_Send(data,n,MPI_COMPLEX16,dest,mpi__rank, comm,ierr)
   end subroutine MPI__DbleCOMPLEXsend
   subroutine MPI__DbleCOMPLEXrecv(data,n,src)
     implicit none
     complex(8):: data(n)
     integer :: n,src,ierr
-    call MPI_Recv(data,n,MPI_COMPLEX16,src,src, MPI_COMM_WORLD,ista,ierr)
+    call MPI_Recv(data,n,MPI_COMPLEX16,src,src, comm,ista,ierr)
   end subroutine MPI__DbleCOMPLEXrecv
   subroutine MPI__DbleCOMPLEXsendQ(data,n,destQ)
     implicit none
     complex(8):: data(n)
     integer :: n,destQ,ierr
-    call MPI_Send(data,n,MPI_COMPLEX16,destQ,0,MPI_COMM_WORLD,ierr)
+    call MPI_Send(data,n,MPI_COMPLEX16,destQ,0,comm,ierr)
   end subroutine MPI__DbleCOMPLEXsendQ
   subroutine MPI__DbleCOMPLEXrecvQ(data,n,srcQ)
     implicit none
     complex(8):: data(n)
     integer :: n,srcQ,ierr
-    call MPI_Recv(data,n,MPI_COMPLEX16,srcQ,0,MPI_COMM_WORLD,ista,ierr)
+    call MPI_Recv(data,n,MPI_COMPLEX16,srcQ,0,comm,ista,ierr)
   end subroutine MPI__DbleCOMPLEXrecvQ
   subroutine MPI__AllreduceSum( data, sizex )
     implicit none
@@ -140,7 +145,7 @@ contains
     if( mpi__size == 1 ) return
     allocate(mpi__data(sizex))
     mpi__data = data
-    call MPI_Allreduce( mpi__data, data, sizex, MPI_DOUBLE_COMPLEX, MPI_SUM, MPI_COMM_WORLD, mpi__info )
+    call MPI_Allreduce( mpi__data, data, sizex, MPI_DOUBLE_COMPLEX, MPI_SUM, comm, mpi__info )
     deallocate( mpi__data )
   end subroutine MPI__AllreduceSum
   subroutine MPI__reduceSum( root, data, sizex )
@@ -151,7 +156,7 @@ contains
     if( mpi__size == 1 ) return
     allocate(mpi__data(sizex))
     mpi__data = data
-    call MPI_reduce( mpi__data, data, sizex, MPI_DOUBLE_COMPLEX, MPI_SUM, root, MPI_COMM_WORLD, mpi__info )
+    call MPI_reduce( mpi__data, data, sizex, MPI_DOUBLE_COMPLEX, MPI_SUM, root, comm, mpi__info )
     deallocate( mpi__data )
     return
   end subroutine MPI__reduceSum
@@ -164,7 +169,7 @@ contains
     allocate(mpi__data(sizex))
     mpi__data = data
     call MPI_Allreduce( mpi__data, data, sizex,&
-         MPI_INTEGER, MPI_MAX, MPI_COMM_WORLD, mpi__info )
+         MPI_INTEGER, MPI_MAX, comm, mpi__info )
     deallocate( mpi__data )
   end subroutine MPI__AllreduceMax
   !=========================================================================

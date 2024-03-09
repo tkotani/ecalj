@@ -51,7 +51,7 @@ contains
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, plat=>lat_plat,pos=>rv_a_opos
     use m_rdsigm2,only: m_rdsigm2_init
     use m_subzi,only: m_subzi_init, rv_a_owtkb,m_subzi_bzintegration 
-    use m_MPItk,only: master_mpi, strprocid, numprocs=>nsize,xmpbnd2 !, procid,master
+    use m_MPItk,only: master_mpi, strprocid, numprocs=>nsize,xmpbnd2,comm !, procid,master
     use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate, m_mkpot_energyterms,m_mkpot_novxc !  m_mkpot_novxc_dipole,
     use m_mkpot,only: osmpot, qmom, vconst, osig,otau,oppi, qval , qsc , fes1_rv , fes2_rv
     use m_clsmode,only: m_clsmode_init,m_clsmode_set1,m_clsmode_finalize
@@ -172,7 +172,7 @@ contains
           call m_gennlat_init_sig([nk1,nk2,nk3]) !nlat(real-space lattice vectors) for FFT of sigm
        endif
        call m_rdsigm2_init()
-       call mpi_barrier(MPI_COMM_WORLD,ierr)
+       call mpi_barrier(comm,ierr)
        siginit=.false. !only once
     endif READsigm ! ndimsig is the dim of the self-energy. We now set "ndimsig=ldim",which means we use only projection onto MTO spaces even when PMT. 
     if(sigmamode .AND. master_mpi) write(stdo,*)' ScaledSigma=',ham_scaledsigma
@@ -297,7 +297,7 @@ contains
        enddo
     endif WRITEeigenvaluesConsole
     AccumurateSuminBZforwtkb: if(lrout>0) then 
-       call mpi_barrier(MPI_comm_world,ierr)
+       call mpi_barrier(comm,ierr)
        call m_bandcal_2nd()  !accumulate smrho_out and so on.
        call m_bandcal_allreduce() 
     endif AccumurateSuminBZforwtkb
@@ -324,7 +324,7 @@ contains
             call mkekin(osig,otau,oppi,oqkkl,vconst,osmpot,smrho_out,sev,  ekinval)
             call m_mkpot_energyterms(smrho_out, orhoat_out) !qmom is revised for given orhoat_out
             if(cmdopt0('--density')) then
-               call mpi_barrier(MPI_comm_world,ierr)
+               call mpi_barrier(comm,ierr)
                call rx0('end of --density mode')
             endif
             call m_mkehkf_etot2(ekinval, eksham)
@@ -342,7 +342,7 @@ contains
          ! Mix inputs(osmrho,orhoat) and outputs(osmrho_out,orhoat_out), resulting orhoat and osmrho.
          call mixrho(iter,qval-qbg,orhoat_out,orhoat,smrho_out,osmrho,qdiff)!mixrho keeps history in it.
          !
-         call mpi_barrier(MPI_comm_world,ierr)
+         call mpi_barrier(comm,ierr)
 !         write(stdo,ftox)'mixrho-------------------------------'
 !         write(stdo,ftox)'mixrho: output smrho =',maxval(dreal(osmrho)),minval(dreal(osmrho)),sum(dreal(osmrho))
 !         do ib=1,nbas

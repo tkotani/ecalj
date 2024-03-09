@@ -573,9 +573,7 @@ contains
     do ic = 1, nclass !Find the class with minimum number of atoms ---
        if(nrclas(ic) < nrclas(icmin) .AND. nrclas(ic) > 0) icmin = ic
     enddo
-    print *,'xxxxxxxxxxx111111111111'
     ibas = iclbsjx(ipc,nbas, icmin,1)
-    print *,'xxxxxxxxxxx1111111111112222222222'
     ! --- For each group op, see whether it only shifts basis by some T ---
     ng0 = ng
     ng = 0

@@ -1,5 +1,6 @@
 !>output routines such as writeband used in bndfp
 module m_writeband
+  use m_MPItk,only: comm
   public writeband,writefs,writepdos,writedossawada
   private
 contains
@@ -361,8 +362,8 @@ contains
     read(ifip) dwgtall
     read(ifip) ef0
     close(ifip)
-    call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
-    call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
+    call MPI_COMM_RANK( comm, procid, ierr )
+    call MPI_COMM_SIZE( comm, numprocs, ierr )
     allocate (kpproc(0:numprocs), stat=ierr)
     call dstrbp(ntete,numprocs,1,kpproc(0))
     iteti = kpproc(procid)
@@ -491,8 +492,8 @@ contains
     ef0=0d0
     mlog=.false.
     !      mlog = cmdopt('--mlog',6,0,strn) !--mlog here is taken by getarg.
-    call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
-    call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
+    call MPI_COMM_RANK( comm, procid, ierr )
+    call MPI_COMM_SIZE( comm, numprocs, ierr )
     allocate (kpproc(0:numprocs), stat=ierr)
     call dstrbp(ntete,numprocs,1,kpproc(0))
     iteti = kpproc(procid)

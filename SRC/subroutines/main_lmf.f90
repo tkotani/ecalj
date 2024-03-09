@@ -4,7 +4,7 @@
 !
 ! We use a module-based programing. In principle, all the variables are generared and stored in modules with 'protection'.
 ! This assure that we can not modify data in a module by other modules.
-subroutine lmf() bind(C) ! Bootstrap sequence of modules initialzation. The variables in modules are proteted except m_density. Use variables with 'use only'.
+subroutine lmf(commin) bind(C) ! Bootstrap sequence of modules initialzation. The variables in modules are proteted except m_density. Use variables with 'use only'.
   use m_args,only: m_setargs,argall
   use m_ext,only:      m_ext_init,sname
   use m_MPItk,only:    m_MPItk_init, nsize, master_mpi
@@ -36,10 +36,12 @@ subroutine lmf() bind(C) ! Bootstrap sequence of modules initialzation. The vari
   logical:: cmdopt0,cmdopt2, writeham,sigx
   character:: outs*20,aaa*512,sss*128
   character(32):: prgnam='LMF'
-  call m_setargs()     ! Get argall
+  integer,optional:: commin
+  integer:: comm 
+  comm= merge(commin,MPI_COMM_WORLD,present(commin))
+!  call m_setargs()     ! Get argall
   call set_prgnam(prgnam) 
-!  call mpi_init(ierr)
-  call m_MPItk_init()  ! MPI info
+  call m_MPItk_init(comm)  ! MPI info
   call m_ext_init()    ! Get sname, e.g. trim(sname)=si of ctrl.si
   call m_lgunit_init() ! Set file handle of stdo(console) and stdl(log)
   !print *, 'len_trim(argall)=',trim(argall),len_trim(argall),master_mpi
@@ -49,7 +51,7 @@ subroutine lmf() bind(C) ! Bootstrap sequence of modules initialzation. The vari
   if(master_mpi) write(stdl,"(a)") trim(aaa)
   if(master_mpi) write(stdo,"(a,g0)")'mpisize=',nsize
   if(master_mpi) write(stdl,"(a,g0)")'mpisize=',nsize
-  call setcmdpath()         ! Set self-command path (this is for call system at m_lmfinit)
+!  call setcmdpath()         ! Set self-command path (this is for call system at m_lmfinit)
   if(cmdopt2('--jobgw=',outs))then
      prgnam='LMFGWD' !GW set up mode
      read(outs,*) jobgw
@@ -70,8 +72,8 @@ subroutine lmf() bind(C) ! Bootstrap sequence of modules initialzation. The vari
   endif WriteDOSsawadamode
   call ConvertCtrl2CtrlpByPython(prgnam)
   if(cmdopt0('--quit=ctrlp')) call rx0('--quit=ctrlp')
-  call MPI_BARRIER( MPI_COMM_WORLD, ierr)
-  call m_lmfinit_init(prgnam)! Read ctrlp into module m_lmfinit.
+  call MPI_BARRIER( comm, ierr)
+  call m_lmfinit_init(prgnam,comm)! Read ctrlp into module m_lmfinit.
   call m_lattic_init()       ! lattice setup (for ewald sum)
   call m_mksym_init(prgnam)  !symmetry go into m_lattic and m_mksym
   if(trim(prgnam)=='LMF') call m_mkqp_init() ! data of BZ go into m_mkqp

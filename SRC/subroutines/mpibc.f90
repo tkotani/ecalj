@@ -63,7 +63,7 @@ subroutine mpibc1_complex(vec,nnn,label)
   call mpibc1(vec,nnn,cast,mlog,funnam,label)
 end subroutine mpibc1_complex
 subroutine mpibc1(vec,n,cast,mlog,funnam,label)  !- Broadcasts a vector from master node to the world (MPI)
-   use m_MPItk,only: procid, numprocs=>nsize
+   use m_MPItk,only: procid, numprocs=>nsize,comm
   !i Inputs
   !i   vec   :vector to broadcast
   !i   n     :length of vector
@@ -94,19 +94,19 @@ subroutine mpibc1(vec,n,cast,mlog,funnam,label)  !- Broadcasts a vector from mas
   if (n <= 0) return
   master = 0
   if (cast == 1) then
-     call MPI_BCAST(vec,n,MPI_LOGICAL,   master,MPI_COMM_WORLD,ierr)
+     call MPI_BCAST(vec,n,MPI_LOGICAL,   master,comm,ierr)
   elseif (cast == 2) then
-     call MPI_BCAST(vec,n,MPI_INTEGER,   master,MPI_COMM_WORLD,ierr)
+     call MPI_BCAST(vec,n,MPI_INTEGER,   master,comm,ierr)
   elseif (cast == 4) then
-     call MPI_BCAST(vec,n,MPI_DOUBLE_PRECISION, master,MPI_COMM_WORLD,ierr)
+     call MPI_BCAST(vec,n,MPI_DOUBLE_PRECISION, master,comm,ierr)
   elseif (cast == 6) then
-     call MPI_BCAST(vec,2*n,MPI_DOUBLE_PRECISION, master,MPI_COMM_WORLD,ierr)
+     call MPI_BCAST(vec,2*n,MPI_DOUBLE_PRECISION, master,comm,ierr)
   else
      call rxi('mpibc1: cast not implemented',cast)
   endif
 end subroutine mpibc1
 subroutine mpibc2(vec,n,cast,mlog,funnam,label) !Performs MPI_ALLREDUCE on a vector (MPI)
-  use m_MPItk, only: procid, numprocs=>nsize
+  use m_MPItk, only: procid, numprocs=>nsize,comm
   use m_lgunit,only:stml
   use m_ftox
   !i   vec   :vector to broadcast
@@ -143,18 +143,18 @@ subroutine mpibc2(vec,n,cast,mlog,funnam,label) !Performs MPI_ALLREDUCE on a vec
   master = 0
   if (cast == 2) then
      allocate(ibuf(n), stat=ierr)
-     call MPI_ALLREDUCE(vec,ibuf,n,  MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,ierr)
+     call MPI_ALLREDUCE(vec,ibuf,n,  MPI_INTEGER,MPI_SUM,comm,ierr)
      call icopy(n,ibuf,1,vec,1)     !vec=transfer(ibuf,vec) !this did not work in ifort ver2018 in ucgw
      deallocate(ibuf, stat=ierr)
   elseif (cast == 4) then
      allocate(dbuf(n), stat=ierr) 
-     call MPI_ALLREDUCE(vec,dbuf,n,  MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
+     call MPI_ALLREDUCE(vec,dbuf,n,  MPI_DOUBLE_PRECISION,MPI_SUM,comm,ierr)
      !vec=transfer(dbuf,vec) 
      call dcopy(n,dbuf,1,vec,1)
      deallocate(dbuf, stat=ierr)
   elseif (cast == 6) then
      allocate(dbuf(2*n), stat=ierr)
-     call MPI_ALLREDUCE(vec,dbuf,2*n,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
+     call MPI_ALLREDUCE(vec,dbuf,2*n,MPI_DOUBLE_PRECISION,MPI_SUM,comm,ierr)
      call dcopy(2*n,dbuf,1,vec,1)
      !vec=transfer(dbuf,vec)
      deallocate(dbuf, stat=ierr)

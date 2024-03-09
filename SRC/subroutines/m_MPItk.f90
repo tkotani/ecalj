@@ -1,19 +1,25 @@
 !> MPI utility routines and variablis by TK
 module m_MPItk
   use m_lgunit, only: stml, stdl
-  public :: m_MPItk_init, procid, strprocid,master, nsize, master_mpi, xmpbnd2
+  public :: m_MPItk_init, procid, strprocid,master, nsize, master_mpi, xmpbnd2,comm
   private
-  integer:: procid, master = 0, nsize !,nproc
+  integer,protected:: procid, master = 0, nsize,comm !,nproc
   include "mpif.h"
-  logical:: master_mpi
-  character(8) :: strprocid
+  logical,protected:: master_mpi
+  character(8),protected :: strprocid
 contains
-  subroutine m_MPItk_init()
+  subroutine m_MPItk_init(commin)
     logical:: cmdopt0
     integer :: fext,ierr
+    integer,optional:: commin
     character(10):: i2char
-    call mpi_comm_size(MPI_COMM_WORLD, nsize, ierr)
-    call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
+    if(present(commin)) then
+       comm=commin
+    else
+       comm=MPI_COMM_WORLD
+    endif   
+    call mpi_comm_size(comm, nsize, ierr)
+    call MPI_COMM_RANK(comm, procid, ierr )
     strprocid = trim(i2char(procid))
     master_mpi = .false.
     if (procid == master) master_mpi = .TRUE.
@@ -44,7 +50,7 @@ contains
     ista = kpproc(procid)
     allocate (buf_rv(ndham, ndat))
     call mpi_allgatherv(eb(1, ista), length(procid), mpi_double_precision, buf_rv, length, offset, mpi_double_precision,&
-      mpi_comm_world, ierr)
+      comm, ierr)
     eb = buf_rv
     deallocate (buf_rv)
     deallocate (offset, stat=ierr)

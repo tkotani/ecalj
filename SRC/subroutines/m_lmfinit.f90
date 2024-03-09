@@ -51,7 +51,7 @@ module m_lmfinit ! 'call m_lmfinit_init' sets all initial data from ctrl are pro
   integer,public,allocatable,protected:: ib_table(:),k_table(:),l_table(:),ltab(:),ktab(:),offl(:), offlrev(:,:,:),ibastab(:)
   private
 contains
-  subroutine m_lmfinit_init(prgnam) ! All the initial data are set in module variables from ctrlp.*
+  subroutine m_lmfinit_init(prgnam,commin) ! All the initial data are set in module variables from ctrlp.*
     use m_gtv2,only: gtv2_setrcd,rval2
     use m_defpq,only:defpq
     ! Inputs
@@ -121,7 +121,12 @@ contains
     character*(8),allocatable::clabl(:)
     integer,allocatable:: idxdn(:,:,:) 
     real(8),allocatable:: pnuspc(:,:,:),qnuc(:,:,:,:),pp(:,:,:,:),ves(:),zc(:) !    debug = cmdopt0('--debug')
+    integer,optional:: commin
+    integer:: comm !,nsizex,info
+    comm= merge(commin,MPI_COMM_WORLD,present(commin))
+    !call MPI_Comm_size( comm, nsizex, info ); write(*,*) 'mmmmmmmyyyy 1111 mpisizexxxxxx=',nsizex
     if(master_mpi) write(stdo,"(a)")'m_lmfinit: '//trim(prgnam)
+    
     ! ConvertCtrl2CtrlpByPython: block
     !   use m_args,only: argall
     !   character(512):: cmdl
@@ -651,7 +656,7 @@ contains
       allocate(iv_a_oips(nbas),source=[(ispec(ib), ib=1,nbas)])
       seref= sum([(eref(ispec(ib)),ib=1,nbas)])
       ham_seref= seref
-      call MPI_BARRIER( MPI_COMM_WORLD, ierr )
+      call MPI_BARRIER(comm, ierr )
       if( cmdopt0('--quit=show') ) call rx0(trim(prgnam)//' --quit=show')
     endblock Stage2SetModuleParameters
     Stage3InitialSetting :block 
@@ -761,7 +766,7 @@ contains
 9299    continue
       endblock ForceDYNsetting
     endblock Stage3InitialSetting
-    call MPI_BARRIER( MPI_COMM_WORLD, ierr)
+    call MPI_BARRIER(comm, ierr)
     call tcx('m_lmfinit')
   end subroutine m_lmfinit_init
   pure subroutine getiout(a,iin,iout) !a(1:iout) can be nonzero.

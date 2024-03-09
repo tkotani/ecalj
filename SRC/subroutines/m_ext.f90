@@ -1,30 +1,4 @@
-!> Some utilities. Get arglist. Get extension of ctrl and so on.
-function convcchar(instr) result(outstr) !convert char(1) to char(1024)
-   use iso_c_binding
-   integer:: i,nend
-   character(1):: instr(1024)
-   character(1024):: outstr,instr2
-   forall(i=1:1024) instr2(i:i) = instr(i)
-   nend = index(instr2, c_null_char)-1
-   outstr=''
-   outstr(1:nend)= instr2(1:nend)
-end function convcchar
-
-module m_prgnam
-   character(32):: prgnamx = ''
-contains
-   subroutine set_prgnam(prgnam)
-      character(*):: prgnam
-      prgnamx = prgnam
-   end subroutine set_prgnam
-   subroutine set_prgnamc(prgnamc) bind(C)
-      character(1024):: convcchar
-      character(1):: prgnamc(*)
-      prgnamx = trim(convcchar(prgnamc))
-      write (*, *) 'prgnamx=', trim(prgnamx)
-    end subroutine set_prgnamc
-end module m_prgnam
-
+!> Some utilities. Get arglist. 
 module m_args
   character(120),public,protected,allocatable::arglist(:)
   character(1024),public,protected:: argall
@@ -85,33 +59,28 @@ contains
     logical :: master
     integer:: ifi,ipos,i,na
     character*256:: sss,s222,argv
-    do i = 1, narg
-      !write(*,*)'m_ext_init=',i, trim(arglist(i))
+    do i = 1, narg       !write(*,*)'m_ext_init=',i, trim(arglist(i))
        if(arglist(i)(1:1)/='-') then
           sname=trim(arglist(i))
           goto 999
        endif
     enddo
-    !HelpExit: if(master_mpi.and.(len_trim(argall)==0.or.cmdopt0('--help'))) then
-       write(6,"( &
-            /'Usage: lmf,lmfa,lmchk [--OPTION] [-vfoobar] [extension]'&
-            /' Some options:'&
-            /'  --help',      t17,'Show this document'&
-            /'  --pr=#1',     t17,'Set the verbosity (stack) to values #1' &
-            /'  -vfoobar=expr',  t17,'Define numerical variable foobar' &
-            /'  --time=#1,#2',t17,'Print timing info to # levels (#1=summary; #2=on-the-fly,e.g. --time=5,5)' &
-            /'  --jobgw=0 or --jobgw=1  lmf-MPIK works as the GW driver (previous lmfgw-MPIK)' &
-            /'  --quit=band, --quit=mkpot or --quit=dmat: Stop points. Surpress writing rst' &
-            /'  NOTE: For description of ctrl file, see ecalj/Document/help_lmf.org and so on!' &
-            /'  NOTE: lmf read rst.* prior to atm.* file (Removed --rs options at 2022-6-20)' &
-            /'  NOTE: Other command-line-options => Search call cmdopt in SRC/*/*.f90'  )")
-    !   call rx0('End of help mode')
-    !endif HelpExit
+    write(6,"( &
+         /'Usage: lmf,lmfa,lmchk [--OPTION] [-vfoobar] [extension]'&
+         /' Some options:'&
+         /'  --help',      t17,'Show this document'&
+         /'  --pr=#1',     t17,'Set the verbosity (stack) to values #1' &
+         /'  -vfoobar=expr',  t17,'Define numerical variable foobar' &
+         /'  --time=#1,#2',t17,'Print timing info to # levels (#1=summary; #2=on-the-fly,e.g. --time=5,5)' &
+         /'  --jobgw=0 or --jobgw=1  lmf-MPIK works as the GW driver (previous lmfgw-MPIK)' &
+         /'  --quit=band, --quit=mkpot or --quit=dmat: Stop points. Surpress writing rst' &
+         /'  NOTE: For description of ctrl file, see ecalj/Document/help_lmf.org and so on!' &
+         /'  NOTE: lmf read rst.* prior to atm.* file (Removed --rs options at 2022-6-20)' &
+         /'  NOTE: Other command-line-options => Search call cmdopt in SRC/*/*.f90'  )")
     call rx0('no args: Need to set foobar for ctrl.foobar ')
 999 continue
   end subroutine m_ext_init
 end module m_ext
-
 logical function cmdopt0(argstr)! Check a command-line argument exist. 
   use m_args,only: m_setargs,arglist,narg
   !i Inputs  argstr: command-line string to search; search to strln chars
@@ -154,3 +123,29 @@ logical function cmdopt2(argstr,outstr)  ! return it in outstr
      endif
   enddo
 end function cmdopt2
+
+module m_prgnam
+   character(32):: prgnamx = ''
+contains
+   subroutine set_prgnam(prgnam)
+      character(*):: prgnam
+      prgnamx = prgnam
+   end subroutine set_prgnam
+   subroutine set_prgnamc(prgnamc) bind(C)
+      character(1024):: convcchar
+      character(1):: prgnamc(*)
+      prgnamx = trim(convcchar(prgnamc))
+      write (*, *) 'prgnamx=', trim(prgnamx)
+    end subroutine set_prgnamc
+end module m_prgnam
+
+function convcchar(instr) result(outstr) !convert char(1) to char(1024)
+   use iso_c_binding
+   integer:: i,nend
+   character(1):: instr(1024)
+   character(1024):: outstr,instr2
+   forall(i=1:1024) instr2(i:i) = instr(i)
+   nend = index(instr2, c_null_char)-1
+   outstr=''
+   outstr(1:nend)= instr2(1:nend)
+end function convcchar

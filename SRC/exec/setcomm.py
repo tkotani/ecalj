@@ -2,47 +2,40 @@
 # This should be easily replaced by fortran code.
 #mpif90 -shared -fPIC -o ecaljF.so *.f90
 #mpiexec -n 4 python3 ./hello.py | sort
-from ctypes import (CDLL, POINTER, c_int32, c_double, c_bool,
-                    c_char, ARRAY, byref, create_string_buffer)
+from ctypes import (CDLL, POINTER, c_int32, c_double, c_bool, c_char, ARRAY, byref, create_string_buffer)
 import numpy as np
 from mpi4py import MPI
 import ctypes,sys,os
-# Get path to mkl in mklloc.txt   locate mkl='/usr/lib/x86_64-linux-gnu/libmkl_rt.so' #directory of libmkl_rt.so
-scriptpath = os.path.dirname(os.path.realpath(__file__))+'/'
-mkl=[]
-with open(scriptpath+'./mklloc.txt') as f:
-    for line in f:
-        if 'mkl' in line:
-            mmm=line.split('=>')[1].strip().split(' ')[0].strip()
-            print(f'mmm=',mmm)
-            mkl.append(mmm)
-print(f'path to mkl=',mkl)
 
-def setcomm(fortranso):
+def setcommF(grp):
     ''' Pass communicator to module m_comm.f90 
         Setcomm requires a shared library libfoobar.so, generaged by
         >mpif90 -shared -fPIC -o ecaljF.so m_comm.f90 fmath.f90'''
-    
-    comm = MPI.COMM_WORLD
-    # commw = MPI.COMM_WORLD
-    # rank = commw.Get_rank()
-    # group = commw.Get_group()
-    # new_group = group.Incl([0]) if(rank==0) else group.Incl([1,2,3])
-    # comm = commw.Create(new_group)
+    commw = MPI.COMM_WORLD
+    group = commw.Get_group()
+    new_group = group.Incl(grp) #if(rankw==0) else group.Incl([1,2,3])
+    comm = commw.Create(new_group)
+    if( not (commw.Get_rank() in grp) ):
+        return None,None
+    commF = comm.py2f()
+    return commF
 
-    commi = comm.py2f()
+def getlibF(fortranso):
+    ''' Get path to mkl in mklloc.txt. Get fortran library callable from python'''
+    scriptpath = os.path.dirname(os.path.realpath(__file__))+'/'
+    mkl=[]
+    with open(scriptpath+'./mklloc.txt') as f:
+        for line in f:
+            if 'mkl' in line:
+                mmm=line.split('=>')[1].strip().split(' ')[0].strip()
+            #print(f'mmm=',mmm)
+                mkl.append(mmm)
+        print(f'path to mkl=',mkl)
     for mkll in mkl:
         CDLL(mkll, mode=ctypes.RTLD_GLOBAL)
     flib = np.ctypeslib.load_library(fortranso,".")
-    flib.setcomm.argtypes = [ POINTER(c_int32) ]
-    flib.setcomm(c_int32(commi))
-    rank = comm.Get_rank()
-    size = comm.Get_size()
-#    if(rank!=0): flib=None
-    return flib,rank,size,comm
+    return flib
 
-ecaljF,rank,size,comm= setcomm(scriptpath+'/libecaljF.so') #We use libecaljF.so in the same directory as this script.
-print(rank,size,comm)
 class callF:
     def __init__(self,foobar,arguments=[]):
         '''Equivalent to 'call foobar(a,b,c,...)' in fortran, where we supply arguments=[a,b,c,...]. 

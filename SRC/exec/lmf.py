@@ -1,19 +1,29 @@
 #!/usr/bin/env python3 
 #>mpirun -np 4 pysample
-from setcomm import callF,setcomm,ecaljF,rank,size,comm
+from setcomm import callF,setcommF,getlibF
 from mpi4py import MPI
 import sys,os
-scriptpath = os.path.dirname(os.path.realpath(__file__))+'/'
+import numpy as np
 arglist=' '.join(sys.argv[1:])
-path = os.getcwd()
+scriptpath = os.path.dirname(os.path.realpath(__file__))+'/'
+ecaljF = getlibF(scriptpath+'/libecaljF.so')
 
-callF(ecaljF.setcmdpathc,[scriptpath]) # Set path for ctrl2ctrlp.py in m_setcmdpath
-callF(ecaljF.m_setargsc,[arglist])     # Set args in m_args
+# world
+commw = MPI.COMM_WORLD
+rankw = commw.Get_rank()
+master_mpi= rankw==0
 
-#output of lmfa might be unused when rst already exists.
-callF(ecaljF.sopen)
-callF(ecaljF.lmf)
-callF(ecaljF.sclose)
+# group1 #only for single core
+grp1=[0,1,2,3]
+commF1 = setcommF(grp=grp1)
+if(master_mpi): print('gpr1=',grp1)
 
-#callF(ecaljF.lmf)
-	
+if(rankw in grp1): 
+	callF(ecaljF.setcmdpathc,[scriptpath])  # Set path for ctrl2ctrlp.py at m_setcmdpath
+	callF(ecaljF.m_setargsc,[arglist])      # Set args at m_args
+#	callF(ecaljF.sopen) 
+	callF(ecaljF.lmf,[commF1]) 
+#	callF(ecaljF.sclose) 
+
+if(rankw==0): print('end eeeeee grp1=',grp1)
+

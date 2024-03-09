@@ -12,7 +12,7 @@ contains
     use m_ext,only:     sname
     use m_iors,only:    iors
     use m_iors_old,only: iors_old !only for reading vs=1.04 rst file (before 2022-5-14)
-    use m_MPItk,only:  master_mpi
+    use m_MPItk,only:  master_mpi,comm
     use m_bndfp,only:  Bndfp,   ham_ehf,ham_ehk,qdiff,force,sev
     use m_ldau,only:   m_ldau_vorbset, eorb
     use m_bstrux,only: m_bstrux_init
@@ -57,7 +57,7 @@ contains
     ipr = iprint()
     poss = rv_a_opos ! Use atomic positon in m_lattic
 !    call ReadAtomPos(nbas,poss)! Overwrite pos in the file AtomPos.* if it exists.
-    call mpi_barrier(MPI_COMM_WORLD,ierr)
+    call mpi_barrier(comm,ierr)
     etot = 0d0 ! Total energy mode --etot ==>moved to m_lmfinit ---
     if(nitrlx>0 ) then ! Atomic position Relaxation setup for 
        icom = 0
@@ -79,7 +79,7 @@ contains
 996    continue
        close(ifi)
     endif
-    call Mpi_barrier(MPI_COMM_WORLD,ierr)
+    call Mpi_barrier(comm,ierr)
     call Mpibc1_real(vs,1,'lmv7: vs: version id of rst file')
     k=-1 !try to read rst files containing density
     if(vs==2d0) k = iors(nit1,'read') ! read rst file. 
@@ -98,7 +98,7 @@ contains
     else
        iatom=.false.
     endif
-    call Mpi_barrier(MPI_COMM_WORLD,ierr)
+    call Mpi_barrier(comm,ierr)
     AtomicPositionRelaxiation: do 2000 itrlx = 1,max(1,nitrlx) !loop for atomic position relaxiation(molecular dynamics)
        call setopos( poss )  ! Set position of atoms 
        ! We can make structure constant (C_akL Eq.(38) in /JPSJ.84.034702) here when we have no extended local orbital.
@@ -130,7 +130,7 @@ contains
           seref   = ham_seref !   ... reference energy supplied from ctrlfile
           etot(1) = etot(1) - seref
           if (etot(2)/=0) etot(2) = etot(2) - seref
-          call mpi_barrier(MPI_COMM_WORLD,ierr)
+          call mpi_barrier(comm,ierr)
           if(master_mpi) then
              hsign= (lhf.or.iatom).and.iter==1
              if(itrlx>1) hsign=.false.

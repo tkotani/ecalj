@@ -14,7 +14,7 @@ contains
     use m_ext,only: sname
     use m_lgunit,only:stdo,stdl
     use m_ftox
-    use m_MPItk,only: master_mpi
+    use m_MPItk,only: master_mpi,comm
     use m_fatom,only:sspec,mpibc1_s_spec
     !i Inputs
     !i   nbas  :size of basis
@@ -87,7 +87,7 @@ contains
              if(lfail) call rx('you did lmfa? Readin freeatom')
           endif
        endif
-       call mpi_barrier(MPI_COMM_WORLD,ierr)
+       call mpi_barrier(comm,ierr)
        call mpibc1(nr0,1,2,mlog,'rdovfa','nr0')
        call mpibc1(nxi(is),1,2,mlog,'rdovfa','nxi')
        call mpibc1(exi(1,is),nxi(is),4,mlog,'rdovfa','exi')

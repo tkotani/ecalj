@@ -2,6 +2,7 @@ module m_mixrho !mixing routine of density given by smrho and orho
   use m_lmfinit,only: z_i=>z,nr_i=>nr,rmt_i=>rmt,lmxl_i=>lmxl,spec_a,rg_i=>rg,rsmv_i=>rsmv,nbas
   use m_ll,only:ll
   use m_lgunit,only:stdo,stml !  integer,parameter,public:: kmxv=15
+  use m_MPItk,only: comm
 !  use m_MPItk,only: master_mpi
   public:: mixrho
   private
@@ -103,7 +104,7 @@ contains
     complex(8),allocatable :: cg1_zv(:), cg2_zv(:),fkl_zv(:), smrnewbk(:,:,:,:),w_owk(:),cn_rvc(:),co_rvc(:)
     include "mpif.h"
     call tcn('mixrho')
-    call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
+    call MPI_COMM_RANK( comm, procid, ierr )
     call getpr(ipr)
     master = 0
     ipl = 1
@@ -369,7 +370,7 @@ contains
     real(8) ,allocatable :: rofi_rv(:)
     real(8) ::rmt,aat,rf
     character outs*80
-    call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr)
+    call MPI_COMM_RANK( comm, procid, ierr)
     master = 0
     ! smooth part
     a(1:ng02,1:nsp,1,2)=co(1:ng02,1:nsp) !old
@@ -446,12 +447,12 @@ contains
 311      continue
       endif
 312   continue
-      call MPI_BCAST(readerror,1,MPI_LOGICAL,   master,MPI_COMM_WORLD,ierr)
+      call MPI_BCAST(readerror,1,MPI_LOGICAL,   master,comm,ierr)
       if(readerror) goto 9999
-      call MPI_BCAST(na,1,MPI_INTEGER,master,MPI_COMM_WORLD,ierr)
+      call MPI_BCAST(na,1,MPI_INTEGER,master,comm,ierr)
 9999  continue
-      call MPI_BCAST(nmixr,1,MPI_INTEGER,master,MPI_COMM_WORLD,ierr)
-      if(nmixr > 0) call MPI_BCAST(a,nda*nsp*(mxsav+2)*2,MPI_DOUBLE_PRECISION, master,MPI_COMM_WORLD,ierr)
+      call MPI_BCAST(nmixr,1,MPI_INTEGER,master,comm,ierr)
+      if(nmixr > 0) call MPI_BCAST(a,nda*nsp*(mxsav+2)*2,MPI_DOUBLE_PRECISION, master,comm,ierr)
     endblock ReadPreviousIterations
     if(iprint() >= 20) then !this is needed for test
        write(stdo,fmt=ftox, advance='no')' mixrho: sought',nmix,'iter from file '//trim(fnam)
