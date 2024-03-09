@@ -21,7 +21,7 @@ def setcommF(grp):
     return commF
 
 def getlibF(fortranso):
-    ''' Get path to mkl in mklloc.txt. Get fortran library callable from python'''
+    ''' Get path to mkl in mklloc.txt. Get fortran library calle'''
     scriptpath = os.path.dirname(os.path.realpath(__file__))+'/'
     mkl=[]
     with open(scriptpath+'./mklloc.txt') as f:
