@@ -5,7 +5,7 @@ import sys,os
 import numpy as np
 arglist=' '.join(sys.argv[1:])
 scriptpath = os.path.dirname(os.path.realpath(__file__))+'/'
-flib = getlibF(scriptpath+'/libecaljF.so')
+flib = getlibF(scriptpath+'/libecaljF.so') #fortran library
 
 # world
 commw = MPI.COMM_WORLD
@@ -18,7 +18,7 @@ comm1 = setcommF(grp=grp1) #communicator for grp
 
 if(rankw in grp1): 
 	callF(flib.setcmdpathc,[scriptpath])  # Set path for ctrl2ctrlp.py at m_setcmdpath
-	callF(flib.m_setargsc, [arglist])      # Set args at m_args
+	callF(flib.m_setargsc, [arglist])     # Set args at m_args
 #	callF(flib.sopen) 
 	callF(flib.lmf,        [comm1]) 
 #	callF(flib.sclose) 
