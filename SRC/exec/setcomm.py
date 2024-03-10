@@ -3,7 +3,7 @@
 #mpif90 -shared -fPIC -o ecaljF.so *.f90
 #mpiexec -n 4 python3 ./hello.py | sort
 from ctypes import (CDLL, POINTER, c_int32, c_double, c_bool, c_char, ARRAY, byref, create_string_buffer)
-import numpy as np
+#import numpy as np
 from mpi4py import MPI
 import ctypes,sys,os
 
@@ -20,20 +20,20 @@ def setcommF(grp):
     commF = comm.py2f()
     return commF
 
-def getlibF(fortranso):
-    ''' Get path to mkl in mklloc.txt. Get fortran library calle'''
+def getlibF(fortranso,prt):
+    ''' Get fortran library flib callable from python. mkl is taken from mklloc.txt '''
     scriptpath = os.path.dirname(os.path.realpath(__file__))+'/'
     mkl=[]
     with open(scriptpath+'./mklloc.txt') as f:
         for line in f:
             if 'mkl' in line:
-                mmm=line.split('=>')[1].strip().split(' ')[0].strip()
-            #print(f'mmm=',mmm)
+                mmm=line.split('=>')[1].strip().split(' ')[0].strip()             #print(f'mmm=',mmm)
                 mkl.append(mmm)
-        print(f'path to mkl=',mkl)
     for mkll in mkl:
-        CDLL(mkll, mode=ctypes.RTLD_GLOBAL)
-    flib = np.ctypeslib.load_library(fortranso,".")
+        CDLL(mkll, mode=ctypes.RTLD_GLOBAL)     #flib = np.ctypeslib.load_library(fortranso,".")
+        if(prt): print(f' Load mkl=',mkll)
+    flib = CDLL(fortranso, mode=ctypes.RTLD_GLOBAL)
+    if(prt): print(f' Load fortran lib=',fortranso)
     return flib
 
 class callF:

@@ -22,9 +22,10 @@ contains
     enddo
     init=.false.
   endsubroutine m_setargs
-  subroutine m_setargsc(cname) bind(C) !Pass narg and arglist from python instead of m_setargs
+  subroutine m_setargsc(cname,prt) bind(C) !Pass narg and arglist from python instead of m_setargs
     implicit none
     integer:: i,n
+    logical:: prt
     character(1):: cname(*)
     character(1024)::convcchar,string
     character(120),allocatable::arglist2(:)
@@ -43,9 +44,11 @@ contains
     if(allocated(arglist)) deallocate(arglist)
     allocate(arglist(1:narg))
     call move_alloc(from=arglist2,to=arglist)
+    if(prt) then
     do i=1,narg
        write(*,*)'m_setargsc=',i, trim(arglist(i))
-    enddo   
+    enddo
+    endif
   end subroutine m_setargsc
 end module m_args
 
