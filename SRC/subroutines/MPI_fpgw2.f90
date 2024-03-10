@@ -1,22 +1,14 @@
 module m_mpi !MPI utility for fpgw
   implicit none
   include "mpif.h"
-  integer :: mpi__info
   integer :: mpi__size
-  integer :: mpi__sizeMG = 1
   integer :: mpi__rank
-  integer :: mpi__rankMG
-  integer :: mpi__rankQ
   logical :: mpi__root
-  logical :: mpi__rootQ
-  integer :: mpi__comm = MPI_COMM_WORLD
-!  integer :: mpi__commQ
-  integer:: ista(MPI_STATUS_SIZE )
-  integer :: mpi__iini, mpi__iend
-  logical, allocatable :: mpi__task(:)
-  integer, allocatable :: mpi__ranktab(:)
-  integer  :: mpi__MEq ! for magnon E(q) parallelization
-  integer,private:: comm
+  integer :: comm
+  integer :: mpi__sizeMG 
+  integer :: mpi__rankMG
+  integer,private :: mpi__info
+  integer,private:: ista(MPI_STATUS_SIZE )
 contains
   subroutine MPI__Initialize(commin)
     implicit none
@@ -72,30 +64,6 @@ contains
     open(unit=6,file=trim(stdout))
     write(6,"(a,i3)")" ### console output for rank=",mpi__rankMG
   end subroutine MPI__consoleout_magnon
-  subroutine MPI__Barrier
-    implicit none
-    call MPI_Barrier( comm, mpi__info )
-  end subroutine MPI__Barrier
-  subroutine MPI__getRange( mpi__indexi, mpi__indexe, indexi, indexe )
-    implicit none
-    integer, intent(out) :: mpi__indexi, mpi__indexe
-    integer, intent(in)  :: indexi, indexe
-    integer, allocatable :: mpi__total(:)
-    integer              :: total
-    integer :: p
-    allocate( mpi__total(0:mpi__size-1) )
-    total = indexe-indexi+1
-    mpi__total(:) = total/mpi__size
-    do p=1, mod(total,mpi__size)
-       mpi__total(p-1) = mpi__total(p-1) + 1
-    end do
-    mpi__indexe=indexi-1
-    do p=0, mpi__rank
-       mpi__indexi = mpi__indexe+1
-       mpi__indexe = mpi__indexi+mpi__total(p)-1
-    end do
-    deallocate(mpi__total)
-  end subroutine MPI__getRange
   subroutine MPI__Broadcast( data )
     implicit none
     integer, intent(inout) :: data
@@ -168,82 +136,55 @@ contains
     if( mpi__size == 1 ) return
     allocate(mpi__data(sizex))
     mpi__data = data
-    call MPI_Allreduce( mpi__data, data, sizex,&
-         MPI_INTEGER, MPI_MAX, comm, mpi__info )
+    call MPI_Allreduce( mpi__data, data, sizex, MPI_INTEGER, MPI_MAX, comm, mpi__info )
     deallocate( mpi__data )
   end subroutine MPI__AllreduceMax
-  !=========================================================================
-  subroutine MPI__sxcf_rankdivider(irkip_all,nspinmx,nqibz,ngrp,nq,irkip)
-    implicit none
-    integer, intent(out) :: irkip    (nspinmx,nqibz,ngrp,nq)
-    integer, intent(in)  :: irkip_all(nspinmx,nqibz,ngrp,nq)
-    integer, intent(in)  :: nspinmx,nqibz,ngrp,nq
-    integer :: ispinmx,iqibz,igrp,iq
-    integer :: total
-    integer, allocatable :: vtotal(:)
-    integer :: indexi, indexe
-    integer :: p
-    if( mpi__size == 1 ) then
-       irkip = irkip_all
-       return
-    end if
-    total = count(irkip_all>0)
-    write(6,"('MPI__sxcf_rankdivider:$')")
-    write(6,"('nspinmx,nqibz,ngrp,nq,total=',5i6)") nspinmx,nqibz,ngrp,nq,total 
-    allocate( vtotal(0:mpi__size-1) )
-    vtotal(:) = total/mpi__size
-    do p=1, mod(total,mpi__size)
-       vtotal(p-1) = vtotal(p-1) + 1
-    end do
-    indexe=0
-    indexi=-999999
-    do p=0, mpi__rank
-       indexi = indexe+1
-       indexe = indexi+vtotal(p)-1
-    end do
-    deallocate(vtotal)
-    total = 0
-    irkip(:,:,:,:) = 0
-    do iq=1, nq
-       do ispinmx=1, nspinmx
-          do iqibz=1, nqibz
-             do igrp=1, ngrp
-                if( irkip_all(ispinmx,iqibz,igrp,iq) >0 ) then
-                   total = total + 1
-                   if( indexi<=total .and. total<=indexe ) then
-                      irkip(ispinmx,iqibz,igrp,iq) = irkip_all(ispinmx,iqibz,igrp,iq)
-                   endif
-                endif
-             enddo
-          enddo
-       enddo
-    enddo
-  end subroutine MPI__sxcf_rankdivider
-  subroutine MPI__hmagnon_rankdivider(nqbz)
-    implicit none
-    integer, intent(in) :: nqbz
-    integer :: iq,i
-    allocate( mpi__task(1:nqbz),mpi__ranktab(1:nqbz) )
-    mpi__task(:) = .false.
-    mpi__ranktab(1:nqbz)=999999
-    write(6,*) "mpi__sizeMG:",mpi__sizeMG
-    mpi__MEq=1+nqbz/mpi__sizeMG
-    write(6,*) "mpi__sizeMG:",mpi__MEq
-    if( mpi__sizeMG == 1 ) then
-       mpi__task(:) = .true.
-       mpi__ranktab(:) = mpi__rankMG
-       return
-    endif
-    if(mpi__rankMG==0) write(6,*) "MPI_hmagnon_rankdivider:"
-    do iq=1,nqbz
-       mpi__ranktab(iq) = mod(iq-1,mpi__sizeMG)  !rank_table for given iq. iq=1 must give rank=0
-       if( mpi__ranktab(iq) == mpi__rankMG) then
-          mpi__task(iq) = .true.               !mpi__task is nodeID-dependent.
-       endif
-       if(mpi__rankMG==0) then
-          write(6,"('  iq irank=',2i5)")iq,mpi__ranktab(iq)
-       endif
-    enddo
-    return
-  end subroutine MPI__hmagnon_rankdivider
 end module m_mpi
+
+subroutine MPI__sxcf_rankdivider(irkip_all,nspinmx,nqibz,ngrp,nq,irkip)
+  use m_mpi,only: mpi__rank,mpi__size
+  implicit none
+  integer, intent(out) :: irkip    (nspinmx,nqibz,ngrp,nq)
+  integer, intent(in)  :: irkip_all(nspinmx,nqibz,ngrp,nq)
+  integer, intent(in)  :: nspinmx,nqibz,ngrp,nq
+  integer :: ispinmx,iqibz,igrp,iq
+  integer :: total
+  integer, allocatable :: vtotal(:)
+  integer :: indexi, indexe
+  integer :: p
+  if( mpi__size == 1 ) then
+     irkip = irkip_all
+     return
+  end if
+  total = count(irkip_all>0)
+  write(6,"('MPI__sxcf_rankdivider:$')")
+  write(6,"('nspinmx,nqibz,ngrp,nq,total=',5i6)") nspinmx,nqibz,ngrp,nq,total 
+  allocate( vtotal(0:mpi__size-1) )
+  vtotal(:) = total/mpi__size
+  do p=1, mod(total,mpi__size)
+     vtotal(p-1) = vtotal(p-1) + 1
+  end do
+  indexe=0
+  indexi=-999999
+  do p=0, mpi__rank
+     indexi = indexe+1
+     indexe = indexi+vtotal(p)-1
+  end do
+  deallocate(vtotal)
+  total = 0
+  irkip(:,:,:,:) = 0
+  do iq=1, nq
+     do ispinmx=1, nspinmx
+        do iqibz=1, nqibz
+           do igrp=1, ngrp
+              if( irkip_all(ispinmx,iqibz,igrp,iq) >0 ) then
+                 total = total + 1
+                 if( indexi<=total .and. total<=indexe ) then
+                    irkip(ispinmx,iqibz,igrp,iq) = irkip_all(ispinmx,iqibz,igrp,iq)
+                 endif
+              endif
+           enddo
+        enddo
+     enddo
+  enddo
+end subroutine MPI__sxcf_rankdivider

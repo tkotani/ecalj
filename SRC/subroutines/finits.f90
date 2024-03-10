@@ -74,7 +74,7 @@ subroutine rxx(test,string)
 end subroutine rxx
 
 subroutine fexit0(retval,strng)! retval:  return value passed to operating system. /=0 for error exit
-  use m_MPItk,only:  master_mpi,procid
+  use m_MPItk,only:  master_mpi,procid,comm
   use m_lgunit,only:stdo,stdl
   implicit none
   integer :: retval,iopt,abret
@@ -90,7 +90,7 @@ subroutine fexit0(retval,strng)! retval:  return value passed to operating syste
   integer :: master,ierr
   parameter (master = 0)
   include "mpif.h"
-  call mpi_barrier(MPI_comm_world,ierr)
+  call mpi_barrier(comm,ierr)
   if (master_mpi) then 
      if(cpusec() /= 0) then
         timeu = 's'
@@ -110,7 +110,7 @@ subroutine fexit0(retval,strng)! retval:  return value passed to operating syste
   endif
   if(retval/=0) then
      write(stdo,"(a,i0,a,i0,a,3d15.8)")"ERROR Exit ",retval,' procid= ',procid,' '//trim(strng)
-     call MPI_Abort(MPI_COMM_WORLD, 911)
+     call MPI_Abort(COMM, 911)
   else
      if(procid==master) write(stdo,"(a,i0,a,3d15.8)") 'Exit 0 procid= ',procid,' '//trim(strng)
   endif

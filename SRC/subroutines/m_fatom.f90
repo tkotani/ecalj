@@ -1,5 +1,6 @@
-!>Free atom density determined by lmfa. lmf-MPIK stores data into rst.*. But unchanged.
+!>Free atom density determined by lmfa. lmf stores data into rst.*. But unchanged.
 module m_fatom
+  use m_MPItk,only: comm
   integer,parameter::  n0=10
   type s_spec
      ! I think lmfa detemines all the following data and write to atm.* files
@@ -21,12 +22,12 @@ contains
     include 'mpif.h'
     type(s_spec):: ssp
     integer :: master=0,ierr
-    call mpi_bcast(ssp%ctail, 1,MPI_REAL8 , master, MPI_COMM_WORLD,ierr)
-    call mpi_bcast(ssp%etail, 1,MPI_REAL8 , master, MPI_COMM_WORLD,ierr)
-    call mpi_bcast(ssp%stc,   1,MPI_REAL8   , master, MPI_COMM_WORLD,ierr)
-    call mpi_bcast(ssp%nxi,   1,MPI_INTEGER , master, MPI_COMM_WORLD,ierr)
-    call mpi_bcast(ssp%qc,    1,MPI_REAL8    , master, MPI_COMM_WORLD,ierr)
-    call mpi_bcast(ssp%exi, size(ssp%exi), MPI_REAL8 , master, MPI_COMM_WORLD,ierr) 
-    call mpi_bcast(ssp%chfa,size(ssp%chfa),MPI_REAL8, master, MPI_COMM_WORLD,ierr)
+    call mpi_bcast(ssp%ctail, 1,MPI_REAL8 , master, comm,ierr)
+    call mpi_bcast(ssp%etail, 1,MPI_REAL8 , master, comm,ierr)
+    call mpi_bcast(ssp%stc,   1,MPI_REAL8   , master, comm,ierr)
+    call mpi_bcast(ssp%nxi,   1,MPI_INTEGER , master, comm,ierr)
+    call mpi_bcast(ssp%qc,    1,MPI_REAL8    , master, comm,ierr)
+    call mpi_bcast(ssp%exi, size(ssp%exi), MPI_REAL8 , master, comm,ierr) 
+    call mpi_bcast(ssp%chfa,size(ssp%chfa),MPI_REAL8, master, comm,ierr)
   end subroutine mpibc1_s_spec
 end module m_fatom

@@ -5,7 +5,7 @@ module m_esmsmves
 contains
   subroutine esmsmves(qmom,ng,gv,kv,cv,cg1,cgsum,smrho,qbg,smpot,f,gpot0,hpot0,qsmc,zsum,vrmt)
     use m_lmfinit,only: nsp, alat=>lat_alat,nbas,nlmxlx
-    use m_MPItk,only:  master_mpi
+    use m_MPItk,only:  master_mpi,comm
     use m_lattic,only: vol=>lat_vol,plat=>lat_plat
     use m_lgunit,only:stdo
     use m_supot,only:n1,n2,n3
@@ -98,7 +98,7 @@ contains
           endif
           write(stdo,*)
        endif
-       call mpi_barrier(mpi_comm_world,ierr)        !        call mpibc1_int (jesm,  1         ,'esmsmves_jesm')
+       call mpi_barrier(comm,ierr)        !        call mpibc1_int (jesm,  1         ,'esmsmves_jesm')
        call mpibc1_int (jtresm,1,'esmsmves_jtresm')
        call mpibc1_real(tresm, 1,'esmsmves_tresm')
        call mpibc1_real(z1esm, 1,'esmsmves_z1esm')

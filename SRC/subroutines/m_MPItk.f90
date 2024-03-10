@@ -13,11 +13,7 @@ contains
     integer :: fext,ierr
     integer,optional:: commin
     character(10):: i2char
-    if(present(commin)) then
-       comm=commin
-    else
-       comm=MPI_COMM_WORLD
-    endif   
+    comm=merge(commin,MPI_COMM_WORLD,present(commin))
     call mpi_comm_size(comm, nsize, ierr)
     call MPI_COMM_RANK(comm, procid, ierr )
     strprocid = trim(i2char(procid))

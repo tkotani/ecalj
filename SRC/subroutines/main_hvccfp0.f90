@@ -7,9 +7,8 @@ subroutine hvccfp0()   ! Coulomb matrix. <f_i | v| f_j>_q.
   use m_hamindex,only:    Readhamindex,plat,qlat
   use m_read_bzdata,only: Read_bzdata, ginv,nqbz,qbz,nqibz,qibz,nq0i,wqt=>wt,q0i,nq0iadd
   use m_readqg,only:   readqg,readngmx
-  use m_mpi,only: mpi__task,MPI__Initialize,mpi__root, &
-       MPI__Broadcast,mpi__rank,mpi__size, &
-       mpi__ranktab,MPI__consoleout,mpi__iend,mpi__iini,mpi__getrange
+  use m_mpi,only: MPI__Initialize,mpi__root, MPI__Broadcast,mpi__rank,mpi__size, &
+       MPI__consoleout!,mpi__iend,mpi__iini !,mpi__getrange
   use m_readgwinput,only: ReadGwinputKeys, keeppositivecou
   use m_lgunit,only: m_lgunit_init
   use m_vcoulq,only: vcoulq_4,mkjb_4,mkjp_4,genjh
@@ -24,7 +23,7 @@ subroutine hvccfp0()   ! Coulomb matrix. <f_i | v| f_j>_q.
   integer:: ifprodmt,nl_r,lx_,nxx_r,nxdim,ibl1,nn,no,ngbnew, nmatch,ifpmatch,nmatch_q,ifpmatch_q,m,ifpomat,nbln,ibln,ngb_in,nnr,igc2
   integer:: nnmx ,ngcnn,ngbo,ifgb0vec_a,ifgb0vec_b , ifvcoud,idummy
   integer:: ifiwqfac,iqbz,iqbzx,nnn,ixyz,ifq0p,incwfin 
-  integer::  nqnumc,ifiqgc 
+  integer::  nqnumc,ifiqgc , mpi__iini, mpi__iend
   real(8) ::  q(3),p(3),voltot, tripl,alat0,epsx, tol,as,tpiba,qb0(3,3),vol0,rdist0,qdist0,radd,qadd, &
        a0,awald,alat1,tol1,r0,q0,awald0,qg(3),   absqg2,aaa,aaa12
   real(8):: eee,eees, q_org(3),screenfac
@@ -399,3 +398,26 @@ subroutine hvccfp0()   ! Coulomb matrix. <f_i | v| f_j>_q.
   if(imode==0) call rx0( ' OK! hvccfp0 imode=0')
   if(imode==3) call rx0( ' OK! hvccfp0 imode=3')
 endsubroutine 
+
+subroutine MPI__getRange( mpi__indexi, mpi__indexe, indexi, indexe )
+  use m_mpi,only: mpi__size,mpi__rank
+  implicit none
+  integer, intent(out) :: mpi__indexi, mpi__indexe
+  integer, intent(in)  :: indexi, indexe
+  integer, allocatable :: mpi__total(:)
+  integer              :: total
+  integer :: p
+  allocate( mpi__total(0:mpi__size-1) )
+  total = indexe-indexi+1
+  mpi__total(:) = total/mpi__size
+  do p=1, mod(total,mpi__size)
+     mpi__total(p-1) = mpi__total(p-1) + 1
+  end do
+  mpi__indexe=indexi-1
+  do p=0, mpi__rank
+     mpi__indexi = mpi__indexe+1
+     mpi__indexe = mpi__indexi+mpi__total(p)-1
+  end do
+  deallocate(mpi__total)
+end subroutine MPI__getRange
+

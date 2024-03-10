@@ -7,7 +7,7 @@ subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|
   use m_ftox
   use m_lgunit,only: stdo,m_lgunit_init
   use m_zhev,only:   Zhev_tk4
-  use m_MPItk,only: m_MPItk_init, nsize, procid,master_mpi !  use m_ext,only:      m_ext_init,sname
+  use m_MPItk,only: m_MPItk_init, nsize, procid,master_mpi,comm !  use m_ext,only:      m_ext_init,sname
   use m_keyvalue,only: Getkeyvalue
   use m_lmfinit,only:  m_lmfinit_init,oveps,nbas
   use m_ext,only: m_ext_init
@@ -59,7 +59,7 @@ subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|
   ! enddo   ! enddo   ! stop 'xxxxxxxxxxxxxxxxxxxxxx'
   call HamPMTtoHamRsMPO(facw,ecutw,eww) ! MT-projected orbital(MPO) Hamiltoinan. HamRsMPO
   ! (real-space Hamiltonian hammr,ovlmr,ndimMTO) is generated,and written to a file HamRsMPO
-  call mpi_barrier(MPI_comm_world,ierr)
+  call mpi_barrier(comm,ierr)
   call ReadHamRsMPO()                   ! Read real-space Hamiltonian hammr,ovlmr from HamRsMPO.
   if(symlcase) then
      if(master_mpi) open(newunit=ifsy1,file=trim(fband(1)))
@@ -80,7 +80,7 @@ subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|
     iqend =     ndiv*procid+ndiv
     if(procid==nsize-1) iqend = min(ndatx,iqend)
     write(stdo,ftox)'nsize procid iqini iqend=',nsize,procid,iqini,iqend
-    call mpi_barrier(MPI_comm_world,ierr)
+    call mpi_barrier(comm,ierr)
     GetHamiltonianFromRealSpacehammrANDdiagonalize: do ikp=iqini,iqend !1,ndatx
        if(symlcase) then
           qp= qplistsy(:,ikp)

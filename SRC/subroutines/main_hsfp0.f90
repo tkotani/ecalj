@@ -17,10 +17,9 @@ subroutine hsfp0()
   use m_zmel,only: Mptauof_zmel
   use m_itq,only: Setitq_hsfp0, itq,ntq
   use m_mpi,only: &
-       MPI__Initialize,MPI__real8send,MPI__real8recv,MPI__sxcf_rankdivider, &
+       MPI__Initialize,MPI__real8send,MPI__real8recv, & !MPI__sxcf_rankdivider,
        MPI__root,MPI__Broadcast,MPI__rank,MPI__size,MPI__allreducesum, &
-       MPI__consoleout, &
-       MPI__barrier
+       MPI__consoleout
   use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
   use m_lgunit,only: m_lgunit_init
   use m_freq,only: freq01

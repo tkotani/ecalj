@@ -12,7 +12,7 @@ sizew = commw.Get_size()
 rankw = commw.Get_rank()
 master_mpi= rankw==0
 
-# lmfa   #files=glob.glob(os.getcwd()+'/atmpnu.*'); #if(len(files)==0):
+# lmfa    #files=glob.glob(os.getcwd()+'/atmpnu.*'); #if(len(files)==0):
 group=[0] #only rank=0 is used
 stdout='llmfa'
 if(master_mpi): print('=== Run lmfa by ranks=',group, ' See stdout=',stdout)
@@ -35,7 +35,7 @@ flib = getlibF(scriptpath+'/libecaljF.so',prt=master_mpi) #load dynamic library
 comm = setcommF(grp=group) #communicator for group
 if(rankw in group): 
     callF(flib.setcmdpathc,[scriptpath,master_mpi])  # Set path for ctrl2ctrlp.py at m_setcmdpath
-    callF(flib.m_setargsc, [arglist,master_mpi])     # Set args at m_args
+    callF(flib.m_setargsc, [arglist,   master_mpi])  # Set args at m_args
     callF(flib.sopen,[stdout]) #standard output
     callF(flib.lmf,  [comm]) 
     callF(flib.sclose) 

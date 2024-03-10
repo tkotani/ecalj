@@ -1,7 +1,7 @@
 subroutine lmchk() bind(C)
   use m_args,only: argall,m_setargs
   use m_ext,only:     m_Ext_init,sname
-  use m_MPItk,only:   m_MPItk_init,nsize,master_mpi
+  use m_MPItk,only:   m_MPItk_init,nsize,master_mpi,comm
   use m_lgunit,only:  m_lgunit_init, stdo,stdl
   use m_cmdpath,only: setcmdpath
   use m_lmfinit,only: m_Lmfinit_init,nlibu,plbnd
@@ -37,7 +37,7 @@ subroutine lmchk() bind(C)
   endif
   call ConvertCtrl2CtrlpByPython(prgnam)
 !  if(cmdopt0('--quit=ctrlp')) call rx0('--quit=ctrlp')
-  call MPI_BARRIER( MPI_COMM_WORLD, ierr)
+  call MPI_BARRIER( comm, ierr)
   call m_lmfinit_init(prgnam) ! Computational settings go into m_lmfinit
   if(cmdopt2('--pr=',outs)) then
      read(outs,*) k

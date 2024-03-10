@@ -66,7 +66,7 @@ subroutine hsfp0_sc()
   use m_readhbe,only: Readhbe, nband !nprecb,mrecb,mrece,nlmtot,nqbzt,,mrecg
   use m_mpi,only: &
        MPI__Initialize,MPI__root,MPI__Broadcast,MPI__rank,MPI__size,MPI__allreducesum, &
-       MPI__consoleout,  MPI__barrier, MPI__reduceSum
+       MPI__consoleout,  MPI__reduceSum,comm
   use m_lgunit,only:m_lgunit_init,stdo
   use m_ftox
   implicit none
@@ -74,7 +74,7 @@ subroutine hsfp0_sc()
   !
   !\Sigma = \Sigma_{sx} + \Sigma_{coh} + \Sigma_{img axis} + \Sigma_{pole} by Hedin PR(1965)A785
   !  --->   I found COH term method show poor accuracy.
-  integer::  ixc, ip, is, nspinmx, i, ix, nq0ix, ngpn1,ngcn1, timevalues(8), irank,isp,nq
+  integer::  ixc, ip, is, nspinmx, i, ix, nq0ix, ngpn1,ngcn1, timevalues(8), irank,isp,nq,ierr
   real(8) :: voltot,valn,efnew,hartree,qreal(3),wgtq0p,quu(3), eftrue,esmref,esmr,ef
   character(128) :: ixcname
   logical:: legas, exonly, iprintx,diagonly=.false.,exchange, hermitianW=.true.
@@ -160,7 +160,7 @@ subroutine hsfp0_sc()
     if(laf) nspinmx=1  ! Antiferro case. Only calculate up spin
     if(mpi__root .AND. mpi__rank/=0) call rx('mpi__root .AND. mpi__rank/=0')
     if(mpi__root) call Setitq_hsfp0sc(nbmx_sig,ebmx_sig,eftrue,nspinmx) !read or set NTQXX and nbandmx
-    call MPI__barrier() !barrier for writing NTQXX at irank=0
+    call MPI_barrier(comm,ierr) !barrier for writing NTQXX at irank=0
     if(.not.mpi__root) call Setitq_hsfp0sc(nbmx_sig,ebmx_sig,eftrue,nspinmx) !read NTQXX and nbandmx
   endblock InitializationBlock
   SchedulingSelfEnergyCalculation: Block

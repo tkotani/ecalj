@@ -141,7 +141,7 @@ contains
     !      write(stdo,"(a)")'cmdl for python='//trim(cmdl)
     !      call system(cmdl) !See  results ctrlp.* given by ctrl2ctrl.py 
     !   endif
-    !   call MPI_BARRIER( MPI_COMM_WORLD, ierr)
+    !   call MPI_BARRIER( comm, ierr)
     ! end block ConvertCtrl2CtrlpByPython
 
     ReadCtrlp: block ! Readin ctrlp

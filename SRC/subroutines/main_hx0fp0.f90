@@ -15,7 +15,7 @@ subroutine hx0fp0()
   use m_pbindex,only: PBindex !,norbt,l_tbl,k_tbl,ibas_tbl,offset_tbl,offset_rev_tbl
   use m_readqgcou,only: readqgcou
   use m_mpi,only: MPI__Initialize,MPI__root, &
-       MPI__Broadcast,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,MPI__rank,MPI__size, MPI__consoleout,MPI__barrier
+       MPI__Broadcast,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,MPI__rank,MPI__size, MPI__consoleout,comm
   use m_rdpp,only: Rdpp, &   ! & NOTE: "call rdpp" generate following data.
        nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx,nprecx,mrecl,nblochpmx
   use m_zmel,only: Mptauof_zmel, Setppovlz,Setppovlz_chipm   ! & NOTE: these data set are stored in this module, and used
@@ -634,7 +634,7 @@ subroutine hx0fp0()
      !   close(ifrcw)
      !endif
 1001 enddo iqloop
-  call MPI__barrier()
+  call MPI_barrier(comm,ierr)
   !  if(cmdopt0('--rcxq0')) call rx0('end of --rcxq0 mode to generete rcxq0')
   if( .NOT. epsmode) call MPI__sendllw2(iqxend,MPI__ranktab) !!! mpi send LLW to root.
   !! == W(0) divergent part and W(0) non-analytic constant part.==

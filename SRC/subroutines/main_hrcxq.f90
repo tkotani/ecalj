@@ -28,7 +28,7 @@ subroutine hrcxq()
   use m_readhbe,only: Readhbe,nband !,nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg !  use m_eibz,only:    Seteibz,nwgt,neibz,igx,igxt,eibzsym
   use m_x0kf,only:    X0kf_v4hz,x0kf_v4hz_init_read,rcxq  !X0kf_v4hz_init,,x0kf_v4hz_init_write !X0kf_v4hz_symmetrize,
   use m_llw,only: WVRllwR,WVIllwI,w4pmode,MPI__sendllw
-  use m_mpi,only: MPI__Initialize,MPI__root,MPI__rank,MPI__size,MPI__consoleout,MPI__barrier
+  use m_mpi,only: MPI__Initialize,MPI__root,MPI__rank,MPI__size,MPI__consoleout,comm
   use m_lgunit,only: m_lgunit_init,stdo
   use m_ftox
   implicit none
@@ -131,7 +131,7 @@ subroutine hrcxq()
 1001 enddo obtainrcxq
   GetEffectiveWVatGammaCell: block !Get W-v(q=0) :Divergent part and non-analytic constant part of W(0) calculated from llw
     ! == Get W(q=0) : Divergent part and non-analytic constant part of W(0) ==
-    call MPI__barrier()
+    call MPI_barrier(comm,ierr)
     call MPI__sendllw(iqxend,MPI__Qrank) !!! Send all LLW data to mpi_root.
     ! Get effective W0,W0i, and L(omega=0) matrix. Modify WVR WVI with w0 and w0. Files WVI and WVR are modified.
     if(MPI__rank==0) call W0w0i(nw_i,nw,nq0i,niw,q0i) !use moudle m_llw

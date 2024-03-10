@@ -6,7 +6,7 @@ module m_sxcf_count !job scheduler for self-energy calculation. icount mechanism
   use m_readfreq_r,only: freq_r, nw_i,nw,freqx,wx=>wwx,nblochpmx,mrecl,expa_,npm,nprecx
   use m_readhbe,only: nband,mrecg
   use m_hamindex,only: ngrp
-  use m_mpi,only: MPI__sxcf_rankdivider
+  !use m_mpi,only: MPI__sxcf_rankdivider
   use m_wfac,only:wfacx2,weavx2
   use m_ftox
   implicit none

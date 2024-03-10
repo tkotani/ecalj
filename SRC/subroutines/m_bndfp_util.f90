@@ -133,14 +133,12 @@ contains
     logical :: lgors
     parameter (n0=10,nkap0=3)
     double precision :: qum1,qum2,sraugm,srhov,srmesh,sum1,sum2,sumh,sumq,sumt,vol,xx
-    integer:: procid=0,ier=0,io,iorb
+    integer:: ier=0,io,iorb
     integer,parameter::master=0
     logical:: iprx
-!    call mpi_comm_rank(mpi_comm_world,procid,ier)
     iprx= master_mpi
     call tcn('mkekin')
     call getpr(ipr)
-!    ngabc=lat_nabc
     vol=lat_vol
     srmesh = (dreal(sum(smpot*smrho)) + vconst*dreal(sum(smrho))) *vol/(n1*n2*n3) ! Integral n0(out) (Ves0~ + Vxc0), contribution from mesh
     ! Note that it does not include the term (n0~-n0) Ves0~

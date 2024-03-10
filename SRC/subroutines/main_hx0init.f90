@@ -33,7 +33,7 @@ subroutine hx0init() !initializaiton of x0 calculaiton (W-v)
 !  use m_eibz,only:    Seteibz, nwgt!,neibz,igx,igxt,eibzsym
   use m_x0kf,only:    X0kf_v4hz_init,x0kf_v4hz_init_write
   use m_llw,only:     WVRllwR,WVIllwI,w4pmode,MPI__sendllw
-  use m_mpi,only: MPI__Initialize, MPI__root, MPI__Broadcast, MPI__rank,MPI__size, MPI__consoleout,MPI__barrier
+  use m_mpi,only: MPI__Initialize, MPI__root, MPI__Broadcast, MPI__rank,MPI__size, MPI__consoleout
   use m_lgunit,only: m_lgunit_init,stdo
   implicit none
   integer:: MPI__Ss,MPI__Se, iq,isf,kx,ixc,iqxini,iqxend,is,iw,ifwd,ngrpx,verbose,nmbas1,nmbas2,nmbas_in,ifif
