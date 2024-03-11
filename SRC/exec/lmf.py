@@ -37,7 +37,7 @@ if(rankw in group):
     callF(flib.setcmdpathc,[scriptpath,master_mpi])  # Set path for ctrl2ctrlp.py at m_setcmdpath
     callF(flib.m_setargsc, [arglist,   master_mpi])  # Set args at m_args
     callF(flib.sopen,[stdout]) #standard output
-    callF(flib.lmf,  [comm]) 
+    callF(flib.lmf,  [comm])   #main part
     callF(flib.sclose) 
 flib.dlclose(flib._handle) #close library
 if(master_mpi): print('=== end of lmf ===')

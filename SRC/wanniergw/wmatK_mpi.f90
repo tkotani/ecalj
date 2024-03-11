@@ -290,8 +290,8 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
   use m_read_bzdata,only: wklm
 
   ! RS: modules for MPI
-  use rsmpi
-  use rsmpi_qkgroup
+!  use rsmpi
+!  use rsmpi_qkgroup
   use rsmpi_rotkindex
   implicit none
   integer :: ntq, natom,nqbz,nqibz,ngrp,nq,nw_i,nw,niw, &
@@ -530,8 +530,8 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
   ! ccccccccccccccccc
 
   ! RS: ifile_rsmpi is defined in gwsrc/RSMPI_mod.F
-  write(ifile_rsmpi,*) "RS: irot = ", irot
-  write(ifile_rsmpi,*) "RS: main loop start"
+!  write(ifile_rsmpi,*) "RS: irot = ", irot
+!  write(ifile_rsmpi,*) "RS: main loop start"
 
   ! cccccccccccccccccccccccccccc
   call getkeyvalue("GWinput","TestOnlyQ0P",onlyq0p,default=.false.)
@@ -552,7 +552,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
      ! debug:
      !      do 1100 kx = iqini,iqini !kx=1 corresponds to q=0 is omitted.
      !        write (6,"(i3,'  out of ',i3,$)") kx,iqend
-     write(ifile_rsmpi,*) ' wmat_MPI: goto loop kx=',kx
+!     write(ifile_rsmpi,*) ' wmat_MPI: goto loop kx=',kx
      if(debug)  write(6,*) ' sxcf: goto loop kx=',kx
 
      !        write(*,'("1  begin k-cycle",$)')

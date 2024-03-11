@@ -162,7 +162,7 @@ contains
     character str*8,strn*32
     real(8) :: rmax,b,etot,dq, ec(ncmx),ev(nvmx),sumev,vrmax(2),exrmax(2),ekin,utot,rhoeps, &
          amgm,rhrmx,qvt,qtot,qct,qvin,qcin,r,wt0,wt1,qtt,qtin,pnul, pzl,pnu(n0,2),qat(n0,2),pl(n0,2),rhoin(nrmx*2), &
-         rhot(nrmx*2),ql(3,n0,2),pz(n0,2) ,qatbk(n0,2) !,rcfa(2)
+         rhot(nrmx*2),ql(3,n0,2),pz(n0,2) ,qatbk(n0,2),rhozbk !,rcfa(2)
     integer :: i,ifi,ipr,iprint,isp,isw,l, lgrad,lmxa,lplfa,nitmax,nmix,nr,lplawv !,irchan(n0)
     real(8) ,allocatable :: g_rv(:)
     real(8) ,allocatable :: psi_rv(:)
@@ -297,8 +297,9 @@ contains
     ec(1) = 0
     print *,'goto atomc xxx'
     qelectron = z+qtot     !total number of electrons. 22mar2013
-    call atomsc(.false.,n0,nsp,lmxa,z,0d0,kcor,lcor,qcor,rmax,a,nr, rofi,ec,ev,pl,ql,idmod,v,0d0,rhoin,rho,rhoc,nmix,qc,sec,stc, &
-         sumev,ekin,utot,rhoeps,etot,amgm,rhrmx,vrmax,dq,exrmax,'gue', nitmax,lfrz,plplus,qlplus,nmcore,qelectron,vsum)
+    rhozbk = 0d0 !set background charge=0
+    call atomsc(.false.,n0,nsp,lmxa,z,rhozbk,kcor,lcor,qcor,rmax,a,nr, rofi,ec,ev,pl,ql,idmod,v,0d0,rhoin,rho,rhoc,nmix,qc,&
+         sec,stc, sumev,ekin,utot,rhoeps,etot,amgm,rhrmx,vrmax,dq,exrmax,'gue', nitmax,lfrz,plplus,qlplus,nmcore,qelectron,vsum)
     print *,'end of atomsc xxxxx'
     print *,'vsum=',vsum,is
     if(ifives>0) then
