@@ -96,7 +96,7 @@ def compeval(f1in,f2in,key,lineeval,evalso,tol):
     return out
 
 ######## diffnum
-def diffnum(f1,f2,comparekeys):
+def diffnum(f1,f2,tol,comparekeys):
     import diffnum0
     # ############### main ###################################
     # try:
@@ -107,9 +107,8 @@ def diffnum(f1,f2,comparekeys):
     # 	sys.exit()
     file1 = open(f1,'rt').read()
     file2 = open(f2,'rt').read()
-    comparekeys=sys.argv[3:]
+    #comparekeys=sys.argv[3:]
     #print( ' Comparekeys=',comparekeys)
-    tol=3e-3
     errmax = diffnum0.comparenum(tol,file1,file2, comparekeys, printsw=0)
     #print( 'end of comparenum')
     if(errmax<tol):
@@ -123,4 +122,4 @@ def diffnum(f1,f2,comparekeys):
         out='err! '
         aaa='failed at '+f2.split('/work')[1]
     with open("../summary.txt", "a") as aout: print(aaa, file=aout)
-    return out    
+    return out
