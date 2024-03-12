@@ -18,8 +18,8 @@ lx0_para_option=""  #set lx0_para_option='-nq 4 -ns 1'
 source $nfpgw/run_arg #define echo_run and serial_run in run_arg
 echo "### START epsPP_lmfh: MPI size= " $MPI_SIZE, "TARGET= " $TARGET
 ######## THIS IS for no lfc mode. See hbasfp0 and hx0fp0 c2 case.
-echo $nfpgw
-echo $TARGET
+#echo $nfpgw
+#echo $TARGET
 run_arg '---' $NO_MPI  $nfpgw  /lmf llmfgw00 $TARGET  --novxc --jobgw=0
 run_arg '---' $NO_MPI  $nfpgw  /qg4gw lqg4gw02  --job=2 #Generate requied q+G v
 run_arg '---' $MPI_SIZE $nfpgw /lmf llmfgw01 $TARGET --jobgw=1

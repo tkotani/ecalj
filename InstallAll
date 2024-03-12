@@ -30,5 +30,5 @@ popd
 # Install test 
 echo '=== goto test ==='
 cd SRC/TestInstall/
-make mpi_size=4 all
+./testecalj.py -np 4 
 

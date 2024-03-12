@@ -115,13 +115,13 @@ argin=1;  run_arg $argin $MPI_SIZE $nfpgw /hwmatK_MPI lwmatK1  # Matrix elements
 grep "Wannier" lwmatK1 > Coulomb_v 
 argin=111; run_arg $argin $MPI_SIZE $nfpgw /hx0fp0 lx0_111     # Screened Coulomb W minus v, W-v
 argin=2;  run_arg $argin $MPI_SIZE $nfpgw /hwmatK_MPI lwmatK2  # Matrix element of W-v
-grep "Wannier" lwmatK2 > Screening_W-v
+#grep "Wannier" lwmatK2 > Screening_W-v
 #$nfpgw/Cal_W.py
 
 #### crpa
 argin=10011; run_arg $argin $MPI_SIZE $nfpgw /hx0fp0 lx0_10011    # cRPA Screened Coulomb W minus v, W-v
-argin=2;  run_arg $argin $MPI_SIZE $nfpgw /hwmatK_MPI lwmatK2crpa # Matrix element of W-v
-grep "Wannier" lwmatK2crpa > Screening_W-v_crpa
+argin=100;  run_arg $argin $MPI_SIZE $nfpgw /hwmatK_MPI lwmatK2crpa # Matrix element of W-v
+#grep "Wannier" lwmatK2crpa > Screening_W-v_crpa
 #$nfpgw/Cal_W.py
 
 $echo_run echo "OK! It's finished well."

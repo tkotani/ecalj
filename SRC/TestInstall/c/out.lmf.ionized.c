@@ -1,15 +1,15 @@
-INFO: Ubuntu 20.04.4 LTS \n \l
-INFO: GNU Fortran (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.4.0
-INFO: -O2 -g -fimplicit-none -finit-integer=NaN -finit-real=NaN -JOBJ.gfortran -IOBJ.gfortran
-INFO: MATH: -lmkl_rt
-INFO: git: commit 895c0dab24c443e7d7fb788e9870fc04186617c7
+INFO: Ubuntu 20.04.6 LTS \n \l
+INFO: GNU Fortran (Ubuntu 9.4.0-1ubuntu1~20.04.2) 9.4.0
+INFO: 
+INFO: MATH: 
+INFO: git: commit afd2faa4e42483b6706cdd3e22e28d8c17a2bb6e
 INFO:    : Author: Takao Kotani <takaokotani@gmail.com>
-INFO:    : Date:   Tue Mar 28 19:00:32 2023 +0900
-INFO: linked at Wed Mar 29 10:09:58 JST 2023
+INFO:    : Date:   Tue Mar 12 12:07:47 2024 +0900
+INFO: linked at Tue Mar 12 14:41:02 JST 2024
 === START LFMA ===
  mpisize=           1
+cmdl for python=/home/takao/ecalj/SRC/TestInstall/bin/ctrl2ctrlp.py  c -vzbak=1<ctrl.c >ctrlp.c
 m_lmfinit: LMFA
-cmdl for python=/home/takao/ecalj/SRC/TestInstall/bin/ctrl2ctrlp.py  --no-iactiv c -vzbak=1<ctrl.c >ctrlp.c
 rval2: STRUC_NSPEC             requ n= 1 val= 1.00000000
 rval2: STRUC_NBAS              requ n= 1 val= 1.00000000
 rval2: HAM_NSPIN               defa n= 1 val= 2.00000000
@@ -35,10 +35,11 @@ rval2: HAM_OVEPS               defa n= 1 val= 0.00000010
 rval2: HAM_PWMODE              defa n= 1 val= 0.00000000
 rval2: HAM_PWEMAX              defa n= 1 val= 0.00000000
 rval2: HAM_READP               defa n= 1 val= 0.00000000
+rval2: HAM_READPSKIPF          defa n= 1 val= 1.00000000
 rval2: HAM_V0FIX               defa n= 1 val= 0.00000000
 rval2: HAM_PNUFIX              defa n= 1 val= 0.00000000
 === SPEC =1
- cccccccc SPEC_ATOM@1ch=### C###
+rval2: SPEC_ATOM@1             val=  C
 rval2: SPEC_Z@1                ---- n= 1 val= 6.00000000
 rval2: SPEC_R@1                ---- n= 1 val= 3.00000000
 rval2: SPEC_R/W@1              ---- n= 0 val= 
@@ -65,11 +66,11 @@ rval2: SPEC_FRZWF@1            defa n= 1 val= 0.00000000
 rval2: SPEC_IDU@1              ---- n= 0 val= 
 rval2: SPEC_UH@1               ---- n= 0 val= 
 rval2: SPEC_JH@1               ---- n= 0 val= 
- cccccccc SPEC_C-HOLE@1ch=######
+rval2: SPEC_C-HOLE@1           val= 
 rval2: SPEC_C-HQ@1             defa n= 2 val= -1.00000000  0.00000000
 rval2: SPEC_EREF1              defa n= 1 val= 0.00000000
 === SITE =1
- cccccccc SITE_ATOM@1ch=### C###
+rval2: SITE_ATOM@1             val=  C
 rval2: SITE_POS@1              ---- n= 3 val= 0.00000000  0.00000000  0.00000000
 rval2: SITE_RELAX@1            defa n= 3 val= 1.00000000  1.00000000  1.00000000
 rval2: SITE_AF@1               defa n= 1 val= 0.00000000
@@ -90,18 +91,17 @@ rval2: BZ_EFMAX                defa n= 1 val= 5.00000000
 rval2: BZ_NEVMX                defa n= 1 val= 5.00000000
 rval2: BZ_FSMOM                defa n= 1 val= -99999.00000000
 rval2: BZ_FSMOMMETHOD          defa n= 1 val= 0.00000000
- cccccccc SYMGRPch=###  find###
- cccccccc SYMGRPAFch=######
+rval2: SYMGRP                  val=   find
+rval2: SYMGRPAF                val= 
 rval2: EWALD_AS                defa n= 1 val= 2.00000000
 rval2: EWALD_TOL               defa n= 1 val= 0.00000001
 rval2: EWALD_NKDMX             defa n= 1 val= 300.00000000
 rval2: ITER_NIT                defa n= 1 val= 10.00000000
 rval2: ITER_NRMIX              defa n= 1 val= 80.00000000
- cccccccc ITER_MIXch=### A2###
+rval2: ITER_MIX                val=  A2
 rval2: ITER_CONV               defa n= 1 val= 0.00001000
 rval2: ITER_CONVC              defa n= 1 val= 0.00050000
 rval2: ITER_UMIX               defa n= 1 val= 0.50000000
-rval2: ITER_TOLU               defa n= 1 val= 0.00000000
 rval2: ITER_TOLU               defa n= 1 val= 0.00000000
 rval2: ITER_b                  defa n= 1 val= 0.50000000
 rval2: ITER_wc                 defa n= 1 val= -1.00000000
@@ -117,11 +117,10 @@ rval2: DYN_NKILL               defa n= 1 val= 0.00000000
 mixing param: A/B nmix wt= 0 2 1.000000  1.000000 beta wc killj=  0.500000 -1.000000 -1
  ===> for --jobgw, pwmode is switched to be  0
   bndfp (warning): no sigm file found ... LDA calculation only
-pnu list       ibas isp  pnu(0:lmxa) 
-pnu: j isp pnu= 1 1 2.900  2.850  3.180  4.120
-pnz: j isp  pz= 1 1 0.000  0.000  0.000  0.000
-pnu: j isp pnu= 1 2 2.900  2.850  3.180  4.120
-pnz: j isp  pz= 1 2 0.000  0.000  0.000  0.000
+
+pnu === pnu setting ===
+pnu   ibas isp   pnu(0:lmxa)  pz(0:lmxa)
+pnu:  1 1 2.900  2.850  3.180  4.120   0.000  0.000  0.000  0.000 pnu:  1 2 2.900  2.850  3.180  4.120   0.000  0.000  0.000  0.000
 
 mto === MTO setting ===
 mto ispec lmxb lpz nkapii nkaphh=    1    1    0    2    2
@@ -150,7 +149,7 @@ conf: rmt rmax a=  3.000000  19.671121  0.020000 nrmt nr= 369 463
  atomsc nmcore=           0
 
  end of atomsc xxxxx
- vsum=  -59.746958882741843                1
+ vsum=  -59.746958847471802                1
 sumev= -2.876387 etot= -74.994908 eref=  0.000000 etot-eref= -74.994908
 
  Free-atom wavefunctions:
@@ -187,31 +186,19 @@ sumev= -2.876387 etot= -74.994908 eref=  0.000000 etot-eref= -74.994908
     rho: r>rmt  0.054561   r<rmt  0.945439   qtot  1.000000
 conf: Core rhoc(rmt)= 0.000000 spillout= 0.000000
  end of freats: spid nmcore=C                  0
-OK! end of LMFA ======================
-           1 --no-iactiv
-           2 c
-           3 -vzbak=1
-INFO: Ubuntu 20.04.4 LTS \n \l
-INFO: GNU Fortran (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.4.0
-           1 --no-iactiv
-           2 c
-           3 -vzbak=1
-           1 --no-iactiv
-           2 c
-           3 -vzbak=1
-           1 --no-iactiv
-           2 c
-           3 -vzbak=1
-INFO: -O2 -g -fimplicit-none -finit-integer=NaN -finit-real=NaN -JOBJ.gfortran -IOBJ.gfortran
-INFO: MATH: -lmkl_rt
-INFO: git: commit 895c0dab24c443e7d7fb788e9870fc04186617c7
+ OK! end of LMFA ======================
+INFO: Ubuntu 20.04.6 LTS \n \l
+INFO: GNU Fortran (Ubuntu 9.4.0-1ubuntu1~20.04.2) 9.4.0
+INFO: 
+INFO: MATH: 
+INFO: git: commit afd2faa4e42483b6706cdd3e22e28d8c17a2bb6e
 INFO:    : Author: Takao Kotani <takaokotani@gmail.com>
-INFO:    : Date:   Tue Mar 28 19:00:32 2023 +0900
-INFO: linked at Wed Mar 29 10:09:58 JST 2023
-===START LMF with   --no-iactiv c -vzbak=1 ===
+INFO:    : Date:   Tue Mar 12 12:07:47 2024 +0900
+INFO: linked at Tue Mar 12 14:41:02 JST 2024
+===START LMF with   c -vzbak=1 ===
 mpisize=4
+cmdl for python=/home/takao/ecalj/SRC/TestInstall/bin/ctrl2ctrlp.py  c -vzbak=1<ctrl.c >ctrlp.c
 m_lmfinit: LMF
-cmdl for python=/home/takao/ecalj/SRC/TestInstall/bin/ctrl2ctrlp.py  --no-iactiv c -vzbak=1<ctrl.c >ctrlp.c
 rval2: STRUC_NSPEC             requ n= 1 val= 1.00000000
 rval2: STRUC_NBAS              requ n= 1 val= 1.00000000
 rval2: HAM_NSPIN               defa n= 1 val= 2.00000000
@@ -224,12 +211,9 @@ rval2: OPTIONS_HF              defa n= 1 val= 0.00000000
 rval2: HAM_REL                 defa n= 1 val= 1.00000000
 rval2: HAM_SO                  defa n= 1 val= 0.00000000
 rval2: HAM_SOCAXIS             defa n= 3 val= 0.00000000  0.00000000  1.00000000
- cccccccc SPEC_ATOM@1ch=### C###
 rval2: HAM_GMAX                defa n= 1 val= 0.00000000
 rval2: HAM_FTMESH              defa n= 3 val= 25.00000000  25.00000000  25.00000000
 rval2: HAM_TOL                 defa n= 1 val= 0.00000100
- cccccccc SPEC_ATOM@1ch=### C###
- cccccccc SPEC_ATOM@1ch=### C###
 rval2: HAM_FRZWF               defa n= 1 val= 0.00000000
 rval2: HAM_XCFUN               defa n= 1 val= 2.00000000
 rval2: HAM_FORCES              defa n= 1 val= 12.00000000
@@ -240,56 +224,42 @@ rval2: HAM_OVEPS               defa n= 1 val= 0.00000010
 rval2: HAM_PWMODE              defa n= 1 val= 0.00000000
 rval2: HAM_PWEMAX              defa n= 1 val= 0.00000000
 rval2: HAM_READP               defa n= 1 val= 0.00000000
+rval2: HAM_READPSKIPF          defa n= 1 val= 1.00000000
 rval2: HAM_V0FIX               defa n= 1 val= 0.00000000
 rval2: HAM_PNUFIX              defa n= 1 val= 0.00000000
 === SPEC =1
- cccccccc SPEC_C-HOLE@1ch=######
- cccccccc SPEC_ATOM@1ch=### C###
+rval2: SPEC_ATOM@1             val=  C
 rval2: SPEC_Z@1                ---- n= 1 val= 6.00000000
- cccccccc SITE_ATOM@1ch=### C###
 rval2: SPEC_R@1                ---- n= 1 val= 3.00000000
 rval2: SPEC_R/W@1              ---- n= 0 val= 
 rval2: SPEC_R/A@1              ---- n= 0 val= 
 rval2: SPEC_A@1                defa n= 1 val= 0.02000000
- cccccccc SPEC_C-HOLE@1ch=######
- cccccccc SPEC_C-HOLE@1ch=######
 rval2: SPEC_NR@1               defa n= 1 val= 0.00000000
- cccccccc SITE_ATOM@1ch=### C###
- cccccccc SITE_ATOM@1ch=### C###
 rval2: SPEC_RSMH@1             ---- n= 4 val= 1.30000000  1.10000000 -1.00000000 -1.00000000
 rval2: SPEC_EH@1               requ n= 2 val= -0.70000000 -0.20000000
 rval2: SPEC_RSMH2@1            ---- n= 2 val= 0.80000000  0.80000000
 rval2: SPEC_EH2@1              requ n= 2 val= -1.50000000 -1.00000000
 rval2: SPEC_LMX@1              defa n= 1 val= 999.00000000
- cccccccc SYMGRPch=###  find###
 rval2: SPEC_LMXA@1             defa n= 1 val= 3.00000000
- cccccccc SYMGRPAFch=######
 rval2: SPEC_LMXL@1             defa n= 1 val= 3.00000000
 rval2: SPEC_P@1                ---- n= 4 val= 2.90000000  2.85000000  3.18000000  4.12000000
- cccccccc ITER_MIXch=### A2###
 rval2: SPEC_Q@1                ---- n= 0 val= 
- cccccccc SYMGRPch=###  find###
 rval2: SPEC_MMOM@1             ---- n= 2 val= 0.00000000  2.00000000
- cccccccc SYMGRPch=###  find###
- cccccccc SYMGRPAFch=######
 rval2: SPEC_NMCORE@1           defa n= 1 val= 0.00000000
- cccccccc SYMGRPAFch=######
 rval2: SPEC_PZ@1               ---- n= 0 val= 
 rval2: SPEC_LFOCA@1            defa n= 1 val= 0.00000000
 rval2: SPEC_KMXA@1             defa n= 1 val= 3.00000000
- cccccccc ITER_MIXch=### A2###
- cccccccc ITER_MIXch=### A2###
 rval2: SPEC_RSMA@1             defa n= 1 val= 1.20000000
 rval2: SPEC_IDMOD@1            ---- n= 2 val= 0.00000000  1.00000000
 rval2: SPEC_FRZWF@1            defa n= 1 val= 0.00000000
 rval2: SPEC_IDU@1              ---- n= 0 val= 
 rval2: SPEC_UH@1               ---- n= 0 val= 
 rval2: SPEC_JH@1               ---- n= 0 val= 
- cccccccc SPEC_C-HOLE@1ch=######
+rval2: SPEC_C-HOLE@1           val= 
 rval2: SPEC_C-HQ@1             defa n= 2 val= -1.00000000  0.00000000
 rval2: SPEC_EREF1              defa n= 1 val= 0.00000000
 === SITE =1
- cccccccc SITE_ATOM@1ch=### C###
+rval2: SITE_ATOM@1             val=  C
 rval2: SITE_POS@1              ---- n= 3 val= 0.00000000  0.00000000  0.00000000
 rval2: SITE_RELAX@1            defa n= 3 val= 1.00000000  1.00000000  1.00000000
 rval2: SITE_AF@1               defa n= 1 val= 0.00000000
@@ -310,18 +280,17 @@ rval2: BZ_EFMAX                defa n= 1 val= 5.00000000
 rval2: BZ_NEVMX                defa n= 1 val= 5.00000000
 rval2: BZ_FSMOM                defa n= 1 val= -99999.00000000
 rval2: BZ_FSMOMMETHOD          defa n= 1 val= 0.00000000
- cccccccc SYMGRPch=###  find###
- cccccccc SYMGRPAFch=######
+rval2: SYMGRP                  val=   find
+rval2: SYMGRPAF                val= 
 rval2: EWALD_AS                defa n= 1 val= 2.00000000
 rval2: EWALD_TOL               defa n= 1 val= 0.00000001
 rval2: EWALD_NKDMX             defa n= 1 val= 300.00000000
 rval2: ITER_NIT                defa n= 1 val= 10.00000000
 rval2: ITER_NRMIX              defa n= 1 val= 80.00000000
- cccccccc ITER_MIXch=### A2###
+rval2: ITER_MIX                val=  A2
 rval2: ITER_CONV               defa n= 1 val= 0.00001000
 rval2: ITER_CONVC              defa n= 1 val= 0.00050000
 rval2: ITER_UMIX               defa n= 1 val= 0.50000000
-rval2: ITER_TOLU               defa n= 1 val= 0.00000000
 rval2: ITER_TOLU               defa n= 1 val= 0.00000000
 rval2: ITER_b                  defa n= 1 val= 0.50000000
 rval2: ITER_wc                 defa n= 1 val= -1.00000000
@@ -337,57 +306,30 @@ rval2: DYN_NKILL               defa n= 1 val= 0.00000000
 mixing param: A/B nmix wt= 0 2 1.000000  1.000000 beta wc killj=  0.500000 -1.000000 -1
  ===> for --jobgw, pwmode is switched to be  0
   bndfp (warning): no sigm file found ... LDA calculation only
-pnu list       ibas isp  pnu(0:lmxa) 
-pnu: j isp pnu= 1 1 2.900  2.850  3.180  4.120
-pnz: j isp  pz= 1 1 0.000  0.000  0.000  0.000
-pnu: j isp pnu= 1 2 2.900  2.850  3.180  4.120
-pnz: j isp  pz= 1 2 0.000  0.000  0.000  0.000
+
+pnu === pnu setting ===
+pnu   ibas isp   pnu(0:lmxa)  pz(0:lmxa)
+pnu:  1 1 2.900  2.850  3.180  4.120   0.000  0.000  0.000  0.000 pnu:  1 2 2.900  2.850  3.180  4.120   0.000  0.000  0.000  0.000
 
 mto === MTO setting ===
 mto ispec lmxb lpz nkapii nkaphh=    1    1    0    2    2
 mto rsmh1    1  1.30  1.10
 mto   eh1    1 -0.70 -0.20
 mto rsmh2    1  0.80  0.80
-
-                Plat                                  Qlat
-
-                Plat                                  Qlat
-
-                Plat                                  Qlat
 mto  eh2     1 -1.50 -1.00
 mto lh       1  1
-   1.000000   1.000000   0.000000        0.500000   0.500000  -0.500000
-   1.000000   0.000000   1.000000        0.500000  -0.500000   0.500000
-   1.000000   1.000000   0.000000        0.500000   0.500000  -0.500000
-   1.000000   0.000000   1.000000        0.500000  -0.500000   0.500000
-   1.000000   1.000000   0.000000        0.500000   0.500000  -0.500000
-   1.000000   0.000000   1.000000        0.500000  -0.500000   0.500000
-   0.000000   1.000000   1.000000       -0.500000   0.500000   0.500000
 
                 Plat                                  Qlat
    1.000000   1.000000   0.000000        0.500000   0.500000  -0.500000
-   0.000000   1.000000   1.000000       -0.500000   0.500000   0.500000
-   0.000000   1.000000   1.000000       -0.500000   0.500000   0.500000
    1.000000   0.000000   1.000000        0.500000  -0.500000   0.500000
    0.000000   1.000000   1.000000       -0.500000   0.500000   0.500000
   Cell vol=   1000.000000
-  Cell vol=   1000.000000
-  Cell vol=   1000.000000
-  Cell vol=   1000.000000
 
-LATTC:  as= 2.000   tol= 1.00E-08   alat= 7.93701   awald= 0.200
-
+m_lattic_init:  as= 2.000  tol= 1.00E-08  alat= 7.93701   awald= 0.200
          r1=  3.459   nkd=  79      q1=  2.571   nkq= 137
-
-LATTC:  as= 2.000   tol= 1.00E-08   alat= 7.93701   awald= 0.200
-         r1=  3.459   nkd=  79      q1=  2.571   nkq= 137
-LATTC:  as= 2.000   tol= 1.00E-08   alat= 7.93701   awald= 0.200
-         r1=  3.459   nkd=  79      q1=  2.571   nkq= 137
-SpaceGroupSym: ======================================= 
-
-LATTC:  as= 2.000   tol= 1.00E-08   alat= 7.93701   awald= 0.200
-  Generators except find=
-         r1=  3.459   nkd=  79      q1=  2.571   nkq= 137
+SpaceGroupSym of Lattice: ========start========================== 
+ SYMGRP = find
+  Generators except find: 
  sgroup:  1 symmetry operations from 0 generators
  symlat: Bravais system is cubic        with 48 symmetry operations.
  symcry: crystal invariant under 48 following symmetry operations for tol=  0.000100
@@ -450,36 +392,39 @@ LATTC:  as= 2.000   tol= 1.00E-08   alat= 7.93701   awald= 0.200
       1:  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1
  splcls:  ibas iclass ispec label(ispec)
             1     1     1     C
-SpaceGroupSym: ========end of SYM section============= 
+SpaceGroupSym of Lattice: ========end =========================== 
 
- BZMESH:      3 irreducible QP from    2   2   2 shift=FFF
+ BZMESH: ngrp nq  48    3 QP from    2   2   2 shift=FFF
  TETIRR: sorting       48 tetrahedra ...
- SGVSYM: 188 symmetry stars found for 5817 reciprocal lattice vectors
 
- sugcut:  make orbital-dependent reciprocal vector cutoffs for tol= 1.00E-06
+sugcut:  make orbital-dependent reciprocal vector cutoffs for tol= 1.00E-06
  spec      l    rsm    eh     gmax    last term    cutoff
   C        0    1.30  -0.70   5.718    1.05E-06    3143 
   C        1    1.10  -0.20   7.226    2.65E-06    5817*
   C        0    0.80  -1.50   9.292    4.01E-04    5817*
   C        1    0.80  -1.00  10.038    2.81E-03    5817*
- m_qplistinit:start
+m_qplistinit:start
 
- iors  : read rst restart file (binary mesh density)
+iors: read rst restart file (binary mesh density)
  iors  : empty file ... nothing read
 
 rdovfa: read and overlap free-atom densities (mesh density) ...
  rdovfa: expected C,       read C        with rmt=  3.0000  mesh   369  0.020
   ovlpfa: overlap smooth part of FA densities
+ rrrrrrdensity111222xxx  -1.9311462682337907E-004   1.9559763616178717E-004   1.9990094016687600E-006   11.773298852858490     
+ rrrrrrdensity111222xxx  -1.9311462682337907E-004   1.9559763616178717E-004   1.9990094016687600E-006   11.773298852858490     
+ rrrrrrdensity111222xxx  -1.9311462682337907E-004   1.9559763616178717E-004   1.9990094016687600E-006   11.773298852858490     
 
  Free atom and overlapped crystal site charges:
    ib    true(FA)    smooth(FA)  true(OV)    smooth(OV)    local
+ rrrrrrdensity111222xxx  -1.9311462682337907E-004   1.9559763616178717E-004   1.9990094016687600E-006   11.773298852858490     
     1    3.701869    2.363587    3.701843    2.363561    1.338282
- amom    1.810990    1.143831    1.810990    1.143831    0.667159
+ amom    1.810990    1.143831    1.810990    1.143831   -0.667159
  Uniform density added to neutralize background q=  1.000000
 
  Smooth charge on mesh:            1.661718    moment    1.332841
- Sum of local charges:             1.338282    moments   0.667159
- Total valence charge:             3.000000    moment    2.000000
+ Sum of local charges:             1.338282    moments  -0.667159
+ Total valence charge:             3.000000    moment    0.665681
  Sum of core charges:              2.000000    moment    0.000000
  Sum of nuclear charges:          -6.000000
  Homogeneous background:           1.000000
@@ -491,51 +436,75 @@ rdovfa: read and overlap free-atom densities (mesh density) ...
 
 --- BNDFP:  begin iteration 1 of 10
  m_mkpot_init: Making one-particle potential ...
- Energy for background charge  q=  0.100000D+01 radius r= 6.2035049089939989 E=9/5*q*q/r= 0.29015855172296462
+ Energy for background charge q=  0.100000D+01 radius r= 6.2035049089939989 E=9/5*q*q/r= 0.29015855172296462
   esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1    0.023423    0.006607
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1    0.023423    0.006607
  smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst=-0.006607
  cell interaction energy from homogeneous background (q=  1.000000 ) is   0.290159
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1    0.023423    0.006607
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1    0.023423    0.006607
    smooth rhoves      2.063910   charge     2.661718
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=       25082  -4.9988145201717389E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.49988145202717392E-3
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 25082 -0.49988145199391450E-3
   smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -1.109295 -1.522745 -0.218019
   smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -0.385560 -0.423747 -0.164195
   locpot:
-   site  1  z=  6.0  rmt= 3.00000  nr=369   a=0.020  nlml=16  rg=0.750  Vfloat=T
- vxcns2 (warning): nr*np=     11808  negative density # of points=         0       128
- vxcns2 (warning): nr*np=     11808  negative density # of points=         0       128
- vxcnsp (warning): negative rho: min val =  -4.61E-04
- vxcns2 (warning): nr*np=     11808  negative density # of points=         0       128
- vxcns2 (warning): nr*np=     11808  negative density # of points=         0       128
+   site  1  z=  6.000  rmt= 3.00000  nr=369   a=0.020  nlml=16  rg=0.750  Vfloat=T
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu=  -7.369404  rep=  -5.466799  q =   3.699868
+ spin 2:           -5.086143        -3.998153        1.888878
+  total:          -12.455547        -9.464952        5.588746
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu=  -7.369404  rep=  -5.466799  q =   3.699868
+ spin 2:           -5.086143        -3.998153        1.888878
+  total:          -12.455547        -9.464952        5.588746
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu=  -1.402026  rep=  -1.020601  q =   1.697148
+ spin 2:           -0.375091        -0.343662        0.553317
+  total:           -1.777117        -1.364263        2.250464
+
+ local terms:     true           smooth         local
+ rhoeps:        -9.464952      -1.364263      -8.100688
+ rhomu:         -7.369404      -1.402026      -5.967378
+ spin2:         -5.086143      -0.375091      -4.711052
+ total:        -12.455547      -1.777117     -10.678430
+ val*vef       -14.138029      -3.734429     -10.403600
+ val chg:        3.588746       2.250464       1.338282
+ val mmom:        0.667159  core mmom:  -0.000000
  ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   2.90000   2.90000   0.00000   0.00000
  ibas l=  1  1 pnu(1:nsp) pnz(1:nsp)=   2.85000   2.85000   0.00000   0.00000
  ibas l=  1  2 pnu(1:nsp) pnz(1:nsp)=   3.18000   3.18000   0.00000   0.00000
  ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.12000   4.12000   0.00000   0.00000
-     potential shift to crystal energy zero:    0.000002
-  mkpot:
-   Energy terms:           smooth           local           total
+     potential shift to crystal energy zero:    0.000000
+ mkpot:
+   Energy terms(Ry):       smooth           local           total
    rhoval*veff             -3.733888       -10.403600       -14.137487
-   rhoval*ves             -5.058556        -5.181775       -10.240330
-   psnuc*ves               9.186377      -278.836573      -269.650196
-   utot                    2.063910      -142.009174      -139.945263
-   rho*exc                -1.494856        -8.100688        -9.595544
-   rho*vxc                -1.946492       -10.678430       -12.624921
-   valence chg             1.661718         1.338282         3.000000
+   Eestatic                 2.063910      -142.009174      -139.945263
+   rho*exc                 -1.494856        -8.100688        -9.595544
+   rho*vxc                 -1.946492       -10.678430       -12.624921
+   valence chg              1.661718         1.338282         3.000000
    valence mag             1.332841         0.667159         2.000000
    core charge             2.000000         0.000000         2.000000
    Charges:  valence     3.00000   cores     2.00000   nucleii    -6.00000
    hom background     1.00000   deviation from neutrality:     -0.00000
  m_bandcal_init: start
  bndfp: kpt     1 of     3 k=  0.0000  0.0000  0.0000 ndimh = nmto+napw =     8    8    0
- ... Done MPI k-loop: elapsed time=   0.0184
-
+ ... Done MPI k-loop: elapsed time=   0.0485
  bzwts: --- Tetrahedron Integration ---
  ... only filled or empty bands encountered: ev= -0.824735 ec= -0.768586
  VBmax= -0.824735 CBmin= -0.768586 gap =  0.056150 Ry =   0.763959 eV
  BZINTS: Fermi energy:     -0.824735;   3.000000 electrons
          Sum occ. bands:   -3.222313, incl. Bloechl correction:  0.000000
          Mag. moment:      -1.000000
- bndfp:Generating TDOS: efermi= -0.824735  dos window emin emax=  -1.423654  2.115188
+ bndfp:Generating TDOS: efermi(eV)= -11.221180 DOSwindow emin emax(eV)=  -19.369951  28.778820
 
 
  m_bandcal_2nd: to fill eigenfunctions**2 up to Efermi
@@ -557,30 +526,63 @@ rdovfa: read and overlap free-atom densities (mesh density) ...
     E_B(band energy sum)=   -3.222313  E_B-nout*Vin=    8.399014
 
  m_mkpot_energyterms
- Energy for background charge  q=  0.100000D+01 radius r= 6.2035049089939989 E=9/5*q*q/r= 0.29015855172296462
+ Energy for background charge q=  0.100000D+01 radius r= 6.2035049089939989 E=9/5*q*q/r= 0.29015855172296462
   esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.736142   -0.207662
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.736142   -0.207662
+
+ site class  ilm      vval      ves(rmax)
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.736142   -0.207662
+   1     1     1   -0.736142   -0.207662
  smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst= 0.207662
  cell interaction energy from homogeneous background (q=  1.000000 ) is   0.290159
    smooth rhoves     36.495506   charge   366.036673
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=          16  -1.6773260017262086E-007
-  smvxcm: enforce positive smrho_w. Add srshift= 0.16773261017262087E-6
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -152.338263 -96.188303 -0.226907
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -2141.658238 -2948.665992 -0.408385
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 16 -0.16773259976949416E-6
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -152.338266 -96.188305 -0.226907
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -2141.658237 -2948.665992 -0.408385
   locpot:
-   site  1  z=  6.0  rmt= 3.00000  nr=369   a=0.020  nlml=16  rg=0.750  Vfloat=F
+   site  1  z=  6.000  rmt= 3.00000  nr=369   a=0.020  nlml=16  rg=0.750  Vfloat=F
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu=  -5.212237  rep=  -3.961025  q =   1.993112
+ spin 2:           -5.289593        -4.012799        2.131570
+  total:          -10.501830        -7.973824        4.124682
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ dfrce job=          12
+ vxcnsp: loc rmu=  -5.212237  rep=  -3.961025  q =   1.993112
+ spin 2:           -5.289593        -4.012799        2.131570
+  total:          -10.501830        -7.973824        4.124682
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ dfrce job=          12
+ dfrce job=          12
+ vxcnsp: loc rmu= -96.186912  rep=-152.336386  q =  25.430575
+ spin 2:         ***********      ***********      338.730784
+  total:         ***********      ***********      364.161358
+
+ local terms:     true           smooth         local
+ rhoeps:        -7.973824   -2293.754901    2285.781077
+ rhomu:         -5.212237     -96.186912      90.974675
+ spin2:         -5.289593   -2948.353518    2943.063925
+ total:        -10.501830   -3044.540430    3034.038600
+ val*vef       -11.161621   -2516.898414    2505.736794
+ val chg:        2.124682     364.161358    -362.036676
+ val mmom:      313.161752  core mmom:  -0.000000
  ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   2.89276   2.76013   0.00000   0.00000
  ibas l=  1  1 pnu(1:nsp) pnz(1:nsp)=   2.85000   2.85000   0.00000   0.00000
  ibas l=  1  2 pnu(1:nsp) pnz(1:nsp)=   3.14758   3.14758   0.00000   0.00000
  ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.12000   4.12000   0.00000   0.00000
-  mkpot:
-   Energy terms:           smooth           local           total
-   rhoval*veff          -2517.210592      2505.736791       -11.473801
-   rhoval*ves             77.961664       -86.892741        -8.931077
-   psnuc*ves              -4.970652      -258.950387      -263.921039
-   utot                   36.495506      -172.921564      -136.426058
-   rho*exc             -2293.996501      2285.781076        -8.215426
-   rho*vxc             -3044.854295      3034.038598       -10.815697
-   valence chg           365.036673      -362.036676         2.999997
+ mkpot:
+   Energy terms(Ry):       smooth           local           total
+   rhoval*veff          -2517.210594      2505.736794       -11.473801
+   Eestatic                36.495506      -172.921564      -136.426058
+   rho*exc              -2293.996503      2285.781077        -8.215426
+   rho*vxc              -3044.854297      3034.038600       -10.815697
+   valence chg            365.036673      -362.036676         2.999997
    valence mag          -314.161749       313.161752        -0.999997
    core charge             2.000000         0.000000         2.000000
    Charges:  valence     3.00000   cores     2.00000   nucleii    -6.00000
@@ -590,17 +592,15 @@ rdovfa: read and overlap free-atom densities (mesh density) ...
  Ek=        8.399014 Ekcore=        62.933572 Ektot    =       71.332586
  Exc=      -8.215426 Ees   =      -136.426058 EKohnSham=      -73.308898
  Magnetic moment=    -0.999997
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=       25082  -4.9988446984781346E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.49988446985781349E-3
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=       25082  -4.9987843418653442E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.49987843419653445E-3
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=       25082  -4.9988145201717400E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.49988145202717403E-3
+ dfrce job=          12
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 25082 -0.49988446982455385E-3
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 25082 -0.49987843416327514E-3
+ Maximum Harris force =   0.000000 mRy/au (site 1 )
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 25082 -0.49988145199391450E-3
+ Maximum Harris force =   0.000000 mRy/au (site 1 )
 
- Harris correction to forces: screened shift in core+nuclear density  
+ Harris correction to forces: no shift of atomic density
   ib         delta-n dVes             delta-n dVxc               total
- Maximum Harris force =   0.000000 mRy/au (site 1 )
- Maximum Harris force =   0.000000 mRy/au (site 1 )
  Maximum Harris force =   0.000000 mRy/au (site 1 )
    1    0.00    0.00    0.00     0.00    0.00    0.00    -0.00   -0.00   -0.00
  shift forces to make zero average correction:           -0.00   -0.00   -0.00
@@ -610,79 +610,97 @@ Forces:
    1    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
  Maximum Harris force =   0.000000 mRy/au (site 1 )
   Symmetrize forces ...
- mixrealsmooth= T
  wgtsmooth=   8.0000000000000002E-003
  mixrho: sought 2 iter from file mixm ; read 0 RMS DQ= 9.54E+0
+ mmom         1.332841   -314.161749
  AMIX: nmix=0 mmix=8  nelts= 33302  beta=0.50000  tm= 5.00000  rmsdel= 4.77D+00
- mixrho: warning. negative smrho; isp number min=       1   11628 -0.24843D-03
- mixrho: warning. negative smrho; isp number min=       1   11628 -0.24843D-03
- mixrho: add corrections to qcell smrho =  0.17512D-05  0.87558D-09
- mixrho: warning. negative smrho; isp number min=       2    7318 -0.24382D-03
- mixrho: warning. negative smrho; isp number min=       2    7318 -0.24382D-03
+ mixrho: qcell,correction,qmx,summ =  0.17512D-05  0.87558D-09 -0.18035D+03  0.28648D+04
  add q=  0.000002 to preserve neutrality
- mixrho: warning. negative smrho; isp number min=       1   11628 -0.24843D-03
- mixrho: warning. negative smrho; isp number min=       2    7318 -0.24382D-03
+ mixrho: warning. negative smrho; isp number min=   18946 -0.24843D-03
 
- iors  : write rst restart file (binary mesh density)
- mixrho: warning. negative smrho; isp number min=       1   11628 -0.24843D-03
- mixrho: warning. negative smrho; isp number min=       2    7318 -0.24382D-03
+iors: write rst restart file (binary mesh density)
 
    it  1  of 10    ehf=     -75.693628   ehk=     -73.308898
 h mmom=-1.0000 ehf(eV)=-1029.872362 ehk(eV)=-997.426200 sev(eV)=-43.842140
 
 --- BNDFP:  begin iteration 2 of 10
  m_mkpot_init: Making one-particle potential ...
- Energy for background charge  q=  0.100000D+01 radius r= 6.2035049089939989 E=9/5*q*q/r= 0.29015855172296462
+ Energy for background charge q=  0.100000D+01 radius r= 6.2035049089939989 E=9/5*q*q/r= 0.29015855172296462
   esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.356360   -0.100527
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.356360   -0.100527
+
+ site class  ilm      vval      ves(rmax)
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.356360   -0.100527
+   1     1     1   -0.356360   -0.100527
  smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst= 0.100527
  cell interaction energy from homogeneous background (q=  1.000000 ) is   0.290159
    smooth rhoves      8.326727   charge   184.349197
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=       18946  -2.4843197179100451E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.24843197180100449E-3
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 18946 -0.24843197177024069E-3
   smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -62.642520 -40.704435 -0.244834
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -854.219866 -1175.218090 -0.340641
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -854.219865 -1175.218090 -0.340641
   locpot:
-   site  1  z=  6.0  rmt= 3.00000  nr=369   a=0.020  nlml=16  rg=0.750  Vfloat=T
- vxcns2 (warning): nr*np=     11808  negative density # of points=         0        64
- vxcns2 (warning): nr*np=     11808  negative density # of points=         0        64
- vxcnsp (warning): negative rho: min val =  -1.96E-04
- vxcns2 (warning): nr*np=     11808  negative density # of points=         0        64
- vxcns2 (warning): nr*np=     11808  negative density # of points=         0        64
+   site  1  z=  6.000  rmt= 3.00000  nr=369   a=0.020  nlml=16  rg=0.750  Vfloat=T
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu=  -6.225159  rep=  -4.661838  q =   2.846490
+ spin 2:           -5.189235        -4.009699        2.010224
+  total:          -11.414393        -8.671537        4.856714
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu=  -6.225159  rep=  -4.661838  q =   2.846490
+ spin 2:           -5.189235        -4.009699        2.010224
+  total:          -11.414393        -8.671537        4.856714
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu= -40.638711  rep= -62.581851  q =  13.563861
+ spin 2:         ***********      -854.083105      169.642050
+  total:         ***********      -916.664955      183.205911
+
+ local terms:     true           smooth         local
+ rhoeps:        -8.671537    -916.664955     907.993419
+ rhomu:         -6.225159     -40.638711      34.413552
+ spin2:         -5.189235   -1175.027305    1169.838070
+ total:        -11.414393   -1215.666016    1204.251623
+ val*vef       -12.881477   -1296.204636    1283.323159
+ val chg:        2.856714     183.205911    -180.349197
+ val mmom:      156.914456  core mmom:  -0.000000
  ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   2.89276   2.76013   0.00000   0.00000
  ibas l=  1  1 pnu(1:nsp) pnz(1:nsp)=   2.85000   2.85000   0.00000   0.00000
  ibas l=  1  2 pnu(1:nsp) pnz(1:nsp)=   3.14758   3.14758   0.00000   0.00000
  ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.12000   4.12000   0.00000   0.00000
-     potential shift to crystal energy zero:   -0.001086
-  mkpot:
-   Energy terms:           smooth           local           total
-   rhoval*veff          -1296.369827      1283.323158       -13.046669
-   rhoval*ves             14.545593       -24.473846        -9.928254
-   psnuc*ves               2.107862      -268.893479      -266.785617
-   utot                    8.326727      -146.683663      -138.356935
-   rho*exc              -916.862385       907.993418        -8.868967
-   rho*vxc             -1215.922524      1204.251622       -11.670902
-   valence chg           183.349197      -180.349197         3.000000
+     potential shift to crystal energy zero:   -0.000000
+ mkpot:
+   Energy terms(Ry):       smooth           local           total
+   rhoval*veff          -1296.369828      1283.323159       -13.046669
+   Eestatic                 8.326727      -146.683663      -138.356935
+   rho*exc               -916.862386       907.993419        -8.868967
+   rho*vxc              -1215.922525      1204.251623       -11.670902
+   valence chg            183.349197      -180.349197         3.000000
    valence mag          -156.414454       156.914456         0.500001
    core charge             2.000000         0.000000         2.000000
    Charges:  valence     3.00000   cores     2.00000   nucleii    -6.00000
    hom background     1.00000   deviation from neutrality:      0.00000
  m_bandcal_init: start
  bndfp: kpt     1 of     3 k=  0.0000  0.0000  0.0000 ndimh = nmto+napw =     8    8    0
- ... Done MPI k-loop: elapsed time=   0.0351
-
+ ... Done MPI k-loop: elapsed time=   0.0472
  bzwts: --- Tetrahedron Integration ---
  BZINTS: Fermi energy:     -0.722129;   3.000000 electrons
          Sum occ. bands:   -3.290097, incl. Bloechl correction: -0.000017
          Mag. moment:       1.000000
- bndfp:Generating TDOS: efermi= -0.722129  dos window emin emax=  -1.351906  2.217793
+ bndfp:Generating TDOS: efermi(eV)= -9.825146 DOSwindow emin emax(eV)=  -18.393768  30.174854
 
-       contr. to mm extrapolated for r>rmt:  -0.054502 est. true mm =-0.989849
+
+ m_bandcal_2nd: to fill eigenfunctions**2 up to Efermi
  getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3  4 
  sum q= 1.00  sum ec=   -20.56622  sum tc=    31.48945  rho(rmax) 0.00000
  sum q= 1.00  sum ec=   -20.53090  sum tc=    31.57762  rho(rmax) 0.00000
 
  mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
-   1    2.895099    6.797414   -3.902315     -0.935348   -0.530782   -0.404566
+   1    2.912562    7.084344   -4.171782      0.965736    2.265020   -1.299284
   Symmetrize density..
  Make new boundary conditions for phi,phidot..
 
@@ -691,55 +709,86 @@ h mmom=-1.0000 ehf(eV)=-1029.872362 ehk(eV)=-997.426200 sev(eV)=-43.842140
  Ek(core)=      62.932634 Exc=      -8.868967 Ees=    -138.356935 Eharris=     -74.536697
 
  mkekin:
-   nout*Vin = smpart,onsite,total=:    -32.521180     18.413046    -14.108134
-    E_B(band energy sum)=   -3.290097  E_B-nout*Vin=   10.818037
+   nout*Vin = smpart,onsite,total=:    -31.293933     16.890988    -14.402945
+    E_B(band energy sum)=   -3.290097  E_B-nout*Vin=   11.112848
 
  m_mkpot_energyterms
- Energy for background charge  q=  0.100000D+01 radius r= 6.2035049089939989 E=9/5*q*q/r= 0.29015855172296462
+ Energy for background charge q=  0.100000D+01 radius r= 6.2035049089939989 E=9/5*q*q/r= 0.29015855172296462
   esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
- smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst= 0.114454
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.399090   -0.112581
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.399090   -0.112581
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.399090   -0.112581
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.399090   -0.112581
+ smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst= 0.112581
  cell interaction energy from homogeneous background (q=  1.000000 ) is   0.290159
-   smooth rhoves      5.255246   charge     7.902315
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=        3176  -1.3866407181040646E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.13866407182040646E-3
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -3.869309 -5.044852 -0.237526
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -4.089619 -5.373249 -0.253032
+   smooth rhoves      5.472958   charge     8.171781
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 4632 -0.23073295866394718E-3
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -5.590833 -7.712180 -0.273559
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -2.977431 -3.510969 -0.260394
   locpot:
-   site  1  z=  6.0  rmt= 3.00000  nr=369   a=0.020  nlml=16  rg=0.750  Vfloat=F
+   site  1  z=  6.000  rmt= 3.00000  nr=369   a=0.020  nlml=16  rg=0.750  Vfloat=F
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu=  -6.491907  rep=  -4.848543  q =   2.939149
+ spin 2:           -5.220226        -4.048897        1.973413
+  total:          -11.712133        -8.897440        4.912562
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ dfrce job=          12
+ dfrce job=          12
+ vxcnsp: loc rmu=  -6.491907  rep=  -4.848543  q =   2.939149
+ spin 2:           -5.220226        -4.048897        1.973413
+  total:          -11.712133        -8.897440        4.912562
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ dfrce job=          12
+ vxcnsp: loc rmu=  -7.626099  rep=  -5.525511  q =   4.674682
+ spin 2:           -3.440125        -2.921705        2.409662
+  total:          -11.066224        -8.447217        7.084344
+
+ local terms:     true           smooth         local
+ rhoeps:        -8.897440      -8.447217      -0.450223
+ rhomu:         -6.491907      -7.626099       1.134192
+ spin2:         -5.220226      -3.440125      -1.780101
+ total:        -11.712133     -11.066224      -0.645909
+ val*vef       -13.999074     -30.512129      16.513055
+ val chg:        2.912562       7.084344      -4.171782
+ val mmom:       -1.299284  core mmom:   0.000000
  ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   2.92164   2.91793   0.00000   0.00000
  ibas l=  1  1 pnu(1:nsp) pnz(1:nsp)=   2.85000   2.85000   0.00000   0.00000
  ibas l=  1  2 pnu(1:nsp) pnz(1:nsp)=   3.14758   3.14758   0.00000   0.00000
- ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.12000   4.10242   0.00000   0.00000
-  mkpot:
-   Energy terms:           smooth           local           total
-   rhoval*veff            -28.805532        14.908810       -13.896722
-   rhoval*ves             -4.093578        -6.523657       -10.617235
-   psnuc*ves              14.604071      -283.105631      -268.501560
-   utot                    5.255246      -144.814644      -139.559398
-   rho*exc                -7.958928        -0.976854        -8.935783
-   rho*vxc               -10.418101        -1.342865       -11.760966
-   valence chg             6.902315        -3.902315         3.000000
-   valence mag            -0.595434        -0.404566        -1.000000
+ ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.10242   4.12000   0.00000   0.00000
+ mkpot:
+   Energy terms(Ry):       smooth           local           total
+   rhoval*veff            -30.538542        16.513055       -14.025487
+   Eestatic                 5.472958      -145.180775      -139.707818
+   rho*exc                 -8.568263        -0.450223        -9.018486
+   rho*vxc                -11.223150        -0.645909       -11.869059
+   valence chg              7.171781        -4.171782         3.000000
+   valence mag             2.299284        -1.299284         1.000000
    core charge             2.000000         0.000000         2.000000
    Charges:  valence     3.00000   cores     2.00000   nucleii    -6.00000
    hom background     1.00000   deviation from neutrality:     -0.00000
 
  m_mkehkf_etot2: Kohn-Sham energy:  Ek = Eband-Vin*nout
- Ek=       10.818037 Ekcore=        63.067070 Ektot    =       73.885108
- Exc=      -8.935783 Ees   =      -139.559398 EKohnSham=      -74.610072
- Magnetic moment=    -1.000000
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=       18946  -2.4843346219173123E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.24843346220173120E-3
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=       18946  -2.4843048139027780E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.24843048140027777E-3
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=       18946  -2.4843197179100451E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.24843197180100449E-3
+ Ek=       11.112848 Ekcore=        63.067070 Ektot    =       74.179919
+ Exc=      -9.018486 Ees   =      -139.707818 EKohnSham=      -74.546385
+ Magnetic moment=     1.000000
+ dfrce job=          12
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 18946 -0.24843346217096729E-3
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 18946 -0.24843048136951408E-3
  Maximum Harris force =   0.000000 mRy/au (site 1 )
  Maximum Harris force =   0.000000 mRy/au (site 1 )
- Maximum Harris force =   0.000000 mRy/au (site 1 )
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 18946 -0.24843197177024069E-3
 
- Harris correction to forces: screened shift in core+nuclear density  
+ Harris correction to forces: no shift of atomic density
   ib         delta-n dVes             delta-n dVxc               total
+ Maximum Harris force =   0.000000 mRy/au (site 1 )
    1   -0.00   -0.00   -0.00     0.00    0.00    0.00     0.00    0.00    0.00
  shift forces to make zero average correction:            0.00    0.00    0.00
 
@@ -750,126 +799,183 @@ Forces:
   Symmetrize forces ...
  wgtsmooth=   8.0000000000000002E-003
  mixrho: sought 2 iter from file mixm ; read 1 RMS DQ= 4.72E+0  last it= 9.54E+0
+ mmom      -156.414454      2.299284
  AMIX: nmix=1 mmix=8  nelts= 33302  beta=0.50000  tm= 5.00000  rmsdel= 2.36D+00
-   tj: 0.33081
- mixrho: warning. negative smrho; isp number min=       1   11532 -0.16531D-03
- mixrho: warning. negative smrho; isp number min=       2    7194 -0.20842D-03
- mixrho: warning. negative smrho; isp number min=       1   11532 -0.16531D-03
- mixrho: warning. negative smrho; isp number min=       2    7194 -0.20842D-03
- mixrho: add corrections to qcell smrho =  0.66791D-06  0.33395D-09
- mixrho: warning. negative smrho; isp number min=       1   11532 -0.16531D-03
- mixrho: warning. negative smrho; isp number min=       2    7194 -0.20842D-03
- mixrho: warning. negative smrho; isp number min=       1   11532 -0.16531D-03
- mixrho: warning. negative smrho; isp number min=       2    7194 -0.20842D-03
+   tj: 0.33113
+ mixrho: qcell,correction,qmx,summ =  0.68918D-06  0.34459D-09 -0.12143D+03  0.19442D+04
+ mixrho: warning. negative smrho; isp number min=   18672 -0.24244D-03
 
- iors  : write rst restart file (binary mesh density)
+iors: write rst restart file (binary mesh density)
 
-   it  2  of 10    ehf=     -74.536697   ehk=     -74.610072
+   it  2  of 10    ehf=     -74.536697   ehk=     -74.546385
  From last iter    ehf=     -75.693628   ehk=     -73.308898
- diffe(q)=  1.156931 (4.716723)    tol= 0.000010 (0.000500)   more=T
-i mmom=-1.0000 ehf(eV)=-1014.131387 ehk(eV)=-1015.129724 sev(eV)=-44.764395
+ diffe(q)=  1.156931 (4.723447)    tol= 0.000010 (0.000500)   more=T
+i mmom= 1.0000 ehf(eV)=-1014.131387 ehk(eV)=-1014.263211 sev(eV)=-44.764395
 
 --- BNDFP:  begin iteration 3 of 10
  m_mkpot_init: Making one-particle potential ...
- Energy for background charge  q=  0.100000D+01 radius r= 6.2035049089939989 E=9/5*q*q/r= 0.29015855172296462
+ Energy for background charge q=  0.100000D+01 radius r= 6.2035049089939989 E=9/5*q*q/r= 0.29015855172296462
   esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
- smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst= 0.105187
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.370650   -0.104558
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.370650   -0.104558
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.370650   -0.104558
+ smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst= 0.104558
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.370650   -0.104558
  cell interaction energy from homogeneous background (q=  1.000000 ) is   0.290159
-   smooth rhoves      3.978639   charge   125.311214
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=       18726  -2.0841839072584644E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.20841839073584644E-3
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -40.425980 -27.285906 -0.251258
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -501.816838 -691.373215 -0.325123
+   smooth rhoves      3.943208   charge   125.428930
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 18672 -0.24243900358088253E-3
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -41.770798 -28.577939 -0.267592
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -500.214588 -689.713061 -0.331535
   locpot:
-   site  1  z=  6.0  rmt= 3.00000  nr=369   a=0.020  nlml=16  rg=0.750  Vfloat=T
+   site  1  z=  6.000  rmt= 3.00000  nr=369   a=0.020  nlml=16  rg=0.750  Vfloat=T
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu=  -6.314190  rep=  -4.724076  q =   2.877479
+ spin 2:           -5.199434        -4.022743        1.997913
+  total:          -11.513624        -8.746819        4.875392
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu=  -6.314190  rep=  -4.724076  q =   2.877479
+ spin 2:           -5.199434        -4.022743        1.997913
+  total:          -11.513624        -8.746819        4.875392
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu= -28.506864  rep= -41.708616  q =  10.590990
+ spin 2:         -689.563070      -500.106566      113.713333
+  total:         -718.069933      -541.815182      124.304322
+
+ local terms:     true           smooth         local
+ rhoeps:        -8.746819    -541.815182     533.068362
+ rhomu:         -6.314190     -28.506864      22.192673
+ spin2:         -5.199434    -689.563070     684.363636
+ total:        -11.513624    -718.069933     706.556309
+ val*vef       -13.262149    -909.650195     896.388047
+ val chg:        2.875392     124.304322    -121.428930
+ val mmom:      104.001909  core mmom:  -0.000000
  ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   2.92164   2.91793   0.00000   0.00000
  ibas l=  1  1 pnu(1:nsp) pnz(1:nsp)=   2.85000   2.85000   0.00000   0.00000
  ibas l=  1  2 pnu(1:nsp) pnz(1:nsp)=   3.14758   3.14758   0.00000   0.00000
- ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.12000   4.10242   0.00000   0.00000
-     potential shift to crystal energy zero:   -0.000722
-  mkpot:
-   Energy terms:           smooth           local           total
-   rhoval*veff           -907.707856       894.423367       -13.284489
-   rhoval*ves              1.668265       -11.824004       -10.155740
-   psnuc*ves               6.289013      -273.690861      -267.401848
-   utot                    3.978639      -142.757433      -138.778794
-   rho*exc              -542.242818       533.380694        -8.862124
-   rho*vxc              -718.659122       706.997789       -11.661332
-   valence chg           124.311214      -121.311214         3.000000
-   valence mag          -104.278420       104.276531        -0.001889
+ ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.10242   4.12000   0.00000   0.00000
+     potential shift to crystal energy zero:    0.000000
+ mkpot:
+   Energy terms(Ry):       smooth           local           total
+   rhoval*veff           -909.749873       896.388047       -13.361826
+   Eestatic                 3.943208      -142.772702      -138.829494
+   rho*exc               -541.985386       533.068362        -8.917024
+   rho*vxc               -718.291000       706.556309       -11.734691
+   valence chg            124.428930      -121.428930         3.000000
+   valence mag          -103.334689       104.001909         0.667219
    core charge             2.000000         0.000000         2.000000
    Charges:  valence     3.00000   cores     2.00000   nucleii    -6.00000
-   hom background     1.00000   deviation from neutrality:     -0.00000
+   hom background     1.00000   deviation from neutrality:      0.00000
  m_bandcal_init: start
  bndfp: kpt     1 of     3 k=  0.0000  0.0000  0.0000 ndimh = nmto+napw =     8    8    0
- ... Done MPI k-loop: elapsed time=   0.0368
-
+ ... Done MPI k-loop: elapsed time=   0.0477
  bzwts: --- Tetrahedron Integration ---
- BZINTS: Fermi energy:     -0.648748;   3.000000 electrons
-         Sum occ. bands:   -3.154593, incl. Bloechl correction: -0.000028
+ BZINTS: Fermi energy:     -0.681199;   3.000000 electrons
+         Sum occ. bands:   -3.164408, incl. Bloechl correction: -0.000026
          Mag. moment:       1.000000
- bndfp:Generating TDOS: efermi= -0.648748  dos window emin emax=  -1.279720  2.291175
+ bndfp:Generating TDOS: efermi(eV)= -9.268256 DOSwindow emin emax(eV)=  -17.849743  30.731744
 
-       contr. to mm extrapolated for r>rmt:   0.035229 est. true mm = 0.992227
+
+ m_bandcal_2nd: to fill eigenfunctions**2 up to Efermi
  getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3  4 
- sum q= 1.00  sum ec=   -20.45435  sum tc=    31.49432  rho(rmax) 0.00000
- sum q= 1.00  sum ec=   -20.44605  sum tc=    31.51771  rho(rmax) 0.00000
+ sum q= 1.00  sum ec=   -20.45276  sum tc=    31.45890  rho(rmax) 0.00000
+ sum q= 1.00  sum ec=   -20.41248  sum tc=    31.55368  rho(rmax) 0.00000
 
  mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
-   1    2.905570    6.818720   -3.913150      0.956998    2.101150   -1.144152
+   1    2.906616    6.733418   -3.826802      0.962634    2.380926   -1.418292
   Symmetrize density..
  Make new boundary conditions for phi,phidot..
 
  m_mkehkf_etot1: Harris energy: (B.1) in JPSJ84,034702
- Eb(band sum)=       -3.154593 Vin*nin=     -13.284489 Ek=Eb-Vin*nin=      10.129896
- Ek(core)=      62.999833 Exc=      -8.862124 Ees=    -138.778794 Eharris=     -74.511189
+ Eb(band sum)=       -3.164408 Vin*nin=     -13.361826 Ek=Eb-Vin*nin=      10.197418
+ Ek(core)=      62.999882 Exc=      -8.917024 Ees=    -138.829494 Eharris=     -74.549217
 
  mkekin:
-   nout*Vin = smpart,onsite,total=:    -31.713112     17.620382    -14.092730
-    E_B(band energy sum)=   -3.154593  E_B-nout*Vin=   10.938137
+   nout*Vin = smpart,onsite,total=:    -30.961609     16.861816    -14.099793
+    E_B(band energy sum)=   -3.164408  E_B-nout*Vin=   10.935385
 
  m_mkpot_energyterms
- Energy for background charge  q=  0.100000D+01 radius r= 6.2035049089939989 E=9/5*q*q/r= 0.29015855172296462
+ Energy for background charge q=  0.100000D+01 radius r= 6.2035049089939989 E=9/5*q*q/r= 0.29015855172296462
   esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
- smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst= 0.112982
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.400329   -0.112931
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.400329   -0.112931
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.400329   -0.112931
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.400329   -0.112931
+ smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst= 0.112931
  cell interaction energy from homogeneous background (q=  1.000000 ) is   0.290159
-   smooth rhoves      5.484754   charge     7.913150
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=        4346  -2.1521390439155894E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.21521390440155895E-3
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -5.190740 -7.142707 -0.271191
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -2.868278 -3.410607 -0.256685
+   smooth rhoves      5.462981   charge     7.826802
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 4480 -0.22233047784492541E-3
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -5.337220 -7.383865 -0.272356
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -2.619758 -3.037668 -0.258167
   locpot:
-   site  1  z=  6.0  rmt= 3.00000  nr=369   a=0.020  nlml=16  rg=0.750  Vfloat=F
- ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   2.92084   2.91944   0.00000   0.00000
+   site  1  z=  6.000  rmt= 3.00000  nr=369   a=0.020  nlml=16  rg=0.750  Vfloat=F
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu=  -6.466217  rep=  -4.830275  q =   2.934625
+ spin 2:           -5.210940        -4.040646        1.971991
+  total:          -11.677156        -8.870921        4.906616
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ dfrce job=          12
+ vxcnsp: loc rmu=  -6.466217  rep=  -4.830275  q =   2.934625
+ spin 2:           -5.210940        -4.040646        1.971991
+  total:          -11.677156        -8.870921        4.906616
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ dfrce job=          12
+ dfrce job=          12
+ vxcnsp: loc rmu=  -7.299308  rep=  -5.273152  q =   4.557172
+ spin 2:           -2.969373        -2.565916        2.176246
+  total:          -10.268681        -7.839068        6.733418
+
+ local terms:     true           smooth         local
+ rhoeps:        -8.870921      -7.839068      -1.031853
+ rhomu:         -6.466217      -7.299308       0.833092
+ spin2:         -5.210940      -2.969373      -2.241567
+ total:        -11.677156     -10.268681      -1.408475
+ val*vef       -13.861896     -28.466862      14.604966
+ val chg:        2.906616       6.733418      -3.826802
+ val mmom:       -1.418292  core mmom:   0.000000
+ ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   2.92113   2.91761   0.00000   0.00000
  ibas l=  1  1 pnu(1:nsp) pnz(1:nsp)=   2.85000   2.85000   0.00000   0.00000
  ibas l=  1  2 pnu(1:nsp) pnz(1:nsp)=   3.14758   3.14758   0.00000   0.00000
- ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.10242   4.10242   0.00000   0.00000
-  mkpot:
-   Energy terms:           smooth           local           total
-   rhoval*veff            -28.966404        15.071787       -13.894617
-   rhoval*ves             -3.883349        -6.712846       -10.596195
-   psnuc*ves              14.852858      -283.272224      -268.419366
-   utot                    5.484754      -144.992535      -139.507781
-   rho*exc                -8.059017        -0.923859        -8.982876
-   rho*vxc               -10.553314        -1.268881       -11.822196
-   valence chg             6.913150        -3.913150         3.000000
-   valence mag             2.144152        -1.144152         1.000000
+ ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.10242   4.12000   0.00000   0.00000
+ mkpot:
+   Energy terms(Ry):       smooth           local           total
+   rhoval*veff            -28.493784        14.604966       -13.888818
+   Eestatic                 5.462981      -144.966025      -139.503044
+   rho*exc                 -7.956977        -1.031853        -8.988830
+   rho*vxc                -10.421533        -1.408475       -11.830008
+   valence chg              6.826802        -3.826802         3.000000
+   valence mag             2.418292        -1.418292         1.000000
    core charge             2.000000         0.000000         2.000000
    Charges:  valence     3.00000   cores     2.00000   nucleii    -6.00000
    hom background     1.00000   deviation from neutrality:     -0.00000
 
  m_mkehkf_etot2: Kohn-Sham energy:  Ek = Eband-Vin*nout
- Ek=       10.938137 Ekcore=        63.012036 Ektot    =       73.950173
- Exc=      -8.982876 Ees   =      -139.507781 EKohnSham=      -74.540484
+ Ek=       10.935385 Ekcore=        63.012586 Ektot    =       73.947971
+ Exc=      -8.988830 Ees   =      -139.503044 EKohnSham=      -74.543903
  Magnetic moment=     1.000000
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=       18726  -2.0841952205776447E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.20841952206776448E-3
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=       18726  -2.0841725939392840E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.20841725940392840E-3
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=       18726  -2.0841839072584644E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.20841839073584644E-3
+ dfrce job=          12
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 18672 -0.24244022827420104E-3
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 18672 -0.24243777888756401E-3
+ Maximum Harris force =   0.000000 mRy/au (site 1 )
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 18672 -0.24243900358088253E-3
+ Maximum Harris force =   0.000000 mRy/au (site 1 )
 
- Harris correction to forces: screened shift in core+nuclear density  
+ Harris correction to forces: no shift of atomic density
   ib         delta-n dVes             delta-n dVxc               total
  Maximum Harris force =   0.000000 mRy/au (site 1 )
    1   -0.00   -0.00   -0.00     0.00    0.00    0.00     0.00    0.00    0.00
@@ -881,135 +987,188 @@ Forces:
  Maximum Harris force =   0.000000 mRy/au (site 1 )
   Symmetrize forces ...
  wgtsmooth=   8.0000000000000002E-003
- Maximum Harris force =   0.000000 mRy/au (site 1 )
- Maximum Harris force =   0.000000 mRy/au (site 1 )
  mixrho: sought 2 iter from file mixm ; read 2 RMS DQ= 3.15E+0  last it= 4.72E+0
+ mmom      -103.334689      2.418292
  AMIX: nmix=2 mmix=8  nelts= 33302  beta=0.50000  tm= 5.00000  rmsdel= 1.57D+00
-   tj:-0.28865   0.21227
- mixrho: warning. negative smrho; isp number min=       1   10766 -0.22163D-03
- mixrho: warning. negative smrho; isp number min=       2    7226 -0.10869D-03
- mixrho: warning. negative smrho; isp number min=       1   10766 -0.22163D-03
- mixrho: warning. negative smrho; isp number min=       1   10766 -0.22163D-03
- mixrho: warning. negative smrho; isp number min=       2    7226 -0.10869D-03
- mixrho: warning. negative smrho; isp number min=       2    7226 -0.10869D-03
- mixrho: add corrections to qcell smrho =  0.43723D-06  0.21862D-09
- mixrho: warning. negative smrho; isp number min=       1   10766 -0.22163D-03
- mixrho: warning. negative smrho; isp number min=       2    7226 -0.10869D-03
+   tj:-1.61267   0.04822
+ mixrho: qcell,correction,qmx,summ =  0.87950D-07  0.43975D-10 -0.20516D+02  0.36744D+03
+ mixrho: warning. negative smrho; isp number min=   12868 -0.22163D-03
 
- iors  : write rst restart file (binary mesh density)
+iors: write rst restart file (binary mesh density)
 
-   it  3  of 10    ehf=     -74.511189   ehk=     -74.540484
- From last iter    ehf=     -74.536697   ehk=     -74.610072
- diffe(q)=  0.025508 (3.146534)    tol= 0.000010 (0.000500)   more=T
-i mmom= 1.0000 ehf(eV)=-1013.784330 ehk(eV)=-1014.182919 sev(eV)=-42.920761
+   it  3  of 10    ehf=     -74.549217   ehk=     -74.543903
+ From last iter    ehf=     -74.536697   ehk=     -74.546385
+ diffe(q)= -0.012520 (3.149723)    tol= 0.000010 (0.000500)   more=T
+i mmom= 1.0000 ehf(eV)=-1014.301736 ehk(eV)=-1014.229434 sev(eV)=-43.054303
 
 --- BNDFP:  begin iteration 4 of 10
  m_mkpot_init: Making one-particle potential ...
- Energy for background charge  q=  0.100000D+01 radius r= 6.2035049089939989 E=9/5*q*q/r= 0.29015855172296462
+ Energy for background charge q=  0.100000D+01 radius r= 6.2035049089939989 E=9/5*q*q/r= 0.29015855172296462
   esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
- smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst= 0.107728
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.396607   -0.111881
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.396607   -0.111881
+ smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst= 0.111881
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.396607   -0.111881
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.396607   -0.111881
  cell interaction energy from homogeneous background (q=  1.000000 ) is   0.290159
-   smooth rhoves      2.935135   charge    83.085025
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=       17992  -2.2162581010208213E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.22162581011208213E-3
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -27.476433 -20.011996 -0.269226
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -279.529657 -386.521480 -0.314507
+   smooth rhoves      4.410236   charge    24.516239
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 12868 -0.22163487493657004E-3
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -10.300642 -10.074606 -0.273741
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -41.812882 -58.639907 -0.281658
   locpot:
-   site  1  z=  6.0  rmt= 3.00000  nr=369   a=0.020  nlml=16  rg=0.750  Vfloat=T
- ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   2.92084   2.91944   0.00000   0.00000
+   site  1  z=  6.000  rmt= 3.00000  nr=369   a=0.020  nlml=16  rg=0.750  Vfloat=T
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu=  -6.433717  rep=  -4.807485  q =   2.924519
+ spin 2:           -5.206128        -4.035123        1.975097
+  total:          -11.639845        -8.842608        4.899616
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu=  -6.433717  rep=  -4.807485  q =   2.924519
+ spin 2:           -5.206128        -4.035123        1.975097
+  total:          -11.639845        -8.842608        4.899616
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu=  -9.992746  rep= -10.237175  q =   5.371000
+ spin 2:          -58.558522       -41.750523       18.044856
+  total:          -68.551268       -51.987698       23.415855
+
+ local terms:     true           smooth         local
+ rhoeps:        -8.842608     -51.987698      43.145090
+ rhomu:         -6.433717      -9.992746       3.559028
+ spin2:         -5.206128     -58.558522      53.352394
+ total:        -11.639845     -68.551268      56.911423
+ val*vef       -13.718270    -143.282481     129.564211
+ val chg:        2.899616      23.415855     -20.516239
+ val mmom:       13.623279  core mmom:  -0.000000
+ ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   2.92113   2.91761   0.00000   0.00000
  ibas l=  1  1 pnu(1:nsp) pnz(1:nsp)=   2.85000   2.85000   0.00000   0.00000
  ibas l=  1  2 pnu(1:nsp) pnz(1:nsp)=   3.14758   3.14758   0.00000   0.00000
- ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.10242   4.10242   0.00000   0.00000
-     potential shift to crystal energy zero:   -0.000458
-  mkpot:
-   Energy terms:           smooth           local           total
-   rhoval*veff           -596.178776       582.665338       -13.513438
-   rhoval*ves             -3.543568        -6.765925       -10.309492
-   psnuc*ves               9.413837      -277.188826      -267.774990
-   utot                    2.935135      -141.977376      -139.042241
-   rho*exc              -307.006090       298.081634        -8.924455
-   rho*vxc              -406.533476       394.788817       -11.744659
-   valence chg            82.085025       -79.085025         3.000000
-   valence mag           -65.509200        66.224668         0.715468
+ ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.10242   4.12000   0.00000   0.00000
+     potential shift to crystal energy zero:   -0.000000
+ mkpot:
+   Energy terms(Ry):       smooth           local           total
+   rhoval*veff           -143.316562       129.564211       -13.752351
+   Eestatic                 4.410236      -143.746746      -139.336510
+   rho*exc                -52.113524        43.145090        -8.968434
+   rho*vxc                -68.714513        56.911423       -11.803090
+   valence chg             23.516239       -20.516239         3.000000
+   valence mag           -12.670921        13.623279         0.952358
    core charge             2.000000         0.000000         2.000000
    Charges:  valence     3.00000   cores     2.00000   nucleii    -6.00000
    hom background     1.00000   deviation from neutrality:     -0.00000
  m_bandcal_init: start
  bndfp: kpt     1 of     3 k=  0.0000  0.0000  0.0000 ndimh = nmto+napw =     8    8    0
- ... Done MPI k-loop: elapsed time=   0.0368
-
+ ... Done MPI k-loop: elapsed time=   0.0466
  bzwts: --- Tetrahedron Integration ---
- BZINTS: Fermi energy:     -0.655639;   3.000000 electrons
-         Sum occ. bands:   -3.096185, incl. Bloechl correction: -0.000031
+ BZINTS: Fermi energy:     -0.628021;   3.000000 electrons
+         Sum occ. bands:   -2.999883, incl. Bloechl correction: -0.000038
          Mag. moment:       1.000000
- bndfp:Generating TDOS: efermi= -0.655639  dos window emin emax=  -1.286891  2.284283
+ bndfp:Generating TDOS: efermi(eV)= -8.544729 DOSwindow emin emax(eV)=  -17.142708  31.455271
 
-       contr. to mm extrapolated for r>rmt:   0.032287 est. true mm = 0.992461
+
+ m_bandcal_2nd: to fill eigenfunctions**2 up to Efermi
  getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3  4 
- sum q= 1.00  sum ec=   -20.39470  sum tc=    31.44898  rho(rmax) 0.00000
- sum q= 1.00  sum ec=   -20.35578  sum tc=    31.53824  rho(rmax) 0.00000
+ sum q= 1.00  sum ec=   -20.31172  sum tc=    31.42541  rho(rmax) 0.00000
+ sum q= 1.00  sum ec=   -20.26560  sum tc=    31.53018  rho(rmax) 0.00000
 
  mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
-   1    2.904071    6.762346   -3.858275      0.960173    2.289366   -1.329193
+   1    2.901913    7.014394   -4.112480      0.958221    2.176173   -1.217952
   Symmetrize density..
  Make new boundary conditions for phi,phidot..
 
  m_mkehkf_etot1: Harris energy: (B.1) in JPSJ84,034702
- Eb(band sum)=       -3.096185 Vin*nin=     -13.513438 Ek=Eb-Vin*nin=      10.417253
- Ek(core)=      63.005946 Exc=      -8.924455 Ees=    -139.042241 Eharris=     -74.543498
+ Eb(band sum)=       -2.999883 Vin*nin=     -13.752351 Ek=Eb-Vin*nin=      10.752469
+ Ek(core)=      63.006225 Exc=      -8.968434 Ees=    -139.336510 Eharris=     -74.546250
 
  mkekin:
-   nout*Vin = smpart,onsite,total=:    -31.943576     18.006786    -13.936790
-    E_B(band energy sum)=   -3.096185  E_B-nout*Vin=   10.840605
+   nout*Vin = smpart,onsite,total=:    -32.469693     18.753112    -13.716580
+    E_B(band energy sum)=   -2.999883  E_B-nout*Vin=   10.716698
 
  m_mkpot_energyterms
- Energy for background charge  q=  0.100000D+01 radius r= 6.2035049089939989 E=9/5*q*q/r= 0.29015855172296462
+ Energy for background charge q=  0.100000D+01 radius r= 6.2035049089939989 E=9/5*q*q/r= 0.29015855172296462
   esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
- smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst= 0.112822
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.398512   -0.112418
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.398512   -0.112418
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.398512   -0.112418
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.398512   -0.112418
+ smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst= 0.112418
  cell interaction energy from homogeneous background (q=  1.000000 ) is   0.290159
-   smooth rhoves      5.546507   charge     7.858275
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=        4412  -2.2035236553194769E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.22035236554194770E-3
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -5.277762 -7.289794 -0.272449
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -2.693345 -3.149323 -0.258123
+   smooth rhoves      5.718821   charge     8.112480
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 4334 -0.21919044238501460E-3
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -5.404904 -7.443963 -0.272924
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -2.953053 -3.501804 -0.258797
   locpot:
-   site  1  z=  6.0  rmt= 3.00000  nr=369   a=0.020  nlml=16  rg=0.750  Vfloat=F
- ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   2.92099   2.91795   0.00000   0.00000
+   site  1  z=  6.000  rmt= 3.00000  nr=369   a=0.020  nlml=16  rg=0.750  Vfloat=F
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu=  -6.436514  rep=  -4.809174  q =   2.930067
+ spin 2:           -5.200513        -4.031341        1.971846
+  total:          -11.637027        -8.840516        4.901913
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ dfrce job=          12
+ dfrce job=          12
+ vxcnsp: loc rmu=  -6.436514  rep=  -4.809174  q =   2.930067
+ spin 2:           -5.200513        -4.031341        1.971846
+  total:          -11.637027        -8.840516        4.901913
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ dfrce job=          12
+ vxcnsp: loc rmu=  -7.358907  rep=  -5.340473  q =   4.595283
+ spin 2:           -3.434068        -2.899627        2.419110
+  total:          -10.792976        -8.240100        7.014394
+
+ local terms:     true           smooth         local
+ rhoeps:        -8.840516      -8.240100      -0.600416
+ rhomu:         -6.436514      -7.358907       0.922393
+ spin2:         -5.200513      -3.434068      -1.766445
+ total:        -11.637027     -10.792976      -0.844051
+ val*vef       -13.688900     -30.207278      16.518377
+ val chg:        2.901913       7.014394      -4.112480
+ val mmom:       -1.217952  core mmom:   0.000000
+ ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   2.92047   2.91740   0.00000   0.00000
  ibas l=  1  1 pnu(1:nsp) pnz(1:nsp)=   2.85000   2.85000   0.00000   0.00000
  ibas l=  1  2 pnu(1:nsp) pnz(1:nsp)=   3.14758   3.14758   0.00000   0.00000
- ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.10242   4.10242   0.00000   0.00000
-  mkpot:
-   Energy terms:           smooth           local           total
-   rhoval*veff            -28.680232        14.864914       -13.815318
-   rhoval*ves             -3.840655        -6.686841       -10.527496
-   psnuc*ves              14.933669      -283.199765      -268.266096
-   utot                    5.546507      -144.943303      -139.396796
-   rho*exc                -7.971107        -1.003598        -8.974705
-   rho*vxc               -10.439117        -1.372255       -11.811372
-   valence chg             6.858275        -3.858275         3.000000
-   valence mag             2.329193        -1.329193         1.000000
+ ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.10242   4.12000   0.00000   0.00000
+ mkpot:
+   Energy terms(Ry):       smooth           local           total
+   rhoval*veff            -30.235040        16.518377       -13.716663
+   Eestatic                 5.718821      -144.976366      -139.257545
+   rho*exc                 -8.357958        -0.600416        -8.958373
+   rho*vxc                -10.945767        -0.844051       -11.789818
+   valence chg              7.112480        -4.112480         3.000000
+   valence mag             2.217951        -1.217952         1.000000
    core charge             2.000000         0.000000         2.000000
    Charges:  valence     3.00000   cores     2.00000   nucleii    -6.00000
    hom background     1.00000   deviation from neutrality:     -0.00000
 
  m_mkehkf_etot2: Kohn-Sham energy:  Ek = Eband-Vin*nout
- Ek=       10.840605 Ekcore=        62.987216 Ektot    =       73.827821
- Exc=      -8.974705 Ees   =      -139.396796 EKohnSham=      -74.543679
+ Ek=       10.716698 Ekcore=        62.955595 Ektot    =       73.672293
+ Exc=      -8.958373 Ees   =      -139.257545 EKohnSham=      -74.543625
  Magnetic moment=     1.000000
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=       17992  -2.2162681020872674E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.22162681021872674E-3
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=       17992  -2.2162480999543752E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.22162481000543752E-3
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=       17992  -2.2162581010208213E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.22162581011208213E-3
+ dfrce job=          12
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 12868 -0.22163561613449751E-3
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 12868 -0.22163413373864257E-3
  Maximum Harris force =   0.000000 mRy/au (site 1 )
+ Maximum Harris force =   0.000000 mRy/au (site 1 )
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 12868 -0.22163487493657004E-3
 
- Harris correction to forces: screened shift in core+nuclear density  
+ Harris correction to forces: no shift of atomic density
   ib         delta-n dVes             delta-n dVxc               total
  Maximum Harris force =   0.000000 mRy/au (site 1 )
- Maximum Harris force =   0.000000 mRy/au (site 1 )
-   1   -0.00   -0.00   -0.00     0.00    0.00    0.00     0.00    0.00    0.00
- shift forces to make zero average correction:            0.00    0.00    0.00
+   1    0.00   -0.00   -0.00     0.00    0.00    0.00    -0.00    0.00    0.00
+ shift forces to make zero average correction:           -0.00    0.00    0.00
 
 Forces:
   ib           estatic                  eigval                    total
@@ -1017,136 +1176,188 @@ Forces:
  Maximum Harris force =   0.000000 mRy/au (site 1 )
   Symmetrize forces ...
  wgtsmooth=   8.0000000000000002E-003
- mixrho: sought 2 iter from file mixm ; read 3 RMS DQ= 2.02E+0  last it= 3.15E+0
- AMIX: nmix=2 mmix=8  nelts= 33302  beta=0.50000  tm= 5.00000  rmsdel= 1.01D+00
-   tj:-1.23656  -0.22945
- mixrho: warning. negative smrho; isp number min=       1    4434 -0.28124D-03
- mixrho: warning. negative smrho; isp number min=       2    6430 -0.37405D-04
- mixrho: warning. negative smrho; isp number min=       1    4434 -0.28124D-03
- mixrho: warning. negative smrho; isp number min=       2    6430 -0.37405D-04
- mixrho: warning. negative smrho; isp number min=       1    4434 -0.28124D-03
- mixrho: warning. negative smrho; isp number min=       2    6430 -0.37405D-04
- mixrho: add corrections to qcell smrho =  0.78314D-07  0.39157D-10
- mixrho: warning. negative smrho; isp number min=       1    4434 -0.28124D-03
- mixrho: warning. negative smrho; isp number min=       2    6430 -0.37405D-04
+ mixrho: sought 2 iter from file mixm ; read 3 RMS DQ= 4.43E-1  last it= 3.15E+0
+ mmom       -12.670921      2.217951
+ AMIX: nmix=2 mmix=8  nelts= 33302  beta=0.50000  tm= 5.00000  rmsdel= 2.21D-01
+   tj: 0.35488  -0.32783
+ mixrho: qcell,correction,qmx,summ =  0.76501D-07  0.38251D-10 -0.39607D+01  0.10876D+03
+ mixrho: warning. negative smrho; isp number min=    4616 -0.21839D-03
 
- iors  : write rst restart file (binary mesh density)
+iors: write rst restart file (binary mesh density)
 
-   it  4  of 10    ehf=     -74.543498   ehk=     -74.543679
- From last iter    ehf=     -74.511189   ehk=     -74.540484
- diffe(q)= -0.032309 (2.016665)    tol= 0.000010 (0.000500)   more=T
-i mmom= 1.0000 ehf(eV)=-1014.223919 ehk(eV)=-1014.226390 sev(eV)=-42.126079
+   it  4  of 10    ehf=     -74.546250   ehk=     -74.543625
+ From last iter    ehf=     -74.549217   ehk=     -74.543903
+ diffe(q)=  0.002967 (0.442703)    tol= 0.000010 (0.000500)   more=T
+i mmom= 1.0000 ehf(eV)=-1014.261371 ehk(eV)=-1014.225652 sev(eV)=-40.815805
 
 --- BNDFP:  begin iteration 5 of 10
  m_mkpot_init: Making one-particle potential ...
- Energy for background charge  q=  0.100000D+01 radius r= 6.2035049089939989 E=9/5*q*q/r= 0.29015855172296462
+ Energy for background charge q=  0.100000D+01 radius r= 6.2035049089939989 E=9/5*q*q/r= 0.29015855172296462
   esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
- smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst= 0.112386
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.399779   -0.112776
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.399779   -0.112776
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.399779   -0.112776
+ smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst= 0.112776
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.399779   -0.112776
  cell interaction energy from homogeneous background (q=  1.000000 ) is   0.290159
-   smooth rhoves      5.636692   charge     7.707627
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=       10864  -2.8124465536371067E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.28124465537371064E-3
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -5.708213 -7.936304 -0.287902
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -2.138429 -2.345841 -0.265343
+   smooth rhoves      5.577045   charge     7.960683
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 4616 -0.21839494107975000E-3
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -5.319817 -7.336852 -0.272290
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -2.812680 -3.313630 -0.258092
   locpot:
-   site  1  z=  6.0  rmt= 3.00000  nr=369   a=0.020  nlml=16  rg=0.750  Vfloat=T
- vxcns2 (warning): nr*np=     11808  negative density # of points=         0       864
- vxcns2 (warning): nr*np=     11808  negative density # of points=         0       864
- vxcns2 (warning): nr*np=     11808  negative density # of points=         0       864
- vxcns2 (warning): nr*np=     11808  negative density # of points=         0       864
- vxcnsp (warning): negative rho: min val =  -2.45E-02
- ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   2.92099   2.91795   0.00000   0.00000
+   site  1  z=  6.000  rmt= 3.00000  nr=369   a=0.020  nlml=16  rg=0.750  Vfloat=T
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu=  -6.444450  rep=  -4.814854  q =   2.931057
+ spin 2:           -5.203781        -4.034141        1.971531
+  total:          -11.648231        -8.848995        4.902588
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu=  -6.444450  rep=  -4.814854  q =   2.931057
+ spin 2:           -5.203781        -4.034141        1.971531
+  total:          -11.648231        -8.848995        4.902588
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu=  -7.252499  rep=  -5.255919  q =   4.546656
+ spin 2:           -3.246217        -2.759508        2.316614
+  total:          -10.498716        -8.015427        6.863270
+
+ local terms:     true           smooth         local
+ rhoeps:        -8.848995      -8.015427      -0.833568
+ rhomu:         -6.444450      -7.252499       0.808049
+ spin2:         -5.203781      -3.246217      -1.957564
+ total:        -11.648231     -10.498716      -1.149515
+ val*vef       -13.737470     -29.273801      15.536331
+ val chg:        2.902588       6.863270      -3.960683
+ val mmom:       -1.270516  core mmom:  -0.000000
+ ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   2.92047   2.91740   0.00000   0.00000
  ibas l=  1  1 pnu(1:nsp) pnz(1:nsp)=   2.85000   2.85000   0.00000   0.00000
  ibas l=  1  2 pnu(1:nsp) pnz(1:nsp)=   3.14758   3.14758   0.00000   0.00000
- ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.10242   4.10242   0.00000   0.00000
-     potential shift to crystal energy zero:    0.000011
-  mkpot:
-   Energy terms:           smooth           local           total
-   rhoval*veff            -27.930264        14.066061       -13.864203
-   rhoval*ves             -3.758332        -6.747615       -10.505947
-   psnuc*ves              15.031717      -283.298267      -268.266551
-   utot                    5.636692      -145.022941      -139.386249
-   rho*exc                -7.846641        -1.207656        -9.054297
-   rho*vxc               -10.282145        -1.635847       -11.917992
-   valence chg             6.707627        -3.707627         3.000000
-   valence mag             3.259179        -1.703751         1.555428
+ ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.10242   4.12000   0.00000   0.00000
+     potential shift to crystal energy zero:    0.000000
+ mkpot:
+   Energy terms(Ry):       smooth           local           total
+   rhoval*veff            -29.301329        15.536331       -13.764999
+   Eestatic                 5.577045      -144.912131      -139.335086
+   rho*exc                 -8.132497        -0.833568        -8.966065
+   rho*vxc                -10.650483        -1.149515       -11.799997
+   valence chg              6.960683        -3.960683         3.000000
+   valence mag             2.270249        -1.270516         0.999733
    core charge             2.000000         0.000000         2.000000
    Charges:  valence     3.00000   cores     2.00000   nucleii    -6.00000
-   hom background     1.00000   deviation from neutrality:     -0.00000
+   hom background     1.00000   deviation from neutrality:      0.00000
  m_bandcal_init: start
  bndfp: kpt     1 of     3 k=  0.0000  0.0000  0.0000 ndimh = nmto+napw =     8    8    0
- ... Done MPI k-loop: elapsed time=   0.0362
-
+ ... Done MPI k-loop: elapsed time=   0.0447
  bzwts: --- Tetrahedron Integration ---
- BZINTS: Fermi energy:     -0.648467;   3.000000 electrons
-         Sum occ. bands:   -2.987727, incl. Bloechl correction: -0.000037
+ BZINTS: Fermi energy:     -0.623985;   3.000000 electrons
+         Sum occ. bands:   -2.988141, incl. Bloechl correction: -0.000039
          Mag. moment:       1.000000
- bndfp:Generating TDOS: efermi= -0.648467  dos window emin emax=  -1.280479  2.291455
+ bndfp:Generating TDOS: efermi(eV)= -8.489819 DOSwindow emin emax(eV)=  -17.090741  31.510181
 
-       contr. to mm extrapolated for r>rmt:   0.034188 est. true mm = 0.992510
+
+ m_bandcal_2nd: to fill eigenfunctions**2 up to Efermi
  getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3  4 
- sum q= 1.00  sum ec=   -20.30255  sum tc=    31.39856  rho(rmax) 0.00000
- sum q= 1.00  sum ec=   -20.22920  sum tc=    31.56335  rho(rmax) 0.00000
+ sum q= 1.00  sum ec=   -20.30359  sum tc=    31.42531  rho(rmax) 0.00000
+ sum q= 1.00  sum ec=   -20.25693  sum tc=    31.53090  rho(rmax) 0.00000
 
  mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
-   1    2.908730    8.378369   -5.469639      0.958322    1.505213   -0.546891
+   1    2.905396    7.789190   -4.883794      0.955893    1.666987   -0.711094
   Symmetrize density..
  Make new boundary conditions for phi,phidot..
 
  m_mkehkf_etot1: Harris energy: (B.1) in JPSJ84,034702
- Eb(band sum)=       -2.987727 Vin*nin=     -13.864203 Ek=Eb-Vin*nin=      10.876476
- Ek(core)=      62.996539 Exc=      -9.054297 Ees=    -139.386249 Eharris=     -74.567531
+ Eb(band sum)=       -2.988141 Vin*nin=     -13.764999 Ek=Eb-Vin*nin=      10.776858
+ Ek(core)=      62.980910 Exc=      -8.966065 Ees=    -139.335086 Eharris=     -74.543383
 
  mkekin:
-   nout*Vin = smpart,onsite,total=:    -36.740596     22.993281    -13.747315
-    E_B(band energy sum)=   -2.987727  E_B-nout*Vin=   10.759588
+   nout*Vin = smpart,onsite,total=:    -33.882242     20.151737    -13.730505
+    E_B(band energy sum)=   -2.988141  E_B-nout*Vin=   10.742364
 
  m_mkpot_energyterms
- Energy for background charge  q=  0.100000D+01 radius r= 6.2035049089939989 E=9/5*q*q/r= 0.29015855172296462
+ Energy for background charge q=  0.100000D+01 radius r= 6.2035049089939989 E=9/5*q*q/r= 0.29015855172296462
   esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
- smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst= 0.110967
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.395678   -0.111619
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.395678   -0.111619
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.395678   -0.111619
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.395678   -0.111619
+ smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst= 0.111619
  cell interaction energy from homogeneous background (q=  1.000000 ) is   0.290159
-   smooth rhoves      6.093302   charge     9.469639
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=        4496  -2.2786960695573248E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.22786960696573249E-3
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -6.184644 -8.357874 -0.275146
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -4.552646 -5.709168 -0.263308
+   smooth rhoves      5.934917   charge     8.883793
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 4366 -0.22343615376883833E-3
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -5.739599 -7.797707 -0.274164
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -3.930593 -4.868218 -0.261263
   locpot:
-   site  1  z=  6.0  rmt= 3.00000  nr=369   a=0.020  nlml=16  rg=0.750  Vfloat=F
- ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   2.91971   2.91256   0.00000   0.00000
+   site  1  z=  6.000  rmt= 3.00000  nr=369   a=0.020  nlml=16  rg=0.750  Vfloat=F
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu=  -6.436852  rep=  -4.809784  q =   2.930645
+ spin 2:           -5.206415        -4.035509        1.974752
+  total:          -11.643267        -8.845293        4.905396
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu=  -6.436852  rep=  -4.809784  q =   2.930645
+ spin 2:           -5.206415        -4.035509        1.974752
+  total:          -11.643267        -8.845293        4.905396
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ dfrce job=          12
+ dfrce job=          12
+ dfrce job=          12
+ vxcnsp: loc rmu=  -7.711238  rep=  -5.674040  q =   4.728088
+ spin 2:           -4.799311        -3.876316        3.061102
+  total:          -12.510549        -9.550355        7.789190
+
+ local terms:     true           smooth         local
+ rhoeps:        -8.845293      -9.550355       0.705062
+ rhomu:         -6.436852      -7.711238       1.274386
+ spin2:         -5.206415      -4.799311      -0.407105
+ total:        -11.643267     -12.510549       0.867282
+ val*vef       -13.706758     -34.974504      21.267745
+ val chg:        2.905396       7.789190      -4.883794
+ val mmom:       -0.711094  core mmom:   0.000000
+ ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   2.92022   2.91625   0.00000   0.00000
  ibas l=  1  1 pnu(1:nsp) pnz(1:nsp)=   2.85000   2.85000   0.00000   0.00000
  ibas l=  1  2 pnu(1:nsp) pnz(1:nsp)=   3.14758   3.14758   0.00000   0.00000
- ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.10242   4.10242   0.00000   0.00000
-  mkpot:
-   Energy terms:           smooth           local           total
-   rhoval*veff            -38.764624        25.021545       -13.743078
-   rhoval*ves             -3.398327        -7.062109       -10.460436
-   psnuc*ves              15.584930      -283.718240      -268.133310
-   utot                    6.093302      -145.390175      -139.296873
-   rho*exc               -10.737290         1.764428        -8.972862
-   rho*vxc               -14.067042         2.258242       -11.808800
-   valence chg             8.469639        -5.469639         3.000000
-   valence mag             1.546891        -0.546891         1.000000
+ ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.10242   4.12000   0.00000   0.00000
+ mkpot:
+   Energy terms(Ry):       smooth           local           total
+   rhoval*veff            -35.002147        21.267745       -13.734402
+   Eestatic                 5.934917      -145.214392      -139.279475
+   rho*exc                 -9.670193         0.705062        -8.965130
+   rho*vxc                -12.665925         0.867282       -11.798643
+   valence chg              7.883793        -4.883794         3.000000
+   valence mag             1.711093        -0.711094         1.000000
    core charge             2.000000         0.000000         2.000000
    Charges:  valence     3.00000   cores     2.00000   nucleii    -6.00000
    hom background     1.00000   deviation from neutrality:     -0.00000
 
  m_mkehkf_etot2: Kohn-Sham energy:  Ek = Eband-Vin*nout
- Ek=       10.759588 Ekcore=        62.961913 Ektot    =       73.721500
- Exc=      -8.972862 Ees   =      -139.296873 EKohnSham=      -74.548235
+ Ek=       10.742364 Ekcore=        62.956211 Ektot    =       73.698576
+ Exc=      -8.965130 Ees   =      -139.279475 EKohnSham=      -74.546029
  Magnetic moment=     1.000000
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=       10864  -2.8124538968238619E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.28124538969238617E-3
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=       10864  -2.8124392104503514E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.28124392105503512E-3
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=       10864  -2.8124465536371067E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.28124465537371064E-3
+ dfrce job=          12
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 4616 -0.21839560261813624E-3
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 4620 -0.21839427954136375E-3
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 4616 -0.21839494107975000E-3
+ Maximum Harris force =   0.000000 mRy/au (site 1 )
+ Maximum Harris force =   0.000000 mRy/au (site 1 )
 
- Harris correction to forces: screened shift in core+nuclear density  
+ Harris correction to forces: no shift of atomic density
   ib         delta-n dVes             delta-n dVxc               total
  Maximum Harris force =   0.000000 mRy/au (site 1 )
-   1   -0.00   -0.00    0.00     0.00    0.00    0.00     0.00    0.00   -0.00
- shift forces to make zero average correction:            0.00    0.00   -0.00
+   1    0.00   -0.00   -0.00     0.00    0.00    0.00    -0.00    0.00    0.00
+ shift forces to make zero average correction:           -0.00    0.00    0.00
 
 Forces:
   ib           estatic                  eigval                    total
@@ -1154,140 +1365,188 @@ Forces:
  Maximum Harris force =   0.000000 mRy/au (site 1 )
   Symmetrize forces ...
  wgtsmooth=   8.0000000000000002E-003
- Maximum Harris force =   0.000000 mRy/au (site 1 )
- Maximum Harris force =   0.000000 mRy/au (site 1 )
- mixrho: sought 2 iter from file mixm ; read 3 RMS DQ= 3.78E-2  last it= 2.02E+0
- AMIX: nmix=2 mmix=8  nelts= 33302  beta=0.50000  tm= 5.00000  rmsdel= 1.89D-02
-   tj: 1.73447  -1.10728
- mixrho: warning. negative smrho; isp number min=       1    4456 -0.26757D-03
- mixrho: warning. negative smrho; isp number min=       2    5988 -0.27682D-04
- mixrho: warning. negative smrho; isp number min=       1    4456 -0.26757D-03
- mixrho: warning. negative smrho; isp number min=       2    5988 -0.27682D-04
- mixrho: warning. negative smrho; isp number min=       1    4456 -0.26757D-03
- mixrho: warning. negative smrho; isp number min=       2    5988 -0.27682D-04
- mixrho: add corrections to qcell smrho =  0.93169D-07  0.46584D-10
- mixrho: warning. negative smrho; isp number min=       1    4456 -0.26757D-03
- mixrho: warning. negative smrho; isp number min=       2    5988 -0.27682D-04
+ mixrho: sought 2 iter from file mixm ; read 3 RMS DQ= 1.87E-2  last it= 4.43E-1
+ mmom         2.270249      1.711093
+ AMIX: nmix=2 mmix=8  nelts= 33302  beta=0.50000  tm= 5.00000  rmsdel= 9.37D-03
+   tj: 2.26115  -0.32326
+ mixrho: qcell,correction,qmx,summ =  0.83646D-07  0.41823D-10 -0.34518D+01  0.10081D+03
+ mixrho: warning. negative smrho; isp number min=    4350 -0.21607D-03
 
- iors  : write rst restart file (binary mesh density)
+iors: write rst restart file (binary mesh density)
 
-   it  5  of 10    ehf=     -74.567531   ehk=     -74.548235
- From last iter    ehf=     -74.543498   ehk=     -74.543679
- diffe(q)= -0.024034 (0.037843)    tol= 0.000010 (0.000500)   more=T
-i mmom= 1.0000 ehf(eV)=-1014.550914 ehk(eV)=-1014.288376 sev(eV)=-40.650422
+   it  5  of 10    ehf=     -74.543383   ehk=     -74.546029
+ From last iter    ehf=     -74.546250   ehk=     -74.543625
+ diffe(q)=  0.002868 (0.018734)    tol= 0.000010 (0.000500)   more=T
+i mmom= 1.0000 ehf(eV)=-1014.222355 ehk(eV)=-1014.258364 sev(eV)=-40.656046
 
 --- BNDFP:  begin iteration 6 of 10
  m_mkpot_init: Making one-particle potential ...
- Energy for background charge  q=  0.100000D+01 radius r= 6.2035049089939989 E=9/5*q*q/r= 0.29015855172296462
+ Energy for background charge q=  0.100000D+01 radius r= 6.2035049089939989 E=9/5*q*q/r= 0.29015855172296462
   esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
- smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst= 0.112116
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.401303   -0.113206
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.401303   -0.113206
+ smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst= 0.113206
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.401303   -0.113206
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.401303   -0.113206
  cell interaction energy from homogeneous background (q=  1.000000 ) is   0.290159
-   smooth rhoves      5.700974   charge     8.312583
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=       10444  -2.6756678331467474E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.26756678332467472E-3
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -5.824665 -8.036399 -0.284794
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -2.975211 -3.491720 -0.265747
+   smooth rhoves      5.472603   charge     7.451782
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 4350 -0.21607083878936038E-3
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -5.133888 -7.128991 -0.271564
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -2.189974 -2.463487 -0.256283
   locpot:
-   site  1  z=  6.0  rmt= 3.00000  nr=369   a=0.020  nlml=16  rg=0.750  Vfloat=T
- vxcns2 (warning): nr*np=     11808  negative density # of points=         0       736
- vxcns2 (warning): nr*np=     11808  negative density # of points=         0       736
- vxcns2 (warning): nr*np=     11808  negative density # of points=         0       736
- vxcns2 (warning): nr*np=     11808  negative density # of points=         0       736
- vxcnsp (warning): negative rho: min val =  -1.81E-02
- ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   2.91971   2.91256   0.00000   0.00000
+   site  1  z=  6.000  rmt= 3.00000  nr=369   a=0.020  nlml=16  rg=0.750  Vfloat=T
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu=  -6.444128  rep=  -4.814430  q =   2.930823
+ spin 2:           -5.200600        -4.031891        1.970070
+  total:          -11.644728        -8.846321        4.900893
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu=  -6.444128  rep=  -4.814430  q =   2.930823
+ spin 2:           -5.200600        -4.031891        1.970070
+  total:          -11.644728        -8.846321        4.900893
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu=  -7.045393  rep=  -5.070639  q =   4.469879
+ spin 2:           -2.396916        -2.137374        1.882796
+  total:           -9.442309        -7.208013        6.352675
+
+ local terms:     true           smooth         local
+ rhoeps:        -8.846321      -7.208013      -1.638308
+ rhomu:         -6.444128      -7.045393       0.601265
+ spin2:         -5.200600      -2.396916      -2.803684
+ total:        -11.644728      -9.442309      -2.202419
+ val*vef       -13.731069     -26.283641      12.552572
+ val chg:        2.900893       6.352675      -3.451782
+ val mmom:       -1.626329  core mmom:  -0.000000
+ ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   2.92022   2.91625   0.00000   0.00000
  ibas l=  1  1 pnu(1:nsp) pnz(1:nsp)=   2.85000   2.85000   0.00000   0.00000
  ibas l=  1  2 pnu(1:nsp) pnz(1:nsp)=   3.14758   3.14758   0.00000   0.00000
- ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.10242   4.10242   0.00000   0.00000
-     potential shift to crystal energy zero:    0.000008
-  mkpot:
-   Energy terms:           smooth           local           total
-   rhoval*veff            -31.506595        17.681306       -13.825288
-   rhoval*ves             -3.715190        -6.775215       -10.490406
-   psnuc*ves              15.117138      -283.325355      -268.208217
-   utot                    5.700974      -145.050285      -139.349311
-   rho*exc                -8.799875        -0.230301        -9.030176
-   rho*vxc               -11.528118        -0.357507       -11.885625
-   valence chg             7.312583        -4.312583         3.000000
-   valence mag             2.649782        -1.238315         1.411468
+ ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.10242   4.12000   0.00000   0.00000
+     potential shift to crystal energy zero:   -0.000000
+ mkpot:
+   Energy terms(Ry):       smooth           local           total
+   rhoval*veff            -26.311148        12.552572       -13.758576
+   Eestatic                 5.472603      -144.788009      -139.315406
+   rho*exc                 -7.323861        -1.638308        -8.962169
+   rho*vxc                 -9.592478        -2.202419       -11.794897
+   valence chg              6.451782        -3.451782         3.000000
+   valence mag             2.626380        -1.626329         1.000050
    core charge             2.000000         0.000000         2.000000
    Charges:  valence     3.00000   cores     2.00000   nucleii    -6.00000
    hom background     1.00000   deviation from neutrality:      0.00000
  m_bandcal_init: start
  bndfp: kpt     1 of     3 k=  0.0000  0.0000  0.0000 ndimh = nmto+napw =     8    8    0
- ... Done MPI k-loop: elapsed time=   0.0369
-
+ ... Done MPI k-loop: elapsed time=   0.0468
  bzwts: --- Tetrahedron Integration ---
- BZINTS: Fermi energy:     -0.642709;   3.000000 electrons
-         Sum occ. bands:   -2.989395, incl. Bloechl correction: -0.000038
+ BZINTS: Fermi energy:     -0.625216;   3.000000 electrons
+         Sum occ. bands:   -2.991780, incl. Bloechl correction: -0.000038
          Mag. moment:       1.000000
- bndfp:Generating TDOS: efermi= -0.642709  dos window emin emax=  -1.274698  2.297214
+ bndfp:Generating TDOS: efermi(eV)= -8.506565 DOSwindow emin emax(eV)=  -17.107953  31.493435
 
-       contr. to mm extrapolated for r>rmt:   0.033894 est. true mm = 0.992425
+
+ m_bandcal_2nd: to fill eigenfunctions**2 up to Efermi
  getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3  4 
- sum q= 1.00  sum ec=   -20.30494  sum tc=    31.40618  rho(rmax) 0.00000
- sum q= 1.00  sum ec=   -20.23891  sum tc=    31.55676  rho(rmax) 0.00000
+ sum q= 1.00  sum ec=   -20.30652  sum tc=    31.42632  rho(rmax) 0.00000
+ sum q= 1.00  sum ec=   -20.25965  sum tc=    31.53192  rho(rmax) 0.00000
 
  mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
-   1    2.907070    8.011035   -5.103965      0.958531    1.732259   -0.773728
+   1    2.906227    7.935228   -5.029001      0.955634    1.551712   -0.596077
   Symmetrize density..
  Make new boundary conditions for phi,phidot..
 
  m_mkehkf_etot1: Harris energy: (B.1) in JPSJ84,034702
- Eb(band sum)=       -2.989395 Vin*nin=     -13.825288 Ek=Eb-Vin*nin=      10.835894
- Ek(core)=      62.979231 Exc=      -9.030176 Ees=    -139.349311 Eharris=     -74.564363
+ Eb(band sum)=       -2.991780 Vin*nin=     -13.758576 Ek=Eb-Vin*nin=      10.766796
+ Ek(core)=      62.968561 Exc=      -8.962169 Ees=    -139.315406 Eharris=     -74.542218
 
  mkekin:
-   nout*Vin = smpart,onsite,total=:    -35.450302     21.713293    -13.737009
-    E_B(band energy sum)=   -2.989395  E_B-nout*Vin=   10.747614
+   nout*Vin = smpart,onsite,total=:    -34.081228     20.334948    -13.746279
+    E_B(band energy sum)=   -2.991780  E_B-nout*Vin=   10.754499
 
  m_mkpot_energyterms
- Energy for background charge  q=  0.100000D+01 radius r= 6.2035049089939989 E=9/5*q*q/r= 0.29015855172296462
+ Energy for background charge q=  0.100000D+01 radius r= 6.2035049089939989 E=9/5*q*q/r= 0.29015855172296462
   esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
- smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst= 0.111321
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.395194   -0.111482
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.395194   -0.111482
+
+ site class  ilm      vval      ves(rmax)
+
+   1     1     1   -0.395194   -0.111482
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.395194   -0.111482
+ smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst= 0.111482
  cell interaction energy from homogeneous background (q=  1.000000 ) is   0.290159
-   smooth rhoves      5.999088   charge     9.103965
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=        4454  -2.2817193067546507E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.22817193068546508E-3
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -6.004152 -8.165955 -0.275141
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -4.073889 -5.035914 -0.262707
+   smooth rhoves      5.967575   charge     9.029001
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 4382 -0.22473503303078676E-3
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -5.792097 -7.843389 -0.274443
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -4.136092 -5.160958 -0.261821
   locpot:
-   site  1  z=  6.0  rmt= 3.00000  nr=369   a=0.020  nlml=16  rg=0.750  Vfloat=F
- ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   2.91986   2.91398   0.00000   0.00000
+   site  1  z=  6.000  rmt= 3.00000  nr=369   a=0.020  nlml=16  rg=0.750  Vfloat=F
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu=  -6.438022  rep=  -4.810679  q =   2.930931
+ spin 2:           -5.207805        -4.036564        1.975296
+  total:          -11.645828        -8.847243        4.906227
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu=  -6.438022  rep=  -4.810679  q =   2.930931
+ spin 2:           -5.207805        -4.036564        1.975296
+  total:          -11.645828        -8.847243        4.906227
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ dfrce job=          12
+ dfrce job=          12
+ dfrce job=          12
+ vxcnsp: loc rmu=  -7.756541  rep=  -5.726236  q =   4.743470
+ spin 2:           -5.091665        -4.081528        3.191758
+  total:          -12.848206        -9.807764        7.935228
+
+ local terms:     true           smooth         local
+ rhoeps:        -8.847243      -9.807764       0.960521
+ rhomu:         -6.438022      -7.756541       1.318519
+ spin2:         -5.207805      -5.091665      -0.116141
+ total:        -11.645828     -12.848206       1.202378
+ val*vef       -13.715814     -35.889257      22.173443
+ val chg:        2.906227       7.935228      -5.029001
+ val mmom:       -0.596077  core mmom:  -0.000000
+ ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   2.92025   2.91602   0.00000   0.00000
  ibas l=  1  1 pnu(1:nsp) pnz(1:nsp)=   2.85000   2.85000   0.00000   0.00000
  ibas l=  1  2 pnu(1:nsp) pnz(1:nsp)=   3.14758   3.14758   0.00000   0.00000
- ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.10242   4.10242   0.00000   0.00000
-  mkpot:
-   Energy terms:           smooth           local           total
-   rhoval*veff            -36.418498        22.682895       -13.735603
-   rhoval*ves             -3.479127        -6.976607       -10.455734
-   psnuc*ves              15.477304      -283.598396      -268.121092
-   utot                    5.999088      -145.287502      -139.288413
-   rho*exc               -10.078041         1.107423        -8.970618
-   rho*vxc               -13.201869         1.396025       -11.805844
-   valence chg             8.103965        -5.103965         3.000000
-   valence mag             1.773728        -0.773728         1.000000
+ ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.10242   4.12000   0.00000   0.00000
+ mkpot:
+   Energy terms(Ry):       smooth           local           total
+   rhoval*veff            -35.916874        22.173443       -13.743430
+   Eestatic                 5.967575      -145.259338      -139.291763
+   rho*exc                 -9.928189         0.960521        -8.967668
+   rho*vxc                -13.004347         1.202378       -11.801969
+   valence chg              8.029001        -5.029001         3.000000
+   valence mag             1.596077        -0.596077         1.000000
    core charge             2.000000         0.000000         2.000000
    Charges:  valence     3.00000   cores     2.00000   nucleii    -6.00000
    hom background     1.00000   deviation from neutrality:     -0.00000
 
  m_mkehkf_etot2: Kohn-Sham energy:  Ek = Eband-Vin*nout
- Ek=       10.747614 Ekcore=        62.962936 Ektot    =       73.710551
- Exc=      -8.970618 Ees   =      -139.288413 EKohnSham=      -74.548480
+ Ek=       10.754499 Ekcore=        62.958240 Ektot    =       73.712739
+ Exc=      -8.967668 Ees   =      -139.291763 EKohnSham=      -74.546691
  Magnetic moment=     1.000000
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=       10444  -2.6756750756716280E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.26756750757716278E-3
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=       10444  -2.6756605906218673E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.26756605907218671E-3
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=       10444  -2.6756678331467479E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.26756678332467477E-3
+ dfrce job=          12
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 4350 -0.21607149278640725E-3
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 4350 -0.21607018479231351E-3
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 4350 -0.21607083878936038E-3
+ Maximum Harris force =   0.000000 mRy/au (site 1 )
+ Maximum Harris force =   0.000000 mRy/au (site 1 )
 
- Harris correction to forces: screened shift in core+nuclear density  
+ Harris correction to forces: no shift of atomic density
   ib         delta-n dVes             delta-n dVxc               total
  Maximum Harris force =   0.000000 mRy/au (site 1 )
- Maximum Harris force =   0.000000 mRy/au (site 1 )
- Maximum Harris force =   0.000000 mRy/au (site 1 )
-   1   -0.00   -0.00    0.00     0.00    0.00    0.00     0.00    0.00   -0.00
- shift forces to make zero average correction:            0.00    0.00   -0.00
+   1    0.00   -0.00   -0.00     0.00    0.00    0.00    -0.00    0.00    0.00
+ shift forces to make zero average correction:           -0.00    0.00    0.00
 
 Forces:
   ib           estatic                  eigval                    total
@@ -1295,135 +1554,188 @@ Forces:
  Maximum Harris force =   0.000000 mRy/au (site 1 )
   Symmetrize forces ...
  wgtsmooth=   8.0000000000000002E-003
- mixrho: sought 2 iter from file mixm ; read 3 RMS DQ= 1.61E-2  last it= 3.78E-2
- AMIX: nmix=2 mmix=8  nelts= 33302  beta=0.50000  tm= 5.00000  rmsdel= 8.03D-03
-   tj:-1.70415  -0.01087
- mixrho: warning. negative smrho; isp number min=       1    4432 -0.23676D-03
- mixrho: warning. negative smrho; isp number min=       2    2992 -0.48929D-05
- mixrho: warning. negative smrho; isp number min=       1    4432 -0.23676D-03
- mixrho: warning. negative smrho; isp number min=       2    2992 -0.48929D-05
- mixrho: warning. negative smrho; isp number min=       1    4432 -0.23676D-03
- mixrho: warning. negative smrho; isp number min=       2    2992 -0.48929D-05
- mixrho: add corrections to qcell smrho =  0.10804D-06  0.54019D-10
- mixrho: warning. negative smrho; isp number min=       1    4432 -0.23676D-03
- mixrho: warning. negative smrho; isp number min=       2    2992 -0.48929D-05
+ mixrho: sought 2 iter from file mixm ; read 3 RMS DQ= 3.34E-2  last it= 1.87E-2
+ mmom         2.626380      1.596077
+ AMIX: nmix=2 mmix=8  nelts= 33302  beta=0.50000  tm= 5.00000  rmsdel= 1.67D-02
+   tj: 3.16515  -0.02781
+ mixrho: qcell,correction,qmx,summ =  0.98896D-07  0.49448D-10 -0.45914D+01  0.11862D+03
+ mixrho: warning. negative smrho; isp number min=    4362 -0.22203D-03
 
- iors  : write rst restart file (binary mesh density)
+iors: write rst restart file (binary mesh density)
 
-   it  6  of 10    ehf=     -74.564363   ehk=     -74.548480
- From last iter    ehf=     -74.567531   ehk=     -74.548235
- diffe(q)=  0.003168 (0.016068)    tol= 0.000010 (0.000500)   more=T
-i mmom= 1.0000 ehf(eV)=-1014.507804 ehk(eV)=-1014.291713 sev(eV)=-40.673106
+   it  6  of 10    ehf=     -74.542218   ehk=     -74.546691
+ From last iter    ehf=     -74.543383   ehk=     -74.546029
+ diffe(q)=  0.001164 (0.033392)    tol= 0.000010 (0.000500)   more=T
+i mmom= 1.0000 ehf(eV)=-1014.206513 ehk(eV)=-1014.267374 sev(eV)=-40.705563
 
 --- BNDFP:  begin iteration 7 of 10
  m_mkpot_init: Making one-particle potential ...
- Energy for background charge  q=  0.100000D+01 radius r= 6.2035049089939989 E=9/5*q*q/r= 0.29015855172296462
+ Energy for background charge q=  0.100000D+01 radius r= 6.2035049089939989 E=9/5*q*q/r= 0.29015855172296462
   esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
- smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst= 0.111805
+
+ site class  ilm      vval      ves(rmax)
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.396621   -0.111885
+   1     1     1   -0.396621   -0.111885
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.396621   -0.111885
+ smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst= 0.111885
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.396621   -0.111885
  cell interaction energy from homogeneous background (q=  1.000000 ) is   0.290159
-   smooth rhoves      5.859789   charge     8.512463
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=        7424  -2.3676456146221525E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.23676456147221525E-3
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -5.785539 -7.955865 -0.277204
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -3.276363 -3.913931 -0.262666
+   smooth rhoves      5.856572   charge     8.591400
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 4362 -0.22202510935297488E-3
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -5.635265 -7.703722 -0.273661
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -3.530805 -4.301217 -0.260256
   locpot:
-   site  1  z=  6.0  rmt= 3.00000  nr=369   a=0.020  nlml=16  rg=0.750  Vfloat=T
- vxcns2 (warning): nr*np=     11808  negative density # of points=         0       320
- vxcns2 (warning): nr*np=     11808  negative density # of points=         0       320
- vxcns2 (warning): nr*np=     11808  negative density # of points=         0       320
- vxcns2 (warning): nr*np=     11808  negative density # of points=         0       320
- vxcnsp (warning): negative rho: min val =  -3.77E-03
- ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   2.91986   2.91398   0.00000   0.00000
+   site  1  z=  6.000  rmt= 3.00000  nr=369   a=0.020  nlml=16  rg=0.750  Vfloat=T
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu=  -6.439367  rep=  -4.811520  q =   2.930893
+ spin 2:           -5.206443        -4.035688        1.974111
+  total:          -11.645809        -8.847208        4.905004
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu=  -6.439367  rep=  -4.811520  q =   2.930893
+ spin 2:           -5.206443        -4.035688        1.974111
+  total:          -11.645809        -8.847208        4.905004
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu=  -7.617847  rep=  -5.570179  q =   4.693367
+ spin 2:           -4.232870        -3.476940        2.803037
+  total:          -11.850718        -9.047119        7.496405
+
+ local terms:     true           smooth         local
+ rhoeps:        -8.847208      -9.047119       0.199911
+ rhomu:         -6.439367      -7.617847       1.178481
+ spin2:         -5.206443      -4.232870      -0.973572
+ total:        -11.645809     -11.850718       0.204908
+ val*vef       -13.719949     -33.142856      19.422907
+ val chg:        2.905004       7.496405      -4.591400
+ val mmom:       -0.933548  core mmom:  -0.000000
+ ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   2.92025   2.91602   0.00000   0.00000
  ibas l=  1  1 pnu(1:nsp) pnz(1:nsp)=   2.85000   2.85000   0.00000   0.00000
  ibas l=  1  2 pnu(1:nsp) pnz(1:nsp)=   3.14758   3.14758   0.00000   0.00000
- ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.10242   4.10242   0.00000   0.00000
-     potential shift to crystal energy zero:    0.000008
-  mkpot:
-   Energy terms:           smooth           local           total
-   rhoval*veff            -32.720462        18.976557       -13.743905
-   rhoval*ves             -3.592681        -6.863623       -10.456305
-   psnuc*ves              15.312259      -283.445324      -268.133065
-   utot                    5.859789      -145.154474      -139.294685
-   rho*exc                -9.061901         0.081589        -8.980313
-   rho*vxc               -11.869797         0.050947       -11.818850
-   valence chg             7.512463        -4.512463         3.000000
-   valence mag             2.253283        -1.166432         1.086852
+ ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.10242   4.12000   0.00000   0.00000
+     potential shift to crystal energy zero:   -0.000000
+ mkpot:
+   Energy terms(Ry):       smooth           local           total
+   rhoval*veff            -33.170380        19.422907       -13.747473
+   Eestatic                 5.856572      -145.157062      -139.300490
+   rho*exc                 -9.166070         0.199911        -8.966159
+   rho*vxc                -12.004939         0.204908       -11.800031
+   valence chg              7.591400        -4.591400         3.000000
+   valence mag             1.933733        -0.933548         1.000185
    core charge             2.000000         0.000000         2.000000
    Charges:  valence     3.00000   cores     2.00000   nucleii    -6.00000
-   hom background     1.00000   deviation from neutrality:     -0.00000
+   hom background     1.00000   deviation from neutrality:      0.00000
  m_bandcal_init: start
  bndfp: kpt     1 of     3 k=  0.0000  0.0000  0.0000 ndimh = nmto+napw =     8    8    0
- ... Done MPI k-loop: elapsed time=   0.0380
-
+ ... Done MPI k-loop: elapsed time=   0.0488
  bzwts: --- Tetrahedron Integration ---
- BZINTS: Fermi energy:     -0.629537;   3.000000 electrons
-         Sum occ. bands:   -2.992874, incl. Bloechl correction: -0.000038
+ BZINTS: Fermi energy:     -0.624327;   3.000000 electrons
+         Sum occ. bands:   -2.989491, incl. Bloechl correction: -0.000039
          Mag. moment:       1.000000
- bndfp:Generating TDOS: efermi= -0.629537  dos window emin emax=  -1.261555  2.310386
+ bndfp:Generating TDOS: efermi(eV)= -8.494470 DOSwindow emin emax(eV)=  -17.094198  31.505530
 
-       contr. to mm extrapolated for r>rmt:   0.035470 est. true mm = 0.992239
+
+ m_bandcal_2nd: to fill eigenfunctions**2 up to Efermi
  getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3  4 
- sum q= 1.00  sum ec=   -20.31007  sum tc=    31.42363  rho(rmax) 0.00000
- sum q= 1.00  sum ec=   -20.25944  sum tc=    31.53922  rho(rmax) 0.00000
+ sum q= 1.00  sum ec=   -20.30792  sum tc=    31.42789  rho(rmax) 0.00000
+ sum q= 1.00  sum ec=   -20.26182  sum tc=    31.53291  rho(rmax) 0.00000
 
  mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
-   1    2.905756    7.792428   -4.886672      0.956769    1.717987   -0.761218
+   1    2.904970    7.684598   -4.779628      0.956107    1.742891   -0.786784
   Symmetrize density..
  Make new boundary conditions for phi,phidot..
 
  m_mkehkf_etot1: Harris energy: (B.1) in JPSJ84,034702
- Eb(band sum)=       -2.992874 Vin*nin=     -13.743905 Ek=Eb-Vin*nin=      10.751031
- Ek(core)=      62.971082 Exc=      -8.980313 Ees=    -139.294685 Eharris=     -74.552884
+ Eb(band sum)=       -2.989491 Vin*nin=     -13.747473 Ek=Eb-Vin*nin=      10.757982
+ Ek(core)=      62.963401 Exc=      -8.966159 Ees=    -139.300490 Eharris=     -74.545266
 
  mkekin:
-   nout*Vin = smpart,onsite,total=:    -34.693111     20.951272    -13.741839
-    E_B(band energy sum)=   -2.992874  E_B-nout*Vin=   10.748964
+   nout*Vin = smpart,onsite,total=:    -34.161427     20.431079    -13.730348
+    E_B(band energy sum)=   -2.989491  E_B-nout*Vin=   10.740857
 
  m_mkpot_energyterms
- Energy for background charge  q=  0.100000D+01 radius r= 6.2035049089939989 E=9/5*q*q/r= 0.29015855172296462
+ Energy for background charge q=  0.100000D+01 radius r= 6.2035049089939989 E=9/5*q*q/r= 0.29015855172296462
   esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
- smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst= 0.111608
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.396059   -0.111726
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.396059   -0.111726
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.396059   -0.111726
+ smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst= 0.111726
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.396059   -0.111726
  cell interaction energy from homogeneous background (q=  1.000000 ) is   0.290159
-   smooth rhoves      5.929878   charge     8.886672
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=        4384  -2.2350042179391759E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.22350042180391760E-3
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -5.783467 -7.867362 -0.274110
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -3.898255 -4.813946 -0.261254
+   smooth rhoves      5.905432   charge     8.779628
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 4360 -0.22231433098108142E-3
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -5.698143 -7.757858 -0.273886
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -3.790276 -4.669678 -0.260793
   locpot:
-   site  1  z=  6.0  rmt= 3.00000  nr=369   a=0.020  nlml=16  rg=0.750  Vfloat=F
- ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   2.92012   2.91588   0.00000   0.00000
+   site  1  z=  6.000  rmt= 3.00000  nr=369   a=0.020  nlml=16  rg=0.750  Vfloat=F
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu=  -6.436906  rep=  -4.809800  q =   2.930539
+ spin 2:           -5.206097        -4.035286        1.974431
+  total:          -11.643002        -8.845086        4.904970
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ dfrce job=          12
+ dfrce job=          12
+ vxcnsp: loc rmu=  -6.436906  rep=  -4.809800  q =   2.930539
+ spin 2:           -5.206097        -4.035286        1.974431
+  total:          -11.643002        -8.845086        4.904970
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ dfrce job=          12
+ vxcnsp: loc rmu=  -7.671767  rep=  -5.632880  q =   4.713744
+ spin 2:           -4.601137        -3.736274        2.970854
+  total:          -12.272904        -9.369154        7.684598
+
+ local terms:     true           smooth         local
+ rhoeps:        -8.845086      -9.369154       0.524069
+ rhomu:         -6.436906      -7.671767       1.234861
+ spin2:         -5.206097      -4.601137      -0.604959
+ total:        -11.643002     -12.272904       0.629902
+ val*vef       -13.705938     -34.319427      20.613489
+ val chg:        2.904970       7.684598      -4.779628
+ val mmom:       -0.786784  core mmom:   0.000000
+ ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   2.92024   2.91652   0.00000   0.00000
  ibas l=  1  1 pnu(1:nsp) pnz(1:nsp)=   2.85000   2.85000   0.00000   0.00000
  ibas l=  1  2 pnu(1:nsp) pnz(1:nsp)=   3.14758   3.14758   0.00000   0.00000
- ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.10242   4.10242   0.00000   0.00000
-  mkpot:
-   Energy terms:           smooth           local           total
-   rhoval*veff            -35.023131        21.284167       -13.738963
-   rhoval*ves             -3.538416        -6.922645       -10.461061
-   psnuc*ves              15.398171      -283.519397      -268.121226
-   utot                    5.929878      -145.221021      -139.291143
-   rho*exc                -9.681722         0.715031        -8.966691
-   rho*vxc               -12.681308         0.880597       -11.800711
-   valence chg             7.886672        -4.886672         3.000000
-   valence mag             1.761218        -0.761218         1.000000
+ ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.10242   4.12000   0.00000   0.00000
+ mkpot:
+   Energy terms(Ry):       smooth           local           total
+   rhoval*veff            -34.347046        20.613489       -13.733557
+   Eestatic                 5.905432      -145.188148      -139.282716
+   rho*exc                 -9.488419         0.524069        -8.964350
+   rho*vxc                -12.427536         0.629902       -11.797634
+   valence chg              7.779628        -4.779628         3.000000
+   valence mag             1.786783        -0.786784         1.000000
    core charge             2.000000         0.000000         2.000000
    Charges:  valence     3.00000   cores     2.00000   nucleii    -6.00000
    hom background     1.00000   deviation from neutrality:     -0.00000
 
  m_mkehkf_etot2: Kohn-Sham energy:  Ek = Eband-Vin*nout
- Ek=       10.748964 Ekcore=        62.962847 Ektot    =       73.711811
- Exc=      -8.966691 Ees   =      -139.291143 EKohnSham=      -74.546023
+ Ek=       10.740857 Ekcore=        62.960792 Ektot    =       73.701649
+ Exc=      -8.964350 Ees   =      -139.282716 EKohnSham=      -74.545418
  Magnetic moment=     1.000000
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=        7424  -2.3676525981708427E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.23676525982708427E-3
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=        7424  -2.3676386310734625E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.23676386311734625E-3
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=        7424  -2.3676456146221527E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.23676456147221528E-3
+ dfrce job=          12
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 4362 -0.22202578128545082E-3
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 4362 -0.22202443742049894E-3
+ Maximum Harris force =   0.000000 mRy/au (site 1 )
+ Maximum Harris force =   0.000000 mRy/au (site 1 )
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 4362 -0.22202510935297488E-3
 
- Harris correction to forces: screened shift in core+nuclear density  
+ Harris correction to forces: no shift of atomic density
   ib         delta-n dVes             delta-n dVxc               total
-   1   -0.00    0.00   -0.00     0.00    0.00    0.00     0.00   -0.00    0.00
- shift forces to make zero average correction:            0.00   -0.00    0.00
+ Maximum Harris force =   0.000000 mRy/au (site 1 )
+   1   -0.00   -0.00    0.00     0.00    0.00    0.00     0.00    0.00   -0.00
+ shift forces to make zero average correction:            0.00    0.00   -0.00
 
 Forces:
   ib           estatic                  eigval                    total
@@ -1431,415 +1743,373 @@ Forces:
  Maximum Harris force =   0.000000 mRy/au (site 1 )
   Symmetrize forces ...
  wgtsmooth=   8.0000000000000002E-003
- Maximum Harris force =   0.000000 mRy/au (site 1 )
- Maximum Harris force =   0.000000 mRy/au (site 1 )
- Maximum Harris force =   0.000000 mRy/au (site 1 )
- mixrho: sought 2 iter from file mixm ; read 3 RMS DQ= 1.02E-2  last it= 1.61E-2
- AMIX: nmix=2 mmix=8  nelts= 33302  beta=0.50000  tm= 5.00000  rmsdel= 5.08D-03
-   tj: 0.85181  -0.53390
- mixrho: warning. negative smrho; isp number min=       1    4428 -0.23220D-03
- mixrho: warning. negative smrho; isp number min=       2    2698 -0.29761D-05
- mixrho: warning. negative smrho; isp number min=       1    4428 -0.23220D-03
- mixrho: warning. negative smrho; isp number min=       1    4428 -0.23220D-03
- mixrho: warning. negative smrho; isp number min=       2    2698 -0.29761D-05
- mixrho: warning. negative smrho; isp number min=       2    2698 -0.29761D-05
- mixrho: add corrections to qcell smrho =  0.10879D-06  0.54396D-10
- mixrho: warning. negative smrho; isp number min=       1    4428 -0.23220D-03
- mixrho: warning. negative smrho; isp number min=       2    2698 -0.29761D-05
+ mixrho: sought 2 iter from file mixm ; read 3 RMS DQ= 4.39E-3  last it= 3.34E-2
+ mmom         1.933733      1.786783
+ AMIX: nmix=2 mmix=8  nelts= 33302  beta=0.50000  tm= 5.00000  rmsdel= 2.19D-03
+   tj:-0.41820   0.54164
+ mixrho: qcell,correction,qmx,summ =  0.98708D-07  0.49354D-10 -0.47291D+01  0.12077D+03
+ mixrho: warning. negative smrho; isp number min=    4358 -0.22223D-03
 
- iors  : write rst restart file (binary mesh density)
+iors: write rst restart file (binary mesh density)
 
-   it  7  of 10    ehf=     -74.552884   ehk=     -74.546023
- From last iter    ehf=     -74.564363   ehk=     -74.548480
- diffe(q)=  0.011478 (0.010157)    tol= 0.000010 (0.000500)   more=T
-i mmom= 1.0000 ehf(eV)=-1014.351633 ehk(eV)=-1014.258274 sev(eV)=-40.720451
+   it  7  of 10    ehf=     -74.545266   ehk=     -74.545418
+ From last iter    ehf=     -74.542218   ehk=     -74.546691
+ diffe(q)= -0.003048 (0.004386)    tol= 0.000010 (0.000500)   more=T
+i mmom= 1.0000 ehf(eV)=-1014.247986 ehk(eV)=-1014.250048 sev(eV)=-40.674419
 
 --- BNDFP:  begin iteration 8 of 10
  m_mkpot_init: Making one-particle potential ...
- Energy for background charge  q=  0.100000D+01 radius r= 6.2035049089939989 E=9/5*q*q/r= 0.29015855172296462
+ Energy for background charge q=  0.100000D+01 radius r= 6.2035049089939989 E=9/5*q*q/r= 0.29015855172296462
   esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
- smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst= 0.111732
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.396294   -0.111792
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.396294   -0.111792
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.396294   -0.111792
+ smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst= 0.111792
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.396294   -0.111792
  cell interaction energy from homogeneous background (q=  1.000000 ) is   0.290159
-   smooth rhoves      5.872950   charge     8.766212
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=        7126  -2.3220061901975655E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.23220061902975655E-3
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -5.817089 -7.947382 -0.276169
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -3.677727 -4.489437 -0.262509
+   smooth rhoves      5.881088   charge     8.729063
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 4358 -0.22222922494696091E-3
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -5.682272 -7.744668 -0.273795
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -3.722217 -4.572857 -0.260633
   locpot:
-   site  1  z=  6.0  rmt= 3.00000  nr=369   a=0.020  nlml=16  rg=0.750  Vfloat=T
- vxcns2 (warning): nr*np=     11808  negative density # of points=         0       256
- vxcns2 (warning): nr*np=     11808  negative density # of points=         0       256
- vxcnsp (warning): negative rho: min val =  -2.45E-03
- vxcns2 (warning): nr*np=     11808  negative density # of points=         0       256
- vxcns2 (warning): nr*np=     11808  negative density # of points=         0       256
- ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   2.92012   2.91588   0.00000   0.00000
+   site  1  z=  6.000  rmt= 3.00000  nr=369   a=0.020  nlml=16  rg=0.750  Vfloat=T
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu=  -6.438172  rep=  -4.810692  q =   2.930722
+ spin 2:           -5.206382        -4.035569        1.974323
+  total:          -11.644554        -8.846260        4.905045
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu=  -6.438172  rep=  -4.810692  q =   2.930722
+ spin 2:           -5.206382        -4.035569        1.974323
+  total:          -11.644554        -8.846260        4.905045
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu=  -7.658676  rep=  -5.617086  q =   4.708224
+ spin 2:           -4.504363        -3.668251        2.925884
+  total:          -12.163039        -9.285337        7.634107
+
+ local terms:     true           smooth         local
+ rhoeps:        -8.846260      -9.285337       0.439076
+ rhomu:         -6.438172      -7.658676       1.220504
+ spin2:         -5.206382      -4.504363      -0.702019
+ total:        -11.644554     -12.163039       0.518485
+ val*vef       -13.713551     -33.999608      20.286057
+ val chg:        2.905045       7.634107      -4.729063
+ val mmom:       -0.825942  core mmom:  -0.000000
+ ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   2.92024   2.91652   0.00000   0.00000
  ibas l=  1  1 pnu(1:nsp) pnz(1:nsp)=   2.85000   2.85000   0.00000   0.00000
  ibas l=  1  2 pnu(1:nsp) pnz(1:nsp)=   3.14758   3.14758   0.00000   0.00000
- ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.10242   4.10242   0.00000   0.00000
-     potential shift to crystal energy zero:    0.000006
-  mkpot:
-   Energy terms:           smooth           local           total
-   rhoval*veff            -34.275940        20.534037       -13.741903
-   rhoval*ves             -3.584950        -6.872873       -10.457823
-   psnuc*ves              15.330850      -283.456896      -268.126046
-   utot                    5.872950      -145.164885      -139.291934
-   rho*exc                -9.494816         0.519341        -8.975476
-   rho*vxc               -12.436819         0.624412       -11.812407
-   valence chg             7.766212        -4.766212         3.000000
-   valence mag             1.970141        -0.913546         1.056595
+ ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.10242   4.12000   0.00000   0.00000
+     potential shift to crystal energy zero:   -0.000000
+ mkpot:
+   Energy terms(Ry):       smooth           local           total
+   rhoval*veff            -34.027188        20.286057       -13.741131
+   Eestatic                 5.881088      -145.173378      -139.292290
+   rho*exc                 -9.404489         0.439076        -8.965413
+   rho*vxc                -12.317525         0.518485       -11.799040
+   valence chg              7.729063        -4.729063         3.000000
+   valence mag             1.825940        -0.825942         0.999998
    core charge             2.000000         0.000000         2.000000
    Charges:  valence     3.00000   cores     2.00000   nucleii    -6.00000
    hom background     1.00000   deviation from neutrality:      0.00000
  m_bandcal_init: start
  bndfp: kpt     1 of     3 k=  0.0000  0.0000  0.0000 ndimh = nmto+napw =     8    8    0
- ... Done MPI k-loop: elapsed time=   0.0376
-
+ ... Done MPI k-loop: elapsed time=   0.0466
  bzwts: --- Tetrahedron Integration ---
- BZINTS: Fermi energy:     -0.627889;   3.000000 electrons
-         Sum occ. bands:   -2.992036, incl. Bloechl correction: -0.000039
+ BZINTS: Fermi energy:     -0.624795;   3.000000 electrons
+         Sum occ. bands:   -2.990889, incl. Bloechl correction: -0.000039
          Mag. moment:       1.000000
- bndfp:Generating TDOS: efermi= -0.627889  dos window emin emax=  -1.259913  2.312033
+ bndfp:Generating TDOS: efermi(eV)= -8.500838 DOSwindow emin emax(eV)=  -17.100312  31.499162
 
-       contr. to mm extrapolated for r>rmt:   0.035508 est. true mm = 0.992208
+
+ m_bandcal_2nd: to fill eigenfunctions**2 up to Efermi
  getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3  4 
- sum q= 1.00  sum ec=   -20.30999  sum tc=    31.42542  rho(rmax) 0.00000
- sum q= 1.00  sum ec=   -20.26085  sum tc=    31.53731  rho(rmax) 0.00000
+ sum q= 1.00  sum ec=   -20.30953  sum tc=    31.42843  rho(rmax) 0.00000
+ sum q= 1.00  sum ec=   -20.26350  sum tc=    31.53333  rho(rmax) 0.00000
 
  mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
-   1    2.905317    7.711783   -4.806466      0.956700    1.761064   -0.804364
+   1    2.904951    7.664125   -4.759174      0.956214    1.760649   -0.804434
   Symmetrize density..
  Make new boundary conditions for phi,phidot..
 
  m_mkehkf_etot1: Harris energy: (B.1) in JPSJ84,034702
- Eb(band sum)=       -2.992036 Vin*nin=     -13.741903 Ek=Eb-Vin*nin=      10.749867
- Ek(core)=      62.966964 Exc=      -8.975476 Ees=    -139.291934 Eharris=     -74.550579
+ Eb(band sum)=       -2.990889 Vin*nin=     -13.741131 Ek=Eb-Vin*nin=      10.750242
+ Ek(core)=      62.962096 Exc=      -8.965413 Ees=    -139.292290 Eharris=     -74.545365
 
  mkekin:
-   nout*Vin = smpart,onsite,total=:    -34.442273     20.705375    -13.736897
-    E_B(band energy sum)=   -2.992036  E_B-nout*Vin=   10.744861
+   nout*Vin = smpart,onsite,total=:    -34.173935     20.440805    -13.733130
+    E_B(band energy sum)=   -2.990889  E_B-nout*Vin=   10.742241
 
  m_mkpot_energyterms
- Energy for background charge  q=  0.100000D+01 radius r= 6.2035049089939989 E=9/5*q*q/r= 0.29015855172296462
+ Energy for background charge q=  0.100000D+01 radius r= 6.2035049089939989 E=9/5*q*q/r= 0.29015855172296462
   esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
- smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst= 0.111690
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.396128   -0.111746
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.396128   -0.111746
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.396128   -0.111746
+ smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst= 0.111746
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.396128   -0.111746
  cell interaction energy from homogeneous background (q=  1.000000 ) is   0.290159
-   smooth rhoves      5.910005   charge     8.806466
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=        4374  -2.2280020389389943E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.22280020390389943E-3
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -5.739061 -7.816617 -0.273953
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -3.800587 -4.678291 -0.260943
+   smooth rhoves      5.898853   charge     8.759174
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 4362 -0.22260040390660834E-3
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -5.692484 -7.753850 -0.273932
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -3.761274 -4.628249 -0.260808
   locpot:
-   site  1  z=  6.0  rmt= 3.00000  nr=369   a=0.020  nlml=16  rg=0.750  Vfloat=F
- ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   2.92017   2.91618   0.00000   0.00000
+   site  1  z=  6.000  rmt= 3.00000  nr=369   a=0.020  nlml=16  rg=0.750  Vfloat=F
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu=  -6.437191  rep=  -4.809995  q =   2.930583
+ spin 2:           -5.206079        -4.035292        1.974368
+  total:          -11.643269        -8.845287        4.904951
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ dfrce job=          12
+ dfrce job=          12
+ vxcnsp: loc rmu=  -6.437191  rep=  -4.809995  q =   2.930583
+ spin 2:           -5.206079        -4.035292        1.974368
+  total:          -11.643269        -8.845287        4.904951
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ dfrce job=          12
+ vxcnsp: loc rmu=  -7.667669  rep=  -5.627154  q =   4.712387
+ spin 2:           -4.559613        -3.707198        2.951738
+  total:          -12.227282        -9.334352        7.664125
+
+ local terms:     true           smooth         local
+ rhoeps:        -8.845287      -9.334352       0.489065
+ rhomu:         -6.437191      -7.667669       1.230478
+ spin2:         -5.206079      -4.559613      -0.646465
+ total:        -11.643269     -12.227282       0.584013
+ val*vef       -13.707075     -34.191036      20.483960
+ val chg:        2.904951       7.664125      -4.759174
+ val mmom:       -0.804434  core mmom:   0.000000
+ ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   2.92025   2.91658   0.00000   0.00000
  ibas l=  1  1 pnu(1:nsp) pnz(1:nsp)=   2.85000   2.85000   0.00000   0.00000
  ibas l=  1  2 pnu(1:nsp) pnz(1:nsp)=   3.14758   3.14758   0.00000   0.00000
- ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.10242   4.10242   0.00000   0.00000
-  mkpot:
-   Energy terms:           smooth           local           total
-   rhoval*veff            -34.518145        20.781973       -13.736172
-   rhoval*ves             -3.555389        -6.903806       -10.459195
-   psnuc*ves              15.375398      -283.491600      -268.116202
-   utot                    5.910005      -145.197703      -139.287699
-   rho*exc                -9.539648         0.574105        -8.965543
-   rho*vxc               -12.494907         0.695701       -11.799207
-   valence chg             7.806466        -4.806466         3.000000
-   valence mag             1.804364        -0.804364         1.000000
+ ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.10242   4.12000   0.00000   0.00000
+ mkpot:
+   Energy terms(Ry):       smooth           local           total
+   rhoval*veff            -34.218670        20.483960       -13.734710
+   Eestatic                 5.898853      -145.183724      -139.284871
+   rho*exc                 -9.453759         0.489065        -8.964694
+   rho*vxc                -12.382098         0.584013       -11.798085
+   valence chg              7.759174        -4.759174         3.000000
+   valence mag             1.804434        -0.804434         1.000000
    core charge             2.000000         0.000000         2.000000
    Charges:  valence     3.00000   cores     2.00000   nucleii    -6.00000
    hom background     1.00000   deviation from neutrality:     -0.00000
 
  m_mkehkf_etot2: Kohn-Sham energy:  Ek = Eband-Vin*nout
- Ek=       10.744861 Ekcore=        62.962723 Ektot    =       73.707585
- Exc=      -8.965543 Ees   =      -139.287699 EKohnSham=      -74.545657
+ Ek=       10.742241 Ekcore=        62.961761 Ektot    =       73.704002
+ Exc=      -8.964694 Ees   =      -139.284871 EKohnSham=      -74.545563
  Magnetic moment=     1.000000
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=        7126  -2.3220131045662606E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.23220131046662606E-3
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=        7126  -2.3219992758288706E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.23219992759288707E-3
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=        7126  -2.3220061901975658E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.23220061902975658E-3
+ dfrce job=          12
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 4358 -0.22222989777938548E-3
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 4358 -0.22222855211453634E-3
+ Maximum Harris force =   0.000000 mRy/au (site 1 )
+ Maximum Harris force =   0.000000 mRy/au (site 1 )
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 4358 -0.22222922494696091E-3
 
- Harris correction to forces: screened shift in core+nuclear density  
+ Harris correction to forces: no shift of atomic density
   ib         delta-n dVes             delta-n dVxc               total
  Maximum Harris force =   0.000000 mRy/au (site 1 )
- Maximum Harris force =   0.000000 mRy/au (site 1 )
-   1   -0.00    0.00   -0.00     0.00    0.00    0.00     0.00   -0.00    0.00
- shift forces to make zero average correction:            0.00   -0.00    0.00
+   1   -0.00   -0.00    0.00     0.00    0.00    0.00     0.00    0.00   -0.00
+ shift forces to make zero average correction:            0.00    0.00   -0.00
 
 Forces:
   ib           estatic                  eigval                    total
    1    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
  Maximum Harris force =   0.000000 mRy/au (site 1 )
   Symmetrize forces ...
- Maximum Harris force =   0.000000 mRy/au (site 1 )
  wgtsmooth=   8.0000000000000002E-003
- mixrho: sought 2 iter from file mixm ; read 3 RMS DQ= 2.05E-3  last it= 1.02E-2
- AMIX: nmix=2 mmix=8  nelts= 33302  beta=0.50000  tm= 5.00000  rmsdel= 1.03D-03
-   tj:-0.35784   0.09766
- mixrho: warning. negative smrho; isp number min=       1    4400 -0.22855D-03
- mixrho: warning. negative smrho; isp number min=       2    2218 -0.18698D-05
- mixrho: warning. negative smrho; isp number min=       1    4400 -0.22855D-03
- mixrho: warning. negative smrho; isp number min=       1    4400 -0.22855D-03
- mixrho: warning. negative smrho; isp number min=       2    2218 -0.18698D-05
- mixrho: warning. negative smrho; isp number min=       2    2218 -0.18698D-05
- mixrho: add corrections to qcell smrho =  0.10486D-06  0.52430D-10
- mixrho: warning. negative smrho; isp number min=       1    4400 -0.22855D-03
- mixrho: warning. negative smrho; isp number min=       2    2218 -0.18698D-05
+ mixrho: sought 2 iter from file mixm ; read 3 RMS DQ= 6.38E-4  last it= 4.39E-3
+ mmom         1.825940      1.804434
+ AMIX: nmix=2 mmix=8  nelts= 33302  beta=0.50000  tm= 5.00000  rmsdel= 3.19D-04
+   tj:-0.12580  -0.00501
+ mixrho: qcell,correction,qmx,summ =  0.10800D-06  0.53999D-10 -0.47540D+01  0.12116D+03
+ mixrho: warning. negative smrho; isp number min=    4360 -0.22246D-03
 
- iors  : write rst restart file (binary mesh density)
+iors: write rst restart file (binary mesh density)
 
-   it  8  of 10    ehf=     -74.550579   ehk=     -74.545657
- From last iter    ehf=     -74.552884   ehk=     -74.546023
- diffe(q)=  0.002305 (0.002052)    tol= 0.000010 (0.000500)   more=T
-i mmom= 1.0000 ehf(eV)=-1014.320271 ehk(eV)=-1014.253301 sev(eV)=-40.709045
+   it  8  of 10    ehf=     -74.545365   ehk=     -74.545563
+ From last iter    ehf=     -74.545266   ehk=     -74.545418
+ diffe(q)= -0.000098 (0.000638)    tol= 0.000010 (0.000500)   more=T
+i mmom= 1.0000 ehf(eV)=-1014.249324 ehk(eV)=-1014.252019 sev(eV)=-40.693437
 
 --- BNDFP:  begin iteration 9 of 10
  m_mkpot_init: Making one-particle potential ...
- Energy for background charge  q=  0.100000D+01 radius r= 6.2035049089939989 E=9/5*q*q/r= 0.29015855172296462
+ Energy for background charge q=  0.100000D+01 radius r= 6.2035049089939989 E=9/5*q*q/r= 0.29015855172296462
   esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
- smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst= 0.111713
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.396184   -0.111762
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.396184   -0.111762
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.396184   -0.111762
+ smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst= 0.111762
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.396184   -0.111762
  cell interaction energy from homogeneous background (q=  1.000000 ) is   0.290159
-   smooth rhoves      5.886125   charge     8.809766
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=        6618  -2.2854772813891183E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.22854772814891183E-3
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -5.788879 -7.892558 -0.275355
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -3.772875 -4.631727 -0.261917
+   smooth rhoves      5.891972   charge     8.754015
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 4360 -0.22245567502426076E-3
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -5.691224 -7.752905 -0.273879
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -3.755176 -4.619562 -0.260752
   locpot:
-   site  1  z=  6.0  rmt= 3.00000  nr=369   a=0.020  nlml=16  rg=0.750  Vfloat=T
- vxcns2 (warning): nr*np=     11808  negative density # of points=         0       224
- vxcns2 (warning): nr*np=     11808  negative density # of points=         0       224
- vxcnsp (warning): negative rho: min val =  -1.72E-03
- vxcns2 (warning): nr*np=     11808  negative density # of points=         0       224
- vxcns2 (warning): nr*np=     11808  negative density # of points=         0       224
- ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   2.92017   2.91618   0.00000   0.00000
+   site  1  z=  6.000  rmt= 3.00000  nr=369   a=0.020  nlml=16  rg=0.750  Vfloat=T
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu=  -6.437607  rep=  -4.810292  q =   2.930643
+ spin 2:           -5.206238        -4.035431        1.974364
+  total:          -11.643845        -8.845723        4.905007
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu=  -6.437607  rep=  -4.810292  q =   2.930643
+ spin 2:           -5.206238        -4.035431        1.974364
+  total:          -11.643845        -8.845723        4.905007
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu=  -7.666802  rep=  -5.625952  q =   4.711674
+ spin 2:           -4.550979        -3.701141        2.947348
+  total:          -12.217781        -9.327093        7.659022
+
+ local terms:     true           smooth         local
+ rhoeps:        -8.845723      -9.327093       0.481369
+ rhomu:         -6.437607      -7.666802       1.229195
+ spin2:         -5.206238      -4.550979      -0.655259
+ total:        -11.643845     -12.217781       0.573936
+ val*vef       -13.709916     -34.157245      20.447329
+ val chg:        2.905007       7.659022      -4.754015
+ val mmom:       -0.808047  core mmom:  -0.000000
+ ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   2.92025   2.91658   0.00000   0.00000
  ibas l=  1  1 pnu(1:nsp) pnz(1:nsp)=   2.85000   2.85000   0.00000   0.00000
  ibas l=  1  2 pnu(1:nsp) pnz(1:nsp)=   3.14758   3.14758   0.00000   0.00000
- ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.10242   4.10242   0.00000   0.00000
-     potential shift to crystal energy zero:    0.000006
-  mkpot:
-   Energy terms:           smooth           local           total
-   rhoval*veff            -34.541641        20.799776       -13.741865
-   rhoval*ves             -3.574667        -6.885203       -10.459871
-   psnuc*ves              15.346916      -283.470418      -268.123502
-   utot                    5.886125      -145.177811      -139.291686
-   rho*exc                -9.561753         0.589650        -8.972103
-   rho*vxc               -12.524285         0.716348       -11.807936
-   valence chg             7.809766        -4.809766         3.000000
-   valence mag             1.876003        -0.835791         1.040212
+ ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.10242   4.12000   0.00000   0.00000
+     potential shift to crystal energy zero:    0.000000
+ mkpot:
+   Energy terms(Ry):       smooth           local           total
+   rhoval*veff            -34.184857        20.447329       -13.737528
+   Eestatic                 5.891972      -145.180124      -139.288152
+   rho*exc                 -9.446400         0.481369        -8.965030
+   rho*vxc                -12.372467         0.573936       -11.798531
+   valence chg              7.754015        -4.754015         3.000000
+   valence mag             1.808034        -0.808047         0.999987
    core charge             2.000000         0.000000         2.000000
    Charges:  valence     3.00000   cores     2.00000   nucleii    -6.00000
    hom background     1.00000   deviation from neutrality:      0.00000
  m_bandcal_init: start
  bndfp: kpt     1 of     3 k=  0.0000  0.0000  0.0000 ndimh = nmto+napw =     8    8    0
- ... Done MPI k-loop: elapsed time=   0.0378
-
+ ... Done MPI k-loop: elapsed time=   0.0454
  bzwts: --- Tetrahedron Integration ---
- BZINTS: Fermi energy:     -0.626936;   3.000000 electrons
-         Sum occ. bands:   -2.991602, incl. Bloechl correction: -0.000039
+ BZINTS: Fermi energy:     -0.625086;   3.000000 electrons
+         Sum occ. bands:   -2.991755, incl. Bloechl correction: -0.000039
          Mag. moment:       1.000000
- bndfp:Generating TDOS: efermi= -0.626936  dos window emin emax=  -1.258962  2.312986
+ bndfp:Generating TDOS: efermi(eV)= -8.504794 DOSwindow emin emax(eV)=  -17.104150  31.495206
 
-       contr. to mm extrapolated for r>rmt:   0.035614 est. true mm = 0.992196
+
+ m_bandcal_2nd: to fill eigenfunctions**2 up to Efermi
  getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3  4 
- sum q= 1.00  sum ec=   -20.30989  sum tc=    31.42635  rho(rmax) 0.00000
- sum q= 1.00  sum ec=   -20.26173  sum tc=    31.53615  rho(rmax) 0.00000
+ sum q= 1.00  sum ec=   -20.31041  sum tc=    31.42870  rho(rmax) 0.00000
+ sum q= 1.00  sum ec=   -20.26441  sum tc=    31.53353  rho(rmax) 0.00000
 
  mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
-   1    2.905146    7.683444   -4.778299      0.956581    1.770044   -0.813463
+   1    2.904989    7.662951   -4.757962      0.956250    1.763327   -0.807077
   Symmetrize density..
  Make new boundary conditions for phi,phidot..
 
  m_mkehkf_etot1: Harris energy: (B.1) in JPSJ84,034702
- Eb(band sum)=       -2.991602 Vin*nin=     -13.741865 Ek=Eb-Vin*nin=      10.750263
- Ek(core)=      62.964843 Exc=      -8.972103 Ees=    -139.291686 Eharris=     -74.548683
+ Eb(band sum)=       -2.991755 Vin*nin=     -13.737528 Ek=Eb-Vin*nin=      10.745773
+ Ek(core)=      62.961929 Exc=      -8.965030 Ees=    -139.288152 Eharris=     -74.545480
 
  mkekin:
-   nout*Vin = smpart,onsite,total=:    -34.334225     20.599218    -13.735007
-    E_B(band energy sum)=   -2.991602  E_B-nout*Vin=   10.743404
+   nout*Vin = smpart,onsite,total=:    -34.199951     20.464629    -13.735323
+    E_B(band energy sum)=   -2.991755  E_B-nout*Vin=   10.743567
 
  m_mkpot_energyterms
- Energy for background charge  q=  0.100000D+01 radius r= 6.2035049089939989 E=9/5*q*q/r= 0.29015855172296462
+ Energy for background charge q=  0.100000D+01 radius r= 6.2035049089939989 E=9/5*q*q/r= 0.29015855172296462
   esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
- smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst= 0.111719
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.396133   -0.111747
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.396133   -0.111747
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.396133   -0.111747
+ smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst= 0.111747
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.396133   -0.111747
  cell interaction energy from homogeneous background (q=  1.000000 ) is   0.290159
-   smooth rhoves      5.903400   charge     8.778299
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=        4374  -2.2295978904267503E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.22295978905267504E-3
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -5.718682 -7.791033 -0.273991
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -3.770805 -4.638033 -0.260926
+   smooth rhoves      5.897677   charge     8.757962
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 4362 -0.22266800526065766E-3
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -5.693520 -7.755761 -0.273940
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -3.758639 -4.624251 -0.260815
   locpot:
-   site  1  z=  6.0  rmt= 3.00000  nr=369   a=0.020  nlml=16  rg=0.750  Vfloat=F
- ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   2.92020   2.91634   0.00000   0.00000
+   site  1  z=  6.000  rmt= 3.00000  nr=369   a=0.020  nlml=16  rg=0.750  Vfloat=F
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu=  -6.437386  rep=  -4.810134  q =   2.930620
+ spin 2:           -5.206145        -4.035351        1.974370
+  total:          -11.643531        -8.845485        4.904989
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ dfrce job=          12
+ vxcnsp: loc rmu=  -6.437386  rep=  -4.810134  q =   2.930620
+ spin 2:           -5.206145        -4.035351        1.974370
+  total:          -11.643531        -8.845485        4.904989
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ dfrce job=          12
+ dfrce job=          12
+ vxcnsp: loc rmu=  -7.669568  rep=  -5.628179  q =   4.713139
+ spin 2:           -4.555596        -3.704548        2.949812
+  total:          -12.225164        -9.332727        7.662951
+
+ local terms:     true           smooth         local
+ rhoeps:        -8.845485      -9.332727       0.487242
+ rhomu:         -6.437386      -7.669568       1.232182
+ spin2:         -5.206145      -4.555596      -0.650549
+ total:        -11.643531     -12.225164       0.581633
+ val*vef       -13.708118     -34.183242      20.475124
+ val chg:        2.904989       7.662951      -4.757962
+ val mmom:       -0.807077  core mmom:   0.000000
+ ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   2.92025   2.91659   0.00000   0.00000
  ibas l=  1  1 pnu(1:nsp) pnz(1:nsp)=   2.85000   2.85000   0.00000   0.00000
  ibas l=  1  2 pnu(1:nsp) pnz(1:nsp)=   3.14758   3.14758   0.00000   0.00000
- ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.10242   4.10242   0.00000   0.00000
-  mkpot:
-   Energy terms:           smooth           local           total
-   rhoval*veff            -34.340645        20.605376       -13.735269
-   rhoval*ves             -3.561064        -6.897589       -10.458653
-   psnuc*ves              15.367864      -283.481912      -268.114048
-   utot                    5.903400      -145.189750      -139.286350
-   rho*exc                -9.489486         0.524184        -8.965303
-   rho*vxc               -12.429065         0.630179       -11.798887
-   valence chg             7.778299        -4.778299         3.000000
-   valence mag             1.813463        -0.813463         1.000000
+ ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.10242   4.12000   0.00000   0.00000
+ mkpot:
+   Energy terms(Ry):       smooth           local           total
+   rhoval*veff            -34.210873        20.475124       -13.735750
+   Eestatic                 5.897677      -145.184155      -139.286478
+   rho*exc                 -9.452159         0.487242        -8.964917
+   rho*vxc                -12.380012         0.581633       -11.798379
+   valence chg              7.757962        -4.757962         3.000000
+   valence mag             1.807077        -0.807077         1.000000
    core charge             2.000000         0.000000         2.000000
    Charges:  valence     3.00000   cores     2.00000   nucleii    -6.00000
    hom background     1.00000   deviation from neutrality:     -0.00000
 
  m_mkehkf_etot2: Kohn-Sham energy:  Ek = Eband-Vin*nout
- Ek=       10.743404 Ekcore=        62.962500 Ektot    =       73.705905
- Exc=      -8.965303 Ees   =      -139.286350 EKohnSham=      -74.545748
+ Ek=       10.743567 Ekcore=        62.962234 Ektot    =       73.705801
+ Exc=      -8.964917 Ees   =      -139.286478 EKohnSham=      -74.545594
  Magnetic moment=     1.000000
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=        6618  -2.2854841191692938E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.22854841192692938E-3
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=        6618  -2.2854704436089425E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.22854704437089425E-3
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=        6618  -2.2854772813891180E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.22854772814891180E-3
+ dfrce job=          12
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 4360 -0.22245634856014846E-3
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 4358 -0.22245500148837305E-3
+ Maximum Harris force =   0.000000 mRy/au (site 1 )
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 4360 -0.22245567502426076E-3
 
- Harris correction to forces: screened shift in core+nuclear density  
+ Harris correction to forces: no shift of atomic density
   ib         delta-n dVes             delta-n dVxc               total
- Maximum Harris force =   0.000000 mRy/au (site 1 )
- Maximum Harris force =   0.000000 mRy/au (site 1 )
- Maximum Harris force =   0.000000 mRy/au (site 1 )
-   1   -0.00   -0.00   -0.00     0.00    0.00    0.00     0.00    0.00    0.00
- shift forces to make zero average correction:            0.00    0.00    0.00
-
-Forces:
-  ib           estatic                  eigval                    total
-   1    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
- Maximum Harris force =   0.000000 mRy/au (site 1 )
-  Symmetrize forces ...
- wgtsmooth=   8.0000000000000002E-003
- mixrho: sought 2 iter from file mixm ; read 3 RMS DQ= 8.80E-4  last it= 2.05E-3
- AMIX: nmix=2 mmix=8  nelts= 33302  beta=0.50000  tm= 5.00000  rmsdel= 4.40D-04
-   tj:-2.81612   0.57016
- mixrho: warning. negative smrho; isp number min=       1    4376 -0.22333D-03
- mixrho: warning. negative smrho; isp number min=       2     406 -0.33290D-06
- mixrho: warning. negative smrho; isp number min=       1    4376 -0.22333D-03
- mixrho: warning. negative smrho; isp number min=       2     406 -0.33290D-06
- mixrho: add corrections to qcell smrho =  0.10191D-06  0.50955D-10
- mixrho: warning. negative smrho; isp number min=       1    4376 -0.22333D-03
- mixrho: warning. negative smrho; isp number min=       1    4376 -0.22333D-03
- mixrho: warning. negative smrho; isp number min=       2     406 -0.33290D-06
- mixrho: warning. negative smrho; isp number min=       2     406 -0.33290D-06
-
- iors  : write rst restart file (binary mesh density)
-
-   it  9  of 10    ehf=     -74.548683   ehk=     -74.545748
- From last iter    ehf=     -74.550579   ehk=     -74.545657
- diffe(q)=  0.001896 (0.000880)    tol= 0.000010 (0.000500)   more=T
-i mmom= 1.0000 ehf(eV)=-1014.294471 ehk(eV)=-1014.254541 sev(eV)=-40.703145
-
---- BNDFP:  begin iteration 10 of 10
- m_mkpot_init: Making one-particle potential ...
- Energy for background charge  q=  0.100000D+01 radius r= 6.2035049089939989 E=9/5*q*q/r= 0.29015855172296462
-  esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
- smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst= 0.111725
- cell interaction energy from homogeneous background (q=  1.000000 ) is   0.290159
-   smooth rhoves      5.904058   charge     8.761837
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=        4782  -2.2333151725975047E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.22333151726975048E-3
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -5.702228 -7.768636 -0.274137
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -3.756775 -4.620385 -0.260874
-  locpot:
-   site  1  z=  6.0  rmt= 3.00000  nr=369   a=0.020  nlml=16  rg=0.750  Vfloat=T
- vxcns2 (warning): nr*np=     11808  negative density # of points=         0       128
- vxcns2 (warning): nr*np=     11808  negative density # of points=         0       128
- vxcns2 (warning): nr*np=     11808  negative density # of points=         0       128
- vxcns2 (warning): nr*np=     11808  negative density # of points=         0       128
- vxcnsp (warning): negative rho: min val =  -3.91E-04
- ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   2.92020   2.91634   0.00000   0.00000
- ibas l=  1  1 pnu(1:nsp) pnz(1:nsp)=   2.85000   2.85000   0.00000   0.00000
- ibas l=  1  2 pnu(1:nsp) pnz(1:nsp)=   3.14758   3.14758   0.00000   0.00000
- ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.10242   4.10242   0.00000   0.00000
-     potential shift to crystal energy zero:    0.000006
-  mkpot:
-   Energy terms:           smooth           local           total
-   rhoval*veff            -34.236482        20.497614       -13.738867
-   rhoval*ves             -3.560048        -6.900991       -10.461039
-   psnuc*ves              15.368164      -283.487774      -268.119610
-   utot                    5.904058      -145.194382      -139.290324
-   rho*exc                -9.459003         0.492557        -8.966446
-   rho*vxc               -12.389021         0.588598       -11.800423
-   valence chg             7.761837        -4.761837         3.000000
-   valence mag             1.817655        -0.807320         1.010334
-   core charge             2.000000         0.000000         2.000000
-   Charges:  valence     3.00000   cores     2.00000   nucleii    -6.00000
-   hom background     1.00000   deviation from neutrality:     -0.00000
- m_bandcal_init: start
- bndfp: kpt     1 of     3 k=  0.0000  0.0000  0.0000 ndimh = nmto+napw =     8    8    0
- ... Done MPI k-loop: elapsed time=   0.0375
-
- bzwts: --- Tetrahedron Integration ---
- BZINTS: Fermi energy:     -0.625519;   3.000000 electrons
-         Sum occ. bands:   -2.991714, incl. Bloechl correction: -0.000039
-         Mag. moment:       1.000000
- bndfp:Generating TDOS: efermi= -0.625519  dos window emin emax=  -1.257541  2.314403
-
-       contr. to mm extrapolated for r>rmt:   0.035866 est. true mm = 0.992183
- getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3  4 
- sum q= 1.00  sum ec=   -20.31019  sum tc=    31.42791  rho(rmax) 0.00000
- sum q= 1.00  sum ec=   -20.26389  sum tc=    31.53424  rho(rmax) 0.00000
-
- mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
-   1    2.905016    7.665384   -4.760368      0.956317    1.766086   -0.809768
-  Symmetrize density..
- Make new boundary conditions for phi,phidot..
-
- m_mkehkf_etot1: Harris energy: (B.1) in JPSJ84,034702
- Eb(band sum)=       -2.991714 Vin*nin=     -13.738867 Ek=Eb-Vin*nin=      10.747153
- Ek(core)=      62.963672 Exc=      -8.966446 Ees=    -139.290324 Eharris=     -74.545946
-
- mkekin:
-   nout*Vin = smpart,onsite,total=:    -34.234261     20.499090    -13.735171
-    E_B(band energy sum)=   -2.991714  E_B-nout*Vin=   10.743457
-
- m_mkpot_energyterms
- Energy for background charge  q=  0.100000D+01 radius r= 6.2035049089939989 E=9/5*q*q/r= 0.29015855172296462
-  esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
- smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst= 0.111742
- cell interaction energy from homogeneous background (q=  1.000000 ) is   0.290159
-   smooth rhoves      5.898644   charge     8.760368
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=        4366  -2.2289711944693715E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.22289711945693716E-3
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -5.697996 -7.762329 -0.273988
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -3.758784 -4.623762 -0.260872
-  locpot:
-   site  1  z=  6.0  rmt= 3.00000  nr=369   a=0.020  nlml=16  rg=0.750  Vfloat=F
- ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   2.92025   2.91655   0.00000   0.00000
- ibas l=  1  1 pnu(1:nsp) pnz(1:nsp)=   2.85000   2.85000   0.00000   0.00000
- ibas l=  1  2 pnu(1:nsp) pnz(1:nsp)=   3.14758   3.14758   0.00000   0.00000
- ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.10242   4.10242   0.00000   0.00000
-  mkpot:
-   Energy terms:           smooth           local           total
-   rhoval*veff            -34.226477        20.490867       -13.735610
-   rhoval*ves             -3.565150        -6.894078       -10.459228
-   psnuc*ves              15.362437      -283.475729      -268.113292
-   utot                    5.898644      -145.184903      -139.286260
-   rho*exc                -9.456780         0.491714        -8.965066
-   rho*vxc               -12.386091         0.587518       -11.798573
-   valence chg             7.760368        -4.760368         3.000000
-   valence mag             1.809768        -0.809768         1.000000
-   core charge             2.000000         0.000000         2.000000
-   Charges:  valence     3.00000   cores     2.00000   nucleii    -6.00000
-   hom background     1.00000   deviation from neutrality:     -0.00000
-
- m_mkehkf_etot2: Kohn-Sham energy:  Ek = Eband-Vin*nout
- Ek=       10.743457 Ekcore=        62.962151 Ektot    =       73.705608
- Exc=      -8.965066 Ees   =      -139.286260 EKohnSham=      -74.545717
- Magnetic moment=     1.000000
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=        4782  -2.2333219118879916E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.22333219119879917E-3
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=        4782  -2.2333084333070179E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.22333084334070179E-3
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=        4782  -2.2333151725975047E-004
-  smvxcm: enforce positive smrho_w. Add srshift= 0.22333151726975048E-3
-
- Harris correction to forces: screened shift in core+nuclear density  
-  ib         delta-n dVes             delta-n dVxc               total
- Maximum Harris force =   0.000000 mRy/au (site 1 )
  Maximum Harris force =   0.000000 mRy/au (site 1 )
  Maximum Harris force =   0.000000 mRy/au (site 1 )
    1   -0.00   -0.00    0.00     0.00    0.00    0.00     0.00    0.00   -0.00
@@ -1851,23 +2121,207 @@ Forces:
  Maximum Harris force =   0.000000 mRy/au (site 1 )
   Symmetrize forces ...
  wgtsmooth=   8.0000000000000002E-003
- mixrho: sought 2 iter from file mixm ; read 3 RMS DQ= 8.29E-5  last it= 8.80E-4
- AMIX: nmix=2 mmix=8  nelts= 33302  beta=0.50000  tm= 5.00000  rmsdel= 4.14D-05
-   tj:-0.00689   0.00234
- mixrho: warning. negative smrho; isp number min=       1    4374 -0.22311D-03
- mixrho: warning. negative smrho; isp number min=       2     126 -0.14649D-06
- mixrho: warning. negative smrho; isp number min=       1    4374 -0.22311D-03
- mixrho: warning. negative smrho; isp number min=       2     126 -0.14649D-06
- mixrho: warning. negative smrho; isp number min=       1    4374 -0.22311D-03
- mixrho: warning. negative smrho; isp number min=       2     126 -0.14649D-06
- mixrho: add corrections to qcell smrho =  0.10451D-06  0.52253D-10
- mixrho: warning. negative smrho; isp number min=       1    4374 -0.22311D-03
- mixrho: warning. negative smrho; isp number min=       2     126 -0.14649D-06
+ mixrho: sought 2 iter from file mixm ; read 3 RMS DQ= 5.51E-5  last it= 6.38E-4
+ mmom         1.808034      1.807077
+ AMIX: nmix=2 mmix=8  nelts= 33302  beta=0.50000  tm= 5.00000  rmsdel= 2.76D-05
+   tj:-0.46424   0.05211
+ mixrho: qcell,correction,qmx,summ =  0.97195D-07  0.48597D-10 -0.47578D+01  0.12122D+03
+ mixrho: warning. negative smrho; isp number min=    4362 -0.22261D-03
 
- iors  : write rst restart file (binary mesh density)
+iors: write rst restart file (binary mesh density)
 
-   it 10  of 10    ehf=     -74.545946   ehk=     -74.545717
- From last iter    ehf=     -74.548683   ehk=     -74.545748
- diffe(q)=  0.002737 (0.000083)    tol= 0.000010 (0.000500)   more=F
-x mmom= 1.0000 ehf(eV)=-1014.257234 ehk(eV)=-1014.254117 sev(eV)=-40.704665
-Exit 0 procid= 0 OK! end of LMF ======================
+   it  9  of 10    ehf=     -74.545480   ehk=     -74.545594
+ From last iter    ehf=     -74.545365   ehk=     -74.545563
+ diffe(q)= -0.000116 (0.000055)    tol= 0.000010 (0.000500)   more=T
+i mmom= 1.0000 ehf(eV)=-1014.250896 ehk(eV)=-1014.252441 sev(eV)=-40.705224
+
+--- BNDFP:  begin iteration 10 of 10
+ m_mkpot_init: Making one-particle potential ...
+ Energy for background charge q=  0.100000D+01 radius r= 6.2035049089939989 E=9/5*q*q/r= 0.29015855172296462
+  esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.396144   -0.111750
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.396144   -0.111750
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.396144   -0.111750
+
+ site class  ilm      vval      ves(rmax)
+ smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst= 0.111750
+   1     1     1   -0.396144   -0.111750
+ cell interaction energy from homogeneous background (q=  1.000000 ) is   0.290159
+   smooth rhoves      5.896357   charge     8.757827
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 4362 -0.22260961556898066E-3
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -5.693341 -7.755463 -0.273923
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -3.758890 -4.624646 -0.260799
+  locpot:
+   site  1  z=  6.000  rmt= 3.00000  nr=369   a=0.020  nlml=16  rg=0.750  Vfloat=T
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu=  -6.437439  rep=  -4.810173  q =   2.930626
+ spin 2:           -5.206177        -4.035377        1.974371
+  total:          -11.643616        -8.845550        4.904997
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu=  -6.437439  rep=  -4.810173  q =   2.930626
+ spin 2:           -5.206177        -4.035377        1.974371
+  total:          -11.643616        -8.845550        4.904997
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu=  -7.669294  rep=  -5.628020  q =   4.712921
+ spin 2:           -4.556011        -3.704814        2.949903
+  total:          -12.225305        -9.332834        7.662824
+
+ local terms:     true           smooth         local
+ rhoeps:        -8.845550      -9.332834       0.487284
+ rhomu:         -6.437439      -7.669294       1.231856
+ spin2:         -5.206177      -4.556011      -0.650166
+ total:        -11.643616     -12.225305       0.581689
+ val*vef       -13.708621     -34.182056      20.473436
+ val chg:        2.904997       7.662824      -4.757827
+ val mmom:       -0.806763  core mmom:  -0.000000
+ ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   2.92025   2.91659   0.00000   0.00000
+ ibas l=  1  1 pnu(1:nsp) pnz(1:nsp)=   2.85000   2.85000   0.00000   0.00000
+ ibas l=  1  2 pnu(1:nsp) pnz(1:nsp)=   3.14758   3.14758   0.00000   0.00000
+ ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.10242   4.12000   0.00000   0.00000
+     potential shift to crystal energy zero:    0.000000
+ mkpot:
+   Energy terms(Ry):       smooth           local           total
+   rhoval*veff            -34.209682        20.473436       -13.736247
+   Eestatic                 5.896357      -145.183241      -139.286883
+   rho*exc                 -9.452231         0.487284        -8.964947
+   rho*vxc                -12.380109         0.581689       -11.798419
+   valence chg              7.757827        -4.757827         3.000000
+   valence mag             1.806759        -0.806763         0.999996
+   core charge             2.000000         0.000000         2.000000
+   Charges:  valence     3.00000   cores     2.00000   nucleii    -6.00000
+   hom background     1.00000   deviation from neutrality:      0.00000
+ m_bandcal_init: start
+ bndfp: kpt     1 of     3 k=  0.0000  0.0000  0.0000 ndimh = nmto+napw =     8    8    0
+ ... Done MPI k-loop: elapsed time=   0.0281
+ bzwts: --- Tetrahedron Integration ---
+ BZINTS: Fermi energy:     -0.625188;   3.000000 electrons
+         Sum occ. bands:   -2.992058, incl. Bloechl correction: -0.000039
+         Mag. moment:       1.000000
+ bndfp:Generating TDOS: efermi(eV)= -8.506182 DOSwindow emin emax(eV)=  -17.105496  31.493818
+
+
+ m_bandcal_2nd: to fill eigenfunctions**2 up to Efermi
+ getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3  4 
+ sum q= 1.00  sum ec=   -20.31070  sum tc=    31.42878  rho(rmax) 0.00000
+ sum q= 1.00  sum ec=   -20.26470  sum tc=    31.53359  rho(rmax) 0.00000
+
+ mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
+   1    2.905007    7.663791   -4.758784      0.956259    1.763479   -0.807220
+  Symmetrize density..
+ Make new boundary conditions for phi,phidot..
+
+ m_mkehkf_etot1: Harris energy: (B.1) in JPSJ84,034702
+ Eb(band sum)=       -2.992058 Vin*nin=     -13.736247 Ek=Eb-Vin*nin=      10.744188
+ Ek(core)=      62.962081 Exc=      -8.964947 Ees=    -139.286883 Eharris=     -74.545561
+
+ mkekin:
+   nout*Vin = smpart,onsite,total=:    -34.213646     20.477515    -13.736131
+    E_B(band energy sum)=   -2.992058  E_B-nout*Vin=   10.744073
+
+ m_mkpot_energyterms
+ Energy for background charge q=  0.100000D+01 radius r= 6.2035049089939989 E=9/5*q*q/r= 0.29015855172296462
+  esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.396130   -0.111746
+ smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst= 0.111746
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.396130   -0.111746
+ cell interaction energy from homogeneous background (q=  1.000000 ) is   0.290159
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.396130   -0.111746
+   smooth rhoves      5.897570   charge     8.758784
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 4362 -0.22268842642608042E-3
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1   -0.396130   -0.111746
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -5.694469 -7.757057 -0.273942
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -3.759306 -4.625078 -0.260818
+  locpot:
+   site  1  z=  6.000  rmt= 3.00000  nr=369   a=0.020  nlml=16  rg=0.750  Vfloat=F
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu=  -6.437454  rep=  -4.810183  q =   2.930633
+ spin 2:           -5.206175        -4.035377        1.974374
+  total:          -11.643630        -8.845560        4.905007
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ vxcnsp: loc rmu=  -6.437454  rep=  -4.810183  q =   2.930633
+ spin 2:           -5.206175        -4.035377        1.974374
+  total:          -11.643630        -8.845560        4.905007
+ dfrce job=          12
+ mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 369
+ dfrce job=          12
+ vxcnsp: loc rmu=  -7.670860  rep=  -5.629126  q =   4.713635
+ spin 2:           -4.556418        -3.705210        2.950156
+  total:          -12.227278        -9.334336        7.663791
+
+ local terms:     true           smooth         local
+ rhoeps:        -8.845560      -9.334336       0.488776
+ rhomu:         -6.437454      -7.670860       1.233406
+ spin2:         -5.206175      -4.556418      -0.649758
+ total:        -11.643630     -12.227278       0.583648
+ val*vef       -13.708512     -34.188327      20.479815
+ val chg:        2.905007       7.663791      -4.758784
+ val mmom:       -0.807220  core mmom:  -0.000000
+ ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   2.92025   2.91659   0.00000   0.00000
+ ibas l=  1  1 pnu(1:nsp) pnz(1:nsp)=   2.85000   2.85000   0.00000   0.00000
+ ibas l=  1  2 pnu(1:nsp) pnz(1:nsp)=   3.14758   3.14758   0.00000   0.00000
+ ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.10242   4.12000   0.00000   0.00000
+ mkpot:
+   Energy terms(Ry):       smooth           local           total
+   rhoval*veff            -34.215957        20.479815       -13.736142
+   Eestatic                 5.897570      -145.184623      -139.287052
+   rho*exc                 -9.453774         0.488776        -8.964998
+   rho*vxc                -12.382134         0.583648       -11.798486
+   valence chg              7.758784        -4.758784         3.000000
+   valence mag             1.807220        -0.807220         1.000000
+   core charge             2.000000         0.000000         2.000000
+   Charges:  valence     3.00000   cores     2.00000   nucleii    -6.00000
+   hom background     1.00000   deviation from neutrality:     -0.00000
+
+ m_mkehkf_etot2: Kohn-Sham energy:  Ek = Eband-Vin*nout
+ Ek=       10.744073 Ekcore=        62.962375 Ektot    =       73.706448
+ Exc=      -8.964998 Ees   =      -139.287052 EKohnSham=      -74.545603
+ Magnetic moment=     1.000000
+ dfrce job=          12
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 4362 -0.22261028955814654E-3
+ dfrce job=          12
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 4362 -0.22260894157981478E-3
+smvxcm: smrho_w<minimumrho  number,min(smrho_w)= 4362 -0.22260961556898066E-3
+ Maximum Harris force =   0.000000 mRy/au (site 1 )
+
+ Harris correction to forces: no shift of atomic density
+  ib         delta-n dVes             delta-n dVxc               total
+   1   -0.00    0.00    0.00     0.00    0.00    0.00     0.00   -0.00   -0.00
+ shift forces to make zero average correction:            0.00   -0.00   -0.00
+
+Forces:
+  ib           estatic                  eigval                    total
+   1    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+ Maximum Harris force =   0.000000 mRy/au (site 1 )
+  Symmetrize forces ...
+ wgtsmooth=   8.0000000000000002E-003
+ Maximum Harris force =   0.000000 mRy/au (site 1 )
+ Maximum Harris force =   0.000000 mRy/au (site 1 )
+ mixrho: sought 2 iter from file mixm ; read 3 RMS DQ= 1.53E-5  last it= 5.51E-5
+ mmom         1.806759      1.807220
+ AMIX: condition of normal eqns >100000. Reducing nmix to 1
+ AMIX: nmix=1 mmix=8  nelts= 33302  beta=0.50000  tm= 5.00000  rmsdel= 7.65D-06
+   tj:-0.13385
+ mixrho: qcell,correction,qmx,summ =  0.10277D-06  0.51385D-10 -0.47586D+01  0.12123D+03
+ mixrho: warning. negative smrho; isp number min=    4362 -0.22266D-03
+
+iors: write rst restart file (binary mesh density)
+
+   it 10  of 10    ehf=     -74.545561   ehk=     -74.545603
+ From last iter    ehf=     -74.545480   ehk=     -74.545594
+ diffe(q)= -0.000080 (0.000015)    tol= 0.000010 (0.000500)   more=F
+x mmom= 1.0000 ehf(eV)=-1014.251991 ehk(eV)=-1014.252564 sev(eV)=-40.709347
+ OK! end of LMF ======================

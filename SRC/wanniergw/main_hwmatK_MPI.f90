@@ -40,14 +40,15 @@ subroutine hwmatK_MPI()
   ! Apr 2002 takao kotani. multiple argumentation wave per l.
   ! This hsfp0 is build from hsec10.f by F.Aryasetiawan.
   !------------------------------------------------------------
-   use m_ftox
+  use m_ftox
   use m_readqg,only: readngmx2,ngcmx,ngpmx,readqg0,readqg
   use m_hamindex,only:   Readhamindex,symgg=>symops,ngrp,invg=>invgx
   use m_read_bzdata,only: Read_bzdata,qibz,irk,ginv,n1,n2,n3,nqbz,nqibz,nstar,nstbz,qbas=>qlat,qbz,wibz,wbz &
        ,nq0i=>nq0ix,wqt=>wt,q0i
   use m_readeigen,only: onoff_write_pkm4crpa,init_readeigen,init_readeigen2, &
        init_readeigen_mlw_noeval,  nwf !,init_readeigen_phi_noeval
-  use m_genallcf_v3,niwg=>niw
+  use m_genallcf_v3,only:niwg=>niw,alat,deltaw,esmr,icore,natom,nclass,iclass,nl,nlmto,nlnmc,nlnmv,nlnmc,nlnmx,nlnx
+  use m_genallcf_v3,only: genallcf_v3,ncore,nn,nnc,nspin,pos,plat
   use m_keyvalue,only: getkeyvalue
   use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
   use m_zmel_old,only: ppbafp_v2
@@ -647,7 +648,8 @@ subroutine hwmatK_MPI()
 
   nspinmx = nspin
   if (laf) nspinmx =1
-
+!  write(6,*)'iqqqqqqqqqqqqq', iqall,iaf,laf,nspinmx,nspin
+!  stop
   close(ifqpnt)
  call getkeyvalue("GWinput","wmat_all",lfull,default= .FALSE. )
 
@@ -938,8 +940,8 @@ endif
 
 
   ! loop over spin ----------------------------------------------------
-  do 2000 is = 1,nspinmx
-
+  spinloop: do 2000 is = 1,nspinmx
+     write(6,*)' ssssss spinloop',is,nspinmx
      ! initialise secq and kount
      kount = 0
      rw_w = 0d0
@@ -995,7 +997,7 @@ endif
         ! cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         write(*,*) 'wmatq in',irot_local,nrot_local_rotk
         shtv = matmul(symgg(:,:,irot),shtvg(:,invr))
-        write(6,ftox)' nnnnnnnnnn before wmatqk_mpi: nrws nrws1 nrws2',nrws,nrws1,nrws2
+!        write(6,ftox)' nnnnnnnnnn before wmatqk_mpi: nrws nrws1 nrws2',nrws,nrws1,nrws2
 
 
         call wmatqk_MPI (kount,irot,     1,   1,   1,  tiat(1:3,1:natom,invr),miat(1:natom,invr), &
@@ -1026,7 +1028,7 @@ endif
 1000 enddo
 
 
-     print *,'xxxxxxxxbbbbbbbbbbbbbbbbbbbb'
+!     print *,'xxxxxxxxbbbbbbbbbbbbbbbbbbbb'
      ! RS: accumulate zw
      allocate( rw_w_sum(nwf,nwf,nwf,nwf,nrws,0:nrw), &
           cw_w_sum(nwf,nwf,nwf,nwf,nrws,0:nrw), &
@@ -1090,8 +1092,8 @@ endif
                 lcrpa, lomega0)
         endif
      endif
-     continue !end of spin-loop
-2000 enddo
+!     continue !end of spin-loop
+2000 enddo spinloop
 
   !------------
   ! close files

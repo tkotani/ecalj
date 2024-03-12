@@ -1,5 +1,0 @@
-         The gdn test illustrates the LDA+U implementation, and an LDA calculation with:
-
-         the majority 4f levels in the core
-         the minority 4f levels in the core with no charge (tests partial core occupancy)
-

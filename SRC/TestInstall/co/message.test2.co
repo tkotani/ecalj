@@ -1,5 +1,0 @@
-         The Co test case illustrates partial dos resolved by both l and m.
-         Note: because the routine generating partial DOS within MT spheres
-         does not properly symmetrize it, symmetry operations must be
-         suppressed when resolving DOS by m.
-

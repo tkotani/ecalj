@@ -1,19 +1,6 @@
 #!/usr/bin/env python3
 import os,sys,re
-#print(sys.argv[1:])
-#f1= sys.argv[1]
-#f2= sys.argv[2]
-#label=sys.argv[3]
-#tol=sys.argv[4]
-#key=sys.argv[5]
 def comp(f1,f2,label,tol,key,key2=None):
-#    ix=0
-#    for i,dat in enumerate(sys.argv[:]):
-#        if(dat=='-v'):
-#            ix=i+1
-#            break
-#    if(ix!=0): key2=sys.argv[ix]
-    #print(len(f1))
     ix=0
     if(key2): ix=1
     val=[-9999,-9999]
@@ -38,10 +25,6 @@ def comp(f1,f2,label,tol,key,key2=None):
     print(keys)
     return out
 
-#import os,sys,re
-#f1= open(sys.argv[1],'rt').read().split('\n')
-#f2= open(sys.argv[2],'rt').read().split('\n')
-#tol= sys.argv[3]
 def compall(f1in,f2in,tol):
     f1= open(f1in,'rt').read().split('\n')
     f2= open(f2in,'rt').read().split('\n')
@@ -66,10 +49,6 @@ def compall(f1in,f2in,tol):
 def compeval(f1in,f2in,key,lineeval,evalso,tol):
     f1= open(f1in,'rt').read().split('\n')
     f2= open(f2in,'rt').read().split('\n')
-    #key = sys.argv[3]
-    #lineeval=sys.argv[4]
-    #evalso=sys.argv[5]
-    #tol=sys.argv[6]
     for ifi in [1,2]:
         if(ifi==1): fdat=f1
         if(ifi==2): fdat=f2
@@ -95,31 +74,115 @@ def compeval(f1in,f2in,key,lineeval,evalso,tol):
         out='ERR!'
     return out
 
-######## diffnum
 def diffnum(f1,f2,tol,comparekeys):
     import diffnum0
-    # ############### main ###################################
-    # try:
-    # 	print( "   Readin two files =     ", sys.argv[1], sys.argv[2])
-    # except:	
-    # 	print( "   take difference of numbers in two files")
-    # 	print( "   usage: diffnum FILE1 FILE2 'comparekeys' ")
-    # 	sys.exit()
     file1 = open(f1,'rt').read()
     file2 = open(f2,'rt').read()
-    #comparekeys=sys.argv[3:]
-    #print( ' Comparekeys=',comparekeys)
     errmax = diffnum0.comparenum(tol,file1,file2, comparekeys, printsw=0)
-    #print( 'end of comparenum')
     if(errmax<tol):
         print(' Comparison OK!  MaxDiff=',errmax,'< tol=',tol,' for ', os.path.basename(f2))
         out='ok! '
-        aaa='ok! for '+f2.split('work')[1]
+        aaa='PASSED! '+f2.split('work/')[1]
     else:
         print()
         print() 
         print(' Error! MaxDiff=',errmax,'> tol=',tol,' for ', os.path.basename(f2))
         out='err! '
-        aaa='failed at '+f2.split('/work')[1]
+        aaa='FAILED at '+f2.split('work/')[1]
+    with open("../summary.txt", "a") as aout: print(aaa, file=aout)
+    return out
+
+def compareqpu(qpu1,qpu2,printsw):
+	pr = (printsw==1)
+	oxx= qpu1.split('\n') 
+	oyy= qpu2.split('\n')
+	errmax=0.0
+	for ix in range( max(len(oxx),len(oyy))):
+		iline=oxx[ix]
+		ilin2=oyy[ix]
+		if ix==5:
+			if pr: print (iline)
+		if ix>=6:
+			if pr: print (iline[0:32],end='')
+			try:
+				for iw in range(4,17,1):
+					w1=float(iline.split()[iw])
+					w2=float(ilin2.split()[iw])
+					if (iw >=15) & pr : print( '%9.5f' % (w1-w2),end='')
+					if (iw <=14) & pr : print( '%6.2f' % (w1-w2),end='')
+					if( abs(w1-w2)>errmax ): errmax=abs(w1-w2)
+					#errmax=errmax + abs(w1-w2)
+				if pr: print()
+			except:
+				if pr: print(iline)
+	return errmax
+
+def dqpu(f1,f2):
+        qpu1 = open(f1,'rt').read()
+        qpu2 = open(f2,'rt').read()
+        errmax = compareqpu(qpu1,qpu2, printsw=0)
+        #errmax = compareqpu(qpu1,qpu2, printsw=0)
+        etol=1.1e-2
+        if(errmax<etol):
+                print(' Comparison OK! max(abs(QPU-QPU))=',errmax,' <etol=',etol,'for',os.path.basename(f2))
+                out='ok! '
+                aaa='PASSED! '+f2.split('work/')[1]
+        else:
+                errmax = compareqpu(qpu1,qpu2, printsw=1)
+                print() 
+                print(' Error! max(abs(QPU-QPU))=',errmax,'>etol=',etol,'for',os.path.basename(f2))
+                out='err! '
+                aaa='FAILED at '+f2.split('work/')[1]
+        with open("../summary.txt", "a") as aout: print(aaa, file=aout)
+        return out
+
+defatol1=1e-5
+dehf1tol1=1e-5
+dfmax1tol1=0.1
+dmom1tol1=1e-4
+dehf1toln=1e-5
+drmsqtol1=1e-4
+dosclstol=0.001 
+dorbmtol=1e-5
+    
+def test1_check(f1,f2):
+    print('compare '+f1 +' and '+f2)
+    test=  comp(f1,f2,'FA etot (last species)  ',defatol1, 'etot=' )
+    test+= comp(f1,f2,'1st  iter ehf.eV        ',dehf1tol1,'ehf\(eV\)=','^h')
+    test+= comp(f1,f2,'1st  iter ehk.eV        ',dehf1tol1,'ehk\(eV\)=','^h')
+    test+= comp(f1,f2,'1st  iter mmom          ',dmom1tol1,'mmom=','^h')
+    test+= comp(f1,f2,'2nd  iter ehf.Ry        ',dehf1toln,'ehf=','it  2')
+    test+= comp(f1,f2,'2nd  iter ehk.Ry        ',dehf1toln,'ehk=','it  2')
+    test+= comp(f1,f2,'9th  iter ehf.Ry        ',dehf1toln,'ehf=','it  9')
+    test+= comp(f1,f2,'9th  iter ehk.Ry        ',dehf1toln,'ehk=','it  9')
+    test+= comp(f1,f2,'last iter x ehf.eV      ',dehf1toln,'ehf\(eV\)=','^x')
+    test+= comp(f1,f2,'last iter x ehk.eV      ',dehf1toln,'ehk\(eV\)=','^x')
+    test+= comp(f1,f2,'last iter c ehf.eV      ',dehf1toln,'ehf\(eV\)=','^c')
+    test+= comp(f1,f2,'last iter c ehk.eV      ',dehf1toln,'ehk\(eV\)=','^c')
+    test+= comp(f1,f2,'last iter E(LDA+U).eV   ',dehf1toln,'Etot\(LDA+U\)=')
+    test+= comp(f1,f2,'last iter max force     ',dfmax1tol1,'Maximum Harris force =')
+    test+= comp(f1,f2,'last iter mmom          ',dmom1tol1,'mmom=')
+    test+= comp(f1,f2,'chk1ch last iter RMS dq ',drmsqtol1,'RMS DQ=')
+    test+= comp(f1,f2,'Orbital moment          ',dorbmtol,'total orbital moment   1:')
+    test+= comp(f1,f2,'last iter ehf.eV E(MTO+PW)',dehf1toln,'pwmode=[^0].*ehf\(eV\)=')
+    test+= comp(f1,f2,'last iter ehk E(MTO+PW)  ',dehf1toln, 'pwmode=[^0].*ehk\(eV\)=')
+    #print(test)
+    if('ERR!' in test) :
+        aaa=' FAILED! TEST 1 compare files:'+f1+' and '+f2
+        out='err! '
+    else: 
+        aaa='PASSED! TEST 1 '+os.path.basename(f2)
+        out='ok! '
+    with open("../summary.txt", "a") as aout: print(aaa, file=aout)
+    return out
+
+def test2_check(f1,f2):
+    test=compall(f1,f2, dosclstol)
+    if('ERR!' in test) :
+        aaa='FAILED! TEST 2 comparison comparison files:'+f1+' and '+f2
+        out='err! '
+    else: 
+        aaa='PASSED! TEST 2 '+os.path.basename(f2)
+        out='ok! '
     with open("../summary.txt", "a") as aout: print(aaa, file=aout)
     return out

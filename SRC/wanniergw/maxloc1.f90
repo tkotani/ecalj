@@ -352,7 +352,7 @@ subroutine   getupu(isc, &
      i1= ikbo_i(ibb)
      i2= ikbo_f(ibb)
      do concurrent(inp=i1:i2, imp=i1:i2) !wmat = cnk * cnk^{*} is projector to 'wannier space'.
-        wmat(inp,imp)= sum(dconjg(cnk(inp,1:nwf,iqb))*cnk(imp,1:nwf,iqb)) !BUG-> range of sum was nin+1,nwf before 2023-6-8
+        wmat(inp,imp)= sum(dconjg(cnk(inp,1:nwf,iqb))*cnk(imp,1:nwf,iqb)) !miyake BUG-> range of sum was nin+1,nwf before 2023-6-8
      enddo
      do concurrent(in=iko_i:iko_f, imp=i1:i2)
         wmat2(imp,in)= sum(dconjg(uumat(in,i1:i2,ibb)) * wmat(i1:i2,imp))

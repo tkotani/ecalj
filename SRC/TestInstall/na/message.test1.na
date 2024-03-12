@@ -1,6 +1,0 @@
-         The na test also illustrates the following:
-
-         1.  compare the total energy for conventional and extended Na 2p orbitals
-             After the test finishes, compare the three energies with
-               grep ^c out.lmf.na
-

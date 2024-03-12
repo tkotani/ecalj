@@ -1,4 +1,7 @@
+=== 2024-3-12 new test system in python ===
 Usage:
+./ecalj
+
 >make target mpi_size=8
 1.Default mpi_size=4
 

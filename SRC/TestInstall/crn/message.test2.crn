@@ -1,6 +1,0 @@
-         The CrN test case generates core-level spectroscopy for the
-         1s state in N.  The self-consistent calculation proceeds with
-         an electron missing from the N 1s core, which corresponds to
-         the 'sudden approximation' (system relaxes instantanously
-         from electron exited out of hole).
-
