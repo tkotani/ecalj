@@ -8,6 +8,8 @@ else()
     message("=== Your choices to run cmake are: ===")
     message(" >FC=ifort cmake .")
     message(" >FC=ifort DEBUG=1 cmake .")
+    message(" >FC=gfortran9 cmake .")
+    message(" >FC=gfortran9 DEBUG=1 cmake .")
     message(" >FC=gfortran cmake .")
     message(" >FC=gfortran DEBUG=1 cmake .")
     message(" >FC=nvfortran cmake .")
@@ -22,7 +24,9 @@ Project (ecalj)
 #SET(CMAKE_VERBOSE_MAKEFILE ON)
 enable_language(Fortran)
 # Note: we always renew show_programinfo.f90 because of Makeshow is always invoked. How to improve this?
-add_custom_target(show_programinfo.f90 ALL COMMAND make -f Makeshow WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+add_custom_target(show_prog COMMAND make -f Makeshow WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+  DEPENDS "../subroutines/*.f90" "../wanniergw/*.f90" "../main/*.f90"
+  )
 file(GLOB SOURCES  "../subroutines/*.f90" "../wanniergw/*.f90" "../subroutines/show_programinfo.f90") # source files
 file(GLOB MAINS    "../main/*.f90") # main source files
 set(LIBRARY_NAME ecaljF)            # library name is libecaljF.so
@@ -53,6 +57,11 @@ message(STATUS "DEBUG= ${DEBUG}")
 if(FC MATCHES "gfortran")
   set(CMAKE_Fortran_COMPILER mpif90)    # compiler
   set(CMAKE_Fortran_FLAGS "-w -g -fno-strict-aliasing -fallow-argument-mismatch -fimplicit-none -finit-integer=NaN -finit-real=NaN -fPIC") # compile flags
+  set(LIB ${LIBRARY_NAME} -lmkl_rt)  #set LIB variable
+  add_link_options(-lmkl_rt)
+elseif(FC MATCHES "gfortran9")
+  set(CMAKE_Fortran_COMPILER mpif90)    # compiler
+  set(CMAKE_Fortran_FLAGS "-g -fimplicit-none -finit-integer=NaN -finit-real=NaN -fPIC") # compile flags
   set(LIB ${LIBRARY_NAME} -lmkl_rt)  #set LIB variable
   add_link_options(-lmkl_rt)
 elseif(FC MATCHES "ifort")
