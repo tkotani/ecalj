@@ -36,6 +36,7 @@ subroutine hmaxloc()
   use m_readhbe,only:Readhbe,nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
   use m_hamindex0,only: readhamindex0,iclasst
   use m_mksym_util,only:mptauof
+  use m_MPItk,only: m_MPItk_init
   implicit none
   !------------------------------------
   real(8),allocatable:: r0g(:,:), wphi(:,:)
@@ -190,6 +191,7 @@ subroutine hmaxloc()
   integer:: ierr
   include 'mpif.h'
   call mpi_init(ierr)
+  call m_MPItk_init(MPI_COMM_WORLD)
   hartree=2d0*rydberg()
   iii=verbose()
   write(6,*)' verbose=',iii

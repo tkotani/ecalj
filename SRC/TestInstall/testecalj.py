@@ -17,7 +17,7 @@ npsize='4' #default
 np=False
 showt=False
 for arg in sys.argv[1:]:
-    if(arg=='show'):
+    if(arg=='--help'):
         ttall=''
         showt=True
         break
@@ -37,7 +37,9 @@ else:
     testall=ttall
 print('mpi size= ',np4)
 print('run tests for ',testall)
-if(showt): sys.exit()
+if(showt):
+    print('usage: testecalj.py -np 4 [test names]')
+    sys.exit()
 
 "Install to bin"
 os.makedirs(bindir,exist_ok=True)

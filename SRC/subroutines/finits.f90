@@ -74,7 +74,8 @@ subroutine rxx(test,string)
 end subroutine rxx
 
 subroutine fexit0(retval,strng)! retval:  return value passed to operating system. /=0 for error exit
-  use m_MPItk,only:  master_mpi,procid,comm
+  use m_mpi,only:   comm1=>comm
+  use m_MPItk,only: comm2=>comm,readtk
   use m_lgunit,only:stdo,stdl
   implicit none
   integer :: retval,iopt,abret
@@ -86,10 +87,13 @@ subroutine fexit0(retval,strng)! retval:  return value passed to operating syste
   character(256) :: strn
   character :: datim*24,hostnm*20
   character(9):: ftoa9
-  logical :: isopen
-  integer :: master,ierr
+  logical :: isopen,master_mpi
+  integer :: master,ierr,comm,procid,mpi__info
   parameter (master = 0)
   include "mpif.h"
+  comm=merge(comm2,comm1,readtk)
+  call MPI_Comm_rank( comm, procid, mpi__info )
+  master_mpi= procid==0
   call mpi_barrier(comm,ierr)
   if (master_mpi) then 
      if(cpusec() /= 0) then

@@ -1,11 +1,11 @@
 !> MPI utility routines and variablis by TK
 module m_MPItk
   use m_lgunit, only: stml, stdl
-  public :: m_MPItk_init, procid, strprocid,master, nsize, master_mpi, xmpbnd2,comm
+  public :: m_MPItk_init, procid, strprocid,master, nsize, master_mpi, xmpbnd2,comm,readtk
   private
   integer,protected:: procid, master = 0, nsize,comm !,nproc
   include "mpif.h"
-  logical,protected:: master_mpi
+  logical,protected:: master_mpi,readtk=.false.
   character(8),protected :: strprocid
 contains
   subroutine m_MPItk_init(commin)
@@ -13,6 +13,7 @@ contains
     integer :: fext,ierr
     integer,optional:: commin
     character(10):: i2char
+    readtk=.true.
     comm=merge(commin,MPI_COMM_WORLD,present(commin))
     call mpi_comm_size(comm, nsize, ierr)
     call MPI_COMM_RANK(comm, procid, ierr )

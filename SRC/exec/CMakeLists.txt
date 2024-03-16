@@ -52,7 +52,7 @@ message(STATUS "DEBUG= ${DEBUG}")
 ### compile options ############################################################
 if(FC MATCHES "gfortran")
   set(CMAKE_Fortran_COMPILER mpif90)    # compiler
-  set(CMAKE_Fortran_FLAGS "-g -fimplicit-none -finit-integer=NaN -finit-real=NaN -fPIC") # compile flags
+  set(CMAKE_Fortran_FLAGS "-w -g -fno-strict-aliasing -fallow-argument-mismatch -fimplicit-none -finit-integer=NaN -finit-real=NaN -fPIC") # compile flags
   set(LIB ${LIBRARY_NAME} -lmkl_rt)  #set LIB variable
   add_link_options(-lmkl_rt)
 elseif(FC MATCHES "ifort")
@@ -71,7 +71,7 @@ endif()
 if(FC MATCHES "gfortran" AND DEFINED DEBUG)
   message(STATUS "===== gfortran debug  =======================")
   foreach(target IN ITEMS ${SOURCES})
-    set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O0")
+    set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-fbacktrace -O0")
   endforeach()
 elseif(FC MATCHES "gfortran")
   message(STATUS "===== gfortran release  =======================")

@@ -30,5 +30,5 @@ popd
 # Install test 
 echo '=== goto test ==='
 cd SRC/TestInstall/
-./testecalj.py -np 4 
+./testecalj.py -np 8 
 
