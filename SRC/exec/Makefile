@@ -117,17 +117,17 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named show_programinfo.f90
+# Target rules for targets named show_prog
 
 # Build rule for target.
-show_programinfo.f90: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 show_programinfo.f90
-.PHONY : show_programinfo.f90
+show_prog: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 show_prog
+.PHONY : show_prog
 
 # fast build rule for target.
-show_programinfo.f90/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/show_programinfo.f90.dir/build.make CMakeFiles/show_programinfo.f90.dir/build
-.PHONY : show_programinfo.f90/fast
+show_prog/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/show_prog.dir/build.make CMakeFiles/show_prog.dir/build
+.PHONY : show_prog/fast
 
 #=============================================================================
 # Target rules for targets named dummy
@@ -7784,7 +7784,7 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... show_programinfo.f90"
+	@echo "... show_prog"
 	@echo "... dummy"
 	@echo "... ecaljF"
 	@echo "... gwinit"

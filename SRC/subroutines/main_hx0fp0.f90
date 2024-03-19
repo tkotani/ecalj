@@ -30,7 +30,7 @@ subroutine hx0fp0()
   use m_qbze,only: Setqbze, nqbze,nqibze,qbze,qibze
   use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
   use m_readVcoud,only: Readvcoud,vcousq,zcousq!,ngb,ngc
-  use m_x0kf,only: X0kf_v4hz, X0kf_v4hz_init,ncount,kc,rcxqh=>rcxq !X0kf_v4hz_symmetrize,
+  use m_x0kf,only: X0kf_v4hz, X0kf_v4hz_init,ncount,kc,rcxq,DeallocateRcxq !rcxqh=>rcxq !X0kf_v4hz_symmetrize,
 !  use m_eibz,only:Seteibz, nwgt,neibz,igx,igxt,eibzsym
   use m_llw,only: WVRllwR,WVIllwI,MPI__sendllw2
   use m_w0w0i,only: w0w0i
@@ -57,7 +57,7 @@ subroutine hx0fp0()
   integer,allocatable :: ngvecpB(:,:,:),ngveccB(:,:), ngvecp(:,:), ngvecc(:,:)
   complex(8),allocatable:: geigB(:,:,:,:) ,geig(:,:),vcoul(:,:), zw(:,:),zw0(:,:), zxq(:,:,:),zxqi(:,:,:)
   real(8),allocatable :: eqt(:), ppbrdx(:,:,:,:,:,:,:),aaa(:,:),symope(:,:), ppb(:,:),pdb(:,:),dpb(:,:),ddb(:,:)
-  complex(8),allocatable :: trwv(:),trwv2(:),rcxq(:,:,:,:)
+  complex(8),allocatable :: trwv(:),trwv2(:) !,rcxq(:,:,:,:)
   complex(8) :: fff,img=(0d0,1d0)
   complex(8),allocatable :: wwk(:,:,:)
   integer,allocatable :: noccxvv(:) !n1b(:,:,:),n2b(:,:,:),nbnb(:,:),nbnbtt(:,:),
@@ -179,7 +179,7 @@ subroutine hx0fp0()
   character(20):: outs=''
   logical,save:: initzmel0=.true.
   real(8):: q0a,qa
-  complex(8),allocatable:: rcxq0(:,:,:,:)
+!  complex(8),allocatable:: rcxq0(:,:,:,:)
   logical,allocatable::   mpi__task(:)
   integer,allocatable::   mpi__ranktab(:)
   call MPI__Initialize()
@@ -447,11 +447,12 @@ subroutine hx0fp0()
         endif
       endif
       
-     allocate(rcxq(npr,npr,nwhis,npm), zxq(npr,npr,nw_i:nw), zxqi(npr,npr,niw))
+!     allocate(rcxq(npr,npr,nwhis,npm),source=(0d0,0d0)) !, zxq(npr,npr,nw_i:nw), zxqi(npr,npr,niw))
+     allocate(zxq(npr,npr,nw_i:nw), zxqi(npr,npr,niw))
      zxq=0d0;  zxqi=0d0 
      kold=-999
      isold=-999
-     allocate(rcxqh(npr*(npr+1)/2,nwhis,npm),source=(0d0,0d0))
+!     allocate(rcxqh(npr*(npr+1)/2,nwhis,npm),source=(0d0,0d0))
      isloop: do 1003 is = 1,nspinmx
         write(6,"(' ##### ',2i4,' out of nqibz+n0qi nsp=',2i4,' ##### ')")iq, is, nqibz + nq0i,nspin
         if(debug) write(6,*)' niw nw=',niw,nw         !  chi(charge) or chi_+-(spin when chipm=T)
@@ -471,19 +472,19 @@ subroutine hx0fp0()
         call x0kf_v4hz(q,is,isf,iq, npr,q00,chipm,nolfco,zzr, nmbas) !,eibzmode
         call tetdeallocate() !    if(debug) write(6,"(a)") ' --- goto dpsion5 --- '
         if(is==nspinmx .OR. chipm) then
-           do concurrent(igb2=1:npr) !upper-light block of rcxq to full matrix
-              imb= (igb2-1)*igb2/2
-              rcxq(1:igb2,igb2,:,:)   =        rcxqh(imb+1:imb+igb2,  :,:)  !right-upper half
-              rcxq(igb2,1:igb2-1,:,:) = dconjg(rcxqh(imb+1:imb+igb2-1,:,:))
-           enddo !     write(6,"('  nproduct basis=',2i10)") npr
-           deallocate(rcxqh)
-           call dpsion5(realomega, imagomega, rcxq, npr,npr, zxq, zxqi, chipm, schi,is,  ecut,ecuts)
-           if(nolfco .AND. epsmode) forall(iw=nw_i:nw) x0mean(iw,:,:)=zxq(:,:,iw) !1x1
-           write(6,*)' --- end of dpsion5 ----',sum(abs(zxq)),sum(abs(zxqi))
+           ! do concurrent(igb2=1:npr) !upper-light block of rcxq to full matrix
+           !    imb= (igb2-1)*igb2/2
+           !    rcxq(1:igb2,igb2,:,:)   =        rcxqh(imb+1:imb+igb2,  :,:)  !right-upper half
+           !    rcxq(igb2,1:igb2-1,:,:) = dconjg(rcxqh(imb+1:imb+igb2-1,:,:))
+           ! enddo !     write(6,"('  nproduct basis=',2i10)") npr
+           ! deallocate(rcxqh)
+          call dpsion5(realomega, imagomega, rcxq, npr,npr, zxq, zxqi, chipm, schi,is,  ecut,ecuts)
+          call DeallocateRcxq()
+          if(nolfco .AND. epsmode) forall(iw=nw_i:nw) x0mean(iw,:,:)=zxq(:,:,iw) !1x1
+          write(6,*)' --- end of dpsion5 ----',sum(abs(zxq)),sum(abs(zxqi))
         endif
         continue  
 1003 enddo isloop
-     deallocate(rcxq)
      realomegamode: if(realomega .AND. ( .NOT. epsmode)) then ! ===  RealOmega === W-V: WVR and WVI. Wing elemments: llw, llwi LLWR, LLWI
         call WVRllwR(q,iq,zxq,npr,npr)
         deallocate(zxq)

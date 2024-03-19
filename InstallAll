@@ -24,7 +24,7 @@ popd
 pushd .
 cd SRC/exec
 FC=${FC} cmake .
-VERBOSE=1 make -j |grep -v shared |grep mpi ||my_error
+VERBOSE=1 make -j ||my_error
 cp `find . -mindepth 1 -maxdepth 1 -executable -type f` ${BINDIR} ||my_error
 popd
 # Install test 

@@ -17,7 +17,7 @@ subroutine hrcxq()
   use m_readeigen,only: Init_readeigen,Init_readeigen2,Readeval
   use m_read_bzdata,only:Read_bzdata,nqbz,nqibz,n1,n2,n3,ginv,dq_,qbz,wbz,qibz,wibz, ntetf,idtetf,ib1bz, qbzw,nqbzw,q0i,nq0i,nq0iadd !for tetrahedron   !     &     idteti, nstar,irk,nstbz
   use m_genallcf_v3,only: Genallcf_v3,nclass,natom,nspin,nl,nn,nlmto,nlnmx,nctot,alat,clabl,iclass,il,in,im,nlnm,plat,pos,ecore
-  use m_rdpp,only: Rdpp,nxx,lx,nx,mdimx,nbloch,cgr,ppbrd ,nblochpmx,mrecl,nprecx !! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
+  use m_rdpp,only: Rdpp,nxx,lx,nx,mdimx,nbloch,cgr,ppbrd ,nblochpmx,mrecl,nprecx ! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
   use m_zmel,only: Mptauof_zmel !Set data for "call get_zmelt" zmelt= matrix element <phi |phi MPB>.
   use m_itq,only: Setitq !set itq,ntq,nband,ngcmx,ngpmx to m_itq
   use m_freq,only: Getfreq2,frhis,freq_r,freq_i,nwhis,nw_i,nw,npm,niw ! Frequency !output of getfreq
@@ -26,7 +26,7 @@ subroutine hrcxq()
   use m_readgwinput,only: ReadGwinputKeys,egauss,ecut,ecuts,mtet,ebmx,nbmx,imbas
   use m_qbze,only:    Setqbze,nqbze,nqibze,qbze,qibze
   use m_readhbe,only: Readhbe,nband !,nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg !  use m_eibz,only:    Seteibz,nwgt,neibz,igx,igxt,eibzsym
-  use m_x0kf,only:    X0kf_v4hz,x0kf_v4hz_init_read,rcxq  !X0kf_v4hz_init,,x0kf_v4hz_init_write !X0kf_v4hz_symmetrize,
+  use m_x0kf,only:    X0kf_v4hz,x0kf_v4hz_init_read,rcxq,DeallocateRcxq  !X0kf_v4hz_init,,x0kf_v4hz_init_write !X0kf_v4hz_symmetrize,
   use m_llw,only: WVRllwR,WVIllwI,w4pmode,MPI__sendllw
   use m_mpi,only: MPI__Initialize,MPI__root,MPI__rank,MPI__size,MPI__consoleout,comm
   use m_lgunit,only: m_lgunit_init,stdo
@@ -43,7 +43,7 @@ subroutine hrcxq()
   character(10) :: i2char
   character(20):: outs=''
   real(8),allocatable :: symope(:,:),ekxx1(:,:),ekxx2(:,:)
-  complex(8),allocatable:: zxq(:,:,:),zxqi(:,:,:),zzr(:,:),rcxqin(:,:,:,:)
+  complex(8),allocatable:: zxq(:,:,:),zxqi(:,:,:),zzr(:,:)!,rcxq(:,:,:,:)
   logical,allocatable::   mpi__Qtask(:)
   integer,allocatable::   mpi__Qrank(:)
   call MPI__Initialize()
@@ -92,27 +92,29 @@ subroutine hrcxq()
           write(stdo,ftox)' ### ',iq,is,' out of nqibz+n0qi+nq0iadd nsp=',nqibz+nq0i+nq0iadd,nspin
           isf = is
           call X0kf_v4hz_init_read(iq,is) !Readin icount data (index sets and tetrahedron weight) into m_x0kf
-          call x0kf_v4hz(qp, is,isf, iq, nmbas, chipm=.false.,nolfco=.false.) 
+          call x0kf_v4hz(qp, is,isf, iq, nmbas, chipm=.false.,nolfco=.false.)  !retrun rcxq
        enddo
        write(stdo,ftox)'end of x0kf_v4hz'
-       allocate(rcxqin(nmbas,nmbas,nwhis,npm))
-       do iwhis=1,nwhis
-          do concurrent(igb2=1:nmbas) !upper-right block of zmel*zmel
-             imb= (igb2-1)*igb2/2
-             rcxqin(1:igb2,igb2,iwhis,:)   =        rcxq(imb+1:imb+igb2,  iwhis,:)   !right-upper half
-             rcxqin(igb2,1:igb2-1,iwhis,:) = dconjg(rcxq(imb+1:imb+igb2-1,iwhis,:))  
-          enddo
-       enddo
-       deallocate(rcxq)
+       ! allocate(rcxqin(nmbas,nmbas,nwhis,npm))
+       ! do iwhis=1,nwhis
+       !    do concurrent(igb2=1:nmbas) !upper-right block of zmel*zmel
+       !       imb= (igb2-1)*igb2/2
+       !       rcxqin(1:igb2,igb2,iwhis,:)   =        rcxq(imb+1:imb+igb2,  iwhis,:)   !right-upper half
+       !       rcxqin(igb2,1:igb2-1,iwhis,:) = dconjg(rcxq(imb+1:imb+igb2-1,iwhis,:))  
+       !    enddo
+       ! enddo
+       !deallocate(rcxq)
      endblock GetImpartPolarizationFunction_rcxq
      HilbertTransformationByDpsion5: block
        write(stdo,ftox)"Hilbert transformation by dpsion5: nwhis nw_i niw nw_w nmbas=",nwhis,nw_i,nw,niw,nmbas
        if(realomega) allocate( zxq (nmbas,nmbas,nw_i:nw),source=(0d0,0d0))
        if(imagomega) allocate( zxqi(nmbas,nmbas,niw),source=(0d0,0d0)    )
        if(.not.emptyrun) then 
-          call dpsion5(realomega, imagomega, rcxqin, nmbas,nmbas, zxq,zxqi, chipm, schi,is, ecut,ecuts) !Hilbert transform . Real part from Imag part. 
+         call dpsion5(realomega, imagomega, rcxq, nmbas,nmbas, zxq,zxqi, chipm, schi,is, ecut,ecuts) !Hilbert transform . Real part from Imag part.
+!          call dpsion5(realomega, imagomega, rcxqin, nmbas,nmbas, zxq,zxqi, chipm, schi,is, ecut,ecuts) !Hilbert transform . Real part from Imag part. 
        endif
-       deallocate(rcxqin)
+       call DeallocateRcxq()
+!       deallocate(rcxqin)
        if(debug) print *,'sumchk zxq=',sum(zxq),sum(abs(zxq)),' zxqi=',sum(zxqi),sum(abs(zxqi))
        if(emptyrun) then
           deallocate(zxqi,zxq)

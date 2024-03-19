@@ -15,16 +15,19 @@ module m_x0kf
   use m_ftox
   use m_readVcoud,only:   Readvcoud,vcousq,zcousq,ngb,ngc
   implicit none
-  public:: X0kf_v4hz_init, X0kf_v4hz,x0kf_zmel,X0kf_v4hz_init_write,X0kf_v4hz_init_read
-  integer,public,allocatable:: kc(:)
-  integer,public:: ncount,ncoun
-  complex(8),allocatable,public:: rcxq(:,:,:) !main output
+  public:: X0kf_v4hz_init, X0kf_v4hz,x0kf_zmel,X0kf_v4hz_init_write,X0kf_v4hz_init_read,DeallocateRcxq
+  integer,public,allocatable,protected:: kc(:)
+  integer,public,protected:: ncount,ncoun
+  complex(8),allocatable,public,protected:: rcxq(:,:,:,:) !rcxq(:,:,:) !main output
   private 
   integer,allocatable:: nkmin(:), nkmax(:),nkqmin(:),nkqmax(:) 
   real(8),allocatable:: whwc(:)
   integer,allocatable:: iwini(:),iwend(:),itc(:),itpc(:),jpmc(:),icouini(:)
 !  complex(8),allocatable :: zmel0(:,:,:) 
 contains
+  subroutine DeallocateRcxq()
+    deallocate(rcxq)
+  end subroutine DeallocateRcxq
   subroutine X0kf_v4hz_init_write(iq,is)
     integer:: iq,is,ix0
     character(10) :: i2char
@@ -211,7 +214,8 @@ contains
        call Setppovlz(q,matz=.true.)
     endif
     ! !!!!!!!!!!!!!!!!!!!!!!!!
-    if(.not. allocated(rcxq)) allocate( rcxq(npr*(npr+1)/2,nwhis,npm),source=(0d0,0d0))
+!    if(.not. allocated(rcxq)) allocate( rcxq(npr*(npr+1)/2,nwhis,npm),source=(0d0,0d0))
+    if(.not. allocated(rcxq)) allocate( rcxq(npr,npr,nwhis,npm),source=(0d0,0d0))
     
     zmel0mode: if(cmdopt0('--zmel0')) then !this is for epsPP0. Use zmel-zmel0 for matrix elements.
        zmel0block : block
@@ -236,7 +240,8 @@ contains
             do iw=iwini(icoun),iwend(icoun) !!iw  = iwc(icount)  !omega-bin
                icount= icouini(icoun)+iw-iwini(icoun)
                if(abs(zmel0(1,it,itp))>1d10) cycle !We assume rcxq(1) in this mode
-               rcxq(1,iw,jpm)=rcxq(1,iw,jpm) +rfac00**2*(abs(zmel(1,it,itp))-abs(zmel0(1,it,itp)))**2 *whwc(icount)
+!               rcxq(1,iw,jpm)=rcxq(1,iw,jpm) +rfac00**2*(abs(zmel(1,it,itp))-abs(zmel0(1,it,itp)))**2 *whwc(icount)
+               rcxq(1,1,iw,jpm)=rcxq(1,1,iw,jpm) +rfac00**2*(abs(zmel(1,it,itp))-abs(zmel0(1,it,itp)))**2 *whwc(icount)
             enddo
          enddo zmel0modeicount
        endblock zmel0block
@@ -269,12 +274,17 @@ contains
             it  => itc (icoun),&  !occ      at k
             itp => itpc(icoun))   !unocc    at q+k
          block
-           complex(8):: zmelzmel(npr*(npr+1)/2)
-           do concurrent(igb2=1:npr) !upper-light block of zmel*zmel
-              zmelzmel(1+(igb2-1)*igb2/2:igb2+(igb2-1)*igb2/2)= dconjg(zmel(1:igb2,it,itp))*zmel(igb2,it,itp) !right-upper half
+!           complex(8):: zmelzmel(npr*(npr+1)/2)
+!           do concurrent(igb2=1:npr) !upper-light block of zmel*zmel
+!              zmelzmel(1+(igb2-1)*igb2/2:igb2+(igb2-1)*igb2/2)= dconjg(zmel(1:igb2,it,itp))*zmel(igb2,it,itp) !right-upper half
+!           enddo
+!           forall(iw=iwini(icoun):iwend(icoun)) rcxq(:,iw,jpm)=rcxq(:,iw,jpm)+whwc(iw-iwini(icoun)+icouini(icoun))*zmelzmel(:) !zaxpy
+           complex(8):: zmelzmel(npr,npr)
+           do concurrent(igb1=1:npr,igb2=1:npr) !upper-light block of zmel*zmel
+              zmelzmel(igb1,igb2)= dconjg(zmel(igb1,it,itp))*zmel(igb2,it,itp) !right-upper half
            enddo
-           forall(iw=iwini(icoun):iwend(icoun)) rcxq(:,iw,jpm)= rcxq(:,iw,jpm) + whwc(iw-iwini(icoun)+icouini(icoun))*zmelzmel(:) !zaxpy
-           !         forall(iw=iwini(icoun):iwend(icoun)) nwj(iw,jpm)=nwj(iw,jpm)+iwend(icoun)-iwini(icoun)+1 !onlyfor check counter
+           forall(iw=iwini(icoun):iwend(icoun)) rcxq(:,:,iw,jpm)=rcxq(:,:,iw,jpm)+whwc(iw-iwini(icoun)+icouini(icoun))*zmelzmel(:,:) !zaxpy
+           !  forall(iw=iwini(icoun):iwend(icoun)) nwj(iw,jpm)=nwj(iw,jpm)+iwend(icoun)-iwini(icoun)+1 !onlyfor check counter
          endblock
        endassociate
        !#####################  
@@ -282,7 +292,8 @@ contains
 2000 continue
     deallocate(nkmin,nkmax,nkqmin,nkqmax,whwc,kc,itc,itpc,iwini,iwend,jpmc,icouini)
     write(stdo,ftox) " --- x0kf_v4hz: end"
-    if(debug)write(stdo,"(' --- ', 3d13.5)")sum(abs(rcxq(:,1:nwhis,1:npm))),sum((rcxq(:,1:nwhis,1:npm)))
+!    if(debug)write(stdo,"(' --- ', 3d13.5)")sum(abs(rcxq(:,1:nwhis,1:npm))),sum((rcxq(:,1:nwhis,1:npm)))
+!    if(debug)write(stdo,"(' --- ', 3d13.5)")sum(abs(rcxq(:,:,1:nwhis,1:npm))),sum((rcxq(:,:,1:nwhis,1:npm)))
   end subroutine x0kf_v4hz
   subroutine X0kf_zmel( q,k, isp_k,isp_kq) ! Return zmel= <phi phi |M_I> in m_zmel
     intent(in)   ::     q,k, isp_k,isp_kq   
