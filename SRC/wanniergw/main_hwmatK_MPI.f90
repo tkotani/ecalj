@@ -208,7 +208,6 @@ subroutine hwmatK_MPI()
      write(6,*) '  [option --- (+ QPNT.{number} ?)] '
      write(6,*) ' --- Put number above ! -----------------'
      call readin5(ixc,nz,idummy)
-
      input3(1) = ixc
      input3(2) = nz
      input3(3) = idummy

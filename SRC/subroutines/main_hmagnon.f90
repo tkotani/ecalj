@@ -35,6 +35,7 @@ subroutine hmagnon()
   use m_w0w0i,only: w0w0i, w0,w0i
   use m_readgwinput,only: ReadGWinputKeys
   use m_lgunit,only:m_lgunit_init
+  use m_dpsion,only: dpsion5
 
   implicit none
   !! ------------------------------------------------

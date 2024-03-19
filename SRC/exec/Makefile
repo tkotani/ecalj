@@ -2016,30 +2016,6 @@ home/takao/ecalj/SRC/subroutines/hello.f90.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/hello.f90.s
 .PHONY : home/takao/ecalj/SRC/subroutines/hello.f90.s
 
-home/takao/ecalj/SRC/subroutines/hilbertmat.o: home/takao/ecalj/SRC/subroutines/hilbertmat.f90.o
-.PHONY : home/takao/ecalj/SRC/subroutines/hilbertmat.o
-
-# target to build an object file
-home/takao/ecalj/SRC/subroutines/hilbertmat.f90.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/hilbertmat.f90.o
-.PHONY : home/takao/ecalj/SRC/subroutines/hilbertmat.f90.o
-
-home/takao/ecalj/SRC/subroutines/hilbertmat.i: home/takao/ecalj/SRC/subroutines/hilbertmat.f90.i
-.PHONY : home/takao/ecalj/SRC/subroutines/hilbertmat.i
-
-# target to preprocess a source file
-home/takao/ecalj/SRC/subroutines/hilbertmat.f90.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/hilbertmat.f90.i
-.PHONY : home/takao/ecalj/SRC/subroutines/hilbertmat.f90.i
-
-home/takao/ecalj/SRC/subroutines/hilbertmat.s: home/takao/ecalj/SRC/subroutines/hilbertmat.f90.s
-.PHONY : home/takao/ecalj/SRC/subroutines/hilbertmat.s
-
-# target to generate assembly for a file
-home/takao/ecalj/SRC/subroutines/hilbertmat.f90.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/hilbertmat.f90.s
-.PHONY : home/takao/ecalj/SRC/subroutines/hilbertmat.f90.s
-
 home/takao/ecalj/SRC/subroutines/hklft.o: home/takao/ecalj/SRC/subroutines/hklft.f90.o
 .PHONY : home/takao/ecalj/SRC/subroutines/hklft.o
 
@@ -8004,9 +7980,6 @@ help:
 	@echo "... home/takao/ecalj/SRC/subroutines/hello.o"
 	@echo "... home/takao/ecalj/SRC/subroutines/hello.i"
 	@echo "... home/takao/ecalj/SRC/subroutines/hello.s"
-	@echo "... home/takao/ecalj/SRC/subroutines/hilbertmat.o"
-	@echo "... home/takao/ecalj/SRC/subroutines/hilbertmat.i"
-	@echo "... home/takao/ecalj/SRC/subroutines/hilbertmat.s"
 	@echo "... home/takao/ecalj/SRC/subroutines/hklft.o"
 	@echo "... home/takao/ecalj/SRC/subroutines/hklft.i"
 	@echo "... home/takao/ecalj/SRC/subroutines/hklft.s"

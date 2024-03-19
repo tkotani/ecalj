@@ -18,7 +18,7 @@ module m_x0kf
   public:: X0kf_v4hz_init, X0kf_v4hz,x0kf_zmel,X0kf_v4hz_init_write,X0kf_v4hz_init_read,DeallocateRcxq
   integer,public,allocatable,protected:: kc(:)
   integer,public,protected:: ncount,ncoun
-  complex(8),allocatable,public,protected:: rcxq(:,:,:,:) !rcxq(:,:,:) !main output
+  complex(8),allocatable,public:: rcxq(:,:,:,:) !rcxq(:,:,:) !main output owe did not protect, because this is destroyed in dpsion
   private 
   integer,allocatable:: nkmin(:), nkmax(:),nkqmin(:),nkqmax(:) 
   real(8),allocatable:: whwc(:)
