@@ -35,11 +35,11 @@ subroutine hrcxq()
   use m_dpsion,only: dpsion5
   implicit none
   real(8),parameter:: pi = 4d0*datan(1d0),fourpi = 4d0*pi,sqfourpi= sqrt(fourpi)
-  integer:: iq,kx,ixc,iqxini,iqxend,is,iw,ifwd,ngrpx,verbose,nmbas,nmbas_in,ifif
-  integer:: i_red_npm,i_red_nwhis, i_red_nmbas2,ierr,ircxq,npmx
+  integer:: iq,kx,ixc,iqxini,iqxend,is,iw,ifwd,ngrpx,verbose,npr,nmbas,ifif
+  integer:: i_red_npm,i_red_nwhis,ierr,ircxq,npmx
   integer:: ipart,iwhis,igb1,imb,igb2,isf
-  real(8):: ua=1d0,qp(3),quu(3),hartree,rydberg,schi=-9999
-  logical :: debug=.false. ,realomega,imagomega!,nolfco=.false.
+  real(8):: ua=1d0,qp(3),quu(3),hartree,rydberg,schi=-9999,q00(3)
+  logical :: debug=.false. ,realomega,imagomega,nolfco=.false.
   logical :: hx0,iprintx=.false.,chipm=.false.,localfieldcorrectionllw   !eibzmode,eibz4x0,
   logical:: cmdopt2,emptyrun,cmdopt0
   character(10) :: i2char
@@ -89,62 +89,48 @@ subroutine hrcxq()
     qp = qibze(:,iq)
     call cputid (0)
     call Readvcoud(qp, iq,NoVcou=chipm) !Readin vcousq,zcousq ngb ngc for the Coulomb matrix
-    nmbas=ngb
+    npr=ngb
     write(stdo,ftox)'do 1001: iq q=',iq,ftof(qp,4) !4 means four digits below decimal point (optional).
+    if(realomega) allocate( zxq (npr,npr,nw_i:nw),source=(0d0,0d0))
+    if(imagomega) allocate( zxqi(npr,npr,niw),source=(0d0,0d0)    )
+    write(stdo,ftox)' ### ',iq,' out of nqibz+n0qi+nq0iadd nsp=',nqibz+nq0i+nq0iadd,nspin
     
-    GetImpartPolarizationFunction_rcxq: block
-      do is = 1,nspin ! rcxq is being acuumulated for spins
-        write(stdo,ftox)' ### ',iq,is,' out of nqibz+n0qi+nq0iadd nsp=',nqibz+nq0i+nq0iadd,nspin
-        isf = is
-        call X0kf_v4hz_init_read(iq,is) !Readin icount data (index sets and tetrahedron weight) into m_x0kf
-        call x0kf_v4hz(qp, is,isf, iq, nmbas, chipm=chipm,nolfco=.false.)  !retrun rcxq
-      enddo
-    endblock GetImpartPolarizationFunction_rcxq
-    write(stdo,ftox)"Hilbert transformation by dpsion5: nwhis nw_i niw nw_w nmbas=",nwhis,nw_i,nw,niw,nmbas
-    HilbertTransformationByDpsion5: block
-      if(realomega) allocate( zxq (nmbas,nmbas,nw_i:nw),source=(0d0,0d0))
-      if(imagomega) allocate( zxqi(nmbas,nmbas,niw),source=(0d0,0d0)    )
-      if(.not.emptyrun) then 
-        call dpsion5(realomega, imagomega, rcxq, nmbas,nmbas, zxq,zxqi, chipm, schi,is, ecut,ecuts) !Hilbert transform . Real part from Imag part.
-        ! call dpsion5(realomega, imagomega, rcxqin, nmbas,nmbas, zxq,zxqi, chipm, schi,is, ecut,ecuts) !Hilbert transform . Real part from Imag part. 
-      endif
-    endblock HilbertTransformationByDpsion5
-    call DeallocateRcxq()
-
+    GetImpartPolarizationFunction_zxq: block
+      isloop2:do 1013 is = 1,nspin ! rcxq is being acuumulated for spins
+        isf = merge(3-is,is,chipm) ! if(is==1) isf=2  if(is==2) isf=1 for chipm
+        call x0kf_v4hz_init_read(iq,is) !Readin icount data (index sets and tetrahedron weight) into m_x0kf
+        call x0kf_v4hz(qp,is,isf,iq, npr,q00,chipm,nolfco,zzr,nmbas)  !retrun rcxq
+        if(is==nspin .OR. chipm) then
+          if(emptyrun)cycle ! "Hilbert transformation by dpsion5: nwhis nw_i niw nw_w npr=",nwhis,nw_i,nw,niw,npr
+          call dpsion5(realomega,imagomega,rcxq, npr,npr, zxq,zxqi, chipm, schi,is, ecut,ecuts) !Real part from Imag part.
+          call DeallocateRcxq()
+        endif
+1013  enddo isloop2
+    endblock GetImpartPolarizationFunction_zxq
+    
 !!!!! case without hx0init        
     !allocate(ekxx1(nband,nqbz),ekxx2(nband,nqbz))
     !forall(kx=1:nqbz) ekxx1(1:nband, kx)  = readeval(qbz  (:,kx), is )
     !forall(kx=1:nqbz) ekxx2(1:nband, kx)  = readeval(qp+qbz(:,kx), isf)
     !call gettetwt(qp,iq,is,isf,ekxx1,ekxx2,nband=nband) !,eibzmode=eibzmode) !Get Tetrahedron weight for x0kf_v4hz
-    !ierr=x0kf_v4hz_init(0,qp,is,isf,iq,nmbas, crpa=.false.)!no crpa case. We may need to set crpa as is done in hx0init
-    !ierr=x0kf_v4hz_init(1,qp,is,isf,iq,nmbas, crpa=.false.) 
-    !call x0kf_v4hz(qp, is,isf, iq, nmbas, chipm=chipm,nolfco=.false.)  !retrun rcxq
+    !ierr=x0kf_v4hz_init(0,qp,is,isf,iq,npr, crpa=.false.)!no crpa case. We may need to set crpa as is done in hx0init
+    !ierr=x0kf_v4hz_init(1,qp,is,isf,iq,npr, crpa=.false.) 
+    !call x0kf_v4hz(qp, is,isf, iq, npr, chipm=chipm,nolfco=.false.)  !retrun rcxq
     !call tetdeallocate() !    if(debug) write(6,"(a)") ' --- goto dpsion5 --- '
     !deallocate(ekxx1,ekxx2)
     !enddo
-!!!!!         
-    ! allocate(rcxqin(nmbas,nmbas,nwhis,npm))
-    ! do iwhis=1,nwhis
-    !    do concurrent(igb2=1:nmbas) !upper-right block of zmel*zmel
-    !       imb= (igb2-1)*igb2/2
-    !       rcxqin(1:igb2,igb2,iwhis,:)   =        rcxq(imb+1:imb+igb2,  iwhis,:)   !right-upper half
-    !       rcxqin(igb2,1:igb2-1,iwhis,:) = dconjg(rcxq(imb+1:imb+igb2-1,iwhis,:))  
-    !    enddo
-    ! enddo
-    !deallocate(rcxq)
-    !write(stdo,ftox)'end of x0kf_v4hz'
-    !       deallocate(rcxqin)
+    !endblock GetImpartPolarizationFunction_rcxq
     if(debug) print *,'sumchk zxq=',sum(zxq),sum(abs(zxq)),' zxqi=',sum(zxqi),sum(abs(zxqi))
     if(emptyrun) then
       deallocate(zxqi,zxq)
       cycle
     endif
-    GetWVRealOmeg: if (realomega) then !W-V in Random phase approximation: Files WVR and WVI. 
-      call WVRllwR(qp,iq,zxq,nmbas,nmbas) !emptyrun in it
+    GetWVRealOmeg: if (realomega) then !W-v in Random phase approximation: Files WVR and WVI. 
+      call WVRllwR(qp,iq,zxq,npr,npr) !-- emptyrun in it
       deallocate(zxq)
     endif GetWVRealOmeg
     GetWVImagOmeg:if (imagomega) then
-      call WVIllwI(qp,iq,zxqi,nmbas,nmbas) 
+      call WVIllwI(qp,iq,zxqi,npr,npr) 
       deallocate(zxqi)
     endif GetWVImagOmeg
 1001 enddo obtainrcxq

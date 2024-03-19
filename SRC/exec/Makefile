@@ -480,6 +480,19 @@ wanplot/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/wanplot.dir/build.make CMakeFiles/wanplot.dir/build
 .PHONY : wanplot/fast
 
+#=============================================================================
+# Target rules for targets named etags
+
+# Build rule for target.
+etags: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 etags
+.PHONY : etags
+
+# fast build rule for target.
+etags/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/etags.dir/build.make CMakeFiles/etags.dir/build
+.PHONY : etags/fast
+
 dummy.o: dummy.f90.o
 .PHONY : dummy.o
 
@@ -7760,6 +7773,7 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... etags"
 	@echo "... show_prog"
 	@echo "... dummy"
 	@echo "... ecaljF"

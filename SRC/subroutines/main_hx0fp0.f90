@@ -459,31 +459,26 @@ subroutine hx0fp0()
 !        call x0kf_v4hz(q,is,isf,iq, npr,q00,chipm,nolfco,zzr, nmbas) !,eibzmode
 !        call tetdeallocate() !    if(debug) write(6,"(a)") ' --- goto dpsion5 --- '
 1003  enddo isloop4tetrahedronweight
-      
       allocate(zxq(npr,npr,nw_i:nw), zxqi(npr,npr,niw),source=(0d0,0d0))
-      isloop2: do 1013 is = 1,nspin
-        isf = merge(3-is,is,chipm) ! if(is==1) isf=2  if(is==2) isf=1 for chipm
-        call X0kf_v4hz_init_read(iq,is) !Readin icount data (index sets and tetrahedron weight) into m_x0kf
-        call x0kf_v4hz(q,is,isf,iq, npr,q00,chipm,nolfco,zzr, nmbas) !,eibzmode
-        if(is==nspin .OR. chipm) then
-          ! do concurrent(igb2=1:npr) !upper-light block of rcxq to full matrix
-          !    imb= (igb2-1)*igb2/2
-          !    rcxq(1:igb2,igb2,:,:)   =        rcxqh(imb+1:imb+igb2,  :,:)  !right-upper half
-          !    rcxq(igb2,1:igb2-1,:,:) = dconjg(rcxqh(imb+1:imb+igb2-1,:,:))
-          ! enddo !     write(6,"('  nproduct basis=',2i10)") npr
-          ! deallocate(rcxqh)
-          call dpsion5(realomega, imagomega, rcxq, npr,npr, zxq, zxqi, chipm, schi,is,  ecut,ecuts)
-          call DeallocateRcxq()
-          if(nolfco .AND. epsmode) forall(iw=nw_i:nw) x0mean(iw,:,:)=zxq(:,:,iw) !1x1
-        endif
-        continue  
-1013  enddo isloop2
+      
+      GetImpartPolarizationFunction_zxq: block
+        isloop2: do 1013 is = 1,nspin
+          isf = merge(3-is,is,chipm) ! if(is==1) isf=2  if(is==2) isf=1 for chipm
+          call X0kf_v4hz_init_read(iq,is) !Readin icount data (index sets and tetrahedron weight) into m_x0kf
+          call x0kf_v4hz(q,is,isf,iq, npr,q00,chipm,nolfco,zzr,nmbas) !,eibzmode
+          if(is==nspin .OR. chipm) then
+            call dpsion5(realomega, imagomega, rcxq, npr,npr, zxq, zxqi, chipm, schi,is,  ecut,ecuts)
+            call DeallocateRcxq()
+          endif
+1013    enddo isloop2
+      endblock GetImpartPolarizationFunction_zxq
       
       write(6,*)' --- end of dpsion5 ----',sum(abs(zxq)),sum(abs(zxqi))
       realomegamode: if(realomega .AND. ( .NOT. epsmode)) then ! ===  RealOmega === W-V: WVR and WVI. Wing elemments: llw, llwi LLWR, LLWI
         call WVRllwR(q,iq,zxq,npr,npr)
         deallocate(zxq)
       elseif(realomega .AND. epsmode) then
+        if(nolfco) forall(iw=nw_i:nw) x0mean(iw,:,:)=zxq(:,:,iw) !1x1
         if(nolfco .AND. ( .NOT. chipm)) then
           if (nspin==1) x0mean= 2d0*x0mean !if paramagnetic, multiply x0 by 2
           if (nspin==1) zxq = 2d0*zxq !if paramagnetic, multiply x0 by 2

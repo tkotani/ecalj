@@ -143,6 +143,8 @@ foreach(target IN ITEMS ${MAINS}) # main routines
   target_link_libraries(${exename} ${LIB} ${BLAS} ${MPI}) # linked
 endforeach()
 
+add_custom_target(etags ALL COMMAND etags ../subroutines/*.f90 ../wanniergw/*.f90 ../main/*.f90)
+
 # set(BINDIR $ENV{HOME}/bin)
 # message(STATUS "BINDIR = ${BINDIR}")
 # add_custom_target(inst cp `find . -mindepth 1 -maxdepth 1 -executable -type f` ${BINDIR})

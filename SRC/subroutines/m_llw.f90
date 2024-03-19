@@ -1,4 +1,4 @@
-!>Gamma-cell averaged W
+!>Write W-v. Gamma-cell averaged W-v
 module m_llw
   use m_rdpp,only: nblochpmx
   use m_genallcf_v3,only: nclass,natom,nspin,nl,nn, nlmto,nlnmx, nctot,alat, deltaw,clabl,iclass, plat, pos, ecore, tpioa
@@ -31,110 +31,100 @@ contains
     character(10):: i2char
     mreclx=mrecl
     emptyrun=cmdopt0('--emptyrun')
-!    write(6,*)'WVRllwR init zxq dddxxx',nmbas1,nmbas2,nw_i,nq0i,nblochpmx !,zxq(1,1,iw) !, sum(abs(zxq))
     if(init) then !initialization related to w4pmode, zw, tpioa...
-       allocate( llw(nw_i:nw,nq0i) )
-       init=.false.
-       llw= 1d99
+       allocate( llw(nw_i:nw,nq0i),source=(1d99,0d0) )
        if(sum(ixyz)/=0) w4pmode= .TRUE. 
-       if(w4pmode) then
-          allocate( wmuk(2:nblochpmx,3))
-          wmuk=1d99
-       endif
+       if(w4pmode) allocate( wmuk(2:nblochpmx,3),source=(1d99,0d0))
        allocate( zw(nblochpmx,nblochpmx) )
+       init=.false.
     endif
-    !! ngb is q-dependent. released at the end of WVIllwi
-    call readqg0('QGcou', (/0d0,0d0,0d0/),  quu,ngc0)
+    call readqg0('QGcou', (/0d0,0d0,0d0/),  quu,ngc0) ! ngb is q-dependent. released at the end of WVIllwi
     ngbq0 = nbloch+ngc0
-    allocate( zw0(ngb,ngb) )
-    allocate( epstilde(ngb,ngb), epstinv(ngb,ngb))
-    if (nspin == 1) zxq = 2d0*zxq !if paramagnetic, multiply x0 by 2
+    allocate( zw0(ngb,ngb), epstilde(ngb,ngb), epstinv(ngb,ngb))
+    if(nspin == 1) zxq = 2d0*zxq !if paramagnetic, multiply x0 by 2
     nwmax = nw
-    nwmin  = nw_i
+    nwmin = nw_i
     write(6, *)" === trace check for W-V === nwmin nwmax=",nwmin,nwmax, 'qqqqqxx=',iq,q
     if(iq<=nqibz) then        !for mmmw
-       open(newunit=ifrcw, file='WVR.'//i2char(iq),form='unformatted',access='direct',recl=mreclx)
-       do 1015 iw  = nwmin,nwmax
-          if(emptyrun) exit
-          frr= dsign(freq_r(abs(iw)),dble(iw))
-          if(iq==1) then
-             ix=1
-             zw0(:,1)=0d0
-             zw0(1,:)=0d0
-          else
-             ix=0
-          endif
-          do igb1=ix+1,ngb !  Eqs.(37),(38) in PRB81 125102 (Friedlich)
-             do igb2=ix+1,ngb
-                epstilde(igb1,igb2)= -vcousq(igb1)*zxq(igb1,igb2,iw)*vcousq(igb2)
-                if(igb1==igb2) epstilde(igb1,igb2)=1+epstilde(igb1,igb2)
-             enddo
+      open(newunit=ifrcw, file='WVR.'//i2char(iq),form='unformatted',access='direct',recl=mreclx)
+      iwloop: do 1015 iw  = nwmin,nwmax
+        if(emptyrun) exit
+        frr= dsign(freq_r(abs(iw)),dble(iw))
+        if(iq==1) then
+          ix=1
+          zw0(:,1)=0d0
+          zw0(1,:)=0d0
+        else
+          ix=0
+        endif
+        do igb1=ix+1,ngb !  Eqs.(37),(38) in PRB81 125102 (Friedlich)
+          do igb2=ix+1,ngb
+            epstilde(igb1,igb2)= -vcousq(igb1)*zxq(igb1,igb2,iw)*vcousq(igb2)
+            if(igb1==igb2) epstilde(igb1,igb2)=1+epstilde(igb1,igb2)
           enddo
-          epstinv(ix+1:ngb,ix+1:ngb)=epstilde(ix+1:ngb,ix+1:ngb)
-          call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
-          !     ! w4p writing eps
-          if(iw==0 .AND. w4pmode) then
-             ! tatic epstinv is saved. For q=0 epstilde (mu=1 skipped). For q/=0 full matrix inversion.
-             ! ix=1 is set for q=0)
-             open(newunit=ifw4p,file='W4PHONON.'//i2char(iq),form='unformatted')
-             write(ifw4p) iq,q,ngb,ix !ix=0, or ix=1 for q=0 (iq=1)
-             write(ifw4p) epstinv(ix+1:ngb,ix+1:ngb)
-             close(ifw4p)
-          endif
-          do igb1=1+ix,ngb
-             do igb2=1+ix,ngb
-                zw0(igb1,igb2)= vcousq(igb1)*epstinv(igb1,igb2)*vcousq(igb2)
-                if(igb1==igb2) zw0(igb1,igb2)= zw0(igb1,igb2)-vcousq(igb1)*vcousq(igb2)
-             enddo
+        enddo
+        epstinv(ix+1:ngb,ix+1:ngb)=epstilde(ix+1:ngb,ix+1:ngb)
+        call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
+        !  w4p writing eps
+        if(iw==0 .AND. w4pmode) then ! static epstinv is saved. For q=0 epstilde (mu=1 skipped). For q/=0 full matrix inversion. ix=1 is set for q=0)
+          open(newunit=ifw4p,file='W4PHONON.'//i2char(iq),form='unformatted')
+          write(ifw4p) iq,q,ngb,ix !ix=0, or ix=1 for q=0 (iq=1)
+          write(ifw4p) epstinv(ix+1:ngb,ix+1:ngb)
+          close(ifw4p)
+        endif
+        do igb1=1+ix,ngb
+          do igb2=1+ix,ngb
+            zw0(igb1,igb2)= vcousq(igb1)*epstinv(igb1,igb2)*vcousq(igb2)
+            if(igb1==igb2) zw0(igb1,igb2)= zw0(igb1,igb2)-vcousq(igb1)*vcousq(igb2)
           enddo
-          zw(1:ngb,1:ngb) = zw0
-1012      continue
-          write(ifrcw, rec= iw-nw_i+1 ) zw !  WP = vsc-v
-          call tr_chkwrite("freq_r iq iw realomg trwv=", zw, iw, frr,nblochpmx, nbloch,ngb,iq)
-1015   enddo
-       close(ifrcw)
+        enddo
+        zw(1:ngb,1:ngb) = zw0
+1012    continue
+        write(ifrcw, rec= iw-nw_i+1 ) zw !  WP = vsc-v
+        call tr_chkwrite("freq_r iq iw realomg trwv=", zw, iw, frr,nblochpmx, nbloch,ngb,iq)
+1015  enddo iwloop
+      close(ifrcw)
     else  ! llw, Wing elements of W. See PRB81 125102
-       iq0 = iq - nqibz
-       vcou1 = fourpi/sum(q**2*tpioa**2) ! --> vcousq(1)**2!  !fourpi/sum(q**2*tpioa**2-eee)
-       do 1115 iw  = nwmin,nwmax
-          if(emptyrun) exit
-          frr= dsign(freq_r(abs(iw)),dble(iw))
-          !! Full inversion to calculalte eps with LFC.
-          !if(localfieldcorrectionllw()) then
-             ix=0
-             eee=0d0
-             do igb1=ix+1,ngb
-                do igb2=ix+1,ngb
-                   if(igb1==1 .AND. igb2==1) then
-                      epstilde(igb1,igb2)= 1d0 - vcou1*zxq(1,1,iw)
-                      cycle
-                   endif
-                   epstilde(igb1,igb2)= -vcousq(igb1)*zxq(igb1,igb2,iw)*vcousq(igb2)
-                   if(igb1==igb2) then
-                      epstilde(igb1,igb2)=1d0 + epstilde(igb1,igb2)
-                   endif
-                enddo
-             enddo
-             epstinv(ix+1:ngb,ix+1:ngb)=epstilde(ix+1:ngb,ix+1:ngb)
-             call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
-             if(iq0<=nq0i) llw(iw,iq0)= 1d0/epstinv(1,1)
-             !     ! Wing elements calculation july2016
-             !     ! We need check nqb is the same as that of q=0
-             if(ixyz(iq0)/=0 .AND. iw==0) then
-                if(ngb/=ngbq0) then
-                   write(6,*)q,iq0,ngb,ngbq0
-                   call rx('hx0p0_sc: ngb/=ngbq0')
-                endif
-                wmuk(2:ngb,ixyz(iq0))=epstinv(1,2:ngb)/epstinv(1,1) ! this is dot(q(:)*w_mu(:,igb)). See PRB125102(2016) eq.(36)
-             endif
-          !else
-          !   if(iq0<=nq0i) llw(iw,iq0)= 1d0 - vcou1*zxq(1,1,iw)
-          !endif
-          if(iq0<=nq0i) write(6,"('epsWVR: iq iw_R omg(iw) eps(wFC) eps(woLFC) ', &
-               2i5,x,10(d13.6,2x,d13.6,x,d13.6,2x,d13.6,x,d13.6))") &
-               iq,iw,freq_r(iw),llw(iw,iq0),1d0-vcou1*zxq(1,1,iw)
-          continue               !iw
-1115   enddo
+      iq0 = iq - nqibz
+      vcou1 = fourpi/sum(q**2*tpioa**2) ! --> vcousq(1)**2!  !fourpi/sum(q**2*tpioa**2-eee)
+      do 1115 iw  = nwmin,nwmax
+        if(emptyrun) exit
+        frr= dsign(freq_r(abs(iw)),dble(iw))
+        !! Full inversion to calculalte eps with LFC.
+        !if(localfieldcorrectionllw()) then
+        ix=0
+        eee=0d0
+        do igb1=ix+1,ngb
+          do igb2=ix+1,ngb
+            if(igb1==1 .AND. igb2==1) then
+              epstilde(igb1,igb2)= 1d0 - vcou1*zxq(1,1,iw)
+              cycle
+            endif
+            epstilde(igb1,igb2)= -vcousq(igb1)*zxq(igb1,igb2,iw)*vcousq(igb2)
+            if(igb1==igb2) then
+              epstilde(igb1,igb2)=1d0 + epstilde(igb1,igb2)
+            endif
+          enddo
+        enddo
+        epstinv(ix+1:ngb,ix+1:ngb)=epstilde(ix+1:ngb,ix+1:ngb)
+        call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
+        if(iq0<=nq0i) llw(iw,iq0)= 1d0/epstinv(1,1)
+        !     ! Wing elements calculation july2016    ! We need check nqb is the same as that of q=0
+        if(ixyz(iq0)/=0 .AND. iw==0) then
+          if(ngb/=ngbq0) then
+            write(6,*)q,iq0,ngb,ngbq0
+            call rx('hx0p0_sc: ngb/=ngbq0')
+          endif
+          wmuk(2:ngb,ixyz(iq0))=epstinv(1,2:ngb)/epstinv(1,1) ! this is dot(q(:)*w_mu(:,igb)). See PRB125102(2016) eq.(36)
+        endif
+        !else
+        !   if(iq0<=nq0i) llw(iw,iq0)= 1d0 - vcou1*zxq(1,1,iw)
+        !endif
+        if(iq0<=nq0i) write(6,"('epsWVR: iq iw_R omg(iw) eps(wFC) eps(woLFC) ', &
+             2i5,x,10(d13.6,2x,d13.6,x,d13.6,2x,d13.6,x,d13.6))") &
+             iq,iw,freq_r(iw),llw(iw,iq0),1d0-vcou1*zxq(1,1,iw)
+        continue               !iw
+1115  enddo
     endif
   end subroutine WVRllwR
   subroutine WVIllwi(q,iq,zxqi,nmbas1,nmbas2)
