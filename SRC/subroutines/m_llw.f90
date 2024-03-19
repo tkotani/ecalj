@@ -100,7 +100,7 @@ contains
           if(emptyrun) exit
           frr= dsign(freq_r(abs(iw)),dble(iw))
           !! Full inversion to calculalte eps with LFC.
-          if(localfieldcorrectionllw()) then
+          !if(localfieldcorrectionllw()) then
              ix=0
              eee=0d0
              do igb1=ix+1,ngb
@@ -127,9 +127,9 @@ contains
                 endif
                 wmuk(2:ngb,ixyz(iq0))=epstinv(1,2:ngb)/epstinv(1,1) ! this is dot(q(:)*w_mu(:,igb)). See PRB125102(2016) eq.(36)
              endif
-          else
-             if(iq0<=nq0i) llw(iw,iq0)= 1d0 - vcou1*zxq(1,1,iw)
-          endif
+          !else
+          !   if(iq0<=nq0i) llw(iw,iq0)= 1d0 - vcou1*zxq(1,1,iw)
+          !endif
           if(iq0<=nq0i) write(6,"('epsWVR: iq iw_R omg(iw) eps(wFC) eps(woLFC) ', &
                2i5,x,10(d13.6,2x,d13.6,x,d13.6,2x,d13.6,x,d13.6))") &
                iq,iw,freq_r(iw),llw(iw,iq0),1d0-vcou1*zxq(1,1,iw)
@@ -193,7 +193,7 @@ contains
        vcou1 = fourpi/sum(q**2*tpioa**2) ! --> vcousq(1)**2!  !fourpi/sum(q**2*tpioa**2-eee)
        do 1116 iw  = 1,niw
           if(emptyrun) exit
-          if(localfieldcorrectionllw()) then
+          !if(localfieldcorrectionllw()) then
              ix=0
              do igb1=ix+1,ngb
                 do igb2=ix+1,ngb
@@ -210,9 +210,9 @@ contains
              epstinv(ix+1:ngb,ix+1:ngb)=epstilde(ix+1:ngb,ix+1:ngb)
              call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
              if(iq0<=nq0i) llwI(iw,iq0)= 1d0/epstinv(1,1)
-          else
-             if(iq0<=nq0i) llwI(iw,iq0)=  1d0 -vcou1*zxqi(1,1,iw)
-          endif
+          !else
+          !   if(iq0<=nq0i) llwI(iw,iq0)=  1d0 -vcou1*zxqi(1,1,iw)
+          !endif
           if(iq0<=nq0i) write(6,"('iq iw_img eps(wLFC) eps(noLFC)',i4,i4,2f10.4,2x,2f10.4)") &
                iq,iw,llwI(iw,iq0),1d0-vcou1*zxqi(1,1,iw)
 1116   enddo

@@ -17,16 +17,16 @@ real(8) function deltaq_scale()
      call rx( 'Use Q0Pchoice = 1 or 2 (=1 is default)')
   endif
 END function deltaq_scale
-logical function localfieldcorrectionllw()
-  use m_keyvalue,only: getkeyvalue
-  logical,save:: init=.true.,ttt
-  if(init) then
-     call getkeyvalue("GWinput","LFC@Gamma",ttt,default=.true.)
-     write(6,*)'LFC@Gamma=',ttt
-     init=.false.
-  endif
-  localfieldcorrectionllw=ttt
-end function localfieldcorrectionllw
+! logical function localfieldcorrectionllw()
+!   use m_keyvalue,only: getkeyvalue
+!   logical,save:: init=.true.,ttt
+!   if(init) then
+!      call getkeyvalue("GWinput","LFC@Gamma",ttt,default=.true.)
+!      write(6,*)'LFC@Gamma=',ttt
+!      init=.false.
+!   endif
+!   localfieldcorrectionllw=ttt
+! end function localfieldcorrectionllw
 logical function addbasnew()
   addbasnew=.true. !new version of adding polynomial-like product basis in MTs.
   ! If false, use old version (less product basis set is added.)

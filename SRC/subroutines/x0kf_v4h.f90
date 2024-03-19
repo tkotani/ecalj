@@ -150,20 +150,7 @@ contains
     ! note: zmel: matrix element <phi phi |M>
     !! nlmto   = total number of atomic basis functions within MT
     !! nqbz    = number of k-points in the 1st BZ
-    logical,optional:: chipm,nolfco
-    real(8),optional::q00(3)
-    integer,optional::nmbas
-    integer:: k,isp_k,isp_kq,iq, jpm, ibib, iw,igb2,igb1,it,itp, npr ,npr_in
-    integer:: nkmax1,nkqmax1, ib1, ib2, ngcx,ix,iy,igb ,   irot=1         
-    integer:: izmel,ispold,nmtot,nqtot ,ispold2,ierr,iwmax,ifi0,icoucold,icoun
-    integer:: nwj(nwhis,npm),imb, nadd(3), igc ,neibz,icc,ig,ikp,i,j,itimer,icount, kold 
-    real(8):: q(3),imagweight, wpw_k,wpw_kq,qa,q0a
-!    complex(8):: rcxq (npr*(npr+1)/2,nwhis,npm) !only upper-right of rcxq
-    complex(8):: img=(0d0,1d0),zmelt2!, zmelzmel(npr*(npr+1)/2)
-    complex(8),optional:: zzr(:,:)
-    complex(8),allocatable :: zmelt(:,:,:)
-    logical :: iww2=.true., cmdopt0,emptyrun,nolfcc,chipmm, localfieldcorrectionllw
-    logical,parameter:: debug=.false.
+    
     
     ! z1p = <M_ibg1 psi_it | psi_itp> < psi_itp | psi_it M_ibg2 >
     !  zxq(iw,ibg1,igb2) = \sum_ibib imgw(iw,ibib)* z1p(ibib, igb1,igb2) !ibib means band pair (occ,unocc)
@@ -193,106 +180,92 @@ contains
     !! zmel(ngb, nctot+nt0,  ncc+ntp0) in m_zmel
     !            nkmin:nt0, nkqmin:ntp0, where nt0=nkmax-nkmin+1  , ntp0=nkqmax-nkqmin+1
 
+    logical,optional:: chipm,nolfco
+    real(8),optional::q00(3)
+    integer,optional::nmbas
+    integer:: k,isp_k,isp_kq,iq, jpm, ibib, iw,igb2,igb1,it,itp, npr, nkmax1,nkqmax1, ib1, ib2, ngcx,ix,iy,igb, irot=1
+    integer:: izmel,ispold,nmtot,nqtot ,ispold2,ierr,iwmax,ifi0,icoucold,icoun
+    integer:: nwj(nwhis,npm),imb, nadd(3), igc ,neibz,icc,ig,ikp,i,j,itimer,icount, kold 
+    real(8):: q(3),imagweight, wpw_k,wpw_kq,qa,q0a !    complex(8):: rcxq (npr*(npr+1)/2,nwhis,npm) !only upper-right of rcxq
+    complex(8):: img=(0d0,1d0),zmelt2!, zmelzmel(npr*(npr+1)/2)
+    complex(8),optional:: zzr(:,:)
+    complex(8),allocatable :: zmelt(:,:,:)
+    logical :: iww2=.true., cmdopt0,emptyrun,nolfcc, localfieldcorrectionllw
+    logical,parameter:: debug=.false.
     emptyrun=cmdopt0('--emptyrun')
-    chipmm=chipm
     nolfcc=nolfco
-    !if(present(chipm)) chipmm=.true. !merge(chipm, .false.,present(chipm)) !nvfortran24.1 can not compile present(chipm)
-    !if(present(nolfco))nolfcc=.true. !merge(nolfco,.false.,present(nolfco))
-    call Readvcoud(q,iq,NoVcou=chipmm) !Readin vcousq,zcousq ngb ngc for the Coulomb matrix
-    if(chipmm) then ! .AND. nolfcc) then
-       npr = nmbas
-    elseif(nolfcc) then
-       npr=1
-    elseif(iq > nqibz .AND. (.NOT.localfieldcorrectionllw())  ) then
-       npr = 1
-    else          ! We usually use localfieldcorrectionllw()=T
-       npr = ngb
-    endif
-    if(chipmm .AND. nolfcc) then
+    if(chipm .AND. nolfcc) then
        call setppovlz_chipm(zzr,npr) !!!!!!!! zzr??? optional chipm,nolfco zzr(1:nbloch,1:npr)
     else
        call Setppovlz(q,matz=.true.)
     endif
-    ! !!!!!!!!!!!!!!!!!!!!!!!!
-!    if(.not. allocated(rcxq)) allocate( rcxq(npr*(npr+1)/2,nwhis,npm),source=(0d0,0d0))
-    if(.not. allocated(rcxq)) allocate( rcxq(npr,npr,nwhis,npm),source=(0d0,0d0))
-    
-    zmel0mode: if(cmdopt0('--zmel0')) then !this is for epsPP0. Use zmel-zmel0 for matrix elements.
-       zmel0block : block
-         real(8)::  q1a,q2a,rfac00
-         complex(8),allocatable:: zmel0(:,:,:)
-         kold = -999 
-         q1a=sum(q00**2)**.5
-         q2a=sum(q**2)**.5
-         rfac00=q2a/(q2a-q1a)
-         zmel0modeicount: do icoun = 1,ncoun !ncount             !icoun=icouc(icount)
-            k   = kc(icoun)
-            it  = itc (icoun)  !occ      k
-            itp = itpc(icoun) !unocc    q+k
-            jpm = jpmc(icoun) ! \pm omega. Usual mode is only for jpm=1
-            if(kold/=k) then
-               call x0kf_zmel(q00,k, isp_k,isp_kq)
-               if(allocated(zmel0)) deallocate(zmel0)
-               allocate(zmel0,source=zmel)
-               call x0kf_zmel(q, k, isp_k,isp_kq)
-               kold=k
-            endif
-            do iw=iwini(icoun),iwend(icoun) !!iw  = iwc(icount)  !omega-bin
-               icount= icouini(icoun)+iw-iwini(icoun)
-               if(abs(zmel0(1,it,itp))>1d10) cycle !We assume rcxq(1) in this mode
-!               rcxq(1,iw,jpm)=rcxq(1,iw,jpm) +rfac00**2*(abs(zmel(1,it,itp))-abs(zmel0(1,it,itp)))**2 *whwc(icount)
-               rcxq(1,1,iw,jpm)=rcxq(1,1,iw,jpm) +rfac00**2*(abs(zmel(1,it,itp))-abs(zmel0(1,it,itp)))**2 *whwc(icount)
-            enddo
-         enddo zmel0modeicount
-       endblock zmel0block
-       goto 2000 
+    if(.not. allocated(rcxq)) allocate( rcxq(npr,npr,nwhis,npm),source=(0d0,0d0)) !allocate( rcxq(npr*(npr+1)/2,nwhis,npm),source=(0d0,0d0))
+    zmel0mode: if(cmdopt0('--zmel0')) then !this is for epsPP0. Use zmel-zmel0 (for subtracting numerical error) for matrix elements.
+      zmel0block : block
+        real(8)::  q1a,q2a,rfac00
+        complex(8),allocatable:: zmel0(:,:,:)
+        kold = -999 
+        q1a=sum(q00**2)**.5
+        q2a=sum(q**2)**.5
+        rfac00=q2a/(q2a-q1a)
+        zmel0modeicount: do icoun = 1,ncoun !ncount             !icoun=icouc(icount)
+          k   = kc(icoun)
+          it  = itc (icoun)  !occ      k
+          itp = itpc(icoun) !unocc    q+k
+          jpm = jpmc(icoun) ! \pm omega. Usual mode is only for jpm=1
+          if(kold/=k) then
+            call x0kf_zmel(q00,k, isp_k,isp_kq)
+            if(allocated(zmel0)) deallocate(zmel0)
+            allocate(zmel0,source=zmel)
+            call x0kf_zmel(q, k, isp_k,isp_kq)
+            kold=k
+          endif
+          do iw=iwini(icoun),iwend(icoun) !!iw  = iwc(icount)  !omega-bin
+            icount= icouini(icoun)+iw-iwini(icoun)
+            if(abs(zmel0(1,it,itp))>1d10) cycle !We assume rcxq(1) in this mode
+            !               rcxq(1,iw,jpm)=rcxq(1,iw,jpm) +rfac00**2*(abs(zmel(1,it,itp))-abs(zmel0(1,it,itp)))**2 *whwc(icount)
+            rcxq(1,1,iw,jpm)=rcxq(1,1,iw,jpm) +rfac00**2*(abs(zmel(1,it,itp))-abs(zmel0(1,it,itp)))**2 *whwc(icount)
+          enddo
+        enddo zmel0modeicount
+      endblock zmel0block
+      goto 2000 
     endif zmel0mode
+     
     kold = -999
     icoucold=-999
     ! rcxq(ibg1,igb2,iw) = sum_ibib wwk(iw,ibib)* <M_ibg1(q) psi_it(k)| psi_itp(q+k)> < psi_itp | psi_it M_ibg2 >
     mainloop4rcxqsum: do 1000 icoun=1,ncoun ! = 1,ncount
-!       checkwritenwj: if((kold/=k.or.icoun==ncoun).and.kold/=-999) then
-!          do jpm=1,npm
-!             do iw=1,nwhis
-!                write(stdo,ftox)'icounloop: iq k iw jpm',iq,kold,iw,jpm,nwj(iw,jpm)
-!             enddo
-!          enddo
-!          nwj=0
-!       endif checkwritenwj
-       if(emptyrun) then
-          write(stdo,ftox)'icoun: iq k jpm it itp n(iw)=',icoun,iq,k,jpm,it,itp,iwend(icoun)-iwini(icoun)+1
-          cycle
-       endif   
-       !####################### time-consuming part 
-       k = kc(icoun)
-       if(kold/=k) then !get zmel for k
-          call x0kf_zmel(q, k, isp_k,isp_kq) !Return zmel(igb q,  k it occ,   q+k itp unocc)
-          kold=k
-       endif
-       associate( &
-            jpm => jpmc(icoun),&  !\pm omega 
-            it  => itc (icoun),&  !occ      at k
-            itp => itpc(icoun))   !unocc    at q+k
-         block
-!           complex(8):: zmelzmel(npr*(npr+1)/2)
-!           do concurrent(igb2=1:npr) !upper-light block of zmel*zmel
-!              zmelzmel(1+(igb2-1)*igb2/2:igb2+(igb2-1)*igb2/2)= dconjg(zmel(1:igb2,it,itp))*zmel(igb2,it,itp) !right-upper half
-!           enddo
-!           forall(iw=iwini(icoun):iwend(icoun)) rcxq(:,iw,jpm)=rcxq(:,iw,jpm)+whwc(iw-iwini(icoun)+icouini(icoun))*zmelzmel(:) !zaxpy
-           complex(8):: zmelzmel(npr,npr)
-           do concurrent(igb1=1:npr,igb2=1:npr) !upper-light block of zmel*zmel
-              zmelzmel(igb1,igb2)= dconjg(zmel(igb1,it,itp))*zmel(igb2,it,itp) !right-upper half
-           enddo
-           forall(iw=iwini(icoun):iwend(icoun)) rcxq(:,:,iw,jpm)=rcxq(:,:,iw,jpm)+whwc(iw-iwini(icoun)+icouini(icoun))*zmelzmel(:,:) !zaxpy
-           !  forall(iw=iwini(icoun):iwend(icoun)) nwj(iw,jpm)=nwj(iw,jpm)+iwend(icoun)-iwini(icoun)+1 !onlyfor check counter
-         endblock
-       endassociate
-       !#####################  
+      if(emptyrun) then
+        write(stdo,ftox)'icoun: iq k jpm it itp n(iw)=',icoun,iq,k,jpm,it,itp,iwend(icoun)-iwini(icoun)+1
+        cycle
+      endif
+      k = kc(icoun)
+      if(kold/=k) then !get matrix element: zmel for k
+        call x0kf_zmel(q, k, isp_k,isp_kq) !Return zmel(igb q,  k it occ,   q+k itp unocc)
+        kold=k
+      endif
+      associate( &
+           jpm => jpmc(icoun),&  !\pm omega 
+           it  => itc (icoun),&  !occ      at k
+           itp => itpc(icoun))   !unocc    at q+k
+        block !####################### time-consuming part 
+          ! complex(8):: zmelzmel(npr*(npr+1)/2)
+          ! do concurrent(igb2=1:npr) !upper-light block of zmel*zmel
+          !    zmelzmel(1+(igb2-1)*igb2/2:igb2+(igb2-1)*igb2/2)= dconjg(zmel(1:igb2,it,itp))*zmel(igb2,it,itp) !right-upper half
+          ! enddo
+          ! forall(iw=iwini(icoun):iwend(icoun)) rcxq(:,iw,jpm)=rcxq(:,iw,jpm)+whwc(iw-iwini(icoun)+icouini(icoun))*zmelzmel(:) 
+          complex(8):: zmelzmel(npr,npr)
+          do concurrent(igb1=1:npr,igb2=1:npr) !upper-light block of zmel*zmel
+            zmelzmel(igb1,igb2)= dconjg(zmel(igb1,it,itp))*zmel(igb2,it,itp) !right-upper half
+          enddo
+          forall(iw=iwini(icoun):iwend(icoun)) rcxq(:,:,iw,jpm)=rcxq(:,:,iw,jpm)+whwc(iw-iwini(icoun)+icouini(icoun))*zmelzmel(:,:) !zaxpy
+          !  forall(iw=iwini(icoun):iwend(icoun)) nwj(iw,jpm)=nwj(iw,jpm)+iwend(icoun)-iwini(icoun)+1 !onlyfor check counter
+        endblock
+      endassociate
 1000 enddo mainloop4rcxqsum
 2000 continue
     deallocate(nkmin,nkmax,nkqmin,nkqmax,whwc,kc,itc,itpc,iwini,iwend,jpmc,icouini)
     write(stdo,ftox) " --- x0kf_v4hz: end"
-!    if(debug)write(stdo,"(' --- ', 3d13.5)")sum(abs(rcxq(:,1:nwhis,1:npm))),sum((rcxq(:,1:nwhis,1:npm)))
 !    if(debug)write(stdo,"(' --- ', 3d13.5)")sum(abs(rcxq(:,:,1:nwhis,1:npm))),sum((rcxq(:,:,1:nwhis,1:npm)))
   end subroutine x0kf_v4hz
   subroutine X0kf_zmel( q,k, isp_k,isp_kq) ! Return zmel= <phi phi |M_I> in m_zmel

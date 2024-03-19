@@ -26,18 +26,19 @@ subroutine hrcxq()
   use m_readgwinput,only: ReadGwinputKeys,egauss,ecut,ecuts,mtet,ebmx,nbmx,imbas
   use m_qbze,only:    Setqbze,nqbze,nqibze,qbze,qibze
   use m_readhbe,only: Readhbe,nband !,nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg !  use m_eibz,only:    Seteibz,nwgt,neibz,igx,igxt,eibzsym
-  use m_x0kf,only:    X0kf_v4hz,x0kf_v4hz_init_read,rcxq,DeallocateRcxq  !X0kf_v4hz_init,,x0kf_v4hz_init_write !X0kf_v4hz_symmetrize,
+  use m_x0kf,only: X0kf_v4hz,x0kf_v4hz_init,x0kf_v4hz_init_read,rcxq,DeallocateRcxq  !X0kf_v4hz_init,,x0kf_v4hz_init_write !X0kf_v4hz_symmetrize,
   use m_llw,only: WVRllwR,WVIllwI,w4pmode,MPI__sendllw
   use m_mpi,only: MPI__Initialize,MPI__root,MPI__rank,MPI__size,MPI__consoleout,comm
   use m_lgunit,only: m_lgunit_init,stdo
   use m_ftox
+  use m_readVcoud,only: Readvcoud,ngb
   implicit none
   real(8),parameter:: pi = 4d0*datan(1d0),fourpi = 4d0*pi,sqfourpi= sqrt(fourpi)
-  integer:: iq,isf,kx,ixc,iqxini,iqxend,is,iw,ifwd,ngrpx,verbose,nmbas,nmbas_in,ifif
+  integer:: iq,kx,ixc,iqxini,iqxend,is,iw,ifwd,ngrpx,verbose,nmbas,nmbas_in,ifif
   integer:: i_red_npm,i_red_nwhis, i_red_nmbas2,ierr,ircxq,npmx
-  integer:: ipart,iwhis,igb1,imb,igb2
+  integer:: ipart,iwhis,igb1,imb,igb2,isf
   real(8):: ua=1d0,qp(3),quu(3),hartree,rydberg,schi=-9999
-  logical :: debug=.false. ,realomega,imagomega,nolfco=.false.
+  logical :: debug=.false. ,realomega,imagomega!,nolfco=.false.
   logical :: hx0,iprintx=.false.,chipm=.false.,localfieldcorrectionllw   !eibzmode,eibz4x0,
   logical:: cmdopt2,emptyrun,cmdopt0
   character(10) :: i2char
@@ -77,62 +78,77 @@ subroutine hrcxq()
   ! nblochpmx = nbloch + ngcmx ! Maximum of MPB = PBpart +  IPWpartforMPB
   iqxini = 1
   iqxend = nqibz + nq0i + nq0iadd ! [iqxini:iqxend] range of q points.
-!  call MPI__hx0fp0_rankdivider2Q(iqxini,iqxend) ! Rank divider
   allocate( mpi__Qrank(iqxini:iqxend), source=[(mod(iq-1,mpi__size)           ,iq=iqxini,iqxend)])
   allocate( mpi__Qtask(iqxini:iqxend), source=[(mod(iq-1,mpi__size)==mpi__rank,iq=iqxini,iqxend)])
   write(6,*)'mpi_rank',mpi__rank,'mpi__Qtask=',mpi__Qtask
   if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
+
   Obtainrcxq: do 1001 iq = iqxini,iqxend
-     if( .NOT. MPI__Qtask(iq) ) cycle
-     call cputid (0)
-     qp = qibze(:,iq)
-     write(stdo,ftox)'do 1001: iq q=',iq,ftof(qp,4) !4 means four digits below decimal point (optional).
-     GetImpartPolarizationFunction_rcxq: block
-       do is = 1,nspin ! rcxq is being acuumulated for spins
-          write(stdo,ftox)' ### ',iq,is,' out of nqibz+n0qi+nq0iadd nsp=',nqibz+nq0i+nq0iadd,nspin
-          isf = is
-          call X0kf_v4hz_init_read(iq,is) !Readin icount data (index sets and tetrahedron weight) into m_x0kf
-          call x0kf_v4hz(qp, is,isf, iq, nmbas, chipm=.false.,nolfco=.false.)  !retrun rcxq
-       enddo
-       write(stdo,ftox)'end of x0kf_v4hz'
-       ! allocate(rcxqin(nmbas,nmbas,nwhis,npm))
-       ! do iwhis=1,nwhis
-       !    do concurrent(igb2=1:nmbas) !upper-right block of zmel*zmel
-       !       imb= (igb2-1)*igb2/2
-       !       rcxqin(1:igb2,igb2,iwhis,:)   =        rcxq(imb+1:imb+igb2,  iwhis,:)   !right-upper half
-       !       rcxqin(igb2,1:igb2-1,iwhis,:) = dconjg(rcxq(imb+1:imb+igb2-1,iwhis,:))  
-       !    enddo
-       ! enddo
-       !deallocate(rcxq)
-     endblock GetImpartPolarizationFunction_rcxq
-     HilbertTransformationByDpsion5: block
-       write(stdo,ftox)"Hilbert transformation by dpsion5: nwhis nw_i niw nw_w nmbas=",nwhis,nw_i,nw,niw,nmbas
-       if(realomega) allocate( zxq (nmbas,nmbas,nw_i:nw),source=(0d0,0d0))
-       if(imagomega) allocate( zxqi(nmbas,nmbas,niw),source=(0d0,0d0)    )
-       if(.not.emptyrun) then 
-         call dpsion5(realomega, imagomega, rcxq, nmbas,nmbas, zxq,zxqi, chipm, schi,is, ecut,ecuts) !Hilbert transform . Real part from Imag part.
-!          call dpsion5(realomega, imagomega, rcxqin, nmbas,nmbas, zxq,zxqi, chipm, schi,is, ecut,ecuts) !Hilbert transform . Real part from Imag part. 
-       endif
-       call DeallocateRcxq()
-!       deallocate(rcxqin)
-       if(debug) print *,'sumchk zxq=',sum(zxq),sum(abs(zxq)),' zxqi=',sum(zxqi),sum(abs(zxqi))
-       if(emptyrun) then
-          deallocate(zxqi,zxq)
-          cycle
-       endif
-       ! GetWV: block !W-V in Random phase approximation: Files WVR and WVI. Note we have wing elemments: llw, llwi LLWR, LLWI
-       GetWVRealOmeg: if (realomega) then
-          call WVRllwR(qp,iq,zxq,nmbas,nmbas) !emptyrun in it
-          deallocate(zxq)
-       endif GetWVRealOmeg
-       GetWVImagOmeg:if (imagomega) then
-          call WVIllwI(qp,iq,zxqi,nmbas,nmbas) 
-          deallocate(zxqi)
-       endif GetWVImagOmeg
-     endblock HilbertTransformationByDpsion5
+    if( .NOT. MPI__Qtask(iq) ) cycle
+    qp = qibze(:,iq)
+    call cputid (0)
+    call Readvcoud(qp, iq,NoVcou=chipm) !Readin vcousq,zcousq ngb ngc for the Coulomb matrix
+    nmbas=ngb
+    write(stdo,ftox)'do 1001: iq q=',iq,ftof(qp,4) !4 means four digits below decimal point (optional).
+    
+    GetImpartPolarizationFunction_rcxq: block
+      do is = 1,nspin ! rcxq is being acuumulated for spins
+        write(stdo,ftox)' ### ',iq,is,' out of nqibz+n0qi+nq0iadd nsp=',nqibz+nq0i+nq0iadd,nspin
+        isf = is
+        call X0kf_v4hz_init_read(iq,is) !Readin icount data (index sets and tetrahedron weight) into m_x0kf
+        call x0kf_v4hz(qp, is,isf, iq, nmbas, chipm=chipm,nolfco=.false.)  !retrun rcxq
+      enddo
+    endblock GetImpartPolarizationFunction_rcxq
+    write(stdo,ftox)"Hilbert transformation by dpsion5: nwhis nw_i niw nw_w nmbas=",nwhis,nw_i,nw,niw,nmbas
+    HilbertTransformationByDpsion5: block
+      if(realomega) allocate( zxq (nmbas,nmbas,nw_i:nw),source=(0d0,0d0))
+      if(imagomega) allocate( zxqi(nmbas,nmbas,niw),source=(0d0,0d0)    )
+      if(.not.emptyrun) then 
+        call dpsion5(realomega, imagomega, rcxq, nmbas,nmbas, zxq,zxqi, chipm, schi,is, ecut,ecuts) !Hilbert transform . Real part from Imag part.
+        ! call dpsion5(realomega, imagomega, rcxqin, nmbas,nmbas, zxq,zxqi, chipm, schi,is, ecut,ecuts) !Hilbert transform . Real part from Imag part. 
+      endif
+    endblock HilbertTransformationByDpsion5
+    call DeallocateRcxq()
+
+!!!!! case without hx0init        
+    !allocate(ekxx1(nband,nqbz),ekxx2(nband,nqbz))
+    !forall(kx=1:nqbz) ekxx1(1:nband, kx)  = readeval(qbz  (:,kx), is )
+    !forall(kx=1:nqbz) ekxx2(1:nband, kx)  = readeval(qp+qbz(:,kx), isf)
+    !call gettetwt(qp,iq,is,isf,ekxx1,ekxx2,nband=nband) !,eibzmode=eibzmode) !Get Tetrahedron weight for x0kf_v4hz
+    !ierr=x0kf_v4hz_init(0,qp,is,isf,iq,nmbas, crpa=.false.)!no crpa case. We may need to set crpa as is done in hx0init
+    !ierr=x0kf_v4hz_init(1,qp,is,isf,iq,nmbas, crpa=.false.) 
+    !call x0kf_v4hz(qp, is,isf, iq, nmbas, chipm=chipm,nolfco=.false.)  !retrun rcxq
+    !call tetdeallocate() !    if(debug) write(6,"(a)") ' --- goto dpsion5 --- '
+    !deallocate(ekxx1,ekxx2)
+    !enddo
+!!!!!         
+    ! allocate(rcxqin(nmbas,nmbas,nwhis,npm))
+    ! do iwhis=1,nwhis
+    !    do concurrent(igb2=1:nmbas) !upper-right block of zmel*zmel
+    !       imb= (igb2-1)*igb2/2
+    !       rcxqin(1:igb2,igb2,iwhis,:)   =        rcxq(imb+1:imb+igb2,  iwhis,:)   !right-upper half
+    !       rcxqin(igb2,1:igb2-1,iwhis,:) = dconjg(rcxq(imb+1:imb+igb2-1,iwhis,:))  
+    !    enddo
+    ! enddo
+    !deallocate(rcxq)
+    !write(stdo,ftox)'end of x0kf_v4hz'
+    !       deallocate(rcxqin)
+    if(debug) print *,'sumchk zxq=',sum(zxq),sum(abs(zxq)),' zxqi=',sum(zxqi),sum(abs(zxqi))
+    if(emptyrun) then
+      deallocate(zxqi,zxq)
+      cycle
+    endif
+    GetWVRealOmeg: if (realomega) then !W-V in Random phase approximation: Files WVR and WVI. 
+      call WVRllwR(qp,iq,zxq,nmbas,nmbas) !emptyrun in it
+      deallocate(zxq)
+    endif GetWVRealOmeg
+    GetWVImagOmeg:if (imagomega) then
+      call WVIllwI(qp,iq,zxqi,nmbas,nmbas) 
+      deallocate(zxqi)
+    endif GetWVImagOmeg
 1001 enddo obtainrcxq
-  GetEffectiveWVatGammaCell: block !Get W-v(q=0) :Divergent part and non-analytic constant part of W(0) calculated from llw
-    ! == Get W(q=0) : Divergent part and non-analytic constant part of W(0) ==
+   GetEffectiveWVatGammaCell: block !Get W-v(q=0) :Divergent part and non-analytic constant part of W(0) calculated from llw
+    ! we have wing elemments: llw, llwi LLWR, LLWI
     call MPI_barrier(comm,ierr)
     call MPI__sendllw(iqxend,MPI__Qrank) !!! Send all LLW data to mpi_root.
     ! Get effective W0,W0i, and L(omega=0) matrix. Modify WVR WVI with w0 and w0. Files WVI and WVR are modified.
