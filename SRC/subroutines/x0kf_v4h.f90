@@ -24,17 +24,17 @@ module m_x0kf
   real(8),allocatable:: whwc(:)
   integer,allocatable:: iwini(:),iwend(:),itc(:),itpc(:),jpmc(:),icouini(:)  
 contains
-  subroutine x0kf_gettet(nspin,nqbz,nband,nmbas,qbz,qp,iq,crpa,chipm)
+  subroutine x0kf_gettet(nmbas,qp,iq,crpa,chipm)
     use m_readeigen,only:readeval
     implicit none
-    integer:: nqbz,is,isf,nspin,kx,nband,iq,ierr,nmbas
-    real(8):: qbz(3,nqbz),qp(3),ekxx1(nband,nqbz),ekxx2(nband,nqbz)
+    integer:: is,isf,kx,iq,ierr,nmbas
+    real(8):: qp(3),ekxx1(nband,nqbz),ekxx2(nband,nqbz) !qbz(3,nqbz),nqbz,
     logical:: crpa,chipm
-     isloop: do 1103 is = 1,nspin
+     isloop: do 1103 is = 1,nsp
         isf = merge(3-is,is,chipm) ! if(is==1) isf=2  if(is==2) isf=1 for chipm
         do kx = 1, nqbz
-           ekxx1(1:nband,kx) = readeval(qbz(:,kx),    is ) ! read eigenvalue
-           ekxx2(1:nband,kx) = readeval(qp+qbz(:,kx), isf) !
+           ekxx1(1:nband,kx) = readeval(rk(:,kx),    is ) ! read eigenvalue
+           ekxx2(1:nband,kx) = readeval(qp+rk(:,kx), isf) !
         enddo
         call gettetwt(qp,iq,is,isf,ekxx1,ekxx2,nband=nband) !,eibzmode=eibzmode) !,nwgt(:,iq) Tetrahedron weight for x0kf_v4hz
         ierr=x0kf_v4hz_init(0,qp,is,isf,iq,nmbas, crpa=crpa)
@@ -127,19 +127,19 @@ contains
     deallocate( whwc, kc, iwini,iwend, itc, itpc, jpmc,icouini )
     close(ix0)
   end subroutine X0kf_v4hz_init_write
-  subroutine X0kf_v4hz_init_read(iq,is)
-    integer:: iq,is,ix0
-    character(10) :: i2char
-    open(newunit=ix0,file='x0icount.'//trim(i2char(iq))//'_'//trim(i2char(is)),form='unformatted')
-    read(ix0)ncount,ncoun
-    if(allocated(whwc)) deallocate( whwc, kc, iwini,iwend, itc, itpc, jpmc, nkmin,nkmax,nkqmin,nkqmax)
-    allocate( whwc(ncount), kc(ncoun), iwini(ncoun),iwend(ncoun),itc(ncoun),itpc(ncoun), jpmc(ncoun),&
-         icouini(ncoun) )
-    allocate( nkmin(nqbz),nkmax(nqbz),nkqmin(nqbz),nkqmax(nqbz))
-    read(ix0) whwc, kc, iwini,iwend, itc,itpc, jpmc,icouini
-    read(ix0) nkmin,nkmax,nkqmin,nkqmax
-    close(ix0)
-  end subroutine X0kf_v4hz_init_read
+  ! subroutine X0kf_v4hz_init_read(iq,is)
+  !   integer:: iq,is,ix0
+  !   character(10) :: i2char
+  !   open(newunit=ix0,file='x0icount.'//trim(i2char(iq))//'_'//trim(i2char(is)),form='unformatted')
+  !   read(ix0)ncount,ncoun
+  !   if(allocated(whwc)) deallocate( whwc, kc, iwini,iwend, itc, itpc, jpmc, nkmin,nkmax,nkqmin,nkqmax)
+  !   allocate( whwc(ncount), kc(ncoun), iwini(ncoun),iwend(ncoun),itc(ncoun),itpc(ncoun), jpmc(ncoun),&
+  !        icouini(ncoun) )
+  !   allocate( nkmin(nqbz),nkmax(nqbz),nkqmin(nqbz),nkqmax(nqbz))
+  !   read(ix0) whwc, kc, iwini,iwend, itc,itpc, jpmc,icouini
+  !   read(ix0) nkmin,nkmax,nkqmin,nkqmax
+  !   close(ix0)
+  ! end subroutine X0kf_v4hz_init_read
 
   subroutine X0kf_v4hz (q, isp_k,isp_kq, iq, npr,   q00,chipm,nolfco,zzr,nmbas)
     use m_zmel,only: Setppovlz,Setppovlz_chipm   ! & NOTE: these data set are stored in this module, and used
@@ -233,15 +233,27 @@ contains
     integer,optional::nmbas
     complex(8),optional:: zzr(:,:)
     real(8):: q(3),schi,ecut,ecuts
-    integer::iq,nspin,npr,is,isf
+    integer::iq,nspin,npr !,is,isf
     logical:: realomega,imagomega  !      GetImpartPolarizationFunction_zxq: block
     complex(8):: zxq(npr,npr, nw_i:nw_w),zxqi(npr,npr,niwt)
-    isloop2: do 1013 is = 1,nspin
-      isf = merge(3-is,is,chipm) ! if(is==1) isf=2  if(is==2) isf=1 for chipm
-      call X0kf_v4hz_init_read(iq,is) !Readin icount data (index sets and tetrahedron weight) into m_x0kf
-      call x0kf_v4hz(q,is,isf,iq, npr,q00,chipm,nolfco,zzr,nmbas)
-      if(is==nspin .OR. chipm) then
-        call dpsion5(realomega, imagomega, rcxq, npr,npr, zxq, zxqi, chipm, schi,is,  ecut,ecuts) 
+    integer:: isp_k,isp_kq,ix0
+    character(10) :: i2char
+    isloop2: do 1013 isp_k = 1,nspin
+!      call x0kf_gettet(nspin,nqbz,npr,qbz,qp,iq,crpa,chipm)
+      isp_kq = merge(3-isp_k,isp_k,chipm) 
+!!      call X0kf_v4hz_init_read(iq,is) !Readin icount data (index sets and tetrahedron weight) into m_x0kf
+      open(newunit=ix0,file='x0icount.'//trim(i2char(iq))//'_'//trim(i2char(isp_k)),form='unformatted')
+      read(ix0)ncount,ncoun
+      if(allocated(whwc)) deallocate( whwc, kc, iwini,iwend, itc, itpc, jpmc, nkmin,nkmax,nkqmin,nkqmax)
+      allocate( whwc(ncount), kc(ncoun), iwini(ncoun),iwend(ncoun),itc(ncoun),itpc(ncoun), jpmc(ncoun),icouini(ncoun) )
+      allocate( nkmin(nqbz),nkmax(nqbz),nkqmin(nqbz),nkqmax(nqbz))
+      read(ix0) whwc, kc, iwini,iwend, itc,itpc, jpmc,icouini
+      read(ix0) nkmin,nkmax,nkqmin,nkqmax
+      close(ix0)
+!      
+      call x0kf_v4hz(q,isp_k,isp_kq,iq, npr,q00,chipm,nolfco,zzr,nmbas)
+      if(isp_k==nspin .OR. chipm) then
+        call dpsion5(realomega, imagomega, rcxq, npr,npr, zxq, zxqi, chipm, schi,isp_k,  ecut,ecuts) 
         deallocate(rcxq)
       endif
 1013 enddo isloop2 !      endblock GetImpartPolarizationFunction_zxq

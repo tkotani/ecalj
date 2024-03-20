@@ -441,9 +441,9 @@ subroutine hx0fp0()
      if(debug) write(6,*)' niw nw=',niw,nw         !  chi(charge) or chi_+-(spin when chipm=T)
      write(6,"(' ##### ',2i4,' out of nqibz+n0qi nsp=',2i4,' ##### ')")iq, nqibz + nq0i, nspin
 ! get tetrahedron weight     
-     call x0kf_gettet(nspin,nqbz,nband,npr,qbz,q,iq,crpa,chipm)
-! get zxq,zxqi     
+     call x0kf_gettet(npr,q,iq,crpa,chipm) !nspin,nqbz,nband,npr,qbz,qp,iq,crpa,chipm)
      allocate(zxq(npr,npr,nw_i:nw), zxqi(npr,npr,niw),source=(0d0,0d0))
+! get zxq,zxqi     
      call x0kf_zxq(realomega,imagomega,q,iq,nspin,npr,schi,ecut,ecuts, zxq,zxqi, q00,chipm,nolfco,zzr,nmbas)
 !     
      realomegamode: if(realomega .AND. ( .NOT. epsmode)) then !===RealOmega === W-V: WVR and WVI. Wing elemments: llw, llwi LLWR, LLWI

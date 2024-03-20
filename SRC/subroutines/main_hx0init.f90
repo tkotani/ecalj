@@ -134,7 +134,7 @@ subroutine hx0init() !initializaiton of x0 calculaiton (W-v)
      if( .NOT. MPI__Qtask(iq) ) cycle
      qp = qibze(:,iq)
      write(stdo,"('do 1001: iq q=',i5,3f9.4)")iq,qp
-     call x0kf_gettet(nspin,nqbz,nband,nmbas_in,qbz,qp,iq,crpa,chipm)
+     call x0kf_gettet(nmbas_in,qp,iq,crpa,chipm) !nspin,nqbz,nband,npr,qbz,qp,iq,crpa,chipm)
 !      isloop: do 1103 is = 1,nspin 
 !         write(stdo,"(' ### ',2i4,' out of nqibz+n0qi+nq0iadd nsp=',2i4,' ### ')")iq,is,nqibz+nq0i+nq0iadd,nspin
 !         isf = merge(3-is,is,chipm) ! if(is==1) isf=2  if(is==2) isf=1 for chipm
