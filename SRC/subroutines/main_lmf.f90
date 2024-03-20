@@ -31,13 +31,13 @@ subroutine lmf(commin) bind(C) ! Bootstrap sequence of modules initialzation. Th
   use m_ftox
   use m_prgnam,only: set_prgnam
   implicit none
-  include "mpif.h" 
+  integer,optional:: commin
   integer:: iarg,iprint,jobgw=-1,ierr
   logical:: cmdopt0,cmdopt2, writeham,sigx
   character:: outs*20,aaa*512,sss*128
   character(32):: prgnam='LMF'
-  integer,optional:: commin
-  integer:: comm 
+  integer:: comm
+  include "mpif.h" 
   comm= merge(commin,MPI_COMM_WORLD,present(commin))
 !  call m_setargs()     ! Get argall
   call set_prgnam(prgnam) 

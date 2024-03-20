@@ -26,13 +26,13 @@ subroutine hrcxq()
   use m_readgwinput,only: ReadGwinputKeys,egauss,ecut,ecuts,mtet,ebmx,nbmx,imbas
   use m_qbze,only:    Setqbze,nqbze,nqibze,qbze,qibze
   use m_readhbe,only: Readhbe,nband !,nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg !  use m_eibz,only:    Seteibz,nwgt,neibz,igx,igxt,eibzsym
-  use m_x0kf,only: X0kf_v4hz,x0kf_v4hz_init,x0kf_v4hz_init_read,rcxq,DeallocateRcxq  !X0kf_v4hz_init,,x0kf_v4hz_init_write !X0kf_v4hz_symmetrize,
+  use m_x0kf,only: x0kf_zxq  !X0kf_v4hz,x0kf_v4hz_init,x0kf_v4hz_init_read,rcxq,DeallocateRcxq, X0kf_v4hz_init,,x0kf_v4hz_init_write !X0kf_v4hz_symmetrize,
   use m_llw,only: WVRllwR,WVIllwI,w4pmode,MPI__sendllw
   use m_mpi,only: MPI__Initialize,MPI__root,MPI__rank,MPI__size,MPI__consoleout,comm
   use m_lgunit,only: m_lgunit_init,stdo
   use m_ftox
   use m_readVcoud,only: Readvcoud,ngb
-  use m_dpsion,only: dpsion5
+!  use m_dpsion,only: dpsion5
   implicit none
   real(8),parameter:: pi = 4d0*datan(1d0),fourpi = 4d0*pi,sqfourpi= sqrt(fourpi)
   integer:: iq,kx,ixc,iqxini,iqxend,is,iw,ifwd,ngrpx,verbose,npr,nmbas,ifif
@@ -83,7 +83,6 @@ subroutine hrcxq()
   allocate( mpi__Qtask(iqxini:iqxend), source=[(mod(iq-1,mpi__size)==mpi__rank,iq=iqxini,iqxend)])
   write(6,*)'mpi_rank',mpi__rank,'mpi__Qtask=',mpi__Qtask
   if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
-
   Obtainrcxq: do 1001 iq = iqxini,iqxend
     if( .NOT. MPI__Qtask(iq) ) cycle
     qp = qibze(:,iq)
@@ -94,32 +93,7 @@ subroutine hrcxq()
     if(realomega) allocate( zxq (npr,npr,nw_i:nw),source=(0d0,0d0))
     if(imagomega) allocate( zxqi(npr,npr,niw),source=(0d0,0d0)    )
     write(stdo,ftox)' ### ',iq,' out of nqibz+n0qi+nq0iadd nsp=',nqibz+nq0i+nq0iadd,nspin
-    
-    GetImpartPolarizationFunction_zxq: block
-      isloop2:do 1013 is = 1,nspin ! rcxq is being acuumulated for spins
-        isf = merge(3-is,is,chipm) ! if(is==1) isf=2  if(is==2) isf=1 for chipm
-        call x0kf_v4hz_init_read(iq,is) !Readin icount data (index sets and tetrahedron weight) into m_x0kf
-        call x0kf_v4hz(qp,is,isf,iq, npr,q00,chipm,nolfco,zzr,nmbas)  !retrun rcxq
-        if(is==nspin .OR. chipm) then
-          if(emptyrun)cycle ! "Hilbert transformation by dpsion5: nwhis nw_i niw nw_w npr=",nwhis,nw_i,nw,niw,npr
-          call dpsion5(realomega,imagomega,rcxq, npr,npr, zxq,zxqi, chipm, schi,is, ecut,ecuts) !Real part from Imag part.
-          call DeallocateRcxq()
-        endif
-1013  enddo isloop2
-    endblock GetImpartPolarizationFunction_zxq
-    
-!!!!! case without hx0init        
-    !allocate(ekxx1(nband,nqbz),ekxx2(nband,nqbz))
-    !forall(kx=1:nqbz) ekxx1(1:nband, kx)  = readeval(qbz  (:,kx), is )
-    !forall(kx=1:nqbz) ekxx2(1:nband, kx)  = readeval(qp+qbz(:,kx), isf)
-    !call gettetwt(qp,iq,is,isf,ekxx1,ekxx2,nband=nband) !,eibzmode=eibzmode) !Get Tetrahedron weight for x0kf_v4hz
-    !ierr=x0kf_v4hz_init(0,qp,is,isf,iq,npr, crpa=.false.)!no crpa case. We may need to set crpa as is done in hx0init
-    !ierr=x0kf_v4hz_init(1,qp,is,isf,iq,npr, crpa=.false.) 
-    !call x0kf_v4hz(qp, is,isf, iq, npr, chipm=chipm,nolfco=.false.)  !retrun rcxq
-    !call tetdeallocate() !    if(debug) write(6,"(a)") ' --- goto dpsion5 --- '
-    !deallocate(ekxx1,ekxx2)
-    !enddo
-    !endblock GetImpartPolarizationFunction_rcxq
+    call x0kf_zxq(realomega,imagomega,qp,iq,nspin,npr,schi,ecut,ecuts, zxq,zxqi, q00,chipm,nolfco,zzr,nmbas)
     if(debug) print *,'sumchk zxq=',sum(zxq),sum(abs(zxq)),' zxqi=',sum(zxqi),sum(abs(zxqi))
     if(emptyrun) then
       deallocate(zxqi,zxq)

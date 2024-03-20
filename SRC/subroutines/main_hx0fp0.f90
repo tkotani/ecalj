@@ -30,7 +30,7 @@ subroutine hx0fp0()
   use m_qbze,only: Setqbze, nqbze,nqibze,qbze,qibze
   use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
   use m_readVcoud,only: Readvcoud,vcousq,zcousq !,ngb,ngc
-  use m_x0kf,only: X0kf_v4hz, x0kf_v4hz_init_write,x0kf_v4hz_init_read,X0kf_v4hz_init,ncount,kc,rcxq,DeallocateRcxq !rcxqh=>rcxq !X0kf_v4hz_symmetrize,
+  use m_x0kf,only: x0kf_zxq,x0kf_gettet !, x0kf_v4hz_init,x0kf_v4hz_init_write
 !  use m_eibz,only:Seteibz, nwgt,neibz,igx,igxt,eibzsym
   use m_llw,only: WVRllwR,WVIllwI,MPI__sendllw2
   use m_w0w0i,only: w0w0i
@@ -51,7 +51,6 @@ subroutine hx0fp0()
   !r      The total number of the wave are mnl(ic)= mnlc(ic) + mnlv(ic).
   !r      The indexing starts with core first and then valence on top of core
   !r      So n-index in "in" for valence electron is different from "inv".
-  ! cccccccccccccccccccccccccccccccccccccccccccccccc
   real(8):: q(3),  qgbin(3),qx(3), ua=1d0 ! ua is a dummy.
   integer:: ifrb(2),ifcb(2),ifrhb(2),ifchb(2) ,icount,kold,isold, ndble=8, ngb,ngc !,nmbas
   real(8),allocatable:: vxcfp(:,:), wgt0(:,:)
@@ -70,10 +69,8 @@ subroutine hx0fp0()
   complex(8),allocatable:: epsi(:,:),gbvec(:),zzr(:,:),x0mean(:,:,:),zzr0(:)
   complex(8) :: epxxx,vcmean, vcmmmm
   complex(8),allocatable:: vcmmm(:)
-  character(11) :: fileps
-  character(11) :: fileps23
+  character(11) :: fileps,fileps23,filele
   character(16) :: filepsnolfc
-  character(11) ::  filele
   character(10) :: i2char
   character(20):: xxt
   real(8) :: Emin, Emax,emin2,emax2
@@ -398,12 +395,11 @@ subroutine hx0fp0()
      write(6,*)
      write(6,"('===== do 1001: iq q=',i7,3f9.4,' ========')")iq,q
      call Readqg0('QGcou',q,   quu,ngc) ! ngc: the number of IPW for the interaction matrix (in QGcou),
-     ngb = ngc+nbloch
-     !if(.not.chipm) call Readvcoud(q,iq,chipm) ! Set ngb,ngc and vcousq,zcousq !for the Coulomb matrix
      call Readvcoud(q,iq,NoVcou=chipm) !Readin vcousq,zcousq ngb ngc for the Coulomb matrix
+     ngb = ngc+nbloch
      write(6,"('  nbloch ngb ngc=',3i10)") nbloch,ngb,ngc
      if(chipm) then 
-        npr =nmbas
+        npr = nmbas
      elseif(nolfco) then
         npr = 1
      else
@@ -414,154 +410,123 @@ subroutine hx0fp0()
      if(cmdopt0('--interbandonly')) itag='.interbandonly'
      if(cmdopt0('--intrabandonly')) itag='.intrabandonly'
      if(epsmode) then !nolfc
-        iqixc2 = iq- (nqibz+nq0ix)
-        if(( .NOT. chipm) .AND. nolfco) then
-           allocate( x0mean(nw_i:nw,1,1) )
-           x0mean=0d0
-        endif
-        if(( .NOT. chipm) .AND. wqt(iq-nqibz)==0d0) then
-           open(newunit=ifepsdatnolfc,file=trim('EPS'//charnum4(iqixc2)//'.nlfc.dat'//itag))
-           write(ifepsdatnolfc,"(a)")' q(1:3)   w(Ry)   eps    epsi  --- NO LFC'
-           if( .NOT. nolfco) then
-              open(newunit=ifepsdat,file=trim('EPS'//charnum4(iqixc2)//'.dat'//itag))
-              write(ifepsdat,"(a)") ' q(1:3)   w(Ry)   eps  epsi --- LFC included. '
-           endif
-        endif
-        if(chipm) then ! .AND. nolfco) then !! zzr is only for chipm.and.nolfco mode
-          if( allocated(zzr)   ) deallocate(zzr,x0mean)
-          allocate(zzr(ngb,nmbas),x0mean(nw_i:nw,nmbas,nmbas),source=(0d0,0d0))
-          zzr(1:nbloch,1:nmbas) = svec(1:nbloch,1:nmbas)
-        endif
-        !! ... Open ChiPM* files for \Chi_+-
-        if(chipm .AND. wqt(iq-nqibz)==0d0) then
-           open(newunit=ifchipmn_mat,file='ChiPM'//charnum4(iqixc2)//'.nlfc.mat')
-           write(ifchipmn_mat,"(255i5)") nmbas
-           write(ifchipmn_mat,"(255i5)") aimbas(1:nmbas)
-           write(ifchipmn_mat,"(255e23.15)") momsite(1:nmbas)
-           write(ifchipmn_mat,"(255e23.15)")  mmnorm(1:nmbas)
-           write(ifchipmn_mat,"( ' Here was eiqrm: If needed, need to fix hx0fp0')")
-        endif
-      endif
-      
-!     allocate(rcxq(npr,npr,nwhis,npm),source=(0d0,0d0)) !, zxq(npr,npr,nw_i:nw), zxqi(npr,npr,niw))
-!     allocate(rcxqh(npr*(npr+1)/2,nwhis,npm),source=(0d0,0d0))
+       iqixc2 = iq- (nqibz+nq0ix)
+       if(( .NOT. chipm) .AND. nolfco) then
+         allocate( x0mean(nw_i:nw,1,1) )
+         x0mean=0d0
+       endif
+       if(( .NOT. chipm) .AND. wqt(iq-nqibz)==0d0) then
+         open(newunit=ifepsdatnolfc,file=trim('EPS'//charnum4(iqixc2)//'.nlfc.dat'//itag))
+         write(ifepsdatnolfc,"(a)")' q(1:3)   w(Ry)   eps    epsi  --- NO LFC'
+         if( .NOT. nolfco) then
+           open(newunit=ifepsdat,file=trim('EPS'//charnum4(iqixc2)//'.dat'//itag))
+           write(ifepsdat,"(a)") ' q(1:3)   w(Ry)   eps  epsi --- LFC included. '
+         endif
+       endif
+       if(chipm) then ! .AND. nolfco) then !! zzr is only for chipm.and.nolfco mode
+         if( allocated(zzr)   ) deallocate(zzr,x0mean)
+         allocate(zzr(ngb,nmbas),x0mean(nw_i:nw,nmbas,nmbas),source=(0d0,0d0))
+         zzr(1:nbloch,1:nmbas) = svec(1:nbloch,1:nmbas)
+       endif
+       !! ... Open ChiPM* files for \Chi_+-
+       if(chipm .AND. wqt(iq-nqibz)==0d0) then
+         open(newunit=ifchipmn_mat,file='ChiPM'//charnum4(iqixc2)//'.nlfc.mat')
+         write(ifchipmn_mat,"(255i5)") nmbas
+         write(ifchipmn_mat,"(255i5)") aimbas(1:nmbas)
+         write(ifchipmn_mat,"(255e23.15)") momsite(1:nmbas)
+         write(ifchipmn_mat,"(255e23.15)")  mmnorm(1:nmbas)
+         write(ifchipmn_mat,"( ' Here was eiqrm: If needed, need to fix hx0fp0')")
+       endif
+     endif
      if(debug) write(6,*)' niw nw=',niw,nw         !  chi(charge) or chi_+-(spin when chipm=T)
      write(6,"(' ##### ',2i4,' out of nqibz+n0qi nsp=',2i4,' ##### ')")iq, nqibz + nq0i, nspin
-     isloop4tetrahedronweight: do 1003 is = 1,nspin
-        isf = merge(3-is,is,chipm) ! if(is==1) isf=2  if(is==2) isf=1 for chipm
-        forall(kx=1:nqbz) ekxx1(1:nband, kx)  = readeval(qbz  (:,kx), is )
-        forall(kx=1:nqbz) ekxx2(1:nband, kx)  = readeval(q+qbz(:,kx), isf)
-        call gettetwt(q,iq,is,isf,ekxx1,ekxx2,nband)
-        ierr = x0kf_v4hz_init(0, q, is, isf, iq, npr,crpa) !x0kf_v4hz is the main routine to accumalte imaginary part of x0 into rcxq ==
-        ierr = x0kf_v4hz_init(1, q, is, isf, iq, npr,crpa)
-        call X0kf_v4hz_init_write(iq,is)!Write whw and indexs to invoke hrcxq
-        call tetdeallocate()
-!        call x0kf_v4hz(q,is,isf,iq, npr,q00,chipm,nolfco,zzr, nmbas) !,eibzmode
-!        call tetdeallocate() !    if(debug) write(6,"(a)") ' --- goto dpsion5 --- '
-1003  enddo isloop4tetrahedronweight
-      allocate(zxq(npr,npr,nw_i:nw), zxqi(npr,npr,niw),source=(0d0,0d0))
-      
-      GetImpartPolarizationFunction_zxq: block
-        isloop2: do 1013 is = 1,nspin
-          isf = merge(3-is,is,chipm) ! if(is==1) isf=2  if(is==2) isf=1 for chipm
-          call X0kf_v4hz_init_read(iq,is) !Readin icount data (index sets and tetrahedron weight) into m_x0kf
-          call x0kf_v4hz(q,is,isf,iq, npr,q00,chipm,nolfco,zzr,nmbas) !,eibzmode
-          if(is==nspin .OR. chipm) then
-            call dpsion5(realomega, imagomega, rcxq, npr,npr, zxq, zxqi, chipm, schi,is,  ecut,ecuts)
-            call DeallocateRcxq()
-          endif
-1013    enddo isloop2
-      endblock GetImpartPolarizationFunction_zxq
-      
-      write(6,*)' --- end of dpsion5 ----',sum(abs(zxq)),sum(abs(zxqi))
-      realomegamode: if(realomega .AND. ( .NOT. epsmode)) then ! ===  RealOmega === W-V: WVR and WVI. Wing elemments: llw, llwi LLWR, LLWI
-        call WVRllwR(q,iq,zxq,npr,npr)
-        deallocate(zxq)
-      elseif(realomega .AND. epsmode) then
-        if(nolfco) forall(iw=nw_i:nw) x0mean(iw,:,:)=zxq(:,:,iw) !1x1
-        if(nolfco .AND. ( .NOT. chipm)) then
-          if (nspin==1) x0mean= 2d0*x0mean !if paramagnetic, multiply x0 by 2
-          if (nspin==1) zxq = 2d0*zxq !if paramagnetic, multiply x0 by 2
-        else
-          if (nspin == 1) zxq = 2d0*zxq !if paramagnetic, multiply x0 by 2
-        endif
-        if(nolfco) then
-          ttt='without LFC'
-        else
-          ttt='with LFC'
-        endif
-        if(chipm) then
-          write(6,*) '--- chi0_{+-}}^{-1}      --- '//ttt
-        else
-          write(6,*) '--- dielectric constant --- '//ttt
-          write(6, *)" trace check for W-V"
-        endif
-        iq0 = iq - nqibz
-        if(allocated(epstilde)) deallocate(epstilde,epstinv)
-        allocate(epstilde(npr,npr),epstinv(npr,npr))
-        iwloop: do 1015 iw  = nw_i,nw
-          frr= dsign(freq_r(abs(iw)),dble(iw))
-          if( .NOT. chipm) then
-            if(debug)write(6,*) 'xxx2 epsmode iq,iw=',iq,iw
-            vcmean=vcousq(1)**2 !fourpi/sum(q**2*tpioa**2) !aug2012
-            epsi(iw,iqixc2)= 1d0/(1d0 - vcmean*zxq(1,1,iw))
-            write(6,'(" iq iw omega eps epsi noLFC=",2i6,f8.3,2e23.15,3x, 2e23.15, &
-                 " vcmean x0mean =", 2e23.15,3x, 2e23.15)') iqixc2,iw,2*frr, &
-                 1d0/epsi(iw,iqixc2),epsi(iw,iqixc2),vcmean, zxq(1,1,iw) !x0mean(iw,1,1)
-            write(ifepsdatnolfc,'(3f12.8,2x,d12.4,2e23.15,2x,2e23.15)') &
-                 q, 2*frr, 1d0/epsi(iw,iqixc2),epsi(iw,iqixc2)
-            if( .NOT. nolfco) then
-              ix=0
-              do igb1=ix+1,npr
-                do igb2=ix+1,npr
-                  if(igb1==1 .AND. igb2==1) then
-                    epstilde(igb1,igb2)= -vcmean*zxq(igb1,igb2,iw) !aug2012
-                  else
-                    epstilde(igb1,igb2)= -vcousq(igb1)*zxq(igb1,igb2,iw)*vcousq(igb2)
-                  endif
-                  if(igb1==igb2) epstilde(igb1,igb2)=1+epstilde(igb1,igb2)
-                enddo
-              enddo
-              epstinv(ix+1:npr,ix+1:npr)=epstilde(ix+1:npr,ix+1:npr)
-              call matcinv(npr-ix,epstinv(ix+1:npr,ix+1:npr))
-              epsi(iw,iqixc2)= epstinv(1,1)
-              write(6,'( " iq iw omega eps epsi  wLFC=",2i6,f8.3,2e23.15,3x, 2e23.15)') &
-                   iqixc2,iw,2*frr,1d0/epsi(iw,iqixc2),epsi(iw,iqixc2)
-              write(6,*)
-              write(ifepsdat,'(3f12.8,2x,d12.4,2e23.15,2x,2e23.15)') q, 2*frr,1d0/epsi(iw,iqixc2),epsi(iw,iqixc2)
-            endif
-          elseif(chipm) then ! ChiPM mode without LFC
-            allocate( x0meanx(npr,npr) )
-            x0meanx = x0mean(iw,:,:)/2d0 !in Ry unit.
-            do imb1=1,npr
-              do imb2=1,npr
-                x0meanx(imb1,imb2) = x0meanx(imb1,imb2)/mmnorm(imb1)/mmnorm(imb2)
-              enddo
-            enddo
-            write(ifchipmn_mat,'(3f12.8,2x,f20.15,2x,255e23.15)')q, 2*schi*frr, x0meanx(:,:)
-            deallocate(x0meanx)
-          endif
-1015    enddo iwloop
-        if( allocated(gbvec) ) deallocate(gbvec)
-        if(chipm) then
-           close(ifchipmn_mat) 
-           !           if( .NOT. nolfco) then
-           !              close(ifchipm_fmat) 
-           !           endif
-        else
-           !           filepsnolfc ='EPS'//charnum4(iqixc2)//'.nolfc.dat'
-           close(ifepsdatnolfc) ! = iclose( filepsnolfc)
+! get tetrahedron weight     
+     call x0kf_gettet(nspin,nqbz,nband,npr,qbz,q,iq,crpa,chipm)
+! get zxq,zxqi     
+     allocate(zxq(npr,npr,nw_i:nw), zxqi(npr,npr,niw),source=(0d0,0d0))
+     call x0kf_zxq(realomega,imagomega,q,iq,nspin,npr,schi,ecut,ecuts, zxq,zxqi, q00,chipm,nolfco,zzr,nmbas)
+!     
+     realomegamode: if(realomega .AND. ( .NOT. epsmode)) then !===RealOmega === W-V: WVR and WVI. Wing elemments: llw, llwi LLWR, LLWI
+       call WVRllwR(q,iq,zxq,npr,npr)
+       deallocate(zxq)
+     elseif(realomega .AND. epsmode) then
+       if(nolfco) forall(iw=nw_i:nw) x0mean(iw,:,:)=zxq(:,:,iw) !1x1
+       if(nolfco .AND. ( .NOT. chipm)) then
+         if (nspin==1) x0mean= 2d0*x0mean !if paramagnetic, multiply x0 by 2
+         if (nspin==1) zxq = 2d0*zxq !if paramagnetic, multiply x0 by 2
+       else
+         if (nspin == 1) zxq = 2d0*zxq !if paramagnetic, multiply x0 by 2
+       endif
+       if(nolfco) then
+         ttt='without LFC'
+       else
+         ttt='with LFC'
+       endif
+       if(chipm) then
+         write(6,*) '--- chi0_{+-}}^{-1}      --- '//ttt
+       else
+         write(6,*) '--- dielectric constant --- '//ttt
+         write(6, *)" trace check for W-V"
+       endif
+       iq0 = iq - nqibz
+       if(allocated(epstilde)) deallocate(epstilde,epstinv)
+       allocate(epstilde(npr,npr),epstinv(npr,npr))
+       iwloop: do 1015 iw  = nw_i,nw
+         frr= dsign(freq_r(abs(iw)),dble(iw))
+         if( .NOT. chipm) then
+           if(debug)write(6,*) 'xxx2 epsmode iq,iw=',iq,iw
+           vcmean=vcousq(1)**2 !fourpi/sum(q**2*tpioa**2) !aug2012
+           epsi(iw,iqixc2)= 1d0/(1d0 - vcmean*zxq(1,1,iw))
+           write(6,'(" iq iw omega eps epsi noLFC=",2i6,f8.3,2e23.15,3x, 2e23.15, &
+                " vcmean x0mean =", 2e23.15,3x, 2e23.15)') iqixc2,iw,2*frr, &
+                1d0/epsi(iw,iqixc2),epsi(iw,iqixc2),vcmean, zxq(1,1,iw) !x0mean(iw,1,1)
+           write(ifepsdatnolfc,'(3f12.8,2x,d12.4,2e23.15,2x,2e23.15)') &
+                q, 2*frr, 1d0/epsi(iw,iqixc2),epsi(iw,iqixc2)
            if( .NOT. nolfco) then
-              !              fileps = 'EPS'//charnum4(iqixc2)//'.dat'
-              close(ifepsdat) !  = iclose(fileps)
+             ix=0
+             do igb1=ix+1,npr
+               do igb2=ix+1,npr
+                 if(igb1==1 .AND. igb2==1) then
+                   epstilde(igb1,igb2)= -vcmean*zxq(igb1,igb2,iw) !aug2012
+                 else
+                   epstilde(igb1,igb2)= -vcousq(igb1)*zxq(igb1,igb2,iw)*vcousq(igb2)
+                 endif
+                 if(igb1==igb2) epstilde(igb1,igb2)=1+epstilde(igb1,igb2)
+               enddo
+             enddo
+             epstinv(ix+1:npr,ix+1:npr)=epstilde(ix+1:npr,ix+1:npr)
+             call matcinv(npr-ix,epstinv(ix+1:npr,ix+1:npr))
+             epsi(iw,iqixc2)= epstinv(1,1)
+             write(6,'( " iq iw omega eps epsi  wLFC=",2i6,f8.3,2e23.15,3x, 2e23.15)') &
+                  iqixc2,iw,2*frr,1d0/epsi(iw,iqixc2),epsi(iw,iqixc2)
+             write(6,*)
+             write(ifepsdat,'(3f12.8,2x,d12.4,2e23.15,2x,2e23.15)') q, 2*frr,1d0/epsi(iw,iqixc2),epsi(iw,iqixc2)
            endif
-        endif
+         elseif(chipm) then ! ChiPM mode without LFC
+           allocate( x0meanx(npr,npr) )
+           x0meanx = x0mean(iw,:,:)/2d0 !in Ry unit.
+           do imb1=1,npr
+             do imb2=1,npr
+               x0meanx(imb1,imb2) = x0meanx(imb1,imb2)/mmnorm(imb1)/mmnorm(imb2)
+             enddo
+           enddo
+           write(ifchipmn_mat,'(3f12.8,2x,f20.15,2x,255e23.15)')q, 2*schi*frr, x0meanx(:,:)
+           deallocate(x0meanx)
+         endif
+1015   enddo iwloop
+       if( allocated(gbvec) ) deallocate(gbvec)
+       if(chipm) then
+         close(ifchipmn_mat) 
+       else
+         close(ifepsdatnolfc) ! = iclose( filepsnolfc)
+         if( .NOT. nolfco) close(ifepsdat) !  = iclose(fileps)
+       endif
      endif realomegamode
      imagomegamode: if (imagomega .AND. ( .NOT. epsmode)) then ! ImagOmega start ============================
-        call WVIllwI(q,iq,zxqi,npr,npr)
-        deallocate(zxqi)
+       call WVIllwI(q,iq,zxqi,npr,npr)
+       deallocate(zxqi)
      elseif(imagomega .AND. epsmode) then
-        call rx('hx0fp0: imagoemga=T and epsmod=T is not implemented')
+       call rx('hx0fp0: imagoemga=T and epsmod=T is not implemented')
      endif imagomegamode
      if(allocated(vcoul)) deallocate(vcoul)
      if(allocated(zxq )) deallocate(zxq)
@@ -569,10 +534,8 @@ subroutine hx0fp0()
 1001 enddo iqloop
   call MPI_barrier(comm,ierr)
   if( .NOT. epsmode) call MPI__sendllw2(iqxend,MPI__ranktab) !!! mpi send LLW to root.
-  !! == W(0) divergent part and W(0) non-analytic constant part.==
-  !!   Note that this is only for q=0 -->iq=1
-  !! get w0 and w0i (diagonal element at Gamma point
-  !! This return w0, and w0i
+  !! == W(0) divergent part and W(0) non-analytic constant part.== Note that this is only for q=0 -->iq=1
+  !! get w0 and w0i (diagonal element at Gamma point.   !! This return w0, and w0i
   if(( .NOT. epsmode) .AND. MPI__rank==0) call w0w0i(nw_i,nw,nq0i,niw,q0i) !llw,llwI,
   ! === w0,w0i are stored to zw for q=0 ===    !! === w_ks*wk are stored to zw for iq >nqibz ===
   call cputid(0)

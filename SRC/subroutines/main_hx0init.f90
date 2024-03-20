@@ -31,7 +31,7 @@ subroutine hx0init() !initializaiton of x0 calculaiton (W-v)
   use m_qbze,only:    Setqbze, nqbze,nqibze,qbze,qibze
   use m_readhbe,only: Readhbe, nband 
 !  use m_eibz,only:    Seteibz, nwgt!,neibz,igx,igxt,eibzsym
-  use m_x0kf,only:    X0kf_v4hz_init,x0kf_v4hz_init_write
+  use m_x0kf,only:    x0kf_gettet !,x0kf_v4hz_init_write X0kf_v4hz_init,
   use m_llw,only:     WVRllwR,WVIllwI,w4pmode,MPI__sendllw
   use m_mpi,only: MPI__Initialize, MPI__root, MPI__Broadcast, MPI__rank,MPI__size, MPI__consoleout
   use m_lgunit,only: m_lgunit_init,stdo
@@ -83,7 +83,6 @@ subroutine hx0init() !initializaiton of x0 calculaiton (W-v)
   call Readefermi() !Readin EFERMI
   call Readhbe()    !Read dimensions
   call ReadGWinputKeys() !Readin dataset in GWinput
-  !      call Readq0p()    !Readin Offset Gamma
   call Readngmx2()  !Get ngpmx and ngcmx in m_readqg
   call Setqbze()    ! extented BZ points list
   !  write(stdo,*)' ngcmx ngpmx=',ngcmx,ngpmx ! ngcmx: max of PWs for W, ngpmx: max of PWs for phi
@@ -92,10 +91,8 @@ subroutine hx0init() !initializaiton of x0 calculaiton (W-v)
   allocate(symope,source=reshape([1d0,0d0,0d0, 0d0,1d0,0d0, 0d0,0d0,1d0],[3,3]))
   call Mptauof_zmel(symope,ng=1) ! Rdpp gives ppbrd: radial integrals and cgr = rotated cg coeffecients.
   !  --> call Rdpp(ngrpx,symope) is moved to Mptauof_zmel \in m_zmel. This set mrecl
-!  call Setitq()             ! Set itq in m_zmel
   call Readhamindex()
   call Init_readeigen() ! Initialization of readEigen !readin m_hamindex
-  !      call Init_readeigen2()
   !! Getfreq gives frhis,freq_r,freq_i, nwhis,nw,npm
   realomega = .true.
   imagomega = .true.
@@ -120,38 +117,37 @@ subroutine hx0init() !initializaiton of x0 calculaiton (W-v)
      write(ifwd,"(1x,10i14)") nprecx, mrecl, nblochpmx, nw+1,niw, nqibz + nq0i-1, nw_i
      close(ifwd)
   endif
-  allocate(ekxx1(nband,nqbz),ekxx2(nband,nqbz)) ! For eigenvalues.
+  allocate( mpi__Qtask(iqxini:iqxend), source=[(mod(iq-1,mpi__size)==mpi__rank,iq=iqxini,iqxend)])
   ! eibzmode = .false. !eibz4x0()                ! EIBZ mode
   ! call Seteibz(iqxini,iqxend,iprintx) ! EIBZ mode
   ! call Setw4pmode() !W4phonon. !still developing...
-!  call MPI__hx0fp0_rankdivider2Q(iqxini,iqxend)! Rank divider
-!  allocate( mpi__Qrank(iqxini:iqxend), source=[(mod(iq-1,mpi__size)           ,iq=iqxini,iqxend)])
-  allocate( mpi__Qtask(iqxini:iqxend), source=[(mod(iq-1,mpi__size)==mpi__rank,iq=iqxini,iqxend)])
-  MPI__Ss = 1
-  MPI__Se = nspin 
+  !  call MPI__hx0fp0_rankdivider2Q(iqxini,iqxend)! Rank divider
+  !  allocate( mpi__Qrank(iqxini:iqxend), source=[(mod(iq-1,mpi__size)           ,iq=iqxini,iqxend)])
   !  allocate( nwgt(1,iqxini:iqxend)) !eibz
   !! external index :iq (q vector IBZ), ,igb1,igb2 (MPB index), jpm,iw (omega)
   !! internal index : k (k vector BZ), it,itp (band)
   !!   !note The allowed pairs of (it,itp) are limited for given iw.
   !!   (usually, we only use jpm=1 only--- This meand no negative omega needed).
+!  allocate(ekxx1(nband,nqbz),ekxx2(nband,nqbz)) ! For eigenvalues.
   if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
   iqloop:do 1101 iq = iqxini,iqxend
      if( .NOT. MPI__Qtask(iq) ) cycle
      qp = qibze(:,iq)
      write(stdo,"('do 1001: iq q=',i5,3f9.4)")iq,qp
-     isloop: do 1103 is = MPI__Ss,MPI__Se !is=1,nspin
-        write(stdo,"(' ### ',2i4,' out of nqibz+n0qi+nq0iadd nsp=',2i4,' ### ')")iq,is,nqibz+nq0i+nq0iadd,nspin
-        isf = is
-        do kx = 1, nqbz
-           ekxx1(1:nband,kx) = readeval(qbz(:,kx),    is ) ! read eigenvalue
-           ekxx2(1:nband,kx) = readeval(qp+qbz(:,kx), isf) !
-        enddo
-        call gettetwt(qp,iq,is,isf,ekxx1,ekxx2,nband=nband) !,eibzmode=eibzmode) !,nwgt(:,iq) Tetrahedron weight for x0kf_v4hz
-        ierr=x0kf_v4hz_init(0,qp,is,isf,iq,nmbas_in, crpa=crpa)
-        ierr=x0kf_v4hz_init(1,qp,is,isf,iq,nmbas_in, crpa=crpa)         !eibzmode=eibzmode, nwgt=nwgt(:,iq)
-        call X0kf_v4hz_init_write(iq,is)!Write whw and indexs to invoke hrcxq
-        call tetdeallocate()
-1103 enddo isloop
+     call x0kf_gettet(nspin,nqbz,nband,nmbas_in,qbz,qp,iq,crpa,chipm)
+!      isloop: do 1103 is = 1,nspin 
+!         write(stdo,"(' ### ',2i4,' out of nqibz+n0qi+nq0iadd nsp=',2i4,' ### ')")iq,is,nqibz+nq0i+nq0iadd,nspin
+!         isf = merge(3-is,is,chipm) ! if(is==1) isf=2  if(is==2) isf=1 for chipm
+!         do kx = 1, nqbz
+!            ekxx1(1:nband,kx) = readeval(qbz(:,kx),    is ) ! read eigenvalue
+!            ekxx2(1:nband,kx) = readeval(qp+qbz(:,kx), isf) !
+!         enddo
+!         call gettetwt(qp,iq,is,isf,ekxx1,ekxx2,nband=nband) !,eibzmode=eibzmode) !,nwgt(:,iq) Tetrahedron weight for x0kf_v4hz
+!         ierr=x0kf_v4hz_init(0,qp,is,isf,iq,nmbas_in, crpa=crpa)
+!         ierr=x0kf_v4hz_init(1,qp,is,isf,iq,nmbas_in, crpa=crpa)         !eibzmode=eibzmode, nwgt=nwgt(:,iq)
+!         call X0kf_v4hz_init_write(iq,is)!Write whw and indexs to invoke hrcxq
+!         call tetdeallocate()
+! 1103 enddo isloop
 1101 enddo iqloop
   write(stdo,*) '--- end of hx0init --- irank=',MPI__rank
   call cputid(0)
