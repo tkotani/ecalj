@@ -76,7 +76,6 @@ subroutine hrcxq()
   imagomega = .true.
   call Getfreq2(.false.,realomega,imagomega,ua,iprintx) ! Getfreq gives frhis,freq_r,freq_i, nwhis,nw,npm
   if(MPI__root) call writewvfreq() 
-  ! We first accumulate Imaginary parts. Then do Hilbert transformation to get real part.
   ! nblochpmx = nbloch + ngcmx ! Maximum of MPB = PBpart +  IPWpartforMPB
   iqxini = 1
   iqxend = nqibz + nq0i + nq0iadd ! [iqxini:iqxend] range of q points.
@@ -84,34 +83,30 @@ subroutine hrcxq()
   allocate( mpi__Qtask(iqxini:iqxend), source=[(mod(iq-1,mpi__size)==mpi__rank,iq=iqxini,iqxend)])
   write(6,*)'mpi_rank',mpi__rank,'mpi__Qtask=',mpi__Qtask
   if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
-  Obtainrcxq: do 1001 iq = iqxini,iqxend
+  MainLoopToObtainZxq: do 1001 iq = iqxini,iqxend
     if( .NOT. MPI__Qtask(iq) ) cycle
-    qp = qibze(:,iq)
     call cputid (0)
+    qp = qibze(:,iq)
+    write(stdo,ftox)'do 1001: iq q=',iq,ftof(qp,4),' of nq=',iqxend !4 means four digits below decimal point (optional).
     call Readvcoud(qp, iq,NoVcou=chipm) !Readin vcousq,zcousq ngb ngc for the Coulomb matrix
     npr=ngb
-    write(stdo,ftox)'do 1001: iq q=',iq,ftof(qp,4) !4 means four digits below decimal point (optional).
-    write(stdo,ftox)' ### ',iq,' out of nqibz+n0qi+nq0iadd nsp=',nqibz+nq0i+nq0iadd,nspin
-!    allocate(zxq(npr,npr,nw_i:nw),zxqi(npr,npr,niw),source=(0d0,0d0))
-    call x0kf_zxq(realomega,imagomega,qp,iq,npr,schi, crpa=.false.,chipm=.false.,nolfco=.false.) !get zxq,zxqi    
-!    endif
+    call x0kf_zxq(realomega,imagomega,qp,iq,npr,schi, crpa=.false.,chipm=.false.,nolfco=.false.) !Get zxq,zxqi in m_x0kf
     if(debug) print *,'sumchk zxq=',sum(zxq),sum(abs(zxq)),' zxqi=',sum(zxqi),sum(abs(zxqi))
-    !W-v in Random phase approximation: Files WVR and WVI. 
-    call WVRllwR(qp,iq,npr,npr) !-- emptyrun in it
+    call WVRllwR(qp,iq,npr,npr) !WV=W-v in Random phase approximation. Write big files WVR and WVI. !-- emptyrun in it
     call deallocatezxq()
     call WVIllwI(qp,iq,npr,npr) 
     call deallocatezxqi()
-1001 enddo Obtainrcxq
-   GetEffectiveWVatGammaCell: block !Get W-v(q=0) :Divergent part and non-analytic constant part of W(0) calculated from llw
+1001 enddo MainLoopToObtainZxq
+   GetEffectiveWVatGammaCell: block !Get W-v(q=0): Divergent part and non-analytic constant part of W(0) calculated from llw
     ! we have wing elemments: llw, llwi LLWR, LLWI
     call MPI_barrier(comm,ierr)
-    call MPI__sendllw(iqxend,MPI__Qrank) !!! Send all LLW data to mpi_root.
+    call MPI__sendllw(iqxend,MPI__Qrank) ! Send all LLW data to mpi_root.
     ! Get effective W0,W0i, and L(omega=0) matrix. Modify WVR WVI with w0 and w0. Files WVI and WVR are modified.
-    if(MPI__rank==0) call W0w0i(nw_i,nw,nq0i,niw,q0i) !use moudle m_llw
+    if(MPI__rank==0) call W0w0i(nw_i,nw,nq0i,niw,q0i) 
   endblock GetEffectiveWVatGammaCell
   write(stdo,ftox) '--- end of hrcxq --- irank=',MPI__rank
   call cputid(0)
-  call rx0( ' OK! hrcxq hhilbert')
+  call rx0( ' OK! hrcxq WV generated')
 contains
   subroutine writewvfreq() !writeonly
      open(newunit=ifwd, file='WV.d')
