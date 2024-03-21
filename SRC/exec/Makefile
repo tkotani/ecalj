@@ -364,19 +364,6 @@ hx0fp0/fast:
 .PHONY : hx0fp0/fast
 
 #=============================================================================
-# Target rules for targets named hx0init
-
-# Build rule for target.
-hx0init: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 hx0init
-.PHONY : hx0init
-
-# fast build rule for target.
-hx0init/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hx0init.dir/build.make CMakeFiles/hx0init.dir/build
-.PHONY : hx0init/fast
-
-#=============================================================================
 # Target rules for targets named lmchk
 
 # Build rule for target.
@@ -900,30 +887,6 @@ home/takao/ecalj/SRC/main/hx0fp0.s: home/takao/ecalj/SRC/main/hx0fp0.f90.s
 home/takao/ecalj/SRC/main/hx0fp0.f90.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/hx0fp0.dir/build.make CMakeFiles/hx0fp0.dir/home/takao/ecalj/SRC/main/hx0fp0.f90.s
 .PHONY : home/takao/ecalj/SRC/main/hx0fp0.f90.s
-
-home/takao/ecalj/SRC/main/hx0init.o: home/takao/ecalj/SRC/main/hx0init.f90.o
-.PHONY : home/takao/ecalj/SRC/main/hx0init.o
-
-# target to build an object file
-home/takao/ecalj/SRC/main/hx0init.f90.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hx0init.dir/build.make CMakeFiles/hx0init.dir/home/takao/ecalj/SRC/main/hx0init.f90.o
-.PHONY : home/takao/ecalj/SRC/main/hx0init.f90.o
-
-home/takao/ecalj/SRC/main/hx0init.i: home/takao/ecalj/SRC/main/hx0init.f90.i
-.PHONY : home/takao/ecalj/SRC/main/hx0init.i
-
-# target to preprocess a source file
-home/takao/ecalj/SRC/main/hx0init.f90.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hx0init.dir/build.make CMakeFiles/hx0init.dir/home/takao/ecalj/SRC/main/hx0init.f90.i
-.PHONY : home/takao/ecalj/SRC/main/hx0init.f90.i
-
-home/takao/ecalj/SRC/main/hx0init.s: home/takao/ecalj/SRC/main/hx0init.f90.s
-.PHONY : home/takao/ecalj/SRC/main/hx0init.s
-
-# target to generate assembly for a file
-home/takao/ecalj/SRC/main/hx0init.f90.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hx0init.dir/build.make CMakeFiles/hx0init.dir/home/takao/ecalj/SRC/main/hx0init.f90.s
-.PHONY : home/takao/ecalj/SRC/main/hx0init.f90.s
 
 home/takao/ecalj/SRC/main/lmchk.o: home/takao/ecalj/SRC/main/lmchk.f90.o
 .PHONY : home/takao/ecalj/SRC/main/lmchk.o
@@ -4477,30 +4440,6 @@ home/takao/ecalj/SRC/subroutines/main_hx0fp0.f90.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hx0fp0.f90.s
 .PHONY : home/takao/ecalj/SRC/subroutines/main_hx0fp0.f90.s
 
-home/takao/ecalj/SRC/subroutines/main_hx0init.o: home/takao/ecalj/SRC/subroutines/main_hx0init.f90.o
-.PHONY : home/takao/ecalj/SRC/subroutines/main_hx0init.o
-
-# target to build an object file
-home/takao/ecalj/SRC/subroutines/main_hx0init.f90.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hx0init.f90.o
-.PHONY : home/takao/ecalj/SRC/subroutines/main_hx0init.f90.o
-
-home/takao/ecalj/SRC/subroutines/main_hx0init.i: home/takao/ecalj/SRC/subroutines/main_hx0init.f90.i
-.PHONY : home/takao/ecalj/SRC/subroutines/main_hx0init.i
-
-# target to preprocess a source file
-home/takao/ecalj/SRC/subroutines/main_hx0init.f90.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hx0init.f90.i
-.PHONY : home/takao/ecalj/SRC/subroutines/main_hx0init.f90.i
-
-home/takao/ecalj/SRC/subroutines/main_hx0init.s: home/takao/ecalj/SRC/subroutines/main_hx0init.f90.s
-.PHONY : home/takao/ecalj/SRC/subroutines/main_hx0init.s
-
-# target to generate assembly for a file
-home/takao/ecalj/SRC/subroutines/main_hx0init.f90.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/main_hx0init.f90.s
-.PHONY : home/takao/ecalj/SRC/subroutines/main_hx0init.f90.s
-
 home/takao/ecalj/SRC/subroutines/main_lmchk.o: home/takao/ecalj/SRC/subroutines/main_lmchk.f90.o
 .PHONY : home/takao/ecalj/SRC/subroutines/main_lmchk.o
 
@@ -7793,7 +7732,6 @@ help:
 	@echo "... hvccfp0"
 	@echo "... hwmatK_MPI"
 	@echo "... hx0fp0"
-	@echo "... hx0init"
 	@echo "... lmchk"
 	@echo "... lmf"
 	@echo "... lmfa"
@@ -7853,9 +7791,6 @@ help:
 	@echo "... home/takao/ecalj/SRC/main/hx0fp0.o"
 	@echo "... home/takao/ecalj/SRC/main/hx0fp0.i"
 	@echo "... home/takao/ecalj/SRC/main/hx0fp0.s"
-	@echo "... home/takao/ecalj/SRC/main/hx0init.o"
-	@echo "... home/takao/ecalj/SRC/main/hx0init.i"
-	@echo "... home/takao/ecalj/SRC/main/hx0init.s"
 	@echo "... home/takao/ecalj/SRC/main/lmchk.o"
 	@echo "... home/takao/ecalj/SRC/main/lmchk.i"
 	@echo "... home/takao/ecalj/SRC/main/lmchk.s"
@@ -8300,9 +8235,6 @@ help:
 	@echo "... home/takao/ecalj/SRC/subroutines/main_hx0fp0.o"
 	@echo "... home/takao/ecalj/SRC/subroutines/main_hx0fp0.i"
 	@echo "... home/takao/ecalj/SRC/subroutines/main_hx0fp0.s"
-	@echo "... home/takao/ecalj/SRC/subroutines/main_hx0init.o"
-	@echo "... home/takao/ecalj/SRC/subroutines/main_hx0init.i"
-	@echo "... home/takao/ecalj/SRC/subroutines/main_hx0init.s"
 	@echo "... home/takao/ecalj/SRC/subroutines/main_lmchk.o"
 	@echo "... home/takao/ecalj/SRC/subroutines/main_lmchk.i"
 	@echo "... home/takao/ecalj/SRC/subroutines/main_lmchk.s"

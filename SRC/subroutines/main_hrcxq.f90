@@ -26,7 +26,7 @@ subroutine hrcxq()
   use m_readgwinput,only: ReadGwinputKeys,egauss,ecut,ecuts,mtet,ebmx,nbmx,imbas
   use m_qbze,only:    Setqbze,nqbze,nqibze,qbze,qibze
   use m_readhbe,only: Readhbe,nband !,nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg !  use m_eibz,only:    Seteibz,nwgt,neibz,igx,igxt,eibzsym
-  use m_x0kf,only: x0kf_zxq !,x0kf_gettet  !X0kf_v4hz,x0kf_v4hz_init,x0kf_v4hz_init_read,rcxq,DeallocateRcxq, X0kf_v4hz_init,,x0kf_v4hz_init_write !X0kf_v4hz_symmetrize,
+  use m_x0kf,only: x0kf_zxq,deallocatezxq,deallocatezxqi
   use m_llw,only: WVRllwR,WVIllwI,w4pmode,MPI__sendllw
   use m_mpi,only: MPI__Initialize,MPI__root,MPI__rank,MPI__size,MPI__consoleout,comm
   use m_lgunit,only: m_lgunit_init,stdo
@@ -39,7 +39,7 @@ subroutine hrcxq()
   integer:: i_red_npm,i_red_nwhis,ierr,ircxq,npmx
   integer:: ipart,iwhis,igb1,imb,igb2,isf
   real(8):: ua=1d0,qp(3),quu(3),hartree,rydberg,schi=-9999,q00(3)
-  logical :: debug=.false. ,realomega,imagomega,nolfco=.false.,crpa=.false.
+  logical :: debug=.false. ,realomega,imagomega !,nolfco=.false.,crpa=.false.
   logical :: hx0,iprintx=.false.,chipm=.false.,localfieldcorrectionllw   !eibzmode,eibz4x0,
   logical:: cmdopt2,emptyrun,cmdopt0
   character(10) :: i2char
@@ -74,21 +74,8 @@ subroutine hrcxq()
   call Init_readeigen2()
   realomega = .true.
   imagomega = .true.
-  call Getfreq2(.false.,realomega,imagomega,ua,iprintx) ! Getfreq gives frhis,freq_r,freq_i, nwhis,nw,npm 
-  if(MPI__root) then  
-     open(newunit=ifwd, file='WV.d')
-     write(ifwd,"(1x,10i14)") nprecx, mrecl, nblochpmx, nw+1,niw, nqibz + nq0i-1, nw_i
-     close(ifwd)
-     open(newunit=ifif,file='freq_r') ! Write number of frequency points nwp and frequensies
-     write(ifif,"(2i8,'  !(a.u.=2Ry)')") nw+1, nw_i
-     do iw= nw_i,-1
-        write(ifif,"(d23.15,2x,i6)") -freq_r(-iw),iw !negative frequecncies for x0
-     enddo
-     do iw= 0,nw
-        write(ifif,"(d23.15,2x,i6)") freq_r(iw),iw    !positive frequecncies for x0
-     enddo
-     close(ifif)
-  endif
+  call Getfreq2(.false.,realomega,imagomega,ua,iprintx) ! Getfreq gives frhis,freq_r,freq_i, nwhis,nw,npm
+  if(MPI__root) call writewvfreq() 
   ! We first accumulate Imaginary parts. Then do Hilbert transformation to get real part.
   ! nblochpmx = nbloch + ngcmx ! Maximum of MPB = PBpart +  IPWpartforMPB
   iqxini = 1
@@ -105,25 +92,16 @@ subroutine hrcxq()
     npr=ngb
     write(stdo,ftox)'do 1001: iq q=',iq,ftof(qp,4) !4 means four digits below decimal point (optional).
     write(stdo,ftox)' ### ',iq,' out of nqibz+n0qi+nq0iadd nsp=',nqibz+nq0i+nq0iadd,nspin
-! get tetrahedron weight     
-!    call x0kf_gettet(npr,qp,iq,crpa,chipm) !nspin,nqbz,nband,npr,qbz,qp,iq,crpa,chipm)
-! get zxq,zxqi     
-    allocate(zxq(npr,npr,nw_i:nw),zxqi(npr,npr,niw),source=(0d0,0d0))
-    call x0kf_zxq(realomega,imagomega,qp,iq,npr,schi,ecut,ecuts, zxq,zxqi, crpa,q00,chipm,nolfco,zzr,nmbas)
+!    allocate(zxq(npr,npr,nw_i:nw),zxqi(npr,npr,niw),source=(0d0,0d0))
+    call x0kf_zxq(realomega,imagomega,qp,iq,npr,schi, crpa=.false.,chipm=.false.,nolfco=.false.) !get zxq,zxqi    
+!    endif
     if(debug) print *,'sumchk zxq=',sum(zxq),sum(abs(zxq)),' zxqi=',sum(zxqi),sum(abs(zxqi))
-    if(emptyrun) then
-      deallocate(zxqi,zxq)
-      cycle
-    endif
-    GetWVRealOmeg: if (realomega) then !W-v in Random phase approximation: Files WVR and WVI. 
-      call WVRllwR(qp,iq,zxq,npr,npr) !-- emptyrun in it
-      deallocate(zxq)
-    endif GetWVRealOmeg
-    GetWVImagOmeg:if (imagomega) then
-      call WVIllwI(qp,iq,zxqi,npr,npr) 
-      deallocate(zxqi)
-    endif GetWVImagOmeg
-1001 enddo obtainrcxq
+    !W-v in Random phase approximation: Files WVR and WVI. 
+    call WVRllwR(qp,iq,npr,npr) !-- emptyrun in it
+    call deallocatezxq()
+    call WVIllwI(qp,iq,npr,npr) 
+    call deallocatezxqi()
+1001 enddo Obtainrcxq
    GetEffectiveWVatGammaCell: block !Get W-v(q=0) :Divergent part and non-analytic constant part of W(0) calculated from llw
     ! we have wing elemments: llw, llwi LLWR, LLWI
     call MPI_barrier(comm,ierr)
@@ -134,4 +112,19 @@ subroutine hrcxq()
   write(stdo,ftox) '--- end of hrcxq --- irank=',MPI__rank
   call cputid(0)
   call rx0( ' OK! hrcxq hhilbert')
+contains
+  subroutine writewvfreq() !writeonly
+     open(newunit=ifwd, file='WV.d')
+     write(ifwd,"(1x,10i14)") nprecx, mrecl, nblochpmx, nw+1,niw, nqibz + nq0i-1, nw_i
+     close(ifwd)
+     open(newunit=ifif,file='freq_r') ! Write number of frequency points nwp and frequensies
+     write(ifif,"(2i8,'  !(a.u.=2Ry)')") nw+1, nw_i
+     do iw= nw_i,-1
+        write(ifif,"(d23.15,2x,i6)") -freq_r(-iw),iw !negative frequecncies for x0
+     enddo
+     do iw= 0,nw
+        write(ifif,"(d23.15,2x,i6)") freq_r(iw),iw    !positive frequecncies for x0
+     enddo
+     close(ifif)
+   end subroutine writewvfreq
 end subroutine hrcxq

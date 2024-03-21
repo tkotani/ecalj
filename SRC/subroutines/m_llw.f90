@@ -8,6 +8,7 @@ module m_llw
   use m_read_bzdata,only: qbzw,nqbzw, q0i,nq0i ,nq0iadd,ixyz
   use m_readVcoud,only: vcousq,zcousq,ngb
   use m_rdpp,only: nbloch,mrecl
+  use m_x0kf,only: zxq,zxqi
   implicit none
   public:: WVRllwR,WVIllwI,  MPI__sendllw,MPI__sendllw2
   complex(8),allocatable,protected,public:: llw(:,:), llwI(:,:)
@@ -19,7 +20,7 @@ module m_llw
   complex(8),allocatable:: epstinv(:,:),epstilde(:,:)
   real(8),parameter:: pi=4d0*datan(1d0),fourpi = 4d0*pi
 contains
-  subroutine WVRllwR(q,iq,zxq,nmbas1,nmbas2)
+  subroutine WVRllwR(q,iq,nmbas1,nmbas2)
     use m_readqg,only: Readqg0
     intent(in)::       q,iq,    nmbas1,nmbas2 !zxq can be twiced when nspin=2
     integer:: iq,iq0,nwmax,nwmin,iw,imode,ix,igb1,igb2,ifllw
@@ -27,7 +28,7 @@ contains
     real(8):: frr,q(3),vcou1,quu(3),eee
     logical::  localfieldcorrectionllw,cmdopt0,emptyrun
     logical,save:: init=.true.
-    complex(8):: zxq(nmbas1,nmbas2,nw_i:nw)
+!    complex(8):: zxq(nmbas1,nmbas2,nw_i:nw)
     character(10):: i2char
     mreclx=mrecl
     emptyrun=cmdopt0('--emptyrun')
@@ -127,14 +128,14 @@ contains
 1115  enddo
     endif
   end subroutine WVRllwR
-  subroutine WVIllwi(q,iq,zxqi,nmbas1,nmbas2)
+  subroutine WVIllwi(q,iq,nmbas1,nmbas2)
     intent(in)::       q,iq,     nmbas1,nmbas2 !zxqi can be twiced when nspin=2
     integer:: nmbas1,nmbas2,mreclx
     integer:: iq,iq0,nwmax,nwmin,iw,imode,ix,igb1,igb2,ifllwi,ifrcwi
     real(8):: frr,q(3),vcou1
     logical::  localfieldcorrectionllw,cmdopt0,emptyrun
     logical,save:: init=.true.
-    complex(8):: zxqi(nmbas1,nmbas2,niw)
+!    complex(8):: zxqi(nmbas1,nmbas2,niw)
     character(10):: i2char
     mreclx=mrecl
     emptyrun=cmdopt0('--emptyrun')
