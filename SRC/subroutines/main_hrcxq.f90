@@ -26,7 +26,7 @@ subroutine hrcxq()
   use m_readgwinput,only: ReadGwinputKeys,egauss,ecut,ecuts,mtet,ebmx,nbmx,imbas
   use m_qbze,only:    Setqbze,nqbze,nqibze,qbze,qibze
   use m_readhbe,only: Readhbe,nband !,nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg !  use m_eibz,only:    Seteibz,nwgt,neibz,igx,igxt,eibzsym
-  use m_x0kf,only: x0kf_zxq,x0kf_gettet  !X0kf_v4hz,x0kf_v4hz_init,x0kf_v4hz_init_read,rcxq,DeallocateRcxq, X0kf_v4hz_init,,x0kf_v4hz_init_write !X0kf_v4hz_symmetrize,
+  use m_x0kf,only: x0kf_zxq !,x0kf_gettet  !X0kf_v4hz,x0kf_v4hz_init,x0kf_v4hz_init_read,rcxq,DeallocateRcxq, X0kf_v4hz_init,,x0kf_v4hz_init_write !X0kf_v4hz_symmetrize,
   use m_llw,only: WVRllwR,WVIllwI,w4pmode,MPI__sendllw
   use m_mpi,only: MPI__Initialize,MPI__root,MPI__rank,MPI__size,MPI__consoleout,comm
   use m_lgunit,only: m_lgunit_init,stdo
@@ -104,12 +104,12 @@ subroutine hrcxq()
     call Readvcoud(qp, iq,NoVcou=chipm) !Readin vcousq,zcousq ngb ngc for the Coulomb matrix
     npr=ngb
     write(stdo,ftox)'do 1001: iq q=',iq,ftof(qp,4) !4 means four digits below decimal point (optional).
-! get tetrahedron weight     
-    call x0kf_gettet(npr,qp,iq,crpa,chipm) !nspin,nqbz,nband,npr,qbz,qp,iq,crpa,chipm)
-    allocate(zxq(npr,npr,nw_i:nw),zxqi(npr,npr,niw),source=(0d0,0d0))
     write(stdo,ftox)' ### ',iq,' out of nqibz+n0qi+nq0iadd nsp=',nqibz+nq0i+nq0iadd,nspin
+! get tetrahedron weight     
+!    call x0kf_gettet(npr,qp,iq,crpa,chipm) !nspin,nqbz,nband,npr,qbz,qp,iq,crpa,chipm)
 ! get zxq,zxqi     
-    call x0kf_zxq(realomega,imagomega,qp,iq,nspin,npr,schi,ecut,ecuts, zxq,zxqi, q00,chipm,nolfco,zzr,nmbas)
+    allocate(zxq(npr,npr,nw_i:nw),zxqi(npr,npr,niw),source=(0d0,0d0))
+    call x0kf_zxq(realomega,imagomega,qp,iq,npr,schi,ecut,ecuts, zxq,zxqi, crpa,q00,chipm,nolfco,zzr,nmbas)
     if(debug) print *,'sumchk zxq=',sum(zxq),sum(abs(zxq)),' zxqi=',sum(zxqi),sum(abs(zxqi))
     if(emptyrun) then
       deallocate(zxqi,zxq)

@@ -24,25 +24,6 @@ module m_x0kf
   real(8),allocatable:: whwc(:)
   integer,allocatable:: iwini(:),iwend(:),itc(:),itpc(:),jpmc(:),icouini(:)  
 contains
-  subroutine x0kf_gettet(nmbas,qp,iq,crpa,chipm)
-    use m_readeigen,only:readeval
-    implicit none
-    integer:: is,isf,kx,iq,ierr,nmbas
-    real(8):: qp(3),ekxx1(nband,nqbz),ekxx2(nband,nqbz) !qbz(3,nqbz),nqbz,
-    logical:: crpa,chipm
-     isloop: do 1103 is = 1,nsp
-        isf = merge(3-is,is,chipm) ! if(is==1) isf=2  if(is==2) isf=1 for chipm
-        do kx = 1, nqbz
-           ekxx1(1:nband,kx) = readeval(rk(:,kx),    is ) ! read eigenvalue
-           ekxx2(1:nband,kx) = readeval(qp+rk(:,kx), isf) !
-        enddo
-        call gettetwt(qp,iq,is,isf,ekxx1,ekxx2,nband=nband) !,eibzmode=eibzmode) !,nwgt(:,iq) Tetrahedron weight for x0kf_v4hz
-        ierr=x0kf_v4hz_init(0,qp,is,isf,iq,nmbas, crpa=crpa)
-        ierr=x0kf_v4hz_init(1,qp,is,isf,iq,nmbas, crpa=crpa)         !eibzmode=eibzmode, nwgt=nwgt(:,iq)
-        call X0kf_v4hz_init_write(iq,is)!Write whw and indexs to invoke hrcxq
-        call tetdeallocate()
-1103 enddo isloop
-    end subroutine x0kf_gettet
     
   function X0kf_v4hz_init(job,q,isp_k,isp_kq, iq, nmbas, crpa) result(ierr) !index accumulation. Initialzation for calling x0kf_v4h
     intent(in)::          job,q,isp_k,isp_kq, iq, nmbas, crpa
@@ -116,31 +97,7 @@ contains
     ierr=0
     if(job==0) write(stdo,"('x0kf_v4hz_init: job=0 ncount ncoun nqibz=',3i8)") ncount, ncoun,nqibz
   endfunction x0kf_v4hz_init
-  subroutine X0kf_v4hz_init_write(iq,is)
-    integer:: iq,is,ix0
-    character(10) :: i2char
-    open(newunit=ix0,file='x0icount.'//trim(i2char(iq))//'_'//trim(i2char(is)),form='unformatted')
-    write(ix0)ncount,ncoun
-    write(ix0) whwc, kc, iwini,iwend, itc,itpc, jpmc,icouini
-    write(ix0) nkmin,nkmax,nkqmin,nkqmax
-    deallocate(nkmin,nkmax,nkqmin,nkqmax)!,skipk)
-    deallocate( whwc, kc, iwini,iwend, itc, itpc, jpmc,icouini )
-    close(ix0)
-  end subroutine X0kf_v4hz_init_write
-  ! subroutine X0kf_v4hz_init_read(iq,is)
-  !   integer:: iq,is,ix0
-  !   character(10) :: i2char
-  !   open(newunit=ix0,file='x0icount.'//trim(i2char(iq))//'_'//trim(i2char(is)),form='unformatted')
-  !   read(ix0)ncount,ncoun
-  !   if(allocated(whwc)) deallocate( whwc, kc, iwini,iwend, itc, itpc, jpmc, nkmin,nkmax,nkqmin,nkqmax)
-  !   allocate( whwc(ncount), kc(ncoun), iwini(ncoun),iwend(ncoun),itc(ncoun),itpc(ncoun), jpmc(ncoun),&
-  !        icouini(ncoun) )
-  !   allocate( nkmin(nqbz),nkmax(nqbz),nkqmin(nqbz),nkqmax(nqbz))
-  !   read(ix0) whwc, kc, iwini,iwend, itc,itpc, jpmc,icouini
-  !   read(ix0) nkmin,nkmax,nkqmin,nkqmax
-  !   close(ix0)
-  ! end subroutine X0kf_v4hz_init_read
-
+  
   subroutine X0kf_v4hz (q, isp_k,isp_kq, iq, npr,   q00,chipm,nolfco,zzr,nmbas)
     use m_zmel,only: Setppovlz,Setppovlz_chipm   ! & NOTE: these data set are stored in this module, and used
     intent(in)   ::     q, isp_k,isp_kq, iq,       q00,chipm,nolfco,zzr,nmbas !q00 is optional
@@ -224,24 +181,46 @@ contains
     write(stdo,ftox) " --- x0kf_v4hz: end" !write(stdo,"(' --- ', 3d13.5)")sum(abs(rcxq(:,:,1:nwhis,1:npm))),sum((rcxq(:,:,1:nwhis,1:npm)))
   end subroutine x0kf_v4hz
 
-  subroutine x0kf_zxq(realomega,imagomega, q,iq,nspin,npr,schi,ecut,ecuts, zxq,zxqi, q00,chipm,nolfco,zzr,nmbas)
+  subroutine x0kf_zxq(realomega,imagomega, q,iq,npr,schi,ecut,ecuts, zxq,zxqi, crpa,q00,chipm,nolfco,zzr,nmbas)
     use m_dpsion,only: dpsion5
     use m_freq,only: nw_i, nw_w=>nw, niwt=>niw
+    use m_readeigen,only:readeval
     implicit none
     logical,optional:: chipm,nolfco
     real(8),optional::q00(3)
     integer,optional::nmbas
     complex(8),optional:: zzr(:,:)
     real(8):: q(3),schi,ecut,ecuts
-    integer::iq,nspin,npr !,is,isf
+    integer::iq,npr !,is,isf
     logical:: realomega,imagomega  !      GetImpartPolarizationFunction_zxq: block
     complex(8):: zxq(npr,npr, nw_i:nw_w),zxqi(npr,npr,niwt)
     integer:: isp_k,isp_kq,ix0
+    logical::crpa
     character(10) :: i2char
-    isloop2: do 1013 isp_k = 1,nspin
-!      call x0kf_gettet(nspin,nqbz,npr,qbz,qp,iq,crpa,chipm)
+    integer:: is,isf,kx,ierr
+    real(8):: ekxx1(nband,nqbz),ekxx2(nband,nqbz)
+!    call x0kf_gettet(npr,q,iq,crpa,chipm)
+    isloop: do 1103 isp_k = 1,nsp
       isp_kq = merge(3-isp_k,isp_k,chipm) 
-!!      call X0kf_v4hz_init_read(iq,is) !Readin icount data (index sets and tetrahedron weight) into m_x0kf
+      do kx = 1, nqbz
+        ekxx1(1:nband,kx) = readeval(rk(:,kx),   isp_k ) ! read eigenvalue
+        ekxx2(1:nband,kx) = readeval(q+rk(:,kx), isp_kq) !
+      enddo
+      call gettetwt(q,iq,isp_k,isp_kq,ekxx1,ekxx2,nband=nband) !,eibzmode=eibzmode) !,nwgt(:,iq) Tetrahedron weight for x0kf_v4hz
+      ierr=x0kf_v4hz_init(0,q,isp_k,isp_kq,iq,npr, crpa=crpa)
+      ierr=x0kf_v4hz_init(1,q,isp_k,isp_kq,iq,npr, crpa=crpa)         !eibzmode=eibzmode, nwgt=nwgt(:,iq)
+!  call X0kf_v4hz_init_write(iq,isp_k)!Write whw and indexs to invoke hrcxq
+      open(newunit=ix0,file='x0icount.'//trim(i2char(iq))//'_'//trim(i2char(isp_k)),form='unformatted')
+      write(ix0)ncount,ncoun
+      write(ix0) whwc, kc, iwini,iwend, itc,itpc, jpmc,icouini
+      write(ix0) nkmin,nkmax,nkqmin,nkqmax
+      deallocate(nkmin,nkmax,nkqmin,nkqmax,whwc, kc, iwini,iwend, itc, itpc, jpmc,icouini )
+      close(ix0)
+      call tetdeallocate()
+1103 enddo isloop
+    isloop2: do 1013 isp_k = 1,nsp
+      isp_kq = merge(3-isp_k,isp_k,chipm) 
+!    call X0kf_v4hz_init_read(iq,isp_k) !Readin icount data (index sets and tetrahedron weight) into m_x0kf
       open(newunit=ix0,file='x0icount.'//trim(i2char(iq))//'_'//trim(i2char(isp_k)),form='unformatted')
       read(ix0)ncount,ncoun
       if(allocated(whwc)) deallocate( whwc, kc, iwini,iwend, itc, itpc, jpmc, nkmin,nkmax,nkqmin,nkqmax)
@@ -250,23 +229,66 @@ contains
       read(ix0) whwc, kc, iwini,iwend, itc,itpc, jpmc,icouini
       read(ix0) nkmin,nkmax,nkqmin,nkqmax
       close(ix0)
-!      
       call x0kf_v4hz(q,isp_k,isp_kq,iq, npr,q00,chipm,nolfco,zzr,nmbas)
-      if(isp_k==nspin .OR. chipm) then
+      if(isp_k==nsp .OR. chipm) then
         call dpsion5(realomega, imagomega, rcxq, npr,npr, zxq, zxqi, chipm, schi,isp_k,  ecut,ecuts) 
         deallocate(rcxq)
       endif
 1013 enddo isloop2 !      endblock GetImpartPolarizationFunction_zxq
   end subroutine x0kf_zxq
-
-  subroutine X0kf_zmel( q,k, isp_k,isp_kq) ! Return zmel= <phi phi |M_I> in m_zmel
+  subroutine x0kf_zmel( q,k, isp_k,isp_kq) ! Return zmel= <phi phi |M_I> in m_zmel
     intent(in)   ::     q,k, isp_k,isp_kq   
     integer:: k,isp_k,isp_kq,iq 
     real(8):: q(3)
     call get_zmel_init(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot, ns2=nkmax(k)+nctot, ispm=isp_k, &
          nqini=nkqmin(k), nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1), iprx=.false., zmelconjg=.true.)
   end subroutine x0kf_zmel
-end module m_x0kf !subroutine x0kf_vhz_symmetrize here removed. See old source code ~2022.
+  subroutine x0kf_gettet(nmbas,qp,iq,crpa,chipm) 
+    use m_readeigen,only:readeval
+    implicit none
+    integer:: is,isf,kx,iq,ierr,nmbas
+    real(8):: qp(3),ekxx1(nband,nqbz),ekxx2(nband,nqbz) !qbz(3,nqbz),nqbz,
+    logical:: crpa,chipm
+    isloop: do 1103 is = 1,nsp
+      isf = merge(3-is,is,chipm) ! if(is==1) isf=2  if(is==2) isf=1 for chipm
+      do kx = 1, nqbz
+        ekxx1(1:nband,kx) = readeval(rk(:,kx),    is ) ! read eigenvalue
+        ekxx2(1:nband,kx) = readeval(qp+rk(:,kx), isf) !
+      enddo
+      call gettetwt(qp,iq,is,isf,ekxx1,ekxx2,nband=nband) !,eibzmode=eibzmode) !,nwgt(:,iq) Tetrahedron weight for x0kf_v4hz
+      ierr=x0kf_v4hz_init(0,qp,is,isf,iq,nmbas, crpa=crpa)
+      ierr=x0kf_v4hz_init(1,qp,is,isf,iq,nmbas, crpa=crpa)         !eibzmode=eibzmode, nwgt=nwgt(:,iq)
+      call X0kf_v4hz_init_write(iq,is)!Write whw and indexs to invoke hrcxq
+      call tetdeallocate()
+1103 enddo isloop
+  end subroutine x0kf_gettet
+  subroutine X0kf_v4hz_init_write(iq,is)
+    integer:: iq,is,ix0
+    character(10) :: i2char
+    open(newunit=ix0,file='x0icount.'//trim(i2char(iq))//'_'//trim(i2char(is)),form='unformatted')
+    write(ix0)ncount,ncoun
+    write(ix0) whwc, kc, iwini,iwend, itc,itpc, jpmc,icouini
+    write(ix0) nkmin,nkmax,nkqmin,nkqmax
+    deallocate(nkmin,nkmax,nkqmin,nkqmax)!,skipk)
+    deallocate( whwc, kc, iwini,iwend, itc, itpc, jpmc,icouini )
+    close(ix0)
+  end subroutine X0kf_v4hz_init_write
+end module m_x0kf !subroutine x0kf_vhz_symmetrize here removed. See old source code ~2022
+
+  ! subroutine X0kf_v4hz_init_read(iq,is)
+  !   integer:: iq,is,ix0
+  !   character(10) :: i2char
+  !   open(newunit=ix0,file='x0icount.'//trim(i2char(iq))//'_'//trim(i2char(is)),form='unformatted')
+  !   read(ix0)ncount,ncoun
+  !   if(allocated(whwc)) deallocate( whwc, kc, iwini,iwend, itc, itpc, jpmc, nkmin,nkmax,nkqmin,nkqmax)
+  !   allocate( whwc(ncount), kc(ncoun), iwini(ncoun),iwend(ncoun),itc(ncoun),itpc(ncoun), jpmc(ncoun),&
+  !        icouini(ncoun) )
+  !   allocate( nkmin(nqbz),nkmax(nqbz),nkqmin(nqbz),nkqmax(nqbz))
+  !   read(ix0) whwc, kc, iwini,iwend, itc,itpc, jpmc,icouini
+  !   read(ix0) nkmin,nkmax,nkqmin,nkqmax
+  !   close(ix0)
+  ! end subroutine X0kf_v4hz_init_read
+
 
 !    intent(out)  ::                                  rcxq
 !! === calculate chi0, or chi0_pm === ! eibzmode, 
