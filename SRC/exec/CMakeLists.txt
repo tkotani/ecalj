@@ -30,6 +30,8 @@ add_custom_target(show_prog COMMAND make -f Makeshow WORKING_DIRECTORY ${CMAKE_B
   DEPENDS "../subroutines/*.f90" "../wanniergw/*.f90" "../main/*.f90"
 )
 file(GLOB SOURCES "../subroutines/*.f90" "../wanniergw/*.f90" "../subroutines/show_programinfo.f90") # source files
+file(GLOB SOURCES1 "../subroutines/*.f90" "../subroutines/show_programinfo.f90") # source files
+file(GLOB SOURCES2 "../wanniergw/*.f90") # source files
 file(GLOB MAINS "../main/*.f90") # main source files
 set(LIBRARY_NAME ecaljF) # library name is libecaljF.so
 
@@ -62,30 +64,31 @@ if(FC MATCHES "gfortran")
   if(CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER_EQUAL "10.0")
     set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -w -fno-strict-aliasing -fallow-argument-mismatch")
   endif()
-  set(LIB ${LIBRARY_NAME} -lmkl_rt) # set LIB variable
+  set(LIBM  -lmkl_rt) 
   add_link_options(-lmkl_rt)
 elseif(FC MATCHES "ifort")
   set(CMAKE_Fortran_COMPILER mpiifort) # compiler
   set(CMAKE_Fortran_FLAGS "-init:snan -fpic -assume byterecl") # compile flags
-  set(LIB ${LIBRARY_NAME} -mkl) # set LIB variable
+  set(LIBM  -mkl) 
   add_link_options(-mkl)
 elseif(FC MATCHES "nvfortran")
   set(CMAKE_Fortran_COMPILER mpifort) # compiler
   set(CMAKE_Fortran_FLAGS "-fpic") # "-Mvect=simd -mcmodel=medium -fpic") # compile flags
-  set(LIB ${LIBRARY_NAME}) # -mkl)  #set LIB variable
+  set(LIBM  ) # set LIB variable
   add_link_options(-lmkl_intel_lp64 -lmkl_sequential -lmkl_core)
 endif()
+set(LIB ${LIBRARY_NAME}) 
+#set(LIB1 ${LIBRARY_NAME}1) 
+#set(LIB2 ${LIBRARY_NAME}2) 
 
 # ## source-dependent compile options
 if(FC MATCHES "gfortran" AND DEFINED DEBUG)
   message(STATUS "===== gfortran debug  =======================")
-
   foreach(target IN ITEMS ${SOURCES})
     set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-fbacktrace -O0")
   endforeach()
 elseif(FC MATCHES "gfortran")
   message(STATUS "===== gfortran release  =======================")
-
   foreach(target IN ITEMS ${SOURCES})
     if(${target} MATCHES "../subroutines/mkqp.f90" OR ${target} MATCHES "../wannier/iopen.f90")
       set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O0")
@@ -95,13 +98,11 @@ elseif(FC MATCHES "gfortran")
   endforeach()
 elseif(FC MATCHES "ifort" AND DEFINED DEBUG)
   message(STATUS "===== ifort debug  =======================")
-
   foreach(target IN ITEMS ${SOURCES})
     set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O0  -g -traceback")
   endforeach()
 elseif(FC MATCHES "ifort")
   message(STATUS "====== ifort release =======================")
-
   foreach(target IN ITEMS ${SOURCES})
     if(${target} MATCHES "../subroutines/m_qplist.f90") # OR ${target} MATCHES "../subroutines/x0kf_v4h.f90" )
       set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O0")
@@ -111,13 +112,11 @@ elseif(FC MATCHES "ifort")
   endforeach()
 elseif(FC MATCHES "nvfortran" AND DEFINED DEBUG)
   message(STATUS "====== nvfortran debug =======================")
-
   foreach(target IN ITEMS ${SOURCES})
     set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-C -g -traceback -O2") # why -O2 needed here???
   endforeach()
 elseif(FC MATCHES "nvfortran")
   message(STATUS "====== nvfortran release =======================")
-
   foreach(target IN ITEMS ${SOURCES})
     if(${target} MATCHES "../subroutines/pwmat.f90"
       OR ${target} MATCHES "../subroutines/rseq.f90")
@@ -130,20 +129,23 @@ endif()
 
 # For setting mkl location
 add_executable(dummy ./dummy.f90) # exe
-target_link_libraries(dummy ${LIB} ${BLAS} ${MPI}) # linked
+target_link_libraries(dummy ${BLAS} ${LIBM} ${MPI}) # linked
 
 # add_custom_target(fcheck ALL COMMAND ldd dummy|grep mkl >mklloc.txt  WORKING_DIRECTORY ${CMAKE_BINARY_DIR} DEPENDS dummy)
 
 # Generate library and binaries ###############################
-add_library(${LIBRARY_NAME} SHARED ${SOURCES}) # Library
+add_library(${LIB} SHARED ${SOURCES}) # Library
+#add_library(${LIB1} SHARED ${SOURCES1}) # Library
+#add_library(${LIB2} SHARED ${SOURCES2})
 
 foreach(target IN ITEMS ${MAINS}) # main routines
   get_filename_component(exename ${target} NAME_WE) # set DIR variable
   add_executable(${exename} ${target}) # exe
-  target_link_libraries(${exename} ${LIB} ${BLAS} ${MPI}) # linked
+  target_link_libraries(${exename} ${LIB} ${LIBM} ${BLAS} ${MPI}) # linked
 endforeach()
 
-add_custom_target(etags ALL COMMAND etags ../subroutines/*.f90 ../wanniergw/*.f90 ../main/*.f90)
+add_custom_target(etags ALL COMMAND etags ../subroutines/*.f90 ../wanniergw/*.f90 ../main/*.f90
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 
 # set(BINDIR $ENV{HOME}/bin)
 # message(STATUS "BINDIR = ${BINDIR}")

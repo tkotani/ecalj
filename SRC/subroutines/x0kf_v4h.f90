@@ -115,7 +115,9 @@ contains
         icoucold=-999
         if(cmdopt0('--emptyrun')) goto 2000
         ! rcxq(ibg1,igb2,iw) = sum_ibib wwk(iw,ibib)* <M_ibg1(q) psi_it(k)| psi_itp(q+k)> < psi_itp | psi_it M_ibg2 > at q
-        Mainloop4rcxqsum: do 1000 icoun=1,ncoun ! = 1,ncount
+
+        
+        GPUloop4rcxqsum: do 1000 icoun=1,ncoun ! = 1,ncount
           if(debug) write(stdo,ftox)'icoun: iq k jpm it itp n(iw)=',icoun,iq,k,jpm,it,itp,iwend(icoun)-iwini(icoun)+1
           k = kc(icoun)
           if(kold/=k) then !Get zmel = < M(igb q) phi( k it occ)|  phi(q+k itp unocc)>
@@ -138,7 +140,8 @@ contains
               !forall(iw=iwini(icoun):iwend(icoun)) nwj(iw,jpm)=nwj(iw,jpm)+iwend(icoun)-iwini(icoun)+1 !counter check
             endblock TimeConsumingRcxq
           endassociate
-1000    enddo Mainloop4rcxqsum
+1000    enddo GPUloop4rcxqsum
+        
 2000    continue
         write(stdo,ftox) " --- x0kf_v4hz: end" !write(stdo,"(' --- ', 3d13.5)")sum(abs(rcxq(:,:,1:nwhis,1:npm))),sum((rcxq(:,:,1:nwhis,1:npm)))
       endblock x0kf_v4hz

@@ -28,6 +28,9 @@ for arg in sys.argv[1:]:
     if(arg=='-np'):
         np=True
         continue
+    if(arg=='gwall'):
+        ttall="gas_eps_lmfh gas_epsPP_lmfh fe_epsPP_lmfh_chipm si_gw_lmfh gas_pw_gw_lmfh si_gwsc gas_gwsc nio_gwsc fe_gwsc ni_crpa srvo3_crpa"
+        continue
     ttall=ttall+" "+arg
 np4 = "-np "+npsize+" " # mpisize
 if(len(ttall)==0): #when no tests are specified

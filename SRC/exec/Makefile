@@ -3672,6 +3672,30 @@ home/takao/ecalj/SRC/subroutines/m_readVcoud.f90.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_readVcoud.f90.s
 .PHONY : home/takao/ecalj/SRC/subroutines/m_readVcoud.f90.s
 
+home/takao/ecalj/SRC/subroutines/m_read_Worb.o: home/takao/ecalj/SRC/subroutines/m_read_Worb.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_read_Worb.o
+
+# target to build an object file
+home/takao/ecalj/SRC/subroutines/m_read_Worb.f90.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_read_Worb.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/m_read_Worb.f90.o
+
+home/takao/ecalj/SRC/subroutines/m_read_Worb.i: home/takao/ecalj/SRC/subroutines/m_read_Worb.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_read_Worb.i
+
+# target to preprocess a source file
+home/takao/ecalj/SRC/subroutines/m_read_Worb.f90.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_read_Worb.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/m_read_Worb.f90.i
+
+home/takao/ecalj/SRC/subroutines/m_read_Worb.s: home/takao/ecalj/SRC/subroutines/m_read_Worb.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_read_Worb.s
+
+# target to generate assembly for a file
+home/takao/ecalj/SRC/subroutines/m_read_Worb.f90.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/m_read_Worb.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/m_read_Worb.f90.s
+
 home/takao/ecalj/SRC/subroutines/m_readeps.o: home/takao/ecalj/SRC/subroutines/m_readeps.f90.o
 .PHONY : home/takao/ecalj/SRC/subroutines/m_readeps.o
 
@@ -7176,30 +7200,6 @@ home/takao/ecalj/SRC/wanniergw/m_QG.f90.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/m_QG.f90.s
 .PHONY : home/takao/ecalj/SRC/wanniergw/m_QG.f90.s
 
-home/takao/ecalj/SRC/wanniergw/m_read_Worb.o: home/takao/ecalj/SRC/wanniergw/m_read_Worb.f90.o
-.PHONY : home/takao/ecalj/SRC/wanniergw/m_read_Worb.o
-
-# target to build an object file
-home/takao/ecalj/SRC/wanniergw/m_read_Worb.f90.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/m_read_Worb.f90.o
-.PHONY : home/takao/ecalj/SRC/wanniergw/m_read_Worb.f90.o
-
-home/takao/ecalj/SRC/wanniergw/m_read_Worb.i: home/takao/ecalj/SRC/wanniergw/m_read_Worb.f90.i
-.PHONY : home/takao/ecalj/SRC/wanniergw/m_read_Worb.i
-
-# target to preprocess a source file
-home/takao/ecalj/SRC/wanniergw/m_read_Worb.f90.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/m_read_Worb.f90.i
-.PHONY : home/takao/ecalj/SRC/wanniergw/m_read_Worb.f90.i
-
-home/takao/ecalj/SRC/wanniergw/m_read_Worb.s: home/takao/ecalj/SRC/wanniergw/m_read_Worb.f90.s
-.PHONY : home/takao/ecalj/SRC/wanniergw/m_read_Worb.s
-
-# target to generate assembly for a file
-home/takao/ecalj/SRC/wanniergw/m_read_Worb.f90.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/wanniergw/m_read_Worb.f90.s
-.PHONY : home/takao/ecalj/SRC/wanniergw/m_read_Worb.f90.s
-
 home/takao/ecalj/SRC/wanniergw/main_hmaxloc.o: home/takao/ecalj/SRC/wanniergw/main_hmaxloc.f90.o
 .PHONY : home/takao/ecalj/SRC/wanniergw/main_hmaxloc.o
 
@@ -8139,6 +8139,9 @@ help:
 	@echo "... home/takao/ecalj/SRC/subroutines/m_readVcoud.o"
 	@echo "... home/takao/ecalj/SRC/subroutines/m_readVcoud.i"
 	@echo "... home/takao/ecalj/SRC/subroutines/m_readVcoud.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_read_Worb.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_read_Worb.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/m_read_Worb.s"
 	@echo "... home/takao/ecalj/SRC/subroutines/m_readeps.o"
 	@echo "... home/takao/ecalj/SRC/subroutines/m_readeps.i"
 	@echo "... home/takao/ecalj/SRC/subroutines/m_readeps.s"
@@ -8577,9 +8580,6 @@ help:
 	@echo "... home/takao/ecalj/SRC/wanniergw/m_QG.o"
 	@echo "... home/takao/ecalj/SRC/wanniergw/m_QG.i"
 	@echo "... home/takao/ecalj/SRC/wanniergw/m_QG.s"
-	@echo "... home/takao/ecalj/SRC/wanniergw/m_read_Worb.o"
-	@echo "... home/takao/ecalj/SRC/wanniergw/m_read_Worb.i"
-	@echo "... home/takao/ecalj/SRC/wanniergw/m_read_Worb.s"
 	@echo "... home/takao/ecalj/SRC/wanniergw/main_hmaxloc.o"
 	@echo "... home/takao/ecalj/SRC/wanniergw/main_hmaxloc.i"
 	@echo "... home/takao/ecalj/SRC/wanniergw/main_hmaxloc.s"
