@@ -42,7 +42,8 @@ contains
     complex(8),allocatable:: rcxq(:,:,:,:) 
     character(10) :: i2char
     logical:: cmdopt0
-    allocate(zxq(npr,npr,nw_i:nw),zxqi(npr,npr,niw),source=(0d0,0d0))
+    if(realomega) allocate(zxq(npr,npr,nw_i:nw),source=(0d0,0d0))
+    if(imagomega) allocate(zxqi(npr,npr,niw),source=(0d0,0d0))
     if(cmdopt0('--emptyrun'))  return
     if(chipm .AND. nolfco) then
       call setppovlz_chipm(zzr,npr)
