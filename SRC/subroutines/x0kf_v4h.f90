@@ -19,7 +19,7 @@ module m_x0kf
   public:: x0kf_zxq, deallocatezxq, deallocatezxqi
   complex(8),public,allocatable:: zxq(:,:,:), zxqi(:,:,:)   !Not yet protected because of main_hx0fp0
   private 
-  integer,allocatable:: kc(:)
+  integer,allocatable:: kc(:),icounkmin(:),icounkmax(:)
   integer:: ncount,ncoun
   integer,allocatable:: nkmin(:), nkmax(:),nkqmin(:),nkqmax(:) 
   real(8),allocatable:: whwc(:)
@@ -116,37 +116,39 @@ contains
         icoucold=-999
         if(cmdopt0('--emptyrun')) goto 2000
         ! rcxq(ibg1,igb2,iw) = sum_ibib wwk(iw,ibib)* <M_ibg1(q) psi_it(k)| psi_itp(q+k)> < psi_itp | psi_it M_ibg2 > at q
-
         
-        GPUloop4rcxqsum: do 1000 icoun=1,ncoun ! = 1,ncount
-          if(debug) write(stdo,ftox)'icoun: iq k jpm it itp n(iw)=',icoun,iq,k,jpm,it,itp,iwend(icoun)-iwini(icoun)+1
-          k = kc(icoun)
-          if(kold/=k) then !Get zmel = < M(igb q) phi( k it occ)|  phi(q+k itp unocc)>
-!            call x0kf_zmel(q, k, isp_k,isp_kq) 
-            call get_zmel_init(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot, ns2=nkmax(k)+nctot, ispm=isp_k, &
-                 nqini=nkqmin(k), nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false.,zmelconjg=.true.)
-            kold=k
-          endif
-          associate( &
-               jpm => jpmc(icoun),&  !\pm omega 
-               it  => itc (icoun),&  !occ      at k
-               itp => itpc(icoun))   !unocc    at q+k
-            TimeConsumingRcxq: block 
-              complex(8):: zmelzmel(npr,npr)
-              do concurrent(igb1=1:npr,igb2=1:npr) 
-                zmelzmel(igb1,igb2)= dconjg(zmel(igb1,it,itp))*zmel(igb2,it,itp) 
-              enddo
-              forall(iw=iwini(icoun):iwend(icoun))& !Rcxq is hermitian, thus, we can reduce computational time half.
-                   rcxq(:,:,iw,jpm)=rcxq(:,:,iw,jpm)+ whwc(iw-iwini(icoun)+icouini(icoun))* zmelzmel(:,:) !may use zaxpy and symmetrize afterwards
-              !forall(iw=iwini(icoun):iwend(icoun)) nwj(iw,jpm)=nwj(iw,jpm)+iwend(icoun)-iwini(icoun)+1 !counter check
-            endblock TimeConsumingRcxq
-          endassociate
-1000    enddo GPUloop4rcxqsum
+        kloop:do 1500 k=1,nqbz
+          call get_zmel_init(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot, ns2=nkmax(k)+nctot, ispm=isp_k, &
+               nqini=nkqmin(k), nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false.,zmelconjg=.true.)
+          ! call x0kf_zmel(q, k, isp_k,isp_kq) 
+          icounloop: do 1000 icoun=icounkmin(k),icounkmax(k)
+            if(debug) write(stdo,ftox)'icoun: iq k jpm it itp n(iw)=',icoun,iq,k,jpm,it,itp,iwend(icoun)-iwini(icoun)+1
+            !k = kc(icoun)
+            !if(kold/=k) then !Get zmel = < M(igb q) phi( k it occ)|  phi(q+k itp unocc)>
+            !  !            call x0kf_zmel(q, k, isp_k,isp_kq) 
+            !  kold=k
+            !endif
+            associate( &
+                 jpm => jpmc(icoun),&  !\pm omega 
+                 it  => itc (icoun),&  !occ      at k
+                 itp => itpc(icoun))   !unocc    at q+k
+              TimeConsumingRcxq: block 
+                complex(8):: zmelzmel(npr,npr)
+                do concurrent(igb1=1:npr,igb2=1:npr) 
+                  zmelzmel(igb1,igb2)= dconjg(zmel(igb1,it,itp))*zmel(igb2,it,itp) 
+                enddo
+                forall(iw=iwini(icoun):iwend(icoun))& !Rcxq is hermitian, thus, we can reduce computational time half.
+                     rcxq(:,:,iw,jpm)=rcxq(:,:,iw,jpm)+ whwc(iw-iwini(icoun)+icouini(icoun))* zmelzmel(:,:) !may use zaxpy and symmetrize afterwards
+                !forall(iw=iwini(icoun):iwend(icoun)) nwj(iw,jpm)=nwj(iw,jpm)+iwend(icoun)-iwini(icoun)+1 !counter check
+              endblock TimeConsumingRcxq
+            endassociate
+1000      enddo icounloop
+1500    enddo kloop
         
 2000    continue
         write(stdo,ftox) " --- x0kf_v4hz: end" !write(stdo,"(' --- ', 3d13.5)")sum(abs(rcxq(:,:,1:nwhis,1:npm))),sum((rcxq(:,:,1:nwhis,1:npm)))
       endblock x0kf_v4hz
-      deallocate(whwc, kc, iwini,iwend, itc,itpc, jpmc,icouini, nkmin,nkmax,nkqmin,nkqmax)
+      deallocate(whwc, kc, iwini,iwend, itc,itpc, jpmc,icouini, nkmin,nkmax,nkqmin,nkqmax,icounkmin,icounkmax)
       HilbertTransformation:if(isp_k==nsp .OR. chipm) then !Get real part. When chipm=T, do dpsion5 for every isp_k; When =F, do dpsion5 after rxcq accumulated for spins
         call dpsion5(realomega, imagomega, rcxq, npr,npr, zxq, zxqi, chipm, schi,isp_k,  ecut,ecuts) 
         deallocate(rcxq)
@@ -168,9 +170,11 @@ contains
     if(job==0) allocate( nkmin(nqbz),nkqmin(nqbz),source= 999999)
     if(job==0) allocate( nkmax(nqbz),nkqmax(nqbz),source=-999999)
     if(job==1) allocate( whwc(ncount),kc(ncoun),iwini(ncoun),iwend(ncoun),itc(ncoun), itpc(ncoun), jpmc(ncoun),icouini(ncoun))
+    if(job==1) allocate(icounkmin(nqbz),icounkmax(nqbz))
     icount=0
     icoun=0
-    AccumulateIndex4icount: do 110 k = 1,nqbz 
+    AccumulateIndex4icount: do 110 k = 1,nqbz
+      if(job==1) icounkmin(k)=icoun+1
       if(job==0) then
         do jpm=1,npm 
           do ibib = 1, nbnb(k,jpm)
@@ -213,6 +217,7 @@ contains
           enddo iwloop
 125     enddo ibibloop
 1251  enddo jpmloop
+      if(job==1) icounkmax(k)=icoun
 110 enddo AccumulateIndex4icount
     ncount = icount
     ncoun  = icoun

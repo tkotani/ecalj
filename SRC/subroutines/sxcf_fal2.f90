@@ -12,7 +12,7 @@ subroutine sxcf_fal3z(&
   use m_readqg,only:readqg0
   use m_readeigen,only: readeval
   use m_keyvalue,only: getkeyvalue
-  use m_zmel,only: Get_zmel_init,Setppovlz, zmel ! Deallocate_zmel,
+  use m_zmel,only: get_zmel_init,setppovlz, zmel
   use m_readVcoud,only:   Readvcoud, vcoud,vcousq,zcousq,ngb,ngc
   use m_wfac,only:wfacx2,weavx2
   implicit none
@@ -384,7 +384,7 @@ subroutine sxcf_fal3z(&
      !! kx is for irreducible k points, kr=irk(kx,irot) runs all k points in the full BZ.
      iqini=1
      iqend=nqibz             !no sum for offset-Gamma points.
-     do 1100 kx = iqini,iqend
+     kxloop: do 1100 kx = iqini,iqend
         if(sum(irkip(kx,:,ip))==0) cycle
         write(6,*) ' ### do 1100 start kx=',kx,' from ',iqini,' through', iqend
         !          if( kx <= nqibz ) then
@@ -505,7 +505,6 @@ subroutine sxcf_fal3z(&
            ntp0 = ntq
            ntqxx= ntp0
            !! Get matrix element zmelt= rmelt + img*cmelt, defined in m_zmel.F---
-!           if(allocated(zmel)) call Deallocate_zmel()
            call Get_zmel_init(q,qibz_k,irot,qbz_kr, 1,nbmax+nctot,isp, 1,ntqxx,isp, nctot,ncc=0,iprx=.false.,zmelconjg=.false.)
            if(kx<= nqibz) then
               wtt = wk(kr)      !         wtx = 1d0
@@ -516,7 +515,6 @@ subroutine sxcf_fal3z(&
            if(debug) write(6,*) 'ssssssss',size(zmel),ntqxx*nstate*ngb
            if(debug) write(6,"(' kx wtt=',i4,f12.8)") kx,wtt
            if(debug) write(6,*)' 000 sumzmel=',ngb, nstate, ntp0,sum(abs(real(zmel))),sum(abs(imag(zmel)))
-
            !!--------------------------------------------------------
            !! === exchange section ===
            !!--------------------------------------------------------
@@ -528,7 +526,6 @@ subroutine sxcf_fal3z(&
                     do 994 ivc=1,ngb
                        if(ivc==1.and.kx==1) then
                           vc= wklm(1)* fpi*sqrt(fpi) /wk(kx)
-                          !                    write(6,*)'wklm(1) vc=',wklm(1),vc
                        else
                           vc= vcoud(ivc)
                        endif
@@ -558,7 +555,6 @@ subroutine sxcf_fal3z(&
                  wfac = wfacx(-1d99, ef, ekc(it), esmr) !gaussian
                  w3p(it,1:ntp0) = wfac * w3p(it,1:ntp0)
               enddo
-
               if (.not.tote) then !total energy mode tote
                  do itp = 1,ntp0 !S[j=1,nbloch]  z1p(j,t,t') <B(rk,j) psi(q-rk,n) |psi(q,t')>
                     zsec(iwini,itp,ip) = zsec(iwini,itp,ip) &
@@ -571,7 +567,6 @@ subroutine sxcf_fal3z(&
                     exxq = exxq - wtt * sum( w3p(:,itp) )
                  enddo
               endif
-
               if(debug) then
                  do itp = 1,ntp0
                     write(6,'(" exchange zsec=",i3,6d15.7)') itp,zsec(iwini,itp,ip)
@@ -636,9 +631,8 @@ subroutine sxcf_fal3z(&
            if(debug) write(6,*)' wvr nrec kx nw nw_i ix=',nrec,kx,nw,nw_i,ix
            read(ifrcw,rec=nrec) zw ! direct access read Wc(0) = W(0) - v
            zwz0=0d0
-           !! this loop looks complicated but just in order to get zwz0=zmel*zwz0*zmel
+           !! this loop looks complicated but just in order to get zwz0=zmel*zwz0*zmel 
            !! Is this really efficient???
-           !CC!$OMP parallel do private(itp,it,igb2,zz2)
            do itp=1,ntp0
               do it=1,nstate
                  do igb2=2,ngb
@@ -646,22 +640,18 @@ subroutine sxcf_fal3z(&
                     zwz0(it,itp) = zwz0(it,itp)+zz2*zmel(igb2,it,itp)*2d0+&
                          &             dconjg(zmel(igb2,it,itp))*zw(igb2,igb2)*zmel(igb2,it,itp)
                  enddo           !igb2
-                 zwz0(it,itp) = zwz0(it,itp)+&
-                      &           dconjg(zmel(1,it,itp))*zw(1,1)*zmel(1,it,itp)
+                 zwz0(it,itp) = zwz0(it,itp)+     dconjg(zmel(1,it,itp))*zw(1,1)*zmel(1,it,itp)
               enddo             !it
            enddo               !itp
            zwz0 = dreal(zwz0)
            ! COH term test ----- The sum of the all states for zwz00 gives the delta function.
            if(cohtest) then
               do itp = 1,ntq
-                 coh(itp,ip)  = coh(itp,ip) &
-                      &                 + .5d0*wtt*sum(dreal(zwz0(1:nstate,itp)))
+                 coh(itp,ip)  = coh(itp,ip)  + .5d0*wtt*sum(dreal(zwz0(1:nstate,itp)))
               enddo
-!              call Deallocate_zmel()
               deallocate(zw,zwz0)
               cycle
            endif
-           !
            nx  = niw
            if(niw <1) call rx( " sxcf:niw <1")
            if(allocated(zwz)) deallocate(zwz)
@@ -670,7 +660,6 @@ subroutine sxcf_fal3z(&
            if(screen) allocate( zwz00(nstate,ntp0) )
            if(verbose()>50) write(*,'("6 before matzwz in ix cycle ",$)')
            if(verbose()>50) call cputid(0)
-
            zwz=0d0       
            do ix = 1,nx          ! imaginary frequency w'-loop
               nrec= ix
@@ -686,8 +675,7 @@ subroutine sxcf_fal3z(&
                           ppp = ppp + dreal(zz2*zmel(igb2,it,itp)) * 2d0&
                                &                 + dconjg(zmel(igb2,it,itp))*zw(igb2,igb2)*zmel(igb2,it,itp)
                        enddo       !igb2
-                       zwz(ix,it,itp) = ppp +&
-                            &               dconjg(zmel(1,it,itp))*zw(1,1)*zmel(1,it,itp)
+                       zwz(ix,it,itp) = ppp +      dconjg(zmel(1,it,itp))*zw(1,1)*zmel(1,it,itp)
                     enddo         !it
                  enddo           !itp
               else              !we need to use mode2 because zwz is not real now.
@@ -699,7 +687,6 @@ subroutine sxcf_fal3z(&
            if(verbose()>50) write(*,'("xxx:6.1 before matzwz in ix cycle ",$)')
            if(verbose()>50) call cputid(0)
            if(debug) write(6,*)' sumzmel=',ngb, nstate, ntp0,sum(abs(real(zmel))),sum(abs(imag(zmel)))
-
            !--------------------------------------------------------------
            ! S[i,j] <psi(q,t) |psi(q-rk,n) B(rk,i)>
            !                Wc(k,0)(i,j) > <B(rk,j) psi(q-rk,n) |psi(q,t)>
@@ -713,7 +700,6 @@ subroutine sxcf_fal3z(&
                  zwz(ix,:,:)=zwz(ix,:,:) - zwz00
               enddo
            endif
-
            !------------------------------------------------
            ! loop over w in SEc(qt,w)
            !------------------------------------------------
@@ -806,7 +792,6 @@ subroutine sxcf_fal3z(&
               enddo
            endif
            deallocate(zwz,zwz0,zwzi)
-
            !===============================================================================
            ! contribution to SEc(qt,w) from the poles of G
            !===============================================================================
@@ -814,53 +799,52 @@ subroutine sxcf_fal3z(&
            !---------------------------------------
            ! maximum ixs finder
            !---------------------------------------
-           !      write(6,*)' ekc at nt0p nt0m+1=', ekc(nt0p),ekc(nt0m+1)
-           !      write(6,*)'  nt0p nt0m+1=', nt0p, nt0m+1
+           !      write(6,*)' ekc at nt0p nt0m+1=', ekc(nt0p),ekc(nt0m+1)      write(6,*)'  nt0p nt0m+1=', nt0p, nt0m+1
            ixsmx =0
            ixsmin=0
-           do 3001 iw  = iwini,iwend
-              do 3002 itp = 1,ntq
-                 omg = omega(itp,iw)
-                 if (omg < ef) then
-                    itini= 1
-                    itend= nt0p
+           iwloop3: do 3001 iw  = iwini,iwend
+             itploop3: do 3002 itp = 1,ntq
+               omg = omega(itp,iw)
+               if (omg < ef) then
+                 itini= 1
+                 itend= nt0p
+               else
+                 itini= nt0m+1
+                 itend= nstate
+               endif
+               itloop3: do 3011 it= itini,itend
+                 esmrx = esmr
+                 if(it<=nctot) esmrx = 0d0
+                 wfac = wfacx2(omg,ef, ekc(it),esmrx)
+                 if(GaussSmear) then
+                   if(wfac<wfaccut) cycle
+                   we = .5d0*(omg-weavx2(omg,ef,ekc(it),esmr))
                  else
-                    itini= nt0m+1
-                    itend= nstate
+                   if(wfac==0d0) cycle
+                   if(omg>=ef) we = max( .5d0*(omg-ekc(it)), 0d0) ! positive
+                   if(omg< ef) we = min( .5d0*(omg-ekc(it)), 0d0) ! negative
                  endif
-                 do 3011 it= itini,itend
-                    esmrx = esmr
-                    if(it<=nctot) esmrx = 0d0
-                    wfac = wfacx2(omg,ef, ekc(it),esmrx)
-                    if(GaussSmear) then
-                       if(wfac<wfaccut) cycle
-                       we = .5d0*(omg-weavx2(omg,ef,ekc(it),esmr))
-                    else
-                       if(wfac==0d0) cycle
-                       if(omg>=ef) we = max( .5d0*(omg-ekc(it)), 0d0) ! positive
-                       if(omg< ef) we = min( .5d0*(omg-ekc(it)), 0d0) ! negative
-                    endif
-                    do iwp  = 1,nw ! may2006
-                       ixs = iwp   ! ixs = iwp= iw+1
-                       !                write (*,*) 'xxx freq we=',freq_r(iwp),abs(we)
-                       if(freq_r(iwp) > abs(we)) exit
-                    enddo
-                    ! This change is because G(omega-omg') W(omg') !may2006
-                    !             if(ixs>ixsmx  .and. omg<=ef ) ixsmx  = ixs
-                    !             if(ixs>ixsmin .and. omg> ef ) ixsmin = ixs
-                    if(ixs>ixsmx  .and. omg>=ef ) ixsmx  = ixs
-                    if(ixs>ixsmin .and. omg< ef ) ixsmin = ixs
-                    wexx  = we
-                    if(ixs+1 > nw) then
-                       write (*,*) ' nw_i ixsmin',nw_i, ixsmin
-                       !                    write (*,*) ' wexx, dw ',wexx,dw
-                       write (*,*) ' omg ekc(it) ef ', omg,ekc(it),ef
-                       !stop2rx 2013.08.09 kino                stop ' sxcf 222: |w-e| out of range'
-                       call rx( ' sxcf 222: |w-e| out of range')
-                    endif
-3011             enddo!continue
-3002          enddo!continue          !end of SEc w and qt -loop
-3001       enddo!continue            !end of SEc w and qt -loop
+                 do iwp  = 1,nw ! may2006
+                   ixs = iwp   ! ixs = iwp= iw+1
+                   !                write (*,*) 'xxx freq we=',freq_r(iwp),abs(we)
+                   if(freq_r(iwp) > abs(we)) exit
+                 enddo
+                 ! This change is because G(omega-omg') W(omg') !may2006
+                 !             if(ixs>ixsmx  .and. omg<=ef ) ixsmx  = ixs
+                 !             if(ixs>ixsmin .and. omg> ef ) ixsmin = ixs
+                 if(ixs>ixsmx  .and. omg>=ef ) ixsmx  = ixs
+                 if(ixs>ixsmin .and. omg< ef ) ixsmin = ixs
+                 wexx  = we
+                 if(ixs+1 > nw) then
+                   write (*,*) ' nw_i ixsmin',nw_i, ixsmin
+                   !                    write (*,*) ' wexx, dw ',wexx,dw
+                   write (*,*) ' omg ekc(it) ef ', omg,ekc(it),ef
+                   !stop2rx 2013.08.09 kino                stop ' sxcf 222: |w-e| out of range'
+                   call rx( ' sxcf 222: |w-e| out of range')
+                 endif
+3011           enddo itloop3
+3002         enddo itploop3          !end of SEc w and qt -loop
+3001       enddo iwloop3           !end of SEc w and qt -loop
            if(nw_i==0) then
               nwxi = 0
               nwx  = max(ixsmx+1,ixsmin+1)
@@ -875,7 +859,6 @@ subroutine sxcf_fal3z(&
               call rx( ' sxcf nwxi check: |w-e| > max(w)')
            endif
            if(debug) write(6,*)' nwxi nwx nw=',nwxi,nwx,nw
-
            !... Find nt_max ------------------------------------
            nt_max=nt0p         !initial nt_max
            do 4001 iw  = iwini,iwend
@@ -892,7 +875,6 @@ subroutine sxcf_fal3z(&
                  endif
 4002          enddo!continue
 4001       enddo!continue
-
            !... Set zw3 or zwz -----------------------------------
            zwz3mode=.true.
            if(iwend-iwini>2) then
@@ -945,95 +927,90 @@ subroutine sxcf_fal3z(&
               enddo
               deallocate(zwz00)
            endif
-
            !-------------------------------
            ! loop over w and t in SEc(qt,w)
            !-------------------------------
            if(debug) write(6,*)' sss ngb, nstate, ntp0=',ngb,nstate,ntp0
            if(debug) write(6,*)' sss zmel=',sum(abs(zmel(:,:,:)))
-
            if(verbose()>50) write(*,'("10 wfacx  iw,itp,it cycles ",$)')
            if(verbose()>50) call cputid(0)
-           do 2001 iw  = iwini,iwend
-              do 2002 itp = 1,ntq
-                 if(debug) write(6,*)'2011 0 zmel=',sum(abs(zmel(:,:,:)))
-                 omg = omega(itp,iw)
-                 if (omg >= ef) then
-                    itini= nt0m+1
-                    itend= nt_max
-                    iii=  1
+           iwloop: do 2001 iw  = iwini,iwend
+             itploop: do 2002 itp = 1,ntq
+               if(debug) write(6,*)'2011 0 zmel=',sum(abs(zmel(:,:,:)))
+               omg = omega(itp,iw)
+               if (omg >= ef) then
+                 itini= nt0m+1
+                 itend= nt_max
+                 iii=  1
+               else
+                 itini= 1
+                 itend= nt0p
+                 iii= -1
+               endif
+               itloop: do 2011 it= itini,itend
+                 if(debug) write(6,*)'2011 1 loop--- it=',iw,itp,it,sum(abs(zmel(:,:,:)))
+                 esmrx = esmr
+                 if(it<=nctot) esmrx = 0d0
+                 wfac = wfacx2(omg,ef, ekc(it),esmrx)
+                 if(GaussSmear) then
+                   if(wfac<wfaccut) cycle
+                   we = .5d0*abs(omg-weavx2(omg,ef, ekc(it),esmr))
                  else
-                    itini= 1
-                    itend= nt0p
-                    iii= -1
+                   if(wfac==0d0) cycle
+                   if(omg>=ef) we = 0.5d0* abs(max(omg-ekc(it), 0d0)) ! positive
+                   if(omg< ef) we = 0.5d0* abs(min(omg-ekc(it), 0d0)) ! negative
                  endif
+                 wfac= iii* wfac*wtt
+                 ! three-point interpolation for Wc(we)
+                 do iwp = 1,nw
+                   ixs=iwp
+                   if(freq_r(iwp)>we) exit
+                 enddo
+                 if(nw_i==0) then
+                   if(ixs+1>nwx) then
+                     write(6,*)' ixs,nwx, we =',ixs,nwx,we
+                     call rx( ' sxcf: ixs+1>nwx xxx2')
+                   endif
+                 else          !   write(6,*)" ixs nwxi=",ixs,nwxi,freq_r(ixs-1),we,freq_r(ixs)
+                   if(omg >=ef .and. ixs+1> nwx ) then
+                     write(6,*)'ixs+1 nwx=',ixs+1,nwx
+                     call rx( ' sxcf: ixs+1>nwx yyy2a')
+                   endif
+                   if(omg < ef .and. abs(ixs+1)> abs(nwxi) ) then
+                     write(6,*)'ixs+1 nwxi=',ixs+1,nwxi
+                     call rx( ' sxcf: ixs-1<nwi yyy2b')
+                   endif
+                 endif
+                 iir=1
+                 if(omg < ef .and. nw_i/=0) iir = -1 !May2006 because of \int d omega' G(omega-omega') W(omega')
+                 if(zwz3mode) then
+                   zwz3=(0d0,0d0)
+                   if(debug) write(6,"('wwwwwww ixs=',10i4)")ixs,igb2,it,itp
+                   if(debug) write(6,*)'2011 www zmel aaa=',sum(abs(zmel(:,:,:)))
+                   do ix = ixs, ixs+2
+                     do igb2=1,ngb
+                       zz2 = sum(dconjg(zmel(1:ngb,it,itp))*zw3(1:ngb,igb2,iir*(ix-1)) )
+                       zwz3(ix-ixs+1) = zwz3(ix-ixs+1)+zz2 *zmel(igb2,it,itp)
+                     enddo     !igb2
+                   enddo       !ix
+                   if(debug) write(6,"('w xxxxxxxxxxxxx ixs loopend=',i4)")ixs
+                   if(debug) write(6,*)zwz3(1:3) !,freq_r(ixs-1),zwz3(1:3)
+                   if(debug) write(6,*)'we frez zwz3=', we,ixs,freq_r(ixs-1:ixs+1)
+                   if(debug) write(6,*)'2011 bbb www zmel=',sum(abs(zmel(:,:,:)))
 
-                 do 2011 it= itini,itend
-                    if(debug) write(6,*)'2011 1 loop--- it=',iw,itp,it,sum(abs(zmel(:,:,:)))
-                    esmrx = esmr
-                    if(it<=nctot) esmrx = 0d0
-                    wfac = wfacx2(omg,ef, ekc(it),esmrx)
-                    if(GaussSmear) then
-                       if(wfac<wfaccut) cycle
-                       we = .5d0*abs(omg-weavx2(omg,ef, ekc(it),esmr))
-                    else
-                       if(wfac==0d0) cycle
-                       if(omg>=ef) we = 0.5d0* abs(max(omg-ekc(it), 0d0)) ! positive
-                       if(omg< ef) we = 0.5d0* abs(min(omg-ekc(it), 0d0)) ! negative
-                    endif
+                   zsec(iw,itp,ip) = zsec(iw,itp,ip) &
+                        &               + wfac *alagr3zz(we,freq_r(ixs-1),zwz3) !faleev
 
-                    wfac= iii* wfac*wtt
-                    ! three-point interpolation for Wc(we)
-                    do iwp = 1,nw
-                       ixs=iwp
-                       if(freq_r(iwp)>we) exit
-                    enddo
-                    if(nw_i==0) then
-                       if(ixs+1>nwx) then
-                          write(6,*)' ixs,nwx, we =',ixs,nwx,we
-                          call rx( ' sxcf: ixs+1>nwx xxx2')
-                       endif
-                    else          !   write(6,*)" ixs nwxi=",ixs,nwxi,freq_r(ixs-1),we,freq_r(ixs)
-                       if(omg >=ef .and. ixs+1> nwx ) then
-                          write(6,*)'ixs+1 nwx=',ixs+1,nwx
-                          call rx( ' sxcf: ixs+1>nwx yyy2a')
-                       endif
-                       if(omg < ef .and. abs(ixs+1)> abs(nwxi) ) then
-                          write(6,*)'ixs+1 nwxi=',ixs+1,nwxi
-                          call rx( ' sxcf: ixs-1<nwi yyy2b')
-                       endif
-                    endif
-
-                    iir=1
-                    if(omg < ef .and. nw_i/=0) iir = -1 !May2006 because of \int d omega' G(omega-omega') W(omega')
-                    if(zwz3mode) then
-                       zwz3=(0d0,0d0)
-                       if(debug) write(6,"('wwwwwww ixs=',10i4)")ixs,igb2,it,itp
-                       if(debug) write(6,*)'2011 www zmel aaa=',sum(abs(zmel(:,:,:)))
-                       do ix = ixs, ixs+2
-                          do igb2=1,ngb
-                             zz2 = sum(dconjg(zmel(1:ngb,it,itp))*zw3(1:ngb,igb2,iir*(ix-1)) )
-                             zwz3(ix-ixs+1) = zwz3(ix-ixs+1)+zz2 *zmel(igb2,it,itp)
-                          enddo     !igb2
-                       enddo       !ix
-                       if(debug) write(6,"('w xxxxxxxxxxxxx ixs loopend=',i4)")ixs
-                       if(debug) write(6,*)zwz3(1:3) !,freq_r(ixs-1),zwz3(1:3)
-                       if(debug) write(6,*)'we frez zwz3=', we,ixs,freq_r(ixs-1:ixs+1)
-                       if(debug) write(6,*)'2011 bbb www zmel=',sum(abs(zmel(:,:,:)))
-
-                       zsec(iw,itp,ip) = zsec(iw,itp,ip) &
-                            &               + wfac *alagr3zz(we,freq_r(ixs-1),zwz3) !faleev
-
-                       if(debug) write(6,*)'2011 ccc www zmel=',sum(abs(zmel(:,:,:)))
-                       if(debug) write(6,"('wwwwwww eo zsecsum')")
-                    else
-                       zwzz(1:3) = zwz(iir*(ixs-1):iir*(ixs+1):iir, it,itp)
-                       zsec(iw,itp,ip) = zsec(iw,itp,ip) &
-                            &               + wfac*alagr3zz(we,freq_r(ixs-1),zwzz)
-                    endif
-2011             enddo!continue
-2002          enddo!continue          !end of SEc w and qt -loop
-2001       enddo!continue            !end of SEc w and qt -loop
+                   if(debug) write(6,*)'2011 ccc www zmel=',sum(abs(zmel(:,:,:)))
+                   if(debug) write(6,"('wwwwwww eo zsecsum')")
+                 else
+                   zwzz(1:3) = zwz(iir*(ixs-1):iir*(ixs+1):iir, it,itp)
+                   zsec(iw,itp,ip) = zsec(iw,itp,ip) &
+                        &               + wfac*alagr3zz(we,freq_r(ixs-1),zwzz)
+                 endif
+2011           enddo itloop
+2002         enddo itploop      !end of SEc w and qt -loop
+2001       enddo iwloop         !end of SEc w and qt -loop
            if(debug) write(6,*)' end of do 2001'
            if(verbose()>50) then
               write(*,'("11 after alagr3zz iw,itp,it cycles ",$)')
@@ -1045,24 +1022,18 @@ subroutine sxcf_fal3z(&
               enddo
            endif
            if(zwz3mode) then
-              !call Deallocate_zmel()
               deallocate(zw3)
            else
               deallocate(zwz)
            endif
-1000    enddo!continue
-        !      if(newaniso) ifvcoud =iclose('Vcoud.'//i2char(kx))
-        !        ifvcoud =iclose('Vcoud.'//i2char(kx))
+1000    enddo
         if(.not.exchange) then
-           close(ifrcw)!  = iclose('WVR.'//i2char(kx))
-           close(ifrcwi)! = iclose('WVI.'//i2char(kx))
+           close(ifrcw) 
+           close(ifrcwi)
         endif
-1100 enddo!continue                ! end of k-loop
-     if (tote) then
-        exx = exx + wik(ip) * exxq * 0.25d0
-     endif
+1100 enddo kxloop
+     if (tote) exx = exx + wik(ip) * exxq * 0.25d0
      if (allocated(zz)) deallocate(zz)
-     !if (allocated(zmel))  call Deallocate_zmel()
      if (allocated(zzmel)) deallocate(zzmel)
      if (allocated(zw)) deallocate(zw)
      if (allocated(zwz)) deallocate(zwz)
