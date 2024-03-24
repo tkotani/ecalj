@@ -206,6 +206,7 @@ contains
     EndBlock IcountBlock
     write(6,*)'sxcf_scz_count: nnn dev  ncount=',ncount
   end subroutine sxcf_scz_count
+  !> Determine indexes of a range for calculation.
   subroutine get_nwx(omega,ntq,ntqxx,nt0p,nt0m,nstate,freq_r,& !this routine is not clean, but works
        nw_i,nw,esmr,ef,ekc,wfaccut,nctot,nband,debug,&
        nwxi,nwx,nt_max)
@@ -215,15 +216,12 @@ contains
        nw_i,nw,esmr,ef,ekc,wfaccut,nctot,nband,debug
     intent(out)::     &
        nwxi,nwx,nt_max
-    !> Determine indexes of a range for calculation. !! It is better to clean this up...
     integer:: nctot,nw_i,nw,nstate,nt0p,nt0m,ntq, nband,ntqxx
-    real(8):: esmr,ef,ekc(nctot+nband),wfaccut,freq_r(nw_i:nw)
-    real(8):: wfac,we,esmrx,wexx
+    integer:: nt_max,nwxi,nwx,itp,it,itini,itend,iwp,ixs=-9999,ixsmin,ixsmx,verbose
+    real(8):: esmr,ef,ekc(nctot+nband),wfaccut,freq_r(nw_i:nw),wfac,we,esmrx,wexx
     real(8),pointer::omg
     real(8),target:: omega(ntq)
-    integer:: nt_max,nwxi,nwx,itp,it,itini,itend,iwp,ixs=-9999,ixsmin,ixsmx,verbose
     logical::debug
-    !!     maximum ixs reqired.
     ixsmx =0
     ixsmin=0
     do 301 itp = 1,ntqxx
@@ -241,22 +239,14 @@ contains
           wfac = wfacx2(omg,ef, ekc(it),esmrx)
           if(wfac<wfaccut) cycle !Gaussian case
           we = .5d0*(weavx2(omg,ef,ekc(it),esmr)-omg)
-!          if(it<=nctot) then
-!             if(wfac>wfaccut) call rx( "sxcf: it<=nctot.and.wfac/=0")
-!          endif
           do iwp = 1,nw
              ixs=iwp
              if(freq_r(iwp)>abs(we)) exit
           enddo
           if(ixs>ixsmx  .and. omg>=ef ) ixsmx  = ixs
           if(ixs>ixsmin .and. omg< ef ) ixsmin = ixs
-!          wexx  = we
-!          if(ixs+1 > nw) then
-!             write (*,*)'nw_i ixsmin wexx',nw_i,ixsmin,wexx,' omg ekc(it) ef ', omg,ekc(it),ef
-!             call rx( ' sxcf 222: |w-e| out of range')
-!          endif
-311    enddo !continue
-301 enddo !continue               
+311    enddo 
+301 enddo                
     if(nw_i==0) then          !time reversal
        nwxi = 0
        nwx  = max(ixsmx+1,ixsmin+1)
@@ -276,7 +266,7 @@ contains
              endif               ! that ekc(it>nt_max)-omega > 0
           enddo                 ! so it > nt_max does not contribute to omega pole integral
        endif
-401 enddo !continue               
+401 enddo            
   end subroutine get_nwx
 end module m_sxcf_count
 

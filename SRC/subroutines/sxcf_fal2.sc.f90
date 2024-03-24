@@ -136,18 +136,18 @@ contains
      endif
     ! NOTE: sum for G\timesW is controlloed by irkip, icountini:icountend
     kxold=-9999  ! To make MAINicountloop 3030 as parallel loop, set cache=.false.
-    kxloop:     do kx  =1,nqibz  ! kx is irreducible !kx is main axis where we calculate W(kx).
+    kxloop:                  do kx  =1,nqibz   ! kx is irreducible !kx is main axis where we calculate W(kx).
       qibz_k = qibz(:,kx)
-      call Readvcoud(qibz_k,kx,NoVcou=.false.) !Readin ngc,ngb,vcoud ! Coulomb matrix
-      call Setppovlz(qibz_k,matz=.true.)  !Set ppovlz overlap matrix used in Get_zmel_init in m_zmel
-      irotloop: do irot=1,ngrp   ! (kx,irot) determines qbz(:,kr), which is in FBZ. W(kx) is rotated to be W(g(kx))
-          iploopexternal:     do ip=1,nqibz     !external index for q of \Sigma(q,isp)
-            isploopexternal:  do isp=1,nspinmx  !external index
+      call Readvcoud(qibz_k,kx,NoVcou=.false.)  !Readin ngc,ngb,vcoud ! Coulomb matrix
+      call Setppovlz(qibz_k,matz=.true.)        !Set ppovlz overlap matrix used in Get_zmel_init in m_zmel
+      irotloop:              do irot=1,ngrp    ! (kx,irot) determines qbz(:,kr), which is in FBZ. W(kx) is rotated to be W(g(kx))
+          iploopexternal:    do ip=1,nqibz     !external index for q of \Sigma(q,isp)
+            isploopexternal: do isp=1,nspinmx  !external index
               kr = irkip(isp,kx,irot,ip)
               if(kr==0) cycle
               q(1:3)= qibz(1:3,ip)
-              qbz_kr= qbz (:,kr)     !rotated qbz vector.
-              qk =  q - qbz_kr       !<M(qbz_kr) phi(q-qbz_kr)|phi(q)>
+              qbz_kr= qbz (:,kr)   !rotated qbz vector.
+              qk =  q - qbz_kr     !<M(qbz_kr) phi(q-qbz_kr)|phi(q)>
               eq = readeval(q,isp) !readin eigenvalue
               omega(1:ntq) = eq(1:ntq)  !1:ntq
               ekq = readeval(qk, isp) 
