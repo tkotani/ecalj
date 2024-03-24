@@ -13,8 +13,9 @@ module m_sxcf_count !job scheduler for self-energy calculation. icount mechanism
   public sxcf_scz_count
   !=== Job scheduler ==============
   integer,public:: ncount 
-  integer,allocatable,public:: ispc(:),kxc(:),irotc(:),ipc(:),krc(:),nstateMax(:),nstti(:),nstte(:),nstte2(:)
+  integer,allocatable,public:: kxc(:),nstateMax(:),nstti(:),nstte(:),nstte2(:) !ispc(:),irotc(:),ipc(:),krc(:),
   integer,allocatable,public:: nwxic(:), nwxc(:)
+  integer,allocatable,public:: icountini(:,:,:,:),icountend(:,:,:,:),irkip(:,:,:,:)
   !=========================================================
 contains
   subroutine sxcf_scz_count(ef,esmr,exchange,ixc,nspinmx) 
@@ -55,13 +56,13 @@ contains
     real(8),parameter:: pi=4d0*datan(1d0), fpi=4d0*pi, tpi=8d0*datan(1d0),ddw=10d0
     integer:: kxold,nccc,icount0
     complex(8),allocatable:: zmelc(:,:,:)
-    integer,allocatable::ndiv(:),nstatei(:,:),nstatee(:,:),irkip(:,:,:,:)
+    integer,allocatable::ndiv(:),nstatei(:,:),nstatee(:,:)
     integer:: job
-    !!----------------------------------------------------------------
     if(npm==2) call rx('sxcf_fal2_sc: npm=2 need to be examined')
     if(ixc==3.and.nctot==0) return
+    !NOTE: We have to sum up all isp,kx,irot,ip for irkip(isp,kx,irot,ip)/=0.
     rankdivider: block !  We divide irkip_all into irkip for nodes. irkip is dependent on rank.
-      !  Total number of none zero irkip for all ranks is the number of nonzero irkip_all
+      ! Total number of none zero irkip for all ranks is the number of nonzero irkip_all
       integer:: irkip_all(nspinmx,nqibz,ngrp,nqibz),iqq,is,nq
       do is = 1,nspinmx
          do iqq=1,nqibz
@@ -74,7 +75,7 @@ contains
     endblock rankdivider
     PreIcountBlock: Block!Get Size: nstateMax(ncount),ndiv(icount),nstatei(j,icount),nstatee(j,icount)
       use m_keyvalue,only: getkeyvalue
-      integer:: ndivide,nstateavl,nnn,nloadav,nrem,idiv,j
+      integer:: ndivide,nmbatch,nnn,nloadav,nrem,idiv,j
       integer,allocatable:: nload(:)
       ncount=count(irkip/=0)
       allocate(nstateMax(ncount))
@@ -82,46 +83,47 @@ contains
       iqend = nqibz             
       icount=0
       kxloop:do kx = iqini,iqend !quick loop
-         isploop: do isp = 1,nspinmx !empty run to get index for icount ordering
-            if(sum(irkip(isp,kx,:,:))==0) cycle ! next kx
-            irotloop: do irot = 1,ngrp !over rotations irot ===
-               if(sum(irkip(isp,kx,irot,:))==0) cycle ! next ip
-               iqloop: do ip = 1,nqibz         
-                  kr = irkip(isp,kx,irot,ip) ! index for rotated kr in the FBZ
-                  if(kr==0) cycle
-                  icount=icount+1
-                  q(1:3)= qibz(1:3,ip)
-                  qbz_kr= qbz (:,kr)     !rotated qbz vector. 
-                  qk =  q - qbz_kr        
-                  ekq = readeval(qk, isp) 
-                  ekc(1:nctot)= ecore(1:nctot,isp) ! core
-                  ekc(nctot+1:nctot+nband) = ekq (1:nband)
-                  nt0p = count(ekq<ef+ddw*esmr) +nctot 
-                  if(exchange) then
-                     nstateMax(icount) = nt0p
-                  else   
-                     ebmx=1d10 !this is needed probably for filling 1d99 for ekc(i) above boundary.
-                     nbmxe = count(ekc<ebmx)-nctot !nocc (ekc,ebmx,nstatetot)-nctot!
-                     nbmax  = min(nband,nbmxe) 
-                     nstateMax(icount) = nctot + nbmax ! = nstate for the case of correlation
-                  endif
-               enddo iqloop
-            enddo irotloop
-         enddo isploop
+        if(sum(irkip(:,kx,:,:))==0) cycle ! next kx
+        irotloop: do irot = 1,ngrp !over rotations irot ===
+          if(sum(irkip(:,kx,irot,:))==0) cycle ! next ip
+          iqloop: do ip = 1,nqibz         
+            if(sum(irkip(:,kx,irot,ip))==0) cycle ! next ip
+            isploop: do isp = 1,nspinmx !empty run to get index for icount ordering
+              kr = irkip(isp,kx,irot,ip) ! index for rotated kr in the FBZ
+              if(kr==0) cycle
+              icount=icount+1
+              q(1:3)= qibz(1:3,ip)
+              qbz_kr= qbz (:,kr)     !rotated qbz vector. 
+              qk =  q - qbz_kr        
+              ekq = readeval(qk, isp) 
+              ekc(1:nctot)= ecore(1:nctot,isp) ! core
+              ekc(nctot+1:nctot+nband) = ekq (1:nband)
+              nt0p = count(ekq<ef+ddw*esmr) +nctot 
+              if(exchange) then
+                nstateMax(icount) = nt0p
+              else   
+                ebmx=1d10 !this is needed probably for filling 1d99 for ekc(i) above boundary.
+                nbmxe = count(ekc<ebmx)-nctot !nocc (ekc,ebmx,nstatetot)-nctot!
+                nbmax  = min(nband,nbmxe) 
+                nstateMax(icount) = nctot + nbmax ! = nstate for the case of correlation
+              endif
+            enddo isploop
+          enddo iqloop
+        enddo irotloop
       enddo kxloop
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!      
-!      nstateavl = 16  ! middle states are batched by nstateavl.
-      call getkeyvalue("GWinput","nstateavl",  nstateavl, default=8)
+!  nmbatch is the Batch size of sum for middle states. If nstate is small, we need less size of memory.
+      call getkeyvalue("GWinput","nmbatch",  nmbatch, default=8)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-      !nstateavl=max(sum(nstatemax)/(ncount*ndivide),1)
-      if(ixc==3) nstateavl= maxval(nstatemax) ! size of average load of middle states (in G)
+      !nmbatch=max(sum(nstatemax)/(ncount*ndivide),1)
+      if(ixc==3) nmbatch= maxval(nstatemax) ! size of average load of middle states (in G)
       allocate(ndiv(ncount))
-      ndiv = (nstatemax-1)/nstateavl + 1  !number of division for middle states.
+      ndiv = (nstatemax-1)/nmbatch + 1  !number of division for middle states.
       ndivmx = maxval(ndiv)
       allocate(nstatei(ndivmx,ncount),nstatee(ndivmx,ncount),nload(ndivmx))
       do icount=1,ncount
          nnn = nstatemax(icount)    !total number of middle states for given icount
-         ndiv(icount) = (nnn-1)/nstateavl + 1  !number of division for icount
+         ndiv(icount) = (nnn-1)/nmbatch + 1  !number of division for icount
          nloadav = nnn/ndiv(icount) !number of average load of middle states
          nrem = nnn - ndiv(icount)*nloadav !remnant count
          nload(1:nrem) = nloadav+1
@@ -136,71 +138,75 @@ contains
     ! icount mechanism for sum in MAINicountloop 3030
     IcountBlock: Block !quick loop to gather index sets for main loop
       integer:: idiv       !      ncount=count(irkip/=0)
-      allocate(ispc(ncount),kxc(ncount),irotc(ncount),ipc(ncount),krc(ncount))
-      allocate(nwxic(ncount),nwxc(ncount),nstateMax(ncount))
-      allocate(nstti(ncount),nstte(ncount),nstte2(ncount))
       iqini = 1
       iqend = nqibz             !no sum for offset-Gamma points.
+      allocate(kxc(ncount)) !ispc(ncount),,irotc(ncount),ipc(ncount),krc(ncount))
+      allocate(nwxic(ncount),nwxc(ncount),nstateMax(ncount))
+      allocate(nstti(ncount),nstte(ncount),nstte2(ncount))
+      allocate(icountini(nspinmx,nqibz,ngrp,iqini:iqend),icountend(nspinmx,nqibz,ngrp,iqini:iqend))
       icount=0
       icount0=0
-      kxloop: do 130 kx = iqini,iqend !this is empty run to get index for icount ordering
-         isploop: do 120 isp = 1,nspinmx 
-            if(sum(irkip(isp,kx,:,:))==0) cycle ! next kx
-            irotloop: do 140 irot = 1,ngrp !over rotations irot ===
-               if(sum(irkip(isp,kx,irot,:))==0) cycle ! next ip
-               iploop: do 150 ip = 1,nqibz         
-                  kr = irkip(isp,kx,irot,ip) ! index for rotated kr in the FBZ
-                  if(kr==0) cycle
-                  icount0=icount0+1
-                  idivloop: do idiv=1,ndiv(icount0) !icount loop have further division of middle states by ndiv
-                     icount=icount+1
-                     nstti(icount)=nstatei(idiv,icount0) ! [nstti,nstte] specify range of middle states.
-                     nstte(icount)=nstatee(idiv,icount0) !
-                     ispc(icount)=isp!icount specify isp,kx,irot,iq. (kx,irot) gives kr in the all FZ.
-                     kxc(icount)=kx
-                     irotc(icount)=irot
-                     ipc(icount)=ip
-                     krc(icount)=kr
-                     qibz_k = qibz(:,kx)
-                     q(1:3)= qibz(1:3,ip)
-                     eq = readeval(q,isp)
-                     omega(1:ntq) = eq(1:ntq)
-                     qbz_kr= qbz (:,kr)     !rotated qbz vector. 
-                     qk =  q - qbz_kr        
-                     ekq = readeval(qk, isp) 
-                     ekc(1:nctot)= ecore(1:nctot,isp) ! core
-                     ekc(nctot+1:nctot+nband) = ekq (1:nband)
-                     nt0  = count(ekc<ef) 
-                     nt0p = count(ekq<ef+ddw*esmr) +nctot 
-                     nt0m = count(ekq<ef-ddw*esmr) +nctot
-                     ntqxx = nbandmx(ip,isp) ! ntqxx is number of bands for <i|sigma|j>.
-                     !write(6,*) icount, ispc(icount),kxc(icount),' irot ',irot,ip,kr
-                     if(exchange) then
-                        nstateMax(icount) = nt0p
-                     else   
-                        ebmx=1d10 !this is because filling 1d99 for ekc(i) above boundary.
-                        nbmxe = count(ekc<ebmx)-nctot !nocc (ekc,ebmx,nstatetot)-nctot!
-                        nbmax  = min(nband,nbmxe) 
-                        nstateMax(icount) = nctot + nbmax ! = nstate for the case of correlation
-                        call get_nwx(omega,ntq,ntqxx,nt0p,nt0m,nstateMax(icount),freq_r,&
-                             nw_i,nw,esmr,ef,ekc,wfaccut,nctot,nband,debug,nwxi,nwx,nt_max)
-                        !Get index nwxi nwx nt_max.
-                        ! get_nwx is not written clearly, but works and not time-consuming.
-                        nwxic(icount)=nwxi 
-                        nwxc(icount)=nwx
-                        nstte2(icount)=min(nstte(icount),nt_max)
-                     endif
-                  enddo idivloop
-150            enddo iploop
-140         enddo irotloop
-120      enddo isploop
+      kxloop:        do 130 kx = iqini,iqend 
+        if(sum(irkip(:,kx,:,:))==0) cycle ! next kx
+        irotloop:    do 140 irot = 1,ngrp !over rotations irot ===
+          if(sum(irkip(:,kx,irot,:))==0) cycle 
+          iploop:    do 150 ip = 1,nqibz
+            if(sum(irkip(:,kx,irot,ip))==0) cycle 
+            isploop: do 120 isp = 1,nspinmx 
+              kr = irkip(isp,kx,irot,ip) ! index for rotated kr in the FBZ
+              if(kr==0) cycle
+              icount0=icount0+1
+              icountini(isp,ip,irot,kx)= icount+1 !we may use icountini,icountend 
+              idivloop: do idiv=1,ndiv(icount0) !icount loop have further division of middle states by ndiv
+                icount=icount+1
+                nstti(icount)=nstatei(idiv,icount0) ! [nstti,nstte] specify range of middle states.
+                nstte(icount)=nstatee(idiv,icount0) !
+                kxc(icount)=kx
+!                ispc(icount)=isp!icount specify isp,kx,irot,iq. (kx,irot) gives kr in the all FZ.
+!                irotc(icount)=irot
+!                ipc(icount)=ip
+!                krc(icount)=kr
+                qibz_k = qibz(:,kx)
+                q(1:3)= qibz(1:3,ip)
+                eq = readeval(q,isp)
+                omega(1:ntq) = eq(1:ntq)
+                qbz_kr= qbz (:,kr)     !rotated qbz vector. 
+                qk =  q - qbz_kr        
+                ekq = readeval(qk, isp) 
+                ekc(1:nctot)= ecore(1:nctot,isp) ! core
+                ekc(nctot+1:nctot+nband) = ekq (1:nband)
+                nt0  = count(ekc<ef) 
+                nt0p = count(ekq<ef+ddw*esmr) +nctot 
+                nt0m = count(ekq<ef-ddw*esmr) +nctot
+                ntqxx = nbandmx(ip,isp) ! ntqxx is number of bands for <i|sigma|j>.
+                !write(6,*) icount, ispc(icount),kxc(icount),' irot ',irot,ip,kr
+                if(exchange) then
+                  nstateMax(icount) = nt0p
+                else   
+                  ebmx=1d10 !this is because filling 1d99 for ekc(i) above boundary.
+                  nbmxe = count(ekc<ebmx)-nctot !nocc (ekc,ebmx,nstatetot)-nctot!
+                  nbmax  = min(nband,nbmxe) 
+                  nstateMax(icount) = nctot + nbmax ! = nstate for the case of correlation
+                  call get_nwx(omega,ntq,ntqxx,nt0p,nt0m,nstateMax(icount),freq_r,&
+                       nw_i,nw,esmr,ef,ekc,wfaccut,nctot,nband,debug,nwxi,nwx,nt_max)
+                  !Get index nwxi nwx nt_max.
+                  ! get_nwx is not written clearly, but works and not time-consuming.
+                  nwxic(icount)=nwxi 
+                  nwxc(icount)=nwx
+                  nstte2(icount)=min(nstte(icount),nt_max)
+                endif
+              enddo idivloop
+              icountend(isp,ip,irot,kx)= icount
+120         enddo isploop
+150       enddo iploop
+140     enddo irotloop
 130   enddo kxloop
       if(icount0/=count(irkip/=0)) call rx('sxcf: icount/=count(irkip/=0)')
       ncount=icount
     EndBlock IcountBlock
     write(6,*)'sxcf_scz_count: nnn dev  ncount=',ncount
   end subroutine sxcf_scz_count
-  subroutine get_nwx(omega,ntq,ntqxx,nt0p,nt0m,nstate,freq_r,&
+  subroutine get_nwx(omega,ntq,ntqxx,nt0p,nt0m,nstate,freq_r,& !this routine is not clean, but works
        nw_i,nw,esmr,ef,ekc,wfaccut,nctot,nband,debug,&
        nwxi,nwx,nt_max)
     use m_wfac,only:wfacx2,weavx2

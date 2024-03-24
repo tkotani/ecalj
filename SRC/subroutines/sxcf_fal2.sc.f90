@@ -91,8 +91,9 @@ module m_sxcf_main
   use m_readgwinput,only: ua_,  corehole,wcorehole
   use m_ftox
   use m_lgunit,only:stdo
-  use m_sxcf_count,only: ncount,ispc,kxc,irotc,ipc,krc,nstateMax,nstti,nstte,nstte2, nwxic, nwxc
+  use m_sxcf_count,only: ncount,kxc,nstateMax,nstti,nstte,nstte2, nwxic, nwxc,icountini,icountend,irkip
   use m_nvfortran,only:findloc
+  use m_hamindex,only: ngrp
   implicit none
   public sxcf_scz_main, zsecall
   complex(8),allocatable,target:: zsecall(:,:,:,:) !output
@@ -116,15 +117,14 @@ contains
     real(8),allocatable:: we_(:,:),wfac_(:,:)
     complex(8),allocatable:: w3p(:),wtff(:)
     complex(8),pointer::zsec(:,:), ww(:,:)
-    integer,allocatable :: ifrcw(:),ifrcwi(:),ndiv(:),nstatei(:,:),nstatee(:,:),irkip(:,:,:,:)
+    integer,allocatable :: ifrcw(:),ifrcwi(:),ndiv(:),nstatei(:,:),nstatee(:,:)!,irkip(:,:,:,:)
     logical,parameter:: cache=.true.
     logical:: emptyrun
     emptyrun=cmdopt0('--emptyrun')
     if(nw_i/=0) call rx('Current version we assume nw_i=0. Time-reversal symmetry')
     iqini = 1
     iqend = nqibz             
-    allocate(zsecall(ntq,ntq,nqibz,nspinmx)) 
-    zsecall = 0d0
+    allocate(zsecall(ntq,ntq,nqibz,nspinmx),source=(0d0,0d0)) 
     if(.not.exchange.and.(.not.emptyrun)) then! Read WV* containing W-v in MPB
        allocate(ifrcw(iqini:iqend),ifrcwi(iqini:iqend))
        do kx=iqini,iqend
@@ -133,184 +133,184 @@ contains
              open(newunit=ifrcwi(kx),file='WVI.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
           endif
        enddo
-    endif
+     endif
+    ! NOTE: sum for G\timesW is controlloed by irkip, icountini:icountend
     kxold=-9999  ! To make MAINicountloop 3030 as parallel loop, set cache=.false.
-    MAINicountloop: do 3030 icount=1,ncount!we accumulate zsec. !we only consider bzcase()==1 now
-       !if(mod(icount,100)==1) 
-       write(stdo,ftox)'icount=',icount,'out of ncount=',ncount
-       call flush(stdo)
-       isp =ispc(icount)
-       kx  =kxc(icount) !for W(kx), kx is irreducible !kx is main axis
-       irot=irotc(icount)
-       ip  =ipc(icount)
-       kr  =krc(icount) !=irkip(isp,kx,irot,ip) runs all the k mesh points required for q(ip).
-       nwxi=nwxic(icount) !minimum omega for W
-       nwx =nwxc(icount)  !max omega for W
-       qibz_k = qibz(:,kx)
-       q(1:3)= qibz(1:3,ip)
-       eq = readeval(q,isp) !readin eigenvalue
-       omega(1:ntq) = eq(1:ntq)  !1:ntq
-       qbz_kr= qbz (:,kr)     !rotated qbz vector. 
-       qk =  q - qbz_kr       !<M(qbz_kr) phi(q-qbz_kr)|phi(q)>
-       ekq = readeval(qk, isp) 
-       ekc(1:nctot)= ecore(1:nctot,isp) ! core
-       ekc(nctot+1:nctot+nband) = ekq (1:nband)
-       nt0  = count(ekc<ef) 
-       nt0p = count(ekq<ef+ddw*esmr) +nctot 
-       nt0m = count(ekq<ef-ddw*esmr) +nctot
-       ntqxx = nbandmx(ip,isp) ! ntqxx is number of bands for <i|sigma|j>.
-       zsec => zsecall(1:ntqxx,1:ntqxx,ip,isp)
-       wtt = wk(kr)
-       ns1 =nstti(icount) ! Range of middle states is [ns1:ns2] 
-       ns2 =nstte(icount) ! 
-       ns2r=nstte2(icount) !Range of middle states [ns1:ns2r] for CorrelationSelfEnergyRealAxis
-       !if(eibz4sig()) wtt=wtt*nrkip(isp,kx,irot,ip); write(6,ftox)'do3030:isp kx ip',isp,kx,ip,'icou/ncou=',icount,ncount,'ns1:ns2=',ns1,ns2
-      write(6,*)'gotozmelblock'
-       ZmelBlock:block !zmel(ib=ngb,it=ns1:ns2,itpp=1:ntqxx)= <M(qbz_kr,ib) phi(it,q-qbz_kr,isp) |phi(itpp,q,isp)> 
-         if(cache.and.kxold/=kx) then !this is a cache mechanism of zmel vcoud when kxold=kx !we can skip this if no cache
-            call Readvcoud(qibz_k,kx,NoVcou=.false.) !Readin ngc,ngb,vcoud ! Coulomb matrix
-            call Setppovlz(qibz_k,matz=.true.)  !Set ppovlz overlap matrix used in Get_zmel_init in m_zmel
-            kxold=kx
-         endif
-       write(6,*)'got get_zmel_init'
-       if(.not.emptyrun) call Get_zmel_init(q,qibz_k,irot,qbz_kr,ns1,ns2,isp, 1,ntqxx,isp, nctot,ncc=0,iprx=debug,&
-            zmelconjg=.false.) !Return zmel(ngb,ns1:ns2,ntqxx)
-       endblock ZmelBlock
-       write(6,*)'end of gotozmelblock'
-       ExchangeMode: if(exchange) then      
-          ExchangeSelfEnergy: Block
-            real(8):: wfacx,vcoud_(ngb),wtff(ns1:ns2) !range of middle states ns1:ns2
-            !character(8):: xt ;call timeshow("ExchangeMODE1 icount="//trim(xt(icount)))
-            vcoud_= vcoud                                    ! kx==1 must be for q=0     
-            if(kx==1) vcoud_(1)=wklm(1)*fpi*sqrt(fpi)/wk(kx) ! voud_(1) is effective v(q=0) in the Gamma cell. 
-!            wtff = [(1d0,it=ns1,nctot), (wfacx(-1d99, ef, ekc(it), esmr),it=max(nctot+1,ns1),ns2)] !bugfix 2023-5-18 ns1==>max(nctot+1,ns1)
-            wtff(ns1:nctot) =1d0 !these are for nvfortran24.1
-            do it=max(nctot+1,ns1),ns2
-              wtff(it) = wfacx(-1d99, ef, ekc(it), esmr) !bugfix 2023-5-18 ns1==>max(nctot+1,ns1)
-            enddo 
-            if(corehole) wtff(ns1:nctot) = wtff(ns1:nctot) * wcorehole(ns1:nctot,isp)
-            do concurrent(itp=1:ntqxx, itpp=1:ntqxx)
-               if(emptyrun) cycle !probably not so slow but for no error for --emptyrun
-               zsec(itp,itpp)=zsec(itp,itpp) - wtt* &
-                    sum( [(sum(dconjg(zmel(:,it,itp))*vcoud_(:)*zmel(:,it,itpp))*wtff(it),it=ns1,ns2)] ) !this may work even for nvfortran24.1
-            enddo
-          EndBlock ExchangeSelfEnergy
-          if(timemix) call timeshow("ExchangeSelfEnergy cycle")
-          cycle  
-       endif ExchangeMode
-       CorrelationMode: Block! See Eq.(55) around of PRB76,165106 (2007) !range of middle states is [ns1:ns2]
-         integer:: nm
-         complex(8):: zmelc  (1:ntqxx,ns1:ns2,1:ngb)
-         complex(8):: zmelcww(1:ntqxx,ns1:ns2,1:ngb)
-         if(.not.emptyrun) zmelc = reshape(dconjg(zmel),shape=shape(zmelc),order=[3,2,1]) !notslow. but for no error for --emptyrun 
-         if(timemix) call timeshow(" CorrelationSelfEnergyImagAxis:")
-         CorrelationSelfEnergyImagAxis: Block !Fig.1 PHYSICAL REVIEW B 76, 165106(2007)! Integration along ImAxis for zwz(omega) 
-           use m_readfreq_r,only: wt=>wwx,x=>freqx
-           real(8),parameter:: rmax=2d0
-           real(8):: wgtim_(0:npm*niw),wgtim(0:npm*niw,ntqxx,ns1:ns2),we,cons(niw),omd(niw),omd2w(niw)
-           complex(8),target:: zw(nblochpmx,nblochpmx),zwz(ns1:ns2,ntqxx,ntqxx)
-           itpitdo:do concurrent(itp =1:ntqxx, it=ns1:ns2)
-              we=.5d0*(omega(itp)-ekc(it)) !we in hartree unit
-              associate(sig=>.5d0*esmr, sig2=>2d0*(.5d0*esmr)**2,aw=>abs(ua_*we),aw2=>(ua_*we)**2)
-                if(it<=nctot) then ! if w = e the integral = -v(0)/2 ! frequency integral
-                   cons = 1d0/(we**2*x**2 + (1d0-x)**2)
-                   wgtim_(1:niw)= we*cons*wt*(-1d0/pi)
-                   wgtim_(0)= merge(-sum(wgtim_(1:niw)*expa_)-0.5d0*dsign(1d0,we)*dexp(we**2*ua_**2)*erfc(ua_*dabs(we)), 0d0, &
-                        mask=dabs(we)<rmax/ua_)
-                   if(npm==2) wgtim_(niw+1:2*niw) = cons*(1d0/x-1d0)*wt/pi !Asymmetric contribution need check
-                else
-                   omd   = 1d0/x - 1d0
-                   omd2w = omd**2 + we**2
-                   where(omd2w/sig2  > 5d-3) cons= (1d0 - exp (- omd2w/sig2))/omd2w
-                   where(omd2w/sig2 <= 5d-3) cons= (1d0/sig2 - omd2w/sig2**2/2d0 + omd2w**2/sig2**3/6d0 - omd2w**3/sig2**4/24d0 &
-                        + omd2w**4/sig2**5/120d0- omd2w**5/sig2**6/720d0 )
-                   wgtim_(1:niw) = -we*cons*wt/(x**2)/pi
-                   wgtim_(0) =  we*sum(cons*expa_*wt/(x**2))/pi &
-                        + dsign(1d0,we)*.5d0*exp(aw2)*( erfc(sqrt(aw2 + we**2/sig2)) -erfc(aw) ) !Gaussian part erfc(2023feb)
-                   if(npm==2) wgtim_(niw+1:2*niw) = cons*omd*wt/(x**2)/pi !Asymmetric contribution need chack
-                endif
-              endassociate
-              wgtim(:,itp,it)=wtt*wgtim_ !! Integration weight wgtim along im axis for zwz(0:niw*npm)
-           enddo itpitdo
-           zmelcww=0d0
-           iwimag:do ixx=0,niw !niw is ~10. ixx=0 is for omega=0 nw_i=0 (Time reversal) or nw_i =-nw
-              if(emptyrun) cycle
-              !   iwimag:do concurrent(ixx=0:niw)  !concurrent may(or maynot) be problematic because zmelcww is for reduction 
-              if(ixx==0)read(ifrcw(kx),rec=1+(0-nw_i)) zw !direct access Wc(0) = W(0)-v ! nw_i=0 (Time reversal) or nw_i =-nw
-              if(ixx>0) read(ifrcwi(kx),rec=ixx) zw       ! direct access read Wc(i*omega)=W(i*omega)-v
-              ww=>zw(1:ngb,1:ngb)
-              call matmaw(zmelc,ww,zmelcww, ntqxx*(ns2-ns1+1),ngb,ngb, wgtim(ixx,:,:)) ! time-consuming
-           enddo iwimag
-         EndBlock CorrelationSelfEnergyImagAxis
-         CorrelationSelfEnergyRealAxis: Block !Real Axis integral. Fig.1 PHYSICAL REVIEW B 76, 165106(2007)
-           use m_wfac,only: wfacx2, weavx2
-           integer:: itini,itend
-           integer:: iwgt3(ns1:ns2r,ntqxx),i1,i2,iw,ikeep,ix,ixs,nit_(ntqxx,nwxi:nwx),icountp,ncoumx,iit,irs
-           real(8):: we_(ns1:ns2r,ntqxx),wfac_(ns1:ns2r,ntqxx),omg,esmrxx,wgt3(0:2,ns1:ns2r,ntqxx),amat(3,3)!3-point interpolation weight for we_(it,itp) 
-           complex(8),target:: zw(nblochpmx,nblochpmx)
-           complex(8):: zadd(ntqxx),wv3(ngb,ngb,0:2)
-           logical:: itc(ns1:ns2r,nwxi:nwx,ntqxx)
-           if(timemix) call timeshow(" CorrelationSelfEnergyRealAxis:")
-           itc=.false.
-           do concurrent(itp=1:ntqxx)
-              omg  = omega(itp)
-              itini= merge(max(ns1,nt0m+1),  ns1, mask= omg>=ef)
-              itend= merge(ns2r,  min(nt0p,ns2r), mask= omg>=ef)
-              do concurrent(it=itini:itend)     ! nt0p corresponds to efp
-                 wfac_(it,itp) = wfacx2(omg,ef, ekc(it), merge(0d0,esmr,mask=it<=nctot)) !Gaussian smearing 
-                 if(wfac_(it,itp)<wfaccut) cycle 
-                 wfac_(it,itp)=  wfac_(it,itp)*wtt*dsign(1d0,omg-ef) !wfac_ = $w$ weight (smeared thus truncated by ef). See the sentences.
-                 we_(it,itp)  = .5d0*abs(omg-weavx2(omg,ef, ekc(it),esmr)) !we_= \bar{\omega_\epsilon} in sentences next to Eq.58 in PRB76,165106 (2007)
-                 ixs = findloc(freq_r(1:nw)>we_(it,itp),value=.true.,dim=1)
-                 iwgt3(it,itp) = ixs+1-2    !Starting omega index ix for it,itp    ! iwgt3(it,itp) = iirx(itp)*(ixs+1-2) !iirx(ntqxx),
-                 itc(it,ixs+1-2,itp)=.true. !W(we_(it,itp))=\sum_{i=0}^2 W(:,:,ix+i)*wgt3(i)         
-                 associate(x=>we_(it,itp),xi=>freq_r(ixs-1:ixs+1))!x=>we_ is \omega_\epsilon in Eq.(55). 
-                   amat(1:3,1)= 1d0                      !old version: call alagr3z2wgt(we_(it,itp),freq_r(ixs-1),wgt3(:,it,itp))
-                   amat(1:3,2)= xi(1:3)**2
-                   amat(1:3,3)= xi(1:3)**4
-                   wgt3(:,it,itp)= wfac_(it,itp)*matmul([1d0,x**2,x**4], inverse33(amat)) 
-                 endassociate
-              enddo
-           enddo !iirx=1 !where(omega<ef.and.nw_i/=0) iirx=-1 !if(any(iirx(1:ntqxx)/=1))call rx('sxcf: iirx=-1(TR breaking) is not yet implemented')
-           ikeep=99999
-           do ix = nwxi,nwx  
-              if(all(.not.itc(:,ix,:))) cycle 
-              irs=0
-              if(cache) then ! use wv3 at previous ix. a cache mechanism
-                 if(ikeep+1==ix) then 
-                    wv3(:,:,0)=wv3(:,:,1) 
-                    wv3(:,:,1)=wv3(:,:,2)
-                    irs=2
-                 elseif(ikeep+2==ix) then 
-                    wv3(:,:,0)=wv3(:,:,2) 
-                    irs=1
-                 endif
-              endif
-              if(emptyrun) cycle
-              do iw=irs,2 !Set wv3(:,:,0:2). 0:2 means ix:ix+2
-                 read(ifrcw(kx),rec=iw+ix-nw_i+1) zw ! direct access Wc(omega) = W(omega) - v
-                 ww=>zw(1:ngb,1:ngb)
-                 wv3(:,:,iw)=(ww+transpose(dconjg(ww)))/2d0 !hermite part
-              enddo ! wv3 should contain zw(ix+0:ix+2) now
-              ikeep=ix
-              do itp=1,ntqxx !lbound(zsec,1),ubound(zsec,1)
-                 do it =ns1,ns2r ! for it for given itp,ix
-                    if(.not.itc(it,ix,itp)) cycle  !wv33 gives interpolated value of W(we_(it,itp))
-                    zmelcww(itp,it,:) = zmelcww(itp,it,:) +  matmul(zmelc(itp,it,:), &
-                         wv3(:,:,0)*wgt3(0,it,itp) +wv3(:,:,1)*wgt3(1,it,itp) +wv3(:,:,2)*wgt3(2,it,itp) ) !time-consuming
-                 enddo
-              enddo
-           enddo
-           if(timemix) call timeshow(" End of CorrelationSelfEnergyRealAxis:")
-         EndBlock CorrelationSelfEnergyRealAxis
-         nm = (ns2-ns1+1)*ngb
-         if(emptyrun) return
-         zsec= zsec+ matmul(reshape(zmelcww,[ntqxx,nm]),reshape(&
-              reshape(zmel,shape=[ns2-ns1+1,ngb,ntqxx],order=[2,1,3]), [nm,ntqxx])) !time-consuming probably.
-         forall(itp=1:ntqxx) zsec(itp,itp)=dreal(zsec(itp,itp))+img*min(dimag(zsec(itp,itp)),0d0) !enforce Imzsec<0
-       EndBlock CorrelationMode
-       if(timemix) call timeshow("   end icount do 3030")
-3030 enddo MAINicountloop
+    kxloop:     do kx  =1,nqibz  ! kx is irreducible !kx is main axis where we calculate W(kx).
+      qibz_k = qibz(:,kx)
+      call Readvcoud(qibz_k,kx,NoVcou=.false.) !Readin ngc,ngb,vcoud ! Coulomb matrix
+      call Setppovlz(qibz_k,matz=.true.)  !Set ppovlz overlap matrix used in Get_zmel_init in m_zmel
+      irotloop: do irot=1,ngrp   ! (kx,irot) determines qbz(:,kr), which is in FBZ. W(kx) is rotated to be W(g(kx))
+          iploopexternal:     do ip=1,nqibz     !external index for q of \Sigma(q,isp)
+            isploopexternal:  do isp=1,nspinmx  !external index
+              kr = irkip(isp,kx,irot,ip)
+              if(kr==0) cycle
+              q(1:3)= qibz(1:3,ip)
+              qbz_kr= qbz (:,kr)     !rotated qbz vector.
+              qk =  q - qbz_kr       !<M(qbz_kr) phi(q-qbz_kr)|phi(q)>
+              eq = readeval(q,isp) !readin eigenvalue
+              omega(1:ntq) = eq(1:ntq)  !1:ntq
+              ekq = readeval(qk, isp) 
+              ekc(1:nctot)= ecore(1:nctot,isp) ! core
+              ekc(nctot+1:nctot+nband) = ekq (1:nband)
+              nt0  = count(ekc<ef) 
+              nt0p = count(ekq<ef+ddw*esmr) +nctot 
+              nt0m = count(ekq<ef-ddw*esmr) +nctot
+              wtt = wk(kr)
+              ntqxx = nbandmx(ip,isp) ! ntqxx is number of bands for <i|sigma|j>.
+              zsec => zsecall(1:ntqxx,1:ntqxx,ip,isp)
+            NMBATCHloop: do 3030 icount = icountini(isp,ip,irot,kx),icountend(isp,ip,irot,kx) !batch of middle states.
+              call flush(stdo)
+              ns1 =nstti(icount) ! Range of middle states is [ns1:ns2] for given icount
+              ns2 =nstte(icount) ! 
+              nwxi=nwxic(icount) !minimum omega for W
+              nwx =nwxc(icount)  !max omega for W
+              ns2r=nstte2(icount) !Range of middle states [ns1:ns2r] for CorrelationSelfEnergyRealAxis
+              ZmelBlock:block !zmel(ib=ngb,it=ns1:ns2,itpp=1:ntqxx)= <M(qbz_kr,ib) phi(it,q-qbz_kr,isp) |phi(itpp,q,isp)> 
+                if(emptyrun) goto 1212
+                call get_zmel_init(q,qibz_k,irot,qbz_kr, ns1,ns2,isp, 1,ntqxx, isp,nctot,ncc=0,iprx=debug,zmelconjg=.false.)! Get zmel(ngb,ns1:ns2,ntqxx)
+1212            continue 
+              endblock ZmelBlock
+              ExchangeMode: if(exchange) then      
+                ExchangeSelfEnergy: Block
+                  real(8):: wfacx,vcoud_(ngb),wtff(ns1:ns2) !range of middle states ns1:ns2
+                  !character(8):: xt ;call timeshow("ExchangeMODE1 icount="//trim(xt(icount)))
+                  vcoud_= vcoud                                    ! kx==1 must be for q=0     
+                  if(kx==1) vcoud_(1)=wklm(1)*fpi*sqrt(fpi)/wk(kx) ! voud_(1) is effective v(q=0) in the Gamma cell. 
+                  ! wtff = [(1d0,it=ns1,nctot), (wfacx(-1d99, ef, ekc(it), esmr),it=max(nctot+1,ns1),ns2)] !bugfix 2023-5-18 ns1==>max(nctot+1,ns1)
+                  wtff(ns1:nctot) =1d0 !these are for nvfortran24.1
+                  do it=max(nctot+1,ns1),ns2
+                    wtff(it) = wfacx(-1d99, ef, ekc(it), esmr) !bugfix 2023-5-18 ns1==>max(nctot+1,ns1)
+                  enddo
+                  if(corehole) wtff(ns1:nctot) = wtff(ns1:nctot) * wcorehole(ns1:nctot,isp)
+                  do concurrent(itp=1:ntqxx, itpp=1:ntqxx)
+                    if(emptyrun) cycle !probably not so slow but for no error for --emptyrun
+                    zsec(itp,itpp)=zsec(itp,itpp) - wtt* &
+                         sum( [(sum(dconjg(zmel(:,it,itp))*vcoud_(:)*zmel(:,it,itpp))*wtff(it),it=ns1,ns2)] ) !this may work even for nvfortran24.1
+                  enddo
+                EndBlock ExchangeSelfEnergy
+                if(timemix) call timeshow("ExchangeSelfEnergy cycle")
+                cycle  
+              endif ExchangeMode
+              CorrelationMode: Block! See Eq.(55) around of PRB76,165106 (2007) !range of middle states is [ns1:ns2]
+                integer:: nm
+                complex(8):: zmelc  (1:ntqxx,ns1:ns2,1:ngb)
+                complex(8):: zmelcww(1:ntqxx,ns1:ns2,1:ngb)
+                if(.not.emptyrun) zmelc = reshape(dconjg(zmel),shape=shape(zmelc),order=[3,2,1]) !notslow. but for no error for --emptyrun 
+                if(timemix) call timeshow(" CorrelationSelfEnergyImagAxis:")
+                CorrelationSelfEnergyImagAxis: Block !Fig.1 PHYSICAL REVIEW B 76, 165106(2007)! Integration along ImAxis for zwz(omega) 
+                  use m_readfreq_r,only: wt=>wwx,x=>freqx
+                  real(8),parameter:: rmax=2d0
+                  real(8):: wgtim_(0:npm*niw),wgtim(0:npm*niw,ntqxx,ns1:ns2),we,cons(niw),omd(niw),omd2w(niw)
+                  complex(8),target:: zw(nblochpmx,nblochpmx)!,zwz(ns1:ns2,ntqxx,ntqxx)
+                  itpitdo:do concurrent(itp =1:ntqxx, it=ns1:ns2)
+                    we=.5d0*(omega(itp)-ekc(it)) !we in hartree unit (atomic unit)
+                    associate(sig=>.5d0*esmr, sig2=>2d0*(.5d0*esmr)**2, aw=>abs(ua_*we), aw2=>(ua_*we)**2)
+                      if(it<=nctot) then ! if w = e the integral = -v(0)/2 ! frequency integral
+                        cons = 1d0/(we**2*x**2 + (1d0-x)**2)
+                        wgtim_(1:niw)= we*cons*wt*(-1d0/pi)
+                        wgtim_(0)=merge(-sum(wgtim_(1:niw)*expa_)-0.5d0*dsign(1d0,we)*dexp(we**2*ua_**2)*erfc(ua_*dabs(we)), 0d0,&
+                             mask=dabs(we)<rmax/ua_)
+                        if(npm==2) wgtim_(niw+1:2*niw) = cons*(1d0/x-1d0)*wt/pi !Asymmetric contribution need check
+                      else
+                        omd   = 1d0/x - 1d0
+                        omd2w = omd**2 + we**2
+                        where(omd2w/sig2  > 5d-3) cons=(1d0 - exp (- omd2w/sig2))/omd2w
+                        where(omd2w/sig2 <= 5d-3) cons=(1d0/sig2 - omd2w/sig2**2/2d0 +omd2w**2/sig2**3/6d0 -omd2w**3/sig2**4/24d0 &
+                             + omd2w**4/sig2**5/120d0- omd2w**5/sig2**6/720d0 )
+                        wgtim_(1:niw) = -we*cons*wt/(x**2)/pi
+                        wgtim_(0) =  we*sum(cons*expa_*wt/(x**2))/pi &
+                             + dsign(1d0,we)*.5d0*exp(aw2)*( erfc(sqrt(aw2 + we**2/sig2)) -erfc(aw) ) !Gaussian part erfc(2023feb)
+                        if(npm==2) wgtim_(niw+1:2*niw) = cons*omd*wt/(x**2)/pi !Asymmetric contribution need chack
+                      endif
+                    endassociate
+                    wgtim(:,itp,it)=wtt*wgtim_ !! Integration weight wgtim along im axis for zwz(0:niw*npm)
+                  enddo itpitdo
+                  zmelcww=0d0
+                  iwimag:do ixx=0,niw !niw is ~10. ixx=0 is for omega=0 nw_i=0 (Time reversal) or nw_i =-nw
+                    if(emptyrun) cycle
+                    !   iwimag:do concurrent(ixx=0:niw)  !concurrent may(or maynot) be problematic because zmelcww is for reduction 
+                    if(ixx==0)read(ifrcw(kx),rec=1+(0-nw_i)) zw !direct access Wc(0) = W(0)-v ! nw_i=0 (Time reversal) or nw_i =-nw
+                    if(ixx>0) read(ifrcwi(kx),rec=ixx) zw       ! direct access read Wc(i*omega)=W(i*omega)-v
+                    ww=>zw(1:ngb,1:ngb)
+                    call matmaw(zmelc,ww,zmelcww, ntqxx*(ns2-ns1+1),ngb,ngb, wgtim(ixx,:,:)) ! time-consuming
+                  enddo iwimag
+                EndBlock CorrelationSelfEnergyImagAxis
+                CorrelationSelfEnergyRealAxis: Block !Real Axis integral. Fig.1 PHYSICAL REVIEW B 76, 165106(2007)
+                  use m_wfac,only: wfacx2, weavx2
+                  integer:: itini,itend
+                  integer:: iwgt3(ns1:ns2r,ntqxx),i1,i2,iw,ikeep,ix,ixs,nit_(ntqxx,nwxi:nwx),icountp,ncoumx,iit,irs
+                  real(8):: we_(ns1:ns2r,ntqxx),wfac_(ns1:ns2r,ntqxx),omg,esmrxx,wgt3(0:2,ns1:ns2r,ntqxx),amat(3,3)
+                  !3-point interpolation weight for we_(it,itp) 
+                  complex(8),target:: zw(nblochpmx,nblochpmx)
+                  complex(8):: zadd(ntqxx),wv3(ngb,ngb,0:2)
+                  logical:: itc(ns1:ns2r,nwxi:nwx,ntqxx)
+                  if(timemix) call timeshow(" CorrelationSelfEnergyRealAxis:")
+                  itc=.false.
+                  do concurrent(itp=1:ntqxx)
+                    omg  = omega(itp)
+                    itini= merge(max(ns1,nt0m+1),  ns1, mask= omg>=ef)
+                    itend= merge(ns2r,  min(nt0p,ns2r), mask= omg>=ef)
+                    do concurrent(it=itini:itend)     ! nt0p corresponds to efp
+                      wfac_(it,itp) = wfacx2(omg,ef, ekc(it), merge(0d0,esmr,mask=it<=nctot)) !Gaussian smearing 
+                      if(wfac_(it,itp)<wfaccut) cycle 
+                      wfac_(it,itp)=  wfac_(it,itp)*wtt*dsign(1d0,omg-ef) !wfac_ = $w$ weight (smeared thus truncated by ef). See the sentences.
+                      we_(it,itp)  = .5d0*abs(omg-weavx2(omg,ef, ekc(it),esmr)) !we_= \bar{\omega_\epsilon} in sentences next to Eq.58 in PRB76,165106 (2007)
+                      ixs = findloc(freq_r(1:nw)>we_(it,itp),value=.true.,dim=1)
+                      iwgt3(it,itp) = ixs+1-2    !Starting omega index ix for it,itp    ! iwgt3(it,itp) = iirx(itp)*(ixs+1-2) !iirx(ntqxx),
+                      itc(it,ixs+1-2,itp)=.true. !W(we_(it,itp))=\sum_{i=0}^2 W(:,:,ix+i)*wgt3(i)         
+                      associate(x=>we_(it,itp),xi=>freq_r(ixs-1:ixs+1))!x=>we_ is \omega_\epsilon in Eq.(55). 
+                        amat(1:3,1)= 1d0                   !old version: call alagr3z2wgt(we_(it,itp),freq_r(ixs-1),wgt3(:,it,itp))
+                        amat(1:3,2)= xi(1:3)**2
+                        amat(1:3,3)= xi(1:3)**4
+                        wgt3(:,it,itp)= wfac_(it,itp)*matmul([1d0,x**2,x**4], inverse33(amat)) 
+                      endassociate
+                    enddo
+                  enddo
+                  !iirx=1 !where(omega<ef.and.nw_i/=0) iirx=-1 !if(any(iirx(1:ntqxx)/=1))call rx('sxcf: iirx=-1(TR breaking) is not yet implemented')
+                  ikeep=99999
+                  do ix = nwxi,nwx  
+                    if(all(.not.itc(:,ix,:))) cycle 
+                    irs=0
+                    if(cache) then ! use wv3 at previous ix. a cache mechanism, notefficient?
+                      if(ikeep+1==ix) then 
+                        wv3(:,:,0)=wv3(:,:,1) 
+                        wv3(:,:,1)=wv3(:,:,2)
+                        irs=2
+                      elseif(ikeep+2==ix) then 
+                        wv3(:,:,0)=wv3(:,:,2) 
+                        irs=1
+                      endif
+                    endif
+                    if(emptyrun) cycle
+                    do iw=irs,2 !Set wv3(:,:,0:2). 0:2 means ix:ix+2
+                      read(ifrcw(kx),rec=iw+ix-nw_i+1) zw ! direct access Wc(omega) = W(omega) - v
+                      ww=>zw(1:ngb,1:ngb)
+                      wv3(:,:,iw)=(ww+transpose(dconjg(ww)))/2d0 !hermite part
+                    enddo ! wv3 should contain zw(ix+0:ix+2) now
+                    ikeep=ix
+                    do itp=1,ntqxx !lbound(zsec,1),ubound(zsec,1)
+                      do it =ns1,ns2r ! for it for given itp,ix
+                        if(.not.itc(it,ix,itp)) cycle  !wv33 gives interpolated value of W(we_(it,itp))
+                        zmelcww(itp,it,:) = zmelcww(itp,it,:) +  matmul(zmelc(itp,it,:), &
+                             wv3(:,:,0)*wgt3(0,it,itp) +wv3(:,:,1)*wgt3(1,it,itp) +wv3(:,:,2)*wgt3(2,it,itp) ) !time-consuming
+                      enddo
+                    enddo
+                  enddo
+                  if(timemix) call timeshow(" End of CorrelationSelfEnergyRealAxis:")
+                EndBlock CorrelationSelfEnergyRealAxis
+                nm = (ns2-ns1+1)*ngb
+                if(emptyrun) return
+                zsec= zsec+ matmul(reshape(zmelcww,[ntqxx,nm]),reshape(&
+                     reshape(zmel,shape=[ns2-ns1+1,ngb,ntqxx],order=[2,1,3]), [nm,ntqxx])) !time-consuming probably.
+                forall(itp=1:ntqxx) zsec(itp,itp)=dreal(zsec(itp,itp))+img*min(dimag(zsec(itp,itp)),0d0) !enforce Imzsec<0
+              EndBlock CorrelationMode
+              if(timemix) call timeshow("   end icount do 3030")
+3030        enddo NMBATCHloop
+          enddo isploopexternal
+        enddo iploopexternal
+      enddo irotloop
+    enddo kxloop
   write(stdo,ftox)'endof 3030loop'
   endsubroutine sxcf_scz_main
   pure subroutine matmaw(a,b,c,n1,n2,n3,ww)
