@@ -3,7 +3,7 @@ module m_x0kf
   use m_lgunit,only: stdo
   use m_keyvalue,only : Getkeyvalue
   use m_pkm4crpa,only : Readpkm4crpa
-  use m_zmel,only: Get_zmel_init,zmel 
+  use m_zmel,only: Get_zmel_init,zmel !,get_zmel_init1,get_zmel_init2
   use m_freq,only: npm, nwhis
   use m_genallcf_v3,only:  nsp=>nspin ,nlmto,nctot
   use m_read_bzdata,only:  nqbz,ginv,nqibz,  rk=>qbz,wk=>wbz
@@ -14,154 +14,31 @@ module m_x0kf
   use m_hamindex,only: ngrp
   use m_tetwt,only:  gettetwt,tetdeallocate, whw,ihw,nhw,jhw,n1b,n2b,nbnb,nbnbx,nhwtot
   use m_ftox
-  use m_readVcoud,only:   Readvcoud,vcousq,zcousq,ngb,ngc
+  use m_readVcoud,only:   vcousq,zcousq,ngb,ngc
   implicit none
   public:: x0kf_zxq, deallocatezxq, deallocatezxqi
   complex(8),public,allocatable:: zxq(:,:,:), zxqi(:,:,:)   !Not yet protected because of main_hx0fp0
-  private 
-  integer,allocatable:: kc(:),icounkmin(:),icounkmax(:)
-  integer:: ncount,ncoun
-  integer,allocatable:: nkmin(:), nkmax(:),nkqmin(:),nkqmax(:) 
-  real(8),allocatable:: whwc(:)
-  integer,allocatable:: iwini(:),iwend(:),itc(:),itpc(:),jpmc(:),icouini(:)
-contains
-  subroutine x0kf_zxq(realomega,imagomega, q,iq,npr,schi,crpa,chipm,nolfco,q00,zzr)
-    use m_readgwinput,only: ecut,ecuts
-    use m_dpsion,only: dpsion5
-    use m_freq,only: nw_i, nw_w=>nw, niwt=>niw
-    use m_readeigen,only:readeval
-    use m_freq,only: nw_i,nw,niw 
-    use m_zmel,only: Setppovlz,Setppovlz_chipm   ! & NOTE: these data set are stored in this module, and used
-    implicit none
-    intent(in)::      realomega,imagomega, q,iq,npr,schi,crpa,chipm,nolfco,q00,zzr
-    logical:: realomega,imagomega,crpa,chipm,nolfco
-    integer:: iq,npr, isp_k,isp_kq,ix0,is,isf,kx,ierr
-    real(8),optional:: q00(3)
-    complex(8),optional:: zzr(:,:)
-    real(8):: q(3),schi,ekxx1(nband,nqbz),ekxx2(nband,nqbz)
-    complex(8),allocatable:: rcxq(:,:,:,:) 
-    character(10) :: i2char
-    logical:: cmdopt0
-    if(realomega) allocate(zxq(npr,npr,nw_i:nw),source=(0d0,0d0))
-    if(imagomega) allocate(zxqi(npr,npr,niw),source=(0d0,0d0))
-    if(cmdopt0('--emptyrun'))  return
-    if(chipm .AND. nolfco) then
-      call setppovlz_chipm(zzr,npr)
-    else
-      call Setppovlz(q,matz=.true.)
-    endif
-    isloop: do 1103 isp_k = 1,nsp
-      GETtetrahedronWeight:block
-        isp_kq = merge(3-isp_k,isp_k,chipm) 
-        do kx = 1, nqbz
-          ekxx1(1:nband,kx) = readeval(rk(:,kx),   isp_k ) ! read eigenvalue
-          ekxx2(1:nband,kx) = readeval(q+rk(:,kx), isp_kq) !
-        enddo
-        call gettetwt(q,iq,isp_k,isp_kq,ekxx1,ekxx2,nband=nband) ! tetrahedron weight
-        ierr=x0kf_v4hz_init(0,q,isp_k,isp_kq,iq, crpa)
-        ierr=x0kf_v4hz_init(1,q,isp_k,isp_kq,iq, crpa) 
-        call tetdeallocate()
-      endblock GETtetrahedronWeight
-      !       open(newunit=ix0,file='x0icount.'//trim(i2char(iq))//'_'//trim(i2char(isp_k)),form='unformatted')
-      !       write(ix0)ncount,ncoun
-      !       write(ix0) whwc, kc, iwini,iwend, itc,itpc, jpmc,icouini, nkmin,nkmax,nkqmin,nkqmax
-      !       deallocate(whwc, kc, iwini,iwend, itc,itpc, jpmc,icouini, nkmin,nkmax,nkqmin,nkqmax)
-      !       close(ix0)
-      !       open(newunit=ix0,file='x0icount.'//trim(i2char(iq))//'_'//trim(i2char(isp_k)),form='unformatted')
-      !       read(ix0) ncount,ncoun
-      !       if(allocated(whwc)) deallocate( whwc, kc, iwini,iwend, itc, itpc, jpmc, nkmin,nkmax,nkqmin,nkqmax)
-      !       allocate( whwc(ncount), kc(ncoun), iwini(ncoun),iwend(ncoun),itc(ncoun),itpc(ncoun), jpmc(ncoun),icouini(ncoun) )
-      !       allocate( nkmin(nqbz),nkmax(nqbz),nkqmin(nqbz),nkqmax(nqbz))
-      !       read(ix0) whwc, kc, iwini,iwend, itc,itpc, jpmc,icouini, nkmin,nkmax,nkqmin,nkqmax
-      !       close(ix0)
-      x0kf_v4hz: block !call x0kf_v4hz(q,isp_k,isp_kq,iq, npr,q00,chipm,nolfco,zzr,nmbas)
-        integer:: k,jpm, ibib, iw,igb2,igb1,it,itp, nkmax1,nkqmax1, ib1, ib2, ngcx,ix,iy,igb
-        integer:: izmel,ispold,nmtot,nqtot ,ispold2,ierr,iwmax,ifi0,icoucold,icoun
-        integer:: nwj(nwhis,npm),imb, igc ,neibz,icc,ig,ikp,i,j,itimer,icount, kold 
-        real(8):: imagweight, wpw_k,wpw_kq,qa,q0a 
-        complex(8):: img=(0d0,1d0)
-        logical :: cmdopt0
-        logical,parameter:: debug=.false.
-        if(.not.allocated(rcxq)) allocate( rcxq(npr,npr,nwhis,npm),source=(0d0,0d0)) 
-        zmel0mode: if(cmdopt0('--zmel0')) then ! For epsPP0. Use zmel-zmel0 (for subtracting numerical error) for matrix elements.
-          zmel0block : block
-            real(8)::  q1a,q2a,rfac00
-            complex(8),allocatable:: zmel0(:,:,:)
-            kold = -999 
-            q1a=sum(q00**2)**.5
-            q2a=sum(q**2)**.5
-            rfac00=q2a/(q2a-q1a)
-            zmel0modeicount: do icoun = 1,ncoun 
-              k   = kc(icoun)
-              it  = itc (icoun) !occ      k
-              itp = itpc(icoun) !unocc    q+k
-              jpm = jpmc(icoun) ! \pm omega. Usual mode is only for jpm=1
-              if(kold/=k) then
-                call x0kf_zmel(q00,k, isp_k,isp_kq)
-                if(allocated(zmel0)) deallocate(zmel0)
-                allocate(zmel0,source=zmel)
-                call x0kf_zmel(q, k, isp_k,isp_kq)
-                kold=k
-              endif
-              do iw=iwini(icoun),iwend(icoun) !iw  = iwc(icount)  !omega-bin
-                icount= icouini(icoun)+iw-iwini(icoun)
-                if(abs(zmel0(1,it,itp))>1d10) cycle !We assume rcxq(1) in this mode
-                rcxq(1,1,iw,jpm)=rcxq(1,1,iw,jpm) +rfac00**2*(abs(zmel(1,it,itp))-abs(zmel0(1,it,itp)))**2 *whwc(icount)
-              enddo
-            enddo zmel0modeicount
-          endblock zmel0block
-          goto 2000 
-        endif zmel0mode
-        kold = -999
-        icoucold=-999
-        if(cmdopt0('--emptyrun')) goto 2000
-        ! rcxq(ibg1,igb2,iw) = sum_ibib wwk(iw,ibib)* <M_ibg1(q) psi_it(k)| psi_itp(q+k)> < psi_itp | psi_it M_ibg2 > at q
-        
-        kloop:do 1500 k=1,nqbz
-          call get_zmel_init(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot, ns2=nkmax(k)+nctot, ispm=isp_k, &
-               nqini=nkqmin(k), nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false.,zmelconjg=.true.)
-          ! call x0kf_zmel(q, k, isp_k,isp_kq) 
-          icounloop: do 1000 icoun=icounkmin(k),icounkmax(k)
-            if(debug) write(stdo,ftox)'icoun: iq k jpm it itp n(iw)=',icoun,iq,k,jpm,it,itp,iwend(icoun)-iwini(icoun)+1
-            !k = kc(icoun)
-            !if(kold/=k) then !Get zmel = < M(igb q) phi( k it occ)|  phi(q+k itp unocc)>
-            !  !            call x0kf_zmel(q, k, isp_k,isp_kq) 
-            !  kold=k
-            !endif
-            associate( &
-                 jpm => jpmc(icoun),&  !\pm omega 
-                 it  => itc (icoun),&  !occ      at k
-                 itp => itpc(icoun))   !unocc    at q+k
-              TimeConsumingRcxq: block 
-                complex(8):: zmelzmel(npr,npr)
-                do concurrent(igb1=1:npr,igb2=1:npr) 
-                  zmelzmel(igb1,igb2)= dconjg(zmel(igb1,it,itp))*zmel(igb2,it,itp) 
-                enddo
-                forall(iw=iwini(icoun):iwend(icoun))& !Rcxq is hermitian, thus, we can reduce computational time half.
-                     rcxq(:,:,iw,jpm)=rcxq(:,:,iw,jpm)+ whwc(iw-iwini(icoun)+icouini(icoun))* zmelzmel(:,:) !may use zaxpy and symmetrize afterwards
-                !forall(iw=iwini(icoun):iwend(icoun)) nwj(iw,jpm)=nwj(iw,jpm)+iwend(icoun)-iwini(icoun)+1 !counter check
-              endblock TimeConsumingRcxq
-            endassociate
-1000      enddo icounloop
-1500    enddo kloop
-        
-2000    continue
-        write(stdo,ftox) " --- x0kf_v4hz: end" !write(stdo,"(' --- ', 3d13.5)")sum(abs(rcxq(:,:,1:nwhis,1:npm))),sum((rcxq(:,:,1:nwhis,1:npm)))
-      endblock x0kf_v4hz
-      deallocate(whwc, kc, iwini,iwend, itc,itpc, jpmc,icouini, nkmin,nkmax,nkqmin,nkqmax,icounkmin,icounkmax)
-      HilbertTransformation:if(isp_k==nsp .OR. chipm) then !Get real part. When chipm=T, do dpsion5 for every isp_k; When =F, do dpsion5 after rxcq accumulated for spins
-        call dpsion5(realomega, imagomega, rcxq, npr,npr, zxq, zxqi, chipm, schi,isp_k,  ecut,ecuts) 
-        deallocate(rcxq)
-      endif HilbertTransformation 
-1103 enddo isloop
-  end subroutine x0kf_zxq
+  complex(8),public,allocatable:: rcxq(:,:,:,:)
+  integer,public::npr
+  private
   
+  integer:: ncount,ncoun
+  integer,allocatable:: nkmin(:), nkmax(:),nkqmin(:),nkqmax(:),kc(:)
+  integer,allocatable:: icounkmin(:),icounkmax(:)
+  
+  real(8),public,allocatable:: whwc(:)
+  integer,allocatable,public:: iwini(:),iwend(:),itc(:),itpc(:),jpmc(:),icouini(:)
+  !
+  real(8),public::qrk(3),qq(3)
+  integer,public::ns1,ns2,ispm,ispq,nqini,nqmax,icounkmink,icounkmaxk
+  
+contains
   function X0kf_v4hz_init(job,q,isp_k,isp_kq, iq, crpa) result(ierr) !index accumulation. Initialzation for calling x0kf_v4h
     implicit none
     intent(in)::          job,q,isp_k,isp_kq, iq, crpa
     !! Get ncount index to drive x0kf_v4h. Call job=0 and job=1 successively. 
     !! ncount, ngb and nqibz are keys to estimate computational efforts.
-    integer:: irot=1,ierr,k,isp_k,isp_kq, iq, jpm, ibib, iw,igb2,igb1,it,itp,job,icount, ncc,icoun
+    integer:: irot=1,ierr,isp_k,isp_kq, iq, jpm, ibib, iw,igb2,igb1,it,itp,job,icount, ncc,icoun,k
     real(8):: q(3), imagweight, wpw_k, wpw_kq
     logical:: crpa !,showicount=.false.
     write(stdo,'(" x0kf_v4hz_init: job q =",i3,3f8.4)') job,q
@@ -224,6 +101,147 @@ contains
     if(job==0) write(stdo,"('x0kf_v4hz_init: job=0 ncount ncoun nqibz=',3i8)") ncount, ncoun,nqibz
     ierr=0
   endfunction x0kf_v4hz_init
+  
+  subroutine x0kf_zxq(realomega,imagomega, q,iq,nprin,schi,crpa,chipm,nolfco,q00,zzr)
+    use m_readgwinput,only: ecut,ecuts
+    use m_dpsion,only: dpsion5
+    use m_freq,only: nw_i, nw_w=>nw, niwt=>niw
+    use m_readeigen,only:readeval
+    use m_freq,only: nw_i,nw,niw 
+    use m_zmel,only: Setppovlz,Setppovlz_chipm   ! & NOTE: these data set are stored in this module, and used
+    implicit none
+    intent(in)::      realomega,imagomega, q,iq,nprin,schi,crpa,chipm,nolfco,q00,zzr
+    logical:: realomega,imagomega,crpa,chipm,nolfco
+    integer:: iq, isp_k,isp_kq,ix0,is,isf,kx,ierr,nprin,k
+    real(8),optional:: q00(3)
+    complex(8),optional:: zzr(:,:)
+    real(8):: q(3),schi,ekxx1(nband,nqbz),ekxx2(nband,nqbz)
+    character(10) :: i2char
+    logical:: cmdopt0
+    npr=nprin
+    qq=q
+    if(realomega) allocate(zxq(npr,npr,nw_i:nw),source=(0d0,0d0))
+    if(imagomega) allocate(zxqi(npr,npr,niw),source=(0d0,0d0))
+    if(cmdopt0('--emptyrun'))  return
+    if(chipm .AND. nolfco) then
+      call setppovlz_chipm(zzr,npr)
+    else
+      call Setppovlz(q,matz=.true.)
+    endif
+    isloop: do 1103 isp_k = 1,nsp
+      GETtetrahedronWeight:block
+        isp_kq = merge(3-isp_k,isp_k,chipm) 
+        do kx = 1, nqbz
+          ekxx1(1:nband,kx) = readeval(rk(:,kx),   isp_k ) ! read eigenvalue
+          ekxx2(1:nband,kx) = readeval(q+rk(:,kx), isp_kq) !
+        enddo
+        call gettetwt(q,iq,isp_k,isp_kq,ekxx1,ekxx2,nband=nband) ! tetrahedron weight
+        ierr=x0kf_v4hz_init(0,q,isp_k,isp_kq,iq, crpa)
+        ierr=x0kf_v4hz_init(1,q,isp_k,isp_kq,iq, crpa) 
+        call tetdeallocate()
+      endblock GETtetrahedronWeight
+      !       open(newunit=ix0,file='x0icount.'//trim(i2char(iq))//'_'//trim(i2char(isp_k)),form='unformatted')
+      !       write(ix0)ncount,ncoun
+      !       write(ix0) whwc, kc, iwini,iwend, itc,itpc, jpmc,icouini, nkmin,nkmax,nkqmin,nkqmax
+      !       deallocate(whwc, kc, iwini,iwend, itc,itpc, jpmc,icouini, nkmin,nkmax,nkqmin,nkqmax)
+      !       close(ix0)
+      !       open(newunit=ix0,file='x0icount.'//trim(i2char(iq))//'_'//trim(i2char(isp_k)),form='unformatted')
+      !       read(ix0) ncount,ncoun
+      !       if(allocated(whwc)) deallocate( whwc, kc, iwini,iwend, itc, itpc, jpmc, nkmin,nkmax,nkqmin,nkqmax)
+      !       allocate( whwc(ncount), kc(ncoun), iwini(ncoun),iwend(ncoun),itc(ncoun),itpc(ncoun), jpmc(ncoun),icouini(ncoun) )
+      !       allocate( nkmin(nqbz),nkmax(nqbz),nkqmin(nqbz),nkqmax(nqbz))
+      !       read(ix0) whwc, kc, iwini,iwend, itc,itpc, jpmc,icouini, nkmin,nkmax,nkqmin,nkqmax
+      !       close(ix0)
+      x0kf_v4hz_block: block !call x0kf_v4hz(q,isp_k,isp_kq,iq, npr,q00,chipm,nolfco,zzr,nmbas)
+!        use m_x0gpu,only: x0gpu
+        integer:: k,jpm, ibib, iw,igb2,igb1,it,itp, nkmax1,nkqmax1, ib1, ib2, ngcx,ix,iy,igb
+        integer:: izmel,ispold,nmtot,nqtot ,ispold2,ierr,iwmax,ifi0,icoucold,icoun
+        integer:: nwj(nwhis,npm),imb, igc ,neibz,icc,ig,ikp,i,j,itimer,icount, kold 
+        real(8):: imagweight, wpw_k,wpw_kq,qa,q0a 
+        complex(8):: img=(0d0,1d0)
+        logical :: cmdopt0
+        logical,parameter:: debug=.false.
+        if(.not.allocated(rcxq)) allocate( rcxq(npr,npr,nwhis,npm),source=(0d0,0d0)) 
+        zmel0mode: if(cmdopt0('--zmel0')) then ! For epsPP0. Use zmel-zmel0 (for subtracting numerical error) for matrix elements.
+          zmel0block : block
+            real(8)::  q1a,q2a,rfac00
+            complex(8),allocatable:: zmel0(:,:,:)
+            kold = -999 
+            q1a=sum(q00**2)**.5
+            q2a=sum(q**2)**.5
+            rfac00=q2a/(q2a-q1a)
+            zmel0modeicount: do icoun = 1,ncoun 
+              k   = kc(icoun)
+              it  = itc (icoun) !occ      k
+              itp = itpc(icoun) !unocc    q+k
+              jpm = jpmc(icoun) ! \pm omega. Usual mode is only for jpm=1
+              if(kold/=k) then
+                call x0kf_zmel(q00,k, isp_k,isp_kq)
+                if(allocated(zmel0)) deallocate(zmel0)
+                allocate(zmel0,source=zmel)
+                call x0kf_zmel(q, k, isp_k,isp_kq)
+                kold=k
+              endif
+              do iw=iwini(icoun),iwend(icoun) !iw  = iwc(icount)  !omega-bin
+                icount= icouini(icoun)+iw-iwini(icoun)
+                if(abs(zmel0(1,it,itp))>1d10) cycle !We assume rcxq(1) in this mode
+                rcxq(1,1,iw,jpm)=rcxq(1,1,iw,jpm) +rfac00**2*(abs(zmel(1,it,itp))-abs(zmel0(1,it,itp)))**2 *whwc(icount)
+              enddo
+            enddo zmel0modeicount
+          endblock zmel0block
+          goto 2000 
+        endif zmel0mode
+!        kold = -999
+!        icoucold=-999
+        ! rcxq(ibg1,igb2,iw) = sum_ibib wwk(iw,ibib)* <M_ibg1(q) psi_it(k)| psi_itp(q+k)> < psi_itp | psi_it M_ibg2 > at q
+        kloop:do 1500 k=1,nqbz !zmel = < M(igb q) phi( rk it occ)|  phi(q+rk itp unocc)>
+          if(cmdopt0('--emptyrun')) cycle
+          qq = q
+          qrk= q+rk(:,k)
+          ns1=nkmin(k)+nctot
+          ns2=nkmax(k)+nctot
+          icounkmink=icounkmin(k)
+          icounkmaxk=icounkmax(k)
+          ispm=isp_k
+          nqini=nkqmin(k)
+          nqmax=nkqmax(k)
+          ispq=isp_kq
+          call x0gpu(rcxq,npr,nwhis,npm)
+1500    enddo kloop
+!         kloop:do 1500 k=1,nqbz !zmel = < M(igb q) phi( rk it occ)|  phi(q+rk itp unocc)>
+!           if(cmdopt0('--emptyrun')) cycle
+!           call get_zmel_init(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
+!                nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false.,zmelconjg=.true.)
+!           icounloop: do 1000 icoun=icounkmin(k),icounkmax(k)
+!           ! call get_zmel_init is equivalent to call x0kf_zmel(q, k, isp_k,isp_kq) 
+!             TimeConsumingRcxq: block 
+!               complex(8):: zmelzmel(npr,npr)
+!               if(debug) write(stdo,ftox)'icoun: iq k jpm it itp n(iw)=',icoun,iq,k,jpm,it,itp,iwend(icoun)-iwini(icoun)+1
+!               associate( &
+!                    jpm => jpmc(icoun),&  !\pm omega 
+!                    it  => itc (icoun),&  !occ      at k
+!                    itp => itpc(icoun))   !unocc    at q+k
+!                 do concurrent(igb1=1:npr,igb2=1:npr) 
+!                   zmelzmel(igb1,igb2)= dconjg(zmel(igb1,it,itp))*zmel(igb2,it,itp) 
+!                 enddo
+!                 forall(iw=iwini(icoun):iwend(icoun))& !rcxq is hermitian, thus, we can reduce computational time half.
+!                      rcxq(:,:,iw,jpm)=rcxq(:,:,iw,jpm)+ whwc(iw-iwini(icoun)+icouini(icoun))* zmelzmel(:,:) !may use zaxpy and symmetrize afterwards
+!                 !forall(iw=iwini(icoun):iwend(icoun)) nwj(iw,jpm)=nwj(iw,jpm)+iwend(icoun)-iwini(icoun)+1 !counter check
+!               endassociate
+!             endblock TimeConsumingRcxq
+! 1000      enddo icounloop
+        ! 1500    enddo kloop
+2000   continue
+        write(stdo,ftox)"--- x0kf_v4hz: end",sum(abs(rcxq(:,:,1:nwhis,1:npm))) !,sum((rcxq(:,:,1:nwhis,1:npm)))
+      endblock x0kf_v4hz_block
+      deallocate(whwc, kc, iwini,iwend, itc,itpc, jpmc,icouini, nkmin,nkmax,nkqmin,nkqmax,icounkmin,icounkmax)
+      HilbertTransformation:if(isp_k==nsp .OR. chipm) then
+        !Get real part. When chipm=T, do dpsion5 for every isp_k; When =F, do dpsion5 after rxcq accumulated for spins
+        call dpsion5(realomega, imagomega, rcxq, npr,npr, zxq, zxqi, chipm, schi,isp_k,  ecut,ecuts) 
+        deallocate(rcxq)
+      endif HilbertTransformation 
+1103 enddo isloop
+  end subroutine x0kf_zxq
   subroutine deallocatezxq()
     deallocate(zxq)
   end subroutine deallocatezxq

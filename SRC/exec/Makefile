@@ -6696,6 +6696,30 @@ home/takao/ecalj/SRC/subroutines/wse.f90.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/wse.f90.s
 .PHONY : home/takao/ecalj/SRC/subroutines/wse.f90.s
 
+home/takao/ecalj/SRC/subroutines/x0gpu.o: home/takao/ecalj/SRC/subroutines/x0gpu.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/x0gpu.o
+
+# target to build an object file
+home/takao/ecalj/SRC/subroutines/x0gpu.f90.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/x0gpu.f90.o
+.PHONY : home/takao/ecalj/SRC/subroutines/x0gpu.f90.o
+
+home/takao/ecalj/SRC/subroutines/x0gpu.i: home/takao/ecalj/SRC/subroutines/x0gpu.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/x0gpu.i
+
+# target to preprocess a source file
+home/takao/ecalj/SRC/subroutines/x0gpu.f90.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/x0gpu.f90.i
+.PHONY : home/takao/ecalj/SRC/subroutines/x0gpu.f90.i
+
+home/takao/ecalj/SRC/subroutines/x0gpu.s: home/takao/ecalj/SRC/subroutines/x0gpu.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/x0gpu.s
+
+# target to generate assembly for a file
+home/takao/ecalj/SRC/subroutines/x0gpu.f90.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ecaljF.dir/build.make CMakeFiles/ecaljF.dir/home/takao/ecalj/SRC/subroutines/x0gpu.f90.s
+.PHONY : home/takao/ecalj/SRC/subroutines/x0gpu.f90.s
+
 home/takao/ecalj/SRC/subroutines/x0kf_v4h.o: home/takao/ecalj/SRC/subroutines/x0kf_v4h.f90.o
 .PHONY : home/takao/ecalj/SRC/subroutines/x0kf_v4h.o
 
@@ -8517,6 +8541,9 @@ help:
 	@echo "... home/takao/ecalj/SRC/subroutines/wse.o"
 	@echo "... home/takao/ecalj/SRC/subroutines/wse.i"
 	@echo "... home/takao/ecalj/SRC/subroutines/wse.s"
+	@echo "... home/takao/ecalj/SRC/subroutines/x0gpu.o"
+	@echo "... home/takao/ecalj/SRC/subroutines/x0gpu.i"
+	@echo "... home/takao/ecalj/SRC/subroutines/x0gpu.s"
 	@echo "... home/takao/ecalj/SRC/subroutines/x0kf_v4h.o"
 	@echo "... home/takao/ecalj/SRC/subroutines/x0kf_v4h.i"
 	@echo "... home/takao/ecalj/SRC/subroutines/x0kf_v4h.s"
