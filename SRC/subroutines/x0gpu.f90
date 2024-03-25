@@ -1,28 +1,42 @@
 !>Accumulating rxcq
 subroutine x0gpu(rcxq,npr,nwhis,npm) 
   use m_readQG,only:      ngpmx
-  use m_genallcf_v3,only: nlmto
+  use m_genallcf_v3,only: nlmto,natom
   use m_readhbe,only:     nband
+  use m_rdpp,only:        mdimx
+  use m_genallcf_v3,only: nlnmx,nclass
+  use m_x0kf,only:        nqini,nqmax,ns1,ns2
+  use m_rdpp,only:        nbloch,nblocha 
   implicit none
+  intent(in)::        npr,nwhis,npm
+  intent(inout)::rcxq
   integer:: nwhis,npm,npr                !dim of rcxq
+  complex(8),parameter:: img=(0d0,1d0),tpi= 8d0*datan(1d0)
   complex(8):: rcxq(npr,npr,nwhis,npm) !accumulating to rcxq
   ! SetByCPU
-  integer:: ngp1, ngp2, ngvecpB1(3,ngpmx),ngvecpB2(3,ngpmx),nadd(3),ncc
   real(8):: symope(3,3),kvec(3)
+  integer:: ncc,ngp1, ngp2, ngvecpB1(3,ngpmx),ngvecpB2(3,ngpmx),nadd(3)
   complex(8):: cphiq(nlmto,nband), cphim(nlmto,nband)
   complex(8),allocatable:: geigq(:,:),dgeigqk(:,:)
   integer,allocatable:: ngveccR(:,:)
+  real(8):: ppb(nlnmx,nlnmx,mdimx,nclass) ! ppb= <Phi(SLn,r-R)_q,isp1 |Phi(SL'n',r-R)_qk,isp2 B_k(S,i,rot^{-1}(r-R))>
+  real(8):: tr(3,natom),shtv(3)
+  complex(8):: phasea(natom) 
+  integer:: iasx(natom),icsx(natom),imdim(natom),iatomp(natom),nmini,nmmax,nmtot,nqtot,nt0,ntp0
   SetByCPU :block
+    use m_zmel,only: miat,tiat,shtvg,ppbir
     use m_x0kf,only: qrk,qq,ispm,ispq
     use m_hamindex,only: symgg=>symops
     use m_readeigen,only: readcphif,readgeigf
     use m_read_ppovl,only: getppx2, ngvecc,ngcread
     use m_readVcoud,only: ngc,ngb 
     use m_itq,only: itq,ntq
-    use m_genallcf_v3,only: plat,nctot
+    use m_genallcf_v3,only: plat,nctot,iclass,nlnmv,ncore
     use m_read_bzdata,only: qlat
     use m_readQG,only: ngpmx,ngcmx,Readqg
+    integer::ia,invr
     real(8)::qk(3),rkvec(3),qdiff(3),qkt(3),qrkt(3)
+    symope= reshape([1d0,0d0,0d0,0d0,1d0,0d0,0d0,0d0,1d0],shape=[3,3]) !symgg(:,:,irot) !irot=1 should be E=[1,0,0, 0,1,0, 0,0,1]
     kvec =  qq
     qk   =  qrk - qq ! qk = rk. rk is inside 1st BZ, not restricted to the irreducible BZ
     ncc=merge(0,nctot,npm==1)
@@ -30,11 +44,10 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
       cphiq(1:nlmto,1:ntq) = cphitemp(1:nlmto,itq(1:ntq)) 
     endassociate
     cphim = readcphif(qk, ispm)
-    symope= reshape([1d0,0d0,0d0,0d0,1d0,0d0,0d0,0d0,1d0],shape=[3,3]) !symgg(:,:,irot) !irot=1 should be E=[1,0,0, 0,1,0, 0,0,1]
     if(ngc/=0) then
       call readqg('QGpsi',qrk, qrkt, ngp1, ngvecpB1) ! qrk= q+rk is mapped to qrkt in BZ
       call readqg('QGpsi',qk,   qkt, ngp2, ngvecpB2) ! qk = rk
-      qdiff = matmul(symope,kvec)-qrkt+qkt ! q - qrkt + qkt can be not zero. <M(q) Phi(qk) |Phi(qrk)>
+      qdiff = kvec-qrkt+qkt ! q - qrkt + qkt can be not zero. <M(q) Phi(qk) |Phi(qrk)>
       nadd = nint(matmul(transpose(plat), qdiff)) !nadd: difference in the unit of reciprocal lattice vectors.
       call getppx2(qlat,kvec) ! initialize m_read_ppovl
       if(ngc/=ngcread) call rx( 'melpln2t: ngc/= ngcx by getppx:PPOVLG')
@@ -44,48 +57,39 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
     geigq   = readgeigf(qrk, ispq) ! IPW part at qrk !G1 for ngp1
     dgeigqk = readgeigf(qk,ispm)   ! IPW part at qk  !G2 for ngp2
     dgeigqk = dconjg(dgeigqk)
-  end block SetByCPU
-  !We have to send all variables SetByCPU. rcxq should be kept in GPU during kloop:do 1500 in x0kf_v4hz
-  GPUblock:block
-    use m_x0kf,only: ns1,ns2,ispm,ispq,nqini,nqmax,icounkmink,icounkmaxk
-    use m_x0kf,only: iwini,iwend,itc,itpc,jpmc,icouini,whwc
-    use m_zmel,only: nbb,miat,tiat,shtvg,ppbir,ppovlz
-    use m_genallcf_v3,only: nctot,nclass,natom, nlmto, iclass,nlnmv,nlnmc,icore,ncore,ecore,nlnmx
-    use m_readVcoud,only: ngc,ngb 
-    use m_rdpp,only: mdimx,nbloch,nblocha 
-    use m_read_bzdata,only: nqbz,nqibz, qlat,ginv,qbz,qibz,wbz
-    use m_read_ppovl,only: igggi,igcgp2i,nxi,nxe,nyi,nye,nzi,nze,nvgcgp2,ngcgp,ggg,ppovlinv
-    use m_itq,only: itq,ntq
-    complex(8),parameter:: img=(0d0,1d0),tpi= 8d0*datan(1d0)
-    integer:: isp,ncnv,ncorec,nccc,mdim,it,ia,irot=1
-    integer:: i,iap,ias,ib,ic,icp,nc,nc1,nv,ics,itp,iae,ims,ime
-    integer:: icoun,nmini,nmmax,nmtot,nqtot,nt0,ntp0,invr,igb1,igb2,iw
-    integer:: iasx(natom),icsx(natom),iatomp(natom),imdim(natom)
-    real(8):: ppb(nlnmx,nlnmx,mdimx,nclass) ! ppb= <Phi(SLn,r-R)_q,isp1 |Phi(SL'n',r-R)_qk,isp2 B_k(S,i,rot^{-1}(r-R))>
-    real(8):: tr(3,natom),shtv(3)
-    complex(8),allocatable :: zmel(:,:,:) ! zmel(nbb,nmtot, nqtot), nbb:mixproductbasis, nmtot:middlestate, nq
-    logical:: zmelconjg=.true.
-    ! Former part for generating zmel is the copy of get_zmel_init in m_zmel.f90
-    ppb = ppbir(:,:,:,:,irot,ispq)           !MPB has no spin dependence
+    ppb = ppbir(:,:,:,:,1,ispq)           !MPB has no spin dependence irot=1
     invr  = 1 !invgx(irot=1)       !invrot (irot,invgx,ngrp) ! Rotate atomic positions invrot*R = R' + T
     tr    = tiat(:,:,invr)
     iatomp= miat(:,invr)
-    shtv  = shtvg(:,invr) !matmul(symope,shtvg(:,invr))
     imdim = [( sum(nblocha(iclass(1:ia-1)))+1  ,ia=1,natom)]
     iasx=[(sum(nlnmv(iclass(1:ia-1)))+1,ia=1,natom)]
     icsx=[(sum(ncore(iclass(1:ia-1))),ia=1,natom)]
+    shtv  = shtvg(:,invr) !matmul(symope,shtvg(:,invr))
     nmini = ns1          !starting index of middle state  (nctot+nvalence order)
     nmmax = ns2-nctot    !end      index of middle state  (nctot+nvalence order)
     nt0= nmmax-nmini+1
     ntp0=nqmax-nqini+1
     nmtot  = nctot + nt0     ! = phi_middle nmtot=ns2-ns1+1
     nqtot  = ncc   + ntp0    ! = phi_end
-    ZmelBlock:block
+    phasea = [(exp(-img *tpi* sum(kvec*tr(:,ia))),ia=1,natom)] 
+  end block SetByCPU
+  !We have to send all variables SetByCPU. rcxq should be kept in GPU during kloop:do 1500 in x0kf_v4hz
+  GPUblock:block
+    use m_zmel,only: ppovlz,nbb
+    use m_x0kf,only: icounkmink,icounkmaxk, iwini,iwend,itc,itpc,jpmc,icouini,whwc
+    use m_genallcf_v3,only: nctot,natom, nlmto, iclass,nlnmv,nlnmc,icore,ncore,ecore,nlnmx
+    use m_read_ppovl,only: igggi,igcgp2i,nxi,nxe,nyi,nye,nzi,nze,nvgcgp2,ngcgp,ggg,ppovlinv
+    use m_read_bzdata,only: qlat
+    use m_readVcoud,only: ngc,ngb 
+    use m_itq,only: itq,ntq
+    integer:: icoun,igb1,igb2,iw,ia
+    complex(8),allocatable :: zmel(:,:,:) ! zmel(nbb,nmtot,nqtot), nbb:mixproductbasis, nmtot:middlestate, nq
+    logical,parameter   :: zmelconjg=.true.
+    ZmelBlock: block ! ZmelBlock is a part of copy of get_zmel_init in m_zmel.f90
       complex(8):: zmelt(1:nbloch+ngc,nmtot,nqtot)
       zmelt=0d0
       ZmelWithinMT: block !- Calculates <psi_q(itp) |psi_qk(it) B_k(rot(r-R))> 
-        complex(8):: phasea(natom) 
-        phasea = [(exp(-img *tpi* sum(kvec*tr(:,ia))),ia=1,natom)] 
+        integer:: i,iap,ias,ib,ic,icp,nc,nc1,nv,ics,itp,iae,ims,ime, ncnv,ncorec,nccc,mdim,it
         iatomloop: do concurrent(ia = 1:natom)
           ic    = iclass(ia)
           nc    = nlnmc(ic) !nlnmc      = number of l,n,m for core states
