@@ -153,13 +153,12 @@ contains
       !       read(ix0) whwc, kc, iwini,iwend, itc,itpc, jpmc,icouini, nkmin,nkmax,nkqmin,nkqmax
       !       close(ix0)
       x0kf_v4hz_block: block !call x0kf_v4hz(q,isp_k,isp_kq,iq, npr,q00,chipm,nolfco,zzr,nmbas)
-!        use m_x0gpu,only: x0gpu
         integer:: k,jpm, ibib, iw,igb2,igb1,it,itp, nkmax1,nkqmax1, ib1, ib2, ngcx,ix,iy,igb
-        integer:: izmel,ispold,nmtot,nqtot ,ispold2,ierr,iwmax,ifi0,icoucold,icoun
+        integer:: izmel,nmtot,nqtot,ierr,iwmax,ifi0,icoucold,icoun
         integer:: nwj(nwhis,npm),imb, igc ,neibz,icc,ig,ikp,i,j,itimer,icount, kold 
         real(8):: imagweight, wpw_k,wpw_kq,qa,q0a 
         complex(8):: img=(0d0,1d0)
-        logical :: cmdopt0
+        logical :: cmdopt0,GPUTEST
         logical,parameter:: debug=.false.
         if(.not.allocated(rcxq)) allocate( rcxq(npr,npr,nwhis,npm),source=(0d0,0d0)) 
         zmel0mode: if(cmdopt0('--zmel0')) then ! For epsPP0. Use zmel-zmel0 (for subtracting numerical error) for matrix elements.
@@ -191,46 +190,44 @@ contains
           endblock zmel0block
           goto 2000 
         endif zmel0mode
-!        kold = -999
-!        icoucold=-999
-        ! rcxq(ibg1,igb2,iw) = sum_ibib wwk(iw,ibib)* <M_ibg1(q) psi_it(k)| psi_itp(q+k)> < psi_itp | psi_it M_ibg2 > at q
-        kloop:do 1500 k=1,nqbz !zmel = < M(igb q) phi( rk it occ)|  phi(q+rk itp unocc)>
-          if(cmdopt0('--emptyrun')) cycle
-          qq = q
-          qrk= q+rk(:,k)
-          ns1=nkmin(k)+nctot
-          ns2=nkmax(k)+nctot
-          icounkmink=icounkmin(k)
-          icounkmaxk=icounkmax(k)
-          ispm=isp_k
-          nqini=nkqmin(k)
-          nqmax=nkqmax(k)
-          ispq=isp_kq
-          call x0gpu(rcxq,npr,nwhis,npm)
-1500    enddo kloop
-!         kloop:do 1500 k=1,nqbz !zmel = < M(igb q) phi( rk it occ)|  phi(q+rk itp unocc)>
-!           if(cmdopt0('--emptyrun')) cycle
-!           call get_zmel_init(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
-!                nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false.,zmelconjg=.true.)
-!           icounloop: do 1000 icoun=icounkmin(k),icounkmax(k)
-!           ! call get_zmel_init is equivalent to call x0kf_zmel(q, k, isp_k,isp_kq) 
-!             TimeConsumingRcxq: block 
-!               complex(8):: zmelzmel(npr,npr)
-!               if(debug) write(stdo,ftox)'icoun: iq k jpm it itp n(iw)=',icoun,iq,k,jpm,it,itp,iwend(icoun)-iwini(icoun)+1
-!               associate( &
-!                    jpm => jpmc(icoun),&  !\pm omega 
-!                    it  => itc (icoun),&  !occ      at k
-!                    itp => itpc(icoun))   !unocc    at q+k
-!                 do concurrent(igb1=1:npr,igb2=1:npr) 
-!                   zmelzmel(igb1,igb2)= dconjg(zmel(igb1,it,itp))*zmel(igb2,it,itp) 
-!                 enddo
-!                 forall(iw=iwini(icoun):iwend(icoun))& !rcxq is hermitian, thus, we can reduce computational time half.
-!                      rcxq(:,:,iw,jpm)=rcxq(:,:,iw,jpm)+ whwc(iw-iwini(icoun)+icouini(icoun))* zmelzmel(:,:) !may use zaxpy and symmetrize afterwards
-!                 !forall(iw=iwini(icoun):iwend(icoun)) nwj(iw,jpm)=nwj(iw,jpm)+iwend(icoun)-iwini(icoun)+1 !counter check
-!               endassociate
-!             endblock TimeConsumingRcxq
-! 1000      enddo icounloop
-        ! 1500    enddo kloop
+        if(cmdopt0('--emptyrun')) goto 1590
+        GPUTEST=.true.
+        if(GPUTEST) then
+          ! rcxq(ibg1,igb2,iw) = \sum_ibib wwk(iw,ibib)* <M_ibg1(q) psi_it(k)| psi_itp(q+k)> < psi_itp | psi_it M_ibg2 > at q
+          kloop:do 1500 k=1,nqbz !zmel = < M(igb q) phi( rk it occ)|  phi(q+rk itp unocc)>
+            qq   = q;              qrk  = q+rk(:,k)
+            ispm = isp_k;          ispq = isp_kq
+            ns1  = nkmin(k)+nctot; ns2  = nkmax(k)+nctot
+            nqini= nkqmin(k);      nqmax= nkqmax(k)
+            icounkmink= icounkmin(k); icounkmaxk= icounkmax(k)
+            call x0gpu(rcxq,npr,nwhis,npm)
+1500      enddo kloop
+        else ! NOTE: kloop10:do 1510 is equivalent to do 1500. 2024-3-25
+          kloop10:do 1510 k=1,nqbz !zmel = < M(igb q) phi( rk it occ)|  phi(q+rk itp unocc)>
+            if(cmdopt0('--emptyrun')) cycle
+            call get_zmel_init(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
+                 nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false.,zmelconjg=.true.)
+            icounloop: do 1000 icoun=icounkmin(k),icounkmax(k)
+              ! call get_zmel_init is equivalent to call x0kf_zmel(q, k, isp_k,isp_kq) 
+              TimeConsumingRcxq: block 
+                complex(8):: zmelzmel(npr,npr)
+                if(debug) write(stdo,ftox)'icoun: iq k jpm it itp n(iw)=',icoun,iq,k,jpm,it,itp,iwend(icoun)-iwini(icoun)+1
+                associate( &
+                     jpm => jpmc(icoun),&  !\pm omega 
+                     it  => itc (icoun),&  !occ      at k
+                     itp => itpc(icoun))   !unocc    at q+k
+                  do concurrent(igb1=1:npr,igb2=1:npr) 
+                    zmelzmel(igb1,igb2)= dconjg(zmel(igb1,it,itp))*zmel(igb2,it,itp) 
+                  enddo
+                  forall(iw=iwini(icoun):iwend(icoun))& !rcxq is hermitian, thus, we can reduce computational time half.
+                       rcxq(:,:,iw,jpm)=rcxq(:,:,iw,jpm)+ whwc(iw-iwini(icoun)+icouini(icoun))* zmelzmel(:,:) !may use zaxpy and symmetrize afterwards
+                  !forall(iw=iwini(icoun):iwend(icoun)) nwj(iw,jpm)=nwj(iw,jpm)+iwend(icoun)-iwini(icoun)+1 !counter check
+                endassociate
+              endblock TimeConsumingRcxq
+1000        enddo icounloop
+1510      enddo kloop10
+        endif
+1590    continue
 2000   continue
         write(stdo,ftox)"--- x0kf_v4hz: end",sum(abs(rcxq(:,:,1:nwhis,1:npm))) !,sum((rcxq(:,:,1:nwhis,1:npm)))
       endblock x0kf_v4hz_block

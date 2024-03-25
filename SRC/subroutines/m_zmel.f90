@@ -98,6 +98,7 @@ contains
       enddo
     endblock ppbafp_v2_zmel
   end subroutine mptauof_zmel
+  
   subroutine get_zmel_init(q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc, iprx,zmelconjg)
     use m_readeigen,only: readcphif 
     use m_readeigen,only: readgeigf
@@ -190,6 +191,7 @@ contains
       dgeigqk = readgeigf(qk,ispm) !read IPW part at qk  !G2 for ngp2
       dgeigqk = dconjg(dgeigqk)
     endif
+
     
     ppb = ppbir(:,:,:,:,irot,ispq)           !MPB has no spin dependence
     invr  = invg(irot)       !invrot (irot,invg,ngrp) ! Rotate atomic positions invrot*R = R' + T
@@ -261,9 +263,9 @@ contains
             igcgp2i_(igc,igp2)=igcgp2i(nn(1),nn(2),nn(3))
           enddo
           phase(:)=[(exp( -img*tpi*sum((matmul(symope,kvec)+matmul(qlat,ngveccR(:,igc)))*shtv) ),igc=1,ngc)]
-!          associate(&
-!               geigq   => readgeigf(q, ispq),&        !read IPW part at q   !G1 for ngp1
-!               dgeigqk => dconjg(readgeigf(qk,ispm))) !read IPW part at qk  !G2 for ngp2
+          !          associate(&
+          !               geigq   => readgeigf(q, ispq),&         !read IPW part at q   !G1 for ngp1
+          !               dgeigqk => dconjg(readgeigf(qk,ispqk))) !read IPW part at qk  !G2 for ngp2
             ggitp(:,:)= matmul(gggmat,geigq(1:ngp1,itq(nqini:nqmax)))
             do concurrent (itp= 1:ntp0) !=== this may be time-consuming block (or maynot)==================
               associate( ggitp_=>reshape([((ggitp(igcgp2i_(igc,igp2),itp),igc=1,ngc),igp2=1,ngp2)],shape=[ngc,ngp2]))
@@ -271,7 +273,7 @@ contains
               endassociate
             enddo
             forall(igc=1:ngc) zmelp0(igc,:,:)=phase(igc)*zmelp0(igc,:,:) 
-!          endassociate
+            !          endassociate
           call matm(ppovlinv,zmelp0,zmelt(nbloch+1:nbloch+ngc,nctot+1:nctot+nt0,ncc+1:ncc+ntp0),ngc,ngc,ntp0*nt0)
         endblock ZmelIPW
       endif
