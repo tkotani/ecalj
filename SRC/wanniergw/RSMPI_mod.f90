@@ -32,14 +32,14 @@ contains
   subroutine RSMPI_Init()
     implicit none
     call MPI_INIT(ierror_rsmpi)
-    call RSMPI_Check("MPI_INIT",ierror_rsmpi)
+!    call RSMPI_Check("MPI_INIT",ierror_rsmpi)
 
     t1 = MPI_WTIME()
 
     call MPI_COMM_SIZE(MPI_COMM_WORLD,nproc_rsmpi,ierror_rsmpi)
-    call RSMPI_Check("MPI_COMM_SIZE",ierror_rsmpi)
+!    call RSMPI_Check("MPI_COMM_SIZE",ierror_rsmpi)
     call MPI_COMM_RANK(MPI_COMM_WORLD,myrank_rsmpi,ierror_rsmpi)
-    call RSMPI_Check("MPI_COMM_RANK",ierror_rsmpi)
+!    call RSMPI_Check("MPI_COMM_RANK",ierror_rsmpi)
     if (Is_IO_Root_RSMPI()) then
        write(6,*) "RS: --- RSMPI_Init ---"
        write(6,*) "RS: Number of processes : ",nproc_rsmpi
@@ -71,18 +71,18 @@ contains
     write(myrank_id_rsmpi,'(i7.7)') myrank_rsmpi
   end subroutine RSMPI_Set_ID
   !--------------------------------------------------------
-  subroutine RSMPI_Check(func,ierror_in)
-    implicit none
-    character*(*) :: func
-    integer,intent(in) :: ierror_in
-    integer :: ireturn
-    if ((ierror_in /= MPI_SUCCESS)) then
-       !     if (Is_IO_Root_RSMPI()) then
-       write(6,*) "RS: MPI ERROR :", func," PROCID = ",myrank_id_rsmpi," ierror =",ierror_in,".Aborted."
-       ireturn = 99
-       call MPI_ABORT(MPI_COMM_WORLD,ireturn,ierror_rsmpi)
-    endif
-  end subroutine RSMPI_Check
+  ! subroutine RSMPI_Check(func,ierror_in)
+  !   implicit none
+  !   character*(*) :: func
+  !   integer,intent(in) :: ierror_in
+  !   integer :: ireturn
+  !   if ((ierror_in /= MPI_SUCCESS)) then
+  !      !     if (Is_IO_Root_RSMPI()) then
+  !      write(6,*) "RS: MPI ERROR :", func," PROCID = ",myrank_id_rsmpi," ierror =",ierror_in,".Aborted."
+  !      ireturn = 99
+  !      call MPI_ABORT(MPI_COMM_WORLD,ireturn,ierror_rsmpi)
+  !   endif
+  ! end subroutine RSMPI_Check
   !--------------------------------------------------------
 
   subroutine RSMPI_Stop(msg)
@@ -106,7 +106,7 @@ contains
   subroutine RSMPI_Finalize()
     implicit none
     call MPI_Barrier(MPI_COMM_WORLD,ierror_rsmpi)
-    call RSMPI_Check("MPI_Barrier",ierror_rsmpi)
+!    call RSMPI_Check("MPI_Barrier",ierror_rsmpi)
 
     call RSMPI_Print_WTime()
 
@@ -139,13 +139,13 @@ contains
     if ( .NOT. Is_IO_Root_RSMPI()) then
        call MPI_Send(buf_rsmpi,bufsize_rsmpi,MPI_CHARACTER, &
             io_root_rsmpi,tag,MPI_COMM_WORLD,ierror_rsmpi)
-       call RSMPI_Check("RSMPI_Write",ierror_rsmpi)
+!       call RSMPI_Check("RSMPI_Write",ierror_rsmpi)
     else
        do ip=0,nproc_rsmpi-1
           if (ip /= myrank_rsmpi) then
              call MPI_Recv(buf_rsmpi,bufsize_rsmpi,MPI_CHARACTER, &
                   ip,tag,MPI_COMM_WORLD,status,ierror_rsmpi)
-             call RSMPI_Check("RSMPI_Write",ierror_rsmpi)
+!             call RSMPI_Check("RSMPI_Write",ierror_rsmpi)
           endif
           isize = get_non_blank_rsmpi(bufsize_rsmpi,buf_rsmpi)
           if (isize /= 0) write(if_in,*) buf_rsmpi(1:isize)

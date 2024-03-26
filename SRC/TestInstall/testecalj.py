@@ -16,6 +16,7 @@ ttall=''
 npsize='4' #default
 np=False
 showt=False
+option=''
 for arg in sys.argv[1:]:
     if(arg=='--help'):
         ttall=''
@@ -31,7 +32,11 @@ for arg in sys.argv[1:]:
     if(arg=='gwall'):
         ttall="gas_eps_lmfh gas_epsPP_lmfh fe_epsPP_lmfh_chipm si_gw_lmfh gas_pw_gw_lmfh si_gwsc gas_gwsc nio_gwsc fe_gwsc ni_crpa srvo3_crpa"
         continue
+    #if(arg[0:2]=='--'):
+    #    option = option+" "+arg
     ttall=ttall+" "+arg
+#print('option=',option)
+#sys.exit()
 np4 = "-np "+npsize+" " # mpisize
 if(len(ttall)==0): #when no tests are specified
     testall="copt te zrt co cr3si6 felz gasls eras c crn cu na "\

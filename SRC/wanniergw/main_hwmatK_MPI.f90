@@ -214,14 +214,11 @@ subroutine hwmatK_MPI()
      write(6,*) ' ixc nz=',ixc, nz
      if(ixc==0) stop ' --- ixc=0 --- Choose computational mode!'
   endif
-
-  call MPI_Bcast(input3,3,MPI_INTEGER,io_root_rsmpi, &
-       MPI_COMM_WORLD,ierror_rsmpi)
-  call RSMPI_Check("MPI_Bcast(input3)",ierror_rsmpi)
+  call MPI_Bcast(input3,3,MPI_INTEGER,io_root_rsmpi, MPI_COMM_WORLD,ierror_rsmpi)
+!  call RSMPI_Check("MPI_Bcast(input3)",ierror_rsmpi)
   ixc=input3(1)
   nz=input3(2)
   idummy=input3(3)
-
   lomega0=.false.
   if (ixc==11) then
      ixc=1
@@ -551,11 +548,11 @@ subroutine hwmatK_MPI()
   endif
 
   nrw = nw
-  if (Is_IO_Root_RSMPI()) &
+!  if (Is_IO_Root_RSMPI()) &
        call getkeyvalue("GWinput","wmat_static",lstatic,default= .FALSE. )
-  call MPI_Bcast(lstatic,1,MPI_LOGICAL,io_root_rsmpi, &
-       MPI_COMM_WORLD,ierror_rsmpi)
-  call RSMPI_Check("MPI_Bcast(lstatic)",ierror_rsmpi)
+!  call MPI_Bcast(lstatic,1,MPI_LOGICAL,io_root_rsmpi, &
+!       MPI_COMM_WORLD,ierror_rsmpi)
+!  call RSMPI_Check("MPI_Bcast(lstatic)",ierror_rsmpi)
   if (lstatic) nrw = 0
 
   !... Readin eigen functions
@@ -644,40 +641,35 @@ subroutine hwmatK_MPI()
   nq         = nqibz
   allocate(q(3,nq))
   call dcopy   (3*nqibz,qibz,1,q,1)
-
   nspinmx = nspin
   if (laf) nspinmx =1
 !  write(6,*)'iqqqqqqqqqqqqq', iqall,iaf,laf,nspinmx,nspin
-!  stop
   close(ifqpnt)
  call getkeyvalue("GWinput","wmat_all",lfull,default= .FALSE. )
-
 if(lfull)then
-   write(6,*) 'because of the bug in nvfortran24.1 we can not pass nrws2 to wmatqk_MPI (kount,irot,nrws1,nrws2,nrws,'
+    write(6,*) 'NEEDtoExamin code main_hwmatK_MPI again ! '
+   write(6,*) ' Because of the bug in nvfortran24.1 we can not pass nrws2 to wmatqk_MPI (kount,irot,nrws1,nrws2,nrws.'
    write(6,*) ' Thus we call   wmatqk_MPI (kount,irot,1,1,1 , which means fixed value is passoed to.'
    write(6,*) ' If you need wmat_all, need to fix this part. or use fixed code with ifort/gfortran'
    call rx('wmat_all is not implemented because of the bug in nvfortran24.1')
 endif   
 
-  call MPI_Bcast(lfull,1,MPI_LOGICAL,io_root_rsmpi, MPI_COMM_WORLD,ierror_rsmpi)
-  call RSMPI_Check("MPI_Bcast(lfull)",ierror_rsmpi)
+!  call MPI_Bcast(lfull,1,MPI_LOGICAL,io_root_rsmpi, MPI_COMM_WORLD,ierror_rsmpi)
+!  call RSMPI_Check("MPI_Bcast(lfull)",ierror_rsmpi)
   print *, "Here!!!!!!!!!!!!!", lfull, lwssc!, nrws
   if (lfull) then
-     if (Is_IO_Root_RSMPI()) then
-        call getkeyvalue("GWinput","wmat_rcut1",rcut1, default=0.01d0 )
-        call getkeyvalue("GWinput","wmat_rcut2",rcut2, default=0.01d0 )
+!     if (Is_IO_Root_RSMPI()) then
+     call getkeyvalue("GWinput","wmat_rcut1",rcut1, default=0.01d0 )
+     call getkeyvalue("GWinput","wmat_rcut2",rcut2, default=0.01d0 )
         ! m, 070814
         call getkeyvalue("GWinput","wmat_WSsuper",lwssc,default=.true.)
-     endif ! Is_IO_Root_RSMPI
-     call MPI_Bcast(rcut1,1,MPI_DOUBLE_PRECISION,io_root_rsmpi, &
-          MPI_COMM_WORLD,ierror_rsmpi)
-     call RSMPI_Check("MPI_Bcast(rcut1)",ierror_rsmpi)
-     call MPI_Bcast(rcut2,1,MPI_DOUBLE_PRECISION,io_root_rsmpi, &
-          MPI_COMM_WORLD,ierror_rsmpi)
-     call RSMPI_Check("MPI_Bcast(rcut2)",ierror_rsmpi)
-     call MPI_Bcast(lwssc,1,MPI_LOGICAL,io_root_rsmpi, &
-          MPI_COMM_WORLD,ierror_rsmpi)
-     call RSMPI_Check("MPI_Bcast(lwssc)",ierror_rsmpi)
+!     endif ! Is_IO_Root_RSMPI
+!     call MPI_Bcast(rcut1,1,MPI_DOUBLE_PRECISION,io_root_rsmpi,  MPI_COMM_WORLD,ierror_rsmpi)
+!     call RSMPI_Check("MPI_Bcast(rcut1)",ierror_rsmpi)
+!     call MPI_Bcast(rcut2,1,MPI_DOUBLE_PRECISION,io_root_rsmpi,  MPI_COMM_WORLD,ierror_rsmpi)
+!     call RSMPI_Check("MPI_Bcast(rcut2)",ierror_rsmpi)
+!     call MPI_Bcast(lwssc,1,MPI_LOGICAL,io_root_rsmpi,           MPI_COMM_WORLD,ierror_rsmpi)
+!     call RSMPI_Check("MPI_Bcast(lwssc)",ierror_rsmpi)
      if (lwssc) then
         allocate(irws(n1*n2*n3*8),rws(3,n1*n2*n3*8),drws(n1*n2*n3*8))
         call wigner_seitz(alat,plat,n1,n2,n3,nrws,rws,irws,drws)
@@ -718,9 +710,8 @@ endif
      if (Is_IO_Root_RSMPI()) &
           call getkeyvalue("GWinput","wmat_rsite", rsite,3, &
           default=(/0.0d0,0.0d0,0.0d0/),status=ret)
-     call MPI_Bcast(rsite,3,MPI_DOUBLE_PRECISION,io_root_rsmpi, &
-          MPI_COMM_WORLD,ierror_rsmpi)
-     call RSMPI_Check("MPI_Bcast(rsite)",ierror_rsmpi)
+!     call MPI_Bcast(rsite,3,MPI_DOUBLE_PRECISION,io_root_rsmpi,   MPI_COMM_WORLD,ierror_rsmpi)
+!     call RSMPI_Check("MPI_Bcast(rsite)",ierror_rsmpi)
      rcut1 = 0.0d0
      rcut2 = 0.0d0
      nrws1 = 1
@@ -767,9 +758,8 @@ endif
   !     o            wgt0)
   if (Is_IO_Root_RSMPI()) &
        call getkeyvalue("GWinput","allq0i",allq0i,default= .FALSE. )!S.F.Jan06
-  call MPI_Bcast(allq0i,1,MPI_LOGICAL,io_root_rsmpi, &
-       MPI_COMM_WORLD,ierror_rsmpi)
-  call RSMPI_Check("MPI_Bcast(allq0i)",ierror_rsmpi)
+!  call MPI_Bcast(allq0i,1,MPI_LOGICAL,io_root_rsmpi,     MPI_COMM_WORLD,ierror_rsmpi)
+!  call RSMPI_Check("MPI_Bcast(allq0i)",ierror_rsmpi)
   call q0iwgt3(allq0i,symgg,ngrp,wqt,q0i,nq0i,     wgt0)                   ! added allq0i argument
   !--------------------------
   if (Is_IO_Root_RSMPI()) then
@@ -877,7 +867,7 @@ endif
   ! RS: set MPI parameters
   ! RS: see gwsrc/RSMPI_rotkindex_mod.F
   call MPI_Barrier(MPI_COMM_WORLD,ierror_rsmpi)
-  call RSMPI_Check("MPI_Barrier",ierror_rsmpi)
+!  call RSMPI_Check("MPI_Barrier",ierror_rsmpi)
   !      call setup_rotkindex(ngrp,irk,wgt0,bzcase(),nqibz,nq0i,nq)
   nq0ixxx=0
   !      call setup_rotkindex(ngrp,irk,wgt0,bzcase(),nqibz,nq0ixxx,1) ! nq=1
@@ -893,7 +883,7 @@ endif
      endif
   endif
   call MPI_Barrier(MPI_COMM_WORLD,ierror_rsmpi)
-  call RSMPI_Check("MPI_Barrier",ierror_rsmpi)
+!  call RSMPI_Check("MPI_Barrier",ierror_rsmpi)
   ! RS: openlogfile for each process
   if (ixc == 1) then
      ifile_rsmpi = iopen ('lwt_v.MPI'//myrank_id_rsmpi,1,3,0)
@@ -931,7 +921,7 @@ endif
   enddo
   ! ccccccccccccc
   call MPI_Barrier(MPI_COMM_WORLD,ierror_rsmpi)
-  call RSMPI_Check("MPI_Barrier",ierror_rsmpi)
+!  call RSMPI_Check("MPI_Barrier",ierror_rsmpi)
 
   if (Is_IO_Root_RSMPI()) then
      write(6,*) "RS: loop over spin --"
@@ -1035,21 +1025,21 @@ endif
           cw_iw_sum(nwf,nwf,nwf,nwf,nrws,niw))
      call MPI_AllReduce(rw_w,rw_w_sum,(nrw+1)*nwf**4*nrws, &
           MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierror_rsmpi)
-     call RSMPI_Check("MPI_AllReduce,rw_w",ierror_rsmpi)
+!     call RSMPI_Check("MPI_AllReduce,rw_w",ierror_rsmpi)
      rw_w = rw_w_sum
      call MPI_AllReduce(cw_w,cw_w_sum,(nrw+1)*nwf**4*nrws, &
           MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierror_rsmpi)
-     call RSMPI_Check("MPI_AllReduce,cw_w",ierror_rsmpi)
+!     call RSMPI_Check("MPI_AllReduce,cw_w",ierror_rsmpi)
      cw_w = cw_w_sum
 
      if (niw > 0) then
         call MPI_AllReduce(rw_iw,rw_iw_sum,niw*nwf**4*nrws, &
              MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierror_rsmpi)
-        call RSMPI_Check("MPI_AllReduce,rw_iw",ierror_rsmpi)
+!        call RSMPI_Check("MPI_AllReduce,rw_iw",ierror_rsmpi)
         rw_iw = rw_iw_sum
         call MPI_AllReduce(cw_iw,cw_iw_sum,niw*nwf**4*nrws, &
              MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierror_rsmpi)
-        call RSMPI_Check("MPI_AllReduce,cw_iw",ierror_rsmpi)
+!        call RSMPI_Check("MPI_AllReduce,cw_iw",ierror_rsmpi)
         cw_iw = cw_iw_sum
      endif                   ! niw
      deallocate(rw_w_sum,cw_w_sum,rw_iw_sum,cw_iw_sum)

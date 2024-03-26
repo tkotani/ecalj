@@ -11,7 +11,7 @@ subroutine get_nwf_MPI(nwf)
   endif
   call MPI_Bcast(nwf,1,MPI_INTEGER,io_root_rsmpi, &
        MPI_COMM_WORLD,ierror_rsmpi)
-  call RSMPI_Check("MPI_Bcast(nwf)",ierror_rsmpi)
+!  call RSMPI_Check("MPI_Bcast(nwf)",ierror_rsmpi)
 end subroutine get_nwf_MPI
 !===================================================================
 subroutine choose_wanband_MPI(iwbnd,nwf,nqbze,nspin)
@@ -138,7 +138,7 @@ subroutine choose_wanband_MPI(iwbnd,nwf,nqbze,nspin)
 
   call MPI_Bcast(iwbnd,nwf*nqbze*nspin,MPI_INTEGER,io_root_rsmpi, &
        MPI_COMM_WORLD,ierror_rsmpi)
-  call RSMPI_Check("MPI_Bcast(iwbnd)",ierror_rsmpi)
+!  call RSMPI_Check("MPI_Bcast(iwbnd)",ierror_rsmpi)
 
 end subroutine choose_wanband_MPI
 !===================================================================

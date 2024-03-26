@@ -14,7 +14,9 @@ contains
     integer,optional:: commin
     character(10):: i2char
     readtk=.true.
-    comm=merge(commin,MPI_COMM_WORLD,present(commin))
+    comm=MPI_COMM_WORLD
+    if(present(commin)) comm= commin
+    !comm=merge(commin,MPI_COMM_WORLD,present(commin))
     call mpi_comm_size(comm, nsize, ierr)
     call MPI_COMM_RANK(comm, procid, ierr )
     strprocid = trim(i2char(procid))

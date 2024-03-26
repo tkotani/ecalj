@@ -31,7 +31,7 @@ contains
 !    complex(8):: zxq(nmbas1,nmbas2,nw_i:nw)
     character(10):: i2char
     mreclx=mrecl
-    emptyrun=cmdopt0('--emptyrun')
+    emptyrun=.false. !cmdopt0('--emptyrun')
     if(init) then !initialization related to w4pmode, zw, tpioa...
        allocate( llw(nw_i:nw,nq0i),source=(1d99,0d0) )
        if(sum(ixyz)/=0) w4pmode= .TRUE. 
@@ -138,7 +138,7 @@ contains
 !    complex(8):: zxqi(nmbas1,nmbas2,niw)
     character(10):: i2char
     mreclx=mrecl
-    emptyrun=cmdopt0('--emptyrun')
+    emptyrun=.false. !cmdopt0('--emptyrun')
     if(init) then
        allocate( llwI(niw,nq0i) )
        init=.false.

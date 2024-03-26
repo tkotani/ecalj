@@ -1,14 +1,10 @@
 program main
   use m_cmdpath,only: setcmdpath
   use m_args,only: m_setargs
+  use m_lmfa,only:lmfa
   implicit none
   integer:: ierr
   include "mpif.h" 
-  interface
-     subroutine lmfa(commin) bind(C)  
-       integer,optional:: commin
-     end subroutine lmfa
-  end interface
   call mpi_init(ierr)
   call setcmdpath()
   call m_setargs()

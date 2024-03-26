@@ -14,7 +14,9 @@ contains
     implicit none
     character(1024*4) :: cwd, stdout
     integer,optional:: commin
-    comm= merge(commin,MPI_COMM_WORLD,present(commin))
+    comm=MPI_COMM_WORLD
+    if(present(commin)) comm= commin 
+    !merge(commin,MPI_COMM_WORLD,present(commin))
     call getcwd(cwd)           ! get current working directory
     call MPI_Init( mpi__info ) ! current working directory is changed if mpirun is not used
     call MPI_Comm_rank( comm, mpi__rank, mpi__info )
@@ -26,7 +28,9 @@ contains
     implicit none
     character(1024*4) :: cwd, stdout
     integer,optional:: commin
-    comm= merge(commin,MPI_COMM_WORLD,present(commin))
+    comm=MPI_COMM_WORLD
+    if(present(commin)) comm= commin
+    !comm= merge(commin,MPI_COMM_WORLD,present(commin))
     call getcwd(cwd)          ! get current working directory
     call MPI_Init( mpi__info ) ! current working directory is changed if mpirun is not used
     call MPI_Comm_rank( comm, mpi__rankMG, mpi__info )

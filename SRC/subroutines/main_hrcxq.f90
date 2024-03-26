@@ -92,9 +92,9 @@ subroutine hrcxq()
     npr=ngb
     call x0kf_zxq(realomega,imagomega,qp,iq,npr,schi, crpa=.false.,chipm=.false.,nolfco=.false.) !Get zxq,zxqi in m_x0kf
     if(debug) print *,'sumchk zxq=',sum(zxq),sum(abs(zxq)),' zxqi=',sum(zxqi),sum(abs(zxqi))
-    call WVRllwR(qp,iq,npr,npr) !WV=W-v in Random phase approximation. Write big files WVR and WVI. !-- emptyrun in it
+    call WVRllwR(qp,iq,npr,npr) !WV=W-v in RandomPhaseApproximation along realaxis. Write big files WVR.  --emptyrun in it
     call deallocatezxq()
-    call WVIllwI(qp,iq,npr,npr) 
+    call WVIllwI(qp,iq,npr,npr) !WV=W-v along imagaxis Write WVI --emptyrun in it 
     call deallocatezxqi()
 1001 enddo MainLoopToObtainZxq
    GetEffectiveWVatGammaCell: block !Get W-v(q=0): Divergent part and non-analytic constant part of W(0) calculated from llw
