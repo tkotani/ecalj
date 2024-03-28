@@ -11,6 +11,7 @@ workroot=testroot+'/work'
 shutil.rmtree(workroot,ignore_errors=True)
 os.mkdir(workroot)
 
+print('--- testecalj.py ---')
 "Set arguments"
 ttall=''
 npsize='4' #default
@@ -52,7 +53,7 @@ if(showt):
 "Install to bin"
 os.makedirs(bindir,exist_ok=True)
 exec='lmfa lmf run_arg job_pdos job_tdos ctrl2ctrlp.py a2vec.py \
- gwutil.py gwsc qg4gw hvccfp0 hsfp0_sc hqpe_sc hmaxloc hpsig_MPI huumat_MPI hwmatK_MPI hx0init hrcxq \
+ gwutil.py gwsc qg4gw hvccfp0 hsfp0_sc hqpe_sc hmaxloc hpsig_MPI huumat_MPI hwmatK_MPI hrcxq \
  rdata4gw_v2 heftet hbasfp0 gw_lmfh hx0fp0 hsfp0 hqpe eps_lmfh epsPP_lmfh epsPP_lmfh_chipm genMLWFx'
 for ex in exec.split():
     shutil.copy(ecaljroot+'/SRC/exec/'+ex,bindir)
