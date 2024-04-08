@@ -23,7 +23,7 @@ contains
     eh    = etot
     if (ipr > 0) then
        write(stdo,660) sev,valvef,sumtv, ekincore,rhoexc,utot,eh !sumec,xcore,
-660    format(/' m_mkehkf_etot1: Harris energy: (B.1) in JPSJ84,034702' &
+660    format('m_mkehkf_etot1: Harris energy: (B.1) in JPSJ84,034702' &
             /' Eb(band sum)= ',f15.6,' Vin*nin=',f15.6,' Ek=Eb-Vin*nin=',f15.6 &
             /' Ek(core)=',f15.6,' Exc=',f15.6,' Ees=',f15.6,' Eharris=',f15.6)
        write (stdl,720) utot,ekin,sev,etot
@@ -47,7 +47,7 @@ contains
     eks  = etot
     if (ipr > 0) then
        write (stdo,410) sumtv,sumtc,ekin,rhoexc,utot,eks
-410    format(/' m_mkehkf_etot2: Kohn-Sham energy:  Ek = Eband-Vin*nout' &
+410    format('m_mkehkf_etot2: Kohn-Sham energy:  Ek = Eband-Vin*nout' &
             /' Ek= ',f15.6,' Ekcore=',f17.6,' Ektot    =',f16.6 &
             /' Exc=',f15.6,' Ees   =',f17.6,' EKohnSham=',f16.6)
        if (nsp == 2) write(stdo,"(' Magnetic moment=',f13.6)") amom

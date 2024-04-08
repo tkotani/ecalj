@@ -283,7 +283,7 @@ contains
        close(ifii)
     endif GenerateTotalDOS
     if(tdos) call rx0('Done tdos mode:')
-    if(master_mpi) write(stdo,ftox)
+!    if(master_mpi) write(stdo,ftox)
 !    if(master_mpi.and.cmdopt0('--afsym')) write(stdo,ftox)' --afsym mode: AF symmetry lets us make bands of isp=2 from isp=1!'
     if(master_mpi.and.afsym) write(stdo,ftox)' afsym mode: AF symmetry lets us make bands of isp=2 from isp=1!'
     WRITEeigenvaluesConsole: if(master_mpi .AND. iprint()>=35) then

@@ -72,7 +72,7 @@ contains
     enddo
     vbar = vbar/sbar ! vbar =avg v(RMT) and optionally added to vconst
     vconst = -vbar 
-    if(ipr>=20) write (stdo,"(' smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst=',f9.6)") vconst
+    if(ipr>=20) write (stdo,"('smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst=',f9.6)") vconst
     if(master_mpi) then
        open(newunit=ifivsmconst,file='vessm.'//trim(sname))
        write(ifivsmconst,"(d23.15,a)") vconst, '!-(averaged electro static potential at MTs)'
@@ -294,14 +294,14 @@ contains
        if (lmxl(ib) == -1) cycle
        vrmt(ib) = vval(1,ib)*y0
     enddo
-    write(stdo,"(/' site class  ilm      vval',6x,'ves(rmax)')")
+    if(ipr>=50) write(stdo,"(/' site class  ilm      vval',6x,'ves(rmax)')")
     do  ib = 1, nbas
        if (lmxl(ib) == -1) cycle
        nlml = (lmxl(ib)+1)**2
        ic = ipc(ib)
-       if(ib==findloc([(ipc(ibas)==ic,ibas=1,nbas)],dim=1,value=.true.).or.ipr>60) then ! (ib == iclbas(ic,ipc)) then !findloc(ipc,value=ic) ) then !
+       if(ib==findloc([(ipc(ibas)==ic,ibas=1,nbas)],dim=1,value=.true.)) then ! (ib == iclbas(ic,ipc)) then !findloc(ipc,value=ic) ) then !
           do ilm = 1, nlml
-             if (ilm == 1) then;                    write(stdo,"(i4,2i6,2f12.6)") ib,ic,ilm,vval(ilm,ib),vrmt(ib)
+             if (ilm == 1.and.ipr>=50) then;                    write(stdo,"(i4,2i6,2f12.6)") ib,ic,ilm,vval(ilm,ib),vrmt(ib)
              elseif(dabs(vval(ilm,ib))>1d-6.AND.ipr>=50) then; write(stdo,"(10x,i6,f12.6)") ilm,vval(ilm,ib); endif
           enddo
        endif

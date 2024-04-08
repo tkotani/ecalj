@@ -455,7 +455,7 @@ contains
       if(nmixr > 0) call MPI_BCAST(a,nda*nsp*(mxsav+2)*2,MPI_DOUBLE_PRECISION, master,comm,ierr)
     endblock ReadPreviousIterations
     if(iprint() >= 20) then !this is needed for test
-       write(stdo,fmt=ftox, advance='no')' mixrho: sought',nmix,'iter from file '//trim(fnam)
+       write(stdo,fmt=ftox, advance='no')'mixrho: sought',nmix,'iter from file '//trim(fnam)
        write(stdo,fmt='("; read ",g0," RMS DQ=",es8.2e1)',advance='no') nmixr, rms2
        if (rmsdel/= 0) write(stdo,"('  last it=',es8.2e1)",advance='no')rmsdel
        write(stdo,*)

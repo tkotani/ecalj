@@ -55,7 +55,7 @@ contains
     use m_struc_def,only: s_rv1,s_sblock
     integer:: i,is,ib,kmax,lmxa,lmxh,nelt2,nlma,nlmh,iprint
     call tcn('m_mkpot_init')
-    if(iprint()>=10) write(stdo,"(a)")' m_mkpot_init: Making one-particle potential ...'
+    if(iprint()>=10) write(stdo,"(a)")'m_mkpot_init: Making one-particle potential ...'
     allocate( vesrmt(nbas))
     allocate( osmpot(n1,n2,n3,nsp)) 
     allocate( qmom(nlmxlx,nbas))
@@ -75,8 +75,7 @@ contains
     type(s_rv1):: orhoat_out(:,:)
     complex(8) :: smrho_out(:)
     call tcn('m_mkpot_energyterms')
-    if(master_mpi) write(stdo,*)
-    if(master_mpi) write(stdo,"(' m_mkpot_energyterms')")
+    if(master_mpi) write(stdo,"('m_mkpot_energyterms')")
     if(allocated(fes2_rv)) deallocate(fes2_rv)
     allocate(fes2_rv(3*nbas))
     call mkpot(0, smrho_out,orhoat_out, osmpot,osig,otau,oppi,fes2_rv,ohsozz,ohsopm) !job=0 is for no augmentation term
@@ -290,7 +289,7 @@ contains
     dq = smq+sqloc + qsmc+sqlocc + qbg -zsum !smooth part + local part + smoothcore + core local + qbackground -Z
     amom = smag+saloc !magnetic moment
     if(iprint() >= 30) then
-       write(stdo,"(' mkpot:',/'   Energy terms(Ry):',7x,'smooth',11x,'local',11x,'total')")
+       write(stdo,"('mkpot:',/'   Energy terms(Ry):',7x,'smooth',11x,'local',11x,'total')")
        write(stdo,680) &
             'rhoval*veff ',valfsm,valvfa,valvef, & !\int rho Veff
             'Eestatic    ',usm,uat,utot, & ! electrostatic energy
