@@ -32,6 +32,7 @@ subroutine hrcxq()
   use m_lgunit,only: m_lgunit_init,stdo
   use m_ftox
   use m_readVcoud,only: Readvcoud,ngb
+  use m_gpu,only: gpu_init
 !  use m_dpsion,only: dpsion5
   implicit none
   real(8),parameter:: pi = 4d0*datan(1d0),fourpi = 4d0*pi,sqfourpi= sqrt(fourpi)
@@ -49,6 +50,7 @@ subroutine hrcxq()
   logical,allocatable::   mpi__Qtask(:)
   integer,allocatable::   mpi__Qrank(:)
   call MPI__Initialize()
+  call gpu_init() 
   call M_lgunit_init()
   emptyrun=cmdopt0('--emptyrun')
   call MPI__consoleout('hrcxq')

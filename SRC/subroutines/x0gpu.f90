@@ -21,6 +21,9 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
   integer,allocatable:: ngveccR(:,:)
   real(8):: ppb(nlnmx,nlnmx,mdimx,nclass) ! ppb= <Phi(SLn,r-R)_q,isp1 |Phi(SL'n',r-R)_qk,isp2 B_k(S,i,rot^{-1}(r-R))>
   real(8):: tr(3,natom),shtv(3)
+
+  real(8) :: t1, t2, t1d, t2d
+
   complex(8):: phasea(natom) 
   integer:: iasx(natom),icsx(natom),imdim(natom),iatomp(natom),nmini,nmmax,nmtot,nqtot,nt0,ntp0
   SetByCPU :block
@@ -82,12 +85,24 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
     use m_read_bzdata,only: qlat
     use m_readVcoud,only: ngc,ngb 
     use m_itq,only: itq,ntq
-    integer:: icoun,igb1,igb2,iw,ia
+#ifdef __GPU
+    use openacc
+    use cudafor
+    ! use m_math_gpu, only: mm_op_c, mm_op_n, zmm
+    integer :: ierr
+    ! complex(8), allocatable, device :: zmel(:,:,:) ! zmel(nbb,nmtot,nqtot), nbb:mixproductbasis, nmtot:middlestate, nq
+    complex(8), allocatable :: zmel(:,:,:) ! zmel(nbb,nmtot,nqtot), nbb:mixproductbasis, nmtot:middlestate, nq
+#else
     complex(8),allocatable :: zmel(:,:,:) ! zmel(nbb,nmtot,nqtot), nbb:mixproductbasis, nmtot:middlestate, nq
+#endif
+    integer:: icoun,igb1,igb2,iw,ia
     logical,parameter   :: zmelconjg=.true.
+
+    call cpu_time(t1d)
     ZmelBlock: block ! ZmelBlock is a part of copy of get_zmel_init in m_zmel.f90
       complex(8):: zmelt(1:nbloch+ngc,nmtot,nqtot)
       zmelt=0d0
+      call cpu_time(t1)
       ZmelWithinMT: block !- Calculates <psi_q(itp) |psi_qk(it) B_k(rot(r-R))> 
         integer:: i,iap,ias,ib,ic,icp,nc,nc1,nv,ics,itp,iae,ims,ime, ncnv,ncorec,nccc,mdim,it
         iatomloop: do concurrent(ia = 1:natom)
@@ -124,6 +139,9 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
           endassociate
         enddo iatomloop
       endblock ZmelWithinMT
+      call cpu_time(t2)
+      print '(1x,A,F10.6)','x0gpu:zmel_withinMT', t2-t1
+      call cpu_time(t1)
       if(ngc/=0)then
         ZmelIPW:block  !> Mattrix elements <Plane psi |psi> from interstitial plane wave.
           integer:: igcgp2,nn(3),iggg,igp1,itp,igc,igp2,igcgp2i_(ngc,ngp2)
@@ -154,27 +172,145 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
         endblock ZmelIPW
         deallocate(geigq,dgeigqk)
       endif
+      call cpu_time(t2)
+      print '(1x,A,F10.6)','x0gpu:zmel_IPW', t2-t1
       allocate(zmel(nbb,ns1:ns2, nqtot))
+      ! allocate(zmel(nbb, nmtot*nqtot))
+!#ifdef __GPU
+!     !$acc data copyin(ppovlz, zmelt) 
+!      ierr = zmm(mm_op_c, mm_op_n, nbb, ngb, nmtot*nqtot, (1d0,0d0), ppovlz, ngb, zmelt, ngb, (0d0,0d0), zmel, ngb) 
+!      if(zmelconjg) then
+!      !$acc kernels
+!        zmel = dconjg(zmel)
+!      !$acc end kernels
+!      endif
+!      !$acc end data
+!#else
       call matm(dconjg(transpose(ppovlz)), zmelt, zmel,nbb,ngb,nmtot*nqtot) !MultiplePPOVLZ
       if(zmelconjg) zmel=dconjg(zmel)
+!#endif
     endblock ZmelBlock
-    icounloop: do 1000 icoun=icounkmink,icounkmaxk
-      TimeConsumingRcxq: block 
-        complex(8):: zmelzmel(npr,npr) 
-        associate( &
-             jpm => jpmc(icoun),&  !\pm omega 
-             it  => itc (icoun),&  !occ      at k
-             itp => itpc(icoun))   !unocc    at q+k
-          do concurrent(igb1=1:npr,igb2=1:npr) 
-            zmelzmel(igb1,igb2)= dconjg(zmel(igb1,it,itp))*zmel(igb2,it,itp) 
+    call cpu_time(t2d)
+    print '(1x,A,F10.6)','x0gpu:zmel', t2d-t1d
+
+    TimeConsumingRcxq: block 
+      complex(8):: zmelzmel(npr,npr) 
+      logical :: tacc = .true.
+      character(len=3) :: acway = 'cpu'
+      integer :: jpm, it, itp
+      integer :: iwmin, iwmax, nprpr, iprpr
+      real(8), allocatable :: rcxqr(:,:,:), rcxqi(:,:,:)
+      complex(8) :: zwz, zz
+
+      if(tacc) acway = 'acc'
+
+      print '(A,3I7)', 'iconn:', icounkmink,icounkmaxk, icounkmaxk-icounkmink
+      print '(A,2I7)', 'npr, nbb:', npr, nbb
+      print '(A,5I7)', 'ns1, ns2, nmtot, nqtot', ns1, ns2, nmtot, nqtot, nmtot*nqtot
+      nprpr = (npr*(npr+1))/2
+      call cputid(0)
+      call cpu_time(t1)
+      if(tacc) then
+        allocate(rcxqr(nprpr,nwhis,npm))
+        allocate(rcxqi(nprpr,nwhis,npm))
+        iwmin = icouini(icounkmink)
+        iwmax = icouini(icounkmaxk)+iwend(icounkmaxk)-iwini(icounkmaxk)
+        print *, 'iwmin,iwmax:', iwmin, iwmax, iwmax-iwmin
+        ierr = cudaDeviceSynchronize()
+        call cpu_time(t1d)
+        !$acc data create(rcxqr, rcxqi), copyin(zmel, jpmc(icounkmink:icounkmaxk), &
+        !$acc&     itc(icounkmink:icounkmaxk), itpc(icounkmink:icounkmaxk), &
+        !$acc&     iwini(icounkmink:icounkmaxk), iwend(icounkmink:icounkmaxk), &
+        !$acc&     icouini(icounkmink:icounkmaxk), whwc(iwmin:iwmax))
+
+        !$acc kernels
+        !$acc loop independent collapse(3)
+        do jpm=1, npm
+          do iw=1, nwhis
+            do iprpr = 1, nprpr
+              rcxqr(iprpr, iw, jpm) = 0d0
+              rcxqi(iprpr, iw, jpm) = 0d0
+            enddo
           enddo
-          do iw=iwini(icoun),iwend(icoun) !)& !rcxq is hermitian, thus, we can reduce computational time half.
-            rcxq(:,:,iw,jpm)=rcxq(:,:,iw,jpm)+ whwc(iw-iwini(icoun)+icouini(icoun))* zmelzmel(:,:) ! Use zaxpy and symmetrize?
+        enddo
+        !$acc end kernels
+
+        ierr = cudaDeviceSynchronize()
+        call cpu_time(t2d)
+
+        !$acc kernels
+        !$acc loop independent gang private(it, itp, jpm)
+        do icoun = icounkmink, icounkmaxk
+          jpm = jpmc(icoun)
+          it  = itc (icoun)
+          itp = itpc(icoun)
+
+          !$acc loop independent collapse(2) vector private(zwz, zz, iprpr)
+          do igb2 = 1, npr
+            do igb1 = 1, npr
+              if(igb1 > igb2) cycle
+              iprpr = ((igb2-1)*igb2)/2 + igb1
+              zz = dconjg(zmel(igb1,it,itp))*zmel(igb2,it,itp)
+
+              !$acc loop seq
+              do iw=iwini(icoun), iwend(icoun)
+                zwz = whwc(iw-iwini(icoun)+icouini(icoun))*zz
+                !$acc atomic update
+                rcxqr(iprpr, iw, jpm) = rcxqr(iprpr, iw, jpm) + dble(zwz)
+                !$acc end atomic
+                !$acc atomic update
+                rcxqi(iprpr, iw, jpm) = rcxqi(iprpr, iw, jpm) + imag(zwz)
+                !$acc end atomic
+              enddo
+
+            enddo
           enddo
+        enddo
+        !$acc end kernels
+
+        !$acc kernels
+        !$acc loop independent collapse(4) private(iprpr)
+        do jpm = 1, npm
+          do iw = 1, nwhis
+            do igb2 = 1, npr
+              do igb1 = 1, npr
+                if(igb1 > igb2) then
+                  iprpr = ((igb1-1)*igb1)/2 + igb2
+                  rcxq(igb1, igb2, iw, jpm) = rcxq(igb1, igb2, iw, jpm) + rcxqr(iprpr,iw,jpm) - rcxqi(iprpr,iw,jpm)*(0D0,1D0)
+                else
+                  iprpr = ((igb2-1)*igb2)/2 + igb1
+                  rcxq(igb1, igb2, iw, jpm) = rcxq(igb1, igb2, iw, jpm) + rcxqr(iprpr,iw,jpm) + rcxqi(iprpr,iw,jpm)*(0D0,1D0)
+                endif
+              enddo
+            enddo
+          enddo
+        enddo
+        !$acc end kernels
+
+        !$acc end data
+        deallocate(rcxqr, rcxqi)
+      else
+        icounloop: do 1000 icoun=icounkmink,icounkmaxk
+          associate( &
+               jpm => jpmc(icoun),&  !\pm omega 
+               it  => itc (icoun),&  !occ      at k
+               itp => itpc(icoun))   !unocc    at q+k
+            do concurrent(igb1=1:npr,igb2=1:npr) 
+              zmelzmel(igb1,igb2)= dconjg(zmel(igb1,it,itp))*zmel(igb2,it,itp) 
+            enddo
+            do iw=iwini(icoun),iwend(icoun) !)& !rcxq is hermitian, thus, we can reduce computational time half.
+              rcxq(:,:,iw,jpm)=rcxq(:,:,iw,jpm)+ whwc(iw-iwini(icoun)+icouini(icoun))* zmelzmel(:,:) ! Use zaxpy and symmetrize?
+            enddo
+          endassociate
           !forall(iw=iwini(icoun):iwend(icoun)) nwj(iw,jpm)=nwj(iw,jpm)+iwend(icoun)-iwini(icoun)+1 !counter check
-        endassociate
-      endblock TimeConsumingRcxq
-1000 enddo icounloop
+1000    enddo icounloop
+      endif
+
+      call cputid(0)
+      call cpu_time(t2)
+      print '(1x,A,A,2F10.6)','x0gpu:', acway,(t2-t1), (t2d-t1d)
+
+    endblock TimeConsumingRcxq
     deallocate(zmel)
   endblock GPUblock
 end subroutine x0gpu

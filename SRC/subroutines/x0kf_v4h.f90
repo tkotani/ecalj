@@ -63,6 +63,12 @@ contains
         enddo
       endif
       if(npm==2.AND.nkqmin(k)/=1)call rx( " When npm==2, nkqmin==1 should be.")
+      if (job == 1) then
+        do jpm = 1, npm
+          print '(A,2I4,2I5,3I7)', 'nhw(min,max), k,jpm:', k, jpm, minval(nhw(:,k,jpm)), maxval(nhw(:,k,jpm)), &
+          & sum(nhw(1:nbnbx,k,jpm)), nbnbx, sum(nhw(1:nbnbx,k,jpm))/nbnbx
+        enddo
+      endif
       jpmloop: do 1251 jpm  = 1, npm ! nplusminum=1 usually (or =2)
         ibibloop: do 125 ibib = 1, nbnb(k,jpm) !---  ibib loop, ibib is decomposed to band index pair, it and itp
           ! n1b,n2b --> core after valence.  it,itp --> valence after core 
@@ -194,6 +200,12 @@ contains
         GPUTEST=.true.
         if(GPUTEST) then
           ! rcxq(ibg1,igb2,iw) = \sum_ibib wwk(iw,ibib)* <M_ibg1(q) psi_it(k)| psi_itp(q+k)> < psi_itp | psi_it M_ibg2 > at q
+#ifdef __GPU
+!$acc enter data create(rcxq) 
+!$acc kernels
+        rcxq(1:npr,1:npr,1:nwhis,1:npm) = (0d0,0d0)
+!$acc end kernels
+#endif
           kloop:do 1500 k=1,nqbz !zmel = < M(igb q) phi( rk it occ)|  phi(q+rk itp unocc)>
             qq   = q;              qrk  = q+rk(:,k)
             ispm = isp_k;          ispq = isp_kq
@@ -202,6 +214,9 @@ contains
             icounkmink= icounkmin(k); icounkmaxk= icounkmax(k)
             call x0gpu(rcxq,npr,nwhis,npm)
 1500      enddo kloop
+#ifdef __GPU
+!$acc exit data copyout(rcxq)
+#endif
         else ! NOTE: kloop10:do 1510 is equivalent to do 1500. 2024-3-25
           kloop10:do 1510 k=1,nqbz !zmel = < M(igb q) phi( rk it occ)|  phi(q+rk itp unocc)>
             if(cmdopt0('--emptyrun')) cycle
