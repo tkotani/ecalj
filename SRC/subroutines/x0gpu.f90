@@ -6,13 +6,14 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
   use m_rdpp,only:        mdimx
   use m_genallcf_v3,only: nlnmx,nclass
   use m_x0kf,only:        nqini,nqmax,ns1,ns2
-  use m_rdpp,only:        nbloch,nblocha 
+  use m_rdpp,only:        nbloch,nblocha
+  use m_kind,only: kindrcxq
   implicit none
   intent(in)::        npr,nwhis,npm
   intent(inout)::rcxq
   integer:: nwhis,npm,npr                !dim of rcxq
   complex(8),parameter:: img=(0d0,1d0),tpi= 8d0*datan(1d0)
-  complex(8):: rcxq(npr,npr,nwhis,npm) !accumulating to rcxq
+  complex(kindrcxq):: rcxq(npr,npr,nwhis,npm) !accumulating to rcxq
   ! SetByCPU
   real(8):: symope(3,3),kvec(3)
   integer:: ncc,ngp1, ngp2, ngvecpB1(3,ngpmx),ngvecpB2(3,ngpmx),nadd(3)
@@ -160,16 +161,17 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
     endblock ZmelBlock
     icounloop: do 1000 icoun=icounkmink,icounkmaxk
       TimeConsumingRcxq: block 
-        complex(8):: zmelzmel(npr,npr) 
+        complex(8):: zmelzmel(npr,npr)
         associate( &
              jpm => jpmc(icoun),&  !\pm omega 
              it  => itc (icoun),&  !occ      at k
              itp => itpc(icoun))   !unocc    at q+k
-          do concurrent(igb1=1:npr,igb2=1:npr) 
-            zmelzmel(igb1,igb2)= dconjg(zmel(igb1,it,itp))*zmel(igb2,it,itp) 
+          do concurrent(igb1=1:npr,igb2=1:npr)
+             zmelzmel(igb1,igb2)= dconjg(zmel(igb1,it,itp))*zmel(igb2,it,itp)
           enddo
-          do iw=iwini(icoun),iwend(icoun) !)& !rcxq is hermitian, thus, we can reduce computational time half.
-            rcxq(:,:,iw,jpm)=rcxq(:,:,iw,jpm)+ whwc(iw-iwini(icoun)+icouini(icoun))* zmelzmel(:,:) ! Use zaxpy and symmetrize?
+          do iw=iwini(icoun),iwend(icoun) ! rcxq is hermitian, thus, we can reduce computational time half.
+             rcxq(:,:,iw,jpm)=rcxq(:,:,iw,jpm)+ whwc(iw-iwini(icoun)+icouini(icoun))* zmelzmel(:,:) ! Use zaxpy and symmetrize?
+             !call zaxpy(npr*npr,dcmplx(whwc(iw-iwini(icoun)+icouini(icoun))),zmelzmel,1,rcxq(1,1,iw,jpm),1)
           enddo
           !forall(iw=iwini(icoun):iwend(icoun)) nwj(iw,jpm)=nwj(iw,jpm)+iwend(icoun)-iwini(icoun)+1 !counter check
         endassociate
