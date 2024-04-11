@@ -37,6 +37,7 @@ def getlibF(fortranso,prt):
     return flib
 
 class callF:
+    import sys
     def __init__(self,foobar,arguments=[]):
         '''Equivalent to 'call foobar(a,b,c,...)' in fortran, where we supply arguments=[a,b,c,...]. 
         a,b,c,... are integer,logical, or real(8) in this version of callF.'''

@@ -87,7 +87,7 @@ contains
     call tcn('locpot')
     rhobg=qbg/vol
     ipr = iprint()
-    if (ipr >= 30) write(stdo,"('  locpot:')")
+    if (ipr >= 30) write(stdo,"('locpot:')")
     k = nrmx*nlmx*nsp
     allocate(efg(5,nbas),zz(nbas))
     xcore   = 0d0
@@ -129,7 +129,7 @@ contains
             if(ipr>0)write(stdo,ftox)' is=',is,'qsc0=',ftof(qsc0),'qsca',ftof(qsca(ib)),'qc',ftof(qc),'qc0',ftof(qc0)
             call rxs('problem in locpot -- possibly low LMXA or orbital mismatch, species ',spid)
          endif
-         if(ipr>= 20) write(stdo,"('   site',i3,'  z=',f7.3,'  rmt=',f8.5,'  nr=',i3,'   a=',f5.3, &
+         if(ipr>= 20) write(stdo,"(' site',i3,'  z=',f7.3,'  rmt=',f8.5,'  nr=',i3,'   a=',f5.3, &
               '  nlml=',i2,'  rg=',f5.3,'  Vfloat=',l1)") ib,z,rmt,nr,a,nlml,rg,lfltwf
          if(ipr>=30.and. kcor/=0 .and. sum(abs(qcor))/=0 ) write(stdo,ftox)&
               ' core hole: kcor=',kcor,'lcor=',lcor,'qcor amom=',ftof(qcor)
@@ -458,14 +458,12 @@ contains
         call poinsp(z,vval,nlml,v1out,rofi,rhol1t,wk,nr,rvs1,rhves1,  vnucl,vsum)
         ! v1out is with the b.c. vval detemined by \bar{n0}^Zcv. This is needed for pnunew (set energy at the center of gravity).
         if (nsp == 2) v1out(:,:,2)=v1out(:,:,1)
-!        write(6,*)'sssscheck',sum(rhol1),sum(abs(rhol1))
         call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rhol1,lxcfun,rep1,rep1x,rep1c,rmu1,v1out,fl,qs) !v1out is for radial basis and pnu.
         !xcore=0d0
         !do isp=1,nsp
         !   xcore=xcore+sum(rwgt(2:nr)*rhoc(2:nr,isp)*(y0*v1out(2:nr,1,isp)-2d0*z/rofi(2:nr)))
         !enddo
         xcore = sum([(sum(rwgt(2:nr)*rhoc(2:nr,isp)*(y0*v1out(2:nr,1,isp)-2d0*z/rofi(2:nr))),isp=1,nsp)]) ! Vin*rhoc
-!        stop 'qqqqqqqqqqqqqqq'
       endblock Getv1out
       v1esv2esgpotb: block
         call poinsp(0d0,[(0d0,i=1,nlml)],nlml,v2es,rofi,rhol2t,wk,nr,rvs2,rhves2, vnucl,vsum)! Ves[rhol2], Ves=0 at MTboundaries (vval=0).
@@ -530,7 +528,7 @@ contains
     rhovxc = rmu1  - rmu2
     valvef = vefv1 - vefv2  ! v1*rho1_val  - v2*rho2_val
     if (ipr >= 20) then
-       write(stdo,"(/' local terms:     true',11x,'smooth',9x,'local')")
+       write(stdo,"(' local terms:     true',11x,'smooth',9x,'local')")
        write(stdo,"(' rhoeps:  ',3f15.6/' rhomu:   ',3f15.6)") sum(rep1),sum(rep2),sum(rhoexc),rmu1(1),rmu2(1),rhovxc(1)
        if(nsp==2) write(stdo,"(' spin2:   ',3f15.6/' total:   ',3f15.6)")rmu1(2),rmu2(2),rhovxc(2),sum(rmu1),sum(rmu2),sum(rhovxc)
        write(stdo,"(' val*vef  ',3f15.6/' val chg: ',3f15.6)") vefv1,vefv2,valvef,qv1,qv2,qloc

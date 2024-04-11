@@ -232,7 +232,7 @@ contains
     enddo
     srhov   = srmesh + sraugm != n_out*Vin
     ekinval = sumev - srhov   != Eband - nout*Vin (V do not include SO term)
-    if(ipr>= 30) write(stdo,"(/a)")' mkekin:'
+    if(ipr>= 30) write(stdo,"(a)")'mkekin:'
     if(ipr>= 30) write(stdo,340) srmesh,sraugm,srhov,sumev,ekinval
 340 format('   nout*Vin = smpart,onsite,total=:',3f14.6,/'    E_B(band energy sum)=',f12.6,'  E_B-nout*Vin=',f12.6)
     call tcx('mkekin')

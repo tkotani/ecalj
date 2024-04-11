@@ -11,6 +11,7 @@ workroot=testroot+'/work'
 shutil.rmtree(workroot,ignore_errors=True)
 os.mkdir(workroot)
 
+print('--- testecalj.py ---')
 "Set arguments"
 ttall=''
 npsize='4' #default

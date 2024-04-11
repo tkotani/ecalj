@@ -1,3 +1,7 @@
+module m_lmfham1
+  public lmfham1
+  private
+contains
 !> PMT --1ststep--> MPO --2ndstep--> MLO. This is for 1ststep. called at the end of job_ham
 subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|MPO> and overlap <MPO|MPO>
   use m_HamPMT,only: ReadHamPMTInfo, HamPMTtoHamRsMPO, plat,npair,nlat,nqwgt,ldim,nkp,qplist,ib_table,alat,symops,ngrp
@@ -28,7 +32,7 @@ subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|
   include "mpif.h"
   call setcmdpath() !Set self-command path (this is for call system at m_lmfinit)
   call m_ext_init()         ! Get sname, e.g. trim(sname)=si of ctrl.si
-  call mpi_init(ierr)
+!  call mpi_init(ierr)
   call set_prgnam('lmfham1') ! mpi initialization
   call m_MPItk_init() ! mpi initialization
   call m_lgunit_init() !set stdo,stdl
@@ -153,3 +157,4 @@ subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|
   endblock GetEigenvaluesForSYML
   call rx0('OK! end of lmfham1. Get MPO Hamiltoian')
 end subroutine lmfham1
+end module m_lmfham1

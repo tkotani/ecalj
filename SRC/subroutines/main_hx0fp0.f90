@@ -403,6 +403,7 @@ contains
     if(cmdopt0('--intrabandonly')) itag='.intrabandonly'
     iqixc2 = iq- (nqibz+nq0ix)
     if(( .NOT. chipm) .AND. nolfco) then
+      if(allocated(x0mean)) deallocate(x0mean)
       allocate( x0mean(nw_i:nw,1,1) )
       x0mean=0d0
     endif

@@ -49,7 +49,7 @@ contains
     character(3):: charnum3 
 !    real(8)::  evlall(ndhamx,nspx,nkp)
     call tcn('m_bandcal_init')
-    if(master_mpi) write(stdo,ftox)' m_bandcal_init: start'
+    if(master_mpi) write(stdo,ftox)'m_bandcal_init: start'
     sigmamode = mod(lrsig,10)/=0
     writeham = cmdopt0('--writeham')
     PROCARon = cmdopt0('--mkprocar') !write PROCAR(vasp format).
@@ -217,8 +217,7 @@ contains
     complex(8),allocatable :: evec(:,:)!,evecbackup(:,:)
     logical:: cmdopt0
     call tcn('m_bandcal_2nd')
-    if(master_mpi) write(stdo,ftox)
-    if(master_mpi) write(stdo,ftox)' m_bandcal_2nd: to fill eigenfunctions**2 up to Efermi'
+    if(master_mpi) write(stdo,ftox)'m_bandcal_2nd: to fill eigenfunctions**2 up to Efermi'
     call dfqkkl( oqkkl ) !zero clear
     call dfqkkl( oeqkkl ) !zero clear if(lekkl==1) 
     if (lfrce>0)  frcband  = 0d0

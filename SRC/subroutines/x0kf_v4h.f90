@@ -15,10 +15,12 @@ module m_x0kf
   use m_tetwt,only:  gettetwt,tetdeallocate, whw,ihw,nhw,jhw,n1b,n2b,nbnb,nbnbx,nhwtot
   use m_ftox
   use m_readVcoud,only:   vcousq,zcousq,ngb,ngc
+  use m_kind,only:kindrcxq
   implicit none
   public:: x0kf_zxq, deallocatezxq, deallocatezxqi
   complex(8),public,allocatable:: zxq(:,:,:), zxqi(:,:,:)   !Not yet protected because of main_hx0fp0
-  complex(8),public,allocatable:: rcxq(:,:,:,:)
+  complex(kindrcxq),allocatable:: rcxq(:,:,:,:)
+!  complex(4),allocatable:: rcxq4(:,:,:,:)
   integer,public::npr
   private
   
@@ -129,16 +131,14 @@ contains
     if(realomega) allocate(zxq(npr,npr,nw_i:nw),source=(0d0,0d0))
     if(imagomega) allocate(zxqi(npr,npr,niw),source=(0d0,0d0))
     if(cmdopt0('--emptyrun'))  return
-    if(chipm .AND. nolfco) then
-      call setppovlz_chipm(zzr,npr)
-    else
-      call Setppovlz(q,matz=.true.)
+    if(chipm .AND. nolfco) then;  call setppovlz_chipm(zzr,npr)
+    else;                         call Setppovlz(q,matz=.true.)
     endif
     isloop: do 1103 isp_k = 1,nsp
       GETtetrahedronWeight:block
         isp_kq = merge(3-isp_k,isp_k,chipm) 
         do kx = 1, nqbz
-          ekxx1(1:nband,kx) = readeval(rk(:,kx),   isp_k ) ! read eigenvalue
+          ekxx1(1:nband,kx) = readeval(  rk(:,kx), isp_k ) ! read eigenvalue
           ekxx2(1:nband,kx) = readeval(q+rk(:,kx), isp_kq) !
         enddo
         call gettetwt(q,iq,isp_k,isp_kq,ekxx1,ekxx2,nband=nband) ! tetrahedron weight
@@ -146,18 +146,6 @@ contains
         ierr=x0kf_v4hz_init(1,q,isp_k,isp_kq,iq, crpa) 
         call tetdeallocate()
       endblock GETtetrahedronWeight
-      !       open(newunit=ix0,file='x0icount.'//trim(i2char(iq))//'_'//trim(i2char(isp_k)),form='unformatted')
-      !       write(ix0)ncount,ncoun
-      !       write(ix0) whwc, kc, iwini,iwend, itc,itpc, jpmc,icouini, nkmin,nkmax,nkqmin,nkqmax
-      !       deallocate(whwc, kc, iwini,iwend, itc,itpc, jpmc,icouini, nkmin,nkmax,nkqmin,nkqmax)
-      !       close(ix0)
-      !       open(newunit=ix0,file='x0icount.'//trim(i2char(iq))//'_'//trim(i2char(isp_k)),form='unformatted')
-      !       read(ix0) ncount,ncoun
-      !       if(allocated(whwc)) deallocate( whwc, kc, iwini,iwend, itc, itpc, jpmc, nkmin,nkmax,nkqmin,nkqmax)
-      !       allocate( whwc(ncount), kc(ncoun), iwini(ncoun),iwend(ncoun),itc(ncoun),itpc(ncoun), jpmc(ncoun),icouini(ncoun) )
-      !       allocate( nkmin(nqbz),nkmax(nqbz),nkqmin(nqbz),nkqmax(nqbz))
-      !       read(ix0) whwc, kc, iwini,iwend, itc,itpc, jpmc,icouini, nkmin,nkmax,nkqmin,nkqmax
-      !       close(ix0)
       x0kf_v4hz_block: block !call x0kf_v4hz(q,isp_k,isp_kq,iq, npr,q00,chipm,nolfco,zzr,nmbas)
         integer:: k,jpm, ibib, iw,igb2,igb1,it,itp, nkmax1,nkqmax1, ib1, ib2, ngcx,ix,iy,igb
         integer:: izmel,nmtot,nqtot,ierr,iwmax,ifi0,icoucold,icoun
@@ -166,7 +154,10 @@ contains
         complex(8):: img=(0d0,1d0)
         logical :: cmdopt0,GPUTEST
         logical,parameter:: debug=.false.
-        if(.not.allocated(rcxq)) allocate( rcxq(npr,npr,nwhis,npm),source=(0d0,0d0)) 
+        if(.not.allocated(rcxq)) then
+           allocate( rcxq(npr,npr,nwhis,npm))
+           rcxq=0d0
+        endif
         zmel0mode: if(cmdopt0('--zmel0')) then ! For epsPP0. Use zmel-zmel0 (for subtracting numerical error) for matrix elements.
           zmel0block : block
             real(8)::  q1a,q2a,rfac00

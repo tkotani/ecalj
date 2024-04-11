@@ -86,6 +86,7 @@ subroutine vxcnsp(isw,a,ri,nr,rwgt,nlm,nsp,rl,lxcfun, reps,repsx,repsc,rmu,vl,fl
   call getpr(ipr)
   lxcf = mod(lxcfun,100)
   lxcg = mod(lxcfun/100,100) !GGA
+  if(ipr>50) write(stdo,*)'vxcnsp:'
 !  lpert = .false. !lxcfun .ge. 10000
   fpi = 16d0*datan(1d0)
   ! ... Create angular integration mesh
@@ -98,7 +99,7 @@ subroutine vxcnsp(isw,a,ri,nr,rwgt,nlm,nsp,rl,lxcfun, reps,repsx,repsc,rmu,vl,fl
      nph = 0
   endif
   call fpiint(nth,nph,np,p,wp)
-  if(ipr >= 30) write(stdo,200) nth,nph,np,nr
+  if(ipr >= 50) write(stdo,200) nth,nph,np,nr
 200 format(' mesh:   nth,nph=',2i4,'   gives',i4,'  angular points,','   nrad=',i4)
   if (np > nnn) call rxi('vxcnsp: increase nnn, need',np)
   if ((lmax+2)**2*np > nlmx*nnn) call rx('vxcnsp: increase nlm')
@@ -569,13 +570,10 @@ subroutine vxcns5(isw,ipr,strn,nlml,nsp,nr,ri,rwgt,rl,vl,suml,ssum)
      enddo
      ssum(isp) = sum(suml(0:lmax,isp))
      if (ipr > 30) then
-        if (isp == 1) &
-             write(stdo,341) strn,ssum(isp),(suml(l,isp),l = 0,lmax)
-        if (isp == 2) &
-             write(stdo,342) ssum(isp),(suml(l,isp),l = 0,lmax)
+        if (isp == 1) write(stdo,341) strn,ssum(isp),(suml(l,isp),l = 0,lmax)
+        if (isp == 2) write(stdo,342) ssum(isp),(suml(l,isp),l = 0,lmax)
 341     format(1x,a8,f13.6,' ... by l: ',f12.6,4f10.6:/(18x,4f10.6))
-342     format('  spin 2:',f13.6,' ... by l: ',f12.6, &
-             4f10.6:/(18x,4f10.6))
+342     format('  spin 2:',f13.6,' ... by l: ',f12.6,4f10.6:/(18x,4f10.6))
      endif
   enddo
 end subroutine vxcns5

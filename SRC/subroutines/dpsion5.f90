@@ -4,14 +4,16 @@ module m_dpsion
   private
   real(8),allocatable :: his_L(:),his_R(:),his_C(:),rmat(:,:,:),rmatt(:,:,:),rmattx(:,:,:,:),imatt(:,:,:)
   complex(8),allocatable :: imattC(:,:,:)
-
+  real(8),allocatable,save:: gfmat(:,:)
+  logical:: eginit=.true.
 contains
   subroutine dpsion5(realomega,imagomega,rcxq,nmbas1,nmbas2, zxq,zxqi, chipm,schi,isp,ecut,ecuts) 
     use m_freq,only:  frhis, freqr=>freq_r,freqi=>freq_i, nwhis, npm, nw_i, nw_w=>nw, niwt=>niw
     use m_readgwinput,only: egauss
-    use m_GaussianFilter,only: GaussianFilter
+!    use m_GaussianFilter,only: GaussianFilter
     use m_ftox
     use m_lgunit,only:stdo
+    use m_kind,only:kindrcxq
     implicit none
     intent(in)::     realomega,imagomega,     nmbas1,nmbas2,           chipm,schi,isp,ecut,ecuts
     intent(out)::                        rcxq,                zxq,zxqi
@@ -30,17 +32,35 @@ contains
     integer:: igb1,igb2, iw,iwp,ix,ifxx,nmbas1,nmbas2,isp,ispx,it, ii,i,ibas1,ibas2,nmnm
     logical :: evaltest     
     real(8):: px,omp,om,om2,om1, aaa,d_omg, ecut,ecuts,wcut,dee,schi, domega_r,domega_c,domega_l,delta_l,delta_r
-    complex(8):: rcxq(nmbas1,nmbas2, nwhis,npm),rrr(-nwhis:nwhis)
-    complex(8):: zxq(nmbas1,nmbas2, nw_i:nw_w),zxqi(nmbas1,nmbas2,niwt),img=(0d0,1d0),beta,wfac, zz
+    complex(8):: zxq(nmbas1,nmbas2, nw_i:nw_w),zxqi(nmbas1,nmbas2,niwt),img=(0d0,1d0),beta,wfac, zz,rrr(-nwhis:nwhis)
     logical :: realomega, imagomega,chipm,debug=.false.
     integer:: jpm,ipm,verbose,isgi   !     complex(8):: x0mean(nw_i:nw_w,nmbas,nmbas)
     real(8),parameter:: pi  = 4d0*datan(1d0)
     logical::init=.true.
+    integer:: imbas1,imbas2
+    complex(8):: rcxqin(1:nwhis)
+    complex(kindrcxq):: rcxq(nmbas1,nmbas2, nwhis,npm)
 
     write(stdo,ftox)" -- dpsion5: start... nw_w nwhis=",nw_w,nwhis
     if(chipm.and.npm==2) call rx( 'x0kf_v4h:npm==2 .AND. chipm is not meaningful probably')  ! Note rcxq here is negative 
     call cputid(0)
-    if(abs(egauss)>1d-15) call GaussianFilter(rcxq,nmbas1,nmbas2,egauss,iprint=.true.) !Smearging Imag(X0). Use egauss = 0.05 a.u.\sim 1eV for example.
+    GaussianFilter: if(abs(egauss)>1d-15) then
+       if(eginit) then
+          write(6,'("GaussianFilterX0= ",d13.6)') egauss
+          allocate(gfmat(nwhis,nwhis))
+          gfmat=gaussianfilterhis(egauss,frhis,nwhis)
+          eginit=.false.
+       endif
+       do ipm=1,npm
+          do imbas1=1,nmbas1
+             do imbas2=1,nmbas2
+                rcxqin = rcxq(imbas1,imbas2,1:nwhis,ipm)
+                rcxq(imbas1,imbas2,1:nwhis,ipm) = matmul(gfmat,rcxqin)
+             enddo
+          enddo
+       enddo       !write(6,"(' End of Gaussian Filter egauss=',f9.4)") egauss
+    endif GaussianFilter
+       
     ispx = merge(isp,3-isp,schi>=0) !  if(schi<0)  ispx = 3-isp  
     if(realomega.and.nwhis <= nw_w) call rxii('dpsion5: nwhis<=nw_w',nwhis,nw_w)
     if(realomega.and.freqr(0)/=0d0) call rx( 'dpsion5: freqr(0)/=0d0') ! I think current version allows any freqr(iw), independent from frhis.
@@ -106,27 +126,61 @@ contains
       if(.not.chipm)        zxq(:,:,1:nw_w)= img*rcxq(:,:,1:nw_w,1)
       nmnm=2*nmbas1*nmbas2
       if(npm==1.and.chipm) then
-        call dgemm('n','t',nmnm,nw_w+1,    nwhis,1d0,rcxq,         nmnm,rmattx(:,:,:,ispx),        nw_w+1,1d0,zxq,nmnm)
+        call dgemm('n','t',nmnm,nw_w+1,    nwhis,1d0,dcmplx(rcxq),         nmnm,rmattx(:,:,:,ispx),nw_w+1,1d0,zxq,nmnm)
       elseif(npm==1) then
-        call dgemm('n','t',nmnm,nw_w+1,    nwhis,1d0,rcxq,         nmnm,rmatt,           nw_w+1,1d0,zxq,nmnm)
+        call dgemm('n','t',nmnm,nw_w+1,    nwhis,1d0,dcmplx(rcxq),         nmnm,rmatt,             nw_w+1,1d0,zxq,nmnm)
       elseif(npm==2) then
-        zxq(:,:,-1:-nw_w:-1)=zxq(:,:,-1:-nw_w:-1) + img*rcxq(:,:,1:nw_w,2) !call zaxpy( nmbas1*nmbas2, img, rcxq(1,1,iw,2),1, zxq(:,:,-iw),1)
-        call dgemm('n','t',nmnm,npm*nw_w+1,nwhis,1d0,rcxq(1,1,1,1),nmnm,rmatt(:,:,1),npm*nw_w+1,1d0,zxq,nmnm)
-        call dgemm('n','t',nmnm,npm*nw_w+1,nwhis,1d0,rcxq(1,1,1,2),nmnm,rmatt(:,:,2),npm*nw_w+1,1d0,zxq,nmnm)
+         zxq(:,:,-1:-nw_w:-1)=zxq(:,:,-1:-nw_w:-1) + img*rcxq(:,:,1:nw_w,2)
+         !call zaxpy( nmbas1*nmbas2, img, rcxq(1,1,iw,2),1, zxq(:,:,-iw),1)
+        call dgemm('n','t',nmnm,npm*nw_w+1,nwhis,1d0,dcmplx(rcxq(:,:,:,1)),nmnm,rmatt(:,:,1),npm*nw_w+1,1d0,zxq,nmnm)
+        call dgemm('n','t',nmnm,npm*nw_w+1,nwhis,1d0,dcmplx(rcxq(:,:,:,2)),nmnm,rmatt(:,:,2),npm*nw_w+1,1d0,zxq,nmnm)
       endif
     endif
     if(imagomega) then !Hilbert Transformation to get real part
       nmnm=nmbas1*nmbas2
       if(npm==1) then
-        call dgemm('n','t',  2*nmnm, niwt, nwhis, 1d0, rcxq, 2*nmnm, imatt, niwt, 0d0, zxqi, 2*nmnm )
+        call dgemm('n','t',2*nmnm,niwt,nwhis,1d0,dcmplx(rcxq), 2*nmnm, imatt, niwt, 0d0, zxqi, 2*nmnm )
       elseif(npm==2) then
-        call zgemm('n','t', nmnm,niwt,nwhis,1d0,rcxq(1,1,1,1),nmnm,imattC(1,1,1),niwt, 0d0,zxqi, nmnm )
-        call zgemm('n','t', nmnm,niwt,nwhis,1d0,rcxq(1,1,1,2),nmnm,imattC(1,1,2),niwt, 1d0,zxqi, nmnm )
+        call zgemm('n','t', nmnm,niwt,nwhis,1d0, dcmplx(rcxq(:,:,:,1)),nmnm,imattC(1,1,1),niwt, 0d0,zxqi, nmnm )
+        call zgemm('n','t', nmnm,niwt,nwhis,1d0, dcmplx(rcxq(:,:,:,2)),nmnm,imattC(1,1,2),niwt, 1d0,zxqi, nmnm )
       endif
     endif
     write(stdo,'("         end dpsion5 ",$)')
     call cputid(0)
   end subroutine dpsion5
+
+!  subroutine GaussianFilter(rcxq,nmbas1,nmbas2, egauss,iprint)
+  pure function gaussianfilterhis(egauss, frhis,nwhis) result(gfmat)
+    implicit none
+    integer,intent(in):: nwhis
+    real(8),intent(in):: egauss,frhis(nwhis+1)
+    real(8):: gfmat(nwhis,nwhis)
+    real(8),allocatable:: frc(:),gfm(:)
+    real(8):: ggg
+    integer:: i,j
+    allocate(frc(nwhis),gfm(nwhis))
+    do i=1,nwhis
+       frc(i)=(frhis(i)+frhis(i+1))/2d0
+    enddo
+    do i=1,nwhis
+       do j=1,nwhis
+          gfm(j)= exp( -(frc(i)-frc(j))**2/(2d0*egauss))
+       enddo
+       ggg = sum(gfm(:))
+       do j=1,nwhis
+          gfmat(j,i)= gfm(j)/ggg
+       enddo
+       
+       ! do j=1,nwhis
+       !    gfm(j)= frc(j) * exp( -(frc(i)-frc(j))**2/(2d0*egauss))
+       ! enddo
+       ! ggg = sum(gfm) ! omega*e2(omega) sum rule
+       ! do j=1,nwhis
+       !    gfmat(j,i) = gfm(j)/frc(j)/ggg
+       ! enddo
+    enddo
+    deallocate(frc,gfm)
+  end function gaussianfilterhis
 end module m_dpsion
 
 !> Martix for hilbert transformation, rmat.

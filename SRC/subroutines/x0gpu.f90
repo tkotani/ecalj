@@ -6,13 +6,14 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
   use m_rdpp,only:        mdimx
   use m_genallcf_v3,only: nlnmx,nclass
   use m_x0kf,only:        nqini,nqmax,ns1,ns2
-  use m_rdpp,only:        nbloch,nblocha 
+  use m_rdpp,only:        nbloch,nblocha
+  use m_kind,only: kindrcxq
   implicit none
   intent(in)::        npr,nwhis,npm
   intent(inout)::rcxq
   integer:: nwhis,npm,npr                !dim of rcxq
   complex(8),parameter:: img=(0d0,1d0),tpi= 8d0*datan(1d0)
-  complex(8):: rcxq(npr,npr,nwhis,npm) !accumulating to rcxq
+  complex(kindrcxq):: rcxq(npr,npr,nwhis,npm) !accumulating to rcxq
   ! SetByCPU
   real(8):: symope(3,3),kvec(3)
   integer:: ncc,ngp1, ngp2, ngvecpB1(3,ngpmx),ngvecpB2(3,ngpmx),nadd(3)

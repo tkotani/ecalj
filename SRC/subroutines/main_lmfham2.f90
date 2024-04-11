@@ -1,4 +1,8 @@
 !> PMT --> lmfham1 --> MPO --> lmfham2 --> MLO
+module m_lmfham2
+  public lmfham2
+  private
+contains
 subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> from MPO
   ! that of the MTO-projected basis |MPO>. Conversion from MPO(hmmr1,ommr1,nband) to MLO(hmmr2,ommr2,nMLO).
   ! In advance, run lmfham1 to get |MPO> (MPOare given by a projection from MTOs to PMT space.
@@ -70,7 +74,7 @@ subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |
   integer:: ig,iqibz,icount,ierr
   call setcmdpath()            ! Set self-command path (this is for call system at m_lmfinit)
   call m_ext_init()            ! Get sname, e.g. trim(sname)=si of ctrl.si
-  call mpi_init(ierr)
+!  call mpi_init(ierr)
   call set_prgnam('lmfham2')
   call m_MPItk_init() ! mpi initialization
   call m_lgunit_init() !set stdo,stdl
@@ -575,3 +579,4 @@ contains
     endif
   end function filter2
 end subroutine lmfham2
+end module m_lmfham2

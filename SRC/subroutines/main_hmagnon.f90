@@ -36,7 +36,7 @@ subroutine hmagnon()
   use m_readgwinput,only: ReadGWinputKeys
   use m_lgunit,only:m_lgunit_init
   use m_dpsion,only: dpsion5
-
+  use m_kind,only:kindrcxq
   implicit none
   !! ------------------------------------------------
   !! We calculate chi0 by the follwoing three steps.
@@ -137,7 +137,8 @@ subroutine hmagnon()
   logical(8):: lqsh_all
   real(8):: nms_delta
   logical(8):: ijklmag !for checkorb2
-  complex(8),allocatable::kmat(:,:,:,:),wanmat(:,:) &
+  complex(kindrcxq),allocatable::kmat(:,:,:,:)
+  complex(8),allocatable::wanmat(:,:) &
        ,wkmat(:,:),wkmat2(:,:),rmat(:,:,:),rmat2(:,:) &
                                 !     &     ,swkwmat(:,:),swkwmat2(:,:)
                                 !     &     ,sqemat(:,:),plmat(:,:),plpmat(:,:),plpmat_inv(:,:)

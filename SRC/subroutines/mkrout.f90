@@ -208,8 +208,8 @@ contains
        deallocate(rofi_rv,rwgt_rv)
     enddo ibloop
     if (ipr >= 30 .AND. lrout > 0) then ! write(stdo,"(a)")' mkrout: site(class) decomposed charge and magnetic moment. class->lmchk'
-       if (nsp == 1) write(stdo,"(/' mkrout:  Qtrue      sm,loc       local')")
-       if (nsp == 2) write(stdo,"(/' mkrout:  Qtrue      sm,loc       local',8x,'true mm   smooth mm    local mm')")
+       if (nsp == 1) write(stdo,"('mkrout:  Qtrue      sm,loc       local')")
+       if (nsp == 2) write(stdo,"('mkrout:  Qtrue      sm,loc       local',8x,'true mm   smooth mm    local mm')")
        do ib=1,nbas
           write(stdo,"(i4,3f12.6,2x,3f12.6)") ib,dat(1:3*nsp,ib)
        enddo
