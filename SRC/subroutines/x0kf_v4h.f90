@@ -64,10 +64,10 @@ contains
       endif
       if(npm==2.AND.nkqmin(k)/=1)call rx( " When npm==2, nkqmin==1 should be.")
       if (job == 1) then
-        do jpm = 1, npm
-          print '(A,2I4,2I5,3I7)', 'nhw(min,max), k,jpm:', k, jpm, minval(nhw(:,k,jpm)), maxval(nhw(:,k,jpm)), &
-          & sum(nhw(1:nbnbx,k,jpm)), nbnbx, sum(nhw(1:nbnbx,k,jpm))/nbnbx
-        enddo
+        ! do jpm = 1, npm
+        !   print '(A,2I4,2I5,3I7)', 'nhw(min,max), k,jpm:', k, jpm, minval(nhw(:,k,jpm)), maxval(nhw(:,k,jpm)), &
+        !   & sum(nhw(1:nbnbx,k,jpm)), nbnbx, sum(nhw(1:nbnbx,k,jpm))/nbnbx
+        ! enddo
       endif
       jpmloop: do 1251 jpm  = 1, npm ! nplusminum=1 usually (or =2)
         ibibloop: do 125 ibib = 1, nbnb(k,jpm) !---  ibib loop, ibib is decomposed to band index pair, it and itp
@@ -197,7 +197,9 @@ contains
           goto 2000 
         endif zmel0mode
         if(cmdopt0('--emptyrun')) goto 1590
-        GPUTEST=.true.
+        GPUTEST = cmdopt0('--gpu')
+
+        call cputid (0)
         if(GPUTEST) then
           ! rcxq(ibg1,igb2,iw) = \sum_ibib wwk(iw,ibib)* <M_ibg1(q) psi_it(k)| psi_itp(q+k)> < psi_itp | psi_it M_ibg2 > at q
 #ifdef __GPU
@@ -242,6 +244,7 @@ contains
 1000        enddo icounloop
 1510      enddo kloop10
         endif
+        call cputid (0)
 1590    continue
 2000   continue
         write(stdo,ftox)"--- x0kf_v4hz: end",sum(abs(rcxq(:,:,1:nwhis,1:npm))) !,sum((rcxq(:,:,1:nwhis,1:npm)))

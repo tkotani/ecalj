@@ -22,10 +22,17 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
   real(8):: ppb(nlnmx,nlnmx,mdimx,nclass) ! ppb= <Phi(SLn,r-R)_q,isp1 |Phi(SL'n',r-R)_qk,isp2 B_k(S,i,rot^{-1}(r-R))>
   real(8):: tr(3,natom),shtv(3)
 
-  real(8) :: t1, t2, t1d, t2d
+  logical :: tgpu = .true.
+#ifdef __GPU
+  character(len=3) :: acway = 'gpu'
+#else
+  character(len=3) :: acway = 'cpu'
+#endif
+  real(8) :: t1, t2
 
   complex(8):: phasea(natom) 
   integer:: iasx(natom),icsx(natom),imdim(natom),iatomp(natom),nmini,nmmax,nmtot,nqtot,nt0,ntp0
+  call cpu_time(t1)
   SetByCPU :block
     use m_zmel,only: miat,tiat,shtvg,ppbir
     use m_x0kf,only: qrk,qq,ispm,ispq
@@ -76,6 +83,8 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
     nqtot  = ncc   + ntp0    ! = phi_end
     phasea = [(exp(-img *tpi* sum(kvec*tr(:,ia))),ia=1,natom)] 
   end block SetByCPU
+  call cpu_time(t2)
+  print '(1x,A,2F10.6)','x0setcpu' ,(t2-t1)
   !We have to send all variables SetByCPU. rcxq should be kept in GPU during kloop:do 1500 in x0kf_v4hz
   GPUblock:block
     use m_zmel,only: ppovlz,nbb
@@ -88,21 +97,28 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
 #ifdef __GPU
     use openacc
     use cudafor
-    ! use m_math_gpu, only: mm_op_c, mm_op_n, zmm
-    integer :: ierr
-    ! complex(8), allocatable, device :: zmel(:,:,:) ! zmel(nbb,nmtot,nqtot), nbb:mixproductbasis, nmtot:middlestate, nq
-    complex(8), allocatable :: zmel(:,:,:) ! zmel(nbb,nmtot,nqtot), nbb:mixproductbasis, nmtot:middlestate, nq
+    use m_math_gpu, only: mm_op_c, mm_op_n, zmm, zmm_sb
 #else
-    complex(8),allocatable :: zmel(:,:,:) ! zmel(nbb,nmtot,nqtot), nbb:mixproductbasis, nmtot:middlestate, nq
+    use m_math_cpu, only: mm_op_c, mm_op_n, zmm, zmm_sb
+#endif
+    integer :: ierr
+    complex(8), allocatable :: zmel(:,:,:) ! zmel(nbb,nmtot,nqtot), nbb:mixproductbasis, nmtot:middlestate, nq
+    complex(8), allocatable :: zmeltvv(:,:,:)
+#ifdef __GPU
+    attributes(device) :: zmel
+    attributes(device) :: zmeltvv
 #endif
     integer:: icoun,igb1,igb2,iw,ia
     logical,parameter   :: zmelconjg=.true.
 
-    call cpu_time(t1d)
+    call cpu_time(t1)
     ZmelBlock: block ! ZmelBlock is a part of copy of get_zmel_init in m_zmel.f90
       complex(8):: zmelt(1:nbloch+ngc,nmtot,nqtot)
+      complex(8) :: zmelt_d(1:nbloch+ngc,nmtot,nqtot)
+#ifdef __GPU
+      attributes(device) :: zmelt_d
+#endif
       zmelt=0d0
-      call cpu_time(t1)
       ZmelWithinMT: block !- Calculates <psi_q(itp) |psi_qk(it) B_k(rot(r-R))> 
         integer:: i,iap,ias,ib,ic,icp,nc,nc1,nv,ics,itp,iae,ims,ime, ncnv,ncorec,nccc,mdim,it
         iatomloop: do concurrent(ia = 1:natom)
@@ -139,13 +155,17 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
           endassociate
         enddo iatomloop
       endblock ZmelWithinMT
-      call cpu_time(t2)
-      print '(1x,A,F10.6)','x0gpu:zmel_withinMT', t2-t1
-      call cpu_time(t1)
+
+      ! print *, 'nbloch, ngc, nctot, ncc, ntp0, nt0:', nbloch, ngc, nctot, ncc, ntp0, nt0
+      zmelt_d = zmelt
       if(ngc/=0)then
         ZmelIPW:block  !> Mattrix elements <Plane psi |psi> from interstitial plane wave.
-          integer:: igcgp2,nn(3),iggg,igp1,itp,igc,igp2,igcgp2i_(ngc,ngp2)
+          integer:: igcgp2,nn(3),iggg,igp1,itp,igc,igp2,igcgp2i_(ngc,ngp2), it
           complex(8):: zmelp0(ngc,nt0,ntp0),phase(ngc) , ggitp(ngcgp,ntp0),gggmat(ngcgp,ngp1)
+          complex(8):: ggitp_all(ngc, ngp2, ntp0)
+#ifdef __GPU
+          attributes(device) :: ggitp_all
+#endif
           do concurrent(igcgp2=1:ngcgp,igp1=1:ngp1) !G synthesized 
             nn = ngvecpB1(:,igp1)- nvgcgp2(:,igcgp2) - nadd ! G1 -(Gc+G2) - Gadd.  Note that -Gadd= -rk + qt -qkt
             if(nn(1)<nxi .OR. nxe<nn(1) .OR. nn(2)<nyi .OR. nye<nn(2) .OR. nn(3)<nzi .OR. nze<nn(3)) cycle
@@ -157,160 +177,142 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
             igcgp2i_(igc,igp2)=igcgp2i(nn(1),nn(2),nn(3))
           enddo
           phase(:)=[(exp( -img*tpi*sum((matmul(symope,kvec)+matmul(qlat,ngveccR(:,igc)))*shtv) ),igc=1,ngc)]
-          !          associate(&
-          !               geigq   => readgeigf(qrk, ispq),&         !read IPW part at q   !G1 for ngp1
-          !               dgeigqk => dconjg(readgeigf(qk,ispqk))) !read IPW part at qk  !G2 for ngp2
           ggitp(:,:)= matmul(gggmat,geigq(1:ngp1,itq(nqini:nqmax)))
-          do concurrent (itp= 1:ntp0) !=== this may be time-consuming block (or maynot)==================
-            associate( ggitp_=>reshape([((ggitp(igcgp2i_(igc,igp2),itp),igc=1,ngc),igp2=1,ngp2)],shape=[ngc,ngp2]))
-              zmelp0(:,:,itp)= matmul(ggitp_,dgeigqk(1:ngp2,nmini:nmmax))
-            endassociate
+
+          !$acc data copyin(ggitp, dgeigqk, igcgp2i_) create(zmelp0)
+          !$acc kernels
+          !$acc loop independent collapse(3)
+          do itp = 1, ntp0
+            do igp2 = 1, ngp2
+              do igc = 1, ngc
+                ggitp_all(igc, igp2, itp) = ggitp(igcgp2i_(igc,igp2), itp)
+              enddo
+            enddo
           enddo
-          forall(igc=1:ngc) zmelp0(igc,:,:)=phase(igc)*zmelp0(igc,:,:) 
-          !          endassociate
-          call matm(ppovlinv,zmelp0,zmelt(nbloch+1:nbloch+ngc,nctot+1:nctot+nt0,ncc+1:ncc+ntp0),ngc,ngc,ntp0*nt0)
+          !$acc end kernels
+          ierr = zmm_sb(mm_op_n, mm_op_n, ngc, nt0, ngp2, (1d0,0d0), &
+                  &  ggitp_all, ngc, int(ngc*ngp2,8), dgeigqk(1,nmini), ngpmx, 0_8, (0d0,0d0), &
+                  &  zmelp0, ngc, int(ngc*nt0,8), ntp0) 
+          !$acc kernels
+          !$acc loop independent collapse(3)
+          do itp = 1, ntp0
+            do it = 1, nt0
+              do igc = 1, ngc
+                zmelp0(igc,it,itp) = phase(igc)*zmelp0(igc,it,itp)
+              enddo
+            enddo
+          enddo
+          !$acc end kernels
+
+          allocate (zmeltvv(ngc,nt0,ntp0))
+          !$acc data copyin(ppovlinv(1:ngb,1:nbb))
+          ierr = zmm(mm_op_n, mm_op_n, ngc, ntp0*nt0, ngc, (1d0,0d0), &
+                  &  ppovlinv, ngc, zmelp0, ngc, (0d0,0d0), zmeltvv, ngc) 
+          !$acc end data
+          !$acc kernels
+          zmelt_d(nbloch+1:nbloch+ngc,nctot+1:nctot+nt0,ncc+1:ncc+ntp0) = zmeltvv(1:ngc,1:nt0,1:ntp0)
+          !$acc end kernels
+          !$acc end data
+          deallocate(zmeltvv)
+
         endblock ZmelIPW
         deallocate(geigq,dgeigqk)
       endif
-      call cpu_time(t2)
-      print '(1x,A,F10.6)','x0gpu:zmel_IPW', t2-t1
-      allocate(zmel(nbb,ns1:ns2, nqtot))
-      ! allocate(zmel(nbb, nmtot*nqtot))
-!#ifdef __GPU
-!     !$acc data copyin(ppovlz, zmelt) 
-!      ierr = zmm(mm_op_c, mm_op_n, nbb, ngb, nmtot*nqtot, (1d0,0d0), ppovlz, ngb, zmelt, ngb, (0d0,0d0), zmel, ngb) 
-!      if(zmelconjg) then
-!      !$acc kernels
-!        zmel = dconjg(zmel)
-!      !$acc end kernels
-!      endif
-!      !$acc end data
-!#else
-      call matm(dconjg(transpose(ppovlz)), zmelt, zmel,nbb,ngb,nmtot*nqtot) !MultiplePPOVLZ
-      if(zmelconjg) zmel=dconjg(zmel)
-!#endif
-    endblock ZmelBlock
-    call cpu_time(t2d)
-    print '(1x,A,F10.6)','x0gpu:zmel', t2d-t1d
 
+      allocate(zmel(nbb,ns1:ns2, nqtot))
+     !$acc data copyin(ppovlz(1:ngb,1:nbb)) 
+     ierr = zmm(mm_op_c, mm_op_n, nbb, nmtot*nqtot, ngb, (1d0,0d0), ppovlz, ngb, zmelt_d, ngb, (0d0,0d0), zmel, ngb) 
+     if(zmelconjg) then
+       !$acc kernels
+       zmel = dconjg(zmel)
+       !$acc end kernels
+     endif
+     !$acc end data
+    endblock ZmelBlock
+    call cpu_time(t2)
+    print '(1x,A,A,2F10.6)','zmel:', acway,(t2-t1)
+
+    call cpu_time(t1)
     TimeConsumingRcxq: block 
-      complex(8):: zmelzmel(npr,npr) 
-      logical :: tacc = .true.
-      character(len=3) :: acway = 'cpu'
       integer :: jpm, it, itp
       integer :: iwmin, iwmax, nprpr, iprpr
       real(8), allocatable :: rcxqr(:,:,:), rcxqi(:,:,:)
       complex(8) :: zwz, zz
 
-      if(tacc) acway = 'acc'
-
-      print '(A,3I7)', 'iconn:', icounkmink,icounkmaxk, icounkmaxk-icounkmink
-      print '(A,2I7)', 'npr, nbb:', npr, nbb
-      print '(A,5I7)', 'ns1, ns2, nmtot, nqtot', ns1, ns2, nmtot, nqtot, nmtot*nqtot
+      ! print '(A,3I7)', 'iconn:', icounkmink,icounkmaxk, icounkmaxk-icounkmink
+      ! print '(A,2I7)', 'npr, nbb:', npr, nbb
+      ! print '(A,5I7)', 'ns1, ns2, nmtot, nqtot', ns1, ns2, nmtot, nqtot, nmtot*nqtot
+      ! print '(A,3I7)', 'iwmin,iwmax:', iwmin, iwmax, iwmax-iwmin
       nprpr = (npr*(npr+1))/2
-      call cputid(0)
-      call cpu_time(t1)
-      if(tacc) then
-        allocate(rcxqr(nprpr,nwhis,npm))
-        allocate(rcxqi(nprpr,nwhis,npm))
-        iwmin = icouini(icounkmink)
-        iwmax = icouini(icounkmaxk)+iwend(icounkmaxk)-iwini(icounkmaxk)
-        print *, 'iwmin,iwmax:', iwmin, iwmax, iwmax-iwmin
-        ierr = cudaDeviceSynchronize()
-        call cpu_time(t1d)
-        !$acc data create(rcxqr, rcxqi), copyin(zmel, jpmc(icounkmink:icounkmaxk), &
-        !$acc&     itc(icounkmink:icounkmaxk), itpc(icounkmink:icounkmaxk), &
-        !$acc&     iwini(icounkmink:icounkmaxk), iwend(icounkmink:icounkmaxk), &
-        !$acc&     icouini(icounkmink:icounkmaxk), whwc(iwmin:iwmax))
+      allocate(rcxqr(nprpr,nwhis,npm))
+      allocate(rcxqi(nprpr,nwhis,npm))
+      iwmin = icouini(icounkmink)
+      iwmax = icouini(icounkmaxk)+iwend(icounkmaxk)-iwini(icounkmaxk)
+      !$acc data create(rcxqr, rcxqi), copyin(jpmc(icounkmink:icounkmaxk), &
+      !$acc&     itc(icounkmink:icounkmaxk), itpc(icounkmink:icounkmaxk), &
+      !$acc&     iwini(icounkmink:icounkmaxk), iwend(icounkmink:icounkmaxk), &
+      !$acc&     icouini(icounkmink:icounkmaxk), whwc(iwmin:iwmax))
 
-        !$acc kernels
-        !$acc loop independent collapse(3)
-        do jpm=1, npm
-          do iw=1, nwhis
-            do iprpr = 1, nprpr
-              rcxqr(iprpr, iw, jpm) = 0d0
-              rcxqi(iprpr, iw, jpm) = 0d0
+      !$acc kernels
+      rcxqr(1:nprpr, 1:nwhis, 1:npm) = 0d0
+      !$acc end kernels
+      !$acc kernels
+      rcxqi(1:nprpr, 1:nwhis, 1:npm) = 0d0
+      !$acc end kernels
+
+      !$acc kernels
+      !$acc loop independent gang private(it, itp, jpm)
+      do icoun = icounkmink, icounkmaxk
+        jpm = jpmc(icoun)
+        it  = itc (icoun)
+        itp = itpc(icoun)
+
+        !$acc loop independent collapse(2) vector private(zwz, zz, iprpr)
+        do igb2 = 1, npr
+          do igb1 = 1, npr
+            if(igb1 > igb2) cycle
+            iprpr = ((igb2-1)*igb2)/2 + igb1
+            zz = dconjg(zmel(igb1,it,itp))*zmel(igb2,it,itp)
+            !$acc loop seq
+            do iw=iwini(icoun), iwend(icoun)
+              zwz = whwc(iw-iwini(icoun)+icouini(icoun))*zz
+              !$acc atomic update
+              rcxqr(iprpr, iw, jpm) = rcxqr(iprpr, iw, jpm) + dreal(zwz)
+              !$acc end atomic
+              !$acc atomic update
+              rcxqi(iprpr, iw, jpm) = rcxqi(iprpr, iw, jpm) + dimag(zwz)
+              !$acc end atomic
             enddo
           enddo
         enddo
-        !$acc end kernels
+      enddo
+      !$acc end kernels
 
-        ierr = cudaDeviceSynchronize()
-        call cpu_time(t2d)
-
-        !$acc kernels
-        !$acc loop independent gang private(it, itp, jpm)
-        do icoun = icounkmink, icounkmaxk
-          jpm = jpmc(icoun)
-          it  = itc (icoun)
-          itp = itpc(icoun)
-
-          !$acc loop independent collapse(2) vector private(zwz, zz, iprpr)
+      !$acc kernels
+      !$acc loop independent collapse(4) private(iprpr)
+      do jpm = 1, npm
+        do iw = 1, nwhis
           do igb2 = 1, npr
             do igb1 = 1, npr
-              if(igb1 > igb2) cycle
-              iprpr = ((igb2-1)*igb2)/2 + igb1
-              zz = dconjg(zmel(igb1,it,itp))*zmel(igb2,it,itp)
-
-              !$acc loop seq
-              do iw=iwini(icoun), iwend(icoun)
-                zwz = whwc(iw-iwini(icoun)+icouini(icoun))*zz
-                !$acc atomic update
-                rcxqr(iprpr, iw, jpm) = rcxqr(iprpr, iw, jpm) + dble(zwz)
-                !$acc end atomic
-                !$acc atomic update
-                rcxqi(iprpr, iw, jpm) = rcxqi(iprpr, iw, jpm) + imag(zwz)
-                !$acc end atomic
-              enddo
-
+              if(igb1 > igb2) then
+                iprpr = ((igb1-1)*igb1)/2 + igb2
+                rcxq(igb1, igb2, iw, jpm) = rcxq(igb1, igb2, iw, jpm) + rcxqr(iprpr,iw,jpm) - rcxqi(iprpr,iw,jpm)*(0D0,1D0)
+              else
+                iprpr = ((igb2-1)*igb2)/2 + igb1
+                rcxq(igb1, igb2, iw, jpm) = rcxq(igb1, igb2, iw, jpm) + rcxqr(iprpr,iw,jpm) + rcxqi(iprpr,iw,jpm)*(0D0,1D0)
+              endif
             enddo
           enddo
         enddo
-        !$acc end kernels
+      enddo
+      !$acc end kernels
+      !$acc end data
 
-        !$acc kernels
-        !$acc loop independent collapse(4) private(iprpr)
-        do jpm = 1, npm
-          do iw = 1, nwhis
-            do igb2 = 1, npr
-              do igb1 = 1, npr
-                if(igb1 > igb2) then
-                  iprpr = ((igb1-1)*igb1)/2 + igb2
-                  rcxq(igb1, igb2, iw, jpm) = rcxq(igb1, igb2, iw, jpm) + rcxqr(iprpr,iw,jpm) - rcxqi(iprpr,iw,jpm)*(0D0,1D0)
-                else
-                  iprpr = ((igb2-1)*igb2)/2 + igb1
-                  rcxq(igb1, igb2, iw, jpm) = rcxq(igb1, igb2, iw, jpm) + rcxqr(iprpr,iw,jpm) + rcxqi(iprpr,iw,jpm)*(0D0,1D0)
-                endif
-              enddo
-            enddo
-          enddo
-        enddo
-        !$acc end kernels
-
-        !$acc end data
-        deallocate(rcxqr, rcxqi)
-      else
-        icounloop: do 1000 icoun=icounkmink,icounkmaxk
-          associate( &
-               jpm => jpmc(icoun),&  !\pm omega 
-               it  => itc (icoun),&  !occ      at k
-               itp => itpc(icoun))   !unocc    at q+k
-            do concurrent(igb1=1:npr,igb2=1:npr) 
-              zmelzmel(igb1,igb2)= dconjg(zmel(igb1,it,itp))*zmel(igb2,it,itp) 
-            enddo
-            do iw=iwini(icoun),iwend(icoun) !)& !rcxq is hermitian, thus, we can reduce computational time half.
-              rcxq(:,:,iw,jpm)=rcxq(:,:,iw,jpm)+ whwc(iw-iwini(icoun)+icouini(icoun))* zmelzmel(:,:) ! Use zaxpy and symmetrize?
-            enddo
-          endassociate
-          !forall(iw=iwini(icoun):iwend(icoun)) nwj(iw,jpm)=nwj(iw,jpm)+iwend(icoun)-iwini(icoun)+1 !counter check
-1000    enddo icounloop
-      endif
-
-      call cputid(0)
-      call cpu_time(t2)
-      print '(1x,A,A,2F10.6)','x0gpu:', acway,(t2-t1), (t2d-t1d)
-
+      deallocate(rcxqr, rcxqi)
     endblock TimeConsumingRcxq
+    call cpu_time(t2)
+    print '(1x,A,A,2F10.6)','x0:', acway,(t2-t1)
+
     deallocate(zmel)
   endblock GPUblock
 end subroutine x0gpu

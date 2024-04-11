@@ -1,34 +1,29 @@
-module m_math_gpu
-  use cublas_v2
+module m_math_cpu
   implicit none
   public :: zmm, zmm_sb, mm_op_n, mm_op_t, mm_op_c
-  integer, parameter :: mm_op_n = cublas_op_n 
-  integer, parameter :: mm_op_t = cublas_op_t 
-  integer, parameter :: mm_op_c = cublas_op_c
+  character, parameter :: mm_op_n = 'N'
+  character, parameter :: mm_op_t = 'T'
+  character, parameter :: mm_op_c = 'C'
   private
-  type(cublashandle), value :: handle
-  logical, save :: tfirst = .true.
 
   contains
   function zmm(transa, transb, m, n, k, alpha, a, lda, b, ldb, beta, c, ldc) result(istat)
     integer :: istat
-    integer, value :: transa, transb
+    character, value :: transa, transb
     integer, value :: m, n, k
     integer, intent(in), value :: lda, ldb, ldc
     complex(8) :: alpha, beta
     complex(8), dimension(lda,*), device :: a
     complex(8), dimension(ldb,*), device :: b
     complex(8), dimension(ldc,*), device :: c
-    if(tfirst) then
-      istat = cublascreate(handle)
-      tfirst = .false.
-    endif
-    istat = cublaszgemm3m(handle, transa, transb,  m, n, k, alpha, a, lda , b, ldb, beta, c, ldc)
+    call zgemm3m(transa, transb,  m, n, k, alpha, a, lda , b, ldb, beta, c, ldc)
+    istat = 0
   end function zmm
+
   function zmm_sb(transa, transb, m, n, k, alpha, a, lda, stridea, b, ldb, strideb, beta, c, ldc, stridec, nbatch) &
      & result(istat)
     integer :: istat
-    integer, value :: transa, transb
+    character, value :: transa, transb
     integer, value :: m, n, k, nbatch
     integer, intent(in), value :: lda, ldb, ldc
     integer(8) :: stridea, strideb, stridec
@@ -36,11 +31,11 @@ module m_math_gpu
     complex(8), dimension(lda,*), device :: a
     complex(8), dimension(ldb,*), device :: b
     complex(8), dimension(ldc,*), device :: c
-    if(tfirst) then
-      istat = cublascreate(handle)
-      tfirst = .false.
-    endif
-    istat = cublaszgemmstridedbatched(handle, transa, transb,  m, n, k,  &
-               &  alpha, a, lda, stridea, b, ldb, strideb, beta, c, ldc, stridec, nbatch)
+    integer :: i 
+    do i=1, nbatch
+      call zgemm3m(transa, transb, m, n, k, alpha, a(stridea*(i-1)+1), lda, &
+                 & b(strideb*(i-1)+1), ldb, beta, c(stridec*(i-1)+1), ldc)
+    enddo
+    istat = 0
   end function zmm_sb
-end module m_math_gpu
+end module m_math_cpu
