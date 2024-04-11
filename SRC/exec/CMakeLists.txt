@@ -56,6 +56,10 @@ endif()
 
 message(STATUS "DEBUG= ${DEBUG}")
 
+if(DEFINED ENV{GPU})
+  set(USE_GPU ON)
+endif()
+
 # ## compile options ############################################################
 if(FC MATCHES "gfortran")
   set(CMAKE_Fortran_COMPILER mpif90) # compiler
@@ -76,6 +80,11 @@ elseif(FC MATCHES "nvfortran")
   set(CMAKE_Fortran_FLAGS "-fpic") # "-Mvect=simd -mcmodel=medium -fpic") # compile flags
   set(LIBM  ) # set LIB variable
   add_link_options(-lmkl_intel_lp64 -lmkl_sequential -lmkl_core)
+  if(USE_GPU)
+    # add_compile_options(-cpp -D__GPU -Minfo -Mfree -Mx,231,0xl -cuda -acc=gpu -cudalib=cufft,cublas,cusolver)
+    add_compile_options(-cpp -D__GPU -Minfo -Mfree -cuda -acc=gpu -cudalib=cufft,cublas,cusolver)
+    add_link_options(-acc=gpu -cuda -cudalib=cufft,cublas,cusolver)
+  endif()
 endif()
 set(LIB ${LIBRARY_NAME}) 
 #set(LIB1 ${LIBRARY_NAME}1) 
@@ -122,7 +131,7 @@ elseif(FC MATCHES "nvfortran")
       OR ${target} MATCHES "../subroutines/rseq.f90")
       set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-C -g -traceback -O0")
     else()
-      set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O2")
+      set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O2 -g -traceback")
     endif()
   endforeach()
 endif()
