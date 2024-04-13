@@ -269,7 +269,7 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
         it  = itc (icoun)
         itp = itpc(icoun)
 
-        !$acc loop independent collapse(2) vector private(zwz, zz, iprpr)
+        !$acc loop independent collapse(2) vector private(iw, zwz, zz, iprpr)
         do igb2 = 1, npr
           do igb1 = 1, npr
             if(igb1 > igb2) cycle

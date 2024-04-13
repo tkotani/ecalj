@@ -157,6 +157,12 @@ contains
         if(.not.allocated(rcxq)) then
            allocate( rcxq(npr,npr,nwhis,npm))
            rcxq=0d0
+#ifdef __GPU
+           !$acc enter data create(rcxq) 
+           !$acc kernels
+           rcxq(1:npr,1:npr,1:nwhis,1:npm) = (0d0,0d0)
+           !$acc end kernels
+#endif
         endif
         zmel0mode: if(cmdopt0('--zmel0')) then ! For epsPP0. Use zmel-zmel0 (for subtracting numerical error) for matrix elements.
           zmel0block : block
@@ -193,12 +199,6 @@ contains
         call cputid (0)
         if(GPUTEST) then
           ! rcxq(ibg1,igb2,iw) = \sum_ibib wwk(iw,ibib)* <M_ibg1(q) psi_it(k)| psi_itp(q+k)> < psi_itp | psi_it M_ibg2 > at q
-#ifdef __GPU
-!$acc enter data create(rcxq) 
-!$acc kernels
-        rcxq(1:npr,1:npr,1:nwhis,1:npm) = (0d0,0d0)
-!$acc end kernels
-#endif
           kloop:do 1500 k=1,nqbz !zmel = < M(igb q) phi( rk it occ)|  phi(q+rk itp unocc)>
             qq   = q;              qrk  = q+rk(:,k)
             ispm = isp_k;          ispq = isp_kq
@@ -207,9 +207,6 @@ contains
             icounkmink= icounkmin(k); icounkmaxk= icounkmax(k)
             call x0gpu(rcxq,npr,nwhis,npm)
 1500      enddo kloop
-#ifdef __GPU
-!$acc exit data copyout(rcxq)
-#endif
         else ! NOTE: kloop10:do 1510 is equivalent to do 1500. 2024-3-25
           kloop10:do 1510 k=1,nqbz !zmel = < M(igb q) phi( rk it occ)|  phi(q+rk itp unocc)>
             if(cmdopt0('--emptyrun')) cycle
@@ -243,6 +240,9 @@ contains
       deallocate(whwc, kc, iwini,iwend, itc,itpc, jpmc,icouini, nkmin,nkmax,nkqmin,nkqmax,icounkmin,icounkmax)
       HilbertTransformation:if(isp_k==nsp .OR. chipm) then
         !Get real part. When chipm=T, do dpsion5 for every isp_k; When =F, do dpsion5 after rxcq accumulated for spins
+#ifdef __GPU
+        !$acc exit data copyout(rcxq)
+#endif
         call dpsion5(realomega, imagomega, rcxq, npr,npr, zxq, zxqi, chipm, schi,isp_k,  ecut,ecuts) 
         deallocate(rcxq)
       endif HilbertTransformation 
