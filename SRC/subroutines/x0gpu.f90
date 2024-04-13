@@ -237,7 +237,8 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
     TimeConsumingRcxq: block 
       integer :: jpm, it, itp
       integer :: iwmin, iwmax, nprpr, iprpr
-      real(8), allocatable :: rcxqr(:,:,:), rcxqi(:,:,:)
+      real(kindrcxq), allocatable :: rcxqr(:,:,:), rcxqi(:,:,:)
+      ! complex(kindrcxq) :: zwz, zz
       complex(8) :: zwz, zz
 
       ! print '(A,3I7)', 'iconn:', icounkmink,icounkmaxk, icounkmaxk-icounkmink
@@ -278,10 +279,10 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
             do iw=iwini(icoun), iwend(icoun)
               zwz = whwc(iw-iwini(icoun)+icouini(icoun))*zz
               !$acc atomic update
-              rcxqr(iprpr, iw, jpm) = rcxqr(iprpr, iw, jpm) + dreal(zwz)
+              rcxqr(iprpr, iw, jpm) = rcxqr(iprpr, iw, jpm) + real(zwz,kind=kindrcxq)
               !$acc end atomic
               !$acc atomic update
-              rcxqi(iprpr, iw, jpm) = rcxqi(iprpr, iw, jpm) + dimag(zwz)
+              rcxqi(iprpr, iw, jpm) = rcxqi(iprpr, iw, jpm) - real(zwz*(0d0,1d0),kind=kindrcxq)
               !$acc end atomic
             enddo
           enddo
@@ -297,10 +298,12 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
             do igb1 = 1, npr
               if(igb1 > igb2) then
                 iprpr = ((igb1-1)*igb1)/2 + igb2
-                rcxq(igb1, igb2, iw, jpm) = rcxq(igb1, igb2, iw, jpm) + rcxqr(iprpr,iw,jpm) - rcxqi(iprpr,iw,jpm)*(0D0,1D0)
+                rcxq(igb1, igb2, iw, jpm) = rcxq(igb1, igb2, iw, jpm) &
+                                        & + rcxqr(iprpr,iw,jpm) - rcxqi(iprpr,iw,jpm)*(0d0,1d0)
               else
                 iprpr = ((igb2-1)*igb2)/2 + igb1
-                rcxq(igb1, igb2, iw, jpm) = rcxq(igb1, igb2, iw, jpm) + rcxqr(iprpr,iw,jpm) + rcxqi(iprpr,iw,jpm)*(0D0,1D0)
+                rcxq(igb1, igb2, iw, jpm) = rcxq(igb1, igb2, iw, jpm) &
+                                        & + rcxqr(iprpr,iw,jpm) + rcxqi(iprpr,iw,jpm)*(0d0,1d0)
               endif
             enddo
           enddo
