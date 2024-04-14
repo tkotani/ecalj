@@ -13,9 +13,9 @@ module m_math_cpu
     integer, value :: m, n, k
     integer, intent(in), value :: lda, ldb, ldc
     complex(8) :: alpha, beta
-    complex(8), dimension(lda,*), device :: a
-    complex(8), dimension(ldb,*), device :: b
-    complex(8), dimension(ldc,*), device :: c
+    complex(8), dimension(lda,*) :: a
+    complex(8), dimension(ldb,*) :: b
+    complex(8), dimension(ldc,*) :: c
     call zgemm3m(transa, transb,  m, n, k, alpha, a, lda , b, ldb, beta, c, ldc)
     istat = 0
   end function zmm
@@ -28,9 +28,9 @@ module m_math_cpu
     integer, intent(in), value :: lda, ldb, ldc
     integer(8) :: stridea, strideb, stridec
     complex(8) :: alpha, beta
-    complex(8), dimension(lda,*), device :: a
-    complex(8), dimension(ldb,*), device :: b
-    complex(8), dimension(ldc,*), device :: c
+    complex(8), dimension(lda,*) :: a
+    complex(8), dimension(ldb,*) :: b
+    complex(8), dimension(ldc,*) :: c
     integer :: i 
     do i=1, nbatch
       call zgemm3m(transa, transb, m, n, k, alpha, a(stridea*(i-1)+1,1), lda, &

@@ -184,7 +184,7 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
           phase(:)=[(exp( -img*tpi*sum((matmul(symope,kvec)+matmul(qlat,ngveccR(:,igc)))*shtv) ),igc=1,ngc)]
           ggitp(:,:)= matmul(gggmat,geigq(1:ngp1,itq(nqini:nqmax)))
 
-          !$acc data copyin(ggitp, dgeigqk, igcgp2i_) create(zmelp0)
+          !$acc data copyin(ggitp, dgeigqk, igcgp2i_, phase) create(zmelp0)
           !$acc kernels
           !$acc loop independent collapse(3)
           do itp = 1, ntp0
@@ -224,7 +224,7 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
         deallocate(geigq,dgeigqk)
       endif
       call cpu_time(t2)
-      print '(1x,A,A,2F10.6)','zmeIPW:', acway,(t2-t1)
+      print '(1x,A,A,2F10.6)','zmelIPW:', acway,(t2-t1)
 
       call cpu_time(t1)
       allocate(zmel(nbb,ns1:ns2, nqtot))
@@ -276,14 +276,15 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
         it  = itc (icoun)
         itp = itpc(icoun)
 
-        !$acc loop independent collapse(2) vector private(iw, zwz, zz, iprpr)
-        do igb2 = 1, npr
-          do igb1 = 1, npr
-            if(igb1 > igb2) cycle
-            iprpr = ((igb2-1)*igb2)/2 + igb1
-            zz = dconjg(zmel(igb1,it,itp))*zmel(igb2,it,itp)
-            !$acc loop seq
-            do iw=iwini(icoun), iwend(icoun)
+        !$acc loop seq
+        do iw=iwini(icoun), iwend(icoun)
+
+          !$acc loop independent collapse(2) vector private(iw, zwz, zz, iprpr)
+          do igb2 = 1, npr
+            do igb1 = 1, npr
+              if(igb1 > igb2) cycle
+              iprpr = ((igb2-1)*igb2)/2 + igb1
+              zz = dconjg(zmel(igb1,it,itp))*zmel(igb2,it,itp)
               zwz = whwc(iw-iwini(icoun)+icouini(icoun))*zz
               !$acc atomic update
               rcxqr(iprpr, iw, jpm) = rcxqr(iprpr, iw, jpm) + real(zwz,kind=kindrcxq)

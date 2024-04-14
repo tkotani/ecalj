@@ -1,4 +1,5 @@
 module m_math_gpu
+#ifdef __GPU
   use cublas_v2
   implicit none
   public :: zmm, zmm_sb, mm_op_n, mm_op_t, mm_op_c
@@ -43,4 +44,5 @@ module m_math_gpu
     istat = cublaszgemmstridedbatched(handle, transa, transb,  m, n, k,  &
                &  alpha, a, lda, stridea, b, ldb, strideb, beta, c, ldc, stridec, nbatch)
   end function zmm_sb
+#endif
 end module m_math_gpu

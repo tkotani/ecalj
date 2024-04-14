@@ -77,7 +77,7 @@ elseif(FC MATCHES "ifort")
   add_link_options(-mkl)
 elseif(FC MATCHES "nvfortran")
   set(CMAKE_Fortran_COMPILER mpifort) # compiler
-  set(CMAKE_Fortran_FLAGS "-fpic") # "-Mvect=simd -mcmodel=medium -fpic") # compile flags
+  set(CMAKE_Fortran_FLAGS "-cpp -fpic") # "-Mvect=simd -mcmodel=medium -fpic") # compile flags
   set(LIBM  ) # set LIB variable
   add_link_options(-lmkl_intel_lp64 -lmkl_sequential -lmkl_core)
   if(USE_GPU)
@@ -130,6 +130,8 @@ elseif(FC MATCHES "nvfortran")
     if(${target} MATCHES "../subroutines/pwmat.f90"
       OR ${target} MATCHES "../subroutines/rseq.f90")
       set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-C -g -traceback -O0")
+    elseif(${target} MATCHES "../subroutines/x0gpu.f90")
+      set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O3 -g -traceback")
     else()
       set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O2 -g -traceback")
     endif()

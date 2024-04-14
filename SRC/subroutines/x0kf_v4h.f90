@@ -158,7 +158,6 @@ contains
         if(.not.allocated(rcxq)) then
            allocate( rcxq(npr,npr,nwhis,npm))
            rcxq=0d0
-#ifdef __GPU
            if(GPUTEST) then
              write(stdo,ftox)'size of rcxq:', npr, npr, nwhis, npm
              !$acc enter data create(rcxq) 
@@ -166,7 +165,6 @@ contains
              rcxq(1:npr,1:npr,1:nwhis,1:npm) = (0d0,0d0)
              !$acc end kernels
            endif
-#endif
         endif
         zmel0mode: if(cmdopt0('--zmel0')) then ! For epsPP0. Use zmel-zmel0 (for subtracting numerical error) for matrix elements.
           zmel0block : block
@@ -250,11 +248,9 @@ contains
       deallocate(whwc, kc, iwini,iwend, itc,itpc, jpmc,icouini, nkmin,nkmax,nkqmin,nkqmax,icounkmin,icounkmax)
       HilbertTransformation:if(isp_k==nsp .OR. chipm) then
         !Get real part. When chipm=T, do dpsion5 for every isp_k; When =F, do dpsion5 after rxcq accumulated for spins
-#ifdef __GPU
         if(GPUTEST) then
           !$acc exit data copyout(rcxq)
         endif
-#endif
         call dpsion5(realomega, imagomega, rcxq, npr,npr, zxq, zxqi, chipm, schi,isp_k,  ecut,ecuts) 
         deallocate(rcxq)
       endif HilbertTransformation 
