@@ -112,14 +112,15 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
     integer:: icoun,igb1,igb2,iw,ia
     logical,parameter   :: zmelconjg=.true.
 
-    call cpu_time(t1)
     ZmelBlock: block ! ZmelBlock is a part of copy of get_zmel_init in m_zmel.f90
       complex(8):: zmelt(1:nbloch+ngc,nmtot,nqtot)
       complex(8) :: zmelt_d(1:nbloch+ngc,nmtot,nqtot)
 #ifdef __GPU
       attributes(device) :: zmelt_d
 #endif
+      call cpu_time(t1)
       zmelt=0d0
+      ! now this part is computed by CPU because this is fast
       ZmelWithinMT: block !- Calculates <psi_q(itp) |psi_qk(it) B_k(rot(r-R))> 
         integer:: i,iap,ias,ib,ic,icp,nc,nc1,nv,ics,itp,iae,ims,ime, ncnv,ncorec,nccc,mdim,it
         iatomloop: do concurrent(ia = 1:natom)
@@ -156,8 +157,11 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
           endassociate
         enddo iatomloop
       endblock ZmelWithinMT
+      call cpu_time(t2)
+      print '(1x,A,A,2F10.6)','zmelMT:', acway,(t2-t1)
 
       ! print *, 'nbloch, ngc, nctot, ncc, ntp0, nt0:', nbloch, ngc, nctot, ncc, ntp0, nt0
+      call cpu_time(t1)
       zmelt_d = zmelt
       if(ngc/=0)then
         ZmelIPW:block  !> Mattrix elements <Plane psi |psi> from interstitial plane wave.
@@ -219,19 +223,22 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
         endblock ZmelIPW
         deallocate(geigq,dgeigqk)
       endif
+      call cpu_time(t2)
+      print '(1x,A,A,2F10.6)','zmeIPW:', acway,(t2-t1)
 
+      call cpu_time(t1)
       allocate(zmel(nbb,ns1:ns2, nqtot))
-     !$acc data copyin(ppovlz(1:ngb,1:nbb)) 
-     ierr = zmm(mm_op_c, mm_op_n, nbb, nmtot*nqtot, ngb, (1d0,0d0), ppovlz, ngb, zmelt_d, ngb, (0d0,0d0), zmel, ngb) 
-     if(zmelconjg) then
-       !$acc kernels
-       zmel = dconjg(zmel)
-       !$acc end kernels
-     endif
-     !$acc end data
+      !$acc data copyin(ppovlz(1:ngb,1:nbb)) 
+      ierr = zmm(mm_op_c, mm_op_n, nbb, nmtot*nqtot, ngb, (1d0,0d0), ppovlz, ngb, zmelt_d, ngb, (0d0,0d0), zmel, ngb) 
+      if(zmelconjg) then
+        !$acc kernels
+        zmel = dconjg(zmel)
+        !$acc end kernels
+      endif
+      !$acc end data
     endblock ZmelBlock
     call cpu_time(t2)
-    print '(1x,A,A,2F10.6)','zmel:', acway,(t2-t1)
+    print '(1x,A,A,2F10.6)','zmelzmm:', acway,(t2-t1)
 
     call cpu_time(t1)
     TimeConsumingRcxq: block 
@@ -282,7 +289,7 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
               rcxqr(iprpr, iw, jpm) = rcxqr(iprpr, iw, jpm) + real(zwz,kind=kindrcxq)
               !$acc end atomic
               !$acc atomic update
-              rcxqi(iprpr, iw, jpm) = rcxqi(iprpr, iw, jpm) - real(zwz*(0d0,1d0),kind=kindrcxq)
+              rcxqi(iprpr, iw, jpm) = rcxqi(iprpr, iw, jpm) - real(zwz*img,kind=kindrcxq)
               !$acc end atomic
             enddo
           enddo
@@ -299,11 +306,11 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
               if(igb1 > igb2) then
                 iprpr = ((igb1-1)*igb1)/2 + igb2
                 rcxq(igb1, igb2, iw, jpm) = rcxq(igb1, igb2, iw, jpm) &
-                                        & + rcxqr(iprpr,iw,jpm) - rcxqi(iprpr,iw,jpm)*(0d0,1d0)
+                                        & + rcxqr(iprpr,iw,jpm) - rcxqi(iprpr,iw,jpm)*img
               else
                 iprpr = ((igb2-1)*igb2)/2 + igb1
                 rcxq(igb1, igb2, iw, jpm) = rcxq(igb1, igb2, iw, jpm) &
-                                        & + rcxqr(iprpr,iw,jpm) + rcxqi(iprpr,iw,jpm)*(0d0,1d0)
+                                        & + rcxqr(iprpr,iw,jpm) + rcxqi(iprpr,iw,jpm)*img
               endif
             enddo
           enddo

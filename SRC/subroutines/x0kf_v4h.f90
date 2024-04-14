@@ -125,9 +125,11 @@ contains
     complex(8),optional:: zzr(:,:)
     real(8):: q(3),schi,ekxx1(nband,nqbz),ekxx2(nband,nqbz)
     character(10) :: i2char
-    logical:: cmdopt0
+    logical:: cmdopt0,GPUTEST
+    real(8) :: t1, t2
     npr=nprin
     qq=q
+    GPUTEST = cmdopt0('--gpu')
     if(realomega) allocate(zxq(npr,npr,nw_i:nw),source=(0d0,0d0))
     if(imagomega) allocate(zxqi(npr,npr,niw),source=(0d0,0d0))
     if(cmdopt0('--emptyrun'))  return
@@ -152,16 +154,18 @@ contains
         integer:: nwj(nwhis,npm),imb, igc ,neibz,icc,ig,ikp,i,j,itimer,icount, kold 
         real(8):: imagweight, wpw_k,wpw_kq,qa,q0a 
         complex(8):: img=(0d0,1d0)
-        logical :: cmdopt0,GPUTEST
         logical,parameter:: debug=.false.
         if(.not.allocated(rcxq)) then
            allocate( rcxq(npr,npr,nwhis,npm))
            rcxq=0d0
 #ifdef __GPU
-           !$acc enter data create(rcxq) 
-           !$acc kernels
-           rcxq(1:npr,1:npr,1:nwhis,1:npm) = (0d0,0d0)
-           !$acc end kernels
+           if(GPUTEST) then
+             write(stdo,ftox)'size of rcxq:', npr, npr, nwhis, npm
+             !$acc enter data create(rcxq) 
+             !$acc kernels
+             rcxq(1:npr,1:npr,1:nwhis,1:npm) = (0d0,0d0)
+             !$acc end kernels
+           endif
 #endif
         endif
         zmel0mode: if(cmdopt0('--zmel0')) then ! For epsPP0. Use zmel-zmel0 (for subtracting numerical error) for matrix elements.
@@ -194,7 +198,6 @@ contains
           goto 2000 
         endif zmel0mode
         if(cmdopt0('--emptyrun')) goto 1590
-        GPUTEST = cmdopt0('--gpu')
 
         call cputid (0)
         if(GPUTEST) then
@@ -210,8 +213,12 @@ contains
         else ! NOTE: kloop10:do 1510 is equivalent to do 1500. 2024-3-25
           kloop10:do 1510 k=1,nqbz !zmel = < M(igb q) phi( rk it occ)|  phi(q+rk itp unocc)>
             if(cmdopt0('--emptyrun')) cycle
+            call cpu_time(t1)
             call get_zmel_init(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
                  nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false.,zmelconjg=.true.)
+            call cpu_time(t2)
+            print '(1x,A,F10.6)','zmel:cpu' ,(t2-t1)
+            call cpu_time(t1)
             icounloop: do 1000 icoun=icounkmin(k),icounkmax(k)
               ! call get_zmel_init is equivalent to call x0kf_zmel(q, k, isp_k,isp_kq) 
               TimeConsumingRcxq: block 
@@ -230,6 +237,9 @@ contains
                 endassociate
               endblock TimeConsumingRcxq
 1000        enddo icounloop
+            call cpu_time(t2)
+            print '(1x,A,F10.6)','x0:cpu' ,(t2-t1)
+            call flush(stdo)
 1510      enddo kloop10
         endif
         call cputid (0)
@@ -241,7 +251,9 @@ contains
       HilbertTransformation:if(isp_k==nsp .OR. chipm) then
         !Get real part. When chipm=T, do dpsion5 for every isp_k; When =F, do dpsion5 after rxcq accumulated for spins
 #ifdef __GPU
-        !$acc exit data copyout(rcxq)
+        if(GPUTEST) then
+          !$acc exit data copyout(rcxq)
+        endif
 #endif
         call dpsion5(realomega, imagomega, rcxq, npr,npr, zxq, zxqi, chipm, schi,isp_k,  ecut,ecuts) 
         deallocate(rcxq)

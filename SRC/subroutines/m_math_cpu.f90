@@ -33,8 +33,8 @@ module m_math_cpu
     complex(8), dimension(ldc,*), device :: c
     integer :: i 
     do i=1, nbatch
-      call zgemm3m(transa, transb, m, n, k, alpha, a(stridea*(i-1)+1), lda, &
-                 & b(strideb*(i-1)+1), ldb, beta, c(stridec*(i-1)+1), ldc)
+      call zgemm3m(transa, transb, m, n, k, alpha, a(stridea*(i-1)+1,1), lda, &
+                 & b(strideb*(i-1)+1,1), ldb, beta, c(stridec*(i-1)+1,1), ldc)
     enddo
     istat = 0
   end function zmm_sb
