@@ -41,6 +41,7 @@ module m_math_gpu
       istat = cublascreate(handle)
       tfirst = .false.
     endif
+    if(nbatch == 0 ) return
     istat = cublaszgemmstridedbatched(handle, transa, transb,  m, n, k,  &
                &  alpha, a, lda, stridea, b, ldb, strideb, beta, c, ldc, stridec, nbatch)
   end function zmm_sb

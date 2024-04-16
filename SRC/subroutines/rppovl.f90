@@ -14,7 +14,7 @@ module m_read_ppovl
   logical,private:: debug=.false.
   real(8),allocatable,private:: qxtable(:,:)
   integer, private:: loopnum = 0, iex,gex
-  integer,private:: nnxi,nnxe,nnyi,nnye,nnzi,nnze
+  integer,protected:: nnxi,nnxe,nnyi,nnye,nnzi,nnze
 contains
   subroutine getppx2(qbas,qi)
     !! This return nvggg,nvgcgp2,ngvecc,  nggg,ngcgp,ngcread, ggg,ppovlinv
