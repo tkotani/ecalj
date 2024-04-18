@@ -158,13 +158,13 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
           !   enddo                              !^^^^^^^^^phasea(ia) right? 2024-1-7 or phasea(ia) or dcongj(phasea(ia))?
           ! endassociate
 
-          allocate (ppbvphiq_d(nv,ntp0,mdim))
-          allocate (cphim_d(nv,nt0), source = cphim(ias:iae,nmini:nmmax))
-          allocate (cphiq_d(nv,ntp0), source = cphiq(ias:iae,nqini:nqmax))
-          allocate (ppbv_d(nv,nv,mdim), source = ppb(nc1:ncnv,nc1:ncnv,1:mdim,icp))
-          allocate (ppbc_d(nv,max(1,ncorec),mdim), source = ppb(nc1:ncnv,1:(max(1,ncorec)),1:mdim,icp))
+          allocate(ppbvphiq_d(nv,ntp0,mdim))
+          allocate(cphim_d(nv,nt0), source = cphim(ias:iae,nmini:nmmax))
+          allocate(cphiq_d(nv,ntp0), source = cphiq(ias:iae,nqini:nqmax))
+          allocate(ppbv_d(nv,nv,mdim), source = ppb(nc1:ncnv,nc1:ncnv,1:mdim,icp))
+          allocate(ppbc_d(nv,max(1,ncorec),mdim), source = ppb(nc1:ncnv,1:(max(1,ncorec)),1:mdim,icp))
 
-          allocate (zmelt_d(nt0,ntp0,mdim))
+          allocate(zmelt_d(nt0,ntp0,mdim))
           ierr = zmm_sb(mm_op_t, mm_op_n, nv, ntp0, nv, (1d0,0d0), ppbv_d, nv, int(nv*nv,8), &
                       & cphiq_d, nv, 0_8, (0d0,0d0), ppbvphiq_d, nv, int(nv*ntp0,8), mdim)
           ierr = zmm_sb(mm_op_c, mm_op_n, nt0, ntp0, nv, phasea(ia), cphim_d, nv, 0_8, &
@@ -176,7 +176,7 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
           !$acc end kernels
           deallocate(zmelt_d)
 
-          allocate (zmelt_d(mdim,ntp0,max(ncorec,1)))
+          allocate(zmelt_d(mdim,ntp0,max(ncorec,1)))
           ierr = zmm_sb(mm_op_t, mm_op_n, mdim, ntp0, nv, phasea(ia), ppbc_d, nv*max(ncorec,1), int(nv,8), &
                       & cphiq_d, nv, 0_8, (0d0,0d0), zmelt_d, mdim, int(mdim*ntp0,8), ncorec)
           !$acc kernels
@@ -186,7 +186,7 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
           !$acc end kernels
           deallocate(zmelt_d)
 
-          allocate (zmelt_d(mdim,nt0,max(nccc,1)))
+          allocate(zmelt_d(mdim,nt0,max(nccc,1)))
           ierr = zmm_sb(mm_op_c, mm_op_n, mdim, nt0, nv, (1D0,0d0), ppbc_d, nv*max(ncorec,1), int(nv,8), &
                       & cphim_d, nv, 0_8, (0d0,0d0), zmelt_d, mdim, int(mdim*ntp0,8), nccc)
           !$acc kernels
@@ -245,7 +245,7 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
             zmelp0(igc,1:nt0,1:ntp0) = phase(igc)*zmelp0(igc,1:nt0,1:ntp0)
           enddo
           !$acc end kernels
-          allocate (zmelt_d(ngc,nt0,ntp0))
+          allocate(zmelt_d(ngc,nt0,ntp0))
           ierr = zmm(mm_op_n, mm_op_n, ngc, ntp0*nt0, ngc, (1d0,0d0), &
                   &  ppovlinv, ngc, zmelp0, ngc, (0d0,0d0), zmelt_d, ngc) 
           !$acc kernels
@@ -275,71 +275,67 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
 
     call cpu_time(t1)
     TimeConsumingRcxq: block 
-      integer :: jpm, it, itp, iwmin, iwmax, nprpr, iprpr
-      real(kindrcxq), allocatable :: rcxqr(:,:,:), rcxqi(:,:,:)
-      complex(8) :: zwz, zz
+      integer :: jpm, it, itp, ittp, nttp_max, nttp_
+      integer, allocatable :: nttp(:,:),  itw(:,:,:), itpw(:,:,:)
+      complex(8), allocatable :: zw(:,:), wzw(:,:)
+      real(8), allocatable :: whw(:,:,:)
+#ifdef __GPU
+      attributes(device) :: zw, wzw
+#endif
+      allocate(nttp(nwhis,npm), source = 0)
+      do icoun = icounkmink, icounkmaxk
+        jpm = jpmc(icoun)
+        do iw = iwini(icoun), iwend(icoun)
+          nttp(iw,jpm) = nttp(iw,jpm) + 1
+        enddo
+      enddo
 
-      nprpr = (npr*(npr+1))/2
-      allocate(rcxqr(nprpr,nwhis,npm))
-      allocate(rcxqi(nprpr,nwhis,npm))
-      iwmin = icouini(icounkmink)
-      iwmax = icouini(icounkmaxk)+iwend(icounkmaxk)-iwini(icounkmaxk)
-      !$acc data create(rcxqr, rcxqi), copyin(jpmc(icounkmink:icounkmaxk), itc(icounkmink:icounkmaxk), &
-      !$acc      itpc(icounkmink:icounkmaxk), iwini(icounkmink:icounkmaxk), iwend(icounkmink:icounkmaxk), &
-      !$acc      icouini(icounkmink:icounkmaxk), whwc(iwmin:iwmax))
+      nttp_max = maxval(nttp(1:nwhis,1:npm))
+      allocate (itw(nttp_max,nwhis,npm), source = 0)
+      allocate (itpw(nttp_max,nwhis,npm), source = 0)
+      allocate (whw(nttp_max,nwhis,npm), source = 0d0)
 
-      !$acc kernels
-      rcxqr(1:nprpr,1:nwhis,1:npm) = 0d0
-      !$acc end kernels
-      !$acc kernels
-      rcxqi(1:nprpr,1:nwhis,1:npm) = 0d0
-      !$acc end kernels
-
-      !$acc kernels
-      !$acc loop independent gang
+      nttp(1:nwhis,1:npm) = 0
       do icoun = icounkmink, icounkmaxk
         jpm = jpmc(icoun)
         it  = itc (icoun)
         itp = itpc(icoun)
-        !$acc loop seq
         do iw = iwini(icoun), iwend(icoun)
-          !$acc loop independent collapse(2) vector
-          do igb2 = 1, npr
-            do igb1 = 1, npr
-              if(igb1 > igb2) cycle
-              iprpr = ((igb2-1)*igb2)/2 + igb1
-              zz = dconjg(zmel(igb1,it,itp))*zmel(igb2,it,itp)
-              zwz = whwc(iw-iwini(icoun)+icouini(icoun))*zz
-              !$acc atomic update
-              rcxqr(iprpr,iw,jpm) = rcxqr(iprpr,iw,jpm) + real(zwz,kind=kindrcxq)
-              !$acc end atomic
-              !$acc atomic update
-              rcxqi(iprpr,iw,jpm) = rcxqi(iprpr,iw,jpm) - real(zwz*img,kind=kindrcxq)
-              !$acc end atomic
-            enddo
-          enddo
+          nttp(iw,jpm) = nttp(iw,jpm) + 1
+          ittp = nttp(iw,jpm)
+          itw(ittp,iw,jpm) = it
+          itpw(ittp,iw,jpm) = itp
+          whw(ittp,iw,jpm) = whwc(iw-iwini(icoun)+icouini(icoun))
         enddo
       enddo
-      !$acc end kernels
-      !$acc kernels loop independent collapse(4)
+      print *, 'nttp_max, sum(nttp)', nttp_max, sum(nttp(1:nwhis,1:npm))
+      ! do iw = 1, nwhis
+      !   print *, 'iw:', iw, nttp(iw,1:npm)
+      ! enddo
+      allocate(wzw(npr,nttp_max), zw(npr,nttp_max))
+      !$acc host_data use_device(rcxq)
+      !$acc data copyin(whw, itw, itpw)
       do jpm = 1, npm
         do iw = 1, nwhis
-          do igb2 = 1, npr
+          if (nttp(iw,jpm) < 1) cycle
+          !$acc kernels loop independent collapse(2)
+          do ittp = 1, nttp(iw,jpm)
             do igb1 = 1, npr
-              if(igb1 > igb2) then
-                iprpr = ((igb1-1)*igb1)/2 + igb2
-                rcxq(igb1,igb2,iw,jpm) = rcxq(igb1,igb2,iw,jpm) + rcxqr(iprpr,iw,jpm) - rcxqi(iprpr,iw,jpm)*img
-              else
-                iprpr = ((igb2-1)*igb2)/2 + igb1
-                rcxq(igb1,igb2,iw,jpm) = rcxq(igb1,igb2,iw,jpm) + rcxqr(iprpr,iw,jpm) + rcxqi(iprpr,iw,jpm)*img
-              endif
+              it  = itw(ittp,iw,jpm)
+              itp = itpw(ittp,iw,jpm)
+              zw(igb1,ittp) = dconjg(zmel(igb1,it,itp))
+              wzw(igb1,ittp) = zmel(igb1,it,itp)*whw(ittp,iw,jpm)
             enddo
           enddo
+          !$acc end kernels
+          ierr = zmm(mm_op_n, mm_op_t, npr, npr, nttp(iw,jpm), (1d0,0d0), zw, npr, &
+                   & wzw, npr, (1d0,0d0), rcxq(1,1,iw,jpm), npr)
         enddo
       enddo
-      !$acc end kernels
       !$acc end data
-      deallocate(rcxqr, rcxqi)
+      !$acc end host_data
+      deallocate(itw, itpw, whw, wzw, zw)
+
     endblock TimeConsumingRcxq
     call cpu_time(t2)
     print '(1x,A,A,2F10.6)','x0:', acway, (t2-t1)

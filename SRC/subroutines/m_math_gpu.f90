@@ -1,6 +1,7 @@
 module m_math_gpu
 #ifdef __GPU
   use cublas_v2
+  use cudafor
   implicit none
   public :: zmm, zmm_sb, mm_op_n, mm_op_t, mm_op_c
   integer, parameter :: mm_op_n = cublas_op_n 
@@ -24,7 +25,8 @@ module m_math_gpu
       istat = cublascreate(handle)
       tfirst = .false.
     endif
-    istat = cublaszgemm3m(handle, transa, transb,  m, n, k, alpha, a, lda , b, ldb, beta, c, ldc)
+    istat = cublaszgemm(handle, transa, transb,  m, n, k, alpha, a, lda , b, ldb, beta, c, ldc)
+ 
   end function zmm
   function zmm_sb(transa, transb, m, n, k, alpha, a, lda, stridea, b, ldb, strideb, beta, c, ldc, stridec, nbatch) &
      & result(istat)
@@ -41,7 +43,6 @@ module m_math_gpu
       istat = cublascreate(handle)
       tfirst = .false.
     endif
-    if(nbatch == 0 ) return
     istat = cublaszgemmstridedbatched(handle, transa, transb,  m, n, k,  &
                &  alpha, a, lda, stridea, b, ldb, strideb, beta, c, ldc, stridec, nbatch)
   end function zmm_sb
