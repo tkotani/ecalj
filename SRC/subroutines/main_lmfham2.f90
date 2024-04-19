@@ -65,8 +65,8 @@ contains
     complex(8),allocatable:: hmmr2(:,:,:,:),ommr2(:,:,:,:),wmat(:,:),wmat2(:,:),cnk0(:,:,:),amnki(:,:,:),cnk0i(:,:,:)
     character(256):: fband2,fband1
     logical:: cmdopt2,noinner,eLinnerauto,ELhardauto,eUinnerauto,convn,eUouterauto,skipdfinner,EUautosp,debug=.false.
-    real(8):: WTseed,eoffset, projcut,ewid,ewideV,eUinnercut,eouter,CUouter,WTouter,EUouter,CLhard,eUoutereV,CUinner,eLhardeVoffset &
-         ,eUBinner
+    real(8):: WTseed,eoffset, projcut,ewid,ewideV,eUinnercut,eouter,CUouter,WTouter,EUouter,CLhard,eUoutereV,CUinner,&
+         eLhardeVoffset,eUBinner
     character:: outs*20
     character(256):: aaa='',bbb=''
     integer:: nband_,nqbz_,iki_,ikf_,nMLO_,ilowest,ieLhard,iUinneradd,igrp,ndimmto
@@ -388,9 +388,9 @@ contains
                 !zmn(i,i)= zmn(i,i) + WTband*evl(i,iq) *filter2((evl(i,iq)-eLinner)/ewid) *filter2((eUinner-evl(i,iq))/ewid) !WTband is notso meaninful
                 !zmn(i,i)= zmn(i,i) - WTinner          *filter2((evl(i,iq)-eLinner)/ewid) *filter2((eUinner-evl(i,iq))/ewid) !
                 !Main difference of following filters are just the shift of cutoff center. For Si666 new one can give better agreements.
-                zmn(i,i)=zmn(i,i) + (WTband*evl(i,iq)-WTinner)*(1-filter2((evl(i,iq)-eUinner)/ewid)-filter2((eLinner-evl(i,iq))/ewid)) !inner window
-                zmn(i,i)=zmn(i,i) + WTouter*filter2((evl(i,iq)-eUouter)/ewid)  !outer penaltiy
-                WTinnerii(i) =      WTinner*(1-filter2((evl(i,iq)-eUinner)/ewid)-filter2((eLinner-evl(i,iq))/ewid))
+                zmn(i,i)=zmn(i,i)+(WTband*evl(i,iq)-WTinner)*(1-filter2((evl(i,iq)-eUinner)/ewid)-filter2((eLinner-evl(i,iq))/ewid)) !inner window
+                zmn(i,i)=zmn(i,i)+ WTouter*filter2((evl(i,iq)-eUouter)/ewid)  !outer penaltiy
+                WTinnerii(i) =     WTinner*(1-filter2((evl(i,iq)-eUinner)/ewid)-filter2((eLinner-evl(i,iq))/ewid))
              enddo WTbandinnerBlock
              HardInnerBlock: block ! hard innerwindow
                real(8),parameter:: zhard=-1d8, zavoid=1d8
