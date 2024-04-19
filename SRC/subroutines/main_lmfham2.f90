@@ -374,7 +374,7 @@ contains
                 zmn0(1:ndz,1:ndz) = zmn0(1:ndz,1:ndz) - 2d0*wbb(ibb)*upu(iki:ikf,iki:ikf,ibb,iq)
              enddo
              zmn=zmn0
-             WTbandBlock: do concurrent(i=iki:ikf)
+             WTbandBlock: do i=iki,ikf
                 WTbandii(i)= WTband*evl(i,iq)
              enddo WTbandBlock
              WTseedBlock: block !zmn can be multipled by energy window in future.
@@ -383,7 +383,7 @@ contains
                   zmn(iki:ikf,iki:ikf)= zmn(iki:ikf,iki:ikf) - WTseed*zmns !gain
                endif
              endblock WTseedBlock
-             WTbandinnerBlock: do concurrent(i=iki:ikf) !Add gain for inner window. Soft inner window.
+             WTbandinnerBlock: do i=iki,ikf !Add gain for inner window. Soft inner window.
                 !This new filter seems dependent too much on pxbarameters.
                 !zmn(i,i)= zmn(i,i) + WTband*evl(i,iq) *filter2((evl(i,iq)-eLinner)/ewid) *filter2((eUinner-evl(i,iq))/ewid) !WTband is notso meaninful
                 !zmn(i,i)= zmn(i,i) - WTinner          *filter2((evl(i,iq)-eLinner)/ewid) *filter2((eUinner-evl(i,iq))/ewid) !
