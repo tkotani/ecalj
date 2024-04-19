@@ -1,7 +1,7 @@
 module m_gpu
   use m_mpi, only: comm, nsize=>mpi__size, procid=>mpi__rank
   implicit none
-  public :: gpu_init, check_memory_gpu, matm_gpu
+  public :: gpu_init, check_memory_gpu
   logical, protected :: use_gpu = .false.
   private
   include "mpif.h"

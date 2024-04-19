@@ -129,8 +129,8 @@ contains
     real(8) :: t1, t2
     npr=nprin
     qq=q
-    ! GPUTEST = cmdopt0('--gpu')
-    GPUTEST = .true.
+    GPUTEST = cmdopt0('--x0gpu')
+    ! GPUTEST = .true.
     if(realomega) allocate(zxq(npr,npr,nw_i:nw),source=(0d0,0d0))
     if(imagomega) allocate(zxqi(npr,npr,niw),source=(0d0,0d0))
     if(cmdopt0('--emptyrun'))  return

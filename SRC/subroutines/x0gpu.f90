@@ -8,6 +8,7 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
   use m_x0kf,only:        nqini,nqmax,ns1,ns2
   use m_rdpp,only:        nbloch,nblocha
   use m_kind,only: kindrcxq
+  !$use omp_lib
   implicit none
   intent(in)::        npr,nwhis,npm
   intent(inout)::rcxq
@@ -23,16 +24,8 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
   real(8):: ppb(nlnmx,nlnmx,mdimx,nclass) ! ppb= <Phi(SLn,r-R)_q,isp1 |Phi(SL'n',r-R)_qk,isp2 B_k(S,i,rot^{-1}(r-R))>
   real(8):: tr(3,natom),shtv(3)
 
-#ifdef __GPU
-  character(len=3) :: acway = 'gpu'
-#else
-  character(len=3) :: acway = 'cpu'
-#endif
-  real(8) :: t1, t2
-
   complex(8):: phasea(natom) 
   integer:: iasx(natom),icsx(natom),imdim(natom),iatomp(natom),nmini,nmmax,nmtot,nqtot,nt0,ntp0
-  call cpu_time(t1)
   SetByCPU :block
     use m_zmel,only: miat,tiat,shtvg,ppbir
     use m_x0kf,only: qrk,qq,ispm,ispq
@@ -83,8 +76,6 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
     nqtot  = ncc   + ntp0    ! = phi_end
     phasea = [(exp(-img *tpi* sum(kvec*tr(:,ia))),ia=1,natom)] 
   end block SetByCPU
-  call cpu_time(t2)
-  print '(1x,A,2F10.6)','x0setcpu' ,(t2-t1)
   !We have to send all variables SetByCPU. rcxq should be kept in GPU during kloop:do 1500 in x0kf_v4hz
   GPUblock:block
     use m_zmel,only: ppovlz,nbb
@@ -115,7 +106,6 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
 #ifdef __GPU
       attributes(device) :: zmelt
 #endif
-      call cpu_time(t1)
       !$acc kernels
       zmelt=0d0
       !$acc end kernels
@@ -141,29 +131,12 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
           mdim  = nblocha(icp)
           ncorec= merge(ncore(ic),0,nctot>0)
           nccc  = merge(ncore(ic),0,ncc>0)
-          ! associate(      &
-          !      dcphiqk => dconjg(cphim(ias:iae,nmini:nmmax)),&
-          !      tdcphiqk=> transpose(dconjg(cphim(ias:iae,nmini:nmmax))),&
-          !      cphiq   => cphiq(ias:iae,nqini:nqmax),&
-          !      ppbc    => ppb(nc1:ncnv,icore(1:ncorec,ic),:,icp)) !all readin but we need only bands nmini: or nqini:
-          !   do concurrent(i=1:mdim) !valence-valence  !=== this may be time-consuming block ==================
-          !     zmelt(i-1+ims,nctot+1:nctot+nt0,ncc+1:ncc+ntp0)=phasea(ia) &
-          !          *matmul(tdcphiqk,matmul(transpose(ppb(nc1:ncnv,nc1:ncnv,i,icp)),cphiq))
-          !   enddo
-          !   do concurrent(it=1:ncorec) !core-valence
-          !     zmelt(ims:ime, ics+it, ncc+1:ncc+ntp0)=phasea(ia)* matmul(transpose(ppbc(:,it,1:mdim)),cphiq(:,1:ntp0))
-          !   enddo
-          !   do concurrent(itp=1:nccc) !valence-core
-          !     zmelt(ims:ime, nctot+1:nctot+nt0, ics+itp)=phasea(ia)*matmul(transpose(ppbc(:,itp,1:mdim)),dcphiqk(:,1:nt0))
-          !   enddo                              !^^^^^^^^^phasea(ia) right? 2024-1-7 or phasea(ia) or dcongj(phasea(ia))?
-          ! endassociate
 
           allocate(ppbvphiq_d(nv,ntp0,mdim))
           allocate(cphim_d(nv,nt0), source = cphim(ias:iae,nmini:nmmax))
           allocate(cphiq_d(nv,ntp0), source = cphiq(ias:iae,nqini:nqmax))
-          allocate(ppbv_d(nv,nv,mdim), source = ppb(nc1:ncnv,nc1:ncnv,1:mdim,icp))
-          allocate(ppbc_d(nv,max(1,ncorec),mdim), source = ppb(nc1:ncnv,1:(max(1,ncorec)),1:mdim,icp))
-
+          allocate(ppbv_d(nv,nv,mdim), source = dcmplx(ppb(nc1:ncnv,nc1:ncnv,1:mdim,icp)))
+          allocate(ppbc_d(nv,max(1,ncorec),mdim), source = dcmplx(ppb(nc1:ncnv,1:(max(1,ncorec)),1:mdim,icp)))
           allocate(zmelt_d(nt0,ntp0,mdim))
           ierr = zmm_sb(mm_op_t, mm_op_n, nv, ntp0, nv, (1d0,0d0), ppbv_d, nv, int(nv*nv,8), &
                       & cphiq_d, nv, 0_8, (0d0,0d0), ppbvphiq_d, nv, int(nv*ntp0,8), mdim)
@@ -197,10 +170,7 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
           deallocate(zmelt_d, ppbvphiq_d, cphim_d, cphiq_d, ppbv_d, ppbc_d)
         enddo iatomloop
       endblock ZmelWithinMT
-      call cpu_time(t2)
-      print '(1x,A,A,2F10.6)','zmelMT:', acway, (t2-t1)
 
-      call cpu_time(t1)
       if(ngc/=0)then
         ZmelIPW:block  !> Mattrix elements <Plane psi |psi> from interstitial plane wave.
           integer:: igcgp2,nn(3),iggg,igp1,itp,igc,igp2,igcgp2i_(ngc,ngp2), it
@@ -256,10 +226,7 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
         endblock ZmelIPW
         deallocate(geigq, dgeigqk)
       endif
-      call cpu_time(t2)
-      print '(1x,A,A,2F10.6)','zmelIPW:', acway, (t2-t1)
 
-      call cpu_time(t1)
       allocate(zmel(nbb,ns1:ns2,nqtot))
       !$acc data copyin(ppovlz(1:ngb,1:nbb)) 
       ierr = zmm(mm_op_c, mm_op_n, nbb, nmtot*nqtot, ngb, (1d0,0d0), ppovlz, ngb, zmelt, ngb, (0d0,0d0), zmel, ngb)
@@ -270,12 +237,9 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
       endif
       !$acc end data
     endblock ZmelBlock
-    call cpu_time(t2)
-    print '(1x,A,A,2F10.6)','zmelzmm:', acway, (t2-t1)
 
-    call cpu_time(t1)
     TimeConsumingRcxq: block 
-      integer :: jpm, it, itp, ittp, nttp_max, nttp_
+      integer :: jpm, it, itp, ittp, nttp_max
       integer, allocatable :: nttp(:,:),  itw(:,:,:), itpw(:,:,:)
       complex(8), allocatable :: zw(:,:), wzw(:,:)
       real(8), allocatable :: whw(:,:,:)
@@ -308,14 +272,15 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
           whw(ittp,iw,jpm) = whwc(iw-iwini(icoun)+icouini(icoun))
         enddo
       enddo
-      print *, 'nttp_max, sum(nttp)', nttp_max, sum(nttp(1:nwhis,1:npm))
+      ! print *, 'nttp_max, sum(nttp)', nttp_max, sum(nttp(1:nwhis,1:npm))
       ! do iw = 1, nwhis
       !   print *, 'iw:', iw, nttp(iw,1:npm)
       ! enddo
-      allocate(wzw(npr,nttp_max), zw(npr,nttp_max))
+      allocate(wzw(nttp_max,npr), zw(nttp_max,npr))
       !$acc host_data use_device(rcxq)
       !$acc data copyin(whw, itw, itpw)
       do jpm = 1, npm
+        !!$omp parallel do private(iw, ittp, igb1, it, itp, zw, wzw) shared(rcxq) schedule(dynamic,10) 
         do iw = 1, nwhis
           if (nttp(iw,jpm) < 1) cycle
           !$acc kernels loop independent collapse(2)
@@ -323,22 +288,25 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
             do igb1 = 1, npr
               it  = itw(ittp,iw,jpm)
               itp = itpw(ittp,iw,jpm)
-              zw(igb1,ittp) = dconjg(zmel(igb1,it,itp))
-              wzw(igb1,ittp) = zmel(igb1,it,itp)*whw(ittp,iw,jpm)
+              zw(ittp,igb1) = zmel(igb1,it,itp)
+              wzw(ittp,igb1) = zmel(igb1,it,itp)*whw(ittp,iw,jpm)
             enddo
           enddo
           !$acc end kernels
-          ierr = zmm(mm_op_n, mm_op_t, npr, npr, nttp(iw,jpm), (1d0,0d0), zw, npr, &
-                   & wzw, npr, (1d0,0d0), rcxq(1,1,iw,jpm), npr)
+          ierr = zmm(mm_op_c, mm_op_n, npr, npr, nttp(iw,jpm), (1d0,0d0), zw, nttp_max, &
+                   & wzw, nttp_max, (1d0,0d0), rcxq(1,1,iw,jpm), npr)
         enddo
+        !!$omp end parallel do
       enddo
       !$acc end data
       !$acc end host_data
       deallocate(itw, itpw, whw, wzw, zw)
 
     endblock TimeConsumingRcxq
-    call cpu_time(t2)
-    print '(1x,A,A,2F10.6)','x0:', acway, (t2-t1)
+    ! print '(1x,A,A,F10.6)','zmelIPW:', acway, (t2-t1)
+    ! print '(1x,A,A,F10.6)','zmelzmm:', acway, (t2-t1)
+    ! print '(1x,A,A,2F10.6)','zmelMT:', acway, (t2-t1)
+    ! print '(1x,A,A,F10.6)','x0:', acway, (t2-t1)
     deallocate(zmel)
   endblock GPUblock
 end subroutine x0gpu

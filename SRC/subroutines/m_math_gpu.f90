@@ -25,7 +25,7 @@ module m_math_gpu
       istat = cublascreate(handle)
       tfirst = .false.
     endif
-    istat = cublaszgemm(handle, transa, transb,  m, n, k, alpha, a, lda , b, ldb, beta, c, ldc)
+    istat = cublaszgemm3m(handle, transa, transb,  m, n, k, alpha, a, lda , b, ldb, beta, c, ldc)
  
   end function zmm
   function zmm_sb(transa, transb, m, n, k, alpha, a, lda, stridea, b, ldb, strideb, beta, c, ldc, stridec, nbatch) &

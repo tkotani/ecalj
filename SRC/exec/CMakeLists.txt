@@ -71,8 +71,9 @@ if(FC MATCHES "gfortran")
   set(LIBM  -lmkl_rt) 
   add_link_options(-lmkl_rt)
 elseif(FC MATCHES "ifort")
-  set(CMAKE_Fortran_COMPILER mpiifort) # compiler
-  set(CMAKE_Fortran_FLAGS "-init:snan -fpic -assume byterecl") # compile flags
+  # set(CMAKE_Fortran_COMPILER mpiifort) # compiler
+  set(CMAKE_Fortran_COMPILER mpifort) # compiler
+  set(CMAKE_Fortran_FLAGS "-cpp -init:snan -fpic -assume byterecl") # compile flags
   set(LIBM  -mkl) 
   add_link_options(-mkl)
 elseif(FC MATCHES "nvfortran")
@@ -80,6 +81,7 @@ elseif(FC MATCHES "nvfortran")
   set(CMAKE_Fortran_FLAGS "-cpp -fpic") # "-Mvect=simd -mcmodel=medium -fpic") # compile flags
   set(LIBM  ) # set LIB variable
   add_link_options(-lmkl_intel_lp64 -lmkl_sequential -lmkl_core)
+  # add_link_options(-mp -Mmkl -lpthread)
   if(USE_GPU)
     # add_compile_options(-cpp -D__GPU -Minfo -Mfree -Mx,231,0xl -cuda -acc=gpu -cudalib=cufft,cublas,cusolver)
     add_compile_options(-cpp -D__GPU -Minfo -Mfree -cuda -acc=gpu -cudalib=cufft,cublas,cusolver)
