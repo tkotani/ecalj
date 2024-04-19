@@ -37,14 +37,19 @@ contains
     integer:: iarg,iprint,jobgw=-1,ierr
     logical:: cmdopt0,cmdopt2, writeham,sigx
     character:: outs*20,aaa*512,sss*128
-    character(32):: prgnam='LMF'
+    character(32):: prgnam
     integer:: comm
     include "mpif.h" 
-    comm=MPI_COMM_WORLD
-    if(present(commin)) comm= commin
-    !comm= merge(commin,MPI_COMM_WORLD,present(commin))
-    !  call m_setargs()     ! Get argall
-    call set_prgnam(prgnam) 
+    comm = MPI_COMM_WORLD
+    if(present(commin)) comm= commin     !comm= merge(commin,MPI_COMM_WORLD,present(commin))     !  call m_setargs()     ! Get argall
+    if(cmdopt2('--jobgw=',outs))then
+       prgnam='LMFGWD' !GW set up mode
+       read(outs,*) jobgw
+       if(jobgw/=0.and.jobgw/=1) call rx0(' Set --jobgw=0 or 1')
+    else
+       prgnam='LMF'
+    endif
+    call set_prgnam(prgnam)
     call m_MPItk_init(comm)  ! MPI info
     call m_ext_init()    ! Get sname, e.g. trim(sname)=si of ctrl.si
     call m_lgunit_init() ! Set file handle of stdo(console) and stdl(log)
@@ -56,11 +61,6 @@ contains
     if(master_mpi) write(stdo,"(a,g0)")'mpisize=',nsize
     if(master_mpi) write(stdl,"(a,g0)")'mpisize=',nsize
     !  call setcmdpath()         ! Set self-command path (this is for call system at m_lmfinit)
-    if(cmdopt2('--jobgw=',outs))then
-       prgnam='LMFGWD' !GW set up mode
-       read(outs,*) jobgw
-       if(jobgw/=0.and.jobgw/=1) call rx0(' Set --jobgw=0 or 1')
-    endif
     WritePdosmode: if( cmdopt0('--writepdos') ) then  ! See job_pdos. New pdos mode (use --mkprocar and --fullmesh together).
        ! We use all k points (--fullmesh), instead of using crystal symmetry. See job_pdos
        if(master_mpi) write(stdo,*) '... Doing writepdos mode. Wait a while ...'
@@ -68,7 +68,7 @@ contains
        call writepdos(trim(sname))
        call rx0('done: end of --writepdos mode.')
     endif WritePdosmode
-    WriteDOSsawadamode:  if( Cmdopt0('--wdsawada') ) then !! Sawada's simple mode and exit
+    WriteDOSsawadamode:  if( cmdopt0('--wdsawada') ) then !! Sawada's simple mode and exit
        if(master_mpi)write(stdo,*) '... write Dos from tetraf.dat and eigenf.dat. '
        if(master_mpi)write(stdo,*) '...  eigenf.dat is for qplistf.dat '
        call writedossawada()
