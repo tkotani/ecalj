@@ -11,7 +11,6 @@ workroot=testroot+'/work'
 shutil.rmtree(workroot,ignore_errors=True)
 os.mkdir(workroot)
 
-print('--- testecalj.py ---')
 "Set arguments"
 ttall=''
 npsize='4' #default
@@ -53,7 +52,7 @@ if(showt):
 "Install to bin"
 os.makedirs(bindir,exist_ok=True)
 exec='lmfa lmf run_arg job_pdos job_tdos ctrl2ctrlp.py a2vec.py \
- gwutil.py gwsc qg4gw hvccfp0 hsfp0_sc hqpe_sc hmaxloc hpsig_MPI huumat_MPI hwmatK_MPI hrcxq \
+ gwutil.py gwsc qg4gw hvccfp0 hsfp0_sc hqpe_sc hmaxloc hpsig_MPI huumat_MPI hwmatK_MPI hx0init hrcxq \
  rdata4gw_v2 heftet hbasfp0 gw_lmfh hx0fp0 hsfp0 hqpe eps_lmfh epsPP_lmfh epsPP_lmfh_chipm genMLWFx'
 for ex in exec.split():
     shutil.copy(ecaljroot+'/SRC/exec/'+ex,bindir)
@@ -69,6 +68,7 @@ epsPP_lmfh_chipm = testroot+'/bin/epsPP_lmfh_chipm '+np4
 gw_lmfh = testroot+'/bin/gw_lmfh '+np4
 gwsc0  = testroot+'/bin/gwsc 0 '+np4
 genm   = testroot+'/bin/genMLWFx '
+job_pdos= testroot+'/bin/job_pdos '
 
 "Start test as tname from testall"
 tall=''
@@ -197,7 +197,7 @@ for tname in testall.split():
         print(message1)
         runlist=[\
                  lmfa+" co -vmet=3 -vlmf=1 -vnk=8 -vnit=1 --pr31 > out.lmf-dos.co",\
-                 "../../bin/job_pdos co -np 4 -vmet=3 -vlmf=1 -vnk=8 -vnit=1 --pr31 ---NoGnuplot > out.lmf-dos.co"\
+                 job_pdos+" co "+ np4 +" -vmet=3 -vlmf=1 -vnk=8 -vnit=1 --pr31 ---NoGnuplot > out.lmf-dos.co"\
         ]
         for irun in runlist:
             print(irun)

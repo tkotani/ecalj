@@ -31,6 +31,7 @@ contains
     character(120),allocatable::arglist2(:)
     argall= trim(convcchar(cname))
     string=argall
+    argall=' '//argall
     if(allocated(arglist2)) deallocate(arglist2)
     allocate(arglist2(nx))
     narg=0
