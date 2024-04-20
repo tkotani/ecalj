@@ -101,6 +101,9 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
     integer:: icoun,igb1,igb2,iw,ia
     logical,parameter   :: zmelconjg=.true.
 
+    real(8) :: t1, t2
+
+    call cpu_time(t1)
     ZmelBlock: block ! ZmelBlock is a part of copy of get_zmel_init in m_zmel.f90
       complex(8):: zmelt(1:nbloch+ngc,nmtot,nqtot)
 #ifdef __GPU
@@ -239,7 +242,11 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
       endif
       !$acc end data
     endblock ZmelBlock
+    call cpu_time(t2)
+    print *, 'zmel:', (t2-t1)
+    call flush(6)
 
+    call cpu_time(t1)
     TimeConsumingRcxq: block 
       integer :: jpm, it, itp, ittp, nttp_max
       integer, allocatable :: nttp(:,:),  itw(:,:,:), itpw(:,:,:)
@@ -274,10 +281,10 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
           whw(ittp,iw,jpm) = whwc(iw-iwini(icoun)+icouini(icoun))
         enddo
       enddo
-      ! print *, 'nttp_max, sum(nttp)', nttp_max, sum(nttp(1:nwhis,1:npm))
-      ! do iw = 1, nwhis
-      !   print *, 'iw:', iw, nttp(iw,1:npm)
-      ! enddo
+      print *, 'nttp_max, sum(nttp)', nttp_max, sum(nttp(1:nwhis,1:npm))
+      do iw = 1, nwhis
+        print *, 'iw:', iw, nttp(iw,1:npm)
+      enddo
       allocate(wzw(nttp_max,npr), zw(nttp_max,npr))
       !$acc host_data use_device(rcxq)
       !$acc data copyin(whw, itw, itpw)
@@ -305,6 +312,9 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
       deallocate(itw, itpw, whw, wzw, zw)
 
     endblock TimeConsumingRcxq
+    call cpu_time(t2)
+    print *, 'x0iw:', (t2-t1)
+    call flush(6)
     ! print '(1x,A,A,F10.6)','zmelIPW:', acway, (t2-t1)
     ! print '(1x,A,A,F10.6)','zmelzmm:', acway, (t2-t1)
     ! print '(1x,A,A,2F10.6)','zmelMT:', acway, (t2-t1)
