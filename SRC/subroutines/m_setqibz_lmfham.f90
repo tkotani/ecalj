@@ -1,7 +1,7 @@
 !>qibz handling for lmfham1,2. a quick remedy.
 module m_setqibz_lmfham
    real(8),allocatable,protected:: qibz(:,:),qbzii(:,:,:)
-   integer,allocatable,protected:: irotq(:),irotg(:),ndiff(:,:),iqbzrep(:),iqii(:,:)
+   integer,allocatable,protected:: irotq(:),irotg(:),ndiff(:,:),iqbzrep(:),iqii(:,:),wiqbz(:)
    logical,allocatable,protected:: igiqibz(:,:)
    integer:: nqibz
    public:: set_qibz
@@ -10,8 +10,9 @@ contains
       integer:: nqbz,ngrp,i,ig,ibz,iqibz,iqbz
       real(8)::eps=1d-8
       real(8):: plat(3,3),qbz(3,nqbz),symops(3,3,ngrp),qp(3),qx(3)
-      allocate(qibz(3,nqbz),irotq(nqbz),irotg(nqbz),ndiff(3,nqbz),iqbzrep(nqbz))
+      allocate(qibz(3,nqbz),irotq(nqbz),irotg(nqbz),ndiff(3,nqbz),iqbzrep(nqbz),wiqbz(nqbz))
       iqibz=0
+      wiqbz=0d0
       do iqbz=1,nqbz
          qp = qbz(:,iqbz)
          do ig=1,ngrp
@@ -22,6 +23,7 @@ contains
                   irotq(iqbz)=i
                   irotg(iqbz)=ig
                   ndiff(:,iqbz) = nint(qx)
+                  wiqbz(iqbz)=wiqbz(iqbz)+1d0
                   goto 88
                endif
             enddo
@@ -44,6 +46,7 @@ contains
          iqii(ig,iqibz)=iqbz
          qbzii(:,ig,iqibz) = qbz(:,iqbz)
       enddo
+      wiqbz=wiqbz/nqbz
 !    forall( iqibz=1:nqibz) nigiq(iqibz) = count(igiqibz(:,iqibz))
       !write(6,*) 'nqbz nqibz ngrp=',nqbz,nqibz,ngrp
    endsubroutine set_qibz

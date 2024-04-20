@@ -60,7 +60,7 @@ contains
     complex(8),allocatable:: upu(:,:,:,:), zmn(:,:),zmn0(:,:),WTbandii(:),WTinnerii(:),zmns(:,:),ezmns(:,:)
     complex(8),parameter:: img=(0d0,1d0)
     complex(8),allocatable::ovlm(:,:),ovlmx(:,:),hamm(:,:),ovec(:,:)!,emat(:,:)
-    complex(8),allocatable:: uumat(:,:,:,:),evecc(:,:), amnk(:,:,:),cnk(:,:,:),cnki(:,:,:),umnk(:,:,:),&
+    complex(8),allocatable:: uumat(:,:,:,:),evecc(:,:), amnk(:,:,:),cnk(:,:,:),cnki(:,:,:),umnk(:,:,:),cnkb(:,:,:),&
          evecc1(:,:,:),evecc2(:,:,:),eveci(:,:,:)
     complex(8),allocatable:: hmmr2(:,:,:,:),ommr2(:,:,:,:),wmat(:,:),wmat2(:,:),cnk0(:,:,:),amnki(:,:,:),cnk0i(:,:,:)
     character(256):: fband2,fband1
@@ -121,7 +121,7 @@ contains
       call getkeyvalue("GWinput","mlo_CUouter", CUouter,default=0d0) !0.1d0)
       call getkeyvalue("GWinput","mlo_CUinner", CUinner,default=0.5d0)
       call getkeyvalue("GWinput","mlo_WTinner", WTinner,default=2048d0) ! inner energy window WeighTing
-      call getkeyvalue("GWinput","mlo_WTband" , WTband,default=0d0) !512d0) !1024d0)    ! Weight to minimize band energies. 64 or less for Cu.
+      call getkeyvalue("GWinput","mlo_WTband" , WTband,default=128d0) !512d0) !1024d0)    ! Weight to minimize band energies. 64 or less for Cu.
       call getkeyvalue("GWinput",'mlo_WTseed' , WTseed,default=128d0) !0d0)    ! Weight for seed.
       call getkeyvalue("GWinput","mlo_ELinner", eLinnereV,default=-1d8) ! inner energy windowL eV relative to VBM
       call getkeyvalue("GWinput","mlo_ewid",    ewideV, default=1d0)    ! inner energy window softing eV
@@ -262,7 +262,7 @@ contains
        !     write(6,*)'isp amnksum=',is,sum(abs(amnk))
        if(master_mpi) &
             write(stdo,ftox)'### isploop: is=',is,'out of',nspin,'ChooseSpace by cnk(init:iend,1:nMLO,1:nqbz)=',iki,ikf,nMLO,nqbz
-       allocate(upu(iki:ikf,iki:ikf,nbb,nqbz),cnk(iki:ikf,nMLO,nqbz),&
+       allocate(upu(iki:ikf,iki:ikf,nbb,nqbz),cnk(iki:ikf,nMLO,nqbz),cnkb(iki:ikf,nMLO,nbb),&
             cnki(iki:ikf,nMLO,nqibz),omgik(nqbz),evals(nqbz))!,zesum(nqbz)) !cnk2(iki:ikf,nMLO,nqbz)
        allocate(WTbandq(nqbz),WTinnerq(nqbz),proj(iki:ikf),projs(iki:ikf),projss(iki:ikf))
        callamnk2unk: block
@@ -306,7 +306,7 @@ contains
             if(eUinnerauto) eUinner=-9999d0/rydberg()+eferm
             if(eUouterauto) eUouter=-9999d0/rydberg()+eferm
             iUinner=nband
-            do iq=1,nqibz !nqbz
+            do iq=1,nqibz
                proj   = [(sum(cnki(i,:,iq)*dconjg(cnki(i,:,iq))),i=iki,ikf) ]
                projs  = [(sum(proj(i:ikf)),i=iki,ikf)]
                if(eUouterauto) then
@@ -343,7 +343,24 @@ contains
                write(stdo,ftox)' eUinner=',ftof((eUinner-eferm)*rydberg(),3),'eV',trim(aaa)
             endif
           endblock AUTOeUblock
-          iqloop: do iq = 1,nqbz
+          
+          iqloop: do iqibz = 1,nqibz !iq=1,nqbz !nqibz !nqbz
+             iq = iqbzrep(iqibz) !iq is the representative of iq
+             Getcnkatiqb: block
+               integer::iqibzb,iqbzb
+               complex(8)::rotmatmlo(nMLO,nMLO), rotmat(nband,nband)
+               !cnk(1:nband, 1:nMLO,iqb) <--- mapped from cnk at iqbz
+               do ibb = 1,nbb
+                  iqb= ikbidx(ibb,iq) ! iqb is the iqbz index for q+b
+                  iqibzb=  irotq(iqb) ! iqb belongs to iqibz=iqibzb 
+                  ig    =  irotg(iqb) ! iqb is rotated by ig. Thus qb = symops(::,ig),q+b
+                  iqbzb = iqbzrep(iqibzb) !iqbz index for iqibzb
+                  qp    = qbz(:,iqb)
+                  call rotmatMTO(igg=ig,q=qibz(:,iqibzb),qtarget=qp,ndimh=nband, rotmat=rotmat)
+                  cnkb(:,:,ibb) = matmul(rotmat(:,:),cnk(:,:,iqbzb)) !,dconjg(transpose(rotmatmlo(idmto_(:),idmto_(:))))) 
+               enddo
+             endblock Getcnkatiqb
+             
              nout = ikf - iki + 1
              ndz  = nout
              if(isc /= 1) alpha = alpha1
@@ -355,7 +372,7 @@ contains
                 i1= iki!iko_i(iqb)
                 i2= ikf!iko_f(iqb)
                 do concurrent(inp=i1:i2, imp=i1:i2) !wmat = cnk * cnk^{*} is projector to 'wannier space'.
-                   wmat(inp,imp)= sum(dconjg(cnk(inp,1:nMLO,iqb))*cnk(imp,1:nMLO,iqb)) !BUG-> sum was for nin+1:nMLO before 2023-6-8(miyake)
+                   wmat(inp,imp)= sum(dconjg(cnkb(inp,1:nMLO,ibb))*cnkb(imp,1:nMLO,ibb)) !BUG-> sum was for nin+1:nMLO before 2023-6-8(miyake)
                 enddo
                 do concurrent(inx=i1q:i2q, imp=i1:i2)
                    wmat2(imp,inx)= sum( wmat(i1:i2,imp)*dconjg(uumat(inx,i1:i2,ibb,iq)) ) !wmat*uumat
@@ -477,11 +494,11 @@ contains
                qp  = qbzii(:,ig,iqibz)
                fac0= 1d0/dble(nqbz)/ngrp
                call rotmatMTO(igg=ig,q=qibz(:,iqibz),qtarget=qp,ndimh=nband,   rotmat=rotmat)
-               rotmatmlo(:,:) = dconjg(transpose(rotmat(idmto_(:),idmto_(:))))
                cmlo = matmul(cmloi,dconjg(transpose(rotmat(idmto_(:),idmto_(:))))) ! |FMLO_i> = |PsiMPO_j> cmlo(j,i)
                forall(i=1:nMLO,j=1:nMLO) ham(i,j)  = sum(dconjg(cmlo(:,i))*evli(iki:ikf,iqibz)*cmlo(:,j))
                forall(i=1:nMLO,j=1:nMLO) ovlx(i,j) = sum(dconjg(cmlo(:,i))*cmlo(:,j))
                if(cmdopt0('--cmlo')) then !at iqibz
+                  rotmatmlo(:,:) = dconjg(transpose(rotmat(idmto_(:),idmto_(:))))
                   if(ig==1) then !at irreducible points
                      nmx =nMLO
                      call zhev_tk4(nMLO,ham,ovlx,nmx,nev, evll,evecl,oveps)! Diangonale (hamm - evl ovlm )evec=0
@@ -564,7 +581,7 @@ contains
          close(ifglt1)
          write(stdo,ftox)'OK! Run gnuplot -p '//trim(fname2)//'.Red points are by hmmr2 for Hamiltonian on {|MLO2>}'
        endblock Modifiedbandplotglt
-       deallocate(cnk,omgik,evals,wtbandq,wtinnerq,proj,projs,projss,upu,cnk0i)
+       deallocate(cnk,omgik,evals,wtbandq,wtinnerq,proj,projs,projss,upu,cnk0i,cnkb)
 1000 enddo ispinloop
     if(job==0) call rx0('OK! end of lmfham --job=0 --------')
     if(job==1) call rx0('OK! end of lmfham --job=1 --------')
