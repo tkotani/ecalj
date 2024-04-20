@@ -32,7 +32,7 @@ module m_math_cpu
     complex(4), dimension(ldc,*) :: c
     call cgemm3m(transa, transb,  m, n, k, alpha, a, lda , b, ldb, beta, c, ldc)
     istat = 0
-  end function zmm
+  end function cmm
 
   function zmm_sb(transa, transb, m, n, k, alpha, a, lda, stridea, b, ldb, strideb, beta, c, ldc, stridec, nbatch) &
      & result(istat)

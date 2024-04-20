@@ -24,9 +24,6 @@ module m_gpu
       end function gethostid
     end interface
 
-    use_gpu = cmdopt0('--gpu')
-    if (.not. use_gpu) return
-
 #ifdef __GPU
     allocate(hostids(nsize), source = 0)
     allocate(rankids(nsize), source = 0)

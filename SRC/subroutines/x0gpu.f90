@@ -8,7 +8,7 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
   use m_x0kf,only:        nqini,nqmax,ns1,ns2
   use m_rdpp,only:        nbloch,nblocha
   use m_kind,only: kindrcxq
-  !$use omp_lib
+  !$ use omp_lib
   implicit none
   intent(in)::        npr,nwhis,npm
   intent(inout)::rcxq
@@ -135,8 +135,10 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
           allocate(ppbvphiq_d(nv,ntp0,mdim))
           allocate(cphim_d(nv,nt0), source = cphim(ias:iae,nmini:nmmax))
           allocate(cphiq_d(nv,ntp0), source = cphiq(ias:iae,nqini:nqmax))
-          allocate(ppbv_d(nv,nv,mdim), source = dcmplx(ppb(nc1:ncnv,nc1:ncnv,1:mdim,icp)))
-          allocate(ppbc_d(nv,max(1,ncorec),mdim), source = dcmplx(ppb(nc1:ncnv,1:(max(1,ncorec)),1:mdim,icp)))
+          ! allocate(ppbv_d(nv,nv,mdim), source = dcmplx(ppb(nc1:ncnv,nc1:ncnv,1:mdim,icp))) !nvfortran did not accept but ifort did
+          ! allocate(ppbv_d(nv,nv,mdim), source =       (ppb(nc1:ncnv,nc1:ncnv,1:mdim,icp))) !ifort did not accept but nvfortran did
+          allocate(ppbv_d(nv,nv,mdim));  ppbv_d(1:nv,1:nv,1:mdim) = dcmplx(ppb(nc1:ncnv,nc1:ncnv,1:mdim,icp))
+          allocate(ppbc_d(nv,max(1,ncorec),mdim)); ppbc_d(1:nv,1:max(1,ncorec),1:mdim) = dcmplx(ppb(nc1:ncnv,1:(max(1,ncorec)),1:mdim,icp))
           allocate(zmelt_d(nt0,ntp0,mdim))
           ierr = zmm_sb(mm_op_t, mm_op_n, nv, ntp0, nv, (1d0,0d0), ppbv_d, nv, int(nv*nv,8), &
                       & cphiq_d, nv, 0_8, (0d0,0d0), ppbvphiq_d, nv, int(nv*ntp0,8), mdim)
@@ -280,7 +282,7 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
       !$acc host_data use_device(rcxq)
       !$acc data copyin(whw, itw, itpw)
       do jpm = 1, npm
-        !!$omp parallel do private(iw, ittp, igb1, it, itp, zw, wzw) shared(rcxq) schedule(dynamic,10) 
+        !$omp parallel do private(iw, ittp, igb1, it, itp, zw, wzw) shared(rcxq) schedule(dynamic,10) 
         do iw = 1, nwhis
           if (nttp(iw,jpm) < 1) cycle
           !$acc kernels loop independent collapse(2)
@@ -296,7 +298,7 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
           ierr = zmm(mm_op_c, mm_op_n, npr, npr, nttp(iw,jpm), (1d0,0d0), zw, nttp_max, &
                    & wzw, nttp_max, (1d0,0d0), rcxq(1,1,iw,jpm), npr)
         enddo
-        !!$omp end parallel do
+        !$omp end parallel do
       enddo
       !$acc end data
       !$acc end host_data
