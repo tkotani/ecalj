@@ -1,7 +1,7 @@
 !>qibz handling for lmfham1,2. a quick remedy.
 module m_setqibz_lmfham
-   real(8),allocatable,protected:: qibz(:,:),qbzii(:,:,:)
-   integer,allocatable,protected:: irotq(:),irotg(:),ndiff(:,:),iqbzrep(:),iqii(:,:),wiqbz(:)
+   real(8),allocatable,protected:: qibz(:,:),qbzii(:,:,:),wiqibz(:)
+   integer,allocatable,protected:: irotq(:),irotg(:),ndiff(:,:),iqbzrep(:),iqii(:,:)
    logical,allocatable,protected:: igiqibz(:,:)
    integer:: nqibz
    public:: set_qibz
@@ -10,9 +10,10 @@ contains
       integer:: nqbz,ngrp,i,ig,ibz,iqibz,iqbz
       real(8)::eps=1d-8
       real(8):: plat(3,3),qbz(3,nqbz),symops(3,3,ngrp),qp(3),qx(3)
-      allocate(qibz(3,nqbz),irotq(nqbz),irotg(nqbz),ndiff(3,nqbz),iqbzrep(nqbz),wiqbz(nqbz))
+      real(8),allocatable::wtemp(:)
+      allocate(qibz(3,nqbz),irotq(nqbz),irotg(nqbz),ndiff(3,nqbz),iqbzrep(nqbz),wiqibz(nqbz))
       iqibz=0
-      wiqbz=0d0
+      wiqibz=0d0
       do iqbz=1,nqbz
          qp = qbz(:,iqbz)
          do ig=1,ngrp
@@ -23,7 +24,7 @@ contains
                   irotq(iqbz)=i
                   irotg(iqbz)=ig
                   ndiff(:,iqbz) = nint(qx)
-                  wiqbz(iqbz)=wiqbz(iqbz)+1d0
+                  wiqibz(i)=wiqibz(i)+1d0
                   goto 88
                endif
             enddo
@@ -34,9 +35,13 @@ contains
          irotg(iqbz)=1 !identical symops ig=1
          ndiff(:,iqbz)=0
          iqbzrep(iqibz)= iqbz !representative
+         wiqibz(iqibz) = 1d0
 88       continue
       enddo
       nqibz=iqibz
+      allocate(wtemp,source=wiqibz(1:nqibz))
+      deallocate(wiqibz)
+      call move_alloc(from=wtemp,to=wiqibz)
       allocate(igiqibz(ngrp,nqibz),qbzii(3,ngrp,nqibz),iqii(ngrp,nqibz))
       igiqibz=.false.
       do concurrent(iqbz=1:nqbz)
@@ -46,7 +51,8 @@ contains
          iqii(ig,iqibz)=iqbz
          qbzii(:,ig,iqibz) = qbz(:,iqbz)
       enddo
-      wiqbz=wiqbz/nqbz
+      wiqibz=wiqibz/nqbz
+      write(6,*)'sum of wiqibz=',sum(wiqibz)
 !    forall( iqibz=1:nqibz) nigiq(iqibz) = count(igiqibz(:,iqibz))
       !write(6,*) 'nqbz nqibz ngrp=',nqbz,nqibz,ngrp
    endsubroutine set_qibz

@@ -17,7 +17,7 @@ contains
     ! We use diffent idea of connectivity from [2]. Roughly speaking, we define connectivitiy of eigenfunctions between k and k+b,
     ! not by the overlap of periodic part of eigenfunctions, but by the coefficients on |MLO>.
     !
-    use m_setqibz_lmfham,only: set_qibz,qibz,irotq,irotg,ndiff,iqbzrep,qbzii,igiqibz,nqibz,iqii
+    use m_setqibz_lmfham,only: set_qibz,qibz,irotq,irotg,ndiff,iqbzrep,qbzii,igiqibz,nqibz,iqii,wiqibz
     use m_ftox
     use m_lgunit,only: stdo,m_lgunit_init
     use m_zhev,only:zhev_tk4
@@ -133,7 +133,7 @@ contains
       if(ELhardeV>-1d7) ELhardauto=.false.
       if(master_mpi) then
          write(stdo,ftox)' Reading: mlo_maxit=',nsc1
-         write(stdo,ftox)'        : mlo_conv =',ftof(conv1)
+         write(stdo,ftox)'        : mlo_conv =',ftod(conv1)
          write(stdo,ftox)'        : mlo_mix  =',ftof(alpha1,2)
          write(stdo,ftox)'        : mlo_WTseed   =',ftof(WTseed,2)
          write(stdo,ftox)'        : mlo_WTband   =',ftof(WTband,2)
@@ -263,8 +263,8 @@ contains
        if(master_mpi) &
             write(stdo,ftox)'### isploop: is=',is,'out of',nspin,'ChooseSpace by cnk(init:iend,1:nMLO,1:nqbz)=',iki,ikf,nMLO,nqbz
        allocate(upu(iki:ikf,iki:ikf,nbb,nqbz),cnk(iki:ikf,nMLO,nqbz),cnkb(iki:ikf,nMLO,nbb),&
-            cnki(iki:ikf,nMLO,nqibz),omgik(nqbz),evals(nqbz))!,zesum(nqbz)) !cnk2(iki:ikf,nMLO,nqbz)
-       allocate(WTbandq(nqbz),WTinnerq(nqbz),proj(iki:ikf),projs(iki:ikf),projss(iki:ikf))
+            cnki(iki:ikf,nMLO,nqibz),omgik(nqibz),evals(nqibz))!,zesum(nqbz)) !cnk2(iki:ikf,nMLO,nqbz)
+       allocate(WTbandq(nqibz),WTinnerq(nqibz),proj(iki:ikf),projs(iki:ikf),projss(iki:ikf))
        callamnk2unk: block
          integer:: iko_i(nqbz),iko_f(nqbz)
          iko_i=iki
@@ -343,24 +343,28 @@ contains
                write(stdo,ftox)' eUinner=',ftof((eUinner-eferm)*rydberg(),3),'eV',trim(aaa)
             endif
           endblock AUTOeUblock
-          
           iqloop: do iqibz = 1,nqibz !iq=1,nqbz !nqibz !nqbz
              iq = iqbzrep(iqibz) !iq is the representative of iq
              Getcnkatiqb: block
                integer::iqibzb,iqbzb
-               complex(8)::rotmatmlo(nMLO,nMLO), rotmat(nband,nband)
-               !cnk(1:nband, 1:nMLO,iqb) <--- mapped from cnk at iqbz
+               complex(8)::rotmatmlo(nMLO,nMLO), rotmat(nband,nband), drotmat(nband,nband)
+               !!cnk(1:nband, 1:nMLO,iqb) <--- mapped from cnk at iqbz
                do ibb = 1,nbb
-                  iqb= ikbidx(ibb,iq) ! iqb is the iqbz index for q+b
-                  iqibzb=  irotq(iqb) ! iqb belongs to iqibz=iqibzb 
-                  ig    =  irotg(iqb) ! iqb is rotated by ig. Thus qb = symops(::,ig),q+b
-                  iqbzb = iqbzrep(iqibzb) !iqbz index for iqibzb
-                  qp    = qbz(:,iqb)
-                  call rotmatMTO(igg=ig,q=qibz(:,iqibzb),qtarget=qp,ndimh=nband, rotmat=rotmat)
-                  cnkb(:,:,ibb) = matmul(rotmat(:,:),cnk(:,:,iqbzb)) !,dconjg(transpose(rotmatmlo(idmto_(:),idmto_(:))))) 
+                 iqb= ikbidx(ibb,iq) ! iqb is the iqbz index for q+b
+                 iqibzb=  irotq(iqb) ! iqb belongs to iqibz=iqibzb 
+                 ig    =  irotg(iqb) ! iqb is rotated by ig. Thus qb = symops(::,ig),q+b
+                 iqbzb = iqbzrep(iqibzb) !iqbz index for iqibzb
+                 qp    = qbz(:,iqb)
+                 call rotmatMTO(igg=ig,q=qibz(:,iqibzb),qtarget=qp,ndimh=nband, rotmat=rotmat)
+                 drotmat = dconjg(transpose(rotmat))            
+                 cnkb(:,:,ibb) = matmul(cnk(:,:,iqbzb),drotmat(:,idmto(:))) !,dconjg(transpose(rotmatmlo(idmto_(:),idmto_(:))))) 
+!!               cnkb(:,:,ibb) = matmul(rotmat(:,:),cnk(:,:,iqbzb)) !,dconjg(transpose(rotmatmlo(idmto_(:),idmto_(:))))) 
                enddo
+!!               do ibb = 1,nbb
+!!                  iqb= ikbidx(ibb,iq) ! iqb is the iqbz index for q+b
+!!                  cnkb(:,:,ibb) = cnk(:,:,iqb) 
+!!                enddo
              endblock Getcnkatiqb
-             
              nout = ikf - iki + 1
              ndz  = nout
              if(isc /= 1) alpha = alpha1
@@ -421,17 +425,17 @@ contains
              call diag_hm(zmn,ndz,eval,evecc) !take smaller (negative bigger) ones.
              ! eval(i)/wbbs is normalized. If all eval(i)/wbbs=1, P_k=P_{k+b}.
              forall(iwf = 1:nMLO) cnk(iki:ikf,iwf,iq) = evecc(1:ndz,iwf)
-             evals(iq)= sum(eval(1:nMLO))
-             omgik(iq)= sum([(sum(dconjg(evecc(1:ndz,i))*matmul(zmn0,evecc(1:ndz,i))),i=1,nMLO)])
-             WTbandq(iq)= sum([(sum(dconjg(evecc(1:ndz,i))*WTbandii(1:ndz)*evecc(1:ndz,i)),i=1,nMLO)]) !2nd energy term
-             WTinnerq(iq)= sum([(sum(dconjg(evecc(1:ndz,i))*WTinnerii(1:ndz)*evecc(1:ndz,i)),i=1,nMLO)]) !
+             evals(iqibz)= sum(eval(1:nMLO))
+             omgik(iqibz)= sum([(sum(dconjg(evecc(1:ndz,i))*matmul(zmn0,evecc(1:ndz,i))),i=1,nMLO)])
+             WTbandq(iqibz)= sum([(sum(dconjg(evecc(1:ndz,i))*WTbandii(1:ndz)*evecc(1:ndz,i)),i=1,nMLO)]) !2nd energy term
+             WTinnerq(iqibz)= sum([(sum(dconjg(evecc(1:ndz,i))*WTinnerii(1:ndz)*evecc(1:ndz,i)),i=1,nMLO)]) !
              !write(stdo,ftox)'iq=',iq,'eval=',ftof(eval)
              deallocate (zmn,evecc,eval,zmn0,WTbandii,WTinnerii,zmns)
           enddo iqloop
-          omgi        = sum(omgik(:)*wbz(:))
-          WTbandqsum  = sum(WTbandq(:)*wbz(:))
-          WTinnerqsum = sum(WTinnerq(:)*wbz(:))
-          evalss      = sum(evals(:)*wbz(:))
+          omgi        = sum(omgik(:)*wiqibz(:))
+          WTbandqsum  = sum(WTbandq(:)*wiqibz(:))
+          WTinnerqsum = sum(WTinnerq(:)*wiqibz(:))
+          evalss      = sum(evals(:)*wiqibz(:))
           ! \sum eval = \sum zmn0 term + WTbandq + WTinnerq
           !    write(stdo,ftox)'#SC-loop, OmegaI_a Zsum=',isc,ftof(omgi),'=',ftof(zesi-evalss+WTbandqsum+WTinnerqsum)
           if(WTinner/=0d0) aaa='Pin='//trim(ftof(WTinnerqsum/WTinner/nMLO))
