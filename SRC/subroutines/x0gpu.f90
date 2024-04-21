@@ -234,7 +234,7 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
 
       allocate(zmel(nbb,ns1:ns2,nqtot))
       !$acc data copyin(ppovlz(1:ngb,1:nbb)) 
-      ierr = zmm(mm_op_c, mm_op_n, nbb, nmtot*nqtot, ngb, (1d0,0d0), ppovlz, ngb, zmelt, ngb, (0d0,0d0), zmel, ngb)
+      ierr = zmm(mm_op_c, mm_op_n, nbb, nmtot*nqtot, ngb, (1d0,0d0), ppovlz, ngb, zmelt, ngb, (0d0,0d0), zmel, nbb)
       if(zmelconjg) then
         !$acc kernels
         zmel = dconjg(zmel)
