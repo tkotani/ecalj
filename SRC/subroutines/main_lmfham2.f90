@@ -121,7 +121,7 @@ contains
       call getkeyvalue("GWinput","mlo_CUouter", CUouter,default=0d0) !0.1d0)
       call getkeyvalue("GWinput","mlo_CUinner", CUinner,default=0.5d0)
       call getkeyvalue("GWinput","mlo_WTinner", WTinner,default=2048d0) ! inner energy window WeighTing
-      call getkeyvalue("GWinput","mlo_WTband" , WTband,default=128d0) !512d0) !1024d0)    ! Weight to minimize band energies. 64 or less for Cu.
+      call getkeyvalue("GWinput","mlo_WTband" , WTband,default=32d0) !512d0) !1024d0)    ! Weight to minimize band energies. 64 or less for Cu.
       call getkeyvalue("GWinput",'mlo_WTseed' , WTseed,default=128d0) !0d0)    ! Weight for seed.
       call getkeyvalue("GWinput","mlo_ELinner", eLinnereV,default=-1d8) ! inner energy windowL eV relative to VBM
       call getkeyvalue("GWinput","mlo_ewid",    ewideV, default=1d0)    ! inner energy window softing eV
@@ -265,7 +265,7 @@ contains
        !     write(6,*)'isp amnksum=',is,sum(abs(amnk))
        if(master_mpi) &
             write(stdo,ftox)'### isploop: is=',is,'out of',nspin,'ChooseSpace by cnk(init:iend,1:nMLO,1:nqbz)=',iki,ikf,nMLO,nqbz
-       allocate(upu(iki:ikf,iki:ikf,nbb,nqbz),cnkb(iki:ikf,nMLO,nbb),&
+       allocate(upu(iki:ikf,iki:ikf,nbb,nqibz),cnkb(iki:ikf,nMLO,nbb),&
             cnki(iki:ikf,nMLO,nqibz),omgik(nqibz),evals(nqibz))!,zesum(nqbz)) !cnk2(iki:ikf,nMLO,nqbz)
        allocate(WTbandq(nqibz),WTinnerq(nqibz),proj(iki:ikf),projs(iki:ikf),projss(iki:ikf))
        callamnk2unk: block
@@ -300,11 +300,8 @@ contains
             if(isc==1.or.convn.or.isc==nsc1) write(stdo,ftox)' eLhard =',ftof((eLhard-eferm)*rydberg(),3),'eV'
           endblock AUTOeLhard
           AUTOeUblock:block
-            integer::ikff,imlo,ik,ibandx,ibandxx,iUinneri,n
-            real(8):: zmnsa(iki:ikf),nnc(iki:ikf,nMLO),ppp
-            character(5):: aaax
-            character(8):: xn
-            integer:: nlow,iUinner,iUouter
+            integer::ikff,imlo,ik,ibandx,ibandxx,iUinneri,n,nlow,iUinner,iUouter
+            real(8):: zmnsa(iki:ikf),nnc(iki:ikf,nMLO)
             if(eUinnerauto) eUinner=-9999d0/rydberg()+eferm
             if(eUouterauto) eUouter=-9999d0/rydberg()+eferm
             iUinner=nband
@@ -324,8 +321,7 @@ contains
                endif
                if(eUinnerauto) then !default
                   iUinner=-999
-                  do imlo=1,nMLO
-                     !                   proj = [(sum(cnk0(iki:ik,imlo,iq)*dconjg(cnk0(iki:ik,imlo,iq))),ik=iki,ikf)] !proj for each imlo
+                  do imlo=1,nMLO  !     proj = [(sum(cnk0(iki:ik,imlo,iq)*dconjg(cnk0(iki:ik,imlo,iq))),ik=iki,ikf)] !proj for each imlo
                      proj = [(sum(cnki(iki:ik,imlo,iq)*dconjg(cnki(iki:ik,imlo,iq))),ik=iki,ikf)] !proj for each imlo
                      !                   iUinner=max(findloc(proj>.5d0,value=.true.,dim=1),iUinner)
                      if(EUautosp.and.lindex(imlo)>=2) cycle
@@ -384,7 +380,7 @@ contains
                    wmat2(imp,inx)= sum( wmat(i1:i2,imp)*dconjg(uumat(inx,i1:i2,ibb,iqibz)) ) !wmat*uumat
                 enddo
                 do concurrent(imx=i1q:i2q, inx=i1q:i2q)!      upu=   uumat* wmat * uumat ! (1-2) <u_mk | P_k+b | u_nk>
-                   upu(imx,inx,ibb,iq)= (1d0-alpha)*upu(imx,inx,ibb,iq) + alpha*sum(uumat(imx,i1:i2,ibb,iqibz)*wmat2(i1:i2,inx))
+                   upu(imx,inx,ibb,iqibz)= (1d0-alpha)*upu(imx,inx,ibb,iqibz)+alpha*sum(uumat(imx,i1:i2,ibb,iqibz)*wmat2(i1:i2,inx))
                 enddo
              enddo
              deallocate(wmat,wmat2)
@@ -394,7 +390,7 @@ contains
              allocate (zmn0(ndz,ndz),source=(0d0,0d0)) ! (1-3) Zmn(k) > phi,eval
              allocate (zmn(ndz,ndz),zmns(ndz,ndz), evecc(ndz,ndz),eval(ndz),WTbandii(ndz),WTinnerii(ndz)) !,ezmns(ndz,ndz)
              do ibb = 1,nbb
-                zmn0(1:ndz,1:ndz) = zmn0(1:ndz,1:ndz) - 2d0*wbb(ibb)*upu(iki:ikf,iki:ikf,ibb,iq)
+                zmn0(1:ndz,1:ndz) = zmn0(1:ndz,1:ndz) - 2d0*wbb(ibb)*upu(iki:ikf,iki:ikf,ibb,iqibz)
              enddo
              zmn=zmn0
              WTbandBlock: do i=iki,ikf
@@ -434,13 +430,13 @@ contains
              !write(stdo,ftox)'iq=',iq,'eval=',ftof(eval)
              deallocate (zmn,evecc,eval,zmn0,WTbandii,WTinnerii,zmns)
           enddo iqloop
-          omgi        = sum(omgik(:)*wiqibz(:))
-          WTbandqsum  = sum(WTbandq(:)*wiqibz(:))
+          omgi        = sum(omgik(:)   *wiqibz(:))
+          WTbandqsum  = sum(WTbandq(:) *wiqibz(:))
           WTinnerqsum = sum(WTinnerq(:)*wiqibz(:))
-          evalss      = sum(evals(:)*wiqibz(:))
+          evalss      = sum(evals(:)   *wiqibz(:))
           ! \sum eval = \sum zmn0 term + WTbandq + WTinnerq
           !    write(stdo,ftox)'#SC-loop, OmegaI_a Zsum=',isc,ftof(omgi),'=',ftof(zesi-evalss+WTbandqsum+WTinnerqsum)
-          if(WTinner/=0d0) aaa='Pin='//trim(ftof(WTinnerqsum/WTinner/nMLO))
+          if(WTinner/=0d0)aaa='Pin='//trim(ftof(WTinnerqsum/WTinner/nMLO))
           if(WTband/=0d0) bbb='Emean(eV)='//trim(ftof((WTbandqsum/WTband/nMLO-eferm)*rydberg()))
           write(stdo,ftox)'#SC:isc=',isc,'Omega/nMLO=',ftof( (wbbs+omgi/2d0/nMLO)/tpia**2 + WTbandqsum/nMLO + WTinnerqsum/nMLO),&
                'Nabla2/nMLO(a.u.**2)=',ftof((wbbs+omgi/2d0/nMLO)/tpia**2/2d0 ),&
@@ -458,8 +454,6 @@ contains
           evalssold = evalss
           if(isc==nsc1) write(stdo,ftox)' Step1: not converged'
        enddo SouzaStep1loop
-
-!       forall(iqibz=1:nqibz) cnki(:,:,iqibz)=cnk(:,:,iqbzrep(iqibz))
        !! NOTE: cnk(iki:ikf,nMLO,nqbz) is the final results of Step1loop, which minimize Omega_I (Wannier space)
        !!   cnk(iko_i(iq):iko_f(iq),nMLO,iq) gives nMLO-dimentional space.
        GetHamiltonianforMTObyProjection: block  !We do not use Marzari's unitary rotation
@@ -468,7 +462,7 @@ contains
          complex(8),allocatable:: rotmatr(:,:),cmpoi(:,:),cpmtmlo_i(:,:),cpmtmlo(:,:) !,rmatpmt(:,:)
          complex(8)::img2pi=img*2d0*pi, rotmat(nband,nband)
          complex(8)::phase,proj(iki:ikf,iki:ikf),cmlo(iki:ikf,nMLO),cmloi(iki:ikf,nMLO),cmpomlo(iki:ikf,nMLO),&
-              ham(nMLO,nMLO),ovlx(nMLO,nMLO),evecl(nMLO,nMLO),rotmatmlo(nMLO,nMLO)
+              ham(nMLO,nMLO),ovlx(nMLO,nMLO),evecl(nMLO,nMLO),rotmatmlo(nMLO,nMLO),phaseij(natom,natom,npairmx)
          logical:: cmdopt0
          character(8):: xt
          jsp=is
@@ -515,17 +509,19 @@ contains
                      write(ificmlo) matmul(rotmatmlo,evecl) !c2 !rotation is |PsiMLO_iqbz>= |FMLO_iqibz>*rotmatmlo*evecl !cmlo contains rotation from iqibz to iqbz
                   endif
                endif ! |PsiMLO_iqbz> = |Psi_PMT_iqibz> c1(iqibz)*c2(iqbz)
-               !associate(ib=>ib_tableM)
+               do ib1=1,natom; do ib2=1,natom
+                  do it =1,npair(ib1,ib2)! hammr_ij (T)= \sum_k hamm(k) exp(ikT). it is the index for T
+                     phaseij(ib1,ib2,it) = fac0*exp( img2pi*sum(qp*matmul(plat,nlat(:,it,ib1,ib2))) )
+                  enddo
+               enddo; enddo
                do i=1,nMLO; do j=1,nMLO !Real space Hamiltonian. H(k)->H(T) FT to real space
                   ib1=ib_tableM(i)
                   ib2=ib_tableM(j)
                   do it =1,npair(ib1,ib2)! hammr_ij (T)= \sum_k hamm(k) exp(ikT). it is the index for T
-                     phase = exp( img2pi*sum(qp*matmul(plat,nlat(:,it,ib1,ib2))) )
-                     hmmr2(i,j,it,jsp)= hmmr2(i,j,it,jsp)+ ham(i,j) *fac0*phase
-                     ommr2(i,j,it,jsp)= ommr2(i,j,it,jsp)+ ovlx(i,j)*fac0*phase
+                     hmmr2(i,j,it,jsp)= hmmr2(i,j,it,jsp)+ ham(i,j) *phaseij(ib1,ib2,it)
+                     ommr2(i,j,it,jsp)= ommr2(i,j,it,jsp)+ ovlx(i,j)*phaseij(ib1,ib2,it)
                   enddo
                enddo; enddo
-               !          endassociate
             enddo igloop
             close(ificmlo)
          enddo
