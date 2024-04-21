@@ -60,9 +60,9 @@ contains
     complex(8),allocatable:: upu(:,:,:,:), zmn(:,:),zmn0(:,:),WTbandii(:),WTinnerii(:),zmns(:,:),ezmns(:,:)
     complex(8),parameter:: img=(0d0,1d0)
     complex(8),allocatable::ovlm(:,:),ovlmx(:,:),hamm(:,:),ovec(:,:)!,emat(:,:)
-    complex(8),allocatable:: uumat(:,:,:,:),evecc(:,:), amnk(:,:,:),cnk(:,:,:),cnki(:,:,:),umnk(:,:,:),cnkb(:,:,:),&
+    complex(8),allocatable:: uumat(:,:,:,:),evecc(:,:), amnk(:,:,:),cnki(:,:,:),umnk(:,:,:),cnkb(:,:,:),&
          evecc1(:,:,:),evecc2(:,:,:),eveci(:,:,:)
-    complex(8),allocatable:: hmmr2(:,:,:,:),ommr2(:,:,:,:),wmat(:,:),wmat2(:,:),cnk0(:,:,:),amnki(:,:,:),cnk0i(:,:,:)
+    complex(8),allocatable:: hmmr2(:,:,:,:),ommr2(:,:,:,:),wmat(:,:),wmat2(:,:),cnk0i(:,:,:)
     character(256):: fband2,fband1
     logical:: cmdopt2,noinner,eLinnerauto,ELhardauto,eUinnerauto,convn,eUouterauto,skipdfinner,EUautosp,debug=.false.
     real(8):: WTseed,eoffset, projcut,ewid,ewideV,eUinnercut,eouter,CUouter,WTouter,EUouter,CLhard,eUoutereV,CUinner,&
@@ -172,8 +172,8 @@ contains
     GetCNmatFile_job0: block  !job=0 mode to get CNmat file (connection matrix uumat and so on).
       real(8):: eps=1d-8
       complex(8):: emat(nband,nband),osq(1:nband,1:nband),o2al(1:nband,1:nband,nqbz),phase,ovlmm(nband,nMLO),&
-           evec(nband,nband,nqbz),evecx(1:nband,1:nband), ovec(nband,nband),amnk(iki:ikf,nMLO,nqbz),&
-           ovlm(1:nband,1:nband),ovlmx(1:nband,1:nband), hamm(1:nband,1:nband),uumat(iki:ikf,iki:ikf,nbb,nqbz)
+           evec(nband,nband,nqbz),evecx(1:nband,1:nband), ovec(nband,nband),amnk(iki:ikf,nMLO,nqibz),&
+           ovlm(1:nband,1:nband),ovlmx(1:nband,1:nband), hamm(1:nband,1:nband),uumat(iki:ikf,iki:ikf,nbb,nqibz)
       allocate(evl(nband,nqbz),ovl(nband),eveci(1:nband,1:nband,nqbz)) !NOTE: 20230805. When I declear evl in this block, ifort18.05 gives wrong results.
       write(stdo,ftox)'Going to get CNmat ... : nband for |MLO1>=',nband,'iki ikf=',iki,ikf
       open(newunit=ifuumat,file='CNmat',form='unformatted')
@@ -225,13 +225,16 @@ contains
               enddo
               o2al(:,:,iqbz) = matmul(osq, evec(:,:,iqbz)) !o2al(basis index, band index, iqbz index) O^(1/2)*evec
               forall(i=1:nband) ovlmm(i,:) = ovlmx(i,idmto(:))
-              amnk(:,:,iqbz)= matmul(transpose(dconjg(evec(1:nband,iki:ikf,iqbz))),ovlmm) !amnk(:,:)= <Psi^MPO(:)|MPOseed(:)>
+!              amnk(:,:,iqbz)= matmul(transpose(dconjg(evec(1:nband,iki:ikf,iqbz))),ovlmm) !amnk(:,:)= <Psi^MPO(:)|MPOseed(:)>
            enddo
-           do iqbz=1,nqbz
+           do iqibz=1,nqibz
+              iqbz=iqbzrep(iqibz)
+              ovlmm(:,:) = ovlmi(:,idmto(:),iqibz)
+              amnk(:,:,iqibz)= matmul(transpose(dconjg(eveci(1:nband,iki:ikf,iqibz))),ovlmm) !amnk(:,:)= <Psi^MPO(:)|MPOseed(:)>
               do ibb=1,nbb
                  iqb = ikbidx(ibb,iqbz)             !q1(:) = qbz(:,iqbz)             !q2(:) = q1(:) + bbv(:,ibb)
                  do concurrent(ib1=iki:ikf, ib2=iki:ikf) !ib1,ib2 band index of inner-inner window
-                    uumat(ib1,ib2,ibb,iqbz)= sum(dconjg(o2al(1:nband,ib1,iqbz))*o2al(1:nband,ib2,iqb)) ! define connection <q ib1| q+b ib2>
+                    uumat(ib1,ib2,ibb,iqibz)= sum(dconjg(o2al(1:nband,ib1,iqbz))*o2al(1:nband,ib2,iqb)) ! define connection <q ib1| q+b ib2>
                  enddo
               enddo
            enddo
@@ -250,9 +253,9 @@ contains
     open(newunit=ifuumat,file='CNmat',form='unformatted')
     allocate(hmmr2(nMLO,nMLO,npairmx,nspin),ommr2(nMLO,nMLO,npairmx,nspin),source=(0d0,0d0))
     allocate(evl(nband,nqbz), ovec(nband,nband),ovl(nband))
-    allocate(amnk(iki:ikf,nMLO,nqbz),amnki(iki:ikf,nMLO,nqibz),idmto_(nMLO))
+    allocate(amnk(iki:ikf,nMLO,nqibz),idmto_(nMLO))
     allocate(wbz(nqbz),source=1d0/nqbz)
-    allocate (uumat(iki:ikf,iki:ikf,nbb,nqbz),evli(nband,nqibz),eveci(nband,nband,nqibz))
+    allocate (uumat(iki:ikf,iki:ikf,nbb,nqibz),evli(nband,nqibz),eveci(nband,nband,nqibz))
     ispinloop: do 1000 is = 1,nspin
        read(ifuumat) nband_,nqbz_,iki_,ikf_,nMLO_,idmto_
        if(nMLO/=nMLO.or.sum(abs(idmto-idmto_))/=0) call rx0('lmfham2: idmto error: Repeat --job=1 with the same <Worb> in GWinput!')
@@ -262,18 +265,19 @@ contains
        !     write(6,*)'isp amnksum=',is,sum(abs(amnk))
        if(master_mpi) &
             write(stdo,ftox)'### isploop: is=',is,'out of',nspin,'ChooseSpace by cnk(init:iend,1:nMLO,1:nqbz)=',iki,ikf,nMLO,nqbz
-       allocate(upu(iki:ikf,iki:ikf,nbb,nqbz),cnk(iki:ikf,nMLO,nqbz),cnkb(iki:ikf,nMLO,nbb),&
+       allocate(upu(iki:ikf,iki:ikf,nbb,nqbz),cnkb(iki:ikf,nMLO,nbb),&
             cnki(iki:ikf,nMLO,nqibz),omgik(nqibz),evals(nqibz))!,zesum(nqbz)) !cnk2(iki:ikf,nMLO,nqbz)
        allocate(WTbandq(nqibz),WTinnerq(nqibz),proj(iki:ikf),projs(iki:ikf),projss(iki:ikf))
        callamnk2unk: block
-         integer:: iko_i(nqbz),iko_f(nqbz)
+         integer:: iko_i(nqibz),iko_f(nqibz)
          iko_i=iki
          iko_f=ikf
-         call amnk2unk(amnk,iki,ikf,iko_i,iko_f,nMLO,nqbz, cnk)
-         if(allocated(cnk0)) deallocate(cnk0)
-         allocate(cnk0(iki:ikf,nMLO,nqbz),source=cnk)
+         allocate(cnk0i(iki:ikf,nMLO,nqibz))
+         call amnk2unk(amnk,iki,ikf,iko_i,iko_f,nMLO,nqibz, cnk0i)
+         cnki=cnk0i
        endblock callamnk2unk
-       forall(iqibz=1:nqibz) amnki(iki:ikf,1:nMLO,iqibz)=amnk(iki:ikf,1:nMLO,iqbzrep(iqibz))
+!       forall(iqibz=1:nqibz) amnki(iki:ikf,1:nMLO,iqibz)=amnk(iki:ikf,1:nMLO,iqibz) !iqbzrep(iqibz))
+       !amnki=amnk
        !amnk=<Psi^MPO(it,iqbz)|MPO(1:nMLO) >.  Note that amnk was in Eq.22 in Ref.II. <psi|Gaussian>. We replace Gaussian with MPO.
        !cnk =<Psi^MPO(it,iqbz)|MPO_orth(1:nMLO)>.  |MPO_orth>= |MPO> O^{-1/2} !initial condition
        zesumold=1d10
@@ -282,8 +286,6 @@ contains
        wbbs=sum(wbb(1:nbb)) !we assume iko_i(iq)=1. If not, use evl(iko_i(iq),iq)
        convn=.false.
        SouzaStep1loop: do isc = 1,nsc1 ! choose Hilbert space -- determine cnk
-          forall(iqibz=1:nqibz) cnki(:,:,iqibz)=cnk(:,:,iqbzrep(iqibz))
-          if(isc==1) allocate(cnk0i(iki:ikf,nMLO,nqibz),source=cnki)
           AUTOeLhard:block
             if(eLhardauto) then! Search bottom of MPO Hamiltonian for given MTOsets to generate MLO.
                ieLhard=9999
@@ -357,7 +359,7 @@ contains
                  qp    = qbz(:,iqb)
                  call rotmatMTO(igg=ig,q=qibz(:,iqibzb),qtarget=qp,ndimh=nband, rotmat=rotmat)
                  drotmat = dconjg(transpose(rotmat))            
-                 cnkb(:,:,ibb) = matmul(cnk(:,:,iqbzb),drotmat(:,idmto(:))) !,dconjg(transpose(rotmatmlo(idmto_(:),idmto_(:))))) 
+                 cnkb(:,:,ibb) = matmul(cnki(:,:,iqibzb),drotmat(:,idmto(:))) !,dconjg(transpose(rotmatmlo(idmto_(:),idmto_(:))))) 
 !!               cnkb(:,:,ibb) = matmul(rotmat(:,:),cnk(:,:,iqbzb)) !,dconjg(transpose(rotmatmlo(idmto_(:),idmto_(:))))) 
                enddo
 !!               do ibb = 1,nbb
@@ -379,10 +381,10 @@ contains
                    wmat(inp,imp)= sum(dconjg(cnkb(inp,1:nMLO,ibb))*cnkb(imp,1:nMLO,ibb)) !BUG-> sum was for nin+1:nMLO before 2023-6-8(miyake)
                 enddo
                 do concurrent(inx=i1q:i2q, imp=i1:i2)
-                   wmat2(imp,inx)= sum( wmat(i1:i2,imp)*dconjg(uumat(inx,i1:i2,ibb,iq)) ) !wmat*uumat
+                   wmat2(imp,inx)= sum( wmat(i1:i2,imp)*dconjg(uumat(inx,i1:i2,ibb,iqibz)) ) !wmat*uumat
                 enddo
                 do concurrent(imx=i1q:i2q, inx=i1q:i2q)!      upu=   uumat* wmat * uumat ! (1-2) <u_mk | P_k+b | u_nk>
-                   upu(imx,inx,ibb,iq)= (1d0-alpha)*upu(imx,inx,ibb,iq) + alpha*sum(uumat(imx,i1:i2,ibb,iq)*wmat2(i1:i2,inx))
+                   upu(imx,inx,ibb,iq)= (1d0-alpha)*upu(imx,inx,ibb,iq) + alpha*sum(uumat(imx,i1:i2,ibb,iqibz)*wmat2(i1:i2,inx))
                 enddo
              enddo
              deallocate(wmat,wmat2)
@@ -400,7 +402,7 @@ contains
              enddo WTbandBlock
              WTseedBlock: block !zmn can be multipled by energy window in future.
                if(WTseed/=0d0) then !projection to Seed functions
-                  zmns = matmul(cnk0(iki:ikf,1:nMLO,iq),dconjg(transpose(cnk0(iki:ikf,1:nMLO,iq))))
+                  zmns = matmul(cnk0i(iki:ikf,1:nMLO,iqibz),dconjg(transpose(cnk0i(iki:ikf,1:nMLO,iqibz))))
                   zmn(iki:ikf,iki:ikf)= zmn(iki:ikf,iki:ikf) - WTseed*zmns !gain
                endif
              endblock WTseedBlock
@@ -424,7 +426,7 @@ contains
              endblock HardInnerBlock
              call diag_hm(zmn,ndz,eval,evecc) !take smaller (negative bigger) ones.
              ! eval(i)/wbbs is normalized. If all eval(i)/wbbs=1, P_k=P_{k+b}.
-             forall(iwf = 1:nMLO) cnk(iki:ikf,iwf,iq) = evecc(1:ndz,iwf)
+             forall(iwf = 1:nMLO) cnki(iki:ikf,iwf,iqibz) = evecc(1:ndz,iwf)
              evals(iqibz)= sum(eval(1:nMLO))
              omgik(iqibz)= sum([(sum(dconjg(evecc(1:ndz,i))*matmul(zmn0,evecc(1:ndz,i))),i=1,nMLO)])
              WTbandq(iqibz)= sum([(sum(dconjg(evecc(1:ndz,i))*WTbandii(1:ndz)*evecc(1:ndz,i)),i=1,nMLO)]) !2nd energy term
@@ -457,7 +459,7 @@ contains
           if(isc==nsc1) write(stdo,ftox)' Step1: not converged'
        enddo SouzaStep1loop
 
-       forall(iqibz=1:nqibz) cnki(:,:,iqibz)=cnk(:,:,iqbzrep(iqibz))
+!       forall(iqibz=1:nqibz) cnki(:,:,iqibz)=cnk(:,:,iqbzrep(iqibz))
        !! NOTE: cnk(iki:ikf,nMLO,nqbz) is the final results of Step1loop, which minimize Omega_I (Wannier space)
        !!   cnk(iko_i(iq):iko_f(iq),nMLO,iq) gives nMLO-dimentional space.
        GetHamiltonianforMTObyProjection: block  !We do not use Marzari's unitary rotation
@@ -472,7 +474,7 @@ contains
          jsp=is
          do iqibz = 1,nqibz
             forall(i=iki:ikf,j=iki:ikf) proj(i,j)=sum(cnki(i,:,iqibz)*dconjg(cnki(j,:,iqibz))) !projector
-            cmloi(iki:ikf,1:nMLO) = matmul(proj,amnki(iki:ikf,1:nMLO,iqibz)) !Get MLO by proj. |FMLO_i> = |PsiMPO_j> Cmloi(j,i)
+            cmloi(iki:ikf,1:nMLO) = matmul(proj,amnk(iki:ikf,1:nMLO,iqibz)) !Get MLO by proj. |FMLO_i> = |PsiMPO_j> Cmloi(j,i)
             ! |PsiMLO_i> =  |PsiMPO_j> cmloi(j,i)*eveci  = |PsiPMT> cmpoi*eveci * cmloi*evecl
             if(cmdopt0('--cmlo')) then
                open(newunit=ificpmtmpo, file='Cmpo' //trim(xt(iqibz))//trim(xt(jsp)),form='unformatted')
@@ -585,7 +587,7 @@ contains
          close(ifglt1)
          write(stdo,ftox)'OK! Run gnuplot -p '//trim(fname2)//'.Red points are by hmmr2 for Hamiltonian on {|MLO2>}'
        endblock Modifiedbandplotglt
-       deallocate(cnk,omgik,evals,wtbandq,wtinnerq,proj,projs,projss,upu,cnk0i,cnkb)
+       deallocate(omgik,evals,wtbandq,wtinnerq,proj,projs,projss,upu,cnk0i,cnkb)
 1000 enddo ispinloop
     if(job==0) call rx0('OK! end of lmfham --job=0 --------')
     if(job==1) call rx0('OK! end of lmfham --job=1 --------')
