@@ -117,6 +117,7 @@ contains
     use m_readeigen,only:readeval
     use m_freq,only: nw_i,nw,niw 
     use m_zmel,only: Setppovlz,Setppovlz_chipm   ! & NOTE: these data set are stored in this module, and used
+    use m_stopwatch
     implicit none
     intent(in)::      realomega,imagomega, q,iq,nprin,schi,crpa,chipm,nolfco,q00,zzr
     logical:: realomega,imagomega,crpa,chipm,nolfco
@@ -126,7 +127,6 @@ contains
     real(8):: q(3),schi,ekxx1(nband,nqbz),ekxx2(nband,nqbz)
     character(10) :: i2char
     logical:: cmdopt0,GPUTEST
-    real(8) :: t1, t2
     npr=nprin
     qq=q
     GPUTEST = cmdopt0('--x0gpu')
@@ -201,6 +201,8 @@ contains
         call cputid (0)
         if(GPUTEST) then
           ! rcxq(ibg1,igb2,iw) = \sum_ibib wwk(iw,ibib)* <M_ibg1(q) psi_it(k)| psi_itp(q+k)> < psi_itp | psi_it M_ibg2 > at q
+          call stopwatch_init(t_sw_zmel, 'zmel_mm')
+          call stopwatch_init(t_sw_x0, 'x0_mm')
           kloop:do 1500 k=1,nqbz !zmel = < M(igb q) phi( rk it occ)|  phi(q+rk itp unocc)>
             qq   = q;              qrk  = q+rk(:,k)
             ispm = isp_k;          ispq = isp_kq
@@ -210,14 +212,15 @@ contains
             call x0gpu(rcxq,npr,nwhis,npm)
 1500      enddo kloop
         else ! NOTE: kloop10:do 1510 is equivalent to do 1500. 2024-3-25
+          call stopwatch_init(t_sw_zmel, 'zmel_original')
+          call stopwatch_init(t_sw_x0, 'x0_original')
           kloop10:do 1510 k=1,nqbz !zmel = < M(igb q) phi( rk it occ)|  phi(q+rk itp unocc)>
+            call stopwatch_start(t_sw_zmel)
             if(cmdopt0('--emptyrun')) cycle
-            call cpu_time(t1)
             call get_zmel_init(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
                  nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false.,zmelconjg=.true.)
-            call cpu_time(t2)
-            print '(1x,A,F10.6)','zmel:cpu' ,(t2-t1)
-            call cpu_time(t1)
+            call stopwatch_pause(t_sw_zmel)
+            call stopwatch_start(t_sw_x0)
             icounloop: do 1000 icoun=icounkmin(k),icounkmax(k)
               ! call get_zmel_init is equivalent to call x0kf_zmel(q, k, isp_k,isp_kq) 
               TimeConsumingRcxq: block 
@@ -236,11 +239,11 @@ contains
                 endassociate
               endblock TimeConsumingRcxq
 1000        enddo icounloop
-            call cpu_time(t2)
-            print '(1x,A,F10.6)','x0:cpu' ,(t2-t1)
-            call flush(stdo)
+            call stopwatch_pause(t_sw_x0)
 1510      enddo kloop10
         endif
+        call stopwatch_show(t_sw_zmel)
+        call stopwatch_show(t_sw_x0)
         call cputid (0)
 1590    continue
 2000   continue

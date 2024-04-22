@@ -85,6 +85,7 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
     use m_read_bzdata,only: qlat
     use m_readVcoud,only: ngc,ngb 
     use m_itq,only: itq,ntq
+    use m_stopwatch
 #ifdef __GPU
     use openacc
     use cudafor
@@ -101,9 +102,7 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
     integer:: icoun,igb1,igb2,iw,ia
     logical,parameter   :: zmelconjg=.true.
 
-    real(8) :: t1, t2
-
-    call cpu_time(t1)
+    call stopwatch_start(t_sw_zmel)
     ZmelBlock: block ! ZmelBlock is a part of copy of get_zmel_init in m_zmel.f90
       complex(8):: zmelt(1:nbloch+ngc,nmtot,nqtot)
 #ifdef __GPU
@@ -136,12 +135,14 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
           nccc  = merge(ncore(ic),0,ncc>0)
 
           allocate(ppbvphiq_d(nv,ntp0,mdim))
+          !copy from CPU to GPU
           allocate(cphim_d(nv,nt0), source = cphim(ias:iae,nmini:nmmax))
           allocate(cphiq_d(nv,ntp0), source = cphiq(ias:iae,nqini:nqmax))
-          ! allocate(ppbv_d(nv,nv,mdim), source = dcmplx(ppb(nc1:ncnv,nc1:ncnv,1:mdim,icp))) !nvfortran did not accept but ifort did
-          ! allocate(ppbv_d(nv,nv,mdim), source =       (ppb(nc1:ncnv,nc1:ncnv,1:mdim,icp))) !ifort did not accept but nvfortran did
-          allocate(ppbv_d(nv,nv,mdim));  ppbv_d(1:nv,1:nv,1:mdim) = dcmplx(ppb(nc1:ncnv,nc1:ncnv,1:mdim,icp))
-          allocate(ppbc_d(nv,max(1,ncorec),mdim)); ppbc_d(1:nv,1:max(1,ncorec),1:mdim) = dcmplx(ppb(nc1:ncnv,1:(max(1,ncorec)),1:mdim,icp))
+          allocate(ppbv_d(nv,nv,mdim))
+          ppbv_d(1:nv,1:nv,1:mdim) = dcmplx(ppb(nc1:ncnv,nc1:ncnv,1:mdim,icp)) 
+          allocate(ppbc_d(nv,max(1,ncorec),mdim))
+          ppbc_d(1:nv,1:max(1,ncorec),1:mdim) = dcmplx(ppb(nc1:ncnv,1:(max(1,ncorec)),1:mdim,icp))
+
           allocate(zmelt_d(nt0,ntp0,mdim))
           ierr = zmm_sb(mm_op_t, mm_op_n, nv, ntp0, nv, (1d0,0d0), ppbv_d, nv, int(nv*nv,8), &
                       & cphiq_d, nv, 0_8, (0d0,0d0), ppbvphiq_d, nv, int(nv*ntp0,8), mdim)
@@ -242,11 +243,9 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
       endif
       !$acc end data
     endblock ZmelBlock
-    call cpu_time(t2)
-    print *, 'zmel:', (t2-t1)
-    call flush(6)
+    call stopwatch_pause(t_sw_zmel)
 
-    call cpu_time(t1)
+    call stopwatch_start(t_sw_x0)
     TimeConsumingRcxq: block 
       integer :: jpm, it, itp, ittp, nttp_max
       integer, allocatable :: nttp(:,:),  itw(:,:,:), itpw(:,:,:)
@@ -281,15 +280,15 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
           whw(ittp,iw,jpm) = whwc(iw-iwini(icoun)+icouini(icoun))
         enddo
       enddo
-      print *, 'nttp_max, sum(nttp)', nttp_max, sum(nttp(1:nwhis,1:npm))
-      do iw = 1, nwhis
-        print *, 'iw:', iw, nttp(iw,1:npm)
-      enddo
+      ! write(stdo, ftox) 'nttp_max, sum(nttp)', nttp_max, sum(nttp(1:nwhis,1:npm))
+      ! do iw = 1, nwhis
+      !   if(nttp(iw,1:npm) > 0) write(stdo,ftox) 'iw:', iw, nttp(1:nwhis,1:npm)
+      ! enddo
       allocate(wzw(nttp_max,npr), zw(nttp_max,npr))
       !$acc host_data use_device(rcxq)
       !$acc data copyin(whw, itw, itpw)
       do jpm = 1, npm
-        !$omp parallel do private(iw, ittp, igb1, it, itp, zw, wzw) shared(rcxq) schedule(dynamic,10) 
+        !!$omp parallel do private(iw, ittp, igb1, it, itp, zw, wzw) shared(rcxq) schedule(dynamic,10) 
         do iw = 1, nwhis
           if (nttp(iw,jpm) < 1) cycle
           !$acc kernels loop independent collapse(2)
@@ -301,7 +300,7 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
               wzw(ittp,igb1) = zmel(igb1,it,itp)*whw(ittp,iw,jpm)
             enddo
           enddo
-          !$acc end kernels
+          !!$acc end kernels
           ierr = zmm(mm_op_c, mm_op_n, npr, npr, nttp(iw,jpm), (1d0,0d0), zw, nttp_max, &
                    & wzw, nttp_max, (1d0,0d0), rcxq(1,1,iw,jpm), npr)
         enddo
@@ -312,13 +311,7 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
       deallocate(itw, itpw, whw, wzw, zw)
 
     endblock TimeConsumingRcxq
-    call cpu_time(t2)
-    print *, 'x0iw:', (t2-t1)
-    call flush(6)
-    ! print '(1x,A,A,F10.6)','zmelIPW:', acway, (t2-t1)
-    ! print '(1x,A,A,F10.6)','zmelzmm:', acway, (t2-t1)
-    ! print '(1x,A,A,2F10.6)','zmelMT:', acway, (t2-t1)
-    ! print '(1x,A,A,F10.6)','x0:', acway, (t2-t1)
+    call stopwatch_pause(t_sw_x0)
     deallocate(zmel)
   endblock GPUblock
 end subroutine x0gpu
