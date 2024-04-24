@@ -46,21 +46,31 @@ subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|
   ecutw= ecutw/rydberg()
   eww  = eww  /rydberg()
   if(symlcase) call readqplistsy()      ! When symlcase=T, read qplist.dat (q points list, see bndfp.F).
-!!! delta fun check for FFT: k --> T --> k ! \delta_{kk'} = \sum_{T \in T(i,j)} W_T exp( i (k-k') T)
-  ! do ikpd=1,nkp; write(stdo,*)'test for ikpd=',ikpd;  do ikp=1,nkp
-  !   qp = qplist(:,ikp) - qplist(:,ikpd)
-  !   do ib1=1,nbas; do ib2=1,nbas
-  !     aaaa=0d0
-  !     do it = 1,npair(ib1,ib2)
-  !       aaaa=aaaa+ 1d0/(nkp*nqwgt(it,ib1,ib2))*exp(img*2d0*pi* sum(qp*matmul(plat,nlat(:,it,ib1,ib2))))
-  !     enddo
-  !     cccx=''
-  !     if(ikp==ikpd) cccx=' <--'
-  !     if(abs(aaaa)>1d-8) then
-  !       write(stdo,ftox)'\delta-fun test ikpd ikp',ikpd,ikp,ftof(qplist(:,ikp)),ib1,ib2,ftof(aaaa),trim(cccx)
-  !     endif
-  !   enddo; enddo
-  ! enddo   ! enddo   ! stop 'xxxxxxxxxxxxxxxxxxxxxx'
+  
+! !!! delta fun check for FFT: k --> T --> k ! \delta_{kk'} = \sum_{T \in T(i,j)} W_T exp( i (k-k') T)
+!   do ikpd=1,nkp
+!      write(stdo,*)'test for ikpd=',ikpd
+!      do ikp=1,nkp
+!         qp = qplist(:,ikp) - qplist(:,ikpd)
+!         do ib1=1,nbas
+!            do ib2=1,nbas
+!               aaaa=0d0
+!               do it = 1,npair(ib1,ib2)
+!                  aaaa=aaaa+ 1d0/(nkp*nqwgt(it,ib1,ib2))*exp(img*2d0*pi* sum(qp*matmul(plat,nlat(:,it,ib1,ib2))))
+!               enddo
+!               cccx=''
+!               if(ikp==ikpd) cccx=' <--'
+!               if(abs(aaaa)>1d-8) then
+!                  if(abs(aaaa-1d0)>1d-8) then
+!                     write(stdo,ftox)'\delta-fun test ikpd ikp',ikpd,ikp,ftof(qplist(:,ikp)),ib1,ib2,ftof(aaaa),trim(cccx)
+!                  endif   
+!               endif
+!            enddo
+!         enddo
+!      enddo
+!   enddo
+!   stop 'xxxxxxxxxxxxxxxxxxxxxx'
+  
   call HamPMTtoHamRsMPO(facw,ecutw,eww) ! MT-projected orbital(MPO) Hamiltoinan. HamRsMPO
   ! (real-space Hamiltonian hammr,ovlmr,ndimMTO) is generated,and written to a file HamRsMPO
   call mpi_barrier(comm,ierr)

@@ -160,4 +160,5 @@ QforEPSunita on
 !mlo_WTband 16
 
 !mlo_WTseed 128
-mlo_EUinner 5
+!mlo_EUinner 5
+!mlo_WTband 512

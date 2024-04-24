@@ -7,6 +7,8 @@ module m_setqibz_lmfham
    public:: set_qibz
 contains
    subroutine set_qibz(plat,qbz,nqbz,symops,ngrp)
+     use m_ftox
+     use m_lgunit,only: stdo
       integer:: nqbz,ngrp,i,ig,ibz,iqibz,iqbz
       real(8)::eps=1d-8
       real(8):: plat(3,3),qbz(3,nqbz),symops(3,3,ngrp),qp(3),qx(3)
@@ -52,8 +54,11 @@ contains
          qbzii(:,ig,iqibz) = qbz(:,iqbz)
       enddo
       wiqibz=wiqibz/nqbz
-      write(6,*)'sum of wiqibz=',sum(wiqibz)
+      write(stdo,*)'sum of wiqibz=',sum(wiqibz)
+      do iqibz=1,nqibz
+         write(stdo,ftox)' qibz:  ',iqibz,' ',ftof(qibz(:,iqibz))
+      enddo
+      write(stdo,ftox) 'set_qibz: nqbz nqibz ngrp=',nqbz,nqibz,ngrp
 !    forall( iqibz=1:nqibz) nigiq(iqibz) = count(igiqibz(:,iqibz))
-      !write(6,*) 'nqbz nqibz ngrp=',nqbz,nqibz,ngrp
    endsubroutine set_qibz
 end module m_setqibz_lmfham
