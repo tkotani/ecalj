@@ -132,8 +132,8 @@ contains
             hamm(:,2,:,1)= transpose(dconjg(hammhso(:,:,3)))
             if(sigmamode) then
                do ispc=1,nspc
-                  call getsenex(qp, 1, ndimh, ovlm(:,ispc,:,ispc))
-                  hamm(:,ispc,:,ispc) = hamm(:,ispc,:,ispc) + ham_scaledsigma*senex !senex_up= Vxc(QSGW)-Vxc(LDA)
+                  call getsenex(qp, ispc, ndimh, ovlm(:,ispc,:,ispc)) !bugfix at 2024-4-24: ispc was 1 when 2023-9-20
+                  hamm(:,ispc,:,ispc) = hamm(:,ispc,:,ispc) + ham_scaledsigma*senex !sene= Vxc(QSGW)-Vxc(LDA)
                   if(wsene) write(iwsene) qp,ispc
                   if(wsene) write(iwsene) sene
                   call dsene()
