@@ -89,10 +89,8 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
 #ifdef __GPU
     use openacc
     use cudafor
-    use m_math_gpu, only: mm_op_c, mm_op_n, mm_op_t, zmm, zmm_sb
-#else
-    use m_math_cpu, only: mm_op_c, mm_op_n, mm_op_t, zmm, zmm_sb
 #endif
+    use m_blas, only: m_op_c, m_op_n, m_op_t, zmm, zmm_batch !CPU or GPU versions specifed by macro __GPU
     integer :: ierr
     complex(8), allocatable :: zmel(:,:,:) ! zmel(nbb,nmtot,nqtot), nbb:mixproductbasis, nmtot:middlestate, nq
     complex(8), allocatable :: zmelt_d(:,:,:)
@@ -140,14 +138,16 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
           allocate(cphiq_d(nv,ntp0), source = cphiq(ias:iae,nqini:nqmax))
           allocate(ppbv_d(nv,nv,mdim))
           ppbv_d(1:nv,1:nv,1:mdim) = dcmplx(ppb(nc1:ncnv,nc1:ncnv,1:mdim,icp)) 
-          allocate(ppbc_d(nv,max(1,ncorec),mdim))
-          ppbc_d(1:nv,1:max(1,ncorec),1:mdim) = dcmplx(ppb(nc1:ncnv,1:(max(1,ncorec)),1:mdim,icp))
 
+
+          ! valence-valence part
           allocate(zmelt_d(nt0,ntp0,mdim))
-          ierr = zmm_sb(mm_op_t, mm_op_n, nv, ntp0, nv, (1d0,0d0), ppbv_d, nv, int(nv*nv,8), &
-                      & cphiq_d, nv, 0_8, (0d0,0d0), ppbvphiq_d, nv, int(nv*ntp0,8), mdim)
-          ierr = zmm_sb(mm_op_c, mm_op_n, nt0, ntp0, nv, phasea(ia), cphim_d, nv, 0_8, &
-                      & ppbvphiq_d, nv, int(nv*ntp0,8), (0d0,0d0), zmelt_d, nt0, int(nt0*ntp0,8), mdim)
+          ! ierr = zmm_sb(mm_op_t, mm_op_n, nv, ntp0, nv, (1d0,0d0), ppbv_d, nv, int(nv*nv,8), &
+          !             & cphiq_d, nv, 0_8, (0d0,0d0), ppbvphiq_d, nv, int(nv*ntp0,8), mdim)
+          ! ierr = zmm_sb(mm_op_c, mm_op_n, nt0, ntp0, nv, phasea(ia), cphim_d, nv, 0_8, &
+          !             & ppbvphiq_d, nv, int(nv*ntp0,8), (0d0,0d0), zmelt_d, nt0, int(nt0*ntp0,8), mdim)
+          ierr = zmm_batch(ppbv_d, cphiq_d, ppbvphiq_d, nv, ntp0, nv, mdim, opA = m_op_T, sameB = .true.)
+          ierr = zmm_batch(cphim_d, ppbvphiq_d, zmelt_d, nt0, ntp0, nv, mdim, alpha = phasea(ia), opA = m_op_C, sameA = .true.)
           !$acc kernels
           do i = 1, mdim
             zmelt(i-1+ims,nctot+1:nctot+nt0,ncc+1:ncc+ntp0) = zmelt_d(1:nt0,1:ntp0,i)
@@ -155,22 +155,26 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
           !$acc end kernels
           deallocate(zmelt_d)
 
-          allocate(zmelt_d(mdim,ntp0,max(ncorec,1)))
-          ierr = zmm_sb(mm_op_t, mm_op_n, mdim, ntp0, nv, phasea(ia), ppbc_d, nv*max(ncorec,1), int(nv,8), &
-                      & cphiq_d, nv, 0_8, (0d0,0d0), zmelt_d, mdim, int(mdim*ntp0,8), ncorec)
+          ! core-valence part NOT TESTED
+          allocate(zmelt_d(mdim,ntp0,max(1,ncorec)), ppbc_d(mdim,nv,max(1,ncorec)))
+          !$acc kernels
+          do i = 1, mdim
+            ppbc_d(i,1:nv,1:max(1,ncorec)) = dcmplx(ppb(nc1:ncnv,1:(max(1,ncorec)),i,icp))
+          enddo
+          !$acc end kernels
+          ierr = zmm_batch(ppbc_d, cphiq_d, zmelt_d, mdim, ntp0, nv, ncorec, alpha = phasea(ia), sameB = .true.)
           !$acc kernels
           do it = 1, ncorec
             zmelt(ims:ime,ics+it,ncc+1:ncc+ntp0) = zmelt_d(1:mdim,1:ntp0,it)
           enddo
           !$acc end kernels
           deallocate(zmelt_d)
-
+          ! valence-core part NOT TESTED
           allocate(zmelt_d(mdim,nt0,max(nccc,1)))
-          ierr = zmm_sb(mm_op_c, mm_op_n, mdim, nt0, nv, (1D0,0d0), ppbc_d, nv*max(ncorec,1), int(nv,8), &
-                      & cphim_d, nv, 0_8, (0d0,0d0), zmelt_d, mdim, int(mdim*ntp0,8), nccc)
+          ierr =  zmm_batch(ppbc_d, cphim_d, zmelt_d, mdim, nt0, nv, nccc, alpha = phasea(ia), sameB = .true.)
           !$acc kernels
           do itp = 1, nccc
-            zmelt(ims:ime,nctot+1:nctot+nt0,ics+itp) = phasea(ia)*dconjg(zmelt_d(1:mdim,1:nt0,itp))
+            zmelt(ims:ime,nctot+1:nctot+nt0,ics+itp) = zmelt_d(1:mdim,1:nt0,itp)
           enddo
           !$acc end kernels
           deallocate(zmelt_d, ppbvphiq_d, cphim_d, cphiq_d, ppbv_d, ppbc_d)
@@ -205,8 +209,10 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
             enddo
           enddo
           !$acc end kernels
-          ierr = zmm(mm_op_n, mm_op_n, ngcgp, ntp0, ngp1, (1d0,0d0), &
-                  &  gggmat, ngcgp, geigq(1,itq(nqini)), ngpmx, (0d0,0d0), ggitp, ngcgp) 
+          ! ierr = zmm(mm_op_n, mm_op_n, ngcgp, ntp0, ngp1, (1d0,0d0), &
+          !         &  gggmat, ngcgp, geigq(1,itq(nqini)), ngpmx, (0d0,0d0), ggitp, ngcgp) 
+          ierr = zmm(gggmat, geigq(1,itq(nqini)), ggitp, ngcgp, ntp0, ngp1, ldB = ngpmx)
+
           !$acc kernels loop independent collapse(2)
           do igp2 = 1, ngp2
             do igc = 1, ngc
@@ -214,16 +220,18 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
             enddo
           enddo
           !$acc end kernels
-          ierr = zmm_sb(mm_op_n, mm_op_n, ngc, nt0, ngp2, (1d0,0d0), ggitp_all, ngc, int(ngc*ngp2,8), &
-                      & dgeigqk(1,nmini), ngpmx, 0_8, (0d0,0d0),  zmelp0, ngc, int(ngc*nt0,8), ntp0) 
+          ! ierr = zmm_sb(mm_op_n, mm_op_n, ngc, nt0, ngp2, (1d0,0d0), ggitp_all, ngc, int(ngc*ngp2,8), &
+          !             & dgeigqk(1,nmini), ngpmx, 0_8, (0d0,0d0),  zmelp0, ngc, int(ngc*nt0,8), ntp0) 
+          ierr = zmm_batch(ggitp_all, dgeigqk(1,nmini), zmelp0, ngc, nt0, ngp2, ntp0, ldB = ngpmx, sameB = .true.)
           !$acc kernels
           do igc = 1, ngc
             zmelp0(igc,1:nt0,1:ntp0) = phase(igc)*zmelp0(igc,1:nt0,1:ntp0)
           enddo
           !$acc end kernels
           allocate(zmelt_d(ngc,nt0,ntp0))
-          ierr = zmm(mm_op_n, mm_op_n, ngc, ntp0*nt0, ngc, (1d0,0d0), &
-                  &  ppovlinv, ngc, zmelp0, ngc, (0d0,0d0), zmelt_d, ngc) 
+          ! ierr = zmm(mm_op_n, mm_op_n, ngc, ntp0*nt0, ngc, (1d0,0d0), &
+          !         &  ppovlinv, ngc, zmelp0, ngc, (0d0,0d0), zmelt_d, ngc) 
+          ierr = zmm(ppovlinv, zmelp0, zmelt_d, ngc, ntp0*nt0, ngc) 
           !$acc kernels
           zmelt(nbloch+1:nbloch+ngc,nctot+1:nctot+nt0,ncc+1:ncc+ntp0) = zmelt_d(1:ngc,1:nt0,1:ntp0)
           !$acc end kernels
@@ -234,8 +242,9 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
       endif
 
       allocate(zmel(nbb,ns1:ns2,nqtot))
-      !$acc data copyin(ppovlz(1:ngb,1:nbb)) 
-      ierr = zmm(mm_op_c, mm_op_n, nbb, nmtot*nqtot, ngb, (1d0,0d0), ppovlz, ngb, zmelt, ngb, (0d0,0d0), zmel, nbb)
+      !$acc data copyin(ppovlz(1:ngb,1:nbb))
+      ! ierr = zmm(mm_op_c, mm_op_n, nbb, nmtot*nqtot, ngb, (1d0,0d0), ppovlz, ngb, zmelt, ngb, (0d0,0d0), zmel, nbb)
+      ierr = zmm(ppovlz, zmelt, zmel, nbb, nmtot*nqtot, ngb, opA = m_op_c)
       if(zmelconjg) then
         !$acc kernels
         zmel = dconjg(zmel)
@@ -300,11 +309,13 @@ subroutine x0gpu(rcxq,npr,nwhis,npm)
               wzw(ittp,igb1) = zmel(igb1,it,itp)*whw(ittp,iw,jpm)
             enddo
           enddo
-          !!$acc end kernels
-          ierr = zmm(mm_op_c, mm_op_n, npr, npr, nttp(iw,jpm), (1d0,0d0), zw, nttp_max, &
-                   & wzw, nttp_max, (1d0,0d0), rcxq(1,1,iw,jpm), npr)
+          !$acc end kernels
+          ! ierr = zmm(mm_op_c, mm_op_n, npr, npr, nttp(iw,jpm), (1d0,0d0), zw, nttp_max, &
+          !          & wzw, nttp_max, (1d0,0d0), rcxq(1,1,iw,jpm), npr)
+          ierr = zmm(zw, wzw, rcxq(1,1,iw,jpm), npr, npr, nttp(iw,jpm), &
+                  &  opA = m_op_c, beta = (1d0,0d0), ldA = nttp_max, ldB = nttp_max)
         enddo
-        !$omp end parallel do
+        !!$omp end parallel do
       enddo
       !$acc end data
       !$acc end host_data
