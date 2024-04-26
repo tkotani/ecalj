@@ -83,7 +83,7 @@ contains
       complex(8),allocatable:: hamm(:,:),ovlm(:,:), cmpo(:,:) 
       logical:: lprint=.true.,savez=.false.,getz=.false.,skipdiagtest=.false.
       complex(8):: img=(0d0,1d0),aaaa,phase
-      real(8)::qp(3),pi=4d0*atan(1d0),fff,ef,fff1=2,fff2=2,fff3=0 ,facw,ecutw,eww,xxx
+      real(8)::qp(3),pi=4d0*atan(1d0),fff,ef,fff1=2,fff2=2,fff3=0 ,facw,ecutw,eww,xxx,posd(3)
       integer:: nn,ib,k,l,ix5,imin,ixx,j2,j1,j3,nx,ix(ldim),iqini,iqend,ndiv
       integer:: ndimMTO !ndimMTO<ldim if we throw away f MTOs, for example.
       integer:: ib_tableM(ldim),k_tableM(ldim),l_tableM(ldim),ierr,ificmpo,iqibz
@@ -161,7 +161,7 @@ contains
                   ib1 = ib_tableM(i)
                   ib2 = ib_tableM(j)
                   do it =1,npair(ib1,ib2)! hammr_ij (T)= \sum_k hamm(k) exp(ikT). it is the index for T
-                     phase = 1d0/dble(nkp)* exp(img*2d0*pi* sum(qp*matmul(plat,nlat(:,it,ib1,ib2))))
+                     phase = 1d0/dble(nkp)* exp(img*2d0*pi* sum(qp*(matmul(plat,nlat(:,it,ib1,ib2)))))
                      hammr(i,j,it,jsp)= hammr(i,j,it,jsp)+ hamm(i,j)*phase
                      ovlmr(i,j,it,jsp)= ovlmr(i,j,it,jsp)+ ovlm(i,j)*phase
                   enddo
@@ -171,6 +171,8 @@ contains
          deallocate(ovlm,hamm,cmpo)
       enddo qploop
 2019  continue
+! symmetrized 
+      
       call mpibc2_complex(hammr,size(hammr),'m_HamPMT_hammr') !to master
       call mpibc2_complex(ovlmr,size(ovlmr),'m_HamPMT_ovlmr') !to master
       if(master_mpi) then

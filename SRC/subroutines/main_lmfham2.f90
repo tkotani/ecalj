@@ -252,29 +252,41 @@ contains
 
 1011 continue !=== --job==1 mode start ========================================
 
-
     testnlat: block
       use m_mksym_util,only:mptauof
-      integer::itr
-      real(8):: platn(3),platn0(3),platnn(3),tiat(3,natom,ngrp),shtvg(3,ngrp)
+      integer::itr,ib1m,ib2m
+      real(8):: platn(3),platn0(3),platnn(3),tiat(3,natom,ngrp),shtvg(3,ngrp),posr1(3),posr2(3)
       integer:: invgx(ngrp),miat(natom,ngrp)
       call mptauof(symops,ngrp,plat,natom,pos, iclasst, miat,tiat,invgx,shtvg )
+      do ig=1,ngrp
+         do ib1=1,natom
+            do ib2=1,natom
+               write(stdo,ftox) ig,'miat=',miat(ib1,ig),'tiat=',ftof(tiat(:,ib1,ig),3)
+            enddo
+         enddo
+      enddo
       ! nlat symmetry check
+      write(6,*) 'symmetry check'
       do ib1=1,natom; do ib2=1,natom
-         do it =1,npair(ib1,ib2)
-            platn0 =   pos(:,ib2)-pos(:,ib1)+ matmul(plat,nlat(:,it,ib1,ib2))
-            write(stdo,ftox) ' nlat=', ib1,ib2,nlat(:,it,ib1,ib2)
+         itloop:do it =1,npair(ib1,ib2)
+            platn0 = matmul(plat,nlat(:,it,ib1,ib2)) ! connecting from ib1+platn0, ib2
             do ig=1,ngrp
-               platn = matmul(symops(:,:,ig),platn0)
-               do itr=1,npair(ib1,ib2)
-                  platnn = pos(:,miat(ib2,ig))-pos(:,miat(ib1,ig)) + tiat(:,ib2,ig)-tiat(:,ib1,ig)+ matmul(plat,nlat(:,itr,ib1,ib2))
+               ib1m = miat(ib1,ig) !mapped atomic position
+               ib2m = miat(ib2,ig)
+               posr1 = pos(:,ib1m)+ tiat(:,ib1,ig) + matmul(symops(:,:,ig),platn0)
+               posr2 = pos(:,ib2m)+ tiat(:,ib2,ig) 
+               platn = posr1-posr2 ! pos1+nlat - pos2
+               do itr=1,npair(ib1m,ib2m)
+                  platnn = pos(:,ib1m)-pos(:,ib2m) + matmul(plat,nlat(:,itr,ib1m,ib2m)) 
                   if( sum(abs(nint(platnn-platn)))==0) goto 889
                enddo
+               write(stdo,ftox)'no rotation for ig it ',ig,it,' ib1,ib2',ib1,ib2,' plat=',nlat(:,it,ib1,ib2),ftof(platn,3)
+               call rx('xxxxxxxxxx')
+889            continue
+               ! write(stdo,ftox)' ig,it,ib1,ib2=',ig,it,ib1,ib2,&
+               !     ' platn0=',ftof(platn0(:),3),'ftof=',ftof(platnn,3),'tiat=',ftox(tiat(:,ib2,ig))
             enddo
-            write(stdo,ftox)'no rotation for ig it ib1 ib2',ig,it,ib1,ib2,'nlat=',nlat(:,it,ib1,ib2)
-            call rx('xxxxxxxxxx')
-889         continue
-         enddo
+         enddo itloop
       enddo; enddo
     endblock testnlat
     stop 'xxxxxxxxxxxxxxxxxxxxxx'
