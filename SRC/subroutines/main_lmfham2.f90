@@ -17,7 +17,7 @@ contains
     ! We use diffent idea of connectivity from [2]. Roughly speaking, we define connectivitiy of eigenfunctions between k and k+b,
     ! not by the overlap of periodic part of eigenfunctions, but by the coefficients on |MLO>.
     !
-    use m_setqibz_lmfham,only: set_qibz,qibz,irotq,irotg,ndiff,iqbzrep,qbzii,igiqibz,nqibz,iqii,wiqibz
+    use m_setqibz_lmfham,only: set_qibz,qibz,irotq,irotg,ndiff,iqbzrep,qbzii,igiqibz,nqibz,iqii,wiqibz,igx,ngx
     use m_ftox
     use m_lgunit,only: stdo,m_lgunit_init
     use m_zhev,only:zhev_tk4
@@ -252,44 +252,44 @@ contains
 
 1011 continue !=== --job==1 mode start ========================================
 
-    testnlat: block
-      use m_mksym_util,only:mptauof
-      integer::itr,ib1m,ib2m
-      real(8):: platn(3),platn0(3),platnn(3),tiat(3,natom,ngrp),shtvg(3,ngrp),posr1(3),posr2(3)
-      integer:: invgx(ngrp),miat(natom,ngrp)
-      call mptauof(symops,ngrp,plat,natom,pos, iclasst, miat,tiat,invgx,shtvg )
-      do ig=1,ngrp
-         do ib1=1,natom
-            do ib2=1,natom
-               write(stdo,ftox) ig,'miat=',miat(ib1,ig),'tiat=',ftof(tiat(:,ib1,ig),3)
-            enddo
-         enddo
-      enddo
-      ! nlat symmetry check
-      write(6,*) 'symmetry check'
-      do ib1=1,natom; do ib2=1,natom
-         itloop:do it =1,npair(ib1,ib2)
-            platn0 = matmul(plat,nlat(:,it,ib1,ib2)) ! connecting from ib1+platn0, ib2
-            do ig=1,ngrp
-               ib1m = miat(ib1,ig) !mapped atomic position
-               ib2m = miat(ib2,ig)
-               posr1 = pos(:,ib1m)+ tiat(:,ib1,ig) + matmul(symops(:,:,ig),platn0)
-               posr2 = pos(:,ib2m)+ tiat(:,ib2,ig) 
-               platn = posr1-posr2 ! pos1+nlat - pos2
-               do itr=1,npair(ib1m,ib2m)
-                  platnn = pos(:,ib1m)-pos(:,ib2m) + matmul(plat,nlat(:,itr,ib1m,ib2m)) 
-                  if( sum(abs(nint(platnn-platn)))==0) goto 889
-               enddo
-               write(stdo,ftox)'no rotation for ig it ',ig,it,' ib1,ib2',ib1,ib2,' plat=',nlat(:,it,ib1,ib2),ftof(platn,3)
-               call rx('xxxxxxxxxx')
-889            continue
-               ! write(stdo,ftox)' ig,it,ib1,ib2=',ig,it,ib1,ib2,&
-               !     ' platn0=',ftof(platn0(:),3),'ftof=',ftof(platnn,3),'tiat=',ftox(tiat(:,ib2,ig))
-            enddo
-         enddo itloop
-      enddo; enddo
-    endblock testnlat
-    stop 'xxxxxxxxxxxxxxxxxxxxxx'
+!     testnlat: block
+!       use m_mksym_util,only:mptauof
+!       integer::itr,ib1m,ib2m
+!       real(8):: platn(3),platn0(3),platnn(3),tiat(3,natom,ngrp),shtvg(3,ngrp),posr1(3),posr2(3)
+!       integer:: invgx(ngrp),miat(natom,ngrp)
+!       call mptauof(symops,ngrp,plat,natom,pos, iclasst, miat,tiat,invgx,shtvg )
+!       do ig=1,ngrp
+!          do ib1=1,natom
+!             do ib2=1,natom
+!                write(stdo,ftox) ig,'miat=',miat(ib1,ig),'tiat=',ftof(tiat(:,ib1,ig),3)
+!             enddo
+!          enddo
+!       enddo
+!       ! nlat symmetry check
+!       write(6,*) 'symmetry check'
+!       do ib1=1,natom; do ib2=1,natom
+!          itloop:do it =1,npair(ib1,ib2)
+!             platn0 = matmul(plat,nlat(:,it,ib1,ib2)) ! connecting from ib1+platn0, ib2
+!             do ig=1,ngrp
+!                ib1m = miat(ib1,ig) !mapped atomic position
+!                ib2m = miat(ib2,ig)
+!                posr1 = pos(:,ib1m)+ tiat(:,ib1,ig) + matmul(symops(:,:,ig),platn0)
+!                posr2 = pos(:,ib2m)+ tiat(:,ib2,ig) 
+!                platn = posr1-posr2 ! pos1+nlat - pos2
+!                do itr=1,npair(ib1m,ib2m)
+!                   platnn = pos(:,ib1m)-pos(:,ib2m) + matmul(plat,nlat(:,itr,ib1m,ib2m)) 
+!                   if( sum(abs(nint(platnn-platn)))==0) goto 889
+!                enddo
+!                write(stdo,ftox)'no rotation for ig it ',ig,it,' ib1,ib2',ib1,ib2,' plat=',nlat(:,it,ib1,ib2),ftof(platn,3)
+!                call rx('xxxxxxxxxx')
+! 889            continue
+!                ! write(stdo,ftox)' ig,it,ib1,ib2=',ig,it,ib1,ib2,&
+!                !     ' platn0=',ftof(platn0(:),3),'ftof=',ftof(platnn,3),'tiat=',ftox(tiat(:,ib2,ig))
+!             enddo
+!          enddo itloop
+!       enddo; enddo
+!     endblock testnlat
+! !    stop 'xxxxxxxxxxxxxxxxxxxxxx'
     
     open(newunit=ifuumat,file='CNmat',form='unformatted')
     allocate(hmmr2(nMLO,nMLO,npairmx,nspin),ommr2(nMLO,nMLO,npairmx,nspin),source=(0d0,0d0))
@@ -303,10 +303,10 @@ contains
        read(ifuumat) evl,evli,eveci
        read(ifuumat) uumat
        read(ifuumat) amnk
-       iqibz=16
-       do i=1,nband
-          write(stdo,ftox)'evli=',iqibz,i,ftof(evli(i,iqibz))
-       enddo
+!       iqibz=16
+!       do i=1,nband
+!          write(stdo,ftox)'evli=',iqibz,i,ftof(evli(i,iqibz))
+!       enddo
        !     write(6,*)'isp amnksum=',is,sum(abs(amnk))
        if(master_mpi) &
             write(stdo,ftox)'### isploop: is=',is,'out of',nspin,'ChooseSpace by cnk(init:iend,1:nMLO,1:nqbz)=',iki,ikf,nMLO,nqbz
@@ -504,19 +504,20 @@ contains
        !! NOTE: cnk(iki:ikf,nMLO,nqbz) is the final results of Step1loop, which minimize Omega_I (Wannier space)
        !!   cnk(iko_i(iq):iko_f(iq),nMLO,iq) gives nMLO-dimentional space.
        GetHamiltonianforMTObyProjection: block  !We do not use Marzari's unitary rotation
-         integer:: il,im,in,ib1,ib2,jsp,ificpmtmpo,nPMT,nMPO,ificp,nnqbz,ificmlo
+         integer:: il,im,in,ib1,ib2,jsp,ificpmtmpo,nPMT,nMPO,ificp,nnqbz,ificmlo,igg,iqibz
          real(8):: fac0,evll(nMLO)
          complex(8),allocatable:: rotmatr(:,:),cmpoi(:,:),cpmtmlo_i(:,:),cpmtmlo(:,:) !,rmatpmt(:,:)
          complex(8)::img2pi=img*2d0*pi, rotmat(nband,nband)
-         complex(8)::phase,proj(iki:ikf,iki:ikf),cmlo(iki:ikf,nMLO),cmloi(iki:ikf,nMLO),cmpomlo(iki:ikf,nMLO),&
-              ham(nMLO,nMLO),ovlx(nMLO,nMLO),evecl(nMLO,nMLO),rotmatmlo(nMLO,nMLO),phaseij(natom,natom,npairmx)
+         complex(8)::phase,proj(iki:ikf,iki:ikf),cmlo(iki:ikf,nMLO),cmloi0(iki:ikf,nMLO),cmloi(iki:ikf,nMLO),cmpomlo(iki:ikf,nMLO),&
+              ham(nMLO,nMLO),ovlx(nMLO,nMLO),evecl(nMLO,nMLO),rotmatmlo(nMLO,nMLO),phaseij(natom,natom,npairmx),&
+              hami(nMLO,nMLO),ovlxi(nMLO,nMLO)
          logical:: cmdopt0
          character(8):: xt
          jsp=is
          do iqibz = 1,nqibz
             forall(i=iki:ikf,j=iki:ikf) proj(i,j)=sum(cnki(i,:,iqibz)*dconjg(cnki(j,:,iqibz))) !projector
 !            forall(i=iki:ikf,j=iki:ikf) proj(i,j)=sum(cnkia(i,:,iqibz)*dconjg(cnkia(j,:,iqibz))) !projector
-            cmloi(iki:ikf,1:nMLO) = matmul(proj,amnk(iki:ikf,1:nMLO,iqibz)) !Get MLO by proj. |FMLO_i> = |PsiMPO_j> Cmloi(j,i)
+            cmloi0(iki:ikf,1:nMLO) = matmul(proj,amnk(iki:ikf,1:nMLO,iqibz)) !Get MLO by proj. |FMLO_i> = |PsiMPO_j> Cmloi(j,i)
             ! |PsiMLO_i> =  |PsiMPO_j> cmloi(j,i)*eveci  = |PsiPMT> cmpoi*eveci * cmloi*evecl
             if(cmdopt0('--cmlo')) then
                open(newunit=ificpmtmpo, file='Cmpo' //trim(xt(iqibz))//trim(xt(jsp)),form='unformatted')
@@ -536,26 +537,46 @@ contains
                   write(ificmlo) iqbz, qp
                enddo
             endif
-            fac0= wiqibz(iqibz)/dble(ngrp) !1d0/dble(nqbz)/ngrp !1d0/dble(nqbz) !
-            igloop: do ig = 1,ngrp
-               !if(.not.igiqibz(ig,iqibz)) cycle
-               !iqbz= iqii(ig,iqibz)
-               !qp  = qbzii(:,ig,iqibz)
-               do iqbz=1,nqbz
-                  qx= matmul(transpose(plat),  qbz(:,iqbz)- matmul(symops(:,:,ig),qibz(:,iqibz)))
-                  qx= qx-nint(qx) !qx-ndiff !translation of qx
-                  if(sum(abs(qx))<eps) then
-                     qp=qbz(:,iqbz)
-                     goto 88
-                  endif   
-               enddo
-               call rx('qp can not find')
-88             continue
+            !  symmetrized  phase of cmlo?
+            hami=0d0
+            ovlxi=0d0
+            do igg=1,ngx(iqibz) !symmetrized for rotations keeping qibz
+               call rotmatMTO(igg=igx(igg,iqibz),q=qibz(:,iqibz),qtarget=qibz(:,iqibz),ndimh=nband,rotmat=rotmat)
+               cmloi = matmul(cmloi0,dconjg(transpose(rotmat(idmto_(:),idmto_(:))))) ! |FMLO_i> = |PsiMPO_j> cmlo(j,i)
+               forall(i=1:nMLO,j=1:nMLO) hami(i,j)  = hami(i,j) +sum(dconjg(cmloi(:,i))*evli(iki:ikf,iqibz)*cmloi(:,j))
+               forall(i=1:nMLO,j=1:nMLO) ovlxi(i,j) = ovlxi(i,j)+sum(dconjg(cmloi(:,i))*cmloi(:,j))
+            enddo
+            hami=hami/ngx(iqibz)
+            ovlxi=ovlxi/ngx(iqibz)
+            
+!            fac0= wiqibz(iqibz)/dble(ngrp)/dble(nqbz) !1d0/dble(nqbz)/ngrp !1d0/dble(nqbz) !
+!             igloop: do ig = 1,ngrp
+!                !if(.not.igiqibz(ig,iqibz)) cycle
+!                !iqbz= iqii(ig,iqibz)
+!                !qp  = qbzii(:,ig,iqibz)
+!                do iqbz=1,nqbz
+!                   qx= matmul(transpose(plat),  qbz(:,iqbz)- matmul(symops(:,:,ig),qibz(:,iqibz)))
+!                   qx= qx-nint(qx) !qx-ndiff !translation of qx
+!                   if(sum(abs(qx))<eps) then
+!                      qp=qbz(:,iqbz)
+!                      goto 88
+!                   endif   
+!                enddo
+!                call rx('qp can not find')
+! 88             continue
+
+            fac0=1d0/dble(nqbz)
+            igloop: do iqbz=1,nqbz
+               if(iqibz/=irotq(iqbz)) cycle
+               qp =qbz(:, iqbz)
                !fix iqbz, qp ---> all possible ig added to cmlo
-               call rotmatMTO(igg=ig,q=qibz(:,iqibz),qtarget=qp,ndimh=nband,   rotmat=rotmat)
-               cmlo = matmul(cmloi,dconjg(transpose(rotmat(idmto_(:),idmto_(:))))) ! |FMLO_i> = |PsiMPO_j> cmlo(j,i)
-               forall(i=1:nMLO,j=1:nMLO) ham(i,j)  = sum(dconjg(cmlo(:,i))*evli(iki:ikf,iqibz)*cmlo(:,j))
-               forall(i=1:nMLO,j=1:nMLO) ovlx(i,j) = sum(dconjg(cmlo(:,i))*cmlo(:,j))
+!               call rotmatMTO(igg=ig,q=qibz(:,iqibz),qtarget=qp+matmul(qlat,ndiff(:,iqibz)),ndimh=nband,   rotmat=rotmat)
+               call rotmatMTO(igg=irotg(iqbz),q=qibz(:,iqibz),qtarget=qp+matmul(qlat,ndiff(:,iqibz)),ndimh=nband,   rotmat=rotmat)
+               !cmlo = matmul(cmloi,dconjg(transpose(rotmat(idmto_(:),idmto_(:))))) ! |FMLO_i> = |PsiMPO_j> cmlo(j,i)
+               !forall(i=1:nMLO,j=1:nMLO) ham(i,j)  = sum(dconjg(cmlo(:,i))*evli(iki:ikf,iqibz)*cmlo(:,j))
+               !forall(i=1:nMLO,j=1:nMLO) ovlx(i,j) = sum(dconjg(cmlo(:,i))*cmlo(:,j))
+               ham =  matmul(rotmat(idmto_(:),idmto_(:)),matmul(hami, dconjg(transpose(rotmat(idmto_(:),idmto_(:))))))
+               ovlx=  matmul(rotmat(idmto_(:),idmto_(:)),matmul(ovlxi,dconjg(transpose(rotmat(idmto_(:),idmto_(:))))))
                
                do ib1=1,natom; do ib2=1,natom
                   do it =1,npair(ib1,ib2)! hammr_ij (T)= \sum_k hamm(k) exp(ikT). it is the index for T
@@ -563,8 +584,8 @@ contains
                   enddo
                enddo; enddo
                do i=1,nMLO; do j=1,nMLO !Real space Hamiltonian. H(k)->H(T) FT to real space
-                  ib1=ib_tableM(i)
-                  ib2=ib_tableM(j)
+                  ib1=ib_tableM(idmto(i))! right??xxxxxxxxxxxxxxxxx
+                  ib2=ib_tableM(idmto(j)) 
                   do it =1,npair(ib1,ib2)! hammr_ij (T)= \sum_k hamm(k) exp(ikT). it is the index for T
                      hmmr2(i,j,it,jsp)= hmmr2(i,j,it,jsp)+ ham(i,j) *phaseij(ib1,ib2,it)
                      ommr2(i,j,it,jsp)= ommr2(i,j,it,jsp)+ ovlx(i,j)*phaseij(ib1,ib2,it)
@@ -584,6 +605,7 @@ contains
                      !cmlo contains rotation from iqibz to iqbz
                   endif
                endif ! |PsiMLO_iqbz> = |Psi_PMT_iqibz> c1(iqibz)*c2(iqbz)
+               
             enddo igloop
             close(ificmlo)
          enddo
@@ -603,8 +625,8 @@ contains
             ovlm = 0d0
             hamm = 0d0
             do i=1,nMLO; do j=1,nMLO
-               ib1 = ib_tableM(i)
-               ib2 = ib_tableM(j)
+               ib1 = ib_tableM(idmto(i))!(i)
+               ib2 = ib_tableM(idmto(j))!(j)
                do it =1,npair(ib1,ib2)
                   phase= 1d0/nqwgt(it,ib1,ib2)*exp(-img*2d0*pi* sum(qp*matmul(plat,nlat(:,it,ib1,ib2))))
                   hamm(i,j)= hamm(i,j)+ hmmr2(i,j,it,is)*phase

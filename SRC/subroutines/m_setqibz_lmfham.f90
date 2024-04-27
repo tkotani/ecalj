@@ -1,7 +1,7 @@
 !>qibz handling for lmfham1,2. a quick remedy.
 module m_setqibz_lmfham
    real(8),allocatable,protected:: qibz(:,:),qbzii(:,:,:),wiqibz(:)
-   integer,allocatable,protected:: irotq(:),irotg(:),ndiff(:,:),iqbzrep(:),iqii(:,:)
+   integer,allocatable,protected:: irotq(:),irotg(:),ndiff(:,:),iqbzrep(:),iqii(:,:), ngx(:),igx(:,:)
    logical,allocatable,protected:: igiqibz(:,:)
    integer:: nqibz
    public:: set_qibz
@@ -9,7 +9,7 @@ contains
    subroutine set_qibz(plat,qbz,nqbz,symops,ngrp)
      use m_ftox
      use m_lgunit,only: stdo
-      integer:: nqbz,ngrp,i,ig,ibz,iqibz,iqbz
+      integer:: nqbz,ngrp,i,ig,ibz,iqibz,iqbz,nx
       real(8)::eps=1d-8
       real(8):: plat(3,3),qbz(3,nqbz),symops(3,3,ngrp),qp(3),qx(3)
       real(8),allocatable::wtemp(:)
@@ -41,6 +41,19 @@ contains
 88       continue
       enddo
       nqibz=iqibz
+      allocate(ngx(nqibz),igx(ngrp,nqibz))
+      do i=1,nqibz !ig to keep qibz
+         nx=0
+         do ig=1,ngrp
+            qx= matmul(transpose(plat), qibz(:,i)-matmul(symops(:,:,ig),qibz(:,i)))
+            qx=qx-nint(qx) !qx-ndiff !translation of qx
+            if(sum(abs(qx))<eps) then
+               nx=nx+1
+               igx(nx,i) =ig
+            endif
+         enddo
+         ngx(i)=nx
+      enddo
       allocate(wtemp,source=wiqibz(1:nqibz))
       deallocate(wiqibz)
       call move_alloc(from=wtemp,to=wiqibz)

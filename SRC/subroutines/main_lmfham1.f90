@@ -17,7 +17,10 @@ subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|
   use m_ext,only: m_ext_init
   use m_cmdpath,only: Setcmdpath
   use m_prgnam,only: set_prgnam
-  use m_setqibz_lmfham,only: set_qibz
+  use m_setqibz_lmfham,only: set_qibz,qibz,nqibz
+  use m_lattic,only:   m_lattic_init,  qlat=>lat_qlat
+  use m_mksym,only:    m_mksym_init,iclasst
+  use m_mkqp,only:     m_mkqp_init
   implicit none
   integer:: i,j,ikp,ib1,ib2,it,nmx,nev,jsp,ikpd,ierr
   complex(8)::img=(0d0,1d0),phase,aaaa
@@ -37,8 +40,11 @@ subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|
   call m_MPItk_init() ! mpi initialization
   call m_lgunit_init() !set stdo,stdl
   call m_lmfinit_init('lmfham1')! Read ctrlp into module m_lmfinit.
+  call m_lattic_init()      ! lattice setup (for ewald sum)
+  call m_mksym_init('LMF')  !symmetry go into m_lattic and m_mksym
+  call m_mkqp_init() ! data of BZ go into m_mkqp
+    
   call ReadHamPMTInfo()  ! Read info from PMTHamiltonianInfo (lattice structures and index of basis).
-  call set_qibz(plat,qplist,nkp,symops,ngrp) ! Setup m_setqibz_lmfham
   call getkeyvalue("GWinput","mlo_facw",facw,default=.5d0)
   call getkeyvalue("GWinput","mlo_ecutw",ecutw,default=999*rydberg())
   call getkeyvalue("GWinput","mlo_eww",eww,default=.1d0*rydberg()) !size of fixing inner window
@@ -46,6 +52,13 @@ subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|
   ecutw= ecutw/rydberg()
   eww  = eww  /rydberg()
   if(symlcase) call readqplistsy()      ! When symlcase=T, read qplist.dat (q points list, see bndfp.F).
+  
+  call set_qibz(plat,qplist,nkp,symops,ngrp) ! Setup m_setqibz_lmfham
+!  write(stdo,ftox)'nkp=',nkp
+!  do i=1,nqibz
+!     write(stdo,ftox) ftof(qibz(:,i))
+!  enddo
+!  call rx0('xxxxxxx111')
   
 ! !!! delta fun check for FFT: k --> T --> k ! \delta_{kk'} = \sum_{T \in T(i,j)} W_T exp( i (k-k') T)
 !   do ikpd=1,nkp
