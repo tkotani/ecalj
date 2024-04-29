@@ -11,7 +11,7 @@ else
 fi
 rm -f HamiltonianPMT*
 echo 'Runnnig Hamiltonian generation'
-mpirun -np $3 $nfpgw/lmf $1 --writeham --mkprocar --fullmesh >& out_writeham
+mpirun -np $3 $nfpgw/lmf $1 --writeham --mkprocar >& out_writeham
 # Get Hamiltonian file, namded as HamiltonianMTO
 cat HamiltonianPMT.* >HamiltonianPMT
 rm HamiltonianPMT.* 

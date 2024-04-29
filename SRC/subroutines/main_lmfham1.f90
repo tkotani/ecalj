@@ -113,30 +113,31 @@ subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|
           qp= qplistsy(:,ikp)
        else
           qp= qplist(:,ikp)
-       endif
-       if(master_mpi) write(stdo,"(' ikp along qplist, q=',i5,3f9.4)")ikp,qp! true q(i)= 2pi/alat * qplist(i,ikp)
-       Spinloop: do jsp=1,nspx !nsp is the number of spin.  When lso=1(Lz.Sz), nspx=1
-          Hamblock: block
-            complex(8):: ovlm(1:ndimMTO,1:ndimMTO),hamm(1:ndimMTO,1:ndimMTO),t_zv(ndimMTO,ndimMTO)
-            real(8):: rydberg
+       endif !write(stdo,"(' procid ikp along qplist, q=',2i5,3f9.4)")procid,ikp,qp! true q(i)= 2pi/alat * qplist(i,ikp)
+       Hamblock: block
+         complex(8):: ovlm(1:ndimMTO,1:ndimMTO),hamm(1:ndimMTO,1:ndimMTO),t_zv(ndimMTO,ndimMTO)
+         real(8):: rydberg
+         Spinloop: do jsp=1,nspx !nsp is the number of spin.  When lso=1(Lz.Sz), nspx=1
             ovlm = 0d0
             hamm = 0d0
-            FourierTransormationFROMrealspcaeTOqspace:do i=1,ndimMTO !MPO Hamiltonian
+            FourierTransormationFROMrealspcaeTOqspace: do i=1,ndimMTO !MPO Hamiltonian
                do      j=1,ndimMTO
                   ib1 = ib_tableM(i) !atomic-site index in the primitive cell
                   ib2 = ib_tableM(j)
                   do it =1,npair(ib1,ib2)
-                     phase=1d0/nqwgt(it,ib1,ib2)*exp(-img*2d0*pi* sum(qp*matmul(plat,nlat(:,it,ib1,ib2))))
+                     phase=1d0/dble(nqwgt(it,ib1,ib2))*exp(-img*2d0*pi* sum(qp*matmul(plat,nlat(:,it,ib1,ib2))))
                      hamm(i,j)= hamm(i,j)+ hammr(i,j,it,jsp)*phase !MPO Hamiltonian at qp
                      ovlm(i,j)= ovlm(i,j)+ ovlmr(i,j,it,jsp)*phase
                   enddo
                enddo
             enddo FourierTransormationFROMrealspcaeTOqspace
-            call zhev_tk4(ndimMTO,hamm,ovlm,0,nev, evl(:,ikp,jsp),t_zv, oveps)!Diangonalize (hamm- evl ovlm) z=0
-            !           write(stdo,ftox) '  evl   =',nev,ftof(evl(1:10,ikp,jsp)*rydberg())
-          endblock Hamblock
-       enddo Spinloop
+            call zhev_tk4(ndimMTO,hamm,ovlm,0,nev, evl(:,ikp,jsp),t_zv, oveps)!nmx=0 means only eigenvalue. Diangonalize (hamm- evl ovlm) z=0
+            !write(stdo,ftox) '  evl   =',nev,ftof(evl(1:10,ikp,jsp)*rydberg())
+         enddo Spinloop
+         !write(stdo,"(' xxx procid ikp along qplist, q=',2i5,3f9.4)")procid,ikp,qp! true q(i)= 2pi/alat * qplist(i,ikp)
+       endblock Hamblock
     enddo GetHamiltonianFromRealSpacehammrANDdiagonalize
+    call mpi_barrier(comm,ierr)
     call mpibc2_real(evl,size(evl),'lmfham1_evl')
     if(symlcase.and.master_mpi) then
        do ikp=1,ndatx
