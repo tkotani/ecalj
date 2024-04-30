@@ -1,6 +1,6 @@
 !> Read HamiltionanPMTinfo and HamiltonianPMT. Then convert HamPMT to HamRsMPO
 module m_HamPMT
-   use m_MPItk,only: procid, master_mpi, nsize,master
+   use m_MPItk,only: procid, master_mpi, nsize,master,strprocid
    use m_lgunit,only:stdo
    use m_ftox
    use m_lmfinit,only: oveps
@@ -103,12 +103,14 @@ contains
          k_tableM(nn) =k_table(i)
          l_tableM(nn) =l_table(i)
       enddo
+      
+      
       ndimMTO=nn
-      open(newunit=ifih,file='HamiltonianPMT',form='unformatted')
       if(lso==1) ldim=ldim*2 !L.S mode
       nspx=nsp
       if(lso==1) nspx=1
       if(master_mpi) write(stdo,ftox)'Reading HamiltonianPMT: ndimMTO ldim lso=',ndimMTO,ldim,lso
+      
       allocate(ovlmr(1:ndimMTO,1:ndimMTO,npairmx,nspx), hammr(1:ndimMTO,1:ndimMTO,npairmx,nspx))
       hammr=0d0
       ovlmr=0d0
@@ -117,6 +119,9 @@ contains
       iqini =            ndiv*procid+1     !initial for each procid
       iqend = min(nqibz,ndiv*procid+ndiv) !end  for each procid
       write(stdo,ftox)'nsize procid iqini iqend=',nsize,procid,iqini,iqend
+
+      !open(newunit=ifih,file='HamiltonianPMT.',form='unformatted')
+      open(newunit=ifih,file='HamiltonianPMT.'//trim(strprocid),form='unformatted')
 ! Readin Hamiltonian only at iqibz
       allocate(ovlmi(1:ndimMTO,1:ndimMTO,nqibz,nspx),hammi(1:ndimMTO,1:ndimMTO,nqibz,nspx),source=(0d0,0d0))
       allocate(rotmat(ndimMTO,ndimMTO))
@@ -128,18 +133,19 @@ contains
         qbz=>qplist      
         iq=0
         iqiloop: do iqxx=1,nqibz !xx=1,nqibz !iqini,iqend !iqxx=1,nqibz 
-           do jspxx=1,nspx
+           do !jspxx=1,nspx
               read(ifih,end=2029) qp,ndimPMT,lso,xxx,jsp !jsp for isp; if so=1, jsp=1 only
-              if(iqxx<iqini.or.iqend<iqxx) then
-                 read(ifih)
-                 read(ifih)
-                 cycle
-              endif   
-              do i=iqibz,nqibz !Find iqibz and jsp here
-                 if(sum(abs(qibz(:,i)-qp))<eps) then
-                    iqibz=i
-                 endif
-              enddo
+              !              if(iqxx<iqini.or.iqend<iqxx) then
+              !                 read(ifih)
+              !                 read(ifih)
+              !                 cycle
+              !              endif
+              iqibz = findloc( [(sum(abs(qibz(:,i)-qp))<eps,i=1,nqibz)],value=.true.,dim=1)
+!              do i=iqibz,nqibz !Find iqibz and jsp here
+!                 if(sum(abs(qibz(:,i)-qp))<eps) then
+!                    iqibz=i
+!                 endif
+!              enddo
               write(stdo,"('=== Reading Ham for iq,iqibz,spin,q=',3i4,3f9.5)") iq,i,jsp,qp
               allocate(ovlm(1:ndimPMT,1:ndimPMT),hamm(1:ndimPMT,1:ndimPMT),cmpo(ndimPMT,ndimMTO))      !write(stdo,ftox)'qp=',ftof(qp)
               read(ifih) ovlm(1:ndimPMT,1:ndimPMT)

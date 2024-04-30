@@ -29,7 +29,7 @@ subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|
   real(8)::facw,ecutw,eww,rydberg,posd(3)
   logical:: lprint=.true.,savez=.false.,getz=.false.
   integer:: ndatx,ifsy1,ifsy2,ifsy,iix(36),nsc1,iqini,iqend,ndiv
-  logical:: symlcase=.true.
+!  logical:: symlcase=.true.
   character(256):: fband(2)=['band_MPO_spin1.dat','band_MPO_spin2.dat'],cccx
   character(8):: prgnam=''
   include "mpif.h"
@@ -51,7 +51,8 @@ subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|
   if(master_mpi) write(stdo,ftox)'mlo_facw _ecutw (eV)=',ftof(facw),ftof(ecutw/rydberg())!,ftof(eww)
   ecutw= ecutw/rydberg()
   eww  = eww  /rydberg()
-  if(symlcase) call readqplistsy()      ! When symlcase=T, read qplist.dat (q points list, see bndfp.F).
+  !if(symlcase)
+  call readqplistsy()      ! When symlcase=T, read qplist.dat (q points list, see bndfp.F).
   
   call set_qibz(plat,qplist,nkp,symops,ngrp) ! Setup m_setqibz_lmfham
 !  write(stdo,ftox)'nkp=',nkp
@@ -85,17 +86,18 @@ subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|
 !   stop 'xxxxxxxxxxxxxxxxxxxxxx'
   
   call HamPMTtoHamRsMPO(facw,ecutw,eww) ! MT-projected orbital(MPO) Hamiltoinan. HamRsMPO
-  ! (real-space Hamiltonian hammr,ovlmr,ndimMTO) is generated,and written to a file HamRsMPO
+  ! Real-space Hamiltonian hammr,ovlmr,ndimMTO are generated,and written to a file HamRsMPO
   call mpi_barrier(comm,ierr)
-  call ReadHamRsMPO()                   ! Read real-space Hamiltonian hammr,ovlmr from HamRsMPO.
-  if(symlcase) then
-     if(master_mpi) open(newunit=ifsy1,file=trim(fband(1)))
-     if(master_mpi.and.nspx==2) open(newunit=ifsy2,file=trim(fband(2)))
-     if(master_mpi) write(stdo,ftox)'Read qplist.dat: ndat =',ndat
-  endif
+  call ReadHamRsMPO()                   ! Read HamRsMPO containing real-space Hamiltonian hammr,ovlmr
+!  if(symlcase) then
+  if(master_mpi) open(newunit=ifsy1,file=trim(fband(1)))
+  if(master_mpi.and.nspx==2) open(newunit=ifsy2,file=trim(fband(2)))
+  if(master_mpi) write(stdo,ftox)'Read qplist.dat: ndat =',ndat
+!  endif
   nmx = ndimMTO
-  ndatx = nkp
-  if(symlcase) ndatx=ndat
+  !ndatx = nkp
+  !if(symlcase)
+  ndatx=ndat
   GetEigenvaluesForSYML: block!Get Hamitonian at k points from hammr,ovlmr (Realspace Hamiltonian), then diagnalize.
     real(8):: evl(ndimMTO,ndatx,nspx)
     integer:: ierr,ifixx
@@ -109,11 +111,11 @@ subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|
     write(stdo,ftox)'nsize procid iqini iqend=',nsize,procid,iqini,iqend
     call mpi_barrier(comm,ierr)
     GetHamiltonianFromRealSpacehammrANDdiagonalize: do ikp=iqini,iqend !1,ndatx
-       if(symlcase) then
-          qp= qplistsy(:,ikp)
-       else
-          qp= qplist(:,ikp)
-       endif !write(stdo,"(' procid ikp along qplist, q=',2i5,3f9.4)")procid,ikp,qp! true q(i)= 2pi/alat * qplist(i,ikp)
+!       if(symlcase) then
+       qp= qplistsy(:,ikp)
+!       else
+!          qp= qplist(:,ikp)
+!       endif !write(stdo,"(' procid ikp along qplist, q=',2i5,3f9.4)")procid,ikp,qp! true q(i)= 2pi/alat * qplist(i,ikp)
        Hamblock: block
          complex(8):: ovlm(1:ndimMTO,1:ndimMTO),hamm(1:ndimMTO,1:ndimMTO),t_zv(ndimMTO,ndimMTO)
          real(8):: rydberg
@@ -121,7 +123,7 @@ subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|
             ovlm = 0d0
             hamm = 0d0
             FourierTransormationFROMrealspcaeTOqspace: do i=1,ndimMTO !MPO Hamiltonian
-               do      j=1,ndimMTO
+               do   j=1,ndimMTO
                   ib1 = ib_tableM(i) !atomic-site index in the primitive cell
                   ib2 = ib_tableM(j)
                   do it =1,npair(ib1,ib2)
@@ -139,7 +141,7 @@ subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|
     enddo GetHamiltonianFromRealSpacehammrANDdiagonalize
     call mpi_barrier(comm,ierr)
     call mpibc2_real(evl,size(evl),'lmfham1_evl')
-    if(symlcase.and.master_mpi) then
+    if(master_mpi) then !symlcase.and.
        do ikp=1,ndatx
           do jsp=1,nspx
              if(jsp==1) ifsy=ifsy1

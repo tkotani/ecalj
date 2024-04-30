@@ -157,7 +157,7 @@ GaussianFilterX0 0.0001 !(a.u.) Gaussian smearing for the polarization function 
 !EPSrange  1    !(Ry) [0,EPSrange] for dielectric function plot.
 !EPSdw     0.05 !(Ry) energy mesh  for dielectric function plot.
  
-vvvvv!QforEPSIBZ on ! Use all q in IBZ for the calculation of eps mode.
+vvvvvv!QforEPSIBZ on ! Use all q in IBZ for the calculation of eps mode.
 <QforEPS>
  0d0 0d0 0.01d0
  0d0 0d0 0.02d0
@@ -198,8 +198,9 @@ vvvvv!QforEPSIBZ on ! Use all q in IBZ for the calculation of eps mode.
 3 O   2 3 4
 4 O   2 3 4
 </Worb>
+!mlo_CUinner 0.8
 !mlo_EUinner 5
 !mlo_WTseed 0
-mlo_WTband  512
-!mlo_WTinner 2048
+mlo_WTband  128
+mlo_WTinner 2048
 !mlo_conv 1d-14
