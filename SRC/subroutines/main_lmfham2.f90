@@ -501,7 +501,7 @@ contains
          complex(8)::phase,proj(iki:ikf,iki:ikf),cmlo(iki:ikf,nMLO),cmloi0(iki:ikf,nMLO),cmloi(iki:ikf,nMLO),cmpomlo(iki:ikf,nMLO),&
               ham(nMLO,nMLO),ovlx(nMLO,nMLO),evecl(nMLO,nMLO),rotmatmlo(nMLO,nMLO),phaseij(natom,natom,npairmx),&
               hami(nMLO,nMLO),ovlxi(nMLO,nMLO)
-         logical:: cmdopt0
+         logical:: cmdopt0,init
          character(8):: xt
          jsp=is
          do iqibz = 1,nqibz
@@ -517,14 +517,14 @@ contains
                read(ificpmtmpo) cmpoi(nPMT,nMPO)  !   |FMPO_i>= |PsiPMT_l> Cmpo(l,i)
                close(ificpmtmpo)
                open(newunit=ificmlo, file='Cmlo' //trim(xt(iqibz))//trim(xt(jsp)),form='unformatted')
-               nnqbz = count(igiqibz(1:ngrp,iqibz))
-               write(ificmlo) nnqbz
-               do ig = 1,ngrp
-                  if(.not.igiqibz(ig,iqibz)) cycle
-                  iqbz= iqii(ig,iqibz)
-                  qp  = qbzii(:,ig,iqibz)
-                  write(ificmlo) iqbz, qp
-               enddo
+!               nnqbz = count(igiqibz(1:ngrp,iqibz))
+!               write(ificmlo) nnqbz
+!               do ig = 1,ngrp
+!                  if(.not.igiqibz(ig,iqibz)) cycle
+!                  iqbz= iqii(ig,iqibz)
+!                  qp  = qbzii(:,ig,iqibz)
+!                  write(ificmlo) iqbz, qp
+!               enddo
             endif
             hami=0d0
             ovlxi=0d0
@@ -538,6 +538,7 @@ contains
             hami=hami/ngx(iqibz)
             ovlxi=ovlxi/ngx(iqibz)
             fac0=1d0/dble(nqbz)
+            init=.true.
             igloop: do iqbz=1,nqbz
                if(iqibz/=irotq(iqbz)) cycle
                qp = qbz(:, iqbz)
@@ -560,19 +561,18 @@ contains
                   enddo
                enddo; enddo
                if(cmdopt0('--cmlo')) then !at iqibz
-                  rotmatmlo(:,:) = dconjg(transpose(rotmat(idmto_(:),idmto_(:))))
-                  if(ig==1) then !at irreducible points
-                     nmx =nMLO
+                  if(init) then !at irreducible points
+                     nmx = nMLO
                      call zhev_tk4(nMLO,ham,ovlx,nmx,nev, evll,evecl,oveps)! Diangonale (hamm - evl ovlm )evec=0
-                     write(ificmlo) iqibz,nPMT,nMLO,qibz(:,iqibz)
-                     write(ificmlo) matmul(matmul(cmpoi,eveci(:,iki:ikf,iqibz)),cmloi) !c1 !|FMLO_iqibz> = |PsiPMT_iqibz> cmpoi*eveci * cmloi
-                  else   !for rotation
-                     write(ificmlo) iqbz,nMLO,nMLO,qp
-                     write(ificmlo) matmul(rotmatmlo,evecl) !rotation is |PsiMLO_iqbz>= |FMLO_iqibz>*rotmatmlo*evecl
-                     !cmlo contains rotation from iqibz to iqbz
-                  endif
+                     !write(ificmlo) iqibz,nPMT,nMLO,qibz(:,iqibz)
+                     !write(ificmlo) matmul(matmul(cmpoi,eveci(:,iki:ikf,iqibz)),cmloi) !c1 !|FMLO_iqibz> = |PsiPMT_iqibz> cmpoi*eveci * cmloi
+                     init=.false.
+                  endif   !for rotation
+                  rotmatmlo(:,:) = dconjg(transpose(rotmat(idmto_(:),idmto_(:))))
+                  write(ificmlo) iqbz,qp,nMLO
+                  write(ificmlo) matmul(rotmatmlo,evecl) !rotation is |PsiMLO_iqbz>= |FMLO_iqibz>*rotmatmlo*evecl
+                  !cmlo contains rotation from iqibz to iqbz
                endif ! |PsiMLO_iqbz> = |Psi_PMT_iqibz> c1(iqibz)*c2(iqbz)
-               
             enddo igloop
             close(ificmlo)
          enddo
