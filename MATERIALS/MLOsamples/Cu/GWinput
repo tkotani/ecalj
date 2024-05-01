@@ -133,4 +133,4 @@ vvv!!! For s,p,d,f the indices 1-16 correspond to:
 !mlo_EUinner 5
 mlo_WTband 128
 !mlo_CUinner 0.9
-mlo_WTinner 2048
+mlo_WTinner 4096

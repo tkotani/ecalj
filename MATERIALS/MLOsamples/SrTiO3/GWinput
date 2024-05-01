@@ -194,13 +194,5 @@ vv</QforEPS>
 5 O   2 3 4
 </Worb> 
 
-!mlo_EUinner 12
-
-!mlo_WTband 128
-
-!mlo_CUinner .9
-!mlo_WTseed 128
-!mlo_conv 1d-8
-
-mlo_WTinner 2048
-mlo_WTband 512
+!mlo_WTinner 2048
+!mlo_WTband 0

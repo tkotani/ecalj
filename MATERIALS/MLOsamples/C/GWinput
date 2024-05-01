@@ -140,6 +140,6 @@ GaussSmear on ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr for
  1 C   1 2 3 4 5 6 7 8 9
  2 C   1 2 3 4 5 6 7 8 9
 </Worb>
+
 mlo_EUinner 12
 mlo_WTinner 4096
-mlo_WTband  128

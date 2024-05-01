@@ -42,7 +42,7 @@ contains
     implicit none
     integer:: i,iq,is,ix,j,ifbb,ifoc,nbb,isc,ifq0p, nox,iki,ikf,nsc1,ndz,nin,nout,nsc2,ibb
     integer:: inii,if102,iwf2,ib,itmp,itmp2,nqbz2,nspin2,ib1,ib2,iqb,iqbz,it,jsp,nmx,nev,isyml!,nqbz!,n1,n2,n3
-    integer:: nMLO,ikx,ikxx,iadd,i1q,i2q,i1,i2,imp,inp,inx,imx,ibas,ibold,ibx,iorb
+    integer:: nMLO,ikx,ikxx,iadd,i1q,i2q,i1,i2,imp,inp,inx,imx,ibas,ibold,ibx,iorb,nnorb
     integer,parameter:: nlinex=100
     integer::nline,np(nlinex), iwf,ldim2,ixx,npin,ifuumat,job=-1
     real(8),parameter:: pi = 4d0*datan(1d0)
@@ -72,7 +72,7 @@ contains
     character(256):: aaa='',bbb=''
     integer:: nband_,nqbz_,iki_,ikf_,nMLO_,ilowest,ieLhard,iUinneradd,igrp,ndimmto
     real(8)::qx(3),qtarget(3),eps=1d-8,qp(3)
-    integer:: ig,iqibz,icount,ierr
+    integer:: ig,iqibz,icount,ierr,stdox,iii
     call setcmdpath()            ! Set self-command path (this is for call system at m_lmfinit)
     call m_ext_init()            ! Get sname, e.g. trim(sname)=si of ctrl.si
     !  call mpi_init(ierr)
@@ -114,6 +114,7 @@ contains
          endif        !write(stdo,"('MHAM: i ib(atom) l m k(EH,EH2,PZ)=',5i3)") i,ib_table(i),ibx
          ibold=ib_tableM(i)
       enddo SETidmto
+      nnorb=iorb
       write(stdo,ftox)' idmto=',idmto
       call getkeyvalue("GWinput","mlo_maxit",nsc1,default=20)
       call getkeyvalue("GWinput","mlo_conv",conv1,default=1d-10)
@@ -122,7 +123,7 @@ contains
       call getkeyvalue("GWinput","mlo_CUouter", CUouter,default=0d0) !0.1d0)
       call getkeyvalue("GWinput","mlo_CUinner", CUinner,default=0.9d0)
       call getkeyvalue("GWinput","mlo_WTinner", WTinner,default=2048d0) ! inner energy window WeighTing
-      call getkeyvalue("GWinput","mlo_WTband" , WTband,default=128d0) !512d0) !1024d0)    ! Weight to minimize band energies. 64 or less for Cu.
+      call getkeyvalue("GWinput","mlo_WTband" , WTband,default=0d0) !128d0) !512d0) !1024d0)    ! Weight to minimize band energies. 64 or less for Cu.
       call getkeyvalue("GWinput",'mlo_WTseed' , WTseed,default=128d0) !0d0)    ! Weight for seed.
       call getkeyvalue("GWinput","mlo_ELinner", eLinnereV,default=-1d8) ! inner energy windowL eV relative to VBM
       call getkeyvalue("GWinput","mlo_ewid",    ewideV, default=1d0)    ! inner energy window softing eV
@@ -132,25 +133,31 @@ contains
       call getkeyvalue("GWinput","mlo_EUinnerAUTOsp",EUautosp,default=.false.) !only test
       ELhardauto=.true.
       if(ELhardeV>-1d7) ELhardauto=.false.
-      if(master_mpi) then
-         write(stdo,ftox)' Reading: mlo_maxit=',nsc1
-         write(stdo,ftox)'        : mlo_conv =',ftod(conv1)
-         write(stdo,ftox)'        : mlo_mix  =',ftof(alpha1,2)
-         write(stdo,ftox)'        : mlo_WTseed   =',ftof(WTseed,2)
-         write(stdo,ftox)'        : mlo_WTband   =',ftof(WTband,2)
-         write(stdo,ftox)'        : mlo_WTinner  =',ftof(WTinner,2)
-         if(eUinnereV>1d5) then
-            write(stdo,ftox)'     :  mlo_CUinner =',ftof(CUinner,2)
+      if(minval(lindex(1:nnorb))<=1) WTband=512d0 !if s and/or p bands included in the MLO, default WTband=512
+      do iii=1,2
+         if(iii==1) stdox=stdo
+         if(iii==2) open(newunit=stdox,file='lmfham2parameters.check')
+         if(master_mpi) then
+            write(stdox,ftox)'        : mlo_maxit       =',nsc1
+            write(stdox,ftox)'        : mlo_conv        =',ftod(conv1)
+            write(stdox,ftox)'        : mlo_mix         =',ftof(alpha1,2)
+            write(stdox,ftox)'        : mlo_WTseed      =',ftof(WTseed,2)
+            write(stdox,ftox)'        : mlo_WTband      =',ftof(WTband,2)
+            write(stdox,ftox)'        : mlo_WTinner     =',ftof(WTinner,2)
+            if(eUinnereV>1d5) then
+            write(stdox,ftox)'        : mlo_CUinner     =',ftof(CUinner,2)
+            endif
+            write(stdox,ftox)'        : mlo_EUinner(eV) =',ftod(eUinnereV,2)
+            write(stdox,ftox)'        : mlo_ELinner(eV) =',ftod(eLinnereV,2)
+            write(stdox,ftox)'        : mlo_ewid(eV)    =',ftof(ewideV,2)
+            write(stdox,ftox)'        : mlo_WTouter     =',ftof(WTouter,2)
+            write(stdox,ftox)'        : mlo_CUouter     =',ftof(CUouter,2)
+            if(.not.ELhardauto) write(stdox,ftox)'        : mlo_ELhard(eV)=',ftof(ELhardeV,2)
+            if(ELhardauto)      write(stdox,ftox)'        : mlo_ELhard(eV) = by mlo_CLhard'
+            if(ELhardauto)      write(stdox,ftox)'        : mlo_CLhard =',ftof(CLhard,2)
          endif
-         write(stdo,ftox)'        :  mlo_EUinner(eV)=',ftod(eUinnereV,2)
-         write(stdo,ftox)'        :  mlo_ELinner(eV)=',ftod(eLinnereV,2)
-         write(stdo,ftox)'        :  mlo_ewid(eV)=',ftof(ewideV,2)
-         write(stdo,ftox)'        : mlo_WTouter  =',ftof(WTouter,2)
-         write(stdo,ftox)'        :  mlo_CUouter =',ftof(CUouter,2)
-         if(.not.ELhardauto) write(stdo,ftox)'        : mlo_ELhard(eV)=',ftof(ELhardeV,2)
-         if(ELhardauto)      write(stdo,ftox)'        : mlo_ELhard(eV) = by mlo_CLhard'
-         if(ELhardauto)      write(stdo,ftox)'        :  mlo_CLhard =',ftof(CLhard,2)
-      endif
+         if(iii==2) close(stdox)
+      enddo
       eLinner= eLinnereV/rydberg()+eferm
       eUinner= eUinnereV/rydberg()+eferm
       eUouterauto=.true. !merge(.true.,.false.,eUouter>1d5)
@@ -169,6 +176,7 @@ contains
     iki=1     !minval(iko_i)
     ikf=nband !maxval(iko_f) !  nox = ikf - iki + 1. nband is for MPO Hamiltonian
     call set_qibz(plat,qbz,nqbz,symops,ngrp) !iqibzrep(iqibz) is the representative of iqibz
+    
     if(job==1) goto 1011 !Goto Souza's iteration --job=1 mode
     GetCNmatFile_job0: block  !job=0 mode to get CNmat file (connection matrix uumat and so on).
       real(8):: eps=1d-8

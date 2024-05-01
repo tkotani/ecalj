@@ -201,6 +201,6 @@ vvvvvv!QforEPSIBZ on ! Use all q in IBZ for the calculation of eps mode.
 !mlo_CUinner 0.8
 !mlo_EUinner 5
 !mlo_WTseed 0
-mlo_WTband  128
-mlo_WTinner 2048
+!mlo_WTband  0
+!mlo_WTinner 2048
 !mlo_conv 1d-14
