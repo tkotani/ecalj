@@ -23,13 +23,11 @@ subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|
   use m_mkqp,only:     m_mkqp_init
   implicit none
   integer:: i,j,ikp,ib1,ib2,it,nmx,nev,jsp,ikpd,ierr
+  integer:: ndatx,ifsy1,ifsy2,ifsy,iix(36),nsc1,iqini,iqend,ndiv
   complex(8)::img=(0d0,1d0),phase,aaaa
   real(8),allocatable:: evl(:)
-  real(8)::qp(3),pi=4d0*atan(1d0)
-  real(8)::facw,ecutw,eww,rydberg,posd(3)
+  real(8)::qp(3),pi=4d0*atan(1d0), facw,ecutw,eww,rydberg,posd(3)
   logical:: lprint=.true.,savez=.false.,getz=.false.
-  integer:: ndatx,ifsy1,ifsy2,ifsy,iix(36),nsc1,iqini,iqend,ndiv
-!  logical:: symlcase=.true.
   character(256):: fband(2)=['band_MPO_spin1.dat','band_MPO_spin2.dat'],cccx
   character(8):: prgnam=''
   include "mpif.h"
@@ -51,15 +49,8 @@ subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|
   if(master_mpi) write(stdo,ftox)'mlo_facw _ecutw (eV)=',ftof(facw),ftof(ecutw/rydberg())!,ftof(eww)
   ecutw= ecutw/rydberg()
   eww  = eww  /rydberg()
-  !if(symlcase)
   call readqplistsy()      ! When symlcase=T, read qplist.dat (q points list, see bndfp.F).
-  
   call set_qibz(plat,qplist,nkp,symops,ngrp) ! Setup m_setqibz_lmfham
-!  write(stdo,ftox)'nkp=',nkp
-!  do i=1,nqibz
-!     write(stdo,ftox) ftof(qibz(:,i))
-!  enddo
-!  call rx0('xxxxxxx111')
   
 ! !!! delta fun check for FFT: k --> T --> k ! \delta_{kk'} = \sum_{T \in T(i,j)} W_T exp( i (k-k') T)
 !   do ikpd=1,nkp
@@ -89,14 +80,10 @@ subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|
   ! Real-space Hamiltonian hammr,ovlmr,ndimMTO are generated,and written to a file HamRsMPO
   call mpi_barrier(comm,ierr)
   call ReadHamRsMPO()                   ! Read HamRsMPO containing real-space Hamiltonian hammr,ovlmr
-!  if(symlcase) then
   if(master_mpi) open(newunit=ifsy1,file=trim(fband(1)))
   if(master_mpi.and.nspx==2) open(newunit=ifsy2,file=trim(fband(2)))
   if(master_mpi) write(stdo,ftox)'Read qplist.dat: ndat =',ndat
-!  endif
   nmx = ndimMTO
-  !ndatx = nkp
-  !if(symlcase)
   ndatx=ndat
   GetEigenvaluesForSYML: block!Get Hamitonian at k points from hammr,ovlmr (Realspace Hamiltonian), then diagnalize.
     real(8):: evl(ndimMTO,ndatx,nspx)
@@ -108,14 +95,10 @@ subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|
     iqini =     ndiv*procid+1
     iqend =     ndiv*procid+ndiv
     if(procid==nsize-1) iqend = min(ndatx,iqend)
-    write(stdo,ftox)'nsize procid iqini iqend=',nsize,procid,iqini,iqend
     call mpi_barrier(comm,ierr)
+    write(stdo,ftox)'plot bands: nsize procid iqini iqend=',nsize,procid,iqini,iqend
     GetHamiltonianFromRealSpacehammrANDdiagonalize: do ikp=iqini,iqend !1,ndatx
-!       if(symlcase) then
        qp= qplistsy(:,ikp)
-!       else
-!          qp= qplist(:,ikp)
-!       endif !write(stdo,"(' procid ikp along qplist, q=',2i5,3f9.4)")procid,ikp,qp! true q(i)= 2pi/alat * qplist(i,ikp)
        Hamblock: block
          complex(8):: ovlm(1:ndimMTO,1:ndimMTO),hamm(1:ndimMTO,1:ndimMTO),t_zv(ndimMTO,ndimMTO)
          real(8):: rydberg

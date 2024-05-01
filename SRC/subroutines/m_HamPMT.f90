@@ -106,40 +106,18 @@ contains
       if(lso==1) ldim=ldim*2 !L.S mode
       nspx=nsp
       if(lso==1) nspx=1
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
-!      ndiv= nqibz/nsize
-!      if(nqibz>ndiv*nsize) ndiv=ndiv+1    !MPI division
-!      iqini =            ndiv*procid+1     !initial for each procid
-!      iqend = min(nqibz,ndiv*procid+ndiv) !end  for each procid
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
-      nqbz=nkp
-      ndiv= nqbz/nsize
-      if(nqbz > ndiv*nsize) ndiv=ndiv+1    !MPI division
-      iqini =          ndiv*procid+1     !initial for each procid
-      iqend = min(nqbz,ndiv*procid+ndiv) !end  for each procid
-      write(stdo,ftox)'nsize procid iqini iqend=',nsize,procid,iqini,iqend
-      !open(newunit=ifih,file='HamiltonianPMT.'//trim(strprocid),form='unformatted')
-      open(newunit=ifih,file='HamiltonianPMT',form='unformatted')
       
 ! Readin Hamiltonian only at iqibz
       allocate(ovlmi(1:ndimMTO,1:ndimMTO,nqibz,nspx),hammi(1:ndimMTO,1:ndimMTO,nqibz,nspx),source=(0d0,0d0))
       allocate(rotmat(ndimMTO,ndimMTO))
       allocate(ndimPMTq(nqibz),source=0)
+      open(newunit=ifih,file='HamiltonianPMT.'//trim(strprocid),form='unformatted')
       HreductionIqibz: block
         integer:: i,iqxx,jspxx
-        qbz=>qplist      
-        iq=0
-        iqiloop: do iqxx=1,nqbz !nqibz !xx=1,nqibz !iqini,iqend !iqxx=1,nqibz 
-           do !jspxx=1,nspx
+        iqiloop: do iqxx=1,nqibz !nqibz !xx=1,nqibz !iqini,iqend !iqxx=1,nqibz 
+           do jspxx=1,nspx
               read(ifih,end=2029) qp,ndimPMT,lso,xxx,jsp !jsp for isp; if so=1, jsp=1 only
-              if(iqxx<iqini.or.iqend<iqxx) then
-                 read(ifih)
-                 read(ifih)
-                 cycle
-              endif
               iqibz = findloc( [(sum(abs(qibz(:,i)-qp))<eps,i=1,nqibz)],value=.true.,dim=1)
-              if(iqibz==0) cycle
-              
               write(stdo,ftox)'=== Reading Ham for iqibz spin procid q= ', iqibz,jsp,procid,ftof(qp)
               allocate(ovlm(1:ndimMTO,1:ndimMTO),hamm(1:ndimMTO,1:ndimMTO))
               readingovlmp: block
@@ -175,6 +153,8 @@ contains
       call mpibc2_int(ndimPMTq,size(ndimPMTq),'m_HamPMT_ndimPMTq')
 ! hammr ovlmr     
       allocate(ovlmr(1:ndimMTO,1:ndimMTO,npairmx,nspx), hammr(1:ndimMTO,1:ndimMTO,npairmx,nspx),source=(0d0,0d0))
+      nqbz=nkp
+      qbz=>qplist      
       ndiv= nqbz/nsize
       if(nqbz>ndiv*nsize) ndiv=ndiv+1    !MPI division
       iqini =          ndiv*procid+1     !initial for each procid

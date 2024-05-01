@@ -67,11 +67,11 @@ contains
          qbzii(:,ig,iqibz) = qbz(:,iqbz)
       enddo
       wiqibz=wiqibz/nqbz
-      write(stdo,*)'sum of wiqibz=',sum(wiqibz)
-      do iqibz=1,nqibz
-         write(stdo,ftox)' qibz:  ',iqibz,' ',ftof(qibz(:,iqibz))
-      enddo
-      write(stdo,ftox) 'set_qibz: nqbz nqibz ngrp=',nqbz,nqibz,ngrp
+!      write(stdo,*)'sum of wiqibz=',sum(wiqibz)
+!      do iqibz=1,nqibz
+!         write(stdo,ftox)' qibz:  ',iqibz,' ',ftof(qibz(:,iqibz))
+!      enddo
+!      if(master_mpi) write(stdo,ftox) 'set_qibz: nqbz nqibz ngrp wiqibz=',nqbz,nqibz,ngrp,sum(wiqibz)
 !    forall( iqibz=1:nqibz) nigiq(iqibz) = count(igiqibz(:,iqibz))
    endsubroutine set_qibz
 end module m_setqibz_lmfham
