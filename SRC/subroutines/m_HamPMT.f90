@@ -126,7 +126,6 @@ contains
       allocate(rotmat(ndimMTO,ndimMTO))
       allocate(ndimPMTq(nqibz),source=0)
       HreductionIqibz: block
-        logical:: cmdopt0
         integer:: i,iqxx,jspxx
         qbz=>qplist      
         iq=0
@@ -140,35 +139,32 @@ contains
               endif
               iqibz = findloc( [(sum(abs(qibz(:,i)-qp))<eps,i=1,nqibz)],value=.true.,dim=1)
               if(iqibz==0) cycle
+              
               write(stdo,ftox)'=== Reading Ham for iqibz spin procid q= ', iqibz,jsp,procid,ftof(qp)
-              allocate(ovlm(1:ndimPMT,1:ndimPMT),hamm(1:ndimPMT,1:ndimPMT),cmpo(ndimPMT,ndimMTO))      !write(stdo,ftox)'qp=',ftof(qp)
-              read(ifih) ovlm(1:ndimPMT,1:ndimPMT)
-              read(ifih) hamm(1:ndimPMT,1:ndimPMT)
-              call Hreduction(.false.,facw,ecutw,eww,ndimPMT,hamm(1:ndimPMT,1:ndimPMT),ovlm(1:ndimPMT,1:ndimPMT), &!Get reduced Hamitonian for ndimMTO
-                   ndimMTO,ix,fff1, hamm(1:ndimMTO,1:ndimMTO),ovlm(1:ndimMTO,1:ndimMTO),cmpo)
-              if(cmdopt0('--cmlo')) then  !at qibz only
-                 writempo: block
-                   character(8):: xt
-!                   iqibz=irotq(iq)
+              allocate(ovlm(1:ndimMTO,1:ndimMTO),hamm(1:ndimMTO,1:ndimMTO))
+              readingovlmp: block
+                character(8):: xt
+                logical:: cmdopt0
+                complex(8):: ovlmp(1:ndimPMT,1:ndimPMT),hammp(1:ndimPMT,1:ndimPMT),cmpo(ndimPMT,ndimMTO)
+                read(ifih) ovlmp
+                read(ifih) hammp
+                call Hreduction(.false.,facw,ecutw,eww,ndimPMT,hammp,ovlmp, ndimMTO,ix,fff1, hamm,ovlm,cmpo) !Get reduced Hamitonian for ndimMTO
+                if(cmdopt0('--cmlo')) then  !at qibz only
                    open(newunit=ificmpo, file='Cmpo' //trim(xt(i))//trim(xt(jsp)),form='unformatted')
                    write(ificmpo) ndimPMT,ndimMTO
                    write(ificmpo) cmpo
                    close(ificmpo)
-                 endblock writempo
-              endif
+                endif
+              endblock readingovlmp
               ndimPMTq(iqibz)=ndimPMT
-              hammi(:,:,iqibz,jsp)=0d0
-              ovlmi(:,:,iqibz,jsp)=0d0
               do igg=1,ngx(iqibz) !symmetrized for rotations keeping qibz
                  call rotmatMTO(igg=igx(igg,iqibz),q=qibz(:,iqibz),qtarget=qibz(:,iqibz),ndimh=ndimMTO,rotmat=rotmat)
-                 ovlmi(:,:,iqibz,jsp)=ovlmi(:,:,iqibz,jsp)&
-                      +matmul(rotmat,matmul(ovlm(1:ndimMTO,1:ndimMTO),dconjg(transpose(rotmat))))
-                 hammi(:,:,iqibz,jsp)=hammi(:,:,iqibz,jsp)&
-                      +matmul(rotmat,matmul(hamm(1:ndimMTO,1:ndimMTO),dconjg(transpose(rotmat))))
+                 ovlmi(:,:,iqibz,jsp)=ovlmi(:,:,iqibz,jsp) +matmul(rotmat,matmul(ovlm,dconjg(transpose(rotmat))))
+                 hammi(:,:,iqibz,jsp)=hammi(:,:,iqibz,jsp) +matmul(rotmat,matmul(hamm,dconjg(transpose(rotmat))))
               enddo
               hammi(:,:,iqibz,jsp)=hammi(:,:,iqibz,jsp)/ngx(iqibz)  
               ovlmi(:,:,iqibz,jsp)=ovlmi(:,:,iqibz,jsp)/ngx(iqibz)  
-              deallocate(ovlm,hamm,cmpo)
+              deallocate(ovlm,hamm)
            enddo
         enddo iqiloop
 2029    continue
@@ -184,11 +180,10 @@ contains
       iqini =          ndiv*procid+1     !initial for each procid
       iqend = min(nqbz,ndiv*procid+ndiv) !end  for each procid
       write(stdo,ftox)'nsize procid iqini iqend=',nsize,procid,iqini,iqend
-      qploop: do iqbz=1,nqbz
-         if(iqbz<iqini.or.iqend<iqbz) cycle
+      qploop: do iqbz=iqini,iqend
          qp     = qbz(:,iqbz)
          iqibz  = irotq(iqbz)
-         ndimPMT= ndimPMTq(iqibz) !         write(stdo,ftox)'nnnnnnnnndimPMT=',iqibz,ndimPMT
+         ndimPMT= ndimPMTq(iqibz) 
          hammovlm: block
            complex(8):: ovlm(1:ndimPMT,1:ndimPMT),hamm(1:ndimPMT,1:ndimPMT)
            do jsp=1,nspx
