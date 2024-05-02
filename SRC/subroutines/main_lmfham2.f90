@@ -71,7 +71,7 @@ contains
     character:: outs*20
     character(256):: aaa='',bbb=''
     integer:: nband_,nqbz_,iki_,ikf_,nMLO_,ilowest,ieLhard,iUinneradd,igrp,ndimmto
-    real(8)::qx(3),qtarget(3),eps=1d-8,qp(3)
+    real(8)::qx(3),qtarget(3),eps=1d-8,qp(3),WTbanddefault
     integer:: ig,iqibz,icount,ierr,stdox,iii
     call setcmdpath()            ! Set self-command path (this is for call system at m_lmfinit)
     call m_ext_init()            ! Get sname, e.g. trim(sname)=si of ctrl.si
@@ -115,16 +115,18 @@ contains
          ibold=ib_tableM(i)
       enddo SETidmto
       nnorb=iorb
+      WTbanddefault=0d0
+      if(minval(lindex(1:nnorb))<=1) WTbanddefault=512d0 !if s and/or p bands included in the MLO, default WTband=512
       write(stdo,ftox)' idmto=',idmto
-      call getkeyvalue("GWinput","mlo_maxit",nsc1,default=20)
-      call getkeyvalue("GWinput","mlo_conv",conv1,default=1d-10)
+      call getkeyvalue("GWinput","mlo_maxit",nsc1,default=100)
+      call getkeyvalue("GWinput","mlo_conv",conv1,default=1d-8)
       call getkeyvalue("GWinput","mlo_mix",alpha1,default=.5d0)
       call getkeyvalue("GWinput","mlo_EUinner", eUinnereV,default= 1d8) ! inner energy windowU eV relative to VBM
       call getkeyvalue("GWinput","mlo_CUouter", CUouter,default=0d0) !0.1d0)
       call getkeyvalue("GWinput","mlo_CUinner", CUinner,default=0.9d0)
       call getkeyvalue("GWinput","mlo_WTinner", WTinner,default=2048d0) ! inner energy window WeighTing
-      call getkeyvalue("GWinput","mlo_WTband" , WTband,default=0d0) !128d0) !512d0) !1024d0)    ! Weight to minimize band energies. 64 or less for Cu.
-      call getkeyvalue("GWinput",'mlo_WTseed' , WTseed,default=128d0) !0d0)    ! Weight for seed.
+      call getkeyvalue("GWinput","mlo_WTband" , WTband,default=WTbanddefault)  ! Weight to minimize band energies. 64 or less for Cu.
+      call getkeyvalue("GWinput",'mlo_WTseed' , WTseed,default=32d0) !0d0)    ! Weight for seed.
       call getkeyvalue("GWinput","mlo_ELinner", eLinnereV,default=-1d8) ! inner energy windowL eV relative to VBM
       call getkeyvalue("GWinput","mlo_ewid",    ewideV, default=1d0)    ! inner energy window softing eV
       call getkeyvalue("GWinput","mlo_WTouter", WTouter,default=2048d0*16d0) ! inner energy window WeighTing
@@ -133,7 +135,6 @@ contains
       call getkeyvalue("GWinput","mlo_EUinnerAUTOsp",EUautosp,default=.false.) !only test
       ELhardauto=.true.
       if(ELhardeV>-1d7) ELhardauto=.false.
-      if(minval(lindex(1:nnorb))<=1) WTband=512d0 !if s and/or p bands included in the MLO, default WTband=512
       do iii=1,2
          if(iii==1) stdox=stdo
          if(iii==2) open(newunit=stdox,file='lmfham2parameters.check')
@@ -398,7 +399,7 @@ contains
                  qp    = qbz(:,iqb)
                  call rotmatMTO(igg=ig,q=qibz(:,iqibzb),qtarget=qp,ndimh=nband, rotmat=rotmat)
                  drotmat = dconjg(transpose(rotmat))            
-                 cnkb(:,:,ibb) = matmul(cnki(:,:,iqibzb),drotmat(:,idmto(:))) !,dconjg(transpose(rotmatmlo(idmto_(:),idmto_(:))))) 
+                 cnkb(:,:,ibb) = matmul(cnki(:,:,iqibzb),drotmat(idmto(:),idmto(:))) !,dconjg(transpose(rotmatmlo(idmto_(:),idmto_(:))))) 
                enddo
              endblock Getcnkatiqb
              nout = ikf - iki + 1
@@ -491,6 +492,7 @@ contains
           evalssold = evalss
           if(isc==nsc1) write(stdo,ftox)' Step1: not converged'
        enddo SouzaStep1loop
+       write(stdo,ftox)' end of Step1 ---------'
        !! NOTE: cnk(iki:ikf,nMLO,nqbz) is the final results of Step1loop, which minimize Omega_I (Wannier space)
        !!       cnk(iko_i(iq):iko_f(iq),nMLO,iq) gives nMLO-dimentional space.
        GetHamiltonianforMTObyProjection: block  !We do not use Marzari's unitary rotation, Just the projection from MTOs.
