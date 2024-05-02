@@ -9,6 +9,7 @@ module m_llw
   use m_readVcoud,only: vcousq,zcousq,ngb
   use m_rdpp,only: nbloch,mrecl
   use m_x0kf,only: zxq,zxqi
+  use m_mpi, only: MPI__GatherXqw, mpi__root_k, mpi__root_q
   implicit none
   public:: WVRllwR,WVIllwI,  MPI__sendllw,MPI__sendllw2
   complex(8),allocatable,protected,public:: llw(:,:), llwI(:,:)
@@ -27,6 +28,7 @@ contains
     integer:: nmbas1,nmbas2,ngc0,ifw4p,ifrcw,mreclx
     real(8):: frr,q(3),vcou1,quu(3),eee
     logical::  localfieldcorrectionllw,cmdopt0,emptyrun
+    complex(8), allocatable :: zxqw(:,:)
     logical,save:: init=.true.
 !    complex(8):: zxq(nmbas1,nmbas2,nw_i:nw)
     character(10):: i2char
@@ -42,12 +44,16 @@ contains
     call readqg0('QGcou', (/0d0,0d0,0d0/),  quu,ngc0) ! ngb is q-dependent. released at the end of WVIllwi
     ngbq0 = nbloch+ngc0
     allocate( zw0(ngb,ngb), epstilde(ngb,ngb), epstinv(ngb,ngb))
+    allocate (zxqw(ngb, ngb))
+    flush(6)
     if(nspin == 1) zxq = 2d0*zxq !if paramagnetic, multiply x0 by 2
     nwmax = nw
     nwmin = nw_i
     write(6, *)" === trace check for W-V === nwmin nwmax=",nwmin,nwmax, 'qqqqqxx=',iq,q
     if(iq<=nqibz) then        !for mmmw
-      open(newunit=ifrcw, file='WVR.'//i2char(iq),form='unformatted',access='direct',recl=mreclx)
+      if(mpi__root_q) then
+        open(newunit=ifrcw, file='WVR.'//i2char(iq),form='unformatted',access='direct',recl=mreclx)
+      endif
       iwloop: do 1015 iw  = nwmin,nwmax
         if(emptyrun) exit
         frr= dsign(freq_r(abs(iw)),dble(iw))
@@ -58,9 +64,12 @@ contains
         else
           ix=0
         endif
+        call MPI__GatherXqw(zxq(:,:,iw), zxqw, nmbas1, nmbas2)
+        if(mpi__root_q) then
         do igb1=ix+1,ngb !  Eqs.(37),(38) in PRB81 125102 (Friedlich)
           do igb2=ix+1,ngb
-            epstilde(igb1,igb2)= -vcousq(igb1)*zxq(igb1,igb2,iw)*vcousq(igb2)
+            ! epstilde(igb1,igb2)= -vcousq(igb1)*zxq(igb1,igb2,iw)*vcousq(igb2)
+            epstilde(igb1,igb2)= -vcousq(igb1)*zxqw(igb1,igb2)*vcousq(igb2)
             if(igb1==igb2) epstilde(igb1,igb2)=1+epstilde(igb1,igb2)
           enddo
         enddo
@@ -83,6 +92,7 @@ contains
 1012    continue
         write(ifrcw, rec= iw-nw_i+1 ) zw !  WP = vsc-v
         call tr_chkwrite("freq_r iq iw realomg trwv=", zw, iw, frr,nblochpmx, nbloch,ngb,iq)
+        endif
 1015  enddo iwloop
       close(ifrcw)
     else  ! llw, Wing elements of W. See PRB81 125102
@@ -93,15 +103,19 @@ contains
         frr= dsign(freq_r(abs(iw)),dble(iw))
         !! Full inversion to calculalte eps with LFC.
         !if(localfieldcorrectionllw()) then
+        call MPI__GatherXqw(zxq(:,:,iw), zxqw, nmbas1, nmbas2)
+        if(mpi__root_q) then
         ix=0
         eee=0d0
         do igb1=ix+1,ngb
           do igb2=ix+1,ngb
             if(igb1==1 .AND. igb2==1) then
-              epstilde(igb1,igb2)= 1d0 - vcou1*zxq(1,1,iw)
+              ! epstilde(igb1,igb2)= 1d0 - vcou1*zxq(1,1,iw)
+              epstilde(igb1,igb2)= 1d0 - vcou1*zxqw(1,1)
               cycle
             endif
-            epstilde(igb1,igb2)= -vcousq(igb1)*zxq(igb1,igb2,iw)*vcousq(igb2)
+            ! epstilde(igb1,igb2)= -vcousq(igb1)*zxq(igb1,igb2,iw)*vcousq(igb2)
+            epstilde(igb1,igb2)= -vcousq(igb1)*zxqw(igb1,igb2)*vcousq(igb2)
             if(igb1==igb2) then
               epstilde(igb1,igb2)=1d0 + epstilde(igb1,igb2)
             endif
@@ -123,10 +137,13 @@ contains
         !endif
         if(iq0<=nq0i) write(6,"('epsWVR: iq iw_R omg(iw) eps(wFC) eps(woLFC) ', &
              2i5,x,10(d13.6,2x,d13.6,x,d13.6,2x,d13.6,x,d13.6))") &
-             iq,iw,freq_r(iw),llw(iw,iq0),1d0-vcou1*zxq(1,1,iw)
+             iq,iw,freq_r(iw),llw(iw,iq0),1d0-vcou1*zxqw(1,1)
+             ! iq,iw,freq_r(iw),llw(iw,iq0),1d0-vcou1*zxq(1,1,iw)
         continue               !iw
+        endif
 1115  enddo
     endif
+    deallocate(zxqw)
   end subroutine WVRllwR
   subroutine WVIllwi(q,iq,nmbas1,nmbas2)
     intent(in)::       q,iq,     nmbas1,nmbas2 !zxqi can be twiced when nspin=2
@@ -135,8 +152,10 @@ contains
     real(8):: frr,q(3),vcou1
     logical::  localfieldcorrectionllw,cmdopt0,emptyrun
     logical,save:: init=.true.
+    complex(8), allocatable :: zxqw(:,:)
 !    complex(8):: zxqi(nmbas1,nmbas2,niw)
     character(10):: i2char
+    allocate (zxqw(ngb, ngb))
     mreclx=mrecl
     emptyrun=.false. !cmdopt0('--emptyrun')
     if(init) then
@@ -147,7 +166,9 @@ contains
     write(6,*)'WVRllwI: init'
     if (nspin == 1) zxqi = 2d0*zxqi ! if paramagnetic, multiply x0 by 2
     if( iq<=nqibz ) then
-       open(newunit=ifrcwi,file='WVI.'//i2char(iq),form='unformatted',access='direct',recl=mreclx)
+       if(mpi__root_q) then
+         open(newunit=ifrcwi,file='WVI.'//i2char(iq),form='unformatted',access='direct',recl=mreclx)
+       endif
        do 1016 iw  = 1,niw
           if(emptyrun) exit
           !!  Eqs.(37),(38) in PRB81 125102
@@ -158,9 +179,12 @@ contains
           else
              ix=0
           endif
+          call MPI__GatherXqw(zxqi(:,:,iw), zxqw, nmbas1, nmbas2)
+          if(mpi__root_q) then
           do igb1=ix+1,ngb
              do igb2=ix+1,ngb
-                epstilde(igb1,igb2)= -vcousq(igb1)*zxqi(igb1,igb2,iw)*vcousq(igb2)
+                ! epstilde(igb1,igb2)= -vcousq(igb1)*zxqi(igb1,igb2,iw)*vcousq(igb2)
+                epstilde(igb1,igb2)= -vcousq(igb1)*zxqw(igb1,igb2)*vcousq(igb2)
                 if(igb1==igb2) epstilde(igb1,igb2)=1+epstilde(igb1,igb2)
              enddo
           enddo
@@ -176,6 +200,7 @@ contains
           zw(1:ngb,1:ngb) = zw0 ! zw(nblochpmx,nblochpmx)
           write(ifrcwi, rec= iw)  zw !  WP = vsc-v
           call tr_chkwrite("freq_i iq iw imgomg trwv=",zw,iw,freq_i(iw),nblochpmx,nbloch,ngb,iq)
+          endif
 1016   enddo
        close(ifrcwi)
     else
@@ -185,14 +210,18 @@ contains
        do 1116 iw  = 1,niw
           if(emptyrun) exit
           !if(localfieldcorrectionllw()) then
+          call MPI__GatherXqw(zxqi(:,:,iw), zxqw, nmbas1, nmbas2)
+          if(mpi__root_q) then
              ix=0
              do igb1=ix+1,ngb
                 do igb2=ix+1,ngb
                    if(igb1==1 .AND. igb2==1) then
-                      epstilde(igb1,igb2)= 1d0 - vcou1*zxqi(1,1,iw)
+                      ! epstilde(igb1,igb2)= 1d0 - vcou1*zxqi(1,1,iw)
+                      epstilde(igb1,igb2)= 1d0 - vcou1*zxqw(1,1)
                       cycle
                    endif
-                   epstilde(igb1,igb2)= -vcousq(igb1)*zxqi(igb1,igb2,iw)*vcousq(igb2)
+                   ! epstilde(igb1,igb2)= -vcousq(igb1)*zxqi(igb1,igb2,iw)*vcousq(igb2)
+                   epstilde(igb1,igb2)= -vcousq(igb1)*zxqw(igb1,igb2)*vcousq(igb2)
                    if(igb1==igb2) then
                       epstilde(igb1,igb2)=1d0 + epstilde(igb1,igb2)
                    endif
@@ -204,11 +233,15 @@ contains
           !else
           !   if(iq0<=nq0i) llwI(iw,iq0)=  1d0 -vcou1*zxqi(1,1,iw)
           !endif
-          if(iq0<=nq0i) write(6,"('iq iw_img eps(wLFC) eps(noLFC)',i4,i4,2f10.4,2x,2f10.4)") &
-               iq,iw,llwI(iw,iq0),1d0-vcou1*zxqi(1,1,iw)
+          ! if(iq0<=nq0i) write(6,"('iq iw_img eps(wLFC) eps(noLFC)',i4,i4,2f10.4,2x,2f10.4)") &
+          !      iq,iw,llwI(iw,iq0),1d0-vcou1*zxqi(1,1,iw)
+             if(iq0<=nq0i) write(6,"('iq iw_img eps(wLFC) eps(noLFC)',i4,i4,2f10.4,2x,2f10.4)") &
+                  iq,iw,llwI(iw,iq0),1d0-vcou1*zxqw(1,1)
+          endif
 1116   enddo
     endif
     deallocate(epstinv,epstilde,zw0)
+    deallocate(zxqw)
   end subroutine WVILLWI
   subroutine MPI__sendllw2(iqxend,MPI__ranktab) !for hx0fp0
     use m_mpi,only: MPI__root,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,MPI__rank,MPI__size

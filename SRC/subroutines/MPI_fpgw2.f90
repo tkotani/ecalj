@@ -7,6 +7,14 @@ module m_mpi !MPI utility for fpgw
   integer :: comm
   integer :: mpi__sizeMG 
   integer :: mpi__rankMG
+
+  integer :: comm_q, mpi__rank_q, mpi__size_q
+  integer :: comm_k, mpi__rank_k, mpi__size_k
+  integer :: comm_b, mpi__rank_b, mpi__size_b
+  integer :: comm_root_k, comm_root_q
+
+  logical :: mpi__root_q, mpi__root_k
+  integer, allocatable :: mpi__npr_col(:), mpi__ipr_col(:)
   integer,private :: mpi__info
   integer,private:: ista(MPI_STATUS_SIZE )
 contains
@@ -24,6 +32,78 @@ contains
     mpi__root= mpi__rank==0
     if( mpi__root ) call chdir(cwd)        ! recover current working directory
   end subroutine MPI__Initialize
+
+  subroutine MPI__SplitXq(n_bpara, n_kpara)
+    implicit none
+    integer, intent(in) :: n_bpara, n_kpara
+    integer :: color
+
+    color = mpi__rank/(n_bpara*n_kpara)
+    call mpi_comm_split(comm, color, mpi__rank, comm_q, mpi__info)
+    call mpi_comm_rank(comm_q, mpi__rank_q, mpi__info)
+    call mpi_comm_size(comm_q, mpi__size_q, mpi__info)
+
+    color = merge(0, MPI_UNDEFINED, mpi__rank_q == 0)
+    mpi__root_q = mpi__rank_q == 0
+    call mpi_comm_split(comm, color, mpi__rank, comm_root_q, mpi__info)
+
+    color = mpi__rank_q/n_bpara
+    call mpi_comm_split(comm_q, color, mpi__rank, comm_b, mpi__info)
+    call mpi_comm_rank(comm_b, mpi__rank_b, mpi__info)
+    call mpi_comm_size(comm_b, mpi__size_b, mpi__info)
+
+    color = mod(mpi__rank_q,n_bpara)
+    call mpi_comm_split(comm_q, color, mpi__rank, comm_k, mpi__info)
+    call mpi_comm_rank(comm_k, mpi__rank_k, mpi__info)
+    call mpi_comm_size(comm_k, mpi__size_k, mpi__info)
+
+    color = merge(0, MPI_UNDEFINED, mpi__rank_k == 0)
+    mpi__root_k = mpi__rank_k == 0
+    call mpi_comm_split(comm_q, color, mpi__rank, comm_root_k, mpi__info)
+
+    write(06,'(X,A,4I5,2L2)') "MPI: rank, rank_q, rank_k, rank_b, root_q, root_k ", &
+                mpi__rank, mpi__rank_q, mpi__rank_k, mpi__rank_b, mpi__root_q, mpi__root_k
+
+  end subroutine MPI__SplitXq
+
+  subroutine MPI__Setnpr_col(npr, npr_col)
+    integer, intent(in) :: npr
+    integer, intent(out) :: npr_col
+    integer :: irank_b, ipr_col
+    if(.not.allocated(mpi__npr_col)) allocate(mpi__npr_col(0:mpi__size_b-1))
+    if(.not.allocated(mpi__ipr_col)) allocate(mpi__ipr_col(0:mpi__size_b-1))
+    ipr_col = 1
+    do irank_b = 0, mpi__size_b - 1
+      npr_col = (npr + irank_b)/mpi__size_b
+      mpi__npr_col(irank_b) = npr_col
+      mpi__ipr_col(irank_b) = ipr_col
+      ipr_col = ipr_col + npr_col
+      if (npr_col == 0) call rx("MPI__Setnpr_col: use small parallelization")
+    enddo
+    npr_col = mpi__npr_col(mpi__rank_b)
+    ipr_col = mpi__ipr_col(mpi__rank_b)
+    write(06,'(X,A,I5,2I7)') "mpi__rank_b, ipr_col, npr_col=", mpi__rank_b, ipr_col, npr_col
+  end subroutine MPI__Setnpr_col
+
+  subroutine MPI__GatherXqw(xqw, xqw_all, npr, npr_col)
+    integer, intent(in) :: npr, npr_col
+    complex(8), intent(in) :: xqw(npr,npr_col)
+    complex(8), intent(out) :: xqw_all(npr,npr)  ! we suppose only column was split
+    integer, allocatable :: data_disp(:), data_size(:)
+    integer :: irank_b, mpi_size, rank
+    xqw_all(1:npr,1:npr) = (0D0, 0D0)
+    allocate(data_size(0:mpi__size_b-1), data_disp(0:mpi__size_b-1))
+    do irank_b = 0, mpi__size_b -1
+      data_size(irank_b) = npr*mpi__npr_col(irank_b)
+      data_disp(irank_b) = npr*(mpi__ipr_col(irank_b)-1)
+    enddo
+    call mpi_allgatherv(xqw, npr*npr_col, mpi_complex16, xqw_all, data_size, data_disp, &
+                  &  mpi_complex16, comm_root_k, mpi__info)
+    ! call mpi_gatherv(xqw, npr*npr_col, mpi_complex16, xqw_all, data_size, data_disp, &
+    !               &  mpi_complex16, 0, comm_root_k, mpi__info)
+    deallocate(data_size, data_disp)
+  end subroutine MPI__GatherXqw
+
   subroutine MPI__Initialize_magnon(commin)
     implicit none
     character(1024*4) :: cwd, stdout
@@ -109,26 +189,34 @@ contains
     integer :: n,srcQ,ierr
     call MPI_Recv(data,n,MPI_COMPLEX16,srcQ,0,comm,ista,ierr)
   end subroutine MPI__DbleCOMPLEXrecvQ
-  subroutine MPI__AllreduceSum( data, sizex )
+  subroutine MPI__AllreduceSum( data, sizex, communicator)
     implicit none
     integer, intent(in) :: sizex
     complex(8), intent(inout) :: data(sizex)
     complex(8), allocatable   :: mpi__data(:) 
+    integer, intent(in), optional :: communicator
+    integer :: comm_in
     if( mpi__size == 1 ) return
     allocate(mpi__data(sizex))
     mpi__data = data
-    call MPI_Allreduce( mpi__data, data, sizex, MPI_DOUBLE_COMPLEX, MPI_SUM, comm, mpi__info )
+    comm_in = comm
+    if(present(communicator)) comm_in = communicator
+    call MPI_Allreduce( mpi__data, data, sizex, MPI_DOUBLE_COMPLEX, MPI_SUM, comm_in, mpi__info )
     deallocate( mpi__data )
   end subroutine MPI__AllreduceSum
-  subroutine MPI__reduceSum( root, data, sizex )
+  subroutine MPI__reduceSum( root, data, sizex, communicator)
     implicit none
     integer, intent(in) :: sizex,root
     complex(8), intent(inout) :: data(sizex)
     complex(8), allocatable   :: mpi__data(:) 
+    integer, intent(in), optional :: communicator
+    integer :: comm_in
     if( mpi__size == 1 ) return
     allocate(mpi__data(sizex))
     mpi__data = data
-    call MPI_reduce( mpi__data, data, sizex, MPI_DOUBLE_COMPLEX, MPI_SUM, root, comm, mpi__info )
+    comm_in = comm
+    if(present(communicator)) comm_in = communicator
+    call MPI_reduce( mpi__data, data, sizex, MPI_DOUBLE_COMPLEX, MPI_SUM, root, comm_in, mpi__info )
     deallocate( mpi__data )
     return
   end subroutine MPI__reduceSum

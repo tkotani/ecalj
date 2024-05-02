@@ -118,10 +118,12 @@ contains
     use m_freq,only: nw_i,nw,niw 
     use m_zmel,only: Setppovlz,Setppovlz_chipm   ! & NOTE: these data set are stored in this module, and used
     use m_stopwatch
+    use m_mpi,only: comm_k, mpi__rank_k, mpi__size_k, MPI__reduceSum, &
+                    mpi__ipr_col, mpi__npr_col, mpi__rank_b, mpi__root_k
     implicit none
     intent(in)::      realomega,imagomega, q,iq,nprin,schi,crpa,chipm,nolfco,q00,zzr
     logical:: realomega,imagomega,crpa,chipm,nolfco
-    integer:: iq, isp_k,isp_kq,ix0,is,isf,kx,ierr,nprin,k
+    integer:: iq, isp_k,isp_kq,ix0,is,isf,kx,ierr,nprin,k, npr_col, ipr_col
     real(8),optional:: q00(3)
     complex(8),optional:: zzr(:,:)
     real(8):: q(3),schi,ekxx1(nband,nqbz),ekxx2(nband,nqbz)
@@ -130,9 +132,14 @@ contains
     npr=nprin
     qq=q
     GPUTEST = cmdopt0('--x0gpu')
+
+    ipr_col = mpi__ipr_col(mpi__rank_b) ! start index of column on xq for product basis set
+    npr_col = mpi__npr_col(mpi__rank_b) ! number of columns on xq
     ! GPUTEST = .true.
-    if(realomega) allocate(zxq(npr,npr,nw_i:nw),source=(0d0,0d0))
-    if(imagomega) allocate(zxqi(npr,npr,niw),source=(0d0,0d0))
+    if(mpi__root_k) then
+      if(realomega) allocate(zxq(npr,npr_col,nw_i:nw),source=(0d0,0d0))
+      if(imagomega) allocate(zxqi(npr,npr_col,niw),source=(0d0,0d0))
+    endif
     if(cmdopt0('--emptyrun'))  return
     if(chipm .AND. nolfco) then;  call setppovlz_chipm(zzr,npr)
     else;                         call Setppovlz(q,matz=.true.)
@@ -157,13 +164,13 @@ contains
         complex(8):: img=(0d0,1d0)
         logical,parameter:: debug=.false.
         if(.not.allocated(rcxq)) then
-           allocate( rcxq(npr,npr,nwhis,npm))
+           allocate( rcxq(npr,npr_col,nwhis,npm))
            rcxq=0d0
            if(GPUTEST) then
-             write(stdo,ftox)'size of rcxq:', npr, npr, nwhis, npm
+             write(stdo,ftox)'size of rcxq:', npr, npr_col, nwhis, npm
              !$acc enter data create(rcxq) 
              !$acc kernels
-             rcxq(1:npr,1:npr,1:nwhis,1:npm) = (0d0,0d0)
+             rcxq(1:npr,1:npr_col,1:nwhis,1:npm) = (0d0,0d0)
              !$acc end kernels
            endif
         endif
@@ -204,12 +211,14 @@ contains
           call stopwatch_init(t_sw_zmel, 'zmel_mm')
           call stopwatch_init(t_sw_x0, 'x0_mm')
           kloop:do 1500 k=1,nqbz !zmel = < M(igb q) phi( rk it occ)|  phi(q+rk itp unocc)>
+            if(mod(k-1, mpi__size_k) /= mpi__rank_k)  cycle
+            write(6,*) 'k, mpi__rank_k', k, mpi__rank_k
             qq   = q;              qrk  = q+rk(:,k)
             ispm = isp_k;          ispq = isp_kq
             ns1  = nkmin(k)+nctot; ns2  = nkmax(k)+nctot
             nqini= nkqmin(k);      nqmax= nkqmax(k)
             icounkmink= icounkmin(k); icounkmaxk= icounkmax(k)
-            call x0gpu(rcxq,npr,nwhis,npm)
+            call x0gpu(rcxq,npr,ipr_col,npr_col,nwhis,npm)
 1500      enddo kloop
         else ! NOTE: kloop10:do 1510 is equivalent to do 1500. 2024-3-25
           call stopwatch_init(t_sw_zmel, 'zmel_original')
@@ -224,13 +233,13 @@ contains
             icounloop: do 1000 icoun=icounkmin(k),icounkmax(k)
               ! call get_zmel_init is equivalent to call x0kf_zmel(q, k, isp_k,isp_kq) 
               TimeConsumingRcxq: block 
-                complex(8):: zmelzmel(npr,npr)
+                complex(8):: zmelzmel(npr,npr_col)
                 if(debug) write(stdo,ftox)'icoun: iq k jpm it itp n(iw)=',icoun,iq,k,jpm,it,itp,iwend(icoun)-iwini(icoun)+1
                 associate( &
                      jpm => jpmc(icoun),&  !\pm omega 
                      it  => itc (icoun),&  !occ      at k
                      itp => itpc(icoun))   !unocc    at q+k
-                  do concurrent(igb1=1:npr,igb2=1:npr) 
+                  do concurrent(igb1=1:npr,igb2=1:npr_col) 
                     zmelzmel(igb1,igb2)= dconjg(zmel(igb1,it,itp))*zmel(igb2,it,itp) 
                   enddo
                   forall(iw=iwini(icoun):iwend(icoun))& !rcxq is hermitian, thus, we can reduce computational time half.
@@ -254,8 +263,19 @@ contains
         !Get real part. When chipm=T, do dpsion5 for every isp_k; When =F, do dpsion5 after rxcq accumulated for spins
         if(GPUTEST) then
           !$acc exit data copyout(rcxq)
+          mpi_kaccumulate: block
+            integer :: jpm, iw
+              !To reduce memory allocation size in MPI__reduceSUM, mpi_reduce operation has been split for each iw and jpm
+            do jpm=1, npm
+              do iw=1, nwhis
+                call MPI__reduceSum(0, rcxq(1,1,iw,jpm), npr*npr_col, communicator = comm_k) 
+              enddo
+            enddo
+          end block mpi_kaccumulate
         endif
-        call dpsion5(realomega, imagomega, rcxq, npr,npr, zxq, zxqi, chipm, schi,isp_k,  ecut,ecuts) 
+        if(mpi__root_k) then
+          call dpsion5(realomega, imagomega, rcxq, npr, npr_col, zxq, zxqi, chipm, schi,isp_k,  ecut,ecuts)
+        endif
         deallocate(rcxq)
       endif HilbertTransformation 
 1103 enddo isloop

@@ -28,7 +28,8 @@ subroutine hrcxq()
   use m_readhbe,only: Readhbe,nband !,nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg !  use m_eibz,only:    Seteibz,nwgt,neibz,igx,igxt,eibzsym
   use m_x0kf,only: x0kf_zxq,deallocatezxq,deallocatezxqi
   use m_llw,only: WVRllwR,WVIllwI,w4pmode,MPI__sendllw
-  use m_mpi,only: MPI__Initialize,MPI__root,MPI__rank,MPI__size,MPI__consoleout,comm
+  use m_mpi,only: MPI__Initialize,MPI__root,MPI__rank,MPI__size,MPI__consoleout,comm, &
+                & MPI__SplitXq, MPI__Setnpr_col, comm_b, comm_k, mpi__root_k, mpi__root_q
   use m_lgunit,only: m_lgunit_init,stdo
   use m_ftox
   use m_readVcoud,only: Readvcoud,ngb
@@ -49,6 +50,7 @@ subroutine hrcxq()
   complex(8),allocatable:: zxq(:,:,:),zxqi(:,:,:),zzr(:,:)!,rcxq(:,:,:,:)
   logical,allocatable::   mpi__Qtask(:)
   integer,allocatable::   mpi__Qrank(:)
+  integer :: n_kpara = 1, n_bpara = 1, npr_col, worker_inQtask
   call MPI__Initialize()
   call gpu_init() 
   call M_lgunit_init()
@@ -81,23 +83,40 @@ subroutine hrcxq()
   ! nblochpmx = nbloch + ngcmx ! Maximum of MPB = PBpart +  IPWpartforMPB
   iqxini = 1
   iqxend = nqibz + nq0i + nq0iadd ! [iqxini:iqxend] range of q points.
-  allocate( mpi__Qrank(iqxini:iqxend), source=[(mod(iq-1,mpi__size)           ,iq=iqxini,iqxend)])
-  allocate( mpi__Qtask(iqxini:iqxend), source=[(mod(iq-1,mpi__size)==mpi__rank,iq=iqxini,iqxend)])
+
+  if(cmdopt2('--nk=', outs)) read(outs,*) n_kpara
+  n_bpara = mpi__size/(n_kpara*(iqxend - iqxini + 1)) !Default setting of parallelization. k-parallel is 1.
+  if(cmdopt2('--nb=', outs)) read(outs,*) n_bpara
+  worker_inQtask = n_bpara * n_kpara
+  write(6,'(1X,A,3I5)') 'MPI: worker_inQtask:(n_bpara,n_kpara)', worker_inQtask, n_bpara, n_kpara
+  call MPI__SplitXq(n_bpara, n_kpara)
+  ! allocate( mpi__Qrank(iqxini:iqxend), source=[(mod(iq-1,mpi__size)           ,iq=iqxini,iqxend)])
+  ! allocate( mpi__Qtask(iqxini:iqxend), source=[(mod(iq-1,mpi__size)==mpi__rank,iq=iqxini,iqxend)])
+  allocate( mpi__Qrank(iqxini:iqxend), source=[(mod(iq-1,mpi__size/worker_inQtask)*worker_inQtask           ,iq=iqxini,iqxend)])
+  allocate( mpi__Qtask(iqxini:iqxend), source=[(mod(iq-1,mpi__size/worker_inQtask)==mpi__rank/worker_inQtask,iq=iqxini,iqxend)])
   write(6,*)'mpi_rank',mpi__rank,'mpi__Qtask=',mpi__Qtask
+  write(6,*) 'mpi_qrank', mpi__qrank
+  call flush(06)
   if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
   MainLoopToObtainZxq: do 1001 iq = iqxini,iqxend
     if( .NOT. MPI__Qtask(iq) ) cycle
+    write(6,*)'mpi_rank in IQ loop:', iq, mpi__rank
     call cputid (0)
     qp = qibze(:,iq)
     write(stdo,ftox)'do 1001: iq q=',iq,ftof(qp,4),' of nq=',iqxend !4 means four digits below decimal point (optional).
     call Readvcoud(qp, iq,NoVcou=chipm) !Readin vcousq,zcousq ngb ngc for the Coulomb matrix
     npr=ngb
+    call MPI__Setnpr_col(npr, npr_col) ! set the npr_col : split of npr(column) for MPI color_b
     call x0kf_zxq(realomega,imagomega,qp,iq,npr,schi, crpa=.false.,chipm=.false.,nolfco=.false.) !Get zxq,zxqi in m_x0kf
     if(debug) print *,'sumchk zxq=',sum(zxq),sum(abs(zxq)),' zxqi=',sum(zxqi),sum(abs(zxqi))
-    call WVRllwR(qp,iq,npr,npr) !WV=W-v in RandomPhaseApproximation along realaxis. Write big files WVR.  --emptyrun in it
-    call deallocatezxq()
-    call WVIllwI(qp,iq,npr,npr) !WV=W-v along imagaxis Write WVI --emptyrun in it 
-    call deallocatezxqi()
+    if(mpi__root_k) then
+      call WVRllwR(qp,iq,npr,npr_col) !WV=W-v in RandomPhaseApproximation along realaxis. Write big files WVR.  --emptyrun in it
+      call deallocatezxq()
+      call WVIllwI(qp,iq,npr,npr_col) !WV=W-v along imagaxis Write WVI --emptyrun in it 
+      call deallocatezxqi()
+    endif
+    call mpi_barrier(comm_k, ierr)
+    call mpi_barrier(comm_b, ierr)
 1001 enddo MainLoopToObtainZxq
    GetEffectiveWVatGammaCell: block !Get W-v(q=0): Divergent part and non-analytic constant part of W(0) calculated from llw
     ! we have wing elemments: llw, llwi LLWR, LLWI
