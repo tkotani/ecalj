@@ -100,6 +100,7 @@ subroutine x0gpu(rcxq, npr, ipr_col, npr_col,nwhis,npm)
 #endif
     integer:: icoun,igb1,igb2,iw,ia
     logical,parameter   :: zmelconjg=.true.
+    type(stopwatch) :: t_sw_zmelmt, t_sw_zmelpw, t_sw_zmelmm
 
     call stopwatch_start(t_sw_zmel)
     ZmelBlock: block ! ZmelBlock is a part of copy of get_zmel_init in m_zmel.f90
@@ -107,6 +108,10 @@ subroutine x0gpu(rcxq, npr, ipr_col, npr_col,nwhis,npm)
 #ifdef __GPU
       attributes(device) :: zmelt
 #endif
+      call stopwatch_init(t_sw_zmelmt, 'zmelmt')
+      call stopwatch_init(t_sw_zmelpw, 'zmelpw')
+      call stopwatch_init(t_sw_zmelmm, 'zmelmm')
+      call stopwatch_start(t_sw_zmelmt)
       !$acc kernels
       zmelt=0d0
       !$acc end kernels
@@ -176,6 +181,8 @@ subroutine x0gpu(rcxq, npr, ipr_col, npr_col,nwhis,npm)
           deallocate(zmelt_d, ppbvphiq_d, cphim_d, cphiq_d, ppbv_d, ppbc_d)
         enddo iatomloop
       endblock ZmelWithinMT
+      call stopwatch_pause(t_sw_zmelmt)
+      call stopwatch_start(t_sw_zmelpw)
 
       if(ngc/=0)then
         ZmelIPW:block  !> Mattrix elements <Plane psi |psi> from interstitial plane wave.
@@ -231,6 +238,8 @@ subroutine x0gpu(rcxq, npr, ipr_col, npr_col,nwhis,npm)
         deallocate(geigq, dgeigqk)
       endif
 
+      call stopwatch_pause(t_sw_zmelpw)
+      call stopwatch_start(t_sw_zmelmm)
       allocate(zmel(nbb,ns1:ns2,nqtot))
       !$acc data copyin(ppovlz(1:ngb,1:nbb))
       ierr = zmm(ppovlz, zmelt, zmel, nbb, nmtot*nqtot, ngb, opA = m_op_C)
@@ -241,7 +250,12 @@ subroutine x0gpu(rcxq, npr, ipr_col, npr_col,nwhis,npm)
       endif
       !$acc end data
     endblock ZmelBlock
+    call stopwatch_pause(t_sw_zmelmm)
     call stopwatch_pause(t_sw_zmel)
+
+    call stopwatch_show(t_sw_zmelmt)
+    call stopwatch_show(t_sw_zmelpw)
+    call stopwatch_show(t_sw_zmelmm)
 
     call stopwatch_start(t_sw_x0)
     TimeConsumingRcxq: block 

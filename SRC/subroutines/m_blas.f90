@@ -5,6 +5,7 @@ module m_blas !wrapper for BLAS and cuBLAS
   use cudafor
 #endif
   implicit none
+  include "mpif.h"
   public :: zmm, zmm_batch, m_op_n, m_op_t, m_op_c
 #ifdef __GPU
   type(cublashandle), value :: cublas_handle
@@ -79,13 +80,14 @@ module m_blas !wrapper for BLAS and cuBLAS
 #endif
   end function zmm
 
-  function zmm_batch(a, b, c, m, n, k, nbatch, opa, opb, alpha, beta, lda, ldb, ldc, samea, sameb) result(istat)
+  function zmm_batch(a, b, c, m, n, k, nbatch, opa, opb, alpha, beta, lda, ldb, ldc, samea, sameb, comm) result(istat)
     complex(8) :: a(*), b(*), c(*)
     integer, intent(in) :: m, n, k, nbatch
     character, intent(in), optional :: opa, opb
     complex(8), intent(in), optional :: alpha, beta
     integer, optional :: lda, ldb, ldc
     logical, optional :: samea, sameb
+    integer, optional :: comm
 
     integer(8) :: stridea, strideb, stridec
     complex(8) :: alpha_in, beta_in
@@ -133,14 +135,38 @@ module m_blas !wrapper for BLAS and cuBLAS
     end block cublas_zgemmstridedbatched
 #else
     blas_zgemmbatch: block
-     integer :: i
-      do i = 1, nbatch
-        call zgemm3m(opa_in, opb_in, m, n, k, alpha_in, a(stridea*(i-1)+1), lda_in, &
-                   & b(strideb*(i-1)+1), ldb_in, beta_in, c(stridec*(i-1)+1), ldc_in)
-      enddo
+      integer :: i
+      integer :: ini_batch, end_batch, mpi_size, mpi_rank, ierr, nbatch_irank, irank
+      ! MPI parallelization version, but, it is not efficient for small matrix
+      if(present(comm)) then
+        call mpi_comm_size(comm, mpi_size, ierr)
+        call mpi_comm_rank(comm, mpi_rank, ierr)
+        call int_split(nbatch, mpi_size, mpi_rank, ini_batch, end_batch, nbatch_irank)
+        do i = ini_batch, end_batch
+          call zgemm3m(opa_in, opb_in, m, n, k, alpha_in, a(stridea*(i-1)+1), lda_in, &
+                     & b(strideb*(i-1)+1), ldb_in, beta_in, c(stridec*(i-1)+1), ldc_in)
+        enddo
+        do irank = 0, mpi_size - 1 
+          call int_split(nbatch, mpi_size, irank, ini_batch, end_batch, nbatch_irank)
+          call mpi_bcast(c(stridec*(ini_batch-1)+1), stridec*nbatch_irank, mpi_complex16, irank, comm, ierr)
+        enddo
+      else
+        do i = 1, nbatch
+          call zgemm3m(opa_in, opb_in, m, n, k, alpha_in, a(stridea*(i-1)+1), lda_in, &
+                     & b(strideb*(i-1)+1), ldb_in, beta_in, c(stridec*(i-1)+1), ldc_in)
+        enddo
+      endif
       istat = nbatch
     end block blas_zgemmbatch
 #endif
-
   end function zmm_batch
+
+  subroutine int_split(ndata, nsplit, irank, iini, iend, n)
+    integer, intent(in) :: ndata, nsplit, irank
+    integer, intent(out) :: iini, iend, n
+    n = (ndata + irank)/nsplit
+    iini = (ndata/nsplit)*irank + max(irank + mod(ndata, nsplit) - nsplit, 0) + 1  
+    iend = iini + n - 1
+  end subroutine
+
 end module m_blas
