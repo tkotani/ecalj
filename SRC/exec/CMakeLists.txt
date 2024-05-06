@@ -77,11 +77,9 @@ elseif(FC MATCHES "ifort")
   add_link_options(-mkl)
 elseif(FC MATCHES "nvfortran")
   set(CMAKE_Fortran_COMPILER mpifort) # compiler
-  # set(CMAKE_Fortran_FLAGS "-cpp -fpic") # "-Mvect=simd -mcmodel=medium -fpic") # compile flags
-  set(CMAKE_Fortran_FLAGS "-cpp -fpic -mp=multicore") # "-Mvect=simd -mcmodel=medium -fpic") # compile flags
+  set(CMAKE_Fortran_FLAGS "-cpp -fpic") # "-Mvect=simd -mcmodel=medium -fpic") # compile flags
   set(LIBM  ) # set LIB variable
-  # add_link_options(-lmkl_intel_lp64 -lmkl_sequential -lmkl_core)
-  add_link_options(-mp -lmkl_intel_lp64 -lmkl_sequential -lmkl_core)
+  add_link_options(-lmkl_intel_lp64 -lmkl_sequential -lmkl_core)
   # add_link_options(-mp -Mmkl -lpthread)
   if(USE_GPU)
     # add_compile_options(-cpp -D__GPU -Minfo -Mfree -Mx,231,0xl -cuda -acc=gpu -cudalib=cufft,cublas,cusolver)
@@ -130,9 +128,10 @@ elseif(FC MATCHES "nvfortran" AND DEFINED DEBUG)
 elseif(FC MATCHES "nvfortran")
   message(STATUS "====== nvfortran release =======================")
   foreach(target IN ITEMS ${SOURCES})
-    if(${target} MATCHES "../subroutines/pwmat.f90"
-      OR ${target} MATCHES "../subroutines/rseq.f90")
+    if(${target} MATCHES "../subroutines/pwmat.f90" OR ${target} MATCHES "../subroutines/rseq.f90")
       set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-C -g -traceback -O0")
+    elseif(${target} MATCHES "../subroutines/x0gpu.f90" OR ${target} MATCHES "../subroutines/x0kf_v4h.f90")
+      set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O3 -traceback")
     else()
       set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O2 -traceback")
     endif()

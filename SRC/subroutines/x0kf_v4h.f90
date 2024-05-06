@@ -213,6 +213,7 @@ contains
           kloop:do 1500 k=1,nqbz !zmel = < M(igb q) phi( rk it occ)|  phi(q+rk itp unocc)>
             if(mod(k-1, mpi__size_k) /= mpi__rank_k)  cycle
             write(6,*) 'k, mpi__rank_k', k, mpi__rank_k
+            call flush(6)
             qq   = q;              qrk  = q+rk(:,k)
             ispm = isp_k;          ispq = isp_kq
             ns1  = nkmin(k)+nctot; ns2  = nkmax(k)+nctot
@@ -263,16 +264,16 @@ contains
         !Get real part. When chipm=T, do dpsion5 for every isp_k; When =F, do dpsion5 after rxcq accumulated for spins
         if(GPUTEST) then
           !$acc exit data copyout(rcxq)
-          mpi_kaccumulate: block
-            integer :: jpm, iw
-              !To reduce memory allocation size in MPI__reduceSUM, mpi_reduce operation has been split for each iw and jpm
-            do jpm=1, npm
-              do iw=1, nwhis
-                call MPI__reduceSum(0, rcxq(1,1,iw,jpm), npr*npr_col, communicator = comm_k) 
-              enddo
-            enddo
-          end block mpi_kaccumulate
         endif
+        mpi_kaccumulate: block
+          integer :: jpm, iw
+            !To reduce memory allocation size in MPI__reduceSUM, mpi_reduce operation has been split for each iw and jpm
+          do jpm=1, npm
+            do iw=1, nwhis
+              call MPI__reduceSum(0, rcxq(1,1,iw,jpm), npr*npr_col, communicator = comm_k) 
+            enddo
+          enddo
+        end block mpi_kaccumulate
         if(mpi__root_k) then
           call dpsion5(realomega, imagomega, rcxq, npr, npr_col, zxq, zxqi, chipm, schi,isp_k,  ecut,ecuts)
         endif
