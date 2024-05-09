@@ -119,7 +119,7 @@ contains
       if(minval(lindex(1:nnorb))<=1) WTbanddefault=512d0 !if s and/or p bands included in the MLO, default WTband=512
       write(stdo,ftox)' idmto=',idmto
       call getkeyvalue("GWinput","mlo_maxit",nsc1,default=100)
-      call getkeyvalue("GWinput","mlo_conv",conv1,default=1d-8)
+      call getkeyvalue("GWinput","mlo_conv",conv1,default=1d-6)
       call getkeyvalue("GWinput","mlo_mix",alpha1,default=.5d0)
       call getkeyvalue("GWinput","mlo_EUinner", eUinnereV,default= 1d8) ! inner energy windowU eV relative to VBM
       call getkeyvalue("GWinput","mlo_CUouter", CUouter,default=0d0) !0.1d0)
@@ -399,7 +399,7 @@ contains
                  qp    = qbz(:,iqb)
                  call rotmatMTO(igg=ig,q=qibz(:,iqibzb),qtarget=qp,ndimh=nband, rotmat=rotmat)
                  drotmat = dconjg(transpose(rotmat))            
-                 cnkb(:,:,ibb) = matmul(cnki(:,:,iqibzb),drotmat(idmto(:),idmto(:))) !,dconjg(transpose(rotmatmlo(idmto_(:),idmto_(:))))) 
+                 cnkb(:,:,ibb) = matmul(cnki(:,:,iqibzb),drotmat(idmto(:),idmto(:))) !bugfix 2024-5-2 after iqizb mode. it was w/o idmto(:)
                enddo
              endblock Getcnkatiqb
              nout = ikf - iki + 1

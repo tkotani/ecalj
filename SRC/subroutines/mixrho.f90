@@ -121,8 +121,10 @@ contains
     nmix = nmixinit
     broy = broyinit
     if(bexist) beta=betainit
-    nkill = max(killj,0) ! Periodic file deletion (nkill):   
-    if (nkill>1 .and. mod(iter,nkill) == 0) nkill=-nkill
+    nkill = max(killj,0) ! Periodic file deletion (nkill):
+    if(nkill>1 ) then
+       if(mod(iter,nkill) == 0) nkill=-nkill
+    endif   
     if (nkill == 1) nkill=-nkill
     rmsdel = rmsdelsave
     if (nmix == 0) broy = 0

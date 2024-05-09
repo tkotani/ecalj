@@ -337,6 +337,7 @@ contains
   end subroutine writefs
   subroutine writepdos(ext)! Readin pdosinput, and print out pdos files.
     use m_dstrbp,only: dstrbp
+!    use m_lmfinit,only:lso
     implicit none
     integer:: ifip,ndhamx,nsp,nspx,nevmin,nchanp,nbas,nkk1,nkk2,nkk3,ntete,ndos,nkp &
          ,ibas,jsp,ifi,init,iend,ipts,j,ndos_,ichan,isp,itet,ksp,i,ib
@@ -349,14 +350,14 @@ contains
     character*(*)::ext
     logical::cmdopt2!,mlog
     integer, dimension(:),allocatable :: kpproc
-    integer::numprocs,procid,ierr,itete,iteti
+    integer::numprocs,procid,ierr,itete,iteti,ispx,lso
     include "mpif.h"
     print *,' pdosdata file=','pdosdata.'//trim(ext)
     open(newunit=ifip,form='unformatted',file='pdosdata.'//trim(ext))
-    read(ifip) ndhamx,nsp,nspx,nevmin,nchanp,nbas,nkk1,nkk2,nkk3,ntete,nkp !ndos,nkp mar2015
+    read(ifip) ndhamx,nsp,nspx,nevmin,nchanp,nbas,nkk1,nkk2,nkk3,ntete,nkp,lso !ndos,nkp mar2015
     allocate(idtete(0:4,6*nkp),ipqe(nkk1,nkk2,nkk3))
     allocate(evlall(ndhamx,nspx,nkp))
-    allocate(dwgtall(nchanp,nbas,ndhamx,nspx,nkp))
+    allocate(dwgtall(nchanp,nbas,ndhamx,nsp,nkp))
     read(ifip) idtete
     read(ifip) evlall
     read(ifip) dwgtall
@@ -387,9 +388,10 @@ contains
     vvv = ( 3d0  -  nsp ) / ( nkk1 * nkk2 * nkk3 * 6d0 )/4d0
     allocate(pdosalla(ndos,nsp,nchanp,nbas))
     tetrehedronloop:do itet = iteti, itete
-       do isp = 1, nspx
+       do isp = 1, nsp
+          ispx= merge(1,isp,lso==1)
           do ib = 1, nevmin
-             eigen(1:4) = evlall(ib,isp,idtete(1:4,itet))
+             eigen(1:4) = evlall(ib,ispx,idtete(1:4,itet))
              if( minval(eigen) > emaxp+ef0 ) cycle
              do ibas = 1,nbas
                 do ichan = 1, nchanp
@@ -404,7 +406,7 @@ contains
     if(procid==0) then
        allocate(pdosp (ndos,nchanp))
        bin2 = 2d0 * bin
-       do isp =1,nspx
+       do isp =1,nsp
           do ibas=1,nbas
              open(newunit=ifi,file=trim('dos.isp'//char(48+isp)//'.site'//charnum3(ibas))//'.'//trim(ext))
              write(ifi,"('#lm ordering. See the end of lmdos. relative to efermi')")

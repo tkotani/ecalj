@@ -64,7 +64,7 @@ contains
     integer nbmx,norder,npts,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet(5,ntet)
     double precision zval,eb(nbmx,nsp,nkp),width,rnge,wtkp(nkp),&
          wtkb(nevx,nsp,nkp),efermi,sumev,dosef(2),qval(2),ent
-    integer:: it , itmax , n , nptdos , nspx , nbmxx , nevxx , ib &
+    integer:: it , itmax , n , nptdos , nspxx , nbmxx , nevxx , ib &
          , ikp , ipr , job , nbpw , i1mach , nev, mkdlst , ifi , i , j , lry  , nulli , isw
     real(8) ,allocatable :: dos_rv(:,:)
     real(8) ,allocatable :: bot_rv(:)
@@ -86,29 +86,29 @@ contains
     n = isign(1,norder) * mod(iabs(norder),100)
     allocate(bot_rv(nevx*nsp))
     allocate(top_rv(nevx*nsp))
-    nspx  = 1
+    nspxx  = 1
     nevxx = nevx*nsp
     nbmxx = nbmx*nsp
     !     job = 1 for non spin pol, -1 for spin pol
     job = 3-2*nsp
     dosef(1) = 0
-    dosef(nspx) = 0
+    dosef(nspxx) = 0
     egap = nulli
     !     Force coupled spins: find range
-    if (nspx .ne. nsp .and. nspc .eq. 1) then
+    if (nspxx .ne. nsp .and. nspc .eq. 1) then
        nbpw = int(dlog(dble(i1mach(9))+1d0)/dlog(2d0))
        allocate(bmap_iv(nevx*nsp*nkp/nbpw+1))
        bmap_iv(:)=0
        allocate(wk_rv(nevx*nsp))
        call ebcpl ( 0 , nbmx , nevx , nsp , nspc , nkp , nbpw , bmap_iv &
             , wk_rv , eb )
-       lfill = efrng2 ( nspx , nkp , nbmxx , nevxx , zval * 2 , eb , &
+       lfill = efrng2 ( nspxx , nkp , nbmxx , nevxx , zval * 2 , eb , &
             bot_rv , top_rv , elo , ehi , emin , emax )
        call ebcpl ( 1 , nbmx , nevx , nsp , nspc , nkp , nbpw , bmap_iv &
             , wk_rv , eb )
        !     Spins not coupled: find range
     else
-       lfill = efrng2 ( nspx , nkp , nbmxx , nevxx , nspc * zval , eb &
+       lfill = efrng2 ( nspxx , nkp , nbmxx , nevxx , nspc * zval , eb &
             , bot_rv , top_rv , elo , ehi , emin , emax )
     endif
     ! ... Bands never filled if 100s digit norder set
@@ -173,17 +173,17 @@ contains
           goto 2
        endif
        nptdos = 101
-       allocate(dos_rv(nptdos,nspx))
+       allocate(dos_rv(nptdos,nspxx))
        tol = 1d-6
        !  Preliminary check that dos lies within emin,emax.  Widen emin,emax if not
        if (.not. lfill) then
           call bzints ( n1*n2*n3 , eb , dum , nkp , nevxx , nbmxx , &
-               nspx , emin , emax , dos_rv , nptdos , efermi , job , ntet &
+               nspxx , emin , emax , dos_rv , nptdos , efermi , job , ntet &
                , idtet , sumev , qval(1) )
-          dmin = sum(dos_rv(1,1:nspx))/nspx
-          dmax = sum(dos_rv(nptdos,1:nspx))/nspx
-          !if ( nspx .eq. 2 ) dmin = dmin + dos_rv(1,nspx)
-          !if ( nspx .eq. 2 ) dmax = dmax + dos_rv(nptdos,nspx)
+          dmin = sum(dos_rv(1,1:nspxx))/nspxx
+          dmax = sum(dos_rv(nptdos,1:nspxx))/nspxx
+          !if ( nspxx .eq. 2 ) dmin = dmin + dos_rv(1,nspxx)
+          !if ( nspxx .eq. 2 ) dmax = dmax + dos_rv(nptdos,nspxx)
           if (dmin .gt. zval) then
              emin = 3*emin-2*emax
              write(stdo,"(' (warning): initial NOS ( ',d14.6,x,d14.6,' ) does'//&
@@ -199,9 +199,9 @@ contains
        itmax = 5
        do   it = 1, itmax
           call bzints ( n1*n2*n3 , eb , dum , nkp , nevxx , nbmxx , &
-               nspx , emin , emax , dos_rv , nptdos , efermi , job , ntet &
+               nspxx , emin , emax , dos_rv , nptdos , efermi , job , ntet &
                , idtet , sumev , qval(1) )
-          call fermi ( zval , dos_rv , nptdos , emin , emax , nspx , &
+          call fermi ( zval , dos_rv , nptdos , emin , emax , nspxx , &
                efermi , emin , emax , dosef(1) )
           if (ipr .ge. 35)&
                write(stdo,100) efermi,emin,emax,emax-emin,dosef(1)
@@ -214,12 +214,12 @@ contains
        if (allocated(dos_rv)) deallocate(dos_rv)
 2      continue
        call bzints(n1*n2*n3,eb,wtkb,nkp,nevxx,nbmxx,&
-            nspx,emin,emin,dum,1,efermi,2*job,ntet,idtet,sumev,qval(1))
+            nspxx,emin,emin,dum,1,efermi,2*job,ntet,idtet,sumev,qval(1))
     else
        ! --- BZ weights, sumev and E_f by Methfessel-Paxton sampling ---
        if(ipr>0) write(stdo,"(a,i0,a,f15.6)")' BZWTS : --- Brillouin Zone sampling; N=',n,' W=',width
        !   ... Temporarily remove spin degeneracy if spins are coupled
-       if (nsp .eq. 2 .and. nspx .eq. 1) call dscal(nkp,.5d0,wtkp,1)
+       if (nsp .eq. 2 .and. nspxx .eq. 1) call dscal(nkp,.5d0,wtkp,1)
        !   ... Find Fermi level, sampling
        if ((.not. lfill) .or. (metal .and. (nkp .eq. 1))) then
           e1 = elo - rnge*width/2
@@ -228,7 +228,7 @@ contains
           itmax = 1000
           do  it = 1, itmax
              call pshpr(0)
-             call splwts(nkp,nevxx,nbmxx,nspx,wtkp,eb,n,width,efermi,&
+             call splwts(nkp,nevxx,nbmxx,nspxx,wtkp,eb,n,width,efermi,&
                   .true.,sumev,wtkb,qval(1),ent,dosef(1),cv)
              call poppr
              if (dabs(zval - qval(1)) .lt. 1d-12) then
@@ -245,12 +245,12 @@ contains
              efermi = 0.5d0*(e1 + e2)
           enddo
           write(stdo,ftox)' BZWTS (warning): cannot find E_F by bisection, using INTNOS'
-          allocate(dos_rv(npts,nspx))
+          allocate(dos_rv(npts,nspxx))
           emin = elo - rnge*width/2
           emax = emax + rnge*width/2
-          call maknos ( nkp , nevxx , nbmxx , nspx , wtkp , eb , n , width &
+          call maknos ( nkp , nevxx , nbmxx , nspxx , wtkp , eb , n , width &
                , - rnge , emin , emax , npts , dos_rv )
-          if ( nspx.eq.2 ) dos_rv(:,1)=dos_rv(:,2)+dos_rv(:,1)
+          if ( nspxx.eq.2 ) dos_rv(:,1)=dos_rv(:,2)+dos_rv(:,1)
           call intnos ( npts , dos_rv , emin , emax , zval , efermi , dosef(1) , sumev )
           if (allocated(dos_rv)) deallocate(dos_rv)
 3         continue
@@ -277,7 +277,7 @@ contains
              do  it = 1, itmax
                 tRy = tlst_rv(it)/0.1579d6
                 call pshpr(1)
-                call splwts(nkp,nevxx,nbmxx,nspx,wtkp,eb,n,tRy,efermi,&
+                call splwts(nkp,nevxx,nbmxx,nspxx,wtkp,eb,n,tRy,efermi,&
                      metal,sumev,wtkb,qval(1),ent,dosef(1),cv)
                 call poppr
                 write(stdo,ftox)ftof(0.1579d6*tRy),ftof(tRy),ftof(ent),ftof(cv)
@@ -286,9 +286,9 @@ contains
           endif
        endif
        !   ... Make weights, sampling
-       call splwts(nkp,nevxx,nbmxx,nspx,wtkp,eb,n,width,efermi,&
+       call splwts(nkp,nevxx,nbmxx,nspxx,wtkp,eb,n,width,efermi,&
             (.not. lfill) .or. (metal .and. (nkp .eq. 1)), sumev,wtkb,qval(1),ent,dosef(1),cv)
-       if(nsp .eq. 2 .and. nspx .eq. 1) call dscal(nkp,2d0,wtkp,1)
+       if(nsp .eq. 2 .and. nspxx .eq. 1) call dscal(nkp,2d0,wtkp,1)
     endif
     ! ... Restore to uncoupled bands; ditto with weights
     if (nsp==2 .and. nspc==1 ) then
@@ -709,7 +709,7 @@ contains
 922    format(9x,'Mag. moment:',f15.6)
        qval(2) = amom
     else
-       write(stdo,*) 'spin weights not available ... no spin moment calculated'
+!       write(stdo,*) 'spin weights not available ... no spin moment calculated bzwtsf2 xxx'
        return
     endif
     vmag=0d0
@@ -887,7 +887,7 @@ contains
 922    format(9x,'Mag. moment:',f15.6)
        qval(2) = amom
     else
-       write(stdo,*)'spin weights not available ... no spin moment calculated'
+!       write(stdo,*)'spin weights not available ... no spin moment calculated bzwtsf yyy'
        return
     endif
     !!== Setup for fixed-spin moment method ==
@@ -978,7 +978,7 @@ contains
     !o   amom  :magnetic moment
     logical :: lswtk
     integer :: nkp,nevx,nsp
-    double precision :: wtkb(nevx,nsp,nkp),swtk(nevx,nsp,nkp),amom
+    double precision :: wtkb(nevx,nsp,nkp),amom !,swtk(nevx,nsp,nkp)
     integer :: ikp,k
     double precision :: dsum
     if (nsp == 1) return

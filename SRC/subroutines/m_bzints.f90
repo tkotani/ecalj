@@ -2,8 +2,11 @@ module m_bzints
   public bzints,bzints2x,efrang3
   private
 contains
-  subroutine bzints(n1n2n3,ep,wp,nq,nband,nbmx,nsp,emin,emax,dos,nr,ef,job,ntet,idtet,sumev,sumwp)!- BZ integrations by linear method
+  subroutine bzints(n1n2n3,ep,wp,nq, nband,nbmx,nsp,emin,emax, dos,nr,ef,job,ntet,idtet,sumev,sumwp,spinweightsoc)!- BZ integrations by linear method
     use m_lgunit,only:stdo
+!    use m_bandcal,only:spinweightsoc
+    use m_lmfinit,only: lso,nspx
+    use m_ftox
     !i   nq    :no. of irr. k-points
     !i   ep    :energy bands
     !i   nband :number of bands
@@ -32,11 +35,13 @@ contains
     ! ----------------------------------------------------------------------
     implicit none
     integer :: n1n2n3,nq,nband,nbmx,nsp,idtet(0:4,*),nr,job,ntet
-    double precision :: ep(nbmx,nsp,nq),dos(nr,nsp),wp(nband,nsp,nq),emin,emax,ef,sumev,sumwp
-    integer :: ib,iq,iq1,iq2,iq3,iq4,isp,itet,jjob
+    real(8) :: dos(nr,nsp),wp(nband,nsp,nq),emin,emax,ef,sumev,sumwp,ep(nbmx,nsp,nq) 
+    integer :: ib,iq,iq1,iq2,iq3,iq4,isp,itet,jjob,ispx
     integer :: ipr,iqq(4)
-    double precision :: ec(4),wc(4,2),ebot,etop,sev1,sev2,sumwm, volwgt
+    real(8) :: ec(4),wc(4,2),ebot,etop,sev1,sev2,sumwm, volwgt,wt
     character(10):: i2char
+    real(8),optional:: spinweightsoc(:,:,:)
+    real(8),allocatable::epp(:,:,:)
     call getpr(ipr)
     jjob = iabs(job)
     if(job<0.AND.nsp==2.OR.jjob/=1.AND.jjob /= 2) &
@@ -47,27 +52,31 @@ contains
     sev2 = 0d0
     volwgt = dble(3d0-nsp)/(n1n2n3*6d0)
     if(job<0) volwgt = volwgt/2d0
-    do  40  isp = 1, nsp
-       ! --- Loop over tetrahedra ---
-       do  201  itet = 1, ntet
+    allocate( epp,source=reshape(ep,[nbmx,merge(nspx,nsp,lso==1),nq]))
+    isploop: do  40  isp = 1, nsp 
+       LoopOverTetrahedra: do  201  itet = 1, ntet
           iqq = idtet(1:4,itet)
-          do  20  ib = 1, nband! --- Set up energies at 4 corners of tetrahedron ---
-             ec(1:4) = ep(ib,isp,iqq)
+          ibandloop: do  20  ib = 1, nband
+             ispx = merge(1,isp,lso==1)
+             ec(1:4) = epp(ib,ispx,iqq(1:4)) ! --- Set up energies at 4 corners of tetrahedron ---
              etop = maxval(ec)
              ebot = minval(ec)
-             if (jjob == 1) then
-                if( ebot < emax ) call slinz(volwgt*idtet(0,itet),ec,emin,emax,dos(1,isp),nr)
+             if (jjob == 1) then !so=1 for 2024-5-10
+                wt = 1d0
+                if(lso==1.and.present(spinweightsoc)) wt = sum(spinweightsoc(ib,isp,idtet(1:4,itet)))/4d0
+                if( ebot < emax ) call slinz(wt*volwgt*idtet(0,itet),ec,emin,emax,dos(1,isp),nr)
              else
                 if( ef >= ebot ) then
                    call fswgts(volwgt*idtet(0,itet),ec,ef,etop,wc)
                    sev1 = sev1 + sum(ec*wc(:,1)) !wc(1,1)*ec(1) + wc(2,1)*ec(2) + wc(3,1)*ec(3) + wc(4,1)*ec(4)
                    sev2 = sev2 + sum(ec*wc(:,2)) !wc(1,2)*ec(1) + wc(2,2)*ec(2) + wc(3,2)*ec(3) + wc(4,2)*ec(4)
-                   wp(ib,isp,iqq) = wp(ib,isp,iqq) + wc(1:4,1) + wc(1:4,2)
+                   wp(ib,isp,iqq(1:4)) = wp(ib,isp,iqq(1:4)) + wc(1:4,1) + wc(1:4,2)
                 endif
              endif
-20        enddo
-201    enddo
-40  enddo
+20        enddo ibandloop
+201    enddo LoopOverTetrahedra
+40  enddo isploop
+    deallocate(epp)
     if(jjob == 2) then
        sumev = sev1 + sev2
        sumwp = sum(wp(1:nband,1:nsp,1:nq))
@@ -212,7 +221,7 @@ contains
     !      implicit none
     ! Passed parameters
     ! Local parameters
-    IMPLICIT double precision (A-H,O-Z)
+    IMPLICIT real(8) (A-H,O-Z)
     implicit integer (i-n)
     DIMENSION EP(nb,nsp,nq),DOS(NR),EC(4),WC(4,2),WP(nband,nsp,nq), &
          idtet(0:4,*)
@@ -284,7 +293,7 @@ contains
     !      implicit none
     ! Passed parameters
     ! Local parameters
-    IMPLICIT double precision (A-H,O-Z)
+    IMPLICIT real(8) (A-H,O-Z)
     implicit integer (i-n)
     DIMENSION EC(4),DOSI(NR)
 
@@ -417,7 +426,7 @@ contains
     integer :: nsp,nkp,nband
     real(8):: zval,e1,e2,eband(nband,nsp,nkp), &
          ebbot(nband*nsp),ebtop(nband*nsp),elo,ehi,em
-    double precision :: e,d1mach
+    real(8) :: e,d1mach
     integer :: i,j,ikp,isp,iba,nval,nbbot,nbtop
     logical ::  zvalisinteger
     real(8):: bandgap

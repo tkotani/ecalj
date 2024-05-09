@@ -18,7 +18,7 @@ source $nfpgw/run_arg #this must be after all input arguments are processed
 # --emaxdos: maximum of dos plot in Ry.
 # --ndos: division for plot
 
-run_arg '---' $MPI_SIZE $nfpgw /lmf-MPIK llmf_tdos $MATERIAL --tdos -emax=20.0 -ndos=2000 ${@:4:($#-2)}
+run_arg '---' $MPI_SIZE $nfpgw /lmf llmf_tdos $MATERIAL --tdos -emax=20.0 -ndos=2000 ${@:4:($#-2)}
 num=`head -2 dos.tot.$MATERIAL |tail -n 1|wc -w`
 
 ufileg=tdos.${MATERIAL}.glt
@@ -26,23 +26,28 @@ echo '#!/usr/bin/gnuplot -persist' > ${ufileg}
 echo set title \"Total DOS\" >> ${ufileg}
 echo set terminal postscript enhanced color eps >> ${ufileg}
 echo set output \"tdos.eps\" >> ${ufileg}
+echo set grid >> ${ufileg}
+echo set zeroaxis >> ${ufileg}
 echo set xran [-20.0:20.0] >> ${ufileg}
 echo set xlabel \" eV \(zero at the Fermi energy or top of valence\)\" >> ${ufileg}
-echo set ylabel \" number of states/\(cell Ry\) : red \" >> ${ufileg}
+echo set ylabel \" number of states/\(cell eV\) : red \" >> ${ufileg}
 echo set y2tics >> ${ufileg}
 echo set y2label \" number of electrons : green \" >> ${ufileg}
 
 if [ $num == '3' ]; then
     echo 'spin=2'
-    echo set yrange [-50:50] >> ${ufileg}
+    echo set yrange  [-5:5] >> ${ufileg}
+    echo set y2range [-50:50] >> ${ufileg}
     cat <<EOF >>${ufileg}
-plot 'dos.tot.${MATERIAL}' u (\$1*13.605):2 w l  lc rgb 'red', '' u (\$1*13.605):(-\$3) w l lc rgb 'red', 'dosi.tot.${MATERIAL}' u (\$1*13.605):2 w l lc rgb 'green', '' u (\$1*13.605):(-\$3) w l lc rgb 'green' 
+plot 'dos.tot.${MATERIAL}' u (\$1*13.605):(\$2/13.605) w l  lc rgb 'red', '' u (\$1*13.605):(-\$3/13.605) w l lc rgb 'red', \
+     'dosi.tot.${MATERIAL}' u (\$1*13.605):2 w l lc rgb 'green' axis x1y2, '' u (\$1*13.605):(-\$3) w l lc rgb 'green' axis x1y2
 EOF
 else
     echo 'spin=1'
-    echo set yrange [0:50] >> ${ufileg}
+    echo set yrange  [0:5] >> ${ufileg}
+    echo set y2range [0:50] >> ${ufileg}
     cat <<EOF >>${ufileg}
-plot 'dos.tot.${MATERIAL}' u (\$1*13.605):2 w l lc rgb 'red', 'dosi.tot.${MATERIAL}' u (\$1*13.605):2 w l lc rgb 'green'
+plot 'dos.tot.${MATERIAL}' u (\$1*13.605):(\$2/13.605) w l lc rgb 'red', 'dosi.tot.${MATERIAL}' u (\$1*13.605):2 w l lc rgb 'green'
 EOF
 fi
 echo set terminal x11 >> ${ufileg}
@@ -55,6 +60,3 @@ fi
 echo To repeat, gnuplot -persist ${ufileg}
 echo Change BZ_DOS to change plotting range of DOS.
 exit
-
-
-

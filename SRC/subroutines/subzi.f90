@@ -74,7 +74,8 @@ contains
     endif
     call tcx('m_subzi_init')
   end subroutine m_subzi_init
-  subroutine m_subzi_bzintegration(evlall, eferm,sev,sumqv,vmag) 
+  subroutine m_subzi_bzintegration(evlall, eferm,sev,sumqv,vmag)
+    use m_ftox
     use m_lgunit,only:stdo
     use m_MPItk,only:  numprocs=>nsize
     use m_lmfinit,only: lso,nsp,ham_scaledsigma,nlibu,lmaxu,bz_w,lmet=>bz_lmet,nbas,epsovl=>ham_oveps,nspc,bz_n
@@ -95,6 +96,7 @@ contains
     real(8):: dosrng,evlall(*),sev,sumqv(3,*),eferm,vmag,ef0,bz_ef
     real(8),parameter::    NULLR =-99999
     call tcn('m_subzi_bzintegration')
+    write(stdo,ftox)'m_subzi_bzintegration:'
     sev=0d0
     ltet = ntet>0
     debug = cmdopt0('--debugbndfp')
