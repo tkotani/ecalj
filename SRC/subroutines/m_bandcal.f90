@@ -125,9 +125,9 @@ contains
             hamm(:,1,:,2)= hammhso(:,:,3)                    !spin-offdiagonal SOC elements (1,2) added
             hamm(:,2,:,1)= transpose(dconjg(hammhso(:,:,3)))
             if(sigmamode) then
-               do ispc=1,2! nspc
-                  call getsenex(qp, ispc, ndimh, ovlm(:,ispc,:,ispc)) !2024-4-23 bug 1-->ispc obata.
-                  hamm(:,ispc,:,ispc) = hamm(:,ispc,:,ispc) + ham_scaledsigma*senex !senex= Vxc(QSGW)-Vxc(LDA)
+               do ispc=1,nspc
+                  call getsenex(qp, ispc, ndimh, ovlm(:,ispc,:,ispc)) !bugfix at 2024-4-24 obata: ispc was 1 when 2023-9-20
+                  hamm(:,ispc,:,ispc) = hamm(:,ispc,:,ispc) + ham_scaledsigma*senex !sene= Vxc(QSGW)-Vxc(LDA)
                   if(wsene) write(iwsene) qp,ispc
                   if(wsene) write(iwsene) sene
                   call dsene()
