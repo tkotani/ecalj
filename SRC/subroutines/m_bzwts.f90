@@ -6,6 +6,7 @@ contains
        fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb, & !- BZ integration for fermi level, band sum and qp weights, fixed-spin
        efermi,sumev,wtkb,qval,lfill,vmag,wtsf2) !,lwtkb lswtk, swtk,
     use m_lgunit,only:stdo
+    use m_lmfinit,only:lso
     use m_ftox
     !i Inputs
     !i   nbmx  :leading dimension of eb
@@ -58,16 +59,15 @@ contains
          sumev,wtkb,dosef,qval,ent,lfill)
     if (nsp == 1) return
     call getpr(ipr)
-    !!== Make and print out magnetic moment ==
-    if ( nspc == 1 .AND. metal) then        !call bzwtsm(nkp,nsp,nevx,wtkb,amom)
+    if( lso/=1 .AND. metal) then     !only for lso/=1
        amom = sum(wtkb(:,1,:) - wtkb(:,2,:))
-       if (ipr >= 20) write(stdo,"(9x,'Mag. moment:',f15.6)") amom
+       if(ipr >= 20) write(stdo,"(9x,'Mag. moment:',f15.6)") amom !magnetic moment
        qval(2) = amom
-    else !       write(stdo,*)'spin weights not available ... no spin moment calculated bzwtsf yyy'
+    else 
        return
     endif
     vmag = 0d0
-    if (fmom==NULLR) return  
+    if(fmom==NULLR) return  
     !!== Setup for fixed-spin moment method ==
     call tcn('bzwtsf2')
     if(wtsf2) then
@@ -93,21 +93,18 @@ contains
        write(stdo,"('bzwtsf2: HOMOup LUMOup Diff=',3f20.15,' (Diff=0.5forNoOccupied)')")ehomo1,elumo1,elumo1-ehomo1
        write(stdo,"('bzwtsf2: HOMOdn LUMOdn Diff=',3f20.15,' (Diff=0.5forNoOccupied)')")ehomo2,elumo2,elumo2-ehomo2
        write(stdo,"('bzwtsf2: Set Bias initial cond. -Vup+Vdn=',f20.15)")vmag
-       !!= takao interted a block taken from original version of bzwtsf.F June-2 2011.=
     endif
     vhold=0d0
     ef0 = efermi
     if(ipr>0) write(stdo,*)' Seek potential shift for fixed-spin mom ...'
-    !!== do loop for new guess at potential shift ==     ! bisection method takao
     itermx=100
     quitvmag=.false.
-    do 10 iter=1,itermx
+    do 10 iter=1,itermx !do loop for new guess at potential shift ==     ! bisection method takao
        if(.not.wtsf2) then
-          amom = sum(wtkb(:,1,:) - wtkb(:,2,:)) !!=== Magnetic moment === !       call bzwtsm(nkp,nsp,nevx,wtkb,amom)
+          amom = sum(wtkb(:,1,:) - wtkb(:,2,:)) !!=== Magnetic moment === 
           if(ipr>=41)write(stdo,ftox)&
                ' -Vup+Vdn=',ftof(vmag,8),'yields ef=',ftof(efermi),'amom=',ftof(amom),'when seeking',ftof(fmom)
           agreemom= abs(amom-fmom) < 1d-3
-          if(iprint()>60) print *,'ttttt amom fmom=',amom,fmom,agreemom
           call dvdos(vmag, amom,dosef(1),vhold,fmom,dvcap, dv)
           if(agreemom) vhold(12)=0        !      if (abs(dv) .lt. 1d-6) then
           quitvmag=.false.
@@ -139,14 +136,14 @@ contains
        call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval, &
             metal,tetra,norder,npts,width,rnge,wtkp,ebs,efermi, sumev,wtkb,dosef,qval,ent,lfill)
        if (iprint()>= 20) then
-          amom = sum(wtkb(:,1,:) - wtkb(:,2,:)) !        call bzwtsm(nkp,nsp,nevx,wtkb,amom)
+          amom = sum(wtkb(:,1,:) - wtkb(:,2,:)) 
           write(stdo,922) amom
        endif
        deallocate(ebs)
        if(.NOT.quitvmag) call poppr
        if(quitvmag) exit
        if(wtsf2) then
-          amom = sum(wtkb(:,1,:) - wtkb(:,2,:)) !=== Magnetic moment ===       !call bzwtsm(nkp,nsp,nevx,wtkb,amom)
+          amom = sum(wtkb(:,1,:) - wtkb(:,2,:)) !=== Magnetic moment ===  
           if(ipr>=41)write(stdo,ftox)' -Vup+Vdn=',ftof(vmag,8),'yields ef=',ftof(efermi), &
                'amom',ftof(amom),'when seeking mom=',ftof(fmom)
           agreemom = abs(amom-fmom) < 1d-6 
@@ -182,7 +179,7 @@ contains
     use m_bzints,only:bzints
     implicit none
     intent(in)::   nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,&
-         metal,tetra,norder,npts,width,rnge,wtkp,eb
+         metal,tetra,norder,npts,width,rnge,wtkp!,eb
     intent(out)::                                  efermi,sumev,wtkb,dosef,qval,ent,lfill
     !i Inputs
     !i   nbmx  :leading dimension of eb
@@ -212,7 +209,7 @@ contains
     logical metal,tetra
     integer nbmx,norder,npts,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet(5,ntet)
     double precision zval,eb(nbmx,nsp,nkp),width,rnge,wtkp(nkp),&
-         wtkb(nevx,nsp,nkp),efermi,sumev,dosef(2),qval(2),ent
+         wtkb(nevx,nsp,nkp),wtkbx(nevx,nsp,nkp),efermi,sumev,dosef(2),qval(2),ent
     integer:: it,itmax,n,nptdos,nspxx,nbmxx,nevxx,ib &
         ,ikp,ipr,job,nbpw,i1mach,nev, mkdlst,ifi,i,j,lry ,nulli,isw
     real(8) ,allocatable :: dos_rv(:,:), bot_rv(:), top_rv(:)
@@ -221,7 +218,11 @@ contains
     double precision emin,emax,e1,e2,dum(1),tol,e,elo,ehi,sumwt, dmin,dmax,egap,amom,cv,tRy
     character outs*100,ryy*3
     logical cmdopt0,lfill
-    real(8) ,allocatable :: tlst_rv(:)
+    real(8) ,allocatable :: tlst_rv(:),eb2(:,:,:)
+    
+    real(8):: ebx(nevx*nsp,nkp)
+    integer:: ibx(nevx*nsp,nkp), isx(nevx*nsp,nkp),ib1,ib2,ib2e,ix
+
     parameter (nulli=-99999)
     integer:: iprint, w(1)
     call tcn('bzwts')
@@ -241,9 +242,11 @@ contains
        allocate(bmap_iv(nevx*nsp*nkp/nbpw+1))
        bmap_iv(:)=0
        allocate(wk_rv(nevx*nsp))
-       call ebcpl ( 0,nbmx,nevx,nsp,nspc,nkp,nbpw,bmap_iv, wk_rv,eb )
-       lfill = efrng2 ( nspxx,nkp,nbmxx,nevxx,zval * 2,eb, bot_rv,top_rv,elo,ehi,emin,emax )
-       call ebcpl ( 1,nbmx,nevx,nsp,nspc,nkp,nbpw,bmap_iv,wk_rv,eb )
+       allocate(eb2,source=eb)
+       call ebcpl ( 0,nbmx,nevx,nsp,nspc,nkp,nbpw,bmap_iv, wk_rv,eb2 )
+       lfill = efrng2 ( nspxx,nkp,nbmxx,nevxx,zval * 2,eb2, bot_rv,top_rv,elo,ehi,emin,emax )
+       deallocate(eb2)
+!       call ebcpl ( 1,nbmx,nevx,nsp,nspc,nkp,nbpw,bmap_iv,wk_rv,eb )
     else !     Spins not coupled: find range
        lfill = efrng2 ( nspxx,nkp,nbmxx,nevxx,nspc * zval,eb, bot_rv,top_rv,elo,ehi,emin,emax )
     endif
@@ -262,8 +265,32 @@ contains
        nbpw = int(dlog(dble(i1mach(9))+1d0)/dlog(2d0))
        allocate(bmap_iv(nevx*nsp*nkp/nbpw+1),source=0)
        allocate(wk_rv(nevx*nsp))
-       call ebcpl ( 0,nbmx,nevx,nsp,nspc,nkp,nbpw,bmap_iv,wk_rv,eb )
+       allocate(eb2,source=eb)
+       
+       do ikp=1,nkp
+          ix = 0
+          ib2e=0
+          do ib1=1,nevx
+             e1 = eb(ib1,1,ikp)
+             do ib2= ib2e+1,nevx
+                e2 = eb(ib2,2,ikp)
+                if(e2>e1) exit
+                ix=ix+1
+                ebx(ix,ikp)= e2
+                ibx(ix,ikp)=ib2
+                isx(ix,ikp)=2
+                ib2e=ib2
+             enddo
+             ix=ix+1
+             ebx(ix,ikp)= e1
+             ibx(ix,ikp)=ib1
+             isx(ix,ikp)=1
+          enddo
+       enddo
+       
+       call ebcpl ( 0,nbmx,nevx,nsp,nspc,nkp,nbpw,bmap_iv,wk_rv,eb)
     endif
+    
     ! --- BZ weights, sumev and E_f for an insulator  ---
     if(.not. metal ) then
        if (.not. lfill .and. ipr .gt. 10) then
@@ -326,19 +353,34 @@ contains
 111       continue
           deallocate(dos_rv)
        endif
-       call bzints(n1*n2*n3,eb,wtkb,nkp,nevxx,nbmxx, nspxx,emin,emin,dum,1,efermi,2*job,ntet,idtet,sumev,qval(1))
+       call bzints(n1*n2*n3,eb,wtkbx,nkp,nevxx,nbmxx, nspxx,emin,emin,dum,1,efermi,2*job,ntet,idtet,sumev,qval(1))
     else ! --- BZ weights, sumev and E_f by Methfessel-Paxton sampling ---
        call rx('this branch is not supported. See before 2024-5-12. Methfessel-Paxton sampling')
     endif
     amom = 0d0 ! ... Magnetic moment
+!    eb=eb2
     if (nsp==2.and.nspc==1 ) then ! ... Restore to uncoupled bands; ditto with weights
-       call ebcpl(1,nbmx,nevx,nsp,nspc,nkp,nbpw, bmap_iv,wk_rv,eb )
-       if(metal) call ebcpl(1,nevx,nevx,nsp,nspc, nkp, nbpw,bmap_iv,wk_rv,wtkb )
+       eb=eb2
+       deallocate(eb2)
+       !call           ebcpl(1,nbmx,nevx,nsp,nspc, nkp,nbpw,bmap_iv,wk_rv,eb )
+       !if(metal) call ebcpl(1,nevx,nevx,nsp,nspc, nkp,nbpw,bmap_iv,wk_rv,wtkbx )
+       if(metal) then
+          do ikp=1,nkp
+          do ix=1,nevxx
+             wtkb(ibx(ix,ikp),isx(ix,ikp),ikp)= wtkbx(ix,1,ikp)
+          enddo
+          enddo
+       endif
+       
        if(allocated(tlst_rv)) deallocate(tlst_rv)
        if(allocated(wk_rv)) deallocate(wk_rv)
        if(allocated(bmap_iv)) deallocate(bmap_iv)
        if(metal) amom = sum(wtkb(1:nevx,1,1:nkp)- wtkb(1:nevx,2,1:nkp))
+    else
+       wtkb=wtkbx
     endif
+    
+    
     qval(2) = amom
     if(ipr>0)write(stdl,ftox)'bzmet',metal,'tet',tetra,'ef',ftof(efermi),'sev',ftof(sumev),'zval',ftof(zval)
     if(ipr>0)write(stdl,ftox)'qval',ftof(qval(1)),'amom',ftof(amom),'egap(eV)',ftof(egap,3)
