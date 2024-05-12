@@ -540,6 +540,8 @@ contains
        bandgap=0d0
     endif
   end subroutine efrang3
+endmodule m_bzints
+
   ! !--------------------------------------------------
   ! subroutine getvaln(konfig,z,nl,natom,iclass,nclass, valn)
   !   ! - Get valn
@@ -559,4 +561,3 @@ contains
   !   end do
   !   print *,' getvaln: valn=',valn
   ! end subroutine getvaln
-endmodule m_bzints

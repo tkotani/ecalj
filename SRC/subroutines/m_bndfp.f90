@@ -140,19 +140,18 @@ contains
     vmag=0d0
     GETefermFORplbndMODE: if(plbnd/=0) then
        open(newunit=ifi,file='efermi.lmf',status='old',err=113)
-       read(ifi,*) eferm,vmag  ! efermi is consistent with eferm in rst.* file (iors.f90).
-       !                         However, efermi.lmf can be modified when we do one-shot dense-mesh calculation as is done in job_band.
-       close(ifi)              ! For example, you may change NKABC, and run job_pdos (lmf-MPIK --quit=band only modify efermi.lmf, without touching rst.*).
+       read(ifi,*) eferm,vmag ! efermi is consistent with eferm in rst.* file (iors.f90).
+       !                        However, efermi.lmf can be modified when we do one-shot dense-mesh calculation as is done in job_band.
+       close(ifi)             ! For example, you may change NKABC, and run job_pdos (lmf --quit=band only modify efermi.lmf, without touching rst.*).
        goto 114
 113    continue
        call rx('No efermi.lmf: need to repeat sc mode of lmf-MPIK. --quit=band stops without changing rst file')
 114    continue
     endif GETefermFORplbndMODE
-    if(cmdopt0('--phispinsym')) call phispinsym_ssite_set() !pnu,pz are spin symmetrized ! Set spin-symmetrized pnu. aug2019. See also in pnunew and locpot
+    if(cmdopt0('--phispinsym')) call phispinsym_ssite_set() !pnu,pz are spin symmetrized! Set spin-symmetrized pnu.aug2019. See also in pnunew and locpot
     writeham= cmdopt0('--writeham') ! Write out Hamiltonian HamiltonianPMT.*
     if(writeham) open(newunit=ifih,file='HamiltonianPMT.'//trim(strprocid),form='unformatted')
     if(llmfgw) call m_mkpot_novxc() !Get osigx,otaux oppix spotx, which are onsite integrals without XC part for GWdriver: lmfgw mode
-    !      if(llmfgw.and.cmdopt0('--dipolematrix')) call m_mkpot_novxc_dipole()
     call m_mkpot_init()! From smrho and rhoat, get one-particle potential and related quantities. mkpot->locpot->augmat. augmat calculates sig,tau,ppi.
     if(cmdopt0('--quit=mkpot')) call rx0('--quit=mkpot')
     call m_subzi_init() ! Setup weight wtkb for BZ integration.  ! NOTE: if (wkp.* exists).and.lmet==2, wkp is used for wkkb.
@@ -176,7 +175,7 @@ contains
        siginit=.false. !only once
     endif READsigm ! ndimsig is the dim of the self-energy. We now set "ndimsig=ldim",which means we use only projection onto MTO spaces even when PMT. 
     if(sigmamode .AND. master_mpi) write(stdo,*)' ScaledSigma=',ham_scaledsigma
-    GWdriver: if(llmfgw) then        !         call m_sugw_init(cmdopt0('--dipolematrix'),cmdopt0('--socmatrix'),eferm)
+    GWdriver: if(llmfgw) then   
        call m_sugw_init(cmdopt0('--socmatrix'),eferm,vmag,qval) !,FPMTmodein=cmdopt0('--fpmt')) ! 2023-9-20 ! --fmpt at 2024-2-11
        call tcx('bndfp')
        call rx0('sugw mode')  !exit program here normally.
@@ -194,7 +193,7 @@ contains
        call xmpbnd2(kpproc,ndhamx,nkp,evlall(:,1,:)) !all eigenvalues are distributed ndhamx blocks
        call xmpbnd2(kpproc,ndhamx,nkp,evlall(:,2,:)) 
     else   
-       call xmpbnd2(kpproc,ndhamx,nkp*nspx,evlall)   !all eigenvalues broadcasted
+       call xmpbnd2(kpproc,ndhamx,nkp*nspx,evlall)   !all eigenvalues broadcasted !note (iq,isp) order in m_qplist.f90
     endif   
     if(lso==1) call xmpbnd2(kpproc,ndhamx*2,nkp,spinweightsoc)   !all eigenvalues broadcasted
     nevmin = minval(nevls(1:nkp,1:nspx))
@@ -252,8 +251,8 @@ contains
        write(ifi,"(i6,'# iter CAUTION! This file is overwritten by lmf-MPIK SC loop')")iter
        close(ifi)
     endif
-    GenerateTotalDOS: if(master_mpi .AND. (tdos .OR. ldos/=0)) then !   emin=dosw(1) emax=dosw(2) dos range
-       dosw(1)= emin-0.01d0 ! lowest energy limit to plot dos
+    GenerateTotalDOS: if(master_mpi .AND. (tdos .OR. ldos/=0)) then !   emin=dosw(1) and emax=dosw(2) sets dos range
+       dosw(1)= emin-0.01d0     ! lowest energy limit to plot dos
        dosw(2)= eferm+bz_dosmax !max energy limit to plot dos
        write(stdo,ftox)' bndfp:Generating TDOS: efermi(eV)=',ftof(rydberg()*eferm),&
             ' DOSwindow emin emax(eV)= ',ftof(rydberg()*dosw),'ltet nsp=',ltet,nsp
@@ -267,8 +266,6 @@ contains
           !      write(stdo,"('fp evl',8f8.4)")(evlallm(i,jsp,iq),i=1,nevmin) !ls(iq,jsp))
           !   enddo
           !enddo
-          !write(stdo,ftox)'xxx dosi rv=',sum(dosi_rv)
-          write(stdo,*)'uuuxxxxyyyzzz111 bzints: nsp nspx',nsp,nspx !nr,emin,emax,job,jjob,nband,ntet,sum(abs(idtet(0:4,1:ntet)))
           call bzints(nnn,evlallm,dum,nkp, nevmin,ndhamx,nsp,dosw(1),dosw(2), dosi_rv,ndos,xxx,1,ntet,iv_a_oidtet,dumx,dumx,&
           !                                                                              job=1 give IntegratedDos to dosi_rv
                spinweightsoc) !2024-5-10
@@ -280,7 +277,6 @@ contains
        else
           call makdos(nkp,nevmin,ndhamx,nsp,rv_a_owtkp,evlallm,bz_n,bz_w,-6d0,dosw(1),dosw(2),ndos,dos_rv) !ndmahx=>nevmin
        endif
-       !if(lso==1) dos_rv=0.5d0*dos_rv 
        open(newunit=ifi, file='dos.tot.'//trim(sname) )
        open(newunit=ifii,file='dosi.tot.'//trim(sname))
        dee=(dosw(2)-dosw(1))/(ndos-1d0)
@@ -288,7 +284,7 @@ contains
        do ipts=1,ndos
           eee= dosw(1)+ (ipts-1d0)*(dosw(2)-dosw(1))/(ndos-1d0)-eferm
           dosi(1:nsp)= dosi(1:nsp) + dos_rv(ipts,1:nsp)*dee
-          write(ifi,"(255(f13.5,x))")  eee,(dos_rv(ipts,isp),isp=1,nsp) ! dos
+          write(ifi, "(255(f13.5,x))") eee,(dos_rv(ipts,isp),isp=1,nsp) ! dos
           write(ifii,"(255(f13.5,x))") eee,(dosi_rv(ipts,isp),isp=1,nsp)! integrated dos
        enddo
        close(ifi)

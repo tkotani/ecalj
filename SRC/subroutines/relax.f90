@@ -767,7 +767,6 @@ contains
     ! ... New line min if g < line g tol
     if (dabs(gfn/grad0) < pgrada(isw1,isw4)) then
        ir = 0
-
        ! ... Otherwise, call rfalsi to check for convergence and/or new xn
     else
        !       Requires rfalsi to return xn on an existing point when ir=0

@@ -133,6 +133,7 @@ contains
           call fftz3(psir,n1,n2,n3,k1,k2,k3,1,0,1)
           wgt1 = ewgt(i)
           smrho(:,:,:,isp+ispc-1)=smrho(:,:,:,isp+ispc-1)+ wgt1*dconjg(psir(:,:,:))*psir(:,:,:) !realspace density
+          !for lso=1 we only take isp=1. Thus we here have smrho for up and down
           if (lfrce /= 0) then
              psir(:,:,:) = psir(:,:,:)*smpot(:,:,:,isp+ispc-1)
              call fftz3(psir,n1,n2,n3,k1,k2,k3,1,0,-1)

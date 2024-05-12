@@ -108,7 +108,6 @@ subroutine rfalsi(xn,fn,xtol,ftol,dxmn,dxmx,isw,wk,ir)!- Find root of a function
   wk(12) = 0
   ir0 = ir
   call getpr(ipr)
-  !     ipr = 55
   ic = mod(mod(isw,10),4)
   ic4 = mod(isw,10) - ic
   itol = mod(isw/10,4)
@@ -116,10 +115,6 @@ subroutine rfalsi(xn,fn,xtol,ftol,dxmn,dxmx,isw,wk,ir)!- Find root of a function
   xtl = max(xtol,dxmn)
   if (ipr > 40 .AND. ir == 0) &
        write(stdo,ftox)'rfalsi newstart ic,itol,xtl,ftol,dxmn,dxmx',ic,itol,xtl,ftol,ftod(dxmn),ftod(dxmx)
-  !     .call awrit8('  rfalsi: new start%?#n#  (c)##'//
-  !     .'%?#n# xtol=%1;3g#%j#%?#n==2# and##%-1j%?#n==3# or##'//
-  !     .'%?#n# ftol=%1;3g#%j#  dxmn=%1;3g  dxmx=%1;3g',
-  !     .' ',scrwid,stdo,ic,itol,xtl,itol,itol-1,ftol,dxmn,dxmx)
   if (ftol <= 0 .AND. itol == 0 .OR. &
        xtl <= 0 .AND. itol == 1 .OR. &
        (ftol <= 0 .OR. xtl <= 0) .AND. itol == 2 .OR. &
@@ -128,12 +123,7 @@ subroutine rfalsi(xn,fn,xtol,ftol,dxmn,dxmx,isw,wk,ir)!- Find root of a function
      ir = 2
      goto 999
   endif
-
   ! --- Treat next point ---
-  !  10 continue
-  !      call awrit3('  rfalsi (ir=%i)  xn=%1,8;8d  fn=%1;4g',
-  !     .  ' ',scrwid,stdo,ir,xn,fn)
-
   !     (x1,f1) -> (x2,f2); (x0,f0) -> (x1,f1); (xn,fn) -> (x0,f0)
   lqua = 0
   do  12  i = 1, 0, -1
@@ -148,7 +138,6 @@ subroutine rfalsi(xn,fn,xtol,ftol,dxmn,dxmx,isw,wk,ir)!- Find root of a function
      x2 = x1
      f2 = f1
   endif
-
   ! ... Special treatments
   if (fn == 0) then
      ir = 1
@@ -166,10 +155,8 @@ subroutine rfalsi(xn,fn,xtol,ftol,dxmn,dxmx,isw,wk,ir)!- Find root of a function
   elseif (ir >  0) then
      goto 999
   endif
-
   xmin = min(xmin,xn)
   xmax = max(xmax,xn)
-
   ! ... T if root bracketed, with constraint satisfied
   cst1  = iabs(ic) .ne. 1 .or. (f1-fn)*(x1-xn)*ic .gt. 0
   cst2 =  iabs(ic) .ne. 1 .or. (f2-fn)*(x2-xn)*ic .gt. 0
@@ -198,7 +185,6 @@ subroutine rfalsi(xn,fn,xtol,ftol,dxmn,dxmx,isw,wk,ir)!- Find root of a function
      cst2 = ltmp
      wk(12) = 4
   endif
-
   ! ... Make first and second derivatives from three points, if available
   dx2 = x2-x0
   dx1 = x1-x0
@@ -210,7 +196,6 @@ subroutine rfalsi(xn,fn,xtol,ftol,dxmn,dxmx,isw,wk,ir)!- Find root of a function
      fp = -((-(df2*dx1**2) + df1*dx2**2)/den)
      fpp = (2*(df1*dx2-df2*dx1))/den
   endif
-
   ! ... T if local extremum bracketed
   lextr = (f0-f1)*(x0-x1)*(f1-f2)*(x1-x2) .lt. 0 .and. fpp*f1 .ge. 0
   if (lextr .AND. .NOT. (root1 .OR. root2) .AND. ipr >= 30) then
@@ -219,19 +204,13 @@ subroutine rfalsi(xn,fn,xtol,ftol,dxmn,dxmx,isw,wk,ir)!- Find root of a function
      !     .  '%1;6g %1;6g %1;6g',' ',scrwid,stdo,x0,x1,x2,f0,f1,f2)
      write(stdo,"(a,3d13.5,2x,3d13.5)")' x0,x1,x2: f0,f1,f2 = ',x0,x1,x2,f0,f1,f2
   endif
-
   ! --- CASE I: root bracketed with possible constraint satisfied ---
-  if (root1 .OR. root2) then
-
-     !   ... Linear estimate for xn
+  if (root1 .OR. root2) then     !   ... Linear estimate for xn
      xn = (f1x*x0-f0*x1)/(f1x-f0)
-
      ! ... If conditions allow, improve estimate for x.  Conditions:
      !     a sufficiently distinct third point exists; f1<=f1x*2;
      !     corrected slope of same sign; new x still within bracket.
-     if (dabs(x2-x0) > dxmn .AND. &
-          dabs(x2-x1) > dxmn .AND. abs(f1) <= abs(f1x*2)) then
-
+     if (dabs(x2-x0) > dxmn .AND. dabs(x2-x1) > dxmn .AND. abs(f1) <= abs(f1x*2)) then
         if (fp*df1/dx1 > 0) then
            !       ... Estimate for quadratic correction
            dum = x0 - f0/fp - (f0**2*fpp)/(2*fp**3)
@@ -250,7 +229,6 @@ subroutine rfalsi(xn,fn,xtol,ftol,dxmn,dxmx,isw,wk,ir)!- Find root of a function
      endif
      !   ... Artificially reduce f1 to avoid ill-conditioned cases
      if (min(dabs(xn-x0),dabs(xn-x1)) < .1d0*dabs(x0-x1))f1x=f1x/2
-
      !   ... Ask for another point, or if set ir if converged to within tol
      ir = -2
      if (lqua /= 0) ir = -3
@@ -260,38 +238,20 @@ subroutine rfalsi(xn,fn,xtol,ftol,dxmn,dxmx,isw,wk,ir)!- Find root of a function
      if (itol == 0 .AND. cnvgf .OR. itol == 1 .AND. cnvgx .OR. &
           itol == 2 .AND. (cnvgf .AND. cnvgx) .OR. &
           itol == 3 .AND. (cnvgf .OR. cnvgx)) ir = 0
-
-     !   ... If xn near machine precision of x0 or x1:
-     !       call dswap(1,x0,1,x1,1)
      xtoll = 256*d1mach(3)
-     if (abs(xn-x0) <= abs(xn)*xtoll &
-          .AND. (ir == -2 .OR. ir == -3)) then
-        !          print *, '1',xn-x0, xn-x1 !, sign(x0*xtoll,x1-x0)
+     if (abs(xn-x0) <= abs(xn)*xtoll .AND. (ir == -2 .OR. ir == -3)) then        !          print *, '1',xn-x0, xn-x1 !, sign(x0*xtoll,x1-x0)
         xn = x0 + sign(x0*xtoll,x1-x0)
-        if (abs(xn-x0) > 0.9d0*abs(x1-x0)) then
-           !            print *, 'branch 1aa ...',xn-x0
-           xn = (x0*7+x1)/8
-           !            print *, 'branch 1aa ...',xn-x0
-           !           pause
+        if (abs(xn-x0) > 0.9d0*abs(x1-x0)) then           !            print *, 'branch 1aa ...',xn-x0
+           xn = (x0*7+x1)/8           !            print *, 'branch 1aa ...',xn-x0
         endif
-        !          print *, '1a',xn-x0, xn-x1, (xn-x0)*(xn-x1).gt.0
-        !         pause
         ir = -2
-     elseif (abs(xn-x1) <= abs(xn)*xtoll &
-          .AND. (ir == -2 .OR. ir == -3)) then
-        !         print *, '2',xn-x1, xn-x0   !, sign(x1*xtoll,x0-x1)
+     elseif (abs(xn-x1) <= abs(xn)*xtoll .AND. (ir == -2 .OR. ir == -3)) then        !         print *, '2',xn-x1, xn-x0   !, sign(x1*xtoll,x0-x1)
         xn = x1 + sign(x1*xtoll,x0-x1)
-        if (abs(xn-x1) > 0.9d0*abs(x0-x1)) then
-           !            print *, 'branch 2aa ...',xn-x1
-           xn = (x1*7+x0)/8
-           !            print *, 'branch 2aa ...',xn-x1
-           !           pause
+        if (abs(xn-x1) > 0.9d0*abs(x0-x1)) then           !            print *, 'branch 2aa ...',xn-x1
+           xn = (x1*7+x0)/8            !            print *, 'branch 2aa ...',xn-x1
         endif
-        !         print *, '2a',xn-x1, xn-x0, (xn-x0)*(xn-x1).gt.0
         ir = -2
      endif
-     !       call dswap(1,x0,1,x1,1)
-
      ! --- CASE III: root not found, step prescribed ---
   elseif (ic4 == 4) then
      goto 80
@@ -314,7 +274,6 @@ subroutine rfalsi(xn,fn,xtol,ftol,dxmn,dxmx,isw,wk,ir)!- Find root of a function
      if (dirdx >= 0) xn = xmax + abs(dxmx)
      ir = -6
      goto 998
-
      ! --- CASE II: extremum bracketed without a root ---
      !                *                                      *
      !      *                  handle left case          *
@@ -332,7 +291,6 @@ subroutine rfalsi(xn,fn,xtol,ftol,dxmn,dxmx,isw,wk,ir)!- Find root of a function
      endif
      ir = -6
      goto 998
-
      ! --- CASE V: no root bracketed: try linear extrapolation ---
   else
      if (f0 == f1) goto 80
@@ -348,8 +306,6 @@ subroutine rfalsi(xn,fn,xtol,ftol,dxmn,dxmx,isw,wk,ir)!- Find root of a function
      if (xn > xmin .AND. xn < xmax) goto 80
      ir = -4
   endif
-  ! --- End of cases ---
-
   ! ... Convergence achieved or extremum bracketed with no root:
   !     Force xn on a prior point if 4's bit in 10's digit set.
   if ((ir == 0 .OR. ir == 4) .AND. mod(isw/10,10) > itol) then
@@ -367,46 +323,24 @@ subroutine rfalsi(xn,fn,xtol,ftol,dxmn,dxmx,isw,wk,ir)!- Find root of a function
   endif
   if (ir == 4) goto 999
   goto 998
-
   ! ... Exit ir=-5: suggest new point = max (min) given x +(-) abs(dxmx)
 80 continue
   ir = -5
   if (dxmx < 0) xn = xmin - abs(dxmx)
   if (dxmx > 0) xn = xmax + abs(dxmx)
-
   ! ... Get a new point
 998 continue
   if (ir0 == 0 .AND. ipr > 30) then
-     !        call awrit2('  rfalsi ir=%,2i: seek xn=%1,8;8g',' ',scrwid,stdo,ir,xn)
      write(stdo,"(a,i5,d13.5)")'  rfalsi ir: seek xn=',ir,xn
   elseif (ipr > 30 .OR. ipr >= 30 .AND. ir >= 0) then
-     !        i = awrite('%x  rfalsi ir=%,2i x1=%1;4g f1=%1;4g x2=%1;4g'//
-     !     .  ' f2=%1;4g: %?#n#seek#est#',outs,scrwid,0,
-     !     .  ir,x0,f0,x1,f1,ir,0,0)
      write(stdo,"(a,i0,2d13.5,2x,2d13.5)")'rfalsi ir,x0,f0,x1,f1=', ir,x0,f0,x1,f1
-     !         i = awrite('%x  rfalsi ir=%,2i x1=%1;4g f1=%1;4g x2=%1;4g'//
-     !     .  ' f2=%1;4g: %?#n#seek#est#',outs,scrwid,0,
-     !     .  ,0,0)
-     !        i = min(12,scrwid-3-i)
-     !        call awrit2('%a x=%;nF',outs,scrwid,-stdo,i,xn)
-     !       continue
   endif
-
-  ! ... Exit: save data
 999 continue
   wk(10) = xmin
   wk(11) = xmax
   call dcopy(3,x,1,wk(1),1)
   call dcopy(3,f,1,wk(4),1)
   call dcopy(3,fx,1,wk(7),1)
-
-  !      if (ir .eq. -2 .or. ir .eq. -3) then
-  !        if ((xn-x0)*(xn-x1) .gt. 0) then
-  !          print *, 'exit', xn-x0,xn-x1
-  !          stop 'oops'
-  !        endif
-  !      endif
-
 end subroutine rfalsi
 
 !     Testing:

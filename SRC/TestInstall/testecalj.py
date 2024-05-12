@@ -87,8 +87,8 @@ for tname in testall.split():
         '''
         print(message1)
         runlist=[\
-                 lmfa+'copt -vnsp=2 -cstrx=l12 --pr41 -vmet=3 -vtetra=0 -vnk1=2 -vlfrce=12 -vdist=1 -vnit=3 --time=5 > '+outfile,\
-                 lmf +'copt -vnsp=2 -cstrx=l12 --pr41 -vmet=3 -vtetra=0 -vnk1=2 -vlfrce=12 -vdist=1 -vnit=3 --time=5 > '+outfile \
+                 lmfa+'copt -vnsp=2 -cstrx=l12 --pr41 -vnk1=2 -vlfrce=12 -vdist=1 -vnit=3 --time=5 > '+outfile,\
+                 lmf +'copt -vnsp=2 -cstrx=l12 --pr41 -vnk1=2 -vlfrce=12 -vdist=1 -vnit=3 --time=5 > '+outfile \
         ]
         for irun in runlist:
             print(irun)

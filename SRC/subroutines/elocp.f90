@@ -215,7 +215,8 @@ contains
           !   ... Match val,slo, and K.E. of Hankel to phi,dphi,vmine
           rsm = 0
           eh = min(eval-vmtz,emax)
-          call mtchre(103,l,rsmin,rsmax,emin,emax,rmt,rmt,phi,dphi,vmine,dphi,rsm,eh,ekin,info)
+!          call mtchre(103,l,rsmin,rsmax,emin,emax,rmt,rmt,phi,dphi,vmine,dphi,rsm,eh,ekin,info)
+          call mtchre(l,rsmin,rsmax,emin,emax,rmt,rmt,phi,dphi,vmine,dphi,rsm,eh,ekin,info)
           !   ... Vary rsm to match sm Hankel to phi,dphi
           if (ipr >= IPRT) then!   ... Printout of fit functions
              call radext(nr,nrx,2d0,a,rmt,nrbig,rbig,rofix,rwgtx)             !         make sphere charge for r>rmt for printout

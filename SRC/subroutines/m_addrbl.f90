@@ -57,15 +57,10 @@ contains
     !i   evec  :eigenvectors
     !i   evl   :eigenvalues
     !i   nev
-    ! xxx   ef0   :estimate for fermi level
-    ! xx   def   :When lmet=4, charge also accmulated for ef0+def and ef0-def
-    ! xx   esmear:(sampling integration) gaussian broadening
-    ! xx         :sign and integer part are extensions; see mkewgt.f
     !i   emin  :energy lower bound when adding to sampling dos
     !i   emax  :energy upper bound when adding to sampling dos
     !i   ndos  :number of energy mesh points
     !i   osig,otau,oppi  augmentation matrices
-    ! xxx   lcplxp=1 only now !lcplxp:0 if ppi is real; 1 if ppi is complex
     !i   lekkl :0 do not accumulate oeqkkl; 1 do accumulate oeqkkl
     !o Outputs
     !o   sumqv :integrated charge, resolved by spin
@@ -75,8 +70,6 @@ contains
     !o   oqkkl :local part of density matrix
     !o   oeqkkl:local part of energy-weighted density matrix
     !o   f     :eigenvalue contribution to forces
-    !o   swtk  :'spin weights' to determine global magnetic moment, nspc=2
-    !o         : swtk = diagonal part of  (z)^-1 sigmz z
     implicit none
     integer:: i , k , nevec , lmxax , lmxa , nlmax , nlmto , ig, isp,iq,nevl,ipiv(ndimh*2) !,lfrce
     real(8):: q(3),evl(ndham,nsp),sumev(2,3),sumqv(3,2),f(3,*),emax,emin,qval,vconst,vavg,wgt,tpiba,ewgt(ndimh*nspc),epsnevec,eee
@@ -86,8 +79,8 @@ contains
     complex(8):: evec(ndimh,nspc,ndimh,nspc),smrho(n1,n2,n3,isp),smpot(n1,n2,n3,isp)
     real(8),allocatable:: qpgv(:,:),qpg2v(:),ylv(:,:)
     complex(8),allocatable:: evecc(:,:,:,:),work(:,:,:,:)
-    qval= qval_- zbak !    if (lwtkb < 0) return
     call tcn('addrbl')
+    qval= qval_- zbak 
     nlmto = ndimh-napw
     lmxax = maxval(lmxa_i(ispec(1:nbas)))
     nlmax = (lmxax+1)**2
@@ -102,9 +95,9 @@ contains
        call rxx(nspc/=1,'lwtkb=0 not implemented in noncoll case')
        wgt = abs(wtkp(iq))/nsp
        call mkewgt(lmet,wgt,qval,ndimh,evl(1,isp),nevec,ewgt,sumev,sumqv(1,isp))
-       ewgt=wgt*ewgt != call dscal(nevec,wgt,ewgt,1)
+       ewgt=wgt*ewgt 
     else ! ... Case band weights are passed
-       ewgt(1:nevl)=wtkb(1:nevl,isp,iq) !call dcopy(nevl,wtkb(1,isp,iq),1,ewgt,1)
+       ewgt(1:nevl)=wtkb(1:nevl,isp,iq) 
 !       eee=epsnevec()
 !       nevec=findloc(abs(wtkb(1:nevl,isp,iq)) > eee,value=.true.,dim=1,back=.true.) !ifort 19.1.2.254 can not handle this.
 !       nevec=findloc(abs(wtkb(1:nevl,isp,iq)) > epsnevec(),value=.true.,dim=1,back=.true.) !ifort 19.1.2.254 can not handle this.
@@ -123,18 +116,6 @@ contains
     call rsibl(lfrce, isp,q,iq,ndimh,nspc,napw,igapw,nevec,evec,ewgt,n1,n2,n3,smpot,smrho,f ) ! ... Add to smooth density
     call rlocbl(lfrce,nbas,isp,q,ndham,ndimh,nspc,napw,igapw,nevec,evec,ewgt,evl,sv_p_osig,sv_p_otau,sv_p_oppi,1,&
          sv_p_oqkkl,sv_p_oeqkkl,f) !lekkl=1 ! ... Add to local density coefficients
-    !Hint for future. Weightsforspinmoments: if (lswtk>0 .AND. nspc==2) then!
-    !    allocate(evecc,source=evec) ! evecc=evec call zcopy(ndimhx**2,evec,1,evecc,1)
-    !    allocate(work,mold=evec) 
-    !    call zgetrf(nevl,nevl,evecc,ndimhx,ipiv,i)
-    !    if(i/=0) call rx('addrbl: failed to generate overlap')
-    !    call zgetri(nevl,evecc,ndimhx,ipiv,work,ndimhx**2,i) !evecc is evec^-1
-    !    do  i = 1, ndimh
-    !       swtk(i,1,iq)= swtk(i,1,iq) + sum(evecc(i,1,:,1)*evec(:,1,i,1) - evecc(i,1,:,2)*evec(:,2,i,1))
-    !       swtk(i,2,iq)= swtk(i,2,iq) + sum(evecc(i,2,:,1)*evec(:,1,i,2) - evecc(i,2,:,2)*evec(:,2,i,2))
-    !    enddo
-    !    deallocate(evecc,work)
-    ! endif Weightsforspinmoments
     call tcx('addrbl')
   end subroutine addrbl
   subroutine mkewgt(lmet,wgt,qval,ndimh,evl, nevec,ewgt,sumev,sumqv)
@@ -142,7 +123,6 @@ contains
     use m_lmfinit,only: bz_w,bz_n
     use m_ftox
     !- State-dependent weights for sampling BZ integration.
-    ! ----------------------------------------------------------------------
     !i Inputs
     !i   lmet  :0 assume insulator
     !i         :1 save eigenvectors to disk

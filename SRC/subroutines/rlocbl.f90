@@ -146,7 +146,7 @@ contains
          ppihpz=>sv_p_oppi(2,ia)%cv
          ivecloop: do ivec = 1, nevec
             ispcloop: do ispc = 1, nspc
-               ksp = max(ispc,isp)
+               ksp = max(ispc,isp) !for lso=1, we use isp=1 only. thus ksp=ispc, for lso/=1, ksp=isp since nspc=1
                evecc=> evec(1:ndimh,ispc,ivec)
                ewgtt=> ewgt(ivec)
                evll => evl(ivec,isp)
