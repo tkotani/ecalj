@@ -119,7 +119,7 @@ mlo_EUinner 5
 !mlo_WTband 0 
 
 !mlo_WTseed 0
-mlo_WTseed 32
+!mlo_WTseed 0
 !mlo_maxit 1
 !mlo_conv 1d-6
 !mlo_WTband 0

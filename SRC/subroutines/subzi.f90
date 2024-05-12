@@ -53,10 +53,6 @@ contains
     zval = qval-qbg
     ltet = ntet>0
     nevmx= nevmxin !initial contdition except  cmdopt0('--band').or.fullmesh
-!    if(lmet>0) then
-!      if(lso==1) allocate(rv_a_owtkb(ndhamx,1,nkp))
-!      if(lso/=1) allocate(rv_a_owtkb(ndham,nsp,nkp))
-!    endif  
     if(lmet>0) allocate(rv_a_owtkb(ndhamx,nspx,nkp))
     if(nevmx == 0) then
        nevmx = (int(zval) + 1)/2
@@ -79,11 +75,11 @@ contains
     use m_mkpot,only: qval
     use m_suham,only: ndham=>ham_ndham,ndhamx=>ham_ndhamx,nspx=>ham_nspx
     use m_ext,only: sname
-    use m_bzwts,only: bzwtsf,bzwtsf2
+    use m_bzwts,only: bzwtsf2!,bzwtsf2
     implicit none
     intent(in)::                   evlall
     intent(out)::                          eferm,sev,sumqv,vmag
-    logical:: lfill=.false.,ltet, debug,cmdopt0 
+    logical:: lfill=.false.,ltet, debug,cmdopt0 ,wtsf2
     integer:: ierr,ifimag,i,ifi,unlink !,iobzwt
     real(8):: dosrng,evlall(*),sev,sumqv(3,*),eferm,vmag,ef0,bz_ef
     real(8),parameter::    NULLR =-99999
@@ -91,16 +87,13 @@ contains
     write(stdo,ftox)'m_subzi_bzintegration:'
     sev=0d0
     ltet = ntet>0
-    debug = cmdopt0('--debugbndfp')     ! --- BZ integration for fermi level, band sum and qp weights ---
+   ! --- BZ integration for fermi level, band sum and qp weights ---
     dosrng = 8
     if(bz_n<0) dosrng = 16
-    if(bz_fsmommethod == 1) then ! vmag (in Ry) contains magnetic field.  For eigenvalus, add -vmag/2 for isp=1, and +vmag/2 for isp=2.
-       call bzwtsf2 ( ndham,ndham,nsp,nspc,nkabc(1),nkabc(2),nkabc(3),nkp,ntet,iv_a_oidtet,qval-qbg,& ! & note qval is output
-            fsmom,lmet.ne.0,ltet,bz_n,ndos,bz_w,dosrng,rv_a_owtkp,evlall,eferm,sev,rv_a_owtkb,sumqv(1,2),lfill,vmag)!, lwtkb&! lswtk,swtk &
-    else
-       call bzwtsf ( ndham,ndham,nsp,nspc,nkabc(1),nkabc(2),nkabc(3),nkp,ntet,iv_a_oidtet,qval-qbg,&
-            fsmom,lmet.ne.0,ltet,bz_n,ndos,bz_w,dosrng,rv_a_owtkp,evlall,eferm,sev,rv_a_owtkb,sumqv(1,2),lfill,vmag) !, lwtkb  & ! lswtk,swtk &
-    endif
+    ! if(bz_fsmommethod == 1) then ! vmag (in Ry) contains magnetic field.  For eigenvalus, add -vmag/2 for isp=1, and +vmag/2 for isp=2.
+    wtsf2= bz_fsmommethod==1
+    call bzwtsf2 ( ndham,ndham,nsp,nspc,nkabc(1),nkabc(2),nkabc(3),nkp,ntet,iv_a_oidtet,qval-qbg,& ! & note qval is output
+         fsmom,lmet.ne.0,ltet,bz_n,ndos,bz_w,dosrng,rv_a_owtkp,evlall,eferm,sev,rv_a_owtkb,sumqv(1,2),lfill,vmag,wtsf2)!, lwtkb&! lswtk,swtk &
     sumqv(:,1) = sumqv(:,2)
     call tcx('m_subzi_bzintegration')
   end subroutine m_subzi_bzintegration

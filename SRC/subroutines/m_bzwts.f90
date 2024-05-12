@@ -1,10 +1,10 @@
 module  m_bzwts ! BZ integration
-  public bzwtsf,bzwtsf2
+  public bzwtsf2
   private
 contains
-  subroutine bzwtsf(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval, & !== FSMOMMETHOD=0 ogiginal version(modified version. fmom=0 is allowed.)==
+  subroutine bzwtsf2(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval, & !== FSMOMMETHOD=0 ogiginal version(modified version. fmom=0 is allowed.)==
        fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb, & !- BZ integration for fermi level, band sum and qp weights, fixed-spin
-       efermi,sumev,wtkb,qval,lfill,vmag) !,lwtkb lswtk, swtk,
+       efermi,sumev,wtkb,qval,lfill,vmag,wtsf2) !,lwtkb lswtk, swtk,
     use m_lgunit,only:stdo
     use m_ftox
     !i Inputs
@@ -26,18 +26,6 @@ contains
     !i   wtkp  :weight of k-point, including spin degeneracy (bzmesh.f)
     !i   eb    :energy bands; alias eband
     !i   eb    :energy bands
-    !ixx   lswtk :Flags indicating whether 'spin weights' swtk are available
-    !ixx   swtk  :'spin weights': diagonal part of  (z)^-1 sigmz z
-    !ixx         :where z are eigenvectors, sigma is the Pauli spin matrix
-    !ixx         :Supplies information about spin moment in noncoll case.
-    !ixx         :Used when lswtk is set
-    ! oxxx  lwtkb :Used in connection w/ fixed spin-moments method.  On input:
-    ! o        :0 weights are not available; no moment calculation
-    ! o        :if 1, weights were generated with no constraint
-    ! o        :In this case, print moment, and if fmom ne 0 remake weights
-    ! o        :with constraint; set to lwtkb=2 on output.
-    ! o        :if 2, weights were generated with constrained global moment
-    ! o        :if -1, same as 1
     !o Outputs
     !o   efermi:Fermi energy
     !o   sumev :sum of eigenvalues
@@ -49,7 +37,7 @@ contains
     !u   22 Sep 01 Adapted from bzwts.
     ! ----------------------------------------------------------------------
     implicit none
-    logical :: metal,tetra
+    logical :: metal,tetra,wtsf2
     integer :: nbmx,norder,npts,nevx,nsp,nspc,n1,n2,n3,nkp,ntet, idtet(5,ntet)!,lswtk!,lwtkb
     double precision :: zval,fmom,eb(nbmx,nsp,nkp),width,rnge,wtkp(nkp), &
          wtkb(nevx,nsp,nkp),efermi,sumev,qval(2) !,swtk(nevx,nsp,nkp)
@@ -60,6 +48,8 @@ contains
     integer:: itermx
     logical:: agreemom
     real(8),parameter::    NULLR =-99999
+    integer:: nmom1,nmom2
+    real(8):: ehomo1,ehomo2,elumo1,elumo2
     real(8),allocatable:: ebs(:,:,:)
     logical:: quitvmag,lfill
     !!== Fermi level without spin constraint ==
@@ -76,186 +66,76 @@ contains
     else !       write(stdo,*)'spin weights not available ... no spin moment calculated bzwtsf yyy'
        return
     endif
-    !!== Setup for fixed-spin moment method ==
     vmag = 0d0
     if (fmom==NULLR) return  
-    call tcn('bzwtsf')
-    call dpzero(vhold,12)
+    !!== Setup for fixed-spin moment method ==
+    call tcn('bzwtsf2')
+    if(wtsf2) then
+       ele1 = (zval+fmom)/2d0
+       ele2 = (zval-fmom)/2d0
+       nmom1 = ele1+1d-8
+       nmom2 = ele2+1d-8
+       elumo1= minval(eb(nmom1+1,1,:))
+       elumo2= minval(eb(nmom2+1,2,:))
+       if(nmom1/=0) then
+          ehomo1= maxval(eb(nmom1,1,:))
+       else
+          ehomo1= elumo1 - 0.5d0
+       endif
+       if(nmom2/=0) then
+          ehomo2= maxval(eb(nmom2,2,:))
+       else
+          ehomo2= elumo2 - 0.5d0
+       endif
+       vmag = (ehomo1+elumo1)/2d0 -(ehomo2+elumo2)/2d0
+       efermi= ((ehomo1+elumo1)/2d0 +(ehomo2+elumo2)/2d0)/2d0 !/2d0 bug fix Jun26,2014 this only affects to the message.
+       write(stdo,"('bzwtsf2: zval fmom nmon1 nmom2=',2f12.8,2x,2i3)")zval,fmom,nmom1,nmom2
+       write(stdo,"('bzwtsf2: HOMOup LUMOup Diff=',3f20.15,' (Diff=0.5forNoOccupied)')")ehomo1,elumo1,elumo1-ehomo1
+       write(stdo,"('bzwtsf2: HOMOdn LUMOdn Diff=',3f20.15,' (Diff=0.5forNoOccupied)')")ehomo2,elumo2,elumo2-ehomo2
+       write(stdo,"('bzwtsf2: Set Bias initial cond. -Vup+Vdn=',f20.15)")vmag
+       !!= takao interted a block taken from original version of bzwtsf.F June-2 2011.=
+    endif
+    vhold=0d0
     ef0 = efermi
-    write(stdo,*)' Seek potential shift for fixed-spin mom ...'
+    if(ipr>0) write(stdo,*)' Seek potential shift for fixed-spin mom ...'
     !!== do loop for new guess at potential shift ==     ! bisection method takao
     itermx=100
+    quitvmag=.false.
     do 10 iter=1,itermx
-       amom = sum(wtkb(:,1,:) - wtkb(:,2,:)) !!=== Magnetic moment === !       call bzwtsm(nkp,nsp,nevx,wtkb,amom)
-       if(ipr>=41)write(stdo,ftox)' -Vup+Vdn=',ftof(vmag,8),'yields ef=',ftof(efermi),'amom=',ftof(amom),'when seeking',ftof(fmom)
-       agreemom= abs(amom-fmom) < 1d-3
-       if(iprint()>60) print *,'ttttt amom fmom=',amom,fmom,agreemom
-       call dvdos(vmag, amom,dosef(1),vhold,fmom,dvcap, dv)
-       if(agreemom) vhold(12)=0        !      if (abs(dv) .lt. 1d-6) then
-       quitvmag=.false.
-       if (abs(dv) < 1d-6 .OR. agreemom) then           !       A root was found
-          if (vhold(12) == -2 .OR. vhold(12) == -3 .OR. &
-               vhold(12) ==  0 .OR. vhold(12) ==  1) then
-             if (ipr >= 10) write(stdo,ftox)' BZWTSF: potential shift bracketed.', &
-                  'Unconstrained efermi=',ftof(ef0), &
-                  'constraint fmom=',ftof(fmom),'actual mmom=',ftof(amom), &
-                  'ef=',ftof(efermi),'-Vup+Vdn=',ftof(vmag,8)
+       if(.not.wtsf2) then
+          amom = sum(wtkb(:,1,:) - wtkb(:,2,:)) !!=== Magnetic moment === !       call bzwtsm(nkp,nsp,nevx,wtkb,amom)
+          if(ipr>=41)write(stdo,ftox)&
+               ' -Vup+Vdn=',ftof(vmag,8),'yields ef=',ftof(efermi),'amom=',ftof(amom),'when seeking',ftof(fmom)
+          agreemom= abs(amom-fmom) < 1d-3
+          if(iprint()>60) print *,'ttttt amom fmom=',amom,fmom,agreemom
+          call dvdos(vmag, amom,dosef(1),vhold,fmom,dvcap, dv)
+          if(agreemom) vhold(12)=0        !      if (abs(dv) .lt. 1d-6) then
+          quitvmag=.false.
+          if (abs(dv) < 1d-6 .OR. agreemom) then           !       A root was found
+             if (vhold(12) == -2 .OR. vhold(12) == -3 .OR. &
+                  vhold(12) ==  0 .OR. vhold(12) ==  1) then
+                if (ipr >= 10) write(stdo,ftox)' BZWTSF: potential shift bracketed.', &
+                     'Unconstrained efermi=',ftof(ef0), &
+                     'constraint fmom=',ftof(fmom),'actual mmom=',ftof(amom), &
+                     'ef=',ftof(efermi),'-Vup+Vdn=',ftof(vmag,8)
+                quitvmag=.true.
+             endif
+          else if (iter == itmax) then
+             if(ipr>=10)then
+                write(stdo,ftox)' BZWTSF: failed to converge potential shift after',iter,'iterations.'
+                write(stdo,ftox)' constraint fmom=',ftof(fmom),'actual amom=',ftof(amom), &
+                     'ef=',ftof(efermi),'-Vup+Vdn=',ftof(vmag,8)
+             endif
              quitvmag=.true.
           endif
-       else if (iter == itmax) then
-          if(ipr>=10)then
-             write(stdo,ftox)' BZWTSF: failed to converge potential shift after',iter,'iterations.'
-             write(stdo,ftox)' constraint fmom=',ftof(fmom),'actual amom=',ftof(amom), &
-                  'ef=',ftof(efermi),'-Vup+Vdn=',ftof(vmag,8)
-          endif
-          quitvmag=.true.
        endif
        !! Potential shift
        allocate(ebs(nevx,2,nkp))
-       ebs(:,1,:) = eb(:,1,:) - vmag/2
-       ebs(:,2,:) = eb(:,2,:) + vmag/2
-       !! Fermi level with dv shift
-       if( .NOT. quitvmag) call pshpr(ipr-50)
-       if(iprint()>0) write(stdo,ftox) ' Second call bzwts in bzwtsf for fsmom mode'
-       call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval, &
-            metal,tetra,norder,npts,width,rnge,wtkp,ebs,efermi, &
-            sumev,wtkb,dosef,qval,ent,lfill)
-       if (iprint()>= 20) then           !call bzwtsm(nkp,nsp,nevx,wtkb,amom)
-          amom = sum(wtkb(:,1,:) - wtkb(:,2,:))
-          write(stdo,922) amom
-       endif
-       deallocate(ebs)
-       if ( .NOT. quitvmag) call poppr
-       if(quitvmag) exit
-10  enddo
-    ele1 = (zval+fmom)/2d0
-    ele2 = (zval-fmom)/2d0
-    sumev=sumev+ ele1*(vmag/2d0) - ele2*(vmag/2d0) !sumev correction takao
-    if(iprint()>20) write(stdo,"(' bzwtsf: Set Bias field -Vup+Vdn=',f20.15)")vmag
-    call tcx('bzwtsf')
-922 format(9x,'Mag. moment:',f15.6)
-  end subroutine bzwtsf
-  subroutine bzwtsf2(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval, & !!== FSMOMMETHOD=1 == June2011 takao
-       fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb,&! lswtk,swtk &
-       efermi,sumev,wtkb,qval,lfill,vmag) !,lwtkb
-    use m_lgunit,only:stdo
-    use m_ftox
-    !- BZ integration for fermi level, band sum and qp weights, fixed-spin
-    ! ----------------------------------------------------------------------
-    !i Inputs
-    !i   nbmx  :leading dimension of eb
-    !i   nevx  :leading dimension of wtkb and max number of evals calculated
-    !i   nsp   :2 for spin-polarized case, otherwise 1
-    !i   nspc  :2 if spin-up and spin-down channels are coupled; else 1.
-    !i   n1..n3:number of divisions for the k-point mesh
-    !i   nkp   :number of inequivalent k-points (bzmesh.f)
-    !i   ntet  :number of inequivalent tetrahedra (tetirr.f)
-    !i   idtet :idtet(1..4,i) points to the 4 irreducible k-points defining
-    !i         :corners of tetrahedron;
-    !i         :idtet(0,i) number of tetrahedra of the i'th kind
-    !i   zval  :valence charge
-    !i   fmom  :fixed spin moment.  If zero, no constraint is applied.
-    !i   metal :T => metal, F => nonmetal
-    !i   tetra :T => tetrahedron integration
-    !i   norder,npts,width,rnge: parameters for sampling integr. (maknos)
-    !i   wtkp  :weight of k-point, including spin degeneracy (bzmesh.f)
-    !i   eb    :energy bands; alias eband
-    !i   eb    :energy bands
-    !ixx   lswtk :Flags indicating whether 'spin weights' swtk are available
-    !ixx   swtk  :'spin weights': diagonal part of  (z)^-1 sigmz z
-    !ixx         :where z are eigenvectors, sigma is the Pauli spin matrix
-    !ixx         :Supplies information about spin moment in noncoll case.
-    !ixx         :Used when lswtk is set
-    ! oxxx  lwtkb :Used in connection w/ fixed spin-moments method.  On input:
-    ! o        :0 weights are not available; no moment calculation
-    ! o        :if 1, weights were generated with no constraint
-    ! o        :In this case, print moment, and if fmom ne 0 remake weights
-    ! o        :with constraint; set to lwtkb=2 on output.
-    ! o        :if 2, weights were generated with constrained global moment
-    ! o        :if -1, same as 1
-    !o Outputs
-    !o   efermi:Fermi energy
-    !o   sumev :sum of eigenvalues
-    !o   wtkb  :integration weights (not generated for nonmetal case)
-    !o   qval  :qval(1) = total charge; qval(2) = magnetic moment
-    !u Updates
-    !u   12 Jul 08 change arg list in bzwts -- now returns entropy term
-    !u   02 Jan 06 return qval (valence charge and moment)
-    !u   22 Sep 01 Adapted from bzwts.
-    ! ----------------------------------------------------------------------
-    implicit none
-    ! Passed parameters
-    logical :: metal,tetra
-    integer :: nbmx,norder,npts,nevx,nsp,nspc,n1,n2,n3,nkp,ntet, &
-         idtet(5,ntet)!,lswtk!,lwtkb
-    double precision :: zval,fmom,eb(nbmx,nsp,nkp),width,rnge,wtkp(nkp), &
-         wtkb(nevx,nsp,nkp),efermi,sumev,qval(2) !,swtk(nevx,nsp,nkp)
-    ! Local variables
-    integer :: ikp,ib,ipr,itmax,iter,iprint
-    double precision :: amom,dosef(2),vhold(12),vmag,dvcap,dv,ef0,ent
-    parameter (dvcap=.2d0,itmax=50)
-    logical:: agreemom
-    real(8),parameter::    NULLR =-99999
-    integer:: nmom1,nmom2
-    real(8):: ehomo1,ehomo2,elumo1,elumo2
-    real(8),allocatable:: ebs(:,:,:)
-    real(8):: ele1,ele2
-    integer:: itermx
-    logical:: quitvmag,lfill
-    ! --- Fermi level without spin constraint ---
-    call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval, &
-         metal,tetra,norder,npts,width,rnge,wtkp,eb,efermi, &
-         sumev,wtkb,dosef,qval,ent,lfill)
-    if (nsp == 1) return
-    call getpr(ipr)
-    ! --- Make and print out magnetic moment ---
-    if (nspc == 1.AND. metal) then
-       amom = sum(wtkb(:,1,:) - wtkb(:,2,:))        !call bzwtsm(nkp,nsp,nevx,wtkb,amom)
-       if (ipr >= 20) write(stdo,922) amom
-922    format(9x,'Mag. moment:',f15.6)
-       qval(2) = amom
-    else !       write(stdo,*) 'spin weights not available ... no spin moment calculated bzwtsf2 xxx'
-       return
-    endif
-    vmag=0d0
-    if (fmom==NULLR) return 
-    !! --- Setup for fixed-spin moment method ---
-    call tcn('bzwtsf2')
-    ele1 = (zval+fmom)/2d0
-    ele2 = (zval-fmom)/2d0
-    nmom1 = ele1+1d-8
-    nmom2 = ele2+1d-8
-    elumo1= minval(eb(nmom1+1,1,:))
-    elumo2= minval(eb(nmom2+1,2,:))
-    if(nmom1/=0) then
-       ehomo1= maxval(eb(nmom1,1,:))
-    else
-       ehomo1= elumo1 - 0.5d0
-    endif
-    if(nmom2/=0) then
-       ehomo2= maxval(eb(nmom2,2,:))
-    else
-       ehomo2= elumo2 - 0.5d0
-    endif
-    vmag = (ehomo1+elumo1)/2d0 -(ehomo2+elumo2)/2d0
-    efermi= ((ehomo1+elumo1)/2d0 +(ehomo2+elumo2)/2d0)/2d0 !/2d0 bug fix Jun26,2014 this only affects to the message.
-    write(stdo,"('bzwtsf2: zval fmom nmon1 nmom2=',2f12.8,2x,2i3)")zval,fmom,nmom1,nmom2
-    write(stdo,"('bzwtsf2: HOMOup LUMOup Diff=',3f20.15,' (Diff=0.5forNoOccupied)')")ehomo1,elumo1,elumo1-ehomo1
-    write(stdo,"('bzwtsf2: HOMOdn LUMOdn Diff=',3f20.15,' (Diff=0.5forNoOccupied)')")ehomo2,elumo2,elumo2-ehomo2
-    write(stdo,"('bzwtsf2: Set Bias initial cond. -Vup+Vdn=',f20.15)")vmag
-    !!= takao interted a block taken from original version of bzwtsf.F June-2 2011.=
-    vhold= 0d0
-    ef0  = efermi
-    if(ipr>0) write(stdo,*)' Seek potential shift for fixed-spin mom ...'
-    !!== do loop for new guess at potential shift ==    ! bisection method takao
-    itermx=100
-    quitvmag=.false.
-    do 10 iter=1,itermx 
-       allocate(ebs(nevx,2,nkp))
-       ebs(:,1,:) = eb(:,1,:) - vmag/2d0 ! Potential shift
+       ebs(:,1,:) = eb(:,1,:) - vmag/2d0
        ebs(:,2,:) = eb(:,2,:) + vmag/2d0
        !! Fermi level with dv shift
        if( .NOT. quitvmag) call pshpr(ipr-50)
+       if(iprint()>0) write(stdo,ftox) ' Second call bzwts in bzwtsf for fsmom mode'
        call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval, &
             metal,tetra,norder,npts,width,rnge,wtkp,ebs,efermi, sumev,wtkb,dosef,qval,ent,lfill)
        if (iprint()>= 20) then
@@ -265,32 +145,34 @@ contains
        deallocate(ebs)
        if(.NOT.quitvmag) call poppr
        if(quitvmag) exit
-       amom = sum(wtkb(:,1,:) - wtkb(:,2,:)) !=== Magnetic moment ===       !call bzwtsm(nkp,nsp,nevx,wtkb,amom)
-       if(ipr>=41)write(stdo,ftox)' -Vup+Vdn=',ftof(vmag,8),'yields ef=',ftof(efermi), &
-            'amom',ftof(amom),'when seeking mom=',ftof(fmom)
-       agreemom = abs(amom-fmom) < 1d-6 
-       call dvdos(vmag,amom,dosef(1),vhold,fmom,dvcap,dv)
-       if(agreemom) vhold(12)=0
-       quitvmag=.false.
-       if(abs(dv) < 1d-6 .OR. agreemom) then
-          quitvmag=.true.
-          if(vhold(12) == -2 .OR. vhold(12) == -3 .OR. vhold(12) ==  0 .OR. vhold(12) ==  1) then
-             if(ipr>=10) write(stdo,ftox)' BZWTSF2: potential shift bracketed. Unconstrained efermi=',ftof(ef0), &
-                  'constraint fmom=',ftof(fmom),'actual mmom=',amom,'ef=',efermi,'-Vup+Vdn=',vmag
+       if(wtsf2) then
+          amom = sum(wtkb(:,1,:) - wtkb(:,2,:)) !=== Magnetic moment ===       !call bzwtsm(nkp,nsp,nevx,wtkb,amom)
+          if(ipr>=41)write(stdo,ftox)' -Vup+Vdn=',ftof(vmag,8),'yields ef=',ftof(efermi), &
+               'amom',ftof(amom),'when seeking mom=',ftof(fmom)
+          agreemom = abs(amom-fmom) < 1d-6 
+          call dvdos(vmag,amom,dosef(1),vhold,fmom,dvcap,dv)
+          if(agreemom) vhold(12)=0
+          quitvmag=.false.
+          if(abs(dv) < 1d-6 .OR. agreemom) then
+             quitvmag=.true.
+             if(vhold(12) == -2 .OR. vhold(12) == -3 .OR. vhold(12) ==  0 .OR. vhold(12) ==  1) then
+                if(ipr>=10) write(stdo,ftox)' BZWTSF2: potential shift bracketed. Unconstrained efermi=',ftof(ef0), &
+                     'constraint fmom=',ftof(fmom),'actual mmom=',amom,'ef=',efermi,'-Vup+Vdn=',vmag
+             endif
+          elseif(iter == itmax) then
+             quitvmag=.true.
+             if(ipr>=10)write(stdo,ftox)' BZWTSF2: failed to converge potential shift after',iter,'iterations.', &
+                  'constraint fmom=',ftof(fmom),'actual amom=',ftof(amom),'ef=',ftof(efermi),'-Vup+Vdn=',ftof(vmag)
           endif
-       elseif(iter == itmax) then
-          quitvmag=.true.
-          if(ipr>=10)write(stdo,ftox)' BZWTSF2: failed to converge potential shift after',iter,'iterations.', &
-               'constraint fmom=',ftof(fmom),'actual amom=',ftof(amom),'ef=',ftof(efermi),'-Vup+Vdn=',ftof(vmag)
        endif
 10  enddo
-    ele1 = (zval+amom)/2d0
-    ele2 = (zval-amom)/2d0
+    ele1 = (zval+fmom)/2d0
+    ele2 = (zval-fmom)/2d0
     sumev=sumev+ ele1*(vmag/2d0) - ele2*(vmag/2d0) !sumev correction takao
-    if(iprint()>20) write(stdo,ftox)' bzwtsf2(METHOD=1): Set Bias field -Vup+Vdn=',ftof(vmag,8)
+    if(iprint()>20) write(stdo,"(' bzwtsf2: Set Bias field -Vup+Vdn=',f20.15)")vmag
     call tcx('bzwtsf2')
+922 format(9x,'Mag. moment:',f15.6)
   end subroutine bzwtsf2
-  
   subroutine bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,& ! BZ integration for fermi level, band sum and qp weights
        metal,tetra,norder,npts,width,rnge,wtkp,eb, efermi,sumev,wtkb,dosef,qval,ent,lfill)
     use m_ftox
@@ -316,13 +198,6 @@ contains
     !i   zval  :valence charge
     !i   metal :T => metal, F => nonmetal
     !i   tetra :T => tetrahedron integration
-    !i   xxx norder:(sampling) polynomial order in Methfessel-Paxton integration
-    !i         :100s digit norder flags that metals treatment should apply
-    !i         :     regardless of whether a gap is present or not
-    !i   xxx width :(sampling) gaussian width in Methfessel-Paxton integration
-    !i   xxx npts  :(sampling) number of points in DOS mesh
-    !i   xxx rnge  :(sampling) range over which sampling delta function is assumed
-    !i   xxx      :to vanish, in units of width
     !i   wtkp  :weight of k-point, including spin degeneracy (bzmesh.f)
     !i   eb    :energy bands; alias eband
     !i   eb    :energy bands
