@@ -65,17 +65,13 @@ contains
   end subroutine m_subzi_init
   subroutine m_subzi_bzintegration(evlall, eferm,sev,sumqv,vmag)
     use m_ftox
-    use m_lgunit,only:stdo
-    use m_MPItk,only:  numprocs=>nsize
-    use m_lmfinit,only: lso,nsp,ham_scaledsigma,nlibu,lmaxu,bz_w,lmet=>bz_lmet,nbas,epsovl=>ham_oveps,nspc,bz_n
-    use m_lmfinit,only: bz_fsmommethod,qbg=>zbak,fsmom=>bz_fsmom,ndos=>bz_ndos
-    use m_mkqp,only: nkabc=> bz_nabc,ntet=> bz_ntet,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
-    use m_lmfinit,only: nchan=>pot_nlma, nvl=>pot_nlml
-    use m_qplist,only: m_qplist_init, nkp,xdatt,labeli,labele,dqsyml,etolc,etolv, nqp2n_syml,nqp_syml,nqpe_syml,nqps_syml,nsyml
+    use m_lgunit,only: stdo
+    use m_lmfinit,only: qbg=>zbak
     use m_mkpot,only: qval
-    use m_suham,only: ndham=>ham_ndham,ndhamx=>ham_ndhamx,nspx=>ham_nspx
-    use m_ext,only: sname
-    use m_bzwts,only: bzwtsf2!,bzwtsf2
+    use m_mkqp,only: nkabc=> bz_nabc,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
+    use m_qplist,only: m_qplist_init, nkp,xdatt,labeli,labele,dqsyml,etolc,etolv, nqp2n_syml,nqp_syml,nqpe_syml,nqps_syml,nsyml
+    use m_suham,only: ndham=>ham_ndham!,ndhamx=>ham_ndhamx,nspx=>ham_nspx
+    use m_bzwts,only: bzwtsf2
     implicit none
     intent(in)::                   evlall
     intent(out)::                          eferm,sev,sumqv,vmag
@@ -85,16 +81,9 @@ contains
     real(8),parameter::    NULLR =-99999
     call tcn('m_subzi_bzintegration')
     write(stdo,ftox)'m_subzi_bzintegration:'
-    sev=0d0
-    ltet = ntet>0
-   ! --- BZ integration for fermi level, band sum and qp weights ---
-    dosrng = 8
-    if(bz_n<0) dosrng = 16
-    ! if(bz_fsmommethod == 1) then ! vmag (in Ry) contains magnetic field.  For eigenvalus, add -vmag/2 for isp=1, and +vmag/2 for isp=2.
-    wtsf2= bz_fsmommethod==1
-    call bzwtsf2 ( ndham,ndham,nsp,nspc,nkabc(1),nkabc(2),nkabc(3),nkp,ntet,iv_a_oidtet,qval-qbg,& ! & note qval is output
-         fsmom,lmet.ne.0,ltet,bz_n,ndos,bz_w,dosrng,rv_a_owtkp,evlall,eferm,sev,rv_a_owtkb,sumqv(1,2),lfill,vmag,wtsf2)!, lwtkb&! lswtk,swtk &
-    sumqv(:,1) = sumqv(:,2)
+    call bzwtsf2(ndham,nkabc(1),nkabc(2),nkabc(3),nkp,iv_a_oidtet,qval-qbg,& ! & note qval is output
+         rv_a_owtkp, evlall,eferm,sev,rv_a_owtkb,sumqv(1:2,2),lfill,vmag)!, lwtkb&! lswtk,swtk &
+    sumqv(1:2,1) = sumqv(1:2,2)
     call tcx('m_subzi_bzintegration')
   end subroutine m_subzi_bzintegration
 end module m_subzi

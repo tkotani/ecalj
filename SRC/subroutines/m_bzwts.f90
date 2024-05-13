@@ -2,11 +2,12 @@ module  m_bzwts ! BZ integration
   public bzwtsf2
   private
 contains
-  subroutine bzwtsf2(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval, & !== FSMOMMETHOD=0 ogiginal version(modified version. fmom=0 is allowed.)==
-       fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb, & !- BZ integration for fermi level, band sum and qp weights, fixed-spin
-       efermi,sumev,wtkb,qval,lfill,vmag,wtsf2) !,lwtkb lswtk, swtk,
+  subroutine bzwtsf2(nbmx,n1,n2,n3,nkp,idtet,zval, & !== FSMOMMETHOD=0 ogiginal version(modified version. fmom=0 is allowed.)==
+       wtkp, eb,efermi,sumev,wtkb,sumqv,lfill,vmag)  !- BZ integration for fermi level, band sum and qp weights, fixed-spin
     use m_lgunit,only:stdo
-    use m_lmfinit,only:lso
+    use m_lmfinit,only:lso,bz_fsmommethod,fmom=>bz_fsmom,norder=>bz_n,lmet=>bz_lmet,&
+         width=>bz_w,npts=>bz_ndos,nsp,nspc
+    use m_mkqp,only: ntet=> bz_ntet
     use m_ftox
     !i Inputs
     !i   nbmx  :leading dimension of eb
@@ -31,38 +32,41 @@ contains
     !o   efermi:Fermi energy
     !o   sumev :sum of eigenvalues
     !o   wtkb  :integration weights (not generated for nonmetal case)
-    !o   qval  :qval(1) = total charge; qval(2) = magnetic moment
-    !u Updates
-    !u   12 Jul 08 change arg list in bzwts -- now returns entropy term
-    !u   02 Jan 06 return qval (valence charge and moment)
-    !u   22 Sep 01 Adapted from bzwts.
-    ! ----------------------------------------------------------------------
+    !o   sumqv  :sumqv(1) = total charge; sumqv(2) = magnetic moment
     implicit none
     logical :: metal,tetra,wtsf2
-    integer :: nbmx,norder,npts,nevx,nsp,nspc,n1,n2,n3,nkp,ntet, idtet(5,ntet)!,lswtk!,lwtkb
-    double precision :: zval,fmom,eb(nbmx,nsp,nkp),width,rnge,wtkp(nkp), &
-         wtkb(nevx,nsp,nkp),efermi,sumev,qval(2) !,swtk(nevx,nsp,nkp)
+    integer :: nbmx,nevx,n1,n2,n3,nkp,idtet(5,ntet)!,lswtk!,lwtkb
+    real(8) :: zval,eb(nbmx,nsp,nkp),wtkp(nkp), &
+         wtkb(nbmx,nsp,nkp),efermi,sumev,sumqv(2) 
     integer :: ikp,ib,ipr,itmax,iter,iprint
-    double precision :: amom,dosef(2),vhold(12),vmag,dvcap,dv,ef0,ent
+    real(8) :: amom,dosef(2),vhold(12),vmag,dvcap,dv,ef0,ent
     parameter (dvcap=.2d0,itmax=50)
     real(8):: ele1,ele2
     integer:: itermx
     logical:: agreemom
     real(8),parameter::    NULLR =-99999
     integer:: nmom1,nmom2
-    real(8):: ehomo1,ehomo2,elumo1,elumo2
+    real(8):: ehomo1,ehomo2,elumo1,elumo2,rnge
     real(8),allocatable:: ebs(:,:,:)
     logical:: quitvmag,lfill
+    metal=lmet.ne.0
+    wtsf2= bz_fsmommethod==1
+    nevx = nbmx
+    sumev=0d0
+    tetra = ntet>0
+    rnge = 8
+    if(norder<0) rnge = 16
+    
     !!== Fermi level without spin constraint ==
     call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval, &
          metal,tetra,norder,npts,width,rnge,wtkp,eb,efermi, &
-         sumev,wtkb,dosef,qval,ent,lfill)
+         sumev,wtkb,dosef,sumqv,ent,lfill)
     if (nsp == 1) return
     call getpr(ipr)
     if( lso/=1 .AND. metal) then     !only for lso/=1
        amom = sum(wtkb(:,1,:) - wtkb(:,2,:))
        if(ipr >= 20) write(stdo,"(9x,'Mag. moment:',f15.6)") amom !magnetic moment
-       qval(2) = amom
+       sumqv(2) = amom
     else 
        return
     endif
@@ -134,7 +138,7 @@ contains
        if( .NOT. quitvmag) call pshpr(ipr-50)
        if(iprint()>0) write(stdo,ftox) ' Second call bzwts in bzwtsf for fsmom mode'
        call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval, &
-            metal,tetra,norder,npts,width,rnge,wtkp,ebs,efermi, sumev,wtkb,dosef,qval,ent,lfill)
+            metal,tetra,norder,npts,width,rnge,wtkp,ebs,efermi, sumev,wtkb,dosef,sumqv,ent,lfill)
        if (iprint()>= 20) then
           amom = sum(wtkb(:,1,:) - wtkb(:,2,:)) 
           write(stdo,"(9x,'Mag. moment:',f15.6)") amom
@@ -170,7 +174,7 @@ contains
     call tcx('bzwtsf2')
   end subroutine bzwtsf2
   subroutine bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,& ! BZ integration for fermi level, band sum and qp weights
-       metal,tetra,norder,npts,width,rnge,wtkp,eb, efermi,sumev,wtkb,dosef,qval,ent,lfill)
+       metal,tetra,norder,npts,width,rnge,wtkp,eb, efermi,sumev,wtkb,dosef,sumqv,ent,lfill)
     use m_nvfortran
     use m_ftox
     use m_lgunit,only: stdo,stdl
@@ -180,7 +184,7 @@ contains
     implicit none
     intent(in)::   nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,&
          metal,tetra,norder,npts,width,rnge,wtkp!,eb
-    intent(out)::                                  efermi,sumev,wtkb,dosef,qval,ent,lfill
+    intent(out)::                                  efermi,sumev,wtkb,dosef,sumqv,ent,lfill
     !i Inputs
     !i   nbmx  :leading dimension of eb
     !i   nevx  :leading dimension of wtkb and max number of evals calculated
@@ -203,17 +207,17 @@ contains
     !o   sumev :sum of eigenvalues
     !o   wtkb  :integration weights (not generated for nonmetal case)
     !o   dosef :DOS at Fermi level
-    !o   qval  :qval(1) = total charge; qval(2) = magnetic moment
+    !o   sumqv  :sumqv(1) = total charge; sumqv(2) = magnetic moment
     !o   ent   :entropy term (actually TS)
     !o   lfill :true => insulator
     logical metal,tetra
     integer nbmx,norder,npts,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet(5,ntet)
     real(8)::zval,eb(nbmx,nsp,nkp),width,rnge,wtkp(nkp),&
-         wtkb(nevx,nsp,nkp),efermi,sumev,dosef(2),qval(2),ent ,wtkbx(nevx,nsp,nkp),wtkb2(nevx,nsp,nkp)
+         wtkb(nevx,nsp,nkp),efermi,sumev,dosef(2),sumqv(2),ent ,wtkbx(nevx,nsp,nkp),wtkb2(nevx,nsp,nkp)
     integer:: it,itmax,n,nptdos,nspxx,nbmxx,nevxx,ib &
         ,ikp,ipr,job,i1mach,nev, mkdlst,ifi,i,j,lry ,nulli,isw !,nbpw
     real(8) ,allocatable :: dos_rv(:)
-    double precision emin,emax,e1,e2,dum(1),tol,e,elo,ehi,sumwt, dmin,dmax,egap,amom,cv,tRy
+    real(8) emin,emax,e1,e2,dum(1),tol,e,elo,ehi,sumwt, dmin,dmax,egap,amom,cv,tRy
     character outs*100,ryy*3
     logical cmdopt0,lfill
     real(8) ,allocatable :: tlst_rv(:),eb2(:,:,:)
@@ -223,7 +227,7 @@ contains
     integer:: iprint, w(1)
     call tcn('bzwts')
     ipr=iprint()
-    qval = 0
+    sumqv = 0
     ent = 0
     n = isign(1,norder) * mod(iabs(norder),100)
     nspxx  = 1
@@ -303,7 +307,7 @@ contains
           allocate(dos_rv(nptdos))
           tol = 1d-6
           !  Preliminary check that dos lies within emin,emax.  Widen emin,emax if not
-          call bzints(n1*n2*n3,ebx,dum,nkp,nevxx,nbmxx,nspxx,emin,emax,dos_rv,nptdos,efermi,job,ntet,idtet,sumev,qval(1) )
+          call bzints(n1*n2*n3,ebx,dum,nkp,nevxx,nbmxx,nspxx,emin,emax,dos_rv,nptdos,efermi,job,ntet,idtet,sumev,sumqv(1) )
           dmin = dos_rv(1)
           dmax = dos_rv(nptdos)
           if (dmin .gt. zval) then
@@ -316,23 +320,23 @@ contains
           if(ipr>=35) write(stdo,"(9x,'Est E_f ',10x,'Window',8x,'Tolerance',2x,'n(E_f)')")
           itmax = 5
           GetFermienergy:do it = 1, itmax
-             call bzints(n1*n2*n3,ebx,dum,nkp,nevxx,nbmxx,nspxx,emin,emax,dos_rv,nptdos,efermi,job,ntet,idtet,sumev,qval(1) )
-             !   !i   qval:    number of electrons to fermi level
+             call bzints(n1*n2*n3,ebx,dum,nkp,nevxx,nbmxx,nspxx,emin,emax,dos_rv,nptdos,efermi,job,ntet,idtet,sumev,sumqv(1) )
+             !   !i   qvalx:    number of electrons to fermi level
              !   !i   dosi(i): integrated density at bin i;
              !   !i   ndos: number of bins + 1
              !   !i   emin, emax: energy window.
              !   !o   Eferm, Fermi energy;
              !   !o   e1<=Eferm<=e2 : confidence limits on Fermi energy. i.e., Fermi energy lies between e1 and e2.
              !   !o   dosef:  density of states at fermi level
-             associate(dosi=>dos_rv(:),qval=>zval,ndos=>nptdos) !Makes fermi energy from integrated density
-               if(dosi(1)>qval.OR.dosi(ndos)<qval) call rx('fermi does not encompass qval='//ftof(qval))
-               i1 = findloc([(dosi(ie)>qval, ie=1,ndos)],value=.true.,dim=1) - 1
+             associate(dosi=>dos_rv(:),qvalx=>zval,ndos=>nptdos) !Makes fermi energy from integrated density
+               if(dosi(1)>qvalx.OR.dosi(ndos)<qvalx) call rx('fermi does not encompass qval='//ftof(qvalx))
+               i1 = findloc([(dosi(ie)>qvalx, ie=1,ndos)],value=.true.,dim=1) - 1
                de = (emax-emin)/(ndos-1)
                e1 = emin + de*(i1-1)
                e2 = emin + de*i1
                q1 = dosi(i1)   
                q2 = dosi(i1+1) 
-               efermi = e1 + (qval-q1)/(q2-q1)*de ! Linear interpolation for the Fermi level
+               efermi = e1 + (qvalx-q1)/(q2-q1)*de ! Linear interpolation for the Fermi level
                dosef(1) = (q2-q1)/de
                emin=e1
                emax=e2
@@ -344,7 +348,7 @@ contains
 111       continue
           deallocate(dos_rv)
        endif
-       call bzints(n1*n2*n3,ebx,wtkbx,nkp,nevxx,nbmxx, nspxx,emin,emin,dum,1,efermi,2*job,ntet,idtet,sumev,qval(1))
+       call bzints(n1*n2*n3,ebx,wtkbx,nkp,nevxx,nbmxx, nspxx,emin,emin,dum,1,efermi,2*job,ntet,idtet,sumev,sumqv(1))
     else ! --- BZ weights, sumev and E_f by Methfessel-Paxton sampling --- not maintained well...
        if(ipr>0) write(stdo,"(a,i0,a,f15.6)")' BZWTS : --- Brillouin Zone sampling; N=',n,' W=',width
        if(nsp==2) call dscal(nkp,.5d0,wtkp,1) !   ... Temporarily remove spin degeneracy if spins are coupled
@@ -355,14 +359,14 @@ contains
           itmax = 1000
           do it = 1, itmax
              call pshpr(0)
-             call splwts(nkp,nevxx,nbmxx,nspxx,wtkp,ebx,n,width,efermi, .true.,sumev,wtkbx,qval(1),ent,dosef(1),cv)
+             call splwts(nkp,nevxx,nbmxx,nspxx,wtkp,ebx,n,width,efermi, .true.,sumev,wtkbx,sumqv(1),ent,dosef(1),cv)
              call poppr
-             if (dabs(zval-qval(1))<1d-12) then
-                if(ipr>0)write(stdo,ftox)' Fermi energy, ',ftof(efermi),' found after ',it,' bisections,',ftof(qval(1)),&
+             if (dabs(zval-sumqv(1))<1d-12) then
+                if(ipr>0)write(stdo,ftox)' Fermi energy, ',ftof(efermi),' found after ',it,' bisections,',ftof(sumqv(1)),&
                      ' electrons, DOS(E_f)=',ftof(dosef(1))
                 goto 333
              endif
-             if (qval(1) > zval) then
+             if (sumqv(1) > zval) then
                 e2 = efermi
              else
                 e1 = efermi
@@ -395,13 +399,13 @@ contains
           do  it = 1, itmax
              tRy = tlst_rv(it)/0.1579d6
              call pshpr(1)
-             call splwts(nkp,nevxx,nbmxx,nspxx,wtkp,ebx,n,tRy,efermi, metal,sumev,wtkbx,qval(1),ent,dosef(1),cv)
+             call splwts(nkp,nevxx,nbmxx,nspxx,wtkp,ebx,n,tRy,efermi, metal,sumev,wtkbx,sumqv(1),ent,dosef(1),cv)
              call poppr
              write(stdo,ftox)ftof(0.1579d6*tRy),ftof(tRy),ftof(ent),ftof(cv)
           enddo
        endif
        call splwts(nkp,nevxx,nbmxx,nspxx,wtkp,ebx,n,width,efermi,& !   ... Make weights, sampling
-            (.not. lfill) .or. (metal .and. (nkp .eq. 1)), sumev,wtkbx,qval(1),ent,dosef(1),cv)
+            (.not. lfill) .or. (metal .and. (nkp .eq. 1)), sumev,wtkbx,sumqv(1),ent,dosef(1),cv)
        if(nsp==2) call dscal(nkp,2d0,wtkp,1)
     endif
     amom = 0d0 ! ... Magnetic moment
@@ -413,9 +417,9 @@ contains
           wtkb=wtkbx !call dcopy(nevx*nsp*nkp,wtkbx,1,wtkb,1) 
        endif
     endif
-    qval(2) = amom
+    sumqv(2) = amom
     if(ipr>0) write(stdl,ftox)'bzmet',metal,'tet',tetra,'ef',ftof(efermi),'sev',ftof(sumev),'zval',ftof(zval)
-    if(ipr>0) write(stdl,ftox)'qval',ftof(qval(1)),'amom',ftof(amom),'egap(eV)',ftof(egap,3)
+    if(ipr>0) write(stdl,ftox)'sumqv',ftof(sumqv(1)),'amom',ftof(amom),'egap(eV)',ftof(egap,3)
     e = efermi
     if(.not. lfill .and. .not. tetra) e = efermi + rnge*width/2
     call tcx('bzwts')
@@ -457,9 +461,9 @@ contains
     !     implicit none
     ! Passed parameters
     integer nsp,nkp,nbmax,nband
-    double precision zval,e1,e2,eband(nbmax,nsp,nkp),ebbot(nband,nsp),ebtop(nband,nsp),elo,ehi
+    real(8) zval,e1,e2,eband(nbmax,nsp,nkp),ebbot(nband,nsp),ebtop(nband,nsp),elo,ehi
     ! Local parameters
-    double precision xx,d1mach,enull
+    real(8) xx,d1mach,enull
     integer ikp,isp,iba,nval,nbbot,nbtop,nfound
     parameter (enull=99999d0)
     elo = enull
@@ -516,9 +520,9 @@ contains
   subroutine dshell(n,array)
     implicit none
     integer n
-    double precision array(n)
+    real(8) array(n)
     integer i,j,k,inc
-    double precision v
+    real(8) v
     ! ... Get the largest increment
     if (n .le. 1) return
     inc = 1
@@ -562,7 +566,7 @@ contains
     !r Remarks
     !r   Routine uses regula falsi to iteratively find target nosnow.
     implicit none
-    double precision :: vmag,nosnow,dosnow,vhold(12),ztarg, dvcap,dv, dznow,dxmx
+    real(8) :: vmag,nosnow,dosnow,vhold(12),ztarg, dvcap,dv, dznow,dxmx
     integer :: ir
     ! ... First order estimate dv = (ztarg-zhave)/slope
     dznow = nosnow-ztarg
@@ -594,9 +598,9 @@ contains
     !-----------------------------------------------------------------------
     !     implicit none
     integer :: ndos
-    double precision :: dos(0:ndos-1),emin,emax,qval,efermi,eband,dosef
+    real(8) :: dos(0:ndos-1),emin,emax,qval,efermi,eband,dosef
     integer :: i,meshpt,iprint
-    double precision :: step,sum,q,q1,q2,e1,eps,d1mach
+    real(8) :: step,sum,q,q1,q2,e1,eps,d1mach
     eps = d1mach(3)
     ! --- make Fermi energy ---
     step = (emax - emin) / (ndos - 1)
@@ -655,10 +659,10 @@ contains
     !u   2 Nov 1995 (JEK) returns spin-polarized integrated dos
     !     implicit none
     integer :: nqp,nband,nbmx,nsp,n,ndos
-    double precision :: wgts(nqp),evl(nbmx,nsp,nqp),dos(0:ndos-1,nsp), &
+    real(8) :: wgts(nqp),evl(nbmx,nsp,nqp),dos(0:ndos-1,nsp), &
          w,emin,emax,tol,wt,emesh
     integer :: i,isp,iband,iq,meshpt,mesh1,mesh2,mrange,iprint,i1mach
-    double precision :: e,x,range,test,step,d,s,xx
+    real(8) :: e,x,range,test,step,d,s,xx
     !  external delstp
     mrange=-9999999
     call dpzero(dos,nsp*ndos)
@@ -743,11 +747,11 @@ contains
     ! ... Passed parameters
     integer :: nqp,nband,nbmx,nsp,n,ix,isplwts,i_copy_size
     logical :: metal
-    double precision :: wgts(nqp),evl(nbmx,nsp,nqp),w,efermi,sumev, &
+    real(8) :: wgts(nqp),evl(nbmx,nsp,nqp),w,efermi,sumev, &
          bndwts(nband,nsp,nqp),wtot,entrpy,dosef,cv
     ! ... Local parameters
     integer :: iqp,iband,isp,iprint,i1mach
-    double precision :: e,s,d,wt,x,xx,dsdt,tdsdt
+    real(8) :: e,s,d,wt,x,xx,dsdt,tdsdt
     logical :: fractional
     sumev = 0d0
     wtot = 0d0
@@ -878,10 +882,10 @@ contains
     !     implicit none
     ! ... Passed parameters
     integer :: n
-    double precision :: x,d,s,e,ep
+    real(8) :: x,d,s,e,ep
     ! ... Local parameters
     integer :: i,k
-    double precision :: a,h1,h2,h3,s0,ex2,derfc,srpi
+    real(8) :: a,h1,h2,h3,s0,ex2,derfc,srpi
     !      intrinsic dsqrt,datan,dexp
     srpi = dsqrt(4d0*datan(1d0))
     ! ... Fermi-Dirac broadening
@@ -962,7 +966,7 @@ end module m_bzwts
   !   ! ----------------------------------------------------------------------
   !   implicit none
   !   integer mode,nbmx,nevx,nsp,nspc,nq,nbpw,bmap(1)
-  !   double precision eb(nbmx,nsp,nq),wk(nbmx*nsp)
+  !   real(8) eb(nbmx,nsp,nq),wk(nbmx*nsp)
   !   integer ib,iq,ib1,ib2,iqb
   !   if (nsp .eq. 1 .or. nspc .eq. 2) return
   !   ! --- Gather bands at each qp ---
@@ -1043,7 +1047,7 @@ end module m_bzwts
   !   !remark: emin and e1 (and emax and e2) may point to the same address.
   !   implicit none
   !   integer :: ndos,i1,ie
-  !   double precision :: qval,dosi(ndos),emin,emax,eferm,e1,e2,dosef,de,q1,q2
+  !   real(8) :: qval,dosi(ndos),emin,emax,eferm,e1,e2,dosef,de,q1,q2
   !   if(dosi(1)>qval.OR.dosi(ndos)<qval) call rx('fermi does not encompass qval='//ftof(qval))
   !   i1 = findloc([(dosi(ie)>qval, ie=1,ndos)],value=.true.,dim=1) - 1
   !   de = (emax-emin)/(ndos-1)
