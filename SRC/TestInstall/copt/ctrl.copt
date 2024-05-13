@@ -20,7 +20,7 @@ SITE    ATOM=Pt POS=   0.01   0.02   0.03
         ATOM=Co POS=   0  .51  .501
         ATOM=Co POS=  .501   0  .501
 % const w=.005
-BZ      NKABC={nk1} {nk1} {nk1} BZJOB={bzj} METAL=1 TETRA={tetra} NPTS=900 SAVDOS=F DELEF=.1 N=-101 W={w}
+BZ      NKABC={nk1} {nk1} {nk1} BZJOB={bzj} METAL={met} TETRA={tetra} NPTS=900 SAVDOS=F DELEF=.1 N=-101 W={w}
         EMESH={nz} 10 -1 -.05 .5 .3 .01*0 NOINV=0
 SPEC    ATOM=Co Z=27 LMX=2 LMXA={nl}-1 R/W={rw}+.01 IDXDN=1 1 1 {idxf} EREF=-2781.6524 MMOM=0 0 -2 A=0.03 KMXA=4
         RSMH= 2.3  2.3  1   EH= -0.1 -0.1 -0.2 RSMH2= 0 1.2 0  EH2= -1 -1 -1

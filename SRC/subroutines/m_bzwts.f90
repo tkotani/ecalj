@@ -212,7 +212,7 @@ contains
          wtkb(nevx,nsp,nkp),efermi,sumev,dosef(2),qval(2),ent ,wtkbx(nevx,nsp,nkp),wtkb2(nevx,nsp,nkp)
     integer:: it,itmax,n,nptdos,nspxx,nbmxx,nevxx,ib &
         ,ikp,ipr,job,i1mach,nev, mkdlst,ifi,i,j,lry ,nulli,isw !,nbpw
-    real(8) ,allocatable :: dos_rv(:,:)
+    real(8) ,allocatable :: dos_rv(:)
     double precision emin,emax,e1,e2,dum(1),tol,e,elo,ehi,sumwt, dmin,dmax,egap,amom,cv,tRy
     character outs*100,ryy*3
     logical cmdopt0,lfill
@@ -300,12 +300,12 @@ contains
           endif
        else
           nptdos = 101
-          allocate(dos_rv(nptdos,1))
+          allocate(dos_rv(nptdos))
           tol = 1d-6
           !  Preliminary check that dos lies within emin,emax.  Widen emin,emax if not
           call bzints(n1*n2*n3,ebx,dum,nkp,nevxx,nbmxx,nspxx,emin,emax,dos_rv,nptdos,efermi,job,ntet,idtet,sumev,qval(1) )
-          dmin = sum(dos_rv(1,1:nspxx))/nspxx
-          dmax = sum(dos_rv(nptdos,1:nspxx))/nspxx
+          dmin = dos_rv(1)
+          dmax = dos_rv(nptdos)
           if (dmin .gt. zval) then
              emin = 3*emin-2*emax
              write(stdo,"(' (warning): initial NOS ( ',d14.6,x,d14.6,' ) does not encompass Q=',f14.6)") dmin,dmax,zval
@@ -324,7 +324,7 @@ contains
              !   !o   Eferm, Fermi energy;
              !   !o   e1<=Eferm<=e2 : confidence limits on Fermi energy. i.e., Fermi energy lies between e1 and e2.
              !   !o   dosef:  density of states at fermi level
-             associate(dosi=>dos_rv(:,nspxx),qval=>zval,ndos=>nptdos) !Makes fermi energy from integrated density
+             associate(dosi=>dos_rv(:),qval=>zval,ndos=>nptdos) !Makes fermi energy from integrated density
                if(dosi(1)>qval.OR.dosi(ndos)<qval) call rx('fermi does not encompass qval='//ftof(qval))
                i1 = findloc([(dosi(ie)>qval, ie=1,ndos)],value=.true.,dim=1) - 1
                de = (emax-emin)/(ndos-1)
@@ -345,25 +345,79 @@ contains
           deallocate(dos_rv)
        endif
        call bzints(n1*n2*n3,ebx,wtkbx,nkp,nevxx,nbmxx, nspxx,emin,emin,dum,1,efermi,2*job,ntet,idtet,sumev,qval(1))
-    else ! --- BZ weights, sumev and E_f by Methfessel-Paxton sampling ---
-       call rx('this branch is not supported. See before 2024-5-12. Methfessel-Paxton sampling')
+    else ! --- BZ weights, sumev and E_f by Methfessel-Paxton sampling --- not maintained well...
+       if(ipr>0) write(stdo,"(a,i0,a,f15.6)")' BZWTS : --- Brillouin Zone sampling; N=',n,' W=',width
+       if(nsp==2) call dscal(nkp,.5d0,wtkp,1) !   ... Temporarily remove spin degeneracy if spins are coupled
+       if((.not. lfill) .or. (metal .and. (nkp .eq. 1))) then !   ... Find Fermi level, sampling
+          e1 = elo - rnge*width/2
+          e2 = ehi + rnge*width/2
+          efermi = 0.5d0*(e1 + e2)
+          itmax = 1000
+          do it = 1, itmax
+             call pshpr(0)
+             call splwts(nkp,nevxx,nbmxx,nspxx,wtkp,ebx,n,width,efermi, .true.,sumev,wtkbx,qval(1),ent,dosef(1),cv)
+             call poppr
+             if (dabs(zval-qval(1))<1d-12) then
+                if(ipr>0)write(stdo,ftox)' Fermi energy, ',ftof(efermi),' found after ',it,' bisections,',ftof(qval(1)),&
+                     ' electrons, DOS(E_f)=',ftof(dosef(1))
+                goto 333
+             endif
+             if (qval(1) > zval) then
+                e2 = efermi
+             else
+                e1 = efermi
+             endif
+             efermi = 0.5d0*(e1 + e2)
+          enddo
+          write(stdo,ftox)' BZWTS (warning): cannot find E_F by bisection, using INTNOS'
+          allocate(dos_rv(npts))
+          emin = elo - rnge*width/2
+          emax = emax + rnge*width/2
+          call maknos ( nkp,nevxx,nbmxx,nspxx,wtkp,ebx,n,width,- rnge,emin,emax,npts,dos_rv )
+          call intnos ( npts,dos_rv,emin,emax,zval,efermi,dosef(1),sumev )
+          deallocate(dos_rv)
+333       continue
+       else
+          dosef = 0d0
+          egap = emax-emin
+          if(ipr>0) write(stdo,ftox)' ... only filled or empty bands encountered:  ev=',ftof(emin),' ec=',ftof(emax)
+          if(ipr>0) write(stdo,ftox)' VBmax = ',ftof(emin),' CBmin = ',ftof(emax),' gap = ',&
+               ftof(emax-emin),'Ry = ',ftof((emax-emin)*13.6058d0,3),'eV'
+       endif
+       if(master_mpi.and.(cmdopt0('--cvK:') .and. n<0 .and. metal)) then ! ... (optional) Tabulate specific heat in file for list of T's
+          lRy = 0
+          ryy='K'
+          itmax=8
+          allocate(tlst_rv(itmax))
+          tlst_rv=[10,20,40,80,160,320,640,1280] !fixed now
+          write(stdo,ftox)'Writing CV(T) to file for ',itmax,'vals of T:',ftof(tlst_rv,1),trim(ryy) 
+          write(stdo,ftox)'% rows ',it,' cols 4 #   T(K)    T(Ry)   S(k_B)   TdS/dT(k_B)'
+          do  it = 1, itmax
+             tRy = tlst_rv(it)/0.1579d6
+             call pshpr(1)
+             call splwts(nkp,nevxx,nbmxx,nspxx,wtkp,ebx,n,tRy,efermi, metal,sumev,wtkbx,qval(1),ent,dosef(1),cv)
+             call poppr
+             write(stdo,ftox)ftof(0.1579d6*tRy),ftof(tRy),ftof(ent),ftof(cv)
+          enddo
+       endif
+       call splwts(nkp,nevxx,nbmxx,nspxx,wtkp,ebx,n,width,efermi,& !   ... Make weights, sampling
+            (.not. lfill) .or. (metal .and. (nkp .eq. 1)), sumev,wtkbx,qval(1),ent,dosef(1),cv)
+       if(nsp==2) call dscal(nkp,2d0,wtkp,1)
     endif
     amom = 0d0 ! ... Magnetic moment
-    if (nsp==2.and.nspc==1 ) then ! ... Restore to uncoupled bands; ditto with weights
-       if(metal) then
+    if(metal) then
+       if (nsp==2.and.nspc==1 ) then ! ... Restore to uncoupled bands; ditto with weights
           forall(ikp=1:nkp,ix=1:nevxx) wtkb(ibx(ix,ikp),isx(ix,ikp),ikp)= wtkbx(ix,1,ikp)
           amom = sum(wtkb(1:nevx,1,1:nkp)- wtkb(1:nevx,2,1:nkp))
+       else
+          wtkb=wtkbx !call dcopy(nevx*nsp*nkp,wtkbx,1,wtkb,1) 
        endif
-    else
-       if(metal) wtkb=wtkbx !call dcopy(nevx*nsp*nkp,wtkbx,1,wtkb,1) 
     endif
     qval(2) = amom
     if(ipr>0) write(stdl,ftox)'bzmet',metal,'tet',tetra,'ef',ftof(efermi),'sev',ftof(sumev),'zval',ftof(zval)
     if(ipr>0) write(stdl,ftox)'qval',ftof(qval(1)),'amom',ftof(amom),'egap(eV)',ftof(egap,3)
     e = efermi
-    if(.not. lfill .and. .not. tetra) then
-       call rx('bzwts: we do not allow .not. lfill .and. .not. tetra') !e = efermi + rnge*width/2
-    endif   
+    if(.not. lfill .and. .not. tetra) e = efermi + rnge*width/2
     call tcx('bzwts')
   end subroutine bzwts
   logical function efrng2(nsp,nkp,nbmax,nband,zval,eband,ebbot,ebtop,elo,ehi,e1,e2)  !- Find range of Fermi energy.
@@ -527,6 +581,362 @@ contains
     vhold(12) = ir
     dv = vmag - vhold(1)
   end subroutine dvdos
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Folloings are for Methfessel-Paxton branch !!!!
+  subroutine intnos(ndos,dos,emin,emax,qval,efermi,dosef,eband)!Finds E_F from a tabulated number of states function
+    use m_lgunit,only:stdo
+    !i  Input
+    !i    ndos : number of tabulated points; dos : integrated DOS
+    !i    emin, emax : energy range of tabulation;
+    !i    qval : number of valence electrons
+    !o  Output
+    !o    efermi : Fermi energy, dosef : DOS at E_f
+    !-----------------------------------------------------------------------
+    !     implicit none
+    integer :: ndos
+    double precision :: dos(0:ndos-1),emin,emax,qval,efermi,eband,dosef
+    integer :: i,meshpt,iprint
+    double precision :: step,sum,q,q1,q2,e1,eps,d1mach
+    eps = d1mach(3)
+    ! --- make Fermi energy ---
+    step = (emax - emin) / (ndos - 1)
+    meshpt = 0
+    q = qval + eps
+    do  1  i = 1, ndos-1
+       if ( dos(i) >= q ) goto 2
+       meshpt = i
+1   enddo
+2   continue
+    if (meshpt == ndos-1) &
+         call rx('INTNOS : Fermi energy lies above emax')
+    ! E_F lies between mesh points meshpt and meshpt+1 -- interpolate :
+    q1 = dos(meshpt)
+    q2 = dos(meshpt+1)
+    e1 = emin + step * meshpt
+    efermi = e1 + ( qval-q1 ) / ( q2-q1 ) * step
+    dosef = (q2 - dos(meshpt-1)) / (2*step)
+    ! --- make band energy by partial integration ---
+    sum = .5d0 * q1
+    do  3  i = 1, meshpt-1
+       sum = sum + dos(i)
+3   enddo
+    sum = sum * step
+    sum = sum + .5d0 * (efermi - e1) * (qval + q1)
+    eband = efermi * qval - sum
+    if (iprint() >= 30) then
+       !        do  12  i = 1, 1
+       write(stdo,"(' INTNOS: Fermi energy=,f15.8', &
+            '  band energy=',f15.8,' DOS(E_f)=',f15.8)") efermi, eband, dosef
+       !   12   continue
+       !        write(*,10) efermi, eband, dosef
+       !        write(fopn('LOG'),10) efermi, eband, dosef
+       !   10 format(' INTNOS: Fermi energy =',f10.6,'; band energy =',f11.6/
+       !     .       '          DOS(E_f) =',f11.6)
+    endif
+  end subroutine intnos
+  subroutine maknos(nqp,nband,nbmx,nsp,wgts,evl,n,w,tol,emin,emax, ndos,dos)!- Make density of states from bands
+    use m_ftox
+    use m_lgunit,only:stdo
+    !i  Input
+    !i    nqp : number of q-points; nband : number of bands;
+    !i    nsp : 2 for spin polarised bands, 1 otherwise;
+    !i    wgts, evl : weights and bands (eigenvalues);
+    !i    nbmx : first dimension of evl ;
+    !i    n   : n>0 Methfessel-Paxton polynomial order
+    !i        : n<0 sampling done with Fermi-Dirac statistics
+    !i    w   : n>0 gaussian width in Methfessel-Paxton integration (Ry)
+    !i        : n<0 Temperature for Fermi distribution (Ry)
+    !i    tol : allowed error in DOS due to truncating the gaussian,
+    !i          if negative on entry, range is set to -tol*W
+    !i    emin, emax, ndos; energy range and number of energy mesh points
+    !o  Ouput
+    !o    dos: integrated DOS
+    !u Updates
+    !u   2 Nov 1995 (JEK) returns spin-polarized integrated dos
+    !     implicit none
+    integer :: nqp,nband,nbmx,nsp,n,ndos
+    double precision :: wgts(nqp),evl(nbmx,nsp,nqp),dos(0:ndos-1,nsp), &
+         w,emin,emax,tol,wt,emesh
+    integer :: i,isp,iband,iq,meshpt,mesh1,mesh2,mrange,iprint,i1mach
+    double precision :: e,x,range,test,step,d,s,xx
+    !  external delstp
+    mrange=-9999999
+    call dpzero(dos,nsp*ndos)
+    step = (emax - emin) / (ndos - 1)
+    if ( tol > 0d0 ) then
+       do  2  i = 0, ndos-1
+          x = i * step / w
+          call delstp(n,x,test,s,xx)
+          if ( test < tol ) then
+             mrange = i + 1
+             goto 3
+          endif
+2      enddo
+       if (iprint() > 30) print *,'maknos (warning) : tol too small'
+3      continue
+       range = 2 * mrange * step
+       test = tol
+    else
+       range = -tol * w
+       mrange = range / ( 2 * step )
+       call delstp(n,-tol/2,test,s,xx)
+    endif
+    if (iprint() >= 40) write(stdo,ftox) ' MAKNOS: range=',ftof(range/w), &
+         ' (',2*mrange,'bins) DOS error estimate=',ftof(test),'per state'
+    do  7  iq = 1, nqp
+       wt = abs(wgts(iq)) / nsp
+       do  61  iband = 1, nband
+          do  6  isp = 1, nsp
+             e = evl(iband,isp,iq)
+             meshpt = (e - emin) / step
+             mesh1 = meshpt - mrange
+             mesh2 = meshpt + mrange
+             if (mesh2 >= ndos) mesh2 = ndos-1
+             call rxx(mesh1 .lt. 0,'MAKNOS: emin too large')
+             do  4  meshpt = mesh1, mesh2
+                emesh = emin + meshpt * step
+                x = (emesh - e) / w
+                call delstp(n,x,d,s,xx)
+                dos(meshpt,isp) = dos(meshpt,isp) + wt * (1d0 - s)
+4            enddo
+             do  5  meshpt = mesh2+1, ndos-1
+                dos(meshpt,isp) = dos(meshpt,isp) + wt
+5            enddo
+6         enddo
+61     enddo
+7   enddo
+  end subroutine maknos
+  subroutine splwts(nqp,nband,nbmx,nsp,wgts,evl,n,w,efermi, & !make sampling weights for integrals under the Fermi surface
+       metal,sumev,bndwts,wtot,entrpy,dosef,cv)
+    use m_lgunit,only:stdo
+    use m_ftox
+    !i  Input
+    !i    nqp : number of q-points; nband : number of bands
+    !i    wgts: band weights
+    !i    evl : energy eigenvalues
+    !i    n   : n>0 Methfessel-Paxton polynomial order
+    !i        : n<0 sampling done with Fermi-Dirac statistics
+    !i    w   : n>0 gaussian width in Methfessel-Paxton integration (Ry)
+    !i        : n<0 Temperature for Fermi distribution (Ry)
+    !i    nbmx : first dimension of evl ;
+    !i    metal : if F, weights unity below E_f and zero above.
+    !i    efermi : Fermi energy
+    !o  Output
+    !o    bndwts : band and E_F - dependent k-point weights for integration
+    !o    wtot   : sum of all weights (charge) qval
+    !o    entrpy : electron entropy
+    !o    dosef  : DOS at Fermi energy
+    !o    cv     : electronic specific heat
+    !o             (only evaluated with Fermi-Dirac statistics)
+    !r  Remarks
+    !r    sum of occupied eigenvalues = sum_n,k  w_nk E_nk
+    !r    w_nk are generalised occupation numbers;
+    !r    see Needs et al. Phys Rev B 33 (1986) 3778, eqs 1 & 2.
+    !u Updates
+    !u   16 Jul 08 returns entropy as TS for all n
+    !u   04 Aug 07 Generates dos(efermi), cv(T=w) for F-D statistics
+    !u   02 May 07 (MvS) prints entropy to stdout
+    !u   21 Jun 06 (ATP) generates entrpy as output
+    !u   17 Jan 05 Output wtot
+    !-----------------------------------------------------------------------
+    implicit none
+    ! ... Passed parameters
+    integer :: nqp,nband,nbmx,nsp,n,ix,isplwts,i_copy_size
+    logical :: metal
+    double precision :: wgts(nqp),evl(nbmx,nsp,nqp),w,efermi,sumev, &
+         bndwts(nband,nsp,nqp),wtot,entrpy,dosef,cv
+    ! ... Local parameters
+    integer :: iqp,iband,isp,iprint,i1mach
+    double precision :: e,s,d,wt,x,xx,dsdt,tdsdt
+    logical :: fractional
+    sumev = 0d0
+    wtot = 0d0
+    entrpy = 0d0
+    dosef = 0
+    tdsdt = 0
+    fractional=.false.
+    do  3  iqp = 1, nqp
+       do  2  iband = 1, nband
+          do  1  isp = 1, nsp
+             e = evl(iband,isp,iqp)
+             if (metal) then
+
+                !             debugging: check derivative numerically
+                !              x = (efermi - e) / (w+1d-7)
+                !              call delstp(n,x,d,s,sp)
+                !              x = (efermi - e) / (w-1d-7)
+                !              call delstp(n,x,d,s,sm)
+                !              dsdt1 = (sp-sm)/2d-7
+
+                x = (efermi - e) / w
+                !             call delstp(n,x,d,s,xx)
+                call delstd(n,x,d,s,xx,dsdt)
+                if (abs(x) < 36) then
+                   dsdt = -(efermi-e)/w**2 * dsdt
+                else
+                   dsdt = 0
+                endif
+
+                !C             debugging: compare analytical, numerical derivative
+                !              if (abs(x) .lt. 30) then
+                !                print 222, x,dsdt1,dsdt,dsdt-dsdt1
+                !  222           format(3f14.8,1pe12.3)
+                !              endif
+             else
+                s = 1d0
+                if (e <= efermi) s = 0d0
+                xx = 0
+                d = 0
+             endif
+             wt = abs(wgts(iqp)) * (1d0 - s) / nsp
+             bndwts(iband,isp,iqp) = wt
+             if(0.1d0<wt .AND. wt<0.9d0) then
+                fractional=.true.
+             endif
+             dosef = dosef + d*abs(wgts(iqp))/w/nsp
+             wtot = wtot + wt
+             sumev = sumev + e * wt
+             entrpy = entrpy + xx  * abs(wgts(iqp)) / nsp
+             tdsdt  = tdsdt + dsdt * abs(wgts(iqp)) / nsp
+1         enddo
+2      enddo
+3   enddo
+    tdsdt = tdsdt*w
+    entrpy = entrpy*w
+    if (n < 0) cv = tdsdt
+    ! ... Print out band weights, if only 1 kp
+    if (iprint() > 30 .AND. nqp == 1) then
+       isplwts=1093
+       open(isplwts,file="BandWeight.dat")
+       do  isp = 1, nsp
+          write(stdo,ftox)'SPLWTS: band weights .. Spin=',isp,'       eval      weight'
+          if(fractional) then
+             write(isplwts,*)"! Fractional occupation (criterion 0.1<wgt<0.9)"
+             write(stdo,*)   "! Fractional occupation (criterion 0.1<wgt<0.9)"
+          endif
+          ix=0
+          do  iband = 1, nband
+             if(bndwts(iband,isp,1)<1d-7) ix=ix+1
+             if(ix==10) then
+                write (stdo,"('     ... ')")
+                exit
+             endif
+             write (stdo,20) iband,evl(iband,isp,1),bndwts(iband,isp,1)
+             write (isplwts,20) iband,evl(iband,isp,1),bndwts(iband,isp,1)
+20           format (4x,i5,2f10.6)
+          enddo
+       enddo
+       close(isplwts)
+    endif
+    ! ... Print out various k-point integrations
+    if (iprint() >= 10) then
+       if (n >= 0) then
+          !          call awrit6(' N=%i, W=%d, E_F=%d, sumev=%d, entropy term:'
+          !     .    //' %d, %d electrons',' ',256,i1mach(2), n,w,efermi,sumev,entrpy,wtot)
+          write(stdo,"(a,i5,5d13.5)")'N W E_F sumev TS Nele=', &
+               n,w,efermi,sumev,entrpy,wtot
+       else
+          !          call awrit5(' T=%dK, E_F=%d, sumev=%d, TS=%;3g,'//' %d electrons',' ',256,i1mach(2),
+          write(stdo,"(a,5d13.5)")'T(K) E_F sumev TS Nele=', 0.1579d6*w,efermi,sumev,entrpy,wtot
+          write(stdo,"(a,2d13.5)")'Entropy S, specific heat TdS/dT=',entrpy/w,tdsdt
+          write(stdo,"(a)")'Fermi-Dirac;sampling'
+       endif
+       !      call info5(10,0,0,' SPLWTS: Fermi energy:%;6d;'//
+       !     .  '  band energy=%;6d;  %;6d electrons  DOS(E_f)=%;4g',
+       !     .    efermi,sumev,wtot,dosef,0)
+    endif
+  end subroutine splwts
+  subroutine delstd(n,x,d,s,e,ep) !- Returns generalised delta and step functions (Methfessel & Paxton)
+    !i  Inputs
+    !i    n  : order of approximant; see Remarks
+    !i       : n>=0 returns Methfessel-Paxton broadening
+    !i       : n<0  returns Fermi-Dirac broadening
+    !i    x  : (efermi - e) / width
+    !i       : width should be gaussian width (n>=0)
+    !i       : or temperature (n<0)
+    !o  Outputs
+    !o    D_n (x): smeared delta-function
+    !o    S_n (x): smeared heaviside function
+    !o    e_n (x): entropy
+    !o    ep     : de/dx (Fermi-Dirac case only)
+    !r  Remarks
+    !r    For Methfessel-Paxton (generalized gaussian) broadening
+    !r    (see Phys Rev B40, 3616 (1989))
+    !r      D_n (x) = exp -x^2 * sum_i=0^n A_i H_2i(x)
+    !r      S_n (x) = (1 - erf x)/2 + exp -x^2 * sum_i=1^n A_i H_{2i-1}(x)
+    !r      where H is a Hermite polynomial and
+    !r      A_i = (-1)^i / ( i! 4^i sqrt(pi) )
+    !r    For Fermi-Dirac broadening
+    !r      s = 1/(exp(x)+1)   (fermi function)
+    !r      d = ds/dx = exp(x)*s*s
+    !r      e = -( s*log(s) + (1-s)*log(1-s) )
+    !r     ep = log(s) - log(1-s)
+    !u Updates
+    !u   04 Aug 07 extended delstp to returns ep in Fermi-dirac case
+    !u   23 May 00 extended to handle Fermi-Dirac broadening
+    !-----------------------------------------------------------------------
+    !     implicit none
+    ! ... Passed parameters
+    integer :: n
+    double precision :: x,d,s,e,ep
+    ! ... Local parameters
+    integer :: i,k
+    double precision :: a,h1,h2,h3,s0,ex2,derfc,srpi
+    !      intrinsic dsqrt,datan,dexp
+    srpi = dsqrt(4d0*datan(1d0))
+    ! ... Fermi-Dirac broadening
+    if (n < 0) then
+       if (x < -36d0) goto 91
+       if (x >  36d0) goto 92
+       s = 1d0/(dexp(x)+1d0)
+       d = dexp(x)*s*s
+       e = -( s*dlog(s) + (1-s)*dlog(1-s) )
+       ep = (dlog(s) - dlog(1-s)) * s**2 * exp(x)
+       return
+    endif
+
+    ! ... Methfessel-Paxton broadening
+    if (x < -6d0) goto 91
+    if (x >  6d0) goto 92
+    ex2 = dexp(-x*x)
+    s0 = .5d0 * erfc(x)
+    a = 1d0/srpi
+    k = 0
+    h1 = 1d0
+    h2 = 2d0 * x
+    s = 0d0
+    d = a
+    do  1  i = 1, n
+       a = -a / ( 4d0*i )
+       k = k+1
+       h3 = h1
+       h1 = h2
+       h2 = 2*x*h2 - 2*k*h3
+       s = s + a*h1
+       k = k+1
+       h3 = h1
+       h1 = h2
+       h2 = 2*x*h2 - 2*k*h3
+       d = d + a*h1
+1   enddo
+    d = d * ex2
+    s = s0 + s*ex2
+    e = 0.5d0*a*h1*ex2
+    ep = 0
+    return
+    ! ... Branch for very small or very large x
+91  s = 1d0
+    e = 0d0
+    d = 0d0
+    ep = 0d0
+    return
+92  s = 0d0
+    e = 0d0
+    d = 0d0
+    ep = 0d0
+    return
+  end subroutine delstd
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 end module m_bzwts
 
   ! subroutine ebcpl(mode,nbmx,nevx,nsp,nspc,nq,nbpw,bmap,wk,eb) !- Gather spin-polarized bands into a single group, or redistribute

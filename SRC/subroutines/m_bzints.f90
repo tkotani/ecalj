@@ -4,7 +4,6 @@ module m_bzints
 contains
   subroutine bzints(n1n2n3,ep,wp,nq, nband,nbmx,nsp,emin,emax, dos,nr,ef,job,ntet,idtet,sumev,sumwp,spinweightsoc)!- BZ integrations by linear method
     use m_lgunit,only:stdo
-!    use m_bandcal,only:spinweightsoc
     use m_lmfinit,only: lso,nspx
     use m_ftox
     !i   nq    :no. of irr. k-points
@@ -67,7 +66,7 @@ contains
                 if( ebot < emax ) call slinz(wt*volwgt*idtet(0,itet),ec,emin,emax,dos(1,isp),nr)
              else
                 if( ef >= ebot ) then
-                   call fswgts(volwgt*idtet(0,itet),ec,ef,etop,wc)
+                   call fswgts_(volwgt*idtet(0,itet),ec,ef,etop,wc)
                    sev1 = sev1 + sum(ec*wc(:,1)) !wc(1,1)*ec(1) + wc(2,1)*ec(2) + wc(3,1)*ec(3) + wc(4,1)*ec(4)
                    sev2 = sev2 + sum(ec*wc(:,2)) !wc(1,2)*ec(1) + wc(2,2)*ec(2) + wc(3,2)*ec(3) + wc(4,2)*ec(4)
                    wp(ib,isp,iqq(1:4)) = wp(ib,isp,iqq(1:4)) + wc(1:4,1) + wc(1:4,2)
@@ -95,20 +94,19 @@ contains
          , incl. Bloechl correction:',f10.6)
 924 format(' (warning): non-integral number of electrons ---',' possible band crossing at E_f')
   end subroutine bzints
-  subroutine fswgts(volwgt,e,ef,etop,w)
-    implicit none
-    real(8):: e(4),ef,volwgt,etop,w(4,2),wx(4,2),efm,efp,kbt
-    call fswgts_(volwgt,e,ef,etop,w)
-    return
-    ! kbt=0.003d0 !room temperature? (I tested but little make congergence smoother)
-    ! call fswgts_(volwgt,e,ef-2*kbt,etop,wx); w=1d0/10d0*wx
-    ! call fswgts_(volwgt,e,ef-kbt,etop,wx);   w=w+2d0/10d0*wx
-    ! call fswgts_(volwgt,e,ef,etop,wx);       w=w+4d0/10d0*wx
-    ! call fswgts_(volwgt,e,ef+kbt,etop,wx);   w=w+2d0/10d0*wx
-    ! call fswgts_(volwgt,e,ef+2*kbt,etop,wx); w=w+1d0/10d0*wx
-  end subroutine fswgts
-  subroutine fswgts_(volwgt,e,ef,etop,w)
-    !- Makes weights for integration up to Ef for one tetrahedron.
+  ! subroutine fswgts(volwgt,e,ef,etop,w)
+  !   implicit none
+  !   real(8):: e(4),ef,volwgt,etop,w(4,2),wx(4,2),efm,efp,kbt
+  !   call fswgts_(volwgt,e,ef,etop,w)
+  !   return
+  !   ! kbt=0.003d0 !room temperature? (I tested but little make congergence smoother)
+  !   ! call fswgts_(volwgt,e,ef-2*kbt,etop,wx); w=1d0/10d0*wx
+  !   ! call fswgts_(volwgt,e,ef-kbt,etop,wx);   w=w+2d0/10d0*wx
+  !   ! call fswgts_(volwgt,e,ef,etop,wx);       w=w+4d0/10d0*wx
+  !   ! call fswgts_(volwgt,e,ef+kbt,etop,wx);   w=w+2d0/10d0*wx
+  !   ! call fswgts_(volwgt,e,ef+2*kbt,etop,wx); w=w+1d0/10d0*wx
+  ! end subroutine fswgts
+  subroutine fswgts_(volwgt,e,ef,etop,w)    !- Makes weights for integration up to Ef for one tetrahedron.
     ! ----------------------------------------------------------------
     !i Inputs
     !i
