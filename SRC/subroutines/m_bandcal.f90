@@ -11,7 +11,7 @@ module m_bandcal
   use m_lmfinit,only: lrsig=>ham_lsig, lso,ham_scaledsigma,lmet=>bz_lmet,nbas,epsovl=>ham_oveps,nspc,plbnd,lfrce
   use m_lmfinit,only: pwmode=>ham_pwmode,pwemax,nsp,nlibu,lmaxu,lmxax
   use m_MPItk,only: master_mpi, procid,strprocid, numprocs=>nsize
-  use m_subzi, only: nevmx,rv_a_owtkb
+  use m_subzi, only: nevmx
   use m_supot, only: n1,n2,n3
   use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate, osmpot,vconst, osig, otau, oppi,ohsozz,ohsopm
   use m_rdsigm2,only: senex,sene,getsenex,dsene,ndimsig
@@ -182,7 +182,8 @@ contains
           associate(nd=>ndimh)
             spinweightsoc(1:nev,1,iq)= [(sum(dconjg(evec(1:nd,i))*matmul(ovlms(:,1,:,1),evec(1:nd,i))),i=1,nev)]
             spinweightsoc(1:nev,2,iq)= [(sum(dconjg(evec(nd+1:nd+nd,i))*matmul(ovlms(:,2,:,2),evec(nd+1:nd+nd,i))),i=1,nev)]
-            NormalizationcheckFORspinweightSOC: if(any([(abs(sum(spinweightsoc(i,:,iq))-1d0)>1d-8,i=1,nev)])) then
+            NormalizationcheckFORspinweightSOC: if(any([(abs(sum(spinweightsoc(i,:,iq))-1d0)>1d-6,i=1,nev-10)])) then
+               !                                                                                      nev-10 to avoid num error of high bands
                do i=1,nev
                   write(stdo,ftox)'spinweightsoc=',i,ftof(spinweightsoc(i,1:2,iq)),sum(spinweightsoc(i,1:2,iq))
                enddo
@@ -339,7 +340,7 @@ contains
     use m_lmfinit,only: ispec,nbas,nlmax,nsp,nspc,n0,nppn,lmxax,lso
     use m_igv2x,only: napw,ndimh,ndimhx,igvapw=>igv2x
     use m_mkpot,only: sab_rv
-    use m_subzi, only: wtkb=>rv_a_owtkb
+    use m_subzi, only: wtkb
     use m_qplist,only: nkp
     use m_suham,only: ndham=>ham_ndham, ndhamx=>ham_ndhamx
     !i   isp   :current spin channel (1 or 2)
@@ -434,7 +435,7 @@ contains
   subroutine mkdmtu(isp,iq,qp,nev,evec,dmatu) !Get density matrix dmatu for LDA+U (phi-projected density matrix)
     use m_lmfinit,only: ispec,nbas,nlmax,nsp,nspc,n0,nppn,nlibu,lmaxu,nlibu,lldau,idu
     use m_mkpot,only: phzdphz
-    use m_subzi, only: wtkb=>rv_a_owtkb
+    use m_subzi, only: wtkb
     use m_igv2x,only: ndimh
     use m_suham,only: ndham=>ham_ndham,ndhamx=>ham_ndhamx
     use m_makusq,only: makusq

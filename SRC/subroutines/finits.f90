@@ -14,52 +14,71 @@ end subroutine rx0
 
 subroutine rx(string) !error exit
   use m_lgunit,only:stdo,stdl
+  use m_mpi,only:   comm
+  integer::ierr
   character*(*) string
-  call fexit0(-1,string)
-  call rx0s(string)         !for single core exit
+  write(stdo,*)trim(string)
+  call MPI_Abort(COMM, 9110000)
+!  call fexit0(-1,string)
+!  call rx0s(string)         !for single core exit
 end subroutine rx
 subroutine rxi(string,iarg) ! Error exit, with a single integer at end
+  use m_lgunit,only:stdo,stdl
+  use m_mpi,only:   comm
   character*(*) string
   integer:: iarg
   character(10):: i2char
-  call fexit0(-1,' Exit -1 '//string//' '//trim(i2char(iarg)))
+  write(stdo,*)trim(' Exit -1 '//string//' '//trim(i2char(iarg)))
+  call MPI_Abort(COMM, 9110010)
 end subroutine rxi
 subroutine rxii(string,iarg,iarg2) 
+  use m_lgunit,only:stdo,stdl
+  use m_mpi,only:   comm
   character*(*) string
   integer:: iarg,iarg2
   character(10):: i2char
-  call fexit0(-1,' Exit -1 '//string//' '//trim(i2char(iarg))//' '//trim(i2char(iarg2)))
+  write(stdo,*)trim(' Exit -1 '//string//' '//trim(i2char(iarg))//' '//trim(i2char(iarg2)))
+  call MPI_Abort(COMM, 9110011)
 end subroutine rxii
 subroutine rxiii(string,iarg,iarg2,iarg3) 
+  use m_lgunit,only:stdo,stdl
+  use m_mpi,only:   comm
   character*(*) string
   integer:: iarg,iarg2,iarg3
   character(10):: i2char
-  call fexit0(-1,' Exit -1 '//string//' '//trim(i2char(iarg))//' '//trim(i2char(iarg2))//' '//trim(i2char(iarg3)))
+  write(stdo,*)trim(' Exit -1 '//string//' '//trim(i2char(iarg))//' '//trim(i2char(iarg2))//' '//trim(i2char(iarg3)))
+  call MPI_Abort(COMM, 9110111)
 end subroutine rxiii
-
 subroutine rx1(string,arg) ! Error exit, with a single argument
   use m_ftox
   use m_lgunit,only:stdo,stdl
+  use m_mpi,only:   comm
   character(15):: f2a
   character*(*) string
   double precision :: arg
-  call fexit0(-1,' Exit -1 '//string//trim(ftof(arg)))
+  write(stdo,*)trim(' Exit -1 '//string//trim(ftof(arg)))
+  call MPI_Abort(COMM, 9120001)
 end subroutine rx1
 subroutine rx2(string,arg1,arg2) ! Error exit, with two arguments
+  use m_lgunit,only:stdo,stdl
   use m_ftox
+  use m_mpi,only:   comm
   character(15):: f2a
   character*(*) string
   double precision :: arg1,arg2
-  call fexit0(-1,' Exit -1 '//string//trim(ftof(arg1))//' '//trim(ftof(arg2)))
+  write(stdo,*)trim(' Exit -1 '//string//trim(ftof(arg1))//' '//trim(ftof(arg2)))
+  call MPI_Abort(COMM, 9120011)
 end subroutine rx2
 subroutine rx3(string,arg1,arg2,arg3) ! Error exit, with two arguments
+  use m_lgunit,only:stdo,stdl
   use m_ftox
+  use m_mpi,only:   comm
   character(15):: f2a
   character*(*) string
   real(8):: arg1,arg2,arg3
-  call fexit0(-1,' Exit -1 '//string//trim(ftof(arg1))//' '//trim(ftof(arg2))//' '//trim(ftof(arg3)))
+  write(stdo,*)trim(' Exit -1 '//string//trim(ftof(arg1))//' '//trim(ftof(arg2))//' '//trim(ftof(arg3)))
+  call MPI_Abort(COMM, 91200111)
 end subroutine rx3
-
 subroutine rxs(string,msg) ! Error exit with extra string message
   character*(*) string,msg
   character(120) :: outs

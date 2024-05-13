@@ -4,9 +4,9 @@ module m_writeband
   public writeband,writefs,writepdos,writedossawada
   private
 contains
-  subroutine writeband(evlall,eferm,evtop,ecbot) !write band file. bnd* and bandplot.isp*.glt
+  subroutine writeband(evlall,eferm,evtop,ecbot,spinweightsoc) !write band file. bnd* and bandplot.isp*.glt
     use m_lgunit,only:stdo
-    use m_lmfinit,only:nsp,alat=>lat_alat
+    use m_lmfinit,only:nsp,alat=>lat_alat,lso
     use m_qplist,only: nkp,nsyml,xdatt,nqp_syml,nqp2n_syml,qplist,labeli,labele,nqps_syml,nqpe_syml,dqsyml,etolv,etolc
     use m_suham,only: ndham=>ham_ndham, ndhamx=>ham_ndhamx,nspx=>ham_nspx
     use m_bandcal,only:nevls
@@ -23,7 +23,7 @@ contains
     integer:: ikps,ne,ifi,ix,nee,ibb,ilt,imin,imax
     real(8),allocatable::diffeb(:),diff2eb(:)
     real(8)::polinta,tpiba,eee,eqq,qqq,dEdkatef
-    character*100::fname,massfile,fname2
+    character*100::fname,massfile,fname2,sss=''
     integer,allocatable::ikpoff(:)
     real(8),allocatable::disoff(:)
     character(100),allocatable:: fnameb(:,:),fnamem(:,:,:)
@@ -36,6 +36,7 @@ contains
     real(8)::kef
     real(8),allocatable:: kabs(:)
     real(8)::  evlall(ndhamx,nspx,nkp)
+    real(8):: spinweightsoc(:,:,:)
     scd= evtop <ecbot
     tpiba = 2d0*4d0*datan(1d0)/alat
     !! ikpoffset
@@ -104,7 +105,8 @@ contains
        enddo
        do 4113 jsp = 1, nspx   ! ispx index.
           open(newunit=ifbndsp(jsp),file=fnameb(isyml,jsp))
-          write(ifbndsp(jsp),"('#  ',i5,f10.5,15x,'QPE(ev)',11x,'1st-deri')") nkp,eferm
+          if(lso==1) sss='                '//'spinup     spindn'
+          write(ifbndsp(jsp),"('#',i5,' efermi= ',f10.5,2x,'QPE(ev)',9x,'1st-deri',14x,'qvec',a)") nkp,eferm,trim(sss)
           ibb=0
           do 5113 i=1,minval(nevls(:,:)) !band index
              !! take derivatives
@@ -117,8 +119,9 @@ contains
              enddo
              do iq = 1,ne
                 ikp = ikpoff(isyml)+iq
-                write(ifbndsp(jsp),"(i5, (1x,f12.8), 2(1x,f16.10),x,3f9.5)") &
-                     i,xdatt(ikp),(evlall(i,jsp,ikp)-eferm)*rydberg,diffeb(iq), qplist(:,ikp)
+                if(lso==1) write(sss,"(2f11.6)") spinweightsoc(i,1:2,ikp)
+                write(ifbndsp(jsp),"(i5,(1x,f12.8), 2(1x,f16.10),x,3f9.5,a)") &
+                     i,xdatt(ikp),(evlall(i,jsp,ikp)-eferm)*rydberg,diffeb(iq), qplist(:,ikp), trim(sss)
                 !! write qplist.dat (xaxis, q, efermi) used for band plot
                 if(i==1 .AND. jsp==1) then
                    if(iq==1 .AND. isyml==1) write(iqplist,"(f16.10,' ! ef')") eferm
