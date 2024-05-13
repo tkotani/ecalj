@@ -171,6 +171,7 @@ contains
   end subroutine bzwtsf2
   subroutine bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,& ! BZ integration for fermi level, band sum and qp weights
        metal,tetra,norder,npts,width,rnge,wtkp,eb, efermi,sumev,wtkb,dosef,qval,ent,lfill)
+    use m_nvfortran
     use m_ftox
     use m_lgunit,only: stdo,stdl
     use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
@@ -210,18 +211,14 @@ contains
     real(8)::zval,eb(nbmx,nsp,nkp),width,rnge,wtkp(nkp),&
          wtkb(nevx,nsp,nkp),efermi,sumev,dosef(2),qval(2),ent ,wtkbx(nevx,nsp,nkp),wtkb2(nevx,nsp,nkp)
     integer:: it,itmax,n,nptdos,nspxx,nbmxx,nevxx,ib &
-        ,ikp,ipr,job,nbpw,i1mach,nev, mkdlst,ifi,i,j,lry ,nulli,isw
-    real(8) ,allocatable :: dos_rv(:,:), bot_rv(:), top_rv(:)
-    integer ,allocatable :: bmap_iv(:)
-    real(8) ,allocatable :: wk_rv(:)
+        ,ikp,ipr,job,i1mach,nev, mkdlst,ifi,i,j,lry ,nulli,isw !,nbpw
+    real(8) ,allocatable :: dos_rv(:,:)
     double precision emin,emax,e1,e2,dum(1),tol,e,elo,ehi,sumwt, dmin,dmax,egap,amom,cv,tRy
     character outs*100,ryy*3
     logical cmdopt0,lfill
     real(8) ,allocatable :: tlst_rv(:),eb2(:,:,:)
-    
-    real(8):: ebx(nevx*nsp,nkp)
-    integer:: ibx(nevx*nsp,nkp), isx(nevx*nsp,nkp),ib1,ib2,ib2e,ix,isp
-
+    real(8):: ebx(nevx*nsp,nkp),de,q1,q2,bot_rv(nevx*nsp),top_rv(nevx*nsp)
+    integer:: ibx(nevx*nsp,nkp), isx(nevx*nsp,nkp),ib1,ib2,ib2e,ix,isp,i1,ie
     parameter (nulli=-99999)
     integer:: iprint, w(1)
     call tcn('bzwts')
@@ -229,14 +226,12 @@ contains
     qval = 0
     ent = 0
     n = isign(1,norder) * mod(iabs(norder),100)
-    allocate(bot_rv(nevx*nsp),top_rv(nevx*nsp))
     nspxx  = 1
     nevxx = nevx*nsp
     nbmxx = nbmx*nsp
     job = 3-2*nsp !     job = 1 for non spin pol, -1 for spin pol
     dosef(1) = 0
     egap = nulli
-
     if (nsp==2 .and. nspc==1 ) then ! ... merge up-dn bands
        do ikp=1,nkp
           ix = 0
@@ -259,63 +254,16 @@ contains
              isx(ix,ikp)=1
           enddo
        enddo
-       ! call ebcpl ( 0,nbmx,nevx,nsp,nspc,nkp,nbpw,bmap_iv,wk_rv,eb)
     else
        ebx=reshape(eb,shape(ebx))
     endif
-    
-    if (nsp==2.and.nspc==1) then ! Force coupled spins: find range
-
-!       nbpw = int(dlog(dble(i1mach(9))+1d0)/dlog(2d0))
-!       allocate(bmap_iv(nevx*nsp*nkp/nbpw+1))
-!       bmap_iv(:)=0
-!       allocate(wk_rv(nevx*nsp))
-!       allocate(eb2,source=eb)
-!       call ebcpl ( 0,nbmx,nevx,nsp,nspc,nkp,nbpw,bmap_iv, wk_rv,eb2 )
-!       deallocate(eb2)
-       
-       lfill = efrng2 ( nspxx,nkp,nbmxx,nevxx,zval * 2, ebx, bot_rv,top_rv,elo,ehi,emin,emax )
-!       call ebcpl ( 1,nbmx,nevx,nsp,nspc,nkp,nbpw,bmap_iv,wk_rv,eb )
-    else !     Spins not coupled: find range
-       lfill = efrng2 ( nspxx,nkp,nbmxx,nevxx,nspc * zval, ebx, bot_rv,top_rv,elo,ehi,emin,emax )
-    endif
-    
-    ! ... Bands never filled if 100s digit norder set
+    lfill = efrng2 ( nspxx,nkp,nbmxx,nevxx, nsp*zval, ebx, bot_rv,top_rv,elo,ehi,emin,emax )
     if (.not. tetra .and. iabs(norder) .ge. 100) lfill = .false.
-!    if (allocated(wk_rv)) deallocate(wk_rv)
-!    if (allocated(bmap_iv)) deallocate(bmap_iv)
-    if (allocated(top_rv)) deallocate(top_rv)
-    if (allocated(bot_rv)) deallocate(bot_rv)
     if (lfill) then ! ... Case an insulator: put efermi at emin + tiny number
        efermi = emin + 1d-10
     elseif(.not. metal) then ! ... Do the best we can should be a metal, but assumption that it isn't
        efermi = (emin + emax) / 2
     endif
-    
-    ! --- BZ weights, sumev and E_f for an insulator  ---
-
-
-    
-! !xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-!     write(stdo,ftox)'xxxfffmetal=',metal
-!     do  ikp = 1, nkp
-! !       do  ib = 1, nevx*nsp
-! !          if(abs(eb2(ib,1,ikp)-ebx(ib,ikp))>1d-8) then
-! !             write(stdo,ftox)'fffxxx',ib,ikp,ftof(eb2(ib,1,ikp)), ftof(ebx(ib,ikp))
-! !             call rx('xxxxxxx')
-! !          endif
-! !       enddo
-!        do  ix = 1, nevx*nsp
-!           if(abs(eb(ibx(ix,ikp),isx(ix,ikp),ikp)-ebx(ix,ikp))>1d-8) then
-!              write(stdo,ftox)'fffxxxggg',ib,ikp,ftof(eb(ibx(ix,ikp),isx(ix,ikp),ikp)), ftof(ebx(ix,ikp))
-!              call rx('xxxxxxxvvv')
-!           endif
-!        enddo
-!     enddo
-!     deallocate(eb2)
-!     !xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    
-    
     if(.not. metal ) then
        if (.not. lfill .and. ipr .gt. 10) then
           print *, ' BZWTS : partly filled bands encountered; '
@@ -367,13 +315,32 @@ contains
           endif
           if(ipr>=35) write(stdo,"(9x,'Est E_f ',10x,'Window',8x,'Tolerance',2x,'n(E_f)')")
           itmax = 5
-          do it = 1, itmax
+          GetFermienergy:do it = 1, itmax
              call bzints(n1*n2*n3,ebx,dum,nkp,nevxx,nbmxx,nspxx,emin,emax,dos_rv,nptdos,efermi,job,ntet,idtet,sumev,qval(1) )
-             call fermi ( zval,dos_rv,nptdos,emin,emax,efermi,emin,emax,dosef(1) )
+             !   !i   qval:    number of electrons to fermi level
+             !   !i   dosi(i): integrated density at bin i;
+             !   !i   ndos: number of bins + 1
+             !   !i   emin, emax: energy window.
+             !   !o   Eferm, Fermi energy;
+             !   !o   e1<=Eferm<=e2 : confidence limits on Fermi energy. i.e., Fermi energy lies between e1 and e2.
+             !   !o   dosef:  density of states at fermi level
+             associate(dosi=>dos_rv(:,nspxx),qval=>zval,ndos=>nptdos) !Makes fermi energy from integrated density
+               if(dosi(1)>qval.OR.dosi(ndos)<qval) call rx('fermi does not encompass qval='//ftof(qval))
+               i1 = findloc([(dosi(ie)>qval, ie=1,ndos)],value=.true.,dim=1) - 1
+               de = (emax-emin)/(ndos-1)
+               e1 = emin + de*(i1-1)
+               e2 = emin + de*i1
+               q1 = dosi(i1)   
+               q2 = dosi(i1+1) 
+               efermi = e1 + (qval-q1)/(q2-q1)*de ! Linear interpolation for the Fermi level
+               dosef(1) = (q2-q1)/de
+               emin=e1
+               emax=e2
+             endassociate
              if(ipr>=35)  write(stdo,"(7x,6(f10.6,1x))") efermi,emin,emax,emax-emin,dosef(1)
              if(emax-emin .lt. tol) goto 111
-          enddo
-          if(ipr>10) write(stdo,ftox)' BZWTS (warning): Fermi energy not converged: ',ftof(emax-emin),' > tol=',ftof(tol)
+          enddo GetFermienergy
+          write(stdo,ftox)' BZWTS (warning): Fermi energy not converged: ',ftof(emax-emin),' > tol=',ftof(tol)
 111       continue
           deallocate(dos_rv)
        endif
@@ -382,162 +349,23 @@ contains
        call rx('this branch is not supported. See before 2024-5-12. Methfessel-Paxton sampling')
     endif
     amom = 0d0 ! ... Magnetic moment
-!    eb=eb2
     if (nsp==2.and.nspc==1 ) then ! ... Restore to uncoupled bands; ditto with weights
-!       eb=eb2
-!       deallocate(eb2)
-!call          ebcpl(1,nbmx,nevx,nsp,nspc, nkp,nbpw,bmap_iv,wk_rv,eb )
-
-!case2      
        if(metal) then
-          wtkb=9999d0 
-          write(stdo,ftox)'pppp',nevx,nevxx,nsp,'nkp=',nkp
-          do ikp=1,nkp
-             forall(ix=1:nevxx) wtkb(ibx(ix,ikp),isx(ix,ikp),ikp)= wtkbx(ix,1,ikp)
-             do ib=1,nevx
-             do isp=1,nsp
-                if(abs(wtkb(ib,isp,ikp)-9999d0)<1d-8) then
-                   write(stdo,ftox)' ppppp ib isp ikp wtkb',ib,isp,ikp,wtkb(ib,isp,ikp)
-                   call rx('m_bzwts error in m_bzwts')
-                endif
-             enddo
-             enddo
-          enddo
+          forall(ikp=1:nkp,ix=1:nevxx) wtkb(ibx(ix,ikp),isx(ix,ikp),ikp)= wtkbx(ix,1,ikp)
+          amom = sum(wtkb(1:nevx,1,1:nkp)- wtkb(1:nevx,2,1:nkp))
        endif
-       
-! !case1       
-!        if(metal) call ebcpl(1,nevx,nevx,nsp,nspc, nkp,nbpw,bmap_iv,wk_rv,wtkbx )
-!        call dcopy(nevx*nsp*nkp,wtkbx,1,wtkb2,1)
-! !check
-!        write(stdo,ftox)'ffffffffqqqqq wtkbxxx'
-!        do ikp=1,nkp
-!           do ib=1,nevx
-!              do isp=1,nsp
-!                 !write(stdo,ftox) 'mmmmmm',ib,isp,ikp,ftof(wtkb(ib,isp,ikp)),ftof(wtkb2(ib,isp,ikp))
-!                 if(abs(wtkb2(ib,isp,ikp)-wtkb(ib,isp,ikp))>1d-8) then
-!                    write(stdo,ftox),ib,isp,ftof(wtkb2(ib,isp,ikp)),ftof(wtkb(ib,isp,ikp)),&
-!                         ftof(wtkb2(ib,isp,ikp)-wtkb(ib,isp,ikp))
-!                    call rx('qqqqqqqxxx')
-!                 endif
-!              enddo
-!           enddo
-!        enddo
-!        write(stdo,ftox)'sumcheck mmmmm qqqq',sum(abs(wtkb)),sum(abs(wtkb2))
-        
-        ! if(metal) then
-        !    do ikp=1,nkp
-        !    do ix=1,nevxx
-        !       wtkb(ibx(ix,ikp),isx(ix,ikp),ikp)= wtkbx(ix,1,ikp)
-        !    enddo
-        !    enddo
-        ! endif
-       
-       if(allocated(tlst_rv)) deallocate(tlst_rv)
-       if(allocated(wk_rv)) deallocate(wk_rv)
-       if(allocated(bmap_iv)) deallocate(bmap_iv)
-       if(metal) amom = sum(wtkb(1:nevx,1,1:nkp)- wtkb(1:nevx,2,1:nkp))
     else
-!       if(metal) wtkbx=wtkb
        if(metal) wtkb=wtkbx !call dcopy(nevx*nsp*nkp,wtkbx,1,wtkb,1) 
     endif
-    
     qval(2) = amom
-    if(ipr>0)write(stdl,ftox)'bzmet',metal,'tet',tetra,'ef',ftof(efermi),'sev',ftof(sumev),'zval',ftof(zval)
-    if(ipr>0)write(stdl,ftox)'qval',ftof(qval(1)),'amom',ftof(amom),'egap(eV)',ftof(egap,3)
+    if(ipr>0) write(stdl,ftox)'bzmet',metal,'tet',tetra,'ef',ftof(efermi),'sev',ftof(sumev),'zval',ftof(zval)
+    if(ipr>0) write(stdl,ftox)'qval',ftof(qval(1)),'amom',ftof(amom),'egap(eV)',ftof(egap,3)
     e = efermi
-    if(.not. lfill .and. .not. tetra) e = efermi + rnge*width/2
+    if(.not. lfill .and. .not. tetra) then
+       call rx('bzwts: we do not allow .not. lfill .and. .not. tetra') !e = efermi + rnge*width/2
+    endif   
     call tcx('bzwts')
   end subroutine bzwts
-  
-  subroutine ebcpl(mode,nbmx,nevx,nsp,nspc,nq,nbpw,bmap,wk,eb) !- Gather spin-polarized bands into a single group, or redistribute
-    !i Inputs
-    !i   mode  :0, gather; 1, scatter
-    !i   nbmx  :leading dimension of b and dimensions wk
-    !i   nevx  :number of eigenvalues
-    !i   nsp   :2 for spin-polarized case, otherwise 1
-    !i   nspc  :2 if spin-up and spin-down channels are coupled; else 1.
-    !i   nq    :number of k-points for which eb are calculated
-    !i   nbpw  :a number no larger than the number of bits per integer word
-    !i   bmap  :an integer work array with dimension at nbmx*nsp*nq/nbpw
-    !i         :see Remarks
-    !i   wk    :a work array with dimension nbmx*nsp
-    !io Inputs/Outputs
-    !io   eb    :energy bands:
-    !io         :mode=0 input spin-split, output merged to a single vector
-    !io         :mode=1 input merged to a single vector, output spin-split
-    !r Remarks
-    !io   Call ebcpl with mode=1 to undo call of ebcpl with mode=0.
-    !io   bmap must be preserved for mode=1 call.
-    !u Updates
-    ! ----------------------------------------------------------------------
-    implicit none
-    integer mode,nbmx,nevx,nsp,nspc,nq,nbpw,bmap(1)
-    double precision eb(nbmx,nsp,nq),wk(nbmx*nsp)
-    integer ib,iq,ib1,ib2,iqb
-    if (nsp .eq. 1 .or. nspc .eq. 2) return
-    ! --- Gather bands at each qp ---
-    ifx:if (mode .eq. 0) then
-       iqb = 0
-       do10:do    iq = 1, nq          !   ... Gather and order +,- bands at this qp into one column
-          ib1 = 1
-          ib2 = 1
-          do20: do ib = 1, nevx*nsp
-             iqb = iqb+1
-             if (eb(min(ib1,nevx),1,iq) .lt. eb(min(ib2,nevx),2,iq)&
-                  .and. ib1 .le. nevx .or. ib2 .gt. nevx) then
-                wk(ib) = eb(ib1,1,iq)
-                ib1 = ib1+1
-             else
-                wk(ib) = eb(ib2,2,iq)
-                ib2 = ib2+1
-                call mark1(bmap, nbpw, iqb)
-             endif
-          enddo do20
-          call dcopy(nevx*nsp,wk,1,eb(1,1,iq),1)
-          if (ib1-1 .ne. nevx .and. ib2-1 .ne. nevx) call rx('bug')
-       enddo do10
-    endif ifx
-    ! --- Disperse bands at each qp ---
-    if (mode .eq. 1) then
-       iqb = 0
-       d110  : do  iq = 1, nq   !   ... Disperse bands into +,- for this qp according to bmap
-          ib1 = 1
-          ib2 = 1
-          call dcopy(nevx*nsp,eb(1,1,iq),1,wk,1)
-          do120  :     do  ib = 1, nevx*nsp
-             iqb = iqb+1
-             if (iget(bmap,nbpw,iqb) .eq. 0) then
-                eb(ib1,1,iq) = wk(ib)
-                ib1 = ib1+1
-             else
-                eb(ib2,2,iq) = wk(ib)
-                ib2 = ib2+1
-             endif
-          enddo do120
-          if (ib1-1 .ne. nevx .and. ib2-1 .ne. nevx) call rx('bug')
-       enddo d110
-    endif
-  end subroutine ebcpl
-  subroutine mark1(bitmap, nbpw, n)    !- put a one in the nth bit of bitmap.
-    !i Inputs   !i   bitmap, n
-    !r    nbpw: a number no larger than the number of bits per integer word
-    !     implicit none
-    integer bitmap(*), nbpw, n
-    ! Local parameters
-    integer nword,nbit,i
-    nword = (n-1)/nbpw
-    nbit = mod(n-1,nbpw)
-    i = 2**(nbpw-nbit-1)
-    bitmap(nword+1) = bitmap(nword+1) + i*(1-mod(bitmap(nword+1)/i,2))
-  end subroutine mark1
-  integer function iget(bitmap, nbpw, n)    !- Return 0 or 1, depending on the value of the nth bit of bitmap
-    implicit none
-    integer bitmap(*), nbpw, n
-    integer nword,nbit
-    nword = (n-1)/nbpw
-    nbit = mod(n-1,nbpw)
-    iget = mod(bitmap(nword+1)/2**(nbpw-nbit-1),2)
-  end function iget
   logical function efrng2(nsp,nkp,nbmax,nband,zval,eband,ebbot,ebtop,elo,ehi,e1,e2)  !- Find range of Fermi energy.
     !i Inputs
     !i   nsp   :2 for spin-polarized case, otherwise 1
@@ -663,32 +491,6 @@ contains
 11  enddo
     if (inc .gt. 1) goto 12
   end subroutine dshell
-  
-  subroutine fermi(qval,dosi,ndos,emin,emax, eferm,e1,e2,dosef) !Makes fermi energy from integrated density
-    use m_ftox
-    use m_nvfortran
-    !i   qval:    number of electrons to fermi level
-    !i   dosi(i): integrated density at bin i;
-    !i   ndos: number of bins + 1
-    !i   emin, emax: energy window.
-    !o Outputs
-    !o   Eferm, Fermi energy;
-    !o   e1<=Eferm<=e2 : confidence limits on Fermi energy. i.e., Fermi energy lies between e1 and e2.
-    !o   dosef:  density of states at fermi level
-    !remark: emin and e1 (and emax and e2) may point to the same address.
-    implicit none
-    integer :: ndos,i1,ie
-    double precision :: qval,dosi(ndos),emin,emax,eferm,e1,e2,dosef,de,q1,q2
-    if(dosi(1)>qval.OR.dosi(ndos)<qval) call rx('fermi does not encompass qval='//ftof(qval))
-    i1 = findloc([(dosi(ie)>qval, ie=1,ndos)],value=.true.,dim=1) - 1
-    de = (emax-emin)/(ndos-1)
-    e1 = emin + de*(i1-1)
-    e2 = emin + de*i1
-    q1 = dosi(i1)   
-    q2 = dosi(i1+1) 
-    eferm = e1 + (qval-q1)/(q2-q1)*de ! Linear interpolation for the Fermi level
-    dosef = (q2-q1)/de
-  end subroutine fermi
  
   subroutine dvdos(vmag,nosnow,dosnow,vhold,ztarg,dvcap,dv)  !- Estimate shift in potential shift to meet target number-of-states
     !i Inputs
@@ -726,3 +528,120 @@ contains
     dv = vmag - vhold(1)
   end subroutine dvdos
 end module m_bzwts
+
+  ! subroutine ebcpl(mode,nbmx,nevx,nsp,nspc,nq,nbpw,bmap,wk,eb) !- Gather spin-polarized bands into a single group, or redistribute
+  !   !i Inputs
+  !   !i   mode  :0, gather; 1, scatter
+  !   !i   nbmx  :leading dimension of b and dimensions wk
+  !   !i   nevx  :number of eigenvalues
+  !   !i   nsp   :2 for spin-polarized case, otherwise 1
+  !   !i   nspc  :2 if spin-up and spin-down channels are coupled; else 1.
+  !   !i   nq    :number of k-points for which eb are calculated
+  !   !i   nbpw  :a number no larger than the number of bits per integer word
+  !   !i   bmap  :an integer work array with dimension at nbmx*nsp*nq/nbpw
+  !   !i         :see Remarks
+  !   !i   wk    :a work array with dimension nbmx*nsp
+  !   !io Inputs/Outputs
+  !   !io   eb    :energy bands:
+  !   !io         :mode=0 input spin-split, output merged to a single vector
+  !   !io         :mode=1 input merged to a single vector, output spin-split
+  !   !r Remarks
+  !   !io   Call ebcpl with mode=1 to undo call of ebcpl with mode=0.
+  !   !io   bmap must be preserved for mode=1 call.
+  !   !u Updates
+  !   ! ----------------------------------------------------------------------
+  !   implicit none
+  !   integer mode,nbmx,nevx,nsp,nspc,nq,nbpw,bmap(1)
+  !   double precision eb(nbmx,nsp,nq),wk(nbmx*nsp)
+  !   integer ib,iq,ib1,ib2,iqb
+  !   if (nsp .eq. 1 .or. nspc .eq. 2) return
+  !   ! --- Gather bands at each qp ---
+  !   ifx:if (mode .eq. 0) then
+  !      iqb = 0
+  !      do10:do    iq = 1, nq          !   ... Gather and order +,- bands at this qp into one column
+  !         ib1 = 1
+  !         ib2 = 1
+  !         do20: do ib = 1, nevx*nsp
+  !            iqb = iqb+1
+  !            if (eb(min(ib1,nevx),1,iq) .lt. eb(min(ib2,nevx),2,iq)&
+  !                 .and. ib1 .le. nevx .or. ib2 .gt. nevx) then
+  !               wk(ib) = eb(ib1,1,iq)
+  !               ib1 = ib1+1
+  !            else
+  !               wk(ib) = eb(ib2,2,iq)
+  !               ib2 = ib2+1
+  !               call mark1(bmap, nbpw, iqb)
+  !            endif
+  !         enddo do20
+  !         call dcopy(nevx*nsp,wk,1,eb(1,1,iq),1)
+  !         if (ib1-1 .ne. nevx .and. ib2-1 .ne. nevx) call rx('bug')
+  !      enddo do10
+  !   endif ifx
+  !   ! --- Disperse bands at each qp ---
+  !   if (mode .eq. 1) then
+  !      iqb = 0
+  !      d110  : do  iq = 1, nq   !   ... Disperse bands into +,- for this qp according to bmap
+  !         ib1 = 1
+  !         ib2 = 1
+  !         call dcopy(nevx*nsp,eb(1,1,iq),1,wk,1)
+  !         do120  :     do  ib = 1, nevx*nsp
+  !            iqb = iqb+1
+  !            if (iget(bmap,nbpw,iqb) .eq. 0) then
+  !               eb(ib1,1,iq) = wk(ib)
+  !               ib1 = ib1+1
+  !            else
+  !               eb(ib2,2,iq) = wk(ib)
+  !               ib2 = ib2+1
+  !            endif
+  !         enddo do120
+  !         if (ib1-1 .ne. nevx .and. ib2-1 .ne. nevx) call rx('bug')
+  !      enddo d110
+  !   endif
+  ! end subroutine ebcpl
+  ! subroutine mark1(bitmap, nbpw, n)    !- put a one in the nth bit of bitmap.
+  !   !i Inputs   !i   bitmap, n
+  !   !r    nbpw: a number no larger than the number of bits per integer word
+  !   !     implicit none
+  !   integer bitmap(*), nbpw, n
+  !   ! Local parameters
+  !   integer nword,nbit,i
+  !   nword = (n-1)/nbpw
+  !   nbit = mod(n-1,nbpw)
+  !   i = 2**(nbpw-nbit-1)
+  !   bitmap(nword+1) = bitmap(nword+1) + i*(1-mod(bitmap(nword+1)/i,2))
+  ! end subroutine mark1
+  ! integer function iget(bitmap, nbpw, n)    !- Return 0 or 1, depending on the value of the nth bit of bitmap
+  !   implicit none
+  !   integer bitmap(*), nbpw, n
+  !   integer nword,nbit
+  !   nword = (n-1)/nbpw
+  !   nbit = mod(n-1,nbpw)
+  !   iget = mod(bitmap(nword+1)/2**(nbpw-nbit-1),2)
+  ! end function iget
+
+  ! subroutine fermi(qval,dosi,ndos,emin,emax, eferm,e1,e2,dosef) !Makes fermi energy from integrated density
+  !   use m_ftox
+  !   use m_nvfortran
+  !   !i   qval:    number of electrons to fermi level
+  !   !i   dosi(i): integrated density at bin i;
+  !   !i   ndos: number of bins + 1
+  !   !i   emin, emax: energy window.
+  !   !o Outputs
+  !   !o   Eferm, Fermi energy;
+  !   !o   e1<=Eferm<=e2 : confidence limits on Fermi energy. i.e., Fermi energy lies between e1 and e2.
+  !   !o   dosef:  density of states at fermi level
+  !   !remark: emin and e1 (and emax and e2) may point to the same address.
+  !   implicit none
+  !   integer :: ndos,i1,ie
+  !   double precision :: qval,dosi(ndos),emin,emax,eferm,e1,e2,dosef,de,q1,q2
+  !   if(dosi(1)>qval.OR.dosi(ndos)<qval) call rx('fermi does not encompass qval='//ftof(qval))
+  !   i1 = findloc([(dosi(ie)>qval, ie=1,ndos)],value=.true.,dim=1) - 1
+  !   de = (emax-emin)/(ndos-1)
+  !   e1 = emin + de*(i1-1)
+  !   e2 = emin + de*i1
+  !   q1 = dosi(i1)   
+  !   q2 = dosi(i1+1) 
+  !   eferm = e1 + (qval-q1)/(q2-q1)*de ! Linear interpolation for the Fermi level
+  !   dosef = (q2-q1)/de
+  ! end subroutine fermi
+
