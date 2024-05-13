@@ -66,7 +66,7 @@ contains
                 if( ebot < emax ) call slinz(wt*volwgt*idtet(0,itet),ec,emin,emax,dos(1,isp),nr)
              else
                 if( ef >= ebot ) then
-                   call fswgts_(volwgt*idtet(0,itet),ec,ef,etop,wc)
+                   call fswgts(volwgt*idtet(0,itet),ec,ef,etop,wc)
                    sev1 = sev1 + sum(ec*wc(:,1)) !wc(1,1)*ec(1) + wc(2,1)*ec(2) + wc(3,1)*ec(3) + wc(4,1)*ec(4)
                    sev2 = sev2 + sum(ec*wc(:,2)) !wc(1,2)*ec(1) + wc(2,2)*ec(2) + wc(3,2)*ec(3) + wc(4,2)*ec(4)
                    wp(ib,isp,iqq(1:4)) = wp(ib,isp,iqq(1:4)) + wc(1:4,1) + wc(1:4,2)
@@ -106,7 +106,7 @@ contains
   !   ! call fswgts_(volwgt,e,ef+kbt,etop,wx);   w=w+2d0/10d0*wx
   !   ! call fswgts_(volwgt,e,ef+2*kbt,etop,wx); w=w+1d0/10d0*wx
   ! end subroutine fswgts
-  subroutine fswgts_(volwgt,e,ef,etop,w)    !- Makes weights for integration up to Ef for one tetrahedron.
+  subroutine fswgts(volwgt,e,ef,etop,w)    !- Makes weights for integration up to Ef for one tetrahedron.
     ! ----------------------------------------------------------------
     !i Inputs
     !i
@@ -195,112 +195,48 @@ contains
        w(j,1) = w1(i)
        w(j,2) = w2(i)
     enddo
-  end subroutine fswgts_
+  end subroutine fswgts
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   SUBROUTINE BZINTS2x(volwgt,EP,WP,NQ,nband,NB,NSP,EMIN,EMAX,DOS,NR,EF,JOB,NTET,IDTET)!-  Bz integrations by linear method.
-    ! ----------------------------------------------------------------------
-    !i Inputs:
-    !i  ep, energy bands;
-    !i  nq, no. of irreducible k-points; nb, no. of bands; nsp, see BNDASA;
-    !i  emin, emax, dos, nr : for IDOS, energy window,
-    !i  emin, emax (JOB=2) tolerance in efermi
-    !i  IDOS, number of points; ef, Fermi energy (job = 2); job, switch :
-    !i  JOB=1: MAKES IDOS.  JOB=2:  MAKES BLOECHL-WEIGHTS.
-    !i  ntet, No. of different tetrahedra
-    !i  idtet(1-4,i), Identifies the i'th tetrahedron in terms of the four
-    !i  irreducible k-points:
-    !i  idtet(0,i), no. of tetrahedra of the i'th kind
-    !o Outputs:
-    !o  dos, Integrated Density of States (IDOS) (job = 1)
-    !o  wp, Bloechl quadrature weights (job = 2)
-    !m Memory:
-    !m  No large internal storage; heap not accessed.
-    ! ----------------------------------------------------------------------
-    !      implicit none
-    ! Passed parameters
-    ! Local parameters
     IMPLICIT real(8) (A-H,O-Z)
     implicit integer (i-n)
-    DIMENSION EP(nb,nsp,nq),DOS(NR),EC(4),WC(4,2),WP(nband,nsp,nq), &
-         idtet(0:4,*)
+    DIMENSION EP(nb,nsp,nq),DOS(NR),EC(4),WC(4,2),WP(nband,nsp,nq), idtet(0:4,*)
+    integer::iqq(4)
     IF (JOB /= 1 .AND. JOB /= 2) STOP '*** BAD JOB IN BZINTS2x'
-    !      IF (JOB .EQ. 1) call dinit(dos,2*nr)
-    ! takao
     IF (JOB == 1) dos=0d0 !call dinit(dos,nr)
     IF (JOB == 2) wp=0d0  !call dinit(wp,nband*nsp*nq)
     SEV1 = 0.D0
-    SEV2 = 0.D0
-    !      volwgt = (3.d0 - nsp) / (n1*n2*n3*6.d0)
+    SEV2 = 0.D0     !      volwgt = (3.d0 - nsp) / (n1*n2*n3*6.d0)
     do  40  isp = 1, nsp
-       ! ----- START LOOPING OVER TETRAHEDRA ---------
        DO  201  ITET = 1, NTET
-          iq1=idtet(1,itet)
-          iq2=idtet(2,itet)
-          iq3=idtet(3,itet)
-          iq4=idtet(4,itet)
+          iqq = idtet(1:4,itet)
           DO  20  IB = 1, nb !nband
-             ! ----- SET UP ENERGIES AT 4 CORNERS OF TETRAHEDRA ------
-             ec(1) = ep(ib,isp,iq1)
-             ec(2) = ep(ib,isp,iq2)
-             ec(3) = ep(ib,isp,iq3)
-             ec(4) = ep(ib,isp,iq4)
-             ! cccccccccccccccccccc
-             !       write(6,"('bzint2x ib E=',i4,4d13.6)") ib,EC(1:4)
-             ! cccccccccccccccccccc
-             etop = dmax1(ec(1),ec(2),ec(3),ec(4))
-             ebot = dmin1(ec(1),ec(2),ec(3),ec(4))
+             ec  = ep(ib,isp,iqq)
+             etop = maxval(ec)
+             ebot = minval(ec)
              IF (JOB == 1) THEN
-                if ( ebot < emax ) &
-                                !   CALL SLINZ(volwgt*idtet(0,ITET),EC,EMIN,EMAX,DOS,NR)
-                     CALL SLINZ2(volwgt*idtet(0,ITET),EC,EMIN,EMAX,DOS,NR)
+                if ( ebot < emax ) CALL SLINZ2(volwgt*idtet(0,ITET),EC,EMIN,EMAX,DOS,NR)
              ELSE
                 if ( ef >= ebot ) then
                    CALL FSWGTS(volwgt*idtet(0,ITET),EC,EF,ETOP,WC)
-                   SEV1 = SEV1 + WC(1,1)*EC(1) + WC(2,1)*EC(2) + &
-                        WC(3,1)*EC(3) + WC(4,1)*EC(4)
-                   SEV2 = SEV2 + WC(1,2)*EC(1) + WC(2,2)*EC(2) + &
-                        WC(3,2)*EC(3) + WC(4,2)*EC(4)
-                   WP(ib,isp,iq1) = WP(ib,isp,iq1) + WC(1,1) + WC(1,2)
-                   WP(ib,isp,iq2) = WP(ib,isp,iq2) + WC(2,1) + WC(2,2)
-                   WP(ib,isp,iq3) = WP(ib,isp,iq3) + WC(3,1) + WC(3,2)
-                   WP(ib,isp,iq4) = WP(ib,isp,iq4) + WC(4,1) + WC(4,2)
+                   SEV1 = SEV1 + sum(wc(:,1)*ec) 
+                   SEV2 = SEV2 + sum(wc(:,2)*ec) 
+                   WP(ib,isp,iqq) = WP(ib,isp,iqq) + WC(1:4,1) + WC(1:4,2)
                 endif
              ENDIF
 20        enddo
 201    enddo
 40  enddo
-922 format(1x,'BZINTS2x: Fermi energy:',f10.6,';',F20.16,' electrons'/ &
-         9x,'Band energy:',f11.6, &
-         ', including Bloechl correction:',f10.6)
   end SUBROUTINE BZINTS2x
-  !==========================================================================
-
-
-
-  SUBROUTINE SLINZ2(VOLWGT,EC,EMIN,EMAX,DOSI,NR)
-    !- Adds to number-of-states for one tetrahedron
-    ! ----------------------------------------------------------------
+  SUBROUTINE SLINZ2(VOLWGT,EC,EMIN,EMAX,DOSI,NR)    !- Adds to number-of-states for one tetrahedron
     !i Inputs
     !i   volwgt, weight on tetrahedron; ec energies at corners of tethdn.;
     !i   emin, emax, energy window; nr, number of bins + 1
     !o Outputs
     !o   dosi(k), integrated density in kth bin from tethdn.
-    !r Remarks
-    !r
-    ! ----------------------------------------------------------------
-    !      implicit none
-    ! Passed parameters
-    ! Local parameters
     IMPLICIT real(8) (A-H,O-Z)
     implicit integer (i-n)
     DIMENSION EC(4),DOSI(NR)
-
-    ! ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-    !      print *,' slinz2: volwgt=',volwgt
-    !      print *, d1mach(3)
-    !      volsum=0.0d0
-    ! ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
     DO   I = 1, 3
        DO   J = 1, 4-I
           IF (EC(J) > EC(J+1)) THEN
@@ -319,11 +255,7 @@ contains
        go to 26
     endif
     DE = (EMAX-EMIN)/(NR-1)
-
     d2 = 2.0d0*( 1.0d0-d1mach(3) )
-
-
-
     !x takao ---------------
     !x This is a correction in order to get the very accurate Fermi energy.
     !x
@@ -354,7 +286,6 @@ contains
     !      I03   = (E3   -EMIN)/DE + 1.9999999D0
     !      I04   = (E4   -EMIN)/DE + 1.9999999D0
 
-
     ! --------------------------------
     I1 = MAX0(I01  ,1)
     I2 = MIN0(I02-1, NR)
@@ -365,7 +296,6 @@ contains
           DOSI(I) = DOSI(I) + CC*X**3
 20     enddo
     ENDIF
-
     I2 = MAX0(I02  ,1)
     I3 = MIN0(I03-1,NR)
     IF (I2 <= I3) THEN
@@ -378,7 +308,6 @@ contains
           DOSI(I) = DOSI(I) + C0 + X*(C1 + X*(C2 + X*C3))
 21     enddo
     ENDIF
-
     I3 = MAX0(I03  ,1)
     I4 = MIN0(I04  -1,NR)
     IF (I3 <= I4) THEN
@@ -388,7 +317,6 @@ contains
           DOSI(I) = DOSI(I) + VOLWGT - CC*X**3
 22     enddo
     ENDIF
-
     I4 = MAX0(I04  ,1)
 26  continue
     DO  25  I = I4, NR
