@@ -11,7 +11,7 @@ module m_bandcal
   use m_lmfinit,only: lrsig=>ham_lsig, lso,ham_scaledsigma,lmet=>bz_lmet,nbas,epsovl=>ham_oveps,nspc,plbnd,lfrce
   use m_lmfinit,only: pwmode=>ham_pwmode,pwemax,nsp,nlibu,lmaxu,lmxax
   use m_MPItk,only: master_mpi, procid,strprocid, numprocs=>nsize
-  use m_subzi, only: nevmx,rv_a_owtkb
+  use m_subzi, only: nevmx
   use m_supot, only: n1,n2,n3
   use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate, osmpot,vconst, osig, otau, oppi,ohsozz,ohsopm
   use m_rdsigm2,only: senex,sene,getsenex,dsene,ndimsig
@@ -26,7 +26,7 @@ module m_bandcal
   ! outputs ---------------------------
   public m_bandcal_init, m_bandcal_2nd, m_bandcal_clean, m_bandcal_allreduce, m_bandcal_symsmrho
   integer,allocatable,protected,public::     ndimhx_(:,:),nevls(:,:) 
-  real(8),allocatable,protected,public::     frcband(:,:), orbtm_rv(:,:,:),evlall(:,:,:)
+  real(8),allocatable,protected,public::     frcband(:,:), orbtm_rv(:,:,:),evlall(:,:,:), spinweightsoc(:,:,:)
   complex(8),allocatable,protected,public::  smrho_out(:),dmatu(:,:,:,:)
   type(s_rv5),allocatable,protected,public:: oeqkkl(:,:), oqkkl(:,:)
   !------------------------------------------------
@@ -40,79 +40,73 @@ contains
   subroutine m_bandcal_init(lrout,ef0,vmag0,ifih) ! Set up Hamiltonian, diagonalization
     implicit none
     intent(in)::            lrout,ef0,vmag0,ifih
-    complex(8),allocatable:: hamm(:,:,:,:),ovlm(:,:,:,:),hammhso(:,:,:) !Hamiltonian,Overlapmatrix
+    complex(8),allocatable:: hamm(:,:,:,:),ovlm(:,:,:,:),hammhso(:,:,:),ovlms(:,:,:,:) !Hamiltonian,Overlapmatrix
     integer:: iq,nmx,ispinit,isp,nev,ifih,lwtkb,lrout,ifig,i,ibas,iwsene,idat,ikp
     real(8):: qp(3),ef0,def=0d0,xv(3),q(3),vmag0
     real(8),allocatable    :: evl(:,:)  !eigenvalue (nband,nspin)
     complex(8),allocatable :: evec(:,:) !eigenvector( :,nband)
     logical:: ltet,cmdopt0,dmatuinit=.true.,wsene
-    character(3):: charnum3 
-!    real(8)::  evlall(ndhamx,nspx,nkp)
+    character(3):: charnum3  !    real(8)::  evlall(ndhamx,nspx,nkp)
     call tcn('m_bandcal_init')
     if(master_mpi) write(stdo,ftox)'m_bandcal_init: start'
     sigmamode = mod(lrsig,10)/=0
     writeham = cmdopt0('--writeham')
     PROCARon = cmdopt0('--mkprocar') !write PROCAR(vasp format).
     debug    = cmdopt0('--debugbndfp')
-    ltet = ntet>0
-!    nspx=nsp/nspc
+    ltet = ntet>0 !   nspx=nsp/nspc !nspc=1 only for so=1 
     if(plbnd==0 .AND. lso/=0 .AND. lmet==0 ) call rx('metal weights required to get orb.moment')
     if(lso/=0) allocate(orbtm_rv(lmxax+1,nsp,nbas),source=0d0) !for spin-orbit coupling
     if(lfrce>0) allocate( frcband(3,1:nbas),source=0d0) !force for band
     allocate( ndimhx_(nkp,nspx),nevls(nkp,nspx),source=0) 
     allocate( evlall(ndhamx,nspx,nkp),source=0d0)
+    if(lso==1) allocate( spinweightsoc(ndhamx,nsp,nkp),source=0d0) !nsp=2 for lso==1
     if(nlibu>0 .AND. dmatuinit) then
        allocate( dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu))
        dmatuinit=.false.
     endif
     if(nlibu>0)  dmatu=0d0    !density matrix for U initialization
     if(lrout/=0) then
-       allocate( oeqkkl(3,nbas), oqkkl(3,nbas)) !pointer arrays.
-       call dfqkkl( oqkkl  )!allocate and zero clear
+       allocate( oeqkkl(3,nbas), oqkkl(3,nbas)) !pointer arrays. energy and charge for each ibas. 3 is for three radial channel
+       call dfqkkl( oqkkl  )! allocate and zero clear
        call dfqkkl( oeqkkl )!
        allocate( smrho_out(n1*n2*n3*nsp),source=(0d0,0d0) )
     endif
     call_m_bandcal_2nd =.false.
     if(plbnd==0) call_m_bandcal_2nd= (lmet>=0 .AND. lrout>0 )
-!    if(call_m_bandcal_2nd) open(newunit=ifig,file='eigze_'//trim(strprocid),form='unformatted')
-    if(call_m_bandcal_2nd) then
+    if(call_m_bandcal_2nd) then !open(newunit=ifig,file='eigze_'//trim(strprocid),form='unformatted')
        if(allocated(neviqis))deallocate(neviqis,ndimhxiqis,evliqis,eveciqis)
        allocate(neviqis(niqisp),ndimhxiqis(niqisp),evliqis(nevmx,niqisp),eveciqis(ndhamx,nevmx,niqisp))
     endif
     allocate( evl(ndhamx,nspx))
     sumev = 0d0
     sumqv = 0d0
-!    if (lswtk==1)  call swtkzero() !write(stdo,*)'iiiiqqq procid iqini iqend=',procid,iqini,iqend
     bandcalculation_q: do 2010 idat=1,niqisp
        iq = iqproc(idat)
        qp = qplist(:,iq) !write(stdo,ftox)'m_bandcal_init: procid iq=',procid,iq,ftof(qp)
        isp= isproc(idat) !NOTE: isp=1:nspx=nsp/nspc
-       if((.not.writeham).and.(afsym.and.isp==2)) cycle !cmdopt0('--afsym').and.isp==2) cycle
-       !if(afsym.and.isp==2) cycle !cmdopt0('--afsym').and.isp==2) cycle
-       call m_Igv2x_setiq(iq) ! Get napw,ndimh,ndimhx, and igv2x
-       allocate(hamm(ndimh,nspc,ndimh,nspc),ovlm(ndimh,nspc,ndimh,nspc)) !spin offdiagonal included
-       ! hambl calls augmbl. See Appendix C in http://dx.doi.org/10.7566/JPSJ.84.034702
-       !! finally makes F~F~=F0F0+(F1F1-F2F2), which is overlap matrix, s.
+       if((.not.writeham).and.(afsym.and.isp==2)) cycle 
+       call m_Igv2x_setiq(iq) ! NOTE: we get napw,ndimh,ndimhx, and igv2x here.
+       allocate(hamm(ndimh,nspc,ndimh,nspc),ovlm(ndimh,nspc,ndimh,nspc)) !Spin-offdiagonal block included since nspc=2 for lso=1.
+       !!  hambl calls augmbl. See Appendix C in http://dx.doi.org/10.7566/JPSJ.84.034702
+       !! We finally makes F~F~=F0F0+(F1F1-F2F2), which is overlap matrix, s.
        !! Note that F2=Hankel head at a site + Hankel tail contributions from the other site.
-
-       !! == Set up Hamiltonian by hambl. ==============
-       !!    Hamiltonian: hamm(1:ndimh,1:ndimh,3) means off-diagonal section when SO=1.
-       !!    Overlap matrix: ovlm
-       !!    senex:  Sigma-Vxc
-       !! ==========================================
-       !! Generate sene(Sigma-Vxc) for given sfz.
-       !! Determine interpolated self-energy sene at qp from sfz.
-       !! sigmat = Sigma-Vxc is generated in a basis of ndimsig (usually MTOs only)
-       !!     ... Bloch transform sigm(RS)-sigm(k). :RS means realspace
-       !! Main input  => ham_iv_a_oiaxs,ham_rv_a_ohrs
-       !     ! Main output sene. See m_seneinterp
-
-       !! See Eq.(36) and appendix in http://dx.doi.org/10.7566/JPSJ.84.034702
-       !! Hamm and ovlm are made from smooth part and augmentation part.
-!       write(6,*) 'goto Setup_hamiltonian_and_diagonalize : block lso=',lso
-       Setup_hamiltonian_and_diagonalize : block
+       Setup_hamiltonian_and_diagonalize : block !write(6,*) 'goto Setup_hamiltonian_and_diagonalize : block lso=',lso
          integer:: iprint,ispc
          character:: charnum3
+         !! == Set up Hamiltonian by hambl. ==============
+         !!    Hamiltonian: hamm(1:ndimh,1:ndimh,3) means off-diagonal section when SO=1.
+         !!    Overlap matrix: ovlm
+         !!    senex:  Sigma-Vxc
+         !! ==========================================
+         !! Generate senex=(Sigma-Vxc) for given sfz.
+         !! Determine interpolated self-energy senex at qp from sfz.
+         !! sigmat = Sigma-Vxc is generated in a basis of ndimsig (usually MTOs only)
+         !!     ... Bloch transform sigm(RS)-sigm(k). :RS means realspace
+         !! Main input  => ham_iv_a_oiaxs,ham_rv_a_ohrs
+         !     ! Main output sene. See m_seneinterp
+
+         !! See Eq.(36) and appendix in http://dx.doi.org/10.7566/JPSJ.84.034702
+         !! Hamm and ovlm are made from smooth part and augmentation part.
          if(lso/=0 .AND. ( .NOT. allocated(hammhso))) then
             allocate(hammhso(ndimh,ndimh,3))
             call aughsoc(qp, ohsozz,ohsopm,ndimh, hammhso)! SOC part of Hamiltonian hammhso is calculated.
@@ -124,7 +118,7 @@ contains
          endif
          ovlm=0d0
          if(lso==1) then !L.S case nspc=2
-            do ispc=1,nspc
+            do ispc=1,2  ! nspc==2
                call hambl(ispc,qp,osmpot,vconst,osig,otau,oppi, hamm(:,ispc,:,ispc),ovlm(:,ispc,:,ispc))
                hamm(:,ispc,:,ispc)= hamm(:,ispc,:,ispc) + hammhso(:,:,ispc) !spin-diag SOC elements (1,1), (2,2) added
             enddo
@@ -132,13 +126,14 @@ contains
             hamm(:,2,:,1)= transpose(dconjg(hammhso(:,:,3)))
             if(sigmamode) then
                do ispc=1,nspc
-                  call getsenex(qp, 1, ndimh, ovlm(:,ispc,:,ispc))
-                  hamm(:,ispc,:,ispc) = hamm(:,ispc,:,ispc) + ham_scaledsigma*senex !senex_up= Vxc(QSGW)-Vxc(LDA)
+                  call getsenex(qp, ispc, ndimh, ovlm(:,ispc,:,ispc)) !bugfix at 2024-4-24 obata: ispc was 1 when 2023-9-20
+                  hamm(:,ispc,:,ispc) = hamm(:,ispc,:,ispc) + ham_scaledsigma*senex !sene= Vxc(QSGW)-Vxc(LDA)
                   if(wsene) write(iwsene) qp,ispc
                   if(wsene) write(iwsene) sene
                   call dsene()
                enddo
             endif
+            allocate(ovlms,source=ovlm)
          else ! lso=0 (No SO) or lso=2(Lz.Sz)  Spin Diagonal case.spin diagonal)
             call hambl(isp,qp,osmpot,vconst,osig,otau,oppi,hamm(:,1,:,1), ovlm(:,1,:,1))
             if(lso==2) hamm(:,1,:,1) = hamm(:,1,:,1) + hammhso(:,:,isp)
@@ -150,10 +145,8 @@ contains
                call dsene()
             endif
          endif
-!         write(6,*) ' endof hambl'
          if(wsene) close(iwsene)
-         nmx=min(nevmx,ndimhx)!nmx:maximum number of eigenfunctions we will obtain. Smaller is faster.
-         !write(6,*)'nnnnnnnnn nevmx ndimhx nmx',nevmx,ndimhx,nmx
+         nmx=min(nevmx,ndimhx)! nmx:maximum number of eigenfunctions we will obtain. Smaller is faster.
          if(iprint()>=30) write(stdo,'(" bndfp: kpt ",i5," of ",i5, " k=",3f8.4, &
               " ndimh = nmto+napw = ",3i5,f13.5)') iq,nkp,qp,ndimh,ndimh-napw,napw
          if(writeham) then
@@ -162,32 +155,42 @@ contains
             write(ifih) hamm
          endif
          allocate(evec(ndimhx,nmx))
-         !== Diagonalize Hamiltonian ==
-         ! ndimhx: dimension of Hamitonian
-         ! hamm:Hamiltonian, ovlm: overlap matrix
-         ! evec:eigenfunciton. evl: eigenvalue.
-         ! nmx: input, number of requested eigenvalues(functions).
-         !      If nmx=0, no eigenfunctions but all eigenvalues. <== WARNNNNNNNNNN!
-         ! nev: out number of obtained eigenfvalues(funcitons)
-         diagonalize_hamilatonian: block 
+         Diagonalize_hamilatonian: block 
+           !== Diagonalize Hamiltonian ==
+           ! ndimhx: dimension of Hamitonian
+           ! hamm:Hamiltonian, ovlm: overlap matrix
+           ! evec:eigenfunciton. evl: eigenvalue.
+           ! nmx: input, number of requested eigenvalues(functions).
+           !      CAUTION!!! If nmx=0, no eigenfunctions but all eigenvalues. <== WARNNNNNNNNNN!
+           ! nev: out number of obtained eigenfvalues(funcitons)
            call zhev_tk4(ndimhx, hamm, ovlm, nmx, nev, evl(1, isp ), evec, epsovl)
-         endblock diagonalize_hamilatonian
-       endblock Setup_hamiltonian_and_diagonalize
-!       write(6,*) ' endof Setup_hamiltonian_and_diagonalize block'
+         endblock Diagonalize_hamilatonian
+       endblock Setup_hamiltonian_and_diagonalize ! write(6,*) ' endof Setup_hamiltonian_and_diagonalize block'
        if(writeham.AND.master_mpi) write(stdo,"(9f8.4)") (evl(i,isp), i=1,nev)
        if(call_m_bandcal_2nd) then
           neviqis(idat)   =nev
           ndimhxiqis(idat)=ndimhx
           evliqis(1:nev,idat)=evl(1:nev,isp)
           eveciqis(1:ndimhx,1:nev,idat)=evec(1:ndimhx,1:nev)
-          !write(ifig) nev,ndimhx !nev: number of eigenvalues
-          !write(ifig) evl(1:nev,isp)
-          !write(ifig) evec(1:ndimhx,1:nev)
+          !write(ifig) nev,ndimhx !nev: number of eigenvalues; write(ifig) evl(1:nev,isp); write(ifig) evec(1:ndimhx,1:nev)
        endif
        evl(nev+1:ndhamx,isp)=1d99  !padding. flag to skip these data
        nevls(iq,isp)  = nev        !nov2014 isp and isp is confusing...
        ndimhx_(iq,isp)= ndimhx     !Hamiltonian dimension
        evlall(1:ndhamx,isp,iq) = evl(1:ndhamx,isp)
+       GetSpinWeightSOC1: if(lso==1.and.nmx/=0) then !note! nmx=0 lets zhev_tk to calculate only eigenvalues
+          associate(nd=>ndimh)
+            spinweightsoc(1:nev,1,iq)= [(sum(dconjg(evec(1:nd,i))*matmul(ovlms(:,1,:,1),evec(1:nd,i))),i=1,nev)]
+            spinweightsoc(1:nev,2,iq)= [(sum(dconjg(evec(nd+1:nd+nd,i))*matmul(ovlms(:,2,:,2),evec(nd+1:nd+nd,i))),i=1,nev)]
+            NormalizationcheckFORspinweightSOC: if(any([(abs(sum(spinweightsoc(i,:,iq))-1d0)>1d-6,i=1,nev-10)])) then
+               !                                                                                      nev-10 to avoid num error of high bands
+               do i=1,nev
+                  write(stdo,ftox)'spinweightsoc=',i,ftof(spinweightsoc(i,1:2,iq)),sum(spinweightsoc(i,1:2,iq))
+               enddo
+               call rx('m_bandcal: error of SpinWeight sumcheck')
+            endif NormalizationcheckFORspinweightSOC
+          endassociate
+       endif GetSpinWeightSOC1
        if(afsym) then !cmdopt0('--afsym')) then
           evlall(1:ndhamx,2,iq) = evl(1:ndhamx,1)
           nevls(iq,2)  = nev        
@@ -195,10 +198,11 @@ contains
        endif   
        if(master_mpi.AND.epsovl>=1d-14.AND.plbnd/=0) write(stdo,&
             "(' : ndimhx=',i5,' --> nev=',i5' by HAM_OVEPS ',d11.2)") ndimhx,nev,epsovl
-       if(PROCARon) call m_procar_init(iq,isp,ef0,vmag0,evl,ndimh,qp,nev,evec,ndimhx)
+       if(PROCARon) call m_procar_init(iq,isp,ef0,vmag0,evl,qp,nev,evec,ndimhx)
        if(allocated(evec)) deallocate(evec)
        if(allocated(hammhso)) deallocate(hammhso)
        if(allocated(hamm)) deallocate(hamm,ovlm)
+       if(allocated(ovlms)) deallocate(ovlms)
 2010 enddo bandcalculation_q
     if (pwemax>0 .AND. mod(pwmode,10)>0 .AND. lfrce/=0) then
        xv(:)=[(sum(frcband(i,1:nbas))/nbas,i=1,3)]
@@ -294,10 +298,11 @@ contains
     call tcx('m_bandcal_2nd')
   end subroutine m_bandcal_2nd
   subroutine m_bandcal_clean() !cleaning allocation
-    if (allocated(orbtm_rv)) deallocate(orbtm_rv)
-    if (allocated(smrho_out)) deallocate(smrho_out)
-    if (allocated(frcband))  deallocate(frcband)
-    if (allocated(ndimhx_))  deallocate(ndimhx_,nevls,evlall)
+    if(allocated(orbtm_rv)) deallocate(orbtm_rv)
+    if(allocated(smrho_out)) deallocate(smrho_out)
+    if(allocated(frcband))  deallocate(frcband)
+    if(allocated(ndimhx_))  deallocate(ndimhx_,nevls,evlall)
+    if(allocated(spinweightsoc)) deallocate(spinweightsoc)
     if(allocated(oqkkl)) deallocate( oqkkl)
     if(allocated(oeqkkl))deallocate( oeqkkl)
   end subroutine m_bandcal_clean
@@ -307,7 +312,6 @@ contains
     call mpibc2_real(sumqv,size(sumqv),'bndfp_sumqv')
     call mpibc2_real(sumev,size(sumev),'bndfp_sumev')
     call mpibc2_complex(smrho_out,size(smrho_out),'bndfp_smrho')
-!    if(lswtk==1) call mpibc2_complex(swtk,size(swtk),'bndfp_swtk')
     do  ib = 1, nbas
        do  i = 1, 3
           if(allocated(oqkkl(i,ib)%v)) then
@@ -336,7 +340,7 @@ contains
     use m_lmfinit,only: ispec,nbas,nlmax,nsp,nspc,n0,nppn,lmxax,lso
     use m_igv2x,only: napw,ndimh,ndimhx,igvapw=>igv2x
     use m_mkpot,only: sab_rv
-    use m_subzi, only: wtkb=>rv_a_owtkb
+    use m_subzi, only: wtkb
     use m_qplist,only: nkp
     use m_suham,only: ndham=>ham_ndham, ndhamx=>ham_ndhamx
     !i   isp   :current spin channel (1 or 2)
@@ -431,7 +435,7 @@ contains
   subroutine mkdmtu(isp,iq,qp,nev,evec,dmatu) !Get density matrix dmatu for LDA+U (phi-projected density matrix)
     use m_lmfinit,only: ispec,nbas,nlmax,nsp,nspc,n0,nppn,nlibu,lmaxu,nlibu,lldau,idu
     use m_mkpot,only: phzdphz
-    use m_subzi, only: wtkb=>rv_a_owtkb
+    use m_subzi, only: wtkb
     use m_igv2x,only: ndimh
     use m_suham,only: ndham=>ham_ndham,ndhamx=>ham_ndhamx
     use m_makusq,only: makusq

@@ -104,7 +104,7 @@ GaussSmear on  ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr fo
 </QforEPS>
 <QforEPSL>
  0d0 0d0 0d0   1d0   0d0  0d0 8
- 0d0 0d0 0d0  .5d0  .5d0  0d0 8
+vvv 0d0 0d0 0d0  .5d0  .5d0  0d0 8
 </QforEPSL>
 
 !----------------------------------------------------
@@ -113,9 +113,13 @@ GaussSmear on  ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr fo
   2 Si   1 2 3 4 5 6 7 8 9
 </Worb>
 
-mlo_EUinner 4
-mlo_WTband  0
-mlo_WTseed 128
 
-wan_out_emin -99
-wan_out_emax 30
+mlo_EUinner 5
+!mlo_WTinner 2048
+!mlo_WTband 0 
+
+!mlo_WTseed 0
+!mlo_WTseed 0
+!mlo_maxit 1
+!mlo_conv 1d-6
+!mlo_WTband 0

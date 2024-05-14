@@ -9,12 +9,12 @@ if [ $# -le 2 ] || [ $2 != "-np" ]; then
 else
   MPI_SIZE=$3
 fi
-rm -f HamiltonianPMT*
+rm -f HamiltonianPMT.*
 echo 'Runnnig Hamiltonian generation'
-mpirun -np $3 $nfpgw/lmf $1 --writeham --mkprocar --fullmesh >& out_writeham
+mpirun -np $3 $nfpgw/lmf $1 --writeham --mkprocar --noinv >& out_writeham
 # Get Hamiltonian file, namded as HamiltonianMTO
-cat HamiltonianPMT.* >HamiltonianPMT
-rm HamiltonianPMT.* 
+#cat HamiltonianPMT.* >HamiltonianPMT
+#rm HamiltonianPMT.* 
 # Get |MTP> Get MTprojected Hamiltonian
 mpirun -np $3 $nfpgw/lmfham1 $1 >& out_lmfham1
 

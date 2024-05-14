@@ -1,10 +1,12 @@
 !> Read HamiltionanPMTinfo and HamiltonianPMT. Then convert HamPMT to HamRsMPO
 module m_HamPMT
-   use m_MPItk,only: procid, master_mpi, nsize,master
+   use m_MPItk,only: procid, master_mpi, nsize,master,strprocid
    use m_lgunit,only:stdo
    use m_ftox
    use m_lmfinit,only: oveps
-   real(8),allocatable,protected:: plat(:,:),pos(:,:),qplist(:,:),qlat(:,:),symops(:,:,:)
+   real(8)::eps=1d-8
+   real(8),allocatable,protected:: plat(:,:),pos(:,:),qlat(:,:),symops(:,:,:)
+   real(8),allocatable,protected,target:: qplist(:,:)
    integer,allocatable,protected:: nlat(:,:,:,:),npair(:,:),ib_table(:),l_table(:),k_table(:),ispec_table(:),nqwgt(:,:,:)
    character(8),allocatable,protected:: slabl_table(:)
    integer,protected:: nkk1,nkk2,nkk3,nbas,nkp,npairmx,ldim,jsp,lso,nsp,nspx,ngrp !ldim is number of MTOs
@@ -73,111 +75,122 @@ contains
    !c$$$        enddo
    !c$$$      enddo
    subroutine HamPMTtoHamRsMPO(facw,ecutw,eww) !Convert HamPMT(k mesh) to HamRsMPO(real space)
+      use m_setqibz_lmfham,only: qibz,irotq,irotg,ndiff,iqbzrep,qbzii,igiqibz,nqibz,iqii,wiqibz,ngx,igx
       use m_zhev,only:zhev_tk4
       use m_readqplist,only: eferm
-      use m_setqibz_lmfham,only: irotg,irotq
-!    use m_mpi,only: MPI__reduceSum
+      use m_rotwave,only:  rotmatMTO!,rotmatPMT
       implicit none
-      integer:: ifihmto
-      integer::ikpd,ikp,ib1,ib2,ifih,it,iq,nev,nmx,ifig=-999,i,j,ndimPMT,lold,m
+      integer:: ifihmto,nqbz
+      integer::ikpd,ikp,ib1,ib2,ifih,it,iq,nev,nmx,ifig=-999,i,j,ndimPMT,lold,m,ndimPMTx
       complex(8),allocatable:: hamm(:,:),ovlm(:,:), cmpo(:,:) 
       logical:: lprint=.true.,savez=.false.,getz=.false.,skipdiagtest=.false.
       complex(8):: img=(0d0,1d0),aaaa,phase
-      real(8)::qp(3),pi=4d0*atan(1d0),fff,ef,fff1=2,fff2=2,fff3=0 ,facw,ecutw,eww,xxx
+      real(8)::qp(3),pi=4d0*atan(1d0),fff,ef,fff1=2,fff2=2,fff3=0 ,facw,ecutw,eww,xxx,posd(3)
       integer:: nn,ib,k,l,ix5,imin,ixx,j2,j1,j3,nx,ix(ldim),iqini,iqend,ndiv
       integer:: ndimMTO !ndimMTO<ldim if we throw away f MTOs, for example.
-      integer:: ib_tableM(ldim),k_tableM(ldim),l_tableM(ldim),ierr,ificmpo,iqibz
+      integer:: ib_tableM(ldim),k_tableM(ldim),l_tableM(ldim),ierr,ificmpo,iqibz,iqbz,igg
       logical:: cmdopt0
+      real(8),pointer::qbz(:,:)
+      complex(8),allocatable::ovlmi(:,:,:,:),hammi(:,:,:,:),rotmat(:,:)
+      integer,allocatable::ndimPMTq(:)
       nn=0
       do i=1,ldim  !only MTOs. Further restrictions.
          !if(l_table(i)>=3) cycle !only spd. skip f orbitals.     !if(k_table(i)==2.and.l_table(i)>=2) cycle ! throw away EH2 for d
-         !if( (ib_table(i)==3.or.ib_table(i)==4).and.l_table(i)>=2) cycle !for Oxygen of NiO. skip 3d
-         !   write(stdo,*) 'ham1 index', i,ib_table(i),l_table(i),k_table(i)
-         !      if( k_table(i)>2) cycle !skip PZ orbitals !
          nn=nn+1
          ix(nn)=i
-         ib_tableM(nn)=ib_table(i)
-         k_tableM(nn) =k_table(i)
-         l_tableM(nn) =l_table(i)
+         ib_tableM(nn)= ib_table(i)
+         k_tableM(nn) = k_table(i)
+         l_tableM(nn) = l_table(i)
       enddo
       ndimMTO=nn
-      open(newunit=ifih,file='HamiltonianPMT',form='unformatted')
       if(lso==1) ldim=ldim*2 !L.S mode
       nspx=nsp
       if(lso==1) nspx=1
-      if(master_mpi) write(stdo,ftox)'Reading HamiltonianPMT: ndimMTO ldim lso=',ndimMTO,ldim,lso
-      allocate(ovlmr(1:ndimMTO,1:ndimMTO,npairmx,nspx), hammr(1:ndimMTO,1:ndimMTO,npairmx,nspx))
-      hammr=0d0
-      ovlmr=0d0
-      ndiv= nkp/nsize
-      if(nkp>ndiv*nsize) ndiv=ndiv+1    !MPI division
-      iqini =         ndiv*procid+1     !initial for each procid
-      iqend = min(nkp,ndiv*procid+ndiv) !end  for each procid
+      
+! Readin Hamiltonian only at iqibz
+      allocate(ovlmi(1:ndimMTO,1:ndimMTO,nqibz,nspx),hammi(1:ndimMTO,1:ndimMTO,nqibz,nspx),source=(0d0,0d0))
+      allocate(rotmat(ndimMTO,ndimMTO))
+      allocate(ndimPMTq(nqibz),source=0)
+      open(newunit=ifih,file='HamiltonianPMT.'//trim(strprocid),form='unformatted')
+      HreductionIqibz: block
+        integer:: i,iqxx,jspxx
+        iqiloop: do iqxx=1,nqibz !nqibz !xx=1,nqibz !iqini,iqend !iqxx=1,nqibz 
+           do jspxx=1,nspx
+              read(ifih,end=2029) qp,ndimPMT,lso,xxx,jsp !jsp for isp; if so=1, jsp=1 only
+              iqibz = findloc( [(sum(abs(qibz(:,i)-qp))<eps,i=1,nqibz)],value=.true.,dim=1)
+              write(stdo,ftox)'=== Reading Ham for iqibz spin procid q= ', iqibz,jsp,procid,ftof(qp)
+              allocate(ovlm(1:ndimMTO,1:ndimMTO),hamm(1:ndimMTO,1:ndimMTO))
+              readingovlmp: block
+                character(8):: xt
+                logical:: cmdopt0
+                complex(8):: ovlmp(1:ndimPMT,1:ndimPMT),hammp(1:ndimPMT,1:ndimPMT),cmpo(ndimPMT,ndimMTO)
+                read(ifih) ovlmp
+                read(ifih) hammp
+                call Hreduction(.false.,facw,ecutw,eww,ndimPMT,hammp,ovlmp, ndimMTO,ix,fff1, hamm,ovlm,cmpo) !Get reduced Hamitonian for ndimMTO
+                if(cmdopt0('--cmlo')) then  !at qibz only
+                   open(newunit=ificmpo, file='Cmpo' //trim(xt(i))//trim(xt(jsp)),form='unformatted')
+                   write(ificmpo) ndimPMT,ndimMTO
+                   write(ificmpo) cmpo
+                   close(ificmpo)
+                endif
+              endblock readingovlmp
+              ndimPMTq(iqibz)=ndimPMT
+              do igg=1,ngx(iqibz) !symmetrized for rotations keeping qibz
+                 call rotmatMTO(igg=igx(igg,iqibz),q=qibz(:,iqibz),qtarget=qibz(:,iqibz),ndimh=ndimMTO,rotmat=rotmat)
+                 ovlmi(:,:,iqibz,jsp)=ovlmi(:,:,iqibz,jsp) +matmul(rotmat,matmul(ovlm,dconjg(transpose(rotmat))))
+                 hammi(:,:,iqibz,jsp)=hammi(:,:,iqibz,jsp) +matmul(rotmat,matmul(hamm,dconjg(transpose(rotmat))))
+              enddo
+              hammi(:,:,iqibz,jsp)=hammi(:,:,iqibz,jsp)/ngx(iqibz)  
+              ovlmi(:,:,iqibz,jsp)=ovlmi(:,:,iqibz,jsp)/ngx(iqibz)  
+              deallocate(ovlm,hamm)
+           enddo
+        enddo iqiloop
+2029    continue
+      endblock HreductionIqibz
+      close(ifih)
+      call mpibc2_complex(hammi,size(hammi),'m_HamPMT_hammi') 
+      call mpibc2_complex(ovlmi,size(ovlmi),'m_HamPMT_ovlmi') 
+      call mpibc2_int(ndimPMTq,size(ndimPMTq),'m_HamPMT_ndimPMTq')
+! hammr ovlmr     
+      allocate(ovlmr(1:ndimMTO,1:ndimMTO,npairmx,nspx), hammr(1:ndimMTO,1:ndimMTO,npairmx,nspx),source=(0d0,0d0))
+      nqbz=nkp
+      qbz=>qplist      
+      ndiv= nqbz/nsize
+      if(nqbz>ndiv*nsize) ndiv=ndiv+1    !MPI division
+      iqini =          ndiv*procid+1     !initial for each procid
+      iqend = min(nqbz,ndiv*procid+ndiv) !end  for each procid
       write(stdo,ftox)'nsize procid iqini iqend=',nsize,procid,iqini,iqend
-
-      iq=0
-      qploop: do
-         read(ifih,end=2019) qp,ndimPMT,lso,xxx,jsp !jsp for isp; if so=1, jsp=1 only
-         if(jsp==1) iq=iq+1
-         if(iq<iqini.or.iqend<iq) cycle
-         if(master_mpi) write(stdo,"('=== Reading Ham for iq,spin,q=',2i4,3f9.5)") iq,jsp,qp
-         allocate(ovlm(1:ndimPMT,1:ndimPMT),hamm(1:ndimPMT,1:ndimPMT),cmpo(ndimPMT,ndimMTO))
-         read(ifih) ovlm(1:ndimPMT,1:ndimPMT)
-         read(ifih) hamm(1:ndimPMT,1:ndimPMT)
-         GETham_ndimMTO: block
-            logical:: cmdopt0
-            character(8):: xt
-            real(8):: evlmlo(ndimMTO),cmptmto(ndimPMT,ndimMTO)
-            call Hreduction(.false.,facw,ecutw,eww,ndimPMT,hamm(1:ndimPMT,1:ndimPMT),ovlm(1:ndimPMT,1:ndimPMT), & !Get reduced Hamitonian for ndimMTO
-               ndimMTO,ix,fff1, hamm(1:ndimMTO,1:ndimMTO),ovlm(1:ndimMTO,1:ndimMTO),cmpo)
-            if(cmdopt0('--cmlo').and.irotg(iq)==1) then !qibz only
-               writempo: block
-               character(8):: xt
-               iqibz=irotq(iq)
-               open(newunit=ificmpo, file='Cmpo' //trim(xt(iqibz))//trim(xt(jsp)),form='unformatted')
-               !write(ificmptmto) iq,irotq(iq) !iqbz and iqibz
-               write(ificmpo) ndimPMT,ndimMTO
-               write(ificmpo) cmpo
-               close(ificmpo)
-             endblock writempo
-            endif
-            ! if(iq==3) then !            if(sum([qp(2),qp(3)]**2)<1d-3) then !check write
-            !    Checkfinaleigen: block
-            !       real(8):: rydberg
-            !       complex(8):: evec(ndimMTO**2), hh(ndimMTO,ndimMTO),oo(ndimMTO,ndimMTO)
-            !       hh = hamm(1:ndimMTO,1:ndimMTO)
-            !       oo = ovlm(1:ndimMTO,1:ndimMTO)
-            !       nmx= ndimMTO
-            !       write(stdo,ftox) ' checkfinaleigen zhev_tk4',ftof(qp,3)
-            !       call zhev_tk4(ndimMTO,hh,oo, nmx,nev,evlmlo, evec, oveps) !epsovl)
-            !       write(stdo,ftox) '  evlmto=',nev,ftof(evlmlo(1:10)*rydberg())
-            !       write(stdo,ftox) '  evlmto=',nev,ftof(evlmlo(11:20)*rydberg())
-            !    endblock Checkfinaleigen
-            ! endif
-         endblock GETham_ndimMTO
-         GETrealspaceHamiltonian: block ! H(k) ->  H(T) FourierTransformation to real space
-            do i=1,ndimMTO
-               do j=1,ndimMTO
-                  ib1 = ib_tableM(i)
-                  ib2 = ib_tableM(j)
-                  do it =1,npair(ib1,ib2)! hammr_ij (T)= \sum_k hamm(k) exp(ikT). it is the index for T
-                     phase = 1d0/dble(nkp)* exp(img*2d0*pi* sum(qp*matmul(plat,nlat(:,it,ib1,ib2))))
-                     hammr(i,j,it,jsp)= hammr(i,j,it,jsp)+ hamm(i,j)*phase
-                     ovlmr(i,j,it,jsp)= ovlmr(i,j,it,jsp)+ ovlm(i,j)*phase
-                  enddo
-               enddo
-            enddo
-         endblock GETrealspaceHamiltonian
-         deallocate(ovlm,hamm,cmpo)
+      qploop: do iqbz=iqini,iqend
+         qp     = qbz(:,iqbz)
+         iqibz  = irotq(iqbz)
+         ndimPMT= ndimPMTq(iqibz) 
+         hammovlm: block
+           complex(8):: ovlm(1:ndimPMT,1:ndimPMT),hamm(1:ndimPMT,1:ndimPMT)
+           do jsp=1,nspx
+              if(master_mpi) write(stdo,"('=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q=',3i4,3f9.5)")iqibz,iqbz,jsp,qp
+              call rotmatMTO(igg=irotg(iqbz),q=qibz(:,iqibz),qtarget=qp+matmul(qlat,ndiff(:,iqibz)),ndimh=ndimMTO,rotmat=rotmat)
+              ovlm(1:ndimMTO,1:ndimMTO) = matmul(rotmat,matmul(ovlmi(:,:,iqibz,jsp),dconjg(transpose(rotmat))))
+              hamm(1:ndimMTO,1:ndimMTO) = matmul(rotmat,matmul(hammi(:,:,iqibz,jsp),dconjg(transpose(rotmat))))
+              GETrealspaceHamiltonian: block ! H(k) ->  H(T) FourierTransformation to real space
+                do i=1,ndimMTO; do j=1,ndimMTO
+                   ib1 = ib_tableM(i)
+                   ib2 = ib_tableM(j)
+                   do it =1,npair(ib1,ib2)! hammr_ij (T)= \sum_k hamm(k) exp(ikT). it is the index for T
+                      phase = 1d0/dble(nqbz)* exp(img*2d0*pi* sum(qp*(matmul(plat,nlat(:,it,ib1,ib2)))))
+                      hammr(i,j,it,jsp)= hammr(i,j,it,jsp)+ hamm(i,j)*phase
+                      ovlmr(i,j,it,jsp)= ovlmr(i,j,it,jsp)+ ovlm(i,j)*phase
+                   enddo
+                enddo; enddo
+              endblock GETrealspaceHamiltonian
+           enddo
+         endblock hammovlm
       enddo qploop
 2019  continue
       call mpibc2_complex(hammr,size(hammr),'m_HamPMT_hammr') !to master
       call mpibc2_complex(ovlmr,size(ovlmr),'m_HamPMT_ovlmr') !to master
       if(master_mpi) then
          write(stdo,*)'Read: total # of q for Ham=',iq
-         close(ifih)
-         !! write RealSpace MTO Hamiltonian
-         !ix(1:ndimMTO)=ix1(1:ndimMTO) !for atom idex
+         !! write RealSpace MTO Hamiltonian          !ix(1:ndimMTO)=ix1(1:ndimMTO) !for atom idex
          write(stdo,*)' Writing HamRsMPO... ndimMTO=',ndimMTO
          open(newunit=ifihmto,file='HamRsMPO',form='unformatted')
          write(ifihmto) ndimMTO,npairmx,nspx

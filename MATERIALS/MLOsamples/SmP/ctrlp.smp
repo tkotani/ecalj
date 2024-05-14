@@ -1,15 +1,4 @@
-10 386 86 # of line; # of reclen;#  of all lines
-
-VERS    LM=7 FP=7        
-IO      SHOW=1 VERBOS=35 TIM=0,0 
 SYMGRP r4z    
-STRUC     ALAT=10.884826815980286     PLAT=0.0       0.5       0.5                 0.5       0.0       0.5                 0.5       0.5       0.0  NBAS=2     NL=4  NBAS=2  NSPEC=2
-SITE     ATOM=Sm POS=0.0       0.0       0.0     ATOM=P POS=0.5       0.5       0.5
-SPEC    ATOM=Sm Z=62 R=2.85      PZ=0,15.0,0,15.0      IDU=0 0 0 12  UH=0 0 0 0.604  JH=0 0 0 0.0787  MMOM=0 0 0 5      EH=-1 -1 -1 -1  RSMH=1.43 1.43 1.43 1.43      EH2=-2 -2 -2 -2  RSMH2=1.43 1.43 1.43 1.43      KMXA=5  LMX=3 LMXA=6 NMCORE=1    ATOM=P Z=15 R=2.43      EH=-1 -1 -1 -1  RSMH=1.21 1.21 1.21 1.21      EH2=-2 -2 -2  RSMH2=1.21 1.21 1.21      KMXA=5  LMX=3 LMXA=6 NMCORE=1
-BZ          NKABC=6 6 6      METAL=3              DOSMAX=15 NPTS=2001 SAVDOS=1      TETRA=1 N=-1 W=0.01
-ITER MIX=A2 b=0.2 n=3 CONV=1e-05 CONVC=1e-05 NIT=30 UMIX=0.2
-HAM   NSPIN=2         FORCES=0      GMAX=12      REL=1      XCFUN=1      PWMODE=1      PWEMAX=3      READP=1      PNUFIX=1      READPSKIPF=1      FRZWF=0      RDSIG=12      ScaledSigma=1.0      SO=2      OVEPS=1d-8
-@@@@@@@@@@@@@@@@@
 VERS_LM 7
 VERS_FP 7
 IO_SHOW 1

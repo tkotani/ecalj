@@ -156,7 +156,7 @@ QforEPSunita on
  0 0 0.002     
  0 0 0.0028284 
  0 0 0.004
-</QforEPS>
+vvv</QforEPS>
 <QforEPSL>
 ! 0d0 0d0 0d0   1d0   0d0  0d0 8
 ! 0d0 0d0 0d0  .5d0  .5d0  0d0 8
@@ -194,7 +194,4 @@ QforEPSunita on
 5 O   2 3 4
 </Worb> 
 
-mlo_EUinner 9
-mlo_WTseed 0
-mlo_WTband 512
-mlo_WTinner 2048
+mlo_WTseed 32

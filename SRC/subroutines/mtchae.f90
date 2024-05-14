@@ -59,7 +59,7 @@ contains
        beta = slo/val
     endif
   end subroutine mtchae
-  subroutine mtchre(mode,l,rsmin,rsmax,emin,emax,r1,r2,phi1,dphi1, & !- Finds envelope function parameters that match conditions on sphere
+  subroutine mtchre(l,rsmin,rsmax,emin,emax,r1,r2,phi1,dphi1, & !- Finds envelope function parameters that match conditions on sphere
        phi2,dphi2,rsm,eh,ekin,ir)
     use m_lgunit,only:stdo
     use m_ftox
@@ -151,63 +151,38 @@ contains
     logical:: isanrg, l_dummy_isanrg
     character(8):: xt
     call getpr(ipr)
+    mode=103
     mode0 = mod(mode,100)
     mode2 = mod(mode/100,10)
     l_dummy_isanrg=isanrg(l,0,8,'mtchre','l',.true.)
     ! ... Start of matching in current mode
 10  continue
-
     ! --- Vary rsm to match phi to h ---
     if (mode0 == 0 .OR. mode0 == 10) then
-       !     call info2(IPRT1,0,-1, &
-       !          ' mtchre: match sm H(l=%i) to phi''/phi=%,1;3d varying rsm ...', &
-       !          l,dphi1/phi1)
-       call mtchr2(0,l,rsmin,rsmax,(rsmin+rsmax)/2,r1,phi1,dphi1,rsm, &
-            eh,ekin,ir)
+       call mtchr2(0,l,rsmin,rsmax,(rsmin+rsmax)/2,r1,phi1,dphi1,rsm,  eh,ekin,ir)
        !   ... rfalsi unable to bound the search : handle error
        if (ir < 0) then
-          if (ipr >= IPRTW) write (stdo, &
-               '('' mtchre (warning) matching failed varying rsm'')')
+          if (ipr >= IPRTW) write (stdo,'('' mtchre (warning) matching failed varying rsm'')')
           if (mode0 == 10) then
              mode0 = 1
              goto 10
           endif
-       else
-          !        call info2(IPRT1,0,0,' found rsm=%;4d',rsm,0)
        endif
        ! --- Vary eh to match phi to h ---
     elseif (mode0 == 1 .OR. mode0 == 11) then
-       !     call info2(IPRT1,0,-1, &
-       !          ' mtchre: match sm H(l=%i) to phi varying eh ...',l,0)
-       call mtchr2(1,l,emin,emax,(emin+emax)/2,r1,phi1,dphi1,rsm,eh, &
-            ekin,ir)
+       call mtchr2(1,l,emin,emax,(emin+emax)/2,r1,phi1,dphi1,rsm,eh, ekin,ir)
        !   ... rfalsi unable to bound the search : handle error
        if (ir < 0) then
-          if (ipr >= IPRTW) write (stdo, &
-               '('' mtchre (warning) matching failed varying eh'')')
+          if (ipr >= IPRTW) write (stdo, '('' mtchre (warning) matching failed varying eh'')')
           if (mode0 == 10) then
              mode0 = 0
              goto 10
           endif
-       else
-          !        call info2(IPRT1,0,0,' found eh=%;4d',eh,0)
        endif
        ! --- Vary rsm (and eh) to match K.E. (and log der) to h ---
        !     See Remarks for description of procedure for mode3
     elseif (mode0 >= 2 .AND. mode0 <= 4) then
-       !   ... debugging ...
-       !       open(66,file='out')
-       !       do  eh = -5d0, -.02d0, .25d0
-       !       do  xnow = .8d0, 3.5d0, .1d0
-       !         call mtchae(2,xnow,eh,l,r1,phi1,phi1,0d0,0d0,alfa,ekin)
-       !         write(66,'(3f15.8)') xnow, eh, alfa
-       !       enddo
-       !       enddo
-       !       close(66)
-       !       stop
-       !   ... Setup: xnow is current guess for rsm.  Initialize w/ min val.
        xnow = min(rsmin,rsmax)
-       !       dxmx = max(rsmin,rsmax) - xnow
        if (xnow < 0) call rx1('mtchr2: bad range, rsm = ',xnow)
        xclose = 0
        bclose = 9d9
@@ -372,7 +347,7 @@ contains
     if (ipr >= IPRT) write(stdo,261) mode,l,r
 261 format(' mtchr2 mode',i2,'  l =',i2,'  r =',f10.6,/' l  it  ir',6x,'Rsm',9x,'Eh',8x,'phi''/phi     target')
     ! ... Vary rsm to match phi to h.  Do iteratively:
-    if (mode == 0 .OR. mode == 2) then
+    if (mode == 0) then
        xnow = min(x1,x2)
        dxmx = max(x1,x2) - xnow
        if (xnow < 0) call rx1('mtchr2: bad lower rsm : ',xnow)
@@ -438,6 +413,8 @@ contains
        if (ipr >= IPRT) print '('' exit mtchr2 info ='',i2)',info
        ! ... Vary rs to match K.E. of h to dphi.  Do iteratively, matching
        !     phi to hs; find point where K.E. matches.
+    elseif (mode == 2) then
+       continue
     elseif (mode == 2) then
        continue
     else

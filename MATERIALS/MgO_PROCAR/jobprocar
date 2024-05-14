@@ -1,11 +1,11 @@
 #!/bin/bash
 lmfa mgo >llmfa
-mpirun -np 4 lmf-MPIK mgo > llmf
+mpirun -np 4 lmf mgo > llmf
 job_band mgo -np 4 > ljob_band
 # This is for pdos mode
 # mpirun -np 4 ~/ecalj/lm7K/lmf-MPIK --mkprocar --fullmesh mgo >lband
 rm -rf PROCAR*
-mpirun -np 4 lmf-MPIK --mkprocar --band:fn=syml mgo >lbandW
+mpirun -np 4 lmf --mkprocar --band:fn=syml mgo >lbandW
 cat PROCAR.UP.* >>PROCAR.UP
 rm PROCAR.UP.*
 ./BandWeight.py > bw.dat

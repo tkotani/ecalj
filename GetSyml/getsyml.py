@@ -70,11 +70,11 @@ for iline in sitefile:
     print( i,' pos=',pos,' id=',int(vec[1]))
 print('nsite=',nsite)#,positions)
 
-=========================
-spglib
-getdataset
-transformation matrix.
-plat --> conventional cell
+#=========================
+#spglib
+#getdataset
+#transformation matrix.
+#plat --> conventional cell
 
 
 ###############################################
