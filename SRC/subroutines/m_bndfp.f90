@@ -21,7 +21,7 @@
 !       NOTE=>eharris is not correct for LDA+U case (valv locpot2 do not include U contribution).
 !  qbyl  :site- and l-decomposed charges
 !  hbyl  :site- and l-decomposed one-electron energies
-!! NOTE: check lmv7->lmfp(iteration loop)->bndfp
+!! NOTE: check main_lmf -> lmfp(iteration loop) -> bndfp
 module m_bndfp
   use m_density,only: orhoat,osmrho,eferm  !input/output unprotected  ! NOTE:variable in m_density are not protected
   use m_lgunit,only:stdo,stdl
@@ -36,7 +36,7 @@ contains
     ! llmfgw=T is for generating eigenfunctions for GW calculations, no iteration.
     ! plbnd/=0 means band plot mode. no iteration.
     !     ! All read only in bndfp. Data are stored in modules such as m_bandcal, m_mkpot
-    !     ! For example,, rightafter call m_bandcal_init, we can get evalall, which is used in other modules.
+    !     ! For example, rightafter call m_bandcal_init, we can get evalall, which is used in other modules.
     use m_ftox
     use m_mixrho,only: mixrho
     use m_bndfp_util,only: mkekin,makdos,phispinsym_ssite_set,iorbtm
@@ -182,7 +182,7 @@ contains
     endif GWdriver
     ! Set up Hamiltonian and diagonalization in m_bandcal_init. To know outputs, see 'use m_bandcal,only:'. The outputs are evlall, and so on.
     sttime = MPI_WTIME() ! if(nspc==2) call m_addrbl_allocate_swtk(ndham,nsp,nkp)
-    call m_bandcal_init(lrout,eferm,vmag,ifih) ! Get Hamiltonian and diagonalization resulting evl,evec,evlall.  eferm,vmag are inputs read by m_procar_init in m_bandcal_init.
+    call m_bandcal_init(lrout,eferm,vmag,ifih) ! Get Hamiltonian and diagonalization resulting evl,evec,evlall. eferm,vmag are inputs read by m_procar_init in m_bandcal_init.
     entime = MPI_WTIME()                
     if(master_mpi) write(stdo,"(a,f9.4)") ' ... Done MPI k-loop: elapsed time=',entime-sttime
     if(writeham) close(ifih)

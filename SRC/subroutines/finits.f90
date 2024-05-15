@@ -1,17 +1,4 @@
 ! All exit routines with errors 2023 feb. Too much varieties is historical reasons.
-subroutine rx0s(string) !normal exit for master_mpi
-  use m_MPItk,only: master_mpi
-  character*(*) string
-  if(master_mpi) write(6,"(/,a)") trim(string)//' ======================'
-  call exit(0)
-end subroutine rx0s
-subroutine rx0(string) !normal exit
-  use m_lgunit,only:stdo,stdl
-  character*(*) string
-  call fexit0(0,string)
-  call rx0s(string)         !for single core exit
-end subroutine rx0
-
 subroutine rx(string) !error exit
   use m_lgunit,only:stdo,stdl
   use m_mpi,only:   comm
@@ -92,6 +79,19 @@ subroutine rxx(test,string)
   if (test) call rx(string)
 end subroutine rxx
 
+
+subroutine rx0s(string) !normal exit for master_mpi
+  use m_MPItk,only: master_mpi
+  character*(*) string
+  if(master_mpi) write(6,"(/,a)") trim(string)//' ======================'
+  call exit(0)
+end subroutine rx0s
+subroutine rx0(string) !normal exit
+  use m_lgunit,only:stdo,stdl
+  character*(*) string
+  call fexit0(0,string)
+  call rx0s(string)         !for single core exit
+end subroutine rx0
 subroutine fexit0(retval,strng)! retval:  return value passed to operating system. /=0 for error exit
   use m_mpi,only:   comm1=>comm
   use m_MPItk,only: comm2=>comm,readtk

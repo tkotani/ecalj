@@ -10,7 +10,7 @@ module m_supot
   integer,protected,target,private::  ngabc(3)
 contains
   subroutine m_supot_init()! Initialization for G vectors bgv,ips0,gv,kv !See gvlst2 and sgvsym
-    use m_lmfinit,only : lcd4,nsp,alat=>lat_alat,ftmesh,gmax=>lat_gmaxin
+    use m_lmfinit,only : nsp,alat=>lat_alat,ftmesh,gmax=>lat_gmaxin
     use m_lgunit,only:stdo
     use m_mksym,only:  ngrp,symops,ag
     use m_lattic,only: plat=>lat_plat,rv_a_opos,qlat=>lat_qlat,vol=>lat_vol, awald=>lat_awald,nkd=>lat_nkd, nkq=>lat_nkq
@@ -24,23 +24,23 @@ contains
     n1=>ngabc(1)
     n2=>ngabc(2)
     n3=>ngabc(3)
-    if(lcd4) then ! --- Setup for FFT charge density, potential representation ---
-       call mshsiz(alat,plat,gmax, ngabc,ngmx) !return n1 n2 n3 (=ngabc) satisfying gmax    !write(stdo,ftox)' 000 gmax ngmx=',ftof(gmax),ngmx
-       gvblock: block !Make list of lattice vectors within cutoff
-         use m_shortn3,only: gvlst2
-         real(8):: ogv(ngmx,3)
-         integer:: okv(ngmx,3),ixx(1)
-         call gvlst2(alat, plat, [0d0,0d0,0d0], n1,n2,n3, 0d0,gmax,[0],8+1000, ngmx, ng, okv, ogv, ixx)  !+1000 for symmetry cheker for sgvsym
-         allocate(rv_a_ogv,source=ogv(1:ng,1:3))
-         allocate(iv_a_okv,source=okv(1:ng,1:3))     !print *,'ogv(1:ng,1:3)',ogv(1,1:3),okv(1,1:3)
-       endblock gvblock
-       lat_ng = ng
-       lat_gmax = gmax
-       allocate(iv_a_oips0(ng),source=0)
-       allocate(zv_a_obgv(ng),source=(0d0,0d0))
-       call sgvsym(ngrp, symops , ag , ng , rv_a_ogv , iv_a_oips0 , zv_a_obgv, ierr)
-       if(ierr/=0) call rxi('m_supot_init: sgvsym error ierr=',ierr)
-    endif
+!    if(lcd4) then ! --- Setup for FFT charge density, potential representation ---
+    call mshsiz(alat,plat,gmax, ngabc,ngmx) !return n1 n2 n3 (=ngabc) satisfying gmax    !write(stdo,ftox)' 000 gmax ngmx=',ftof(gmax),ngmx
+    gvblock: block !Make list of lattice vectors within cutoff
+      use m_shortn3,only: gvlst2
+      real(8):: ogv(ngmx,3)
+      integer:: okv(ngmx,3),ixx(1)
+      call gvlst2(alat, plat, [0d0,0d0,0d0], n1,n2,n3, 0d0,gmax,[0],8+1000, ngmx, ng, okv, ogv, ixx)  !+1000 for symmetry cheker for sgvsym
+      allocate(rv_a_ogv,source=ogv(1:ng,1:3))
+      allocate(iv_a_okv,source=okv(1:ng,1:3))     !print *,'ogv(1:ng,1:3)',ogv(1,1:3),okv(1,1:3)
+    endblock gvblock
+    lat_ng = ng
+    lat_gmax = gmax
+    allocate(iv_a_oips0(ng),source=0)
+    allocate(zv_a_obgv(ng),source=(0d0,0d0))
+    call sgvsym(ngrp, symops , ag , ng , rv_a_ogv , iv_a_oips0 , zv_a_obgv, ierr)
+    if(ierr/=0) call rxi('m_supot_init: sgvsym error ierr=',ierr)
+!    endif
     call tcx('m_supot_init')
   end subroutine m_supot_init
   pure subroutine sgvsym(ngrp,g,ag,ng,gv,ips0,bgv,ierr) !- Setup for symmetrization of a function in Fourier representation.

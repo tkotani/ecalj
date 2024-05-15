@@ -27,7 +27,7 @@ module m_mksym
   !        ATOM=O POS=  .5   .5   .5
   !        ATOM=O POS= 1.5  1.5  1.5
 contains
-  subroutine m_mksym_init(prgnam) 
+  subroutine m_mksym_init() 
     use m_mpitk,only:   master_mpi
     use m_lgunit,only:  stdo
     use m_lmfinit,only: nspec,nbas, sstrnsymg,symgaf,ips=>iv_a_oips,slabl,iantiferro,addinv,lmxax
@@ -36,7 +36,7 @@ contains
     use m_ftox
     implicit none
     integer,parameter::  ngmx = 48
-    character,intent(in)::  prgnam*(*)
+!    character,intent(in)::  prgnam*(*)
     integer:: ibas,lc,j,iprint,nclass,ngrpTotal,k,npgrpAll
     integer,parameter::recln=511
     logical ::cmdopt0,ipr10=.false.
@@ -45,7 +45,7 @@ contains
     real(8),parameter:: tol=1d-4
     integer,allocatable:: iclasstAll(:)
     call tcn('m_mksym_init')
-    if(.NOT.prgnam=='LMFA') ipr10= iprint()>10 !this is only for master
+    ipr10= iprint()>10 
     strn = 'find'
     if(len_trim(sstrnsymg)>0) strn=trim(sstrnsymg)
     if(cmdopt0('--nosym') .OR. cmdopt0('--pdos') ) strn = ' '
