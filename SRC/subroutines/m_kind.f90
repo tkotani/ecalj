@@ -1,4 +1,4 @@
 module m_kind
-  integer,parameter:: kindrcxq=4
+  integer,parameter:: kindrcxq=8
 endmodule m_kind
 
