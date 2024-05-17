@@ -69,15 +69,17 @@ contains
     integer,intent(in):: isp
     real(8):: qu(3)
     complex(8):: geigen(ngpmx,nband)
+    geigen=0d0 !2024-5-17 for ifort NaN initialization
     call readgeig(q,ngpmx,isp,qu,geigen)
   end function readgeigf
   function readgeigf0(q,isp) result(geigen)
-   real(8),intent(in):: q(3)
-   integer,intent(in):: isp
-   real(8):: qu(3)
-   complex(8):: geigen(ngpmx,nband)
-   call readgeig(q,ngpmx,isp,qu,geigen) !,fpmt=.true.)
- end function readgeigf0
+    real(8),intent(in):: q(3)
+    integer,intent(in):: isp
+    real(8):: qu(3)
+    complex(8):: geigen(ngpmx,nband)
+    geigen=0d0 !2024-5-17 for ifort NaN initialization
+    call readgeig(q,ngpmx,isp,qu,geigen) !,fpmt=.true.)
+  end function readgeigf0
  ! sssssssssssssssssssssssssssssssssssssssssssss
   subroutine readgeig(q,ngp_in,isp, qu,geigen)!,fpmt)
     use m_rotwave,only: Rotipw
