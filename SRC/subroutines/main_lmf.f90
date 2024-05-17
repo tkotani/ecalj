@@ -72,10 +72,12 @@ contains
        call writedossawada()
        call rx0('done: end of --wdsawada mode.')
     endif WriteDOSsawadamode
-    open(newunit=ifi,file='save.'//trim(sname),position='append')
-    write(ifi,"(a)")'Start '//trim(prgnam)//trim(argall)
-    close(ifi)
-    if(master_mpi) call ConvertCtrl2CtrlpByPython()
+    if(master_mpi) then
+       open(newunit=ifi,file='save.'//trim(sname),position='append')
+       write(ifi,"(a)")'Start '//trim(prgnam)//trim(argall)
+       close(ifi)
+    endif   
+    if(master_mpi) call ConvertCtrl2CtrlpByPython() !convert ctrl file to ctrlp.
     if(cmdopt0('--quit=ctrlp')) call rx0('--quit=ctrlp')
     call MPI_BARRIER( comm, ierr)
     call m_lmfinit_init(prgnam,comm)! Read ctrlp into module m_lmfinit.
@@ -125,7 +127,6 @@ contains
     if(master_mpi) write(stdo,*)"OK! end of "//trim(prgnam)//" ======================"
   end subroutine lmf
 end module m_lmf
-
 
 subroutine ConvertCtrl2CtrlpByPython()
   use m_MPItk,only: master_mpi

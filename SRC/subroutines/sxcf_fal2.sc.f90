@@ -112,7 +112,7 @@ contains
     character(10) :: i2char
     real(8),parameter :: wfaccut=1d-8,tolq=1d-8, pi=4d0*datan(1d0), fpi=4d0*pi, tpi=8d0*datan(1d0),ddw=10d0
     complex(8), parameter :: img=(0d0,1d0)
-    logical,parameter :: debug=.false.,timemix=.true.
+    logical,parameter :: debug=.false.,timemix=.false.
     complex(8),allocatable,target:: zwz(:,:,:),zw(:,:)
     real(8),allocatable:: we_(:,:),wfac_(:,:)
     complex(8),allocatable:: w3p(:),wtff(:)
