@@ -94,7 +94,7 @@ contains
         call tr_chkwrite("freq_r iq iw realomg trwv=", zw, iw, frr,nblochpmx, nbloch,ngb,iq)
         endif
 1015  enddo iwloop
-      close(ifrcw)
+      if(mpi__root_q) close(ifrcw)
     else  ! llw, Wing elements of W. See PRB81 125102
       iq0 = iq - nqibz
       vcou1 = fourpi/sum(q**2*tpioa**2) ! --> vcousq(1)**2!  !fourpi/sum(q**2*tpioa**2-eee)
@@ -202,7 +202,7 @@ contains
           call tr_chkwrite("freq_i iq iw imgomg trwv=",zw,iw,freq_i(iw),nblochpmx,nbloch,ngb,iq)
           endif
 1016   enddo
-       close(ifrcwi)
+       if(mpi__root_q) close(ifrcwi)
     else
        !! Full inversion to calculalte eps with LFC.
        iq0 = iq - nqibz

@@ -251,7 +251,7 @@ contains
                      it  => itc (icoun),&  !occ      at k
                      itp => itpc(icoun))   !unocc    at q+k
                   do concurrent(igb1=1:npr,igb2=1:npr_col) 
-                    zmelzmel(igb1,igb2)= dconjg(zmel(igb1,it,itp))*zmel(igb2,it,itp) 
+                    zmelzmel(igb1,igb2)= dconjg(zmel(igb1,it,itp))*zmel(igb2+ipr_col-1,it,itp) 
                   enddo
                   forall(iw=iwini(icoun):iwend(icoun))& !rcxq is hermitian, thus, we can reduce computational time half.
                        rcxq(:,:,iw,jpm)=rcxq(:,:,iw,jpm)+ whwc(iw-iwini(icoun)+icouini(icoun))* zmelzmel(:,:) !may use zaxpy and symmetrize afterwards
