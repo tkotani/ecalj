@@ -48,6 +48,8 @@ module m_blas !wrapper for BLAS and cuBLAS
 #ifdef __GPU
     attributes(device) :: a, b, c
 #endif
+    if (m == 0 .or. n == 0 .or. k == 0) return
+
     alpha_in = (1d0, 0d0); beta_in = (0d0, 0d0)
     if(present(alpha)) alpha_in = alpha
     if(present(beta)) beta_in = beta
@@ -96,6 +98,10 @@ module m_blas !wrapper for BLAS and cuBLAS
 #ifdef __GPU
     attributes(device) :: a, b, c
 #endif
+
+    if (nbatch == 0) return
+    if (m == 0 .or. n == 0 .or. k == 0) return
+
     alpha_in = (1d0, 0d0); beta_in = (0d0, 0d0)
     if(present(alpha)) alpha_in = alpha
     if(present(beta)) beta_in = beta

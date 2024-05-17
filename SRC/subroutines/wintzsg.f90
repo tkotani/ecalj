@@ -310,6 +310,6 @@ ENDfunction alagr3zz
 ! sssssssssssssssssssssssssssssssssssssssssssssssssssss
 subroutine timeshow(info)
   character*(*) :: info
-  write(*,'(a,$)')info
+  write(6,'(a,$)')info
   call cputid(0)
 end subroutine timeshow

@@ -35,6 +35,7 @@ module m_gpu
     ilocal_rank = findloc(pack(rankids, hostids == hostid), procid, dim=1) - 1
 
     ndevs = acc_get_num_devices(acc_device_nvidia)
+    if(ndevs == 0) return
     mydev = mod(ilocal_rank, ndevs)
 
     call acc_set_device_num(mydev, acc_device_nvidia)

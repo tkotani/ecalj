@@ -79,7 +79,7 @@ module m_sxcf_main
   use m_readqg,only   : Readqg0
   use m_readeigen,only: Readeval
   use m_keyvalue,only   : Getkeyvalue
-  use m_zmel,only : Get_zmel_init, Setppovlz,  zmel !Setppovlz_chipm,
+  use m_zmel,only : Get_zmel_init, get_zmel_init_gpu, Setppovlz,  zmel !Setppovlz_chipm,
   use m_itq,only: itq,ntq,nbandmx
   use m_genallcf_v3,only: nlmto,nspin,nctot,niw,ecore !,symgg
   use m_read_bzdata,only: qibz,qbz,wk=>wbz,nqibz,nqbz,wklm,lxklm,nq0i, wqt=>wt,q0i, irk
@@ -119,8 +119,9 @@ contains
     complex(8),pointer::zsec(:,:), ww(:,:)
     integer,allocatable :: ifrcw(:),ifrcwi(:),ndiv(:),nstatei(:,:),nstatee(:,:)!,irkip(:,:,:,:)
     logical,parameter:: cache=.true.
-    logical:: emptyrun
+    logical:: emptyrun, use_gpu
     emptyrun=cmdopt0('--emptyrun')
+    use_gpu = cmdopt0('--gpu')
     if(nw_i/=0) call rx('Current version we assume nw_i=0. Time-reversal symmetry')
     iqini = 1
     iqend = nqibz             
@@ -168,7 +169,12 @@ contains
               ns2r=nstte2(icount) !Range of middle states [ns1:ns2r] for CorrelationSelfEnergyRealAxis
               ZmelBlock:block !zmel(ib=ngb,it=ns1:ns2,itpp=1:ntqxx)= <M(qbz_kr,ib) phi(it,q-qbz_kr,isp) |phi(itpp,q,isp)> 
                 if(emptyrun) goto 1212
-                call get_zmel_init(q,qibz_k,irot,qbz_kr, ns1,ns2,isp, 1,ntqxx, isp,nctot,ncc=0,iprx=debug,zmelconjg=.false.)! Get zmel(ngb,ns1:ns2,ntqxx)
+                if(use_gpu) then
+                  call get_zmel_init_gpu(q,qibz_k,irot,qbz_kr, ns1,ns2,isp, 1,ntqxx, isp,nctot,ncc=0,iprx=debug,zmelconjg=.false.)! Get zmel(ngb,ns1:ns2,ntqxx)
+                  !$acc update host(zmel)
+                else
+                  call get_zmel_init(q,qibz_k,irot,qbz_kr, ns1,ns2,isp, 1,ntqxx, isp,nctot,ncc=0,iprx=debug,zmelconjg=.false.)! Get zmel(ngb,ns1:ns2,ntqxx)
+                endif
 1212            continue 
               endblock ZmelBlock
               ExchangeMode: if(exchange) then      
