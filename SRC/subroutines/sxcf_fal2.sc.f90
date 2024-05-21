@@ -94,6 +94,7 @@ module m_sxcf_main
   use m_sxcf_count,only: ncount,kxc,nstateMax,nstti,nstte,nstte2, nwxic, nwxc,icountini,icountend,irkip
   use m_nvfortran,only:findloc
   use m_hamindex,only: ngrp
+  use m_data_gpu, only: SetDataGPU_inkx, ExitDataGPU_inkx, SetDataGPU, ExitDataGPU
   implicit none
   public sxcf_scz_main, zsecall
   complex(8),allocatable,target:: zsecall(:,:,:,:) !output
@@ -136,11 +137,13 @@ contains
        enddo
      endif
     ! NOTE: sum for G\timesW is controlloed by irkip, icountini:icountend
+    call SetDataGPU(set_ppbir_in_gpu = .true.)
     kxold=-9999  ! To make MAINicountloop 3030 as parallel loop, set cache=.false.
     kxloop:                  do kx  =1,nqibz   ! kx is irreducible !kx is main axis where we calculate W(kx).
       qibz_k = qibz(:,kx)
       call Readvcoud(qibz_k,kx,NoVcou=.false.)  !Readin ngc,ngb,vcoud ! Coulomb matrix
       call Setppovlz(qibz_k,matz=.true.)        !Set ppovlz overlap matrix used in Get_zmel_init in m_zmel
+      call SetDataGPU_inkx(set_ppovlz_in_gpu = .true., set_vcoud_in_gpu = .true.)
       irotloop:              do irot=1,ngrp    ! (kx,irot) determines qbz(:,kr), which is in FBZ. W(kx) is rotated to be W(g(kx))
           iploopexternal:    do ip=1,nqibz     !external index for q of \Sigma(q,isp)
             isploopexternal: do isp=1,nspinmx  !external index
@@ -170,14 +173,21 @@ contains
               ZmelBlock:block !zmel(ib=ngb,it=ns1:ns2,itpp=1:ntqxx)= <M(qbz_kr,ib) phi(it,q-qbz_kr,isp) |phi(itpp,q,isp)> 
                 if(emptyrun) goto 1212
                 if(use_gpu) then
-                  call get_zmel_init_gpu(q,qibz_k,irot,qbz_kr, ns1,ns2,isp, 1,ntqxx, isp,nctot,ncc=0,iprx=debug,zmelconjg=.false.)! Get zmel(ngb,ns1:ns2,ntqxx)
-                  !$acc update host(zmel)
+                  call get_zmel_init_gpu(q,qibz_k,irot,qbz_kr, ns1,ns2,isp, 1,ntqxx, isp,nctot,ncc=0,iprx=debug, &
+                                         zmelconjg=.false.)! Get zmel(ngb,ns1:ns2,ntqxx)
                 else
                   call get_zmel_init(q,qibz_k,irot,qbz_kr, ns1,ns2,isp, 1,ntqxx, isp,nctot,ncc=0,iprx=debug,zmelconjg=.false.)! Get zmel(ngb,ns1:ns2,ntqxx)
                 endif
 1212            continue 
               endblock ZmelBlock
               ExchangeMode: if(exchange) then      
+                if(use_gpu) then
+                  ExchangeSelfEnergyGPU: Block
+                    use m_xc_gpu, only: get_exchange
+                    call get_exchange(kx, isp, ef, ekc, esmr, ns1, ns2, ntqxx, wtt, zsecall(1,1,ip,isp), &
+                                      emptyrun = emptyrun)
+                  EndBlock ExchangeSelfEnergyGPU
+                else
                 ExchangeSelfEnergy: Block
                   real(8):: wfacx,vcoud_(ngb),wtff(ns1:ns2) !range of middle states ns1:ns2
                   !character(8):: xt ;call timeshow("ExchangeMODE1 icount="//trim(xt(icount)))
@@ -195,9 +205,13 @@ contains
                          sum( [(sum(dconjg(zmel(:,it,itp))*vcoud_(:)*zmel(:,it,itpp))*wtff(it),it=ns1,ns2)] ) !this may work even for nvfortran24.1
                   enddo
                 EndBlock ExchangeSelfEnergy
+                endif
                 if(timemix) call timeshow("ExchangeSelfEnergy cycle")
                 cycle  
               endif ExchangeMode
+              if(use_gpu) then
+                !$acc update host(zmel)
+              endif
               CorrelationMode: Block! See Eq.(55) around of PRB76,165106 (2007) !range of middle states is [ns1:ns2]
                 integer:: nm
                 complex(8):: zmelc  (1:ntqxx,ns1:ns2,1:ngb)
@@ -316,7 +330,9 @@ contains
           enddo isploopexternal
         enddo iploopexternal
       enddo irotloop
+      call ExitDataGPU_inkx()
     enddo kxloop
+    call ExitDataGPU()
   write(stdo,ftox)'endof 3030loop'
   endsubroutine sxcf_scz_main
   pure subroutine matmaw(a,b,c,n1,n2,n3,ww)

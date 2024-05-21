@@ -283,14 +283,17 @@ contains
     endblock ZmelBlock
   end subroutine get_zmel_init
 
-    ! this is a copy of get_zmel_init to use blas
-  subroutine get_zmel_init_gpu(q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc, iprx,zmelconjg)
+! this subroutine is a copy of get_zmel_init to use blas/cuBLAS by M. Obata 2024-05-18
+  subroutine get_zmel_init_gpu(q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc, iprx,zmelconjg, comm)
     use m_readeigen,only: readcphif 
     use m_readeigen,only: readgeigf
     use m_itq,only: itq,ntq
-    use m_blas, only: m_op_c, m_op_n, m_op_t, zmm, zmm_batch !CPU or GPU versions specifed by macro __GPU
+    use m_stopwatch
+    use m_blas, only: m_op_c, m_op_n, m_op_t, int_split, zmm, zmm_batch !CPU or GPU versions specifed by macro __GPU
     implicit none
+    include "mpif.h"
     intent(in)::           q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc, iprx,zmelconjg
+    integer, optional, intent(in) :: comm
     real(8),parameter::tolq=1d-8
     complex(8),parameter:: img=(0d0,1d0),tpi= 8d0*datan(1d0)
     integer:: isp,ns1,ns2,nqmax,irot,ispq,ispm,nqini, nctot,ncc,ncnv,ncorec,nccc,mdim
@@ -309,6 +312,12 @@ contains
     real(8)::tr(3,natom)
     real(8)::qk(3),symope(3,3),shtv(3)
     integer :: ierr
+    integer :: nqini_rank, nqmax_rank, ntp0_rank 
+    integer :: mpi_rank, mpi_size, ini_index, end_index, num_index, mpi_info, irank
+    type(stopwatch) :: sw_bcast, sw_zmel
+#ifdef __GPU
+    attributes(device) :: ppb
+#endif
 
     if(allocated(zmel)) then
       !$acc exit data delete(zmel)
@@ -340,8 +349,11 @@ contains
         dgeigqk = readgeigf(qk,ispm) !read IPW part at qk  !G2 for ngp2
         dgeigqk = dconjg(dgeigqk)
       endif
-
+      !$acc data copyin(ppbir(1:nlnmx,1:nlnmx,1:mdimx,1:nclass,irot,ispq))
+      !$acc kernels
       ppb = ppbir(:,:,:,:,irot,ispq)           !MPB has no spin dependence
+      !$acc end kernels
+      !$acc end data 
       invr  = invg(irot)       !invrot (irot,invg,ngrp) ! Rotate atomic positions invrot*R = R' + T
       tr    = tiat(:,:,invr)
       iatomp= miat(:,invr)
@@ -355,8 +367,23 @@ contains
       ntp0=nqmax-nqini+1
       nmtot  = nctot + nt0     ! = phi_middle nmtot=ns2-ns1+1
       nqtot  = ncc   + ntp0    ! = phi_end
+      ini_index = 1
+      end_index = ntp0
+      nqini_rank = nqini
+      nqmax_rank = nqmax
+      if(present(comm)) then
+        call mpi_comm_rank(comm, mpi_rank, mpi_info)
+        call mpi_comm_size(comm, mpi_size, mpi_info)
+        call int_split(ntp0, mpi_size, mpi_rank, ini_index, end_index, num_index)
+        ntp0 = num_index
+        nqini_rank = nqini + ini_index - 1
+        nqmax_rank = nqini + end_index - 1
+      endif
     end block SetByCPU
 
+    ! call stopwatch_init(sw_bcast,'zme:bcast')
+    ! call stopwatch_init(sw_zmel,'zme:calc')
+    ! call stopwatch_start(sw_zmel)
     ZmelBlock:block
       complex(8):: zmelt(1:nbloch+ngc,nmtot,nqtot)
       complex(8), allocatable :: zmelt_d(:,:,:)
@@ -372,7 +399,7 @@ contains
 #ifdef __GPU
         attributes(device) :: ppbvphiq_d, cphim_d, cphiq_d, ppbc_d, ppbv_d
 #endif
-        phasea = [(exp(-img *tpi* sum(kvec*tr(:,ia))),ia=1,natom)] 
+        phasea = [(exp(-img *tpi* sum(kvec*tr(:,ia))),ia=1,natom)]
         iatomloop: do ia = 1, natom
           ic    = iclass(ia)
           nc    = nlnmc(ic) !nlnmc      = number of l,n,m for core states
@@ -391,15 +418,17 @@ contains
           nccc  = merge(ncore(ic),0,ncc>0)
 
           !copy from CPU to GPU
-          if(nt0>0) allocate(cphim_d(nv,nt0), source = cphim(ias:iae,nmini:nmmax))
-
-          allocate(cphiq_d(nv,ntp0), source = cphiq(ias:iae,nqini:nqmax))
+          if (nt0 > 0) allocate(cphim_d(nv,nt0), source = cphim(ias:iae,nmini:nmmax))
+          allocate(cphiq_d(nv,ntp0), source = cphiq(ias:iae,nqini_rank:nqmax_rank))
           ! valence-valence part
-          if(nt0 > 0) then
+          if (nt0 > 0) then
             allocate(ppbvphiq_d(nv,ntp0,mdim))
             allocate(zmelt_d(nt0,ntp0,mdim))
             allocate(ppbv_d(nv,nv,mdim))
+            !$acc kernels
             ppbv_d(1:nv,1:nv,1:mdim) = dcmplx(ppb(nc1:ncnv,nc1:ncnv,1:mdim,icp)) 
+            !$acc end kernels
+
             ierr = zmm_batch(ppbv_d, cphiq_d, ppbvphiq_d, nv, ntp0, nv, mdim, opA = m_op_T, sameB = .true.)
             ierr = zmm_batch(cphim_d, ppbvphiq_d, zmelt_d, nt0, ntp0, nv, mdim, alpha = phasea(ia), opA = m_op_C, sameA = .true.)
             !$acc kernels
@@ -409,25 +438,34 @@ contains
             !$acc end kernels
             deallocate(zmelt_d, ppbvphiq_d, ppbv_d)
           endif
-
-          ! core-valence part NOT TESTED
-          allocate(zmelt_d(mdim,ntp0,max(1,ncorec)), ppbc_d(mdim,nv,max(1,ncorec)))
-          !$acc kernels
-          do i = 1, mdim
-            ppbc_d(i,1:nv,1:max(1,ncorec)) = dcmplx(ppb(nc1:ncnv,1:(max(1,ncorec)),i,icp))
-          enddo
-          !$acc end kernels
-          ierr = zmm_batch(ppbc_d, cphiq_d, zmelt_d, mdim, ntp0, nv, ncorec, alpha = phasea(ia), sameB = .true.)
-          !$acc kernels
-          do it = 1, ncorec
-            zmelt(ims:ime,ics+it,ncc+1:ncc+ntp0) = zmelt_d(1:mdim,1:ntp0,it)
-          enddo
-          !$acc end kernels
-          deallocate(zmelt_d)
-          ! valence-core part NOT TESTED
-          if(nt0 > 0) then
-            allocate(zmelt_d(mdim,nt0,max(nccc,1)))
-            ierr =  zmm_batch(ppbc_d, cphim_d, zmelt_d, mdim, nt0, nv, nccc, alpha = phasea(ia), sameB = .true.)
+          ! core-valence part used in core-exchange mode
+          if (ncorec > 0) then
+            allocate(zmelt_d(mdim,ntp0,ncorec), ppbc_d(mdim,nv,ncorec))
+            !$acc kernels
+            do i = 1, mdim
+              ppbc_d(i,1:nv,1:ncorec) = dcmplx(ppb(nc1:ncnv,1:ncorec,i,icp))
+            enddo
+            !$acc end kernels
+            ierr = zmm_batch(ppbc_d, cphiq_d, zmelt_d, mdim, ntp0, nv, ncorec, alpha = phasea(ia), sameB = .true.)
+            !$acc kernels
+            do it = 1, ncorec
+              zmelt(ims:ime,ics+it,ncc+1:ncc+ntp0) = zmelt_d(1:mdim,1:ntp0,it)
+            enddo
+            !$acc end kernels
+            deallocate(zmelt_d)
+          endif
+          !(MO) valence-core part NOT TESTED
+          if(nt0 > 0 .and. nccc > 0) then
+            allocate(zmelt_d(mdim,nt0,nccc))
+            if (.not.allocated(cphim_d)) allocate(cphim_d(nv,nt0), source = cphim(ias:iae,nmini:nmmax)) ! this may be unnecessary
+            if (allocated(ppbc_d)) deallocate(ppbc_d)
+            allocate(ppbc_d(mdim,nv,nccc))
+            !$acc kernels
+            do i = 1, mdim
+              ppbc_d(i,1:nv,1:nccc) = dcmplx(ppb(nc1:ncnv,1:nccc,i,icp))
+            enddo
+            !$acc end kernels
+            ierr = zmm_batch(ppbc_d, cphim_d, zmelt_d, mdim, nt0, nv, nccc, alpha = phasea(ia), sameB = .true.)
             !$acc kernels
             do itp = 1, nccc
               zmelt(ims:ime,nctot+1:nctot+nt0,ics+itp) = zmelt_d(1:mdim,1:nt0,itp)
@@ -435,8 +473,10 @@ contains
             !$acc end kernels
             deallocate(zmelt_d)
           endif
-          if(nt0>0) deallocate(cphim_d)
-          deallocate(cphiq_d, ppbc_d)
+
+          if (allocated(cphim_d)) deallocate(cphim_d)
+          if (allocated(ppbc_d)) deallocate(ppbc_d)
+          deallocate(cphiq_d)
         enddo iatomloop
       endblock ZmelWithinMT
 
@@ -469,7 +509,7 @@ contains
             enddo
           enddo
           !$acc end kernels
-          ierr = zmm(gggmat, geigq(1,itq(nqini)), ggitp, ngcgp, ntp0, ngp1, ldB = ngpmx)
+          ierr = zmm(gggmat, geigq(1,itq(nqini_rank)), ggitp, ngcgp, ntp0, ngp1, ldB = ngpmx)
 
           !$acc kernels loop independent collapse(2)
           do igp2 = 1, ngp2
@@ -493,19 +533,56 @@ contains
           deallocate(zmelt_d)
         endblock ZmelIPW
       endif
-
-      allocate(zmel(nbb,ns1:ns2, nqtot))
+      allocate(zmel(nbb,ns1:ns2,nqtot))
       !$acc enter data create(zmel)
       !$acc host_data use_device(zmel)
       !$acc data copyin(ppovlz(1:ngb,1:nbb))
-      ierr = zmm(ppovlz, zmelt, zmel, nbb, nmtot*nqtot, ngb, opA = m_op_C)
+      ierr = zmm(ppovlz, zmelt, zmel(1,ns1,1), nbb, nmtot*ncc, ngb, opA = m_op_C)
+      ierr = zmm(ppovlz, zmelt, zmel(1,ns1,ncc+ini_index), nbb, nmtot*ntp0, ngb, opA = m_op_C)
       !$acc end data
+      !$acc end host_data
+      ! call stopwatch_pause(sw_zmel)
+      ! call stopwatch_start(sw_bcast)
+      if (present(comm)) then
+        block
+          integer, allocatable :: data_disp(:), data_size(:)
+          complex(8), allocatable :: zmel_buf(:,:,:)
+          integer :: ini, num, end
+          allocate(zmel_buf, mold = zmel)
+          allocate(data_size(0:mpi_size-1), data_disp(0:mpi_size-1))
+          do irank = 0, mpi_size - 1
+            call int_split(nqmax-nqini+1, mpi_size, irank, ini, end, num)
+            data_size(irank) = nmtot*nbb*num
+            data_disp(irank) = nmtot*nbb*(ini-1)
+          enddo
+          !GPU aware MPI style does not work ...why??
+          !!$acc data create(zmel_buf) present(zmel)
+          !!$acc host_data use_device(zmel, zmel_buf)
+          !call mpi_allgatherv(zmel(1,ns1,ncc+ini_index), data_size(mpi_rank), mpi_complex16, zmel_buf, data_size, data_disp, &
+          !          &  mpi_complex16, comm, mpi_info)
+          !!$acc kernels
+          !zmel = zmel_buf
+          !!$acc end kernels
+          !!$acc end host_data
+          !!$acc end data
+
+          ! data copy from GPU to CPU for MPI routine. this would be slow
+          !$acc update host(zmel)
+          call mpi_allgatherv(zmel(1,ns1,ncc+ini_index), data_size(mpi_rank), mpi_complex16, zmel_buf, data_size, data_disp, &
+                    &  mpi_complex16, comm, mpi_info)
+          zmel = zmel_buf
+          !$acc update device(zmel)
+          deallocate(zmel_buf, data_size, data_disp)
+        end block
+      endif
+      ! call stopwatch_pause(sw_bcast)
+      ! call stopwatch_show(sw_zmel)
+      ! call stopwatch_show(sw_bcast)
       if(zmelconjg) then
         !$acc kernels
         zmel = dconjg(zmel)
         !$acc end kernels
       endif
-      !$acc end host_data
 
     endblock ZmelBlock
   end subroutine get_zmel_init_gpu

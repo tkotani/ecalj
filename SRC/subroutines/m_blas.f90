@@ -7,15 +7,15 @@ module m_blas !wrapper for BLAS and cuBLAS
   implicit none
   include "mpif.h"
   public :: zmm, zmm_batch, m_op_n, m_op_t, m_op_c
+  public :: int_split
 #ifdef __GPU
   type(cublashandle), value :: cublas_handle
   logical, save :: set_cublas_handle = .false.
 #endif
   character, parameter :: m_op_n = 'N', m_op_t = 'T', m_op_c = 'C'
-
   private
-  contains
 
+contains
 #ifdef __GPU
   integer function cublas_init() result(istat)
     istat = 0
@@ -48,7 +48,7 @@ module m_blas !wrapper for BLAS and cuBLAS
 #ifdef __GPU
     attributes(device) :: a, b, c
 #endif
-    if (m == 0 .or. n == 0 .or. k == 0) return
+    if (m < 1 .or. n < 1 .or. k < 1) return
 
     alpha_in = (1d0, 0d0); beta_in = (0d0, 0d0)
     if(present(alpha)) alpha_in = alpha
@@ -99,8 +99,8 @@ module m_blas !wrapper for BLAS and cuBLAS
     attributes(device) :: a, b, c
 #endif
 
-    if (nbatch == 0) return
-    if (m == 0 .or. n == 0 .or. k == 0) return
+    if (nbatch < 1) return
+    if (m < 1 .or. n < 1 .or. k < 1) return
 
     alpha_in = (1d0, 0d0); beta_in = (0d0, 0d0)
     if(present(alpha)) alpha_in = alpha
@@ -174,5 +174,4 @@ module m_blas !wrapper for BLAS and cuBLAS
     iini = (ndata/nsplit)*irank + max(irank + mod(ndata, nsplit) - nsplit, 0) + 1  
     iend = iini + n - 1
   end subroutine
-
 end module m_blas

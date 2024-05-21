@@ -37,6 +37,7 @@ subroutine hx0fp0()
   use m_lgunit,only:m_lgunit_init
   use m_readqg,only: Readqg0
   use m_dpsion,only: dpsion5
+  use m_gpu,only: gpu_init
   implicit none
   !! We calculate chi0 by the follwoing three steps.
   !!  gettetwt: tetrahedron weights
@@ -179,6 +180,7 @@ subroutine hx0fp0()
   integer,allocatable::   mpi__ranktab(:)
   integer :: n_kpara = 1, n_bpara = 1, npr_col, worker_inQtask
   call MPI__Initialize()
+  call gpu_init() 
   call M_lgunit_init()
   call MPI__consoleout('hx0fp0')
   call cputid (0)

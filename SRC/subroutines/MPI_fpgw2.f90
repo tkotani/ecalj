@@ -11,7 +11,7 @@ module m_mpi !MPI utility for fpgw
   integer :: comm_q, mpi__rank_q, mpi__size_q
   integer :: comm_k, mpi__rank_k, mpi__size_k
   integer :: comm_b, mpi__rank_b, mpi__size_b
-  integer :: comm_root_k, comm_root_q
+  integer :: comm_root_k
 
   logical :: mpi__root_q, mpi__root_k
   integer, allocatable :: mpi__npr_col(:), mpi__ipr_col(:)
@@ -33,6 +33,15 @@ contains
     if( mpi__root ) call chdir(cwd)        ! recover current working directory
   end subroutine MPI__Initialize
 
+!  MPI__SplitXq is only used in hrcxq for q-points, k-points, and MPB parallel.
+! example in case of n_bpara = 2 and n_kpara  = 3
+! mpi__rank                           : 0,1,2,3,4,5, 6,7,8,9,10,11
+! color = mpi__rank/(n_bpara*n_kpara) : 0,0,0,0,0,0, 1,1,1,1, 1, 1,
+! mpi__rank_q                         : 0,1,2,3,4,5, 0,1,2,3, 4, 5
+! mpi__root_q                         : T,F,F,F,F,F, T,F,F,F, F, F
+! color = mpi__rank_q/n_bpara         : 0,0,1,1,2,2  0,0,1,1, 2, 2
+! color = mod(mpi__rank_q,n_bpara)    : 0,1,0,1,0,1  0,1,0,1, 0, 1
+
   subroutine MPI__SplitXq(n_bpara, n_kpara)
     implicit none
     integer, intent(in) :: n_bpara, n_kpara
@@ -42,10 +51,7 @@ contains
     call mpi_comm_split(comm, color, mpi__rank, comm_q, mpi__info)
     call mpi_comm_rank(comm_q, mpi__rank_q, mpi__info)
     call mpi_comm_size(comm_q, mpi__size_q, mpi__info)
-
-    color = merge(0, MPI_UNDEFINED, mpi__rank_q == 0)
     mpi__root_q = mpi__rank_q == 0
-    call mpi_comm_split(comm, color, mpi__rank, comm_root_q, mpi__info)
 
     color = mpi__rank_q/n_bpara
     call mpi_comm_split(comm_q, color, mpi__rank, comm_b, mpi__info)

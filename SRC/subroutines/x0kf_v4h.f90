@@ -119,7 +119,8 @@ contains
     use m_zmel,only: Setppovlz,Setppovlz_chipm   ! & NOTE: these data set are stored in this module, and used
     use m_stopwatch
     use m_mpi,only: comm_k, mpi__rank_k, mpi__size_k, MPI__reduceSum, &
-                    mpi__ipr_col, mpi__npr_col, mpi__rank_b, mpi__root_k
+                    mpi__ipr_col, mpi__npr_col, mpi__rank_b, mpi__root_k, comm_b
+    use m_gpu, only: use_gpu
     implicit none
     intent(in)::      realomega,imagomega, q,iq,nprin,schi,crpa,chipm,nolfco,q00,zzr
     logical:: realomega,imagomega,crpa,chipm,nolfco
@@ -220,13 +221,23 @@ contains
             ! nqini= nkqmin(k);      nqmax= nkqmax(k)
             icounkmink= icounkmin(k); icounkmaxk= icounkmax(k)
             call stopwatch_start(t_sw_zmel)
-            call get_zmel_init_gpu(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
-                 nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false.,zmelconjg=.true.)
+            if(use_gpu) then
+              !Currently, mpi version of get_zmel_init_gpu which is available by adding comm argument for MPI communicator,
+              !but, MPI communication is significant bottle-neck in the case where GPUs are used. Therefore, it is only used in without GPU case.
+              call get_zmel_init_gpu(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
+                   nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., &
+                   zmelconjg=.true.)
+            else
+              call get_zmel_init_gpu(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
+                   nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., &
+                   zmelconjg=.true., comm = comm_b)
+            endif
             call stopwatch_pause(t_sw_zmel)
 
             call stopwatch_start(t_sw_x0)
-            call x0gpu(rcxq,npr,ipr_col,npr_col,nwhis,npm)
+            call x0gpu(rcxq, npr, ipr_col, npr_col, nwhis, npm)
             call stopwatch_pause(t_sw_x0)
+
 1500      enddo kloop
         else ! NOTE: kloop10:do 1510 is equivalent to do 1500. 2024-3-25
           call stopwatch_init(t_sw_zmel, 'zmel_original')
