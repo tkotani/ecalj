@@ -1,7 +1,7 @@
 module m_gpu
   use m_mpi, only: comm, nsize=>mpi__size, procid=>mpi__rank
   implicit none
-  public :: gpu_init, check_memory_gpu
+  public :: gpu_init, check_memory_gpu, use_gpu
   logical, protected :: use_gpu = .false.
   private
   include "mpif.h"
@@ -38,6 +38,7 @@ module m_gpu
     if(ndevs == 0) return
     mydev = mod(ilocal_rank, ndevs)
 
+    use_gpu = .true.
     call acc_set_device_num(mydev, acc_device_nvidia)
     call acc_init(acc_device_nvidia)
 
