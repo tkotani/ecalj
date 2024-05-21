@@ -129,14 +129,14 @@ contains
     complex(8),optional:: zzr(:,:)
     real(8):: q(3),schi,ekxx1(nband,nqbz),ekxx2(nband,nqbz)
     character(10) :: i2char
-    logical:: cmdopt0,GPUTEST
+    logical:: cmdopt0, GPUTEST
     npr=nprin
     qq=q
     GPUTEST = cmdopt0('--gpu')
 
     ipr_col = mpi__ipr_col(mpi__rank_b) ! start index of column on xq for product basis set
     npr_col = mpi__npr_col(mpi__rank_b) ! number of columns on xq
-    ! GPUTEST = .true.
+
     if(mpi__root_k) then
       if(realomega) allocate(zxq(npr,npr_col,nw_i:nw),source=(0d0,0d0))
       if(imagomega) allocate(zxqi(npr,npr_col,niw),source=(0d0,0d0))
@@ -168,7 +168,7 @@ contains
            allocate( rcxq(npr,npr_col,nwhis,npm))
            rcxq=0d0
            if(GPUTEST) then
-             write(stdo,ftox)'size of rcxq:', npr, npr_col, nwhis, npm
+             write(stdo,ftox)'GPU mode ON: size of rcxq:', npr, npr_col, nwhis, npm
              !$acc enter data create(rcxq) 
              !$acc kernels
              rcxq(1:npr,1:npr_col,1:nwhis,1:npm) = (0d0,0d0)
@@ -189,10 +189,10 @@ contains
               itp = itpc(icoun) !unocc    q+k
               jpm = jpmc(icoun) ! \pm omega. Usual mode is only for jpm=1
               if(kold/=k) then
-                call x0kf_zmel(q00,k, isp_k,isp_kq)
+                call x0kf_zmel(q00,k, isp_k,isp_kq, GPUTEST=GPUTEST)
                 if(allocated(zmel0)) deallocate(zmel0)
                 allocate(zmel0,source=zmel)
-                call x0kf_zmel(q, k, isp_k,isp_kq)
+                call x0kf_zmel(q, k, isp_k,isp_kq, GPUTEST=GPUTEST)
                 kold=k
               endif
               do iw=iwini(icoun),iwend(icoun) !iw  = iwc(icount)  !omega-bin
@@ -308,12 +308,29 @@ contains
   subroutine deallocatezxqi()
     deallocate(zxqi)
   end subroutine deallocatezxqi
-  subroutine x0kf_zmel( q,k, isp_k,isp_kq) ! Return zmel= <phi phi |M_I> in m_zmel
+  subroutine x0kf_zmel( q,k, isp_k,isp_kq, GPUTEST) ! Return zmel= <phi phi |M_I> in m_zmel
+    use m_gpu, only: use_gpu
+    use m_mpi, only: comm_b
     intent(in)   ::     q,k, isp_k,isp_kq   
     integer::              k,isp_k,isp_kq 
     real(8)::           q(3)
-    call get_zmel_init(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot, ns2=nkmax(k)+nctot, ispm=isp_k, &
-         nqini=nkqmin(k), nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1), iprx=.false., zmelconjg=.true.)
+    logical, intent(in), optional:: GPUTEST
+    if (present(GPUTEST)) then
+      if (GPUTEST) then
+        if (use_gpu) then
+          call get_zmel_init_gpu(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
+               nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., &
+               zmelconjg=.true.)
+        else
+          call get_zmel_init_gpu(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
+               nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., &
+               zmelconjg=.true., comm = comm_b)
+        endif
+      endif
+    else
+      call get_zmel_init(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot, ns2=nkmax(k)+nctot, ispm=isp_k, &
+           nqini=nkqmin(k), nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1), iprx=.false., zmelconjg=.false.)
+    endif
   end subroutine x0kf_zmel
 end module m_x0kf
 
