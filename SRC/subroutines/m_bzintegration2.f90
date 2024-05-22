@@ -1,6 +1,6 @@
 !> BZ integration for fermi level, band sum and qp weights, fixed-spin
 module  m_bzintegration2 ! BZ integration
-  use m_lmfinit,only:nspx
+  use m_lmfinit,only:nspx,nsp,nspc
   use m_nvfortran
   use m_ftox
   use m_lgunit,only: stdo,stdl
@@ -10,14 +10,16 @@ module  m_bzintegration2 ! BZ integration
 contains
   subroutine bzintegration2(eb, efermi,sumev,wtkb,sumqv,vmag)  
     use m_lmfinit,only: lso,bz_fsmommethod,fmom=>bz_fsmom,norder=>bz_n,lmet=>bz_lmet
-    use m_lmfinit,only: width=>bz_w,npts=>bz_ndos,nsp,nspc, zbak,NULLR
+    use m_lmfinit,only: width=>bz_w,npts=>bz_ndos, zbak,NULLR
     use m_mkqp,only: ntet=> bz_ntet, nkabc=> bz_nabc,idtet=>iv_a_oidtet, wtkp=>rv_a_owtkp
-    use m_suham,only: nbmx=>ham_ndham 
+    use m_suham,only: nbmx=>ham_ndhamx !size of Hamiltonian 
     use m_qplist,only: nkp
     use m_mkpot,only: qval
     !i   nbmx  : leading dimension of eb
     !i   nsp   :=2 for spin-polarized case, otherwise 1
+    !i   nspx  :=1 for lso=1, otherwize nspx=nsp
     !i   nspc  :=2 for lso=1 (spin-up and spin-down channels are coupled), otherwise 1
+    !
     !i   n1..n3:number of divisions for the k-point mesh
     !i   nkp   :number of inequivalent k-points (bzmesh.f)
     !i   ntet  :number of inequivalent tetrahedra (tetirr.f)
@@ -58,12 +60,12 @@ contains
     n3=nkabc(3)
     zval=qval-zbak
     !!== Fermi level without spin constraint ==
-    call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval, &
+    call bzwts(nevx,n1,n2,n3,nkp,ntet,idtet,zval, &
          metal,tetra,norder,npts,width,rnge,wtkp,eb,efermi, &
          sumev,wtkb,dosef,sumqv,ent,lfill)
     if (nsp == 1) return
     call getpr(ipr)
-    if( lso/=1 .AND. metal) then     !only for lso/=1
+    if( lso/=1 .AND. metal) then  !only for lso/=1 and nps==2
        amom = sum(wtkb(:,1,:) - wtkb(:,2,:))
        if(ipr >= 20) write(stdo,"(9x,'Mag. moment:',f15.6)") amom !magnetic moment
        sumqv(2) = amom
@@ -137,7 +139,7 @@ contains
        !! Fermi level with dv shift
        if( .NOT. quitvmag) call pshpr(ipr-50)
        if(iprint()>0) write(stdo,ftox) ' Second call bzwts in bzwtsf for fsmom mode'
-       call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval, &
+       call bzwts(nevx,n1,n2,n3,nkp,ntet,idtet,zval, &
             metal,tetra,norder,npts,width,rnge,wtkp,ebs,efermi, sumev,wtkb,dosef,sumqv,ent,lfill)
        if (iprint()>= 20) then
           amom = sum(wtkb(:,1,:) - wtkb(:,2,:)) 
@@ -173,15 +175,14 @@ contains
     if(iprint()>20) write(stdo,"(' bzintegration2: Set Bias field -Vup+Vdn=',f20.15)")vmag
     call tcx('bzintegration2')
   end subroutine bzintegration2
-  subroutine bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,& ! BZ integration for fermi level, band sum and qp weights
+  subroutine bzwts(nevx,n1,n2,n3,nkp,ntet,idtet,zval,& ! BZ integration for fermi level, band sum and qp weights
        metal,tetra,norder,npts,width,rnge,wtkp,eb, efermi,sumev,wtkb,dosef,sumqv,ent,lfill)
     use m_bzints,only:bzints
     implicit none
-    intent(in)::   nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,&
+    intent(in)::  nevx,n1,n2,n3,nkp,ntet,idtet,zval,&
          metal,tetra,norder,npts,width,rnge,wtkp!,eb
     intent(out)::                                  efermi,sumev,wtkb,dosef,sumqv,ent,lfill
     !i Inputs
-    !i   nbmx  :leading dimension of eb
     !i   nevx  :leading dimension of wtkb and max number of evals calculated
     !i   nsp   :2 for spin-polarized case, otherwise 1
     !i   nspc  :2 if spin-up and spin-down channels are coupled; else 1.
@@ -206,18 +207,18 @@ contains
     !o   ent   :entropy term (actually TS)
     !o   lfill :true => insulator
     logical metal,tetra
-    integer nbmx,norder,npts,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet(5,ntet)
-    real(8)::zval,eb(nbmx,nsp,nkp),width,rnge,wtkp(nkp), efermi,sumev,dosef(2),sumqv(2),ent, &
-         wtkb(nevx,nsp,nkp),wtkbx(nevx,nsp,nkp)
-    integer:: it,itmax,n,nptdos,nspxx,nbmxx,nevxx,ib &
+    integer nevx,norder,npts,n1,n2,n3,nkp,ntet,idtet(5,ntet)
+    real(8)::zval,eb(nevx,nspx,nkp),width,rnge,wtkp(nkp), efermi,sumev,dosef(2),sumqv(2),ent, &
+         wtkb(nevx,nspx,nkp),wtkbx(nevx,nspx,nkp)
+    integer:: it,itmax,n,nptdos,nspxx,nevxx,ib &
          ,ikp,ipr,job,i1mach,nev, mkdlst,ifi,i,j,lry ,nulli,isw !,nbpw
     real(8) ,allocatable :: dos_rv(:)
     real(8) emin,emax,e1,e2,dum(1),tol,e,elo,ehi,sumwt, dmin,dmax,egap,amom,cv,tRy
     character outs*100,ryy*3
     logical cmdopt0,lfill
     real(8) ,allocatable :: tlst_rv(:),eb2(:,:,:)
-    real(8):: ebx(nevx*nsp,nkp),de,q1,q2,bot_rv(nevx*nsp),top_rv(nevx*nsp)
-    integer:: ibx(nevx*nsp,nkp), isx(nevx*nsp,nkp),ib1,ib2,ib2e,ix,isp,i1,ie
+    real(8):: ebx(nevx*nspx,nkp),de,q1,q2,bot_rv(nevx*nspx),top_rv(nevx*nspx)
+    integer:: ibx(nevx*nspx,nkp), isx(nevx*nspx,nkp),ib1,ib2,ib2e,ix,isp,i1,ie
     parameter (nulli=-99999)
     integer:: iprint, w(1)
     call tcn('bzwts')
@@ -226,8 +227,7 @@ contains
     ent = 0
     n = isign(1,norder) * mod(iabs(norder),100)
     nspxx  = 1
-    nevxx = nevx*nsp
-    nbmxx = nbmx*nsp
+    nevxx = nevx*nspx
     job = 3-2*nsp !     job = 1 for non spin pol, -1 for spin pol
     dosef(1) = 0
     egap = nulli
@@ -256,7 +256,7 @@ contains
     else
        ebx=reshape(eb,shape(ebx))
     endif
-    lfill = efrng2 ( nspxx,nkp,nbmxx,nevxx, nsp*zval, ebx, bot_rv,top_rv,elo,ehi,emin,emax )
+    lfill = efrng2(nkp, nevxx, nsp*zval, ebx, bot_rv,top_rv,elo,ehi,emin,emax )
     if (.not. tetra .and. iabs(norder) .ge. 100) lfill = .false.
     if (lfill) then ! ... Case an insulator: put efermi at emin + tiny number
        efermi = emin + 1d-10
@@ -272,7 +272,7 @@ contains
        sumwt = 0d0
        sumev = 0d0
        nev = nint(zval/2)
-       call rxx(nev .gt. nbmx,'BZWTS: zval too big')
+       call rxx(nev .gt. nevx,'BZWTS: zval too big')
        do  ikp = 1, nkp
           do  ib = 1, nev*nsp
              e = ebx(ib,ikp)
@@ -302,7 +302,7 @@ contains
           allocate(dos_rv(nptdos))
           tol = 1d-6
           !  Preliminary check that dos lies within emin,emax.  Widen emin,emax if not
-          call bzints(n1*n2*n3,ebx,dum,nkp,nevxx,nbmxx,nspxx,emin,emax,dos_rv,nptdos,efermi,job,ntet,idtet,sumev,sumqv(1) )
+          call bzints(n1*n2*n3,ebx,dum,nkp,nevxx,nevxx,nspxx,emin,emax,dos_rv,nptdos,efermi,job,ntet,idtet,sumev,sumqv(1) )
           dmin = dos_rv(1)
           dmax = dos_rv(nptdos)
           if (dmin .gt. zval) then
@@ -315,7 +315,7 @@ contains
           if(ipr>=35) write(stdo,"(9x,'Est E_f ',10x,'Window',8x,'Tolerance',2x,'n(E_f)')")
           itmax = 5
           GetFermienergy:do it = 1, itmax
-             call bzints(n1*n2*n3,ebx,dum,nkp,nevxx,nbmxx,nspxx,emin,emax,dos_rv,nptdos,efermi,job,ntet,idtet,sumev,sumqv(1) )
+             call bzints(n1*n2*n3,ebx,dum,nkp,nevxx,nevxx,nspxx,emin,emax,dos_rv,nptdos,efermi,job,ntet,idtet,sumev,sumqv(1) )
              !   !i   qvalx:    number of electrons to fermi level
              !   !i   dosi(i): integrated density at bin i;
              !   !i   ndos: number of bins + 1
@@ -343,7 +343,7 @@ contains
 111       continue
           deallocate(dos_rv)
        endif
-       call bzints(n1*n2*n3,ebx,wtkbx,nkp,nevxx,nbmxx, nspxx,emin,emin,dum,1,efermi,2*job,ntet,idtet,sumev,sumqv(1))
+       call bzints(n1*n2*n3,ebx,wtkbx,nkp,nevxx,nevxx, nspxx,emin,emin,dum,1,efermi,2*job,ntet,idtet,sumev,sumqv(1))
     else ! --- BZ weights, sumev and E_f by Methfessel-Paxton sampling --- not maintained well...
        if(ipr>0) write(stdo,"(a,i0,a,f15.6)")' BZWTS : --- Brillouin Zone sampling; N=',n,' W=',width
        if(nsp==2) call dscal(nkp,.5d0,wtkp,1) !   ... Temporarily remove spin degeneracy if spins are coupled
@@ -354,7 +354,7 @@ contains
           itmax = 1000
           do it = 1, itmax
              call pshpr(0)
-             call splwts(nkp,nevxx,nbmxx,nspxx,wtkp,ebx,n,width,efermi, .true.,sumev,wtkbx,sumqv(1),ent,dosef(1),cv)
+             call splwts(nkp,nevxx,nevxx,nspxx,wtkp,ebx,n,width,efermi, .true.,sumev,wtkbx,sumqv(1),ent,dosef(1),cv)
              call poppr
              if (dabs(zval-sumqv(1))<1d-12) then
                 if(ipr>0)write(stdo,ftox)' Fermi energy, ',ftof(efermi),' found after ',it,' bisections,',ftof(sumqv(1)),&
@@ -372,7 +372,7 @@ contains
           allocate(dos_rv(npts))
           emin = elo - rnge*width/2
           emax = emax + rnge*width/2
-          call maknos ( nkp,nevxx,nbmxx,nspxx,wtkp,ebx,n,width,- rnge,emin,emax,npts,dos_rv )
+          call maknos ( nkp,nevxx,nevxx,nspxx,wtkp,ebx,n,width,- rnge,emin,emax,npts,dos_rv )
           call intnos ( npts,dos_rv,emin,emax,zval,efermi,dosef(1),sumev )
           deallocate(dos_rv)
 333       continue
@@ -394,12 +394,12 @@ contains
           do  it = 1, itmax
              tRy = tlst_rv(it)/0.1579d6
              call pshpr(1)
-             call splwts(nkp,nevxx,nbmxx,nspxx,wtkp,ebx,n,tRy,efermi, metal,sumev,wtkbx,sumqv(1),ent,dosef(1),cv)
+             call splwts(nkp,nevxx,nevxx,nspxx,wtkp,ebx,n,tRy,efermi, metal,sumev,wtkbx,sumqv(1),ent,dosef(1),cv)
              call poppr
              write(stdo,ftox)ftof(0.1579d6*tRy),ftof(tRy),ftof(ent),ftof(cv)
           enddo
        endif
-       call splwts(nkp,nevxx,nbmxx,nspxx,wtkp,ebx,n,width,efermi,& !   ... Make weights, sampling
+       call splwts(nkp,nevxx,nevxx,nspxx,wtkp,ebx,n,width,efermi,& !   ... Make weights, sampling
             (.not. lfill) .or. (metal .and. (nkp .eq. 1)), sumev,wtkbx,sumqv(1),ent,dosef(1),cv)
        if(nsp==2) call dscal(nkp,2d0,wtkp,1)
     endif
@@ -419,11 +419,9 @@ contains
     if(.not. lfill .and. .not. tetra) e = efermi + rnge*width/2
     call tcx('bzwts')
   end subroutine bzwts
-  logical function efrng2(nsp,nkp,nbmax,nband,zval,eband,ebbot,ebtop,elo,ehi,e1,e2)  !- Find range of Fermi energy.
+  logical function efrng2(nkp,nband,zval,eband,ebbot,ebtop,elo,ehi,e1,e2)  !- Find range of Fermi energy.
     !i Inputs
-    !i   nsp   :2 for spin-polarized case, otherwise 1
     !i   nkp   :number of irreducible k-points (bzmesh.f)
-    !i   nbmax :leading dimension of eband
     !i   nband :number of bands
     !i   zval  :no. of valence electrons
     !i   eband :energy bands
@@ -455,8 +453,8 @@ contains
     ! ----------------------------------------------------------------------
     !     implicit none
     ! Passed parameters
-    integer nsp,nkp,nbmax,nband
-    real(8) zval,e1,e2,eband(nbmax,nsp,nkp),ebbot(nband,nsp),ebtop(nband,nsp),elo,ehi
+    integer nsp,nkp,nband
+    real(8) zval,e1,e2,eband(nband,nkp),ebbot(nband),ebtop(nband),elo,ehi
     ! Local parameters
     real(8) xx,d1mach,enull
     integer ikp,isp,iba,nval,nbbot,nbtop,nfound
@@ -468,42 +466,42 @@ contains
     ebbot=elo 
     ebtop=ehi 
     do  ikp = 1, nkp
-       do  isp = 1, nsp
+!       do  isp = 1, nsp
           do  iba = 1, nband
-             if (eband(iba,isp,ikp) .ne. enull) then
-                ebbot(iba,isp) = min(ebbot(iba,isp),eband(iba,isp,ikp))
-                ebtop(iba,isp) = max(ebtop(iba,isp),eband(iba,isp,ikp))
+             if (eband(iba,ikp) .ne. enull) then
+                ebbot(iba) = min(ebbot(iba),eband(iba,ikp))
+                ebtop(iba) = max(ebtop(iba),eband(iba,ikp))
              endif
-          enddo
+!          enddo
        enddo
     enddo
     !     Set all -enull to enull to float to top when sorted
-    do  isp = 1, nsp
+!    do  isp = 1, nsp
        do  iba = 1, nband
-          if (ebtop(iba,isp) .eq. -enull) ebtop(iba,isp) = enull
+          if (ebtop(iba) .eq. -enull) ebtop(iba) = enull
        enddo
-    enddo
+!    enddo
     !     Sort bands irrespective of spin
-    call dshell(nband*nsp,ebbot)
-    call dshell(nband*nsp,ebtop)
-    nfound = nband*nsp
+    call dshell(nband,ebbot)
+    call dshell(nband,ebtop)
+    nfound = nband
 10  continue
-    if (ebtop(nfound,1).eq.enull .or. ebbot(nfound,1).eq.enull) then
+    if (ebtop(nfound).eq.enull .or. ebbot(nfound).eq.enull) then
        nfound = nfound-1
        if (nfound .eq. 0) call rx('efrng2: no bands')
        goto 10
     endif
     ! --- Find limits ---
-    nbtop = (nval+2-nsp)/(3-nsp)
+    nbtop = (nval+1)/2
     if (zval .gt. nval) nbtop = nbtop+1
-    nbbot = nval/(3-nsp) + 1
+    nbbot = nval/2 + 1
     if (nbtop .gt. nfound) nbtop = nfound
     if (nbbot .gt. nfound) nbbot = nfound
-    elo = ebbot(1,1)
-    ehi = ebtop(nfound,1)
+    elo = ebbot(1)
+    ehi = ebtop(nfound)
     if (elo .eq. enull) call rx('efrng2: no bands')
-    e1  = ebbot(nbbot,1)
-    e2  = ebtop(nbtop,1)
+    e1  = ebbot(nbbot)
+    e2  = ebtop(nbtop)
     efrng2 = .false.
     if (e1-e2 > epsilon(0d0)) then
        xx = e1
