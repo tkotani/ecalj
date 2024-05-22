@@ -1,5 +1,6 @@
 !> BZ integration for fermi level, band sum and qp weights, fixed-spin
 module  m_bzintegration2 ! BZ integration
+  use m_lmfinit,only:nspx
   use m_nvfortran
   use m_ftox
   use m_lgunit,only: stdo,stdl
@@ -40,7 +41,7 @@ contains
     implicit none
     logical :: metal,tetra,wtsf2, agreemom,quitvmag,lfill
     integer :: nevx,n1,n2,n3 ,ikp,ib,ipr,iter,iprint,itermx,nmom1,nmom2
-    real(8) :: zval,eb(nbmx,nsp,nkp),wtkb(nbmx,nsp,nkp),efermi,sumev,sumqv(2) 
+    real(8) :: zval,eb(nbmx,nspx,nkp),wtkb(nbmx,nspx,nkp),efermi,sumev,sumqv(2) 
     real(8) :: amom,dosef(2),vhold(12),vmag,dv,ef0,ent,ele1,ele2, ehomo1,ehomo2,elumo1,elumo2,rnge
     real(8),parameter:: dvcap=.2d0
     integer,parameter:: itmax=50
@@ -206,8 +207,8 @@ contains
     !o   lfill :true => insulator
     logical metal,tetra
     integer nbmx,norder,npts,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet(5,ntet)
-    real(8)::zval,eb(nbmx,nsp,nkp),width,rnge,wtkp(nkp),&
-         wtkb(nevx,nsp,nkp),efermi,sumev,dosef(2),sumqv(2),ent ,wtkbx(nevx,nsp,nkp),wtkb2(nevx,nsp,nkp)
+    real(8)::zval,eb(nbmx,nsp,nkp),width,rnge,wtkp(nkp), efermi,sumev,dosef(2),sumqv(2),ent, &
+         wtkb(nevx,nsp,nkp),wtkbx(nevx,nsp,nkp)
     integer:: it,itmax,n,nptdos,nspxx,nbmxx,nevxx,ib &
          ,ikp,ipr,job,i1mach,nev, mkdlst,ifi,i,j,lry ,nulli,isw !,nbpw
     real(8) ,allocatable :: dos_rv(:)
@@ -408,7 +409,7 @@ contains
           forall(ikp=1:nkp,ix=1:nevxx) wtkb(ibx(ix,ikp),isx(ix,ikp),ikp)= wtkbx(ix,1,ikp)
           amom = sum(wtkb(1:nevx,1,1:nkp)- wtkb(1:nevx,2,1:nkp))
        else
-          wtkb=wtkbx !call dcopy(nevx*nsp*nkp,wtkbx,1,wtkb,1) 
+          wtkb=wtkbx !nspx=1
        endif
     endif
     sumqv(2) = amom
