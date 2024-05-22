@@ -9,7 +9,7 @@
 !o  orhoat:vector of offsets containing site density
 !o        :Symmetrized on output
 !o   dmatu:   density matrix in m_bandcal
-!o   evalall: eigenvalue in m_bandcal
+!o   evlall: eigenvalue in m_bandcal
 !o   force:
 !i  vorb --> we use m_ldau in m_mkpot
 !--- key quntities --------------
@@ -36,7 +36,7 @@ contains
     ! llmfgw=T is for generating eigenfunctions for GW calculations, no iteration.
     ! plbnd/=0 means band plot mode. no iteration.
     !     ! All read only in bndfp. Data are stored in modules such as m_bandcal, m_mkpot
-    !     ! For example, rightafter call m_bandcal_init, we can get evalall, which is used in other modules.
+    !     ! For example, rightafter call m_bandcal_init, we can get evlall, which is used in other modules.
     use m_ftox
     use m_mixrho,only: mixrho
     use m_bndfp_util,only: mkekin,makdos,phispinsym_ssite_set,iorbtm
