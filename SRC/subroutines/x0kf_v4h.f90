@@ -121,6 +121,7 @@ contains
     use m_mpi,only: comm_k, mpi__rank_k, mpi__size_k, MPI__reduceSum, &
                     mpi__ipr_col, mpi__npr_col, mpi__rank_b, mpi__root_k, comm_b
     use m_gpu, only: use_gpu
+    use m_data_gpu, only: SetDataGPU_inkx, ExitDataGPU_inkx
     implicit none
     intent(in)::      realomega,imagomega, q,iq,nprin,schi,crpa,chipm,nolfco,q00,zzr
     logical:: realomega,imagomega,crpa,chipm,nolfco
@@ -145,6 +146,7 @@ contains
     if(chipm .AND. nolfco) then;  call setppovlz_chipm(zzr,npr)
     else;                         call Setppovlz(q,matz=.true.)
     endif
+    call SetDataGPU_inkx(set_ppovlz_in_gpu = .true.)
     isloop: do 1103 isp_k = 1,nsp
       GETtetrahedronWeight:block
         isp_kq = merge(3-isp_k,isp_k,chipm) 
@@ -301,6 +303,7 @@ contains
         deallocate(rcxq)
       endif HilbertTransformation 
 1103 enddo isloop
+     call ExitDataGPU_inkx()
   end subroutine x0kf_zxq
   subroutine deallocatezxq()
     deallocate(zxq)

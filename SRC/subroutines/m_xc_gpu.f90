@@ -10,11 +10,17 @@ module m_xc_gpu
   logical, parameter:: cache=.true.
   complex(8), allocatable :: wc_k(:,:,:)
   integer :: k_of_wc = 0
+  logical :: has_wc_k = .false.
 contains
-  subroutine set_wc_k(kx)
-    integer, intent(in) :: kx
-
-  end subroutine
+  ! subroutine set_wc_k(kx, ifrcwkx, ifrcwikx)
+  !   integer, intent(in) :: kx, ifrcwkx, ifrcwikx
+  !   if(allocated(wc_k)) deallocate(wc_k)
+  !   allocate(wc_k(
+  !     iwimag:do ixx = 1, nw
+  !       if(ixx==0)read(ifrcw(kx),rec=1+(0-nw_i)) zw(:,:,iw) !direct access Wc(0) = W(0)-v ! nw_i=0 (Time reversal) or nw_i =-nw
+  !       if(ixx>0) read(ifrcwi(kx),rec=ixx) zw       ! direct access read Wc(i*omega)=W(i*omega)-v
+  !     enddo iwimag
+  ! end subroutine
   subroutine get_exchange(kx, isp, ef, ekc, esmr, ns1, ns2, ntqxx, wtt, zsec, emptyrun)
     use m_read_bzdata, only: wk=>wbz, wklm
     implicit none
@@ -63,7 +69,7 @@ contains
     !$acc end data
     deallocate(vzw, vcoud_buf, wtff)
   end subroutine
-
+#ifdef __SKIP
   subroutine get_correlation(ns1, ns2, ntqxx, nt0p, nt0m, ifrcwkx, ifrcwikx, ekc, omega, wtt, emptyrun)
     integer, intent(in) :: ns1, ns2, ntqxx, nt0p, nt0m, ifrcwkx, ifrcwikx
     real(8), intent(in) :: omega(ntq), ekc(:), wtt
@@ -84,9 +90,9 @@ contains
       use m_readfreq_r,only: wt=>wwx,x=>freqx
       real(8),parameter:: rmax=2d0
       real(8):: wgtim_(0:npm*niw), wgtim(0:npm*niw,ntqxx,ns1:ns2), we, cons(niw), omd(niw), omd2w(niw)
-      real(8):: sig = .5d0*esmr, sig2=2d0*(.5d0*esmr)**2,
+      real(8):: sig = .5d0*esmr, sig2=2d0*(.5d0*esmr)**2
       real(8):: aw, aw2
-      !$acc data create(wgtim_, wgtim, omd, omd2w) 
+      !$acc data create(wgtim_, wgtim, omd, omd2w) copyin(omega(1:ntqxx),ekc(ns1:ns2))
       !$acc kernels loop independent collapse(2)
       do it = ns1, ns2
         do itp = 1, ntqxx
@@ -120,8 +126,8 @@ contains
         if(ixx==0)read(ifrcw(kx),rec=1+(0-nw_i)) zw !direct access Wc(0) = W(0)-v ! nw_i=0 (Time reversal) or nw_i =-nw
         if(ixx>0) read(ifrcwi(kx),rec=ixx) zw       ! direct access read Wc(i*omega)=W(i*omega)-v
         !$acc kernels loop independent collapse(2)
-        do it = ns1, ns2
-          do itp = 1, ntqxx
+        do itp = 1, ntqxx
+          do it = ns1, ns2
             zmelw(1:ngb,it,itp) = zmel(1:ngb,it,itp)*wgtim(ixx,itp,it) 
           enddo
         enddo
@@ -132,20 +138,22 @@ contains
       enddo iwimag
     EndBlock CorrelationSelfEnergyImagAxis
     CorrelationSelfEnergyRealAxis: Block !Real Axis integral. Fig.1 PHYSICAL REVIEW B 76, 165106(2007)
-      use m_wfac,only: wfacx2, weavx2
-      integer:: itini,itend
-      integer:: iwgt3(ns1:ns2r,ntqxx),i1,i2,iw,ikeep,ix,ixs,nit_(ntqxx,nwxi:nwx),icountp,ncoumx,iit,irs
-      real(8):: we_(ns1:ns2r,ntqxx),wfac_(ns1:ns2r,ntqxx),omg,esmrxx,wgt3(0:2,ns1:ns2r,ntqxx),amat(3,3)
+      use m_wfac, only: wfacx2, weavx2
+      integer :: itini,itend
+      integer :: iwgt3(ns1:ns2r,ntqxx),iw,ikeep,ix,ixs,nit_(ntqxx,nwxi:nwx),irs
+      real(8) :: we_(ns1:ns2r,ntqxx),wfac_(ns1:ns2r,ntqxx),omg,esmrxx,wgt3(0:2,ns1:ns2r,ntqxx),amat(3,3)
       !3-point interpolation weight for we_(it,itp) 
       complex(8):: zadd(ntqxx),wv3(ngb,ngb,0:2)
       logical:: itc(ns1:ns2r,nwxi:nwx,ntqxx)
       if(timemix) call timeshow(" CorrelationSelfEnergyRealAxis:")
       itc=.false.
-      do concurrent(itp=1:ntqxx)
+
+      !$acc kernels
+      do itp=1, ntqxx
         omg  = omega(itp)
         itini= merge(max(ns1,nt0m+1),  ns1, mask= omg>=ef)
         itend= merge(ns2r,  min(nt0p,ns2r), mask= omg>=ef)
-        do concurrent(it=itini:itend)     ! nt0p corresponds to efp
+        do it=itini, itend     ! nt0p corresponds to efp
           wfac_(it,itp) = wfacx2(omg,ef, ekc(it), merge(0d0,esmr,mask=it<=nctot)) !Gaussian smearing 
           if(wfac_(it,itp)<wfaccut) cycle 
           wfac_(it,itp)=  wfac_(it,itp)*wtt*dsign(1d0,omg-ef) !wfac_ = $w$ weight (smeared thus truncated by ef). See the sentences.
@@ -153,15 +161,16 @@ contains
           ixs = findloc(freq_r(1:nw)>we_(it,itp),value=.true.,dim=1)
           iwgt3(it,itp) = ixs+1-2    !Starting omega index ix for it,itp    ! iwgt3(it,itp) = iirx(itp)*(ixs+1-2) !iirx(ntqxx),
           itc(it,ixs+1-2,itp)=.true. !W(we_(it,itp))=\sum_{i=0}^2 W(:,:,ix+i)*wgt3(i)         
-          associate(x=>we_(it,itp),xi=>freq_r(ixs-1:ixs+1))!x=>we_ is \omega_\epsilon in Eq.(55). 
-            amat(1:3,1)= 1d0                   !old version: call alagr3z2wgt(we_(it,itp),freq_r(ixs-1),wgt3(:,it,itp))
-            amat(1:3,2)= xi(1:3)**2
-            amat(1:3,3)= xi(1:3)**4
-            wgt3(:,it,itp)= wfac_(it,itp)*matmul([1d0,x**2,x**4], inverse33(amat)) 
-          endassociate
+          x = we_(it,itp)
+          xi(1:3)=freq_r(ixs-1:ixs+1) !x=>we_ is \omega_\epsilon in Eq.(55). 
+          amat(1:3,1)= 1d0                   !old version: call alagr3z2wgt(we_(it,itp),freq_r(ixs-1),wgt3(:,it,itp))
+          amat(1:3,2)= xi(1:3)**2
+          amat(1:3,3)= xi(1:3)**4
+          wgt3(:,it,itp)= wfac_(it,itp)*matmul([1d0,x**2,x**4], inverse33(amat)) 
         enddo
       enddo
       !$acc end kernels
+
       ikeep=99999
       do ix = nwxi,nwx  
         if(all(.not.itc(:,ix,:))) cycle 
@@ -190,7 +199,9 @@ contains
                  wv3(:,:,0)*wgt3(0,it,itp) +wv3(:,:,1)*wgt3(1,it,itp) +wv3(:,:,2)*wgt3(2,it,itp) ) !time-consuming
           enddo
         enddo
+
       enddo
+
       if(timemix) call timeshow(" End of CorrelationSelfEnergyRealAxis:")
     EndBlock CorrelationSelfEnergyRealAxis
     nm = (ns2-ns1+1)*ngb
@@ -199,4 +210,5 @@ contains
          reshape(zmel,shape=[ns2-ns1+1,ngb,ntqxx],order=[2,1,3]), [nm,ntqxx])) !time-consuming probably.
     forall(itp=1:ntqxx) zsec(itp,itp)=dreal(zsec(itp,itp))+img*min(dimag(zsec(itp,itp)),0d0) !enforce Imzsec<0
   end subroutine
+#endif
 end module

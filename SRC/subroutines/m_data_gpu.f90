@@ -1,8 +1,5 @@
 module m_data_gpu
-  use m_genallcf_v3, only: nclass, nspin, nlnmx
-  use m_rdpp, only: mdimx
   use m_zmel, only: ppbir
-  use m_hamindex, only: ngrp
   use m_itq, only: ntq
   use m_read_bzdata,only: nqibz
   use m_zmel, only: ppovlz 
@@ -18,8 +15,16 @@ contains
     logical, intent(in), optional :: set_ppbir_in_gpu
     if(present(set_ppbir_in_gpu)) then
       if(set_ppbir_in_gpu .and. .not.has_ppbir_in_gpu) then !ppbir is set in mptauof_zmel
-        !$acc enter data copyin(ppbir(1:nlnmx,1:nlnmx,1:mdimx,1:nclass,1:ngrp,1:nspin))
-        has_ppbir_in_gpu = .true.
+        block
+          integer :: nlnmx, mdimx, nclass, ng, nspin
+          nlnmx = size(ppbir,1)
+          mdimx = size(ppbir,3)
+          nclass = size(ppbir,4)
+          ng = size(ppbir,5)
+          nspin = size(ppbir,6)
+          !$acc enter data copyin(ppbir(1:nlnmx,1:nlnmx,1:mdimx,1:nclass,1:ng,1:nspin))
+          has_ppbir_in_gpu = .true.
+        end block
       endif
     endif
   end subroutine

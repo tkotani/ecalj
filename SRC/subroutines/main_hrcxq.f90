@@ -34,6 +34,7 @@ subroutine hrcxq()
   use m_ftox
   use m_readVcoud,only: Readvcoud,ngb
   use m_gpu,only: gpu_init
+  use m_data_gpu, only: SetDataGPU, ExitDataGPU
 !  use m_dpsion,only: dpsion5
   implicit none
   real(8),parameter:: pi = 4d0*datan(1d0),fourpi = 4d0*pi,sqfourpi= sqrt(fourpi)
@@ -71,6 +72,7 @@ subroutine hrcxq()
   !! Get space-group transformation information. See header of mptaouof.
   !! But we only use symops=E in hx0fp0 mode. c.f. hsfp0.sc
   call Mptauof_zmel(symops=reshape([1d0,0d0,0d0, 0d0,1d0,0d0, 0d0,0d0,1d0],[3,3]),ng=1)
+  call SetDataGPU(set_ppbir_in_gpu = .true.)
   !! Rdpp gives ppbrd: radial integrals and cgr = rotated cg coeffecients. --> call Rdpp(ngrpx,symope) is moved to Mptauof_zmel \in m_zmel
   call Setitq()         ! Set itq in m_zmel
   call Readhamindex()
@@ -125,6 +127,7 @@ subroutine hrcxq()
     ! Get effective W0,W0i, and L(omega=0) matrix. Modify WVR WVI with w0 and w0. Files WVI and WVR are modified.
     if(MPI__rank==0) call W0w0i(nw_i,nw,nq0i,niw,q0i) 
   endblock GetEffectiveWVatGammaCell
+  call ExitDataGPU()
   write(stdo,ftox) '--- end of hrcxq --- irank=',MPI__rank
   call cputid(0)
   call rx0( ' OK! hrcxq WV generated')
