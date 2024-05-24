@@ -11,9 +11,9 @@ TARGET=$3
 ######## THIS iS for no lfc mode.
 echo "### START epsPP0@"$nfpgw,' $MPI_SIZE= '$MPI_SIZE, ' $TARGET= '$TARGET
 set -x
-$nfpgw/lmf-MPIK --novxc $TARGET --phispinsym --jobgw=0 >& llmfgw00  #generate information files
+$nfpgw/lmf --novxc $TARGET --phispinsym --jobgw=0 >& llmfgw00  #generate information files
 $nfpgw/qg4gw --job=2 >& lqg4gw02  
-mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK $TARGET --novxc --phispinsym --jobgw=1 >& llmfgw01 #generate eigenfunctions for GW.
+mpirun -np $MPI_SIZE $nfpgw/lmf $TARGET --novxc --phispinsym --jobgw=1 --skipbstruxinit >& llmfgw01 #generate eigenfunctions for GW.
 $nfpgw/rdata4gw_v2 --job=0 >& lrdata4gw_v2 # Prepare all files for GW
 $nfpgw/heftet --job=1 >& leftet  # A file EFERMI for hx0fp0 generated
 $nfpgw/hbasfp0 --job=4 >& lbas   # Product basis generation mode=4
