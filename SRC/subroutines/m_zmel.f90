@@ -21,19 +21,26 @@ module m_zmel
   
 
 contains
-  subroutine setppovlz(q,matz) ! Set ppovlz for given q
-    intent(in)::       q,matz
+  subroutine setppovlz(q,matz,npr) ! Set ppovlz for given q
+    intent(in)::       q,matz,npr
     logical:: matz
+    ! 2024-5-24; add npr
+    ! Set ppovlz(ngb,npr), where
+    !    ngb: the size of MPB
+    !   npr: the degree of freedom to calculate polarization funciton.
+    !          npr=1 for eps mode nolfc., npr=ngb for no nolfc (epsPP0 mode)
+    !
     !    ppolvz(igb,ivcou)= (1    0 ) \times  zcousq(igb, ivcou)
     !                       (0 ppovl)
     !    If matz=F, no multiplication by ivcou.  Thus we have ppolz(igb,igb)
+    !     
     real(8) :: q(3)
     complex(8),allocatable :: ppovl_(:,:),ppovl(:,:)!,ppovlzinv(:,:) !    logical:: eibz4x0
-    integer:: i,ngc_r,ippovl0
+    integer:: i,ngc_r,ippovl0,npr
     real(8):: qx(3),tolq=1d-8
     if(allocated(ppovlz)) deallocate(ppovlz)
-    if(allocated(ppovl)) deallocate(ppovl)
-    allocate( ppovl(ngc,ngc),ppovlz(ngb,ngb))
+    if(allocated(ppovl))  deallocate(ppovl)
+    allocate( ppovl(ngc,ngc),ppovlz(ngb,npr))
     open(newunit=ippovl0,file='PPOVL0',form='unformatted') !inefficient search for PPOVLO for given q
     do 
        read(ippovl0) qx,ngc_r
@@ -44,10 +51,10 @@ contains
        endif
     enddo
     close(ippovl0)
-    ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
-    ppovlz(nbloch+1:nbloch+ngc,:)=matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
+    ppovlz(1:nbloch,1:npr) = zcousq(1:nbloch,1:npr)
+    ppovlz(nbloch+1:nbloch+ngc,1:npr)=matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,1:npr))
     deallocate(ppovl)
-    nbb=ngb
+    nbb=npr    ! ngb obatabugfix 2025-5-23. We had set nbb=ngb every time. Thus we had memory(and computational) loss for nolfc case.
   end subroutine setppovlz
   subroutine setppovlz_chipm(zzr,nmbas1) !Set ppovlz for chipm case
     intent(in)::             zzr,nmbas1
@@ -56,7 +63,7 @@ contains
     if(allocated(ppovlz)) deallocate(ppovlz)
     allocate(ppovlz(ngb,nmbas1))
     ppovlz= zzr
-    nbb=nmbas1
+    nbb   = nmbas1
   end subroutine setppovlz_chipm
   subroutine mptauof_zmel(symops,ng)! Set miat,tiat,invgx,shtvg, and then get ppbir
     use m_mksym_util,only:mptauof
@@ -191,7 +198,6 @@ contains
       dgeigqk = readgeigf(qk,ispm) !read IPW part at qk  !G2 for ngp2
       dgeigqk = dconjg(dgeigqk)
     endif
-
     
     ppb = ppbir(:,:,:,:,irot,ispq)           !MPB has no spin dependence
     invr  = invg(irot)       !invrot (irot,invg,ngrp) ! Rotate atomic positions invrot*R = R' + T

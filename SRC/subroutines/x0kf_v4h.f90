@@ -104,7 +104,7 @@ contains
     ierr=0
   endfunction x0kf_v4hz_init
   
-  subroutine x0kf_zxq(realomega,imagomega, q,iq,nprin,schi,crpa,chipm,nolfco,q00,zzr)
+  subroutine x0kf_zxq(realomega,imagomega, q,iq,npr,schi,crpa,chipm,nolfco,q00,zzr)
     use m_readgwinput,only: ecut,ecuts
     use m_dpsion,only: dpsion5
     use m_freq,only: nw_i, nw_w=>nw, niwt=>niw
@@ -112,21 +112,20 @@ contains
     use m_freq,only: nw_i,nw,niw 
     use m_zmel,only: Setppovlz,Setppovlz_chipm   ! & NOTE: these data set are stored in this module, and used
     implicit none
-    intent(in)::      realomega,imagomega, q,iq,nprin,schi,crpa,chipm,nolfco,q00,zzr
+    intent(in)::      realomega,imagomega, q,iq,npr,schi,crpa,chipm,nolfco,q00,zzr
     logical:: realomega,imagomega,crpa,chipm,nolfco
-    integer:: iq, isp_k,isp_kq,ix0,is,isf,kx,ierr,nprin,k
+    integer:: iq, isp_k,isp_kq,ix0,is,isf,kx,ierr,npr,k
     real(8),optional:: q00(3)
     complex(8),optional:: zzr(:,:)
     real(8):: q(3),schi,ekxx1(nband,nqbz),ekxx2(nband,nqbz)
     character(10) :: i2char
     logical:: cmdopt0
-    npr=nprin
     qq=q
     if(realomega) allocate(zxq(npr,npr,nw_i:nw),source=(0d0,0d0))
     if(imagomega) allocate(zxqi(npr,npr,niw),source=(0d0,0d0))
     if(cmdopt0('--emptyrun'))  return
-    if(chipm .AND. nolfco) then;  call setppovlz_chipm(zzr,npr)
-    else;                         call Setppovlz(q,matz=.true.)
+    if(chipm .AND. nolfco) then; call setppovlz_chipm(zzr,npr)
+    else;                        call setppovlz(q,matz=.true.,npr=npr)!2024-5-23 obata. A minor bug to consume memory: Set npr=1 for EPSPP0 mode(no lfc)
     endif
     isloop: do 1103 isp_k = 1,nsp
       GETtetrahedronWeight:block
@@ -172,6 +171,7 @@ contains
                 call x0kf_zmel(q, k, isp_k,isp_kq)
                 kold=k
               endif
+!              write(*,*)'zzzzzzzzzzzzzmel',shape(zmel)
               do iw=iwini(icoun),iwend(icoun) !iw  = iwc(icount)  !omega-bin
                 icount= icouini(icoun)+iw-iwini(icoun)
                 if(abs(zmel0(1,it,itp))>1d10) cycle !We assume rcxq(1) in this mode
@@ -182,7 +182,7 @@ contains
           goto 2000 
         endif zmel0mode
         if(cmdopt0('--emptyrun')) goto 1590
-        GPUTEST=.true.
+        GPUTEST=.false.
         if(GPUTEST) then
           ! rcxq(ibg1,igb2,iw) = \sum_ibib wwk(iw,ibib)* <M_ibg1(q) psi_it(k)| psi_itp(q+k)> < psi_itp | psi_it M_ibg2 > at q
           kloop:do 1500 k=1,nqbz !zmel = < M(igb q) phi( rk it occ)|  phi(q+rk itp unocc)>
@@ -198,6 +198,7 @@ contains
             if(cmdopt0('--emptyrun')) cycle
             call get_zmel_init(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
                  nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false.,zmelconjg=.true.)
+            !write(6,*)'qqqqqqqqqqqqq',npr,'shape=', shape(zmel)
             icounloop: do 1000 icoun=icounkmin(k),icounkmax(k)
               ! call get_zmel_init is equivalent to call x0kf_zmel(q, k, isp_k,isp_kq) 
               TimeConsumingRcxq: block 
