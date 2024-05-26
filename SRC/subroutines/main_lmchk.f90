@@ -1,7 +1,9 @@
-subroutine lmchk() bind(C)
+module m_lmchk
+  contains
+subroutine lmchk(commin) bind(C)
   use m_args,only: argall,m_setargs
   use m_ext,only:     m_Ext_init,sname
-  use m_MPItk,only:   m_MPItk_init,nsize,master_mpi,comm
+  use m_MPItk,only:   m_MPItk_init,nsize,master_mpi
   use m_lgunit,only:  m_lgunit_init, stdo,stdl
   use m_cmdpath,only: setcmdpath
   use m_lmfinit,only: m_Lmfinit_init,nlibu,plbnd
@@ -12,11 +14,13 @@ subroutine lmchk() bind(C)
   include "mpif.h" 
   logical:: cmdopt0,cmdopt2
   character:: outs*20,aaa*512,sss*128
-  integer:: iarg,k,ierr
+  integer,optional::commin
+  integer:: iarg,k,ierr,comm
   character(32):: prgnam='LMCHK'
-  call m_setargs()
+  comm=MPI_COMM_WORLD
+  if(present(commin)) comm= commin
+  call m_MPItk_init(comm) 
   call m_ext_init()        ! Get sname, e.g. trim(sname)=si of ctrl.si
-  call m_MPItk_init()
   call m_lgunit_init()
   if(nsize/=1) call rx('Current lmchk is only for single core')
   aaa=argall
@@ -33,14 +37,16 @@ subroutine lmchk() bind(C)
   endif
   if(master_mpi) call ConvertCtrl2CtrlpByPython()
   call MPI_BARRIER( comm, ierr)
-  call m_mksym_init()  !symmetry go into m_lattic and m_mksym
+  call m_lmfinit_init(prgnam,comm) ! Computational settings.
+  !call m_mksym_init()  !symmetry go into m_lattic and m_mksym
   if(cmdopt2('--pr=',outs)) then
      read(outs,*) k
      call Setprint(k)
   endif
   if( .NOT. master_mpi) call setprint(-100) !iprint() is negative except master
-  call m_lattic_init()      !lattice setup (for ewald sum)
-  call m_mksym_init() !symmetry go into m_lattic and m_mksym
+  call m_lattic_init() !lattice setup (for ewald sum)
+  call m_mksym_init()  !symmetry go into m_lattic and m_mksym
   call lmaux()              !Main part. check crystal structure
   call rx0("OK! end of "//trim(prgnam)//" ======================")
 end subroutine lmchk
+end module m_lmchk
