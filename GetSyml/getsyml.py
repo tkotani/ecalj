@@ -16,7 +16,11 @@ if len(sys.argv)<2:
 
 ### We have to improve lmchk, so that plinfo and siteinfo are directry written.
 #print('lmchk '+sys.argv[1]+'> outlmchk')
-os.system('lmchk '+sys.argv[1]+'> outlmchk')
+if os.system('lmchk '+sys.argv[1]+'> outlmchk'):
+    print ('ERROR: lmchk failed. Do you have ctrl.'+sys.argv[1]+'?')
+    sys.exit(-1)
+
+
 #sys.exit()
 #os.system('grep Plat -A3 outlmchk > plinfo')
 plfile = open('PlatQlat.chk','r').read().split('\n')
@@ -210,7 +214,7 @@ print ('OK! Check ',symlfile,' file!----------')
 print ('    For better plot, improve ecalj/Getsyml/brillouinzone/brillouinzone_takao.py')
 print ()
 
-if '-nobzview'  in sys.argv: sys.exit()
+if '--nobzview'  in sys.argv: sys.exit()
 from brillouinzone import brillouinzone_takao
 brillouinzone_takao.plotws(qlat[0],qlat[1],qlat[2])
 
