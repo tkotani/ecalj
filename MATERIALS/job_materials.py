@@ -92,7 +92,7 @@ elif(nargv==0 or '--help' in argset):
       print("        [options] are material names above separeted by space.")
       print("        --all   : all materials are specified (in an hour now.)")
       print("        --noexec: Not do lmf. Just generates directories and ctrl files")
-      print("        -np 2   : Number of core for lmf-MPIK. 2 core is default.")
+      print("        -np 2   : Number of core for lmf. 2 core is default.")
       print(" (WARN! settings for all atoms are not yet examined carefully. Let me know something wrong.)" )
       print(" ")
       print(" ")
@@ -194,7 +194,7 @@ for matr in choosedmaterials:
     os.system('cp GWinput.tmp GWinput')
    
     #joblmf='lmf  '+ext+optionlmf+' >llmf'   
-    joblmf='mpirun -np '+numcore+' lmf-MPIK  '+ext+optionlmf+' >llmf'
+    joblmf='mpirun -np '+numcore+' lmf  '+ext+optionlmf+' >llmf'
     print ('Runnning!: ',joblmf,  '   ;this is in joblmf file.')
     os.system('echo '+joblmf +'>joblmf')
     if ('--noexec' in  argset):
