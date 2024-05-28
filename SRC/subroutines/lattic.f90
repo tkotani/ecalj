@@ -2,7 +2,7 @@ module m_lattic ! Sets up the real and rmeciprocal space lattice vectors !no she
   use m_ftox
   use m_lgunit,only:stdo
   use m_xlgen,only:xlgen
-  public m_lattic_init,setopos,lctoff
+  public m_lattic_init,lctoff ,setopos,readatompos
   real(8), allocatable,protected,public ::  rv_a_odlv (:,:)
   real(8), allocatable,protected,public ::  rv_a_oqlv (:,:)
   real(8), protected,public:: lat_plat(3,3),lat_qlat(3,3),lat_awald,lat_vol
@@ -11,10 +11,40 @@ module m_lattic ! Sets up the real and rmeciprocal space lattice vectors !no she
   real(8), allocatable,protected,public :: rv_a_opos(:,:)
   private
 contains
-  subroutine setopos(posin) !called from lmfp to revise atomic position by reading rst file.
+  
+  subroutine readatompos(irpos) !readin atomic position from AtomPos file if available
+    use m_ext,only:sname
+    use m_lmfinit,only:nbas
+    implicit none
+    intent(out)::        irpos
+    real(8):: pos(3,nbas)
+    logical:: irpos
+    block
+      integer::i,nbaso,ifipos
+      real(8):: p(3)
+      irpos=.false.
+      open(newunit=ifipos,file='AtomPos.'//trim(sname),status='old',err=1010)
+      do 
+         read(ifipos,*,end=1010)
+         read(ifipos,*)
+         read(ifipos,*) nbaso
+         do i=1,nbaso
+            read(ifipos,*) p
+            if(i<=nbas) pos(:,i)=p    !write(stdo,ftox)i,ftof(p)
+         enddo
+         irpos=.true.
+      enddo
+1010  continue
+      close(ifipos)
+    endblock
+    if(irpos) rv_a_opos=pos
+  endsubroutine readatompos
+  
+  subroutine setopos(posin) !called from lmfp to revise atomic position
     real(8):: posin(:,:)
     rv_a_opos= posin
   end subroutine Setopos
+  
   subroutine m_lattic_init() 
     use m_lmfinit,only:nbas,alat=>lat_alat,as=>lat_as,tol=>lat_tol,rpad=>lat_rpad,nkdmx=>lat_nkdmx,nkqmx=>lat_nkqmx,lat_platin,pos
     implicit none

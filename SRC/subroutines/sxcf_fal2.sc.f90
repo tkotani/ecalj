@@ -112,7 +112,7 @@ contains
     character(10) :: i2char
     real(8),parameter :: wfaccut=1d-8,tolq=1d-8, pi=4d0*datan(1d0), fpi=4d0*pi, tpi=8d0*datan(1d0),ddw=10d0
     complex(8), parameter :: img=(0d0,1d0)
-    logical,parameter :: debug=.false.,timemix=.true.
+    logical,parameter :: debug=.false.,timemix=.false.
     complex(8),allocatable,target:: zwz(:,:,:),zw(:,:)
     real(8),allocatable:: we_(:,:),wfac_(:,:)
     complex(8),allocatable:: w3p(:),wtff(:)
@@ -140,7 +140,7 @@ contains
     kxloop:                  do kx  =1,nqibz   ! kx is irreducible !kx is main axis where we calculate W(kx).
       qibz_k = qibz(:,kx)
       call Readvcoud(qibz_k,kx,NoVcou=.false.)  !Readin ngc,ngb,vcoud ! Coulomb matrix
-      call Setppovlz(qibz_k,matz=.true.)        !Set ppovlz overlap matrix used in Get_zmel_init in m_zmel
+      call Setppovlz(qibz_k,matz=.true.,npr=ngb)        !Set ppovlz overlap matrix used in Get_zmel_init in m_zmel
       irotloop:              do irot=1,ngrp    ! (kx,irot) determines qbz(:,kr), which is in FBZ. W(kx) is rotated to be W(g(kx))
           iploopexternal:    do ip=1,nqibz     !external index for q of \Sigma(q,isp)
             isploopexternal: do isp=1,nspinmx  !external index

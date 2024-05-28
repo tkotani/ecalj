@@ -95,7 +95,7 @@ contains
        call rxx(nspc/=1,'lwtkb=0 not implemented in noncoll case')
        wgt = abs(wtkp(iq))/nsp
        call mkewgt(lmet,wgt,qval,ndimh,evl(1,isp),nevec,ewgt,sumev,sumqv(1,isp))
-       ewgt=wgt*ewgt 
+       ewgt(1:nevec)=wgt*ewgt(1:nevec) !ewtg=wgt*ewgt caused error because ewgt(>nevl) did not initialized.2024-5-16
     else ! ... Case band weights are passed
        ewgt(1:nevl)=wtkb(1:nevl,isp,iq) 
 !       eee=epsnevec()

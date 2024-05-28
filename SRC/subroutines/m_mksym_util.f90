@@ -437,7 +437,7 @@ contains
     real(8),parameter:: e(9)=[1d0,0d0,0d0, 0d0,1d0,0d0, 0d0,0d0,1d0]
     integer :: i,j,k,nrot,iii !    write(*,*)"parsopinput=@@@"//trim(t)//"@@@",i
     pi2 = 8*datan(1d0)
-    print *,'parsop=',t(i:i)
+!    print *,'parsop=',t(i:i)
     if (t(i:i) == 'r' .OR. t(i:i) == 'R') then !rotation
        i = i+1
        read(t(i:i),'(i1)',err=99) nrot

@@ -22,7 +22,7 @@ module m_lmfinit ! 'call m_lmfinit_init' sets all initial data from ctrl are pro
        iter_maxit=1, mix_nsave, pwmode,ncutovl ,ndimx,natrlx, leks,lrout,plbnd, pot_nlma, pot_nlml,ham_nspx, nlmto,& !total number of MTOs 
        lrlxr,nkillr,nitrlx, broyinit,nmixinit,killj ,&
        ham_pwmode,ham_nlibu, nlmax,lfrce,bz_nevmx,ham_nbf,ham_lsig,bz_nabcin(3)=NULLI, bz_ndos,ldos, lmaxu,nlibu,nlmxlx
-  logical,public,protected :: ham_frzwf,ham_ewald, lhf,lcd4,bz_tetrahedron, addinv,&
+  logical,public,protected :: ham_frzwf,ham_ewald, lhf,bz_tetrahedron, addinv,&
        readpnu,v0fix,pnufix,bexist,rdhessr, lpztail=.false., readpnuskipf, afsym
   real(8),public,protected:: pmin(n0)=0d0,pmax(n0)=0d0,tolft,scaledsigma, ham_oveps,ham_scaledsigma, cc,&!speed of light
        dlat,alat=NULLR,dalat=NULLR,vol,avw,vmtz(mxspec)=-.5d0,&
@@ -363,13 +363,13 @@ contains
       endif
       call tcinit(io_tim(2),io_tim(1),levelinit) !Start tcn (timing monitor) 
       call tcn('m_lmfinit') 
-      lcd4 = merge(T,F,prgnam/='LMFA')
+!      lcd4 = merge(T,F,prgnam/='LMFA')
       if(sum(abs(socaxis-[0d0,0d0,1d0])) >1d-6 .AND. (.NOT.cmdopt0('--phispinsym'))) &
            call rx('We need --phispinsym for SO=1 and HAM_SOCAXIS/=001. Need check if you dislike --phispinsym.')
       !TK found --phispinsym (the same radialfunctions for both spins) caused a problem to determine required number of nodes for NiO(LDA). 2023sep.
       if(cmdopt0('--zmel0')) OVEPS=0d0 !for epsmode ok?
       if(pwmode==10) pwmode=0   !takao added. corrected Sep2011
-      if(prgnam=='LMFGWD') pwmode=10+ mod(pwmode,10) !lmfgw mode use 
+      if(trim(prgnam)=='LMFGWD') pwmode=10+ mod(pwmode,10) !lmfgw mode use 
       if(iprint()>0) write(stdo,ftox) ' ===> for --jobgw, pwmode is switched to be ',pwmode
       inquire(file='sigm.'//trim(sname),exist=sexist)
       nspecloop0: do j = 1, nspec ! Radial mesh parameters: determine default value of a
@@ -419,7 +419,7 @@ contains
            integer:: ifipnu,lr,iz,nspr,lrmx,isp,ispx
            real(8):: pnur,pzav(n0),pnav(n0),pzsp_r(n0,nsp,nspec),pnusp_r(n0,nsp,nspec)
            character(8):: charext
-           if(prgnam /= 'LMFA'.and.ReadPnu) then
+           if(trim(prgnam)/='LMFA'.and.ReadPnu) then
               pzsp_r =0d0
               pnusp_r=0d0
               open(newunit=ifipnu,file='atmpnu.'//trim(charext(j))//'.'//trim(sname))

@@ -19,7 +19,7 @@ subroutine hx0fp0()
      & MPI__SplitXq, MPI__Setnpr_col, comm_b, comm_k, mpi__root_k, mpi__root_q, MPI__GatherXqw
   use m_rdpp,only: Rdpp, &   ! & NOTE: "call rdpp" generate following data.
        nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx,nprecx,mrecl,nblochpmx
-  use m_zmel,only: Mptauof_zmel, Setppovlz,Setppovlz_chipm   ! & NOTE: these data set are stored in this module, and used
+  use m_zmel,only: Mptauof_zmel!, Setppovlz,Setppovlz_chipm   ! & NOTE: these data set are stored in this module, and used
   use m_itq,only: Setitq !set itq,ntq,nband,ngcmx,ngpmx to m_itq
   use m_freq,only: Getfreq3, &! & NOTE: call getfreq generate following data.
        frhis,freq_r,freq_i, nwhis,nw_i,nw,npm,wiw,niw !, frhis0,nwhis0 !output of getfreq

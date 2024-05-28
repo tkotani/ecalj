@@ -16,7 +16,7 @@ subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|
   use m_lmfinit,only:  m_lmfinit_init,oveps,nbas
   use m_ext,only: m_ext_init
   use m_cmdpath,only: Setcmdpath
-  use m_prgnam,only: set_prgnam
+!  use m_prgnam,only: set_prgnam
   use m_setqibz_lmfham,only: set_qibz,qibz,nqibz
   use m_lattic,only:   m_lattic_init,  qlat=>lat_qlat
   use m_mksym,only:    m_mksym_init,iclasst
@@ -33,13 +33,11 @@ subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|
   include "mpif.h"
   call setcmdpath() !Set self-command path (this is for call system at m_lmfinit)
   call m_ext_init()         ! Get sname, e.g. trim(sname)=si of ctrl.si
-!  call mpi_init(ierr)
-  call set_prgnam('lmfham1') ! mpi initialization
   call m_MPItk_init() ! mpi initialization
   call m_lgunit_init() !set stdo,stdl
   call m_lmfinit_init('lmfham1')! Read ctrlp into module m_lmfinit.
   call m_lattic_init()      ! lattice setup (for ewald sum)
-  call m_mksym_init('LMF')  !symmetry go into m_lattic and m_mksym
+  call m_mksym_init()  !symmetry go into m_lattic and m_mksym
   call m_mkqp_init() ! data of BZ go into m_mkqp
     
   call ReadHamPMTInfo()  ! Read info from PMTHamiltonianInfo (lattice structures and index of basis).

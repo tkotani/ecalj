@@ -441,7 +441,7 @@ subroutine sxcf_fal3z(&
         !$$$          ppovlz(nbloch+1:nbloch+ngc,:) = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
 
         call Readvcoud(qibz_k,kx,NoVcou=.false.) ! Readin vcousq,zcousq !for the Coulomb matrix
-        call Setppovlz(qibz_k,matz=.true.)
+        call Setppovlz(qibz_k,matz=.true.,npr=ngb) !add npr at 2024-5-23 obata
         if(debug) write(6,*) ' sxcf_fal2: ngb ngc nbloch=',ngb,ngc,nbloch
 
         !! === open WVR,WVI for correlation mode ===
