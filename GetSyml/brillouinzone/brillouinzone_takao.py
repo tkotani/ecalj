@@ -1,4 +1,4 @@
-from __future__ import print_function
+#from __future__ import print_function
 #from builtins import range
 import numpy as np
 from collections import defaultdict
@@ -363,7 +363,6 @@ def plotws(b1,b2,b3):
         n=int(ilr[0])
         if(n==0): break
     nline=i-1
-    #print( 'nline=',nline)
     for iline in sfile:
         i=i+1         #print(i,iline)
         ilr=re.split('\s+',iline)
@@ -374,8 +373,9 @@ def plotws(b1,b2,b3):
         iii = ilr[7]
         eee = ilr[8]
         text = [iii,eee]
-        print('points=',text)
+        print('k points=',text)
         add_arrow(fig, x[0], x[1], x[2], y[0], y[1], y[2],text,lwid=4,linecolor='red',warrow=True,asize=asize)
+    fig.write_html("./BZ.html") 
     fig.show()
     
 if __name__ == "__main__":

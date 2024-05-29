@@ -56,13 +56,14 @@ end module m_args
 module m_ext
 !  use m_lgunit,only: stdo
   use m_args,only: m_setargs,arglist,narg
-  character(512),public,protected::sname='temp'
+  character(512),public,protected::sname='temp',dirname
   public:: m_ext_init
 contains
   subroutine m_ext_init()
     logical :: master
-    integer:: ifi,ipos,i,na
+    integer:: ifi,ipos,i,na,getcwd
     character*256:: sss,s222,argv
+    i = getcwd(dirname)
     do i = 1, narg       !write(*,*)'m_ext_init=',i, trim(arglist(i))
        if(arglist(i)(1:1)/='-') then
           sname=trim(arglist(i))
