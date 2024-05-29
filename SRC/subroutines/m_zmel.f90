@@ -491,7 +491,8 @@ contains
           use m_read_ppovl,only: igggi,igcgp2i,nxi,nxe,nyi,nye,nzi,nze,nvgcgp2,ngcgp,ggg,ppovlinv,nnxi,nnxe, nnyi,nnye,nnzi,nnze,nggg
           integer:: igcgp2,nn(3),iggg,igp1,itp,igc,igp2,igcgp2i_(ngc,ngp2)
           complex(8):: zmelp0(ngc,nt0,ntp0),phase(ngc) , ggitp(ngcgp,ntp0),gggmat(ngcgp,ngp1)
-          complex(8):: ggitp_all(ngc, ngp2, ntp0)
+          ! complex(8):: ggitp_all(ngc, ngp2, ntp0)
+          complex(8):: ggitp_work(ngc, ngp2)
 
           phase(:)=[(exp( -img*tpi*sum((matmul(symope,kvec)+matmul(qlat,ngveccR(:,igc)))*shtv) ),igc=1,ngc)]  !prepared by CPU
           !$acc data copyin(dgeigqk, geigq, phase, ngvecpB1, ngvecpB2, ngveccR, nadd, ggg(1:nggg), nvgcgp2(1:3,1:ngcgp), &
@@ -517,14 +518,25 @@ contains
           !$acc end kernels
           ierr = zmm(gggmat, geigq(1,itq(nqini_rank)), ggitp, ngcgp, ntp0, ngp1, ldB = ngpmx)
 
-          !$acc kernels loop independent collapse(2)
-          do igp2 = 1, ngp2
-            do igc = 1, ngc
-              ggitp_all(igc, igp2, 1:ntp0) = ggitp(igcgp2i_(igc,igp2), 1:ntp0)
+          ! !$acc kernels loop independent collapse(2)
+          ! do igp2 = 1, ngp2
+          !   do igc = 1, ngc
+          !     ggitp_all(igc, igp2, 1:ntp0) = ggitp(igcgp2i_(igc,igp2), 1:ntp0)
+          !   enddo
+          ! enddo
+          ! !$acc end kernels
+          ! ierr = zmm_batch(ggitp_all, dgeigqk(1,nmini), zmelp0, ngc, nt0, ngp2, ntp0, ldB = ngpmx, sameB = .true.)
+          do itp = 1, ntp0
+            !$acc kernels loop independent collapse(2)
+            do igp2 = 1, ngp2
+              do igc = 1, ngc
+                ggitp_work(igc, igp2) = ggitp(igcgp2i_(igc,igp2), itp)
+              enddo
             enddo
+            !$acc end kernels
+            ierr = zmm(ggitp_work, dgeigqk(1,nmini), zmelp0(1,1,itp), ngc, nt0, ngp2, ldB = ngpmx)
           enddo
-          !$acc end kernels
-          ierr = zmm_batch(ggitp_all, dgeigqk(1,nmini), zmelp0, ngc, nt0, ngp2, ntp0, ldB = ngpmx, sameB = .true.)
+
           !$acc kernels
           do igc = 1, ngc
             zmelp0(igc,1:nt0,1:ntp0) = phase(igc)*zmelp0(igc,1:nt0,1:ntp0)

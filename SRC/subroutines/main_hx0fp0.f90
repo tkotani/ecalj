@@ -178,7 +178,7 @@ subroutine hx0fp0()
 !  complex(8),allocatable:: rcxq0(:,:,:,:)
   logical,allocatable::   mpi__task(:)
   integer,allocatable::   mpi__ranktab(:)
-  integer :: n_kpara = 1, n_bpara = 1, npr_col, worker_inQtask
+  integer :: n_kpara = 1, n_bpara = 1, npr_col, worker_inQtask, nqcalc
   call MPI__Initialize()
   call gpu_init() 
   call M_lgunit_init()
@@ -346,7 +346,10 @@ subroutine hx0fp0()
 
   n_bpara = 1
   if(cmdopt2('--nb=', outs)) read(outs,*) n_bpara
-  n_kpara = mpi__size/(n_bpara*(iqxend - iqxini + 1) + 1) + 1 !Default setting of parallelization. b-parallel is 1.
+  nqcalc = iqxend - iqxini + 1
+  if(cmdopt0('--zmel0')) nqcalc = nqcalc - 1
+  if(nqcalc < 1) call rx('hx0fp0: sanity check. nqcalc < 1: specify more than 2 q-points in zmel0 mode')
+  n_kpara = max(mpi__size/(n_bpara*nqcalc), 1)  !Default setting of parallelization. b-parallel is 1.
   if(cmdopt2('--nk=', outs)) read(outs,*) n_kpara
   worker_inQtask = n_bpara * n_kpara
   write(6,'(1X,A,3I5)') 'MPI: worker_inQtask, n_bpara, n_kpara', worker_inQtask, n_bpara, n_kpara
