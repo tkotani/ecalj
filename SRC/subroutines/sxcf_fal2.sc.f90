@@ -95,18 +95,17 @@ module m_sxcf_main
   use m_nvfortran,only:findloc
   use m_hamindex,only: ngrp
   implicit none
-  public sxcf_scz_main, zsecall
+  public sxcf_scz_main, sxcf_scz_exchange, zsecall
   complex(8),allocatable,target:: zsecall(:,:,:,:) !output
   private
 contains
-  subroutine sxcf_scz_main(ef,esmr,exchange,ixc,nspinmx) 
-    intent(in)             ef,esmr,exchange,ixc,nspinmx
-    logical :: exchange
+  subroutine sxcf_scz_exchange(ef,esmr,ixc,nspinmx) 
+    intent(in)             ef,esmr,ixc,nspinmx
     integer :: ip,it,itp,i,ix,kx,irot,kr,nt0p,nt0m,nstate,nbmax,ntqxx,nt,iw,ivc,ifvcoud,ngb0,ifwd,nrot,nwp,ierr,iqini,iqend
     integer :: invr,ia,nn,ntp0,no,itpp,nrec,itini,itend,nbmxe,iwp,nwxi,nwx,iir, igb1,igb2,ix0,isp,nspinmx
     integer :: invrot,nocc,nlmtobnd,nt0,verbose,ififr, istate, nt_max ,noccx,ns2r, kxold,nccc,icount0
     integer:: ixx,ixc,icount,ns1,ns2
-    real(8) :: ekc(nctot+nband),ekq(nband),det,q(3),wtt,wfac,qvv(3),eq(nband),omega(ntq),quu(3),ef,esmr,&
+    real(8) :: ekc(nctot+nband),det,q(3),wfac,qvv(3),eq(nband),quu(3),ef,esmr,&
          freqw,ratio,qibz_k(3),qbz_kr(3),vc,omega0,omg, polinta, wexx,ua2_(niw),freqw1,q_r(3),qk(3)
     logical:: tote=.false., iprx,cmdopt0, oncew, onceww !, eibz4sig  
     character(10) :: i2char
@@ -122,18 +121,7 @@ contains
     logical:: emptyrun
     emptyrun=cmdopt0('--emptyrun')
     if(nw_i/=0) call rx('Current version we assume nw_i=0. Time-reversal symmetry')
-    iqini = 1
-    iqend = nqibz             
     allocate(zsecall(ntq,ntq,nqibz,nspinmx),source=(0d0,0d0)) 
-    if(.not.exchange.and.(.not.emptyrun)) then! Read WV* containing W-v in MPB
-       allocate(ifrcw(iqini:iqend),ifrcwi(iqini:iqend))
-       do kx=iqini,iqend
-          if(any(kx==kxc(:))) then !only for requied files for this rank
-             open(newunit=ifrcw(kx), file='WVR.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
-             open(newunit=ifrcwi(kx),file='WVI.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
-          endif
-       enddo
-     endif
     ! NOTE: sum for G\timesW is controlloed by irkip, icountini:icountend
     kxold=-9999  ! To make MAINicountloop 3030 as parallel loop, set cache=.false.
     kxloop:                  do kx  =1,nqibz   ! kx is irreducible !kx is main axis where we calculate W(kx).
@@ -145,18 +133,11 @@ contains
             isploopexternal: do isp=1,nspinmx  !external index
               kr = irkip(isp,kx,irot,ip)
               if(kr==0) cycle
-              q(1:3)= qibz(1:3,ip)
+              q     = qibz(:,ip)
               qbz_kr= qbz (:,kr)   !rotated qbz vector.
-              qk =  q - qbz_kr     !<M(qbz_kr) phi(q-qbz_kr)|phi(q)>
-              eq = readeval(q,isp) !readin eigenvalue
-              omega(1:ntq) = eq(1:ntq)  !1:ntq
-              ekq = readeval(qk, isp) 
-              ekc(1:nctot)= ecore(1:nctot,isp) ! core
-              ekc(nctot+1:nctot+nband) = ekq (1:nband)
-              nt0  = count(ekc<ef) 
-              nt0p = count(ekq<ef+ddw*esmr) +nctot 
-              nt0m = count(ekq<ef-ddw*esmr) +nctot
-              wtt = wk(kr)
+              qk    =  q - qbz_kr  !<M(qbz_kr) phi(q-qbz_kr)|phi(q)>
+              eq                 = readeval(q,isp) !readin eigenvalue
+              ekc(1:nctot+nband) = [ecore(1:nctot,isp),readeval(qk, isp)]
               ntqxx = nbandmx(ip,isp) ! ntqxx is number of bands for <i|sigma|j>.
               zsec => zsecall(1:ntqxx,1:ntqxx,ip,isp)
             NMBATCHloop: do 3030 icount = icountini(isp,ip,irot,kx),icountend(isp,ip,irot,kx) !batch of middle states.
@@ -171,27 +152,96 @@ contains
                 call get_zmel_init(q,qibz_k,irot,qbz_kr, ns1,ns2,isp, 1,ntqxx, isp,nctot,ncc=0,iprx=debug,zmelconjg=.false.)! Get zmel(ngb,ns1:ns2,ntqxx)
 1212            continue 
               endblock ZmelBlock
-              ExchangeMode: if(exchange) then      
-                ExchangeSelfEnergy: Block
-                  real(8):: wfacx,vcoud_(ngb),wtff(ns1:ns2) !range of middle states ns1:ns2
-                  !character(8):: xt ;call timeshow("ExchangeMODE1 icount="//trim(xt(icount)))
-                  vcoud_= vcoud                                    ! kx==1 must be for q=0     
-                  if(kx==1) vcoud_(1)=wklm(1)*fpi*sqrt(fpi)/wk(kx) ! voud_(1) is effective v(q=0) in the Gamma cell. 
-                  ! wtff = [(1d0,it=ns1,nctot), (wfacx(-1d99, ef, ekc(it), esmr),it=max(nctot+1,ns1),ns2)] !bugfix 2023-5-18 ns1==>max(nctot+1,ns1)
-                  wtff(ns1:nctot) =1d0 !these are for nvfortran24.1
-                  do it=max(nctot+1,ns1),ns2
-                    wtff(it) = wfacx(-1d99, ef, ekc(it), esmr) !bugfix 2023-5-18 ns1==>max(nctot+1,ns1)
-                  enddo
-                  if(corehole) wtff(ns1:nctot) = wtff(ns1:nctot) * wcorehole(ns1:nctot,isp)
-                  do concurrent(itp=1:ntqxx, itpp=1:ntqxx)
-                    if(emptyrun) cycle !probably not so slow but for no error for --emptyrun
-                    zsec(itp,itpp)=zsec(itp,itpp) - wtt* &
-                         sum( [(sum(dconjg(zmel(:,it,itp))*vcoud_(:)*zmel(:,it,itpp))*wtff(it),it=ns1,ns2)] ) !this may work even for nvfortran24.1
-                  enddo
-                EndBlock ExchangeSelfEnergy
-                if(timemix) call timeshow("ExchangeSelfEnergy cycle")
-                cycle  
-              endif ExchangeMode
+              ExchangeSelfEnergy: Block
+                real(8):: wfacx,vcoud_(ngb),wtff(ns1:ns2) !range of middle states ns1:ns2
+                vcoud_= vcoud                                    ! kx==1 must be for q=0     
+                if(kx==1) vcoud_(1)=wklm(1)*fpi*sqrt(fpi)/wk(kx) ! voud_(1) is effective v(q=0) in the Gamma cell. 
+                wtff(ns1:nctot) =1d0 !these are for nvfortran24.1
+                do it=max(nctot+1,ns1),ns2
+                   wtff(it) = wfacx(-1d99, ef, ekc(it), esmr) 
+                enddo
+                if(corehole) wtff(ns1:nctot) = wtff(ns1:nctot) * wcorehole(ns1:nctot,isp)
+                do concurrent(itp=1:ntqxx, itpp=1:ntqxx)
+                   if(emptyrun) cycle !probably not so slow but for no error for --emptyrun
+                   zsec(itp,itpp)=zsec(itp,itpp) - wk(kr)* &
+                        sum( [(sum(dconjg(zmel(:,it,itp))*vcoud_(:)*zmel(:,it,itpp))*wtff(it),it=ns1,ns2)] ) !this may work even for nvfortran24.1
+                enddo
+              EndBlock ExchangeSelfEnergy
+3030        enddo NMBATCHloop
+          enddo isploopexternal
+        enddo iploopexternal
+      enddo irotloop
+    enddo kxloop
+  endsubroutine sxcf_scz_exchange
+  
+  subroutine sxcf_scz_main(ef,esmr,ixc,nspinmx) 
+    intent(in)             ef,esmr,ixc,nspinmx
+    integer :: ip,it,itp,i,ix,kx,irot,kr,nt0p,nt0m,nstate,nbmax,ntqxx,nt,iw,ivc,ifvcoud,ngb0,ifwd,nrot,nwp,ierr,iqini,iqend
+    integer :: invr,ia,nn,ntp0,no,itpp,nrec,itini,itend,nbmxe,iwp,nwxi,nwx,iir, igb1,igb2,ix0,isp,nspinmx
+    integer :: invrot,nocc,nlmtobnd,nt0,verbose,ififr, istate, nt_max ,noccx,ns2r, kxold,nccc,icount0
+    integer:: ixx,ixc,icount,ns1,ns2
+    real(8) :: ekc(nctot+nband),det,q(3),wfac,qvv(3),eq(nband),omega(ntq),quu(3),ef,esmr,&
+         freqw,ratio,qibz_k(3),qbz_kr(3),vc,omega0,omg, polinta, wexx,ua2_(niw),freqw1,q_r(3),qk(3)
+    logical:: tote=.false., iprx,cmdopt0, oncew, onceww !, eibz4sig  
+    character(10) :: i2char
+    real(8),parameter :: wfaccut=1d-8,tolq=1d-8, pi=4d0*datan(1d0), fpi=4d0*pi, tpi=8d0*datan(1d0),ddw=10d0
+    complex(8), parameter :: img=(0d0,1d0)
+    logical,parameter :: debug=.false.,timemix=.false.
+    complex(8),allocatable,target:: zwz(:,:,:),zw(:,:)
+    real(8),allocatable:: we_(:,:),wfac_(:,:)
+    complex(8),allocatable:: w3p(:),wtff(:)
+    complex(8),pointer::zsec(:,:), ww(:,:)
+    integer,allocatable :: ifrcw(:),ifrcwi(:),ndiv(:),nstatei(:,:),nstatee(:,:)!,irkip(:,:,:,:)
+    logical,parameter:: cache=.true.
+    logical:: emptyrun
+    emptyrun=cmdopt0('--emptyrun')
+    if(nw_i/=0) call rx('Current version we assume nw_i=0. Time-reversal symmetry')
+    allocate(zsecall(ntq,ntq,nqibz,nspinmx),source=(0d0,0d0)) 
+    if(.not.emptyrun) then! Read WV* containing W-v in MPB
+       iqini = 1
+       iqend = nqibz             
+       allocate(ifrcw(iqini:iqend),ifrcwi(iqini:iqend))
+       do kx=iqini,iqend
+          if(any(kx==kxc(:))) then !only for requied files for this rank
+             open(newunit=ifrcw(kx), file='WVR.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
+             open(newunit=ifrcwi(kx),file='WVI.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
+          endif
+       enddo
+     endif
+    ! NOTE: sum for G\timesW is controlloed by irkip, icountini:icountend
+    kxold=-9999  ! To make MAINicountloop 3030 as parallel loop, set cache=.false.
+    kxloop:   do kx  =1,nqibz   ! kx is irreducible !kx is main axis where we calculate W(kx).
+      qibz_k = qibz(:,kx)
+      call Readvcoud(qibz_k,kx,NoVcou=.false.)  !Readin ngc,ngb,vcoud ! Coulomb matrix
+      call Setppovlz(qibz_k,matz=.true.,npr=ngb)        !Set ppovlz overlap matrix used in Get_zmel_init in m_zmel
+      irotloop:              do irot=1,ngrp    ! (kx,irot) determines qbz(:,kr), which is in FBZ. W(kx) is rotated to be W(g(kx))
+          iploopexternal:    do ip=1,nqibz     !external index for q of \Sigma(q,isp)
+            isploopexternal: do isp=1,nspinmx  !external index
+              kr = irkip(isp,kx,irot,ip)
+              if(kr==0) cycle
+              q     = qibz(:,ip)
+              qbz_kr= qbz (:,kr)   !rotated qbz vector.
+              qk    =  q - qbz_kr     !<M(qbz_kr) phi(q-qbz_kr)|phi(q)>
+              eq                 = readeval(q,isp) !readin eigenvalue
+              ekc(1:nctot+nband) = [ecore(1:nctot,isp),readeval(qk, isp)]
+              omega(1:ntq) = eq(1:ntq)  !1:ntq
+              ekc(1:nctot+nband)= [ecore(1:nctot,isp),readeval(qk, isp)]
+              nt0p = count(ekc<ef+ddw*esmr)  !nt0  = count(ekc<ef) 
+              nt0m = count(ekc<ef-ddw*esmr) 
+              ntqxx = nbandmx(ip,isp) ! ntqxx is number of bands for <i|sigma|j>.
+              zsec => zsecall(1:ntqxx,1:ntqxx,ip,isp)
+            NMBATCHloop: do 3030 icount = icountini(isp,ip,irot,kx),icountend(isp,ip,irot,kx) !batch of middle states.
+              call flush(stdo)
+              ns1 =nstti(icount) ! Range of middle states is [ns1:ns2] for given icount
+              ns2 =nstte(icount) ! 
+              nwxi=nwxic(icount) !minimum omega for W
+              nwx =nwxc(icount)  !max omega for W
+              ns2r=nstte2(icount) !Range of middle states [ns1:ns2r] for CorrelationSelfEnergyRealAxis
+              ZmelBlock:block !zmel(ib=ngb,it=ns1:ns2,itpp=1:ntqxx)= <M(qbz_kr,ib) phi(it,q-qbz_kr,isp) |phi(itpp,q,isp)> 
+                if(emptyrun) goto 1212
+                call get_zmel_init(q,qibz_k,irot,qbz_kr, ns1,ns2,isp, 1,ntqxx, isp,nctot,ncc=0,iprx=debug,zmelconjg=.false.)! Get zmel(ngb,ns1:ns2,ntqxx)
+1212            continue 
+              endblock ZmelBlock
               CorrelationMode: Block! See Eq.(55) around of PRB76,165106 (2007) !range of middle states is [ns1:ns2]
                 integer:: nm
                 complex(8):: zmelc  (1:ntqxx,ns1:ns2,1:ngb)
@@ -210,7 +260,7 @@ contains
                         cons = 1d0/(we**2*x**2 + (1d0-x)**2)
                         wgtim_(1:niw)= we*cons*wt*(-1d0/pi)
                         wgtim_(0)=merge(-sum(wgtim_(1:niw)*expa_)-0.5d0*dsign(1d0,we)*dexp(we**2*ua_**2)*erfc(ua_*dabs(we)), 0d0,&
-                             mask=dabs(we)<rmax/ua_)
+                             dabs(we)<rmax/ua_)
                         if(npm==2) wgtim_(niw+1:2*niw) = cons*(1d0/x-1d0)*wt/pi !Asymmetric contribution need check
                       else
                         omd   = 1d0/x - 1d0
@@ -221,15 +271,14 @@ contains
                         wgtim_(1:niw) = -we*cons*wt/(x**2)/pi
                         wgtim_(0) =  we*sum(cons*expa_*wt/(x**2))/pi &
                              + dsign(1d0,we)*.5d0*exp(aw2)*( erfc(sqrt(aw2 + we**2/sig2)) -erfc(aw) ) !Gaussian part erfc(2023feb)
-                        if(npm==2) wgtim_(niw+1:2*niw) = cons*omd*wt/(x**2)/pi !Asymmetric contribution need chack
+                        if(npm==2) wgtim_(niw+1:2*niw) = cons*omd*wt/(x**2)/pi !Asymmetric contribution need check
                       endif
                     endassociate
-                    wgtim(:,itp,it)=wtt*wgtim_ !! Integration weight wgtim along im axis for zwz(0:niw*npm)
+                    wgtim(:,itp,it)=wk(kr)*wgtim_ !! Integration weight wgtim along im axis for zwz(0:niw*npm)
                   enddo itpitdo
                   zmelcww=0d0
                   iwimag:do ixx=0,niw !niw is ~10. ixx=0 is for omega=0 nw_i=0 (Time reversal) or nw_i =-nw
                     if(emptyrun) cycle
-                    !   iwimag:do concurrent(ixx=0:niw)  !concurrent may(or maynot) be problematic because zmelcww is for reduction 
                     if(ixx==0)read(ifrcw(kx),rec=1+(0-nw_i)) zw !direct access Wc(0) = W(0)-v ! nw_i=0 (Time reversal) or nw_i =-nw
                     if(ixx>0) read(ifrcwi(kx),rec=ixx) zw       ! direct access read Wc(i*omega)=W(i*omega)-v
                     ww=>zw(1:ngb,1:ngb)
@@ -249,12 +298,12 @@ contains
                   itc=.false.
                   do concurrent(itp=1:ntqxx)
                     omg  = omega(itp)
-                    itini= merge(max(ns1,nt0m+1),  ns1, mask= omg>=ef)
-                    itend= merge(ns2r,  min(nt0p,ns2r), mask= omg>=ef)
+                    itini= merge(max(ns1,nt0m+1),  ns1, omg>=ef)
+                    itend= merge(ns2r,  min(nt0p,ns2r), omg>=ef)
                     do concurrent(it=itini:itend)     ! nt0p corresponds to efp
-                      wfac_(it,itp) = wfacx2(omg,ef, ekc(it), merge(0d0,esmr,mask=it<=nctot)) !Gaussian smearing 
+                      wfac_(it,itp) = wfacx2(omg,ef, ekc(it), merge(0d0,esmr, it<=nctot)) !Gaussian smearing 
                       if(wfac_(it,itp)<wfaccut) cycle 
-                      wfac_(it,itp)=  wfac_(it,itp)*wtt*dsign(1d0,omg-ef) !wfac_ = $w$ weight (smeared thus truncated by ef). See the sentences.
+                      wfac_(it,itp)=  wfac_(it,itp)*wk(kr)*dsign(1d0,omg-ef) !wfac_ = $w$ weight (smeared thus truncated by ef). See the sentences.
                       we_(it,itp)  = .5d0*abs(omg-weavx2(omg,ef, ekc(it),esmr)) !we_= \bar{\omega_\epsilon} in sentences next to Eq.58 in PRB76,165106 (2007)
                       ixs = findloc(freq_r(1:nw)>we_(it,itp),value=.true.,dim=1)
                       iwgt3(it,itp) = ixs+1-2    !Starting omega index ix for it,itp    ! iwgt3(it,itp) = iirx(itp)*(ixs+1-2) !iirx(ntqxx),
@@ -311,8 +360,8 @@ contains
         enddo iploopexternal
       enddo irotloop
     enddo kxloop
-  write(stdo,ftox)'endof 3030loop'
   endsubroutine sxcf_scz_main
+  
   pure subroutine matmaw(a,b,c,n1,n2,n3,ww)
     integer, intent(in) :: n1,n2,n3
     complex(8), intent(in) :: a(n1,n2), b(n2,n3)

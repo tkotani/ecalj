@@ -200,8 +200,9 @@ subroutine hsfp0_sc()
   ! Remove eibzmode symmetrizer 2023Jan22
   !call Seteibzhs(nspinmx,nq,qibz,iprintx=MPI__root)
   Main4SelfEnergy: Block !time-consuming part Need highly paralellized
-    use m_sxcf_main,only: sxcf_scz_main
-    call sxcf_scz_main(ef,esmr,exchange,ixc,nspinmx) !main part of job
+    use m_sxcf_main,only: sxcf_scz_main,sxcf_scz_exchange
+    if(exchange)      call sxcf_scz_exchange(ef,esmr,ixc,nspinmx) !main part of job
+    if(.not.exchange) call sxcf_scz_main    (ef,esmr,ixc,nspinmx) !main part of job
   EndBlock Main4SelfEnergy
 ! Remove eibzmode symmetrizer 2023Jan22 (extended irreducibel BZ mode)
 !  SymmetrizeZsec :Block
