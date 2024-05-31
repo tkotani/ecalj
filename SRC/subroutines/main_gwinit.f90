@@ -1,4 +1,8 @@
-subroutine gwinit_v2() !  Generate GWinput.tmp.
+module m_gwinit
+  private
+  public gwinit_v2
+contains
+subroutine gwinit_v2() bind(C) !  Generate GWinput.tmp.
   ! ----------------------------------------------------------------------
   ! nput file        (this doc touched at 2022jan)
   !i    HAMindex0 via readhamindex0
@@ -370,3 +374,4 @@ subroutine gwinit_v2() !  Generate GWinput.tmp.
   write(ifi,"(a)" ) '! ################################################# '
   stop ' OK! We have generated GWinput.tmp! '
 end subroutine gwinit_v2
+end module m_gwinit

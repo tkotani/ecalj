@@ -1,4 +1,6 @@
-subroutine hqpe()   ! Jul,2000 t.kotani started from hqpe by Ferdi.Aryasetiawan
+module m_hqpe
+  contains
+subroutine hqpe() bind(C)  ! Jul,2000 t.kotani started from hqpe by Ferdi.Aryasetiawan
   ! calculates quasiparticle energies
   ! E(k,t) = e(k,t) + Z [SEx(k,t) + SEc(k,t) - xcLDA(k,t)]
   ! e(k,t) = LDA eigenvalue
@@ -163,3 +165,4 @@ subroutine hqpe()   ! Jul,2000 t.kotani started from hqpe by Ferdi.Aryasetiawan
   end do
   call rx0s( ' OK! hqpe ')
 end subroutine hqpe
+end module m_hqpe

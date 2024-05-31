@@ -1,6 +1,8 @@
-!! Generate input files used in GW calculations
+!> Generate input files used in GW calculations
 !!  Read gwb.* and module variables in m_lmf2gw (set by call lmf2gw() for inputs.
-subroutine rdata4gw_v2()
+module m_rdata4gw
+  contains
+subroutine rdata4gw() bind(C)
   use m_nvfortran,only:findloc
   use m_lmf2gw,only:Lmf2gw, nindx,lindx,ibasindx,nbandmx,nphimx, &
        nsp,nbas,nclass,ncoremx,lmxamx,ldim2, &
@@ -250,7 +252,7 @@ subroutine rdata4gw_v2()
         enddo
      enddo
   enddo
-  if(ix/=ldim2) call rx( 'rdata4gw_v2:ix/=ldim2')
+  if(ix/=ldim2) call rx( 'rdata4gw:ix/=ldim2')
   !! --- Mesh refining  ! nov2005
   !     Get new
   !     nrmx, gx_raw, gcore, aa(ic),bb(ic),nr(ic)
@@ -399,7 +401,7 @@ subroutine rdata4gw_v2()
            !Get zzp : eigenfunctions of ovv
            call rss(n1, ovv(1:n1,1:n1,l1,ic,isp), eb, zzp(1:n1,1:n1,l1,ic,isp), ierr) !rs=>rss 2022-6-13
            write(stdo,"(' eb=',10f12.6)") eb(1:n1)
-           if(ierr/=0) call rx( ' rdata4gw_v2: error in rs ')
+           if(ierr/=0) call rx( ' rdata4gw: error in rs ')
            do i1=1,n1
               do i2=1,n1
                  zzp(i1,i2,l1,ic,isp) = zzp(i1,i2,l1,ic,isp) /sqrt(eb(i2))
@@ -590,9 +592,10 @@ subroutine rdata4gw_v2()
   write(ifigwin) bas,zz(iclass(1:nbas)),spid(1:nbas)
   write(ifigwin) laf,ibasf
   close(ifigwin)
-  write(stdo,*)" OK! end of rdata4gw_v2 "
-  call rx0( ' OK! rdata4gw_v2')
-end subroutine rdata4gw_v2
+  write(stdo,*)" OK! end of rdata4gw "
+  call rx0( ' OK! rdata4gw')
+end subroutine rdata4gw
+endmodule m_rdata4gw
 subroutine rrefine(rofio,nro,rofin,nrn,go, gn )
   implicit none
   integer:: nro,nrn,ir

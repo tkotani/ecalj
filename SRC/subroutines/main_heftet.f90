@@ -1,4 +1,6 @@
-subroutine heftet() ! Calculates the Fermi energy by tetrahedron method. 
+module m_heftet
+  contains
+subroutine heftet() bind(C)! Calculates the Fermi energy by tetrahedron method. 
   use m_read_bzdata,only: read_bzdata, idteti,qbz,qibz,dq_,nqibz,ntetf,nteti,ginv,nqbz
   use m_genallcf_v3,only: genallcf_v3, nclass,natom,nspin,nl,nn,nnv,nnc, nlmto,nlnmx, nctot,niw
   use m_genallcf_v3,only: alat, delta,deltaw,esmr,clabl,iclass, plat, pos,z,ecore, konf,nlnx,valn=>qval
@@ -237,3 +239,4 @@ subroutine heftet() ! Calculates the Fermi energy by tetrahedron method.
      call rx0( ' OK! heftet mode=5 EFERMI and EFERMI_kbt ')
   endif
 end subroutine heftet
+end module m_heftet
