@@ -1,8 +1,9 @@
 from __future__ import print_function
-from builtins import range
+#from builtins import range
 import numpy as np
 from collections import defaultdict
-
+import plotly.graph_objs as go
+import sys
 
 #http://stackoverflow.com/questions/13685386/matplotlib-equal-unit-length-with-equal-aspect-ratio-z-axis-is-not-equal-to
 def set_aspect_equal_3d(ax):
@@ -282,84 +283,79 @@ def get_BZ(b1,b2,b3):
     return ret_data,points3d
 
 
-
+def add_arrow(fig, x0,y0,z0, x1,y1,z1,text=[],lwid=2,linecolor='black', warrow=False,asize=0.2):
+    """
+    Add a line/arrow to the figure in plotly
+    """
+    arrow_starting_ratio=0.5
+    fig.add_trace(go.Scatter3d(x=[x0, x1],y=[y0, y1],z=[z0, z1],
+        mode='markers+text', name='markers and text',
+        textposition="bottom center",line=dict(color=linecolor), 
+        text=text,marker=dict(size=lwid)   )   )
+    fig.add_trace(go.Scatter3d(x=[x0, x1],y=[y0, y1],z=[z0, z1],
+        mode='lines',line = dict(width = lwid, color =linecolor)  ))
+    if not warrow: return
+    anorm=asize/((x1-x0)**2+(y1-y0)**2+(z1-z0)**2)**0.5
+    fig.add_trace(go.Cone(
+        x=[x0 + arrow_starting_ratio*(x1 - x0)],
+        y=[y0 + arrow_starting_ratio*(y1 - y0)],
+        z=[z0 + arrow_starting_ratio*(z1 - z0)],
+        u=[anorm*(x1 - x0)],
+        v=[anorm*(y1 - y0)],
+        w=[anorm*(z1 - z0)],
+        showlegend=False, showscale=False, colorscale=[[0, linecolor], [1, linecolor]]  ))
 
 def plotws(b1,b2,b3):
-    from pylab import figure, show
-    from mpl_toolkits.mplot3d.art3d import Poly3DCollection
-
-    #draw a vector
-    from matplotlib.patches import FancyArrowPatch
-    from mpl_toolkits.mplot3d import proj3d
-
-    class Arrow3D(FancyArrowPatch):
-        def __init__(self, xs, ys, zs, *args, **kwargs):
-            FancyArrowPatch.__init__(self, (0,0), (0,0), *args, **kwargs)
-            self._verts3d = xs, ys, zs
-
-        def draw(self, renderer):
-            xs3d, ys3d, zs3d = self._verts3d
-            xs, ys, zs = proj3d.proj_transform(xs3d, ys3d, zs3d, renderer.M)
-            self.set_positions((xs[0],ys[0]),(xs[1],ys[1]))
-            FancyArrowPatch.draw(self, renderer)
-
+    """
+    Write BZ and symmetry line of syml.* in plotly
+    """
     faces_data,points3d = get_BZ(b1,b2,b3)
-    import json
-    #print(json.dumps(faces_data))
-
     faces_coords = faces_data['faces']
-
-    faces_count = defaultdict(int)
+    #for i,face in enumerate(faces_coords): print(i,len(face))
+    fig = go.Figure()
+    "plot BZ faces"
     for face in faces_coords:
-        faces_count[len(face)] += 1
-
-    for num_sides in sorted(faces_count.keys()):
-        print("{} faces: {}".format(num_sides, faces_count[num_sides]))
-
-    fig = figure() #figsize=figaspect(1))
-    ax = fig.add_subplot(111, projection='3d')
-    ax.add_collection3d(Poly3DCollection(faces_coords,linewidth=1, alpha=0.3, edgecolor="k", facecolor="#ccccff"))
-
-    #draw origin
-    ax.scatter([0],[0],[0],color="g",s=100)
-
-    axes_length = 1 
-
-# Add axes
-    ax.add_artist(Arrow3D((0,axes_length),(0,0),(0,0), 
-          mutation_scale=20, lw=2, arrowstyle="-|>", color="k"))
-    ax.add_artist(Arrow3D((0,0),(0,axes_length),(0,0),
-          mutation_scale=20, lw=2, arrowstyle="-|>", color="k"))
-    ax.add_artist(Arrow3D((0,0),(0,0),(0,axes_length),
-         mutation_scale=20, lw=2, arrowstyle="-|>", color="k"))
-    ax.text(axes_length,0,0, 'ex', (1,0,0))
-    ax.text(0,axes_length,0, 'ey', (1,0,0))
-    ax.text(0,0,axes_length, 'ez', (1,0,0))
-
-# three primitive vectors    
-    ax.add_artist(Arrow3D((0,b1[0]),(0,b1[1]),(0,b1[2]), 
-          mutation_scale=21, lw=1, arrowstyle="-|>", color="r"))
-    ax.add_artist(Arrow3D((0,b2[0]),(0,b2[1]),(0,b2[2]),
-          mutation_scale=21, lw=1, arrowstyle="-|>", color="r"))
-    ax.add_artist(Arrow3D((0,b3[0]),(0,b3[1]),(0,b3[2]),
-          mutation_scale=21, lw=1, arrowstyle="-|>", color="r"))
-    ax.text(b1[0], b1[1], b1[2], 'qlat1', (1,0,0))
-    ax.text(b2[0], b2[1], b2[2], 'qlat2', (1,0,0))
-    ax.text(b3[0], b3[1], b3[2], 'qlat3', (1,0,0))
-##
-
+        face.append(face[0]) # repeat the first point to create a 'closed loop'
+        xs, ys, zs = zip(*face) # create lists of x and y values
+        fig.add_trace(go.Scatter3d(x=xs, y=ys, z=zs, mode='lines',line = dict(width = 2, color ='rgb(0,128,0)'))        )
+    #plot Axis Ex,Ey,Ez
+    #x0,y0,z0=0.0,0.0,0.0
+    #add_arrow(fig, x0, y0, z0, 1.0,0.0,0.0,lwid=1)
+    #add_arrow(fig, x0, y0, z0, 0.0,1.0,0.0,lwid=1)
+    #add_arrow(fig, x0, y0, z0, 0.0,0.0,1.0,lwid=1)
+    "one-half size of Primitive vectors"
+    x0,y0,z0=0.0,0.0,0.0
+    add_arrow(fig, x0, y0, z0, b1[0]/2., b1[1]/2., b1[2]/2.,text=['','qlat1/2'],lwid=3,linecolor='blue')
+    add_arrow(fig, x0, y0, z0, b2[0]/2., b2[1]/2., b2[2]/2.,text=['','qlat2/2'],lwid=3,linecolor='blue')
+    add_arrow(fig, x0, y0, z0, b3[0]/2., b3[1]/2., b3[2]/2.,text=['','qlat3/2'],lwid=3,linecolor='blue')
+    "Set title and aspect ratio"
+    noaxis=dict(showbackground=False,  showgrid=False,  showline=False, showticklabels=False,
+            ticks='', title='', zeroline=False)
+    asize = 0.1 *sum(b1**2+b2**2+b3**2)**0.5
     import sys,re
+    symlfile='syml.'+sys.argv[1]
+    fig.update_layout(
+        title="Brillouin Zone and k-path for "+symlfile,
+        font=dict(family="Courier New, monospace",size=25,color="rgb(0,0,0)"),
+        width=1000, height=1000,
+        showlegend=False,
+        margin=dict(l=0, r=0, b=0, t=100),
+        scene_aspectmode='data',
+        scene_aspectratio=dict(x=1, y=1, z=1),
+        scene=dict(
+            xaxis=noaxis,
+            yaxis=noaxis,
+            zaxis=noaxis,
+            camera=dict(eye=dict(x=1.35, y=1.15, z=1.15),projection=dict(type='orthographic'))
+        )
+    )
+    
     iii=''
     eee=''
     x=['']*3
     y=['']*3
     n=''
-
-    symlfile='syml.'+sys.argv[1]
     sfile = open(symlfile,'r').read().split('\n')
-
-# look for nline
-#    print ('sfile=',sfile)
     i=0
     for iline in sfile:
         i=i+1
@@ -369,8 +365,7 @@ def plotws(b1,b2,b3):
     nline=i-1
     #print( 'nline=',nline)
     for iline in sfile:
-        i=i+1
-        #print(i,iline)
+        i=i+1         #print(i,iline)
         ilr=re.split('\s+',iline)
         n=int(ilr[0])
         if(n==0): break
@@ -378,48 +373,12 @@ def plotws(b1,b2,b3):
         y= [float(ilr[i]) for i in range(4,7)]
         iii = ilr[7]
         eee = ilr[8]
-        #print( n,x[0:3],y[0:3],iii,eee)
-        ax.add_artist(Arrow3D((x[0],y[0]),(x[1],y[1]),(x[2],y[2]),
-          mutation_scale=11, lw=1, arrowstyle="-|>", color="g"))
-        ax.text(x[0], x[1],x[2], iii, (1,0,0))
-        ax.text(y[0], y[1],y[2], eee, (1,0,0))
-
-# # # all face vectors.
-#     for ix in faces_data['triangles_vertices']: #points3d:
-#         vvv=ix
-#         #print(vvv)
-#         #ax.plot((vvv[0],), (vvv[1],), (vvv[2],), "o", color="#ff0000", ms=8, mew=0.5)
-#         ax.add_artist(Arrow3D((0,vvv[0]),(0,vvv[1]),(0,vvv[2]),
-#                               mutation_scale=1, lw=.5, arrowstyle="-", color="g"))
-
-    ## Reset limits
-#    ax.set_xlim(-1,1)
-#    ax.set_ylim(-1,1)
-#    ax.set_zlim(-1,1)
-    ax.axis('off')
-#    ax.view_init(elev=0, azim=60)
-    ax.view_init(elev=0, azim=0)
+        text = [iii,eee]
+        print('points=',text)
+        add_arrow(fig, x[0], x[1], x[2], y[0], y[1], y[2],text,lwid=4,linecolor='red',warrow=True,asize=asize)
+    fig.show()
     
-    try:
-        ax.set_aspect('equal')
-    except NotImplementedError:
-        pass
-#        ax.set_box_aspect((1, 1, 1))
-        
-    ax.autoscale(True,axis='both')
-    show()
-
-        
 if __name__ == "__main__":
-    ##SC
-    #faces_data = get_BZ(b1 = [1,0,0], b2 = [0,1,0], b3 = [0,0,1])
-    ##BCC
-    #faces_data = get_BZ(b1 = [1,1,0], b2 = [1,0,1], b3 = [0,1,1])
-    ##FCC
-    cell = [[0.5, 0.5, 1.0],[0.5, 1.0, 0.5],[1.0, 0.5, 0.5]]
-#    cell=np.array([[8.885765876316732, 5.1301993206474545, 1.813799364234218], \
-#          [-8.885765876316732, 5.1301993206474545, 1.813799364234218], \
-#          [0.0, -10.260398641294914, 1.813799364234218]])/10.0
     qlat=[]
     vol=np.dot(cell[0],np.cross(cell[1],cell[2]))
     qlat.append(np.cross(cell[1],cell[2])/vol)

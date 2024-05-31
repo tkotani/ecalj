@@ -2,7 +2,7 @@
 module m_bstrux 
   ! bstr are stored in p_bstr(ia,iq)%cv3(ndimh,nlma,0:kmax) by m_bstrx_init
   ! "call bstrux_set(ia,iq)" rerurns  bstr(ndimh,nlma,0:kmax) and dbstr.
-  use m_lmfinit,only: lmxa_i=>lmxa, kmxt_i=>kmxt,afsym
+  use m_lmfinit,only: lmxa_i=>lmxa, kmxt_i=>kmxt,afsym,lfrce
   use m_struc_def,only: s_cv3,s_cv4
   use m_lgunit,only:stdo
   use m_MPItk,only:procid
@@ -19,36 +19,52 @@ module m_bstrux
   integer,private:: iqii,iqee
 contains
   subroutine bstrux_set(ia,qin)!set bstr and dbstr for given ibas and q
+    use m_qplist,only: qplist,iqini,iqend,nkp
     use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat
     implicit none
     real(8):: qin(3),q(3),eps=1d-10
     integer:: iq,iqx,ia !!!!! 2023-04-25 obatadebug    q=qin !    call shorbz(qin,q,qlat,plat) !Get q. Is this fine?
-    logical:: lll(iqii:iqee)
-    lll=[(sum( (qin-qall(:,iqx))**2 )<eps,iqx=iqii,iqee)]
-    iq = findloc(lll,value=.true.,dim=1)+iqii-1
-    Errorexit:if(iq<=0) then !error exit
-       write(stdo,ftox)'qin=',ftof(qin)
-       do iqx=iqii,iqee; write(stdo,ftox)'bstrux_set iq q=',procid,iqx,ftof(qall(:,iqx));  enddo
-       call rx('err:bstrux_set can not find given qin')
-    endif Errorexit
+    logical:: lll(iqii:iqee),cmdopt0
+    if(cmdopt0('--skipbstruxinit')) then
+       iq = findloc([(sum( (qin-qplist(:,iqx))**2 )<eps,iqx=iqini,iqend)],value=.true.,dim=1)+iqini-1
+       call m_bstrux_init(iq,iq)
+    else
+       lll=[(sum( (qin-qall(:,iqx))**2 )<eps,iqx=iqii,iqee)]
+       iq = findloc(lll,value=.true.,dim=1)+iqii-1
+       Errorexit:if(iq<=0) then !error exit
+          write(stdo,ftox)'qin=',ftof(qin)
+          do iqx=iqii,iqee; write(stdo,ftox)'bstrux_set iq q=',procid,iqx,ftof(qall(:,iqx));  enddo
+             call rx('err:bstrux_set can not find given qin')
+       endif Errorexit
+    endif
     bstr => p_bstr(ia,iq)%cv3
-    dbstr=> p_dbstr(ia,iq)%cv4
+    if(lfrce/=0) dbstr=> p_dbstr(ia,iq)%cv4
   end subroutine bstrux_set
-  subroutine m_bstrux_init() !q for qplist --> not yet for sugw.
+  subroutine m_bstrux_init(rangeS,rangeE) ! Add optional rangeS and rangeE to avoid memory problem for epsmode. 2024-5-21
     use m_qplist,only: qplist,iqini,iqend,nkp
     use m_lmfinit,only: nlmax,kmxt,nspec,nbas,ispec,rsma
     use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat,rv_a_opos
     use m_igv2x,only: napw, igvapw=>igv2x, ndimh,m_Igv2x_setiq !igvapwin=>igv2x,
-    integer:: kmaxx,ia,isa,lmxa,lmxb,kmax,nlmb,nlma,inn(3),ig,iq,ndimhmax!,iqii,iqee
+    integer,optional:: rangeS,rangeE
+    integer:: kmaxx,ia,isa,lmxa,lmxb,kmax,nlmb,nlma,inn(3),ig,iq,ndimhmax
+    integer, save:: rangeSp,rangeEp
     real(8):: pa(3),qin(3),q(3),qlatinv(3,3),qss(3),qxx(3)
-    logical:: cmdopt0
     call tcn('m_bstrux_init')
+    if(present(rangeS)) then
+       if(rangeSp==rangeS.and.rangeEp==rangeE) return
+       rangeSp=rangeS
+       rangeEp=rangeE
+    endif
     if(allocated(qall)) deallocate(qall,p_bstr,p_dbstr)
     iqii=iqini
     iqee=iqend
     if(afsym) iqii=1   ! AF rotation map q points to another q point (rotwave); thus we need p_bstr(:,iq_mapped).
     if(afsym) iqee=nkp ! bugfix at 2023-11-18
     !                    For simplicity, we calculate p_bstr(:,iq) for all iq for all processes. This may be not efficients but works.
+    if(present(rangeS)) then
+       iqii=rangeS
+       iqee=rangeE
+    endif
     allocate(qall(3,iqii:iqee),p_bstr(nbas,iqii:iqee),p_dbstr(nbas,iqii:iqee))
     iqloop: do 1200 iq = iqii, iqee ! iqii:iqee for each rank
        qin = qplist(:,iq)
@@ -64,7 +80,8 @@ contains
           allocate(   p_bstr(ia,iq)%cv3(ndimh,nlma,0:kmax)   )
           allocate(  p_dbstr(ia,iq)%cv4(ndimh,nlma,0:kmax,3) )
           qss = q !+ [1d-8,2d-8,3d-8] for stabilizing deneracy ordering (this works well?) --> this conflict with qshortn 
-          call bstrux(ia,pa,rsma(isa),qss,kmax,nlma,ndimh,napw,igvapw, p_bstr(ia,iq)%cv3,p_dbstr(ia,iq)%cv4)
+          call bstrux(ia,pa,rsma(isa),qss,kmax,nlma,ndimh,napw,igvapw, p_bstr(ia,iq)%cv3, p_dbstr(ia,iq)%cv4)
+          if(lfrce==0) deallocate(p_dbstr(ia,iq)%cv4)
        enddo ibasloop
        qall(:,iq)=q  !write(stdo,ftox)'m_bstrux_init qin',procid,iq,ftof(qin),ftof(qall(:,iq))
 1200 enddo iqloop
@@ -99,7 +116,7 @@ contains
     !r Remarks  Coefficients b are referred to as C_kL in the LMTO book.
     implicit none
     integer :: kmax,ndimh,ia,nlma,napw, nlmto,ib,is,ik,nkapi,nlmh,k,lmxa,l,ig,ilm,m, igapw(3,napw),lh(nkap0),ikx
-    complex(8):: b(ndimh,nlma,0:kmax), db(ndimh,nlma,0:kmax,3)
+    complex(8):: b(ndimh,nlma,0:kmax),db(ndimh,nlma,0:kmax,3)
     real(8):: pa(3), q(3),rsma,eh(n0,nkap0),rsmh(n0,nkap0),p(3),xx,srvol
     real(8):: gamma,qpg(3),tpiba,qpg2(1),facexp,rsmal,pgint,dfac(0:kmax),fac2l(0:nlma),yl(nlma),fac
     complex(8):: srm1=(0d0,1d0),gfourier,phase,facilm
@@ -108,7 +125,7 @@ contains
     srvol = dsqrt(vol)
     nlmto = ndimh-napw
     b=0d0 
-    db=0d0
+    if(lfrce/=0) db=0d0
     if(nlmto==0) goto 500 
     do ib= 1, nbas !MTO part 
        is= ispec(ib) 
@@ -135,7 +152,7 @@ contains
                do iblk = 1, blks(iorb)
                   do  k = 0, kmax
                      b(oi+iblk,1:nlma,k)    = b0(k, 1:nlma,ol+iblk)  
-                     db(oi+iblk,1:nlma,k,1:3) = db0(k,1:nlma,ol+iblk,1:3)
+                     if(lfrce/=0) db(oi+iblk,1:nlma,k,1:3) = db0(k,1:nlma,ol+iblk,1:3)
                   enddo
                enddo
             enddo
@@ -169,7 +186,7 @@ contains
              pgint =  dfac(k)*fac*(4/rsma**2)**k    ! Eq. 12.8 in JMP39 3393
              gfourier = (-qpg2(1))**k*facilm*facexp ! Eq.5.17
              b(ig+nlmto,ilm,k)   = gfourier/pgint/srvol*phase
-             db(ig+nlmto,ilm,k,:) = -srm1*qpg(:) * b(ig+nlmto,ilm,k)
+             if(lfrce/=0) db(ig+nlmto,ilm,k,:) = -srm1*qpg(:) * b(ig+nlmto,ilm,k)
           enddo
        enddo
     enddo 

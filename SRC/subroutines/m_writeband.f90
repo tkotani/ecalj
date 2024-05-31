@@ -31,7 +31,7 @@ contains
     logical:: semiconband,metalband
     integer:: idat,ifglts(2),iqplist,isp
     character(100)::acrossef
-    character(13)::massd,mass2d
+    character(13)::massd,mass2d,labelp
     logical:: scd
     real(8)::kef
     real(8),allocatable:: kabs(:)
@@ -68,16 +68,16 @@ contains
        !!
        write(ifglt,'(a,$)') 'set xtics ('
        do isyml = 1,nsyml   !symmetry line start
-          write(ifglt,'(a,F15.10,",\")')"'"//trim(labeli(isyml))//"'",disoff(isyml)
+          labelp=labeli(isyml)
+          if(isyml>1.and.trim(labele(isyml-1))/=labeli(isyml)) labelp=trim(labele(isyml-1))//'|'//trim(labeli(isyml))
+          write(ifglt,'(a,F15.10,",\")')"'"//trim(labelp)//"'",disoff(isyml)
        enddo
        write(ifglt,'(a,F15.10,")")') "'"//trim(labele(nsyml))//"'",disoff(nsyml+1)
-       !!
-       write(ifglt,'(a,$)') 'set x2tics ('
-       do isyml = 2,nsyml   !symmetry line end
-          write(ifglt,'(a,F15.10,",\")')"'"//trim(labele(isyml-1))//"'",disoff(isyml)
-       enddo
-       write(ifglt,'(a,F15.10,")")')"'"//trim(labele(nsyml))//"'",disoff(nsyml+1)
-
+!       write(ifglt,'(a,$)') 'set x2tics ('
+!       do isyml = 2,nsyml   !symmetry line end
+!          write(ifglt,'(a,F15.10,",\")')"'"//trim(labele(isyml-1))//"'",disoff(isyml)
+!       enddo
+!       write(ifglt,'(a,F15.10,")")')"'"//trim(labele(nsyml))//"'",disoff(nsyml+1)
        write(ifglt,'(a,F12.5)') 'tpia=2*3.1415926/',alat
        write(ifglt,"('plot \')")
        do isyml = 1,nsyml

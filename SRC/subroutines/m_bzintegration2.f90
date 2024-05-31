@@ -1,5 +1,9 @@
 !> BZ integration for fermi level, band sum and qp weights, fixed-spin
+!i   nsp   :=2 for spin-polarized case, otherwise 1
+!i   nspx  :=1 for lso=1, otherwize nspx=nsp
+!i   nspc  :=2 for lso=1 (spin-up and spin-down channels are coupled), otherwise 1
 module  m_bzintegration2 ! BZ integration
+  use m_lmfinit,only:nspx,nsp,nspc
   use m_nvfortran
   use m_ftox
   use m_lgunit,only: stdo,stdl
@@ -9,14 +13,13 @@ module  m_bzintegration2 ! BZ integration
 contains
   subroutine bzintegration2(eb, efermi,sumev,wtkb,sumqv,vmag)  
     use m_lmfinit,only: lso,bz_fsmommethod,fmom=>bz_fsmom,norder=>bz_n,lmet=>bz_lmet
-    use m_lmfinit,only: width=>bz_w,npts=>bz_ndos,nsp,nspc, zbak,NULLR
+    use m_lmfinit,only: width=>bz_w,npts=>bz_ndos, zbak,NULLR
     use m_mkqp,only: ntet=> bz_ntet, nkabc=> bz_nabc,idtet=>iv_a_oidtet, wtkp=>rv_a_owtkp
-    use m_suham,only: nbmx=>ham_ndham 
+    use m_suham,only: nbmx=>ham_ndhamx !size of Hamiltonian 
     use m_qplist,only: nkp
     use m_mkpot,only: qval
     !i   nbmx  : leading dimension of eb
-    !i   nsp   :=2 for spin-polarized case, otherwise 1
-    !i   nspc  :=2 for lso=1 (spin-up and spin-down channels are coupled), otherwise 1
+    !
     !i   n1..n3:number of divisions for the k-point mesh
     !i   nkp   :number of inequivalent k-points (bzmesh.f)
     !i   ntet  :number of inequivalent tetrahedra (tetirr.f)
@@ -40,7 +43,7 @@ contains
     implicit none
     logical :: metal,tetra,wtsf2, agreemom,quitvmag,lfill
     integer :: nevx,n1,n2,n3 ,ikp,ib,ipr,iter,iprint,itermx,nmom1,nmom2
-    real(8) :: zval,eb(nbmx,nsp,nkp),wtkb(nbmx,nsp,nkp),efermi,sumev,sumqv(2) 
+    real(8) :: zval,eb(nbmx,nspx,nkp),wtkb(nbmx,nspx,nkp),efermi,sumev,sumqv(2) 
     real(8) :: amom,dosef(2),vhold(12),vmag,dv,ef0,ent,ele1,ele2, ehomo1,ehomo2,elumo1,elumo2,rnge
     real(8),parameter:: dvcap=.2d0
     integer,parameter:: itmax=50
@@ -57,12 +60,12 @@ contains
     n3=nkabc(3)
     zval=qval-zbak
     !!== Fermi level without spin constraint ==
-    call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval, &
+    call bzwts(nevx,n1,n2,n3,nkp,ntet,idtet,zval, &
          metal,tetra,norder,npts,width,rnge,wtkp,eb,efermi, &
          sumev,wtkb,dosef,sumqv,ent,lfill)
     if (nsp == 1) return
     call getpr(ipr)
-    if( lso/=1 .AND. metal) then     !only for lso/=1
+    if( lso/=1 .AND. metal) then  !only for lso/=1 and nps==2
        amom = sum(wtkb(:,1,:) - wtkb(:,2,:))
        if(ipr >= 20) write(stdo,"(9x,'Mag. moment:',f15.6)") amom !magnetic moment
        sumqv(2) = amom
@@ -136,7 +139,7 @@ contains
        !! Fermi level with dv shift
        if( .NOT. quitvmag) call pshpr(ipr-50)
        if(iprint()>0) write(stdo,ftox) ' Second call bzwts in bzwtsf for fsmom mode'
-       call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval, &
+       call bzwts(nevx,n1,n2,n3,nkp,ntet,idtet,zval, &
             metal,tetra,norder,npts,width,rnge,wtkp,ebs,efermi, sumev,wtkb,dosef,sumqv,ent,lfill)
        if (iprint()>= 20) then
           amom = sum(wtkb(:,1,:) - wtkb(:,2,:)) 
@@ -172,18 +175,15 @@ contains
     if(iprint()>20) write(stdo,"(' bzintegration2: Set Bias field -Vup+Vdn=',f20.15)")vmag
     call tcx('bzintegration2')
   end subroutine bzintegration2
-  subroutine bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,& ! BZ integration for fermi level, band sum and qp weights
+  subroutine bzwts(nevx,n1,n2,n3,nkp,ntet,idtet,zval,& ! BZ integration for fermi level, band sum and qp weights
        metal,tetra,norder,npts,width,rnge,wtkp,eb, efermi,sumev,wtkb,dosef,sumqv,ent,lfill)
     use m_bzints,only:bzints
     implicit none
-    intent(in)::   nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,&
+    intent(in)::  nevx,n1,n2,n3,nkp,ntet,idtet,zval,&
          metal,tetra,norder,npts,width,rnge,wtkp!,eb
     intent(out)::                                  efermi,sumev,wtkb,dosef,sumqv,ent,lfill
     !i Inputs
-    !i   nbmx  :leading dimension of eb
     !i   nevx  :leading dimension of wtkb and max number of evals calculated
-    !i   nsp   :2 for spin-polarized case, otherwise 1
-    !i   nspc  :2 if spin-up and spin-down channels are coupled; else 1.
     !i   n1..n3:number of divisions for the k-point mesh
     !i   nkp   :number of inequivalent k-points (bzmesh.f)
     !i   ntet  :number of inequivalent tetrahedra (tetirr.f)
@@ -205,18 +205,18 @@ contains
     !o   ent   :entropy term (actually TS)
     !o   lfill :true => insulator
     logical metal,tetra
-    integer nbmx,norder,npts,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet(5,ntet)
-    real(8)::zval,eb(nbmx,nsp,nkp),width,rnge,wtkp(nkp),&
-         wtkb(nevx,nsp,nkp),efermi,sumev,dosef(2),sumqv(2),ent ,wtkbx(nevx,nsp,nkp),wtkb2(nevx,nsp,nkp)
-    integer:: it,itmax,n,nptdos,nspxx,nbmxx,nevxx,ib &
+    integer nevx,norder,npts,n1,n2,n3,nkp,ntet,idtet(5,ntet)
+    real(8)::zval,eb(nevx,nspx,nkp),width,rnge,wtkp(nkp), efermi,sumev,dosef(2),sumqv(2),ent, &
+         wtkb(nevx,nspx,nkp),wtkbx(nevx,nspx,nkp)
+    integer:: it,itmax,n,nptdos,nspxx,nevxx,ib &
          ,ikp,ipr,job,i1mach,nev, mkdlst,ifi,i,j,lry ,nulli,isw !,nbpw
     real(8) ,allocatable :: dos_rv(:)
     real(8) emin,emax,e1,e2,dum(1),tol,e,elo,ehi,sumwt, dmin,dmax,egap,amom,cv,tRy
     character outs*100,ryy*3
     logical cmdopt0,lfill
     real(8) ,allocatable :: tlst_rv(:),eb2(:,:,:)
-    real(8):: ebx(nevx*nsp,nkp),de,q1,q2,bot_rv(nevx*nsp),top_rv(nevx*nsp)
-    integer:: ibx(nevx*nsp,nkp), isx(nevx*nsp,nkp),ib1,ib2,ib2e,ix,isp,i1,ie
+    real(8):: ebx(nevx*nspx,nkp),de,q1,q2,bot_rv(nevx*nspx),top_rv(nevx*nspx)
+    integer:: ibx(nevx*nspx,nkp), isx(nevx*nspx,nkp),ib1,ib2,ib2e,ix,isp,i1,ie
     parameter (nulli=-99999)
     integer:: iprint, w(1)
     call tcn('bzwts')
@@ -225,8 +225,7 @@ contains
     ent = 0
     n = isign(1,norder) * mod(iabs(norder),100)
     nspxx  = 1
-    nevxx = nevx*nsp
-    nbmxx = nbmx*nsp
+    nevxx = nevx*nspx
     job = 3-2*nsp !     job = 1 for non spin pol, -1 for spin pol
     dosef(1) = 0
     egap = nulli
@@ -255,7 +254,7 @@ contains
     else
        ebx=reshape(eb,shape(ebx))
     endif
-    lfill = efrng2 ( nspxx,nkp,nbmxx,nevxx, nsp*zval, ebx, bot_rv,top_rv,elo,ehi,emin,emax )
+    lfill = efrng2(nkp, nevxx, nsp*zval, ebx, bot_rv,top_rv,elo,ehi,emin,emax )
     if (.not. tetra .and. iabs(norder) .ge. 100) lfill = .false.
     if (lfill) then ! ... Case an insulator: put efermi at emin + tiny number
        efermi = emin + 1d-10
@@ -271,7 +270,7 @@ contains
        sumwt = 0d0
        sumev = 0d0
        nev = nint(zval/2)
-       call rxx(nev .gt. nbmx,'BZWTS: zval too big')
+       call rxx(nev .gt. nevx,'BZWTS: zval too big')
        do  ikp = 1, nkp
           do  ib = 1, nev*nsp
              e = ebx(ib,ikp)
@@ -301,7 +300,7 @@ contains
           allocate(dos_rv(nptdos))
           tol = 1d-6
           !  Preliminary check that dos lies within emin,emax.  Widen emin,emax if not
-          call bzints(n1*n2*n3,ebx,dum,nkp,nevxx,nbmxx,nspxx,emin,emax,dos_rv,nptdos,efermi,job,ntet,idtet,sumev,sumqv(1) )
+          call bzints(n1*n2*n3,ebx,dum,nkp,nevxx,nevxx,nspxx,emin,emax,dos_rv,nptdos,efermi,job,ntet,idtet,sumev,sumqv(1) )
           dmin = dos_rv(1)
           dmax = dos_rv(nptdos)
           if (dmin .gt. zval) then
@@ -314,7 +313,7 @@ contains
           if(ipr>=35) write(stdo,"(9x,'Est E_f ',10x,'Window',8x,'Tolerance',2x,'n(E_f)')")
           itmax = 5
           GetFermienergy:do it = 1, itmax
-             call bzints(n1*n2*n3,ebx,dum,nkp,nevxx,nbmxx,nspxx,emin,emax,dos_rv,nptdos,efermi,job,ntet,idtet,sumev,sumqv(1) )
+             call bzints(n1*n2*n3,ebx,dum,nkp,nevxx,nevxx,nspxx,emin,emax,dos_rv,nptdos,efermi,job,ntet,idtet,sumev,sumqv(1) )
              !   !i   qvalx:    number of electrons to fermi level
              !   !i   dosi(i): integrated density at bin i;
              !   !i   ndos: number of bins + 1
@@ -342,7 +341,7 @@ contains
 111       continue
           deallocate(dos_rv)
        endif
-       call bzints(n1*n2*n3,ebx,wtkbx,nkp,nevxx,nbmxx, nspxx,emin,emin,dum,1,efermi,2*job,ntet,idtet,sumev,sumqv(1))
+       call bzints(n1*n2*n3,ebx,wtkbx,nkp,nevxx,nevxx, nspxx,emin,emin,dum,1,efermi,2*job,ntet,idtet,sumev,sumqv(1))
     else ! --- BZ weights, sumev and E_f by Methfessel-Paxton sampling --- not maintained well...
        if(ipr>0) write(stdo,"(a,i0,a,f15.6)")' BZWTS : --- Brillouin Zone sampling; N=',n,' W=',width
        if(nsp==2) call dscal(nkp,.5d0,wtkp,1) !   ... Temporarily remove spin degeneracy if spins are coupled
@@ -353,7 +352,7 @@ contains
           itmax = 1000
           do it = 1, itmax
              call pshpr(0)
-             call splwts(nkp,nevxx,nbmxx,nspxx,wtkp,ebx,n,width,efermi, .true.,sumev,wtkbx,sumqv(1),ent,dosef(1),cv)
+             call splwts(nkp,nevxx,wtkp,ebx,n,width,efermi, .true.,sumev,wtkbx,sumqv(1),ent,dosef(1),cv)
              call poppr
              if (dabs(zval-sumqv(1))<1d-12) then
                 if(ipr>0)write(stdo,ftox)' Fermi energy, ',ftof(efermi),' found after ',it,' bisections,',ftof(sumqv(1)),&
@@ -371,7 +370,7 @@ contains
           allocate(dos_rv(npts))
           emin = elo - rnge*width/2
           emax = emax + rnge*width/2
-          call maknos ( nkp,nevxx,nbmxx,nspxx,wtkp,ebx,n,width,- rnge,emin,emax,npts,dos_rv )
+          call maknos ( nkp,nevxx,wtkp,ebx,n,width,-rnge,emin,emax,npts,dos_rv )
           call intnos ( npts,dos_rv,emin,emax,zval,efermi,dosef(1),sumev )
           deallocate(dos_rv)
 333       continue
@@ -393,12 +392,12 @@ contains
           do  it = 1, itmax
              tRy = tlst_rv(it)/0.1579d6
              call pshpr(1)
-             call splwts(nkp,nevxx,nbmxx,nspxx,wtkp,ebx,n,tRy,efermi, metal,sumev,wtkbx,sumqv(1),ent,dosef(1),cv)
+             call splwts(nkp,nevxx,wtkp,ebx,n,tRy,efermi, metal,sumev,wtkbx,sumqv(1),ent,dosef(1),cv)
              call poppr
              write(stdo,ftox)ftof(0.1579d6*tRy),ftof(tRy),ftof(ent),ftof(cv)
           enddo
        endif
-       call splwts(nkp,nevxx,nbmxx,nspxx,wtkp,ebx,n,width,efermi,& !   ... Make weights, sampling
+       call splwts(nkp,nevxx,wtkp,ebx,n,width,efermi,& !   ... Make weights, sampling
             (.not. lfill) .or. (metal .and. (nkp .eq. 1)), sumev,wtkbx,sumqv(1),ent,dosef(1),cv)
        if(nsp==2) call dscal(nkp,2d0,wtkp,1)
     endif
@@ -408,7 +407,7 @@ contains
           forall(ikp=1:nkp,ix=1:nevxx) wtkb(ibx(ix,ikp),isx(ix,ikp),ikp)= wtkbx(ix,1,ikp)
           amom = sum(wtkb(1:nevx,1,1:nkp)- wtkb(1:nevx,2,1:nkp))
        else
-          wtkb=wtkbx !call dcopy(nevx*nsp*nkp,wtkbx,1,wtkb,1) 
+          wtkb=wtkbx !nspx=1
        endif
     endif
     sumqv(2) = amom
@@ -418,11 +417,9 @@ contains
     if(.not. lfill .and. .not. tetra) e = efermi + rnge*width/2
     call tcx('bzwts')
   end subroutine bzwts
-  logical function efrng2(nsp,nkp,nbmax,nband,zval,eband,ebbot,ebtop,elo,ehi,e1,e2)  !- Find range of Fermi energy.
+  logical function efrng2(nkp,nband,zval,eband,ebbot,ebtop,elo,ehi,e1,e2)  !- Find range of Fermi energy.
     !i Inputs
-    !i   nsp   :2 for spin-polarized case, otherwise 1
     !i   nkp   :number of irreducible k-points (bzmesh.f)
-    !i   nbmax :leading dimension of eband
     !i   nband :number of bands
     !i   zval  :no. of valence electrons
     !i   eband :energy bands
@@ -454,8 +451,8 @@ contains
     ! ----------------------------------------------------------------------
     !     implicit none
     ! Passed parameters
-    integer nsp,nkp,nbmax,nband
-    real(8) zval,e1,e2,eband(nbmax,nsp,nkp),ebbot(nband,nsp),ebtop(nband,nsp),elo,ehi
+    integer nkp,nband
+    real(8) zval,e1,e2,eband(nband,nkp),ebbot(nband),ebtop(nband),elo,ehi
     ! Local parameters
     real(8) xx,d1mach,enull
     integer ikp,isp,iba,nval,nbbot,nbtop,nfound
@@ -467,42 +464,42 @@ contains
     ebbot=elo 
     ebtop=ehi 
     do  ikp = 1, nkp
-       do  isp = 1, nsp
+!       do  isp = 1, nsp
           do  iba = 1, nband
-             if (eband(iba,isp,ikp) .ne. enull) then
-                ebbot(iba,isp) = min(ebbot(iba,isp),eband(iba,isp,ikp))
-                ebtop(iba,isp) = max(ebtop(iba,isp),eband(iba,isp,ikp))
+             if (eband(iba,ikp) .ne. enull) then
+                ebbot(iba) = min(ebbot(iba),eband(iba,ikp))
+                ebtop(iba) = max(ebtop(iba),eband(iba,ikp))
              endif
-          enddo
+!          enddo
        enddo
     enddo
     !     Set all -enull to enull to float to top when sorted
-    do  isp = 1, nsp
+!    do  isp = 1, nsp
        do  iba = 1, nband
-          if (ebtop(iba,isp) .eq. -enull) ebtop(iba,isp) = enull
+          if (ebtop(iba) .eq. -enull) ebtop(iba) = enull
        enddo
-    enddo
+!    enddo
     !     Sort bands irrespective of spin
-    call dshell(nband*nsp,ebbot)
-    call dshell(nband*nsp,ebtop)
-    nfound = nband*nsp
+    call dshell(nband,ebbot)
+    call dshell(nband,ebtop)
+    nfound = nband
 10  continue
-    if (ebtop(nfound,1).eq.enull .or. ebbot(nfound,1).eq.enull) then
+    if (ebtop(nfound).eq.enull .or. ebbot(nfound).eq.enull) then
        nfound = nfound-1
        if (nfound .eq. 0) call rx('efrng2: no bands')
        goto 10
     endif
     ! --- Find limits ---
-    nbtop = (nval+2-nsp)/(3-nsp)
+    nbtop = (nval+1)/2
     if (zval .gt. nval) nbtop = nbtop+1
-    nbbot = nval/(3-nsp) + 1
+    nbbot = nval/2 + 1
     if (nbtop .gt. nfound) nbtop = nfound
     if (nbbot .gt. nfound) nbbot = nfound
-    elo = ebbot(1,1)
-    ehi = ebtop(nfound,1)
+    elo = ebbot(1)
+    ehi = ebtop(nfound)
     if (elo .eq. enull) call rx('efrng2: no bands')
-    e1  = ebbot(nbbot,1)
-    e2  = ebtop(nbtop,1)
+    e1  = ebbot(nbbot)
+    e2  = ebtop(nbtop)
     efrng2 = .false.
     if (e1-e2 > epsilon(0d0)) then
        xx = e1
@@ -587,8 +584,7 @@ contains
     !i    qval : number of valence electrons
     !o  Output
     !o    efermi : Fermi energy, dosef : DOS at E_f
-    !-----------------------------------------------------------------------
-    !     implicit none
+    implicit none
     integer :: ndos
     real(8) :: dos(0:ndos-1),emin,emax,qval,efermi,eband,dosef
     integer :: i,meshpt,iprint
@@ -598,13 +594,11 @@ contains
     step = (emax - emin) / (ndos - 1)
     meshpt = 0
     q = qval + eps
-    do  1  i = 1, ndos-1
-       if ( dos(i) >= q ) goto 2
+    do   i = 1, ndos-1
+       if ( dos(i) >= q ) exit
        meshpt = i
-1   enddo
-2   continue
-    if (meshpt == ndos-1) &
-         call rx('INTNOS : Fermi energy lies above emax')
+    enddo
+    if (meshpt == ndos-1) call rx('INTNOS : Fermi energy lies above emax')
     ! E_F lies between mesh points meshpt and meshpt+1 -- interpolate :
     q1 = dos(meshpt)
     q2 = dos(meshpt+1)
@@ -613,29 +607,20 @@ contains
     dosef = (q2 - dos(meshpt-1)) / (2*step)
     ! --- make band energy by partial integration ---
     sum = .5d0 * q1
-    do  3  i = 1, meshpt-1
+    do   i = 1, meshpt-1
        sum = sum + dos(i)
-3   enddo
+    enddo
     sum = sum * step
     sum = sum + .5d0 * (efermi - e1) * (qval + q1)
     eband = efermi * qval - sum
     if (iprint() >= 30) then
-       !        do  12  i = 1, 1
-       write(stdo,"(' INTNOS: Fermi energy=,f15.8', &
-            '  band energy=',f15.8,' DOS(E_f)=',f15.8)") efermi, eband, dosef
-       !   12   continue
-       !        write(*,10) efermi, eband, dosef
-       !        write(fopn('LOG'),10) efermi, eband, dosef
-       !   10 format(' INTNOS: Fermi energy =',f10.6,'; band energy =',f11.6/
-       !     .       '          DOS(E_f) =',f11.6)
+       write(stdo,"(' INTNOS: Fermi energy=,f15.8','  band energy=',f15.8,' DOS(E_f)=',f15.8)") efermi, eband, dosef
     endif
   end subroutine intnos
-  subroutine maknos(nqp,nband,nbmx,nsp,wgts,evl,n,w,tol,emin,emax, ndos,dos)!- Make density of states from bands
+  subroutine maknos(nqp,nband,wgts,evl,n,w,tol,emin,emax, ndos,dos)!- Make density of states from bands
     !i  Input
     !i    nqp : number of q-points; nband : number of bands;
-    !i    nsp : 2 for spin polarised bands, 1 otherwise;
     !i    wgts, evl : weights and bands (eigenvalues);
-    !i    nbmx : first dimension of evl ;
     !i    n   : n>0 Methfessel-Paxton polynomial order
     !i        : n<0 sampling done with Fermi-Dirac statistics
     !i    w   : n>0 gaussian width in Methfessel-Paxton integration (Ry)
@@ -648,24 +633,22 @@ contains
     !u Updates
     !u   2 Nov 1995 (JEK) returns spin-polarized integrated dos
     !     implicit none
-    integer :: nqp,nband,nbmx,nsp,n,ndos
-    real(8) :: wgts(nqp),evl(nbmx,nsp,nqp),dos(0:ndos-1,nsp), &
-         w,emin,emax,tol,wt,emesh
-    integer :: i,isp,iband,iq,meshpt,mesh1,mesh2,mrange,iprint,i1mach
+    integer :: nqp,nband,n,ndos
+    real(8) :: wgts(nqp),evl(nband,nqp),dos(0:ndos-1),w,emin,emax,tol,wt,emesh
+    integer :: i,iband,iq,meshpt,mesh1,mesh2,mrange,iprint,i1mach
     real(8) :: e,x,range,test,step,d,s,xx
-    !  external delstp
     mrange=-9999999
-    call dpzero(dos,nsp*ndos)
+    dos=0d0
     step = (emax - emin) / (ndos - 1)
     if ( tol > 0d0 ) then
-       do  2  i = 0, ndos-1
+       do i = 0, ndos-1
           x = i * step / w
           call delstp(n,x,test,s,xx)
           if ( test < tol ) then
              mrange = i + 1
              goto 3
           endif
-2      enddo
+       enddo
        if (iprint() > 30) print *,'maknos (warning) : tol too small'
 3      continue
        range = 2 * mrange * step
@@ -678,10 +661,10 @@ contains
     if (iprint() >= 40) write(stdo,ftox) ' MAKNOS: range=',ftof(range/w), &
          ' (',2*mrange,'bins) DOS error estimate=',ftof(test),'per state'
     do  7  iq = 1, nqp
-       wt = abs(wgts(iq)) / nsp
+       wt = abs(wgts(iq)) 
        do  61  iband = 1, nband
-          do  6  isp = 1, nsp
-             e = evl(iband,isp,iq)
+!          do  6  isp = 1, nsp
+             e = evl(iband,iq)
              meshpt = (e - emin) / step
              mesh1 = meshpt - mrange
              mesh2 = meshpt + mrange
@@ -691,16 +674,16 @@ contains
                 emesh = emin + meshpt * step
                 x = (emesh - e) / w
                 call delstp(n,x,d,s,xx)
-                dos(meshpt,isp) = dos(meshpt,isp) + wt * (1d0 - s)
+                dos(meshpt) = dos(meshpt) + wt * (1d0 - s)
 4            enddo
              do  5  meshpt = mesh2+1, ndos-1
-                dos(meshpt,isp) = dos(meshpt,isp) + wt
+                dos(meshpt) = dos(meshpt) + wt
 5            enddo
-6         enddo
+!6         enddo
 61     enddo
 7   enddo
   end subroutine maknos
-  subroutine splwts(nqp,nband,nbmx,nsp,wgts,evl,n,w,efermi, & !make sampling weights for integrals under the Fermi surface
+  subroutine splwts(nqp,nband,wgts,evl,n,w,efermi, & !make sampling weights for integrals under the Fermi surface
        metal,sumev,bndwts,wtot,entrpy,dosef,cv)
     !i  Input
     !i    nqp : number of q-points; nband : number of bands
@@ -710,7 +693,6 @@ contains
     !i        : n<0 sampling done with Fermi-Dirac statistics
     !i    w   : n>0 gaussian width in Methfessel-Paxton integration (Ry)
     !i        : n<0 Temperature for Fermi distribution (Ry)
-    !i    nbmx : first dimension of evl ;
     !i    metal : if F, weights unity below E_f and zero above.
     !i    efermi : Fermi energy
     !o  Output
@@ -732,13 +714,9 @@ contains
     !u   17 Jan 05 Output wtot
     !-----------------------------------------------------------------------
     implicit none
-    ! ... Passed parameters
-    integer :: nqp,nband,nbmx,nsp,n,ix,isplwts,i_copy_size
+    integer :: nqp,nband,n,ix, iqp,iband,iprint
     logical :: metal
-    real(8) :: wgts(nqp),evl(nbmx,nsp,nqp),w,efermi,sumev, &
-         bndwts(nband,nsp,nqp),wtot,entrpy,dosef,cv
-    ! ... Local parameters
-    integer :: iqp,iband,isp,iprint,i1mach
+    real(8) :: wgts(nqp),evl(nband,nqp),w,efermi,sumev, bndwts(nband,nqp),wtot,entrpy,dosef,cv
     real(8) :: e,s,d,wt,x,xx,dsdt,tdsdt
     logical :: fractional
     sumev = 0d0
@@ -749,10 +727,9 @@ contains
     fractional=.false.
     do  3  iqp = 1, nqp
        do  2  iband = 1, nband
-          do  1  isp = 1, nsp
-             e = evl(iband,isp,iqp)
+!          do  1  isp = 1, nsp
+             e = evl(iband,iqp)
              if (metal) then
-
                 !             debugging: check derivative numerically
                 !              x = (efermi - e) / (w+1d-7)
                 !              call delstp(n,x,d,s,sp)
@@ -780,62 +757,30 @@ contains
                 xx = 0
                 d = 0
              endif
-             wt = abs(wgts(iqp)) * (1d0 - s) / nsp
-             bndwts(iband,isp,iqp) = wt
+             wt = abs(wgts(iqp)) * (1d0 - s) !/ nsp
+             bndwts(iband,iqp) = wt
              if(0.1d0<wt .AND. wt<0.9d0) then
                 fractional=.true.
              endif
-             dosef = dosef + d*abs(wgts(iqp))/w/nsp
+             dosef = dosef + d*abs(wgts(iqp))/w!/nsp
              wtot = wtot + wt
              sumev = sumev + e * wt
-             entrpy = entrpy + xx  * abs(wgts(iqp)) / nsp
-             tdsdt  = tdsdt + dsdt * abs(wgts(iqp)) / nsp
-1         enddo
+             entrpy = entrpy + xx  * abs(wgts(iqp)) !/ nsp
+             tdsdt  = tdsdt + dsdt * abs(wgts(iqp)) !/ nsp
+!1         enddo
 2      enddo
 3   enddo
     tdsdt = tdsdt*w
     entrpy = entrpy*w
     if (n < 0) cv = tdsdt
-    ! ... Print out band weights, if only 1 kp
-    if (iprint() > 30 .AND. nqp == 1) then
-       isplwts=1093
-       open(isplwts,file="BandWeight.dat")
-       do  isp = 1, nsp
-          write(stdo,ftox)'SPLWTS: band weights .. Spin=',isp,'       eval      weight'
-          if(fractional) then
-             write(isplwts,*)"! Fractional occupation (criterion 0.1<wgt<0.9)"
-             write(stdo,*)   "! Fractional occupation (criterion 0.1<wgt<0.9)"
-          endif
-          ix=0
-          do  iband = 1, nband
-             if(bndwts(iband,isp,1)<1d-7) ix=ix+1
-             if(ix==10) then
-                write (stdo,"('     ... ')")
-                exit
-             endif
-             write (stdo,20) iband,evl(iband,isp,1),bndwts(iband,isp,1)
-             write (isplwts,20) iband,evl(iband,isp,1),bndwts(iband,isp,1)
-20           format (4x,i5,2f10.6)
-          enddo
-       enddo
-       close(isplwts)
-    endif
-    ! ... Print out various k-point integrations
-    if (iprint() >= 10) then
+    if (iprint() >= 10) then 
        if (n >= 0) then
-          !          call awrit6(' N=%i, W=%d, E_F=%d, sumev=%d, entropy term:'
-          !     .    //' %d, %d electrons',' ',256,i1mach(2), n,w,efermi,sumev,entrpy,wtot)
-          write(stdo,"(a,i5,5d13.5)")'N W E_F sumev TS Nele=', &
-               n,w,efermi,sumev,entrpy,wtot
+          write(stdo,"(a,i5,5d13.5)")'N W E_F sumev TS Nele=', n,w,efermi,sumev,entrpy,wtot
        else
-          !          call awrit5(' T=%dK, E_F=%d, sumev=%d, TS=%;3g,'//' %d electrons',' ',256,i1mach(2),
           write(stdo,"(a,5d13.5)")'T(K) E_F sumev TS Nele=', 0.1579d6*w,efermi,sumev,entrpy,wtot
           write(stdo,"(a,2d13.5)")'Entropy S, specific heat TdS/dT=',entrpy/w,tdsdt
           write(stdo,"(a)")'Fermi-Dirac;sampling'
        endif
-       !      call info5(10,0,0,' SPLWTS: Fermi energy:%;6d;'//
-       !     .  '  band energy=%;6d;  %;6d electrons  DOS(E_f)=%;4g',
-       !     .    efermi,sumev,wtot,dosef,0)
     endif
   end subroutine splwts
   subroutine delstd(n,x,d,s,e,ep) !- Returns generalised delta and step functions (Methfessel & Paxton)
@@ -886,7 +831,6 @@ contains
        ep = (dlog(s) - dlog(1-s)) * s**2 * exp(x)
        return
     endif
-
     ! ... Methfessel-Paxton broadening
     if (x < -6d0) goto 91
     if (x >  6d0) goto 92
@@ -928,7 +872,6 @@ contains
     ep = 0d0
     return
   end subroutine delstd
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 end module m_bzintegration2
 
 ! subroutine ebcpl(mode,nbmx,nevx,nsp,nspc,nq,nbpw,bmap,wk,eb) !- Gather spin-polarized bands into a single group, or redistribute

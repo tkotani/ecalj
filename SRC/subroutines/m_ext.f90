@@ -128,20 +128,20 @@ logical function cmdopt2(argstr,outstr)  ! return it in outstr
   enddo
 end function cmdopt2
 
-module m_prgnam
-   character(32):: prgnamx = ''
-contains
-   subroutine set_prgnam(prgnam)
-      character(*):: prgnam
-      prgnamx = prgnam
-   end subroutine set_prgnam
-   subroutine set_prgnamc(prgnamc) bind(C)
-      character(1024):: convcchar
-      character(1):: prgnamc(*)
-      prgnamx = trim(convcchar(prgnamc))
-      write (*, *) 'prgnamx=', trim(prgnamx)
-    end subroutine set_prgnamc
-end module m_prgnam
+! module m_prgnam
+!    character(32):: prgnamx = ''
+! contains
+!    subroutine set_prgnam(prgnam)
+!       character(*):: prgnam
+!       prgnamx = prgnam
+!    end subroutine set_prgnam
+!    subroutine set_prgnamc(prgnamc) bind(C)
+!       character(1024):: convcchar
+!       character(1):: prgnamc(*)
+!       prgnamx = trim(convcchar(prgnamc))
+!       write (*, *) 'prgnamx=', trim(prgnamx)
+!     end subroutine set_prgnamc
+! end module m_prgnam
 
 function convcchar(instr) result(outstr) !convert char(1) to char(1024)
    use iso_c_binding

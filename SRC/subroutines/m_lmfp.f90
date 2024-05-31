@@ -56,7 +56,6 @@ contains
     call tcn('lmfp')
     ipr = iprint()
     poss = rv_a_opos ! Use atomic positon in m_lattic
-!    call ReadAtomPos(nbas,poss)! Overwrite pos in the file AtomPos.* if it exists.
     call mpi_barrier(comm,ierr)
     etot = 0d0 ! Total energy mode --etot ==>moved to m_lmfinit ---
     if(nitrlx>0 ) then ! Atomic position Relaxation setup for 
@@ -75,7 +74,7 @@ contains
     if(master_mpi) then ! switch were here [irs1,irs2,irs3,irs5,irs1x10] ==> removed 2022-6-20
        open(newunit=ifi,file='rst.'//trim(sname),form='unformatted') ! Read atomic- and smooth-part density(rhoat smrho in m_density) from atm.* or rst.*
        read(ifi,end=996,err=996) vs !version id of rst file
-       write(stdo,ftox)'lmv7: Read rst version ID=',ftof(vs,2)
+       write(stdo,ftox)'lmf: Read rst version ID=',ftof(vs,2)
 996    continue
        close(ifi)
     endif
@@ -87,12 +86,6 @@ contains
     call Mpibc1_int(k,1,'lmv7:lmfp_k')
     if(k<0) then 
        call rdovfa()  ! Initial potential from atm file (lmfa) if rst can not read
-!!!!!!!!!!!!!!!!!!!!
-!       block
-!         use m_density,only: orhoat
-!         write(6,*)'rrrrrrdensity',sum(orhoat(1,1)%v),sum(abs(orhoat(1,1)%v))
-!       endblock
-!!!!!!!!!!!!!!!!!!!!    
        nit1 = 0
        iatom=.true.
     else
@@ -104,7 +97,7 @@ contains
        ! We can make structure constant (C_akL Eq.(38) in /JPSJ.84.034702) here when we have no extended local orbital.
        ! NOTE: When we use extenteded local obtail, we run m_bstrux_init after elocp in mkpot.(we may remove extented local orbial in future)
        if(sum(lpzex)==0) then
-          if(.not.cmdopt0('--wsig_fbz')) call m_bstrux_init() ! Get structure constants for nbas and qplist !skip this for --wsig_fbz
+          if((.not.cmdopt0('--wsig_fbz')).and.(.not.cmdopt0('--skipbstruxinit'))) call m_bstrux_init() ! Get structure constants for nbas and qplist 
        endif   
        if( ipr>=30) then ! Write atom positions
           write(stdo,"(/1x,'Basis, after reading restart file'/' site spec',8x,'pos (Cartesian coordinates)',9x,&
@@ -151,7 +144,7 @@ contains
           if( lsc <= 2) exit  
 1000   enddo ElectronicStructureSelfConsistencyLoop
        if(nitrlx==0) exit !no molecular dynamics (=no atomic position relaxation)
-       !==== Molecular dynamics (relaxiation). TK think it is better to comine another approach to move/relax atomic positions.
+       !==== Molecular dynamics (relaxiation). TK think it is better to combine another approach to move/relax atomic positions.
        MDblock: Block !Not maintained well recently. But Testinstall/te test
          pos0 = poss !keep old poss to pos0
          ! Relax atomic positions. Get new poss. Shear mode removed.

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import re,sys,string,os,signal,time,subprocess #commands
+""" default set of calculations for Materials.ctrls.database """
 scfile = open("Materials.ctrls.database",'rt').read().split('\n')
 #print scfile
 sec={}
@@ -61,7 +62,7 @@ args=sys.argv[1:]
 argset= set(sys.argv[1:])
 #print argset
 
-numcore='2'
+numcore='4'
 if '-np' in  args:
     ii=args.index('-np')
     numcore=args[ii+1]
@@ -92,7 +93,7 @@ elif(nargv==0 or '--help' in argset):
       print("        [options] are material names above separeted by space.")
       print("        --all   : all materials are specified (in an hour now.)")
       print("        --noexec: Not do lmf. Just generates directories and ctrl files")
-      print("        -np 2   : Number of core for lmf-MPIK. 2 core is default.")
+      print("        -np 4   : Number of core for lmf. 2 core is default.")
       print(" (WARN! settings for all atoms are not yet examined carefully. Let me know something wrong.)" )
       print(" ")
       print(" ")
@@ -121,6 +122,7 @@ for matr in choosedmaterials:
     #print(STRUCTURE
     aaa= re.sub(STRUCTURE,'',material[matr]).lstrip()
     matdat= re.split(r'\s+',aaa)
+    print( '============ start================================')
     print(matdat)
     #sys.exit()
     constdat=''
@@ -168,10 +170,10 @@ for matr in choosedmaterials:
     ext=matr.lower()
     ctrlsnm = "ctrls."+ext
     ctrlgenc= 'ctrlgenM1.py '+ext+' ' + option 
-    print( '============ start================================')
     print( '=== /'+matr+' :  ',ctrlsnm,' '+option+ ' ===')
     print( ' command=',ctrlgenc)
-    print( aaa)
+    for iline in aaa.split('\n'):
+        if(len(iline)): print(iline)
 
     ctrls = open(ctrlsnm ,'w')
     ctrls.write(aaa)
@@ -194,14 +196,13 @@ for matr in choosedmaterials:
     os.system('cp GWinput.tmp GWinput')
    
     #joblmf='lmf  '+ext+optionlmf+' >llmf'   
-    joblmf='mpirun -np '+numcore+' lmf-MPIK  '+ext+optionlmf+' >llmf'
+    joblmf='mpirun -np '+numcore+' lmf  '+ext+optionlmf+' >llmf'
     print ('Runnning!: ',joblmf,  '   ;this is in joblmf file.')
     os.system('echo '+joblmf +'>joblmf')
     if ('--noexec' in  argset):
         pass
     else:
         try:
-            #out=subprocess.run(joblmf,shell=True)
             os.system(joblmf)
             os.system('echo Finished!: tail '+matr+'/save.'+ext +':` tail -n 1 save.'+ext+'`')
         except KeyboardInterrupt:

@@ -21,19 +21,26 @@ module m_zmel
   
 
 contains
-  subroutine setppovlz(q,matz) ! Set ppovlz for given q
-    intent(in)::       q,matz
+  subroutine setppovlz(q,matz,npr) ! Set ppovlz for given q
+    intent(in)::       q,matz,npr
     logical:: matz
+    ! 2024-5-24; add npr
+    ! Set ppovlz(ngb,npr), where
+    !    ngb: the size of MPB
+    !   npr: the degree of freedom to calculate polarization funciton.
+    !          npr=1 for eps mode nolfc., npr=ngb for no nolfc (epsPP0 mode)
+    !
     !    ppolvz(igb,ivcou)= (1    0 ) \times  zcousq(igb, ivcou)
     !                       (0 ppovl)
     !    If matz=F, no multiplication by ivcou.  Thus we have ppolz(igb,igb)
+    !     
     real(8) :: q(3)
     complex(8),allocatable :: ppovl_(:,:),ppovl(:,:)!,ppovlzinv(:,:) !    logical:: eibz4x0
-    integer:: i,ngc_r,ippovl0
+    integer:: i,ngc_r,ippovl0,npr
     real(8):: qx(3),tolq=1d-8
     if(allocated(ppovlz)) deallocate(ppovlz)
-    if(allocated(ppovl)) deallocate(ppovl)
-    allocate( ppovl(ngc,ngc),ppovlz(ngb,ngb))
+    if(allocated(ppovl))  deallocate(ppovl)
+    allocate( ppovl(ngc,ngc),ppovlz(ngb,npr))
     open(newunit=ippovl0,file='PPOVL0',form='unformatted') !inefficient search for PPOVLO for given q
     do 
        read(ippovl0) qx,ngc_r
@@ -44,10 +51,10 @@ contains
        endif
     enddo
     close(ippovl0)
-    ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
-    ppovlz(nbloch+1:nbloch+ngc,:)=matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
+    ppovlz(1:nbloch,1:npr) = zcousq(1:nbloch,1:npr)
+    ppovlz(nbloch+1:nbloch+ngc,1:npr)=matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,1:npr))
     deallocate(ppovl)
-    nbb=ngb
+    nbb=npr    ! ngb obatabugfix 2025-5-23. We had set nbb=ngb every time. Thus we had memory(and computational) loss for nolfc case.
   end subroutine setppovlz
   subroutine setppovlz_chipm(zzr,nmbas1) !Set ppovlz for chipm case
     intent(in)::             zzr,nmbas1
@@ -56,7 +63,7 @@ contains
     if(allocated(ppovlz)) deallocate(ppovlz)
     allocate(ppovlz(ngb,nmbas1))
     ppovlz= zzr
-    nbb=nmbas1
+    nbb   = nmbas1
   end subroutine setppovlz_chipm
   subroutine mptauof_zmel(symops,ng)! Set miat,tiat,invgx,shtvg, and then get ppbir
     use m_mksym_util,only:mptauof
@@ -191,7 +198,6 @@ contains
       dgeigqk = readgeigf(qk,ispm) !read IPW part at qk  !G2 for ngp2
       dgeigqk = dconjg(dgeigqk)
     endif
-
     
     ppb = ppbir(:,:,:,:,irot,ispq)           !MPB has no spin dependence
     invr  = invg(irot)       !invrot (irot,invg,ngrp) ! Rotate atomic positions invrot*R = R' + T
@@ -485,7 +491,8 @@ contains
           use m_read_ppovl,only: igggi,igcgp2i,nxi,nxe,nyi,nye,nzi,nze,nvgcgp2,ngcgp,ggg,ppovlinv,nnxi,nnxe, nnyi,nnye,nnzi,nnze,nggg
           integer:: igcgp2,nn(3),iggg,igp1,itp,igc,igp2,igcgp2i_(ngc,ngp2)
           complex(8):: zmelp0(ngc,nt0,ntp0),phase(ngc) , ggitp(ngcgp,ntp0),gggmat(ngcgp,ngp1)
-          complex(8):: ggitp_all(ngc, ngp2, ntp0)
+          ! complex(8):: ggitp_all(ngc, ngp2, ntp0)
+          complex(8):: ggitp_work(ngc, ngp2)
 
           phase(:)=[(exp( -img*tpi*sum((matmul(symope,kvec)+matmul(qlat,ngveccR(:,igc)))*shtv) ),igc=1,ngc)]  !prepared by CPU
           !$acc data copyin(dgeigqk, geigq, phase, ngvecpB1, ngvecpB2, ngveccR, nadd, ggg(1:nggg), nvgcgp2(1:3,1:ngcgp), &
@@ -511,14 +518,25 @@ contains
           !$acc end kernels
           ierr = zmm(gggmat, geigq(1,itq(nqini_rank)), ggitp, ngcgp, ntp0, ngp1, ldB = ngpmx)
 
-          !$acc kernels loop independent collapse(2)
-          do igp2 = 1, ngp2
-            do igc = 1, ngc
-              ggitp_all(igc, igp2, 1:ntp0) = ggitp(igcgp2i_(igc,igp2), 1:ntp0)
+          ! !$acc kernels loop independent collapse(2)
+          ! do igp2 = 1, ngp2
+          !   do igc = 1, ngc
+          !     ggitp_all(igc, igp2, 1:ntp0) = ggitp(igcgp2i_(igc,igp2), 1:ntp0)
+          !   enddo
+          ! enddo
+          ! !$acc end kernels
+          ! ierr = zmm_batch(ggitp_all, dgeigqk(1,nmini), zmelp0, ngc, nt0, ngp2, ntp0, ldB = ngpmx, sameB = .true.)
+          do itp = 1, ntp0
+            !$acc kernels loop independent collapse(2)
+            do igp2 = 1, ngp2
+              do igc = 1, ngc
+                ggitp_work(igc, igp2) = ggitp(igcgp2i_(igc,igp2), itp)
+              enddo
             enddo
+            !$acc end kernels
+            ierr = zmm(ggitp_work, dgeigqk(1,nmini), zmelp0(1,1,itp), ngc, nt0, ngp2, ldB = ngpmx)
           enddo
-          !$acc end kernels
-          ierr = zmm_batch(ggitp_all, dgeigqk(1,nmini), zmelp0, ngc, nt0, ngp2, ntp0, ldB = ngpmx, sameB = .true.)
+
           !$acc kernels
           do igc = 1, ngc
             zmelp0(igc,1:nt0,1:ntp0) = phase(igc)*zmelp0(igc,1:nt0,1:ntp0)

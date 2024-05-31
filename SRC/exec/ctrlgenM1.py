@@ -411,8 +411,8 @@ ctrlgenM1.py. tkotani and h.kino aug_2013 version :
 """)
 print() 
 print( "=== Start ctrlgenM1.py  === ")
-print( "  --help  %s"      % showhelpw)
-print( "  --showatomlist  %s"      % showatomlistw)
+print( " --help  %s"      % showhelpw)
+print( " --showatomlist  %s"      % showatomlistw)
 #print( "  --nspin=%s"  % nspin_val)
 #print( "  --so=%s"     % so_val)
 #print( "  --nk1=%s Division for BZ integral along a-axis"   % nk_val1)
@@ -428,7 +428,6 @@ print( "  --systype=%s !(bulk,molecule)" % systype_val)
 print( "  --fsmom=%s ! (only for FSMOM mode. --systype=molecule automatically set this)"    %  fsmom_val)
 print( "  --ssig=%s ! ScaledSigma(experimental =1.0 is the standard QSGW"    %  ssig_val)
 #print( "  --ehmol ! if this exists, set EH used for a molecule paper (Not for PMT-QSGW. --ehmol may give better total energy in LDA)")
-print( )
 if(showhelp==1): sys.exit('--- end of help ---')
 
 
@@ -479,8 +478,7 @@ try:
     ext=sys.argv[1]
 except:
     sys.exit()
-print 
-print(" We generate ctrlgenM1.ctrl."+ext+" from ctrls."+ext + " ...")
+print(" We are generating ctrlgenM1.ctrl."+ext+" from ctrls."+ext + " ...")
 ctrls = "ctrls." + ext
 f=open(ctrls,'rt')
 ctrlsdat = f.read() 
@@ -589,7 +587,7 @@ f.write(alltmp+specsec0)
 f.close()
 
 
-print('=== Goto lmchk --getwsr tmp to get MT radius')
+print(' Run lmchk --getwsr tmp to get MT radius')
 #### Get touching MT radius and make rdic ########################
 rlmchk=0
 #print type(touchingratio)
@@ -708,21 +706,11 @@ for ispec in uniq(sitename):
         sys.exit(-1)
     specsec= specsec + aaa +'\n'
 
-
 ### Read in "ctrls."+ext ###################################################
-# try:
-#     listctrl  = lineReadfile("ctrl.tmp") 
-# except:
-#     print '---> no ctrl or some problem'
-#     sys.exit()
-#print listctrl
-### ctrl.tmp contains R=. Do lmfa to get mtopara.*
-#f.write('\n'.join(listctrl) +'\nHAM  XCFUN=')
 f = open("ctrl.tmp2",'wt')
 f.write(alltmp+specsec +'\nHAM  XCFUN=')
 f.write(xcfun_val+'\n')
 f.close()
-
 
 ### check lmfa works OK or not #############################
 os.system("lmfa tmp2 > llmfa.tmp2; echo $? >exitcode")
@@ -732,28 +720,8 @@ f.close()
 if (iexit != 0):
     print ('! Exit -1: not go through lmfa. You may need to modify SPEC for atoms not in atomlist.')
 else:
-    print( '=== Check lmfa works for ctrl.tmp2 ')
+    print( ' Check lmfa works for ctrl.tmp2 ')
     os.system("tail -n 1 llmfa.tmp2")
-    print ()
-
-# mmmx = mtodic[ikey]
-# mmm = re.sub(","," ",mmmx)
-# pz=re.split("PZ",mmmx)
-# #Over ride by new setting
-# rsmh= max(string.atof(rdic[ikey])*1.0/2.0,0.5)
-# rsmh= '%6.3f' % rsmh
-# mmm= 'RSMH='+4*rsmh+' EH= -0.5 -0.5 -0.5 -0.5 \n'
-# mmm= mmm+ '     RSMH2='+4*rsmh+' EH2= -2 -2 -2 -2\n'
-# if(len(pz)==2):    mmm= mmm +'     PZ'+pz[1]
-
-# il1 = countnum(mmm,'RSMH=')
-# il2 = countnum(mmm,'PZ=')
-# lx = max(il1,il2,3)
-# lll = "%i" % lx
-# #print il1,il2,lx
-# aaa = aaa+' R='+rdic[ikey]+'\n'+' '*5+mmm+'\n' \
-#     + ' '*5+'KMXA={kmxa} LMXA='+lll+'\n'+' '*5+'MMOM=0 0 0 0'
-
 
 #########################################
 metali_val= '%i' % metali
@@ -882,9 +850,9 @@ tail = tail + "      XCFUN={xcfun}"+ """
 
       PWMODE=1  # 0:  MTO basis only (LMTO) !2021feb. I set PWMODE=1 as default (for smooth bandplot). 
                 # 1 : APW+MTO        (PMT)  !2022jun17 PWMODE=1 causes problem for QSGW
-                #                           (even when PWMODE=1, I enforce PWMODE=11 for GWdriver mode --jobgw).
+                #                           (even when PWMODE=1, We enforce PWMODE=11 for GWdriver mode --jobgw).
                 # 2 : APW only              !   |G|cutoff 
-                # 11: APW+MTO        (PMT)  ! |q+G|cutoff
+                # 11: APW+MTO        (PMT)  ! |q+G|cutoff number of G is dependent on q.
                 # 12: APW basis only (LAPW) ! |q+G|cutoff
                 #
       PWEMAX={pwemax} # (in Ry). When you use larger pwemax more than 5, be careful
@@ -892,11 +860,11 @@ tail = tail + "      XCFUN={xcfun}"+ """
 """
 
 tail = tail + """                 # For sp-bonded solids, ELIND=-1 may give faster convergence.
-                 # For O2 molecule, Fe, and so on, use ELIND=0(this is default).
-      READP=T  # Read P,PZ values from results of atom calculation.
+                   # For O2 molecule, Fe, and so on, use ELIND=0(this is default).
+      READP=T      # Read P,PZ values from results of atom calculation.
       READPSKIPF=T # For f,g,h... We use default P,PZ given in subroutine defpq.f90 called from m_lmfinit.(default is T)
-      PNUFIX=T # B.C. (phi'/phi) of radial functions are fixed.
-      FRZWF=F #If T, fix augmentation function. This is worth to test in future. FRZWF=T may give not low-enough energy.
+      PNUFIX=T     # B.C. (phi'/phi) of radial functions are fixed.
+      FRZWF=F      #If T, fix augmentation function. This is worth to test in future. FRZWF=T may give not low-enough energy.
       #  See HAM_FRZWF, file://Document/Manual/CaterogyAndToken.org
 
       #For LDA+U calculation, see ecalj manual.
@@ -923,15 +891,15 @@ tail = tail + """                 # For sp-bonded solids, ELIND=-1 may give fast
       # See cal zhev_tk3 in ecalj/lm7K/fp/bndfp.F. For using large pwemax, you may need to set OVEPS=1d-6 ~ 1d-8.
       # If you use larger OVEPS, you have smaller number of basis (APW+MTO) for expanding eigenfunctions.
 
-# Relaxiation MODE. We calculate force by force theorem and relax.
+#Relaxiation MODE.   We calculate force by force theorem and relax.---
 #DYN     MODE=5 HESS=T XTOL=.001 GTOL=0 STEP=.015 NIT=20
 # See file://Document/Manual/CaterogyAndToken.org
-# We now have to set DYN with DYN_MODE DYN_XTOL DYN_GTOL DYN_STEP DYN_NIT
+# We now have to set DYN_MODE DYN_XTOL DYN_GTOL DYN_STEP DYN_NIT
 # 
 """
 
 g = open("ctrlgenM1.ctrl."+ext,'wt')
 g.write(alltmp+specsec+tail)
 g.close()
-print( "OK! A template of ctrl file, ctrlgenM1.ctrl."+ext+", is generated.")
+print( "=== End of ctrlgenM1.py. OK! A template of ctrl file, ctrlgenM1.ctrl."+ext+", is generated.")
 sys.exit()

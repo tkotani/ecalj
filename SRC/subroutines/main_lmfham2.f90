@@ -36,7 +36,7 @@ contains
     use m_mksym,only:    m_mksym_init,iclasst
     use m_mkqp,only:     m_mkqp_init
     use m_rotwave,only:  rotmatMTO!,rotmatPMT
-    use m_prgnam,only: set_prgnam
+!    use m_prgnam,only: set_prgnam
     use m_nvfortran,only:findloc
     
     implicit none
@@ -75,13 +75,11 @@ contains
     integer:: ig,iqibz,icount,ierr,stdox,iii
     call setcmdpath()            ! Set self-command path (this is for call system at m_lmfinit)
     call m_ext_init()            ! Get sname, e.g. trim(sname)=si of ctrl.si
-    !  call mpi_init(ierr)
-    call set_prgnam('lmfham2')
     call m_MPItk_init() ! mpi initialization
     call m_lgunit_init() !set stdo,stdl
-    call m_lmfinit_init('LMF')! Read ctrlp into module m_lmfinit.
+    call m_mksym_init()  !symmetry go into m_lattic and m_mksym
     call m_lattic_init()      ! lattice setup (for ewald sum)
-    call m_mksym_init('LMF')  !symmetry go into m_lattic and m_mksym
+!    call m_mksym_init()  !symmetry go into m_lattic and m_mksym
     call m_mkqp_init() ! data of BZ go into m_mkqp
     call m_qplist_init(plbnd=0,llmfgw=.false.) ! Get q point list at which we do band calculationsb
     !  call m_qplist_qspdivider()  !generate iqini:iqend,isini,isend  for each rank

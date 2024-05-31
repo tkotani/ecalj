@@ -19,7 +19,7 @@ subroutine hx0fp0()
      & MPI__SplitXq, MPI__Setnpr_col, comm_b, comm_k, mpi__root_k, mpi__root_q, MPI__GatherXqw
   use m_rdpp,only: Rdpp, &   ! & NOTE: "call rdpp" generate following data.
        nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx,nprecx,mrecl,nblochpmx
-  use m_zmel,only: Mptauof_zmel, Setppovlz,Setppovlz_chipm   ! & NOTE: these data set are stored in this module, and used
+  use m_zmel,only: Mptauof_zmel!, Setppovlz,Setppovlz_chipm   ! & NOTE: these data set are stored in this module, and used
   use m_itq,only: Setitq !set itq,ntq,nband,ngcmx,ngpmx to m_itq
   use m_freq,only: Getfreq3, &! & NOTE: call getfreq generate following data.
        frhis,freq_r,freq_i, nwhis,nw_i,nw,npm,wiw,niw !, frhis0,nwhis0 !output of getfreq
@@ -178,7 +178,7 @@ subroutine hx0fp0()
 !  complex(8),allocatable:: rcxq0(:,:,:,:)
   logical,allocatable::   mpi__task(:)
   integer,allocatable::   mpi__ranktab(:)
-  integer :: n_kpara = 1, n_bpara = 1, npr_col, worker_inQtask
+  integer :: n_kpara = 1, n_bpara = 1, npr_col, worker_inQtask, nqcalc
   call MPI__Initialize()
   call gpu_init() 
   call M_lgunit_init()
@@ -346,7 +346,10 @@ subroutine hx0fp0()
 
   n_bpara = 1
   if(cmdopt2('--nb=', outs)) read(outs,*) n_bpara
-  n_kpara = mpi__size/(n_bpara*(iqxend - iqxini + 1) + 1) + 1 !Default setting of parallelization. b-parallel is 1.
+  nqcalc = iqxend - iqxini + 1
+  if(cmdopt0('--zmel0')) nqcalc = nqcalc - 1
+  if(nqcalc < 1) call rx('hx0fp0: sanity check. nqcalc < 1: specify more than 2 q-points in zmel0 mode')
+  n_kpara = max(mpi__size/(n_bpara*nqcalc), 1)  !Default setting of parallelization. b-parallel is 1.
   if(cmdopt2('--nk=', outs)) read(outs,*) n_kpara
   worker_inQtask = n_bpara * n_kpara
   write(6,'(1X,A,3I5)') 'MPI: worker_inQtask, n_bpara, n_kpara', worker_inQtask, n_bpara, n_kpara

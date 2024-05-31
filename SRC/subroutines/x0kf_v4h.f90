@@ -110,7 +110,7 @@ contains
     ierr=0
   endfunction x0kf_v4hz_init
   
-  subroutine x0kf_zxq(realomega,imagomega, q,iq,nprin,schi,crpa,chipm,nolfco,q00,zzr)
+  subroutine x0kf_zxq(realomega,imagomega, q,iq,npr,schi,crpa,chipm,nolfco,q00,zzr)
     use m_readgwinput,only: ecut,ecuts
     use m_dpsion,only: dpsion5
     use m_freq,only: nw_i, nw_w=>nw, niwt=>niw
@@ -123,15 +123,14 @@ contains
     use m_gpu, only: use_gpu
     use m_data_gpu, only: SetDataGPU_inkx, ExitDataGPU_inkx
     implicit none
-    intent(in)::      realomega,imagomega, q,iq,nprin,schi,crpa,chipm,nolfco,q00,zzr
+    intent(in)::      realomega,imagomega, q,iq,npr,schi,crpa,chipm,nolfco,q00,zzr
     logical:: realomega,imagomega,crpa,chipm,nolfco
-    integer:: iq, isp_k,isp_kq,ix0,is,isf,kx,ierr,nprin,k, npr_col, ipr_col
+    integer:: iq, isp_k,isp_kq,ix0,is,isf,kx,ierr,npr,k, ipr_col, npr_col
     real(8),optional:: q00(3)
     complex(8),optional:: zzr(:,:)
     real(8):: q(3),schi,ekxx1(nband,nqbz),ekxx2(nband,nqbz)
     character(10) :: i2char
     logical:: cmdopt0, GPUTEST
-    npr=nprin
     qq=q
     GPUTEST = cmdopt0('--gpu')
 
@@ -143,8 +142,8 @@ contains
       if(imagomega) allocate(zxqi(npr,npr_col,niw),source=(0d0,0d0))
     endif
     if(cmdopt0('--emptyrun'))  return
-    if(chipm .AND. nolfco) then;  call setppovlz_chipm(zzr,npr)
-    else;                         call Setppovlz(q,matz=.true.)
+    if(chipm .AND. nolfco) then; call setppovlz_chipm(zzr,npr)
+    else;                        call setppovlz(q,matz=.true.,npr=npr)!2024-5-23 obata. A minor bug to consume memory: Set npr=1 for EPSPP0 mode(no lfc)
     endif
     call SetDataGPU_inkx(set_ppovlz_in_gpu = .true.)
     isloop: do 1103 isp_k = 1,nsp
@@ -190,24 +189,28 @@ contains
               it  = itc (icoun) !occ      k
               itp = itpc(icoun) !unocc    q+k
               jpm = jpmc(icoun) ! \pm omega. Usual mode is only for jpm=1
+              if(mod(k-1, mpi__size_k) /= mpi__rank_k)  cycle
               if(kold/=k) then
                 call x0kf_zmel(q00,k, isp_k,isp_kq, GPUTEST=GPUTEST)
                 if(allocated(zmel0)) deallocate(zmel0)
                 allocate(zmel0,source=zmel)
                 call x0kf_zmel(q, k, isp_k,isp_kq, GPUTEST=GPUTEST)
                 kold=k
+                write(6,*) 'k, mpi__rank_k', k, mpi__rank_k
+                call flush(6)
               endif
+!              write(*,*)'zzzzzzzzzzzzzmel',shape(zmel)
               do iw=iwini(icoun),iwend(icoun) !iw  = iwc(icount)  !omega-bin
                 icount= icouini(icoun)+iw-iwini(icoun)
                 if(abs(zmel0(1,it,itp))>1d10) cycle !We assume rcxq(1) in this mode
                 rcxq(1,1,iw,jpm)=rcxq(1,1,iw,jpm) +rfac00**2*(abs(zmel(1,it,itp))-abs(zmel0(1,it,itp)))**2 *whwc(icount)
               enddo
             enddo zmel0modeicount
+            !$acc data update device (rcxq)
           endblock zmel0block
           goto 2000 
         endif zmel0mode
         if(cmdopt0('--emptyrun')) goto 1590
-
         call cputid (0)
         if(GPUTEST) then
           ! rcxq(ibg1,igb2,iw) = \sum_ibib wwk(iw,ibib)* <M_ibg1(q) psi_it(k)| psi_itp(q+k)> < psi_itp | psi_it M_ibg2 > at q
@@ -252,7 +255,6 @@ contains
             call get_zmel_init(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
                  nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false.,zmelconjg=.true.)
             call stopwatch_pause(t_sw_zmel)
-
             call stopwatch_start(t_sw_x0)
             icounloop: do 1000 icoun=icounkmin(k),icounkmax(k)
               ! call get_zmel_init is equivalent to call x0kf_zmel(q, k, isp_k,isp_kq) 
@@ -312,7 +314,6 @@ contains
     deallocate(zxqi)
   end subroutine deallocatezxqi
   subroutine x0kf_zmel( q,k, isp_k,isp_kq, GPUTEST) ! Return zmel= <phi phi |M_I> in m_zmel
-    use m_gpu, only: use_gpu
     use m_mpi, only: comm_b
     intent(in)   ::     q,k, isp_k,isp_kq   
     integer::              k,isp_k,isp_kq 
@@ -320,15 +321,9 @@ contains
     logical, intent(in), optional:: GPUTEST
     if (present(GPUTEST)) then
       if (GPUTEST) then
-        if (use_gpu) then
-          call get_zmel_init_gpu(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
-               nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., &
-               zmelconjg=.true.)
-        else
-          call get_zmel_init_gpu(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
-               nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., &
-               zmelconjg=.true., comm = comm_b)
-        endif
+        call get_zmel_init_gpu(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
+             nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., zmelconjg=.true.)
+       !$acc data update host(zmel)
       endif
     else
       call get_zmel_init(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot, ns2=nkmax(k)+nctot, ispm=isp_k, &
