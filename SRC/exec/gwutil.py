@@ -26,44 +26,6 @@ def gw_args(pname,note):
     if args.phispinsym==True: option=' --phispinsym'
     return(target,ncore,option)
 
-def gwsc_args():
-    '''
-    arguments settings
-    Returns
-      target: target material name ctrl.target
-      nloop: numbdr of QSGW iterations starting from current result (nloop=0 is replaced by nloop=1 internally)
-      ncore: number of MPI thereads in lmf
-      ncore2: number of MPI thereads in lxsC etc.
-      option: options
-    '''
-    import argparse
-    parser=argparse.ArgumentParser(prog='gwsc',description='QSGW calculation')
-    parser.add_argument("-np",     help='number of mpi cores in lmf',action='store')
-    parser.add_argument("-np2",    help='number of mpi cores in lxc etc.',action='store') 
-    parser.add_argument("nloop",   help='iteration number of QSGW loop')
-    parser.add_argument("material_name",help='material name')
-    parser.add_argument('--phispinsym',action='store_true',help='spin-symmetrized augmentation')
-#    parser.add_argument('--emptyrun',action='store_true',help='test for gprof for memory')
-#    parser.add_argument('--afsym',action='store_true',help='AF symmetry mode')
-    args=parser.parse_args()
-    print(args)
-    target=args.material_name
-    nloop=int(args.nloop)
-    if args.np!=None:
-        ncore=int(args.np)
-        if args.np2!=None:
-            ncore2=int(args.np2)
-        else:
-            ncore2=ncore
-    else:
-        ncore=1
-        ncore2=ncore
-    option=''
-    if args.phispinsym==True: option=' --phispinsym'
-#    if args.emptyrun==True: option=option+' --emptyrun'
-#    if args.afsym==True: option=option+' --afsym'
-    return(target,nloop,ncore,ncore2,option)
-
 def gen_dir(dirname):
     '''
     serch directry and else generate that one

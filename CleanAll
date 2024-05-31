@@ -2,5 +2,5 @@
 pushd .
 cd SRC/exec
 make clean
-rm -rf CMkakeFiles* CMakeCache.txt
+rm -rf CMkakeFiles* CMakeCache.txt *.mod
 popd

@@ -10,7 +10,7 @@ contains
     use m_qplist,only: nkp,nsyml,xdatt,nqp_syml,nqp2n_syml,qplist,labeli,labele,nqps_syml,nqpe_syml,dqsyml,etolv,etolc
     use m_suham,only: ndham=>ham_ndham, ndhamx=>ham_ndhamx,nspx=>ham_nspx
     use m_bandcal,only:nevls
-    use m_ext,only: sname
+    use m_ext,only: sname,dirname
     implicit none
     real(8),intent(in):: eferm,evtop,ecbot ! evtop is max of n-th band. !evbot is bottom of bands upper than n+1
     integer:: ifbndo,ikp,isyml,jsp
@@ -60,9 +60,9 @@ contains
        write(ifglt,'(a)')'set grid'
        write(ifglt,'(a)')'set ylabel "Energy-Efermi(eV)"'
        write(ifglt,'(a)')'# This is given written in subroutine writeband in lm7K/fp/bndfp.F'
-       if(nspx==1) addx='"'
-       if(nspx==2) addx=' isp='//char(48+jsp)//'"'
-       write(ifglt,'(a)')'set title "Band '//trim(sname)//trim(addx)
+       if(nspx==1) addx=''
+       if(nspx==2) addx=' isp='//char(48+jsp)
+       write(ifglt,'(a)')'set title "Band '//trim(sname)//trim(addx)//' at '//trim(dirname)//'"'
        write(ifglt,'(a,F12.5,a,F12.5,a)') 'set yrange [',emin,':',emax,']'
        write(ifglt,'(a,F12.5,a)') 'set xrange [0.0:',disoff(nsyml+1),']'
        !!
