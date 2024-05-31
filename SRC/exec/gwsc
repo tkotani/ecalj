@@ -2,40 +2,32 @@
 # -*- coding:utf-8 -*-
 import os, datetime, shutil, glob,sys
 from gwutil import *
-'''
-QSGW calculation with MPI.
-  target: target material name ctrl.target
-  nloop: numbdr of QSGW iterations starting from current result (nloop=0 is replaced by nloop=1 internally)
-  ncore: number of MPI thereads in lmf
-  ncore2: number of MPI thereads in lxsC etc.
-  option: options
-'''
 import argparse
-parser = argparse.ArgumentParser(prog='gwsc',description='QSGW calculation')
-parser.add_argument("-np",     help='number of mpi cores in lmf',action='store')
-parser.add_argument("-np2",    help='number of mpi cores in lxc etc.',action='store') 
-parser.add_argument("nloop",   help='iteration number of QSGW loop')
-parser.add_argument("material_name",help='material name')
-parser.add_argument('--phispinsym',action='store_true',help='spin-symmetrized augmentation')
-parser.add_argument('--emptyrun',action='store_true',help='test for gprof for memory')
-
-args=parser.parse_args()
-target=args.material_name
-nloop=int(args.nloop)
-if args.np!=None:
-    ncore=int(args.np)
-    if args.np2!=None:
-        ncore2=int(args.np2)
-    else:
-        ncore2=ncore
-else:
-    ncore=1
-    ncore2=ncore
+parser = argparse.ArgumentParser(prog='gwsc',description='''
+  QSGW calculation with MPI.
+  Allow general options (not described here), which are used in cmdopt in *.f90'
+''')
+parser.add_argument("nloop",       help='number of QSGW iteration, starting from current result.',default=1,type=int)
+parser.add_argument("extension",   help='extension of ctrl')
+parser.add_argument("-np",        help='number of mpi cores in lmf',default=4,type=int)
+#parser.add_argument("-np2",       help='number of mpi cores in lxc etc') 
+parser.add_argument('--phispinsym',help='spin-symmetrized augmentation',action='store_true')
+parser.add_argument('--emptyrun'  ,help='test for gprof for memory',    action='store_true')
+args,unknown=parser.parse_known_args()
+target=args.extension
+nloop=args.nloop
+ncore=args.np
+ncore2=args.np
 epath=os.path.dirname(os.path.abspath(__file__))
+#if args.np2!=None:
+#    ncore2=int(args.np2)
+#else:
 # options
 option=''
 if args.phispinsym==True: option=' --phispinsym '
 if args.emptyrun  ==True: option= option+ ' --emptyrun '
+option = ' '+option+' '.join(unknown)+' '
+print('option=',option)
 
 try:
     tmp=[int(s.strip('QPU.').strip('run')) for s in os.listdir() if 'QPU.' in s]
@@ -46,8 +38,6 @@ if(nloop==0):
     nloop=1
     print('WARN: We replace ITERADD=0 with ITERADD=1 because of backward compatibility.')
 initxt="### START gwsc: ITERADD= %d, MPI size=  %d, %d TARGET= %s"%(nloop,ncore,ncore2,target)
-#        if ncore==ncore2 else
-#        "### START gwsc: NITER= %d, MPI size=  %d, %d, TARGET= %s"%(nloop,ncore,ncore2,target))
 print(initxt,flush=True)
 gen_dir('SEBK')
 gen_dir('STDOUT')
