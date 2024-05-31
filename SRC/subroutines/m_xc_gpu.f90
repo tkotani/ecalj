@@ -33,9 +33,9 @@ contains
     real(8), allocatable :: vcoud_buf(:), wtff(:)
     complex(8), allocatable :: vzw(:,:,:)
     integer :: it, itp, itpp, igb, ierr
-    #ifdef __GPU
-      attributes(device) :: vzw, vcoud_buf
-    #endif
+#ifdef __GPU
+    attributes(device) :: vzw, vcoud_buf
+#endif
     if(present(emptyrun)) then
       if(emptyrun) return
     endif
