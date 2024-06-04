@@ -201,8 +201,17 @@ subroutine hsfp0_sc()
   !call Seteibzhs(nspinmx,nq,qibz,iprintx=MPI__root)
   Main4SelfEnergy: Block !time-consuming part Need highly paralellized
     use m_sxcf_main,only: sxcf_scz_correlation,sxcf_scz_exchange
-    if(exchange)      call sxcf_scz_exchange   (ef,esmr,ixc,nspinmx) !main part of job
-    if(.not.exchange) call sxcf_scz_correlation(ef,esmr,ixc,nspinmx) !main part of job
+    use m_sxcf_gpu, only: sxcf_scz_correlation_gpu => sxcf_scz_correlation , sxcf_scz_exchange_gpu => sxcf_scz_exchange
+    logical:: use_gpu, cmdopt0
+    use_gpu = cmdopt0('--gpu')
+    if(use_gpu) then  
+      write(stdo,ftox)'GPU mode ON'
+      if(exchange)      call sxcf_scz_exchange_gpu   (ef,esmr,ixc,nspinmx) !main part of job
+      if(.not.exchange) call sxcf_scz_correlation_gpu(ef,esmr,ixc,nspinmx) !main part of job
+    else
+      if(exchange)      call sxcf_scz_exchange   (ef,esmr,ixc,nspinmx) !main part of job
+      if(.not.exchange) call sxcf_scz_correlation(ef,esmr,ixc,nspinmx) !main part of job
+    endif
   EndBlock Main4SelfEnergy
 ! Remove eibzmode symmetrizer 2023Jan22 (extended irreducibel BZ mode)
 !  SymmetrizeZsec :Block
