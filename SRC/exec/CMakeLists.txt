@@ -73,8 +73,8 @@ if(FC MATCHES "gfortran")
 elseif(FC MATCHES "ifort-openmpi-kugui")
   set(CMAKE_Fortran_COMPILER ifort) # compiler
   set(CMAKE_Fortran_FLAGS "-I/home/app/openmpi/intel/4.1.6/include -I/home/app/openmpi/intel/4.1.6/lib -L/home/app/openmpi/intel/4.1.6/lib -Wl,-rpath -Wl,/home/app/openmpi/intel/4.1.6/lib -Wl,--enable-new-dtags -lmpi_usempif08 -lmpi_usempi_ignore_tkr -lmpi_mpifh -lmpi -cpp -init:snan -fpic -assume byterecl -g -traceback") # compile flags
-  set(LIBM  -mkl) 
-  add_link_options(-mkl)
+  set(LIBM  -qmkl=sequential) 
+  add_link_options(-qmkl=sequential)
 elseif(FC MATCHES "ifort")
   set(CMAKE_Fortran_COMPILER mpiifort) # compiler
   set(CMAKE_Fortran_FLAGS "-cpp -init:snan -fpic -assume byterecl") # compile flags
