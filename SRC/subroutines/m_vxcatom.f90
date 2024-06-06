@@ -726,7 +726,6 @@ subroutine vxcnls(a,ri,nr,np,nlm,nsp, yl,gyl,rwgt,wp,rl,lxcg, vl,rep,rmu)
      if(plotstop) stop 'xxxxxxxxxx testing yyy new xxxxxxxx 111 xcpbe'
      call tcx('vxcnls')
 ! This is the end of new mode = TKotani removed remnant of Mark's old version at 2024-6-6
-  call tcx('vxcnls')
 end subroutine vxcnls
 subroutine vxc0sp(a,b,rofi,rho,nr,v,rho0,rep,rmu,nsp,exrmx)!- Adds xc part to spherical potential, makes integrals rmu and rep
   use m_lgunit,only:stdo
