@@ -325,7 +325,7 @@ contains
         if(nttp(iw) < 1) cycle
         if(keepwv) then
           !$acc kernels
-          wc(:,:) = (wvr(:,:,iw) + transpose(wvr(:,:,iw)))*0.5d0
+          wc(:,:) = (wvr(:,:,iw) + transpose(dconjg(wvr(:,:,iw))))*0.5d0
           !$acc end kernels
         else
           read(ifrcw,rec=iw-nw_i+1) wv
@@ -376,7 +376,7 @@ contains
     write(stdo, ftox) 'save WVI and WVR on CPU or GPU (if GPU is used) memory. This requires sufficient memory'
     call flush(stdo)
     allocate(wv(nblochpmx, nblochpmx), wvi(nblochpmx,nblochpmx,niw))
-    do iw=1,niw
+    do iw = 1, niw
       read(ifrcwi,rec=iw) wv(:,:)
       wvi(:,:,iw) = wv
     enddo
