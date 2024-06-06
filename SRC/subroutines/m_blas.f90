@@ -21,6 +21,9 @@ module m_blas !wrapper for BLAS and cuBLAS
       complex(kind=4), intent(in), optional :: alpha, beta
       integer, optional :: lda, ldb, ldc
       integer :: istat
+#ifdef __GPU
+      attributes(device) :: a, b, c
+#endif
     end function
     module function cmm_batch(a, b, c, m, n, k, nbatch, opa, opb, alpha, beta, lda, ldb, ldc, samea, sameb, comm) result(istat)
       complex(kind=4) :: a(*), b(*), c(*)
@@ -31,6 +34,9 @@ module m_blas !wrapper for BLAS and cuBLAS
       logical, optional :: samea, sameb
       integer, optional :: comm
       integer :: istat
+#ifdef __GPU
+      attributes(device) :: a, b, c
+#endif
     end function
     module function zmm(a, b, c, m, n, k, opa, opb, alpha, beta, lda, ldb, ldc) result(istat)
       complex(kind=8) :: a(*), b(*), c(*)
@@ -39,6 +45,9 @@ module m_blas !wrapper for BLAS and cuBLAS
       complex(kind=8), intent(in), optional :: alpha, beta
       integer, optional :: lda, ldb, ldc
       integer :: istat
+#ifdef __GPU
+      attributes(device) :: a, b, c
+#endif
     end function
     module function zmm_batch(a, b, c, m, n, k, nbatch, opa, opb, alpha, beta, lda, ldb, ldc, samea, sameb, comm) result(istat)
       complex(kind=8) :: a(*), b(*), c(*)
@@ -49,6 +58,9 @@ module m_blas !wrapper for BLAS and cuBLAS
       logical, optional :: samea, sameb
       integer, optional :: comm
       integer :: istat
+#ifdef __GPU
+      attributes(device) :: a, b, c
+#endif
     end function
   end interface
   private

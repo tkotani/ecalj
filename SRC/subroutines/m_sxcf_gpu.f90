@@ -23,11 +23,15 @@ module m_sxcf_gpu
   real(8), parameter :: pi = 4d0*datan(1d0), fpi = 4d0*pi
   logical, parameter :: timemix = .true.
   complex(kind=kp), parameter :: CONE = (1_kp, 0_kp)
-  integer :: kx, irot, ip, isp, ntqxx, nt0p, nt0m
+  integer :: kx, irot, ip, isp, ntqxx, nt0p, nt0m, ifrcw, ifrcwi 
   real(8) :: wkkr
-  integer, allocatable :: ifrcw(:), ifrcwi(:), ndiv(:), nstatei(:,:), nstatee(:,:)
+  integer, allocatable :: ndiv(:), nstatei(:,:), nstatee(:,:)
   real(8), allocatable :: ekc(:), eq(:), omega(:)
-  logical :: emptyrun
+  logical :: emptyrun, keepwv
+  complex(kind=kp), allocatable :: wvr(:,:,:), wvi(:,:,:)
+#ifdef __GPU
+  attributes(device) :: wvr, wvi
+#endif
   logical, external :: cmdopt0
 contains
   subroutine sxcf_scz_exchange(ef, esmr, ixc, nspinmx) !ixc is dummy
@@ -78,26 +82,15 @@ contains
     implicit none
     integer, intent(in) :: nspinmx, ixc
     real(8), intent(in) :: ef, esmr
-    integer :: icount, ns1, ns2, kr, nwxi, nws, ns2r, nwx, iqini, iqend
+    integer :: icount, ns1, ns2, kr, nwxi, nws, ns2r, nwx
     real(8) :: q(3), qibz_k(3), qbz_kr(3), qk(3)
     logical, parameter :: debug=.false.
     real(8),parameter :: ddw=10d0
-    character(10) :: i2char
     allocate(ekc(nctot+nband), eq(nband), omega(ntq)) 
     emptyrun = cmdopt0('--emptyrun')
+    keepwv = cmdopt0('--keepwv')
     if(nw_i/=0) call rx('Current version we assume nw_i=0. Time-reversal symmetry')
 
-    if(.not.emptyrun) then! Read WV* containing W-v in MPB
-       iqini = 1
-       iqend = nqibz             
-       allocate(ifrcw(iqini:iqend),ifrcwi(iqini:iqend))
-       do kx=iqini,iqend
-          if(any(kx==kxc(:))) then !only for requied files for this rank
-             open(newunit=ifrcw(kx), file='WVR.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
-             open(newunit=ifrcwi(kx),file='WVI.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
-          endif
-       enddo
-     endif
     allocate(zsecall(ntq,ntq,nqibz,nspinmx),source=(0d0,0d0)) 
 
     !$acc data copyout(zsecall)
@@ -105,6 +98,7 @@ contains
       qibz_k = qibz(:,kx)
       call Readvcoud(qibz_k, kx, NoVcou=.false.)   !Readin ngc,ngb,vcoud ! Coulomb matrix
       call Setppovlz(qibz_k, matz=.true., npr=ngb) !Set ppovlz overlap matrix used in Get_zmel_init in m_zmel
+      call setwv()
       irotloop: do irot=1, ngrp                    ! (kx,irot) determines qbz(:,kr), which is in FBZ. W(kx) is rotated to be W(g(kx))
         iploopexternal: do ip=1, nqibz             !external index for q of \Sigma(q,isp)
           isploopexternal: do isp=1, nspinmx       !external index
@@ -126,8 +120,9 @@ contains
               nwxi = nwxic(icount)  !minimum omega for W
               nwx = nwxc(icount)   !max omega for W
               ns2r = nstte2(icount) !Range of middle states [ns1:ns2r] for CorrelationSelfEnergyRealAxis
+              ! if(timemix) call timeshow(" Start of Get_zmel_init:")
               call get_zmel_init(q, qibz_k, irot, qbz_kr, ns1, ns2, isp, 1, ntqxx, isp, nctot, ncc=0, iprx=debug, zmelconjg=.false.)
-              if(timemix) call timeshow(" End of Get_zmel_init:")
+              ! if(timemix) call timeshow(" End of Get_zmel_init:")
               write(06,ftox) 'ns1,ns2,ntqxx,ngb:',ns1,ns2,ntqxx, ngb
               call get_correlation(ef, esmr, ns1, ns2, ns2r, nwxi, nwx, zsecall(1,1,ip,isp))
               if(timemix) call timeshow(" End of CorrelationSelfEnergy:")
@@ -135,6 +130,7 @@ contains
           enddo isploopexternal
         enddo iploopexternal
       enddo irotloop
+      call releasewv()
     enddo kxloop
     !$acc end data
     deallocate(ekc, eq, omega)
@@ -165,7 +161,7 @@ contains
     !$acc end kernels
     if(kx == 1) vcoud_buf(1) = wklm(1)*fpi*sqrt(fpi)/wk(1)
     allocate(vzmel(1:nbb,ns1:ns2,1:ntqxx), source = cmplx(0,0,kind=kp))
-    !$acc kernels loop independent collapse(3)
+    !$acc kernels loop independent collapse(2)
     do itpp = 1, ntqxx
       do it = ns1, ns2 
         vzmel(1:ngb,it,itpp) = wtff(it)*vcoud_buf(1:ngb)*zmel(1:ngb,it,itpp)
@@ -188,13 +184,13 @@ contains
     complex(kind=kp), parameter :: img=(0_kp,1_kp)
     complex(kind=kp), allocatable :: czmelwc(:,:,:)
     integer :: it, itp, iw, ierr, i
-    complex(kind=kp), allocatable :: zw(:,:), wc(:,:)
+    complex(kind=kp), allocatable :: wv(:,:), wc(:,:)
 #ifdef __GPU
     attributes(device) :: czmelwc, wc
 #endif
 
-    allocate(zw(nblochpmx,nblochpmx))
-    allocate(wc, mold = zw)
+    allocate(wv(nblochpmx,nblochpmx))
+    allocate(wc, mold = wv)
     CorrelationSelfEnergyImagAxis: Block !Fig.1 PHYSICAL REVIEW B 76, 165106(2007)! Integration along ImAxis for zwz(omega) 
       use m_readfreq_r, only: wt=>wwx, x=>freqx
       real(8), parameter:: rmax=2d0
@@ -203,7 +199,7 @@ contains
       integer :: igb
       complex(kind=kp), allocatable :: wzmel(:,:,:),  czwc(:,:,:)
 #ifdef __GPU
-      attributes(device) :: wzmel
+      attributes(device) :: wzmel, czwc
 #endif
       sig = .5d0*esmr
       sig2 = 2d0*(.5d0*esmr)**2
@@ -232,16 +228,21 @@ contains
           wgtim(:,itp,it)= wkkr*wgtim_ !! Integration weight wgtim along im axis for zwz(0:niw*npm)
         enddo 
       enddo 
-      if(timemix) call timeshow(" End of makeing wgtim:")
+      ! if(timemix) call timeshow(" End of makeing wgtim:")
       allocate(wzmel(1:ngb,ns1:ns2,1:ntqxx))
       allocate(czwc(ns1:ns2,1:ntqxx,1:ngb), source = cmplx(0,0,kind=kp))
       !$acc data copyin(wgtim, zmel)
       iwimag:do iw = 0, niw !niw is ~10. ixx=0 is for omega=0 nw_i=0 (Time reversal) or nw_i =-nw
         if(emptyrun) cycle
-        if(iw==0)read(ifrcw(kx),rec=1+(0-nw_i)) zw !direct access Wc(0) = W(0)-v ! nw_i=0 (Time reversal) or nw_i =-nw
-        if(iw>0) read(ifrcwi(kx),rec=iw) zw       ! direct access read Wc(i*omega)=W(i*omega)-v
-        wc = zw
-        if(timemix) call timeshow(" End of CorrelationSelfEnergy_READ")
+        if(keepwv) then
+          if(iw == 0) wc = wvr(:,:,iw)
+          if(iw > 0) wc = wvi(:,:,iw)
+        else
+          if(iw==0)read(ifrcw,rec=1+(0-nw_i)) wv!direct access Wc(0) = W(0)-v ! nw_i=0 (Time reversal) or nw_i =-nw
+          if(iw>0) read(ifrcwi,rec=iw) wv ! direct access read Wc(i*omega)=W(i*omega)-v
+          wc = wv
+        endif
+        ! if(timemix) call timeshow(" End of CorrelationSelfEnergy_READ")
         !$acc kernels loop independent collapse(2)
         do itp = 1, ntqxx
           do it = ns1, ns2
@@ -249,8 +250,10 @@ contains
           enddo
         enddo
         !$acc end kernels
+        ! if(timemix) call timeshow(" End of CorrelationSelfEnergy_WZMEL")
+        !the most time-consuming part in the correlation part
         ierr = gemm(wzmel, wc, czwc, (ns2-ns1+1)*ntqxx, ngb, ngb, opA = m_op_c, beta = CONE, ldB = nblochpmx)
-        if(timemix) call timeshow(" End of CorrelationSelfEnergy_IW")
+        ! if(timemix) call timeshow(" End of CorrelationSelfEnergy_IW")
       enddo iwimag
       !$acc end data
       deallocate(wzmel)
@@ -262,7 +265,7 @@ contains
       !$acc end kernels
       deallocate(czwc)
     EndBlock CorrelationSelfEnergyImagAxis
-    if(timemix) call timeshow(" End of CorrelationSelfEnergyImagAxis:")
+    ! if(timemix) call timeshow(" End of CorrelationSelfEnergyImagAxis:")
 
     CorrelationSelfEnergyRealAxis: Block !Real Axis integral. Fig.1 PHYSICAL REVIEW B 76, 165106(2007)
       use m_wfac, only: wfacx2, weavx2
@@ -317,10 +320,17 @@ contains
         enddo
       enddo
       allocate(wz_iw(ngb,nttp_max), czwc_iw(nttp_max,ngb))
+      !$acc data copyin(wgtiw, nttp, itw, itpw)
       do iw = nwxi, nwx
         if(nttp(iw) < 1) cycle
-        read(ifrcw(kx),rec=iw-nw_i+1) zw
-        wc = (zw + transpose(dconjg(zw)))/2d0
+        if(keepwv) then
+          !$acc kernels
+          wc(:,:) = (wvr(:,:,iw) + transpose(wvr(:,:,iw)))*0.5d0
+          !$acc end kernels
+        else
+          read(ifrcw,rec=iw-nw_i+1) wv
+          wc = (wv + transpose(dconjg(wv)))*0.5d0
+        endif
         !$acc kernels loop independent
         do ittp = 1, nttp(iw) 
           it = itw(ittp,iw); itp = itpw(ittp,iw)
@@ -335,14 +345,56 @@ contains
         enddo
        !$acc end kernels
       enddo
+      !$acc end data
       deallocate(wz_iw, czwc_iw)
     EndBlock CorrelationSelfEnergyRealAxis
-    if(timemix) call timeshow(" End of CorrelationSelfEnergyRealAxis:")
+    ! if(timemix) call timeshow(" End of CorrelationSelfEnergyRealAxis:")
     !$acc host_data use_device(zmel, zsec)
     ierr = gemm(czmelwc, zmel, zsec, ntqxx, ntqxx, nbb*(ns2-ns1+1), opA = m_op_T, beta = CONE, ldC = ntq)
     !$acc end host_data
-    forall(itp=1:ntqxx) zsec(itp,itp)=dreal(zsec(itp,itp))+img*min(dimag(zsec(itp,itp)),0d0) !enforce Imzsec<0
-    deallocate(zw, wc, czmelwc)
+    !$acc kernels loop independent
+    do itp = 1, ntqxx
+      zsec(itp,itp)=dreal(zsec(itp,itp))+img*min(dimag(zsec(itp,itp)),0d0) !enforce Imzsec<0
+    enddo
+    !$acc end kernels
+    deallocate(wv, wc, czmelwc)
+  end subroutine
+
+  subroutine setwv()
+    integer :: iqini, iqend, iw
+    character(10) :: i2char
+    real(8), parameter :: gb = 1000*1000*1000
+    complex(kind=kp), allocatable :: wv(:,:)
+    if(allocated(wvi)) deallocate(wvi)
+    if(allocated(wvr)) deallocate(wvr)
+
+    if(.not.any(kx==kxc(:))) return
+    open(newunit=ifrcwi,file='WVI.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
+    open(newunit=ifrcw, file='WVR.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
+
+    if(.not.keepwv) return
+    write(stdo, ftox) 'save WVI and WVR on CPU or GPU (if GPU is used) memory. This requires sufficient memory'
+    call flush(stdo)
+    allocate(wv(nblochpmx, nblochpmx), wvi(nblochpmx,nblochpmx,niw))
+    do iw=1,niw
+      read(ifrcwi,rec=iw) wv(:,:)
+      wvi(:,:,iw) = wv
+    enddo
+    allocate(wvr(nblochpmx,nblochpmx,nw_i:nw))
+    do iw = nw_i, nw
+      read(ifrcw,rec=iw-nw_i+1) wv
+      wvr(:,:,iw) = wv
+    enddo
+    write(stdo, '(X,A,2F6.3)') 'WVI/WVR : sizes (GB)', dble(size(wvi))*kp*2/gb, dble(size(wvr))*kp*2/gb
+    deallocate(wv)
+  end subroutine
+
+  subroutine releasewv()
+    if(.not.any(kx==kxc(:))) return
+    if(allocated(wvi)) deallocate(wvi)
+    if(allocated(wvr)) deallocate(wvr)
+    close(ifrcwi)
+    close(ifrcw)
   end subroutine
 
   pure function inverse33(matrix) result(inverse) !Inverse of 3X3 matrix

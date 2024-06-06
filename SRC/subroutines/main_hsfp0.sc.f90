@@ -69,6 +69,7 @@ subroutine hsfp0_sc()
        MPI__consoleout,  MPI__reduceSum,comm
   use m_lgunit,only:m_lgunit_init,stdo
   use m_ftox
+  use m_gpu,only: gpu_init
   implicit none
   ! real(8),parameter :: ua  = 1d0 ! constant in w(0)exp(-ua^2*w'^2) to take care of peak around w'=0
   !
@@ -93,6 +94,7 @@ subroutine hsfp0_sc()
     logical:: cmdopt2
     character(20):: outs=''
     call MPI__Initialize()
+    call gpu_init() 
     call M_lgunit_init()
     call date_and_time(values=timevalues)
     write(stdo,"('mpirank=',i5,' YYYY.MM.DD.HH.MM.msec=',9i4)")mpi__rank,timevalues(1:3),timevalues(5:8)

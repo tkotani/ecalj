@@ -206,7 +206,7 @@ contains
                 rcxq(1,1,iw,jpm)=rcxq(1,1,iw,jpm) +rfac00**2*(abs(zmel(1,it,itp))-abs(zmel0(1,it,itp)))**2 *whwc(icount)
               enddo
             enddo zmel0modeicount
-            !$acc data update device (rcxq)
+            !$acc update device (rcxq)
           endblock zmel0block
           goto 2000 
         endif zmel0mode
@@ -323,7 +323,7 @@ contains
       if (GPUTEST) then
         call get_zmel_init_gpu(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
              nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., zmelconjg=.true.)
-       !$acc data update host(zmel)
+       !$acc update host(zmel)
       endif
     else
       call get_zmel_init(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot, ns2=nkmax(k)+nctot, ispm=isp_k, &

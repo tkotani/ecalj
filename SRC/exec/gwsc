@@ -96,14 +96,14 @@ for i in range(1,nloop+1): #nloop is the additional number of iteration
     ### Valence part of the self-energy Sigma ###
     run_program(epath+'/hbasfp0 --job=0 '+option+'> lbas',1)        # Product basis generation
     run_program(epath+'/hvccfp0 --job=0 '+option+'> lvcc',ncore) # Coulomb matrix for lbas
-    run_program(epath+'/hsfp0_sc --job=1 '+option+'>lsx',ncore2) # Exchange Sigma
+    run_program(epath+'/hsfp0_sc --job=1 --gpu'+option+'>lsx',ncore2) # Exchange Sigma
     mv_files(glob.glob('stdout*'),'STDOUT')
 ###    run_program(epath+'/hx0init --job=11 > lx0init',ncore2)    #x0 part
 ###    run_program(epath+'/hx0zmel > lx0zmel',ncore2)   #x0 part
-    run_program(epath+'/hrcxq '+option+'> lrcxq',ncore2)       #x0 part
+    run_program(epath+'/hrcxq --gpu '+option+'> lrcxq',ncore2)       #x0 part
 #    run_program(epath+'/hhilbert > lhilbert',ncore2) #x0 part
     mv_files(glob.glob('stdout*'),'STDOUT')
-    run_program(epath+'/hsfp0_sc --job=2'+option+'> lsc',ncore2) #correlation Sigma
+    run_program(epath+'/hsfp0_sc --job=2 --gpu '+option+'> lsc',ncore2) #correlation Sigma
     mv_files(glob.glob('stdout*'),'STDOUT')
     run_program(epath+'/hqpe_sc '+option+'> lqpe',1)        #all Sigma are combined.
     ### final part of iteration loop. Manupulate files ###

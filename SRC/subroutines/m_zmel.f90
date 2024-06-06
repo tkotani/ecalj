@@ -496,7 +496,7 @@ contains
           phase(:)=[(exp( -img*tpi*sum((matmul(symope,kvec)+matmul(qlat,ngveccR(:,igc)))*shtv) ),igc=1,ngc)]  !prepared by CPU
           !$acc data copyin(dgeigqk, geigq, phase, ngvecpB1, ngvecpB2, ngveccR, nadd, ggg(1:nggg), nvgcgp2(1:3,1:ngcgp), &
           !$acc             igggi(nxi:nxe,nyi:nye,nzi:nze), igcgp2i(nnxi:nnxe,nnyi:nnye,nnzi:nnze), ppovlinv(1:ngb,1:nbb)) &
-          !$acc      create(zmelp0, nn, gggmat, igcgp2i_, ggitp)
+          !$acc      create(zmelp0, nn, gggmat, igcgp2i_, ggitp, ggitp_work)
           !$acc kernels loop independent collapse(2)
           do igcgp2 = 1, ngcgp
             do igp1 =1, ngp1
