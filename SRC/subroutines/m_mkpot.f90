@@ -296,8 +296,8 @@ contains
             'rho*exc     ',sum(repsm),sum(repat),rhoexc, &
             'rho*vxc     ',sum(rmusm),sum(rmuat),rhovxc, &
             'valence chg ',smq,sqloc,smq+sqloc !valence electron density, smooth part + local part
-       if(nsp == 2) write (stdo,680) 'valence mag',smag,saloc,amom
-       write(stdo,680) 'core charge',qsmc,sqlocc,qsmc+sqlocc
+       if(nsp == 2) write (stdo,680) 'valence mag ',smag,saloc,amom
+       write(stdo,680) 'core charge ',qsmc,sqlocc,qsmc+sqlocc
        write(stdo,"('   Charges:  valence',f12.5,'   cores',f12.5,'   nucleii',f12.5/'   hom background',f12.5, &
          '   deviation from neutrality: ',f12.5)") smq+sqloc,qsmc+sqlocc,-zsum,qbg,dq
 680    format(3x,a,4x,3f17.6)

@@ -39,6 +39,6 @@ contains
     call MPI_BARRIER( comm, ierr)
     call m_lmfinit_init(prgnam,comm) ! Computational settings.
     call Freeat()  !Spherical atom calculation
-    write(stdo,*)"OK! end of "//trim(prgnam)//" ======================"
+    write(stdo,"(a)")"OK! end of "//trim(prgnam)//" ======================"
   end subroutine lmfa
 end module m_lmfa

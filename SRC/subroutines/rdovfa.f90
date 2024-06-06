@@ -423,11 +423,10 @@ contains
     enddo
     rho1=rho2
 !!!!!!!!!!!!!!!!!!!!
-       block
-         use m_density,only: orhoat
-         write(6,*)'rrrrrrdensity111222xxx',sum(rho1),sum(abs(rho1)),sum(abs(acof)),sum(abs(pkl))
-       endblock
-!       stop
+!       block
+!         use m_density,only: orhoat
+!         write(6,*)'rrrrrrdensity111222xxx',sum(rho1),sum(abs(rho1)),sum(abs(acof)),sum(abs(pkl))
+!       endblock
 !!!!!!!!!!!!!!!!!!!!    
     do   i = 1, nr ! ... Make the true density in rho1, smooth density in rho2     !call dpcopy(rho2,rho1,1,nr*nlml*nsp,1d0)
        rho1(i,1,:) = rho1(i,1,:) + y0*rhofa(i,:)

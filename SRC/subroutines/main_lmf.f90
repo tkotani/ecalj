@@ -124,7 +124,7 @@ contains
     MainRoutine: block
       call lmfp(jobgw==1) 
     endblock MainRoutine
-    if(master_mpi) write(stdo,*)"OK! end of "//trim(prgnam)//" ======================"
+    if(master_mpi) write(stdo,"(a)")"OK! end of "//trim(prgnam)//" ======================"
   end subroutine lmf
 end module m_lmf
 
