@@ -309,7 +309,15 @@ complex(8) function alagr3zz(x,xi,fi)
 ENDfunction alagr3zz
 ! sssssssssssssssssssssssssssssssssssssssssssssssssssss
 subroutine timeshow(info)
+#ifdef __GPU
+    use cudafor
+#endif 
   character*(*) :: info
+#ifdef __GPU
+    integer :: ierr
+    ierr = cudadevicesynchronize() 
+#endif 
   write(6,'(a,$)')info
   call cputid(0)
+  call flush(6)
 end subroutine timeshow

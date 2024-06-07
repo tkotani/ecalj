@@ -211,6 +211,7 @@ subroutine hsfp0_sc()
       if(exchange)      call sxcf_scz_exchange_gpu   (ef,esmr,ixc,nspinmx) !main part of job
       if(.not.exchange) call sxcf_scz_correlation_gpu(ef,esmr,ixc,nspinmx) !main part of job
     else
+      write(stdo,ftox)'GPU mode OFF:Original'
       if(exchange)      call sxcf_scz_exchange   (ef,esmr,ixc,nspinmx) !main part of job
       if(.not.exchange) call sxcf_scz_correlation(ef,esmr,ixc,nspinmx) !main part of job
     endif

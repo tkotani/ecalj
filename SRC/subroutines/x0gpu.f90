@@ -1,9 +1,10 @@
 !>Accumulating rxcq
 subroutine x0gpu(rcxq, npr, ipr_col, npr_col, nwhis, npm) 
-  use m_kind,only: kindrcxq
+  use m_kind, only: kp => kindrcxq
   use m_mpi, only: comm_b, mpi__rank_b, mpi__size_b
-  use m_x0kf,only: icounkmink, icounkmaxk, iwini, iwend, itc, itpc, jpmc, icouini, whwc
-  use m_blas, only: m_op_c, m_op_n, m_op_t, zmm, zmm_batch !CPU or GPU versions specifed by macro __GPU
+  use m_x0kf, only: icounkmink, icounkmaxk, iwini, iwend, itc, itpc, jpmc, icouini, whwc
+  use m_blas, only: m_op_c, m_op_n, m_op_t
+  use m_blas, only: gemm => zmm
   use m_zmel, only: zmel
 #ifdef __GPU
   use openacc
@@ -12,10 +13,11 @@ subroutine x0gpu(rcxq, npr, ipr_col, npr_col, nwhis, npm)
   !$ use omp_lib
   implicit none
   integer, intent(in) :: npr, ipr_col, npr_col, nwhis, npm
-  complex(kindrcxq), intent(inout) :: rcxq(npr,npr_col,nwhis,npm) !accumulating to rcxq
+  complex(kind=kp), intent(inout) :: rcxq(npr,npr_col,nwhis,npm) !accumulating to rcxq
   integer :: icoun, igb1, igb2, iw, jpm, it, itp, ittp, nttp_max, ierr
   integer, allocatable :: nttp(:,:),  itw(:,:,:), itpw(:,:,:)
-  complex(8), allocatable :: zw(:,:), wzw(:,:)
+  complex(kind=kp), allocatable :: zw(:,:), wzw(:,:)
+  complex(kind=kp), parameter :: CONE = (1_kp, 0_kp)
   real(8), allocatable :: whw(:,:,:)
 #ifdef __GPU
   attributes(device) :: zw, wzw
@@ -51,7 +53,6 @@ subroutine x0gpu(rcxq, npr, ipr_col, npr_col, nwhis, npm)
   !$acc host_data use_device(rcxq)
   !$acc data copyin(whw, itw, itpw, zmel)
   do jpm = 1, npm
-    !!$omp parallel do private(iw, ittp, igb1, it, itp, zw, wzw) shared(rcxq) schedule(dynamic,10) 
     do iw = 1, nwhis
       if (nttp(iw,jpm) < 1) cycle
       !$acc kernels loop independent collapse(2)
@@ -62,7 +63,6 @@ subroutine x0gpu(rcxq, npr, ipr_col, npr_col, nwhis, npm)
         enddo
       enddo
       !$acc end kernels
-
       !$acc kernels loop independent collapse(2)
       do ittp = 1, nttp(iw,jpm)
         do igb2 = 1, npr_col
@@ -71,11 +71,9 @@ subroutine x0gpu(rcxq, npr, ipr_col, npr_col, nwhis, npm)
         enddo
       enddo
       !$acc end kernels
-
-      ierr = zmm(zw, wzw, rcxq(1,1,iw,jpm), npr, npr_col, nttp(iw,jpm), &
-              &  opA = m_op_C, beta = (1d0,0d0), ldA = nttp_max, ldB = nttp_max)
+      ierr = gemm(zw, wzw, rcxq(1,1,iw,jpm), npr, npr_col, nttp(iw,jpm), &
+              &  opA = m_op_C, beta = CONE , ldA = nttp_max, ldB = nttp_max)
     enddo
-    !!$omp end parallel do
   enddo
   !$acc end data
   !$acc end host_data

@@ -73,8 +73,8 @@ if(FC MATCHES "gfortran")
 elseif(FC MATCHES "ifort-openmpi-kugui")
   set(CMAKE_Fortran_COMPILER ifort) # compiler
   set(CMAKE_Fortran_FLAGS "-I/home/app/openmpi/intel/4.1.6/include -I/home/app/openmpi/intel/4.1.6/lib -L/home/app/openmpi/intel/4.1.6/lib -Wl,-rpath -Wl,/home/app/openmpi/intel/4.1.6/lib -Wl,--enable-new-dtags -lmpi_usempif08 -lmpi_usempi_ignore_tkr -lmpi_mpifh -lmpi -cpp -init:snan -fpic -assume byterecl -g -traceback") # compile flags
-  set(LIBM  -qmkl=sequential) 
-  add_link_options(-qmkl=sequential)
+  set(LIBM  -qmkl=parallel) 
+  add_link_options(-qmkl=parallel)
 elseif(FC MATCHES "ifort")
   set(CMAKE_Fortran_COMPILER mpiifort) # compiler
   set(CMAKE_Fortran_FLAGS "-cpp -init:snan -fpic -assume byterecl") # compile flags
@@ -121,6 +121,8 @@ elseif(FC MATCHES "ifort")
   foreach(target IN ITEMS ${SOURCES})
     if(${target} MATCHES "../subroutines/m_qplist.f90")# OR ${target} MATCHES "../subroutines/m_bzintegration2.f90" )
       set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O0")
+    elseif(${target} MATCHES "../subroutines/m_blas_kind8.f90" OR ${target} MATCHES "../subroutines/m_sxcf_gpu.f90" )# OR ${target} MATCHES "../subroutines/m_bzintegration2.f90" )
+      set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O3")
     else()
       set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O2")
     endif()

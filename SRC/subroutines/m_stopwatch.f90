@@ -13,7 +13,7 @@ module m_stopwatch !M.Obata 2024/04/21
     !   procedure :: start => stopwatch_start
     !   procedure :: pause => stopwatch_pause
     !   procedure :: show => stopwatch_show
-    !   procedure :: setname=> stopwatch_init
+    !   procedure :: setname => stopwatch_init
     !   procedure :: reset => stopwatch_reset
   end type stopwatch
 

@@ -1,18 +1,18 @@
 module m_sxcf_gpu
-  use m_readeigen,only: Readeval
-  use m_zmel,only : get_zmel_init => get_zmel_init_gpu, Setppovlz, zmel, nbb
-  use m_itq,only: itq, ntq, nbandmx
-  use m_genallcf_v3,only: nlmto, nspin, nctot, niw, ecore !,symgg
-  use m_read_bzdata,only: qibz, qbz, wk=>wbz, nqibz, nqbz, wklm, lxklm, wqt=>wt
-  use m_readVcoud,only: Readvcoud, vcoud, ngb, ngc
-  use m_readfreq_r,only: freq_r, nw_i, nw, freqx, wx=>wwx, nblochpmx, mrecl, expa_, npm
-  use m_readhbe,only: nband
-  use m_readgwinput,only: ua_, corehole, wcorehole
+  use m_readeigen, only: Readeval
+  use m_zmel, only: get_zmel_init => get_zmel_init_gpu, Setppovlz, zmel, nbb
+  use m_itq, only: itq, ntq, nbandmx
+  use m_genallcf_v3, only: nlmto, nspin, nctot, niw, ecore !,symgg
+  use m_read_bzdata, only: qibz, qbz, wk=>wbz, nqibz, nqbz, wklm, lxklm, wqt=>wt
+  use m_readVcoud, only: Readvcoud, vcoud, ngb, ngc
+  use m_readfreq_r, only: freq_r, nw_i, nw, freqx, wx=>wwx, nblochpmx, mrecl, expa_, npm
+  use m_readhbe, only: nband
+  use m_readgwinput, only: ua_, corehole, wcorehole
   use m_ftox
-  use m_lgunit,only:stdo
+  use m_lgunit, only: stdo
   use m_sxcf_count,only: kxc, nstti, nstte, nstte2, nwxic, nwxc, icountini, icountend, irkip
-  use m_nvfortran,only:findloc
-  use m_hamindex,only: ngrp
+  use m_nvfortran, only: findloc
+  use m_hamindex, only: ngrp
   use m_blas, only: m_op_c, m_op_n, m_op_t
   use m_blas, only: gemm => zmm, gemm_batch => zmm_batch
   use m_kind, only: kp => kindgw
@@ -126,12 +126,11 @@ contains
               nwxi = nwxic(icount)  !minimum omega for W
               nwx = nwxc(icount)   !max omega for W
               ns2r = nstte2(icount) !Range of middle states [ns1:ns2r] for CorrelationSelfEnergyRealAxis
-              ! if(timemix) call timeshow(" Start of Get_zmel_init:")
+              if(timemix) call timeshow(" Start of Get_zmel_init:")
               call get_zmel_init(q, qibz_k, irot, qbz_kr, ns1, ns2, isp, 1, ntqxx, isp, nctot, ncc=0, iprx=debug, zmelconjg=.false.)
-              ! if(timemix) call timeshow(" End of Get_zmel_init:")
-              write(06,ftox) 'ns1,ns2,ntqxx,ngb:',ns1,ns2,ntqxx, ngb
+              if(timemix) call timeshow(" End of Get_zmel_init:")
               call get_correlation(ef, esmr, ns1, ns2, ns2r, nwxi, nwx, zsecall(1,1,ip,isp))
-              if(timemix) call timeshow(" End of CorrelationSelfEnergy:")
+              if(timemix) call timeshow("   end icount")
             enddo NMBATCHloop
           enddo isploopexternal
         enddo iploopexternal
@@ -188,6 +187,7 @@ contains
     complex(kind=kp), intent(inout) :: zsec(ntq,ntq)
     real(8), parameter :: wfaccut=1d-8
     complex(kind=kp), parameter :: img=(0_kp,1_kp)
+    complex(kind=kp) :: beta
     complex(kind=kp), allocatable :: czmelwc(:,:,:)
     integer :: it, itp, iw, ierr, i
     complex(kind=kp), allocatable :: wv(:,:), wc(:,:)
@@ -234,9 +234,8 @@ contains
           wgtim(:,itp,it)= wkkr*wgtim_ !! Integration weight wgtim along im axis for zwz(0:niw*npm)
         enddo 
       enddo 
-      ! if(timemix) call timeshow(" End of makeing wgtim:")
-      allocate(wzmel(1:ngb,ns1:ns2,1:ntqxx))
-      allocate(czwc(ns1:ns2,1:ntqxx,1:ngb), source = cmplx(0,0,kind=kp))
+      allocate(wzmel(1:ngb,ns1:ns2,1:ntqxx), czwc(ns1:ns2,1:ntqxx,1:ngb))
+
       !$acc data copyin(wgtim, zmel)
       iwimag:do iw = 0, niw !niw is ~10. ixx=0 is for omega=0 nw_i=0 (Time reversal) or nw_i =-nw
         if(emptyrun) cycle
@@ -248,7 +247,6 @@ contains
           if(iw>0) read(ifrcwi,rec=iw) wv ! direct access read Wc(i*omega)=W(i*omega)-v
           wc = wv
         endif
-        ! if(timemix) call timeshow(" End of CorrelationSelfEnergy_READ")
         !$acc kernels loop independent collapse(2)
         do itp = 1, ntqxx
           do it = ns1, ns2
@@ -256,14 +254,15 @@ contains
           enddo
         enddo
         !$acc end kernels
-        ! if(timemix) call timeshow(" End of CorrelationSelfEnergy_WZMEL")
         !the most time-consuming part in the correlation part
-        ierr = gemm(wzmel, wc, czwc, (ns2-ns1+1)*ntqxx, ngb, ngb, opA = m_op_c, beta = CONE, ldB = nblochpmx)
-        ! if(timemix) call timeshow(" End of CorrelationSelfEnergy_IW")
+        beta = CONE
+        if(iw == 0) beta = CZERO
+        ierr = gemm(wzmel, wc, czwc, (ns2-ns1+1)*ntqxx, ngb, ngb, opA = m_op_c, beta = beta, ldB = nblochpmx)
       enddo iwimag
+
       !$acc end data
       deallocate(wzmel)
-      allocate(czmelwc(1:nbb,ns1:ns2,1:ntqxx), source = cmplx(0,0,kind=kp)) !same size with zmel
+      allocate(czmelwc(1:nbb,ns1:ns2,1:ntqxx)) !same size with zmel
       !$acc kernels loop independent
       do igb = 1, ngb
         czmelwc(igb,ns1:ns2,1:ntqxx) = czwc(ns1:ns2,1:ntqxx,igb)
@@ -271,7 +270,7 @@ contains
       !$acc end kernels
       deallocate(czwc)
     EndBlock CorrelationSelfEnergyImagAxis
-    ! if(timemix) call timeshow(" End of CorrelationSelfEnergyImagAxis:")
+    if(timemix) call timeshow(" End of CorrelationSelfEnergyImagAxis:")
 
     CorrelationSelfEnergyRealAxis: Block !Real Axis integral. Fig.1 PHYSICAL REVIEW B 76, 165106(2007)
       use m_wfac, only: wfacx2, weavx2
@@ -335,7 +334,7 @@ contains
           !$acc end kernels
         else
           read(ifrcw,rec=iw-nw_i+1) wv
-          wc = (wv + transpose(dconjg(wv)))*0.5d0
+          wc = (wv + transpose(dconjg(wv)))*0.5d0  !copy to GPU
         endif
         !$acc kernels loop independent
         do ittp = 1, nttp(iw) 
@@ -354,13 +353,13 @@ contains
       !$acc end data
       deallocate(wz_iw, czwc_iw)
     EndBlock CorrelationSelfEnergyRealAxis
-    ! if(timemix) call timeshow(" End of CorrelationSelfEnergyRealAxis:")
+    if(timemix) call timeshow(" End of CorrelationSelfEnergyRealAxis:")
     !$acc host_data use_device(zmel, zsec)
     ierr = gemm(czmelwc, zmel, zsec, ntqxx, ntqxx, nbb*(ns2-ns1+1), opA = m_op_T, beta = CONE, ldC = ntq)
     !$acc end host_data
     !$acc kernels loop independent
     do itp = 1, ntqxx
-      zsec(itp,itp)=dreal(zsec(itp,itp))+img*min(dimag(zsec(itp,itp)),0d0) !enforce Imzsec<0
+      zsec(itp,itp) = dreal(zsec(itp,itp))+img*min(dimag(zsec(itp,itp)),0d0) !enforce Imzsec<0
     enddo
     !$acc end kernels
     deallocate(wv, wc, czmelwc)
@@ -384,14 +383,14 @@ contains
     allocate(wv(nblochpmx, nblochpmx), wvi(nblochpmx,nblochpmx,niw))
     do iw = 1, niw
       read(ifrcwi,rec=iw) wv(:,:)
-      wvi(:,:,iw) = wv
+      wvi(:,:,iw) = wv !send to GPU
     enddo
     allocate(wvr(nblochpmx,nblochpmx,nw_i:nw))
     do iw = nw_i, nw
       read(ifrcw,rec=iw-nw_i+1) wv
       wvr(:,:,iw) = wv
     enddo
-    write(stdo, '(X,A,2F6.3)') 'WVI/WVR : sizes (GB)', dble(size(wvi))*kp*2/gb, dble(size(wvr))*kp*2/gb
+    write(stdo, '(X,A,2F8.3)') 'WVI/WVR : sizes (GB)', dble(size(wvi))*kp*2/gb, dble(size(wvr))*kp*2/gb
     deallocate(wv)
   end subroutine
 

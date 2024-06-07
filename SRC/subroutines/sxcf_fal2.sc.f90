@@ -79,7 +79,7 @@ module m_sxcf_main
   use m_readqg,only   : Readqg0
   use m_readeigen,only: Readeval
   use m_keyvalue,only   : Getkeyvalue
-  use m_zmel,only : Get_zmel_init, Setppovlz,  zmel !Setppovlz_chipm,
+  use m_zmel,only : Get_zmel_init => get_zmel_init_gpu, Setppovlz,  zmel !Setppovlz_chipm,
   use m_itq,only: itq,ntq,nbandmx
   use m_genallcf_v3,only: nlmto,nspin,nctot,niw,ecore !,symgg
   use m_read_bzdata,only: qibz,qbz,wk=>wbz,nqibz,nqbz,wklm,lxklm,nq0i, wqt=>wt,q0i, irk
@@ -111,7 +111,7 @@ contains
     character(10) :: i2char
     real(8),parameter :: wfaccut=1d-8,tolq=1d-8, pi=4d0*datan(1d0), fpi=4d0*pi, tpi=8d0*datan(1d0),ddw=10d0
     complex(8), parameter :: img=(0d0,1d0)
-    logical,parameter :: debug=.false.,timemix=.false.
+    logical,parameter :: debug=.false.,timemix=.true.
     complex(8),allocatable,target:: zwz(:,:,:),zw(:,:)
     real(8),allocatable:: we_(:,:),wfac_(:,:)
     complex(8),allocatable:: w3p(:),wtff(:)
@@ -185,7 +185,7 @@ contains
     character(10) :: i2char
     real(8),parameter :: wfaccut=1d-8,tolq=1d-8, pi=4d0*datan(1d0), fpi=4d0*pi, tpi=8d0*datan(1d0),ddw=10d0
     complex(8), parameter :: img=(0d0,1d0)
-    logical,parameter :: debug=.false.,timemix=.false.
+    logical,parameter :: debug=.false.,timemix=.true.
     complex(8),allocatable,target:: zwz(:,:,:),zw(:,:)
     real(8),allocatable:: we_(:,:),wfac_(:,:)
     complex(8),allocatable:: w3p(:),wtff(:)

@@ -293,9 +293,10 @@ contains
   subroutine get_zmel_init_gpu(q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc, iprx,zmelconjg, comm)
     use m_readeigen,only: readcphif 
     use m_readeigen,only: readgeigf
-    use m_itq,only: itq,ntq
-    use m_stopwatch
-    use m_blas, only: m_op_c, m_op_n, m_op_t, int_split, zmm, zmm_batch !CPU or GPU versions specifed by macro __GPU
+    use m_itq,only: itq, ntq
+    use m_kind, only: kp => kindgw
+    use m_blas, only: m_op_c, m_op_n, m_op_t, int_split
+    use m_blas, only: gemm => zmm, gemm_batch => zmm_batch
   #ifdef __GPU
     use openacc, only: acc_is_present
   #endif
@@ -303,10 +304,10 @@ contains
     include "mpif.h"
     intent(in)::           q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc, iprx,zmelconjg
     integer, optional, intent(in) :: comm
-    real(8),parameter::tolq=1d-8
-    complex(8),parameter:: img=(0d0,1d0),tpi= 8d0*datan(1d0)
-    integer:: isp,ns1,ns2,nqmax,irot,ispq,ispm,nqini, nctot,ncc,ncnv,ncorec,nccc,mdim
-    integer:: it,ia,kx,verbose,nstate,ispqk
+    real(8), parameter::tolq=1d-8
+    complex(8), parameter:: img=(0d0,1d0),tpi= 8d0*datan(1d0)
+    integer:: ns1, ns2, nqmax, irot, ispq, ispm, nqini, nctot, ncc, ncnv, ncorec, nccc, mdim
+    integer:: it, ia
     integer:: ngp1, ngp2, ngvecpB1(3,ngpmx),ngvecpB2(3,ngpmx),nadd(3)
     integer:: i,iap,ias,ib,ic,icp,nc,nc1,nv,ics,itp,iae,ims,ime
     real(8):: quu(3),q(3), kvec(3),rkvec(3),qkt(3),qt(3), qdiff(3)
@@ -323,7 +324,7 @@ contains
     integer :: ierr
     integer :: nqini_rank, nqmax_rank, ntp0_rank 
     integer :: mpi_rank, mpi_size, ini_index, end_index, num_index, mpi_info, irank
-    type(stopwatch) :: sw_bcast, sw_zmel
+    complex(kind=kp), parameter :: CONE = (1_kp, 0_kp), CZERO = (0_kp, 0_kp)
 #ifdef __GPU
     attributes(device) :: ppb
 #endif
@@ -394,15 +395,15 @@ contains
       endif
     end block SetByCPU
 
-    ! call stopwatch_init(sw_bcast,'zme:bcast')
-    ! call stopwatch_init(sw_zmel,'zme:calc')
-    ! call stopwatch_start(sw_zmel)
     ZmelBlock:block
       complex(8), allocatable :: zmelt_d(:,:,:), zmelt(:,:,:)
 #ifdef __GPU
       attributes(device) :: zmelt, zmelt_d
 #endif
-      allocate(zmelt(1:nbloch+ngc,1:nmtot,1:nqtot), source = 0d0)
+      allocate(zmelt(1:nbloch+ngc,1:nmtot,1:nqtot))
+!$acc kernels
+      zmelt(1:nbloch+ngc,1:nmtot,1:nqtot) = czero
+!$acc end kernels
       ZmelWithinMT: block !- Calculates <psi_q(itp) |psi_qk(it) B_k(rot(r-R))> 
         complex(8):: phasea(natom) 
         complex(8), allocatable :: ppbvphiq_d(:,:,:), cphim_d(:,:), cphiq_d(:,:), ppbc_d(:,:,:), ppbv_d(:,:,:)
@@ -439,8 +440,8 @@ contains
             ppbv_d(1:nv,1:nv,1:mdim) = dcmplx(ppb(nc1:ncnv,nc1:ncnv,1:mdim,icp)) 
             !$acc end kernels
 
-            ierr = zmm_batch(ppbv_d, cphiq_d, ppbvphiq_d, nv, ntp0, nv, mdim, opA = m_op_T, sameB = .true.)
-            ierr = zmm_batch(cphim_d, ppbvphiq_d, zmelt_d, nt0, ntp0, nv, mdim, alpha = phasea(ia), opA = m_op_C, sameA = .true.)
+            ierr = gemm_batch(ppbv_d, cphiq_d, ppbvphiq_d, nv, ntp0, nv, mdim, opA = m_op_T, sameB = .true.)
+            ierr = gemm_batch(cphim_d, ppbvphiq_d, zmelt_d, nt0, ntp0, nv, mdim, alpha = phasea(ia), opA = m_op_C, sameA = .true.)
             !$acc kernels
             do i = 1, mdim
               zmelt(i-1+ims,nctot+1:nctot+nt0,ncc+1:ncc+ntp0) = zmelt_d(1:nt0,1:ntp0,i)
@@ -456,7 +457,7 @@ contains
               ppbc_d(i,1:nv,1:ncorec) = dcmplx(ppb(nc1:ncnv,1:ncorec,i,icp))
             enddo
             !$acc end kernels
-            ierr = zmm_batch(ppbc_d, cphiq_d, zmelt_d, mdim, ntp0, nv, ncorec, alpha = phasea(ia), sameB = .true.)
+            ierr = gemm_batch(ppbc_d, cphiq_d, zmelt_d, mdim, ntp0, nv, ncorec, alpha = phasea(ia), sameB = .true.)
             !$acc kernels
             do it = 1, ncorec
               zmelt(ims:ime,ics+it,ncc+1:ncc+ntp0) = zmelt_d(1:mdim,1:ntp0,it)
@@ -475,7 +476,7 @@ contains
               ppbc_d(i,1:nv,1:nccc) = dcmplx(ppb(nc1:ncnv,1:nccc,i,icp))
             enddo
             !$acc end kernels
-            ierr = zmm_batch(ppbc_d, cphim_d, zmelt_d, mdim, nt0, nv, nccc, alpha = phasea(ia), sameB = .true.)
+            ierr = gemm_batch(ppbc_d, cphim_d, zmelt_d, mdim, nt0, nv, nccc, alpha = phasea(ia), sameB = .true.)
             !$acc kernels
             do itp = 1, nccc
               zmelt(ims:ime,nctot+1:nctot+nt0,ics+itp) = zmelt_d(1:mdim,1:nt0,itp)
@@ -493,14 +494,14 @@ contains
       if(ngc/=0 .and. nt0 > 0)then
         ZmelIPW:block  !> Mattrix elements <Plane psi |psi> from interstitial plane wave.
           use m_read_ppovl,only: igggi,igcgp2i,nxi,nxe,nyi,nye,nzi,nze,nvgcgp2,ngcgp,ggg,ppovlinv,nnxi,nnxe, nnyi,nnye,nnzi,nnze,nggg
-          integer:: igcgp2,nn(3),iggg,igp1,itp,igc,igp2,igcgp2i_(ngc,ngp2)
-          complex(8):: zmelp0(ngc,nt0,ntp0),phase(ngc) , ggitp(ngcgp,ntp0),gggmat(ngcgp,ngp1)
-          complex(8):: ggitp_work(ngc, ngp2)
-
+          integer:: igcgp2,nn(3), iggg, igp1, itp, igc, igp2, igcgp2i_(ngc,ngp2)
+          complex(8):: zmelp0(ngc,nt0,ntp0),phase(ngc), ggitp(ngcgp,ntp0), gggmat(ngcgp,ngp1), ggitp_work(ngc, ngp2)
+#ifdef __GPU
+          attributes(device) :: zmelp0, ggitp, gggmat, ggitp_work, igcgp2i_, nn
+#endif
           phase(:)=[(exp( -img*tpi*sum((matmul(symope,kvec)+matmul(qlat,ngveccR(:,igc)))*shtv) ),igc=1,ngc)]  !prepared by CPU
           !$acc data copyin(dgeigqk, geigq, phase, ngvecpB1, ngvecpB2, ngveccR, nadd, ggg(1:nggg), nvgcgp2(1:3,1:ngcgp), &
-          !$acc             igggi(nxi:nxe,nyi:nye,nzi:nze), igcgp2i(nnxi:nnxe,nnyi:nnye,nnzi:nnze), ppovlinv(1:ngc,1:ngc)) &
-          !$acc      create(zmelp0, nn, gggmat, igcgp2i_, ggitp, ggitp_work)
+          !$acc             igggi(nxi:nxe,nyi:nye,nzi:nze), igcgp2i(nnxi:nnxe,nnyi:nnye,nnzi:nnze), ppovlinv(1:ngc,1:ngc))
           !$acc kernels loop independent collapse(2)
           do igcgp2 = 1, ngcgp
             do igp1 =1, ngp1
@@ -519,7 +520,7 @@ contains
             enddo
           enddo
           !$acc end kernels
-          ierr = zmm(gggmat, geigq(1,itq(nqini_rank)), ggitp, ngcgp, ntp0, ngp1, ldB = ngpmx)
+          ierr = gemm(gggmat, geigq(1,itq(nqini_rank)), ggitp, ngcgp, ntp0, ngp1, ldB = ngpmx)
 
           do itp = 1, ntp0
             !$acc kernels loop independent collapse(2)
@@ -529,16 +530,15 @@ contains
               enddo
             enddo
             !$acc end kernels
-            ierr = zmm(ggitp_work, dgeigqk(1,nmini), zmelp0(1,1,itp), ngc, nt0, ngp2, ldB = ngpmx)
+            ierr = gemm(ggitp_work, dgeigqk(1,nmini), zmelp0(1,1,itp), ngc, nt0, ngp2, ldB = ngpmx)
           enddo
-
           !$acc kernels
           do igc = 1, ngc
             zmelp0(igc,1:nt0,1:ntp0) = phase(igc)*zmelp0(igc,1:nt0,1:ntp0)
           enddo
           !$acc end kernels
           allocate(zmelt_d(ngc,nt0,ntp0))
-          ierr = zmm(ppovlinv, zmelp0, zmelt_d, ngc, ntp0*nt0, ngc) 
+          ierr = gemm(ppovlinv, zmelp0, zmelt_d, ngc, ntp0*nt0, ngc) 
           !$acc kernels
           zmelt(nbloch+1:nbloch+ngc,nctot+1:nctot+nt0,ncc+1:ncc+ntp0) = zmelt_d(1:ngc,1:nt0,1:ntp0)
           !$acc end kernels
@@ -551,12 +551,10 @@ contains
 
       !$acc host_data use_device(zmel)
       !$acc data copyin(ppovlz(1:ngb,1:nbb))
-      ierr = zmm(ppovlz, zmelt, zmel(1,ns1,1), nbb, nmtot*ncc, ngb, opA = m_op_C)
-      ierr = zmm(ppovlz, zmelt, zmel(1,ns1,ncc+ini_index), nbb, nmtot*ntp0, ngb, opA = m_op_C)
+      ierr = gemm(ppovlz, zmelt, zmel(1,ns1,1), nbb, nmtot*ncc, ngb, opA = m_op_C)
+      ierr = gemm(ppovlz, zmelt, zmel(1,ns1,ncc+ini_index), nbb, nmtot*ntp0, ngb, opA = m_op_C)
       !$acc end data
       !$acc end host_data
-      ! call stopwatch_pause(sw_zmel)
-      ! call stopwatch_start(sw_bcast)
       if (present(comm)) then
         block
           integer, allocatable :: data_disp(:), data_size(:)
@@ -588,9 +586,6 @@ contains
           deallocate(zmel_buf, data_size, data_disp)
         end block
       endif
-      ! call stopwatch_pause(sw_bcast)
-      ! call stopwatch_show(sw_zmel)
-      ! call stopwatch_show(sw_bcast)
       if(zmelconjg) then
         !$acc kernels
         zmel = dconjg(zmel)
