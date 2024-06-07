@@ -130,6 +130,11 @@ contains
        call rxx(ier.ne.0, 'zhev_tk4: zhegvx cannot find all eigen.')
        deallocate(work,iwork,rwork)
     endif
+    phaselock: block ! a phaselock for continuity of evec as for ham and ovl. Phase of evec is paralell to (1,1,1,...1)*ovl^-1 
+      integer::iev !z-->evec
+      complex(8),parameter::img=(0d0,1d0)
+      forall(iev=1:nev) z(:,iev)=z(:,iev)*exp(-img*dimag(log(sum(z(:,iev)))))
+    endblock phaselock
     call tcx('zhev_tk4')
   end subroutine zhev_tk4
   subroutine zhev_tk2(n,h,s,nmx,nev, e,z)
