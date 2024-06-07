@@ -15,16 +15,8 @@ contains
     logical, intent(in), optional :: set_ppbir_in_gpu
     if(present(set_ppbir_in_gpu)) then
       if(set_ppbir_in_gpu .and. .not.has_ppbir_in_gpu) then !ppbir is set in mptauof_zmel
-        block
-          integer :: nlnmx, mdimx, nclass, ng, nspin
-          nlnmx = size(ppbir,1)
-          mdimx = size(ppbir,3)
-          nclass = size(ppbir,4)
-          ng = size(ppbir,5)
-          nspin = size(ppbir,6)
-          !$acc enter data copyin(ppbir(1:nlnmx,1:nlnmx,1:mdimx,1:nclass,1:ng,1:nspin))
-          has_ppbir_in_gpu = .true.
-        end block
+        !$acc enter data copyin(ppbir)
+        has_ppbir_in_gpu = .true.
       endif
     endif
   end subroutine
@@ -38,7 +30,7 @@ contains
     logical, intent(in), optional :: set_ppovlz_in_gpu, set_vcoud_in_gpu
     if(present(set_ppovlz_in_gpu)) then
       if(set_ppovlz_in_gpu .and. .not.has_ppovlz_in_gpu) then  !ppovlz is set in setppovlz
-        !$acc enter data copyin(ppovlz(1:ngb,1:ngb))
+        !$acc enter data copyin(ppovlz)
         has_ppovlz_in_gpu = .true.
       endif
     endif

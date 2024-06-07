@@ -22,7 +22,7 @@ module m_sxcf_gpu
   private
   real(8), parameter :: pi = 4d0*datan(1d0), fpi = 4d0*pi
   logical, parameter :: timemix = .true.
-  complex(kind=kp), parameter :: CONE = (1_kp, 0_kp)
+  complex(kind=kp), parameter :: CONE = (1_kp, 0_kp), CZERO = (0_kp, 0_kp)
   integer :: kx, irot, ip, isp, ntqxx, nt0p, nt0m, ifrcw, ifrcwi 
   real(8) :: wkkr
   integer, allocatable :: ndiv(:), nstatei(:,:), nstatee(:,:)
@@ -47,6 +47,9 @@ contains
     allocate(zsecall(ntq,ntq,nqibz,nspinmx),source=(0d0,0d0)) 
 
     !$acc data copyout(zsecall)
+    !$acc kernels
+      zsecall(1:ntq,1:ntq,1:nqibz,1:nspinmx) = CZERO
+    !$acc end kernels
     kxloop: do kx=1, nqibz                         ! kx is irreducible !kx is main axis where we calculate W(kx).
       qibz_k = qibz(:,kx)
       call Readvcoud(qibz_k, kx, NoVcou=.false.)   !Readin ngc,ngb,vcoud ! Coulomb matrix
@@ -94,6 +97,9 @@ contains
     allocate(zsecall(ntq,ntq,nqibz,nspinmx),source=(0d0,0d0)) 
 
     !$acc data copyout(zsecall)
+    !$acc kernels
+      zsecall(1:ntq,1:ntq,1:nqibz,1:nspinmx) = CZERO
+    !$acc end kernels
     kxloop: do kx=1, nqibz                         ! kx is irreducible !kx is main axis where we calculate W(kx).
       qibz_k = qibz(:,kx)
       call Readvcoud(qibz_k, kx, NoVcou=.false.)   !Readin ngc,ngb,vcoud ! Coulomb matrix

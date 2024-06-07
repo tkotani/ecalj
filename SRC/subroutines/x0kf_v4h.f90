@@ -145,7 +145,7 @@ contains
     if(chipm .AND. nolfco) then; call setppovlz_chipm(zzr,npr)
     else;                        call setppovlz(q,matz=.true.,npr=npr)!2024-5-23 obata. A minor bug to consume memory: Set npr=1 for EPSPP0 mode(no lfc)
     endif
-    call SetDataGPU_inkx(set_ppovlz_in_gpu = .true.)
+    call SetDataGPU_inkx(set_ppovlz_in_gpu = .false.)
     isloop: do 1103 isp_k = 1,nsp
       GETtetrahedronWeight:block
         isp_kq = merge(3-isp_k,isp_k,chipm) 
@@ -166,7 +166,7 @@ contains
         complex(8):: img=(0d0,1d0)
         logical,parameter:: debug=.false.
         if(.not.allocated(rcxq)) then
-           allocate( rcxq(npr,npr_col,nwhis,npm))
+           allocate(rcxq(npr,npr_col,nwhis,npm))
            rcxq=0d0
            if(GPUTEST) then
              write(stdo,ftox)'GPU mode ON: size of rcxq:', npr, npr_col, nwhis, npm
@@ -249,6 +249,8 @@ contains
           call stopwatch_init(t_sw_x0, 'x0_original')
           kloop10:do 1510 k=1,nqbz !zmel = < M(igb q) phi( rk it occ)|  phi(q+rk itp unocc)>
             if(mod(k-1, mpi__size_k) /= mpi__rank_k)  cycle
+            write(6,*) 'k, mpi__rank_k', k, mpi__rank_k
+            call flush(6)
 
             call stopwatch_start(t_sw_zmel)
             if(cmdopt0('--emptyrun')) cycle

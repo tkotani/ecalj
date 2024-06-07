@@ -296,6 +296,9 @@ contains
     use m_itq,only: itq,ntq
     use m_stopwatch
     use m_blas, only: m_op_c, m_op_n, m_op_t, int_split, zmm, zmm_batch !CPU or GPU versions specifed by macro __GPU
+  #ifdef __GPU
+    use openacc, only: acc_is_present
+  #endif
     implicit none
     include "mpif.h"
     intent(in)::           q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc, iprx,zmelconjg
@@ -326,7 +329,11 @@ contains
 #endif
 
     if(allocated(zmel)) then
-      !$acc exit data delete(zmel)
+#ifdef __GPU
+       if(acc_is_present(zmel, size(zmel))) then
+         !$acc exit data delete(zmel)
+       endif
+#endif
       deallocate(zmel)
     endif
 
@@ -391,14 +398,11 @@ contains
     ! call stopwatch_init(sw_zmel,'zme:calc')
     ! call stopwatch_start(sw_zmel)
     ZmelBlock:block
-      complex(8):: zmelt(1:nbloch+ngc,nmtot,nqtot)
-      complex(8), allocatable :: zmelt_d(:,:,:)
+      complex(8), allocatable :: zmelt_d(:,:,:), zmelt(:,:,:)
 #ifdef __GPU
       attributes(device) :: zmelt, zmelt_d
 #endif
-      !$acc kernels
-      zmelt=0d0
-      !$acc end kernels
+      allocate(zmelt(1:nbloch+ngc,1:nmtot,1:nqtot), source = 0d0)
       ZmelWithinMT: block !- Calculates <psi_q(itp) |psi_qk(it) B_k(rot(r-R))> 
         complex(8):: phasea(natom) 
         complex(8), allocatable :: ppbvphiq_d(:,:,:), cphim_d(:,:), cphiq_d(:,:), ppbc_d(:,:,:), ppbv_d(:,:,:)
@@ -495,7 +499,7 @@ contains
 
           phase(:)=[(exp( -img*tpi*sum((matmul(symope,kvec)+matmul(qlat,ngveccR(:,igc)))*shtv) ),igc=1,ngc)]  !prepared by CPU
           !$acc data copyin(dgeigqk, geigq, phase, ngvecpB1, ngvecpB2, ngveccR, nadd, ggg(1:nggg), nvgcgp2(1:3,1:ngcgp), &
-          !$acc             igggi(nxi:nxe,nyi:nye,nzi:nze), igcgp2i(nnxi:nnxe,nnyi:nnye,nnzi:nnze), ppovlinv(1:ngb,1:nbb)) &
+          !$acc             igggi(nxi:nxe,nyi:nye,nzi:nze), igcgp2i(nnxi:nnxe,nnyi:nnye,nnzi:nnze), ppovlinv(1:ngc,1:ngc)) &
           !$acc      create(zmelp0, nn, gggmat, igcgp2i_, ggitp, ggitp_work)
           !$acc kernels loop independent collapse(2)
           do igcgp2 = 1, ngcgp
@@ -544,6 +548,7 @@ contains
       endif
       allocate(zmel(nbb,ns1:ns2,nqtot))
       !$acc enter data create(zmel)
+
       !$acc host_data use_device(zmel)
       !$acc data copyin(ppovlz(1:ngb,1:nbb))
       ierr = zmm(ppovlz, zmelt, zmel(1,ns1,1), nbb, nmtot*ncc, ngb, opA = m_op_C)
@@ -592,6 +597,7 @@ contains
         !$acc end kernels
       endif
 
+      deallocate(zmelt)
     endblock ZmelBlock
   end subroutine get_zmel_init_gpu
 
