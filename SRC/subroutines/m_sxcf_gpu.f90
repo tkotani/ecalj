@@ -153,6 +153,7 @@ contains
 #ifdef __GPU
     attributes(device) :: vzmel, vcoud_buf
 #endif
+    if(ns1 > ns2) return
     allocate(wtff(ns1:ns2))
     wtff(ns1:nctot) = 1d0
     do it = max(nctot+1,ns1), ns2
@@ -195,6 +196,7 @@ contains
     attributes(device) :: czmelwc, wc
 #endif
 
+    if(ns1 > ns2) return
     allocate(wv(nblochpmx,nblochpmx))
     allocate(wc, mold = wv)
     CorrelationSelfEnergyImagAxis: Block !Fig.1 PHYSICAL REVIEW B 76, 165106(2007)! Integration along ImAxis for zwz(omega) 
@@ -243,8 +245,8 @@ contains
           if(iw == 0) wc = wvr(:,:,iw)
           if(iw > 0) wc = wvi(:,:,iw)
         else
-          if(iw==0)read(ifrcw,rec=1+(0-nw_i)) wv!direct access Wc(0) = W(0)-v ! nw_i=0 (Time reversal) or nw_i =-nw
-          if(iw>0) read(ifrcwi,rec=iw) wv ! direct access read Wc(i*omega)=W(i*omega)-v
+          if(iw == 0) read(ifrcw,rec=1+(0-nw_i)) wv!direct access Wc(0) = W(0)-v ! nw_i=0 (Time reversal) or nw_i =-nw
+          if(iw > 0) read(ifrcwi,rec=iw) wv ! direct access read Wc(i*omega)=W(i*omega)-v
           wc = wv
         endif
         !$acc kernels loop independent collapse(2)
@@ -259,7 +261,6 @@ contains
         if(iw == 0) beta = CZERO
         ierr = gemm(wzmel, wc, czwc, (ns2-ns1+1)*ntqxx, ngb, ngb, opA = m_op_c, beta = beta, ldB = nblochpmx)
       enddo iwimag
-
       !$acc end data
       deallocate(wzmel)
       allocate(czmelwc(1:nbb,ns1:ns2,1:ntqxx)) !same size with zmel
@@ -296,62 +297,63 @@ contains
         enddo
       enddo
       nttp_max = maxval(nttp)
-      allocate (itw(nttp_max,0:nw), source = 0)
-      allocate (itpw(nttp_max,0:nw), source = 0)
-      allocate (wgtiw(nttp_max,0:nw), source = real(0,kind=kp))
-
-      nttp = 0
-      do itp = 1, ntqxx
-        omg  = omega(itp)
-        itini = merge(max(ns1,nt0m+1),  ns1, mask= omg>=ef)
-        itend = merge(ns2r,  min(nt0p,ns2r), mask= omg>=ef)
-        do it = itini, itend     ! nt0p corresponds to efp
-          wfac_(it,itp) = wfacx2(omg, ef, ekc(it), merge(0d0,esmr,mask=it<=nctot)) !Gaussian smearing 
-          if(wfac_(it,itp)<wfaccut) cycle 
-          wfac_(it,itp)=  wfac_(it,itp)*wkkr*dsign(1d0,omg-ef) !wfac_ = $w$ weight (smeared thus truncated by ef). See the sentences.
-          we_(it,itp)  = .5d0*abs(omg-weavx2(omg,ef, ekc(it),esmr)) !we_= \bar{\omega_\epsilon} in sentences next to Eq.58 in PRB76,165106 (2007)
-          ixs = findloc(freq_r(1:nw)>we_(it,itp),value=.true.,dim=1)
-          associate(x=>we_(it,itp),xi=>freq_r(ixs-1:ixs+1))!x=>we_ is \omega_\epsilon in Eq.(55). 
-            amat(1:3,1)= 1d0                 !old version: call alagr3z2wgt(we_(it,itp),freq_r(ixs-1),wgt3(:,it,itp))
-            amat(1:3,2)= xi(1:3)**2
-            amat(1:3,3)= xi(1:3)**4
-            wgt3ititp = wfac_(it,itp)*matmul([1d0,x**2,x**4], inverse33(amat)) 
-          endassociate
-          nttp(ixs-1:ixs+1) = nttp(ixs-1:ixs+1) + 1
-          ittp3(1:3) = nttp(ixs-1:ixs+1)
-          forall(i=1:3) itw(ittp3(i), ixs-2+i) = it
-          forall(i=1:3) itpw(ittp3(i), ixs-2+i) = itp
-          forall(i=1:3) wgtiw(ittp3(i), ixs-2+i) = wgt3ititp(i)
+      if(nttp_max > 0) then 
+        allocate (itw(nttp_max,0:nw), source = 0)
+        allocate (itpw(nttp_max,0:nw), source = 0)
+        allocate (wgtiw(nttp_max,0:nw), source = real(0,kind=kp))
+        nttp = 0
+        do itp = 1, ntqxx
+          omg  = omega(itp)
+          itini = merge(max(ns1,nt0m+1),  ns1, mask= omg>=ef)
+          itend = merge(ns2r,  min(nt0p,ns2r), mask= omg>=ef)
+          do it = itini, itend     ! nt0p corresponds to efp
+            wfac_(it,itp) = wfacx2(omg, ef, ekc(it), merge(0d0,esmr,mask=it<=nctot)) !Gaussian smearing 
+            if(wfac_(it,itp)<wfaccut) cycle 
+            wfac_(it,itp)=  wfac_(it,itp)*wkkr*dsign(1d0,omg-ef) !wfac_ = $w$ weight (smeared thus truncated by ef). See the sentences.
+            we_(it,itp)  = .5d0*abs(omg-weavx2(omg,ef, ekc(it),esmr)) !we_= \bar{\omega_\epsilon} in sentences next to Eq.58 in PRB76,165106 (2007)
+            ixs = findloc(freq_r(1:nw)>we_(it,itp),value=.true.,dim=1)
+            associate(x=>we_(it,itp),xi=>freq_r(ixs-1:ixs+1))!x=>we_ is \omega_\epsilon in Eq.(55). 
+              amat(1:3,1)= 1d0                 !old version: call alagr3z2wgt(we_(it,itp),freq_r(ixs-1),wgt3(:,it,itp))
+              amat(1:3,2)= xi(1:3)**2
+              amat(1:3,3)= xi(1:3)**4
+              wgt3ititp = wfac_(it,itp)*matmul([1d0,x**2,x**4], inverse33(amat)) 
+            endassociate
+            nttp(ixs-1:ixs+1) = nttp(ixs-1:ixs+1) + 1
+            ittp3(1:3) = nttp(ixs-1:ixs+1)
+            forall(i=1:3) itw(ittp3(i), ixs-2+i) = it
+            forall(i=1:3) itpw(ittp3(i), ixs-2+i) = itp
+            forall(i=1:3) wgtiw(ittp3(i), ixs-2+i) = wgt3ititp(i)
+          enddo
         enddo
-      enddo
-      allocate(wz_iw(ngb,nttp_max), czwc_iw(nttp_max,ngb))
-      !$acc data copyin(wgtiw, nttp, itw, itpw)
-      do iw = nwxi, nwx
-        if(nttp(iw) < 1) cycle
-        if(keepwv) then
-          !$acc kernels
-          wc(:,:) = (wvr(:,:,iw) + transpose(dconjg(wvr(:,:,iw))))*0.5d0
-          !$acc end kernels
-        else
-          read(ifrcw,rec=iw-nw_i+1) wv
-          wc = (wv + transpose(dconjg(wv)))*0.5d0  !copy to GPU
-        endif
-        !$acc kernels loop independent
-        do ittp = 1, nttp(iw) 
-          it = itw(ittp,iw); itp = itpw(ittp,iw)
-          wz_iw(1:ngb,ittp) = wgtiw(ittp,iw)*zmel(1:ngb,it,itp)
+        allocate(wz_iw(ngb,nttp_max), czwc_iw(nttp_max,ngb))
+        !$acc data copyin(wgtiw, nttp, itw, itpw)
+        do iw = nwxi, nwx
+          if(nttp(iw) < 1) cycle
+          if(keepwv) then
+            !$acc kernels
+            wc(:,:) = (wvr(:,:,iw) + transpose(dconjg(wvr(:,:,iw))))*0.5d0
+            !$acc end kernels
+          else
+            read(ifrcw,rec=iw-nw_i+1) wv
+            wc = (wv + transpose(dconjg(wv)))*0.5d0  !copy to GPU
+          endif
+          !$acc kernels loop independent
+          do ittp = 1, nttp(iw) 
+            it = itw(ittp,iw); itp = itpw(ittp,iw)
+            wz_iw(1:ngb,ittp) = wgtiw(ittp,iw)*zmel(1:ngb,it,itp)
+          enddo
+         !$acc end kernels
+          ierr = gemm(wz_iw, wc, czwc_iw, nttp(iw), ngb, ngb, opA = m_op_c, ldB = nblochpmx, ldC = nttp_max)
+          !$acc kernels loop independent
+          do ittp = 1, nttp(iw) 
+            it = itw(ittp,iw); itp = itpw(ittp,iw)
+            czmelwc(1:ngb,it,itp) = czmelwc(1:ngb,it,itp) + czwc_iw(ittp,1:ngb)
+          enddo
+         !$acc end kernels
         enddo
-       !$acc end kernels
-        ierr = gemm(wz_iw, wc, czwc_iw, nttp(iw), ngb, ngb, opA = m_op_c, ldB = nblochpmx, ldC = nttp_max)
-        !$acc kernels loop independent
-        do ittp = 1, nttp(iw) 
-          it = itw(ittp,iw); itp = itpw(ittp,iw)
-          czmelwc(1:ngb,it,itp) = czmelwc(1:ngb,it,itp) + czwc_iw(ittp,1:ngb)
-        enddo
-       !$acc end kernels
-      enddo
-      !$acc end data
-      deallocate(wz_iw, czwc_iw)
+        !$acc end data
+        deallocate(wz_iw, czwc_iw)
+      endif
     EndBlock CorrelationSelfEnergyRealAxis
     if(timemix) call timeshow(" End of CorrelationSelfEnergyRealAxis:")
     !$acc host_data use_device(zmel, zsec)
@@ -364,7 +366,6 @@ contains
     !$acc end kernels
     deallocate(wv, wc, czmelwc)
   end subroutine
-
   subroutine setwv()
     integer :: iqini, iqend, iw
     character(10) :: i2char
@@ -393,7 +394,6 @@ contains
     write(stdo, '(X,A,2F8.3)') 'WVI/WVR : sizes (GB)', dble(size(wvi))*kp*2/gb, dble(size(wvr))*kp*2/gb
     deallocate(wv)
   end subroutine
-
   subroutine releasewv()
     if(.not.any(kx==kxc(:))) return
     if(allocated(wvi)) deallocate(wvi)
@@ -401,7 +401,6 @@ contains
     close(ifrcwi)
     close(ifrcw)
   end subroutine
-
   pure function inverse33(matrix) result(inverse) !Inverse of 3X3 matrix
     implicit none
     real(8),intent(in) :: matrix(3,3)
