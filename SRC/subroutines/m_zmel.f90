@@ -297,9 +297,9 @@ contains
     use m_kind, only: kp => kindgw
     use m_blas, only: m_op_c, m_op_n, m_op_t, int_split
     use m_blas, only: gemm => zmm, gemm_batch => zmm_batch
-  #ifdef __GPU
+#ifdef __GPU
     use openacc, only: acc_is_present
-  #endif
+#endif
     implicit none
     include "mpif.h"
     intent(in)::           q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc, iprx,zmelconjg

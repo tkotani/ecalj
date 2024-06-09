@@ -166,7 +166,7 @@ contains
     vcoud_buf(1:ngb) = vcoud(1:ngb)
     !$acc end kernels
     if(kx == 1) vcoud_buf(1) = wklm(1)*fpi*sqrt(fpi)/wk(1)
-    allocate(vzmel(1:nbb,ns1:ns2,1:ntqxx), source = cmplx(0,0,kind=kp))
+    allocate(vzmel(1:nbb,ns1:ns2,1:ntqxx))
     !$acc kernels loop independent collapse(2)
     do itpp = 1, ntqxx
       do it = ns1, ns2 
@@ -342,14 +342,14 @@ contains
             it = itw(ittp,iw); itp = itpw(ittp,iw)
             wz_iw(1:ngb,ittp) = wgtiw(ittp,iw)*zmel(1:ngb,it,itp)
           enddo
-         !$acc end kernels
+          !$acc end kernels
           ierr = gemm(wz_iw, wc, czwc_iw, nttp(iw), ngb, ngb, opA = m_op_c, ldB = nblochpmx, ldC = nttp_max)
           !$acc kernels loop independent
           do ittp = 1, nttp(iw) 
             it = itw(ittp,iw); itp = itpw(ittp,iw)
             czmelwc(1:ngb,it,itp) = czmelwc(1:ngb,it,itp) + czwc_iw(ittp,1:ngb)
           enddo
-         !$acc end kernels
+          !$acc end kernels
         enddo
         !$acc end data
         deallocate(wz_iw, czwc_iw)
