@@ -131,6 +131,7 @@ contains
     real(8):: q(3),schi,ekxx1(nband,nqbz),ekxx2(nband,nqbz)
     character(10) :: i2char
     logical:: cmdopt0, GPUTEST
+    type(stopwatch) :: t_sw_zmel, t_sw_x0
     qq=q
     GPUTEST = cmdopt0('--gpu')
 
@@ -214,12 +215,10 @@ contains
         call cputid (0)
         if(GPUTEST) then
           ! rcxq(ibg1,igb2,iw) = \sum_ibib wwk(iw,ibib)* <M_ibg1(q) psi_it(k)| psi_itp(q+k)> < psi_itp | psi_it M_ibg2 > at q
-          call stopwatch_init(t_sw_zmel, 'zmel_mm')
-          call stopwatch_init(t_sw_x0, 'x0_mm')
+          call stopwatch_init(t_sw_zmel, 'zmel_'//merge('gpu','ori',mask = GPUTEST))
+          call stopwatch_init(t_sw_x0, 'x0_'//merge('gpu','ori',mask = GPUTEST))
           kloop:do 1500 k=1,nqbz !zmel = < M(igb q) phi( rk it occ)|  phi(q+rk itp unocc)>
             if(mod(k-1, mpi__size_k) /= mpi__rank_k)  cycle
-            write(6,*) 'k, mpi__rank_k', k, mpi__rank_k
-            call flush(6)
             ! qq   = q;              qrk  = q+rk(:,k)
             ! ispm = isp_k;          ispq = isp_kq
             ! ns1  = nkmin(k)+nctot; ns2  = nkmax(k)+nctot
@@ -238,20 +237,16 @@ contains
                    zmelconjg=.true., comm = comm_b)
             endif
             call stopwatch_pause(t_sw_zmel)
-
             call stopwatch_start(t_sw_x0)
             call x0gpu(rcxq, npr, ipr_col, npr_col, nwhis, npm)
             call stopwatch_pause(t_sw_x0)
-
+            write(6,ftox) 'end of k:', k ,' of:',nqbz, 'zmel:', ftof(stopwatch_lap_time(t_sw_zmel),4), '(sec)', &
+                                                        ' x0:', ftof(stopwatch_lap_time(t_sw_x0),4), '(sec)'
+            call flush(6)
 1500      enddo kloop
         else ! NOTE: kloop10:do 1510 is equivalent to do 1500. 2024-3-25
-          call stopwatch_init(t_sw_zmel, 'zmel_original')
-          call stopwatch_init(t_sw_x0, 'x0_original')
           kloop10:do 1510 k=1,nqbz !zmel = < M(igb q) phi( rk it occ)|  phi(q+rk itp unocc)>
             if(mod(k-1, mpi__size_k) /= mpi__rank_k)  cycle
-            write(6,*) 'k, mpi__rank_k', k, mpi__rank_k
-            call flush(6)
-
             call stopwatch_start(t_sw_zmel)
             if(cmdopt0('--emptyrun')) cycle
             call get_zmel_init(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
@@ -277,6 +272,9 @@ contains
               endblock TimeConsumingRcxq
 1000        enddo icounloop
             call stopwatch_pause(t_sw_x0)
+            write(6,ftox) 'end of k:', k ,' of:',nqbz, 'zmel:', ftof(stopwatch_lap_time(t_sw_zmel),4), '(sec)', &
+                                                        ' x0:', ftof(stopwatch_lap_time(t_sw_x0),4), '(sec)'
+            call flush(6)
 1510      enddo kloop10
         endif
         call stopwatch_show(t_sw_zmel)

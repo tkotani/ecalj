@@ -10,13 +10,14 @@ module m_sxcf_gpu
   use m_readgwinput, only: ua_, corehole, wcorehole
   use m_ftox
   use m_lgunit, only: stdo
-  use m_sxcf_count,only: kxc, nstti, nstte, nstte2, nwxic, nwxc, icountini, icountend, irkip
+  use m_sxcf_count,only: kxc, nstti, nstte, nstte2, nwxic, nwxc, icountini, icountend, irkip, ncount
   use m_nvfortran, only: findloc
   use m_hamindex, only: ngrp
   use m_blas, only: m_op_c, m_op_n, m_op_t
   use m_blas, only: gemm => zmm, gemm_batch => zmm_batch
   use m_kind, only: kp => kindgw
   use m_sxcf_main,only: zsecall
+  use m_stopwatch
   implicit none
   public sxcf_scz_correlation, sxcf_scz_exchange
   private
@@ -33,6 +34,7 @@ module m_sxcf_gpu
   attributes(device) :: wvr, wvi
 #endif
   logical, external :: cmdopt0
+  type(stopwatch) :: t_sw_zmel, t_sw_xc, t_sw_cr, t_sw_ci
 contains
   subroutine sxcf_scz_exchange(ef, esmr, ixc, nspinmx) !ixc is dummy
     implicit none
@@ -46,6 +48,8 @@ contains
     if(nw_i/=0) call rx('Current version we assume nw_i=0. Time-reversal symmetry')
     allocate(zsecall(ntq,ntq,nqibz,nspinmx),source=(0d0,0d0)) 
 
+    call stopwatch_init(t_sw_zmel, 'zmel')
+    call stopwatch_init(t_sw_xc, 'ex')
     !$acc data copyout(zsecall)
     !$acc kernels
       zsecall(1:ntq,1:ntq,1:nqibz,1:nspinmx) = CZERO
@@ -69,16 +73,25 @@ contains
             NMBATCHloop: do icount = icountini(isp,ip,irot,kx), icountend(isp,ip,irot,kx) !batch of middle states.
               ns1 = nstti(icount)  !Range of middle states is [ns1:ns2] for given icount
               ns2 = nstte(icount)  ! 
+              call stopwatch_start(t_sw_zmel)
               call get_zmel_init(q, qibz_k, irot, qbz_kr, ns1, ns2, isp, 1, ntqxx, isp, nctot, ncc=0, iprx=debug, zmelconjg=.false.)
+              call stopwatch_pause(t_sw_zmel)
+              call stopwatch_start(t_sw_xc)
               call get_exchange(ef, esmr, ns1, ns2, zsecall(1,1,ip,isp))
+              call stopwatch_pause(t_sw_xc)
+              write(stdo,ftox) 'end of icount:', icount ,' of', ncount, &
+                               'zmel:', ftof(stopwatch_lap_time(t_sw_zmel),4), '(sec)', &
+                               'exch:', ftof(stopwatch_lap_time(t_sw_xc),4),   '(sec)'
+              call flush(stdo)
             enddo NMBATCHloop
-            if(timemix) call timeshow(" End of ExchangeSelfEnergy:")
           enddo isploopexternal
         enddo iploopexternal
       enddo irotloop
     enddo kxloop
     !$acc end data
     deallocate(ekc, eq)
+    call stopwatch_show(t_sw_zmel)
+    call stopwatch_show(t_sw_xc)
   endsubroutine sxcf_scz_exchange
 
   subroutine sxcf_scz_correlation(ef, esmr, ixc, nspinmx) 
@@ -94,8 +107,11 @@ contains
     keepwv = cmdopt0('--keepwv')
     if(nw_i/=0) call rx('Current version we assume nw_i=0. Time-reversal symmetry')
 
+    call stopwatch_init(t_sw_zmel, 'zmel')
+    call stopwatch_init(t_sw_xc, 'ec')
+    call stopwatch_init(t_sw_cr, 'ec realaxis integral')
+    call stopwatch_init(t_sw_ci, 'ec imagaxis integral')
     allocate(zsecall(ntq,ntq,nqibz,nspinmx),source=(0d0,0d0)) 
-
     !$acc data copyout(zsecall)
     !$acc kernels
       zsecall(1:ntq,1:ntq,1:nqibz,1:nspinmx) = CZERO
@@ -126,11 +142,18 @@ contains
               nwxi = nwxic(icount)  !minimum omega for W
               nwx = nwxc(icount)   !max omega for W
               ns2r = nstte2(icount) !Range of middle states [ns1:ns2r] for CorrelationSelfEnergyRealAxis
-              if(timemix) call timeshow(" Start of Get_zmel_init:")
+              call stopwatch_start(t_sw_zmel)
               call get_zmel_init(q, qibz_k, irot, qbz_kr, ns1, ns2, isp, 1, ntqxx, isp, nctot, ncc=0, iprx=debug, zmelconjg=.false.)
-              if(timemix) call timeshow(" End of Get_zmel_init:")
+              call stopwatch_pause(t_sw_zmel)
+              call stopwatch_start(t_sw_xc)
               call get_correlation(ef, esmr, ns1, ns2, ns2r, nwxi, nwx, zsecall(1,1,ip,isp))
-              if(timemix) call timeshow("   end icount")
+              call stopwatch_pause(t_sw_xc)
+              write(stdo,ftox) 'end of icount:', icount ,' of', ncount, &
+                               'zmel:', ftof(stopwatch_lap_time(t_sw_zmel),4), '(sec)', &
+                               'ec(iaxis):', ftof(stopwatch_lap_time(t_sw_ci),4),   '(sec)', &
+                               'ec(raxis):', ftof(stopwatch_lap_time(t_sw_cr),4),   '(sec)', &
+                               'ec:', ftof(stopwatch_lap_time(t_sw_xc),4),   '(sec)'
+              call flush(stdo)
             enddo NMBATCHloop
           enddo isploopexternal
         enddo iploopexternal
@@ -139,6 +162,10 @@ contains
     enddo kxloop
     !$acc end data
     deallocate(ekc, eq, omega)
+    call stopwatch_show(t_sw_zmel)
+    call stopwatch_show(t_sw_ci)
+    call stopwatch_show(t_sw_cr)
+    call stopwatch_show(t_sw_xc)
   endsubroutine sxcf_scz_correlation
 
   subroutine get_exchange(ef, esmr, ns1, ns2, zsec)
@@ -199,6 +226,7 @@ contains
     if(ns1 > ns2) return
     allocate(wv(nblochpmx,nblochpmx))
     allocate(wc, mold = wv)
+    call stopwatch_start(t_sw_ci)
     CorrelationSelfEnergyImagAxis: Block !Fig.1 PHYSICAL REVIEW B 76, 165106(2007)! Integration along ImAxis for zwz(omega) 
       use m_readfreq_r, only: wt=>wwx, x=>freqx
       real(8), parameter:: rmax=2d0
@@ -271,8 +299,9 @@ contains
       !$acc end kernels
       deallocate(czwc)
     EndBlock CorrelationSelfEnergyImagAxis
-    if(timemix) call timeshow(" End of CorrelationSelfEnergyImagAxis:")
+    call stopwatch_pause(t_sw_ci)
 
+    call stopwatch_start(t_sw_cr)
     CorrelationSelfEnergyRealAxis: Block !Real Axis integral. Fig.1 PHYSICAL REVIEW B 76, 165106(2007)
       use m_wfac, only: wfacx2, weavx2
       integer :: itini, itend, ittp, ittp3(3), ixs, nttp_max, nttp(0:nw)
@@ -355,7 +384,8 @@ contains
         deallocate(wz_iw, czwc_iw)
       endif
     EndBlock CorrelationSelfEnergyRealAxis
-    if(timemix) call timeshow(" End of CorrelationSelfEnergyRealAxis:")
+    call stopwatch_pause(t_sw_cr)
+
     !$acc host_data use_device(zmel, zsec)
     ierr = gemm(czmelwc, zmel, zsec, ntqxx, ntqxx, nbb*(ns2-ns1+1), opA = m_op_T, beta = CONE, ldC = ntq)
     !$acc end host_data

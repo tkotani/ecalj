@@ -96,8 +96,8 @@ subroutine hrcxq()
   ! allocate( mpi__Qtask(iqxini:iqxend), source=[(mod(iq-1,mpi__size)==mpi__rank,iq=iqxini,iqxend)])
   allocate( mpi__Qrank(iqxini:iqxend), source=[(mod(iq-1,mpi__size/worker_inQtask)*worker_inQtask           ,iq=iqxini,iqxend)])
   allocate( mpi__Qtask(iqxini:iqxend), source=[(mod(iq-1,mpi__size/worker_inQtask)==mpi__rank/worker_inQtask,iq=iqxini,iqxend)])
-  write(6,*)'mpi_rank',mpi__rank,'mpi__Qtask=',mpi__Qtask
-  write(6,*) 'mpi_qrank', mpi__qrank
+  write(6,ftox)'mpi_rank',mpi__rank,'mpi__Qtask=',mpi__Qtask
+  write(6,ftox) 'mpi_qrank', mpi__qrank
   call flush(06)
   if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
   MainLoopToObtainZxq: do 1001 iq = iqxini,iqxend

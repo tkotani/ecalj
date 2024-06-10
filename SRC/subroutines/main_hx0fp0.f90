@@ -38,6 +38,7 @@ subroutine hx0fp0()
   use m_readqg,only: Readqg0
   use m_dpsion,only: dpsion5
   use m_gpu,only: gpu_init
+  use m_ftox
   implicit none
   !! We calculate chi0 by the follwoing three steps.
   !!  gettetwt: tetrahedron weights
@@ -361,8 +362,8 @@ subroutine hx0fp0()
   ! allocate( mpi__task(iqxini:iqxend),    source=[(mod(iq-1,mpi__size)==mpi__rank,iq=iqxini,iqxend)])
   allocate( mpi__ranktab(iqxini:iqxend), source=[(mod(iq-1,mpi__size/worker_inQtask)*worker_inQtask           ,iq=iqxini,iqxend)])
   allocate( mpi__task(iqxini:iqxend),    source=[(mod(iq-1,mpi__size/worker_inQtask)==mpi__rank/worker_inQtask,iq=iqxini,iqxend)])
-  write(6,*)'mpi_rank',mpi__rank,'mpi__task=',mpi__task
-  write(6,*) 'mpi_ranktab', mpi__ranktab
+  write(6,ftox)'mpi_rank',mpi__rank,'mpi__Qtask=',mpi__task
+  write(6,ftox) 'mpi_qrank', mpi__ranktab
   !! llw, and llwI are for L(omega) for Q0P in PRB81,125102
   allocate( llw(nw_i:nw,nq0i), llwI(niw,nq0i) )
   if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
