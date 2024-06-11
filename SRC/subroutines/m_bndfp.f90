@@ -218,7 +218,7 @@ contains
          endif Boltztrap
          Writebandmode: if(plbnd/=0 ) then ! -vmag/2 is added to isp=1, +vmag/2 to isp=2 for writefs and writeband at 2023-9-20
             if(master_mpi) then
-               if(fsmode)  call writefs(evlallm,eferm)   !fermi surface !bias field vmag added  2023-9-20
+               if(fsmode)  call writefs(evlallm,eferm,spinweightsoc)   !fermi surface !bias field vmag added  2023-9-20
                write(stdo,*)' Writing bands to bands file for gnuplot ...'
                if(nsyml/=0)call writeband(evlallm,eferm,evtop,ecbot,spinweightsoc) !bias field added  2023-9-20
             endif

@@ -8,7 +8,7 @@ module m_stopwatch !M.Obata 2024/04/21
     character(len=32) :: task_name = 'task'
     logical :: running = .false.
     real(8) :: elapsed_time = 0d0, stop_time = 0d0, start_time = 0d0, lap_time = 0d0
-    ! ???? object-oriented style gets the execation error in intel depending on the case
+    ! ???? object-oriented style gets the execution error in intel depending on the case
     ! contains
     !   procedure :: start => stopwatch_start
     !   procedure :: pause => stopwatch_pause
@@ -58,6 +58,8 @@ module m_stopwatch !M.Obata 2024/04/21
   subroutine stopwatch_reset(self)
     class(stopwatch), intent(inout) :: self
     self%elapsed_time = 0d0
+    self%lap_time = 0d0
+    self%running = .false.
   end subroutine stopwatch_reset
 
   subroutine stopwatch_show(self)
