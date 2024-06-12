@@ -130,11 +130,15 @@ contains
        call rxx(ier.ne.0, 'zhev_tk4: zhegvx cannot find all eigen.')
        deallocate(work,iwork,rwork)
     endif
-    phaselock: block ! a phaselock for continuity of evec as for ham and ovl. Phase of evec is paralell to (1,1,1,...1)*ovl^-1 
-      integer::iev !z-->evec
-      complex(8),parameter::img=(0d0,1d0)
-      forall(iev=1:nev) z(:,iev)=z(:,iev)*exp(-img*dimag(log(sum(z(:,iev)))))
-    endblock phaselock
+    if(nmx/=0) then
+       phaselock: block ! a phaselock for continuity of evec as for ham and ovl. Phase of evec is paralell to (1,1,1,...1)*ovl^-1 
+       integer::iev !z-->evec
+       complex(8)::z0(n)
+       complex(8),parameter::img=(0d0,1d0)
+       z0=[(1d0/(1d0+0.01d0*i),i=1,n)] !1,1,1,... may cause z//z0 because of some symmetry ; I am afraid that sum=0 causing error.
+       forall(iev=1:nev) z(:,iev)=z(:,iev)*exp(-img*dimag(log(sum(z0*z(:,iev)))))
+       endblock phaselock
+    endif
     call tcx('zhev_tk4')
   end subroutine zhev_tk4
   subroutine zhev_tk2(n,h,s,nmx,nev, e,z)
