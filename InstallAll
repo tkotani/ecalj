@@ -25,11 +25,11 @@ pushd .
 cd SRC/exec
 FC=${FC} cmake .
 #VERBOSE=1 make -j ||my_error
-make -j ||my_error
+time make -j ||my_error
 cp `find . -mindepth 1 -maxdepth 1 -executable -type f` ${BINDIR} ||my_error
 popd
 # Install test 
 echo '=== goto test ==='
 cd SRC/TestInstall/
-./testecalj.py -np 8 
+time ./testecalj.py -np 8 
 

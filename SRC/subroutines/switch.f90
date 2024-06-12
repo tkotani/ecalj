@@ -1,7 +1,10 @@
 !A collection of switches. Many of the switches can be obsolate or not so meaningful now.
-real(8) function tolq() !tolerance to judge identical q vectors when rotated
-  tolq=1d-7
+real(8) function tolq() !tolerance to judge identical q vectors (when rotated)
+  tolq=1d-4
 END function tolq
+real(8) function tolw() ! very accurate numerical tol
+  tolw=1d-8
+END function tolw
 logical function mtosigmaonly() !this is also in fpgw/gwsrc/switches.
   mtosigmaonly=.true.
 end function mtosigmaonly
@@ -62,3 +65,310 @@ logical function oncewrite(id)
      idx(id)=0
   endif
 end function oncewrite
+real(8) function deltaq_scale()
+  ! Q0Pchoice=1: qzerolimit. (not too small because of numerical reason.)
+  ! Q0Pchoice=2: =1d0/3.0**.5d0/Q is the mean value of \int_{|q|<Q} d^3 q <1/q^2> for a sphere.
+  use m_keyvalue,only: getkeyvalue
+  integer,save :: ttt=1
+  logical,save:: init=.true.
+  if(init) then
+     call getkeyvalue("GWinput","Q0Pchoice",ttt,default=1)
+     write(6,"('  Q0Pchoice=',i3)") ttt
+     init=.false.
+  endif
+  if(ttt==1) then
+     deltaq_scale=0.1d0 !this is essentially q to zero limit.
+  elseif(ttt==2) then
+     deltaq_scale=1d0/3.0**.5d0
+  else
+     call rx( 'Use Q0Pchoice = 1 or 2 (=1 is default)')
+  endif
+END function deltaq_scale
+! logical function localfieldcorrectionllw()
+!   use m_keyvalue,only: getkeyvalue
+!   logical,save:: init=.true.,ttt
+!   if(init) then
+!      call getkeyvalue("GWinput","LFC@Gamma",ttt,default=.true.)
+!      write(6,*)'LFC@Gamma=',ttt
+!      init=.false.
+!   endif
+!   localfieldcorrectionllw=ttt
+! end function localfieldcorrectionllw
+logical function addbasnew()
+  addbasnew=.true. !new version of adding polynomial-like product basis in MTs.
+  ! If false, use old version (less product basis set is added.)
+end function addbasnew
+!$$$      logical function newaniso()
+!$$$      newaniso=.true. !new GW mode. not the offset Gamma method.
+!$$$                      !combines methods by two Christoph.
+!$$$      end
+real(8) function screenfac()
+  ! The Coulomb interaction is given as exp(- screeenfac()*r)/r (see hvccfp0.m.F)
+  ! Formally scrennfac=0d0 is correct, however, we can not choose too small screenfac
+  ! in out current implementation. For example,
+  ! screenfac=-1d-8 gives NaN for GaAs222 test-->This gives negative eigenvalue of Vcoul for q=0
+  use m_keyvalue,only: getkeyvalue
+  real(8):: ddd
+  real(8),save :: tss
+  logical,save:: init=.true.
+  if(init) then
+     call getkeyvalue("GWinput","TFscreen",tss, default=1d-5**.5)
+     ! 1d-5**.5 is just given by rough test.
+     ! Results should not depend on this value as long as default is small enough.
+     write(6,*)'TFscreen=',tss
+     init=.false.
+  endif
+  ! screenfac = - TFscreen**2 = energy (negative) ==> (\nabla^2 + e) v= \delta(r-r')
+  screenfac= -tss**2 !-ttt  !note negative sign for exp(-sqrt(e)r)
+END function screenfac
+logical function testomitq0()
+  testomitq0=.false.
+end function testomitq0
+logical function is_mix0vec()
+  ! s_mis0vec=.false. is original version. But it caused a problem at BZ bounday.
+  is_mix0vec=.true.
+end function is_mix0vec
+logical function evaltest()
+  evaltest=.false.
+end function evaltest
+logical function TimeReversal()
+  use m_keyvalue,only: getkeyvalue
+  logical,save:: init=.true.,trevc
+  if(init) then
+     call getkeyvalue("GWinput","TimeReversal",trevc,default=.true.)
+     init=.false.
+  endif
+  timereversal= trevc
+end function TimeReversal
+logical function oncew()
+  logical,save::init=.true.
+  if(init) then
+     oncew=.true.
+     init=.false.
+  else
+     oncew=.false.
+  endif
+end function oncew
+logical function onceww(i)
+  integer:: i
+  logical,save::init(100)=.true.
+  if(init(i)) then
+     onceww=.true.
+     init(i)=.false.
+  else
+     onceww=.false.
+  endif
+end function onceww
+! for future use. NaN generator.
+real(8) function NaNdble()
+  real(8):: d
+  d = 1d0-1d0
+  NaNdble= (1d0-1d0)/d
+END function NaNdble
+!      real(8) function NaNdble2()
+!      NaNdble2= (1d0-1d0)/(1d0-1d0)
+!      end
+complex(8) function NaNcmpx()
+  real(8):: NaNdble
+  NaNcmpx=cmplx(NaNdble(),NaNdble())
+END function NaNcmpx
+logical function rmeshrefine()
+  use m_keyvalue,only: getkeyvalue
+  call getkeyvalue("GWinput","rmeshrefine",rmeshrefine,default=.true.)
+end function rmeshrefine
+real(8) function delrset()
+  ! dr/dI at rmat. used for rmeshrefin=T case
+  use m_keyvalue,only: getkeyvalue
+  call getkeyvalue("GWinput","dRdIatRmax",delrset,default=0.003d0)
+END function delrset
+logical function qbzreg()
+  use m_keyvalue,only: getkeyvalue
+  logical,save:: init=.true.,ccrq
+  if(init) then
+     call getkeyvalue("GWinput","chi_RegQbz",ccrq,default=.true.)
+     init=.false.
+  endif
+  qbzreg= ccrq
+end function qbzreg
+logical function smbasis() !
+  use m_keyvalue,only: getkeyvalue
+  integer(4),save:: smbasis0
+  logical,save:: init=.true.,smbasis00=.false.
+  if(init) then
+     call getkeyvalue("GWinput","smbasis",smbasis0,default=0)
+     init=.false.
+     if(smbasis0>0) then
+        smbasis00 = .true.
+     endif
+  endif
+  smbasis = smbasis00
+end function smbasis
+integer(4) function smbasiscut() !
+  use m_keyvalue,only: getkeyvalue
+  integer(4),save:: smbasis0
+  logical,save:: init=.true.
+  if(init) then
+     call getkeyvalue("GWinput","smbasis",smbasis0,default=0)
+     init=.false.
+  endif
+  smbasiscut = smbasis0
+END function smbasiscut
+integer function smbasis_case() !
+  smbasis_case = 1
+END function smbasis_case
+logical function qreduce() !
+  qreduce= .true. ! false is safer for usual mode, gw_lmfh
+end function qreduce                !(But I think true is OK---not tested completely).
+! Long-range-only Coulomb interaction
+real(8) function eees()
+  use m_keyvalue,only: getkeyvalue
+  logical,save:: init=.true.
+  real(8),save:: eee
+  real(8):: r0cs
+  if(init) then
+     call getkeyvalue("GWinput","removed_r0c",r0cs,default=1d60)
+     eee = -1d0/r0cs**2
+     if(r0cs>1d10) eee=0d0
+  endif
+  eees = eee
+end function eees
+real(8) function scissors_x0()
+  use m_keyvalue,only: getkeyvalue
+  use m_ReadEfermi,only: readefermi,ef,bandgap
+  logical,save:: init=.true.
+  real(8),save:: sciss !,bandgap,ef
+  if(init) then
+     call getkeyvalue("GWinput","ScaledGapX0",sciss,default=1d0)
+     init=.false.
+  endif
+  scissors_x0 = (sciss-1d0) * bandgap
+END function scissors_x0
+integer(4) function zvztest()
+  !---------------------
+  zvztest=0
+  !----No test:
+  !      zvztest=0 !! not zvztest mode
+  !----
+  !     zvztest=1  ! test1  <psi_i psi_j  M_I ><M_I v M_J><M_J psi_i psi_j >
+  !----
+  !     zvztest=2  ! test2   |M_1> =  phi_s*phi_s basis case for Li. Set product basis as only
+  !                    1    0    3    1    1   ! 1S_l
+END function zvztest
+logical function matrix_linear()
+  use m_keyvalue,only: getkeyvalue
+  ! Use linear interpolation for matrix elements (numerator) in tetrahdron-weight's calculation.
+  ! matrix_linear=T seems to give little improvements.
+  logical,save::init=.true.,matrix_linear0
+  if(init) then
+     call getkeyvalue("GWinput","tetrahedron_matrix_linear",matrix_linear0,default=.false.)
+     init=.false.
+  endif
+  matrix_linear=matrix_linear0
+end function matrix_linear
+logical function KeepEigen()
+  use m_keyvalue,only: getkeyvalue
+  !! Keep data from CPHI and GEIG in memory or not; in readeigen
+  ! KeepEigen=T : speed up
+  ! KeepEigen=F : efficient memory usage
+  logical,save::init=.true.,keepeigen0
+  if(init) then
+     call getkeyvalue("GWinput","KeepEigen",KeepEigen0,default=.true.)
+     init=.false.
+  endif
+  keepeigen = keepeigen0
+end function KeepEigen
+!$$$      logical function core_orth()
+!$$$      use m_keyvalue,only: getkeyvalue
+!$$$      logical,save::init=.true.,core_orthx
+!$$$      integer(4):: ret
+!$$$      if(init) then
+!$$$        call getkeyvalue("GWinput","CoreOrth",core_orthx,default=.false. )
+!$$$        init=.false.
+!$$$      endif
+!$$$      core_orth=core_orthx
+!$$$  end
+integer(4) function verbose()
+  use m_keyvalue,only: getkeyvalue
+  logical,save ::init=.true.,ggg
+  !      logical:: readgwinput
+  integer(4):: ret
+  integer(4),save::verbosex
+  if(init) then
+     inquire(file='GWinput',exist=ggg)
+     if(ggg) then
+        call getkeyvalue("GWinput","Verbose",verbosex,default=0 )
+     else
+        verbosex=0
+     endif
+     !        write(6,*)' verbose=',verbosex
+     init=.false.
+  endif
+  verbose=verbosex
+END function verbose
+integer function q0pchoice()
+  use m_keyvalue,only: getkeyvalue
+  !- Switch whether you use new seeting Q0P (offsetted Gamma).
+  ! q0pchoice=0: old---along plat
+  ! q0pchoice=1: new---along Ex Ey Ez.
+  logical,save ::init=.true.
+  integer(4),save:: ret,q0pchoicex
+  if(init) then
+     call getkeyvalue("GWinput","Q0P_Choice",q0pchoicex,default=0) !,status=ret )
+     init=.false.
+  endif
+  q0pchoice=q0pchoicex
+end function q0pchoice
+logical function tetra_hsfp0()
+  ! for tetrahedron method of hsfp0. See hsfp0.m.f or so.
+  !     & , tetraex  = .false. ! This switch is only meaningful for mode=1,5,6
+  !                            ! If you want to calculate exchange, use tetraex=T .
+  !                            ! Note that you have to supply EFERMI by the tetrahedon method.
+  tetra_hsfp0=.false.
+end function tetra_hsfp0
+real(8) function wgtq0p() !essentially dummy
+  wgtq0p=0.01d0
+END function wgtq0p
+real(8) function escale()
+  use m_keyvalue,only: getkeyvalue   !c--- used q0pchoice<0 mode -------
+  call getkeyvalue("GWinput","q0scale",escale,default=0.8d0)
+END function escale
+integer(4) function normcheck()
+  use m_keyvalue,only: getkeyvalue
+  ! write normcheck files or not
+  ! normcheck=0: not
+  ! normcheck=1: only dia
+  ! normcheck=2: dia and off
+  integer(4),save::nnn
+  logical,save ::init=.true.
+  if(init) then
+     call getkeyvalue("GWinput","NormChk",nnn,default=1)
+     init=.false.
+     !        write(6,"('NormChk mode=',i3)")nnn
+  endif
+  normcheck=nnn
+END function normcheck
+integer(4) function auxfunq0p()
+  ! =0: usual auxially function  exp(-alpha |q|^2) /q^2
+  ! =1: new auxally function     exp(-alpha |q|) /q^2
+  !      use m_keyvalue,only: getkeyvalue
+  !      integer(4)::nnn
+  !      logical,save ::init=.true.
+  !      if(init) then
+  !        call getkeyvalue("GWinput","AuxFunQ0P",nnn,default=0)
+  !        init=.false.
+  !c        write(6,"('AuxFun mode=',i3)")nnn
+  !      endif
+  !      auxfunq0p=nnn
+  auxfunq0p=0
+END function auxfunq0p
+subroutine wgtscale(q1,w1,w2)
+  implicit none
+  real(8):: q1,q2,w1,qav2,w2,qav
+  q2 = 1d0
+  !      qav2= (q1**2 +q2**2+q1*q2)/3d0
+  !      w1 =  (1d0/qav2 - 1d0/q2**2)/ (1d0/q1**2 - 1d0/q2**2)
+  qav = 3d0/4d0*(q2**4-q1**4)/(q2**3-q1**3)
+  w1 =  (qav - q2)/ (q1 - q2)
+  w2 =  1d0 - w1
+end subroutine wgtscale
+

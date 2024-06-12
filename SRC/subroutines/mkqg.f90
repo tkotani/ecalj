@@ -244,7 +244,7 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
   !! Here we get all requied q points. We do reduce them by space group symmetry.
   if(allocated(wt0)) deallocate(wt0)
   allocate(wt0(nqnum+nq0i+ nq0iadd ),qi(3,nqnum+nq0i+ nq0iadd ),wti(nqnum+nq0i+ nq0iadd ))
-  wt0=1d0
+  wt0=1d0 
   !write(stdo,*)'ppppppppp',nqnum,nq0i,nq0iadd
   !! Set irreducible k-point flag. irr=1 for (irredusible point) flag, otherwise =0.
   !! irr(iq)=1 for irreducile qq(:,iq), iq=1,nqnum
