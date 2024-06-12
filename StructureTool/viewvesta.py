@@ -4,9 +4,13 @@ import sys
 import os
 import re
 
-out=subprocess.getoutput("which VESTA")
+out = subprocess.getoutput("which VESTA")
+if(len(out)==0): out = subprocess.getoutput("which vesta")
 VESTA=str(out)
-print(VESTA)
+if(len(VESTA)==0):
+        print('No vesta found!')
+        sys.exit()
+#print(VESTA)
 rootpath=os.path.dirname(os.path.abspath(sys.argv[0])) 
 
 argvs = sys.argv
