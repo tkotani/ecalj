@@ -587,7 +587,7 @@ f.write(alltmp+specsec0)
 f.close()
 
 
-print(' Run lmchk --getwsr tmp to get MT radius')
+print(' == Run lmchk --getwsr tmp to get MT radius')
 #### Get touching MT radius and make rdic ########################
 rlmchk=0
 #print type(touchingratio)

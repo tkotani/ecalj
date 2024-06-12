@@ -69,13 +69,18 @@ for ilinex in midfile.split('\n'): #line by line, for pure mathematical operatio
     for ix in mmm:
         eout=ix
         try:
-            eout=eval(ix) # math
+            eout=eval(ix,{},{'F':'F','T':'T'}) # math
+            #print(type(ix),ix,'--->',eout)
         except:
+            #print('err')
             pass
-        nnn.append(str(eout)) #.replace(',',' ').replace('=','= '))
-    #print('input :'+''.join(mmm))  #print('output:'+''.join(nnn))
+        nnn.append(str(eout).replace(',',' ')) #
+        #nnn  #.replace('=','= '))
+    #print('input :'+''.join(mmm))
+    #print('output:'+''.join(nnn))
     outfile=outfile+''.join(nnn)+'\n'
 outfile=re.sub('\t',' ',outfile) # 2023feb22:46
+#print(outfile)
 lll=''
 init=False
 ix=0

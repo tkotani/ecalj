@@ -69,7 +69,7 @@ subroutine rdata4gw() bind(C)
        ifigw0,ifiqc,i,ifi &
        ,nxx,lxx,ibxx &
        ,ifnlax,inum,ibas,ic,k,icore,kkkmx,kkk,n,mmm,ix,irr,nradmx,irad &
-       ,ifhbed,ndble,mrecb,mrece,ifcphi,ifcphi0,ifec,ife0,if0c,nmax,lx,nx &
+       ,ifhbed,ndble,mrecb,mrece,ifcphi,ifec,ife0,if0c,nmax,lx,nx & !,ifcphi0
        ,mx,nnc,lmxax,ic1,irad1,irad2,l1,n1,l2,n2,nn,ierr,i1,i2,nnv &
        ,iband,ib,m,nm,iqqisp,ngp,ngc,ifhvccfp,ngrp,ig,ifiqibz &
        ,iqibz,ifnqibz,iqi,iq,ifigwin ,l,ifoc,ir,isp,  iqi2
@@ -106,7 +106,7 @@ subroutine rdata4gw() bind(C)
   integer::ificg
   integer::iff,iffx
   integer,allocatable:: iffg(:)
-  integer:: ifgeig,ifgeig0,normcheck,verbose !,bzcase
+  integer:: ifgeig,normcheck,verbose !,bzcase,ifgeig0
   integer::version
   character(8):: xt
   integer:: l_given,m_given,ic_given,isp_given,iffr,ixx
@@ -440,8 +440,8 @@ subroutine rdata4gw() bind(C)
   !if(fpmt) allocate(cphix0(ldim2,nbandmx), cphir0(ldim2,nbandmx),geigr0(1:ngpmx,1:nbandmx,1:nsp))
   open(newunit=ifcphi,file='CPHI',form='unformatted',access='direct',recl=mrecb)
   open(newunit=ifgeig,file='GEIG',form='unformatted',access='direct',recl=mrecg)
-  open(newunit=ifcphi0,file='CPHI0',form='unformatted',access='direct',recl=mrecb)
-  open(newunit=ifgeig0,file='GEIG0',form='unformatted',access='direct',recl=mrecg)
+!  open(newunit=ifcphi0,file='CPHI0',form='unformatted',access='direct',recl=mrecb)
+!  open(newunit=ifgeig0,file='GEIG0',form='unformatted',access='direct',recl=mrecg)
   open(newunit=ifv,file='VXCFP',form='unformatted')
   write(ifv) nbandmx,nqirr
   allocate(qirr(3,nqirr),evl(nbandmx, nqirr, nsp),vxclda(nbandmx, nqirr, nsp),vvv1(nbandmx),vvv2(nbandmx),vvv3(nbandmx))
