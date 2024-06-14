@@ -53,7 +53,7 @@ contains
     use m_subzi,only: m_subzi_init,m_subzi_bzintegration 
     use m_MPItk,only: master_mpi, strprocid, numprocs=>nsize,xmpbnd2,comm !, procid,master
     use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate, m_mkpot_energyterms,m_mkpot_novxc !  m_mkpot_novxc_dipole,
-    use m_mkpot,only: osmpot, qmom, vconst, osig,otau,oppi, qval , qsc , fes1_rv , fes2_rv
+    use m_mkpot,only: osmpot, qmom, vconst, osig,otau,oppi, qval , qsc , fes1_rv , fes2_rv, amom
     use m_clsmode,only: m_clsmode_init,m_clsmode_set1,m_clsmode_finalize
     use m_qplist,only: qplist,nkp,xdatt,labeli,labele,dqsyml,etolc,etolv
     use m_qplist,only: nqp2n_syml,nqp_syml,nqpe_syml,nqps_syml,nsyml,kpproc,iqini,iqend    ! MPIK divider. iqini:iqend are node-dependent
@@ -121,7 +121,7 @@ contains
     integer:: plbnd,nk1,nk2,nk3,nx,ny
     logical:: llmfgw,sigx
     logical:: ltet,cmdopt0,sigmamode,tdos,debug=.false.
-    logical:: fullmesh,PROCARon,writeham=.false.
+    logical:: fullmesh,PROCARon,writeham=.false.,magexist
     logical:: fsmode !for --fermisurface for xcrysden.
     logical,save:: siginit=.true.
     integer:: iter,i,ifi,ipr,iq,isp,jsp,iprint,ipts
@@ -175,6 +175,7 @@ contains
        siginit=.false. !only once
     endif READsigm ! ndimsig is the dim of the self-energy. We now set "ndimsig=ldim",which means we use only projection onto MTO spaces even when PMT. 
     if(sigmamode .AND. master_mpi) write(stdo,*)' ScaledSigma=',ham_scaledsigma
+    magexist= abs(vmag)>1d-6
     GWdriver: if(llmfgw) then   
        call m_sugw_init(cmdopt0('--socmatrix'),eferm,vmag,qval) 
        call tcx('bndfp')
@@ -346,8 +347,12 @@ contains
 !         enddo   
        endblock EvaluateKohnShamTotalEnergyandForce
     endif
-    ham_ehf= eharris !Harris total energy
-    ham_ehk= eksham  !Hohenberg-Kohn-Sham total energy
+    if(magexist) then                   ! Energy by externel mag field = -nup*vmag/2 + ndn*vmag/2 = -(nup-ndn)*vmag/2= -amom*vmag/2
+       eharris= eharris + amom*vmag/2d0 ! Subtract this energy 
+       eksham = eksham  + amom*vmag/2d0 
+    endif
+    ham_ehf= eharris  !Harris total energy
+    ham_ehk= eksham   !Hohenberg-Kohn-Sham total energy
     call m_mkpot_deallocate()
     call m_bandcal_clean()
     call tcx('bndfp')
