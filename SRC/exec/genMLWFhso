@@ -47,7 +47,7 @@ run_arg $argin $NO_MPI   $nfpgw /lmf-MPIK  llmfgw00 $MATERIAL --jobgw=0
 run_arg $argin $NO_MPI   $nfpgw /qg4gw      lqg4gw  --job=1 #Generate requied q+G vectors.
 run_arg $argin $MPI_SIZE $nfpgw /lmf-MPIK llmfgw01 $MATERIAL --jobgw=1
 ##### GW related part (up to preparation of MPB) ###########
-run_arg $argin $NO_MPI   $nfpgw /rdata4gw_v2 lrdata4gw_v2
+#run_arg $argin $NO_MPI   $nfpgw /rdata4gw_v2 lrdata4gw_v2
 if [ -e ANFcond ];then # This is for ANFcond. Unused recently
     #  cp EVU EVD  
     $echo_run echo "Not maintained recently" 

@@ -56,7 +56,7 @@ argin=1; run_arg $argin $MPI_SIZE $nfpgw /lmf llmfgw01 $MATERIAL --jobgw=1
 #run_arg  '---' $NO_MPI   $nfpgw /lmf2gw     llmf2gw  #reform data for gw
 
 ##### GW related part (up to preparation of MPB) ###########
-run_arg $argin $NO_MPI   $nfpgw /rdata4gw_v2 lrdata4gw_v2
+#run_arg $argin $NO_MPI   $nfpgw /rdata4gw_v2 lrdata4gw_v2
 if [ -e ANFcond ];then # This is for ANFcond. Unused recently
     #  cp EVU EVD  
     $echo_run echo "Not maintained recently" 

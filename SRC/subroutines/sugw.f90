@@ -1,6 +1,10 @@
 module m_sugw
   use m_lgunit,only:stdo
   use m_lmfinit,only: z_i=>z,nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,spec_a
+  integer,public::  ndima, ndham, lmxamx, ncoremx,nrmx,nqirr,nqibz
+  integer,allocatable,public:: konfig(:,:),lmxa(:),ncores(:)
+  ! ldim2,nbandmx,lmxamx, ncoremx,nrmx,plat,alat,nqirr
+!  real(8),allocatable::zz(:)
   private
   public:: m_sugw_init
 contains
@@ -8,18 +12,18 @@ contains
     use m_ext,only:   sname
     use m_suham,only: ndham=>ham_ndham !max dimension of hamiltonian +napwad (for so=0,2)
     use m_lmfinit,only: ham_pwmode,pwemax,ham_oveps,lrsig=>ham_lsig,nlmto,lso
-    use m_lmfinit,only: ham_scaledsigma,lat_alat,nsp,nspc,ispec
+    use m_lmfinit,only: ham_scaledsigma,lat_alat,nsp,nspc,ispec,nspec
     use m_lmfinit,only: nbas,n0,nppn,nkap0,slabl,nmcorex=>nmcore,iantiferro,lmxax
     use m_lattic,only: lat_plat, lat_qlat,rv_a_opos
     use m_supot,only: n1,n2,n3, lat_gmax
     use m_rdsigm2,only: getsenex, senex,dsene
     use m_mkpot,only: smpot=>osmpot, vconst, vesrmt
     use m_mkpot,only: osig, otau, oppi, ohsozz,ohsopm, oppix,spotx
-    use m_MPItk,only: numproc=>nsize,procid,master,master_mpi
+    use m_MPItk,only: numproc=>nsize,procid,master,master_mpi,comm
     use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_setiq,ndimhall
     use m_elocp,only: rsmlss=>rsml, ehlss=>ehl
     use m_qplist,only: qplist,ngplist,ngvecp,iqibzmax,niqisp,iqproc,isproc
-    use m_hamindex0,only: Readhamindex0, nlindx
+    use m_hamindex0,only: Readhamindex0, nlindx,nclass
     use m_density,only: v0pot,pnuall,pnzall
     use m_augmbl,only: aughsoc
     use m_makusq,only: makusq
@@ -83,11 +87,11 @@ contains
     integer :: i,i1,i2,iat,ib,ibr,icore,ierr,ifeigen,&! & ifi,
          ifiqg,iflband(2),ifqeigen,ifsyml,igets,igetss,iix,iline, &
          im1,im2,ipb(nbas),ipqn,ipr,iprint,iq,is,isp,ispc,j,job,k1, &
-         k2,k3,konf,konfig(0:n0),l,lchk,ldim,loldpw, &
+         k2,k3,konf,l,lchk,ldim,loldpw, &
          lmaxa,lsig,mx,mxint,&!nat, &
-         ncore,ndima,nevl,nev,nglob,ngp,ngp_p, &
+         ncore,nevl,nev,nglob,ngp,ngp_p, &
          ngpmx,nline,nlinemax,nlmax,nmx,nn1,nn2,nnn, &
-         nphimx,npqn,nqbz,nqibz,nqnum,nqnumx,nqtot,nr,iqibz,imx, &
+         nphimx,npqn,nqbz,nqnum,nqnumx,nqtot,nr,iqibz,imx, & !,nqibz
          ifigwb,ifigwa,ifinormchk,ifigw1,ifildima,ifigwn,ifigwbhead, &
          ificlass,ifievec,ifievecx,ifigw2,ifiqbz,ifievv,idat
     complex(8),allocatable :: aus_zv(:)
@@ -95,7 +99,7 @@ contains
     real(8):: QpGcut_psi,QpGcut_cou,dum,xx(5),gmax,ecore(50),a,z,rmt(nbas),b,vshft, &
          alat,alfa,ef0,plat(3,3),qlat(3,3),qp(3),qpos,q_p(3), epsovl! pnu(n0,2),pnz(n0,2)
     real(8),pointer:: pnu(:,:),pnz(:,:)
-    integer,allocatable:: ips(:),ipc(:),ipcx(:),lmxa(:), ngvecp_p(:,:) 
+    integer,allocatable:: ips(:),ipc(:),ipcx(:), ngvecp_p(:,:) 
     integer,allocatable :: konft(:,:,:),iiyf(:),ibidx(:,:),nqq(:)
     real(8),allocatable:: wk(:,:), &
          bas(:,:),rofi(:),rwgt(:),gcore(:,:,:),gval(:,:,:,:,:),evl(:,:),vxclda(:)
@@ -118,7 +122,7 @@ contains
     complex(8),allocatable:: evecout(:,:),evecr(:,:)
     real(8),allocatable:: qzz(:,:)
     logical:: l_dummy_isanrg,isanrg,oncewrite,newsigmasw,sigmamode !,noshorbz
-    integer::   irr,nqirr, nmcore !feb2012takao nk1,nk2,nk3,
+    integer::   irr, nmcore !feb2012takao nk1,nk2,nk3,,nqirr
     integer:: nbalance,nrr,ifiproc,iproc,iadd,ldw
     integer:: iqq
     logical:: rank0
@@ -133,33 +137,20 @@ contains
     real(8):: qqq(3),vmag
     integer:: mode,iwdummy,jx
     complex(8),allocatable:: hamm(:,:,:,:),ovlm(:,:,:,:),ovlmtoi(:,:),ovliovl(:,:) ,hammhso(:,:,:)
-    integer:: lpdiag=0,nrmx,ncoremx!,ndham
+    integer:: lpdiag=0!,nrmx!,ncoremx!,ndham
     character spid*8
     character(8) :: xt
     logical,optional:: socmatrix !dipolematrix,
     integer:: ispSS,ispEE,ispx,iqbk
     logical:: emptyrun
-!    include "mpif.h"
+    include "mpif.h"
     call tcn ('m_sugw_init')
     emptyrun=cmdopt0('--emptyrun')
     if(master_mpi) write(stdo,"(a)") 'm_sugw_init: start'
     sigmamode = mod(lrsig,10) .ne. 0
     call getpr(ipr)
-    readinmag:block
-      write(stdo,"('MagField added to Hailtonian -vmag/2 for isp=1, +vmag/2 for isp=2: vmag(Ry)=',d13.6)") vmag
-      magexist= abs(vmag)>1d-6
-!      vmag=vmag
-!      open(newunit=ifimag,file='MagField',status='old',err=112)
-!      read(ifimag,*,err=112) vmag
-!      close(ifimag)
-!      magexist=.true.
-!      write(stdo,"('Add mag.field to eval. -vmag/2 for isp=1, +vmag/2 for isp=2. vmag=',d13.6)")vmag
-!      goto 113
-!112   continue
-!      magexist=.false.
-!113   continue
-    endblock readinmag
-    call getpr(ipr)
+    write(stdo,"('MagField added to Hailtonian -vmag/2 for isp=1, +vmag/2 for isp=2: vmag(Ry)=',d13.6)") vmag
+    magexist= abs(vmag)>1d-6
     alat=lat_alat
     plat =lat_plat
     qlat =lat_qlat
@@ -195,6 +186,7 @@ contains
     lmxa(1:nbas) = lmxa_i(ispec(1:nbas))
     print *,'iantiferro=',iantiferro
     nphimx = 0
+    allocate(konfig(0:lmxax,nbas))
     do  ib = 1, nbas
        is=ispec(ib) 
        pnu=>pnuall(:,1:nsp,ib)
@@ -206,7 +198,7 @@ contains
        lmaxa = lmxa_i(is)
        nmcore= nmcorex(is)
        if (lmaxa > -1) then
-          call atwf(0,a,lmaxa,nr,nsp,pnu,pnz,rsml,ehl,rmt(ib),z,rdummy,i1,ncore,konfig,ecore,rdummy,rdummy,nmcore)
+          call atwf(0,a,lmaxa,nr,nsp,pnu,pnz,rsml,ehl,rmt(ib),z,rdummy,i1,ncore,konfig(0,ib),ecore,rdummy,rdummy,nmcore)
           nphimx = max(nphimx,i1)
        endif
     enddo
@@ -214,6 +206,8 @@ contains
     write(stdo,*)' ... Generate core wave functions (file gwa)'
     ncoremx=0
     nrmx=0
+    !    allocate(zz(nclass))
+    allocate(ncores(nspec))
     do  ib = 1, nbas
        is=ispec(ib) 
        pnu=>pnuall(:,1:nsp,ib)
@@ -226,7 +220,7 @@ contains
        spid=slabl(is)
        if (lmaxa > -1) then
           call atwf ( 0 , a , lmaxa , nr , nsp , pnu , pnz , rsml , ehl &
-               , rmt ( ib ) , z , v0pot(ib)%v , i1 , ncore , konfig , ecore , rdummy , rdummy ,nmcore)
+               , rmt ( ib ) , z , v0pot(ib)%v , i1 , ncore , konfig(0,ib) , ecore , rdummy , rdummy ,nmcore)
           allocate(rofi(nr),rwgt(nr),gcore(nr,2,ncore))
           allocate(gval(nr,2,0:lmaxa,nphimx,nsp))
           gval=0d0
@@ -234,15 +228,18 @@ contains
           rsml=rsmlss(:,is)
           ehl= ehlss(:,is)
           call atwf ( 03 , a , lmaxa , nr , nsp , pnu , pnz , rsml , ehl &
-               , rmt ( ib ) , z , v0pot(ib)%v , nphimx , ncore , konfig , ecore , gcore , gval ,nmcore)
+               , rmt ( ib ) , z , v0pot(ib)%v , nphimx , ncore , konfig(0,ib) , ecore , gcore , gval ,nmcore)
           if(nr     >nrmx   ) nrmx    = nr
           if(ncore  >ncoremx) ncoremx = ncore
           !     !         Header data for this atom
           b = rmt(ib)/(dexp(a*nr-a)-1d0)
           call radmsh(rmt(ib),a,nr,rofi)
           call radwgt(rmt(ib),a,nr,rwgt)
+          !zz(is)=z
+          !          ncore_d=
+          ncores(is)=ncore/nsp
           if(master_mpi)write(ifigwa) z, nr, a, b, rmt(ib), lmaxa, nsp, ncore,spid
-          if(master_mpi)write(ifigwa) konfig(0:lmaxa)
+          if(master_mpi)write(ifigwa) konfig(0:lmaxa,ib)
           if(master_mpi)write(ifigwa) rofi
           !     !         Write orthonormalized valence wave functions for this atom
           do  l = 0, lmaxa
@@ -250,7 +247,7 @@ contains
                 if(master_mpi)write(ifigwa) l,i
                 if(master_mpi)write(ifigwa) gval(1:nr,1,l,1,i)
                 if(master_mpi)write(ifigwa) gval(1:nr,1,l,2,i)
-                if (konfig(l) >= 10 .AND. master_mpi) write(ifigwa) gval(1:nr,1,l,3,i)
+                if (konfig(l,ib) >= 10 .AND. master_mpi) write(ifigwa) gval(1:nr,1,l,3,i)
              enddo
           enddo
           !     !         Core wave functions for this atom
@@ -261,7 +258,7 @@ contains
           vshft = 0
           do  l = 0, lmaxa
              do  isp = 1, nsp
-                do  konf = l+1, mod(konfig(l),10)-1
+                do  konf = l+1, mod(konfig(l,ib),10)-1
                    icore = icore+1
                    if(master_mpi)write(ifigwa) icore, l, isp, konf, ecore(icore)+vshft
                    if(master_mpi)write(ifigwa) gcore(1:nr,1,icore)
@@ -298,9 +295,11 @@ contains
        write(ifigwa) iantiferro(1:nbas) !iantiferro may2015
        close(ifigwa)
     endif
+    lmxamx=maxval(lmxa(1:nbas))
     if(master_mpi) then
        open(newunit=ifigwbhead,file='gwb.head',form='unformatted')
-       write(ifigwbhead)nbas,nsp,ndima,ndham,maxval(lmxa(1:nbas)),ncoremx/nsp,nrmx,plat,alat,nqirr,nqibz
+       ncoremx=ncoremx/nsp
+       write(ifigwbhead)nbas,nsp,ndima,ndham,maxval(lmxa(1:nbas)),ncoremx,nrmx,plat,alat,nqirr,nqibz
        write(ifigwbhead)bas,lmxa,qplist,ngplist,ndimhall,qval
        close(ifigwbhead)
     endif
@@ -509,16 +508,21 @@ contains
        deallocate(hamm,ovlm,evec,vxc,cphi,cphiw,evl,vxclda)
 1001 enddo iqisploop
     close(ifiqg)
+!rdata4gw_v2
+    rdata: block
+!      use m_rdata4gw,only: rdata4gw
+      call mpi_barrier(comm,ierr)
+      if(master_mpi) then
+         call rdata4gw()
+      endif   
+    endblock rdata
     call tcx('m_sugw_init')
   end subroutine m_sugw_init
-  subroutine gwcphi(isp,nsp,nlmax,ndham,nev,nbas,lmxax,nlindx,ndima,aus, cphi,cphiw)
+  subroutine gwcphi(isp,nsp,nlmax,ndham,nev,nbas,lmxax,nlindx,ndima,aus, cphi,cphiw)!- Project (phi,phidot) onto MT sphere
     use m_struc_def
     use m_lmfinit,only: ispec
     use m_locpot,only: rotp
     use m_mkpot,only: sab_rv
-    !- Project (phi,phidot) onto MT sphere, Kotani's GW conventions
-    ! ----------------------------------------------------------------------
-    !i Inputs
     !i   isp   :current spin channel (1 or 2)
     !i   nsp   :2 for spin-polarized case, otherwise 1
     !i   nlmax :leading dimension of aus

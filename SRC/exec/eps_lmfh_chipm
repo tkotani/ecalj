@@ -63,7 +63,7 @@ $echo_run echo  `tail -3 llmfgw01 `
 endif
 $echo_run echo $argv[1]|$serial_run $nfpgw/lmf2gw   > llmf2gw
 
-$echo_run echo 1|$serial_run $nfpgw/rdata4gw_v2      >lrdata4gw
+#$echo_run echo 1|$serial_run $nfpgw/rdata4gw_v2      >lrdata4gw
 
 # get EFERMI
 $echo_run echo 1|$serial_run $nfpgw/heftet      >leftet

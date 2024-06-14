@@ -81,15 +81,12 @@ module m_lmf2gw
   ngpmx,     &  !Maximum number of G vector.
   ldim2    ! = total number of augmentation functions nRlm
   character(8),allocatable,protected:: spid(:)
-  integer,allocatable:: &
-       iclass(:),lmxa_d  (:),nr(:),konf_d(:,:),ncore_d(:),ibasf(:)
-  real(8),allocatable :: &
-       zz(:),aa(:),bb(:),ec_d (:,:,:),evl_d(:,:,:), &
+  integer,allocatable::   iclass(:),lmxa_d  (:),nr(:),konf_d(:,:),ncore_d(:),ibasf(:)
+  real(8),allocatable :: zz(:),aa(:),bb(:),ec_d (:,:,:),evl_d(:,:,:), &
        gx_d(:,:,:,:,:),gcore_d(:,:,:,:), bas(:,:)
   real(8):: plat(3,3), alat, efermi,qval
   complex(8),allocatable:: cphi_d(:,:,:,:)
   complex(8),allocatable:: geig_d(:,:,:,:)
-  !      real(8),allocatable :: qirr(:,:)
   logical,protected:: laf   !! - laf: antiferro switch
   integer,protected:: ngcmx,nqnum,nqnumc,nqtt,nq0i,iq0pin,nq0iadd,nqbz,nqibz,nqbzx
   real(8):: QpGcut_psi,QpGcut_cou
@@ -111,7 +108,7 @@ contains
     !!   CLASS, lmfgw_kdivider, NLAindx
     !------------------------------------------------------------------
     use m_keyvalue,only: getkeyvalue
-    use m_hamindex0,only: readhamindex0,nclass_in=>nclass,iclass_in=>iclasst
+    use m_hamindex0,only: nclass_in=>nclass,iclass_in=>iclasst !readhamindex0,
     use m_hamindex0,only: nindx_in=>nindx,lindx_in=>lindx,ibasindx_in=>ibasindx,nphimx_in=>nphimx
     implicit none
     integer:: iq0p
@@ -127,8 +124,7 @@ contains
     integer:: ifi,ifefclass,icors(2)
     complex(8),allocatable:: zegf(:,:) ,geig(:,:)
     complex(8),allocatable:: cphi(:,:)
-    real(8),allocatable:: evl(:), vvv1(:),vvv2(:),vvv3(:),rofi_A(:) &
-         ,gcore_A(:,:), ec_A(:)
+    real(8),allocatable:: evl(:), vvv1(:),vvv2(:),vvv3(:),rofi_A(:) ,gcore_A(:,:), ec_A(:)
     integer,allocatable:: konf(:,:),nncx(:,:),ngvecp(:,:),lmxaa(:)
     real(8),parameter ::  rydberg=13.6058d0
     ! nocore is obtained by inquire(file='NoCore',exist=nocore) in the upper routine.
@@ -144,12 +140,13 @@ contains
     integer:: ifiproc,nqixx,nspxx,numprocxx,ixxx,ifiqibz
     integer::  id,nsizex,iqqxx,ib,ii,ipqn,nn,nnn(3),ifiqg,ifiqgc,irr,irrq,iqibz
     !! =================================================================
+    
     open(newunit=ifigwb,file='gwb.head',form='unformatted')
     read (ifigwb) nbas,nsp,ldim2,nbandmx,lmxamx,ncoremx,nrmx,plat,alat,nqirr
     allocate(bas(3,nbas),lmxaa(nbas),qplist(3,nqirr),ngplist(nqirr),ndimhall(nqirr))
     read(ifigwb) bas,lmxaa,qplist,ngplist,ndimhall,qval
     close(ifigwb)
-    call readhamindex0()
+!    call readhamindex0()
     nclass=nclass_in
     allocate(nindx(ldim2),lindx(ldim2),ibasindx(ldim2))
     nindx=nindx_in
@@ -182,9 +179,11 @@ contains
           do  isp = 1, nsp
              read(ifigwa) lxx,ispxx
              if(lxx /= l .OR. isp /=ispxx) call rx('lmf2gw:lxx or isp wrong')
+             
              read(ifigwa) gx_d(1:nr_A,l,1,ic,isp) !phi
              read(ifigwa) gx_d(1:nr_A,l,2,ic,isp) !phidot
              if (konf_d(l,ic) >= 10) read(ifigwa) gx_d(1:nr_A,l,3,ic,isp) !phiz
+             
           enddo
        enddo
        if(ncore/=0) write(6,'(''  l  k isp       ecore      gc(rmax)     <gc gc>'')')! core part
@@ -198,11 +197,13 @@ contains
                 icore = icore+1
                 icors(isp) = icors(isp) +1
                 icor1=icors(isp)
+
                 read(ifigwa) icorex,ldummy,ispx,kkkdummy,ec_A(icore)
                 if(icore/=icorex)  call rx('lmf2gw:icore/=icorex')
                 read(ifigwa) gcore_A(1:nr_A,icore) ! gcore
                 ec_d(icor1, ic, isp) = ec_A(icore)
                 gcore_d(1:nr_A,icor1,ic,isp)  = gcore_A(1:nr_A,icore)
+                
              enddo
           enddo
        enddo

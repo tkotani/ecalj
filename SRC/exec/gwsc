@@ -74,7 +74,7 @@ for i in range(1,nloop+1): #nloop is the additional number of iteration
     run_program(epath+'/qg4gw '+option+'--job=1 > lqg4gw',1)
     run_program(epath+'/lmf'+targets+'--jobgw=1 >llmfgw01',ncore)
     ##### main stage of gw ####
-    run_program(epath+'/rdata4gw_v2 '+option+'> lrdata4gw_v2',1) #prepare files
+    #run_program(epath+'/rdata4gw_v2 '+option+'> lrdata4gw_v2',1) #prepare files
     mv_files(glob.glob('norm*'),'STDOUT')
     rm_files(['gwa']+glob.glob('gwb*'))
     run_program(epath+'/heftet --job=1 '+option+'> leftet',1)       # A file EFERMI for hx0fp0

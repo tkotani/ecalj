@@ -85,7 +85,7 @@ do
     mv normchk* STDOUT
 
     ##### main stage of gw ################
-    argin=0; run_arg2 $argin $NO_MPI   $nfpgw /rdata4gw_v2 lrdata4gw_v2 #prepare files
+    #argin=0; run_arg2 $argin $NO_MPI   $nfpgw /rdata4gw_v2 lrdata4gw_v2 #prepare files
     rm gw1* gw2* gwa* gwb*
     if [ $ix == 0 ]; then 
 	cp evec.$TARGET evec0  # used in hqpe_sc for isigma_en==5
