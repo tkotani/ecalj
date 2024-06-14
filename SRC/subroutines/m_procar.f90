@@ -22,7 +22,7 @@ contains
     inquire(iprocar2,exist=nexist)
     if(nexist) close(iprocar2)
   end subroutine m_procar_closeprocar
-  subroutine m_procar_init(iq,ispin,ef0,vmag0,evl,qp,nev,evec,ndimhx)
+  subroutine m_procar_init(iq,ispin,ef0,evl,qp,nev,evec,ndimhx) !vmag0 removed. 2024-6-14 since evl contains effect of vmag0
     use m_makusq,only: makusq
     use m_ftox
     implicit none
@@ -30,7 +30,7 @@ contains
     character*1000::ccc
     real(8):: ef0
     complex(8):: auasaz(3)
-    real(8):: s11,s22,s33,s12,s13,s23,xdat,qold(3),qp(3),vmag0,dwgt(nchanp),dwgtt(nchanp) 
+    real(8):: s11,s22,s33,s12,s13,s23,xdat,qold(3),qp(3),dwgt(nchanp),dwgtt(nchanp)  !,vmag0
     complex(8),allocatable:: auspp(:,:,:,:,:)
     integer:: iq,isp,iprocar,iband,is,ilm,nspc,ib,nev,i,m,l,ndimhx,ispin,ispstart,ispend,ispx
     real(8):: rydberg=13.6058d0,evl(ndhamx,nspx)
@@ -54,7 +54,7 @@ contains
 
 !    write(stdo,ftox) 'isp ',ispin,ispx,ispstart,ispend,' nev ndhamx nspx',nev,ndhamx,nspx
     allocate(evlm,source=evl)
-    if(lso/=0) evlm(:,ispin)=evl(:,ispin) + vmag0*(ispin-1.5d0)
+    if(lso/=0) evlm(:,ispin)=evl(:,ispin) !+ vmag0*(ispin-1.5d0)
     allocate( auspp(nlmax,ndhamx,3,nsp,nbas),source=(0d0,0d0) ) !3 for three radial funcitons (u,s,gz). ndhamx is the dimension of Hamiltonian.
     call makusq(nbas,[-999], nev,ispin,1,qp,evec, auspp ) !Get (u,s,gz) !ispin is neglected for lso=1
     

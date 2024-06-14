@@ -4,7 +4,7 @@ module m_sugw
   private
   public:: m_sugw_init
 contains
-  subroutine m_sugw_init (socmatrix,eferm,vmag,qval) !,FPMTmodein) !dipolematrix,
+  subroutine m_sugw_init (socmatrix,eferm,vmag,qval)
     use m_ext,only:   sname
     use m_suham,only: ndham=>ham_ndham !max dimension of hamiltonian +napwad (for so=0,2)
     use m_lmfinit,only: ham_pwmode,pwemax,ham_oveps,lrsig=>ham_lsig,nlmto,lso
@@ -88,7 +88,7 @@ contains
          ncore,ndima,nevl,nev,nglob,ngp,ngp_p, &
          ngpmx,nline,nlinemax,nlmax,nmx,nn1,nn2,nnn, &
          nphimx,npqn,nqbz,nqibz,nqnum,nqnumx,nqtot,nr,iqibz,imx, &
-         ifigwb,ifigwb0,ifigwa,ifinormchk,ifigw1,ifildima,ifigwn,ifigwbhead, &
+         ifigwb,ifigwa,ifinormchk,ifigw1,ifildima,ifigwn,ifigwbhead, &
          ificlass,ifievec,ifievecx,ifigw2,ifiqbz,ifievv,idat
     complex(8),allocatable :: aus_zv(:)
     real(8),allocatable :: ww_rv(:)
@@ -137,26 +137,28 @@ contains
     character spid*8
     character(8) :: xt
     logical,optional:: socmatrix !dipolematrix,
-    integer:: ispSS,ispEE,ispx
+    integer:: ispSS,ispEE,ispx,iqbk
     logical:: emptyrun
 !    include "mpif.h"
     call tcn ('m_sugw_init')
     emptyrun=cmdopt0('--emptyrun')
     if(master_mpi) write(stdo,"(a)") 'm_sugw_init: start'
     sigmamode = mod(lrsig,10) .ne. 0
-    write(6,"('MagField to eval. -vmag/2 for isp=1, +vmag/2 for isp=2. vmag=',d13.6)")vmag
     call getpr(ipr)
-    alat=lat_alat
-    open(newunit=ifimag,file='MagField',status='old',err=112)! june2013 magfield is added
-    read(ifimag,*,err=112) vnow
-    close(ifimag)
-    magexist=.true.
-    write(6,"('Add mag.field to eval. -vnow/2 for isp=1, +vnow/2 for isp=2. vnow=',d13.6)")vnow
-    goto 113
-112 continue
-    magexist=.false.
-113 continue
-    !!--------------------
+    readinmag:block
+      write(stdo,"('MagField added to Hailtonian -vmag/2 for isp=1, +vmag/2 for isp=2: vmag(Ry)=',d13.6)") vmag
+      magexist= abs(vmag)>1d-6
+!      vmag=vmag
+!      open(newunit=ifimag,file='MagField',status='old',err=112)
+!      read(ifimag,*,err=112) vmag
+!      close(ifimag)
+!      magexist=.true.
+!      write(stdo,"('Add mag.field to eval. -vmag/2 for isp=1, +vmag/2 for isp=2. vmag=',d13.6)")vmag
+!      goto 113
+!112   continue
+!      magexist=.false.
+!113   continue
+    endblock readinmag
     call getpr(ipr)
     alat=lat_alat
     plat =lat_plat
@@ -304,6 +306,8 @@ contains
     endif
     deallocate(ips,lmxa)
     nspx=nsp/nspc
+    ! For SO=1,  nsp=2, nspc=2, nspx=1,   ndimhx=ndimh*2
+    ! For SO/=1,        nspc=1, nspx=nsp, ndimhx=ndimh (nsp=1 or 2)
     !! == GW setup loop over k-points ==
     if (lchk>=1 ) then
        open(newunit=ifinormchk,file='norm.'//trim(sprocid)//'.chk')
@@ -313,28 +317,33 @@ contains
     !!    Note: this routine should use only irr qp.
     !! == Main loop for eigenfunction generation ==
     if(ham_scaledsigma/=1d0 .AND. sigmamode) write(stdo,*)' Scaled Sigma method: ScaledSigma=',ham_scaledsigma
-    iqloop: do 1001 idat=1,niqisp !iq = iqini,iqend ! iqini:iqend for this procid
-       iq = iqproc(idat)
-       isp= isproc(idat) !NOTE: isp=1:nspx=nsp/nspc
-       qp  = qplist(:,iq)     !  ... For this qp, G vectors for PW basis and hamiltonian dimension
-       ngp = ngplist(iq)
+    iqisploop: do 1001 idat=1,niqisp !iq = iqini,iqend ! iqini:iqend for this procid
+       iq  = iqproc(idat)
+       isp = isproc(idat) ! NOTE: isp=1:nspx=nsp/nspc
+       qp  = qplist(:,iq) ! q vector
+       ngp = ngplist(iq)  ! number of planewaves for PMT basis
        lwvxc = iq<=iqibzmax
        if (cmdopt0('--novxc')) lwvxc = .FALSE. 
        if (socmatrix) lwvxc = .TRUE. 
-       call m_Igv2x_setiq(iq)! (qp)    ! Set napw ndimh ndimhx and igv2x
+       call m_Igv2x_setiq(iq) ! Set napw ndimh ndimhx, and igv2x
        allocate(hamm(ndimh,nspc,ndimh,nspc),ovlm(ndimh,nspc,ndimh,nspc)) !Spin-offdiagonal block included since nspc=2 for lso=1.
        allocate(evec(ndimhx,ndimhx),vxc(ndimh,ndimh))
        allocate(cphi(ndima,ndimhx,nsp),cphiw(ndimhx,nsp))
        allocate(evl(ndimhx,nspx),vxclda(ndimhx))
-       if((lso/=0 .OR. socmatrix) .AND. ( .NOT. allocated(hammhso))) then
+       if(iqbk==iq) then
+          continue
+       elseif( lso/=0 .OR. socmatrix) then
+          deallocate(hammhso)
           allocate(hammhso(ndimh,ndimh,3))
           call aughsoc(qp, ohsozz,ohsopm, ndimh, hammhso)
+          iqbk=iq !q index for hammhso
+          if(socmatrix) write(ifiv) iq
+          if(socmatrix) write(ifiv) hammhso 
        endif
        open(newunit=ifigwb, file='gwb' //trim(xt(iq))//trim(xt(isp)),form='unformatted')
-       open(newunit=ifigwb0,file='gwb0'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
        if(lwvxc) then
-          open(newunit=ifievec,   file='evec'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
-          open(newunit=ifiv,      file='vxc'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
+          open(newunit=ifievec, file='evec'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
+          open(newunit=ifiv,    file= 'vxc'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
           write(ifievec) ndimh, ldim
           write(ifiv)    ndimh, ldim
        endif
@@ -342,38 +351,34 @@ contains
           evec=1d0 
           evl(:,isp)=[(i*0.1,i=1,ndimhx)]
           nev=ndimh
-          if (lwvxc) write(ifiv) vxc
-          if (socmatrix .AND. isp==1) write(ifiv) hammhso
           goto 1212
        endif
        GetHamiltonianAndDiagonalize: block
          integer:: iprint
          if(lso==1) then !L.S case nspc=2
             do ispc=1,nspc  ! nspc==2 ! LDA part of Hamiltonian and overlap matrices for this qp ---
-               call hambl(ispc,qp,spotx,vconst,osig,otau,oppix, vxc(:,:),           ovlm(:,ispc,:,ispc))
+               call hambl(ispc,qp,spotx,vconst,osig,otau,oppix, vxc(:,:),          ovlm(:,ispc,:,ispc))
                call hambl(ispc,qp,smpot,vconst,osig,otau,oppi, hamm(:,ispc,:,ispc),ovlm(:,ispc,:,ispc))
                vxc = hamm(:,ispc,:,ispc) - vxc ! vxc(LDA) part
                hamm(:,ispc,:,ispc)= hamm(:,ispc,:,ispc) + hammhso(:,:,ispc) !spin-diag SOC elements (1,1), (2,2) added
                if(lwvxc) write(ifiv) vxc
             enddo
-            if(socmatrix) write(ifiv) hammhso
             hamm(:,1,:,2)= hammhso(:,:,3)                    !spin-offdiagonal SOC elements (1,2) added
             hamm(:,2,:,1)= transpose(dconjg(hammhso(:,:,3)))
-            if(sigmamode) then
+            if(sigmamode) then !Add  Vxc(QSGW)-Vxc 
                do ispc=1,nspc
                   call getsenex(qp, ispc, ndimh, ovlm(:,ispc,:,ispc)) !bugfix at 2024-4-24 obata: ispc was 1 when 2023-9-20
                   hamm(:,ispc,:,ispc) = hamm(:,ispc,:,ispc) + ham_scaledsigma*senex !sene= Vxc(QSGW)-Vxc(LDA)
                   call dsene()
                enddo
             endif
-         else ! lso=0 (No SO) or lso=2(Lz.Sz)  Spin Diagonal case.spin diagonal)
+         else ! lso=0 (No SO) or lso=2(Lz.Sz)  Spin Diagonal case.spin diagonal) nspc=1 only
             call hambl(isp,qp,spotx,vconst,osig,otau,oppix, vxc,           ovlm(:,1,:,1)) !vxc=<F_i|H(LDA)-vxc(LDA)|F_j>
             call hambl(isp,qp,smpot,vconst,osig,otau,oppi,  hamm(:,1,:,1), ovlm(:,1,:,1)) !ham=<F_i|H(LDA)|F_j> and ovl=<F_i|F_j>
             if(lso==2) hamm(:,1,:,1) = hamm(:,1,:,1) + hammhso(:,:,isp) !diagonal part of SOC matrix added for Lz.Sz mode.
             vxc = hamm(:,1,:,1) - vxc ! vxc(LDA) part
-            if (lwvxc) write(ifiv) vxc
-            if (socmatrix .AND. isp==1) write(ifiv) hammhso !isp==2)?
-            if(sigmamode) then !!Add  Vxc(QSGW)-Vxc 
+            if(lwvxc) write(ifiv) vxc
+            if(sigmamode) then !Add  Vxc(QSGW)-Vxc 
                call getsenex(qp,isp,ndimh,ovlm(:,1,:,1))
                hamm(:,1,:, 1) = hamm(:,1,:,1) + ham_scaledsigma*senex !senex= Vxc(QSGW)-Vxc(LDA)
                call dsene()
@@ -383,7 +388,16 @@ contains
          epsovl = ham_oveps
          evec=-1d99
          evl(:,isp)=1d99
-         call zhev_tk4(ndimhx,hamm,ovlm,ndimhx,nev,evl(1,isp),evec,epsovl)
+         if(magexist) then
+            if(nspc==2) then
+               hamm(:,1,:,1)= hamm(:,1,:,1) - vmag/2d0*ovlm(:,1,:,1)
+               hamm(:,2,:,2)= hamm(:,2,:,2) + vmag/2d0*ovlm(:,2,:,2)
+            else
+               if(isp==1) hamm(:,1,:,1)= hamm(:,1,:,1) - vmag/2d0*ovlm(:,1,:,1)
+               if(isp==2) hamm(:,1,:,1)= hamm(:,1,:,1) + vmag/2d0*ovlm(:,1,:,1)
+            endif   
+         endif
+         call zhev_tk4(ndimhx,hamm,ovlm,ndimhx,nev,evl(1,isp),evec,epsovl) !get evl and evec. 
        endblock GetHamiltonianAndDiagonalize
 1212   continue
        if (lwvxc) write(ifievec) qp, evec(1:ndimhx,1:ndimhx),nev
@@ -397,11 +411,11 @@ contains
        evl(1+nev:,isp)=1d20 ! See rdata4gw_v2
        if(mod(iq,10) /= 1) call poppr
        if(debug) write(stdo,"(' sugw:procid iq isp lwvxc= ',3i3,' ',l)")procid, iq,isp,lwvxc
-       if(magexist) then
-          if(nspc==2) call rx('not yet implemented magexist=T and SO=1')
-          if(isp==1) evl(1:ndimh,isp)=evl(1:ndimh,isp) - vnow/2d0
-          if(isp==2) evl(1:ndimh,isp)=evl(1:ndimh,isp) + vnow/2d0
-       endif
+!       if(magexist) then
+!          if(nspc==2) call rx('not yet implemented magexist=T and SO=1')
+!          if(isp==1) evl(1:ndimh,isp)=evl(1:ndimh,isp) - vmag/2d0
+!          if(isp==2) evl(1:ndimh,isp)=evl(1:ndimh,isp) + vmag/2d0
+!       endif
        nlmax = (lmxax+1)**2 
        allocate(aus_zv(nlmax*ndham*3*nsp*nbas))     ! Project wf into augmentation spheres, Kotani conventions ---
        aus_zv=0d0
@@ -492,9 +506,8 @@ contains
        close(ifigwb)
        if (lwvxc) close(ifiv)
        if (lwvxc) close(ifievec)
-       if(allocated(hammhso)) deallocate(hammhso)
        deallocate(hamm,ovlm,evec,vxc,cphi,cphiw,evl,vxclda)
-1001 enddo iqloop
+1001 enddo iqisploop
     close(ifiqg)
     call tcx('m_sugw_init')
   end subroutine m_sugw_init
