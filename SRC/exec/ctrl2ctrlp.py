@@ -68,19 +68,17 @@ for ilinex in midfile.split('\n'): #line by line, for pure mathematical operatio
     nnn=[]
     for ix in mmm:
         eout=ix
+        #print(eout)
         try:
-            eout=eval(ix,{},{'F':'F','T':'T'}) # math
-            #print(type(ix),ix,'--->',eout)
+            eout=eval(ix) # math
         except:
-            #print('err')
             pass
-        nnn.append(str(eout).replace(',',' ')) #
-        #nnn  #.replace('=','= '))
-    #print('input :'+''.join(mmm))
-    #print('output:'+''.join(nnn))
+        nnn.append(str(eout).replace(',',' '))
+        #print('input:',ix,' output:',eout)
+        #print('input :'+''.join(mmm))
+        #print('output:'+''.join(nnn))
     outfile=outfile+''.join(nnn)+'\n'
-outfile=re.sub('\t',' ',outfile) # 2023feb22:46
-#print(outfile)
+outfile=re.sub('\t',' ',outfile)
 lll=''
 init=False
 ix=0
@@ -150,9 +148,11 @@ for iline in lll.split('\n'):
 catok=catok+'STRUC_NSPEC '+str(nspec)+'\n' # less prior if STRUC_NSPEC already in ctrl
 catok=catok+'STRUC_NBAS '+str(nbas)+'\n'   # less prior
 llx=len(outfile0.split('\n'))+len(lll.split('\n'))
-#print(llx+len(catok.split('\n'))+1,lmax,llx,'#  of all lines; # of reclen;# of line\n'+outfile0+'\n'+lll)
-#print(catok)
 
 for iline in lll.split('\n'):
     if('SYMGRP' in iline): print(iline)
-print(catok)
+#print(catok)
+for iline in catok.split('\n'):
+    ilinex=iline
+    if(re.search('_ATOM@',iline)): ilinex=re.sub(' 0',' F',iline)
+    print(ilinex)
