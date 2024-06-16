@@ -5,9 +5,9 @@
 subroutine rdata4gw() !bind(C)
   use m_nvfortran,only:findloc
   use m_hamindex0,only: nclass,iclass=>iclasst,nindx,lindx,ibasindx,nphimx
-  use m_lmfinit,only: nsp,nbas,zz=>z,iantiferro,alat,bas=>pos, slabl,rmt,spec_a,lmxa,ispec,nspec,nr,iantiferro
+  use m_lmfinit,only: nsp,nbas,zz=>z,iantiferro,alat,bas=>pos, slabl,rmt,spec_a,lmxa,ispec,nspec,nr,iantiferro,nrmx_=>nrmx
   use m_lattic,only:  plat=>lat_plat
-  use m_sugw,only:ldim2=>ndima,lmxamx,ncoremx,nqirr,konf=>konfig,ncores,nrmx
+  use m_sugw,only:ldim2=>ndima,lmxamx,ncoremx,nqirr,konf=>konfig,ncores
   use m_suham,only: nbandmx=>ham_ndham
   use m_read_bzdata,only: Read_bzdata, nqibz,qibz, nq0i,nq0iadd,wt,q0i,iq0pin
   use m_lgunit,only: m_lgunit_init
@@ -155,24 +155,24 @@ subroutine rdata4gw() !bind(C)
   integer::ibasx,ifiqg,ifiqgc,irrq, nqtt, nqnum,ngpmx,nqnumc,ngcmx,nqbz
   real(8):: QpGcut_psi,QpGcut_cou,qxx(3)
   real(8),allocatable :: ec (:,:,:),gx_raw(:,:,:,:,:),gcore(:,:,:,:)
-  integer::icors(nsp),icor1,ifigwa,ispx,kkkdummy,ldummy,nr_A,icorex
+  integer::icors(nsp),icor1,ifigwa,ispx,kkkdummy,ldummy,nr_A,icorex,nrmx
   !logical:: fpmt=.false., cmdopt0
 !  call MPI__Initialize()
 !  call m_lgunit_init()
 !  call lmf2gw() !set variables, and CphiGeig
 
      open(newunit=ifigwa,file='gwa',form='unformatted')
-     allocate(ec(ncoremx, nclass, nsp), gx_raw(nrmx,0:lmxamx,nphimx,nclass,nsp), gcore(nrmx,ncoremx,nclass,nsp) )
+     allocate(ec(ncoremx, nclass, nsp), gx_raw(nrmx_,0:lmxamx,nphimx,nclass,nsp), gcore(nrmx_,ncoremx,nclass,nsp) )
      do 3001 ibas = 1, nbas
-        read(ifigwa) !z, nr_A, a_A, b_A, rofi_Anr,lmxa,nspdummy,ncore,spid(ibas)
-        read(ifigwa) !konf(1:lmxa+1,ibas)
-        read(ifigwa) !rofi_A(1:nr_A)
+!        read(ifigwa) !z, nr_A, a_A, b_A, rofi_Anr,lmxa,nspdummy,ncore,spid(ibas)
+!        read(ifigwa) !konf(1:lmxa+1,ibas)
+!        read(ifigwa) !rofi_A(1:nr_A)
         ic = iclass(ibas)
         is = ispec(ibas)
         nr_A=nr(is)
         do  l = 0, lmxa(is)
            do  isp = 1, nsp
-              read(ifigwa) !lxx,ispxx
+!              read(ifigwa) !lxx,ispxx
               read(ifigwa) gx_raw(1:nr_A,l,1,ic,isp) !phi
               read(ifigwa) gx_raw(1:nr_A,l,2,ic,isp) !phidot
               if (konf(l,ibas) >= 10) read(ifigwa) gx_raw(1:nr_A,l,3,ic,isp) !phiz
@@ -490,7 +490,7 @@ subroutine rdata4gw() !bind(C)
            n    = kkk - l
            ncindx(icore)= n
            lcindx(icore)= l
-           write(ifec,ftox) l,n,ftod(ec(icore,ic,1:nsp),16) !ECORE
+           write(ifec,ftox) l,n,ftod(ec(icore,ic,1:nsp),16) !ECORE ,ftod(ecore(icore,1:nsp,ibas),16) !
         enddo
      enddo
      write(ifphi) ncores(is), ncoremx !core
