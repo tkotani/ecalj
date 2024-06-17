@@ -1,19 +1,12 @@
 module m_atwf !- Make properties related to core for one sphere
   use m_lgunit,only:stdo
   use m_ftox
-  public atwf,rwftai,makrwf,phidx
+  public rwftai,makrwf,phidx,wf2lo
   private
 contains
-  subroutine atwf(mode,a,lmxa,nr,nsp,pnu,pnz,rsml,ehl,rmt,z,v0,nphimx,ncore,konfig,ecore,gcore,gval,nmcore)
+  subroutine atwf(a,lmxa,nr,nsp,pnu,pnz,rsml,ehl,rmt,z,v0,nphimx,ncore,konfig,ecore,gcore,gval,nmcore)
     use m_rhocor,only: getcor
     use m_lmfinit,only: n0
-    !i   mode  :0 return ncore, and konfig, and nphimx only;
-    !i         :  see description below for contents of nphimx
-    !i         :1s digit
-    !i         :1 return valence wave functions
-    !i         :2 return core wave functions
-    !i         :3 combination of 1+2
-    !i       using large component only
     !i   a     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
     !i   lmxa  :augmentation l-cutoff
     !i   nr    :number of radial mesh points
@@ -55,7 +48,6 @@ contains
     real(8) :: rofi(nr),rwgt(nr),rhoc(nr,2),gp(2*nr*4)
     real(8) :: phi,dphi,phip,dphip,p,phz,dphz,phzp,dphzp
     logical:: l_dummy_isanrg
-    mode0 = mod(mode,10)
     ! --- Count number of core states ---
     SetCoreIndex: block
       logical:: isanrg
@@ -79,14 +71,9 @@ contains
          endif
       enddo
     endblock SetCoreIndex
-    if (mode0 == 0) then
-       nphimx = 2
-       if (lpz) nphimx = 3
-       return
-    endif
     call radmsh(rmt,a,nr,rofi)
     call radwgt(rmt,a,nr,rwgt)
-    ValenceWaveFunctions: if (mod(mode0,2) == 1) then
+    ValenceWaveFunctions: block 
        do  l = 0, lmxa
           k = l+1
           do  isp = 1, nsp
@@ -100,8 +87,8 @@ contains
              endif
           enddo
        enddo
-    endif ValenceWaveFunctions
-    if(mode0>=2) call getcor(1,z,a,pnu,pnz,nr,lmxa,rofi,v0,0,0,[0d0,0d0],sumec,sumtc,rhoc,ncore,ecore,gcore,nmcore) !nmcore jun2012 !Core eigenfunctions and eigenvalues --- 
+    endblock ValenceWaveFunctions
+    call getcor(1,z,a,pnu,pnz,nr,lmxa,rofi,v0,0,0,[0d0,0d0],sumec,sumtc,rhoc,ncore,ecore,gcore,nmcore) !nmcore is non-magnetic core
   end subroutine atwf
   subroutine makrwf(z,rmax,l,v,a,nr,rofi,pnu,nptdif,g,gp, enu,phi,dphi,phip,dphip,p)!Radial wave functions and energy derivative
     !i   z     :nuclear charge

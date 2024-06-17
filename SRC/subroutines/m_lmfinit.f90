@@ -1,4 +1,4 @@
-!> Ititial data for lmf-MPIK lmchk lmfa read from ctrl file
+!> Ititial data for lmf lmchk lmfa read from ctrl file
 !> pos can be from AtomPos (see lmfp.f90)
 module m_lmfinit ! 'call m_lmfinit_init' sets all initial data from ctrl are processed and stored in m_lmfinit_init.
   use m_ftox !for write(*,ftox) ftof(values)

@@ -1,7 +1,7 @@
 !-----------------------------------------------------
 subroutine calc_npw(nfac, npw)
   use m_QG,only: ngvecp,qqqa,nqnum,ngp
-  use m_lmf2gw,only: alat,plat
+  use m_genallcf_v3,only: alat,plat
   implicit none
   ! input
   integer :: nfac
@@ -40,7 +40,8 @@ end subroutine calc_npw
 ! Linear interpolation of gx/r
 double precision function calc_gxr(r,l,n,ic,isp)
   !      use m_LMTO
-  use m_lmf2gw,only: bb,nr,aa,alat,gx=>gx_d
+  use m_genallcf_v3,only: alat,plat
+  use m_lmf2gw,only: bb,nr,aa,gx=>gx_d
   implicit none
   ! input
   double precision :: r
@@ -64,7 +65,8 @@ end function calc_gxr
 subroutine b2w(nq_wfn,nband_wfn,q_wfn,bindx_wfn,tlat,npw, &
      phi,wan)
   !! Make Wannier functions from Bloch functions in real space representation.
-  use m_lmf2gw,only: bb,nr,aa,alat,nsp,plat
+  use m_lmf2gw,only: bb,nr,aa
+  use m_genallcf_v3,only: alat,nsp=>nspin,plat
   implicit none
   integer :: nq_wfn,nband_wfn,npw(3),bindx_wfn(nband_wfn),tlat(3)
   double precision :: q_wfn(3,nq_wfn),tvec(3),phase,pi,rtmp(3)
@@ -117,7 +119,8 @@ end subroutine chkinv33
 subroutine calc_rho_2(alat_ang,nq_wfn,nband_wfn,mesh,rini,rfin, &
      phipw,phiaug,phitot)
   !      use m_LMTO
-  use m_lmf2gw,only: bb,nr,aa,alat,nsp,plat
+  use m_lmf2gw,only: bb,nr,aa
+  use m_genallcf_v3,only: alat,nsp=>nspin,plat
   implicit none
   ! input
   integer :: nq_wfn,nband_wfn,mesh(3)

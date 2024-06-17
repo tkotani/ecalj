@@ -5,19 +5,19 @@
 subroutine rdata4gw() !bind(C)
   use m_nvfortran,only:findloc
   use m_hamindex0,only: nclass,iclass=>iclasst,nindx,lindx,ibasindx,nphimx
-  use m_lmfinit,only: nsp,nbas,zz=>z,iantiferro,alat,bas=>pos, slabl,rmt,spec_a,lmxa,ispec,nspec,nr,iantiferro,nrmx_=>nrmx
-  use m_lattic,only:  plat=>lat_plat
-  use m_sugw,only:ldim2=>ndima,lmxamx,ncoremx,nqirr,konf=>konfig,ncores
+  use m_lmfinit,only: nsp,nbas,zz=>z,iantiferro,alat, slabl,rmt,spec_a,lmxa,ispec,nspec,nr,iantiferro,pos !bas=>pos,
+  use m_lattic,only:  plat=>lat_plat,qlat=>lat_qlat
+  use m_sugw,only: ndima,lmxamx,ncoremx,nqirr,konfig,ncores,ecore,gcore,gval
   use m_suham,only: nbandmx=>ham_ndham
   use m_read_bzdata,only: Read_bzdata, nqibz,qibz, nq0i,nq0iadd,wt,q0i,iq0pin
   use m_lgunit,only: m_lgunit_init
   use m_pwmat,only: mkppovl2
   use m_lgunit,only:stdo
   use m_ftox
-!  use m_lmf2gw,only: lmf2gw, ec=>ec_d, gx_raw=>gx_d,gcore=>gcore_d   !zz,aa,efermi,
   use m_qplist,only: qplist,ngplist
   use m_mkpot,only: qval
   use m_igv2x,only: ndimhall
+!  use m_lmf2gw,only: lmf2gw, ec=>ec_d, gval=>gx_d,gcore=>gcore_d   !zz,aa,efermi,
   !check core index               : open(newunit=ifnlax,file='@MNLA_core.chk')
   !datasize                       : open(newunit=ifhbed,file='hbe.d') 
   !eigencore                      : open(newunit=ifec, file='ECORE')
@@ -42,16 +42,16 @@ subroutine rdata4gw() !bind(C)
   !  plat(1:3,2) : 2nd primitive translation vector
   !  plat(1:3,3) : 3rd primitive translation vector
   !  evl (1:nbandmx)          :  eigenvalue
-  !  cphi(1:ldim2,1:nbandmx) : the coefficienets of eigenfunction for phi(augmentation wave)
+  !  cphi(1:ndima,1:nbandmx) : the coefficienets of eigenfunction for phi(augmentation wave)
   !  geig(1:ngp,  1:nbandmx) : the coefficienets of eigenfunction for IPW
-  !  nindx   (1;ldim2) : n index (phi=1 phidot=2 localorbital=3)
-  !  lindx   (1:ldim2) : l index
-  !  ibasindx(1:ldim2) : ibas index . These are used to re-ordering cphi.
-  !                     :  mindx(1:ldim2)  is generated under the asuumption that
+  !  nindx   (1;ndima) : n index (phi=1 phidot=2 localorbital=3)
+  !  lindx   (1:ndima) : l index
+  !  ibasindx(1:ndima) : ibas index . These are used to re-ordering cphi.
+  !                     :  mindx(1:ndima)  is generated under the asuumption that
   !                        m=-l:l is successively ordered.
   !
   !  nphi,     ! number of augmentation nRl channels, as distinct from:
-  !  ldim2,       ! number of nRLm channels = 2*ldim for phi+phidot case.
+  !  ndima,       ! number of nRLm channels = 2*ldim for phi+phidot case.
   !  nphimx       ! Maxmum number of phi for all l ---  2 for phi+phidot case.
   !  vxclda (1:nbandmx) : lda XC potential <psi|Vxc(n)|psi> for each eigenfunctions
   !
@@ -76,7 +76,7 @@ subroutine rdata4gw() !bind(C)
        ,iqibz,ifnqibz,iqi,iq,ifigwin ,l,ifoc,ir,isp,  iqi2
   real(8):: ovvxx,ovvx,qpgcut_psi2,dummy
   integer,parameter:: nspx=2
-  real(8) :: qlat(3,3) ,qm(3,3) !,ginv(3,3)
+  real(8) :: qm(3,3) !,ginv(3,3)
   real(8):: qqq(3),qqqa(3),qqqb(3),qx(3),ecx(2)
   integer::    ifphi,ifev,ifv,ifplane
   real(8),allocatable:: rofi(:), evl(:,:,:),vvv1(:),vvv2(:),vvv3(:)
@@ -87,7 +87,7 @@ subroutine rdata4gw() !bind(C)
   integer:: icore1,nnnn, mrecg!,nqi
   integer,allocatable:: invgx(:)
   real(8),allocatable:: shtvg(:,:)
-  integer,allocatable::  vkonf(:,:),     mindx(:)
+  integer,allocatable::  konf0(:,:),     mindx(:)
   real(8),allocatable :: gxcopy (:,:,:,:,:), gx_orth (:,:,:,:,:),  gx_in(:,:,:,:,:), &
        ovv(:,:,:,:,:),zzp(:,:,:,:,:),zzpi(:,:,:,:,:),eb(:)
   complex(8),allocatable::  cphi(:,:,:,:), geig(:,:,:,:), cphix(:,:),zzpx(:,:)
@@ -124,7 +124,7 @@ subroutine rdata4gw() !bind(C)
   logical:: rmeshrefine
   integer:: nr_n
   real(8):: aa_n,bb_n,rmaxx,ab_n,delr,delrset,qu(3)
-  real(8),allocatable:: rofi_n(:), gx_raw_n (:,:,:,:,:), gcore_n  (:,:,:,:) , aann(:),bbnn(:)
+  real(8),allocatable:: rofi_n(:), gval_n (:,:,:,:,:), gcore_n  (:,:,:,:) , aann(:),bbnn(:)
   integer,allocatable:: nrnn(:)
   integer:: igp1,igp2,   icold,nev,iread !ifnband,
   integer:: igg,iorb, igc
@@ -153,135 +153,14 @@ subroutine rdata4gw() !bind(C)
   integer,allocatable,target:: ngvecptt(:,:,:),ngvecctt(:,:,:),ngptt(:),ngctt(:),iqindex(:)
   real(8),allocatable:: qtt(:,:)
   integer::ibasx,ifiqg,ifiqgc,irrq, nqtt, nqnum,ngpmx,nqnumc,ngcmx,nqbz
-  real(8):: QpGcut_psi,QpGcut_cou,qxx(3)
-  real(8),allocatable :: ec (:,:,:),gx_raw(:,:,:,:,:),gcore(:,:,:,:)
+  real(8):: QpGcut_psi,QpGcut_cou,qxx(3) !  real(8),allocatable :: gval(:,:,:,:,:)!,gcore(:,:,:,:) !ec (:,:,:),
   integer::icors(nsp),icor1,ifigwa,ispx,kkkdummy,ldummy,nr_A,icorex,nrmx
-  !logical:: fpmt=.false., cmdopt0
-!  call MPI__Initialize()
-!  call m_lgunit_init()
-!  call lmf2gw() !set variables, and CphiGeig
-
-     open(newunit=ifigwa,file='gwa',form='unformatted')
-     allocate(ec(ncoremx, nclass, nsp), gx_raw(nrmx_,0:lmxamx,nphimx,nclass,nsp), gcore(nrmx_,ncoremx,nclass,nsp) )
-     do 3001 ibas = 1, nbas
-!        read(ifigwa) !z, nr_A, a_A, b_A, rofi_Anr,lmxa,nspdummy,ncore,spid(ibas)
-!        read(ifigwa) !konf(1:lmxa+1,ibas)
-!        read(ifigwa) !rofi_A(1:nr_A)
-        ic = iclass(ibas)
-        is = ispec(ibas)
-        nr_A=nr(is)
-        do  l = 0, lmxa(is)
-           do  isp = 1, nsp
-!              read(ifigwa) !lxx,ispxx
-              read(ifigwa) gx_raw(1:nr_A,l,1,ic,isp) !phi
-              read(ifigwa) gx_raw(1:nr_A,l,2,ic,isp) !phidot
-              if (konf(l,ibas) >= 10) read(ifigwa) gx_raw(1:nr_A,l,3,ic,isp) !phiz
-           enddo
-        enddo
-!        write(6,'(''  l  k isp       ecore      gc(rmax)     <gc gc>'')')! core part
-        icore = 0
-        icors = 0
-        do isp = 1, nsp
-           do l = 0, lmxa(is)
-              do kkk = l+1, mod(konf(l,ibas),10)-1
-                 icore = icore+1
-                 icors(isp) = icors(isp) +1
-                 icor1=icors(isp)
-                 read(ifigwa) icorex,ldummy,ispx,kkkdummy,ec(icor1, ic, isp) !ec_A(icore)
-                 if(icore/=icorex)  call rx('lmf2gw:icore/=icorex')
-                 read(ifigwa) gcore(1:nr_A,icor1,ic,isp) !gcore_A(1:nr_A,icore) ! gcore
-              enddo
-           enddo
-        enddo
- 3001 enddo
-      close(ifigwa)
+  if(verbose()>50 ) debug= .TRUE.
   
-!  
-  ibasf=-999
-  do ibas=1,nbas
-     do ibasx=ibas+1,nbas !is this fine?
-        if(abs(iantiferro(ibas))/=0 .AND. iantiferro(ibas)+iantiferro(ibasx)==0) then
-           ibasf(ibas)=ibasx
-           exit
-        endif
-     enddo
-     if(ibasf(ibas)/=-999) write(6,"(a,2i5)")' AF pair: ibas ibasf(ibas)=',ibas,ibasf(ibas)
-  enddo
-  laf=.false.
-  if(sum(abs(iantiferro))/=0) laf= .TRUE.
-!  
-  open(newunit=ifiqg ,file='QGpsi',form='unformatted')
-  open(newunit=ifiqgc,file='QGcou',form='unformatted')
-  read(ifiqg ) nqnum, ngpmx,QpGcut_psi,nqbz,nqirr
-  read(ifiqgc) nqnumc,ngcmx,QpGcut_cou
-  nqtt = nqnum
-  allocate(qtt(3,nqtt),ngvecptt(3,ngpmx,nqtt),ngvecctt(3,ngpmx,nqtt),ngptt(nqtt),ngctt(nqtt),iqindex(nqtt))
-  irrq=0
-  do iq=1,nqtt
-     read(ifiqg)  qtt(1:3,iq), ngptt(iq) , irr
-     read(ifiqg)  ngvecptt(1:3,1:ngptt(iq),iq)
-     read(ifiqgc) qxx, ngctt(iq)
-     read(ifiqgc) ngvecctt(1:3,1:ngctt(iq),iq)
-     if(irr==1) then
-        irrq=irrq+1
-        iqindex(irrq)=iq
-     endif
-     if(sum(abs(qtt(:,iq)-qxx))>1d-8) call rx('QGpsi QGcou q/=q')
-     write(*,"(' qtt =',i4,3f9.5)")iq, qtt(1:3,iq)
-  enddo
-  close(ifiqg)
-  close(ifiqgc)
-  write(6,*)'QpGcut_psi QpGcutCou =',QpGcut_psi,QpGcut_Cou
-  ! set_mnla :block
-  !   integer :: ix, ibas,lx,nx,mx,ic,nvmax(0:lmxamx,nclass)
-  !   write(*,*) '--- set_mnla ---'
-  !   nvmax=0
-  !   do ix =1,ldim2
-  !      nx = nindx(ix)
-  !      lx = lindx(ix)
-  !      ibas =ibasindx(ix)
-  !      ic = iclass(ibas)
-  !      if( nx> nvmax(lx,ic) ) nvmax(lx,ic) = nx
-  !   enddo
-  !   write(6,"(5a5)") 'm','n','l','atom','ix'
-  !   allocate(mnla(4,ldim2))
-  !   ix=0
-  !   do nx = 1,3
-  !      do ibas = 1,nbas
-  !         ic = iclass(ibas)
-  !         do lx = 0,lmxa_d(ic)
-  !            if (nx > nvmax(lx,ic)) then
-  !               cycle
-  !            endif
-  !            do mx = -lx,lx
-  !               ix=ix+1
-  !               mnla(1:4,ix)=[mx,nx,lx,ibas]
-  !               write(6,"(5i5)") mnla(1:4,ix),ix
-  !            enddo
-  !         enddo
-  !      enddo
-  !   enddo
-  !   if(ix /= ldim2) then
-  !      write(6,*) 'Error in set_mnla: ix!=ldim2'
-  !      write(6,*) 'ix2,ldim2=',ix,ldim2
-  !      call rx('lmf2gw: Error in set_mnla: ix!=ldim2')
-  !   endif
-  ! endblock set_mnla
-  
-
-  
-!  aa=spec_a
-!  nr=nr_i
-!  lmxa(1:nbas) = lmxa_i(ispec(1:nbas))
-  call read_bzdata()
-  !fpmt=cmdopt0('--fpmt')
-  if(verbose()>50 ) debug= .TRUE. 
-  allocate(vkonf(0:lmxamx,nclass), ovv(nphimx,nphimx,0:lmxamx, nclass,nsp) )
-!  allocate(lmxaa(1:nbas))
-!  lmxaa(1:nbas) = lmxa(ispec(1:nbas)) !class(1:nbas))
-  call minv33tp(plat,qlat)
+! @MNLA_core.chk
+  allocate(konf0(0:lmxamx,nclass), ovv(nphimx,nphimx,0:lmxamx, nclass,nsp) )
   nxx= -999; lxx= -999; ibxx=-999
-  allocate(nrad(nbas), nindx_r(ldim2,nbas),lindx_r(ldim2,nbas))
+  allocate(nrad(nbas), nindx_r(ndima,nbas),lindx_r(ndima,nbas))
   nrad = 0
   open(newunit=ifnlax,file='@MNLA_core.chk')
   write(ifnlax,"(a)") '    m    n    l  icore ibas   ' ! Index for core
@@ -290,10 +169,10 @@ subroutine rdata4gw() !bind(C)
   do ibas = 1,nbas
      is   = ispec(ibas)
      ic   = iclass(ibas)
-     vkonf(:,ic) = [(mod(konf(l,ibas),10),l=0,lmxa(is))] !2024-6-14 konf(ibas)
+     konf0(:,ic) = [(mod(konfig(l,ibas),10),l=0,lmxa(is))] 
      icore = 0             
      do l  = 0, lmxa(is)
-        do kkk = l+1,vkonf(l,ic)-1 !kkk is the quantum principle number
+        do kkk = l+1,konf0(l,ic)-1 !kkk is the quantum principle number
            icore = icore+1
            n  = kkk - l   ! n is starting from 1 for any l.  
            do mmm=-l,l
@@ -305,9 +184,10 @@ subroutine rdata4gw() !bind(C)
      if(ncores(is)/=icore) call rx('rdata xxx1: ncores(is)/=icore '//xt(ncores(is))//xt(icore) )
   enddo
   close(ifnlax)
+!  
   inum=0
-  allocate(mindx(ldim2))
-  do ix = 1,ldim2
+  allocate(mindx(ndima))
+  do ix = 1,ndima
      if(ix>1 .AND. nxx == nindx(ix) .AND. lxx == lindx(ix) .AND. ibxx== ibasindx(ix)) then
         mmm=mmm+1
      else
@@ -323,7 +203,6 @@ subroutine rdata4gw() !bind(C)
      mindx(ix) = mmm
      inum = inum+1
   enddo
-  !! radial function indexing  ----
   nradmx= maxval(nrad)
   write(stdo,*)
   write(stdo,*) " --- Radial function indexing --- "
@@ -334,15 +213,7 @@ subroutine rdata4gw() !bind(C)
         write(stdo,'("      irad=",i3," nindx_r lindx_r=",2i3)')irad, nindx_r(irad,ibas), lindx_r(irad,ibas)
      enddo
   enddo
-  open(newunit=ifhbed,file='hbe.d')
-  write(stdo,'( " ldim2 nbandmx=",3i5)') ldim2, nbandmx
-  ndble = 8
-  mrecb = 2*ldim2*nbandmx *ndble !byte size
-  mrece = nbandmx         *ndble 
-  mrecg = 2*ngpmx*nbandmx *ndble 
-  write(ifhbed,"(*(g0,x))") ndble,mrecb,mrece,ldim2,nqbz,nbandmx,mrecg
-  write(ifhbed,*)' precision, mrecl of b, mrecl of eval, ldim2(p+d+l)  nqbz  nbandmx mrecg'
-  close(ifhbed)
+! ECORE PHIVC 
   open(newunit=ifec, file='ECORE')
   open(newunit=ifphi,file='PHIVC',form='unformatted')
   !! --- augmentation wave numbering--- idxnlmc in index.f order
@@ -352,7 +223,7 @@ subroutine rdata4gw() !bind(C)
   write(ifoc,"('    m    n    l ibas')")
   allocate(nvmax(0:lmxamx,nclass))
   nvmax=0
-  do ix =1,ldim2
+  do ix =1,ndima
      nxx = nindx(ix)
      l   = lindx(ix)
      ibas =ibasindx(ix)
@@ -377,91 +248,81 @@ subroutine rdata4gw() !bind(C)
         enddo
      enddo
   enddo
-  if(ix/=ldim2) call rx( 'rdata4gw:ix/=ldim2')
+  if(ix/=ndima) call rx( 'rdata4gw:ix/=ndima')
   do ibas=1,nbas !iclass is crytalographically equivalent atoms. 
      ispecc(iclass(ibas))=ispec(ibas)!note iclass(ibas) ispec(ibas). The same iclass should have the same ispec.
   enddo
-  !! --- Mesh refining  ! nov2005
-  !     Get new
-  !     nrmx, gx_raw, gcore, aa(ic),bb(ic),nr(ic)
+  !     Get new !     nrmx, gval, gcore, aa(ic),bb(ic),nr(ic)
   !     These are replaced during this if-block.
   ! 
   !     For given two conditions;
   !       a. dr/dI (delrset() in switches.F) and the
   !       b. keeping dr/dI at r=0 (= a*b),
   !     we can deternie required nr(ic), a(ic), b(ic).
-!  if(rmeshrefine()) then
-     print *,'rmeshrefine:'
-     delr = delrset()       !delr is dr/di at rmax in a.u.
-     write(stdo,*)' meshrefine : delr nclass=',delr,nclass
-     allocate(nrnn(nclass),aann(nclass),bbnn(nclass))
-     do ic = 1,nclass
-        if(minval(abs(iclass-ic))/=0) cycle !jan2008
-        is= ispecc(ic)
-        bb(is) = rmt(is)/(exp(spec_a(is)*(nr(is)-1))-1d0)
-        rmaxx = bb(is)*(exp((nr(is)-1)*spec_a(is))-1d0)
-        aa_n= (delr-spec_a(is)*bb(is))/rmaxx
-        bb_n= spec_a(is)*bb(is)/aa_n
-        write(stdo,"(' ic aa bb=',i5,2d13.6,i5)") ic, spec_a(is),bb(is),nr(is)
-        write(stdo,"(' rmaxx aa_n bb_n=',3d13.6)")rmaxx,aa_n,bb_n
-        ir =0
-        do
-           ir = ir + 1
-           if( bb_n*( exp(aa_n*(ir-1))-1d0 ) >rmaxx ) exit
-        enddo
-        nrnn(ic) = (ir/2)*2 + 1 !odd for simplson integral later on.
-        aann(ic) = aa_n
+  !  if(rmeshrefine()) then
+  print *,'rmeshrefine:'
+  delr = delrset()       !delr is dr/di at rmax in a.u.
+  write(stdo,*)' meshrefine : delr nclass=',delr,nclass
+  allocate(nrnn(nclass),aann(nclass),bbnn(nclass))
+  do ic = 1,nclass
+     if(minval(abs(iclass-ic))/=0) cycle !jan2008
+     is= ispecc(ic)
+     bb(is) = rmt(is)/(exp(spec_a(is)*(nr(is)-1))-1d0)
+     rmaxx = bb(is)*(exp((nr(is)-1)*spec_a(is))-1d0)
+     aa_n= (delr-spec_a(is)*bb(is))/rmaxx
+     bb_n= spec_a(is)*bb(is)/aa_n
+     write(stdo,"(' ic aa bb=',i5,2d13.6,i5)") ic, spec_a(is),bb(is),nr(is)
+     write(stdo,"(' rmaxx aa_n bb_n=',3d13.6)")rmaxx,aa_n,bb_n
+     ir =0
+     do
+        ir = ir + 1
+        if( bb_n*( exp(aa_n*(ir-1))-1d0 ) >rmaxx ) exit
      enddo
-     nrmx = maxval(nrnn(1:nclass))
-     write(stdo,*) ' New nrmx =',nrmx
-     allocate( gx_raw_n(nrmx,0:lmxamx, nphimx, nclass,nsp), gcore_n(nrmx, ncoremx, nclass,nsp) )
-     do ic = 1,nclass
-        if(minval(abs(iclass-ic))/=0) cycle !jan2008
-        is=ispecc(ic)
-        write(stdo,"('  input  nr a b =',i5,3d13.6)") nr(is),spec_a(is),bb(is)
-        allocate(rofi,source = [(bb(is)*(exp((ir-1)*spec_a(is))-1d0),ir=1,nr(is))])
-        nr_n = nrnn(ic)
-        aa_n = aann(ic)
-        bb_n = rmt(is)/(exp(aa_n*(nr_n-1))-1d0)
-        allocate(rofi_n,source=[(bb_n*(exp((ir-1)*aa_n)-1d0),ir=1,nr_n)])
-        do isp = 1, nsp
-           do lx = 0,lmxa(is)
-              do nx = 1,nvmax(lx,ic)
-                 call rrefine(rofi,nr(is),rofi_n,nrnn(ic), gx_raw(1, lx, nx, ic,isp), gx_raw_n(1, lx, nx, ic,isp) )
-              enddo
-           enddo
-           do icore = 1,ncores(is)
-              call rrefine(rofi,nr(is),rofi_n,nrnn(ic), gcore(1,icore, ic,isp), gcore_n(1,icore, ic,isp) )
+     nrnn(ic) = (ir/2)*2 + 1 !odd for simplson integral later on.
+     aann(ic) = aa_n
+  enddo
+  nrmx = maxval(nrnn(1:nclass))
+  write(stdo,*) ' New nrmx =',nrmx
+  allocate( gval_n(nrmx,0:lmxamx, nphimx, nsp,nclass), gcore_n(nrmx, ncoremx, nsp,nclass) )
+  do ic = 1,nclass
+     if(minval(abs(iclass-ic))/=0) cycle !jan2008
+     is=ispecc(ic)
+     write(stdo,"('  input  nr a b =',i5,3d13.6)") nr(is),spec_a(is),bb(is)
+     allocate(rofi,source = [(bb(is)*(exp((ir-1)*spec_a(is))-1d0),ir=1,nr(is))])
+     nr_n = nrnn(ic)
+     aa_n = aann(ic)
+     bb_n = rmt(is)/(exp(aa_n*(nr_n-1))-1d0)
+     allocate(rofi_n,source=[(bb_n*(exp((ir-1)*aa_n)-1d0),ir=1,nr_n)])
+     do isp = 1, nsp
+        do lx = 0,lmxa(is)
+           do nx = 1,nvmax(lx,ic)
+              call rrefine(rofi,nr(is),rofi_n,nrnn(ic), gval(1, lx,nx,isp,ic), gval_n(1, lx, nx, isp,ic) )
            enddo
         enddo
-        aac(ic) = aa_n
-        bbc(ic) = bb_n
-        nrc(ic) = nr_n
-        deallocate(rofi,rofi_n)
-        write(stdo,"(' output  nr a b =',i5,3d13.6)") nrc(ic),aac(ic),bbc(ic)
+        do icore = 1,ncores(is)
+           !              write(stdo,ftox)' ggg2 gcore: icore2 isp ic=',icore, isp,ic, gcore(100,icore,isp,ic)
+           call rrefine(rofi,nr(is),rofi_n,nrnn(ic), gcore(1,icore,isp,ic), gcore_n(1,icore, isp,ic) )
+        enddo
      enddo
-     deallocate( gcore )
-     deallocate( gx_raw)
-     allocate(gx_raw,source = gx_raw_n)
-     allocate(gcore, source = gcore_n)
-     print *,'rmeshrefine: end'
-!  endif
-     allocate(gx_in(nrmx,0:lmxamx,nphimx,nclass,nsp), gx_orth(nrmx,0:lmxamx,nphimx,nclass,nsp) )! scaled gx_raw to avoid degeneracy of overalp OrthoNormalized
-  ! ATOMIC PART ic = ibas scheme -------------------------------
-  write(stdo,*) '########## goto atomic part ##############'
+     aac(ic) = aa_n
+     bbc(ic) = bb_n
+     nrc(ic) = nr_n
+     deallocate(rofi,rofi_n)
+     write(stdo,"(' output  nr a b =',i5,3d13.6)") nrc(ic),aac(ic),bbc(ic)
+  enddo   ! scaled gval to avoid degeneracy of overalp OrthoNormalized
+  allocate(gx_in(nrmx,0:lmxamx,nphimx,nsp,nclass), gx_orth(nrmx,0:lmxamx,nphimx,nsp,nclass) )
   nnc = 0
   lmxax = lmxamx
   allocate( zzp(nmax,nmax,0:lmxax,nclass,nsp),zzpi(nmax,nmax,0:lmxax,nclass,nsp),eb(nmax),nncx(0:lmxax,nbas),rmax(nbas))
   do ibas=1,nbas
      ic   = iclass(ibas)
      do l  = 0,lmxa(is)
-        nncx(l,ibas) = vkonf(l,ic) -1 -(l+1) +1
+        nncx(l,ibas) = konf0(l,ic) -1 -(l+1) +1
         nnc          = max(nnc,nncx(l,ibas))
      enddo
   enddo
   allocate(ncindx(ncoremx),lcindx(ncoremx))
   ncindx=-9999;lcindx=-9999
-  ! ... PHIVC initial
   write(ifphi) nbas, nradmx,ncoremx,nrmx
   write(ifphi) nrad(1:nbas)
   write(ifphi) nindx_r(1:nradmx,1:nbas),lindx_r(1:nradmx,1:nbas)
@@ -480,17 +341,17 @@ subroutine rdata4gw() !bind(C)
      write(ifec,*) ' z,atom=class,nr,a,b,nsp ' !ECORE
      write(ifec,"(1x,f5.1,2i10,f13.5,d14.6,i4)") zz(is),ic1,nrc(ic),aac(ic),bbc(ic),nsp !ECORE
      write(ifec,*)' configuration'!   !!! LocalOrbital 2=upper 1=lower' !ECORE
-     write(ifec,ftox)(vkonf(l,ic),l=0,lmxa(is)) !principl quantum  number of valence minimum
+     write(ifec,ftox)(konf0(l,ic),l=0,lmxa(is)) !principl quantum  number of valence minimum
      ! related to LocalOrbital part lower(=1) upper(=2).
      write(ifec,*)' l,n, ecore(up), ecore(down) ' !ECORE
      icore = 0
      do l  = 0,lmxa(is)
-        do kkk = l+1 ,vkonf(l,ic)-1
+        do kkk = l+1 ,konf0(l,ic)-1
            icore = icore+1
            n    = kkk - l
            ncindx(icore)= n
            lcindx(icore)= l
-           write(ifec,ftox) l,n,ftod(ec(icore,ic,1:nsp),16) !ECORE ,ftod(ecore(icore,1:nsp,ibas),16) !
+           write(ifec,ftox) l,n,ftod(ecore(icore,1:nsp,ic),16) !,ftod(ec(icore,ic,1:nsp),16) !ECORE 
         enddo
      enddo
      write(ifphi) ncores(is), ncoremx !core
@@ -502,7 +363,7 @@ subroutine rdata4gw() !bind(C)
      do isp = 1, nsp
         do l1  = 0,lmxa(is)
            do nn = 1, nvmax(l1,ic)
-              gx_in (1:nrc(ic),l1,nn,ic,isp)=gx_raw(1:nrc(ic),l1,nn,ic,isp)*sqrt(1d0+0.1d0*nn)
+              gx_in (1:nrc(ic),l1,nn,isp,ic)=gval_n(1:nrc(ic),l1,nn,isp,ic)*sqrt(1d0+0.1d0*nn)
            enddo
         enddo
      enddo
@@ -515,7 +376,7 @@ subroutine rdata4gw() !bind(C)
               l2 = lindx_r (irad2,ibas)
               n2 = nindx_r (irad2,ibas)
               if(l1/=l2) cycle
-              call gintxx( gx_in(1,l1,n1,ic,isp),gx_in(1,l1,n2,ic,isp),aac(ic),bbc(ic), nrc(ic), ovv(n1,n2,l1,ic,isp) )
+              call gintxx( gx_in(1,l1,n1,isp,ic),gx_in(1,l1,n2,isp,ic),aac(ic),bbc(ic), nrc(ic), ovv(n1,n2,l1,ic,isp) )
            enddo
         enddo
      enddo
@@ -545,34 +406,88 @@ subroutine rdata4gw() !bind(C)
            zzpi(1:n1,1:n1,l1,ic,isp) = dreal(zzpx)
            deallocate(zzpx)
            do ir=1,nrc(ic)
-              gx_orth(ir,l1,1:n1,ic,isp)= matmul(gx_in(ir,l1,1:n1,ic,isp),zzp(1:n1,1:n1,l1,ic,isp))
+              gx_orth(ir,l1,1:n1,isp,ic)= matmul(gx_in(ir,l1,1:n1,isp,ic),zzp(1:n1,1:n1,l1,ic,isp))
            enddo
         enddo
      enddo
      do isp = 1, nsp
         do icore = 1, ncores(is)
-           write(ifphi) gcore(1:nrc(ic),icore, ic,isp) ! core
+           write(ifphi) gcore_n(1:nrc(ic),icore, isp,ic) ! core
         enddo
         do irad = 1,nrad(ibas)
            l = lindx_r (irad,ibas)
            n = nindx_r(irad,ibas)
-           write(ifphi) gx_orth(1:nrc(ic),l, n, ic,isp) ! valence orthogonalized
-           write(ifphi) gx_raw (1:nrc(ic),l, n, ic,isp) ! valence raw
+           write(ifphi) gx_orth(1:nrc(ic),l, n, isp,ic) ! valence orthogonalized
+           write(ifphi) gval_n (1:nrc(ic),l, n, isp,ic) ! valence raw
         enddo
-        nnv = maxval(nindx(1:ldim2))
+        nnv = maxval(nindx(1:ndima))
      enddo
      deallocate(rofi)
      continue                  ! end of ibas loop
 1010 enddo ibasloop
   close(ifphi)
   close(ifec)
+! LMTO file. basic part of crystal structure.
+  write(stdo,*) " --- Write LMTO file(crystal structure and so on) ---"
+  ibasf=-999
+  do ibas=1,nbas
+     do ibasx=ibas+1,nbas !is this fine?
+        if(abs(iantiferro(ibas))/=0 .AND. iantiferro(ibas)+iantiferro(ibasx)==0) then
+           ibasf(ibas)=ibasx
+           exit
+        endif
+     enddo
+     if(ibasf(ibas)/=-999) write(6,"(a,2i5)")' AF pair: ibas ibasf(ibas)=',ibas,ibasf(ibas)
+  enddo
+  laf=.false.
+  if(sum(abs(iantiferro))/=0) laf= .TRUE.
+  write(stdo,ftox)' iantiferro=',iantiferro(1:nbas)
+  nl=lmxax+1
+  open(newunit=ifigwin,file='LMTO',form='unformatted')
+  write(ifigwin) nbas,alat,plat,nsp,nl,nnv,nnc,nrmx,qval
+  write(ifigwin) pos,zz(ispec(1:nbas)),slabl(ispec(1:nbas)) 
+  write(ifigwin) laf,ibasf
+  close(ifigwin)
+  
+! reading q+G and bzdata
+  open(newunit=ifiqg ,file='QGpsi',form='unformatted')
+  open(newunit=ifiqgc,file='QGcou',form='unformatted')
+  read(ifiqg ) nqnum, ngpmx,QpGcut_psi,nqbz,nqirr
+  read(ifiqgc) nqnumc,ngcmx,QpGcut_cou
+  nqtt = nqnum
+  allocate(qtt(3,nqtt),ngvecptt(3,ngpmx,nqtt),ngvecctt(3,ngpmx,nqtt),ngptt(nqtt),ngctt(nqtt),iqindex(nqtt))
+  irrq=0
+  do iq=1,nqtt
+     read(ifiqg)  qtt(1:3,iq), ngptt(iq) , irr
+     read(ifiqg)  ngvecptt(1:3,1:ngptt(iq),iq)
+     read(ifiqgc) qxx, ngctt(iq)
+     read(ifiqgc) ngvecctt(1:3,1:ngctt(iq),iq)
+     if(irr==1) then
+        irrq=irrq+1
+        iqindex(irrq)=iq
+     endif
+     if(sum(abs(qtt(:,iq)-qxx))>1d-8) call rx('QGpsi QGcou q/=q')
+     write(*,"(' qtt =',i4,3f9.5)")iq, qtt(1:3,iq)
+  enddo
+  close(ifiqg)
+  close(ifiqgc)
+  call read_bzdata()
+  write(6,*)'QpGcut_psi QpGcutCou =',QpGcut_psi,QpGcut_Cou
+! hbe.d size file  
+  open(newunit=ifhbed,file='hbe.d')
+  write(stdo,'( " ndima nbandmx=",3i5)') ndima, nbandmx
+  ndble = 8
+  mrecb = 2*ndima*nbandmx *ndble !byte size !Use -assume byterecl for ifort recognize the recored in the unit of bytes.
+  mrece = nbandmx         *ndble 
+  mrecg = 2*ngpmx*nbandmx *ndble 
+  write(ifhbed,"(*(g0,x))") ndble,mrecb,mrece,ndima,nqbz,nbandmx,mrecg
+  write(ifhbed,*)' precision, mrecl of b, mrecl of eval, ndima(p+d+l)  nqbz  nbandmx mrecg'
+  close(ifhbed)
+! CPHI GEIG VXCFP  
   write(stdo,*) '########## goto Eigfun part ############## '
-  allocate(cphix(ldim2,nbandmx), cphir(ldim2,nbandmx),geigr(1:ngpmx,1:nbandmx,1:nsp))
-  !if(fpmt) allocate(cphix0(ldim2,nbandmx), cphir0(ldim2,nbandmx),geigr0(1:ngpmx,1:nbandmx,1:nsp))
+  allocate(cphix(ndima,nbandmx), cphir(ndima,nbandmx),geigr(1:ngpmx,1:nbandmx,1:nsp))
   open(newunit=ifcphi,file='CPHI',form='unformatted',access='direct',recl=mrecb)
   open(newunit=ifgeig,file='GEIG',form='unformatted',access='direct',recl=mrecg)
-!  open(newunit=ifcphi0,file='CPHI0',form='unformatted',access='direct',recl=mrecb)
-!  open(newunit=ifgeig0,file='GEIG0',form='unformatted',access='direct',recl=mrecg)
   open(newunit=ifv,file='VXCFP',form='unformatted')
   write(ifv) nbandmx,nqirr
   allocate(qirr(3,nqirr),evl(nbandmx, nqirr, nsp),vxclda(nbandmx, nqirr, nsp),vvv1(nbandmx),vvv2(nbandmx),vvv3(nbandmx))
@@ -583,21 +498,17 @@ subroutine rdata4gw() !bind(C)
      qirr(:,iqq)= qplist(:,iqq)
      isploop:do 1201 isp =1,nsp
         open(newunit=ifigwb_, file='gwb'//trim(xt(iqq))//trim(xt(isp)),form='unformatted')
-        !if(fpmt) open(newunit=ifigwb0_,file='gwb0'//trim(xt(iqq))//trim(xt(isp)),form='unformatted')
         geigr(1:ngpmx,1:ndimh,isp)=0d0
         evl(:,iqq,isp)=1d20
-        read(ifigwb_) evl(1:ndimh,iqq,isp),cphir(1:ldim2,1:ndimh),geigr(1:ngp,1:ndimh,isp),vxclda(1:ndimh,iqq,isp),nev !nev is # of eigenfunctions.
-        !if(fpmt) read(ifigwb0_) cphir0(1:ldim2,1:ndimh), geigr0(1:ngp,1:ndimh,isp)
+        read(ifigwb_) evl(1:ndimh,iqq,isp),cphir(1:ndima,1:ndimh),geigr(1:ngp,1:ndimh,isp),vxclda(1:ndimh,iqq,isp),nev !nev is # of eigenfunctions.
         do ibas=1,nbas
-           do ix = 1,ldim2
+           do ix = 1,ndima
               if(ibasindx(ix)==ibas) cphir (ix,1:nev) = cphir(ix, 1:nev)/sqrt(1d0+0.1d0*nindx(ix))
-              !if(ibasindx(ix)==ibas.and.fpmt) cphir0 (ix,1:nev)= cphir0(ix, 1:nev)/sqrt(1d0+0.1d0*nindx(ix))
            enddo
         enddo
         cphix=0d0 !     Augmentation wave part
-        !if(fpmt) cphix0=0d0 !     Augmentation wave part
         do iband = 1,nev
-           do ix= 1,ldim2
+           do ix= 1,ndima
               l  = lindx(ix)
               ib = ibasindx(ix)
               n  = nindx(ix)
@@ -605,49 +516,42 @@ subroutine rdata4gw() !bind(C)
               ic = iclass(ib)
               nm = nvmax(l,ic)
               cphix (iord(m,1:nm,l,ib),iband) = cphix (iord(m,1:nm,l,ib),iband) + zzpi(1:nm,n,l,ic,isp)*cphir(ix,iband)
-              !if(fpmt) cphix0(iord(m,1:nm,l,ib),iband) = cphix0(iord(m,1:nm,l,ib),iband) + zzpi(1:nm,n,l,ic,isp)*cphir0(ix,iband)
            enddo
         enddo
         iqqisp= isp + nsp*(iqq-1)
-        write(ifcphi,  rec=iqqisp)  cphix(1:ldim2,1:nbandmx)
-        !if(fpmt) write(ifcphi0, rec=iqqisp) cphix0(1:ldim2,1:nbandmx)
+        write(ifcphi,  rec=iqqisp)  cphix(1:ndima,1:nbandmx)
         close(ifigwb_)
-        !if(fpmt) close(ifigwb0_)
         iqqisp= isp + nsp*(iqq-1)
         if(ngpmx/=0) write(ifgeig,  rec=iqqisp)  geigr(1:ngpmx,1:nbandmx,isp)
-        !if(ngpmx/=0.and.fpmt) write(ifgeig0, rec=iqqisp) geigr0(1:ngpmx,1:nbandmx,isp)
 1201 enddo isploop
      write(ifv) qirr(1:3,iqq), vxclda(1:nbandmx,iqq,1:nsp) ! VXCFP
 1200 enddo irreducibleqloop
-  close(ifgeig)
-  !if(fpmt) close(ifgeig0)
-  print *,' end of eigensection-----'
+  close(ifgeig); print *,' end of eigensection-----'
+
+! Evalue
   open(newunit=ifev,file='EValue',form='unformatted')
   write(ifev) nbandmx, nqirr, nsp
   write(ifev) qirr(1:3,1:nqirr) !qirr
   write(ifev) evl(1:nbandmx, 1:nqirr, 1:nsp )
   close(ifev)
   write(stdo,ftox)' iclass=',iclass,' nqirr nbas',nqirr,nbas
-  write(stdo,ftox)' iantiferro=',iantiferro(1:nbas)
-  do iq=1,nqirr
-     write(stdo,ftox)'iq qirr=',iq,ftof(qirr(1:3,iq))
-  enddo
+  do iq=1,nqirr;  write(stdo,ftox)'iq qirr=',iq,ftof(qirr(1:3,iq)); enddo
   open(newunit=ifhvccfp,file='HVCCIN',form='unformatted')
   write(ifhvccfp) alat, plat,qlat,nqirr, nbas,nbandmx
-  write(ifhvccfp) qirr(:,1:nqirr), bas, rmax
+  write(ifhvccfp) qirr(:,1:nqirr), pos, rmax
   write(ifhvccfp) nqibz
   write(ifhvccfp) qibz(1:3,1:nqibz)
   write(stdo,*)
   write(stdo,"('  ngrp   = ',i3)")ngrp
   write(stdo,'("  qibz=",i3,3f12.5)')(i,qibz(1:3,i),i=1,nqibz)
+  
+! PPOVLG
   !! === make <Gc-Gp1+Gp2> matrix ===
   dQpG=maxval(sum(q0i(1:3,1:nq0i+nq0iadd)**2,dim=1))**.5
   allocate(qibze(3,nqibz + nq0i+nq0iadd)) !+iadd)) !nq0i+1 is for gamma point for bzcase==2
   qibze(1:3,1:nqibz)=qibz(1:3,1:nqibz)
   qibze(1:3,nqibz+1:nqibz+nq0i+nq0iadd)=q0i(1:3,1:nq0i+nq0iadd)
-  do iqi =1,nqibz + nq0i+nq0iadd
-     write(stdo,"(' iqi qibze=',i4,3f9.5)")iqi,qibze(:,iqi)
-  enddo
+  do iqi =1,nqibz + nq0i+nq0iadd; write(stdo,"(' iqi qibze=',i4,3f9.5)")iqi,qibze(:,iqi); enddo
   nqnumt= nqibz+nq0i+nq0iadd !+iadd
   write(stdo,"(' nqnumt nqibz nq0i+nq0iadd =',4i6)")nqnumt,nqibz,nq0i+nq0iadd !,iadd
   QpGcutggg = (2d0+1d-2)*QpGcut_psi + QpGcut_cou+ 2d0*pi/alat*dQpG
@@ -669,14 +573,12 @@ subroutine rdata4gw() !bind(C)
   call getgv2( alat,plat,qlat,qx, QpGcutgcgp, 2, ngcgp, nvgcgp )
   write(stdo,"(' getgv2--> iqi qx nggg ngcgp=',i5,3f9.3,2i7)") iqi,qx,nggg,ngcgp
   allocate(ggg(nggg))
-  call mkppovl2(alat,plat,qlat, 1,  (/0,0,0/),  nggg,  nvggg, nbas, rmax, bas, ggg)
+  call mkppovl2(alat,plat,qlat, 1,  (/0,0,0/),  nggg,  nvggg, nbas, rmax, pos, ggg)
   !! ... IPW(interstitial-plane-wave) overlap matrix
   nqini =1
   if(iq0pin==2) nqini=nqibz+1
   write(stdo,*)
-  do ix=1,nqirr
-     write(stdo,"(' qirr  = ',3f10.4)") qirr(1:3,ix)
-  enddo
+  do ix=1,nqirr; write(stdo,"(' qirr  = ',3f10.4)") qirr(1:3,ix); enddo
   if(debug) print *,' --- goto PPOVLG section ---',nggg,ngcgp,nqnumt-nqini+1
   open(newunit=ippovlgg,file= "PPOVLGG",form='unformatted')
   write(ippovlgg) nggg, ngcgp, nqnumt-nqini+1,nqini,nqnumt
@@ -702,7 +604,7 @@ subroutine rdata4gw() !bind(C)
      if(ppovl0l) write(ippovl0)   qx,ngc
      if(ngc==0) cycle
      allocate(ppovl(ngc,ngc),ppovlinv(ngc,ngc)) !This is necessary for matcinv
-     call mkppovl2(alat,plat,qlat, ngc,ngvecc, ngc,ngvecc, nbas,rmax,bas, ppovl)
+     call mkppovl2(alat,plat,qlat, ngc,ngvecc, ngc,ngvecc, nbas,rmax,pos, ppovl)
      if(ppovl0l)  write(ippovl0) ppovl(1:ngc,1:ngc)
      ppovlinv = ppovl
      write(stdo,ftox)'mmmmmmmmmatcinv',sum(abs(ppovlinv))
@@ -716,20 +618,18 @@ subroutine rdata4gw() !bind(C)
      close(ippovli)
 2010 enddo iqiloop
   if(ppovl0l) close(ippovl0)
-  write(stdo,*) " --- Write LMTO file(crystal structure and so on) ---"
-  nl=lmxax+1
-  open(newunit=ifigwin,file='LMTO',form='unformatted')
-  write(ifigwin) nbas,alat,plat,nsp,nl,nnv,nnc,nrmx,qval
-  write(ifigwin) bas,zz(ispec(1:nbas)),slabl(ispec(1:nbas)) !spid(1:nbas)
-  write(ifigwin) laf,ibasf
-  close(ifigwin)
+ 
+  
   write(stdo,*)" OK! end of rdata4gw "
-!  call rx0( ' OK! rdata4gw')
+  !  call rx0( ' OK! rdata4gw')
 end subroutine rdata4gw
-!endmodule m_rdata4gw
 subroutine rrefine(rofio,nro,rofin,nrn,go, gn )
-  implicit none
+  implicit none 
+  intent(in):: rofio,nro,rofin,nrn,go
+  intent(out):: gn
   integer:: nro,nrn,ir
   real(8):: polinta,rofio(nro),rofin(nrn),go(nro),gn(nrn)
   gn = [(polinta(rofin(ir), rofio,go,nro),ir=1,nrn)]
 end subroutine rrefine
+
+!endmodule m_rdata4gw

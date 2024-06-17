@@ -450,8 +450,8 @@ for tname in testall.split():
                  gwsc0+ " si"
         ])
         dfile="QPU"
-        outfile='log.si'
         for outfile in dfile.split():   tall+=dqpu(testdir+'/'+outfile, workdir+'/'+outfile)
+        outfile='log.si'
         tall+=diffnum(testdir+'/'+outfile, workdir+'/'+outfile,tol=3e-3,comparekeys=['fp evl'])
     elif(tname=='gas_gwsc'):
         runprogs([
@@ -460,8 +460,8 @@ for tname in testall.split():
                  gwsc0+ " gas",
         ])
         epsfile="QPU"
-        outfile='log.gas'
         for outfile in epsfile.split(): tall+=dqpu(testdir+'/'+outfile, workdir+'/'+outfile)
+        outfile='log.gas'
         tall+=diffnum(testdir+'/'+outfile, workdir+'/'+outfile,tol=3e-3,comparekeys=['fp evl'])
     elif(tname=='nio_gwsc'):
         runprogs([
@@ -470,8 +470,8 @@ for tname in testall.split():
                  gwsc0+ " nio",
         ])
         dfile="QPU"
-        outfile='log.nio'
         for outfile in dfile.split():   tall+=dqpu(testdir+'/'+outfile, workdir+'/'+outfile)
+        outfile='log.nio'
         tall+=diffnum(testdir+'/'+outfile, workdir+'/'+outfile,tol=3e-3,comparekeys=['fp evl'])
     elif(tname=='fe_gwsc'):
         runprogs([
@@ -480,8 +480,8 @@ for tname in testall.split():
                  gwsc0+ " fe",
         ])
         dfile="QPU QPD"
-        outfile='log.fe'
         for outfile in dfile.split():   tall+=dqpu(testdir+'/'+outfile, workdir+'/'+outfile)
+        outfile='log.fe'
         tall+=diffnum(testdir+'/'+outfile, workdir+'/'+outfile,tol=3e-3,comparekeys=['fp evl'])
     elif(tname=='ni_crpa'):
         runprogs([

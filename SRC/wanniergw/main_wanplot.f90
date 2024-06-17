@@ -32,13 +32,13 @@ subroutine wanplot()
   use m_read_bzdata,only: read_bzdata, nqbz,nqibz,nqbzw,nteti,ntetf &
        ,n1,n2,n3,qbas=>qlat,ginv,qbz,wbz,qibz,wibz,qbzw,idtetf,ib1bz,idteti &
        ,nstar,irk,nstbz,ngrp2=>ngrp !,qibz_r,nqibz_r
-  use m_lmf2gw,only: lmf2gw,iclass,nclass,zz,alat,nbas,nsp,plat,ldim2,bas !set_mnla,
   use m_qg,only: read_qg,ngp
   use m_cubeformat
   use m_xsfformat
   use m_expand_mesh
   use m_readhbe,only:Readhbe,nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
-  use m_genallcf_v3,only: genallcf_v3
+  use m_lmf2gw,only: lmf2gw !,iclass,nclass,zz,alat,nbas,nsp,plat,ldim2,bas !set_mnla,
+  use m_genallcf_v3,only: genallcf_v3, nclass,nbas=>natom,nsp=>nspin, alat, iclass,plat, bas=>pos, zz=>z, ldim2=>nlmto !probably OK!
 
   implicit none
   integer :: nwf,iko_ix,iko_fx,nband_wfn

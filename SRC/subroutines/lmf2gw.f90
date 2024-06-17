@@ -69,7 +69,7 @@
 !!      geig(ngpmx,  nband, nqirr,nsp) ! Coefficients of eigenfunction for IPW.
 
 !> lmf2gw() set variables to module variables by reading files from following input files.
-module m_lmf2gw 
+module m_lmf2gw
   integer,allocatable,protected:: nindx(:),lindx(:),ibasindx(:),iantiferro(:),mnla(:,:)
   integer,protected :: nbandmx,nphimx,&
   nsp,       &  !=1 or 2, corresponding to para or ferro.
@@ -146,6 +146,7 @@ contains
     allocate(bas(3,nbas),lmxaa(nbas),qplist(3,nqirr),ngplist(nqirr),ndimhall(nqirr))
     read(ifigwb) bas,lmxaa,qplist,ngplist,ndimhall,qval
     close(ifigwb)
+    
 !    call readhamindex0()
     nclass=nclass_in
     allocate(nindx(ldim2),lindx(ldim2),ibasindx(ldim2))
