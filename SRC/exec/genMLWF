@@ -50,7 +50,7 @@ rm -f ewindow.${MATERIAL}* qbyl.${MATERIAL}* eigze*.${MATERIAL}* # remove tempor
 ##### preparation of required inputs for GW (mainly prepare required eigenfuncitons) ######
 argin=0; run_arg $argin $NO_MPI   $nfpgw /lmf llmfgw00 $MATERIAL --jobgw=0
 argin=1; run_arg $argin $NO_MPI   $nfpgw /qg4gw      lqg4gw   #Generate requied q+G vectors.
-argin=1; run_arg $argin $MPI_SIZE $nfpgw /lmf llmfgw01 $MATERIAL --jobgw=1
+argin=1; run_arg $argin $MPI_SIZE $nfpgw /lmf llmfgw01 $MATERIAL --jobgw=1 --wanatom
 #run_arg  '---' $NO_MPI   $nfpgw /lmf2gw     llmf2gw  #reform data for gw
 
 ##### GW related part (up to preparation of MPB) ###########
