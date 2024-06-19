@@ -182,3 +182,9 @@ Start LMFnio
 Start LMFnio
 i mmom=-0.0000 ehf(eV)=-86704.366201 ehk(eV)=-86704.365389 sev(eV)=-142.172763
 c mmom=-0.0000 ehf(eV)=-86704.366201 ehk(eV)=-86704.365389 sev(eV)=-142.172765
+Start LMF nio --quit=band
+i mmom=-0.0000 ehf(eV)=-86704.369131 ehk(eV)=-86704.364597 sev(eV)=-142.535200
+Start LMF nio --band
+Start LMF nio --quit=band
+i mmom=-0.0000 ehf(eV)=-86704.369131 ehk(eV)=-86704.364597 sev(eV)=-142.535200
+Start LMF nio --band

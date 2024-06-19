@@ -31,7 +31,6 @@ contains
     use m_ftox
     use m_zhev,only: zhev_tk4
     use m_hambl,only: hambl
-!    use m_rdata1,only:rdata1init,nradmx,nnc,nrad,nindx_r,lindx_r,iord,nvmax,nrc,mindx,gval_n,gcore_n,aac,bbc,gval_orth,zzpi,rmax
     use m_rdata1,only:rdata1init,nradmx,nnc,nrad,nindx_r,lindx_r,iord,nvmax,nrc,mindx,&
          gval_n,gcore_n,aac,bbc,gval_orth,zzpi,nrmxe=>nrmx
     use m_suham,only: nbandmx=>ham_ndham
@@ -54,6 +53,7 @@ contains
     !  gval(:,:,1:3) radial w.f. gval: phi, phidot phiz for 1:3
     !  evec: eigenvectors.
     !  vxc:  matrix elements of LDA XC potential
+    !---------------
     !For SO=1,  nsp=2, nspc=2, nspx=1,   ndimhx=ndimh*2
     !For SO/=1,        nspc=1, nspx=nsp, ndimhx=ndimh (nsp=1 or 2)
     integer :: lchk=1,i,i1,i2,iat,ib,ibr,icore,ierr,idat,ifievec,ifiv,ifiqg,iflband(2),ifqeigen,ifsyml,igets,igetss,iix,iline, &
@@ -75,7 +75,7 @@ contains
     character(256):: ext,sprocid,extn
     complex(8),allocatable::  geigr(:,:,:), cphix(:,:)
     integer:: mrecb,mrece,mrecg,ndble,ifv,iqq,ifev
-    real(8),allocatable::qirr(:,:),evl(:,:,:),vxclda(:,:,:)!,evl(:,:),vxclda(:)
+    real(8),allocatable::evl(:,:,:),vxclda(:,:,:)!,evl(:,:),vxclda(:)!qirr(:,:),
     include "mpif.h"
     call tcn ('m_sugw_init')
     call getpr(ipr)
@@ -133,13 +133,13 @@ contains
     write(stdo,ftox)' ... Generate radial wave functions ncoremx,nphimx=',ncoremx,nphimx
     allocate(gval(nrmx,0:lmxax,nphimx,nsp,nclass), ecore(ncoremx,nsp,nclass),gcore(nrmx,ncoremx,nsp,nclass),source=0d0)
     do ib = 1, nbas
-       is=ispec(ib)
-       ic=iclass(ib)
+       is=ispec(ib)  !spec index
+       ic=iclass(ib) !class index
        pnu=>pnuall(:,1:nsp,ib)
        pnz=>pnzall(:,1:nsp,ib)
-       a= spec_a(is)
-       nr=nris(is)
-       z= zz(is)
+       a = spec_a(is)
+       nr= nris(is)
+       z = zz(is)
        nmcore= nmcorex(is)
        CreateAugmentedWaveFunctions: block
          real(8):: gvall(nr*2,0:lmxa(is),nphimx,nsp),gcorel(nr*2,ncoremx*nsp),ecorel(ncoremx*nsp)
@@ -148,7 +148,6 @@ contains
          call radwgt(rmt(is),a,nr,rwgt)
          rsml= rsmlss(:,is)
          ehl = ehlss(:,is)
-!      call atwf(a,lmxa(is),nr,nsp,pnu,pnz,rsml,ehl,rmt(ib),z,v0pot(ib)%v,nphimx,ncore,konfig(0,ib),ecorel, gcorel,gvall,nmcore)
          RadialWaveFunctions: block 
            use m_rhocor,only: getcor
            use m_atwf,only: makrwf,wf2lo
@@ -235,11 +234,11 @@ contains
 ! CPHI GEIG    
     open(newunit=ifcphi,file='CPHI',form='unformatted',access='direct',recl=mrecb)
     open(newunit=ifgeig,file='GEIG',form='unformatted',access='direct',recl=mrecg)
-    allocate(qirr(3,nqirr),evl(nbandmx, nqirr, nsp),vxclda(nbandmx, nqirr, nsp),source=0d0)
+    allocate(evl(nbandmx, nqirr, nsp),vxclda(nbandmx, nqirr, nsp),source=0d0)!nqirr: # ofirreducible q points
     iqisploop: do 1001 idat=1,niqisp !iq = iqini,iqend ! iqini:iqend for this procid
        iq  = iqproc(idat) ! iq index
        isp = isproc(idat) ! spin index: isp=1:nspx=nsp/nspc
-       qp  = qplist(:,iq) ! q vector
+       qp  = qplist(:,iq) ! q vector containing nqirr
        ngp = ngplist(iq)  ! number of planewaves for PMT basis
        lwvxc = iq<=iqibzmax
        if (cmdopt0('--novxc')) lwvxc = .FALSE. 
@@ -372,8 +371,7 @@ contains
          enddo
        endblock gwcphi2
        if(ngp > 0) then !IPW expansion of eigenfunctions pwz 
-          !  IPW orthogonalization is |IPWorth_G> = sum_G2 |IPW_G2> O^-1_{G2,G1}, where O_{G1,G2}=<IPW_G1|IPW_G2>
-          !  ppovl: ppovl_G1,G2 = O_G1,G2 = <IPW_G1 IPW_G2>
+          !  ppovl: = O_{G1,G2} = <IPW_G1 | IPW_G2>
           !  phovl: <IPW_G1 | basis function = smooth Hankel or APW >   
           !    pwz:  IPW expansion of eigen function    
           allocate(ppovl(ngp,ngp),pwz(ngp,ndimhx),phovl(ngp,ndimh))
@@ -412,22 +410,16 @@ contains
           endif
        endif
        if(debug) write (stdo,"('q ndimh=',3f10.5,i10)") qp, ndimh
-       !     Interstitial part of eigenfunction overlap:
-       !     <psi_n| psi_n'> = sum_G1,G2 (pwz_G1,n|IPW_G1>)+  (pwz_G2,n'|IPW_G2>)
-       !     = sum_G1,G2 (pwz_G1,n)+ ppovl_G1,G2 (PWZ_G2,n') = (PWZ)+ O (PWZ) = (PZOVL)+ (PWZ)  (old style)
        allocate(testc(ndimh,ndimh),source=matmul(transpose(dconjg(evec)),vxc))
-       vxclda(:,iq,isp)=0d0
        forall(i1 = 1:ndimhx) vxclda(i1,iq,isp) = sum(testc(i1,1:ndimh) * evec(1:ndimh,i1))  !<i|Vxc^lda|i>
+       vxclda(ndimhx+1:,iq,isp)=0d0
        deallocate(testc)
 1214   continue
-       
-       writegwb: block
+       WriteCphiGeig: block
          use m_hamindex0,only: nindx,ibasindx
          integer::iband,ibas,iqqisp,ix,m,nm
-!open(newunit=ifigwb_, file='gwb'//trim(xt(iqq))//trim(xt(isp)),form='unformatted')
-!   read(ifigwb_) evl(1:ndimh,iqq,isp),cphir(1:ndima,1:ndimh),geigr(1:ngp,1:ndimh,isp),vxclda(1:ndimh,iqq,isp),nev !nev is # of eigenfunctions.
-         geigr(1:ngpmx,1:ndimh,isp)=0d0
-         geigr(1:ngp,1:ndimh,isp)=pwz
+         geigr(1:ngp,      1:ndimh,isp)=pwz
+         geigr(ngp+1:ngpmx,1:ndimh,isp)=0d0
          do ibas=1,nbas
             do ix = 1,ndima !nindx is for avoiding degeneracy. See zzpi.
                if(ibasindx(ix)==ibas) cphi(ix,1:nev,isp) = cphi(ix, 1:nev,isp)/sqrt(1d0+0.1d0*nindx(ix))
@@ -450,40 +442,35 @@ contains
 !         close(ifigwb_)
          iqqisp= isp + nsp*(iq-1)
          if(ngpmx/=0) write(ifgeig,  rec=iqqisp)  geigr(1:ngpmx,1:nbandmx,isp)
-       endblock writegwb
-!       open(newunit=ifigwb, file='gwb' //trim(xt(iq))//trim(xt(isp)),form='unformatted')
-!       if(lso/=1) write(ifigwb) evl(1:ndimhx,iq,isp), vxclda(1:ndimhx,iq,isp) !,cphi(:,:,isp),   pwz,,nev
-!       if(lso==1) write(ifigwb) evl(1:ndimhx,iq,isp), vxclda(1:ndimhx,iq,isp) !,cphi(:,:,1:nspc),pwz,,nev
-!       close(ifigwb)
-       deallocate(pwz)
+       endblock WriteCphiGeig
        if (lwvxc) close(ifiv)
        if (lwvxc) close(ifievec)
-       deallocate(hamm,ovlm,evec,vxc,cphi,cphiw)!,evl,vxclda)
+       deallocate(pwz,hamm,ovlm,evec,vxc,cphi,cphiw)
 1001 enddo iqisploop
     close(ifcphi)
     close(ifgeig)
     call mpi_barrier(comm,ierr)
     call mpibc2_real(evl,   nbandmx*nqirr*nsp,'evl')
     call mpibc2_real(vxclda,nbandmx*nqirr*nsp,'vxclda')
-    if(master_mpi) then
-       WriteGWfiles: block
+    WriteGWfiles: if(master_mpi) then
+       WriteGWfilesB: block
          integer,allocatable:: ncindx(:),lcindx(:)
          integer:: iorb,lx,nx,ifoc,ifv,ibas,ifec,irad,ifphi,ir,ibasf(nbas),ibasx,ifigwin,nnv,ifhbed
          logical:: laf
-! VXCFP       
-       open(newunit=ifv,file='VXCFP',form='unformatted')
-       write(ifv) nbandmx,nqirr
-       qirr=qplist
-       do iqq = 1,nqirr 
-          write(ifv) qirr(1:3,iqq), vxclda(1:nbandmx,iqq,1:nsp) ! VXCFP
-       enddo 
-! Evalue
-       open(newunit=ifev,file='EValue',form='unformatted')
-       write(ifev) nbandmx, nqirr, nsp
-       write(ifev) qirr(1:3,1:nqirr) !qirr
-       write(ifev) evl(1:nbandmx, 1:nqirr, 1:nsp )
-       close(ifev)
-         ! @MNLA_core.chk
+         ! VXCFP       
+         open(newunit=ifv,file='VXCFP',form='unformatted')
+         write(ifv) nbandmx,nqirr
+!         qirr=qplist
+         do iqq = 1,nqirr 
+            write(ifv) qplist(1:3,iqq), vxclda(1:nbandmx,iqq,1:nsp) ! VXCFP
+         enddo
+         ! Evalue
+         open(newunit=ifev,file='EValue',form='unformatted')
+         write(ifev) nbandmx, nqirr, nsp
+         write(ifev) qplist(1:3,1:nqirr) !qirr
+         write(ifev) evl(1:nbandmx, 1:nqirr, 1:nsp )
+         close(ifev)
+         ! @MNLA_core.chk index for core
          open(newunit=ifnlax,file='@MNLA_core.chk')
          write(ifnlax,"(a)") '    m    n    l  icore ibas   ' ! Index for core
          write(ifnlax,'(" ------- core ------------")')
@@ -502,7 +489,7 @@ contains
             enddo
          enddo
          close(ifnlax)
-         ! @MNLA_CPHI
+         ! @MNLA_CPHI index for cphi 
          open(newunit=ifoc,file='@MNLA_CPHI')
          write(ifoc,"('    m    n    l ibas')")
          iorb=0
@@ -601,19 +588,18 @@ contains
          laf= sum(abs(iantiferro))/=0
          nnv = maxval(nindx(1:ndima))
          write(stdo,ftox)' iantiferro=',iantiferro(1:nbas)
-         open(newunit=ifigwin,file='LMTO',form='unformatted')
+         open(newunit=ifigwin,file='LMTO',form='unformatted')    
          write(ifigwin) nbas,alat,plat,nsp,lmxax+1,nnv,nnc,nrmxe,qval
          write(ifigwin) pos,zz(ispec(1:nbas)),slabl(ispec(1:nbas)) 
          write(ifigwin) laf,ibasf
          close(ifigwin)
-         ! hbe.d size file  
-         open(newunit=ifhbed,file='hbe.d')
+         open(newunit=ifhbed,file='hbe.d')                       
          write(stdo,'( " ndima nbandmx=",3i5)') ndima, nbandmx
          write(ifhbed,"(*(g0,x))") ndble,mrecb,mrece,ndima,nqbz,nbandmx,mrecg
          write(ifhbed,*)' precision, mrecl of b, mrecl of eval, ndima(p+d+l)  nqbz  nbandmx mrecg'
          close(ifhbed)
-       endblock WriteGWfiles
-    endif
+       endblock WriteGWfilesB
+    endif WriteGWfiles
     if(master_mpi) call rdata4gw() !Generate other files for GW
     call tcx('m_sugw_init')
   end subroutine m_sugw_init
