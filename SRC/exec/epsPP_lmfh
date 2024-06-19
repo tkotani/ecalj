@@ -20,7 +20,7 @@ run_arg '---' $NO_MPI  $nfpgw  /lmf llmfgw00 $TARGET --jobgw=0 --novxc
 run_arg '---' $NO_MPI  $nfpgw  /qg4gw lqg4gw02  --job=2 #Generate requied q+G v
 run_arg '---' $MPI_SIZE $nfpgw /lmf llmfgw01 $TARGET --jobgw=1
 #run_arg '---' $NO_MPI   $nfpgw /rdata4gw_v2 lrdata4gw_v2 #prepare files
-rm gwa gwb.*
+#rm gwa gwb.*
 run_arg '---' $NO_MPI $nfpgw   /heftet leftet --job=1 # A file EFERMI for hx0fp0
 run_arg '---' $NO_MPI $nfpgw   /hbasfp0 lbas  --job=4  # Product basis generation mode=4 ptest
 run_arg '---' $MPI_SIZE $nfpgw /hvccfp0 lvcc --job=202 # Coulomb matrix for lbas 
