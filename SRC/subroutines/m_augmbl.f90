@@ -195,6 +195,7 @@ contains
        if (lmxa == -1) cycle
        call bstrux_set(ibas,q) !Make strux b to expand all orbitals at site ia
        if(allocated(b)) deallocate(b)
+!       write(6,*)'kkkkkkkkkkkkk',kmax,nlma,ndimh
        allocate( b(0:kmax,nlma,ndimh) )
        b = reshape(bstr,shape(b),order=[3,2,1])
        nkaph=nkaphh(isa)

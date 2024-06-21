@@ -4,7 +4,7 @@ set xzeroaxis
 set grid
 set ylabel "Energy-Efermi(eV)"
 # This is given written in subroutine writeband in lm7K/fp/bndfp.F
-set title "Band srtio3"
+set title "Band srtio3 at /home/takao/ecalj/MATERIALS/MLOsamples/SrTiO3"
 set yrange [   -20.00000:    20.00000]
 set xrange [0.0:     3.78024]
 set xtics ('GAMMA'   0.0000000000,\
@@ -12,13 +12,7 @@ set xtics ('GAMMA'   0.0000000000,\
 'M'   1.0000000000,\
 'GAMMA'   1.7071067812,\
 'R'   2.5731321850,\
-'R'   3.2802389662,\
-'M'   3.7802389662)
-set x2tics ('X'   0.5000000000,\
-'M'   1.0000000000,\
-'GAMMA'   1.7071067812,\
-'R'   2.5731321850,\
-'X'   3.2802389662,\
+'X|R'   3.2802389662,\
 'M'   3.7802389662)
 tpia=2*3.1415926/     7.36804
 plot \

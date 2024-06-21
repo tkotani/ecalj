@@ -13,8 +13,8 @@ subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|
   use m_zhev,only:   Zhev_tk4
   use m_MPItk,only: m_MPItk_init, nsize, procid,master_mpi,comm !  use m_ext,only:      m_ext_init,sname
   use m_keyvalue,only: Getkeyvalue
-  use m_lmfinit,only:  m_lmfinit_init,oveps,nbas !, facw,ecutw,eww
-  use m_ext,only: m_ext_init
+  use m_lmfinit,only:  m_lmfinit_init,oveps,nbas 
+  use m_ext,only: m_ext_init,sname
   use m_cmdpath,only: Setcmdpath
 !  use m_prgnam,only: set_prgnam
   use m_setqibz_lmfham,only: set_qibz,qibz,nqibz
@@ -40,16 +40,9 @@ subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|
   call m_mksym_init()  !symmetry go into m_lattic and m_mksym
   call m_mkqp_init() ! data of BZ go into m_mkqp
   call ReadHamPMTInfo()  ! Read info from PMTHamiltonianInfo (lattice structures and index of basis).
-  inquire(file='GWinput',exist=eee)
-  if(.not.eee) then
-     facw=.5d0
-     ecutw=999*rydberg()
-     eww=.1d0*rydberg()
-  else   
-    call getkeyvalue("GWinput","mlo_facw",facw,default=.5d0)
-    call getkeyvalue("GWinput","mlo_ecutw",ecutw,default=999*rydberg())
-    call getkeyvalue("GWinput","mlo_eww",eww,default=.1d0*rydberg()) !size of fixing inner window
-  endif
+  call getkeyvalue("GWinput","mlo_facw",facw,default=.5d0)
+  call getkeyvalue("GWinput","mlo_ecutw",ecutw,default=999*rydberg())
+  call getkeyvalue("GWinput","mlo_eww",eww,default=.1d0*rydberg()) !size of fixing inner window
   if(master_mpi) write(stdo,ftox)'mlo_facw _ecutw (eV)=',ftof(facw),ftof(ecutw/rydberg())!,ftof(eww)
   ecutw= ecutw/rydberg()
   eww  = eww  /rydberg()
@@ -98,9 +91,15 @@ subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|
     if(ndatx>ndiv*nsize) ndiv=ndiv+1
     iqini =     ndiv*procid+1
     iqend =     ndiv*procid+ndiv
-    if(procid==nsize-1) iqend = min(ndatx,iqend)
+    if(iqini>ndatx) then
+       iqini=0
+       iqend=-1
+    elseif(iqend>ndatx) then
+       iqend=ndatx
+    endif
+    !if(procid==nsize-1) iqend = min(ndatx,iqend)
     call mpi_barrier(comm,ierr)
-    write(stdo,ftox)'plot bands: nsize procid iqini iqend=',nsize,procid,iqini,iqend
+    write(stdo,ftox)'plot bands: nsize procid iqini iqend=',nsize,procid,iqini,iqend,'  ',ndiv,ndatx
     GetHamiltonianFromRealSpacehammrANDdiagonalize: do ikp=iqini,iqend !1,ndatx
        qp= qplistsy(:,ikp)
        Hamblock: block

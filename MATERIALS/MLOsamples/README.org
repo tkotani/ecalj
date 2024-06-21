@@ -9,16 +9,18 @@ Then we have the |MLO0> (MuffinTin localized orbital zero) and the Hamiltonian o
 At the 2nd step, we get  |MLO>  (MuffinTin localized oribtals), and the Hamiltonian of |MLO>.
 
 * Minimum setting for calculation.
-To get MLO, we need to set MLO index such as
+To get MLO, we need to set MLO index in GWinput
+---
 <Worb> Site 
   1 Si   1 2 3 4 5 6 7 8 9  
   2 Si   1 2 3 4 5 6 7 8 9
 </Worb>
-. 
+--- 
 In addiiton, we set 
-In addition, mlo_EUinner 5, which sets upper limit of inner window. (this is effective for --job=1)
-mlo_EUinner seems to be required for indirect semiconductors.
-Except indirect semiconductors, we can use automatic setting of mlo_EUinner.
+mlo_EUinner 5
+in GWinput. This sets upper limit of inner window. (this is effective for lmfham2 --job=1)
+mlo_EUinner is required for systems with broad sp bands.
+(In future, we may introduce atom-dependent EUinner..., to make things automatic).
 
 * 0th step 
 Get some results in LDA or QSGW. 

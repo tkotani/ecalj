@@ -48,9 +48,7 @@ module m_lmfinit ! 'call m_lmfinit_init' sets all initial data from ctrl are pro
   integer,public,allocatable,protected:: lldau(:), indrx_iv(:,:) 
   integer,public,allocatable,target:: ltabx(:,:),ktabx(:,:),offlx(:,:),ndimxx(:),norbx(:),blksx(:,:),ntabx(:,:)
   integer,public,protected :: lxx,kxx,norbmto,norbxx !oribtal index
-  integer,public,allocatable,protected:: ib_table(:),k_table(:),l_table(:),ltab(:),ktab(:),offl(:), offlrev(:,:,:),ibastab(:)
-
-  real(8),public::facw,ecutw,eww !for lmfham1
+  integer,public,allocatable,protected::ib_table(:),k_table(:),l_table(:),ltab(:),ktab(:),offl(:),offlrev(:,:,:),ibastab(:),nmtoi(:)
   private
 contains
   subroutine m_lmfinit_init(prgnam,commin) ! All the initial data are set in module variables from ctrlp.*
@@ -345,9 +343,6 @@ contains
       call rval2('DYN_NKILL',rr=rr,defa=[real(8):: 0]);nkillr=nint(rr)!'Remove hessian after NKILL iter')
       if(master_mpi)write(stdo,ftox)'mixing param: A/B nmix wt=',broyinit,nmixinit,ftof(wtinit),'beta wc killj=',&
            ftof(betainit),ftof(wc),killj
-      call rval2('MLO_facw',rr=rr,  defa=[ .5d0]); facw=rr
-      call rval2('MLO_ecutw',rr=rr, defa=[ 9999d0]); ecutw=rr
-      call rval2('MLO_facw',rr=rr,  defa=[ .1d0*rydberg()]); eww=rr 
     endblock Stage1GetCatok
     Stage2SetModuleParameters: block
       integer:: isw,iprint
@@ -741,6 +736,24 @@ contains
             write(stdo,"('mto lh    ',i4,100i3)")  lhh(1:nkaphh(i),i)
          enddo
       endif ShowMTOsetting
+      allocate(nmtoi(nbas))
+      CountMTOperIbas: do ib=1,nbas 
+         i=ispec(ib)
+         nmtoi(ib)=0
+         do l=0,lhh(1,i)   !EH
+            if(abs(rsmh1(l+1,i))>1d-8) nmtoi(ib)=nmtoi(ib) + 2*l+1
+         enddo
+         if(nkapii(i)==2)then !EH2
+            do l=0,lhh(2,i)
+               if(abs(rsmh2(l+1,i))>1d-8) nmtoi(ib)=nmtoi(ib) + 2*l+1
+            enddo
+         endif
+         if(lpz(i)==1 ) then !local orbital
+            do l=0,lhh(nkaphh(i),i) 
+               if(abs(pzsp(l+1,1,i))>1d-8) nmtoi(ib)=nmtoi(ib) + 2*l+1
+            enddo
+         endif
+      enddo CountMTOperIbas
       ForceDYNsetting: block ! Atomic position Relaxation setup (DYN mode)
         integer:: i,j,k,iprint !,ifrlx(3)
         logical:: force  ! nitrlx = num of iteration cycle for atomic relaxiation (outer loop)

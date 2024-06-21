@@ -157,15 +157,22 @@ contains
       qbz=>qplist      
       ndiv= nqbz/nsize
       if(nqbz>ndiv*nsize) ndiv=ndiv+1    !MPI division
-      iqini =          ndiv*procid+1     !initial for each procid
-      iqend = min(nqbz,ndiv*procid+ndiv) !end  for each procid
-      write(stdo,ftox)'nsize procid iqini iqend=',nsize,procid,iqini,iqend
+      iqini =      ndiv*procid+1     !initial for each procid
+      iqend =      ndiv*procid+ndiv  !end  for each procid
+      if(iqini>nqbz) then
+         iqini=0
+         iqend=-1
+      elseif(iqend>nqbz) then
+         iqend=nqbz
+      endif
+      !iqend = min(nqbz,ndiv*procid+ndiv) !end  for each procid
+      write(stdo,ftox)'nnnn nsize procid iqini iqend=',nsize,procid,iqini,iqend,'  ',ndiv
       qploop: do iqbz=iqini,iqend
          qp     = qbz(:,iqbz)
          iqibz  = irotq(iqbz)
          ndimPMT= ndimPMTq(iqibz) 
          hammovlm: block
-           complex(8):: ovlm(1:ndimPMT,1:ndimPMT),hamm(1:ndimPMT,1:ndimPMT)
+           allocate(ovlm(1:ndimPMT,1:ndimPMT),hamm(1:ndimPMT,1:ndimPMT))
            do jsp=1,nspx
               if(master_mpi) write(stdo,"('=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q=',3i4,3f9.5)")iqibz,iqbz,jsp,qp
               call rotmatMTO(igg=irotg(iqbz),q=qibz(:,iqibz),qtarget=qp+matmul(qlat,ndiff(:,iqibz)),ndimh=ndimMTO,rotmat=rotmat)
@@ -183,6 +190,7 @@ contains
                 enddo; enddo
               endblock GETrealspaceHamiltonian
            enddo
+           deallocate(ovlm,hamm)
          endblock hammovlm
       enddo qploop
 2019  continue
