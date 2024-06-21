@@ -114,7 +114,7 @@ vvv 0d0 0d0 0d0  .5d0  .5d0  0d0 8
 </Worb>
 
 
-mlo_EUinner 5
+!mlo_EUinner 5
 !mlo_WTinner 2048
 !mlo_WTband 0 
 

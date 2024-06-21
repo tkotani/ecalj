@@ -3,7 +3,7 @@ module m_lmfham2
   public lmfham2
   private
 contains
-  subroutine lmfham2() ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> from MPO
+  subroutine lmfham2(commin) bind(C) ! Get the Hamiltonian on the MTO-based-Localized orbitals |MLO> from MPO
     ! that of the MTO-projected basis |MPO>. Conversion from MPO(hmmr1,ommr1,nband) to MLO(hmmr2,ommr2,nMLO).
     ! In advance, run lmfham1 to get |MPO> (MPOare given by a projection from MTOs to PMT space.
     ! That is, |MPO_i> = M |PMT_i>, where M is a mapping from MPO to the space of PMT.
@@ -38,8 +38,8 @@ contains
     use m_rotwave,only:  rotmatMTO!,rotmatPMT
 !    use m_prgnam,only: set_prgnam
     use m_nvfortran,only:findloc
-    
     implicit none
+    intent(in):: commin
     integer:: i,iq,is,ix,j,ifbb,ifoc,nbb,isc,ifq0p, nox,iki,ikf,nsc1,ndz,nin,nout,nsc2,ibb
     integer:: inii,if102,iwf2,ib,itmp,itmp2,nqbz2,nspin2,ib1,ib2,iqb,iqbz,it,jsp,nmx,nev,isyml!,nqbz!,n1,n2,n3
     integer:: nMLO,ikx,ikxx,iadd,i1q,i2q,i1,i2,imp,inp,inx,imx,ibas,ibold,ibx,iorb,nnorb
@@ -73,12 +73,21 @@ contains
     integer:: nband_,nqbz_,iki_,ikf_,nMLO_,ilowest,ieLhard,iUinneradd,igrp,ndimmto
     real(8)::qx(3),qtarget(3),eps=1d-8,qp(3),WTbanddefault
     integer:: ig,iqibz,icount,ierr,stdox,iii
-    call setcmdpath()            ! Set self-command path (this is for call system at m_lmfinit)
+    !call setcmdpath()            ! Set self-command path (this is for call system at m_lmfinit)
+    integer:: comm
+    integer,optional::commin
+    include "mpif.h" 
+    comm = MPI_COMM_WORLD
+    if(present(commin)) comm= commin  
+    call m_MPItk_init(comm) ! mpi initialization
     call m_ext_init()            ! Get sname, e.g. trim(sname)=si of ctrl.si
-    call m_MPItk_init() ! mpi initialization
     call m_lgunit_init() !set stdo,stdl
-    call m_mksym_init()  !symmetry go into m_lattic and m_mksym
+    if(master_mpi) call ConvertCtrl2CtrlpByPython() !convert ctrl file to ctrlp.
+!    if(cmdopt0('--quit=ctrlp')) call rx0('--quit=ctrlp')
+    call MPI_BARRIER( comm, ierr)
+    call m_lmfinit_init('LMF',comm)! Read ctrlp into module m_lmfinit.
     call m_lattic_init()      ! lattice setup (for ewald sum)
+    call m_mksym_init()  !symmetry go into m_lattic and m_mksym
 !    call m_mksym_init()  !symmetry go into m_lattic and m_mksym
     call m_mkqp_init() ! data of BZ go into m_mkqp
     call m_qplist_init(plbnd=0,llmfgw=.false.) ! Get q point list at which we do band calculationsb

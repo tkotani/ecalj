@@ -5,7 +5,7 @@ from gwutil import *
 import argparse
 parser = argparse.ArgumentParser(prog='gwsc',description='''
   QSGW calculation with MPI.
-  Allow general options (not described here), which are used in cmdopt in *.f90'
+  gwsc allow general options (not described here), which are used in cmdopt in *.f90'
 ''')
 parser.add_argument("nloop",       help='number of QSGW iteration, starting from current result.',default=1,type=int)
 parser.add_argument("extension",   help='extension of ctrl')

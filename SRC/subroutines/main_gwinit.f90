@@ -256,8 +256,7 @@ subroutine gwinit_v2() bind(C) !  Generate GWinput.tmp.
                  seg1=''
                  if(iat(izz)/=iatbk) seg1=' -----'
                  iatbk=iat(izz)
-                 write(ifi,"(5i5,3x,a )") iat(izz),lindx(izz),nindx(izz) &
-                      , nocc,nunocc, '! '//caption(izz)//trim(seg1)
+                 write(ifi,"(5i5,3x,a )") iat(izz),lindx(izz),nindx(izz), nocc,nunocc, '! '//caption(izz)//trim(seg1)
                  exit
               endif
            enddo

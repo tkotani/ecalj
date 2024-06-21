@@ -49,6 +49,8 @@ module m_lmfinit ! 'call m_lmfinit_init' sets all initial data from ctrl are pro
   integer,public,allocatable,target:: ltabx(:,:),ktabx(:,:),offlx(:,:),ndimxx(:),norbx(:),blksx(:,:),ntabx(:,:)
   integer,public,protected :: lxx,kxx,norbmto,norbxx !oribtal index
   integer,public,allocatable,protected:: ib_table(:),k_table(:),l_table(:),ltab(:),ktab(:),offl(:), offlrev(:,:,:),ibastab(:)
+
+  real(8),public::facw,ecutw,eww !for lmfham1
   private
 contains
   subroutine m_lmfinit_init(prgnam,commin) ! All the initial data are set in module variables from ctrlp.*
@@ -343,6 +345,9 @@ contains
       call rval2('DYN_NKILL',rr=rr,defa=[real(8):: 0]);nkillr=nint(rr)!'Remove hessian after NKILL iter')
       if(master_mpi)write(stdo,ftox)'mixing param: A/B nmix wt=',broyinit,nmixinit,ftof(wtinit),'beta wc killj=',&
            ftof(betainit),ftof(wc),killj
+      call rval2('MLO_facw',rr=rr,  defa=[ .5d0]); facw=rr
+      call rval2('MLO_ecutw',rr=rr, defa=[ 9999d0]); ecutw=rr
+      call rval2('MLO_facw',rr=rr,  defa=[ .1d0*rydberg()]); eww=rr 
     endblock Stage1GetCatok
     Stage2SetModuleParameters: block
       integer:: isw,iprint

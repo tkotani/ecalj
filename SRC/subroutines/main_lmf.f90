@@ -7,7 +7,7 @@
 ! Bootstrap sequence of module initialzation. The variables in modules are proteted except m_density. Use variables with 'use only'.
 module m_lmf
 contains
-  subroutine lmf(commin) bind(C)
+  subroutine lmf(commin)
     use m_args,only:     argall
     use m_ext,only:      m_ext_init,sname
     use m_MPItk,only:    m_MPItk_init, nsize, master_mpi
