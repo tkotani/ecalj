@@ -84,7 +84,7 @@ contains
        write(iprocar,*)
        do iband = 1, nev !band index 
           write(iprocar,*)
-!          write(stdo,"('band ',i3,' # energy ',f13.8,' # occ. -----',3i5 )")iband,(evlm(iband,ispx)-ef0)*rydberg,iband,nev,ispx
+!         write(stdo,"('band ',i3,' # energy ',f13.8,' # occ. -----',3i5 )")iband,(evlm(iband,ispx)-ef0)*rydberg,iband,nev,ispx
           write(iprocar,"('band ',i3,' # energy ',f13.8,' # occ. -----' )")iband,(evlm(iband,ispx)-ef0)*rydberg
           write(iprocar,*)
           dwgtt=0d0
@@ -94,10 +94,9 @@ contains
              dwgt=0d0
              do  l = 0, lmxa_i(is)
                 do  m = -l, l
-                   ilm = ilm+1 !ilm,ib --> evec(ix,
-                   auasaz = auspp(ilm,iband,1:3,isp,ib)
-                   !as = auspp(ilm,iband,2,isp,ib)
-                   !az = auspp(ilm,iband,3,isp,ib)
+                   ilm = ilm+1 
+                   if(ilm>nchanp) cycle !2024-6-22 dwgt segmentation error bugfix
+                   auasaz = auspp(ilm,iband,1:3,isp,ib) ! auasaz is for phi,phidot,pz(val=slo=0)
                    !Note au,as,az are coefficients for phi1*Ylm phi2*Ylm phi3*Ylm.
                    ! If --ylmc, Ylm(complex) is assumed.
                    !  u=phi1: linear combination of phi,phidot (val=1 slo=0) at MP
@@ -122,9 +121,7 @@ contains
                         endif
                      endif
                    EndBlock pdosc
-                   dwgt(ilm)= sum( dconjg(auasaz) & ! auasaz is for phi,phidot,pz(val=slo=0)
-                        *matmul( sab_rv(:,:,l+1,isp,ib),auasaz)) !bugfix 2023-4-28 based on suzuki's report for cDyN. ! sab(3,3,l+1,isp,ib)
-                   !bug before 2023-4-28           *matmul( sab_rv(:,:,l+1+n0*(ib-1)+n0*nbas*(isp-1)),auasaz)) 
+                   dwgt(ilm) = sum(dconjg(auasaz)*matmul( sab_rv(:,:,l+1,isp,ib),auasaz)) 
                 enddo
              enddo
              dwgtt = dwgtt + dwgt(1:ilm)
