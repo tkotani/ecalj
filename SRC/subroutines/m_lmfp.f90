@@ -170,11 +170,11 @@ contains
          !   1. nothing to do means nuleus+core shift.
          !   2. simple superposition of atoms rdovfa
          if (alat*sum((poss-pos0)**2)**.5>0.05d0) then! 0.05 a.u. is intuitively given. 2022-6-22
-            write(stdo,*)'lmfp-MDMODE: Reset density by atom superposition'
+            write(stdo,*)'lmf: MDMODE: Reset density by atom superposition'
             iv=iprint()
-            call Setopos( poss ) ! Set position of atoms before Rdovfa
+            call setopos( poss ) ! Set position of atoms before Rdovfa
             call pshpr(-1) !supress print out to stdo
-            call Rdovfa() !superposition of atom density
+            call rdovfa() !superposition of atom density
             call poppr()
          endif
          if (master_mpi) then

@@ -44,7 +44,7 @@ integer function iofa(spid,nxi0,nxi,exi,hfc,hfct,rsm,z,rmt,a,nr,qc,ccof,ceh,stc,
   ! --- Input ---
   if (rw=='read') then
      jfi = ifi
-     read(jfi,*,end=998,err=998) spid
+     read(jfi,*,end=998,err=9989) spid
      read(jfi,*) z,a,nsp0,lrel0,nr,rmt,rsm
      if (isanrg(lrel0, lrel,lrel,msg,'lrel', .TRUE. )) stop
      if (isanrg(nsp0,  nsp,nsp,  msg,'nsp', .TRUE. )) stop
@@ -93,4 +93,7 @@ integer function iofa(spid,nxi0,nxi,exi,hfc,hfct,rsm,z,rmt,a,nr,qc,ccof,ceh,stc,
   iofa=-1
   if(ipr > 0) write(stdo,'('' iofa  : missing species id ... nothing read'')')
 333 format(1p,4e26.16)
+  return
+9989 continue
+  call rx('Read error of atm file')
 end function iofa

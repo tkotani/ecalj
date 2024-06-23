@@ -173,7 +173,8 @@ contains
        call m_rdsigm2_init()
        call mpi_barrier(comm,ierr)
        siginit=.false. !only once
-    endif READsigm ! ndimsig is the dim of the self-energy. We now set "ndimsig=ldim",which means we use only projection onto MTO spaces even when PMT. 
+    endif READsigm ! ndimsig is the dim of the self-energy. We now set "ndimsig=ldim",which means we use only projection onto MTO spaces even when PMT.
+    if(cmdopt0('--wsig_fbz')) call rx('No sigm file from which we do --wsig_fbz')
     if(sigmamode .AND. master_mpi) write(stdo,*)' ScaledSigma=',ham_scaledsigma
     magexist= abs(vmag)>1d-6
     GWdriver: if(llmfgw) then   

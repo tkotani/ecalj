@@ -141,7 +141,7 @@ contains
     real(8):: qir(3),diffq(3),platt(3,3)
     integer:: ii1,ii2,ii4,ispr,ig,nsp_,ndimh_,nk1_,nk2_,nk3_,nqp_
     character(300)::aaa
-    character(8):: xt
+    character(8):: xtxx
     integer,allocatable,target:: ipqaf(:,:,:)
     integer,pointer:: ipq_pointer(:,:,:)
     call tcn('rdsigm2')
@@ -163,7 +163,7 @@ contains
     ham_nqsig=nqsig
     write(stdo,"(a)")'  Irreducible qp for which sigma is calculated ...'
     call bzmesh(plat,qb,ifac,nk1,nk2,nk3,llshft,symops, nsgrps,ipq, qp_rv,wgt_rv,nqps,mxkp)
-    if(nqps/=nqp_) call rx('nqps/=nqp_ from sigm '//xt(nqps)//' '//xt(nqp))
+    if(nqps/=nqp_) call rx('nqps/=nqp_ from sigm '//xtxx(nqps)//' '//xtxx(nqp))
     platt=transpose(plat)
     do concurrent(i1=1:nk1,i2=1:nk2,i3=1:nk3)
        qsmesh(:,i1,i2,i3) = matmul(qb(:,:), [(i1*ifac(1)-1), (i2*ifac(2)-1), (i3*ifac(3)-1)])
