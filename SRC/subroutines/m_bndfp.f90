@@ -212,7 +212,7 @@ contains
            if(fullmesh .AND. procaron) call rx0('Done pdos: --mkprocar .and. --fullmesh. Check by "grep k-point PROCAR.*.*"')
          endblock Procarmode
          Boltztrap:if( cmdopt0('--boltztrap')) then
-            call writeboltztrap(evlall,eferm) ! boltztrap data
+            call writeboltztrap(eferm) ! boltztrap data
             call rx0('Done boltztrap: boltztrap.* are generated')
          endif Boltztrap
          Writebandmode: if(plbnd/=0 ) then 
