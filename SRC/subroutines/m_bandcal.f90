@@ -57,7 +57,7 @@ contains
     if(plbnd==0 .AND. lso/=0 .AND. lmet==0 ) call rx('metal weights required to get orb.moment')
     if(lso/=0) allocate(orbtm_rv(lmxax+1,nsp,nbas),source=0d0) !for spin-orbit coupling
     if(lfrce>0) allocate( frcband(3,1:nbas),source=0d0) !force for band
-    write(stdo,"('MagField added to Hailtonian -vmag/2 for isp=1, +vmag/2 for isp=2: vmag(Ry)=',d13.6)") vmag
+    if(master_mpi) write(stdo,"('MagField added to Hailtonian -vmag/2 for isp=1, +vmag/2 for isp=2: vmag(Ry)=',d13.6)") vmag
     magexist= abs(vmag)>1d-6
     allocate( ndimhx_(nkp,nspx),nevls(nkp,nspx),source=0) 
     allocate( evlall(ndhamx,nspx,nkp),source=0d0)
