@@ -78,7 +78,7 @@ subroutine hsfp0_sc()
   real(8) :: voltot,valn,efnew,hartree,qreal(3),wgtq0p,quu(3), eftrue,esmref,esmr,ef
   character(128) :: ixcname
   logical:: legas, exonly, iprintx,diagonly=.false.,exchange, hermitianW=.true.
-  integer,allocatable:: irkip(:,:,:,:), nrkip(:,:,:,:)
+!  integer,allocatable:: irkip(:,:,:,:), nrkip(:,:,:,:)
   real(8),allocatable:: vxcfp(:,:,:), eqt(:), eq(:), eqx(:,:,:),eqx0(:,:,:)
   complex(8),pointer::zsec(:,:,:)
   InitializationBlock:block

@@ -56,14 +56,17 @@ contains
       if(job==1) icounkmin(k)=icoun+1
       if(job==0) then
         do jpm=1,npm 
-          do ibib = 1, nbnb(k,jpm)
+           do ibib = 1, nbnb(k,jpm)
             nkmin(k)  = min(n1b(ibib,k,jpm),nkmin(k))
             nkqmin(k) = min(n2b(ibib,k,jpm),nkqmin(k))
             if(n1b(ibib,k,jpm)<=nband) nkmax(k)  = max(n1b(ibib,k,jpm),nkmax(k))
             if(n2b(ibib,k,jpm)<=nband) nkqmax(k) = max(n2b(ibib,k,jpm),nkqmax(k))
           enddo
-        enddo
-      endif
+       enddo
+     endif
+     flush(stdo)
+     !     write(6,*)'mm111mmmmmmm22222aaa',nqbz,k,nkqmin(k),nkqmax(k),'job=',job,nbnb(k,1)
+     
       if(npm==2.AND.nkqmin(k)/=1)call rx( " When npm==2, nkqmin==1 should be.")
       jpmloop: do 1251 jpm  = 1, npm ! nplusminum=1 usually (or =2)
         ibibloop: do 125 ibib = 1, nbnb(k,jpm) !---  ibib loop, ibib is decomposed to band index pair, it and itp
@@ -196,6 +199,7 @@ contains
         else ! NOTE: kloop10:do 1510 is equivalent to do 1500. 2024-3-25
           kloop10:do 1510 k=1,nqbz !zmel = < M(igb q) phi( rk it occ)|  phi(q+rk itp unocc)>
             if(cmdopt0('--emptyrun')) cycle
+!            write(6,*)'mmmmmmmmm22222',nqbz,k,nkqmin(k),nkqmax(k)
             call get_zmel_init(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
                  nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false.,zmelconjg=.true.)
             !write(6,*)'qqqqqqqqqqqqq',npr,'shape=', shape(zmel)

@@ -175,6 +175,15 @@ contains
     ! zmelp0(igc'(Gc'),it(G2),itp(G1)) = <Gc'G2|G1> geigq(G1,itp) geigqk*(G2,it) = <Gc' itp(G2)|it(G1)>
     
     if(allocated(zmel)) deallocate(zmel)
+    nmini = ns1          !starting index of middle state  (nctot+nvalence order)
+    nmmax = ns2-nctot    !end      index of middle state  (nctot+nvalence order)
+    nt0= nmmax-nmini+1
+    ntp0=nqmax-nqini+1
+    nmtot  = nctot + nt0     ! = phi_middle nmtot=ns2-ns1+1
+    nqtot  = ncc   + ntp0    ! = phi_end
+!    write(6,*)'mmmmmmmmmmmmmm',nqmax,nqini,nmmax,nmini,'  ',nmtot,nqtot
+    if(nmtot<=0.or.nqtot<=0) return
+!  
     qk =  q - rkvec ! qk = q-rk. rk is inside 1st BZ, not restricted to the irreducible BZ
     associate(cphitemp=> readcphif(q,ispq))    
       cphiq(1:nlmto,1:ntq) = cphitemp(1:nlmto,itq(1:ntq)) 
@@ -198,7 +207,7 @@ contains
       dgeigqk = readgeigf(qk,ispm) !read IPW part at qk  !G2 for ngp2
       dgeigqk = dconjg(dgeigqk)
     endif
-    
+!    
     ppb = ppbir(:,:,:,:,irot,ispq)           !MPB has no spin dependence
     invr  = invg(irot)       !invrot (irot,invg,ngrp) ! Rotate atomic positions invrot*R = R' + T
     tr    = tiat(:,:,invr)
@@ -207,12 +216,7 @@ contains
     imdim = [( sum(nblocha(iclass(1:ia-1)))+1  ,ia=1,natom)]
     iasx=[(sum(nlnmv(iclass(1:ia-1)))+1,ia=1,natom)]
     icsx=[(sum(ncore(iclass(1:ia-1))),ia=1,natom)]
-    nmini = ns1          !starting index of middle state  (nctot+nvalence order)
-    nmmax = ns2-nctot    !end      index of middle state  (nctot+nvalence order)
-    nt0= nmmax-nmini+1
-    ntp0=nqmax-nqini+1
-    nmtot  = nctot + nt0     ! = phi_middle nmtot=ns2-ns1+1
-    nqtot  = ncc   + ntp0    ! = phi_end
+    
     ZmelBlock:block
       complex(8):: zmelt(1:nbloch+ngc,nmtot,nqtot)
       zmelt=0d0
@@ -280,6 +284,8 @@ contains
             enddo
             forall(igc=1:ngc) zmelp0(igc,:,:)=phase(igc)*zmelp0(igc,:,:) 
             !          endassociate
+!            write(6,*)'sss1',shape(ppovlinv),'      ',nbloch,ngc,nctot,ncc,ntp0,nt0
+!            write(6,*)'sss2',shape(zmelp0),'      ',shape(zmelt)
           call matm(ppovlinv,zmelp0,zmelt(nbloch+1:nbloch+ngc,nctot+1:nctot+nt0,ncc+1:ncc+ntp0),ngc,ngc,ntp0*nt0)
         endblock ZmelIPW
       endif

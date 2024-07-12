@@ -136,7 +136,7 @@ contains
             n1b(1,1,jpm), n2b(1,1,jpm), noccxvx(jpm), nbnbtt(1,jpm))
     enddo
     !!
-    if(debug) then
+!    if(debug) then
        do kx  = 1, nqbz
           do jpm = 1, npm
              if( nbnb(kx,jpm) >0) then
@@ -148,7 +148,7 @@ contains
              endif
           enddo
        enddo
-    endif
+!    endif
     if(sum(abs(nbnb-nbnbtt))/=0)then
        do ik=1,nqbz
           write(6,*)

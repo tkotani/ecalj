@@ -121,7 +121,8 @@ contains
     logical:: emptyrun
     emptyrun=cmdopt0('--emptyrun')
     if(nw_i/=0) call rx('Current version we assume nw_i=0. Time-reversal symmetry')
-    allocate(zsecall(ntq,ntq,nqibz,nspinmx),source=(0d0,0d0)) 
+    allocate(zsecall(ntq,ntq,nqibz,nspinmx),source=(0d0,0d0))
+    if(ixc==3.and.nctot==0) return
     ! NOTE: sum for G\timesW is controlloed by irkip, icountini:icountend
     kxold=-9999  ! To make MAINicountloop 3030 as parallel loop, set cache=.false.
     kxloop:                  do kx  =1,nqibz   ! kx is irreducible !kx is main axis where we calculate W(kx).
@@ -130,7 +131,9 @@ contains
       call Setppovlz(qibz_k,matz=.true.,npr=ngb)        !Set ppovlz overlap matrix used in Get_zmel_init in m_zmel
       irotloop:              do irot=1,ngrp    ! (kx,irot) determines qbz(:,kr), which is in FBZ. W(kx) is rotated to be W(g(kx))
           iploopexternal:    do ip=1,nqibz     !external index for q of \Sigma(q,isp)
-            isploopexternal: do isp=1,nspinmx  !external index
+             isploopexternal: do isp=1,nspinmx  !external index
+                !write(6,*) shape(irkip)
+                !write(6,*) isp,kx,irot,ip
               kr = irkip(isp,kx,irot,ip)
               if(kr==0) cycle
               q     = qibz(:,ip)
