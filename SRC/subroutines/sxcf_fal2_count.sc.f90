@@ -1,7 +1,7 @@
 module m_sxcf_count !job scheduler for self-energy calculation. icount mechanism
   use m_readeigen,only: Readeval
   use m_itq,only: ntq,nbandmx
-  use m_genallcf_v3,only: nlmto,nspin,nctot,niw,ecore
+  use m_genallcf_v3,only: nlmto,nspin,nctot,niw,ecore,nclass
   use m_read_bzdata,only: qibz,qbz,wk=>wbz,nqibz,nqbz,wklm,lxklm,nq0i, wqt=>wt,q0i, irk
   use m_readfreq_r,only: freq_r, nw_i,nw,freqx,wx=>wwx,nblochpmx,mrecl,expa_,npm,nprecx
   use m_readhbe,only: nband,mrecg
@@ -9,6 +9,7 @@ module m_sxcf_count !job scheduler for self-energy calculation. icount mechanism
   !use m_mpi,only: MPI__sxcf_rankdivider
   use m_wfac,only:wfacx2,weavx2
   use m_ftox
+  use m_lgunit,only:stdo
   implicit none
   public sxcf_scz_count
   !=== Job scheduler ==============
@@ -22,7 +23,6 @@ contains
     intent(in)              ef,esmr,exchange,ixc,nspinmx
     logical :: exchange
     integer :: isp,nspinmx,jobsw 
-!    integer :: nbandmx(nqibz,nspinmx)
     real(8) :: ef,esmr
     real(8):: ebmx
     complex(8),pointer::zsec(:,:)
@@ -35,7 +35,7 @@ contains
     integer :: iqini,iqend
     integer :: invr,ia,nn,ntp0,no,itpp,nrec,itini,itend,nbmxe
     integer :: iwp,nwxi,nwx,iir, igb1,igb2,ix0,iii
-    integer :: invrot,nocc,nlmtobnd,nt0,verbose,ififr, istate,  nt_max ,noccx
+    integer :: invrot,nocc,nlmtobnd,verbose,ififr, istate,  nt_max ,noccx
     real(8) :: ekc(nctot+nband),ekq(nband), det, q(3) !,ua_
     real(8) :: wtt,wfac,we!,esmrx
     real(8) :: qvv(3),eq(nband),omega(ntq),quu(3),freqw,ratio
@@ -54,7 +54,7 @@ contains
     logical:: iprx,cmdopt0
     integer:: ixx,ixc,icount,ndivmx
     real(8),parameter:: pi=4d0*datan(1d0), fpi=4d0*pi, tpi=8d0*datan(1d0),ddw=10d0
-    integer:: kxold,nccc,icount0
+    integer:: kxold,nccc,icount0,ifiqg
     complex(8),allocatable:: zmelc(:,:,:)
     integer,allocatable::ndiv(:),nstatei(:,:),nstatee(:,:)
     integer:: job
@@ -111,12 +111,25 @@ contains
           enddo iqloop
         enddo irotloop
       enddo kxloop
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!      
-!  nmbatch is the Batch size of sum for middle states. If nstate is small, we need less size of memory.
-      call getkeyvalue("GWinput","nmbatch",  nmbatch, default=8)
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-      !nmbatch=max(sum(nstatemax)/(ncount*ndivide),1)
-      if(ixc==3) nmbatch= maxval(nstatemax) ! size of average load of middle states (in G)
+      DeterminieNmbatch: block !nmbatch is the Batch size of sum for middle states. !Get zmel(MPB,middle ,external)
+       integer:: nbloch,ifiqg,iiixxx,ngcmx,filename(nclass),ic,nblocha(nclass),ifp
+       integer,parameter::k=1000,mmax=k**3 !Byte. Size of memory (probably a few times more needed for computing zmel). 
+       open(newunit=ifiqg, file='QGcou',form='unformatted')
+       read(ifiqg) iiixxx, ngcmx
+       close(ifiqg)
+       do ic = 1,nclass
+          open(newunit=ifp,file=trim('PPBRD_V2_'//char( 48+ic/10 )//char( 48+mod(ic,10))),form='unformatted')
+          read(ifp) nblocha
+          close(ifp)
+       enddo
+       nbloch=sum(nblocha)
+       nmbatch = mmax/(maxval(nbandmx)*(nbloch+ngcmx)*16)
+       nmbatch = max(nmbatch,1)
+       nmbatch = min(maxval(nstatemax), nmbatch)
+       write(stdo,ftox)'Use nmbatch given in sxf_fal2.count.sc.f90=',nmbatch,&
+            ' nbandmx nbloch ngcmx=',maxval(nbandmx),nbloch,ngcmx
+      endblock DeterminieNmbatch!  call getkeyvalue("GWinput","nmbatch",  nmbatch, default=4)
+!    if(ixc==3) nmbatch= maxval(nstatemax) ! size of average load of middle states (in G) !2024-7-13 too large for lsxC core?
       allocate(ndiv(ncount))
       ndiv = (nstatemax-1)/nmbatch + 1  !number of division for middle states.
       ndivmx = maxval(ndiv)
@@ -175,7 +188,7 @@ contains
                 ekq = readeval(qk, isp) 
                 ekc(1:nctot)= ecore(1:nctot,isp) ! core
                 ekc(nctot+1:nctot+nband) = ekq (1:nband)
-                nt0  = count(ekc<ef) 
+                !nt0  = count(ekc<ef) 
                 nt0p = count(ekq<ef+ddw*esmr) +nctot 
                 nt0m = count(ekq<ef-ddw*esmr) +nctot
                 ntqxx = nbandmx(ip,isp) ! ntqxx is number of bands for <i|sigma|j>.

@@ -64,7 +64,12 @@ contains
     integer:: ifi,ipos,i,na,getcwd
     character*256:: sss,s222,argv
     i = getcwd(dirname)
-    do i = 1, narg       !write(*,*)'m_ext_init=',i, trim(arglist(i))
+    do i = 1, narg
+       write(*,*)'m_ext_init=',i, trim(arglist(i))
+       if(arglist(i)(1:5)=='ctrl.') then
+          sname=trim(arglist(i)(6:))
+          goto 999
+       endif
        if(arglist(i)(1:1)/='-') then
           sname=trim(arglist(i))
           goto 999

@@ -104,7 +104,7 @@ contains
     integer :: ip,it,itp,i,ix,kx,irot,kr,nt0p,nt0m,nstate,nbmax,ntqxx,nt,iw,ivc,ifvcoud,ngb0,ifwd,nrot,nwp,ierr,iqini,iqend
     integer :: invr,ia,nn,ntp0,no,itpp,nrec,itini,itend,nbmxe,iwp,nwxi,nwx,iir, igb1,igb2,ix0,isp,nspinmx
     integer :: invrot,nocc,nlmtobnd,nt0,verbose,ififr, istate, nt_max ,noccx,ns2r, kxold,nccc,icount0
-    integer:: ixx,ixc,icount,ns1,ns2
+    integer:: ixx,ixc,icount,ns1,ns2,mnc,is1
     real(8) :: ekc(nctot+nband),det,q(3),wfac,qvv(3),eq(nband),quu(3),ef,esmr,&
          freqw,ratio,qibz_k(3),qbz_kr(3),vc,omega0,omg, polinta, wexx,ua2_(niw),freqw1,q_r(3),qk(3)
     logical:: tote=.false., iprx,cmdopt0, oncew, onceww !, eibz4sig  
@@ -153,17 +153,21 @@ contains
               ZmelBlock:block !zmel(ib=ngb,it=ns1:ns2,itpp=1:ntqxx)= <M(qbz_kr,ib) phi(it,q-qbz_kr,isp) |phi(itpp,q,isp)> 
                 if(emptyrun) goto 1212
                 call get_zmel_init(q,qibz_k,irot,qbz_kr, ns1,ns2,isp, 1,ntqxx, isp,nctot,ncc=0,iprx=debug,zmelconjg=.false.)
-1212            continue 
+1212            continue
               endblock ZmelBlock
               ExchangeSelfEnergy: Block
                 real(8):: wfacx,vcoud_(ngb),wtff(ns1:ns2) !range of middle states ns1:ns2
                 vcoud_= vcoud                                    ! kx==1 must be for q=0     
-                if(kx==1) vcoud_(1)=wklm(1)*fpi*sqrt(fpi)/wk(kx) ! voud_(1) is effective v(q=0) in the Gamma cell. 
-                wtff(ns1:nctot) =1d0 !these are for nvfortran24.1
-                do it=max(nctot+1,ns1),ns2
-                   wtff(it) = wfacx(-1d99, ef, ekc(it), esmr) 
+                if(kx==1) vcoud_(1)=wklm(1)*fpi*sqrt(fpi)/wk(kx) ! voud_(1) is effective v(q=0) in the Gamma cell.
+                do is1=ns1,ns2
+                   if(is1<=nctot) then; wtff(is1) = 1d0 !these are for nvfortran24.1
+                   else;                wtff(is1) = wfacx(-1d99, ef, ekc(is1+nctot), esmr)
+                   endif   
                 enddo
-                if(corehole) wtff(ns1:nctot) = wtff(ns1:nctot) * wcorehole(ns1:nctot,isp)
+                if(corehole) then
+                   mnc=min(nctot,ns2)
+                   wtff(ns1:mnc) = wtff(ns1:mnc) * wcorehole(ns1:mnc,isp)
+                endif
                 do concurrent(itp=1:ntqxx, itpp=1:ntqxx)
                    if(emptyrun) cycle !probably not so slow but for no error for --emptyrun
                    zsec(itp,itpp)=zsec(itp,itpp) - wk(kr)* &
@@ -247,6 +251,7 @@ contains
                 integer:: nm
                 complex(8):: zmelc  (1:ntqxx,ns1:ns2,1:ngb)
                 complex(8):: zmelcww(1:ntqxx,ns1:ns2,1:ngb)
+                !write(6,*)'xxxxxxxxxx',shape(zmelc),'xxxxxxxxxx',shape(zmel)
                 if(.not.emptyrun) zmelc = reshape(dconjg(zmel),shape=shape(zmelc),order=[3,2,1]) 
                 if(timemix) call timeshow(" CorrelationSelfEnergyImagAxis:")
                 CorrelationSelfEnergyImagAxis:Block !Fig.1 PHYSICAL REVIEW B76, 165106(2007)!Integration along ImAxis for zwz(omega) 
