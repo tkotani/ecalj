@@ -1,3 +1,140 @@
+module m_lmf2gw !Note this is now only for wanplot for backward comatibility. Not in gwsc. So may unused varirables.
+!> lmf2gw() set variables to module variables by reading files from following input files.
+  integer,allocatable,protected:: nindx(:),lindx(:),ibasindx(:),mnla(:,:) !,iantiferro(:)
+  integer,protected :: nbandmx,nphimx,&
+  nsp,       &  !=1 or 2, corresponding to para or ferro.
+  nbas,      &  !Number of atom in the primitive cell
+  nclass,    &  !Number of atomic class (or type) for in the primitive cell
+  nrmx,      &  != maxval(nr(1:nclass))  Maximum number of nr
+  ncoremx,   &  != maxval(ncore(1:nclass))
+  lmxamx,    &  != maxval(lmxa(1:nclass))
+  ngpmx,     &  !Maximum number of G vector.
+  ldim2    ! = total number of augmentation functions nRlm
+  character(8),allocatable,protected:: spid(:)
+  integer,allocatable:: &
+       iclass(:),lmxa_d  (:),nr(:),konf_d(:,:),ncore_d(:),ibasf(:)
+  real(8),allocatable :: &
+       zz(:),aa(:),bb(:),ec_d (:,:,:),evl_d(:,:,:), &
+       gx_d(:,:,:,:,:),gcore_d(:,:,:,:), bas(:,:)
+  real(8):: plat(3,3), alat, efermi,qval
+  complex(8),allocatable:: cphi_d(:,:,:,:)
+  complex(8),allocatable:: geig_d(:,:,:,:)
+  !      real(8),allocatable :: qirr(:,:)
+  logical,protected:: laf   !! - laf: antiferro switch
+  integer,protected:: ngcmx,nqnum,nqnumc,nqtt,nq0i,iq0pin,nq0iadd,nqbz,nqibz,nqbzx
+  real(8):: QpGcut_psi,QpGcut_cou
+  real(8),allocatable :: wt(:),q0i(:,:)
+  integer,allocatable,target:: ngvecptt(:,:,:),ngvecctt(:,:,:),ngptt(:),ngctt(:)
+  real(8),allocatable:: qtt(:,:)
+!  integer,allocatable:: ngplist(:),ndimhall(:),iqindex(:)
+!  real(8),allocatable:: qplist(:,:)
+  integer:: nqirr     ! = Number of q points for irr=1 (see m_qplist, output of qg4gw).
+  real(8),allocatable,protected :: qibz(:,:)
+contains
+  subroutine lmf2gw() !read atomic part wanplotatom.dat written in sugw.f90. This is not clean historically.
+    !wanplot is expected to be unsuppported 2024-6-18
+    use m_keyvalue,only: getkeyvalue
+    use m_hamindex0,only: readhamindex0,nclass_in=>nclass,iclass_in=>iclasst
+    use m_hamindex0,only: nindx_in=>nindx,lindx_in=>lindx,ibasindx_in=>ibasindx,nphimx_in=>nphimx
+    implicit none
+    integer:: iq0p
+    integer:: ldim,      & ! = sum ( (lmxa(1:nbas)+1)**2 )
+         nband    ! Number of bands given by GWIN0
+    integer :: icor1,icorex,i,i1,i2,ibas,ibasx,ibx,ic,icore, &
+         ifichkv,ifigw0,ifigwa,ifigwb,ifigwx1,ifigwx2,ifigwx3,isp,ispx, &
+         ispxx,ix,kkk,kkkdummy,l,ldummy,lmxa,lxx,nclassx,m,n, &
+         ncore,ndimh,ngp,nnc,nspdummy,IKP,NR_A !takao feb2012 ngc,ngcmx,
+    real(8) ovv(20),ef0,z,a_a,b_a,rofi_anr
+    character(120) ::  ext0(256), ext(256)
+    real(8):: qqq(3),qxx(3), vvvv(18)
+    integer:: ifi,ifefclass,icors(2)
+    complex(8),allocatable:: zegf(:,:) ,geig(:,:)
+    complex(8),allocatable:: cphi(:,:)
+    real(8),allocatable:: evl(:), vvv1(:),vvv2(:),vvv3(:),rofi_A(:),gcore_A(:,:), ec_A(:)
+    integer,allocatable:: konf(:,:),nncx(:,:),ngvecp(:,:),lmxaa(:)
+    real(8),parameter ::  rydberg=13.6058d0
+    ! nocore is obtained by inquire(file='NoCore',exist=nocore) in the upper routine.
+    ! If nocore exist. you have to supply
+    !  <psi|Vxc(n_valence)|psi>  to  vxclda (nband, nqirr).
+    ! If not, <psi|Vxc(n_total)|psi>  to  vxclda.
+    !----------------------------------------------
+    integer:: ificg
+    integer:: procid,nrank,ifigwb_,ifigwx1_,ifigwx2_
+    integer:: iq,iqq,iqqx,nxxx,ifibz
+    character*256:: extn,aaa,fname
+    integer,parameter :: nsize= 1000000
+    integer:: ifiproc,nqixx,nspxx,numprocxx,ixxx,ifiqibz
+    integer::  id,nsizex,iqqxx,ib,ii,ipqn,nn,nnn(3),ifiqg,ifiqgc,irr,irrq,iqibz
+    !! =================================================================
+    open(newunit=ifigwa,file='wanplotatom.dat',form='unformatted')
+    read (ifigwa) nbas,nsp,ldim2,nbandmx,lmxamx,ncoremx,nrmx,plat,alat!,nqirr
+    allocate(bas(3,nbas),lmxaa(nbas))!,qplist(3,nqirr),ngplist(nqirr),ndimhall(nqirr))
+    read(ifigwa) bas,lmxaa!,qplist,ngplist,ndimhall,qval
+    call readhamindex0()
+    nclass=nclass_in
+    allocate(nindx(ldim2),lindx(ldim2),ibasindx(ldim2))
+    nindx=nindx_in
+    lindx=lindx_in
+    ibasindx=ibasindx_in
+    nphimx=nphimx_in
+    allocate( iclass(nbas) )
+    iclass=iclass_in
+    allocate(lmxa_d(nclass), nr(nclass), ncore_d(nclass), konf_d(0:lmxamx,nclass), zz(nclass),aa(nclass),bb(nclass) )
+    lmxa_d(iclass(1:nbas)) = lmxaa(1:nbas)
+    !! ATOMIC PART ic = ibas scheme ==,  GET nrxx and ncoremx ----------------------
+!    open(newunit=ifigwa,file='gwa',form='unformatted')
+    allocate(nncx(0:lmxamx,nbas),konf(lmxamx+1,nbas),spid(nbas),ec_d(ncoremx, nclass, nsp),&
+         gx_d(nrmx,0:lmxamx,nphimx,nclass,nsp), gcore_d(nrmx,ncoremx,nclass,nsp)  )
+    do 3001 ibas = 1, nbas
+       read(ifigwa) z, nr_A, a_A, b_A, rofi_Anr,lmxa,nspdummy,ncore,spid(ibas)
+       allocate(rofi_A(nr_A), gcore_A(nr_A,ncore),ec_A(ncore))
+       read(ifigwa) konf(1:lmxa+1,ibas)
+       read(ifigwa) rofi_A(1:nr_A)
+       write(6,"(' site',i3,'  z=',f5.1,'  rmax=',f8.5,'  lmax=',i1,'  konf=',10i1)")ibas,z,rofi_A(nr_A),lmxa,konf(1:lmxa+1,ibas)
+       ic = iclass(ibas)
+       zz(ic)= z
+       aa(ic)= a_A
+       bb(ic)= b_A
+       nr(ic)= nr_A
+       ncore_d(ic) = ncore/nsp
+       konf_d(0:lmxa,ic) = konf(1:lmxa+1,ibas)
+       write(6,"('  l    g(rmax)    gp(rmax)',4x,'<g g>',9x,'<gp gp>',9x,'<g gp>')")
+       do  l = 0, lmxa
+          do  isp = 1, nsp
+             read(ifigwa) lxx,ispxx
+             if(lxx /= l .OR. isp /=ispxx) call rx('lmf2gw:lxx or isp wrong')
+             read(ifigwa) gx_d(1:nr_A,l,1,ic,isp) !phi
+             read(ifigwa) gx_d(1:nr_A,l,2,ic,isp) !phidot
+             if (konf_d(l,ic) >= 10) read(ifigwa) gx_d(1:nr_A,l,3,ic,isp) !phiz
+          enddo
+       enddo
+       if(ncore/=0) write(6,'(''  l  k isp       ecore      gc(rmax)     <gc gc>'')')! core part
+       icore = 0
+       icors = 0
+       do isp = 1, nsp
+          do l = 0, lmxa
+             nncx(l,ibas) = mod(konf(l+1,ibas),10)-1 -(l+1) +1
+             nnc          = max(nnc,nncx(l,ibas))
+             do kkk = l+1, mod(konf(l+1,ibas),10)-1
+                icore = icore+1
+                icors(isp) = icors(isp) +1
+                icor1=icors(isp)
+                read(ifigwa) icorex,ldummy,ispx,kkkdummy,ec_A(icore)
+                if(icore/=icorex)  call rx('lmf2gw:icore/=icorex')
+                read(ifigwa) gcore_A(1:nr_A,icore) ! gcore
+                ec_d(icor1, ic, isp) = ec_A(icore)
+                gcore_d(1:nr_A,icor1,ic,isp)  = gcore_A(1:nr_A,icore)
+             enddo
+          enddo
+       enddo
+       deallocate(rofi_A,gcore_A,ec_A)
+3001 enddo
+!    allocate(iantiferro(nbas))
+!    read(ifigwa)iantiferro(1:nbas) !iantiferro may2015
+    close(ifigwa)
+  end subroutine lmf2gw
+end module m_lmf2gw
+
 subroutine wanplot()
   !! == Wannier function plot. Wannier function is expanded in the PW (spacial mesh). ==
   !! NOTE: Because os lazyness, not yet MPI. In cases, it may be useful...

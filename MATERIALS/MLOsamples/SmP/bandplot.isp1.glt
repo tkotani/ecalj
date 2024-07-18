@@ -4,18 +4,12 @@ set xzeroaxis
 set grid
 set ylabel "Energy-Efermi(eV)"
 # This is given written in subroutine writeband in lm7K/fp/bndfp.F
-set title "Band smp isp=1"
+set title "Band smp isp=1 at /home/takao/ecalj/MATERIALS/MLOsamples/SmP"
 set yrange [   -20.00000:    20.00000]
 set xrange [0.0:     4.48735]
 set xtics ('GAMMA'   0.0000000000,\
 'X'   1.0000000000,\
-'K'   1.3535533906,\
-'GAMMA'   2.4142135624,\
-'L'   3.2802389662,\
-'W'   3.9873457473,\
-'X'   4.4873457473)
-set x2tics ('X'   1.0000000000,\
-'U'   1.3535533906,\
+'U|K'   1.3535533906,\
 'GAMMA'   2.4142135624,\
 'L'   3.2802389662,\
 'W'   3.9873457473,\

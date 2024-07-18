@@ -53,7 +53,7 @@ contains
     use m_subzi,only: m_subzi_init,m_subzi_bzintegration 
     use m_MPItk,only: master_mpi, strprocid, numprocs=>nsize,xmpbnd2,comm !, procid,master
     use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate, m_mkpot_energyterms,m_mkpot_novxc !  m_mkpot_novxc_dipole,
-    use m_mkpot,only: osmpot, qmom, vconst, osig,otau,oppi, qval , qsc , fes1_rv , fes2_rv
+    use m_mkpot,only: osmpot, qmom, vconst, osig,otau,oppi, qval , qsc , fes1_rv , fes2_rv, amom
     use m_clsmode,only: m_clsmode_init,m_clsmode_set1,m_clsmode_finalize
     use m_qplist,only: qplist,nkp,xdatt,labeli,labele,dqsyml,etolc,etolv
     use m_qplist,only: nqp2n_syml,nqp_syml,nqpe_syml,nqps_syml,nsyml,kpproc,iqini,iqend    ! MPIK divider. iqini:iqend are node-dependent
@@ -121,14 +121,14 @@ contains
     integer:: plbnd,nk1,nk2,nk3,nx,ny
     logical:: llmfgw,sigx
     logical:: ltet,cmdopt0,sigmamode,tdos,debug=.false.
-    logical:: fullmesh,PROCARon,writeham=.false.
+    logical:: fullmesh,PROCARon,writeham=.false.,magexist
     logical:: fsmode !for --fermisurface for xcrysden.
     logical,save:: siginit=.true.
     integer:: iter,i,ifi,ipr,iq,isp,jsp,iprint,ipts
     integer:: idummy, unlink,ifih,ifii,ib,ix,ifimag,nevmin,nnn,ikp
     real(8):: ekinval,eharris,eksham,  dosw(2),dum(1),evtop,ecbot,qp(3),rydberg,xxx,eeem,dumx
     real(8):: fh_rv(3,nbas),vmag,eee,dosi(2),dee,efermxxx,emin,qvalm(2)
-    real(8),allocatable:: dosi_rv(:,:),dos_rv(:,:),evlallm(:,:,:)
+    real(8),allocatable:: dosi_rv(:,:),dos_rv(:,:) 
     real(8),parameter::  NULLR =-99999,pi=4d0*datan(1d0)
     real(8):: elind=0d0
     call tcn ('bndfp')
@@ -145,7 +145,7 @@ contains
        close(ifi)             ! For example, you may change NKABC, and run job_pdos (lmf --quit=band only modify efermi.lmf, without touching rst.*).
        goto 114
 113    continue
-       call rx('No efermi.lmf: need to repeat sc mode of lmf-MPIK. --quit=band stops without changing rst file')
+       call rx('No efermi.lmf: need to repeat sc mode of lmf. --quit=band stops without changing rst file')
 114    continue
     endif GETefermFORplbndMODE
     if(cmdopt0('--phispinsym')) call phispinsym_ssite_set() !pnu,pz are spin symmetrized! Set spin-symmetrized pnu.aug2019. See also in pnunew and locpot
@@ -173,16 +173,18 @@ contains
        call m_rdsigm2_init()
        call mpi_barrier(comm,ierr)
        siginit=.false. !only once
-    endif READsigm ! ndimsig is the dim of the self-energy. We now set "ndimsig=ldim",which means we use only projection onto MTO spaces even when PMT. 
+    endif READsigm ! ndimsig is the dim of the self-energy. We now set "ndimsig=ldim",which means we use only projection onto MTO spaces even when PMT.
+    if(cmdopt0('--wsig_fbz')) call rx('No sigm file from which we do --wsig_fbz')
     if(sigmamode .AND. master_mpi) write(stdo,*)' ScaledSigma=',ham_scaledsigma
+    magexist= abs(vmag)>1d-6
     GWdriver: if(llmfgw) then   
-       call m_sugw_init(cmdopt0('--socmatrix'),eferm,vmag,qval) !,FPMTmodein=cmdopt0('--fpmt')) ! 2023-9-20 ! --fmpt at 2024-2-11
+       call m_sugw_init(cmdopt0('--socmatrix'),eferm,vmag,qval) 
        call tcx('bndfp')
        call rx0('sugw mode')  !exit program here normally.
     endif GWdriver
     ! Set up Hamiltonian and diagonalization in m_bandcal_init. To know outputs, see 'use m_bandcal,only:'. The outputs are evlall, and so on.
     sttime = MPI_WTIME() ! if(nspc==2) call m_addrbl_allocate_swtk(ndham,nsp,nkp)
-    call m_bandcal_init(lrout,eferm,vmag,ifih) ! Get Hamiltonian and diagonalization resulting evl,evec,evlall. eferm,vmag are inputs read by m_procar_init in m_bandcal_init.
+    call m_bandcal_init(lrout,eferm,vmag,ifih) ! Get Hamiltonian and diagonalization resulting evl,evec,evlall. 
     entime = MPI_WTIME()                
     if(master_mpi) write(stdo,"(a,f9.4)") ' ... Done MPI k-loop: elapsed time=',entime-sttime
     if(writeham) close(ifih)
@@ -201,42 +203,36 @@ contains
       fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') ! pdos mode (--mkprocar and --fullmesh)
       PROCARon = cmdopt0('--mkprocar') 
       if(plbnd/=0.or.(procaron.and.fullmesh).or.cmdopt0('--boltztrap')) then
-         allocate(evlallm,mold=evlall)
-         do isp=1,nspx !nsp/nspc !nspx=nsp/nspc, where nspc=2 for spin-coupled case.
-            evlallm(:,isp,:)=evlall(:,isp,:)+vmag*(isp-1.5d0) !magnetic field added. vmag=0 for non-fsmom mode.
-         enddo
-         evtop=maxval(evlallm,mask=evlallm<eferm)
-         ecbot=minval(evlallm,mask=evlallm>eferm)
+         ! evlallm is removed. vmag is included in Hamitonian now.  2024-06-14
+         evtop=maxval(evlall,mask=evlall<eferm)
+         ecbot=minval(evlall,mask=evlall>eferm)
          Procarmode:block
            nevmin = minval(nevls(1:nkp,1:nspx))
-           if(fullmesh .AND. procaron) call m_procar_writepdos(evlallm,nevmin,eferm,kpproc) 
+           if(fullmesh .AND. procaron) call m_procar_writepdos(evlall,nevmin,eferm,kpproc) 
            if(fullmesh .AND. procaron) call rx0('Done pdos: --mkprocar .and. --fullmesh. Check by "grep k-point PROCAR.*.*"')
          endblock Procarmode
          Boltztrap:if( cmdopt0('--boltztrap')) then
-            call writeboltztrap(evlallm,eferm) ! boltztrap data
+            call writeboltztrap(eferm) ! boltztrap data
             call rx0('Done boltztrap: boltztrap.* are generated')
          endif Boltztrap
-         Writebandmode: if(plbnd/=0 ) then ! -vmag/2 is added to isp=1, +vmag/2 to isp=2 for writefs and writeband at 2023-9-20
+         Writebandmode: if(plbnd/=0 ) then 
             if(master_mpi) then
                if(fsmode)  call writefs(evlallm,eferm,spinweightsoc)   !fermi surface !bias field vmag added  2023-9-20
                write(stdo,*)' Writing bands to bands file for gnuplot ...'
-               if(nsyml/=0)call writeband(evlallm,eferm,evtop,ecbot,spinweightsoc) !bias field added  2023-9-20
+               if(nsyml/=0)call writeband(evlall,eferm,evtop,ecbot,spinweightsoc) !bias field added  2023-9-20
             endif
             if(fsmode) call rx0('done --fermisurface mode. *.bxsf for xcryden generated')
             call rx0('plot band mode done') ! end of band plbnd/=0, that is, band plot mode.
          endif Writebandmode
-         deallocate(evlallm)
       endif
     endblock BandPLOTmode
-    call m_subzi_bzintegration(evlall,eferm,sev,qvalm,vmag) !Get the Fermi energy, vmag and wtkb, from evlall (vmag is for fsmom(fixedmoment) mode).
-    allocate(evlallm,mold=evlall)
-    forall(isp=1:nspx) evlallm(:,isp,:)=evlall(:,isp,:)+vmag*(isp-1.5d0)
+    call m_subzi_bzintegration(evlall, eferm,sev,qvalm,vmag) !Get new eferm, vmag and wtkb, from evlall ;vmag is given for fsmom(fixedmoment) mode.
     if(master_mpi) then
-       do iq=1,1; do jsp=1,nspx; write(stdl,"('fp evl',8f8.4)")(evlallm(i,jsp,iq),i=1,nevls(iq,jsp)); enddo; enddo
+       do iq=1,1; do jsp=1,nspx; write(stdl,"('fp evl',8f8.4)")(evlall(i,jsp,iq),i=1,nevls(iq,jsp)); enddo; enddo
     endif
-    evtop=maxval(evlallm,evlallm <eferm)
-    ecbot=minval(evlallm,evlallm >eferm)
-    emin =minval(evlallm) !for plot
+    evtop=maxval(evlall,evlall <eferm)
+    ecbot=minval(evlall,evlall >eferm)
+    emin =minval(evlall) !for plot
     if(lmet==0) eferm = (evtop+ecbot)/2d0 !for metal
     if(master_mpi) then
        if(lmet==0) write(stdo,"(' HOMO; Ef; LUMO =',3f11.6)")evtop,eferm,ecbot
@@ -248,7 +244,7 @@ contains
        write(ifi,"(2d24.16,' # band: charge(nup+nspin), mag.mom(nup-ndown)')")qvalm(1), qvalm(2)
        write(ifi,"(f24.9 , ' # band: band energy sum (eV)=')") sev*rydberg()
        write(ifi,"(3i10,'    # Used k point to determine Ef')") nkabc
-       write(ifi,"(i6,'# iter CAUTION! This file is overwritten by lmf-MPIK SC loop')")iter
+       write(ifi,"(i6,'# iter CAUTION! This file is overwritten by lmf SC loop')")iter
        close(ifi)
     endif
     GenerateTotalDOS: if(master_mpi .AND. (tdos .OR. ldos/=0)) then !   emin=dosw(1) and emax=dosw(2) sets dos range
@@ -260,22 +256,19 @@ contains
        if(cmdopt0('--tdostetf')) ltet= .FALSE. ! Set tetrahedron=F
        if(ltet) then
           nnn=nkabc(1)*nkabc(2)*nkabc(3)
-          !do iq=1,nkp
-          !   do jsp=1,nspx
+          !do iq=1,nkp          !   do jsp=1,nspx
           !      write(stdo,ftox)'iq jsp=',iq,jsp,nevmin,nevls(iq,jsp)
-          !      write(stdo,"('fp evl',8f8.4)")(evlallm(i,jsp,iq),i=1,nevmin) !ls(iq,jsp))
-          !   enddo
-          !enddo
-          call bzints(nnn,evlallm,dum,nkp, nevmin,ndhamx,nsp,dosw(1),dosw(2), dosi_rv,ndos,xxx,1,ntet,iv_a_oidtet,dumx,dumx,&
-          !                                                                              job=1 give IntegratedDos to dosi_rv
-               spinweightsoc) !2024-5-10
-          !write(stdo,ftox)'xxx dosi rv=',sum(dosi_rv)
+          !      write(stdo,"('fp evl',8f8.4)")(evlall(i,jsp,iq),i=1,nevmin) !ls(iq,jsp))
+          !   enddo          !enddo
+          call bzints(nnn,evlall,dum,nkp, nevmin,ndhamx,nsp,dosw(1),dosw(2), dosi_rv,ndos,xxx,1,ntet,iv_a_oidtet,dumx,dumx,&
+          !                                                                               job=1 give IntegratedDos to dosi_rv
+               spinweightsoc) !2024-5-10           !write(stdo,ftox)'xxx dosi rv=',sum(dosi_rv)
           dos_rv(2:ndos-1,:)=(dosi_rv(3:ndos,:)-dosi_rv(1:ndos-2,:))/(2d0*(dosw(2)-dosw(1))/(ndos-1))
           dos_rv(1,:)    = dos_rv(2,:)
           dos_rv(ndos,:) = dos_rv(ndos-1,:)
           write(stdo,ftox)'iq jsp=',ndos,'dosw=',ftof(dosw),sum(dos_rv),sum(dosi_rv)
        else
-          call makdos(nkp,nevmin,ndhamx,nsp,rv_a_owtkp,evlallm,bz_n,bz_w,-6d0,dosw(1),dosw(2),ndos,dos_rv) !ndmahx=>nevmin
+          call makdos(nkp,nevmin,ndhamx,nsp,rv_a_owtkp,evlall,bz_n,bz_w,-6d0,dosw(1),dosw(2),ndos,dos_rv) !ndmahx=>nevmin
        endif
        open(newunit=ifi, file='dos.tot.'//trim(sname) )
        open(newunit=ifii,file='dosi.tot.'//trim(sname))
@@ -300,7 +293,7 @@ contains
              qp  = qplist(:,iq)
           do jsp = 1,nspx
              write(stdo,ftox)' band-efermi(eV):',iq,jsp,ftof(qp,3),'nev=',nevls(iq,jsp),'ndimx=',ndimhx_(iq,jsp)
-             write(stdo,"('  ',10f8.3)") rydberg()*(evlallm(1:nevls(iq,jsp),jsp,iq)-eferm)
+             write(stdo,"('  ',10f8.3)") rydberg()*(evlall(1:nevls(iq,jsp),jsp,iq)-eferm)
           enddo
        enddo
     endif WRITEeigenvaluesConsole
@@ -310,9 +303,9 @@ contains
        call m_bandcal_allreduce() 
     endif AccumurateSuminBZforwtkb
     CorelevelSpectroscopy2: if(cmdopt0('--cls')) then !m_clsmode_set1 is called in m_bandcal
-       dosw(1)= emin  - 0.5d0    ! lowest energy limit to plot dos
+       dosw(1)= emin  - 0.5d0     ! lowest energy limit to plot dos
        dosw(2)= eferm + bz_dosmax ! highest energy limit to plot dos
-       call m_clsmode_finalize(eferm,ndimh,ndhamx,nspx,nkp,dosw,evlallm)
+       call m_clsmode_finalize(eferm,ndimh,ndhamx,nspx,nkp,dosw,evlall)
        call rx0('Done cls mode:')
     endif CorelevelSpectroscopy2
     if(lso/=0)   call iorbtm() !WriteOribitalMoment
@@ -349,20 +342,20 @@ contains
          endif
          ! Mix inputs(osmrho,orhoat) and outputs(osmrho_out,orhoat_out), resulting orhoat and osmrho.
          call mixrho(iter,qval-qbg,orhoat_out,orhoat,smrho_out,osmrho,qdiff)!mixrho keeps history in it.
-         !
-         call mpi_barrier(comm,ierr)
-!         write(stdo,ftox)'mixrho-------------------------------'
+         call mpi_barrier(comm,ierr) 
 !         write(stdo,ftox)'mixrho: output smrho =',maxval(dreal(osmrho)),minval(dreal(osmrho)),sum(dreal(osmrho))
-!         do ib=1,nbas
-!            write(stdo,ftox)'mixrho: output orhoat=',ib,sum(abs(orhoat(1,ib)%v)),sum(abs(orhoat(2,ib)%v)),sum(abs(orhoat(3,ib)%v))
+!         do ib=1,nbas!write(stdo,ftox)'mixrho: output orhoat=',ib,sum(abs(orhoat(1,ib)%v)),sum(abs(orhoat(2,ib)%v)),sum(abs(orhoat(3,ib)%v))
 !         enddo   
        endblock EvaluateKohnShamTotalEnergyandForce
     endif
-    ham_ehf= eharris !Harris total energy
-    ham_ehk= eksham  !Hohenberg-Kohn-Sham total energy
+    if(magexist) then                   ! Energy by externel mag field = -nup*vmag/2 + ndn*vmag/2 = -(nup-ndn)*vmag/2= -amom*vmag/2
+       eharris= eharris + amom*vmag/2d0 ! Subtract this energy 
+       eksham = eksham  + amom*vmag/2d0 
+    endif
+    ham_ehf= eharris  !Harris total energy
+    ham_ehk= eksham   !Hohenberg-Kohn-Sham total energy
     call m_mkpot_deallocate()
     call m_bandcal_clean()
-    deallocate(evlallm)
     call tcx('bndfp')
   end subroutine bndfp
 end module m_bndfp

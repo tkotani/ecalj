@@ -165,7 +165,7 @@ subroutine diele_invariant(q0x,nq0x,symops,ngrp,  epinv,q0i,nq0i,wq0i)
   integer,parameter:: nxxx=9
   real(8):: zzz(nxxx,nxxx),UU(nxxx,nxxx),VT(nxxx,nxxx)
   real(8):: ss(nxxx),sij
-  real(8):: tolq!=1d-6
+  real(8):: tolq
 
   !! Generate invariant tensor for each q0x
   write(*,*) ' diele_invariant: nq0x=',nq0x
@@ -297,25 +297,18 @@ subroutine q0irre(qibz,nqibz,q0,wt0,nx06,symops,ngrp, q0i,nq0i,wt,plat,ltrans,if
      enddo
 980  continue
   enddo
-
-  !! for genMLWFdipole 2022
   if(cmdopt0('--allqbz')) then
      nq0i=ixx
      return
   endif
-  !!
   do i = 1,nx06
      qt = q0(:,i)
-     ! equivalence check
-     do ix = 1,ixx
+     Equivalencecheck: do ix = 1,ixx
         do ig = 1,ngrp
            sym = symops(:,:,ig)
            if(ltrans) then
               call rangedq(matmul(platt,(qt-matmul(sym,q0i(:,ix)))), qx)
               if(sum(abs(qx))<tolq()) then
-                 ! rite(6,"(a,3i3,3f10.5,' --> ',3f10.5)") ' q0=sym(ig)*q0i(:,ix) q0 ig q0i= ',i, ig, ix, q0i(:,ix), qt
-                 ! rite(6,"(a,2i3,3f10.5)") ' q0(i)=sym(ig)*q0i(ix): ix ig q0= ',ix,ig, qt
-                 ! rite(ifix) qt,q0i(:,ix),ix,ig !qtarget, q0i(ix),ig
                  wt(ix) = wt(ix)+wt0(i)
                  goto 990
               endif
@@ -326,7 +319,7 @@ subroutine q0irre(qibz,nqibz,q0,wt0,nx06,symops,ngrp, q0i,nq0i,wt,plat,ltrans,if
               endif
            endif
         enddo
-     enddo
+     enddo Equivalencecheck
      ixx = ixx+1
      q0i(:,ixx) = qt
      irr(i)=1  !this is irreducible
@@ -335,10 +328,8 @@ subroutine q0irre(qibz,nqibz,q0,wt0,nx06,symops,ngrp, q0i,nq0i,wt,plat,ltrans,if
   enddo
   nq0i = ixx
 end subroutine q0irre
-
 !----------------------
-real(8) function aufcc(q)
-  !- auxiliarry function for fcc lattice. from Gygi PRB34 4405
+real(8) function aufcc(q)  !- auxiliarry function for fcc lattice. from Gygi PRB34 4405
   implicit none
   real(8)    :: cosx,cosy,cosz,q(3), pi=3.1415926535897932D0
   cosx = cos(pi*q(1))
@@ -346,7 +337,6 @@ real(8) function aufcc(q)
   cosz = cos(pi*q(3))
   aufcc = 1d0/(3d0 - cosx*cosy -cosy*cosz - cosz*cosx)
 END function aufcc
-
 !------------------------------------------------------------
 subroutine setq0_2(icase,alat,vol,plat,qlat,alpv,qbz,nstbz,nnn,ngc,ngcmx,ngvect, &
      nq0x,nx0,xn,n1q,n2q,n3q, &

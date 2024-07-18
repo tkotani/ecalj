@@ -1,0 +1,29 @@
+Start LMFA fept
+Start LMF fept --phispinsym -vso=0
+h mmom= 1.2639 ehf(eV)=-535701.285572 ehk(eV)=-535667.042690 sev(eV)=-351.942519
+i mmom= 1.9280 ehf(eV)=-535704.058139 ehk(eV)=-535655.401558 sev(eV)=-324.734054
+i mmom= 3.0225 ehf(eV)=-535698.906314 ehk(eV)=-535696.489333 sev(eV)=-349.951337
+i mmom= 3.0719 ehf(eV)=-535698.730932 ehk(eV)=-535698.431570 sev(eV)=-356.920227
+i mmom= 3.3705 ehf(eV)=-535699.264726 ehk(eV)=-535695.695227 sev(eV)=-358.074994
+i mmom= 3.3670 ehf(eV)=-535698.928622 ehk(eV)=-535698.536801 sev(eV)=-365.714498
+i mmom= 3.3271 ehf(eV)=-535698.888754 ehk(eV)=-535698.862392 sev(eV)=-366.444750
+i mmom= 3.3283 ehf(eV)=-535698.888980 ehk(eV)=-535698.874518 sev(eV)=-366.928959
+i mmom= 3.3152 ehf(eV)=-535698.889002 ehk(eV)=-535698.888080 sev(eV)=-367.524917
+i mmom= 3.3151 ehf(eV)=-535698.889215 ehk(eV)=-535698.888911 sev(eV)=-367.722875
+i mmom= 3.3028 ehf(eV)=-535698.890636 ehk(eV)=-535698.889688 sev(eV)=-368.110581
+i mmom= 3.3164 ehf(eV)=-535698.890038 ehk(eV)=-535698.889482 sev(eV)=-368.022540
+i mmom= 3.3039 ehf(eV)=-535698.890205 ehk(eV)=-535698.889793 sev(eV)=-368.097329
+i mmom= 3.3036 ehf(eV)=-535698.889816 ehk(eV)=-535698.889531 sev(eV)=-368.025055
+i mmom= 3.3035 ehf(eV)=-535698.889551 ehk(eV)=-535698.889384 sev(eV)=-367.973544
+i mmom= 3.3038 ehf(eV)=-535698.889315 ehk(eV)=-535698.889207 sev(eV)=-367.911997
+i mmom= 3.3034 ehf(eV)=-535698.889360 ehk(eV)=-535698.889301 sev(eV)=-367.936479
+i mmom= 3.3033 ehf(eV)=-535698.889301 ehk(eV)=-535698.889262 sev(eV)=-367.917493
+i mmom= 3.3033 ehf(eV)=-535698.889284 ehk(eV)=-535698.889266 sev(eV)=-367.919955
+i mmom= 3.3032 ehf(eV)=-535698.889289 ehk(eV)=-535698.889286 sev(eV)=-367.928600
+c mmom= 3.3033 ehf(eV)=-535698.889261 ehk(eV)=-535698.889267 sev(eV)=-367.926757
+Start LMF fept --phispinsym --nosym --quit=band -vso=0
+i mmom= 3.3031 ehf(eV)=-535698.889270 ehk(eV)=-535698.889280 sev(eV)=-367.932517
+Start LMF fept --phispinsym --nosym --quit=band -vso=1 -vsoa1=0 -vsoa2=0 -vsoa3=1
+i mmom= 3.2702 ehf(eV)=-535699.203668 ehk(eV)=-535699.193569 sev(eV)=-368.246915
+Start LMF fept --phispinsym --nosym --quit=band -vso=1 -vsoa1=1 -vsoa2=1 -vsoa3=0
+i mmom= 3.2645 ehf(eV)=-535699.201112 ehk(eV)=-535699.190232 sev(eV)=-368.244360

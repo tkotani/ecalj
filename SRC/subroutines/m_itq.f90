@@ -31,11 +31,17 @@ contains
     open(newunit=ifih,file='NTQXX')
     !! Get ntq
     if(lntq) then
-       read(ifih,*) nband_r,nq_r,ntq
-       if(nband_r/=nband .OR. nq_r/=nqibz) then
-          rewind ifih
-          lntq=.false.
-       endif
+       read(ifih,*,err=1018,end=1018) nband_r,nq_r,ntq
+       if(nband_r/=nband .OR. nq_r/=nqibz) goto 1018
+       !if(nband_r/=nband .OR. nq_r/=nqibz) then
+       !   rewind ifih
+       !   lntq=.false.
+       !endif
+       goto 1019
+1018   continue
+       rewind ifih
+       lntq=.false.
+1019   continue
     else
        ntq=0
        allocate(eqt(nband))

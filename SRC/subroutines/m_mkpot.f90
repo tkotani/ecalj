@@ -4,7 +4,7 @@ module m_mkpot !How to learng this? Instead of reading all source, understand I/
   use m_lmfinit,only: z_i=>z,lmxa_i=>lmxa,lmxb_i=>lmxb,kmxt_i=>kmxt,nlmxlx
   use m_lmfinit,only: nbas,qbg=>zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nppn,lfrce, nchan=>pot_nlma, nvl=>pot_nlml
   use m_struc_def,only: s_rv1,s_cv1,s_sblock,s_rv4,s_cv5
-  public:: m_mkpot_init, m_mkpot_energyterms, m_mkpot_novxc, m_mkpot_deallocate !,m_Mkpot_novxc_dipole
+  public:: m_mkpot_init, m_mkpot_energyterms, m_mkpot_novxc, m_mkpot_deallocate 
   ! Potential terms, call m_mkpot_init. Generated at mkpot-locpot-augmat-gaugm
   type(s_sblock),allocatable,protected,public  :: ohsozz(:,:),ohsopm(:,:) !SOC matrix
   type(s_cv5),allocatable,protected,public  :: oppi(:,:) !pi-integral Eq.(C.6)  in the JPSJ.84.034702
@@ -240,9 +240,6 @@ contains
        if(master_mpi)write(stdo,ftox)' Energy for background charge q=',ftod(qbg),'radius r=',rhobg,&
             'E=9/5*q*q/r=',1.8d0*qbg*qbg/rhobg
     endif Printsmoothbackgroundcharge
-!!!!!!!!!!!!!!!!!!!!
-!    write(6,*)'vvvsssscheckaaa222',sum(orhoat(1,1)%v),sum(abs(orhoat(1,1)%v))
-!!!!!!!!!!!!!!!!!!!!    
     call rhomom(orhoat, qmom,vsum) !multipole moments
     call smves(qmom,gpot0,vval,hpot0_rv,smrho,smpot,vconst,smq,qsmc,fes,rhvsm0,rhvsm,zsum,vesrmt,qbg)!0th part of electrostatic potential Ves and Ees
     smag = merge(2d0*dreal(sum(smrho(:,:,:,1)))*vol/(n1*n2*n3) - smq,0d0,nsp==2) !mag mom
@@ -259,21 +256,9 @@ contains
        novxc=.true.
        repsm=0d0;  repsmx=0d0;  repsmc=0d0;   rmusm=0d0;  rvmusm=0d0;
     endif ADDsmoothExchangeCorrelationPotential
-    !! Add dipole contribution (x,y,z) to smpot (we only need <i|x|j> and so on, but because of technical reason,
-    !! Calculate <i|x|j> by subtraction. nov2021 (this is stupid implementation--- See MLWF paper.
-    !$$$      dipole=0
-    !$$$      if(present(dipole_)) then
-    !$$$         if(dipole_/=0) dipole=dipole_
-    !$$$         write(6,*)' mkpot dipole=', present(dipole_),dipole_,dipole,n1,n2,n3
-    !$$$      endif
-    !$$$      if(dipole/=0) then
-    !$$$         do isp=1,nsp;  do i=1,n1;    do j=1,n2;  do k=1,n3
-    !$$$            smpot(i,j,k,isp)=smpot(i,j,k,isp)+ lat_alat*sum(plat(dipole,:)*[(i-1)/dble(n1),(j-1)/dble(n2),(k-1)/dble(n3)])
-    !$$$         enddo;   enddo;    enddo;    enddo
-    !$$$      endif
     call elocp() ! set ehl and rsml for extendet local orbitals
     if(sum(lpzex)/=0) call m_bstrux_init()!computes structure constant (C_akL Eq.(38) in /JPSJ.84.034702) when we have extended local orbital.
-    call locpot(job,novxc,orhoat,qmom,vval,gpot0, & !,idipole ) !Make local potential at atomic sites and augmentation matrices 
+    call locpot(job,novxc,orhoat,qmom,vval,gpot0, & !Make local potential at atomic sites and augmentation matrices 
          osig,otau,oppi,ohsozz,ohsopm, phzdphz,hab_rv,vab_rv,sab_rv,  &
          vvesat,repat,repatx,repatc,rmuat, valvfa,xcore, sqloc,sqlocc,saloc,qval,qsc )
     if(cmdopt0('--density') .AND. master_mpi .AND. secondcall) return
@@ -296,8 +281,8 @@ contains
             'rho*exc     ',sum(repsm),sum(repat),rhoexc, &
             'rho*vxc     ',sum(rmusm),sum(rmuat),rhovxc, &
             'valence chg ',smq,sqloc,smq+sqloc !valence electron density, smooth part + local part
-       if(nsp == 2) write (stdo,680) 'valence mag',smag,saloc,amom
-       write(stdo,680) 'core charge',qsmc,sqlocc,qsmc+sqlocc
+       if(nsp == 2) write (stdo,680) 'valence mag ',smag,saloc,amom
+       write(stdo,680) 'core charge ',qsmc,sqlocc,qsmc+sqlocc
        write(stdo,"('   Charges:  valence',f12.5,'   cores',f12.5,'   nucleii',f12.5/'   hom background',f12.5, &
          '   deviation from neutrality: ',f12.5)") smq+sqloc,qsmc+sqlocc,-zsum,qbg,dq
 680    format(3x,a,4x,3f17.6)
@@ -311,7 +296,7 @@ contains
     if(dabs(dq)>1d-3) write(stdo,"(a,f13.6)")' (warning) system not neutral, dq=',dq
     call tcx('mkpot')
   end subroutine mkpot
-  subroutine dfaugm(osig, otau, oppi, ohsozz,ohsopm )
+  subroutine dfaugm(osig, otau, oppi, ohsozz,ohsopm )!Allocate pointer arrays
     use m_struc_def,only:s_rv1,s_cv1,s_sblock
     use m_lmfinit,only: lso,nkaphh,nsp,nbas,ispec
     !o  osig,otau,oppi,ohsozz  :memory allocated (ohsoz is for SOC)
@@ -366,49 +351,3 @@ contains
     if(allocated(vesrmt)) deallocate(vesrmt,fes1_rv,phzdphz,sab_rv,hab_rv,qmom,oppi,otau,osig,osmpot,ohsozz,ohsopm)
   end subroutine m_mkpot_deallocate
 end module m_mkpot
-
-  !$$$      subroutine m_mkpot_novxc_dipole()
-  !$$$! output: oppixd, spotxd
-  !$$$! Assuming osigx,otaux are allocated already by calling m_mkpot_novxc in advance.
-  !$$$! nov2021:   dipole option is added whether we calculate <i|{\bf r}|j> matrix (by differece).
-  !$$$      use m_supot,only: n1,n2,n3
-  !$$$      use m_density,only: osmrho, orhoat !main input density
-  !$$$      use m_lmfinit,only: nkaph,nsp,nbas,ssite=>v_ssite,kmxt_i=>kmxt,lmxa_i=>lmxa,lmxh_i=>lmxh
-  !$$$      integer:: i,lfrzw,ib,is,kmax,lmxa,lmxh,nlma,nlmh,iidipole,ilfzw
-  !$$$      logical:: novxc_
-  !$$$      write(stdo,"(a)")' m_mkpot_novxc_dipole: Making one-particle potential without XC part ...'
-  !$$$      allocate( vesrmt(nbas))
-  !$$$      allocate(  qmom(nvl)) !rhomom
-  !$$$      allocate( phzdphz(nppn,n0,nsp,nbas))
-  !$$$      allocate(  hab_rv(nab*n0*nsp*nbas))
-  !$$$      allocate(  vab_rv(nab*n0*nsp*nbas))
-  !$$$      allocate(  sab_rv(nab*n0*nsp*nbas))
-  !$$$      allocate(  gpot0(nvl))
-  !$$$      allocate(  vval(nchan))
-  !$$$      allocate(  fes1_rv(3*nbas))
-  !$$$      allocate( ohsozzx(3,nbas), ohsopmx(3,nbas)) !dummy
-  !$$$      lfrzw = 0
-  !$$$      if(ham_frzwf) lfrzw = 1   !freeze all augmentation wave
-  !$$$      ilfzw = 1 + 10*lfrzw !+ 100    ! Adding 100 means excluding XC(LDA) part. nolxc=T
-  !$$$      allocate( spotxd(n1,n2,n3,nsp,3), oppixd(3,nbas,3)) !smooth potential without XC
-  !$$$      spotxd=0d0
-  !$$$      do  ib = 1, nbas
-  !$$$         is = int(ssite(ib)%spec)
-  !$$$         lmxa=lmxa_i(is)
-  !$$$         lmxh=lmxb_i(is)
-  !$$$         kmax=kmxt_i(is)
-  !$$$         nlma = (lmxa+1)**2
-  !$$$         nlmh = (lmxh+1)**2
-  !$$$         do iidipole=1,3        !see dfaugm
-  !$$$            allocate(oppixd(1,ib,iidipole)%cv((kmax+1)*(kmax+1)*nlma*nlma*nsp))
-  !$$$            allocate(oppixd(3,ib,iidipole)%cv( nkaph*nkaph*nlmh*nlmh*nsp))
-  !$$$            allocate(oppixd(2,ib,iidipole)%cv( nkaph*(kmax+1)*nlmh*nlma*nsp))
-  !$$$         enddo
-  !$$$      enddo
-  !$$$      do iidipole=1,3
-  !$$$         call mkpot(ilfzw,osmrho,orhoat,
-  !$$$     o        spotxd(:,:,:,:,iidipole),osigx,otaux,oppixd(:,:,iidipole),fes1_rv,ohsozzx,ohsopmx,
-  !$$$     &        novxc_,dipole_=iidipole) !!when novxc_ exists, we exclud XC(LDA) part.
-  !$$$      enddo
-  !$$$      deallocate(vesrmt,qmom,phzdphz,hab_rv,vab_rv,sab_rv,gpot0,vval,fes1_rv,ohsozzx,ohsopmx)
-  !$$$      end subroutine

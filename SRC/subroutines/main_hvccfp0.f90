@@ -1,4 +1,8 @@
-subroutine hvccfp0()   ! Coulomb matrix. <f_i | v| f_j>_q.
+module m_hvccfp0
+  public hvccfp0
+  private
+  contains
+subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.
   ! output  VCCFP : the coulomb matrix vcoul(nblochpmx,nblochpmx) for all qibz.
   !    strx: structure constant for e=0 (means 1/|r-r'| )
   use m_xlgen,only:lgen
@@ -397,7 +401,7 @@ subroutine hvccfp0()   ! Coulomb matrix. <f_i | v| f_j>_q.
   if(imode==202) call rx0( ' OK! hvccfp0 imode=202 only for Q0P')
   if(imode==0) call rx0( ' OK! hvccfp0 imode=0')
   if(imode==3) call rx0( ' OK! hvccfp0 imode=3')
-endsubroutine 
+end subroutine
 
 subroutine MPI__getRange( mpi__indexi, mpi__indexe, indexi, indexe )
   use m_mpi,only: mpi__size,mpi__rank
@@ -420,4 +424,4 @@ subroutine MPI__getRange( mpi__indexi, mpi__indexe, indexi, indexe )
   end do
   deallocate(mpi__total)
 end subroutine MPI__getRange
-
+end module

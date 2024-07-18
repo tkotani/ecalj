@@ -1,8 +1,8 @@
+!> PMT --1ststep--> MPO (alias MLO0='MPO') --2ndstep--> MLO. This is for 1ststep. called at the end of job_ham
 module m_lmfham1
   public lmfham1
   private
 contains
-!> PMT --1ststep--> MPO --2ndstep--> MLO. This is for 1ststep. called at the end of job_ham
 subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|MPO> and overlap <MPO|MPO>
   use m_HamPMT,only: ReadHamPMTInfo, HamPMTtoHamRsMPO, plat,npair,nlat,nqwgt,ldim,nkp,qplist,ib_table,alat,symops,ngrp,pos
   !                                  HamPMTtoHamRsMPO do not change variables here. Only generate HamRsMTO file.
@@ -13,8 +13,8 @@ subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|
   use m_zhev,only:   Zhev_tk4
   use m_MPItk,only: m_MPItk_init, nsize, procid,master_mpi,comm !  use m_ext,only:      m_ext_init,sname
   use m_keyvalue,only: Getkeyvalue
-  use m_lmfinit,only:  m_lmfinit_init,oveps,nbas
-  use m_ext,only: m_ext_init
+  use m_lmfinit,only:  m_lmfinit_init,oveps,nbas 
+  use m_ext,only: m_ext_init,sname
   use m_cmdpath,only: Setcmdpath
 !  use m_prgnam,only: set_prgnam
   use m_setqibz_lmfham,only: set_qibz,qibz,nqibz
@@ -26,12 +26,12 @@ subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|
   integer:: ndatx,ifsy1,ifsy2,ifsy,iix(36),nsc1,iqini,iqend,ndiv
   complex(8)::img=(0d0,1d0),phase,aaaa
   real(8),allocatable:: evl(:)
-  real(8)::qp(3),pi=4d0*atan(1d0), facw,ecutw,eww,rydberg,posd(3)
-  logical:: lprint=.true.,savez=.false.,getz=.false.
+  real(8)::qp(3),pi=4d0*atan(1d0),rydberg,posd(3)         , facw,ecutw,eww
+  logical:: lprint=.true.,savez=.false.,getz=.false.,eee
   character(256):: fband(2)=['band_MPO_spin1.dat','band_MPO_spin2.dat'],cccx
   character(8):: prgnam=''
   include "mpif.h"
-  call setcmdpath() !Set self-command path (this is for call system at m_lmfinit)
+!  call setcmdpath() !Set self-command path (this is for call system at m_lmfinit)
   call m_ext_init()         ! Get sname, e.g. trim(sname)=si of ctrl.si
   call m_MPItk_init() ! mpi initialization
   call m_lgunit_init() !set stdo,stdl
@@ -39,7 +39,6 @@ subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|
   call m_lattic_init()      ! lattice setup (for ewald sum)
   call m_mksym_init()  !symmetry go into m_lattic and m_mksym
   call m_mkqp_init() ! data of BZ go into m_mkqp
-    
   call ReadHamPMTInfo()  ! Read info from PMTHamiltonianInfo (lattice structures and index of basis).
   call getkeyvalue("GWinput","mlo_facw",facw,default=.5d0)
   call getkeyvalue("GWinput","mlo_ecutw",ecutw,default=999*rydberg())
@@ -92,9 +91,15 @@ subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|
     if(ndatx>ndiv*nsize) ndiv=ndiv+1
     iqini =     ndiv*procid+1
     iqend =     ndiv*procid+ndiv
-    if(procid==nsize-1) iqend = min(ndatx,iqend)
+    if(iqini>ndatx) then
+       iqini=0
+       iqend=-1
+    elseif(iqend>ndatx) then
+       iqend=ndatx
+    endif
+    !if(procid==nsize-1) iqend = min(ndatx,iqend)
     call mpi_barrier(comm,ierr)
-    write(stdo,ftox)'plot bands: nsize procid iqini iqend=',nsize,procid,iqini,iqend
+    write(stdo,ftox)'plot bands: nsize procid iqini iqend=',nsize,procid,iqini,iqend,'  ',ndiv,ndatx
     GetHamiltonianFromRealSpacehammrANDdiagonalize: do ikp=iqini,iqend !1,ndatx
        qp= qplistsy(:,ikp)
        Hamblock: block
@@ -140,7 +145,7 @@ subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|
       character(256):: aline,fname,fname1
       do jsp = 1,nspx
          fname ='bandplot.isp'//char(48+jsp)//'.glt'
-         fname1='bandplot_MPO.isp'//char(48+jsp)//'.glt'
+         fname1='bandplot_MLO0.isp'//char(48+jsp)//'.glt'  !MPO -->MLO0
          open(newunit=ifglt1, file=trim(fname1))
          open(newunit=ifglt,  file=trim(fname))
          do

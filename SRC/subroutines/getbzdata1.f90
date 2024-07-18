@@ -32,8 +32,8 @@ contains
     integer::kount,i1,i2,i3,n2,nnnv(3),ig,ir,j1,j2,j3,jj(3),k,m,i1x,i2x,i3x,ic,k1,k2,k3,kountw,ndx, &
          ibtr(3,3),kcut(3,4,6),ngcell,i,ii,j,igamma
     real(8):: xvec(3),xvecc(3),xvecs(3),xvece(3),vv(3),xvv(3),xv(3),diff(3),diff2(3),swgt,v1(3),wfac
-    real(8):: tolq=1d-4 !corresponding to bzmesh
     logical,allocatable::usediqig(:,:)
+    real(8):: tolw,tolq !function defined in switch.f90
     !! icase=1
     write(6,"('getbzdata1: n1n2n3=',3i5)") nnn(1:3)
     call minv33tp (qlat,plat)  !qlat --> plat
@@ -79,7 +79,7 @@ contains
           enddo
        enddo
     enddo Genarageqbz
-    if( abs(wsum - 1d0) >tolq) call rx( 'getbzdata1: wrong wsum check')
+    if( abs(wsum - 1d0) >tolw() ) call rx( 'getbzdata1: wrong wsum check')
     kountw=0
     nqbzw = (nnn(1)+1)*(nnn(2)+1)*(nnn(3)+1)
     allocate(ib1bz(nqbzw), qbzw(3,nqbzw) )
@@ -134,7 +134,7 @@ contains
                 !      do 20 i3 = 1,nnnv(3)
                 xvec = (/I1-1,I2-1,I3-1/) / dble(nnn)
                 call xconvv(xvec+qbzshift,           xvecc)
-                if(sum(abs(xvecc))<tolq ) then
+                if(sum(abs(xvecc))<tolq() ) then
                    if(igamma==1) cycle !skip Gamma since it is already in it.
                 else
                    if(igamma==0) cycle !get Gamma point only.
@@ -157,7 +157,7 @@ contains
                       if(nadd==0) then !periodic case
                          diff= diff - nint(diff)
                       endif
-                      if(sum(abs(diff))<tolq) then !!we found qibz(:,iq) is mapped to vv.
+                      if(sum(abs(diff))<tolq()) then !!we found qibz(:,iq) is mapped to vv.
                          usediqig(iq,ig)=.true.
                          iqx=iq
                          goto 23
@@ -178,7 +178,7 @@ contains
 229 enddo GenerageQibzGammapointfirst
     SWGT = sum(wibz(1:nqibz))
     !      if(gammacellctrl/=2) then
-    if (dabs(swgt-2d0)> tolq) call rx( 'getbzdata1: error in weights swgt')
+    if (dabs(swgt-2d0)> tolq()) call rx( 'getbzdata1: error in weights swgt')
     !        write(6,"(/' getbzdata: sum swgt iwgt=',f12.8)") swgt
     if (sum(iwgt(1:nqibz))-product(nnnv)/=0) call rx('getbzdata1: sum(iwgt(1:nqibz))-product(nnn)/=0')
     !      endif
@@ -203,7 +203,7 @@ contains
                    else
                       diff2=diff
                    endif
-                   if(sum(abs(diff2))< tolq) then
+                   if(sum(abs(diff2))< tolq()) then
                       if(verbose()>50) then
                          write(6,"(' i1i2i3= ',3i3,' q qibz k=',2x,3f7.3,2x,3f7.3,2i5)") &
                               i1,i2,i3, vv, qibz(:,k),k,k-ipq(i1,i2,i3) ! matmul(qp(:,NQx),rbas)*8, matmul(v, rbas)*8
@@ -520,9 +520,9 @@ contains
     end do
   end subroutine qwider
   subroutine tetdevide(qc, qcm, wtet, mt1,mt2,mt3) !tetrahedron divider. qc ---> qcm
-    real(8):: tolq=1d-4
     integer:: mt1,mt2,mt3,iq(0:3,8),itet,ic
     real(8):: qc(3,0:3), qcm(3,0:3,mt1*mt2*mt3),qq(3,0:9),wt(0:3,0:9),wtet(0:3,mt1*mt2*mt3)
+    real(8):: tolw,tolq !function defined in switch.f90
     !! == four tetrahedrons at ends ==
     iq(:,1) = (/0,7,8,9/)
     iq(:,2) = (/1,5,6,7/)
@@ -560,7 +560,7 @@ contains
           wtet(2,itet) =  sum( wt(2,iq(:,itet)) )/4d0
           wtet(3,itet) =  sum( wt(3,iq(:,itet)) )/4d0
           !         write(6,"(' itet wtet=',i5,5f8.3)")itet,wtet(:,itet),sum(wtet(:,itet))
-          if(abs(sum(wtet(:,itet))-1d0)>tolq) call rx( 'tetdevide: sumwtet/=1')
+          if(abs(sum(wtet(:,itet))-1d0)>tolw()) call rx( 'tetdevide: sumwtet/=1')
        enddo
     else
        call rx( ' tetdvide: only 2 2 2 has already implimented.')
@@ -607,7 +607,8 @@ contains
     ! irotk(k{IBZ,R) = index to k{FBZ
     implicit none
     integer:: nqibz,nqbz,ngrp,ir,k,kp,nsum,ivsum,nstar(nqibz),irotk(nqibz,ngrp),verbose,kout,iccc,gammacellctrl
-    real(8):: qibz(3,nqibz),qbz(3,nqbz),grp(3,3,ngrp),ginv(3,3),diff(3),diff2(3),tolq=1d-4,gg(3,3)
+    real(8):: qibz(3,nqibz),qbz(3,nqbz),grp(3,3,ngrp),ginv(3,3),diff(3),diff2(3),gg(3,3)
+    real(8):: tolw,tolq !function defined in switch.f90
     if(verbose()>104) then
        print *,' nkstar:'
        do kp = 1,nqbz
@@ -627,7 +628,7 @@ contains
                 diff2=diff
              endif
              if(verbose()>104) write(6,"(' matmul(ginv,diff)=',3f8.3,' ',3f8.3)") diff, matmul(ginv,diff)
-             if(sum(abs(diff2))< tolq) then
+             if(sum(abs(diff2))< tolq()) then
                 irotk(k,ir)= kp
                 kout=k
                 nstar(k)   = nstar(k) + 1

@@ -37,15 +37,15 @@ module m_bandcal
   complex(8),allocatable,private:: eveciqis(:,:,:)
   private
 contains
-  subroutine m_bandcal_init(lrout,ef0,vmag0,ifih) ! Set up Hamiltonian, diagonalization
+  subroutine m_bandcal_init(lrout,ef0,vmag,ifih) ! Set up Hamiltonian, diagonalization
     implicit none
-    intent(in)::            lrout,ef0,vmag0,ifih
+    intent(in)::            lrout,ef0,vmag,ifih
     complex(8),allocatable:: hamm(:,:,:,:),ovlm(:,:,:,:),hammhso(:,:,:),ovlms(:,:,:,:) !Hamiltonian,Overlapmatrix
     integer:: iq,nmx,ispinit,isp,nev,ifih,lwtkb,lrout,ifig,i,ibas,iwsene,idat,ikp
-    real(8):: qp(3),ef0,def=0d0,xv(3),q(3),vmag0
+    real(8):: qp(3),ef0,def=0d0,xv(3),q(3),vmag
     real(8),allocatable    :: evl(:,:)  !eigenvalue (nband,nspin)
     complex(8),allocatable :: evec(:,:) !eigenvector( :,nband)
-    logical:: ltet,cmdopt0,dmatuinit=.true.,wsene
+    logical:: ltet,cmdopt0,dmatuinit=.true.,wsene,magexist
     character(3):: charnum3  !    real(8)::  evlall(ndhamx,nspx,nkp)
     call tcn('m_bandcal_init')
     if(master_mpi) write(stdo,ftox)'m_bandcal_init: start'
@@ -57,6 +57,8 @@ contains
     if(plbnd==0 .AND. lso/=0 .AND. lmet==0 ) call rx('metal weights required to get orb.moment')
     if(lso/=0) allocate(orbtm_rv(lmxax+1,nsp,nbas),source=0d0) !for spin-orbit coupling
     if(lfrce>0) allocate( frcband(3,1:nbas),source=0d0) !force for band
+    if(master_mpi) write(stdo,"('MagField added to Hailtonian -vmag/2 for isp=1, +vmag/2 for isp=2: vmag(Ry)=',d13.6)") vmag
+    magexist= abs(vmag)>1d-6
     allocate( ndimhx_(nkp,nspx),nevls(nkp,nspx),source=0) 
     allocate( evlall(ndhamx,nspx,nkp),source=0d0)
     if(lso==1) allocate( spinweightsoc(ndhamx,nsp,nkp),source=0d0) !nsp=2 for lso==1
@@ -155,6 +157,15 @@ contains
             write(ifih) hamm
          endif
          allocate(evec(ndimhx,nmx))
+         if(magexist) then
+            if(nspc==2) then
+               hamm(:,1,:,1)= hamm(:,1,:,1) - vmag/2d0*ovlm(:,1,:,1)
+               hamm(:,2,:,2)= hamm(:,2,:,2) + vmag/2d0*ovlm(:,2,:,2)
+            else
+               if(isp==1) hamm(:,1,:,1)= hamm(:,1,:,1) - vmag/2d0*ovlm(:,1,:,1)
+               if(isp==2) hamm(:,1,:,1)= hamm(:,1,:,1) + vmag/2d0*ovlm(:,1,:,1)
+            endif   
+         endif
          Diagonalize_hamilatonian: block 
            !== Diagonalize Hamiltonian ==
            ! ndimhx: dimension of Hamitonian
@@ -198,7 +209,7 @@ contains
        endif   
        if(master_mpi.AND.epsovl>=1d-14.AND.plbnd/=0) write(stdo,&
             "(' : ndimhx=',i5,' --> nev=',i5' by HAM_OVEPS ',d11.2)") ndimhx,nev,epsovl
-       if(PROCARon) call m_procar_init(iq,isp,ef0,vmag0,evl,qp,nev,evec,ndimhx)
+       if(PROCARon) call m_procar_init(iq,isp,ef0,evl,qp,nev,evec,ndimhx)
        if(allocated(evec)) deallocate(evec)
        if(allocated(hammhso)) deallocate(hammhso)
        if(allocated(hamm)) deallocate(hamm,ovlm)

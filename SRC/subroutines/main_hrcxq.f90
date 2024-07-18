@@ -1,5 +1,7 @@
 !> Calculate Im(chi0) and do Hilbert transformation.
-subroutine hrcxq()
+module m_hrcxq
+  contains
+subroutine hrcxq() bind(C)
   !  Output: rxcq.iq files.
   !   After set up a kind of enviromental variables, by calling module functions,
   !   we read tetrahedron weight via 'call X0kf_v4hz_init_read(iq,is)'.
@@ -131,7 +133,8 @@ subroutine hrcxq()
   write(stdo,ftox) '--- end of hrcxq --- irank=',MPI__rank
   call cputid(0)
   call rx0( ' OK! hrcxq WV generated')
-contains
+  
+  contains
   subroutine writewvfreq() !writeonly
      open(newunit=ifwd, file='WV.d')
      write(ifwd,"(1x,10i14)") nprecx, mrecl, nblochpmx, nw+1,niw, nqibz + nq0i-1, nw_i
@@ -147,3 +150,4 @@ contains
      close(ifif)
    end subroutine writewvfreq
 end subroutine hrcxq
+end module m_hrcxq

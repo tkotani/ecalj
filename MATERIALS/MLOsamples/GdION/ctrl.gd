@@ -50,7 +50,7 @@ SPEC
 
 
 
-% const pwemax=3 nk1=8 nk2=8 nk3=8 nit=30  gmax=12  nspin=2 metal=3 so=2 xcfun=1 ssig=0.8
+% const pwemax=3 nk1=2 nk2=2 nk3=2 nit=30  gmax=12  nspin=2 metal=3 so=0 xcfun=1 ssig=0.8
 BZ    ZBAK=3
       NKABC={nk1} {nk2} {nk3} # division of BZ for q points.
       METAL={metal}

@@ -1,4 +1,6 @@
-subroutine qg4gw()
+module m_qg4gw
+  contains
+subroutine qg4gw() bind(C)
   !> Generate required q+G vectors and so on for GW calculations.
   !! input file
   !!   LATTC: contains these lattice informations;
@@ -103,3 +105,4 @@ subroutine qg4gw()
   if(iq0pin ==40001) call rx0( ' OK! qg4gw mode=40001 QforEPSL for magnon')
   call rx('qg4gw: iq0pin wrong?')
 END subroutine qg4gw
+endmodule m_qg4gw

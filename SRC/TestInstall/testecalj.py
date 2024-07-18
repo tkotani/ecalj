@@ -53,7 +53,7 @@ if(showt):
 os.makedirs(bindir,exist_ok=True)
 exec='lmfa lmf run_arg job_pdos job_tdos ctrl2ctrlp.py a2vec.py \
  gwutil.py gwsc qg4gw hvccfp0 hsfp0_sc hqpe_sc hmaxloc hpsig_MPI huumat_MPI hwmatK_MPI hrcxq \
- rdata4gw_v2 heftet hbasfp0 gw_lmfh hx0fp0 hsfp0 hqpe eps_lmfh epsPP_lmfh epsPP_lmfh_chipm genMLWFx'
+ heftet hbasfp0 gw_lmfh hx0fp0 hsfp0 hqpe eps_lmfh epsPP_lmfh epsPP_lmfh_chipm genMLWFx'
 for ex in exec.split():
     shutil.copy(ecaljroot+'/SRC/exec/'+ex,bindir)
     print ('cp ' + ecaljroot+'/SRC/exec/' +ex+ ' to ',bindir)
@@ -70,29 +70,43 @@ gwsc0  = testroot+'/bin/gwsc 0 '+np4
 genm   = testroot+'/bin/genMLWFx '
 job_pdos= testroot+'/bin/job_pdos '
 
+def runprogs(runlist):
+    for irun in runlist:
+        print(irun)
+        err = os.system(irun)
+        if(err): print('Error exit!')
+        if(err): sys.exit(-1)
+                
 "Start test as tname from testall"
 tall=''
+#try:
+#    from tqdm import tqdm
+#except:
+#    def tqdm(aaa):
+#        aaa
+#for tname in tqdm(testall.split()):
 for tname in testall.split():
     testdir=testroot+'/'+tname
     workdir=workroot+'/'+tname
     print()
     print('=== Test ',tname,' at ',workdir)
-    shutil.copytree(testdir, workdir)
+    try:
+        shutil.copytree(testdir, workdir)
+    except:
+        print('Error! No such test: testdir=',testdir)
+        sys.exit(-1)
     os.chdir(workdir)
     outfile='out.lmf.'+tname
     if(tname=='copt'):
         message1='''
-        # Case copt: a distorted L12 environment with four atoms.
+        # Case copt: a distorted L12 environment with four atoms. 
         # --- Basic check of programs lmfa,lmf ---
         '''
         print(message1)
-        runlist=[\
-                 lmfa+'copt -vnsp=2 -cstrx=l12 --pr41 -vmet=3 -vtetra=0 -vnk1=2 -vlfrce=12 -vdist=1 -vnit=3 --time=5 > '+outfile,\
-                 lmf +'copt -vnsp=2 -cstrx=l12 --pr41 -vmet=3 -vtetra=0 -vnk1=2 -vlfrce=12 -vdist=1 -vnit=3 --time=5 > '+outfile \
-        ]
-        for irun in runlist:
-            print(irun)
-            os.system(irun)
+        runprogs([
+                 lmfa+'copt -vnsp=2 -cstrx=l12 --pr41 -vmet=3 -vtetra=0 -vnk1=2 -vlfrce=12 -vdist=1 -vnit=3 --time=5 > '+outfile,
+                 lmf +'copt -vnsp=2 -cstrx=l12 --pr41 -vmet=3 -vtetra=0 -vnk1=2 -vlfrce=12 -vdist=1 -vnit=3 --time=5 > '+outfile 
+        ])
         tall+= test1_check(testdir+'/'+outfile, workdir+'/'+outfile)
     elif(tname=='te'):
         message1='''
@@ -122,19 +136,16 @@ for tname in testall.split():
          looking at the maximum force after the last step.
 	'''
         print(message1)
-        runlist=[\
-            lmfa+"te -vdyn='DYN' -vnk=3 -vnit=3 -vlf1=4 -vlmxl=4 -vnk=3 -vngd=20 -vkmx=3 -vconv=1e-4 > "+outfile, \
-            lmf+ "te -vdyn='DYN' -vnk=3 -vnit=3 -vlf1=4 -vlmxl=4 -vnk=3 -vngd=20 -vkmx=3 -vconv=1e-4 -vnbas=12 -vnspec=2 >> "+outfile,\
-            "rm -f mixm.te",\
-            "cp rst.te rst.te.bk",\
-            lmf+"te -vnk=3 -vnit=3 -vlf1=4 -vlmxl=4 -vnk=3 -vngd=20 -vkmx=5 -vconv=1e-4 -vpwmode=11 >> "+outfile,\
-            "rm -f mixm.te",\
-            "cp rst.te.bk rst.te",\
-            lmf+"te -vnk=3 -vnit=3 -vlf1=4 -vlmxl=4 -vnk=3 -vngd=20 -vkmx=3 -vconv=1e-4 >> "+outfile \
-        ]
-        for irun in runlist:
-            print(irun)
-            os.system(irun)
+        runprogs([\
+            lmfa+"te -vdyn='DYN' -vnk=3 -vnit=3 -vlf1=4 -vlmxl=4 -vnk=3 -vngd=20 -vkmx=3 -vconv=1e-4 > "+outfile, 
+            lmf+ "te -vdyn='DYN' -vnk=3 -vnit=3 -vlf1=4 -vlmxl=4 -vnk=3 -vngd=20 -vkmx=3 -vconv=1e-4 -vnbas=12 -vnspec=2 >> "+outfile,
+            "rm -f mixm.te",
+            "cp rst.te rst.te.bk",
+            lmf+"te -vnk=3 -vnit=3 -vlf1=4 -vlmxl=4 -vnk=3 -vngd=20 -vkmx=5 -vconv=1e-4 -vpwmode=11 >> "+outfile,
+            "rm -f mixm.te",
+            "cp rst.te.bk rst.te",
+            lmf+"te -vnk=3 -vnit=3 -vlf1=4 -vlmxl=4 -vnk=3 -vngd=20 -vkmx=3 -vconv=1e-4 >> "+outfile 
+        ])
         tall+=test1_check(testdir+'/'+outfile, workdir+'/'+outfile)
     elif(tname=='zrt'):
         message1='''
@@ -145,14 +156,11 @@ for tname in testall.split():
          2.  two-kappa basis
         '''
         print(message1)
-        runlist=[\
-                 lmfa+" -vfp=1 zrt --no-iactiv > out.lmf.zrt > "+outfile,\
-                 lmf+"  -vnitq=1 -vforce=1 -vfp=1 zrt >> "+outfile,\
-                 lmf+"  -vnitq=1 -vforce=1 -vfp=1 zrt >> "+outfile \
-                 ]
-        for irun in runlist:
-            print(irun)
-            os.system(irun)
+        runprogs([
+                 lmfa+" -vfp=1 zrt --no-iactiv > out.lmf.zrt > "+outfile,
+                 lmf+"  -vnitq=1 -vforce=1 -vfp=1 zrt >> "+outfile,
+                 lmf+"  -vnitq=1 -vforce=1 -vfp=1 zrt >> "+outfile 
+        ])
         tall+=test1_check(testdir+'/'+outfile, workdir+'/'+outfile)
     elif(tname=='co'):
         message1='''
@@ -171,19 +179,16 @@ for tname in testall.split():
              to be installed for this function).
          '''       
         print(message1)
-        runlist=[\
-                 lmfa+" co -vmet=3 -vlmf=1 -vnk=8 -vnit=3 --pr31 > "+ outfile,\
-                 lmf+ " co -vmet=3 -vlmf=1 -vnk=8 -vnit=3 -vw2=0 --pr31 >> "+outfile,\
-                 "rm mixm.co",\
-                 lmf+ " co -vmet=3 -vlmf=1 -vnk=8 -vnit=3 -vw1=0 --pr31 >> "+outfile,\
-                 "rm mixm.co",\
-                 lmf+ " co -vmet=3 -vlmf=1 -vnk=8 -vnit=3 --pr31 --time=5 >> "+outfile,\
-                 lmf+ " co -vmet=3 -vnk=8 -vnit=3 --pr31  -vso=t --band:fn=syml >> "+outfile,\
-                 "rm -f atm.* mixm.* rst.* save.* log.* hssn.* wkp.* dos.* tdos.* pdos.* dos-mull.* qpp.* out.lmf-dos*"\
-                 ]
-        for irun in runlist:
-            print(irun)
-            os.system(irun)
+        runprogs([
+                 lmfa+" co -vmet=3 -vlmf=1 -vnk=8 -vnit=3 --pr31 > "+ outfile,
+                 lmf+ " co -vmet=3 -vlmf=1 -vnk=8 -vnit=3 -vw2=0 --pr31 >> "+outfile,
+                 "rm mixm.co",
+                 lmf+ " co -vmet=3 -vlmf=1 -vnk=8 -vnit=3 -vw1=0 --pr31 >> "+outfile,
+                 "rm mixm.co",
+                 lmf+ " co -vmet=3 -vlmf=1 -vnk=8 -vnit=3 --pr31 --time=5 >> "+outfile,
+                 lmf+ " co -vmet=3 -vnk=8 -vnit=3 --pr31  -vso=t --band:fn=syml >> "+outfile,
+                 "rm -f atm.* mixm.* rst.* save.* log.* hssn.* wkp.* dos.* tdos.* pdos.* dos-mull.* qpp.* out.lmf-dos*"
+        ])
         tall+=test1_check(testdir+'/'+outfile, workdir+'/'+outfile)
         outbnds='bnds.co'
         tall+=test2_check(testdir+'/'+outbnds, workdir+'/'+outbnds)
@@ -195,13 +200,10 @@ for tname in testall.split():
          suppressed when resolving DOS by m.
         '''
         print(message1)
-        runlist=[\
+        runprogs([
                  lmfa+" co -vmet=3 -vlmf=1 -vnk=8 -vnit=1 --pr31 > out.lmf-dos.co",\
                  job_pdos+" co "+ np4 +" -vmet=3 -vlmf=1 -vnk=8 -vnit=1 --pr31 ---NoGnuplot > out.lmf-dos.co"\
-        ]
-        for irun in runlist:
-            print(irun)
-            os.system(irun)
+        ])
         pdos2002='dos.isp2.site002.co'
         tall+=test2_check(testdir+'/'+pdos2002, workdir+'/'+pdos2002)
     elif(tname=='cr3si6'):
@@ -220,13 +222,10 @@ for tname in testall.split():
          4.  A case with low kmxa (kmxa=2)
          '''       
         print(message1)
-        runlist=[\
-                 lmfa+" cr3si6 --pr51 -vnit=2 --time=6 >  "+outfile,\
-                 lmf +" cr3si6 --pr51 -vnit=2 --time=6 >> "+outfile\
-                 ]
-        for irun in runlist:
-            print(irun)
-            os.system(irun)
+        runprogs([
+                 lmfa+" cr3si6 --pr51 -vnit=2 --time=6 >  "+outfile,
+                 lmf +" cr3si6 --pr51 -vnit=2 --time=6 >> "+outfile
+        ])
         tall+=test1_check(testdir+'/'+outfile, workdir+'/'+outfile)
     elif(tname=='felz'):
         message1='''
@@ -237,14 +236,11 @@ for tname in testall.split():
         '''
         print(message1)
         outfile='out.lmf.fsmom.felz'
-        runlist=[\
-                 lmfa+ " -vrel=1 -vso=0 felz > "+outfile,\
-                 lmf + " -vrel=1 -vnit=3 -vso=2 felz -vfsmom=-2 >> "+outfile ,\
-	         "rm -f atm.* fs.* moms.* mixm.* rst.* save.* log.* hssn.* wkp.* bsmv.* syml.* bnds.*"\
-        ]
-        for irun in runlist:
-            print(irun)
-            os.system(irun)
+        runprogs([
+                 lmfa+ " -vrel=1 -vso=0 felz > "+outfile,
+                 lmf + " -vrel=1 -vnit=3 -vso=2 felz -vfsmom=-2 >> "+outfile ,
+	         "rm -f atm.* fs.* moms.* mixm.* rst.* save.* log.* hssn.* wkp.* bsmv.* syml.* bnds.*"
+        ])
         tall+=test1_check(testdir+'/'+outfile, workdir+'/'+outfile)
         message1='''
         # --- Test case 4:  Spin-orbit coupling ---
@@ -257,22 +253,17 @@ for tname in testall.split():
            * Only 4x4x4 k points are used in this test.
         '''
         outfile='out.lmf.lzsz.felz'
-        runlist=[\
-                 lmfa + " -vrel=1 -vnit=1 -vso=0 felz > "+ outfile,\
-                 lmf  + " -vrel=1 -vnit=1 -vso=2 felz -vpwmode=11 >> "+outfile,\
-                 "rm -f mixm.felz",\
-                 lmf  + " -vrel=1 -vnit=1 -vso=2 felz >> "+outfile \
-        ]
-        for irun in runlist:
-            print(irun)
-            os.system(irun)
+        runprogs([
+                 lmfa + " -vrel=1 -vnit=1 -vso=0 felz > "+ outfile,
+                 lmf  + " -vrel=1 -vnit=1 -vso=2 felz -vpwmode=11 >> "+outfile,
+                 "rm -f mixm.felz",
+                 lmf  + " -vrel=1 -vnit=1 -vso=2 felz >> "+outfile 
+        ])
         tall+=test1_check(testdir+'/'+outfile, workdir+'/'+outfile)
         outfile='out.lmf.ls.felz'
-        runlist=[\
-                 lmf+" -vrel=1 -vnit=1 -vso=1 felz > "+outfile ]
-        for irun in runlist:
-            print(irun)
-            os.system(irun)
+        runprogs([
+                 lmf+" -vrel=1 -vnit=1 -vso=1 felz > "+outfile 
+        ])
         tall+=test1_check(testdir+'/'+outfile, workdir+'/'+outfile)
     elif(tname=='gasls'):
         message1='''
@@ -284,14 +275,11 @@ for tname in testall.split():
          This test checks SO coupling in conjunction with conventional local orbitals.
         '''
         outfile='out.lmf.ls-bands.gasls'
-        runlist=[\
-                 lmfa+" -vso=1 gasls -vpwmode=0 >"+outfile,\
-                 lmf+ " -vso=1 -vnit=1 gasls --band:fn=syml -vpwmode=0 >>"+outfile\
-        ]
+        runprogs([
+                 lmfa+" -vso=1 gasls -vpwmode=0 >"+outfile,
+                 lmf+ " -vso=1 -vnit=1 gasls --band:fn=syml -vpwmode=0 >>"+outfile
+        ])
         print(message1)
-        for irun in runlist:
-            print(irun)
-            os.system(irun)
         compeval(testdir+'/'+outfile, workdir+'/'+outfile,' 0.00000  0.00000  0.00000',lineeval=3,evalso=5,tol=1e-4) 
     elif(tname=='eras'):
         message1='''
@@ -303,14 +291,11 @@ for tname in testall.split():
          (3. convergence to a metastable solution with a reasonable spin moment but wrong orbital moment.)
         '''
         print(message1)
-        runlist=[\
-                 lmfa+" eras  > "+outfile,\
-                 lmf+" -vnit=1 --pr51 eras >> "+outfile,\
-                 lmf+" -vnit=3 eras        >> "+outfile \
-                 ]
-        for irun in runlist:
-            print(irun)
-            os.system(irun)
+        runprogs([
+                 lmfa+" eras  > "+outfile,
+                 lmf+" -vnit=1 --pr51 eras >> "+outfile,
+                 lmf+" -vnit=3 eras        >> "+outfile 
+        ])
         tall+=test1_check(testdir+'/'+outfile, workdir+'/'+outfile)
     elif(tname=='c'):
         message1='''
@@ -338,29 +323,22 @@ for tname in testall.split():
         '''
         print(message1)
         outfile='out.lmf.neutral.c'
-        runlist=[\
-                 lmfa+" c -vzbak=0 > "+outfile ,\
-                 lmf+ " c -vzbak=0 >>"+outfile,\
-                 "rm -f mixm.* rst.* save.* log.* hssn.* wkp.* bsmv.* bnds.*"\
-        ]
-        for irun in runlist:
-            print(irun)
-            os.system(irun)
+        runprogs([
+                 lmfa+" c -vzbak=0 > "+outfile,
+                 lmf+ " c -vzbak=0 >>"+outfile,
+                 "rm -f mixm.* rst.* save.* log.* hssn.* wkp.* bsmv.* bnds.*"
+        ])
         tall+=test1_check(testdir+'/'+outfile, workdir+'/'+outfile)
-
         message1='''
         # Case C: test of homogeneous background
         continue
         '''
         outfile='out.lmf.ionized.c'
-        runlist=[\
-                 lmfa+" c -vzbak=1 > "+outfile ,\
-                 lmf+ " c -vzbak=1 >>"+outfile,\
-                 "rm -f mixm.* rst.* save.* log.* hssn.* wkp.* bsmv.* bnds.*"\
-        ]
-        for irun in runlist:
-            print(irun)
-            os.system(irun)
+        runprogs([
+                 lmfa+" c -vzbak=1 > "+outfile,
+                 lmf+ " c -vzbak=1 >>"+outfile,
+                 "rm -f mixm.* rst.* save.* log.* hssn.* wkp.* bsmv.* bnds.*"
+        ])
         tall+=test1_check(testdir+'/'+outfile, workdir+'/'+outfile)
     elif(tname=='crn'):
         message1='''
@@ -372,17 +350,13 @@ for tname in testall.split():
          the 'sudden approximation' (system relaxes instantanously
          from electron exited out of hole).
         '''
-        print(message1)
-        #outfile='out.lmf-dos.crb'
-        runlist=[\
-                 lmfa+" crn > "+outfile ,\
-                 lmf+ " crn >>"+outfile,\
-                 lmf+ " -vnit=1 -vmetal=2 crn >>"+outfile,\
+        print(message1)         #outfile='out.lmf-dos.crb'
+        runprogs([
+                 lmfa+" crn > "+outfile ,
+                 lmf+ " crn >>"+outfile,
+                 lmf+ " -vnit=1 -vmetal=2 crn >>"+outfile,
                  lmf+ " --cls crn >>"+outfile
-        ]
-        for irun in runlist:
-            print(irun)
-            os.system(irun)
+        ])
         outfile='dos-vcdmel.crn'
         tall+=test2_check(testdir+'/'+outfile, workdir+'/'+outfile)
     elif(tname=='cu'):
@@ -395,16 +369,13 @@ for tname in testall.split():
          3.  bands mode (see command-line argument --band in last lmf invocation)
         '''
         print(message1)
-        runlist=[\
-                 lmfa+" cu  > "+outfile ,\
-                 lmf+ " cu -vnk=8 -vbigbas=f >>"+outfile,\
-                 "rm mixm.cu",\
-                 lmf+ " cu -vnk=8 -vbigbas=t -vmetal=3 -vrsm2=1.3 -vrsmd1x=1 -vlmx=4 -vpwmode=0 -voveps=0d-7 >>"+outfile,\
+        runprogs([
+                 lmfa+" cu  > "+outfile ,
+                 lmf+ " cu -vnk=8 -vbigbas=f >>"+outfile,
+                 "rm mixm.cu",
+                 lmf+ " cu -vnk=8 -vbigbas=t -vmetal=3 -vrsm2=1.3 -vrsmd1x=1 -vlmx=4 -vpwmode=0 -voveps=0d-7 >>"+outfile,
                  lmf+ " cu -vnk=8 -vbigbas=t -vmetal=3 -vrsm2=1.3 -vrsmd1x=1 -vlmx=4 -vpwmode=0 -voveps=0d-7 --band:fn=syml >>"+outfile
-        ]
-        for irun in runlist:
-            print(irun)
-            os.system(irun)
+        ])
         tall+=test1_check(testdir+'/'+outfile, workdir+'/'+outfile)
         outfile='bnds.cu'
         tall+=test2_check(testdir+'/'+outfile, workdir+'/'+outfile)
@@ -417,164 +388,117 @@ for tname in testall.split():
              After the test finishes, compare the three energies with out.lmf.na
         '''
         print(message1)
-        runlist=[\
-                 lmfa+" na -vnk=6 -vnapval=0 -vpz1=0 -vp1=3.38  > "+outfile ,\
-                 lmf+ " na -vnk=6 -vnapval=0 -vpz1=0 -vp1=3.38 >>"+outfile,\
-                 "rm mixm.na rst.na",\
-                 lmfa+" na -vnk=6  -vnapval=1 >>"+outfile,\
-                 lmf+ " na -vnk=6  -vnapval=1>>"+outfile,\
-                 "rm mixm.na rst.na",\
+        runprogs([
+                 lmfa+" na -vnk=6 -vnapval=0 -vpz1=0 -vp1=3.38  > "+outfile ,
+                 lmf+ " na -vnk=6 -vnapval=0 -vpz1=0 -vp1=3.38 >>"+outfile,
+                 "rm mixm.na rst.na",
+                 lmfa+" na -vnk=6  -vnapval=1 >>"+outfile,
+                 lmf+ " na -vnk=6  -vnapval=1>>"+outfile,
+                 "rm mixm.na rst.na",
                  lmf+ " na -vnk=6 -vnapval=2 -vpz1=12.94 >>"+outfile
-        ]
-        for irun in runlist:
-            print(irun)
-            os.system(irun)
+        ])
         tall+=test1_check(testdir+'/'+outfile, workdir+'/'+outfile)
     elif(tname=='gas_eps_lmfh'):
-        runlist=[\
-                 lmfa+" gas  > llmfa" ,\
-                 lmf+ " gas  > llmf",\
-                 "rm EPS*",\
+        runprogs([
+                 lmfa+" gas  > llmfa" ,
+                 lmf+ " gas  > llmf",
+                 "rm EPS*",
                  eps_lmfh+" gas" 
-        ]
-        for irun in runlist:
-            print(irun)
-            os.system(irun)
+        ])
         epsfile="EPS0001.nlfc.dat EPS0002.nlfc.dat EPS0003.nlfc.dat EPS0004.nlfc.dat EPS0001.dat EPS0002.dat EPS0003.dat EPS0004.dat"
-        for outfile in epsfile.split():
-            tall+=diffnum(testdir+'/'+outfile, workdir+'/'+outfile,tol=1e-3,comparekeys=[])
+        for outfile in epsfile.split(): tall+=diffnum(testdir+'/'+outfile, workdir+'/'+outfile,tol=1e-3,comparekeys=[])
     elif(tname=='gas_epsPP_lmfh'):
-        runlist=[\
-                 lmfa+" gas  > llmfa" ,\
-                 lmf+ " gas  > llmf",\
-                 "rm EPS*",\
+        runprogs([
+                 lmfa+" gas  > llmfa" ,
+                 lmf+ " gas  > llmf",
+                 "rm EPS*",
                  epsPP_lmfh+" gas" 
-        ]
-        for irun in runlist:
-            print(irun)
-            os.system(irun)
+        ])
         epsfile="EPS0001.nlfc.dat EPS0002.nlfc.dat EPS0003.nlfc.dat EPS0004.nlfc.dat"
-        for outfile in epsfile.split():
-            tall+=diffnum(testdir+'/'+outfile, workdir+'/'+outfile,tol=3e-3,comparekeys=[])
+        for outfile in epsfile.split(): tall+=diffnum(testdir+'/'+outfile, workdir+'/'+outfile,tol=3e-3,comparekeys=[])
     elif(tname=='fe_epsPP_lmfh_chipm'):
-        runlist=[\
-                 lmfa+" fe  > llmfa" ,\
-                 lmf+ " fe  > llmf",\
-                 "rm ChiPM*",\
+        runprogs([
+                 lmfa+" fe  > llmfa" ,
+                 lmf+ " fe  > llmf",
+                 "rm ChiPM*",
                  epsPP_lmfh_chipm+" fe" 
-        ]
-        for irun in runlist:
-            print(irun)
-            os.system(irun)
+        ])
         epsfile="ChiPM0001.nlfc.mat ChiPM0002.nlfc.mat ChiPM0003.nlfc.mat ChiPM0004.nlfc.mat ChiPM0005.nlfc.mat"
-        for outfile in epsfile.split():
-            tall+=diffnum(testdir+'/'+outfile, workdir+'/'+outfile,tol=3e-3,comparekeys=[])
+        for outfile in epsfile.split(): tall+=diffnum(testdir+'/'+outfile, workdir+'/'+outfile,tol=3e-3,comparekeys=[])
     elif(tname=='si_gw_lmfh'):
-        runlist=[\
-                 lmfa+" si  > llmfa" ,\
-                 lmf+ " si  > llmf",\
-                 "rm QPU",\
+        runprogs([
+                 lmfa+" si  > llmfa" ,
+                 lmf+ " si  > llmf",
+                 "rm QPU",
                  gw_lmfh+" si" 
-        ]
-        for irun in runlist:
-            print(irun)
-            os.system(irun)
+        ])
         dfile="QPU"
-        for outfile in dfile.split():
-            tall+=dqpu(testdir+'/'+outfile, workdir+'/'+outfile)
+        for outfile in dfile.split():   tall+=dqpu(testdir+'/'+outfile, workdir+'/'+outfile)
     elif(tname=='gas_pw_gw_lmfh'):
-        runlist=[\
-                 lmfa+" gas  > llmfa" ,\
-                 lmf+ " gas  > llmf",\
-                 "rm QPU",\
+        runprogs([
+                 lmfa+" gas  > llmfa" ,
+                 lmf+ " gas  > llmf",
+                 "rm QPU",
                  gw_lmfh+" gas" 
-        ]
-        for irun in runlist:
-            print(irun)
-            os.system(irun)
+        ])
         epsfile="QPU"
-        for outfile in epsfile.split():
-            tall+=dqpu(testdir+'/'+outfile, workdir+'/'+outfile)
+        for outfile in epsfile.split(): tall+=dqpu(testdir+'/'+outfile, workdir+'/'+outfile)
     elif(tname=='si_gwsc'):
-        runlist=[\
-                 lmfa+" si  > llmfa" ,\
-                 "rm log.si QPU",\
-                 gwsc0+ " si",\
-        ]
-        for irun in runlist:
-            print(irun)
-            os.system(irun)
+        runprogs([
+                 lmfa+" si  > llmfa",
+                 "rm log.si QPU",
+                 gwsc0+ " si"
+        ])
         dfile="QPU"
-        for outfile in dfile.split():
-            tall+=dqpu(testdir+'/'+outfile, workdir+'/'+outfile)
+        for outfile in dfile.split():   tall+=dqpu(testdir+'/'+outfile, workdir+'/'+outfile)
         outfile='log.si'
         tall+=diffnum(testdir+'/'+outfile, workdir+'/'+outfile,tol=3e-3,comparekeys=['fp evl'])
     elif(tname=='gas_gwsc'):
-        runlist=[\
-                 lmfa+" gas  > llmfa" ,\
-                 "rm log.gas QPU",\
-                 gwsc0+ " gas",\
-        ]
-        for irun in runlist:
-            print(irun)
-            os.system(irun)
+        runprogs([
+                 lmfa+" gas  > llmfa" ,
+                 "rm -f log.gas QPU",
+                 gwsc0+ " gas",
+        ])
         epsfile="QPU"
-        for outfile in epsfile.split():
-            tall+=dqpu(testdir+'/'+outfile, workdir+'/'+outfile)
+        for outfile in epsfile.split(): tall+=dqpu(testdir+'/'+outfile, workdir+'/'+outfile)
         outfile='log.gas'
         tall+=diffnum(testdir+'/'+outfile, workdir+'/'+outfile,tol=3e-3,comparekeys=['fp evl'])
     elif(tname=='nio_gwsc'):
-        runlist=[\
-                 lmfa+" nio  > llmfa" ,\
-                 "rm log.nio QPU",\
-                 gwsc0+ " nio",\
-        ]
-        for irun in runlist:
-            print(irun)
-            os.system(irun)
+        runprogs([
+                 lmfa+" nio  > llmfa" ,
+                 "rm -f log.nio QPU QPD",
+                 gwsc0+ " nio",
+        ])
         dfile="QPU"
-        for outfile in dfile.split():
-            tall+=dqpu(testdir+'/'+outfile, workdir+'/'+outfile)
+        for outfile in dfile.split():   tall+=dqpu(testdir+'/'+outfile, workdir+'/'+outfile)
         outfile='log.nio'
         tall+=diffnum(testdir+'/'+outfile, workdir+'/'+outfile,tol=3e-3,comparekeys=['fp evl'])
     elif(tname=='fe_gwsc'):
-        runlist=[\
-                 lmfa+" fe  > llmfa" ,\
-                 "rm log.fe QPU QPD",\
-                 gwsc0+ " fe",\
-        ]
-        for irun in runlist:
-            print(irun)
-            os.system(irun)
+        runprogs([
+                 lmfa+" fe  > llmfa" ,
+                 "rm -f log.fe QPU QPD",
+                 gwsc0+ " fe",
+        ])
         dfile="QPU QPD"
-        for outfile in dfile.split():
-            tall+=dqpu(testdir+'/'+outfile, workdir+'/'+outfile)
+        for outfile in dfile.split():   tall+=dqpu(testdir+'/'+outfile, workdir+'/'+outfile)
         outfile='log.fe'
         tall+=diffnum(testdir+'/'+outfile, workdir+'/'+outfile,tol=3e-3,comparekeys=['fp evl'])
     elif(tname=='ni_crpa'):
-        runlist=[\
-                 genm + " ni "+ np4,\
-                 "head -1000 Screening_W-v.UP > Screening_W-v.h",\
-                 "head -1000 Screening_W-v_crpa.UP > Screening_W-v_crpa.h"\
-        ]
-        for irun in runlist:
-            print(irun)
-            os.system(irun)
+        runprogs([
+                 genm + " ni "+ np4,
+                 "head -1000 Screening_W-v.UP > Screening_W-v.h",
+                 "head -1000 Screening_W-v_crpa.UP > Screening_W-v_crpa.h"
+        ])
         dfile="Screening_W-v.h Screening_W-v_crpa.h"
-        for outfile in dfile.split():
-            tall+=diffnum(testdir+'/'+outfile, workdir+'/'+outfile,tol=1e-3,comparekeys=[])
+        for outfile in dfile.split():   tall+=diffnum(testdir+'/'+outfile, workdir+'/'+outfile,tol=1e-3,comparekeys=[])
     elif(tname=='srvo3_crpa'):
-        runlist=[\
-                 genm + " srvo3 "+ np4,\
-                 "head -1000 Screening_W-v.UP > Screening_W-v.h",\
-                 "head -1000 Screening_W-v_crpa.UP > Screening_W-v_crpa.h"\
-        ]
-        for irun in runlist:
-            print(irun)
-            os.system(irun)
+        runprogs([
+                 genm + " srvo3 "+ np4,
+                 "head -1000 Screening_W-v.UP > Screening_W-v.h",
+                 "head -1000 Screening_W-v_crpa.UP > Screening_W-v_crpa.h"
+        ])
         dfile="Screening_W-v.h Screening_W-v_crpa.h"
-        for outfile in dfile.split():
-            tall+=diffnum(testdir+'/'+outfile, workdir+'/'+outfile,tol=1e-3,comparekeys=[])
+        for outfile in dfile.split():   tall+=diffnum(testdir+'/'+outfile, workdir+'/'+outfile,tol=1e-3,comparekeys=[])
     else:
         print('such test id have not given yet')
         sys.exit()
@@ -586,5 +510,4 @@ for tname in testall.split():
         print('FAILED at some tests ===')
     else:    
         print('OK! ALL PASSED ===')
-        
 print("   See work/summary.txt")

@@ -1,4 +1,8 @@
-subroutine gwinit_v2() !  Generate GWinput.tmp.
+module m_gwinit
+  private
+  public gwinit_v2
+contains
+subroutine gwinit_v2() bind(C) !  Generate GWinput.tmp.
   ! ----------------------------------------------------------------------
   ! nput file        (this doc touched at 2022jan)
   !i    HAMindex0 via readhamindex0
@@ -252,8 +256,7 @@ subroutine gwinit_v2() !  Generate GWinput.tmp.
                  seg1=''
                  if(iat(izz)/=iatbk) seg1=' -----'
                  iatbk=iat(izz)
-                 write(ifi,"(5i5,3x,a )") iat(izz),lindx(izz),nindx(izz) &
-                      , nocc,nunocc, '! '//caption(izz)//trim(seg1)
+                 write(ifi,"(5i5,3x,a )") iat(izz),lindx(izz),nindx(izz), nocc,nunocc, '! '//caption(izz)//trim(seg1)
                  exit
               endif
            enddo
@@ -370,3 +373,4 @@ subroutine gwinit_v2() !  Generate GWinput.tmp.
   write(ifi,"(a)" ) '! ################################################# '
   stop ' OK! We have generated GWinput.tmp! '
 end subroutine gwinit_v2
+end module m_gwinit

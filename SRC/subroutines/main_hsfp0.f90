@@ -1,4 +1,6 @@
-subroutine hsfp0()
+module m_hsfp0
+  contains
+subroutine hsfp0() bind(C)
   use m_ReadEfermi,only: Readefermi,ef_read=>ef
   use m_readqg,only: Readqg0,Readngmx2,ngpmx,ngcmx
   use m_hamindex,only:   Readhamindex
@@ -975,3 +977,4 @@ subroutine rsexx2 (nspin, itq, q, ntq,nq,ginv, symgg,ng, vxco)
      vxco(1:ntq,iq,1:nspin)=rydberg()*vxcfpx(itq(1:ntq),ikpx,1:nspin)
   enddo
 end subroutine rsexx2
+end module m_hsfp0

@@ -63,7 +63,7 @@ contains
     integer::ibini,ibend ,i1,i2,i3,nr
     character(40) :: strn
     call tcn('dfrce')
-    write(stdo,*)'dfrce job=',job
+!    write(stdo,*)'dfrce job=',job
     dfh=0d0
     nn   = n1*n2*n3
     allocate(cnomi_zv(ng),cv(ng),cdvx_zv(ng*nsp))

@@ -88,7 +88,7 @@ contains
     ReadingPos: block !read atomic positions from AtomPos if it exists. Overwrite pos in m_lattic.
       logical:: irpos
       call ReadAtomPos(irpos)
-      if(irpos) write(stdo,*) 'Readin AtomPos.'//trim(sname)//' !!!!'
+      if(irpos.and.master_mpi) write(stdo,*) 'Readin AtomPos.'//trim(sname)//' !!!!'
     endblock ReadingPos
     if(jobgw==0) then ! Index for hamiltonian gen_hamindex ! Get jobgw for lmfgw mode. Quit for job=0
        if(master_mpi) call m_hamindex0_init()
@@ -124,7 +124,7 @@ contains
     MainRoutine: block
       call lmfp(jobgw==1) 
     endblock MainRoutine
-    if(master_mpi) write(stdo,*)"OK! end of "//trim(prgnam)//" ======================"
+    if(master_mpi) write(stdo,"(a)")"OK! end of "//trim(prgnam)//" ======================"
   end subroutine lmf
 end module m_lmf
 

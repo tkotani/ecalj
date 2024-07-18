@@ -1,4 +1,4 @@
-subroutine writeboltztrap(evlall,eferm) !write input file for boltztrap !test by gomi at year2020 around
+subroutine writeboltztrap(eferm) !write input file for boltztrap !test by gomi at year2020 around
   use m_lgunit,only:stdo
   use m_lmfinit,only: nlmax,nsp,nbas,nlmax,nspc,qbg=>zbak,alat=>lat_alat
   use m_suham,only: ndhamx=>ham_ndhamx,ndham=>ham_ndham
@@ -9,20 +9,21 @@ subroutine writeboltztrap(evlall,eferm) !write input file for boltztrap !test by
   use m_ext,only: sname
   use m_hamindex, only: ngrp,symops !,norbmto,ibastab,ltab,ktab,offl, symops_af
   use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, plat=>lat_plat,pos=>rv_a_opos
-  real(8):: evlall(:,:,:)
-!  use m_bandcal,only: evlall
+!  real(8):: evlall(:,:,:)
+  use m_bandcal,only: evlall
   character strn*120,strn2*120
   integer:: iqread,iqindex,job,ist,ip,ni,ix,ifi,jsp,ncount,iq,iband,i,j,nbandx,ig
   real(8):: eferm,qvec(3),symxx(3,3)
   character(10):: i2char
   !   qbg = !homogenious background charge.  qcore + qval-qbg = \sum_i Z_i
-  iqread=0
-  iqindex = index(strn(12:),'nb=')+2
+  !iqread=0
+  !  if( cmdopt('--boltztrap',11,0,strn) .and. master_mpi) then
+  !iqindex = index(strn(12:),'nb=')+2
   nbandx = ndhamx
-  if(iqindex/=2) then
-     read(strn(12+iqindex:),*) nbandx
-     nbandx=min(nbandx,ndhamx)
-  endif
+  !if(iqindex/=2) then
+  !   read(strn(12+iqindex:),*) nbandx
+  !   nbandx=min(nbandx,ndhamx)
+  !endif
   !      open(newunit=ifi,file='efermi.lmf') !readin fermi energy from efermi.lmf
   !      read(ifi,*)  eferm
   !      close(ifi)
@@ -62,6 +63,9 @@ subroutine writeboltztrap(evlall,eferm) !write input file for boltztrap !test by
         qvec= matmul(transpose(plat),qplist(:,iq)) !qvec in qlat unit
         ncount=0
         do iband=1,nbandx
+!           write(6,*)'eeeeeee',iband,jsp,iq
+           !           write(6,*)'eeeeeee',iband,jsp,iq,evlall(iband,jsp,iq)
+!           write(6,*) shape(evlall)
            if(evlall(iband,jsp,iq)>1d98) cycle
            ncount=ncount+1
         enddo

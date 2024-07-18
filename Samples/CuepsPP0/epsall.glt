@@ -1,0 +1,7 @@
+set title "Epsilon(omega(eV))"
+set xlabel "(eV)"
+set datafile fortran
+set xran[0:30]
+set yran[-30:30]
+plot\
+"epsall.dat" using ($2)*13.605:($3) w l title "RealPart","" using ($2*13.605):($4) w l title "ImagPart"

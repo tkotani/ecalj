@@ -80,10 +80,8 @@ contains
           else
              nr0=nrmx 
              lfail = .false.
-             lfail = iofa ( spidr,n0,nxi ( is ),exi ( 1,is ),hfc &
-                  ( 1,1,is ),hfct ( 1,1,is ),rsmfa ( is ),z0,rmt0 &
-                 ,a0,nr0,qc,ccof,ceh,stc,rv_a_orhofa( is )%v,sspec &
-                 ( is ) %rv_a_orhoc,rv_a_ov0a ( is ) %v,ifi,'read' )    < 0
+             lfail = iofa(spidr,n0,nxi(is),exi(1,is),hfc(1,1,is),hfct(1,1,is),rsmfa(is),z0,rmt0 &
+                 ,a0,nr0,qc,ccof,ceh,stc,rv_a_orhofa(is)%v,sspec(is)%rv_a_orhoc,rv_a_ov0a(is)%v,ifi,'read')< 0
              if(lfail) call rx('you did lmfa? Readin freeatom')
           endif
        endif
@@ -98,8 +96,8 @@ contains
        call mpibc1(rv_a_orhofa( is )%v,nr0 * nsp,4,mlog,'rdovfa' ,'rhofa' )
        call mpibc1(sspec(is)%rv_a_orhoc,nr0*nsp,4,mlog,'rdovfa','rhoca')
        call mpibc1( rv_a_ov0a( is )%v,nr0 * nsp,4,mlog,'rdovfa', 'v0a' )
-       if(master_mpi.and. ipr >= 30 .AND. rmt0 /= 0) write(stdo,400) trim(spid(is)),spidr,rmt0,nr0,a0
-400       format(' rdovfa: expected ',a,',',T27,' read ',a, ' with rmt=',f8.4,'  mesh',i6,f7.3)
+!       if(master_mpi.and. ipr >= 30 .AND. rmt0 /= 0) write(stdo,400) trim(spid(is)),spidr,rmt0,nr0,a0
+!400       format(' rdovfa: expected ',a,',',T27,' read ',a, ' with rmt=',f8.4,'  mesh',i6,f7.3)
        if(nr <= 0)   nr = nr0
        if(a <= 1d-6) a = a0
        if(z == 0 .AND. rmt == 0) then
@@ -162,7 +160,9 @@ contains
              allocate(rwgt_rv(nr))
              call radwgt ( rmt,a,nr,rwgt_rv )
              call radsum ( nr,nr,1,nsp,rwgt_rv,sv_p_orhoat( 3,ib )%v,ssum )
-             fac = merge(qc/ssum,1d0,dabs(ssum) > 1d-7)
+             fac=1d0
+             if(dabs(ssum) > 1d-7) fac=qc/ssum
+             !fac = merge(qc/ssum,1d0,dabs(ssum) > 1d-7)
              if(ipr>=40) write(stdo,"(' scale foca=0 core species',i2,': qc,sum,scale=', 3f12.6,f12.6)") is,qc,ssum,fac
              sv_p_orhoat( 3,ib )%v(1:nr*nsp)=fac*sv_p_orhoat(3,ib)%v(1:nr*nsp)
              deallocate(rwgt_rv)
@@ -423,11 +423,10 @@ contains
     enddo
     rho1=rho2
 !!!!!!!!!!!!!!!!!!!!
-       block
-         use m_density,only: orhoat
-         write(6,*)'rrrrrrdensity111222xxx',sum(rho1),sum(abs(rho1)),sum(abs(acof)),sum(abs(pkl))
-       endblock
-!       stop
+!       block
+!         use m_density,only: orhoat
+!         write(6,*)'rrrrrrdensity111222xxx',sum(rho1),sum(abs(rho1)),sum(abs(acof)),sum(abs(pkl))
+!       endblock
 !!!!!!!!!!!!!!!!!!!!    
     do   i = 1, nr ! ... Make the true density in rho1, smooth density in rho2     !call dpcopy(rho2,rho1,1,nr*nlml*nsp,1d0)
        rho1(i,1,:) = rho1(i,1,:) + y0*rhofa(i,:)

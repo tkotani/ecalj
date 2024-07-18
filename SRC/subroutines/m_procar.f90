@@ -22,7 +22,7 @@ contains
     inquire(iprocar2,exist=nexist)
     if(nexist) close(iprocar2)
   end subroutine m_procar_closeprocar
-  subroutine m_procar_init(iq,ispin,ef0,vmag0,evl,qp,nev,evec,ndimhx)
+  subroutine m_procar_init(iq,ispin,ef0,evl,qp,nev,evec,ndimhx) !vmag0 removed. 2024-6-14 since evl contains effect of vmag0
     use m_makusq,only: makusq
     use m_ftox
     implicit none
@@ -30,7 +30,7 @@ contains
     character*1000::ccc
     real(8):: ef0
     complex(8):: auasaz(3)
-    real(8):: s11,s22,s33,s12,s13,s23,xdat,qold(3),qp(3),vmag0,dwgt(nchanp),dwgtt(nchanp) 
+    real(8):: s11,s22,s33,s12,s13,s23,xdat,qold(3),qp(3),dwgt(nchanp),dwgtt(nchanp)  !,vmag0
     complex(8),allocatable:: auspp(:,:,:,:,:)
     integer:: iq,isp,iprocar,iband,is,ilm,nspc,ib,nev,i,m,l,ndimhx,ispin,ispstart,ispend,ispx
     real(8):: rydberg=13.6058d0,evl(ndhamx,nspx)
@@ -54,7 +54,7 @@ contains
 
 !    write(stdo,ftox) 'isp ',ispin,ispx,ispstart,ispend,' nev ndhamx nspx',nev,ndhamx,nspx
     allocate(evlm,source=evl)
-    if(lso/=0) evlm(:,ispin)=evl(:,ispin) + vmag0*(ispin-1.5d0)
+    if(lso/=0) evlm(:,ispin)=evl(:,ispin) !+ vmag0*(ispin-1.5d0)
     allocate( auspp(nlmax,ndhamx,3,nsp,nbas),source=(0d0,0d0) ) !3 for three radial funcitons (u,s,gz). ndhamx is the dimension of Hamiltonian.
     call makusq(nbas,[-999], nev,ispin,1,qp,evec, auspp ) !Get (u,s,gz) !ispin is neglected for lso=1
     
@@ -84,7 +84,7 @@ contains
        write(iprocar,*)
        do iband = 1, nev !band index 
           write(iprocar,*)
-!          write(stdo,"('band ',i3,' # energy ',f13.8,' # occ. -----',3i5 )")iband,(evlm(iband,ispx)-ef0)*rydberg,iband,nev,ispx
+!         write(stdo,"('band ',i3,' # energy ',f13.8,' # occ. -----',3i5 )")iband,(evlm(iband,ispx)-ef0)*rydberg,iband,nev,ispx
           write(iprocar,"('band ',i3,' # energy ',f13.8,' # occ. -----' )")iband,(evlm(iband,ispx)-ef0)*rydberg
           write(iprocar,*)
           dwgtt=0d0
@@ -94,10 +94,9 @@ contains
              dwgt=0d0
              do  l = 0, lmxa_i(is)
                 do  m = -l, l
-                   ilm = ilm+1 !ilm,ib --> evec(ix,
-                   auasaz = auspp(ilm,iband,1:3,isp,ib)
-                   !as = auspp(ilm,iband,2,isp,ib)
-                   !az = auspp(ilm,iband,3,isp,ib)
+                   ilm = ilm+1 
+                   if(ilm>nchanp) cycle !2024-6-22 dwgt segmentation error bugfix
+                   auasaz = auspp(ilm,iband,1:3,isp,ib) ! auasaz is for phi,phidot,pz(val=slo=0)
                    !Note au,as,az are coefficients for phi1*Ylm phi2*Ylm phi3*Ylm.
                    ! If --ylmc, Ylm(complex) is assumed.
                    !  u=phi1: linear combination of phi,phidot (val=1 slo=0) at MP
@@ -122,9 +121,7 @@ contains
                         endif
                      endif
                    EndBlock pdosc
-                   dwgt(ilm)= sum( dconjg(auasaz) & ! auasaz is for phi,phidot,pz(val=slo=0)
-                        *matmul( sab_rv(:,:,l+1,isp,ib),auasaz)) !bugfix 2023-4-28 based on suzuki's report for cDyN. ! sab(3,3,l+1,isp,ib)
-                   !bug before 2023-4-28           *matmul( sab_rv(:,:,l+1+n0*(ib-1)+n0*nbas*(isp-1)),auasaz)) 
+                   dwgt(ilm) = sum(dconjg(auasaz)*matmul( sab_rv(:,:,l+1,isp,ib),auasaz)) 
                 enddo
              enddo
              dwgtt = dwgtt + dwgt(1:ilm)

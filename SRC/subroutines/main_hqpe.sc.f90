@@ -2,7 +2,9 @@
 !     This uses amix in order to guess a better Sigma-Vxc from previous iterations.
 !     * iSigma_en==5 is for diagonal-only Sigma-Vxc in LDA basis set.
 !      (Then you need evec0, which contains eigenvector of LDA).
-subroutine hqpe_sc()
+module m_hqpe_sc
+  contains
+subroutine hqpe_sc() bind(C)
   !------------------------------------------------------------------
   !     calculates quasiparticle energies
   !     E(k,t) = e(k,t) + Z [SEx(k,t) + SEc(k,t) - xcLDA(k,t)]
@@ -137,14 +139,14 @@ subroutine hqpe_sc()
      open(newunit=iftote2(2) ,file='TOTE2.DN')
   endif
   if(jin == -101) goto 9998
-  call getkeyvalue("GWinput","iSigMode",iSigma_en )
-  if(isigma_en==5) then     ! .OR. core3ptest) then
-     evec0ex=.false.    !true before 12Aug2006 ---> but it caused a problem maybe because of degeneracy.
-     if(evec0ex) then
-        open(newunit=ifevec0,file='evec0',form='UNFORMATTED',status='OLD')
-        if(isigma_en==5) open(newunit=ifevecchk,file='evecfix.chk')
-     endif
-  endif
+!  call getkeyvalue("GWinput","iSigMode",iSigma_en )
+  ! if(isigma_en==5) then     ! .OR. core3ptest) then
+  !    evec0ex=.false.    !true before 12Aug2006 ---> but it caused a problem maybe because of degeneracy.
+  !    if(evec0ex) then
+  !       open(newunit=ifevec0,file='evec0',form='UNFORMATTED',status='OLD')
+  !       if(isigma_en==5) open(newunit=ifevecchk,file='evecfix.chk')
+  !    endif
+  ! endif
   call read_BZDATA()
   write(6,*)' read from bzdata nqibz2; nqibz nq nhq=',nqibz2,nq,nhq
   nsp=nspin
@@ -353,9 +355,9 @@ subroutine hqpe_sc()
         call rx( 'hqpe.sc: not find ikp 100')
 100     continue
         nz = nhqx(ikpx,is)
-        if(evec0ex .AND. iSigma_en==5) then
-           call rx('Not support evec0ex.and.iSigma_en==5 now... sep2013')
-        endif
+!        if(evec0ex .AND. iSigma_en==5) then
+!           call rx('Not support evec0ex.and.iSigma_en==5 now... sep2013')
+!        endif
         ntqxx(ip)=ntq
         do itp=ntq,1,-1
            if(se(itp,itp,ip)/=0d0) then
@@ -374,9 +376,9 @@ subroutine hqpe_sc()
 
         do itp = 1,ntqxx(ip)
            do itpp= 1,ntqxx(ip)
-              if(itp/=itpp .AND. isigma_en==5) then
-                 se(itp,itpp,ip)= 0d0
-              else
+!              if(itp/=itpp .AND. isigma_en==5) then
+!                 se(itp,itpp,ip)= 0d0
+!              else
                  if( .NOT. exonly) then
                     se(itp,itpp,ip)= se(itp,itpp,ip) &
                          -.5d0* sum(dconjg(evec(1:nz,itp,ikpx,is))* &
@@ -387,7 +389,7 @@ subroutine hqpe_sc()
                          matmul(v_xc(1:nz,1:nz,ikpx,is),evec(1:nz,itpp,ikpx,is)))
                  endif
                  !!
-              endif
+!              endif
            enddo
         enddo
 2001 enddo
@@ -666,3 +668,4 @@ subroutine mixsigma(sss, lsigin, sigin, nda)
   write(ifi) a
   close(ifi)
 end subroutine mixsigma
+end module m_hqpe_sc

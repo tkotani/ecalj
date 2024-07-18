@@ -1,8 +1,8 @@
-  0.1617620746300991D-01  0.0000000000000000D+00 # (Ry) Fermi energy and Bias vmag; -vmag/2 +vmag/2 for each spin,
-  0.8493719025639572D-02 # (Ry) Top of Valence
-  0.1721715139192226D-01 # (Ry) Bottom of conduction
+  0.1617858158512132D-01  0.0000000000000000D+00 # (Ry) Fermi energy and Bias vmag; -vmag/2 +vmag/2 for each spin,
+  0.8495451707883243D-02 # (Ry) Top of Valence
+  0.1721956464187790D-01 # (Ry) Bottom of conduction
   0.1900000000000000D+02  0.0000000000000000D+00 #before: number of electrons total at sites:qval, backg:qbg=
-  0.1899999999999983D+02  0.4998196319718134D+01 # band: charge(nup+nspin), mag.mom(nup-ndown)
-          -183.612424319 # band: band energy sum (eV)=
+  0.1899999999999981D+02  0.4998196046543342D+01 # band: charge(nup+nspin), mag.mom(nup-ndown)
+          -183.611183341 # band: band energy sum (eV)=
          6         6         6    # Used k point to determine Ef
-     1# iter CAUTION! This file is overwritten by lmf-MPIK SC loop
+     1# iter CAUTION! This file is overwritten by lmf SC loop

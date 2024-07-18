@@ -56,14 +56,17 @@ contains
       if(job==1) icounkmin(k)=icoun+1
       if(job==0) then
         do jpm=1,npm 
-          do ibib = 1, nbnb(k,jpm)
+           do ibib = 1, nbnb(k,jpm)
             nkmin(k)  = min(n1b(ibib,k,jpm),nkmin(k))
             nkqmin(k) = min(n2b(ibib,k,jpm),nkqmin(k))
             if(n1b(ibib,k,jpm)<=nband) nkmax(k)  = max(n1b(ibib,k,jpm),nkmax(k))
             if(n2b(ibib,k,jpm)<=nband) nkqmax(k) = max(n2b(ibib,k,jpm),nkqmax(k))
           enddo
-        enddo
-      endif
+       enddo
+     endif
+     flush(stdo)
+     !     write(6,*)'mm111mmmmmmm22222aaa',nqbz,k,nkqmin(k),nkqmax(k),'job=',job,nbnb(k,1)
+     
       if(npm==2.AND.nkqmin(k)/=1)call rx( " When npm==2, nkqmin==1 should be.")
       if (job == 1) then
         ! do jpm = 1, npm
@@ -249,12 +252,11 @@ contains
             if(mod(k-1, mpi__size_k) /= mpi__rank_k)  cycle
             call stopwatch_start(t_sw_zmel)
             if(cmdopt0('--emptyrun')) cycle
-            call get_zmel_init(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
+            call get_zmel_init(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, nm1=nkmin(k)+nctot,nm2=nkmax(k)+nctot, ispm=isp_k, &
                  nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false.,zmelconjg=.true.)
             call stopwatch_pause(t_sw_zmel)
             call stopwatch_start(t_sw_x0)
             icounloop: do 1000 icoun=icounkmin(k),icounkmax(k)
-              ! call get_zmel_init is equivalent to call x0kf_zmel(q, k, isp_k,isp_kq) 
               TimeConsumingRcxq: block 
                 complex(8):: zmelzmel(npr,npr_col)
                 if(debug) write(stdo,ftox)'icoun: iq k jpm it itp n(iw)=',icoun,iq,k,jpm,it,itp,iwend(icoun)-iwini(icoun)+1

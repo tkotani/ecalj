@@ -3,7 +3,9 @@
 !!
 !! eps_lmf_cphipm mode is now commented out; you may need to recover this if necessary
 !! (only epsPP_magnon_chipm mode works).
-subroutine hmagnon()
+module m_hmagnon
+  contains
+subroutine hmagnon() bind(C)
   use m_readwan,only: write_qdata, wan_readeigen, wan_readeval, wan_readeval2, &
        readscr, checkorb, checkorb2, diagwan, diagwan_tr, wan_imat, &
        writehmat, writeddmat, &
@@ -1118,3 +1120,4 @@ contains
     enddo
   end subroutine MPI__hmagnon_rankdivider
 END subroutine hmagnon
+end module m_hmagnon

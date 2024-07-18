@@ -1,7 +1,9 @@
-!!  Calculate x0, \epsilon, spin susceptibility.
+!> Calculate x0, \epsilon, spin susceptibility.
 !!
 !! eps_lmf_cphipm mode is now commented out; you may need to recover this if necessary
 !! (only epsPP_lmf_chipm mode works).
+module m_hx0fp0
+  contains
 subroutine hx0fp0()
   use m_ReadEfermi,only: Readefermi,ef
   use m_readqg,only:     Readqg,Readngmx2,ngpmx,ngcmx
@@ -546,7 +548,7 @@ contains
     endif
   end subroutine writerealeps
 endsubroutine hx0fp0
-   
+end module m_hx0fp0
   !$$$!! --- legas mode is not working now. Need fixing... voltot ntot are not given.
   !$$$      if(epsmode.and.legas) then
   !$$$        call rx( ' LEGAS mode is not maintained well. Need some fixing.')
