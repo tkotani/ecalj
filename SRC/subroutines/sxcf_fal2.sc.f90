@@ -129,11 +129,9 @@ contains
       qibz_k = qibz(:,kx)
       call Readvcoud(qibz_k,kx,NoVcou=.false.)  !Readin ngc,ngb,vcoud ! Coulomb matrix
       call Setppovlz(qibz_k,matz=.true.,npr=ngb)        !Set ppovlz overlap matrix used in Get_zmel_init in m_zmel
-      irotloop:              do irot=1,ngrp    ! (kx,irot) determines qbz(:,kr), which is in FBZ. W(kx) is rotated to be W(g(kx))
-          iploopexternal:    do ip=1,nqibz     !external index for q of \Sigma(q,isp)
+      irotloop:               do irot=1,ngrp    ! (kx,irot) determines qbz(:,kr), which is in FBZ. W(kx) is rotated to be W(g(kx))
+          iploopexternal:     do ip=1,nqibz     !external index for q of \Sigma(q,isp)
              isploopexternal: do isp=1,nspinmx  !external index
-                !write(6,*) shape(irkip)
-                !write(6,*) isp,kx,irot,ip
               kr = irkip(isp,kx,irot,ip)
               if(kr==0) cycle
               q     = qibz(:,ip)
@@ -168,8 +166,7 @@ contains
                    mnc=min(nctot,ns2)
                    wtff(ns1:mnc) = wtff(ns1:mnc) * wcorehole(ns1:mnc,isp)
                 endif
-                do concurrent(itp=1:ntqxx, itpp=1:ntqxx)
-                   if(emptyrun) cycle !probably not so slow but for no error for --emptyrun
+                do concurrent(itp=1:ntqxx, itpp=1:ntqxx, .not.emptyrun)
                    zsec(itp,itpp)=zsec(itp,itpp) - wk(kr)* &
                         sum( [(sum(dconjg(zmel(:,it,itp))*vcoud_(:)*zmel(:,it,itpp))*wtff(it),it=ns1,ns2)] ) !this workw even for nvfortran24.1
                 enddo

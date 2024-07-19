@@ -236,19 +236,14 @@ contains
     write(stdo,*)' ***'
     call READQG0('QGpsi',qibz(1:3,1), quu,ngpn1)
     call READQG0('QGcou',qibz(1:3,1), quu,ngcn1)
-    write(stdo,6700) nspin,nq,ntq
-6700 format (1x,3i4,'  nspin  nq  ntq')
-    write(stdo,6501) is,nbloch,ngpn1,ngcn1,nqbz,nqibz,ef,deltaw,alat,ef,esmr
-6501 format (' spin =',i2,'   nbloch ngp ngc=',3i4 &
-         ,'  nqbz =',i6,'  nqibz =',i6,'   ef=', f10.4,' Rydberg' &
-         ,/,d23.16,' <= deltaw(Hartree)',/,d23.16,' <= alat' &
-         ,/,d23.16,' <= ef ',/,d23.16,' <= esmr')
-    !! Print LDA exchange-correlation files XCU and XCD
-    if(ixc==1) then
+    write(stdo,ftox)'nspin nq ntq=',nspin,nq,ntq
+    write(stdo,ftox)'spin=',is,'nbloch ngp ngc=',nbloch,ngpn1,ngcn1,'nqbz=',nqbz,'nqibz=',nqibz,'ef=',ftof(ef),'Rydberg'
+    write(stdo,ftox)'deltaw(Hartree)=',ftof(deltaw),' alat=',ftof(alat), 'esmr=',ftof(esmr)
+    PrintLDAexchangecorrelationXCUXCD: if(ixc==1) then
        allocate(  vxcfp(ntq,nq,nspin) )
        call rsexx(nspin,qibz,ntq,nq, ginv, vxcfp) !add ginv july2011
        if(MPI__root) then
-          do is = 1,nspinmx
+          isploop: do is = 1,nspinmx
              if(is==1) open(newunit=ifxc(1),file='XCU')!//xt(nz))
              if(is==2) open(newunit=ifxc(2),file='XCD')!//xt(nz))
              write (ifxc(is),*) '==================================='
@@ -258,22 +253,21 @@ contains
              write (ifxc(is),*)' ***'
              write (ifxc(is),"(a)") ' jband   iq ispin                  qibz eigen-Ef (in eV)     LDA XC (in eV)'
              write(stdo,*)
-             do ip = 1,nq
+             iploop: do ip = 1,nq
                 do i  = 1,ntq
                    write(ifxc(is),"(3i5,3d24.16,3x,d24.16,3x,d24.16)") &
                         i,ip,is, qibz(1:3,ip), eqx(i,ip,is), vxcfp(i,ip,is)
                    if(eqx(i,ip,is) <1d20 .AND. vxcfp(i,ip,is)/=0d0) then
-                      !    !takao june2009. See lmf2gw (evl_d=1d20; in Ry.. but eqx is in eV. no problem for inequality).
                       write(stdo,"(' j iq isp=' i3,i4,i2,'  q=',3f8.4,'  eig=',f10.4,'  Sxc(LDA)=',f10.4)") &
                            i,ip,is, qibz(1:3,ip), eqx(i,ip,is), vxcfp(i,ip,is)
                    endif
                 enddo
-             enddo
+             enddo iploop
              close(ifxc(is))
-          enddo                 !     end of spin-loop
-       endif                   !MPI__root
+          enddo isploop
+       endif
        deallocate(vxcfp)
-    endif
+    endif PrintLDAexchangecorrelationXCUXCD
   end subroutine Hswriteinit
   ! SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
   subroutine HsWriteResult() !contained in hsfp0_sc. Only write out files, no side effect

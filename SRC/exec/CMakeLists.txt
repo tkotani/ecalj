@@ -81,6 +81,18 @@ set(LIB ${LIBRARY_NAME})
 #set(LIB1 ${LIBRARY_NAME}1) 
 #set(LIB2 ${LIBRARY_NAME}2) 
 
+# emacs tags
+add_custom_target(etags ALL COMMAND etags ../subroutines/*.f90 ../wanniergw/*.f90 ../main/*.f90
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+
+# For setting mkl location
+add_executable(dummy ./dummy.f90) # exe
+target_link_libraries(dummy ${BLAS} ${LIBM} ${MPI}) # linked
+# add_custom_target(fcheck ALL COMMAND ldd dummy|grep mkl >mklloc.txt  WORKING_DIRECTORY ${CMAKE_BINARY_DIR} DEPENDS dummy)
+# Generate library and binaries ###############################
+#add_library(${LIB1} SHARED ${SOURCES1}) # Library
+#add_library(${LIB2} SHARED ${SOURCES2})
+
 # ## source-dependent compile options
 if(FC MATCHES "gfortran" AND DEFINED DEBUG)
   message(STATUS "===== gfortran debug  =======================")
@@ -127,26 +139,15 @@ elseif(FC MATCHES "nvfortran")
   endforeach()
 endif()
 
-# For setting mkl location
-add_executable(dummy ./dummy.f90) # exe
-target_link_libraries(dummy ${BLAS} ${LIBM} ${MPI}) # linked
-
-# add_custom_target(fcheck ALL COMMAND ldd dummy|grep mkl >mklloc.txt  WORKING_DIRECTORY ${CMAKE_BINARY_DIR} DEPENDS dummy)
-
-# Generate library and binaries ###############################
+# generage library
 add_library(${LIB} SHARED ${SOURCES}) # Library
-#add_library(${LIB1} SHARED ${SOURCES1}) # Library
-#add_library(${LIB2} SHARED ${SOURCES2})
-
+# generate binaries
 foreach(target IN ITEMS ${MAINS}) # main routines
   get_filename_component(exename ${target} NAME_WE) # set DIR variable
   add_executable(${exename} ${target}) # exe
   target_link_libraries(${exename} ${LIB} ${LIBM} ${BLAS} ${MPI}) # linked
 endforeach()
-
-add_custom_target(etags ALL COMMAND etags ../subroutines/*.f90 ../wanniergw/*.f90 ../main/*.f90
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
-
-# set(BINDIR $ENV{HOME}/bin)
-# message(STATUS "BINDIR = ${BINDIR}")
-# add_custom_target(inst cp `find . -mindepth 1 -maxdepth 1 -executable -type f` ${BINDIR})
+#copy target to execFC
+file(MAKE_DIRECTORY   ${CMAKE_BINARY_DIR}/../exec${FCMOD})
+set(CMAKE_Fortran_BINS ${CMAKE_BINARY_DIR}/../exec${FCMOD}) # directory for *.mod
+add_custom_target(copyexe ALL COMMAND cp `find . -mindepth 1 -maxdepth 1 -executable -type f` ${CMAKE_Fortran_BINS} WORKING_DIRECTORY ${CMAKE_BINARY_DIR})

@@ -9,17 +9,15 @@ module m_zmel
   use m_readhbe,only: nband
   use m_readQG,only: ngpmx,ngcmx,Readqg
   use m_readVcoud,only: zcousq,ngc,ngb !! zcousq is the eigenfuncition of the Coulomb matrix
+  use m_ftox
+  use m_lgunit,only:stdo
   public:: get_zmel_init, Mptauof_zmel,Setppovlz,Setppovlz_chipm!,get_zmel_init1,get_zmel_init2 ! Call mptauof_zmel and setppovlz in advance to get_zmel_init
   complex(8),allocatable,protected,public :: zmel(:,:,:) ! OUTPUT: zmel(nbb,nmtot, nqtot) ,nbb:mixproductbasis, nmtot:middlestate, nqtot:endstate
-
-  
   !private
   integer,protected:: nbb 
   integer,allocatable,protected :: miat(:,:)
   real(8),allocatable,protected :: tiat(:,:,:),shtvg(:,:), ppbir(:,:,:,:,:,:)
   complex(8),allocatable,protected :: ppovlz(:,:)
-  
-
 contains
   subroutine setppovlz(q,matz,npr) ! Set ppovlz for given q
     intent(in)::       q,matz,npr
@@ -135,14 +133,14 @@ contains
     integer:: i,iap,ias,ib,ic,icp,nc,nc1,nv,ics,itp,iae,ims,ime
     real(8):: quu(3),q(3), kvec(3),rkvec(3),qkt(3),qt(3), qdiff(3)
     real(8) :: ppb(nlnmx,nlnmx,mdimx,nclass) ! ppb= <Phi(SLn,r-R)_q,isp1 |Phi(SL'n',r-R)_qk,isp2 B_k(S,i,rot^{-1}(r-R))>
-    logical:: iprx
+    logical:: iprx,debug=.false.
     logical:: zmelconjg
     integer,allocatable:: ngveccR(:,:)
     complex(8)::cphiq(nlmto,nband), cphim(nlmto,nband)
     complex(8):: geigq(ngpmx,nband),dgeigqk(ngpmx,nband)
     integer:: invr,nt0,ntp0,nmtot,nqtot
     integer:: iasx(natom),icsx(natom),iatomp(natom),imdim(natom)
-    real(8)::tr(3,natom)
+    real(8)::tr(3,natom),memused
     real(8)::qk(3),symope(3,3),shtv(3)
     ! nblocha     = number of optimal product basis functions for each class
     ! nlnmx     = maximum number of l,n,m
@@ -196,7 +194,8 @@ contains
        nm2c=nm2
        nm1v=0
        nm2v=-1
-    endif     !  write(6,*)'mmmmmmmmmmmmmm',nqmax,nqini,nm2,nm1,'  ',nmtot,nqtot
+    endif   
+    if(debug) write(stdo,ftox)'mmmmmmmmmmmmmm ncc nqtot',ncc, nqtot,'ntp0 nt0 nbb=',ntp0,nt0,nbb
     if(nmtot<=0.or.nqtot<=0) return
     qk =  q - rkvec ! qk = q-rk. rk is inside 1st BZ, not restricted to the irreducible BZ
     associate(cphitemp=> readcphif(q,ispq))    
@@ -220,7 +219,10 @@ contains
       geigq   = readgeigf(q, ispq) !read IPW part at q   !G1 for ngp1
       dgeigqk = readgeigf(qk,ispm) !read IPW part at qk  !G2 for ngp2
       dgeigqk = dconjg(dgeigqk)
-    endif
+   endif
+   if(debug) write(stdo,ftox)'mmmmmmmmmmmmmm 111',memused() !,totalram()
+   if(debug) flush(stdo)
+
     ppb = ppbir(:,:,:,:,irot,ispq)           !MPB has no spin dependence
     invr  = invg(irot)       !invrot (irot,invg,ngrp) ! Rotate atomic positions invrot*R = R' + T
     tr    = tiat(:,:,invr)
@@ -279,7 +281,10 @@ contains
         ZmelIPW:block  !> Mattrix elements <Plane psi |psi> from interstitial plane wave.
           use m_read_ppovl,only: igggi,igcgp2i,nxi,nxe,nyi,nye,nzi,nze,nvgcgp2,ngcgp,ggg,ppovlinv
           integer:: igcgp2,nn(3),iggg,igp1,itp,igc,igp2,igcgp2i_(ngc,ngp2)
-          complex(8):: zmelp0(ngc,nm1v:nm2v,ntp0),phase(ngc) , ggitp(ngcgp,ntp0),gggmat(ngcgp,ngp1)
+          complex(8):: phase(ngc), ggitp(ngcgp,ntp0)
+          complex(8),allocatable:: zmelp0(:,:,:),gggmat(:,:),ggitp_(:,:)
+          if(debug) write(stdo,ftox)'mmmmmmmmmmmmmm 222aaa',memused()
+          allocate(gggmat(ngcgp,ngp1))
           do concurrent(igcgp2=1:ngcgp,igp1=1:ngp1) !G synthesized 
             nn = ngvecpB1(:,igp1)- nvgcgp2(:,igcgp2) - nadd ! G1 -(Gc+G2) - Gadd.  Note that -Gadd= -rk + qt -qkt
             if(nn(1)<nxi .OR. nxe<nn(1) .OR. nn(2)<nyi .OR. nye<nn(2) .OR. nn(3)<nzi .OR. nze<nn(3)) cycle
@@ -290,18 +295,22 @@ contains
             nn = ngveccR(:,igc) + ngvecpB2(:,igp2)
             igcgp2i_(igc,igp2)=igcgp2i(nn(1),nn(2),nn(3))
           enddo
+          if(debug) write(stdo,ftox)'mmmmmmmmmmmmmm 222bbb',memused()
           phase(:)=[(exp( -img*tpi*sum((matmul(symope,kvec)+matmul(qlat,ngveccR(:,igc)))*shtv) ),igc=1,ngc)]
-          !          associate(&
           !               geigq   => readgeigf(q, ispq),&         !read IPW part at q   !G1 for ngp1
           !               dgeigqk => dconjg(readgeigf(qk,ispqk))) !read IPW part at qk  !G2 for ngp2
-            ggitp(:,:)= matmul(gggmat,geigq(1:ngp1,itq(nqini:nqmax)))
-            do concurrent (itp= 1:ntp0) !=== this may be time-consuming block (or maynot)==================
-              associate( ggitp_=>reshape([((ggitp(igcgp2i_(igc,igp2),itp),igc=1,ngc),igp2=1,ngp2)],shape=[ngc,ngp2]))
-                zmelp0(:,:,itp)= matmul(ggitp_,dgeigqk(1:ngp2,nm1:nm2))
-              endassociate
-            enddo
-            forall(igc=1:ngc) zmelp0(igc,:,:)=phase(igc)*zmelp0(igc,:,:) 
+          ggitp(:,:)= matmul(gggmat,geigq(1:ngp1,itq(nqini:nqmax)))
+          deallocate(gggmat)
+          allocate(zmelp0(ngc,nm1v:nm2v,ntp0),ggitp_(ngc,ngp2))
+          do concurrent (itp= 1:ntp0) !=== this may be time-consuming block (or maynot)==================
+             forall(igc=1:ngc,igp2=1:ngp2) ggitp_(igc,igp2)= ggitp(igcgp2i_(igc,igp2),itp)
+             zmelp0(:,:,itp)= matmul(ggitp_,dgeigqk(1:ngp2,nm1:nm2))
+          enddo
+          deallocate(ggitp_)
+          forall(igc=1:ngc) zmelp0(igc,:,:)=phase(igc)*zmelp0(igc,:,:) 
           call matm(ppovlinv,zmelp0,zmelt(nbloch+1:nbloch+ngc,nm1:nm2,ncc+1:ncc+ntp0),ngc,ngc,ntp0*nt0)
+          deallocate(zmelp0)
+          if(debug) write(stdo,ftox)'mmmmmmmmmmmmmm 222ccc',memused()
         endblock ZmelIPW
       endif
       allocate(zmel(nbb,nm1:nm2, nqtot))
