@@ -35,7 +35,6 @@ real(8) function memused() !in GB
   integer(c_int) :: ret
   integer :: mpi__info
   real(8)::k=1000
-  include "mpif.h"
   ret = getrusage(0,usage)
   memused = usage%ru_maxrss/k**2 ! in GB
 end function memused

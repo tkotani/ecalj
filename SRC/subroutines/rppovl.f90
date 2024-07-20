@@ -6,7 +6,7 @@ module m_read_ppovl
   complex(8),protected,allocatable:: ppx(:,:),ggg(:),ppovlinv(:,:)
   integer,protected,allocatable:: ngvecc2(:,:),nvggg(:,:),nvgcgp2(:,:),ngvecc(:,:),igggi(:,:,:),igcgp2i(:,:,:)
   !     !
-  integer,private:: iqix=-1, ippovl=0, ngcmx, ngc2mx, nqq, ngggmx, ngcgpmx,nqini,nqnumt
+  integer,private:: iqix=-1, ippovl=0, ngcmx, ngc2mx, nqq, ngggmx,nqini,nqnumt
   logical,private:: ppovlclosed=.true.,init=.true.
   integer,allocatable,private :: ngcx_s(:),ngc2_s(:) ,ngvecc2_0_s(:,:,:)
   real(8),allocatable,private    :: qx_s(:,:)
@@ -16,7 +16,7 @@ module m_read_ppovl
   integer, private:: loopnum = 0, iex,gex
   integer,private:: nnxi,nnxe,nnyi,nnye,nnzi,nnze
 contains
-  subroutine getppx2(qbas,qi)
+  subroutine getppx2(qbas,qi,getngcgp)
     !! This return nvggg,nvgcgp2,ngvecc,  nggg,ngcgp,ngcread, ggg,ppovlinv
     real(8), intent(in)  ::qbas(3,3),qi(3)
     integer:: ngc, iqi,ippovlg,ippovli, ippovlginit
@@ -28,6 +28,13 @@ contains
     integer:: verbose
     logical:: init=.true.
     integer:: iqi0,igcgp2,iggg
+    logical,optional:: getngcgp
+    if(present(getngcgp)) then
+       open(newunit=ippovlgg,file= "PPOVLGG",form='unformatted')
+       read(ippovlgg) nggg, ngcgp, nqq, nqini,nqnumt
+       close(ippovlgg)
+       return
+    endif
     if(verbose()>=100) debug= .TRUE. 
     if(ippovlggooo) then
        open(newunit=ippovlgg,file= "PPOVLGG",form='unformatted')
