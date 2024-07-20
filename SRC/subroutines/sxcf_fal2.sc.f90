@@ -222,6 +222,8 @@ contains
     integer,allocatable :: ifrcw(:),ifrcwi(:),ndiv(:),nstatei(:,:),nstatee(:,:)!,irkip(:,:,:,:)
     logical,parameter:: cache=.true.
     logical:: emptyrun
+    real(8):: maxmem,memused
+    character(18):: datetime
     emptyrun=cmdopt0('--emptyrun')
     if(nw_i/=0) call rx('Current version we assume nw_i=0. Time-reversal symmetry')
     allocate(zsecall(ntq,ntq,nqibz,nspinmx),source=(0d0,0d0)) 
@@ -237,8 +239,28 @@ contains
        enddo
      endif
     ! NOTE: sum for G\timesW is controlloed by irkip, icountini:icountend
+    LoopScheduleCheck: block
+    ixx=0
+    kxloopX:                   do kx  =1,nqibz  
+       irotloopX:              do irot=1,ngrp    
+          iploopexternalX:     do ip=1,nqibz     
+             isploopexternalX: do isp=1,nspinmx  
+                kr = irkip(isp,kx,irot,ip)
+                if(kr==0) cycle
+                NMBATCHloopX: do icount = icountini(isp,ip,irot,kx),icountend(isp,ip,irot,kx) !batch of middle states.
+                   ixx=ixx+1
+                   write(stdo,ftox)'- KXloop Scheduling ',ixx, ' irot ip isp icount=',irot,ip,isp,icount
+                enddo NMBATCHloopX
+             enddo isploopexternalX
+          enddo iploopexternalX
+       enddo irotloopX
+    enddo kxloopX
+    end block LoopScheduleCheck
+    ! NOTE: sum for G\timesW is controlloed by irkip, icountini:icountend
     kxold=-9999  ! To make MAINicountloop 3030 as parallel loop, set cache=.false.
+    ixx=0
     kxloop:   do kx  =1,nqibz   ! kx is irreducible !kx is main axis where we calculate W(kx).
+      write(stdo,ftox)'KXloop: kx=',kx,'memused(GB) for each rank=',ftof(memused(),3),'DateTime=',datetime()
       qibz_k = qibz(:,kx)
       call Readvcoud(qibz_k,kx,NoVcou=.false.)  !Readin ngc,ngb,vcoud ! Coulomb matrix
       call Setppovlz(qibz_k,matz=.true.,npr=ngb)        !Set ppovlz overlap matrix used in Get_zmel_init in m_zmel
@@ -266,7 +288,11 @@ contains
               ns2r=nstte2(icount) !Range of middle states [ns1:ns2r] for CorrelationSelfEnergyRealAxis
               ZmelBlock:block !zmel(ib=ngb,it=ns1:ns2,itpp=1:ntqxx)= <M(qbz_kr,ib) phi(it,q-qbz_kr,isp) |phi(itpp,q,isp)> 
                 if(emptyrun) goto 1212
-                call get_zmel_init(q,qibz_k,irot,qbz_kr, ns1,ns2,isp, 1,ntqxx, isp,nctot,ncc=0,iprx=debug,zmelconjg=.false.)
+                call get_zmel_init(q,qibz_k,irot,qbz_kr, ns1,ns2,isp, 1,ntqxx, isp,nctot,ncc=0,iprx=debug,zmelconjg=.false.,&
+                     maxmem=maxmem)
+                ixx=ixx+1
+                write(stdo,ftox)'NMBATCHloop: ',ixx,'Used MaxMem(GB)perRank@get_zmel=',ftof(maxmem,3)&
+                     ,' irot ip isp icount=',irot,ip,isp,icount,'DateTime=',datetime()
 1212            continue 
               endblock ZmelBlock
               CorrelationMode: Block! See Eq.(55) around of PRB76,165106 (2007) !range of middle states is [ns1:ns2]
