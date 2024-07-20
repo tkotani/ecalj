@@ -106,7 +106,7 @@ contains
     endblock ppbafp_v2_zmel
   end subroutine mptauof_zmel
   
-  subroutine get_zmel_init(q,kvec,irot,rkvec, nm1,nm2,ispm, nqini,nqmax,ispq, nctot,ncc, iprx,zmelconjg)
+  subroutine get_zmel_init(q,kvec,irot,rkvec, nm1,nm2,ispm, nqini,nqmax,ispq, nctot,ncc, iprx,zmelconjg,maxmem) !maxmem is optional Maxused memeory in GB
     use m_readeigen,only: readcphif 
     use m_readeigen,only: readgeigf
     use m_itq,only: itq,ntq
@@ -135,15 +135,16 @@ contains
     integer:: i,iap,ias,ib,ic,icp,nc,nc1,nv,ics,itp,iae,ims,ime
     real(8):: quu(3),q(3), kvec(3),rkvec(3),qkt(3),qt(3), qdiff(3)
     real(8) :: ppb(nlnmx,nlnmx,mdimx,nclass) ! ppb= <Phi(SLn,r-R)_q,isp1 |Phi(SL'n',r-R)_qk,isp2 B_k(S,i,rot^{-1}(r-R))>
-    logical:: iprx,debug=.false.
+    logical:: iprx,debug=.false.,cmdopt0
     logical:: zmelconjg
     integer,allocatable:: ngveccR(:,:)
     complex(8)::cphiq(nlmto,nband), cphim(nlmto,nband)
     complex(8):: geigq(ngpmx,nband),dgeigqk(ngpmx,nband)
     integer:: invr,nt0,ntp0,nmtot,nqtot
     integer:: iasx(natom),icsx(natom),iatomp(natom),imdim(natom)
-    real(8)::tr(3,natom),memused
+    real(8)::tr(3,natom)
     real(8)::qk(3),symope(3,3),shtv(3)
+    real(8),optional::maxmem
     ! nblocha     = number of optimal product basis functions for each class
     ! nlnmx     = maximum number of l,n,m
     ! nctot      = total no. allowed core states
@@ -176,6 +177,7 @@ contains
     ! core + valence ordered index: nm1,nm2
     ! nm1 :starting index of middle state  (nctot+nvalence order)
     ! nm2 :end      index of middle state  (nctot+nvalence order)
+    debug=cmdopt0('--debugzmel')
     if(allocated(zmel)) deallocate(zmel)
     nt0  = nm2-nm1+1
     ntp0 = nqmax-nqini+1
@@ -222,8 +224,6 @@ contains
       dgeigqk = readgeigf(qk,ispm) !read IPW part at qk  !G2 for ngp2
       dgeigqk = dconjg(dgeigqk)
    endif
-   if(debug) write(stdo,ftox)'mmmmmmmmmmmmmm 111',memused() !,totalram()
-   if(debug) flush(stdo)
 
     ppb = ppbir(:,:,:,:,irot,ispq)           !MPB has no spin dependence
     invr  = invg(irot)       !invrot (irot,invg,ngrp) ! Rotate atomic positions invrot*R = R' + T
@@ -233,10 +233,11 @@ contains
     imdim = [( sum(nblocha(iclass(1:ia-1)))+1  ,ia=1,natom)]
     iasx=[(sum(nlnmv(iclass(1:ia-1)))+1,ia=1,natom)] !offset counter
     icsx=[(sum(ncore(iclass(1:ia-1))),ia=1,natom)]
-    write(stdo,ftox)'qqqqqqqq',nbloch,ngc,nm1,nm2,nqtot
+    if(debug) write(stdo,ftox)'qqqqqqqq',nbloch,ngc,nm1,nm2,nqtot
     ZmelBlock:block
       complex(8):: zmelt(1:nbloch+ngc,nm1:nm2,nqtot)
       logical ::oncewrite
+      real(8)::memused
       zmelt=0d0
       ZmelWithinMT: block !- Calculates <psi_q(itp) |psi_qk(it) B_k(rot(r-R))> 
         complex(8):: phasea(natom) 
@@ -281,7 +282,7 @@ contains
           endassociate
         enddo iatomloop
       endblock ZmelWithinMT
-      if(debug) write(stdo,ftox)'mmmmmmmmmmmmmm 222aaa000 ngc nm1v nm2v',ngc,nm1v,nm2v,'memused=',ftof(memused())
+      if(debug) write(stdo,ftox) 'mmmmmmmmmmmmmm m_zmel111 ngc nm1v nm2v',ngc,nm1v,nm2v,'memused=',ftof(memused(),3)
       if(debug) flush(stdo)
       if(ngc/=0.and.nm1v <= nm2v)then
         ZmelIPW:block  !> Mattrix elements <Plane psi |psi> from interstitial plane wave.
@@ -289,8 +290,6 @@ contains
           integer:: igcgp2,nn(3),iggg,igp1,itp,igc,igp2,igcgp2i_(ngc,ngp2),itqx,inq
           complex(8):: phase(ngc),ggitp(ngcgp,ntp0),gggp(ngpmx)!NOTE: ngcgp is the index for (QpGcou+QpGphi). See sugw.f90
           complex(8),allocatable:: zmelp0(:,:,:),ggitp_(:,:) !,gggmat(:,:)
-          if(debug) write(stdo,ftox)'mmmmmmmmmmmmmm 222aaa',ftof(memused())
-          if(debug) flush(stdo)
           do concurrent(igcgp2=1:ngcgp)
              gggp=0d0
              do igp1=1,ngp1 !G synthesized 
@@ -305,8 +304,8 @@ contains
             nn = ngveccR(:,igc) + ngvecpB2(:,igp2)
             igcgp2i_(igc,igp2)=igcgp2i(nn(1),nn(2),nn(3))
           enddo
-          if(debug) write(stdo,ftox)'mmmmmmmmmmmmmm 222bbb',ftof(memused()),ftof(4*size(igcgp2i_)/kk**3+ &
-               4*size(ngvecpB2)/kk**3+4*size(ngvecpB1)/kk**3),' mem ggitp=',ftof(16*size(ggitp)/kk**3)
+          if(debug) write(stdo,ftox)'mmmmmmmmmmmmmm m_zmel222',ftof(memused(),3),ftof(4*size(igcgp2i_)/kk**3+ &
+               4*size(ngvecpB2)/kk**3+4*size(ngvecpB1)/kk**3,3),' mem ggitp=',ftof(16*size(ggitp)/kk**3,3)
           if(debug) flush(stdo)
           phase(:)=[(exp( -img*tpi*sum((matmul(symope,kvec)+matmul(qlat,ngveccR(:,igc)))*shtv) ),igc=1,ngc)]
           !               geigq   => readgeigf(q, ispq),&         !read IPW part at q   !G1 for ngp1
@@ -319,13 +318,13 @@ contains
           deallocate(ggitp_)
           forall(igc=1:ngc) zmelp0(igc,:,:)=phase(igc)*zmelp0(igc,:,:) 
           call matm(ppovlinv,zmelp0,zmelt(nbloch+1:nbloch+ngc,nm1:nm2,ncc+1:ncc+ntp0),ngc,ngc,ntp0*nt0)
-          if(debug) write(stdo,ftox)'mmmmmmmmmmmmmm 222ccc',ftof(memused())
+          if(debug) write(stdo,ftox)'mmmmmmmmmmmmmm m_zmel333',ftof(memused(),3)
           deallocate(zmelp0)
         endblock ZmelIPW
       endif
       allocate(zmel(nbb,nm1:nm2, nqtot))
       call matm(dconjg(transpose(ppovlz)), zmelt, zmel,nbb,ngb,nmtot*nqtot) !MultiplePPOVLZ
-      if(oncewrite(9).and.master_mpi) write(stdo,ftox)' MaxUse memory in GB m_zmel=',ftof(memused())
+      if(present(maxmem)) maxmem=memused() ! MaxUsed memory in GB 
       if(zmelconjg) zmel=dconjg(zmel)
     endblock ZmelBlock
   end subroutine get_zmel_init

@@ -39,6 +39,21 @@ real(8) function memused() !in GB
   memused = usage%ru_maxrss/k**2 ! in GB
 end function memused
 
+
+character(18) function datetime()
+  character(8)  :: date
+  character(10) :: time
+  character(5)  :: zone
+  integer,dimension(8) :: values
+  call date_and_time(date,time,zone,values)
+  call date_and_time(DATE=date,ZONE=zone)
+  call date_and_time(TIME=time)
+  call date_and_time(VALUES=values)
+  datetime=trim(date)//' '//trim(time)
+  !print '(a,2x,a,2x,a)', date, time, zone
+  !print '(8i5)', values
+end function datetime
+
 ! real(8) function totalram() !GB
 !   use iso_c_binding
 !   implicit none
