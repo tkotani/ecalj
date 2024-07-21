@@ -146,7 +146,7 @@ contains
     kxold=-9999  ! To make MAINicountloop 3030 as parallel loop, set cache=.false.
     ixx=0
     KXloop:                   do kx  =1,nqibz   ! kx is irreducible !kx is main axis where we calculate W(kx).
-      write(stdo,ftox)'KXloop: kx=',kx,'memused(GB) for each rank=',ftof(memused(),3),'DateTime=',datetime()
+!      write(stdo,ftox)'KXloop: kx=',kx,'memused(GB) for each rank=',ftof(memused(),3),'DateTime=',datetime()
       qibz_k = qibz(:,kx)
       call Readvcoud(qibz_k,kx,NoVcou=.false.)  !Readin ngc,ngb,vcoud ! Coulomb matrix
       call Setppovlz(qibz_k,matz=.true.,npr=ngb)        !Set ppovlz overlap matrix used in Get_zmel_init in m_zmel
@@ -170,14 +170,16 @@ contains
               nwx =nwxc(icount)  !max omega for W
               ns2r=nstte2(icount) !Range of middle states [ns1:ns2r] for CorrelationSelfEnergyRealAxis
               ZmelBlock:block !zmel(ib=ngb,it=ns1:ns2,itpp=1:ntqxx)= <M(qbz_kr,ib) phi(it,q-qbz_kr,isp) |phi(itpp,q,isp)> 
+                character(18):: datetime
                 if(emptyrun) goto 1212
+                write(stdo,ftox)' -- running KXloop',ixx,'iqiqz irot ip isp icount=',kx,irot,ip,isp,icount,'DateTime=',datetime()
                 call get_zmel_init(q,qibz_k,irot,qbz_kr, ns1,ns2,isp, 1,ntqxx, isp,nctot,ncc=0,iprx=debug,zmelconjg=.false.,&
                      maxmem=maxmem)
                 ixx=ixx+1
-                write(stdo,ftox)'NMBATCHloop: ',ixx,'Used MaxMem(GB)perRank@get_zmel=',ftof(maxmem,3)&
-                     ,' irot ip isp icount=',irot,ip,isp,icount,'DateTime=',datetime()
+                write(stdo,ftox)' --        end of zmel: Used MaxMem(GB)perRank@get_zmel=',ftof(maxmem,3),'DateTime=',datetime()
 1212            continue
               endblock ZmelBlock
+              call writemem('endof zmelblock')
               ExchangeSelfEnergy: Block
                 real(8):: wfacx,vcoud_(ngb),wtff(ns1:ns2) !range of middle states ns1:ns2
                 vcoud_= vcoud                                    ! kx==1 must be for q=0     
@@ -196,6 +198,7 @@ contains
                         sum( [(sum(dconjg(zmel(:,it,itp))*vcoud_(:)*zmel(:,it,itpp))*wtff(it),it=ns1,ns2)] ) !this workw even for nvfortran24.1
                 enddo
               EndBlock ExchangeSelfEnergy
+              call writemem('endof ExchangeSelfEnergy')
 3030        enddo NMBATCHloop
           enddo isploopexternal
         enddo iploopexternal
@@ -260,7 +263,6 @@ contains
     kxold=-9999  ! To make MAINicountloop 3030 as parallel loop, set cache=.false.
     ixx=0
     kxloop:   do kx  =1,nqibz   ! kx is irreducible !kx is main axis where we calculate W(kx).
-      write(stdo,ftox)'KXloop: kx=',kx,'memused(GB) for each rank=',ftof(memused(),3),'DateTime=',datetime()
       qibz_k = qibz(:,kx)
       call Readvcoud(qibz_k,kx,NoVcou=.false.)  !Readin ngc,ngb,vcoud ! Coulomb matrix
       call Setppovlz(qibz_k,matz=.true.,npr=ngb)        !Set ppovlz overlap matrix used in Get_zmel_init in m_zmel
@@ -286,13 +288,14 @@ contains
               nwxi=nwxic(icount)  !minimum omega for W
               nwx =nwxc(icount)   !max omega for W
               ns2r=nstte2(icount) !Range of middle states [ns1:ns2r] for CorrelationSelfEnergyRealAxis
-              ZmelBlock:block !zmel(ib=ngb,it=ns1:ns2,itpp=1:ntqxx)= <M(qbz_kr,ib) phi(it,q-qbz_kr,isp) |phi(itpp,q,isp)> 
+              ZmelBlock:block !zmel(ib=ngb,it=ns1:ns2,itpp=1:ntqxx)= <M(qbz_kr,ib) phi(it,q-qbz_kr,isp) |phi(itpp,q,isp)>
+                character(18):: datetime
                 if(emptyrun) goto 1212
+                write(stdo,ftox)' -- running KXloop',ixx,'iqiqz irot ip isp icount=',kx,irot,ip,isp,icount,'DateTime=',datetime()
                 call get_zmel_init(q,qibz_k,irot,qbz_kr, ns1,ns2,isp, 1,ntqxx, isp,nctot,ncc=0,iprx=debug,zmelconjg=.false.,&
                      maxmem=maxmem)
                 ixx=ixx+1
-                write(stdo,ftox)'NMBATCHloop: ',ixx,'Used MaxMem(GB)perRank@get_zmel=',ftof(maxmem,3)&
-                     ,' irot ip isp icount=',irot,ip,isp,icount,'DateTime=',datetime()
+                write(stdo,ftox)' --        end of zmel Used MaxMem(GB)perRank@get_zmel=',ftof(maxmem,3),'DateTime=',datetime()
 1212            continue 
               endblock ZmelBlock
               CorrelationMode: Block! See Eq.(55) around of PRB76,165106 (2007) !range of middle states is [ns1:ns2]
@@ -339,6 +342,7 @@ contains
                     call matmaw(zmelc,ww,zmelcww, ntqxx*(ns2-ns1+1),ngb,ngb, wgtim(ixx,:,:)) ! time-consuming
                   enddo iwimag
                 EndBlock CorrelationSelfEnergyImagAxis
+                call writemem('endof CorrelationSelfEnergyImagAxis')
                 CorrelationSelfEnergyRealAxis: Block !Real Axis integral. Fig.1 PHYSICAL REVIEW B 76, 165106(2007)
                   use m_wfac,only: wfacx2, weavx2
                   integer:: itini,itend
@@ -402,12 +406,14 @@ contains
                   enddo
                   if(timemix) call timeshow(" End of CorrelationSelfEnergyRealAxis:")
                 EndBlock CorrelationSelfEnergyRealAxis
+                call writemem('endof CorrelationSelfEnergyRealAxis')
                 nm = (ns2-ns1+1)*ngb
                 if(emptyrun) return
                 zsec= zsec+ matmul(reshape(zmelcww,[ntqxx,nm]),reshape(&
                      reshape(zmel,shape=[ns2-ns1+1,ngb,ntqxx],order=[2,1,3]), [nm,ntqxx])) !time-consuming probably.
                 forall(itp=1:ntqxx) zsec(itp,itp)=dreal(zsec(itp,itp))+img*min(dimag(zsec(itp,itp)),0d0) !enforce Imzsec<0
               EndBlock CorrelationMode
+              call writemem('endof CorrelationMode')
               if(timemix) call timeshow("   end icount do 3030")
 3030        enddo NMBATCHloop
           enddo isploopexternal

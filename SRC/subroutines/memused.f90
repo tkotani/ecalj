@@ -1,3 +1,12 @@
+subroutine writemem(message)
+  use m_ftox
+  use m_lgunit,only:stdo
+  real(8):: memused
+  character(18):: datetime
+  character(*)  :: message
+  write(stdo,ftox)trim(message),'DateTime=',datetime(),'memused',ftof(memused(),3)
+end subroutine writemem
+
 real(8) function memused() !in GB
   use iso_c_binding
   implicit none
