@@ -136,7 +136,7 @@ contains
                 if(kr==0) cycle
                 NMBATCHloopX: do icount = icountini(isp,ip,irot,kx),icountend(isp,ip,irot,kx) !batch of middle states.
                    ixx=ixx+1
-                   write(stdo,ftox)'- kxloop Schedule ',ixx, ' irot ip isp icount=',irot,ip,isp,icount
+                   write(stdo,ftox)'- kxloop Schedule ',ixx, ' iqibz irot ip isp icount=',kx,irot,ip,isp,icount
                 enddo NMBATCHloopX
              enddo isploopexternalX
           enddo iploopexternalX
@@ -249,7 +249,7 @@ contains
                 if(kr==0) cycle
                 NMBATCHloopX: do icount = icountini(isp,ip,irot,kx),icountend(isp,ip,irot,kx) !batch of middle states.
                    ixx=ixx+1
-                   write(stdo,ftox)'- KXloop Scheduling ',ixx, ' irot ip isp icount=',irot,ip,isp,icount
+                   write(stdo,ftox)'- KXloop Scheduling ',ixx,' iqiqz irot ip isp icount=',kx,irot,ip,isp,icount
                 enddo NMBATCHloopX
              enddo isploopexternalX
           enddo iploopexternalX
