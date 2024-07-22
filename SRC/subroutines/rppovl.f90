@@ -1,6 +1,7 @@
-!> read PPOVLGG,PPOVLG,PPOVLI
-!!  ngc2, ppx(1:ngc,1:ngc2), ngvecc2(1:3,1:ngc2) are returned.
+!> read PPOVLGG,PPOVLG,PPOVLI  ngc2, ppx(1:ngc,1:ngc2), ngvecc2(1:3,1:ngc2) are returned.
 module m_read_ppovl
+  use m_lgunit,only:stdo
+  use m_ftox
   implicit none
   integer,public,protected:: nggg,ngcgp,ngcread,nxi,nxe,nyi,nye,nzi,nze,ngc2
   complex(8),public,protected,allocatable:: ppx(:,:),ggg(:),ppovlinv(:,:)
@@ -15,10 +16,9 @@ module m_read_ppovl
   complex(8),allocatable,private :: ppx_s(:,:,:)
   logical,private:: debug=.false.
   real(8),allocatable,private:: qxtable(:,:)
-  integer, private:: loopnum = 0, iex,gex
+  integer, private:: iex,gex
 contains
-  subroutine getppx2(qbas,qi,getngcgp)
-    !! This return nvggg,nvgcgp2,ngvecc,  nggg,ngcgp,ngcread, ggg,ppovlinv
+  subroutine getppx2(qbas,qi,getngcgp) ! This return nvggg,nvgcgp2,ngvecc,  nggg,ngcgp,ngcread, ggg,ppovlinv
     real(8), intent(in)  ::qbas(3,3),qi(3)
     integer:: ngc, iqi,ippovlg,ippovli, ippovlginit
     integer:: access
@@ -37,43 +37,34 @@ contains
        return
     endif
     if(verbose()>=100) debug= .TRUE. 
-    if(ippovlggooo) then
+    if(ippovlggooo) then !!  Make igggi inversion table
        open(newunit=ippovlgg,file= "PPOVLGG",form='unformatted')
        read(ippovlgg) nggg, ngcgp, nqq, nqini,nqnumt
-       write(6,"('Readin getppx2: nggg ngcgp nqq=',3i10)") nggg, ngcgp, nqq
+       if(debug)  write(stdo,"('Readin getppx2: nggg ngcgp nqq=',3i10)") nggg, ngcgp, nqq
        allocate(nvggg(1:3,1:nggg),ggg(1:nggg),nvgcgp2(1:3,ngcgp))
        read(ippovlgg) nvgcgp2(1:3,1:ngcgp)
        read(ippovlgg) nvggg(1:3,1:nggg)
        read(ippovlgg) ggg(1:nggg)
        close(ippovlgg)
-       !!  Make igggi inversion table
        nxi =minval(nvggg(1,1:nggg))
        nxe =maxval(nvggg(1,1:nggg))
        nyi =minval(nvggg(2,1:nggg))
        nye =maxval(nvggg(2,1:nggg))
        nzi =minval(nvggg(3,1:nggg))
        nze =maxval(nvggg(3,1:nggg))
-       allocate( igggi(nxi:nxe,nyi:nye,nzi:nze))
-       igggi = -100000
-       do iggg =1,nggg
-          igggi(nvggg(1,iggg),nvggg(2,iggg),nvggg(3,iggg)) = iggg
-       enddo
-       !     ! inversion table for nvgcgp2
-       nnxi = minval(nvgcgp2(1,1:ngcgp))
+       allocate( igggi(nxi:nxe,nyi:nye,nzi:nze),source= -100000)
+       forall(iggg =1:nggg) igggi(nvggg(1,iggg),nvggg(2,iggg),nvggg(3,iggg)) = iggg
+       nnxi = minval(nvgcgp2(1,1:ngcgp))      
        nnxe = maxval(nvgcgp2(1,1:ngcgp))
        nnyi = minval(nvgcgp2(2,1:ngcgp))
        nnye = maxval(nvgcgp2(2,1:ngcgp))
        nnzi = minval(nvgcgp2(3,1:ngcgp))
        nnze = maxval(nvgcgp2(3,1:ngcgp))
-       allocate(igcgp2i(nnxi:nnxe,nnyi:nnye,nnzi:nnze))
-       igcgp2i = -100000
-       do igcgp2 =1,ngcgp
-          igcgp2i(nvgcgp2(1,igcgp2),nvgcgp2(2,igcgp2),nvgcgp2(3,igcgp2))=igcgp2
-       enddo
+       allocate(igcgp2i(nnxi:nnxe,nnyi:nnye,nnzi:nnze),source= -100000)
+       forall(igcgp2 =1:ngcgp) igcgp2i(nvgcgp2(1,igcgp2),nvgcgp2(2,igcgp2),nvgcgp2(3,igcgp2))=igcgp2 ! inversion table for nvgcgp2
        ippovlggooo=.false.
     endif
-    !! cache qx for finding a file for given qi. dec2017
-    if(init) then
+    if(init) then ! cache qx for finding a file for given qi. dec2017
        init=.false.
        allocate( qxtable(3,nqini:nqnumt) )
        do iqi = nqini,nqnumt
@@ -82,58 +73,29 @@ contains
           qxtable(:,iqi) = qx
           close(ippovlginit) ! brought from outside of do iqi loop
        enddo
-       loopnum=0
-       write(6,"('init ok!:should be done only once')")
+       if(debug) write(stdo,"('init ok!:should be done only once')")
     endif
-    !! find file name (=charnum3(iqi)) for given qi.
-    do iqi0 = nqini,nqnumt
+    do iqi0 = nqini,nqnumt ! find file name (=charnum3(iqi)) for given qi.
        qx = qxtable(:,iqi0)
        if(sum(abs(qx-qi))<1d-10) then
           iqi = iqi0
           goto 1011
        endif
     enddo
-    write(6,"('nnnnnnq ',3f10.5)") qi
-    call rx('rppovl.F: qi is not found. some bug.')
+    call rx('rppovl.F: qi is not found. some bug. qi='//ftof(qi))
 1011 continue
-    !! read file of iqi. iqi is determined for given qx.
-    loopnum=loopnum+1
-!    write(6,"('iqi=,loop num=',i10,i10)") iqi,loopnum
-    if(loopnum == 1) write(6,"('iqi=,loop num=',i10,i10)") iqi,loopnum
-    if(loopnum == 10) write(6,"('iqi=,loop num=',i10,i10)") iqi,loopnum
-    if(loopnum == 100) write(6,"('iqi=,loop num=',i10,i10)") iqi,loopnum
-    if(loopnum == 1000) write(6,"('iqi=,loop num=',i10,i10)") iqi,loopnum
-    if(loopnum == 5000) write(6,"('iqi=,loop num=',i10,i10)") iqi,loopnum
-    if(loopnum == 10000) write(6,"('iqi=,loop num=',i10,i10)") iqi,loopnum
-
     gex=access("PPOVLG."//charnum3(iqi),' ')
     iex=access("PPOVLI."//charnum3(iqi),' ')
-    if(gex /= 0)then
-       write(6,"('PPOVLG.00... does not exist! in iqi=)',i4,'( in loop ',i4)") iqi,loopnum
-       call rx('some PPOLVG. file does not exist')
-    endif
-    if(iex /= 0)then
-       write(6,"('PPOVLI.00... does not exist! in iqi=)',i4,'( in loop ',i4)") iqi,loopnum
-       call rx('some PPOLVI. file does not exist')
-    endif
-
+    if(gex /= 0) call rx("PPOVLG."//charnum3(iqi)//" does not exist!") 
+    if(iex /= 0) call rx("PPOVLI."//charnum3(iqi)//" does not exist!") 
     open(newunit=ippovlg,file= "PPOVLG."//charnum3(iqi),form='unformatted')
     open(newunit=ippovli,file= "PPOVLI."//charnum3(iqi),form='unformatted')
     read(ippovlg) qx, ngcread !, ngcx_s(iqi),ngc2_s(iqi)
     ngc = ngcread
     read(ippovli) qx, ngcread2 !, ngcx_s(iqi),ngc2_s(iqi)
-    !! sanity checkcs
-    if(ngc==0) then
-       write(6,"('qi qx=',3f13.5,3x,3f13.5)") qi,qx
-       call rx('getppx2: can not find given qi')
-    endif
-    if(sum(abs(qx-qi))>1d-10) then
-       write(6,"('nnnnnnqiqx ',3f10.5,2x,3f10.5)") qi,qx
-       write(6,"('nnnnfile=',a)")"PPOVLG."//charnum3(iqi)
-       call rx('getppx2: qx\ne qi')
-    endif
-    if(ngcread/=ngcread2) call rx('rppovl.F: inconsistent PPOVLI PPOVLg')
-    !! main do for ppovlg and ppovli
+    if(ngc==0) call rx('getppx2: can not find given qi ='//ftof(qi))
+    if(sum(abs(qx-qi))>1d-10) call rx('getppx2: qx='//ftof(qi)//'.ne.'//ftof(qi))
+    if(ngcread/=ngcread2)     call rx('rppovl.F: inconsistent PPOVLI PPOVLg')
     if(allocated(ppovlinv)) deallocate(ppovlinv,ngvecc)
     allocate(ppovlinv(1:ngc,1:ngc),ngvecc(1:3,1:ngc))
     read(ippovlg) ngvecc(1:3,1:ngc)     !main do 1st

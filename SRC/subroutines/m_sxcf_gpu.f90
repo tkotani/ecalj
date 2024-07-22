@@ -60,7 +60,7 @@ contains
                 if(kr==0) cycle
                 NMBATCHloopX: do icount = icountini(isp,ip,irot,kx),icountend(isp,ip,irot,kx) !batch of middle states.
                    izz=izz+1
-                   write(stdo,ftox)'- kxloop Schedule ',izz, ' iqibz irot ip isp icount=',kx,irot,ip,isp,icount
+                   write(stdo,ftox)'= kxloop Schedule ',izz, ' iqibz irot ip isp icount=',kx,irot,ip,isp,icount
                 enddo NMBATCHloopX
              enddo isploopexternalX
           enddo iploopexternalX
@@ -95,19 +95,19 @@ contains
               ns2 = nstte(icount)  ! 
               call stopwatch_start(t_sw_zmel)
               izz=izz+1
-              call writemem(' -- KXloop '//trim(charext(izz))//' iqiqz irot ip isp icount= '//&
+              call writemem('=== KXloop '//trim(charext(izz))//' iqiqz irot ip isp icount= '//&
                    trim(charli([kx,irot,ip,isp,icount],5)))
               call get_zmel_init(q, qibz_k, irot, qbz_kr, ns1, ns2, isp, 1, ntqxx, isp, nctot, ncc=0, iprx=debug, zmelconjg=.false.)
-              call writemem(' --        end of zmel')
+              call writemem('    end of zmel')
               call stopwatch_pause(t_sw_zmel)
               call stopwatch_start(t_sw_xc)
               call get_exchange(ef, esmr, ns1, ns2, zsecall(1,1,ip,isp))
+              call writemem('    endof ExchangeSelfEnergy')
               call stopwatch_pause(t_sw_xc)
-              write(stdo,ftox) 'end of icount:', icount ,' of', ncount, &
+              write(stdo,ftox) '    End of icount:', icount ,' of', ncount, &
                                'zmel:', ftof(stopwatch_lap_time(t_sw_zmel),4), '(sec)', &
                                'exch:', ftof(stopwatch_lap_time(t_sw_xc),4),   '(sec)'
               call flush(stdo)
-              call writemem('endof ExchangeSelfEnergy')
             enddo NMBATCHloop
           enddo isploopexternal
         enddo iploopexternal
@@ -143,7 +143,7 @@ contains
                 if(kr==0) cycle
                 NMBATCHloopX: do icount = icountini(isp,ip,irot,kx),icountend(isp,ip,irot,kx) !batch of middle states.
                    izz=izz+1
-                   write(stdo,ftox)'- KXloop Scheduling ',izz,' iqiqz irot ip isp icount=',kx,irot,ip,isp,icount
+                   write(stdo,ftox)'= KXloop Scheduling ',izz,' iqiqz irot ip isp icount=',kx,irot,ip,isp,icount
                 enddo NMBATCHloopX
              enddo isploopexternalX
           enddo iploopexternalX
@@ -185,15 +185,16 @@ contains
               nwxi = nwxic(icount)  !minimum omega for W
               nwx = nwxc(icount)   !max omega for W
               ns2r = nstte2(icount) !Range of middle states [ns1:ns2r] for CorrelationSelfEnergyRealAxis
-              call writemem(' -- KXloop '//trim(charext(izz))//' iqiqz irot ip isp icount= '//&
+              call writemem('=== KXloop '//trim(charext(izz))//' iqiqz irot ip isp icount= '//&
                    trim(charli([kx,irot,ip,isp,icount],5)))
               call stopwatch_start(t_sw_zmel)
               call get_zmel_init(q, qibz_k, irot, qbz_kr, ns1, ns2, isp, 1, ntqxx, isp, nctot, ncc=0, iprx=debug, zmelconjg=.false.)
+              call writemem('    end of zmel')
               call stopwatch_pause(t_sw_zmel)
               call stopwatch_start(t_sw_xc)
               call get_correlation(ef, esmr, ns1, ns2, ns2r, nwxi, nwx, zsecall(1,1,ip,isp))
               call stopwatch_pause(t_sw_xc)
-              write(stdo,ftox) 'end of icount:', icount ,' of', ncount, &
+              write(stdo,ftox) '    End of icount:', icount ,' of', ncount, &
                                'zmel:', ftof(stopwatch_lap_time(t_sw_zmel),4), '(sec)', &
                                'ec(iaxis):', ftof(stopwatch_lap_time(t_sw_ci),4),   '(sec)', &
                                'ec(raxis):', ftof(stopwatch_lap_time(t_sw_cr),4),   '(sec)', &
@@ -311,7 +312,7 @@ contains
       enddo 
       allocate(wzmel(1:ngb,ns1:ns2,1:ntqxx), czwc(ns1:ns2,1:ntqxx,1:ngb))
 
-      call writemem('Goto iwimag')
+      call writemem('    Goto iwimag')
       !$acc data copyin(wgtim, zmel)
       iwimag:do iw = 0, niw !niw is ~10. ixx=0 is for omega=0 nw_i=0 (Time reversal) or nw_i =-nw
         if(emptyrun) cycle
@@ -345,7 +346,7 @@ contains
       !$acc end kernels
       deallocate(czwc)
     EndBlock CorrelationSelfEnergyImagAxis
-    call writemem('endof CorrelationSelfEnergyImagAxis')
+    call writemem('    endof CorrelationSelfEnergyImagAxis')
     call stopwatch_pause(t_sw_ci)
 
     call stopwatch_start(t_sw_cr)
@@ -431,6 +432,7 @@ contains
         deallocate(wz_iw, czwc_iw)
       endif
     EndBlock CorrelationSelfEnergyRealAxis
+    call writemem('    endof CorrelationSelfEnergyRealAxis')
     call stopwatch_pause(t_sw_cr)
 
     !$acc host_data use_device(zmel, zsec)
@@ -442,6 +444,7 @@ contains
     enddo
     !$acc end kernels
     deallocate(wv, wc, czmelwc)
+    call writemem('    endof Correlation')
   end subroutine get_correlation
   subroutine setwv()
     integer :: iqini, iqend, iw
