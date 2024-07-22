@@ -18,6 +18,7 @@ module m_sxcf_gpu
   use m_kind, only: kp => kindgw
   use m_sxcf_main,only: zsecall
   use m_stopwatch
+  use m_mem,only:writemem
   implicit none
   public sxcf_scz_correlation, sxcf_scz_exchange
   private
@@ -38,15 +39,34 @@ module m_sxcf_gpu
 contains
   subroutine sxcf_scz_exchange(ef, esmr, ixc, nspinmx) !ixc is dummy
     implicit none
-    integer :: icount, ns1, ns2, kr
+    integer :: icount, ns1, ns2, kr,izz
     logical, parameter :: debug=.false.
     integer, intent(in) :: nspinmx, ixc
     real(8), intent(in) :: ef, esmr
     real(8) :: q(3), qibz_k(3), qbz_kr(3), qk(3)
+    character(64):: charli
+    character(8):: charext
     allocate(ekc(nctot+nband), eq(nband)) 
     emptyrun = cmdopt0('--emptyrun')
     if(nw_i/=0) call rx('Current version we assume nw_i=0. Time-reversal symmetry')
     allocate(zsecall(ntq,ntq,nqibz,nspinmx),source=(0d0,0d0)) 
+    LoopScheduleCheck: block
+    izz=0
+    kxloopX:                   do kx  =1,nqibz  
+       irotloopX:              do irot=1,ngrp    
+          iploopexternalX:     do ip=1,nqibz     
+             isploopexternalX: do isp=1,nspinmx  
+                kr = irkip(isp,kx,irot,ip)
+                if(kr==0) cycle
+                NMBATCHloopX: do icount = icountini(isp,ip,irot,kx),icountend(isp,ip,irot,kx) !batch of middle states.
+                   izz=izz+1
+                   write(stdo,ftox)'- kxloop Schedule ',izz, ' iqibz irot ip isp icount=',kx,irot,ip,isp,icount
+                enddo NMBATCHloopX
+             enddo isploopexternalX
+          enddo iploopexternalX
+       enddo irotloopX
+    enddo kxloopX
+    end block LoopScheduleCheck
 
     call stopwatch_init(t_sw_zmel, 'zmel')
     call stopwatch_init(t_sw_xc, 'ex')
@@ -74,7 +94,11 @@ contains
               ns1 = nstti(icount)  !Range of middle states is [ns1:ns2] for given icount
               ns2 = nstte(icount)  ! 
               call stopwatch_start(t_sw_zmel)
+              izz=izz+1
+              call writemem(' -- KXloop '//trim(charext(izz))//' iqiqz irot ip isp icount= '//&
+                   trim(charli([kx,irot,ip,isp,icount],5)))
               call get_zmel_init(q, qibz_k, irot, qbz_kr, ns1, ns2, isp, 1, ntqxx, isp, nctot, ncc=0, iprx=debug, zmelconjg=.false.)
+              call writemem(' --        end of zmel')
               call stopwatch_pause(t_sw_zmel)
               call stopwatch_start(t_sw_xc)
               call get_exchange(ef, esmr, ns1, ns2, zsecall(1,1,ip,isp))
@@ -83,6 +107,7 @@ contains
                                'zmel:', ftof(stopwatch_lap_time(t_sw_zmel),4), '(sec)', &
                                'exch:', ftof(stopwatch_lap_time(t_sw_xc),4),   '(sec)'
               call flush(stdo)
+              call writemem('endof ExchangeSelfEnergy')
             enddo NMBATCHloop
           enddo isploopexternal
         enddo iploopexternal
@@ -98,15 +123,33 @@ contains
     implicit none
     integer, intent(in) :: nspinmx, ixc
     real(8), intent(in) :: ef, esmr
-    integer :: icount, ns1, ns2, kr, nwxi, nws, ns2r, nwx
+    integer :: icount, ns1, ns2, kr, nwxi, nws, ns2r, nwx,izz
     real(8) :: q(3), qibz_k(3), qbz_kr(3), qk(3)
     logical, parameter :: debug=.false.
     real(8),parameter :: ddw=10d0
+    character(64):: charli
+    character(8):: charext
     allocate(ekc(nctot+nband), eq(nband), omega(ntq)) 
     emptyrun = cmdopt0('--emptyrun')
     keepwv = cmdopt0('--keepwv')
     if(nw_i/=0) call rx('Current version we assume nw_i=0. Time-reversal symmetry')
-
+    LoopScheduleCheck: block
+    izz=0
+    kxloopX:                   do kx  =1,nqibz  
+       irotloopX:              do irot=1,ngrp    
+          iploopexternalX:     do ip=1,nqibz     
+             isploopexternalX: do isp=1,nspinmx  
+                kr = irkip(isp,kx,irot,ip)
+                if(kr==0) cycle
+                NMBATCHloopX: do icount = icountini(isp,ip,irot,kx),icountend(isp,ip,irot,kx) !batch of middle states.
+                   izz=izz+1
+                   write(stdo,ftox)'- KXloop Scheduling ',izz,' iqiqz irot ip isp icount=',kx,irot,ip,isp,icount
+                enddo NMBATCHloopX
+             enddo isploopexternalX
+          enddo iploopexternalX
+       enddo irotloopX
+    enddo kxloopX
+    end block LoopScheduleCheck
     call stopwatch_init(t_sw_zmel, 'zmel')
     call stopwatch_init(t_sw_xc, 'ec')
     call stopwatch_init(t_sw_cr, 'ec realaxis integral')
@@ -142,6 +185,8 @@ contains
               nwxi = nwxic(icount)  !minimum omega for W
               nwx = nwxc(icount)   !max omega for W
               ns2r = nstte2(icount) !Range of middle states [ns1:ns2r] for CorrelationSelfEnergyRealAxis
+              call writemem(' -- KXloop '//trim(charext(izz))//' iqiqz irot ip isp icount= '//&
+                   trim(charli([kx,irot,ip,isp,icount],5)))
               call stopwatch_start(t_sw_zmel)
               call get_zmel_init(q, qibz_k, irot, qbz_kr, ns1, ns2, isp, 1, ntqxx, isp, nctot, ncc=0, iprx=debug, zmelconjg=.false.)
               call stopwatch_pause(t_sw_zmel)
@@ -207,7 +252,7 @@ contains
     !$acc end host_data
     !$acc end data
     deallocate(vzmel, vcoud_buf, wtff)
-  end subroutine
+  end subroutine get_exchange
 
   subroutine get_correlation(ef, esmr, ns1, ns2, ns2r, nwxi, nwx, zsec)
     integer, intent(in) :: ns1, ns2, nwxi, nwx, ns2r
@@ -266,6 +311,7 @@ contains
       enddo 
       allocate(wzmel(1:ngb,ns1:ns2,1:ntqxx), czwc(ns1:ns2,1:ntqxx,1:ngb))
 
+      call writemem('Goto iwimag')
       !$acc data copyin(wgtim, zmel)
       iwimag:do iw = 0, niw !niw is ~10. ixx=0 is for omega=0 nw_i=0 (Time reversal) or nw_i =-nw
         if(emptyrun) cycle
@@ -299,6 +345,7 @@ contains
       !$acc end kernels
       deallocate(czwc)
     EndBlock CorrelationSelfEnergyImagAxis
+    call writemem('endof CorrelationSelfEnergyImagAxis')
     call stopwatch_pause(t_sw_ci)
 
     call stopwatch_start(t_sw_cr)
@@ -395,7 +442,7 @@ contains
     enddo
     !$acc end kernels
     deallocate(wv, wc, czmelwc)
-  end subroutine
+  end subroutine get_correlation
   subroutine setwv()
     integer :: iqini, iqend, iw
     character(10) :: i2char
@@ -423,14 +470,14 @@ contains
     enddo
     write(stdo, '(X,A,2F8.3)') 'WVI/WVR : sizes (GB)', dble(size(wvi))*kp*2/gb, dble(size(wvr))*kp*2/gb
     deallocate(wv)
-  end subroutine
+  end subroutine setwv
   subroutine releasewv()
     if(.not.any(kx==kxc(:))) return
     if(allocated(wvi)) deallocate(wvi)
     if(allocated(wvr)) deallocate(wvr)
     close(ifrcwi)
     close(ifrcw)
-  end subroutine
+  end subroutine releasewv
   pure function inverse33(matrix) result(inverse) !Inverse of 3X3 matrix
     implicit none
     real(8),intent(in) :: matrix(3,3)

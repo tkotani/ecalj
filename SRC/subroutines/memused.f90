@@ -9,7 +9,7 @@ contains
     use m_mpi,only: MPI__rank
     character(*)  :: message
     write(stdo,ftox)trim(message)//repeat(' ',mod(1000-len_trim(message),55))//&
-         ' rank=',MPI__rank,' ',datetime(),'Memused',ftof(memused(),3),' GB'
+         ' rank=',MPI__rank,'Memused',ftof(memused(),3),'GB',datetime()
     flush(stdo)
     if(mempeak>memused()) mempeak=memused()
   end subroutine writemem
@@ -63,7 +63,7 @@ contains
     call date_and_time(date,time,zone,values)
     call date_and_time(DATE=date,ZONE=zone)
     call date_and_time(TIME=time)
-    datetime=date(1:4)//sp//date(5:6)//sp//date(7:8)//'T'//time(1:2)//':'//time(3:4)//':'//trim(time(5:10))
+    datetime=date(1:4)//sp//date(5:6)//sp//date(7:8)//'T'//time(1:2)//':'//time(3:4)//':'//trim(time(5:10)) !isoformat
   end function datetime
 
   real(8) function totalram() !GB  Show the size of memory at which a rank included.

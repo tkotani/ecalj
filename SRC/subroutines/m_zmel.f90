@@ -334,8 +334,8 @@ contains
     endblock ZmelBlock
   end subroutine get_zmel_init
 
-! this subroutine is a copy of get_zmel_init to use blas/cuBLAS by M. Obata 2024-05-18
-  subroutine get_zmel_init_gpu(q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc, iprx,zmelconjg, comm,maxmem)
+  subroutine get_zmel_init_gpu(q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc,  & ! get_zmel_init for blas/cuBLAS by M. Obata 2024-05-18
+       iprx,zmelconjg,comm,maxmem)
     use m_readeigen,only: readcphif 
     use m_readeigen,only: readgeigf
     use m_itq,only: itq, ntq
@@ -374,7 +374,6 @@ contains
 #ifdef __GPU
     attributes(device) :: ppb
 #endif
-
     if(allocated(zmel)) then
 #ifdef __GPU
        if(acc_is_present(zmel, size(zmel))) then

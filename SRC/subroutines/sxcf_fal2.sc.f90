@@ -179,7 +179,7 @@ contains
                      trim(charli([kx,irot,ip,isp,icount],5)))
                 call get_zmel_init(q,qibz_k,irot,qbz_kr, ns1,ns2,isp, 1,ntqxx, isp,nctot,ncc=0,iprx=debug,zmelconjg=.false.,&
                      maxmem=maxmem)
-                call writemem(' --        end of zmel')
+                !call writemem(' --        end of zmel')
 1212            continue
               endblock ZmelBlock
               call writemem('endof zmelblock')
