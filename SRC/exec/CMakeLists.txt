@@ -78,8 +78,10 @@ elseif(FC MATCHES "ifort-openmpi-kugui")
 elseif(FC MATCHES "ifort")
   set(CMAKE_Fortran_COMPILER mpiifort) # compiler
   set(CMAKE_Fortran_FLAGS "-cpp -init:snan -fpic -assume byterecl") # compile flags
-  set(LIBM -qmkl=parallel) 
-  add_link_options(-qmkl=parallel)
+  set(LIBM -mkl) 
+  add_link_options(-mkl)
+  #set(LIBM -qmkl=parallel) 
+  #add_link_options(-qmkl=parallel)
 elseif(FC MATCHES "nvfortran")
   set(CMAKE_Fortran_COMPILER mpifort) # compiler
   set(CMAKE_Fortran_FLAGS "-cpp -fpic") # "-Mvect=simd -mcmodel=medium -fpic") # compile flags
