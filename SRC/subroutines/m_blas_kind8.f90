@@ -59,7 +59,7 @@ contains
     logical, optional :: samea, sameb
     integer, optional :: comm
 
-    integer(kind=kp) :: stridea, strideb, stridec
+    integer(8) :: stridea, strideb, stridec
     complex(kind=kp) :: alpha_in, beta_in
     integer :: lda_in, ldb_in, ldc_in, istat
     character :: opa_in, opb_in

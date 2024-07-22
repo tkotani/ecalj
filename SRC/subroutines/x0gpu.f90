@@ -4,8 +4,14 @@ subroutine x0gpu(rcxq, npr, ipr_col, npr_col, nwhis, npm)
   use m_mpi, only: comm_b, mpi__rank_b, mpi__size_b
   use m_x0kf, only: icounkmink, icounkmaxk, iwini, iwend, itc, itpc, jpmc, icouini, whwc
   use m_blas, only: m_op_c, m_op_n, m_op_t
+#ifdef __MP
+  use m_blas, only: gemm => cmm
+#else
   use m_blas, only: gemm => zmm
+#endif
   use m_zmel, only: zmel
+  use m_lgunit, only: stdo
+  use m_ftox
 #ifdef __GPU
   use openacc
   use cudafor
@@ -31,6 +37,7 @@ subroutine x0gpu(rcxq, npr, ipr_col, npr_col, nwhis, npm)
   enddo
 
   nttp_max = maxval(nttp(1:nwhis,1:npm))
+  write(stdo, ftox)'nttp_max = ', nttp_max
   allocate (itw(nttp_max,nwhis,npm), source = 0)
   allocate (itpw(nttp_max,nwhis,npm), source = 0)
   allocate (whw(nttp_max,nwhis,npm), source = 0d0)

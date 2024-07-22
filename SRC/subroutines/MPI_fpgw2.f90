@@ -103,10 +103,10 @@ contains
       data_size(irank_b) = npr*mpi__npr_col(irank_b)
       data_disp(irank_b) = npr*(mpi__ipr_col(irank_b)-1)
     enddo
-    call mpi_allgatherv(xqw, npr*npr_col, mpi_complex16, xqw_all, data_size, data_disp, &
-                  &  mpi_complex16, comm_root_k, mpi__info)
-    ! call mpi_gatherv(xqw, npr*npr_col, mpi_complex16, xqw_all, data_size, data_disp, &
-    !               &  mpi_complex16, 0, comm_root_k, mpi__info)
+    ! call mpi_allgatherv(xqw, npr*npr_col, mpi_complex16, xqw_all, data_size, data_disp, &
+    !               &  mpi_complex16, comm_root_k, mpi__info)
+    call mpi_gatherv(xqw, npr*npr_col, mpi_complex16, xqw_all, data_size, data_disp, &
+                  &  mpi_complex16, 0, comm_root_k, mpi__info)
     deallocate(data_size, data_disp)
   end subroutine MPI__GatherXqw
 
@@ -226,6 +226,22 @@ contains
     deallocate( mpi__data )
     return
   end subroutine MPI__reduceSum
+  subroutine MPI__reduceSum_kind4( root, data, sizex, communicator)
+    implicit none
+    integer, intent(in) :: sizex,root
+    complex(4), intent(inout) :: data(sizex)
+    complex(4), allocatable   :: mpi__data(:) 
+    integer, intent(in), optional :: communicator
+    integer :: comm_in
+    if( mpi__size == 1 ) return
+    allocate(mpi__data(sizex))
+    mpi__data = data
+    comm_in = comm
+    if(present(communicator)) comm_in = communicator
+    call MPI_reduce( mpi__data, data, sizex, MPI_COMPLEX, MPI_SUM, root, comm_in, mpi__info )
+    deallocate( mpi__data )
+    return
+  end subroutine MPI__reduceSum_kind4
   subroutine MPI__AllreduceMax( data, sizex )
     implicit none
     integer, intent(in) :: sizex

@@ -1,5 +1,6 @@
 submodule(m_blas) m_blas_kind4
   !$use omp_lib
+  use cublas_v2, m_type =>CUDA_C_32F, compute_type => CUBLAS_COMPUTE_32F_FAST_TF32, algo => cublas_gemm_default
   implicit none
   integer, parameter :: kp = 4
 contains
@@ -36,14 +37,17 @@ contains
     if(present(ldc)) ldc_in = ldc
 
 #ifdef __GPU
-    cublas_gemm3m: block 
+    cublas_gemm: block 
       integer :: opa_in_cublas, opb_in_cublas
       istat = cublas_init()
       opa_in_cublas = get_m_op_cublas(opa_in)
       opb_in_cublas = get_m_op_cublas(opb_in)
-      istat = cublascgemm3m(cublas_handle, opa_in_cublas, opb_in_cublas,  m, n, k, &
-                          & alpha_in, a, lda_in , b, ldb_in, beta_in, c, ldc_in)
-    end block cublas_gemm3m
+      ! istat = cublascgemm3m(cublas_handle, opa_in_cublas, opb_in_cublas,  m, n, k, &
+      !                     & alpha_in, a, lda_in , b, ldb_in, beta_in, c, ldc_in)
+      istat = cublasGemmEX(cublas_handle, opa_in_cublas, opb_in_cublas, m, n, k,  &
+                           alpha_in, a, m_type, lda_in, b, m_type, ldb_in, beta_in, c, m_type, ldc_in,&
+                           compute_type, algo)
+    endblock cublas_gemm
 #else
     call cgemm3m(opa_in, opb_in, m, n, k, alpha_in, a, lda_in, b, ldb_in, beta_in, c, ldc_in)
     istat = 0
@@ -59,7 +63,7 @@ contains
     logical, optional :: samea, sameb
     integer, optional :: comm
 
-    integer(kind=kp) :: stridea, strideb, stridec
+    integer(8) :: stridea, strideb, stridec
     complex(kind=kp) :: alpha_in, beta_in
     integer :: lda_in, ldb_in, ldc_in, istat
     character :: opa_in, opb_in
@@ -104,9 +108,12 @@ contains
       istat = cublas_init()
       opa_in_cublas = get_m_op_cublas(opa_in)
       opb_in_cublas = get_m_op_cublas(opb_in)
-      istat = cublascgemmstridedbatched(cublas_handle, opa_in_cublas, opb_in_cublas,  m, n, k,  &
-                 &  alpha_in, a, lda_in, stridea, b, ldb_in, strideb, beta_in, c, ldc_in, stridec, nbatch)
-    end block cublas_gemmstridedbatched
+      ! istat = cublascgemmstridedbatched(cublas_handle, opa_in_cublas, opb_in_cublas,  m, n, k,  &
+      !            &  alpha_in, a, lda_in, stridea, b, ldb_in, strideb, beta_in, c, ldc_in, stridec, nbatch)
+      istat = cublasGemmStridedBatchedEX(cublas_handle, opa_in_cublas, opb_in_cublas, m, n, k, &
+                                         alpha_in, a, m_type, lda_in, stridea, b, m_type, ldb_in, strideb, beta_in, &
+                                         c, m_type, ldc_in, stridec, nbatch, compute_type, algo)
+    endblock cublas_gemmstridedbatched
 #else
     blas_gemmbatch: block
       integer :: i

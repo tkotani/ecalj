@@ -43,16 +43,21 @@ contains
     integer, intent(in) :: nspinmx, ixc
     real(8), intent(in) :: ef, esmr
     real(8) :: q(3), qibz_k(3), qbz_kr(3), qk(3)
+    complex(kind=kp), allocatable :: zsec(:,:)
+#ifdef __GPU
+    attributes(device) :: zsec
+#endif
     allocate(ekc(nctot+nband), eq(nband)) 
     emptyrun = cmdopt0('--emptyrun')
     if(nw_i/=0) call rx('Current version we assume nw_i=0. Time-reversal symmetry')
-    allocate(zsecall(ntq,ntq,nqibz,nspinmx),source=(0d0,0d0)) 
+    allocate(zsecall(ntq,ntq,nqibz,nspinmx))
+    allocate(zsec(ntq,ntq))
 
     call stopwatch_init(t_sw_zmel, 'zmel')
     call stopwatch_init(t_sw_xc, 'ex')
     !$acc data copyout(zsecall)
     !$acc kernels
-      zsecall(1:ntq,1:ntq,1:nqibz,1:nspinmx) = CZERO
+      zsecall(1:ntq,1:ntq,1:nqibz,1:nspinmx) = (0d0, 0d0)
     !$acc end kernels
     kxloop: do kx=1, nqibz                         ! kx is irreducible !kx is main axis where we calculate W(kx).
       qibz_k = qibz(:,kx)
@@ -70,6 +75,9 @@ contains
             ekc(1:nctot+nband) = [ecore(1:nctot,isp),readeval(qk, isp)]
             ntqxx = nbandmx(ip,isp) ! ntqxx is number of bands for <i|sigma|j>.
             wkkr = wk(kr)
+            !$acc kernels
+            zsec(1:ntq, 1:ntq) = CZERO
+            !$acc end kernels
             NMBATCHloop: do icount = icountini(isp,ip,irot,kx), icountend(isp,ip,irot,kx) !batch of middle states.
               ns1 = nstti(icount)  !Range of middle states is [ns1:ns2] for given icount
               ns2 = nstte(icount)  ! 
@@ -77,13 +85,16 @@ contains
               call get_zmel_init(q, qibz_k, irot, qbz_kr, ns1, ns2, isp, 1, ntqxx, isp, nctot, ncc=0, iprx=debug, zmelconjg=.false.)
               call stopwatch_pause(t_sw_zmel)
               call stopwatch_start(t_sw_xc)
-              call get_exchange(ef, esmr, ns1, ns2, zsecall(1,1,ip,isp))
+              call get_exchange(ef, esmr, ns1, ns2, zsec)
               call stopwatch_pause(t_sw_xc)
               write(stdo,ftox) 'end of icount:', icount ,' of', ncount, &
                                'zmel:', ftof(stopwatch_lap_time(t_sw_zmel),4), '(sec)', &
                                'exch:', ftof(stopwatch_lap_time(t_sw_xc),4),   '(sec)'
               call flush(stdo)
             enddo NMBATCHloop
+            !$acc kernels
+            zsecall(1:ntq, 1:ntq, ip, isp) = zsecall(1:ntq, 1:ntq, ip, isp) + cmplx(zsec(1:ntq, 1:ntq),8)
+            !$acc end kernels
           enddo isploopexternal
         enddo iploopexternal
       enddo irotloop
@@ -102,6 +113,10 @@ contains
     real(8) :: q(3), qibz_k(3), qbz_kr(3), qk(3)
     logical, parameter :: debug=.false.
     real(8),parameter :: ddw=10d0
+    complex(kind=kp), allocatable :: zsec(:,:)
+#ifdef __GPU
+    attributes(device) :: zsec
+#endif
     allocate(ekc(nctot+nband), eq(nband), omega(ntq)) 
     emptyrun = cmdopt0('--emptyrun')
     keepwv = cmdopt0('--keepwv')
@@ -111,10 +126,11 @@ contains
     call stopwatch_init(t_sw_xc, 'ec')
     call stopwatch_init(t_sw_cr, 'ec realaxis integral')
     call stopwatch_init(t_sw_ci, 'ec imagaxis integral')
-    allocate(zsecall(ntq,ntq,nqibz,nspinmx),source=(0d0,0d0)) 
+    allocate(zsecall(ntq,ntq,nqibz,nspinmx))
+    allocate(zsec(ntq,ntq))
     !$acc data copyout(zsecall)
     !$acc kernels
-      zsecall(1:ntq,1:ntq,1:nqibz,1:nspinmx) = CZERO
+      zsecall(1:ntq,1:ntq,1:nqibz,1:nspinmx) = (0d0,0d0)
     !$acc end kernels
     kxloop: do kx=1, nqibz                         ! kx is irreducible !kx is main axis where we calculate W(kx).
       qibz_k = qibz(:,kx)
@@ -136,6 +152,9 @@ contains
             omega(1:ntq) = eq(1:ntq)  
             nt0p = count(ekc<ef+ddw*esmr)  
             nt0m = count(ekc<ef-ddw*esmr) 
+            !$acc kernels
+            zsec(1:ntq, 1:ntq) = CZERO
+            !$acc end kernels
             NMBATCHloop: do icount = icountini(isp,ip,irot,kx), icountend(isp,ip,irot,kx) !batch of middle states.
               ns1 = nstti(icount)  !Range of middle states is [ns1:ns2] for given icount
               ns2 = nstte(icount)  ! 
@@ -146,7 +165,7 @@ contains
               call get_zmel_init(q, qibz_k, irot, qbz_kr, ns1, ns2, isp, 1, ntqxx, isp, nctot, ncc=0, iprx=debug, zmelconjg=.false.)
               call stopwatch_pause(t_sw_zmel)
               call stopwatch_start(t_sw_xc)
-              call get_correlation(ef, esmr, ns1, ns2, ns2r, nwxi, nwx, zsecall(1,1,ip,isp))
+              call get_correlation(ef, esmr, ns1, ns2, ns2r, nwxi, nwx, zsec)
               call stopwatch_pause(t_sw_xc)
               write(stdo,ftox) 'end of icount:', icount ,' of', ncount, &
                                'zmel:', ftof(stopwatch_lap_time(t_sw_zmel),4), '(sec)', &
@@ -155,6 +174,9 @@ contains
                                'ec:', ftof(stopwatch_lap_time(t_sw_xc),4),   '(sec)'
               call flush(stdo)
             enddo NMBATCHloop
+            !$acc kernels
+            zsecall(1:ntq, 1:ntq, ip, isp) = zsecall(1:ntq, 1:ntq, ip, isp) + cmplx(zsec(1:ntq, 1:ntq),8)
+            !$acc end kernels
           enddo isploopexternal
         enddo iploopexternal
       enddo irotloop
@@ -178,7 +200,7 @@ contains
     complex(kind=kp), allocatable :: vzmel(:,:,:)
     integer :: it, itp, itpp, ierr
 #ifdef __GPU
-    attributes(device) :: vzmel, vcoud_buf
+    attributes(device) :: vzmel, vcoud_buf, zsec
 #endif
     if(ns1 > ns2) return
     allocate(wtff(ns1:ns2))
@@ -188,7 +210,7 @@ contains
     enddo
     if(corehole) wtff(ns1:nctot) = wtff(ns1:nctot) * wcorehole(ns1:nctot,isp)
     allocate(vcoud_buf(ngb))
-    !$acc data copyin(vcoud, wklm(1), wk(1), wtff, zmel) copy(zsec)
+    !$acc data copyin(vcoud, wklm(1), wk(1), wtff, zmel)
     !$acc kernels
     vcoud_buf(1:ngb) = vcoud(1:ngb)
     !$acc end kernels
@@ -220,7 +242,7 @@ contains
     integer :: it, itp, iw, ierr, i
     complex(kind=kp), allocatable :: wv(:,:), wc(:,:)
 #ifdef __GPU
-    attributes(device) :: czmelwc, wc
+    attributes(device) :: czmelwc, wc, zsec
 #endif
 
     if(ns1 > ns2) return
@@ -386,7 +408,7 @@ contains
     EndBlock CorrelationSelfEnergyRealAxis
     call stopwatch_pause(t_sw_cr)
 
-    !$acc host_data use_device(zmel, zsec)
+    !$acc host_data use_device(zmel)
     ierr = gemm(czmelwc, zmel, zsec, ntqxx, ntqxx, nbb*(ns2-ns1+1), opA = m_op_T, beta = CONE, ldC = ntq)
     !$acc end host_data
     !$acc kernels loop independent

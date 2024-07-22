@@ -9,7 +9,7 @@ if [ -z "${FC}" ]; then
    exit
 fi
 
-BINDIR=${HOME}/bin  ## Make directory for ecalj binaries and scripts.
+BINDIR=${PWD}/bin  ## Make directory for ecalj binaries and scripts.
 [ -d ${BINDIR} ] || mkdir ${BINDIR} 
 echo Going to install required binaries and scripts to ${BINDIR} !
 # Make a link to getsyml to get syml.*
@@ -23,11 +23,13 @@ popd
 # Use SRC/exec/CmakeLists.txt to make executables.
 pushd .
 cd SRC/exec
-FC=${FC} cmake .
-#VERBOSE=1 make -j ||my_error
-time make -j ||my_error
+FC=${FC} cmake . -DBUILD_MP=OFF -DBUILD_GPU=OFF -DCMAKE_BUILD_TYPE=Release
+make -j 32 VERBOSE=1 ||my_error
+FC=${FC} cmake . -DBUILD_MP=OFF -DBUILD_GPU=ON  -DCMAKE_BUILD_TYPE=Release
+make -j 32 VERBOSE=1 ||my_error
 cp `find . -mindepth 1 -maxdepth 1 -executable -type f` ${BINDIR} ||my_error
 popd
+exit
 # Install test 
 echo '=== goto test ==='
 cd SRC/TestInstall/

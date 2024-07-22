@@ -15,11 +15,11 @@ module m_x0kf
   use m_tetwt,only:  gettetwt,tetdeallocate, whw,ihw,nhw,jhw,n1b,n2b,nbnb,nbnbx,nhwtot
   use m_ftox
   use m_readVcoud,only:   vcousq,zcousq,ngb,ngc
-  use m_kind,only:kindrcxq
+  use m_kind,only: kp => kindrcxq
   implicit none
   public:: x0kf_zxq, deallocatezxq, deallocatezxqi
   complex(8),public,allocatable:: zxq(:,:,:), zxqi(:,:,:)   !Not yet protected because of main_hx0fp0
-  complex(kindrcxq),allocatable:: rcxq(:,:,:,:)
+  complex(kind=kp),allocatable:: rcxq(:,:,:,:)
 !  complex(4),allocatable:: rcxq4(:,:,:,:)
   integer,public::npr
   private
@@ -121,8 +121,13 @@ contains
     use m_freq,only: nw_i,nw,niw 
     use m_zmel,only: Setppovlz,Setppovlz_chipm   ! & NOTE: these data set are stored in this module, and used
     use m_stopwatch
-    use m_mpi,only: comm_k, mpi__rank_k, mpi__size_k, MPI__reduceSum, &
+    use m_mpi,only: comm_k, mpi__rank_k, mpi__size_k, &
                     mpi__ipr_col, mpi__npr_col, mpi__rank_b, mpi__root_k, comm_b
+#ifdef __MP
+    use m_mpi,only: MPI__reduceSum => MPI__reduceSum_kind4
+#else
+    use m_mpi,only: MPI__reduceSum
+#endif
     use m_gpu, only: use_gpu
     use m_data_gpu, only: SetDataGPU_inkx, ExitDataGPU_inkx
     implicit none
@@ -171,13 +176,19 @@ contains
         logical,parameter:: debug=.false.
         if(.not.allocated(rcxq)) then
            allocate(rcxq(npr,npr_col,nwhis,npm))
-           rcxq=0d0
+           rcxq=0_kp
            if(GPUTEST) then
              write(stdo,ftox)'GPU mode ON: size of rcxq:', npr, npr_col, nwhis, npm
+             write(stdo,ftox)'before enter create'
+             call flush(stdo)
              !$acc enter data create(rcxq) 
+             write(stdo,ftox)'after enter create'
+             call flush(stdo)
              !$acc kernels
              rcxq(1:npr,1:npr_col,1:nwhis,1:npm) = (0d0,0d0)
              !$acc end kernels
+             write(stdo,ftox)'after initial create'
+             call flush(stdo)
            endif
         endif
         zmel0mode: if(cmdopt0('--zmel0')) then ! For epsPP0. Use zmel-zmel0 (for subtracting numerical error) for matrix elements.
@@ -328,7 +339,7 @@ contains
        !$acc update host(zmel)
       endif
     else
-      call get_zmel_init(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot, ns2=nkmax(k)+nctot, ispm=isp_k, &
+      call get_zmel_init(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, nm1=nkmin(k)+nctot, nm2=nkmax(k)+nctot, ispm=isp_k, &
            nqini=nkqmin(k), nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1), iprx=.false., zmelconjg=.false.)
     endif
   end subroutine x0kf_zmel
