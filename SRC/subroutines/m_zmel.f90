@@ -311,7 +311,7 @@ contains
   end subroutine get_zmel_init
 
 ! this subroutine is a copy of get_zmel_init to use blas/cuBLAS by M. Obata 2024-05-18
-  subroutine get_zmel_init_gpu(q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc, iprx,zmelconjg, comm)
+  subroutine get_zmel_init_gpu(q,kvec,irot,rkvec, nm1,nm2,ispm, nqini,nqmax,ispq, nctot,ncc, iprx,zmelconjg, comm)
     use m_readeigen,only: readcphif 
     use m_readeigen,only: readgeigf
     use m_itq,only: itq, ntq
@@ -323,11 +323,11 @@ contains
 #endif
     implicit none
     include "mpif.h"
-    intent(in)::           q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc, iprx,zmelconjg
+    intent(in)::           q,kvec,irot,rkvec, nm1,nm2,ispm, nqini,nqmax,ispq, nctot,ncc, iprx,zmelconjg
     integer, optional, intent(in) :: comm
     real(8), parameter::tolq=1d-8
     complex(8), parameter:: img=(0d0,1d0),tpi= 8d0*datan(1d0)
-    integer:: ns1, ns2, nqmax, irot, ispq, ispm, nqini, nctot, ncc, ncnv, ncorec, nccc, mdim
+    integer:: nm1, nm2, nqmax, irot, ispq, ispm, nqini, nctot, ncc, ncnv, ncorec, nccc, mdim
     integer:: it, ia
     integer:: ngp1, ngp2, ngvecpB1(3,ngpmx),ngvecpB2(3,ngpmx),nadd(3)
     integer:: i,iap,ias,ib,ic,icp,nc,nc1,nv,ics,itp,iae,ims,ime
@@ -396,11 +396,11 @@ contains
       imdim = [( sum(nblocha(iclass(1:ia-1)))+1  ,ia=1,natom)]
       iasx=[(sum(nlnmv(iclass(1:ia-1)))+1,ia=1,natom)]
       icsx=[(sum(ncore(iclass(1:ia-1))),ia=1,natom)]
-      nmini = ns1          !starting index of middle state  (nctot+nvalence order)
-      nmmax = ns2-nctot    !end      index of middle state  (nctot+nvalence order)
+      nmini = nm1          !starting index of middle state  (nctot+nvalence order)
+      nmmax = nm2-nctot    !end      index of middle state  (nctot+nvalence order)
       nt0= nmmax-nmini+1
       ntp0=nqmax-nqini+1
-      nmtot  = nctot + nt0     ! = phi_middle nmtot=ns2-ns1+1
+      nmtot  = nctot + nt0     ! = phi_middle nmtot=nm2-nm1+1
       nqtot  = ncc   + ntp0    ! = phi_end
       ini_index = 1
       end_index = ntp0
@@ -567,13 +567,13 @@ contains
           deallocate(zmelt_d)
         endblock ZmelIPW
       endif
-      allocate(zmel(nbb,ns1:ns2,nqtot))
+      allocate(zmel(nbb,nm1:nm2,nqtot))
       !$acc enter data create(zmel)
 
       !$acc host_data use_device(zmel)
       !$acc data copyin(ppovlz(1:ngb,1:nbb))
-      ierr = gemm(ppovlz, zmelt, zmel(1,ns1,1), nbb, nmtot*ncc, ngb, opA = m_op_C)
-      ierr = gemm(ppovlz, zmelt, zmel(1,ns1,ncc+ini_index), nbb, nmtot*ntp0, ngb, opA = m_op_C)
+      ierr = gemm(ppovlz, zmelt, zmel(1,nm1,1), nbb, nmtot*ncc, ngb, opA = m_op_C)
+      ierr = gemm(ppovlz, zmelt, zmel(1,nm1,ncc+ini_index), nbb, nmtot*ntp0, ngb, opA = m_op_C)
       !$acc end data
       !$acc end host_data
       if (present(comm)) then
@@ -591,7 +591,7 @@ contains
           !GPU aware MPI style does not work ...why??
           !!$acc data create(zmel_buf) present(zmel)
           !!$acc host_data use_device(zmel, zmel_buf)
-          !call mpi_allgatherv(zmel(1,ns1,ncc+ini_index), data_size(mpi_rank), mpi_complex16, zmel_buf, data_size, data_disp, &
+          !call mpi_allgatherv(zmel(1,nm1,ncc+ini_index), data_size(mpi_rank), mpi_complex16, zmel_buf, data_size, data_disp, &
           !          &  mpi_complex16, comm, mpi_info)
           !!$acc kernels
           !zmel = zmel_buf
@@ -600,7 +600,7 @@ contains
           !!$acc end data
           ! data copy from GPU to CPU for MPI routine. this would be slow
           !$acc update host(zmel)
-          call mpi_allgatherv(zmel(1,ns1,ncc+ini_index), data_size(mpi_rank), mpi_complex16, zmel_buf, data_size, data_disp, &
+          call mpi_allgatherv(zmel(1,nm1,ncc+ini_index), data_size(mpi_rank), mpi_complex16, zmel_buf, data_size, data_disp, &
                     &  mpi_complex16, comm, mpi_info)
           zmel = zmel_buf
           !$acc update device(zmel)

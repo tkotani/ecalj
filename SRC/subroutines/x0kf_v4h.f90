@@ -242,11 +242,11 @@ contains
             if(use_gpu) then
               !Currently, mpi version of get_zmel_init_gpu which is available by adding comm argument for MPI communicator,
               !but, MPI communication is significant bottle-neck in the case where GPUs are used. Therefore, it is only used in without GPU case.
-              call get_zmel_init_gpu(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
+              call get_zmel_init_gpu(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, nm1=nkmin(k)+nctot,nm2=nkmax(k)+nctot, ispm=isp_k, &
                    nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., &
                    zmelconjg=.true.)
             else
-              call get_zmel_init_gpu(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
+              call get_zmel_init_gpu(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, nm1=nkmin(k)+nctot,nm2=nkmax(k)+nctot, ispm=isp_k, &
                    nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., &
                    zmelconjg=.true., comm = comm_b)
             endif
@@ -334,7 +334,7 @@ contains
     logical, intent(in), optional:: GPUTEST
     if (present(GPUTEST)) then
       if (GPUTEST) then
-        call get_zmel_init_gpu(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
+        call get_zmel_init_gpu(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, nm1=nkmin(k)+nctot,nm2=nkmax(k)+nctot, ispm=isp_k, &
              nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., zmelconjg=.true.)
        !$acc update host(zmel)
       endif
