@@ -59,7 +59,7 @@ message(STATUS "DEBUG= ${DEBUG}")
 # ## compile options ############################################################
 if(FC MATCHES "gfortran")
   set(CMAKE_Fortran_COMPILER mpif90) # compiler
-  set(CMAKE_Fortran_FLAGS "-g -fimplicit-none -finit-integer=NaN -finit-real=NaN -fpic") # compile flags
+  set(CMAKE_Fortran_FLAGS "-g -fimplicit-none -finit-integer=NaN -finit-real=NaN -fpic -cpp") # compile flags
 # comment out for gfortran9 or less 
   if(CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER_EQUAL "10.0")
     set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -w -fno-strict-aliasing -fallow-argument-mismatch")

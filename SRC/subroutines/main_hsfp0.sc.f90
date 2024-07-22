@@ -69,6 +69,7 @@ subroutine hsfp0_sc()
        MPI__consoleout,  MPI__reduceSum,comm
   use m_lgunit,only:m_lgunit_init,stdo
   use m_ftox
+  use m_gpu,only: gpu_init
   implicit none
   ! real(8),parameter :: ua  = 1d0 ! constant in w(0)exp(-ua^2*w'^2) to take care of peak around w'=0
   !
@@ -94,6 +95,7 @@ subroutine hsfp0_sc()
     logical:: cmdopt2
     character(20):: outs=''
     call MPI__Initialize()
+    call gpu_init() 
     call M_lgunit_init()
     call writemem('Start hsfp0: TotalRAM per node='//ftof(totalram(),3)//' GB')
     if(MPI__root) then
@@ -201,8 +203,18 @@ subroutine hsfp0_sc()
   !call Seteibzhs(nspinmx,nq,qibz,iprintx=MPI__root)
   Main4SelfEnergy: Block !time-consuming part Need highly paralellized
     use m_sxcf_main,only: sxcf_scz_correlation,sxcf_scz_exchange
-    if(exchange)      call sxcf_scz_exchange   (ef,esmr,ixc,nspinmx) !main part of job
-    if(.not.exchange) call sxcf_scz_correlation(ef,esmr,ixc,nspinmx) !main part of job
+    use m_sxcf_gpu, only: sxcf_scz_correlation_gpu => sxcf_scz_correlation , sxcf_scz_exchange_gpu => sxcf_scz_exchange
+    logical:: use_gpu, cmdopt0
+    use_gpu = cmdopt0('--gpu')
+    if(use_gpu) then  
+      write(stdo,ftox)'GPU mode ON'
+      if(exchange)      call sxcf_scz_exchange_gpu   (ef,esmr,ixc,nspinmx) !main part of job
+      if(.not.exchange) call sxcf_scz_correlation_gpu(ef,esmr,ixc,nspinmx) !main part of job
+    else
+      write(stdo,ftox)'GPU mode OFF:Original'
+      if(exchange)      call sxcf_scz_exchange   (ef,esmr,ixc,nspinmx) !main part of job
+      if(.not.exchange) call sxcf_scz_correlation(ef,esmr,ixc,nspinmx) !main part of job
+    endif
   EndBlock Main4SelfEnergy
 ! Remove eibzmode symmetrizer 2023Jan22 (extended irreducibel BZ mode)
 !  SymmetrizeZsec :Block
@@ -242,7 +254,7 @@ contains
     PrintLDAexchangecorrelationXCUXCD: if(ixc==1) then
        allocate(  vxcfp(ntq,nq,nspin) )
        call rsexx(nspin,qibz,ntq,nq, ginv, vxcfp) !add ginv july2011
-       if(MPI__root) then
+       MPIroot: if(MPI__root) then
           isploop: do is = 1,nspinmx
              if(is==1) open(newunit=ifxc(1),file='XCU')!//xt(nz))
              if(is==2) open(newunit=ifxc(2),file='XCD')!//xt(nz))
@@ -265,7 +277,7 @@ contains
              enddo iploop
              close(ifxc(is))
           enddo isploop
-       endif
+       endif MPIroot
        deallocate(vxcfp)
     endif PrintLDAexchangecorrelationXCUXCD
   end subroutine Hswriteinit

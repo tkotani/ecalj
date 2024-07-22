@@ -5,6 +5,7 @@ module m_read_ppovl
   integer,protected:: nggg,ngcgp,ngcread,nxi,nxe,nyi,nye,nzi,nze,ngc2
   complex(8),protected,allocatable:: ppx(:,:),ggg(:),ppovlinv(:,:)
   integer,protected,allocatable:: ngvecc2(:,:),nvggg(:,:),nvgcgp2(:,:),ngvecc(:,:),igggi(:,:,:),igcgp2i(:,:,:)
+  integer,protected:: nnxi,nnxe,nnyi,nnye,nnzi,nnze
   !     !
   integer,private:: iqix=-1, ippovl=0, ngcmx, ngc2mx, nqq, ngggmx,nqini,nqnumt
   logical,private:: ppovlclosed=.true.,init=.true.
@@ -14,7 +15,6 @@ module m_read_ppovl
   logical,private:: debug=.false.
   real(8),allocatable,private:: qxtable(:,:)
   integer, private:: loopnum = 0, iex,gex
-  integer,private:: nnxi,nnxe,nnyi,nnye,nnzi,nnze
 contains
   subroutine getppx2(qbas,qi,getngcgp)
     !! This return nvggg,nvgcgp2,ngvecc,  nggg,ngcgp,ngcread, ggg,ppovlinv
