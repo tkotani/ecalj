@@ -56,6 +56,10 @@ endif()
 
 message(STATUS "DEBUG= ${DEBUG}")
 
+if(DEFINED ENV{GPU})
+  set(USE_GPU ON)
+endif()
+
 # ## compile options ############################################################
 if(FC MATCHES "gfortran")
   set(CMAKE_Fortran_COMPILER mpif90) # compiler
@@ -66,16 +70,28 @@ if(FC MATCHES "gfortran")
   endif()
   set(LIBM  -lmkl_rt) 
   add_link_options(-lmkl_rt)
+elseif(FC MATCHES "ifort-openmpi-kugui")
+  set(CMAKE_Fortran_COMPILER ifort) # compiler
+  set(CMAKE_Fortran_FLAGS "-I/home/app/openmpi/intel/4.1.6/include -I/home/app/openmpi/intel/4.1.6/lib -L/home/app/openmpi/intel/4.1.6/lib -Wl,-rpath -Wl,/home/app/openmpi/intel/4.1.6/lib -Wl,--enable-new-dtags -lmpi_usempif08 -lmpi_usempi_ignore_tkr -lmpi_mpifh -lmpi -cpp -init:snan -fpic -assume byterecl -g -traceback") # compile flags
+  set(LIBM  -qmkl=parallel) 
+  add_link_options(-qmkl=parallel)
 elseif(FC MATCHES "ifort")
   set(CMAKE_Fortran_COMPILER mpiifort) # compiler
-  set(CMAKE_Fortran_FLAGS "-init:snan -fpic -assume byterecl") # compile flags
-  set(LIBM  -mkl) 
-  add_link_options(-mkl)
+  set(CMAKE_Fortran_FLAGS "-cpp -init:snan -fpic -assume byterecl") # compile flags
+  set(LIBM -qmkl=parallel) 
+  add_link_options(-qmkl=parallel)
 elseif(FC MATCHES "nvfortran")
   set(CMAKE_Fortran_COMPILER mpifort) # compiler
-  set(CMAKE_Fortran_FLAGS "-fpic") # "-Mvect=simd -mcmodel=medium -fpic") # compile flags
+  set(CMAKE_Fortran_FLAGS "-cpp -fpic") # "-Mvect=simd -mcmodel=medium -fpic") # compile flags
   set(LIBM  ) # set LIB variable
   add_link_options(-lmkl_intel_lp64 -lmkl_sequential -lmkl_core)
+  # add_link_options(-lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core)
+  # add_link_options(-mp -Mmkl -lpthread)
+  if(USE_GPU)
+    # add_compile_options(-cpp -D__GPU -Minfo -Mfree -Mx,231,0xl -cuda -acc=gpu -cudalib=cufft,cublas,cusolver)
+    add_compile_options(-cpp -D__GPU -Minfo -Mfree -cuda -acc=gpu -cudalib=cufft,cublas,cusolver)
+    add_link_options(-acc=gpu -cuda -cudalib=cufft,cublas,cusolver)
+  endif()
 endif()
 set(LIB ${LIBRARY_NAME}) 
 #set(LIB1 ${LIBRARY_NAME}1) 
@@ -130,11 +146,10 @@ elseif(FC MATCHES "nvfortran" AND DEFINED DEBUG)
 elseif(FC MATCHES "nvfortran")
   message(STATUS "====== nvfortran release =======================")
   foreach(target IN ITEMS ${SOURCES})
-    if(${target} MATCHES "../subroutines/pwmat.f90"
-      OR ${target} MATCHES "../subroutines/rseq.f90")
+    if(${target} MATCHES "../subroutines/pwmat.f90" OR ${target} MATCHES "../subroutines/rseq.f90")
       set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-C -g -traceback -O0")
     else()
-      set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O2")
+      set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O2 -traceback")
     endif()
   endforeach()
 endif()

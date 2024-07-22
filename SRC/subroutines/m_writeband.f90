@@ -269,8 +269,8 @@ contains
        endif
     enddo
   end function ichangesign
-  subroutine writefs(evlall,eferm)!Fermi surface mode (eigenvalues in full BZ). No output variables.
-    use m_lmfinit, only: nsp,nspc
+  subroutine writefs(evlall,eferm,spinweightsoc)!Fermi surface mode (eigenvalues in full BZ). No output variables.
+    use m_lmfinit, only: nsp,nspc,lso
     use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat
     use m_mkqp,only: bz_nabc
     use m_suham,only: ndhamx=>ham_ndhamx,nspx=>ham_nspx
@@ -281,6 +281,8 @@ contains
     real(8):: ppin(3),eferm
     integer:: ip,i,isp,ififm,nbxx,iq,ib,nkk1,nkk2,nkk3,ifi
     real(8):: rlatp(3,3),xmx2(3),vadd,qshort(3),evlall(:,:,:)
+    real(8):: spinweightsoc(:,:,:)
+    character*100::sss=''
     integer:: iout 
     nkk1=bz_nabc(1)
     nkk2=bz_nabc(2)
@@ -298,7 +300,8 @@ contains
        write(ifi,*) " # http://www.xcrysden.org/doc/XSF.html#2l.16"
        write(ifi,'(a,f9.5)') "  Fermi Energy:",eferm
        write(ififm,'(a,f9.5)') "  # Fermi Energy [eV]:",eferm
-       write(ififm,*) " # qshort(3) band_energy[eV]"
+       if(lso==1) sss='                           spinup     spindn'
+       write(ififm,*) " # qshort(3) band_energy[eV]", trim(sss)
        write(ifi,*) "END_INFO"
        write(ifi,*)"BEGIN_BLOCK_BANDGRID_3D"
        write(ifi,*)"  this_is_for_xcrysden"
@@ -327,7 +330,8 @@ contains
                 call shortn3_qlat(ppin) !bug (qlist(:,iq) ==>ppin 2022-6-8 tkotani)
                 iout=1
                 qshort(1:3)=  matmul(qlat(:,:), ppin+nlatout(:,iout))
-                write(ififm,"(4f13.5)") qshort(:),evlall(ib,isp,iq) !q-point reduced to 1stBZ
+                if(lso==1) write(sss,"(2f11.6)") spinweightsoc(ib,1:2,iq)
+                write(ififm,"(4f13.5,a)") qshort(:),evlall(ib,isp,iq), trim(sss) !q-point reduced to 1stBZ
              enddo
           endif
        enddo

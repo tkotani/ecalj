@@ -17,7 +17,8 @@ subroutine hx0fp0()
   use m_pbindex,only: PBindex !,norbt,l_tbl,k_tbl,ibas_tbl,offset_tbl,offset_rev_tbl
   use m_readqgcou,only: readqgcou
   use m_mpi,only: MPI__Initialize,MPI__root, &
-       MPI__Broadcast,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,MPI__rank,MPI__size, MPI__consoleout,comm
+       MPI__Broadcast,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,MPI__rank,MPI__size, MPI__consoleout,comm, &
+     & MPI__SplitXq, MPI__Setnpr_col, comm_b, comm_k, mpi__root_k, mpi__root_q, MPI__GatherXqw
   use m_rdpp,only: Rdpp, &   ! & NOTE: "call rdpp" generate following data.
        nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx,nprecx,mrecl,nblochpmx
   use m_zmel,only: Mptauof_zmel!, Setppovlz,Setppovlz_chipm   ! & NOTE: these data set are stored in this module, and used
@@ -38,6 +39,8 @@ subroutine hx0fp0()
   use m_lgunit,only:m_lgunit_init
   use m_readqg,only: Readqg0
   use m_dpsion,only: dpsion5
+  use m_gpu,only: gpu_init
+  use m_ftox
   implicit none
   !! We calculate chi0 by the follwoing three steps.
   !!  gettetwt: tetrahedron weights
@@ -178,7 +181,9 @@ subroutine hx0fp0()
 !  complex(8),allocatable:: rcxq0(:,:,:,:)
   logical,allocatable::   mpi__task(:)
   integer,allocatable::   mpi__ranktab(:)
+  integer :: n_kpara = 1, n_bpara = 1, npr_col, worker_inQtask, nqcalc
   call MPI__Initialize()
+  call gpu_init() 
   call M_lgunit_init()
   call MPI__consoleout('hx0fp0')
   call cputid (0)
@@ -341,10 +346,26 @@ subroutine hx0fp0()
         write(6,"( 'mmom mmnorm= ',2f14.10)")  momsite(imb),mmnorm(imb)
      enddo
   endif
+
+  n_bpara = 1
+  if(cmdopt2('--nb=', outs)) read(outs,*) n_bpara
+  nqcalc = iqxend - iqxini + 1
+  if(cmdopt0('--zmel0')) nqcalc = nqcalc - 1
+  if(nqcalc < 1) call rx('hx0fp0: sanity check. nqcalc < 1: specify more than 2 q-points in zmel0 mode')
+  n_kpara = max(mpi__size/(n_bpara*nqcalc), 1)  !Default setting of parallelization. b-parallel is 1.
+  if(cmdopt2('--nk=', outs)) read(outs,*) n_kpara
+  worker_inQtask = n_bpara * n_kpara
+  write(6,'(1X,A,3I5)') 'MPI: worker_inQtask, n_bpara, n_kpara', worker_inQtask, n_bpara, n_kpara
+  call MPI__SplitXq(n_bpara, n_kpara)
+
   allocate(ekxx1(nband,nqbz),ekxx2(nband,nqbz))
   allocate( nwgt(1,iqxini:iqxend))
-  allocate( mpi__ranktab(iqxini:iqxend), source=[(mod(iq-1,mpi__size)           ,iq=iqxini,iqxend)])
-  allocate( mpi__task(iqxini:iqxend),    source=[(mod(iq-1,mpi__size)==mpi__rank,iq=iqxini,iqxend)])
+  ! allocate( mpi__ranktab(iqxini:iqxend), source=[(mod(iq-1,mpi__size)           ,iq=iqxini,iqxend)])
+  ! allocate( mpi__task(iqxini:iqxend),    source=[(mod(iq-1,mpi__size)==mpi__rank,iq=iqxini,iqxend)])
+  allocate( mpi__ranktab(iqxini:iqxend), source=[(mod(iq-1,mpi__size/worker_inQtask)*worker_inQtask           ,iq=iqxini,iqxend)])
+  allocate( mpi__task(iqxini:iqxend),    source=[(mod(iq-1,mpi__size/worker_inQtask)==mpi__rank/worker_inQtask,iq=iqxini,iqxend)])
+  write(6,ftox)'mpi_rank',mpi__rank,'mpi__Qtask=',mpi__task
+  write(6,ftox) 'mpi_qrank', mpi__ranktab
   !! llw, and llwI are for L(omega) for Q0P in PRB81,125102
   allocate( llw(nw_i:nw,nq0i), llwI(niw,nq0i) )
   if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
@@ -369,19 +390,28 @@ subroutine hx0fp0()
     else
       npr = ngb
     endif
+    call MPI__Setnpr_col(npr, npr_col) ! set the npr_col : split of npr(column) for MPI color_b
     if(epsmode) call writeepsopen()
     write(6,"(' ##### ',2i4,' out of nqibz+n0qi nsp=',2i4,' ##### ')")iq, nqibz + nq0i, nspin
     call x0kf_zxq(realomega,imagomega,qp,iq,npr,schi,crpa,chipm,nolfco, q00,zzr)
+    if(mpi__root_k) then
     realomegamode: if(realomega) then !===RealOmega === W-V: WVR and WVI. Wing elemments: llw, llwi LLWR,LLWI
-      if(     epsmode) call writerealeps() !write eps file and close
-      if(.NOT.epsmode) call WVRllwR(qp,iq,npr,npr)
-      call deallocatezxq()
+      if(mpi__root_k) then
+        if(     epsmode) call writerealeps() !write eps file and close
+        if(.NOT.epsmode) call WVRllwR(qp,iq,npr,npr_col)
+        call deallocatezxq()
+      endif
     endif realomegamode
     imagomegamode: if(imagomega) then ! ImagOmega start ============================
-      if(     epsmode) call rx('hx0fp0: imagoemga=T and epsmod=T is not implemented')
-      if(.NOT.epsmode) call WVIllwI(qp,iq,npr,npr)
-      call deallocatezxqi()
+      if(mpi__root_k) then
+        if(     epsmode) call rx('hx0fp0: imagoemga=T and epsmod=T is not implemented')
+        if(.NOT.epsmode) call WVIllwI(qp,iq,npr,npr_col)
+        call deallocatezxqi()
+      endif
     endif imagomegamode
+    endif
+    call mpi_barrier(comm_k, ierr)
+    call mpi_barrier(comm_b, ierr)
 1001 enddo iqloop
   call MPI_barrier(comm,ierr)
   if( .NOT. epsmode) call MPI__sendllw2(iqxend,MPI__ranktab) !!! mpi send LLW to root.
@@ -409,29 +439,35 @@ contains
       allocate( x0mean(nw_i:nw,1,1) )
       x0mean=0d0
     endif
-    if(( .NOT. chipm) .AND. wqt(iq-nqibz)==0d0) then
-      open(newunit=ifepsdatnolfc,file=trim('EPS'//charnum4(iqixc2)//'.nlfc.dat'//itag))
-      write(ifepsdatnolfc,"(a)")' qp(1:3)   w(Ry)   eps    epsi  --- NO LFC'
-      if( .NOT. nolfco) then
-        open(newunit=ifepsdat,file=trim('EPS'//charnum4(iqixc2)//'.dat'//itag))
-        write(ifepsdat,"(a)") ' qp(1:3)   w(Ry)   eps  epsi --- LFC included. '
+    if(mpi__root_q) then
+      if(( .NOT. chipm) .AND. wqt(iq-nqibz)==0d0) then
+        open(newunit=ifepsdatnolfc,file=trim('EPS'//charnum4(iqixc2)//'.nlfc.dat'//itag))
+        write(ifepsdatnolfc,"(a)")' qp(1:3)   w(Ry)   eps    epsi  --- NO LFC'
+        if( .NOT. nolfco) then
+          open(newunit=ifepsdat,file=trim('EPS'//charnum4(iqixc2)//'.dat'//itag))
+          write(ifepsdat,"(a)") ' qp(1:3)   w(Ry)   eps  epsi --- LFC included. '
+        endif
       endif
     endif
     if(chipm) then ! zzr is only for chipm.and.nolfco mode
       if( allocated(zzr)) deallocate(zzr,x0mean)
-      allocate(zzr(ngb,nmbas),x0mean(nw_i:nw,nmbas,nmbas),source=(0d0,0d0))
+      allocate(zzr(ngb,nmbas),x0mean(nw_i:nw,nmbas,npr_col),source=(0d0,0d0))
       zzr(1:nbloch,1:nmbas) = svec(1:nbloch,1:nmbas)
     endif
-    if(chipm .AND. wqt(iq-nqibz)==0d0) then !! ... Open ChiPM* files for \Chi_+-
-      open(newunit=ifchipmn_mat,file='ChiPM'//charnum4(iqixc2)//'.nlfc.mat')
-      write(ifchipmn_mat,"(255i5)") nmbas
-      write(ifchipmn_mat,"(255i5)") aimbas(1:nmbas)
-      write(ifchipmn_mat,"(255e23.15)") momsite(1:nmbas)
-      write(ifchipmn_mat,"(255e23.15)")  mmnorm(1:nmbas)
-      write(ifchipmn_mat,"( ' Here was eiqrm: If needed, need to fix hx0fp0')")
+    if(mpi__root_q) then
+      if(chipm .AND. wqt(iq-nqibz)==0d0) then !! ... Open ChiPM* files for \Chi_+-
+        open(newunit=ifchipmn_mat,file='ChiPM'//charnum4(iqixc2)//'.nlfc.mat')
+        write(ifchipmn_mat,"(255i5)") nmbas
+        write(ifchipmn_mat,"(255i5)") aimbas(1:nmbas)
+        write(ifchipmn_mat,"(255e23.15)") momsite(1:nmbas)
+        write(ifchipmn_mat,"(255e23.15)")  mmnorm(1:nmbas)
+        write(ifchipmn_mat,"( ' Here was eiqrm: If needed, need to fix hx0fp0')")
+      endif
     endif
   end subroutine writeepsopen
   subroutine writerealeps()
+    complex(8), allocatable :: zxqw(:,:)
+    allocate (zxqw(npr, npr))
     if(nolfco) forall(iw=nw_i:nw) x0mean(iw,:,:)=zxq(:,:,iw) !1x1
     if(nolfco .AND. ( .NOT. chipm)) then
       if (nspin==1) x0mean= 2d0*x0mean !if paramagnetic, multiply x0 by 2
@@ -455,23 +491,27 @@ contains
     allocate(epstilde(npr,npr),epstinv(npr,npr))
     iwloop: do 1015 iw  = nw_i,nw
       frr= dsign(freq_r(abs(iw)),dble(iw))
+      call MPI__GatherXqw(zxq(:,:,iw), zxqw, npr, npr_col)
       if( .NOT. chipm) then
         if(debug)write(6,*) 'xxx2 epsmode iq,iw=',iq,iw
         vcmean=vcousq(1)**2 !fourpi/sum(qp**2*tpioa**2) !aug2012
-        epsi(iw,iqixc2)= 1d0/(1d0 - vcmean*zxq(1,1,iw))
-        write(6,'(" iq iw omega eps epsi noLFC=",2i6,f8.3,2e23.15,3x, 2e23.15, &
-             " vcmean x0mean =", 2e23.15,3x, 2e23.15)') iqixc2,iw,2*frr, &
-             1d0/epsi(iw,iqixc2),epsi(iw,iqixc2),vcmean, zxq(1,1,iw) !x0mean(iw,1,1)
-        write(ifepsdatnolfc,'(3f12.8,2x,d12.4,2e23.15,2x,2e23.15)') &
-             qp, 2*frr, 1d0/epsi(iw,iqixc2),epsi(iw,iqixc2)
+        ! epsi(iw,iqixc2)= 1d0/(1d0 - vcmean*zxq(1,1,iw))
+        epsi(iw,iqixc2)= 1d0/(1d0 - vcmean*zxqw(1,1))
+        if(mpi__root_q) then
+          write(6,'(" iq iw omega eps epsi noLFC=",2i6,f8.3,2e23.15,3x, 2e23.15, &
+               " vcmean x0mean =", 2e23.15,3x, 2e23.15)') iqixc2,iw,2*frr, &
+               1d0/epsi(iw,iqixc2),epsi(iw,iqixc2),vcmean, zxqw(1,1) !x0mean(iw,1,1)
+          write(ifepsdatnolfc,'(3f12.8,2x,d12.4,2e23.15,2x,2e23.15)') &
+               qp, 2*frr, 1d0/epsi(iw,iqixc2),epsi(iw,iqixc2)
+        endif
         if( .NOT. nolfco) then
           ix=0
           do igb1=ix+1,npr
             do igb2=ix+1,npr
               if(igb1==1 .AND. igb2==1) then
-                epstilde(igb1,igb2)= -vcmean*zxq(igb1,igb2,iw) !aug2012
+                epstilde(igb1,igb2)= -vcmean*zxqw(igb1,igb2) !aug2012
               else
-                epstilde(igb1,igb2)= -vcousq(igb1)*zxq(igb1,igb2,iw)*vcousq(igb2)
+                epstilde(igb1,igb2)= -vcousq(igb1)*zxqw(igb1,igb2)*vcousq(igb2)
               endif
               if(igb1==igb2) epstilde(igb1,igb2)=1+epstilde(igb1,igb2)
             enddo
@@ -479,20 +519,23 @@ contains
           epstinv(ix+1:npr,ix+1:npr)=epstilde(ix+1:npr,ix+1:npr)
           call matcinv(npr-ix,epstinv(ix+1:npr,ix+1:npr))
           epsi(iw,iqixc2)= epstinv(1,1)
-          write(6,'( " iq iw omega eps epsi  wLFC=",2i6,f8.3,2e23.15,3x, 2e23.15)') &
-               iqixc2,iw,2*frr,1d0/epsi(iw,iqixc2),epsi(iw,iqixc2)
-          write(6,*)
-          write(ifepsdat,'(3f12.8,2x,d12.4,2e23.15,2x,2e23.15)') qp, 2*frr,1d0/epsi(iw,iqixc2),epsi(iw,iqixc2)
+          if(mpi__root_q) then
+            write(6,'( " iq iw omega eps epsi  wLFC=",2i6,f8.3,2e23.15,3x, 2e23.15)') &
+                 iqixc2,iw,2*frr,1d0/epsi(iw,iqixc2),epsi(iw,iqixc2)
+            write(6,*)
+            write(ifepsdat,'(3f12.8,2x,d12.4,2e23.15,2x,2e23.15)') qp, 2*frr,1d0/epsi(iw,iqixc2),epsi(iw,iqixc2)
+          endif
         endif
       elseif(chipm) then ! ChiPM mode without LFC
         allocate( x0meanx(npr,npr) )
-        x0meanx = x0mean(iw,:,:)/2d0 !in Ry unit.
+        call MPI__GatherXqw(x0mean(iw,:,:), x0meanx, npr, npr_col)
+        x0meanx = x0meanx/2d0 !in Ry unit.
         do imb1=1,npr
           do imb2=1,npr
             x0meanx(imb1,imb2) = x0meanx(imb1,imb2)/mmnorm(imb1)/mmnorm(imb2)
           enddo
         enddo
-        write(ifchipmn_mat,'(3f12.8,2x,f20.15,2x,255e23.15)')qp, 2*schi*frr, x0meanx(:,:)
+        if(mpi__root_q) write(ifchipmn_mat,'(3f12.8,2x,f20.15,2x,255e23.15)')qp, 2*schi*frr, x0meanx(:,:)
         deallocate(x0meanx)
       endif
 1015 enddo iwloop

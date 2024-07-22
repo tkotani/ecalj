@@ -6,7 +6,7 @@ module m_read_ppovl
   complex(8),protected,allocatable:: ppx(:,:),ggg(:),ppovlinv(:,:)
   integer,protected,allocatable:: ngvecc2(:,:),nvggg(:,:),nvgcgp2(:,:),ngvecc(:,:),igggi(:,:,:),igcgp2i(:,:,:)
   integer,protected:: nnxi,nnxe,nnyi,nnye,nnzi,nnze
-  !     !
+  private
   integer,private:: iqix=-1, ippovl=0, ngcmx, ngc2mx, nqq, ngggmx,nqini,nqnumt
   logical,private:: ppovlclosed=.true.,init=.true.
   integer,allocatable,private :: ngcx_s(:),ngc2_s(:) ,ngvecc2_0_s(:,:,:)

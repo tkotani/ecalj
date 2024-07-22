@@ -23,8 +23,9 @@ epath=os.path.dirname(os.path.abspath(__file__))
 #    ncore2=int(args.np2)
 #else:
 # options
-option=''
-if args.phispinsym==True: option=' --phispinsym '
+option=' --gpu --keepwv '
+option=' --gpu '
+if args.phispinsym==True: option= option+ ' --phispinsym '
 if args.emptyrun  ==True: option= option+ ' --emptyrun '
 option = ' '+option+' '.join(unknown)+' '
 print('option=',option)
@@ -93,7 +94,7 @@ for i in range(1,nloop+1): #nloop is the additional number of iteration
     run_program(epath+'/hrcxq '+option+'> lrcxq',ncore2)       #x0 part
 #    run_program(epath+'/hhilbert > lhilbert',ncore2) #x0 part
     mv_files(glob.glob('stdout*'),'STDOUT')
-    run_program(epath+'/hsfp0_sc --job=2'+option+'> lsc',ncore2) #correlation Sigma
+    run_program(epath+'/hsfp0_sc --job=2 '+option+'> lsc',ncore2) #correlation Sigma
     mv_files(glob.glob('stdout*'),'STDOUT')
     run_program(epath+'/hqpe_sc '+option+'> lqpe',1)        #all Sigma are combined.
     ### final part of iteration loop. Manupulate files ###

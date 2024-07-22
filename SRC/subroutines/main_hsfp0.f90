@@ -27,6 +27,7 @@ subroutine hsfp0() bind(C)
   use m_freq,only: freq01
   use m_anf,only:  Anfcond, laf
   use m_bzints,only: bzints2x
+  use m_gpu,only: gpu_init
   implicit none
   !! = Calculate the diagonal part of self-energy \Sigma within the GW approximation. And some other functions =
   !  See document at the top of hsfp0.sc.m.F
@@ -150,6 +151,7 @@ subroutine hsfp0() bind(C)
   character(20):: outs=''
   !...  mode switch. --------------
   call MPI__Initialize()
+  call gpu_init() 
   call M_lgunit_init()
   call date_and_time(values=timevalues)
   write(6,'(a,9i5)')'dateandtime1=',MPI__rank,timevalues(1:8)

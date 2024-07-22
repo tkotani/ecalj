@@ -21,7 +21,7 @@ run_arg '---' $MPI_SIZE $nfpgw /lmf llmfgw01 $TARGET --jobgw=1 --wrhomt
 #rm gwa gwb.*
 run_arg '---' $NO_MPI $nfpgw /heftet leftet --job=1 # A file EFERMI for hx0fp0
 run_arg '---' $NO_MPI $nfpgw /hbasfp0 lbas --job=8  # Product basis generation mode=8
-run_arg '---' $MPI_SIZE $nfpgw /hx0fp0 lx0 --job=222 #x0 part
+run_arg '---' $MPI_SIZE $nfpgw /hx0fp0 lx0 --job=222 --x0gpu #x0 part
 
  
 

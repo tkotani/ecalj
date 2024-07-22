@@ -3,7 +3,7 @@ module m_x0kf
   use m_lgunit,only: stdo
   use m_keyvalue,only : Getkeyvalue
   use m_pkm4crpa,only : Readpkm4crpa
-  use m_zmel,only: Get_zmel_init,zmel !,get_zmel_init1,get_zmel_init2
+  use m_zmel,only: Get_zmel_init, get_zmel_init_gpu, zmel !,get_zmel_init1,get_zmel_init2
   use m_freq,only: npm, nwhis
   use m_genallcf_v3,only:  nsp=>nspin ,nlmto,nctot
   use m_read_bzdata,only:  nqbz,ginv,nqibz,  rk=>qbz,wk=>wbz
@@ -68,6 +68,12 @@ contains
      !     write(6,*)'mm111mmmmmmm22222aaa',nqbz,k,nkqmin(k),nkqmax(k),'job=',job,nbnb(k,1)
      
       if(npm==2.AND.nkqmin(k)/=1)call rx( " When npm==2, nkqmin==1 should be.")
+      if (job == 1) then
+        ! do jpm = 1, npm
+        !   print '(A,2I4,2I5,3I7)', 'nhw(min,max), k,jpm:', k, jpm, minval(nhw(:,k,jpm)), maxval(nhw(:,k,jpm)), &
+        !   & sum(nhw(1:nbnbx,k,jpm)), nbnbx, sum(nhw(1:nbnbx,k,jpm))/nbnbx
+        ! enddo
+      endif
       jpmloop: do 1251 jpm  = 1, npm ! nplusminum=1 usually (or =2)
         ibibloop: do 125 ibib = 1, nbnb(k,jpm) !---  ibib loop, ibib is decomposed to band index pair, it and itp
           ! n1b,n2b --> core after valence.  it,itp --> valence after core 
@@ -114,22 +120,36 @@ contains
     use m_readeigen,only:readeval
     use m_freq,only: nw_i,nw,niw 
     use m_zmel,only: Setppovlz,Setppovlz_chipm   ! & NOTE: these data set are stored in this module, and used
+    use m_stopwatch
+    use m_mpi,only: comm_k, mpi__rank_k, mpi__size_k, MPI__reduceSum, &
+                    mpi__ipr_col, mpi__npr_col, mpi__rank_b, mpi__root_k, comm_b
+    use m_gpu, only: use_gpu
+    use m_data_gpu, only: SetDataGPU_inkx, ExitDataGPU_inkx
     implicit none
     intent(in)::      realomega,imagomega, q,iq,npr,schi,crpa,chipm,nolfco,q00,zzr
     logical:: realomega,imagomega,crpa,chipm,nolfco
-    integer:: iq, isp_k,isp_kq,ix0,is,isf,kx,ierr,npr,k
+    integer:: iq, isp_k,isp_kq,ix0,is,isf,kx,ierr,npr,k, ipr_col, npr_col
     real(8),optional:: q00(3)
     complex(8),optional:: zzr(:,:)
     real(8):: q(3),schi,ekxx1(nband,nqbz),ekxx2(nband,nqbz)
     character(10) :: i2char
-    logical:: cmdopt0
+    logical:: cmdopt0, GPUTEST
+    type(stopwatch) :: t_sw_zmel, t_sw_x0
     qq=q
-    if(realomega) allocate(zxq(npr,npr,nw_i:nw),source=(0d0,0d0))
-    if(imagomega) allocate(zxqi(npr,npr,niw),source=(0d0,0d0))
+    GPUTEST = cmdopt0('--gpu')
+
+    ipr_col = mpi__ipr_col(mpi__rank_b) ! start index of column on xq for product basis set
+    npr_col = mpi__npr_col(mpi__rank_b) ! number of columns on xq
+
+    if(mpi__root_k) then
+      if(realomega) allocate(zxq(npr,npr_col,nw_i:nw),source=(0d0,0d0))
+      if(imagomega) allocate(zxqi(npr,npr_col,niw),source=(0d0,0d0))
+    endif
     if(cmdopt0('--emptyrun'))  return
     if(chipm .AND. nolfco) then; call setppovlz_chipm(zzr,npr)
     else;                        call setppovlz(q,matz=.true.,npr=npr)!2024-5-23 obata. A minor bug to consume memory: Set npr=1 for EPSPP0 mode(no lfc)
     endif
+    call SetDataGPU_inkx(set_ppovlz_in_gpu = .false.)
     isloop: do 1103 isp_k = 1,nsp
       GETtetrahedronWeight:block
         isp_kq = merge(3-isp_k,isp_k,chipm) 
@@ -148,11 +168,17 @@ contains
         integer:: nwj(nwhis,npm),imb, igc ,neibz,icc,ig,ikp,i,j,itimer,icount, kold 
         real(8):: imagweight, wpw_k,wpw_kq,qa,q0a 
         complex(8):: img=(0d0,1d0)
-        logical :: cmdopt0,GPUTEST
         logical,parameter:: debug=.false.
         if(.not.allocated(rcxq)) then
-           allocate( rcxq(npr,npr,nwhis,npm))
+           allocate(rcxq(npr,npr_col,nwhis,npm))
            rcxq=0d0
+           if(GPUTEST) then
+             write(stdo,ftox)'GPU mode ON: size of rcxq:', npr, npr_col, nwhis, npm
+             !$acc enter data create(rcxq) 
+             !$acc kernels
+             rcxq(1:npr,1:npr_col,1:nwhis,1:npm) = (0d0,0d0)
+             !$acc end kernels
+           endif
         endif
         zmel0mode: if(cmdopt0('--zmel0')) then ! For epsPP0. Use zmel-zmel0 (for subtracting numerical error) for matrix elements.
           zmel0block : block
@@ -167,12 +193,15 @@ contains
               it  = itc (icoun) !occ      k
               itp = itpc(icoun) !unocc    q+k
               jpm = jpmc(icoun) ! \pm omega. Usual mode is only for jpm=1
+              if(mod(k-1, mpi__size_k) /= mpi__rank_k)  cycle
               if(kold/=k) then
-                call x0kf_zmel(q00,k, isp_k,isp_kq)
+                call x0kf_zmel(q00,k, isp_k,isp_kq, GPUTEST=GPUTEST)
                 if(allocated(zmel0)) deallocate(zmel0)
                 allocate(zmel0,source=zmel)
-                call x0kf_zmel(q, k, isp_k,isp_kq)
+                call x0kf_zmel(q, k, isp_k,isp_kq, GPUTEST=GPUTEST)
                 kold=k
+                write(6,*) 'k, mpi__rank_k', k, mpi__rank_k
+                call flush(6)
               endif
 !              write(*,*)'zzzzzzzzzzzzzmel',shape(zmel)
               do iw=iwini(icoun),iwend(icoun) !iw  = iwc(icount)  !omega-bin
@@ -181,36 +210,62 @@ contains
                 rcxq(1,1,iw,jpm)=rcxq(1,1,iw,jpm) +rfac00**2*(abs(zmel(1,it,itp))-abs(zmel0(1,it,itp)))**2 *whwc(icount)
               enddo
             enddo zmel0modeicount
+            !$acc update device (rcxq)
           endblock zmel0block
           goto 2000 
         endif zmel0mode
         if(cmdopt0('--emptyrun')) goto 1590
-        GPUTEST=.false.
+        call cputid (0)
         if(GPUTEST) then
           ! rcxq(ibg1,igb2,iw) = \sum_ibib wwk(iw,ibib)* <M_ibg1(q) psi_it(k)| psi_itp(q+k)> < psi_itp | psi_it M_ibg2 > at q
+          call stopwatch_init(t_sw_zmel, 'zmel_'//merge('gpu','ori',mask = GPUTEST))
+          call stopwatch_init(t_sw_x0, 'x0_'//merge('gpu','ori',mask = GPUTEST))
           kloop:do 1500 k=1,nqbz !zmel = < M(igb q) phi( rk it occ)|  phi(q+rk itp unocc)>
-            qq   = q;              qrk  = q+rk(:,k)
-            ispm = isp_k;          ispq = isp_kq
-            ns1  = nkmin(k)+nctot; ns2  = nkmax(k)+nctot
-            nqini= nkqmin(k);      nqmax= nkqmax(k)
+            if(mod(k-1, mpi__size_k) /= mpi__rank_k)  cycle
+            ! qq   = q;              qrk  = q+rk(:,k)
+            ! ispm = isp_k;          ispq = isp_kq
+            ! ns1  = nkmin(k)+nctot; ns2  = nkmax(k)+nctot
+            ! nqini= nkqmin(k);      nqmax= nkqmax(k)
             icounkmink= icounkmin(k); icounkmaxk= icounkmax(k)
-            call x0gpu(rcxq,npr,nwhis,npm)
+            call stopwatch_start(t_sw_zmel)
+            if(use_gpu) then
+              !Currently, mpi version of get_zmel_init_gpu which is available by adding comm argument for MPI communicator,
+              !but, MPI communication is significant bottle-neck in the case where GPUs are used. Therefore, it is only used in without GPU case.
+              call get_zmel_init_gpu(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
+                   nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., &
+                   zmelconjg=.true.)
+            else
+              call get_zmel_init_gpu(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
+                   nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., &
+                   zmelconjg=.true., comm = comm_b)
+            endif
+            call stopwatch_pause(t_sw_zmel)
+            call stopwatch_start(t_sw_x0)
+            call x0gpu(rcxq, npr, ipr_col, npr_col, nwhis, npm)
+            call stopwatch_pause(t_sw_x0)
+            write(6,ftox) 'end of k:', k ,' of:',nqbz, 'zmel:', ftof(stopwatch_lap_time(t_sw_zmel),4), '(sec)', &
+                                                        ' x0:', ftof(stopwatch_lap_time(t_sw_x0),4), '(sec)'
+            call flush(6)
 1500      enddo kloop
         else ! NOTE: kloop10:do 1510 is equivalent to do 1500. 2024-3-25
           kloop10:do 1510 k=1,nqbz !zmel = < M(igb q) phi( rk it occ)|  phi(q+rk itp unocc)>, where it=nm1:nm2
+            if(mod(k-1, mpi__size_k) /= mpi__rank_k)  cycle
+            call stopwatch_start(t_sw_zmel)
             if(cmdopt0('--emptyrun')) cycle
             call get_zmel_init(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, nm1=nkmin(k)+nctot,nm2=nkmax(k)+nctot, ispm=isp_k, &
                  nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false.,zmelconjg=.true.)
+            call stopwatch_pause(t_sw_zmel)
+            call stopwatch_start(t_sw_x0)
             icounloop: do 1000 icoun=icounkmin(k),icounkmax(k)
               TimeConsumingRcxq: block 
-                complex(8):: zmelzmel(npr,npr)
+                complex(8):: zmelzmel(npr,npr_col)
                 if(debug) write(stdo,ftox)'icoun: iq k jpm it itp n(iw)=',icoun,iq,k,jpm,it,itp,iwend(icoun)-iwini(icoun)+1
                 associate( &
                      jpm => jpmc(icoun),&  !\pm omega 
                      it  => itc (icoun),&  !occ      at k
                      itp => itpc(icoun))   !unocc    at q+k
-                  do concurrent(igb1=1:npr,igb2=1:npr) 
-                    zmelzmel(igb1,igb2)= dconjg(zmel(igb1,it,itp))*zmel(igb2,it,itp) 
+                  do concurrent(igb1=1:npr,igb2=1:npr_col) 
+                    zmelzmel(igb1,igb2)= dconjg(zmel(igb1,it,itp))*zmel(igb2+ipr_col-1,it,itp) 
                   enddo
                   forall(iw=iwini(icoun):iwend(icoun))& !rcxq is hermitian, thus, we can reduce computational time half.
                        rcxq(:,:,iw,jpm)=rcxq(:,:,iw,jpm)+ whwc(iw-iwini(icoun)+icouini(icoun))* zmelzmel(:,:) !may use zaxpy and symmetrize afterwards
@@ -218,8 +273,15 @@ contains
                 endassociate
               endblock TimeConsumingRcxq
 1000        enddo icounloop
+            call stopwatch_pause(t_sw_x0)
+            write(6,ftox) 'end of k:', k ,' of:',nqbz, 'zmel:', ftof(stopwatch_lap_time(t_sw_zmel),4), '(sec)', &
+                                                        ' x0:', ftof(stopwatch_lap_time(t_sw_x0),4), '(sec)'
+            call flush(6)
 1510      enddo kloop10
         endif
+        call stopwatch_show(t_sw_zmel)
+        call stopwatch_show(t_sw_x0)
+        call cputid (0)
 1590    continue
 2000   continue
         write(stdo,ftox)"--- x0kf_v4hz: end",sum(abs(rcxq(:,:,1:nwhis,1:npm))) !,sum((rcxq(:,:,1:nwhis,1:npm)))
@@ -227,10 +289,25 @@ contains
       deallocate(whwc, kc, iwini,iwend, itc,itpc, jpmc,icouini, nkmin,nkmax,nkqmin,nkqmax,icounkmin,icounkmax)
       HilbertTransformation:if(isp_k==nsp .OR. chipm) then
         !Get real part. When chipm=T, do dpsion5 for every isp_k; When =F, do dpsion5 after rxcq accumulated for spins
-        call dpsion5(realomega, imagomega, rcxq, npr,npr, zxq, zxqi, chipm, schi,isp_k,  ecut,ecuts) 
+        if(GPUTEST) then
+          !$acc exit data copyout(rcxq)
+        endif
+        mpi_kaccumulate: block
+          integer :: jpm, iw
+            !To reduce memory allocation size in MPI__reduceSUM, mpi_reduce operation has been split for each iw and jpm
+          do jpm=1, npm
+            do iw=1, nwhis
+              call MPI__reduceSum(0, rcxq(1,1,iw,jpm), npr*npr_col, communicator = comm_k) 
+            enddo
+          enddo
+        end block mpi_kaccumulate
+        if(mpi__root_k) then
+          call dpsion5(realomega, imagomega, rcxq, npr, npr_col, zxq, zxqi, chipm, schi,isp_k,  ecut,ecuts)
+        endif
         deallocate(rcxq)
       endif HilbertTransformation 
 1103 enddo isloop
+     call ExitDataGPU_inkx()
   end subroutine x0kf_zxq
   subroutine deallocatezxq()
     deallocate(zxq)
@@ -238,12 +315,24 @@ contains
   subroutine deallocatezxqi()
     deallocate(zxqi)
   end subroutine deallocatezxqi
-  subroutine x0kf_zmel( q,k, isp_k,isp_kq) ! Return zmel= <phi phi |M_I> in m_zmel
+  subroutine x0kf_zmel( q,k, isp_k,isp_kq, GPUTEST) ! Return zmel= <phi phi |M_I> in m_zmel
+    use m_mpi, only: comm_b
     intent(in)   ::     q,k, isp_k,isp_kq   
     integer::              k,isp_k,isp_kq 
     real(8)::           q(3)
-    call get_zmel_init(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, nm1=nkmin(k)+nctot, nm2=nkmax(k)+nctot, ispm=isp_k, &
-         nqini=nkqmin(k), nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1), iprx=.false., zmelconjg=.true.)
+    logical, intent(in), optional:: GPUTEST
+!    call get_zmel_init(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, nm1=nkmin(k)+nctot, nm2=nkmax(k)+nctot, ispm=isp_k, &
+!         nqini=nkqmin(k), nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1), iprx=.false., zmelconjg=.true.)
+    if (present(GPUTEST)) then
+      if (GPUTEST) then
+        call get_zmel_init_gpu(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
+             nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., zmelconjg=.true.)
+       !$acc update host(zmel)
+      endif
+    else
+      call get_zmel_init(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot, ns2=nkmax(k)+nctot, ispm=isp_k, &
+           nqini=nkqmin(k), nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1), iprx=.false., zmelconjg=.false.)
+    endif
   end subroutine x0kf_zmel
 end module m_x0kf
 

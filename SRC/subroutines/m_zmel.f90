@@ -535,7 +535,7 @@ contains
 
       if(ngc/=0 .and. nt0 > 0)then
         ZmelIPW:block  !> Mattrix elements <Plane psi |psi> from interstitial plane wave.
-          use m_read_ppovl,only:igggi,igcgp2i,nxi,nxe,nyi,nye,nzi,nze,nvgcgp2,ngcgp,ggg,ppovlinv,nnxi,nnxe,nnyi,nnye,nnzi,nnze,nggg
+          use m_read_ppovl,only: igggi,igcgp2i,nxi,nxe,nyi,nye,nzi,nze,nvgcgp2,ngcgp,ggg,ppovlinv,nnxi,nnxe, nnyi,nnye,nnzi,nnze,nggg
           integer:: igcgp2,nn(3), iggg, igp1, itp, igc, igp2, igcgp2i_(ngc,ngp2)
           complex(8):: zmelp0(ngc,nt0,ntp0),phase(ngc), ggitp(ngcgp,ntp0), gggmat(ngcgp,ngp1), ggitp_work(ngc, ngp2)
 #ifdef __GPU
@@ -637,5 +637,5 @@ contains
       deallocate(zmelt)
     endblock ZmelBlock
   end subroutine get_zmel_init_gpu
-  
+
 end module m_zmel
