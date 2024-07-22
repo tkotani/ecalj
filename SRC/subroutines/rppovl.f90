@@ -2,10 +2,11 @@
 !!  ngc2, ppx(1:ngc,1:ngc2), ngvecc2(1:3,1:ngc2) are returned.
 module m_read_ppovl
   implicit none
-  integer,protected:: nggg,ngcgp,ngcread,nxi,nxe,nyi,nye,nzi,nze,ngc2
-  complex(8),protected,allocatable:: ppx(:,:),ggg(:),ppovlinv(:,:)
-  integer,protected,allocatable:: ngvecc2(:,:),nvggg(:,:),nvgcgp2(:,:),ngvecc(:,:),igggi(:,:,:),igcgp2i(:,:,:)
-  integer,protected:: nnxi,nnxe,nnyi,nnye,nnzi,nnze
+  integer,public,protected:: nggg,ngcgp,ngcread,nxi,nxe,nyi,nye,nzi,nze,ngc2
+  complex(8),public,protected,allocatable:: ppx(:,:),ggg(:),ppovlinv(:,:)
+  integer,public,protected,allocatable:: ngvecc2(:,:),nvggg(:,:),nvgcgp2(:,:),ngvecc(:,:),igggi(:,:,:),igcgp2i(:,:,:)
+  integer,public,protected:: nnxi,nnxe,nnyi,nnye,nnzi,nnze
+  public:: getppx2
   private
   integer,private:: iqix=-1, ippovl=0, ngcmx, ngc2mx, nqq, ngggmx,nqini,nqnumt
   logical,private:: ppovlclosed=.true.,init=.true.

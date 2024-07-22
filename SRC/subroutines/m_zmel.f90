@@ -107,11 +107,11 @@ contains
     endblock ppbafp_v2_zmel
   end subroutine mptauof_zmel
   
-  subroutine get_zmel_init(q,kvec,irot,rkvec, nm1,nm2,ispm, nqini,nqmax,ispq, nctot,ncc, iprx,zmelconjg,maxmem) !maxmem is optional Maxused memeory in GB
+  subroutine get_zmel_init(q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc, iprx,zmelconjg,maxmem) !maxmem is optional Maxused memeory in GB
     use m_readeigen,only: readcphif 
     use m_readeigen,only: readgeigf
     use m_itq,only: itq,ntq
-    intent(in)::           q,kvec,irot,rkvec, nm1,nm2,ispm, nqini,nqmax,ispq, nctot,ncc, iprx,zmelconjg
+    intent(in)::           q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc, iprx,zmelconjg
     !note: ncc can be =nctot or 0 
     ! nm1:nm2 is the batch range of middle states (count including core index (i=1,nctot). Thus kth valence is at nctot+k.
     ! kvec is in the IBZ, rk = Rot_irot(kvec)
@@ -146,6 +146,7 @@ contains
     real(8)::tr(3,natom)
     real(8)::qk(3),symope(3,3),shtv(3)
     real(8),optional::maxmem
+    integer::ns1,ns2
     ! nblocha     = number of optimal product basis functions for each class
     ! nlnmx     = maximum number of l,n,m
     ! nctot      = total no. allowed core states
@@ -178,6 +179,8 @@ contains
     ! core + valence ordered index: nm1,nm2
     ! nm1 :starting index of middle state  (nctot+nvalence order)
     ! nm2 :end      index of middle state  (nctot+nvalence order)
+    nm1=ns1
+    nm2=ns2
     debug=cmdopt0('--debugzmel')
     if(allocated(zmel)) deallocate(zmel)
     nt0  = nm2-nm1+1
@@ -332,7 +335,7 @@ contains
   end subroutine get_zmel_init
 
 ! this subroutine is a copy of get_zmel_init to use blas/cuBLAS by M. Obata 2024-05-18
-  subroutine get_zmel_init_gpu(q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc, iprx,zmelconjg, comm)
+  subroutine get_zmel_init_gpu(q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc, iprx,zmelconjg, comm,maxmem)
     use m_readeigen,only: readcphif 
     use m_readeigen,only: readgeigf
     use m_itq,only: itq, ntq
@@ -366,6 +369,7 @@ contains
     integer :: ierr
     integer :: nqini_rank, nqmax_rank, ntp0_rank 
     integer :: mpi_rank, mpi_size, ini_index, end_index, num_index, mpi_info, irank
+    real(8),optional::maxmem
     complex(kind=kp), parameter :: CONE = (1_kp, 0_kp), CZERO = (0_kp, 0_kp)
 #ifdef __GPU
     attributes(device) :: ppb
@@ -535,7 +539,7 @@ contains
 
       if(ngc/=0 .and. nt0 > 0)then
         ZmelIPW:block  !> Mattrix elements <Plane psi |psi> from interstitial plane wave.
-          use m_read_ppovl,only: igggi,igcgp2i,nxi,nxe,nyi,nye,nzi,nze,nvgcgp2,ngcgp,ggg,ppovlinv,nnxi,nnxe, nnyi,nnye,nnzi,nnze,nggg
+          use m_read_ppovl,only:igggi,igcgp2i,nxi,nxe,nyi,nye,nzi,nze,nvgcgp2,ngcgp,ggg,ppovlinv,nnxi,nnxe,nnyi,nnye,nnzi,nnze,nggg
           integer:: igcgp2,nn(3), iggg, igp1, itp, igc, igp2, igcgp2i_(ngc,ngp2)
           complex(8):: zmelp0(ngc,nt0,ntp0),phase(ngc), ggitp(ngcgp,ntp0), gggmat(ngcgp,ngp1), ggitp_work(ngc, ngp2)
 #ifdef __GPU
@@ -633,7 +637,7 @@ contains
         zmel = dconjg(zmel)
         !$acc end kernels
       endif
-
+      if(present(maxmem)) maxmem=memused() ! MaxUsed memory in GB 
       deallocate(zmelt)
     endblock ZmelBlock
   end subroutine get_zmel_init_gpu
