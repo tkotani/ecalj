@@ -88,14 +88,14 @@ subroutine hsfp0_sc()
     use m_zmel,only: Mptauof_zmel
     use m_anf,only:  Anfcond, laf
     use m_readeigen,only: INIT_READEIGEN,INIT_READEIGEN2,LOWESTEVAL
+    use m_mem,only:writemem,totalram
     integer:: incwfin
     real(8):: tripl
     logical:: cmdopt2
     character(20):: outs=''
     call MPI__Initialize()
     call M_lgunit_init()
-    call date_and_time(values=timevalues)
-    write(stdo,"('mpirank=',i5,' YYYY.MM.DD.HH.MM.msec=',9i4)")mpi__rank,timevalues(1:3),timevalues(5:8)
+    call writemem('Start hsfp0: TotalRAM per node='//ftof(totalram(),3)//' GB')
     if(MPI__root) then
        if(cmdopt2('--job=',outs)) then
           read(outs,*) ixc

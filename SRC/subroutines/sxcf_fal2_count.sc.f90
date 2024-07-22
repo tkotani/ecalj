@@ -113,11 +113,12 @@ contains
       enddo kxloop
       GetNmbatch: block !nmbatch is the Batch size of sum for middle states. !Get zmel(MPB,middle ,external)
       use m_read_ppovl,only: getppx2,ngcgp
+      use m_mem,only:memused
       integer:: nbloch,ifiqg,iiixxx,ngcmx,filename(nclass),ic,nblocha(nclass),ifp
       real(8),parameter:: k=1000 !Note GB is over integer(4)
       real(8):: mmax  ! GByte. Size of memory per rank to determine nmbatch
-      real(8):: memused,mmm
-      call getkeyvalue("GWinput","MemoryPerCoreInGByte",mmax,default=4d0)
+      real(8):: mmm
+      call getkeyvalue("GWinput","nmbatch",mmax,default=2d0)
       call getppx2([(0d0,i=1,9)],[(0d0,i=1,3)],getngcgp=.true.)
       open(newunit=ifiqg, file='QGcou',form='unformatted')
       read(ifiqg) iiixxx, ngcmx

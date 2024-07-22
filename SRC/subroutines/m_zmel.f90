@@ -12,6 +12,7 @@ module m_zmel
   use m_ftox
   use m_lgunit,only:stdo
   use m_MPItk,only:master_mpi
+  use m_mem,only: memused,writemem
   public:: get_zmel_init, Mptauof_zmel,Setppovlz,Setppovlz_chipm!,get_zmel_init1,get_zmel_init2 ! Call mptauof_zmel and setppovlz in advance to get_zmel_init
   complex(8),allocatable,protected,public :: zmel(:,:,:) ! OUTPUT: zmel(nbb,nmtot, nqtot) ,nbb:mixproductbasis, nmtot:middlestate, nqtot:endstate
   !private
@@ -237,7 +238,8 @@ contains
     ZmelBlock:block
       complex(8):: zmelt(1:nbloch+ngc,nm1:nm2,nqtot)
       logical ::oncewrite
-      real(8)::memused
+!      real(8)::memused
+      character(8):: charext
       zmelt=0d0
       ZmelWithinMT: block !- Calculates <psi_q(itp) |psi_qk(it) B_k(rot(r-R))> 
         complex(8):: phasea(natom) 
@@ -282,7 +284,7 @@ contains
           endassociate
         enddo iatomloop
       endblock ZmelWithinMT
-      if(debug) write(stdo,ftox) 'mmmmmmmmmmmmmm m_zmel111 ngc nm1v nm2v',ngc,nm1v,nm2v,'memused=',ftof(memused(),3)
+      if(debug) call writemem('mmmmm_zmel111 ngc nm1v nm2v '//charext(ngc)//' '//charext(nm1v)//' '//charext(nm2v))
       if(debug) flush(stdo)
       if(ngc/=0.and.nm1v <= nm2v)then
         ZmelIPW:block  !> Mattrix elements <Plane psi |psi> from interstitial plane wave.
@@ -304,8 +306,8 @@ contains
             nn = ngveccR(:,igc) + ngvecpB2(:,igp2)
             igcgp2i_(igc,igp2)=igcgp2i(nn(1),nn(2),nn(3))
           enddo
-          if(debug) write(stdo,ftox)'mmmmmmmmmmmmmm m_zmel222',ftof(memused(),3),ftof(4*size(igcgp2i_)/kk**3+ &
-               4*size(ngvecpB2)/kk**3+4*size(ngvecpB1)/kk**3,3),' mem ggitp=',ftof(16*size(ggitp)/kk**3,3)
+          if(debug) call writemem('mmmmm_zmel222 Mems '//&
+               ftof(4*size(igcgp2i_)/kk**3+4*size(ngvecpB2)/kk**3+4*size(ngvecpB1)/kk**3,3)//' '//ftof(16*size(ggitp)/kk**3,3))
           if(debug) flush(stdo)
           phase(:)=[(exp( -img*tpi*sum((matmul(symope,kvec)+matmul(qlat,ngveccR(:,igc)))*shtv) ),igc=1,ngc)]
           !               geigq   => readgeigf(q, ispq),&         !read IPW part at q   !G1 for ngp1
@@ -318,7 +320,7 @@ contains
           deallocate(ggitp_)
           forall(igc=1:ngc) zmelp0(igc,:,:)=phase(igc)*zmelp0(igc,:,:) 
           call matm(ppovlinv,zmelp0,zmelt(nbloch+1:nbloch+ngc,nm1:nm2,ncc+1:ncc+ntp0),ngc,ngc,ntp0*nt0)
-          if(debug) write(stdo,ftox)'mmmmmmmmmmmmmm m_zmel333',ftof(memused(),3)
+          if(debug) call writemem('mmmmm_zmel333')
           deallocate(zmelp0)
         endblock ZmelIPW
       endif

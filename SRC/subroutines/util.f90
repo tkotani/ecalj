@@ -114,6 +114,17 @@ character(8) function charext(num)
   if(num>9999)charext= char(48+mod(num/10000,10))//charext
   if(num >99999) call rx( ' charext:can not produce')
 END function charext
+
+character(64) function charli(iline,ndat)
+  integer:: iline(*),i,ndat
+  character(8):: charext
+  charli=''
+  do i=1, ndat
+     charli =trim(charli)//' '//trim(charext(iline(i)))
+  enddo
+  charli=adjustl(charli)
+END function charli
+
 character(3) function charnum3(num)
   integer(4) ::num
   charnum3 = &

@@ -94,6 +94,7 @@ module m_sxcf_main
   use m_sxcf_count,only: ncount,kxc,nstateMax,nstti,nstte,nstte2, nwxic, nwxc,icountini,icountend,irkip
   use m_nvfortran,only:findloc
   use m_hamindex,only: ngrp
+  use m_mem,only: writemem,datetime
   implicit none
   public sxcf_scz_correlation, sxcf_scz_exchange, zsecall
   complex(8),allocatable,target:: zsecall(:,:,:,:) !output
@@ -104,7 +105,7 @@ contains
     integer :: ip,it,itp,i,ix,kx,irot,kr,nt0p,nt0m,nstate,nbmax,ntqxx,nt,iw,ivc,ifvcoud,ngb0,ifwd,nrot,nwp,ierr,iqini,iqend
     integer :: invr,ia,nn,ntp0,no,itpp,nrec,itini,itend,nbmxe,iwp,nwxi,nwx,iir, igb1,igb2,ix0,isp,nspinmx
     integer :: invrot,nocc,nlmtobnd,nt0,verbose,ififr, istate, nt_max ,noccx,ns2r, kxold,nccc,icount0
-    integer:: ixx,ixc,icount,ns1,ns2,mnc,is1
+    integer:: izz,ixc,icount,ns1,ns2,mnc,is1
     real(8) :: ekc(nctot+nband),det,q(3),wfac,qvv(3),eq(nband),quu(3),ef,esmr,&
          freqw,ratio,qibz_k(3),qbz_kr(3),vc,omega0,omg, polinta, wexx,ua2_(niw),freqw1,q_r(3),qk(3)
     logical:: tote=.false., iprx,cmdopt0, oncew, onceww !, eibz4sig  
@@ -119,15 +120,15 @@ contains
     integer,allocatable :: ifrcw(:),ifrcwi(:),ndiv(:),nstatei(:,:),nstatee(:,:)!,irkip(:,:,:,:)
     logical,parameter:: cache=.true.
     logical:: emptyrun
-    real(8):: maxmem,memused
-    character(18):: datetime
+    real(8):: maxmem
+    character(8):: charext
     emptyrun=cmdopt0('--emptyrun')
     if(nw_i/=0) call rx('Current version we assume nw_i=0. Time-reversal symmetry')
     allocate(zsecall(ntq,ntq,nqibz,nspinmx),source=(0d0,0d0))
     if(ixc==3.and.nctot==0) return
     ! NOTE: sum for G\timesW is controlloed by irkip, icountini:icountend
     LoopScheduleCheck: block
-    ixx=0
+    izz=0
     kxloopX:                   do kx  =1,nqibz  
        irotloopX:              do irot=1,ngrp    
           iploopexternalX:     do ip=1,nqibz     
@@ -135,8 +136,8 @@ contains
                 kr = irkip(isp,kx,irot,ip)
                 if(kr==0) cycle
                 NMBATCHloopX: do icount = icountini(isp,ip,irot,kx),icountend(isp,ip,irot,kx) !batch of middle states.
-                   ixx=ixx+1
-                   write(stdo,ftox)'- kxloop Schedule ',ixx, ' iqibz irot ip isp icount=',kx,irot,ip,isp,icount
+                   izz=izz+1
+                   write(stdo,ftox)'- kxloop Schedule ',izz, ' iqibz irot ip isp icount=',kx,irot,ip,isp,icount
                 enddo NMBATCHloopX
              enddo isploopexternalX
           enddo iploopexternalX
@@ -144,7 +145,7 @@ contains
     enddo kxloopX
     end block LoopScheduleCheck
     kxold=-9999  ! To make MAINicountloop 3030 as parallel loop, set cache=.false.
-    ixx=0
+    izz=0
     KXloop:                   do kx  =1,nqibz   ! kx is irreducible !kx is main axis where we calculate W(kx).
 !      write(stdo,ftox)'KXloop: kx=',kx,'memused(GB) for each rank=',ftof(memused(),3),'DateTime=',datetime()
       qibz_k = qibz(:,kx)
@@ -169,14 +170,16 @@ contains
               nwxi=nwxic(icount) !minimum omega for W
               nwx =nwxc(icount)  !max omega for W
               ns2r=nstte2(icount) !Range of middle states [ns1:ns2r] for CorrelationSelfEnergyRealAxis
-              ZmelBlock:block !zmel(ib=ngb,it=ns1:ns2,itpp=1:ntqxx)= <M(qbz_kr,ib) phi(it,q-qbz_kr,isp) |phi(itpp,q,isp)> 
-                character(18):: datetime
+              ZmelBlock:block !zmel(ib=ngb,it=ns1:ns2,itpp=1:ntqxx)= <M(qbz_kr,ib) phi(it,q-qbz_kr,isp) |phi(itpp,q,isp)>
+                character(64):: charli
+                character(8)::charext
                 if(emptyrun) goto 1212
-                write(stdo,ftox)' -- running KXloop',ixx,'iqiqz irot ip isp icount=',kx,irot,ip,isp,icount,'DateTime=',datetime()
+                izz=izz+1
+                call writemem(' -- KXloop '//trim(charext(izz))//' iqiqz irot ip isp icount= '//&
+                     trim(charli([kx,irot,ip,isp,icount],5)))
                 call get_zmel_init(q,qibz_k,irot,qbz_kr, ns1,ns2,isp, 1,ntqxx, isp,nctot,ncc=0,iprx=debug,zmelconjg=.false.,&
                      maxmem=maxmem)
-                ixx=ixx+1
-                write(stdo,ftox)' --        end of zmel: Used MaxMem(GB)perRank@get_zmel=',ftof(maxmem,3),'DateTime=',datetime()
+                call writemem(' --        end of zmel')
 1212            continue
               endblock ZmelBlock
               call writemem('endof zmelblock')
@@ -210,7 +213,7 @@ contains
     integer :: ip,it,itp,i,ix,kx,irot,kr,nt0p,nt0m,nstate,nbmax,ntqxx,nt,iw,ivc,ifvcoud,ngb0,ifwd,nrot,nwp,ierr,iqini,iqend
     integer :: invr,ia,nn,ntp0,no,itpp,nrec,itini,itend,nbmxe,iwp,nwxi,nwx,iir, igb1,igb2,ix0,isp,nspinmx
     integer :: invrot,nocc,nlmtobnd,nt0,verbose,ififr, istate, nt_max ,noccx,ns2r, kxold,nccc,icount0
-    integer:: ixx,ixc,icount,ns1,ns2
+    integer:: ixx,ixc,icount,ns1,ns2,izz
     real(8) :: ekc(nctot+nband),det,q(3),wfac,qvv(3),eq(nband),omega(ntq),quu(3),ef,esmr,&
          freqw,ratio,qibz_k(3),qbz_kr(3),vc,omega0,omg, polinta, wexx,ua2_(niw),freqw1,q_r(3),qk(3)
     logical:: tote=.false., iprx,cmdopt0, oncew, onceww !, eibz4sig  
@@ -225,8 +228,7 @@ contains
     integer,allocatable :: ifrcw(:),ifrcwi(:),ndiv(:),nstatei(:,:),nstatee(:,:)!,irkip(:,:,:,:)
     logical,parameter:: cache=.true.
     logical:: emptyrun
-    real(8):: maxmem,memused
-    character(18):: datetime
+    real(8):: maxmem
     emptyrun=cmdopt0('--emptyrun')
     if(nw_i/=0) call rx('Current version we assume nw_i=0. Time-reversal symmetry')
     allocate(zsecall(ntq,ntq,nqibz,nspinmx),source=(0d0,0d0)) 
@@ -243,7 +245,7 @@ contains
      endif
     ! NOTE: sum for G\timesW is controlloed by irkip, icountini:icountend
     LoopScheduleCheck: block
-    ixx=0
+    izz=0
     kxloopX:                   do kx  =1,nqibz  
        irotloopX:              do irot=1,ngrp    
           iploopexternalX:     do ip=1,nqibz     
@@ -251,8 +253,8 @@ contains
                 kr = irkip(isp,kx,irot,ip)
                 if(kr==0) cycle
                 NMBATCHloopX: do icount = icountini(isp,ip,irot,kx),icountend(isp,ip,irot,kx) !batch of middle states.
-                   ixx=ixx+1
-                   write(stdo,ftox)'- KXloop Scheduling ',ixx,' iqiqz irot ip isp icount=',kx,irot,ip,isp,icount
+                   izz=izz+1
+                   write(stdo,ftox)'- KXloop Scheduling ',izz,' iqiqz irot ip isp icount=',kx,irot,ip,isp,icount
                 enddo NMBATCHloopX
              enddo isploopexternalX
           enddo iploopexternalX
@@ -261,7 +263,7 @@ contains
     end block LoopScheduleCheck
     ! NOTE: sum for G\timesW is controlloed by irkip, icountini:icountend
     kxold=-9999  ! To make MAINicountloop 3030 as parallel loop, set cache=.false.
-    ixx=0
+    izz=0
     kxloop:   do kx  =1,nqibz   ! kx is irreducible !kx is main axis where we calculate W(kx).
       qibz_k = qibz(:,kx)
       call Readvcoud(qibz_k,kx,NoVcou=.false.)  !Readin ngc,ngb,vcoud ! Coulomb matrix
@@ -289,27 +291,33 @@ contains
               nwx =nwxc(icount)   !max omega for W
               ns2r=nstte2(icount) !Range of middle states [ns1:ns2r] for CorrelationSelfEnergyRealAxis
               ZmelBlock:block !zmel(ib=ngb,it=ns1:ns2,itpp=1:ntqxx)= <M(qbz_kr,ib) phi(it,q-qbz_kr,isp) |phi(itpp,q,isp)>
-                character(18):: datetime
+                character(64)::charli
+                character(8)::charext
                 if(emptyrun) goto 1212
-                write(stdo,ftox)' -- running KXloop',ixx,'iqiqz irot ip isp icount=',kx,irot,ip,isp,icount,'DateTime=',datetime()
+                izz=izz+1
+                !                write(stdo,ftox)' -- running KXloop',izz,'iqiqz irot ip isp icount=',kx,irot,ip,isp,icount,'DateTime=',datetime()
+                call writemem(' -- KXloop '//trim(charext(izz))//' iqiqz irot ip isp icount= '//&
+                     trim(charli([kx,irot,ip,isp,icount],5)))
                 call get_zmel_init(q,qibz_k,irot,qbz_kr, ns1,ns2,isp, 1,ntqxx, isp,nctot,ncc=0,iprx=debug,zmelconjg=.false.,&
                      maxmem=maxmem)
-                ixx=ixx+1
-                write(stdo,ftox)' --        end of zmel Used MaxMem(GB)perRank@get_zmel=',ftof(maxmem,3),'DateTime=',datetime()
+!                write(stdo,ftox)' --        end of zmel Used MaxMem(GB)perRank@get_zmel=',ftof(maxmem,3),'DateTime=',datetime()
+                call writemem(' --        end of zmel')
 1212            continue 
               endblock ZmelBlock
+              call writemem('endof zmelblock')
               CorrelationMode: Block! See Eq.(55) around of PRB76,165106 (2007) !range of middle states is [ns1:ns2]
                 integer:: nm
-                complex(8):: zmelc  (1:ntqxx,ns1:ns2,1:ngb)
                 complex(8):: zmelcww(1:ntqxx,ns1:ns2,1:ngb)
+                complex(8):: zmelc  (1:ntqxx,ns1:ns2,1:ngb)
                 !write(6,*)'xxxxxxxxxx',shape(zmelc),'xxxxxxxxxx',shape(zmel)
-                if(.not.emptyrun) zmelc = reshape(dconjg(zmel),shape=shape(zmelc),order=[3,2,1]) 
                 if(timemix) call timeshow(" CorrelationSelfEnergyImagAxis:")
+                call writemem('Goto CorrelationSelfEnergyImagAxis')
                 CorrelationSelfEnergyImagAxis:Block !Fig.1 PHYSICAL REVIEW B76, 165106(2007)!Integration along ImAxis for zwz(omega) 
                   use m_readfreq_r,only: wt=>wwx,x=>freqx
                   real(8),parameter:: rmax=2d0
                   real(8):: wgtim_(0:npm*niw),wgtim(0:npm*niw,ntqxx,ns1:ns2),we,cons(niw),omd(niw),omd2w(niw)
                   complex(8),target:: zw(nblochpmx,nblochpmx)!,zwz(ns1:ns2,ntqxx,ntqxx)
+                  character(8):: charext
                   itpitdo:do concurrent(itp =1:ntqxx, it=ns1:ns2)
                     we=.5d0*(omega(itp)-ekc(it)) !we is in hartree unit (atomic unit=2Rydberg)
                     associate(sig=>.5d0*esmr, sig2=>2d0*(.5d0*esmr)**2, aw=>abs(ua_*we), aw2=>(ua_*we)**2)
@@ -333,16 +341,21 @@ contains
                     endassociate
                     wgtim(:,itp,it)=wk(kr)*wgtim_ !! Integration weight wgtim along im axis for zwz(0:niw*npm)
                   enddo itpitdo
+                  call writemem('before zmelc')
+                  if(.not.emptyrun) zmelc = reshape(dconjg(zmel),shape=shape(zmelc),order=[3,2,1]) 
                   zmelcww=0d0
+                  call writemem('goto iwimag')
                   iwimag:do ixx=0,niw !niw is ~10. ixx=0 is for omega=0 nw_i=0 (Time reversal) or nw_i =-nw
                     if(emptyrun) cycle
+                    call writemem('iwimag ixx niw='//trim(charext(ixx))//' '//trim(charext(niw))//&
+                         ' matmaw dim= '//trim(charext(ntqxx*(ns2-ns1+1)))//' '//trim(charext(ngb))//' '//trim(charext(ngb)))
                     if(ixx==0)read(ifrcw(kx),rec=1+(0-nw_i)) zw !direct access Wc(0) = W(0)-v ! nw_i=0 (Time reversal) or nw_i =-nw
                     if(ixx>0) read(ifrcwi(kx),rec=ixx) zw       ! direct access read Wc(i*omega)=W(i*omega)-v
                     ww=>zw(1:ngb,1:ngb)
                     call matmaw(zmelc,ww,zmelcww, ntqxx*(ns2-ns1+1),ngb,ngb, wgtim(ixx,:,:)) ! time-consuming
                   enddo iwimag
                 EndBlock CorrelationSelfEnergyImagAxis
-                call writemem('endof CorrelationSelfEnergyImagAxis')
+                call writemem('endof CorrelationSelfEnergyImagAxis          ')
                 CorrelationSelfEnergyRealAxis: Block !Real Axis integral. Fig.1 PHYSICAL REVIEW B 76, 165106(2007)
                   use m_wfac,only: wfacx2, weavx2
                   integer:: itini,itend
@@ -353,8 +366,9 @@ contains
                   complex(8):: zadd(ntqxx),wv3(ngb,ngb,0:2)
                   logical:: itc(ns1:ns2r,nwxi:nwx,ntqxx)
                   if(timemix) call timeshow(" CorrelationSelfEnergyRealAxis:")
+                  call writemem('Goto itploop in CorrelationSelfEnergyRealAxis')
                   itc=.false.
-                  do concurrent(itp=1:ntqxx)
+                  itploop: do concurrent(itp=1:ntqxx)
                     omg  = omega(itp)
                     itini= merge(max(ns1,nt0m+1),  ns1, omg>=ef)
                     itend= merge(ns2r,  min(nt0p,ns2r), omg>=ef)
@@ -373,10 +387,11 @@ contains
                         wgt3(:,it,itp)= wfac_(it,itp)*matmul([1d0,x**2,x**4], inverse33(amat)) 
                       endassociate
                     enddo
-                  enddo
+                 enddo itploop
                   !iirx=1 !where(omega<ef.and.nw_i/=0) iirx=-1 ! iirx=-1(TR breaking) is not yet implemented!
+                  call writemem('goto ixloop')
                   ikeep=99999
-                  do ix = nwxi,nwx  
+                  ixloop: do ix = nwxi,nwx  
                     if(all(.not.itc(:,ix,:))) cycle 
                     irs=0
                     if(cache) then ! use wv3 at previous ix. a cache mechanism, notefficient?
@@ -403,10 +418,10 @@ contains
                              wv3(:,:,0)*wgt3(0,it,itp) +wv3(:,:,1)*wgt3(1,it,itp) +wv3(:,:,2)*wgt3(2,it,itp) ) !time-consuming
                       enddo
                     enddo
-                  enddo
+                 enddo ixloop
                   if(timemix) call timeshow(" End of CorrelationSelfEnergyRealAxis:")
                 EndBlock CorrelationSelfEnergyRealAxis
-                call writemem('endof CorrelationSelfEnergyRealAxis')
+                call writemem('endof CorrSEnergyRealAxis')
                 nm = (ns2-ns1+1)*ngb
                 if(emptyrun) return
                 zsec= zsec+ matmul(reshape(zmelcww,[ntqxx,nm]),reshape(&
