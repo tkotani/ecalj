@@ -3,7 +3,7 @@ module m_x0kf
   use m_lgunit,only: stdo
   use m_keyvalue,only : Getkeyvalue
   use m_pkm4crpa,only : Readpkm4crpa
-  use m_zmel,only: Get_zmel_init, get_zmel_init_gpu, zmel !,get_zmel_init1,get_zmel_init2
+  use m_zmel,only: Get_zmel_init, get_zmel_init_gemm, zmel !,get_zmel_init1,get_zmel_init2
   use m_freq,only: npm, nwhis
   use m_genallcf_v3,only:  nsp=>nspin ,nlmto,nctot
   use m_read_bzdata,only:  nqbz,ginv,nqibz,  rk=>qbz,wk=>wbz
@@ -136,7 +136,7 @@ contains
     logical:: cmdopt0, GPUTEST
     type(stopwatch) :: t_sw_zmel, t_sw_x0
     qq=q
-    GPUTEST = cmdopt0('--gpu')
+    GPUTEST = .true. !cmdopt0('--gpu')
 
     ipr_col = mpi__ipr_col(mpi__rank_b) ! start index of column on xq for product basis set
     npr_col = mpi__npr_col(mpi__rank_b) ! number of columns on xq
@@ -231,11 +231,11 @@ contains
             if(use_gpu) then
               !Currently, mpi version of get_zmel_init_gpu which is available by adding comm argument for MPI communicator,
               !but, MPI communication is significant bottle-neck in the case where GPUs are used. Therefore, it is only used in without GPU case.
-              call get_zmel_init_gpu(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
+              call get_zmel_init_gemm(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
                    nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., &
                    zmelconjg=.true.)
             else
-              call get_zmel_init_gpu(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
+              call get_zmel_init_gemm(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
                    nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., &
                    zmelconjg=.true., comm = comm_b)
             endif
@@ -325,7 +325,7 @@ contains
 !         nqini=nkqmin(k), nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1), iprx=.false., zmelconjg=.true.)
     if (present(GPUTEST)) then
       if (GPUTEST) then
-        call get_zmel_init_gpu(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
+        call get_zmel_init_gemm(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
              nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., zmelconjg=.true.)
        !$acc update host(zmel)
       endif

@@ -13,7 +13,7 @@ module m_zmel
   use m_lgunit,only:stdo
   use m_MPItk,only:master_mpi
   use m_mem,only: memused,writemem
-  public:: get_zmel_init_gpu,get_zmel_init, Mptauof_zmel,Setppovlz,Setppovlz_chipm!,get_zmel_init1,get_zmel_init2 ! Call mptauof_zmel and setppovlz in advance to get_zmel_init
+  public:: get_zmel_init_gemm,get_zmel_init, Mptauof_zmel,Setppovlz,Setppovlz_chipm!,get_zmel_init1,get_zmel_init2 ! Call mptauof_zmel and setppovlz in advance to get_zmel_init
   complex(8),allocatable,protected,public :: zmel(:,:,:) ! OUTPUT: zmel(nbb,nmtot, nqtot) ,nbb:mixproductbasis, nmtot:middlestate, nqtot:endstate
   !private
   integer,protected:: nbb 
@@ -237,7 +237,7 @@ contains
     imdim = [( sum(nblocha(iclass(1:ia-1)))+1  ,ia=1,natom)]
     iasx=[(sum(nlnmv(iclass(1:ia-1)))+1,ia=1,natom)] !offset counter
     icsx=[(sum(ncore(iclass(1:ia-1))),ia=1,natom)]
-    if(debug) write(stdo,ftox)'qqqqqqqq',nbloch,ngc,nm1,nm2,nqtot
+    if(debug) write(stdo,ftox)'qqqqqqqq org',nbloch,ngc,nm1,nm2,nqtot
     ZmelBlock:block
       complex(8):: zmelt(1:nbloch+ngc,nm1:nm2,nqtot)
       logical ::oncewrite
@@ -268,13 +268,13 @@ contains
                tdcphiqk=> transpose(dconjg(cphim(ias:iae,nm1v:nm2v))),&
                cphiq   => cphiq(ias:iae,nqini:nqmax),&
                ppbc    => ppb(nc1:ncnv,icore(1:ncorec,ic),:,icp)) !all readin but we need only bands nm1: or nqini:
-            if(nm2v>=nm1v) then           
+            ValenceValence:if(nm2v>=nm1v) then           
                do concurrent(i=1:mdim)    !valence-valence  !=== this may be time-consuming block ==================
                   zmelt(i-1+ims, nm1v:nm2v,ncc+1:ncc+ntp0)=phasea(ia) &
                        *matmul(tdcphiqk,matmul(transpose(ppb(nc1:ncnv,nc1:ncnv,i,icp)),cphiq))
                enddo
-            endif
-            if(nm2c>=nm1c) then
+            endif ValenceValence
+            CoreValence: if(nm2c>=nm1c) then
                do concurrent(it=1:ncorec) !core-valence
                   if(nm1c<=ics+it.and.ics+it<=nm2c) then
                      zmelt(ims:ime, ics+it, ncc+1:ncc+ntp0)=phasea(ia)* matmul(transpose(ppbc(:,it,1:mdim)),cphiq(:,1:ntp0))
@@ -283,7 +283,7 @@ contains
                do concurrent(itp=1:nccc)  !valence-core
                   zmelt(ims:ime, nm1v:nm2v, ics+itp)=phasea(ia)*matmul(transpose(ppbc(:,itp,1:mdim)),dcphiqk(:,nm1v:nm2v)) !1:nt0))
                enddo                              !^^^^^^^^^phasea(ia) right? 2024-1-7 or phasea(ia) or dcongj(phasea(ia))?
-            endif
+            endif CoreValence
           endassociate
         enddo iatomloop
       endblock ZmelWithinMT
@@ -334,7 +334,7 @@ contains
     endblock ZmelBlock
   end subroutine get_zmel_init
 
-  subroutine get_zmel_init_gpu(q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc,  & ! get_zmel_init for blas/cuBLAS by M. Obata 2024-05-18
+  subroutine get_zmel_init_gemm(q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc,  & ! get_zmel_init for blas/cuBLAS by M. Obata 2024-05-18
        iprx,zmelconjg,comm,maxmem)
     use m_readeigen,only: readcphif 
     use m_readeigen,only: readgeigf
@@ -351,23 +351,19 @@ contains
     integer, optional, intent(in) :: comm
     real(8), parameter::tolq=1d-8
     complex(8), parameter:: img=(0d0,1d0),tpi= 8d0*datan(1d0)
-    integer:: ns1, ns2, nqmax, irot, ispq, ispm, nqini, nctot, ncc, ncnv, ncorec, nccc, mdim
-    integer:: it, ia
+    integer:: ns1, ns2, nqmax, irot, ispq, ispm, nqini, nctot, ncc, ncnv, ncorec, nccc, mdim, it, ia
     integer:: ngp1, ngp2, ngvecpB1(3,ngpmx),ngvecpB2(3,ngpmx),nadd(3)
     integer:: i,iap,ias,ib,ic,icp,nc,nc1,nv,ics,itp,iae,ims,ime
     real(8):: quu(3),q(3), kvec(3),rkvec(3),qkt(3),qt(3), qdiff(3)
     real(8) :: ppb(nlnmx,nlnmx,mdimx,nclass) ! ppb= <Phi(SLn,r-R)_q,isp1 |Phi(SL'n',r-R)_qk,isp2 B_k(S,i,rot^{-1}(r-R))>
-    logical:: iprx
-    logical:: zmelconjg
+    logical:: iprx,zmelconjg,debug,cmdopt0
     integer,allocatable:: ngveccR(:,:)
     complex(8)::cphiq(nlmto,nband), cphim(nlmto,nband)
     complex(8),allocatable:: geigq(:,:),dgeigqk(:,:)
-    integer:: nmini, nmmax,invr,nt0,ntp0,nmtot,nqtot
+    integer:: invr,nt0,ntp0,nmtot,nqtot
     integer:: iasx(natom),icsx(natom),iatomp(natom),imdim(natom)
-    real(8)::tr(3,natom)
-    real(8)::qk(3),symope(3,3),shtv(3)
-    integer :: ierr
-    integer :: nqini_rank, nqmax_rank, ntp0_rank 
+    real(8)::tr(3,natom),qk(3),symope(3,3),shtv(3)
+    integer :: ierr, nqini_rank, nqmax_rank, ntp0_rank ,nm1,nm2,nm1c,nm2c,nm1v,nm2v,nm1cc,nm2cc
     integer :: mpi_rank, mpi_size, ini_index, end_index, num_index, mpi_info, irank
     real(8),optional::maxmem
     complex(kind=kp), parameter :: CONE = (1_kp, 0_kp), CZERO = (0_kp, 0_kp)
@@ -382,10 +378,37 @@ contains
 #endif
       deallocate(zmel)
     endif
-
+    nm1=ns1
+    nm2=ns2
+    debug=cmdopt0('--debugzmel')
+    nmtot = nm2-nm1+1 
+    if(nm1>nctot) then !skip core 
+       nm1c=0
+       nm2c=-1
+       nm1v=nm1
+       nm2v=nm2
+    elseif(nm2>nctot) then
+       nm1c=nm1
+       nm2c=nctot
+       nm1v=nctot+1
+       nm2v=nm2
+    else !skip valence
+       nm1c=nm1
+       nm2c=nm2
+       nm1v=0
+       nm2v=-1
+    endif   
+    !! For given range of band index nm1;nm2, We now get nm1v:nmv2 and nm1c:nm2c, which are range of valence and core index.
+    !! Note that band index is nctot+nvalence order.
+    ntp0   = nqmax-nqini+1
+    nqtot  = ncc + ntp0    ! = phi_end
+    ini_index = 1
+    end_index = ntp0
+    nqini_rank = nqini
+    nqmax_rank = nqmax
     SetByCPU :block
       qk =  q - rkvec ! qk = q-rk. rk is inside 1st BZ, not restricted to the irreducible BZ
-      associate(cphitemp=> readcphif(q,ispq))    
+      associate(cphitemp=> readcphif(q,ispq))
         cphiq(1:nlmto,1:ntq) = cphitemp(1:nlmto,itq(1:ntq)) 
       endassociate
       cphim = readcphif(qk, ispm) 
@@ -420,16 +443,6 @@ contains
       imdim = [( sum(nblocha(iclass(1:ia-1)))+1  ,ia=1,natom)]
       iasx=[(sum(nlnmv(iclass(1:ia-1)))+1,ia=1,natom)]
       icsx=[(sum(ncore(iclass(1:ia-1))),ia=1,natom)]
-      nmini = ns1          !starting index of middle state  (nctot+nvalence order)
-      nmmax = ns2-nctot    !end      index of middle state  (nctot+nvalence order)
-      nt0= nmmax-nmini+1
-      ntp0=nqmax-nqini+1
-      nmtot  = nctot + nt0     ! = phi_middle nmtot=ns2-ns1+1
-      nqtot  = ncc   + ntp0    ! = phi_end
-      ini_index = 1
-      end_index = ntp0
-      nqini_rank = nqini
-      nqmax_rank = nqmax
       if(present(comm)) then
         call mpi_comm_rank(comm, mpi_rank, mpi_info)
         call mpi_comm_size(comm, mpi_size, mpi_info)
@@ -439,15 +452,15 @@ contains
         nqmax_rank = nqini + end_index - 1
       endif
     end block SetByCPU
-
+    if(debug) write(stdo,ftox)'zmel_init gpu',nbloch,ngc,nm1,nm2,nqtot
     ZmelBlock:block
       complex(8), allocatable :: zmelt_d(:,:,:), zmelt(:,:,:)
 #ifdef __GPU
       attributes(device) :: zmelt, zmelt_d
 #endif
-      allocate(zmelt(1:nbloch+ngc,1:nmtot,1:nqtot))
+      allocate(zmelt(1:nbloch+ngc,nm1:nm2,1:nqtot))
 !$acc kernels
-      zmelt(1:nbloch+ngc,1:nmtot,1:nqtot) = czero
+      zmelt(1:nbloch+ngc,nm1:nm2,1:nqtot) = czero
 !$acc end kernels
       ZmelWithinMT: block !- Calculates <psi_q(itp) |psi_qk(it) B_k(rot(r-R))> 
         complex(8):: phasea(natom) 
@@ -471,76 +484,80 @@ contains
           ime   = ims-1+nblocha(icp)
           mdim  = nblocha(icp)
           ncorec= merge(ncore(ic),0,nctot>0)
-          nccc  = merge(ncore(ic),0,ncc>0)
-
-          !copy from CPU to GPU
-          if (nt0 > 0) allocate(cphim_d(nv,nt0), source = cphim(ias:iae,nmini:nmmax))
-          allocate(cphiq_d(nv,ntp0), source = cphiq(ias:iae,nqini_rank:nqmax_rank))
-          ! valence-valence part
-          if (nt0 > 0) then
+          if(ncc/=0) call rx('ncc/=0 get_zmel_init: Not implemented nccc=0 yet')
+!          nccc  = merge(ncore(ic),0,ncc>0) !ncc is expected to be zero
+          if (nm2v>=nm1v) allocate(cphim_d(nv,nm1v:nm2v), source= cphim(ias:iae,nm1v:nm2v)) !copy from CPU to GPU
+          allocate(                cphiq_d(nv,ntp0),      source= cphiq(ias:iae,nqini_rank:nqmax_rank))
+          ValenceValence: if (nm2v>=nm1v) then 
             allocate(ppbvphiq_d(nv,ntp0,mdim))
-            allocate(zmelt_d(nt0,ntp0,mdim))
-            allocate(ppbv_d(nv,nv,mdim))
+            allocate(   zmelt_d(nm1v:nm2v,ntp0,mdim))
+            allocate(    ppbv_d(nv,nv,mdim))
             !$acc kernels
             ppbv_d(1:nv,1:nv,1:mdim) = dcmplx(ppb(nc1:ncnv,nc1:ncnv,1:mdim,icp)) 
             !$acc end kernels
-
-            ierr = gemm_batch(ppbv_d, cphiq_d, ppbvphiq_d, nv, ntp0, nv, mdim, opA = m_op_T, sameB = .true.)
-            ierr = gemm_batch(cphim_d, ppbvphiq_d, zmelt_d, nt0, ntp0, nv, mdim, alpha = phasea(ia), opA = m_op_C, sameA = .true.)
+            ierr=gemm_batch(ppbv_d, cphiq_d, ppbvphiq_d, M=nv,N=ntp0,K=nv,          &
+                 NBATCH=mdim,                    opA=m_op_T, sameB=.true.)
+            ierr=gemm_batch(cphim_d,ppbvphiq_d, zmelt_d, M=nm2v-nm1v+1,N=ntp0,K=nv, &
+                 NBATCH=mdim, alpha = phasea(ia),opA=m_op_C, sameA=.true.)
             !$acc kernels
             do i = 1, mdim
-              zmelt(i-1+ims,nctot+1:nctot+nt0,ncc+1:ncc+ntp0) = zmelt_d(1:nt0,1:ntp0,i)
+              zmelt(i-1+ims,nm1v:nm2v,ncc+1:ncc+ntp0) = zmelt_d(nm1v:nm2v,1:ntp0,i)
             enddo
             !$acc end kernels
             deallocate(zmelt_d, ppbvphiq_d, ppbv_d)
-          endif
-          ! core-valence part used in core-exchange mode
-          if (ncorec > 0) then
-            allocate(zmelt_d(mdim,ntp0,ncorec), ppbc_d(mdim,nv,ncorec))
+          endif ValenceValence
+          nm1cc = max(nm1c,ics+1)        !core index range between [nm1c,nm2c]. This corresponds to  nm1cc:nm2cc for atom ia.
+          nm2cc=  min(nm2c,ics+ncorec)
+!          write(6,*)'ia nm1cc nm2cc=',ia, nm1cc,nm2cc,ntp0,ncc,mdim
+          CoreValence: if(nm2cc>=nm1cc) then 
+            allocate(zmelt_d(mdim,ntp0,nm1cc:nm2cc), ppbc_d(mdim,nv,nm1cc:nm2cc))
             !$acc kernels
             do i = 1, mdim
-              ppbc_d(i,1:nv,1:ncorec) = dcmplx(ppb(nc1:ncnv,1:ncorec,i,icp))
+              ppbc_d(i,1:nv,nm1cc:nm2cc) = dcmplx(ppb(nc1:ncnv,nm1cc-ics:nm2cc-ics,i,icp))
             enddo
             !$acc end kernels
-            ierr = gemm_batch(ppbc_d, cphiq_d, zmelt_d, mdim, ntp0, nv, ncorec, alpha = phasea(ia), sameB = .true.)
+            ierr = gemm_batch(ppbc_d,cphiq_d,zmelt_d, M=mdim,N=ntp0,K=nv,NBATCH=nm2cc-nm1cc+1, alpha=phasea(ia), sameB = .true.)
             !$acc kernels
-            do it = 1, ncorec
-              zmelt(ims:ime,ics+it,ncc+1:ncc+ntp0) = zmelt_d(1:mdim,1:ntp0,it)
+            do it = nm1cc,nm2cc
+               zmelt(ims:ime,it,ncc+1:ncc+ntp0) = zmelt_d(1:mdim,1:ntp0,it)
             enddo
             !$acc end kernels
             deallocate(zmelt_d)
-          endif
-          !(MO) valence-core part NOT TESTED
-          if(nt0 > 0 .and. nccc > 0) then
-            allocate(zmelt_d(mdim,nt0,nccc))
-            if (.not.allocated(cphim_d)) allocate(cphim_d(nv,nt0), source = cphim(ias:iae,nmini:nmmax)) ! this may be unnecessary
-            if (allocated(ppbc_d)) deallocate(ppbc_d)
-            allocate(ppbc_d(mdim,nv,nccc))
-            !$acc kernels
-            do i = 1, mdim
-              ppbc_d(i,1:nv,1:nccc) = dcmplx(ppb(nc1:ncnv,1:nccc,i,icp))
-            enddo
-            !$acc end kernels
-            ierr = gemm_batch(ppbc_d, cphim_d, zmelt_d, mdim, nt0, nv, nccc, alpha = phasea(ia), sameB = .true.)
-            !$acc kernels
-            do itp = 1, nccc
-              zmelt(ims:ime,nctot+1:nctot+nt0,ics+itp) = zmelt_d(1:mdim,1:nt0,itp)
-            enddo
-            !$acc end kernels
-            deallocate(zmelt_d)
-          endif
-
+!            write(6,*)'xxxxxxx ia nm1cc nm2ccxxx =',ia, nm1cc,nm2cc,sum(abs(zmelt(ims:ime,nm1cc:nm2cc,ncc+1:ncc+ntp0)))
+          endif CoreValence
+          ! !(MO) valence-core part NOT TESTED
+          if(ncc>0) call rx('m_zmel_init: not yet ncc>0')
+         !  ValenceCore: if(nt0 > 0 .and. nccc > 0) then
+         !    allocate(zmelt_d(mdim,nt0,nccc))
+         !    if (.not.allocated(cphim_d)) allocate(cphim_d(nv,nt0), source = cphim(ias:iae,nmini:nmmax)) ! this may be unnecessary
+         !    if (allocated(ppbc_d)) deallocate(ppbc_d)
+         !    allocate(ppbc_d(mdim,nv,nccc))
+         !    !$acc kernels
+         !    do i = 1, mdim
+         !      ppbc_d(i,1:nv,1:nccc) = dcmplx(ppb(nc1:ncnv,1:nccc,i,icp))
+         !    enddo
+         !    !$acc end kernels
+         !    ierr = gemm_batch(ppbc_d, cphim_d, zmelt_d, mdim, nt0, nv, nccc, alpha = phasea(ia), sameB = .true.)
+         !    !$acc kernels
+         !    do itp = 1, nccc
+         !      zmelt(ims:ime,nctot+1:nctot+nt0,ics+itp) = zmelt_d(1:mdim,1:nt0,itp)
+          !    enddo
+         !    !$acc end kernels
+         !    deallocate(zmelt_d)
+         !  endif ValenceCore
           if (allocated(cphim_d)) deallocate(cphim_d)
           if (allocated(ppbc_d)) deallocate(ppbc_d)
           deallocate(cphiq_d)
         enddo iatomloop
       endblock ZmelWithinMT
-
-      if(ngc/=0 .and. nt0 > 0)then
+      ZmelIPWif: if(ngc/=0 .and. nm1v<=nm2v)then
         ZmelIPW:block  !> Mattrix elements <Plane psi |psi> from interstitial plane wave.
           use m_read_ppovl,only:igggi,igcgp2i,nxi,nxe,nyi,nye,nzi,nze,nvgcgp2,ngcgp,ggg,ppovlinv,nnxi,nnxe,nnyi,nnye,nnzi,nnze,nggg
           integer:: igcgp2,nn(3), iggg, igp1, itp, igc, igp2, igcgp2i_(ngc,ngp2)
-          complex(8):: zmelp0(ngc,nt0,ntp0),phase(ngc), ggitp(ngcgp,ntp0), gggmat(ngcgp,ngp1), ggitp_work(ngc, ngp2)
+
+          
+          complex(8):: zmelp0(ngc,nm1v:nm2v,ntp0),phase(ngc)
+          complex(8):: ggitp(ngcgp,ntp0), gggmat(ngcgp,ngp1), ggitp_work(ngc, ngp2)
 #ifdef __GPU
           attributes(device) :: zmelp0, ggitp, gggmat, ggitp_work, igcgp2i_, nn
 #endif
@@ -566,7 +583,6 @@ contains
           enddo
           !$acc end kernels
           ierr = gemm(gggmat, geigq(1,itq(nqini_rank)), ggitp, ngcgp, ntp0, ngp1, ldB = ngpmx)
-
           do itp = 1, ntp0
             !$acc kernels loop independent collapse(2)
             do igp2 = 1, ngp2
@@ -575,25 +591,24 @@ contains
               enddo
             enddo
             !$acc end kernels
-            ierr = gemm(ggitp_work, dgeigqk(1,nmini), zmelp0(1,1,itp), ngc, nt0, ngp2, ldB = ngpmx)
+            ierr = gemm(ggitp_work, dgeigqk(1,nm1v), zmelp0(1,1,itp), ngc, nm2v-nm1v+1, ngp2, ldB = ngpmx)
           enddo
           !$acc kernels
           do igc = 1, ngc
-            zmelp0(igc,1:nt0,1:ntp0) = phase(igc)*zmelp0(igc,1:nt0,1:ntp0)
+            zmelp0(igc,nm1v:nm2v,1:ntp0) = phase(igc)*zmelp0(igc,nm1v:nm2v,1:ntp0)
           enddo
           !$acc end kernels
-          allocate(zmelt_d(ngc,nt0,ntp0))
-          ierr = gemm(ppovlinv, zmelp0, zmelt_d, ngc, ntp0*nt0, ngc) 
+          allocate(zmelt_d(ngc,nm1v:nm2v,ntp0))
+          ierr = gemm(ppovlinv, zmelp0, zmelt_d, ngc, ntp0*nmtot, ngc) 
           !$acc kernels
-          zmelt(nbloch+1:nbloch+ngc,nctot+1:nctot+nt0,ncc+1:ncc+ntp0) = zmelt_d(1:ngc,1:nt0,1:ntp0)
+          zmelt(nbloch+1:nbloch+ngc,nm1v:nm2v,ncc+1:ncc+ntp0) = zmelt_d(1:ngc,nm1v:nm2v,1:ntp0)
           !$acc end kernels
           !$acc end data
           deallocate(zmelt_d)
         endblock ZmelIPW
-      endif
+     endif ZmelIPWif
       allocate(zmel(nbb,ns1:ns2,nqtot))
       !$acc enter data create(zmel)
-
       !$acc host_data use_device(zmel)
       !$acc data copyin(ppovlz(1:ngb,1:nbb))
       ierr = gemm(ppovlz, zmelt, zmel(1,ns1,1), nbb, nmtot*ncc, ngb, opA = m_op_C)
@@ -630,7 +645,7 @@ contains
           !$acc update device(zmel)
           deallocate(zmel_buf, data_size, data_disp)
         end block
-      endif
+     endif
       if(zmelconjg) then
         !$acc kernels
         zmel = dconjg(zmel)
@@ -639,6 +654,5 @@ contains
       if(present(maxmem)) maxmem=memused() ! MaxUsed memory in GB 
       deallocate(zmelt)
     endblock ZmelBlock
-  end subroutine get_zmel_init_gpu
-
+  end subroutine get_zmel_init_gemm
 end module m_zmel

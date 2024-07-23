@@ -1,6 +1,6 @@
-module m_sxcf_gpu
+module m_sxcf_gemm
   use m_readeigen, only: Readeval
-  use m_zmel, only: get_zmel_init => get_zmel_init_gpu, Setppovlz, zmel, nbb
+  use m_zmel, only: get_zmel_init => get_zmel_init_gemm, Setppovlz, zmel, nbb
   use m_itq, only: itq, ntq, nbandmx
   use m_genallcf_v3, only: nlmto, nspin, nctot, niw, ecore !,symgg
   use m_read_bzdata, only: qibz, qbz, wk=>wbz, nqibz, nqbz, wklm, lxklm, wqt=>wt
@@ -500,4 +500,4 @@ contains
     c(2)=a(3)*b(1)-a(1)*b(3)
     c(3)=a(1)*b(2)-a(2)*b(1)
   end function crossf
-endmodule m_sxcf_gpu
+endmodule m_sxcf_gemm

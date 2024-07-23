@@ -79,7 +79,7 @@ module m_sxcf_main
   use m_readqg,only   : Readqg0
   use m_readeigen,only: Readeval
   use m_keyvalue,only   : Getkeyvalue
-  use m_zmel,only : Get_zmel_init => get_zmel_init_gpu, Setppovlz,  zmel !Setppovlz_chipm,
+  use m_zmel,only : Get_zmel_init => get_zmel_init_gemm, Setppovlz,  zmel !Setppovlz_chipm,
   use m_itq,only: itq,ntq,nbandmx
   use m_genallcf_v3,only: nlmto,nspin,nctot,niw,ecore !,symgg
   use m_read_bzdata,only: qibz,qbz,wk=>wbz,nqibz,nqbz,wklm,lxklm,nq0i, wqt=>wt,q0i, irk
@@ -175,8 +175,8 @@ contains
                 character(8)::charext
                 if(emptyrun) goto 1212
                 izz=izz+1
-                call writemem(' -- KXloop '//trim(charext(izz))//' iqiqz irot ip isp icount= '//&
-                     trim(charli([kx,irot,ip,isp,icount],5)))
+                call writemem(' -- KXloop '//trim(charext(izz))//' iqiqz irot ip isp icount ns1:ns2= '//&
+                     trim(charli([kx,irot,ip,isp,icount,ns1,ns2],7)))
                 call get_zmel_init(q,qibz_k,irot,qbz_kr, ns1,ns2,isp, 1,ntqxx, isp,nctot,ncc=0,iprx=debug,zmelconjg=.false.,&
                      maxmem=maxmem)
                 !call writemem(' --        end of zmel')

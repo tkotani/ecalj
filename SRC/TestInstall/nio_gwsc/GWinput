@@ -1,3 +1,4 @@
+nmbatch 0.001
 !!! Starting from ! (or nonkeyword) is comment line !!! 
 !!! Each lines consists of "keyword value(s)"  !!! 
 !!! Each tag section in <...>... </...> has its own format. !!! 

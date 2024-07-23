@@ -23,8 +23,10 @@ epath=os.path.dirname(os.path.abspath(__file__))
 #    ncore2=int(args.np2)
 #else:
 # options
-option=' --gpu --keepwv '
-option=' --gpu '
+#option=' --gpu --keepwv '
+#option=' --gpu '
+option=' --keepwv '
+option=' '
 if args.phispinsym==True: option= option+ ' --phispinsym '
 if args.emptyrun  ==True: option= option+ ' --emptyrun '
 option = ' '+option+' '.join(unknown)+' '
