@@ -81,7 +81,8 @@ subroutine hsfp0_sc()
   logical:: legas, exonly, iprintx,diagonly=.false.,exchange, hermitianW=.true.
 !  integer,allocatable:: irkip(:,:,:,:), nrkip(:,:,:,:)
   real(8),allocatable:: vxcfp(:,:,:), eqt(:), eq(:), eqx(:,:,:),eqx0(:,:,:)
-  complex(8),pointer::zsec(:,:,:)
+  !complex(8),pointer::zsec(:,:,:)
+  complex(8),allocatable:: zsec(:,:,:)
   InitializationBlock:block
     use m_readfreq_r,only:  Readfreq_r
     use m_hamindex,only:    Readhamindex, symgg=>symops,ngrp
@@ -202,19 +203,23 @@ subroutine hsfp0_sc()
   ! Remove eibzmode symmetrizer 2023Jan22
   !call Seteibzhs(nspinmx,nq,qibz,iprintx=MPI__root)
   Main4SelfEnergy: Block !time-consuming part Need highly paralellized
-    use m_sxcf_main,only: sxcf_scz_correlation,sxcf_scz_exchange
-    use m_sxcf_gemm,only: sxcf_scz_correlation_gemm => sxcf_scz_correlation , sxcf_scz_exchange_gemm => sxcf_scz_exchange
-    logical:: use_original, cmdopt0
-    use_original = cmdopt0('--oldsxcf') !2024-7-23
-    if(use_original) then  
-      write(stdo,ftox)'original old version'
-      if(exchange)      call sxcf_scz_exchange   (ef,esmr,ixc,nspinmx) !main part of job
-      if(.not.exchange) call sxcf_scz_correlation(ef,esmr,ixc,nspinmx) !main part of job
-    else
-      write(stdo,ftox) 'gemm version'
-      if(exchange)      call sxcf_scz_exchange_gemm   (ef,esmr,ixc,nspinmx) !main part of job
-      if(.not.exchange) call sxcf_scz_correlation_gemm(ef,esmr,ixc,nspinmx) !main part of job
-    endif
+    ! use m_sxcf_main,only: sxcf_scz_correlation,sxcf_scz_exchange
+    ! use m_sxcf_gemm,only: sxcf_scz_correlation_gemm => sxcf_scz_correlation, sxcf_scz_exchange_gemm => sxcf_scz_exchange
+    ! logical:: use_original, cmdopt0
+    !    use_original = cmdopt0('--oldsxcf') !2024-7-23
+    !    if(use_original) then  
+    !write(stdo,ftox)'original old version'
+    !if(exchange)      call sxcf_scz_exchange   (ef,esmr,ixc,nspinmx) !main part of job
+    !if(.not.exchange) call sxcf_scz_correlation(ef,esmr,ixc,nspinmx) !main part of job
+    !    else
+    !      write(stdo,ftox) 'gemm version'
+    !      if(exchange)      call sxcf_scz_exchange_gemm   (ef,esmr,ixc,nspinmx) !main part of job
+    !      if(.not.exchange) call sxcf_scz_correlation_gemm(ef,esmr,ixc,nspinmx) !main part of job
+    !    endif
+    use m_sxcf_gemm,only: sxcf_scz_correlation, sxcf_scz_exchange
+    write(stdo,ftox) 'gemm version'
+    if(exchange)      call sxcf_scz_exchange   (ef,esmr,ixc,nspinmx) !main part of job
+    if(.not.exchange) call sxcf_scz_correlation(ef,esmr,ixc,nspinmx) !main part of job
   EndBlock Main4SelfEnergy
 ! Remove eibzmode symmetrizer 2023Jan22 (extended irreducibel BZ mode)
 !  SymmetrizeZsec :Block
@@ -226,12 +231,14 @@ subroutine hsfp0_sc()
 !    endif
 !  EndBlock SymmetrizeZsec
   Finalizesum: block
-    use m_sxcf_main,only: zsecall
-    call MPI__reduceSum(root=0, data=zsecall, sizex=ntq*ntq*nqibz*nspinmx )
+!    use m_sxcf_main,only: zsecall
+    use m_sxcf_gemm,only: zsecall,reducez
+    call reducez(nspinmx)
     if(MPI__root) then
        do is=1,nspinmx
-          zsec => zsecall(:,:,:,is)
-          call HsWriteResult() !internal subroutine.
+          allocate(zsec,source= zsecall(:,:,:,is))
+          call HsWriteResult() !internal subroutine. write only
+          deallocate(zsec)
        enddo
     endif
     call cputid(0)
