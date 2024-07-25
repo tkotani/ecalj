@@ -58,7 +58,7 @@ if os.path.isfile('sigm'):
    print('--- sigm is softlinked to '+sigm_name, ' ---',flush=True)
 
 # main iteration ###################################
-if(Iter0!=-1): print('We found QPU.%run'%Iter0)
+if(Iter0!=-1): print(f'We found QPU.{Iter0}run')
 targets=' '+target+' '+option+' '
 for i in range(1,nloop+1): #nloop is the additional number of iteration
     niter=i+Iter0
@@ -110,10 +110,10 @@ for i in range(1,nloop+1): #nloop is the additional number of iteration
         run0='RUN0'
         gen_dir(run0)
         run_program(epath+'/lmf'+targets+'>llmf_oneshot',ncore)
-        cp_files(['ctrl.%s'%target,rst_name,sigm_name,'llmf_oneshot','save.%s'%target],run0)
+        cp_files(['ctrl.%s'%target,rst_name,sigm_name,'llmf_oneshot','save.%s'%target,'log.%s'%target,'QPU','QPD'],run0)
     rundir='RUN.ITER%d'%niter
     gen_dir(rundir)
-    cp_files(['ctrl.%s'%target,rst_name,sigm_name,'GWinput','save.%s'%target],rundir)
+    cp_files(['ctrl.%s'%target,rst_name,sigm_name,'GWinput','save.%s'%target,'log.%s'%target,'QPU','QPD'],rundir)
     print('===== %dth iteration over ====='%niter,flush=True)
 ### finally we have llmf_gwscend ###
 rm_files(glob.glob('ewindow.%s*')+glob.glob('qbyl.%s*'%target)+glob.glob('eigze*.%s*'%target)+glob.glob('mixm*%s*'%target))
@@ -122,6 +122,6 @@ run_program('echo end of llmf_gwscemd')
 if nloop==0:
     run0='RUN0'
     gen_dir(run0)
-    cp_files(['ctrl.%s'%target,rst_name,sigm_name,'llmf_gwscend.%d'%niter,'save.%s'%target],run0)
+    cp_files(['ctrl.%s'%target,rst_name,sigm_name,'llmf_gwscend.%d'%niter,'save.%s'%target,'log.%s'%target,'QPU','QPD'],run0)
     argv=''
     print('OK! ==== All calclation finished for  gwsc %s ===='%argv)
