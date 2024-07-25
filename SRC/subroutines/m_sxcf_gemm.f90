@@ -199,7 +199,7 @@ contains
 #ifdef __GPU
                   attributes(device) :: vzmel, vcoud_buf
 #endif
-                  if(ns1 > ns2) goto 1110 !instead of return
+                  if(ns1 > ns2) goto 1110 !instead of return. Use guard clause coding.
                   allocate(wtff(ns1:ns2))
                   wtff(ns1:nctot) = 1d0
                   do it = max(nctot+1,ns1), ns2
@@ -211,7 +211,7 @@ contains
                   !$acc kernels
                   vcoud_buf(1:ngb) = vcoud(1:ngb)
                   !$acc end kernels
-                  if(kx == 1) vcoud_buf(1) = wklm(1)*fpi*sqrt(fpi)/wk(1)
+                  if(kx == 1) vcoud_buf(1) = wklm(1)*fpi*sqrt(fpi)/wk(1) ! voud_buf(1) is effective v(q=0) in the Gamma cell.
                   allocate(vzmel(1:nbb,ns1:ns2,1:ntqxx))
                   !$acc kernels loop independent collapse(2)
                   do itpp = 1, ntqxx
@@ -380,8 +380,8 @@ contains
 #endif
                     sig = .5d0*esmr
                     sig2 = 2d0*(.5d0*esmr)**2
-                    itpitdo: do it = ns1, ns2
-                      do itp = 1, ntqxx
+                    itpo :   do it = ns1, ns2
+                      itpdo: do itp = 1, ntqxx
                         we = .5d0*(omega(itp)-ekc(it)) !we in hartree unit (atomic unit)
                         aw = abs(ua_*we)
                         aw2 = aw*aw
@@ -403,8 +403,8 @@ contains
                           if(npm==2) wgtim_(niw+1:2*niw) = cons*omd*wt/(x**2)/pi !Asymmetric contribution need chack
                         endif
                         wgtim(:,itp,it)= wkkr*wgtim_ !! Integration weight wgtim along im axis for zwz(0:niw*npm)
-                      enddo
-                    enddo itpitdo
+                      enddo itpdo
+                    enddo   itpo
                     allocate(wzmel(1:ngb,ns1:ns2,1:ntqxx), czwc(ns1:ns2,1:ntqxx,1:ngb))
                     call writemem('    Goto iwimag')
                     !$acc data copyin(wgtim, zmel)
@@ -455,7 +455,7 @@ contains
                     attributes(device) :: wz_iw, czwc_iw
 #endif
                     nttp = 0
-                    do itp = 1, ntqxx
+                    itploop: do itp = 1, ntqxx
                       omg  = omega(itp)
                       itini = merge(max(ns1,nt0m+1),  ns1, mask= omg>=ef)
                       itend = merge(ns2r,  min(nt0p,ns2r), mask= omg>=ef)
@@ -466,7 +466,7 @@ contains
                         ixs = findloc(freq_r(1:nw)>we_(it,itp),value=.true.,dim=1)
                         nttp(ixs-1:ixs+1) = nttp(ixs-1:ixs+1) + 1
                       enddo
-                    enddo
+                    enddo itploop
                     nttp_max = maxval(nttp)
                     if(nttp_max <= 0) goto 1113 
                     allocate (itw(nttp_max,0:nw), source = 0)
