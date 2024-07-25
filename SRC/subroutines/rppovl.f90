@@ -1,6 +1,7 @@
 !> read PPOVLGG,PPOVLG,PPOVLI  ngc2, ppx(1:ngc,1:ngc2), ngvecc2(1:3,1:ngc2) are returned.
 module m_read_ppovl
   use m_lgunit,only:stdo
+  use m_nvfortran,only:findloc
   use m_ftox
   implicit none
   integer,public,protected:: nggg,ngcgp,ngcread,nxi,nxe,nyi,nye,nzi,nze,ngc2
@@ -27,7 +28,7 @@ contains
     integer:: ngcread2,ippovlgg
     character(3) :: charnum3
     integer:: verbose
-    logical:: init=.true.
+!    logical:: init=.true.
     integer:: iqi0,igcgp2,iggg
     logical,optional:: getngcgp
     if(present(getngcgp)) then
@@ -69,21 +70,22 @@ contains
        allocate( qxtable(3,nqini:nqnumt) )
        do iqi = nqini,nqnumt
           open(newunit=ippovlginit,file="PPOVLG."//charnum3(iqi),form='unformatted')
-          read(ippovlginit) qx
-          qxtable(:,iqi) = qx
+          read(ippovlginit) qxtable(:,iqi) 
           close(ippovlginit) ! brought from outside of do iqi loop
        enddo
        if(debug) write(stdo,"('init ok!:should be done only once')")
     endif
-    do iqi0 = nqini,nqnumt ! find file name (=charnum3(iqi)) for given qi.
-       qx = qxtable(:,iqi0)
-       if(sum(abs(qx-qi))<1d-10) then
-          iqi = iqi0
-          goto 1011
-       endif
-    enddo
-    call rx('rppovl.F: qi is not found. some bug. qi='//ftof(qi))
-1011 continue
+    iqi=findloc([(sum(abs(qxtable(:,iqi0)-qi))<1d-10,iqi0=nqini,nqnumt)],value=.true.,dim=1)+nqini-1
+    if(iqi<nqini) call rx('rppovl.F: qi is not found. some bug. qi='//ftof(qi))
+    ! do iqi0 = nqini,nqnumt ! find file name (=charnum3(iqi)) for given qi.
+    !    qx = qxtable(:,iqi0)
+    !    if(sum(abs(qx-qi))<1d-10) then
+    !       iqi = iqi0
+    !       goto 1011
+    !    endif
+    ! enddo
+    ! call rx('rppovl.F: qi is not found. some bug. qi='//ftof(qi))
+    !1011 continue
     gex=access("PPOVLG."//charnum3(iqi),' ')
     iex=access("PPOVLI."//charnum3(iqi),' ')
     if(gex /= 0) call rx("PPOVLG."//charnum3(iqi)//" does not exist!") 
@@ -94,7 +96,7 @@ contains
     ngc = ngcread
     read(ippovli) qx, ngcread2 !, ngcx_s(iqi),ngc2_s(iqi)
     if(ngc==0) call rx('getppx2: can not find given qi ='//ftof(qi))
-    if(sum(abs(qx-qi))>1d-10) call rx('getppx2: qx='//ftof(qi)//'.ne.'//ftof(qi))
+    if(sum(abs(qx-qi))>1d-10) call rx('getppx2: qx='//ftof(qx)//'.ne.'//ftof(qi))
     if(ngcread/=ngcread2)     call rx('rppovl.F: inconsistent PPOVLI PPOVLg')
     if(allocated(ppovlinv)) deallocate(ppovlinv,ngvecc)
     allocate(ppovlinv(1:ngc,1:ngc),ngvecc(1:3,1:ngc))
