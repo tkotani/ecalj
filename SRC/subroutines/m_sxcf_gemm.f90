@@ -192,19 +192,24 @@ contains
                   !integer, intent(in) :: ns1, ns2
                   !real(8), intent(in) :: ef, esmr
                   !complex(kind=kp), intent(inout) ::zsec(ntq,ntq)
-                  real(8) :: wfacx ! external function
-                  real(8), allocatable :: vcoud_buf(:), wtff(:)
+                  real(8) :: wfacx, wtff(ns1:ns2) ! external function
+                  real(8), allocatable :: vcoud_buf(:)
                   complex(kind=kp), allocatable :: vzmel(:,:,:)
-                  integer :: it, itp, itpp, ierr
+                  integer :: it, itp, itpp, ierr,is1
 #ifdef __GPU
                   attributes(device) :: vzmel, vcoud_buf
 #endif
-                  if(ns1 > ns2) goto 1110 !instead of return. Use guard clause coding.
-                  allocate(wtff(ns1:ns2))
-                  wtff(ns1:nctot) = 1d0
-                  do it = max(nctot+1,ns1), ns2
-                    wtff(it) = wfacx(-1d99, ef, ekc(it), esmr)
-                  enddo
+                 if(ns1 > ns2) goto 1110 !instead of return. Use guard clause coding.
+                 do is1=ns1,ns2
+                    if(is1<=nctot) then; wtff(is1) = 1d0 !these are for nvfortran24.1
+                    else;                wtff(is1) = wfacx(-1d99, ef, ekc(is1+nctot), esmr)
+                    endif   
+                 enddo
+!                  allocate(wtff(ns1:ns2))
+!                  wtff(ns1:nctot) = 1d0
+!                  do it = max(nctot+1,ns1), ns2
+!                    wtff(it) = wfacx(-1d99, ef, ekc(it), esmr)
+!                  enddo
                   if(corehole) wtff(ns1:nctot) = wtff(ns1:nctot) * wcorehole(ns1:nctot,isp)
                   allocate(vcoud_buf(ngb))
                   !$acc data copyin(vcoud, wklm(1), wk(1), wtff, zmel) copy(zsec)
@@ -225,7 +230,7 @@ contains
                        alpha = cmplx(-wkkr,0_kp,kind=kp), beta = CONE, ldC = ntq)
                   !$acc end host_data
                   !$acc end data
-                  deallocate(vzmel, vcoud_buf, wtff)
+                  deallocate(vzmel, vcoud_buf)!, wtff)
 1110              continue
                 end block get_exchange_block !end subroutine get_exchange
               endassociate

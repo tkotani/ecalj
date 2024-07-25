@@ -76,7 +76,7 @@ contains
        if(debug) write(stdo,"('init ok!:should be done only once')")
     endif
     iqi=findloc([(sum(abs(qxtable(:,iqi0)-qi))<1d-10,iqi0=nqini,nqnumt)],value=.true.,dim=1)+nqini-1
-    if(iqi<nqini) call rx('rppovl.F: qi is not found. some bug. qi='//ftof(qi))
+    if(iqi<nqini) call rx('rppovl.f90: qi is not found. some bug. qi='//ftof(qi))
     ! do iqi0 = nqini,nqnumt ! find file name (=charnum3(iqi)) for given qi.
     !    qx = qxtable(:,iqi0)
     !    if(sum(abs(qx-qi))<1d-10) then
