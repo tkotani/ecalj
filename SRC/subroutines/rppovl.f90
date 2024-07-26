@@ -18,26 +18,25 @@ module m_read_ppovl
   logical,private:: debug=.false.
   real(8),allocatable,private:: qxtable(:,:)
   integer, private:: iex,gex
+  logical,private :: ippovlggooo=.true.
 contains
   subroutine getppx2(qbas,qi,getngcgp) ! This return nvggg,nvgcgp2,ngvecc,  nggg,ngcgp,ngcread, ggg,ppovlinv
     real(8), intent(in)  ::qbas(3,3),qi(3)
     integer:: ngc, iqi,ippovlg,ippovli, ippovlginit
     integer:: access
     real(8)::qx(3)
-    logical ::ippovlggooo=.true.
     integer:: ngcread2,ippovlgg
     character(3) :: charnum3
     integer:: verbose
-!    logical:: init=.true.
     integer:: iqi0,igcgp2,iggg
     logical,optional:: getngcgp
+    if(verbose()>=100) debug= .TRUE. 
     if(present(getngcgp)) then
        open(newunit=ippovlgg,file= "PPOVLGG",form='unformatted')
        read(ippovlgg) nggg, ngcgp, nqq, nqini,nqnumt
        close(ippovlgg)
        return
     endif
-    if(verbose()>=100) debug= .TRUE. 
     if(ippovlggooo) then !!  Make igggi inversion table
        open(newunit=ippovlgg,file= "PPOVLGG",form='unformatted')
        read(ippovlgg) nggg, ngcgp, nqq, nqini,nqnumt
@@ -64,9 +63,6 @@ contains
        allocate(igcgp2i(nnxi:nnxe,nnyi:nnye,nnzi:nnze),source= -100000)
        forall(igcgp2 =1:ngcgp) igcgp2i(nvgcgp2(1,igcgp2),nvgcgp2(2,igcgp2),nvgcgp2(3,igcgp2))=igcgp2 ! inversion table for nvgcgp2
        ippovlggooo=.false.
-    endif
-    if(init) then ! cache qx for finding a file for given qi. dec2017
-       init=.false.
        allocate( qxtable(3,nqini:nqnumt) )
        do iqi = nqini,nqnumt
           open(newunit=ippovlginit,file="PPOVLG."//charnum3(iqi),form='unformatted')
@@ -77,15 +73,6 @@ contains
     endif
     iqi=findloc([(sum(abs(qxtable(:,iqi0)-qi))<1d-10,iqi0=nqini,nqnumt)],value=.true.,dim=1)+nqini-1
     if(iqi<nqini) call rx('rppovl.f90: qi is not found. some bug. qi='//ftof(qi))
-    ! do iqi0 = nqini,nqnumt ! find file name (=charnum3(iqi)) for given qi.
-    !    qx = qxtable(:,iqi0)
-    !    if(sum(abs(qx-qi))<1d-10) then
-    !       iqi = iqi0
-    !       goto 1011
-    !    endif
-    ! enddo
-    ! call rx('rppovl.F: qi is not found. some bug. qi='//ftof(qi))
-    !1011 continue
     gex=access("PPOVLG."//charnum3(iqi),' ')
     iex=access("PPOVLI."//charnum3(iqi),' ')
     if(gex /= 0) call rx("PPOVLG."//charnum3(iqi)//" does not exist!") 
