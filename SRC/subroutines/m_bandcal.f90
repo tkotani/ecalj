@@ -75,9 +75,9 @@ contains
     endif
     call_m_bandcal_2nd =.false.
     if(plbnd==0) call_m_bandcal_2nd= (lmet>=0 .AND. lrout>0 )
-    if(call_m_bandcal_2nd) then !open(newunit=ifig,file='eigze_'//trim(strprocid),form='unformatted')
+    if(call_m_bandcal_2nd) then 
        if(allocated(neviqis))deallocate(neviqis,ndimhxiqis,evliqis,eveciqis)
-       allocate(neviqis(niqisp),ndimhxiqis(niqisp),evliqis(nevmx,niqisp),eveciqis(ndhamx,nevmx,niqisp))
+       allocate(neviqis(niqisp),ndimhxiqis(niqisp),evliqis(ndhamx,niqisp),eveciqis(ndhamx,nevmx,niqisp))
     endif
     allocate( evl(ndhamx,nspx))
     sumev = 0d0
@@ -182,7 +182,7 @@ contains
           neviqis(idat)   =nev
           ndimhxiqis(idat)=ndimhx
           evliqis(1:nev,idat)=evl(1:nev,isp)
-          eveciqis(1:ndimhx,1:nev,idat)=evec(1:ndimhx,1:nev)
+          if(nmx/=0) eveciqis(1:ndimhx,1:nev,idat)=evec(1:ndimhx,1:nev)
           !write(ifig) nev,ndimhx !nev: number of eigenvalues; write(ifig) evl(1:nev,isp); write(ifig) evec(1:ndimhx,1:nev)
        endif
        evl(nev+1:ndhamx,isp)=1d99  !padding. flag to skip these data

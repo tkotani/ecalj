@@ -218,12 +218,12 @@ contains
        enddo
     enddo
   end subroutine pvcdm2
-  subroutine dostet(nbmx,nsp,nspx,nevmx,nchan,n1,n2,n3,ntet,idtet,eband,doswt,npts,emin,emax,lidos,wk,zos)! Density of states to third order by tetrahedron method
+  subroutine dostet(nbmx,nsp,nspx,nbandx,nchan,n1,n2,n3,ntet,idtet,eband,doswt,npts,emin,emax,lidos,wk,zos)! Density of states to third order by tetrahedron method
     !i Inputs:
     !i   nbmx, first dim. of eband;
     !i   nsp=1 spin degenerate, =2 non-deg;
     !i   nspx: 1 for spin up and down coupled, otherwise nsp
-    !i   nevmx, no. of bands;
+    !i   nbandx, no. of bands;
     !i   nchan, no. of DOS channels; n1,n2,n3;
     !i   ntet, idtet, o/p from tetirr
     !i   eband, work array for bands; doswt, work array for weights;
@@ -232,7 +232,7 @@ contains
     !i         :T zos = energy integral of dos
     !o Outputs: zos : DOS (or integrated DOS for lidos=T) for each spin and nchan
     implicit none
-    integer :: nchan,nsp,nspx,nbmx,npts,ntet,idtet(0:4,*),n1,n2,n3,nevmx,isp,ib,i,itet,ichan,iq1234(4),nspc,jsp,ksp
+    integer :: nchan,nsp,nspx,nbmx,npts,ntet,idtet(0:4,*),n1,n2,n3,nbandx,isp,ib,i,itet,ichan,iq1234(4),nspc,jsp,ksp
     real(8) :: eband(nbmx,nspx,*),emin,emax,wk(npts),zos(npts,nsp,nchan),doswt(nchan,nbmx,nsp,*),bin,eigen(4),v,wt,ebot,dmin1
     logical :: lidos
     if (npts <= 1 .OR. npts <= 2 .AND. .NOT. lidos) call rx1('dostet: npts(=%i) too small for DOS : require npts>2',npts)
@@ -243,7 +243,7 @@ contains
     tetrahdronloop: do  5  itet = 1, ntet
        iq1234 = idtet(1:4,itet)
        do  4  isp = 1, nspx !Loop over spins and sum over bands ---
-          do  3  ib = 1, nevmx
+          do  3  ib = 1, nbandx
              eigen = eband(ib,isp,iq1234)
              if (minval(eigen) > emax) cycle
              do  jsp = 1, nspc

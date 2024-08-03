@@ -13,7 +13,7 @@ contains
   subroutine m_clsmode_init()
     logical:: cmdopt0
     character(10):: i2char
-    integer::nevmx,ndhamx,i,ific
+    integer::ndhamx,i,ific
     character strn*120, clsopt*120
     character(512):: aaachar
     !! --- Options for core level specta (CLS) ---

@@ -20,7 +20,7 @@ contains
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol
     use m_supot,only: n1,n2,n3
     use m_igv2x,only: napw,ndimh,ndimhx,igapw=>igv2x
-    use m_subzi, only: nevmx,wtkb
+    use m_subzi, only: wtkb
     use m_mkqp,only: wtkp=>rv_a_owtkp
     use m_mkpot,only: qval_=>qval
     use m_ropyln,only: ropyln

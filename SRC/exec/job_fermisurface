@@ -25,5 +25,5 @@ echo 'going to calculated eigenalue on general grid for xcrysden ', $nkk1,$nkk2,
 mpirun -np $MPI_SIZE $lmdir/lmf $ddd --fermisurface -pr45 -vnk1=$nkk1 -vnk2=$nkk2 -vnk3=$nkk3 ${@:7:($#-2)} >& llmf_fs
 echo 'OK! We got fermiup.bxsf (fermidn.bxsf) for ' ${ddd}
 echo 'Run $xcrysden --bxsf fermiup.bxsf'
-echo 'NOTE: current ersion do not use crystal symmetry... So it can be too time-consuming although k-paralell works.'
+echo 'NOTE: current version do not use crystal symmetry... So it can be time-consuming(although k-paralell works).'
 
