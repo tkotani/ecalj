@@ -1,5 +1,5 @@
 !>Accumulating rxcq
-subroutine x0gpu(rcxq, npr, ipr_col, npr_col, nwhis, npm) 
+subroutine x0gemm(rcxq, npr, ipr_col, npr_col, nwhis, npm) 
   use m_kind, only: kp => kindrcxq
   use m_mpi, only: comm_b, mpi__rank_b, mpi__size_b
   use m_x0kf, only: icounkmink, icounkmaxk, iwini, iwend, itc, itpc, jpmc, icouini, whwc
@@ -86,4 +86,4 @@ subroutine x0gpu(rcxq, npr, ipr_col, npr_col, nwhis, npm)
   !$acc end host_data
   deallocate(itw, itpw, whw, wzw, zw, nttp)
 
-end subroutine x0gpu
+end subroutine x0gemm
