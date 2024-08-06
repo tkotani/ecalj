@@ -83,6 +83,18 @@ add_library(${LIB} SHARED ${SOURCES})
 target_link_options(${LIB} PRIVATE ${LIBM})
 target_compile_options(${LIB} PRIVATE ${FLAGS})
 
+# emacs tags
+add_custom_target(etags ALL COMMAND etags ../subroutines/*.f90 ../wanniergw/*.f90 ../main/*.f90
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+
+# For setting mkl location
+add_executable(dummy ./dummy.f90) # exe
+target_link_libraries(dummy ${BLAS} ${LIBM} ${MPI}) # linked
+# add_custom_target(fcheck ALL COMMAND ldd dummy|grep mkl >mklloc.txt  WORKING_DIRECTORY ${CMAKE_BINARY_DIR} DEPENDS dummy)
+# Generate library and binaries ###############################
+#add_library(${LIB1} SHARED ${SOURCES1}) # Library
+#add_library(${LIB2} SHARED ${SOURCES2})
+
 # ## source-dependent compile options
 if(FC MATCHES "gfortran")
   message(STATUS "===== gfortran release  =======================")
@@ -124,5 +136,6 @@ else()
   endforeach()
 endif()
 
-add_custom_target(etags ALL COMMAND etags ../subroutines/*.f90 ../wanniergw/*.f90 ../main/*.f90
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+file(MAKE_DIRECTORY   ${CMAKE_BINARY_DIR}/../exec${FCMOD})
+set(CMAKE_Fortran_BINS ${CMAKE_BINARY_DIR}/../exec${FCMOD}) # directory for *.mod
+add_custom_target(copyexe ALL COMMAND cp `find . -mindepth 1 -maxdepth 1 -executable -type f` ${CMAKE_Fortran_BINS} WORKING_DIRECTORY ${CMAKE_BINARY_DIR})

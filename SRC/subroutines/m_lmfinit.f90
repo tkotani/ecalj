@@ -21,7 +21,7 @@ module m_lmfinit ! 'call m_lmfinit_init' sets all initial data from ctrl are pro
        lmxbx=-1,lmxax,bz_lshft(3)=0, bz_lmet,bz_n,bz_lmull,bz_fsmommethod,str_mxnbr,&
        iter_maxit=1, mix_nsave, pwmode,ncutovl ,ndimx,natrlx, leks,lrout,plbnd, pot_nlma, pot_nlml,ham_nspx, nlmto,& !total number of MTOs 
        lrlxr,nkillr,nitrlx, broyinit,nmixinit,killj ,&
-       ham_pwmode,ham_nlibu, nlmax,lfrce,bz_nevmx,ham_nbf,ham_lsig,bz_nabcin(3)=NULLI, bz_ndos,ldos, lmaxu,nlibu,nlmxlx
+       ham_pwmode,ham_nlibu, nlmax,lfrce,ham_nbf,ham_lsig,bz_nabcin(3)=NULLI, bz_ndos,ldos, lmaxu,nlibu,nlmxlx
   logical,public,protected :: ham_frzwf,ham_ewald, lhf,bz_tetrahedron, addinv,&
        readpnu,v0fix,pnufix,bexist,rdhessr, lpztail=.false., readpnuskipf, afsym
   real(8),public,protected:: pmin(n0)=0d0,pmax(n0)=0d0,tolft,scaledsigma, ham_oveps,ham_scaledsigma, cc,&!speed of light
@@ -299,9 +299,7 @@ contains
       call rval2('BZ_SAVDOS',rr=rr, defa=[real(8):: 0]); ldos=nint(rr)! '0(F) or 1(T): Write dos.tot.* file (settings are NPTS and DOS)'
       call rval2('BZ_NPTS',  rr=rr, defa=[real(8):: 2001]); bz_ndos=nint(rr) !'No. DOS points (sampling integration)')
       call rval2('BZ_DOSMAX',rr=rr, defa=[40d0/rydberg()]); bz_dosmax=rr ! Maximum energy to which DOS accumulated, relative to Efermi
-      call rval2('BZ_EFMAX', rr=rr, defa=[5d0]); bz_efmax=rr !Find evecs up to efmax' 
-      call rval2('BZ_NEVMX', rr=rr, defa=[real(8):: 0]); bz_nevmx=nint(rr)! Find at most nevmx eigenvec. NEVMX=0:internal default, NEVMX<0:no eigenvecs
-      if( cmdopt0('--tdos') .OR. cmdopt0('--pdos') .OR. cmdopt0('--zmel0')) bz_nevmx=999999
+      call rval2('BZ_EFMAX', rr=rr, defa=[5d0]); bz_efmax=rr !Find evecs up to efmax'
       call rval2('BZ_FSMOM',rr=rr, defa=[NULLR]); bz_fsmom=rr !Size of Fixed-spin moment (fixed-spin moment method tured on when BZ_FSMOM/=NULLR)
       call rval2('BZ_FSMOMMETHOD', rr=rr, defa=[real(8):: 0]); bz_fsmommethod=nint(rr) !'Method of Fixed-spin moment 0:original 1:discrete')
       call rval2('SYMGRP', ch=ch); symg=adjustl(ch) ! Generators for symmetry group'
@@ -673,10 +671,6 @@ contains
       fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') !compute eigenvalues for fullmesh q points 
       lrout = 1 ! =1:evaluate output density and/or KS energy 
       leks = 1
-      if (bz_nevmx == -1) then !bz_nevmx ! Maximum number of eigenvalues
-         lrout = 0
-         leks = 0
-      endif
       if(cmdopt0('--band') .OR. fullmesh) then !Switch to plot bands at specified qp
          lfrce = 0
          plbnd = 1 !band plot mode
@@ -687,16 +681,8 @@ contains
       if(lrout == 0 ) maxit = 1
       if(bz_lmet/=0 .OR. bz_tetrahedron ) ldos=1
       if(ldos==0) bz_ndos = 1
-      if(lrout == 0 .AND. lfrce /= 0) then
-         write(stdo,"(a)") 'Error: output density required when forces sought.\n'// &
-              '      To make output density turn off HF=t and/or NEVMX<0'
-         call Rx('incompatible input. see the end of console output')
-      endif
-      if(lrout == 0 .AND. cmdopt0('--etot')) then
-         write(stdo,"(a)") 'Error: output density required with --etot switch.\n'// &
-              '      To make output density turn off HF=t and/or NEVMX<0'
-         call Rx('incompatible input. see the end of console output')
-      endif
+      if(lrout == 0 .AND. lfrce /= 0) call rx('lrout==0 and lfrce/=0 is not allowed')
+      if(lrout == 0 .AND. cmdopt0('--etot')) call rx('lrout==0 and --etot not allowed')
       LDApU: block 
         nlibu = 0
         lmaxu = 0

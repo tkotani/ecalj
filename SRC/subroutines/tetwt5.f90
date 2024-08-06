@@ -348,7 +348,6 @@ contains
 1100   enddo
 1000 enddo
     deallocate(idtetfm, qbzwm,ib1bzm, qbzm)
-
     !! === Symmetrization of wgt and whw   ===
     !! NOTE: We just enforce the same weight for degenerated bands.
     !!       In the previous do loop 1000, we judged band connectivity just by the band index.
@@ -557,10 +556,6 @@ contains
        call midk3(kk,ee,xx,ebf, 4,1,  kk(1,2+4),xx(2+4),ebf(2+4)) !K2
        call midk3(kk,ee,xx,ebf, 4,3,  kk(1,3+4),xx(3+4),ebf(3+4)) !K3
        !! Corners of occupied states at the Fermi energy are kk(1:3,i+4) i=1,2,3.
-       !! This makes a Fermi surface
-       !        if(sum(abs(ea-eb))<1d-6) then
-       !          call fermids(kk(:,2+4),kk(:,1+4),kk(:,3+4),fermi_dS)
-       !        endif
        call  inttetra6(kkv,kk,xx,ebf,(/4,1+4,2+4,3+4/), & ! &  k4,K1,K2,K3
             frhis,  nwhis, &
             wtthis )
@@ -570,12 +565,6 @@ contains
        call midk3(kk,ee,xx,ebf, 4,1,  kk(1,2+4),xx(2+4),ebf(2+4)) !K2
        call midk3(kk,ee,xx,ebf, 3,1,  kk(1,3+4),xx(3+4),ebf(3+4)) !K3
        call midk3(kk,ee,xx,ebf, 3,2,  kk(1,4+4),xx(4+4),ebf(4+4)) !K4
-
-       !        if(sum(abs(ea-eb))<1d-6) then
-       !          call fermids(kk(:,1+4),kk(:,2+4), kk(:,3+4),fermi_dS) !K1-K2-K3
-       !          call fermids(kk(:,1+4),kk(:,2+4), kk(:,4+4),fermi_dS) !K1-K2-K4
-       !        endif
-
        if(chkwrt) write(6,*) 'lindtet6: fig 2 xxx2'
        call  inttetra6(kkv,kk,xx,ebf,(/4, 3,1+4,2+4/), & ! &  k4,k3,K1,K2
             frhis,  nwhis, &
@@ -589,17 +578,11 @@ contains
             frhis,  nwhis, &
             wtthis )
        if(chkwrt) write(6,*) 'lindtet6: fig 2 xxx5'
-       !-----------
     elseif( ee(2) < 0d0 .AND. 0d0<= ee(1) ) then   !!! Fig 3.
        if(chkwrt) write(6,*) 'lindtet6: fig 3 xxx'
        call midk3(kk,ee,xx,ebf, 1,4,  kk(1,1+4),xx(1+4),ebf(1+4)) !K1
        call midk3(kk,ee,xx,ebf, 1,2,  kk(1,2+4),xx(2+4),ebf(2+4)) !K2
        call midk3(kk,ee,xx,ebf, 1,3,  kk(1,3+4),xx(3+4),ebf(3+4)) !K3
-
-       !        if(sum(abs(ea-eb))<1d-6) then
-       !          call fermids(kk(:,1+4),kk(:,2+4), kk(:,3+4),fermi_dS) !K1-K2-K3
-       !        endif
-
        call  inttetra6(kkv,kk,xx,ebf,(/3, 4,3+4, 2/), & ! &  k3,k4,K3,k2
             frhis,  nwhis, &
             wtthis )
@@ -616,11 +599,7 @@ contains
             wtthis )
     endif
     if(chkwrt) write(6,*) 'end of lindtet6',wtthis
-    !      stop 'yyyyyyyyyyyyyyyyyyyyyy'
   end subroutine lindtet6
-
-
-  !-----------------------------------------------------
   subroutine inttetra6(kkv,kk_,xx_,ebf,itetx,frhis,nwhis, wtthis)
     ! calculate tetrahedron integral Eq.(16).
     ! the four corners and denoted by itetx.
@@ -634,75 +613,21 @@ contains
     integer:: nwhis
     real(8):: frhis(nwhis+1),wtthis(nwhis,4)
     logical :: chkwrt=.false.
-
     real(8)   ::  kkv(3,4)
-    ! ---
-    if(chkwrt) then
-       print *,' inttetra6: ---------------------------'
-       !        print *,' ebf  =', ebf(1:4)
-       !        print *,' ebfKx=', ebfKx(1:4)
-    endif
-
-    !--- kk xin ebfin ---
-    !      do i = 1,4
-    !        if( itetx(i) < 10 ) then   ! kk (k1-k4 in Paper)
-    !          ix = itetx(i)
-    !          xin(    i) = xx_(    ix)
-    !          ebfin(i)   = ebf(ix)
-    !          kin(1:3,i) = kk_(1:3,ix)
-    !        else                       ! Kx (K1-K4 in Paper)
-    !          ix = itetx(i)/10
-    !          xin(    i) = xKx_(    ix)
-    !          ebfin(i)   = ebfKx(ix)
-    !          kin(1:3,i) = Kx_ (1:3,ix)
-    !        endif
-    !      enddo
-
+    if(chkwrt) print *,' inttetra6: ---------------------------'
     !--- kk xin ebfin ---
     xin(    1:4) = xx_(    itetx(1:4))
     kin(1:3,1:4) = kk_(1:3,itetx(1:4))
     ebfin(  1:4) = ebf(    itetx(1:4))
-
-    if(chkwrt) then
-       write(6,"(' i=',i3,' xin ebfin =',2f10.5,'  kin=',3f10.5)") &
-            (i,xin(i),ebfin(i),kin(1:3,i),i=4,1,-1)
-    endif
-
-    !... ee decendent order ee(4)>ee(3)>ee(2)>ee(1)
-    ! #ifdef EXPAND_SORTEA
-    !   n = 4
-    !   isig = 1
-    !   ! option noparallel
-    !   do i = 1,n
-    !      ieaord(i) = i
-    !   enddo
-    !   ! option noparallel
-    !   do ix= 2,n
-    !      ! option noparallel
-    !      do i=ix,2,-1
-    !         if( ebfin(ieaord(i-1)) >ebfin(ieaord(i) ) ) then
-    !            itmp = ieaord(i-1)
-    !            ieaord(i-1) = ieaord(i)
-    !            ieaord(i) = itmp
-    !            isig= -isig
-    !            cycle
-    !         endif
-    !         exit
-    !      enddo
-    !   enddo
-
-    ! #else
+    if(chkwrt)write(6,"(' i=',i3,' xin ebfin =',2f10.5,'  kin=',3f10.5)") (i,xin(i),ebfin(i),kin(1:3,i),i=4,1,-1)
+    !Sort ee decendent order ee(4)>ee(3)>ee(2)>ee(1)
     call sortea( ebfin,ieaord, 4 ,isig)  ! the order E_4,E_3,E_2,E_1 This suits for Rath&Freeman.
-    !#endif
     kk(1:3,1:4) = kin  (1:3,ieaord(1:4))   ! 4 corners  denoted by kkv(:,1:4), ee(1:4), and xx(1:4)
     ee(    1:4) = ebfin(    ieaord(1:4))
     xx(    1:4) = xin  (    ieaord(1:4))
-
-    if(chkwrt)write(6,"(' i=',i3,' xx ee =',2f10.5,'  kk=',3f10.5)") &
-         (i,xx(i),ee(i),kk(1:3,i),i=4,1,-1)
-
+    if(chkwrt)write(6,"(' i=',i3,' xx ee =',2f10.5,'  kk=',3f10.5)")(i,xx(i),ee(i),kk(1:3,i),i=4,1,-1)
     if( 0d0>=ee(4) ) then
-       !        wttx = (0d0,0d0)
+       continue 
     elseif( ee(4) > 0d0 .AND. 0d0>= ee(3) ) then   !!! Fig 1.
        if(chkwrt) write(6,*) 'inttetra5: fig 1'
        call midk(kk,ee,xx, 4,2,  kk(1,1+4),xx(1+4)) !K1 -> Kx(:,1), x(K1) -> xkx(1). K1 is on the like k4---k2.
@@ -747,10 +672,7 @@ contains
             wtthis )
     endif
   end subroutine inttetra6
-
-  !-----------------------------------
-  subroutine inttetrac6(kkv,kk,xx, itetx,frhis,nwhis, wtthis)
-    !- Calculate tetrahedron integral Eq.(16).
+  subroutine inttetrac6(kkv,kk,xx, itetx,frhis,nwhis, wtthis) !- Calculate tetrahedron integral Eq.(16).
     ! The four corners and denoted by itetx(1:4).
     !i kk (k1-k4) and xx (value of denominator)
     !i Kx (K1-K4) and xkx
@@ -771,9 +693,7 @@ contains
        am(1:3,i) = kin(1:3,i) - kin(1:3,4)
     enddo
     voltet = abs(det33(am)/6d0) ! \omega (volume of tetrahedra) = abs(det33(am)/6d0) See Eq. (17).
-
-    !--- kkvkin: kin is decomplosed into kkv.!!!!!!!!!!
-    !   e.g. kin (:,1) =  \sum_i kkv(:,i) * kkvkin(i,1)
+    !--- kkvkin: kin is decomplosed into kkv.! e.g. kin (:,1) =  \sum_i kkv(:,i) * kkvkin(i,1)
     if(matrix_linear()) then
        do i = 1,3
           am(1:3,i) = kkv(1:3,i) - kkv(1:3,4)
@@ -793,8 +713,6 @@ contains
          frhis, nwhis, &
          wtthis )
   end subroutine inttetrac6
-
-  !---------------------------------------------------------------------------------------------
   subroutine intttvc6(kkvkin,v,voltet,frhis,nwhis, wtthis) ! Histgram weights for each bin.
     !r The i-th bin of the Histgrams is [frhis(i) frhis(i+1)].
     !r  wtthis(ihis) += \int_{frhis(ihis)^{frhis(ihis+1)} d \omega  \int d^3k \delta(\omega +v(k) )
@@ -812,11 +730,9 @@ contains
     logical ::chkwrt=.false., matrix_linear
     real(8):: kkvkin(4,4),www(1:4)=.25d0,ec,wcg(4),wttt
     call sortea( -v,ieaord,4,isig)
-    WW(1:4) = -v( ieaord(1:4) )
-    !  ww(1)<ww(2)<ww(3)<ww(4)
+    WW(1:4) = -v( ieaord(1:4) )   !  ww(1)<ww(2)<ww(3)<ww(4)
     if(( .NOT. (WW(1)<=WW(2))) .OR. ( .NOT. (WW(2)<=WW(3))) .OR. ( .NOT. (WW(3)<=WW(4))) ) then
        write(6,"(/,' --- intttvc6: wrong order WW=',4d14.6)") WW
-       ! top2rx 2013.08.09 kino        stop 'intttvc6: wrong order of WW'
        call rx( 'intttvc6: wrong order of WW')
     endif
     if(chkwrt) then
@@ -839,17 +755,6 @@ contains
        print *,' intttvc6: can not find inihis iedhis'
        call rx( ' intttvc6: can not find inihis iedhis')
     endif
-    !      if(chkwrt) print *,' inihis iedhis=', inihis,iedhis
-    ! cccccccccccccccccccccccccccccccccccccccccccccccccccccc
-    !      print *,' ###########integtetn test #########'
-    !      ww(1:4)=(/1d0,1.5d0,9.5d0,10d0/)
-    !      do ix=1,101
-    !        wx = (ix-1)/10d0
-    !        call integtetn(WW, Wx, xxx)
-    !        write(61,"(i3,2d23.16)")ix,wx,xxx
-    !      enddo
-    !      stop 'test end integtetn---'
-    ! ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
     call integtetn(WW, WW(4), norm)
     if(chkwrt) write(ichk,"(' norm voltet=',2d24.16)") norm,voltet
     pvn = voltet/norm
@@ -880,19 +785,9 @@ contains
        endif
        intega = integb
     enddo
-    !      if(chkwrt) then
-    !        dini = 0d0
-    !        do ihis=inihis,iedhis
-    !          if(ihis>1) dini=wtthis(ihis-1)
-    !          write(6,"(' ihis [Init  End]', i4,2f13.6,' wtt=',f13.6)")
-    !     &    ihis,dini,frhis(ihis),wtthis(ihis)
-    !          dini = frhis(ihis)
-    !        enddo
-    !      endif
     if(chkwrt) write(ichk,*) ' end of intttvc6'
   end subroutine intttvc6
-  subroutine mkwcg(e, ee, wcg)
-    !- calculate wweight for each corners.---------
+  subroutine mkwcg(e, ee, wcg)     !- calculate wweight for each corners.---------
     !i e(1:4),ee
     !o wcg
     !r normarization is sum(scg(1:4))=1d0
@@ -900,12 +795,6 @@ contains
     implicit none
     real(8) ::  e(1:4), ee, wcg(1:4),e1,e2,e3,e4, &
          w14_1,w14_4,w12_1,w12_2,w13_1,w13_3,w23_2,w23_3,w24_2,w24_4,w34_3,w34_4
-    !-------------------------------
-    ! cccccccccccccccccccccccccccccccccccccc
-    ! This is for original case thru Dec 2003.
-    !      wcg=.25d0
-    !      return
-    ! cccccccccccccccccccccccccccccccccccccc
     e1 = e(1)-3d-8
     e2 = e(2)-2d-8
     e3 = e(3)-1d-8
@@ -942,12 +831,7 @@ contains
        wcg(4)  =1d0
        wcg(1:3)=0d0
     endif
-    ! ccccccccccccccccccccccc
-    !      write(6,"('mkwcg   e=',4d13.4, ' ee=',d13.4)")e,ee
-    !      write(6,"('      wcg=',4d13.4)")wcg
-    ! cccccccccccccccccccccc
   end subroutine mkwcg
-  !-------------------------------------
   subroutine wab(ea,eb,ee,wa,wb)
     implicit none
     real(8)::ea,eb,wa,wb,eet,ee
@@ -958,15 +842,12 @@ contains
   !---
   subroutine addsciss(delta, ef, nnn, eig)
     integer::nnn,i
-    real(8):: eig(nnn),ef,delta
-!    write(6,*)' asssciss delta=', delta
+    real(8):: eig(nnn),ef,delta !    write(6,*)' asssciss delta=', delta
     do i=1,nnn
        if(eig(i)>ef) eig(i)= eig(i)+delta
     enddo
   end subroutine addsciss
-  !-----------------------------------
-  subroutine midk3(kk,ee,xx,yy,i,j,   kout,xout,yout)
-    !- Calculate x and k(3) at the Fermi energy on the like k(i)---k(j).
+  subroutine midk3(kk,ee,xx,yy,i,j,   kout,xout,yout) !- Calculate x and k(3) at the Fermi energy on the like k(i)---k(j).
     implicit none
     integer:: i,j
     real(8) ::  kk(3,1:4),xx(1:4),yy(1:4),ee(1:4), kout(3) &
@@ -1003,7 +884,6 @@ contains
        return
     endif
     i = 1
-    ! option noparallel
     do ix = 2, ndat
        if( abs(ene(ix)-ene(ix-1)) >epsx ) then
           ixend(i) = ix-1
@@ -1017,12 +897,10 @@ contains
        endif
     enddo
     nrank = i
-    ! option noparallel
     do i =1,nrank
        ixini(i) = ixini(i)+iof
        ixend(i) = ixend(i)+iof
     enddo
-    ! check write
     if(ipr) then
        write(6,*)' nrank=',nrank
        do i = 1, ndat
@@ -1030,21 +908,18 @@ contains
        enddo
        print *
        do i = 1, nrank
-          write(6,"(' i ',2i3,' e=',d15.7)") &
-               ixini(i),ixend(i),ene(ixini(i)-iof)
+          write(6,"(' i ',2i3,' e=',d15.7)") ixini(i),ixend(i),ene(ixini(i)-iof)
        enddo
     endif
   end subroutine chkdgn
-  subroutine midk(kk,ee,xx,i,j,   kout,xout)
-    !     - Calculate x and k(3) at the Fermi energy on the like k(i)---k(j).
+  subroutine midk(kk,ee,xx,i,j,   kout,xout)    !     - Calculate x and k(3) at the Fermi energy on the like k(i)---k(j).
     integer:: i,j
     real(8) :: ratio, kk(3,1:4),xx(1:4),ee(1:4), kout(3),xout
     ratio     = ee(i)/(ee(i)-ee(j))
     xout      = xx(i)     + ratio * (xx(j)-xx(i))
     kout(1:3) = kk(1:3,i) + ratio * (kk(1:3,j)-kk(1:3,i))
   end subroutine midk
-  subroutine rsvwwk00_4(jpm,iwgt, nqbz,nband,nctot,ncc,nbnbx,  n1b,n2b,noccxv,nbnb)
-    !- get (n1b n2b) corresponding to non-zero wgt.
+  subroutine rsvwwk00_4(jpm,iwgt, nqbz,nband,nctot,ncc,nbnbx,  n1b,n2b,noccxv,nbnb)    !- get (n1b n2b) corresponding to non-zero wgt.
     implicit none
     integer :: jpm,nband, nctot,  ncc, nqbz,nbnbx ,ib,jb, kx,ix
     integer :: n1b(nbnbx,nqbz),n2b(nbnbx,nqbz),noccxv,nbnb(nqbz)

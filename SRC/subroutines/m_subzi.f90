@@ -2,55 +2,39 @@ module m_subzi ! Obtain weight wtkb(ib,isp,iq) for brillowine zone integation
   use m_ftox
   use m_lgunit,only: stdo
   real(8),allocatable,protected :: wtkb(:,:,:) ! wtkb : tetrahedron integration weights. it might be from wkp.*
-  integer,protected:: nevmx=0 !for band mode plbnd=1. --->nev=min(nevmx,ndimhx) =0
+  integer,protected:: nevmx
 contains
-  subroutine m_subzi_init() !! Brillouin-integration setup
+  subroutine m_subzi_init() ! Set nevmx and allocate wtkb.
     use m_ext,only: sname
-    use m_lmfinit, only: nsp,nspc, nevmxin=>bz_nevmx, lmet=>bz_lmet, qbg=>zbak,lso,nspx
+    use m_lmfinit, only: nspc,lmet=>bz_lmet, qbg=>zbak,nspx
     use m_mkqp,only: ntet=> bz_ntet ,bz_nkp
-    use m_suham,only: ndham=>ham_ndham,ndhamx=>ham_ndhamx
+    use m_suham,only: ndhamx=>ham_ndhamx
     use m_mkpot,only:  qval
-    !i Inputs
-    !   lmet  :See Remarks
-    !         :0 assume insulator
-    !         :3 always make weights
-    !     (we have removed lmet=1,2,4)
-    !   ltet  :T for tetrahedron weights
-    !   ndham :leading dimension of wtkb
-    !   nsp   :2 for spin-polarized case, otherwise 1
-    !   nkp   :number of irreducible k-points (bzmesh.f)
-    !Outputs
-    !o  nevmx :On input, maximum number of eigenvectors to find
-    !          input nevmx<0 => do not generate eigenvectors
-    !          input nevmx=0 => choose a default value
-    !r   zval  :total valence charge
-    !r   lmet:
-    !r     lmet=0 system assumed to be an insulator; weights known a priori
-    !r     lmet=3 After m_bandcal_init, we calcutlate wtkb, which is passed to m_bandcal_2nd to accumulate quantities of sum in BZ.
+    !   lmet/=0 : allocate tetrahedron weight wtkb
+    !   ndhamx : leading dimension of wtkb
+    !   nsp    : 2 for spin-polarized case, otherwise 1
+    !   nkp    : number of irreducible k-points (bzmesh.f)
+    !   nevmx  : maximum number of eigenvectors to find 
     implicit none
-    logical :: ltet,lwt,tdos,cmdopt0,PROCARon,fullmesh
-    integer :: nkp,mpsord,ifi,lerr,iprint,n,nevx0,nq0,nsp0
-    real(8) :: zval,ef0,def,esmear
+    logical :: cmdopt0
+    integer :: nkp
+    real(8) :: zval
     call tcn('m_subzi_init')
-    if(cmdopt0('--cls') .OR. cmdopt0('--tdos') .OR. cmdopt0('--mkprocar'))  nevmx = ndhamx
-    fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface')
-    if(lso==1.and.(cmdopt0('--band') .OR. fullmesh)) then
-       nevmx=ndhamx
-       return
+    if(lmet>0) then
+      nkp  = bz_nkp
+      if(allocated(wtkb)) deallocate(wtkb)       
+      allocate(wtkb(ndhamx,nspx,nkp))
     endif
-    if(cmdopt0('--band') .OR. fullmesh) return
-    nkp=bz_nkp
-    if(allocated(wtkb)) deallocate(wtkb)
-    zval = qval-qbg
-    ltet = ntet>0
-    nevmx= nevmxin !initial contdition except  cmdopt0('--band').or.fullmesh
-    if(lmet>0) allocate(wtkb(ndhamx,nspx,nkp))
-    if(nevmx == 0) then
-       nevmx = (int(zval) + 1)/2
-       if(lmet /= 0) nevmx = max(nevmx+nevmx/2,9)
-       nevmx = min(nevmx,ndham)
-       if(nspc == 2) nevmx = 2*nevmx
-       nevmx=nevmx+5 !+5 is for safer setting. At least +1 is required...
+    if(cmdopt0('--tdos').or. cmdopt0('--band').or.cmdopt0('--fermisurface')) then !nevmx=0 implies eigenvalue-only mode
+      nevmx= 0
+    elseif(cmdopt0('--pdos').or.cmdopt0('--mkprocar').or.cmdopt0('--zmel0').or.cmdopt0('--cls')) then
+      nevmx= ndhamx  !all bands
+    else  !above occipied bands. (tetrahedron method may require a little more than zval/2)
+      zval = qval-qbg
+      nevmx = ceiling(zval)/2
+      if(lmet /= 0) nevmx = max(nevmx+nevmx/2,9) !probably safer setting nevmx for metal. Rough estimation.
+      nevmx = min(nevmx*nspc, ndhamx) !nspc=2 for lso=1
+      nevmx=nevmx+5 !+5 is for safer setting. At least +1 is required...
     endif
     call tcx('m_subzi_init')
   end subroutine m_subzi_init

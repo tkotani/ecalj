@@ -577,36 +577,7 @@ subroutine sxcf_fal3z(&
               cycle
            endif
            !-- End of exchange section --------------
-
-
-
-           !--------------------------------------------------------------------------
-           !--- correlation section --------------------------------------------------
-           !--------------------------------------------------------------------------
-           !$$$c--- The matrix elements zmel.
-           !$$$c        allocate( zmel (ngb, nstate, ntp0) )
-           !$$$c        zmel = dcmplx (rmelt,-cmelt)
-           !$$$c        if(newaniso) then
-           !$$$c#ifdef USE_GEMM_FOR_SUM
-           !$$$          if(verbose()>39)write(*,*)'info: USE GEMM FOR SUM (zmel=zmel*ppovlz), in sxcf_fal2.F'
-           !$$$          allocate( zmelt (ngb, nstate) )
-           !$$$          do itp=1,ntp0
-           !$$$          zmelt = dcmplx(rmelt(:,:,itp),-cmelt(:,:,itp))
-           !$$$          call zgemm('C','N',ngb,nstate,ngb,(1d0,0d0),
-           !$$$     .      ppovlz,ngb,zmelt,ngb,(0d0,0d0),zmel(1,1,itp),ngb)
-           !$$$          enddo
-           !$$$          deallocate(zmelt)
-           !$$$#else
-           !$$$          do itp=1,ntp0
-           !$$$            do it=1,nstate
-           !$$$              zmel(:,it,itp) =  matmul(zmel(:,it,itp),dconjg(ppovlz(:,:)))
-           !$$$            enddo
-           !$$$          enddo
-           !$$$#endif
-           !$$$c        endif
-           !        deallocate(rmelt,cmelt)
-           !        if(debug) write(6,*)' end of zmel'
-
+           
            !================================================================
            ! The correlated part of the self-energy:
            ! S[n=all] S[i,j=1,nbloch]

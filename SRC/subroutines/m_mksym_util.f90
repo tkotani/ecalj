@@ -781,12 +781,14 @@ contains
     character(*) :: t
     character(1):: rkey
     v=0d0
-    rkey=t(ip:ip)
+    rkey=''
+    if(len_trim(t)>=ip) rkey=t(ip:ip)  !I think this is ok(but not yet detailed check). 2024-7-26
     parsvc = .false.
     if(scan(t(ip:ip),'(XxYyZzDd')==0) return !if no translation
     if (rkey=='(') then ! we expect t(ip:)='(..., ..., ...)
        ip = ip+1
        mmm=index(t(ip:),')')
+       if(mmm<=0) write(6,*)'ip=',ip,'###',trim(t),'###','rkey###',rkey,'###'
        if(mmm<=0) call rx('cannot find right parensis for vector ###'//trim(t(ip:))//'###')
        if(verify(t(ip:ip+mmm-2),'0123456789.Dde-, ')>0) call rx('trans.part of symops should be numerical w/o math operations'&
             //trim(t(ip:ip+mmm-2)))

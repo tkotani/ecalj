@@ -1,7 +1,37 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 import os, datetime, shutil, glob,sys
-from gwutil import *
+def gen_dir(dirname):
+    if not os.path.isdir(dirname):
+        os.mkdir(dirname)
+def cp_files(files,cp_dir):
+    for fname in files:
+        if os.path.isfile(fname):
+            shutil.copy(fname,cp_dir+'/'+fname)
+def mv_files(files,mv_dir):
+    for fname in files:
+        shutil.move(fname,mv_dir+'/'+fname)
+def remove(fname):
+    if os.path.isfile(fname):
+        os.remove(fname)
+def rm_files(files):
+    for fname in files:
+        remove(fname)
+def run_program(commandline, ncore=0,x0=0):
+    import subprocess,datetime
+    xdate=datetime.datetime.now() #today().isoformat()
+    mpirun='mpirun -np %d '%ncore if ncore!=0 else ''
+    run_command = mpirun + commandline
+    if(x0==0):
+        print(xdate,'  '+run_command,flush=True)
+    else:
+        print(xdate-x0,'  '+run_command,flush=True)
+    info=subprocess.run(run_command,shell=True)
+    if info.returncode!=0: #if return error
+        print('Error in '+run_command,flush=True)
+        exit(-1)
+    return xdate
+
 import argparse,re
 parser = argparse.ArgumentParser(prog='gwsc',description='''
   QSGW calculation with MPI.
@@ -23,11 +53,14 @@ epath=os.path.dirname(os.path.abspath(__file__))
 #    ncore2=int(args.np2)
 #else:
 # options
-option=' --gpu --keepwv '
-option=' --gpu '
+#option=' --gpu --keepwv '
+#option=' --gpu '
+option=' --keepwv '
+option=' '
 if args.phispinsym==True: option= option+ ' --phispinsym '
 if args.emptyrun  ==True: option= option+ ' --emptyrun '
 option = ' '+option+' '.join(unknown)+' '
+datei=run_program('echo --- Start gwsc ---',1)
 print('option=',option)
 
 try:
@@ -56,7 +89,7 @@ if os.path.isfile('sigm'):
    print('--- sigm is softlinked to '+sigm_name, ' ---',flush=True)
 
 # main iteration ###################################
-if(Iter0!=-1): print('We found QPU.%run'%Iter0)
+if(Iter0!=-1): print(f'We found QPU.{Iter0}run')
 targets=' '+target+' '+option+' '
 for i in range(1,nloop+1): #nloop is the additional number of iteration
     niter=i+Iter0
@@ -64,42 +97,37 @@ for i in range(1,nloop+1): #nloop is the additional number of iteration
     print('===== %dth iteration start ======'%niter,flush=True)
     if os.path.isfile(sigm_name):
         print("---> We use existing sigm file",flush=True)
-        run_program(epath+'/lmf'+targets+'>llmf',ncore)
+        run_program(epath+'/lmf'+targets+'>llmf',ncore,datei)
     else:
         print("---> No sigm. LDA caculation for eigenfunctions ",flush=True)
-        run_program(epath+'/lmf'+targets+'>llmf_lda',ncore)
+        run_program(epath+'/lmf'+targets+'>llmf_lda',ncore,datei)
         shutil.copy(rst_name,rst_name+'.lda')
     rm_files(glob.glob('ewindow.%s*')+glob.glob('qbyl.%s*'%target)+glob.glob('eigze*.%s*'%target)+glob.glob('mixm*%s*'%target))
     #gw initialize
-    run_program(epath+'/lmf'+targets+'--jobgw=0 >llmfgw00',1)
-    run_program(epath+'/qg4gw '+option+'--job=1 > lqg4gw',1)
-    run_program(epath+'/lmf'+targets+'--jobgw=1 >llmfgw01',ncore)
+    run_program(epath+'/lmf'+targets+'--jobgw=0 >llmfgw00',1,datei)
+    run_program(epath+'/qg4gw '+option+'--job=1 > lqg4gw',1,datei)
+    run_program(epath+'/lmf'+targets+'--jobgw=1 >llmfgw01',ncore,datei)
     ##### main stage of gw ####
-    #run_program(epath+'/rdata4gw_v2 '+option+'> lrdata4gw_v2',1) #prepare files
-    mv_files(glob.glob('norm*'),'STDOUT')
-#    rm_files(['gwa']+glob.glob('gwb*'))
-    run_program(epath+'/heftet --job=1 '+option+'> leftet',1)       # A file EFERMI for hx0fp0
+    run_program(epath+'/heftet --job=1 '+option+'> leftet',1,datei)       # A file EFERMI for hx0fp0
     ### Core part of the self-energy (exchange only) ###
-    run_program(epath+'/hbasfp0 --job=3 '+option+'>lbasC',1)          # Product basis generation
-    run_program(epath+'/hvccfp0 --job=3 '+option+'> lvccC', ncore) # Coulomb matrix for lbasC
-    run_program(epath+'/hsfp0_sc --job=3 '+option+'>lsxC',ncore2) # Sigma from core1
+    run_program(epath+'/hbasfp0 --job=3 '+option+'>lbasC',1,datei)          # Product basis generation
+    run_program(epath+'/hvccfp0 --job=3 '+option+'> lvccC', ncore,datei) # Coulomb matrix for lbasC
+    run_program(epath+'/hsfp0_sc --job=3 '+option+'>lsxC',ncore2,datei) # Sigma from core1
     mv_files(glob.glob('stdout*'),'STDOUT')
     ### Valence part of the self-energy Sigma ###
-    run_program(epath+'/hbasfp0 --job=0 '+option+'> lbas',1)        # Product basis generation
-    run_program(epath+'/hvccfp0 --job=0 '+option+'> lvcc',ncore) # Coulomb matrix for lbas
-    run_program(epath+'/hsfp0_sc --job=1 '+option+'>lsx',ncore2) # Exchange Sigma
+    run_program(epath+'/hbasfp0 --job=0 '+option+'> lbas',1,datei)        # Product basis generation
+    run_program(epath+'/hvccfp0 --job=0 '+option+'> lvcc',ncore,datei) # Coulomb matrix for lbas
+    run_program(epath+'/hsfp0_sc --job=1 '+option+'>lsx',ncore2,datei) # Exchange Sigma
     mv_files(glob.glob('stdout*'),'STDOUT')
-###    run_program(epath+'/hx0init --job=11 > lx0init',ncore2)    #x0 part
-###    run_program(epath+'/hx0zmel > lx0zmel',ncore2)   #x0 part
-    run_program(epath+'/hrcxq '+option+'> lrcxq',ncore2)       #x0 part
-#    run_program(epath+'/hhilbert > lhilbert',ncore2) #x0 part
+    run_program(epath+'/hrcxq '+option+'> lrcxq',ncore2,datei)       #x0 part
     mv_files(glob.glob('stdout*'),'STDOUT')
-    run_program(epath+'/hsfp0_sc --job=2 '+option+'> lsc',ncore2) #correlation Sigma
+    run_program(epath+'/hsfp0_sc --job=2 '+option+'> lsc',ncore2,datei) #correlation Sigma
     mv_files(glob.glob('stdout*'),'STDOUT')
-    run_program(epath+'/hqpe_sc '+option+'> lqpe',1)        #all Sigma are combined.
+    run_program(epath+'/hqpe_sc '+option+'> lqpe',1,datei)        #all Sigma are combined.
     ### final part of iteration loop. Manupulate files ###
     remove(sigm_name)
     os.symlink('sigm',sigm_name)
+    flist=['ctrl.%s'%target,rst_name,sigm_name,'llmf_oneshot','save.%s'%target,'log.%s'%target,'QPU','QPD']
     mv_files(glob.glob('SEX*')+glob.glob('SEC*')+glob.glob('XC*'),'SEBK')
     for f in ['sigm','QPU','QPD','TOTE.UP','TOTE.DN','lqpe','lsc','lsx','lx0','llmfgw01','evecfix.chk','llmf','ESEAVR']:
         if os.path.isfile(f):
@@ -107,19 +135,19 @@ for i in range(1,nloop+1): #nloop is the additional number of iteration
     if i==0 and Iter0!=0 and nloop!=0:
         run0='RUN0'
         gen_dir(run0)
-        run_program(epath+'/lmf'+targets+'>llmf_oneshot',ncore)
-        cp_files(['ctrl.%s'%target,rst_name,sigm_name,'llmf_oneshot','save.%s'%target],run0)
+        run_program(epath+'/lmf'+targets+'>llmf_oneshot',ncore,datei)
+        cp_files(flist,run0)
     rundir='RUN.ITER%d'%niter
     gen_dir(rundir)
-    cp_files(['ctrl.%s'%target,rst_name,sigm_name,'GWinput','save.%s'%target],rundir)
-    print('===== %dth iteration over ====='%niter,flush=True)
+    cp_files(flist,rundir)
+    print('===== %dth iteration over  ====='%niter,flush=True)
 ### finally we have llmf_gwscend ###
 rm_files(glob.glob('ewindow.%s*')+glob.glob('qbyl.%s*'%target)+glob.glob('eigze*.%s*'%target)+glob.glob('mixm*%s*'%target))
-run_program(epath+'/lmf'+targets+'>llmf_gwscemd.%d'%niter,ncore)
+run_program(epath+'/lmf'+targets+'>llmf_gwscemd.%d'%niter,ncore,datei)
 run_program('echo end of llmf_gwscemd')
 if nloop==0:
     run0='RUN0'
     gen_dir(run0)
-    cp_files(['ctrl.%s'%target,rst_name,sigm_name,'llmf_gwscend.%d'%niter,'save.%s'%target],run0)
+    cp_files(flist,run0)
     argv=''
     print('OK! ==== All calclation finished for  gwsc %s ===='%argv)

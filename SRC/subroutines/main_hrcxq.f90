@@ -92,19 +92,19 @@ subroutine hrcxq() bind(C)
   n_bpara = mpi__size/(n_kpara*(iqxend - iqxini + 1) + 1) + 1 !Default setting of parallelization. k-parallel is 1.
   if(cmdopt2('--nb=', outs)) read(outs,*) n_bpara
   worker_inQtask = n_bpara * n_kpara
-  write(6,'(1X,A,3I5)') 'MPI: worker_inQtask:(n_bpara,n_kpara)', worker_inQtask, n_bpara, n_kpara
+  write(stdo,'(1X,A,3I5)') 'MPI: worker_inQtask:(n_bpara,n_kpara)', worker_inQtask, n_bpara, n_kpara
   call MPI__SplitXq(n_bpara, n_kpara)
   ! allocate( mpi__Qrank(iqxini:iqxend), source=[(mod(iq-1,mpi__size)           ,iq=iqxini,iqxend)])
   ! allocate( mpi__Qtask(iqxini:iqxend), source=[(mod(iq-1,mpi__size)==mpi__rank,iq=iqxini,iqxend)])
   allocate( mpi__Qrank(iqxini:iqxend), source=[(mod(iq-1,mpi__size/worker_inQtask)*worker_inQtask           ,iq=iqxini,iqxend)])
   allocate( mpi__Qtask(iqxini:iqxend), source=[(mod(iq-1,mpi__size/worker_inQtask)==mpi__rank/worker_inQtask,iq=iqxini,iqxend)])
-  write(6,ftox)'mpi_rank',mpi__rank,'mpi__Qtask=',mpi__Qtask
-  write(6,ftox) 'mpi_qrank', mpi__qrank
-  call flush(06)
+  write(stdo,ftox)'mpi_rank',mpi__rank,'mpi__Qtask=',mpi__Qtask
+  write(stdo,ftox) 'mpi_qrank', mpi__qrank
+  call flush(stdo)
   if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
   MainLoopToObtainZxq: do 1001 iq = iqxini,iqxend
     if( .NOT. MPI__Qtask(iq) ) cycle
-    write(6,*)'mpi_rank in IQ loop:', iq, mpi__rank
+    write(stdo,*)'mpi_rank in IQ loop:', iq, mpi__rank
     call cputid (0)
     qp = qibze(:,iq)
     write(stdo,ftox)'do 1001: iq q=',iq,ftof(qp,4),' of nq=',iqxend !4 means four digits below decimal point (optional).

@@ -81,7 +81,8 @@ subroutine hsfp0_sc()
   logical:: legas, exonly, iprintx,diagonly=.false.,exchange, hermitianW=.true.
 !  integer,allocatable:: irkip(:,:,:,:), nrkip(:,:,:,:)
   real(8),allocatable:: vxcfp(:,:,:), eqt(:), eq(:), eqx(:,:,:),eqx0(:,:,:)
-  complex(8),pointer::zsec(:,:,:)
+  !complex(8),pointer::zsec(:,:,:)
+  complex(8),allocatable:: zsec(:,:,:)
   InitializationBlock:block
     use m_readfreq_r,only:  Readfreq_r
     use m_hamindex,only:    Readhamindex, symgg=>symops,ngrp
@@ -89,6 +90,7 @@ subroutine hsfp0_sc()
     use m_zmel,only: Mptauof_zmel
     use m_anf,only:  Anfcond, laf
     use m_readeigen,only: INIT_READEIGEN,INIT_READEIGEN2,LOWESTEVAL
+    use m_mem,only:writemem,totalram
     integer:: incwfin
     real(8):: tripl
     logical:: cmdopt2
@@ -96,8 +98,7 @@ subroutine hsfp0_sc()
     call MPI__Initialize()
     call gpu_init() 
     call M_lgunit_init()
-    call date_and_time(values=timevalues)
-    write(stdo,"('mpirank=',i5,' YYYY.MM.DD.HH.MM.msec=',9i4)")mpi__rank,timevalues(1:3),timevalues(5:8)
+    call writemem('Start hsfp0: TotalRAM per node='//ftof(totalram(),3)//' GB')
     if(MPI__root) then
        if(cmdopt2('--job=',outs)) then
           read(outs,*) ixc
@@ -202,19 +203,23 @@ subroutine hsfp0_sc()
   ! Remove eibzmode symmetrizer 2023Jan22
   !call Seteibzhs(nspinmx,nq,qibz,iprintx=MPI__root)
   Main4SelfEnergy: Block !time-consuming part Need highly paralellized
-    use m_sxcf_main,only: sxcf_scz_correlation,sxcf_scz_exchange
-    use m_sxcf_gpu, only: sxcf_scz_correlation_gpu => sxcf_scz_correlation , sxcf_scz_exchange_gpu => sxcf_scz_exchange
-    logical:: use_gpu, cmdopt0
-    use_gpu = cmdopt0('--gpu')
-    if(use_gpu) then  
-      write(stdo,ftox)'GPU mode ON'
-      if(exchange)      call sxcf_scz_exchange_gpu   (ef,esmr,ixc,nspinmx) !main part of job
-      if(.not.exchange) call sxcf_scz_correlation_gpu(ef,esmr,ixc,nspinmx) !main part of job
-    else
-      write(stdo,ftox)'GPU mode OFF:Original'
-      if(exchange)      call sxcf_scz_exchange   (ef,esmr,ixc,nspinmx) !main part of job
-      if(.not.exchange) call sxcf_scz_correlation(ef,esmr,ixc,nspinmx) !main part of job
-    endif
+    ! use m_sxcf_main,only: sxcf_scz_correlation,sxcf_scz_exchange
+    ! use m_sxcf_gemm,only: sxcf_scz_correlation_gemm => sxcf_scz_correlation, sxcf_scz_exchange_gemm => sxcf_scz_exchange
+    ! logical:: use_original, cmdopt0
+    !    use_original = cmdopt0('--oldsxcf') !2024-7-23
+    !    if(use_original) then  
+    !write(stdo,ftox)'original old version'
+    !if(exchange)      call sxcf_scz_exchange   (ef,esmr,ixc,nspinmx) !main part of job
+    !if(.not.exchange) call sxcf_scz_correlation(ef,esmr,ixc,nspinmx) !main part of job
+    !    else
+    !      write(stdo,ftox) 'gemm version'
+    !      if(exchange)      call sxcf_scz_exchange_gemm   (ef,esmr,ixc,nspinmx) !main part of job
+    !      if(.not.exchange) call sxcf_scz_correlation_gemm(ef,esmr,ixc,nspinmx) !main part of job
+    !    endif
+    use m_sxcf_gemm,only: sxcf_scz_correlation, sxcf_scz_exchange
+    write(stdo,ftox) 'gemm version'
+    if(exchange)      call sxcf_scz_exchange   (ef,esmr,ixc,nspinmx) !main part of job
+    if(.not.exchange) call sxcf_scz_correlation(ef,esmr,ixc,nspinmx) !main part of job
   EndBlock Main4SelfEnergy
 ! Remove eibzmode symmetrizer 2023Jan22 (extended irreducibel BZ mode)
 !  SymmetrizeZsec :Block
@@ -226,12 +231,14 @@ subroutine hsfp0_sc()
 !    endif
 !  EndBlock SymmetrizeZsec
   Finalizesum: block
-    use m_sxcf_main,only: zsecall
-    call MPI__reduceSum(root=0, data=zsecall, sizex=ntq*ntq*nqibz*nspinmx )
+!    use m_sxcf_main,only: zsecall
+    use m_sxcf_gemm,only: zsecall,reducez
+    call reducez(nspinmx)
     if(MPI__root) then
        do is=1,nspinmx
-          zsec => zsecall(:,:,:,is)
-          call HsWriteResult() !internal subroutine.
+          allocate(zsec,source= zsecall(:,:,:,is))
+          call HsWriteResult() !internal subroutine. write only
+          deallocate(zsec)
        enddo
     endif
     call cputid(0)
@@ -248,19 +255,14 @@ contains
     write(stdo,*)' ***'
     call READQG0('QGpsi',qibz(1:3,1), quu,ngpn1)
     call READQG0('QGcou',qibz(1:3,1), quu,ngcn1)
-    write(stdo,6700) nspin,nq,ntq
-6700 format (1x,3i4,'  nspin  nq  ntq')
-    write(stdo,6501) is,nbloch,ngpn1,ngcn1,nqbz,nqibz,ef,deltaw,alat,ef,esmr
-6501 format (' spin =',i2,'   nbloch ngp ngc=',3i4 &
-         ,'  nqbz =',i6,'  nqibz =',i6,'   ef=', f10.4,' Rydberg' &
-         ,/,d23.16,' <= deltaw(Hartree)',/,d23.16,' <= alat' &
-         ,/,d23.16,' <= ef ',/,d23.16,' <= esmr')
-    !! Print LDA exchange-correlation files XCU and XCD
-    if(ixc==1) then
+    write(stdo,ftox)'nspin nq ntq=',nspin,nq,ntq
+    write(stdo,ftox)'spin=',is,'nbloch ngp ngc=',nbloch,ngpn1,ngcn1,'nqbz=',nqbz,'nqibz=',nqibz,'ef=',ftof(ef),'Rydberg'
+    write(stdo,ftox)'deltaw(Hartree)=',ftof(deltaw),' alat=',ftof(alat), 'esmr=',ftof(esmr)
+    PrintLDAexchangecorrelationXCUXCD: if(ixc==1) then
        allocate(  vxcfp(ntq,nq,nspin) )
        call rsexx(nspin,qibz,ntq,nq, ginv, vxcfp) !add ginv july2011
-       if(MPI__root) then
-          do is = 1,nspinmx
+       MPIroot: if(MPI__root) then
+          isploop: do is = 1,nspinmx
              if(is==1) open(newunit=ifxc(1),file='XCU')!//xt(nz))
              if(is==2) open(newunit=ifxc(2),file='XCD')!//xt(nz))
              write (ifxc(is),*) '==================================='
@@ -270,22 +272,21 @@ contains
              write (ifxc(is),*)' ***'
              write (ifxc(is),"(a)") ' jband   iq ispin                  qibz eigen-Ef (in eV)     LDA XC (in eV)'
              write(stdo,*)
-             do ip = 1,nq
+             iploop: do ip = 1,nq
                 do i  = 1,ntq
                    write(ifxc(is),"(3i5,3d24.16,3x,d24.16,3x,d24.16)") &
                         i,ip,is, qibz(1:3,ip), eqx(i,ip,is), vxcfp(i,ip,is)
                    if(eqx(i,ip,is) <1d20 .AND. vxcfp(i,ip,is)/=0d0) then
-                      !    !takao june2009. See lmf2gw (evl_d=1d20; in Ry.. but eqx is in eV. no problem for inequality).
                       write(stdo,"(' j iq isp=' i3,i4,i2,'  q=',3f8.4,'  eig=',f10.4,'  Sxc(LDA)=',f10.4)") &
                            i,ip,is, qibz(1:3,ip), eqx(i,ip,is), vxcfp(i,ip,is)
                    endif
                 enddo
-             enddo
+             enddo iploop
              close(ifxc(is))
-          enddo                 !     end of spin-loop
-       endif                   !MPI__root
+          enddo isploop
+       endif MPIroot
        deallocate(vxcfp)
-    endif
+    endif PrintLDAexchangecorrelationXCUXCD
   end subroutine Hswriteinit
   ! SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
   subroutine HsWriteResult() !contained in hsfp0_sc. Only write out files, no side effect
