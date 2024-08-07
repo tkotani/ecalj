@@ -1,6 +1,8 @@
 submodule(m_blas) m_blas_kind4
   !$use omp_lib
+#ifdef __GPU
   use cublas_v2, m_type =>CUDA_C_32F, compute_type => CUBLAS_COMPUTE_32F_FAST_TF32, algo => cublas_gemm_default
+#endif
   implicit none
   integer, parameter :: kp = 4
 contains
