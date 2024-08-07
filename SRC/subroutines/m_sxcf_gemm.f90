@@ -154,7 +154,7 @@ contains
     izz=0
     call stopwatch_init(t_sw_zmel, 'zmel')
     call stopwatch_init(t_sw_xc, 'ex')
-    !$acc data copyout(zsecall)
+    !$acc enter data create(zsecall)
     !$acc kernels
     zsecall(1:ntq,1:ntq,1:nqibz,1:nspinmx) = CZERO
     !$acc end kernels
@@ -245,7 +245,7 @@ contains
         enddo iploopexternal
       enddo irotloop
     enddo kxloop
-    !$acc end data
+    !$acc exit data copyout (zsecall)
     deallocate(ekc, eq)
     call stopwatch_show(t_sw_zmel)
     call stopwatch_show(t_sw_xc)
@@ -287,7 +287,7 @@ contains
     call stopwatch_init(t_sw_cr, 'ec realaxis integral')
     call stopwatch_init(t_sw_ci, 'ec imagaxis integral')
     allocate(zsecall(ntq,ntq,nqibz,nspinmx),source=(0d0,0d0)) 
-    !$acc data copyout(zsecall)
+    !$acc enter data create(zsecall)
     !$acc kernels
     zsecall(1:ntq,1:ntq,1:nqibz,1:nspinmx) = CZERO
     !$acc end kernels
@@ -569,7 +569,7 @@ contains
         endif
       endblock releasew !  end subroutine releasewv
     enddo kxloop
-    !$acc end data
+    !$acc exit data copyout (zsecall)
     deallocate(ekc, eq, omega)
     call stopwatch_show(t_sw_zmel)
     call stopwatch_show(t_sw_ci)

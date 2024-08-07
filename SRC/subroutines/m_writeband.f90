@@ -355,19 +355,26 @@ contains
     real(8):: rydberg=13.6058d0, bin,eigen(4),vvv,wt,bin2
     character strn*120
     character*(*)::ext
+    character(8)::xt
     logical::cmdopt2!,mlog
     integer, dimension(:),allocatable :: kpproc
     integer::numprocs,procid,ierr,itete,iteti,ispx,lso
+    logical :: cmdopt0, idwmode
+    real(8), allocatable :: dwgt4(:,:,:,:)
+    integer :: iq, idt, idw
     include "mpif.h"
+    idwmode = cmdopt0('--writedw')
+    if(idwmode) print *, 'writedw mode ON'
     print *,' pdosdata file=','pdosdata.'//trim(ext)
     open(newunit=ifip,form='unformatted',file='pdosdata.'//trim(ext))
     read(ifip) ndhamx,nsp,nspx,nevmin,nchanp,nbas,nkk1,nkk2,nkk3,ntete,nkp,lso !ndos,nkp mar2015
     allocate(idtete(0:4,6*nkp),ipqe(nkk1,nkk2,nkk3))
     allocate(evlall(ndhamx,nspx,nkp))
-    allocate(dwgtall(nchanp,nbas,ndhamx,nsp,nkp))
+    if(.not.idwmode) allocate(dwgtall(nchanp,nbas,ndhamx,nsp,nkp))
+    if(idwmode) allocate(dwgt4(nchanp,nbas,ndhamx,4))
     read(ifip) idtete
     read(ifip) evlall
-    read(ifip) dwgtall
+    if(.not.idwmode) read(ifip) dwgtall
     read(ifip) ef0
     close(ifip)
     call MPI_COMM_RANK( comm, procid, ierr )
@@ -396,13 +403,25 @@ contains
     allocate(pdosalla(ndos,nsp,nchanp,nbas))
     tetrehedronloop:do itet = iteti, itete
        do isp = 1, nsp
+          if(idwmode) then
+             do idt = 1, 4
+                 iq = idtete(idt,itet)
+                 open(newunit=idw,file='dwgtall'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
+                 read(idw) dwgt4(:,:,:,idt)
+                 close(idw)
+             enddo
+          endif
           ispx= merge(1,isp,lso==1)
           do ib = 1, nevmin
              eigen(1:4) = evlall(ib,ispx,idtete(1:4,itet))
              if( minval(eigen) > emaxp+ef0 ) cycle
              do ibas = 1,nbas
                 do ichan = 1, nchanp
-                   wt = sum(dwgtall(ichan,ibas,ib,isp,idtete(1:4,itet))) * idtete(0,itet) * vvv
+                   if(idwmode) then
+                     wt = sum(dwgt4(ichan,ibas,ib,1:4)) * idtete(0,itet) * vvv
+                   else
+                     wt = sum(dwgtall(ichan,ibas,ib,isp,idtete(1:4,itet))) * idtete(0,itet) * vvv
+                   endif
                    call slinz(wt,eigen,eminp+ef0,emaxp+ef0,pdosalla(1,isp,ichan,ibas),ndos)
                 enddo
              enddo
