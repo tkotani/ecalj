@@ -15,6 +15,8 @@ module m_procar
   logical,private:: isp1init=.true.,isp2init=.true.,init=.true.
   integer,private:: iprocar1,iprocar2
   logical,private:: cmdopt0,fullmesh,debug,procaron
+
+  logical,private:: idwmode=.true.
 contains
   subroutine m_procar_closeprocar()
     logical:: nexist
@@ -36,7 +38,12 @@ contains
     real(8):: rydberg=13.6058d0,evl(ndhamx,nspx)
     logical:: cmdopt0
     real(8),allocatable:: evlm(:,:)
-!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! idw section    
+    character(8)::xt
+    integer::idw
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    !
+    idwmode = cmdopt0('--writedw')
     fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface')
     debug = cmdopt0('--debugbndfp')
     PROCARon = cmdopt0('--mkprocar') !write PROCAR(vasp format).
@@ -52,12 +59,12 @@ contains
     endif
 
 
-!    write(stdo,ftox) 'isp ',ispin,ispx,ispstart,ispend,' nev ndhamx nspx',nev,ndhamx,nspx
+    !    write(stdo,ftox) 'isp ',ispin,ispx,ispstart,ispend,' nev ndhamx nspx',nev,ndhamx,nspx
     allocate(evlm,source=evl)
     if(lso/=0) evlm(:,ispin)=evl(:,ispin) !+ vmag0*(ispin-1.5d0)
     allocate( auspp(nlmax,ndhamx,3,nsp,nbas),source=(0d0,0d0) ) !3 for three radial funcitons (u,s,gz). ndhamx is the dimension of Hamiltonian.
     call makusq(nbas,[-999], nev,ispin,1,qp,evec, auspp ) !Get (u,s,gz) !ispin is neglected for lso=1
-    
+
     isploop: do isp=ispstart,ispend
        if(isp1init .AND. isp==1) then
           open(newunit=iprocar1,file='PROCAR.UP.'//trim(strprocid))
@@ -68,9 +75,9 @@ contains
           isp2init=.false.
        endif
        if(procaron .AND. fullmesh .AND. init) then
-          allocate(dwgtall(nchanp,nbas,ndhamx,nsp,nkp))
-          dwgtall=0d0
-          init=.false.
+          if(idwmode) open(newunit=idw,file='dwgtall'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
+          if(.not.idwmode) allocate(dwgtall(nchanp,nbas,ndhamx,nsp,nkp),source=0d0)
+          if(.not.idwmode) init=.false.
        endif
        if(isp==1) iprocar=iprocar1
        if(isp==2) iprocar=iprocar2
@@ -82,13 +89,13 @@ contains
        write(iprocar,*)
        write(iprocar,"('k-point ',i4,' :    ',3f13.8,'     weight = -------  : x =',f15.8)")iq,qp,xdatt(iq)
        write(iprocar,*)
-       do iband = 1, nev !band index 
+       ibandloop: do iband = 1, nev !band index 
           write(iprocar,*)
-!         write(stdo,"('band ',i3,' # energy ',f13.8,' # occ. -----',3i5 )")iband,(evlm(iband,ispx)-ef0)*rydberg,iband,nev,ispx
+          !         write(stdo,"('band ',i3,' # energy ',f13.8,' # occ. -----',3i5 )")iband,(evlm(iband,ispx)-ef0)*rydberg,iband,nev,ispx
           write(iprocar,"('band ',i3,' # energy ',f13.8,' # occ. -----' )")iband,(evlm(iband,ispx)-ef0)*rydberg
           write(iprocar,*)
           dwgtt=0d0
-          do ib = 1, nbas
+          ibloop: do ib = 1, nbas
              is  = ispec(ib)
              ilm = 0
              dwgt=0d0
@@ -128,10 +135,12 @@ contains
              if(ib==1)  write(iprocar,"(a)") trim(ccc)
              write(iprocar,"(i3,100(x,f8.5))")ib,(dwgt(i),i=1,nchanp),sum(dwgt(1:nchanp))
              if(ib==nbas) write(iprocar,"('tot',100(x,f8.5))")(dwgtt(i),i=1,nchanp),sum(dwgtt(1:nchanp))
-             if(fullmesh) dwgtall(1:nchanp,ib,iband,isp,iq) = dwgt(1:nchanp)
-          enddo
-       enddo
+             if((.not.idwmode).and.fullmesh) dwgtall(1:nchanp,ib,iband,isp,iq) = dwgt(1:nchanp)
+             if(idwmode.and.fullmesh) write(idw) dwgt(1:nchanp) 
+          enddo ibloop
+       enddo ibandloop
     enddo isploop
+    if(idwmode) close(idw)
     deallocate( evlm,auspp )
   end subroutine m_procar_init
 !!--------------------------------------------------------
@@ -150,15 +159,18 @@ contains
     nkk2=nkabc(2)
     nkk3=nkabc(3)
     !! pdos mode (--mkprocar and --fullmesh). ===
-    if(debug) print *,'mmmm procid sum dwgt check=',procid,sum(dwgtall)
-    if(afsym) then !cmdopt0('--afsym')) then
-       call xmpbnd2(kpproc,nbas*nchanp*ndhamx,nkp,dwgtall(:,:,:,1,:)) !all eigenvalues broadcasted
-       call xmpbnd2(kpproc,nbas*nchanp*ndhamx,nkp,dwgtall(:,:,:,2,:)) !all eigenvalues broadcasted
-    elseif(lso==1) then
-       call xmpbnd2(kpproc,nbas*nchanp*ndhamx*nsp,nkp,dwgtall)
-    else   
-       call xmpbnd2(kpproc,nbas*nchanp*ndhamx,nkp*nsp,dwgtall)
-    endif   
+    if(.not.idwmode) then
+       if(debug) print *,'mmmm procid sum dwgt check=',procid,sum(dwgtall)
+       if(afsym) then !cmdopt0('--afsym')) then
+          call xmpbnd2(kpproc,nbas*nchanp*ndhamx,nkp,dwgtall(:,:,:,1,:)) !all dwgtall broadcasted to k
+          call xmpbnd2(kpproc,nbas*nchanp*ndhamx,nkp,dwgtall(:,:,:,2,:)) 
+       elseif(lso==1) then
+          call xmpbnd2(kpproc,nbas*nchanp*ndhamx*nsp,nkp,dwgtall)
+       else   
+          call xmpbnd2(kpproc,nbas*nchanp*ndhamx,nkp*nsp,dwgtall)
+       endif
+    endif
+!!
     if(master_mpi) then
        allocate(idtete(0:4,6*nkp),ipqe(nkk1,nkk2,nkk3))
        iq=0
@@ -180,7 +192,7 @@ contains
        write(ifip) ndhamx,nsp,nspx,nevmin,nchanp,nbas,nkk1,nkk2,nkk3,ntete,nkp, lso
        write(ifip) idtete,ipqe 
        write(ifip) evlall  
-       write(ifip) dwgtall 
+       if(.not.idwmode) write(ifip) dwgtall 
        write(ifip) ef0
        close(ifip)
        if(nkp/=nkk1*nkk2*nkk3) call rx('pdosmode but nkp/=nkk1*nkk2*nkk3')
