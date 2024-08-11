@@ -1,0 +1,151 @@
+#!/usr/bin/env python3
+# -*- coding:utf-8 -*-
+import os, datetime, shutil, glob,sys
+def gen_dir(dirname):
+    if not os.path.isdir(dirname):
+        os.mkdir(dirname)
+def cp_files(files,cp_dir):
+    for fname in files:
+        if os.path.isfile(fname):
+            shutil.copy(fname,cp_dir+'/'+fname)
+def mv_files(files,mv_dir):
+    for fname in files:
+        shutil.move(fname,mv_dir+'/'+fname)
+def remove(fname):
+    if os.path.isfile(fname):
+        os.remove(fname)
+def rm_files(files):
+    for fname in files:
+        remove(fname)
+def run_program(commandline, ncore=0,x0=0):
+    import subprocess,datetime
+    xdate=datetime.datetime.now() #today().isoformat()
+    mpirun='mpirun -np %d '%ncore if ncore!=0 else ''
+    run_command = mpirun + commandline
+    if(x0==0):
+        print(xdate,'  '+run_command,flush=True)
+    else:
+        print(xdate-x0,'  '+run_command,flush=True)
+    info=subprocess.run(run_command,shell=True)
+    if info.returncode!=0: #if return error
+        print('Error in '+run_command,flush=True)
+        exit(-1)
+    return xdate
+
+import argparse,re
+parser = argparse.ArgumentParser(prog='gwsc',description='''
+  QSGW calculation with MPI.
+  gwsc allow general options (not described here), which are used in cmdopt in *.f90'
+''')
+parser.add_argument("nloop",       help='number of QSGW iteration, starting from current result.',default=1,type=int)
+parser.add_argument("extension",   help='extension of ctrl')
+parser.add_argument("-np",        help='number of mpi cores in lmf',default=4,type=int)
+#parser.add_argument("-np2",       help='number of mpi cores in lxc etc') 
+parser.add_argument('--phispinsym',help='spin-symmetrized augmentation',action='store_true')
+parser.add_argument('--emptyrun'  ,help='test for gprof for memory',    action='store_true')
+args,unknown=parser.parse_known_args()
+target=''.join(re.split('ctrl.',args.extension))
+nloop=args.nloop
+ncore=args.np
+ncore2=args.np
+epath=os.path.dirname(os.path.abspath(__file__))
+#if args.np2!=None:
+#    ncore2=int(args.np2)
+#else:
+# options
+option=' '
+option=' --keepwv '
+if args.phispinsym==True: option= option+ ' --phispinsym '
+if args.emptyrun  ==True: option= option+ ' --emptyrun '
+option = ' '+option+' '.join(unknown)+' '
+datei=run_program('echo --- Start gwsc ---',1)
+print('option=',option)
+
+try:
+    tmp=[int(s.strip('QPU.').strip('run')) for s in os.listdir() if 'QPU.' in s]
+    Iter0=max(tmp) if len(tmp)!=0 else -1
+except:
+    Iter0=-1
+if(nloop==0):
+    nloop=1
+    print('WARN: We replace ITERADD=0 with ITERADD=1 because of backward compatibility.')
+initxt="### START gwsc: ITERADD= %d, MPI size=  %d, %d TARGET= %s"%(nloop,ncore,ncore2,target)
+print(initxt,flush=True)
+gen_dir('SEBK')
+gen_dir('STDOUT')
+sigm_name='sigm.%s'%target
+rst_name ='rst.%s'%target
+
+# Set up sigm file and softlike sigm.foobar ##########################
+if os.path.islink(sigm_name):
+    pass
+elif os.path.isfile(sigm_name):
+    shutil.move(sigm_name,'sigm')
+
+if os.path.isfile('sigm'):
+   if not os.path.islink(sigm_name): os.symlink('sigm',sigm_name)
+   print('--- sigm is softlinked to '+sigm_name, ' ---',flush=True)
+
+# main iteration ###################################
+if(Iter0!=-1): print(f'We found QPU.{Iter0}run')
+targets=' '+target+' '+option+' '
+for i in range(1,nloop+1): #nloop is the additional number of iteration
+    niter=i+Iter0
+    #if(niter==0 and os.path.isfile(sigm_name)): rm_files(glob.glob('sigm*'))
+    print('===== %dth iteration start ======'%niter,flush=True)
+    if os.path.isfile(sigm_name):
+        print("---> We use existing sigm file",flush=True)
+        run_program(epath+'/lmf'+targets+'>llmf',ncore,datei)
+    else:
+        print("---> No sigm. LDA caculation for eigenfunctions ",flush=True)
+        run_program(epath+'/lmf'+targets+'>llmf_lda',ncore,datei)
+        shutil.copy(rst_name,rst_name+'.lda')
+    rm_files(glob.glob('ewindow.%s*')+glob.glob('qbyl.%s*'%target)+glob.glob('eigze*.%s*'%target)+glob.glob('mixm*%s*'%target))
+    #gw initialize
+    run_program(epath+'/lmf'+targets+'--jobgw=0 >llmfgw00',1,datei)
+    run_program(epath+'/qg4gw '+option+'--job=1 > lqg4gw',1,datei)
+    run_program(epath+'/lmf'+targets+'--jobgw=1 >llmfgw01',ncore,datei)
+    ##### main stage of gw ####
+    run_program(epath+'/heftet --job=1 '+option+'> leftet',1,datei)       # A file EFERMI for hx0fp0
+    ### Core part of the self-energy (exchange only) ###
+    run_program(epath+'/hbasfp0 --job=3 '+option+'>lbasC',1,datei)          # Product basis generation
+    run_program(epath+'/hvccfp0 --job=3 '+option+'> lvccC', ncore,datei) # Coulomb matrix for lbasC
+    run_program(epath+'/hsfp0_sc_gpu --job=3 '+option+'>lsxC',ncore2,datei) # Sigma from core1
+    mv_files(glob.glob('stdout*'),'STDOUT')
+    ### Valence part of the self-energy Sigma ###
+    run_program(epath+'/hbasfp0 --job=0 '+option+'> lbas',1,datei)        # Product basis generation
+    run_program(epath+'/hvccfp0 --job=0 '+option+'> lvcc',ncore,datei) # Coulomb matrix for lbas
+    run_program(epath+'/hsfp0_sc_gpu --job=1 '+option+'>lsx',ncore2,datei) # Exchange Sigma
+    mv_files(glob.glob('stdout*'),'STDOUT')
+    run_program(epath+'/hrcxq_gpu '+option+'> lrcxq',ncore2,datei)       #x0 part
+    mv_files(glob.glob('stdout*'),'STDOUT')
+    run_program(epath+'/hsfp0_sc_gpu --job=2 '+option+'> lsc',ncore2,datei) #correlation Sigma
+    mv_files(glob.glob('stdout*'),'STDOUT')
+    run_program(epath+'/hqpe_sc '+option+'> lqpe',1,datei)        #all Sigma are combined.
+    ### final part of iteration loop. Manupulate files ###
+    remove(sigm_name)
+    os.symlink('sigm',sigm_name)
+    flist=['ctrl.%s'%target,rst_name,sigm_name,'llmf_oneshot','save.%s'%target,'log.%s'%target,'QPU','QPD']
+    mv_files(glob.glob('SEX*')+glob.glob('SEC*')+glob.glob('XC*'),'SEBK')
+    for f in ['sigm','QPU','QPD','TOTE.UP','TOTE.DN','lqpe','lsc','lsx','lx0','llmfgw01','evecfix.chk','llmf','ESEAVR']:
+        if os.path.isfile(f):
+            shutil.copy(f,f+'.%drun'%niter)
+    if i==0 and Iter0!=0 and nloop!=0:
+        run0='RUN0'
+        gen_dir(run0)
+        run_program(epath+'/lmf'+targets+'>llmf_oneshot',ncore,datei)
+        cp_files(flist,run0)
+    rundir='RUN.ITER%d'%niter
+    gen_dir(rundir)
+    cp_files(flist,rundir)
+    print('===== %dth iteration over  ====='%niter,flush=True)
+### finally we have llmf_gwscend ###
+rm_files(glob.glob('ewindow.%s*')+glob.glob('qbyl.%s*'%target)+glob.glob('eigze*.%s*'%target)+glob.glob('mixm*%s*'%target))
+run_program(epath+'/lmf'+targets+'>llmf_gwscemd.%d'%niter,ncore,datei)
+run_program('echo end of llmf_gwscemd')
+if nloop==0:
+    run0='RUN0'
+    gen_dir(run0)
+    cp_files(flist,run0)
+    argv=''
+    print('OK! ==== All calclation finished for  gwsc %s ===='%argv)
