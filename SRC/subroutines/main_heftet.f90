@@ -187,8 +187,16 @@ subroutine heftet() bind(C)! Calculates the Fermi energy by tetrahedron method.
      allocate(dos(nptdos), dos_kbt(nptdos_kbt))
      volwgt = (3.d0 - nspin) / ntetf ! ntetf was =6*n1*n2*n3
      write (6,"(1x,'heftet : ---- Tetrahedron Integration ---- ')")
-     do itt = 1, 10
+     do itt = 1, 20
         call bzints2x(volwgt,eband,dum111,nkp,nbandx,nbandx,nspin,e1,e2,dos,nptdos,efermi,1,nteti,idteti)
+        if (dos(1)      > valn) then ! Quick fix to enlarge window [e1 e2] for very few number of k points for metal (then efrang3 may not work). 2024-8-17
+           e1=e1 -0.1d0
+           cycle
+        endif   
+        if (dos(nptdos) < valn) then
+           e2=e2 +0.1d0
+           cycle
+        endif      
         call fermi2( valn,dos,nptdos,e1,e2,   efermi,e1,e2,dosef) ! write(*,"(i3,7x,5(d13.6,1x))")itt, efermi, e1, e2, e2-e1, dosef
         if(e2 - e1 < tol) goto 444
      enddo
