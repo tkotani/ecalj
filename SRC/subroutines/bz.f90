@@ -1,4 +1,5 @@
 subroutine fermi2( qval,dos,ndos,emin,emax,  eferm,e1,e2,dosef)!Makes fermi energy from integrated density
+  use m_ftox
   implicit none
   intent(in)::     qval,dos,ndos,emin,emax  
   intent(out)::                              eferm,e1,e2,dosef
@@ -17,17 +18,13 @@ subroutine fermi2( qval,dos,ndos,emin,emax,  eferm,e1,e2,dosef)!Makes fermi ener
   integer:: ndos
   real(8):: qval,dos,emin,emax,eferm,e1,e2,dosef
   integer:: i1,ie
-  real(8):: de,q,q1,q2,d1mach
+  real(8):: de,q,q1,q2,eps=1d-12
   DIMENSION DOS(NDOS)
-  if (dos(1) > qval) print *, 'FERMI: EMIN,EMAX=', emin,emax
-  if (dos(1) > qval) call rx( 'FERMI: Fermi energy lies below EMIN')
-  if (dos(ndos) < qval) print *, 'FERMI: EMIN,EMAX=', emin,emax
-  if (dos(ndos) < qval) then
-     call rx( 'FERMI: Fermi energy lies above EMAX')
-  endif
+  if(dos(1)>     qval) call rx('fermi2: EMIN,EMAX='//ftof(emin)//' '//ftof(emax)//' Fermi energy<EMIN ')
+  if(dos(ndos) < qval) call rx('fermi2: EMIN,EMAX='//ftof(emin)//' '//ftof(emax)//' Fermi energy > EMAX')
   DE = (EMAX-EMIN)/(NDOS-1)
   I1 = 1
-  q = qval + d1mach(3)
+  q = qval + eps !d1mach(3)
   DO   IE = 2, NDOS
      I1 = IE
      IF ( DOS(IE) > q ) exit

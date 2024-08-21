@@ -39,7 +39,7 @@ contains
        integer(c_long) :: ru_nivcsw
     end type c_rusage
     interface
-       function getrusage(what,usage) bind(C, name="getrusage")
+       function getrusage(what,usage) bind(C, name="getrusage") 
          import :: c_int, c_long, c_rusage
          integer(c_int) :: getrusage
          integer(c_int), value :: what
@@ -51,7 +51,7 @@ contains
     integer :: mpi__info
     real(8)::k=1000
     ret = getrusage(0,usage)
-    memused = usage%ru_maxrss/k**2 ! in GB
+    memused = usage%ru_maxrss/k**2 ! in GB !maximally used memory size. I think
   end function memused
 
   character(23) function datetime()

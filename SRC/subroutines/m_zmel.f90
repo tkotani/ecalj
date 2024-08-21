@@ -106,7 +106,8 @@ contains
       enddo
     endblock ppbafp_v2_zmel
   end subroutine mptauof_zmel
-  
+
+  !this will be replaced by get_zmel_init_gemm
   subroutine get_zmel_init(q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc, iprx,zmelconjg,maxmem) !maxmem is optional Maxused memeory in GB
     use m_readeigen,only: readcphif 
     use m_readeigen,only: readgeigf
@@ -357,7 +358,7 @@ contains
     real(8):: quu(3),q(3), kvec(3),rkvec(3),qkt(3),qt(3), qdiff(3)
     real(8) :: ppb(nlnmx,nlnmx,mdimx,nclass) ! ppb= <Phi(SLn,r-R)_q,isp1 |Phi(SL'n',r-R)_qk,isp2 B_k(S,i,rot^{-1}(r-R))>
     logical:: iprx,zmelconjg,debug,cmdopt0
-    integer,allocatable:: ngveccR(:,:)
+    integer,allocatable:: ngveccR(:,:),igcgp2i_(:,:)
     complex(8)::cphiq(nlmto,nband), cphim(nlmto,nband)
     complex(8),allocatable:: geigq(:,:),dgeigqk(:,:)
     integer:: invr,nt0,ntp0,nmtot,nqtot
@@ -366,7 +367,14 @@ contains
     integer :: ierr, nqini_rank, nqmax_rank, ntp0_rank ,nm1,nm2,nm1c,nm2c,nm1v,nm2v,nm1cc,nm2cc
     integer :: mpi_rank, mpi_size, ini_index, end_index, num_index, mpi_info, irank
     real(8),optional::maxmem
+    character(8),external:: charext
     complex(kind=kp), parameter :: CONE = (1_kp, 0_kp), CZERO = (0_kp, 0_kp)
+    complex(8),allocatable:: zmelp0(:,:,:),ggitp_(:,:) 
+    complex(8),allocatable:: ggitp(:,:), gggmat(:,:), ggitp_work(:,:)
+    complex(8), allocatable :: zmel_buf(:,:,:)
+    complex(8), allocatable :: zmelt_d(:,:,:), zmelt(:,:,:)
+    complex(8), allocatable :: ppbvphiq_d(:,:,:), cphim_d(:,:), cphiq_d(:,:), ppbc_d(:,:,:), ppbv_d(:,:,:)
+    debug=cmdopt0('--debugzmel')
 #ifdef __GPU
     attributes(device) :: ppb
 #endif
@@ -380,9 +388,8 @@ contains
     endif
     nm1=ns1
     nm2=ns2
-    debug=cmdopt0('--debugzmel')
     nmtot = nm2-nm1+1 
-    if(nm1>nctot) then !skip core 
+    SetRangeOfCoreAndValence :if(nm1>nctot) then ! Core nm1c:nm2c, Valence nm1v:nm2v
        nm1c=0
        nm2c=-1
        nm1v=nm1
@@ -397,7 +404,7 @@ contains
        nm2c=nm2
        nm1v=0
        nm2v=-1
-    endif   
+    endif SetRangeOfCoreAndValence
     !! For given range of band index nm1;nm2, We now get nm1v:nmv2 and nm1c:nm2c, which are range of valence and core index.
     !! Note that band index is nctot+nvalence order.
     ntp0   = nqmax-nqini+1
@@ -454,17 +461,16 @@ contains
     end block SetByCPU
     if(debug) write(stdo,ftox)'zmel_init gpu',nbloch,ngc,nm1,nm2,nqtot
     ZmelBlock:block
-      complex(8), allocatable :: zmelt_d(:,:,:), zmelt(:,:,:)
 #ifdef __GPU
       attributes(device) :: zmelt, zmelt_d
 #endif
+      call writemem('mmmmm_zmel000: zmelsize='//ftof((nbloch+ngc)*(nm2-nm1+1)*nqtot*16/kk**3)//' GB')
       allocate(zmelt(1:nbloch+ngc,nm1:nm2,1:nqtot))
 !$acc kernels
       zmelt(1:nbloch+ngc,nm1:nm2,1:nqtot) = czero
 !$acc end kernels
       ZmelWithinMT: block !- Calculates <psi_q(itp) |psi_qk(it) B_k(rot(r-R))> 
         complex(8):: phasea(natom) 
-        complex(8), allocatable :: ppbvphiq_d(:,:,:), cphim_d(:,:), cphiq_d(:,:), ppbc_d(:,:,:), ppbv_d(:,:,:)
 #ifdef __GPU
         attributes(device) :: ppbvphiq_d, cphim_d, cphiq_d, ppbc_d, ppbv_d
 #endif
@@ -495,10 +501,8 @@ contains
             !$acc kernels
             ppbv_d(1:nv,1:nv,1:mdim) = dcmplx(ppb(nc1:ncnv,nc1:ncnv,1:mdim,icp)) 
             !$acc end kernels
-            ierr=gemm_batch(ppbv_d, cphiq_d, ppbvphiq_d, M=nv,N=ntp0,K=nv,          &
-                 NBATCH=mdim,                    opA=m_op_T, sameB=.true.)
-            ierr=gemm_batch(cphim_d,ppbvphiq_d, zmelt_d, M=nm2v-nm1v+1,N=ntp0,K=nv, &
-                 NBATCH=mdim, alpha = phasea(ia),opA=m_op_C, sameA=.true.)
+            ierr= gemm_batch(ppbv_d, cphiq_d, ppbvphiq_d, M=nv,N=ntp0,K=nv,          NBATCH=mdim,                    opA=m_op_T, sameB=.true.)
+            ierr= gemm_batch(cphim_d,ppbvphiq_d, zmelt_d, M=nm2v-nm1v+1,N=ntp0,K=nv, NBATCH=mdim, alpha = phasea(ia),opA=m_op_C, sameA=.true.)
             !$acc kernels
             do i = 1, mdim
               zmelt(i-1+ims,nm1v:nm2v,ncc+1:ncc+ntp0) = zmelt_d(nm1v:nm2v,1:ntp0,i)
@@ -507,8 +511,7 @@ contains
             deallocate(zmelt_d, ppbvphiq_d, ppbv_d)
           endif ValenceValence
           nm1cc = max(nm1c,ics+1)        !core index range between [nm1c,nm2c]. This corresponds to  nm1cc:nm2cc for atom ia.
-          nm2cc=  min(nm2c,ics+ncorec)
-!          write(6,*)'ia nm1cc nm2cc=',ia, nm1cc,nm2cc,ntp0,ncc,mdim
+          nm2cc=  min(nm2c,ics+ncorec)  !       write(6,*)'ia nm1cc nm2cc=',ia, nm1cc,nm2cc,ntp0,ncc,mdim
           CoreValence: if(nm2cc>=nm1cc) then 
             allocate(zmelt_d(mdim,ntp0,nm1cc:nm2cc), ppbc_d(mdim,nv,nm1cc:nm2cc))
             !$acc kernels
@@ -522,8 +525,7 @@ contains
                zmelt(ims:ime,it,ncc+1:ncc+ntp0) = zmelt_d(1:mdim,1:ntp0,it)
             enddo
             !$acc end kernels
-            deallocate(zmelt_d)
-!            write(6,*)'xxxxxxx ia nm1cc nm2ccxxx =',ia, nm1cc,nm2cc,sum(abs(zmelt(ims:ime,nm1cc:nm2cc,ncc+1:ncc+ntp0)))
+            deallocate(zmelt_d) ! write(6,*)'xxxxxxx ia nm1cc nm2ccxxx =',ia, nm1cc,nm2cc,sum(abs(zmelt(ims:ime,nm1cc:nm2cc,ncc+1:ncc+ntp0)))
           endif CoreValence
           ! !(MO) valence-core part NOT TESTED
           if(ncc>0) call rx('m_zmel_init: not yet ncc>0')
@@ -550,14 +552,17 @@ contains
           deallocate(cphiq_d)
         enddo iatomloop
       endblock ZmelWithinMT
-      ZmelIPWif: if(ngc/=0 .and. nm1v<=nm2v)then
+      call writemem('mmmmm_zmel111 ngc= '//trim(charext(ngc))//' nm1v nm2v= '//trim(charext(nm1v))//' '//trim(charext(nm2v)))
+      flush(stdo)
+      ZmelIPWif: if(ngc/=0 .and. nm1v<=nm2v) then
         ZmelIPW:block  !> Mattrix elements <Plane psi |psi> from interstitial plane wave.
           use m_read_ppovl,only:igggi,igcgp2i,nxi,nxe,nyi,nye,nzi,nze,nvgcgp2,ngcgp,ggg,ppovlinv,nnxi,nnxe,nnyi,nnye,nnzi,nnze,nggg
-          integer:: igcgp2,nn(3), iggg, igp1, itp, igc, igp2, igcgp2i_(ngc,ngp2)
-
-          
-          complex(8):: zmelp0(ngc,nm1v:nm2v,ntp0),phase(ngc)
-          complex(8):: ggitp(ngcgp,ntp0), gggmat(ngcgp,ngp1), ggitp_work(ngc, ngp2)
+          integer:: igcgp2,nn(3), iggg, igp1, itp, igc, igp2 !, igcgp2i_(ngc,ngp2)
+          complex(8):: phase(ngc)!zmelp0(ngc,nm1v:nm2v,ntp0)
+          allocate( ggitp(ngcgp,ntp0), gggmat(ngcgp,ngp1), ggitp_work(ngc, ngp2),igcgp2i_(ngc,ngp2))
+          if(debug) call writemem('mmmmm_zmel111aaa')
+          allocate(zmelp0(ngc,nm1v:nm2v,ntp0))
+          if(debug) call writemem('mmmmm_zmel111bbb')
 #ifdef __GPU
           attributes(device) :: zmelp0, ggitp, gggmat, ggitp_work, igcgp2i_, nn
 #endif
@@ -565,6 +570,7 @@ contains
           !$acc data copyin(dgeigqk, geigq, phase, ngvecpB1, ngvecpB2, ngveccR, nadd, ggg(1:nggg), nvgcgp2(1:3,1:ngcgp), &
           !$acc             igggi(nxi:nxe,nyi:nye,nzi:nze), igcgp2i(nnxi:nnxe,nnyi:nnye,nnzi:nnze), ppovlinv(1:ngc,1:ngc))
           !$acc kernels loop independent collapse(2)
+          if(debug) call writemem('mmmmm_zmel111ccc')
           do igcgp2 = 1, ngcgp
             do igp1 =1, ngp1
               nn(1:3) = ngvecpB1(1:3,igp1) - nvgcgp2(1:3,igcgp2) - nadd(1:3)
@@ -574,6 +580,7 @@ contains
             enddo
           enddo
           !$acc end kernels
+          if(debug) call writemem('mmmmm_zmel111ddd')
           !$acc kernels loop independent collapse(2)
           do igc = 1, ngc
            do igp2 = 1, ngp2
@@ -583,6 +590,8 @@ contains
           enddo
           !$acc end kernels
           ierr = gemm(gggmat, geigq(1,itq(nqini_rank)), ggitp, ngcgp, ntp0, ngp1, ldB = ngpmx)
+          deallocate(gggmat)
+          if(debug) call writemem('mmmmm_zmel111eee')
           do itp = 1, ntp0
             !$acc kernels loop independent collapse(2)
             do igp2 = 1, ngp2
@@ -591,23 +600,30 @@ contains
               enddo
             enddo
             !$acc end kernels
-            ierr = gemm(ggitp_work, dgeigqk(1,nm1v), zmelp0(1,1,itp), ngc, nm2v-nm1v+1, ngp2, ldB = ngpmx)
+            ierr = gemm(ggitp_work, dgeigqk(1,nm1v), zmelp0(1,nm1v,itp), ngc, nm2v-nm1v+1, ngp2, ldB = ngpmx)
           enddo
+          deallocate(ggitp_work,ggitp,igcgp2i_)
+          if(debug) call writemem('mmmmm_zmel111fff')
           !$acc kernels
           do igc = 1, ngc
             zmelp0(igc,nm1v:nm2v,1:ntp0) = phase(igc)*zmelp0(igc,nm1v:nm2v,1:ntp0)
           enddo
           !$acc end kernels
           allocate(zmelt_d(ngc,nm1v:nm2v,ntp0))
+          if(debug) call writemem('mmmmm_zmel111hhh')
           ierr = gemm(ppovlinv, zmelp0, zmelt_d, ngc, ntp0*nmtot, ngc) 
           !$acc kernels
           zmelt(nbloch+1:nbloch+ngc,nm1v:nm2v,ncc+1:ncc+ntp0) = zmelt_d(1:ngc,nm1v:nm2v,1:ntp0)
           !$acc end kernels
           !$acc end data
+          if(debug) call writemem('mmmmm_zmel333')
+          deallocate(zmelp0)
           deallocate(zmelt_d)
         endblock ZmelIPW
-     endif ZmelIPWif
+      endif ZmelIPWif
+      if(debug) call writemem('mmmmm_zmel endof ZmelIPWif')
       allocate(zmel(nbb,ns1:ns2,nqtot))
+      if(debug) call writemem('mmmmm_zmel deallocate zmel')
       !$acc enter data create(zmel)
       !$acc host_data use_device(zmel)
       !$acc data copyin(ppovlz(1:ngb,1:nbb))
@@ -618,7 +634,6 @@ contains
       if (present(comm)) then
         block
           integer, allocatable :: data_disp(:), data_size(:)
-          complex(8), allocatable :: zmel_buf(:,:,:)
           integer :: ini, num, end
           allocate(zmel_buf, mold = zmel)
           allocate(data_size(0:mpi_size-1), data_disp(0:mpi_size-1))
@@ -643,9 +658,10 @@ contains
                     &  mpi_complex16, comm, mpi_info)
           zmel = zmel_buf
           !$acc update device(zmel)
+          if(debug) call writemem('mmmmm_zmel after mpi=allgatherv')
           deallocate(zmel_buf, data_size, data_disp)
         end block
-     endif
+      endif
       if(zmelconjg) then
         !$acc kernels
         zmel = dconjg(zmel)
