@@ -40,7 +40,7 @@ parser = argparse.ArgumentParser(prog='gwsc',description='''
 parser.add_argument("nloop",       help='number of QSGW iteration, starting from current result.',default=1,type=int)
 parser.add_argument("extension",   help='extension of ctrl')
 parser.add_argument("-np",        help='number of mpi cores in lmf',default=4,type=int)
-#parser.add_argument("-np2",       help='number of mpi cores in lxc etc') 
+parser.add_argument("-np2",       help='number of mpi cores in lxc etc') 
 parser.add_argument('--phispinsym',help='spin-symmetrized augmentation',action='store_true')
 parser.add_argument('--emptyrun'  ,help='test for gprof for memory',    action='store_true')
 args,unknown=parser.parse_known_args()
@@ -49,8 +49,8 @@ nloop=args.nloop
 ncore=args.np
 ncore2=args.np
 epath=os.path.dirname(os.path.abspath(__file__))
-#if args.np2!=None:
-#    ncore2=int(args.np2)
+if args.np2!=None:
+   ncore2=int(args.np2)
 #else:
 # options
 option=' '

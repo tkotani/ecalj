@@ -406,7 +406,7 @@ contains
           if(idwmode) then
              do idt = 1, 4
                  iq = idtete(idt,itet)
-                 open(newunit=idw,file='dwgtall'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
+                 open(newunit=idw,file='dwgt.dir/dwgtk'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
                  read(idw) dwgt4(:,:,:,idt)
                  close(idw)
              enddo

@@ -43,7 +43,7 @@ file(GLOB MAINS_BOTTLENECK "../main/hsfp0_sc.f90" "../main/hrcxq.f90" "../main/h
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}) # directory for *.so
 
-set(CMAKE_Fortran_FLAGS_RELEASE "-O2")
+set(CMAKE_Fortran_FLAGS_RELEASE "-O2 -g -traceback")
 # ## compile options ############################################################
 if(FC MATCHES "gfortran")
   set(CMAKE_Fortran_COMPILER mpif90) # compiler
@@ -61,8 +61,9 @@ elseif(FC MATCHES "ifort")
 elseif(FC MATCHES "nvfortran")
   set(CMAKE_Fortran_COMPILER mpifort) # compiler
   set(CMAKE_Fortran_FLAGS "-fpic") # "-Mvect=simd -mcmodel=medium -fpic") # compile flags
+  # set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -C -g -traceback -Mnobounds")
   set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -C -g -traceback")
-  set(LIBM -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -acc=gpu -cuda -cudalib=cufft,cublas,cusolver)
+  set(LIBM -lmkl_intel_lp64 -lmkl_sequential -lmkl_core)
 endif()
 
 # library compilation
@@ -74,6 +75,7 @@ if(${BUILD_MP})
 endif()
 if(${BUILD_GPU})
   set(TYPE ${TYPE}_gpu)
+  set(LIBM ${LIBM} -acc=gpu -cuda -cudalib=cufft,cublas,cusolver)
   set(FLAGS ${FLAGS} -D__GPU -Minfo -Mfree -cuda -acc=gpu -cudalib=cufft,cublas,cusolver)
 endif()
 set(LIB ecaljF${TYPE})

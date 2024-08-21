@@ -41,6 +41,7 @@ module m_gpu
     use_gpu = .true.
     call acc_set_device_num(mydev, acc_device_nvidia)
     call acc_init(acc_device_nvidia)
+    call check_memory_gpu("gpu_init")
 
     if (procid == 0) then
       write(06,'(a,i6,x,2(a,i3),a,i12)') "i_procs:", procid, "gpuid:", mydev, "/", ndevs, " hostid:", hostid

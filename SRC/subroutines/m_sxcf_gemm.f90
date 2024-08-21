@@ -110,9 +110,9 @@ module m_sxcf_gemm
   logical :: emptyrun, keepwv
   complex(kind=kp), allocatable :: wvr(:,:,:), wvi(:,:,:)
   real(8), parameter:: rmax=2d0
-#ifdef __GPU
-  attributes(device) :: wvr, wvi
-#endif
+! #ifdef __GPU
+!   attributes(device) :: wvr, wvi
+! #endif
   logical,external :: cmdopt0 !we need external here
   type(stopwatch) :: t_sw_zmel, t_sw_xc, t_sw_cr, t_sw_ci
 contains
@@ -300,27 +300,33 @@ contains
         integer :: iqini, iqend, iw
         character(10) :: i2char
         real(8), parameter :: gb = 1000*1000*1000
-        complex(kind=kp), allocatable :: wv(:,:)
-        if(allocated(wvi)) deallocate(wvi)
-        if(allocated(wvr)) deallocate(wvr)
+        if(allocated(wvi)) then
+          !$acc exit data delete(wvi)
+          deallocate(wvi)
+        endif
+        if(allocated(wvr)) then
+          !$acc exit data delete(wvr)
+          deallocate(wvr)
+        endif
         if(any(kx==kxc(:))) then
           open(newunit=ifrcwi,file='WVI.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
           open(newunit=ifrcw, file='WVR.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
           if(keepwv) then
-            write(stdo, ftox) 'save WVI and WVR on CPU or GPU (if GPU is used) memory. This requires sufficient memory'
+            write(stdo, ftox) 'save WVI and WVR on CPU and GPU (if GPU is used) memory. This requires sufficient memory'
+           ! (MO) wvi & wvr are also allocated in CPU memory and are note needed for GPU calcualtion. but allocation of huge
+           ! device memory made a error (I don't know the reason). therefore, we used openacc data copyin procedure
+           ! but it is usually ok becuase CPU memoery size is always larger than that of GPU.
             call flush(stdo)
-            allocate(wv(nblochpmx, nblochpmx), wvi(nblochpmx,nblochpmx,niw))
+            allocate(wvi(nblochpmx,nblochpmx,niw))
             do iw = 1, niw
-              read(ifrcwi,rec=iw) wv(:,:)
-              wvi(:,:,iw) = wv !send to GPU
+              read(ifrcwi,rec=iw) wvi(:,:,iw)
             enddo
             allocate(wvr(nblochpmx,nblochpmx,nw_i:nw))
             do iw = nw_i, nw
-              read(ifrcw,rec=iw-nw_i+1) wv
-              wvr(:,:,iw) = wv
+              read(ifrcw,rec=iw-nw_i+1) wvr(:,:,iw)
             enddo
+            !$acc enter data copyin(wvi(1:nblochpmx,1:nblochpmx,1:niw), wvr(1:nblochpmx,1:nblochpmx,nw_i:nw))
             write(stdo, '(X,A,2F8.3)') 'WVI/WVR : sizes (GB)', dble(size(wvi))*kp*2/gb, dble(size(wvr))*kp*2/gb
-            deallocate(wv)
           endif
         endif
         !end subroutine setwv
@@ -562,8 +568,14 @@ contains
       !      call releasewv()
       releasew :block !subroutine releasewv()
         if(any(kx==kxc(:))) then
-          if(allocated(wvi)) deallocate(wvi)
-          if(allocated(wvr)) deallocate(wvr)
+          if(allocated(wvi)) then
+            !$acc exit data delete(wvi)
+            deallocate(wvi)
+          endif
+          if(allocated(wvr)) then
+            !$acc exit data delete(wvr)
+            deallocate(wvr)
+          endif
           close(ifrcwi)
           close(ifrcw)
         endif

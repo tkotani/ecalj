@@ -79,7 +79,10 @@ contains
           if(.not.idwmode) allocate(dwgtall(nchanp,nbas,ndhamx,nsp,nkp),source=0d0)
           if(.not.idwmode) init=.false.
        endif
-       if(idwmode) allocate(dwgtk(nchanp,nbas,ndhamx),source=0d0)
+       if(idwmode) then
+          allocate(dwgtk(nchanp,nbas,ndhamx),source=0d0)
+          call execute_command_line('mkdir -p dwgt.dir')
+       endif
 
        if(isp==1) iprocar=iprocar1
        if(isp==2) iprocar=iprocar2
@@ -142,7 +145,7 @@ contains
           enddo ibloop
        enddo ibandloop
        if(procaron .AND. fullmesh .AND. idwmode) then
-         open(newunit=idw,file='dwgtall'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
+         open(newunit=idw,file='dwgt.dir/dwgtk'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
          write(idw) dwgtk
        endif
        if(allocated(dwgtk)) deallocate(dwgtk)
