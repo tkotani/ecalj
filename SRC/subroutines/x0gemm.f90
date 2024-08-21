@@ -16,6 +16,7 @@ subroutine x0gemm(rcxq, npr, ipr_col, npr_col, nwhis, npm)
   use openacc
   use cudafor
 #endif
+  use, intrinsic :: ieee_arithmetic
   !$ use omp_lib
   implicit none
   integer, intent(in) :: npr, ipr_col, npr_col, nwhis, npm
@@ -25,6 +26,7 @@ subroutine x0gemm(rcxq, npr, ipr_col, npr_col, nwhis, npm)
   complex(kind=kp), allocatable :: zw(:,:), wzw(:,:)
   complex(kind=kp), parameter :: CONE = (1_kp, 0_kp)
   real(8), allocatable :: whw(:,:,:)
+  logical :: debug = .false.
 #ifdef __GPU
   attributes(device) :: zw, wzw
 #endif
@@ -37,7 +39,7 @@ subroutine x0gemm(rcxq, npr, ipr_col, npr_col, nwhis, npm)
   enddo
 
   nttp_max = maxval(nttp(1:nwhis,1:npm))
-  write(stdo, ftox)'nttp_max = ', nttp_max
+  if(debug) write(stdo, ftox)'nttp_max = ', nttp_max
   allocate (itw(nttp_max,nwhis,npm), source = 0)
   allocate (itpw(nttp_max,nwhis,npm), source = 0)
   allocate (whw(nttp_max,nwhis,npm), source = 0d0)
@@ -67,6 +69,7 @@ subroutine x0gemm(rcxq, npr, ipr_col, npr_col, nwhis, npm)
         do igb1 = 1, npr
           it  = itw(ittp,iw,jpm); itp = itpw(ittp,iw,jpm)
           zw(ittp,igb1) = zmel(igb1,it,itp)
+          ! if(ieee_is_nan(dble(zw(ittp,igb1)))) print *, 'zw is nan:', zw(ittp,igb1)
         enddo
       enddo
       !$acc end kernels
@@ -75,6 +78,7 @@ subroutine x0gemm(rcxq, npr, ipr_col, npr_col, nwhis, npm)
         do igb2 = 1, npr_col
           it  = itw(ittp,iw,jpm); itp = itpw(ittp,iw,jpm)
           wzw(ittp,igb2) = zmel(igb2+ipr_col-1,it,itp)*whw(ittp,iw,jpm)
+          ! if(ieee_is_nan(dble(wzw(ittp,igb2)))) print *, 'wzw is nan:', whw(ittp,iw,jpm), zmel(igb2+ipr_col-1,it,itp)
         enddo
       enddo
       !$acc end kernels
