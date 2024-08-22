@@ -1,5 +1,6 @@
 !>refine mesh for GW and index sets for sugw
 module m_rdata1
+  use m_nvfortran,only:findloc
   integer,public:: nradmx,nrmx,nnc
   integer,allocatable,public:: nrad(:),nindx_r(:,:),lindx_r(:,:), iord(:,:,:,:),nvmax(:,:), nrc(:),mindx(:)
   real(8),allocatable,public:: gval_n (:,:,:,:,:), gcore_n  (:,:,:,:), aac(:), bbc(:) 
