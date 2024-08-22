@@ -11,6 +11,7 @@ contains
     use m_lmfinit,only: lmxax,nbas,ispec,nsp,lmxa,rmt,nspec,nr,spec_a,nrmx0=>nrmx
     use m_hamindex0,only: nclass,iclass=>iclasst,nindx,lindx,ibasindx,nphimx
     use m_lgunit,only:stdo
+    use m_nvfortran,only:findloc
     implicit none
     integer::nxx,lxx,ibxx,ix,irr,mmm,l,ic,iorb,lx,nx,ispecc(nclass),icore,n1,n2,l1,l2,ierr,i,i1,ir,irad1,irad2,nmax
     integer,allocatable:: nrnn(:),nncx(:,:)
