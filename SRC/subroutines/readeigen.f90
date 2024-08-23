@@ -83,13 +83,15 @@ contains
  ! sssssssssssssssssssssssssssssssssssssssssssss
   subroutine readgeig(q,ngp_in,isp, qu,geigen)!,fpmt)
     use m_rotwave,only: Rotipw
+    use m_ftox
+    use m_lgunit,only:stdo
     implicit none
     !logical,optional,intent(in):: fpmt
     real(8),intent(in) :: q(3)
     integer,intent(in) :: isp,ngp_in
     real(8),intent(out) :: qu(3)
     complex(8), intent(out) :: geigen(ngp_in,nband)
-    integer:: iq,iqindx,ikpisp,napw,iqq,nnn(3),ig,igg,ig2,iqi,igxt
+    integer:: iq,iqindx,ikpisp,napw,iqq,nnn(3),ig,igg,ig2,iqi,igxt,i
     real(8)   :: ddd(3),platt(3,3),qpg(3),qpgr(3),qtarget(3),qout(3),qin(3)
     complex(8):: geigenr(ngp_in,nband),img=(0d0,1d0),img2pi
     img2pi=2d0*4d0*datan(1d0)*img
@@ -116,9 +118,17 @@ contains
     if(keepeig) then
        geigenr(1:ngp(iq),1:nband) = geig(1:ngp(iq),1:nband,iqi,isp)
     else
-       ikpisp= isp + nsp*(iqi-1)
-       read(ifgeig, rec=ikpisp) geigenr(1:ngpmx,1:nband)
+       !ikpisp= isp + nsp*(iqi-1)
+       read(ifgeig) geigenr(1:ngpmx,1:nband) !, rec=ikpisp)
     endif
+    
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!    write(stdo,ftox)'zzzzzzzeee1',ftof(qtt(:,iqq)),iqi
+!    do i=1,nband
+!       write(stdo,ftox)'zzzeee1',i,sum(abs(geigenr(1:ngp(iqi),i)))
+!    enddo
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    
     if(ngp_in < ngp(iq)) then
        write(6,*)'readgeig: ngpmx<ngp(iq)',iq,ngpmx,ngp(iq),q
        call rx( 'readgeig: ngpmx<ngp(iq)')
@@ -182,8 +192,8 @@ contains
     if(keepeig) then
        cphifr(1:ldim2,1:nband) = cphi(1:ldim2,1:nband,iqi,isp)
     else
-       ikpisp= isp + nsp*(iqi-1)
-       read(ifcphi, rec=ikpisp) cphifr(1:ldim2,1:nband)
+!       ikpisp= isp + nsp*(iqi-1)
+       read(ifcphi) cphifr(1:ldim2,1:nband) !, rec=ikpisp
     endif
     if(debug) write(6,"('readcphi:: xxx sum of cphifr=',3i4,4d23.16)")ldim2,ldim2,norbtx, &
          sum(cphifr(1:ldim2,1:nband)),sum(abs(cphifr(1:ldim2,1:nband)))
@@ -253,6 +263,7 @@ contains
     implicit none
     integer:: iq,is,ifiqg,nnnn,ikp, isx,ikpisp,verbose,ifoc, i1,i2,i3,i4,i5,iorb,iorbold
     logical :: keepeigen,cmdopt0
+    character(8) :: xt
     call readmnla_cphi()
     keepeig = keepeigen()
     init2=.false.
@@ -261,21 +272,25 @@ contains
     !if(cmdopt0('--fpmt')) keepeig=.false.
     if(Keepeig     ) write(6,*)' KeepEigen=T; readin geig and cphi into m_readeigen'
     if( .NOT. Keepeig) write(6,*)' KeepEigen=F; not keep geig and cphi in m_readeigen'
-    open(newunit=ifgeig,file='GEIG',form='unformatted',access='direct',recl=mrecg)
-    open(newunit=ifcphi,file='CPHI',form='unformatted',access='direct',recl=mrecb)
+!    open(newunit=ifgeig,file='GEIG',form='unformatted',access='direct',recl=mrecg)
+!    open(newunit=ifcphi,file='CPHI',form='unformatted',access='direct',recl=mrecb)
     if( .NOT. keepeig) return
     allocate(geig(ngpmx,nband,nqi,nsp))
     allocate(cphi(ldim2,nband,nqi,nsp))
     !      write(6,*)' size geig=',ngpmx,nband,nqi,nsp,ldim2,size(geig),size(cphi)
     do ikp= 1,nqi
        do is= 1,nsp
-          ikpisp= is + nsp*(ikp-1)
-          if(ngpmx/=0) read(ifgeig, rec=ikpisp) geig(1:ngpmx,1:nband,ikp,is) !add ngpmx/=0 Aug2005
-          read(ifcphi, rec=ikpisp) cphi(1:ldim2,1:nband,ikp,is)
+          open(newunit=ifcphi, file='CPHI'//trim(xt(ikp))//trim(xt(is)),form='unformatted')
+          open(newunit=ifgeig, file='GEIG'//trim(xt(ikp))//trim(xt(is)),form='unformatted')
+!          ikpisp= is + nsp*(ikp-1)
+          if(ngpmx/=0) read(ifgeig) geig(1:ngpmx,1:nband,ikp,is) ! , rec=ikpisp)
+          read(ifcphi) cphi(1:ldim2,1:nband,ikp,is) ! , rec=ikpisp
+          close(ifcphi)
+          close(ifgeig)
        enddo
     enddo
-    close(ifgeig)
-    close(ifcphi)
+!    close(ifgeig)
+!    close(ifcphi)
   end subroutine init_readeigen2
   subroutine readmnla_cphi()
     !! === readin @MNLA_CPHI for rotation of MTO part of eigenfunction cphi ===
@@ -330,7 +345,7 @@ contains
     logical :: keepeigen
     integer:: ikpx,ifi
     character*(8):: fname
-    keepeig = keepeigen()
+    keepeig = .True. !keepeigen()
     write(6,*)' init_readeigen_mlw_noeval'
     ! --- Readin MLWU/D, MLWEU/D, and UUq0U/D
     do is = 1,nsp
@@ -492,36 +507,37 @@ contains
        enddo
        deallocate(geig2,cphi2,geig,cphi)
     else
-       open(newunit=ifcphi_o,file='CPHI.mlw',form='unformatted')
-       open(newunit=ifgeig_o,file='GEIG.mlw',form='unformatted')
-       allocate(geig3(ngpmx,nwf))
-       allocate(cphi3(ldim2,nwf))
-       allocate(geig4(ngpmx,nband))
-       allocate(cphi4(ldim2,nband))
-       do ikp= 1,nqtt
-          do is= 1,nsp
-             ikpisp= is + nsp*(ikp-1)
-             read(ifgeig, rec=ikpisp) geig4(1:ngpmx,1:nband)
-             read(ifcphi, rec=ikpisp) cphi4(1:ldim2,1:nband)
-             geig3 = 0d0
-             cphi3 = 0d0
-             do iwf= 1,nwf
-                do ib= iko_ix,iko_fx
-                   geig3(:,iwf) = geig3(:,iwf) +  geig4(:,ib)*cbwf(ib,iwf,ikp,is)
-                   cphi3(:,iwf) = cphi3(:,iwf) +  cphi4(:,ib)*cbwf(ib,iwf,ikp,is)
-                enddo
-             enddo
-             write(ifgeig_o, rec=ikpisp) geig3(1:ngpmx,1:nwf)
-             write(ifcphi_o, rec=ikpisp) cphi3(1:ldim2,1:nwf)
-          enddo
-       enddo
-       deallocate(geig3,geig4,cphi3,cphi4)
-       close(ifcphi)
-       close(ifgeig)
-       close(ifcphi_o)
-       close(ifgeig_o)
-       open(newunit=ifgeigW,file='GEIG.mlw',form='unformatted')
-       open(newunit=ifcphiW,file='CPHI.mlw',form='unformatted')
+       call rx('KeepEigen=F not implemented')
+       ! open(newunit=ifcphi_o,file='CPHI.mlw',form='unformatted')
+       ! open(newunit=ifgeig_o,file='GEIG.mlw',form='unformatted')
+       ! allocate(geig3(ngpmx,nwf))
+       ! allocate(cphi3(ldim2,nwf))
+       ! allocate(geig4(ngpmx,nband))
+       ! allocate(cphi4(ldim2,nband))
+       ! do ikp= 1,nqtt
+       !    do is= 1,nsp
+       !       ikpisp= is + nsp*(ikp-1)
+       !       read(ifgeig, rec=ikpisp) geig4(1:ngpmx,1:nband)
+       !       read(ifcphi, rec=ikpisp) cphi4(1:ldim2,1:nband)
+       !       geig3 = 0d0
+       !       cphi3 = 0d0
+       !       do iwf= 1,nwf
+       !          do ib= iko_ix,iko_fx
+       !             geig3(:,iwf) = geig3(:,iwf) +  geig4(:,ib)*cbwf(ib,iwf,ikp,is)
+       !             cphi3(:,iwf) = cphi3(:,iwf) +  cphi4(:,ib)*cbwf(ib,iwf,ikp,is)
+       !          enddo
+       !       enddo
+       !       write(ifgeig_o, rec=ikpisp) geig3(1:ngpmx,1:nwf)
+       !       write(ifcphi_o, rec=ikpisp) cphi3(1:ldim2,1:nwf)
+       !    enddo
+       ! enddo
+       ! deallocate(geig3,geig4,cphi3,cphi4)
+       ! close(ifcphi)
+       ! close(ifgeig)
+       ! close(ifcphi_o)
+       ! close(ifgeig_o)
+       ! open(newunit=ifgeigW,file='GEIG.mlw',form='unformatted')
+       ! open(newunit=ifcphiW,file='CPHI.mlw',form='unformatted')
     endif
     deallocate(cbwf)
   end subroutine init_readeigen_mlw_noeval
@@ -536,12 +552,12 @@ contains
       write(6,*)'readgeig_mlw: ngpmx<ngp(iq)',iq,ngpmx,ngp(iq),q
       call rx( 'readgeig_mlw: ngpmx<ngp(iq)')
    endif
-   if(keepeig) then
+!   if(keepeig) then
       geigen(1:ngp(iq),1:nwf) = geigW(1:ngp(iq),1:nwf,iq,isp)
-   else
-      ikpisp= isp + nsp*(iq-1)
-      read(ifgeigW, rec=ikpisp) geigen(1:ngpmx,1:nwf)
-   endif
+!   else
+!      ikpisp= isp + nsp*(iq-1)
+!      read(ifgeigW) geigen(1:ngpmx,1:nwf)
+!   endif
  end subroutine readgeigW
  subroutine readcphiW(q,ldim2_dummy,isp,  qu,cphif)
    integer:: isp,iq,iqindx,ldim2_dummy,ikpisp
@@ -549,11 +565,11 @@ contains
    complex(8):: cphif(ldim2,nwf)
    if(init2) call rx( 'readcphi_mlw: modele is not initialized yet')
    call iqindx2_(q, iq, qu) !qu is used q.  q-qu= G vectors.
-   if(keepeig) then
+!   if(keepeig) then
       cphif(1:ldim2,1:nwf) = cphiW(1:ldim2,1:nwf,iq,isp)
-   else
-      ikpisp= isp + nsp*(iq-1)
-      read(ifcphi_mlw, rec=ikpisp) cphif(1:ldim2,1:nwf)
-   endif
+!   else
+!      ikpisp= isp + nsp*(iq-1)
+!      read(ifcphi_mlw) cphif(1:ldim2,1:nwf)
+!   endif
  end subroutine readcphiW
 end module m_readeigen

@@ -37,5 +37,7 @@ contains
     read(ifvcoud) zcousq
     close(ifvcoud)
     vcousq = sqrt(vcoud)
+!    write(6,*)'voud sumcheck1111=',sum(abs(vcousq)),sum(abs(zcousq))
+!    write(6,*)'voud sumcheck1112=',sum(abs(qvv)),ngb
   end subroutine Readvcoud
 end module m_readVcoud

@@ -284,7 +284,7 @@ contains
         call cputid (0)
 1590    continue
 2000   continue
-        write(stdo,ftox)"--- x0kf_v4hz: end",sum(abs(rcxq(:,:,1:nwhis,1:npm))) !,sum((rcxq(:,:,1:nwhis,1:npm)))
+        write(stdo,ftox)"--- x0kf_v4hz: end: sumcheck abs(rcxq)=",sum(abs(rcxq(:,:,1:nwhis,1:npm))) !,sum((rcxq(:,:,1:nwhis,1:npm)))
       endblock x0kf_v4hz_block
       deallocate(whwc, kc, iwini,iwend, itc,itpc, jpmc,icouini, nkmin,nkmax,nkqmin,nkqmax,icounkmin,icounkmax)
       HilbertTransformation:if(isp_k==nsp .OR. chipm) then
