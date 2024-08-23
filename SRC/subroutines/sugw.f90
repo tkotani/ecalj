@@ -448,14 +448,14 @@ contains
          if(ngpmx/=0) geigr(1:ngpmx,nev+1:nbandmx,isp)=1d20 !padding
 !         if(ngpmx/=0) write(ifgeig,  rec=iqqisp)  geigr(1:ngpmx,1:nbandmx,isp)
          if(ngpmx/=0) write(ifgeig)  geigr(1:ngpmx,1:nbandmx,isp)
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    if(ngpmx/=0) then         
-    write(stdo,ftox)'zzzzzzzeee1s',ftof(qp),iq
-    do i=1,nbandmx
-       write(stdo,ftox)'zzzeee1s',i,sum(abs(geigr(1:ngp,i)))
-    enddo
-    endif
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!     if(ngpmx/=0) then         
+!     write(stdo,ftox)'zzzzzzzeee1s',ftof(qp),iq
+!     do i=1,nbandmx
+!        write(stdo,ftox)'zzzeee1s',i,sum(abs(geigr(1:ngp,i)))
+!     enddo
+!     endif
+! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
        endblock WriteCphiGeig
        if (lwvxc) close(ifiv)
        if (lwvxc) close(ifievec)

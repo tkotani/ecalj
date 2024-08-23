@@ -209,12 +209,6 @@ contains
           call rotgvec(symope, 1, ngc, [ngc], qlat, ngvecc, ngveccR)
         endblock
         geigq   = readgeigf(q, ispq) !read IPW part at q   !G1 for ngp1
-
-        write(stdo,ftox)'zzzzzzze 0000000 q=',ftof(q)
-        do i=1,nband
-           write(stdo,ftox)'zzzze',i,sum(abs(geigq(1:ngp1,i)))
-        enddo
-        
         dgeigqk = readgeigf(qk,ispm) !read IPW part at qk  !G2 for ngp2
         dgeigqk = dconjg(dgeigqk)
       endif
@@ -240,7 +234,6 @@ contains
       endif
     end block SetByCPU
     if(debug) write(stdo,ftox)'zmel_init gpu',nbloch,ngc,nm1,nm2,nqtot
-     write(stdo,ftox)'zzzz111',nbloch,ngc,nm1,nm2,nqtot
     ZmelBlock:block
 #ifdef __GPU
       attributes(device) :: zmelt, zmelt_d
@@ -256,7 +249,6 @@ contains
         attributes(device) :: ppbvphiq_d, cphim_d, cphiq_d, ppbc_d, ppbv_d
 #endif
         phasea = [(exp(-img *tpi* sum(kvec*tr(:,ia))),ia=1,natom)]
-     write(stdo,ftox)'zzzz222'
         iatomloop: do ia = 1, natom
           ic    = iclass(ia)
           nc    = nlnmc(ic) !nlnmc      = number of l,n,m for core states
@@ -355,13 +347,7 @@ contains
           !$acc             igggi(nxi:nxe,nyi:nye,nzi:nze), igcgp2i(nnxi:nnxe,nnyi:nnye,nnzi:nnze), ppovlinv(1:ngc,1:ngc))
           !$acc kernels loop independent collapse(2)
           if(debug) call writemem('mmmmm_zmel111ccc')
-!!!!!!!!!!!!!!!1
-!          write(stdo,ftox) 'ggggggggggggg111 sumcheck',sum(abs(ggg)),nxi,nxe,nyi,nye,nzi,nze
-!          nnnsss=0
-!          nnnggg=0
-      write(stdo,ftox)'zzzzzzzzzz 333',sum(abs(zmelt)) !sumcheck
-          gggmat=0d0
-!!!!!!!!!!!!!!       
+          gggmat=0d0 !fix 2024-8-23  (forgotton)
           do igcgp2 = 1, ngcgp
             do igp1 =1, ngp1
               nn(1:3) = ngvecpB1(1:3,igp1) - nvgcgp2(1:3,igcgp2) - nadd(1:3)
@@ -372,9 +358,6 @@ contains
               if(iggg>=0) gggmat(igcgp2,igp1)=ggg(iggg)
             enddo
           enddo
-!!!!!!!!!!!!!!!1
-!       write(stdo,ftox) 'ggggggggggggg222 sumcheck',sum(abs(gggmat)),nnnggg,nnnsss
-!!!!!!!!!!!!!!       
           !$acc end kernels
           if(debug) call writemem('mmmmm_zmel111ddd')
           !$acc kernels loop independent collapse(2)
@@ -386,8 +369,6 @@ contains
           enddo
           !$acc end kernels
           write(stdo,ftox) itq(nqini_rank:nqmax_rank)
-   write(stdo,ftox)'zzzzzzz gggmmm111',sum(abs(gggmat)),sum(abs(geigq(1:ngp1,itq(nqini_rank:nqmax_rank)))),nqini_rank,nqmax_rank,ntp0
-   write(stdo,ftox)'zzzzzzz gggmmm222',ngp1,sum(abs(geigq(1:ngp1,5:64))),ngc,ngp1
           ierr = gemm(gggmat, geigq(:,itq(nqini_rank:nqmax_rank)), ggitp, ngcgp, ntp0, ngp1, ldB = ngpmx)
           !      2024-8-20 bugfix for sxcf when itq in not contiguous. geigq(1,itq(nqini_rank)) --> geigq(:,itq(nqini_rank:nqmax_rank))
           deallocate(gggmat)
@@ -411,7 +392,6 @@ contains
           !$acc end kernels
           allocate(zmelt_d(ngc,nm1v:nm2v,ntp0))
           if(debug) call writemem('mmmmm_zmel111hhh')
-!          write(stdo,ftox)'zzzzzzz ddd',sum(abs(zmelp0)),sum(abs(ppovlinv))
           ierr = gemm(ppovlinv, zmelp0, zmelt_d, ngc, ntp0*nmtot, ngc)
           !$acc kernels
           zmelt(nbloch+1:nbloch+ngc,nm1v:nm2v,ncc+1:ncc+ntp0) = zmelt_d(1:ngc,nm1v:nm2v,1:ntp0)
@@ -471,7 +451,6 @@ contains
       if(present(maxmem)) maxmem=memused() ! MaxUsed memory in GB 
       deallocate(zmelt)
     endblock ZmelBlock
-    write(stdo,ftox)'zzzzzzzzzz',sum(abs(zmel)) !sumcheck
   end subroutine get_zmel_init_gemm
 end module m_zmel
 
