@@ -28,6 +28,13 @@ make -j 32 VERBOSE=1 ||my_error
 
 FC=${FC} cmake . -DBUILD_MP=ON -DBUILD_GPU=OFF  -DCMAKE_BUILD_TYPE=Release
 make -j 32 VERBOSE=1 ||my_error
+
+FC=${FC} cmake . -DBUILD_MP=OFF -DBUILD_GPU=ON  -DCMAKE_BUILD_TYPE=Release
+make -j 32 VERBOSE=1 ||my_error
+
+FC=${FC} cmake . -DBUILD_MP=ON -DBUILD_GPU=ON  -DCMAKE_BUILD_TYPE=Release
+make -j 32 VERBOSE=1 ||my_error
+
 cp `find . -mindepth 1 -maxdepth 1 -executable -type f` ${BINDIR} ||my_error
 popd
 exit

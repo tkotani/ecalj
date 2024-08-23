@@ -530,7 +530,7 @@ contains
                       !$acc kernels loop independent
                       do ittp = 1, nttp(iw) 
                         it = itw(ittp,iw); itp = itpw(ittp,iw)
-                        wz_iw(1:ngb,ittp) = wgtiw(ittp,iw)*zmel(1:ngb,it,itp)
+                        wz_iw(1:ngb,ittp) = cmplx(wgtiw(ittp,iw)*zmel(1:ngb,it,itp),kind=kp)
                       enddo
                       !$acc end kernels
                       ierr = gemm(wz_iw, wc, czwc_iw, nttp(iw), ngb, ngb, opA = m_op_c, ldB = nblochpmx, ldC = nttp_max)
@@ -553,11 +553,7 @@ contains
                   !$acc end host_data
                   !$acc kernels loop independent
                   do itp = 1, ntqxx
-#ifdef __MP
-                    zsec(itp,itp) = real(zsec(itp,itp))+img*min(imag(zsec(itp,itp)),0.0) !enforce Imzsec<0
-#else
-                    zsec(itp,itp) = dreal(zsec(itp,itp))+img*min(dimag(zsec(itp,itp)),0d0) !enforce Imzsec<0
-#endif
+                    zsec(itp,itp) = real(zsec(itp,itp),kind=kp)+img*min(-real((img*zsec(itp,itp)),kind=kp),0_kp) !enforce Imzsec<0
                   enddo
                   !$acc end kernels
                   deallocate(wv, wc, czmelwc)

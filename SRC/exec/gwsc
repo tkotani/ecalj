@@ -40,25 +40,29 @@ parser = argparse.ArgumentParser(prog='gwsc',description='''
 parser.add_argument("nloop",       help='number of QSGW iteration, starting from current result.',default=1,type=int)
 parser.add_argument("extension",   help='extension of ctrl')
 parser.add_argument("-np",        help='number of mpi cores in lmf',default=4,type=int)
-#parser.add_argument("-np2",       help='number of mpi cores in lxc etc') 
+parser.add_argument("-np2",       help='number of mpi cores in lxc etc') 
 parser.add_argument('--phispinsym',help='spin-symmetrized augmentation',action='store_true')
 parser.add_argument('--emptyrun'  ,help='test for gprof for memory',    action='store_true')
+parser.add_argument('--gpu' ,help='USE GPU version for hsfp0 and hrcxq',    action='store_true')
+parser.add_argument('--mp'  ,help='USE mixed precision version for hsfp0 and hrcxq',    action='store_true')
 args,unknown=parser.parse_known_args()
 target=''.join(re.split('ctrl.',args.extension))
 nloop=args.nloop
 ncore=args.np
 ncore2=args.np
 epath=os.path.dirname(os.path.abspath(__file__))
-#if args.np2!=None:
-#    ncore2=int(args.np2)
+if args.np2!=None:
+   ncore2=int(args.np2)
 #else:
 # options
 #option=' --gpu --keepwv '
 #option=' --gpu '
-option=' --keepwv '
 option=' '
+existing
 if args.phispinsym==True: option= option+ ' --phispinsym '
 if args.emptyrun  ==True: option= option+ ' --emptyrun '
+if args.mp        ==True: exec_type='_mp'
+if args.gpu       ==True: exec_type='_gpu'
 option = ' '+option+' '.join(unknown)+' '
 datei=run_program('echo --- Start gwsc ---',1)
 print('option=',option)
@@ -112,16 +116,16 @@ for i in range(1,nloop+1): #nloop is the additional number of iteration
     ### Core part of the self-energy (exchange only) ###
     run_program(epath+'/hbasfp0 --job=3 '+option+'>lbasC',1,datei)          # Product basis generation
     run_program(epath+'/hvccfp0 --job=3 '+option+'> lvccC', ncore,datei) # Coulomb matrix for lbasC
-    run_program(epath+'/hsfp0_sc --job=3 '+option+'>lsxC',ncore2,datei) # Sigma from core1
+    run_program(epath+'/hsfp0_sc'+exec_type+' --job=3 '+option+'>lsxC',ncore2,datei) # Sigma from core1
     mv_files(glob.glob('stdout*'),'STDOUT')
     ### Valence part of the self-energy Sigma ###
     run_program(epath+'/hbasfp0 --job=0 '+option+'> lbas',1,datei)        # Product basis generation
     run_program(epath+'/hvccfp0 --job=0 '+option+'> lvcc',ncore,datei) # Coulomb matrix for lbas
-    run_program(epath+'/hsfp0_sc --job=1 '+option+'>lsx',ncore2,datei) # Exchange Sigma
+    run_program(epath+'/hsfp0_sc'+exec_type+' --job=1 '+option+'>lsx',ncore2,datei) # Exchange Sigma
     mv_files(glob.glob('stdout*'),'STDOUT')
-    run_program(epath+'/hrcxq '+option+'> lrcxq',ncore2,datei)       #x0 part
+    run_program(epath+'/hrcxq'+exec_type+option+'> lrcxq',ncore2,datei)       #x0 part
     mv_files(glob.glob('stdout*'),'STDOUT')
-    run_program(epath+'/hsfp0_sc --job=2 '+option+'> lsc',ncore2,datei) #correlation Sigma
+    run_program(epath+'/hsfp0_sc'+exec_type+' --job=2 '+option+'> lsc',ncore2,datei) #correlation Sigma
     mv_files(glob.glob('stdout*'),'STDOUT')
     run_program(epath+'/hqpe_sc '+option+'> lqpe',1,datei)        #all Sigma are combined.
     ### final part of iteration loop. Manupulate files ###

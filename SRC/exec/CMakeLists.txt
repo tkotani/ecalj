@@ -63,7 +63,6 @@ elseif(FC MATCHES "nvfortran")
   set(CMAKE_Fortran_COMPILER mpifort) # compiler
   set(CMAKE_Fortran_FLAGS "-fpic") # "-Mvect=simd -mcmodel=medium -fpic") # compile flags
   set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -C -g -traceback -Mnobounds")
-  # set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -C -g -traceback")
   set(LIBM -lmkl_intel_lp64 -lmkl_sequential -lmkl_core)
 endif()
 
