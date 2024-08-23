@@ -12,7 +12,7 @@ subroutine sxcf_fal3z(&
   use m_readqg,only:readqg0
   use m_readeigen,only: readeval
   use m_keyvalue,only: getkeyvalue
-  use m_zmel,only: get_zmel_init,setppovlz, zmel
+  use m_zmel,only: get_zmel_init_gemm,setppovlz, zmel
   use m_readVcoud,only:   Readvcoud, vcoud,vcousq,zcousq,ngb,ngc
   use m_wfac,only:wfacx2,weavx2
   implicit none
@@ -505,7 +505,8 @@ subroutine sxcf_fal3z(&
            ntp0 = ntq
            ntqxx= ntp0
            !! Get matrix element zmelt= rmelt + img*cmelt, defined in m_zmel.F---
-           call Get_zmel_init(q,qibz_k,irot,qbz_kr, 1,nbmax+nctot,isp, 1,ntqxx,isp, nctot,ncc=0,iprx=.false.,zmelconjg=.false.)
+!          call      Get_zmel_init(q,qibz_k,irot,qbz_kr,1,nbmax+nctot,isp,1,ntqxx,isp,nctot,ncc=0,iprx=.false.,zmelconjg=.false.)
+           call get_zmel_init_gemm(q,qibz_k,irot,qbz_kr,1,nbmax+nctot,isp,1,ntqxx,isp,nctot,ncc=0,iprx=debug,  zmelconjg=.false.)!2024-8-20
            if(kx<= nqibz) then
               wtt = wk(kr)      !         wtx = 1d0
            else

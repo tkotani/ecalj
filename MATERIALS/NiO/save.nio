@@ -195,3 +195,48 @@ Start LMF nio --tdos -emax=20.0 -ndos=2000
 Start LMF nio --quit=band
 i mmom=-0.0000 ehf(eV)=-86704.369131 ehk(eV)=-86704.364597 sev(eV)=-142.535200
 Start LMF nio --band
+Start LMF nio --quit=band
+i mmom=-0.0000 ehf(eV)=-86704.369131 ehk(eV)=-86704.364597 sev(eV)=-142.535200
+Start LMF nio --mkprocar --fullmesh
+Start LMF nio --quit=band
+i mmom=-0.0000 ehf(eV)=-86704.369131 ehk(eV)=-86704.364597 sev(eV)=-142.535200
+Start LMF nio --mkprocar --fullmesh
+Start LMF nio --mkprocar --fullmesh
+Start LMF nio --mkprocar --fullmesh
+Start LMF nio --mkprocar --fullmesh
+Start LMF nio --mkprocar --fullmesh
+Start LMF nio --mkprocar --fullmesh
+Start LMF nio --mkprocar --fullmesh
+Start LMF nio --mkprocar --fullmesh
+Start LMF nio --mkprocar --fullmesh --writedwgt
+Start LMF nio --mkprocar --fullmesh
+Start LMF nio --quit=band --writedwgw
+i mmom=-0.0000 ehf(eV)=-86704.369131 ehk(eV)=-86704.364597 sev(eV)=-142.535200
+Start LMF nio --band --writedwgw
+Start LMF nio --quit=band --writedwgw
+i mmom=-0.0000 ehf(eV)=-86704.369131 ehk(eV)=-86704.364597 sev(eV)=-142.535200
+Start LMF nio --mkprocar --fullmesh --writedwgw
+Start LMF nio --quit=band --writedwgw
+i mmom=-0.0000 ehf(eV)=-86704.369131 ehk(eV)=-86704.364597 sev(eV)=-142.535200
+Start LMF nio --mkprocar --fullmesh --writedwgw
+Start LMF nio --quit=band
+i mmom=-0.0000 ehf(eV)=-86704.369131 ehk(eV)=-86704.364597 sev(eV)=-142.535200
+Start LMF nio --mkprocar --fullmesh
+Start LMF nio --quit=band
+i mmom=-0.0000 ehf(eV)=-86704.369131 ehk(eV)=-86704.364597 sev(eV)=-142.535200
+Start LMF nio --mkprocar --fullmesh
+Start LMF nio --quit=band
+i mmom=-0.0000 ehf(eV)=-86704.369131 ehk(eV)=-86704.364597 sev(eV)=-142.535200
+Start LMF nio --mkprocar --fullmesh
+Start LMF nio --quit=band
+i mmom=-0.0000 ehf(eV)=-86704.369131 ehk(eV)=-86704.364597 sev(eV)=-142.535200
+Start LMF nio --mkprocar --fullmesh
+Start LMF nio --quit=band --writedw
+i mmom=-0.0000 ehf(eV)=-86704.369131 ehk(eV)=-86704.364597 sev(eV)=-142.535200
+Start LMF nio --mkprocar --fullmesh --writedw
+Start LMF nio --quit=band --writedw
+i mmom=-0.0000 ehf(eV)=-86704.369131 ehk(eV)=-86704.364597 sev(eV)=-142.535200
+Start LMF nio --mkprocar --fullmesh --writedw
+Start LMF nio --quit=band --writedw
+i mmom=-0.0000 ehf(eV)=-86704.369131 ehk(eV)=-86704.364597 sev(eV)=-142.535200
+Start LMF nio --mkprocar --fullmesh --writedw

@@ -80,7 +80,7 @@ contains
     real(8)::omg_c,dw,omg2,wemax
     real(8), allocatable :: freqr2(:)  ,frhis_tmp(:)
     real(8)::  pi = 4d0*datan(1d0), aa,bb,ratio,oratio,daa
-    integer::nee,noo,ifif
+    integer::ifif
     logical,optional:: npmtwo !! Added Aug2017 for hmagnon
     logical:: npm2
     logical,save:: done=.false.
@@ -153,7 +153,7 @@ contains
        deallocate(wx,expa) 
     endif
     if(onceww(1)) then !plot frhis
-       write(6,*)' we set frhis nwhis noo-->nee=',nwhis,noo,nee
+       write(6,*)' we set frhis nwhis =',nwhis 
        write(6,*)' --- Frequency bins to accumulate Im part  (a.u.) are ---- '
        write(6,"(' ihis Init  End=', i5,2f18.11)") (ihis,frhis(ihis),frhis(ihis+1),ihis=1,nwhis)
     endif
