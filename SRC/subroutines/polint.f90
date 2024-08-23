@@ -252,7 +252,7 @@ subroutine hunty(xa,n,m,x,ix,low)
   !     implicit none
   ! Passed parameters
   integer :: n,m,ix,low
-  double precision :: xa(1),x
+  double precision :: xa(n),x
   ! Local variables
   integer :: inc,jhi,jm
   logical :: ascnd

@@ -59,7 +59,10 @@ contains
     integer,allocatable::ndiv(:),nstatei(:,:),nstatee(:,:)
     integer:: job
     if(npm==2) call rx('sxcf_fal2_sc: npm=2 need to be examined')
-    if(ixc==3.and.nctot==0) return
+    if(ixc==3.and.nctot==0)then
+       allocate( irkip(nspinmx,nqibz,ngrp,nqibz),source=0 ) ! nrkip is weight correspoinding to irkip for a node.
+       return
+    endif   
     !NOTE: We have to sum up all isp,kx,irot,ip for irkip(isp,kx,irot,ip)/=0.
     rankdivider: block !  We divide irkip_all into irkip for nodes. irkip is dependent on rank.
       ! Total number of none zero irkip for all ranks is the number of nonzero irkip_all

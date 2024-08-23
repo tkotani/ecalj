@@ -15,7 +15,6 @@ module m_procar
   logical,private:: isp1init=.true.,isp2init=.true.,init=.true.
   integer,private:: iprocar1,iprocar2
   logical,private:: cmdopt0,fullmesh,debug,procaron
-
   logical,private:: idwmode=.false.
 contains
   subroutine m_procar_closeprocar()
@@ -150,6 +149,7 @@ contains
        endif
        if(allocated(dwgtk)) deallocate(dwgtk)
     enddo isploop
+    if(idwmode) close(idw)
     deallocate( evlm,auspp )
   end subroutine m_procar_init
 !!--------------------------------------------------------

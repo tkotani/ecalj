@@ -77,7 +77,7 @@
 !! \endverbatim
 module m_sxcf_gemm
   use m_readeigen, only: Readeval
-  use m_zmel, only: get_zmel_init => get_zmel_init_gemm, Setppovlz, zmel, nbb
+  use m_zmel, only: get_zmel_init_gemm, Setppovlz, zmel, nbb !get_zmel_init => 
   use m_itq, only: itq, ntq, nbandmx
   use m_genallcf_v3, only: nlmto, nspin, nctot, niw, ecore !,symgg
   use m_read_bzdata, only: qibz, qbz, wk=>wbz, nqibz, nqbz, wklm, lxklm, wqt=>wt
@@ -181,7 +181,7 @@ contains
               izz=izz+1
               call writemem('=== KXloop '//trim(charext(izz))//' iqiqz irot ip isp icount= '//&
                    trim(charli([kx,irot,ip,isp,icount],5)))
-              call get_zmel_init(q, qibz_k, irot, qbz_kr, ns1, ns2, isp, 1, ntqxx, isp, nctot, ncc=0, iprx=debug, zmelconjg=.false.)
+              call get_zmel_init_gemm(q,qibz_k,irot,qbz_kr,ns1,ns2,isp,1,ntqxx,isp,nctot,ncc=0,iprx=debug,zmelconjg=.false.)
               call writemem('    end of zmel')
               call stopwatch_pause(t_sw_zmel)
               call stopwatch_start(t_sw_xc)
@@ -357,7 +357,7 @@ contains
               call writemem('=== KXloop '//trim(charext(izz))//' iqiqz irot ip isp icount= '//&
                    trim(charli([kx,irot,ip,isp,icount],5)))
               call stopwatch_start(t_sw_zmel)
-              call get_zmel_init(q, qibz_k, irot, qbz_kr, ns1, ns2, isp, 1, ntqxx, isp, nctot, ncc=0, iprx=debug, zmelconjg=.false.)
+              call get_zmel_init_gemm(q,qibz_k,irot,qbz_kr,ns1,ns2,isp,1,ntqxx,isp,nctot,ncc=0,iprx=debug,zmelconjg=.false.)
               call writemem('    end of zmel')
               call stopwatch_pause(t_sw_zmel)
               call stopwatch_start(t_sw_xc)
