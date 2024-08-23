@@ -54,14 +54,8 @@ contains
        endif
     enddo
     close(ippovl0)
-    write(06,*) 'sum of ppovlz1:', sum(ppovlz)
     ppovlz(1:nbloch,1:npr) = zcousq(1:nbloch,1:npr)
-    write(06,*) 'sum of ppovlz2:', sum(ppovlz(1:nbloch,1:npr))
     ppovlz(nbloch+1:nbloch+ngc,1:npr)=matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,1:npr))
-    write(06,*) 'sum of ppovlz3:', sum(ppovlz(1:nbloch+ngc,1:npr))
-    write(06,*) 'sum of zcousq:', sum(zcousq(1:nbloch,1:npr))
-    write(06,*) 'nbloch, npr:', nbloch, npr
-    write(06,*) zcousq(1:nbloch,1:npr)
     deallocate(ppovl)
     nbb=npr    ! ngb obatabugfix 2025-5-23. We had set nbb=ngb every time. Thus we had memory(and computational) loss for nolfc case.
   end subroutine setppovlz

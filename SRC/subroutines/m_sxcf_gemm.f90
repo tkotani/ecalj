@@ -101,7 +101,7 @@ module m_sxcf_gemm
   use m_stopwatch
   use m_mem,only:writemem
   implicit none
-  complex(8),allocatable,protected,target:: zsecall(:,:,:,:) !output 
+  complex(kind=kp),allocatable,protected,target:: zsecall(:,:,:,:) !output 
   public sxcf_scz_correlation, sxcf_scz_exchange,zsecall,reducez
   private
   real(8), parameter :: pi = 4d0*datan(1d0), fpi = 4d0*pi
@@ -121,7 +121,11 @@ module m_sxcf_gemm
   type(stopwatch) :: t_sw_zmel, t_sw_xc, t_sw_cr, t_sw_ci
 contains
   subroutine reducez(nspinmx)
-    use m_mpi,only:   MPI__reduceSum
+#ifdef __MP
+    use m_mpi,only: MPI__reduceSum => MPI__reduceSum_kind4
+#else
+    use m_mpi,only: MPI__reduceSum
+#endif
     integer::nspinmx
     call MPI__reduceSum(root=0, data=zsecall, sizex=ntq*ntq*nqibz*nspinmx )
   end subroutine reducez
@@ -517,11 +521,19 @@ contains
                       if(nttp(iw) < 1) cycle
                       if(keepwv) then
                         !$acc kernels
+#ifdef __MP
+                        wc(:,:) = (wvr(:,:,iw) + transpose(conjg(wvr(:,:,iw))))*0.5d0
+#else
                         wc(:,:) = (wvr(:,:,iw) + transpose(dconjg(wvr(:,:,iw))))*0.5d0
+#endif
                         !$acc end kernels
                       else
                         read(ifrcw,rec=iw-nw_i+1) wv
+#ifdef __MP
+                        wc = (wv + transpose(conjg(wv)))*0.5d0  !copy to GPU
+#else
                         wc = (wv + transpose(dconjg(wv)))*0.5d0  !copy to GPU
+#endif
                       endif
                       !$acc kernels loop independent
                       do ittp = 1, nttp(iw) 
@@ -545,11 +557,15 @@ contains
                   call stopwatch_pause(t_sw_cr)
 
                   !$acc host_data use_device(zmel, zsec)
-                  ierr = gemm(czmelwc, zmel, zsec, ntqxx, ntqxx, nbb*(ns2-ns1+1), opA = m_op_T, beta = CONE, ldC = ntq)
+                  ierr = gemm(czmelwc, cmplx(zmel,kind=kp), zsec, ntqxx, ntqxx, nbb*(ns2-ns1+1), opA = m_op_T, beta = CONE, ldC = ntq)
                   !$acc end host_data
                   !$acc kernels loop independent
                   do itp = 1, ntqxx
+#ifdef __MP
+                    zsec(itp,itp) = real(zsec(itp,itp))+img*min(imag(zsec(itp,itp)),0.0) !enforce Imzsec<0
+#else
                     zsec(itp,itp) = dreal(zsec(itp,itp))+img*min(dimag(zsec(itp,itp)),0d0) !enforce Imzsec<0
+#endif
                   enddo
                   !$acc end kernels
                   deallocate(wv, wc, czmelwc)

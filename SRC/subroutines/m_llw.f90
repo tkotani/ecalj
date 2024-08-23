@@ -90,7 +90,7 @@ contains
             if(igb1==igb2) zw0(igb1,igb2)= zw0(igb1,igb2)-vcousq(igb1)*vcousq(igb2)
           enddo
         enddo
-        zw(1:ngb,1:ngb) = cmplx(zw0,kind=kp)
+        zw(1:ngb,1:ngb) = cmplx(zw0(1:ngb,1:ngb),kind=kp)
 1012    continue
         write(ifrcw, rec= iw-nw_i+1 ) zw !  WP = vsc-v
         call tr_chkwrite("freq_r iq iw realomg trwv=", zw, iw, frr,nblochpmx, nbloch,ngb,iq)
@@ -199,7 +199,7 @@ contains
              enddo
           enddo
 1014      continue
-          zw(1:ngb,1:ngb) = cmplx(zw0,kind=kp)
+          zw(1:ngb,1:ngb) = cmplx(zw0(1:ngb,1:ngb),kind=kp)
           write(ifrcwi, rec= iw)  zw !  WP = vsc-v
           call tr_chkwrite("freq_i iq iw imgomg trwv=",zw,iw,freq_i(iw),nblochpmx,nbloch,ngb,iq)
           endif

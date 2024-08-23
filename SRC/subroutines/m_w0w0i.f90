@@ -76,9 +76,10 @@ contains
     use m_qbze,only: nqbze,nqibze,qbze,qibze
     use m_rdpp,only: nblochpmx,mrecl
     use m_freq,only: niw ,nw,nw_i
+    use m_kind, only: kp => kindrcxq
     integer:: ifrcwx,iq,ircw,iw,nini,nend,mreclx
     real(8)::q(3)
-    complex(8),allocatable:: zw(:,:)
+    complex(kind=kp),allocatable:: zw(:,:)
     character(10):: i2char
     mreclx=mrecl
     !! Read WVR and WVI at Gamma point, and give correct W(0) (averaged in the Gamma cell, where
@@ -102,8 +103,8 @@ contains
        do iw=nini,nend
           read(ifrcwx, rec= iw-nini+1 ) zw !(1:ngb,1:ngb)
           if( iq==1 ) then
-             if(ircw==1) zw(1,1) = w0(iw)
-             if(ircw==2) zw(1,1) = w0i(iw)
+             if(ircw==1) zw(1,1) = cmplx(w0(iw),kind=kp)
+             if(ircw==2) zw(1,1) = cmplx(w0i(iw),kind=kp)
           endif
           write(ifrcwx,rec=iw-nini+1) zw !(1:ngb,1:ngb)
        enddo
