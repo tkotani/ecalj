@@ -10,6 +10,7 @@ module m_llw
   use m_rdpp,only: nbloch,mrecl
   use m_x0kf,only: zxq,zxqi
   use m_mpi, only: MPI__GatherXqw, mpi__root_k, mpi__root_q
+  use m_kind,only: kp => kindrcxq
   implicit none
   public:: WVRllwR,WVIllwI,  MPI__sendllw,MPI__sendllw2
   complex(8),allocatable,protected,public:: llw(:,:), llwI(:,:)
@@ -17,7 +18,8 @@ module m_llw
   logical,protected,public:: w4pmode
   integer,protected,public:: ngbq0
   private
-  complex(8),allocatable:: zw0(:,:),zw(:,:)
+  complex(8),allocatable:: zw0(:,:)
+  complex(kind=kp), allocatable :: zw(:,:)
   complex(8),allocatable:: epstinv(:,:),epstilde(:,:)
   real(8),parameter:: pi=4d0*datan(1d0),fourpi = 4d0*pi
 contains
@@ -88,7 +90,7 @@ contains
             if(igb1==igb2) zw0(igb1,igb2)= zw0(igb1,igb2)-vcousq(igb1)*vcousq(igb2)
           enddo
         enddo
-        zw(1:ngb,1:ngb) = zw0
+        zw(1:ngb,1:ngb) = cmplx(zw0,kind=kp)
 1012    continue
         write(ifrcw, rec= iw-nw_i+1 ) zw !  WP = vsc-v
         call tr_chkwrite("freq_r iq iw realomg trwv=", zw, iw, frr,nblochpmx, nbloch,ngb,iq)
@@ -197,7 +199,7 @@ contains
              enddo
           enddo
 1014      continue
-          zw(1:ngb,1:ngb) = zw0 ! zw(nblochpmx,nblochpmx)
+          zw(1:ngb,1:ngb) = cmplx(zw0,kind=kp)
           write(ifrcwi, rec= iw)  zw !  WP = vsc-v
           call tr_chkwrite("freq_i iq iw imgomg trwv=",zw,iw,freq_i(iw),nblochpmx,nbloch,ngb,iq)
           endif
@@ -292,9 +294,11 @@ contains
 end module m_llw
 !===================================================================
 subroutine tr_chkwrite(tagname,zw,iw,freqq,nblochpmx,nbloch,ngb,iq)
+  use m_kind,only: kp => kindrcxq
   implicit none
   integer:: nblochpmx,nbloch,ngb,iw,i,iq
-  complex(8):: zw(nblochpmx,nblochpmx),trwv,trwv2
+  complex(kind=kp):: zw(nblochpmx,nblochpmx)
+  complex(8):: trwv,trwv2
   real(8):: freqq
   character*(*)::tagname
   trwv=0d0

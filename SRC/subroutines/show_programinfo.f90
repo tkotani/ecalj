@@ -14,9 +14,9 @@ subroutine show_programinfo(io)
   character(256):: FV=""
   character(256):: PF=""
   character(256):: LL=""
-  character(512):: GC1="commit 42cd72d708b5edaff33da4d7090fa0a58b68d762"
-  character(512):: GC2="Author: Masao Obata <obata.mso@gmail.com>"
-  character(512):: GC3="Date:   Sat Jun 8 12:45:06 2024 +0900"
+  character(512):: GC1="commit 3d8f053a7c448ff58bf1113dbed777693048b594"
+  character(512):: GC2="Merge: d560f426 267d6da5"
+  character(512):: GC3="Author: Masao Obata <obata.mso@gmail.com>"
   write(io,'(a,a,a,a)') info,trim(EI)
   write(io,'(a,a,a,a)') info,trim(FV)
   write(io,'(a,a,a)') info, trim(FFL)
@@ -24,7 +24,7 @@ subroutine show_programinfo(io)
   write(io,'(a,a,a)') info,'git: ',trim(GC1)
   write(io,'(a,a,a)') info,'   : ',trim(GC2)
   write(io,'(a,a,a)') info,'   : ',trim(GC3)
-  write(io,'(a,a,a)') info,'linked at ',trim("Sun Jun  9 17:31:03 JST 2024")
+  write(io,'(a,a,a)') info,'linked at ',trim("Fri Aug 23 11:06:39 JST 2024")
 end subroutine show_programinfo
 ! program test
 ! call show_programinfo(6)

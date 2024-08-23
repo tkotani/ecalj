@@ -68,8 +68,7 @@ subroutine x0gemm(rcxq, npr, ipr_col, npr_col, nwhis, npm)
       do ittp = 1, nttp(iw,jpm)
         do igb1 = 1, npr
           it  = itw(ittp,iw,jpm); itp = itpw(ittp,iw,jpm)
-          zw(ittp,igb1) = zmel(igb1,it,itp)
-          ! if(ieee_is_nan(dble(zw(ittp,igb1)))) print *, 'zw is nan:', zw(ittp,igb1)
+          zw(ittp,igb1) = cmplx(zmel(igb1,it,itp),kind=kp)
         enddo
       enddo
       !$acc end kernels
@@ -77,8 +76,7 @@ subroutine x0gemm(rcxq, npr, ipr_col, npr_col, nwhis, npm)
       do ittp = 1, nttp(iw,jpm)
         do igb2 = 1, npr_col
           it  = itw(ittp,iw,jpm); itp = itpw(ittp,iw,jpm)
-          wzw(ittp,igb2) = zmel(igb2+ipr_col-1,it,itp)*whw(ittp,iw,jpm)
-          ! if(ieee_is_nan(dble(wzw(ittp,igb2)))) print *, 'wzw is nan:', whw(ittp,iw,jpm), zmel(igb2+ipr_col-1,it,itp)
+          wzw(ittp,igb2) = cmplx(zmel(igb2+ipr_col-1,it,itp)*whw(ittp,iw,jpm),kind=kp)
         enddo
       enddo
       !$acc end kernels

@@ -91,7 +91,11 @@ module m_sxcf_gemm
   use m_nvfortran, only: findloc
   use m_hamindex, only: ngrp
   use m_blas, only: m_op_c, m_op_n, m_op_t
+#ifdef __MP
+  use m_blas, only: gemm => cmm, gemm_batch => cmm_batch
+#else
   use m_blas, only: gemm => zmm, gemm_batch => zmm_batch
+#endif
   use m_kind, only: kp => kindgw
   !  use m_sxcf_main,only: zsecall
   use m_stopwatch
@@ -221,12 +225,12 @@ contains
                   !$acc kernels loop independent collapse(2)
                   do itpp = 1, ntqxx
                     do it = ns1, ns2 
-                      vzmel(1:ngb,it,itpp) = wtff(it)*vcoud_buf(1:ngb)*zmel(1:ngb,it,itpp)
+                      vzmel(1:ngb,it,itpp) = cmplx(wtff(it)*vcoud_buf(1:ngb)*zmel(1:ngb,it,itpp),kind=kp)
                     enddo
                   enddo
                   !$acc end kernels
                   !$acc host_data use_device(zmel)
-                  ierr = gemm(zmel, vzmel, zsec, ntqxx, ntqxx, (ns2-ns1+1)*nbb, opA = m_op_c, &
+                  ierr = gemm(cmplx(zmel,kind=kp), vzmel, zsec, ntqxx, ntqxx, (ns2-ns1+1)*nbb, opA = m_op_c, &
                        alpha = cmplx(-wkkr,0_kp,kind=kp), beta = CONE, ldC = ntq)
                   !$acc end host_data
                   !$acc end data
@@ -432,7 +436,7 @@ contains
                       !$acc kernels loop independent collapse(2)
                       do itp = 1, ntqxx
                         do it = ns1, ns2
-                          wzmel(1:ngb,it,itp) = wgtim(iw,itp,it)*zmel(1:ngb,it,itp)
+                          wzmel(1:ngb,it,itp) = cmplx(wgtim(iw,itp,it)*zmel(1:ngb,it,itp),kind=kp)
                         enddo
                       enddo
                       !$acc end kernels

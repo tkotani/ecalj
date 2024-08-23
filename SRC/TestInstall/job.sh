@@ -12,4 +12,4 @@ BIN=~/ecaljdeveloper/bin
 export PATH=$BIN:$PATH
 
 # ./testecalj.py -np 8 gas_epsPP_lmfh
-./testecalj.py -np 4 gwall
+./testecalj.py -np 4 nio_gwsc

@@ -31,9 +31,10 @@ message("BUILD_MP is " ${BUILD_MP})
 enable_language(Fortran)
 
 # Note: we always renew show_programinfo.f90 because of Makeshow is always invoked. How to improve this?
-add_custom_target(show_prog COMMAND make -f Makeshow WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+add_custom_target(show_prog ALL COMMAND make -f Makeshow WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
   DEPENDS "../subroutines/*.f90" "../wanniergw/*.f90" "../main/*.f90"
 )
+
 file(GLOB SOURCES "../subroutines/*.f90" "../wanniergw/*.f90" "../subroutines/show_programinfo.f90") # source files
 file(GLOB SOURCES1 "../subroutines/*.f90" "../subroutines/show_programinfo.f90") # source files
 file(GLOB SOURCES2 "../wanniergw/*.f90") # source files

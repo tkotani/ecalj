@@ -13,6 +13,7 @@ module m_zmel
   use m_lgunit,only:stdo
   use m_MPItk,only:master_mpi
   use m_mem,only: memused,writemem
+  implicit none
   public:: get_zmel_init_gemm, Mptauof_zmel,Setppovlz,Setppovlz_chipm ! Call mptauof_zmel and setppovlz in advance to get_zmel_init
   complex(8),allocatable,protected,public :: zmel(:,:,:) ! OUTPUT: zmel(nbb,nmtot, nqtot) ,nbb:mixproductbasis, nmtot:middlestate, nqtot:endstate
   complex(8),allocatable,protected,public :: ppovlz(:,:)
@@ -41,7 +42,8 @@ contains
     real(8):: qx(3),tolq=1d-8
     if(allocated(ppovlz)) deallocate(ppovlz)
     if(allocated(ppovl))  deallocate(ppovl)
-    allocate( ppovl(ngc,ngc),ppovlz(ngb,npr))
+    allocate( ppovl(ngc,ngc), source = (0d0,0d0))
+    allocate( ppovlz(ngb,npr), source = (0d0,0d0))
     open(newunit=ippovl0,file='PPOVL0',form='unformatted') !inefficient search for PPOVLO for given q
     do 
        read(ippovl0) qx,ngc_r
@@ -52,8 +54,14 @@ contains
        endif
     enddo
     close(ippovl0)
+    write(06,*) 'sum of ppovlz1:', sum(ppovlz)
     ppovlz(1:nbloch,1:npr) = zcousq(1:nbloch,1:npr)
+    write(06,*) 'sum of ppovlz2:', sum(ppovlz(1:nbloch,1:npr))
     ppovlz(nbloch+1:nbloch+ngc,1:npr)=matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,1:npr))
+    write(06,*) 'sum of ppovlz3:', sum(ppovlz(1:nbloch+ngc,1:npr))
+    write(06,*) 'sum of zcousq:', sum(zcousq(1:nbloch,1:npr))
+    write(06,*) 'nbloch, npr:', nbloch, npr
+    write(06,*) zcousq(1:nbloch,1:npr)
     deallocate(ppovl)
     nbb=npr    ! ngb obatabugfix 2025-5-23. We had set nbb=ngb every time. Thus we had memory(and computational) loss for nolfc case.
   end subroutine setppovlz
@@ -327,6 +335,7 @@ contains
         enddo iatomloop
       endblock ZmelWithinMT
       call writemem('mmmmm_zmel111 ngc= '//trim(charext(ngc))//' nm1v nm2v= '//trim(charext(nm1v))//' '//trim(charext(nm2v)))
+      if(debug) write(stdo,ftox) 'sum of zmelt_mt:', sum(zmelt)
       flush(stdo)
       ZmelIPWif: if(ngc/=0 .and. nm1v<=nm2v) then
         ZmelIPW:block  !> Mattrix elements <Plane psi |psi> from interstitial plane wave.
@@ -402,10 +411,13 @@ contains
       !$acc enter data create(zmel)
       !$acc host_data use_device(zmel)
       !$acc data copyin(ppovlz(1:ngb,1:nbb))
-      ierr = gemm(ppovlz, zmelt, zmel(1,nm1,1), nbb, nmtot*ncc, ngb, opA = m_op_C)
-      ierr = gemm(ppovlz, zmelt, zmel(1,nm1,ncc+ini_index), nbb, nmtot*ntp0, ngb, opA = m_op_C)
+      ierr = gemm(ppovlz, zmelt(1,nm1,ncc+1), zmel(1,nm1,1), nbb, nmtot*ncc, ngb, opA = m_op_C)
+      ierr = gemm(ppovlz, zmelt(1,nm1,ncc+1), zmel(1,nm1,ncc+ini_index), nbb, nmtot*ntp0, ngb, opA = m_op_C)
       !$acc end data
       !$acc end host_data
+      if(debug) write(stdo,ftox) 'sum of ppovlz:', sum(ppovlz)
+      if(debug) write(stdo,ftox) 'sum of zmelt_pw:', sum(zmelt)
+      if(debug) write(stdo,ftox) 'sum of zmel:', sum(zmel)
       if (present(comm)) then
         block
           integer, allocatable :: data_disp(:), data_size(:)

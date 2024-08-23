@@ -96,3 +96,4 @@ SRC/TAGS
 chk
 bin
 SRC/exec*
+SRC/subroutines/show_programinfo.f90
