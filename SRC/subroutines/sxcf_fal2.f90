@@ -507,6 +507,8 @@ subroutine sxcf_fal3z(&
            !! Get matrix element zmelt= rmelt + img*cmelt, defined in m_zmel.F---
 !          call      Get_zmel_init(q,qibz_k,irot,qbz_kr,1,nbmax+nctot,isp,1,ntqxx,isp,nctot,ncc=0,iprx=.false.,zmelconjg=.false.)
            call get_zmel_init_gemm(q,qibz_k,irot,qbz_kr,1,nbmax+nctot,isp,1,ntqxx,isp,nctot,ncc=0,iprx=debug,  zmelconjg=.false.)!2024-8-20
+          !$acc update host(zmel)
+           
            if(kx<= nqibz) then
               wtt = wk(kr)      !         wtx = 1d0
            else

@@ -147,10 +147,10 @@ contains
     complex(8), allocatable :: zmel_buf(:,:,:)
     complex(8), allocatable :: zmelt_d(:,:,:), zmelt(:,:,:)
     complex(8), allocatable :: ppbvphiq_d(:,:,:), cphim_d(:,:), cphiq_d(:,:), ppbc_d(:,:,:), ppbv_d(:,:,:)
-    debug=cmdopt0('--debugzmel')
 #ifdef __GPU
     attributes(device) :: ppb
 #endif
+    debug=cmdopt0('--debugzmel')
     if(allocated(zmel)) then
 #ifdef __GPU
        if(acc_is_present(zmel, size(zmel))) then
@@ -335,19 +335,19 @@ contains
           use m_read_ppovl,only:igggi,igcgp2i,nxi,nxe,nyi,nye,nzi,nze,nvgcgp2,ngcgp,ggg,ppovlinv,nnxi,nnxe,nnyi,nnye,nnzi,nnze,nggg
           integer:: igcgp2,nn(3), iggg, igp1, itp, igc, igp2 ,nnnsss,nnnggg!, igcgp2i_(ngc,ngp2)
           complex(8):: phase(ngc)!zmelp0(ngc,nm1v:nm2v,ntp0)
+#ifdef __GPU
+          attributes(device) :: zmelp0, ggitp, gggmat, ggitp_work, igcgp2i_, nn
+#endif
           allocate( ggitp(ngcgp,ntp0), gggmat(ngcgp,ngp1), ggitp_work(ngc, ngp2),igcgp2i_(ngc,ngp2))
           if(debug) call writemem('mmmmm_zmel111aaa')
           allocate(zmelp0(ngc,nm1v:nm2v,ntp0))
           if(debug) call writemem('mmmmm_zmel111bbb')
-#ifdef __GPU
-          attributes(device) :: zmelp0, ggitp, gggmat, ggitp_work, igcgp2i_, nn
-#endif
           phase(:)=[(exp( -img*tpi*sum((matmul(symope,kvec)+matmul(qlat,ngveccR(:,igc)))*shtv) ),igc=1,ngc)]  !prepared by CPU
           !$acc data copyin(dgeigqk, geigq, phase, ngvecpB1, ngvecpB2, ngveccR, nadd, ggg(1:nggg), nvgcgp2(1:3,1:ngcgp), &
           !$acc             igggi(nxi:nxe,nyi:nye,nzi:nze), igcgp2i(nnxi:nnxe,nnyi:nnye,nnzi:nnze), ppovlinv(1:ngc,1:ngc))
-          !$acc kernels loop independent collapse(2)
           if(debug) call writemem('mmmmm_zmel111ccc')
           gggmat=0d0 !fix 2024-8-23  (forgotton)
+          !$acc kernels loop independent collapse(2)
           do igcgp2 = 1, ngcgp
             do igp1 =1, ngp1
               nn(1:3) = ngvecpB1(1:3,igp1) - nvgcgp2(1:3,igcgp2) - nadd(1:3)

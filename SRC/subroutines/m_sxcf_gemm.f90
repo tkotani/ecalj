@@ -154,7 +154,7 @@ contains
     izz=0
     call stopwatch_init(t_sw_zmel, 'zmel')
     call stopwatch_init(t_sw_xc, 'ex')
-    !$acc data copyout(zsecall)
+    !$acc enter data create(zsecall)
     !$acc kernels
     zsecall(1:ntq,1:ntq,1:nqibz,1:nspinmx) = CZERO
     !$acc end kernels
@@ -212,7 +212,7 @@ contains
 !                  enddo
                   if(corehole) wtff(ns1:nctot) = wtff(ns1:nctot) * wcorehole(ns1:nctot,isp)
                   allocate(vcoud_buf(ngb))
-                  !$acc data copyin(vcoud, wklm(1), wk(1), wtff, zmel) copy(zsec)
+                  !$acc data copyin(vcoud, wklm(1), wk(1), wtff, zmel)
                   !$acc kernels
                   vcoud_buf(1:ngb) = vcoud(1:ngb)
                   !$acc end kernels
@@ -225,7 +225,7 @@ contains
                     enddo
                   enddo
                   !$acc end kernels
-                  !$acc host_data use_device(zmel)
+                  !$acc host_data use_device(zmel, zsec)
                   ierr = gemm(zmel, vzmel, zsec, ntqxx, ntqxx, (ns2-ns1+1)*nbb, opA = m_op_c, &
                        alpha = cmplx(-wkkr,0_kp,kind=kp), beta = CONE, ldC = ntq)
                   !$acc end host_data
@@ -245,7 +245,7 @@ contains
         enddo iploopexternal
       enddo irotloop
     enddo kxloop
-    !$acc end data
+    !$acc exit data copyout (zsecall)
     deallocate(ekc, eq)
     call stopwatch_show(t_sw_zmel)
     call stopwatch_show(t_sw_xc)
@@ -287,7 +287,7 @@ contains
     call stopwatch_init(t_sw_cr, 'ec realaxis integral')
     call stopwatch_init(t_sw_ci, 'ec imagaxis integral')
     allocate(zsecall(ntq,ntq,nqibz,nspinmx),source=(0d0,0d0)) 
-    !$acc data copyout(zsecall)
+    !$acc enter data create(zsecall)
     !$acc kernels
     zsecall(1:ntq,1:ntq,1:nqibz,1:nspinmx) = CZERO
     !$acc end kernels
@@ -569,7 +569,7 @@ contains
         endif
       endblock releasew !  end subroutine releasewv
     enddo kxloop
-    !$acc end data
+    !$acc exit data copyout (zsecall)
     deallocate(ekc, eq, omega)
     call stopwatch_show(t_sw_zmel)
     call stopwatch_show(t_sw_ci)
