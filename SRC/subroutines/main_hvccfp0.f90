@@ -9,6 +9,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.
   use m_lattic,only:lctoff
   use m_genallcf_v3,only: Genallcf_v3,  alat,nbas=>natom, bas=>pos
   use m_hamindex,only:    Readhamindex,plat,qlat
+  use m_hamindex0,only:    Readhamindex0
   use m_read_bzdata,only: Read_bzdata, ginv,nqbz,qbz,nqibz,qibz,nq0i,wqt=>wt,q0i,nq0iadd
   use m_readqg,only:   readqg,readngmx
   use m_mpi,only: MPI__Initialize,mpi__root, MPI__Broadcast,mpi__rank,mpi__size, &
@@ -72,6 +73,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.
   else; call rx( 'hvccfp0: now hvccfp0 support just normal mode=0 3 202 101'); endif
   incwfin= 0                !use ForX0 for core in GWIN
   call Genallcf_v3(incwfin) !in module m_genallcf_v3
+  call Readhamindex0()
   call Readhamindex()
   call Read_bzdata()
   call readngmx('QGcou',ngcmx)

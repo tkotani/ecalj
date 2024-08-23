@@ -16,6 +16,7 @@ module m_hamindex0
   character(9),allocatable,public:: caption(:)
   character(8),allocatable,public::  spid(:)
   integer,allocatable,public:: nindx(:),lindx(:),ibasindx(:)
+  logical,protected,public:: readhamindex0_init=.false.
   public:: M_hamindex0_init,Readhamindex0
   private
   logical,private:: debug=.false.
@@ -139,6 +140,7 @@ contains
   subroutine readhamindex0()
     implicit none
     integer:: ifi,ibas,i
+    readhamindex0_init=.true.
     open(newunit=ifi,file='HAMindex0',form='unformatted')
     read(ifi) alat,plat,qlat,nbas,lmxax,nsp,ngrp,ndima,norb,npqn,nclass,nphimx
     allocate( konft(0:lmxax,1:nbas,1:nsp),lmxa(1:nbas),nlindx(1:npqn,0:lmxax,1:nbas))

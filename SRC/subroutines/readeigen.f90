@@ -82,6 +82,8 @@ contains
   end function readgeigf0
  ! sssssssssssssssssssssssssssssssssssssssssssss
   subroutine readgeig(q,ngp_in,isp, qu,geigen)!,fpmt)
+    use m_lgunit,only:stdo
+    use m_ftox
     use m_rotwave,only: Rotipw
     use m_ftox
     use m_lgunit,only:stdo
@@ -111,24 +113,12 @@ contains
        write(6,"(a,3i5,3f10.4,2i5)")' ngp(iq) ngp(iqq)=',iq,iqq,igg,q,ngp(iq),ngp(iqq)
        call rx( 'readgeig:x2 ngp(iq)/=ngp(iqq)')
     endif
-    !if(present(fpmt)) then
-    !   ikpisp= isp + nsp*(iqi-1)
-    !   read(ifgeig0, rec=ikpisp) geigenr(1:ngpmx,1:nband)
-    !else
     if(keepeig) then
        geigenr(1:ngp(iq),1:nband) = geig(1:ngp(iq),1:nband,iqi,isp)
     else
        !ikpisp= isp + nsp*(iqi-1)
        read(ifgeig) geigenr(1:ngpmx,1:nband) !, rec=ikpisp)
     endif
-    
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!    write(stdo,ftox)'zzzzzzzeee1',ftof(qtt(:,iqq)),iqi
-!    do i=1,nband
-!       write(stdo,ftox)'zzzeee1',i,sum(abs(geigenr(1:ngp(iqi),i)))
-!    enddo
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    
     if(ngp_in < ngp(iq)) then
        write(6,*)'readgeig: ngpmx<ngp(iq)',iq,ngpmx,ngp(iq),q
        call rx( 'readgeig: ngpmx<ngp(iq)')

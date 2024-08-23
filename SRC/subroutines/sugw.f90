@@ -223,7 +223,7 @@ contains
     close(ifiqg)
     if (lchk>=1 ) then !normcheck file
        open(newunit=ifinormchk,file='norm.'//'procid'//trim(xt(procid))//'.chk')
-       write(ifinormchk,"(a)") '#     eval          IPW        IPW(diag)    Onsite(tot)      Total ! lmfgw'
+       write(ifinormchk,"(a)") '#         eval          IPW        IPW(diag)    Onsite(tot)      Total ! lmfgw'
     endif
     if(ham_scaledsigma/=1d0 .AND. sigmamode) write(stdo,*)' Scaled Sigma method: ScaledSigma=',ham_scaledsigma
     ndble = 8
@@ -393,7 +393,7 @@ contains
              allocate(testc(ndimh,ndimh),testcd(ndimh))
              testc=matmul(transpose(dconjg(pzovl)),pwz)
              deallocate(pzovl)
-             testcd = [(sum(dconjg(pwz(:,i))*ppovld*pwz(:,i)),i=1,ndimhx)]
+             testcd = [(sum(dconjg(pwz(:,i))*ppovld*pwz(:,i)),i=1,nev)] !dimhx)]
              deallocate(ppovld)
              ! xx(1) = sum over all augmentation w.f.  cphi+ ovl cphi
              ! xx(3) = IPW contribution to phi+ phi.   xx(1)+xx(3) should be close to unity.

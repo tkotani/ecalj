@@ -336,7 +336,12 @@ end module m_genallcf_v3
 module m_ReadEfermi
   use m_lgunit,only:stdo
   real(8),protected:: bandgap, ef, ef_kbt
+  public:: readefermi,readefermi_kbt,setefermi
 contains
+  subroutine setefermi(efin)
+    real(8)::efin
+    ef=efin
+  endsubroutine setefermi
   subroutine readefermi()
     implicit none
     integer:: ifief
