@@ -234,7 +234,7 @@ contains
                   enddo
                   !$acc end kernels
                   !$acc host_data use_device(zmel)
-                  ierr = gemm(cmplx(zmel,kind=kp), vzmel, zsec, ntqxx, ntqxx, (ns2-ns1+1)*nbb, opA = m_op_c, &
+                  ierr = gemm(zmel, vzmel, zsec, ntqxx, ntqxx, (ns2-ns1+1)*nbb, opA = m_op_c, &
                        alpha = cmplx(-wkkr,0_kp,kind=kp), beta = CONE, ldC = ntq)
                   !$acc end host_data
                   !$acc end data
@@ -521,19 +521,11 @@ contains
                       if(nttp(iw) < 1) cycle
                       if(keepwv) then
                         !$acc kernels
-#ifdef __MP
                         wc(:,:) = (wvr(:,:,iw) + transpose(conjg(wvr(:,:,iw))))*0.5d0
-#else
-                        wc(:,:) = (wvr(:,:,iw) + transpose(dconjg(wvr(:,:,iw))))*0.5d0
-#endif
                         !$acc end kernels
                       else
                         read(ifrcw,rec=iw-nw_i+1) wv
-#ifdef __MP
                         wc = (wv + transpose(conjg(wv)))*0.5d0  !copy to GPU
-#else
-                        wc = (wv + transpose(dconjg(wv)))*0.5d0  !copy to GPU
-#endif
                       endif
                       !$acc kernels loop independent
                       do ittp = 1, nttp(iw) 
@@ -557,7 +549,7 @@ contains
                   call stopwatch_pause(t_sw_cr)
 
                   !$acc host_data use_device(zmel, zsec)
-                  ierr = gemm(czmelwc, cmplx(zmel,kind=kp), zsec, ntqxx, ntqxx, nbb*(ns2-ns1+1), opA = m_op_T, beta = CONE, ldC = ntq)
+                  ierr = gemm(czmelwc, zmel, zsec, ntqxx, ntqxx, nbb*(ns2-ns1+1), opA = m_op_T, beta = CONE, ldC = ntq)
                   !$acc end host_data
                   !$acc kernels loop independent
                   do itp = 1, ntqxx
