@@ -233,7 +233,8 @@ contains
     allocate(cphix(ndima,nbandmx),geigr(1:ngpmx,1:nbandmx,1:nsp))
 ! CPHI GEIG    
 !    open(newunit=ifcphi,file='CPHI',form='unformatted',access='direct',recl=mrecb)
-!    open(newunit=ifgeig,file='GEIG',form='unformatted',access='direct',recl=mrecg)
+    !    open(newunit=ifgeig,file='GEIG',form='unformatted',access='direct',recl=mrecg)
+    if(cmdopt0('--skipCPHI')) goto 1011
     allocate(evl(nbandmx, nqirr, nsp),vxclda(nbandmx, nqirr, nsp),source=0d0)!nqirr: # ofirreducible q points
     iqisploop: do 1001 idat=1,niqisp !iq = iqini,iqend ! iqini:iqend for this procid
        iq  = iqproc(idat) ! iq index
@@ -468,6 +469,7 @@ contains
     call mpi_barrier(comm,ierr)
     call mpibc2_real(evl,   nbandmx*nqirr*nsp,'evl')
     call mpibc2_real(vxclda,nbandmx*nqirr*nsp,'vxclda')
+1011 continue
     WriteGWfiles: if(master_mpi) then
        WriteGWfilesB: block
          integer,allocatable:: ncindx(:),lcindx(:)
@@ -615,8 +617,8 @@ contains
          write(ifhbed,*)' precision, mrecl of b, mrecl of eval, ndima(p+d+l)  nqbz  nbandmx mrecg'
          close(ifhbed)
        endblock WriteGWfilesB
-    endif WriteGWfiles
-    if(master_mpi) call rdata4gw() !Generate other files for GW
+     endif WriteGWfiles
+    if(master_mpi.and.(.not.cmdopt0('--skipCPHI'))) call rdata4gw() !Generate other files for GW
     call tcx('m_sugw_init')
   end subroutine m_sugw_init
 end module m_sugw

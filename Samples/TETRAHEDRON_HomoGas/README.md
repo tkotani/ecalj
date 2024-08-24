@@ -1,8 +1,13 @@
-# For dielectric function for homogeneious electron gas (Lindhard function)
+# Test for dielectric function for homogeneious electron gas (Lindhard function)
 
 The main rouitne is main/hhomogas.f90-->subroutines/main_hhomogas.f90
 
-Look into job file before performing it. When job finishes, you will get x0homo.dat 
+Look into job file before performing it.
+Run
+```bash
+job
+```
+When job have finished, you will get x0homo.dat 
 The original results is saved as x0homo.result.dat.
 
 (in principle, you can skip --jobgw=1 , but some small files may be needed).
@@ -11,17 +16,17 @@ The original results is saved as x0homo.result.dat.
 Let me review the job. 
 
 This is for the empty sphere. (now Z=0.0001 to detour stop(I will fix)).
-The lattice is taken from bulk Li case. 
-We do a band plot at first.
+The lattice is taken from bulk Li case.
+job does band plot at first.
 Then qg4gw gives the q points and tetrahedron division information. 
 
 Then we finally run the key routine hhomogas. 
 Please look into main_hhomogas.f90
-Some parameter settings are fixed in the code. So you may need to
-change them for your purpose (e.g. change fermi energy).
+Some parameter settings are fixed in the code.
+So you may need to change them for your purpose (e.g. change fermi energy).
 
-
-Repeat hhomogas to learn how to use tetrahedron method.
+Repeat only hhomogas to learn how to use tetrahedron method.
+When you change number of k points use job2.
 
 ---
 

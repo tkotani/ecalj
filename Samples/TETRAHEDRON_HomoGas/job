@@ -6,7 +6,7 @@ job_band es -np 8
 #
 lmf --jobgw=0 es >llmfgw0
 echo 1|qg4gw >lqg4gw
-mpirun -np 8 lmf es --jobgw=1 >& llmfgw1 # this generate eigenfunctions but dummy. 
+lmf es --jobgw=1 --skipCPHI >& llmfgw1 # this generate eigenfunctions but dummy. 
 
 # main part for tetrahedron
 hhomogas > lhhomogas 
