@@ -220,7 +220,7 @@ contains
 !                  enddo
                   if(corehole) wtff(ns1:nctot) = wtff(ns1:nctot) * wcorehole(ns1:nctot,isp)
                   allocate(vcoud_buf(ngb))
-                  !$acc data copyin(vcoud, wklm(1), wk(1), wtff, zmel) copy(zsec)
+                  !$acc data copyin(vcoud, wklm(1), wk(1), wtff, zmel)
                   !$acc kernels
                   vcoud_buf(1:ngb) = vcoud(1:ngb)
                   !$acc end kernels
@@ -233,7 +233,7 @@ contains
                     enddo
                   enddo
                   !$acc end kernels
-                  !$acc host_data use_device(zmel)
+                  !$acc host_data use_device(zmel, zsec)
                   ierr = gemm(zmel, vzmel, zsec, ntqxx, ntqxx, (ns2-ns1+1)*nbb, opA = m_op_c, &
                        alpha = cmplx(-wkkr,0_kp,kind=kp), beta = CONE, ldC = ntq)
                   !$acc end host_data

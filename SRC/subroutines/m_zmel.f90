@@ -54,6 +54,7 @@ contains
           exit
        endif
     enddo
+!    write(stdo,ftox)'ppppppppppp',sum(abs(ppovl))
     close(ippovl0)
     ppovlz(1:nbloch,1:npr) = zcousq(1:nbloch,1:npr)
     ppovlz(nbloch+1:nbloch+ngc,1:npr)=matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,1:npr))
@@ -192,13 +193,14 @@ contains
     nqini_rank = nqini
     nqmax_rank = nqmax
     SetByCPU :block
+      integer:: i
       qk =  q - rkvec ! qk = q-rk. rk is inside 1st BZ, not restricted to the irreducible BZ
       associate(cphitemp=> readcphif(q,ispq))
         cphiq(1:nlmto,1:ntq) = cmplx(cphitemp(1:nlmto,itq(1:ntq)),kind=kp) 
       endassociate
       cphim = cmplx(readcphif(qk, ispm),kind=kp)
       symope= symgg(:,:,irot)
-      allocate(geigq(ngpmx,nband),dgeigqk(ngpmx,nband))
+      allocate(geigq(ngpmx,nband),dgeigqk(ngpmx,nband),source=(0d0,0d0))
       if(ngc/=0) then
         call readqg('QGpsi',q,     qt, ngp1, ngvecpB1) !q is mapped to qt in BZ
         call readqg('QGpsi',qk,   qkt, ngp2, ngvecpB2)
@@ -338,7 +340,7 @@ contains
       ZmelIPWif: if(ngc/=0 .and. nm1v<=nm2v) then
         ZmelIPW:block  !> Mattrix elements <Plane psi |psi> from interstitial plane wave.
           use m_read_ppovl,only:igggi,igcgp2i,nxi,nxe,nyi,nye,nzi,nze,nvgcgp2,ngcgp,ggg,ppovlinv,nnxi,nnxe,nnyi,nnye,nnzi,nnze,nggg
-          integer:: igcgp2,nn(3), iggg, igp1, itp, igc, igp2 !, igcgp2i_(ngc,ngp2)
+          integer:: igcgp2,nn(3), iggg, igp1, itp, igc, igp2 ,nnnsss,nnnggg!, igcgp2i_(ngc,ngp2)
           complex(8):: phase(ngc)!zmelp0(ngc,nm1v:nm2v,ntp0)
           complex(kind=kp) :: ppovlinv_work(ngc,ngc)
 #ifdef __GPU
@@ -353,13 +355,16 @@ contains
           !$acc data copyin(dgeigqk, geigq, phase, ngvecpB1, ngvecpB2, ngveccR, nadd, ggg(1:nggg), nvgcgp2(1:3,1:ngcgp), &
           !$acc             igggi(nxi:nxe,nyi:nye,nzi:nze), igcgp2i(nnxi:nnxe,nnyi:nnye,nnzi:nnze), ppovlinv_work)
           if(debug) call writemem('mmmmm_zmel111ccc')
+          gggmat=0d0 !fix 2024-8-23  (forgotton)
           !$acc kernels loop independent collapse(2)
           do igcgp2 = 1, ngcgp
             do igp1 =1, ngp1
               nn(1:3) = ngvecpB1(1:3,igp1) - nvgcgp2(1:3,igcgp2) - nadd(1:3)
               if(nn(1)<nxi .OR. nxe<nn(1) .OR. nn(2)<nyi .OR. nye<nn(2) .OR. nn(3)<nzi .OR. nze<nn(3)) cycle
+              nnnsss=nnnsss+sum(abs(nn))
               iggg = igggi(nn(1),nn(2),nn(3))
-              if(iggg>=0) gggmat(igcgp2,igp1)=cmplx(ggg(iggg),kind=kp)
+              nnnggg=nnnggg+abs(iggg)
+              if(iggg>=0) gggmat(igcgp2,igp1)=ggg(iggg)
             enddo
           enddo
           !$acc end kernels
@@ -372,6 +377,7 @@ contains
             enddo
           enddo
           !$acc end kernels
+          write(stdo,ftox) itq(nqini_rank:nqmax_rank)
           ierr = gemm(gggmat, geigq(:,itq(nqini_rank:nqmax_rank)), ggitp, ngcgp, ntp0, ngp1, ldB = ngpmx)
           !      2024-8-20 bugfix for sxcf when itq in not contiguous. geigq(1,itq(nqini_rank)) --> geigq(:,itq(nqini_rank:nqmax_rank))
           deallocate(gggmat)

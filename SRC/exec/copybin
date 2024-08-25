@@ -1,0 +1,3 @@
+#!/usr/bin/bash 
+# utitity to copy bin and script to your bin
+cp `find . -mindepth 1 -maxdepth 1 -executable -type f` ~/bin

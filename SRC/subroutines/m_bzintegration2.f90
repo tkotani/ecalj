@@ -234,9 +234,11 @@ contains
           ix = 0
           ib2e=0
           do ib1=1,nevx+1
-             e1 = merge(eb(ib1,1,ikp),9999d99,ib1<=nevx)
+             e1=1d10
+             if(ib1<=nevx) e1 = eb(ib1,1,ikp) !isp=1
+             ! e1=merge(eb(ib1,1,ikp),9999d99,ib1<=nevx) !not for nvfortran
              do ib2= ib2e+1,nevx
-                e2 = eb(ib2,2,ikp)
+                e2 = eb(ib2,2,ikp) !isp=2
                 if(e2>e1) exit
                 ix=ix+1
                 ebx(ix,ikp)= e2

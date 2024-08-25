@@ -232,12 +232,14 @@ contains
     mrecg = 2*ngpmx*nbandmx *ndble 
     allocate(cphix(ndima,nbandmx),geigr(1:ngpmx,1:nbandmx,1:nsp))
 ! CPHI GEIG    
-    open(newunit=ifcphi,file='CPHI',form='unformatted',access='direct',recl=mrecb)
-    open(newunit=ifgeig,file='GEIG',form='unformatted',access='direct',recl=mrecg)
+!    open(newunit=ifcphi,file='CPHI',form='unformatted',access='direct',recl=mrecb)
+!    open(newunit=ifgeig,file='GEIG',form='unformatted',access='direct',recl=mrecg)
     allocate(evl(nbandmx, nqirr, nsp),vxclda(nbandmx, nqirr, nsp),source=0d0)!nqirr: # ofirreducible q points
     iqisploop: do 1001 idat=1,niqisp !iq = iqini,iqend ! iqini:iqend for this procid
        iq  = iqproc(idat) ! iq index
        isp = isproc(idat) ! spin index: isp=1:nspx=nsp/nspc
+       open(newunit=ifcphi, file='CPHI'//trim(xt(iq))//trim(xt(isp)),form='unformatted')!,access='direct',recl=mrecb)
+       open(newunit=ifgeig, file='GEIG'//trim(xt(iq))//trim(xt(isp)),form='unformatted')!,access='direct',recl=mrecg)
        qp  = qplist(:,iq) ! q vector containing nqirr
        ngp = ngplist(iq)  ! number of planewaves for PMT basis
        lwvxc = iq<=iqibzmax
@@ -325,7 +327,7 @@ contains
        write(stdo,"(' sugw:  kpt isp=',i8,i2,' of ',i8, ' k= ',3f9.5, ' ndimh= ',i5, &
             ' irank=',i4, ' lwvxc=',l,' nev=',i5)")  iq,isp,nqnum,qp,ndimh,procid,lwvxc,nev
        write(stdo,"(9f8.4)") (evl(i,iq,isp), i=1,nev)
-       evl(1+nev:nbandmx,iq,isp)=1d20 
+       evl(1+nev:nbandmx,iq,isp)=1d20 !padding
        if(mod(iq,10) /= 1) call poppr
        if(debug) write(stdo,"(' sugw:procid iq isp lwvxc= ',3i3,' ',l)")procid, iq,isp,lwvxc
        nlmax = (lmxax+1)**2 
@@ -396,13 +398,13 @@ contains
              ! xx(1) = sum over all augmentation w.f.  cphi+ ovl cphi
              ! xx(3) = IPW contribution to phi+ phi.   xx(1)+xx(3) should be close to unity.
              ! [xx(4) = IPW contribution to phi+ phi, using diagonal part only] 
-             write(ifinormchk,"('# iq',i5,'   q',3f12.6:'  shortened q',3f12.6)") iq,qp
-             do  i1 = 1, ndimhx
+             write(ifinormchk,"('# iq',i5,'   q',3f12.6,'ndimhx nev',2i7)") iq,qp,ndimhx,nev
+             do  i1 = 1, nev !dimhx
                 xx(1) = sum(cphiw(i1,1:nspc))
                 do  i2 = 1, ndimh
                    xx(3) = testc(i1,i2)
                    xx(4) = testcd(i1)      !if(i1==i2)write(ifinormchk,'(f12.5,5f14.6)')evl(i1,isp),xx(3),xx(4),xx(1),xx(1)+xx(3)
-                   if(i1==i2)write(ifinormchk,'(f12.5,5f14.6)')evl(i1,iq,isp),xx(3),xx(4),xx(1),xx(1)+xx(3)
+                   if(i1==i2)write(ifinormchk,'(i4,f12.5,5f14.6)')i1,evl(i1,iq,isp),xx(3),xx(4),xx(1),xx(1)+xx(3)
                 enddo
              enddo
              deallocate(testc,testcd)
@@ -417,7 +419,7 @@ contains
 1214   continue
        WriteCphiGeig: block
          use m_hamindex0,only: nindx,ibasindx
-         integer::iband,ibas,iqqisp,ix,m,nm
+         integer::iband,ibas,iqqisp,ix,m,nm,i
          geigr(1:ngp,      1:ndimh,isp)=pwz
          geigr(ngp+1:ngpmx,1:ndimh,isp)=0d0
          do ibas=1,nbas
@@ -438,17 +440,31 @@ contains
             enddo
          enddo
          iqqisp= isp + nsp*(iq-1)
-         write(ifcphi,  rec=iqqisp)  cphix(1:ndima,1:nbandmx)
+         cphix(1:ndima,nev+1:nbandmx)=1d20 !padding
+!         write(ifcphi),  rec=iqqisp)  cphix(1:ndima,1:nbandmx)
+         write(ifcphi)  cphix(1:ndima,1:nbandmx)
 !         close(ifigwb_)
          iqqisp= isp + nsp*(iq-1)
-         if(ngpmx/=0) write(ifgeig,  rec=iqqisp)  geigr(1:ngpmx,1:nbandmx,isp)
+         if(ngpmx/=0) geigr(1:ngpmx,nev+1:nbandmx,isp)=1d20 !padding
+!         if(ngpmx/=0) write(ifgeig,  rec=iqqisp)  geigr(1:ngpmx,1:nbandmx,isp)
+         if(ngpmx/=0) write(ifgeig)  geigr(1:ngpmx,1:nbandmx,isp)
+! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!     if(ngpmx/=0) then         
+!     write(stdo,ftox)'zzzzzzzeee1s',ftof(qp),iq
+!     do i=1,nbandmx
+!        write(stdo,ftox)'zzzeee1s',i,sum(abs(geigr(1:ngp,i)))
+!     enddo
+!     endif
+! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
        endblock WriteCphiGeig
        if (lwvxc) close(ifiv)
        if (lwvxc) close(ifievec)
+       close(ifcphi)
+       close(ifgeig)
        deallocate(pwz,hamm,ovlm,evec,vxc,cphi,cphiw)
 1001 enddo iqisploop
-    close(ifcphi)
-    close(ifgeig)
+!    close(ifcphi)
+!    close(ifgeig)
     call mpi_barrier(comm,ierr)
     call mpibc2_real(evl,   nbandmx*nqirr*nsp,'evl')
     call mpibc2_real(vxclda,nbandmx*nqirr*nsp,'vxclda')
