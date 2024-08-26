@@ -1,4 +1,4 @@
-# Test for dielectric function for homogeneious electron gas (Lindhard function)
+# Test for dielectric function for homogeneious electron gas (Lindhard function) 
 
 The main rouitne is main/hhomogas.f90-->subroutines/main_hhomogas.f90
 
@@ -9,8 +9,6 @@ job
 ```
 When job have finished, you will get x0homo.dat 
 The original results is saved as x0homo.result.dat.
-
-(in principle, you can skip --jobgw=1 , but some small files may be needed).
 
 ---
 Let me review the job. 
@@ -26,23 +24,19 @@ Some parameter settings are fixed in the code.
 So you may need to change them for your purpose (e.g. change fermi energy).
 
 Repeat only hhomogas to learn how to use tetrahedron method.
-When you change number of k points use job2.
+When you change number of k points use job2 after setting n1n2n3 in GWinput.
 
 ---
 
-Our final results is the plot by egaschi0.glt for the final results x0homo.dat,
+Our final results is the plot by
+>gnuplit -p egaschi0.glt
+for the final results x0homo.dat,
 which contains the real and imag part of the non-interacting Lindhard polarization function x0.
 
-You should get a smooth good result for enlarged n1n2n3 in GWinput
-(it gets closer to the analytic result of Lindhard. See Fetter & Walecka, for example).
-As egaschi0.glt show only a part of x0homo.dat,
-you may need to edit egaschi0.glt to show more data in x0homo.dat.
+See Fetter-Walecka https://drive.google.com/file/d/0B4EhZYLsWtz-VGFoRlRNcU1qVzA/view?usp=drive_link&resourcekey=0-POrF9ZW73o-IalpgR9cXWA
+Fig.12.9 is reproduced. 
 
-For enlarged n1n2n3, you may run only a few cycles of do 1001 loop to
-reduce computational time (do 1001 iq = iqxini,iqxend ).
-The loop index iq corresponds to the irreducible BZ q points for which we calculate x0.
+Set any q points in main_hhomogas.f90:L279
 
-We use single band case for any q (we take only the lowest
-band in this example). Thus results are correct only for small q case,
-in the current setting of main_hhomogas.f90.
-
+Note volume factor vol.
+This is contained in the definition of rcxq (=imag part of zxq).

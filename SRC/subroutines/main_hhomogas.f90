@@ -23,7 +23,6 @@ subroutine hhomogas()
 !  use m_shortn3,only: shortn3_initialize,shortn3
   implicit none
   integer::nctot=0,nspin=1,niw
-!  real(8):: alat,plat(3,3)!,det33
   !! ------------------------------------------------
   !! We calculate chi0 by the follwoing three steps.
   !!  gettetwt: tetrahedron weights
@@ -205,11 +204,9 @@ subroutine hhomogas()
   real(8)::rlatp(3,3),xmx2(3),qqin(3),qshort(3),qshort2,ppin(3),qlength,rs
   integer:: nlatout(3,48),nout,iout
   integer,parameter:: noutmx=48
-
   logical:: initiq,cmdopt0
   integer:: ifz,ifi,ifif
   real(8):: ef
-!--------------------------------------------------------------------
   integer:: comm
   include "mpif.h"
 ! Pay attension to the following bootstrap sequence to fill data to modules!  
@@ -233,13 +230,13 @@ subroutine hhomogas()
   do iq=1,nqibz
     iqbz = iqindx(qibz(:,iq),ginv,qbz,nqbz)
     write(6,"(' iq qibz nstibz=',2i5,3f9.4,i5)")iq,iqbz,qibz(:,iq) !,nstibz(iq)
-  enddo
-  !ccccccccccccccccccccccccccccccccccc
-  !c test for Li
+ enddo
+ 
+!!!!!!!!!!!! ! test for Homogenious gas corresponding to the density of Li 
   wemax=    3d0 !max value for plot
   omg2max = wemax*.5d0+.2d0 ! (in Hartree) covers all relevant omega, +.2 for margin
-  !cccccccccccccccccccccccccccccccccccc
-  !Get freq
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  
   call Getfreq(epsmode,realomega,imagomega,omg2max,wemax,niw,ua,npmtwo=.false.)
   if(realomega .and. mpi__root) then
     open(newunit=ifif,file='freq_r') !write number of frequency points nwp and frequensies in 'freq_r' file
@@ -265,7 +262,7 @@ subroutine hhomogas()
   iqxendx=iqxend
   ntot=1  ! We get ef=efermi for given ntot (number of electrons). We show rs parameter is shown in efermi_egas.
   ntot_r=ntot/2.0
-  voltot = abs(alat**3*det33(plat))
+  voltot = abs(alat**3*det33(plat)) !cell volume (bohr unit. We use Rydberg unit m=1/2 e^2=2 hbar=1)
   call efermi_egas(ntot_r,alat,plat,efz)
   ef=efz                    !ef for electron gas
   write(stdo,ftox)' alat=',ftof(alat)
@@ -279,8 +276,7 @@ subroutine hhomogas()
   iqloop: do 1001 iq = 1,10 !2,iqxend !iqxini,iqxend ! NOTE: q=(0,0,0) is omitted when iqxini=2
     print *
     print *
-    print *
-    q = [0.1d0,0d0,0d0]*iq !qibz(:,iq)          !qibze ! you can spefify any q, which you like.
+    q = [0.001d0,0d0,0d0]*iq !qibz(:,iq)          !qibze ! you can spefify any q, which you like.
     write(6,"('===== do 1001: iq q=',i7,3f9.4,' ========')")iq,q !qq
     !! get q in 1st BZ =shortest q. nout is the number of shortest (the same size of) data.
     !! When q is at the BZ boundary, nout>1 can be.
@@ -302,34 +298,13 @@ subroutine hhomogas()
     nmbas2=nmbas
     !! rcxq: imaginary part after x0kf_v4h and symmetrization. 
     !! zxq and zxqi are the main output after Hilbert transformation
-    if(allocated(zxq) )  deallocate(zxq)
-    if(allocated(zxqi) ) deallocate(zxqi)
     allocate( rcxq(nmbas1,nmbas2,nwhis,npm) )
     allocate( zxq (nmbas1,nmbas2,nw_i:nw), zxqi (nmbas1,nmbas2,niw))
     zxq=0d0;  zxqi=0d0;  rcxq = 0d0
     if(debug) write(6,*)' niw nw=',niw,nw
-
     !! ==== spin chi_charge or chi_+- ====
     is=1
     isf=1 !2 for magnetic
-    !! Tetrahedron weight.
-    !! output
-    !!     nbnbx
-    !!     ihw(ibjb,kx): omega index, to specify the section of the histogram.
-    !!     nhw(ibjb,kx): the number of histogram sections
-    !!     jhw(ibjb,kx): pointer to whw
-    !!     whw( jhw(ibjb,kx) ) \to whw( jhw(ibjb,kx) + nhw(ibjb),kx)-1 ), where ibjb=ibjb(ib,jb,kx)
-    !!     : histogram weights for given ib,jb,kx for histogram sections
-    !!     from ihw(ibjb,kx) to ihw(ibjb,kx)+nhw(ibjb,kx)-1.
-    !c            write(6,*) ' --- goto x0kf_v4hz ---- newaniso= ',newaniso2
-    !! input
-    !!     ekxx1 for   rk,is
-    !!     ekxx2 for q+rk,isf 
-
-    !c          !! get Efermi, qfermi, rs of electron gas
-    !c          if (egasmode) then
-    !!
-    !c        print *,' rs=',rrs
 !!! qgsq: |q+G|^2
     allocate(ev_w1(nwf,nqbz),ev_w2(nwf,nqbz),source=0d0)
     allocate(qgsq1(ngc,nqbz),qgsq2(ngc,nqbz),source=0d0)
@@ -359,8 +334,6 @@ subroutine hhomogas()
     call gettetwt(q,iq,is,isf,ev_w1,ev_w2,nwf) !Tetrahedron weight whh
     write(stdo,ftox) " === end gettetwt. we now have the tetrahedron weight whw"
     deallocate(ev_w1,ev_w2)
-!    
-!    rnqbz=1/real(nqbz)
     jpmloop: do 2011 jpm=1,npm     !! jpm=2: negative frequency
       kloop: do 2012 kx=1,nqbz     !! discrete k-point loop
         ibibloop: do 2013 ibib=1,nbnb(kx,jpm) !! n,n' band loop
@@ -378,43 +351,29 @@ subroutine hhomogas()
 !!!   print *,"ihw,nhw",ihw(ibib,kx,jpm),nhw(ibib,kx,jpm)
           do iw=ihw(ibib,kx,jpm),ihw(ibib,kx,jpm)+nhw(ibib,kx,jpm)-1
             imagweight = whw(jhw(ibib,kx,jpm)+iw-ihw(ibib,kx,jpm)) ! imagweight is the tetrahedron weight for (k,n1b), (q+k,n2b) .
-            rcxq(1:nmbas1,1:nmbas2,iw,jpm) = rcxq(1:nmbas1,1:nmbas2,iw,jpm) + imagweight
+            rcxq(1:nmbas1,1:nmbas2,iw,jpm) = rcxq(1:nmbas1,1:nmbas2,iw,jpm) + imagweight !in a.u.
           enddo
 2013    enddo ibibloop
 2012  enddo kloop
 2011 enddo jpmloop
-    !! normalization check
-!    write(6,*) "rcxq/nbnb rnqbz:",rnqbz
-    write(6,"('rcxq/nbnb 4:',3E13.5)") sum(abs(rcxq(:,:,:,:)))
-    call tetdeallocate()     !--> deallocate(ihw,nhw,jhw, whw,ibjb,n1b,n2b)
+    rcxq=rcxq*2 ! Spin factor  !    write(6,"('rcxq/nbnb 4:',3E13.5)") sum(abs(rcxq(:,:,:,:)))
+    call tetdeallocate() !--> deallocate(ihw,nhw,jhw, whw,ibjb,n1b,n2b)
     write(6,"('  nmbas1 nmbas2 npm=',3i8)") nmbas1,nmbas2,npm
     schi=1                   ! flip over maj/min spins.
-    !! Hilbert transformation. zxq (complex(8), along real axis), and zxqi (complex(8), along imag axis).
+    ! Hilbert transformation.  We get zxq (complex(8), along real axis), and zxqi (complex(8), along imag axis).
     call dpsion5( realomega, imagomega, rcxq, nmbas1,nmbas2, zxq, zxqi,.false., schi,1,1d99,1d99) 
-    !! Write final results. zxq is just 1x1 matrix for homogenious gas.
     if(initiq) then
       initiq=.false.
       open(newunit=ifz,file="x0homo.dat")
-    endif
+   endif
+   !NOTE: zxq = chi0 \times voltot, where chi0 is defined in Fetter-Walecka.
+   !      The demominator in zxq is in a.u. Thus zxq/2.0 has the dimension 1/Ry.
     do iw=nw_i,nw
-      write(ifz, "(2i4,3f9.4,x,f10.5,E13.5,x,2E13.5,x,2E13.5)") iq,iw,q,qlength,freq_r(iw), zxq(1,1,iw)*hartree,&
-           rcxq(1,1,iw,1)*hartree
+      write(ifz, "(2i4,3f9.4,x,f10.5,E13.5,x,2E13.5,x,2E13.5)") iq,iw,q,qlength,2*freq_r(iw), zxq(1,1,iw) !vol/energy(a.u.) 
     enddo
     write(ifz,*)
     write(ifz,*)
-!     !ccccccccccccccccccccccccccccccccccccccccccccc 20190818
-!     zxqi=0d0
-! !    write(6,*) "AAAAA, nw_i,nw:",nw_i,nw
-!     do iw=nw_i,nw
-!       if (iw/=0) zxqi(1,1,:) = zxqi(1,1,:) + zxq(1,1,:)/freq_r(iw)*(freq_r(iw)-freq_r(iw-1))/2
-!     enddo
-!     write(6,'("sum(aimag(zxq(1,1,:)))=",3E13.5)') sum(aimag(zxq(1,1,:))),sum(aimag(zxqi(1,1,:))),real(zxq(1,1,0))
-!     !write(6,*) "sum(aimag(zxq(1,1,:)))=",sum(aimag(zxq(1,1,:))),real(zxq(1,1,0))
-!     !ccccccccccccccccccccccccccccccccccccccccccccc
-    if(allocated(rcxq) ) deallocate(rcxq)
-    if(allocated(zw0)) deallocate(zw0)
-    if(allocated(zxq )) deallocate(zxq)
-    if(allocated(zxqi)) deallocate(zxqi)
+    deallocate(rcxq,zxq,zxqi)
 1001 enddo iqloop !continue !q point loop
   close(ifz)
   call cputid(0)
@@ -487,6 +446,3 @@ end subroutine hhomogas
   ! c$$$          if(tetra) call rx( 'legas You have to give ef of  tetrahedron')
   ! c$$$        endif
   ! c$$$      endif
-  
-  
-  

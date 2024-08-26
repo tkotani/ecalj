@@ -8,7 +8,7 @@
 !LFC@Gamma off !(on is default) if on, eps with Local field correction is used at Gamma point
 !Q0Pchoice 1 !1(default):qzerolimit(in practice, See generated Q0P), 2:1/q^2 average in Gamma region
 ! ##### From GWIN0 ################ 
-n1n2n3  10 10 10 
+n1n2n3  10 10 10
 QpGcut_psi 4.0  !(See unit_2pioa for unit) |q+G| cutoff for eigenfunction.
 QpGcut_cou 3.0  !(See unit_2pioa for unit) |q+G| cutoff for Coulomb and W.
 unit_2pioa off ! off --> a.u.; on--> unit of QpGcut_* are in 2*pi/alat 
@@ -17,8 +17,8 @@ alpha_OffG 1.0 !(a.u.) Used in auxially function in the offset-Gamma method.
 emax_sigm  3.0  !(Ry)  emax cutoff for Sigma
 
 ! ##### FREQUENCIES from GWIN_V2 ################ 
-HistBin_dw    2d-3 ! 1d-5 is fine mesh (good for metal?) !(a.u.) BinWidth along real axis at omega=0.
-HistBin_ratio 1.08 ! 1.03 maybe safer. frhis(iw)= b*(exp(a*(iw-1))-1), where a=ratio-1.0 and dw=b*a
+HistBin_dw    1d-6 is fine mesh (good for metal?) !(a.u.) BinWidth along real axis at omega=0.
+HistBin_ratio 1.03 maybe safer. frhis(iw)= b*(exp(a*(iw-1))-1), where a=ratio-1.0 and dw=b*a
                    ! This "ba mesh" is from 9Mar2016
                    ! See fpgw/gwsrc/m_freq.F
 iSigMode  3   ! QSGW mode switch for gwsc. use =3.

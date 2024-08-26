@@ -1,21 +1,31 @@
-#set terminal postscript enhanced color eps
-#set output 'pp.eps'
-set grid
-set title "x0 plot"
-set xlab "energy (Hartree)"
-set ylab "Energy-Ef(eV)"
-#set yra [   -22.00000:    16.00000]
-set xra [0: 1]
-plot "x0homo.dat" u 7:8 index 1 lt 1 pt 1 w l,\
-     "x0homo.dat" u 7:9 index 1 lt 1 pt 1 w l,\
-\
-     "x0homo.dat" u 7:8 index 2 lt 2 pt 2 w l,\
-     "x0homo.dat" u 7:9 index 2 lt 2 pt 2 w l,\
-\
-     "x0homo.dat" u 7:8 index 3 lt 3 pt 3 w l,\
-     "x0homo.dat" u 7:9 index 3 lt 3 pt 3 w l,\
-\
-     "x0homo.dat" u 7:8 index 4 lt 4 pt 4 w l,\
-     "x0homo.dat" u 7:9 index 4 lt 4 pt 4 w l
+set title "IntraBand part of Epsilon(omega(eV))"
+set xlabel " Energy/(2*Efermi)) / (k/kfermi) "
+set datafile fortran
+set xran[0:2]
+#set yran[-5:0]
+
+
+# grep vol lhhomogas 
+tpioa=2*3.1415926/6.35
+vol=128.023937
+ef=0.237356 
+
+# Fermi wave number 1/bohr , FermiEnergy*2  (Ry). See Fetter-Walecka
+kf = ef**.5
+eunit= ef*2 
+
+# Rydberg unit.mas=1/2  
+fpi= 4*3.1415926
+mass=.5
+fac= -fpi/(kf*mass)/vol*0.5  #0.5 is to convert chi0au into Ry unit. Note chi0au 1/a.u = chi0ry 1/Ry.
+
+facw = 1/eunit / (1/kf)
+
+plot "x0homo.dat" u (facw*$7/$6):(fac*$9) index 1 lt 1 pt 1 w l,\
+     "x0homo.dat" u (facw*$7/$6):(fac*$9) index 2 lt 2 pt 2 w l,\
+     "x0homo.dat" u (facw*$7/$6):(fac*$9) index 3 lt 3 pt 3 w l,\
+     "x0homo.dat" u (facw*$7/$6):(fac*$9) index 4 lt 4 pt 4 w l
 
 pause -1
+
+# ### $6 is non-dimensional Im(eps) ##########

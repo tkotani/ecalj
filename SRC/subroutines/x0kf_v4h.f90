@@ -33,7 +33,8 @@ module m_x0kf
   !
   real(8),public::qrk(3),qq(3)
   integer,public::ns1,ns2,ispm,ispq,nqini,nqmax,icounkmink,icounkmaxk
-  
+  logical,external:: cmdopt0 
+  logical:: debug
 contains
   function X0kf_v4hz_init(job,q,isp_k,isp_kq, iq, crpa) result(ierr) !index accumulation. Initialzation for calling x0kf_v4h
     implicit none
@@ -133,7 +134,6 @@ contains
     complex(8),optional:: zzr(:,:)
     real(8):: q(3),schi,ekxx1(nband,nqbz),ekxx2(nband,nqbz)
     character(10) :: i2char
-    logical:: cmdopt0 !, GPUTEST
     type(stopwatch) :: t_sw_zmel, t_sw_x0
     qq=q
 !    GPUTEST = .true. !cmdopt0('--gpu')
@@ -168,7 +168,6 @@ contains
         integer:: nwj(nwhis,npm),imb, igc ,neibz,icc,ig,ikp,i,j,itimer,icount, kold 
         real(8):: imagweight, wpw_k,wpw_kq,qa,q0a 
         complex(8):: img=(0d0,1d0)
-        logical,parameter:: debug=.false.
         if(.not.allocated(rcxq)) then
            allocate(rcxq(npr,npr_col,nwhis,npm))
            rcxq=0d0
@@ -228,6 +227,8 @@ contains
             ! nqini= nkqmin(k);      nqmax= nkqmax(k)
             icounkmink= icounkmin(k); icounkmaxk= icounkmax(k)
             call stopwatch_start(t_sw_zmel)
+      debug=cmdopt0('--debugzmel')
+      if(debug) write(stdo,ftox) 'ggggggggg goto get_zmel_init_gemm',k, nkmin(k),nkmax(k),nctot
             if(use_gpu) then
               !Currently, mpi version of get_zmel_init_gpu which is available by adding comm argument for MPI communicator,
               !but, MPI communication is significant bottle-neck in the case where GPUs are used. Therefore, it is only used in without GPU case.
@@ -320,13 +321,15 @@ contains
     intent(in)   ::     q,k, isp_k,isp_kq   
     integer::              k,isp_k,isp_kq 
     real(8)::           q(3)
+    debug=cmdopt0('--debugzmel')
 !    logical, intent(in), optional:: GPUTEST
 !    call get_zmel_init(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, nm1=nkmin(k)+nctot, nm2=nkmax(k)+nctot, ispm=isp_k, &
 !         nqini=nkqmin(k), nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1), iprx=.false., zmelconjg=.true.)
 !    if (present(GPUTEST)) then
-!      if (GPUTEST) then
-        call get_zmel_init_gemm(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
-             nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., zmelconjg=.true.)
+    !      if (GPUTEST) then
+    if(debug) write(stdo,ftox) 'ggggggggg goto get_zmel_init_gemm',k, nkmin(k),nkmax(k),nctot
+    call get_zmel_init_gemm(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
+         nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., zmelconjg=.true.)
        !$acc update host(zmel)
 !      endif
 !    else

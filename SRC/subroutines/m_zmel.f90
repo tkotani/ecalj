@@ -177,7 +177,8 @@ contains
        nm2c=nm2
        nm1v=0
        nm2v=-1
-    endif SetRangeOfCoreAndValence
+     endif SetRangeOfCoreAndValence
+     if(debug) write(stdo,ftox)'nm1c nm2c nm1v nm2v=',nm1c,nm2c,nm1v,nm2v
     !! For given range of band index nm1;nm2, We now get nm1v:nmv2 and nm1c:nm2c, which are range of valence and core index.
     !! Note that band index is nctot+nvalence order.
     ntp0   = nqmax-nqini+1
@@ -330,6 +331,7 @@ contains
       endblock ZmelWithinMT
       call writemem('mmmmm_zmel111 ngc= '//trim(charext(ngc))//' nm1v nm2v= '//trim(charext(nm1v))//' '//trim(charext(nm2v)))
       flush(stdo)
+      if(debug) write(stdo,ftox)'goto zmelipwif: ngc,nm1v,nm2v=',ngc,nm1v,nm2v
       ZmelIPWif: if(ngc/=0 .and. nm1v<=nm2v) then
         ZmelIPW:block  !> Mattrix elements <Plane psi |psi> from interstitial plane wave.
           use m_read_ppovl,only:igggi,igcgp2i,nxi,nxe,nyi,nye,nzi,nze,nvgcgp2,ngcgp,ggg,ppovlinv,nnxi,nnxe,nnyi,nnye,nnzi,nnze,nggg
@@ -392,7 +394,9 @@ contains
           !$acc end kernels
           allocate(zmelt_d(ngc,nm1v:nm2v,ntp0))
           if(debug) call writemem('mmmmm_zmel111hhh')
+          if(debug) write(stdo,ftox) 'hhhhhhhh111'!,ngc,ntp0,nmtot
           ierr = gemm(ppovlinv, zmelp0, zmelt_d, ngc, ntp0*nmtot, ngc)
+          if(debug) write(stdo,ftox)'hhhhhhhh222',ngc,ntp0,nmtot
           !$acc kernels
           zmelt(nbloch+1:nbloch+ngc,nm1v:nm2v,ncc+1:ncc+ntp0) = zmelt_d(1:ngc,nm1v:nm2v,1:ntp0)
           !$acc end kernels
@@ -405,6 +409,9 @@ contains
       if(debug) call writemem('mmmmm_zmel endof ZmelIPWif')
       allocate(zmel(nbb,ns1:ns2,nqtot))
       if(debug) call writemem('mmmmm_zmel deallocate zmel')
+!cccccccccccccccccccccccccccccccccccc
+      if(nmtot<=0) return
+
       !$acc enter data create(zmel)
       !$acc host_data use_device(zmel)
       !$acc data copyin(ppovlz(1:ngb,1:nbb))
