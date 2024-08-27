@@ -137,7 +137,7 @@ contains
     real(8):: quu(3),q(3), kvec(3),rkvec(3),qkt(3),qt(3), qdiff(3)
     real(8) :: ppb(nlnmx,nlnmx,mdimx,nclass) ! ppb= <Phi(SLn,r-R)_q,isp1 |Phi(SL'n',r-R)_qk,isp2 B_k(S,i,rot^{-1}(r-R))>
     logical:: iprx,zmelconjg,debug,cmdopt0
-    integer,allocatable:: ngveccR(:,:),igcgp2i_(:,:)
+    integer,allocatable:: ngveccR(:,:),igcgp2i_work(:,:)
     complex(kind=kp)::cphiq(nlmto,nband), cphim(nlmto,nband)
     complex(kind=kp),allocatable:: geigq(:,:),dgeigqk(:,:)
     integer:: invr,nt0,ntp0,nmtot,nqtot
@@ -154,7 +154,9 @@ contains
     complex(kind=kp), allocatable:: zmelt_d(:,:,:), zmelt(:,:,:)
     complex(kind=kp), allocatable:: ppbvphiq_d(:,:,:), cphim_d(:,:), cphiq_d(:,:), ppbc_d(:,:,:), ppbv_d(:,:,:)
 #ifdef __GPU
-    attributes(device) :: ppb
+    attributes(device) :: ppb, zmelp0, ggitp, gggmat, ggitp_work
+    attributes(device) :: igcgp2i_work
+    attributes(device) :: ppbvphiq_d, cphim_d, cphiq_d, ppbc_d, ppbv_d
 #endif
     debug=cmdopt0('--debugzmel')
     if(allocated(zmel)) then
@@ -208,7 +210,7 @@ contains
         nadd = nint(matmul(transpose(plat), qdiff)) !nadd: difference in the unit of reciprocal lattice vectors.
         block
           use m_read_ppovl,only: getppx2, ngvecc,ngcread
-          integer:: igcgp2,nn(3),iggg,igp1,itp,igc,igp2,igcgp2i_(ngc,ngp2)
+          integer:: igcgp2,nn(3),iggg,igp1,itp,igc,igp2
           call getppx2(qlat,kvec) ! read and allocate ppovlinv
           if(ngc/=ngcread) call rx( 'melpln2t: ngc/= ngcx by getppx:PPOVLG')
           allocate(ngveccR(1:3,1:ngc))
@@ -251,9 +253,6 @@ contains
 !$acc end kernels
       ZmelWithinMT: block !- Calculates <psi_q(itp) |psi_qk(it) B_k(rot(r-R))> 
         complex(8):: phasea(natom) 
-#ifdef __GPU
-        attributes(device) :: ppbvphiq_d, cphim_d, cphiq_d, ppbc_d, ppbv_d
-#endif
         phasea = [(exp(-img *tpi* sum(kvec*tr(:,ia))),ia=1,natom)]
         iatomloop: do ia = 1, natom
           ic    = iclass(ia)
@@ -344,36 +343,41 @@ contains
           complex(8):: phase(ngc)!zmelp0(ngc,nm1v:nm2v,ntp0)
           complex(kind=kp) :: ppovlinv_work(ngc,ngc)
 #ifdef __GPU
-          attributes(device) :: zmelp0, ggitp, gggmat, ggitp_work, igcgp2i_, nn
+          attributes(device) :: ppovlinv_work
 #endif
-          ppovlinv_work(1:ngc,1:ngc) = cmplx(ppovlinv(1:ngc,1:ngc),kind=kp)
-          allocate( ggitp(ngcgp,ntp0), gggmat(ngcgp,ngp1), ggitp_work(ngc, ngp2),igcgp2i_(ngc,ngp2))
+          !$acc kernels
+          ppovlinv_work(1:ngc,1:ngc) = cmplx(ppovlinv(1:ngc,1:ngc),kind=kp) !copy to GPU
+          !$acc end kernels
+          allocate( ggitp(ngcgp,ntp0), gggmat(ngcgp,ngp1), ggitp_work(ngc, ngp2),igcgp2i_work(ngc,ngp2))
           if(debug) call writemem('mmmmm_zmel111aaa')
           allocate(zmelp0(ngc,nm1v:nm2v,ntp0))
           if(debug) call writemem('mmmmm_zmel111bbb')
           phase(:)=[(exp( -img*tpi*sum((matmul(symope,kvec)+matmul(qlat,ngveccR(:,igc)))*shtv) ),igc=1,ngc)]  !prepared by CPU
-          !$acc data copyin(dgeigqk, geigq, phase, ngvecpB1, ngvecpB2, ngveccR, nadd, ggg(1:nggg), nvgcgp2(1:3,1:ngcgp), &
-          !$acc             igggi(nxi:nxe,nyi:nye,nzi:nze), igcgp2i(nnxi:nnxe,nnyi:nnye,nnzi:nnze), ppovlinv_work)
+          !$acc data copyin(dgeigqk, geigq, phase, ngvecpB1, ngvecpB2, ngveccR, &
+          !$acc             nadd(1:3), ggg(1:nggg), nvgcgp2(1:3,1:ngcgp), &
+          !$acc             igggi(nxi:nxe,nyi:nye,nzi:nze), igcgp2i(nnxi:nnxe,nnyi:nnye,nnzi:nnze)) create(nn)
           if(debug) call writemem('mmmmm_zmel111ccc')
-          gggmat=0d0 !fix 2024-8-23  (forgotton)
-          !$acc kernels loop independent collapse(2)
+          !$acc kernels
+          gggmat(1:ngcgp,1:ngp1)=0d0 !fix 2024-8-23  (forgotton)
+          !$acc end kernels
+          !$acc kernels loop independent collapse(2) private(nn)
           do igcgp2 = 1, ngcgp
             do igp1 =1, ngp1
               nn(1:3) = ngvecpB1(1:3,igp1) - nvgcgp2(1:3,igcgp2) - nadd(1:3)
               if(nn(1)<nxi .OR. nxe<nn(1) .OR. nn(2)<nyi .OR. nye<nn(2) .OR. nn(3)<nzi .OR. nze<nn(3)) cycle
-              nnnsss=nnnsss+sum(abs(nn))
+              ! nnnsss=nnnsss+sum(abs(nn))
               iggg = igggi(nn(1),nn(2),nn(3))
-              nnnggg=nnnggg+abs(iggg)
-              if(iggg>=0) gggmat(igcgp2,igp1)=ggg(iggg)
+              ! nnnggg=nnnggg+abs(iggg)
+              if(iggg>0) gggmat(igcgp2,igp1)=ggg(iggg)
             enddo
           enddo
           !$acc end kernels
           if(debug) call writemem('mmmmm_zmel111ddd')
-          !$acc kernels loop independent collapse(2)
-          do igc = 1, ngc
-           do igp2 = 1, ngp2
+          !$acc kernels loop independent collapse(2) private(nn)
+          do igp2 = 1, ngp2
+            do igc = 1, ngc
               nn(1:3) = ngveccR(1:3,igc) + ngvecpB2(1:3,igp2)
-              igcgp2i_(igc,igp2) = igcgp2i(nn(1),nn(2),nn(3))
+              igcgp2i_work(igc,igp2) = igcgp2i(nn(1),nn(2),nn(3))
             enddo
           enddo
           !$acc end kernels
@@ -386,13 +390,13 @@ contains
             !$acc kernels loop independent collapse(2)
             do igp2 = 1, ngp2
               do igc = 1, ngc
-                ggitp_work(igc, igp2) = ggitp(igcgp2i_(igc,igp2), itp)
+                ggitp_work(igc, igp2) = ggitp(igcgp2i_work(igc,igp2), itp)
               enddo
             enddo
             !$acc end kernels
             ierr = gemm(ggitp_work, dgeigqk(1,nm1v), zmelp0(1,nm1v,itp), ngc, nm2v-nm1v+1, ngp2, ldB = ngpmx)
           enddo
-          deallocate(ggitp_work,ggitp,igcgp2i_)
+          deallocate(ggitp_work,ggitp,igcgp2i_work)
           if(debug) call writemem('mmmmm_zmel111fff')
           !$acc kernels
           do igc = 1, ngc

@@ -381,6 +381,7 @@ contains
                   complex(kind=kp), allocatable :: czmelwc(:,:,:)
                   integer :: it, itp, iw, ierr, i
                   complex(kind=kp), allocatable :: wv(:,:), wc(:,:)
+                  real(kind=kp) :: zsec_img
 #ifdef __GPU
                   attributes(device) :: czmelwc, wc
 #endif
@@ -553,7 +554,10 @@ contains
                   !$acc end host_data
                   !$acc kernels loop independent
                   do itp = 1, ntqxx
-                    zsec(itp,itp) = real(zsec(itp,itp),kind=kp)+img*min(-real((img*zsec(itp,itp)),kind=kp),0_kp) !enforce Imzsec<0
+                    ! zsec(itp,itp) = real(zsec(itp,itp),kind=kp)+img*min(-real((img*zsec(itp,itp)),kind=kp),0_kp) !enforce Imzsec<0 !does not work in intel
+                    zsec_img = -real((img*zsec(itp,itp)),kind=kp)
+                    if(zsec_img > 0_kp) zsec_img = 0_kp 
+                    zsec(itp,itp) = real(zsec(itp,itp),kind=kp)+img*zsec_img
                   enddo
                   !$acc end kernels
                   deallocate(wv, wc, czmelwc)

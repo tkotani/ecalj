@@ -94,6 +94,7 @@ contains
     integer:: iq,iqindx,ikpisp,napw,iqq,nnn(3),ig,igg,ig2,iqi,igxt,i
     real(8)   :: ddd(3),platt(3,3),qpg(3),qpgr(3),qtarget(3),qout(3),qin(3)
     complex(8):: geigenr(ngp_in,nband),img=(0d0,1d0),img2pi
+    character(8) :: xt
     img2pi=2d0*4d0*datan(1d0)*img
     platt=transpose(plat) !this is inverse of qlat
     if(init2) call rx( 'readgeig: modele is not initialized yet')
@@ -119,7 +120,9 @@ contains
        geigenr(1:ngp(iq),1:nband) = geig(1:ngp(iq),1:nband,iqi,isp)
     else
        !ikpisp= isp + nsp*(iqi-1)
+       open(newunit=ifgeig, file='GEIG'//trim(xt(iqi))//trim(xt(isp)),form='unformatted')
        read(ifgeig) geigenr(1:ngpmx,1:nband) !, rec=ikpisp)
+       close(ifgeig)
     endif
     
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -177,6 +180,7 @@ contains
     complex(8):: phase,cphifr(ldim2,nband),phaseatom !takao 1->*->nband
     complex(8),parameter:: img=(0d0,1d0) ! MIZUHO-IR
     complex(8):: img2pi = 2d0*4d0*datan(1d0)*img ! MIZUHO-IR
+    character(8) :: xt
     if(init2) call rx( 'readcphi: modele is not initialized yet')
     call iqindx2_(q, iq, qu) !for given q, get iq. qu is used q. q-qu= G vectors. qu=qtt(:,iq)
     igg=igmap(iq)  ! qtt(:,iq)= matmul(sympos(  ,igg),qtt(:,iqq))
@@ -193,7 +197,9 @@ contains
        cphifr(1:ldim2,1:nband) = cphi(1:ldim2,1:nband,iqi,isp)
     else
 !       ikpisp= isp + nsp*(iqi-1)
+       open(newunit=ifcphi, file='CPHI'//trim(xt(iqi))//trim(xt(isp)),form='unformatted')
        read(ifcphi) cphifr(1:ldim2,1:nband) !, rec=ikpisp
+       close(ifcphi)
     endif
     if(debug) write(6,"('readcphi:: xxx sum of cphifr=',3i4,4d23.16)")ldim2,ldim2,norbtx, &
          sum(cphifr(1:ldim2,1:nband)),sum(abs(cphifr(1:ldim2,1:nband)))

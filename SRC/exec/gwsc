@@ -55,14 +55,16 @@ if args.np2!=None:
    ncore2=int(args.np2)
 #else:
 # options
-#option=' --gpu --keepwv '
-#option=' --gpu '
+#option=' --keepwv '
 option=' '
-existing
+exec_type=''
+# existing
 if args.phispinsym==True: option= option+ ' --phispinsym '
 if args.emptyrun  ==True: option= option+ ' --emptyrun '
 if args.mp        ==True: exec_type='_mp'
-if args.gpu       ==True: exec_type='_gpu'
+if args.gpu       ==True:
+    exec_type='_gpu'
+    option = option + ' --keepwv '
 option = ' '+option+' '.join(unknown)+' '
 datei=run_program('echo --- Start gwsc ---',1)
 print('option=',option)

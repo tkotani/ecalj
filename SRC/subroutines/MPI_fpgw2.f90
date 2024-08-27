@@ -103,10 +103,10 @@ contains
       data_size(irank_b) = npr*mpi__npr_col(irank_b)
       data_disp(irank_b) = npr*(mpi__ipr_col(irank_b)-1)
     enddo
-    ! call mpi_allgatherv(xqw, npr*npr_col, mpi_complex16, xqw_all, data_size, data_disp, &
-    !               &  mpi_complex16, comm_root_k, mpi__info)
-    call mpi_gatherv(xqw, npr*npr_col, mpi_complex16, xqw_all, data_size, data_disp, &
-                  &  mpi_complex16, 0, comm_root_k, mpi__info)
+    call mpi_allgatherv(xqw, npr*npr_col, mpi_complex16, xqw_all, data_size, data_disp, &
+                  &  mpi_complex16, comm_root_k, mpi__info)
+    ! call mpi_gatherv(xqw, npr*npr_col, mpi_complex16, xqw_all, data_size, data_disp, &
+    !               &  mpi_complex16, 0, comm_root_k, mpi__info)
     deallocate(data_size, data_disp)
   end subroutine MPI__GatherXqw
 

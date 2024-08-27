@@ -225,8 +225,8 @@ contains
         call cputid (0)
 !        if(GPUTEST) then
           ! rcxq(ibg1,igb2,iw) = \sum_ibib wwk(iw,ibib)* <M_ibg1(q) psi_it(k)| psi_itp(q+k)> < psi_itp | psi_it M_ibg2 > at q
-          call stopwatch_init(t_sw_zmel, 'zmel_'//'gpu') !merge('gpu','ori',mask = GPUTEST))
-          call stopwatch_init(t_sw_x0, 'x0_'//'gpu') !merge('gpu','ori',mask = GPUTEST))
+          call stopwatch_init(t_sw_zmel, 'zmel_'//'gemm') !merge('gpu','ori',mask = GPUTEST))
+          call stopwatch_init(t_sw_x0, 'x0_'//'gemm') !merge('gpu','ori',mask = GPUTEST))
           kloop:do 1500 k=1,nqbz !zmel = < M(igb q) phi( rk it occ)|  phi(q+rk itp unocc)>
             if(mod(k-1, mpi__size_k) /= mpi__rank_k)  cycle
             ! qq   = q;              qrk  = q+rk(:,k)

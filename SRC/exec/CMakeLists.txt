@@ -31,7 +31,7 @@ message("BUILD_MP is " ${BUILD_MP})
 enable_language(Fortran)
 
 # Note: we always renew show_programinfo.f90 because of Makeshow is always invoked. How to improve this?
-add_custom_target(show_prog ALL COMMAND make -f Makeshow WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+add_custom_target(show_prog COMMAND make -f Makeshow WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
   DEPENDS "../subroutines/*.f90" "../wanniergw/*.f90" "../main/*.f90"
 )
 
@@ -62,7 +62,7 @@ elseif(FC MATCHES "ifort")
 elseif(FC MATCHES "nvfortran")
   set(CMAKE_Fortran_COMPILER mpifort) # compiler
   set(CMAKE_Fortran_FLAGS "-fpic") # "-Mvect=simd -mcmodel=medium -fpic") # compile flags
-  set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -C -g -traceback -Mnobounds")
+  set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -traceback")
   set(LIBM -lmkl_intel_lp64 -lmkl_sequential -lmkl_core)
 endif()
 
@@ -126,13 +126,15 @@ if(TYPE) #if TYPE is not empty
     get_filename_component(exename ${target} NAME_WE)
     set(exename ${exename}${TYPE})
     add_executable(${exename} ${target})
-    target_link_options(${exename} PRIVATE ${LIBM})
+    add_dependencies(${exename} ${LIB})
+    target_compile_options(${exename} PRIVATE ${FLAGS})
     target_link_libraries(${exename} ${LIB} ${LIBM})
   endforeach()
 else()
   foreach(target IN ITEMS ${MAINS})
     get_filename_component(exename ${target} NAME_WE)
     add_executable(${exename} ${target})
+    add_dependencies(${exename} ${LIB})
     target_link_libraries(${exename} ${LIB} ${LIBM})
   endforeach()
 endif()
