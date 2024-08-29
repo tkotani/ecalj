@@ -135,7 +135,7 @@ for i in range(1,nloop+1): #nloop is the additional number of iteration
     os.symlink('sigm',sigm_name)
     flist=['ctrl.%s'%target,rst_name,sigm_name,'llmf_oneshot','save.%s'%target,'log.%s'%target,'QPU','QPD']
     mv_files(glob.glob('SEX*')+glob.glob('SEC*')+glob.glob('XC*'),'SEBK')
-    for f in ['sigm','QPU','QPD','TOTE.UP','TOTE.DN','lqpe','lsc','lsx','lx0','llmfgw01','evecfix.chk','llmf','ESEAVR']:
+    for f in ['sigm','QPU','QPD','TOTE.UP','TOTE.DN','lqpe','lsc','lsx','lx0','llmfgw01','evecfix.chk','llmf','ESEAVR','dos*']:
         if os.path.isfile(f):
             shutil.copy(f,f+'.%drun'%niter)
     if i==0 and Iter0!=0 and nloop!=0:
