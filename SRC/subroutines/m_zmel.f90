@@ -43,8 +43,7 @@ contains
     real(8):: qx(3),tolq=1d-8
     if(allocated(ppovlz)) deallocate(ppovlz)
     if(allocated(ppovl))  deallocate(ppovl)
-    allocate( ppovl(ngc,ngc), source = (0d0,0d0))
-    allocate( ppovlz(ngb,npr), source = (0d0,0d0))
+    allocate( ppovl(ngc,ngc),ppovlz(ngb,npr))
     open(newunit=ippovl0,file='PPOVL0',form='unformatted') !inefficient search for PPOVLO for given q
     do 
        read(ippovl0) qx,ngc_r
@@ -400,7 +399,7 @@ contains
           if(debug) call writemem('mmmmm_zmel111fff')
           !$acc kernels
           do igc = 1, ngc
-            zmelp0(igc,nm1v:nm2v,1:ntp0) = real(phase(igc),kind=kp)*zmelp0(igc,nm1v:nm2v,1:ntp0)
+            zmelp0(igc,nm1v:nm2v,1:ntp0) = cmplx(phase(igc),kind=kp)*zmelp0(igc,nm1v:nm2v,1:ntp0)
           enddo
           !$acc end kernels
           allocate(zmelt_d(ngc,nm1v:nm2v,ntp0))

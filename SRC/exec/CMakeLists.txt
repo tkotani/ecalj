@@ -78,16 +78,31 @@ if(${BUILD_GPU})
   set(LIBM ${LIBM} -acc=gpu -cuda -cudalib=cufft,cublas,cusolver)
   set(FLAGS ${FLAGS} -D__GPU -Minfo -Mfree -cuda -acc=gpu -cudalib=cufft,cublas,cusolver)
 endif()
+if(TYPE) #if TYPE is not empty
+  set(TARGETS ${MAINS_BOTTLENECK})
+else()
+  set(TARGETS ${MAINS})
+endif()
+
 set(LIB ecaljF${TYPE})
 set(MOD mod${TYPE})
 set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/${FCMOD}/${MOD})
 add_library(${LIB} SHARED ${SOURCES})
+add_dependencies(${LIB} show_prog)
 target_link_options(${LIB} PRIVATE ${LIBM})
 target_compile_options(${LIB} PRIVATE ${FLAGS})
 
 # emacs tags
 add_custom_target(etags ALL COMMAND etags ../subroutines/*.f90 ../wanniergw/*.f90 ../main/*.f90
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+
+# copy executables etc to ../exec${FCMOD}
+file(MAKE_DIRECTORY   ${CMAKE_BINARY_DIR}/../exec${FCMOD})
+set(CMAKE_Fortran_BINS ${CMAKE_BINARY_DIR}/../exec${FCMOD}) # directory for *.mod
+add_custom_target(copyexe ALL 
+    COMMAND cp `find . -mindepth 1 -maxdepth 1 -executable -type f` ${CMAKE_Fortran_BINS} 
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+)
 
 # For setting mkl location
 add_executable(dummy ./dummy.f90) # exe
@@ -121,24 +136,12 @@ elseif(FC MATCHES "nvfortran")
   endforeach()
 endif()
 
-if(TYPE) #if TYPE is not empty
-  foreach(target IN ITEMS ${MAINS_BOTTLENECK})
-    get_filename_component(exename ${target} NAME_WE)
-    set(exename ${exename}${TYPE})
-    add_executable(${exename} ${target})
-    add_dependencies(${exename} ${LIB})
-    target_compile_options(${exename} PRIVATE ${FLAGS})
-    target_link_libraries(${exename} ${LIB} ${LIBM})
-  endforeach()
-else()
-  foreach(target IN ITEMS ${MAINS})
-    get_filename_component(exename ${target} NAME_WE)
-    add_executable(${exename} ${target})
-    add_dependencies(${exename} ${LIB})
-    target_link_libraries(${exename} ${LIB} ${LIBM})
-  endforeach()
-endif()
-
-file(MAKE_DIRECTORY   ${CMAKE_BINARY_DIR}/../exec${FCMOD})
-set(CMAKE_Fortran_BINS ${CMAKE_BINARY_DIR}/../exec${FCMOD}) # directory for *.mod
-add_custom_target(copyexe ALL COMMAND cp `find . -mindepth 1 -maxdepth 1 -executable -type f` ${CMAKE_Fortran_BINS} WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+foreach(target IN ITEMS ${TARGETS})
+  get_filename_component(exename ${target} NAME_WE)
+  set(exename ${exename}${TYPE})
+  add_executable(${exename} ${target})
+  add_dependencies(${exename} ${LIB}) #unnecessary?
+  target_compile_options(${exename} PRIVATE ${FLAGS})
+  target_link_libraries(${exename} ${LIB} ${LIBM})
+  add_dependencies(copyexe ${exename})
+endforeach()
