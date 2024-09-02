@@ -254,7 +254,7 @@ contains
        if(iqbk==iq) then
           continue
        elseif( lso/=0 .OR. socmatrix) then
-          deallocate(hammhso)
+          if(allocated(hammhso)) deallocate(hammhso)
           allocate(hammhso(ndimh,ndimh,3))
           call aughsoc(qp, ohsozz,ohsopm, ndimh, hammhso)
           iqbk=iq !q index for hammhso

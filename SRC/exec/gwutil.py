@@ -27,21 +27,20 @@ def rm_files(files):
     for fname in files:
         remove(fname)
 
-def run_program(commandline,ncore=0):
-    '''
-    Run codes:
-        mpi_size:
-        command line: 
-    '''
+def run_program(commandline, ncore=0,x0=0):
     import subprocess,datetime
-    xdate = datetime.datetime.today().isoformat()
+    xdate=datetime.datetime.now() #today().isoformat()
     mpirun='mpirun -np %d '%ncore if ncore!=0 else ''
     run_command = mpirun + commandline
-    print(xdate+'  '+run_command,flush=True)
+    if(x0==0):
+        print(xdate,'  '+run_command,flush=True)
+    else:
+        print(xdate-x0,'  '+run_command,flush=True)
     info=subprocess.run(run_command,shell=True)
     if info.returncode!=0: #if return error
         print('Error in '+run_command,flush=True)
         exit(-1)
+    return xdate
         
 # import os, datetime, shutil, glob
 # def gw_args(pname,note):
