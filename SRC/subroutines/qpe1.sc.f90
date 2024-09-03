@@ -99,9 +99,11 @@ subroutine qpe1_sc (ifqpe,iftote,iftote2,itq,q, &
   write (ifqpe,"(a)") &
        !     .'           q               state  SEx   SExcore SEc    vxc    dSE
        !     .  dSEnoZ  eLDA  eQPnoZ  eQPnoZ  eHF  Z=1  FWHM=2Z*Simg  ReS(elda)'
-       '           q               state  SEx   SExcore SEc    vxc   ---' &
-       // '   dSEnoZ  eQP(starting by lmf)'// &
-       '  eHF  Z=1  FWHM=2Z*Simg ReS(elda)'
+       ! '           q               state  SEx   SExcore SEc    vxc   ---' &
+       ! // '   dSEnoZ  eQP(starting by lmf)'// &
+       ! '  eHF  Z=1  FWHM=2Z*Simg ReS(elda)'
+       '           q               state   SEx    SExcore   SEc     vxc     ---'// &
+       '    dSEnoZ   eQP(starting by lmf)    eHF   Z=1  FWHM=2Z*Simg ReS(elda)'
 
   do      iq = 1,nq
      do      it = 1,ntq
@@ -127,7 +129,7 @@ subroutine qpe1_sc (ifqpe,iftote,iftote2,itq,q, &
                 vxc(it,iq), 0d0, dsenoz, elda(it,iq)+eshtlda, &
                 0d0, 0d0, ehfx,zfac(it,iq),fwhm, &
                 sex(it,iq)+sexcore(it,iq)+rsec(it,iq) 
-6100       format (3f9.5,1x,i2,1x,10f7.2,f5.2,f10.5,3x,f10.5)
+6100       format (3f9.5,1x,i3,1x,10f8.3,f5.2,f10.5,3x,f10.5)
         endif
 
         eqp01= elda(it,iq) + eshift
