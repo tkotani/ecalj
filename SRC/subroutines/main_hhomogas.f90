@@ -333,7 +333,6 @@ subroutine hhomogas()
     write(stdo,ftox) ' === goto gettetwt iq =',iq,'ef(eV)=',ftof(ef*rydberg())
     call gettetwt(q,iq,is,isf,ev_w1,ev_w2,nwf) !Tetrahedron weight whh
     write(stdo,ftox) " === end gettetwt. we now have the tetrahedron weight whw"
-    deallocate(ev_w1,ev_w2)
     jpmloop: do 2011 jpm=1,npm     !! jpm=2: negative frequency
       kloop: do 2012 kx=1,nqbz     !! discrete k-point loop
         ibibloop: do 2013 ibib=1,nbnb(kx,jpm) !! n,n' band loop
@@ -348,6 +347,11 @@ subroutine hhomogas()
               write(6,*) 'n1b(unocc),n2b(occ):',n1b(ibib,kx,jpm),n2b(ibib,kx,jpm)
             endif
           endif
+          
+!          i1=n1b(ibib,kx,jpm) 
+!          i2=n2b(ibib,kx,jpm)
+!          imgweight=merge(1d0,0d0,ev_w1(i1)>ev_w2(i2))
+              
 !!!   print *,"ihw,nhw",ihw(ibib,kx,jpm),nhw(ibib,kx,jpm)
           do iw=ihw(ibib,kx,jpm),ihw(ibib,kx,jpm)+nhw(ibib,kx,jpm)-1
             imagweight = whw(jhw(ibib,kx,jpm)+iw-ihw(ibib,kx,jpm)) ! imagweight is the tetrahedron weight for (k,n1b), (q+k,n2b) .
@@ -356,6 +360,7 @@ subroutine hhomogas()
 2013    enddo ibibloop
 2012  enddo kloop
 2011 enddo jpmloop
+    deallocate(ev_w1,ev_w2)
     rcxq=rcxq*2 ! Spin factor  !    write(6,"('rcxq/nbnb 4:',3E13.5)") sum(abs(rcxq(:,:,:,:)))
     call tetdeallocate() !--> deallocate(ihw,nhw,jhw, whw,ibjb,n1b,n2b)
     write(6,"('  nmbas1 nmbas2 npm=',3i8)") nmbas1,nmbas2,npm
