@@ -39,6 +39,7 @@ module m_readeigen
   integer,allocatable,private:: l_tbl(:),k_tbl(:),ibas_tbl(:),offset_tbl(:),offset_rev_tbl(:,:,:)
   logical,private:: Wpkm4crpa=.false.
   real(8),private :: quu(3)
+  character(8),external :: xt
 contains
   subroutine onoff_write_pkm4crpa(lll)
     logical:: lll
@@ -115,9 +116,10 @@ contains
     endif
     if(keepeig) then
        geigenr(1:ngp(iq),1:nband) = geig(1:ngp(iq),1:nband,iqi,isp)
-    else
-       !ikpisp= isp + nsp*(iqi-1)
-       read(ifgeig) geigenr(1:ngpmx,1:nband) !, rec=ikpisp)
+    else        !ikpisp= isp + nsp*(iqi-1)
+       open(newunit=ifgeig, file='GEIG'//trim(xt(iqi))//trim(xt(isp)),form='unformatted')
+       read(ifgeig) geigenr(1:ngpmx,1:nband) 
+       close(ifgeig)
     endif
     if(ngp_in < ngp(iq)) then
        write(6,*)'readgeig: ngpmx<ngp(iq)',iq,ngpmx,ngp(iq),q
@@ -175,15 +177,12 @@ contains
     iqi=iqimap(iq) ! iqi is index for irr.=1 (cphi calculated. See qg4gw and sugw.F).
     ! qtt(:,iqq) = qtti(:,iqi) is satisfied.
     ! we have eigenfunctions calculated only for qtti(:,iqi).
-    !if(present(fpmt)) then ! 2024-2-13
-    !  ikpisp= isp + nsp*(iqi-1)
-    !  read(ifcphi0, rec=ikpisp) cphifr(1:ldim2,1:nband)
-    !elseif...
     if(keepeig) then
        cphifr(1:ldim2,1:nband) = cphi(1:ldim2,1:nband,iqi,isp)
-    else
-!       ikpisp= isp + nsp*(iqi-1)
-       read(ifcphi) cphifr(1:ldim2,1:nband) !, rec=ikpisp
+    else 
+       open(newunit=ifcphi, file='CPHI'//trim(xt(iqi))//trim(xt(isp)),form='unformatted')
+       read(ifcphi) cphifr(1:ldim2,1:nband) 
+       close(ifcphi)
     endif
     if(debug) write(6,"('readcphi:: xxx sum of cphifr=',3i4,4d23.16)")ldim2,ldim2,norbtx, &
          sum(cphifr(1:ldim2,1:nband)),sum(abs(cphifr(1:ldim2,1:nband)))
@@ -257,30 +256,21 @@ contains
     call readmnla_cphi()
     keepeig = keepeigen()
     init2=.false.
-    !if(cmdopt0('--fpmt')) open(newunit=ifgeig0,file='GEIG0',form='unformatted',access='direct',recl=mrecg)
-    !if(cmdopt0('--fpmt')) open(newunit=ifcphi0,file='CPHI0',form='unformatted',access='direct',recl=mrecb)
-    !if(cmdopt0('--fpmt')) keepeig=.false.
-    if(Keepeig     ) write(6,*)' KeepEigen=T; readin geig and cphi into m_readeigen'
+    if(Keepeig       ) write(6,*)' KeepEigen=T; readin geig and cphi into m_readeigen'
     if( .NOT. Keepeig) write(6,*)' KeepEigen=F; not keep geig and cphi in m_readeigen'
-!    open(newunit=ifgeig,file='GEIG',form='unformatted',access='direct',recl=mrecg)
-!    open(newunit=ifcphi,file='CPHI',form='unformatted',access='direct',recl=mrecb)
     if( .NOT. keepeig) return
     allocate(geig(ngpmx,nband,nqi,nsp))
     allocate(cphi(ldim2,nband,nqi,nsp))
-    !      write(6,*)' size geig=',ngpmx,nband,nqi,nsp,ldim2,size(geig),size(cphi)
     do ikp= 1,nqi
        do is= 1,nsp
           open(newunit=ifcphi, file='CPHI'//trim(xt(ikp))//trim(xt(is)),form='unformatted')
           open(newunit=ifgeig, file='GEIG'//trim(xt(ikp))//trim(xt(is)),form='unformatted')
-!          ikpisp= is + nsp*(ikp-1)
           if(ngpmx/=0) read(ifgeig) geig(1:ngpmx,1:nband,ikp,is) ! , rec=ikpisp)
           read(ifcphi) cphi(1:ldim2,1:nband,ikp,is) ! , rec=ikpisp
           close(ifcphi)
           close(ifgeig)
        enddo
     enddo
-!    close(ifgeig)
-!    close(ifcphi)
   end subroutine init_readeigen2
   subroutine readmnla_cphi()
     !! === readin @MNLA_CPHI for rotation of MTO part of eigenfunction cphi ===
@@ -484,8 +474,7 @@ contains
              !               rnorm = 0d0
              !               cnorm = 0d0
              !               do ib = 1,ldim2
-             !                  rnorm = rnorm + dreal(dconjg(cphi(ib,iwf,ikp,is))*
-             !     &                                   cphi(ib,iwf2,ikp,is))
+             !                  rnorm = rnorm + dreal(dconjg(cphi(ib,iwf,ikp,is))*cphi(ib,iwf2,ikp,is))
              !               enddo
              !               if (iwf.eq.iwf2) rnorm = rnorm - 1d0
              !               write(7600,"(4i5,f12.6)")is,ikp,iwf,iwf2,rnorm
