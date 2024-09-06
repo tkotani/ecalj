@@ -11,6 +11,8 @@ module m_llw
   use m_x0kf,only: zxq,zxqi
   use m_mpi, only: MPI__GatherXqw, mpi__root_k, mpi__root_q
   use m_kind,only: kp => kindrcxq
+  use m_stopwatch
+  use m_blas, only: zminv
   implicit none
   public:: WVRllwR,WVIllwI,  MPI__sendllw,MPI__sendllw2
   complex(8),allocatable,protected,public:: llw(:,:), llwI(:,:)
@@ -32,6 +34,8 @@ contains
     logical::  localfieldcorrectionllw,cmdopt0,emptyrun
     complex(8), allocatable :: zxqw(:,:)
     logical,save:: init=.true.
+    type(stopwatch) :: t_sw_matinv, t_sw_x_gather
+    integer :: istat
 !    complex(8):: zxq(nmbas1,nmbas2,nw_i:nw)
     character(10):: i2char
     mreclx=mrecl
@@ -42,6 +46,8 @@ contains
        if(w4pmode) allocate( wmuk(2:nblochpmx,3),source=(1d99,0d0))
        allocate( zw(nblochpmx,nblochpmx) )
        init=.false.
+       call stopwatch_init(t_sw_matinv, 'matinv')
+       call stopwatch_init(t_sw_x_gather, 'gather')
     endif
     call readqg0('QGcou', (/0d0,0d0,0d0/),  quu,ngc0) ! ngb is q-dependent. released at the end of WVIllwi
     ngbq0 = nbloch+ngc0
@@ -66,7 +72,9 @@ contains
         else
           ix=0
         endif
+        call stopwatch_start(t_sw_x_gather)
         call MPI__GatherXqw(zxq(:,:,iw), zxqw, nmbas1, nmbas2)
+        call stopwatch_pause(t_sw_x_gather)
         if(mpi__root_q) then
         do igb1=ix+1,ngb !  Eqs.(37),(38) in PRB81 125102 (Friedlich)
           do igb2=ix+1,ngb
@@ -76,7 +84,14 @@ contains
           enddo
         enddo
         epstinv(ix+1:ngb,ix+1:ngb)=epstilde(ix+1:ngb,ix+1:ngb)
-        call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
+        call stopwatch_start(t_sw_matinv)
+        ! call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
+        !$acc data copy(epstinv)
+        !$acc host_data use_device(epstinv)
+        istat = zminv(epstinv(ix+1,ix+1), n=ngb-ix, lda=ngb)
+        !$acc end host_data
+        !$acc end data
+        call stopwatch_pause(t_sw_matinv)
         !  w4p writing eps
         if(iw==0 .AND. w4pmode) then ! static epstinv is saved. For q=0 epstilde (mu=1 skipped). For q/=0 full matrix inversion. ix=1 is set for q=0)
           open(newunit=ifw4p,file='W4PHONON.'//i2char(iq),form='unformatted')
@@ -97,6 +112,10 @@ contains
         endif
 1015  enddo iwloop
       if(mpi__root_q) close(ifrcw)
+      if(mpi__root_q) then 
+         call stopwatch_show(t_sw_x_gather)
+         call stopwatch_show(t_sw_matinv)
+      endif
     else  ! llw, Wing elements of W. See PRB81 125102
       iq0 = iq - nqibz
       vcou1 = fourpi/sum(q**2*tpioa**2) ! --> vcousq(1)**2!  !fourpi/sum(q**2*tpioa**2-eee)
@@ -157,6 +176,7 @@ contains
     complex(8), allocatable :: zxqw(:,:)
 !    complex(8):: zxqi(nmbas1,nmbas2,niw)
     character(10):: i2char
+    integer :: istat
     allocate (zxqw(ngb, ngb))
     mreclx=mrecl
     emptyrun=.false. !cmdopt0('--emptyrun')
@@ -191,7 +211,12 @@ contains
              enddo
           enddo
           epstinv=epstilde
-          call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
+          !$acc data copy(epstinv)
+          !$acc host_data use_device(epstinv)
+          istat = zminv(epstinv(ix+1,ix+1), n=ngb-ix, lda=ngb)
+          !$acc end host_data
+          !$acc end data
+          ! call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
           do igb1=ix+1,ngb
              do igb2=ix+1,ngb
                 zw0(igb1,igb2)= vcousq(igb1)*epstinv(igb1,igb2)*vcousq(igb2)
