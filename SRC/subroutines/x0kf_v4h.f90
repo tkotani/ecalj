@@ -227,8 +227,8 @@ contains
             ! nqini= nkqmin(k);      nqmax= nkqmax(k)
             icounkmink= icounkmin(k); icounkmaxk= icounkmax(k)
             call stopwatch_start(t_sw_zmel)
-      debug=cmdopt0('--debugzmel')
-      if(debug) write(stdo,ftox) 'ggggggggg goto get_zmel_init_gemm',k, nkmin(k),nkmax(k),nctot
+            debug=cmdopt0('--debugzmel')
+            if(debug) write(stdo,ftox) 'ggggggggg goto get_zmel_init_gemm',k, nkmin(k),nkmax(k),nctot
             if(use_gpu) then
               !Currently, mpi version of get_zmel_init_gpu which is available by adding comm argument for MPI communicator,
               !but, MPI communication is significant bottle-neck in the case where GPUs are used. Therefore, it is only used in without GPU case.

@@ -189,6 +189,7 @@ subroutine hmaxloc()
   logical:: leauto,leinauto,iprint
   complex(8):: cccx(7)
   integer:: ierr
+  character(256)::aaac
   include 'mpif.h'
   call mpi_init(ierr)
   call m_MPItk_init(MPI_COMM_WORLD)
@@ -421,7 +422,9 @@ subroutine hmaxloc()
     lqall      = .false.
     laf        = .false.
     call readx   (ifqpnt,10)
-    read (ifqpnt,*) iqall,iaf
+    read (ifqpnt,*) aaac
+    aaac=trim(aaac)//' 0'
+    read(aaac,*) iqall,iaf
     if (iqall == 1) lqall = .TRUE.
     if (iaf   == 1)   laf = .TRUE.
     call readx   (ifqpnt,100)
