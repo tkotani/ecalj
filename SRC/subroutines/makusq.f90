@@ -37,10 +37,18 @@ contains
        call uspecb(is,rsmh,eh)
        nkapi= nkapii(is)
        nlma = (lmxa+1)**2
+!       write(6,*)'ssssssssssssss',nr
+!       write(6,*)'ssssssssssssss',nkapi
+!       write(6,*)'ssssssssssssss',lmxh
        SetupAllRadialheadANDtailFunctionsANDtheirBCs: block
-         real(8):: rofi_rv(nr), &
-              fh_rv(nr*(lmxh+1)*nkapi),   xh_rv(nr*(lmxh+1)*nkapi),   vh(0:lmxh,nkapi), dh(0:lmxh,nkapi), &
-              fp_rv(nr*(lmxa+1)*(kmax+1)),xp_rv(nr*(lmxa+1)*(kmax+1)),vp(0:lmxa,0:kmax),dp(0:lmxa,0:kmax)
+         real(8):: rofi_rv(nr)
+         
+
+         real(8):: fh_rv(nr*(lmxh+1)*nkapi),   xh_rv(nr*(lmxh+1)*nkapi)
+         real(8):: vh(0:lmxh,nkapi), dh(0:lmxh,nkapi)
+         real(8):: fp_rv(nr*(lmxa+1)*(kmax+1)),xp_rv(nr*(lmxa+1)*(kmax+1)),vp(0:lmxa,0:kmax),dp(0:lmxa,0:kmax)
+
+         
          call radmsh(rmt,a,nr,rofi_rv )
          call fradhd(nkapi,eh,rsmh,lhh(:,is),lmxh,nr,rofi_rv,fh_rv,xh_rv, vh,dh) !head part
          call fradpk(kmax,rsma(is),lmxa,nr,rofi_rv,fp_rv,xp_rv, vp,dp)           !tail part

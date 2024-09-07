@@ -34,7 +34,7 @@ contains
     use m_hambl,only: hambl
     use m_rdata1,only:rdata1init,nradmx,nnc,nrad,nindx_r,lindx_r,iord,nvmax,nrc,mindx,&
          gval_n,gcore_n,aac,bbc,gval_orth,zzpi,nrmxe=>nrmx
-    use m_suham,only: nbandmx=>ham_ndham
+    use m_suham,only: nbandmx=>ham_ndhamx
     implicit none
     intent(in)::          socmatrix,eferm,vmag,qval
     !  qval: valence charge
@@ -68,7 +68,7 @@ contains
     real(8),pointer:: pnu(:,:),pnz(:,:)
     integer,allocatable :: konft(:,:,:),iiyf(:),ibidx(:,:),nqq(:)
     complex(8),allocatable :: aus_zv(:,:,:,:,:), hamm(:,:,:,:),ovlm(:,:,:,:),ovlmtoi(:,:),ovliovl(:,:) ,hammhso(:,:,:)
-    complex(8),allocatable:: evec(:,:),evec0(:,:),vxc(:,:),ppovl(:,:),phovl(:,:),pwh(:,:),pwz(:,:),pzovl(:,:), pwz0(:,:),&
+    complex(8),allocatable:: evec(:,:),evec0(:,:),vxc(:,:,:,:),ppovl(:,:),phovl(:,:),pwh(:,:),pwz(:,:),pzovl(:,:), pwz0(:,:),&
          testc(:,:),testcd(:),ppovld(:),cphi(:,:,:),cphi0(:,:,:),cphi_p(:,:,:),geig(:,:,:),geig_p(:,:,:),sene(:,:)
     logical :: lwvxc,cmdopt0, emptyrun, magexist, debug=.false.,sigmamode,wanatom=.false.
     logical,optional:: socmatrix 
@@ -79,6 +79,7 @@ contains
     real(8),allocatable::evl(:,:,:),vxclda(:,:,:)!,evl(:,:),vxclda(:)!qirr(:,:),
     include "mpif.h"
     call tcn ('m_sugw_init')
+    debug=cmdopt0('--debugsugw')
     call getpr(ipr)
     if(lmxax<=0) call rx('sugw: lmxax>0 for gw mode')
     emptyrun  = cmdopt0('--emptyrun')
@@ -241,6 +242,7 @@ contains
     iqisploop: do 1001 idat=1,niqisp !iq = iqini,iqend ! iqini:iqend for this procid
        iq  = iqproc(idat) ! iq index
        isp = isproc(idat) ! spin index: isp=1:nspx=nsp/nspc
+       if(debug)write(stdo,ftox)' iqisploop',iq,isp  
        open(newunit=ifcphi, file='CPHI'//trim(xt(iq))//trim(xt(isp)),form='unformatted')!,access='direct',recl=mrecb)
        open(newunit=ifgeig, file='GEIG'//trim(xt(iq))//trim(xt(isp)),form='unformatted')!,access='direct',recl=mrecg)
        qp  = qplist(:,iq) ! q vector containing nqirr
@@ -248,11 +250,13 @@ contains
        lwvxc = iq<=iqibzmax
        if (cmdopt0('--novxc')) lwvxc = .FALSE. 
        if (socmatrix) lwvxc = .TRUE. 
+       if(debug)write(stdo,ftox)' iqisploop111'
        call m_Igv2x_setiq(iq) ! Set napw ndimh ndimhx, and igv2x
        allocate(hamm(ndimh,nspc,ndimh,nspc),ovlm(ndimh,nspc,ndimh,nspc)) !Spin-offdiagonal block included since nspc=2 for lso=1.
-       allocate(evec(ndimhx,ndimhx),vxc(ndimh,ndimh))
+       allocate(evec(ndimhx,ndimhx),vxc(ndimh,nspc,ndimh,nspc))
        allocate(cphi(ndima,ndimhx,nsp),cphiw(ndimhx,nsp))
 !       allocate(evl(ndimhx,nspx),vxclda(ndimhx))
+       if(debug)write(stdo,ftox)' iqisploop222'
        if(iqbk==iq) then
           continue
        elseif( lso/=0 .OR. socmatrix) then
@@ -275,13 +279,16 @@ contains
           nev=ndimh
           goto 1212
        endif
+       if(debug)write(stdo,ftox)' iqisploop333'
        GetHamiltonianAndDiagonalize: block
          integer:: iprint
          if(lso==1) then !L.S case nspc=2
+            vxc=0d0 !zeroclear offdiagonal parts
+            ovlm=0d0
             do ispc=1,nspc  ! nspc==2 ! LDA part of Hamiltonian and overlap matrices for this qp ---
-               call hambl(ispc,qp,spotx,vconst,osig,otau,oppix, vxc(:,:),          ovlm(:,ispc,:,ispc))
+               call hambl(ispc,qp,spotx,vconst,osig,otau,oppix, vxc(:,ispc,:,ispc),ovlm(:,ispc,:,ispc))
                call hambl(ispc,qp,smpot,vconst,osig,otau,oppi, hamm(:,ispc,:,ispc),ovlm(:,ispc,:,ispc))
-               vxc = hamm(:,ispc,:,ispc) - vxc ! vxc(LDA) part
+               vxc(:,ispc,:,ispc) = hamm(:,ispc,:,ispc) - vxc(:,ispc,:,ispc) ! vxc(LDA) part
                hamm(:,ispc,:,ispc)= hamm(:,ispc,:,ispc) + hammhso(:,:,ispc) !spin-diag SOC elements (1,1), (2,2) added
                if(lwvxc) write(ifiv) vxc
             enddo
@@ -295,21 +302,24 @@ contains
                enddo
             endif
          else ! lso=0 (No SO) or lso=2(Lz.Sz)  Spin Diagonal case.spin diagonal) nspc=1 only
-            call hambl(isp,qp,spotx,vconst,osig,otau,oppix, vxc,           ovlm(:,1,:,1)) !vxc=<F_i|H(LDA)-vxc(LDA)|F_j>
+            call hambl(isp,qp,spotx,vconst,osig,otau,oppix, vxc(:,1,:,1),  ovlm(:,1,:,1)) !vxc=<F_i|H(LDA)-vxc(LDA)|F_j>
             call hambl(isp,qp,smpot,vconst,osig,otau,oppi,  hamm(:,1,:,1), ovlm(:,1,:,1)) !ham=<F_i|H(LDA)|F_j> and ovl=<F_i|F_j>
             if(lso==2) hamm(:,1,:,1) = hamm(:,1,:,1) + hammhso(:,:,isp) !diagonal part of SOC matrix added for Lz.Sz mode.
-            vxc = hamm(:,1,:,1) - vxc ! vxc(LDA) part
-            if(lwvxc) write(ifiv) vxc
+            vxc(:,1,:,1) = hamm(:,1,:,1) - vxc(:,1,:,1) ! vxc(LDA) part
+            if(lwvxc) write(ifiv) vxc(:,1,:,1)
             if(sigmamode) then !Add  Vxc(QSGW)-Vxc 
                call getsenex(qp,isp,ndimh,ovlm(:,1,:,1))
                hamm(:,1,:, 1) = hamm(:,1,:,1) + ham_scaledsigma*senex !senex= Vxc(QSGW)-Vxc(LDA)
                call dsene()
             endif
          endif
+         if(debug)write(stdo,ftox)'sumcheck hamm=',sum(abs(hamm)),sum(abs(ovlm))
+         if(debug)write(stdo,ftox)' iqisploop444'
          if (mod(iq,10) /= 1) call pshpr(iprint()-6)  
          epsovl = ham_oveps
          evec=-1d99
          evl(:,iq,isp)=1d99
+         if(debug)write(stdo,ftox)' iqisploop555'
          if(magexist) then
             if(nspc==2) then
                hamm(:,1,:,1)= hamm(:,1,:,1) - vmag/2d0*ovlm(:,1,:,1)
@@ -319,8 +329,10 @@ contains
                if(isp==2) hamm(:,1,:,1)= hamm(:,1,:,1) + vmag/2d0*ovlm(:,1,:,1)
             endif   
          endif
+         if(debug)write(stdo,ftox)' iqisploop666'
          call zhev_tk4(ndimhx,hamm,ovlm,ndimhx,nev,evl(1,iq,isp),evec,epsovl) !get evl and evec. 
        endblock GetHamiltonianAndDiagonalize
+       if(debug)write(stdo,ftox)' iqisploop777'
 1212   continue
        if (lwvxc) write(ifievec) qp, evec(1:ndimhx,1:ndimhx),nev
        if(emptyrun) then
@@ -351,8 +363,8 @@ contains
          use m_locpot,only: rotp
          use m_mkpot,only : sab_rv
          integer:: ilm,im,iv
-         complex(8):: auasaz(3),aus_zv(nlmax,ndham,3,nsp,nbas)
-         call makusq(nbas,[-999], nev,  isp, 1,qp,evec, aus_zv )
+         complex(8):: auasaz(3),aus_zv(nlmax,ndham*nspc,3,nsp,nbas)
+         call makusq(nbas,[-999], nev,  isp, 1,qp,reshape(evec(1:ndimhx,1:nev),[ndimh,nspc,nev]), aus_zv )
          do ispc=1,nspc
             if(lso==1) ispx=ispc
             if(lso/=1) ispx=isp
@@ -415,11 +427,14 @@ contains
           endif
        endif
        if(debug) write (stdo,"('q ndimh=',3f10.5,i10)") qp, ndimh
-       allocate(testc(ndimh,ndimh),source=matmul(transpose(dconjg(evec)),vxc))
-       forall(i1 = 1:ndimhx) vxclda(i1,iq,isp) = sum(testc(i1,1:ndimh) * evec(1:ndimh,i1))  !<i|Vxc^lda|i>
-       vxclda(ndimhx+1:,iq,isp)=0d0
+       allocate(testc(ndimhx,ndimhx),source= matmul(transpose(dconjg(evec)),reshape(vxc,[ndimhx,ndimhx])))
+       forall(i1 = 1:ndimhx) vxclda(i1,iq,isp) = sum(testc(i1,1:nev) * evec(1:nev,i1))  !<i|Vxc^lda|i> !ndimhx ?
+!       vxclda(ndimhx+1:,iq,isp)=0d0
+       vxclda(nev+1:,iq,isp)=0d0
        deallocate(testc)
+       if(debug) write (stdo,ftox)' 1214 continue'
 1214   continue
+       if(debug)write(stdo,ftox)'goto writechpigeig'  
        WriteCphiGeig: block
          use m_hamindex0,only: nindx,ibasindx
          integer::iband,ibas,iqqisp,ix,m,nm,i
@@ -431,6 +446,7 @@ contains
             enddo
          enddo
          cphix=0d0 !     Augmentation wave part
+         if(debug)write(stdo,ftox)' writechpigeig 1111'  
          do iband = 1,nev
             do ix= 1,ndima
                l  = lindx(ix)
@@ -442,6 +458,7 @@ contains
                cphix (iord(m,1:nm,l,ib),iband) = cphix (iord(m,1:nm,l,ib),iband) + zzpi(1:nm,n,l,ic,isp)*cphi(ix,iband,isp)
             enddo
          enddo
+         if(debug)write(stdo,ftox)' writechpigeig 2222'  
          iqqisp= isp + nsp*(iq-1)
          cphix(1:ndima,nev+1:nbandmx)=1d20 !padding
 !         write(ifcphi),  rec=iqqisp)  cphix(1:ndima,1:nbandmx)
@@ -459,12 +476,14 @@ contains
 !        write(stdo,ftox)'zzzeee1s',i,sum(abs(geigr(1:ngp,i)))
 !     enddo
 !     endif
-! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+         ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+         if(debug)write(stdo,ftox)'end of writechpigeig'  
        endblock WriteCphiGeig
        if (lwvxc) close(ifiv)
        if (lwvxc) close(ifievec)
        close(ifcphi)
        close(ifgeig)
+       if(debug)write(stdo,ftox)' writechpigeig 1001'  
        deallocate(pwz,hamm,ovlm,evec,vxc,cphi,cphiw)
 1001 enddo iqisploop
 !    close(ifcphi)
