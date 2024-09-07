@@ -58,7 +58,7 @@ contains
     use m_qplist,only: qplist,nkp,xdatt,labeli,labele,dqsyml,etolc,etolv
     use m_qplist,only: nqp2n_syml,nqp_syml,nqpe_syml,nqps_syml,nsyml,kpproc,iqini,iqend    ! MPIK divider. iqini:iqend are node-dependent
     use m_igv2x,only: napw,ndimh,ndimhx,igv2x
-    use m_procar,only: dwgtall,nchanp,m_procar_closeprocar,m_procar_writepdos
+    use m_procar,only: dwgtall,nchanp,m_procar_closeprocar,m_procar_writepdos,m_procar_init
     use m_bandcal,only: m_bandcal_init,m_bandcal_2nd,m_bandcal_clean,m_bandcal_allreduce
     use m_bandcal,only: smrho_out,oqkkl,oeqkkl, ndimhx_,nevls,m_bandcal_symsmrho,evlall,spinweightsoc
     use m_mkrout,only: m_mkrout_init,orhoat_out,frcbandsym,hbyl_rv,qbyl_rv
@@ -184,6 +184,7 @@ contains
     endif GWdriver
     ! Set up Hamiltonian and diagonalization in m_bandcal_init. To know outputs, see 'use m_bandcal,only:'. The outputs are evlall, and so on.
     sttime = MPI_WTIME() ! if(nspc==2) call m_addrbl_allocate_swtk(ndham,nsp,nkp)
+    if(cmdopt0('--mkprocar')) call m_procar_init()
     call m_bandcal_init(lrout,eferm,vmag,ifih) ! Get Hamiltonian and diagonalization resulting evl,evec,evlall. 
     entime = MPI_WTIME()                
     if(master_mpi) write(stdo,"(a,f9.4)") ' ... Done MPI k-loop: elapsed time=',entime-sttime
