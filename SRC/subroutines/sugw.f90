@@ -74,7 +74,7 @@ contains
     logical,optional:: socmatrix 
     character(8) :: xt
     character(256):: ext,sprocid,extn
-    complex(8),allocatable::  geigr(:,:,:), cphix(:,:,:)
+    complex(8),allocatable::  geigr(:,:,:), cphix(:,:)
     integer:: mrecb,mrece,mrecg,ndble,ifv,iqq,ifev
     real(8),allocatable::evl(:,:,:),vxclda(:,:,:)!,evl(:,:),vxclda(:)!qirr(:,:),
     include "mpif.h"
@@ -233,7 +233,7 @@ contains
     mrecb = 2*ndima*nbandmx *ndble !byte size !Use -assume byterecl for ifort recognize the recored in the unit of bytes.
     mrece = nbandmx         *ndble 
     mrecg = 2*ngpmx*nbandmx *ndble 
-    allocate(cphix(ndima,nspc,nbandmx),geigr(1:ngpmx,1:nbandmx,1:nspc))
+    allocate(cphix(ndima,nbandmx),geigr(1:ngpmx,1:nbandmx,1:nspc))
     ! CPHI GEIG    
     ! i=openm(newunit=ifcphim,file='CPHI',recl=mrecb)
     !    open(newunit=ifcphi,file='CPHI',form='unformatted',access='direct',recl=mrecb)
@@ -452,25 +452,21 @@ contains
         enddo
         cphix=0d0 !     Augmentation wave part
         if(debug)write(stdo,ftox)' writechpigeig 1111'  
-        do ispc=1,nspc
-          if(lso==1) ispx=ispc
-          if(lso/=1) ispx=isp
-          do iband = 1,nev
-            do ix= 1,ndima
-              l  = lindx(ix)
-              ib = ibasindx(ix)
-              n  = nindx(ix)
-              m  = mindx(ix)
-              ic = iclass(ib)
-              nm = nvmax(l,ic)
-              cphix(iord(m,1:nm,l,ib),ispx,iband) = cphix(iord(m,1:nm,l,ib),ispx,iband) +zzpi(1:nm,n,l,ic,ispx)*cphi(ix,iband,ispx)
-            enddo
+        do iband = 1,nev
+          do ix= 1,ndima
+            l  = lindx(ix)
+            ib = ibasindx(ix)
+            n  = nindx(ix)
+            m  = mindx(ix)
+            ic = iclass(ib)
+            nm = nvmax(l,ic)
+            cphix (iord(m,1:nm,l,ib),iband) = cphix (iord(m,1:nm,l,ib),iband) + zzpi(1:nm,n,l,ic,isp)*cphi(ix,iband,isp)
           enddo
         enddo
         if(debug)write(stdo,ftox)' writechpigeig 2222'  
         !   iqqisp= isp + nsp*(iq-1)
-        cphix(1:ndima,1:nspc,nev+1:nbandmx)=1d20 !padding       !         write(ifcphi),  rec=iqqisp)  cphix(1:ndima,1:nbandmx)
-        write(ifcphi)  cphix(1:ndima,1:nspc,1:nbandmx)          !         i=writem(ifcphim,rec=iqqisp,data=cphix(1:ndima,1:nbandmx)) ! close(ifigwb_)
+        cphix(1:ndima,nev+1:nbandmx)=1d20 !padding       !         write(ifcphi),  rec=iqqisp)  cphix(1:ndima,1:nbandmx)
+        write(ifcphi)  cphix(1:ndima,1:nbandmx)          !         i=writem(ifcphim,rec=iqqisp,data=cphix(1:ndima,1:nbandmx)) ! close(ifigwb_)
         !   iqqisp= isp + nsp*(iq-1)
         do ispc=1,nspc
           if(ngpmx/=0) geigr(1:ngpmx,nev+1:nbandmx,ispc)=1d20 !padding  !  if(ngpmx/=0) write(ifgeig,  rec=iqqisp)  geigr(1:ngpmx,1:nbandmx,isp)
