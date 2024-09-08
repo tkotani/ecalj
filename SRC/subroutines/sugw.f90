@@ -1,6 +1,6 @@
-!> Generate all the inputs for GW calculation
+!> Generate all the inputs for GW calculation. Need q+G info from QGpsi and QGcou which are generated a qg4gw.
 module m_sugw
-!  use m_mpiio,only: openm,writem,closem
+  !  use m_mpiio,only: openm,writem,closem
   real(8),allocatable,public::ecore(:,:,:),gcore(:,:,:,:),gval(:,:,:,:,:)
   integer,public::  ndima, ndham, ncoremx,nqirr,nqibz
   integer,allocatable,public:: konfig(:,:),ncores(:), konf0(:,:)
@@ -630,158 +630,150 @@ contains
         close(ifhbed)
       endblock WriteGWfilesB
     endif WriteGWfiles
-    if(master_mpi.and.(.not.cmdopt0('--skipCPHI'))) call rdata4gw() !Generate other files for GW
+    if(master_mpi.and.(.not.cmdopt0('--skipCPHI'))) then       !call rdata4gw() !Generate other files for GW
+      rdata4gwblock: block
+        use m_nvfortran,only:findloc
+        use m_lattic,only:  plat=>lat_plat,qlat=>lat_qlat
+        use m_suham,only: ham_ndham
+        use m_read_bzdata,only: Read_bzdata, nqibz,qibz, nq0i,nq0iadd,q0i,iq0pin
+        use m_pwmat,only: mkppovl2
+        use m_qplist,only: qirr=>qplist
+        integer:: ifhvccfp,ifigw0,ifiqc,i,ngp,ngc,iq,iqi,irr,ix,verbose
+        integer:: idummy11(1,1),ngggmx,ngcgpmx,ippovlg,ippovli,ippovlgg
+        integer:: nggg,ngcgp, ifiqg,ifiqgc,irrq, nqtt, nqnum,ngpmx,nqnumc,ngcmx,nqbz
+        integer:: ippovl0, nqnumt,iqx,nqini,iqtt
+        real(8),parameter:: pi = 4d0*datan(1d0)
+        real(8):: qpgcut_psi2,qx(3),quu(3),dQpG,abq0i,dQQ,QpGcut_psi,QpGcut_cou,qxx(3), QpGcutggg,QpGcutgcgp, tolq=1d-8
+        logical(8):: ppovl0l=.true., debug=.false.
+        logical::  ngczero=.false.,qreduce
+        character(3) :: charnum3
+        real(8),allocatable ::qibze(:,:),qsave(:,:),qtt(:,:),rmax(:) !,qirr(:,:)
+        integer,allocatable:: nvggg(:,:),nvgcgp(:,:), ngveccB(:,:)
+        integer,allocatable,target:: ngvecptt(:,:,:),ngvecctt(:,:,:),ngptt(:),ngctt(:),iqindex(:)
+        complex(8),allocatable :: ppovl(:,:),ppx(:,:),ppovlinv(:,:)
+        complex(8),allocatable:: ggg(:)
+        integer,pointer:: ngvecp(:,:),ngvecc(:,:)
+        if(verbose()>50 ) debug= .TRUE.
+        ! Reading q+G and bzdata
+        open(newunit=ifiqg ,file='QGpsi',form='unformatted')
+        open(newunit=ifiqgc,file='QGcou',form='unformatted')
+        read(ifiqg ) nqnum, ngpmx,QpGcut_psi,nqbz,nqirr
+        read(ifiqgc) nqnumc,ngcmx,QpGcut_cou
+        nqtt = nqnum
+        allocate(qtt(3,nqtt),ngvecptt(3,ngpmx,nqtt),ngvecctt(3,ngpmx,nqtt),ngptt(nqtt),ngctt(nqtt),iqindex(nqtt))
+        irrq=0
+        do iq=1,nqtt
+          read(ifiqg)  qtt(1:3,iq), ngptt(iq) , irr
+          read(ifiqg)  ngvecptt(1:3,1:ngptt(iq),iq)
+          read(ifiqgc) qxx, ngctt(iq)
+          read(ifiqgc) ngvecctt(1:3,1:ngctt(iq),iq)
+          if(irr==1) then
+            irrq=irrq+1
+            iqindex(irrq)=iq
+          endif
+          if(sum(abs(qtt(:,iq)-qxx))>1d-8) call rx('QGpsi QGcou q/=q')
+          if(iq<4.or.iq>nqtt-3) write(stdo,ftox)' qtt =',iq,ftof(qtt(1:3,iq),5)
+          if(iq==4) write(stdo,ftox)' ...'
+        enddo
+        close(ifiqg)
+        close(ifiqgc)
+        call read_bzdata()
+        write(stdo,ftox)' QpGcut_psi QpGcutCou =',ftof(QpGcut_psi),ftof(QpGcut_Cou),'nqirr nbas',nqirr,nbas
+        !  qirr = qplist
+        allocate( rmax(nbas))
+        rmax=rmt(ispec(1:nbas))
+        ! Write HVCCIN  
+        write(stdo,ftox)' === Write HVCCIN ==='
+        open(newunit=ifhvccfp,file='HVCCIN',form='unformatted')
+        write(ifhvccfp) alat, plat,qlat,nqirr, nbas,ham_ndham!nbandmx
+        write(ifhvccfp) qirr(:,1:nqirr), pos, rmax
+        write(ifhvccfp) nqibz
+        write(ifhvccfp) qibz(1:3,1:nqibz)
+        close(ifhvccfp)
+        ! Generate ppovl  
+        if(debug) write(stdo,'("  qibz=",i3,3f12.5)')(i,qibz(1:3,i),i=1,nqibz)
+        dQpG=maxval(sum(q0i(1:3,1:nq0i+nq0iadd)**2,dim=1))**.5
+        allocate(qibze(3,nqibz + nq0i+nq0iadd)) !+iadd)) !nq0i+1 is for gamma point for bzcase==2
+        qibze(1:3,1:nqibz)=qibz(1:3,1:nqibz)
+        qibze(1:3,nqibz+1:nqibz+nq0i+nq0iadd)=q0i(1:3,1:nq0i+nq0iadd)
+        if(debug) then
+          do iqi =1,nqibz + nq0i+nq0iadd
+            write(stdo,"(' iqi qibze=',i4,3f9.5)")iqi,qibze(:,iqi)
+          enddo
+        endif
+        nqnumt= nqibz+nq0i+nq0iadd !+iadd
+        write(stdo,"(' nqnumt nqibz nq0i+nq0iadd =',4i6)")nqnumt,nqibz,nq0i+nq0iadd !,iadd
+        QpGcutggg = (2d0+1d-2)*QpGcut_psi + QpGcut_cou+ 2d0*pi/alat*dQpG
+        if(QpGcutggg<1d-9) QpGcutggg=0d0
+        dQQ= 2d0*maxval(sum(qibze(1:3,:)**2,dim=1)**.5)
+        QpGcutgcgp = (1d0+1d-2)*QpGcut_psi + QpGcut_cou+ 2d0* 2d0*pi/alat*dQQ
+        if(QpGcutgcgp<1d-9) QpGcutgcgp=0d0
+        qx = 0d0
+        nggg=1 !dummy
+        ngcgp=1 !dummy
+        call getgv2( alat,plat,qlat,qx, QpGcutggg, 1,nggg,  idummy11)
+        call getgv2( alat,plat,qlat,qx, QpGcutgcgp,1,ngcgp, idummy11)
+        if(debug) write(stdo,"(' iqi qx nggg ngcgp=',i5,3f8.3,2i8)") iqi,qx,nggg,ngcgp
+        allocate( nvggg(3,nggg) )
+        allocate(nvgcgp(3,ngcgp))
+        !! Here the range of G for nvggg is |Gc+Gp+Gp|< |Gcou|+ |Gphi|+ |Gphi| !triangle inequality.
+        qx = 0d0
+        call getgv2( alat,plat,qlat,qx, QpGcutggg,  2, nggg,  nvggg  )
+        call getgv2( alat,plat,qlat,qx, QpGcutgcgp, 2, ngcgp, nvgcgp )
+        write(stdo,"(' getgv2--> iqi qx nggg ngcgp=',i5,3f9.3,2i7)") iqi,qx,nggg,ngcgp
+        allocate(ggg(nggg))
+        call mkppovl2(alat,plat,qlat, 1,  (/0,0,0/),  nggg,  nvggg, nbas, rmax, pos, ggg)
+        !! ... IPW(interstitial-plane-wave) overlap matrix
+        nqini =1
+        if(iq0pin==2) nqini=nqibz+1
+        if(debug) then
+          do ix=1,nqirr
+            write(stdo,"(' qirr= ',3f10.4)") qirr(1:3,ix)
+          enddo
+        endif
+        !Write PPOVLGG === make <Gc-Gp1+Gp2> matrix ===
+        write(stdo,ftox)' === Write PPOVLGG PPOVLG PPOVLI ==='
+        write(stdo,ftox)' nggg ngcgp=',nggg,ngcgp,'nqnumt nqini nqtt',nqnumt,nqini,nqtt
+        open(newunit=ippovlgg,file= "PPOVLGG",form='unformatted')
+        write(ippovlgg) nggg, ngcgp, nqnumt-nqini+1,nqini,nqnumt
+        write(ippovlgg) nvgcgp(1:3,1:ngcgp)
+        write(ippovlgg) nvggg(1:3,1:nggg)
+        write(ippovlgg) ggg(1:nggg)
+        deallocate(ggg,nvggg,nvgcgp)
+        close(ippovlgg)
+        !Write PPOVL0,PPOVLG, PPOVLI 
+        if(ppovl0l) open(newunit=ippovl0,form='unformatted',file='PPOVL0')
+        iqiloop: do iqi = nqini, nqnumt    !nqibz + nq0i !+ iadd
+          open(newunit=ippovlg,file= "PPOVLG."//charnum3(iqi),form='unformatted')
+          open(newunit=ippovli,file= "PPOVLI."//charnum3(iqi),form='unformatted')
+          qx  = qibze(1:3,iqi)
+          iqx= findloc([(sum(abs(qx(:)-qtt(:,iqtt)))<tolq,iqtt=1,nqtt)],dim=1,value=.true.)
+          ngvecp =>ngvecptt(1:3,1:ngptt(iqx),iqx)
+          ngvecc =>ngvecctt(1:3,1:ngctt(iqx),iqx)
+          ngp=ngptt(iqx)
+          ngc=ngctt(iqx)
+          write(ippovli) qx,ngc
+          write(ippovlg) qx,ngc
+          write(stdo,"(' iqi qx iqx=',i5,3f8.4,i5,' ngc ngp=',4i5)")iqi,qx,iqx,ngc,ngp !sum(abs(ngvecp)),sum(abs(ngvecc))
+          if(ppovl0l) write(ippovl0)   qx,ngc
+          if(ngc==0) cycle
+          allocate(ppovl(ngc,ngc),ppovlinv(ngc,ngc)) !This is necessary for matcinv
+          call mkppovl2(alat,plat,qlat, ngc,ngvecc, ngc,ngvecc, nbas,rmax,pos, ppovl)
+          if(ppovl0l)  write(ippovl0) ppovl(1:ngc,1:ngc)
+          ppovlinv = ppovl
+          call matcinv(ngc,ppovlinv)
+          deallocate(ppovl)
+          !! ggg= < exp(i G r) > integral in the interstitial region.
+          if(ngc/=0) write(ippovlg) ngvecc(1:3,1:ngc)
+          if(ngc/=0) write(ippovli) ppovlinv(1:ngc,1:ngc)
+          deallocate(ppovlinv)
+          close(ippovlg)
+          close(ippovli)
+        enddo iqiloop
+        if(ppovl0l) close(ippovl0)
+        write(stdo,*)" end of rdata4gw "
+      endblock rdata4gwblock
+    endif
     call tcx('m_sugw_init')
   end subroutine m_sugw_init
 end module m_sugw
-!> Generate input files used in GW calculations
-!!  Read gwb.* and module variables in m_lmf2gw (set by call lmf2gw() for inputs.
-!module m_rdata4gw
-!  contains
-subroutine rdata4gw()
-  use m_nvfortran,only:findloc
-  use m_ftox
-  use m_lgunit,only:stdo
-  use m_lmfinit,only: nbas,alat, rmt,ispec,pos
-  use m_lattic,only:  plat=>lat_plat,qlat=>lat_qlat
-  use m_sugw,only: nqirr
-  use m_suham,only: nbandmx=>ham_ndham
-  use m_read_bzdata,only: Read_bzdata, nqibz,qibz, nq0i,nq0iadd,q0i,iq0pin
-  use m_pwmat,only: mkppovl2
-  use m_qplist,only: qplist
-  implicit none
-  integer:: ifhvccfp,ifigw0,ifiqc,i,ngp,ngc,iq,iqi,irr,ix,verbose
-  integer:: idummy11(1,1),ngggmx,ngcgpmx,ippovlg,ippovli,ippovlgg
-  integer:: nggg,ngcgp, ifiqg,ifiqgc,irrq, nqtt, nqnum,ngpmx,nqnumc,ngcmx,nqbz
-  integer:: ippovl0, nqnumt,iqx,nqini,iqtt
-  real(8),parameter:: pi = 4d0*datan(1d0)
-  real(8):: qpgcut_psi2,qx(3),quu(3),dQpG,abq0i,dQQ,QpGcut_psi,QpGcut_cou,qxx(3), QpGcutggg,QpGcutgcgp,tolq=1d-8
-  logical(8):: ppovl0l=.true., debug=.false.
-  logical::  ngczero=.false.,qreduce
-  character(3) :: charnum3
-  real(8),allocatable ::qibze(:,:),qsave(:,:),qirr(:,:),qtt(:,:),rmax(:)
-  integer,allocatable:: nvggg(:,:),nvgcgp(:,:), ngveccB(:,:)
-  integer,allocatable,target:: ngvecptt(:,:,:),ngvecctt(:,:,:),ngptt(:),ngctt(:),iqindex(:)
-  complex(8),allocatable :: ppovl(:,:),ppx(:,:),ppovlinv(:,:)
-  complex(8),allocatable:: ggg(:)
-  integer,pointer:: ngvecp(:,:),ngvecc(:,:)
-  if(verbose()>50 ) debug= .TRUE.
-  ! Reading q+G and bzdata
-  open(newunit=ifiqg ,file='QGpsi',form='unformatted')
-  open(newunit=ifiqgc,file='QGcou',form='unformatted')
-  read(ifiqg ) nqnum, ngpmx,QpGcut_psi,nqbz,nqirr
-  read(ifiqgc) nqnumc,ngcmx,QpGcut_cou
-  nqtt = nqnum
-  allocate(qtt(3,nqtt),ngvecptt(3,ngpmx,nqtt),ngvecctt(3,ngpmx,nqtt),ngptt(nqtt),ngctt(nqtt),iqindex(nqtt))
-  irrq=0
-  do iq=1,nqtt
-    read(ifiqg)  qtt(1:3,iq), ngptt(iq) , irr
-    read(ifiqg)  ngvecptt(1:3,1:ngptt(iq),iq)
-    read(ifiqgc) qxx, ngctt(iq)
-    read(ifiqgc) ngvecctt(1:3,1:ngctt(iq),iq)
-    if(irr==1) then
-      irrq=irrq+1
-      iqindex(irrq)=iq
-    endif
-    if(sum(abs(qtt(:,iq)-qxx))>1d-8) call rx('QGpsi QGcou q/=q')
-    if(iq<4.or.iq>nqtt-3) write(stdo,ftox)' qtt =',iq,ftof(qtt(1:3,iq),5)
-    if(iq==4) write(stdo,ftox)' ...'
-  enddo
-  close(ifiqg)
-  close(ifiqgc)
-  call read_bzdata()
-  write(stdo,ftox)' QpGcut_psi QpGcutCou =',ftof(QpGcut_psi),ftof(QpGcut_Cou),'nqirr nbas',nqirr,nbas
-  qirr = qplist
-  allocate( rmax(nbas))
-  rmax=rmt(ispec(1:nbas))
-  ! Write HVCCIN  
-  write(stdo,ftox)' === Write HVCCIN ==='
-  open(newunit=ifhvccfp,file='HVCCIN',form='unformatted')
-  write(ifhvccfp) alat, plat,qlat,nqirr, nbas,nbandmx
-  write(ifhvccfp) qirr(:,1:nqirr), pos, rmax
-  write(ifhvccfp) nqibz
-  write(ifhvccfp) qibz(1:3,1:nqibz)
-  close(ifhvccfp)
-  ! Generate ppovl  
-  if(debug) write(stdo,'("  qibz=",i3,3f12.5)')(i,qibz(1:3,i),i=1,nqibz)
-  dQpG=maxval(sum(q0i(1:3,1:nq0i+nq0iadd)**2,dim=1))**.5
-  allocate(qibze(3,nqibz + nq0i+nq0iadd)) !+iadd)) !nq0i+1 is for gamma point for bzcase==2
-  qibze(1:3,1:nqibz)=qibz(1:3,1:nqibz)
-  qibze(1:3,nqibz+1:nqibz+nq0i+nq0iadd)=q0i(1:3,1:nq0i+nq0iadd)
-  if(debug) then
-    do iqi =1,nqibz + nq0i+nq0iadd
-      write(stdo,"(' iqi qibze=',i4,3f9.5)")iqi,qibze(:,iqi)
-    enddo
-  endif
-  nqnumt= nqibz+nq0i+nq0iadd !+iadd
-  write(stdo,"(' nqnumt nqibz nq0i+nq0iadd =',4i6)")nqnumt,nqibz,nq0i+nq0iadd !,iadd
-  QpGcutggg = (2d0+1d-2)*QpGcut_psi + QpGcut_cou+ 2d0*pi/alat*dQpG
-  if(QpGcutggg<1d-9) QpGcutggg=0d0
-  dQQ= 2d0*maxval(sum(qibze(1:3,:)**2,dim=1)**.5)
-  QpGcutgcgp = (1d0+1d-2)*QpGcut_psi + QpGcut_cou+ 2d0* 2d0*pi/alat*dQQ
-  if(QpGcutgcgp<1d-9) QpGcutgcgp=0d0
-  qx = 0d0
-  nggg=1 !dummy
-  ngcgp=1 !dummy
-  call getgv2( alat,plat,qlat,qx, QpGcutggg, 1,nggg,  idummy11)
-  call getgv2( alat,plat,qlat,qx, QpGcutgcgp,1,ngcgp, idummy11)
-  if(debug) write(stdo,"(' iqi qx nggg ngcgp=',i5,3f8.3,2i8)") iqi,qx,nggg,ngcgp
-  allocate( nvggg(3,nggg) )
-  allocate(nvgcgp(3,ngcgp))
-  !! Here the range of G for nvggg is |Gc+Gp+Gp|< |Gcou|+ |Gphi|+ |Gphi| !triangle inequality.
-  qx = 0d0
-  call getgv2( alat,plat,qlat,qx, QpGcutggg,  2, nggg,  nvggg  )
-  call getgv2( alat,plat,qlat,qx, QpGcutgcgp, 2, ngcgp, nvgcgp )
-  write(stdo,"(' getgv2--> iqi qx nggg ngcgp=',i5,3f9.3,2i7)") iqi,qx,nggg,ngcgp
-  allocate(ggg(nggg))
-  call mkppovl2(alat,plat,qlat, 1,  (/0,0,0/),  nggg,  nvggg, nbas, rmax, pos, ggg)
-  !! ... IPW(interstitial-plane-wave) overlap matrix
-  nqini =1
-  if(iq0pin==2) nqini=nqibz+1
-  if(debug) then
-    do ix=1,nqirr
-      write(stdo,"(' qirr= ',3f10.4)") qirr(1:3,ix)
-    enddo
-  endif
-  !Write PPOVLGG === make <Gc-Gp1+Gp2> matrix ===
-  write(stdo,ftox)' === Write PPOVLGG PPOVLG PPOVLI ==='
-  write(stdo,ftox)' nggg ngcgp=',nggg,ngcgp,'nqnumt nqini nqtt',nqnumt,nqini,nqtt
-  open(newunit=ippovlgg,file= "PPOVLGG",form='unformatted')
-  write(ippovlgg) nggg, ngcgp, nqnumt-nqini+1,nqini,nqnumt
-  write(ippovlgg) nvgcgp(1:3,1:ngcgp)
-  write(ippovlgg) nvggg(1:3,1:nggg)
-  write(ippovlgg) ggg(1:nggg)
-  deallocate(ggg,nvggg,nvgcgp)
-  close(ippovlgg)
-  !Write PPOVL0,PPOVLG, PPOVLI 
-  if(ppovl0l) open(newunit=ippovl0,form='unformatted',file='PPOVL0')
-  iqiloop: do 2010 iqi = nqini, nqnumt    !nqibz + nq0i !+ iadd
-    open(newunit=ippovlg,file= "PPOVLG."//charnum3(iqi),form='unformatted')
-    open(newunit=ippovli,file= "PPOVLI."//charnum3(iqi),form='unformatted')
-    qx  = qibze(1:3,iqi)
-    iqx= findloc([(sum(abs(qx(:)-qtt(:,iqtt)))<tolq,iqtt=1,nqtt)],dim=1,value=.true.)
-    ngvecp =>ngvecptt(1:3,1:ngptt(iqx),iqx)
-    ngvecc =>ngvecctt(1:3,1:ngctt(iqx),iqx)
-    ngp=ngptt(iqx)
-    ngc=ngctt(iqx)
-    write(ippovli) qx,ngc
-    write(ippovlg) qx,ngc
-    write(stdo,"(' iqi qx iqx=',i5,3f8.4,i5,' ngc ngp=',4i5)")iqi,qx,iqx,ngc,ngp !sum(abs(ngvecp)),sum(abs(ngvecc))
-    if(ppovl0l) write(ippovl0)   qx,ngc
-    if(ngc==0) cycle
-    allocate(ppovl(ngc,ngc),ppovlinv(ngc,ngc)) !This is necessary for matcinv
-    call mkppovl2(alat,plat,qlat, ngc,ngvecc, ngc,ngvecc, nbas,rmax,pos, ppovl)
-    if(ppovl0l)  write(ippovl0) ppovl(1:ngc,1:ngc)
-    ppovlinv = ppovl
-    call matcinv(ngc,ppovlinv)
-    deallocate(ppovl)
-    !! ggg= < exp(i G r) > integral in the interstitial region.
-    if(ngc/=0) write(ippovlg) ngvecc(1:3,1:ngc)
-    if(ngc/=0) write(ippovli) ppovlinv(1:ngc,1:ngc)
-    deallocate(ppovlinv)
-    close(ippovlg)
-    close(ippovli)
-2010 enddo iqiloop
-  if(ppovl0l) close(ippovl0)
-  write(stdo,*)" OK! end of rdata4gw "
-end subroutine rdata4gw
