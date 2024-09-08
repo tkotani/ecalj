@@ -633,27 +633,23 @@ contains
     if(master_mpi.and.(.not.cmdopt0('--skipCPHI'))) then       !call rdata4gw() !Generate other files for GW
       rdata4gwblock: block
         use m_nvfortran,only:findloc
-        use m_lattic,only:  plat=>lat_plat,qlat=>lat_qlat
         use m_suham,only: ham_ndham
         use m_read_bzdata,only: Read_bzdata, nqibz,qibz, nq0i,nq0iadd,q0i,iq0pin
         use m_pwmat,only: mkppovl2
         use m_qplist,only: qirr=>qplist
-        integer:: ifhvccfp,ifigw0,ifiqc,i,ngp,ngc,iq,iqi,irr,ix,verbose
-        integer:: idummy11(1,1),ngggmx,ngcgpmx,ippovlg,ippovli,ippovlgg
+        real(8),parameter:: pi = 4d0*datan(1d0)
+        integer:: ifhvccfp,i,ngp,ngc,iq,iqi,irr,ix, idummy11(1,1),ippovlg,ippovli,ippovlgg
         integer:: nggg,ngcgp, ifiqg,ifiqgc,irrq, nqtt, nqnum,ngpmx,nqnumc,ngcmx,nqbz
         integer:: ippovl0, nqnumt,iqx,nqini,iqtt
-        real(8),parameter:: pi = 4d0*datan(1d0)
-        real(8):: qpgcut_psi2,qx(3),quu(3),dQpG,abq0i,dQQ,QpGcut_psi,QpGcut_cou,qxx(3), QpGcutggg,QpGcutgcgp, tolq=1d-8
-        logical(8):: ppovl0l=.true., debug=.false.
-        logical::  ngczero=.false.,qreduce
+        real(8):: qpgcut_psi2,qx(3),dQpG,dQQ,QpGcut_psi,QpGcut_cou,qxx(3), QpGcutggg,QpGcutgcgp, tolq=1d-8
+        logical:: ppovl0l=.true.
         character(3) :: charnum3
-        real(8),allocatable ::qibze(:,:),qsave(:,:),qtt(:,:),rmax(:) !,qirr(:,:)
+        real(8),allocatable ::qibze(:,:),qsave(:,:),qtt(:,:),rmax(:) 
         integer,allocatable:: nvggg(:,:),nvgcgp(:,:), ngveccB(:,:)
         integer,allocatable,target:: ngvecptt(:,:,:),ngvecctt(:,:,:),ngptt(:),ngctt(:),iqindex(:)
         complex(8),allocatable :: ppovl(:,:),ppx(:,:),ppovlinv(:,:)
         complex(8),allocatable:: ggg(:)
         integer,pointer:: ngvecp(:,:),ngvecc(:,:)
-        if(verbose()>50 ) debug= .TRUE.
         ! Reading q+G and bzdata
         open(newunit=ifiqg ,file='QGpsi',form='unformatted')
         open(newunit=ifiqgc,file='QGcou',form='unformatted')
