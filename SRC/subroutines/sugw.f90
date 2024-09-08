@@ -62,7 +62,7 @@ contains
          k2,k3,konf,l,ldim,loldpw, lsig,mx,mxint, ncore,nevl,nev,nglob,ngp,ngp_p, &
          ngpmx,nline,nlinemax,nlmax,nmx,nn1,nn2,nnn, kkk,mmm,n, &
          nphimx,npqn,nqbz,nqnum,nqnumx,nqtot,nr,iqibz,imx,ifigwb,ifinormchk,ifigw1,ifildima,ifigwn,ifigwbhead,&
-         ispSS,ispEE,ispx,iqbk,konfigk,konfz,icore2,icore2o,ic,nmcore,ifnlax,ifigwa,ifcphi,ifgeig!,ifcphim
+         ispSS,ispEE,ispx,iqbk=-999,konfigk,konfz,icore2,icore2o,ic,nmcore,ifnlax,ifigwa,ifcphi,ifgeig!,ifcphim
     real(8):: rsml(n0), ehl(n0) ,eferm,qval, vmag,vnow, QpGcut_psi,QpGcut_cou,dum,xx(5),a,z,vshft, qp(3),qpos,q_p(3), epsovl
     real(8),allocatable:: rofi(:),rwgt(:), cphiw(:,:) 
     real(8),pointer:: pnu(:,:),pnz(:,:)
@@ -251,13 +251,11 @@ contains
       lwvxc = iq<=iqibzmax
       if (cmdopt0('--novxc')) lwvxc = .FALSE. 
       if (socmatrix) lwvxc = .TRUE. 
-      if(debug)write(stdo,ftox)' iqisploop111'
-      call m_Igv2x_setiq(iq) ! Set napw ndimh ndimhx, and igv2x
+      if(debug) write(stdo,ftox)' iqisploop111'
+      call m_igv2x_setiq(iq) ! Set napw ndimh ndimhx, and igv2x
       allocate(hamm(ndimh,nspc,ndimh,nspc),ovlm(ndimh,nspc,ndimh,nspc)) !Spin-offdiagonal block included since nspc=2 for lso=1.
       allocate(evec(ndimhx,ndimhx),vxc(ndimh,nspc,ndimh,nspc))
       allocate(cphi(ndima,ndimhx,nsp),cphiw(ndimhx,nsp))
-      !       allocate(evl(ndimhx,nspx),vxclda(ndimhx))
-      if(debug)write(stdo,ftox)' iqisploop222'
       if(iqbk==iq) then
         continue
       elseif( lso/=0 .OR. socmatrix) then
@@ -271,8 +269,8 @@ contains
       if(lwvxc) then
         open(newunit=ifievec, file='evec'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
         open(newunit=ifiv,    file= 'vxc'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
-        write(ifievec) ndimh, nlmto
-        write(ifiv)    ndimh, nlmto !nlmo: MTO basis
+        write(ifievec) ndimhx, nlmto
+        write(ifiv)    ndimhx, nlmto !nlmo: MTO basis
       endif
       if(emptyrun) then !set dummy to avoid error exit
         evec=1d0 
@@ -460,14 +458,10 @@ contains
         enddo
         if(debug)write(stdo,ftox)' writechpigeig 2222'  
         iqqisp= isp + nsp*(iq-1)
-        cphix(1:ndima,nev+1:nbandmx)=1d20 !padding
-        !         write(ifcphi),  rec=iqqisp)  cphix(1:ndima,1:nbandmx)
-        write(ifcphi)  cphix(1:ndima,1:nbandmx)
-        !         i=writem(ifcphim,rec=iqqisp,data=cphix(1:ndima,1:nbandmx))
-        !         close(ifigwb_)
+        cphix(1:ndima,nev+1:nbandmx)=1d20 !padding         !         write(ifcphi),  rec=iqqisp)  cphix(1:ndima,1:nbandmx)
+        write(ifcphi)  cphix(1:ndima,1:nbandmx)          !         i=writem(ifcphim,rec=iqqisp,data=cphix(1:ndima,1:nbandmx)) ! close(ifigwb_)
         iqqisp= isp + nsp*(iq-1)
-        if(ngpmx/=0) geigr(1:ngpmx,nev+1:nbandmx,isp)=1d20 !padding
-        !         if(ngpmx/=0) write(ifgeig,  rec=iqqisp)  geigr(1:ngpmx,1:nbandmx,isp)
+        if(ngpmx/=0) geigr(1:ngpmx,nev+1:nbandmx,isp)=1d20 !padding  !  if(ngpmx/=0) write(ifgeig,  rec=iqqisp)  geigr(1:ngpmx,1:nbandmx,isp)
         if(ngpmx/=0) write(ifgeig)  geigr(1:ngpmx,1:nbandmx,isp)
         if(debug)write(stdo,ftox)'end of writechpigeig'  
       endblock WriteCphiGeig
