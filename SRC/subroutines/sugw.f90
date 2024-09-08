@@ -68,13 +68,13 @@ contains
     real(8),pointer:: pnu(:,:),pnz(:,:)
     integer,allocatable :: konft(:,:,:),iiyf(:),ibidx(:,:),nqq(:)
     complex(8),allocatable :: aus_zv(:,:,:,:,:), hamm(:,:,:,:),ovlm(:,:,:,:),ovlmtoi(:,:),ovliovl(:,:) ,hammhso(:,:,:)
-    complex(8),allocatable:: evec(:,:),evec0(:,:),vxc(:,:,:,:),ppovl(:,:),phovl(:,:),pwh(:,:),pwz(:,:),pzovl(:,:), pwz0(:,:),&
+    complex(8),allocatable:: evec(:,:),evec0(:,:),vxc(:,:,:,:),ppovl(:,:),phovl(:,:),pwh(:,:),pwz(:,:,:),pzovl(:,:), pwz0(:,:),&
          testc(:,:),testcd(:),ppovld(:),cphi(:,:,:),cphi0(:,:,:),cphi_p(:,:,:),geig(:,:,:),geig_p(:,:,:),sene(:,:)
     logical :: lwvxc,cmdopt0, emptyrun, magexist, debug=.false.,sigmamode,wanatom=.false.
     logical,optional:: socmatrix 
     character(8) :: xt
     character(256):: ext,sprocid,extn
-    complex(8),allocatable::  geigr(:,:,:), cphix(:,:)
+    complex(8),allocatable::  geigr(:,:,:), cphix(:,:,:)
     integer:: mrecb,mrece,mrecg,ndble,ifv,iqq,ifev
     real(8),allocatable::evl(:,:,:),vxclda(:,:,:)!,evl(:,:),vxclda(:)!qirr(:,:),
     include "mpif.h"
@@ -233,7 +233,7 @@ contains
     mrecb = 2*ndima*nbandmx *ndble !byte size !Use -assume byterecl for ifort recognize the recored in the unit of bytes.
     mrece = nbandmx         *ndble 
     mrecg = 2*ngpmx*nbandmx *ndble 
-    allocate(cphix(ndima,nbandmx),geigr(1:ngpmx,1:nbandmx,1:nsp))
+    allocate(cphix(ndima,nspc,nbandmx),geigr(1:ngpmx,1:nbandmx,1:nspc))
     ! CPHI GEIG    
     ! i=openm(newunit=ifcphim,file='CPHI',recl=mrecb)
     !    open(newunit=ifcphi,file='CPHI',form='unformatted',access='direct',recl=mrecb)
@@ -335,7 +335,7 @@ contains
 1212  continue
       if (lwvxc) write(ifievec) qp, evec(1:ndimhx,1:ndimhx),nev
       if(emptyrun) then
-        allocate(pwz(ngp,ndimh)) !dummy
+        allocate(pwz(ngp,nspc,ndimh)) !dummy
         goto 1214
       endif
       write(stdo,ftox)' sugw: kpt isp=',iq,isp,'of',nqnum,'k= ',ftof(qp,5),'ndimh=',ndimh,'irank=',procid,'lwvxc=',lwvxc,'nev=',nev
@@ -390,40 +390,45 @@ contains
         !  ppovl: = O_{G1,G2} = <IPW_G1 | IPW_G2>
         !  phovl: <IPW_G1 | basis function = smooth Hankel or APW >   
         !    pwz:  IPW expansion of eigen function    
-        allocate(ppovl(ngp,ngp),pwz(ngp,ndimhx),phovl(ngp,ndimh))
+        allocate(ppovl(ngp,ngp),pwz(ngp,nspc,ndimhx),phovl(ngp,ndimh))
         call pwmat(nbas,ndimh,napw,igv2x,qp,ngp,nlmax,ngvecp(1,1,iq),gmax, ppovl, phovl ) 
-        pwz = matmul(phovl(1:ngp,1:ndimh),evec(1:ndimh,1:ndimhx))
-        if(lso==1) pwz = matmul(phovl(1:ngp,1:ndimh),evec(ndimh+1:2*ndimh,1:ndimhx))
+        pwz(1:ngp,1,1:ndimhx) = matmul(phovl(1:ngp,1:ndimh),evec(1:ndimh,1:ndimhx))
+        if(lso==1) pwz(1:ngp,2,1:ndimhx) = matmul(phovl(1:ngp,1:ndimh),evec(ndimh+1:2*ndimh,1:ndimhx))
         deallocate(phovl)
-        if (lchk >= 1) then
-          allocate(pzovl,source=pwz)
-          allocate(ppovld(ngp)) ! extract diagonal before ppovl overwritten
-          forall(i = 1:ngp) ppovld(i) = ppovl(i,i)
-        endif
+!        if (lchk >= 1) then
+!!          allocate(pzovl,source=pwz)
+!          allocate(ppovld(ngp)) ! extract diagonal before ppovl overwritten
+!          forall(i = 1:ngp) ppovld(i) = ppovl(i,i)
+!        endif
         call matcinv(ngp,ppovl)! inversion of hermitian ppovl
-        pwz = matmul(ppovl,pwz) !pwz= O^-1 *phovl * evec  ! IPW expansion of eigenfunction
+        pwz(1:ngp,1,1:ndimhx) = matmul(ppovl,pwz(1:ngp,1,1:ndimhx)) !pwz= O^-1 *phovl * evec  ! IPW expansion of eigenfunction
+        if(lso==1) pwz(1:ngp,2,1:ndimhx) = matmul(ppovl,pwz(1:ngp,2,1:ndimhx))
         deallocate(ppovl)
-        if (lchk >= 1) then
-          allocate(testc(ndimh,ndimh),testcd(ndimh))
-          testc=matmul(transpose(dconjg(pzovl)),pwz)
-          deallocate(pzovl)
-          testcd = [(sum(dconjg(pwz(:,i))*ppovld*pwz(:,i)),i=1,nev)] !dimhx)]
-          deallocate(ppovld)
-          ! xx(1) = sum over all augmentation w.f.  cphi+ ovl cphi
-          ! xx(3) = IPW contribution to phi+ phi.   xx(1)+xx(3) should be close to unity.
-          ! [xx(4) = IPW contribution to phi+ phi, using diagonal part only] 
-          write(ifinormchk,"('# iq',i5,'   q',3f12.6,'ndimhx nev',2i7)") iq,qp,ndimhx,nev
-          do  i1 = 1, nev !dimhx
-            xx(1) = sum(cphiw(i1,1:nspc))
-            do  i2 = 1, ndimh
-              xx(3) = testc(i1,i2)
-              xx(4) = testcd(i1)      !if(i1==i2)write(ifinormchk,'(f12.5,5f14.6)')evl(i1,isp),xx(3),xx(4),xx(1),xx(1)+xx(3)
-              if(i1==i2)write(ifinormchk,'(i4,f12.5,5f14.6)')i1,evl(i1,iq,isp),xx(3),xx(4),xx(1),xx(1)+xx(3)
-            enddo
-          enddo
-          deallocate(testc,testcd)
-          write(ifinormchk,*)
-        endif
+!         if (lchk >= 1) then
+!           do ispc=1,nspc
+!             allocate(testc(ndimh,ndimh),testcd(ndimh))
+!             associate(pwz1=>pwz(1:ngp,ispc,1:ndimhx),pzovl=>pwz(1:ngp,ispc,1:ndimhx))
+!               testc=matmul(transpose(dconjg(pzovl)),pwz1)
+! !              deallocate(pzovl)
+!               testcd = [(sum(dconjg(pwz1(:,i))*ppovld*pwz1(:,i)),i=1,nev)] !dimhx)]
+!               deallocate(ppovld)
+!               ! xx(1) = sum over all augmentation w.f.  cphi+ ovl cphi
+!               ! xx(3) = IPW contribution to phi+ phi.   xx(1)+xx(3) should be close to unity.
+!               ! [xx(4) = IPW contribution to phi+ phi, using diagonal part only] 
+!               write(ifinormchk,"('# iq',i5,'   q',3f12.6,'ndimhx nev',2i7)") iq,qp,ndimhx,nev
+!               do  i1 = 1, nev !dimhx
+!                 xx(1) = sum(cphiw(i1,1:nspc))
+!                 do  i2 = 1, ndimh
+!                   xx(3) = testc(i1,i2)
+!                   xx(4) = testcd(i1)      !if(i1==i2)write(ifinormchk,'(f12.5,5f14.6)')evl(i1,isp),xx(3),xx(4),xx(1),xx(1)+xx(3)
+!                   if(i1==i2)write(ifinormchk,'(i4,f12.5,5f14.6)')i1,evl(i1,iq,isp),xx(3),xx(4),xx(1),xx(1)+xx(3)
+!                 enddo
+!               enddo
+!             end associate
+!             deallocate(testc,testcd)
+!             write(ifinormchk,*)
+!           enddo
+!         endif
       endif
       if(debug) write (stdo,"('q ndimh=',3f10.5,i10)") qp, ndimh
       allocate(testc(1:nev,ndimhx),source=matmul(transpose(dconjg(evec(:,1:nev))),reshape(vxc,[ndimhx,ndimhx])))
@@ -436,8 +441,10 @@ contains
       WriteCphiGeig: block
         use m_hamindex0,only: nindx,ibasindx
         integer::iband,ibas,iqqisp,ix,m,nm,i
-        geigr(1:ngp,      1:ndimh,isp)=pwz
-        geigr(ngp+1:ngpmx,1:ndimh,isp)=0d0
+        do ispc=1,nspc
+          geigr(1:ngp,      1:ndimhx,ispc)=pwz(1:ngp,ispc,1:ndimhx)
+          geigr(ngp+1:ngpmx,1:ndimhx,ispc)=0d0
+        enddo  
         do ibas=1,nbas
           do ix = 1,ndima !nindx is for avoiding degeneracy. See zzpi.
             if(ibasindx(ix)==ibas) cphi(ix,1:nev,isp) = cphi(ix, 1:nev,isp)/sqrt(1d0+0.1d0*nindx(ix))
@@ -445,24 +452,30 @@ contains
         enddo
         cphix=0d0 !     Augmentation wave part
         if(debug)write(stdo,ftox)' writechpigeig 1111'  
-        do iband = 1,nev
-          do ix= 1,ndima
-            l  = lindx(ix)
-            ib = ibasindx(ix)
-            n  = nindx(ix)
-            m  = mindx(ix)
-            ic = iclass(ib)
-            nm = nvmax(l,ic)
-            cphix (iord(m,1:nm,l,ib),iband) = cphix (iord(m,1:nm,l,ib),iband) + zzpi(1:nm,n,l,ic,isp)*cphi(ix,iband,isp)
+        do ispc=1,nspc
+          if(lso==1) ispx=ispc
+          if(lso/=1) ispx=isp
+          do iband = 1,nev
+            do ix= 1,ndima
+              l  = lindx(ix)
+              ib = ibasindx(ix)
+              n  = nindx(ix)
+              m  = mindx(ix)
+              ic = iclass(ib)
+              nm = nvmax(l,ic)
+              cphix(iord(m,1:nm,l,ib),ispx,iband) = cphix(iord(m,1:nm,l,ib),ispx,iband) +zzpi(1:nm,n,l,ic,ispx)*cphi(ix,iband,ispx)
+            enddo
           enddo
         enddo
         if(debug)write(stdo,ftox)' writechpigeig 2222'  
-        iqqisp= isp + nsp*(iq-1)
-        cphix(1:ndima,nev+1:nbandmx)=1d20 !padding         !         write(ifcphi),  rec=iqqisp)  cphix(1:ndima,1:nbandmx)
-        write(ifcphi)  cphix(1:ndima,1:nbandmx)          !         i=writem(ifcphim,rec=iqqisp,data=cphix(1:ndima,1:nbandmx)) ! close(ifigwb_)
-        iqqisp= isp + nsp*(iq-1)
-        if(ngpmx/=0) geigr(1:ngpmx,nev+1:nbandmx,isp)=1d20 !padding  !  if(ngpmx/=0) write(ifgeig,  rec=iqqisp)  geigr(1:ngpmx,1:nbandmx,isp)
-        if(ngpmx/=0) write(ifgeig)  geigr(1:ngpmx,1:nbandmx,isp)
+        !   iqqisp= isp + nsp*(iq-1)
+        cphix(1:ndima,1:nspc,nev+1:nbandmx)=1d20 !padding       !         write(ifcphi),  rec=iqqisp)  cphix(1:ndima,1:nbandmx)
+        write(ifcphi)  cphix(1:ndima,1:nspc,1:nbandmx)          !         i=writem(ifcphim,rec=iqqisp,data=cphix(1:ndima,1:nbandmx)) ! close(ifigwb_)
+        !   iqqisp= isp + nsp*(iq-1)
+        do ispc=1,nspc
+          if(ngpmx/=0) geigr(1:ngpmx,nev+1:nbandmx,ispc)=1d20 !padding  !  if(ngpmx/=0) write(ifgeig,  rec=iqqisp)  geigr(1:ngpmx,1:nbandmx,isp)
+          if(ngpmx/=0) write(ifgeig) geigr(1:ngpmx,1:nbandmx,ispc)
+        enddo
         if(debug)write(stdo,ftox)'end of writechpigeig'  
       endblock WriteCphiGeig
       if (lwvxc) close(ifiv)
