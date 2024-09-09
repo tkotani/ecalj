@@ -68,8 +68,8 @@ contains
     real(8),pointer:: pnu(:,:),pnz(:,:)
     integer,allocatable :: konft(:,:,:),iiyf(:),ibidx(:,:),nqq(:)
     complex(8),allocatable :: aus_zv(:,:,:,:,:), hamm(:,:,:,:),ovlm(:,:,:,:),ovlmtoi(:,:),ovliovl(:,:) ,hammhso(:,:,:)
-    complex(8),allocatable:: evec(:,:),evec0(:,:),vxc(:,:,:,:),ppovl(:,:),phovl(:,:),pwh(:,:),pwz(:,:,:),pzovl(:,:), pwz0(:,:),&
-         testc(:,:),testcd(:),ppovld(:),cphi(:,:,:),cphi0(:,:,:),cphi_p(:,:,:),geig(:,:,:),geig_p(:,:,:),sene(:,:)
+    complex(8),allocatable:: evec(:,:),evec0(:,:),vxc(:,:,:,:),ppovl(:,:),phovl(:,:),pwh(:,:),pwz(:,:,:),pzovl(:,:,:), pwz0(:,:),&
+         testcc(:,:),testc(:,:,:),testcd(:,:),ppovld(:),cphi(:,:,:),cphi0(:,:,:),cphi_p(:,:,:),geig(:,:,:),geig_p(:,:,:),sene(:,:)
     logical :: lwvxc,cmdopt0, emptyrun, magexist, debug=.false.,sigmamode,wanatom=.false.
     logical,optional:: socmatrix 
     character(8) :: xt
@@ -361,10 +361,10 @@ contains
         integer:: ilm,im,iv
         complex(8):: auasaz(3),aus_zv(nlmax,ndham*nspc,3,nsp,nbas)
         call makusq(nbas,[-999], nev,  isp, 1,qp,reshape(evec(1:ndimhx,1:nev),[ndimh,nspc,nev]), aus_zv )
+        cphiw=0d0
         do ispc=1,nspc
           if(lso==1) ispx=ispc
           if(lso/=1) ispx=isp
-          cphiw=0d0
           do ib = 1, nbas
             do iv = 1, nev
               ilm = 0
@@ -391,7 +391,8 @@ contains
         pwz(1:ngp,1,1:ndimhx) = matmul(phovl(1:ngp,1:ndimh),evec(1:ndimh,1:ndimhx))
         if(lso==1) pwz(1:ngp,2,1:ndimhx) = matmul(phovl(1:ngp,1:ndimh),evec(ndimh+1:2*ndimh,1:ndimhx))
         deallocate(phovl)
-        if (lchk >= 1) then     !  allocate(pzovl,source=pwz)
+        if (lchk >= 1) then   
+          allocate(pzovl,source=pwz)
           allocate(ppovld(ngp)) ! extract diagonal before ppovl overwritten
           forall(i = 1:ngp) ppovld(i) = ppovl(i,i)
         endif
@@ -400,37 +401,39 @@ contains
         if(lso==1) pwz(1:ngp,2,1:ndimhx) = matmul(ppovl,pwz(1:ngp,2,1:ndimhx))
         deallocate(ppovl)
         if (lchk >= 1) then
+          allocate(testc(ndimhx,ndimhx,nspc),testcd(ndimhx,nspc))
           do ispc=1,nspc
             if(lso/=1) ispx=isp
             if(lso==1) ispx=ispc
-            allocate(testc(ndimh,ndimh),testcd(ndimh))
             associate(pwz1=>pwz(1:ngp,ispc,1:ndimhx)) !,pzovl=>pwz(1:ngp,ispc,1:ndimhx))
-              testc=matmul(transpose(dconjg(pwz1)),pwz1)!              deallocate(pzovl)
-              testcd = [(sum(dconjg(pwz1(:,i))*ppovld*pwz1(:,i)),i=1,nev)] !dimhx)]
-               deallocate(ppovld)
-              ! xx(1) = sum over all augmentation w.f.  cphi+ ovl cphi
-              ! xx(3) = IPW contribution to phi+ phi.   xx(1)+xx(3) should be close to unity.
-              ! [xx(4) = IPW contribution to phi+ phi, using diagonal part only] 
-              write(ifinormchk,"('# iq',i5,'   q',3f12.6,'ndimhx nev',2i7)") iq,qp,ndimhx,nev
-              do  i1 = 1, nev !dimhx
-                xx(1) = sum(cphiw(i1,1:nspc))
-                do  i2 = 1, ndimh
-                  xx(3) = testc(i1,i2)
-                  xx(4) = testcd(i1)      !if(i1==i2)write(ifinormchk,'(f12.5,5f14.6)')evl(i1,isp),xx(3),xx(4),xx(1),xx(1)+xx(3)
-                  if(i1==i2)write(ifinormchk,'(i4,f12.5,5f14.6)')i1,evl(i1,iq,ispx),xx(3),xx(4),xx(1),xx(1)+xx(3)
-                enddo
-              enddo
+              testc(:,:,ispc)=matmul(transpose(dconjg(pzovl(:,ispc,:))),pwz1)
+              testcd(:,ispc) = [(sum(dconjg(pwz1(:,i))*ppovld*pwz1(:,i)),i=1,ndimhx)] !dimhx)]
             end associate
-            deallocate(testc,testcd)
-            write(ifinormchk,*)
           enddo
+          write(ifinormchk,"('# iq',i5,'   q',3f12.6,' ndimhx nev',2i7)") iq,qp,ndimhx,nev
+          ! xx(1) = sum over all augmentation w.f.  cphi+ ovl cphi
+          ! xx(3) = IPW contribution to phi+ phi.   xx(1)+xx(3) should be close to unity.
+          ! [xx(4) = IPW contribution to phi+ phi, using diagonal part only]
+          do i1 = 1, nev !dimhx
+            xx(1) = sum(cphiw(i1,1:nspc))
+            i2=i1
+!            do  i2 = 1, ndimhx
+              xx(3) = sum(testc(i1,i2,:))
+              xx(4) = sum(testcd(i1,:))    !if(i1==i2)write(ifinormchk,'(f12.5,5f14.6)')evl(i1,isp),xx(3),xx(4),xx(1),xx(1)+xx(3)
+              write(ifinormchk,'(i4,f12.5,5f14.6)')i1,evl(i1,iq,isp),xx(3),xx(4),xx(1),xx(1)+xx(3)
+!            enddo
+          enddo
+          deallocate(testc,testcd)
+          write(ifinormchk,*)
+          deallocate(pzovl)
+          deallocate(ppovld)
         endif
       endif
       if(debug) write (stdo,"('q ndimh=',3f10.5,i10)") qp, ndimh
-      allocate(testc(1:nev,ndimhx),source=matmul(transpose(dconjg(evec(:,1:nev))),reshape(vxc,[ndimhx,ndimhx])))
-      forall(i1 = 1:nev) vxclda(i1,iq,isp) = sum(testc(i1,1:ndimhx) * evec(1:ndimhx,i1))  !<i|Vxc^lda|i>
+      allocate(testcc(1:nev,ndimhx),source=matmul(transpose(dconjg(evec(:,1:nev))),reshape(vxc,[ndimhx,ndimhx])))
+      forall(i1 = 1:nev) vxclda(i1,iq,isp) = sum(testcc(i1,1:ndimhx) * evec(1:ndimhx,i1))  !<i|Vxc^lda|i>
       vxclda(nev+1:,iq,isp)=0d0
-      deallocate(testc)
+      deallocate(testcc)
       if(debug) write (stdo,ftox)' 1214 continue'
 1214  continue
       if(debug)write(stdo,ftox)'goto writechpigeig'  
