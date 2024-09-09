@@ -74,7 +74,7 @@ contains
     logical,optional:: socmatrix 
     character(8) :: xt
     character(256):: ext,sprocid,extn
-    complex(8),allocatable::  geigr(:,:,:), cphix(:,:)
+    complex(8),allocatable::  geigr(:,:,:), cphix(:,:,:)
     integer:: mrecb,mrece,mrecg,ndble,ifv,iqq,ifev
     real(8),allocatable::evl(:,:,:),vxclda(:,:,:)!,evl(:,:),vxclda(:)!qirr(:,:),
     include "mpif.h"
@@ -233,7 +233,7 @@ contains
     mrecb = 2*ndima*nbandmx *ndble !byte size !Use -assume byterecl for ifort recognize the recored in the unit of bytes.
     mrece = nbandmx         *ndble 
     mrecg = 2*ngpmx*nbandmx *ndble 
-    allocate(cphix(ndima,nbandmx),geigr(1:ngpmx,1:nbandmx,1:nspc))
+    allocate(cphix(ndima,nspc,nbandmx),geigr(1:ngpmx,1:nbandmx,1:nspc))
     ! CPHI GEIG    
     ! i=openm(newunit=ifcphim,file='CPHI',recl=mrecb)
     !    open(newunit=ifcphi,file='CPHI',form='unformatted',access='direct',recl=mrecb)
@@ -255,7 +255,7 @@ contains
       call m_igv2x_setiq(iq) ! Set napw ndimh ndimhx, and igv2x
       allocate(hamm(ndimh,nspc,ndimh,nspc),ovlm(ndimh,nspc,ndimh,nspc)) !Spin-offdiagonal block included since nspc=2 for lso=1.
       allocate(evec(ndimhx,ndimhx),vxc(ndimh,nspc,ndimh,nspc))
-      allocate(cphi(ndima,ndimhx,nsp),cphiw(ndimhx,nsp))
+      allocate(cphi(ndima,ndimhx,nspc),cphiw(ndimhx,nsp))
       if(iqbk==iq) then
         continue
       elseif( lso/=0 .OR. socmatrix) then
@@ -368,7 +368,7 @@ contains
           if(lso==1) ispx=ispc
           if(lso/=1) ispx=isp
           !call gwcphi(ispx,nsp,nlmax,ndham,nev,nbas,lmxax,nlindx,ndima,aus_zv, cphi(1,1,ispx),cphiw(1,ispx ))
-          cphiw=0d0
+!          cphiw=0d0
           do ib = 1, nbas
             do iv = 1, nev
               ilm = 0
@@ -376,10 +376,10 @@ contains
                 do im = 1, 2*l+1
                   ilm = ilm+1
                   auasaz=aus_zv(ilm,iv,1:3,ispx,ib) !coefficient for (u,s,gz)
-                  cphiw(iv,ispx) = cphiw(iv,ispx) + sum(dconjg(auasaz)*matmul(sab_rv(:,:,l+1,ispx,ib),auasaz)) 
+!                  cphiw(iv,ispx) = cphiw(iv,ispx) + sum(dconjg(auasaz)*matmul(sab_rv(:,:,l+1,ispx,ib),auasaz)) 
                   ! cphi corresponds to coefficients of augmented functions for {phi,phidot,gz(val=slo=0)}, which are not orthnormal. 
-                  cphi(nlindx(1:2,l,ib)+im,iv,ispx)= matmul(auasaz(1:2),rotp(l,ispx,:,:,ib))
-                  if (nlindx(3,l,ib) >= 0) cphi(nlindx(3,l,ib) + im,iv,ispx) = auasaz(3)
+                  cphi(nlindx(1:2,l,ib)+im,iv,ispc)= matmul(auasaz(1:2),rotp(l,ispx,:,:,ib))
+                  if (nlindx(3,l,ib) >= 0) cphi(nlindx(3,l,ib) + im,iv,ispc) = auasaz(3)
                 enddo
               enddo
             enddo
@@ -444,34 +444,39 @@ contains
         do ispc=1,nspc
           geigr(1:ngp,      1:ndimhx,ispc)=pwz(1:ngp,ispc,1:ndimhx)
           geigr(ngp+1:ngpmx,1:ndimhx,ispc)=0d0
-        enddo  
+        enddo
+        do ispc=1,nspc
         do ibas=1,nbas
           do ix = 1,ndima !nindx is for avoiding degeneracy. See zzpi.
-            if(ibasindx(ix)==ibas) cphi(ix,1:nev,isp) = cphi(ix, 1:nev,isp)/sqrt(1d0+0.1d0*nindx(ix))
+            if(ibasindx(ix)==ibas) cphi(ix,1:nev,ispc) = cphi(ix, 1:nev,ispc)/sqrt(1d0+0.1d0*nindx(ix))
           enddo
         enddo
+        enddo
         cphix=0d0 !     Augmentation wave part
-        if(debug)write(stdo,ftox)' writechpigeig 1111'  
-        do iband = 1,nev
-          do ix= 1,ndima
-            l  = lindx(ix)
-            ib = ibasindx(ix)
-            n  = nindx(ix)
-            m  = mindx(ix)
-            ic = iclass(ib)
-            nm = nvmax(l,ic)
-            cphix (iord(m,1:nm,l,ib),iband) = cphix (iord(m,1:nm,l,ib),iband) + zzpi(1:nm,n,l,ic,isp)*cphi(ix,iband,isp)
+        if(debug)write(stdo,ftox)' writechpigeig 1111'
+        do ispc=1,nspc
+          if(lso==1) ispx=ispc
+          if(lso/=1) ispx=isp
+          do iband = 1,nev
+            do ix= 1,ndima
+              l  = lindx(ix)
+              ib = ibasindx(ix)
+              n  = nindx(ix)
+              m  = mindx(ix)
+              ic = iclass(ib)
+              nm = nvmax(l,ic)
+              cphix (iord(m,1:nm,l,ib),ispc,iband) = cphix (iord(m,1:nm,l,ib),ispc,iband) &
+                   + zzpi(1:nm,n,l,ic,ispx)*cphi(ix,iband,ispc)
+            enddo
           enddo
         enddo
         if(debug)write(stdo,ftox)' writechpigeig 2222'  
         !   iqqisp= isp + nsp*(iq-1)
-        cphix(1:ndima,nev+1:nbandmx)=1d20 !padding       !         write(ifcphi),  rec=iqqisp)  cphix(1:ndima,1:nbandmx)
-        write(ifcphi)  cphix(1:ndima,1:nbandmx)          !         i=writem(ifcphim,rec=iqqisp,data=cphix(1:ndima,1:nbandmx)) ! close(ifigwb_)
+        cphix(1:ndima,1:nspc,nev+1:nbandmx)=1d20 !padding       !         write(ifcphi),  rec=iqqisp)  cphix(1:ndima,1:nbandmx)
+        write(ifcphi)  cphix(1:ndima,1:nspc,1:nbandmx)          !         i=writem(ifcphim,rec=iqqisp,data=cphix(1:ndima,1:nbandmx)) ! close(ifigwb_)
         !   iqqisp= isp + nsp*(iq-1)
-        do ispc=1,nspc
-          if(ngpmx/=0) geigr(1:ngpmx,nev+1:nbandmx,ispc)=1d20 !padding  !  if(ngpmx/=0) write(ifgeig,  rec=iqqisp)  geigr(1:ngpmx,1:nbandmx,isp)
-          if(ngpmx/=0) write(ifgeig) geigr(1:ngpmx,1:nbandmx,ispc)
-        enddo
+        if(ngpmx/=0) geigr(1:ngpmx,nev+1:nbandmx,1:nspc)=1d20   ! padding  !  if(ngpmx/=0) write(ifgeig,  rec=iqqisp)  geigr(1:ngpmx,1:nbandmx,isp)
+        if(ngpmx/=0) write(ifgeig) geigr(1:ngpmx,1:nbandmx,1:nspc)
         if(debug)write(stdo,ftox)'end of writechpigeig'  
       endblock WriteCphiGeig
       if (lwvxc) close(ifiv)
