@@ -18,13 +18,13 @@ subroutine hpsig_MPI()
   use m_hamindex,only:   readhamindex,ngrp
   use m_readeigen,only:init_readeigen,init_readeigen2,readcphif,readgeigf
   use m_read_bzdata,only: read_bzdata,qbz,nqbz,nqibz,nqbz,qbas=>qlat,nq0i,q0i
-  use m_genallcf_v3,ncore2=>ncore,nrxx=>nrx
+  use m_genallcf_v3, ncore2=>ncore,nrxx=>nrx !, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
   use m_keyvalue,only: getkeyvalue
   use m_read_Worb,only: s_read_Worb, s_cal_Worb, &
        nwf, nclass_mlwf, cbas_mlwf, nbasclass_mlwf, &
        classname_mlwf, iclassin, &
        iphi, iphidot, nphi, nphix
-  use m_readhbe,only: readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+!  use m_readhbe,only: readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
   ! RS: MPI module
   !      use rsmpi
   !      use rsmpi_rotkindex
@@ -204,7 +204,7 @@ subroutine hpsig_MPI()
   !      read (ifhbe,*) nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
   !      if(nlmto/=nlmtot) stop ' hx0fp0: nlmto/=nlmtot in hbe.d'
   !      if(nqbz /=nqbzt ) stop ' hx0fp0: nqbz /=nqbzt  in hbe.d'
-  call Readhbe()
+!  call Readhbe()
 
   ! --- read by rdpp ; Radial integrals ppbrd and plane wave part
   call getsrdpp2(nclass,nl,nxx)

@@ -2,7 +2,8 @@
 module m_itq
   use m_keyvalue,only: Getkeyvalue
   use m_readeigen,only: Readeval
-  use m_readhbe,only: nband
+  use m_genallcf_v3,only: nband
+  !use m_readhbe,only: nband
   implicit none
   public itq,ntq,setitq_hsfp0sc,setitq,nbandmx,setitq_hsfp0
   integer,allocatable,protected :: itq(:),nbandmx(:,:)

@@ -4,7 +4,8 @@ module m_eibz
   use m_genallcf_v3,only: Genallcf_v3, nclass,natom,nspin,nl,nn, nlmto,nlnmx, nctot, alat, deltaw,clabl,iclass, plat, pos, ecore
   use m_hamindex,only: symgg =>symops
   use m_qbze,only: Setqbze, nqbze,nqibze,qbze,qibze
-  use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+  use m_genallcf_v3,only: nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+  !use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
   use m_rdpp,only: Rdpp, nxx,lx,nx,mdimx,nbloch,cgr,ppbrd
   use m_pbindex,only: PBindex !,norbt,l_tbl,k_tbl,ibas_tbl,offset_tbl,offset_rev_tbl
   use m_readqgcou,only: Readqgcou
@@ -66,7 +67,8 @@ end module m_eibz
 module m_eibzhs
   use m_read_bzdata,only: qbz,nqibz,ginv,irk,nqbz
   use m_hamindex,only: ngrp, symgg=>symops
-  use m_readhbe,only: nband
+  !use m_readhbe,only: nband
+  use m_genallcf_v3,only: nband
   use m_rdpp,only:  nbloch
   implicit none
   !------------------------------

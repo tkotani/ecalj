@@ -31,7 +31,8 @@ subroutine hx0fp0()
   use m_ll,only: ll
   use m_readgwinput,only: ReadGwinputKeys, ecut,ecuts,mtet,ebmx,nbmx,nmbas,imbas,egauss !nmbas is number of magnetic atoms
   use m_qbze,only: Setqbze, nqbze,nqibze,qbze,qibze
-  use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+!  use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+  use m_genallcf_v3,only: nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
   use m_readVcoud,only: Readvcoud,vcousq,zcousq !,ngb,ngc
   use m_x0kf,only: x0kf_zxq,deallocatezxq,deallocatezxqi,zxqi,zxq
   use m_llw,only: WVRllwR,WVIllwI,MPI__sendllw2
@@ -229,7 +230,7 @@ subroutine hx0fp0()
   call genallcf_v3(incwfx=0) !use 'ForX0 for core' in GWIN
   if(chipm .AND. nspin==1) call rx( 'chipm mode is for nspin=2')
   if(nclass /= natom) call rx( ' nclass /= natom ') !! WE ASSUME iclass(iatom)= iatom
-  call Readhbe()
+!  call Readhbe()
   if(nqbz /=nqbzt ) call rx(' hx0fp0_sc: nqbz /=nqbzt  in hbe.d')
   if(nlmto/=nlmtot) call rx('hx0fp0: nlmto/=nlmtot in hbe.d')
   call ReadGWinputKeys()    !Readin GWinput

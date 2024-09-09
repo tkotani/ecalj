@@ -501,7 +501,7 @@ contains
         enddo
         ! Evalue
         open(newunit=ifev,file='EValue',form='unformatted')
-        write(ifev) nbandmx, nqirr, nsp
+        write(ifev) nbandmx, nqirr, nsp,nspc
         write(ifev) qplist(1:3,1:nqirr) !qirr
         write(ifev) evl(1:nbandmx, 1:nqirr, 1:nsp )
         close(ifev)
@@ -631,7 +631,7 @@ contains
         close(ifigwin)
         open(newunit=ifhbed,file='hbe.d')                       
         write(stdo,'( " ndima nbandmx=",3i5)') ndima, nbandmx
-        write(ifhbed,"(*(g0,x))") ndble,mrecb,mrece,ndima,nqbz,nbandmx,mrecg
+        write(ifhbed,"(*(g0,x))") ndble,mrecb,mrece,ndima,nqbz,nbandmx,mrecg,nspc
         write(ifhbed,*)' precision, mrecl of b, mrecl of eval, ndima(p+d+l)  nqbz  nbandmx mrecg'
         close(ifhbed)
       endblock WriteGWfilesB

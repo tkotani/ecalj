@@ -8,8 +8,8 @@ module m_readeigen
   use m_hamindex,only:   ngpmx, nqtt, nqi, qtt,iqimap, iqmap,igmap,shtvg,qlat,symops
   use m_hamindex,only:   plat,invgx, miat,tiat,dlmm,shtvg,symops,lmxax,nbas
   use m_read_bzdata,only: ginv
-  use m_genallcf_v3,only: nsp =>nspin ,ldim2=>nlmto
-  use m_readhbe,only: mrecb, mrece,nband, mrecg
+  use m_genallcf_v3,only: nsp =>nspin ,ldim2=>nlmto, mrecb, mrece,nband, mrecg
+!  use m_readhbe,only: mrecb, mrece,nband, mrecg
   !! qtt(1:3, nqtt)  :q-vector in full BZ (no symmetry) in QGpsi, QGcou
   !! qtti(1:3,nqi)   :eivenvalues, eigenvectors are calculated only for them.
   !!                  See lmfgw (q-vector with irr flag in QGpsi (output of qg4gw).

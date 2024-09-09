@@ -8,7 +8,8 @@ subroutine heftet() bind(C)! Calculates the Fermi energy by tetrahedron method.
   use m_readeigen,only: init_readeigen,readeval
   use m_tetrakbt,only: tetrakbt_init, kbt
   use m_keyvalue,only: getkeyvalue
-  use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+  use m_genallcf_v3,only: nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+!  use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg  
   use m_mpi,only: MPI__Initialize
   use m_lgunit,only: m_lgunit_init
   use m_ftox
@@ -70,7 +71,7 @@ subroutine heftet() bind(C)! Calculates the Fermi energy by tetrahedron method.
   call read_BZDATA()
   write(6,ftox)' heftet: nqibz, ntetf,nteti,nqbz ', nqibz,ntetf,nteti,nqbz
   call genallcf_v3(incwfx=-1) !in module m_genallcf_v3
-  call Readhbe()   !      write(6,"(' nqbz nqibz ngrp=',3i8)") nqbz,nqibz,ngrp  ! if(ngrp/= ngrp2) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
+!  call Readhbe()   !      write(6,"(' nqbz nqibz ngrp=',3i8)") nqbz,nqibz,ngrp  ! if(ngrp/= ngrp2) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
   if(nclass /= natom ) call rx( ' hsfp0: nclass /= natom ')
   tpia = 2d0*pi/alat
   voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))

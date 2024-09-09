@@ -79,11 +79,11 @@ module m_sxcf_gemm
   use m_readeigen, only: Readeval
   use m_zmel, only: get_zmel_init_gemm, Setppovlz, zmel, nbb !get_zmel_init => 
   use m_itq, only: itq, ntq, nbandmx
-  use m_genallcf_v3, only: nlmto, nspin, nctot, niw, ecore !,symgg
+  use m_genallcf_v3, only: nlmto, nspin, nctot, niw, ecore,nband
   use m_read_bzdata, only: qibz, qbz, wk=>wbz, nqibz, nqbz, wklm, lxklm, wqt=>wt
   use m_readVcoud, only: Readvcoud, vcoud, ngb, ngc
   use m_readfreq_r, only: freq_r, nw_i, nw, freqx, wx=>wwx, nblochpmx, mrecl, expa_, npm
-  use m_readhbe, only: nband
+  !use m_readhbe,only: nband
   use m_readgwinput, only: ua_, corehole, wcorehole
   use m_ftox
   use m_lgunit, only: stdo

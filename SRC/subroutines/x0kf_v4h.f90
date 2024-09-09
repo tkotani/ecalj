@@ -5,12 +5,12 @@ module m_x0kf
   use m_pkm4crpa,only : Readpkm4crpa
   use m_zmel,only: get_zmel_init_gemm, zmel !,get_zmel_init1,get_zmel_init2
   use m_freq,only: npm, nwhis
-  use m_genallcf_v3,only:  nsp=>nspin ,nlmto,nctot
+  use m_genallcf_v3,only:  nsp=>nspin ,nlmto,nctot, nband
   use m_read_bzdata,only:  nqbz,ginv,nqibz,  rk=>qbz,wk=>wbz
   use m_rdpp,only: nbloch
   use m_readqg,only: ngpmx,ngcmx
   use m_qbze,only: nqbze
-  use m_readhbe,only: nband
+!  use m_readhbe,only: nband
   use m_hamindex,only: ngrp
   use m_tetwt,only:  gettetwt,tetdeallocate, whw,ihw,nhw,jhw,n1b,n2b,nbnb,nbnbx,nhwtot
   use m_ftox

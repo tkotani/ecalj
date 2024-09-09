@@ -14,6 +14,7 @@ module m_genallcf_v3 ! Readin starting data dat in GWinput
   real(8), allocatable,protected,public:: pos(:,:),z(:),ecore(:,:) !,symgg(:,:,:)
   character(8),allocatable,protected,public:: spid(:)
   character(8),allocatable,protected,public :: clabl(:)
+  integer,protected,public:: nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg,nspc !nspc=2 for so=1, zero otherwize.
   private
   logical,protected,private:: done_genallcf_v3=.false.
 !  integer,allocatable,protected,private:: &
@@ -37,6 +38,7 @@ contains
     ! Original idea of product basis is from F.Aryasetiawan. Some subroutines are written by him.
     ! We may need to clean them up in modern fortran.
     !! --------------------------------------------------------
+    integer:: ifhbe
     integer::incwfx,ifec,i,j, lmx, lmx2,nlmto2,ifi,ig,is,ix,ixoff,lx
     integer:: infwfx,ret, n1,n2,n3,imagw,n,ic
     logical :: nocore,readon
@@ -329,6 +331,11 @@ contains
       endif
       deallocate(ecoret)
     endblock coreblock
+!hbe
+    open(newunit=ifhbe, file='hbe.d', action='read')
+    read (ifhbe,*) nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg,nspc
+    close(ifhbe)
+    
     call cputid(0); write(stdo,*) 'genallcf_v3'
   end subroutine genallcf_v3
 end module m_genallcf_v3
@@ -360,17 +367,17 @@ contains
   end subroutine readefermi_kbt
 end module m_ReadEfermi
 
-module m_readhbe
-  integer,protected:: nprecb,nlmtot,nqbzt,nband
-  integer:: mrecb,mrece,mrecg !these can not be protected because of bug of ifort?
-contains
-  subroutine readhbe()
-    integer:: ifhbe
-    open(newunit=ifhbe, file='hbe.d', action='read')
-    read (ifhbe,*) nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
-    close(ifhbe)
-  end subroutine readhbe
-end module m_readhbe
+! module m_readhbe
+!   integer,protected:: nprecb,nlmtot,nqbzt,nband,nspc !nspc=2 for so=1, zero otherwize.
+!   integer:: mrecb,mrece,mrecg !these can not be protected because of bug of ifort?
+! contains
+!   subroutine readhbe()
+!     integer:: ifhbe
+!     open(newunit=ifhbe, file='hbe.d', action='read')
+!     read (ifhbe,*) nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg,nspc
+!     close(ifhbe)
+!   end subroutine readhbe
+! end module m_readhbe
 
 subroutine reindx (noccv,nunoccv,nindxv, &
      noccc,nunoccc,nindxc, &

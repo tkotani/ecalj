@@ -27,13 +27,13 @@ subroutine hmaxloc()
   use m_qbze,only: Setqbze, nqbze,qbze
   use m_genallcf_v3,only: genallcf_v3, nclass,natom,nspin,nl,nn, &
     nlmto,nlnmx, nctot,niw, alat,delta,deltaw,esmr,clabl,iclass, il, in, im, nlnm, &
-    plat, pos, ecore, konf,z, spid
+    plat, pos, ecore, konf,z, spid, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
   use m_read_Worb,only: s_read_Worb, s_cal_Worb, &
     nwf, nclass_mlwf, cbas_mlwf, nbasclass_mlwf, &
     classname_mlwf, iclassin, &
     iphi, iphidot, nphi, nphix
   use m_keyvalue,only: getkeyvalue
-  use m_readhbe,only:Readhbe,nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+!  use m_readhbe,only:Readhbe,nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
   use m_hamindex0,only: readhamindex0,iclasst
   use m_mksym_util,only:mptauof
   use m_MPItk,only: m_MPItk_init
@@ -295,7 +295,7 @@ subroutine hmaxloc()
   !      ifhbed     = iopen('hbe.d',1,0,0)
   !      read (ifhbed,*) nprecb,mrecb,mrece,nlmtot,nqbzt, nband,mrecg
   !      if (nprecb == 4) stop 'hsfp0: b,hb in single precision'
-  call Readhbe()
+!  call Readhbe()
   call Readhamindex()
   call init_readeigen()!nband,mrece) !initialization of readEigen
 

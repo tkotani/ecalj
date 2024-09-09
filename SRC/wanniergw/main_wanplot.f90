@@ -174,8 +174,8 @@ subroutine wanplot()
   use m_cubeformat
   use m_xsfformat
   use m_expand_mesh
-  use m_readhbe,only:Readhbe,nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
-  use m_genallcf_v3,only: genallcf_v3
+!  use m_readhbe,only:Readhbe,nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+  use m_genallcf_v3,only: genallcf_v3, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
 
   implicit none
   integer :: nwf,iko_ix,iko_fx,nband_wfn
@@ -241,7 +241,7 @@ subroutine wanplot()
   !!
   incwfin= -1  !use 7th colmn for core at the end section of GWIN
   call genallcf_v3(incwfin) !in module m_genallcf_v3
-  call Readhbe()
+!  call Readhbe()
   call Readhamindex()
   call init_readeigen()!nband,mrece) !initialization of readEigen
   call init_readeigen2()!mrecb,ldim2,mrecg) !initialize m_readeigen

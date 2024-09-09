@@ -22,7 +22,8 @@ subroutine hsfp0() bind(C)
        MPI__Initialize,MPI__real8send,MPI__real8recv, & !MPI__sxcf_rankdivider,
        MPI__root,MPI__Broadcast,MPI__rank,MPI__size,MPI__allreducesum, &
        MPI__consoleout
-  use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+!  use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+  use m_genallcf_v3,only: nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
   use m_lgunit,only: m_lgunit_init
   use m_freq,only: freq01
   use m_anf,only:  Anfcond, laf
@@ -322,7 +323,7 @@ subroutine hsfp0() bind(C)
   write(6,'("    deltaw  =",f13.6)') deltaw
   write(6,'("    esmr    =",f13.6)') esmr
   write(6,'("    alat voltot =",2f13.6)') alat, voltot
-  call Readhbe()    !Read dimensions of h,hb
+!  call Readhbe()    !Read dimensions of h,hb
   call Readhamindex()
   call init_readeigen()!nband,mrece) !initialization of readEigen
   call Mptauof_zmel(symgg,ngrp) !Get space-group transformation information. in m_zmel

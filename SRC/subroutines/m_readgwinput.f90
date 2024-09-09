@@ -16,8 +16,8 @@ contains
   end subroutine SetIsigmode
   subroutine ReadGWinputKeys() ! Read values from GWinput
     use m_keyvalue,only: Getkeyvalue
-    use m_genallcf_v3,only: natom
-    use m_readhbe,only: nband
+    use m_genallcf_v3,only: natom,nband
+    !use m_readhbe,only: nband
     logical:: cmdopt0
     !     use NaNum,only: NaN
     !      integer:: nband
