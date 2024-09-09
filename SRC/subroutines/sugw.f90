@@ -233,7 +233,7 @@ contains
     mrecb = 2*ndima*nbandmx *ndble !byte size !Use -assume byterecl for ifort recognize the recored in the unit of bytes.
     mrece = nbandmx         *ndble 
     mrecg = 2*ngpmx*nbandmx *ndble 
-    allocate(cphix(ndima,nspc,nbandmx),geigr(1:ngpmx,1:nbandmx,1:nspc))
+    allocate(cphix(ndima,nspc,nbandmx),geigr(ngpmx,nspc,nbandmx))
     ! CPHI GEIG    
     ! i=openm(newunit=ifcphim,file='CPHI',recl=mrecb)
     !    open(newunit=ifcphi,file='CPHI',form='unformatted',access='direct',recl=mrecb)
@@ -441,8 +441,8 @@ contains
         use m_hamindex0,only: nindx,ibasindx
         integer::iband,ibas,iqqisp,ix,m,nm,i
         do ispc=1,nspc
-          geigr(1:ngp,      1:ndimhx,ispc)=pwz(1:ngp,ispc,1:ndimhx)
-          geigr(ngp+1:ngpmx,1:ndimhx,ispc)=0d0
+          geigr(1:ngp,      ispc,1:ndimhx)=pwz(1:ngp,ispc,1:ndimhx)
+          geigr(ngp+1:ngpmx,ispc,1:ndimhx)=0d0
         enddo
         do ispc=1,nspc
         do ibas=1,nbas
@@ -473,8 +473,8 @@ contains
         !   iqqisp= isp + nsp*(iq-1)
         cphix(1:ndima,1:nspc,nev+1:nbandmx)=1d20 !padding       !         write(ifcphi),  rec=iqqisp)  cphix(1:ndima,1:nbandmx)
         write(ifcphi)  cphix(1:ndima,1:nspc,1:nbandmx)          !         i=writem(ifcphim,rec=iqqisp,data=cphix(1:ndima,1:nbandmx)) ! close(ifigwb_)
-        if(ngpmx/=0) geigr(1:ngpmx,nev+1:nbandmx,1:nspc)=1d20   ! padding  !  if(ngpmx/=0) write(ifgeig,  rec=iqqisp)  geigr(1:ngpmx,1:nbandmx,isp)
-        if(ngpmx/=0) write(ifgeig) geigr(1:ngpmx,1:nbandmx,1:nspc)
+        if(ngpmx/=0) geigr(1:ngpmx,1:nspc,nev+1:nbandmx)=1d20   ! padding  !  if(ngpmx/=0) write(ifgeig,  rec=iqqisp)  geigr(1:ngpmx,1:nbandmx,isp)
+        if(ngpmx/=0) write(ifgeig) geigr(1:ngpmx,1:nspc,1:nbandmx)
         if(debug)write(stdo,ftox)'end of writechpigeig'  
       endblock WriteCphiGeig
       if (lwvxc) close(ifiv)
