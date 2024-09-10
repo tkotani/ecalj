@@ -5,12 +5,12 @@ subroutine h_uumatrix()
   ! Takashi Miyake, Mar 2008, parallelized.  originally written by Takao Kotani, April, 2004
   use m_readqg,only: readngmx,ngcmx,readqg0,readqg
   use m_hamindex,only:   Readhamindex,ngrp,symops
-  use m_readeigen,only:init_readeigen,init_readeigen2,readcphif,readcphif0,readgeigf,readgeigf0,readeval
+  use m_readeigen,only:init_readeigen,init_readeigen2,readcphif,readgeigf,readeval
   use m_read_bzdata,only: read_bzdata, nqbz,nqibz,nqbzw,nteti,ntetf,qbas=>qlat, ginv, &
     dq_,wbz,qibz,wibz,qbzw, qbz, idtetf,ib1bz,idteti, nstar,irk,nstbz,  nq0i=>nq0ix,q0i
   use m_genallcf_v3,only: genallcf_v3, ncore2=>ncore,nrxx=>nrx, natom,nclass,nspin,nl,nn,nnv,nnc, &
        nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot,plat,pos,alat,nindx,&
-       nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+       nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg,nspc
   use m_keyvalue,only: getkeyvalue
   use m_pwmat,only: mkppovl2
   use m_ll,only: ll
@@ -32,7 +32,7 @@ subroutine h_uumatrix()
     iqibz,iqbz,ibb,itmp,itmp2,nqibz2,nqbz2,iqb,ibb2,iqtmp,ibbtmp,ndg(3),ndg1(3),ndg2(3), &
     nb1d,iq0i,j1,j2,j1max,j2max,j1min,j2min,ispin ,l1,l2,lm1,lm2,ibas2,lm3,ig1,ig2,ir,ia1,ma,ia2,m2,l3,m1,lxx &
     ,ico,lxd,lx, ierr,iclose,input3(3),n1,n2,ig, nproc1,nproc2,nq_proc,ii,jj,kk,iftmp,if101,&
-    timevalues(8),ib,nspin2,ie
+    timevalues(8),ib,nspin2,ie,ioc,iog,ispc
   integer,allocatable :: ngvecpB(:,:,:),ngveccB(:,:), ngvecpf1(:,:), ngvecpf2(:,:),nx(:,:),nblocha(:),ifppb(:)
   integer,allocatable:: ncindx(:,:), lcindx(:,:), nrad(:), nindx_r(:,:), lindx_r(:,:), nc_max(:,:), &
     m_indx(:),n_indx(:),l_indx(:),ibas_indx(:), nrofi(:)
@@ -72,8 +72,7 @@ subroutine h_uumatrix()
   if(.not.(ixc == 2.or. ixc==3))call rx('main_huumat_MPI: ixc error')
   call read_BZDATA()
   if (mpi__root) write(stdo,*)' ======== nqbz nqibz ngrp=',nqbz,nqibz,ngrp
-  call genallcf_v3(incwfx=0) !readin condition. use ForX0 for core in GWIN
-!  call Readhbe()    !Read dimensions of h,hb
+  call genallcf_v3(incwfx=0) !readin condition. use ForX0 for core in GWIN !  call Readhbe()    !Read dimensions of h,hb
   call getsrdpp2(nclass,nl,nxx)    ! --- read by rdpp ; Radial integrals ppbrd and plane wave part
   call readngmx('QGpsi',ngpmx)
   open(newunit=ifphi,file='PHIVC',form='unformatted')     ! PHIV+PHIC augmentation wave and core
@@ -82,7 +81,6 @@ subroutine h_uumatrix()
   if(nlmto/= nlmtot) call rx( ' hx0fp0: nlmto/=nlmtot in hbe.d')
   if(nqbz /= nqbzt ) call rx( ' hx0fp0: nqbz /=nqbzt  in hbe.d')
   if(nbas/=natom )   call rx(' nbas(PHIVC) /= natom ')
-
   allocate(  ncindx(ncoremx,nbas), lcindx(ncoremx,nbas), &
     nrad(nbas), nindx_r(1:nradmx,1:nbas), lindx_r(1:nradmx,1:nbas), &
     aa(nbas),bb(nbas),zz(nbas), rr(nrx,nbas), nrofi(nbas) , &
@@ -126,9 +124,8 @@ subroutine h_uumatrix()
   call init_readeigen()   !Initialization for readeigen
   call init_readeigen2()
   call readngmx('QGpsi',ngpmx) !max number of the set q+G
-  allocate(geig1(ngpmx,nband),geig2(ngpmx,nband))
-  allocate(cphi1 (nlmto,nband),cphi2(nlmto,nband) )
-  
+  allocate(geig1 (ngpmx*nspc,nband),geig2(ngpmx*nspc,nband))
+  allocate(cphi1 (nlmto*nspc,nband),cphi2(nlmto*nspc,nband) )
   open(newunit=ifoc,file='@MNLA_CPHI')
   ldim2 = nlmto
   read(ifoc,*)
@@ -138,34 +135,33 @@ subroutine h_uumatrix()
     if(ixx/=ix) call rx('failed to readin @MNLA_CPHI')
   enddo
   close(ifoc)
-
   if(mpi__root) then
     write(stdo,*) ' Used k number in Q0P =', nq0i
     write(stdo,"(i3,2x, 3f14.6)" )(i,q0i(1:3,i),i=1,nq0i)
   endif
-!
-  open(newunit=ifbb,file='BBVEC')
-  read(ifbb,*)
-  read(ifbb,*)nbb,nqbz2
-  if (nqbz /= nqbz2) call rx('readbb: nqbz is wrong!')
-  allocate(bbv(3,nbb),ikbidx(nbb,nqbz))    !call readbb(ifbb,nqbz,nspin,nbb, bbv, ikbidx, iko_ixs,iko_fxs,noxs)
-  do i = 1,nbb
-    read(ifbb,*) bbv(1:3,i)
-  enddo
-  do iq = 1,nqbz
-    read(ifbb,*) !itmp,u(1:3)
-    do ib = 1,nbb
-      read(ifbb,*)itmp,itmp2,ikbidx(ib,iq) !,u(1:3)
+  readbbvec: block
+    open(newunit=ifbb,file='BBVEC')
+    read(ifbb,*)
+    read(ifbb,*)nbb,nqbz2
+    if (nqbz /= nqbz2) call rx('readbb: nqbz is wrong!')
+    allocate(bbv(3,nbb),ikbidx(nbb,nqbz))    !call readbb(ifbb,nqbz,nspin,nbb, bbv, ikbidx, iko_ixs,iko_fxs,noxs)
+    do i = 1,nbb
+      read(ifbb,*) bbv(1:3,i)
     enddo
-  enddo
-  read(ifbb,*)
-  read(ifbb,*)nspin2
-  if(nspin /= nspin2) call rx('nspin is wrong!')
-  do is = 1,nspin
-    read(ifbb,*)iko_ixs(is),iko_fxs(is)
-  enddo
-  close(ifbb)
-!
+    do iq = 1,nqbz
+      read(ifbb,*) !itmp,u(1:3)
+      do ib = 1,nbb
+        read(ifbb,*)itmp,itmp2,ikbidx(ib,iq) !,u(1:3)
+      enddo
+    enddo
+    read(ifbb,*)
+    read(ifbb,*)nspin2
+    if(nspin /= nspin2) call rx('nspin is wrong!')
+    do is = 1,nspin
+      read(ifbb,*)iko_ixs(is),iko_fxs(is)
+    enddo
+    close(ifbb)
+  end block readbbvec
   head(2,1:2)=['UUU.','UUD.']
   head(3,1:2)=['UUq0U.','UUq0D.']
   if(mpi__root) then
@@ -187,13 +183,12 @@ subroutine h_uumatrix()
   j1max = maxval(iko_fxs(1:nspin))
   j2min = j1min
   j2max = j1max
-  allocate( uum(j1min:j1max, j2min:j2max,nspin),source=(0d0,0d0) ) ! uumatrix allocated
+  allocate( uum(j1min:j1max, j2min:j2max,nspin) ) ! uumatrix allocated
   if(cmdopt0('--qibzonly')) call set_qibz(plat,qbz,nqbz,symops,ngrp) !If only at qibz, we need to set irotg
-! Get ppj: ovalap matrix within MT
   if (ixc == 2) nbbloop = nbb
   if (ixc == 3) nbbloop = nq0i
   lxx=2*(nl-1)
-  allocate(ppj(nlmto,nlmto,nspin,nbbloop),source=(0d0,0d0))
+  allocate(ppj(nlmto,nlmto,nspin,nbbloop),source=(0d0,0d0)) ! ppj: ovalap matrix within MT
   allocate(ppbrd(0:nl-1,nn,0:nl-1,nn,0:2*(nl-1),nspin,nbas), rprodx(nrx,0:lxx), phij(0:lxx),psij(0:lxx),rphiphi(nrx))
   allocate(cy((lxx+1)**2),yl((lxx+1)**2))
   ibbloop0: do ibb = 1,nbbloop
@@ -212,7 +207,7 @@ subroutine h_uumatrix()
         call bessl(absqg2*rr(ir,ibas)**2,lxx,phij,psij) ! phij(lx) \approx 1/(2l+1)!! for small absqg*rr(ir,ibas).
         do lx = 0, lxx
           rprodx(ir,lx) = merge(0d0,rr(ir,ibas)* phij(lx)* (absqg*rr(ir,ibas))**lx,rr(ir,ibas)==0d0)
-          ! = r \times j_l(|dq|r)  !bessel function for the expansion of exp(i(q1-q2) r)
+          !             = r \times j_l(|dq|r)  !bessel function for the expansion of exp(i(q1-q2) r)
         enddo
       enddo
       ispinloop00: do isp = 1,nspin
@@ -259,9 +254,7 @@ subroutine h_uumatrix()
     enddo ispinloop02
   enddo ibbloop0
   deallocate(ppbrd, rprodx, phij, psij, rphiphi, cy, yl)
-  
-  !--qibzonly need to be improved to balance load in ranks.
-  iqbz4uum: do 1070 iqbz = 1,nqbz 
+  iqbz4uum: do 1070 iqbz = 1,nqbz  !qibzonly need to be improved to balance load in ranks.
     if(mod(iqbz-1,mpi__size)/=mpi__rank) cycle !MPI
     if (cmdopt0('--qibzonly').and. irotg(iqbz)/=1)  cycle !only irreducible q point
     write(stdo,ftox)'iq =',iqbz, 'out of',nqbz
@@ -297,7 +290,6 @@ subroutine h_uumatrix()
         q1(:) = qbz(:,iqbz)
         q2(:) = qbz(:,iqbz) + q0i(:,ibb)
       endif
-      ! --- q1x and q2x
       call readqg0('QGpsi',q1,  q1x, ngp1)!      write(stdo,"('uuuiq q1 q1x=',3f9.4,3x,3f9.4,i5)") q1,q1x,ngp1
       call readqg0('QGpsi',q2,  q2x, ngp2)!      write(stdo,"('uuuiq q2 q2x=',3f9.4,3x,3f9.4,i5)") q2,q2x,ngp2
       allocate( ngvecpf1(3,ngp1), ngvecpf2(3,ngp2), ppovl(ngp1,ngp2) )
@@ -318,8 +310,16 @@ subroutine h_uumatrix()
         geig1 = readgeigf(q1,ispin) !readin IPW part of eigenfunctions
         geig2 = readgeigf(q2,ispin)         !endif
         !Since 1d20 padding in sugw.f90, uum(i,j) can be huge number for unuvailabe eigenfunctions.
-        uum(ii:ie,ii:ie,ispin) = matmul(transpose(dconjg(cphi1(:,ii:ie))),     matmul(ppj(:,:,ispin,ibb),cphi2(:,ii:ie))) &
-             +                   matmul(transpose(dconjg(geig1(1:ngp1,ii:ie))),matmul(ppovl,geig2(1:ngp2,ii:ie)))
+        !uum(ii:ie,ii:ie,ispin) = matmul(transpose(dconjg(cphi1(:,ii:ie))),     matmul(ppj(:,:,ispin,ibb),cphi2(:,ii:ie))) &
+        !     +                   matmul(transpose(dconjg(geig1(1:ngp1,ii:ie))),matmul(ppovl,geig2(1:ngp2,ii:ie)))
+        uum=0d0
+        do ispc=1,nspc !nspc=1 for lso=0,2, nspc=2 for lso=1
+           ioc=(ispc-1)*nlmto
+           iog=(ispc-1)*ngpmx
+           uum(ii:ie,ii:ie,ispin) = uum(ii:ie,ii:ie,ispin) &
+             +matmul(transpose(dconjg(cphi1(ioc+1:ioc+nlmto,ii:ie))),matmul(ppj(:,:,ispin,ibb),cphi2(ioc+1:ioc+nlmto,ii:ie))) &
+             +matmul(transpose(dconjg(geig1(iog+1:iog+ngp1, ii:ie))),matmul(ppovl,geig2(iog+1:iog+ngp2,ii:ie)))
+        enddo   
         write(ifuu(ispin)) -10 !dummy
         if(ixc==2) write(ifuu(ispin)) iqbz,ibb,ikbidx(ibb,iqbz)
         if(ixc==3) write(ifuu(ispin)) iqbz,ibb

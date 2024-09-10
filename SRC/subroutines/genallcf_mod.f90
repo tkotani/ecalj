@@ -9,7 +9,7 @@ module m_genallcf_v3 ! Readin starting data dat in GWinput
        nlnm(:),nlnmv(:), nlnmc(:), il(:,:), in(:,:), im(:,:),&
        nocc(:,:,:),nunocc(:,:,:),nindxc(:,:),lcutmxa(:)
   integer,protected,public:: nclass,natom,nspin,nl,nn,nnv,nnc,&
-       nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot, niw
+       nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot, niw,nlmtonspc
   real(8),protected,public::  plat(3,3),alat,deltaw,esmr,delta,tpioa,qval
   real(8), allocatable,protected,public:: pos(:,:),z(:),ecore(:,:) !,symgg(:,:,:)
   character(8),allocatable,protected,public:: spid(:)
@@ -336,6 +336,7 @@ contains
     read (ifhbe,*) nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg,nspc
     close(ifhbe)
     
+    nlmtonspc=nlmto*nspc
     call cputid(0); write(stdo,*) 'genallcf_v3'
   end subroutine genallcf_v3
 end module m_genallcf_v3
