@@ -241,7 +241,6 @@ contains
     allocate (ipvt(n,nbatch_in), info(nbatch_in))
 #ifdef __GPU
     GPU: block
-      use m_mem,only:writemem
       complex(kind=kp), allocatable, device :: c(:)
       type(c_devptr), allocatable, device :: a_dptr(:), c_dptr(:)
       integer :: array_size
@@ -249,27 +248,16 @@ contains
       allocate (c(array_size))
       allocate (a_dptr(nbatch_in), c_dptr(nbatch_in))
       istat = cudadevicesynchronize() 
-      call writemem('1')
       do ibatch = 1, nbatch_in
         a_dptr(ibatch) = c_devloc(a(lda_in*lda_in*(ibatch-1)+1))
         c_dptr(ibatch) = c_devloc(c(lda_in*lda_in*(ibatch-1)+1))
       enddo
-      istat = cudadevicesynchronize() 
-      call writemem('2')
       istat = cublas_init()
-      istat = cudadevicesynchronize() 
-      call writemem('3')
       istat = cublasZgetrfBatched(cublas_handle, n, a_dptr, lda_in, ipvt, info, nbatch_in)
-      istat = cudadevicesynchronize() 
-      call writemem('4')
       istat = cublasZgetriBatched(cublas_handle, n, a_dptr, lda_in, ipvt, c_dptr, lda_in, info, nbatch_in)
-      istat = cudadevicesynchronize() 
-      call writemem('5')
       !$acc kernels
          a(1:array_size) = c(1:array_size)
       !$acc end kernels
-      istat = cudadevicesynchronize() 
-      call writemem('6')
       deallocate(a_dptr, c_dptr, c)
     end block GPU
 #else
