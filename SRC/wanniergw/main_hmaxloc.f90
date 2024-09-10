@@ -26,8 +26,8 @@ subroutine hmaxloc()
     idtetf,ib1bz,idteti, nstar,irk,nstbz
   use m_qbze,only: Setqbze, nqbze,qbze
   use m_genallcf_v3,only: genallcf_v3, nclass,natom,nspin,nl,nn, &
-    nlmto,nlnmx, nctot,niw, alat,delta,deltaw,esmr,clabl,iclass, il, in, im, nlnm, &
-    plat, pos, ecore, konf,z, spid, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+    nlnmx, nctot,niw, alat,delta,deltaw,esmr,clabl,iclass, il, in, im, nlnm, &
+    plat, pos, ecore, konf,z, spid, nprecb,mrecb,mrece,nqbzt,nband,mrecg,ndima
   use m_read_Worb,only: s_read_Worb, s_cal_Worb, &
     nwf, nclass_mlwf, cbas_mlwf, nbasclass_mlwf, &
     classname_mlwf, iclassin, &
@@ -974,7 +974,7 @@ subroutine hmaxloc()
       call wmaxloc(ifmlw(is),ifmlwe(is), &
         qbz,umnk,cnk,eunk, &
         iko_ix,iko_fx,iko_i,iko_f, &
-        nwf,nqbz,nband,nlmto, is,dnk)
+        nwf,nqbz,nband,ndima, is,dnk)
       !$$$cccccccccccccccccccccccccccccccccccccccccccccccccc
       !$$$      write(6,ftox)' uuuu'
       !$$$      do iq=1,nqbz
@@ -1152,7 +1152,7 @@ subroutine hmaxloc()
     !! --------------------------------------------------------------
     ! --- Readin nlam index
     ifoc = iopen('@MNLA_CPHI',1,0,0)
-    ldim2 = nlmto
+    ldim2 = ndima
     read(ifoc,*)
     if(allocated(m_indx)) deallocate(m_indx,n_indx,l_indx,ibas_indx,ibasiwf)
     allocate(m_indx(ldim2),n_indx(ldim2),l_indx(ldim2),ibas_indx(ldim2))

@@ -372,10 +372,10 @@ contains
                 do im = 1, 2*l+1
                   ilm = ilm+1
                   auasaz=aus_zv(ilm,iv,1:3,ispx,ib) !coefficient for (u,s,gz)
-                  cphiw(iv,ispc) = cphiw(iv,ispc) + sum(dconjg(auasaz)*matmul(sab_rv(:,:,l+1,ispx,ib),auasaz)) 
             ! cphi corresponds to coefficients of augmented functions for {phi,phidot,gz(val=slo=0)}, which are not orthnormal. 
                   cphi(nlindx(1:2,l,ib)+im,iv,ispc)= matmul(auasaz(1:2),rotp(l,ispx,:,:,ib))
                   if (nlindx(3,l,ib) >= 0) cphi(nlindx(3,l,ib) + im,iv,ispc) = auasaz(3)
+                  cphiw(iv,ispc) = cphiw(iv,ispc) + sum(dconjg(auasaz)*matmul(sab_rv(:,:,l+1,ispx,ib),auasaz)) 
                 enddo
               enddo
             enddo
@@ -451,7 +451,7 @@ contains
           enddo
         enddo
         enddo
-        cphix=0d0 !     Augmentation wave part
+        cphix=0d0 !     Augmentation wave part. cphix is on the orthogonalized functions phototr.
         if(debug)write(stdo,ftox)' writechpigeig 1111'
         do ispc=1,nspc
           if(lso==1) ispx=ispc

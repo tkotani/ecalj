@@ -47,8 +47,8 @@ subroutine hwmatK_MPI()
        ,nq0i=>nq0ix,wqt=>wt,q0i
   use m_readeigen,only: onoff_write_pkm4crpa,init_readeigen,init_readeigen2, &
        init_readeigen_mlw_noeval,  nwf !,init_readeigen_phi_noeval
-  use m_genallcf_v3,only:niwg=>niw,alat,deltaw,esmr,icore,natom,nclass,iclass,nl,nlmto,nlnmc,nlnmv,nlnmc,nlnmx,nlnx
-  use m_genallcf_v3,only: genallcf_v3,ncore,nn,nnc,nspin,pos,plat, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+  use m_genallcf_v3,only:niwg=>niw,alat,deltaw,esmr,icore,natom,nclass,iclass,nl,nlnmc,nlnmv,nlnmc,nlnmx,nlnx
+  use m_genallcf_v3,only: genallcf_v3,ncore,nn,nnc,nspin,pos,plat, nprecb,mrecb,mrece,nqbzt,nband,mrecg,ndima
   use m_keyvalue,only: getkeyvalue
 !  use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
   use m_zmel_old,only: ppbafp_v2
@@ -995,7 +995,7 @@ endif
              ifrcw,ifrcwi, qbas,ginv,qibz,qbz,wbz,nstbz, wibz,nstar,irk,  &! & iindxk,
              iclass,nblocha,nlnmv, nlnmc,  icore,ncore, imdim, &
              ppb,    freq_r,freqx, wwx, expa, ua, dwdummy,  &! & deltaw,
-             nlmto,nqibz,nqbz,nctot0, &
+             ndima,nqibz,nqbz,nctot0, &
              nl,nnc,nclass,natom, &
              nlnmx,mdimx,nbloch,ngrp,nw_i,nw,nrw,niw,niwx,nq, &
              nblochpmx,ngpmx,ngcmx, &

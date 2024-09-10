@@ -1,5 +1,5 @@
 module m_zmel_old !for wannier part This will be removed soon. 
-  use m_genallcf_v3,only: nclass,natom,nspin,nl,nn,nnv,nnc, nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, niw, nband
+  use m_genallcf_v3,only: nclass,natom,nspin,nl,nn,nnv,nnc,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, niw, nband
   use m_genallcf_v3,only: alat,delta,deltaw,esmr,iclass,nlnmv,nlnmc,icore,ncore,plat,pos,z,ecore,mnl=>nlnm,nl,nn,nlnmx,il,in,im
   use m_hamindex,only: ngrp, symgg=>symops,invg=>invgx
   use m_rdpp,only: Rdpp, nxx,lx,nx,mdimx,nbloch,cgr,ppbrd,nblocha,done_rdpp

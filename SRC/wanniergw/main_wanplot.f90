@@ -175,7 +175,7 @@ subroutine wanplot()
   use m_xsfformat
   use m_expand_mesh
 !  use m_readhbe,only:Readhbe,nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
-  use m_genallcf_v3,only: genallcf_v3, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+  use m_genallcf_v3,only: genallcf_v3, nprecb,mrecb,mrece,nqbzt,nband,mrecg
 
   implicit none
   integer :: nwf,iko_ix,iko_fx,nband_wfn

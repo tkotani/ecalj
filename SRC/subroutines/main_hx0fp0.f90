@@ -11,7 +11,7 @@ subroutine hx0fp0()
   use m_readeigen,only:  Readeval,Init_readeigen,Init_readeigen2
   use m_read_bzdata,only: Read_bzdata, ngrp2=>ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,ginv, &
        dq_,qbz,wbz,qibz,wibz,qbzw, idtetf,ib1bz,idteti, nstar,irk,nstbz, wqt=>wt,q0i,nq0i ,nq0iadd,ixyz,nq0ix,neps
-  use m_genallcf_v3,only: Genallcf_v3, nclass,natom,nspin,nl,nn, nlmto,nlnmx, nctot, alat, esmr,clabl,iclass, il,in,im,nlnm, &
+  use m_genallcf_v3,only: Genallcf_v3, nclass,natom,nspin,nl,nn,nlnmx, nctot, alat, esmr,clabl,iclass, il,in,im,nlnm, &
        plat, pos,ecore, tpioa
   use m_hamindex,only: ngrp
   use m_pbindex,only: PBindex !,norbt,l_tbl,k_tbl,ibas_tbl,offset_tbl,offset_rev_tbl
@@ -32,7 +32,7 @@ subroutine hx0fp0()
   use m_readgwinput,only: ReadGwinputKeys, ecut,ecuts,mtet,ebmx,nbmx,nmbas,imbas,egauss !nmbas is number of magnetic atoms
   use m_qbze,only: Setqbze, nqbze,nqibze,qbze,qibze
 !  use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
-  use m_genallcf_v3,only: nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+  use m_genallcf_v3,only: nprecb,mrecb,mrece,nqbzt,nband,mrecg
   use m_readVcoud,only: Readvcoud,vcousq,zcousq !,ngb,ngc
   use m_x0kf,only: x0kf_zxq,deallocatezxq,deallocatezxqi,zxqi,zxq
   use m_llw,only: WVRllwR,WVIllwI,MPI__sendllw2
@@ -232,7 +232,7 @@ subroutine hx0fp0()
   if(nclass /= natom) call rx( ' nclass /= natom ') !! WE ASSUME iclass(iatom)= iatom
 !  call Readhbe()
   if(nqbz /=nqbzt ) call rx(' hx0fp0_sc: nqbz /=nqbzt  in hbe.d')
-  if(nlmto/=nlmtot) call rx('hx0fp0: nlmto/=nlmtot in hbe.d')
+!  if(nlmto/=nlmtot) call rx('hx0fp0: nlmto/=nlmtot in hbe.d')
   call ReadGWinputKeys()    !Readin GWinput
   !! Readin Offset Gamma --------  !      call ReadQ0P()
   !! Readin q+G. nqbze and nqibze are for adding Q0P related points to nqbz and nqibz.

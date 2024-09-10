@@ -2,13 +2,13 @@ module m_heftet
   contains
 subroutine heftet() bind(C)! Calculates the Fermi energy by tetrahedron method. 
   use m_read_bzdata,only: read_bzdata, idteti,qbz,qibz,dq_,nqibz,ntetf,nteti,ginv,nqbz
-  use m_genallcf_v3,only: genallcf_v3, nclass,natom,nspin,nl,nn,nnv,nnc, nlmto,nlnmx, nctot,niw
+  use m_genallcf_v3,only: genallcf_v3, nclass,natom,nspin,nl,nn,nnv,nnc,nlnmx, nctot,niw
   use m_genallcf_v3,only: alat, delta,deltaw,esmr,clabl,iclass, plat, pos,z,ecore, konf,nlnx,valn=>qval
   use m_hamindex,only:   Readhamindex,qtt,nqtt
   use m_readeigen,only: init_readeigen,readeval
   use m_tetrakbt,only: tetrakbt_init, kbt
   use m_keyvalue,only: getkeyvalue
-  use m_genallcf_v3,only: nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+  use m_genallcf_v3,only: nprecb,mrecb,mrece,nqbzt,nband,mrecg
 !  use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg  
   use m_mpi,only: MPI__Initialize
   use m_lgunit,only: m_lgunit_init

@@ -5,7 +5,7 @@ module m_x0kf
   use m_pkm4crpa,only : Readpkm4crpa
   use m_zmel,only: get_zmel_init_gemm, zmel !,get_zmel_init1,get_zmel_init2
   use m_freq,only: npm, nwhis
-  use m_genallcf_v3,only:  nsp=>nspin ,nlmto,nctot, nband
+  use m_genallcf_v3,only:  nsp=>nspin ,ndima,nctot, nband
   use m_read_bzdata,only:  nqbz,ginv,nqibz,  rk=>qbz,wk=>wbz
   use m_rdpp,only: nbloch
   use m_readqg,only: ngpmx,ngcmx
@@ -353,7 +353,7 @@ end module m_x0kf
 !!        When npm=2 we calculate negative energy part. (time-reversal asymmetry)
 !!
 ! note: zmel: matrix element <phi phi |M>
-!! nlmto   = total number of atomic basis functions within MT
+!! ndima   = total number of atomic basis functions within MT
 !! nqbz    = number of k-points in the 1st BZ
 
 ! z1p = <M_ibg1 psi_it | psi_itp> < psi_itp | psi_it M_ibg2 >

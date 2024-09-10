@@ -1,7 +1,7 @@
 !> Get the matrix element zmel =  ZO^-1 <MPB psi|psi> , where ZO is ppovlz(inverse of overlap matrix) !  "call get_zmel_init" return zmel 
 !  All dependencies (use foobar below ) are inputs (must be protected).
 module m_zmel
-  use m_genallcf_v3,only: nclass,natom,nspin,nl,nn,nnv,nnc, nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, niw,nband
+  use m_genallcf_v3,only: nclass,natom,nspin,nl,nn,nnv,nnc,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, niw,nband,ndima
   use m_genallcf_v3,only: alat,delta,deltaw,esmr,iclass,nlnmv,nlnmc,icore,ncore,plat,pos,z,ecore,mnl=>nlnm,nl,nn,nlnmx,il,in,im
   use m_hamindex,only: ngrp, symgg=>symops,invg=>invgx
   use m_rdpp,only: Rdpp, nxx,lx,nx,mdimx,nbloch,cgr,ppbrd,nblocha,done_rdpp
@@ -132,7 +132,7 @@ contains
     real(8) :: ppb(nlnmx,nlnmx,mdimx,nclass) ! ppb= <Phi(SLn,r-R)_q,isp1 |Phi(SL'n',r-R)_qk,isp2 B_k(S,i,rot^{-1}(r-R))>
     logical:: iprx,zmelconjg,debug,cmdopt0
     integer,allocatable:: ngveccR(:,:),igcgp2i_(:,:)
-    complex(8)::cphiq(nlmto,nband), cphim(nlmto,nband)
+    complex(8)::cphiq(ndima,nband), cphim(ndima,nband)
     complex(8),allocatable:: geigq(:,:),dgeigqk(:,:)
     integer:: invr,nt0,ntp0,nmtot,nqtot
     integer:: iasx(natom),icsx(natom),iatomp(natom),imdim(natom)
@@ -191,7 +191,7 @@ contains
       integer:: i
       qk =  q - rkvec ! qk = q-rk. rk is inside 1st BZ, not restricted to the irreducible BZ
       associate(cphitemp=> readcphif(q,ispq))
-        cphiq(1:nlmto,1:ntq) = cphitemp(1:nlmto,itq(1:ntq)) 
+        cphiq(1:ndima,1:ntq) = cphitemp(1:ndima,itq(1:ntq)) 
       endassociate
       cphim = readcphif(qk, ispm) 
       symope= symgg(:,:,irot)
@@ -495,7 +495,7 @@ end module m_zmel
 !     logical:: iprx,debug=.false.,cmdopt0
 !     logical:: zmelconjg
 !     integer,allocatable:: ngveccR(:,:)
-!     complex(8)::cphiq(nlmto,nband), cphim(nlmto,nband)
+!     complex(8)::cphiq(ndima,nband), cphim(ndima,nband)
 !     complex(8):: geigq(ngpmx,nband),dgeigqk(ngpmx,nband)
 !     integer:: invr,nt0,ntp0,nmtot,nqtot
 !     integer:: iasx(natom),icsx(natom),iatomp(natom),imdim(natom)
@@ -509,7 +509,7 @@ end module m_zmel
 !     ! nbloch     = total no. product basis within MT
 !     !           if(mdimx /= maxval(mdim) ) call rx( 'psi2b_v3: wrong mdimx')
 !     !           if(sum(mdim(iclass(1:natom)))/= nbloch ) call rx( 'psi2b_v3: wrong nbloch')
-!     !           if(sum(nlnmv(iclass(1:natom)))/=nlmto) call rx( ' psi2b_v3:sum(nlnmv)/= nlmto')
+!     !           if(sum(nlnmv(iclass(1:natom)))/=ndima) call rx( ' psi2b_v3:sum(nlnmv)/= ndima')
 !     !           if(sum(ncore(iclass(1:natom)))/= nctot) call rx( "psicb_v3:sum(ncore) wrong")
 !     !           if(ncc/=0 .AND. ncc/=nctot) call rx( "psicb_v3: ncc/=0 and ncc/=ncctot")
 !     !! zmelp(igc(qi),it(qk),itp(q)) = <igc it(for q2+G2) |itp(for q1+G1)>
@@ -563,7 +563,7 @@ end module m_zmel
 !     if(nmtot<=0.or.nqtot<=0) return
 !     qk =  q - rkvec ! qk = q-rk. rk is inside 1st BZ, not restricted to the irreducible BZ
 !     associate(cphitemp=> readcphif(q,ispq))    
-!       cphiq(1:nlmto,1:ntq) = cphitemp(1:nlmto,itq(1:ntq)) 
+!       cphiq(1:ndima,1:ntq) = cphitemp(1:ndima,itq(1:ntq)) 
 !     endassociate
 !     cphim = readcphif(qk, ispm) 
 !     symope= symgg(:,:,irot)

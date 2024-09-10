@@ -11,7 +11,7 @@ subroutine hsfp0() bind(C)
        nstar,irk,nstbz, lxklm,dmlx,epinvq0i,wklm, wqt=>wt,q0i,nq0i
   use m_hamindex,only: ngrp, symgg=>symops
   use m_genallcf_v3,only: Genallcf_v3, &
-       nclass,natom,nspin,nl,nn, nlmto,nlnmx, nctot,niw, &
+       nclass,natom,nspin,nl,nn, ndima,nlnmx, nctot,niw, &
        alat,delta,deltaw,esmr_in=>esmr,clabl,iclass, il,in,im,nlnm, &
        plat, pos,z,ecore,  konf,nlnx
   use m_keyvalue,only: Getkeyvalue
@@ -22,8 +22,8 @@ subroutine hsfp0() bind(C)
        MPI__Initialize,MPI__real8send,MPI__real8recv, & !MPI__sxcf_rankdivider,
        MPI__root,MPI__Broadcast,MPI__rank,MPI__size,MPI__allreducesum, &
        MPI__consoleout
-!  use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
-  use m_genallcf_v3,only: nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+!  use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,ndimat,nqbzt,nband,mrecg
+  use m_genallcf_v3,only: nprecb,mrecb,mrece,nqbzt,nband,mrecg
   use m_lgunit,only: m_lgunit_init
   use m_freq,only: freq01
   use m_anf,only:  Anfcond, laf
@@ -430,7 +430,7 @@ subroutine hsfp0() bind(C)
   !     noccxv = maxocc (ifev,nspin, ef+0.5d0*esmr, nband,nqbz)  ! maximum no. of occupied valence states
   !     maxocc seems to give (the maxmum number of occ + 1).
 
-  call init_readeigen2()!mrecb,nlmto,mrecg) !initialize m_readeigen
+  call init_readeigen2()!mrecb,ndima,mrecg) !initialize m_readeigen
   call Getkeyvalue("GWinput","QPNT_nbandrange",nss,2,default=(/-99997,-99997/) )
 
   if( .NOT. tote) then
@@ -691,7 +691,7 @@ subroutine hsfp0() bind(C)
           nstar,irkip(is,:,:,:), &
           freq_r,freqx, wwx, &
           dwdummy, ecore(:,is), &
-          nlmto,nqibz,nqbz,nctot, &
+          ndima,nqibz,nqbz,nctot, &
           nbloch,ngrp, nw_i,nw,  niw,niwx,nq, &
           nblochpmx,ngpmx,ngcmx, &
           wgt0,nq0i,q0i, symgg,alat, nband, ifvcfpout, &

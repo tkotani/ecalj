@@ -18,13 +18,13 @@ subroutine hpsig_MPI()
   use m_hamindex,only:   readhamindex,ngrp
   use m_readeigen,only:init_readeigen,init_readeigen2,readcphif,readgeigf
   use m_read_bzdata,only: read_bzdata,qbz,nqbz,nqibz,nqbz,qbas=>qlat,nq0i,q0i
-  use m_genallcf_v3, ncore2=>ncore,nrxx=>nrx !, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+  use m_genallcf_v3, ncore2=>ncore,nrxx=>nrx !, nprecb,mrecb,mrece,ndimat,nqbzt,nband,mrecg
   use m_keyvalue,only: getkeyvalue
   use m_read_Worb,only: s_read_Worb, s_cal_Worb, &
        nwf, nclass_mlwf, cbas_mlwf, nbasclass_mlwf, &
        classname_mlwf, iclassin, &
        iphi, iphidot, nphi, nphix
-!  use m_readhbe,only: readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+!  use m_readhbe,only: readhbe, nprecb,mrecb,mrece,ndimat,nqbzt,nband,mrecg
   ! RS: MPI module
   !      use rsmpi
   !      use rsmpi_rotkindex
@@ -41,7 +41,7 @@ subroutine hpsig_MPI()
   ! nw,incwf,natom,nclass,ipos,igrp,
   !     & iinvg,nspin,nl,nn,nnv,nnc,
   !     o                   inindx,inindxv,inindxc,iiclass,             !l,n, dimensions
-  !     d                   nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, !l,n,  dimensions
+  !     d                   ndima,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, !l,n,  dimensions
   !     o                   izdummy,
   !     o   iil,iin,iim,   iilnm, i_mnl, ! l,n,m for Phi ! w(i_mnl)=> mnl(ic) for all electron
   !     o   iilv,iinv,iimv,iilnmv,i_mnlv,! l,n,m for Phi
@@ -51,7 +51,7 @@ subroutine hpsig_MPI()
   integer(4) &
        nw_input, &
        !     &   ifhbe,
-       !     &   nprecb,mrecb,mrece,nlmtot,nqbzt,nband,
+       !     &   nprecb,mrecb,mrece,ndimat,nqbzt,nband,
        i,nq0ix,ngrpmx,mxx,nqbze,nqibze,ini,ix,ngrpx &
        ,mdimx,nbloch,nblochpmx,ifvcfpout,ndummy1,ndummy2,ifcphi,is,nwp, &
        ifepscond,nxx,ifvxcpout,ifgb0vec &
@@ -180,7 +180,7 @@ subroutine hpsig_MPI()
   !      if(ngrp/= ngrp2) stop 'ngrp inconsistent: BZDATA and LMTO GWIN_V2'
   !---  These are allocated and setted by genallcf_v3
   !      integer(4)::  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
-  !     o  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot,niw,nw
+  !     o  ndima,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot,niw,nw
   !      real(8) :: alat,ef, diw,dw,delta,deltaw,esmr
   !      character(120):: symgrp
   !      character(6),allocatable :: clabl(:)
@@ -201,8 +201,8 @@ subroutine hpsig_MPI()
 
   ! --- read dimensions of h,hb
   !      ifhbe      = iopen('hbe.d',1,0,0)
-  !      read (ifhbe,*) nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
-  !      if(nlmto/=nlmtot) stop ' hx0fp0: nlmto/=nlmtot in hbe.d'
+  !      read (ifhbe,*) nprecb,mrecb,mrece,ndimat,nqbzt,nband,mrecg
+  !      if(ndima/=ndimat) stop ' hx0fp0: ndima/=ndimat in hbe.d'
   !      if(nqbz /=nqbzt ) stop ' hx0fp0: nqbz /=nqbzt  in hbe.d'
 !  call Readhbe()
 
@@ -291,14 +291,14 @@ subroutine hpsig_MPI()
   !! initiallization to get eigenfunctions
   call Readhamindex()
   call init_readeigen()!nband,mrece) !initialization of readEigen
-  call init_readeigen2()!mrecb,nlmto,mrecg)
+  call init_readeigen2()!mrecb,ndima,mrecg)
   call readngmx('QGpsi',ngpmx)
   allocate( geig1(ngpmx,nband) )
   if (myproc == 0) write(6,*) 'end of initialization'
 
   ! --- Readin nlam index
   ifoc = iopen('@MNLA_CPHI',1,0,0)
-  ldim2 = nlmto
+  ldim2 = ndima
   read(ifoc,*)
   allocate(m_indx(ldim2),n_indx(ldim2),l_indx(ldim2),ibas_indx(ldim2))
   do ix =1,ldim2
@@ -378,7 +378,7 @@ subroutine hpsig_MPI()
        call getc1c2(phitotr,r0g, &
        iphi,iphidot,n_indx,l_indx,m_indx,ibas_indx, &
        rr,nrofi,rmax,nphi,nc_max, &
-       nwf,nlmto,nrx,nl,nn,nbas,nspin,nphix, &
+       nwf,ndima,nrx,nl,nn,nbas,nspin,nphix, &  !ndima =>ndima
        c1,c2)
 
   if (myproc == 0) then
@@ -476,17 +476,17 @@ subroutine hpsig_MPI()
              rr,nrofi,rmax,aa,bb, &
              n_indx,l_indx,m_indx,ibas_indx, &
              ngvecpf1,nphi, &
-             lxx,ngp1,nwf,nlmto,nbas,nrx,nphix, &
+             lxx,ngp1,nwf,ndima,nbas,nrx,nphix, &
              qgg)
         !      write(*,*)'qggmat done'
      endif
 
      ! --- < phi | g >
-     allocate ( phig(nlmto,nphix,nwf,nspin) )
+     allocate ( phig(ndima,nphix,nwf,nspin) )
      call phigmat(iphi,iphidot,c1,c2,phitoto,phitotr, &
           rr,nrofi,rmax,aa,bb,r0g,ghead, &
           n_indx,l_indx,m_indx,ibas_indx,nphi,nc_max, &
-          nwf,nlmto,nn,nl,nbas,nrx,nspin,nphix, &
+          nwf,ndima,nn,nl,nbas,nrx,nspin,nphix, &
           phig)
      !      write(*,*)'phigmat done'
 
@@ -495,14 +495,14 @@ subroutine hpsig_MPI()
      do 1050 ispin=1,nspin
 
         ! ... MT part
-        !r   ldim2 = nlmto
+        !r   ldim2 = ndima
         !r   n_indx   (1;ldim2) : n index (phi=1 phidot=2 localorbital=3)
         !r   l_indx   (1:ldim2) : l index
         !r   ibas_indx(1:ldim2) : ibas index.
-        allocate( cphi1 (nlmto,nband) )
-        cphi1= readcphif(q1,ispin) !    call readcphi(q1, nlmto, ispin, quu, cphi1)
+        allocate( cphi1 (ndima,nband) )
+        cphi1= readcphif(q1,ispin) !    call readcphi(q1, ndima, ispin, quu, cphi1)
         !   call checkagree(q1,q1x,' q1 ne quu')
-        do 1020 ia = 1,nlmto
+        do 1020 ia = 1,ndima
            do j1= iko_ixs(ispin),iko_fxs(ispin)
               do iwf = 1,nwf
                  do j   = 1,nphi(iwf)
@@ -644,7 +644,7 @@ end subroutine hpsig_MPI
 subroutine  getc1c2(phitotr,r0g, &
      iphi,iphidot,n_indx,l_indx,m_indx,ibas_indx, &
      rr,nrofi,rmax,nphi,nc_max, &
-     nwf,nlmto,nrx,nl,nn,nbas,nspin,nphix, &
+     nwf,ndima,nrx,nl,nn,nbas,nspin,nphix, &
      c1,c2)
   implicit integer (i-n)
   implicit real*8(a-h,o-z)
@@ -652,8 +652,8 @@ subroutine  getc1c2(phitotr,r0g, &
        rr(nrx,nbas),rmax(nbas), &
        c1(nphix,nwf,nspin),c2(nphix,nwf,nspin)
   integer(4) :: iphi(nphix,nwf),iphidot(nphix,nwf), &
-       n_indx(nlmto),l_indx(nlmto),m_indx(nlmto), &
-       ibas_indx(nlmto),nrofi(nbas),nphi(nwf), &
+       n_indx(ndima),l_indx(ndima),m_indx(ndima), &
+       ibas_indx(ndima),nrofi(nbas),nphi(nwf), &
        nc_max(0:nl-1,nbas)
 
 
@@ -731,7 +731,7 @@ subroutine qggmat(q,alat,plat,qlat, &
      rr,nrofi,rmax,aa,bb, &
      n_indx,l_indx,m_indx,ibas_indx, &
      ngvec,nphi, &
-     lxx,ng,nwf,nlmto,nbas,nrx,nphix, &
+     lxx,ng,nwf,ndima,nbas,nrx,nphix, &
      qgg)
   ! < q+G | g> where q+G denotes IPW, zero within MT sphere
   ! g(r) = Ag exp(-(r/r0)**2)
@@ -746,10 +746,10 @@ subroutine qggmat(q,alat,plat,qlat, &
        rr(nrx,nbas),rmax(nbas),aa(nbas),bb(nbas), &
        g(3),qg(3),ag(nphix,nwf)
   integer(4) :: iphi(nphix,nwf),nrofi(nbas),ntail(nphix,nwf), &
-       n_indx(nlmto),l_indx(nlmto),m_indx(nlmto),ibas_indx(nlmto), &
+       n_indx(ndima),l_indx(ndima),m_indx(ndima),ibas_indx(ndima), &
        ngvec(3,ng),nphi(nwf)
 
-  integer(4) :: ng,nwf,nlmto,nbas,nrx
+  integer(4) :: ng,nwf,ndima,nbas,nrx
   real(8) :: absqg,tripl,pi,rbas(3,nphix,nwf), &
        alat,tpiba,tpibaqlat(3,3),voltot
   real(8),allocatable :: cy(:),yl(:),rtail(:,:,:),rg(:,:,:), &
@@ -890,7 +890,7 @@ end subroutine qggmat
 subroutine phigmat(iphi,iphidot,c1,c2,phitoto,phitotr, &
      rr,nrofi,rmax,aa,bb,r0g,ghead, &
      n_indx,l_indx,m_indx,ibas_indx,nphi,nc_max, &
-     nwf,nlmto,nn,nl,nbas,nrx,nspin,nphix, &
+     nwf,ndima,nn,nl,nbas,nrx,nspin,nphix, &
      phig)
   ! < phi | g>
   ! g = c1*phi + c2*phidot, which is conneted to the gaussian tail
@@ -898,14 +898,14 @@ subroutine phigmat(iphi,iphidot,c1,c2,phitoto,phitotr, &
   implicit integer (i-n)
   implicit real*8 (a-h,o-z)
 
-  real(8) :: phig(nlmto,nphix,nwf,nspin), &
+  real(8) :: phig(ndima,nphix,nwf,nspin), &
        phitoto(nrx,0:nl-1,nn,nbas,nspin), &
        phitotr(nrx,0:nl-1,nn,nbas,nspin)
   real(8) :: rr(nrx,nbas),rmax(nbas),aa(nbas),bb(nbas), &
        c1(nphix,nwf,nspin),c2(nphix,nwf,nspin), &
        rphi(nrx),rhead(nrx),r0g(nphix,nwf)
   integer(4) :: iphi(nphix,nwf),iphidot(nphix,nwf),nrofi(nbas), &
-       n_indx(nlmto),l_indx(nlmto),m_indx(nlmto),ibas_indx(nlmto), &
+       n_indx(ndima),l_indx(ndima),m_indx(ndima),ibas_indx(ndima), &
        nphi(nwf),nc_max(0:nl-1,nbas)
   logical :: ghead
 
@@ -959,7 +959,7 @@ subroutine phigmat(iphi,iphidot,c1,c2,phitoto,phitotr, &
 
            endif ! ghead
 
-           do inlm = 1,nlmto
+           do inlm = 1,ndima
               ibas = ibas_indx(inlm)
               il   = l_indx(inlm)
               im   = m_indx(inlm)

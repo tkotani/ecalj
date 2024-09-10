@@ -9,12 +9,12 @@ module m_genallcf_v3 ! Readin starting data dat in GWinput
        nlnm(:),nlnmv(:), nlnmc(:), il(:,:), in(:,:), im(:,:),&
        nocc(:,:,:),nunocc(:,:,:),nindxc(:,:),lcutmxa(:)
   integer,protected,public:: nclass,natom,nspin,nl,nn,nnv,nnc,&
-       nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot, niw,nlmtonspc
+       nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot, niw,ndimanspc !ndima,
   real(8),protected,public::  plat(3,3),alat,deltaw,esmr,delta,tpioa,qval
   real(8), allocatable,protected,public:: pos(:,:),z(:),ecore(:,:) !,symgg(:,:,:)
   character(8),allocatable,protected,public:: spid(:)
   character(8),allocatable,protected,public :: clabl(:)
-  integer,protected,public:: nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg,nspc !nspc=2 for so=1, zero otherwize.
+  integer,protected,public:: nprecb,mrecb,mrece,ndima,nqbzt,nband,mrecg,nspc !nspc=2 for so=1, zero otherwize.
   private
   logical,protected,private:: done_genallcf_v3=.false.
 !  integer,allocatable,protected,private:: &
@@ -39,7 +39,7 @@ contains
     ! We may need to clean them up in modern fortran.
     !! --------------------------------------------------------
     integer:: ifhbe
-    integer::incwfx,ifec,i,j, lmx, lmx2,nlmto2,ifi,ig,is,ix,ixoff,lx
+    integer::incwfx,ifec,i,j, lmx, lmx2,ifi,ig,is,ix,ixoff,lx
     integer:: infwfx,ret, n1,n2,n3,imagw,n,ic
     logical :: nocore,readon
     real(8)::efin
@@ -48,11 +48,12 @@ contains
     integer,allocatable::ncwf2(:,:,:),  ooo(:,:,:), nindxv(:,:),occv(:,:,:),unoccv(:,:,:), occc(:,:,:),unoccc(:,:,:),ncwf(:,:,:)
     integer:: ia,l,m,ic1,isp,lt,nt,nsp,nr,ncorex,ifix
     real(8)::a,b,zz, efdummy,dw,diw,pi
-    integer:: nwdummy,ict,ind,indv,l2,lm
+    integer:: nwdummy,ict,ind,indv,l2,lm,lmxax1
     if(done_genallcf_v3) call rx('genallcf_v3 is already called')
     done_genallcf_v3=.true.
     open(newunit=ifi,file='LMTO',form='unformatted')
-    read(ifi) natom,alat,plat,nspin,nl,nnv,nnc,nrx,qval !,n1,n2,n3
+    read(ifi) natom,alat,plat,nspin,lmxax1,nnv,nnc,nrx,qval !,n1,n2,n3
+    nl=lmxax1
     allocate(pos(3,natom))    !positions of atoms
     nclass = natom  !We set nclass = natom through the GW calculations
     allocate(clabl(natom),z(natom),spid(1:natom))
@@ -191,11 +192,11 @@ contains
     indexcoremto: block
       lmx    = 2*(nl-1)
       lmx2   = (lmx+1)**2
-      nlmto=0
+      ndima=0
       do ic=1,natom
-         nlmto=nlmto+sum([((2*l+1)*nindxv(l+1,iclass(ic)),l=0,nl-1)])
+         ndima=ndima+sum([((2*l+1)*nindxv(l+1,iclass(ic)),l=0,nl-1)])
       enddo
-      nlmto2 = nlmto*nlmto
+!      ndima2 = ndima*ndima
       nn  =  maxval(nindxv(1:nl,1:nclass)+nindxc(1:nl,1:nclass))
       allocate(nindx(nl,nclass),nocc(nl,nn,nclass),nunocc(nl,nn,nclass))
       reindxblock: block
@@ -333,10 +334,10 @@ contains
     endblock coreblock
 !hbe
     open(newunit=ifhbe, file='hbe.d', action='read')
-    read (ifhbe,*) nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg,nspc
+    read (ifhbe,*) nprecb,mrecb,mrece,ndima,nqbzt,nband,mrecg,nspc
     close(ifhbe)
     
-    nlmtonspc=nlmto*nspc
+    ndimanspc=ndima*nspc
     call cputid(0); write(stdo,*) 'genallcf_v3'
   end subroutine genallcf_v3
 end module m_genallcf_v3
@@ -369,13 +370,13 @@ contains
 end module m_ReadEfermi
 
 ! module m_readhbe
-!   integer,protected:: nprecb,nlmtot,nqbzt,nband,nspc !nspc=2 for so=1, zero otherwize.
+!   integer,protected:: nprecb,ndima,nqbzt,nband,nspc !nspc=2 for so=1, zero otherwize.
 !   integer:: mrecb,mrece,mrecg !these can not be protected because of bug of ifort?
 ! contains
 !   subroutine readhbe()
 !     integer:: ifhbe
 !     open(newunit=ifhbe, file='hbe.d', action='read')
-!     read (ifhbe,*) nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg,nspc
+!     read (ifhbe,*) nprecb,mrecb,mrece,ndima,nqbzt,nband,mrecg,nspc
 !     close(ifhbe)
 !   end subroutine readhbe
 ! end module m_readhbe
