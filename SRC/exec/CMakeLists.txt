@@ -49,7 +49,11 @@ if(FC MATCHES "gfortran")
   endif()
   set(LIBM -lmkl_rt) 
 elseif(FC MATCHES "ifort")
-  set(CMAKE_Fortran_COMPILER mpiifort) # compiler
+  set(CMAKE_Fortran_COMPILER mpiifort)
+  find_program(MPIIFORT_COMPILER mpiifort)
+  if(NOT MPIIFORT_COMPILER) 
+    set(CMAKE_Fortran_COMPILER mpifort)
+  endif()
   set(CMAKE_Fortran_FLAGS "-init:snan -fpic -assume byterecl") # compile flags
   set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -traceback")
   set(LIBM -qmkl=parallel) 

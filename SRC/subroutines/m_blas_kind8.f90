@@ -270,6 +270,7 @@ contains
         call zgetrf(n,n,a(lda_in*lda_in*(ibatch-1)+1),lda_in,ipvt(1,ibatch),info(ibatch))
         call zgetri(n,  a(lda_in*lda_in*(ibatch-1)+1),lda_in,ipvt(1,ibatch),work,lwork,info(ibatch))
       enddo
+      istat = info(1)
     end block CPU
 #endif
     deallocate(ipvt, info)
