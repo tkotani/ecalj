@@ -472,9 +472,10 @@ contains
         if(debug)write(stdo,ftox)' writechpigeig 2222'  
         !   iqqisp= isp + nsp*(iq-1)
         cphix(1:ndima,1:nspc,nev+1:nbandmx)=1d20 !padding       !         write(ifcphi),  rec=iqqisp)  cphix(1:ndima,1:nbandmx)
-        write(ifcphi)  cphix(1:ndima,1:nspc,1:nbandmx)          !         i=writem(ifcphim,rec=iqqisp,data=cphix(1:ndima,1:nbandmx)) ! close(ifigwb_)
+        write(ifcphi) reshape(cphix(1:ndima,1:nspc,1:nbandmx),shape=[ndima*nspc,nbandmx])
+        !         i=writem(ifcphim,rec=iqqisp,data=cphix(1:ndima,1:nbandmx)) ! close(ifigwb_)
         if(ngpmx/=0) geigr(1:ngpmx,1:nspc,nev+1:nbandmx)=1d20   ! padding  !  if(ngpmx/=0) write(ifgeig,  rec=iqqisp)  geigr(1:ngpmx,1:nbandmx,isp)
-        if(ngpmx/=0) write(ifgeig) geigr(1:ngpmx,1:nspc,1:nbandmx)
+        if(ngpmx/=0) write(ifgeig) reshape(geigr(1:ngpmx,1:nspc,1:nbandmx),shape=[ngpmx*nspc,nbandmx])
         if(debug)write(stdo,ftox)'end of writechpigeig'  
       endblock WriteCphiGeig
       if (lwvxc) close(ifiv)

@@ -10,7 +10,7 @@ subroutine h_uumatrix()
     dq_,wbz,qibz,wibz,qbzw, qbz, idtetf,ib1bz,idteti, nstar,irk,nstbz,  nq0i=>nq0ix,q0i
   use m_genallcf_v3,only: genallcf_v3, ncore2=>ncore,nrxx=>nrx, natom,nclass,nspin,nl,nn,nnv,nnc, &
        nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot,plat,pos,alat,nindx,& !nlmto,
-       nprecb,mrecb,mrece,ndima,nqbzt,nband,mrecg,nspc
+       nprecb,mrecb,mrece,ndima,nqbzt,nband,mrecg,nspc,nspx
   use m_keyvalue,only: getkeyvalue
   use m_pwmat,only: mkppovl2
   use m_ll,only: ll
@@ -48,7 +48,7 @@ subroutine h_uumatrix()
   real(8),allocatable :: bbv(:,:), qbandx(:,:),qband(:,:),eband(:)
   complex(8),parameter:: img=(0d0,1d0)
   complex(8),allocatable:: geig1(:,:),geig2(:,:),cphi1(:,:),cphi2(:,:) ,uum(:,:,:), ppovl(:,:),ppj(:,:,:,:)
-  complex(8):: phaseatom
+  complex(8):: phaseatom,aaa,bbb
   logical:: qbzreg, lbnds,cmdopt2,cmdopt0
   character(8) :: xt,head(2:3,2)
   character(4) charnum4
@@ -155,8 +155,8 @@ subroutine h_uumatrix()
     enddo
     read(ifbb,*)
     read(ifbb,*)nspin2
-    if(nspin /= nspin2) call rx('nspin is wrong!')
-    do is = 1,nspin
+    if(nspx /= nspin2) call rx('nspin is wrong!')
+    do is = 1,nspx
       read(ifbb,*)iko_ixs(is),iko_fxs(is)
     enddo
     close(ifbb)
@@ -164,7 +164,7 @@ subroutine h_uumatrix()
   head(2,1:2)=['UUU.','UUD.']
   head(3,1:2)=['UUq0U.','UUq0D.']
   if(mpi__root) then
-    do isp=1,nspin
+    do isp=1,nspx
       open(newunit=ifuu(isp),file=trim(head(ixc,isp))//charnum4(0),form='unformatted')
       if(ixc==2)then
         write(ifuu(isp))'nqbz,nbb,iko_ixs(isp),iko_fxs(isp)',isp
@@ -178,11 +178,11 @@ subroutine h_uumatrix()
   endif
   ! --- Set q1(j1range) q2(j2range); Note that the true q when we generate eigenfunctions are q1x and q2x.
   ! q1-q1x should be a G vector.  So you may need to take into account the phase shift to <u|u> vectors.
-  j1min = minval(iko_ixs(1:nspin)) !starting band index
-  j1max = maxval(iko_fxs(1:nspin))
+  j1min = minval(iko_ixs(1:nspx)) !starting band index
+  j1max = maxval(iko_fxs(1:nspx))
   j2min = j1min
   j2max = j1max
-  allocate( uum(j1min:j1max, j2min:j2max,nspin) ) ! uumatrix allocated
+  allocate( uum(j1min:j1max, j2min:j2max,nspx) ) ! uumatrix allocated
   if(cmdopt0('--qibzonly')) call set_qibz(plat,qbz,nqbz,symops,ngrp) !If only at qibz, we need to set irotg
   if (ixc == 2) nbbloop = nbb
   if (ixc == 3) nbbloop = nq0i
@@ -194,6 +194,9 @@ subroutine h_uumatrix()
     if(ixc == 2) dq=-bbv(:,ibb)  !q1(:) = qbz(:,iqbz)        !q2(:) = qbz(:,iqbz) + bbv(:,ibb)
     if(ixc == 3) dq=-q0i(:,ibb) !q1(:) = qbz(:,iqbz)         !q2(:) = qbz(:,iqbz) + q0i(:,ibb)
     if(sum(abs(dq))<1d-8) dq=(/1d-10,0d0,0d0/)
+    if(cmdopt0('--q2q1test')) then
+      dq=0d0
+    endif  
     absdq = sqrt(sum(dq**2))
     absqg2 = (2*pi/alat)**2 *sum(dq**2)
     absqg =sqrt(absqg2)
@@ -230,8 +233,8 @@ subroutine h_uumatrix()
     ! Note that exp(i(q1x-q2x)r) is expanded in the spherical bessel function within MT.
     ! MT part ldim2=ndima; n_indx(1;ldim2):n(phi=1 phidot=2 localorbital=3); l_indx(1:ldim2):l index ; ibas_indx(1:ldim2):ibas index.
     ispinloop02: do ispin=1,nspin
-      ii = iko_ixs(ispin)
-      ie = iko_fxs(ispin)
+!      ii = iko_ixs(ispin)
+!      ie = iko_fxs(ispin)
       ia1loop: do 10201 ia1 = 1,ndima
         ibas1= ibas_indx(ia1)
         ia2loop: do 10101 ia2 = 1,ndima
@@ -255,19 +258,25 @@ subroutine h_uumatrix()
   deallocate(ppbrd, rprodx, phij, psij, rphiphi, cy, yl)
   iqbz4uum: do 1070 iqbz = 1,nqbz  !qibzonly need to be improved to balance load in ranks.
     if(mod(iqbz-1,mpi__size)/=mpi__rank) cycle !MPI
-    if (cmdopt0('--qibzonly').and. irotg(iqbz)/=1)  cycle !only irreducible q point
+    if (cmdopt0('--qibzonly')) then
+      if(irotg(iqbz)/=1)  cycle !only irreducible q point
+    endif  
     write(stdo,ftox)'iq =',iqbz, 'out of',nqbz
-    do isp=1,nspin
+    do isp=1,nspx
       open(newunit=ifuu(isp),file=trim(head(ixc,isp))//charnum4(iqbz),form='unformatted')
     enddo
     if (ixc == 2) nbbloop = nbb
     if (ixc == 3) nbbloop = nq0i
     ibbloop: do 1080 ibb = 1,nbbloop
-      write(stdo,ftox)'  ibbloop iq =',ibb,iq
+!      write(stdo,ftox)'  ibbloop iq =',ibb,iq
       if(ixc == 2) then
         iqb = ikbidx(ibb,iqbz)
         q1(:) = qbz(:,iqbz)
-        q2(:) = qbz(:,iqbz) + bbv(:,ibb)
+        if(cmdopt0('--q2q1test')) then
+          q2(:) = qbz(:,iqbz)
+        else  
+          q2(:) = qbz(:,iqbz) + bbv(:,ibb)
+        endif  
         if (iqb < iqbz) then
           iqtmp = iqb
           do ibb2 = 1,nbb
@@ -279,7 +288,7 @@ subroutine h_uumatrix()
           enddo
           call rx('huumat: (iq,ib) error')
 1200      continue
-          do ispin = 1,nspin
+          do ispin = 1,nspx
             write(ifuu(ispin))-20
             write(ifuu(ispin))iqbz,ibb,iqtmp,ibbtmp
           enddo
@@ -301,23 +310,21 @@ subroutine h_uumatrix()
         ngvecpf2(i,1:ngp2) = ngvecpf2(i,1:ngp2) + ndg2(i)
       enddo
       call mkppovl2(alat,plat,qbas, ngp1,ngvecpf1, ngp2,ngvecpf2, nbas,rmax,pos, ppovl) !--- ppovl= <P_{q1+G1}|P_{q2+G2}>
-      ispinloop2: do 1050 ispin=1,nspin
+      ispinloop2: do 1050 ispin=1,nspx !note that nspx=nsp/nspc where nspc=2 for lso=1 (nspc=1 for lso=0,2)
         ii = iko_ixs(ispin)
         ie = iko_fxs(ispin)
         cphi1 = readcphif(q1,ispin) ! MT part of eigenfunctions 
         cphi2 = readcphif(q2,ispin) 
         geig1 = readgeigf(q1,ispin) ! IPW part of eigenfunctions
-        geig2 = readgeigf(q2,ispin) 
-        !Since 1d20 padding in sugw.f90, uum(i,j) can be huge number for unuvailabe eigenfunctions.
-        !uum(ii:ie,ii:ie,ispin) = matmul(transpose(dconjg(cphi1(:,ii:ie))),     matmul(ppj(:,:,ispin,ibb),cphi2(:,ii:ie))) &
-        !     +                   matmul(transpose(dconjg(geig1(1:ngp1,ii:ie))),matmul(ppovl,geig2(1:ngp2,ii:ie)))
+        geig2 = readgeigf(q2,ispin)
         uum=0d0
         do ispc=1,nspc ! For lso=0 or 2,ispin=1,nsp. For lso=1, ispin=1 ispc=1,2 nspc=2 
            ioc=(ispc-1)*ndima
            iog=(ispc-1)*ngpmx
-           uum(ii:ie,ii:ie,ispin) = uum(ii:ie,ii:ie,ispin) &
-             +matmul(transpose(dconjg(cphi1(ioc+1:ioc+ndima,ii:ie))),matmul(ppj(:,:,ispin,ibb),cphi2(ioc+1:ioc+ndima,ii:ie))) &
-             +matmul(transpose(dconjg(geig1(iog+1:iog+ngp1, ii:ie))),matmul(ppovl,geig2(iog+1:iog+ngp2,ii:ie)))
+           uum(ii:ie,ii:ie,ispin) =uum(ii:ie,ii:ie,ispin) &
+                + matmul(transpose(dconjg(cphi1(ioc+1:ioc+ndima,ii:ie))),&
+                matmul(ppj(1:ndima,1:ndima,ispc,ibb),cphi2(ioc+1:ioc+ndima,ii:ie))) & ! MT part
+                + matmul(dconjg(transpose(geig1(iog+1:iog+ngp1, ii:ie))), matmul(ppovl,geig2(iog+1:iog+ngp2,ii:ie))) !IPW part
         enddo   
         write(ifuu(ispin)) -10 !dummy
         if(ixc==2) write(ifuu(ispin)) iqbz,ibb,ikbidx(ibb,iqbz)
@@ -325,14 +332,13 @@ subroutine h_uumatrix()
         write(ifuu(ispin)) ((uum(j1,j2,ispin),j1=ii,ie),j2=ii,ie)
         checkwirte: block
           do j1=ii,ie; j2=j1 !; do j2=j2min,j2max !checkwrite  !if(j1==j2)
-            write(stdo,"('uuuiq isp=',i5,i2,' j1j2=',2i2,' q1 q2-q1=',3f8.4,x,3f8.4,' <u|u>=',2f9.4,x,f9.3)") &
-                 iqbz,ispin,j1,j2,q1,q1-q2,uum(j1,j2,ispin),abs(uum(j1,j2,ispin))
+            write(stdo,ftox)'uumatrix: iq isp=',iqbz,ispin,'j1j2=',j1,j2,'q1 q2-q1=',ftof(q1,4),ftof(q1-q2,4),&
+                 '<u|u>=',ftof(uum(j1,j2,ispin),4),'abs',ftof(abs(uum(j1,j2,ispin)))
           enddo !; enddo
         endblock checkwirte
 1050  enddo ispinloop2
-      write(stdo,*)' ============ result --- diagonal --- ==============',nspin,j1min,j1max,j2min,j2max
+      write(stdo,*)' ============ result --- diagonal --- ==============',nspx,j1min,j1max,j2min,j2max
       deallocate(ngvecpf1, ngvecpf2, ppovl)
-      close(ifuu(ispin))
 1080 enddo ibbloop
     close(ifuu(1))
     if(nspin==2) close(ifuu(2))
