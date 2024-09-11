@@ -158,7 +158,6 @@ subroutine hwmatK_MPI()
 
   real(8),allocatable:: freq_r(:)
 
-  logical ::smbasis
   integer:: ifpomat,nkpo,nnmx,nomx,ikpo,nn_,no,nss(2)
   real(8):: q_r(3)
   real(8),allocatable:: qrr(:,:)
@@ -825,29 +824,29 @@ endif
   iii=count(irk/=0) !ivsumxxx(irk,nqibz*ngrp)
   if (Is_IO_Root_RSMPI()) write(6,*) " sum of nonzero iirk=",iii, nqbz
   !... Read pomatr
-  if(smbasis()) then
-     call RSMPI_Stop('hwmatK_MPI: smbasis notimplemented!')
-     write(6,*)' smooth mixed basis : augmented zmel'
-     call getngbpomat(nqibz+nq0i, &
-          nnmx,nomx)
-     nkpo = nqibz+nq0i
-     ifpomat = iopen('POmat',0,-1,0) !oct2005
-     allocate( pomatr(nnmx,nomx,nkpo),qrr(3,nkpo),nor(nkpo),nnr(nkpo) )
-     do ikpo=1,nkpo
-        read(ifpomat) qrr(:,ikpo),nn_,no,iqx !readin reduction matrix pomat
-        !         write(6,"('smbasis: ikp q no nn=',i5,3f8.4,4i5)") ikp,qrr(:,ikpo),no,nn_
-        nnr(ikpo)=nn_
-        nor(ikpo)=no
-        read(ifpomat) pomatr(1:nn_,1:no,ikpo)
-     enddo
-     isx = iclose("POmat")
-     write(6,*)"Read end of POmat ---"
-  else !dummy
-     nkpo = 1
-     nnmx =1
-     nomx =1
-     allocate( pomatr(nnmx,nomx,nkpo), qrr(3,nkpo),nor(nkpo),nnr(nkpo) )
-  endif
+  ! if(smbasis()) then
+  !    call RSMPI_Stop('hwmatK_MPI: smbasis notimplemented!')
+  !    write(6,*)' smooth mixed basis : augmented zmel'
+  !    call getngbpomat(nqibz+nq0i, &
+  !         nnmx,nomx)
+  !    nkpo = nqibz+nq0i
+  !    ifpomat = iopen('POmat',0,-1,0) !oct2005
+  !    allocate( pomatr(nnmx,nomx,nkpo),qrr(3,nkpo),nor(nkpo),nnr(nkpo) )
+  !    do ikpo=1,nkpo
+  !       read(ifpomat) qrr(:,ikpo),nn_,no,iqx !readin reduction matrix pomat
+  !       !         write(6,"('smbasis: ikp q no nn=',i5,3f8.4,4i5)") ikp,qrr(:,ikpo),no,nn_
+  !       nnr(ikpo)=nn_
+  !       nor(ikpo)=no
+  !       read(ifpomat) pomatr(1:nn_,1:no,ikpo)
+  !    enddo
+  !    isx = iclose("POmat")
+  !    write(6,*)"Read end of POmat ---"
+  ! else !dummy
+  nkpo = 1
+  nnmx =1
+  nomx =1
+  allocate( pomatr(nnmx,nomx,nkpo), qrr(3,nkpo),nor(nkpo),nnr(nkpo) )
+!  endif
 
   !-----------------------------------------------------------
   ! calculate the correlated part of the self-energy SEc(qt,w)

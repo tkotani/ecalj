@@ -14,7 +14,7 @@ module m_genallcf_v3 ! Readin starting data dat in GWinput
   real(8), allocatable,protected,public:: pos(:,:),z(:),ecore(:,:) !,symgg(:,:,:)
   character(8),allocatable,protected,public:: spid(:)
   character(8),allocatable,protected,public :: clabl(:)
-  integer,protected,public:: nprecb,mrecb,mrece,ndima,nqbzt,nband,mrecg,nspc !nspc=2 for so=1, zero otherwize.
+  integer,protected,public:: nprecb,mrecb,mrece,ndima,nqbzt,nband,mrecg,nspc,nspx !nspc=2 for so=1, zero otherwize.
   private
   logical,protected,private:: done_genallcf_v3=.false.
 !  integer,allocatable,protected,private:: &
@@ -46,7 +46,7 @@ contains
     character(1000) :: tolchar
     real(8),   allocatable:: ecoret(:,:,:,:)
     integer,allocatable::ncwf2(:,:,:),  ooo(:,:,:), nindxv(:,:),occv(:,:,:),unoccv(:,:,:), occc(:,:,:),unoccc(:,:,:),ncwf(:,:,:)
-    integer:: ia,l,m,ic1,isp,lt,nt,nsp,nr,ncorex,ifix
+    integer:: ia,l,m,ic1,isp,lt,nt,nr,ncorex,ifix
     real(8)::a,b,zz, efdummy,dw,diw,pi
     integer:: nwdummy,ict,ind,indv,l2,lm,lmxax1
     if(done_genallcf_v3) call rx('genallcf_v3 is already called')
@@ -338,6 +338,7 @@ contains
     close(ifhbe)
     
     ndimanspc=ndima*nspc
+    nspx=nspin/nspc
     call cputid(0); write(stdo,*) 'genallcf_v3'
   end subroutine genallcf_v3
 end module m_genallcf_v3

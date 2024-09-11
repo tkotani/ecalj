@@ -1,9 +1,10 @@
 module m_hvccfp0
+  use m_ftox
+  use m_lgunit,only:stdo
   public hvccfp0
   private
   contains
-subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.
-  ! output  VCCFP : the coulomb matrix vcoul(nblochpmx,nblochpmx) for all qibz.
+subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCCFP : the coulomb matrix vcoul(nblochpmx,nblochpmx) for all qibz.
   !    strx: structure constant for e=0 (means 1/|r-r'| )
   use m_xlgen,only:lgen
   use m_lattic,only:lctoff
@@ -12,8 +13,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.
   use m_hamindex0,only:    Readhamindex0
   use m_read_bzdata,only: Read_bzdata, ginv,nqbz,qbz,nqibz,qibz,nq0i,wqt=>wt,q0i,nq0iadd
   use m_readqg,only:   readqg,readngmx
-  use m_mpi,only: MPI__Initialize,mpi__root, MPI__Broadcast,mpi__rank,mpi__size, &
-       MPI__consoleout!,mpi__iend,mpi__iini !,mpi__getrange
+  use m_mpi,only: MPI__Initialize,mpi__root, MPI__Broadcast,mpi__rank,mpi__size,MPI__consoleout!,mpi__iend,mpi__iini !,mpi__getrange
   use m_readgwinput,only: ReadGwinputKeys, keeppositivecou
   use m_lgunit,only: m_lgunit_init
   use m_vcoulq,only: vcoulq_4,mkjb_4,mkjp_4,genjh
@@ -23,43 +23,33 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.
   implicit none
   integer :: ifvcfpout,ifhvccfp,is,  lmxcg,if1011,if3011, ifplane,ngpmx, ngcmx, nblochpmx, nbloch,&
        ibas,ic,lxx,nxx,nrx,l,n,k,isx,kdummy, nkdmx,nkqmx,lmax,nkdest,nkrest,ngp,ngc,nlxx,i,lnjcg,lnxcg, &
-       nkd,nkq ,ibas1,ibas2,nlx1,nlx2, iqibz,ir,ig1,n1,n2, ngb,nev,nmx,iqx,ipl1,ipl2,igx1,igx2
-  integer:: igc,igc0,ifgb0vec,ifgb0vec1,ix, iy, iqxini, iqxend,imode, ngc0, ifvcfporg,nqbz_in,nblochpmx_in
-  integer:: ifprodmt,nl_r,lx_,nxx_r,nxdim,ibl1,nn,no,ngbnew, nmatch,ifpmatch,nmatch_q,ifpmatch_q,m,ifpomat,nbln,ibln,ngb_in,nnr,igc2
-  integer:: nnmx ,ngcnn,ngbo,ifgb0vec_a,ifgb0vec_b , ifvcoud,idummy
-  integer:: ifiwqfac,iqbz,iqbzx,nnn,ixyz,ifq0p,incwfin 
-  integer::  nqnumc,ifiqgc , mpi__iini, mpi__iend
-  real(8) ::  q(3),p(3),voltot, tripl,alat0,epsx, tol,as,tpiba,qb0(3,3),vol0,rdist0,qdist0,radd,qadd, &
-       a0,awald,alat1,tol1,r0,q0,awald0,qg(3),   absqg2,aaa,aaa12
-  real(8):: eee,eees, q_org(3),screenfac
-  complex(8):: pval,pslo,phasex
-  complex(8):: phasep,img=(0d0,1d0)
-  complex(8) :: xxx,trwv
-  real(8)::absqq,qqx(3), epsmx,aaaa, sss1,sss2,dnorm, qqq(3),QpGcut_Cou,quu(3)
+       nkd,nkq ,ibas1,ibas2,nlx1,nlx2, iqibz,ir,ig1,n1,n2, ngb,nev,nmx,iqx,ipl1,ipl2,igx1,igx2,&
+       igc,igc0,ifgb0vec,ifgb0vec1,ix, iy, iqxini, iqxend,imode, ngc0, ifvcfporg,nqbz_in,nblochpmx_in,&
+       ifprodmt,nl_r,lx_,nxx_r,nxdim,ibl1,nn,no,ngbnew, nmatch,ifpmatch,nmatch_q,ifpmatch_q,m,ifpomat,nbln,ibln,ngb_in,nnr,igc2,&
+       nnmx ,ngcnn,ngbo,ifgb0vec_a,ifgb0vec_b , ifvcoud,idummy,ifiwqfac,iqbz,iqbzx,nnn,ixyz,ifq0p,incwfin, &
+       nqnumc,ifiqgc , mpi__iini, mpi__iend
   integer,allocatable :: jcg(:),indxcg(:), lx(:),kmx(:),nblocha(:),nr(:),ificrb(:), &
        nx(:,:),ngvecp(:,:),ngvecc(:,:),ngvecci(:,:,:),iqibzx(:)
   integer,allocatable:: ngvecc0(:,:)
   integer,allocatable:: nx_r(:), ibl(:,:,:,:),imatcho(:),imatchn(:),imatcho_q(:),imatchn_q(:)
-  real(8),allocatable:: prodmt(:,:,:,:),rdmatch(:,:,:,:)
-  real(8),allocatable :: rmax(:), cg(:),rprodx(:,:,:,:),dlv(:,:),qlv(:,:),work(:),ngcn(:), &
-       rojb(:,:,:), sgbb(:,:,:,:),aa(:),bb(:),rofit(:),phi(:),psi(:)
-  real(8),allocatable:: wqfac(:),qbzwww(:,:)
-  real(8),allocatable :: rkpr(:,:,:),rkmr(:,:,:),rofi(:,:)
-  real(8),allocatable    :: eb(:)
-  complex(8) ,allocatable :: vcoul(:,:),geig(:,:),strx(:,:,:,:), &
-       sgpb(:,:,:,:),sgpp(:,:,:,:), fouvb(:,:,:,:),fouvp(:,:,:,:),vcoul0(:,:), &
-       s(:,:),sd(:,:),rojp(:,:,:) , vcoulnn(:,:)
-  complex(8),allocatable:: gbvec(:), ppovl(:,:), b0mat(:), hh1(:,:),oo1(:,:), vcoul_org(:,:),matp(:),matp2(:)
-  complex(8),allocatable:: ppmt(:,:,:,:),pmat(:,:),pomat(:,:),oon(:,:), hh(:,:),oox(:,:),ooxi(:,:),oo(:,:),zz(:,:),zzr(:)
-  logical :: checkeig, besseltest=.false. ,allochk=.false.,smbasis,debug=.false.,smbb, is_mix0vec,wvcc, cmdopt2,emptyrun,cmdopt0
+  real(8) ::  q(3),p(3),voltot, tripl,alat0,epsx, tol,as,tpiba,qb0(3,3),vol0,rdist0,qdist0,radd,qadd, &
+       a0,awald,alat1,tol1,r0,q0,awald0,qg(3),   absqg2,aaa,aaa12, eee,eees, q_org(3),screenfac,&
+       absqq,qqx(3), epsmx,aaaa, sss1,sss2,dnorm, qqq(3),QpGcut_Cou,quu(3)
+  real(8),allocatable:: prodmt(:,:,:,:),rdmatch(:,:,:,:), rmax(:), cg(:),rprodx(:,:,:,:),dlv(:,:),qlv(:,:),work(:),ngcn(:), &
+       rojb(:,:,:),sgbb(:,:,:,:),aa(:),bb(:),rofit(:),phi(:),psi(:),wqfac(:),qbzwww(:,:),rkpr(:,:,:),rkmr(:,:,:),rofi(:,:), eb(:)
+  real(8),parameter::pi  = 4d0*datan(1d0), fpi = 4d0*pi
+  complex(8):: pval,pslo,phasex, phasep,img=(0d0,1d0), xxx,trwv
+  complex(8) ,allocatable :: vcoul(:,:),geig(:,:),strx(:,:,:,:),sgpb(:,:,:,:),sgpp(:,:,:,:), fouvb(:,:,:,:),fouvp(:,:,:,:),&
+       vcoul0(:,:), s(:,:),sd(:,:),rojp(:,:,:) , vcoulnn(:,:), gbvec(:), ppovl(:,:), b0mat(:), hh1(:,:),oo1(:,:),vcoul_org(:,:),&
+       matp(:),matp2(:),ppmt(:,:,:,:),pmat(:,:),pomat(:,:),oon(:,:), hh(:,:),oox(:,:),ooxi(:,:),oo(:,:),zz(:,:),zzr(:)
+  logical :: checkeig, besseltest=.false. ,allochk=.false.,debug=.false.,smbb, is_mix0vec,wvcc, cmdopt2,emptyrun,cmdopt0
   character(20) :: xxt,outs=''
   character(3) :: charnum3
   character(10) :: i2char
   character(128):: vcoudfile,ixcc
-  real(8),parameter::pi  = 4d0*datan(1d0), fpi = 4d0*pi
   call MPI__Initialize()
-  emptyrun=cmdopt0('--emptyrun')
   call M_lgunit_init()
+  emptyrun=cmdopt0('--emptyrun')
   if( mpi__root) write(6,"(' mode=0,3,202 (0 and 3 give the same results for given bas)' )")
   if(cmdopt2('--job=',outs)) then; read(outs,*) imode
   elseif( mpi__root ) then       ; read(5,*) imode;   endif
@@ -184,12 +174,14 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.
   allocate(cg(lnjcg),jcg(lnjcg),indxcg(lnxcg))
   call scg(lmxcg,cg,indxcg,jcg)
   if(allochk) write(6,*)' end of scg: cg coefficients generated.'
-  !! Apr2021 gomi. we still have a problem of posititve definiteness of the Coulomb matrix. Probably because of this routine   ! These default values ok?
+  
+  !Apr2021 gomi. we still have a problem of posititve definiteness of the Coulomb matrix. Probably because of this routine   ! These default values ok?
   awald0 = 2d0   ! See p_lat_0
   tol    = 1d-14 ! It was 1d-9 before aug2019. Sakakibara had a problem when he treat slab model of KF for 18 atoms per cell. --> The lowest eigenvalue of coulomb matrix becomes negative.
   nkdmx  = 8000  !    800->8000 to treat GdN. !31oct2019
   nkqmx  = 8000  !    nkdmx and nqkmx should be determined automatically in future.
   lmax   = 2*lxx  !lxx or lmax=6 ???
+
   vol0= abs(tripl(plat,plat(1,2),plat(1,3)))
   as   = awald0
   alat1= alat
@@ -315,7 +307,6 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.
         enddo
      allocate(oox,source=oo )
      write(6,*)' --- goto eigen check1 --- '
-!     allocate( vcoul0,source=vcoul(1:ngb,1:ngb) )
      if(allochk) write(*,*) 'allocate(hh(ngb,ngb),oo(ngb,ngb),oox,zz,eb,zzr)'
      allocate(hh(ngb,ngb),zz(ngb,ngb),eb(ngb),zzr(ngb))
      hh  = - vcoul(1:ngb,1:ngb)

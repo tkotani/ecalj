@@ -4,11 +4,13 @@
 ! note: we have to call init_foobar to call readeval, readcphi, readgeig.
 ! ----------------
 module m_readeigen
+  use m_ftox
+  use m_lgunit,only:stdo
   use m_iqindx_qtt,only: Iqindx2_, Init_iqindx_qtt
   use m_hamindex,only:   ngpmx, nqtt, nqi, qtt,iqimap, iqmap,igmap,shtvg,qlat,symops
   use m_hamindex,only:   plat,invgx, miat,tiat,dlmm,shtvg,symops,lmxax,nbas
   use m_read_bzdata,only: ginv
-  use m_genallcf_v3,only: nsp =>nspin ,ndima,ndimanspc, mrecb,mrece,mrecg,nband,nspc !mrecb... moved from m_readhbe 2024-9-10
+  use m_genallcf_v3,only: nsp =>nspin ,ndima,ndimanspc, mrecb,mrece,mrecg,nband,nspc,nspx !mrecb... moved from m_readhbe 2024-9-10
   !! qtt(1:3, nqtt)  :q-vector in full BZ (no symmetry) in QGpsi, QGcou
   !! qtti(1:3,nqi)   :eivenvalues, eigenvectors are calculated only for irr=1 in QGpsi (See lqg4gw).
   implicit none
@@ -61,11 +63,9 @@ contains
     call readgeig(q,ngpmx*nspc,isp,qu,geigen)
   end function readgeigf
   subroutine readgeig(q,ngp_in,isp, qu,geigen)!,fpmt)
-    use m_lgunit,only:stdo
     use m_ftox
     use m_rotwave,only: Rotipw
     use m_ftox
-    use m_lgunit,only:stdo
     implicit none
     !logical,optional,intent(in):: fpmt
     real(8),intent(in) :: q(3)
@@ -163,10 +163,10 @@ contains
   end subroutine readcphi
   subroutine init_readeigen() ! initialization. Save QpGpsi EVU EVD to arrays.--
     integer:: iq,is,ifiqg,nnnn,ikp,isx,mrecb_in,ik,ib,verbose
-    integer:: ifev,nband_ev, nqi_, nsp_ev ,ngpmx_ ,nqtt_
+    integer:: ifev,nband_ev, nqi_, nsp_ev ,ngpmx_ ,nqtt_,nspc_
     real(8):: QpGcut_psi
     real(8),allocatable:: qtt_(:,:),qtti_(:,:)
-    write(6,*) 'init_readeigen:'
+    write(stdo,ftox) 'init_readeigen:'
     if(nsp<0 .OR. nsp>2) call rx( 'init_reaeigen:nsp wrong')
     !write(*,*)'nqi=',nqi!,nqtt
     call init_iqindx_qtt()
@@ -186,26 +186,28 @@ contains
     close(ifiqg)
     deallocate(qtt_)
     open(newunit=ifev,file='EValue',form='unformatted')
-    read(ifev) nband_ev, nqi_, nsp_ev
-    write(6,*)'read EValue: nband_ev,nqi,nsp_ev', nband_ev, nqi_, nsp_ev
-    write(6,*)'             nband,   nqi,nsp   ', nband, nqi, nsp
+    read(ifev) nband_ev, nqi_, nsp_ev, nspc_
+    write(stdo,ftox)'Read EValue: nband nqi nsp nspc nspx', nband, nqi, nsp,nspc,nspx
     if(nband_ev/=nband) call rx( 'init_readeigen:nband_ev/=nband')
-    if(nsp_ev  /=  nsp) call rx( 'init_readeigen:nsp_ev/=nsp')
-    if(nqi  /=  nqi_)   call rx( 'init_readeigen:nqi/=nqi_')
+    if(nsp_ev  /= nsp)  call rx( 'init_readeigen:nsp_ev/=nsp')
+    if(nqi     /= nqi_) call rx( 'init_readeigen:nqi/=nqi_')
+    if(nspc    /= nspc_)call rx( 'init_readeigen:nspc/=nspc_')
     nqixx=nqi
     allocate(evud(nband,nqi_,nsp),qtti_(3,nqi_))
     read(ifev) qtti_(1:3,1:nqi_)
-    read(ifev) evud(1:nband, 1:nqi, 1:nsp )
+    read(ifev) evud(1:nband, 1:nqi, 1:nspx )
     close(ifev)
     if(debug) then
-       do is= 1,nsp
+       do is= 1,nspx
           do ik= 1,nqi
              do ib= 1,nband
-                write(6,"('ib ik e=',3i5,f13.5,2x,3f9.4)") ib,ik,is,evud(ib,ik,is), qtti_(1:3,ik)
+               if(evud(ib,ik,is)<1d10) & !Set huge number for padding in sugw.f90
+                    write(6,"('ib ik e=',3i5,f13.5,2x,3f9.4)") ib,ik,is,evud(ib,ik,is), qtti_(1:3,ik)
              enddo
           enddo
        enddo
        if(debug) write(6,*)'init_readeigen:end'
+       call rx0('xxxxxxxxxxxxxxxxxx')
     endif
     leval= minval(evud)
     init=.false.

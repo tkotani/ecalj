@@ -239,7 +239,7 @@ contains
     !    open(newunit=ifcphi,file='CPHI',form='unformatted',access='direct',recl=mrecb)
     !    open(newunit=ifgeig,file='GEIG',form='unformatted',access='direct',recl=mrecg)
     if(cmdopt0('--skipCPHI')) goto 1011
-    allocate(evl(nbandmx, nqirr, nsp),vxclda(nbandmx, nqirr, nsp),source=0d0)!nqirr: # ofirreducible q points
+    allocate(evl(nbandmx, nqirr, nspx),vxclda(nbandmx, nqirr, nspx),source=0d0)!nqirr: # ofirreducible q points
     iqisploop: do 1001 idat=1,niqisp !iq = iqini,iqend ! iqini:iqend for this procid
       iq  = iqproc(idat) ! iq index
       isp = isproc(idat) ! spin index: Note isp=1:nspx, where nspx=nsp/nspc.  isp=1 nspc=2 only for lso=1
@@ -485,8 +485,8 @@ contains
       deallocate(pwz,hamm,ovlm,evec,vxc,cphi,cphiw)
 1001 enddo iqisploop
     call mpi_barrier(comm,ierr)
-    call mpibc2_real(evl,   nbandmx*nqirr*nsp,'evl')
-    call mpibc2_real(vxclda,nbandmx*nqirr*nsp,'vxclda')
+    call mpibc2_real(evl,   nbandmx*nqirr*nspx,'evl')
+    call mpibc2_real(vxclda,nbandmx*nqirr*nspx,'vxclda')
 1011 continue
     WriteGWfiles: if(master_mpi) then
       WriteGWfilesB: block
@@ -497,13 +497,13 @@ contains
         open(newunit=ifv,file='VXCFP',form='unformatted')
         write(ifv) nbandmx,nqirr
         do iqq = 1,nqirr 
-          write(ifv) qplist(1:3,iqq), vxclda(1:nbandmx,iqq,1:nsp) ! VXCFP
+          write(ifv) qplist(1:3,iqq), vxclda(1:nbandmx,iqq,1:nspx) ! VXCFP
         enddo
         ! Evalue
         open(newunit=ifev,file='EValue',form='unformatted')
         write(ifev) nbandmx, nqirr, nsp,nspc
         write(ifev) qplist(1:3,1:nqirr) !qirr
-        write(ifev) evl(1:nbandmx, 1:nqirr, 1:nsp )
+        write(ifev) evl(1:nbandmx, 1:nqirr, 1:nspx )
         close(ifev)
         ! @MNLA_core.chk index for core
         open(newunit=ifnlax,file='@MNLA_core.chk')
@@ -632,7 +632,7 @@ contains
         open(newunit=ifhbed,file='hbe.d')                       
         write(stdo,'( " ndima nbandmx=",3i5)') ndima, nbandmx
         write(ifhbed,"(*(g0,x))") ndble,mrecb,mrece,ndima,nqbz,nbandmx,mrecg,nspc
-        write(ifhbed,*)' precision, mrecl of b, mrecl of eval, ndima(p+d+l)  nqbz  nbandmx mrecg'
+        write(ifhbed,*)' precision, mrecl of b, mrecl of eval, ndima(p+d+l)  nqbz  nbandmx mrecg nspc'
         close(ifhbed)
       endblock WriteGWfilesB
     endif WriteGWfiles

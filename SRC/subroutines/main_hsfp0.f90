@@ -122,15 +122,14 @@ subroutine hsfp0() bind(C)
   !      logical:: GaussSmear=.true.      !readgwinput,
   integer::ret
   character*(150):: ddd
-  integer:: bzcase=1,  ngpn1,verbose,ngcn1,nwxx !mrecg,
+  integer:: bzcase=1,  ngpn1,verbose,ngcn1,nwxx,nss(2) !mrecg,
   real(8)   :: wgtq0p,quu(3)
   real(8),allocatable:: freq_r(:)
-  logical ::smbasis
-  integer:: ifpomat,nkpo,nnmx,nomx,ikpo,nn_,no,nss(2)
+!  integer:: ifpomat,nkpo,nnmx,nomx,ikpo,nn_,no
   real(8):: q_r(3)
   real(8),allocatable:: qrr(:,:)
   integer,allocatable:: nnr(:),nor(:)
-  complex(8),allocatable:: pomatr(:,:,:),pomat(:,:)
+!  complex(8),allocatable:: pomatr(:,:,:),pomat(:,:)
   real(8)::sumimg
   logical :: allq0i            !S.F.Jan06
   integer:: nw_i

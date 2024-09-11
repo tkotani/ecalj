@@ -81,24 +81,24 @@ contains
     close(ifpomat)
   end subroutine readpomat
 end module m_pomat
-subroutine getngbpomat(nqibze,nnmx,nomx)
-  !- just to get the maximum size of ngb (mized basis size) from POmat
-  implicit none
-  integer(4):: ifpomat,nnmx,ikpo,nn_,noo,iqxxx,isx, &
-       nomx,nqibze,iopen,iclose
-  real(8):: q_r(3)
-  complex(8),allocatable:: pomat(:,:)
-  open(newunit=ifpomat,file='POmat',form='unformatted')
-  nnmx=0
-  nomx=0
-  do ikpo=1,nqibze
-     read(ifpomat) q_r,nn_,noo,iqxxx !readin reduction matrix pomat
-     write(6,"('smbasis: ikp q no nn=',i5,3f8.4,4i5)") ikpo,q_r, noo,nn_
-     if(nn_>nnmx) nnmx=nn_
-     if(noo >nomx) nomx=noo
-     allocate( pomat(nn_,noo) )
-     read(ifpomat) pomat
-     deallocate(pomat)
-  enddo
-  close(ifpomat)
-end subroutine getngbpomat
+! subroutine getngbpomat(nqibze,nnmx,nomx)
+!   !- just to get the maximum size of ngb (mized basis size) from POmat
+!   implicit none
+!   integer(4):: ifpomat,nnmx,ikpo,nn_,noo,iqxxx,isx, &
+!        nomx,nqibze,iopen,iclose
+!   real(8):: q_r(3)
+!   complex(8),allocatable:: pomat(:,:)
+!   open(newunit=ifpomat,file='POmat',form='unformatted')
+!   nnmx=0
+!   nomx=0
+!   do ikpo=1,nqibze
+!      read(ifpomat) q_r,nn_,noo,iqxxx !readin reduction matrix pomat
+!      write(6,"('smbasis: ikp q no nn=',i5,3f8.4,4i5)") ikpo,q_r, noo,nn_
+!      if(nn_>nnmx) nnmx=nn_
+!      if(noo >nomx) nomx=noo
+!      allocate( pomat(nn_,noo) )
+!      read(ifpomat) pomat
+!      deallocate(pomat)
+!   enddo
+!   close(ifpomat)
+! end subroutine getngbpomat

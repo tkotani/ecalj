@@ -47,6 +47,7 @@ contains
   end subroutine rdpp
 end module m_rdpp
 
+
 subroutine rdpp_v3(nxx, nl,ngrp, nn, nclass, nspin,symope, &
   nblocha, lx, nx,  ppbrd , mdimx,nbloch, cgr)
   implicit none
