@@ -159,7 +159,7 @@ subroutine hx0fp0()
   complex(8),allocatable:: llw(:,:), llwI(:,:),aaamat(:,:)
   integer:: lxklm,nlxklm,ifrcwx,iq0xx,ircw,nini,nend,iwxx,nw_ixxx,nwxxx,iwx,icc1,icc2!,niw,niwxxx,
   complex(8):: vc1vc2   !      integer,allocatable:: neibz(:),nwgt(:,:),ngrpt(:),igx(:,:,:),igxt(:,:,:),eibzsym(:,:,:)
-  integer,allocatable:: nwgt(:,:)
+  ! integer,allocatable:: nwgt(:,:) is not used
   real(8),allocatable:: aik(:,:,:,:)
   integer,allocatable:: aiktimer(:,:)
   integer:: l2nl
@@ -173,7 +173,7 @@ subroutine hx0fp0()
   complex(8),allocatable:: ppovl_(:,:)
   logical:: readw0w0itest=.false.,hx0,cmdopt0
   integer:: ifq0p,ifwc,ifif,ierr,iqxx,ifi0,npr
-  real(8),allocatable:: ekxx1(:,:),ekxx2(:,:)
+  ! real(8),allocatable:: ekxx1(:,:),ekxx2(:,:)
   logical:: cmdopt2,zmel0mode
   character(20):: outs=''
   logical,save:: initzmel0=.true.
@@ -358,8 +358,8 @@ subroutine hx0fp0()
   write(6,'(1X,A,3I5)') 'MPI: worker_inQtask, n_bpara, n_kpara', worker_inQtask, n_bpara, n_kpara
   call MPI__SplitXq(n_bpara, n_kpara)
 
-  allocate(ekxx1(nband,nqbz),ekxx2(nband,nqbz))
-  allocate( nwgt(1,iqxini:iqxend))
+  ! allocate(ekxx1(nband,nqbz),ekxx2(nband,nqbz)) ???? is not used
+  ! allocate( nwgt(1,iqxini:iqxend))               
   ! allocate( mpi__ranktab(iqxini:iqxend), source=[(mod(iq-1,mpi__size)           ,iq=iqxini,iqxend)])
   ! allocate( mpi__task(iqxini:iqxend),    source=[(mod(iq-1,mpi__size)==mpi__rank,iq=iqxini,iqxend)])
   allocate( mpi__ranktab(iqxini:iqxend), source=[(mod(iq-1,mpi__size/worker_inQtask)*worker_inQtask           ,iq=iqxini,iqxend)])

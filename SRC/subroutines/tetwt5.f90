@@ -220,8 +220,7 @@ contains
     !! === Loop over tetrahedron ===
     do 1000 itet = 1, ntetf !;
        kk (0:3) = ib1bz( idtetf(0:3,itet) )     !  k
-       if(all(kk(0:3) < iqbz)) cycle
-       if(all(kk(0:3) > fqbz)) cycle
+       if(.not.any( iqbz <= kk(0:3) .and.  kk(0:3) <= fqbz )) cycle
        !     if(eibzmode) then
        !        if(sum(nwgt(kk(0:3)))==0) cycle
        !     endif
