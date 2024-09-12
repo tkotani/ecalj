@@ -41,17 +41,21 @@ contains
     real(8):: qx(3),tolq=1d-8
     if(allocated(ppovlz)) deallocate(ppovlz)
     if(allocated(ppovl))  deallocate(ppovl)
-    allocate( ppovl(ngc,ngc),ppovlz(ngb,npr))
+    allocate( ppovlz(ngb,npr))
     open(newunit=ippovl0,file='PPOVL0',form='unformatted') !inefficient search for PPOVLO for given q
     do 
-       read(ippovl0) qx,ngc_r
-       if(sum(abs(qx-q))<tolq) then
-          if(ngc_r/=ngc) call rx( 'readin ppovl: ngc_r/=ngc')
-          read(ippovl0) ppovl
-          exit
-       endif
+      read(ippovl0) qx,ngc_r
+      if(sum(abs(qx-q))<tolq) then
+        allocate( ppovl(ngc,ngc))
+        if(ngc_r/=ngc) call rx( 'readin ppovl: ngc_r/=ngc')
+        read(ippovl0) ppovl
+        goto 1010
+      else
+        read(ippovl0)
+      endif
     enddo
-!    write(stdo,ftox)'ppppppppppp',sum(abs(ppovl))
+    call rx('reading ppvol0')
+1010 continue 
     close(ippovl0)
     ppovlz(1:nbloch,1:npr) = zcousq(1:nbloch,1:npr)
     ppovlz(nbloch+1:nbloch+ngc,1:npr)=matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,1:npr))
@@ -205,7 +209,7 @@ contains
           use m_read_ppovl,only: getppx2, ngvecc,ngcread
           integer:: igcgp2,nn(3),iggg,igp1,itp,igc,igp2,igcgp2i_(ngc,ngp2)
           call getppx2(qlat,kvec) ! read and allocate ppovlinv
-          if(ngc/=ngcread) call rx( 'melpln2t: ngc/= ngcx by getppx:PPOVLG')
+          if(ngc/=ngcread) call rxii( 'melpln2t: ngc/= ngcx by getppx:PPOVLG',ngc,ngcread)
           allocate(ngveccR(1:3,1:ngc))
           call rotgvec(symope, 1, ngc, [ngc], qlat, ngvecc, ngveccR)
         endblock

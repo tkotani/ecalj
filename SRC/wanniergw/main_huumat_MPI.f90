@@ -195,7 +195,7 @@ subroutine h_uumatrix()
     if(ixc == 3) dq=-q0i(:,ibb) !q1(:) = qbz(:,iqbz)         !q2(:) = qbz(:,iqbz) + q0i(:,ibb)
     if(sum(abs(dq))<1d-8) dq=(/1d-10,0d0,0d0/)
     if(cmdopt0('--q2q1test')) then
-      dq=0d0
+      dq=1d-10
     endif  
     absdq = sqrt(sum(dq**2))
     absqg2 = (2*pi/alat)**2 *sum(dq**2)
