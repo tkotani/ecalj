@@ -16,13 +16,13 @@ contains
   subroutine shortn3_plat(pin)!return shortest plat as p = qin + matmul(qlat(:,:),nlatout(:,i)) for i=1,nout
     use m_shortvec,only: shortvec, shortvecinitialize
     use m_lattic,only:   lattic_init, lat_plat,lat_qlat,lattic_init !lmf mode
-    use m_hamindex,only: plat,qlat,readhamindex_init !gw mode
+    use m_hamindex0,only: plat,qlat,readhamindex0_init !gw mode
     real(8):: pin(3)
     if(init) then
        if(lattic_init) then !lmf case
           platx=lat_plat
           qlatx=lat_qlat
-       elseif(readhamindex_init) then !gw case
+       elseif(readhamindex0_init) then !gw case
           platx=plat
           qlatx=qlat
        else
@@ -53,14 +53,14 @@ contains
   subroutine shortn3_qlat(qin) !return shortest qlat as q = qin + matmul(qlat(:,:),nlatout(:,i)) for i=1,nout
     use m_shortvec,only: shortvec, shortvecinitialize
     use m_lattic,only:   lattic_init, lat_plat,lat_qlat,lattic_init !lmf mode
-    use m_hamindex,only: plat,qlat,readhamindex_init !gw mode
+    use m_hamindex0,only: plat,qlat,readhamindex0_init !gw mode
     real(8):: qin(3)
     if(init) then
        init=.false.
        if(lattic_init) then !lmf case
           platx=lat_plat
           qlatx=lat_qlat
-       elseif(readhamindex_init) then !gw case
+       elseif(readhamindex0_init) then !gw case
           platx=plat
           qlatx=qlat
        else

@@ -7,12 +7,12 @@ module m_procar
   use m_mkpot,only: sab_rv 
   use m_MPItk,only: master_mpi, strprocid, numprocs=>nsize,procid,xmpbnd2
   use m_qplist,only: nkp,xdatt,qplist
-  public m_procar_init, m_procar_closeprocar, m_procar_writepdos, dwgtall,nchanp
+  public m_procar_init, m_procar_closeprocar, m_procar_writepdos, dwgtall,nchanp,m_procar_add
 
   private
   integer::  nchanp=25      !total of s,p,d,f
   real(8),allocatable,protected:: dwgtall(:,:,:,:,:)
-  logical,private:: isp1init=.true.,isp2init=.true.,init=.true.
+  logical,private:: isp1init=.true.,isp2init=.true. !,init=.true.
   integer,private:: iprocar1,iprocar2
   logical,private:: cmdopt0,fullmesh,debug,procaron
   logical,private:: idwmode=.false.
@@ -23,7 +23,17 @@ contains
     inquire(iprocar2,exist=nexist)
     if(nexist) close(iprocar2)
   end subroutine m_procar_closeprocar
-  subroutine m_procar_init(iq,ispin,ef0,evl,qp,nev,evec,ndimhx) !vmag0 removed. 2024-6-14 since evl contains effect of vmag0
+  subroutine m_procar_init()
+    logical:: cmdopt0
+    fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface')
+    debug    = cmdopt0('--debugbndfp')
+    PROCARon = cmdopt0('--mkprocar') !write PROCAR(vasp format).
+    idwmode  = cmdopt0('--writedw')
+    if(procaron .AND. fullmesh ) then
+       if(.not.idwmode) allocate(dwgtall(nchanp,nbas,ndhamx,nsp,nkp),source=0d0)
+    endif
+  end subroutine m_procar_init
+  subroutine m_procar_add(iq,ispin,ef0,evl,qp,nev,evec,ndimhx) !vmag0 removed. 2024-6-14 since evl contains effect of vmag0
     use m_makusq,only: makusq
     use m_ftox
     implicit none
@@ -38,15 +48,16 @@ contains
     logical:: cmdopt0
     real(8), allocatable :: dwgtk(:,:,:)
     real(8),allocatable:: evlm(:,:)
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! idw section    
     character(8)::xt
     integer::idw
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    !
-    idwmode = cmdopt0('--writedw')
-    fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface')
-    debug = cmdopt0('--debugbndfp')
-    PROCARon = cmdopt0('--mkprocar') !write PROCAR(vasp format).
+!    idwmode  = cmdopt0('--writedw')
+!    fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface')
+!    debug    = cmdopt0('--debugbndfp')
+!    PROCARon = cmdopt0('--mkprocar') !write PROCAR(vasp format).
+!    if(procaron .AND. fullmesh ) then
+!       if(idwmode) open(newunit=idw,file='dwgtall'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
+!       if(.not.idwmode) allocate(dwgtall(nchanp,nbas,ndhamx,nsp,nkp),source=0d0)
+!    endif
 
     if(lso==1) then !ispin is neglected
        ispstart=1
@@ -57,8 +68,6 @@ contains
        ispend  = ispin
        ispx    = ispin
     endif
-
-
     !    write(stdo,ftox) 'isp ',ispin,ispx,ispstart,ispend,' nev ndhamx nspx',nev,ndhamx,nspx
     allocate(evlm,source=evl)
     if(lso/=0) evlm(:,ispin)=evl(:,ispin) !+ vmag0*(ispin-1.5d0)
@@ -73,10 +82,6 @@ contains
        if(isp2init .AND. isp==2) then
           open(newunit=iprocar2,file='PROCAR.DN.'//trim(strprocid))
           isp2init=.false.
-       endif
-       if(procaron .AND. fullmesh .AND. init) then
-          if(.not.idwmode) allocate(dwgtall(nchanp,nbas,ndhamx,nsp,nkp),source=0d0)
-          if(.not.idwmode) init=.false.
        endif
        if(idwmode) then
           allocate(dwgtk(nchanp,nbas,ndhamx),source=0d0)
@@ -151,7 +156,7 @@ contains
     enddo isploop
     if(idwmode) close(idw)
     deallocate( evlm,auspp )
-  end subroutine m_procar_init
+  end subroutine m_procar_add
 !!--------------------------------------------------------
   subroutine m_procar_writepdos(evlall,nevmin,ef0,kpproc)
     use m_mkqp,only: nkabc=> bz_nabc
@@ -169,7 +174,6 @@ contains
     nkk3=nkabc(3)
     !! pdos mode (--mkprocar and --fullmesh). ===
     if(.not.idwmode) then
-       if(debug) print *,'mmmm procid sum dwgt check=',procid,sum(dwgtall)
        if(afsym) then !cmdopt0('--afsym')) then
           call xmpbnd2(kpproc,nbas*nchanp*ndhamx,nkp,dwgtall(:,:,:,1,:)) !all dwgtall broadcasted to k
           call xmpbnd2(kpproc,nbas*nchanp*ndhamx,nkp,dwgtall(:,:,:,2,:)) 

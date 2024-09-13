@@ -61,9 +61,9 @@ subroutine hsfp0_sc()
 !!!! ----------------------------------------
   use m_readqg,only: READQG0,READNGMX2, ngpmx,ngcmx
   use m_READ_BZDATA,only: READ_BZDATA, nqbz,nqibz,n1,n2,n3,ginv,qbz,wbz,qibz 
-  use m_genallcf_v3,only: GENALLCF_V3,Setesmr, nclass,natom,nspin,plat,alat,deltaw,esmr_in=>esmr,nctot,ecore
+  use m_genallcf_v3,only: GENALLCF_V3,Setesmr, nclass,natom,nspin,plat,alat,deltaw,esmr_in=>esmr,nctot,ecore,nband
   use m_itq,only: setitq_hsfp0sc,nbandmx, ntq
-  use m_readhbe,only: Readhbe, nband !nprecb,mrecb,mrece,nlmtot,nqbzt,,mrecg
+!  use m_readhbe,only: Readhbe, nband !nprecb,mrecb,mrece,nlmtot,nqbzt,,mrecg
   use m_mpi,only: &
        MPI__Initialize,MPI__root,MPI__Broadcast,MPI__rank,MPI__size,MPI__allreducesum, &
        MPI__consoleout,  MPI__reduceSum,comm
@@ -141,7 +141,7 @@ subroutine hsfp0_sc()
        call rx(' hsfp0_sc: Need input (std input) 1(Sx) 2(Sc) or 3(ScoreX)!')
     endif
     call setesmr(esmr_in=esmr) !set esmr back in genalloc_v3
-    call Readhbe()        ! Read dimensions in m_readhbe
+!    call Readhbe()        ! Read dimensions in m_readhbe
     call Readhamindex()
     call INIT_READEIGEN() ! initialization for readeigen readcphi readgeig.
     call INIT_READEIGEN2()! initialize m_readeigen

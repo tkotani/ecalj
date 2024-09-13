@@ -15,7 +15,7 @@ module m_bandcal
   use m_supot, only: n1,n2,n3
   use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate, osmpot,vconst, osig, otau, oppi,ohsozz,ohsopm
   use m_rdsigm2,only: senex,sene,getsenex,dsene,ndimsig
-  use m_procar,only: m_procar_init,m_procar_closeprocar
+  use m_procar,only: m_procar_add,m_procar_closeprocar
   use m_clsmode,only: m_clsmode_set1
   use m_addrbl,only: addrbl!,swtk,Swtkzero
   use m_augmbl,only: aughsoc
@@ -209,7 +209,7 @@ contains
        endif   
        if(master_mpi.AND.epsovl>=1d-14.AND.plbnd/=0) write(stdo,&
             "(' : ndimhx=',i5,' --> nev=',i5' by HAM_OVEPS ',d11.2)") ndimhx,nev,epsovl
-       if(PROCARon) call m_procar_init(iq,isp,ef0,evl,qp,nev,evec,ndimhx)
+       if(PROCARon) call m_procar_add(iq,isp,ef0,evl,qp,nev,evec,ndimhx)
        if(allocated(evec)) deallocate(evec)
        if(allocated(hammhso)) deallocate(hammhso)
        if(allocated(hamm)) deallocate(hamm,ovlm)

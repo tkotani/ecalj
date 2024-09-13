@@ -70,30 +70,30 @@ contains
     ! Refining mesh for GW. Get new  nrmx, gval, gcore, aa(ic),bb(ic),nr(ic)
     !   For given two conditions; a. dr/dI (delrset() in switches.F), b. keeping dr/dI at r=0 (= a*b),
     !   we can deternie required nr(ic), a(ic), b(ic).
-    print *,'rmeshrefine:'
+!    write(stdo,ftox)'rmeshrefine:'
     do ibas=1,nbas !iclass is crytalographically equivalent atoms. 
        ispecc(iclass(ibas)) = ispec(ibas) !note iclass(ibas) ispec(ibas). The same iclass should have the same ispec.
     enddo
     delr = delrset()       !delr is dr/di at rmax in a.u.
-    write(stdo,*)' meshrefine : delr nclass=',delr,nclass
+!    write(stdo,*)' meshrefine : delr nclass=',delr,nclass
     allocate(nrnn(nclass),aann(nclass)) !,bbnn(nclass))
     do ic = 1,nclass
        is= ispecc(ic)
        bb(is) = rmt(is)/(exp(spec_a(is)*(nr(is)-1))-1d0)
        aa_n= (delr-spec_a(is)*bb(is))/rmt(is) 
        bb_n= spec_a(is)*bb(is)/aa_n
-       write(stdo,"(' ic aa bb=',i5,2d13.6,i5,' rmt aa_n bb_n=',3d13.6)") ic,spec_a(is),bb(is),nr(is),rmt(is),aa_n,bb_n
+!       write(stdo,"(' ic aa bb=',i5,2d13.6,i5,' rmt aa_n bb_n=',3d13.6)") ic,spec_a(is),bb(is),nr(is),rmt(is),aa_n,bb_n
        ir = findloc([(bb_n*( exp(aa_n*(i-1))-1d0 ) >rmt(is),i=1,100000)],value=.true.,dim=1)
        nrnn(ic) = (ir/2)*2 + 1 !odd for simpson integral later on.
        aann(ic) = aa_n
     enddo
     nrmx = maxval(nrnn(1:nclass))
-    write(stdo,*) ' New nrmx =',nrmx
+!    write(stdo,*) ' New nrmx =',nrmx
     allocate( gval_n(nrmx,0:lmxax, nphimx, nsp,nclass), gcore_n(nrmx, ncoremx, nsp,nclass) )
     do ic = 1,nclass
        !     if(minval(abs(iclass-ic))/=0) cycle !jan2008
        is=ispecc(ic)
-       write(stdo,"('  input  nr a b =',i5,3d13.6)") nr(is),spec_a(is),bb(is)
+!       write(stdo,"('  input  nr a b =',i5,3d13.6)") nr(is),spec_a(is),bb(is)
        allocate(rofi,source = [(bb(is)*(exp((ir-1)*spec_a(is))-1d0),ir=1,nr(is))])
        nr_n = nrnn(ic)
        aa_n = aann(ic)
@@ -113,7 +113,7 @@ contains
        bbc(ic) = bb_n
        nrc(ic) = nr_n
        deallocate(rofi,rofi_n)
-       write(stdo,"(' output  nr a b =',i5,3d13.6)") nrc(ic),aac(ic),bbc(ic)
+!       write(stdo,"(' output  nr a b =',i5,3d13.6)") nrc(ic),aac(ic),bbc(ic)
     enddo   ! scaled gval to avoid degeneracy of overalp OrthoNormalized
     allocate( gx_in(nrmx,0:lmxax,nphimx,nsp,nclass), gval_orth(nrmx,0:lmxax,nphimx,nsp,nclass) )
     allocate( zzp(nmax,nmax,0:lmxax,nclass,nsp),zzpi(nmax,nmax,0:lmxax,nclass,nsp),eb(nmax))
@@ -133,8 +133,8 @@ contains
     ibasloop: do 1010 ibas = 1,nbas
        ic    = iclass(ibas)
        is    = ispec(ibas)
-       write(stdo,*); write(stdo,*)' ### ibas ic =',ibas,ic
-       write(stdo,"(4i4,2d14.6)")nrc(ic),lmxa(is),nsp,ncores(is),aac(ic),bbc(ic)
+!       write(stdo,*); write(stdo,*)' ### ibas ic =',ibas,ic
+!       write(stdo,"(4i4,2d14.6)")nrc(ic),lmxa(is),nsp,ncores(is),aac(ic),bbc(ic)
        do isp = 1, nsp ! ... Get overlap matrix ovv of radial functions.
           do l1  = 0,lmxa(is)
              do nn = 1, nvmax(l1,ic)
@@ -151,14 +151,14 @@ contains
           enddo
           do l1  = 0,lmxa(is)
              n1 = nvmax(l1,ic) 
-             call rss(n1, ovv(1:n1,1:n1,l1,ic,isp), eb, zzp(1:n1,1:n1,l1,ic,isp), ierr) !!Get zzp : eigenfunctions of ovv
-             write(stdo,"(' eb=',10f12.6)") eb(1:n1)
+             call rss(n1, ovv(1:n1,1:n1,l1,ic,isp), eb, zzp(1:n1,1:n1,l1,ic,isp), ierr) !!Get zzp : eigenfunctions of ovv=<gx_in|gx_in>
+!             write(stdo,"(' eb=',10f12.6)") eb(1:n1)
              if(ierr/=0) call rx(' rdata4gw: error in rs ')
              forall(i2=1:n1) zzp(:,i2,l1,ic,isp)=zzp(:,i2,l1,ic,isp)/eb(i2)**.5
              allocate(zzpx(1:n1,1:n1))
              zzpx=zzp(1:n1,1:n1,l1,ic,isp) !Get zzpi : inverse of zzp
              call matcinv(n1,zzpx)
-             zzpi(1:n1,1:n1,l1,ic,isp) = dreal(zzpx)
+             zzpi(1:n1,1:n1,l1,ic,isp) = dreal(zzpx) !connect gx_in and gval_orth
              deallocate(zzpx)
              forall(ir=1:nrc(ic)) gval_orth(ir,l1,1:n1,isp,ic)= matmul(gx_in(ir,l1,1:n1,isp,ic),zzp(1:n1,1:n1,l1,ic,isp))
           enddo

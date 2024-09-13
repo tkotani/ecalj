@@ -43,10 +43,10 @@ if(nfile>0):
     f=open('epsinter.glt','w') 
     print()
     fdata=''
-    for iddat in range(4,nfile+3):         #-dig):
+    for iddat in range(3,nfile+3):         #-dig):
         fdata=fdata+' '+'"epsinter.dat" using ($2)*13.605:($'+str(iddat)+') w l title "RealPart:'+ files[iddat-3]+'"'
         fdata=fdata+',\\\n'
-    for iddat in range(4,nfile+3):         #-dig):
+    for iddat in range(3,nfile+3):         #-dig):
         fdata=fdata+' '+'"epsinter.dat" using ($2)*13.605:($'+str(iddat+nfile)+') w l title   "ImagPart:'+ files[iddat-3]+'",\\\n'
     aaa='set title "InterBand part of Epsilon(omega(eV))"\nset xlabel "(eV)"\nset datafile fortran\nset xran[0:30]\nset yran[-30:30]\nplot\\\n' + fdata
     print(aaa,file=f)

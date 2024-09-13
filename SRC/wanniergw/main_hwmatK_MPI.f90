@@ -47,10 +47,10 @@ subroutine hwmatK_MPI()
        ,nq0i=>nq0ix,wqt=>wt,q0i
   use m_readeigen,only: onoff_write_pkm4crpa,init_readeigen,init_readeigen2, &
        init_readeigen_mlw_noeval,  nwf !,init_readeigen_phi_noeval
-  use m_genallcf_v3,only:niwg=>niw,alat,deltaw,esmr,icore,natom,nclass,iclass,nl,nlmto,nlnmc,nlnmv,nlnmc,nlnmx,nlnx
-  use m_genallcf_v3,only: genallcf_v3,ncore,nn,nnc,nspin,pos,plat
+  use m_genallcf_v3,only:niwg=>niw,alat,deltaw,esmr,icore,natom,nclass,iclass,nl,nlnmc,nlnmv,nlnmc,nlnmx,nlnx
+  use m_genallcf_v3,only: genallcf_v3,ncore,nn,nnc,nspin,pos,plat, nprecb,mrecb,mrece,nqbzt,nband,mrecg,ndima
   use m_keyvalue,only: getkeyvalue
-  use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+!  use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
   use m_zmel_old,only: ppbafp_v2
   use m_hamindex0,only: readhamindex0,iclasst
   ! RS: MPI module
@@ -158,7 +158,6 @@ subroutine hwmatK_MPI()
 
   real(8),allocatable:: freq_r(:)
 
-  logical ::smbasis
   integer:: ifpomat,nkpo,nnmx,nomx,ikpo,nn_,no,nss(2)
   real(8):: q_r(3)
   real(8),allocatable:: qrr(:,:)
@@ -409,7 +408,7 @@ subroutine hwmatK_MPI()
   !      read (ifhbed,*) nprecb,mrecb,mrece,nlmtot,nqbzt, nband,mrecg
   !      if (nprecb == 4)
   !     & call RSMPI_Stop( 'hsfp0: b,hb in single precision')
-  call Readhbe()
+!  call Readhbe()
   call Readhamindex()
   call init_readeigen()!nband,mrece) !initialization of readEigen
 
@@ -825,29 +824,29 @@ endif
   iii=count(irk/=0) !ivsumxxx(irk,nqibz*ngrp)
   if (Is_IO_Root_RSMPI()) write(6,*) " sum of nonzero iirk=",iii, nqbz
   !... Read pomatr
-  if(smbasis()) then
-     call RSMPI_Stop('hwmatK_MPI: smbasis notimplemented!')
-     write(6,*)' smooth mixed basis : augmented zmel'
-     call getngbpomat(nqibz+nq0i, &
-          nnmx,nomx)
-     nkpo = nqibz+nq0i
-     ifpomat = iopen('POmat',0,-1,0) !oct2005
-     allocate( pomatr(nnmx,nomx,nkpo),qrr(3,nkpo),nor(nkpo),nnr(nkpo) )
-     do ikpo=1,nkpo
-        read(ifpomat) qrr(:,ikpo),nn_,no,iqx !readin reduction matrix pomat
-        !         write(6,"('smbasis: ikp q no nn=',i5,3f8.4,4i5)") ikp,qrr(:,ikpo),no,nn_
-        nnr(ikpo)=nn_
-        nor(ikpo)=no
-        read(ifpomat) pomatr(1:nn_,1:no,ikpo)
-     enddo
-     isx = iclose("POmat")
-     write(6,*)"Read end of POmat ---"
-  else !dummy
-     nkpo = 1
-     nnmx =1
-     nomx =1
-     allocate( pomatr(nnmx,nomx,nkpo), qrr(3,nkpo),nor(nkpo),nnr(nkpo) )
-  endif
+  ! if(smbasis()) then
+  !    call RSMPI_Stop('hwmatK_MPI: smbasis notimplemented!')
+  !    write(6,*)' smooth mixed basis : augmented zmel'
+  !    call getngbpomat(nqibz+nq0i, &
+  !         nnmx,nomx)
+  !    nkpo = nqibz+nq0i
+  !    ifpomat = iopen('POmat',0,-1,0) !oct2005
+  !    allocate( pomatr(nnmx,nomx,nkpo),qrr(3,nkpo),nor(nkpo),nnr(nkpo) )
+  !    do ikpo=1,nkpo
+  !       read(ifpomat) qrr(:,ikpo),nn_,no,iqx !readin reduction matrix pomat
+  !       !         write(6,"('smbasis: ikp q no nn=',i5,3f8.4,4i5)") ikp,qrr(:,ikpo),no,nn_
+  !       nnr(ikpo)=nn_
+  !       nor(ikpo)=no
+  !       read(ifpomat) pomatr(1:nn_,1:no,ikpo)
+  !    enddo
+  !    isx = iclose("POmat")
+  !    write(6,*)"Read end of POmat ---"
+  ! else !dummy
+  nkpo = 1
+  nnmx =1
+  nomx =1
+  allocate( pomatr(nnmx,nomx,nkpo), qrr(3,nkpo),nor(nkpo),nnr(nkpo) )
+!  endif
 
   !-----------------------------------------------------------
   ! calculate the correlated part of the self-energy SEc(qt,w)
@@ -995,7 +994,7 @@ endif
              ifrcw,ifrcwi, qbas,ginv,qibz,qbz,wbz,nstbz, wibz,nstar,irk,  &! & iindxk,
              iclass,nblocha,nlnmv, nlnmc,  icore,ncore, imdim, &
              ppb,    freq_r,freqx, wwx, expa, ua, dwdummy,  &! & deltaw,
-             nlmto,nqibz,nqbz,nctot0, &
+             ndima,nqibz,nqbz,nctot0, &
              nl,nnc,nclass,natom, &
              nlnmx,mdimx,nbloch,ngrp,nw_i,nw,nrw,niw,niwx,nq, &
              nblochpmx,ngpmx,ngcmx, &

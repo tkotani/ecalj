@@ -65,7 +65,7 @@ contains
     logical :: eibzmode,tetra,tmpwwk=.false.,debug
     integer::kx,ncc,job,jpm,noccxvx(2)=-9999,ik,jhwtot,ib1,ib2,ibib,noccx,noccxv,verbose,ifief
     real(8),allocatable:: ecore_(:,:)
-    integer:: ix
+    integer:: ix,iqx
     logical,optional:: wan
     logical:: wan1,cmdopt0
     integer, intent(in),optional :: ikbz_in, fkbz_in
@@ -92,7 +92,7 @@ contains
     allocate( nbnb(ikbz:fkbz,npm)   )
     allocate( nbnbtt(ikbz:fkbz,npm) ) !,ekxx1(nband,nqbz),ekxx2(nband,nqbz))
     !!===========tetraini block tetra==.true.===============================1ini
-    write(6,"(' tetra mode nqbz nband ispin q=',2i7,i2,3f13.6)") nqbz,nband,is,q
+    write(6,"(' tetra mode: nqbz nband=',2i7,'nctot ispin q=',i2,i2,3f13.6)") nqbz,nband,nctot,is,q
 
     !     takao-feb/2002 I replaced tetwt4 (1d30) with tetwt5(job=0) -----
     !     ... Get pairs (n1b n2b) with non-zero tetrahedron wieghts.

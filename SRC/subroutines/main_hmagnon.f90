@@ -21,7 +21,7 @@ subroutine hmagnon() bind(C)
        ,wqt=>wt,q0i,nq0i ,nq0iadd,ixyz,epslgroup,nq0ix,neps
   use m_genallcf_v3,only: genallcf_v3, &
        nclass,natom,nspin,nl,nn, &
-       nlmto,nlnmx, nctot,niw_in=>niw, &
+       ndima,nlnmx, nctot,niw_in=>niw, &
        alat, delta,deltaw,esmr,clabl,iclass, &
        il,in,im,nlnm, &
        plat, pos,ecore

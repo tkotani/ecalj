@@ -1,0 +1,13 @@
+#!/usr/bin/bash
+lmfa es >llmfa
+mpirun -np 8 lmf es  >llmf
+job_band es -np 8 
+
+#
+lmf --jobgw=0 es >llmfgw0
+echo 1|qg4gw >lqg4gw
+lmf es --jobgw=1 --skipCPHI >& llmfgw1 # this generate eigenfunctions but dummy. 
+
+# main part for tetrahedron
+hhomogas > lhhomogas 
+gnuplot egaschi0.glt

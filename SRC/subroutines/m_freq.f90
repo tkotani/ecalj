@@ -9,8 +9,8 @@ module m_freq
 !! - NOTE: change of frequency mesh defined here may destroy consistency or not. Need check
   use m_read_bzdata,only: dq_,qbz,nqbz
   use m_qbze,only:  nqbze,nqibze,qbze,qibze
-  use m_genallcf_v3,only: niw_in=>niw,ecore,nctot,nspin
-  use m_readhbe,only: nband
+  use m_genallcf_v3,only: niw_in=>niw,ecore,nctot,nspin,nband
+  !use m_readhbe,only: nband
   implicit none
   public:: getfreq2, getfreq3, getfreq,freq01
   real(8),allocatable,protected,public::frhis(:),freq_r(:),freq_i(:),wiw(:),freqx(:),wx(:)
@@ -192,9 +192,9 @@ subroutine freq01x (nx,    freqx,freqw,wx)
 end subroutine freq01x
 
 subroutine getwemax(lqall,wemax) !!> this routine is just in order to get |e_ip-ef| on real space integration ! too complicated ---> need to fix in future
-  use m_readhbe,only: nband
+!  use m_readhbe,only: nband
   use m_read_bzdata,only: read_bzdata, nqibz,qibz,ginv,qbz,nqbz,wibz
-  use m_genallcf_v3,only: nspin, konf,z,nl,natom,iclass,nclass,esmr,deltaw!,dw
+  use m_genallcf_v3,only: nspin, konf,z,nl,natom,iclass,nclass,esmr,deltaw,nband
   use m_keyvalue,only:getkeyvalue
   use m_readeigen,only: readeval !init* is alreaday called.
   use m_ReadEfermi,only: ef !ef is set at main routine
