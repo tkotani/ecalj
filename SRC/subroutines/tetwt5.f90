@@ -149,7 +149,7 @@ contains
     !      real(8):: fermi_dS(3,3) !not yet used...
     logical:: eibzmode, usetetrakbt
     !  integer:: nwgt(nqbz)
-    real(8):: ebmx,  voltet!,det33
+    real(8):: ebmx,  voltet,ebmxx
     integer:: nbmx
     logical,optional:: wan
 !!! tetrakbt
@@ -191,10 +191,10 @@ contains
     ekzz1=ekxx1
     ekzz2=ekxx2
     !! Add eigenvalue shift. scissors_x0() is defined in switch.F
-    if(scissors_x0()/=0d0) then
-       call addsciss(scissors_x0(),efermi,(nband+nctot)*nqbzm,    ekzz1)
-       call addsciss(scissors_x0(),efermi,(nband+nctot)*nqbzm,    ekzz2)
-    endif
+    ! if(scissors_x0()/=0d0) then
+    !    call addsciss(scissors_x0(),efermi,(nband+nctot)*nqbzm,    ekzz1)
+    !    call addsciss(scissors_x0(),efermi,(nband+nctot)*nqbzm,    ekzz2)
+    ! endif
 
     !! Check
     volt = 0d0
@@ -226,7 +226,7 @@ contains
        !     endif
        kkv(1:3, 0:3) = qbzw (1:3, idtetf(0:3,itet) )
        do 1100 im = 1,nmtet
-          kkm (0:3)       = ib1bzm( idtetfm(0:3,im,itet) ) !  k   in micro-tet
+          kkm (0:3)      = ib1bzm( idtetfm(0:3,im,itet) ) !  k   in micro-tet
           kvec(1:3, 0:3) = qbzwm ( 1:3, idtetfm(0:3,im,itet) )
           do i = 1,3
              am(1:3,i) = kvec(1:3,i-1) - kvec(1:3,3)
@@ -234,31 +234,32 @@ contains
           voltet = abs(det33(am)/6d0)
           ek_ ( 1:nband+nctot, 0:3) = ekzz1( 1:nband+nctot, kkm(0:3)) ! k
           ekq_( 1:nband+nctot, 0:3) = ekzz2( 1:nband+nctot, kkm(0:3)) ! k+q
-          !          noccx_k = noccx1 ( ek_(1:nband, 0:3),4,nband, efermi)!the highest number of occupied states
-          !          noccx_kq= noccx1 (ekq_(1:nband, 0:3),4,nband, efermi)
-          !     the highest number of occupied states
+!          write(6,ftox) 'eocc  ', ek_ -efermi,  write(6,ftox) 'eunocc', ekq_-efermi
           noccx_k = maxval(count( ek_(1:nband, 0:3)<efermi,dim=1) )
           noccx_kq= maxval(count( ekq_(1:nband,0:3)<efermi,dim=1) )
-          nbandmx_k   = nband
-          nbandmx_kq  = nband
+          ebmxx= merge(1d10,ebmx,present(wan)) !! exclude wannier model: (okumura, 2017/06/13)
+          nbandmx_k   = minval(count( ek_(1:nband,  0:3)<min(1d10,ebmxx),dim=1)) ! nband max See sugw.f90:L331 evl(1+nev:nbandmx,iq,isp)=1d20 !padding
+          nbandmx_kq  = minval(count( ekq_(1:nband, 0:3)<min(1d10,ebmxx),dim=1)) ! 2024-9-4
           !! exclude wannier model: (okumura, 2017/06/13)
           !! ebmx band cutoff 2016Jun
-          if (present(wan) .AND. wan) then
-             continue
-          else
-             do i=1,nbmx
-                if( maxval(ek_(i, 0:3)) >ebmx) then
-                   nbandmx_k = i-1
-                   exit
-                endif
-             enddo
-             do i=1,nbmx
-                if( maxval(ekq_(i, 0:3)) >ebmx) then
-                   nbandmx_kq = i-1
-                   exit
-                endif
-             enddo
-          endif
+          ! nbandmx_kq  = nband
+          ! !exclude wannier model: (okumura, 2017/06/13)           ebmx band cutoff 2016Jun
+          ! if (present(wan) .AND. wan) then
+          !    continue
+          ! else
+          !    do i=1,nbmx
+          !       if( maxval(ek_(i, 0:3)) >ebmx) then
+          !          nbandmx_k = i-1
+          !          exit
+          !       endif
+          !    enddo
+          !    do i=1,nbmx
+          !       if( maxval(ekq_(i, 0:3)) >ebmx) then
+          !          nbandmx_kq = i-1
+          !          exit
+          !       endif
+          !    enddo
+          ! endif
           !!
           do jpm = 1,npm
              if(jpm==1) then

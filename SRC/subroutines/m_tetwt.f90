@@ -67,7 +67,7 @@ contains
     real(8),allocatable:: ecore_(:,:)
     integer:: ix
     logical,optional:: wan
-    logical:: wan1
+    logical:: wan1,cmdopt0
     integer, intent(in),optional :: ikbz_in, fkbz_in
     integer :: ikbz, fkbz
     ikbz = 1
@@ -86,7 +86,7 @@ contains
 
     tetra=.true.
     !      eibzmode = eibz4x0()
-    debug=.false.
+    debug=cmdopt0('--debug')
     if(verbose()>=100) debug= .TRUE. 
     !      if(.not.allocated(nbnb))
     allocate( nbnb(ikbz:fkbz,npm)   )
@@ -145,7 +145,7 @@ contains
                        n1b(1,ikbz,jpm), n2b(1,ikbz,jpm), noccxvx(jpm), nbnbtt(ikbz,jpm))
     enddo
     !!
-!    if(debug) then
+    if(debug) then
        do kx  = 1, nqbz
           if(kx < ikbz .OR. kx > fkbz) cycle
           do jpm = 1, npm
@@ -158,7 +158,7 @@ contains
              endif
           enddo
        enddo
-!    endif
+    endif
     if(sum(abs(nbnb-nbnbtt))/=0)then
        do ik=1,nqbz
           if(ik < ikbz .OR. ik > fkbz) cycle

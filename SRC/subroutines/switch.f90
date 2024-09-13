@@ -232,17 +232,17 @@ real(8) function eees()
   endif
   eees = eee
 end function eees
-real(8) function scissors_x0()
-  use m_keyvalue,only: getkeyvalue
-  use m_ReadEfermi,only: readefermi,ef,bandgap
-  logical,save:: init=.true.
-  real(8),save:: sciss !,bandgap,ef
-  if(init) then
-     call getkeyvalue("GWinput","ScaledGapX0",sciss,default=1d0)
-     init=.false.
-  endif
-  scissors_x0 = (sciss-1d0) * bandgap
-END function scissors_x0
+! real(8) function scissors_x0()
+!   use m_keyvalue,only: getkeyvalue
+!   use m_ReadEfermi,only: readefermi,ef,bandgap
+!   logical,save:: init=.true.
+!   real(8),save:: sciss !,bandgap,ef
+!   if(init) then
+!      call getkeyvalue("GWinput","ScaledGapX0",sciss,default=1d0)
+!      init=.false.
+!   endif
+!   scissors_x0 = (sciss-1d0) * bandgap
+! END function scissors_x0
 integer(4) function zvztest()
   !---------------------
   zvztest=0
