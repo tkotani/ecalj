@@ -22,7 +22,8 @@ contains
   end function openm
   function writem(fh,rec,data) result(i)
     integer::fh
-    integer::rec,count,offset
+    integer::rec,count
+    integer(MPI_OFFSET_KIND) :: offset
     complex(8):: data(1)
     integer:: i,ifx
     integer:: status(MPI_Status_size)
@@ -39,14 +40,16 @@ contains
   end function writem
   function readm(fh,rec,data)result(i)
     integer::fh
-    integer::rec,count,offset
+    integer::rec,count
+    integer(MPI_OFFSET_KIND) :: offset
     complex(8):: data(1)
     integer:: i,ifx
+    integer:: status(MPI_Status_size)
     i=0
     ifx = fhl(findloc(fh==fhl,dim=1,value=.True.))
     offset=(rec-1)*recll(ifx)
     count=recll(ifx)/nsize
-    call mpi_file_read_at(ifx, offset, data, count, MPI_DOUBLE_COMPLEX, ierr)
+    call mpi_file_read_at(ifx, offset, data, count, MPI_DOUBLE_COMPLEX, status, ierr)
   end function readm
   function closem(fh) result(i)
     integer::fh

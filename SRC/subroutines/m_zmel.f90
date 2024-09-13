@@ -141,7 +141,7 @@ contains
     real(8) :: ppb(nlnmx,nlnmx,mdimx,nclass) ! ppb= <Phi(SLn,r-R)_q,isp1 |Phi(SL'n',r-R)_qk,isp2 B_k(S,i,rot^{-1}(r-R))>
     logical:: iprx,zmelconjg,debug,cmdopt0
     integer,allocatable:: ngveccR(:,:),igcgp2i_work(:,:)
-    complex(kind=kp)::cphiq(nlmto,nband), cphim(nlmto,nband)
+    complex(kind=kp)::cphiq(ndima,nband), cphim(ndima,nband)
     complex(kind=kp),allocatable:: geigq(:,:),dgeigqk(:,:)
     integer:: invr,nt0,ntp0,nmtot,nqtot
     integer:: iasx(natom),icsx(natom),iatomp(natom),imdim(natom)
@@ -202,7 +202,7 @@ contains
       integer:: i
       qk =  q - rkvec ! qk = q-rk. rk is inside 1st BZ, not restricted to the irreducible BZ
       associate(cphitemp=> readcphif(q,ispq))
-        cphiq(1:nlmto,1:ntq) = cmplx(cphitemp(1:nlmto,itq(1:ntq)),kind=kp) 
+        cphiq(1:ndima,1:ntq) = cmplx(cphitemp(1:ndima,itq(1:ntq)),kind=kp) 
       endassociate
       cphim = cmplx(readcphif(qk, ispm),kind=kp)
       symope= symgg(:,:,irot)
