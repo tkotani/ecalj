@@ -1,0 +1,4 @@
+#!/usr/bin/bash
+echo 1|qg4gw >lqg4gw
+hhomogas > lhhomogas 
+gnuplot egaschi0.glt

@@ -1,7 +1,7 @@
 !>Write W-v. Gamma-cell averaged W-v
 module m_llw
   use m_rdpp,only: nblochpmx
-  use m_genallcf_v3,only: nclass,natom,nspin,nl,nn, nlmto,nlnmx, nctot,alat, deltaw,clabl,iclass, plat, pos, ecore, tpioa
+  use m_genallcf_v3,only: nclass,natom,nspin,nl,nn, ndima,nlnmx, nctot,alat, deltaw,clabl,iclass, plat, pos, ecore, tpioa
   use m_freq,only: frhis,freq_r,freq_i, nwhis,nw_i,nw,npm,niw !output of getfreq
   use m_qbze,only: Setqbze, nqbze,nqibze,qbze,qibze
   use m_read_bzdata,only: Read_bzdata, ngrp2=>ngrp,nqbz,nqibz,n1,n2,n3,ginv,dq_,qbz,wbz,qibz,wibz, ntetf,idtetf,ib1bz

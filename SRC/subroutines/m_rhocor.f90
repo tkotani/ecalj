@@ -1,5 +1,6 @@
 !>core density
-module m_rhocor 
+module m_rhocor
+  use m_MPItk,only:master_mpi,procid
   use m_lgunit,only:stdo
   use m_rseq,only: rseq
   public:: getcor,rhocor
@@ -51,6 +52,7 @@ contains
     character ch*2
     data ch/' *'/
     call getpr(ipr)
+!    write(6,*) 'xxxxxxxxxxxx',procid,ipr
     qcore = 0d0
     ncore = 0
     qsc = 0d0
@@ -82,8 +84,7 @@ contains
        qcor(1) = qcore
        return
     endif
-    jpr = 0
-    if (ipr >= 30) jpr = 1
+    jpr = merge(1,-1,ipr>=30)
     tol = 1d-8
     rhoc=0d0
     b = rofi(nr)/(dexp(a*(nr-1))-1)
@@ -166,60 +167,52 @@ contains
     e1    = -2.5d0*z*z - 5d0
     e2    = 20d0
     icore = 0
-    do  80  isp = 1, nsp
-       sumec(isp) = 0d0
-       sumtc(isp) = 0d0
-       qcore = 0d0
-       rhorim = 0d0
-       if (ipr >= 2) write(stdo,757)
-       if(ipr >= 2 .AND. nsp == 2) &
-            write(stdo,'('' spin'',i2,'':'')') isp
-757    format(/' state  chg          ecor0',10x,'ecore',10x,'tcore', &
-            4x,'nre',2x,'rho(rmax)')
-       do  101  l = 0, lmax
-          do  10  konf = l, konfig(l)-2
-             deg = (2*(2*l+1))/nsp
-             if (konf+1 == kcor .AND. l == lcor) then
-                deg = deg + (qcor(1)+(3-2*isp)*qcor(2))/nsp
-             endif
-             icore = icore+1
-             nodes = konf - l
-             ecor0 = ec(icore)
-             val = 1d-30
-             slo = -val
-             call rseq(e1,e2,ecor0,tol,z,l,nodes,val,slo,vaa(1,isp), &
-                  g,sumx,a,b,rofi,nr,nre)
-             ecore = ecor0
-             !     ... Correct core energy by using hankel bc's
-             kappa2 = ecor0 - vaa(nr,isp) + 2*z/rmax
-             if (nre == nr .AND. kappa2 < 0d0) then
-                dlml = -1d0 - dsqrt(-kappa2)*rmax
-                do  31  ll = 1, l
-                   dlml = -kappa2*rmax*rmax/dlml - (2*ll+1)
-31              enddo
-                slo = val*(dlml+l+1)/rmax
-                call rseq(e1,e2,ecore,tol,z,l,nodes,val,slo,vaa(1,isp), &
-                     g,sumx,a,b,rofi,nr,nre)
-             endif
-             ec(icore) = ecore
-             if (isw == 1) call dcopy(2*nr,g,1,gcore(1,1,icore),1)
-             !     --- Add to rho, make integral v*rho ---
-             call xyrhsr(ecore,l,z,a,b,nr,nre,g,rofi,vaa(1,isp),rho(1,isp), &
-                  deg,vrho,rorim)
-             rhorim = rhorim + rorim
-             tcore = ecore - vrho
-             qcore = qcore + deg
-             sumec(isp) = sumec(isp) + deg*ecore
-             sumtc(isp) = sumtc(isp) + deg*tcore
-             if (ipr >= 2) write(stdo,758) &
-                  pqn(konf+1),ang(l+1),deg,ecor0,ecore,tcore,nre,rorim
-758          format(1x,2a1,f8.2,3f15.6,i7,f9.5)
-10        enddo
-101    enddo
-       if (ipr > 0) write(stdo,230) qcore,sumec(isp),sumtc(isp),rhorim
-230    format(' sum q=',f5.2,'  sum ec=',f12.5,'  sum tc=',f12.5, &
-            '  rho(rmax)',f8.5)
-80  enddo
+    isploop: do 80 isp = 1, nsp
+      sumec(isp) = 0d0
+      sumtc(isp) = 0d0
+      qcore = 0d0
+      rhorim = 0d0
+      if(ipr >= 2) write(stdo,757)
+      if(ipr >= 2 .AND. nsp == 2) write(stdo,'('' spin'',i2,'':'')') isp
+757   format(/' state  chg          ecor0',10x,'ecore',10x,'tcore',4x,'nre',2x,'rho(rmax)')
+      lloop: do  101  l = 0, lmax
+        konfloop: do  10  konf = l, konfig(l)-2
+          deg = (2*(2*l+1))/nsp
+          if(konf+1==kcor .AND. l==lcor) deg = deg + (qcor(1)+(3-2*isp)*qcor(2))/nsp
+          icore = icore+1
+          nodes = konf - l
+          ecor0 = ec(icore)
+          val = 1d-30
+          slo = -val
+          call rseq(e1,e2,ecor0,tol,z,l,nodes,val,slo,vaa(1,isp),g,sumx,a,b,rofi,nr,nre)
+          ecore = ecor0
+          !     ... Correct core energy by using hankel bc's
+          kappa2 = ecor0 - vaa(nr,isp) + 2*z/rmax
+          if (nre == nr .AND. kappa2 < 0d0) then
+            dlml = -1d0 - dsqrt(-kappa2)*rmax
+            do ll = 1, l
+              dlml = -kappa2*rmax*rmax/dlml - (2*ll+1)
+            enddo
+            slo = val*(dlml+l+1)/rmax
+            call rseq(e1,e2,ecore,tol,z,l,nodes,val,slo,vaa(1,isp), &
+                 g,sumx,a,b,rofi,nr,nre)
+          endif
+          ec(icore) = ecore
+          if (isw == 1) call dcopy(2*nr,g,1,gcore(1,1,icore),1)
+          !     --- Add to rho, make integral v*rho ---
+          call xyrhsr(ecore,l,z,a,b,nr,nre,g,rofi,vaa(1,isp),rho(1,isp), deg,vrho,rorim)
+          rhorim = rhorim + rorim
+          tcore = ecore - vrho
+          qcore = qcore + deg
+          sumec(isp) = sumec(isp) + deg*ecore
+          sumtc(isp) = sumtc(isp) + deg*tcore
+          if (ipr >= 2) write(stdo,758) pqn(konf+1),ang(l+1),deg,ecor0,ecore,tcore,nre,rorim
+758       format(1x,2a1,f8.2,3f15.6,i7,f9.5)
+10      enddo konfloop
+101   enddo lloop
+      if(ipr > 0) write(stdo,230) isp,qcore,sumec(isp),sumtc(isp),rhorim !#,procid
+230   format(' isp=',i2,' sum q=',f5.2,' sum ec=',f12.5,' sum tc=',f12.5,' rho(rmax)',f8.5) !#,'procid=',i5)
+80  enddo isploop
   end subroutine rhocor
   subroutine xyrhsr(ecore,l,z,a,b,nr,nre,g,rofi,v,rho,deg,vrho, rhormx)!Make density and integrate potential*density for one core state
     use m_lmfinit,only: c=>cc

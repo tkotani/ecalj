@@ -1,8 +1,8 @@
 subroutine efsimplef2ax ( legas, esmr, valn,ef)
   use m_READ_BZDATA,only: nqbz,nqibz,ginv,  qibz,wibz,qbz
-  use m_genallcf_v3,only: nspin,z,natom,nclass,iclass,nl,konfig=>konf
+  use m_genallcf_v3,only: nspin,z,natom,nclass,iclass,nl,konfig=>konf,nband
   use m_readeigen, only: readeval
-  use m_readhbe,only: nband
+!  use m_readhbe,only: nband
   use m_mpi, only: mpi__root
   use m_hamindex,only:   zbak
   implicit none

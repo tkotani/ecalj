@@ -1,12 +1,12 @@
 !> Get the matrix element zmel =  ZO^-1 <MPB psi|psi> , where ZO is ppovlz(inverse of overlap matrix) !  "call get_zmel_init" return zmel 
 !  All dependencies (use foobar below ) are inputs (must be protected).
 module m_zmel
-  use m_genallcf_v3,only: nclass,natom,nspin,nl,nn,nnv,nnc, nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, niw
+  use m_genallcf_v3,only: nclass,natom,nspin,nl,nn,nnv,nnc,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, niw,nband,ndima
   use m_genallcf_v3,only: alat,delta,deltaw,esmr,iclass,nlnmv,nlnmc,icore,ncore,plat,pos,z,ecore,mnl=>nlnm,nl,nn,nlnmx,il,in,im
   use m_hamindex,only: ngrp, symgg=>symops,invg=>invgx
   use m_rdpp,only: Rdpp, nxx,lx,nx,mdimx,nbloch,cgr,ppbrd,nblocha,done_rdpp
   use m_read_bzdata,only: nqbz,nqibz,  qlat,ginv,qbz,qibz,wbz, done_read_bzdata
-  use m_readhbe,only: nband
+!  use m_readhbe,only: nband
   use m_readQG,only: ngpmx,ngcmx,Readqg
   use m_readVcoud,only: zcousq,ngc,ngb !! zcousq is the eigenfuncition of the Coulomb matrix
   use m_ftox
@@ -43,17 +43,21 @@ contains
     real(8):: qx(3),tolq=1d-8
     if(allocated(ppovlz)) deallocate(ppovlz)
     if(allocated(ppovl))  deallocate(ppovl)
-    allocate( ppovl(ngc,ngc),ppovlz(ngb,npr))
+    allocate( ppovlz(ngb,npr))
     open(newunit=ippovl0,file='PPOVL0',form='unformatted') !inefficient search for PPOVLO for given q
     do 
-       read(ippovl0) qx,ngc_r
-       if(sum(abs(qx-q))<tolq) then
-          if(ngc_r/=ngc) call rx( 'readin ppovl: ngc_r/=ngc')
-          read(ippovl0) ppovl
-          exit
-       endif
+      read(ippovl0) qx,ngc_r
+      if(sum(abs(qx-q))<tolq) then
+        allocate( ppovl(ngc,ngc))
+        if(ngc_r/=ngc) call rx( 'readin ppovl: ngc_r/=ngc')
+        read(ippovl0) ppovl
+        goto 1010
+      else
+        read(ippovl0)
+      endif
     enddo
-!    write(stdo,ftox)'ppppppppppp',sum(abs(ppovl))
+    call rx('reading ppvol0')
+1010 continue 
     close(ippovl0)
     ppovlz(1:nbloch,1:npr) = zcousq(1:nbloch,1:npr)
     ppovlz(nbloch+1:nbloch+ngc,1:npr)=matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,1:npr))
@@ -184,7 +188,8 @@ contains
        nm2c=nm2
        nm1v=0
        nm2v=-1
-    endif SetRangeOfCoreAndValence
+     endif SetRangeOfCoreAndValence
+     if(debug) write(stdo,ftox)'nm1c nm2c nm1v nm2v=',nm1c,nm2c,nm1v,nm2v
     !! For given range of band index nm1;nm2, We now get nm1v:nmv2 and nm1c:nm2c, which are range of valence and core index.
     !! Note that band index is nctot+nvalence order.
     ntp0   = nqmax-nqini+1
@@ -211,7 +216,7 @@ contains
           use m_read_ppovl,only: getppx2, ngvecc,ngcread
           integer:: igcgp2,nn(3),iggg,igp1,itp,igc,igp2
           call getppx2(qlat,kvec) ! read and allocate ppovlinv
-          if(ngc/=ngcread) call rx( 'melpln2t: ngc/= ngcx by getppx:PPOVLG')
+          if(ngc/=ngcread) call rxii( 'melpln2t: ngc/= ngcx by getppx:PPOVLG',ngc,ngcread)
           allocate(ngveccR(1:3,1:ngc))
           call rotgvec(symope, 1, ngc, [ngc], qlat, ngvecc, ngveccR)
         endblock
@@ -335,6 +340,7 @@ contains
       call writemem('mmmmm_zmel111 ngc= '//trim(charext(ngc))//' nm1v nm2v= '//trim(charext(nm1v))//' '//trim(charext(nm2v)))
       if(debug) write(stdo,ftox) 'sum of zmelt_mt:', sum(zmelt)
       flush(stdo)
+      if(debug) write(stdo,ftox)'goto zmelipwif: ngc,nm1v,nm2v=',ngc,nm1v,nm2v
       ZmelIPWif: if(ngc/=0 .and. nm1v<=nm2v) then
         ZmelIPW:block  !> Mattrix elements <Plane psi |psi> from interstitial plane wave.
           use m_read_ppovl,only:igggi,igcgp2i,nxi,nxe,nyi,nye,nzi,nze,nvgcgp2,ngcgp,ggg,ppovlinv,nnxi,nnxe,nnyi,nnye,nnzi,nnze,nggg
@@ -404,7 +410,9 @@ contains
           !$acc end kernels
           allocate(zmelt_d(ngc,nm1v:nm2v,ntp0))
           if(debug) call writemem('mmmmm_zmel111hhh')
+          if(debug) write(stdo,ftox) 'hhhhhhhh111'!,ngc,ntp0,nmtot
           ierr = gemm(ppovlinv_work, zmelp0, zmelt_d, ngc, ntp0*nmtot, ngc) 
+          if(debug) write(stdo,ftox)'hhhhhhhh222',ngc,ntp0,nmtot
           !$acc kernels
           zmelt(nbloch+1:nbloch+ngc,nm1v:nm2v,ncc+1:ncc+ntp0) = zmelt_d(1:ngc,nm1v:nm2v,1:ntp0)
           !$acc end kernels
@@ -417,6 +425,9 @@ contains
       if(debug) call writemem('mmmmm_zmel endof ZmelIPWif')
       allocate(zmel(nbb,ns1:ns2,nqtot))
       if(debug) call writemem('mmmmm_zmel deallocate zmel')
+!cccccccccccccccccccccccccccccccccccc
+      if(nmtot<=0) return
+
       !$acc enter data create(zmel)
       ppovlz_x_zmelt: BLOCK
         complex(kind=kp) :: ppovlz_work(ngb,nbb)
@@ -507,7 +518,7 @@ end module m_zmel
 !     logical:: iprx,debug=.false.,cmdopt0
 !     logical:: zmelconjg
 !     integer,allocatable:: ngveccR(:,:)
-!     complex(8)::cphiq(nlmto,nband), cphim(nlmto,nband)
+!     complex(8)::cphiq(ndima,nband), cphim(ndima,nband)
 !     complex(8):: geigq(ngpmx,nband),dgeigqk(ngpmx,nband)
 !     integer:: invr,nt0,ntp0,nmtot,nqtot
 !     integer:: iasx(natom),icsx(natom),iatomp(natom),imdim(natom)
@@ -521,7 +532,7 @@ end module m_zmel
 !     ! nbloch     = total no. product basis within MT
 !     !           if(mdimx /= maxval(mdim) ) call rx( 'psi2b_v3: wrong mdimx')
 !     !           if(sum(mdim(iclass(1:natom)))/= nbloch ) call rx( 'psi2b_v3: wrong nbloch')
-!     !           if(sum(nlnmv(iclass(1:natom)))/=nlmto) call rx( ' psi2b_v3:sum(nlnmv)/= nlmto')
+!     !           if(sum(nlnmv(iclass(1:natom)))/=ndima) call rx( ' psi2b_v3:sum(nlnmv)/= ndima')
 !     !           if(sum(ncore(iclass(1:natom)))/= nctot) call rx( "psicb_v3:sum(ncore) wrong")
 !     !           if(ncc/=0 .AND. ncc/=nctot) call rx( "psicb_v3: ncc/=0 and ncc/=ncctot")
 !     !! zmelp(igc(qi),it(qk),itp(q)) = <igc it(for q2+G2) |itp(for q1+G1)>
@@ -575,7 +586,7 @@ end module m_zmel
 !     if(nmtot<=0.or.nqtot<=0) return
 !     qk =  q - rkvec ! qk = q-rk. rk is inside 1st BZ, not restricted to the irreducible BZ
 !     associate(cphitemp=> readcphif(q,ispq))    
-!       cphiq(1:nlmto,1:ntq) = cphitemp(1:nlmto,itq(1:ntq)) 
+!       cphiq(1:ndima,1:ntq) = cphitemp(1:ndima,itq(1:ntq)) 
 !     endassociate
 !     cphim = readcphif(qk, ispm) 
 !     symope= symgg(:,:,irot)

@@ -190,32 +190,32 @@ logical function qbzreg()
   endif
   qbzreg= ccrq
 end function qbzreg
-logical function smbasis() !
-  use m_keyvalue,only: getkeyvalue
-  integer(4),save:: smbasis0
-  logical,save:: init=.true.,smbasis00=.false.
-  if(init) then
-     call getkeyvalue("GWinput","smbasis",smbasis0,default=0)
-     init=.false.
-     if(smbasis0>0) then
-        smbasis00 = .true.
-     endif
-  endif
-  smbasis = smbasis00
-end function smbasis
-integer(4) function smbasiscut() !
-  use m_keyvalue,only: getkeyvalue
-  integer(4),save:: smbasis0
-  logical,save:: init=.true.
-  if(init) then
-     call getkeyvalue("GWinput","smbasis",smbasis0,default=0)
-     init=.false.
-  endif
-  smbasiscut = smbasis0
-END function smbasiscut
-integer function smbasis_case() !
-  smbasis_case = 1
-END function smbasis_case
+! logical function smbasis() !
+!   use m_keyvalue,only: getkeyvalue
+!   integer(4),save:: smbasis0
+!   logical,save:: init=.true.,smbasis00=.false.
+!   if(init) then
+!      call getkeyvalue("GWinput","smbasis",smbasis0,default=0)
+!      init=.false.
+!      if(smbasis0>0) then
+!         smbasis00 = .true.
+!      endif
+!   endif
+!   smbasis = smbasis00
+! end function smbasis
+! integer(4) function smbasiscut() !
+!   use m_keyvalue,only: getkeyvalue
+!   integer(4),save:: smbasis0
+!   logical,save:: init=.true.
+!   if(init) then
+!      call getkeyvalue("GWinput","smbasis",smbasis0,default=0)
+!      init=.false.
+!   endif
+!   smbasiscut = smbasis0
+! END function smbasiscut
+! integer function smbasis_case() !
+!   smbasis_case = 1
+! END function smbasis_case
 logical function qreduce() !
   qreduce= .true. ! false is safer for usual mode, gw_lmfh
 end function qreduce                !(But I think true is OK---not tested completely).
@@ -232,17 +232,17 @@ real(8) function eees()
   endif
   eees = eee
 end function eees
-real(8) function scissors_x0()
-  use m_keyvalue,only: getkeyvalue
-  use m_ReadEfermi,only: readefermi,ef,bandgap
-  logical,save:: init=.true.
-  real(8),save:: sciss !,bandgap,ef
-  if(init) then
-     call getkeyvalue("GWinput","ScaledGapX0",sciss,default=1d0)
-     init=.false.
-  endif
-  scissors_x0 = (sciss-1d0) * bandgap
-END function scissors_x0
+! real(8) function scissors_x0()
+!   use m_keyvalue,only: getkeyvalue
+!   use m_ReadEfermi,only: readefermi,ef,bandgap
+!   logical,save:: init=.true.
+!   real(8),save:: sciss !,bandgap,ef
+!   if(init) then
+!      call getkeyvalue("GWinput","ScaledGapX0",sciss,default=1d0)
+!      init=.false.
+!   endif
+!   scissors_x0 = (sciss-1d0) * bandgap
+! END function scissors_x0
 integer(4) function zvztest()
   !---------------------
   zvztest=0

@@ -25,7 +25,7 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
   integer,allocatable :: ngvecprev(:,:,:),ngveccrev(:,:,:),ngvecp(:,:), ngvecc(:,:), ngpn(:),ngcn(:), nqq(:),irr(:)
   real(8):: dq_(3),qlatbz(3,3),imat33(3,3),unit,QpGx2,aaa,q(3),dummy,qp(3), QpGcut_psi, QpGcut_Cou,QpGcut,alpv(3),q0smean,sumt,&
        alp, volum,voltot,q0(3),qlat0(3,3),tripl, xx,qqx(3),alpm,aaij,bbij,vol,ginv(3,3),dq(3),ddq(3)
-  real(8):: qx(3),qxx(3),tolq, deltaq,delta5,delta8,deltaq_scale,volinv,wtrue00,qg(3),alpqg2,qg2,tpiba
+  real(8):: qx(3),qxx(3),tolw, deltaq,delta5,delta8,deltaq_scale,volinv,wtrue00,qg(3),alpqg2,qg2,tpiba
   real(8),parameter:: pi=4d0* atan(1d0)
   real(8),allocatable :: qq(:,:),qq1(:,:),qq2(:,:),qqm(:,:),qsave(:,:), wt0(:),wti(:),qi(:,:)
   real(8),allocatable:: funa(:,:),wsumau(:),yll(:,:)
@@ -90,7 +90,7 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
      if( .NOT. qbzreg()) dq_ = -matmul(qlat(1:3,1:3),(/.5d0/nnn(1),.5d0/nnn(2),.5d0/nnn(3)/))
      ! dq_ is off-gamma mesh, used when qbzreg=F
   endif
-  if(sum(abs(dq_))>tolq()) write(stdo,'(" Shift vector (skip Gamma) by dq_=",3f9.4)')dq_
+  if(sum(abs(dq_))>tolw()) write(stdo,'(" Shift vector (skip Gamma) by dq_=",3f9.4)')dq_
   !! Get BZ data by 'call Getbzdata1'. See m_get_bzdata1
   !! we usually use negative delta (tetrahedron).
   call getkeyvalue("GWinput","delta",aaa)
@@ -170,9 +170,9 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
   qq(1:3,1:nqbz) = qbz(1:3,1:nqbz)
   do iq0i=1,nq0i+nq0iadd
      do iq=1,nqbz
-        if(sum(abs(q0i(:,iq0i)-qq(:,iq)))<tolq()) goto 2112
+        if(sum(abs(q0i(:,iq0i)-qq(:,iq)))<tolw()) goto 2112
         call rangedq( matmul(ginv,q0i(:,iq0i)-qq(:,iq)), qx)
-        if(sum(abs(qx))< tolq()) goto 2112
+        if(sum(abs(qx))< tolw()) goto 2112
      enddo
      goto 2111
 2112 continue
@@ -261,7 +261,7 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
      if(iq0pin==1) then !use qxx on regular mesh points if q is on regular+Q0P(true).
         do iqbz=1,nqbz
            do i=1,nq0itrue+ nq0iadd  ! nq0itrue/=nq0i for anyq=F nov2015
-              if(sum(abs(qbz(1:3,iqbz)-dq_+ q0i(:,i)-qxx))<tolq()) then
+              if(sum(abs(qbz(1:3,iqbz)-dq_+ q0i(:,i)-qxx))<tolw()) then
                  qxx=qbz(1:3,iqbz)
                  exit
               endif
@@ -302,8 +302,8 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
      q0pf=''
      do iqbz=1,nqbz  !use qxx on regular mesh points if q is on regular+Q0P(true).
         do i=1,nq0itrue+ nq0iadd  !nq0itrue/=nq0i for anyq=F nov2015
-           if(sum(abs(qbz(1:3,iqbz)-dq_+ q0i(:,i)-qxx))<tolq()) then
-              if(sum(abs(q0i(:,i)-qxx))<tolq()) then
+           if(sum(abs(qbz(1:3,iqbz)-dq_+ q0i(:,i)-qxx))<tolw()) then
+              if(sum(abs(q0i(:,i)-qxx))<tolw()) then
                  q0pf=' <--Q0P  '   ! offset Gamma points
               else
                  q0pf=' <--Q0P+R'   ! offset Gamma points-shifted nov2015
@@ -317,7 +317,7 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
      enddo
      ngp = ngpn(iq)
      ngc = ngcn(iq)
-     write(stdo,"(' iq=',i8,' q=',3f9.5,' ngp ngc= ',2i6,' irr.=',i2,a)")iq, q, ngp, ngc, irr(iq),trim(q0pf) !irr=1 is irr. k points.
+     write(stdo,"(' iq=',i8,' q=',3f10.6,' ngp ngc= ',2i6,' irr.=',i2,a)")iq, q, ngp, ngc, irr(iq),trim(q0pf) !irr=1 is irr. k points.
      allocate( ngvecp(3,max(ngp,1)), ngvecc(3,max(ngc,1)) )
      call getgv2(alat,plat,qlat, qxx, QpGcut_psi, 2, ngp,  ngvecp) ! for eigenfunctions (psi)
      call getgv2(alat,plat,qlat, qxx, QpGcut_Cou, 2, ngc,  ngvecc) ! for Coulomb        (cou)

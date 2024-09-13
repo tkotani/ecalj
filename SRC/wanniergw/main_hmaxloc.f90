@@ -25,15 +25,15 @@ subroutine hmaxloc()
     nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,qbas=>qlat,ginv,dq_,qbz,wbz,qibz,wibz,qbzw, &
     idtetf,ib1bz,idteti, nstar,irk,nstbz
   use m_qbze,only: Setqbze, nqbze,qbze
-  use m_genallcf_v3,only: genallcf_v3, nclass,natom,nspin,nl,nn, &
-    nlmto,nlnmx, nctot,niw, alat,delta,deltaw,esmr,clabl,iclass, il, in, im, nlnm, &
-    plat, pos, ecore, konf,z, spid
+  use m_genallcf_v3,only: genallcf_v3, nclass,natom,nl,nn, &
+    nlnmx, nctot,niw, alat,delta,deltaw,esmr,clabl,iclass, il, in, im, nlnm, &
+    plat, pos, ecore, konf,z, spid, nprecb,mrecb,mrece,nqbzt,nband,mrecg,ndima,nspx !nspin,
   use m_read_Worb,only: s_read_Worb, s_cal_Worb, &
     nwf, nclass_mlwf, cbas_mlwf, nbasclass_mlwf, &
     classname_mlwf, iclassin, &
     iphi, iphidot, nphi, nphix
   use m_keyvalue,only: getkeyvalue
-  use m_readhbe,only:Readhbe,nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+!  use m_readhbe,only:Readhbe,nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
   use m_hamindex0,only: readhamindex0,iclasst
   use m_mksym_util,only:mptauof
   use m_MPItk,only: m_MPItk_init
@@ -189,6 +189,7 @@ subroutine hmaxloc()
   logical:: leauto,leinauto,iprint
   complex(8):: cccx(7)
   integer:: ierr
+  character(256)::aaac
   include 'mpif.h'
   call mpi_init(ierr)
   call m_MPItk_init(MPI_COMM_WORLD)
@@ -285,7 +286,7 @@ subroutine hmaxloc()
 
   ifmlw(1) = iopen('MLWU',0,-1,0)
   ifmlwe(1)= iopen('MLWEU',0,-1,0)
-  if (nspin == 2) then
+  if (nspx == 2) then
     ifmlw(2) = iopen('MLWD',0,-1,0)
     ifmlwe(2)= iopen('MLWED',0,-1,0)
   endif
@@ -294,7 +295,7 @@ subroutine hmaxloc()
   !      ifhbed     = iopen('hbe.d',1,0,0)
   !      read (ifhbed,*) nprecb,mrecb,mrece,nlmtot,nqbzt, nband,mrecg
   !      if (nprecb == 4) stop 'hsfp0: b,hb in single precision'
-  call Readhbe()
+!  call Readhbe()
   call Readhamindex()
   call init_readeigen()!nband,mrece) !initialization of readEigen
 
@@ -321,7 +322,7 @@ subroutine hmaxloc()
 
   !... Readin eigen functions
   !      ifev(1)   = iopen('EVU', 0,0,mrece)
-  !      if (nspin==2) ifev(2) = iopen('EVD', 0,0,mrece)
+  !      if (nspx==2) ifev(2) = iopen('EVD', 0,0,mrece)
 
   ! read EF from 'BNDS' if exists
   block
@@ -357,7 +358,7 @@ subroutine hmaxloc()
   !$$$        ef = efnew
   !$$$      endif ! lbnds
   !- check total ele number -------
-  ntot  = nocctotg2(nspin, ef,esmr, qbz,wbz, nband,nqbz) !wbz
+  ntot  = nocctotg2(nspx, ef,esmr, qbz,wbz, nband,nqbz) !wbz
   write(6,*)' ef    =',ef
   write(6,*)' esmr  =',esmr
   write(6,*)' valn  =',valn
@@ -421,7 +422,9 @@ subroutine hmaxloc()
     lqall      = .false.
     laf        = .false.
     call readx   (ifqpnt,10)
-    read (ifqpnt,*) iqall,iaf
+    read (ifqpnt,*) aaac
+    aaac=trim(aaac)//' 0'
+    read(aaac,*) iqall,iaf
     if (iqall == 1) lqall = .TRUE.
     if (iaf   == 1)   laf = .TRUE.
     call readx   (ifqpnt,100)
@@ -447,7 +450,7 @@ subroutine hmaxloc()
     xq=0d0
   endif ! syml
 
-  nspinmx = nspin
+  nspinmx = nspx
   if (laf) nspinmx =1
   !------------
   ! input parameters specific to MAXLOC
@@ -569,7 +572,7 @@ subroutine hmaxloc()
   !c --- read LDA eigenvalues
   ntq = nwf
   ! --- info
-  call winfo(6,nspin,nq,ntq,is,nbloch,0,0,nqbz,nqibz,ef,deltaw,alat,esmr)
+  call winfo(6,nspx,nq,ntq,is,nbloch,0,0,nqbz,nqibz,ef,deltaw,alat,esmr)
   iii=count(irk/=0) !ivsumxxx(irk,nqibz*ngrp)
   write(6,*) " sum of nonzero iirk=",iii, nqbz
   ! Rt vectors
@@ -590,7 +593,7 @@ subroutine hmaxloc()
   enwfmax =-1d9
   enwfmaxi=1d9
   allocate(eqt(1:nband))
-  do is = 1,nspin
+  do is = 1,nspx
     do iq = 1,nqbz
       qxx = qbz(:,iq)
       eqt= readeval(qxx,is)
@@ -621,12 +624,12 @@ subroutine hmaxloc()
   endif
 
   !! ixc = 1 ----------------
-  if (ixc == 1) then
-    do is = 1,nspin
+  if (ixc == 1) then !nspin-->nspx 2024-9-11
+    do is = 1,nspx
       call ewindow(is,ieo_swt,iei_swt,itout_i,itout_f,itin_i,itin_f, &
         eomin,eomax,eimin,eimax,ef,qbz,ikbidx, &
         nbbelow,nbabove, &
-        nqbz,nbb,nband,nwf,nspin, &
+        nqbz,nbb,nband,nwf, & 
         iko_i,iko_f,iki_i,iki_f, &
         ikbo_i,ikbo_f,ikbi_i,ikbi_f, &
         iko_ixs(is),iko_fxs(is),noxs(is), &
@@ -636,32 +639,32 @@ subroutine hmaxloc()
     call writebb(ifbb,wbb(1:nbb),bb(1:3,1:nbb), &
       ikbidx,ku,kbu, &
       iko_ixs,iko_fxs,noxs, &
-      nspin,nqbz,nbb)
+      nspx,nqbz,nbb) !nspin --> nspx
     ! m, 060923 !!!
-    ifwand = iopen('wan.d',1,-1,0)
+    open(newunit=ifwand,file='wan.d')
     iko_ix = iko_ixs(1)
     iko_fx = iko_fxs(1)
-    if (nspin == 2) then
+    if (nspx == 2) then
       if (iko_ixs(2) < iko_ix) iko_ix = iko_ixs(2)
       if (iko_fxs(2) > iko_fx) iko_fx = iko_fxs(2)
     endif
     write(ifwand,*)nqbz,nwf,iko_ix,iko_fx
-    write(ifwand,*)nspin
-    do is = 1,nspin
+    write(ifwand,*)nspx
+    do is = 1,nspx
       write(ifwand,*)nqbz,nwf,iko_ixs(is),iko_fxs(is)
     enddo
-    isx = iclose('wan.d')
+    close(ifwand)
     call rx0('hmaxloc: ixc=1 ok')
   endif
 
   !! loop over spin -----------------------
-  do 1000 is = 1,nspin
-    write(*,*)'is =',is,'  out of',nspin
+  do 1000 is = 1,nspx
+    write(*,*)'is =',is,'  out of',nspx
     ! energy window
     call ewindow(is,ieo_swt,iei_swt,itout_i,itout_f,itin_i,itin_f, &
       eomin,eomax,eimin,eimax,ef,qbz,ikbidx, &
       nbbelow,nbabove, &
-      nqbz,nbb,nband,nwf,nspin, &
+      nqbz,nbb,nband,nwf,& !nspin, &
       iko_i,iko_f,iki_i,iki_f, &
       ikbo_i,ikbo_f,ikbi_i,ikbi_f, &
       iko_ix,iko_fx,nox, &
@@ -971,7 +974,7 @@ subroutine hmaxloc()
       call wmaxloc(ifmlw(is),ifmlwe(is), &
         qbz,umnk,cnk,eunk, &
         iko_ix,iko_fx,iko_i,iko_f, &
-        nwf,nqbz,nband,nlmto, is,dnk)
+        nwf,nqbz,nband,ndima, is,dnk)
       !$$$cccccccccccccccccccccccccccccccccccccccccccccccccc
       !$$$      write(6,ftox)' uuuu'
       !$$$      do iq=1,nqbz
@@ -1149,7 +1152,7 @@ subroutine hmaxloc()
     !! --------------------------------------------------------------
     ! --- Readin nlam index
     ifoc = iopen('@MNLA_CPHI',1,0,0)
-    ldim2 = nlmto
+    ldim2 = ndima
     read(ifoc,*)
     if(allocated(m_indx)) deallocate(m_indx,n_indx,l_indx,ibas_indx,ibasiwf)
     allocate(m_indx(ldim2),n_indx(ldim2),l_indx(ldim2),ibas_indx(ldim2))
@@ -1187,13 +1190,13 @@ subroutine hmaxloc()
     ! data list for wannier
     ifh=ifile_handle()
     open(ifh,file="wan4chi.d",form="unformatted")
-    write(ifh) nwf,nspin,nqbz
+    write(ifh) nwf,nspx,nqbz
     close(ifh)
 
     ! generate eigenvalue and eigenvector of Wannier Hamiltonian
     ! Index:: evecc_w (orbital,band,q-point,spin)
     write(6,*)
-    if (is==1) allocate(eval_w(nwf,nqbz,nspin),evecc_w(nwf,nwf,nqbz,nspin))
+    if (is==1) allocate(eval_w(nwf,nqbz,nspx),evecc_w(nwf,nwf,nqbz,nspx))
     do iq = 1,nqbz
       if(iq<5 .OR. iq>nqbz-3)write(6,*)' got get_hrotkp_ws iq =',iq
       if(iq==5)write(6,*)' ...'
@@ -1208,14 +1211,14 @@ subroutine hmaxloc()
     if(is==2) then
       ifh=ifile_handle()
       open(ifh,file='EValue_w',form='unformatted')
-      write(ifh) nwf,nqbz,nspin
-      write(ifh) eval_w(1:nwf,1:nqbz,1:nspin)
+      write(ifh) nwf,nqbz,nspx
+      write(ifh) eval_w(1:nwf,1:nqbz,1:nspx)
       close(ifh)
       ifh=ifile_handle()
       open(ifh,file='EVec_w',form='unformatted')
-      write(ifh) nwf,nqbz,nspin
+      write(ifh) nwf,nqbz,nspx
       write(ifh) qbz(1:3,1:nqbz)
-      write(ifh) evecc_w(1:nwf,1:nwf,1:nqbz,1:nspin)
+      write(ifh) evecc_w(1:nwf,1:nwf,1:nqbz,1:nspx)
       close(ifh)
     endif
     ! end okumura
@@ -1289,7 +1292,7 @@ subroutine hmaxloc()
         enddo
       enddo
     endif
-    call writeham(ifham,is,ef,alat,plat,pos,qbz,wbz,rws,irws,hrotk,nspin,natom,nwf,nqbz,nrws)
+    call writeham(ifham,is,ef,alat,plat,pos,qbz,wbz,rws,irws,hrotk,nspx,natom,nwf,nqbz,nrws)
     deallocate(cnk,umnk,eunk,hrotk,hrotr,hrotkp,evecc,eval,irws,rws,drws, &
       ibasiwf,m_indx,n_indx,l_indx,ibas_indx)
     if (lsh) deallocate(hrotkps,eveccs,evals,evecc2)

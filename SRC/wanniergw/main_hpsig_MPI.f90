@@ -1,5 +1,4 @@
 subroutine hpsig_MPI()
-
   !-------------------------------------------------
   ! from huumat.f
   ! Calculate <psi|g>
@@ -18,13 +17,13 @@ subroutine hpsig_MPI()
   use m_hamindex,only:   readhamindex,ngrp
   use m_readeigen,only:init_readeigen,init_readeigen2,readcphif,readgeigf
   use m_read_bzdata,only: read_bzdata,qbz,nqbz,nqibz,nqbz,qbas=>qlat,nq0i,q0i
-  use m_genallcf_v3,ncore2=>ncore,nrxx=>nrx
+  use m_genallcf_v3, ncore2=>ncore,nrxx=>nrx !, nprecb,mrecb,mrece,ndimat,nqbzt,nband,mrecg
   use m_keyvalue,only: getkeyvalue
   use m_read_Worb,only: s_read_Worb, s_cal_Worb, &
        nwf, nclass_mlwf, cbas_mlwf, nbasclass_mlwf, &
        classname_mlwf, iclassin, &
        iphi, iphidot, nphi, nphix
-  use m_readhbe,only: readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+!  use m_readhbe,only: readhbe, nprecb,mrecb,mrece,ndimat,nqbzt,nband,mrecg
   ! RS: MPI module
   !      use rsmpi
   !      use rsmpi_rotkindex
@@ -41,7 +40,7 @@ subroutine hpsig_MPI()
   ! nw,incwf,natom,nclass,ipos,igrp,
   !     & iinvg,nspin,nl,nn,nnv,nnc,
   !     o                   inindx,inindxv,inindxc,iiclass,             !l,n, dimensions
-  !     d                   nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, !l,n,  dimensions
+  !     d                   ndima,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, !l,n,  dimensions
   !     o                   izdummy,
   !     o   iil,iin,iim,   iilnm, i_mnl, ! l,n,m for Phi ! w(i_mnl)=> mnl(ic) for all electron
   !     o   iilv,iinv,iimv,iilnmv,i_mnlv,! l,n,m for Phi
@@ -51,7 +50,7 @@ subroutine hpsig_MPI()
   integer(4) &
        nw_input, &
        !     &   ifhbe,
-       !     &   nprecb,mrecb,mrece,nlmtot,nqbzt,nband,
+       !     &   nprecb,mrecb,mrece,ndimat,nqbzt,nband,
        i,nq0ix,ngrpmx,mxx,nqbze,nqibze,ini,ix,ngrpx &
        ,mdimx,nbloch,nblochpmx,ifvcfpout,ndummy1,ndummy2,ifcphi,is,nwp, &
        ifepscond,nxx,ifvxcpout,ifgb0vec &
@@ -86,10 +85,7 @@ subroutine hpsig_MPI()
   real(8),allocatable:: phitoto(:,:,:,:,:), aa(:),rr(:,:) &
        ,phitotr(:,:,:,:,:), &
        bb(:),zz(:),rmax(:),cy(:),yl(:)
-
-
-  complex(8),allocatable:: geig1(:,:),geig2(:,:),cphi1(:,:),cphi2(:,:) &
-       ,uum(:,:,:), ppovl(:,:)
+  complex(8),allocatable:: geig1(:,:),cphi1(:,:),uum(:,:,:), ppovl(:,:)
   complex(8):: ppj,phaseatom
   real(8)   :: q1(3),q2(3),dq(3),absqg2,absdq,r2s,absqg
   integer(4):: j1,j2,j1max,j2max,j1min,j2min,ispin &
@@ -109,7 +105,7 @@ subroutine hpsig_MPI()
        phig(:,:,:,:),wphi(:,:)
   real(8) :: pgnorm,wgt,ndg(3),sij,wphis
   complex(8),allocatable :: psig(:,:,:),qgg(:,:,:)
-  logical :: ghead,tailt
+  logical :: ghead,tailt,debug=.true.
 
   ! m, MPI
   include 'mpif.h'
@@ -180,7 +176,7 @@ subroutine hpsig_MPI()
   !      if(ngrp/= ngrp2) stop 'ngrp inconsistent: BZDATA and LMTO GWIN_V2'
   !---  These are allocated and setted by genallcf_v3
   !      integer(4)::  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
-  !     o  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot,niw,nw
+  !     o  ndima,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot,niw,nw
   !      real(8) :: alat,ef, diw,dw,delta,deltaw,esmr
   !      character(120):: symgrp
   !      character(6),allocatable :: clabl(:)
@@ -201,10 +197,10 @@ subroutine hpsig_MPI()
 
   ! --- read dimensions of h,hb
   !      ifhbe      = iopen('hbe.d',1,0,0)
-  !      read (ifhbe,*) nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
-  !      if(nlmto/=nlmtot) stop ' hx0fp0: nlmto/=nlmtot in hbe.d'
+  !      read (ifhbe,*) nprecb,mrecb,mrece,ndimat,nqbzt,nband,mrecg
+  !      if(ndima/=ndimat) stop ' hx0fp0: ndima/=ndimat in hbe.d'
   !      if(nqbz /=nqbzt ) stop ' hx0fp0: nqbz /=nqbzt  in hbe.d'
-  call Readhbe()
+!  call Readhbe()
 
   ! --- read by rdpp ; Radial integrals ppbrd and plane wave part
   call getsrdpp2(nclass,nl,nxx)
@@ -236,26 +232,20 @@ subroutine hpsig_MPI()
           write(6,*)' --- read PHIVC of ibas nrad=',ibas,nrad(ic)
      read(ifphi) ncore(ic), ncoremx                            !core
      read(ifphi) ncindx(1:ncoremx,ibas),lcindx(1:ncoremx,ibas) !core
-     if (myproc == 0) &
-          write(6,*)' xxx0'
+     if (myproc == 0) write(6,*)' xxx0'
      read(ifphi) icx,zz(ic),nrofi(ic),aa(ic),bb(ic)
-
      if (myproc == 0) &
           write(6,*) 'ic icx=',ic,icx,zz(ic),nrofi(ic),aa(ic),bb(ic)
      if(ic/=icx) then
         stop ' h_uu: ic/=icx'
      endif
-     if (myproc == 0) &
-          write(6,*)' xxx1 ncoremx ncore(ic)=',ncoremx,ncore(ic)
+     if (myproc == 0) write(6,*)' xxx1 ncoremx ncore(ic)=',ncoremx,ncore(ic)
      read(ifphi) rr(1:nrofi(ic),ic)
-     if (myproc == 0) &
-          write(6,*)' xxx2 ncoremx ncore(ic)=',ncoremx,ncore(ic)
-
+     if (myproc == 0) write(6,*)' xxx2 ncoremx ncore(ic)=',ncoremx,ncore(ic)
      if (myproc == 0) write(6,*)' xxx2 nspin=',nspin
      rmax(ic) = rr(nrofi(ic),ic)
      do isp = 1, nspin
-        if (myproc == 0) &
-             write(6,*)'          ---  isp nrad ncore(ic)=',isp, nrad(ic),ncore(ic)
+        if (myproc == 0) write(6,*)'          ---  isp nrad ncore(ic)=',isp, nrad(ic),ncore(ic)
         do ico = 1, ncore(ic) !core
            l =  lcindx(ico,ic)
            n =  ncindx(ico,ic)
@@ -278,7 +268,6 @@ subroutine hpsig_MPI()
         enddo
      enddo
   enddo
-
   !--- cg coefficient.  y = cg y y ; y is the real spherical harmonics
   ngrpx=1
   allocate( cg(nl**2,nl**2,(2*nl-1)**2), symope(3,3) )
@@ -287,25 +276,22 @@ subroutine hpsig_MPI()
   symope(1:3,3) = (/0d0,0d0,1d0/)
   cg = 0d0 !for sanity check
   call rotcg(nl-1,symope,ngrpx,cg)
-
   !! initiallization to get eigenfunctions
   call Readhamindex()
   call init_readeigen()!nband,mrece) !initialization of readEigen
-  call init_readeigen2()!mrecb,nlmto,mrecg)
+  call init_readeigen2()!mrecb,ndima,mrecg)
   call readngmx('QGpsi',ngpmx)
-  allocate( geig1(ngpmx,nband) )
+  allocate( geig1(ngpmx*nspc,nband) )
   if (myproc == 0) write(6,*) 'end of initialization'
-
   ! --- Readin nlam index
   ifoc = iopen('@MNLA_CPHI',1,0,0)
-  ldim2 = nlmto
+  ldim2 = ndima
   read(ifoc,*)
   allocate(m_indx(ldim2),n_indx(ldim2),l_indx(ldim2),ibas_indx(ldim2))
   do ix =1,ldim2
      read(ifoc,*)m_indx(ix),n_indx(ix),l_indx(ix),ibas_indx(ix),ixx
      if(ixx/=ix) stop  'failed to readin @MNLA_CPHI'
   enddo
-
   ! ---  q near zero
   if (myproc == 0) write(6,*) 'reading QOP'
   !$$$      if101=ifile_handle()
@@ -338,10 +324,8 @@ subroutine hpsig_MPI()
        bbv, &
        ikbidx, &
        iko_ixs,iko_fxs,noxs)
-
   ! GWinput data
   call s_read_Worb()
-
   do iclass2=1,nclass_mlwf
      write(*,*)'output:',iclassin(iclass2), nwf &
           ,trim(classname_mlwf(iclass2)),cbas_mlwf(1:nbasclass_mlwf(iclass2) &
@@ -371,14 +355,13 @@ subroutine hpsig_MPI()
      wphis = dsqrt(sum(wphi(1:nphi(i),i)**2))
      wphi(1:nphi(i),i) = wphi(1:nphi(i),i)/wphis
   enddo
-
   ! matching condition at MT radius
   allocate(c1(nphix,nwf,nspin),c2(nphix,nwf,nspin))
   if ( .NOT. ghead) &
        call getc1c2(phitotr,r0g, &
        iphi,iphidot,n_indx,l_indx,m_indx,ibas_indx, &
        rr,nrofi,rmax,nphi,nc_max, &
-       nwf,nlmto,nrx,nl,nn,nbas,nspin,nphix, &
+       nwf,ndima,nrx,nl,nn,nbas,nspin,nphix, &  !ndima =>ndima
        c1,c2)
 
   if (myproc == 0) then
@@ -389,11 +372,9 @@ subroutine hpsig_MPI()
         write(*,*)'iwf,',i,nphi(i)
         do j = 1,nphi(i)
            ix = iphi(j,i)
-           write(*,"('phi   ',5i5)") &
-                ix,n_indx(ix),l_indx(ix),m_indx(ix),ibas_indx(ix)
+           write(*,"('phi   ',5i5)") ix,n_indx(ix),l_indx(ix),m_indx(ix),ibas_indx(ix)
            ix = iphidot(j,i)
-           write(*,"('phidot',5i5)") &
-                ix,n_indx(ix),l_indx(ix),m_indx(ix),ibas_indx(ix)
+           write(*,"('phidot',5i5)") ix,n_indx(ix),l_indx(ix),m_indx(ix),ibas_indx(ix)
         enddo
         write(*,*)
      enddo
@@ -428,7 +409,6 @@ subroutine hpsig_MPI()
   !======================================================================
 
   allocate( psig(j1min:j1max,nwf,nspin) )
-
   ! m, MPI
   nq_proc = nqbz / nproc
   nproc1 = nqbz - nq_proc*nproc
@@ -449,60 +429,53 @@ subroutine hpsig_MPI()
         endif
      enddo ! ii
   enddo ! jj
-
   do 1070 ii = 1,nq_proc+1
+     if(debug) write(6,*)'do1070start ii=',ii
      iqbz = iq_proc(ii)
      if (iqbz == 0) cycle
-     write(*,*)'iqbz =',iqbz, 'out of',nqbz
+     write(*,*)    'iqbz =',iqbz, 'out of',nqbz
      write(iftmp,*)'iqbz =',iqbz, 'out of',nqbz
      q1(:) = qbz(:,iqbz)
      ! --- q1x
-     call readqg0('QGpsi',q1,  q1x, ngp1)
-     !      call checkagree(q1,q1x,' q1 ne q1x')
-     if (myproc == 0) write(6,"('q1 q1x=',3f9.4,3x,3f9.4)") q1,q1x
-
+     call readqg0('QGpsi',q1,  q1x, ngp1)     !      call checkagree(q1,q1x,' q1 ne q1x')
+     if (myproc == 0) write(6,"(' q1 q1x=',3f9.4,3x,3f9.4)") q1,q1x
      ! ... lxx and allocations
      lxx=2*(nl-1)
-
      ! --- < q+G | g >
      allocate( ngvecpf1(3,ngp1),qgg(ngp1,nphix,nwf) )
      if (tailt) then
         qgg = 0d0
      else
-        call readqg('QGpsi',q1, q1x, ngp1, ngvecpf1)
-        !      call checkagree(q1,q1x,' q1 ne q1x xxx2')
+        call readqg('QGpsi',q1, q1x, ngp1, ngvecpf1)        !      call checkagree(q1,q1x,' q1 ne q1x xxx2')
         call qggmat(q1,alat,plat,qbas, &
              iphi,r0g,pos, &
              rr,nrofi,rmax,aa,bb, &
              n_indx,l_indx,m_indx,ibas_indx, &
              ngvecpf1,nphi, &
-             lxx,ngp1,nwf,nlmto,nbas,nrx,nphix, &
+             lxx,ngp1,nwf,ndima,nbas,nrx,nphix, &
              qgg)
-        !      write(*,*)'qggmat done'
+        if(debug) write(*,*)'qggmat done'
      endif
-
      ! --- < phi | g >
-     allocate ( phig(nlmto,nphix,nwf,nspin) )
+     allocate ( phig(ndima,nphix,nwf,nspin) )
      call phigmat(iphi,iphidot,c1,c2,phitoto,phitotr, &
           rr,nrofi,rmax,aa,bb,r0g,ghead, &
           n_indx,l_indx,m_indx,ibas_indx,nphi,nc_max, &
-          nwf,nlmto,nn,nl,nbas,nrx,nspin,nphix, &
+          nwf,ndima,nn,nl,nbas,nrx,nspin,nphix, &
           phig)
-     !      write(*,*)'phigmat done'
-
+     if(debug) write(*,*)'phigmat done'
      ! --- Calcuate <psi{q1x j1} | g_{iwf}>
      psig = 0d0
      do 1050 ispin=1,nspin
-
         ! ... MT part
-        !r   ldim2 = nlmto
-        !r   n_indx   (1;ldim2) : n index (phi=1 phidot=2 localorbital=3)
+        !r   ldim2 = ndima
+        !r   n_indx   (1;ldim2) : n index (phi=1 phidto=2 localorbital=3)
         !r   l_indx   (1:ldim2) : l index
         !r   ibas_indx(1:ldim2) : ibas index.
-        allocate( cphi1 (nlmto,nband) )
-        cphi1= readcphif(q1,ispin) !    call readcphi(q1, nlmto, ispin, quu, cphi1)
+        allocate( cphi1 (ndima*nspc,nband) )
+        cphi1= readcphif(q1,ispin) !    call readcphi(q1, ndima, ispin, quu, cphi1)
         !   call checkagree(q1,q1x,' q1 ne quu')
-        do 1020 ia = 1,nlmto
+        do 1020 ia = 1,ndima
            do j1= iko_ixs(ispin),iko_fxs(ispin)
               do iwf = 1,nwf
                  do j   = 1,nphi(iwf)
@@ -512,9 +485,7 @@ subroutine hpsig_MPI()
               enddo
            enddo
 1020    enddo
-
-        !       write(*,*)'MT part done'
-
+        if(debug)  write(*,*)'MT part done'
         ! ... Interstitial Plane Wave part
         geig1=readgeigf(q1,ispin) !call readgeig(q1, ngpmx, ispin, quu, geig1)
         !       call checkagree(q1,quu,' q1 ne quu eig')
@@ -527,22 +498,20 @@ subroutine hpsig_MPI()
               enddo
            enddo
         enddo
-
         deallocate(cphi1)
 1050 enddo
-
+     if(debug) write(6,*)'end of do1050'
      !! write result
      do ispin = 1,nspin
         if(ispin==1) open(newunit=ifpsig,file='PSIGU.'//charnum4(iqbz),form='unformatted')
         if(ispin==2) open(newunit=ifpsig,file='PSIGD.'//charnum4(iqbz),form='unformatted')
         iti = iko_ixs(ispin)
         itf = iko_fxs(ispin)
-        !         write(6,*)'wwwwwww', iqbz,ispin,iti,itf
+        if(debug) write(6,*)'wwwwwww', iqbz,ispin,iti,itf
         write(ifpsig) iqbz
         write(ifpsig) ((psig(j1,j2,ispin),j1=iti,itf),j2=1,nwf)
         close(ifpsig)
      enddo
-
      ! eck write
      !      if (mod(iqbz,10).eq.1) then
      !         do ispin = 1,nspin
@@ -576,16 +545,14 @@ subroutine hpsig_MPI()
      !         enddo
      !         enddo
      !      enddo
-
      deallocate(ngvecpf1, qgg, phig)
      ! end of qbz-loop
+     if(debug) write(6,*)'do1070end ii=',ii
 1070 enddo
-1100 continue
   call mpi_barrier(MPI_COMM_WORLD,ierr)
   ! finalize MPI
   call mpi_finalize(ierr)
-  if (myproc == 0) &
-       write(6,*) ' ====== end ========================================'
+  if (myproc == 0) write(6,*) ' ====== end ========================================'
   if (myproc == 0) write(*,*) 'hpsig: ok'
 end subroutine hpsig_MPI
 
@@ -644,7 +611,7 @@ end subroutine hpsig_MPI
 subroutine  getc1c2(phitotr,r0g, &
      iphi,iphidot,n_indx,l_indx,m_indx,ibas_indx, &
      rr,nrofi,rmax,nphi,nc_max, &
-     nwf,nlmto,nrx,nl,nn,nbas,nspin,nphix, &
+     nwf,ndima,nrx,nl,nn,nbas,nspin,nphix, &
      c1,c2)
   implicit integer (i-n)
   implicit real*8(a-h,o-z)
@@ -652,8 +619,8 @@ subroutine  getc1c2(phitotr,r0g, &
        rr(nrx,nbas),rmax(nbas), &
        c1(nphix,nwf,nspin),c2(nphix,nwf,nspin)
   integer(4) :: iphi(nphix,nwf),iphidot(nphix,nwf), &
-       n_indx(nlmto),l_indx(nlmto),m_indx(nlmto), &
-       ibas_indx(nlmto),nrofi(nbas),nphi(nwf), &
+       n_indx(ndima),l_indx(ndima),m_indx(ndima), &
+       ibas_indx(ndima),nrofi(nbas),nphi(nwf), &
        nc_max(0:nl-1,nbas)
 
 
@@ -731,38 +698,31 @@ subroutine qggmat(q,alat,plat,qlat, &
      rr,nrofi,rmax,aa,bb, &
      n_indx,l_indx,m_indx,ibas_indx, &
      ngvec,nphi, &
-     lxx,ng,nwf,nlmto,nbas,nrx,nphix, &
+     lxx,ng,nwf,ndima,nbas,nrx,nphix, &
      qgg)
-  ! < q+G | g> where q+G denotes IPW, zero within MT sphere
-  ! g(r) = Ag exp(-(r/r0)**2)
+  ! < q+G | g> where q+G denotes IPW, zero within MT sphere   ! g(r) = Ag exp(-(r/r0)**2)
   implicit real*8 (a-h,o-z)
   implicit integer (i-n)
   parameter (nmt = 4)
   parameter (eps = 1d-5)
-
   complex(8) :: qgg(ng,nphix,nwf),eiqgr
   complex(8) :: img =(0d0,1d0)
   real(8) :: q(3),plat(3,3),qlat(3,3),r0g(nphix,nwf),bas(3,nbas), &
        rr(nrx,nbas),rmax(nbas),aa(nbas),bb(nbas), &
        g(3),qg(3),ag(nphix,nwf)
   integer(4) :: iphi(nphix,nwf),nrofi(nbas),ntail(nphix,nwf), &
-       n_indx(nlmto),l_indx(nlmto),m_indx(nlmto),ibas_indx(nlmto), &
+       n_indx(ndima),l_indx(ndima),m_indx(ndima),ibas_indx(ndima), &
        ngvec(3,ng),nphi(nwf)
-
-  integer(4) :: ng,nwf,nlmto,nbas,nrx
-  real(8) :: absqg,tripl,pi,rbas(3,nphix,nwf), &
-       alat,tpiba,tpibaqlat(3,3),voltot
-  real(8),allocatable :: cy(:),yl(:),rtail(:,:,:),rg(:,:,:), &
-       phij(:),psij(:),rjl(:)
-
+  integer(4) :: ng,nwf,ndima,nbas,nrx
+  real(8) :: absqg,tripl,pi,rbas(3,nphix,nwf), alat,tpiba,tpibaqlat(3,3),voltot
+  real(8),allocatable :: cy(:),yl(:),rtail(:,:,:),rg(:,:,:), phij(:),psij(:),rjl(:)
   !-----------------------------------------------------
   !r True q is given by
   !r    True_q(1:3)     = 2*pi/alat * q(1:3)
   !r True G is given by
   !r    True_G(1:3,igp) = 2*pi/alat * matmul(qlat * ngvec(1:3,ig)) ,ig=1,ng
   !-----------------------------------------------------
-
-  !      write(6,*)' qggmat:'
+  write(6,*)' qggmat:'
   pi        = 4d0*datan(1d0)
   voltot    = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
   tpibaqlat =  2*pi/alat *qlat
@@ -776,17 +736,14 @@ subroutine qggmat(q,alat,plat,qlat, &
         ibas  = ibas_indx(ilmto)
         rbas(1:3,j,iwf) =  bas(1:3,ibas)*alat
         ag(j,iwf) = (128d0 / (pi*r0g(j,iwf)**6))**0.25d0
-        ntail(j,iwf) = int(log(dble(nmt)) / aa(ibas)) &
-             + nrofi(ibas) + 1
+        ntail(j,iwf) = int(log(dble(nmt)) / aa(ibas)) + nrofi(ibas) + 1
         if (ntailx < ntail(j,iwf)) ntailx = ntail(j,iwf)
      enddo
   enddo
-
-  allocate(cy((lxx+1)**2),yl((lxx+1)**2), &
-       rtail(ntailx,nphix,nwf),rg(ntailx,nphix,nwf), &
-       phij(0:lxx),psij(0:lxx),rjl(ntailx))
-
-
+  allocate(cy((lxx+1)**2),yl((lxx+1)**2))
+  allocate(phij(0:lxx),psij(0:lxx),rjl(ntailx))
+  write(6,*)'rrrrrrrr',ntailx,nphix,nwf
+  allocate(rtail(ntailx,nphix,nwf),rg(ntailx,nphix,nwf))
   do iwf = 1,nwf
      do j   = 1,nphi(iwf)
         ilmto = iphi(j,iwf)
@@ -880,9 +837,7 @@ subroutine qggmat(q,alat,plat,qlat, &
 
      ! end of ig-loop
   enddo
-
   deallocate(cy,yl,rtail,rg,phij,psij,rjl)
-
   !      write(6,*)' qggmat: done '
 end subroutine qggmat
 
@@ -890,7 +845,7 @@ end subroutine qggmat
 subroutine phigmat(iphi,iphidot,c1,c2,phitoto,phitotr, &
      rr,nrofi,rmax,aa,bb,r0g,ghead, &
      n_indx,l_indx,m_indx,ibas_indx,nphi,nc_max, &
-     nwf,nlmto,nn,nl,nbas,nrx,nspin,nphix, &
+     nwf,ndima,nn,nl,nbas,nrx,nspin,nphix, &
      phig)
   ! < phi | g>
   ! g = c1*phi + c2*phidot, which is conneted to the gaussian tail
@@ -898,14 +853,14 @@ subroutine phigmat(iphi,iphidot,c1,c2,phitoto,phitotr, &
   implicit integer (i-n)
   implicit real*8 (a-h,o-z)
 
-  real(8) :: phig(nlmto,nphix,nwf,nspin), &
+  real(8) :: phig(ndima,nphix,nwf,nspin), &
        phitoto(nrx,0:nl-1,nn,nbas,nspin), &
        phitotr(nrx,0:nl-1,nn,nbas,nspin)
   real(8) :: rr(nrx,nbas),rmax(nbas),aa(nbas),bb(nbas), &
        c1(nphix,nwf,nspin),c2(nphix,nwf,nspin), &
        rphi(nrx),rhead(nrx),r0g(nphix,nwf)
   integer(4) :: iphi(nphix,nwf),iphidot(nphix,nwf),nrofi(nbas), &
-       n_indx(nlmto),l_indx(nlmto),m_indx(nlmto),ibas_indx(nlmto), &
+       n_indx(ndima),l_indx(ndima),m_indx(ndima),ibas_indx(ndima), &
        nphi(nwf),nc_max(0:nl-1,nbas)
   logical :: ghead
 
@@ -959,7 +914,7 @@ subroutine phigmat(iphi,iphidot,c1,c2,phitoto,phitotr, &
 
            endif ! ghead
 
-           do inlm = 1,nlmto
+           do inlm = 1,ndima
               ibas = ibas_indx(inlm)
               il   = l_indx(inlm)
               im   = m_indx(inlm)

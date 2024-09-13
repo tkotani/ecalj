@@ -105,14 +105,20 @@ character(10) function i2char(numin) ! convert num to char. See charnum3 to unde
   i2char = trim(i2char)//char(48+mod(num,10)) !1st digit
   if(numin<0) i2char = '-'//trim(i2char)//char(48+mod(num,10)) !1st digit
 END function i2char
-character(8) function charext(num)
-  integer(4) ::num
+character(8) function charext(numin)
+  integer(4) ::num,numin
+  character(1)::sss
+  num=numin
+  sss=''
+  if(num<0) sss='-'
+  if(num<0) num=abs(num)
   charext = char(48+mod(num,10))
   if(num>9)   charext= char(48+mod(num/10,10))//charext
   if(num>99)  charext= char(48+mod(num/100,10))//charext
   if(num>999) charext= char(48+mod(num/1000,10))//charext
   if(num>9999)charext= char(48+mod(num/10000,10))//charext
-  if(num >99999) call rx( ' charext:can not produce')
+  if(num >99999) charext='LargeInt'
+  charext=trim(sss)//charext
 END function charext
 
 character(64) function charli(iline,ndat)

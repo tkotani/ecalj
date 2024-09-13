@@ -11,7 +11,7 @@ subroutine hsfp0() bind(C)
        nstar,irk,nstbz, lxklm,dmlx,epinvq0i,wklm, wqt=>wt,q0i,nq0i
   use m_hamindex,only: ngrp, symgg=>symops
   use m_genallcf_v3,only: Genallcf_v3, &
-       nclass,natom,nspin,nl,nn, nlmto,nlnmx, nctot,niw, &
+       nclass,natom,nspin,nl,nn, ndima,nlnmx, nctot,niw, &
        alat,delta,deltaw,esmr_in=>esmr,clabl,iclass, il,in,im,nlnm, &
        plat, pos,z,ecore,  konf,nlnx
   use m_keyvalue,only: Getkeyvalue
@@ -22,7 +22,8 @@ subroutine hsfp0() bind(C)
        MPI__Initialize,MPI__real8send,MPI__real8recv, & !MPI__sxcf_rankdivider,
        MPI__root,MPI__Broadcast,MPI__rank,MPI__size,MPI__allreducesum, &
        MPI__consoleout
-  use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+!  use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,ndimat,nqbzt,nband,mrecg
+  use m_genallcf_v3,only: nprecb,mrecb,mrece,nqbzt,nband,mrecg
   use m_lgunit,only: m_lgunit_init
   use m_freq,only: freq01
   use m_anf,only:  Anfcond, laf
@@ -121,15 +122,14 @@ subroutine hsfp0() bind(C)
   !      logical:: GaussSmear=.true.      !readgwinput,
   integer::ret
   character*(150):: ddd
-  integer:: bzcase=1,  ngpn1,verbose,ngcn1,nwxx !mrecg,
+  integer:: bzcase=1,  ngpn1,verbose,ngcn1,nwxx,nss(2) !mrecg,
   real(8)   :: wgtq0p,quu(3)
   real(8),allocatable:: freq_r(:)
-  logical ::smbasis
-  integer:: ifpomat,nkpo,nnmx,nomx,ikpo,nn_,no,nss(2)
+!  integer:: ifpomat,nkpo,nnmx,nomx,ikpo,nn_,no
   real(8):: q_r(3)
   real(8),allocatable:: qrr(:,:)
   integer,allocatable:: nnr(:),nor(:)
-  complex(8),allocatable:: pomatr(:,:,:),pomat(:,:)
+!  complex(8),allocatable:: pomatr(:,:,:),pomat(:,:)
   real(8)::sumimg
   logical :: allq0i            !S.F.Jan06
   integer:: nw_i
@@ -322,7 +322,7 @@ subroutine hsfp0() bind(C)
   write(6,'("    deltaw  =",f13.6)') deltaw
   write(6,'("    esmr    =",f13.6)') esmr
   write(6,'("    alat voltot =",2f13.6)') alat, voltot
-  call Readhbe()    !Read dimensions of h,hb
+!  call Readhbe()    !Read dimensions of h,hb
   call Readhamindex()
   call init_readeigen()!nband,mrece) !initialization of readEigen
   call Mptauof_zmel(symgg,ngrp) !Get space-group transformation information. in m_zmel
@@ -429,7 +429,7 @@ subroutine hsfp0() bind(C)
   !     noccxv = maxocc (ifev,nspin, ef+0.5d0*esmr, nband,nqbz)  ! maximum no. of occupied valence states
   !     maxocc seems to give (the maxmum number of occ + 1).
 
-  call init_readeigen2()!mrecb,nlmto,mrecg) !initialize m_readeigen
+  call init_readeigen2()!mrecb,ndima,mrecg) !initialize m_readeigen
   call Getkeyvalue("GWinput","QPNT_nbandrange",nss,2,default=(/-99997,-99997/) )
 
   if( .NOT. tote) then
@@ -690,7 +690,7 @@ subroutine hsfp0() bind(C)
           nstar,irkip(is,:,:,:), &
           freq_r,freqx, wwx, &
           dwdummy, ecore(:,is), &
-          nlmto,nqibz,nqbz,nctot, &
+          ndima,nqibz,nqbz,nctot, &
           nbloch,ngrp, nw_i,nw,  niw,niwx,nq, &
           nblochpmx,ngpmx,ngcmx, &
           wgt0,nq0i,q0i, symgg,alat, nband, ifvcfpout, &

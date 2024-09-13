@@ -1,5 +1,6 @@
 module m_tetwt5
   use m_tetrakbt,only: tetrakbt_init, tetrakbt, integtetn
+  use m_ftox
   public hisrange,tetwt5x_dtet4,rsvwwk00_4
   private
 contains
@@ -39,7 +40,7 @@ contains
     !! + This version tetwt5x_dtet4 Feb2006 works for timereversal=off (npm=2 case)
     !!   - When job=1, we get
     !!   - wtthis(ihis) = \int_hislow^hisup d\omega \times
-    !!   -                \int d^3k f(e(k)) (1-f(e(q+k))) \delta (omg- e(q+k) + e(k) )
+    !!   -                \int Vcell/(2pi)**3 d^3k f(e(k)) (1-f(e(q+k))) \delta (omg- e(q+k) + e(k) )
     !!   - wtthis is stored into whw. See below for indexing.
     !! + job=0 is to get  wgt,nbnb, demin,demax.
     !!   - They are just for the allocation of arrays and set up required indexes.
@@ -147,7 +148,7 @@ contains
     !      real(8):: fermi_dS(3,3) !not yet used...
     logical:: eibzmode, usetetrakbt
     !  integer:: nwgt(nqbz)
-    real(8):: ebmx,  voltet!,det33
+    real(8):: ebmx,  voltet,ebmxx
     integer:: nbmx
     logical,optional:: wan
 !!! tetrakbt
@@ -181,19 +182,13 @@ contains
        ekxx2( 1:nband, kx) = eband2(1:nband,kx)
        ekxx1( nband+1: nband+nctot, kx) = ecore(1:nctot)
        ekxx2( nband+1: nband+nctot, kx) = ecore(1:nctot)
-    enddo
+     enddo
     !! Read eigenvalues at q and q+k ---------------------------------------
     !!  ekzz1 for k
     !!  ekzz2 for q+k.
     allocate( ekzz1(nband+nctot,nqbzm),ekzz2(nband+nctot,nqbzm))
     ekzz1=ekxx1
     ekzz2=ekxx2
-    !! Add eigenvalue shift. scissors_x0() is defined in switch.F
-    if(scissors_x0()/=0d0) then
-       call addsciss(scissors_x0(),efermi,(nband+nctot)*nqbzm,    ekzz1)
-       call addsciss(scissors_x0(),efermi,(nband+nctot)*nqbzm,    ekzz2)
-    endif
-
     !! Check
     volt = 0d0
     do itet = 1, ntetf
@@ -202,11 +197,9 @@ contains
           do i = 1,3
              kvec(1:3,i) = kvec(1:3,i) - kvec(1:3,0)
           enddo
-          volt = volt + abs(det33(kvec(1:3,1:3))/6d0)
-          !        write(6,"('itet im vol=',2i5,d13.5)") itet,im,abs(det33(kvec(1:3,1:3))/6d0)
+          volt = volt + abs(det33(kvec(1:3,1:3))/6d0)    !        write(6,"('itet im vol=',2i5,d13.5)") itet,im,abs(det33(kvec(1:3,1:3))/6d0)
        enddo
-    enddo
-    !      if(abs(volt-voltot)>1d-10) call rx( ' tetwt: abs(volt-voltot)>1d-10')
+    enddo     !      if(abs(volt-voltot)>1d-10) call rx( ' tetwt: abs(volt-voltot)>1d-10')
     if(job==0) then
        demin=  1d10
        demax= - 1d10
@@ -215,48 +208,42 @@ contains
     efermib = efermi
     interbandonly=cmdopt0('--interbandonly')
     intrabandonly=cmdopt0('--intrabandonly')
-    !! === Loop over tetrahedron ===
-    do 1000 itet = 1, ntetf !;
-       kk (0:3) = ib1bz( idtetf(0:3,itet) )     !  k
-       !     if(eibzmode) then
-       !        if(sum(nwgt(kk(0:3)))==0) cycle
-       !     endif
+    tetrahedronloop: do 1000 itet = 1, ntetf 
+       kk (0:3) = ib1bz( idtetf(0:3,itet) )  !  four kpoints
        kkv(1:3, 0:3) = qbzw (1:3, idtetf(0:3,itet) )
-       do 1100 im = 1,nmtet
-          kkm (0:3)       = ib1bzm( idtetfm(0:3,im,itet) ) !  k   in micro-tet
+       do 1100 im = 1,nmtet ! nmtet=1 usually (micro tetrahedron or nmetet/=1 is obsolate)
+          kkm (0:3)      = ib1bzm( idtetfm(0:3,im,itet) )      !  k  in micro-tet
           kvec(1:3, 0:3) = qbzwm ( 1:3, idtetfm(0:3,im,itet) )
-          do i = 1,3
-             am(1:3,i) = kvec(1:3,i-1) - kvec(1:3,3)
-          enddo
+          forall(i = 1:3) am(1:3,i) = kvec(1:3,i-1) - kvec(1:3,3)
           voltet = abs(det33(am)/6d0)
           ek_ ( 1:nband+nctot, 0:3) = ekzz1( 1:nband+nctot, kkm(0:3)) ! k
           ekq_( 1:nband+nctot, 0:3) = ekzz2( 1:nband+nctot, kkm(0:3)) ! k+q
-          !          noccx_k = noccx1 ( ek_(1:nband, 0:3),4,nband, efermi)!the highest number of occupied states
-          !          noccx_kq= noccx1 (ekq_(1:nband, 0:3),4,nband, efermi)
-          !     the highest number of occupied states
-          noccx_k = maxval(count( ek_(1:nband, 0:3)<efermi,dim=1) )
+!          write(6,ftox) 'eocc  ', ek_ -efermi,  write(6,ftox) 'eunocc', ekq_-efermi
+          noccx_k = maxval(count( ek_(1:nband, 0:3)<efermi,dim=1) ) !the highest number of occupied states
           noccx_kq= maxval(count( ekq_(1:nband,0:3)<efermi,dim=1) )
-          nbandmx_k   = nband
-          nbandmx_kq  = nband
-          !! exclude wannier model: (okumura, 2017/06/13)
-          !! ebmx band cutoff 2016Jun
-          if (present(wan) .AND. wan) then
-             continue
-          else
-             do i=1,nbmx
-                if( maxval(ek_(i, 0:3)) >ebmx) then
-                   nbandmx_k = i-1
-                   exit
-                endif
-             enddo
-             do i=1,nbmx
-                if( maxval(ekq_(i, 0:3)) >ebmx) then
-                   nbandmx_kq = i-1
-                   exit
-                endif
-             enddo
-          endif
-          !!
+          ebmxx= merge(1d10,ebmx,present(wan)) !! exclude wannier model: (okumura, 2017/06/13)
+          nbandmx_k   = minval(count( ek_(1:nband,  0:3)<min(1d10,ebmxx),dim=1)) ! nband max See sugw.f90:L331 evl(1+nev:nbandmx,iq,isp)=1d20 !padding
+          nbandmx_kq  = minval(count( ekq_(1:nband, 0:3)<min(1d10,ebmxx),dim=1)) ! 2024-9-4
+          !Before 2024-9-4. Minor differnces fe_epsPP_lmfh_chipm
+          ! nbandmx_k   = nband
+          ! nbandmx_kq  = nband
+          ! !exclude wannier model: (okumura, 2017/06/13)           ebmx band cutoff 2016Jun
+          ! if (present(wan) .AND. wan) then
+          !    continue
+          ! else
+          !    do i=1,nbmx
+          !       if( maxval(ek_(i, 0:3)) >ebmxx) then
+          !          nbandmx_k = i-1
+          !          exit
+          !       endif
+          !    enddo
+          !    do i=1,nbmx
+          !       if( maxval(ekq_(i, 0:3)) >ebmxx) then
+          !          nbandmx_kq = i-1
+          !          exit
+          !       endif
+          !    enddo
+          ! endif
           do jpm = 1,npm
              if(jpm==1) then
                 ibxmx = noccx_k + nctot
@@ -265,7 +252,7 @@ contains
                 ibxmx = nbandmx_k
                 jbxmx = noccx_kq + nctot
              endif
-             do ibx  = 1, ibxmx !noccx_k + nctot  !   occupied
+             do ibx  = 1, ibxmx    !noccx_k + nctot  !   occupied
                 do jbx  = 1, jbxmx !nband             ! unoccupied
                    if(ibx<=noccx_k .OR. jpm==2  ) then
                       ib = ibx
@@ -287,16 +274,15 @@ contains
                    else
                       eunocc => ek_ (ib,0:3)
                       eocc   => ekq_(jb,0:3)
-                   endif
+                    endif
                    if( minval(eocc) <= efermia .AND.  maxval(eunocc) >= efermib ) then
                       continue
                    else
                       cycle
                    endif
-                   ! f( maxval(eunocc(:)-eocc(:)) <dmub-dmua ) cycle ! this makes a bit effective.
                    if( maxval(eunocc(:)-eocc(:)) <0d0 ) cycle ! this makes a bit effective.
                    if(job==0 ) then  !takao
-                      iwgt(ib,jb,kk(0:3),jpm)= .true.
+                     iwgt(ib,jb,kk(0:3),jpm)= .true.
                       x(0:3) = .5d0*(eocc-eunocc) ! + omg !Denominator. unit in Hartree.
                       demax_ =  maxval(-x(0:3)) ! in Hartree
                       demin_ =  minval(-x(0:3)) ! in Hartree
@@ -346,7 +332,7 @@ contains
              enddo
           enddo
 1100   enddo
-1000 enddo
+1000  enddo tetrahedronloop
     deallocate(idtetfm, qbzwm,ib1bzm, qbzm)
     !! === Symmetrization of wgt and whw   ===
     !! NOTE: We just enforce the same weight for degenerated bands.
@@ -840,13 +826,13 @@ contains
     wb= (ee-ea)/eet
   end subroutine wab
   !---
-  subroutine addsciss(delta, ef, nnn, eig)
-    integer::nnn,i
-    real(8):: eig(nnn),ef,delta !    write(6,*)' asssciss delta=', delta
-    do i=1,nnn
-       if(eig(i)>ef) eig(i)= eig(i)+delta
-    enddo
-  end subroutine addsciss
+  ! subroutine addsciss(delta, ef, nnn, eig)
+  !   integer::nnn,i
+  !   real(8):: eig(nnn),ef,delta !    write(6,*)' asssciss delta=', delta
+  !   do i=1,nnn
+  !      if(eig(i)>ef) eig(i)= eig(i)+delta
+  !   enddo
+  ! end subroutine addsciss
   subroutine midk3(kk,ee,xx,yy,i,j,   kout,xout,yout) !- Calculate x and k(3) at the Fermi energy on the like k(i)---k(j).
     implicit none
     integer:: i,j

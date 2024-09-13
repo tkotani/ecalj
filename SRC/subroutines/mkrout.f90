@@ -154,6 +154,7 @@ contains
             dmatl_rv=0d0
             call mkrou1(nsp, nlmh,nlma,nlml,kmax, nkaph,nkapi,norb,ltab,ktab,blks &
                  ,oqkkl(3,ib)%v,oqkkl(2,ib)%v,oqkkl(1,ib)%v,vh_rv,dh_rv,vp_rv,dp_rv,  chh_rv,chp_rv,cpp_rv,dmatl_rv )
+!            write(6,*)'ssssssssssssss dmat=',sum(abs(dmatl_rv))
             call mkrou2(nsp,lmxa,nlml,pnz, dmatl_rv,nr,ul_rv ,sl_rv,gz_rv,ruu_rv,rus_rv,rss_rv,     orhoat_out( 1,ib )%v)!True local density.1st component
             !   --- Assemble rho2 = unaugmented products Pkl*Pk'l' ---
             call mkrou5(nsp,nr,nlml,nkaph,nkaph,fh_rv,lmxh ,nkaph,nkaph,fh_rv,lmxh,           chh_rv,orhoat_out( 2,ib )%v) !H H product.  
@@ -177,7 +178,7 @@ contains
                sums1 = sum1 - 2d0 * sum( rwgt_rv(1:nr)*orhoat_out(1,ib)%v(1:nr))/y0
                sums2 = sum2 - 2d0 * sum( rwgt_rv(1:nr)*orhoat_out(2,ib)%v(1:nr))/y0
             endif
-            if(nsp==1) dat(1:3,ib) = [sum1,sum2,sum1-sum2]
+           if(nsp==1) dat(1:3,ib) = [sum1,sum2,sum1-sum2]
             if(nsp==2) dat(1:6,ib) = [sum1,sum2,sum1-sum2, -sums1,-sums2,-sums1+sums2]
             ! cccccccccccccccccccccccccccccccccccccccccccccccccccccc
             !!exper. block to keep mag.moment for AF.controlled by uhval.aftest file. See elsewhere.

@@ -1,10 +1,10 @@
 module m_sxcf_count !job scheduler for self-energy calculation. icount mechanism
   use m_readeigen,only: Readeval
   use m_itq,only: ntq,nbandmx
-  use m_genallcf_v3,only: nlmto,nspin,nctot,niw,ecore,nclass
+  use m_genallcf_v3,only: nspin,nctot,niw,ecore,nclass, nband,mrecg
   use m_read_bzdata,only: qibz,qbz,wk=>wbz,nqibz,nqbz,wklm,lxklm,nq0i, wqt=>wt,q0i, irk
   use m_readfreq_r,only: freq_r, nw_i,nw,freqx,wx=>wwx,nblochpmx,mrecl,expa_,npm,nprecx
-  use m_readhbe,only: nband,mrecg
+!  use m_readhbe,only: nband,mrecg
   use m_hamindex,only: ngrp
   !use m_mpi,only: MPI__sxcf_rankdivider
   use m_wfac,only:wfacx2,weavx2
@@ -35,7 +35,7 @@ contains
     integer :: iqini,iqend
     integer :: invr,ia,nn,ntp0,no,itpp,nrec,itini,itend,nbmxe
     integer :: iwp,nwxi,nwx,iir, igb1,igb2,ix0,iii
-    integer :: invrot,nocc,nlmtobnd,verbose,ififr, istate,  nt_max ,noccx
+    integer :: invrot,nocc,verbose,ififr, istate,  nt_max ,noccx
     real(8) :: ekc(nctot+nband),ekq(nband), det, q(3) !,ua_
     real(8) :: wtt,wfac,we!,esmrx
     real(8) :: qvv(3),eq(nband),omega(ntq),quu(3),freqw,ratio
@@ -134,8 +134,8 @@ contains
 !      mmm= max(mmax - memused() - 16d0*(ngcgp*maxval(nbandmx)) /k**3,0d0)  !ggitp(ngcgp,ntp0) !rough estimation in GB
       mmm= max(mmax - 16d0*(ngcgp*maxval(nbandmx)) /k**3,0d0)  !ggitp(ngcgp,ntp0) !rough estimation in GB ! uncount memused() already 2024-8-18
       nbloch=sum(nblocha)
-      nmbatch = floor( min(maxval(nstatemax)+1d-8, mmm*k**3/(maxval(nbandmx)*(nbloch+ngcmx+ngcmx)*16) +1d-8) ) ! +ngcmx is for zmelp0(ngc,nm1v:nm2v,ntp0)
       write(stdo,ftox)'sxcf_fal2_count.sc: mmax memused size(z(ngcgp,nbandmx)) nmbatch=',mmax,memused(),ngcgp*16d0*maxval(nbandmx)/k**3, mmm,nmbatch
+      nmbatch = floor( min(maxval(nstatemax)+1d-8, mmm*k**3/(maxval(nbandmx)*(nbloch+ngcmx+ngcmx)*16) +1d-8) ) ! +ngcmx is for zmelp0(ngc,nm1v:nm2v,ntp0)
       if(nmbatch==0) call rx('sxcf_fal2_count.sc. Too small memory for nmbatch mechanism. Enlarge GWinput MEMnmbatch')
       write(stdo,ftox)'sxcf_fal2_count: nmbatch=',nmbatch,' nbandmx nbloch ngcmx=',maxval(nbandmx),nbloch,ngcmx&
            ,'nstatemaxmx=',maxval(nstatemax)

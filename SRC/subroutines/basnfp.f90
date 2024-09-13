@@ -3,9 +3,6 @@ subroutine basnfp_v2 (nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate
   use m_keyvalue,only:getkeyvalue
   use m_ll,only: ll
   use m_read_bzdata,only: Read_bzdata, q0i,nq0i,wqt=>wt
-  ! takao kotani Apr 2002.   ! gives an index for the allowed product basis
-  ! A new routine by t.kotani mod. from indxbas of fa.
-
   !i phitotr: atomic radial functions. raw
   !r       This is avereged as for spin (stored in phiav) and used in the construction of product basis.
   !i phitoto: atomic radial functions. ortogonalized
@@ -23,12 +20,12 @@ subroutine basnfp_v2 (nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate
   !o
   implicit none
   character(8) :: xtxx
-  integer(4),parameter:: nxxmx=300, npradmx=300
-  integer(4):: nl,nn,nrx, nocc(0:nl-1,nn), nunocc(0:nl-1,nn), nindx(0:nl-1), &
+  integer,parameter:: nxxmx=300, npradmx=300
+  integer:: nl,nn,nrx, nocc(0:nl-1,nn), nunocc(0:nl-1,nn), nindx(0:nl-1), &
        npr(0:nl-1,nn,0:nl-1,nn),nprpd(0:nl-1,nn,0:nl-1,nn), &
        iprad,l1,l2,n1,n2,lx,nx, ifix,icx
   real(8):: phi(nrx,0:nl-1,nn) 
-  integer(4):: nrofi, i,kmax,nx1,nx2,ib1,ib2,iadd,ibx, &
+  integer:: nrofi, i,kmax,nx1,nx2,ib1,ib2,iadd,ibx, &
        nxx( 0:2*(nl-1) ),nprad, nprod, &
        nxxold( 0:2*(nl-1) ), ngmxx( 0:2*(nl-1) ),nodnum,nbasen
   real(8)::    aa,bb,tot, hnrofi,rmax, &
@@ -43,49 +40,45 @@ subroutine basnfp_v2 (nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate
   real(8),allocatable:: zz(:,:,:),rprodtc(:,:),ovvc(:,:,:),oc(:,:,:),wk(:),tc(:)
   real(8),parameter:: fpi = 4d0*3.14159265358979323846d0
   real(8),parameter::  pi =     3.14159265358979323846d0
-  integer(4):: nb,ngmx,ig,ificrb,kmx,isx,k,ic,nblocha
-  integer(4),allocatable:: iwk(:)
+  integer:: nb,ngmx,ig,ificrb,kmx,isx,k,ic,nblocha
+  integer,allocatable:: iwk(:)
   character(7) :: filename
   character(11) :: filenamep
-  integer(4),allocatable:: iprlc(:),lprc(:),ibo(:)
+  integer,allocatable:: iprlc(:),lprc(:),ibo(:)
   real(8),allocatable::  rprodx(:,:,:),rprodx2(:,:,:),rprod(:,:)
   logical :: newbase2
   real(8) :: bbase(nrofi),absqg2,aaa,aaa12,rphiphi(nrofi)
   real(8),allocatable ::phij(:),psij(:)
-  integer(4)::lxx,nxxx,ir,n,l,ierr,   lcutmx
-  integer(4)::nsp,nclass,ifppb,isp,ip1,ip2
+  integer::lxx,nxxx,ir,n,l,ierr,   lcutmx
+  integer::nsp,nclass,ifppb,isp,ip1,ip2
   real(8) :: phitoto(nrx,0:nl-1,nn,nclass, nsp)
   real(8) :: phitotr(nrx,0:nl-1,nn,nclass, nsp)
-  real(8),allocatable :: ppbrd(:,:,:,:,:,:) &
-       ,absqg2x(:) !,wqt(:), q0i(:,:)
+  real(8),allocatable :: ppbrd(:,:,:,:,:,:),absqg2x(:) !,wqt(:), q0i(:,:)
   real(8),allocatable :: phiav(:,:,:)
   real(8) :: rnormphi(0:nl-1,nn) ,alat,sss
-  integer(4) :: irx,noo,nuu      ,ix !,nq0i, neps, nq0ix
-  integer(4):: zvztest,nlmlsp
+  integer :: irx,noo,nuu      ,ix !,nq0i, neps, nq0ix
+  integer:: zvztest,nlmlsp
   real(8):: ovvs,rrr(nrx)
   !---for mode 8
-  integer(4):: nr_r,nlml_r,nsp_r,ifv,ibas,ilmx,isp1,isp2,kxx,ixx,nxx_i
+  integer:: nr_r,nlml_r,nsp_r,ifv,ibas,ilmx,isp1,isp2,kxx,ixx,nxx_i
   real(8),allocatable:: rofi_r(:),rho1(:,:,:),rspin(:),den(:,:),r11(:)
   real(8):: spinvec,spinvec0,sumc(2),sqrtfpi,const
   character(3):: charnum3
   logical:: valmt=.false.
-  logical :: smbasis,newaniso,addbasnew, read_bzdata_done=.false.
+  logical :: newaniso,addbasnew, read_bzdata_done=.false. !smbasis,
   character(15) :: rprodf
-  integer(4) :: ifprodmt, smbasiscut,l1l2p,l1l2m,inn
-  integer(4) :: lxlnln(0:2*(nl-1), 0:nl-1,nn,0:nl-1,nn) ,nzz
-  real(8),allocatable:: &
-       prodmt (:,:,:)
+  integer :: ifprodmt, l1l2p,l1l2m,inn !smbasiscut,
+  integer :: lxlnln(0:2*(nl-1), 0:nl-1,nn,0:nl-1,nn) ,nzz
+!  real(8),allocatable:: prodmt (:,:,:)
   real(8):: prr(3),derie,derie2,ddd,derie3
-  integer(4):: nc_max(0:nl-1),nnn, smbasis_case
+  integer:: nc_max(0:nl-1),nnn !, smbasis_case
   character(len=100):: recxxx
   character(len=160):: recxxx2
   integer:: npbasmax(0:2*(nl-1)),ifinin,iax,izz,naxx,verbose
   integer,allocatable:: ipx(:,:)
   real(8):: bb1,bb1s,aa_in,bb_in
   integer:: nl2m1,nrofi_in
-  !-------------------------------------------
   print *,' basnfp_v2: ********** start ******** nrofi=',nrofi
-  !      if(iread==1) goto 2001
   allocate(phiav(nrx,0:nl-1,nn),rprod(1:nrx, npradmx),ipx(0:2*(nl-1),nxxmx))
   ! To make the sign of phitotr safer; but I may already added something for keeping sss=1d0, right?
   do l1 = 0, nl-1
@@ -98,7 +91,96 @@ subroutine basnfp_v2 (nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate
                 ( phitotr(1:nrx, l1, n1, ic, 1) + sss* phitotr(1:nrx, l1, n1, ic, 2) )/2d0
         endif
      enddo
-  enddo
+   enddo
+   
+  ptestixx4: if(ixx==4) then  ! ccccccccc start of ptest mode cccccccccccccccccccccccccccccccccccccccccccc
+     if( .NOT. read_bzdata_done) then
+        call read_bzdata()
+        read_bzdata_done=.true.
+     endif
+     print *, ' *** rprodx is given by Bessel.***'
+     lxx   = 2*(nl-1)
+     !      lxx  = 4
+     allocate(phij(0:lxx),psij(0:lxx))
+     !$$$c q near zero test
+     !$$$c This section is just to set nxxx and absqg2x(1:nxxx).
+     !$$$        write(6,*) '--- readin Q0P -------'
+     !$$$        open (ifq0p,file='Q0P')
+     !$$$        read (ifq0p,"(i5)") nq0i
+     allocate( absqg2x(nq0i) ) !wqt(1:nq0i),q0i(1:3,1:nq0i),
+     !     nq0ix = nq0i
+     nzz = max(2,nq0i)
+     ! if( smbasis() ) then
+     !    write(6,"(' smbasis case' )")
+     !    ix = 0
+     !    do i=1,nzz !nq0i
+     !       ix=ix+1
+     !       if(i<= nq0i) then
+     !          absqg2x(ix) =sum( (2*pi/alat *q0i(1:3,i))**2) !bug 30jan2005 ---q0i(q:3,nq0i)
+     !       else
+     !          absqg2x(ix) = absqg2x(1)*i*2
+     !       endif
+     !       if(ix>1) call addd(absqg2x(ix),absqg2x,ix-1)
+     !    enddo
+     !    ! ccccccccccccccccccccc
+     !    !       absqg2x(1) =(2*pi/alat*4.18871)**2
+     !    !       absqg2x(2) =(2*pi/alat*4.33184)**2
+     !    ! cccccccccccccccccccc
+     !    do i=1,nzz !nq0i
+     !       write(6,"('smbasis case i absqg =',i5,f13.5 )") &
+     !            i, sqrt(absqg2x(i)/(2*pi/alat)**2)
+     !    enddo
+     ! else
+        ix=0
+        do i=1,nq0i
+           !            read (ifq0p, * ) wqt(i),q0i(1:3,i)
+           if(wqt(i)==0d0 ) then
+              ix=ix+1
+              absqg2x(ix) =sum( (2*pi/alat *q0i(1:3,i))**2) !nq0i ---> q0i
+              if(ix>1) call addd(absqg2x(ix),absqg2x,ix-1)
+           endif
+        enddo
+     !endif
+     !      neps = nq0i - nq0ix
+     fac2l: block
+       integer:: fac2l(0:lxx)
+     fac2l(0) = 1d0
+     do  lx = 1, lxx
+        fac2l(lx) = fac2l(lx-1) * (lx+lx-1)
+     enddo
+     nxxx = ix
+     iprad = 0
+     nxx = 0
+     do lx = 0, lxx
+        if(lx >lcutmx) cycle  ! Lmax cutoff for product basis
+        do n1 = 1, nxxx
+!           if(smbasis() .AND. lx>  smbasiscut() ) cycle
+           iprad  = iprad + 1
+           nxx(lx)= nxx(lx)+1
+           ipx(lx, nxx(lx)) = iprad
+           absqg2 = absqg2x(n1)
+           do ir =1,nrofi
+              lxx=max(2,lx)
+              call bessl(absqg2*r(ir)**2,lxx,phij,psij)!lmin must be larger than 1,right?
+              phij(0:lxx) = phij(0:lxx)*fac2l(0:lxx)*0.5d0 !Andersen factor
+              psij(0:lxx) = psij(0:lxx)/fac2l(0:lxx)       !Andersen factor
+              rprod(ir,iprad) = phij(lx)* r(ir) **(lx +1)
+           enddo
+           print *,' sumchk rprod=',lx,n1,sum(abs(rprod(1:nrofi,iprad)))
+           if(.false.) then !verbose()>60) then
+              write(3100+ic,"(' -- -- -- ',3i3,' --- ' )") lx,n1
+              do ir =1,nrofi
+                 write(3100+ic,"(d13.5,2x,2d18.8)") r(ir), rprod(ir,iprad)
+              enddo
+           endif
+        enddo
+     enddo
+     end block fac2l
+     nprad=iprad
+     print *, ' *** TEST nprad=',nprad
+     print *, ' nxx =',nxx(0:lxx)
+     goto 1212
+  endif ptestixx4  ! ccccccccc end of ptest ccccccccccccccccccccccccccccccccccccccccccccccc
   !$$$! ptest. Better mesh points for ptest because of its behevior near r=rmax.
   !$$$      if(.false.) then
   !$$$        aa = 0.2d0*aa
@@ -108,7 +190,7 @@ subroutine basnfp_v2 (nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate
   !$$$          r(i)=bb*( exp(aa*(i-1))-1d0)
   !$$$        enddo
   !$$$      endif
-  if(ixx==4) goto 1212
+  
   ! norm check
   do l1 = 0, nl-1
      do n1 = 1, nindx(l1)
@@ -118,7 +200,7 @@ subroutine basnfp_v2 (nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate
         rnormphi(l1,n1) = ovv
      enddo
   enddo
-  !! product basis construction
+  ! product basis construction
   lxlnln=0
   npr    = 0
   nprpd  = 0
@@ -157,77 +239,77 @@ subroutine basnfp_v2 (nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate
 203 enddo
 
   !! Additional product bais for smbais()=T.
-  if(smbasis()) then ! Dec2005
-     !$$$!!--- CASE1. Add r^l r^(l+2) anyway. ---
-     if(smbasis_case()==1) then
-        do 110 lx  = 0, 2*(nl-1)
-           if(lx > smbasiscut() ) cycle
-           do inn = 1, 2
-              iprad = iprad + 1
-              rprod(1,iprad) = 0d0
-              if(inn==2) nnn = lx + 1
-              if(inn==1) nnn = lx + 3
-              rprod(2:nrofi,iprad)= r(2:)**nnn
-              nxx(lx) = nxx(lx) + 1
-              ipx(lx, nxx(lx)) = iprad
-              write(6,"('sm -- lx iprad nnn nxx= ',6i5)")lx, iprad,nnn,nxx(lx)
-           enddo
-110     enddo
-     elseif(smbasis_case()==2) then
-        !!--- CASE2 ---
-        do 111 lx  = 0, 2*(nl-1)
-           if(lx > smbasiscut() ) cycle
-           nxx_i =nxx(lx)
-           do inn = nxx_i+1, 2
-              iprad = iprad + 1
-              rprod(1,iprad) = 0d0
-              if(inn==2) nnn = lx + 1
-              if(inn==1) nnn = lx + 3
-              rprod(2:nrofi,iprad)= r(2:)**nnn
-              nxx(lx) = nxx(lx) + 1
-              ipx(lx, nxx(lx)) = iprad
-              write(6,"('sm -- lx iprad nxx= ',6i5)")lx, iprad,nxx(lx)
-           enddo
-111     enddo
-     elseif(smbasis_case()==3) then
-        !!--- CASE3 ---
-        !! GaAs local-orbital tests suggest the above choice looks better for Ga 3d core.
-        !!  High priority to low priority
-        !! Priority ordering
-        !!     1. smaller l_1 +l_2,
-        !!     2. smaller |l1-l2|
-        !!     3.  phi*phi,  phi*phidot, phi*local
-        do 112 lx  = 0, 2*(nl-1)
-           if(lx>  smbasiscut() ) cycle
-           inn=0
-           l1= lx/2
-           l2=  lx-l1   !l1<=l2
-           !       Priority ordering is phi*phi,  phi*phidot  !, phi*local
-           do 120 n1 = nc_max(l1) +1,nc_max(l1) +1  !nindx(l1)
-              do 130 n2 = nc_max(l2) +1, nindx(l2)
-                 inn = inn+1
-                 if( lxlnln(lx,l1,n1,l2,n2)==0) then
-                    if( npr(l1,n1,l2,n2) == 0 ) then
-                       iprad = iprad + 1
-                       npr (l1,n1,l2,n2) = iprad
-                       npr (l2,n2,l1,n1) = iprad
-                       rprod(1,iprad) = 0d0
-                       rprod(2:nrofi,iprad)=phiav(2:,l1,n1)*phiav(2:,l2,n2)/r(2:) ! phi = u = r \phi
-                    else
-                       iprad = npr(l1,n1,l2,n2)
-                    endif
-                    nxx(lx) = nxx(lx) + 1
-                    ipx(lx, nxx(lx)) = iprad
-                    lxlnln(lx,l1,n1,l2,n2)= iprad
-                    lxlnln(lx,l2,n2,l1,n1)= iprad
-                    write(6,"('sm -- lx l1 l2 n1 n2 iprad= ',6i5)")lx, l1, l2,n1, n2,iprad
-                 endif
-                 if(inn==2) cycle
-130           enddo
-120        enddo
+!   if(smbasis()) then ! Dec2005
+!      !$$$!!--- CASE1. Add r^l r^(l+2) anyway. ---
+!      if(smbasis_case()==1) then
+!         do 110 lx  = 0, 2*(nl-1)
+!            if(lx > smbasiscut() ) cycle
+!            do inn = 1, 2
+!               iprad = iprad + 1
+!               rprod(1,iprad) = 0d0
+!               if(inn==2) nnn = lx + 1
+!               if(inn==1) nnn = lx + 3
+!               rprod(2:nrofi,iprad)= r(2:)**nnn
+!               nxx(lx) = nxx(lx) + 1
+!               ipx(lx, nxx(lx)) = iprad
+!               write(6,"('sm -- lx iprad nnn nxx= ',6i5)")lx, iprad,nnn,nxx(lx)
+!            enddo
+! 110     enddo
+!      elseif(smbasis_case()==2) then
+!         !!--- CASE2 ---
+!         do 111 lx  = 0, 2*(nl-1)
+!            if(lx > smbasiscut() ) cycle
+!            nxx_i =nxx(lx)
+!            do inn = nxx_i+1, 2
+!               iprad = iprad + 1
+!               rprod(1,iprad) = 0d0
+!               if(inn==2) nnn = lx + 1
+!               if(inn==1) nnn = lx + 3
+!               rprod(2:nrofi,iprad)= r(2:)**nnn
+!               nxx(lx) = nxx(lx) + 1
+!               ipx(lx, nxx(lx)) = iprad
+!               write(6,"('sm -- lx iprad nxx= ',6i5)")lx, iprad,nxx(lx)
+!            enddo
+! 111     enddo
+!      elseif(smbasis_case()==3) then
+!         !!--- CASE3 ---
+!         !! GaAs local-orbital tests suggest the above choice looks better for Ga 3d core.
+!         !!  High priority to low priority
+!         !! Priority ordering
+!         !!     1. smaller l_1 +l_2,
+!         !!     2. smaller |l1-l2|
+!         !!     3.  phi*phi,  phi*phidot, phi*local
+!         do 112 lx  = 0, 2*(nl-1)
+!            if(lx>  smbasiscut() ) cycle
+!            inn=0
+!            l1= lx/2
+!            l2=  lx-l1   !l1<=l2
+!            !       Priority ordering is phi*phi,  phi*phidot  !, phi*local
+!            do 120 n1 = nc_max(l1) +1,nc_max(l1) +1  !nindx(l1)
+!               do 130 n2 = nc_max(l2) +1, nindx(l2)
+!                  inn = inn+1
+!                  if( lxlnln(lx,l1,n1,l2,n2)==0) then
+!                     if( npr(l1,n1,l2,n2) == 0 ) then
+!                        iprad = iprad + 1
+!                        npr (l1,n1,l2,n2) = iprad
+!                        npr (l2,n2,l1,n1) = iprad
+!                        rprod(1,iprad) = 0d0
+!                        rprod(2:nrofi,iprad)=phiav(2:,l1,n1)*phiav(2:,l2,n2)/r(2:) ! phi = u = r \phi
+!                     else
+!                        iprad = npr(l1,n1,l2,n2)
+!                     endif
+!                     nxx(lx) = nxx(lx) + 1
+!                     ipx(lx, nxx(lx)) = iprad
+!                     lxlnln(lx,l1,n1,l2,n2)= iprad
+!                     lxlnln(lx,l2,n2,l1,n1)= iprad
+!                     write(6,"('sm -- lx l1 l2 n1 n2 iprad= ',6i5)")lx, l1, l2,n1, n2,iprad
+!                  endif
+!                  if(inn==2) cycle
+! 130           enddo
+! 120        enddo
 
-112     enddo
-     endif
+! 112     enddo
+!      endif
      !      print *, '======= basis set up =============='
      !      do lx  = 0, 2*(nl-1)
      !      do nx = 1, nxx(lx) ;  ib1 = ipx(lx,nx)
@@ -237,12 +319,12 @@ subroutine basnfp_v2 (nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate
      !      enddo
      !      print *, '--- test end ---------'
      !      return
-  endif
+!  endif
   !! === Add a PW like product basis  ===
   ! Here you can add any functions in the same way.
-  if(smbasis() .AND. smbasis_case()==1) goto 113
-  !!
-  if( .NOT. addbasnew() .AND. zvztest()/=2) then !Add one s product basis.
+      !  if(smbasis() .AND. smbasis_case()==1) goto 113
+      
+  if( .NOT. addbasnew() .AND. zvztest()/=2) then !Add one s type product basis.
      iprad  = iprad  + 1 ! radial function index
      nxx(0) = nxx(0) + 1 ! nxx(l) is the number index of the radial functions for l.
      ipx(0, nxx(0)) = iprad ! the radial function index for each l and nxx(l).
@@ -261,107 +343,14 @@ subroutine basnfp_v2 (nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate
         rprod(1:nrofi,iprad) = r(1:nrofi)*r(1:nrofi)**(lx+1)
      enddo
   endif
-  ! ---
 113 continue
   nprad = iprad
   print *,' number of radial basis: nprad=', nprad
-
-
-  ! ccccccccc start of ptest cccccccccccccccccccccccccccccccccccccccccccc
 1212 continue
-  if(ixx==4) then
-     if( .NOT. read_bzdata_done) then
-        call read_bzdata()
-        read_bzdata_done=.true.
-     endif
-     print *, ' *** rprodx is given by Bessel.***'
-     lxx   = 2*(nl-1)
-     !      lxx  = 4
-     allocate(phij(0:lxx),psij(0:lxx))
-     !$$$c q near zero test
-     !$$$c This section is just to set nxxx and absqg2x(1:nxxx).
-     !$$$        write(6,*) '--- readin Q0P -------'
-     !$$$        open (ifq0p,file='Q0P')
-     !$$$        read (ifq0p,"(i5)") nq0i
-     allocate( absqg2x(nq0i) ) !wqt(1:nq0i),q0i(1:3,1:nq0i),
-     !     nq0ix = nq0i
-     nzz = max(2,nq0i)
-     if( smbasis() ) then
-        write(6,"(' smbasis case' )")
-        ix = 0
-        do i=1,nzz !nq0i
-           ix=ix+1
-           if(i<= nq0i) then
-              absqg2x(ix) =sum( (2*pi/alat *q0i(1:3,i))**2) !bug 30jan2005 ---q0i(q:3,nq0i)
-           else
-              absqg2x(ix) = absqg2x(1)*i*2
-           endif
-           if(ix>1) call addd(absqg2x(ix),absqg2x,ix-1)
-        enddo
-        ! ccccccccccccccccccccc
-        !       absqg2x(1) =(2*pi/alat*4.18871)**2
-        !       absqg2x(2) =(2*pi/alat*4.33184)**2
-        ! cccccccccccccccccccc
-        do i=1,nzz !nq0i
-           write(6,"('smbasis case i absqg =',i5,f13.5 )") &
-                i, sqrt(absqg2x(i)/(2*pi/alat)**2)
-        enddo
-     else
-        ix=0
-        do i=1,nq0i
-           !            read (ifq0p, * ) wqt(i),q0i(1:3,i)
-           if(wqt(i)==0d0 ) then
-              ix=ix+1
-              absqg2x(ix) =sum( (2*pi/alat *q0i(1:3,i))**2) !nq0i ---> q0i
-              if(ix>1) call addd(absqg2x(ix),absqg2x,ix-1)
-           endif
-        enddo
-     endif
-     !      neps = nq0i - nq0ix
-     fac2l: block
-       integer:: fac2l(0:lxx)
-     fac2l(0) = 1d0
-     do  lx = 1, lxx
-        fac2l(lx) = fac2l(lx-1) * (lx+lx-1)
-     enddo
-     nxxx = ix
-     iprad = 0
-     nxx = 0
-     do lx = 0, lxx
-        if(lx >lcutmx) cycle  ! Lmax cutoff for product basis
-        do n1 = 1, nxxx
-           if(smbasis() .AND. lx>  smbasiscut() ) cycle
-           iprad  = iprad + 1
-           nxx(lx)= nxx(lx)+1
-           ipx(lx, nxx(lx)) = iprad
-           absqg2 = absqg2x(n1)
-           do ir =1,nrofi
-              lxx=max(2,lx)
-              call bessl(absqg2*r(ir)**2,lxx,phij,psij)!lmin must be larger than 1,right?
-              phij(0:lxx) = phij(0:lxx)*fac2l(0:lxx)*0.5d0 !Andersen factor
-              psij(0:lxx) = psij(0:lxx)/fac2l(0:lxx)       !Andersen factor
-              rprod(ir,iprad) = phij(lx)* r(ir) **(lx +1)
-           enddo
-           print *,' sumchk rprod=',lx,n1,sum(abs(rprod(1:nrofi,iprad)))
-           if(.false.) then !verbose()>60) then
-              write(3100+ic,"(' -- -- -- ',3i3,' --- ' )") lx,n1
-              do ir =1,nrofi
-                 write(3100+ic,"(d13.5,2x,2d18.8)") r(ir), rprod(ir,iprad)
-              enddo
-           endif
-        enddo
-     enddo
-     end block fac2l
-     nprad=iprad
-     print *, ' *** TEST nprad=',nprad
-     print *, ' nxx =',nxx(0:lxx)
-  endif
-  ! ccccccccc end of ptest ccccccccccccccccccccccccccccccccccccccccccccccc
 
   ! sanity check
   if(maxval(nxx(0:2*(nl-1)))>nxxmx) call rx(' basnfp: nxx >nxxmx --- Enlarge nxxmx in basnfp.f')
   if(nprad > npradmx)call rx( ' basnfp: nprad > npradmx --- Enlarge npradmx in basnfp.f')
-
   !! nprod
   nprod = 0
   do lx = 0, 2*(nl-1)
@@ -430,9 +419,10 @@ subroutine basnfp_v2 (nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate
         !              endif
         !            endif
         !          else
-        if(smbasis() .AND. ib1>=nb-1) then
-           continue
-        elseif(eb(ib1)<cutbase(lx)) then !this is mainly used now 2022jan
+!        if(smbasis() .AND. ib1>=nb-1) then
+!           continue
+!      else
+        if(eb(ib1)<cutbase(lx)) then !this is mainly used now 2022jan
            cycle
         endif
         !          endif
@@ -475,56 +465,54 @@ subroutine basnfp_v2 (nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate
      write(6,"('    *** lx  =',i4,'*** Used nb =',i4)") lx,nb
      deallocate( ovvc, zz, eb,ibo)
   enddo
-
-  ! cccccccccccc test2 ccccccccccccccccccccccccccccccccccccccccccc
-  if( .FALSE. ) then
-     allocate(rprodx2(nrx,nxxx,0:lxx))
-     fac2l2: block
-       integer:: fac2l(0:lxx)
-     fac2l(0) = 1d0
-     do  lx = 1, lxx
-        fac2l(lx) = fac2l(lx-1) * (lx+lx-1)
-     enddo
-     do n  =1,nxxx
-        if(n==1) absqg2 = 2.524974**2
-        !       if(n==2) absqg2 = 2.598177**2
-        if(n==2) absqg2 =  .612396**2
-        do ir =1,nrofi
-           call bessl(absqg2*r(ir)**2, lxx, phij, psij)
-           phij(0:lxx) = phij(0:lxx)*fac2l(0:lxx)*0.5d0 !Andersen factor
-           psij(0:lxx) = psij(0:lxx)/fac2l(0:lxx)       !Andersen factor
-           do l = 0, lxx
-              rprodx2(ir,n,l) = phij(l)* r(ir) **(l +1 )
-           enddo
-        enddo
-     enddo
-     end block fac2l2
-     do l   = 0, lxx
-        !       rprodx2(1:nrofi,1,l)= rprodx2(1:nrofi,1,l)  + rprodx2(1:nrofi,2,l)
-        n = 1
-        call gintxx(rprodx2(1,n,l),rprodx2(1,n,l) &
-             ,aa,bb,nrofi, aaa )
-        aaa = 1d0/sqrt(aaa)
-        rprodx2(1:nrofi,n,l)= aaa*rprodx2(1:nrofi,n,l)
-        if(nxxx==1) cycle
-        n1=1
-        n2=2
-        call gintxx(rprodx2(1,n1,l),rprodx2(1,n2,l) &
-             ,aa,bb,nrofi, aaa12 )
-        rprodx2(1:nrofi,n2,l) = rprodx2(1:nrofi,n2,l) &
-             - aaa12*rprodx2(1:nrofi,n1,l)
-        n = 2
-        call gintxx(rprodx2(1,n,l),rprodx2(1,n,l) &
-             ,aa,bb,nrofi, aaa )
-        aaa = 1d0/sqrt(aaa)
-        rprodx2(1:nrofi,n,l)= aaa*rprodx2(1:nrofi,n,l)
-     enddo
-  endif
-  ! ccccccccccccend of test2 ccccccccccccccccccccccccccccccccccccccccccc
+ 
+  ! test2block: if( .FALSE. ) then ! cccccccccccc test2 ccccccccccccccccccccccccccccccccccccccccccc
+  !    allocate(rprodx2(nrx,nxxx,0:lxx))
+  !    fac2l2: block
+  !      integer:: fac2l(0:lxx)
+  !    fac2l(0) = 1d0
+  !    do  lx = 1, lxx
+  !       fac2l(lx) = fac2l(lx-1) * (lx+lx-1)
+  !    enddo
+  !    do n  =1,nxxx
+  !       if(n==1) absqg2 = 2.524974**2
+  !       !       if(n==2) absqg2 = 2.598177**2
+  !       if(n==2) absqg2 =  .612396**2
+  !       do ir =1,nrofi
+  !          call bessl(absqg2*r(ir)**2, lxx, phij, psij)
+  !          phij(0:lxx) = phij(0:lxx)*fac2l(0:lxx)*0.5d0 !Andersen factor
+  !          psij(0:lxx) = psij(0:lxx)/fac2l(0:lxx)       !Andersen factor
+  !          do l = 0, lxx
+  !             rprodx2(ir,n,l) = phij(l)* r(ir) **(l +1 )
+  !          enddo
+  !       enddo
+  !    enddo
+  !    end block fac2l2
+  !    do l   = 0, lxx
+  !       !       rprodx2(1:nrofi,1,l)= rprodx2(1:nrofi,1,l)  + rprodx2(1:nrofi,2,l)
+  !       n = 1
+  !       call gintxx(rprodx2(1,n,l),rprodx2(1,n,l) &
+  !            ,aa,bb,nrofi, aaa )
+  !       aaa = 1d0/sqrt(aaa)
+  !       rprodx2(1:nrofi,n,l)= aaa*rprodx2(1:nrofi,n,l)
+  !       if(nxxx==1) cycle
+  !       n1=1
+  !       n2=2
+  !       call gintxx(rprodx2(1,n1,l),rprodx2(1,n2,l) &
+  !            ,aa,bb,nrofi, aaa12 )
+  !       rprodx2(1:nrofi,n2,l) = rprodx2(1:nrofi,n2,l) &
+  !            - aaa12*rprodx2(1:nrofi,n1,l)
+  !       n = 2
+  !       call gintxx(rprodx2(1,n,l),rprodx2(1,n,l) &
+  !            ,aa,bb,nrofi, aaa )
+  !       aaa = 1d0/sqrt(aaa)
+  !       rprodx2(1:nrofi,n,l)= aaa*rprodx2(1:nrofi,n,l)
+  !    enddo
+  !  endif test2block ! ccccccccccccend of test2 ccccccccccccccccccccccccccccccccccccccccccc
 
   !- Reserve rprodx
   !      real(8):: crbase(nrx,kmxx,nclass)
-  !      integer(4):: kmxx,kmx(nclass),iprlc(kmxx,nclass),lprc(kmxx,nclass)
+  !      integer:: kmxx,kmx(nclass),iprlc(kmxx,nclass),lprc(kmxx,nclass)
   !----------------------------------------------
   kmx = sum( nxx(0:2*(nl-1)) )
   allocate( iprlc(kmx), lprc(kmx) )
@@ -548,7 +536,7 @@ subroutine basnfp_v2 (nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate
      nblocha = 0
   endif
   !------------------------
-  print *,' reserve rprodx...'
+  print *,' Write BASFP.* reserve rprodx...'
   filename = 'BASFP'//char( 48+ic/10 )//char( 48+mod(ic,10) )
   open(newunit=ificrb,file=trim(filename))
   write(ificrb,"(4i6,2d24.16)") 2*(nl-1), kmx, nblocha,nrofi,aa,bb
@@ -563,9 +551,7 @@ subroutine basnfp_v2 (nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate
   enddo
   close(ificrb)
   deallocate(rprodx,iprlc,lprc)
-  ! 2001 continue
-  !  Write and Read even for iread==0,
-  !  in order to have the exact match on PPB* when iread=1 for the same BASFP* file.
+  !  Write and Read even for iread==0, in order to have the exact match on PPB* when iread=1 for the same BASFP* file.
   print *,' read rprodx...'
   filename = 'BASFP'//char( 48+ic/10 )//char( 48+mod(ic,10) )
   open(newunit=ificrb,file=trim(filename))
@@ -634,7 +620,7 @@ subroutine basnfp_v2 (nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate
   filenamep = 'PPBRD_V2_'//char( 48+ic/10 )//char(48+mod(ic,10))
   open(newunit=ifppb,file=trim(filenamep),form='unformatted')
   write(ifppb) nblocha, 2*(nl-1), nxx(0:2*(nl-1))
-  do isp= 1,nsp
+  ppbrddo: do isp= 1,nsp
      isp1=isp
      isp2=isp
      if(ixx==8 .AND. isp==1) then
@@ -662,36 +648,36 @@ subroutine basnfp_v2 (nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate
         enddo
      enddo
      write(ifppb) ppbrd
-  enddo
+  enddo ppbrddo
   deallocate(ppbrd)
   close(ifppb)
 
   ! prodmt proddmt (value and slope of the product at MT). !oct2005
   !    Stored into the tail of PPBRD* files.
-  if(smbasis()) then
-     allocate( prodmt (2,maxval(nxx(0:2*(nl-1))),0:2*(nl-1)))
-     prodmt = 1d10 !for safe
-     do lx = 0, 2*(nl-1)
-        do nx = 1, nxx(lx)
-           prodmt(1,nx,lx)= rprodx(nrofi,nx,lx)/r(nrofi)
-           prodmt(2,nx,lx)= derie2(r, rprodx(1:nrofi,nx,lx)/r(1:nrofi), nrofi)
-        enddo
-     enddo
-     filenamep = 'PRODMT_'//charnum3(ic)
-     open(newunit=ifprodmt,file=trim(filenamep),form='unformatted')
-     write(ifprodmt) nl
-     write(ifprodmt) maxval(nxx(0:2*(nl-1)))
-     write(ifprodmt) nxx(0:2*(nl-1))
-     write(ifprodmt) prodmt
-     close(ifprodmt)
-     deallocate(prodmt)
-  endif
+  ! if(smbasis()) then
+  !    allocate( prodmt (2,maxval(nxx(0:2*(nl-1))),0:2*(nl-1)))
+  !    prodmt = 1d10 !for safe
+  !    do lx = 0, 2*(nl-1)
+  !       do nx = 1, nxx(lx)
+  !          prodmt(1,nx,lx)= rprodx(nrofi,nx,lx)/r(nrofi)
+  !          prodmt(2,nx,lx)= derie2(r, rprodx(1:nrofi,nx,lx)/r(1:nrofi), nrofi)
+  !       enddo
+  !    enddo
+  !    filenamep = 'PRODMT_'//charnum3(ic)
+  !    open(newunit=ifprodmt,file=trim(filenamep),form='unformatted')
+  !    write(ifprodmt) nl
+  !    write(ifprodmt) maxval(nxx(0:2*(nl-1)))
+  !    write(ifprodmt) nxx(0:2*(nl-1))
+  !    write(ifprodmt) prodmt
+  !    close(ifprodmt)
+  !    deallocate(prodmt)
+  ! endif
 
   ! --- MixSpin= <rho_up - rho_down | B> matrix calculation. May2005
   ! 1  Suppose  "ibas==iclass"--- it is already checked in hbasfp0.m.f
   ! 2  ValMT.* is written with subroutine savemtval(ib,rho1,rofi,nr,nlml,nsp)
   !r    in fp/locpot.f just befor locpt2 in lmto (lmf).
-  if(ixx==8) then
+  ixx8if: if(ixx==8) then
      sqrtfpi = sqrt(fpi)
      ibas=ic
      if(valmt) then
@@ -749,27 +735,23 @@ subroutine basnfp_v2 (nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate
         do nx = 1, nxx(lx)
            call gintxx( rprodx(1,nx,lx), rspin,aa,bb,nrofi,  spinvec0 )
            spinvec = spinvec0/sqrtfpi
-           ! const = <1|B> where 1 is normalized within the sphere 2007
-           if(lx==0) then
+           if(lx==0) then ! const = <1|B> where 1 is normalized within the sphere 2007
               call gintxx( rprodx(1,nx,lx), r,aa,bb,nrofi, const )
-              !             call gintxx( r, r,aa,bb,nrofi, const )
            else
               const=0d0
            endif
            const= const *  sqrtfpi !/((fpi/3d0)*r(nrofi)**3)
            ! Now spinvec = <B_I(\bfr) | m_true(\bfr) >
            if(abs(spinvec)<1d-10 ) spinvec=0d0
-           write(ifv,"(     2i6,d24.16,2x,f13.10,2x,f13.10,d24.16 &
-                ' ! I=(ilm, nx), <spin|B(I)>, intrho(1:nsp) <1|B(I)>')") &
+           write(ifv,"(     2i6,d24.16,2x,f13.10,2x,f13.10,d24.16,' ! I=(ilm, nx), <spin|B(I)>, intrho(1:nsp) <1|B(I)>')") &
                 ilmx, nx, spinvec, sumc(1:nsp),const
-           write(6,"('ttt:',2i6, d24.16,2x, 2f14.10,d24.16 &
-                ' ! I=(ilm, nx), <spin|B(I)>, intrho(1:nsp) <1|B(I)>')") &
+           write(6,"('ttt:',2i6, d24.16,2x, 2f14.10,d24.16,' ! I=(ilm, nx), <spin|B(I)>, intrho(1:nsp) <1|B(I)>')") &
                 ilmx, nx, spinvec, sumc(1:nsp),const
         enddo
      enddo
      deallocate(rofi_r,rho1,rspin)
      close(ifv)
-  endif !ixc==8 end
+  endif ixx8if !ixc==8 end
   if (allocated(rprod))   deallocate(rprod)
   if (allocated(phiav))   deallocate(phiav)
   if (allocated(phij))    deallocate(phij)
@@ -798,9 +780,11 @@ real(8) function fac2l(i)
 END function fac2l
 
 real(8) function derie2 (x,y,n)
+  intent(in)::x,y,n
   !     return derivative at n
   integer:: n,i
-  real(8):: x(n), y(n), dydi(n),polinta,ii(n),dydx(n)
+  real(8):: x(n), y(n), dydi(n),ii(n),dydx(n)
+  real(8),external::polinta
   do i=1,n-1
      dydx(i) = (y(i+1)-y(i))/(x(i+1)-x(i))
      ii(i) = i + 0.5d0
@@ -811,7 +795,7 @@ END function derie2
 subroutine addd(a1,a,n)
   ! a1 is choosed so that it is not in agreement with other a(n).
   implicit none
-  integer(4):: n,i
+  integer:: n,i
   real(8):: eps=0.1,a1,a(n)
 880 continue
   do i=1,n
@@ -823,7 +807,8 @@ subroutine addd(a1,a,n)
 end subroutine addd
 
 ! taken from basn.f
-integer function nodnum(f,n)
+pure integer function nodnum(f,n)
+  intent(in)::f,n
   integer::i,n
   real(8):: f(n)
   nodnum=0

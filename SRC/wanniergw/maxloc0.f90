@@ -737,7 +737,7 @@ subroutine  writebb(ifbb,wbb,bb, ikbidx,ku,kbu, iko_ixs,iko_fxs,noxs, nspin,nqbz
         write(ifbb,ftox)iq,ib,ikbidx(ib,iq),kbu(:,ib,iq)
      enddo
   enddo
-  write(ifbb,ftox)'nspin'
+  write(ifbb,ftox)'nspx'
   write(ifbb,ftox)nspin
   do is = 1,nspin
      write(ifbb,ftox)iko_ixs(is),iko_fxs(is),noxs(is)
@@ -773,7 +773,7 @@ end subroutine kbbindx
 subroutine ewindow(is,ieo_swt,iei_swt,itout_i,itout_f,itin_i,itin_f, &
      eomin,eomax,eimin,eimax,ef,qbz,ikbidx, &
      nbbelow,nbabove, &
-     nqbz,nbb,nband,nwf,nspin, &
+     nqbz,nbb,nband,nwf, &
      iko_i,iko_f,iki_i,iki_f, &
      ikbo_i,ikbo_f,ikbi_i,ikbi_f, &
      iko_ix,iko_fx,nox, &

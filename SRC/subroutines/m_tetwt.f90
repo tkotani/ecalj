@@ -65,9 +65,9 @@ contains
     logical :: eibzmode,tetra,tmpwwk=.false.,debug
     integer::kx,ncc,job,jpm,noccxvx(2)=-9999,ik,jhwtot,ib1,ib2,ibib,noccx,noccxv,verbose,ifief
     real(8),allocatable:: ecore_(:,:)
-    integer:: ix
+    integer:: ix,iqx
     logical,optional:: wan
-    logical:: wan1
+    logical:: wan1,cmdopt0
 
     if(nctot==0) then
        allocate(ecore_(1,2))    !this is dummy
@@ -78,13 +78,16 @@ contains
 
     tetra=.true.
     !      eibzmode = eibz4x0()
-    debug=.false.
-    if(verbose()>=100) debug= .TRUE. 
+    debug=cmdopt0('--debug')
     !      if(.not.allocated(nbnb))
     allocate( nbnb(nqbz,npm)   )
-    allocate( nbnbtt(nqbz,npm) ) !,ekxx1(nband,nqbz),ekxx2(nband,nqbz))
+    allocate( nbnbtt(nqbz,npm) )
+!    do iqx=1,nqbz
+!      write(6,*)'eee1=',ekxx1(:,iqx)-ef
+!      write(6,*)'eee2=',ekxx2(:,iqx)-ef
+!    enddo  
     !!===========tetraini block tetra==.true.===============================1ini
-    write(6,"(' tetra mode nqbz nband ispin q=',2i7,i2,3f13.6)") nqbz,nband,is,q
+    write(6,"(' tetra mode: nqbz nband=',2i7,'nctot ispin q=',i2,i2,3f13.6)") nqbz,nband,nctot,is,q
 
     !     takao-feb/2002 I replaced tetwt4 (1d30) with tetwt5(job=0) -----
     !     ... Get pairs (n1b n2b) with non-zero tetrahedron wieghts.
@@ -126,9 +129,10 @@ contains
          nbmx,ebmx,mtet, wan1 ) !Jan2019 for Wannier
     deallocate(ibjb,ihw,jhw,nhw,whw) !dummy
     nbnbx = max(maxval(nbnb(1:nqbz,1:npm)),1) !nbnbx = nbnbxx
-    if(debug) write(6,*)' nbnbx=',nbnbx
-    allocate(  n1b(nbnbx,nqbz,npm) &
-         ,n2b(nbnbx,nqbz,npm))
+    write(6,*)' nnnnnnnnn nbnbx=',maxval(nbnb(1:nqbz,1:npm))
+
+    
+    allocate(  n1b(nbnbx,nqbz,npm) ,n2b(nbnbx,nqbz,npm))
     n1b=0
     n2b=0
     do jpm=1,npm
@@ -136,7 +140,7 @@ contains
             n1b(1,1,jpm), n2b(1,1,jpm), noccxvx(jpm), nbnbtt(1,jpm))
     enddo
     !!
-!    if(debug) then
+    if(debug) then
        do kx  = 1, nqbz
           do jpm = 1, npm
              if( nbnb(kx,jpm) >0) then
@@ -148,7 +152,7 @@ contains
              endif
           enddo
        enddo
-!    endif
+    endif
     if(sum(abs(nbnb-nbnbtt))/=0)then
        do ik=1,nqbz
           write(6,*)
