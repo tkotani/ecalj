@@ -264,70 +264,36 @@ subroutine diele_invariant(q0x,nq0x,symops,ngrp,  epinv,q0i,nq0i,wq0i)
      enddo
   enddo
 end subroutine diele_invariant
-
-subroutine q0irre(qibz,nqibz,q0,wt0,nx06,symops,ngrp, q0i,nq0i,wt,plat,ltrans,ifix,irr,nqbz)
-  ! inequivalent points
-  !! input:  qibz,q0,
-  !! output: q0i,nq0i
-  ! xxxxxxx NOTE:input q0i(1:3,1:nq0i) is kept. Output nq0i is larger than input nq0i.
-  implicit none
-  integer :: ixx,ix,i,ngrp,ig,nq0i,nx06,ifix,irr(nx06),nqirr,nqibz,ib,nqbz,ierr,retval
-  real(8) :: q0(1:3,nx06),q0i(1:3,nx06),symops(3,3,ngrp),sym(3,3), &
-       qt(3) ,wt0(nx06), wt(nx06),qx(3),qibz(3,nqibz)
-  logical:: ltrans
-  real(8):: plat(3,3)
-  real(8):: platt(3,3)
-  real(8):: tolq
+!----------------------
+subroutine qqirre(qibz,nqibz,symops,ngrp,plat,nqbz, qq,nqq, qqi,nqi,irr)
+  implicit none 
+  intent(in)::    qibz,nqibz,symops,ngrp,plat,nqbz, qq,nqq
+  intent(inout)::                                           qqi,nqi,irr
+  integer :: ixx,ix,i,ngrp,ig,nqqi,nqq,irr(nqq),nqirr,nqibz,ib,nqbz,nqi
+  real(8) :: qq(1:3,nqq),qqi(1:3,nqq),symops(3,3,ngrp),sym(3,3),qt(3),qz(3),qibz(3,nqibz) !
+  real(8):: plat(3,3),platt(3,3),tolq
   logical:: cmdopt0
-  irr=0
-  if(ltrans) then
-     platt=transpose(plat)
-  endif
-  wt(1:nx06)=0d0
-  ixx = 0 !nq0i !=0 apr2013
-  do i = 1,nx06
-     qt = q0(:,i)
-     do ib = 1,nqibz
-        if(sum(abs(qibz(:,ib)-qt))<tolq() .OR. (cmdopt0('--allqbz') .AND. i<=nqbz)) then
-           ixx = ixx+1
-           q0i(:,ixx) = qt
-           irr(i)=1  !this is irreducible
-           goto 980
-        endif
-     enddo
-980  continue
-  enddo
-  if(cmdopt0('--allqbz')) then
-     nq0i=ixx
-     return
-  endif
-  do i = 1,nx06
-     qt = q0(:,i)
+  platt=transpose(plat)
+  ixx=nqi
+  do i = 1,nqq
+     qt = qq(:,i)
      Equivalencecheck: do ix = 1,ixx
         do ig = 1,ngrp
            sym = symops(:,:,ig)
-           if(ltrans) then
-              call rangedq(matmul(platt,(qt-matmul(sym,q0i(:,ix)))), qx)
-              if(sum(abs(qx))<tolq()) then
-                 wt(ix) = wt(ix)+wt0(i)
-                 goto 990
-              endif
-           else
-              if(sum(abs(q0i(:,ix)-matmul(sym,qt)))<tolq()) then !2000 Nov.
-                 wt(ix) = wt(ix)+wt0(i)
-                 goto 990
-              endif
+           call rangedq(matmul(platt,(qt-matmul(sym,qqi(:,ix)))), qz)
+           if(sum(abs(qz))<tolq()) then
+              goto 990
            endif
         enddo
      enddo Equivalencecheck
+     irr(i)=1  !this is irreducible i= for 1,nqq
      ixx = ixx+1
-     q0i(:,ixx) = qt
-     irr(i)=1  !this is irreducible
-     wt(ixx) = wt(ixx)+wt0(i)
+     qqi(:,ixx) = qt
 990  continue
   enddo
-  nq0i = ixx
-end subroutine q0irre
+  nqi = ixx ! nqi is the number of irreducible mesh point.  
+end subroutine qqirre
+
 !----------------------
 real(8) function aufcc(q)  !- auxiliarry function for fcc lattice. from Gygi PRB34 4405
   implicit none

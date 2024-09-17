@@ -21,20 +21,20 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
   integer ::nnn(3),ifiqg,ifiqgc,ngcxx,i,j,iq,iq00,ngp,ngpmx,ngc,ngcmx,nqnum,iq0pin,dummyia(1,1),iimx,irradd,nmax, &
        nline,nlinemax,ifsyml,iqq,is,nk,ix,nqnumx,i1,ifkpt, mxkp,ifiqibz,iqibz,ifigwin,mtet(3),nm1,nm2,nm3,&
        gammacellctrl,nnng(3),ifi0,itet,ifi00,ifidmlx,ierr,retval, nqi,ifix,ig,iq0i,lm,ifi, nqnumm,ifiqmtet,verbose,nn1,nn2,&
-       ifiqbz,iqbz, ifbz, imxc,nnn3(3),imx0c,imx11(1,1), ifidml, llxxx,lm1,lm2, imx,ifinin,il,imx0
+       ifiqbz,iqbz, ifbz, imxc,nnn3(3),imx0c,imx11(1,1), ifidml, llxxx,lm1,lm2, imx,ifinin,il,imx0,ixx,ib
   integer,allocatable :: ngvecprev(:,:,:),ngveccrev(:,:,:),ngvecp(:,:), ngvecc(:,:), ngpn(:),ngcn(:), nqq(:),irr(:)
   real(8):: dq_(3),qlatbz(3,3),imat33(3,3),unit,QpGx2,aaa,q(3),dummy,qp(3), QpGcut_psi, QpGcut_Cou,QpGcut,alpv(3),q0smean,sumt,&
        alp, volum,voltot,q0(3),qlat0(3,3),tripl, xx,qqx(3),alpm,aaij,bbij,vol,ginv(3,3),dq(3),ddq(3)
-  real(8):: qx(3),qxx(3),tolw, deltaq,delta5,delta8,deltaq_scale,volinv,wtrue00,qg(3),alpqg2,qg2,tpiba
+  real(8):: qx(3),qxx(3),tolw, deltaq,delta5,delta8,deltaq_scale,volinv,wtrue00,qg(3),alpqg2,qg2,tpiba,qt(3)
   real(8),parameter:: pi=4d0* atan(1d0)
-  real(8),allocatable :: qq(:,:),qq1(:,:),qq2(:,:),qqm(:,:),qsave(:,:), wt0(:),wti(:),qi(:,:)
+  real(8),allocatable :: qq(:,:),qq1(:,:),qq2(:,:),qqm(:,:),qsave(:,:), wt0(:),wti(:),qi(:,:),qqi(:,:)
   real(8),allocatable:: funa(:,:),wsumau(:),yll(:,:)
   logical ::tetrai,tetraf,tetra_hsfp0,qbzreg, qreduce ,qreduce0
   logical :: offmesh=.false. ,offmeshg=.false.
   logical :: regmesh=.false. ,regmeshg=.false. ,  timereversal
   logical :: caca,debug=.false. !,newaniso
   logical :: newoffsetG !july2014
-  logical :: lnq0iadd, lmagnon,unit2=.false. ,cmdopt0
+  logical :: lnq0iadd, lmagnon,unit2=.false. 
   character*99:: q0pf        !nov2012
   write(stdo,"('mkqg2: ')")
   call readhamindex0()
@@ -120,7 +120,7 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
         call rx( ' mkqg: No alpha_offG nor alpha_offG_vec given in GWinput')
      endif
   endif
-  call Getallq0p(iq0pin,newoffsetG,alat,plat,qlat,nnn,alp,alpv, &
+  call Getallq0p(iq0pin,alat,plat,qlat,nnn,alp,alpv, &
        nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,lnq0iadd)
   do i=nq0i+1,nq0i+nq0iadd
      write(stdo,"('  q0iadd=  ', i3, 3f10.5)") i,q0i(:,i)
@@ -242,16 +242,25 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
   endif RemoveEquilvalentqBYTranslatioanlSymmetry
 2001 continue
   !! Here we get all requied q points. We do reduce them by space group symmetry.
-  if(allocated(wt0)) deallocate(wt0)
-  allocate(wt0(nqnum+nq0i+ nq0iadd ),qi(3,nqnum+nq0i+ nq0iadd ),wti(nqnum+nq0i+ nq0iadd ))
-  wt0=1d0 
-  !write(stdo,*)'ppppppppp',nqnum,nq0i,nq0iadd
+  allocate(qi(3,nqnum+nq0i+ nq0iadd ),qqi(3,nqnum))
   !! Set irreducible k-point flag. irr=1 for (irredusible point) flag, otherwise =0.
-  !! irr(iq)=1 for irreducile qq(:,iq), iq=1,nqnum
-  call q0irre(qibz,nqibz,qq,wt0,nqnum,symops,ngrp, qi,nqi,wti,plat,.true.,0,irr,nqbz)
-  if(cmdopt0('--allqbz')) nqnum=nqbz
-  !! nqnum is the finally obtained number of q points.
-  allocate(ngpn(nqnum), ngcn(nqnum))
+  irr=0
+  ixx = 0 
+  do i = 1,nqnum !Add irreducible points on mesh points
+     qt = qq(:,i)
+     do iqibz = 1,nqibz
+        if(sum(abs(qibz(:,iqibz)-qt))<tolw()) then
+           ixx = ixx+1
+           qqi(:,ixx) = qt
+           irr(i)=1  !this is irreducible
+           goto 980
+        endif
+     enddo
+980  continue
+  enddo
+  nqi=ixx
+  call qqirre(qibz,nqibz,symops,ngrp,plat,nqbz, qq,nqnum,  qqi,nqi,irr) !Get irreducible q points is with irr=1
+  allocate(ngpn(nqnum), ngcn(nqnum)) ! nqnum is the finally obtained number of q points.
   if(debug) write(stdo,*) ' --- q vector in 1st BZ + Q0P shift. ngp ---'
   imx=0
   imxc=0
