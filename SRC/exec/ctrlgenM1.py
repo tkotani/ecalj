@@ -826,7 +826,8 @@ tail = tail + """      #For Molecule, you may also need to set FSMOM=n_up-n_dn, 
       # NOTE: because of inversion in space-group symmetry, we may have 
       #       |phi_sigm^\bfk|^2 = |phi_sigm^{-\bfk}|^2. This is not for NOINV.
 
-ITER MIX=A5 b=.2 CONV=1e-5 CONVC=1e-5 NIT={nit} UMIX=0.2
+ITER MIX=B4 b=.2 CONV=1e-5 CONVC=1e-5 NIT={nit} UMIX=0.2
+# A5 had not converged for mp-2542
 #ITER MIX=B CONV=1e-6 CONVC=1e-6 NIT={nit}
                 # MIX=A#1: Anderson mixing. #1 is the number to keep history
                 # MIX=B#1: Broyden mixing (default). Unstable than Anderson mixing. But faseter. It works fine for sp bonded systems.
