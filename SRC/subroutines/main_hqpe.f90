@@ -10,8 +10,9 @@ subroutine hqpe() bind(C)  ! Jul,2000 t.kotani started from hqpe by Ferdi.Aryase
   ! xcLDA(k,t) = <psi(k,t)| vxc |psi(k,t)>
   ! SEx and xcLDA are in file SEX
   ! SEc is in file SEC
+  use m_genallcf_v3,only: genallcf_v3,laf
   use m_keyvalue,only: getkeyvalue
-  use m_anf,only: anfcond,laf
+!  use m_anf,only: anfcond,laf
   !      use m_lgunit,only: m_lgunit_init
   implicit real*8 (a-h,o-z)
   implicit integer(i-n)
@@ -26,7 +27,8 @@ subroutine hqpe() bind(C)  ! Jul,2000 t.kotani started from hqpe by Ferdi.Aryase
   integer:: ret,iix
   !      logical:: readgwinput
   logical :: nozmode=.false.
-  call anfcond()
+  call Genallcf_v3(0) 
+!  call anfcond()
   !      call m_lgunit_init()
   ! shift quasiparticle energies (eV)
 !  write (*,*)' q+band index for zero?'

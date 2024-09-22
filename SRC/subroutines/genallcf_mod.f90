@@ -1,13 +1,13 @@
 module m_genallcf_v3 ! Readin starting data dat in GWinput
   use m_lgunit,only:stdo
   implicit none
-  public:: Setesmr,Genallcf_v3
+  public:: setesmr, genallcf_v3
   integer,protected,public:: nrx,lcutmx
   real(8),allocatable,public::cutbase(:)
   integer,allocatable,protected,public:: iclass(:), &
        nindx(:,:),konf(:,:),icore(:,:), ncore(:), &
        nlnm(:),nlnmv(:), nlnmc(:), il(:,:), in(:,:), im(:,:),&
-       nocc(:,:,:),nunocc(:,:,:),nindxc(:,:),lcutmxa(:)
+       nocc(:,:,:),nunocc(:,:,:),nindxc(:,:),lcutmxa(:),lmxa(:)
   integer,protected,public:: nclass,natom,nspin,nl,nn,nnv,nnc,&
        nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot, niw,ndimanspc !ndima,
   real(8),protected,public::  plat(3,3),alat,deltaw,esmr,delta,tpioa,qval
@@ -15,6 +15,8 @@ module m_genallcf_v3 ! Readin starting data dat in GWinput
   character(8),allocatable,protected,public:: spid(:)
   character(8),allocatable,protected,public :: clabl(:)
   integer,protected,public:: nprecb,mrecb,mrece,ndima,nqbzt,nband,mrecg,nspc,nspx !nspc=2 for so=1, zero otherwize.
+  logical,protected,public:: laf !! - laf: antiferro switch
+  integer,allocatable,protected,public:: ibasf(:) !! - ibasf(ibas) specify AF pair atom.
   private
   logical,protected,private:: done_genallcf_v3=.false.
 !  integer,allocatable,protected,private:: &
@@ -33,34 +35,35 @@ contains
     !! Return iclass=ibas.
     !    incwfx: product basis setting switch
     !! input: efin,incwfx,
-    !!        GWinput, LMTO, ECORE
+    !!        GWinput, MLOindex, ECORE
     !! output: All the output are given in the declear section above.
     ! Original idea of product basis is from F.Aryasetiawan. Some subroutines are written by him.
     ! We may need to clean them up in modern fortran.
     !! --------------------------------------------------------
     integer:: ifhbe
-    integer::incwfx,ifec,i,j, lmx, lmx2,ifi,ig,is,ix,ixoff,lx
+    integer::incwfx,ifec,i,j, ifi,ig,is,ix,ixoff,lx
     integer:: infwfx,ret, n1,n2,n3,imagw,n,ic
     logical :: nocore,readon
     real(8)::efin
     character(1000) :: tolchar
     real(8),   allocatable:: ecoret(:,:,:,:)
-    integer,allocatable::ncwf2(:,:,:),  ooo(:,:,:), nindxv(:,:),occv(:,:,:),unoccv(:,:,:), occc(:,:,:),unoccc(:,:,:),ncwf(:,:,:)
+    integer,allocatable::ncwf2(:,:,:), nindxv(:,:),occv(:,:,:),unoccv(:,:,:), occc(:,:,:),unoccc(:,:,:),ncwf(:,:,:)
     integer:: ia,l,m,ic1,isp,lt,nt,nr,ncorex,ifix
-    real(8)::a,b,zz, efdummy,dw,diw,pi
+    real(8)::a,b,zz, efdummy,dw,diw
     integer:: nwdummy,ict,ind,indv,l2,lm,lmxax1
+    real(8),parameter:: pi=4d0*datan(1d0)
     if(done_genallcf_v3) call rx('genallcf_v3 is already called')
     done_genallcf_v3=.true.
-    open(newunit=ifi,file='LMTO',form='unformatted')
-    read(ifi) natom,alat,plat,nspin,lmxax1,nnv,nnc,nrx,qval !,n1,n2,n3
-    nl=lmxax1
-    allocate(pos(3,natom))    !positions of atoms
-    nclass = natom  !We set nclass = natom through the GW calculations
-    allocate(clabl(natom),z(natom),spid(1:natom))
-    read(ifi)pos,z(1:natom),spid(1:natom)
-    clabl=spid
+    open(newunit=ifi,file='MTOindex',form='unformatted')
+    read(ifi) natom,alat,plat,nspin,lmxax1,nnv,nnc,nrx,qval,nspc !,n1,n2,n3
+    allocate(pos(3,natom),clabl(natom),z(natom),spid(1:natom),ibasf(natom),lmxa(natom))
+    read(ifi) pos,z(1:natom),spid(1:natom),lmxa(1:natom)
+    read(ifi) nprecb,mrecb,mrece,ndima,nqbzt,nband,mrecg
+    read(ifi) laf,ibasf
     close(ifi)
-    pi=4d0*datan(1d0)
+    nclass = natom  !We set nclass = natom through the GW calculations
+    nl=lmxax1
+    clabl=spid
     tpioa=2d0*pi/alat
     call getkeyvalue("GWinput","niw",   niw ) ! FREQUENCIES
     call getkeyvalue("GWinput","delta", delta )
@@ -74,7 +77,7 @@ contains
     ReadProductBasis: block
       allocate(nindxv(nl,nclass), nindxc(nl,nclass), &
            occv(nl,nnv,nclass),unoccv(nl,nnv,nclass), &
-           occc(nl,nnc,nclass),unoccc(nl,nnc,nclass), ooo(nl,nnv,nclass))
+           occc(nl,nnc,nclass),unoccc(nl,nnc,nclass))
       allocate(ncwf2(nl,nnc,nclass),ncwf(nl,nnc,nclass))
       allocate(cutbase(0:2*(nl-1)))
       ncwf  =99 !This is for counting the number of nctot in gencor.
@@ -189,16 +192,15 @@ contains
       endif
       deallocate(ncwf2)
     endblock ReadProductBasis
-    indexcoremto: block
-      lmx    = 2*(nl-1)
-      lmx2   = (lmx+1)**2
+    
+    indexcoremto: block ! new nindx !-------------------------------------------- lmxa(ic) instead of nl-1
+      integer:: nnn1(nclass),nnn2(nclass),nnn3(nclass),nnn4(nclass),nnn5(nclass),nnn6(nclass),nlx
       ndima=0
       do ic=1,natom
-         ndima=ndima+sum([((2*l+1)*nindxv(l+1,iclass(ic)),l=0,nl-1)])
+         ndima=ndima+sum([((2*l+1)*nindxv(l+1,iclass(ic)),l=0,lmxa(ic))]) !l=0,nl-1)])
       enddo
-!      ndima2 = ndima*ndima
       nn  =  maxval(nindxv(1:nl,1:nclass)+nindxc(1:nl,1:nclass))
-      allocate(nindx(nl,nclass),nocc(nl,nn,nclass),nunocc(nl,nn,nclass))
+      allocate(nindx(nl,nclass),nocc(nl,nn,nclass),nunocc(nl,nn,nclass),source=0)
       reindxblock: block
         integer:: nval,ncore
         do    ic = 1,nclass
@@ -213,14 +215,14 @@ contains
         enddo
       endblock reindxblock
       block
-        integer:: nnn1(nclass),nnn2(nclass),nnn3(nclass),nnn4(nclass),nnn5(nclass),nnn6(nclass)
         do ic=1,nclass
-           nnn1(ic)=sum(nindx(1:nl,ic))
-           nnn2(ic)=sum([(nindx(l+1,ic)*(2*l+1),l=0,nl-1)])
-           nnn3(ic)=sum(  nindxv(1:nl,ic))
-           nnn4(ic)=sum([(nindxv(l+1,ic)*(2*l+1),l=0,nl-1)])
-           nnn5(ic)=sum(  nindxc(1:nl,ic))
-           nnn6(ic)=sum([(nindxc(l+1,ic)*(2*l+1),l=0,nl-1)])
+           nlx=lmxa(ic)+1
+           nnn1(ic)=sum(nindx(1:nlx,ic))
+           nnn2(ic)=sum([(nindx(l+1,ic)*(2*l+1),l=0,nlx-1)])
+           nnn3(ic)=sum(  nindxv(1:nlx,ic))
+           nnn4(ic)=sum([(nindxv(l+1,ic)*(2*l+1),l=0,nlx-1)])
+           nnn5(ic)=sum(  nindxc(1:nlx,ic))
+           nnn6(ic)=sum([(nindxc(l+1,ic)*(2*l+1),l=0,nlx-1)])
         enddo
         nlnx    = maxval(nnn1) 
         nlnmx   = maxval(nnn2)
@@ -229,11 +231,10 @@ contains
         nlnxc   = maxval(nnn5)
         nlnmxc  = maxval(nnn6)
       endblock
-      allocate( & ! index for core and MTO basis =====================
-           il(nlnmx,nclass),   in(nlnmx,nclass),   im(nlnmx,nclass))
+      allocate(il(nlnmx,nclass), in(nlnmx,nclass), im(nlnmx,nclass)) ! index for core and MTO basis =====================
       do ic = 1,nclass
          ind  = 0
-         do l = 0,nl-1 ! core
+         do l = 0,lmxa(ic) !nl-1 ! core
             do  n = 1,nindxc(l+1,ic)
                do  m = 1,2*l+1
                   ind       = ind + 1
@@ -243,14 +244,14 @@ contains
                enddo
             enddo
          enddo
-         indv      = 0
-         do  l = 0,nl-1 ! valence
+!         indv      = 0
+         do  l = 0,lmxa(ic) !nl-1 ! valence
             ncorex  = nindxc(l+1,ic)
             do    n = 1,nindxv(l+1,ic)
                if (ncorex+n > nn) call rx( 'idxlnmc: ncore+n > nn')
                do      m = 1,2*l+1
                   ind = ind + 1
-                  indv= indv + 1
+!                  indv= indv + 1
                   if (ind > nlnmx) call rx( 'idxlnmc: ind > nlnmx')
                   lm = l**2 + m
                   il(ind,ic)  =l;  in(ind,ic) = ncorex + n; im(ind,ic)  = m-l-1 !; ilnm(ncorex+n,lm,ic) = ind
@@ -260,9 +261,10 @@ contains
       enddo
       allocate(nlnmv(nclass),nlnmc(nclass),nlnm(nclass))
       do ic=1,nclass
-         nlnmv(ic) = sum([(nindxv(l+1,ic)*(2*l+1),l=0,nl-1)])
-         nlnmc(ic) = sum([(nindxc(l+1,ic)*(2*l+1),l=0,nl-1)])
-         nlnm(ic)  = sum([(nindx(l+1,ic)*(2*l+1),l=0,nl-1)])
+         nlx=lmxa(ic)+1
+         nlnmv(ic) = sum([(nindxv(l+1,ic)*(2*l+1),l=0,nlx-1)])
+         nlnmc(ic) = sum([(nindxc(l+1,ic)*(2*l+1),l=0,nlx-1)])
+         nlnm(ic)  = sum([(nindx(l+1,ic)*(2*l+1),l=0,nlx-1)])
       enddo
     endblock indexcoremto
     coreblock: block
@@ -296,7 +298,7 @@ contains
          read (ifec,*)
          read (ifec,*) !zz,ic1,nr ,a,b,nsp
          read (ifec,*)
-         read (ifec,*) (konf(l+1,ic),l=0,nl-1)
+         read (ifec,*) (konf(l+1,ic),l=0,lmxa(ic)) !nl-1)
          read (ifec,*)
          do  l = 0,nl-1
             ncorex = konf(l+1,ic)-l-1
@@ -333,10 +335,9 @@ contains
       deallocate(ecoret)
     endblock coreblock
 !hbe
-    open(newunit=ifhbe, file='hbe.d', action='read')
-    read (ifhbe,*) nprecb,mrecb,mrece,ndima,nqbzt,nband,mrecg,nspc
-    close(ifhbe)
-    
+!    open(newunit=ifhbe, file='hbe.d', action='read')
+!    read (ifhbe,*) nprecb,mrecb,mrece,ndima,nqbzt,nband,mrecg,nspc
+!    close(ifhbe)
     ndimanspc=ndima*nspc
     nspx=nspin/nspc
     call cputid(0); write(stdo,*) 'genallcf_v3'

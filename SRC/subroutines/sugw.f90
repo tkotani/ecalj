@@ -625,14 +625,15 @@ contains
         laf= sum(abs(iantiferro))/=0
         nnv = maxval(nindx(1:ndima))
         write(stdo,ftox)' iantiferro=',iantiferro(1:nbas)
-        open(newunit=ifigwin,file='LMTO',form='unformatted')    
-        write(ifigwin) nbas,alat,plat,nsp,lmxax+1,nnv,nnc,nrmxe,qval
-        write(ifigwin) pos,zz(ispec(1:nbas)),slabl(ispec(1:nbas)) 
-        write(ifigwin) laf,ibasf
+        open(newunit=ifigwin,file='MTOindex',form='unformatted')    
+        write(ifigwin) nbas,alat,plat,nsp,lmxax+1,nnv,nnc,nrmxe,qval,nspc
+        write(ifigwin) pos,zz(ispec(1:nbas)),slabl(ispec(1:nbas)),lmxa(ispec(1:nbas))
+        write(ifigwin) ndble,mrecb,mrece,ndima,nqbz,nbandmx,mrecg
+        write(ifigwin) laf,ibasf 
         close(ifigwin)
         open(newunit=ifhbed,file='hbe.d')                       
         write(stdo,'( " ndima nbandmx=",3i5)') ndima, nbandmx
-        write(ifhbed,"(*(g0,x))") ndble,mrecb,mrece,ndima,nqbz,nbandmx,mrecg,nspc
+        write(ifhbed,"('hbe output=',*(g0,x))") ndble,mrecb,mrece,ndima,nqbz,nbandmx,mrecg,nspc
         write(ifhbed,*)' precision, mrecl of b, mrecl of eval, ndima(p+d+l)  nqbz  nbandmx mrecg nspc'
         close(ifhbed)
       endblock WriteGWfilesB

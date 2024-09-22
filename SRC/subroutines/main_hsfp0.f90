@@ -13,7 +13,7 @@ subroutine hsfp0() bind(C)
   use m_genallcf_v3,only: Genallcf_v3, &
        nclass,natom,nspin,nl,nn, ndima,nlnmx, nctot,niw, &
        alat,delta,deltaw,esmr_in=>esmr,clabl,iclass, il,in,im,nlnm, &
-       plat, pos,z,ecore,  konf,nlnx
+       plat, pos,z,ecore,  konf,nlnx,laf
   use m_keyvalue,only: Getkeyvalue
   use m_rdpp,only: Rdpp, nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx
   use m_zmel,only: Mptauof_zmel
@@ -26,7 +26,7 @@ subroutine hsfp0() bind(C)
   use m_genallcf_v3,only: nprecb,mrecb,mrece,nqbzt,nband,mrecg
   use m_lgunit,only: m_lgunit_init
   use m_freq,only: freq01
-  use m_anf,only:  Anfcond, laf
+!  use m_anf,only:  Anfcond, laf
   use m_bzints,only: bzints2x
   use m_gpu,only: gpu_init
   implicit none
@@ -440,7 +440,7 @@ subroutine hsfp0() bind(C)
      endif
   endif
   !   write(6,*)' ifqpnt ret=',ifqpnt,ret
-  call anfcond()
+!  call anfcond()
 !  lqall=.true.
   if (tote) then
      lqall      = .true.

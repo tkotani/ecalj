@@ -1,8 +1,9 @@
-subroutine basnfp_v2 (nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate product basis siwhin MT
+subroutine basnfp_v2(nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate product basis siwhin MT
        phitoto,phitotr,nsp,nclass, cutbase,lcutmx,ixx,alat,nc_max)
   use m_keyvalue,only:getkeyvalue
   use m_ll,only: ll
   use m_read_bzdata,only: Read_bzdata, q0i,nq0i,wqt=>wt
+  use m_genallcf_v3,only: lmxa
   !i phitotr: atomic radial functions. raw
   !r       This is avereged as for spin (stored in phiav) and used in the construction of product basis.
   !i phitoto: atomic radial functions. ortogonalized
@@ -632,9 +633,9 @@ subroutine basnfp_v2 (nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate
      endif
      do  lx = 0, 2*(nl-1)
         do  nx = 1, nxx(lx)
-           do  l1 = 0, nl-1
+           do  l1 = 0, lmxa(ic) !nl-1
               do  n1 = 1, nindx(l1)
-                 do  l2 = 0, nl-1
+                 do  l2 = 0, lmxa(ic) !nl-1
                     do  n2 = 1, nindx(l2)
                        if(lx <abs(l1-l2) .OR. l1+l2<lx) cycle
                        rphiphi(1)       = 0d0
@@ -710,7 +711,7 @@ subroutine basnfp_v2 (nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate
      open(newunit=ifv,file='MixSpin.'//charnum3(ibas))
      write(ifv,"(2i10,' ! ibas, max l of product basis' )") ibas,2*(nl-1)
      write(ifv,"(i10,'           ! nxx(lx)'  )") nxx(0:2*(nl-1))
-     do ilmx = 1, (2*(nl-1)+1)**2
+     do ilmx = 1,(2*(nl-1)+1)**2
         lx = ll(ilmx)
         if(ilmx <=nlml_r) then
            rspin(1) = 0d0  !rspin = rho^{true spin density} * r

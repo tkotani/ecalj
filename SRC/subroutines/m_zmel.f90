@@ -1,8 +1,8 @@
 !> Get the matrix element zmel =  ZO^-1 <MPB psi|psi> , where ZO is ppovlz(inverse of overlap matrix) !  "call get_zmel_init" return zmel 
 !  All dependencies (use foobar below ) are inputs (must be protected).
 module m_zmel
-  use m_genallcf_v3,only: nclass,natom,nspin,nl,nn,nnv,nnc,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, niw,nband,ndima
-  use m_genallcf_v3,only: alat,delta,deltaw,esmr,iclass,nlnmv,nlnmc,icore,ncore,plat,pos,z,ecore,mnl=>nlnm,nl,nn,nlnmx,il,in,im
+  use m_genallcf_v3,only: nclass,natom,nspin,nn,nnv,nnc,nlnmx, niw,nband,ndima
+  use m_genallcf_v3,only: alat,delta,deltaw,esmr,iclass,nlnmv,nlnmc,icore,ncore,plat,pos,z,ecore,mnl=>nlnm,nn,il,in,im
   use m_hamindex,only: ngrp, symgg=>symops,invg=>invgx
   use m_rdpp,only: Rdpp, nxx,lx,nx,mdimx,nbloch,cgr,ppbrd,nblocha,done_rdpp
   use m_read_bzdata,only: nqbz,nqibz,  qlat,ginv,qbz,qibz,wbz, done_read_bzdata
@@ -85,7 +85,7 @@ contains
     call rdpp(ng,symops)  !return ppbrd:radial integrals and cgr:rotated cg coeffecients. 
     ppbafp_v2_zmel: block 
       integer :: is,irot,lmxax, ic, i,lb,nb,mb,lmb,i1,ibas,i2, np,lp,mp,lmp,n,l,m,lm
-      lmxax=nl-1
+!      lmxax=nl-1
       allocate(ppbir(nlnmx,nlnmx,mdimx,nclass,ng,nspin)) ! ppbir is rotated <Phi(SLn,r) Phi(SL'n',r) B(S,i,rot^{-1}(r))> by rotated cg coefficients cgr
       do irot = 1,ng
          do is = 1,nspin 

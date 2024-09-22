@@ -18,10 +18,11 @@ subroutine hqpe_sc() bind(C)
   !-----------------------------------------------------------------------
   use m_keyvalue,only: Getkeyvalue
   use m_read_bzdata, only: Read_bzdata, nstar, nqibz2=>nqibz
-  use m_anf,only: anfcond,laf
+!  use m_anf,only: anfcond,laf
   use m_hamindex,only: Readhamindex, nhq=>ndham
   use m_mpi,only: MPI__Initialize, mpi__rank
   use m_lgunit,only: m_lgunit_init
+  use m_genallcf_v3,only: genallcf_v3,laf
   use m_ftox
   implicit real*8 (a-h,o-z)
   implicit integer (i-n)
@@ -76,7 +77,8 @@ subroutine hqpe_sc() bind(C)
   endif
   !! antiferro or not. Only calculate up spin
   !! For AF case, we have laf=.true. and we have data set for 'call anfsig', stored in m_anf.
-  call anfcond()
+!  call anfcond()
+  call genallcf_v3(0) 
   call readhamindex()
   open(newunit=ifsex(1) ,file='SEXU')
   open(newunit=ifxc(1)  ,file='XCU')
