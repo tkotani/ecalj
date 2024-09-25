@@ -147,7 +147,9 @@ contains
       allocate(nstatei(ndivmx,ncount),nstatee(ndivmx,ncount),nload(ndivmx))
       do icount=1,ncount
          nnn = nstatemax(icount)    !total number of middle states for given icount
-         ndiv(icount) = (nnn-1)/nmbatch + 1  !number of division for icount
+         !         ndiv(icount) = (nnn-1)/nmbatch + 1  !number of division for icount
+!         write(6,*)'nnnnnnnnnnn nnn nmbatch=',nnn,nmbatch
+         ndiv(icount) = max((nnn-1)/nmbatch + 1,1)  !number of division for icount 
          nloadav = nnn/ndiv(icount) !number of average load of middle states
          nrem = nnn - ndiv(icount)*nloadav !remnant count
          nload(1:nrem) = nloadav+1
