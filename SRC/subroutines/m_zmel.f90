@@ -84,8 +84,7 @@ contains
     deallocate(invgx)
     call rdpp(ng,symops)  !return ppbrd:radial integrals and cgr:rotated cg coeffecients. 
     ppbafp_v2_zmel: block 
-      integer :: is,irot,lmxax, ic, i,lb,nb,mb,lmb,i1,ibas,i2, np,lp,mp,lmp,n,l,m,lm
-!      lmxax=nl-1
+      integer :: is,irot, ic, i,lb,nb,mb,lmb,i1,ibas,i2, np,lp,mp,lmp,n,l,m,lm
       allocate(ppbir(nlnmx,nlnmx,mdimx,nclass,ng,nspin)) ! ppbir is rotated <Phi(SLn,r) Phi(SL'n',r) B(S,i,rot^{-1}(r))> by rotated cg coefficients cgr
       do irot = 1,ng
          do is = 1,nspin 

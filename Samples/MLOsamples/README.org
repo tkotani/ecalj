@@ -75,3 +75,7 @@ We use a soft inner window. Thus we do not need to give detailed values (resolut
 
 Larger EUinner may destroy continuity of bands and bumpy. (this is a case with default EUinner)
 
+
+
+
+-----------------

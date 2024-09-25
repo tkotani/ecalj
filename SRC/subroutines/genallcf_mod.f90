@@ -50,7 +50,7 @@ contains
     integer,allocatable::ncwf2(:,:,:), nindxv(:,:),occv(:,:,:),unoccv(:,:,:), occc(:,:,:),unoccc(:,:,:),ncwf(:,:,:)
     integer:: ia,l,m,ic1,isp,lt,nt,nr,ncorex,ifix
     real(8)::a,b,zz, efdummy,dw,diw
-    integer:: nwdummy,ict,ind,indv,l2,lm,lmxax1
+    integer:: nwdummy,ict,ind,l2,lm,lmxax1
     real(8),parameter:: pi=4d0*datan(1d0)
     if(done_genallcf_v3) call rx('genallcf_v3 is already called')
     done_genallcf_v3=.true.
@@ -244,14 +244,12 @@ contains
                enddo
             enddo
          enddo
-!         indv      = 0
          do  l = 0,lmxa(ic) !nl-1 ! valence
             ncorex  = nindxc(l+1,ic)
             do    n = 1,nindxv(l+1,ic)
                if (ncorex+n > nn) call rx( 'idxlnmc: ncore+n > nn')
                do      m = 1,2*l+1
                   ind = ind + 1
-!                  indv= indv + 1
                   if (ind > nlnmx) call rx( 'idxlnmc: ind > nlnmx')
                   lm = l**2 + m
                   il(ind,ic)  =l;  in(ind,ic) = ncorex + n; im(ind,ic)  = m-l-1 !; ilnm(ncorex+n,lm,ic) = ind
@@ -371,43 +369,3 @@ contains
   end subroutine readefermi_kbt
 end module m_ReadEfermi
 
-! module m_readhbe
-!   integer,protected:: nprecb,ndima,nqbzt,nband,nspc !nspc=2 for so=1, zero otherwize.
-!   integer:: mrecb,mrece,mrecg !these can not be protected because of bug of ifort?
-! contains
-!   subroutine readhbe()
-!     integer:: ifhbe
-!     open(newunit=ifhbe, file='hbe.d', action='read')
-!     read (ifhbe,*) nprecb,mrecb,mrece,ndima,nqbzt,nband,mrecg,nspc
-!     close(ifhbe)
-!   end subroutine readhbe
-! end module m_readhbe
-
-subroutine reindx (noccv,nunoccv,nindxv, &
-     noccc,nunoccc,nindxc, &
-     nl,nn,nnv,nnc,nclass, &
-     nocc,nunocc,nindx)
-  implicit real*8 (a-h,o-z)
-  implicit integer(i-n)
-  dimension noccv(0:nl-1,nnv,nclass),nunoccv(0:nl-1,nnv,nclass), &
-       noccc(0:nl-1,nnc,nclass),nunoccc(0:nl-1,nnc,nclass), &
-       nindxv(0:nl-1,nclass),nindxc(0:nl-1,nclass), &
-       nocc(0:nl-1,nn,nclass),nunocc(0:nl-1,nn,nclass), &
-       nindx(0:nl-1,nclass)
-  do      ic = 1,nclass
-     do       l = 0,nl-1
-        ncore      = nindxc(l,ic)
-        nval       = nindxv(l,ic)
-        nindx(l,ic)= ncore + nval
-        if (ncore+nval > nn) call rx( 'reindx: ncore+nval > nn')
-        do       n = 1,ncore
-           nocc(l,n,ic)   = noccc(l,n,ic)
-           nunocc(l,n,ic) = nunoccc(l,n,ic)
-        end do
-        do       n = 1,nval
-           nocc(l,ncore+n,ic)   = noccv(l,n,ic)
-           nunocc(l,ncore+n,ic) = nunoccv(l,n,ic)
-        end do
-     end do
-  end do
-end subroutine reindx

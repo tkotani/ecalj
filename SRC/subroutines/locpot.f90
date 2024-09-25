@@ -241,12 +241,12 @@ contains
                 vab_=>vab(:,:,:,:,ib)
                 vdif(1:nr,1:nsp) = y0*v1(1:nr,1,1:nsp) - v0(1:nr,1:nsp) !vdif= extra part of spherical potential for deterimning radial function
                 call potpus(z,rmt,lmxa,v0,vdif,a,nr,nsp,lsox,pnu,pnz,ehl,rsml,rs3,vmtz, & !hab,vab,sab and phzdphz, and rotp
-                     phzdphz(:,:,:,ib),hab_,vab_,sab_,sodb,rotp(:,:,:,:,ib)) 
+                     phzdphz(:,:,:,ib),hab_,vab_,sab_,sodb,rotp(0:lmxa,:,:,:,ib)) 
                 call momusl(z,rmt,lmxa,pnu,pnz,rsml,ehl,lmxl,nlml,a,nr,nsp,rofi,rwgt,v0,v1, qum,vum)!Moments and potential integrals of ul*ul, ul*sl, sl*s
                 call fradhd(nkaph,eh,rsmh,lhh(:,is),lmxh,nr,rofi, fh,xh,vh,dh) !head
                 call fradpk(kmax,rsmaa,lmxa,             nr,rofi, fp,xp,vp,dp) !tail
                 if(lldau(ib)>0)call vlm2us(lmaxu,rmt,idu(:,is),lmxa, count( idu(:,ispec(1:ib-1))>0 ), & !offset to the Ublock for ib
-                     vorb,phzdphz(:,:,:,ib),rotp(:,:,:,:,ib), vumm)!LDA+U: vumm of (u,s,gz) from vorb for phi.
+                     vorb,phzdphz(:,:,:,ib),rotp(0:lmxa,:,:,:,ib), vumm)!LDA+U: vumm of (u,s,gz) from vorb for phi.
                 kmax1=kmax+1
                 call gaugm(nr,nsp,lsox,rofi,rwgt,lmxa,lmxl,nlml,v2,gpot0(:,ib)-gpotb,hab_,vab_,sab_,sodb,qum,vum,& !...Pkl*Pkl !tail x tail
                      lmaxu,vumm,lldau(ib),idu(:,is),  lmxa,nlma,nlma,& !lmxa=lcutoff for augmentation

@@ -3,7 +3,7 @@ module m_sugw
   !  use m_mpiio,only: openm,writem,closem
   real(8),allocatable,public::ecore(:,:,:),gcore(:,:,:,:),gval(:,:,:,:,:)
   integer,public::  ndima, ndham, ncoremx,nqirr,nqibz
-  integer,allocatable,public:: konfig(:,:),ncores(:), konf0(:,:)
+  integer,allocatable,public:: konfig(:,:),ncores(:), konf0(:,:),ndimaa(:)
   private
   public:: m_sugw_init
 contains
@@ -14,7 +14,7 @@ contains
     use m_suham,only: ndham=>ham_ndham !max dimension of hamiltonian +napwad (for so=0,2)
     use m_lmfinit,only: ham_pwmode,pwemax,ham_oveps,lrsig=>ham_lsig,nlmto,lso,nspx !nspx=nsp/nspc
     use m_lmfinit,only: ham_scaledsigma,alat=>lat_alat,nsp,nspc,ispec,nspec,pos
-    use m_lmfinit,only: nbas,n0,nppn,nkap0,slabl,nmcorex=>nmcore,iantiferro,lmxax,nrmx
+    use m_lmfinit,only: nbas,n0,nppn,nkap0,slabl,nmcorex=>nmcore,iantiferro,lmxax,nrmx, lmxax
     use m_lattic,only: plat=>lat_plat, qlat=>lat_qlat,bas=>rv_a_opos
     use m_supot,only: n1,n2,n3, gmax=>lat_gmax
     use m_rdsigm2,only: getsenex, senex,dsene
@@ -24,7 +24,7 @@ contains
     use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_setiq,ndimhall
     use m_elocp,only: rsmlss=>rsml, ehlss=>ehl
     use m_qplist,only: qplist,ngplist,ngvecp,iqibzmax,niqisp,iqproc,isproc
-    use m_hamindex0,only: Readhamindex0, nlindx,nclass,iclass=>iclasst,lindx,nindx
+    use m_hamindex0,only: Readhamindex0, nlindx,nclass,iclass=>iclasst,lindx,nindx,nphimx
     use m_density,only: v0pot,pnuall,pnzall
     use m_augmbl,only: aughsoc
     use m_makusq,only: makusq
@@ -61,7 +61,7 @@ contains
          im1,im2,ipb(nbas),ipqn,ipr,iprint,iq,is,isp,ispc,j,job,k1, &
          k2,k3,konf,l,ldim,loldpw, lsig,mx,mxint, ncore,nevl,nev,nglob,ngp,ngp_p, &
          ngpmx,nline,nlinemax,nlmax,nmx,nn1,nn2,nnn, kkk,mmm,n, &
-         nphimx,npqn,nqbz,nqnum,nqnumx,nqtot,nr,iqibz,imx,ifigwb,ifinormchk,ifigw1,ifildima,ifigwn,ifigwbhead,&
+         npqn,nqbz,nqnum,nqnumx,nqtot,nr,iqibz,imx,ifigwb,ifinormchk,ifigw1,ifildima,ifigwn,ifigwbhead,&
          ispSS,ispEE,ispx,iqbk=-999,konfigk,konfz,icore2,icore2o,ic,nmcore,ifnlax,ifigwa,ifcphi,ifgeig!,ifcphim
     real(8):: rsml(n0), ehl(n0) ,eferm,qval, vmag,vnow, QpGcut_psi,QpGcut_cou,dum,xx(5),a,z,vshft, qp(3),qpos,q_p(3), epsovl
     real(8),allocatable:: rofi(:),rwgt(:), cphiw(:,:) 
@@ -91,7 +91,7 @@ contains
     call Readhamindex0() ! ==== Read file NLAindx ====
     ! MT part -----------------------
     allocate(konfig(0:lmxax,nbas))
-    nphimx=2
+!    nphimx=2
     allocate(ncores(nspec))
     do ib=1,nbas
       is=ispec(ib)
@@ -101,7 +101,7 @@ contains
         konfz   = floor(mod(pnzall(l+1,1,ib),10d0))
         if(konfz == 0) konfz = konfigk
         ncore = ncore+min(konfz,konfigk)-1 -l
-        if(konfz /= konfigk) nphimx=3 !pz mode local orbital is for nphi=3
+!        if(konfz /= konfigk) nphimx=3 !pz mode local orbital is for nphi=3
         if (konfz < konfigk) then
           konfig(l,ib) = konfz + 10
         elseif (konfz > konfigk) then
@@ -119,18 +119,20 @@ contains
       ic   = iclass(ib)
       konf0(:,ic) = [(mod(konfig(l,ib),10),l=0,lmxa(is))]
     enddo
-    ndima = 0
-    do  ib = 1, nbas
+    allocate(ndimaa(nbas))
+    do  ib = 1, nbas !ndimaa is the augmented wave dimension CPHI dimension)
       pnz=>pnzall(:,1:nsp,ib)
       if(sum(abs(pnz(:,1:nsp)-pnzall(:,1:nsp,ib)))>1d-9) call rx('sugw xxx1aaa')
-      ndima = ndima + sum([((2*l+1)*merge(3,2,pnz(l+1,1)/=0), l=0,lmxa(ispec(ib)))])
+      ndimaa(ib) = sum([((2*l+1)*merge(3,2,pnz(l+1,1)>1d-10), l=0,lmxa(ispec(ib)))])
     enddo
+    ndima = sum(ndimaa)
+    !ndimax= maxval(ndima)
     ! 'wanplotatom.dat' is originally a part of gwa and gwb.head. only for wanplot which will be unsupported.
     if(cmdopt0('--wanatom').and.master_mpi) wanatom=.true.
     if(wanatom) then 
       open(newunit=ifigwa,file='wanplotatom.dat',form='unformatted') 
       write(ifigwa)nbas,nsp,ndima,ndham,maxval(lmxa),ncoremx,nrmx,plat,alat!,nqirr,nqibz
-      write(ifigwa)bas,lmxa(ispec(1:nbas))!,qplist,ngplist,ndimhall,qval
+      write(ifigwa)bas,lmxa(ispec(1:nbas)),ndimaa(1:nbas) !,qplist,ngplist,ndimhall,qval
     endif
     if(master_mpi) write(stdo,ftox)' Generate radial wave functions ncoremx,nphimx=',ncoremx,nphimx
     allocate(gval(nrmx,0:lmxax,nphimx,nsp,nclass), ecore(ncoremx,nsp,nclass),gcore(nrmx,ncoremx,nsp,nclass),source=0d0)
@@ -230,9 +232,9 @@ contains
     endif
     if(ham_scaledsigma/=1d0 .AND. sigmamode) write(stdo,*)' Scaled Sigma method: ScaledSigma=',ham_scaledsigma
     ndble = 8
-    mrecb = 2*ndima*nbandmx *ndble !byte size !Use -assume byterecl for ifort recognize the recored in the unit of bytes.
-    mrece = nbandmx         *ndble 
-    mrecg = 2*ngpmx*nbandmx *ndble 
+    mrecb = 2*ndima* nbandmx *ndble !byte size !Use -assume byterecl for ifort recognize the recored in the unit of bytes.
+    mrece = nbandmx          *ndble 
+    mrecg = 2*ngpmx*nbandmx  *ndble 
     allocate(cphix(ndima,nspc,nbandmx),geigr(ngpmx,nspc,nbandmx))
     ! CPHI GEIG    
     ! i=openm(newunit=ifcphim,file='CPHI',recl=mrecb)
@@ -359,28 +361,34 @@ contains
         use m_locpot,only: rotp
         use m_mkpot,only : sab_rv
         integer:: ilm,im,iv
-        complex(8):: auasaz(3),aus_zv(nlmax,ndham*nspc,3,nsp,nbas)
+        complex(8):: auasaz(3),aus_zv(nlmax,ndham*nspc,3,nsp,nbas),usz(3)
+        real(8)::aaa
         call makusq(nbas,[-999], nev,  isp, 1,qp,reshape(evec(1:ndimhx,1:nev),[ndimh,nspc,nev]), aus_zv )
         cphiw=0d0
-        do ispc=1,nspc
+        ispcc: do ispc=1,nspc
           if(lso==1) ispx=ispc
           if(lso/=1) ispx=isp
-          do ib = 1, nbas
+          ibb: do ib = 1, nbas
             do iv = 1, nev
-              ilm = 0
-              do  l = 0, lmxa(ispec(ib))
+              ilm  = 0
+              do l = 0, lmxa(ispec(ib))
                 do im = 1, 2*l+1
                   ilm = ilm+1
                   auasaz=aus_zv(ilm,iv,1:3,ispx,ib) !coefficient for (u,s,gz)
-            ! cphi corresponds to coefficients of augmented functions for {phi,phidot,gz(val=slo=0)}, which are not orthnormal. 
+                  ! cphi are coefficients for augmented functions {phi,phidot,gz(val=slo=0)}, which are not orthnormal. 
                   cphi(nlindx(1:2,l,ib)+im,iv,ispc)= matmul(auasaz(1:2),rotp(l,ispx,:,:,ib))
                   if (nlindx(3,l,ib) >= 0) cphi(nlindx(3,l,ib) + im,iv,ispc) = auasaz(3)
-                  cphiw(iv,ispc) = cphiw(iv,ispc) + sum(dconjg(auasaz)*matmul(sab_rv(:,:,l+1,ispx,ib),auasaz)) 
+                  cphiw(iv,ispc) = cphiw(iv,ispc) + sum(dconjg(auasaz)*matmul(sab_rv(:,:,l+1,ispx,ib),auasaz))
+!                  aaa=abs(sum(dconjg(auasaz)*matmul(sab_rv(:,:,l+1,ispx,ib),auasaz)))
+!                  if(aaa>0.01.and.iv==1) then
+!                     write(stdo,ftox)'wwwwwwwwccc',ib,l,im-l-1, ftof(aaa), &
+!                          ftof(sab_rv(1:2,1,l+1,ispx,ib)), ftof(sab_rv(1:2,2,l+1,ispx,ib))
+!                  endif   
                 enddo
               enddo
             enddo
-          enddo
-        enddo
+          enddo ibb
+        enddo ispcc
       endblock gwcphi2
       if(ngp > 0) then !IPW expansion of eigenfunctions pwz 
         !  ppovl: = O_{G1,G2} = <IPW_G1 | IPW_G2>
@@ -412,16 +420,14 @@ contains
           enddo
           write(ifinormchk,"('# iq',i5,'   q',3f12.6,' ndimhx nev',2i7)") iq,qp,ndimhx,nev
           ! xx(1) = sum over all augmentation w.f.  cphi+ ovl cphi
-          ! xx(3) = IPW contribution to phi+ phi.   xx(1)+xx(3) should be close to unity.
-          ! [xx(4) = IPW contribution to phi+ phi, using diagonal part only]
-          do i1 = 1, nev !dimhx
-            xx(1) = sum(cphiw(i1,1:nspc))
+          ! xx(3) = IPW contribution to phi+ phi.   
+          ! xx(4) = IPW contribution to phi+ phi, using diagonal part only]
+          do i1 = 1, nev !nev: number of calculated eigenvals(eigenfunctions).
             i2=i1
-!            do  i2 = 1, ndimhx
-              xx(3) = sum(testc(i1,i2,:))
-              xx(4) = sum(testcd(i1,:))    !if(i1==i2)write(ifinormchk,'(f12.5,5f14.6)')evl(i1,isp),xx(3),xx(4),xx(1),xx(1)+xx(3)
-              write(ifinormchk,'(i4,f12.5,5f14.6)')i1,evl(i1,iq,isp),xx(3),xx(4),xx(1),xx(1)+xx(3)
-!            enddo
+            xx(1) = sum(cphiw(i1,1:nspc))
+            xx(3) = sum(testc(i1,i2,:))
+            xx(4) = sum(testcd(i1,:))    !if(i1==i2)write(ifinormchk,'(f12.5,5f14.6)')evl(i1,isp),xx(3),xx(4),xx(1),xx(1)+xx(3)
+            write(ifinormchk,'(i4,f12.5,5f14.6)')i1,evl(i1,iq,isp),xx(3),xx(4),xx(1),xx(1)+xx(3) !xx(1)+xx(3) should be close to unity.
           enddo
           deallocate(testc,testcd)
           write(ifinormchk,*)
@@ -439,51 +445,110 @@ contains
       if(debug)write(stdo,ftox)'goto writechpigeig'  
       WriteCphiGeig: block
         use m_hamindex0,only: nindx,ibasindx
-        integer::iband,ibas,iqqisp,ix,m,nm,i
+        use m_mkpot,only: sab_rv
+        use m_locpot,only: rotp
+        real(8)::add,zzz(2,2)
+        complex(8)::ccc(3),nnn,rrr(3,3),mmm(3,3)
+        integer::iband,ibas,iqqisp,ix,m,nm,i,ilm,im,iv
         do ispc=1,nspc
           geigr(1:ngp,      ispc,1:ndimhx)=pwz(1:ngp,ispc,1:ndimhx)
           geigr(ngp+1:ngpmx,ispc,1:ndimhx)=0d0
         enddo
-        do ispc=1,nspc
-        do ibas=1,nbas
-          do ix = 1,ndima !nindx is for avoiding degeneracy. See zzpi.
-            if(ibasindx(ix)==ibas) cphi(ix,1:nev,ispc) = cphi(ix, 1:nev,ispc)/sqrt(1d0+0.1d0*nindx(ix))
-          enddo
-        enddo
-        enddo
-        cphix=0d0 !     Augmentation wave part. cphix is on the orthogonalized functions phototr.
-        if(debug)write(stdo,ftox)' writechpigeig 1111'
-        do ispc=1,nspc
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        iv=1
+        ispc=1
+        ispx=1
+        ibb2: do ib = 1, nbas
+           ilm  = 0
+           do l = 0, lmxa(ispec(ib))
+              do im = 1, 2*l+1
+                 rrr=0d0
+                 rrr(1:2,1:2)=rotp(l,ispc,1:2,1:2,ib)
+                 call matcinv(2,rrr(1:2,1:2))
+                 mmm = matmul(dconjg(rrr),matmul(sab_rv(:,:,l+1,ispx,ib),transpose(rrr)))
+                 ccc= [cphi(nlindx(1:2,l,ib)+im,iv,ispc),(0d0,0d0)]
+                 add = sum(dconjg(ccc)*matmul(mmm,ccc))
+                 if(add>0.01.and.iv==1) write(stdo,ftox)'www2wwcccc2',ib,l,im-l-1, ftof(add)
+              enddo
+           enddo
+        enddo ibb2
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        iv=1
+        ispc=1
+        ispx=1
+        ibb3: do ix=1,ndima
+           ib = ibasindx(ix)
+           l  = lindx(ix)
+           n  = nindx(ix)
+           m  = mindx(ix)
+           ic = iclass(ib)
+           im= m+l+1
+           rrr=0d0
+           rrr(1:2,1:2)=rotp(l,ispc,1:2,1:2,ib)
+           call matcinv(2,rrr(1:2,1:2))
+           mmm = matmul(dconjg(rrr),matmul(sab_rv(:,:,l+1,ispx,ib),transpose(rrr)))
+           ccc= [cphi(nlindx(1:2,l,ib)+im,iv,ispc),(0d0,0d0)]
+           add = sum(dconjg(ccc)*matmul(mmm,ccc))
+!           if(add>0.01.and.iv==1) write(stdo,ftox)'www3wwcccc3',ib,l,im-l-1, ftof(add)
+!           if(sum(abs(ccc)**2)>0.01.and.iv==1) write(stdo,ftox)'www3wwaaa3',ib,l,im-l-1,'ix',ix, ftof(sum(abs(ccc)**2)), ftof(add)
+        enddo ibb3
+       do ispc=1,nspc 
+          do ix = 1,ndima !factor 0.1*nindx is for avoiding degeneracy. See zzpi.
+             cphi(ix,1:nev,ispc) = cphi(ix, 1:nev,ispc)/sqrt(1d0+0.1d0*nindx(ix))
+          enddo 
+       enddo
+       cphix=0d0 !     Augmentation wave part. cphix is coefficients for the orthogonalized functions 
+       if(debug)write(stdo,ftox)' writechpigeig 1111'
+       do ispc=1,nspc
           if(lso==1) ispx=ispc
           if(lso/=1) ispx=isp
           do iband = 1,nev
             do ix= 1,ndima
-              l  = lindx(ix)
               ib = ibasindx(ix)
+              l  = lindx(ix)
               n  = nindx(ix)
               m  = mindx(ix)
               ic = iclass(ib)
               nm = nvmax(l,ic)
+!              zzz=zzpi(1:nm,1:nm,l,ic,ispx)
+!              if(iband==1.and.l==0) then
+!                 write(stdo,ftox)'zzzzzzzzzppppppi',ib,ftof(zzz(:,1)),ftof(zzz(:,2))
+!              endif   
+!              if(iband==1) then
+!                 if(abs(cphi(ix,iband,ispc))>0.01) write(stdo,ftox)'ccccl',ix,ib,ic,ftof(abs(cphi(ix,iband,ispc)))
+!              endif
+              
               cphix (iord(m,1:nm,l,ib),ispc,iband) = &
                    cphix (iord(m,1:nm,l,ib),ispc,iband) + zzpi(1:nm,n,l,ic,ispx)*cphi(ix,iband,ispc)
+              
             enddo
           enddo
-        enddo
-        if(debug)write(stdo,ftox)' writechpigeig 2222'  
-        !   iqqisp= isp + nsp*(iq-1)
-        cphix(1:ndima,1:nspc,nev+1:nbandmx)=1d20 !padding       !         write(ifcphi),  rec=iqqisp)  cphix(1:ndima,1:nbandmx)
-        write(ifcphi) reshape(cphix(1:ndima,1:nspc,1:nbandmx),shape=[ndima*nspc,nbandmx])
-        !         i=writem(ifcphim,rec=iqqisp,data=cphix(1:ndima,1:nbandmx)) ! close(ifigwb_)
-        if(ngpmx/=0) geigr(1:ngpmx,1:nspc,nev+1:nbandmx)=1d20   ! padding  !  if(ngpmx/=0) write(ifgeig,  rec=iqqisp)  geigr(1:ngpmx,1:nbandmx,isp)
-        if(ngpmx/=0) write(ifgeig) reshape(geigr(1:ngpmx,1:nspc,1:nbandmx),shape=[ngpmx*nspc,nbandmx])
-        if(debug)write(stdo,ftox)'end of writechpigeig'  
-      endblock WriteCphiGeig
-      if (lwvxc) close(ifiv)
-      if (lwvxc) close(ifievec)
-      close(ifcphi)
-      close(ifgeig)
-      if(debug)write(stdo,ftox)' writechpigeig 1001'  
-      deallocate(pwz,hamm,ovlm,evec,vxc,cphi,cphiw)
+       enddo
+       if(debug)write(stdo,ftox)' writechpigeig 2222'  
+       !   iqqisp= isp + nsp*(iq-1)
+       cphix(1:ndima,1:nspc,nev+1:nbandmx)=1d20 !padding       !         write(ifcphi),  rec=iqqisp)  cphix(1:ndima,1:nbandmx)
+       write(ifcphi) reshape(cphix(1:ndima,1:nspc,1:nbandmx),shape=[ndima*nspc,nbandmx])
+       !         i=writem(ifcphim,rec=iqqisp,data=cphix(1:ndima,1:nbandmx)) ! close(ifigwb_)
+       if(ngpmx/=0) geigr(1:ngpmx,1:nspc,nev+1:nbandmx)=1d20   ! padding  !  if(ngpmx/=0) write(ifgeig,  rec=iqqisp)  geigr(1:ngpmx,1:nbandmx,isp)
+       if(ngpmx/=0) write(ifgeig) reshape(geigr(1:ngpmx,1:nspc,1:nbandmx),shape=[ngpmx*nspc,nbandmx])
+       if(debug)write(stdo,ftox)'end of writechpigeig'  
+     endblock WriteCphiGeig
+     if (lwvxc) close(ifiv)
+     if (lwvxc) close(ifievec)
+     close(ifcphi)
+     close(ifgeig)
+     if(debug)write(stdo,ftox)' writechpigeig 1001'  
+     deallocate(pwz,hamm,ovlm,evec,vxc,cphi,cphiw)
+      
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11
+!    do i=1,ndima
+!       if(abs(cphix(i,1,1))**2>0.01) write(stdo,ftox) 'sssssssssssgw',i,ftof(abs(cphix(i,1,1))**2)
+!    enddo
+!    write(stdo,ftox) 'sssssssssssgw',ftof(sum(abs(cphix(1:ndima,1,1))**2))
+!    stop 'qqqqqqqqqqqqqqqqqsugw'
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11
+    
 1001 enddo iqisploop
     call mpi_barrier(comm,ierr)
     call mpibc2_real(evl,   nbandmx*nqirr*nspx,'evl')
@@ -584,7 +649,7 @@ contains
           allocate(rofi(nrc(is)))
           rofi = [(bbc(ic)*(exp((ir-1)*aac(ic))-1d0), ir=1,nrc(ic))]
           icore = 0
-          do l  = 0,lmxa(is)
+          do l  = 0,lmxa(is) !lmxax !nl-1 !lmxa(is)
             do kkk = l+1 ,konf0(l,ic)-1
               icore = icore+1
               n    = kkk - l
@@ -631,7 +696,7 @@ contains
         write(ifigwin) ndble,mrecb,mrece,ndima,nqbz,nbandmx,mrecg
         write(ifigwin) laf,ibasf 
         close(ifigwin)
-        open(newunit=ifhbed,file='hbe.d')                       
+        open(newunit=ifhbed,file='hbe.d.chk') !human check only 
         write(stdo,'( " ndima nbandmx=",3i5)') ndima, nbandmx
         write(ifhbed,"('hbe output=',*(g0,x))") ndble,mrecb,mrece,ndima,nqbz,nbandmx,mrecg,nspc
         write(ifhbed,*)' precision, mrecl of b, mrecl of eval, ndima(p+d+l)  nqbz  nbandmx mrecg nspc'
