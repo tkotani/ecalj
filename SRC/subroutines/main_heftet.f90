@@ -5,7 +5,7 @@ module m_heftet
 contains
   subroutine heftet() bind(C)! Calculates the Fermi energy by tetrahedron method. 
     use m_read_bzdata,only: read_bzdata, idteti,qbz,qibz,dq_,nqibz,ntetf,nteti,ginv,nqbz
-    use m_genallcf_v3,only: genallcf_v3, nclass,natom,nspin,nl,nn,nnv,nnc,nlnmx, nctot,niw,nspx
+    use m_genallcf_v3,only: genallcf_v3,natom,nspin,nl,nn,nnv,nnc,nlnmx, nctot,niw,nspx
     use m_genallcf_v3,only: alat, delta,deltaw,esmr,clabl,iclass, plat, pos,z,ecore, konf,nlnx,valn=>qval
     use m_hamindex,only:   Readhamindex,qtt,nqtt
     use m_readeigen,only: init_readeigen,readeval
@@ -40,7 +40,7 @@ contains
     write(stdo,*) '--- heftet: calculation mode =',imode
     if(imode<1 .OR. imode>5) call rx( 'mode out of range(1-4)')
     call read_BZDATA() ;          write(stdo,ftox)' heftet: nqibz, ntetf,nteti,nqbz ', nqibz,ntetf,nteti,nqbz
-    call genallcf_v3(incwfx=-1) ; if(nclass /= natom ) call rx( ' hsfp0: nclass /= natom ')
+    call genallcf_v3(incwfx=-1) !; if(nclass /= natom ) call rx( ' hsfp0: nclass /= natom ')
     tpia   = 2d0*pi/alat
     voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3))) !cell volume
     ! ef for rs for the empty-sphere test case 

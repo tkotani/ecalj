@@ -37,7 +37,7 @@ subroutine hpsig_MPI()
   real(8),allocatable :: ppbrd (:,:,:,:,:,:,:),cg(:,:,:),symope(:,:), &
        phij(:),psij(:),rprodx(:,:),rphiphi(:)!,q0i(:,:)
   complex(8),parameter:: img=(0d0,1d0)
-  ! nw,incwf,natom,nclass,ipos,igrp,
+  ! nw,incwf,natom,natom,ipos,igrp,
   !     & iinvg,nspin,nl,nn,nnv,nnc,
   !     o                   inindx,inindxv,inindxc,iiclass,             !l,n, dimensions
   !     d                   ndima,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, !l,n,  dimensions
@@ -175,7 +175,7 @@ subroutine hpsig_MPI()
   call genallcf_v3(incwfin) !in module m_genallcf_v3
   !      if(ngrp/= ngrp2) stop 'ngrp inconsistent: BZDATA and LMTO GWIN_V2'
   !---  These are allocated and setted by genallcf_v3
-  !      integer(4)::  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
+  !      integer(4)::  natom,natom,nspin,nl,nn,nnv,nnc, ngrp,
   !     o  ndima,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot,niw,nw
   !      real(8) :: alat,ef, diw,dw,delta,deltaw,esmr
   !      character(120):: symgrp
@@ -193,7 +193,7 @@ subroutine hpsig_MPI()
   !     o  plat(:,:),pos(:,:),z(:),  ecore(:,:), freq(:), symgg(:,:,:) ! symgg=w(igrp)
 
 !!!! WE ASSUME iclass(iatom)= iatom !!!!!!!!!!!!!!!!!!!!!!!!!
-  if(nclass /= natom) stop ' nclass /= natom '
+!  if(natom /= natom) stop ' natom /= natom '
 
   ! --- read dimensions of h,hb
   !      ifhbe      = iopen('hbe.d',1,0,0)
@@ -203,7 +203,7 @@ subroutine hpsig_MPI()
 !  call Readhbe()
 
   ! --- read by rdpp ; Radial integrals ppbrd and plane wave part
-  call getsrdpp2(nclass,nl,nxx)
+  call getsrdpp2(natom,nl,nxx)
   call readngmx('QGpsi',ngpmx)
   if (myproc == 0) write(6,*)' ngpmx=',ngpmx
 

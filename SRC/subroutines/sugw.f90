@@ -3,7 +3,7 @@ module m_sugw
   !  use m_mpiio,only: openm,writem,closem
   real(8),allocatable,public::ecore(:,:,:),gcore(:,:,:,:),gval(:,:,:,:,:)
   integer,public::  ndima, ndham, ncoremx,nqirr,nqibz
-  integer,allocatable,public:: konfig(:,:),ncores(:), konf0(:,:),ndimaa(:)
+  integer,allocatable,public:: konfig(:,:),ncores(:), konf0(:,:)
   private
   public:: m_sugw_init
 contains
@@ -66,7 +66,7 @@ contains
     real(8):: rsml(n0), ehl(n0) ,eferm,qval, vmag,vnow, QpGcut_psi,QpGcut_cou,dum,xx(5),a,z,vshft, qp(3),qpos,q_p(3), epsovl
     real(8),allocatable:: rofi(:),rwgt(:), cphiw(:,:) 
     real(8),pointer:: pnu(:,:),pnz(:,:)
-    integer,allocatable :: konft(:,:,:),iiyf(:),ibidx(:,:),nqq(:)
+    integer,allocatable :: konft(:,:,:),iiyf(:),ibidx(:,:),nqq(:),ndimaa(:)
     complex(8),allocatable :: aus_zv(:,:,:,:,:), hamm(:,:,:,:),ovlm(:,:,:,:),ovlmtoi(:,:),ovliovl(:,:) ,hammhso(:,:,:)
     complex(8),allocatable:: evec(:,:),evec0(:,:),vxc(:,:,:,:),ppovl(:,:),phovl(:,:),pwh(:,:),pwz(:,:,:),pzovl(:,:,:), pwz0(:,:),&
          testcc(:,:),testc(:,:,:),testcd(:,:),ppovld(:),cphi(:,:,:),cphi0(:,:,:),cphi_p(:,:,:),geig(:,:,:),geig_p(:,:,:),sene(:,:)
@@ -90,18 +90,16 @@ contains
     if(master_mpi) write(stdo,"(' MagField added to Hailtonian -vmag/2 for isp=1, +vmag/2 for isp=2: vmag(Ry)=',d13.6)") vmag
     call Readhamindex0() ! ==== Read file NLAindx ====
     ! MT part -----------------------
-    allocate(konfig(0:lmxax,nbas))
-!    nphimx=2
-    allocate(ncores(nspec))
+    allocate(konfig(0:lmxax,nbas),ncores(nspec),konf0(0:lmxax,nclass),ndimaa(nbas))
     do ib=1,nbas
-      is=ispec(ib)
+      is = ispec(ib)
+      ic = iclass(ib)
       ncore=0
       do l = 0, lmxa(is)
         konfigk = floor(pnuall(l+1,1,ib))           !take isp=1 since spin-independent
         konfz   = floor(mod(pnzall(l+1,1,ib),10d0))
         if(konfz == 0) konfz = konfigk
         ncore = ncore+min(konfz,konfigk)-1 -l
-!        if(konfz /= konfigk) nphimx=3 !pz mode local orbital is for nphi=3
         if (konfz < konfigk) then
           konfig(l,ib) = konfz + 10
         elseif (konfz > konfigk) then
@@ -111,32 +109,22 @@ contains
         endif
       enddo
       ncores(is)=ncore
-    enddo
-    ncoremx=maxval(ncores)
-    allocate(konf0(0:lmxax,nclass))
-    do ib = 1,nbas
-      is   = ispec(ib)
-      ic   = iclass(ib)
       konf0(:,ic) = [(mod(konfig(l,ib),10),l=0,lmxa(is))]
-    enddo
-    allocate(ndimaa(nbas))
-    do  ib = 1, nbas !ndimaa is the augmented wave dimension CPHI dimension)
       pnz=>pnzall(:,1:nsp,ib)
       if(sum(abs(pnz(:,1:nsp)-pnzall(:,1:nsp,ib)))>1d-9) call rx('sugw xxx1aaa')
-      ndimaa(ib) = sum([((2*l+1)*merge(3,2,pnz(l+1,1)>1d-10), l=0,lmxa(ispec(ib)))])
+      ndimaa(ib) = sum([((2*l+1)*merge(3,2,pnz(l+1,1)>1d-10), l=0,lmxa(ispec(ib)))]) !!ndimaa is the augmented wave dimension CPHI dimension)
     enddo
-    ndima = sum(ndimaa)
-    !ndimax= maxval(ndima)
-    ! 'wanplotatom.dat' is originally a part of gwa and gwb.head. only for wanplot which will be unsupported.
-    if(cmdopt0('--wanatom').and.master_mpi) wanatom=.true.
-    if(wanatom) then 
+    ncoremx= maxval(ncores)
+    ndima  =  sum(ndimaa)     !ndimax= maxval(ndima)
+    if(cmdopt0('--wanatom').and.master_mpi) wanatom=.true. 
+    if(wanatom) then ! 'wanplotatom.dat' is originally a part of gwa and gwb.head. only for wanplot which will be unsupported.
       open(newunit=ifigwa,file='wanplotatom.dat',form='unformatted') 
       write(ifigwa)nbas,nsp,ndima,ndham,maxval(lmxa),ncoremx,nrmx,plat,alat!,nqirr,nqibz
-      write(ifigwa)bas,lmxa(ispec(1:nbas)),ndimaa(1:nbas) !,qplist,ngplist,ndimhall,qval
+      write(ifigwa)bas,lmxa(ispec(1:nbas)) !,ndimaa(1:nbas) !,qplist,ngplist,ndimhall,qval
     endif
     if(master_mpi) write(stdo,ftox)' Generate radial wave functions ncoremx,nphimx=',ncoremx,nphimx
     allocate(gval(nrmx,0:lmxax,nphimx,nsp,nclass), ecore(ncoremx,nsp,nclass),gcore(nrmx,ncoremx,nsp,nclass),source=0d0)
-    do ib = 1, nbas
+    ibmain: do ib = 1, nbas
       if(master_mpi) write(stdo,ftox)' ibas=',ib
       is=ispec(ib)  !spec index
       ic=iclass(ib) !class index
@@ -218,11 +206,10 @@ contains
         enddo
       endblock CreateAugmentedWaveFunctions
       deallocate(rofi,rwgt)
-    enddo
+    enddo ibmain
     if(wanatom) close(ifigwa)
-    ! Write refined mesh and indexes to m_rdata1
-    call rdata1init(ncores,ndima,ncoremx,konf0,gval,gcore)
-    ! IPW part ! Main loop for eigenfunction generation ==
+    call rdata1init(ncores,ndima,ncoremx,konf0,gval,gcore) ! Write refined mesh and indexes to m_rdata1
+    ! IPW part  Main loop for eigenfunction generation ==
     open(newunit=ifiqg,file='QGpsi',form='unformatted')
     read(ifiqg ) nqnum, ngpmx ,QpGcut_psi,nqbz,nqirr,imx,nqibz
     close(ifiqg)
@@ -232,7 +219,7 @@ contains
     endif
     if(ham_scaledsigma/=1d0 .AND. sigmamode) write(stdo,*)' Scaled Sigma method: ScaledSigma=',ham_scaledsigma
     ndble = 8
-    mrecb = 2*ndima* nbandmx *ndble !byte size !Use -assume byterecl for ifort recognize the recored in the unit of bytes.
+    mrecb = 2*ndima* nbandmx *ndble !byte size  !Use -assume byterecl for ifort, so that ifort recognizes the recored in the unit of bytes.
     mrece = nbandmx          *ndble 
     mrecg = 2*ngpmx*nbandmx  *ndble 
     allocate(cphix(ndima,nspc,nbandmx),geigr(ngpmx,nspc,nbandmx))
@@ -375,13 +362,13 @@ contains
                 do im = 1, 2*l+1
                   ilm = ilm+1
                   auasaz=aus_zv(ilm,iv,1:3,ispx,ib) !coefficient for (u,s,gz)
-                  ! cphi are coefficients for augmented functions {phi,phidot,gz(val=slo=0)}, which are not orthnormal. 
+                  ! cphi are coefficients for augmented functions {phi,phidot,gz(val=slo=0)}, which are not orthnormal.
+                  ! TK checked that sab_rv is almost the same as zzpi*zzpi as for nio_gwsc
                   cphi(nlindx(1:2,l,ib)+im,iv,ispc)= matmul(auasaz(1:2),rotp(l,ispx,:,:,ib))
                   if (nlindx(3,l,ib) >= 0) cphi(nlindx(3,l,ib) + im,iv,ispc) = auasaz(3)
                   cphiw(iv,ispc) = cphiw(iv,ispc) + sum(dconjg(auasaz)*matmul(sab_rv(:,:,l+1,ispx,ib),auasaz))
 !                  aaa=abs(sum(dconjg(auasaz)*matmul(sab_rv(:,:,l+1,ispx,ib),auasaz)))
-!                  if(aaa>0.01.and.iv==1) then
-!                     write(stdo,ftox)'wwwwwwwwccc',ib,l,im-l-1, ftof(aaa), &
+!                  if(aaa>0.01.and.iv==1) write(stdo,ftox)'wwwwwwwwccc',ib,l,im-l-1, ftof(aaa), &
 !                          ftof(sab_rv(1:2,1,l+1,ispx,ib)), ftof(sab_rv(1:2,2,l+1,ispx,ib))
 !                  endif   
                 enddo
@@ -454,45 +441,25 @@ contains
           geigr(1:ngp,      ispc,1:ndimhx)=pwz(1:ngp,ispc,1:ndimhx)
           geigr(ngp+1:ngpmx,ispc,1:ndimhx)=0d0
         enddo
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        iv=1
-        ispc=1
-        ispx=1
-        ibb2: do ib = 1, nbas
-           ilm  = 0
-           do l = 0, lmxa(ispec(ib))
-              do im = 1, 2*l+1
-                 rrr=0d0
-                 rrr(1:2,1:2)=rotp(l,ispc,1:2,1:2,ib)
-                 call matcinv(2,rrr(1:2,1:2))
-                 mmm = matmul(dconjg(rrr),matmul(sab_rv(:,:,l+1,ispx,ib),transpose(rrr)))
-                 ccc= [cphi(nlindx(1:2,l,ib)+im,iv,ispc),(0d0,0d0)]
-                 add = sum(dconjg(ccc)*matmul(mmm,ccc))
-                 if(add>0.01.and.iv==1) write(stdo,ftox)'www2wwcccc2',ib,l,im-l-1, ftof(add)
-              enddo
-           enddo
-        enddo ibb2
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        iv=1
-        ispc=1
-        ispx=1
-        ibb3: do ix=1,ndima
-           ib = ibasindx(ix)
-           l  = lindx(ix)
-           n  = nindx(ix)
-           m  = mindx(ix)
-           ic = iclass(ib)
-           im= m+l+1
-           rrr=0d0
-           rrr(1:2,1:2)=rotp(l,ispc,1:2,1:2,ib)
-           call matcinv(2,rrr(1:2,1:2))
-           mmm = matmul(dconjg(rrr),matmul(sab_rv(:,:,l+1,ispx,ib),transpose(rrr)))
-           ccc= [cphi(nlindx(1:2,l,ib)+im,iv,ispc),(0d0,0d0)]
-           add = sum(dconjg(ccc)*matmul(mmm,ccc))
-!           if(add>0.01.and.iv==1) write(stdo,ftox)'www3wwcccc3',ib,l,im-l-1, ftof(add)
-!           if(sum(abs(ccc)**2)>0.01.and.iv==1) write(stdo,ftox)'www3wwaaa3',ib,l,im-l-1,'ix',ix, ftof(sum(abs(ccc)**2)), ftof(add)
-        enddo ibb3
+!         iv=1
+!         ispc=1
+!         ispx=1
+!         ibb3: do ix=1,ndima
+!            ib = ibasindx(ix)
+!            l  = lindx(ix)
+!            n  = nindx(ix)
+!            m  = mindx(ix)
+!            ic = iclass(ib)
+!            im= m+l+1
+!            rrr=0d0
+!            rrr(1:2,1:2)=rotp(l,ispc,1:2,1:2,ib)
+!            call matcinv(2,rrr(1:2,1:2))
+!            mmm = matmul(dconjg(rrr),matmul(sab_rv(:,:,l+1,ispx,ib),transpose(rrr)))
+!            ccc= [cphi(nlindx(1:2,l,ib)+im,iv,ispc),(0d0,0d0)]
+!            add = sum(dconjg(ccc)*matmul(mmm,ccc))
+!            if(add>0.01.and.iv==1) write(stdo,ftox)'www3wwcccc3',ib,l,im-l-1, ftof(add)
+!            if(sum(abs(ccc)**2)>0.01.and.iv==1) write(stdo,ftox)'www3wwaaa3',ib,l,im-l-1,'ix',ix, ftof(sum(abs(ccc)**2)), ftof(add)
+!         enddo ibb3
        do ispc=1,nspc 
           do ix = 1,ndima !factor 0.1*nindx is for avoiding degeneracy. See zzpi.
              cphi(ix,1:nev,ispc) = cphi(ix, 1:nev,ispc)/sqrt(1d0+0.1d0*nindx(ix))
@@ -511,22 +478,12 @@ contains
               m  = mindx(ix)
               ic = iclass(ib)
               nm = nvmax(l,ic)
-!              zzz=zzpi(1:nm,1:nm,l,ic,ispx)
-!              if(iband==1.and.l==0) then
-!                 write(stdo,ftox)'zzzzzzzzzppppppi',ib,ftof(zzz(:,1)),ftof(zzz(:,2))
-!              endif   
-!              if(iband==1) then
-!                 if(abs(cphi(ix,iband,ispc))>0.01) write(stdo,ftox)'ccccl',ix,ib,ic,ftof(abs(cphi(ix,iband,ispc)))
-!              endif
-              
               cphix (iord(m,1:nm,l,ib),ispc,iband) = &
                    cphix (iord(m,1:nm,l,ib),ispc,iband) + zzpi(1:nm,n,l,ic,ispx)*cphi(ix,iband,ispc)
-              
             enddo
           enddo
        enddo
-       if(debug)write(stdo,ftox)' writechpigeig 2222'  
-       !   iqqisp= isp + nsp*(iq-1)
+       if(debug)write(stdo,ftox)' writechpigeig 2222'          !   iqqisp= isp + nsp*(iq-1)
        cphix(1:ndima,1:nspc,nev+1:nbandmx)=1d20 !padding       !         write(ifcphi),  rec=iqqisp)  cphix(1:ndima,1:nbandmx)
        write(ifcphi) reshape(cphix(1:ndima,1:nspc,1:nbandmx),shape=[ndima*nspc,nbandmx])
        !         i=writem(ifcphim,rec=iqqisp,data=cphix(1:ndima,1:nbandmx)) ! close(ifigwb_)
@@ -540,15 +497,11 @@ contains
      close(ifgeig)
      if(debug)write(stdo,ftox)' writechpigeig 1001'  
      deallocate(pwz,hamm,ovlm,evec,vxc,cphi,cphiw)
-      
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11
-!    do i=1,ndima
-!       if(abs(cphix(i,1,1))**2>0.01) write(stdo,ftox) 'sssssssssssgw',i,ftof(abs(cphix(i,1,1))**2)
+!    do i=1,ndima; if(abs(cphix(i,1,1))**2>0.01) write(stdo,ftox) 'sssssssssssgw',i,ftof(abs(cphix(i,1,1))**2)
 !    enddo
 !    write(stdo,ftox) 'sssssssssssgw',ftof(sum(abs(cphix(1:ndima,1,1))**2))
-!    stop 'qqqqqqqqqqqqqqqqqsugw'
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11
-    
 1001 enddo iqisploop
     call mpi_barrier(comm,ierr)
     call mpibc2_real(evl,   nbandmx*nqirr*nspx,'evl')

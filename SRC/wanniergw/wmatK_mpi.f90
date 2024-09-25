@@ -1,5 +1,5 @@
 module m_zmel_old !for wannier part This will be removed soon. 
-  use m_genallcf_v3,only: nclass,natom,nspin,nl,nn,nnv,nnc,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, niw, nband
+  use m_genallcf_v3,only: natom,nspin,nl,nn,nnv,nnc,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, niw, nband
   use m_genallcf_v3,only: alat,delta,deltaw,esmr,iclass,nlnmv,nlnmc,icore,ncore,plat,pos,z,ecore,mnl=>nlnm,nl,nn,nlnmx,il,in,im
   use m_hamindex,only: ngrp, symgg=>symops,invg=>invgx
   use m_rdpp,only: Rdpp, nxx,lx,nx,mdimx,nbloch,cgr,ppbrd,nblocha,done_rdpp
@@ -38,14 +38,14 @@ contains
     !  in,il,im      = index for n,l,m s. indxlnm.f
     !   ppb            = <Phi(RLn) Phi(RL'n') B(R,i)>
     implicit none
-    integer,intent(in) :: irot,ng,isp!,nspin,nclass,nlnmx,mdimx
-    integer,intent(in) :: lx(nclass),nx(0: 2*(nl-1),nclass)
+    integer,intent(in) :: irot,ng,isp!,nspin,natom,nlnmx,mdimx
+    integer,intent(in) :: lx(natom),nx(0: 2*(nl-1),natom)
     integer,intent(in) :: lmxax,nxx,mdimx
     real(8), intent(in) :: cgr((lmxax+1)**2,(lmxax+1)**2,(2*lmxax+1)**2,ng)
-    real(8), intent(in) :: ppbrd(0:nl-1,nn,0:nl-1,nn,0:2*(nl-1),nxx,nclass*nspin)
-    real(8), intent(out) :: ppb(nlnmx,nlnmx,mdimx,nclass)
+    real(8), intent(in) :: ppbrd(0:nl-1,nn,0:nl-1,nn,0:2*(nl-1),nxx,natom*nspin)
+    real(8), intent(out) :: ppb(nlnmx,nlnmx,mdimx,natom)
     integer :: ic, i,lb,nb,mb,lmb,i1,ibas,i2, np,lp,mp,lmp,n,l,m,lm
-    do concurrent (ic=1:nclass)
+    do concurrent (ic=1:natom)
        ibas = ic
        i = 0 !i = product basis index.
        do lb  = 0, lx (ibas)
@@ -190,7 +190,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
      iclass,mdim,nlnmv,nlnmc,  icore,ncore,imdim, &
      ppb, freq_r,freqx,wx,expa,ua,dw,& ! & deltaw,freq
      nlmto,nqibz,nqbz,nctot, &
-     nl,nnc,nclass,natom, &
+     nl,nnc,natom,natomx, &
      nlnmx,mdimx,nbloch,ngrp,nw_i,nw,nrw,niw,niwx,nq, &
      nblochpmx ,ngpmx,ngcmx, &! & ngveccBr,!Jan2004
      wgt0,wqt,nq0i,q0i,symope,alat, shtv,nband, ifvcfpout, &
@@ -294,12 +294,12 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
 !  use rsmpi_qkgroup
   use rsmpi_rotkindex
   implicit none
-  integer :: ntq, natom,nqbz,nqibz,ngrp,nq,nw_i,nw,niw, &
+  integer :: ntq, natom,nqbz,nqibz,ngrp,nq,nw_i,nw,niw, natomx,&
        nband,  nlmto, nq0i,nctot,mbytes,iwksize,nlmtobnd,nstate,nstatex, &
        irot,  iqisp,ikpisp,isp,nsp,  nlnmx, iq, ip, it,itp, it2, itp2,  iiclass,mdim(*), &
        ifrcw,ifrcwi, ifvcfpout,ndummy1,ndummy2,kx,kr,kr2,kr3,ngc,ngb,nbloch, &
        kp,nt0,nocc, nt0p,nt0m,irkp,i,nt0org,nmax,nt,ntp0, &
-       nbmax,nclass,nl,nnc, nblochpmx,ix,nx,iw,iwp,ixs,ixsmx, &
+       nbmax,nl,nnc, nblochpmx,ix,nx,iw,iwp,ixs,ixsmx, &
        mdimx, nwx,niwx, iatomp(natom), &
        nstar(nqibz),irk(nqibz,ngrp),kount(nqibz),nwf !,iclose
   real(8) :: q(3),qbas(3*3),ginv(3*3),tr(3,natom), &
@@ -738,7 +738,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
              nlnmv,nlnmc,mdim,nctot, &
              imdim,iatomp, &
              mdimx,nlmto,nbloch,nlnmx, nband, nt,ntp0, &
-             natom,nclass, &
+             natom,natom, &
              zzmel)               ! rmel,cmel)
         if(debug) write(6,"('sum of zmel abszmel=',4d23.16)") &
              sum(zzmel),sum(abs(zzmel) )
@@ -985,7 +985,7 @@ contains
   subroutine psi2b_v2(nt0,ntp0,iclass,coskt,sinkt, &
        cphik, cphikq,    ppb,  nlnmv,nlnmc,mdim,nctot,imdim,iatomp, &
        mdimx,nlmto,nbloch,nlnmx,noccxv,nt,ntp, &
-       natom,nclass, &
+       natom,natomx, &
        zpsi2b)
     ! originaly 92.03.17 by Ferdi.
     ! takao modified at Apr 2002
@@ -1017,12 +1017,12 @@ contains
     ! zpsi2b     =  the matrix elements
     implicit real*8(a-h,o-z)
     implicit integer (i-n)
-    integer::nt0,ntp0,natom,nlmto,nclass,nlnmc,mdim,nctot
+    integer::nt0,ntp0,natom,nlmto,natomx,nlnmc,mdim,nctot
     complex(8):: cphik(nlmto,noccxv),cphikq(nlmto,ntp0) &
          ,zpsi2b(nbloch,nt,ntp),phase
     dimension &
-         ppb(nlnmx,nlnmx,mdimx,nclass), &
-         nlnmv(nclass),nlnmc(nclass),mdim(nclass),iclass(natom), &
+         ppb(nlnmx,nlnmx,mdimx,natom), &
+         nlnmv(natom),nlnmc(natom),mdim(natom),iclass(natom), &
          coskt(natom),sinkt(natom),imdim(natom),iatomp(natom)
 
     integer,allocatable::iasx(:)
@@ -1127,7 +1127,7 @@ contains
   subroutine psicb_v2 (icore,ncore,ntp0,iclass,coskt,sinkt, &
        cphikq, ppb,    nlnmv,nlnmc,mdim, &
        imdim,iatomp, &
-       mdimx,nlmto,nbloch,nlnmx,nt,ntp,natom,nclass, &
+       mdimx,nlmto,nbloch,nlnmx,nt,ntp,natom,natomx, &
        nl,nnc, &
        zpsi2b)! rpsi2b,cpsi2b)
     ! written by Ferdi  92.03.17
@@ -1169,12 +1169,12 @@ contains
     dimension &
          !                rbkq(nlmto,ntp0),cbkq(nlmto,ntp0),
          !     i          rhbkq(nlmto,ntp0),chbkq(nlmto,ntp0),
-         icore(nl*nl*nnc,nclass),ncore(nclass), &
-         ppb(nlnmx,nlnmx,mdimx,nclass), &
-         !     i          pdb(nlnmx,nlnmx,mdimx,nclass),
-         !     i          dpb(nlnmx,nlnmx,mdimx,nclass),
-         !     i          ddb(nlnmx,nlnmx,mdimx,nclass),
-         nlnmv(nclass),nlnmc(nclass),mdim(nclass),iclass(natom), &
+         icore(nl*nl*nnc,natom),ncore(natom), &
+         ppb(nlnmx,nlnmx,mdimx,natom), &
+         !     i          pdb(nlnmx,nlnmx,mdimx,natom),
+         !     i          dpb(nlnmx,nlnmx,mdimx,natom),
+         !     i          ddb(nlnmx,nlnmx,mdimx,natom),
+         nlnmv(natom),nlnmc(natom),mdim(natom),iclass(natom), &
          coskt(natom),sinkt(natom),imdim(natom),iatomp(natom)
     !      dimension rpsi2b(nbloch,nt,ntp),
     !     o          cpsi2b(nbloch,nt,ntp)

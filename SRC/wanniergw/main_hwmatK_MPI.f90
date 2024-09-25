@@ -47,7 +47,7 @@ subroutine hwmatK_MPI()
        ,nq0i=>nq0ix,wqt=>wt,q0i
   use m_readeigen,only: onoff_write_pkm4crpa,init_readeigen,init_readeigen2, &
        init_readeigen_mlw_noeval,  nwf !,init_readeigen_phi_noeval
-  use m_genallcf_v3,only:niwg=>niw,alat,deltaw,esmr,icore,natom,nclass,iclass,nl,nlnmc,nlnmv,nlnmc,nlnmx,nlnx
+  use m_genallcf_v3,only:niwg=>niw,alat,deltaw,esmr,icore,natom,iclass,nl,nlnmc,nlnmv,nlnmc,nlnmx,nlnx
   use m_genallcf_v3,only: genallcf_v3,ncore,nn,nnc,nspin,pos,plat, nprecb,mrecb,mrece,nqbzt,nband,mrecg,ndima
   use m_keyvalue,only: getkeyvalue
 !  use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
@@ -63,7 +63,7 @@ subroutine hwmatK_MPI()
   !------------------------------------
   real(8)    :: esmr2,shtw
   !      integer :: mxclass,ngnmax,mbytes,mwords,iwksize,
-  !     &   natom,nclass,ipos,igrp,
+  !     &   natom,natom,ipos,igrp,
   !     &   iqibz,
   !     &   iqbz,
   !     &   iinvg,
@@ -264,7 +264,7 @@ subroutine hwmatK_MPI()
   !      if(ngrp/= ngrp2)
   !     &  call RSMPI_Stop( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
   !---  These are allocated and setted.
-  !      integer::  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
+  !      integer::  natom,natom,nspin,nl,nn,nnv,nnc, ngrp,
   !     o  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot,niw, !not readin nw
   !      real(8) :: alat,ef, diw,dw,delta,deltaw,esmr
   !      character(120):: symgrp
@@ -289,9 +289,9 @@ subroutine hwmatK_MPI()
   !     &  write(6,"('  nbmx ebmx from GWinput=',2i8,2d13.5)") nbmx,ebmx
 
   !-------------------------------------------------------------------
-  !      if (nclass > mxclass) stop ' hsfp0: increase mxclass'
+  !      if (natom > mxclass) stop ' hsfp0: increase mxclass'
 !!!!! WE ASSUME iclass(iatom)= iatom !!!!!!!!!!!!!!!!!!!!!!!!!
-  if (nclass /= natom ) call RSMPI_Stop( ' hsfp0: nclass /= natom ') ! We assume nclass = natom.
+!  if (natom /= natom ) call RSMPI_Stop( ' hsfp0: natom /= natom ') ! We assume natom = natom.
   if (Is_IO_Root_RSMPI()) write(6,*)' hsfp0: end of genallcf2'
 
   call pshpr(30)
@@ -435,16 +435,16 @@ subroutine hwmatK_MPI()
   !        write (*,*)  'tiat=', tiat(1:3,1:natom,invr),invr
 
   ! Get array size to call rdpp
-  !      call getsrdpp( nclass,nl,
+  !      call getsrdpp( natom,nl,
   !     o               ngpmx,ngcmx,nxx )
-  call getsrdpp2( nclass,nl,nxx)
+  call getsrdpp2( natom,nl,nxx)
   call readngmx2()
   !      call readngmx('QGpsi',ngpmx)
   !      call readngmx('QGcou',ngcmx)
   if (Is_IO_Root_RSMPI()) &
        write(6,*)' ngcmx ngpmx=',ngcmx,ngpmx
-  allocate( nx(0:2*(nl-1),nclass), nblocha(nclass) ,lx(nclass), &
-       ppbrd ( 0:nl-1, nn, 0:nl-1,nn, 0:2*(nl-1),nxx, nspin*nclass), &
+  allocate( nx(0:2*(nl-1),natom), nblocha(natom) ,lx(natom), &
+       ppbrd ( 0:nl-1, nn, 0:nl-1,nn, 0:2*(nl-1),nxx, nspin*natom), &
        cgr(nl**2,nl**2,(2*nl-1)**2,ngrp))
 
   !- readin plane wave parts, and Radial integrals ppbrd.
@@ -454,11 +454,11 @@ subroutine hwmatK_MPI()
   ! ngvecpB (in 1stBZ) contains G vector for eigen function.
   ! ngveccB (in IBZ)   contains G vector for Coulomb matrix.
   !      call rdpp_v2( ngpmx,ngcmx,nxx,  qibz,nqibz, qbz,nqbz,
-  !     i      nband, nl,ngrp, nn,  nclass, nspin, symgg,    qbas,
+  !     i      nband, nl,ngrp, nn,  natom, nspin, symgg,    qbas,
   !     o      nblocha, lx, nx, ppbrd ,
   !     o      mdimx, nbloch, cgr,
   !     o      nblochpmx, ngpn,geigB,ngvecpB,  ngcni,ngveccB )
-  call rdpp_v3(nxx, nl, ngrp, nn, nclass, nspin, symgg, nblocha, lx, nx, ppbrd, mdimx, nbloch, cgr)
+  call rdpp_v3(nxx, nl, ngrp, nn, natom, nspin, symgg, nblocha, lx, nx, ppbrd, mdimx, nbloch, cgr)
   !      nblochpmx = nbloch + ngcmx
 
   !      allocate(ngcni(nqibz)) !, ngveccB(3,ngcmx,nqibz)) !, ngveccBr(3,ngcmx,nqibz))
@@ -562,7 +562,7 @@ subroutine hwmatK_MPI()
   !$$$!     When esmr is negative, esmr is geven automatically by efsimplef.
   !$$$      call efsimplef2a_RSMPI(nspin,wibz,qibz,ginv,
   !$$$     i     nband,nqibz
-  !$$$     i     ,konf,z,nl,natom,iclass,nclass
+  !$$$     i     ,konf,z,nl,natom,iclass,natom
   !$$$     i     ,valn, legas, esmr,  !!! valn is input for legas=T, output otherwise.
   !$$$c
   !$$$     i     qbz,nqbz             !index_qbz, n_index_qbz,
@@ -805,7 +805,7 @@ endif
 
   ! pointer to optimal product basis
   allocate(imdim(natom)) !bugfix 12may2015
-  !      call indxmdm (nblocha,nclass,
+  !      call indxmdm (nblocha,natom,
   !     i              iclass,natom,
   !     o              imdim )
   do ia = 1,natom
@@ -854,7 +854,7 @@ endif
   ! arrays for sxcf.f
   nlnx4    = nlnx**4
   niwx     = max0 (nw,niw)
-  allocate( ppb(nlnmx*nlnmx*mdimx*nclass),  eq(nband), &
+  allocate( ppb(nlnmx*nlnmx*mdimx*natom),  eq(nband), &
        kount(nqibz), &
        rw_w(nwf,nwf,nwf,nwf,nrws,0:nrw), &
        cw_w(nwf,nwf,nwf,nwf,nrws,0:nrw), &
@@ -995,7 +995,7 @@ endif
              iclass,nblocha,nlnmv, nlnmc,  icore,ncore, imdim, &
              ppb,    freq_r,freqx, wwx, expa, ua, dwdummy,  &! & deltaw,
              ndima,nqibz,nqbz,nctot0, &
-             nl,nnc,nclass,natom, &
+             nl,nnc,natom,natom, &
              nlnmx,mdimx,nbloch,ngrp,nw_i,nw,nrw,niw,niwx,nq, &
              nblochpmx,ngpmx,ngcmx, &
              wgt0,wqt,nq0i,q0i, symgg(:,:,irot),alat, &

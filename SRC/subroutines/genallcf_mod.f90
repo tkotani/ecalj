@@ -8,7 +8,7 @@ module m_genallcf_v3 ! Readin starting data dat in GWinput
        nindx(:,:),konf(:,:),icore(:,:), ncore(:), &
        nlnm(:),nlnmv(:), nlnmc(:), il(:,:), in(:,:), im(:,:),&
        nocc(:,:,:),nunocc(:,:,:),nindxc(:,:),lcutmxa(:),lmxa(:)
-  integer,protected,public:: nclass,natom,nspin,nl,nn,nnv,nnc,&
+  integer,protected,public:: natom,nspin,nl,nn,nnv,nnc,&
        nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot, niw,ndimanspc !ndima,
   real(8),protected,public::  plat(3,3),alat,deltaw,esmr,delta,tpioa,qval
   real(8), allocatable,protected,public:: pos(:,:),z(:),ecore(:,:) !,symgg(:,:,:)
@@ -48,7 +48,7 @@ contains
     character(1000) :: tolchar
     real(8),   allocatable:: ecoret(:,:,:,:)
     integer,allocatable::ncwf2(:,:,:), nindxv(:,:),occv(:,:,:),unoccv(:,:,:), occc(:,:,:),unoccc(:,:,:),ncwf(:,:,:)
-    integer:: ia,l,m,ic1,isp,lt,nt,nr,ncorex,ifix
+    integer:: ia,l,m,ic1,isp,lt,nt,nr,ncorex,ifix,nclass
     real(8)::a,b,zz, efdummy,dw,diw
     integer:: nwdummy,ict,ind,l2,lm,lmxax1
     real(8),parameter:: pi=4d0*datan(1d0)

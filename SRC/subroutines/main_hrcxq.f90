@@ -18,7 +18,7 @@ subroutine hrcxq() bind(C)
   use m_hamindex,only: Readhamindex
   use m_readeigen,only: Init_readeigen,Init_readeigen2,Readeval
   use m_read_bzdata,only:Read_bzdata,nqbz,nqibz,n1,n2,n3,ginv,dq_,qbz,wbz,qibz,wibz, ntetf,idtetf,ib1bz, qbzw,nqbzw,q0i,nq0i,nq0iadd !for tetrahedron   !     &     idteti, nstar,irk,nstbz
-  use m_genallcf_v3,only: Genallcf_v3,nclass,natom,nspin,nl,nn,nlnmx,nctot,alat,clabl,iclass,il,in,im,nlnm,plat,pos,ecore,&
+  use m_genallcf_v3,only: Genallcf_v3,natom,nspin,nl,nn,nlnmx,nctot,alat,clabl,iclass,il,in,im,nlnm,plat,pos,ecore,&
        nband
   use m_rdpp,only: Rdpp,nxx,lx,nx,mdimx,nbloch,cgr,ppbrd ,nblochpmx,mrecl,nprecx ! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
   use m_zmel,only: Mptauof_zmel !Set data for "call get_zmelt" zmelt= matrix element <phi |phi MPB>.
@@ -65,7 +65,7 @@ subroutine hrcxq() bind(C)
   hartree= 2d0*rydberg()
   call Genallcf_v3(incwfx=0) !Basic data. incwfin= 0 takes 'ForX0 for core' in GWinput
   call Read_BZDATA(hx0)      !Readin BZDATA. See m_read_bzdata in gwsrc/rwbzdata.f
-  if(nclass /= natom) call Rx( ' hx0fp0_sc: nclass /= natom ') !WE ASSUME iclass(iatom)= iatom
+!  if(nclass /= natom) call Rx( ' hx0fp0_sc: nclass /= natom ') !WE ASSUME iclass(iatom)= iatom
   call Readefermi() !Readin EFERMI
 !  call Readhbe()    !Read dimensions
   call ReadGWinputKeys() !Readin dataset in GWinput   !      call Readq0p()    !Readin Offset Gamma

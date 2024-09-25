@@ -8,7 +8,7 @@ subroutine h_uumatrix()
   use m_readeigen,only:init_readeigen,init_readeigen2,readcphif,readgeigf,readeval
   use m_read_bzdata,only: read_bzdata, nqbz,nqibz,nqbzw,nteti,ntetf,qbas=>qlat, ginv, &
     dq_,wbz,qibz,wibz,qbzw, qbz, idtetf,ib1bz,idteti, nstar,irk,nstbz,  nq0i=>nq0ix,q0i
-  use m_genallcf_v3,only: genallcf_v3, ncore2=>ncore,nrxx=>nrx, natom,nclass,nspin,nl,nn,nnv,nnc, &
+  use m_genallcf_v3,only: genallcf_v3, ncore2=>ncore,nrxx=>nrx, natom,natom,nspin,nl,nn,nnv,nnc, &
        nlnmx,nlnmxv,nlnmxc, nctot,plat,pos,alat,nindx,& !nlmto,
        nprecb,mrecb,mrece,ndima,nqbzt,nband,mrecg,nspc,nspx,lmxa
   use m_keyvalue,only: getkeyvalue
@@ -73,11 +73,10 @@ subroutine h_uumatrix()
   call read_BZDATA()
   if (mpi__root) write(stdo,*)' ======== nqbz nqibz ngrp=',nqbz,nqibz,ngrp
   call genallcf_v3(incwfx=0) !readin condition. use ForX0 for core in GWIN !  call Readhbe()    !Read dimensions of h,hb
-  call getsrdpp2(nclass,nl,nxx)    ! --- read by rdpp ; Radial integrals ppbrd and plane wave part
+  call getsrdpp2(natom,nl,nxx)    ! --- read by rdpp ; Radial integrals ppbrd and plane wave part
   call readngmx('QGpsi',ngpmx)
   open(newunit=ifphi,file='PHIVC',form='unformatted')     ! PHIV+PHIC augmentation wave and core
   read(ifphi) nbas, nradmx, ncoremx,nrx
-  if(nclass/= natom) call rx(' nclass /= natom ') !WE ASSUME iclass(iatom)= iatom
   if(nqbz  /= nqbzt) call rx( ' hx0fp0: nqbz /=nqbzt  in hbe.d')
   if(nbas  /= natom) call rx(' nbas(PHIVC) /= natom ')
   allocate(  ncindx(ncoremx,nbas), lcindx(ncoremx,nbas), &

@@ -61,7 +61,7 @@ subroutine hsfp0_sc()
 !!!! ----------------------------------------
   use m_readqg,only: READQG0,READNGMX2, ngpmx,ngcmx
   use m_READ_BZDATA,only: READ_BZDATA, nqbz,nqibz,n1,n2,n3,ginv,qbz,wbz,qibz 
-  use m_genallcf_v3,only: GENALLCF_V3,Setesmr, nclass,natom,nspin,plat,alat,deltaw,esmr_in=>esmr,nctot,ecore,nband, laf
+  use m_genallcf_v3,only: GENALLCF_V3,Setesmr, natom,nspin,plat,alat,deltaw,esmr_in=>esmr,nctot,ecore,nband, laf
   use m_itq,only: setitq_hsfp0sc,nbandmx, ntq
 !  use m_readhbe,only: Readhbe, nband !nprecb,mrecb,mrece,nlmtot,nqbzt,,mrecg
   use m_mpi,only: &
@@ -119,7 +119,7 @@ subroutine hsfp0_sc()
     endif
     call GENALLCF_V3(incwfin)    ! readin basic data
     call READ_BZDATA() ! Readin BZ data. See gwsrc/rwbzdata.f ===
-    if(nclass /= natom ) call rx('hsfp0_sc: sanitiy check nclass /= natom ')! CAUTION. ASSUME iclass(iatom)= iatom (because of historical reason)
+!    if(nclass /= natom ) call rx('hsfp0_sc: sanitiy check nclass /= natom ')! CAUTION. ASSUME iclass(iatom)= iatom (because of historical reason)
     !  write(stdo,"(' nqbz nqibz ngrp=',3i12)") nqbz,nqibz,ngrp
     call ReadGwinputKeys()
     call pshpr(30)

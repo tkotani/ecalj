@@ -1,7 +1,7 @@
 module m_sxcf_count !job scheduler for self-energy calculation. icount mechanism
   use m_readeigen,only: Readeval
   use m_itq,only: ntq,nbandmx
-  use m_genallcf_v3,only: nspin,nctot,niw,ecore,nclass, nband,mrecg
+  use m_genallcf_v3,only: nspin,nctot,niw,ecore, nband,mrecg,natom
   use m_read_bzdata,only: qibz,qbz,wk=>wbz,nqibz,nqbz,wklm,lxklm,nq0i, wqt=>wt,q0i, irk
   use m_readfreq_r,only: freq_r, nw_i,nw,freqx,wx=>wwx,nblochpmx,mrecl,expa_,npm,nprecx
 !  use m_readhbe,only: nband,mrecg
@@ -117,7 +117,7 @@ contains
       GetNmbatch: block !nmbatch is the Batch size of sum for middle states. !Get zmel(MPB,middle ,external)
       use m_read_ppovl,only: getppx2,ngcgp
       use m_mem,only:memused
-      integer:: nbloch,ifiqg,iiixxx,ngcmx,filename(nclass),ic,nblocha(nclass),ifp
+      integer:: nbloch,ifiqg,iiixxx,ngcmx,filename(natom),ic,nblocha(natom),ifp
       real(8),parameter:: k=1000 !Note GB is over integer(4)
       real(8):: mmax  ! GByte. Size of memory per rank to determine nmbatch
       real(8):: mmm
@@ -126,7 +126,7 @@ contains
       open(newunit=ifiqg, file='QGcou',form='unformatted')
       read(ifiqg) iiixxx, ngcmx
       close(ifiqg)
-      do ic = 1,nclass
+      do ic = 1,natom 
          open(newunit=ifp,file=trim('PPBRD_V2_'//char( 48+ic/10 )//char( 48+mod(ic,10))),form='unformatted')
          read(ifp) nblocha(ic)
          close(ifp)

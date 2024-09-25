@@ -193,7 +193,7 @@ end subroutine freq01x
 
 subroutine getwemax(lqall,wemax)!> In order to get |e_ip-ef| on real space integration ! too complicated ---> need to fix in future
   use m_read_bzdata,only: read_bzdata, nqibz,qibz,ginv,qbz,nqbz,wibz
-  use m_genallcf_v3,only: nspin, konf,z,nl,natom,iclass,nclass,esmr,deltaw,nband,laf !,anfcond
+  use m_genallcf_v3,only: nspin, konf,z,nl,natom,iclass,esmr,deltaw,nband,laf !,anfcond
   use m_keyvalue,only:getkeyvalue
   use m_readeigen,only: readeval !init* is alreaday called.
   use m_ReadEfermi,only: ef !ef is set at main routine

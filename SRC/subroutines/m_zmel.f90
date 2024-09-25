@@ -1,7 +1,7 @@
 !> Get the matrix element zmel =  ZO^-1 <MPB psi|psi> , where ZO is ppovlz(inverse of overlap matrix) !  "call get_zmel_init" return zmel 
 !  All dependencies (use foobar below ) are inputs (must be protected).
 module m_zmel
-  use m_genallcf_v3,only: nclass,natom,nspin,nn,nnv,nnc,nlnmx, niw,nband,ndima
+  use m_genallcf_v3,only: natom,nspin,nn,nnv,nnc,nlnmx, niw,nband,ndima
   use m_genallcf_v3,only: alat,delta,deltaw,esmr,iclass,nlnmv,nlnmc,icore,ncore,plat,pos,z,ecore,mnl=>nlnm,nn,il,in,im
   use m_hamindex,only: ngrp, symgg=>symops,invg=>invgx
   use m_rdpp,only: Rdpp, nxx,lx,nx,mdimx,nbloch,cgr,ppbrd,nblocha,done_rdpp
@@ -85,10 +85,10 @@ contains
     call rdpp(ng,symops)  !return ppbrd:radial integrals and cgr:rotated cg coeffecients. 
     ppbafp_v2_zmel: block 
       integer :: is,irot, ic, i,lb,nb,mb,lmb,i1,ibas,i2, np,lp,mp,lmp,n,l,m,lm
-      allocate(ppbir(nlnmx,nlnmx,mdimx,nclass,ng,nspin)) ! ppbir is rotated <Phi(SLn,r) Phi(SL'n',r) B(S,i,rot^{-1}(r))> by rotated cg coefficients cgr
+      allocate(ppbir(nlnmx,nlnmx,mdimx,natom,ng,nspin)) ! ppbir is rotated <Phi(SLn,r) Phi(SL'n',r) B(S,i,rot^{-1}(r))> by rotated cg coefficients cgr
       do irot = 1,ng
          do is = 1,nspin 
-            do concurrent (ic=1:nclass)
+            do concurrent (ic=1:natom)
                ibas = ic
                i = 0 !i = product basis index.
                do lb  = 0, lx (ibas)
@@ -132,7 +132,7 @@ contains
     integer:: ngp1, ngp2, ngvecpB1(3,ngpmx),ngvecpB2(3,ngpmx),nadd(3)
     integer:: i,iap,ias,ib,ic,icp,nc,nc1,nv,ics,itp,iae,ims,ime
     real(8):: quu(3),q(3), kvec(3),rkvec(3),qkt(3),qt(3), qdiff(3)
-    real(8) :: ppb(nlnmx,nlnmx,mdimx,nclass) ! ppb= <Phi(SLn,r-R)_q,isp1 |Phi(SL'n',r-R)_qk,isp2 B_k(S,i,rot^{-1}(r-R))>
+    real(8) :: ppb(nlnmx,nlnmx,mdimx,natom) ! ppb= <Phi(SLn,r-R)_q,isp1 |Phi(SL'n',r-R)_qk,isp2 B_k(S,i,rot^{-1}(r-R))>
     logical:: iprx,zmelconjg,debug,cmdopt0
     integer,allocatable:: ngveccR(:,:),igcgp2i_(:,:)
     complex(8)::cphiq(ndima,nband), cphim(ndima,nband)
@@ -216,7 +216,7 @@ contains
         dgeigqk = readgeigf(qk,ispm) !read IPW part at qk  !G2 for ngp2
         dgeigqk = dconjg(dgeigqk)
       endif
-      !$acc data copyin(ppbir(1:nlnmx,1:nlnmx,1:mdimx,1:nclass,irot,ispq))
+      !$acc data copyin(ppbir(1:nlnmx,1:nlnmx,1:mdimx,1:natom,irot,ispq))
       !$acc kernels
       ppb = ppbir(:,:,:,:,irot,ispq)           !MPB has no spin dependence
       !$acc end kernels
@@ -494,7 +494,7 @@ end module m_zmel
 !     integer:: ngp1, ngp2, ngvecpB1(3,ngpmx),ngvecpB2(3,ngpmx),nadd(3)
 !     integer:: i,iap,ias,ib,ic,icp,nc,nc1,nv,ics,itp,iae,ims,ime
 !     real(8):: quu(3),q(3), kvec(3),rkvec(3),qkt(3),qt(3), qdiff(3)
-!     real(8) :: ppb(nlnmx,nlnmx,mdimx,nclass) ! ppb= <Phi(SLn,r-R)_q,isp1 |Phi(SL'n',r-R)_qk,isp2 B_k(S,i,rot^{-1}(r-R))>
+!     real(8) :: ppb(nlnmx,nlnmx,mdimx,natom) ! ppb= <Phi(SLn,r-R)_q,isp1 |Phi(SL'n',r-R)_qk,isp2 B_k(S,i,rot^{-1}(r-R))>
 !     logical:: iprx,debug=.false.,cmdopt0
 !     logical:: zmelconjg
 !     integer,allocatable:: ngveccR(:,:)

@@ -9,7 +9,7 @@ subroutine hbasfp0() bind(C) ! Generates orthonormal optimal product basis and r
   !  PPBRD_V2_//ibas :: radial <ppb> integrals. Note indexing of ppbrd
   !The main part of this routine is in the subroutine basnfp_v2
   use m_genallcf_v3,only: genallcf_v3, &
-       alat,nclass,natom,nsp=>nspin,nl,nnc,nrx, cutbase,lcutmx,nn,nindxc, iclass, nindx,nocc,nunocc, lcutmxa_in=>lcutmxa,&
+       alat,natom,nsp=>nspin,nl,nnc,nrx, cutbase,lcutmx,nn,nindxc, iclass, nindx,nocc,nunocc, lcutmxa_in=>lcutmxa,&
        ibasf,laf
   use m_mpi,only: MPI__Initialize !no mpi now but used for exit routine rx, finalizing MPI
   use m_excore,only: excore
@@ -46,7 +46,7 @@ subroutine hbasfp0() bind(C) ! Generates orthonormal optimal product basis and r
   if(ix==8) lcutmxa=0
   lmx  = 2*(nl-1)
   lmx2 = (lmx+1)**2
-  nphi = nrx*nl*nn*nclass
+  nphi = nrx*nl*nn*natom
   if(ix==8) write(stdo,*)' Enfoece lcutmx=0 for all atoms'
   write(stdo,"(' lcutmxa=',*(g0))") lcutmxa(1:natom)
   write(stdo,*)' --- end of reindx ---'
@@ -102,7 +102,7 @@ subroutine hbasfp0() bind(C) ! Generates orthonormal optimal product basis and r
   ! enddo
   ! close(ifaln)
   if(ix==5 ) then !excore mode
-     call excore(nrx,nl,nnc,nclass,nsp,natom,phitotr(1:nrx,0:nl-1,1:nnc,1:nclass,1:nsp), nindxc,iclass, aa,bb,nrofi,rr)
+     call excore(nrx,nl,nnc,natom,nsp,natom,phitotr(1:nrx,0:nl-1,1:nnc,1:natom,1:nsp), nindxc,iclass, aa,bb,nrofi,rr)
      goto 998
   endif
 !  call anfcond()! antiferro or not. ! For AF case, we have laf=.true. and we have data set for 'call anfsig', stored in m_anf.
@@ -112,7 +112,7 @@ subroutine hbasfp0() bind(C) ! Generates orthonormal optimal product basis and r
         if(iclass(ibas)/=ibas) call rx(' iclass(ibas)/=ibas: ')
      enddo
      ii=0
-     do ic=1,nclass
+     do ic=1,natom
         ibas=ic
         if( ibasf(ibas)>0 ) then
            phitotr(:,:,:,ibasf(ibas), :)=phitotr(:,:,:,ibas, :)
@@ -126,9 +126,9 @@ subroutine hbasfp0() bind(C) ! Generates orthonormal optimal product basis and r
      write(stdo,*)' !!! set tolerance for PB to be 1d-6 ---'
      cutbasex=1d-6
   endif
-  do ic = 1,nclass
+  do ic = 1,natom
      call basnfp_v2(nocc(1,1,ic),nunocc(1,1,ic),nindx(1,ic),nl,nn,nrx, nrofi(ic),rr(1,ic),aa(ic),bb(ic),ic, &
-          phitoto,phitotr,nsp,nclass, cutbasex, lcutmxa(ic),ix,alat,nc_max(0,ic) )
+          phitoto,phitotr,nsp,natom, cutbasex, lcutmxa(ic),ix,alat,nc_max(0,ic) )
   enddo
   if(ix==0) call rx0( ' OK! hbasfp0 ix=0 normal mode ')
   if(ix==3) call rx0( ' OK! hbasfp0 ix=3 core mode ')
