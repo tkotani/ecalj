@@ -1,6 +1,6 @@
 !> Generate all the inputs for GW calculation. Need q+G info from QGpsi and QGcou which are generated a qg4gw.
 module m_sugw
-  !  use m_mpiio,only: openm,writem,closem
+  use m_mpiio,only: openm,writem,closem
   real(8),allocatable,public::ecore(:,:,:),gcore(:,:,:,:),gval(:,:,:,:,:)
   integer,public::  ndima, ndham, ncoremx,nqirr,nqibz
   integer,allocatable,public:: konfig(:,:),ncores(:), konf0(:,:)
@@ -62,7 +62,7 @@ contains
          k2,k3,konf,l,ldim,loldpw, lsig,mx,mxint, ncore,nevl,nev,nglob,ngp,ngp_p, &
          ngpmx,nline,nlinemax,nlmax,nmx,nn1,nn2,nnn, kkk,mmm,n, &
          npqn,nqbz,nqnum,nqnumx,nqtot,nr,iqibz,imx,ifigwb,ifinormchk,ifigw1,ifildima,ifigwn,ifigwbhead,&
-         ispSS,ispEE,ispx,iqbk=-999,konfigk,konfz,icore2,icore2o,ic,nmcore,ifnlax,ifigwa,ifcphi,ifgeig!,ifcphim
+         ispSS,ispEE,ispx,iqbk=-999,konfigk,konfz,icore2,icore2o,ic,nmcore,ifnlax,ifigwa,ifgeigm,ifcphim
     real(8):: rsml(n0), ehl(n0) ,eferm,qval, vmag,vnow, QpGcut_psi,QpGcut_cou,dum,xx(5),a,z,vshft, qp(3),qpos,q_p(3), epsovl
     real(8),allocatable:: rofi(:),rwgt(:), cphiw(:,:) 
     real(8),pointer:: pnu(:,:),pnz(:,:)
@@ -70,7 +70,7 @@ contains
     complex(8),allocatable :: aus_zv(:,:,:,:,:), hamm(:,:,:,:),ovlm(:,:,:,:),ovlmtoi(:,:),ovliovl(:,:) ,hammhso(:,:,:)
     complex(8),allocatable:: evec(:,:),evec0(:,:),vxc(:,:,:,:),ppovl(:,:),phovl(:,:),pwh(:,:),pwz(:,:,:),pzovl(:,:,:), pwz0(:,:),&
          testcc(:,:),testc(:,:,:),testcd(:,:),ppovld(:),cphi(:,:,:),cphi0(:,:,:),cphi_p(:,:,:),geig(:,:,:),geig_p(:,:,:),sene(:,:)
-    logical :: lwvxc,cmdopt0, emptyrun, magexist, debug=.false.,sigmamode,wanatom=.false.
+    logical :: lwvxc,cmdopt0, emptyrun, magexist, debug=.false.,sigmamode,wanatom=.false.,once=.true.
     logical,optional:: socmatrix 
     character(8) :: xt
     character(256):: ext,sprocid,extn
@@ -219,12 +219,13 @@ contains
     endif
     if(ham_scaledsigma/=1d0 .AND. sigmamode) write(stdo,*)' Scaled Sigma method: ScaledSigma=',ham_scaledsigma
     ndble = 8
-    mrecb = 2*ndima* nbandmx *ndble !byte size  !Use -assume byterecl for ifort, so that ifort recognizes the recored in the unit of bytes.
+    mrecb = 2*ndima* nspc* nbandmx *ndble !byte size  !Use -assume byterecl for ifort, so that ifort recognizes the recored in the unit of bytes.
     mrece = nbandmx          *ndble 
     mrecg = 2*ngpmx*nbandmx  *ndble 
     allocate(cphix(ndima,nspc,nbandmx),geigr(ngpmx,nspc,nbandmx))
     ! CPHI GEIG    
-    ! i=openm(newunit=ifcphim,file='CPHI',recl=mrecb)
+    i=openm(newunit=ifcphim,file='CPHI',recl=mrecb)
+    i=openm(newunit=ifgeigm,file='GEIG',recl=mrecg)
     !    open(newunit=ifcphi,file='CPHI',form='unformatted',access='direct',recl=mrecb)
     !    open(newunit=ifgeig,file='GEIG',form='unformatted',access='direct',recl=mrecg)
     if(cmdopt0('--skipCPHI')) goto 1011
@@ -233,8 +234,8 @@ contains
       iq  = iqproc(idat) ! iq index
       isp = isproc(idat) ! spin index: Note isp=1:nspx, where nspx=nsp/nspc.  isp=1 nspc=2 only for lso=1
       if(debug)write(stdo,ftox)' iqisploop',iq,isp  
-      open(newunit=ifcphi, file='CPHI'//trim(xt(iq))//trim(xt(isp)),form='unformatted')!,access='direct',recl=mrecb)
-      open(newunit=ifgeig, file='GEIG'//trim(xt(iq))//trim(xt(isp)),form='unformatted')!,access='direct',recl=mrecg)
+      !      open(newunit=ifcphi, file='CPHI'//trim(xt(iq))//trim(xt(isp)),form='unformatted')!,access='direct',recl=mrecb)
+      !      open(newunit=ifgeig, file='GEIG'//trim(xt(iq))//trim(xt(isp)),form='unformatted')!,access='direct',recl=mrecg)
       qp  = qplist(:,iq) ! q vector containing nqirr
       ngp = ngplist(iq)  ! number of planewaves for PMT basis
       lwvxc = iq<=iqibzmax
@@ -483,18 +484,20 @@ contains
             enddo
           enddo
        enddo
-       if(debug)write(stdo,ftox)' writechpigeig 2222'          !   iqqisp= isp + nsp*(iq-1)
-       cphix(1:ndima,1:nspc,nev+1:nbandmx)=1d20 !padding       !         write(ifcphi),  rec=iqqisp)  cphix(1:ndima,1:nbandmx)
-       write(ifcphi) reshape(cphix(1:ndima,1:nspc,1:nbandmx),shape=[ndima*nspc,nbandmx])
-       !         i=writem(ifcphim,rec=iqqisp,data=cphix(1:ndima,1:nbandmx)) ! close(ifigwb_)
-       if(ngpmx/=0) geigr(1:ngpmx,1:nspc,nev+1:nbandmx)=1d20   ! padding  !  if(ngpmx/=0) write(ifgeig,  rec=iqqisp)  geigr(1:ngpmx,1:nbandmx,isp)
-       if(ngpmx/=0) write(ifgeig) reshape(geigr(1:ngpmx,1:nspc,1:nbandmx),shape=[ngpmx*nspc,nbandmx])
+       if(debug)write(stdo,ftox)' writechpigeig 2222'
+       iqqisp= isp + nsp*(iq-1)
+       cphix(1:ndima,1:nspc,nev+1:nbandmx)=1d20 !padding 
+       i=writem(ifcphim,rec=iqqisp,data=cphix(1:ndima,1:nspc,1:nbandmx)) 
+       if(ngpmx/=0) geigr(1:ngpmx,1:nspc,nev+1:nbandmx)=1d20   ! padding
+       if(ngpmx/=0) i=writem(ifgeigm,rec=iqqisp,data=geigr(1:ngpmx,1:nspc,1:nbandmx))
        if(debug)write(stdo,ftox)'end of writechpigeig'  
+       !       write(ifcphi) reshape(cphix(1:ndima,1:nspc,1:nbandmx),shape=[ndima*nspc,nbandmx])
+       !       if(ngpmx/=0) write(ifgeig) reshape(geigr(1:ngpmx,1:nspc,1:nbandmx),shape=[ngpmx*nspc,nbandmx])
      endblock WriteCphiGeig
      if (lwvxc) close(ifiv)
      if (lwvxc) close(ifievec)
-     close(ifcphi)
-     close(ifgeig)
+!     close(ifcphi)
+!     close(ifgeig)
      if(debug)write(stdo,ftox)' writechpigeig 1001'  
      deallocate(pwz,hamm,ovlm,evec,vxc,cphi,cphiw)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11
@@ -503,10 +506,12 @@ contains
 !    write(stdo,ftox) 'sssssssssssgw',ftof(sum(abs(cphix(1:ndima,1,1))**2))
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11
 1001 enddo iqisploop
+    i=closem(ifcphim)
+    i=closem(ifgeigm)
     call mpi_barrier(comm,ierr)
     call mpibc2_real(evl,   nbandmx*nqirr*nspx,'evl')
     call mpibc2_real(vxclda,nbandmx*nqirr*nspx,'vxclda')
-1011 continue
+1011 continue !skipcphi
     WriteGWfiles: if(master_mpi) then
       WriteGWfilesB: block
         integer,allocatable:: ncindx(:),lcindx(:)

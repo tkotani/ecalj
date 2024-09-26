@@ -1,1 +1,1 @@
-FC=gfortran ./InstallAll
+FC=ifort ./InstallAll
