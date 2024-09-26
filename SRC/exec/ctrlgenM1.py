@@ -692,11 +692,14 @@ for ispec in uniq(sitename):
         except:
             pass
         if specextradata: aaa=aaa+ ' '*6+specextra[ispec] +'\n'  #mar2013
+
+        lmxa='      KMXA={kmxa}  LMX=3 LMXA=4 NMCORE=1\n' 
+        if( float(z)<1.5): lmxa='      KMXA={kmxa}  LMX=3 LMXA=3 NMCORE=1\n' 
+        
         aaa=aaa+ '      EH='+  eh1value*eh1count
         aaa=aaa+ ' RSMH='+(rsizeh.strip()+' ')*eh1count+'\n'
         aaa=aaa+ '      EH2='+ eh2value*eh2count
-        aaa=aaa+ ' RSMH2='+(rsizeh.strip()+' ')*eh2count+'\n' \
-                +'      KMXA={kmxa}  LMX=3 LMXA=4 NMCORE=1\n' \
+        aaa=aaa+ ' RSMH2='+(rsizeh.strip()+' ')*eh2count+'\n' +lmxa \
                             +'      '+mmom_val+' #s,p,d,f initial condition\n' \
                             +'      #NOTE: lmfa(rhocor) generates spin-averaged rho for any MMOM,jun2012\n'\
                             +'      #Q=0 0.5 1 0 #s,p,d,f initial condition \n' \
@@ -826,7 +829,7 @@ tail = tail + """      #For Molecule, you may also need to set FSMOM=n_up-n_dn, 
       # NOTE: because of inversion in space-group symmetry, we may have 
       #       |phi_sigm^\bfk|^2 = |phi_sigm^{-\bfk}|^2. This is not for NOINV.
 
-ITER MIX=B4 b=.2 CONV=1e-5 CONVC=1e-5 NIT={nit} UMIX=0.2
+ITER MIX=B3 b=.2 CONV=1e-5 CONVC=1e-5 NIT={nit} UMIX=0.2
 # A5 had not converged for mp-2542
 #ITER MIX=B CONV=1e-6 CONVC=1e-6 NIT={nit}
                 # MIX=A#1: Anderson mixing. #1 is the number to keep history
