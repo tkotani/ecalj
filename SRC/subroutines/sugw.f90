@@ -401,7 +401,8 @@ contains
           do ispc=1,nspc
             if(lso/=1) ispx=isp
             if(lso==1) ispx=ispc
-            associate(pwz1=>pwz(1:ngp,ispc,1:ndimhx)) !,pzovl=>pwz(1:ngp,ispc,1:ndimhx))
+            associate(pwz1=>pwz(1:ngp,ispc,1:ndimhx),pzo=>dconjg(pzovl(:,ispc,:)))
+              testc(:,:,ispc)= matmul(transpose(pzo),pwz1)
               testc(:,:,ispc)=matmul(transpose(dconjg(pzovl(:,ispc,:))),pwz1)
               testcd(:,ispc) = [(sum(dconjg(pwz1(:,i))*ppovld*pwz1(:,i)),i=1,ndimhx)] !dimhx)]
             end associate
@@ -670,7 +671,7 @@ contains
         use m_qplist,only: qirr=>qplist
         real(8),parameter:: pi = 4d0*datan(1d0)
         integer:: ifhvccfp,i,ngp,ngc,iq,iqi,irr,ix, idummy11(1,1),ippovlg,ippovli,ippovlgg
-        integer:: nggg,ngcgp, ifiqg,ifiqgc,irrq, nqtt, nqnum,ngpmx,nqnumc,ngcmx,nqbz
+        integer:: nggg,ngcgp, ifiqg,ifiqgc,irrq, nqtt, nqnum,ngpmx,nqnumc,ngcmx!,nqbz
         integer:: ippovl0, nqnumt,iqx,nqini,iqtt
         real(8):: qpgcut_psi2,qx(3),dQpG,dQQ,QpGcut_psi,QpGcut_cou,qxx(3), QpGcutggg,QpGcutgcgp, tolq=1d-8
         logical:: ppovl0l=.true.
