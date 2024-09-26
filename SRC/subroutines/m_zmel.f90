@@ -242,7 +242,7 @@ contains
 #ifdef __GPU
       attributes(device) :: zmelt, zmelt_d
 #endif
-      call writemem('mmmmm_zmel000: zmelsize='//ftof((nbloch+ngc)*(nm2-nm1+1)*nqtot*16/kk**3)//' GB')
+      call writemem('    m_zmel000: zmelsize='//ftof((nbloch+ngc)*(nm2-nm1+1)*nqtot*16/kk**3)//' GB')
       allocate(zmelt(1:nbloch+ngc,nm1:nm2,1:nqtot))
 !$acc kernels
       zmelt(1:nbloch+ngc,nm1:nm2,1:nqtot) = czero
@@ -332,7 +332,7 @@ contains
           deallocate(cphiq_d)
         enddo iatomloop
       endblock ZmelWithinMT
-      call writemem('mmmmm_zmel111 ngc= '//trim(charext(ngc))//' nm1v nm2v= '//trim(charext(nm1v))//' '//trim(charext(nm2v)))
+      call writemem('    m_zmel111 ngc= '//trim(charext(ngc))//' nm1v nm2v= '//trim(charext(nm1v))//' '//trim(charext(nm2v)))
       flush(stdo)
       if(debug) write(stdo,ftox)'goto zmelipwif: ngc,nm1v,nm2v=',ngc,nm1v,nm2v
       ZmelIPWif: if(ngc/=0 .and. nm1v<=nm2v) then
