@@ -157,7 +157,7 @@ subroutine hqpe_sc() bind(C)
   ! n PMT, ndimh is q-dependent. See lm*/gwd/sugw.F  june2009 takao
   allocate(qqq(3,nnn,nspin)) !,se_in(ntq,ntq))                 !sf.beg
   allocate(v_xc(nhq,nhq,nnn,nspin),evec(nhq,nhq,nnn,nspin),nev(nnn,nspin))
-  if(evec0ex) allocate(evec00(nhq,nhq,nnn,nspin))
+!  if(evec0ex) allocate(evec00(nhq,nhq,nnn,nspin))
   allocate(nhqx(nnn,nspin))
   iqq=0
   do iq=1,nnn               !now nnn is not necessary to be nqbz !nnn=nqbz
@@ -172,7 +172,7 @@ subroutine hqpe_sc() bind(C)
         nhqx(iq,is) = nz   !nz is introduced instead of nhq
         read(ifvxc_) v_xc(1:nz,1:nz,iq,is)
         read(ifevec_) qqq(1:3,iq,is),evec(1:nz,1:nz,iq,is), nev(iq,is) !nev number of true bands nov2015
-        if(evec0ex) read(ifevec0) qqqx0(1:3), evec00(1:nz,1:nz,iq,is)
+!        if(evec0ex) read(ifevec0) qqqx0(1:3), evec00(1:nz,1:nz,iq,is)
         close(ifvxc_)
         close(ifevec_)
      enddo
@@ -316,7 +316,7 @@ subroutine hqpe_sc() bind(C)
      allocate(se(ntq,ntq,nq),ipiv(nhq),work(nhq*nhq) &
           ,evec_inv(nhq,nhq) ,evec_invt(nhq,nhq))
      allocate(ev_se_ev(ndimsig,ndimsig))
-     if(evec0ex) allocate(evec00inv(nhq,nhq))
+!     if(evec0ex) allocate(evec00inv(nhq,nhq))
      do ip=1,nq
         do itp=1,ntq
            do itpp=1,ntq    !make Sigma hermitean
@@ -498,7 +498,7 @@ subroutine hqpe_sc() bind(C)
      write(6,*)
      deallocate(sex2,sexcore2,sec2,se,ipiv,work)
      deallocate(evec_inv,evec_invt,ev_se_ev) !,se_ev
-     if(evec0ex) deallocate(evec00inv)
+!     if(evec0ex) deallocate(evec00inv)
      ! - end making SE_ij-VXC_ij cccccccccccccccccccccccccccccccccc  !sf..3June
      deallocate( itxc,qxc,eldaxc,vxc ,itc, qc ,eldac, sexcore ,rsec,csec, itx, qx ,eldax,sex)
      if (jin > 0) jin = 999999
