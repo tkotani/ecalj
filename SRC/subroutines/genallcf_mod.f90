@@ -12,16 +12,12 @@ module m_genallcf_v3 ! Readin starting data dat in GWinput
        nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot, niw,ndimanspc !ndima,
   real(8),protected,public::  plat(3,3),alat,deltaw,esmr,delta,tpioa,qval
   real(8), allocatable,protected,public:: pos(:,:),z(:),ecore(:,:) !,symgg(:,:,:)
-  character(8),allocatable,protected,public:: spid(:)
-  character(8),allocatable,protected,public :: clabl(:)
+  character(8),allocatable,protected,public:: spid(:), clabl(:)
   integer,protected,public:: nprecb,mrecb,mrece,ndima,nqbzt,nband,mrecg,nspc,nspx !nspc=2 for so=1, zero otherwize.
-  logical,protected,public:: laf !! - laf: antiferro switch
+  logical,protected,public:: laf,nlmto !! - laf: antiferro switch
   integer,allocatable,protected,public:: ibasf(:) !! - ibasf(ibas) specify AF pair atom.
   private
   logical,protected,private:: done_genallcf_v3=.false.
-!  integer,allocatable,protected,private:: &
-!       ilv(:,:),inv(:,:),imv(:,:),  ilnmv(:,:,:),  &
-!       ilc(:,:),inc(:,:),imc(:,:),  ilnmc(:,:,:) ,  ilnm(:,:,:)
 contains
   subroutine setesmr(esmr_in)
     intent(in)::     esmr_in
@@ -46,7 +42,7 @@ contains
     logical :: nocore,readon
     real(8)::efin
     character(1000) :: tolchar
-    real(8),   allocatable:: ecoret(:,:,:,:)
+    real(8),allocatable:: ecoret(:,:,:,:)
     integer,allocatable::ncwf2(:,:,:), nindxv(:,:),occv(:,:,:),unoccv(:,:,:), occc(:,:,:),unoccc(:,:,:),ncwf(:,:,:)
     integer:: ia,l,m,ic1,isp,lt,nt,nr,ncorex,ifix,nclass
     real(8)::a,b,zz, efdummy,dw,diw
@@ -55,7 +51,7 @@ contains
     if(done_genallcf_v3) call rx('genallcf_v3 is already called')
     done_genallcf_v3=.true.
     open(newunit=ifi,file='MTOindex',form='unformatted')
-    read(ifi) natom,alat,plat,nspin,lmxax1,nnv,nnc,nrx,qval,nspc !,n1,n2,n3
+    read(ifi) natom,alat,plat,nspin,lmxax1,nnv,nnc,nrx,qval,nspc,nlmto
     allocate(pos(3,natom),clabl(natom),z(natom),spid(1:natom),ibasf(natom),lmxa(natom))
     read(ifi) pos,z(1:natom),spid(1:natom),lmxa(1:natom)
     read(ifi) nprecb,mrecb,mrece,ndima,nqbzt,nband,mrecg

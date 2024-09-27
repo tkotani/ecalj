@@ -18,11 +18,10 @@ subroutine hqpe_sc() bind(C)
   !-----------------------------------------------------------------------
   use m_keyvalue,only: Getkeyvalue
   use m_read_bzdata, only: Read_bzdata, nstar, nqibz2=>nqibz
-!  use m_anf,only: anfcond,laf
   use m_hamindex,only: Readhamindex, nhq=>ndham
   use m_mpi,only: MPI__Initialize, mpi__rank
   use m_lgunit,only: m_lgunit_init
-  use m_genallcf_v3,only: genallcf_v3,laf
+  use m_genallcf_v3,only: genallcf_v3,laf,nmto=>nlmto !  use m_anf,only: anfcond,laf
   use m_ftox
   implicit real*8 (a-h,o-z)
   implicit integer (i-n)
@@ -51,11 +50,11 @@ subroutine hqpe_sc() bind(C)
   character(3):: iaaa
   real(8),allocatable:: eseavr(:,:) !,eseavr_in(:,:)
   integer,allocatable:: nhqx(:,:)
-  integer:: nz,ntqmin, nmto,ndimsig,ndimsig2
-  integer:: procid,nrank,ifigwb_,ifigwx1_,ifigwx2_,ifvxc_,ifevec_, ipx
+  integer:: nz,ntqmin, ndimsig,ndimsig2
+  integer:: procid,nrank,ifigwb_,ifigwx1_,ifigwx2_,ifvxcevec,ifevec_, ipx
   character*256:: extn,ext
   character*256,allocatable:: extp(:)
-  integer,allocatable:: ifevec__(:),ifvxc__(:),iprocq(:,:)
+  integer,allocatable:: ifevec__(:),ifvxcevec_(:),iprocq(:,:)
   integer,allocatable:: ntqxx(:)
   real(8):: eseavrmean,eseadd,tolq=1d-4
   integer,allocatable:: nev(:,:)
@@ -157,27 +156,20 @@ subroutine hqpe_sc() bind(C)
   ! n PMT, ndimh is q-dependent. See lm*/gwd/sugw.F  june2009 takao
   allocate(qqq(3,nnn,nspin)) !,se_in(ntq,ntq))                 !sf.beg
   allocate(v_xc(nhq,nhq,nnn,nspin),evec(nhq,nhq,nnn,nspin),nev(nnn,nspin))
-!  if(evec0ex) allocate(evec00(nhq,nhq,nnn,nspin))
   allocate(nhqx(nnn,nspin))
   iqq=0
   do iq=1,nnn               !now nnn is not necessary to be nqbz !nnn=nqbz
      iqq=iqq+1
      do is=1,nspin
-        open(newunit=ifvxc_,    file='vxc'//trim(xt(iq))//trim(xt(is)),form='unformatted')
-        open(newunit=ifevec_,  file='evec'//trim(xt(iq))//trim(xt(is)),form='unformatted')
-        read(ifvxc_ ) ndimh, nmto !nsp,nnn ,nnnx,nmto
-        nz=ndimh
-        read(ifevec_) !ndimhx , nspx,nnnx
-        write(6,*) ' reading v_xc ... iq is nz=',iq,is,nz
+        open(newunit=ifvxcevec, file='vxcevec'//trim(xt(iq))//trim(xt(is)),form='unformatted')
+        read(ifvxcevec) qqq(1:3,iq,is),nz, nev(iq,is)
+        read(ifvxcevec) v_xc(1:nz,1:nz,iq,is)
+        read(ifvxcevec) evec(1:nz,1:nz,iq,is)  !nev number of true bands nov2015
+        close(ifvxcevec)
         nhqx(iq,is) = nz   !nz is introduced instead of nhq
-        read(ifvxc_) v_xc(1:nz,1:nz,iq,is)
-        read(ifevec_) qqq(1:3,iq,is),evec(1:nz,1:nz,iq,is), nev(iq,is) !nev number of true bands nov2015
-!        if(evec0ex) read(ifevec0) qqqx0(1:3), evec00(1:nz,1:nz,iq,is)
-        close(ifvxc_)
-        close(ifevec_)
+        write(6,*) ' reading vxcevec ... iq is nz=',iq,is,nz
      enddo
   enddo                     !sf.end
-  print *,' end of reading vxc evec'
   if(mtosigmaonly()) then
      ndimsig = nmto
   else
@@ -316,7 +308,6 @@ subroutine hqpe_sc() bind(C)
      allocate(se(ntq,ntq,nq),ipiv(nhq),work(nhq*nhq) &
           ,evec_inv(nhq,nhq) ,evec_invt(nhq,nhq))
      allocate(ev_se_ev(ndimsig,ndimsig))
-!     if(evec0ex) allocate(evec00inv(nhq,nhq))
      do ip=1,nq
         do itp=1,ntq
            do itpp=1,ntq    !make Sigma hermitean
@@ -357,9 +348,7 @@ subroutine hqpe_sc() bind(C)
         call rx( 'hqpe.sc: not find ikp 100')
 100     continue
         nz = nhqx(ikpx,is)
-!        if(evec0ex .AND. iSigma_en==5) then
-!           call rx('Not support evec0ex.and.iSigma_en==5 now... sep2013')
-!        endif
+!        if(evec0ex .AND. iSigma_en==5) call rx('Not support evec0ex.and.iSigma_en==5 now... sep2013')
         ntqxx(ip)=ntq
         do itp=ntq,1,-1
            if(se(itp,itp,ip)/=0d0) then
@@ -498,7 +487,6 @@ subroutine hqpe_sc() bind(C)
      write(6,*)
      deallocate(sex2,sexcore2,sec2,se,ipiv,work)
      deallocate(evec_inv,evec_invt,ev_se_ev) !,se_ev
-!     if(evec0ex) deallocate(evec00inv)
      ! - end making SE_ij-VXC_ij cccccccccccccccccccccccccccccccccc  !sf..3June
      deallocate( itxc,qxc,eldaxc,vxc ,itc, qc ,eldac, sexcore ,rsec,csec, itx, qx ,eldax,sex)
      if (jin > 0) jin = 999999

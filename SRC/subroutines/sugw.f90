@@ -57,7 +57,7 @@ contains
     !---------------
     !For SO=1,  nsp=2, nspc=2, nspx=1,   ndimhx=ndimh*2
     !For SO/=1,        nspc=1, nspx=nsp, ndimhx=ndimh (nsp=1 or 2)
-    integer :: lchk=1,i,i1,i2,iat,ib,ibr,icore,ierr,idat,ifievec,ifiv,ifiqg,iflband(2),ifqeigen,ifsyml,igets,igetss,iix,iline, &
+    integer :: lchk=1,i,i1,i2,iat,ib,ibr,icore,ierr,idat,ifievec,ifvxcevec,ifiqg,iflband(2),ifqeigen,ifsyml,iix,iline, &
          im1,im2,ipb(nbas),ipqn,ipr,iprint,iq,is,isp,ispc,j,job,k1, &
          k2,k3,konf,l,ldim,loldpw, lsig,mx,mxint, ncore,nevl,nev,nglob,ngp,ngp_p, &
          ngpmx,nline,nlinemax,nlmax,nmx,nn1,nn2,nnn, kkk,mmm,n, &
@@ -85,7 +85,6 @@ contains
     emptyrun  = cmdopt0('--emptyrun')
     sigmamode = mod(lrsig,10) .ne. 0
     magexist  = abs(vmag)>1d-6
-    lwvxc     = .not. cmdopt0('--novxc')
     if(master_mpi) write(stdo,"(a)") 'm_sugw_init: start'
     if(master_mpi) write(stdo,"(' MagField added to Hailtonian -vmag/2 for isp=1, +vmag/2 for isp=2: vmag(Ry)=',d13.6)") vmag
     call Readhamindex0() ! ==== Read file NLAindx ====
@@ -223,29 +222,19 @@ contains
     mrece = nbandmx          *ndble 
     mrecg = 2*ngpmx*nbandmx  *ndble 
     allocate(cphix(ndima,nspc,nbandmx),geigr(ngpmx,nspc,nbandmx))
-    ! CPHI GEIG    
+    ! CPHI GEIG. We use mpi-io from 2024-9-26
     i=openm(newunit=ifcphim,file='CPHI',recl=mrecb)
     i=openm(newunit=ifgeigm,file='GEIG',recl=mrecg)
-    !    open(newunit=ifcphi,file='CPHI',form='unformatted',access='direct',recl=mrecb)
-    !    open(newunit=ifgeig,file='GEIG',form='unformatted',access='direct',recl=mrecg)
     if(cmdopt0('--skipCPHI')) goto 1011
     allocate(evl(nbandmx, nqirr, nspx),vxclda(nbandmx, nqirr, nspx),source=0d0)!nqirr: # ofirreducible q points
     iqisploop: do 1001 idat=1,niqisp !iq = iqini,iqend ! iqini:iqend for this procid
       iq  = iqproc(idat) ! iq index
-      isp = isproc(idat) ! spin index: Note isp=1:nspx, where nspx=nsp/nspc.  isp=1 nspc=2 only for lso=1
-      if(debug)write(stdo,ftox)' iqisploop',iq,isp  
-      !      open(newunit=ifcphi, file='CPHI'//trim(xt(iq))//trim(xt(isp)),form='unformatted')!,access='direct',recl=mrecb)
-      !      open(newunit=ifgeig, file='GEIG'//trim(xt(iq))//trim(xt(isp)),form='unformatted')!,access='direct',recl=mrecg)
+      isp = isproc(idat) ! spin index: Note isp=1:nspx, where nspx=nsp/nspc.  isp=1 nspc=2 only for lso=1 if(debug)write(stdo,ftox)' iqisploop',iq,isp  
       qp  = qplist(:,iq) ! q vector containing nqirr
       ngp = ngplist(iq)  ! number of planewaves for PMT basis
-      lwvxc = iq<=iqibzmax
-      if (cmdopt0('--novxc')) lwvxc = .FALSE. 
-      if (socmatrix) lwvxc = .TRUE. 
-      if(debug) write(stdo,ftox)' iqisploop111'
       call m_igv2x_setiq(iq) ! Set napw ndimh ndimhx, and igv2x !note ndimhx is given here.
       allocate(hamm(ndimh,nspc,ndimh,nspc),ovlm(ndimh,nspc,ndimh,nspc)) !Spin-offdiagonal block included since nspc=2 for lso=1.
-      allocate(evec(ndimhx,ndimhx),vxc(ndimh,nspc,ndimh,nspc))
-      allocate(cphi(ndima,ndimhx,nspc),cphiw(ndimhx,nspc))
+      allocate(evec(ndimhx,ndimhx),vxc(ndimh,nspc,ndimh,nspc),cphi(ndima,ndimhx,nspc),cphiw(ndimhx,nspc))
       if(iqbk==iq) then
         continue
       elseif( lso/=0 .OR. socmatrix) then
@@ -253,22 +242,13 @@ contains
         allocate(hammhso(ndimh,ndimh,3))
         call aughsoc(qp, ohsozz,ohsopm, ndimh, hammhso)
         iqbk=iq !q index for hammhso
-        if(socmatrix) write(ifiv) iq
-        if(socmatrix) write(ifiv) hammhso 
-      endif
-      if(lwvxc) then
-        open(newunit=ifievec, file='evec'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
-        open(newunit=ifiv,    file= 'vxc'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
-        write(ifievec) ndimhx, nlmto
-        write(ifiv)    ndimhx, nlmto !nlmo: MTO basis
       endif
       if(emptyrun) then !set dummy to avoid error exit
         evec=1d0 
         evl(:,iq,isp)=[(i*0.1,i=1,ndimhx)]
         nev=ndimh
         goto 1212
-      endif
-      if(debug)write(stdo,ftox)' iqisploop333'
+      endif;       if(debug)write(stdo,ftox)' iqisploop333'
       GetHamiltonianAndDiagonalize: block
         integer:: iprint
         if(lso==1) then !L.S case nspc=2
@@ -279,10 +259,9 @@ contains
             call hambl(ispc,qp,smpot,vconst,osig,otau,oppi, hamm(:,ispc,:,ispc),ovlm(:,ispc,:,ispc))
             vxc(:,ispc,:,ispc) = hamm(:,ispc,:,ispc) - vxc(:,ispc,:,ispc) ! vxc(LDA) part
             hamm(:,ispc,:,ispc)= hamm(:,ispc,:,ispc) + hammhso(:,:,ispc) !spin-diag SOC elements (1,1), (2,2) added
-            if(lwvxc) write(ifiv) vxc
           enddo
-          hamm(:,1,:,2)= hammhso(:,:,3)                    !spin-offdiagonal SOC elements (1,2) added
-          hamm(:,2,:,1)= transpose(dconjg(hammhso(:,:,3)))
+          hamm(:,1,:,2)= hammhso(:,:,3)                    !spin-offdiagonal SOC elements (1,2) block added
+          hamm(:,2,:,1)= transpose(dconjg(hammhso(:,:,3))) !                              (2,1) block
           if(sigmamode) then !Add  Vxc(QSGW)-Vxc 
             do ispc=1,nspc
               call getsenex(qp, ispc, ndimh, ovlm(:,ispc,:,ispc)) !bugfix at 2024-4-24 obata: ispc was 1 when 2023-9-20
@@ -295,13 +274,12 @@ contains
           call hambl(isp,qp,smpot,vconst,osig,otau,oppi,  hamm(:,1,:,1), ovlm(:,1,:,1)) !ham=<F_i|H(LDA)|F_j> and ovl=<F_i|F_j>
           if(lso==2) hamm(:,1,:,1) = hamm(:,1,:,1) + hammhso(:,:,isp) !diagonal part of SOC matrix added for Lz.Sz mode.
           vxc(:,1,:,1) = hamm(:,1,:,1) - vxc(:,1,:,1) ! vxc(LDA) part
-          if(lwvxc) write(ifiv) vxc(:,1,:,1)
           if(sigmamode) then !Add  Vxc(QSGW)-Vxc 
             call getsenex(qp,isp,ndimh,ovlm(:,1,:,1))
             hamm(:,1,:, 1) = hamm(:,1,:,1) + ham_scaledsigma*senex !senex= Vxc(QSGW)-Vxc(LDA)
             call dsene()
           endif
-        endif
+       endif
         if(debug)write(stdo,ftox)'sumcheck hamm=',sum(abs(hamm)),sum(abs(ovlm))
         if (mod(iq,10) /= 1) call pshpr(iprint()-6)  
         epsovl = ham_oveps
@@ -321,7 +299,15 @@ contains
       endblock GetHamiltonianAndDiagonalize
       if(debug)write(stdo,ftox)' iqisploop777 1212'
 1212  continue
-      if (lwvxc) write(ifievec) qp, evec(1:ndimhx,1:ndimhx),nev
+      lwvxc = (socmatrix .or. iq<=iqibzmax).and.(.not.cmdopt0('--novxc'))
+      if(lwvxc) then
+        open(newunit=ifvxcevec, file= 'vxcevec'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
+        write(ifvxcevec) qp,ndimhx,nev
+        write(ifvxcevec) vxc(:,1:nspc,:,1:nspc)
+        write(ifvxcevec) evec(1:ndimhx,1:ndimhx)
+        if(lso/=0.or.socmatrix) write(ifvxcevec) hammhso 
+        close(ifvxcevec)
+      endif
       if(emptyrun) then
         allocate(pwz(ngp,nspc,ndimh)) !dummy
         goto 1214
@@ -492,22 +478,15 @@ contains
        if(ngpmx/=0) geigr(1:ngpmx,1:nspc,nev+1:nbandmx)=1d20   ! padding
        if(ngpmx/=0) i=writem(ifgeigm,rec=iqqisp,data=geigr(1:ngpmx,1:nspc,1:nbandmx))
        if(debug)write(stdo,ftox)'end of writechpigeig'  
-       !       write(ifcphi) reshape(cphix(1:ndima,1:nspc,1:nbandmx),shape=[ndima*nspc,nbandmx])
-       !       if(ngpmx/=0) write(ifgeig) reshape(geigr(1:ngpmx,1:nspc,1:nbandmx),shape=[ngpmx*nspc,nbandmx])
      endblock WriteCphiGeig
-     if (lwvxc) close(ifiv)
-     if (lwvxc) close(ifievec)
-!     close(ifcphi)
-!     close(ifgeig)
      if(debug)write(stdo,ftox)' writechpigeig 1001'  
      deallocate(pwz,hamm,ovlm,evec,vxc,cphi,cphiw)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11
-!    do i=1,ndima; if(abs(cphix(i,1,1))**2>0.01) write(stdo,ftox) 'sssssssssssgw',i,ftof(abs(cphix(i,1,1))**2)
-!    enddo
+!    do i=1,ndima; if(abs(cphix(i,1,1))**2>0.01) write(stdo,ftox) 'sssssssssssgw',i,ftof(abs(cphix(i,1,1))**2); enddo
 !    write(stdo,ftox) 'sssssssssssgw',ftof(sum(abs(cphix(1:ndima,1,1))**2))
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11
 1001 enddo iqisploop
-    i=closem(ifcphim)
+    i=closem(ifcphim) !mpi-io
     i=closem(ifgeigm)
     call mpi_barrier(comm,ierr)
     call mpibc2_real(evl,   nbandmx*nqirr*nspx,'evl')
@@ -650,7 +629,7 @@ contains
         nnv = maxval(nindx(1:ndima))
         write(stdo,ftox)' iantiferro=',iantiferro(1:nbas)
         open(newunit=ifigwin,file='MTOindex',form='unformatted')    
-        write(ifigwin) nbas,alat,plat,nsp,lmxax+1,nnv,nnc,nrmxe,qval,nspc
+        write(ifigwin) nbas,alat,plat,nsp,lmxax+1,nnv,nnc,nrmxe,qval,nspc,nlmto
         write(ifigwin) pos,zz(ispec(1:nbas)),slabl(ispec(1:nbas)),lmxa(ispec(1:nbas))
         write(ifigwin) ndble,mrecb,mrece,ndima,nqbz,nbandmx,mrecg
         write(ifigwin) laf,ibasf 

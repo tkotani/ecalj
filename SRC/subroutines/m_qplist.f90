@@ -293,22 +293,21 @@ contains
   end function qshortn
   subroutine m_qplist_qspdivider() ! MPIK k point divider. From iqini to iqend for each processor. ! Set iqini,iqend ispx for each rank (procid)
     use m_MPItk,only: procid,master,master_mpi, numprocs=>nsize
-    use m_lmfinit,only: nsp,nspc,afsym,nspx
+    use m_lmfinit,only: nsp,afsym,nspx
     use m_ext,only: sname
     use m_dstrbp,only: dstrbp
     implicit none
     integer:: iqq,isp,ispx,icount,iqs,ncount,iqsi,iqse,iprint,idat,i,nsize,nspxx
     logical:: cmdopt0
     call tcn('m_qplist_qpsdivider')
-    nspxx=nspx !nspc is 2 for spin-coupled case
+    nspxx=nspx !npsx=nsp,  but nspx=1 for so=1 
     if((.not.cmdopt0('--jobgw')).and.(.not.cmdopt0('--writeham')).and.afsym) nspxx=1
     allocate(kpproc(0:numprocs))
     call dstrbp(nkp*nspxx, numprocs,1,kpproc(0))
     ! i=1,nkp*nspx is divided into [kpproc(procid),kpporc(procid+1)-1] for each procid.
     iqsi = kpproc(procid)
     iqse = kpproc(procid+1)-1
-    niqisp=iqse-iqsi+1
-    ! (iq,isp) is ordered as (1,1),(1,2),(2,1),(2,2),(3,1),(3,2),(4,1),(4,2).....  
+    niqisp=iqse-iqsi+1     ! (iq,isp) is ordered as (1,1),(1,2),(2,1),(2,2),(3,1),(3,2),(4,1),(4,2).....  
     if(niqisp>0) then
        allocate(iqproc(niqisp),isproc(niqisp))
        do i=iqsi,iqse
