@@ -12,12 +12,16 @@ module m_genallcf_v3 ! Readin starting data dat in GWinput
        nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot, niw,ndimanspc !ndima,
   real(8),protected,public::  plat(3,3),alat,deltaw,esmr,delta,tpioa,qval
   real(8), allocatable,protected,public:: pos(:,:),z(:),ecore(:,:) !,symgg(:,:,:)
-  character(8),allocatable,protected,public:: spid(:), clabl(:)
+  character(8),allocatable,protected,public:: spid(:)
+  character(8),allocatable,protected,public :: clabl(:)
   integer,protected,public:: nprecb,mrecb,mrece,ndima,nqbzt,nband,mrecg,nspc,nspx !nspc=2 for so=1, zero otherwize.
-  logical,protected,public:: laf,nlmto !! - laf: antiferro switch
+  logical,protected,public:: laf !! - laf: antiferro switch
   integer,allocatable,protected,public:: ibasf(:) !! - ibasf(ibas) specify AF pair atom.
   private
   logical,protected,private:: done_genallcf_v3=.false.
+!  integer,allocatable,protected,private:: &
+!       ilv(:,:),inv(:,:),imv(:,:),  ilnmv(:,:,:),  &
+!       ilc(:,:),inc(:,:),imc(:,:),  ilnmc(:,:,:) ,  ilnm(:,:,:)
 contains
   subroutine setesmr(esmr_in)
     intent(in)::     esmr_in
@@ -42,7 +46,7 @@ contains
     logical :: nocore,readon
     real(8)::efin
     character(1000) :: tolchar
-    real(8),allocatable:: ecoret(:,:,:,:)
+    real(8),   allocatable:: ecoret(:,:,:,:)
     integer,allocatable::ncwf2(:,:,:), nindxv(:,:),occv(:,:,:),unoccv(:,:,:), occc(:,:,:),unoccc(:,:,:),ncwf(:,:,:)
     integer:: ia,l,m,ic1,isp,lt,nt,nr,ncorex,ifix,nclass
     real(8)::a,b,zz, efdummy,dw,diw
@@ -51,7 +55,7 @@ contains
     if(done_genallcf_v3) call rx('genallcf_v3 is already called')
     done_genallcf_v3=.true.
     open(newunit=ifi,file='MTOindex',form='unformatted')
-    read(ifi) natom,alat,plat,nspin,lmxax1,nnv,nnc,nrx,qval,nspc,nlmto
+    read(ifi) natom,alat,plat,nspin,lmxax1,nnv,nnc,nrx,qval,nspc !,n1,n2,n3
     allocate(pos(3,natom),clabl(natom),z(natom),spid(1:natom),ibasf(natom),lmxa(natom))
     read(ifi) pos,z(1:natom),spid(1:natom),lmxa(1:natom)
     read(ifi) nprecb,mrecb,mrece,ndima,nqbzt,nband,mrecg
@@ -124,8 +128,9 @@ contains
       write(stdo,"(' --- prod section: lcutmx cutbase='i3,100d11.3)") lcutmx,cutbase
       read(ifi,*)
       do    ic = 1,nclass
-         do l  = 0,nl-1
+         do l  = 0,lmxa(ic) !nl-1
             read(ifi,*) ict,lt,nindxv(l+1,ic),nindxc(l+1,ic)
+            write(stdo,*)ict,lt,nindxv(l+1,ic),nindxc(l+1,ic)
             if(lt  /= l ) call rx( 'genallcf_mod /=l ')
          enddo
       enddo
@@ -134,7 +139,7 @@ contains
       unoccv=0
       read(ifi,*)
       do       ic = 1,nclass
-         do     l = 0,nl-1
+         do     l = 0,lmxa(ic) !nl-1
             do  n = 1,nindxv(l+1,ic)
                read(ifi,*)           ict,lt,nt,occv(l+1,n,ic),unoccv(l+1,n,ic)
                write(stdo,"(100i3)") ict,lt,nt,occv(l+1,n,ic),unoccv(l+1,n,ic)
@@ -146,7 +151,7 @@ contains
       write(stdo,*)' --- core product basis section'
       read(ifi,*)
       do       ic = 1,nclass
-         do    l  = 0,nl-1
+         do    l  = 0,lmxa(ic) !nl-1
             do n  = 1,nindxc(l+1,ic)
                read(ifi,*)           ict,lt,nt,occc(l+1,n,ic),unoccc(l+1,n,ic),ncwf(l+1,n,ic),ncwf2(l+1,n,ic)
                write(stdo,"(100i3)") ict,lt,nt,occc(l+1,n,ic),unoccc(l+1,n,ic),ncwf(l+1,n,ic),ncwf2(l+1,n,ic)  !ncwf2 is for Sigma calcuation
@@ -169,7 +174,7 @@ contains
          occc=0
          ncwf=0
          do ic = 1,nclass
-            do l = 0,nl-1
+            do l = 0,lmxa(ic) !nl-1
                occc(l+1,n,:)=[(1,i=1,nindxc(l,ic))]
                ncwf(l+1,n,:)=[(1,i=1,nindxc(l,ic))]
             end do
@@ -200,7 +205,7 @@ contains
       reindxblock: block
         integer:: nval,ncore
         do    ic = 1,nclass
-           do  l = 0,nl-1
+           do  l = 0,lmxa(ic) !nl-1
               ncore  = nindxc(l+1,ic)
               nval   = nindxv(l+1,ic)
               nindx(l+1,ic)= ncore + nval
@@ -266,7 +271,7 @@ contains
       do ic = 1,nclass ! index for allowed core states
          i  = 0
          j  = 0
-         do       l = 0,nl-1
+         do       l = 0,lmxa(ic) !nl-1
             do    n = 1,nindxc(l+1,ic)
                do m = -l,l
                   j = j + 1
@@ -294,7 +299,7 @@ contains
          read (ifec,*)
          read (ifec,*) (konf(l+1,ic),l=0,lmxa(ic)) !nl-1)
          read (ifec,*)
-         do  l = 0,nl-1
+         do  l = 0,lmxa(ic) !nl-1
             ncorex = konf(l+1,ic)-l-1
             if (ncorex > nnc) call rx( 'ECORE: wrong nnc')
             do n = 1,ncorex
@@ -309,7 +314,7 @@ contains
       i = 0
       do ia = 1,nclass
          ic  = iclass(ia)
-         do l = 0,nl-1
+         do l = 0,lmxa(ic) !nl-1
             do n = 1,nnc
                do m = -l,l
                   if (ncwf(l+1,n,ic) == 1) then
