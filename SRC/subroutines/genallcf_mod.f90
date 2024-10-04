@@ -1,5 +1,5 @@
-module m_genallcf_v3 ! Readin starting data dat in GWinput
-  use m_lgunit,only:stdo
+module m_genallcf_v3 ! Readin starting data dat in GWinput 
+ use m_lgunit,only:stdo
   implicit none
   public:: setesmr, genallcf_v3
   integer,protected,public:: nrx,lcutmx
@@ -9,7 +9,7 @@ module m_genallcf_v3 ! Readin starting data dat in GWinput
        nlnm(:),nlnmv(:), nlnmc(:), il(:,:), in(:,:), im(:,:),&
        nocc(:,:,:),nunocc(:,:,:),nindxc(:,:),lcutmxa(:),lmxa(:)
   integer,protected,public:: natom,nspin,nl,nn,nnv,nnc,&
-       nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot, niw,ndimanspc !ndima,
+       nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot, niw,ndimanspc,nlmto !ndima,
   real(8),protected,public::  plat(3,3),alat,deltaw,esmr,delta,tpioa,qval
   real(8), allocatable,protected,public:: pos(:,:),z(:),ecore(:,:) !,symgg(:,:,:)
   character(8),allocatable,protected,public:: spid(:)
@@ -55,7 +55,7 @@ contains
     if(done_genallcf_v3) call rx('genallcf_v3 is already called')
     done_genallcf_v3=.true.
     open(newunit=ifi,file='MTOindex',form='unformatted')
-    read(ifi) natom,alat,plat,nspin,lmxax1,nnv,nnc,nrx,qval,nspc !,n1,n2,n3
+    read(ifi) natom,alat,plat,nspin,lmxax1,nnv,nnc,nrx,qval,nspc,nlmto !,n1,n2,n3
     allocate(pos(3,natom),clabl(natom),z(natom),spid(1:natom),ibasf(natom),lmxa(natom))
     read(ifi) pos,z(1:natom),spid(1:natom),lmxa(1:natom)
     read(ifi) nprecb,mrecb,mrece,ndima,nqbzt,nband,mrecg
