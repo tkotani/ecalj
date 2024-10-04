@@ -61,7 +61,7 @@ SPEC
       MMOM=0 0 0 0
       EH=-1 -1 -1  RSMH=0.85 0.85 0.85 
       EH2=-2 -2  RSMH2=0.85 0.85 
-      KMXA={kmxa}  LMX=2 LMXA=3 NMCORE=1
+      KMXA={kmxa}  LMX=3 LMXA=4 NMCORE=1
       #MMOM=0 0 1 0 #s,p,d,f initial condition
       #NOTE: lmfa(rhocor) generates spin-averaged rho for any MMOM,jun2012
       #Q=0 0.5 1 0 #s,p,d,f initial condition 
