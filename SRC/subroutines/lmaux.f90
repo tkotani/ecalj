@@ -2,6 +2,7 @@ module m_lmaux !main part of lmchk ! check crystal structure symmetry and get WS
   use m_lmfinit,only: z_i=>z,nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,lmxb_i=>lmxb,lmxl_i=>lmxl,spec_a,kmax_i=>kmxt,lfoca_i=>lfoca
   use m_xlgen,only:xlgen
   use m_lgunit,only:stdo
+  use m_ext,only: sname
   public:: lmaux
   private
 contains
@@ -284,7 +285,7 @@ contains
     double precision z(nspec),alat,plat(9),pos(3,nbas),rmt(*)
     ! C Local variables:
     character*8 spid,strn*80
-    integer nrmx,nxi0,n0,niax,mxcsiz,npmx,pass
+    integer nrmx,nxi0,n0,niax,mxcsiz,npmx,pass,ifiwv,ifives
     parameter (nrmx=1501,nxi0=10,n0=10,niax=10,mxcsiz=4000,npmx=mxcsiz)
     integer nxi,nrmix(2),lxcfun,is,opt0,opt1,opt2,opt3
     integer idmod(n0),lmxa,nrmt,nr,ib,nttab,k,ir,np,ipr, nrspec
@@ -315,7 +316,6 @@ contains
     data sym /' ','*'/
 
     logical:: isanrg, l_dummy_isanrg
-    integer:: ifives
 
     print *,'makrm0:'
     !C --- Setup ---
@@ -367,10 +367,14 @@ contains
        eref = 0
        nrmt = 0
        call pshpr(ipr-20)
+       open(newunit=ifives,file='vesintatm.'//trim(sname)//'.chk')
+       open(newunit=ifiwv,file='veswavatm.'//trim(sname)//'.chk')
        call freats(spid,is,nxi0,nxi,exi,rfoca,rsmfa,0,-1,qcor,nrmix(1),0, &
             lxcfun,z(is),rmtl(is),a(is),nrmt,pnu,pnz,qat,0d0,0d0,0d0,& !rcfa=[0d0,0d0], &
             idmod,lmxa,eref,rtab,etab,hfc,hfct,nr,rofi,rho(1,is),rhoc(1, &
-            is),qc,ccof,ceh,sumec,sumtc,v(1,is),etot, 1, -1,-1) !nmcore=1 july2012 !last -1 -1 means not write ves* files.
+            is),qc,ccof,ceh,sumec,sumtc,v(1,is),etot, 1, ifives=ifives,ifiwv=ifiwv) !nmcore=1 july2012
+       close(ifives)
+       close(ifiwv)
        call poppr
        b(is) = rmtl(is)/(dexp(a(is)*(nrmt-1)) - 1d0)
        !C       Restore 4*pi*r**2*(total density) in array rho

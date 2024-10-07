@@ -10,10 +10,9 @@ subroutine hsfp0() bind(C)
        dq_,qbz,wbz,qibz,wibz,qbzw, idtetf,ib1bz,idteti, &
        nstar,irk,nstbz, lxklm,dmlx,epinvq0i,wklm, wqt=>wt,q0i,nq0i
   use m_hamindex,only: ngrp, symgg=>symops
-  use m_genallcf_v3,only: Genallcf_v3, &
-       nclass,natom,nspin,nl,nn, ndima,nlnmx, nctot,niw, &
+  use m_genallcf_v3,only: Genallcf_v3, natom,nspin,nl,nn, ndima,nlnmx, nctot,niw, &
        alat,delta,deltaw,esmr_in=>esmr,clabl,iclass, il,in,im,nlnm, &
-       plat, pos,z,ecore,  konf,nlnx
+       plat, pos,z,ecore,  konf,nlnx,laf
   use m_keyvalue,only: Getkeyvalue
   use m_rdpp,only: Rdpp, nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx
   use m_zmel,only: Mptauof_zmel
@@ -26,7 +25,7 @@ subroutine hsfp0() bind(C)
   use m_genallcf_v3,only: nprecb,mrecb,mrece,nqbzt,nband,mrecg
   use m_lgunit,only: m_lgunit_init
   use m_freq,only: freq01
-  use m_anf,only:  Anfcond, laf
+!  use m_anf,only:  Anfcond, laf
   use m_bzints,only: bzints2x
   use m_gpu,only: gpu_init
   implicit none
@@ -220,7 +219,7 @@ subroutine hsfp0() bind(C)
   write(6,"('  nbmx ebmx from GWinput=',2i8,2d13.5)") nbmx,ebmx
 
 !!!!  WE ASSUME iclass(iatom)= iatom (because of historical reason)
-  if (nclass /= natom ) call rx( ' hsfp0: nclass /= natom ')
+!  if (nclass /= natom ) call rx( ' hsfp0: nclass /= natom ')
   call pshpr(30)
   pi   = 4d0*datan(1d0)
   tpia = 2d0*pi/alat
@@ -440,7 +439,7 @@ subroutine hsfp0() bind(C)
      endif
   endif
   !   write(6,*)' ifqpnt ret=',ifqpnt,ret
-  call anfcond()
+!  call anfcond()
 !  lqall=.true.
   if (tote) then
      lqall      = .true.
@@ -675,7 +674,7 @@ subroutine hsfp0() bind(C)
   !nrkip = nrkip_all !we don't need to change this for MPI case. It just need to distribute non-zero irkip.
   !! ----------------------------------------
   niwx     = max0 (nw+1,niw)
-  allocate( ppb(nlnmx*nlnmx*mdimx*nclass),  eq(nband), &
+  allocate( ppb(nlnmx*nlnmx*mdimx*natom),  eq(nband), &
        kount(nqibz,nq), zsec(iwini:iwend,ntq,nq), coh(ntq,nq) )
   if (tote) exx = 0d0
   isploop: do 2000 is = 1,nspinmx

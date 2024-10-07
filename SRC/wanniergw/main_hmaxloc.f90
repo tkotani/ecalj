@@ -25,7 +25,7 @@ subroutine hmaxloc()
     nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,qbas=>qlat,ginv,dq_,qbz,wbz,qibz,wibz,qbzw, &
     idtetf,ib1bz,idteti, nstar,irk,nstbz
   use m_qbze,only: Setqbze, nqbze,qbze
-  use m_genallcf_v3,only: genallcf_v3, nclass,natom,nl,nn, &
+  use m_genallcf_v3,only: genallcf_v3,natom,nl,nn, &
     nlnmx, nctot,niw, alat,delta,deltaw,esmr,clabl,iclass, il, in, im, nlnm, &
     plat, pos, ecore, konf,z, spid, nprecb,mrecb,mrece,nqbzt,nband,mrecg,ndima,nspx !nspin,
   use m_read_Worb,only: s_read_Worb, s_cal_Worb, &
@@ -271,7 +271,7 @@ subroutine hmaxloc()
   !-------------------------------------------------------------------
   !      if (nclass > mxclass) stop ' hsfp0: increase mxclass'
 !!!!! WE ASSUME iclass(iatom)= iatom !!!!!!!!!!!!!!!!!!!!!!!!!
-  if (nclass /= natom ) stop ' hsfp0: nclass /= natom ' ! We assume nclass = natom.
+!  if (nclass /= natom ) stop ' hsfp0: nclass /= natom ' ! We assume nclass = natom.
   write(6,*)' hsfp0: end of genallcf2'
 
   call pshpr(30)

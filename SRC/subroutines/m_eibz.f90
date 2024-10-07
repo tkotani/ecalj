@@ -1,7 +1,7 @@
 !> EIBZ (extended Irreducible Brillowin zone) procedure PRB81,125102 ===
 module m_eibz 
   use m_read_bzdata,only: Read_bzdata, nqbz,nqibz,n1,n2,n3,ginv,dq_,qbz,wbz,qibz,wibz,ntetf,idtetf,ib1bz, qbzw,nqbzw !for tetrahedron
-  use m_genallcf_v3,only: Genallcf_v3, nclass,natom,nspin,nl,nn, nlnmx, nctot, alat, deltaw,clabl,iclass, plat, pos, ecore
+  use m_genallcf_v3,only: Genallcf_v3, natom,nspin,nl,nn, nlnmx, nctot, alat, deltaw,clabl,iclass, plat, pos, ecore
   use m_hamindex,only: symgg =>symops
   use m_qbze,only: Setqbze, nqbze,nqibze,qbze,qibze
   use m_genallcf_v3,only: nprecb,mrecb,mrece,nqbzt,nband,mrecg

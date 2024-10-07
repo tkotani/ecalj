@@ -61,7 +61,7 @@ subroutine hsfp0_sc()
 !!!! ----------------------------------------
   use m_readqg,only: READQG0,READNGMX2, ngpmx,ngcmx
   use m_READ_BZDATA,only: READ_BZDATA, nqbz,nqibz,n1,n2,n3,ginv,qbz,wbz,qibz 
-  use m_genallcf_v3,only: GENALLCF_V3,Setesmr, nclass,natom,nspin,plat,alat,deltaw,esmr_in=>esmr,nctot,ecore,nband
+  use m_genallcf_v3,only: GENALLCF_V3,Setesmr, natom,nspin,plat,alat,deltaw,esmr_in=>esmr,nctot,ecore,nband, laf
   use m_itq,only: setitq_hsfp0sc,nbandmx, ntq
 !  use m_readhbe,only: Readhbe, nband !nprecb,mrecb,mrece,nlmtot,nqbzt,,mrecg
   use m_mpi,only: &
@@ -88,7 +88,6 @@ subroutine hsfp0_sc()
     use m_hamindex,only:    Readhamindex, symgg=>symops,ngrp
     use m_readgwinput,only: ReadGwinputKeys, ebmx_sig,nbmx_sig
     use m_zmel,only: Mptauof_zmel
-    use m_anf,only:  Anfcond, laf
     use m_readeigen,only: INIT_READEIGEN,INIT_READEIGEN2,LOWESTEVAL
     use m_mem,only:writemem,totalram
     integer:: incwfin
@@ -120,7 +119,7 @@ subroutine hsfp0_sc()
     endif
     call GENALLCF_V3(incwfin)    ! readin basic data
     call READ_BZDATA() ! Readin BZ data. See gwsrc/rwbzdata.f ===
-    if(nclass /= natom ) call rx('hsfp0_sc: sanitiy check nclass /= natom ')! CAUTION. ASSUME iclass(iatom)= iatom (because of historical reason)
+!    if(nclass /= natom ) call rx('hsfp0_sc: sanitiy check nclass /= natom ')! CAUTION. ASSUME iclass(iatom)= iatom (because of historical reason)
     !  write(stdo,"(' nqbz nqibz ngrp=',3i12)") nqbz,nqibz,ngrp
     call ReadGwinputKeys()
     call pshpr(30)
@@ -159,7 +158,7 @@ subroutine hsfp0_sc()
     write(stdo,ftox)'  deltaw alat voltot=', ftof([deltaw,alat,voltot])
     write(stdo,ftox)'  ef     esmr   valn=',ftof([ef,esmr,valn])
     nspinmx = nspin
-    call anfcond()
+!    call anfcond()
     if(laf) nspinmx=1  ! Antiferro case. Only calculate up spin
     if(mpi__root .AND. mpi__rank/=0) call rx('mpi__root .AND. mpi__rank/=0')
     if(mpi__root) call Setitq_hsfp0sc(nbmx_sig,ebmx_sig,eftrue,nspinmx) !read or set NTQXX and nbandmx

@@ -19,8 +19,7 @@ subroutine hmagnon() bind(C)
        idtetf,ib1bz,idteti, &
        nstar,irk,nstbz &
        ,wqt=>wt,q0i,nq0i ,nq0iadd,ixyz,epslgroup,nq0ix,neps
-  use m_genallcf_v3,only: genallcf_v3, &
-       nclass,natom,nspin,nl,nn, &
+  use m_genallcf_v3,only: genallcf_v3,natom,nspin,nl,nn, &
        ndima,nlnmx, nctot,niw_in=>niw, &
        alat, delta,deltaw,esmr,clabl,iclass, &
        il,in,im,nlnm, &

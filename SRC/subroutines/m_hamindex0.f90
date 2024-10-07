@@ -77,7 +77,7 @@ contains
     do  ib = 1, nbas
        pnz(:,1:nsp) = pnzall(:,1:nsp,ib)
        do l = 0, lmxa(ib)
-          npqn = merge(3,2,pnz(l+1,1) /= 0)
+          npqn = merge(3,2,pnz(l+1,1) >1d-10)
           ndima = ndima + npqn*(2*l+1)
           norb= norb + npqn
        enddo
@@ -90,11 +90,11 @@ contains
        pnz(:,1:nsp)=pnzall(:,1:nsp,ib) 
        do    isp = 1, nsp
           do  l  = 0, lmxa(ib)
-             konft(l,ib,isp) = merge(mod(pnz(l+1,isp),10d0),pnu(l+1,isp), mod(pnz(l+1,isp),10d0)<pnu(l+1,isp).AND.pnz(l+1,isp)>0)
+             konft(l,ib,isp)= merge(mod(pnz(l+1,isp),10d0),pnu(l+1,isp), mod(pnz(l+1,isp),10d0)<pnu(l+1,isp).AND.pnz(l+1,isp)>1d-10)
           enddo
        enddo
     enddo
-    open(newunit=ifinlaindx,file='NLAindx.chk')
+    open(newunit=ifinlaindx,file='NLAindx.chk') !human check
     write(ifinlaindx,'(''----NLAindx start---------------''/I6)') ndima
     npqn=3
     allocate(nlindx(npqn,0:lmxax,nbas),nindx(ndima),lindx(ndima),ibasindx(ndima),caption(ndima),pqn(ndima))
@@ -106,7 +106,7 @@ contains
           pnu=pnuall(:,1:nsp,ib) 
           pnz=pnzall(:,1:nsp,ib)
           do  l = 0, lmxa(ib)
-             npqn = merge(3,2,pnz(l+1,1) /= 0)
+             npqn = merge(3,2,pnz(l+1,1) >1d-10)
              if(ipqn>npqn) cycle
              iorb=iorb+1
              konf= merge(mod(pnz(l+1,1),10d0), pnu(l+1,1),ipqn == 3)

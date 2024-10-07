@@ -8,9 +8,9 @@ subroutine h_uumatrix()
   use m_readeigen,only:init_readeigen,init_readeigen2,readcphif,readgeigf,readeval
   use m_read_bzdata,only: read_bzdata, nqbz,nqibz,nqbzw,nteti,ntetf,qbas=>qlat, ginv, &
     dq_,wbz,qibz,wibz,qbzw, qbz, idtetf,ib1bz,idteti, nstar,irk,nstbz,  nq0i=>nq0ix,q0i
-  use m_genallcf_v3,only: genallcf_v3, ncore2=>ncore,nrxx=>nrx, natom,nclass,nspin,nl,nn,nnv,nnc, &
-       nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot,plat,pos,alat,nindx,& !nlmto,
-       nprecb,mrecb,mrece,ndima,nqbzt,nband,mrecg,nspc,nspx
+  use m_genallcf_v3,only: genallcf_v3, ncore2=>ncore,nrxx=>nrx, natom,natom,nspin,nl,nn,nnv,nnc, &
+       nlnmx,nlnmxv,nlnmxc, nctot,plat,pos,alat,nindx,& !nlmto,
+       nprecb,mrecb,mrece,ndima,nqbzt,nband,mrecg,nspc,nspx,lmxa
   use m_keyvalue,only: getkeyvalue
   use m_pwmat,only: mkppovl2
   use m_ll,only: ll
@@ -45,7 +45,7 @@ subroutine h_uumatrix()
   real(8):: uunorm,dqx(3),dqx0(3),dq0(3),dg(3),dqmin(3),adq0, q0wf(3),wgt, emin,emax,rydberg
   real(8),parameter::  pi = 4d0*atan(1d0),fpi =    4d0*pi
   real(8),allocatable:: phitoto(:,:,:,:,:), aa(:),rr(:,:) ,phitotr(:,:,:,:,:), bb(:),zz(:),rmax(:),cy(:),yl(:)
-  real(8),allocatable :: bbv(:,:), qbandx(:,:),qband(:,:),eband(:)
+  real(8),allocatable :: bbv(:,:), qbandx(:,:),qband(:,:),eband(:),eval1(:),eval2(:)
   complex(8),parameter:: img=(0d0,1d0)
   complex(8),allocatable:: geig1(:,:),geig2(:,:),cphi1(:,:),cphi2(:,:) ,uum(:,:,:), ppovl(:,:),ppj(:,:,:,:)
   complex(8):: phaseatom,aaa,bbb
@@ -73,11 +73,10 @@ subroutine h_uumatrix()
   call read_BZDATA()
   if (mpi__root) write(stdo,*)' ======== nqbz nqibz ngrp=',nqbz,nqibz,ngrp
   call genallcf_v3(incwfx=0) !readin condition. use ForX0 for core in GWIN !  call Readhbe()    !Read dimensions of h,hb
-  call getsrdpp2(nclass,nl,nxx)    ! --- read by rdpp ; Radial integrals ppbrd and plane wave part
+  call getsrdpp2(natom,nl,nxx)    ! --- read by rdpp ; Radial integrals ppbrd and plane wave part
   call readngmx('QGpsi',ngpmx)
   open(newunit=ifphi,file='PHIVC',form='unformatted')     ! PHIV+PHIC augmentation wave and core
   read(ifphi) nbas, nradmx, ncoremx,nrx
-  if(nclass/= natom) call rx(' nclass /= natom ') !WE ASSUME iclass(iatom)= iatom
   if(nqbz  /= nqbzt) call rx( ' hx0fp0: nqbz /=nqbzt  in hbe.d')
   if(nbas  /= natom) call rx(' nbas(PHIVC) /= natom ')
   allocate(  ncindx(ncoremx,nbas), lcindx(ncoremx,nbas), &
@@ -123,13 +122,13 @@ subroutine h_uumatrix()
   call init_readeigen()   !Initialization for readeigen
   call init_readeigen2()
   call readngmx('QGpsi',ngpmx) !max number of the set q+G
-  allocate(geig1 (ngpmx*nspc,nband),geig2(ngpmx*nspc,nband))
+  allocate(geig1 (ngpmx*nspc,nband),geig2(ngpmx*nspc,nband),eval1(nband),eval2(nband))
   allocate(cphi1 (ndima*nspc,nband),cphi2(ndima*nspc,nband) )
   open(newunit=ifoc,file='@MNLA_CPHI')
   ldim2 = ndima
   read(ifoc,*)
   allocate(m_indx(ldim2),n_indx(ldim2),l_indx(ldim2),ibas_indx(ldim2))
-  do ix =1,ldim2
+  do ix =1,ndima
     read(ifoc,*) m_indx(ix),n_indx(ix),l_indx(ix),ibas_indx(ix),ixx !m,m,l,ibas index 
     if(ixx/=ix) call rx('failed to readin @MNLA_CPHI')
   enddo
@@ -213,8 +212,8 @@ subroutine h_uumatrix()
         enddo
       enddo
       ispinloop00: do isp = 1,nspin
-        do  l1 = 0, nl-1
-          do  l2 = 0, nl-1
+        do  l1 = 0, lmxa(ic)
+          do  l2 = 0, lmxa(ic)
             do  n1 = 1, nindx(l1+1,ic)
               do  n2 = 1, nindx(l2+1,ic)
                 rphiphi(1)       = 0d0
@@ -228,7 +227,11 @@ subroutine h_uumatrix()
           enddo
         enddo
       enddo ispinloop00
-    enddo ibasloop0
+   enddo ibasloop0
+!!!!!!!!!!!!!!!!
+!   ppbrd(4,:, :,:, :, :, 3:4)=0d0
+!   ppbrd(:,:, 4,:, :, :, 3:4)=0d0
+   
     ! Calcuate <u{q1x j1} | u_{q2x j2}> = < psi^*{q1x j1} exp(i(q1x-q2x)r) psi_{q2x j2} >
     ! Note that exp(i(q1x-q2x)r) is expanded in the spherical bessel function within MT.
     ! MT part ldim2=ndima; n_indx(1;ldim2):n(phi=1 phidot=2 localorbital=3); l_indx(1:ldim2):l index ; ibas_indx(1:ldim2):ibas index.
@@ -250,7 +253,16 @@ subroutine h_uumatrix()
                  + ppbrd(l1,n1,l2,n2,l3,ispin,ibas1) *cg(lm1,lm2, lm3) * fpi* img**l3* phaseatom * ylk
             ! cg(lm1,lm2,lm3)= \int Y_lm3(\hat(r)) Y_lm2(\hat(r)) Y_lm1(\hat(r)) \frac{d \Omega}{4\pi}.
             ! This is based on inverse expansion. See the book of angular momentum book of Rose.Eq.3.8.
-          enddo
+         enddo
+         
+!!!!!!!!!!!!!!!!!!!            
+!         if((l1>3.or.l2>3).and.ibas1>2) then
+!             ppj(ia1,ia2,ispin,ibb)=0d0
+!          elseif(ibb==1.and.abs(ppj(ia1,ia2,ispin,ibb))>1d-8) then
+!             write(stdo,ftox)'pppppjjj',ia1,ia2,l1,l2,m1,m2,ibas1,ftof(ppj(ia1,ia2,ispin,ibb))
+!          endif
+!!!!!!!!!!!!!!!!!!
+          
 10101    enddo ia2loop
 10201  enddo ia1loop !              !if(cmdopt0('--fpmt')) then; geig1 = readgeigf0(q1,ispin); geig2 = readgeigf0(q2,ispin);else
     enddo ispinloop02
@@ -261,14 +273,12 @@ subroutine h_uumatrix()
     if (cmdopt0('--qibzonly')) then
       if(irotg(iqbz)/=1)  cycle !only irreducible q point
     endif  
-    write(stdo,ftox)'iq =',iqbz, 'out of',nqbz
     do isp=1,nspx
       open(newunit=ifuu(isp),file=trim(head(ixc,isp))//charnum4(iqbz),form='unformatted')
     enddo
     if (ixc == 2) nbbloop = nbb
     if (ixc == 3) nbbloop = nq0i
     ibbloop: do 1080 ibb = 1,nbbloop
-!      write(stdo,ftox)'  ibbloop iq =',ibb,iq
       if(ixc == 2) then
         iqb = ikbidx(ibb,iqbz)
         q1(:) = qbz(:,iqbz)
@@ -292,12 +302,14 @@ subroutine h_uumatrix()
             write(ifuu(ispin))-20
             write(ifuu(ispin))iqbz,ibb,iqtmp,ibbtmp
           enddo
-          cycle
+          cycle !we may quit ibbloop here
         endif
       elseif (ixc == 3) then
         q1(:) = qbz(:,iqbz)
         q2(:) = qbz(:,iqbz) + q0i(:,ibb)
       endif
+      write(stdo,ftox)'iq =',iqbz, 'out of',nqbz
+!      write(stdo,ftox)'  ibbloop iq =',ibb,iq
       call readqg0('QGpsi',q1,  q1x, ngp1) ! write(stdo,"('uuuiq q1 q1x=',3f9.4,3x,3f9.4,i5)") q1,q1x,ngp1
       call readqg0('QGpsi',q2,  q2x, ngp2) ! write(stdo,"('uuuiq q2 q2x=',3f9.4,3x,3f9.4,i5)") q2,q2x,ngp2
       allocate( ngvecpf1(3,ngp1), ngvecpf2(3,ngp2), ppovl(ngp1,ngp2) )
@@ -317,14 +329,16 @@ subroutine h_uumatrix()
         cphi2 = readcphif(q2,ispin) 
         geig1 = readgeigf(q1,ispin) ! IPW part of eigenfunctions
         geig2 = readgeigf(q2,ispin)
+        eval1 = readeval(q1,ispin) !eigenvalue at q1
+        eval2 = readeval(q2,ispin) 
         uum=0d0
         do ispc=1,nspc ! For lso=0 or 2,ispin=1,nsp. For lso=1, ispin=1 ispc=1,2 nspc=2 
-           ioc=(ispc-1)*ndima
-           iog=(ispc-1)*ngpmx
-           uum(ii:ie,ii:ie,ispin) =uum(ii:ie,ii:ie,ispin) &
-                + matmul(transpose(dconjg(cphi1(ioc+1:ioc+ndima,ii:ie))),&
-                matmul(ppj(1:ndima,1:ndima,ispc,ibb),cphi2(ioc+1:ioc+ndima,ii:ie))) & ! MT part
-                + matmul(dconjg(transpose(geig1(iog+1:iog+ngp1, ii:ie))), matmul(ppovl,geig2(iog+1:iog+ngp2,ii:ie))) !IPW part
+          ioc=(ispc-1)*ndima
+          iog=(ispc-1)*ngpmx
+          uum(ii:ie,ii:ie,ispin) =uum(ii:ie,ii:ie,ispin) &
+               + matmul(transpose(dconjg(cphi1(ioc+1:ioc+ndima,ii:ie))),&
+               matmul(ppj(1:ndima,1:ndima,ispc,ibb),cphi2(ioc+1:ioc+ndima,ii:ie))) &! MT part
+               + matmul(dconjg(transpose(geig1(iog+1:iog+ngp1, ii:ie))), matmul(ppovl,geig2(iog+1:iog+ngp2,ii:ie))) !IPW part
         enddo   
         write(ifuu(ispin)) -10 !dummy
         if(ixc==2) write(ifuu(ispin)) iqbz,ibb,ikbidx(ibb,iqbz)
@@ -332,18 +346,19 @@ subroutine h_uumatrix()
         write(ifuu(ispin)) ((uum(j1,j2,ispin),j1=ii,ie),j2=ii,ie)
         checkwirte: block
           do j1=ii,ie; j2=j1 !; do j2=j2min,j2max !checkwrite  !if(j1==j2)
+            if(eval1(j1)>1d10.or.eval2(j2)>1d10) cycle ! see sugw.f90. padding by huge number
             write(stdo,ftox)'uumatrix: iq isp=',iqbz,ispin,'j1j2=',j1,j2,'q1 q2-q1=',ftof(q1,4),ftof(q1-q2,4),&
                  '<u|u>=',ftof(uum(j1,j2,ispin),4),'abs',ftof(abs(uum(j1,j2,ispin)))
           enddo !; enddo
         endblock checkwirte
 1050  enddo ispinloop2
-      write(stdo,*)' ============ result --- diagonal --- ==============',nspx,j1min,j1max,j2min,j2max
       deallocate(ngvecpf1, ngvecpf2, ppovl)
+      write(stdo,*) !'============ result --- diagonal --- ==============',nspx,j1min,j1max,j2min,j2max
 1080 enddo ibbloop
     close(ifuu(1))
     if(nspin==2) close(ifuu(2))
 1070 enddo iqbz4uum
   deallocate(uum)
-  if (mpi__root) write(stdo,*) ' ====== end ========================================'
+  if (mpi__root) write(stdo,*)'====== end ========================================'
   call mpi_finalize(ierr)
 end subroutine h_uumatrix

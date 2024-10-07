@@ -1,6 +1,6 @@
 subroutine efsimplef2ax ( legas, esmr, valn,ef)
   use m_READ_BZDATA,only: nqbz,nqibz,ginv,  qibz,wibz,qbz
-  use m_genallcf_v3,only: nspin,z,natom,nclass,iclass,nl,konfig=>konf,nband
+  use m_genallcf_v3,only: nspin,z,natom,iclass,nl,konfig=>konf,nband,lmxa
   use m_readeigen, only: readeval
 !  use m_readhbe,only: nband
   use m_mpi, only: mpi__root
@@ -44,7 +44,7 @@ subroutine efsimplef2ax ( legas, esmr, valn,ef)
         ic    = iclass(ia)
         valn  = valn + z(ic)
         write(6,*)' ia z(ic)=',ia, z(ic)
-        do    l = 0,nl-1
+        do    l = 0,lmxa(ia) !nl-1
            write(6,*)' l (konfig(l+1,ic)-l-1) 2*(2l+1)=',l,(konfig(l+1,ic)-l-1),( 2*l +1)*2
            valn  = valn - (konfig(l+1,ic)-l-1) *( 2*l +1)*2
         end do

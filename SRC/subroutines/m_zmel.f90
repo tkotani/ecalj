@@ -1,8 +1,8 @@
 !> Get the matrix element zmel =  ZO^-1 <MPB psi|psi> , where ZO is ppovlz(inverse of overlap matrix) !  "call get_zmel_init" return zmel 
 !  All dependencies (use foobar below ) are inputs (must be protected).
 module m_zmel
-  use m_genallcf_v3,only: nclass,natom,nspin,nl,nn,nnv,nnc,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, niw,nband,ndima
-  use m_genallcf_v3,only: alat,delta,deltaw,esmr,iclass,nlnmv,nlnmc,icore,ncore,plat,pos,z,ecore,mnl=>nlnm,nl,nn,nlnmx,il,in,im
+  use m_genallcf_v3,only: natom,nspin,nn,nnv,nnc,nlnmx, niw,nband,ndima
+  use m_genallcf_v3,only: alat,delta,deltaw,esmr,iclass,nlnmv,nlnmc,icore,ncore,plat,pos,z,ecore,mnl=>nlnm,nn,il,in,im
   use m_hamindex,only: ngrp, symgg=>symops,invg=>invgx
   use m_rdpp,only: Rdpp, nxx,lx,nx,mdimx,nbloch,cgr,ppbrd,nblocha,done_rdpp
   use m_read_bzdata,only: nqbz,nqibz,  qlat,ginv,qbz,qibz,wbz, done_read_bzdata
@@ -86,12 +86,11 @@ contains
     deallocate(invgx)
     call rdpp(ng,symops)  !return ppbrd:radial integrals and cgr:rotated cg coeffecients. 
     ppbafp_v2_zmel: block 
-      integer :: is,irot,lmxax, ic, i,lb,nb,mb,lmb,i1,ibas,i2, np,lp,mp,lmp,n,l,m,lm
-      lmxax=nl-1
-      allocate(ppbir(nlnmx,nlnmx,mdimx,nclass,ng,nspin)) ! ppbir is rotated <Phi(SLn,r) Phi(SL'n',r) B(S,i,rot^{-1}(r))> by rotated cg coefficients cgr
+      integer :: is,irot, ic, i,lb,nb,mb,lmb,i1,ibas,i2, np,lp,mp,lmp,n,l,m,lm
+      allocate(ppbir(nlnmx,nlnmx,mdimx,natom,ng,nspin)) ! ppbir is rotated <Phi(SLn,r) Phi(SL'n',r) B(S,i,rot^{-1}(r))> by rotated cg coefficients cgr
       do irot = 1,ng
          do is = 1,nspin 
-            do concurrent (ic=1:nclass)
+            do concurrent (ic=1:natom)
                ibas = ic
                i = 0 !i = product basis index.
                do lb  = 0, lx (ibas)
@@ -138,7 +137,7 @@ contains
     integer:: ngp1, ngp2, ngvecpB1(3,ngpmx),ngvecpB2(3,ngpmx),nadd(3)
     integer:: i,iap,ias,ib,ic,icp,nc,nc1,nv,ics,itp,iae,ims,ime
     real(8):: quu(3),q(3), kvec(3),rkvec(3),qkt(3),qt(3), qdiff(3)
-    real(8) :: ppb(nlnmx,nlnmx,mdimx,nclass) ! ppb= <Phi(SLn,r-R)_q,isp1 |Phi(SL'n',r-R)_qk,isp2 B_k(S,i,rot^{-1}(r-R))>
+    real(8) :: ppb(nlnmx,nlnmx,mdimx,natom) ! ppb= <Phi(SLn,r-R)_q,isp1 |Phi(SL'n',r-R)_qk,isp2 B_k(S,i,rot^{-1}(r-R))>
     logical:: iprx,zmelconjg,debug,cmdopt0
     integer,allocatable:: ngveccR(:,:),igcgp2i_work(:,:)
     complex(kind=kp)::cphiq(ndima,nband), cphim(ndima,nband)
@@ -224,7 +223,7 @@ contains
         dgeigqk = cmplx(readgeigf(qk,ispm),kind=kp) !read IPW part at qk  !G2 for ngp2
         dgeigqk = conjg(dgeigqk)
       endif
-      !$acc data copyin(ppbir(1:nlnmx,1:nlnmx,1:mdimx,1:nclass,irot,ispq))
+      !$acc data copyin(ppbir(1:nlnmx,1:nlnmx,1:mdimx,1:natom,irot,ispq))
       !$acc kernels
       ppb = ppbir(:,:,:,:,irot,ispq)           !MPB has no spin dependence
       !$acc end kernels
@@ -250,7 +249,7 @@ contains
 #ifdef __GPU
       attributes(device) :: zmelt, zmelt_d
 #endif
-      call writemem('mmmmm_zmel000: zmelsize='//ftof((nbloch+ngc)*(nm2-nm1+1)*nqtot*16/kk**3)//' GB')
+      call writemem('    m_zmel000: zmelsize='//ftof((nbloch+ngc)*(nm2-nm1+1)*nqtot*16/kk**3)//' GB')
       allocate(zmelt(1:nbloch+ngc,nm1:nm2,1:nqtot))
 !$acc kernels
       zmelt(1:nbloch+ngc,nm1:nm2,1:nqtot) = czero
@@ -337,8 +336,7 @@ contains
           deallocate(cphiq_d)
         enddo iatomloop
       endblock ZmelWithinMT
-      call writemem('mmmmm_zmel111 ngc= '//trim(charext(ngc))//' nm1v nm2v= '//trim(charext(nm1v))//' '//trim(charext(nm2v)))
-      if(debug) write(stdo,ftox) 'sum of zmelt_mt:', sum(zmelt)
+      call writemem('    m_zmel111 ngc= '//trim(charext(ngc))//' nm1v nm2v= '//trim(charext(nm1v))//' '//trim(charext(nm2v)))
       flush(stdo)
       if(debug) write(stdo,ftox)'goto zmelipwif: ngc,nm1v,nm2v=',ngc,nm1v,nm2v
       ZmelIPWif: if(ngc/=0 .and. nm1v<=nm2v) then
@@ -514,7 +512,7 @@ end module m_zmel
 !     integer:: ngp1, ngp2, ngvecpB1(3,ngpmx),ngvecpB2(3,ngpmx),nadd(3)
 !     integer:: i,iap,ias,ib,ic,icp,nc,nc1,nv,ics,itp,iae,ims,ime
 !     real(8):: quu(3),q(3), kvec(3),rkvec(3),qkt(3),qt(3), qdiff(3)
-!     real(8) :: ppb(nlnmx,nlnmx,mdimx,nclass) ! ppb= <Phi(SLn,r-R)_q,isp1 |Phi(SL'n',r-R)_qk,isp2 B_k(S,i,rot^{-1}(r-R))>
+!     real(8) :: ppb(nlnmx,nlnmx,mdimx,natom) ! ppb= <Phi(SLn,r-R)_q,isp1 |Phi(SL'n',r-R)_qk,isp2 B_k(S,i,rot^{-1}(r-R))>
 !     logical:: iprx,debug=.false.,cmdopt0
 !     logical:: zmelconjg
 !     integer,allocatable:: ngveccR(:,:)
