@@ -35,7 +35,7 @@ list(APPEND SOURCES "../subroutines/show_programinfo.f90") # show_programinfo.f9
 file(GLOB SOURCES1 "../subroutines/*.f90" "../subroutines/show_programinfo.f90") # source files
 file(GLOB SOURCES2 "../wanniergw/*.f90") # source files
 file(GLOB MAINS "../main/*.f90")
-file(GLOB MAINS_BOTTLENECK "../main/hsfp0_sc.f90" "../main/hrcxq.f90" "../main/hx0fp0.f90")  #main files for GPU versions
+file(GLOB MAINS_GPU "../main/hsfp0_sc.f90" "../main/hrcxq.f90" "../main/hx0fp0.f90")  #main files for GPU versions
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}) # directory for *.so
 
 set(CMAKE_Fortran_FLAGS_RELEASE "-O2 -g -traceback")
@@ -59,7 +59,8 @@ elseif(FC MATCHES "ifort")
   set(LIBM -qmkl=parallel) 
 elseif(FC MATCHES "nvfortran")
   set(CMAKE_Fortran_COMPILER mpifort) # compiler
-  set(CMAKE_Fortran_FLAGS "-fpic") # "-Mvect=simd -mcmodel=medium -fpic") # compile flags
+  #-Mbackslash is necessary to write backslash without escape character
+  set(CMAKE_Fortran_FLAGS "-fpic -Mbackslash") # "-Mvect=simd -mcmodel=medium -fpic") # compile flags
   set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -traceback")
   set(LIBM -lmkl_intel_lp64 -lmkl_sequential -lmkl_core)
   # set(LIBM -llapack -lblas -lfftw3) # if MKL is not available
@@ -78,7 +79,7 @@ if(${BUILD_GPU})
   set(FLAGS ${FLAGS} -D__GPU -Minfo -Mfree -cuda -acc=gpu -cudalib=cufft,cublas,cusolver)
 endif()
 if(TYPE) #if TYPE is not empty
-  set(TARGETS ${MAINS_BOTTLENECK})
+  set(TARGETS ${MAINS_GPU})
 else()
   set(TARGETS ${MAINS})
 endif()
@@ -174,5 +175,10 @@ foreach(target IN ITEMS ${TARGETS})
   add_executable(${exename} ${target})
   target_compile_options(${exename} PRIVATE ${FLAGS})
   target_link_libraries(${exename} ${LIB} ${LIBM})
+  #library's path is set to $ORIGIN same with binary's directory
+  set_target_properties(${exename} PROPERTIES
+      BUILD_RPATH "\$ORIGIN"
+      INSTALL_RPATH "\$ORIGIN"
+  ) 
   add_dependencies(copyexe ${exename})
 endforeach()
