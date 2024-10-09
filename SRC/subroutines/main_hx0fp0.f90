@@ -259,7 +259,7 @@ subroutine hx0fp0()
   allocate(ngveccB(3,ngcmx)) 
   iqxend = nqibz + nq0i
   write(stdo,ftox) ' nqibze nqibz nq0i=',nqibze,nqibz,nq0i
-  stop 
+!  stop 
   call Readhamindex() ! Initialization of readEigen
   call init_readeigen() !EVU EVD are read in init_readeigen
   call init_readeigen2()

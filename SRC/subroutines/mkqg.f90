@@ -270,15 +270,15 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
      qxx=q
      if(iq0pin==1) then !use qxx on regular mesh points if q is on regular+Q0P
         do iqbz=1,nqbz
-           do i=1,nq0i+ nq0iadd !+nany ! nq0itrue/=nq0i for anyq=F nov2015xxxxxxxxxxx
-              if(sum(abs(qbz(1:3,iqbz)-dq_+ q0i(:,i)-qxx))<tolw()) then
+           do i=1,nq0i+ nq0iadd !+nany
+              if(sum(abs(qbz(1:3,iqbz)-dq_+ q0i(:,i)-q))<tolw()) then
                  qxx=qbz(1:3,iqbz)
                  exit
               endif
            enddo
         enddo
      endif
-     ngpn(iq)=1
+     ngpn(iq)=1 !For getgv2, use qbz instead of qq, for qq is q0i shifted.
      call getgv2(alat,plat,qlat, qxx, QpGcut_psi,1,ngpn(iq),imx11) ! get nqpn. # of G vector for |q+G| < QpGcut_psi
      imx0=imx11(1,1)
      if(imx0>imx) imx=imx0
@@ -286,7 +286,6 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
      call getgv2(alat,plat,qlat, qxx, QpGcut_Cou,1,ngcn(iq),imx11) ! get ngcn. # ofG vector for |q+G| < QpGcut_cou
      imx0c=imx11(1,1) 
      if(imx0c>imxc) imxc=imx0c
-!     
      write(stdo,'(3f12.5,3x,3f12.5,3x,2i4)') q, qxx, ngpn(iq),ngcn(iq)
   enddo
   ! Get G vectors and Write q+G vectors -----------
@@ -300,37 +299,44 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
   !! :imx:   to allocate ngvecprev as follows.
   print *,' number of irrecucible points nqi=',nqi
   print *,' imx nqnum=',imx,nqnum
-  write(stdo,*) ' --- Max number of G for psi =',ngpmx
-  write(stdo,*) ' --- Max number of G for Cou =',ngcmx
-  allocate( ngvecprev(-imx:imx,-imx:imx,-imx:imx) )       !inverse mapping table for ngvecp (psi)
-  allocate( ngveccrev(-imxc:imxc,-imxc:imxc,-imxc:imxc) ) !inverse mapping table for ngvecc (cou)
-  ngvecprev=9999
-  ngveccrev=9999
+  write(stdo,ftox) ' --- Max number of G for psi, G for Cou=',ngpmx,ngcmx
+  allocate( ngvecprev(-imx:imx,-imx:imx,-imx:imx)      ,source=9999)  !inverse mapping table for ngvecp (psi)
+  allocate( ngveccrev(-imxc:imxc,-imxc:imxc,-imxc:imxc),source=9999 ) !inverse mapping table for ngvecc (cou)
   do iq = 1, nqnum
      q = qq(1:3,iq)
      qxx=q
      q0pf=''
-     do iqbz=1,nqbz  !use qxx on regular mesh points if q is on regular+Q0P(true).
-        do i=1,nq0i+ nq0iadd+nany  !nq0itrue/=nq0i for anyq=F nov2015xxxxxxxxxxxx
-           if(sum(abs(qbz(1:3,iqbz)-dq_+ q0i(:,i)-qxx))<tolw()) then
-              if(sum(abs(q0i(:,i)-qxx))<tolw()) then
-                 q0pf=' <--Q0P  '   ! offset Gamma points
-              else
-                 q0pf=' <--Q0P+R'   ! offset Gamma points-shifted nov2015
+     do iqbz=1,nqbz  !On regular mesh or not
+        if(sum(abs(qbz(1:3,iqbz)-dq_ - q))<tolw()) then !q is on regular mesh
+           q0pf=' <--R ' !q is on 
+           goto 1999
+        endif
+     enddo   
+     qqxloop: do iqbz=1,nqbz  !Check qq 
+        do i=1,nq0i+ nq0iadd +nany  
+           if(i>nq0i+nq0iadd) then
+              if(sum(abs(qbz(1:3,iqbz)-dq_+q0i(:,i) - q))<tolw()) then
+                 if(sum(abs(q0i(:,i)-q))<tolw()) then; q0pf=' <--AnyQ  '   ! AnyQ
+                 else;                                 q0pf=' <--AnyQ+R'   ! AnyQ+Regular mesh points
+                 endif
+                 goto 1999
               endif
-              if(iq0pin==1) then
-                 qxx=qbz(1:3,iqbz)
+           elseif(sum(abs(qbz(1:3,iqbz)-dq_+q0i(:,i) - q))<tolw()) then
+              if(sum(abs(q0i(:,i)-qxx))<tolw())  then; q0pf=' <--Q0P'   ! offset Gamma points
+              else;                                    q0pf=' <--Q0P+R'   ! offset Gamma + Regular mesh points
               endif
-              exit
+              if(iq0pin==1) qxx=qbz(1:3,iqbz) !We use qbz for q= Q0P + R
+              goto 1999
            endif
         enddo
-     enddo
+     enddo qqxloop
+1999 continue
      ngp = ngpn(iq)
      ngc = ngcn(iq)
      write(stdo,"(' iq=',i8,' q=',3f10.6,' ngp ngc= ',2i6,' irr.=',i2,a)")iq, q, ngp, ngc, irr(iq),trim(q0pf) !irr=1 is irr. k points.
      allocate( ngvecp(3,max(ngp,1)), ngvecc(3,max(ngc,1)) )
-     call getgv2(alat,plat,qlat, qxx, QpGcut_psi, 2, ngp,  ngvecp) ! for eigenfunctions (psi)
-     call getgv2(alat,plat,qlat, qxx, QpGcut_Cou, 2, ngc,  ngvecc) ! for Coulomb        (cou)
+     call getgv2(alat,plat,qlat, qxx, QpGcut_psi, 2, ngp,  ngvecp) ! G for eigenfunctions (psi)
+     call getgv2(alat,plat,qlat, qxx, QpGcut_Cou, 2, ngc,  ngvecc) ! G for Coulomb        (cou)
      write (ifiqg) q, ngp, irr(iq)
      do ig = 1,ngp
         nnn3 = ngvecp(1:3, ig)
