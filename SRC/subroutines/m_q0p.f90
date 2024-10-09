@@ -15,7 +15,7 @@ module m_q0p
   !! (I still not understand why it does not show divergent behevior in the anisotropic case).
   !!
   implicit none
-  integer,public,protected:: nq0i=0,nq0itrue=0,nq0iadd=0 ! Number of Q0P
+  integer,public,protected:: nq0i=0,nq0iadd=0,nany=0 ! Number of Q0P !,nq0itrue=0
   integer,public,protected,allocatable:: ixyz(:)  ! ixyz(1:nq0i+nq0iadd) q0i for x,y,z directions
   real(8),public,allocatable,protected:: q0i(:,:),wt(:) ! Q0P and its weight.
   integer,public,allocatable,protected:: epslgroup(:) !EPSwklm
@@ -46,7 +46,7 @@ contains
     integer:: ig,lm,iq
     integer:: nmm !not output
     integer:: ifi0,ifi00,il,ix,ni,ifinin
-    integer:: nq0i0,nq0i00,nany,ifqpnt,ret
+    integer:: nq0i0,nq0i00,ifqpnt,ret
     integer,allocatable :: ndiv(:)
     real(8),allocatable:: qsave(:,:),   qmin(:,:),qmax(:,:)
     real(8),allocatable:: qany(:,:)
@@ -182,15 +182,15 @@ contains
        allocate(qsave(3,nq0i+nany))
        qsave(:,    1 :nq0i)     = q0i (:,1:nq0i)
        qsave(:,nq0i+1:nq0i+nany)= qany(:,1:nany)
-       nq0itrue=nq0i !nov2015
-       nq0i = nq0i+nany
+       !nq0itrue=nq0i !nov2015
+       !nq0i = nq0i+nany
        deallocate(q0i)
-       allocate(q0i(3,nq0i))
+       allocate(q0i(3,nq0i+nany))
        q0i=qsave
        deallocate(qsave)
        close(ifqpnt)
     else
-       nq0itrue=nq0i !nov2015
+       !nq0itrue=nq0i !nov2015
     endif
   end subroutine getallq0p
   !! ==================================================================

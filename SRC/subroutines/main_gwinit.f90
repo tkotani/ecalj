@@ -87,7 +87,7 @@ subroutine gwinit_v2() bind(C) !  Generate GWinput.tmp.
   write(6,"(' plat a3   =',3f13.6)") plat(1:3,3)
   ! --- Make q-points in IBZ.
   mxkp   = n1q*n2q*n3q
-  call getbzdata1(qlat,(/n1q,n2q,n3q/),symops,ngrp,tetrai=.false.,tetraf=.false.,mtet=(/1,1,1/),gammacellctrl=0)
+  call getbzdata1(qlat,(/n1q,n2q,n3q/),symops,ngrp,tetrai=.false.,tetraf=.false.,gammacellctrl=0) !,mtet=(/1,1,1/)
   !! Write to file KPNTin1BZ
   nnn = n1q*n2q*n3q
   nqs=0
