@@ -225,7 +225,7 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
   RemoveEquilvalentqBYTranslatioanlSymmetry: if( qreduce0 ) then
      call cputid (0)
      nmax= nq0i+nq0iadd+nany+nqnum
-     write(stdo,"(a,5i8)")' nq0i nq0iadd nany nqnum =',nq0i,nq0iadd,nany,nqnum
+     write(stdo,"(a,5i8)")'  nq0i nq0iadd nany nqnum =',nq0i,nq0iadd,nany,nqnum
      allocate(qsave(3,nmax)) !,qsavel(nmax))
      imx=0
      if(iq0pin /=1) then
@@ -262,7 +262,7 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
   call qqirre(qibz,nqibz,symops,ngrp,plat,nqbz, qq,nqnum,  qqi,nqi,irr) !Get irreducible q points is with irr=1
   allocate(ngpn(nqnum), ngcn(nqnum)) ! nqnum is the finally obtained number of q points.
   
-  write(stdo,*) ' --- q vector in 1st BZ + Q0P shift. ngp ---'
+  if(debug) write(stdo,*) ' --- q vector in 1st BZ + Q0P shift. ngp ---'
   imx=0
   imxc=0
   do iq = 1, nqnum
@@ -286,7 +286,7 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
      call getgv2(alat,plat,qlat, qxx, QpGcut_Cou,1,ngcn(iq),imx11) ! get ngcn. # ofG vector for |q+G| < QpGcut_cou
      imx0c=imx11(1,1) 
      if(imx0c>imxc) imxc=imx0c
-     write(stdo,'(3f12.5,3x,3f12.5,3x,2i4)') q, qxx, ngpn(iq),ngcn(iq)
+     if(debug) write(stdo,'(3f12.5,3x,3f12.5,3x,2i4)') q, qxx, ngpn(iq),ngcn(iq)
   enddo
   ! Get G vectors and Write q+G vectors -----------
   ngpmx = maxval(ngpn)
@@ -316,8 +316,8 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
         do i=1,nq0i+ nq0iadd +nany  
            if(i>nq0i+nq0iadd) then
               if(sum(abs(qbz(1:3,iqbz)-dq_+q0i(:,i) - q))<tolw()) then
-                 if(sum(abs(q0i(:,i)-q))<tolw()) then; q0pf=' <--AnyQ  '   ! AnyQ
-                 else;                                 q0pf=' <--AnyQ+R'   ! AnyQ+Regular mesh points
+                 if(sum(abs(q0i(:,i)-q))<tolw()) then; q0pf=' <--QforGW  '   ! QforGW
+                 else;                                 q0pf=' <--QforGW+R'   ! QforGW+Regular mesh points
                  endif
                  goto 1999
               endif

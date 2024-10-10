@@ -12,23 +12,27 @@ contains
     use m_genallcf_v3,only: nspin, nband
     use m_readeigen,only: readeval !init* is alreaday called.
     logical:: lqall
-    integer:: ret,nnx,ip,is,k,ifqpnt
+    integer:: ret,nnx,ip,is,k,ifqpnt,nnm
     real(8),allocatable::eqt(:)
-    real(8)::rydberg,ecut
+    real(8)::rydberg,ecut,emin
     call readefermi()
     call getkeyvalue("GWinput","EMAXforGW",ecut,default=5d0)
+    call getkeyvalue("GWinput","EMINforGW",emin,default=-5d0)
     if(lqall.or.ret==-1) ecut=1d6
-    nbmin=1
+!    nbmin=1
     allocate(eqt(nband))
     nnx=-999999
+    nnm= 99999
     do ip=1,nqibz
        do is=1,nspin
           eqt = readeval(qibz(1:3,ip),is)-ef
           nnx= max(findloc(eqt>ecut/rydberg(),value=.true.,dim=1),nnx)
+          nnm= min(findloc(eqt>emin/rydberg(),value=.true.,dim=1),nnm)
        enddo
     enddo
     deallocate(eqt)
     nbmax=nnx-1
+    nbmin=nnm
     call getqonly()
   end subroutine getqforgw
   subroutine getqonly()
