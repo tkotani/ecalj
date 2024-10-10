@@ -387,9 +387,8 @@ contains
           do ispc=1,nspc
             if(lso/=1) ispx=isp
             if(lso==1) ispx=ispc
-            associate(pwz1=>pwz(1:ngp,ispc,1:ndimhx),pzo=>dconjg(pzovl(:,ispc,:)))
-              testc(:,:,ispc)= matmul(transpose(pzo),pwz1)
-              testc(:,:,ispc)=matmul(transpose(dconjg(pzovl(:,ispc,:))),pwz1)
+            associate(pwz1=>pwz(1:ngp,ispc,1:ndimhx))
+              testc(:,:,ispc)=matmul(transpose(dconjg(pzovl(1:ngp,ispc,1:ndimhx))),pwz1)  !Specifying the size of pzovl is necessary in nvfortran. Compiler bug ?
               testcd(:,ispc) = [(sum(dconjg(pwz1(:,i))*ppovld*pwz1(:,i)),i=1,ndimhx)] !dimhx)]
             end associate
           enddo

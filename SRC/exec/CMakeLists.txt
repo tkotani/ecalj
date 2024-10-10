@@ -66,31 +66,29 @@ elseif(FC MATCHES "nvfortran")
   # set(LIBM -llapack -lblas -lfftw3) # if MKL is not available
 endif()
 
-# library compilation
-set(FLAGS -cpp)
-set(TYPE "")
-if(${BUILD_MP})
-  set(TYPE ${TYPE}_mp)
-  set(FLAGS ${FLAGS} -D__MP)
+## source-dependent compile options
+if(FC MATCHES "gfortran")
+  message(STATUS "===== gfortran release  =======================")
+  foreach(target IN ITEMS ${SOURCES})
+    if(${target} MATCHES "../subroutines/mkqp.f90" OR ${target} MATCHES "../wannier/iopen.f90")
+      set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O0")
+    endif()
+  endforeach()
+elseif(FC MATCHES "ifort")
+  message(STATUS "====== ifort release =======================")
+  foreach(target IN ITEMS ${SOURCES})
+    if(${target} MATCHES "../subroutines/m_qplist.f90")# OR ${target} MATCHES "../subroutines/m_bzintegration2.f90" )
+      set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O0")
+    endif()
+  endforeach()
+elseif(FC MATCHES "nvfortran")
+  message(STATUS "====== nvfortran release =======================")
+  foreach(target IN ITEMS ${SOURCES})
+    if(${target} MATCHES "../subroutines/pwmat.f90" OR ${target} MATCHES "../subroutines/rseq.f90")
+      set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O0")
+    endif()
+  endforeach()
 endif()
-if(${BUILD_GPU})
-  set(TYPE ${TYPE}_gpu)
-  set(LIBM ${LIBM} -acc=gpu -cuda -cudalib=cufft,cublas,cusolver)
-  set(FLAGS ${FLAGS} -D__GPU -Minfo -Mfree -cuda -acc=gpu -cudalib=cufft,cublas,cusolver)
-endif()
-if(TYPE) #if TYPE is not empty
-  set(TARGETS ${MAINS_GPU})
-else()
-  set(TARGETS ${MAINS})
-endif()
-
-set(LIB ecaljF${TYPE}) # ecaljF, ecaljF_gpu ecaljF_mp, or ecaljF_mp_gpu
-set(MOD mod${TYPE})    # mod, mod_mp, mod_gpu, or mod_mp_gpu
-set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/${FCMOD}/${MOD})
-add_library(${LIB} SHARED ${SOURCES})
-add_dependencies(${LIB} show_prog)
-target_link_options(${LIB} PRIVATE ${LIBM})
-target_compile_options(${LIB} PRIVATE ${FLAGS})
 
 # makeshow which is always invoked to save the comilation time
 execute_process(COMMAND uname -orin  OUTPUT_VARIABLE OUTPUT_UNAME OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -145,40 +143,59 @@ target_link_libraries(dummy ${BLAS} ${LIBM} ${MPI}) # linked
 #add_library(${LIB1} SHARED ${SOURCES1}) # Library
 #add_library(${LIB2} SHARED ${SOURCES2})
 
-# ## source-dependent compile options
-if(FC MATCHES "gfortran")
-  message(STATUS "===== gfortran release  =======================")
-  foreach(target IN ITEMS ${SOURCES})
-    if(${target} MATCHES "../subroutines/mkqp.f90" OR ${target} MATCHES "../wannier/iopen.f90")
-      set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O0")
-    endif()
-  endforeach()
-elseif(FC MATCHES "ifort")
-  message(STATUS "====== ifort release =======================")
-  foreach(target IN ITEMS ${SOURCES})
-    if(${target} MATCHES "../subroutines/m_qplist.f90")# OR ${target} MATCHES "../subroutines/m_bzintegration2.f90" )
-      set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O0")
-    endif()
-  endforeach()
-elseif(FC MATCHES "nvfortran")
-  message(STATUS "====== nvfortran release =======================")
-  foreach(target IN ITEMS ${SOURCES})
-    if(${target} MATCHES "../subroutines/pwmat.f90" OR ${target} MATCHES "../subroutines/rseq.f90")
-      set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O0")
-    endif()
-  endforeach()
-endif()
+# library compilation
+set(FLAGS -cpp)
+set(LIB ecaljF) # ecaljF, ecaljF_gpu ecaljF_mp, or ecaljF_mp_gpu
+add_library(${LIB} SHARED ${SOURCES})
+set_target_properties(${LIB} PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/${FCMOD}/mod)
+add_dependencies(${LIB} show_prog)
+target_link_options(${LIB} PRIVATE ${LIBM})
+target_compile_options(${LIB} PRIVATE ${FLAGS})
 
-foreach(target IN ITEMS ${TARGETS})
+foreach(target IN ITEMS ${MAINS})
   get_filename_component(exename ${target} NAME_WE)
-  set(exename ${exename}${TYPE})
   add_executable(${exename} ${target})
   target_compile_options(${exename} PRIVATE ${FLAGS})
   target_link_libraries(${exename} ${LIB} ${LIBM})
-  #library's path is set to $ORIGIN same with binary's directory
   set_target_properties(${exename} PROPERTIES
+      Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/${FCMOD}/mod
       BUILD_RPATH "\$ORIGIN"
       INSTALL_RPATH "\$ORIGIN"
   ) 
   add_dependencies(copyexe ${exename})
 endforeach()
+
+# ### GPU versions ####
+if(BUILD_GPU OR BUILD_MP)
+  set(TYPE "")
+  if(${BUILD_MP})
+    set(TYPE ${TYPE}_mp)
+    set(FLAGS ${FLAGS} -D__MP)
+  endif()
+  if(${BUILD_GPU})
+    set(TYPE ${TYPE}_gpu)
+    set(LIBM ${LIBM} -acc=gpu -cuda -cudalib=cufft,cublas,cusolver)
+    set(FLAGS ${FLAGS} -D__GPU -Minfo -Mfree -cuda -acc=gpu -cudalib=cufft,cublas,cusolver)
+  endif()
+  set(LIB ecaljF${TYPE})
+  add_library(${LIB} SHARED ${SOURCES})
+  set_target_properties(${LIB} PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/${FCMOD}/mod${TYPE})
+  add_dependencies(${LIB} show_prog)
+  target_link_options(${LIB} PRIVATE ${LIBM})
+  target_compile_options(${LIB} PRIVATE ${FLAGS})
+
+  foreach(target IN ITEMS ${MAINS_GPU})
+    get_filename_component(exename ${target} NAME_WE)
+    set(exename ${exename}${TYPE})
+    add_executable(${exename} ${target})
+    target_compile_options(${exename} PRIVATE ${FLAGS})
+    target_link_libraries(${exename} ${LIB} ${LIBM})
+    #library's path is set to $ORIGIN same with binary's directory
+    set_target_properties(${exename} PROPERTIES
+        Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/${FCMOD}/mod${TYPE}
+        BUILD_RPATH "\$ORIGIN"
+        INSTALL_RPATH "\$ORIGIN"
+    ) 
+    add_dependencies(copyexe ${exename})
+  endforeach()
+endif()

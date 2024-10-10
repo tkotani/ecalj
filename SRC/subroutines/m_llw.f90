@@ -112,10 +112,6 @@ contains
         endif
 1015  enddo iwloop
       if(mpi__root_q) close(ifrcw)
-      if(mpi__root_q) then 
-         call stopwatch_show(t_sw_x_gather)
-         call stopwatch_show(t_sw_matinv)
-      endif
     else  ! llw, Wing elements of W. See PRB81 125102
       iq0 = iq - nqibz
       vcou1 = fourpi/sum(q**2*tpioa**2) ! --> vcousq(1)**2!  !fourpi/sum(q**2*tpioa**2-eee)
@@ -124,7 +120,9 @@ contains
         frr= dsign(freq_r(abs(iw)),dble(iw))
         !! Full inversion to calculalte eps with LFC.
         !if(localfieldcorrectionllw()) then
+        call stopwatch_start(t_sw_x_gather)
         call MPI__GatherXqw(zxq(:,:,iw), zxqw, nmbas1, nmbas2)
+        call stopwatch_pause(t_sw_x_gather)
         if(mpi__root_q) then
         ix=0
         eee=0d0
@@ -143,7 +141,14 @@ contains
           enddo
         enddo
         epstinv(ix+1:ngb,ix+1:ngb)=epstilde(ix+1:ngb,ix+1:ngb)
-        call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
+        call stopwatch_start(t_sw_matinv)
+        ! call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
+        !$acc data copy(epstinv)
+        !$acc host_data use_device(epstinv)
+        istat = zminv(epstinv(ix+1,ix+1), n=ngb-ix, lda=ngb)
+        !$acc end host_data
+        !$acc end data
+        call stopwatch_pause(t_sw_matinv)
         if(iq0<=nq0i) llw(iw,iq0)= 1d0/epstinv(1,1)
         !     ! Wing elements calculation july2016    ! We need check nqb is the same as that of q=0
         if(ixyz(iq0)/=0 .AND. iw==0) then
@@ -165,6 +170,10 @@ contains
 1115  enddo
     endif
     deallocate(zxqw)
+    if(mpi__root_q) then 
+       call stopwatch_show(t_sw_x_gather)
+       call stopwatch_show(t_sw_matinv)
+    endif
   end subroutine WVRllwR
   subroutine WVIllwi(q,iq,nmbas1,nmbas2)
     intent(in)::       q,iq,     nmbas1,nmbas2 !zxqi can be twiced when nspin=2
@@ -177,6 +186,7 @@ contains
 !    complex(8):: zxqi(nmbas1,nmbas2,niw)
     character(10):: i2char
     integer :: istat
+    type(stopwatch) :: t_sw_matinv, t_sw_x_gather
     allocate (zxqw(ngb, ngb))
     mreclx=mrecl
     emptyrun=.false. !cmdopt0('--emptyrun')
@@ -184,6 +194,8 @@ contains
        allocate( llwI(niw,nq0i) )
        init=.false.
        llwI= 1d99
+       call stopwatch_init(t_sw_matinv, 'matinv')
+       call stopwatch_init(t_sw_x_gather, 'gather')
     endif
     write(6,*)'WVRllwI: init'
     if (nspin == 1) zxqi = 2d0*zxqi ! if paramagnetic, multiply x0 by 2
@@ -201,7 +213,9 @@ contains
           else
              ix=0
           endif
+          call stopwatch_start(t_sw_x_gather)
           call MPI__GatherXqw(zxqi(:,:,iw), zxqw, nmbas1, nmbas2)
+          call stopwatch_pause(t_sw_x_gather)
           if(mpi__root_q) then
           do igb1=ix+1,ngb
              do igb2=ix+1,ngb
@@ -237,7 +251,9 @@ contains
        do 1116 iw  = 1,niw
           if(emptyrun) exit
           !if(localfieldcorrectionllw()) then
+          call stopwatch_start(t_sw_x_gather)
           call MPI__GatherXqw(zxqi(:,:,iw), zxqw, nmbas1, nmbas2)
+          call stopwatch_pause(t_sw_x_gather)
           if(mpi__root_q) then
              ix=0
              do igb1=ix+1,ngb
@@ -255,7 +271,14 @@ contains
                 enddo
              enddo
              epstinv(ix+1:ngb,ix+1:ngb)=epstilde(ix+1:ngb,ix+1:ngb)
-             call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
+             call stopwatch_start(t_sw_matinv)
+             ! call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
+             !$acc data copy(epstinv)
+             !$acc host_data use_device(epstinv)
+             istat = zminv(epstinv(ix+1,ix+1), n=ngb-ix, lda=ngb)
+             !$acc end host_data
+             !$acc end data
+             call stopwatch_pause(t_sw_matinv)
              if(iq0<=nq0i) llwI(iw,iq0)= 1d0/epstinv(1,1)
           !else
           !   if(iq0<=nq0i) llwI(iw,iq0)=  1d0 -vcou1*zxqi(1,1,iw)
@@ -269,6 +292,10 @@ contains
     endif
     deallocate(epstinv,epstilde,zw0)
     deallocate(zxqw)
+    if(mpi__root_q) then 
+       call stopwatch_show(t_sw_x_gather)
+       call stopwatch_show(t_sw_matinv)
+    endif
   end subroutine WVILLWI
   subroutine MPI__sendllw2(iqxend,MPI__ranktab) !for hx0fp0
     use m_mpi,only: MPI__root,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,MPI__rank,MPI__size
