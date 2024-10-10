@@ -34,10 +34,6 @@ contains
     if(lntq) then
        read(ifih,*,err=1018,end=1018) nband_r,nq_r,ntq
        if(nband_r/=nband .OR. nq_r/=nqibz) goto 1018
-       !if(nband_r/=nband .OR. nq_r/=nqibz) then
-       !   rewind ifih
-       !   lntq=.false.
-       !endif
        goto 1019
 1018   continue
        rewind ifih
@@ -103,17 +99,16 @@ contains
     enddo
   end subroutine setitq_hsfp0sc
   !!======================================================================
-  subroutine setitq_hsfp0 (ngcmx_in,ngpmx_in,tote,ifqpnt,noccxv,nss)
-    intent(in)::           ngcmx_in,ngpmx_in,tote,ifqpnt,noccxv,nss
-    integer:: nband_in,ngcmx_in,ngpmx_in,ifqpnt,noccxv,i,nss(2)
+  subroutine setitq_hsfp0 (ngcmx_in,ngpmx_in,tote,nbmin,nbmax,noccxv,nss)
+    intent(in)::           ngcmx_in,ngpmx_in,tote,nbmin,nbmax,noccxv,nss
+    integer:: nband_in,ngcmx_in,ngpmx_in,ifqpnt,noccxv,i,nss(2),nbmax,nbmin
     logical:: tote
     if (tote) then
        ntq = noccxv
        allocate( itq(ntq),source=[(i,i=1,ntq)])
     else
-       read (ifqpnt,*) ntq
-       allocate( itq(ntq)) 
-       read (ifqpnt,*) (itq(i),i=1,ntq)
+       ntq = nbmax-nbmin+1
+       allocate( itq, source=[(i,i=nbmin,nbmax)]) !       read (ifqpnt,*) (itq(i),i=1,ntq)
     endif
     if(nss(2)/=-99997) then
        if(allocated(itq)) deallocate(itq)

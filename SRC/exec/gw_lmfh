@@ -22,7 +22,7 @@ if [ -e QPD ]; then
  mv QPD QPD.backup.by_gw_lmfh
 fi
 run_arg '---' $NO_MPI  $nfpgw  /lmf llmfgw00 $TARGET --jobgw=0 
-run_arg '---' $NO_MPI  $nfpgw  /qg4gw lqg4gw  --job=1 #Generate requied q+G v
+run_arg '---' $NO_MPI  $nfpgw  /qg4gw lqg4gw  --readQforGW --job=1 #Generate requied q+G v
 run_arg '---' $MPI_SIZE $nfpgw /lmf llmfgw01 $TARGET --jobgw=1
 #run_arg '---' $NO_MPI   $nfpgw /rdata4gw_v2 lrdata4gw_v2 #prepare files
 run_arg '---' $NO_MPI $nfpgw   /heftet leftet --job=1 # A file EFERMI for hx0fp0

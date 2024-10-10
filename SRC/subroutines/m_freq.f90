@@ -197,46 +197,22 @@ subroutine getwemax(lqall,wemax)!> In order to get |e_ip-ef| on real space integ
   use m_keyvalue,only:getkeyvalue
   use m_readeigen,only: readeval !init* is alreaday called.
   use m_ReadEfermi,only: ef !ef is set at main routine
-!  use m_anf,only:
+  use m_nvfortran
+  use m_getqforgw,only: getqforgw, nbmin,nbmax,nq,qx
   implicit none
   logical,intent(in):: lqall
   real(8),intent(out):: wemax
-  integer:: ntq,i,nq,ifqpnt,ret,ipx1,itx1,ipx2,itx2
+  integer:: ntq,i,ifqpnt,ret,ipx1,itx1,ipx2,itx2 !,nbmin,nbmax,nq
   integer,allocatable:: itq(:)
-  real(8),allocatable:: q(:,:),eqt(:) !,q0p(:,:)
-  logical ::  legas = .false., tetra,lqallxxx
+  real(8),allocatable:: q(:,:),eqt(:)!,qx(:,:) !,q0p(:,:)
+  logical ::  legas = .false., tetra
   real(8):: omegav,omegac,eee,efnew,emaxv,eminc,ffac,we,valn
-  integer:: ifief,ib,ip,iq,iqall,it,k,is,nspinmx
-  lqallxxx=.true.
-  if( .NOT. lqall) then
-     call getkeyvalue("GWinput","<QforGW>",unit=ifqpnt,status=ret)
-     if (ret==-1) then !no QforGW
-        lqallxxx = .true.
-     else
-        lqallxxx = .false.
-        read (ifqpnt,*) ntq
-        allocate( itq(ntq) )
-        read (ifqpnt,*) (itq(i),i=1,ntq)
-        read (ifqpnt,*) nq
-        allocate(q(3,nq))
-        do       k = 1,nq
-           read (ifqpnt,*) i,q(1,k),q(2,k),q(3,k)
-           write(6,'(i3,3f13.6)') i,q(1,k),q(2,k),q(3,k)
-        enddo
-     endif
-     write(6,*)'ntq itq=',ntq,' ',itq(1:ntq)
-     close(ifqpnt) 
-  endif
-  if(lqallxxx) then
-     ntq = nband
-     allocate (itq(ntq))
-     do i = 1, ntq
-        itq(i) = i
-     enddo
-     nq  = nqibz
-     allocate(q(3,nq))
-     q = qibz(1:3,1:nqibz) !call dcopy   (3*nqibz,qibz,1,q,1)
-  endif
+  integer:: ifief,ib,ip,iq,iqall,it,k,is,nspinmx,nnx
+  call getqforgw(lqall)
+  ntq = nbmax-nbmin+1
+  allocate( itq, source=[(i,i=nbmin,nbmax)])
+  allocate(q(1:3,nq),source=qx(1:3,1:nq))
+  write(6,*)'ntq itq=',ntq,' ',itq(1:ntq)
   nspinmx = nspin
   if (laf) nspinmx =1
   !! for 1shot GW deltaw id for d\Sigma/d_omega

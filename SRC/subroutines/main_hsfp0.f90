@@ -28,6 +28,7 @@ subroutine hsfp0() bind(C)
 !  use m_anf,only:  Anfcond, laf
   use m_bzints,only: bzints2x
   use m_gpu,only: gpu_init
+  use m_getqforgw,only: getqforgw, nbmin,nbmax,nq,qx
   implicit none
   !! = Calculate the diagonal part of self-energy \Sigma within the GW approximation. And some other functions =
   !  See document at the top of hsfp0.sc.m.F
@@ -63,7 +64,7 @@ subroutine hsfp0() bind(C)
   integer::  ixc,  ibas,ibasx,ifqpnt,ifwd, &! & ngpmx,ngcmx,!nbloch,
        nprecx,mrecl,nblochpmx2,nwp=0,niwt, nqnum,nblochpmx, &! & mdimx,
        noccxv,maxocc2,noccx,ifvcfpout,iqall,iaf, &! & ntq, !ifrcw,ifrcwi,
-       i,k,nspinmx, nq,is,ip,iq,idxk,ifoutsex,ig, &
+       i,k,nspinmx, is,ip,iq,idxk,ifoutsex,ig, & !nq
        mxkp,nqibzxx,ntet,nene,iqi, ix,iw, &
        nlnx4,niwx,irot,invr,invrot,ivsum, ifoutsec, &
        ifsec(2),  ifxc(2),ifsex(2), ifphiv(2),ifphic(2),ifec,ifexsp(2), &
@@ -144,10 +145,11 @@ subroutine hsfp0() bind(C)
   integer:: ififr
   integer:: timevalues(8)  ,isp,dest,ificlass,ifiq0p
   character(128) :: ixcc
-  integer:: nw,ifcoh, ixx(2)
+  integer:: nw,ifcoh, ixx(2) !,nbmin,nbmax,nnx
   real(8)::dwdummy, ef
   logical:: cmdopt2
   character(20):: outs=''
+!  real(8),allocatable:: qx(:,:)
   !...  mode switch. --------------
   call MPI__Initialize()
   call gpu_init() 
@@ -429,20 +431,11 @@ subroutine hsfp0() bind(C)
 
   call init_readeigen2()!mrecb,ndima,mrecg) !initialize m_readeigen
   call Getkeyvalue("GWinput","QPNT_nbandrange",nss,2,default=(/-99997,-99997/) )
-  if( .NOT. tote) call getkeyvalue("GWinput","<QforGW>",unit=ifqpnt,status=ret)
-  lqall= tote.or.ret==-1
-  call setitq_hsfp0(ngcmx,ngpmx,tote,ifqpnt,noccxv,nss) !we need <QforGW> section
-  if (lqall) then           !all q-points case
-     nq    = nqibz
-     allocate(q(3,nq),source=qibz(1:3,1:nq)) 
-  else
-     read (ifqpnt,*) nq
-     allocate(q(3,nq))
-     do  k = 1,nq
-        read (ifqpnt,*) i,q(1,k),q(2,k),q(3,k)
-        write(6,'(i3,3f13.6)') i,q(1,k),q(2,k),q(3,k)
-     enddo
-  endif
+  lqall=tote
+  call getqforgw(lqall) !2024-10
+  call setitq_hsfp0(ngcmx,ngpmx,tote,nbmin,nbmax,noccxv,nss) 
+  allocate(q(1:3,nq),source=qx(1:3,1:nq))
+  deallocate(qx)
   nspinmx = nspin
   if (laf) nspinmx =1
 
