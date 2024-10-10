@@ -50,8 +50,7 @@ contains
     integer,allocatable :: ndiv(:)
     real(8),allocatable:: qsave(:,:),   qmin(:,:),qmax(:,:)
     real(8),allocatable:: qany(:,:)
-    logical:: anyq,ibzqq,lnq0iadd,unita
-    !      integer,allocatable:: epslgroup(:)
+    logical:: anyq,ibzqq,lnq0iadd,unita,cmdopt0
     integer:: dummyia(1,1)
     real(8),parameter:: pi=4d0* atan(1d0)
     real(8):: tpioa
@@ -162,14 +161,10 @@ contains
        nq0i=nq0i*2
     endif
     !! === AnyQ mechanism. === q0i is extended. nq0i/=nq0itrue
-    call getkeyvalue("GWinput","AnyQ",anyq,default=.false.)
-    if(anyq .AND. iq0pin==1) then
-       print *,'AnyQ (read <QPNT> section =T'
-       !!     read q-points and states
-       call getkeyvalue("GWinput","<QPNT>",unit=ifqpnt,status=ret)
-       call readx   (ifqpnt,10)
-       call readx   (ifqpnt,100)
-       call readx   (ifqpnt,100)
+    if(iq0pin==1.and.cmdopt0('--readQforGW')) then 
+       call getkeyvalue("GWinput","<QforGW>",unit=ifqpnt,status=ret)
+       read (ifqpnt,*)
+       read (ifqpnt,*)
        read (ifqpnt,*) nany
        print *,'  nany=',nany
        allocate(qany(3,nany))
@@ -182,15 +177,11 @@ contains
        allocate(qsave(3,nq0i+nany))
        qsave(:,    1 :nq0i)     = q0i (:,1:nq0i)
        qsave(:,nq0i+1:nq0i+nany)= qany(:,1:nany)
-       !nq0itrue=nq0i !nov2015
-       !nq0i = nq0i+nany
        deallocate(q0i)
        allocate(q0i(3,nq0i+nany))
        q0i=qsave
        deallocate(qsave)
        close(ifqpnt)
-    else
-       !nq0itrue=nq0i !nov2015
     endif
   end subroutine getallq0p
   !! ==================================================================

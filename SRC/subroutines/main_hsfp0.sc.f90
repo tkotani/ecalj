@@ -104,7 +104,6 @@ subroutine hsfp0_sc()
        else
           write(stdo,*) ' --- Choose modes below ------------'
           write(stdo,*) '  Sx(1) Sc(2) ScoreX(3) '
-          write(stdo,*) '  [option --- (+ QPNT.{number} ?)] '
           write(stdo,*) ' --- Put number above ! ------------'
           read(5,*) ixc
           write(stdo,*) ' ixc=', ixc !computational mode index

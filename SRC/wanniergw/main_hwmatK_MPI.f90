@@ -47,7 +47,7 @@ subroutine hwmatK_MPI()
        ,nq0i=>nq0ix,wqt=>wt,q0i
   use m_readeigen,only: onoff_write_pkm4crpa,init_readeigen,init_readeigen2, &
        init_readeigen_mlw_noeval,  nwf !,init_readeigen_phi_noeval
-  use m_genallcf_v3,only:niwg=>niw,alat,deltaw,esmr,icore,natom,iclass,nl,nlnmc,nlnmv,nlnmc,nlnmx,nlnx
+  use m_genallcf_v3,only:niwg=>niw,alat,deltaw,esmr,icore,natom,iclass,nl,nlnmc,nlnmv,nlnmc,nlnmx,nlnx,laf
   use m_genallcf_v3,only: genallcf_v3,ncore,nn,nnc,nspin,pos,plat, nprecb,mrecb,mrece,nqbzt,nband,mrecg,ndima
   use m_keyvalue,only: getkeyvalue
 !  use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
@@ -87,8 +87,8 @@ subroutine hwmatK_MPI()
   real(8) :: pi,tpia,vol,voltot,rs,alpha, &
        qfermi,efx,valn,efnew,edummy,efz,qm,xsex,egex, &
        zfac1,zfac2,dscdw1,dscdw2,dscdw,zfac,ef2=1d99,exx,exxq,exxelgas
-  logical :: lqall,laf
-  integer,allocatable :: itq(:)
+!  logical :: lqall
+!  integer,allocatable :: itq(:)
   real(8),allocatable    :: q(:,:)
   ! takao
   integer,allocatable :: ngvecpB(:,:,:),ngvecp(:,:), ngvecc(:,:),iqib(:),&
@@ -611,47 +611,19 @@ subroutine hwmatK_MPI()
      if (Is_IO_Root_RSMPI()) call rx0s(' OK! hwmatK_MPI ixc=10011')
      stop
   endif
-
-  ! QPNT data
-  if(nz==0) then
-     !        if(readgwinput()) then
-     call getkeyvalue("GWinput","<QPNT>",unit=ifqpnt,status=ret)
-     !        else
-     !         ifqpnt = iopen('QPNT',1,0,0)
-     !        endif
-  else
-     ifqpnt  = iopen('QPNT'//xt(nz),1,0,0)
-  endif
-  if (Is_IO_Root_RSMPI()) write(6,*)' ifqpnt ret=',ifqpnt,ret
-
-  ! read q-points and states
-  ! ---
-  ! read QPNT
-  lqall      = .true.
-  laf        = .false.
-  call readx   (ifqpnt,10)
-  read (ifqpnt,*) iqall,iaf
-  if (iaf   == 1)   laf = .TRUE. 
-  call readx   (ifqpnt,100)
-  read (ifqpnt,*) ntq
-  allocate (itq(ntq))
-  read (ifqpnt,*) (itq(i),i=1,ntq)
-  deallocate(itq)
   nq         = nqibz
   allocate(q(3,nq))
   call dcopy   (3*nqibz,qibz,1,q,1)
   nspinmx = nspin
   if (laf) nspinmx =1
-!  write(6,*)'iqqqqqqqqqqqqq', iqall,iaf,laf,nspinmx,nspin
-  close(ifqpnt)
- call getkeyvalue("GWinput","wmat_all",lfull,default= .FALSE. )
-if(lfull)then
+  call getkeyvalue("GWinput","wmat_all",lfull,default= .FALSE. )
+  if(lfull)then
     write(6,*) 'NEEDtoExamin code main_hwmatK_MPI again ! '
-   write(6,*) ' Because of the bug in nvfortran24.1 we can not pass nrws2 to wmatqk_MPI (kount,irot,nrws1,nrws2,nrws.'
-   write(6,*) ' Thus we call   wmatqk_MPI (kount,irot,1,1,1 , which means fixed value is passoed to.'
-   write(6,*) ' If you need wmat_all, need to fix this part. or use fixed code with ifort/gfortran'
-   call rx('wmat_all is not implemented because of the bug in nvfortran24.1')
-endif   
+    write(6,*) ' Because of the bug in nvfortran24.1 we can not pass nrws2 to wmatqk_MPI (kount,irot,nrws1,nrws2,nrws.'
+    write(6,*) ' Thus we call   wmatqk_MPI (kount,irot,1,1,1 , which means fixed value is passoed to.'
+    write(6,*) ' If you need wmat_all, need to fix this part. or use fixed code with ifort/gfortran'
+    call rx('wmat_all is not implemented because of the bug in nvfortran24.1')
+  endif
 
 !  call MPI_Bcast(lfull,1,MPI_LOGICAL,io_root_rsmpi, MPI_COMM_WORLD,ierror_rsmpi)
 !  call RSMPI_Check("MPI_Bcast(lfull)",ierror_rsmpi)

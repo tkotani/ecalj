@@ -97,11 +97,11 @@ subroutine hsfp0() bind(C)
   integer,allocatable:: nspex(:,:),ieord(:),itex1(:,:,:)
   real(8)    :: qqex(1:3), eex,exsp,eee, exwgt,deltax0
   integer :: itmx,ipex,itpex,itex,nspexmx,nnex,isig,iex,ifexspx &
-       ,ifexspxx ,ifefsm, nq0ix,ifemesh,nz
+       ,ifexspxx ,ifefsm, nq0ix,ifemesh!,nz
   character(3)  :: charnum3,sss
   character(12) :: filenameex
   logical :: exspwrite=.false.
-  character(8):: xt
+!  character(8):: xt
 
   integer :: iwini,iwend
   real(8),allocatable:: omega(:,:)
@@ -157,7 +157,7 @@ subroutine hsfp0() bind(C)
   hartree=2d0*rydberg()
   if(cohtest) then
      screen = .true.
-     ixc = 2; nz=0
+     ixc = 2!; nz=0
      open(newunit=ifcoh,file='COH')
   elseif(MPI__root) then
      if(cmdopt2('--job=',outs)) then
@@ -167,18 +167,17 @@ subroutine hsfp0() bind(C)
         write(6,*) '  Sx(1) Sc(2) ScoreX(3) Spectrum(4) '
         write(6,*) '  EXX_val-val (5)  Exx_core-val(6) '
         write(6,*) '  Sx_sf(11) Sc_sf(12) '
-        write(6,*) '  [option --- (+ QPNT.{number} ?)] '
         write(6,*) ' --- Put number above ! -----------------'
         read(5,*) ixc           !call readin5(ixc,nz,idummy)
         write(*,*) ' ixc=', ixc !computational mode index
      endif
-     nz=0
+!     nz=0
   endif
   call MPI__Broadcast(ixc)
-  call MPI__Broadcast(nz)
+!  call MPI__Broadcast(nz)
   write(ixcc,"('.mode=',i4.4)")ixc
   call MPI__consoleout('hsfp0'//trim(ixcc))
-  write(6,*) ' ixc nz=',ixc, nz
+  write(6,*) ' ixc =',ixc!, nz
   if(ixc==0) call rx( ' --- ixc=0 --- Choose computational mode!')
   !!  tetraex is only for Ex.
   tetraex=tetra_hsfp0()
@@ -255,11 +254,11 @@ subroutine hsfp0() bind(C)
      tote=.false.
      write(6,*) ' --- Exchange mode --- '
      if(MPI__root) then
-        open(newunit=ifxc(1),file='XCU'//xt(nz))
-        open(newunit=ifsex(1),file='SEXU'//xt(nz))
+        open(newunit=ifxc(1),file='XCU')!//xt(nz))
+        open(newunit=ifsex(1),file='SEXU')!//xt(nz))
         if (nspin == 2) then
-           open(newunit=ifxc(2),file='XCD'//xt(nz))
-           open(newunit=ifsex(2),file='SEXD'//xt(nz))
+           open(newunit=ifxc(2),file='XCD')!//xt(nz))
+           open(newunit=ifsex(2),file='SEXD')!//xt(nz))
         endif
         INQUIRE (FILE = 'EXspTEST', EXIST = exspwrite)
         if(exspwrite) then
@@ -277,9 +276,9 @@ subroutine hsfp0() bind(C)
      write(6,*) ' --- Correlation mode --- '
      if(cohtest) write(6,*) ' COH calculation mode. Results in COH'
      if(MPI__root) then
-        open(newunit=ifsec(1),file='SECU'//xt(nz))
+        open(newunit=ifsec(1),file='SECU')!//xt(nz))
         if (nspin == 2) &
-             open(newunit=ifsec(2),file='SECD'//xt(nz))
+             open(newunit=ifsec(2),file='SECD')!//xt(nz))
      endif
   elseif(ixc==3) then
      exchange=.true.
@@ -287,8 +286,8 @@ subroutine hsfp0() bind(C)
      esmr=0d0
      write(6,*) ' --- CORE Exchange mode --- '
      if(MPI__root) then
-        open(newunit=ifsex(1),file='SEXcoreU'//xt(nz))
-        if(nspin == 2) open(newunit=ifsex(2),file='SEXcoreD'//xt(nz))
+        open(newunit=ifsex(1),file='SEXcoreU')!//xt(nz))
+        if(nspin == 2) open(newunit=ifsex(2),file='SEXcoreD')!//xt(nz))
      endif
      !! ixc=4,5,6 not checked now... NEED MPI and so on...
   elseif(ixc==4) then
@@ -430,42 +429,20 @@ subroutine hsfp0() bind(C)
 
   call init_readeigen2()!mrecb,ndima,mrecg) !initialize m_readeigen
   call Getkeyvalue("GWinput","QPNT_nbandrange",nss,2,default=(/-99997,-99997/) )
-
-  if( .NOT. tote) then
-     if(nz==0) then
-        call getkeyvalue("GWinput","<QPNT>",unit=ifqpnt,status=ret)
-     else
-        open(newunit=ifqpnt,file='QPNT'//xt(nz))
-     endif
-  endif
-  !   write(6,*)' ifqpnt ret=',ifqpnt,ret
-!  call anfcond()
-!  lqall=.true.
-  if (tote) then
-     lqall      = .true.
-  else
-     lqall      = .false.
-     call readx   (ifqpnt,10)
-     read (ifqpnt,*) iqall!,iaf
-     if (iqall == 1) lqall = .TRUE. 
-     call readx   (ifqpnt,100)
-  endif
-  call setitq_hsfp0(ngcmx,ngpmx,tote,ifqpnt,noccxv,nss)
-  !     q-points
+  if( .NOT. tote) call getkeyvalue("GWinput","<QforGW>",unit=ifqpnt,status=ret)
+  lqall= tote.or.ret==-1
+  call setitq_hsfp0(ngcmx,ngpmx,tote,ifqpnt,noccxv,nss) !we need <QforGW> section
   if (lqall) then           !all q-points case
-     nq         = nqibz
-     allocate(q(3,nq))
-     call dcopy   (3*nqibz,qibz,1,q,1)
+     nq    = nqibz
+     allocate(q(3,nq),source=qibz(1:3,1:nq)) 
   else
-     call readx   (ifqpnt,100)
      read (ifqpnt,*) nq
      allocate(q(3,nq))
-     do       k = 1,nq
+     do  k = 1,nq
         read (ifqpnt,*) i,q(1,k),q(2,k),q(3,k)
         write(6,'(i3,3f13.6)') i,q(1,k),q(2,k),q(3,k)
      enddo
   endif
-
   nspinmx = nspin
   if (laf) nspinmx =1
 

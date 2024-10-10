@@ -71,10 +71,11 @@ GaussSmear on  ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr fo
 </PRODUCT_BASIS>
 
  
-<QPNT>  
-*** 
-   1
-*** no. states and band index for calculation.
-           2
+<QforGW>  
+  2
   4  5
-</QPNT>
+  3
+1  0.00000  0.00000  0.00000
+2 -0.50000  0.50000  0.50000
+3  0.00000  0.00000  1.00000
+</QforGW>

@@ -208,21 +208,15 @@ subroutine getwemax(lqall,wemax)!> In order to get |e_ip-ef| on real space integ
   real(8):: omegav,omegac,eee,efnew,emaxv,eminc,ffac,we,valn
   integer:: ifief,ib,ip,iq,iqall,it,k,is,nspinmx
   lqallxxx=.true.
-!  call anfcond()
   if( .NOT. lqall) then
-     call getkeyvalue("GWinput","<QPNT>",unit=ifqpnt,status=ret)
-     call readx   (ifqpnt,10)
-!     iaf=-1
-     read (ifqpnt,*) iqall!,iaf
-     if (iqall == 1) then
+     call getkeyvalue("GWinput","<QforGW>",unit=ifqpnt,status=ret)
+     if (ret==-1) then !no QforGW
         lqallxxx = .true.
      else
         lqallxxx = .false.
-        call readx   (ifqpnt,100)
         read (ifqpnt,*) ntq
         allocate( itq(ntq) )
         read (ifqpnt,*) (itq(i),i=1,ntq)
-        call readx   (ifqpnt,100)
         read (ifqpnt,*) nq
         allocate(q(3,nq))
         do       k = 1,nq
@@ -230,7 +224,8 @@ subroutine getwemax(lqall,wemax)!> In order to get |e_ip-ef| on real space integ
            write(6,'(i3,3f13.6)') i,q(1,k),q(2,k),q(3,k)
         enddo
      endif
-     close(ifqpnt) !Walter fixed this Jul2008
+     write(6,*)'ntq itq=',ntq,' ',itq(1:ntq)
+     close(ifqpnt) 
   endif
   if(lqallxxx) then
      ntq = nband
@@ -250,7 +245,7 @@ subroutine getwemax(lqall,wemax)!> In order to get |e_ip-ef| on real space integ
   omegac =  0d0 !-1d99
   do is = 1,nspinmx
      do ip = 1,nq
-        eqt = readeval(q(1,ip),is)
+        eqt = readeval(q(1:3,ip),is)
         do it=1,ntq
            eee = eqt(itq(it)) - 2d0*deltaw  !2.d0*(-1d0-shtw)*deltaw
            !            write(6,*)' is ip it eee=',eee,eqt(itq(it))

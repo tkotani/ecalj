@@ -1424,7 +1424,10 @@ contains
              if (serrstop == 'OFF') Lerrstop= .FALSE. 
           endif
           if (Lerrstop)  then
-             call getkeyvalue_err_exit('getkeyvalue_c: failed to find a key',key,filename);
+             status=-1 !2024-10-9
+             call input_close()
+             return
+!             call getkeyvalue_err_exit('getkeyvalue_c: failed to find a key',key,filename);
           endif
           ! Takao Aug15 2005
           call input_close()
