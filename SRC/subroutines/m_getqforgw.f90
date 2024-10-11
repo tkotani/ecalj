@@ -3,6 +3,7 @@ module m_getQforGW !reading q and band index for gw_lmfh !2024-oct
   use m_keyvalue,only:getkeyvalue
   use m_readefermi,only: readefermi,ef
   use m_ftox
+  use m_nvfortran
   integer,public:: nbmin,nbmax,nq
   real(8),public,allocatable:: qx(:,:)
   public::getqforgw,getqonly
