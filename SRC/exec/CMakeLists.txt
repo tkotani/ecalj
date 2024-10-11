@@ -37,8 +37,8 @@ file(GLOB SOURCES2 "../wanniergw/*.f90") # source files
 file(GLOB MAINS "../main/*.f90")
 file(GLOB MAINS_GPU "../main/hsfp0_sc.f90" "../main/hrcxq.f90" "../main/hx0fp0.f90")  #main files for GPU versions
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}) # directory for *.so
-
 set(CMAKE_Fortran_FLAGS_RELEASE "-O2 -g -traceback")
+set(FLAGS -cpp)
 # ## compile options ############################################################
 if(FC MATCHES "gfortran")
   set(CMAKE_Fortran_COMPILER mpif90) # compiler
@@ -144,7 +144,6 @@ target_link_libraries(dummy ${BLAS} ${LIBM} ${MPI}) # linked
 #add_library(${LIB2} SHARED ${SOURCES2})
 
 # library compilation
-set(FLAGS -cpp)
 set(LIB ecaljF) # ecaljF, ecaljF_gpu ecaljF_mp, or ecaljF_mp_gpu
 add_library(${LIB} SHARED ${SOURCES})
 set_target_properties(${LIB} PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/${FCMOD}/mod)
@@ -157,15 +156,16 @@ foreach(target IN ITEMS ${MAINS})
   add_executable(${exename} ${target})
   target_compile_options(${exename} PRIVATE ${FLAGS})
   target_link_libraries(${exename} ${LIB} ${LIBM})
+  #library's path is set to $ORIGIN same with binary's directory
   set_target_properties(${exename} PROPERTIES
       Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/${FCMOD}/mod
-      BUILD_RPATH "\$ORIGIN"
+      BUILD_RPATH "\$ORIGIN"  
       INSTALL_RPATH "\$ORIGIN"
   ) 
   add_dependencies(copyexe ${exename})
 endforeach()
 
-# ### GPU versions ####
+### GPU version ####
 if(BUILD_GPU OR BUILD_MP)
   set(TYPE "")
   if(${BUILD_MP})
@@ -190,7 +190,6 @@ if(BUILD_GPU OR BUILD_MP)
     add_executable(${exename} ${target})
     target_compile_options(${exename} PRIVATE ${FLAGS})
     target_link_libraries(${exename} ${LIB} ${LIBM})
-    #library's path is set to $ORIGIN same with binary's directory
     set_target_properties(${exename} PROPERTIES
         Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/${FCMOD}/mod${TYPE}
         BUILD_RPATH "\$ORIGIN"
