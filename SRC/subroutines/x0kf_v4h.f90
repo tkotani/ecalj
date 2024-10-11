@@ -166,7 +166,7 @@ contains
     complex(8),optional:: zzr(:,:)
     real(8):: q(3),schi,ekxx1(nband,nqbz),ekxx2(nband,nqbz)
     character(10) :: i2char
-    logical :: tetwtk = .false.
+    logical :: tetwtk = .true.
     type(stopwatch) :: t_sw_zmel, t_sw_x0
     qq=q
 !    GPUTEST = .true. !cmdopt0('--gpu')
@@ -178,7 +178,7 @@ contains
       if(realomega) allocate(zxq(npr,npr_col,nw_i:nw),source=(0d0,0d0))
       if(imagomega) allocate(zxqi(npr,npr_col,niw),source=(0d0,0d0))
     endif
-    if(cmdopt0('--tetwtk'))  tetwtk=.true.
+    if(cmdopt0('--notetwtk'))  tetwtk=.false.
     if(cmdopt0('--emptyrun'))  return
     if(chipm .AND. nolfco) then; call setppovlz_chipm(zzr,npr)
     else;                        call setppovlz(q,matz=.true.,npr=npr)!2024-5-23 obata. A minor bug to consume memory: Set npr=1 for EPSPP0 mode(no lfc)
@@ -206,16 +206,13 @@ contains
         complex(8):: img=(0d0,1d0)
         if(.not.allocated(rcxq)) then
            allocate(rcxq(npr,npr_col,nwhis,npm))
-           rcxq=0d0
-!           if(GPUTEST) then
-             write(stdo,ftox)' size of rcxq:', npr, npr_col, nwhis, npm
-             !$acc enter data create(rcxq) 
-             write(stdo,ftox)'after enter create'
-             call flush(stdo)
-             !$acc kernels
-             rcxq(1:npr,1:npr_col,1:nwhis,1:npm) = (0d0,0d0)
-             !$acc end kernels
-!           endif
+           write(stdo,ftox)' size of rcxq:', npr, npr_col, nwhis, npm
+           !$acc enter data create(rcxq) 
+           write(stdo,ftox)'after enter create'
+           call flush(stdo)
+           !$acc kernels
+           rcxq(1:npr,1:npr_col,1:nwhis,1:npm) = (0d0,0d0)
+           !$acc end kernels
         endif
         zmel0mode: if(cmdopt0('--zmel0')) then ! For epsPP0. Use zmel-zmel0 (for subtracting numerical error) for matrix elements.
           zmel0block : block
