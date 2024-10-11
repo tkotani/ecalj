@@ -15,7 +15,7 @@ module m_q0p
   !! (I still not understand why it does not show divergent behevior in the anisotropic case).
   !!
   implicit none
-  integer,public,protected:: nq0i=0,nq0itrue=0,nq0iadd=0 ! Number of Q0P
+  integer,public,protected:: nq0i=0,nq0iadd=0,nany=0 ! Number of Q0P !,nq0itrue=0
   integer,public,protected,allocatable:: ixyz(:)  ! ixyz(1:nq0i+nq0iadd) q0i for x,y,z directions
   real(8),public,allocatable,protected:: q0i(:,:),wt(:) ! Q0P and its weight.
   integer,public,allocatable,protected:: epslgroup(:) !EPSwklm
@@ -26,6 +26,7 @@ module m_q0p
 contains
   subroutine getallq0p(iq0pin,alat,plat,qlat,nnn,alp,alpv,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,lnq0iadd) !! All arguments are input.
     use m_keyvalue,only: getkeyvalue
+    use m_getqforgw,only: getqonly,qx,nq
     intent(in)         iq0pin,alat,plat,qlat,nnn,alp,alpv,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,lnq0iadd
     integer:: iq0pin !    logical:: newoffsetG
     integer:: nnn(3),nstbz(*),nqbz,nqibz,ngcxx,ngcx(nqbz),ngrp !n1q,n2q,n3q,
@@ -39,20 +40,22 @@ contains
     real(8),allocatable:: wti(:),qi(:,:),cg(:,:,:),matxxl(:,:,:), cy(:),yl(:) !,norq0x(:) !,wqfac(:)
     integer:: bzcase=1,i,iq0i,ifidmlx,lmxax,lx,j
     real(8):: rrr(3),r2s,qxx(3),voltot,tripl
+
     integer,allocatable::irrx(:),ngvect(:,:,:)
+!    real(8),allocatable::qx(:,:)
+!    integer::nq
 
     real(8),allocatable:: funa(:,:),wsumau(:),yll(:,:),alpqg2,qg2,tpiba,wtrue00
     real(8):: qg(3), qdum(6),alpm,QpGcut,q(3)
     integer:: ig,lm,iq
     integer:: nmm !not output
     integer:: ifi0,ifi00,il,ix,ni,ifinin
-    integer:: nq0i0,nq0i00,nany,ifqpnt,ret
+    integer:: nq0i0,nq0i00,ifqpnt,ret
     integer,allocatable :: ndiv(:)
     real(8),allocatable:: qsave(:,:),   qmin(:,:),qmax(:,:)
     real(8),allocatable:: qany(:,:)
-    logical:: anyq,ibzqq,lnq0iadd,unita
-    !      integer,allocatable:: epslgroup(:)
-    integer:: dummyia(1,1)
+    logical:: anyq,ibzqq,lnq0iadd,unita,cmdopt0
+    integer:: dummyia(1,1),k
     real(8),parameter:: pi=4d0* atan(1d0)
     real(8):: tpioa
     tpioa=2*pi/alat
@@ -161,36 +164,17 @@ contains
        enddo
        nq0i=nq0i*2
     endif
-    !! === AnyQ mechanism. === q0i is extended. nq0i/=nq0itrue
-    call getkeyvalue("GWinput","AnyQ",anyq,default=.false.)
-    if(anyq .AND. iq0pin==1) then
-       print *,'AnyQ (read <QPNT> section =T'
-       !!     read q-points and states
-       call getkeyvalue("GWinput","<QPNT>",unit=ifqpnt,status=ret)
-       call readx   (ifqpnt,10)
-       call readx   (ifqpnt,100)
-       call readx   (ifqpnt,100)
-       read (ifqpnt,*) nany
-       print *,'  nany=',nany
-       allocate(qany(3,nany))
-       do ix=1,nany
-          read (ifqpnt,*) i, qany(:,ix)
-          write(6,'(i3,3f13.6)') ix,qany(:,ix)
-       enddo
-       nany =ix-1
-       write(6,*)" Anyq mode: nany=",nany
-       allocate(qsave(3,nq0i+nany))
-       qsave(:,    1 :nq0i)     = q0i (:,1:nq0i)
-       qsave(:,nq0i+1:nq0i+nany)= qany(:,1:nany)
-       nq0itrue=nq0i !nov2015
-       nq0i = nq0i+nany
+    if(iq0pin==1.and.cmdopt0('--readQforGW')) then !We can supply any q vector for GW calculation
+       call getqonly() !Get qx nq
+       allocate(qany,source=qx(:,1:nq))
+       write(6,*)" GetQforGW mode: readin number of q=",nq
+       allocate(qsave(3,nq0i+nq))
+       qsave(:,    1 :nq0i)   = q0i (:,1:nq0i)
+       qsave(:,nq0i+1:nq0i+nq)= qany(:,1:nq)
+       nany=nq
        deallocate(q0i)
-       allocate(q0i(3,nq0i))
-       q0i=qsave
+       allocate(q0i(3,nq0i+nq),source=qsave)
        deallocate(qsave)
-       close(ifqpnt)
-    else
-       nq0itrue=nq0i !nov2015
     endif
   end subroutine getallq0p
   !! ==================================================================

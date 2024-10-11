@@ -37,9 +37,9 @@ subroutine hx0fp0()
   use m_x0kf,only: x0kf_zxq,deallocatezxq,deallocatezxqi,zxqi,zxq
   use m_llw,only: WVRllwR,WVIllwI,MPI__sendllw2
   use m_w0w0i,only: w0w0i
-  use m_lgunit,only:m_lgunit_init
+  use m_lgunit,only:m_lgunit_init,stdo
   use m_readqg,only: Readqg0
-  use m_dpsion,only: dpsion5
+!  use m_dpsion,only: dpsion5
   use m_gpu,only: gpu_init
   use m_ftox
   implicit none
@@ -157,7 +157,7 @@ subroutine hx0fp0()
   !     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
   complex(8),allocatable::sk(:),sks(:),skI(:),sksI(:), &
        w_k(:),w_ks(:),w_kI(:), w_ksI(:), s_vc(:),vw_k(:),vw_ks(:)
-  complex(8),allocatable:: llw(:,:), llwI(:,:),aaamat(:,:)
+!  complex(8),allocatable:: llw(:,:), llwI(:,:),aaamat(:,:)
   integer:: lxklm,nlxklm,ifrcwx,iq0xx,ircw,nini,nend,iwxx,nw_ixxx,nwxxx,iwx,icc1,icc2!,niw,niwxxx,
   complex(8):: vc1vc2   !      integer,allocatable:: neibz(:),nwgt(:,:),ngrpt(:),igx(:,:,:),igxt(:,:,:),eibzsym(:,:,:)
   ! integer,allocatable:: nwgt(:,:) is not used
@@ -258,7 +258,7 @@ subroutine hx0fp0()
   !     nblochpmx = nbloch + ngcmx !rdpp \in mptauof_zmel \in m_zmel
   allocate(ngveccB(3,ngcmx)) 
   iqxend = nqibz + nq0i
-  write(6,*) ' nqibz nqibze=',nqibz,nqibze
+  write(stdo,ftox) ' nqibze nqibz nq0i=',nqibze,nqibz,nq0i
   call Readhamindex() ! Initialization of readEigen
   call init_readeigen() !EVU EVD are read in init_readeigen
   call init_readeigen2()
@@ -368,7 +368,7 @@ subroutine hx0fp0()
   write(6,ftox)'mpi_rank',mpi__rank,'mpi__Qtask=',mpi__task
   write(6,ftox) 'mpi_qrank', mpi__ranktab
   !! llw, and llwI are for L(omega) for Q0P in PRB81,125102
-  allocate( llw(nw_i:nw,nq0i), llwI(niw,nq0i) )
+!  allocate( llw(nw_i:nw,nq0i), llwI(niw,nq0i) )
   if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
   write(6,*)" chi_+- mode nolfc=",nolfco
   if(.NOT.chipm) allocate(zzr(1,1),source=(0d0,0d0)) !dummy

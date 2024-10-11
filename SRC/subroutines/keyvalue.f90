@@ -1424,6 +1424,7 @@ contains
              if (serrstop == 'OFF') Lerrstop= .FALSE. 
           endif
           if (Lerrstop)  then
+             call input_close()
              call getkeyvalue_err_exit('getkeyvalue_c: failed to find a key',key,filename);
           endif
           ! Takao Aug15 2005

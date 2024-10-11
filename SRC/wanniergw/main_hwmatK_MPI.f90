@@ -47,7 +47,7 @@ subroutine hwmatK_MPI()
        ,nq0i=>nq0ix,wqt=>wt,q0i
   use m_readeigen,only: onoff_write_pkm4crpa,init_readeigen,init_readeigen2, &
        init_readeigen_mlw_noeval,  nwf !,init_readeigen_phi_noeval
-  use m_genallcf_v3,only:niwg=>niw,alat,deltaw,esmr,icore,natom,iclass,nl,nlnmc,nlnmv,nlnmc,nlnmx,nlnx
+  use m_genallcf_v3,only:niwg=>niw,alat,deltaw,esmr,icore,natom,iclass,nl,nlnmc,nlnmv,nlnmc,nlnmx,nlnx,laf
   use m_genallcf_v3,only: genallcf_v3,ncore,nn,nnc,nspin,pos,plat, nprecb,mrecb,mrece,nqbzt,nband,mrecg,ndima
   use m_keyvalue,only: getkeyvalue
 !  use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
@@ -82,13 +82,13 @@ subroutine hwmatK_MPI()
        i,k,nspinmx, nq,is,ip,iq,idxk,ifoutsex,iclose,ig, &
        mxkp,nqibzxx,ntet,nene,iqi, ix,iw, &
        nlnx4,niwx,irot,invr,invrot,ivsum, ifoutsec,ntqx,&
-       ifwmat(2) ,ifxc(2),ifsex(2), ifphiv(2),ifphic(2),ifec,ifexsp(2), &
+       ifxc(2),ifsex(2), ifphiv(2),ifphic(2),ifec,ifexsp(2), &
        ifsecomg(2),ifexx,ndble=8
   real(8) :: pi,tpia,vol,voltot,rs,alpha, &
        qfermi,efx,valn,efnew,edummy,efz,qm,xsex,egex, &
        zfac1,zfac2,dscdw1,dscdw2,dscdw,zfac,ef2=1d99,exx,exxq,exxelgas
-  logical :: lqall,laf
-  integer,allocatable :: itq(:)
+!  logical :: lqall
+!  integer,allocatable :: itq(:)
   real(8),allocatable    :: q(:,:)
   ! takao
   integer,allocatable :: ngvecpB(:,:,:),ngvecp(:,:), ngvecc(:,:),iqib(:),&
@@ -315,10 +315,6 @@ subroutine hwmatK_MPI()
           write(6,*)' --- bare Coulomb mode --- '
      exchange =.true.
      lueff = .false.
-     if (Is_IO_Root_RSMPI()) then
-        ifwmat(1) = iopen('VMATU',1,-1,0)
-        if (nspin == 2) ifwmat(2) = iopen('VMATD',1,-1,0)
-     endif
   elseif (ixc ==2) then
      if (Is_IO_Root_RSMPI()) &
           write(6,*)' --- screening (Wc) mode --- '
@@ -327,10 +323,6 @@ subroutine hwmatK_MPI()
      lcrpa = .false.
      print *, "lcrpa =", lcrpa
      print *, "lueff=", lueff
-     if (Is_IO_Root_RSMPI()) then
-        ifwmat(1) = iopen('WcMATU',1,-1,0)
-        if (nspin == 2) ifwmat(2) = iopen('WcMATD',1,-1,0)
-     endif
   elseif (ixc == 100) then
      if (Is_IO_Root_RSMPI()) &
           write(6,*)' --- screening_crpa (Wc) mode --- '
@@ -339,52 +331,6 @@ subroutine hwmatK_MPI()
      lueff = .false.
      lcrpa = .true.
      ixc = 2
-     if (Is_IO_Root_RSMPI()) then
-        ifwmat(1) = iopen('WcMATU',1,-1,0)
-        if (nspin == 2) ifwmat(2) = iopen('WcMATD',1,-1,0)
-     endif
-     !$$$      elseif (ixc ==3) then
-     !$$$        if (Is_IO_Root_RSMPI())
-     !$$$     &   write(6,*)' --- Ueff mode --- '
-     !$$$        exchange =.false.
-     !$$$        lueff = .true.
-     !$$$        if (Is_IO_Root_RSMPI()) then
-     !$$$          ifwmat(1) = iopen('UMATU',1,-1,0)
-     !$$$          if (nspin == 2) ifwmat(2) = iopen('UMATD',1,-1,0)
-     !$$$        endif
-     !$$$      elseif (ixc==4) then
-     !$$$        if (Is_IO_Root_RSMPI())
-     !$$$     &   write(6,*)' --- bare Coulomb mode --- '
-     !$$$        exchange =.true.
-     !$$$        lueff = .false.
-     !$$$        latomic = .true.
-     !$$$        ixc=1
-     !$$$        if (Is_IO_Root_RSMPI()) then
-     !$$$          ifwmat(1) = iopen('VMATaU',1,-1,0)
-     !$$$          if (nspin == 2) ifwmat(2) = iopen('VMATaD',1,-1,0)
-     !$$$        endif
-     !$$$      elseif (ixc ==5) then
-     !$$$        if (Is_IO_Root_RSMPI())
-     !$$$     &   write(6,*)' --- screening (Wc) mode --- '
-     !$$$        exchange =.false.
-     !$$$        lueff = .false.
-     !$$$        latomic = .true.
-     !$$$        ixc=2
-     !$$$        if (Is_IO_Root_RSMPI()) then
-     !$$$          ifwmat(1) = iopen('WcMATaU',1,-1,0)
-     !$$$          if (nspin == 2) ifwmat(2) = iopen('WcMATaD',1,-1,0)
-     !$$$        endif
-     !$$$      elseif (ixc ==6) then
-     !$$$        if (Is_IO_Root_RSMPI())
-     !$$$     &   write(6,*)' --- Ueff mode --- '
-     !$$$        exchange =.false.
-     !$$$        lueff = .true.
-     !$$$        latomic = .true.
-     !$$$        ixc=3
-     !$$$        if (Is_IO_Root_RSMPI()) then
-     !$$$          ifwmat(1) = iopen('UMATaU',1,-1,0)
-     !$$$          if (nspin == 2) ifwmat(2) = iopen('UMATaD',1,-1,0)
-     !$$$        endif
   elseif(ixc==10011) then
      write(6,*) 'ixc=10011 pkm4crpa mode'
      exchange =.false.
@@ -611,47 +557,19 @@ subroutine hwmatK_MPI()
      if (Is_IO_Root_RSMPI()) call rx0s(' OK! hwmatK_MPI ixc=10011')
      stop
   endif
-
-  ! QPNT data
-  if(nz==0) then
-     !        if(readgwinput()) then
-     call getkeyvalue("GWinput","<QPNT>",unit=ifqpnt,status=ret)
-     !        else
-     !         ifqpnt = iopen('QPNT',1,0,0)
-     !        endif
-  else
-     ifqpnt  = iopen('QPNT'//xt(nz),1,0,0)
-  endif
-  if (Is_IO_Root_RSMPI()) write(6,*)' ifqpnt ret=',ifqpnt,ret
-
-  ! read q-points and states
-  ! ---
-  ! read QPNT
-  lqall      = .true.
-  laf        = .false.
-  call readx   (ifqpnt,10)
-  read (ifqpnt,*) iqall,iaf
-  if (iaf   == 1)   laf = .TRUE. 
-  call readx   (ifqpnt,100)
-  read (ifqpnt,*) ntq
-  allocate (itq(ntq))
-  read (ifqpnt,*) (itq(i),i=1,ntq)
-  deallocate(itq)
   nq         = nqibz
   allocate(q(3,nq))
   call dcopy   (3*nqibz,qibz,1,q,1)
   nspinmx = nspin
   if (laf) nspinmx =1
-!  write(6,*)'iqqqqqqqqqqqqq', iqall,iaf,laf,nspinmx,nspin
-  close(ifqpnt)
- call getkeyvalue("GWinput","wmat_all",lfull,default= .FALSE. )
-if(lfull)then
+  call getkeyvalue("GWinput","wmat_all",lfull,default= .FALSE. )
+  if(lfull)then
     write(6,*) 'NEEDtoExamin code main_hwmatK_MPI again ! '
-   write(6,*) ' Because of the bug in nvfortran24.1 we can not pass nrws2 to wmatqk_MPI (kount,irot,nrws1,nrws2,nrws.'
-   write(6,*) ' Thus we call   wmatqk_MPI (kount,irot,1,1,1 , which means fixed value is passoed to.'
-   write(6,*) ' If you need wmat_all, need to fix this part. or use fixed code with ifort/gfortran'
-   call rx('wmat_all is not implemented because of the bug in nvfortran24.1')
-endif   
+    write(6,*) ' Because of the bug in nvfortran24.1 we can not pass nrws2 to wmatqk_MPI (kount,irot,nrws1,nrws2,nrws.'
+    write(6,*) ' Thus we call   wmatqk_MPI (kount,irot,1,1,1 , which means fixed value is passoed to.'
+    write(6,*) ' If you need wmat_all, need to fix this part. or use fixed code with ifort/gfortran'
+    call rx('wmat_all is not implemented because of the bug in nvfortran24.1')
+  endif
 
 !  call MPI_Bcast(lfull,1,MPI_LOGICAL,io_root_rsmpi, MPI_COMM_WORLD,ierror_rsmpi)
 !  call RSMPI_Check("MPI_Bcast(lfull)",ierror_rsmpi)
@@ -1060,7 +978,7 @@ endif
      ! write <p p | W | p p>
      if (Is_IO_Root_RSMPI()) then
         if (exchange) then
-           call       wvmat (is,ifwmat(is),nwf, &
+           call       wvmat (is,nwf, &
                 rws1,rws2,irws1,irws2,nrws1,nrws2,nrws, &
                 alat,rcut1,rcut2,rw_w(:,:,:,:,:,0),cw_w(:,:,:,:,:,0), lcrpa, lomega0)
            rv_w = rw_w(:,:,:,:,:,0)
@@ -1072,7 +990,7 @@ endif
            !        write(*,*) cw_w(:,:,:,:,:,0)
 
         else
-           call       wwmat (is,ifwmat(is),nw_i,nrw+1,nwf, &
+           call       wwmat (is,nw_i,nrw+1,nwf, &
                 rws1,rws2,irws1,irws2,nrws1,nrws2,nrws, &
                 alat,rcut1,rcut2, &
                 freq_r(0:nrw), &
@@ -1106,7 +1024,7 @@ endif
 end subroutine hwmatK_MPI
 
 !-----------------------------------------------------------------------
-subroutine wwmat (is,ifwmat,nw_i,nw,nwf, &
+subroutine wwmat (is,nw_i,nw,nwf, &
      rws1,rws2,irws1,irws2,nrws1,nrws2,nrws, &
      alat,rcut1,rcut2, &
      freq, &
@@ -1124,42 +1042,9 @@ subroutine wwmat (is,ifwmat,nw_i,nw,nwf, &
   logical:: lcrpa, lomega0
 
   hartree=2d0*rydberg()
-
-  !      call cv      (hartree,freq,nw,freq2)
-  !      call cv      (hartree,rw_w,nwf*nwf*nwf*nwf*nrws*nw,rw_w)
-  !      call cv      (hartree,cw_w,nwf*nwf*nwf*nwf*nrws*nw,cw_w)
   freq2 = hartree*freq
   rw_w  = hartree*rw_w
   cw_w  = hartree*cw_w
-
-  write(ifwmat,*)'*** nwf,nw,alat'
-  write(ifwmat,*)nwf,nw,alat
-  write(ifwmat,*)'*** rcut1,rcut2'
-  write(ifwmat,*)rcut1,rcut2
-  write(ifwmat,*)'*** nrws1,nrws2,nrws'
-  write(ifwmat,*)nrws1,nrws2,nrws
-  write(ifwmat,*)'*** w along the real-axis'
-  write(ifwmat,*)freq2
-  !      write(ifwmat,*)'*** w along the imaginary-axis'
-  !      write(ifwmat,*)freqw
-  write(ifwmat,*)'*** rws1,irws1'
-  write(ifwmat,*)rws1,irws1
-  write(ifwmat,*)'*** rws2,irws2'
-  write(ifwmat,*)rws2,irws2
-  write(ifwmat,*)'*** rw_w'
-  write(ifwmat,*)rw_w
-  write(ifwmat,*)'*** cw_w'
-  write(ifwmat,*)cw_w
-  !      write(ifwmat,*)'*** rw_iw'
-  !      write(ifwmat,*)rw_iw
-  !      write(ifwmat,*)'*** cw_iw'
-  !      write(ifwmat,*)cw_iw
-
-
-  !        write(*,*) rw_w
-  !        write(*,*) cw_w
-  !        write(*,*) rw_w(:,:,:,:,:,0)
-  !        write(*,*) cw_w(:,:,:,:,:,0)
 
   write(*,*)'Writing Screened Couloumb interaction (W-v) : Real'
   ifscr = ifile_handle()
@@ -1206,7 +1091,7 @@ subroutine wwmat (is,ifwmat,nw_i,nw,nwf, &
 
 end subroutine wwmat
 !-----------------------------------------------------------------------
-subroutine wvmat (is,ifwmat,nwf, &
+subroutine wvmat (is,nwf, &
      rws1,rws2,irws1,irws2,nrws1,nrws2,nrws, &
      alat,rcut1,rcut2,rw_w,cw_w, &
      lcrpa, lomega0)
@@ -1219,30 +1104,10 @@ subroutine wvmat (is,ifwmat,nwf, &
   real(8) :: rw_w(nwf,nwf,nwf,nwf,nrws),cw_w(nwf,nwf,nwf,nwf,nrws)
   integer:: iwf1, iwf2, iwf3, iwf4,ir1
   logical:: lcrpa, lomega0
-
+  write(6,*) 'start wvmat'
   hartree=2d0*rydberg()
-
-  !      call cv      (hartree,rw_w,nwf*nwf*nwf*nwf*nrws,rw_w)
-  !      call cv      (hartree,cw_w,nwf*nwf*nwf*nwf*nrws,cw_w)
   rw_w= hartree*rw_w
   cw_w= hartree*cw_w
-
-  write(ifwmat,*)'*** nwf,alat'
-  write(ifwmat,*)nwf,alat
-  write(ifwmat,*)'*** rcut1,rcut2'
-  write(ifwmat,*)rcut1,rcut2
-  write(ifwmat,*)'*** nrws1,nrws2,nrws'
-  write(ifwmat,*)nrws1,nrws2,nrws
-  write(ifwmat,*)'*** rws1,irws1'
-  write(ifwmat,*)rws1,irws1
-  write(ifwmat,*)'*** rws2,irws2'
-  write(ifwmat,*)rws2,irws2
-  write(ifwmat,*)'*** vcoul: Re'
-  write(ifwmat,*)rw_w
-  write(ifwmat,*)'*** vcoul: Im'
-  write(ifwmat,*)cw_w
-
-
   write(*,*)'Coulomb interaction (v) : '
   ifcou = ifile_handle()
   if (is==1) then

@@ -47,7 +47,7 @@ subroutine qg4gw() bind(C)
   !!    qplusG(1:3,igp) = 2*pi/alat * (q + matmul(qlat * ngvec(1:3,igp))), for igp=1,ngp
   !! ----------------------------------------------------------------------
   use m_keyvalue,only: getkeyvalue
-  use m_mpi,only: MPI__Initialize
+  use m_mpi,only: MPI__Initialize,MPI__root
   use m_lgunit,only: m_lgunit_init
   implicit none
   integer(4) :: ifiqg,ifiqgc,ifigw0,ngrp,ifi,i,ig,iq0pin
@@ -61,6 +61,7 @@ subroutine qg4gw() bind(C)
   logical:: lmagnon = .false., cmdopt2
   character(20):: outs=''
   call MPI__Initialize()
+!  if(.not.MPI__root) goto 9999
   call M_lgunit_init()
   call show_programinfo(6)
   call cputid (0)

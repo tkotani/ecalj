@@ -87,7 +87,7 @@ subroutine gwinit_v2() bind(C) !  Generate GWinput.tmp.
   write(6,"(' plat a3   =',3f13.6)") plat(1:3,3)
   ! --- Make q-points in IBZ.
   mxkp   = n1q*n2q*n3q
-  call getbzdata1(qlat,(/n1q,n2q,n3q/),symops,ngrp,tetrai=.false.,tetraf=.false.,mtet=(/1,1,1/),gammacellctrl=0)
+  call getbzdata1(qlat,(/n1q,n2q,n3q/),symops,ngrp,tetrai=.false.,tetraf=.false.,gammacellctrl=0) !,mtet=(/1,1,1/)
   !! Write to file KPNTin1BZ
   nnn = n1q*n2q*n3q
   nqs=0
@@ -282,15 +282,15 @@ subroutine gwinit_v2() bind(C) !  Generate GWinput.tmp.
      enddo
   enddo
   write(ifi,"(a)")'</PRODUCT_BASIS>'
-  !! QPNT section
-  write(ifi,*)
-  write(ifi,"(a)" )'! ################################################# '
-  write(ifi,"(a)")'<QPNT> ! This block is the same as QPNT.'
-  do
-     read(ifqpnt,"(a)",end=756) pppx
-     write(ifi,"(a)") trim(pppx)
-  enddo
-756 write(ifi,"(a)")'</QPNT>'
+!  !! QPNT section
+!  write(ifi,*)
+!  write(ifi,"(a)" )'! ################################################# '
+!   write(ifi,"(a)")'<QPNT> ! This block is the same as QPNT.'
+!   do
+!      read(ifqpnt,"(a)",end=756) pppx
+!      write(ifi,"(a)") trim(pppx)
+!   enddo
+! 756 write(ifi,"(a)")'</QPNT>'
   close(ifqpnt,status='delete')
 
   write(ifi,"(a,f8.3,a,a)") '!EPSrange  1    !(Ry) [0,EPSrange] for dielectric function plot.'
@@ -306,10 +306,19 @@ subroutine gwinit_v2() bind(C) !  Generate GWinput.tmp.
   write(ifi,"(a)") ' 0 0 0.0028284 '
   write(ifi,"(a)") ' 0 0 0.004'
   write(ifi,"(a)") '</QforEPS>'
-  write(ifi,"(a)") '!<QforEPSL>'
-  write(ifi,"(a)") '! 0d0 0d0 0d0   1d0   0d0  0d0 8'
-  write(ifi,"(a)") '! 0d0 0d0 0d0  .5d0  .5d0  0d0 8'
-  write(ifi,"(a)") '!</QforEPSL>'
+  
+  !write(ifi,"(a)") '!<QforEPSL>'
+  !write(ifi,"(a)") '! 0d0 0d0 0d0   1d0   0d0  0d0 8'
+  !write(ifi,"(a)") '! 0d0 0d0 0d0  .5d0  .5d0  0d0 8'
+  !write(ifi,"(a)") '!</QforEPSL>'
+  
+  write(ifi,"(a)") 'EMAXforGW 5  !eV(above Efermi)'
+  write(ifi,"(a)") '<QforGW>  !Set q for GW calculation. '
+  write(ifi,"(a)") ' 0.0 0.0 0.0'
+  write(ifi,"(a)") ' 0.1 0.0 0.0'
+  write(ifi,"(a)") ' 0.2 0.0 0.0'
+  write(ifi,"(a)") ' 0.3 0.0 0.0'
+  write(ifi,"(a)") '</QforGW>'
   !!
   write(ifi,*)
   write(ifi,"(a)")'!!! ##### Maximally localized Wannier function ################ '

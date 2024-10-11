@@ -363,92 +363,13 @@ subroutine hmaxloc()
   write(6,*)' esmr  =',esmr
   write(6,*)' valn  =',valn
   write(6,*)' ntot  =',ntot
-
-  !      ifcphi  = iopen('CPHI',0,0,mrecb)
-
   call init_readeigen2()!mrecb,nlmto,mrecg) !initialize m_readeigen
-
-  !c QPNT data
-  ! m, 080222
-  ! read QPNT from 'SYML' if exists
-  lsyml=.false.
-  inquire(file='SYML',exist=lsyml)
-  if (lsyml) then
-    write(*,*)'Read k points for bands from SYML'
-    lqall      = .false.
-    laf        = .false.
-    open(99,file='SYML',status='old')
-    nline=0
-    do i = 1,nlinex
-      read(99,*,err=551,end=552)npin,qiin,qfin
-      if (npin==0) exit
-      nline = nline+1
-      np(nline)=npin
-      qi(1:3,nline)=qiin
-      qf(1:3,nline)=qfin
-551   continue
-    enddo
-552 continue
-    if (nline == nlinex) call rx('hmaxloc: too many lines in SYML')
-    close(99)
-    nq = 0
-    do i = 1,nline
-      nq = nq + np(i)
-    enddo ! i
-    allocate(q(3,nq),xq(nq))
-    iq = 0
-    xq=0d0
-    qold=q(:,1)
-    do i = 1,nline
-      do j = 0,np(i)-1
-        iq = iq + 1
-        q(:,iq) = qi(:,i) + (qf(:,i)-qi(:,i))*dble(j)/dble(np(i)-1)
-        if(iq>1) then
-!!! xq may be too long if q is outside of 1stBZ
-          if(0.2 < dsqrt(sum((q(:,iq)-qold)**2))) then !!maybe same point (must be checked)
-            xq(iq)= xq(iq-1)
-          else
-            xq(iq)= xq(iq-1) + dsqrt( sum((q(:,iq)-qold)**2) )
-          endif
-        endif
-        qold=q(:,iq)
-      enddo ! j
-    enddo ! i
-  else ! lsyml
-    write(*,*)'Read k points for bands from GWinput'
-    call getkeyvalue("GWinput","<QPNT>",unit=ifqpnt,status=ret)
-    write(6,*)' ifqpnt ret=',ifqpnt,ret
-
-    lqall      = .false.
-    laf        = .false.
-    call readx   (ifqpnt,10)
-    read (ifqpnt,*) aaac
-    aaac=trim(aaac)//' 0'
-    read(aaac,*) iqall,iaf
-    if (iqall == 1) lqall = .TRUE.
-    if (iaf   == 1)   laf = .TRUE.
-    call readx   (ifqpnt,100)
-    ! m 040622
-    read (ifqpnt,*)
-    read (ifqpnt,*)
-
-    if (lqall) then !all q-points case
-      nq         = nqibz
-      allocate(q(3,nq))
-      call dcopy   (3*nqibz,qibz,1,q,1)
-    else
-      call readx   (ifqpnt,100)
-      read (ifqpnt,*) nq
-      allocate(q(3,nq))
-      do       k = 1,nq
-        read (ifqpnt,*) i,q(1,k),q(2,k),q(3,k)
-        write(6,'(i3,3f13.6)') i,q(1,k),q(2,k),q(3,k)
-      enddo
-    endif ! lqall
-    close(ifqpnt)
-    allocate(xq(nq))
-    xq=0d0
-  endif ! syml
+  
+  nq         = nqibz
+  allocate(q(3,nq))
+  call dcopy   (3*nqibz,qibz,1,q,1)
+  allocate(xq(nq))
+  xq=0d0
 
   nspinmx = nspx
   if (laf) nspinmx =1

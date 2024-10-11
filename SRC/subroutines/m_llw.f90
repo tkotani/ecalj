@@ -1,5 +1,7 @@
 !>Write W-v. Gamma-cell averaged W-v
 module m_llw
+  use m_lgunit,only:stdo
+  use m_ftox
   use m_rdpp,only: nblochpmx
   use m_genallcf_v3,only: natom,nspin,nl,nn, ndima,nlnmx, nctot,alat, deltaw,clabl,iclass, plat, pos, ecore, tpioa
   use m_freq,only: frhis,freq_r,freq_i, nwhis,nw_i,nw,npm,niw !output of getfreq
@@ -57,7 +59,7 @@ contains
     if(nspin == 1) zxq = 2d0*zxq !if paramagnetic, multiply x0 by 2
     nwmax = nw
     nwmin = nw_i
-    write(6, *)" === trace check for W-V === nwmin nwmax=",nwmin,nwmax, 'qqqqqxx=',iq,q
+    write(stdo,ftox)" === trace check for W-V === nqibz nwmin nwmax=",nqibz,nwmin,nwmax, 'iq q=',iq,ftof(q)
     if(iq<=nqibz) then        !for mmmw
       if(mpi__root_q) then
         open(newunit=ifrcw, file='WVR.'//i2char(iq),form='unformatted',access='direct',recl=mreclx)

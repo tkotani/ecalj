@@ -7,15 +7,15 @@ module m_get_bzdata1 ! bzmesh data, tetra are included in this routine.
   integer,allocatable,protected,public:: idtetf(:,:),ib1bz(:),idteti(:,:),irk(:,:),nstar(:),nstbz(:)
   private
 contains
-  subroutine getbzdata1(qlat,nnn, symops,ngrp,tetrai,tetraf,mtet,gammacellctrl)
+  subroutine getbzdata1(qlat,nnn, symops,ngrp,tetrai,tetraf,gammacellctrl) !mtet
     use m_keyvalue,only: getkeyvalue
     use m_tetirr,only: ccutup
     implicit none
-    intent(in)::        qlat,nnn, symops,ngrp,tetrai,tetraf,mtet,gammacellctrl
+    intent(in)::        qlat,nnn, symops,ngrp,tetrai,tetraf,gammacellctrl
     !! all arguments are inputs. getbzdata1 returns all variables in the module m_get_bzdata1
     logical:: tetrai,tetraf,multet,qbzreg
-    integer:: ngrp,nnn(3), mtet(3),n1qm,n2qm,n3qm,nnnx(3), &
-         itet,ix,im,ifiqmtet,iq,icase,n1qtet,n2qtet,n3qtet,IMC(0:1,0:1,0:1)
+    integer:: ngrp,nnn(3), n1qm,n2qm,n3qm,nnnx(3), & !mtet(3),ifiqmtet
+         itet,ix,im,iq,icase,n1qtet,n2qtet,n3qtet,IMC(0:1,0:1,0:1)
     integer:: n,iqbz,intq(3),iqx,iqy,iqz,iqbzx,verbose
     real(8)  plat(3,3),qlat(3,3),ginv(3,3),qlattet(3,3), &
          symops(3,3,ngrp),qc(3,0:3),qb(3,3),qb1(3,3)
@@ -26,7 +26,7 @@ contains
     integer,allocatable::  idtetfm(:,:,:),ib1bzm(:),iwgt(:) !multipled tetrahedron.
     real(8):: qout(3),qx(3),kvec(3,3),det33,  kkvec(3,0:3)
     real(8):: qbzshift(3)
-    integer::  nmtet,nqbzwm,ntetfm,ifmtet       !,nqibz_r
+    integer::  nqbzwm,ntetfm !,ifmtet,nmtet,       !,nqibz_r
     integer:: iqi,igrp,iccc,nnng(3),icasetet,nadd=0,iq4(4)
     real(8)::qmic(3,3),weight,x1,x2,x3,x1i,x2i,x3i,wsum
     integer::kount,i1,i2,i3,n2,nnnv(3),ig,ir,j1,j2,j3,jj(3),k,m,i1x,i2x,i3x,ic,k1,k2,k3,kountw,ndx, &

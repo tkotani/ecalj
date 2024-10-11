@@ -132,7 +132,7 @@ contains
     call rhoqm(smrho, n1,n2,n3,nsp,vol,qin ) ! ... Initial charges
     call rhoqm(smrnew,n1,n2,n3,nsp,vol,qout)
     fac = vol/(n1*n2*n3)
-    rms = sum((smrnew(:,:,:,:)-smrho(:,:,:,:))**2) ! RMS difference. Before 2023-10-8, it is sum of the differenc of charge (not spin density).
+    rms = sum(abs(smrnew(:,:,:,:)-smrho(:,:,:,:))**2) ! RMS difference. Before 2023-10-8, it is sum of the differenc of charge (not spin density).
     rms = dsqrt(fac*rms/vol)
     !!== elind mode ==> removed
     nlmlx=maxval((lmxl_i+1)**2)
