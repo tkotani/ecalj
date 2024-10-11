@@ -68,7 +68,7 @@ subroutine hsfp0() bind(C)
        mxkp,nqibzxx,ntet,nene,iqi, ix,iw, &
        nlnx4,niwx,irot,invr,invrot,ivsum, ifoutsec, &
        ifsec(2),  ifxc(2),ifsex(2), ifphiv(2),ifphic(2),ifec,ifexsp(2), &
-       ifsecomg(2),ifexx,ndble=8
+       ifsecomg(2),ifexx,ndble=8,nqq
   real(8) :: pi,tpia,vol,voltot,rs,alpha, &
        qfermi,efx,valn,efnew,edummy,efz,qm,xsex,egex,edummyd(1), &
        zfac1,zfac2,dscdw1,dscdw2,dscdw,zfac,ef2=1d99,exx,exxq,exxelgas
@@ -435,12 +435,12 @@ subroutine hsfp0() bind(C)
   call getqforgw(lqall) !2024-10
   call setitq_hsfp0(ngcmx,ngpmx,tote,nbmin,nbmax,noccxv,nss) 
   allocate(q(1:3,nq),source=qx(1:3,1:nq))
-  deallocate(qx)
   nspinmx = nspin
   if (laf) nspinmx =1
 
   ! necessary ?
-  call MPI__Broadcast(nq)
+  nqq=nq
+  call MPI__Broadcast(nqq)
   if(MPI__root) then
      do dest=1,MPI__size-1
         call MPI__REAL8send(q,3*nq,dest)

@@ -293,8 +293,6 @@ subroutine gwinit_v2() bind(C) !  Generate GWinput.tmp.
 ! 756 write(ifi,"(a)")'</QPNT>'
   close(ifqpnt,status='delete')
 
-  write(ifi,"(a,f8.3,a,a)") '!EPSrange  1    !(Ry) [0,EPSrange] for dielectric function plot.'
-  write(ifi,"(a,f8.3,a,a)") '!EPSdw     0.05 !(Ry) energy mesh  for dielectric function plot.'
   write(ifi,*)
   write(ifi,"(a,f8.3,a,a)") '!QforEPSIBZ on ! Use all q in IBZ for the calculation of eps mode.'
   write(ifi,"(a)") 'QforEPSunita on'

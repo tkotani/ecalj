@@ -114,24 +114,6 @@ GaussSmear on  ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr fo
     4    0    1    0    0      0    0    ! 1S -----
 </PRODUCT_BASIS>
 
-! ################################################# 
-<QPNT> ! This block is the same as QPNT.
- --- Specify the q and band indeces for which we evaluate the self-energy ---
-
-*** all q -->1, otherwise 0;  up only -->1, otherwise 0
-           0           0
-*** no. states and band index for calculation.
-           2
-  4  5
-*** q-points, which shoud be in qbz.,See KPNTin1BZ.
-           3
-  1     0.0000000000000000     0.0000000000000000     0.0000000000000000
-  2    -0.2500000000000000    -0.2500000000000000     0.7500000000000000
-  3    -0.5000000000000000     0.5000000000000000     0.5000000000000000
-  4     0.2500000000000000     0.2500000000000000     0.2500000000000000
-</QPNT>
-!EPSrange  1    !(Ry) [0,EPSrange] for dielectric function plot.
-!EPSdw     0.05 !(Ry) energy mesh  for dielectric function plot.
 
 !QforEPSIBZ on ! Use all q in IBZ for the calculation of eps mode.
 <QforEPS>
@@ -143,3 +125,11 @@ GaussSmear on  ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr fo
  0d0 0d0 0d0   1d0   0d0  0d0 8
  0d0 0d0 0d0  .5d0  .5d0  0d0 8
 </QforEPSL>
+
+
+EMINforGW -3
+EMAXforGW 3
+<QforGW>
+    0.0000000000000000     0.0000000000000000     0.0000000000000000
+   -0.5000000000000000     0.5000000000000000     0.5000000000000000
+</QforGW>
