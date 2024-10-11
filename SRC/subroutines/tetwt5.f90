@@ -4,7 +4,8 @@ module m_tetwt5
   public hisrange,tetwt5x_dtet4,rsvwwk00_4
   private
 contains
-  subroutine tetwt5x_dtet4(npm,ncc,q,eband1,eband2,qbas,ginv,efermi,ntetf, nqbzw, nband,nqbz, &
+  subroutine tetwt5x_dtet4(npm,ncc,q,eband1,eband2,qbas,ginv,efermi,ntetf, nqbzw, nband,  &
+       iqbz, fqbz, nqbz, &
        nctot,ecore,  idtetf,qbzw,ib1bz, job, &
        iwgt,nbnb,demin,demax,   &    !  job=0  
        frhis,nwhis, &
@@ -81,16 +82,17 @@ contains
     ! wan: skip ebmx cutoff for magnon calculation
     implicit none
     integer:: npm,jpm,ibxmx,jbxmx,jbx,nrankc1,nrankc2,nnn1,nnn2,nnni,nnnj,ncc
+    integer, intent(in) :: iqbz, fqbz
     !---in out -------------------------------
     integer :: nband,nqbz,nctot,ntetf,nqbzw, &
-         idtetf(0:3,ntetf),ib1bz(nqbzw), nbnb(nqbz,npm)
+         idtetf(0:3,ntetf),ib1bz(nqbzw), nbnb(iqbz:fqbz,npm)
     real(8) :: q(3), &
          eband1(nband,nqbz), eband2(nband,nqbz), &
          qbas(3,3),ginv(3,3),efermi, &
          efermia, efermib, dmua, dmub, &
          ecore(nctot), qbzw(3,nqbzw) !(n1+1)*(n2+1)*(n3+1))
     complex(8):: omg
-    logical :: iwgt(nband+nctot,nband+ncc,nqbz,npm), exb
+    logical :: iwgt(nband+nctot,nband+ncc,iqbz:fqbz,npm), exb
     !----------------------------------
     integer:: itet,ic, ib,jb
     real(8) :: qk(3),qkm(3),qbz(3) 
@@ -115,18 +117,18 @@ contains
     integer:: idim,ivec
     real(8)::  x_(0:3),cut
     integer:: job
-    real(8) :: demax(nband+nctot,nband+ncc,nqbz,npm),demax_,demaxx &
-         ,demin(nband+nctot,nband+ncc,nqbz,npm),demin_,deminn
+    real(8) :: demax(nband+nctot,nband+ncc,iqbz:fqbz,npm),demax_,demaxx &
+              ,demin(nband+nctot,nband+ncc,iqbz:fqbz,npm),demin_,deminn
     !      real(8) :: demax(nband+nctot,nband,nqbz),demax_,demaxx
     !     &          ,demin(nband+nctot,nband,nqbz),demin_,deminn
     integer::ixx
     ! job=1
     integer:: nbnbx,nhwtot,nwhis,inihis,ihis,ikx,ibib, ikk &
          ,ioff,isum,ini,ied,jini,iini,nnn,    ntetmx,ntetmin
-    integer:: ihw(nbnbx,nqbz,npm),  & ! omega pointer
-         nhw(nbnbx,nqbz,npm),  &  !number of data
-         jhw(nbnbx,nqbz,npm),  &  !histo-weight pointer for whw(*)
-         ibjb(nctot+nband,nband+ncc,nqbz,npm)
+    integer:: ihw(nbnbx,iqbz:fqbz,npm),  & ! omega pointer
+         nhw(nbnbx,iqbz:fqbz,npm),  &  !number of data
+         jhw(nbnbx,iqbz:fqbz,npm),  &  !histo-weight pointer for whw(*)
+         ibjb(nctot+nband,nband+ncc,iqbz:fqbz,npm)
     real(8) :: whw(nhwtot)    & ! histo-weight
          , frhis(nwhis+1), wtthis2(nwhis,0:3), wtthis(nwhis),piofvoltot
     logical ::chkwrt=.false.,wxx
@@ -209,10 +211,11 @@ contains
     interbandonly=cmdopt0('--interbandonly')
     intrabandonly=cmdopt0('--intrabandonly')
     tetrahedronloop: do 1000 itet = 1, ntetf 
-       kk (0:3) = ib1bz( idtetf(0:3,itet) )  !  four kpoints
+       kk (0:3) = ib1bz( idtetf(0:3,itet) )     !  k
+       if(.not.any( iqbz <= kk(0:3) .and.  kk(0:3) <= fqbz )) cycle
        kkv(1:3, 0:3) = qbzw (1:3, idtetf(0:3,itet) )
        do 1100 im = 1,nmtet ! nmtet=1 usually (micro tetrahedron or nmetet/=1 is obsolate)
-          kkm (0:3)      = ib1bzm( idtetfm(0:3,im,itet) )      !  k  in micro-tet
+          kkm (0:3)      = ib1bzm( idtetfm(0:3,im,itet) ) !  k   in micro-tet
           kvec(1:3, 0:3) = qbzwm ( 1:3, idtetfm(0:3,im,itet) )
           forall(i = 1:3) am(1:3,i) = kvec(1:3,i-1) - kvec(1:3,3)
           voltet = abs(det33(am)/6d0)
@@ -282,11 +285,15 @@ contains
                    endif
                    if( maxval(eunocc(:)-eocc(:)) <0d0 ) cycle ! this makes a bit effective.
                    if(job==0 ) then  !takao
-                     iwgt(ib,jb,kk(0:3),jpm)= .true.
+                      do ixx=0,3
+                        if(kk(ixx) < iqbz .OR. kk(ixx) > fqbz) cycle
+                        iwgt(ib,jb,kk(ixx),jpm)= .true.
+                      enddo
                       x(0:3) = .5d0*(eocc-eunocc) ! + omg !Denominator. unit in Hartree.
                       demax_ =  maxval(-x(0:3)) ! in Hartree
                       demin_ =  minval(-x(0:3)) ! in Hartree
                       do ixx=0,3
+                         if(kk(ixx) < iqbz .OR. kk(ixx) > fqbz) cycle
                          demax(ib,jb,kk(ixx),jpm) = max(demax_, demax(ib,jb,kk(ixx),jpm))
                          demin(ib,jb,kk(ixx),jpm) = min(demin_, demin(ib,jb,kk(ixx),jpm))
                       enddo
@@ -317,6 +324,7 @@ contains
                       enddo
                    endif
                    do ikx = 0,3
+                      if(kk(ikx) < iqbz .OR. kk(ikx) > fqbz) cycle
                       ibib = ibjb(ib,jb,kk(ikx),jpm)
                       jini = jhw(ibib,kk(ikx),jpm)
                       iini = ihw(ibib,kk(ikx),jpm)
@@ -343,6 +351,7 @@ contains
        !     if(eibzmode) then
        !        if(nwgt(kx)==0) cycle
        !     endif
+       if(kx < iqbz .OR. kx > fqbz) cycle
        call chkdgn( ekxx1(:,kx), nband, nrank1, ini1,ied1,0 ,ipr)
        call chkdgn( ekxx2(:,kx), nband, nrank2, ini2,ied2,0 ,ipr)
        nrankc1 = 0
@@ -421,6 +430,7 @@ contains
     if(job==0) then
        do jpm =1, npm
           do ik  =1, nqbz
+             if(ik < iqbz .OR. ik > fqbz) cycle
              nbnb(ik,jpm) = 0
              if(jpm==1) then
                 nnni=nctot

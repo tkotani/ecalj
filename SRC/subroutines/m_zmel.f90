@@ -432,7 +432,7 @@ contains
         ppovlz_work(1:ngb,1:nbb) = ppovlz(1:ngb,1:nbb)
         !$acc host_data use_device(zmel)
         !$acc data copyin(ppovlz_work(1:ngb,1:nbb))
-        ierr = gemm(ppovlz_work, zmelt(1,nm1,1), zmel(1,nm1,1), nbb, nmtot*ncc, ngb, opA = m_op_C) ! if suppose ncc == 0, this does not used 
+        ierr = gemm(ppovlz_work, zmelt(1,nm1,1), zmel(1,nm1,1), nbb, nmtot*ncc, ngb, opA = m_op_C) ! ncc == 0, this does not be used 
         ierr = gemm(ppovlz_work, zmelt(1,nm1,ncc+1), zmel(1,nm1,ncc+ini_index), nbb, nmtot*ntp0, ngb, opA = m_op_C)
         !$acc end data
         !$acc end host_data

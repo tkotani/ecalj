@@ -1,5 +1,5 @@
 !> Tetrahedron weights are stored in this module
-module m_tetwt 
+module m_tetwt
 !! output of gettetwt is passed to x0kf_v4hz
 !!     nbnbx
 !!     ihw(ibjb,kx): omega index, to specify the section of the histogram.
@@ -31,7 +31,7 @@ contains
   subroutine Tetdeallocate()
     deallocate(ihw,nhw,jhw, whw,ibjb,n1b,n2b,nbnb)
   end subroutine Tetdeallocate
-  subroutine Gettetwt(q,iq,is,isf,ekxx1,ekxx2,nband,wan )  
+  subroutine Gettetwt(q,iq,is,isf,ekxx1,ekxx2,nband,wan,ikbz_in,fkbz_in)
     use m_genallcf_v3,only: niw_in=>niw,ecore,nctot,nspin
     use m_freq,only: Getfreq2, frhis,freq_r,freq_i, nwhis,nw_i,nw,npm,niw !output of getfreq
     use m_read_bzdata,only: qlat,ginv, ntetf,idtetf,ib1bz,nqibz_mtet=>nqibz,nqbz,qbz,nqbzw,qbzw, idtetf,ib1bz, qbzw,nqbzw !for tetrahedron
@@ -68,6 +68,14 @@ contains
     integer:: ix,iqx
     logical,optional:: wan
     logical:: wan1,cmdopt0
+    integer, intent(in),optional :: ikbz_in, fkbz_in
+    integer :: ikbz, fkbz
+    ikbz = 1
+    fkbz = nqbz
+    if(present(ikbz_in) .and. present(fkbz_in)) then
+      ikbz = ikbz_in
+      fkbz = fkbz_in
+    endif
 
     if(nctot==0) then
        allocate(ecore_(1,2))    !this is dummy
@@ -79,13 +87,10 @@ contains
     tetra=.true.
     !      eibzmode = eibz4x0()
     debug=cmdopt0('--debug')
+    if(verbose()>=100) debug= .TRUE. 
     !      if(.not.allocated(nbnb))
-    allocate( nbnb(nqbz,npm)   )
-    allocate( nbnbtt(nqbz,npm) )
-!    do iqx=1,nqbz
-!      write(6,*)'eee1=',ekxx1(:,iqx)-ef
-!      write(6,*)'eee2=',ekxx2(:,iqx)-ef
-!    enddo  
+    allocate( nbnb(ikbz:fkbz,npm)   )
+    allocate( nbnbtt(ikbz:fkbz,npm) ) !,ekxx1(nband,nqbz),ekxx2(nband,nqbz))
     !!===========tetraini block tetra==.true.===============================1ini
     write(6,"(' tetra mode: nqbz nband=',2i7,'nctot ispin q=',i2,i2,3f13.6)") nqbz,nband,nctot,is,q
 
@@ -100,9 +105,9 @@ contains
     else
        ncc=nctot
     endif
-    allocate( demin(nband+nctot,nband+ncc,nqbz,npm), &
-         demax(nband+nctot,nband+ncc,nqbz,npm) )
-    allocate( iwgt (nband+nctot,nband+ncc,nqbz,npm) )
+    allocate( demin(nband+nctot,nband+ncc,ikbz:fkbz,npm), &
+         demax(nband+nctot,nband+ncc,ikbz:fkbz,npm) )
+    allocate( iwgt (nband+nctot,nband+ncc,ikbz:fkbz,npm) )
     !     wgt, demin, demax may require too much memory in epsilon mode.
     !     We will have to remove these memory allocations in future.
     !     tetwt5x_dtet2 can be very slow because of these poor memory allocation.
@@ -122,26 +127,27 @@ contains
     if (present(wan)) then
        if(wan) wan1= .TRUE. 
     endif
-    call tetwt5x_dtet4(npm,ncc, q, ekxx1, ekxx2, qlat,ginv,ef, ntetf,nqbzw, nband,nqbz, nctot,ecore_(1,is),idtetf,qbzw,ib1bz,job, &
+    call tetwt5x_dtet4(npm,ncc, q, ekxx1, ekxx2, qlat,ginv,ef, ntetf,nqbzw, nband, &
+         ikbz, fkbz, nqbz, nctot,ecore_(1,is),idtetf,qbzw,ib1bz,job, &
          iwgt,nbnb,   demin,demax,                          & !job=0
          frhis, nwhis,nbnbx,ibjb,nhwtot,  ihw,nhw,jhw, whw, & ! job=1    not-used
          iq,is,isf,nqibz_mtet,&
          nbmx,ebmx,mtet, wan1 ) !Jan2019 for Wannier
     deallocate(ibjb,ihw,jhw,nhw,whw) !dummy
-    nbnbx = max(maxval(nbnb(1:nqbz,1:npm)),1) !nbnbx = nbnbxx
-    write(6,*)' nnnnnnnnn nbnbx=',maxval(nbnb(1:nqbz,1:npm))
-
-    
-    allocate(  n1b(nbnbx,nqbz,npm) ,n2b(nbnbx,nqbz,npm))
+    nbnbx = max(maxval(nbnb(ikbz:fkbz,1:npm)),1) !nbnbx = nbnbxx
+    if(debug) write(6,*)' nbnbx=',nbnbx
+    allocate(  n1b(nbnbx,ikbz:fkbz,npm) &
+              ,n2b(nbnbx,ikbz:fkbz,npm))
     n1b=0
     n2b=0
     do jpm=1,npm
-       call rsvwwk00_4(jpm, iwgt(1,1,1,jpm),nqbz,nband,nctot,ncc, nbnbx, &
-            n1b(1,1,jpm), n2b(1,1,jpm), noccxvx(jpm), nbnbtt(1,jpm))
+       call rsvwwk00_4(jpm, iwgt(1,1,ikbz,jpm),fkbz-ikbz+1,nband,nctot,ncc, nbnbx, &
+                       n1b(1,ikbz,jpm), n2b(1,ikbz,jpm), noccxvx(jpm), nbnbtt(ikbz,jpm))
     enddo
     !!
     if(debug) then
        do kx  = 1, nqbz
+          if(kx < ikbz .OR. kx > fkbz) cycle
           do jpm = 1, npm
              if( nbnb(kx,jpm) >0) then
                 write(6,"('jpm kx minval n1b,n2b=',5i5)")jpm,kx,nbnb(kx,jpm), &
@@ -155,6 +161,7 @@ contains
     endif
     if(sum(abs(nbnb-nbnbtt))/=0)then
        do ik=1,nqbz
+          if(ik < ikbz .OR. ik > fkbz) cycle
           write(6,*)
           write(6,*)"nbnb  =",nbnb(ik,:)
           write(6,*)"nbnbtt=",nbnbtt(ik,:)
@@ -179,11 +186,12 @@ contains
     if(abs(frhis(1))>1d-12) call rx( ' hx0fp0: we assume frhis(1)=0d0')
     write(6,*)' ----------------nbnbx nqbz= ',nbnbx,nqbz
     !!     ... make index sets
-    allocate(ihw(nbnbx,nqbz,npm),nhw(nbnbx,nqbz,npm),jhw(nbnbx,nqbz,npm))
+    allocate(ihw(nbnbx,ikbz:fkbz,npm),nhw(nbnbx,ikbz:fkbz,npm),jhw(nbnbx,ikbz:fkbz,npm))
     ihw=0; nhw=0; jhw=0
     jhwtot = 1
     do jpm =1,npm
        do ik   = 1,nqbz
+          if(ik < ikbz .OR. ik > fkbz) cycle
           do ibib = 1,nbnb(ik,jpm)
              call hisrange( frhis, nwhis, &
                   demin(n1b(ibib,ik,jpm),n2b(ibib,ik,jpm),ik,jpm), &
@@ -197,11 +205,12 @@ contains
     nhwtot = jhwtot-1
     write(6,*)' nhwtot=',nhwtot
     deallocate(demin,demax)
-    allocate( whw(nhwtot), ibjb(nctot+nband,nband+ncc,nqbz,npm) )
+    allocate( whw(nhwtot), ibjb(nctot+nband,nband+ncc,ikbz:fkbz,npm) )
     whw=0d0
     ibjb = 0
     do jpm=1,npm
        do ik   = 1,nqbz
+          if(ik < ikbz .OR. ik > fkbz) cycle
           do ibib = 1,nbnb(ik,jpm)
              ib1  = n1b(ibib,ik,jpm)
              ib2  = n2b(ibib,ik,jpm)
@@ -220,7 +229,7 @@ contains
     endif
     call tetwt5x_dtet4(  npm,ncc, &
          q, ekxx1, ekxx2, qlat,ginv,ef, &
-         ntetf,nqbzw, nband,nqbz, &
+         ntetf,nqbzw, nband, ikbz, fkbz, nqbz, &
          nctot,ecore_(1,is),idtetf,qbzw,ib1bz, &
          job, &
          iwgt,nbnb,           &  !job=0

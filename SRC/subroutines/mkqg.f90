@@ -34,7 +34,10 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
   logical :: regmesh=.false. ,regmeshg=.false. ,  timereversal
   logical :: caca,debug=.false. !,newaniso
   logical :: newoffsetG !july2014
-  logical :: lnq0iadd, lmagnon,unit2=.false. 
+  logical :: lnq0iadd, lmagnon,unit2=.false. ,cmdopt0
+  logical :: keepqg
+  integer :: ifiqg2,ifiqgc2
+  integer, allocatable :: ngvecp_tmp(:,:),ngvecc_tmp(:,:)
   character*99:: q0pf        !nov2012
   write(stdo,"('mkqg2: ')")
   call readhamindex0()
@@ -43,6 +46,7 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
   call getkeyvalue("GWinput", "QpGcut_psi",QpGx2)
   call getkeyvalue("GWinput", "QpGcut_cou",QpGcut_Cou)
   call getkeyvalue("GWinput", "unit_2pioa",unit2)
+  call getkeyvalue("GWinput","KeepQG",keepqg,default=.true.)
   if(unit2) then
      unit = 2d0*pi/alat
      QpGx2     = QpGx2      *unit
@@ -303,6 +307,11 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
   write(stdo,*) ' --- Max number of G for Cou =',ngcmx
   allocate( ngvecprev(-imx:imx,-imx:imx,-imx:imx) )       !inverse mapping table for ngvecp (psi)
   allocate( ngveccrev(-imxc:imxc,-imxc:imxc,-imxc:imxc) ) !inverse mapping table for ngvecc (cou)
+  if(.not.keepqg) allocate(ngvecp_tmp(3,ngpmx),ngvecc_tmp(3,ngcmx))
+  if(.not.keepqg) then
+    open(newunit=ifiqg2 ,file='QGpsi_rec',form='unformatted', access='direct', recl=4*(3*ngpmx+(2*imx+1)**3))
+    open(newunit=ifiqgc2,file='QGcou_rec',form='unformatted', access='direct', recl=4*(3*ngcmx+(2*imxc+1)**3))
+  endif
   ngvecprev=9999
   ngveccrev=9999
   do iq = 1, nqnum
@@ -342,8 +351,19 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
      enddo
      write (ifiqgc) q, ngc
      write (ifiqgc) ngvecc,ngveccrev
+     if(.not.keepqg) then
+        ngvecp_tmp(1:3,1:ngp) = ngvecp(1:3,1:ngp)
+        ngvecc_tmp(1:3,1:ngc) = ngvecc(1:3,1:ngc)
+        write(ifiqg2,rec=iq) ngvecp_tmp,ngvecprev
+        write(ifiqgc2,rec=iq) ngvecc_tmp,ngveccrev
+      endif
      deallocate(ngvecp,ngvecc)
   enddo
+  if(.not.keepqg) then
+    deallocate(ngvecp_tmp,ngvecc_tmp)
+    close(ifiqg2)
+    close(ifiqgc2)
+  endif
   deallocate(ngpn,ngcn,ngvecprev,ngveccrev)
   if(debug) print *,'--- end of mkqg2 ---'
 end subroutine mkQG2

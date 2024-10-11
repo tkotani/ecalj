@@ -12,6 +12,7 @@ module m_readeigen
   use m_hamindex,only:   plat,invgx, miat,tiat,dlmm,shtvg,symops,lmxax,nbas
   use m_read_bzdata,only: ginv
   use m_genallcf_v3,only: nsp =>nspin ,ndima,ndimanspc, mrecb,mrece,mrecg,nband,nspc,nspx
+  use m_keyvalue,only: getkeyvalue
   !! qtt(1:3, nqtt)  :q-vector in full BZ (no symmetry) in QGpsi, QGcou
   !! qtti(1:3,nqi)   :eivenvalues, eigenvectors are calculated only for irr=1 in QGpsi (See lqg4gw).
   implicit none
@@ -31,6 +32,7 @@ module m_readeigen
   integer,allocatable,private:: ngp(:),ngvecp(:,:,:), ngvecprev(:,:,:,:)
   integer,allocatable,private:: l_tbl(:),k_tbl(:),ibas_tbl(:),offset_tbl(:),offset_rev_tbl(:,:,:)
   complex(8),allocatable,private:: geig_mlw(:,:,:,:), cphi_mlw(:,:,:,:)
+  logical,private:: keepqg
 contains
   subroutine onoff_write_pkm4crpa(lll)
     logical:: lll
@@ -76,6 +78,7 @@ contains
     integer:: iq,iqindx,ikpisp,napw,iqq,nnn(3),ig,igg,ig2,iqi,igxt,i,ioff,ispc
     real(8)   :: ddd(3),platt(3,3),qpg(3),qpgr(3),qtarget(3),qout(3),qin(3)
     complex(8):: geigenr(ngpmx*nspc,nband),img=(0d0,1d0),img2pi
+    integer :: ifiqg
     img2pi=2d0*4d0*datan(1d0)*img
     platt=transpose(plat) !this is inverse of qlat
     if(init2) call rx( 'readgeig: modele is not initialized yet')
@@ -104,12 +107,24 @@ contains
     endif
     !!   qinput: qtt(:,iqq)  ---> qtarget: qtt(:,iq) ( G-vector difference from symops*qtt(:,iqq) )
     igxt=1 !not timereversal
+    if(.not.keepqg) then
+      allocate( ngvecp(3,ngpmx,iqq:iqq))
+      allocate( ngvecprev(-imx:imx,-imx:imx,-imx:imx,iq:iq))
+      BLOCK
+        integer:: ngvecp_tmp(3,ngpmx)
+        open(newunit=ifiqg, file='QGpsi_rec',form='unformatted', access='direct', recl=4*(3*ngpmx+(2*imx+1)**3), status='old')
+        read(ifiqg, rec=iq)  ngvecp_tmp(1:3,1:ngpmx),ngvecprev(-imx:imx,-imx:imx,-imx:imx,iq)
+        read(ifiqg, rec=iqq) ngvecp(1:3, 1:ngp(iqq),iqq)
+        close(ifiqg)
+      END BLOCK
+    endif
     do ispc=1,nspc
        ioff=(ispc-1)*ngpmx
        call rotipw(qtt(:,iqq),qtt(:,iq),ngp(iqq),nband, &
             platt,qlat,symops(:,:,igg),ngvecp(:,:,iqq),ngvecprev(:,:,:,iq),shtvg(:,igg),igxt,imx, &
             geigenr(ioff+1:ioff+ngp(iqq),1:nband), geigen(ioff+1:ioff+ngp(iq),1:nband))
     enddo
+    if(.not.keepqg) deallocate(ngvecp,ngvecprev)
   end subroutine readgeig
   function readcphif(q,isp) result(cphif)
     integer,intent(in):: isp
@@ -177,11 +192,19 @@ contains
     if(nqtt/=  nqtt_) call rx( 'init_readeigen:nqtt/=nqtt_ 11111')
     if(ngpmx_/=ngpmx) call rx('ngpmx error: 1111111 readeigen')
     allocate( qtt_(3,nqtt),ngp(nqtt) )
-    allocate( ngvecp(3,ngpmx,nqtt))
-    allocate( ngvecprev(-imx:imx,-imx:imx,-imx:imx,nqtt) )
+    call getkeyvalue("GWinput","KeepQG",keepqg,default=.true.)
+    if(.not.keepqg) write(6,*) 'keepQG = .false. in readeigen'
+    if(keepqg) then
+      allocate( ngvecp(3,ngpmx,nqtt))
+      allocate( ngvecprev(-imx:imx,-imx:imx,-imx:imx,nqtt) )
+    endif
     do ikp = 1,nqtt
        read (ifiqg) qtt_(:,ikp), ngp(ikp)
-       read (ifiqg) ngvecp(1:3, 1:ngp(ikp),ikp),ngvecprev(-imx:imx,-imx:imx,-imx:imx,ikp)
+       if(keepqg) then
+         read (ifiqg) ngvecp(1:3, 1:ngp(ikp),ikp),ngvecprev(-imx:imx,-imx:imx,-imx:imx,ikp)
+       else
+         read (ifiqg)
+       endif
     enddo
     close(ifiqg)
     deallocate(qtt_)
