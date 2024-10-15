@@ -87,12 +87,12 @@ contains
         enddo
         epstinv(ix+1:ngb,ix+1:ngb)=epstilde(ix+1:ngb,ix+1:ngb)
         call stopwatch_start(t_sw_matinv)
-        call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
-        ! !$acc data copy(epstinv)
-        ! !$acc host_data use_device(epstinv)
-        ! istat = zminv(epstinv(ix+1,ix+1), n=ngb-ix, lda=ngb)
-        ! !$acc end host_data
-        ! !$acc end data
+        ! call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
+        !$acc data copy(epstinv)
+        !$acc host_data use_device(epstinv)
+        istat = zminv(epstinv(ix+1,ix+1), n=ngb-ix, lda=ngb)
+        !$acc end host_data
+        !$acc end data
         call stopwatch_pause(t_sw_matinv)
         !  w4p writing eps
         if(iw==0 .AND. w4pmode) then ! static epstinv is saved. For q=0 epstilde (mu=1 skipped). For q/=0 full matrix inversion. ix=1 is set for q=0)
@@ -144,12 +144,12 @@ contains
         enddo
         epstinv(ix+1:ngb,ix+1:ngb)=epstilde(ix+1:ngb,ix+1:ngb)
         call stopwatch_start(t_sw_matinv)
-        call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
-        ! !$acc data copy(epstinv)
-        ! !$acc host_data use_device(epstinv)
-        ! istat = zminv(epstinv(ix+1,ix+1), n=ngb-ix, lda=ngb)
-        ! !$acc end host_data
-        ! !$acc end data
+        ! call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
+        !$acc data copy(epstinv)
+        !$acc host_data use_device(epstinv)
+        istat = zminv(epstinv(ix+1,ix+1), n=ngb-ix, lda=ngb)
+        !$acc end host_data
+        !$acc end data
         call stopwatch_pause(t_sw_matinv)
         if(iq0<=nq0i) llw(iw,iq0)= 1d0/epstinv(1,1)
         !     ! Wing elements calculation july2016    ! We need check nqb is the same as that of q=0
@@ -228,12 +228,12 @@ contains
           enddo
           epstinv=epstilde
           call stopwatch_start(t_sw_matinv)
-          call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
-          ! !$acc data copy(epstinv)
-          ! !$acc host_data use_device(epstinv)
-          ! istat = zminv(epstinv(ix+1,ix+1), n=ngb-ix, lda=ngb)
-          ! !$acc end host_data
-          ! !$acc end data
+          ! call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
+          !$acc data copy(epstinv)
+          !$acc host_data use_device(epstinv)
+          istat = zminv(epstinv(ix+1,ix+1), n=ngb-ix, lda=ngb)
+          !$acc end host_data
+          !$acc end data
           call stopwatch_pause(t_sw_matinv)
           do igb1=ix+1,ngb
              do igb2=ix+1,ngb
@@ -276,12 +276,12 @@ contains
              enddo
              epstinv(ix+1:ngb,ix+1:ngb)=epstilde(ix+1:ngb,ix+1:ngb)
              call stopwatch_start(t_sw_matinv)
-             call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
-             ! !$acc data copy(epstinv)
-             ! !$acc host_data use_device(epstinv)
-             ! istat = zminv(epstinv(ix+1,ix+1), n=ngb-ix, lda=ngb)
-             ! !$acc end host_data
-             ! !$acc end data
+             ! call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
+             !$acc data copy(epstinv)
+             !$acc host_data use_device(epstinv)
+             istat = zminv(epstinv(ix+1,ix+1), n=ngb-ix, lda=ngb)
+             !$acc end host_data
+             !$acc end data
              call stopwatch_pause(t_sw_matinv)
              if(iq0<=nq0i) llwI(iw,iq0)= 1d0/epstinv(1,1)
           !else
