@@ -248,11 +248,11 @@ contains
     init2=.false.
     if(Keepeig       ) write(6,*)' KeepEigen=T; readin geig and cphi into m_readeigen'
     if( .NOT. Keepeig) write(6,*)' KeepEigen=F; not keep geig and cphi in m_readeigen'
+    i=openm(newunit=ifcphim,file='CPHI',recl=mrecb)
+    i=openm(newunit=ifgeigm,file='GEIG',recl=mrecg)
     if( .NOT. keepeig) return
     allocate(geig(ngpmx*nspc,nband,nqi,nspx))
     allocate(cphi(ndima*nspc,nband,nqi,nspx))
-    i=openm(newunit=ifcphim,file='CPHI',recl=mrecb)
-    i=openm(newunit=ifgeigm,file='GEIG',recl=mrecg)
     do ikp= 1,nqi
        do is= 1,nspx
           ikpisp= is + nsp*(ikp-1)
