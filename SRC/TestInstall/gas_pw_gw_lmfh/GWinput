@@ -83,7 +83,7 @@ GaussSmear on  ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr fo
 0d0 0d0 0.01d0
 </QforEPS>
 
-EMINforGW -3
+EMINforGW -9999
 EMAXforGW 3
 <QforGW>
     0.0000000000000000     0.0000000000000000     0.0000000000000000
