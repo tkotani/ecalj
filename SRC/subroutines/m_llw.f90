@@ -48,9 +48,9 @@ contains
        if(w4pmode) allocate( wmuk(2:nblochpmx,3),source=(1d99,0d0))
        allocate( zw(nblochpmx,nblochpmx) )
        init=.false.
-       call stopwatch_init(t_sw_matinv, 'matinv')
-       call stopwatch_init(t_sw_x_gather, 'gather')
     endif
+    call stopwatch_init(t_sw_matinv, 'matinv')
+    call stopwatch_init(t_sw_x_gather, 'gather')
     call readqg0('QGcou', (/0d0,0d0,0d0/),  quu,ngc0) ! ngb is q-dependent. released at the end of WVIllwi
     ngbq0 = nbloch+ngc0
     allocate( zw0(ngb,ngb), epstilde(ngb,ngb), epstinv(ngb,ngb))
@@ -87,12 +87,12 @@ contains
         enddo
         epstinv(ix+1:ngb,ix+1:ngb)=epstilde(ix+1:ngb,ix+1:ngb)
         call stopwatch_start(t_sw_matinv)
-        ! call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
-        !$acc data copy(epstinv)
-        !$acc host_data use_device(epstinv)
-        istat = zminv(epstinv(ix+1,ix+1), n=ngb-ix, lda=ngb)
-        !$acc end host_data
-        !$acc end data
+        call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
+        ! !$acc data copy(epstinv)
+        ! !$acc host_data use_device(epstinv)
+        ! istat = zminv(epstinv(ix+1,ix+1), n=ngb-ix, lda=ngb)
+        ! !$acc end host_data
+        ! !$acc end data
         call stopwatch_pause(t_sw_matinv)
         !  w4p writing eps
         if(iw==0 .AND. w4pmode) then ! static epstinv is saved. For q=0 epstilde (mu=1 skipped). For q/=0 full matrix inversion. ix=1 is set for q=0)
@@ -144,12 +144,12 @@ contains
         enddo
         epstinv(ix+1:ngb,ix+1:ngb)=epstilde(ix+1:ngb,ix+1:ngb)
         call stopwatch_start(t_sw_matinv)
-        ! call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
-        !$acc data copy(epstinv)
-        !$acc host_data use_device(epstinv)
-        istat = zminv(epstinv(ix+1,ix+1), n=ngb-ix, lda=ngb)
-        !$acc end host_data
-        !$acc end data
+        call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
+        ! !$acc data copy(epstinv)
+        ! !$acc host_data use_device(epstinv)
+        ! istat = zminv(epstinv(ix+1,ix+1), n=ngb-ix, lda=ngb)
+        ! !$acc end host_data
+        ! !$acc end data
         call stopwatch_pause(t_sw_matinv)
         if(iq0<=nq0i) llw(iw,iq0)= 1d0/epstinv(1,1)
         !     ! Wing elements calculation july2016    ! We need check nqb is the same as that of q=0
@@ -196,9 +196,9 @@ contains
        allocate( llwI(niw,nq0i) )
        init=.false.
        llwI= 1d99
-       call stopwatch_init(t_sw_matinv, 'matinv')
-       call stopwatch_init(t_sw_x_gather, 'gather')
     endif
+    call stopwatch_init(t_sw_matinv, 'matinv')
+    call stopwatch_init(t_sw_x_gather, 'gather')
     write(6,*)'WVRllwI: init'
     if (nspin == 1) zxqi = 2d0*zxqi ! if paramagnetic, multiply x0 by 2
     if( iq<=nqibz ) then
@@ -227,12 +227,14 @@ contains
              enddo
           enddo
           epstinv=epstilde
-          !$acc data copy(epstinv)
-          !$acc host_data use_device(epstinv)
-          istat = zminv(epstinv(ix+1,ix+1), n=ngb-ix, lda=ngb)
-          !$acc end host_data
-          !$acc end data
-          ! call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
+          call stopwatch_start(t_sw_matinv)
+          call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
+          ! !$acc data copy(epstinv)
+          ! !$acc host_data use_device(epstinv)
+          ! istat = zminv(epstinv(ix+1,ix+1), n=ngb-ix, lda=ngb)
+          ! !$acc end host_data
+          ! !$acc end data
+          call stopwatch_pause(t_sw_matinv)
           do igb1=ix+1,ngb
              do igb2=ix+1,ngb
                 zw0(igb1,igb2)= vcousq(igb1)*epstinv(igb1,igb2)*vcousq(igb2)
@@ -274,12 +276,12 @@ contains
              enddo
              epstinv(ix+1:ngb,ix+1:ngb)=epstilde(ix+1:ngb,ix+1:ngb)
              call stopwatch_start(t_sw_matinv)
-             ! call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
-             !$acc data copy(epstinv)
-             !$acc host_data use_device(epstinv)
-             istat = zminv(epstinv(ix+1,ix+1), n=ngb-ix, lda=ngb)
-             !$acc end host_data
-             !$acc end data
+             call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
+             ! !$acc data copy(epstinv)
+             ! !$acc host_data use_device(epstinv)
+             ! istat = zminv(epstinv(ix+1,ix+1), n=ngb-ix, lda=ngb)
+             ! !$acc end host_data
+             ! !$acc end data
              call stopwatch_pause(t_sw_matinv)
              if(iq0<=nq0i) llwI(iw,iq0)= 1d0/epstinv(1,1)
           !else
@@ -364,4 +366,5 @@ subroutine tr_chkwrite(tagname,zw,iw,freqq,nblochpmx,nbloch,ngb,iq)
      trwv2 = trwv2 + zw(i,i)
   enddo  !  write(6,'(" realomg trwv=",2i6,4d22.14)') iq,iw,trwv(iw),trwv2(iw)
   write(6,'(a,f10.4,2i5,4d22.14)')tagname,freqq,iq,iw,trwv,trwv2
+  call flush(6)
 end subroutine tr_chkwrite

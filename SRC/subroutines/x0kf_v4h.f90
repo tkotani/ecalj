@@ -166,7 +166,7 @@ contains
     complex(8),optional:: zzr(:,:)
     real(8):: q(3),schi,ekxx1(nband,nqbz),ekxx2(nband,nqbz)
     character(10) :: i2char
-    logical :: tetwtk = .true.
+    logical :: tetwtk = .false.
     type(stopwatch) :: t_sw_zmel, t_sw_x0
     qq=q
 !    GPUTEST = .true. !cmdopt0('--gpu')
@@ -178,7 +178,7 @@ contains
       if(realomega) allocate(zxq(npr,npr_col,nw_i:nw),source=(0d0,0d0))
       if(imagomega) allocate(zxqi(npr,npr_col,niw),source=(0d0,0d0))
     endif
-    if(cmdopt0('--notetwtk'))  tetwtk=.false.
+    if(cmdopt0('--tetwtk'))  tetwtk=.true.
     if(cmdopt0('--emptyrun'))  return
     if(chipm .AND. nolfco) then; call setppovlz_chipm(zzr,npr)
     else;                        call setppovlz(q,matz=.true.,npr=npr)!2024-5-23 obata. A minor bug to consume memory: Set npr=1 for EPSPP0 mode(no lfc)

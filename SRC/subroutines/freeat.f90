@@ -501,7 +501,7 @@ contains
 4011   enddo
 80  enddo
     close(ifipnu)
-    if(ifiwv >=0) write(ifiwv,"('8 9 9 9 9 --------! this is terminator for an atom section')")
+    if(ifiwv >=0) write(ifiwv,"('9 9 9 9 9 --------! this is terminator for an atom section')")
     ! --- Write file with valence wavefunctions
     if (lplawv == 1) then
        write (str,'(''wf_'',a)') spid
