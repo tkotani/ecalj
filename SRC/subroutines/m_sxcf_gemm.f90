@@ -431,8 +431,16 @@ contains
                     iwimag:do iw = 0, niw !niw is ~10. ixx=0 is for omega=0 nw_i=0 (Time reversal) or nw_i =-nw
                       if(emptyrun) cycle
                       if(keepwv) then
-                        if(iw == 0) wc = wvr(:,:,iw)
-                        if(iw > 0) wc = wvi(:,:,iw)
+                        if(iw == 0) then
+                          !$acc kernels
+                           wc(:,:) = wvr(:,:,iw)
+                          !$acc end kernels
+                        endif
+                        if(iw > 0) then
+                          !$acc kernels
+                          wc(:,:) = wvi(:,:,iw)
+                          !$acc end kernels
+                        endif
                       else
                         if(iw == 0) read(ifrcw,rec=1+(0-nw_i)) wv!direct access Wc(0) = W(0)-v ! nw_i=0 (Time reversal) or nw_i =-nw
                         if(iw > 0) read(ifrcwi,rec=iw) wv ! direct access read Wc(i*omega)=W(i*omega)-v
