@@ -5,7 +5,8 @@ module m_mpiio !MPI-IO only for complex(8). Fixed length recl
   public:: openm,writem,readm,closem
   private
   integer,parameter::nfmax=100, nsize=16 !maxsize of opened file by openm
-  integer::ierr,recll(nfmax),fhl(nfmax)=-9999,iff=0
+  integer:: ierr,fhl(nfmax)=-9999,iff=0
+  integer(kind=mpi_offset_kind)::recll(nfmax)
 contains
   function openm(newunit,file,recl) result(i) !recl=16*size
     integer::    newunit,     recl,info,amode
