@@ -167,6 +167,7 @@ contains
     real(8):: q(3),schi,ekxx1(nband,nqbz),ekxx2(nband,nqbz)
     character(10) :: i2char
     logical :: tetwtk = .false.
+    real(8) :: zmel_max_size
     type(stopwatch) :: t_sw_zmel, t_sw_x0
     qq=q
 !    GPUTEST = .true. !cmdopt0('--gpu')
@@ -180,6 +181,8 @@ contains
     endif
     if(cmdopt0('--tetwtk'))  tetwtk=.true.
     if(cmdopt0('--emptyrun'))  return
+    call getkeyvalue("GWinput","zmel_max_size",zmel_max_size,default=1d0) !in GB
+    if(zmel_max_size < 0.001d0) zmel_max_size = 1d0
     if(chipm .AND. nolfco) then; call setppovlz_chipm(zzr,npr)
     else;                        call setppovlz(q,matz=.true.,npr=npr)!2024-5-23 obata. A minor bug to consume memory: Set npr=1 for EPSPP0 mode(no lfc)
     endif
@@ -293,24 +296,38 @@ contains
             ! ns1  = nkmin(k)+nctot; ns2  = nkmax(k)+nctot
             ! nqini= nkqmin(k);      nqmax= nkqmax(k)
             icounkmink= icounkmin(k); icounkmaxk= icounkmax(k)
-            call stopwatch_start(t_sw_zmel)
             debug=cmdopt0('--debugzmel')
             if(debug) write(stdo,ftox) 'ggggggggg goto get_zmel_init_gemm',k, nkmin(k),nkmax(k),nctot
-            if(use_gpu) then
-              !Currently, mpi version of get_zmel_init_gpu which is available by adding comm argument for MPI communicator,
-              !but, MPI communication is significant bottle-neck in the case where GPUs are used. Therefore, it is only used in without GPU case.
-              call get_zmel_init_gemm(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
-                   nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., &
-                   zmelconjg=.true.)
-            else
-              call get_zmel_init_gemm(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
-                   nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., &
-                   zmelconjg=.true., comm = comm_b)
-            endif
-            call stopwatch_pause(t_sw_zmel)
-            call stopwatch_start(t_sw_x0)
-            call x0gemm(rcxq, npr, ipr_col, npr_col, nwhis, npm)
-            call stopwatch_pause(t_sw_x0)
+            NMBATCH: BLOCK 
+              integer :: nsize, nns, ibatch, nbatch, ns12
+              nsize = (nkqmax(k)-nkqmin(k))*npr   !
+              nns = (nkmax(k) - nkmin(k) + 1) !number of middle states
+              nbatch = ceiling(dble(nns)*nsize*16/1000**3/zmel_max_size)
+              ns1 = nkmin(k) + nctot 
+              do ibatch = 1, nbatch
+                ns12 = (nns + ibatch - 1)/nbatch
+                if(ns12 == 0) cycle
+                ns2 = ns1 + ns12 - 1
+                call stopwatch_start(t_sw_zmel)
+                write(stdo,ftox) 'zmel_batch:', ibatch, ns1, ns2, nbatch
+                if(use_gpu) then
+                  !Currently, mpi version of get_zmel_init_gpu which is available by adding comm argument for MPI communicator,
+                  !but, MPI communication is significant bottle-neck in the case where GPUs are used. Therefore, it is only used in without GPU case.
+                  call get_zmel_init_gemm(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=ns1,ns2=ns2, ispm=isp_k, &
+                       nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., &
+                       zmelconjg=.true.)
+                else
+                  call get_zmel_init_gemm(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=ns1,ns2=ns2, ispm=isp_k, &
+                       nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., &
+                       zmelconjg=.true., comm = comm_b)
+                endif
+                call stopwatch_pause(t_sw_zmel)
+                call stopwatch_start(t_sw_x0)
+                call x0gemm(rcxq, npr, ipr_col, npr_col, nwhis, npm, ns1, ns2)
+                call stopwatch_pause(t_sw_x0)
+                ns1 = ns2 +  1
+              enddo
+            END BLOCK NMBATCH
             write(6,ftox) 'end of k:', k ,' of:',nqbz, 'zmel:', ftof(stopwatch_lap_time(t_sw_zmel),4), '(sec)', &
                                                         ' x0:', ftof(stopwatch_lap_time(t_sw_x0),4), '(sec)'
             call flush(6)

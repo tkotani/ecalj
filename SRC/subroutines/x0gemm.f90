@@ -1,5 +1,5 @@
 !>Accumulating rxcq
-subroutine x0gemm(rcxq, npr, ipr_col, npr_col, nwhis, npm) 
+subroutine x0gemm(rcxq, npr, ipr_col, npr_col, nwhis, npm, ns1, ns2) 
   use m_kind, only: kp => kindrcxq
   use m_mpi, only: comm_b, mpi__rank_b, mpi__size_b
   use m_x0kf, only: icounkmink, icounkmaxk, iwini, iwend, itc, itpc, jpmc, icouini, whwc
@@ -19,7 +19,7 @@ subroutine x0gemm(rcxq, npr, ipr_col, npr_col, nwhis, npm)
   use, intrinsic :: ieee_arithmetic
   !$ use omp_lib
   implicit none
-  integer, intent(in) :: npr, ipr_col, npr_col, nwhis, npm
+  integer, intent(in) :: npr, ipr_col, npr_col, nwhis, npm, ns1, ns2
   complex(kind=kp), intent(inout) :: rcxq(npr,npr_col,nwhis,npm) !accumulating to rcxq
   integer :: icoun, igb1, igb2, iw, jpm, it, itp, ittp, nttp_max, ierr
   integer, allocatable :: nttp(:,:),  itw(:,:,:), itpw(:,:,:)
@@ -49,6 +49,7 @@ subroutine x0gemm(rcxq, npr, ipr_col, npr_col, nwhis, npm)
     jpm = jpmc(icoun)
     it  = itc (icoun)
     itp = itpc(icoun)
+    if(it  < ns1 .or. it > ns2) cycle
     do iw = iwini(icoun), iwend(icoun)
       nttp(iw,jpm) = nttp(iw,jpm) + 1
       ittp = nttp(iw,jpm)
