@@ -27,10 +27,10 @@ contains
     real(8):: eavr,eavr2,eee,eseavr0,eseavr02,dsenoz
     logical :: sigma_mixing,lsi, lsigin
     integer:: ifsex(2),ifsexcore(2),ifxc(2),ifsec(2),ifqpe(2),iftote(2),iftote2(2),ifsex2(2),ifsexcore2(2),ifsec2(2)
-    integer:: i,ierr,ifsigm,iix,ikp,ikpx,ip,ipxx,iq,iqq,is,isx,j,nevv,isxxx,itp,itpp,nstarsum,nt,ntqx,ntqxxmin
+    integer:: i,ierr,ifsigm,iix,ikp,ip,ipxx,iq,iqq,is,isx,j,nevv,isxxx,itp,itpp,nstarsum,nt,ntqx,ntqxxmin
     integer,allocatable :: itx(:) 
-    real(8),allocatable :: vxc(:,:), &
-         sex(:,:),sexcore(:,:), qx(:,:,:),eldax(:,:),rsec(:,:),csec(:,:) ,qqq(:,:,:) ,qqqx_m(:,:,:),evl(:,:,:)
+    real(8),allocatable :: vxc(:,:), sex(:,:),sexcore(:,:), qx(:,:,:),eldax(:,:),rsec(:,:),csec(:,:) ,&
+         qqq(:,:,:) ,qqqx_m(:,:,:),evl(:,:,:)
     complex(8), allocatable :: sex2(:,:,:),sexcore2(:,:,:), &
          sec2(:,:,:), se(:,:,:),work(:),evec_inv(:,:),evec_invt(:,:), se_ev(:,:), ev_se_ev(:,:),&
          sen(:,:),sen2(:,:),se_in(:,:), v_xc(:,:,:,:),evec(:,:,:,:),evec0(:,:),sigma_m(:,:,:,:), &
@@ -70,18 +70,11 @@ contains
     call readefermi()
     hartree=2d0*rydberg()
 ! open files    
-    open(newunit=ifsex(1) , file='SEXU')
     open(newunit=ifxc(1)  , file='XCU')
     open(newunit=ifsex2(1), file='SEX2U',form='UNFORMATTED', status='OLD') !    open(newunit=ifsec(1),file='SECU')
     open(newunit=ifsec2(1), file='SEC2U',form='UNFORMATTED', status='OLD') !    open(newunit=ifsexcore(1) ,file='SEXcoreU')
     open(newunit=ifsexcore2(1),file='SEXcore2U',form='UNFORMATTED',status='OLD')
-    call readx (ifsex(1),50)
-!    nq=nqibz
-    read (ifsex(1),*) nspinx,nqx,ntq
-    rewind (ifsex(1))
-    write(stdo,*)'nqibz nspin=',nqibz,nspin
     nsp2laf= nspin == 2 .AND. .NOT. laf
-    if(nsp2laf)  open(newunit=ifsex(2),     file='SEXD')
     if(nsp2laf)  open(newunit=ifxc(2) ,     file='XCD')
     if(nsp2laf)  open(newunit=ifsex2(2),    file='SEX2D',form='UNFORMATTED', status='OLD')
     if(nsp2laf)  open(newunit=ifsec2(2),    file='SEC2D',form='UNFORMATTED', status='OLD')
@@ -94,7 +87,12 @@ contains
     if(nspin==2) open(newunit=ifqpe(2)   ,file='QPD')
     if(nspin==2) open(newunit=iftote(2)  ,file='TOTE.DN')
     if(nspin==2) open(newunit=iftote2(2) ,file='TOTE2.DN')
-!    
+    !
+    call readx(ifxc(1),50)
+    read (ifxc(1),*) nspinx,nqx,ntq !readin ntq
+    rewind(ifxc(1))
+    write(stdo,*)'nqibz nspin=',nqibz,nspin
+    ! read sigm   
     if (lsigin) then !   write(6,*) ' ... reading input sigma from file sigm'
       read(ifsigm) nspinx,ndimsigin,n1x,n2x,n3x,nqx
       if (nqx /= nqibz) then
@@ -137,33 +135,28 @@ contains
     if(sum(nstar(:))/= nqbz ) call rx( ' nstarsum/= nqbz')
     allocate(ntqxx(nqibz))
     allocate(vxc(ntq,nqibz), itx(ntq), qx (3,ntq,nqibz),eldax (ntq,nqibz),sex(ntq,nqibz) )
-    allocate( sex2(ntq,ntq,nqibz), sexcore(ntq,nqibz),sexcore2(ntq,ntq,nqibz) )
+    allocate(sex2(ntq,ntq,nqibz), sexcore(ntq,nqibz),sexcore2(ntq,ntq,nqibz) )
     allocate(rsec(ntq,nqibz),csec(ntq,nqibz),sec2(ntq,ntq,nqibz))
-    isloop: do 1001  is = 1,nspin 
-      write(6,*) ' --- is=',is
+    Moveoffset: do is=1,nspin
       read(ifsex2(is))   
       read(ifsec2(is))   
       read(ifsexcore2(is)) 
-      call readx(ifxc(is),50)
-      call readx(ifxc(is),50)
-      read(ifxc(is),*)
-      do ip = 1,nqibz
-        do i  = 1,ntq
-          read(ifxc(is),*) itx(i),ipxx,isxxx, qx(1:3,i,ip), exx,vxc(i,ip)
-        enddo
-      enddo
-      do ip = 1,nqibz
+      call readx(ifxc(is),50); call readx(ifxc(is),50); read(ifxc(is),*)
+    enddo Moveoffset
+    isloop: do 1001  is = 1,nspin ; write(6,*) ' --- is=',is
+      do 1010 ip = 1,nqibz
         read(ifsex2(is)) isx,qx2,sex2(1:ntq,1:ntq,ip)
         read(ifsexcore2(is)) isx,qx2,sexcore2(1:ntq,1:ntq,ip) 
         read(ifsec2(is)) isx,qx2,sec2(1:ntq,1:ntq,ip)
         do i  = 1,ntq 
-          eldax(i,ip)=evl(i,ip,is)*rydberg()-ef*rydberg()
+          read(ifxc(is),*) itx(i),ipxx,isxxx, qx(1:3,i,ip), eldax(i,ip),vxc(i,ip)
+!          eldax(i,ip)=evl(i,ip,is)*rydberg() -ef*rydberg()
           sex(i,ip)=sex2(i,i,ip)*hartree !sex in eV
           sexcore(i,ip)= sexcore2(i,i,ip)*hartree 
           rsec(i,ip)=dreal(sec2(i,i,ip))*hartree
           csec(i,ip)=dimag(sec2(i,i,ip))*hartree
         enddo
-      enddo
+1010  enddo
 !      
       WRITEqpe: block !call qpe1_sc(ifqpe(is),iftote(is),iftote2(is),itx,qx,eldax,vxc,sex,sexcore, rsec,csec,deltaw,alat,ef,ntq,nq,is)
         real(8):: eqp(ntq,nqibz),eqp2(ntq,nqibz), zfac=1d0 
@@ -177,7 +170,7 @@ contains
         write(ifqpe(is),*)
         write(ifqpe(is),"(a)") '           q               state  SEx   SExcore SEc    vxc   ---' &
              // '   dSEnoZ  eQP(starting by lmf)  eHF  Z=1  FWHM=2Z*Simg ReS(elda)'
-        do      iq = 1,nqibz
+        do     iq = 1,nqibz
           do   it = 1,ntq
             eshift      = sex(it,iq)+sexcore(it,iq)+rsec(it,iq)-vxc(it,iq)
             eshift2     = sex(it,iq)+sexcore(it,iq)+rsec(it,iq)-vxc(it,iq)
@@ -206,29 +199,21 @@ contains
         close(iftote2(is))
       endblock WRITEqpe
       
-      ! making SE_ij-VXC_ij, ij are 'basis functions' indexes
-      allocate(se(ntq,ntq,nqibz),ipiv(nhq),work(nhq*nhq),evec_inv(nhq,nhq) ,evec_invt(nhq,nhq))
-      allocate(ev_se_ev(ndimsig,ndimsig))
-      do ip=1,nqibz
+      ! Make SE_ij-VXC_ij, ij are in 'basis functions' indexes
+      allocate(se(ntq,ntq,nqibz),ipiv(nhq),work(nhq*nhq),evec_inv(nhq,nhq) ,evec_invt(nhq,nhq),ev_se_ev(ndimsig,ndimsig))
+      SEloop: do ip=1,nqibz
         do itp=1,ntq
           do itpp=1,ntq ! make Sigma hermitian
             se(itpp,itp,ip)= sex2(itpp,itp,ip)+sexcore2(itpp,itp,ip) +.5d0*(sec2(itpp,itp,ip)+dconjg(sec2(itp,itpp,ip)))
           enddo
         enddo
-      enddo
+      enddo SEloop
       if(is==1 .AND. laf) then; write(ifsigm) 1,ndimsig,n1,n2,n3,nqibz,0,0,0
       elseif (is == 1)    then; write(ifsigm) nspin,ndimsig,n1,n2,n3,nqibz,0,0,0
       endif
-      do 2001 ip=1,nqibz
-        do ikp=1,nqibz        !nqbz
-          if (sum ( (qqq(1:3,ikp,is)-qx(1:3,1,ip))**2 ) < tolq ) then
-            ikpx=ikp      !qc(:,i,:) does not depents on band index i=1:ntq
-            goto 100
-          endif
-        enddo               !ikp
-        call rx( 'hqpe.sc: not find ikp 100')
-100     continue
-        nz = nhqx(ikpx,is)
+      SEvxcloop: do 2001 ip=1,nqibz
+        if (sum ( (qqq(1:3,ip,is)-qx(1:3,1,ip))**2 ) > tolq ) call rx( 'hqpe.sc: not find ikp 100')
+        nz = nhqx(ip,is)
         ntqxx(ip)=ntq
         do itp=ntq,1,-1
           if(se(itp,itp,ip)/=0d0) then
@@ -246,25 +231,22 @@ contains
         do itp = 1,ntqxx(ip)
           do itpp= 1,ntqxx(ip)
             se(itp,itpp,ip)= se(itp,itpp,ip) &
-                 -.5d0* sum(dconjg(evec(1:nz,itp,ikpx,is))* matmul(v_xc(1:nz,1:nz,ikpx,is),evec(1:nz,itpp,ikpx,is)))
+                 -.5d0* sum(dconjg(evec(1:nz,itp,ip,is))* matmul(v_xc(1:nz,1:nz,ip,is),evec(1:nz,itpp,ip,is)))
           enddo
         enddo
-2001  enddo
-      do 2002 ip=1,nqibz         !     e-weighted average
-        !     eavr  : average of eigenvalues within threshold (itp<=ntqxx)
-        !     eavr2  : square average of eigenvalues within threshold (itp<=ntqxx)
-        !     eseavr: average of se*eigenvalue
-        eavr  = 0d0
-        eavr2  = 0d0
-        eseavr0= 0d0
+2001  enddo SEvxcloop
+      Average4highbands: do 2002 ip=1,nqibz
+        eavr  = 0d0    !    eavr  : average of eigenvalues within threshold (itp<=ntqxx)
+        eavr2  = 0d0   !    eavr2  : square average of eigenvalues within threshold (itp<=ntqxx)
+        eseavr0= 0d0   !    eseavr: average of se*eigenvalue
         eseavr02 =0d0
         iix=0
         do itp=1,ntqxx(ip)
           eee = eldax(itp,ip) - rydberg()*ef
           if( eee > 1d-2 ) then
-            eavr   = eavr   + eee
-            eavr2   = eavr2   + eee**2
-            eseavr0 = eseavr0 + eee* se(itp,itp,ip)
+            eavr   = eavr       + eee
+            eavr2   = eavr2     + eee**2
+            eseavr0 = eseavr0   + eee* se(itp,itp,ip)
             eseavr02 = eseavr02 + eee**2* se(itp,itp,ip)
             iix=iix+1
           endif
@@ -278,41 +260,24 @@ contains
         write(6,*)"### A correction takao2009June: find this in hqpe.se.m.F"
         write(6,*)"###   constant is added to sigm above threshold."
         write(6,*)"###   the constant (ESEAVR=e-weighted average Ry)= ",is,ip,eseavr(ip,is)
-2002  enddo
+2002  enddo Average4highbands
       eseavrmean = sum(nstar(1:nqibz)*eseavr(1:nqibz,is))/nqbz       !call getkeyvalue("GWinput","AddToESEAVR",eseadd,default=0d0,status=ret)
       write(6,"(' ESEAVRmean (used bands above emax_sigm) isp=',d13.6,i2)")eseavrmean,is
 !      
-      SIGMiploop: do 2003 ip=1,nqibz
-        do ikp=1,nqibz        !nqbz
-          if (sum ((qqq(1:3,ikp,is)-qx(1:3,1,ip))**2 ) < tolq ) then
-            ikpx=ikp      !qc(:,i,:) does not depents on band index i=1:ntq
-            goto 102
-          endif
-        enddo               !ikp
-        call rx( 'hqpe.sc: not find ikp 102')
-102     continue
-        nz = nhqx(ikpx,is) !june 2009 takao. we use nz instead of nhq
-!!!  Make inverse evec_inv(n,i) matrix \psi_n=sum_i evec(i,n)\phi_i,
-!!!  where \psi is eigenfunction and \phi is basis function
-        !! nov2015
-        !! evec_inv(ib1,iww)= \sum_ib2  ovlinv(ib1,ib2)*dconjg(evec(iww,ib2))  nov2015, we introduce nev. iww is for PMT basis. ib for band index.
-        !! This is for converting rotated evec (=evecrot(ib)) in the representation of original evec(ib).
-        nevv=nev(ikpx,is)
+      SIGMiploop: do 3003 ip=1,nqibz
+        if (sum ((qqq(1:3,ip,is)-qx(1:3,1,ip))**2 ) > tolq ) call rx( 'hqpe.sc: not find ikp 102')
+        nz   = nhqx(ip,is) 
+        nevv = nev(ip,is)
+        ! Make inverse evec_inv(n,i) matrix \psi_n=sum_i evec(i,n)\phi_i, where \psi is eigenfunction and \phi is basis function
+        ! evec_inv(ib1,iww)= \sum_ib2  ovlinv(ib1,ib2)*dconjg(evec(iww,ib2))  nov2015, we introduce nev. iww is for PMT basis. ib for band index.
+        ! This is for converting rotated evec (=evecrot(ib)) in the representation of original evec(ib).
         allocate(ovl(nevv,nevv))
-        do i=1,nevv
-          do j=1,nevv
-            ovl(i,j)=sum(dconjg(evec(1:nz,i,ikpx,is))*evec(1:nz,j,ikpx,is))
-          enddo
-        enddo
+        ovl = matmul(dconjg(transpose(evec(1:nz,1:nevv,ip,is))),evec(1:nz,1:nevv,ip,is))
         call matcinv(nevv,ovl) !ovl --> ovlinv
-        evec_inv(1:nevv,1:nz) = matmul(ovl(1:nevv,1:nevv),dconjg(transpose(evec(1:nz,1:nevv,ikpx,is)))) !note ovl means ovlinv
+        evec_inv(1:nevv,1:nz) = matmul(ovl(1:nevv,1:nevv),dconjg(transpose(evec(1:nz,1:nevv,ip,is)))) !note ovl means ovlinv
         deallocate(ovl)
         evec_invt(1:nz,1:nevv) = transpose(dconjg(evec_inv(1:nevv,1:nz)))
-        if(mtosigmaonly()) then
-          ndimsig2= nmto
-        else
-          ndimsig2 = nz
-        endif
+        ndimsig2 = merge(nmto,nz,mtosigmaonly())
         ev_se_ev(1:ndimsig2,1:ndimsig2) = matmul(evec_invt(1:ndimsig2,1:ntqxx(ip)) &
              ,matmul(se(1:ntqxx(ip),1:ntqxx(ip),ip),evec_inv(1:ntqxx(ip),1:ndimsig2)))   !! sep2013 exprapolation of se by eseavrmean
         do itp =1,ndimsig2
@@ -321,12 +286,12 @@ contains
                  sum(evec_invt(itp,ntqxx(ip)+1:nevv)*evec_inv(ntqxx(ip)+1:nevv,itpp))*eseavrmean/2d0 ! in Hartree.
           enddo
         enddo 
-        write(ifsigm) qqq(1:3,ikpx,is),is 
+        write(ifsigm) qqq(1:3,ip,is),is 
         sigmv(:,:,ip) = 1d20
         sigmv(1:ndimsig2,1:ndimsig2,ip)= 2d0*ev_se_ev(1:ndimsig2,1:ndimsig2) !in Ry.
         ! Note 2*ev_se_ev bacause v_xc in sugw.f was in rydberg while SE was in hartree
         write(ifsigm) sigmv(:,:,ip)
-2003  enddo SIGMiploop
+3003  enddo SIGMiploop
       write(6,*)
       deallocate(se,ipiv,work,evec_inv,evec_invt,ev_se_ev)
       if(laf) exit
