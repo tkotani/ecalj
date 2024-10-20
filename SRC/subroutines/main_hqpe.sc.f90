@@ -16,7 +16,7 @@ contains
     !     SEx and xcLDA are in file SEX
     !     SEc is in file SEC
     use m_keyvalue,only: Getkeyvalue
-    use m_read_bzdata, only: Read_bzdata, nstar, nqibz2=>nqibz
+    use m_read_bzdata, only: Read_bzdata, nstar, nqibz2=>nqibz, nqbz,nqibz,  n1,n2,n3
     use m_hamindex,only: Readhamindex, nhq=>ndham
     use m_mpi,only: MPI__Initialize, mpi__rank
     use m_lgunit,only: m_lgunit_init,stdo
@@ -38,7 +38,7 @@ contains
     real(8) qx2(3) ,qqqx(3) ,del ,mix_fac
     integer, allocatable :: ipiv(:)
     real(8) ::  rydberg,hartree, qqqx0(3)
-    integer ::  n1,n2,n3, ifse_out, ifse_in
+    integer :: ifse_out, ifse_in
     logical :: AddDummySig,evec0ex=.false.
     complex(8),allocatable:: sigma_m_out(:,:,:,:),pmat(:,:),pmatd(:,:),sigmv(:,:,:)
     character(2):: soflag
@@ -72,6 +72,10 @@ contains
     open(newunit=ifsex2(1), file='SEX2U',form='UNFORMATTED', status='OLD') !    open(newunit=ifsec(1),file='SECU')
     open(newunit=ifsec2(1), file='SEC2U',form='UNFORMATTED', status='OLD') !    open(newunit=ifsexcore(1) ,file='SEXcoreU')
     open(newunit=ifsexcore2(1),file='SEXcore2U',form='UNFORMATTED',status='OLD')
+    call readx (ifsex(1),50)
+    read (ifsex(1),*) nspin,nq,ntq
+    rewind (ifsex(1))
+    write(stdo,*)'nq nspin=',nq,nspin
     nsp2laf= nspin == 2 .AND. .NOT. laf
     if(nsp2laf)  open(newunit=ifsex(2),     file='SEXD')
     if(nsp2laf)  open(newunit=ifxc(2) ,     file='XCD')
@@ -86,15 +90,10 @@ contains
     if(nspin==2) open(newunit=ifqpe(2)   ,file='QPD')
     if(nspin==2) open(newunit=iftote(2)  ,file='TOTE.DN')
     if(nspin==2) open(newunit=iftote2(2) ,file='TOTE2.DN')
-!
-    call readx (ifsex(1),50)
-    read (ifsex(1),*) nspin,nq,ntq
-    rewind (ifsex(1))
-    write(stdo,*)'nq nspin=',nq,nspin
 !    
     allocate(eseavr(nq,nspin))
     if (lsigin) then !   write(6,*) ' ... reading input sigma from file sigm'
-      read(ifsigm) nspin,ndimsigin,n1,n2,n3,nqx
+      read(ifsigm) nspin,ndimsigin !,n1,n2,n3,nqx
       if (nqx /= nq) then
         write(stdo,"(' (warning) file mismatch : file nq=',i4,' but expected',i4)") nqx,nq
         lsigin = .false.
@@ -134,48 +133,26 @@ contains
     endif
     allocate(sigmv(ndimsig,ndimsig,nq))
     nstarsum= sum(nstar(:)) !    open(newunit=if_eseavr ,file='ESEAVR')
+    if(nstarsum/= nqbz ) call rx( ' nstarsum/= nqbz')
     allocate(ntqxx(nq))
     isloop: do 1001  is = 1,nspin 
       write(6,*) ' --- is=',is
       call readx(ifsex(is),50)
       read (ifsex(is),*) nspinx,nqx,ntqx
       read (ifsex(is),*)
-      read (ifsex(is),*) deltaw
-      read (ifsex(is),*) alat
+      read (ifsex(is),*) !deltaw
+      read (ifsex(is),*) !alat
       read (ifsex(is),*) ef
-      read (ifsex(is),*) esmr
+      read (ifsex(is),*) !esmr
       
-      call readx   (ifxc(is),50)
-      read (ifxc(is),*) nspinxc,nqxc,ntqxc
-      read(ifsex2(is))  nspinx2, nqx2, ntqx2, nqbz ,  nqibz,  n1,n2,n3
-      if(nstarsum/= nqbz ) call rx( ' nstarsum/= nqbz')
-!      call readx(ifsec(is),50)
-!      read (ifsec(is),*) nspinc, nqc,ntqc
-      read(ifsec2(is))   nspinc,nqc,ntqc, nqbzc2, nqibzc2,n1,n2,n3
+      read(ifsex2(is))  nspinx2, nqx2, ntqx2 !, nqbz ,  nqibz,  n1,n2,n3
+      read(ifsec2(is))   nspinc,nqc,ntqc, nqbzc2, nqibzc2!,n1,n2,n3
       read(ifsexcore2(is)) nspinxc2,nqxc2,ntqxc2,nqbzxc2,nqibzxc2
       
-      if (nspin /= nspinx)   call rx( 'hqpe: wrong nspin SEx')
-      if (nspin /= nspinxc)  call rx( 'hqpe: wrong nspin vxc')
-      if (nspin /= nspinx2)  call rx( 'hqpe: wrong nspin SEx2')
-      if (nq /= nqx)         call rx( 'hqpe: wrong nq SEx')
-      if (nq /= nqxc)        call rx( 'hqpe: wrong nq vxc')
-      if (nq /= nqx2)        call rx( 'hqpe: wrong nq SEx2')
-      if (ntq /= ntqx)       call rx( 'hqpe: wrong ntq SEx')
-      if (ntq /= ntqxc)      call rx( 'hqpe: wrong ntq vxc')
-      if (ntq /= ntqx2)      call rx( 'hqpe: wrong ntq SEx2')
-      if (nqbz /=  nqbzxc2)  call rx( 'hqpe: wrong nqbzx2')
-      if (nqibz /= nqibzxc2) call rx( 'hqpe: wrong nqibzxc2')
-      if (nspin /= nspinxc2) call rx( 'hqpe: wrong nspin SExcore2')
-      if (nqbz /= nqbzc2)    call rx( 'hqpe: wrong nqbzxc2')
-!      if (nspin /= nspinc)   call rx( 'hqpe: wrong nspin SEc')
-!      if (nspin /= nspinc2)  call rx( 'hqpe: wrong nspin SEc2')
-!      if (nq /= nqc)         call rx( 'hqpe: wrong nq SEc')
-!      if (nq /= nqc2)        call rx( 'hqpe: wrong nq SEc2')
-!      if (ntq /= ntqc2)      call rx( 'hqpe: wrong ntq SEc2')
-      if (nq /= nqxc2)       call rx( 'hqpe: wrong nq SExcore2')
-      if (ntq /= ntqxc2)     call rx( 'hqpe: wrong ntq SExcore2')
       allocate( itxc(ntq),qxc(3,ntq,nq),eldaxc(ntq,nq),vxc(ntq,nq) )
       allocate( itx(ntq), qx (3,ntq,nq),eldax (ntq,nq),sex(ntq,nq) )
+      call readx   (ifxc(is),50)
+      read (ifxc(is),*) nspinxc,nqxc,ntqxc
       call readx (ifxc(is),50)
       read(ifxc(is),*)
       do ip = 1,nq
