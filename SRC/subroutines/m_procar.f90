@@ -16,6 +16,7 @@ module m_procar
   integer,private:: iprocar1,iprocar2
   logical,private:: cmdopt0,fullmesh,debug,procaron
   logical,private:: idwmode=.false.
+  real(8), allocatable:: dlmm(:,:,:,:)
 contains
   subroutine m_procar_closeprocar()
     logical:: nexist
@@ -32,6 +33,7 @@ contains
     if(procaron .AND. fullmesh ) then
        if(.not.idwmode) allocate(dwgtall(nchanp,nbas,ndhamx,nsp,nkp),source=0d0)
     endif
+    call m_procar_setlocalaxis_init()
   end subroutine m_procar_init
   subroutine m_procar_add(iq,ispin,ef0,evl,qp,nev,evec,ndimhx) !vmag0 removed. 2024-6-14 since evl contains effect of vmag0
     use m_makusq,only: makusq
@@ -41,6 +43,7 @@ contains
     character*1000::ccc
     real(8):: ef0
     complex(8):: auasaz(3)
+    complex(8), allocatable :: dlmm_auspp(:,:)
     real(8):: s11,s22,s33,s12,s13,s23,xdat,qold(3),qp(3),dwgt(nchanp),dwgtt(nchanp)  !,vmag0
     complex(8),allocatable:: auspp(:,:,:,:,:)
     integer:: iq,isp,iprocar,iband,is,ilm,nspc,ib,nev,i,m,l,ndimhx,ispin,ispstart,ispend,ispx
@@ -109,10 +112,14 @@ contains
              ilm = 0
              dwgt=0d0
              do  l = 0, lmxa_i(is)
+                if(allocated(dlmm_auspp)) deallocate(dlmm_auspp)
+                allocate(dlmm_auspp(1:3,-l:l))
+                dlmm_auspp(1:3,-l:l) = matmul(transpose(auspp(ilm+1:ilm+(2*l+1),iband,1:3,isp,ib)), dlmm(-l:l,-l:l,l,ib)) 
                 do  m = -l, l
                    ilm = ilm+1 
                    if(ilm>nchanp) cycle !2024-6-22 dwgt segmentation error bugfix
-                   auasaz = auspp(ilm,iband,1:3,isp,ib) ! auasaz is for phi,phidot,pz(val=slo=0)
+                   ! auasaz = auspp(ilm,iband,1:3,isp,ib) ! auasaz is for phi,phidot,pz(val=slo=0)
+                   auasaz = dlmm_auspp(1:3,m)
                    !Note au,as,az are coefficients for phi1*Ylm phi2*Ylm phi3*Ylm.
                    ! If --ylmc, Ylm(complex) is assumed.
                    !  u=phi1: linear combination of phi,phidot (val=1 slo=0) at MP
@@ -223,4 +230,71 @@ contains
        deallocate(idtete,ipqe) 
     endif
   end subroutine m_procar_writepdos
+!!--------------------------------------------------------
+  subroutine m_procar_setlocalaxis_init()
+    use m_mksym_util,only:rotdlmm
+    use m_lmfinit,only: lmax => lmxax, ispec, lmxa_i=>lmxa
+    use m_fatom,only:sspec
+    implicit none
+    integer:: fileunit, iprot, k, l, ib, is, io, iostat_var
+    logical:: has_file
+    real(8), allocatable:: symops(:,:)
+    allocate(symops(9,nbas))
+
+    symops(1:9,1:nbas) = 0d0
+    symops(1,1:nbas) = 1d0
+    symops(5,1:nbas) = 1d0
+    symops(9,1:nbas) = 1d0
+    !read local axis from file
+    inquire(file='procar_rot.in', exist=has_file)
+    if(has_file) then
+      open(newunit=fileunit,file='procar_rot.in',status='old')
+      if(master_mpi) write(stdo,'(A)') 'axis conversion of PROCAR'
+      do
+        read(fileunit,*,iostat=iostat_var) iprot, symops(1:9, iprot)
+        if(iostat_var /= 0) exit
+        if(iprot > nbas  .or. iprot <= 0) exit
+        symops(1:3,iprot) = symops(1:3,iprot)/sqrt(dot_product(symops(1:3,iprot),symops(1:3,iprot)))
+        symops(4:6,iprot) = symops(4:6,iprot)/sqrt(dot_product(symops(4:6,iprot),symops(4:6,iprot)))
+        symops(7:9,iprot) = symops(7:9,iprot)/sqrt(dot_product(symops(7:9,iprot),symops(7:9,iprot)))
+        if(master_mpi) write(stdo,'(I5, 9F10.5)') iprot, symops(1:9, iprot)
+      enddo
+      close(fileunit)
+    endif
+    if(allocated(dlmm)) deallocate(dlmm)
+    allocate(dlmm(-lmax:lmax,-lmax:lmax, 0:lmax, nbas), source = 0d0)
+    call rotdlmm(symops(1:9,1:nbas), nbas, lmax+1 ,dlmm)
+    deallocate(symops)
+    !read dlmm from file
+    inquire(file='procar_lmconv.in', exist=has_file)
+    if(has_file) then
+      open(newunit=fileunit,file='procar_lmconv.in',status='old')
+      if(master_mpi) write(06,'(A)') 'lm conversion of PROCAR'
+      readfile: do
+        read(fileunit,*,iostat=iostat_var) iprot, l
+        if(iostat_var /= 0) exit
+        if(iprot > nbas  .or. iprot <= 0) exit
+        if(l > lmax  .or. l < 0) exit
+        do k=-l,l
+          read(fileunit,*,iostat=iostat_var) dlmm(-l:l,k,l,iprot)
+          if(iostat_var /= 0) exit readfile
+          dlmm(-l:l,k,l,iprot) = dlmm(-l:l,k,l,iprot)/sqrt(dot_product(dlmm(-l:l,k,l,iprot),dlmm(-l:l,k,l,iprot)))
+        enddo
+      enddo readfile
+      close(fileunit)
+    endif
+    !show dlmm
+    if(master_mpi) then
+      write(stdo,'(A)') 'Rotation matrix of angular momentum for PROCAR file:'
+      do ib=1, nbas
+        is  = ispec(ib)
+        do l =0, lmxa_i(is)
+          write(stdo,'(1x,A,2I5)') 'ib, l:',ib, l
+          do k=-l,l
+            write(stdo,'(999(2x,F8.5))') dlmm(-l:l,k,l,ib)
+          enddo
+        enddo
+       enddo
+    endif
+  end subroutine m_procar_setlocalaxis_init
 end module m_procar
