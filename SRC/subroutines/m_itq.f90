@@ -1,9 +1,8 @@
-!>Set itq for which we calculate self-energy. And NTQX mechanism
+!>Set itq for which we calculate self-energy. NTQXX mechanism to memorize this setting.
 module m_itq
   use m_keyvalue,only: Getkeyvalue
   use m_readeigen,only: Readeval
   use m_genallcf_v3,only: nband
-  !use m_readhbe,only: nband
   implicit none
   public itq,ntq,setitq_hsfp0sc,setitq,nbandmx,setitq_hsfp0
   integer,allocatable,protected :: itq(:),nbandmx(:,:)
@@ -30,8 +29,7 @@ contains
     logical:: lntq
     inquire(file='NTQXX',EXIST=lntq) !NTQXX is to keep the same number of bands during iteration.
     open(newunit=ifih,file='NTQXX')
-    !! Get ntq
-    if(lntq) then
+    if(lntq) then ! Get ntq
        read(ifih,*,err=1018,end=1018) nband_r,nq_r,ntq
        if(nband_r/=nband .OR. nq_r/=nqibz) goto 1018
        goto 1019
@@ -62,8 +60,7 @@ contains
 !!!! count number of band to calculate.
     !! I think it it better to determine nbandmx in a manner within LDA
     !! (need to care degeneracy...).
-    allocate(nbandmx(nqibz,nspinmx))
-    !!   Get nbandmx(iq,isp)
+    allocate(nbandmx(nqibz,nspinmx))     !!   Get nbandmx(iq,isp)
     allocate(eqt(nband))
     do is = 1,nspinmx
        do ip = 1,nqibz

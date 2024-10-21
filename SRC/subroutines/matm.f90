@@ -31,20 +31,22 @@ function matcinvf(b) result(a)
 end function matcinvf
 subroutine matcinv(n,a)
   implicit none
+  intent(in):: n
+  intent(out):: a
   integer :: n, info, ipiv(n)
   complex(8):: a(n,n)
   complex(8),allocatable:: work(:)
   call zgetrf(n,n,a,n,ipiv,info)
   if(info/=0) then
-     print *,' matcinv: zegtrf info=',info
-     call rx( ' matcinv: zegtrf ')
+    print *,' matcinv: zegtrf info=',info
+    call rx( ' matcinv: zegtrf ')
   endif
   allocate(work(n*n))
   call zgetri(n,a,n,ipiv,work,n*n,info)
   deallocate(work)
   if(info/=0) then
-     print *,'matcinv: zegtri info=',info
-     call rx( 'matcinv: zegtri ')
+    print *,'matcinv: zegtri info=',info
+    call rx( 'matcinv: zegtri ')
   endif
 end subroutine matcinv
 subroutine matinv(n,a)
