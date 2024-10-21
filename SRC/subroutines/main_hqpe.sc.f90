@@ -60,7 +60,7 @@ contains
     character(8):: xt
     logical:: nsp2laf
     integer:: ntq,it,n1x,n2x,n3x,nqx,nspinx
-    real(8):: ehf,ehfx,eshift,eshift2,fwhm,exx
+    real(8):: ehf,ehfx,eshift,eshift2,fwhm,exx,elow
     ! call getkeyvalue("GWinput","EXonly",wex,default=0d0,status=ret); exonly = .not.(wex==0d0);  if(exonly) write(6,*)' exonly=T wex=',wex
     call MPI__Initialize()    !this is just for exit routine subroutine rx('...') works well.
     call m_lgunit_init()
@@ -201,6 +201,9 @@ contains
       
       ! Make SE_ij-VXC_ij, ij are in 'basis functions' indexes
       allocate(se(ntq,ntq,nqibz),ipiv(nhq),work(nhq*nhq),evec_inv(nhq,nhq) ,evec_invt(nhq,nhq),ev_se_ev(ndimsig,ndimsig))
+!      SEloop: do ip=1,nqibz
+!        se(:,:,ip)= sex2(:,:,ip)+sexcore2(:,:,ip) +.5d0*(sec2(:,:,ip)+dconjg(sec2(:,:,ip)))
+!      enddo SEloop
       SEloop: do ip=1,nqibz
         do itp=1,ntq
           do itpp=1,ntq ! make Sigma hermitian
@@ -236,33 +239,21 @@ contains
         enddo
 2001  enddo SEvxcloop
       Average4highbands: do 2002 ip=1,nqibz
-        eavr  = 0d0    !    eavr  : average of eigenvalues within threshold (itp<=ntqxx)
-        eavr2  = 0d0   !    eavr2  : square average of eigenvalues within threshold (itp<=ntqxx)
-        eseavr0= 0d0   !    eseavr: average of se*eigenvalue
-        eseavr02 =0d0
-        iix=0
-        do itp=1,ntqxx(ip)
-          eee = eldax(itp,ip) - rydberg()*ef
-          if( eee > 1d-2 ) then
-            eavr   = eavr       + eee
-            eavr2   = eavr2     + eee**2
-            eseavr0 = eseavr0   + eee* se(itp,itp,ip)
-            eseavr02 = eseavr02 + eee**2* se(itp,itp,ip)
-            iix=iix+1
-          endif
-        enddo
-        if(iix==0) then
-          eavr2=1d0
-          eseavr02=0d0
-        endif
-        eseavr(ip,is) = eseavr02/eavr2 !now eseavr is
-        eseavr(ip,is) = 2d0*eseavr(ip,is) !in Ry.
+        SquareAverage4extrapolationOFsigma: block ! eldax eigenvalue relative to Ef, is in Ry.
+          integer:: nx
+          real(8):: sed(ntqxx(ip)),elow    = 1d-2
+          nx=ntqxx(ip)
+          forall(itp=1:nx) sed(itp)=se(itp,itp,ip)
+          eavr2   = sum(eldax(1:nx,ip)**2,          mask= eldax(1:nx,ip)>elow)
+          eseavr02= sum(eldax(1:nx,ip)**2*sed(1:nx),mask= eldax(1:nx,ip)>elow)
+          eseavr(ip,is) = merge(2d0*eseavr02/eavr2,0d0,nx/=0) !2d0 id for in Ry.
+        endblock SquareAverage4extrapolationOFsigma
         write(6,*)"### A correction takao2009June: find this in hqpe.se.m.F"
         write(6,*)"###   constant is added to sigm above threshold."
         write(6,*)"###   the constant (ESEAVR=e-weighted average Ry)= ",is,ip,eseavr(ip,is)
 2002  enddo Average4highbands
-      eseavrmean = sum(nstar(1:nqibz)*eseavr(1:nqibz,is))/nqbz       !call getkeyvalue("GWinput","AddToESEAVR",eseadd,default=0d0,status=ret)
-      write(6,"(' ESEAVRmean (used bands above emax_sigm) isp=',d13.6,i2)")eseavrmean,is
+      eseavrmean = sum(nstar(1:nqibz)*eseavr(1:nqibz,is))/nqbz    
+      write(6,"(' ESEAVRmean (exprapolated SE above emax_sigm) isp=',d13.6,i2)")eseavrmean,is
 !      
       SIGMiploop: do 3003 ip=1,nqibz
         if (sum ((qqq(1:3,ip,is)-qx(1:3,1,ip))**2 ) > tolq ) call rx( 'hqpe.sc: not find ikp 102')
