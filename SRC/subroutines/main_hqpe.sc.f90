@@ -21,7 +21,8 @@ contains
     use m_mpi,only: MPI__Initialize, mpi__rank
     use m_lgunit,only: m_lgunit_init,stdo
     use m_genallcf_v3,only: genallcf_v3,laf,nmto=>nlmto ,nspin
-!    use m_readefermi,only: readefermi,ef
+    !    use m_readefermi,only: readefermi,ef
+    use m_nvfortran
     use m_ftox
     implicit none
     real(8):: eavr,eavr2,eee,eseavr0,eseavr02,dsenoz,zfac=1d0
