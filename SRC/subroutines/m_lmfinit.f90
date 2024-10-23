@@ -440,7 +440,7 @@ contains
               do ispx=1,nspr
                  do lr=1,lrmx+1
                     pzsp(lr, ispx,j) = pzav(lr)
-                    if(lr>3.and.readpnuskipf)cycle
+!                    if(lr>3.and.readpnuskipf)cycle !2024-10-15
                     pnusp(lr,ispx,j)=  pnav(lr)
                  enddo
               enddo

@@ -1,4 +1,5 @@
-#!/usr/bin/env python3.9
+#!/usr/bin/env python3
+#3.9
 # ## NOTE 2024-4-3: this works for pytho3.8, 3.9.18
 ## but dlclose caused error for python3.10.12
 from setcomm import callF,setcommF,getlibF
@@ -23,7 +24,8 @@ stdout='llmfa'
 if(master_mpi): print('=== Run lmfa by ranks=',group, ' See stdout=',stdout)
 flib = getlibF(scriptpath+'/libecaljF.so',prt=master_mpi) #load dynamic library
 comm = setcommF(grp=group)
-#print('rankw=',rankw,' comm=',comm,' group=',group)
+print('rankw=',rankw,' comm=',comm,' group=',group)
+
 if(rankw in group): 
     callF(flib.setcmdpathc,[scriptpath,master_mpi])  # Set path for ctrl2ctrlp.py at m_setcmdpath
     callF(flib.m_setargsc, [arglist,master_mpi])     # Set args at m_args

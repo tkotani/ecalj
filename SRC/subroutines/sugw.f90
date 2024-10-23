@@ -304,7 +304,7 @@ contains
         open(newunit=ifvxcevec, file= 'vxcevec'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
         write(ifvxcevec) qp,ndimhx,nev
         write(ifvxcevec) vxc(:,1:nspc,:,1:nspc)
-        write(ifvxcevec) evec(1:ndimhx,1:ndimhx)
+        write(ifvxcevec) evec(1:ndimhx,1:ndimhx),evl(1:ndimhx,iq,isp)
         if(lso/=0.or.socmatrix) write(ifvxcevec) hammhso 
         close(ifvxcevec)
       endif
