@@ -62,6 +62,7 @@ elseif(FC MATCHES "nvfortran")
   #-Mbackslash is necessary to write backslash without escape character
   set(CMAKE_Fortran_FLAGS "-fpic -Mbackslash") # "-Mvect=simd -mcmodel=medium -fpic") # compile flags
   set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -traceback")
+  # set(CMAKE_Fortran_FLAGS_DEBUG "-g -O0 -traceback -Mbounds -Mchkptr -Mchkstk")
   set(LIBM -lmkl_intel_lp64 -lmkl_sequential -lmkl_core)
   # set(LIBM -llapack -lblas -lfftw3) # if MKL is not available
 endif()
