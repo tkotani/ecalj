@@ -10,6 +10,7 @@ contains
     use m_mkqp,only: ntet=> bz_ntet ,bz_nkp
     use m_suham,only: ndhamx=>ham_ndhamx
     use m_mkpot,only:  qval
+    use m_lmfinit,only: lso
     !   lmet/=0 : allocate tetrahedron weight wtkb
     !   ndhamx : leading dimension of wtkb
     !   nsp    : 2 for spin-polarized case, otherwise 1
@@ -26,7 +27,7 @@ contains
       allocate(wtkb(ndhamx,nspx,nkp))
     endif
     if(cmdopt0('--tdos').or. cmdopt0('--band').or.cmdopt0('--fermisurface')) then !nevmx=0 implies eigenvalue-only mode
-      nevmx= 0
+      nevmx = merge(ndhamx, 0, lso==1)
     elseif(cmdopt0('--pdos').or.cmdopt0('--mkprocar').or.cmdopt0('--zmel0').or.cmdopt0('--cls')) then
       nevmx= ndhamx  !all bands
     else  !above occipied bands. (tetrahedron method may require a little more than zval/2)
