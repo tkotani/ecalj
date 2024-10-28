@@ -10,7 +10,7 @@ if [ -z "${FC}" ]; then
 fi
 BUILD_TYPE="Release"
 # BUILD_TYPE="Debug"
-BINDIR=${HOME}/bin  ## Make directory for ecalj binaries and scripts.
+BINDIR=${PWD}/bin  ## Make directory for ecalj binaries and scripts.
 [ -d ${BINDIR} ] || mkdir ${BINDIR} 
 echo Going to install required binaries and scripts to ${BINDIR} !
 # Make a link to getsyml to get syml.*
@@ -24,14 +24,9 @@ popd
 # Use SRC/exec/CmakeLists.txt to make executables.
 pushd .
 cd SRC/exec
-FC=${FC} cmake . -DBUILD_MP=OFF -DBUILD_GPU=OFF -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
-make -j 32 VERBOSE=1 ||my_error
-# FC=${FC} cmake . -DBUILD_MP=OFF -DBUILD_GPU=ON  -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
-# make -j 32 VERBOSE=1 ||my_error
-# FC=${FC} cmake . -DBUILD_MP=ON -DBUILD_GPU=OFF  -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
-# make -j 32 VERBOSE=1 ||my_error
-# FC=${FC} cmake . -DBUILD_MP=ON -DBUILD_GPU=ON  -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
-# make -j 32 VERBOSE=1 ||my_error
+FC=${FC} cmake . -DBUILD_MP=ON -DBUILD_GPU=ON -DBUILD_MP_GPU=ON -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
+make -j 32 || make -j 32 ||my_error
+
 cp `find . -mindepth 1 -maxdepth 1 -executable -type f` ${BINDIR} ||my_error
 popd
 exit

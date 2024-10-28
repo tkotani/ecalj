@@ -17,6 +17,7 @@ npsize='4' #default
 np=False
 usegpu=False
 showt=False
+usemp=False
 option=''
 for arg in sys.argv[1:]:
     if(arg=='--help'):
@@ -32,6 +33,9 @@ for arg in sys.argv[1:]:
         continue
     if(arg=='--gpu'):
         usegpu=True
+        continue
+    if(arg=='--mp'):
+        usemp=True
         continue
     if(arg=='gwall'):
         ttall="gas_eps_lmfh gas_epsPP_lmfh fe_epsPP_lmfh_chipm si_gw_lmfh gas_pw_gw_lmfh si_gwsc gas_gwsc nio_gwsc fe_gwsc ni_crpa srvo3_crpa"
@@ -58,6 +62,8 @@ os.makedirs(bindir,exist_ok=True)
 exec='lmfa lmf run_arg job_pdos job_tdos ctrl2ctrlp.py a2vec.py \
  gwsc qg4gw hvccfp0 hsfp0_sc hqpe_sc hmaxloc hpsig_MPI huumat_MPI hwmatK_MPI hrcxq \
  hsfp0_sc_gpu hrcxq_gpu hx0fp0_gpu \
+ hsfp0_sc_mp hrcxq_mp hx0fp0_mp \
+ hsfp0_sc_mp_gpu hrcxq_mp_gpu hx0fp0_mp_gpu \
  heftet hbasfp0 gw_lmfh hx0fp0 hsfp0 hqpe eps_lmfh epsPP_lmfh epsPP_lmfh_chipm genMLWFx'
 for ex in exec.split():
     if os.path.exists(ecaljroot+'/SRC/exec/'+ex):
@@ -77,6 +83,10 @@ genm   = testroot+'/bin/genMLWFx '
 job_pdos= testroot+'/bin/job_pdos '
 if usegpu:
     gwsc0 = testroot+'/bin/gwsc --gpu 0 '+np4
+if usemp:
+    gwsc0 = testroot+'/bin/gwsc --mp 0 '+np4
+if usemp and usegpu:
+    gwsc0 = testroot+'/bin/gwsc --gpu --mp 0 '+np4
 
 def runprogs(runlist):
     for irun in runlist:
