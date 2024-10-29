@@ -108,7 +108,7 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 add_custom_command(
   OUTPUT ../subroutines/show_programinfo.f90
-  COMMAND cpp -D___UNAME_A___=\"${OUTPUT_UNAME}\"
+  COMMAND cpp -P -D___UNAME_A___=\"${OUTPUT_UNAME}\"
               -D___ETC_ISSUE___=\"${OUTPUT_ISSUE}\" 
               -D___FFLAGS___=\"${FLAGS_ALL}\"
               -D___PLATFORM___=\"${FC}\" 
