@@ -205,7 +205,7 @@ contains
       endassociate
       cphim = cmplx(readcphif(qk, ispm),kind=kp)
       symope= symgg(:,:,irot)
-      allocate(geigq(ngpmx,nband),dgeigqk(ngpmx,nband),source=(0d0,0d0))
+      allocate(geigq(ngpmx,nband),dgeigqk(ngpmx,nband),source=CZERO)
       if(ngc/=0) then
         call readqg('QGpsi',q,     qt, ngp1, ngvecpB1) !q is mapped to qt in BZ
         call readqg('QGpsi',qk,   qkt, ngp2, ngvecpB2)
@@ -361,7 +361,7 @@ contains
           !$acc             igggi(nxi:nxe,nyi:nye,nzi:nze), igcgp2i(nnxi:nnxe,nnyi:nnye,nnzi:nnze)) create(nn)
           if(debug) call writemem('mmmmm_zmel111ccc')
           !$acc kernels
-          gggmat(1:ngcgp,1:ngp1)=0d0 !fix 2024-8-23  (forgotton)
+          gggmat(1:ngcgp,1:ngp1) = CZERO !fix 2024-8-23  (forgotton) 0d0 -> CZERO 
           !$acc end kernels
           !$acc kernels loop independent collapse(2) private(nn)
           do igcgp2 = 1, ngcgp
