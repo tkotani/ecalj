@@ -135,6 +135,93 @@ contains
 #endif
   end function zmm_batch
 
+  module function dmm(a, b, c, m, n, k, opa, opb, alpha, beta, lda, ldb, ldc) result(istat)
+    real(kind=kp) :: a(*), b(*), c(*)
+    integer, intent(in) :: m, n, k
+    character, intent(in), optional :: opa, opb
+    real(kind=kp), intent(in), optional :: alpha, beta
+    integer, optional :: lda, ldb, ldc
+
+    real(kind=kp) :: alpha_in, beta_in
+    integer :: lda_in, ldb_in, ldc_in, istat
+    character :: opa_in, opb_in
+#ifdef __GPU
+    attributes(device) :: a, b, c
+#endif
+    if (m < 1 .or. n < 1 .or. k < 1) return
+
+    alpha_in = 1_kp; beta_in = 0_kp
+    if(present(alpha)) alpha_in = alpha
+    if(present(beta)) beta_in = beta
+
+    opa_in = m_op_n; opb_in = m_op_n
+    if(present(opa)) opa_in = opa
+    if(present(opb)) opb_in = opb
+
+    !opa(a) = m x k, opb(b) = k x n, c = m x n
+    lda_in = m; ldb_in = k; ldc_in = m
+    if(opa_in == m_op_t .or. opa_in == m_op_c) lda_in = k !a = k x m
+    if(opb_in == m_op_t .or. opb_in == m_op_c) ldb_in = n !b = n x k
+
+    if(present(lda)) lda_in = lda
+    if(present(ldb)) ldb_in = ldb
+    if(present(ldc)) ldc_in = ldc
+
+#ifdef __GPU
+    cublas_dgemm: block 
+      integer :: opa_in_cublas, opb_in_cublas
+      istat = cublas_init()
+      opa_in_cublas = get_m_op_cublas(opa_in)
+      opb_in_cublas = get_m_op_cublas(opb_in)
+      istat = cublasdgemm(cublas_handle, opa_in_cublas, opb_in_cublas,  m, n, k, &
+                        & alpha_in, a, lda_in , b, ldb_in, beta_in, c, ldc_in)
+    end block cublas_dgemm
+#else
+    call dgemm(opa_in, opb_in, m, n, k, alpha_in, a, lda_in, b, ldb_in, beta_in, c, ldc_in)
+    istat = 0
+#endif
+  end function dmm
+  module function dmv(a, x, y, m, n, opa, alpha, beta, lda, incx, incy) result(istat)
+    implicit none
+    real(kind=kp) :: a(*), x(*), y(*)
+    integer, intent(in) :: m, n
+    !caution: size of matrix a is m x n (not size of op(A))
+    character, intent(in), optional :: opa
+    real(kind=kp), intent(in), optional :: alpha, beta
+    integer, optional :: lda, incx, incy
+
+    real(kind=kp) :: alpha_in, beta_in
+    integer :: lda_in, incx_in, incy_in, istat
+    character :: opa_in
+#ifdef __GPU
+    attributes(device) :: a, x, y
+#endif
+    if (m < 1 .or. n < 1) return
+
+    alpha_in = 1_kp; beta_in = 0_kp
+    if(present(alpha)) alpha_in = alpha
+    if(present(beta)) beta_in = beta
+
+    opa_in = m_op_n
+    if(present(opa)) opa_in = opa
+    lda_in = m; incx_in = 1; incy_in = 1
+    if(present(lda)) lda_in = lda
+    if(present(incx)) incx_in = incx
+    if(present(incy)) incy_in = incy
+
+#ifdef __GPU
+    block 
+      integer :: opa_in_cublas, opb_in_cublas
+      istat = cublas_init()
+      opa_in_cublas = get_m_op_cublas(opa_in)
+      istat = cublasdgemv(cublas_handle, opa_in_cublas,  m, n,  &
+                        & alpha_in, a, lda_in , x, incx_in, beta_in, y, incy_in)
+    endblock
+#else
+    call dgemv(opa_in, m, n, alpha_in, a, lda_in, x, incx_in, beta_in, y, incy_in)
+    istat = 0
+#endif
+  end function dmv
   !cusolverDnXtrtri used in zminv has internal compiler bug before cuda 12.5
   !https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html
   module function zminv(a, n, lda) result(istat)

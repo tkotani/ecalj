@@ -8,6 +8,8 @@ module m_blas !wrapper for BLAS and cuBLAS
   implicit none
   include "mpif.h"
   public :: cmm, cmm_batch, zmm, zmm_batch, m_op_n, m_op_t, m_op_c
+  public :: dmm
+  public :: dmv
   public :: zminv, zminv_batch
   public :: int_split
 #ifdef __GPU
@@ -63,6 +65,28 @@ module m_blas !wrapper for BLAS and cuBLAS
       integer, optional :: lda, ldb, ldc
       logical, optional :: samea, sameb
       integer, optional :: comm
+      integer :: istat
+#ifdef __GPU
+      attributes(device) :: a, b, c
+#endif
+    end function
+    module function dmv(a, x, y, m, n, opa, alpha, beta, lda, incx, incy) result(istat)
+      real(kind=8) :: a(*), x(*), y(*)
+      integer, intent(in) :: m, n
+      character, intent(in), optional :: opa
+      real(kind=8), intent(in), optional :: alpha, beta
+      integer, optional :: lda, incx, incy
+      integer :: istat
+#ifdef __GPU
+      attributes(device) :: a, x, y
+#endif
+    end function
+    module function dmm(a, b, c, m, n, k, opa, opb, alpha, beta, lda, ldb, ldc) result(istat)
+      real(kind=8) :: a(*), b(*), c(*)
+      integer, intent(in) :: m, n, k
+      character, intent(in), optional :: opa, opb
+      real(kind=8), intent(in), optional :: alpha, beta
+      integer, optional :: lda, ldb, ldc
       integer :: istat
 #ifdef __GPU
       attributes(device) :: a, b, c
