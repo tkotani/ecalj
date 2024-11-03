@@ -251,12 +251,7 @@ subroutine vcoulq_4(q,nbloch,ngc,nbas,lx,lxx,nx,nxx,alat,qlat,vol,ngvecc, &
      do ir = 2, nr(ibas) 
         fac_integral(ir,ibas) = fac_integral(ir-1,ibas)*dexp(aa(ibas))
      enddo
-     do ir = 2, nr(ibas)-1, 2
-        fac_integral(ir,ibas) = 4d0*fac_integral(ir,ibas)
-     enddo
-     do ir = 3, nr(ibas)-2, 2
-        fac_integral(ir,ibas) = 2d0*fac_integral(ir,ibas)
-     enddo
+     forall(ir=2:nr(ibas)-1) fac_integral(ir,ibas) = fac_integral(ir,ibas)*merge(4d0,2d0,mod(ir,2)==0)
   enddo
   do ibas = 1, nbas
      do l = 0, lx(ibas)
@@ -616,12 +611,7 @@ subroutine mkjp_4(q,ngc,ngvecc,alat,qlat,lxx,lx,nxx,nx,bas,a,b,rmax,nr,nrx,rprod
   do ir = 2, nr
      fac_integral(ir) = fac_integral(ir-1)*dexp(a)
   enddo
-  do ir = 2, nr-1, 2
-     fac_integral(ir) = 4d0*fac_integral(ir)
-  enddo
-  do ir = 3, nr-2, 2
-     fac_integral(ir) = 2d0*fac_integral(ir)
-  enddo
+  forall(ir=2:nr-1) fac_integral(ir) = fac_integral(ir)*merge(4d0,2d0,mod(ir,2)==0)
 
   do l = 0, lx
      do ig1 = 1, ngc
@@ -688,12 +678,7 @@ subroutine mkjp_4(q,ngc,ngvecc,alat,qlat,lxx,lx,nxx,nx,bas,a,b,rmax,nr,nrx,rprod
   do ir = 2, nr
      fac_integral(ir) = fac_integral(ir-1)*dexp(a)
   enddo
-  do ir = 2, nr-1, 2
-     fac_integral(ir) = 4d0*fac_integral(ir)
-  enddo
-  do ir = 3, nr-2, 2
-     fac_integral(ir) = 2d0*fac_integral(ir)
-  enddo
+  forall(ir=2:nr-1) fac_integral(ir) = fac_integral(ir)*merge(4d0,2d0,mod(ir,2)==0)
   do ig1 = 1, ngc
      do l = 0, lx
         ajrwork(1:nr,ig1,l) = ajr(1:nr,l,ig1)*fac_integral(1:nr)
