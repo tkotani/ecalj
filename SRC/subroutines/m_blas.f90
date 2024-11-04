@@ -3,22 +3,17 @@ module m_blas !wrapper for BLAS and cuBLAS
 #ifdef __GPU
   use cublas_v2
   use cudafor
-  use cusolverdn
 #endif
   implicit none
   include "mpif.h"
   public :: cmm, cmm_batch, zmm, zmm_batch, m_op_n, m_op_t, m_op_c
   public :: dmm
   public :: dmv
-  public :: zminv, zminv_batch
   public :: int_split
 #ifdef __GPU
+  public :: cublas_init, cublas_handle
   type(cublashandle), value :: cublas_handle
-  type(cusolverDnHandle), value :: cusolver_handle 
-  type(cusolverDnParams), value :: cusolver_params
   logical, save :: set_cublas_handle = .false.
-  logical, save :: set_cusolver_init = .false.
-  integer :: cuda_runtime_version
 #endif
   character, parameter :: m_op_n = 'N', m_op_t = 'T', m_op_c = 'C'
   interface 
@@ -80,7 +75,7 @@ module m_blas !wrapper for BLAS and cuBLAS
 #ifdef __GPU
       attributes(device) :: a, x, y
 #endif
-    end function
+    end function dmv
     module function dmm(a, b, c, m, n, k, opa, opb, alpha, beta, lda, ldb, ldc) result(istat)
       real(kind=8) :: a(*), b(*), c(*)
       integer, intent(in) :: m, n, k
@@ -91,26 +86,7 @@ module m_blas !wrapper for BLAS and cuBLAS
 #ifdef __GPU
       attributes(device) :: a, b, c
 #endif
-    end function
-    module function zminv(a, n, lda) result(istat)
-      complex(kind=8) :: a(*)
-      integer, intent(in) :: n
-      integer, optional :: lda
-      integer :: istat
-#ifdef __GPU
-      attributes(device) :: a
-#endif
-    end function
-    !if batch size is small, it is slower than CPU
-    module function zminv_batch(a, n, lda, nbatch) result(istat)
-      complex(kind=8) :: a(*)
-      integer, intent(in) :: n
-      integer, optional :: lda, nbatch
-      integer :: istat
-#ifdef __GPU
-      attributes(device) :: a
-#endif
-    end function
+    end function dmm
   end interface
   private
 contains
@@ -130,18 +106,6 @@ contains
       case default ; m_op_cublas = cublas_op_n
     end select
   end  function get_m_op_cublas
-  integer function cusolver_init() result(istat)
-    istat = 0
-    if(.not.set_cusolver_init) then 
-      istat = cusolverDnCreate(cusolver_handle)
-      if(istat /= CUSOLVER_STATUS_SUCCESS) then
-        print *, 'Error in cusolverDnCreate'
-      endif
-      istat = cusolverDnCreateParams(cusolver_params)
-      istat = cudaRuntimeGetversion(cuda_runtime_version)
-      set_cusolver_init = .true.
-    endif
-  end function cusolver_init
 #endif
   subroutine int_split(ndata, nsplit, irank, iini, iend, n)
     integer, intent(in) :: ndata, nsplit, irank

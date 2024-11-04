@@ -310,8 +310,17 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
      if(allochk) write(*,*) 'allocate(hh(ngb,ngb),oo(ngb,ngb),oox,zz,eb,zzr)'
      allocate(hh(ngb,ngb),zz(ngb,ngb),eb(ngb),zzr(ngb))
      hh  = - vcoul(1:ngb,1:ngb)
-     nmx = ngb
-     call diagcv(oo,hh,zz,ngb, eb,nmx,1d99,nev) !! diagonalize the Coulomb matrix
+     ! nmx = ngb
+     ! call diagcv(oo,hh,zz,ngb, eb,nmx,1d99,nev) !! diagonalize the Coulomb matrix
+     Diagonalize_Coulomb_matrix: block
+       use m_lapack, only: zhgv
+       integer :: istat
+       nev = ngb
+       !$acc data copyin(oo) copy(hh) copyout(eb)
+       istat = zhgv(hh, oo, ngb, eb)
+       !$acc end data
+       zz = hh
+     endblock Diagonalize_Coulomb_matrix
      do ipl1=1,nev
         if(ipl1==11) write(6,*)' ... '
         if(ipl1>10 .AND. ipl1<nev-5) cycle

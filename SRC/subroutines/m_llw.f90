@@ -14,7 +14,7 @@ module m_llw
   use m_mpi, only: MPI__GatherXqw, mpi__root_k, mpi__root_q
   use m_kind,only: kp => kindrcxq
   use m_stopwatch
-  use m_blas, only: zminv
+  use m_lapack, only: zminv
   implicit none
   public:: WVRllwR,WVIllwI,  MPI__sendllw,MPI__sendllw2
   complex(8),allocatable,protected,public:: llw(:,:), llwI(:,:)

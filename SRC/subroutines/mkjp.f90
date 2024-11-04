@@ -346,7 +346,9 @@ subroutine vcoulq_4(q,nbloch,ngc,nbas,lx,lxx,nx,nxx,alat,qlat,vol,ngvecc, &
                             & + rkpr(2:nr(ibas),l,ibas) *  int2x(2:nr(ibas))
            a1g(1:nr(ibas),ig) = a1g(1:nr(ibas),ig) * fac_integral(1:nr(ibas),ibas)
         enddo
+        !$acc data copyin(a1g, ajr_tmp) copyout(sigx_tmp(1:ngc,1:ngc,l,ibas))
         istat = dmm(a1g, ajr_tmp, sigx_tmp(1,1,l,ibas), m=ngc, n=ngc, k=nr(ibas), opA=m_op_T, ldA=nrx, ldB=nrx)
+        !$acc end data
      enddo
   enddo
 
@@ -676,7 +678,9 @@ subroutine mkjp_4(q,ngc,ngvecc,alat,qlat,lxx,lx,nxx,nx,bas,a,b,rmax,nr,nrx,rprod
                 sgpb(ig1,n,lm) = dconjg(pjyl(lm,ig1))* sig/(2*l+1)*fpi
              enddo
           else
+             !$acc data copyin(a1g(1:nr,1:ngc,l), rprodx(1:nr,n,l)) copyout(sigg(1:ngc))
              istat = dmv(a1g(1,1,l), rprodx(1,n,l), sigg, m=nr, n=ngc, opA=m_op_T)
+             !$acc end data
              sgpb(1:ngc,n,lm) = dconjg(pjyl(lm,1:ngc))* sigg(1:ngc)/(2*l+1)*fpi
           endif
        enddo
@@ -691,7 +695,9 @@ subroutine mkjp_4(q,ngc,ngvecc,alat,qlat,lxx,lx,nxx,nx,bas,a,b,rmax,nr,nrx,rprod
     do lm  = 1,nlx
        l = ll(lm)
        do n = 1,nx(l)
+          !$acc data copyin(a1g(1:nr,1:ngc,l), rprodx(1:nr,n,l)) copyout(radintg(1:ngc))
           istat = dmv(a1g(1,1,l), rprodx(1,n,l), radintg, m=nr, n=ngc, opA=m_op_T)
+          !$acc end data
           fouvb(1:ngc, n, lm) = fpi/(absqg(1:ngc)**2-eee) *dconjg(pjyl(lm,1:ngc))*radintg(1:ngc)
        enddo
     enddo
