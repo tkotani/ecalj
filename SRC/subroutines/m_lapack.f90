@@ -223,7 +223,7 @@ contains
       integer :: lwork, info
       integer :: m !number of eigenvalues found
       abstol = 2d0*dlamch('S')
-      allocate(z(lda_in*n), source = 0d0)
+      allocate(z(lda_in*n), source = (0d0, 0d0))
       allocate(work(1))
       allocate(rwork(7*n), ifail(n), iwork(5*n))
       lwork = -1
