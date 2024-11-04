@@ -20,6 +20,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
   use m_pwmat,only: mkppovl2
   use m_hvccfp0_util,only: mkradmatch,pmatorth,mkb0,strxq
   use m_nvfortran,only:findloc
+  use m_gpu,only: gpu_init
   implicit none
   integer :: ifvcfpout,ifhvccfp,is,  lmxcg,if1011,if3011, ifplane,ngpmx, ngcmx, nblochpmx, nbloch,&
        ibas,ic,lxx,nxx,nrx,l,n,k,isx,kdummy, nkdmx,nkqmx,lmax,nkdest,nkrest,ngp,ngc,nlxx,i,lnjcg,lnxcg, &
@@ -48,6 +49,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
   character(10) :: i2char
   character(128):: vcoudfile,ixcc
   call MPI__Initialize()
+  call gpu_init() 
   call M_lgunit_init()
   emptyrun=cmdopt0('--emptyrun')
   if( mpi__root) write(6,"(' mode=0,3,202 (0 and 3 give the same results for given bas)' )")
