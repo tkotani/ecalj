@@ -117,12 +117,12 @@ for i in range(1,nloop+1): #nloop is the additional number of iteration
     run_program(epath+'/heftet --job=1 '+option+'> leftet',1,datei)       # A file EFERMI for hx0fp0
     ### Core part of the self-energy (exchange only) ###
     run_program(epath+'/hbasfp0 --job=3 '+option+'>lbasC',1,datei)          # Product basis generation
-    run_program(epath+'/hvccfp0 --job=3 '+option+'> lvccC', ncore,datei) # Coulomb matrix for lbasC
+    run_program(epath+'/hvccfp0'+exec_type+' --job=3 '+option+'> lvccC', ncore,datei) # Coulomb matrix for lbasC
     run_program(epath+'/hsfp0_sc'+exec_type+' --job=3 '+option+'>lsxC',ncore2,datei) # Sigma from core1
     mv_files(glob.glob('stdout*'),'STDOUT')
     ### Valence part of the self-energy Sigma ###
     run_program(epath+'/hbasfp0 --job=0 '+option+'> lbas',1,datei)        # Product basis generation
-    run_program(epath+'/hvccfp0 --job=0 '+option+'> lvcc',ncore,datei) # Coulomb matrix for lbas
+    run_program(epath+'/hvccfp0'+exec_type+' --job=0 '+option+'> lvcc',ncore,datei) # Coulomb matrix for lbas
     run_program(epath+'/hsfp0_sc'+exec_type+' --job=1 '+option+'>lsx',ncore2,datei) # Exchange Sigma
     mv_files(glob.glob('stdout*'),'STDOUT')
     run_program(epath+'/hrcxq'+exec_type+option+'> lrcxq',ncore2,datei)       #x0 part

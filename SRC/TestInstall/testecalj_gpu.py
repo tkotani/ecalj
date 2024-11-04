@@ -61,9 +61,9 @@ if(showt):
 os.makedirs(bindir,exist_ok=True)
 exec='lmfa lmf run_arg job_pdos job_tdos ctrl2ctrlp.py a2vec.py \
  gwsc qg4gw hvccfp0 hsfp0_sc hqpe_sc hmaxloc hpsig_MPI huumat_MPI hwmatK_MPI hrcxq \
- hsfp0_sc_gpu hrcxq_gpu hx0fp0_gpu \
- hsfp0_sc_mp hrcxq_mp hx0fp0_mp \
- hsfp0_sc_mp_gpu hrcxq_mp_gpu hx0fp0_mp_gpu \
+hvccfp0_gpu hsfp0_sc_gpu hrcxq_gpu hx0fp0_gpu \
+hvccfp0_mp hsfp0_sc_mp hrcxq_mp hx0fp0_mp \
+hvccfp0_mp_gpu hsfp0_sc_mp_gpu hrcxq_mp_gpu hx0fp0_mp_gpu \
  heftet hbasfp0 gw_lmfh hx0fp0 hsfp0 hqpe eps_lmfh epsPP_lmfh epsPP_lmfh_chipm genMLWFx'
 for ex in exec.split():
     if os.path.exists(ecaljroot+'/SRC/exec/'+ex):

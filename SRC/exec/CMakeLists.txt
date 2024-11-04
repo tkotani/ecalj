@@ -37,7 +37,7 @@ list(APPEND SOURCES "../subroutines/show_programinfo.f90") # show_programinfo.f9
 file(GLOB SOURCES1 "../subroutines/*.f90" "../subroutines/show_programinfo.f90") # source files
 file(GLOB SOURCES2 "../wanniergw/*.f90") # source files
 file(GLOB MAINS "../main/*.f90")
-file(GLOB MAINS_GPU "../main/hsfp0_sc.f90" "../main/hrcxq.f90" "../main/hx0fp0.f90")  #main files for GPU versions
+file(GLOB MAINS_GPU "../main/hsfp0_sc.f90" "../main/hrcxq.f90" "../main/hx0fp0.f90" "../main/hvccfp0.f90")  #main files for GPU versions
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}) # directory for *.so
 set(CMAKE_Fortran_FLAGS_RELEASE "-O2 -g -traceback")
 set(FLAGS -cpp)
@@ -65,8 +65,7 @@ elseif(FC MATCHES "nvfortran")
   set(CMAKE_Fortran_FLAGS "-fpic -Mbackslash") # "-Mvect=simd -mcmodel=medium -fpic") # compile flags
   set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -traceback")
   # set(CMAKE_Fortran_FLAGS_DEBUG "-g -O0 -traceback -Mbounds -Mchkptr -Mchkstk")
-  set(LIBM -lmkl_intel_lp64 -lmkl_sequential -lmkl_core)
-  # set(LIBM -llapack -lblas -lfftw3) # if MKL is not available
+  set(LIBM -lmkl_intel_lp64 -lmkl_sequential -lmkl_core) # set(LIBM -llapack -lblas -lfftw3) # if MKL is not available
 endif()
 
 ## source-dependent compile options
