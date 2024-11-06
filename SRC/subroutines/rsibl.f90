@@ -13,6 +13,7 @@ contains
     use m_orbl,only: Orblib,ktab,ltab,offl,norb
     use m_sugcut,only:ngcut
     use m_hsibl,only: hsibl,hsibl1
+    use m_blas, only: gemm => zmm
     !i   lfrce :if nonzero, accumulate contribution to force
     !i   nbas  :size of basis
     !i   lfrce :1 calculate contribution to forces
@@ -65,6 +66,7 @@ contains
     integer,allocatable :: iv_a_okv(:), ivp(:), igv(:,:)
     real(8),allocatable :: ogv(:,:),w_ogq(:,:),yl(:,:),w_og2(:),he(:,:),hr(:,:)
     complex(8),allocatable::psi(:,:,:),psir(:,:,:),vpsi(:,:,:), psi0(:,:,:,:),phase(:)
+    logical :: dev = .true.
     if (nevec <= 0) return
     call tcn('rsibl')
     nlmto = ndimh-napw
@@ -114,6 +116,20 @@ contains
             e   = etab(ie)
             ncutt=ncut(lt+1,kp) 
             fac = 4d0*pi*dexp(e*rsm*rsm*0.25d0)/vol
+            if(dev) then
+            dev: block
+            integer :: minng, istat
+            complex(8) :: cfac, cwork(ng,nlm1:nlm2)
+            minng = min(ng,ncutt)
+            do  ilm = nlm1, nlm2
+               l=ll(ilm)
+               cfac = fac*(0d0,-1d0)**(l+2)
+               cwork(1:minng,ilm) = he(1:minng,ie)*hr(1:minng,ir)*yl(1:minng,ilm)*phase(1:minng)*cfac
+            enddo
+            istat = gemm(cwork(1,nlm1), evec(ioff+1,1,1), psi0(1,1,1,ib), m=minng, n=nspc*nevec, k=blks(io), &
+                      &  beta=(1d0, 0d0), ldA=ng, ldB=ndimh, ldC=ng)
+            endblock dev
+            else
             do  ilm = nlm1, nlm2 ! ... Make vector evec*phase ! ... Combine G-dependent energy, rsm and YL factors
                l=ll(ilm)
                do i = 1, min(ng,ncutt)
@@ -121,6 +137,7 @@ contains
                        + he(i,ie)*hr(i,ir)* yl(i,ilm) *(0d0,-1d0)**(l+2)* fac*phase(i) *evec(ilm-nlm1+ioff+1,1:nspc,1:nevec) 
                enddo
             enddo
+            endif
          enddo
       enddo
     endblock rsibl1
