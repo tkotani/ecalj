@@ -240,155 +240,148 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
   write(6,*)'iqxini iqxend=',iqxini,iqxend
   if(abs(sum(qibz(:,1)**2))/=0d0) call rx( 'hvccfp0: sum(q**2)==0d0')
   call MPI__getRange( mpi__iini, mpi__iend, iqxini, iqxend )
+  
   mainforiqx: do 1001 iqx = mpi__iini, mpi__iend ! q=(0,0,0) is omitted!
-     write(6,"('#### do 1001 start iqx=',5i5)")iqx,nqibz
-     vcoudfile='Vcoud.'//i2char(iqx)  !this is closed at the end of do 1001
-     open(newunit=ifvcoud,file=trim(vcoudfile),form='unformatted') !  !! Vcoud file, which contains E(\nu,I), given in PRB81,125102
-     if(iqx > nqibz) then  !       iq = 1
-        q  = q0i(:,iqx-nqibz)
-     else                  !       iq = iqx
-        q  = qibz(:,iqx)
-     endif
-     if(imode==202 .AND. abs(sum(q))<1d-8) cycle
-     call readqg('QGcou',q,  quu,ngc, ngvecc ) !qq-->q ! q+G vector
-     ngb = nbloch + ngc  !it was ngcnn(iq)
-     write(6,'(" iqx q ngc =",i5,3f10.4,i5)') iqx,q,ngc
-     allocate( strx(nlxx,nbas,nlxx,nbas)) !! strxq: structure factor.
-     do ibas1 =1,nbas
-        do ibas2 =1,nbas
-           p = bas(:,ibas2)-bas(:,ibas1)
-           phasep =exp(img*2*pi*sum(q*p))
-           nlx1 = (lx(ibas1)+1)**2
-           nlx2 = (lx(ibas2)+1)**2
-           if(allochk) write(*,*) 'allocate( s(nlx1,nlx2))'
-           allocate( s(nlx1,nlx2),sd(nlx1,nlx2)) !kino add sd----but sd is dummy
-           call strxq(1,eee,q,p,nlx1,nlx2,nlx1,alat,voltot,awald,nkd,nkq,dlv,qlv,cg,indxcg,jcg, s,sd)
-           strx(1:nlx1,ibas1,1:nlx2,ibas2) = fpi*s      !!! *phasep
-           if(allochk) write(*,*)'deallocate( s )'
-           deallocate( s,sd )
-        enddo
-     enddo
-     if(allochk) write(*,*)'allocate(rojp,sgpb,fouvb)'
-     if(emptyrun) then !--------------------------------
-        deallocate( strx)
-        allocate(hh(ngb,ngb),zz(ngb,ngb),zzr(ngb),source=img)
-        allocate(eb(ngb),source=0d0)
-        allocate(oo(ngb,ngb)   ,source=img ) !dummy
-        allocate(ppovl(ngc,ngc),source=img )
-        allocate(oox, source=oo )
-        nev=ngb
-        goto 9090
-     endif   
-     allocate( rojp(ngc,      nlxx, nbas), sgpb(ngc, nxx, nlxx, nbas), fouvb(ngc, nxx, nlxx, nbas))
-     do ibas = 1,nbas !  onsite integrals <j(e=0)|P^(q+G)_L> and <B|v(onsite)|B>
-        call mkjp_4(q,ngc, ngvecc, alat, qlat, lxx, lx(ibas),nxx, nx(0:lxx,ibas), bas(1,ibas),aa(ibas),bb(ibas),rmax(ibas), &
-             nr(ibas), nrx, rprodx(1,1,0,ibas), eee, rofi(1,ibas), rkpr(1,0,ibas), rkmr(1,0,ibas), &
-             rojp(1,1,ibas),  sgpb(1,1,1,ibas), fouvb(1,1,1,ibas))
-     enddo
-     call vcoulq_4(q, nbloch, ngc, nbas, lx,lxx, nx,nxx, alat, qlat, voltot, ngvecc, strx, rojp,rojb, sgbb,sgpb, fouvb, nblochpmx, &
-          bas,rmax, eee, aa,bb,nr,nrx,rkpr,rkmr,rofi, vcoul) !the Coulomb matrix
-     deallocate( strx, rojp,sgpb,fouvb)
-     write(6,'(" vcoul trwi=",i6,2d22.14)') iqx,sum([(vcoul(i,i),i=1,nbloch)])
-     write(6,'("### sum vcoul(1:ngb,      1:ngb) ",2d22.14,2x,d22.14)') sum(vcoul(1:ngb,1:ngb)), sum(abs(vcoul(1:ngb,1:ngb)))
-     write(6,'("### sum vcoul(1:nbloch,1:nbloch) ",2d22.14,2x,d22.14)') &
-          sum(vcoul(1:nbloch,1:nbloch)),sum(abs(vcoul(1:nbloch,1:nbloch)))
-     write(6,*)
-     ngbo=ngb
-     if(debug) write(6,*) 'write out vcoul' !! == Write out VCCFP ==
-     write(6,"(' ngc ngb/ngbo=',6i6)") ngc,ngb,ngbo
-     if(allochk) write(*,*) 'allocate( ppovl(ngc,ngc))'
-     allocate( oo(ngb,ngb) )
-     allocate( ppovl(ngc,ngc) )
-     call mkppovl2(alat,plat,qlat, ngc,  ngvecc, ngc,  ngvecc, nbas, rmax, bas, ppovl)
-        oo = 0d0
-        forall(ipl1=1:nbloch) oo(ipl1,ipl1) = 1d0
-        do concurrent(ix=1:ngc,iy=1:ngc)
-           oo(nbloch+ix, nbloch+iy) = ppovl(ix,iy)
-        enddo
-     allocate(oox,source=oo )
-     write(6,*)' --- goto eigen check1 --- '
-     if(allochk) write(*,*) 'allocate(hh(ngb,ngb),oo(ngb,ngb),oox,zz,eb,zzr)'
-     allocate(hh(ngb,ngb),zz(ngb,ngb),eb(ngb),zzr(ngb))
-     hh  = - vcoul(1:ngb,1:ngb)
-     nmx = ngb
-     call diagcv(oo,hh,zz,ngb, eb,nmx,1d99,nev) !! diagonalize the Coulomb matrix
-     do ipl1=1,nev
-        if(ipl1==11) write(6,*)' ... '
-        if(ipl1>10 .AND. ipl1<nev-5) cycle
-        write(6,'(i4,d23.16)')ipl1,-eb(ipl1)
-     enddo
+    write(6,"('#### do 1001 start iqx=',5i5)")iqx,nqibz
+    vcoudfile='Vcoud.'//i2char(iqx)  
+    open(newunit=ifvcoud,file=trim(vcoudfile),form='unformatted') ! contains E(\nu,I), given in PRB81,125102
+    q = merge(q0i(:,iqx-nqibz),qibz(:,iqx),iqx > nqibz) 
+    if(imode==202 .AND. abs(sum(q))<1d-8) cycle
+    call readqg('QGcou',q,  quu,ngc, ngvecc ) !qq-->q ! q+G vector
+    ngb = nbloch + ngc  !it was ngcnn(iq) ! basis = AtomicBasisWithinMTO + IPW basis
+    write(6,'(" iqx q ngc =",i5,3f10.4,i5)') iqx,q,ngc
+    allocate( strx(nlxx,nbas,nlxx,nbas)) !! strxq: structure factor.
+    do ibas1 =1,nbas
+      do ibas2 =1,nbas
+        p = bas(:,ibas2)-bas(:,ibas1) !     phasep =exp(img*2*pi*sum(q*p))
+        nlx1 = (lx(ibas1)+1)**2
+        nlx2 = (lx(ibas2)+1)**2
+        allocate( s(nlx1,nlx2),sd(nlx1,nlx2)) !kino add sd----but sd is dummy
+        call strxq(1,eee,q,p,nlx1,nlx2,nlx1,alat,voltot,awald,nkd,nkq,dlv,qlv,cg,indxcg,jcg, s,sd)
+        strx(1:nlx1,ibas1,1:nlx2,ibas2) = fpi*s      !!! *phasep
+        deallocate( s,sd )
+      enddo
+    enddo
+    if(emptyrun) then !--------------------------------
+       deallocate( strx)
+       allocate(hh(ngb,ngb),zz(ngb,ngb),zzr(ngb),source=img)
+       allocate(eb(ngb),source=0d0)
+       allocate(oo(ngb,ngb)   ,source=img ) !dummy
+       allocate(ppovl(ngc,ngc),source=img )
+       allocate(oox, source=oo )
+       nev=ngb
+       goto 9090
+    endif
+    allocate( rojp(ngc,  nlxx, nbas), sgpb(ngc, nxx, nlxx, nbas), fouvb(ngc, nxx, nlxx, nbas))
+    do ibas = 1,nbas !  onsite integrals <j(e=0)|P^(q+G)_L> and <B|v(onsite)|B>
+      call mkjp_4(q,ngc, ngvecc, alat, qlat, lxx, lx(ibas),nxx, nx(0:lxx,ibas), bas(1,ibas),aa(ibas),bb(ibas),rmax(ibas), &
+           nr(ibas), nrx, rprodx(1,1,0,ibas), eee, rofi(1,ibas), rkpr(1,0,ibas), rkmr(1,0,ibas), &
+           rojp(1,1,ibas),  sgpb(1,1,1,ibas), fouvb(1,1,1,ibas))
+    enddo
+    call vcoulq_4(q, nbloch, ngc, nbas, lx,lxx, nx,nxx, alat, qlat, voltot, ngvecc, strx, rojp,rojb, sgbb,sgpb, fouvb, nblochpmx, &
+         bas,rmax, eee, aa,bb,nr,nrx,rkpr,rkmr,rofi, vcoul) !the Coulomb matrix
+    deallocate( strx, rojp,sgpb,fouvb)
+    write(6,'(" vcoul trwi=",i6,2d22.14)') iqx,sum([(vcoul(i,i),i=1,nbloch)])
+    write(6,'("### sum vcoul(1:ngb,      1:ngb) ",2d22.14,2x,d22.14)') sum(vcoul(1:ngb,1:ngb)), sum(abs(vcoul(1:ngb,1:ngb)))
+    write(6,'("### sum vcoul(1:nbloch,1:nbloch) ",2d22.14,2x,d22.14)') &
+         sum(vcoul(1:nbloch,1:nbloch)),sum(abs(vcoul(1:nbloch,1:nbloch)))
+    write(6,*)
+    ngbo=ngb
+    if(debug) write(6,*) 'write out vcoul' !! == Write out VCCFP ==
+    write(6,"(' ngc ngb/ngbo=',6i6)") ngc,ngb,ngbo
+    if(allochk) write(*,*) 'allocate( ppovl(ngc,ngc))'
+    allocate( oo(ngb,ngb) )
+    allocate( ppovl(ngc,ngc) )
+    call mkppovl2(alat,plat,qlat, ngc,  ngvecc, ngc,  ngvecc, nbas, rmax, bas, ppovl)
+    oo = 0d0
+    forall(ipl1=1:nbloch) oo(ipl1,ipl1) = 1d0
+    do concurrent(ix=1:ngc,iy=1:ngc)
+      oo(nbloch+ix, nbloch+iy) = ppovl(ix,iy)
+    enddo
+    allocate(oox,source=oo )
+    write(6,*)' --- goto eigen check1 --- '!    if(allochk) write(*,*) 'allocate(hh(ngb,ngb),oo(ngb,ngb),oox,zz,eb,zzr)'
+    allocate(hh(ngb,ngb),zz(ngb,ngb),eb(ngb),zzr(ngb))
+    hh  = - vcoul(1:ngb,1:ngb)
+    nmx = ngb
+    call diagcv(oo,hh,zz,ngb, eb,nmx,1d99,nev) !! diagonalize the Coulomb matrix
+    do ipl1=1,nev
+      if(ipl1==11) write(6,*)' ... '
+      if(ipl1>10 .AND. ipl1<nev-5) cycle
+      write(6,'(i4,d23.16)')ipl1,-eb(ipl1)
+    enddo
 9090 continue
-     write(6,"(' nev ngv q=',2i5,3f10.6)")nev,ngb,q
-     !! -eb should be positive definite. However, we have one (or a few?) negative ones.
-     !! I(kotani) think no problem to set eb=0 when -eb is negative.
-     !! But this is a temporaly fix or better manner to calcuate coulomb matrix. strxq may be needed to be replaced
-     do i=1,nev
-        if(eb(i)>0 .AND. keeppositivecou) then
-           write(6,"(a,d13.5)")'KeepPositiveCou enforce : -eb<0 --> eb=0',eb(i)
-           eb(i)=0d0
-        endif
-     enddo
-     write(ifvcoud) ngb
-     write(ifvcoud) q
-     write(ifvcoud) -eb
-     write(ifvcoud) zz
-     write(6,*)
-     write(6,'(" eig0 must be equal to the largest =", 2d24.16)') sum(  dconjg(zz(1:ngb,1))*matmul( vcoul(1:ngb,1:ngb),zz(1:ngb,1)))
-     write(6,'(" zz norm check=",d24.16)')    sum( dconjg(zz(1:ngb,1))*matmul(oox,zz(1:ngb,1)) )
-     write(6,*)
-     write(6,'(" --- vcoul(exact)=",d14.6," absq2=",d24.16)') fpi*voltot/(sum(tpiba**2*q(1:3)**2)-eee) &
-          , (sum(tpiba**2*q(1:3)**2)-eee)
-     write(6,'(" --- vcoul(cal ) =",2d14.6)') sum( dconjg(zz(1:ngb,1))*matmul( vcoul(1:ngb,1:ngb),zz(1:ngb,1)) )*voltot
-     !          do igc=1,ngb
-     !          qqx(1:3) = (q(1:3)+ matmul(qlat, ngvecc(1:3,igc)))
-     !          write(6,'(" --- vcoul(exact) xxx =",d14.6," absq2=",d24.16)') fpi*voltot/(sum(tpiba**2*(qqx(1:3)**2)-eee))
-     !     &             , (sum(tpiba**2*(qqx(1:3)**2)-eee))
-     !          write(6,'(" --- vcoul(cal ) xxx =",2d14.6)') sum( dconjg(zz(1:ngb,igc))*matmul( vcoul0,zz(1:ngb,igc)) )*voltot
-     !          enddo
-!     deallocate(vcoul0)
-     if( iqx-nqibz>=1.and.wqt(iqx-nqibz)==0d0) then !! --- To get the vector <Mixed basis| q=0> --------------
-        if( .NOT. is_mix0vec()) then     !used original befor oct2006               ! See switch.F ---> this is not used now.
-           ifgb0vec_a =ifgb0vec1
-           ifgb0vec_b =ifgb0vec
-        else              ! ismix0vec=1 is to avoid problem at BZ boundary when is_mix0vec()=0.
-           ifgb0vec_a =ifgb0vec
-           ifgb0vec_b =ifgb0vec1
-        endif
-        write(6,*)' voltot=',voltot
-        if(.not.emptyrun) then
-           if(ngc/=0) then
-              igc0=findloc([(sum(abs(ngvecc(1:3,igc) ))==0,igc=1,ngc)],value=.true.,dim=1)
-              write(6,*)' igc0=',igc0,ngvecc(1:3,igc0)
-              zzr(nbloch+1:nbloch+ngc) = ppovl(1:ngc,igc0)
-           endif
-           allocate( gbvec(ngb), b0mat(nbloch) )            !! ... get a vector <Product Basis| q+0>
-           call mkb0( q, lxx,lx,nxx,nx, aa,bb,nr,nrx,rprodx, alat,bas,nbas,nbloch, b0mat)
-           zzr(1:nbloch) = b0mat(1:nbloch)
-           allocate(ooxi,source=oox)
-           call matcinv(ngb,ooxi)
-           gbvec = matmul(ooxi, zzr)
-           deallocate(ooxi)
-           dnorm = sqrt( sum(dconjg(gbvec)*zzr) )
-        endif
-        write(ifgb0vec_a,"(3d24.16,2i10,d24.16)") q, ngb,igc0,dnorm
-        write(ifgb0vec_a,"(4d24.16)") (gbvec(i),zzr(i),i=1,ngb)
-        deallocate( gbvec, b0mat)
-        dnorm  = 1d0
-        zzr(:) = matmul (oox, zz(:,1))
-        igc0 = 999999 !dummy now            ! phasex ---just to clean. this is irrelevant
-        phasex =1d0
-        do i=1,ngb
-           if(abs(zz(i,1)) > 1d-3) phasex = abs(zz(i,1))/zz(i,1)
-        enddo
-        zz(:,1)= phasex * zz(:,1)
-        zzr(:) = phasex * zzr(:)
-        write (ifgb0vec_b,"(3d24.16,2i10,d24.16)") q, ngb,igc0,dnorm
-        write (ifgb0vec_b,"(4d24.16)") (zz(i,1),zzr(i),i=1,ngb)
-     endif
-     deallocate(hh,zzr,zz,eb,oox,oo)
-     deallocate(ppovl)
-     close(ifvcoud)
+    write(6,"(' nev ngv q=',2i5,3f10.6)")nev,ngb,q
+    !! -eb should be positive definite. However, we have one (or a few?) negative ones.
+    !! I(kotani) think no problem to set eb=0 when -eb is negative.
+    !! But this is a temporaly fix or better manner to calcuate coulomb matrix. strxq may be needed to be replaced
+    do i=1,nev
+      if(eb(i)>0 .AND. keeppositivecou) then
+         write(6,"(a,d13.5)")'KeepPositiveCou enforce : -eb<0 --> eb=0',eb(i)
+         eb(i)=0d0
+      endif
+    enddo
+    write(ifvcoud) ngb
+    write(ifvcoud) q
+    write(ifvcoud) -eb
+    write(ifvcoud) zz
+    write(6,*)
+    write(6,'(" eig0 must be equal to the largest =", 2d24.16)') sum(  dconjg(zz(1:ngb,1))*matmul( vcoul(1:ngb,1:ngb),zz(1:ngb,1)))
+    write(6,'(" zz norm check=",d24.16)')    sum( dconjg(zz(1:ngb,1))*matmul(oox,zz(1:ngb,1)) )
+    write(6,*)
+    write(6,'(" --- vcoul(exact)=",d14.6," absq2=",d24.16)') fpi*voltot/(sum(tpiba**2*q(1:3)**2)-eee) &
+         , (sum(tpiba**2*q(1:3)**2)-eee)
+    write(6,'(" --- vcoul(cal ) =",2d14.6)') sum( dconjg(zz(1:ngb,1))*matmul( vcoul(1:ngb,1:ngb),zz(1:ngb,1)) )*voltot
+    !          do igc=1,ngb
+    !          qqx(1:3) = (q(1:3)+ matmul(qlat, ngvecc(1:3,igc)))
+    !          write(6,'(" --- vcoul(exact) xxx =",d14.6," absq2=",d24.16)') fpi*voltot/(sum(tpiba**2*(qqx(1:3)**2)-eee))
+    !     &             , (sum(tpiba**2*(qqx(1:3)**2)-eee))
+    !          write(6,'(" --- vcoul(cal ) xxx =",2d14.6)') sum( dconjg(zz(1:ngb,igc))*matmul( vcoul0,zz(1:ngb,igc)) )*voltot
+    !          enddo
+    !     deallocate(vcoul0)
+    if( iqx-nqibz>=1.and.wqt(iqx-nqibz)==0d0) then !! --- To get the vector <Mixed basis| q=0> --------------
+       if( .NOT. is_mix0vec()) then     !used original befor oct2006               ! See switch.F ---> this is not used now.
+          ifgb0vec_a =ifgb0vec1
+          ifgb0vec_b =ifgb0vec
+       else              ! ismix0vec=1 is to avoid problem at BZ boundary when is_mix0vec()=0.
+          ifgb0vec_a =ifgb0vec
+          ifgb0vec_b =ifgb0vec1
+       endif
+       write(6,*)' voltot=',voltot
+       if(.not.emptyrun) then
+          if(ngc/=0) then
+             igc0=findloc([(sum(abs(ngvecc(1:3,igc) ))==0,igc=1,ngc)],value=.true.,dim=1)
+             write(6,*)' igc0=',igc0,ngvecc(1:3,igc0)
+             zzr(nbloch+1:nbloch+ngc) = ppovl(1:ngc,igc0)
+          endif
+          allocate( gbvec(ngb), b0mat(nbloch) )            !! ... get a vector <Product Basis| q+0>
+          call mkb0( q, lxx,lx,nxx,nx, aa,bb,nr,nrx,rprodx, alat,bas,nbas,nbloch, b0mat)
+          zzr(1:nbloch) = b0mat(1:nbloch)
+          allocate(ooxi,source=oox)
+          call matcinv(ngb,ooxi)
+          gbvec = matmul(ooxi, zzr)
+          deallocate(ooxi)
+          dnorm = sqrt( sum(dconjg(gbvec)*zzr) )
+       endif
+       write(ifgb0vec_a,"(3d24.16,2i10,d24.16)") q, ngb,igc0,dnorm
+       write(ifgb0vec_a,"(4d24.16)") (gbvec(i),zzr(i),i=1,ngb)
+       deallocate( gbvec, b0mat)
+       dnorm  = 1d0
+       zzr(:) = matmul (oox, zz(:,1))
+       igc0 = 999999 !dummy now            ! phasex ---just to clean. this is irrelevant
+       phasex =1d0
+       do i=1,ngb
+         if(abs(zz(i,1)) > 1d-3) phasex = abs(zz(i,1))/zz(i,1)
+       enddo
+       zz(:,1)= phasex * zz(:,1)
+       zzr(:) = phasex * zzr(:)
+       write (ifgb0vec_b,"(3d24.16,2i10,d24.16)") q, ngb,igc0,dnorm
+       write (ifgb0vec_b,"(4d24.16)") (zz(i,1),zzr(i),i=1,ngb)
+    endif
+    deallocate(hh,zzr,zz,eb,oox,oo)
+    deallocate(ppovl)
+    close(ifvcoud)
 1001 enddo mainforiqx
+  
   deallocate(ngvecc)
   call cputid(0)
   if(imode==202) call rx0( ' OK! hvccfp0 imode=202 only for Q0P')
