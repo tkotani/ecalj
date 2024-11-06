@@ -6,7 +6,7 @@ module m_subzi ! Obtain weight wtkb(ib,isp,iq) for brillowine zone integation
 contains
   subroutine m_subzi_init() ! Set nevmx and allocate wtkb.
     use m_ext,only: sname
-    use m_lmfinit, only: nspc,lmet=>bz_lmet, qbg=>zbak,nspx
+    use m_lmfinit, only: nspc,lmet=>bz_lmet, qbg=>zbak,nspx,lso
     use m_mkqp,only: ntet=> bz_ntet ,bz_nkp
     use m_suham,only: ndhamx=>ham_ndhamx
     use m_mkpot,only:  qval
@@ -25,8 +25,10 @@ contains
       if(allocated(wtkb)) deallocate(wtkb)       
       allocate(wtkb(ndhamx,nspx,nkp))
     endif
-    if(cmdopt0('--tdos').or. cmdopt0('--band').or.cmdopt0('--fermisurface')) then !nevmx=0 implies eigenvalue-only mode
-      nevmx= 0
+    if(cmdopt0('--band').or.cmdopt0('--fermisurface')) then !nevmx=0 implies eigenvalue-only mode
+       nevmx=0
+    elseif(cmdopt0('--tdos')) then
+      nevmx= merge(ndhamx,0,lso==1)  !we need spinweight for lso=1
     elseif(cmdopt0('--pdos').or.cmdopt0('--mkprocar').or.cmdopt0('--zmel0').or.cmdopt0('--cls')) then
       nevmx= ndhamx  !all bands
     else  !above occipied bands. (tetrahedron method may require a little more than zval/2)
