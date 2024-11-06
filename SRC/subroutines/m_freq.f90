@@ -199,6 +199,8 @@ subroutine getwemax(lqall,wemax)!> In order to get |e_ip-ef| on real space integ
   use m_ReadEfermi,only: ef !ef is set at main routine
   use m_nvfortran
   use m_getqforgw,only: getqforgw, nbmin,nbmax,nq,qx
+  use m_lgunit,only: stdo
+  use m_ftox
   implicit none
   logical,intent(in):: lqall
   real(8),intent(out):: wemax
@@ -212,7 +214,7 @@ subroutine getwemax(lqall,wemax)!> In order to get |e_ip-ef| on real space integ
   ntq = nbmax-nbmin+1
   allocate( itq, source=[(i,i=nbmin,nbmax)])
   allocate(q(1:3,nq),source=qx(1:3,1:nq))
-  write(6,*)'ntq itq=',ntq,' ',itq(1:ntq)
+  write(stdo,ftox)'ntq itq=',ntq,' ',itq(1:ntq)
   nspinmx = nspin
   if (laf) nspinmx =1
   !! for 1shot GW deltaw id for d\Sigma/d_omega
