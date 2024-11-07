@@ -93,8 +93,6 @@ contains
     ! psi0 is used on the atomic force calculation (lfrce /=0) and ncessary 1st dimension size is much smaller than ng (around ng/4)
     ! psi0 is prepared in the case of lfrc /=0 and its 1st dimension size is downsized to ngmax
     ! allocate(psi(ng,nspc,nevec),vpsi(ng,nspc,nevec),psi0(ng,nspc,nevec,nbas),psir(k1,k2,k3),phase(ng))
-    write(06,*) 'rsibl:',ng, nspc, nevec, k1, k2,k3
-    call flush(06)
     allocate(psi(ng,nspc,nevec),psir(k1,k2,k3),phase(ng))
     ! psi0=0d0 
     ngmax = min(maxval(ngcut), ng)
