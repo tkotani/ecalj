@@ -21,87 +21,130 @@ endif()
 set(FCMOD ${FC})
 
 Project(ecalj)
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: Debug Release" FORCE)
+endif()
+option(BUILD_GPU "Build GPU version" OFF)
+option(BUILD_MP "Build mixed precision CPU version" OFF)
+option(BUILD_MP_GPU "Build mixed precision GPU version" OFF)
+message("CMAKE_BUILD_TYPE is " ${CMAKE_BUILD_TYPE})
+message("BUILD_GPU is " ${BUILD_GPU})
+message("BUILD_MP is " ${BUILD_MP})
+message("BUILD_MP_GPU is " ${BUILD_MP_GPU})
 
 # SET(CMAKE_VERBOSE_MAKEFILE ON)
 enable_language(Fortran)
 
-# Note: we always renew show_programinfo.f90 because of Makeshow is always invoked. How to improve this?
-add_custom_target(show_prog COMMAND make -f Makeshow WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-  DEPENDS "../subroutines/*.f90" "../wanniergw/*.f90" "../main/*.f90"
-)
-file(GLOB SOURCES "../subroutines/*.f90" "../wanniergw/*.f90" "../subroutines/show_programinfo.f90") # source files
+file(GLOB SOURCES "../subroutines/*.f90" "../wanniergw/*.f90") # existing source files 
+list(APPEND SOURCES "../subroutines/show_programinfo.f90") # show_programinfo.f90 will be generated latar. it will be deleted by clean
 file(GLOB SOURCES1 "../subroutines/*.f90" "../subroutines/show_programinfo.f90") # source files
 file(GLOB SOURCES2 "../wanniergw/*.f90") # source files
-file(GLOB MAINS "../main/*.f90") # main source files
-set(LIBRARY_NAME ecaljF) # library name is libecaljF.so
-
-# if(DEFINED CACHE{FC} OR DEFINED ENV{FC})
-# set(FC $ENV{FC})
-# else()
-# set(FC "gfortran") #default
-# endif()
+file(GLOB MAINS "../main/*.f90")
+file(GLOB MAINS_GPU "../main/hsfp0_sc.f90" "../main/hrcxq.f90" "../main/hx0fp0.f90" "../main/hvccfp0.f90")  #main files for GPU versions
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}) # directory for *.so
-set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/${FCMOD}/mod) # directory for *.mod
-
-# ## show_programinfo.f90 get date and so on for binary info. This should be newer than others ###
-# ## but I don't know how to do it. So I use add_custom_target with ALLch
-# find_package(BLAS)
-# find_package(MPI)
-# find_package(LAPACK)
-# message(STATUS ${BLAS_LIBARARIES})
-# message(STATUS ${LAPACK})
-if(DEFINED CACHE{DEBUG} OR DEFINED ENV{DEBUG})
-  set(DEBUG $ENV{DEBUG})
-endif()
-
-message(STATUS "DEBUG= ${DEBUG}")
-
-if(DEFINED ENV{GPU})
-  set(USE_GPU ON)
-endif()
-
+set(CMAKE_Fortran_FLAGS_RELEASE "-O2 -g") # -traceback")
+set(FLAGS -cpp)
 # ## compile options ############################################################
 if(FC MATCHES "gfortran")
   set(CMAKE_Fortran_COMPILER mpif90) # compiler
-  set(CMAKE_Fortran_FLAGS "-g -fimplicit-none -finit-integer=NaN -finit-real=NaN -fpic -cpp") # compile flags
-# comment out for gfortran9 or less 
+  set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -fbacktrace")
+  set(CMAKE_Fortran_FLAGS "-g -ffree-line-length-none -fimplicit-none -finit-integer=NaN -finit-real=NaN -fpic") # compile flags
   if(CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER_EQUAL "10.0")
     set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -w -fno-strict-aliasing -fallow-argument-mismatch")
   endif()
-  set(LIBM  -lmkl_rt) 
-  add_link_options(-lmkl_rt)
-elseif(FC MATCHES "ifort-openmpi-kugui")
-  set(CMAKE_Fortran_COMPILER ifort) # compiler
-  set(CMAKE_Fortran_FLAGS "-I/home/app/openmpi/intel/4.1.6/include -I/home/app/openmpi/intel/4.1.6/lib -L/home/app/openmpi/intel/4.1.6/lib -Wl,-rpath -Wl,/home/app/openmpi/intel/4.1.6/lib -Wl,--enable-new-dtags -lmpi_usempif08 -lmpi_usempi_ignore_tkr -lmpi_mpifh -lmpi -cpp -init:snan -fpic -assume byterecl -g -traceback") # compile flags
-  set(LIBM  -qmkl=parallel) 
-  add_link_options(-qmkl=parallel)
+  set(LIBM -lmkl_rt) 
 elseif(FC MATCHES "ifort")
-  set(CMAKE_Fortran_COMPILER mpiifort) # compiler
-  set(CMAKE_Fortran_FLAGS "-cpp -init:snan -fpic -assume byterecl") # compile flags
-  set(LIBM -mkl) 
-  add_link_options(-mkl)
-  #set(LIBM -qmkl=parallel) 
-  #add_link_options(-qmkl=parallel)
+  set(CMAKE_Fortran_COMPILER mpiifort)
+  find_program(MPIIFORT_COMPILER mpiifort)
+  if(NOT MPIIFORT_COMPILER) 
+    set(CMAKE_Fortran_COMPILER mpifort)
+  endif()
+  set(CMAKE_Fortran_FLAGS "-init:snan -fpic -assume byterecl") # compile flags
+  set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -traceback")
+  set(LIBM -qmkl=parallel) 
 elseif(FC MATCHES "nvfortran")
   set(CMAKE_Fortran_COMPILER mpifort) # compiler
-  set(CMAKE_Fortran_FLAGS "-cpp -fpic") # "-Mvect=simd -mcmodel=medium -fpic") # compile flags
-  set(LIBM  ) # set LIB variable
-  add_link_options(-lmkl_intel_lp64 -lmkl_sequential -lmkl_core)
-  # add_link_options(-lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core)
-  # add_link_options(-mp -Mmkl -lpthread)
-  if(USE_GPU)
-    # add_compile_options(-cpp -D__GPU -Minfo -Mfree -Mx,231,0xl -cuda -acc=gpu -cudalib=cufft,cublas,cusolver)
-    add_compile_options(-cpp -D__GPU -Minfo -Mfree -cuda -acc=gpu -cudalib=cufft,cublas,cusolver)
-    add_link_options(-acc=gpu -cuda -cudalib=cufft,cublas,cusolver)
-  endif()
+  #-Mbackslash is necessary to write backslash without escape character
+  set(CMAKE_Fortran_FLAGS "-fpic -Mbackslash") # "-Mvect=simd -mcmodel=medium -fpic") # compile flags
+  set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -traceback")
+  # set(CMAKE_Fortran_FLAGS_DEBUG "-g -O0 -traceback -Mbounds -Mchkptr -Mchkstk")
+  set(LIBM -lmkl_intel_lp64 -lmkl_sequential -lmkl_core) # set(LIBM -llapack -lblas -lfftw3) # if MKL is not available
 endif()
-set(LIB ${LIBRARY_NAME}) 
-#set(LIB1 ${LIBRARY_NAME}1) 
-#set(LIB2 ${LIBRARY_NAME}2) 
+
+## source-dependent compile options
+if(FC MATCHES "gfortran")
+  message(STATUS "===== gfortran release  =======================")
+  foreach(target IN ITEMS ${SOURCES})
+    if(${target} MATCHES "../subroutines/mkqp.f90" OR ${target} MATCHES "../wannier/iopen.f90")
+      set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O0")
+    endif()
+  endforeach()
+elseif(FC MATCHES "ifort")
+  message(STATUS "====== ifort release =======================")
+  foreach(target IN ITEMS ${SOURCES})
+    if(${target} MATCHES "../subroutines/m_qplist.f90")# OR ${target} MATCHES "../subroutines/m_bzintegration2.f90" )
+      set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O0")
+    endif()
+  endforeach()
+elseif(FC MATCHES "nvfortran")
+  message(STATUS "====== nvfortran release =======================")
+  foreach(target IN ITEMS ${SOURCES})
+    if(${target} MATCHES "../subroutines/pwmat.f90" OR ${target} MATCHES "../subroutines/rseq.f90")
+      set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O0")
+    endif()
+  endforeach()
+endif()
+
+# makeshow which is always invoked to save the comilation time
+execute_process(COMMAND uname -orin  OUTPUT_VARIABLE OUTPUT_UNAME OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND bash -c "LANG=us; date"  OUTPUT_VARIABLE OUTPUT_DATE OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND bash -c "${FC} --version |sed '/^$/d' |head -1" OUTPUT_VARIABLE OUTPUT_FCVERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND bash -c "git log |head -1" OUTPUT_VARIABLE OUTPUT_GITCOMMIT1 OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND bash -c "git log |head -2|tail -n 1" OUTPUT_VARIABLE OUTPUT_GITCOMMIT2 OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND bash -c "git log |head -3|tail -n 1" OUTPUT_VARIABLE OUTPUT_GITCOMMIT3 OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND bash -c "grep -v \"^\$\" /etc/issue | head -1 " OUTPUT_VARIABLE OUTPUT_ISSUE OUTPUT_STRIP_TRAILING_WHITESPACE)
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+  string(JOIN " "  FLAGS_ALL ${FLAGS} ${CMAKE_Fortran_FLAGS} ${CMAKE_Fortran_FLAGS_RELEASE}) #conbine lists to single variable
+elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  string(JOIN " "  FLAGS_ALL ${FLAGS} ${CMAKE_Fortran_FLAGS} ${CMAKE_Fortran_FLAGS_DEBUG})
+endif()
+#if(FC MATCHES "gfortran")
+#    set(FLAGS_ALLW "")
+#else
+#    set(FLAGS_ALLW FFLAGS_ALL)
+#endif()
+  
+add_custom_command(
+  OUTPUT ../subroutines/show_programinfo.f90
+  COMMAND cpp -P -D___UNAME_A___=\"${OUTPUT_UNAME}\"
+              -D___ETC_ISSUE___=\"${OUTPUT_ISSUE}\" 
+              -D___FFLAGS___=\"${FLAGS_ALLW}\"
+              -D___PLATFORM___=\"${FC}\" 
+              -D___FC_VERSION___=\"${OUTPUT_FCVERSION}\" 
+              -D___LIBLOC___=\"${LIB}\" 
+              -D___LINK_TIME___=\"${OUTPUT_DATE}\" 
+              -D___GIT_COMMIT1___=\"${OUTPUT_GITCOMMIT1}\" 
+              -D___GIT_COMMIT2___=\"${OUTPUT_GITCOMMIT2}\" 
+              -D___GIT_COMMIT3___=\"${OUTPUT_GITCOMMIT3}\"
+              ../subroutines/show_programinfo.template > ../subroutines/show_programinfo.f90
+  COMMENT "Generating show_programinfo.f90!!"
+  VERBATIM
+)
+add_custom_target(show_prog ALL
+  DEPENDS ../subroutines/show_programinfo.f90 #which is generated by custom_command
+)
 
 # emacs tags
 add_custom_target(etags ALL COMMAND etags ../subroutines/*.f90 ../wanniergw/*.f90 ../main/*.f90
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+
+# copy executables etc to ../exec${FCMOD}
+file(MAKE_DIRECTORY   ${CMAKE_BINARY_DIR}/../exec${FCMOD})
+set(CMAKE_Fortran_BINS ${CMAKE_BINARY_DIR}/../exec${FCMOD}) # directory for *.mod
+add_custom_target(copyexe ALL 
+  COMMAND cp `find . -mindepth 1 -maxdepth 1 -executable -type f` ${CMAKE_Fortran_BINS} 
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+)
 
 # For setting mkl location
 add_executable(dummy ./dummy.f90) # exe
@@ -111,60 +154,66 @@ target_link_libraries(dummy ${BLAS} ${LIBM} ${MPI}) # linked
 #add_library(${LIB1} SHARED ${SOURCES1}) # Library
 #add_library(${LIB2} SHARED ${SOURCES2})
 
-# ## source-dependent compile options
-if(FC MATCHES "gfortran" AND DEFINED DEBUG)
-  message(STATUS "===== gfortran debug  =======================")
-  foreach(target IN ITEMS ${SOURCES})
-    set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-fbacktrace -O0")
-  endforeach()
-elseif(FC MATCHES "gfortran")
-  message(STATUS "===== gfortran release  =======================")
-  foreach(target IN ITEMS ${SOURCES})
-    if(${target} MATCHES "../subroutines/mkqp.f90" OR ${target} MATCHES "../wannier/iopen.f90")
-      set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O0 -fbacktrace ")
-    else()
-      set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O2 -fbacktrace ")
-    endif()
-  endforeach()
-elseif(FC MATCHES "ifort" AND DEFINED DEBUG)
-  message(STATUS "===== ifort debug  =======================")
-  foreach(target IN ITEMS ${SOURCES})
-    set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O0  -g -traceback")
-  endforeach()
-elseif(FC MATCHES "ifort")
-  message(STATUS "====== ifort release =======================")
-  foreach(target IN ITEMS ${SOURCES})
-    if(${target} MATCHES "../subroutines/m_qplist.f90")# OR ${target} MATCHES "../subroutines/m_bzintegration2.f90" )
-      set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O0 -g -traceback")
-    else()
-      set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O2 -g -traceback")
-    endif()
-  endforeach()
-elseif(FC MATCHES "nvfortran" AND DEFINED DEBUG)
-  message(STATUS "====== nvfortran debug =======================")
-  foreach(target IN ITEMS ${SOURCES})
-    set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-C -g -traceback -O2") # why -O2 needed here???
-  endforeach()
-elseif(FC MATCHES "nvfortran")
-  message(STATUS "====== nvfortran release =======================")
-  foreach(target IN ITEMS ${SOURCES})
-    if(${target} MATCHES "../subroutines/pwmat.f90" OR ${target} MATCHES "../subroutines/rseq.f90")
-      set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-C -g -traceback -O0")
-    else()
-      set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O2 -traceback")
-    endif()
-  endforeach()
-endif()
+# library compilation
+set(LIB ecaljF) # ecaljF, ecaljF_gpu ecaljF_mp, or ecaljF_mp_gpu
+add_library(${LIB} SHARED ${SOURCES})
+set_target_properties(${LIB} PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/${FCMOD}/mod)
+add_dependencies(${LIB} show_prog)
+target_link_options(${LIB} PRIVATE ${LIBM})
+target_compile_options(${LIB} PRIVATE ${FLAGS})
 
-# generage library
-add_library(${LIB} SHARED ${SOURCES}) # Library
-# generate binaries
-foreach(target IN ITEMS ${MAINS}) # main routines
-  get_filename_component(exename ${target} NAME_WE) # set DIR variable
-  add_executable(${exename} ${target}) # exe
-  target_link_libraries(${exename} ${LIB} ${LIBM} ${BLAS} ${MPI}) # linked
+foreach(target IN ITEMS ${MAINS})
+  get_filename_component(exename ${target} NAME_WE)
+  add_executable(${exename} ${target})
+  target_compile_options(${exename} PRIVATE ${FLAGS})
+  target_link_libraries(${exename} ${LIB} ${LIBM})
+  #library's path is set to $ORIGIN same with binary's directory
+  set_target_properties(${exename} PROPERTIES
+      Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/${FCMOD}/mod
+      BUILD_RPATH "\$ORIGIN"  
+      INSTALL_RPATH "\$ORIGIN"
+  ) 
+  add_dependencies(copyexe ${exename})
 endforeach()
-#copy target to execFC
-file(MAKE_DIRECTORY   ${CMAKE_BINARY_DIR}/../exec${FCMOD})
-set(CMAKE_Fortran_BINS ${CMAKE_BINARY_DIR}/../exec${FCMOD}) # directory for *.mod
-add_custom_target(copyexe ALL COMMAND cp `find . -mindepth 1 -maxdepth 1 -executable -type f` ${CMAKE_Fortran_BINS} WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+
+### GPU or MP version ####
+# 1:MP, 2:GPU, 3:GPU+MP
+list(FILTER SOURCES EXCLUDE REGEX "main_hhomogas.f90") # main_hhomogas.f90
+foreach(i RANGE 1 3)
+  if(BUILD_MP AND i EQUAL 1)
+    set(TYPE _mp)
+    set(LIBM2 )
+    set(FLAGS2 -D__MP)
+  elseif(BUILD_GPU AND i EQUAL 2)
+    set(TYPE _gpu)
+    set(LIBM2 -acc=gpu -cuda -cudalib=cufft,cublas,cusolver)
+    set(FLAGS2 -D__GPU -Minfo -Mfree -cuda -acc=gpu -cudalib=cufft,cublas,cusolver)
+  elseif(BUILD_MP_GPU AND i EQUAL 3)
+    set(TYPE _mp_gpu)
+    set(LIBM2 -acc=gpu -cuda -cudalib=cufft,cublas,cusolver)
+    set(FLAGS2 -D__MP -D__GPU -Minfo -Mfree -cuda -acc=gpu -cudalib=cufft,cublas,cusolver)
+  else()
+    continue()
+  endif()
+  set(LIB2 ecaljF${TYPE})
+  message(STATUS "LIB is " ${LIB2})
+  add_library(${LIB2} SHARED ${SOURCES})
+  set_target_properties(${LIB2} PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/${FCMOD}/mod${TYPE})
+  add_dependencies(${LIB2} show_prog)
+  target_link_options(${LIB2} PRIVATE ${LIBM} ${LIBM2})
+  target_compile_options(${LIB2} PRIVATE ${FLAGS} ${FLAGS2})
+
+  foreach(target IN ITEMS ${MAINS_GPU})
+    get_filename_component(exename ${target} NAME_WE)
+    set(exename ${exename}${TYPE})
+    add_executable(${exename} ${target})
+    target_compile_options(${exename} PRIVATE ${FLAGS} ${FLAGS2})
+    target_link_libraries(${exename} ${LIB2} ${LIBM} ${LIBM2})
+    set_target_properties(${exename} PROPERTIES
+        Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/${FCMOD}/mod${TYPE}
+        BUILD_RPATH "\$ORIGIN"
+        INSTALL_RPATH "\$ORIGIN"
+    ) 
+    add_dependencies(copyexe ${exename})
+  endforeach()
+endforeach()
