@@ -15,11 +15,11 @@ module m_x0kf
   use m_tetwt,only:  gettetwt,tetdeallocate, whw,ihw,nhw,jhw,n1b,n2b,nbnb,nbnbx,nhwtot
   use m_ftox
   use m_readVcoud,only:   vcousq,zcousq,ngb,ngc
-  use m_kind,only:kindrcxq
+  use m_kind,only: kp => kindrcxq
   implicit none
   public:: x0kf_zxq, deallocatezxq, deallocatezxqi
   complex(8),public,allocatable:: zxq(:,:,:), zxqi(:,:,:)   !Not yet protected because of main_hx0fp0
-  complex(kindrcxq),allocatable:: rcxq(:,:,:,:)
+  complex(kind=kp),allocatable:: rcxq(:,:,:,:)
 !  complex(4),allocatable:: rcxq4(:,:,:,:)
   integer,public::npr
   private
@@ -36,7 +36,7 @@ module m_x0kf
   logical,external:: cmdopt0 
   logical:: debug
 contains
-  function X0kf_v4hz_init(job,q,isp_k,isp_kq, iq, crpa) result(ierr) !index accumulation. Initialzation for calling x0kf_v4h
+  function X0kf_v4hz_init(job,q,isp_k,isp_kq, iq, crpa, ikbz_in, fkbz_in) result(ierr) !index accumulation. Initialzation for calling x0kf_v4h
     implicit none
     intent(in)::          job,q,isp_k,isp_kq, iq, crpa
     !! Get ncount index to drive x0kf_v4h. Call job=0 and job=1 successively. 
@@ -44,16 +44,43 @@ contains
     integer:: irot=1,ierr,isp_k,isp_kq, iq, jpm, ibib, iw,igb2,igb1,it,itp,job,icount, ncc,icoun,k
     real(8):: q(3), imagweight, wpw_k, wpw_kq
     logical:: crpa !,showicount=.false.
+    integer, intent(in),optional :: ikbz_in, fkbz_in
+    integer :: ikbz, fkbz
+    ikbz = 1
+    fkbz = nqbz
+    if(present(ikbz_in) .and. present(fkbz_in)) then
+      ikbz = ikbz_in
+      fkbz = fkbz_in
+    endif
     write(stdo,'(" x0kf_v4hz_init: job q =",i3,3f8.4)') job,q
     ierr=-1
     ncc=merge(0,nctot,npm==1)
-    if(job==0) allocate( nkmin(nqbz),nkqmin(nqbz),source= 999999)
-    if(job==0) allocate( nkmax(nqbz),nkqmax(nqbz),source=-999999)
-    if(job==1) allocate( whwc(ncount),kc(ncoun),iwini(ncoun),iwend(ncoun),itc(ncoun), itpc(ncoun), jpmc(ncoun),icouini(ncoun))
-    if(job==1) allocate(icounkmin(nqbz),icounkmax(nqbz))
+    if(job==0) then
+      if(allocated(nkmin)) deallocate(nkmin)
+      if(allocated(nkqmin)) deallocate(nkqmin)
+      if(allocated(nkmax)) deallocate(nkmax)
+      if(allocated(nkqmax)) deallocate(nkqmax)
+      allocate( nkmin(ikbz:fkbz),nkqmin(ikbz:fkbz),source= 999999)
+      allocate( nkmax(ikbz:fkbz),nkqmax(ikbz:fkbz),source=-999999)
+    endif
+    if(job==1) then
+      if(allocated(whwc)) deallocate(whwc)
+      if(allocated(kc)) deallocate(kc)
+      if(allocated(iwini)) deallocate(iwini)
+      if(allocated(iwend)) deallocate(iwend)
+      if(allocated(itc)) deallocate(itc)
+      if(allocated(itpc)) deallocate(itpc)
+      if(allocated(jpmc)) deallocate(jpmc)
+      if(allocated(icouini)) deallocate(icouini)
+      allocate( whwc(ncount),kc(ncoun),iwini(ncoun),iwend(ncoun),itc(ncoun), itpc(ncoun), jpmc(ncoun),icouini(ncoun))
+      if(allocated(icounkmin)) deallocate(icounkmin)
+      if(allocated(icounkmax)) deallocate(icounkmax)
+      allocate(icounkmin(ikbz:fkbz),icounkmax(ikbz:fkbz))
+    endif
     icount=0
     icoun=0
     AccumulateIndex4icount: do 110 k = 1,nqbz
+      if(k < ikbz .OR. k > fkbz) cycle
       if(job==1) icounkmin(k)=icoun+1
       if(job==0) then
         do jpm=1,npm 
@@ -122,8 +149,13 @@ contains
     use m_freq,only: nw_i,nw,niw 
     use m_zmel,only: Setppovlz,Setppovlz_chipm   ! & NOTE: these data set are stored in this module, and used
     use m_stopwatch
-    use m_mpi,only: comm_k, mpi__rank_k, mpi__size_k, MPI__reduceSum, &
+    use m_mpi,only: comm_k, mpi__rank_k, mpi__size_k, &
                     mpi__ipr_col, mpi__npr_col, mpi__rank_b, mpi__root_k, comm_b
+#ifdef __MP
+    use m_mpi,only: MPI__reduceSum => MPI__reduceSum_kind4
+#else
+    use m_mpi,only: MPI__reduceSum
+#endif
     use m_gpu, only: use_gpu
     use m_data_gpu, only: SetDataGPU_inkx, ExitDataGPU_inkx
     implicit none
@@ -134,6 +166,8 @@ contains
     complex(8),optional:: zzr(:,:)
     real(8):: q(3),schi,ekxx1(nband,nqbz),ekxx2(nband,nqbz)
     character(10) :: i2char
+    logical :: tetwtk = .false.
+    real(8) :: zmel_max_size
     type(stopwatch) :: t_sw_zmel, t_sw_x0
     qq=q
 !    GPUTEST = .true. !cmdopt0('--gpu')
@@ -145,7 +179,10 @@ contains
       if(realomega) allocate(zxq(npr,npr_col,nw_i:nw),source=(0d0,0d0))
       if(imagomega) allocate(zxqi(npr,npr_col,niw),source=(0d0,0d0))
     endif
+    if(cmdopt0('--tetwtk'))  tetwtk=.true.
     if(cmdopt0('--emptyrun'))  return
+    call getkeyvalue("GWinput","zmel_max_size",zmel_max_size,default=1d0) !in GB
+    if(zmel_max_size < 0.001d0) zmel_max_size = 1d0
     if(chipm .AND. nolfco) then; call setppovlz_chipm(zzr,npr)
     else;                        call setppovlz(q,matz=.true.,npr=npr)!2024-5-23 obata. A minor bug to consume memory: Set npr=1 for EPSPP0 mode(no lfc)
     endif
@@ -157,10 +194,12 @@ contains
           ekxx1(1:nband,kx) = readeval(  rk(:,kx), isp_k ) ! read eigenvalue
           ekxx2(1:nband,kx) = readeval(q+rk(:,kx), isp_kq) !
         enddo
-        call gettetwt(q,iq,isp_k,isp_kq,ekxx1,ekxx2,nband=nband) ! tetrahedron weight
-        ierr=x0kf_v4hz_init(0,q,isp_k,isp_kq,iq, crpa)
-        ierr=x0kf_v4hz_init(1,q,isp_k,isp_kq,iq, crpa) 
-        call tetdeallocate()
+        if(.not.tetwtk) then
+          call gettetwt(q,iq,isp_k,isp_kq,ekxx1,ekxx2,nband=nband) ! tetrahedron weight
+          ierr=x0kf_v4hz_init(0,q,isp_k,isp_kq,iq, crpa)
+          ierr=x0kf_v4hz_init(1,q,isp_k,isp_kq,iq, crpa) 
+          call tetdeallocate()
+        endif
       endblock GETtetrahedronWeight
       x0kf_v4hz_block: block !call x0kf_v4hz(q,isp_k,isp_kq,iq, npr,q00,chipm,nolfco,zzr,nmbas)
         integer:: k,jpm, ibib, iw,igb2,igb1,it,itp, nkmax1,nkqmax1, ib1, ib2, ngcx,ix,iy,igb
@@ -170,14 +209,13 @@ contains
         complex(8):: img=(0d0,1d0)
         if(.not.allocated(rcxq)) then
            allocate(rcxq(npr,npr_col,nwhis,npm))
-           rcxq=0d0
-!           if(GPUTEST) then
-             write(stdo,ftox)' size of rcxq:', npr, npr_col, nwhis, npm
-             !$acc enter data create(rcxq) 
-             !$acc kernels
-             rcxq(1:npr,1:npr_col,1:nwhis,1:npm) = (0d0,0d0)
-             !$acc end kernels
-!           endif
+           write(stdo,ftox)' size of rcxq:', npr, npr_col, nwhis, npm
+           !$acc enter data create(rcxq) 
+           write(stdo,ftox)'after enter create'
+           call flush(stdo)
+           !$acc kernels
+           rcxq(1:npr,1:npr_col,1:nwhis,1:npm) = (0d0,0d0)
+           !$acc end kernels
         endif
         zmel0mode: if(cmdopt0('--zmel0')) then ! For epsPP0. Use zmel-zmel0 (for subtracting numerical error) for matrix elements.
           zmel0block : block
@@ -187,6 +225,31 @@ contains
             q1a=sum(q00**2)**.5
             q2a=sum(q**2)**.5
             rfac00=q2a/(q2a-q1a)
+
+            if(tetwtk) then
+              do k = 1, nqbz
+                if(mod(k-1, mpi__size_k) /= mpi__rank_k)  cycle
+                call gettetwt(q,iq,isp_k,isp_kq,ekxx1,ekxx2,nband=nband, ikbz_in = k, fkbz_in = k) ! tetrahedron weight
+                ierr=x0kf_v4hz_init(0,q,isp_k,isp_kq,iq, crpa, ikbz_in = k, fkbz_in = k)
+                ierr=x0kf_v4hz_init(1,q,isp_k,isp_kq,iq, crpa, ikbz_in = k, fkbz_in = k) 
+                call tetdeallocate()
+
+                call x0kf_zmel(q00,k, isp_k,isp_kq)
+                if(allocated(zmel0)) deallocate(zmel0)
+                allocate(zmel0,source=zmel)
+                call x0kf_zmel(q, k, isp_k,isp_kq)
+                do icoun = icounkmin(k), icounkmax(k)
+                  jpm = jpmc(icoun)
+                  it  = itc (icoun)
+                  itp = itpc(icoun)
+                  do iw=iwini(icoun),iwend(icoun)
+                    icount= icouini(icoun)+iw-iwini(icoun)
+                    if(abs(zmel0(1,it,itp))>1d10) cycle
+                    rcxq(1,1,iw,jpm)=rcxq(1,1,iw,jpm) +rfac00**2*(abs(zmel(1,it,itp))-abs(zmel0(1,it,itp)))**2 *whwc(icount)
+                  enddo
+                enddo
+              enddo
+            else
             zmel0modeicount: do icoun = 1,ncoun 
               k   = kc(icoun)
               it  = itc (icoun) !occ      k
@@ -209,6 +272,7 @@ contains
                 rcxq(1,1,iw,jpm)=rcxq(1,1,iw,jpm) +rfac00**2*(abs(zmel(1,it,itp))-abs(zmel0(1,it,itp)))**2 *whwc(icount)
               enddo
             enddo zmel0modeicount
+            endif
             !$acc update device (rcxq)
           endblock zmel0block
           goto 2000 
@@ -217,33 +281,53 @@ contains
         call cputid (0)
 !        if(GPUTEST) then
           ! rcxq(ibg1,igb2,iw) = \sum_ibib wwk(iw,ibib)* <M_ibg1(q) psi_it(k)| psi_itp(q+k)> < psi_itp | psi_it M_ibg2 > at q
-          call stopwatch_init(t_sw_zmel, 'zmel_'//'gpu') !merge('gpu','ori',mask = GPUTEST))
-          call stopwatch_init(t_sw_x0, 'x0_'//'gpu') !merge('gpu','ori',mask = GPUTEST))
+          call stopwatch_init(t_sw_zmel, 'zmel_'//'gemm') !merge('gpu','ori',mask = GPUTEST))
+          call stopwatch_init(t_sw_x0, 'x0_'//'gemm') !merge('gpu','ori',mask = GPUTEST))
           kloop:do 1500 k=1,nqbz !zmel = < M(igb q) phi( rk it occ)|  phi(q+rk itp unocc)>
             if(mod(k-1, mpi__size_k) /= mpi__rank_k)  cycle
+            if(tetwtk) then
+              call gettetwt(q,iq,isp_k,isp_kq,ekxx1,ekxx2,nband=nband, ikbz_in = k, fkbz_in = k) ! tetrahedron weight
+              ierr=x0kf_v4hz_init(0,q,isp_k,isp_kq,iq, crpa, ikbz_in = k, fkbz_in = k)
+              ierr=x0kf_v4hz_init(1,q,isp_k,isp_kq,iq, crpa, ikbz_in = k, fkbz_in = k) 
+              call tetdeallocate()
+            endif
             ! qq   = q;              qrk  = q+rk(:,k)
             ! ispm = isp_k;          ispq = isp_kq
             ! ns1  = nkmin(k)+nctot; ns2  = nkmax(k)+nctot
             ! nqini= nkqmin(k);      nqmax= nkqmax(k)
             icounkmink= icounkmin(k); icounkmaxk= icounkmax(k)
-            call stopwatch_start(t_sw_zmel)
             debug=cmdopt0('--debugzmel')
             if(debug) write(stdo,ftox) 'ggggggggg goto get_zmel_init_gemm',k, nkmin(k),nkmax(k),nctot
-            if(use_gpu) then
-              !Currently, mpi version of get_zmel_init_gpu which is available by adding comm argument for MPI communicator,
-              !but, MPI communication is significant bottle-neck in the case where GPUs are used. Therefore, it is only used in without GPU case.
-              call get_zmel_init_gemm(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
-                   nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., &
-                   zmelconjg=.true.)
-            else
-              call get_zmel_init_gemm(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
-                   nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., &
-                   zmelconjg=.true., comm = comm_b)
-            endif
-            call stopwatch_pause(t_sw_zmel)
-            call stopwatch_start(t_sw_x0)
-            call x0gpu(rcxq, npr, ipr_col, npr_col, nwhis, npm)
-            call stopwatch_pause(t_sw_x0)
+            NMBATCH: BLOCK 
+              integer :: nsize, nns, ibatch, nbatch, ns12
+              nsize = (nkqmax(k)-nkqmin(k))*npr   !
+              nns = (nkmax(k) - nkmin(k) + 1) !number of middle states
+              nbatch = ceiling(dble(nns)*nsize*16/1000**3/zmel_max_size)
+              ns1 = nkmin(k) + nctot 
+              do ibatch = 1, nbatch
+                ns12 = (nns + ibatch - 1)/nbatch
+                if(ns12 == 0) cycle
+                ns2 = ns1 + ns12 - 1
+                call stopwatch_start(t_sw_zmel)
+                write(stdo,ftox) 'zmel_batch:', ibatch, ns1, ns2, nbatch
+                if(use_gpu) then
+                  !Currently, mpi version of get_zmel_init_gpu which is available by adding comm argument for MPI communicator,
+                  !but, MPI communication is significant bottle-neck in the case where GPUs are used. Therefore, it is only used in without GPU case.
+                  call get_zmel_init_gemm(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=ns1,ns2=ns2, ispm=isp_k, &
+                       nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., &
+                       zmelconjg=.true.)
+                else
+                  call get_zmel_init_gemm(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=ns1,ns2=ns2, ispm=isp_k, &
+                       nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., &
+                       zmelconjg=.true., comm = comm_b)
+                endif
+                call stopwatch_pause(t_sw_zmel)
+                call stopwatch_start(t_sw_x0)
+                call x0gemm(rcxq, npr, ipr_col, npr_col, nwhis, npm, ns1, ns2)
+                call stopwatch_pause(t_sw_x0)
+                ns1 = ns2 +  1
+              enddo
+            END BLOCK NMBATCH
             write(6,ftox) 'end of k:', k ,' of:',nqbz, 'zmel:', ftof(stopwatch_lap_time(t_sw_zmel),4), '(sec)', &
                                                         ' x0:', ftof(stopwatch_lap_time(t_sw_x0),4), '(sec)'
             call flush(6)

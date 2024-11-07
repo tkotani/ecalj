@@ -8,8 +8,9 @@ if [ -z "${FC}" ]; then
    echo 'Usage: >FC=gfortran ./InstallAll'
    exit
 fi
-
-BINDIR=${HOME}/bin  ## Make directory for ecalj binaries and scripts.
+BUILD_TYPE="Release"
+# BUILD_TYPE="Debug"
+BINDIR=${PWD}/bin  ## Make directory for ecalj binaries and scripts.
 [ -d ${BINDIR} ] || mkdir ${BINDIR} 
 echo Going to install required binaries and scripts to ${BINDIR} !
 # Make a link to getsyml to get syml.*
@@ -23,9 +24,15 @@ popd
 # Use SRC/exec/CmakeLists.txt to make executables.
 pushd .
 cd SRC/exec
-FC=${FC} cmake .
-#VERBOSE=1 make -j ||my_error
-time make -j ||my_error
+rm -rf CMakeFiles CMakeCache.txt
+if [ "${FC}" = "gfortran" -o "${FC}" = "ifort" ]; then
+    FC=${FC} cmake .
+    make -j || my_error
+else
+    FC=${FC} cmake . -DBUILD_MP=ON -DBUILD_GPU=ON -DBUILD_MP_GPU=ON -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
+    make -j 32 || make -j 32 ||my_error
+fi
+    
 cp `find . -mindepth 1 -maxdepth 1 -executable -type f` ${BINDIR} ||my_error
 popd
 # Install test 

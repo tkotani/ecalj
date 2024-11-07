@@ -619,7 +619,10 @@ contains
                 ntabx(iorb+1:iorbe,ib)=0
                 iorb=iorbe+1
              enddo
-             blksx(1:norbx(ib),ib) =[(sum( [ (2*ltabx(io,ib)+1, io=iorb,ntabx(iorb,ib)) ] ),iorb=1,norbx(ib))]
+             ! blksx(1:norbx(ib),ib) =[(sum( [ (2*ltabx(io,ib)+1, io=iorb,ntabx(iorb,ib)) ] ),iorb=1,norbx(ib))] ! does not work nvfortran 24.1
+             do iorb=1, norbx(ib)
+                blksx(iorb,ib) = sum( [ (2*ltabx(io,ib)+1, io=iorb,ntabx(iorb,ib)) ])
+             enddo
           enddo
         endblock GETntabxblksx
         !!--- make index table :norbmto is the total number of different type of MTOs !      allocate( ibasindex(ndimham))

@@ -234,7 +234,7 @@ subroutine hsfp0_sc()
     call reducez(nspinmx)
     if(MPI__root) then
        do is=1,nspinmx
-          allocate(zsec,source= zsecall(:,:,:,is))
+          allocate(zsec,source= cmplx(zsecall(:,:,:,is),kind=8))
           call HsWriteResult() !internal subroutine. write only
           deallocate(zsec)
        enddo

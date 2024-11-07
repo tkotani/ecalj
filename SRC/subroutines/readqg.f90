@@ -3,6 +3,7 @@ module m_readQG
   use m_read_bzdata,only: ginv
   use NaNum,only:NaN
   use m_nvfortran,only:findloc
+  use m_keyvalue,only: getkeyvalue
   implicit none
   !--------------------------------------------
   public:: readqg, readqg0, readngmx, readngmx2
@@ -22,16 +23,19 @@ module m_readQG
   integer,target,private :: nkeyp(3),nkeyc(3)
   integer,target,allocatable,private:: keyp(:,:),kk1p(:),kk2p(:),kk3p(:),iqkkkp(:,:,:)
   integer,target,allocatable,private:: keyc(:,:),kk1c(:),kk2c(:),kk3c(:),iqkkkc(:,:,:)
+  logical,private:: keepqg
+  integer,private:: imx, imxc
   !      real(8),private:: ginv(3,3)
 contains
   !----------------------------------
   subroutine readngmx2()
     integer:: ngmx,ifiqg
+    integer :: idummy
     open(newunit=ifiqg, file='QGpsi',form='unformatted')
-    read(ifiqg) nqnump, ngpmx, QpGcut_psi
+    read(ifiqg) nqnump, ngpmx, QpGcut_psi, idummy, idummy, imx
     close(ifiqg)
     open(newunit=ifiqg, file='QGcou',form='unformatted')
-    read(ifiqg) nqnumc, ngcmx, QpGcut_cou
+    read(ifiqg) nqnumc, ngcmx, QpGcut_cou, idummy, idummy, imxc
     close(ifiqg)
   end subroutine readngmx2
 
@@ -39,15 +43,17 @@ contains
     intent(in) ::        key
     intent(out)::           ngmx
     !- get ngcmx or mgpmx
-    integer:: ngmx,ifiqg,ngcmx,ngpmx
+    ! integer:: ngmx,ifiqg,ngcmx,ngpmx
+    integer:: ngmx,ifiqg
+    integer :: idummy
     character*(*) key
     if    (key=='QGpsi') then
        open(newunit=ifiqg, file='QGpsi',form='unformatted')
-       read(ifiqg) nqnump, ngpmx, QpGcut_psi
+       read(ifiqg) nqnump, ngpmx, QpGcut_psi, idummy, idummy, imx
        ngmx=ngpmx
     elseif(key=='QGcou') then
        open(newunit=ifiqg, file='QGcou',form='unformatted')
-       read(ifiqg) nqnumc, ngcmx, QpGcut_cou
+       read(ifiqg) nqnumc, ngcmx, QpGcut_cou, idummy, idummy, imxc
        ngmx=ngcmx
     else
        call rx( "readngmx: key is not QGpsi QGcou")
@@ -65,6 +71,7 @@ contains
     real(8) :: qu(3)
     integer :: ngv, ngvec(3,*)
     integer:: ifi=-999999, iq,verbose
+    integer:: ifiqg
     if    (key=='QGpsi') then
        ifi=1
        if(verbose()>=80) write (6,"(' readqg psi: qin=',3f8.3,i5)") qin
@@ -82,11 +89,25 @@ contains
     call iqindx2qg(qin,ifi, iq,qu)
     if(ifi==1) then
        ngv  = ngp(iq)
-       ngvec(1:3,1:ngv) = ngvecp(1:3,1:ngv,iq)
+       if(keepqg) then
+         ngvec(1:3,1:ngv) = ngvecp(1:3,1:ngv,iq)
+       else
+         open(newunit=ifiqg, file='QGpsi_rec',form='unformatted', access='direct', &
+              recl=4*(3*ngpmx+(imx*2+1)**3), status='old')
+         read(ifiqg,rec=iq) ngvec(1:3,1:ngv)
+         close(ifiqg)
+       endif
        return
     elseif(ifi==2) then
        ngv  = ngc(iq)
-       ngvec(1:3,1:ngv) = ngvecc(1:3,1:ngv,iq)
+       if(keepqg) then
+         ngvec(1:3,1:ngv) = ngvecc(1:3,1:ngv,iq)
+       else
+         open(newunit=ifiqg, file='QGcou_rec',form='unformatted', access='direct', &
+              recl=4*(3*ngcmx+(2*imxc+1)**3), status='old')
+         read(ifiqg,rec=iq) ngvec(1:3,1:ngv)
+         close(ifiqg)
+       endif
        return
     endif
     call rx( "readqg: can not find QGpsi or QPcou for given q")
@@ -130,31 +151,46 @@ contains
   !> initialization. readin QGpsi or QGcou.
   subroutine init_readqg(ifi)
     integer, intent(in) :: ifi
-    integer:: ifiqg,iq,verbose,ngcmx,ngpmx
+    ! integer:: ifiqg,iq,verbose,ngcmx,ngpmx
+    integer:: ifiqg,iq,verbose
     real(8)::qq(3)
     real(8),allocatable:: qxx(:,:)
     integer:: isig,i,ix,kkk,kkk3(3),ik1(1),ik2(1),ik3(1),ik
     integer,allocatable:: ieord(:),key(:,:)
     write(6,*)' init_readqg ifi=',ifi
+    call getkeyvalue("GWinput","KeepQG",keepqg,default=.true.)
+    if(.not.keepqg) write(6,*) 'keepQG = .false. in readqg'
     if(ifi==1) then
        open(newunit=ifiqg, file='QGpsi',form='unformatted')
        read(ifiqg) nqnump, ngpmx, QpGcut_psi
        if(verbose()>49) write(6,"('init_readqg ngnumc ngcmx QpGcut_psi=',2i5,f8.3)") &
             nqnump, ngpmx, QpGcut_psi
-       allocate(ngvecp(3,ngpmx,nqnump),qp(3,nqnump),ngp(nqnump))
+       ! allocate(ngvecp(3,ngpmx,nqnump),qp(3,nqnump),ngp(nqnump))
+       allocate(qp(3,nqnump),ngp(nqnump))
+       if(keepqg) allocate(ngvecp(3,ngpmx,nqnump))
        do iq=1, nqnump
           read (ifiqg) qp(1:3,iq), ngp(iq)
-          read (ifiqg) ngvecp(1:3,1:ngp(iq),iq)
+          if(keepqg) then
+            read (ifiqg) ngvecp(1:3,1:ngp(iq),iq)
+          else
+            read (ifiqg)
+          endif
           if(verbose()>40) write(6,"('init_readqg psi qp ngp =',3f8.3,i5)") qp(1:3,iq),ngp(iq)
        enddo
     elseif(ifi==2) then
        open(newunit=ifiqg, file='QGcou',form='unformatted')
        read(ifiqg) nqnumc, ngcmx, QpGcut_cou
-       allocate(ngvecc(3,ngcmx,nqnumc),qc(3,nqnumc),ngc(nqnumc))
+       ! allocate(ngvecc(3,ngcmx,nqnumc),qc(3,nqnumc),ngc(nqnumc))
+       allocate(qc(3,nqnumc),ngc(nqnumc))
+       if(keepqg) allocate(ngvecc(3,ngcmx,nqnumc))
        do iq=1, nqnumc
           read(ifiqg) qc(1:3,iq), ngc(iq)
           write (6,"('init_readqg cou  qc ngc =',3f8.3,i5)") qc(1:3,iq), ngc(iq)
-          read (ifiqg) ngvecc(1:3,1:ngc(iq),iq)
+          if(keepqg) then
+            read (ifiqg) ngvecc(1:3,1:ngc(iq),iq)
+          else
+            read (ifiqg)
+          endif
        enddo
     endif
     close(ifiqg)

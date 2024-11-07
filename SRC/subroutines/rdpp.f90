@@ -2,13 +2,13 @@ module m_rdpp !Read PPBRDV2_*, radial integerals <p|p b> and rotated cg coeffici
   !note nbloch is the total number of ProductBasis (within MTs).
   use m_genallcf_v3,only: nl,nn,natom,nspin 
   use m_readqg,only: ngcmx
+  use m_kind, only: kp => kindrcxq
   public:: Rdpp
-  integer,protected,public:: mdimx,nbloch,nxx,nblochpmx, nprecx, mrecl
+  integer,protected,public:: mdimx,nbloch,nxx,nblochpmx, mrecl
   integer,allocatable,protected,public:: nblocha(:) ,lx(:), nx(:,:)
   real(8),allocatable,protected,public:: ppbrd (:,:,:,:,:,:,:), cgr(:,:,:,:)
   logical,protected,public:: done_rdpp=.false.
-  private
-  integer:: ndble=8
+  integer, protected, public :: nprecx = kp
 contains
   subroutine Rdpp( ngrp, symope) 
     implicit none
@@ -38,7 +38,6 @@ contains
     mdimx  = maxval(nblocha) 
     nbloch = sum(nblocha)
     nblochpmx = nbloch + ngcmx ! Maximum of MPB = PBpart +  IPWpartforMPB     !! ---------- WV.d
-    nprecx = ndble          ! We use double precision arrays only.
     mrecl  = nprecx*2*nblochpmx*nblochpmx !/nwordr()!record size
     write(6,*)' rdpp mdimx=',mdimx
     cgr=1d99

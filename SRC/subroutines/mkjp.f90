@@ -86,6 +86,7 @@ subroutine vcoulq_4(q,nbloch,ngc,nbas,lx,lxx,nx,nxx,alat,qlat,vol,ngvecc, &
        ,rofi(nrx,nbas)
   real(8), allocatable:: ajr(:,:,:,:), a1(:,:,:)
   logical :: debug=.false.
+  logical :: dev = .true.
   !---------------------------------------------------------------
   write(6,'(" vcoulq_4: nblochpmx  nbloch ngc=",3i6)') nblochpmx,nbloch,ngc
   !     print *, ' sum fouvp=',sum(fouvp(:,:,:,1))
@@ -206,6 +207,7 @@ subroutine vcoulq_4(q,nbloch,ngc,nbas,lx,lxx,nx,nxx,alat,qlat,vol,ngvecc, &
      enddo
   enddo
 
+  if(.not.dev) then
   if(debug) write(6,*)' vcoulq_4: ajr allocate'
   !... prepare funciton ajr and a1.
   !... ajr:spherical bessel, a1: integral of (sperical bseel)*(rkp rkm)
@@ -308,6 +310,93 @@ subroutine vcoulq_4(q,nbloch,ngc,nbas,lx,lxx,nx,nxx,alat,qlat,vol,ngvecc, &
         enddo
      enddo
   enddo
+  else !dev
+  write(6,*)' vcoulq_4: pgvpg dev block. size of ajr:', size(ajr)
+  dev_mo: block
+  use m_blas, only: dmm, m_op_T !dmm is lapper routine of dgemm (blas)
+  integer :: ir, istat
+  real(8) :: fac_integral(nrx,nbas), sigx_tmp(ngc,ngc,0:lxx,nbas), a1g(nrx,ngc)
+  real(8) :: ajr_tmp(nrx,ngc), phi_rg(nrx,ngc,0:lxx), rofi_tmp(1:nrx)
+  ! get integral coefficients of int (a*b) G_1(ir) G_2(ir) exp(a*r))
+  ! simpson rule is used. nr(ibas) was set as odd number
+  ! sigx_tmp(ig1,ig2,l,ibas) is int dr (aa(ibas)*bb(ibas)) a1g(r,g1)* ajr(r,l,ibas,g2) exp(aa(ibas)*r))
+  fac_integral(1:nrx,1:nbas) = 0d0
+  do ibas = 1, nbas
+     fac_integral(1,ibas) = aa(ibas)*bb(ibas)/3d0
+     do ir = 2, nr(ibas) 
+        fac_integral(ir,ibas) = fac_integral(ir-1,ibas)*dexp(aa(ibas))
+     enddo
+     forall(ir=2:nr(ibas)-1) fac_integral(ir,ibas) = fac_integral(ir,ibas)*merge(4d0,2d0,mod(ir,2)==0)
+  enddo
+  do ibas = 1, nbas
+      do ig = 1, ngc
+        do ir = 1, nr(ibas)
+           call bessl(absqg2(ig)*rofi(ir,ibas)**2,lx(ibas),phi, psi)
+           phi_rg(ir,ig,0:lx(ibas)) = phi(0:lx(ibas))
+        enddo
+     enddo
+     do l = 0, lx(ibas)
+        rofi_tmp(1:nr(ibas)) = rofi(1:nr(ibas),ibas)**(l+1)
+        do ig = 1, ngc
+           ajr_tmp(1:nr(ibas),ig) = phi_rg(1:nr(ibas),ig,l)*rofi_tmp(1:nr(ibas))
+           call intn_smpxxx( rkpr(1,l,ibas), ajr_tmp(1,ig),int1x,aa(ibas),bb(ibas),rofi(1,ibas),nr(ibas),0)
+           call intn_smpxxx( rkmr(1,l,ibas), ajr_tmp(1,ig),int2x,aa(ibas),bb(ibas),rofi(1,ibas),nr(ibas),0)
+           a1g(1,         ig) = 0d0
+           a1g(2:nr(ibas),ig) = rkmr(2:nr(ibas),l,ibas) *( int1x(1)-int1x(2:nr(ibas)) ) &
+                            & + rkpr(2:nr(ibas),l,ibas) *  int2x(2:nr(ibas))
+           a1g(1:nr(ibas),ig) = a1g(1:nr(ibas),ig) * fac_integral(1:nr(ibas),ibas)
+        enddo
+        !$acc data copyin(a1g, ajr_tmp) copyout(sigx_tmp(1:ngc,1:ngc,l,ibas))
+        istat = dmm(a1g, ajr_tmp, sigx_tmp(1,1,l,ibas), m=ngc, n=ngc, k=nr(ibas), opA=m_op_T, ldA=nrx, ldB=nrx)
+        !$acc end data
+     enddo
+  enddo
+
+  do ig1 = 1,ngc
+     ipl1 = nbloch + ig1
+     rojpstrx = 0d0
+     do ibas1= 1, nbas
+        do lm1  = 1, (lx(ibas1)+1)**2
+           do ibas2= 1, nbas
+              do lm2  = 1, (lx(ibas2)+1)**2
+                 rojpstrx(lm2, ibas2) = rojpstrx(lm2, ibas2)+ &
+                      dconjg(rojp(ig1, lm1, ibas1)) *strx(lm1,ibas1,lm2,ibas2)
+              enddo
+           enddo
+        enddo
+     enddo
+     do ig2 = 1,ig1
+        ipl2 = nbloch + ig2
+        if(ig1==ig2) vcoul(ipl1,ipl2) = fpivol/(absqg2(ig1) -eee) !eee is negative
+        do ibas2= 1, nbas
+           call wronkj( absqg2(ig1), absqg2(ig2), rmax(ibas2),lx(ibas2), fkk,fkj,fjk,fjj)
+           sigx(0:lx(ibas2)) = sigx_tmp(ig1,ig2,0:lx(ibas2),ibas2)
+           if(eee==0d0) call sigintpp( absqg2(ig1)**.5, absqg2(ig2)**.5, lx(ibas2), rmax(ibas2), sigx)
+           do l = 0,lx(ibas2)
+              radsig(l) = fpi/(2*l+1) * sigx(l)
+           enddo
+           !------------------------------
+           do lm2  = 1, (lx(ibas2)+1)**2
+              l= ll(lm2)
+              !...fouvp sgpp-----------
+              fouvp_ig1_ig2 = fpi/(absqg2(ig1)-eee) *dconjg(pjyl_(lm2,ig1)*phase(ig1,ibas2)) &
+                   * (-fjj(l)) * pjyl_(lm2,ig2)*phase(ig2,ibas2)
+              fouvp_ig2_ig1 = fpi/(absqg2(ig2)-eee) *dconjg(pjyl_(lm2,ig2)*phase(ig2,ibas2)) &
+                   * (-fjj(l)) * pjyl_(lm2,ig1)*phase(ig1,ibas2)
+              sgpp_ig1_ig2  = dconjg(pjyl_(lm2,ig1)*phase(ig1,ibas2))*radsig(l) &
+                   * pjyl_(lm2,ig2)*phase(ig2,ibas2)
+              !------------------------
+              vcoul(ipl1,ipl2) = vcoul(ipl1,ipl2) &
+                   +  rojpstrx(lm2,ibas2)*rojp(ig2, lm2, ibas2) &
+                   -  dconjg( fouvp_ig2_ig1 ) &
+                   -          fouvp_ig1_ig2 &
+                   +  sgpp_ig1_ig2
+           enddo
+        enddo
+     enddo
+  enddo
+  endblock dev_mo
+  endif
   ! ccccccccccccccccccccccccccccc
   ! 1112 continue
   ! ccccccccccccccccccccccccccccc
@@ -449,6 +538,7 @@ subroutine mkjp_4(q,ngc,ngvecc,alat,qlat,lxx,lx,nxx,nx,bas,a,b,rmax,nr,nrx,rprod
   real(8),allocatable ::ajr(:,:,:),a1(:,:,:), qg(:,:),absqg(:)
   real(8):: rofi(nrx),rkpr(nrx,0:lxx),rkmr(nrx,0:lxx),eee,qg1a(3)
   logical :: debug=.false.
+  logical :: dev = .true.
   ! rkpr(nr,0:lx),rkmr(nr,0:lx),
   !-------------------------------------------------
   if(debug) print *,' mkjp_4:'
@@ -520,6 +610,7 @@ subroutine mkjp_4(q,ngc,ngvecc,alat,qlat,lxx,lx,nxx,nx,bas,a,b,rmax,nr,nrx,rprod
 
   !-------------------------
   ! sgpb
+  if(.not.dev) then
   do ig1 = 1,ngc
      do lm  = 1,nlx
         l = ll(lm)
@@ -554,6 +645,64 @@ subroutine mkjp_4(q,ngc,ngvecc,alat,qlat,lxx,lx,nxx,nx,bas,a,b,rmax,nr,nrx,rprod
         enddo
      enddo
   enddo
+  else !dev
+    write(6,*)' mkjp_4: sgpb dev block. size of ajr:', size(ajr)
+    dev_mo: block
+    use m_blas, only: dmv, m_op_T
+    real(8) :: a1work(nr), a2work(nr), int1x(nr), int2x(nr), a1g(nr,ngc,0:lx), sigg(ngc), fac_integral(1:nr), radintg(ngc)
+    integer :: istat
+    fac_integral(1) = a*b/3d0
+    do ir = 2, nr
+       fac_integral(ir) = fac_integral(ir-1)*dexp(a)
+    enddo
+    forall(ir=2:nr-1) fac_integral(ir) = fac_integral(ir)*merge(4d0,2d0,mod(ir,2)==0)
+
+    do l = 0, lx
+       do ig1 = 1, ngc
+          a1work(1) = 0d0;  a1work(2:nr) = rkpr(2:nr,l)
+          a2work(1) = 0d0;  a2work(2:nr) = rkmr(2:nr,l)
+          call intn_smpxxx(a1work,ajr(1,l,ig1),int1x,a,b,rofi,nr,0)
+          call intn_smpxxx(a2work,ajr(1,l,ig1),int2x,a,b,rofi,nr,0)
+          a1g(1,ig1,l) = 0d0
+          a1g(2:nr,ig1,l) = rkmr(2:nr,l) *( int1x(1)-int1x(2:nr) )+ rkpr(2:nr,l) * int2x(2:nr)
+          a1g(1:nr,ig1,l) = a1g(1:nr,ig1,l)*fac_integral(1:nr)
+       enddo
+    enddo
+
+    do lm = 1, nlx
+       l = ll(lm)
+       do n =1,nx(l)                      ! r jl        , r B(r)
+          if(eee==0d0) then
+             do ig1 = 1,ngc
+                call gintxx(a1(1,l,ig1),rprodx(1,n,l),A,B,NR, sig )
+                sgpb(ig1,n,lm) = dconjg(pjyl(lm,ig1))* sig/(2*l+1)*fpi
+             enddo
+          else
+             !$acc data copyin(a1g(1:nr,1:ngc,l), rprodx(1:nr,n,l)) copyout(sigg(1:ngc))
+             istat = dmv(a1g(1,1,l), rprodx(1,n,l), sigg, m=nr, n=ngc, opA=m_op_T)
+             !$acc end data
+             sgpb(1:ngc,n,lm) = dconjg(pjyl(lm,1:ngc))* sigg(1:ngc)/(2*l+1)*fpi
+          endif
+       enddo
+    enddo
+    fouvb=0d0
+    write(6,*)' mkjp_4: fouvb dev block'
+    do ig1 = 1, ngc
+       do l = 0, lx
+          a1g(1:nr,ig1,l) = ajr(1:nr,l,ig1)*fac_integral(1:nr)
+       enddo
+    enddo
+    do lm  = 1,nlx
+       l = ll(lm)
+       do n = 1,nx(l)
+          !$acc data copyin(a1g(1:nr,1:ngc,l), rprodx(1:nr,n,l)) copyout(radintg(1:ngc))
+          istat = dmv(a1g(1,1,l), rprodx(1,n,l), radintg, m=nr, n=ngc, opA=m_op_T)
+          !$acc end data
+          fouvb(1:ngc, n, lm) = fpi/(absqg(1:ngc)**2-eee) *dconjg(pjyl(lm,1:ngc))*radintg(1:ngc)
+       enddo
+    enddo
+    endblock dev_mo
+  endif
   deallocate(ajr,a1,   qg,absqg,   pjyl)
   if (allocated( cy )) deallocate(cy)
   if (allocated( yl )) deallocate(yl)

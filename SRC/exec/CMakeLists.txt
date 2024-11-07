@@ -108,17 +108,11 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
 elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
   string(JOIN " "  FLAGS_ALL ${FLAGS} ${CMAKE_Fortran_FLAGS} ${CMAKE_Fortran_FLAGS_DEBUG})
 endif()
-#if(FC MATCHES "gfortran")
-#    set(FLAGS_ALLW "")
-#else
-#    set(FLAGS_ALLW FFLAGS_ALL)
-#endif()
-  
 add_custom_command(
   OUTPUT ../subroutines/show_programinfo.f90
   COMMAND cpp -P -D___UNAME_A___=\"${OUTPUT_UNAME}\"
               -D___ETC_ISSUE___=\"${OUTPUT_ISSUE}\" 
-              -D___FFLAGS___=\"${FLAGS_ALLW}\"
+              -D___FFLAGS___=\"${FLAGS_ALL}\"
               -D___PLATFORM___=\"${FC}\" 
               -D___FC_VERSION___=\"${OUTPUT_FCVERSION}\" 
               -D___LIBLOC___=\"${LIB}\" 

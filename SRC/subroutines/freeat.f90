@@ -303,9 +303,9 @@ contains
     print *,'end of atomsc xxxxx'
     print *,'vsum=',vsum,is
     print *,'ifives=',ifives
-    write(ifives,"(f23.15,i5,a)") vsum,is, ' !spacical integral of electrostatic potential'
+    if(ifives >= 0) write(ifives,"(f23.15,i5,a)") vsum,is, ' !spacical integral of electrostatic potential' !The negative integer got error in nvfortran
     print *,' write end of ifives'
-    write(ifiwv,"(f23.15,' ! total charge')") sum(qlplus(0:lmxa,1:nsp)+ql(1,1:lmxa+1,1:nsp))
+    if(ifiwv >= 0) write(ifiwv,"(f23.15,' ! total charge')") sum(qlplus(0:lmxa,1:nsp)+ql(1,1:lmxa+1,1:nsp))
     dq=dq+sum(qlplus(:,:)) !takao feb2011
     if (ipr>=20)write(stdo,ftox)'sumev=',ftof(sumev),'etot=',ftof(etot),'eref=',ftof(eref),'etot-eref=',ftof(etot-eref)
     if (dabs(dq) > 1d-5 .AND. iprint() >= 10) write(stdo,ftox)' freeat (warning) atom not neutral, Q=',ftof(dq)
@@ -416,7 +416,7 @@ contains
     rmt = b*(dexp(a*nrmt-a)-1d0)
     tol = 1d-8
     write(stdo,"(/' Free-atom wavefunctions:')")
-    write(ifiwv,"(i2,i3,' !nsp,lmaxa')")nsp,lmaxa
+    if(ifiwv >=0) write(ifiwv,"(i2,i3,' !nsp,lmaxa')")nsp,lmaxa
     open(newunit=ifipnu,file='atmpnu.'//trim(charext(is))//'.'//trim(sname))
     do  80  isp = 1, nsp
        ! --- Valence states ---
@@ -470,7 +470,7 @@ contains
              !   write default pnu setting to atmpnu file.
 400          format(i4,a1,f14.5,2x,3f12.3,a,f12.6,f12.3,x,i2)
 401          format(' valence:',6x,'eval',7x,'node at',6x,'max at',7x,'c.t.p.   rho(r>rmt)       pnu')
-             write(ifiwv,"(i2,i3,i3,d23.15,d23.15,' !isp,l,eval,last is norm within MT')") isp,l,konfig,ev(l),sumr
+             if(ifiwv >=0) write(ifiwv,"(i2,i3,i3,d23.15,d23.15,' !isp,l,eval,last is norm within MT')") isp,l,konfig,ev(l),sumr
              !   ... Copy valence wavefunction to psi
              do  24  i = 1, nr
                 psi(i,l,isp) = g(i)
@@ -501,7 +501,7 @@ contains
 4011   enddo
 80  enddo
     close(ifipnu)
-    write(ifiwv,"('9 9 9 9 9 --------! this is terminator for an atom section')")
+    if(ifiwv >=0) write(ifiwv,"('9 9 9 9 9 --------! this is terminator for an atom section')")
     ! --- Write file with valence wavefunctions
     if (lplawv == 1) then
        write (str,'(''wf_'',a)') spid

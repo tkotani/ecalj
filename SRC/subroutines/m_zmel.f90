@@ -13,8 +13,10 @@ module m_zmel
   use m_lgunit,only:stdo
   use m_MPItk,only:master_mpi
   use m_mem,only: memused,writemem
+  use m_kind, only: kp => kindzmel
+  implicit none
   public:: get_zmel_init_gemm, Mptauof_zmel,Setppovlz,Setppovlz_chipm ! Call mptauof_zmel and setppovlz in advance to get_zmel_init
-  complex(8),allocatable,protected,public :: zmel(:,:,:) ! OUTPUT: zmel(nbb,nmtot, nqtot) ,nbb:mixproductbasis, nmtot:middlestate, nqtot:endstate
+  complex(kind=kp),allocatable,protected,public :: zmel(:,:,:) ! OUTPUT: zmel(nbb,nmtot, nqtot) ,nbb:mixproductbasis, nmtot:middlestate, nqtot:endstate
   complex(8),allocatable,protected,public :: ppovlz(:,:)
   real(8),allocatable,protected,public :: tiat(:,:,:),shtvg(:,:), ppbir(:,:,:,:,:,:)
   integer,protected,public:: nbb 
@@ -116,9 +118,12 @@ contains
     use m_readeigen,only: readcphif 
     use m_readeigen,only: readgeigf
     use m_itq,only: itq, ntq
-    use m_kind, only: kp => kindgw
     use m_blas, only: m_op_c, m_op_n, m_op_t, int_split
+#ifdef __MP
+    use m_blas, only: gemm => cmm, gemm_batch => cmm_batch
+#else
     use m_blas, only: gemm => zmm, gemm_batch => zmm_batch
+#endif
 #ifdef __GPU
     use openacc, only: acc_is_present
 #endif
@@ -134,9 +139,9 @@ contains
     real(8):: quu(3),q(3), kvec(3),rkvec(3),qkt(3),qt(3), qdiff(3)
     real(8) :: ppb(nlnmx,nlnmx,mdimx,natom) ! ppb= <Phi(SLn,r-R)_q,isp1 |Phi(SL'n',r-R)_qk,isp2 B_k(S,i,rot^{-1}(r-R))>
     logical:: iprx,zmelconjg,debug,cmdopt0
-    integer,allocatable:: ngveccR(:,:),igcgp2i_(:,:)
-    complex(8)::cphiq(ndima,nband), cphim(ndima,nband)
-    complex(8),allocatable:: geigq(:,:),dgeigqk(:,:)
+    integer,allocatable:: ngveccR(:,:),igcgp2i_work(:,:)
+    complex(kind=kp)::cphiq(ndima,nband), cphim(ndima,nband)
+    complex(kind=kp),allocatable:: geigq(:,:),dgeigqk(:,:)
     integer:: invr,nt0,ntp0,nmtot,nqtot
     integer:: iasx(natom),icsx(natom),iatomp(natom),imdim(natom)
     real(8)::tr(3,natom),qk(3),symope(3,3),shtv(3)
@@ -144,14 +149,16 @@ contains
     integer :: mpi_rank, mpi_size, ini_index, end_index, num_index, mpi_info, irank
     real(8),optional::maxmem
     character(8),external:: charext
-    complex(kind=kp), parameter :: CONE = (1_kp, 0_kp), CZERO = (0_kp, 0_kp)
-    complex(8),allocatable:: zmelp0(:,:,:),ggitp_(:,:) 
-    complex(8),allocatable:: ggitp(:,:), gggmat(:,:), ggitp_work(:,:)
-    complex(8), allocatable :: zmel_buf(:,:,:)
-    complex(8), allocatable :: zmelt_d(:,:,:), zmelt(:,:,:)
-    complex(8), allocatable :: ppbvphiq_d(:,:,:), cphim_d(:,:), cphiq_d(:,:), ppbc_d(:,:,:), ppbv_d(:,:,:)
+    complex(kind=kp), parameter:: CONE = (1_kp, 0_kp), CZERO = (0_kp, 0_kp)
+    complex(kind=kp), allocatable:: zmelp0(:,:,:),ggitp_(:,:) 
+    complex(kind=kp), allocatable:: ggitp(:,:), gggmat(:,:), ggitp_work(:,:)
+    complex(kind=kp), allocatable:: zmel_buf(:,:,:)
+    complex(kind=kp), allocatable:: zmelt_d(:,:,:), zmelt(:,:,:)
+    complex(kind=kp), allocatable:: ppbvphiq_d(:,:,:), cphim_d(:,:), cphiq_d(:,:), ppbc_d(:,:,:), ppbv_d(:,:,:)
 #ifdef __GPU
-    attributes(device) :: ppb
+    attributes(device) :: ppb, zmelp0, ggitp, gggmat, ggitp_work
+    attributes(device) :: igcgp2i_work
+    attributes(device) :: ppbvphiq_d, cphim_d, cphiq_d, ppbc_d, ppbv_d
 #endif
     debug=cmdopt0('--debugzmel')
     if(allocated(zmel)) then
@@ -194,11 +201,11 @@ contains
       integer:: i
       qk =  q - rkvec ! qk = q-rk. rk is inside 1st BZ, not restricted to the irreducible BZ
       associate(cphitemp=> readcphif(q,ispq))
-        cphiq(1:ndima,1:ntq) = cphitemp(1:ndima,itq(1:ntq)) 
+        cphiq(1:ndima,1:ntq) = cmplx(cphitemp(1:ndima,itq(1:ntq)),kind=kp) 
       endassociate
-      cphim = readcphif(qk, ispm) 
+      cphim = cmplx(readcphif(qk, ispm),kind=kp)
       symope= symgg(:,:,irot)
-      allocate(geigq(ngpmx,nband),dgeigqk(ngpmx,nband),source=(0d0,0d0))
+      allocate(geigq(ngpmx,nband),dgeigqk(ngpmx,nband),source=CZERO)
       if(ngc/=0) then
         call readqg('QGpsi',q,     qt, ngp1, ngvecpB1) !q is mapped to qt in BZ
         call readqg('QGpsi',qk,   qkt, ngp2, ngvecpB2)
@@ -206,15 +213,15 @@ contains
         nadd = nint(matmul(transpose(plat), qdiff)) !nadd: difference in the unit of reciprocal lattice vectors.
         block
           use m_read_ppovl,only: getppx2, ngvecc,ngcread
-          integer:: igcgp2,nn(3),iggg,igp1,itp,igc,igp2,igcgp2i_(ngc,ngp2)
+          integer:: igcgp2,nn(3),iggg,igp1,itp,igc,igp2
           call getppx2(qlat,kvec) ! read and allocate ppovlinv
           if(ngc/=ngcread) call rxii( 'melpln2t: ngc/= ngcx by getppx:PPOVLG',ngc,ngcread)
           allocate(ngveccR(1:3,1:ngc))
           call rotgvec(symope, 1, ngc, [ngc], qlat, ngvecc, ngveccR)
         endblock
-        geigq   = readgeigf(q, ispq) !read IPW part at q   !G1 for ngp1
-        dgeigqk = readgeigf(qk,ispm) !read IPW part at qk  !G2 for ngp2
-        dgeigqk = dconjg(dgeigqk)
+        geigq   = cmplx(readgeigf(q, ispq),kind=kp) !read IPW part at q   !G1 for ngp1
+        dgeigqk = cmplx(readgeigf(qk,ispm),kind=kp) !read IPW part at qk  !G2 for ngp2
+        dgeigqk = conjg(dgeigqk)
       endif
       !$acc data copyin(ppbir(1:nlnmx,1:nlnmx,1:mdimx,1:natom,irot,ispq))
       !$acc kernels
@@ -242,16 +249,13 @@ contains
 #ifdef __GPU
       attributes(device) :: zmelt, zmelt_d
 #endif
-      call writemem('    m_zmel000: zmelsize='//ftof((nbloch+ngc)*(nm2-nm1+1)*nqtot*16/kk**3)//' GB')
+      call writemem('    m_zmel000: zmelsize='//ftof(int(nbloch+ngc,8)*(nm2-nm1+1)*nqtot*16/kk**3)//' GB')
       allocate(zmelt(1:nbloch+ngc,nm1:nm2,1:nqtot))
 !$acc kernels
       zmelt(1:nbloch+ngc,nm1:nm2,1:nqtot) = czero
 !$acc end kernels
       ZmelWithinMT: block !- Calculates <psi_q(itp) |psi_qk(it) B_k(rot(r-R))> 
         complex(8):: phasea(natom) 
-#ifdef __GPU
-        attributes(device) :: ppbvphiq_d, cphim_d, cphiq_d, ppbc_d, ppbv_d
-#endif
         phasea = [(exp(-img *tpi* sum(kvec*tr(:,ia))),ia=1,natom)]
         iatomloop: do ia = 1, natom
           ic    = iclass(ia)
@@ -277,12 +281,12 @@ contains
             allocate(   zmelt_d(nm1v:nm2v,ntp0,mdim))
             allocate(    ppbv_d(nv,nv,mdim))
             !$acc kernels
-            ppbv_d(1:nv,1:nv,1:mdim) = dcmplx(ppb(nc1:ncnv,nc1:ncnv,1:mdim,icp)) 
+            ppbv_d(1:nv,1:nv,1:mdim) = cmplx(ppb(nc1:ncnv,nc1:ncnv,1:mdim,icp), kind=kp) 
             !$acc end kernels
-            ierr=gemm_batch(ppbv_d, cphiq_d,ppbvphiq_d,M=nv,N=ntp0,K=nv,         NBATCH=mdim,                  opA=m_op_T,&
-                 sameB=.true.)
-            ierr=gemm_batch(cphim_d,ppbvphiq_d,zmelt_d,M=nm2v-nm1v+1,N=ntp0,K=nv,NBATCH=mdim,alpha=phasea(ia), opA=m_op_C,&
-                 sameA=.true.)
+            ierr=gemm_batch(ppbv_d, cphiq_d,ppbvphiq_d,M=nv,N=ntp0,K=nv,         NBATCH=mdim, &
+                 opA=m_op_T, sameB=.true.)
+            ierr=gemm_batch(cphim_d,ppbvphiq_d,zmelt_d,M=nm2v-nm1v+1,N=ntp0,K=nv,NBATCH=mdim,alpha=cmplx(phasea(ia),kind=kp), &
+                 opA=m_op_C, sameA=.true.)
             !$acc kernels
             do i = 1, mdim
               zmelt(i-1+ims,nm1v:nm2v,ncc+1:ncc+ntp0) = zmelt_d(nm1v:nm2v,1:ntp0,i)
@@ -296,10 +300,10 @@ contains
             allocate(zmelt_d(mdim,ntp0,nm1cc:nm2cc), ppbc_d(mdim,nv,nm1cc:nm2cc))
             !$acc kernels
             do i = 1, mdim
-              ppbc_d(i,1:nv,nm1cc:nm2cc) = dcmplx(ppb(nc1:ncnv,nm1cc-ics:nm2cc-ics,i,icp))
+              ppbc_d(i,1:nv,nm1cc:nm2cc) = cmplx(ppb(nc1:ncnv,nm1cc-ics:nm2cc-ics,i,icp),kind=kp)
             enddo
             !$acc end kernels
-            ierr = gemm_batch(ppbc_d,cphiq_d,zmelt_d, M=mdim,N=ntp0,K=nv,NBATCH=nm2cc-nm1cc+1, alpha=phasea(ia), sameB = .true.)
+            ierr = gemm_batch(ppbc_d,cphiq_d,zmelt_d, M=mdim,N=ntp0,K=nv,NBATCH=nm2cc-nm1cc+1, alpha=cmplx(phasea(ia),kind=kp), sameB = .true.)
             !$acc kernels
             do it = nm1cc,nm2cc
                zmelt(ims:ime,it,ncc+1:ncc+ntp0) = zmelt_d(1:mdim,1:ntp0,it)
@@ -340,36 +344,43 @@ contains
           use m_read_ppovl,only:igggi,igcgp2i,nxi,nxe,nyi,nye,nzi,nze,nvgcgp2,ngcgp,ggg,ppovlinv,nnxi,nnxe,nnyi,nnye,nnzi,nnze,nggg
           integer:: igcgp2,nn(3), iggg, igp1, itp, igc, igp2 ,nnnsss,nnnggg!, igcgp2i_(ngc,ngp2)
           complex(8):: phase(ngc)!zmelp0(ngc,nm1v:nm2v,ntp0)
+          complex(kind=kp) :: ppovlinv_work(ngc,ngc)
 #ifdef __GPU
-          attributes(device) :: zmelp0, ggitp, gggmat, ggitp_work, igcgp2i_, nn
+          attributes(device) :: ppovlinv_work
 #endif
-          allocate( ggitp(ngcgp,ntp0), gggmat(ngcgp,ngp1), ggitp_work(ngc, ngp2),igcgp2i_(ngc,ngp2))
+          !$acc kernels
+          ppovlinv_work(1:ngc,1:ngc) = cmplx(ppovlinv(1:ngc,1:ngc),kind=kp) !copy to GPU
+          !$acc end kernels
+          allocate( ggitp(ngcgp,ntp0), gggmat(ngcgp,ngp1), ggitp_work(ngc, ngp2),igcgp2i_work(ngc,ngp2))
           if(debug) call writemem('mmmmm_zmel111aaa')
           allocate(zmelp0(ngc,nm1v:nm2v,ntp0))
           if(debug) call writemem('mmmmm_zmel111bbb')
           phase(:)=[(exp( -img*tpi*sum((matmul(symope,kvec)+matmul(qlat,ngveccR(:,igc)))*shtv) ),igc=1,ngc)]  !prepared by CPU
-          !$acc data copyin(dgeigqk, geigq, phase, ngvecpB1, ngvecpB2, ngveccR, nadd, ggg(1:nggg), nvgcgp2(1:3,1:ngcgp), &
-          !$acc             igggi(nxi:nxe,nyi:nye,nzi:nze), igcgp2i(nnxi:nnxe,nnyi:nnye,nnzi:nnze), ppovlinv(1:ngc,1:ngc))
+          !$acc data copyin(dgeigqk, geigq, phase, ngvecpB1, ngvecpB2, ngveccR, &
+          !$acc             nadd(1:3), ggg(1:nggg), nvgcgp2(1:3,1:ngcgp), &
+          !$acc             igggi(nxi:nxe,nyi:nye,nzi:nze), igcgp2i(nnxi:nnxe,nnyi:nnye,nnzi:nnze)) create(nn)
           if(debug) call writemem('mmmmm_zmel111ccc')
-          gggmat=0d0 !fix 2024-8-23  (forgotton)
-          !$acc kernels loop independent collapse(2)
+          !$acc kernels
+          gggmat(1:ngcgp,1:ngp1) = CZERO !fix 2024-8-23  (forgotton) 0d0 -> CZERO 
+          !$acc end kernels
+          !$acc kernels loop independent collapse(2) private(nn)
           do igcgp2 = 1, ngcgp
             do igp1 =1, ngp1
               nn(1:3) = ngvecpB1(1:3,igp1) - nvgcgp2(1:3,igcgp2) - nadd(1:3)
               if(nn(1)<nxi .OR. nxe<nn(1) .OR. nn(2)<nyi .OR. nye<nn(2) .OR. nn(3)<nzi .OR. nze<nn(3)) cycle
-              nnnsss=nnnsss+sum(abs(nn))
+              ! nnnsss=nnnsss+sum(abs(nn))
               iggg = igggi(nn(1),nn(2),nn(3))
-              nnnggg=nnnggg+abs(iggg)
-              if(iggg>=0) gggmat(igcgp2,igp1)=ggg(iggg)
+              ! nnnggg=nnnggg+abs(iggg)
+              if(iggg>0) gggmat(igcgp2,igp1)=ggg(iggg)
             enddo
           enddo
           !$acc end kernels
           if(debug) call writemem('mmmmm_zmel111ddd')
-          !$acc kernels loop independent collapse(2)
-          do igc = 1, ngc
-           do igp2 = 1, ngp2
+          !$acc kernels loop independent collapse(2) private(nn)
+          do igp2 = 1, ngp2
+            do igc = 1, ngc
               nn(1:3) = ngveccR(1:3,igc) + ngvecpB2(1:3,igp2)
-              igcgp2i_(igc,igp2) = igcgp2i(nn(1),nn(2),nn(3))
+              igcgp2i_work(igc,igp2) = igcgp2i(nn(1),nn(2),nn(3))
             enddo
           enddo
           !$acc end kernels
@@ -382,23 +393,23 @@ contains
             !$acc kernels loop independent collapse(2)
             do igp2 = 1, ngp2
               do igc = 1, ngc
-                ggitp_work(igc, igp2) = ggitp(igcgp2i_(igc,igp2), itp)
+                ggitp_work(igc, igp2) = ggitp(igcgp2i_work(igc,igp2), itp)
               enddo
             enddo
             !$acc end kernels
             ierr = gemm(ggitp_work, dgeigqk(1,nm1v), zmelp0(1,nm1v,itp), ngc, nm2v-nm1v+1, ngp2, ldB = ngpmx)
           enddo
-          deallocate(ggitp_work,ggitp,igcgp2i_)
+          deallocate(ggitp_work,ggitp,igcgp2i_work)
           if(debug) call writemem('mmmmm_zmel111fff')
           !$acc kernels
           do igc = 1, ngc
-            zmelp0(igc,nm1v:nm2v,1:ntp0) = phase(igc)*zmelp0(igc,nm1v:nm2v,1:ntp0)
+            zmelp0(igc,nm1v:nm2v,1:ntp0) = cmplx(phase(igc),kind=kp)*zmelp0(igc,nm1v:nm2v,1:ntp0)
           enddo
           !$acc end kernels
           allocate(zmelt_d(ngc,nm1v:nm2v,ntp0))
           if(debug) call writemem('mmmmm_zmel111hhh')
           if(debug) write(stdo,ftox) 'hhhhhhhh111'!,ngc,ntp0,nmtot
-          ierr = gemm(ppovlinv, zmelp0, zmelt_d, ngc, ntp0*nmtot, ngc)
+          ierr = gemm(ppovlinv_work, zmelp0, zmelt_d, ngc, ntp0*nmtot, ngc) 
           if(debug) write(stdo,ftox)'hhhhhhhh222',ngc,ntp0,nmtot
           !$acc kernels
           zmelt(nbloch+1:nbloch+ngc,nm1v:nm2v,ncc+1:ncc+ntp0) = zmelt_d(1:ngc,nm1v:nm2v,1:ntp0)
@@ -416,16 +427,21 @@ contains
       if(nmtot<=0) return
 
       !$acc enter data create(zmel)
-      !$acc host_data use_device(zmel)
-      !$acc data copyin(ppovlz(1:ngb,1:nbb))
-      ierr = gemm(ppovlz, zmelt, zmel(1,ns1,1), nbb, nmtot*ncc, ngb, opA = m_op_C)
-      ierr = gemm(ppovlz, zmelt, zmel(1,ns1,ncc+ini_index), nbb, nmtot*ntp0, ngb, opA = m_op_C)
-      !$acc end data
-      !$acc end host_data
+      ppovlz_x_zmelt: BLOCK
+        complex(kind=kp) :: ppovlz_work(ngb,nbb)
+        ppovlz_work(1:ngb,1:nbb) = ppovlz(1:ngb,1:nbb)
+        !$acc host_data use_device(zmel)
+        !$acc data copyin(ppovlz_work(1:ngb,1:nbb))
+        ierr = gemm(ppovlz_work, zmelt(1,nm1,1), zmel(1,nm1,1), nbb, nmtot*ncc, ngb, opA = m_op_C) ! ncc == 0, this does not be used 
+        ierr = gemm(ppovlz_work, zmelt(1,nm1,ncc+1), zmel(1,nm1,ncc+ini_index), nbb, nmtot*ntp0, ngb, opA = m_op_C)
+        !$acc end data
+        !$acc end host_data
+      endblock ppovlz_x_zmelt
       if (present(comm)) then
         block
           integer, allocatable :: data_disp(:), data_size(:)
           integer :: ini, num, end
+          integer :: mpi_data_type
           allocate(zmel_buf, mold = zmel)
           allocate(data_size(0:mpi_size-1), data_disp(0:mpi_size-1))
           do irank = 0, mpi_size - 1
@@ -436,7 +452,7 @@ contains
           !GPU aware MPI style does not work ...why??
           !!$acc data create(zmel_buf) present(zmel)
           !!$acc host_data use_device(zmel, zmel_buf)
-          !call mpi_allgatherv(zmel(1,ns1,ncc+ini_index), data_size(mpi_rank), mpi_complex16, zmel_buf, data_size, data_disp, &
+          !call mpi_allgatherv(zmel(1,nm1,ncc+ini_index), data_size(mpi_rank), mpi_complex16, zmel_buf, data_size, data_disp, &
           !          &  mpi_complex16, comm, mpi_info)
           !!$acc kernels
           !zmel = zmel_buf
@@ -444,9 +460,11 @@ contains
           !!$acc end host_data
           !!$acc end data
           ! data copy from GPU to CPU for MPI routine. this would be slow
+          mpi_data_type = MPI_COMPLEX16
+          if(kp == 4) mpi_data_type = MPI_COMPLEX8
           !$acc update host(zmel)
-          call mpi_allgatherv(zmel(1,ns1,ncc+ini_index), data_size(mpi_rank), mpi_complex16, zmel_buf, data_size, data_disp, &
-                    &  mpi_complex16, comm, mpi_info)
+          call mpi_allgatherv(zmel(1,nm1,ncc+ini_index), data_size(mpi_rank), mpi_data_type, zmel_buf, data_size, data_disp, &
+                    &  mpi_data_type, comm, mpi_info)
           zmel = zmel_buf
           !$acc update device(zmel)
           if(debug) call writemem('mmmmm_zmel after mpi=allgatherv')
@@ -455,7 +473,7 @@ contains
       endif
       if(zmelconjg) then
         !$acc kernels
-        zmel = dconjg(zmel)
+        zmel = conjg(zmel)
         !$acc end kernels
       endif
       if(present(maxmem)) maxmem=memused() ! MaxUsed memory in GB 

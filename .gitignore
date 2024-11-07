@@ -93,3 +93,7 @@ SRC/TestInstall/work
 */*/*/*duledepend*
 SRC/exec/*
 SRC/TAGS
+chk
+bin
+SRC/exec*
+SRC/subroutines/show_programinfo.f90

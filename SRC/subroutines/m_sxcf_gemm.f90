@@ -91,13 +91,17 @@ module m_sxcf_gemm
   use m_nvfortran, only: findloc
   use m_hamindex, only: ngrp
   use m_blas, only: m_op_c, m_op_n, m_op_t
+#ifdef __MP
+  use m_blas, only: gemm => cmm, gemm_batch => cmm_batch
+#else
   use m_blas, only: gemm => zmm, gemm_batch => zmm_batch
+#endif
   use m_kind, only: kp => kindgw
   !  use m_sxcf_main,only: zsecall
   use m_stopwatch
   use m_mem,only:writemem
   implicit none
-  complex(8),allocatable,protected,target:: zsecall(:,:,:,:) !output 
+  complex(kind=kp),allocatable,protected,target:: zsecall(:,:,:,:) !output 
   public sxcf_scz_correlation, sxcf_scz_exchange,zsecall,reducez
   private
   real(8), parameter :: pi = 4d0*datan(1d0), fpi = 4d0*pi
@@ -110,14 +114,18 @@ module m_sxcf_gemm
   logical :: emptyrun, keepwv
   complex(kind=kp), allocatable :: wvr(:,:,:), wvi(:,:,:)
   real(8), parameter:: rmax=2d0
-#ifdef __GPU
-  attributes(device) :: wvr, wvi
-#endif
+! #ifdef __GPU
+!   attributes(device) :: wvr, wvi
+! #endif
   logical,external :: cmdopt0 !we need external here
   type(stopwatch) :: t_sw_zmel, t_sw_xc, t_sw_cr, t_sw_ci
 contains
   subroutine reducez(nspinmx)
-    use m_mpi,only:   MPI__reduceSum
+#ifdef __MP
+    use m_mpi,only: MPI__reduceSum => MPI__reduceSum_kind4
+#else
+    use m_mpi,only: MPI__reduceSum
+#endif
     integer::nspinmx
     call MPI__reduceSum(root=0, data=zsecall, sizex=ntq*ntq*nqibz*nspinmx )
   end subroutine reducez
@@ -221,7 +229,7 @@ contains
                   !$acc kernels loop independent collapse(2)
                   do itpp = 1, ntqxx
                     do it = ns1, ns2 
-                      vzmel(1:ngb,it,itpp) = wtff(it)*vcoud_buf(1:ngb)*zmel(1:ngb,it,itpp)
+                      vzmel(1:ngb,it,itpp) = cmplx(wtff(it)*vcoud_buf(1:ngb)*zmel(1:ngb,it,itpp),kind=kp)
                     enddo
                   enddo
                   !$acc end kernels
@@ -300,27 +308,33 @@ contains
         integer :: iqini, iqend, iw
         character(10) :: i2char
         real(8), parameter :: gb = 1000*1000*1000
-        complex(kind=kp), allocatable :: wv(:,:)
-        if(allocated(wvi)) deallocate(wvi)
-        if(allocated(wvr)) deallocate(wvr)
+        if(allocated(wvi)) then
+          !$acc exit data delete(wvi)
+          deallocate(wvi)
+        endif
+        if(allocated(wvr)) then
+          !$acc exit data delete(wvr)
+          deallocate(wvr)
+        endif
         if(any(kx==kxc(:))) then
           open(newunit=ifrcwi,file='WVI.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
           open(newunit=ifrcw, file='WVR.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
           if(keepwv) then
-            write(stdo, ftox) 'save WVI and WVR on CPU or GPU (if GPU is used) memory. This requires sufficient memory'
+            write(stdo, ftox) 'save WVI and WVR on CPU and GPU (if GPU is used) memory. This requires sufficient memory'
+           ! (MO) wvi & wvr are also allocated in CPU memory and are note needed for GPU calcualtion. but allocation of huge
+           ! device memory made a error (I don't know the reason). therefore, we used openacc data copyin procedure
+           ! but it is usually ok becuase CPU memoery size is always larger than that of GPU.
             call flush(stdo)
-            allocate(wv(nblochpmx, nblochpmx), wvi(nblochpmx,nblochpmx,niw))
+            allocate(wvi(nblochpmx,nblochpmx,niw))
             do iw = 1, niw
-              read(ifrcwi,rec=iw) wv(:,:)
-              wvi(:,:,iw) = wv !send to GPU
+              read(ifrcwi,rec=iw) wvi(:,:,iw)
             enddo
             allocate(wvr(nblochpmx,nblochpmx,nw_i:nw))
             do iw = nw_i, nw
-              read(ifrcw,rec=iw-nw_i+1) wv
-              wvr(:,:,iw) = wv
+              read(ifrcw,rec=iw-nw_i+1) wvr(:,:,iw)
             enddo
+            !$acc enter data copyin(wvi(1:nblochpmx,1:nblochpmx,1:niw), wvr(1:nblochpmx,1:nblochpmx,nw_i:nw))
             write(stdo, '(X,A,2F8.3)') 'WVI/WVR : sizes (GB)', dble(size(wvi))*kp*2/gb, dble(size(wvr))*kp*2/gb
-            deallocate(wv)
           endif
         endif
         !end subroutine setwv
@@ -367,6 +381,7 @@ contains
                   complex(kind=kp), allocatable :: czmelwc(:,:,:)
                   integer :: it, itp, iw, ierr, i
                   complex(kind=kp), allocatable :: wv(:,:), wc(:,:)
+                  real(kind=kp) :: zsec_img
 #ifdef __GPU
                   attributes(device) :: czmelwc, wc
 #endif
@@ -416,8 +431,16 @@ contains
                     iwimag:do iw = 0, niw !niw is ~10. ixx=0 is for omega=0 nw_i=0 (Time reversal) or nw_i =-nw
                       if(emptyrun) cycle
                       if(keepwv) then
-                        if(iw == 0) wc = wvr(:,:,iw)
-                        if(iw > 0) wc = wvi(:,:,iw)
+                        if(iw == 0) then
+                          !$acc kernels
+                           wc(:,:) = wvr(:,:,iw)
+                          !$acc end kernels
+                        endif
+                        if(iw > 0) then
+                          !$acc kernels
+                          wc(:,:) = wvi(:,:,iw)
+                          !$acc end kernels
+                        endif
                       else
                         if(iw == 0) read(ifrcw,rec=1+(0-nw_i)) wv!direct access Wc(0) = W(0)-v ! nw_i=0 (Time reversal) or nw_i =-nw
                         if(iw > 0) read(ifrcwi,rec=iw) wv ! direct access read Wc(i*omega)=W(i*omega)-v
@@ -426,7 +449,7 @@ contains
                       !$acc kernels loop independent collapse(2)
                       do itp = 1, ntqxx
                         do it = ns1, ns2
-                          wzmel(1:ngb,it,itp) = wgtim(iw,itp,it)*zmel(1:ngb,it,itp)
+                          wzmel(1:ngb,it,itp) = cmplx(wgtim(iw,itp,it)*zmel(1:ngb,it,itp),kind=kp)
                         enddo
                       enddo
                       !$acc end kernels
@@ -507,16 +530,16 @@ contains
                       if(nttp(iw) < 1) cycle
                       if(keepwv) then
                         !$acc kernels
-                        wc(:,:) = (wvr(:,:,iw) + transpose(dconjg(wvr(:,:,iw))))*0.5d0
+                        wc(:,:) = (wvr(:,:,iw) + transpose(conjg(wvr(:,:,iw))))*0.5d0
                         !$acc end kernels
                       else
                         read(ifrcw,rec=iw-nw_i+1) wv
-                        wc = (wv + transpose(dconjg(wv)))*0.5d0  !copy to GPU
+                        wc = (wv + transpose(conjg(wv)))*0.5d0  !copy to GPU
                       endif
                       !$acc kernels loop independent
                       do ittp = 1, nttp(iw) 
                         it = itw(ittp,iw); itp = itpw(ittp,iw)
-                        wz_iw(1:ngb,ittp) = wgtiw(ittp,iw)*zmel(1:ngb,it,itp)
+                        wz_iw(1:ngb,ittp) = cmplx(wgtiw(ittp,iw)*zmel(1:ngb,it,itp),kind=kp)
                       enddo
                       !$acc end kernels
                       ierr = gemm(wz_iw, wc, czwc_iw, nttp(iw), ngb, ngb, opA = m_op_c, ldB = nblochpmx, ldC = nttp_max)
@@ -539,7 +562,10 @@ contains
                   !$acc end host_data
                   !$acc kernels loop independent
                   do itp = 1, ntqxx
-                    zsec(itp,itp) = dreal(zsec(itp,itp))+img*min(dimag(zsec(itp,itp)),0d0) !enforce Imzsec<0
+                    ! zsec(itp,itp) = real(zsec(itp,itp),kind=kp)+img*min(-real((img*zsec(itp,itp)),kind=kp),0_kp) !enforce Imzsec<0 !does not work in intel
+                    zsec_img = -real((img*zsec(itp,itp)),kind=kp)
+                    if(zsec_img > 0_kp) zsec_img = 0_kp 
+                    zsec(itp,itp) = real(zsec(itp,itp),kind=kp)+img*zsec_img
                   enddo
                   !$acc end kernels
                   deallocate(wv, wc, czmelwc)
@@ -562,8 +588,14 @@ contains
       !      call releasewv()
       releasew :block !subroutine releasewv()
         if(any(kx==kxc(:))) then
-          if(allocated(wvi)) deallocate(wvi)
-          if(allocated(wvr)) deallocate(wvr)
+          if(allocated(wvi)) then
+            !$acc exit data delete(wvi)
+            deallocate(wvi)
+          endif
+          if(allocated(wvr)) then
+            !$acc exit data delete(wvr)
+            deallocate(wvr)
+          endif
           close(ifrcwi)
           close(ifrcw)
         endif
