@@ -106,11 +106,13 @@ contains
     call rxx(ier.ne.0, 'zhev_tk4: zheev for hh cause error.')
     deallocate(work,iwork,rwork)
     z=1d99
-    do i=1,min(nmx,nm)
-       do j=1,n
-          z(j,i) = sum(zz(j,:)*znm(:,i)) !this is eigenfunction for original problem.
-       enddo
-    enddo
+    ! do i=1,min(nmx,nm)
+    !    do j=1,n
+    !       z(j,i) = sum(zz(j,:)*znm(:,i)) !this is eigenfunction for original problem.
+    !    enddo
+    ! enddo
+    ! MO 2024-11-07 replace to zgemm
+    call zgemm('N','N',n, min(nmx,nm),nm,(1d0,0d0),zz,n,znm,nm,(0d0,0d0),z,n)
     deallocate(znm)
     deallocate(zz)
     if( .FALSE. ) then !! === diagonalize === (this part is in zhev_tk2), Kept here for debug purpose

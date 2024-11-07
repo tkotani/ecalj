@@ -24,11 +24,13 @@ Project(ecalj)
 option(BUILD_GPU "Build GPU version" OFF)
 option(BUILD_MP "Build mixed precision CPU version" OFF)
 option(BUILD_MP_GPU "Build mixed precision GPU version" OFF)
-
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: Debug Release" FORCE)
+endif()
 message("BUILD_GPU is " ${BUILD_GPU})
 message("BUILD_MP is " ${BUILD_MP})
 message("BUILD_MP_GPU is " ${BUILD_MP_GPU})
-
+message("CMAKE_BUILD_TYPE is " ${CMAKE_BUILD_TYPE})
 # SET(CMAKE_VERBOSE_MAKEFILE ON)
 enable_language(Fortran)
 

@@ -66,7 +66,7 @@ contains
     integer,allocatable :: iv_a_okv(:), ivp(:), igv(:,:)
     real(8),allocatable :: ogv(:,:),w_ogq(:,:),yl(:,:),w_og2(:),he(:,:),hr(:,:)
     complex(8),allocatable::psi(:,:,:),psir(:,:,:),vpsi(:,:,:), psi0(:,:,:,:),phase(:)
-    logical :: dev = .true.
+    integer :: ngmax
     if (nevec <= 0) return
     call tcn('rsibl')
     nlmto = ndimh-napw
@@ -89,11 +89,24 @@ contains
     q0=0d0
     if(nlmto>0) call hsibl1(net,etab,nrt,rtab,ltop,alat,q0,ng,ogv,w_ogq,w_og2, yl,he,hr) !H_L(G)=\frac{-4 pi}{e-G^2} {cal Y}_L(-iG) exp(gamma(e-G^2))  ! hsibl1 calculates he=1/(e-G^2) and hr=exp(-gamma G^2).
     deallocate(w_og2)
-    allocate(psi(ng,nspc,nevec),vpsi(ng,nspc,nevec),psi0(ng,nspc,nevec,nbas),psir(k1,k2,k3),phase(ng))
-    psi0=0d0
+    ! 2024-11-07 MO, original psi0 becomes huge size when number of atoms increase.
+    ! psi0 is used on the atomic force calculation (lfrce /=0) and ncessary 1st dimension size is much smaller than ng (around ng/4)
+    ! psi0 is prepared in the case of lfrc /=0 and its 1st dimension size is downsized to ngmax
+    ! allocate(psi(ng,nspc,nevec),vpsi(ng,nspc,nevec),psi0(ng,nspc,nevec,nbas),psir(k1,k2,k3),phase(ng))
+    write(06,*) 'rsibl:',ng, nspc, nevec, k1, k2,k3
+    call flush(06)
+    allocate(psi(ng,nspc,nevec),psir(k1,k2,k3),phase(ng))
+    ! psi0=0d0 
+    ngmax = min(maxval(ngcut), ng)
+    psi = (0d0, 0d0)
+    if(lfrce /= 0) allocate(psi0(ngmax,nspc,nevec,nbas), source = (0d0, 0d0))
     rsibl1: block !    ! Make wave function for a block of evecs, or add contr. to forces
       integer:: blks(n0*nkap0),ntab(n0*nkap0),ncut(n0,nkap0),nkapi,jo,l2,lt,kp,ie,ir,ioff,nlm1,nlm2,ilm,io,l,ncutt
       real(8) :: e,rsm,eh(n0,nkap0),rsmh(n0,nkap0),fac
+      integer :: ngmin, istat
+      complex(8) :: cfac, beta
+      complex(8), allocatable :: cwork(:,:),psi_ib(:,:,:)
+      allocate(psi_ib(ngmax,nspc,nevec))
       do ib = 1, nbas
          is=ispec(ib) 
          ncut=ngcut(:,:,is)
@@ -101,6 +114,7 @@ contains
          call orblib(ib) !Return norb,ltab,ktab,offl
          call uspecb(is,rsmh,eh)
          call gtbsl1(1,norb,ltab,ktab,rsmh,eh,ntab,blks)
+         psi_ib = (0d0, 0d0)
          do io = 1, norb
             if (blks(io) == 0) cycle
             jo = ntab(io)
@@ -116,34 +130,41 @@ contains
             e   = etab(ie)
             ncutt=ncut(lt+1,kp) 
             fac = 4d0*pi*dexp(e*rsm*rsm*0.25d0)/vol
-            if(dev) then
-            dev: block
-            integer :: minng, istat
-            complex(8) :: cfac, cwork(ng,nlm1:nlm2)
-            minng = min(ng,ncutt)
+            ngmin = min(ng,ncutt)
+            if(ngmin > ngmax) call rx0('ERROR rsibl: ngmin > ngmax')
+            if(ngmin == 0) then
+              write(06,*) 'ngmin == 0: cycle'
+              cycle
+            endif
+            allocate(cwork(ngmin,nlm1:nlm2))
             do  ilm = nlm1, nlm2
                l=ll(ilm)
                cfac = fac*(0d0,-1d0)**(l+2)
-               cwork(1:minng,ilm) = he(1:minng,ie)*hr(1:minng,ir)*yl(1:minng,ilm)*phase(1:minng)*cfac
+               cwork(1:ngmin,ilm) = he(1:ngmin,ie)*hr(1:ngmin,ir)*yl(1:ngmin,ilm)*phase(1:ngmin)*cfac
             enddo
-            istat = gemm(cwork(1,nlm1), evec(ioff+1,1,1), psi0(1,1,1,ib), m=minng, n=nspc*nevec, k=blks(io), &
-                      &  beta=(1d0, 0d0), ldA=ng, ldB=ndimh, ldC=ng)
-            endblock dev
-            else
-            do  ilm = nlm1, nlm2 ! ... Make vector evec*phase ! ... Combine G-dependent energy, rsm and YL factors
-               l=ll(ilm)
-               do i = 1, min(ng,ncutt)
-                  psi0(i,1:nspc,1:nevec,ib) = psi0(i,1:nspc,1:nevec,ib)&
-                       + he(i,ie)*hr(i,ir)* yl(i,ilm) *(0d0,-1d0)**(l+2)* fac*phase(i) *evec(ilm-nlm1+ioff+1,1:nspc,1:nevec) 
-               enddo
-            enddo
-            endif
+            beta = (1d0, 0d0)
+            if(io == 1) beta = (0d0, 0d0)
+            istat = gemm(cwork(1,nlm1), evec(ioff+1,1,1), psi_ib, m=ngmin, n=nspc*nevec, k=blks(io), &
+                      &  beta=beta, ldB=ndimh, ldC=ngmax)
+            deallocate(cwork)
+            ! MO replased the above gemm version 2024-11-07
+            ! do  ilm = nlm1, nlm2 ! ... Make vector evec*phase ! ... Combine G-dependent energy, rsm and YL factors
+            !    l=ll(ilm)
+            !    do i = 1, min(ng,ncutt)
+            !       psi0(i,1:nspc,1:nevec,ib) = psi0(i,1:nspc,1:nevec,ib)&
+            !            + he(i,ie)*hr(i,ir)* yl(i,ilm) *(0d0,-1d0)**(l+2)* fac*phase(i) *evec(ilm-nlm1+ioff+1,1:nspc,1:nevec) 
+            !    enddo
+            ! enddo
          enddo
+         psi(1:ngmax,1:nspc,1:nevec) = psi(1:ngmax,1:nspc,1:nevec) + psi_ib(1:ngmax,1:nspc,1:nevec)
+         if(lfrce /= 0) psi0(1:ngmax,1:nspc,1:nevec,ib) = psi_ib(1:ngmax,1:nspc,1:nevec)
       enddo
+      deallocate(psi_ib)
     endblock rsibl1
-    psi(:,:,:) = sum(psi0(:,:,:,1:nbas),dim=4)
+    ! psi(:,:,:) = sum(psi0(:,:,:,1:nbas),dim=4)
     if(napw>0) psi(ivp(:),:,1:nevec) = psi(ivp(:),:,1:nevec) + evec(nlmto+1:nlmto+napw,:,1:nevec)/vol**.5 !add PW(G) to psi
     ! psi= H(G) + PW(G) ! Add to real-space mesh, optionally make smpot*psi for forces
+    if(lfrce /= 0) allocate(vpsi(ng,nspc,nevec))
     do  ispc = 1, nspc !nspc=2 for SO=1, nspc=1 otherwise. nspx=nspc/nps
        do  i = 1, nevec
           call gvputf(ng,1,iv_a_okv,k1,k2,k3,psi(1,ispc,i),psir)
@@ -163,7 +184,8 @@ contains
           is=ispec(ib) 
           phase = exp(-img*tpi*sum(p*q)) * exp(-img*tpi*matmul(pos(:,ib), matmul(qlat, transpose(igv))))
           do i = 1, nevec
-             f0(:)=2d0*vol*matmul( -sum(dimag(dconjg(vpsi(:,:,i))*psi0(:,:,i,ib)),dim=2),  w_ogq(:,:))
+             ! f0(:)=2d0*vol*matmul( -sum(dimag(dconjg(vpsi(:,:,i))*psi0(:,:,i,ib)),dim=2),  w_ogq(:,:))
+             f0(:)=2d0*vol*matmul( -sum(dimag(dconjg(vpsi(1:ngmax,:,i))*psi0(1:ngmax,:,i,ib)),dim=2),  w_ogq(1:ngmax,:))
              f(:,ib) = f(:,ib)   + ewgt(i)*f0(:) !Add 2*Re( (v psi+) grad(psi) ) to f
              do kb = 1, nbas !!             This shouldn't be necessary?
                 f(:,kb) = f(:,kb) - ewgt(i)*f0(:)/nbas
@@ -171,6 +193,8 @@ contains
           enddo
        enddo
     endif AddForce
+    deallocate(ogv, igv,iv_a_okv, w_ogq, yl, he, hr, psi, phase, psir)
+    if(lfrce /=0) deallocate(vpsi, psi0)
     call tcx('rsibl')
   end subroutine rsibl
 end module m_rsibl

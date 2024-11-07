@@ -6,9 +6,9 @@ module m_blas !wrapper for BLAS and cuBLAS
 #endif
   implicit none
   include "mpif.h"
-  public :: cmm, cmm_batch, zmm, zmm_batch, m_op_n, m_op_t, m_op_c
-  public :: dmm
-  public :: dmv
+  public :: m_op_n, m_op_t, m_op_c
+  public :: cmm, cmm_batch, zmm, zmm_batch, dmm  !blas_level3
+  public :: dmv, zmv                             !blas_level2
   public :: int_split
 #ifdef __GPU
   public :: cublas_init, cublas_handle
@@ -76,6 +76,17 @@ module m_blas !wrapper for BLAS and cuBLAS
       attributes(device) :: a, x, y
 #endif
     end function dmv
+    module function zmv(a, x, y, m, n, opa, alpha, beta, lda, incx, incy) result(istat)
+      complex(kind=8) :: a(*), x(*), y(*)
+      integer, intent(in) :: m, n
+      character, intent(in), optional :: opa
+      complex(kind=8), intent(in), optional :: alpha, beta
+      integer, optional :: lda, incx, incy
+      integer :: istat
+#ifdef __GPU
+      attributes(device) :: a, x, y
+#endif
+    end function zmv
     module function dmm(a, b, c, m, n, k, opa, opb, alpha, beta, lda, ldb, ldc) result(istat)
       real(kind=8) :: a(*), b(*), c(*)
       integer, intent(in) :: m, n, k

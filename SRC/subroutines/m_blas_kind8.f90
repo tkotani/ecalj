@@ -222,4 +222,45 @@ contains
     istat = 0
 #endif
   end function dmv
+  module function zmv(a, x, y, m, n, opa, alpha, beta, lda, incx, incy) result(istat)
+    implicit none
+    complex(kind=kp) :: a(*), x(*), y(*)
+    integer, intent(in) :: m, n
+    !caution: size of matrix a is m x n (not size of op(A))
+    character, intent(in), optional :: opa
+    complex(kind=kp), intent(in), optional :: alpha, beta
+    integer, optional :: lda, incx, incy
+
+    complex(kind=kp) :: alpha_in, beta_in
+    integer :: lda_in, incx_in, incy_in, istat
+    character :: opa_in
+#ifdef __GPU
+    attributes(device) :: a, x, y
+#endif
+    if (m < 1 .or. n < 1) return
+
+    alpha_in = (1_kp, 0_kp); beta_in = (0_kp, 0_kp)
+    if(present(alpha)) alpha_in = alpha
+    if(present(beta)) beta_in = beta
+
+    opa_in = m_op_n
+    if(present(opa)) opa_in = opa
+    lda_in = m; incx_in = 1; incy_in = 1
+    if(present(lda)) lda_in = lda
+    if(present(incx)) incx_in = incx
+    if(present(incy)) incy_in = incy
+
+#ifdef __GPU
+    block 
+      integer :: opa_in_cublas, opb_in_cublas
+      istat = cublas_init()
+      opa_in_cublas = get_m_op_cublas(opa_in)
+      istat = cublaszgemv(cublas_handle, opa_in_cublas,  m, n,  &
+                        & alpha_in, a, lda_in , x, incx_in, beta_in, y, incy_in)
+    endblock
+#else
+    call zgemv(opa_in, m, n, alpha_in, a, lda_in, x, incx_in, beta_in, y, incy_in)
+    istat = 0
+#endif
+  end function zmv
 end submodule m_blas_kind8

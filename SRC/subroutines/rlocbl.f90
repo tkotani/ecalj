@@ -150,9 +150,17 @@ contains
                evecc=> evec(1:ndimh,ispc,ivec)
                ewgtt=> ewgt(ivec)
                evll => evl(ivec,isp)
-               do  k = 0, kmax
-                  cPkL(k,:) =  matmul(evec(1:ndimh,ispc,ivec),bstr(1:ndimh,:,k)) ! Pkl expansion of eigenvector
-               enddo
+               ! do  k = 0, kmax
+               !    cPkL(k,:) =  matmul(evec(1:ndimh,ispc,ivec),bstr(1:ndimh,:,k)) ! Pkl expansion of eigenvector
+               ! enddo
+               ! MO replaced the above loop with the following 2024-11-07
+               block
+                 use m_blas, only: zmv, m_op_T
+                 integer :: istat
+                 complex(8) :: cPkLT(nlma, 0:kmax)
+                 istat = zmv(bstr, evec(1,ispc,ivec), cPkLT, m=ndimh, n=nlma*(kmax+1), opA=m_op_T)
+                 cPkL = transpose(cPkLT)
+               endblock
                do  ilm2 = 1, nlma !Add to local density coefficients for one state
                   do  k2 = 0, kmax
                      qpp (:,k2,:,ilm2,ksp)= qpp(:,k2,:,ilm2,ksp) + ewgtt*dconjg(cPkL(:,:))*cPkL(k2,ilm2)
