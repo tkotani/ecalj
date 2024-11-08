@@ -450,14 +450,18 @@ contains
     complex(8):: eiphi,add,add0
     complex(8):: img=(0d0,1d0)
     real(8),parameter:: tpi = 8d0*datan(1d0)
+    real(8) :: qshortn_q(3)
     a = 1d0/rsm
     gamma = .25d0/(a*a)
     vfac = 1d0/vol
     tpiba = tpi/alat
     lmax = ll(nlm)
     gkl=0d0
+    !MO moved qshortn outside of ir loop 2024-11-08
+    qshortn_q = qshortn(q)
     do ir = 1,nkq
-       r = tpiba*(qshortn(q)+qlv(:,ir)) !r = tpiba*(q(:)+qlv(:,ir))
+       ! r = tpiba*(qshortn(q)+qlv(:,ir)) !r = tpiba*(q(:)+qlv(:,ir))
+       r = tpiba*(qshortn_q+qlv(:,ir)) !r = tpiba*(q(:)+qlv(:,ir))
        eiphi = exp(img*alat*sum(r*p))
        call sylm(r,yl,lmax,r2)
        do ilm = 1, nlm
@@ -1184,6 +1188,7 @@ contains
     real(8) :: r(3),tpi,gamma,fpibv,tpiba,scalp,r2,den0,den1
     real(8) :: yl((lmax+1)**2)
     complex(8):: eiphi
+    real(8) :: qshortn_q(3)
     tpi = 8d0*datan(1d0)
     gamma = .25d0/(a*a)
     fpibv = 2d0*tpi/vol
@@ -1191,8 +1196,11 @@ contains
     nlm = (lmax+1)**2
     dl=0d0
     dlp=0d0
+    !MO moved qshortn outside of ir loop 2024-11-08
+    qshortn_q = qshortn(q)
     do ir = 1, nkq
-       r(:) = tpiba*(qshortn(q)+qlv(:,ir))
+       ! r(:) = tpiba*(qshortn(q)+qlv(:,ir))
+       r(:) = tpiba*(qshortn_q+qlv(:,ir))
        eiphi = exp(img*alat*sum(r*p))
        call sylm(r,yl,lmax,r2)
        den0 = dexp(gamma*(e-r2))/(r2-e)

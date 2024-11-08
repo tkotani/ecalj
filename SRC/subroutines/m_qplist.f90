@@ -19,6 +19,11 @@ module m_qplist
   private
   real(8),allocatable:: qplistss(:,:)
   real(8)::tolq=1d-12
+
+  logical :: init_qshortn = .true.
+  integer, allocatable :: iqsave(:)
+  real(8), allocatable :: qsave(:,:)
+  integer :: current_save_size
 contains
   subroutine m_qplist_init(plbnd,llmfgw)
     use m_lmfinit,only: nspx,pwemax,alat,pwmode
@@ -283,10 +288,36 @@ contains
     intent(in):: q
     integer:: ikp,iq
     real(8):: q(3),qs(3)
+    integer :: i
+    logical :: findq
+    if(init_qshortn) then
+      allocate(iqsave(nkp), qsave(3,nkp))
+      current_save_size = 0
+      init_qshortn = .false.
+    endif
     if(sum(abs(q))<tolq) then
        qs=0d0
     else
-       iq = findloc([(sum(abs(qplist(:,ikp)-q))<tolq,ikp=1,nkp)],value=.true.,dim=1)
+       ! iq = findloc([(sum(abs(qplist(:,ikp)-q))<tolq,ikp=1,nkp)],value=.true.,dim=1)
+       findq =.false.
+       do i = 1, current_save_size !search the saved table
+         if(sum(abs(qsave(:,i)-q))<tolq) then
+            iq = iqsave(i)
+            findq = .true.
+            exit
+         endif
+       enddo
+       if(.not.findq) then !search the all qplist
+         do iq = 1, nkp
+           if(sum(abs(qplist(:,iq)-q))<tolq) then
+             current_save_size = current_save_size + 1
+             iqsave(current_save_size) = iq
+             qsave(:,current_save_size) = q(:)
+             exit
+           endif
+         enddo
+       endif
+       if(iq>nkp) call rx('qshortn: can not find iq iq>nkp')
        if(iq==0) call rx('qshortn: can not find iq')
        qs = qplistss(:,iq) !write(aaa,ftox)'q=',ftof(q,3),'qshortn=',ftof(qs,3),'qdiff=',ftof(q-qs,3),iq
     endif   
