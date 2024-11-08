@@ -56,7 +56,6 @@ end module m_args
 module m_ext
 !  use m_lgunit,only: stdo
   use m_args,only: m_setargs,arglist,narg
-  use m_MPItk,only: master_mpi
   character(512),public,protected::sname='temp',dirname
   public:: m_ext_init
 contains
@@ -66,7 +65,7 @@ contains
     character*256:: sss,s222,argv
     i = getcwd(dirname)
     do i = 1, narg
-      if(master_mpi) write(*,*)'m_ext_init=',i, trim(arglist(i))
+       write(*,*)'m_ext_init=',i, trim(arglist(i))
        if(arglist(i)(1:5)=='ctrl.') then
           sname=trim(arglist(i)(6:))
           goto 999
