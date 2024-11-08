@@ -9,7 +9,7 @@ module m_lmfinit ! 'call m_lmfinit_init' sets all initial data from ctrl are pro
   use m_density,only: pnuall,pnzall !NOTE: These are set here! log-derivative of radial functions. m_denisty is NOT protected.
 
   use m_nvfortran,only: findloc
-  
+  use m_scg,only:scg
   implicit none 
   public:: m_lmfinit_init,icgi,icge
   integer,public,parameter:: noutmx=48,NULLI=-99999,nkap0=3,mxspec=256,lstrn=1000,n0=10,nppn=2,nrmx=1501,nlmx=64,n00=n0*nkap0,k0=3
