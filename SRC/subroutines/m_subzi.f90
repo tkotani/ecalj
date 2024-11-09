@@ -6,7 +6,7 @@ module m_subzi ! Obtain weight wtkb(ib,isp,iq) for brillowine zone integation
 contains
   subroutine m_subzi_init() ! Set nevmx and allocate wtkb.
     use m_ext,only: sname
-    use m_lmfinit, only: nspc,lmet=>bz_lmet, qbg=>zbak,nspx
+    use m_lmfinit, only: nspc,lmet=>bz_lmet, qbg=>zbak,nspx,lso
     use m_mkqp,only: ntet=> bz_ntet ,bz_nkp
     use m_suham,only: ndhamx=>ham_ndhamx
     use m_mkpot,only:  qval

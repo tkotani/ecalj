@@ -24,12 +24,17 @@ popd
 # Use SRC/exec/CmakeLists.txt to make executables.
 pushd .
 cd SRC/exec
-FC=${FC} cmake . -DBUILD_MP=ON -DBUILD_GPU=ON -DBUILD_MP_GPU=ON -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
-make -j 32 || make -j 32 ||my_error
-
+rm -rf CMakeFiles CMakeCache.txt
+if [ "${FC}" = "gfortran" -o "${FC}" = "ifort" ]; then
+    FC=${FC} cmake .
+    make -j || my_error
+else
+    FC=${FC} cmake . -DBUILD_MP=ON -DBUILD_GPU=ON -DBUILD_MP_GPU=ON -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
+    make -j 32 || make -j 32 ||my_error
+fi
+    
 cp `find . -mindepth 1 -maxdepth 1 -executable -type f` ${BINDIR} ||my_error
 popd
-exit
 # Install test 
 echo '=== goto test ==='
 cd SRC/TestInstall/

@@ -690,13 +690,13 @@ contains
         allocate( rmax(nbas))
         rmax=rmt(ispec(1:nbas))
         ! Write HVCCIN  
-        write(stdo,ftox)' === Write HVCCIN ==='
-        open(newunit=ifhvccfp,file='HVCCIN',form='unformatted')
-        write(ifhvccfp) alat, plat,qlat,nqirr, nbas,ham_ndham!nbandmx
-        write(ifhvccfp) qirr(:,1:nqirr), pos, rmax
-        write(ifhvccfp) nqibz
-        write(ifhvccfp) qibz(1:3,1:nqibz)
-        close(ifhvccfp)
+        ! write(stdo,ftox)' === Write HVCCIN ==='
+        ! open(newunit=ifhvccfp,file='HVCCIN',form='unformatted')
+        ! write(ifhvccfp) alat, plat,qlat,nqirr, nbas,ham_ndham!nbandmx
+        ! write(ifhvccfp) qirr(:,1:nqirr), pos, rmax
+        ! write(ifhvccfp) nqibz
+        ! write(ifhvccfp) qibz(1:3,1:nqibz)
+        ! close(ifhvccfp)
         ! Generate ppovl  
         if(debug) write(stdo,'("  qibz=",i3,3f12.5)')(i,qibz(1:3,i),i=1,nqibz)
         dQpG=maxval(sum(q0i(1:3,1:nq0i+nq0iadd)**2,dim=1))**.5

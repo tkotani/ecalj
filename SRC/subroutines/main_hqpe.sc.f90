@@ -3,6 +3,9 @@
 !     * iSigma_en==5 is for diagonal-only Sigma-Vxc in LDA basis set.
 !      (Then you need evec0, which contains eigenvector of LDA).
 module m_hqpe_sc
+  use m_nvfortran
+  use m_ftox
+  use m_lgunit,only: m_lgunit_init,stdo
   public hqpe_sc
   private
 contains
@@ -19,42 +22,33 @@ contains
     use m_read_bzdata, only: Read_bzdata, nstar, nqibz2=>nqibz, nqbz,nqibz,  n1,n2,n3
     use m_hamindex,only: Readhamindex, nhq=>ndham
     use m_mpi,only: MPI__Initialize, mpi__rank
-    use m_lgunit,only: m_lgunit_init,stdo
     use m_genallcf_v3,only: genallcf_v3,laf,nmto=>nlmto ,nspin
     !    use m_readefermi,only: readefermi,ef
-    use m_nvfortran
-    use m_ftox
     implicit none
-    real(8):: eavr,eavr2,eee,eseavr0,eseavr02,dsenoz,zfac=1d0
-    logical :: sigma_mixing,lsi, lsigin
     integer:: ifsex(2),ifsexcore(2),ifxc(2),ifsec(2),ifqpe(2),ifsex2(2),ifsexcore2(2),ifsec2(2) !,iftote(2),iftote2(2)
     integer:: i,ierr,ifsigm,iix,ikp,ip,ipxx,iq,iqq,is,isx,j,nevv,isxxx,itp,itpp,nstarsum,nt,ntqx,ntqxxmin
     integer,allocatable :: itx(:) 
+    integer,allocatable:: nhqx(:,:)
+    integer, allocatable :: ipiv(:)
+    real(8):: eavr,eavr2,eee,eseavr0,eseavr02,dsenoz,zfac=1d0
+    real(8):: qx2(3) ,qqqx(3) ,del ,mix_fac
+    real(8) ::  rydberg,hartree, qqqx0(3)
+    logical :: sigma_mixing,lsi, lsigin
     real(8),allocatable :: vxc(:,:), sex(:,:),sexcore(:,:), qx(:,:,:),eldax(:,:),rsec(:,:),csec(:,:) ,&
          qqq(:,:,:) ,qqqx_m(:,:,:),evl(:,:,:),eqp(:,:),sed(:)
     complex(8), allocatable :: sex2(:,:,:),sexcore2(:,:,:), &
          sec2(:,:,:), se(:,:,:),work(:),evec_inv(:,:),evec_invt(:,:), se_ev(:,:), ev_se_ev(:,:),&
          sen(:,:),sen2(:,:),se_in(:,:), v_xc(:,:,:,:),evec(:,:,:,:),evec0(:,:),sigma_m(:,:,:,:), &
          sigin(:,:,:,:), evec00(:,:,:,:) ,evec00inv(:,:)
-    real(8) qx2(3) ,qqqx(3) ,del ,mix_fac
-    integer, allocatable :: ipiv(:)
-    real(8) ::  rydberg,hartree, qqqx0(3)
     integer ::  ifse_out, ifse_in
     logical :: AddDummySig,evec0ex=.false.
     complex(8),allocatable:: sigma_m_out(:,:,:,:),pmat(:,:),pmatd(:,:),sigmv(:,:,:)
     character(2):: soflag
-    real(8) :: wex 
     logical :: mtosigmaonly,nexist !exonly,
-    integer:: ret
-    character(3):: iaaa
     real(8),allocatable:: eseavr(:,:) !,eseavr_in(:,:)
-    integer,allocatable:: nhqx(:,:)
-    integer:: nz,ntqmin, ndimsig,ns2,ndimsigin
-    integer:: procid,nrank,ifigwb_,ifigwx1_,ifigwx2_,ifvxcevec,ifevec_, ipx
+    integer:: nz,ntqmin, ndimsig,ns2,ndimsigin,procid,nrank,ifigwb_,ifigwx1_,ifigwx2_,ifvxcevec,ifevec_, ipx
     character*256:: extn,ext
-    character*256,allocatable:: extp(:)
-    integer,allocatable:: ifevec__(:),ifvxcevec_(:),iprocq(:,:)
-    integer,allocatable:: ntqxx(:)
+    integer,allocatable:: ifevec__(:),ifvxcevec_(:),iprocq(:,:),ntqxx(:)
     real(8):: eseavrmean,eseadd,tolq=1d-4
     integer,allocatable:: nev(:,:)
     complex(8),allocatable:: ovl(:,:)
@@ -62,6 +56,7 @@ contains
     logical:: nsp2laf
     integer:: ntq,it,n1x,n2x,n3x,nqx,nspinx,nx
     real(8):: ehf,ehfx,eshift,eshift2,fwhm,exx,elow=1d-2
+    real(8) :: wex 
     ! call getkeyvalue("GWinput","EXonly",wex,default=0d0,status=ret); exonly = .not.(wex==0d0);  if(exonly) write(6,*)' exonly=T wex=',wex
     call MPI__Initialize()    !this is just for exit routine subroutine rx('...') works well.
     call m_lgunit_init()
@@ -69,31 +64,33 @@ contains
     call readhamindex()
     call read_BZDATA()
     hartree=2d0*rydberg()
+    ndimsig= merge(nmto,nhq, mtosigmaonly())
 !!! open files    
     open(newunit=ifxc(1)  , file='XCU')
     open(newunit=ifsex2(1), file='SEX2U',form='UNFORMATTED', status='OLD') !    open(newunit=ifsec(1),file='SECU')
     open(newunit=ifsec2(1), file='SEC2U',form='UNFORMATTED', status='OLD') !    open(newunit=ifsexcore(1) ,file='SEXcoreU')
     open(newunit=ifsexcore2(1),file='SEXcore2U',form='UNFORMATTED',status='OLD')
     nsp2laf= nspin == 2 .AND. .NOT. laf
-    if(nsp2laf)  open(newunit=ifxc(2) ,     file='XCD')
-    if(nsp2laf)  open(newunit=ifsex2(2),    file='SEX2D',form='UNFORMATTED', status='OLD')
-    if(nsp2laf)  open(newunit=ifsec2(2),    file='SEC2D',form='UNFORMATTED', status='OLD')
-    if(nsp2laf)  open(newunit=ifsexcore2(2),file='SEXcore2D',form='UNFORMATTED',status='OLD')
+    if(nsp2laf) open(newunit=ifxc(2) ,     file='XCD')
+    if(nsp2laf) open(newunit=ifsex2(2),    file='SEX2D',form='UNFORMATTED', status='OLD')
+    if(nsp2laf) open(newunit=ifsec2(2),    file='SEC2D',form='UNFORMATTED', status='OLD')
+    if(nsp2laf) open(newunit=ifsexcore2(2),file='SEXcore2D',form='UNFORMATTED',status='OLD')
     open(newunit=ifqpe(1)   ,file='QPU')
-    if(nspin==2) open(newunit=ifqpe(2)   ,file='QPD')
+    if(nsp2laf) open(newunit=ifqpe(2)   ,file='QPD')
 !!! Get ntq. Maximum band index
     call readx(ifxc(1),50)
-    read (ifxc(1),*) nspinx,nqx,ntq !readin ntq
+    read(ifxc(1),*) nspinx,nqx,ntq !readin ntq
     rewind(ifxc(1))
     write(stdo,*)'nqibz nspin=',nqibz,nspin
 !!! Read sigm if availabe
-    INQUIRE (FILE='sigm', EXIST = lsigin)
+    INQUIRE(FILE='sigm', EXIST = lsigin)
     open(newunit=ifsigm, file='sigm',form='UNFORMATTED')
-    if (lsigin) then !   write(6,*) ' ... reading input sigma from file sigm'
+    if(lsigin) then !   write(stdo,ftox) ' ... reading input sigma from file sigm'
       read(ifsigm) nspinx,ndimsigin,n1x,n2x,n3x,nqx
-      if((nqx/=nqibz).or.(n1/=n1x).or.(n2/=n2x).or.(n2/=n2x)) then
-        write(stdo,"(' (warning) file mismatch : file nq=',i4,' but expected',i4)") nqx,nqibz
+      if((nqx/=nqibz).or.(n1/=n1x).or.(n2/=n2x).or.(n2/=n2x).or.(ndimsigin /= ndimsig)) then
+        write(stdo,ftox)' (warning) file mismatch : file nq=',nqx,n1,n2,n3,ndimsig,'  ',nqibz,n1x,n2x,n3x,ndimsigin
         lsigin = .false.
+        allocate(sigin(1,1,1,1),source=(0d0,0d0))
       else
         rewind ifsigm
         allocate(sigin(ndimsigin,ndimsigin,nqibz,nspin),qqqx_m(3,nqibz,nspin))
@@ -103,11 +100,11 @@ contains
       rewind ifsigm
     endif     !if(laf) nspin=2
 !!! Read vxcevec
-    write(6,*)' read from bzdata nqibz; nqibz nq nhq=',nqibz,nqibz,nhq
-    write(6,*)' ndimh ntq nsp nqibz =',nhq,ntq,nspin,nqibz !NOTE this ndimh is the maximum dimention of Hamiltonian.
+    write(stdo,ftox)' read from bzdata nqibz; nqibz nq nhq=',nqibz,nqibz,nhq
+    write(stdo,ftox)' ndimh ntq nsp nqibz =',nhq,ntq,nspin,nqibz !NOTE this ndimh is the maximum dimention of Hamiltonian.
     allocate(qqq(3,nqibz,nspin),v_xc(nhq,nhq,nqibz,nspin),evec(nhq,nhq,nqibz,nspin),evl(nhq,nqibz,nspin),nev(nqibz,nspin))
     allocate(nhqx(nqibz,nspin))
-    do iq=1,nqibz               !now nqibz is not necessary to be nqbz !nqibz=nqbz
+    Readvxcever: do iq=1,nqibz               !now nqibz is not necessary to be nqbz !nqibz=nqbz
       do is=1,nspin
         open(newunit=ifvxcevec, file='vxcevec'//trim(xt(iq))//trim(xt(is)),form='unformatted')
         read(ifvxcevec) qqq(1:3,iq,is),nz, nev(iq,is)
@@ -115,17 +112,11 @@ contains
         read(ifvxcevec) evec(1:nz,1:nz,iq,is) !,evl(1:nz,iq,is)
         close(ifvxcevec)
         nhqx(iq,is) = nz   !nz is introduced instead of nhq
-        write(6,*) ' reading vxcevec ... iq is nz=',iq,is,nz
+        write(stdo,ftox) ' reading vxcevec ... iq is nz=',iq,is,nz
       enddo
-    enddo
-    ndimsig= merge(nmto,nhq, mtosigmaonly())
-    if(lsigin .AND. ndimsigin /= ndimsig) then
-      deallocate(sigin)
-      write(6,*) '... input sigma dimension mismatch ... discarding'
-      lsigin = .false.
-    endif
+    enddo Readvxcever
     if(sum(nstar(:))/= nqbz ) call rx( ' nstarsum/= nqbz')
-    do is=1,nspin
+    HeaderQPU: do is=1,nspin
       write(ifqpe(is),*) '==============================================================='
       write(ifqpe(is),*) ' quasiparticle energies isp=',is
       write(ifqpe(is),*) '==============================================================='
@@ -133,7 +124,7 @@ contains
       write(ifqpe(is),*)
       write(ifqpe(is),"(a)") '           q               state   SEx    SExcore   SEc     vxc     ---' &
            // '    dSEnoZ   eQP(starting by lmf)    eHF   Z=1  FWHM=2Z*Simg ReS(elda)'
-    enddo
+    enddo HeaderQPU
     nspinx=merge(1,nspin,laf)
     write(ifsigm) nspinx,ndimsig,n1,n2,n3,nqibz,0,0,0
     SETreadinPOINT: do is=1,nspin
@@ -142,57 +133,55 @@ contains
       read(ifsexcore2(is)) 
       call readx(ifxc(is),50); call readx(ifxc(is),50); read(ifxc(is),*)
     enddo SETreadinPOINT
-    
 !!! Main loop for isp
-    allocate(sigmv(ndimsig,ndimsig,nqibz))
-    allocate(eseavr(nqibz,nspin))
+    allocate(sigmv(ndimsig,ndimsig,nqibz), eseavr(nqibz,nspin))
     allocate(vxc(ntq,nqibz), itx(ntq), qx(3,ntq,nqibz),eldax(ntq,nqibz),sex(ntq,nqibz) )
     allocate(sex2(ntq,ntq,nqibz), sexcore(ntq,nqibz),sexcore2(ntq,ntq,nqibz) )
     allocate(rsec(ntq,nqibz),csec(ntq,nqibz),sec2(ntq,ntq,nqibz))
     allocate(eqp(ntq,nqibz), ntqxx(nqibz))!,eqp2(ntq,nqibz))
     allocate(se(ntq,ntq,nqibz),ipiv(nhq),work(nhq*nhq),evec_inv(nhq,nhq) ,evec_invt(nhq,nhq),ev_se_ev(ndimsig,ndimsig),sed(ntq))
-    MAINspinloop: do 1001  is = 1,nspin ; write(6,*) ' --- is=',is
+    MAINspinloop: do 1001  is = 1,nspin ; write(stdo,ftox) ' --- is=',is
       do 1010 ip = 1,nqibz
-        read(ifsex2(is)) isx,qx2,sex2(1:ntq,1:ntq,ip)
+        read(ifsex2(is))     isx,qx2,sex2(1:ntq,1:ntq,ip)
         read(ifsexcore2(is)) isx,qx2,sexcore2(1:ntq,1:ntq,ip) 
-        read(ifsec2(is)) isx,qx2,sec2(1:ntq,1:ntq,ip)
+        read(ifsec2(is))     isx,qx2,sec2(1:ntq,1:ntq,ip)
         do i  = 1,ntq 
           read(ifxc(is),*) itx(i),ipxx,isxxx, qx(1:3,i,ip), eldax(i,ip),vxc(i,ip)
           !  eldax(i,ip)=evl(i,ip,is)*rydberg() -eftrue*rydberg() !We have to use eftrue for G, determined by smearing 
-          sex(i,ip)=sex2(i,i,ip)*hartree           ! in eV
+          sex(i,ip)    = sex2(i,i,ip)*hartree           ! in eV
           sexcore(i,ip)= sexcore2(i,i,ip)*hartree 
-          rsec(i,ip)=dreal(sec2(i,i,ip))*hartree
-          csec(i,ip)=dimag(sec2(i,i,ip))*hartree
+          rsec(i,ip)   = dreal(sec2(i,i,ip))*hartree
+          csec(i,ip)   = dimag(sec2(i,i,ip))*hartree
         enddo
         if(sum((qqq(1:3,ip,is)-qx(1:3,1,ip))**2 ) > tolq ) call rx( 'hqpe.sc: qqq /=qx')
         ntqxx(ip) = findloc([(sexcore2(itp,itp,ip)/=0d0,itp=1,ntq)],back=.true.,value=.true.,dim=1)
         WRITEqpe: do   it = 1,ntq
-          eshift     = sex(it,ip)+sexcore(it,ip)+rsec(it,ip)-vxc(it,ip)       !eshift2     = sex(it,ip)+sexcore(it,ip)+rsec(it,ip)-vxc(it,ip)
-          eqp(it,ip) = eldax(it,ip) + eshift            !eqp2(it,ip) = eldax(it,ip) + eshift2
+          eshift     = sex(it,ip)+sexcore(it,ip)+rsec(it,ip)-vxc(it,ip)  !eshift2     = sex(it,ip)+sexcore(it,ip)+rsec(it,ip)-vxc(it,ip)
+          eqp(it,ip) = eldax(it,ip) + eshift        !eqp2(it,ip) = eldax(it,ip) + eshift2
           fwhm  =  2d0*csec(it,ip) 
           ehf   =  eldax(it,ip) + sex(it,ip)+ sexcore(it,ip) - vxc(it,ip)
-          if(eldax(it,ip)>1d20) cycle
+          if(eldax(it,ip)>1d10) cycle ! padding by huge number for it for no data
           ehfx   = merge(0d0,ehf,    abs(sexcore(it,ip))==0d0)
           dsenoz = merge(0d0,eshift, abs(sexcore(it,ip))==0d0)
           write(ifqpe(is),'(3f9.5,1x,i3,1x,10f8.3,f5.2,f10.5,3x,f10.5)') qx(1:3,it,ip),itx(it),&
                sex(it,ip),sexcore(it,ip) ,rsec(it,ip),&
                vxc(it,ip), 0d0, dsenoz, eldax(it,ip), 0d0, 0d0, ehfx,zfac,fwhm, sex(it,ip)+sexcore(it,ip)+rsec(it,ip) 
-          !            write(iftote2(is),"(3f12.7,1x,2i4,1x,4d24.16)") qx(1:3,it,ip),itx(it),ip, eldax(it,ip), eqp(it,ip),eqp2(it,ip),  zfac
+          !write(iftote2(is),"(3f12.7,1x,2i4,1x,4d24.16)") qx(1:3,it,ip),itx(it),ip, eldax(it,ip), eqp(it,ip),eqp2(it,ip),zfac
         enddo WRITEqpe
         write (ifqpe(is),*)
 1010  enddo
       do concurrent(ip=1:nqibz) ! Make SE_ij-VXC_ij, where ij are band index
         nx = ntqxx(ip)
         nz = nhqx(ip,is)
-        se(:,:,ip)= sex2(:,:,ip)+sexcore2(:,:,ip) +.5d0*(sec2(:,:,ip)+dconjg(transpose(sec2(:,:,ip))))
-        se(1:nx,1:nx,ip)= se(1:nx,1:nx,ip) &
-             -.5d0* matmul(transpose(dconjg(evec(1:nz,1:nx,ip,is))), matmul(v_xc(1:nz,1:nz,ip,is),evec(1:nz,1:nx,ip,is)))
+        se(1:nx,1:nx,ip)=&
+             sex2(1:nx,1:nx,ip)+ sexcore2(1:nx,1:nx,ip) +.5d0*(sec2(1:nx,1:nx,ip)+dconjg(transpose(sec2(1:nx,1:nx,ip)))) &
+             -.5d0* matmul(transpose(dconjg(evec(1:nz,1:nx,ip,is))), matmul(v_xc(1:nz,1:nz,ip,is),evec(1:nz,1:nx,ip,is))) !in Hartree
         nx=ntqxx(ip)
         forall(itp=1:nx) sed(itp)=se(itp,itp,ip)
         eavr2   = sum(eldax(1:nx,ip)**2*sed(1:nx),mask= eldax(1:nx,ip)>elow) &
              /    sum(eldax(1:nx,ip)**2,          mask= eldax(1:nx,ip)>elow)
         eseavr(ip,is) = merge(eavr2,0d0,nx/=0) !in Hartree since sed is in Hartree SquareAverage4extrapolationOFsigma
-        write(6,*)"###  the constant (ESEAVR=e-weighted average Ry)= ",is,ip,2d0*eseavr(ip,is)
+        write(stdo,ftox)"###  the constant (ESEAVR=e-weighted average Ry)= ",is,ip,2d0*eseavr(ip,is)
       enddo
       eseavrmean = sum(nstar(1:nqibz)*eseavr(1:nqibz,is))/nqbz    
       write(6,"(' ESEAVRmean (exprapolated SE above emax_sigm) isp=',d13.6,i2)")eseavrmean,is
@@ -208,7 +197,7 @@ contains
         call matcinv(nevv,ovl) !ovl --> ovlinv
         evec_inv(1:nevv,1:nz) = matmul(ovl(1:nevv,1:nevv),dconjg(transpose(evec(1:nz,1:nevv,ip,is)))) !note ovl means ovlinv
         deallocate(ovl)
-        evec_invt(1:nz,1:nevv) = transpose(dconjg(evec_inv(1:nevv,1:nz)))
+        evec_invt(1:nz,1:nevv) = transpose(dconjg(evec_inv(1:nevv,1:nz))) 
         ev_se_ev(1:ns2,1:ns2) = &
              matmul( evec_invt(1:ns2,1:ntqxx(ip)),matmul(se(1:ntqxx(ip),1:ntqxx(ip),ip),evec_inv(1:ntqxx(ip),1:ns2))) & 
              + matmul(evec_invt(1:ns2,ntqxx(ip)+1:nevv),evec_inv(ntqxx(ip)+1:nevv,1:ns2))*eseavrmean ! in Hartree.!extrapo by eseavrmean
@@ -226,26 +215,18 @@ contains
 !!! OUTPUT: Mixing sigm with previous iteration.  GWinput mixbeta=0.3 should mix new sigm with the weight of 0.3.
     open(newUNIT=ifse_out, file='sigm',form='UNFORMATTED') !Once readin sigma
     allocate(sigma_m(ndimsig,ndimsig,nqibz,nspin),qqqx_m(3,nqibz,nspin))
-    write(6,*)"========= Sigma mixing section using mixsigma ======="
+    write(stdo,ftox)"========= Sigma mixing section using mixsigma ======="
     call rwsigma ('read',ifse_out,sigma_m,qqqx_m, nspin,ndimsig,n1x,n2x,n3x,nqx ) !,eseavr_in)
-    if (lsigin .AND. ndimsigin /= ndimsig) then
-      deallocate(sigin)
-      write(6,*) '... input sigma dimension mismatch ... discarding'
-      lsigin = .false.
-    endif
-    if( .NOT. lsigin) then
-      allocate(sigin(1,1,1,1))
-      sigin = 0d0
-    endif
     call mixsigma(sigma_m, lsigin, sigin, ndimsig**2*nqibz*nspin)
-    write(6,*)
-    write(6,*) "=== Write sigm to files ========"
+    write(stdo,ftox)
+    write(stdo,ftox) "=== Write sigm to files ========"
     rewind ifse_out
     call rwsigma ('write',ifse_out,sigma_m,qqqx_m, nspin,ndimsig,n1,n2,n3,nqibz)
     close(ifse_out)
     if(mpi__rank==0) write(6,ftox) ' OK! hqpe_sc '
     call mpi_finalize(ierr)
   end subroutine hqpe_sc
+  
   subroutine rwsigma(rw,ifss,sigma_m,qqqx_m,nspin,ntq,n1,n2,n3,nq ) !mixing sigm file
     implicit integer (i-n)
     complex(8)::sigma_m(ntq,ntq,nq,nspin)
@@ -254,8 +235,8 @@ contains
     ntm1=0;ntm2=0;ntm3=0
     if(rw=='read')  ifs= 1
     if(rw=='write') ifs=-1
-    if(ifs>0) write(6,*) " rwsigma: Reading sigm (Binary)==="
-    if(ifs<0) write(6,*) " rwsigma  Writing sigm (Binary)==="
+    if(ifs>0) write(stdo,ftox) " rwsigma: Reading sigm (Binary)==="
+    if(ifs<0) write(stdo,ftox) " rwsigma  Writing sigm (Binary)==="
     if(ifs>0) read ( ifss) nspin,ntq,n1,n2,n3,nq, ntm1,ntm2,ntm3
     if(ifs<0) write( ifss) nspin,ntq,n1,n2,n3,nq, ntm1,ntm2,ntm3
     do is=1,nspin
@@ -267,7 +248,7 @@ contains
         write(6,"('  === ',i5,i3,3f10.5)")ip,is,qqqx_m(1:3,ip,is)
       enddo
     enddo
-    write(6,*)' === rwsigma:  sum check of sigma_m=',sum(abs(sigma_m))
+    write(stdo,ftox)' === rwsigma:  sum check of sigma_m=',sum(abs(sigma_m))
     print *
   end subroutine rwsigma
   subroutine mixsigma(sss, lsigin, sigin, nda) !sigma file mixing
@@ -298,12 +279,12 @@ contains
     iprintxx = 30
     beta=1d0
     call getkeyvalue("GWinput","mixbeta",beta,default=1d0,status=ret)
-    write(6,*)'('' mixsigma: Anderson mixing sigma with mixing beta ='',f12.6)',beta
+    write(stdo,ftox)'('' mixsigma: Anderson mixing sigma with mixing beta ='',f12.6)',beta
     allocate ( a(2*nda,0:mxsav+1,2) )
     fff="mixsigma"
     INQUIRE (FILE =fff, EXIST = fexist)
-    if(fexist)      write(6,*)'... reading file mixsigma'
-    if( .NOT. fexist) write(6,*)'... No file mixsigma'
+    if(fexist)      write(stdo,ftox)'... reading file mixsigma'
+    if( .NOT. fexist) write(stdo,ftox)'... No file mixsigma'
     open(newunit=ifi,file=fff,form='unformatted')
     if(fexist) then
       read(ifi,err=903,end=903) nitr,ndaf
@@ -321,7 +302,7 @@ contains
     a(nda+1:2*nda,0,1) = dimag(sss)      !output
     !     if input sigma available, use it instead of file a(:,0,2)
     if (lsigin) then
-      write(6,*)'... using input sigma read from sigm file'
+      write(stdo,ftox)'... using input sigma read from sigm file'
       a(1:nda,0,2)       = dreal(sigin)        !input
       a(nda+1:2*nda,0,2) = dimag(sigin)  !input
     endif
@@ -330,7 +311,7 @@ contains
     if (mmix > mxsav) mmix = mxsav
     call getkeyvalue("GWinput","mixtj",acc,default=0d0,status=ret)
     if(acc/=0d0) then
-      write(6,*)' readin mixtj from GWinput: mixtj=',acc
+      write(stdo,ftox)' readin mixtj from GWinput: mixtj=',acc
       tjmax=abs(acc)+1d-3
       if(mmix==1) then
         tj(1)=1d0

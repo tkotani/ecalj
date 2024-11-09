@@ -113,6 +113,7 @@ contains
   end subroutine modifyWV0
   
   subroutine getw0(llw,ii,ie,nq0i,dmlx,epinvq0i,wklm,wbz,lmxax,q0i,epinv, w0,llmat)
+!    use m_scg,only: rotcg
     !! == Obtain effective screened Coulomnb interaction W-V(q,omega) at q=0 ==
     !! Roughly speaking, we average out W-V in the gamma cell (=microcell including Gamma point).
     !! Output

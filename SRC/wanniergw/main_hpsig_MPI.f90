@@ -27,6 +27,7 @@ subroutine hpsig_MPI()
   ! RS: MPI module
   !      use rsmpi
   !      use rsmpi_rotkindex
+!  use m_scg,only: rotcg
 
   implicit none
   character(8):: xt

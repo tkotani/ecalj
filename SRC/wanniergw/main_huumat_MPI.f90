@@ -19,6 +19,7 @@ subroutine h_uumatrix()
   use m_lgunit,only: m_lgunit_init,stdo
   use m_setqibz_lmfham,only: set_qibz,irotg
   use m_ftox
+!  use m_scg,only: rotcg
   implicit none
   integer:: nw_input, i,ngrpmx,mxx,nqbze,nqibze,ini,ix,ngrpx &
     ,mdimx,nbloch,nblochpmx,ifvcfpout,ndummy1,ndummy2,ifcphi,is,nwp, &

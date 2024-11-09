@@ -21,16 +21,16 @@ endif()
 set(FCMOD ${FC})
 
 Project(ecalj)
-option(BUILD_GPU "Build GPU version" OFF)
-option(BUILD_MP "Build mixed precision CPU version" OFF)
-option(BUILD_MP_GPU "Build mixed precision GPU version" OFF)
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: Debug Release" FORCE)
 endif()
+option(BUILD_GPU "Build GPU version" OFF)
+option(BUILD_MP "Build mixed precision CPU version" OFF)
+option(BUILD_MP_GPU "Build mixed precision GPU version" OFF)
+message("CMAKE_BUILD_TYPE is " ${CMAKE_BUILD_TYPE})
 message("BUILD_GPU is " ${BUILD_GPU})
 message("BUILD_MP is " ${BUILD_MP})
 message("BUILD_MP_GPU is " ${BUILD_MP_GPU})
-message("CMAKE_BUILD_TYPE is " ${CMAKE_BUILD_TYPE})
 # SET(CMAKE_VERBOSE_MAKEFILE ON)
 enable_language(Fortran)
 
@@ -41,13 +41,13 @@ file(GLOB SOURCES2 "../wanniergw/*.f90") # source files
 file(GLOB MAINS "../main/*.f90")
 file(GLOB MAINS_GPU "../main/hsfp0_sc.f90" "../main/hrcxq.f90" "../main/hx0fp0.f90" "../main/hvccfp0.f90")  #main files for GPU versions
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}) # directory for *.so
-set(CMAKE_Fortran_FLAGS_RELEASE "-O2 -g -traceback")
+set(CMAKE_Fortran_FLAGS_RELEASE "-O2 -g") # -traceback")
 set(FLAGS -cpp)
 # ## compile options ############################################################
 if(FC MATCHES "gfortran")
   set(CMAKE_Fortran_COMPILER mpif90) # compiler
   set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -fbacktrace")
-  set(CMAKE_Fortran_FLAGS "-g -fimplicit-none -finit-integer=NaN -finit-real=NaN -fpic") # compile flags
+  set(CMAKE_Fortran_FLAGS "-g -ffree-line-length-none -fimplicit-none -finit-integer=NaN -finit-real=NaN -fpic") # compile flags
   if(CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER_EQUAL "10.0")
     set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -w -fno-strict-aliasing -fallow-argument-mismatch")
   endif()

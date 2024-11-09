@@ -11,7 +11,6 @@ module m_mksym_util
 contains
   subroutine mksym(modeAddinversion,slabl,ssymgr,iv_a_oips, iclass,nclass,npgrp,nsgrp,rv_a_oag,rv_a_osymgr,iv_a_oics,iv_a_oistab)! Setup symmetry group. Split species into classes, Also assign class labels to each class
     use m_lmfinit,only: nbas,nspec
-    use m_lgunit,only:stdo
     use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat,rv_a_opos
     use m_mpitk,only: master_mpi
     implicit none
@@ -306,7 +305,6 @@ contains
     call rx('SGROUP: ng='//trim(xn(ng))//' > '//trim(xn(ngmx))//' probably bad translation')
   end subroutine sgroup
   subroutine grpgen(gen,ngen,symops,ng,ngmx) !Generate all point symmetry operations from the generation group
-    use m_ftox
     !i   gen,ngen,ngmx
     !i   if ng>0, add symops to the ng already in list.
     !o Outputs: symops,ng
@@ -677,7 +675,6 @@ contains
      endif  
   end subroutine asymop
   subroutine csymop(grp,li,nrot,vecg) !Convert (nrot,vecg,li) to grp
-    use m_ftox
     ! i li    :if T: inversion or rotoinversion
     ! i nrot  :rotation angle = 2*pi/nrot
     ! i vecg  :rotation axis
@@ -804,7 +801,6 @@ contains
     parsvc = .true.
   end function parsvc
   subroutine splcls(bas,nbas,ng,istab,nspec,slabl,nclass,ipc, ics,nrclas) !- Splits species into classes
-    use m_lgunit,only:stdo
     !i   bas,nbas: dimensionless basis vectors, and number
     !i   nspec:    number of species
     !io   ipc:      on input, site j belongs to species ipc(j)

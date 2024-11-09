@@ -6,6 +6,7 @@ subroutine rotcg(lmxax,symops,ng,cgr)
   !! Here, dlmm(m,m') is the rotation matrix  of angular momentum space lm
   !! for given symops(3,3,ig).
   use m_mksym_util,only:rotdlmm
+  use m_scg,only:scg
   use m_ll,only: ll
   implicit none
   integer :: lmxax, ng, nlmxa, lnjcg=999999, lnxcg=99999, ilma,la,ilmb,lh,ii,indx,icg1,icg2,icg, &
@@ -14,11 +15,6 @@ subroutine rotcg(lmxax,symops,ng,cgr)
   real(8),allocatable:: cg(:),dlmm(:,:,:,:),cgn(:,:,:)
   integer,allocatable :: jcg(:),indxcg(:)
   integer:: ll1,ll2,lxm
-  ! --- CG coefficienets. <LM3|lm1 lm2>
-  ! inxcg = lm1(lm1-1)/2 + lm2 (lm1>lm2)
-  ! Injcg = indxcg(inxcg) to indxcg(inxcg)-1
-  ! cg(inxcg)  : = <lm3|lm1 lm2>
-  ! jcg(lnjcg) : = lm3
   ll2 = (2*lmxax+1)**2
   ll1 = (lmxax+1)**2
   allocate( cgn(ll2,ll1,ll1) )

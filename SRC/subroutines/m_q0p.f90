@@ -180,6 +180,7 @@ contains
   !! ==================================================================
   subroutine getq0p(alat,plat,qlat,nnn,alp,alpv,ngcxx,ngcx,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,ngvect,lnq0iadd) !! All arguments are input.
     use m_keyvalue,only: getkeyvalue
+!    use m_scg,only: rotcg
     intent(in)::    alat,plat,qlat,nnn,alp,alpv,ngcxx,ngcx,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,ngvect,lnq0iadd
     !! output
     !!  q0i (offset Gamma point)
