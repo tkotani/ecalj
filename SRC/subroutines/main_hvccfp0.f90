@@ -310,10 +310,15 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
     allocate(oox,source=oo )
     allocate(hh(ngb,ngb),zz(ngb,ngb),eb(ngb),zzr(ngb))
     hh  = - vcoul(1:ngb,1:ngb)
+    ! MO replaced diagcv by m_lapack routine
     ! nmx = ngb
     ! call diagcv(oo,hh,zz,ngb, eb,nmx,1d99,nev) !! diagonalize the Coulomb matrix
     Diagonalize_Coulomb_matrix: block
-      use m_lapack, only: zhgv
+#ifdef __GPU
+      use m_lapack, only: zhgv => zhgv_d
+#else
+      use m_lapack, only: zhgv => zhgv_h
+#endif
       integer :: istat
       nev = ngb
       !$acc data copyin(oo) copy(hh) copyout(eb)

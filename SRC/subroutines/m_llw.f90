@@ -14,7 +14,11 @@ module m_llw
   use m_mpi, only: MPI__GatherXqw, mpi__root_k, mpi__root_q
   use m_kind,only: kp => kindrcxq
   use m_stopwatch
-  use m_lapack, only: zminv
+#ifdef __GPU
+  use m_lapack, only: zminv => zminv_d
+#else
+  use m_lapack, only: zminv => zminv_h
+#endif
   implicit none
   public:: WVRllwR,WVIllwI,  MPI__sendllw,MPI__sendllw2
   complex(8),allocatable,protected,public:: llw(:,:), llwI(:,:)
