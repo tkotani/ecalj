@@ -59,7 +59,7 @@ if(showt):
 
 "Install to bin"
 os.makedirs(bindir,exist_ok=True)
-exec='lmfa lmf run_arg job_pdos job_tdos ctrl2ctrlp.py a2vec.py \
+exec='lmfa lmf run_arg.py run_arg job_pdos job_tdos ctrl2ctrlp.py a2vec.py \
  gwsc qg4gw hvccfp0 hsfp0_sc hqpe_sc hmaxloc hpsig_MPI huumat_MPI hwmatK_MPI hrcxq \
 hvccfp0_gpu hsfp0_sc_gpu hrcxq_gpu hx0fp0_gpu \
 hvccfp0_mp hsfp0_sc_mp hrcxq_mp hx0fp0_mp \

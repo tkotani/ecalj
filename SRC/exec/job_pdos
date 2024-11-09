@@ -1,31 +1,31 @@
-#!/bin/bash
-###  example: job_pdos mgo -np 4 -vnk1=10 -vnk2=10 -vnk3=10
-echo $0 $@
-#if [ $#  != 3 ] || [ $2 != "-np" ]; then
-if [ $# -le 2 ] || [ $2 != "-np" ]; then
-  echo "An example of usage: job_pdos si -np 4 [options for lmf]"
-  echo "   For example, [options for lmf] is ' -vnspin=2 -vso=1 -vnk1=10 -vnk2=10 -vnk3=10'"
-  exit
-else
-  MPI_SIZE=$3
-fi
-MATERIAL=$1
-n=$0
-nfpgw=${n%/*}
-source $nfpgw/run_arg #this must be after all input arguments are processed
+#!/usr/bin/env python3
+import sys
+import os
+import subprocess
+from run_arg import run_arg
 
-### This generate Pdosdata.$MATERIAL file ###
-run_arg '---' $MPI_SIZE $nfpgw /lmf llmf_ef   $MATERIAL --quit=band   ${@:4:($#-2)}
-# the fermi energy is stored into wkp file
-run_arg '---' $MPI_SIZE $nfpgw /lmf llmf_pdosband $MATERIAL --mkprocar --fullmesh  ${@:4:($#-2)}
+def main():
+    if len(sys.argv) <= 2 or sys.argv[2] != "-np":
+        print("An example of usage: job_pdos si -np 4 [options for lmf]")
+        print("   For example, [options for lmf] is ' -vnspin=2 -vso=1 -vnk1=10 -vnk2=10 -vnk3=10'")
+        sys.exit()
+    else:
+        MPI_SIZE = sys.argv[3]
 
-### Read Pdosdata.$MATERIAL and generate PDOS ###
-### You need to change range -emin -emax (eV) and division -ndos. 
-### Not need to repeat above run of llmf_pdos when you like to change these settings.
-run_arg '---' $MPI_SIZE $nfpgw /lmf llmf_pdos $MATERIAL --writepdos -emin=-20.0 -emax=20.0 -ndos=4000 ${@:4:($#-2)}
+    MATERIAL = sys.argv[1]
+    os.system(f'rm -rf wkp.{MATERIAL}')
 
-cat <<EOF
+    n = sys.argv[0]
+    nfpgw = os.path.dirname(n)
 
+    # Generate Pdosdata.$MATERIAL file
+    run_arg('---', MPI_SIZE, nfpgw, '/lmf', 'llmf_ef', MATERIAL, '--quit=band', *sys.argv[4:])
+    run_arg('---', MPI_SIZE, nfpgw, '/lmf', 'llmf_pdosband', MATERIAL, '--mkprocar', '--fullmesh', *sys.argv[4:])
+
+    # Read Pdosdata.$MATERIAL and generate PDOS
+    run_arg('---', MPI_SIZE, nfpgw, '/lmf', 'llmf_pdos', MATERIAL, '--writepdos', '-emin=-20.0', '-emax=20.0', '-ndos=4000', *sys.argv[4:])
+
+    print("""
 ===== PDOS file structure (dos.isp*) =========================
 (add +1 since, 1st columun is energy in these pdos files.)
   For s,p,d,f the indices 1-16 correspond to:
@@ -52,47 +52,48 @@ cat <<EOF
    ------------------------
    higher is lm ordered. See Ylm definition in ecalj doc.
 
-NOTE: site index --> run 'lmchk foobar'
+NOTE: site index --> See SiteInfo.lmchk, and '>lmchk foobar'
+      pdos data stored in dos.isp... are ordered in Ylm (real Harmonics. 1st col is energy in Ry).
+      You may edit pdos.site.foobar.gnu files for gnuplot.
 ==============================================================
-EOF
+""")
 
-for ufile in `ls dos.isp1.site*.${MATERIAL}`
-do
-  dfile=`echo $ufile |sed -e 's/isp1/isp2/g'`
-  ufileg=pdos.`echo $ufile |sed -e 's/dos.isp1.//g'`.glt
-  echo '#!/usr/bin/gnuplot -persist' > ${ufileg}
-  echo rydberg=13.605 >> ${ufileg}
+    for ufile in os.listdir('.'):
+        if ufile.startswith(f'dos.isp1.site') and ufile.endswith(f'.{MATERIAL}'):
+            dfile = ufile.replace('isp1', 'isp2')
+            ufileg = f'pdos.{ufile.replace("dos.isp1.", "")}.glt'
+            with open(ufileg, 'w') as f:
+                f.write('#!/usr/bin/gnuplot -persist\n')
+                f.write('rydberg=13.605\n')
+                f.write(f'set terminal postscript enhanced color eps\n')
+                f.write(f'set output "{ufile}.eps"\n')
+                f.write('set title "PDOS s,p,d,f,g division in MuffinTin"\n')
+                f.write('set xlabel " eV (zero at the Fermi energy or top of valence)"\n')
+                f.write('set ylabel " number of states/(cell eV)"\n')
+                f.write('set xzeroaxis\n')
+                f.write('set grid\n')
 
-  echo $ufile $dfile
-  echo set terminal postscript enhanced color eps >>${ufileg}
-  echo set output \"${ufile}.eps\"        >>${ufileg}
-  echo set title \"PDOS s\,p\,d\,f\,g division in MuffinTin\" >> ${ufileg}
-  echo set xlabel \" eV \(zero at the Fermi energy or top of valence\)\" >> ${ufileg}
-  echo set ylabel \" number of states/\(cell eV\)\" >> ${ufileg}
-  echo set xzeroaxis >> ${ufileg}
-  echo set grid >> ${ufileg}
+                colors = ["red","green","blue","brown", "pink"]
 
-  if [ -e $dfile ] ; then
-      echo set yrange [-5:5] >> ${ufileg}
-      echo plot \"${ufile}\" u \(\$1*rydberg\):\(\$2\)/rydberg w l, \'\' u \(\$1*rydberg\):\(\$3+\$4+\$5\)/rydberg w l, \"\" u \(\$1*rydberg\):\(\$6+\$7+\$8+\$9+\$10\)/rydberg w l, \"\" u \(\$1*rydberg\):\(\$11+\$12+\$13+\$14+\$15+\$16+\$17\)/rydberg w l, \"\" u \(\$1*rydberg\):\(\$18+\$19+\$20+\$21+\$22+\$23+\$24\+\$25\+\$26\)/rydberg w l,          \"${dfile}\" u \(\$1*rydberg\):\(-\$2\)/rydberg w l, \'\' u \(\$1*rydberg\):\(-\$3-\$4-\$5\)/rydberg w l, \"\" u \(\$1*rydberg\):\(-\$6-\$7-\$8-\$9-\$10\)/rydberg w l, \"\" u \(\$1*rydberg\):\(-\$11-\$12-\$13-\$14-\$15-\$16-\$17\)/rydberg w l, \"\" u \(\$1*rydberg\):\(-\$18-\$19-\$20-\$21-\$22-\$23-\$24\-\$25\-\$26\)/rydberg w l  >> ${ufileg} 
+                if os.path.exists(dfile):
+                    f.write('set yrange [-5:5]\n')
+                    f.write(f'plot "{ufile}" u ($1*rydberg):($2)/rydberg w l lc rgb "{colors[0]}", \'\' u ($1*rydberg):($3+$4+$5)/rydberg w l lc rgb "{colors[1]}", "" u ($1*rydberg):($6+$7+$8+$9+$10)/rydberg w l lc rgb "{colors[2]}", "" u ($1*rydberg):($11+$12+$13+$14+$15+$16+$17)/rydberg w l lc rgb "{colors[3]}", "{dfile}" u ($1*rydberg):(-$2)/rydberg w l lc rgb "{colors[0]}", \'\' u ($1*rydberg):(-$3-$4-$5)/rydberg w l lc rgb "{colors[1]}", "" u ($1*rydberg):(-$6-$7-$8-$9-$10)/rydberg w l lc rgb "{colors[2]}", "" u ($1*rydberg):(-$11-$12-$13-$14-$15-$16-$17)/rydberg w l lc rgb "{colors[3]}"\n')
+               #      f.write(f'plot "{ufile}" u ($1*rydberg):($2)/rydberg w l lc rgb "{colors[0]}", \'\' u ($1*rydberg):($3+$4+$5)/rydberg w l lc rgb "{colors[1]}", "" u ($1*rydberg):($6+$7+$8+$9+$10)/rydberg w l lc rgb "{colors[2]}", "" u ($1*rydberg):($11+$12+$13+$14+$15+$16+$17)/rydberg w l lc rgb "{colors[3]}", "" u ($1*rydberg):($18+$19+$20+$21+$22+$23+$24+$25+$26)/rydberg w l lc rgb "{colors[4]}", "{dfile}" u ($1*rydberg):(-$2)/rydberg w l lc rgb "{colors[0]}", \'\' u ($1*rydberg):(-$3-$4-$5)/rydberg w l lc rgb "{colors[1]}", "" u ($1*rydberg):(-$6-$7-$8-$9-$10)/rydberg w l lc rgb "{colors[2]}", "" u ($1*rydberg):(-$11-$12-$13-$14-$15-$16-$17)/rydberg w l lc rgb "{colors[3]}", "" u ($1*rydberg):(-$18-$19-$20-$21-$22-$23-$24-$25-$26)/rydberg w l lc rgb "{colors[4]}"\n')
+                else:
+                    f.write('set yrange [0:5]\n')
+                    f.write(f'plot "{ufile}" u ($1*rydberg):($2)/rydberg w l lc rgb "{colors[0]}", \'\' u ($1*rydberg):($3+$4+$5)/rydberg w l lc rgb "{colors[1]}", "" u ($1*rydberg):($6+$7+$8+$9+$10)/rydberg w l lc rgb "{colors[2]}", "" u ($1*rydberg):($11+$12+$13+$14+$15+$16+$17)/rydberg w l lc rgb "{colors[3]}"\n')
+               #      f.write(f'plot "{ufile}" u ($1*rydberg):($2)/rydberg w l lc rgb "{colors[0]}", \'\' u ($1*rydberg):($3+$4+$5)/rydberg w l lc rgb "{colors[1]}", "" u ($1*rydberg):($6+$7+$8+$9+$10)/rydberg w l lc rgb "{colors[2]}", "" u ($1*rydberg):($11+$12+$13+$14+$15+$16+$17)/rydberg w l lc rgb "{colors[3]}", "" u ($1*rydberg):($18+$19+$20+$21+$22+$23+$24+$25+$26)/rydberg w l lc rgb "{colors[4]}"\n')
 
-  else
+                if 'NoGnuplot' not in ' '.join(sys.argv[4:]):
+                    subprocess.run(['gnuplot', '-persist', ufileg])
 
-      echo set yrange [0:5] >> ${ufileg}
-      echo plot \"${ufile}\" u \(\$1*rydberg\):\(\$2\)/rydberg w l, \'\' u \(\$1*rydberg\):\(\$3+\$4+\$5\)/rydberg w l, \"\" u \(\$1*rydberg\):\(\$6+\$7+\$8+\$9+\$10\)/rydberg w l, \"\" u \(\$1*rydberg\):\(\$11+\$12+\$13+\$14+\$15+\$16+\$17\)/rydberg w l, \"\" u \(\$1*rydberg\):\(\$18+\$19+\$20+\$21+\$22+\$23+\$24\+\$25\+\$26\)/rydberg w l  >> ${ufileg}
-  fi
+                f.write('set terminal x11\n')
+                f.write('replot\n')
 
-  if [ ! `echo ${@:4:($#-2)}|grep -o NoGnuplot` ] ; then
-       gnuplot -persist ${ufileg}
-  fi
+    print("--------------------------------")
+    print("NOTE: For your purpose, you have to edit pdos.site.foobar.gnu files for gnuplot.")
+    print("      site is given by 'lmchk foobar'")
+    print("      pdos data stored in dos.isp... are ordered in Ylm (1st col is energy in Ry).")
 
-  echo set terminal x11 >>${ufileg}
-  echo replot >>${ufileg}
-  
-done
-
-echo --------------------------------
-echo ' ' NOTE: For your purpose, you have to edit pdos.site.foobar.gnu files for gnuplot.
-echo '      ' site is given by 'lmchk foobar'
-echo '      ' pdos date sotred in dos.isp... are ordered in Ylm \(1st col is energy in Ry\).
-exit
+if __name__ == "__main__":
+    main()

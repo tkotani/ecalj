@@ -1,24 +1,63 @@
-#!/bin/bash
-if [ $# -ne 3 ] || [ $1 != "-np" ] ; then
-    echo "An example of usage: epsPP_lmfh_chipm -np 4 fe"
-    exit 101
-fi
-n=$0
-nfpgw=`dirname $0`
-TARGET=$3
-MPI_SIZE=$2
-NO_MPI=1
-ITER=$1
-source $nfpgw/run_arg #define echo_run and serial_run in run_arg
-$echo_run echo "### START epsPP_lmfh: MPI size= " $MPI_SIZE, "TARGET= "$TARGET
-######## \epsilon calculation.
-$echo_run echo $nfpgw
-$echo_run echo $TARGET
-run_arg '---' $NO_MPI  $nfpgw  /lmf  llmfgw00 $TARGET  --novxc --jobgw=0
-run_arg '---' $NO_MPI  $nfpgw  /qg4gw lqg4gw04  --job=4 #Generate requied q+G v
-run_arg '---' $MPI_SIZE $nfpgw /lmf llmfgw01 $TARGET --jobgw=1 --wrhomt
-#run_arg '---' $NO_MPI   $nfpgw /rdata4gw_v2 lrdata4gw_v2 #prepare files
-#rm gwa gwb.*
-run_arg '---' $NO_MPI $nfpgw /heftet leftet --job=1 # A file EFERMI for hx0fp0
-run_arg '---' $NO_MPI $nfpgw /hbasfp0 lbas --job=8  # Product basis generation mode=8
-run_arg '---' $MPI_SIZE $nfpgw /hx0fp0 lx0 --job=222  #x0 part
+#!/usr/bin/env python3
+import sys
+import os
+import subprocess
+from run_arg import run_arg
+
+def main():
+    if len(sys.argv) != 4 or sys.argv[1] != "-np":
+        print("An example of usage: epsPP_lmfh_chipm -np 4 fe")
+        sys.exit(101)
+
+    n = sys.argv[0]
+    nfpgw = os.path.dirname(n)
+    TARGET = sys.argv[3]
+    MPI_SIZE = sys.argv[2]
+    NO_MPI = 1
+    ITER = sys.argv[1]
+
+    # Define echo_run and serial_run
+    echo_run = ""
+    serial_run = ""
+
+    print(f"### START epsPP_lmfh: MPI size= {MPI_SIZE}, TARGET= {TARGET}")
+
+    # Run the commands using run_arg
+    run_arg('---', NO_MPI, nfpgw, '/lmf', 'llmfgw00', TARGET, '--novxc', '--jobgw=0')
+    run_arg('---', NO_MPI, nfpgw, '/qg4gw', 'lqg4gw04', '--job=4')
+    run_arg('---', MPI_SIZE, nfpgw, '/lmf', 'llmfgw01', TARGET, '--jobgw=1', '--wrhomt')
+    # run_arg('---', NO_MPI, nfpgw, '/rdata4gw_v2', 'lrdata4gw_v2')
+    # os.remove('gwa')
+    # for file in os.listdir('.'):
+    #     if file.startswith('gwb.'):
+    #         os.remove(file)
+    run_arg('---', NO_MPI, nfpgw, '/heftet', 'leftet', '--job=1')
+    run_arg('---', NO_MPI, nfpgw, '/hbasfp0', 'lbas', '--job=8')
+    run_arg('---', MPI_SIZE, nfpgw, '/hx0fp0', 'lx0', '--job=222')
+
+if __name__ == "__main__":
+    main()
+# #!/bin/bash
+# if [ $# -ne 3 ] || [ $1 != "-np" ] ; then
+#     echo "An example of usage: epsPP_lmfh_chipm -np 4 fe"
+#     exit 101
+# fi
+# n=$0
+# nfpgw=`dirname $0`
+# TARGET=$3
+# MPI_SIZE=$2
+# NO_MPI=1
+# ITER=$1
+# source $nfpgw/run_arg #define echo_run and serial_run in run_arg
+# $echo_run echo "### START epsPP_lmfh: MPI size= " $MPI_SIZE, "TARGET= "$TARGET
+# ######## \epsilon calculation.
+# $echo_run echo $nfpgw
+# $echo_run echo $TARGET
+# run_arg '---' $NO_MPI  $nfpgw  /lmf  llmfgw00 $TARGET  --novxc --jobgw=0
+# run_arg '---' $NO_MPI  $nfpgw  /qg4gw lqg4gw04  --job=4 #Generate requied q+G v
+# run_arg '---' $MPI_SIZE $nfpgw /lmf llmfgw01 $TARGET --jobgw=1 --wrhomt
+# #run_arg '---' $NO_MPI   $nfpgw /rdata4gw_v2 lrdata4gw_v2 #prepare files
+# #rm gwa gwb.*
+# run_arg '---' $NO_MPI $nfpgw /heftet leftet --job=1 # A file EFERMI for hx0fp0
+# run_arg '---' $NO_MPI $nfpgw /hbasfp0 lbas --job=8  # Product basis generation mode=8
+# run_arg '---' $MPI_SIZE $nfpgw /hx0fp0 lx0 --job=222  #x0 part

@@ -1,29 +1,83 @@
-#!/bin/bash
-MPI_SIZE=1
-if [ $# -le 5 ]; then
-  echo "An example of usage: job_fermisurface cu -np 12 10 10 10 "
-  echo "Here 10 10 10 means number of divisions along qlat."
-  echo "When this ends, you obtain fermiup(dn).bxsf "
-  exit
-elif [ $2 != "-np" ]; then
-  echo "An example of usage: job_fermisurface cu -np 12 10 10 10 "
-  exit
-else
-  MPI_SIZE=$3
-fi
-echo $MPI_SIZE
-ddd=$1
-n=$0
-lmdir=${n%/*}
-echo 'determine fermi surface'
-mpirun -np $MPI_SIZE $lmdir/lmf $ddd --quit=band -vnk1=$4 -vnk2=$5 -vnk3=$6 ${@:7:($#-2)} >& llmf_ef
-echo 'going to determine fermi surface'
-nkk1=$(($4 +1))
-nkk2=$(($5 +1))
-nkk3=$(($6 +1))
-echo 'going to calculated eigenalue on general grid for xcrysden ', $nkk1,$nkk2,$nkk3
-mpirun -np $MPI_SIZE $lmdir/lmf $ddd --fermisurface -pr45 -vnk1=$nkk1 -vnk2=$nkk2 -vnk3=$nkk3 ${@:7:($#-2)} >& llmf_fs
-echo 'OK! We got fermiup.bxsf (fermidn.bxsf) for ' ${ddd}
-echo 'Run $xcrysden --bxsf fermiup.bxsf'
-echo 'NOTE: current version do not use crystal symmetry... So it can be time-consuming(although k-paralell works).'
+#!/usr/bin/env python3
+import sys
+import os
+import subprocess
+
+def main():
+    if len(sys.argv) <= 5:
+        print("An example of usage: job_fermisurface cu -np 12 10 10 10 ")
+        print("Here 10 10 10 means number of divisions along qlat.")
+        print("When this ends, you obtain fermiup(dn).bxsf ")
+        sys.exit()
+    elif sys.argv[2] != "-np":
+        print("An example of usage: job_fermisurface cu -np 12 10 10 10 ")
+        sys.exit()
+    else:
+        MPI_SIZE = sys.argv[3]
+
+    print(MPI_SIZE)
+    ddd = sys.argv[1]
+    n = sys.argv[0]
+    lmdir = os.path.dirname(n)
+    print('determine fermi surface')
+
+    # Run the first command
+    cmd1 = [
+        'mpirun', '-np', MPI_SIZE, os.path.join(lmdir, 'lmf'), ddd,
+        '--quit=band', f'-vnk1={sys.argv[4]}', f'-vnk2={sys.argv[5]}', f'-vnk3={sys.argv[6]}'
+    ] + sys.argv[7:len(sys.argv)-2]
+    with open('llmf_ef', 'w') as f:
+        subprocess.run(cmd1, stdout=f, stderr=subprocess.STDOUT)
+
+    print('going to determine fermi surface')
+    nkk1 = int(sys.argv[4]) + 1
+    nkk2 = int(sys.argv[5]) + 1
+    nkk3 = int(sys.argv[6]) + 1
+    print('going to calculate eigenvalue on general grid for xcrysden', nkk1, nkk2, nkk3)
+
+    # Run the second command
+    cmd2 = [
+        'mpirun', '-np', MPI_SIZE, os.path.join(lmdir, 'lmf'), ddd,
+        '--fermisurface', '-pr45', f'-vnk1={nkk1}', f'-vnk2={nkk2}', f'-vnk3={nkk3}'
+    ] + sys.argv[7:len(sys.argv)-2]
+    with open('llmf_fs', 'w') as f:
+        subprocess.run(cmd2, stdout=f, stderr=subprocess.STDOUT)
+
+    print(f'OK! We got fermiup.bxsf (fermidn.bxsf) for {ddd}')
+    print('Run $xcrysden --bxsf fermiup.bxsf')
+    print('NOTE: current version do not use crystal symmetry... So it can be time-consuming(although k-parallel works).')
+
+if __name__ == "__main__":
+    main()
+
+
+
+# #!/bin/bash
+# MPI_SIZE=1
+# if [ $# -le 5 ]; then
+#   echo "An example of usage: job_fermisurface cu -np 12 10 10 10 "
+#   echo "Here 10 10 10 means number of divisions along qlat."
+#   echo "When this ends, you obtain fermiup(dn).bxsf "
+#   exit
+# elif [ $2 != "-np" ]; then
+#   echo "An example of usage: job_fermisurface cu -np 12 10 10 10 "
+#   exit
+# else
+#   MPI_SIZE=$3
+# fi
+# echo $MPI_SIZE
+# ddd=$1
+# n=$0
+# lmdir=${n%/*}
+# echo 'determine fermi surface'
+# mpirun -np $MPI_SIZE $lmdir/lmf $ddd --quit=band -vnk1=$4 -vnk2=$5 -vnk3=$6 ${@:7:($#-2)} >& llmf_ef
+# echo 'going to determine fermi surface'
+# nkk1=$(($4 +1))
+# nkk2=$(($5 +1))
+# nkk3=$(($6 +1))
+# echo 'going to calculated eigenalue on general grid for xcrysden ', $nkk1,$nkk2,$nkk3
+# mpirun -np $MPI_SIZE $lmdir/lmf $ddd --fermisurface -pr45 -vnk1=$nkk1 -vnk2=$nkk2 -vnk3=$nkk3 ${@:7:($#-2)} >& llmf_fs
+# echo 'OK! We got fermiup.bxsf (fermidn.bxsf) for ' ${ddd}
+# echo 'Run $xcrysden --bxsf fermiup.bxsf'
+# echo 'NOTE: current version do not use crystal symmetry... So it can be time-consuming(although k-paralell works).'
 
