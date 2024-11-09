@@ -85,7 +85,7 @@ contains
     integer, intent(in) :: n
     integer, optional :: lda
     integer :: lda_in
-    complex(8), device :: awork(lda_in*n)
+    complex(8), allocatable, device :: awork(:)
     integer(4), device :: devinfo
     integer(8), device :: ipiv(n)
     integer(8)         :: ipiv_cpu(n)
@@ -108,6 +108,7 @@ contains
     istat = cusolverDnXgetrf(cusolver_handle, cusolver_params, n_8, n_8, cudaDataType(CUDA_C_64F), a, lda_8, &
                              ipiv, cudaDataType(CUDA_C_64F), buffer_d, lbuffer_d, buffer_h, lbuffer_h, devinfo)
     deallocate(buffer_d, buffer_h)
+    allocate(awork(lda_in*n))
     !$acc kernels
     awork(1:lda_in*n) = a(1:lda_in*n) !awork -> Used as a upper triangular matrix with diagonal part
     !$acc end kernels
@@ -145,6 +146,7 @@ contains
     do i = n, 1, -1
       if(ipiv_cpu(i) > i) istat = cublasZswap(cublas_handle, n, a(lda_in*(i-1)+1), 1, a(lda_in*(ipiv_cpu(i)-1)+1), 1)
     enddo
+    deallocate(awork)
   end function zminv_d
   integer function zhgv_d(A, B, n, evl, il, iu, lda, ldb) result(istat)
     implicit none
