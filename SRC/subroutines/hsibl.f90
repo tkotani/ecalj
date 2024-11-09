@@ -161,7 +161,7 @@ contains
              ! ncuti are only at Gamma point; thus symmetry can not be kept well for other k points.
              !call ncutcorrect ( ncuti , ndim2 , gvv , ng )
              hssblock: block
-               use m_blas, only: gemm => zmm, m_op_C
+               use m_blas, only: gemm => zmm_h, m_op_C
                integer::ncut,i2, io1,io2,ofw1,ofw2 !ncut is masked here
                complex(8)::hss(ndim1,ndim2) 
                complex(8),pointer:: c1(:,:),c2(:),cf1(:),cf2(:)

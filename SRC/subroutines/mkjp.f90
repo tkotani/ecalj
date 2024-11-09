@@ -313,7 +313,11 @@ subroutine vcoulq_4(q,nbloch,ngc,nbas,lx,lxx,nx,nxx,alat,qlat,vol,ngvecc, &
   else !dev
   write(6,*)' vcoulq_4: pgvpg dev block. size of ajr:', size(ajr)
   dev_mo: block
-  use m_blas, only: dmm, m_op_T !dmm is lapper routine of dgemm (blas)
+#ifdef __GPU
+  use m_blas, only: dmm=>dmm_d, m_op_T !dmm is lapper routine of dgemm (blas)
+#else
+  use m_blas, only: dmm=>dmm_h, m_op_T !dmm is lapper routine of dgemm (blas)
+#endif
   integer :: ir, istat
   real(8) :: fac_integral(nrx,nbas), sigx_tmp(ngc,ngc,0:lxx,nbas), a1g(nrx,ngc)
   real(8) :: ajr_tmp(nrx,ngc), phi_rg(nrx,ngc,0:lxx), rofi_tmp(1:nrx)
@@ -648,7 +652,11 @@ subroutine mkjp_4(q,ngc,ngvecc,alat,qlat,lxx,lx,nxx,nx,bas,a,b,rmax,nr,nrx,rprod
   else !dev
     write(6,*)' mkjp_4: sgpb dev block. size of ajr:', size(ajr)
     dev_mo: block
-    use m_blas, only: dmv, m_op_T
+#ifdef __GPU
+    use m_blas, only: dmv => dmv_d, m_op_T
+#else
+    use m_blas, only: dmv => dmv_h, m_op_T
+#endif
     real(8) :: a1work(nr), a2work(nr), int1x(nr), int2x(nr), a1g(nr,ngc,0:lx), sigg(ngc), fac_integral(1:nr), radintg(ngc)
     integer :: istat
     fac_integral(1) = a*b/3d0

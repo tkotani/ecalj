@@ -91,10 +91,14 @@ module m_sxcf_gemm
   use m_nvfortran, only: findloc
   use m_hamindex, only: ngrp
   use m_blas, only: m_op_c, m_op_n, m_op_t
-#ifdef __MP
-  use m_blas, only: gemm => cmm, gemm_batch => cmm_batch
+#if defined(__MP) && defined(__GPU)
+  use m_blas, only: gemm => cmm_d
+#elif defined(__MP)
+  use m_blas, only: gemm => cmm_h
+#elif defined(__GPU)
+  use m_blas, only: gemm => zmm_d
 #else
-  use m_blas, only: gemm => zmm, gemm_batch => zmm_batch
+  use m_blas, only: gemm => zmm_h
 #endif
   use m_kind, only: kp => kindgw
   !  use m_sxcf_main,only: zsecall

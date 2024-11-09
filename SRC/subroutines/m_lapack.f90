@@ -6,7 +6,6 @@ module m_lapack
 #endif
   use m_blas
   implicit none
-  include "mpif.h"
   integer :: cuda_runtime_version
   public :: zminv, zminv_batch
   public :: zhgv

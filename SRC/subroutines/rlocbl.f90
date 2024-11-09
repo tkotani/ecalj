@@ -155,7 +155,7 @@ contains
                ! enddo
                ! MO replaced the above loop with the following 2024-11-07
                block
-                 use m_blas, only: zmv, m_op_T
+                 use m_blas, only: zmv => zmv_h, m_op_T
                  integer :: istat
                  complex(8) :: cPkLT(nlma, 0:kmax)
                  istat = zmv(bstr, evec(1,ispc,ivec), cPkLT, m=ndimh, n=nlma*(kmax+1), opA=m_op_T)

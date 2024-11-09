@@ -107,20 +107,20 @@ contains
          ! enddo
          ! MO The above two loops were placed in the following blas_mode block 2024-11-07
          blas_mode: block
-           use m_blas, only: gemm => zmm, m_op_C
+           use m_blas, only: zmm => zmm_h, m_op_C
            complex(8), allocatable :: ppib(:,:,:), ppi_isp(:,:,:,:), sigb_ilm(:,:),b_ilm(:,:), csig(:,:)
            integer :: istat
            allocate(ppib(0:kmax,nlma,ndimh), ppi_isp(0:kmax,nlma,0:kmax,nlma))
            ppi_isp = reshape(source=ppi(0:kmax,0:kmax,1:nlma,1:nlma,isp), shape=[kmax+1,nlma,kmax+1,nlma], order=[1,3,2,4])
-           istat = gemm(ppi_isp, b, ppib, m=(kmax+1)*nlma, n=ndimh, k=(kmax+1)*nlma)
-           istat = gemm(b, ppib, h, m=ndimh, n=ndimh, k=(kmax+1)*nlma, beta=(1d0,0d0), opA=m_op_C)
+           istat = zmm(ppi_isp, b, ppib, m=(kmax+1)*nlma, n=ndimh, k=(kmax+1)*nlma)
+           istat = zmm(b, ppib, h, m=ndimh, n=ndimh, k=(kmax+1)*nlma, beta=(1d0,0d0), opA=m_op_C)
            deallocate(ppib, ppi_isp)
            allocate(sigb_ilm(0:kmax,ndimh), b_ilm(0:kmax,ndimh), csig(0:kmax,0:kmax))
            do ilm=1,nlma
              b_ilm(0:kmax,1:ndimh) = b(0:kmax,ilm,1:ndimh)
              csig(0:kmax,0:kmax) = sig(0:kmax,0:kmax,ll(ilm),isp) !convert to complex from real
-             istat = gemm(csig, b_ilm, sigb_ilm, m=kmax+1, n=ndimh, k=kmax+1)
-             istat = gemm(b_ilm, sigb_ilm, s, m=ndimh, n=ndimh, k=kmax+1, beta=(1d0,0d0), opA=m_op_C)
+             istat = zmm(csig, b_ilm, sigb_ilm, m=kmax+1, n=ndimh, k=kmax+1)
+             istat = zmm(b_ilm, sigb_ilm, s, m=ndimh, n=ndimh, k=kmax+1, beta=(1d0,0d0), opA=m_op_C)
            enddo
            deallocate(sigb_ilm, b_ilm, csig)
          endblock blas_mode

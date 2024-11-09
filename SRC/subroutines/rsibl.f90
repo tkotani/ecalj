@@ -13,7 +13,7 @@ contains
     use m_orbl,only: Orblib,ktab,ltab,offl,norb
     use m_sugcut,only:ngcut
     use m_hsibl,only: hsibl,hsibl1
-    use m_blas, only: gemm => zmm
+    use m_blas, only: gemm => zmm_h
     !i   lfrce :if nonzero, accumulate contribution to force
     !i   nbas  :size of basis
     !i   lfrce :1 calculate contribution to forces
