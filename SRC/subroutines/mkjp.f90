@@ -108,7 +108,11 @@ contains
     enddo PvB
     ! <P_G|v|P_G>
     PvP_dev_mo: block
-      use m_blas, only: dmm, m_op_T !dmm is lapper routine of dgemm (blas)
+#ifdef __GPU
+      use m_blas, only: dmm => dmm_d, m_op_T !dmm is lapper routine of dgemm (blas)
+#else
+      use m_blas, only: dmm => dmm_h, m_op_T !dmm is lapper routine of dgemm (blas)
+#endif
       integer :: ir, istat
       real(8) :: fac_integral(nrx,nbas), sigx_tmp(ngc,ngc,0:lxx,nbas), a1g(nrx,ngc)
       real(8) :: ajr_tmp(nrx,ngc), phi_rg(nrx,ngc,0:lxx), rofi_tmp(1:nrx)
