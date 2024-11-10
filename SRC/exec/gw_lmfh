@@ -1,43 +1,96 @@
-#!/bin/bash
-if [ $# -ne 3 ] || [ $1 != "-np" ] ; then
-    $echo_run echo '   --- One-shot GW calculation to get QP energies ---'
-    $echo_run echo "   An example of usage: gw_lmfh -np 4 si"
-    $echo_run echo '   for ctrl.si rst.si and GWinput'
-    exit -1
-fi
-n=$0
-nfpgw=`dirname $0`
-TARGET=$3
-MPI_SIZE=$2
-NO_MPI=1
-source $nfpgw/run_arg
-##### rm and mkdir ##############
-if [ -e NoCore ]; then #backword compatibility not so meaningful now.
-  rm -f NoCore 
-fi
-if [ -e QPU ]; then
- mv QPU QPU.backup.by_gw_lmfh
-fi
-if [ -e QPD ]; then
- mv QPD QPD.backup.by_gw_lmfh
-fi
-run_arg '---' $NO_MPI  $nfpgw  /lmf llmfgw00 $TARGET --jobgw=0 
-run_arg '---' $NO_MPI  $nfpgw  /qg4gw lqg4gw  --readQforGW --job=1 #Generate requied q+G v
-run_arg '---' $MPI_SIZE $nfpgw /lmf llmfgw01 $TARGET --jobgw=1
-#run_arg '---' $NO_MPI   $nfpgw /rdata4gw_v2 lrdata4gw_v2 #prepare files
-run_arg '---' $NO_MPI $nfpgw   /heftet leftet --job=1 # A file EFERMI for hx0fp0
-### Core part of the self-energy (exchange only) ###
-run_arg '---' $NO_MPI $nfpgw   /hbasfp0 lbasC --job=3 # Product basis generation 
-run_arg '---' $MPI_SIZE $nfpgw /hvccfp0 lvccC --job=3 # Coulomb matrix for lbasC 
-run_arg '---' $MPI_SIZE $nfpgw /hsfp0   lsxC  --job=3 # Sigma from core1
-### Valence part of the self-energy Sigma ###
-run_arg '---' $NO_MPI $nfpgw   /hbasfp0 lbas  --job=0 # Product basis generation 
-run_arg '---' $MPI_SIZE $nfpgw /hvccfp0 lvcc  --job=0 # Coulomb matrix for lbas 
-run_arg '---' $MPI_SIZE $nfpgw /hsfp0  lsx_sf  --job=11 # Exchange Sigma
-if [ -e WV.d ]; then
-    rm -f WV* 
-fi
-run_arg '---' $MPI_SIZE $nfpgw /hx0fp0 lx0_sf --job=11 #x0 part
-run_arg '---' $MPI_SIZE $nfpgw /hsfp0 lsc_sf --job=12 #correlation Sigma
-run_arg '---' $NO_MPI $nfpgw   /hqpe lqpe --job=0 #all Sigma are combined.
-$echo_run echo OK! ==== All calclation finished for gw_lmfh $argv ====
+#!/usr/bin/env python3
+import sys
+import os
+import subprocess
+from run_arg import run_arg
+
+def main():
+    if len(sys.argv) != 4 or sys.argv[1] != "-np":
+        print("   --- One-shot GW calculation to get QP energies ---")
+        print("   An example of usage: gw_lmfh -np 4 si")
+        print("   for ctrl.si rst.si and GWinput")
+        sys.exit(-1)
+
+    nfpgw = os.path.dirname(sys.argv[0])
+    TARGET = sys.argv[3]
+    MPI_SIZE = sys.argv[2]
+    NO_MPI = 1
+
+    if os.path.exists('NoCore'):
+        os.remove('NoCore')
+
+    if os.path.exists('QPU'):
+        os.rename('QPU', 'QPU.backup.by_gw_lmfh')
+
+    if os.path.exists('QPD'):
+        os.rename('QPD', 'QPD.backup.by_gw_lmfh')
+
+    run_arg('---', NO_MPI, nfpgw, '/lmf', 'llmfgw00', TARGET, '--jobgw=0')
+    run_arg('---', NO_MPI, nfpgw, '/qg4gw', 'lqg4gw', '--readQforGW', '--job=1')
+    run_arg('---', MPI_SIZE, nfpgw, '/lmf', 'llmfgw01', TARGET, '--jobgw=1')
+    # run_arg('---', NO_MPI, nfpgw, '/rdata4gw_v2', 'lrdata4gw_v2')
+    run_arg('---', NO_MPI, nfpgw, '/heftet', 'leftet', '--job=1')
+    run_arg('---', NO_MPI, nfpgw, '/hbasfp0', 'lbasC', '--job=3')
+    run_arg('---', MPI_SIZE, nfpgw, '/hvccfp0', 'lvccC', '--job=3')
+    run_arg('---', MPI_SIZE, nfpgw, '/hsfp0', 'lsxC', '--job=3')
+    run_arg('---', NO_MPI, nfpgw, '/hbasfp0', 'lbas', '--job=0')
+    run_arg('---', MPI_SIZE, nfpgw, '/hvccfp0', 'lvcc', '--job=0')
+    run_arg('---', MPI_SIZE, nfpgw, '/hsfp0', 'lsx_sf', '--job=11')
+
+    if os.path.exists('WV.d'):
+        for file in os.listdir('.'):
+            if file.startswith('WV'):
+                os.remove(file)
+
+    run_arg('---', MPI_SIZE, nfpgw, '/hx0fp0', 'lx0_sf', '--job=11')
+    run_arg('---', MPI_SIZE, nfpgw, '/hsfp0', 'lsc_sf', '--job=12')
+    run_arg('---', NO_MPI, nfpgw, '/hqpe', 'lqpe', '--job=0')
+
+    print(f"OK! ==== All calculation finished for gw_lmfh {sys.argv} ====")
+
+if __name__ == "__main__":
+    main()
+
+# #!/bin/bash
+# if [ $# -ne 3 ] || [ $1 != "-np" ] ; then
+#     $echo_run echo '   --- One-shot GW calculation to get QP energies ---'
+#     $echo_run echo "   An example of usage: gw_lmfh -np 4 si"
+#     $echo_run echo '   for ctrl.si rst.si and GWinput'
+#     exit -1
+# fi
+# n=$0
+# nfpgw=`dirname $0`
+# TARGET=$3
+# MPI_SIZE=$2
+# NO_MPI=1
+# source $nfpgw/run_arg
+# ##### rm and mkdir ##############
+# if [ -e NoCore ]; then #backword compatibility not so meaningful now.
+#   rm -f NoCore 
+# fi
+# if [ -e QPU ]; then
+#  mv QPU QPU.backup.by_gw_lmfh
+# fi
+# if [ -e QPD ]; then
+#  mv QPD QPD.backup.by_gw_lmfh
+# fi
+# run_arg '---' $NO_MPI  $nfpgw  /lmf llmfgw00 $TARGET --jobgw=0 
+# run_arg '---' $NO_MPI  $nfpgw  /qg4gw lqg4gw  --readQforGW --job=1 #Generate requied q+G v
+# run_arg '---' $MPI_SIZE $nfpgw /lmf llmfgw01 $TARGET --jobgw=1
+# #run_arg '---' $NO_MPI   $nfpgw /rdata4gw_v2 lrdata4gw_v2 #prepare files
+# run_arg '---' $NO_MPI $nfpgw   /heftet leftet --job=1 # A file EFERMI for hx0fp0
+# ### Core part of the self-energy (exchange only) ###
+# run_arg '---' $NO_MPI $nfpgw   /hbasfp0 lbasC --job=3 # Product basis generation 
+# run_arg '---' $MPI_SIZE $nfpgw /hvccfp0 lvccC --job=3 # Coulomb matrix for lbasC 
+# run_arg '---' $MPI_SIZE $nfpgw /hsfp0   lsxC  --job=3 # Sigma from core1
+# ### Valence part of the self-energy Sigma ###
+# run_arg '---' $NO_MPI $nfpgw   /hbasfp0 lbas  --job=0 # Product basis generation 
+# run_arg '---' $MPI_SIZE $nfpgw /hvccfp0 lvcc  --job=0 # Coulomb matrix for lbas 
+# run_arg '---' $MPI_SIZE $nfpgw /hsfp0  lsx_sf  --job=11 # Exchange Sigma
+# if [ -e WV.d ]; then
+#     rm -f WV* 
+# fi
+# run_arg '---' $MPI_SIZE $nfpgw /hx0fp0 lx0_sf --job=11 #x0 part
+# run_arg '---' $MPI_SIZE $nfpgw /hsfp0 lsc_sf --job=12 #correlation Sigma
+# run_arg '---' $NO_MPI $nfpgw   /hqpe lqpe --job=0 #all Sigma are combined.
+# $echo_run echo OK! ==== All calclation finished for gw_lmfh $argv ====

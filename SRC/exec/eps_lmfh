@@ -1,32 +1,72 @@
-#!/bin/bash
-#for tatara in kyushu-u This is neglected in other cases.
-###make_ref.awk if(-e /home/etc/intelMPI.csh) source /home/etc/intelMPI.csh
-###ref2cmd.awk %HEADER
-### MPI version 
-if [ $# -ne 3 ] || [ $1 != "-np" ] ; then
-    echo "An example of usage: epsPP_lmfh -np 4 si"
-    exit 101
-fi
-n=$0
-nfpgw=`dirname $0`
-TARGET=$3
-MPI_SIZE=$2
-NO_MPI=1
-ITER=$1
-lx0_para_option=""  #set lx0_para_option='-nq 4 -ns 1'
-### Read funcitons run_arg and run_arg_tee defined in a file run_arg ###
-source $nfpgw/run_arg #define echo_run and serial_run in run_arg
-echo "### START epsPP_lmfh: MPI size= " $MPI_SIZE, "TARGET= " $TARGET
-######## THIS IS for no lfc mode. See hbasfp0 and hx0fp0 c2 case.
-#echo $nfpgw
-#echo $TARGET
-run_arg '---' $NO_MPI  $nfpgw  /lmf llmfgw00 $TARGET  --novxc --jobgw=0
-run_arg '---' $NO_MPI  $nfpgw  /qg4gw lqg4gw02  --job=2 #Generate requied q+G v
-run_arg '---' $MPI_SIZE $nfpgw /lmf llmfgw01 $TARGET --jobgw=1
-#run_arg '---' $NO_MPI   $nfpgw /rdata4gw_v2 lrdata4gw_v2 #prepare files
-#rm gwa gwb.*
-run_arg '---' $NO_MPI $nfpgw   /heftet leftet --job=1 # A file EFERMI for hx0fp0
-run_arg '---' $NO_MPI $nfpgw   /hbasfp0 lbas  --job=0  # Product basis generation mode=4 ptest
-run_arg '---' $MPI_SIZE $nfpgw /hvccfp0 lvcc --job=202 # Coulomb matrix for lbas 
-run_arg '---' $MPI_SIZE $nfpgw /hx0fp0 lx0 $lx0_para_option --job=203 #x0 part
-$echo_run echo OK! ==== All calclation finished for epsPP_lmfh $argv ====
+#!/usr/bin/env python3
+import sys
+import os
+import subprocess
+from run_arg import run_arg
+
+def main():
+    if len(sys.argv) != 4 or sys.argv[1] != "-np":
+        print("An example of usage: epsPP_lmfh -np 4 si")
+        sys.exit(101)
+
+    n = sys.argv[0]
+    nfpgw = os.path.dirname(n)
+    TARGET = sys.argv[3]
+    MPI_SIZE = sys.argv[2]
+    NO_MPI = 1
+    ITER = sys.argv[1]
+    lx0_para_option = ""  # set lx0_para_option='-nq 4 -ns 1'
+
+    print(f"### START epsPP_lmfh: MPI size= {MPI_SIZE}, TARGET= {TARGET}")
+
+    # Run the commands using run_arg
+    run_arg('---', NO_MPI, nfpgw, '/lmf', 'llmfgw00', TARGET, '--novxc', '--jobgw=0')
+    run_arg('---', NO_MPI, nfpgw, '/qg4gw', 'lqg4gw02', '--job=2')
+    run_arg('---', MPI_SIZE, nfpgw, '/lmf', 'llmfgw01', TARGET, '--jobgw=1')
+    # run_arg('---', NO_MPI, nfpgw, '/rdata4gw_v2', 'lrdata4gw_v2')
+    # os.remove('gwa')
+    # for file in os.listdir('.'):
+    #     if file.startswith('gwb.'):
+    #         os.remove(file)
+    run_arg('---', NO_MPI, nfpgw, '/heftet', 'leftet', '--job=1')
+    run_arg('---', NO_MPI, nfpgw, '/hbasfp0', 'lbas', '--job=0')
+    run_arg('---', MPI_SIZE, nfpgw, '/hvccfp0', 'lvcc', '--job=202')
+    run_arg('---', MPI_SIZE, nfpgw, '/hx0fp0', 'lx0', lx0_para_option, '--job=203')
+
+    #if echo_run:
+    print(f"OK! ==== All calculation finished for epsPP_lmfh {sys.argv} ====")
+
+if __name__ == "__main__":
+    main()
+# #!/bin/bash
+# #for tatara in kyushu-u This is neglected in other cases.
+# ###make_ref.awk if(-e /home/etc/intelMPI.csh) source /home/etc/intelMPI.csh
+# ###ref2cmd.awk %HEADER
+# ### MPI version 
+# if [ $# -ne 3 ] || [ $1 != "-np" ] ; then
+#     echo "An example of usage: epsPP_lmfh -np 4 si"
+#     exit 101
+# fi
+# n=$0
+# nfpgw=`dirname $0`
+# TARGET=$3
+# MPI_SIZE=$2
+# NO_MPI=1
+# ITER=$1
+# lx0_para_option=""  #set lx0_para_option='-nq 4 -ns 1'
+# ### Read funcitons run_arg and run_arg_tee defined in a file run_arg ###
+# source $nfpgw/run_arg #define echo_run and serial_run in run_arg
+# echo "### START epsPP_lmfh: MPI size= " $MPI_SIZE, "TARGET= " $TARGET
+# ######## THIS IS for no lfc mode. See hbasfp0 and hx0fp0 c2 case.
+# #echo $nfpgw
+# #echo $TARGET
+# run_arg '---' $NO_MPI  $nfpgw  /lmf llmfgw00 $TARGET  --novxc --jobgw=0
+# run_arg '---' $NO_MPI  $nfpgw  /qg4gw lqg4gw02  --job=2 #Generate requied q+G v
+# run_arg '---' $MPI_SIZE $nfpgw /lmf llmfgw01 $TARGET --jobgw=1
+# #run_arg '---' $NO_MPI   $nfpgw /rdata4gw_v2 lrdata4gw_v2 #prepare files
+# #rm gwa gwb.*
+# run_arg '---' $NO_MPI $nfpgw   /heftet leftet --job=1 # A file EFERMI for hx0fp0
+# run_arg '---' $NO_MPI $nfpgw   /hbasfp0 lbas  --job=0  # Product basis generation mode=4 ptest
+# run_arg '---' $MPI_SIZE $nfpgw /hvccfp0 lvcc --job=202 # Coulomb matrix for lbas 
+# run_arg '---' $MPI_SIZE $nfpgw /hx0fp0 lx0 $lx0_para_option --job=203 #x0 part
+# $echo_run echo OK! ==== All calclation finished for epsPP_lmfh $argv ====
