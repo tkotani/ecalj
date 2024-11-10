@@ -35,6 +35,7 @@ contains
     use m_rdata1,only:rdata1init,nradmx,nnc,nrad,nindx_r,lindx_r,iord,nvmax,nrc,mindx,&
          gval_n,gcore_n,aac,bbc,gval_orth,zzpi,nrmxe=>nrmx
     use m_suham,only: nbandmx=>ham_ndhamx
+    use m_blas,only: zmm => zmm_h, m_op_T
     implicit none
     intent(in)::          socmatrix,eferm,vmag,qval
     !  qval: valence charge
@@ -77,6 +78,8 @@ contains
     complex(8),allocatable::  geigr(:,:,:), cphix(:,:,:)
     integer:: mrecb,mrece,mrecg,ndble,ifv,iqq,ifev
     real(8),allocatable::evl(:,:,:),vxclda(:,:,:)!,evl(:,:),vxclda(:)!qirr(:,:),
+    integer :: istat
+    logical :: blas_mode = .true.
     include "mpif.h"
     call tcn ('m_sugw_init')
     debug=cmdopt0('--debugsugw')
@@ -370,8 +373,15 @@ contains
         !    pwz:  IPW expansion of eigen function    
         allocate(ppovl(ngp,ngp),pwz(ngp,nspc,ndimhx),phovl(ngp,ndimh))
         call pwmat(nbas,ndimh,napw,igv2x,qp,ngp,nlmax,ngvecp(1,1,iq),gmax, ppovl, phovl ) 
+        ! MO added blas_mode to replaced matmul by a BLAS call 2024-11-09. This is because matmul in mic(intel) was very slow.
+        if(blas_mode) then
+          do ispc=1, nspc
+            istat = zmm(phovl, evec(ndimh*(ispc-1)+1,1), pwz(1,ispc,1), m=ngp, n=ndimhx, k=ndimh, ldb=ndimh*nspc, ldc=ngp*nspc)
+          enddo
+        else
         pwz(1:ngp,1,1:ndimhx) = matmul(phovl(1:ngp,1:ndimh),evec(1:ndimh,1:ndimhx))
         if(lso==1) pwz(1:ngp,2,1:ndimhx) = matmul(phovl(1:ngp,1:ndimh),evec(ndimh+1:2*ndimh,1:ndimhx))
+        endif
         deallocate(phovl)
         if (lchk >= 1) then   
           allocate(pzovl,source=pwz)
@@ -379,19 +389,37 @@ contains
           forall(i = 1:ngp) ppovld(i) = ppovl(i,i)
         endif
         call matcinv(ngp,ppovl)! inversion of hermitian ppovl
+        ! MO added blas_mode to replaced matmul by a BLAS call 2024-11-09.
+        if(blas_mode) then
+        block
+          complex(8) :: ppovl_pwz(ngp,ndimhx)
+          do ispc=1, nspc
+            istat = zmm(ppovl, pwz(1,ispc,1), ppovl_pwz, m=ngp, n=ndimhx, k=ngp, ldb=ngp*nspc)
+            pwz(1:ngp,ispc,1:ndimhx)=ppovl_pwz(1:ngp,1:ndimhx)
+          enddo
+        endblock
+        else
         pwz(1:ngp,1,1:ndimhx) = matmul(ppovl,pwz(1:ngp,1,1:ndimhx)) !pwz= O^-1 *phovl * evec  ! IPW expansion of eigenfunction
         if(lso==1) pwz(1:ngp,2,1:ndimhx) = matmul(ppovl,pwz(1:ngp,2,1:ndimhx))
+        endif
         deallocate(ppovl)
         if (lchk >= 1) then
           allocate(testc(ndimhx,ndimhx,nspc),testcd(ndimhx,nspc))
           do ispc=1,nspc
             if(lso/=1) ispx=isp
             if(lso==1) ispx=ispc
+            ! MO added blas_mode to replaced matmul by a BLAS call 2024-11-10.
+            if(blas_mode) then
+              istat = zmm(pzovl(1,ispc,1), pwz(1,ispc,1), testc(1,1,ispc), m=ndimhx, n=ndimhx, k=ngp, &
+                          opA=m_op_T, ldA=ngp*nspc, ldB=ngp*nspc)
+              testcd(:,ispc) = [(sum(dconjg(pwz(:,ispc,i))*ppovld(:)*pwz(:,ispc,i)),i=1,ndimhx)]
+            else
             associate(pwz1=>pwz(1:ngp,ispc,1:ndimhx),pzo=>dconjg(pzovl(:,ispc,:)))
 !              testc(:,:,ispc)= matmul(transpose(pzo),pwz1)
               testc(:,:,ispc)= matmul(transpose(dconjg(pzo)),pwz1)
               testcd(:,ispc) = [(sum(dconjg(pwz1(:,i))*ppovld*pwz1(:,i)),i=1,ndimhx)] !dimhx)]
             end associate
+            endif
           enddo
           write(ifinormchk,"('# iq',i5,'   q',3f12.6,' ndimhx nev',2i7)") iq,qp,ndimhx,nev
           ! xx(1) = sum over all augmentation w.f.  cphi+ ovl cphi

@@ -12,6 +12,7 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
   use m_uspecb,only:uspecb
   use m_orbl,only: Orblib,ktab,ltab,offl,norb
   use m_ropyln,only: ropyln
+  use m_blas,only: zmm => zmm_h
 !  integer,parameter:: n0=10,nkap0=3
 !  real(8),parameter:: pi=4d0*datan(1d0), pi4=4d0*pi
   implicit none
@@ -70,6 +71,7 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
   real(8),allocatable:: yl(:)
   complex(8),allocatable:: pwh(:,:),ppovlx(:,:)
   logical:: debug=.false.
+  integer :: istat
   tpiba = 2*pi/alat !vol = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
   srvol = dsqrt(vol)
   img = dcmplx(0d0,1d0)
@@ -137,7 +139,9 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
   ! --- Matrix elements between each (IPW,envelope function) pair ---
   allocate(ppovlx(ngp,ngmx))
   call ipwovl(alat,plat,qlat,ngp,igv,ngmx,igvx,nbas,rmax,bas,ppovlx)
-  pwhovl= matmul(ppovlx,pwh)
+  ! pwhovl= matmul(ppovlx,pwh)
+  ! MO replaced matmul by a BLAS call 2024-11-09 because matmul in mic(intel) was very slow
+  istat = zmm(ppovlx, pwh, pwhovl, m=ngp, n=ndimh, k=ngmx)
   deallocate(yl,igvx,pwh,ppovlx)
 end subroutine pwmat
 subroutine ipwovl(alat,plat,qlat,ng1,igv1,ng2,igv2,nbas, rmax,bas,ppovl)
