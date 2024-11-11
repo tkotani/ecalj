@@ -4,6 +4,12 @@ contains
   subroutine vcoulq_4(q,nbloch,ngc,nbas,lx,lxx,nx,nxx,alat,qlat,vol,ngvecc, & !Coulmb matrix for each q
        strx,rojp,rojb,sgbb,sgpb,fouvb,nblochpmx,bas,rmax, eee, aa,bb,nr,nrx,rkpr,rkmr,rofi,    vcoul)
     use m_ll,only: ll
+    use m_blas, only: m_op_T, zmv_h
+#ifdef __GPU
+    use m_blas, only: dmm => dmm_d
+#else
+    use m_blas, only: dmm => dmm_h
+#endif
     !i strx:  Structure factors
     !i nlx corresponds to (lx+1)**2 . lx corresponds to 2*lmxax.
     !i rho-type integral
@@ -39,6 +45,7 @@ contains
     complex(8) :: rojpstrx((lxx+1)**2,nbas)
     complex(8),allocatable :: hh(:,:),oo(:,:),zz(:,:),matp(:),matp2(:),pjyl_(:,:),phase(:,:)
     complex(8) :: xxx, img=(0d0,1d0), fouvp_ig1_ig2, fouvp_ig2_ig1, sgpp_ig1_ig2
+    integer :: istat
     write(6,'(" vcoulq_4: nblochpmx  nbloch ngc=",3i6)') nblochpmx,nbloch,ngc
     fpivol = 4*pi*vol
     allocate( pjyl_((lxx+1)**2,ngc),phase(ngc,nbas), cy((lxx+1)**2), yl((lxx+1)**2))
@@ -89,33 +96,38 @@ contains
       enddo
     enddo BvB
     ! <P_G|v|B>
-    PvB: do ibl2= 1, nbloch
-      ibas2= ibasbl(ibl2)
-      n2   = nbl (ibl2)
-      l2   = lbl (ibl2)
-      m2   = mbl (ibl2)
-      lm2  = lmbl(ibl2)
-      do ig1 = 1,ngc
-        ipl1 = nbloch + ig1
-        vcoul(ipl1,ibl2) = fouvb(ig1,  n2, lm2, ibas2) !<exp(i(q+G)r)|v|B_n2L2>
-        do ibas1= 1, nbas
-          do lm1  = 1, (lx(ibas1)+1)**2
-            vcoul(ipl1,ibl2)=vcoul(ipl1,ibl2) - dconjg(rojp(ig1,lm1,ibas1))*strx(lm1,ibas1,lm2,ibas2)*rojb(n2, l2, ibas2) !punch out offsite part
-            if(ibas1==ibas2.AND.lm1==lm2)  vcoul(ipl1,ibl2) = vcoul(ipl1,ibl2) - sgpb(ig1, n2, lm2, ibas2)                !punch out onsite part
-          enddo
+    PvB_dev_mo:block
+      complex(8) :: crojp_ibas(ngc,(lxx+1)**2)
+      PvB: do ibl2= 1, nbloch
+        ibas2= ibasbl(ibl2)
+        n2   = nbl (ibl2)
+        l2   = lbl (ibl2)
+        m2   = mbl (ibl2)
+        lm2  = lmbl(ibl2)
+      ! do ig1 = 1,ngc
+      !   ipl1 = nbloch + ig1
+      !   vcoul(ipl1,ibl2) = fouvb(ig1,  n2, lm2, ibas2) !<exp(i(q+G)r)|v|B_n2L2>
+      !   do ibas1= 1, nbas
+      !     do lm1  = 1, (lx(ibas1)+1)**2
+      !       vcoul(ipl1,ibl2)=vcoul(ipl1,ibl2) - dconjg(rojp(ig1,lm1,ibas1))*strx(lm1,ibas1,lm2,ibas2)*rojb(n2, l2, ibas2) !punch out offsite part
+      !       if(ibas1==ibas2.AND.lm1==lm2)  vcoul(ipl1,ibl2) = vcoul(ipl1,ibl2) - sgpb(ig1, n2, lm2, ibas2)                !punch out onsite part
+      !     enddo
+      !   enddo
+      ! enddo
+        vcoul(nbloch+1:nbloch+ngc,ibl2) = fouvb(1:ngc,  n2, lm2, ibas2) !<exp(i(q+G)r)|v|B_n2L2>
+        vcoul(nbloch+1:nbloch+ngc,ibl2) = vcoul(nbloch+1:nbloch+ngc,ibl2) - sgpb(1:ngc, n2, lm2, ibas2) !punch out onsite part
+        do ibas1 = 1, nbas
+          crojp_ibas(1:ngc,1:(lx(ibas1)+1)**2) = dconjg(rojp(1:ngc,1:(lx(ibas1)+1)**2, ibas1))
+          istat = zmv_h(crojp_ibas, strx(1,ibas1,lm2,ibas2), vcoul(nbloch+1,ibl2), m=ngc, n=(lx(ibas1)+1)**2, &
+                        alpha=dcmplx(-rojb(n2,l2,ibas2),0d0), beta=(1d0, 0d0))   !punch out offsite part
         enddo
-      enddo
-    enddo PvB
+      enddo PvB
+    endblock PvB_dev_mo
     ! <P_G|v|P_G>
     PvP_dev_mo: block
-#ifdef __GPU
-      use m_blas, only: dmm => dmm_d, m_op_T !dmm is lapper routine of dgemm (blas)
-#else
-      use m_blas, only: dmm => dmm_h, m_op_T !dmm is lapper routine of dgemm (blas)
-#endif
-      integer :: ir, istat
       real(8) :: fac_integral(nrx,nbas), sigx_tmp(ngc,ngc,0:lxx,nbas), a1g(nrx,ngc)
       real(8) :: ajr_tmp(nrx,ngc), phi_rg(nrx,ngc,0:lxx), rofi_tmp(1:nrx)
+      complex(8) :: crojp((lxx+1)**2,nbas)
       ! get integral coefficients of int (a*b) G_1(ir) G_2(ir) exp(a*r))
       ! simpson rule is used. nr(ibas) was set as odd number
       ! sigx_tmp(ig1,ig2,l,ibas) is int dr (aa(ibas)*bb(ibas)) a1g(r,g1)* ajr(r,l,ibas,g2) exp(aa(ibas)*r))
@@ -153,16 +165,18 @@ contains
       enddo
       do ig1 = 1,ngc
         ipl1 = nbloch + ig1
-        rojpstrx = 0d0
-        do ibas1= 1, nbas
-          do lm1  = 1, (lx(ibas1)+1)**2
-            do ibas2= 1, nbas
-              do lm2  = 1, (lx(ibas2)+1)**2
-                rojpstrx(lm2, ibas2) = rojpstrx(lm2, ibas2)+ dconjg(rojp(ig1, lm1, ibas1)) *strx(lm1,ibas1,lm2,ibas2)
-              enddo
-            enddo
-          enddo
-        enddo
+        ! rojpstrx = 0d0
+        ! do ibas1= 1, nbas
+        !   do lm1  = 1, (lx(ibas1)+1)**2
+        !     do ibas2= 1, nbas
+        !       do lm2  = 1, (lx(ibas2)+1)**2
+        !         rojpstrx(lm2, ibas2) = rojpstrx(lm2, ibas2)+ dconjg(rojp(ig1, lm1, ibas1)) *strx(lm1,ibas1,lm2,ibas2)
+        !       enddo
+        !     enddo
+        !   enddo
+        ! enddo
+        crojp(1:(lxx+1)**2,1:nbas) = dconjg(rojp(ig1,1:(lxx+1)**2,1:nbas))
+        istat = zmv_h(strx, crojp, rojpstrx, m=nbas*(lxx+1)**2, n=nbas*(lxx+1)**2, opA=m_op_T)
         do ig2 = 1,ig1
           ipl2 = nbloch + ig2
           if(ig1==ig2) vcoul(ipl1,ipl2) = fpivol/(absqg2(ig1) -eee) !eee is negative
@@ -279,6 +293,7 @@ contains
       enddo
     enddo 
     ! rojp
+    rojp = (0d0, 0d0)
     rojploop: do ig1 = 1,ngc
       call wronkj( absqg(ig1)**2, eee, rmax,lx, fkk,fkj,fjk,fjj)
       do lm = 1,nlx

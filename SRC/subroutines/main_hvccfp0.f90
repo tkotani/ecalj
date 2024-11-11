@@ -258,7 +258,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
     call readqg('QGcou',q,  quu,ngc, ngvecc ) !Get q+G vector
     ngb = nbloch + ngc  
     write(6,'(" iqx q ngc =",i5,3f10.4,i5)') iqx,q,ngc
-    allocate( strx(nlxx,nbas,nlxx,nbas)) !! strxq: structure factor.
+    allocate( strx(nlxx,nbas,nlxx,nbas), source = (0d0,0d0)) !! strxq: structure factor.
     do ibas1 =1,nbas
       do ibas2 =1,nbas
         p = bas(:,ibas2)-bas(:,ibas1)
