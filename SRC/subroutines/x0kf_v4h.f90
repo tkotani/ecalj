@@ -220,7 +220,7 @@ contains
         zmel0mode: if(cmdopt0('--zmel0')) then ! For epsPP0. Use zmel-zmel0 (for subtracting numerical error) for matrix elements.
           zmel0block : block
             real(8)::  q1a,q2a,rfac00
-            complex(8),allocatable:: zmel0(:,:,:)
+            complex(kind=kp),allocatable:: zmel0(:,:,:)
             kold = -999 
             q1a=sum(q00**2)**.5
             q2a=sum(q**2)**.5

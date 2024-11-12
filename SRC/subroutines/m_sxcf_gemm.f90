@@ -145,7 +145,6 @@ contains
     allocate(ekc(nctot+nband), eq(nband)) 
     emptyrun = cmdopt0('--emptyrun')
     if(nw_i/=0) call rx('Current version we assume nw_i=0. Time-reversal symmetry')
-    allocate(zsecall(ntq,ntq,nqibz,nspinmx),source=(0d0,0d0)) 
     LoopScheduleCheck: block
       izz=0
       kxloopX:                do kx  =1,nqibz  
@@ -166,6 +165,7 @@ contains
     izz=0
     call stopwatch_init(t_sw_zmel, 'zmel')
     call stopwatch_init(t_sw_xc, 'ex')
+    allocate(zsecall(ntq,ntq,nqibz,nspinmx))
     !$acc enter data create(zsecall)
     !$acc kernels
     zsecall(1:ntq,1:ntq,1:nqibz,1:nspinmx) = CZERO
@@ -279,9 +279,9 @@ contains
     if(nw_i/=0) call rx('Current version we assume nw_i=0. Time-reversal symmetry')
     LoopScheduleCheck: block
       izz=0
-      kxloopX:                   do kx  =1,nqibz  
-        irotloopX:              do irot=1,ngrp    
-          iploopexternalX:     do ip=1,nqibz     
+      kxloopX:                do kx  =1,nqibz  
+        irotloopX:            do irot=1,ngrp    
+          iploopexternalX:    do ip=1,nqibz     
             isploopexternalX: do isp=1,nspinmx  
               kr = irkip(isp,kx,irot,ip)
               if(kr==0) cycle
@@ -298,7 +298,7 @@ contains
     call stopwatch_init(t_sw_xc, 'ec')
     call stopwatch_init(t_sw_cr, 'ec realaxis integral')
     call stopwatch_init(t_sw_ci, 'ec imagaxis integral')
-    allocate(zsecall(ntq,ntq,nqibz,nspinmx),source=(0d0,0d0)) 
+    allocate(zsecall(ntq,ntq,nqibz,nspinmx))
     !$acc enter data create(zsecall)
     !$acc kernels
     zsecall(1:ntq,1:ntq,1:nqibz,1:nspinmx) = CZERO
@@ -503,7 +503,7 @@ contains
                     if(nttp_max <= 0) goto 1113 
                     allocate (itw(nttp_max,0:nw), source = 0)
                     allocate (itpw(nttp_max,0:nw), source = 0)
-                    allocate (wgtiw(nttp_max,0:nw), source = real(0,kind=kp))
+                    allocate (wgtiw(nttp_max,0:nw), source = 0d0)
                     nttp = 0
                     itploopFORwgtiw: do itp = 1, ntqxx
                       omg  = omega(itp)
