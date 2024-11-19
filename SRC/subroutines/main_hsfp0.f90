@@ -466,7 +466,7 @@ subroutine hsfp0() bind(C)
 !     write(6,*)' iwini:iwend omegamax(Ry)=',iwini,iwend,omegamax
 
 !ccccccccccccccccccccccccccccccccccccccccccccccccccc
-     omegamax = 2*freq_r(nw)-0.1 !This is in Ry.
+     omegamax = 2*freq_r(nw-1) !omegamax is in Ry.
      dwplot = 0.01
      if( omegamax <0) call rx( 'hsfp0 :strange omegamax <0 ')
      iwini =  -int( omegamax / dwplot )
