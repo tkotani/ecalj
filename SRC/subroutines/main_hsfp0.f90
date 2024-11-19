@@ -451,24 +451,35 @@ subroutine hsfp0() bind(C)
 
   !!  read q-points and states
   if(ixc==4) then
-     call readxx(ifqpnt)    !skip to ***** for q point for spectrum function.
-     omegamaxin = 1d70
-     read (ifqpnt,*,err=2038,end=2038) dwplot,omegamaxin
-2038 continue
-     omegamax = 2*freq_r(nw) !This is in Ry.
-     if(omegamaxin < omegamax) then
-        write(6,*)' --Use readin dwplot and omegamaxin from <QPNT>'
-        omegamax = omegamaxin
-     endif
+!     call readxx(ifqpnt)    !skip to ***** for q point for spectrum function.
+!     omegamaxin = 1d70
+!     read (ifqpnt,*,err=2038,end=2038) dwplot,omegamaxin
+!2038 continue
+!     omegamax = 2*freq_r(nw) !This is in Ry.
+!     if(omegamaxin < omegamax) then
+!        write(6,*)' --Use readin dwplot and omegamaxin from <QPNT>'
+!        omegamax = omegamaxin
+!     endif
+!     if( omegamax <0) call rx( 'hsfp0 :strange omegamax <0 ')
+!     iwini =  -int( omegamax / dwplot )
+!     iwend =   int( omegamax/  dwplot )
+!     write(6,*)' iwini:iwend omegamax(Ry)=',iwini,iwend,omegamax
+
+!ccccccccccccccccccccccccccccccccccccccccccccccccccc
+     omegamax = 2*freq_r(nw)-0.1 !This is in Ry.
+     dwplot = 0.01
      if( omegamax <0) call rx( 'hsfp0 :strange omegamax <0 ')
      iwini =  -int( omegamax / dwplot )
      iwend =   int( omegamax/  dwplot )
-     write(6,*)' iwini:iwend omegamax(Ry)=',iwini,iwend,omegamax
+     write(6,*)' iwini:iwend omegamax(Ry)=',iwini,iwend,omegamax,nw
+!ccccccccccccccccccccccccccccccccccccccccccccccccccc
+
   else
      iwini = -1
      iwend = 1
   endif
   close(ifqpnt)
+
   !! omega
   !! this is also in sxcf.
   if(ixc==4) then
@@ -708,7 +719,7 @@ subroutine hsfp0() bind(C)
 2000 enddo isploop
   if(MPI__root .AND. tote) call Hswrite3() ! total energy mode, obsolate now...
   if(MPI__root .AND. sum(ifexsp(1:nspin))/=0) call Hswrite4() !EXspectrum
-  write(6,*) '--- end of hsfp0_sc --- irank=',MPI__rank
+  write(6,*) '--- end of hsfp0 --- irank=',MPI__rank
   call cputid(0)
   call flush(6)
   if(ixc==1 ) call rx0( ' OK! hsfp0: Exchange mode')

@@ -23,7 +23,7 @@ subroutine hx0fp0()
        nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx,nprecx,mrecl,nblochpmx
   use m_zmel,only: Mptauof_zmel!, Setppovlz,Setppovlz_chipm   ! & NOTE: these data set are stored in this module, and used
   use m_itq,only: Setitq !set itq,ntq,nband,ngcmx,ngpmx to m_itq
-  use m_freq,only: Getfreq3, &! & NOTE: call getfreq generate following data.
+  use m_freq,only: Getfreq3, getfreq2, &! & NOTE: call getfreq generate following data.
        frhis,freq_r,freq_i, nwhis,nw_i,nw,npm,wiw,niw !, frhis0,nwhis0 !output of getfreq
   use m_tetwt,only: Tetdeallocate,Gettetwt, &! & followings are output of 'L871:call gettetwt')
        whw,ihw,nhw,jhw,ibjb,nbnbx,nhwtot,n1b,n2b,nbnb
@@ -164,7 +164,7 @@ subroutine hx0fp0()
   real(8),allocatable:: aik(:,:,:,:)
   integer,allocatable:: aiktimer(:,:)
   integer:: l2nl
-  logical:: tiii,iprintx,symmetrize,eibzmode !,eibz4x0
+  logical:: tiii,iprintx=.false.,symmetrize,eibzmode !,eibz4x0
   real(8):: qread(3),imagweight,q00(3),rfac00,q1a,q2a
   character(128):: vcoudfile,aaax,itag
   integer:: src,dest
@@ -263,7 +263,8 @@ subroutine hx0fp0()
   call init_readeigen() !EVU EVD are read in init_readeigen
   call init_readeigen2()
   if(verbose()>50) print *,'eeee exit of init_readeigen2'
-  call Getfreq3(lqall,epsmode,realomega,imagomega,ua,mpi__root)
+!  call Getfreq3(lqall,epsmode,realomega,imagomega,ua,mpi__root)
+  call Getfreq2(.false.,realomega,imagomega,ua,iprintx)
   writefreq_r: if(realomega .AND. mpi__root) then  
      open(newunit=ifif,file='freq_r') !write number of frequency points nwp and frequensies in 'freq_r' file
      write(ifif,"(2i8,'  !(a.u.=2Ry)')") nw+1, nw_i
