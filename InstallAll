@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-import os, subprocess, sys, shutil,time
-import argparse,re
+import os, subprocess, sys, shutil,time,argparse,re
 
 parser = argparse.ArgumentParser(prog='InstallAll',description=
 '''
@@ -13,18 +12,18 @@ parser.add_argument('--obata',help='Obata for nvfortran',action='store_true')
 args=parser.parse_args()
 
 def main():
-    start0_time = time.time()
     BUILD_TYPE = "Release"    # = "Debug"
+    CWD =os.getcwd()
+    HOME=os.getenv('HOME')
+    BINDIR = os.path.join(HOME, 'bin')  # Make directory for ecalj binaries and scripts.
     ncore=args.np
     FC = os.getenv('FC')
     if not FC:
         print('Usage: >FC=gfortran ./InstallAll [options]. Run ./InstallAll -h for help.')
         sys.exit()
-    CWD=os.getcwd()
-    HOME=os.getenv('HOME')
-    BINDIR = os.path.join(HOME, 'bin')  # Make directory for ecalj binaries and scripts.
     if not os.path.exists(BINDIR): os.makedirs(BINDIR)
     print(f"Going to install required binaries and scripts to {BINDIR}")
+    start0_time = time.time()
     # Make links
     for scr in ['StructureTool/viewvesta', 'StructureTool/ctrl2vasp', 'StructureTool/vasp2ctrl','GetSyml/getsyml']:
         src   = os.path.join(CWD, scr+'.py')
