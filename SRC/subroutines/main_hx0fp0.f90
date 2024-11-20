@@ -207,7 +207,7 @@ subroutine hx0fp0()
   !!  realomega: \chi on real axis  !  imagomega: \chi on imag omega !  lqall: limited range of \chi on real axis (mainly for memory reduction
   !!  chipm: \Chi_pm mode (nspin=2) !  nolfco: no local field correction
   lqall=.true.
-  if(ixc==11) then;      write(6,*)"OK ixc=11  normal ";         epsmode=.false. ; lqall=.false.
+  if(ixc==11) then;      write(6,*)"OK ixc=11  normal ";         epsmode=.false. ; lqall=.true.
   elseif(ixc==111) then; write(6,*)"OK ixc=111 normal fullband"; epsmode=.false. 
   elseif(ixc==10011)then;write(6,*)"OK ixc=10011 crpa ";         epsmode=.false. ; crpa=.true.
   elseif(ixc==202) then; write(6,*)"OK ixc=202 eps NoLFC";       epsmode =.true. ; imagomega=.false.; omitqbz=.true.;nolfco=.true.
@@ -263,8 +263,7 @@ subroutine hx0fp0()
   call init_readeigen() !EVU EVD are read in init_readeigen
   call init_readeigen2()
   if(verbose()>50) print *,'eeee exit of init_readeigen2'
-!  call Getfreq3(lqall,epsmode,realomega,imagomega,ua,mpi__root)
-  call Getfreq2(.false.,realomega,imagomega,ua,iprintx)
+  call Getfreq3(lqall,epsmode,realomega,imagomega,ua,mpi__root)
   writefreq_r: if(realomega .AND. mpi__root) then  
      open(newunit=ifif,file='freq_r') !write number of frequency points nwp and frequensies in 'freq_r' file
      write(ifif,"(2i8,'  !(a.u.=2Ry)')") nw+1, nw_i
