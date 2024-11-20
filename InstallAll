@@ -47,6 +47,7 @@ def main():
         sys.exit(-1)
     # Copy executables to BINDIR
     executables = [f for f in os.listdir('.') if os.path.isfile(f) and os.access(f, os.X_OK)]
+    print(executables)
     for exe in executables:
         shutil.copy(exe, BINDIR)
     # Install test
