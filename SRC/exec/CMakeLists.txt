@@ -31,7 +31,6 @@ message("CMAKE_BUILD_TYPE is " ${CMAKE_BUILD_TYPE})
 message("BUILD_GPU is " ${BUILD_GPU})
 message("BUILD_MP is " ${BUILD_MP})
 message("BUILD_MP_GPU is " ${BUILD_MP_GPU})
-
 # SET(CMAKE_VERBOSE_MAKEFILE ON)
 enable_language(Fortran)
 
@@ -173,6 +172,8 @@ endforeach()
 ### GPU or MP version ####
 # 1:MP, 2:GPU, 3:GPU+MP
 list(FILTER SOURCES EXCLUDE REGEX "main_hhomogas.f90") # main_hhomogas.f90
+list(FILTER SOURCES EXCLUDE REGEX "main_hsfp0.f90") # main_hhomogas.f90
+list(FILTER SOURCES EXCLUDE REGEX "sxcf_fal2.f90") # main_hhomogas.f90
 foreach(i RANGE 1 3)
   if(BUILD_MP AND i EQUAL 1)
     set(TYPE _mp)

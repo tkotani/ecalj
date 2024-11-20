@@ -4,14 +4,18 @@ subroutine x0gemm(rcxq, npr, ipr_col, npr_col, nwhis, npm, ns1, ns2)
   use m_mpi, only: comm_b, mpi__rank_b, mpi__size_b
   use m_x0kf, only: icounkmink, icounkmaxk, iwini, iwend, itc, itpc, jpmc, icouini, whwc
   use m_blas, only: m_op_c, m_op_n, m_op_t
-#ifdef __MP
-  use m_blas, only: gemm => cmm
-#else
-  use m_blas, only: gemm => zmm
-#endif
   use m_zmel, only: zmel
   use m_lgunit, only: stdo
   use m_ftox
+#if defined(__MP) && defined(__GPU)
+  use m_blas, only: gemm => cmm_d
+#elif defined(__MP)
+  use m_blas, only: gemm => cmm_h
+#elif defined(__GPU)
+  use m_blas, only: gemm => zmm_d
+#else
+  use m_blas, only: gemm => zmm_h
+#endif
 #ifdef __GPU
   use openacc
   use cudafor

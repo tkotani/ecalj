@@ -119,10 +119,14 @@ contains
     use m_readeigen,only: readgeigf
     use m_itq,only: itq, ntq
     use m_blas, only: m_op_c, m_op_n, m_op_t, int_split
-#ifdef __MP
-    use m_blas, only: gemm => cmm, gemm_batch => cmm_batch
+#if defined(__MP) && defined(__GPU)
+    use m_blas, only: gemm => cmm_d, gemm_batch => cmm_batch_d
+#elif defined(__MP)
+    use m_blas, only: gemm => cmm_h, gemm_batch => cmm_batch_h
+#elif defined(__GPU)
+    use m_blas, only: gemm => zmm_d, gemm_batch => zmm_batch_d
 #else
-    use m_blas, only: gemm => zmm, gemm_batch => zmm_batch
+    use m_blas, only: gemm => zmm_h, gemm_batch => zmm_batch_h
 #endif
 #ifdef __GPU
     use openacc, only: acc_is_present

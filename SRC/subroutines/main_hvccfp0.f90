@@ -258,7 +258,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
     call readqg('QGcou',q,  quu,ngc, ngvecc ) !Get q+G vector
     ngb = nbloch + ngc  
     write(6,'(" iqx q ngc =",i5,3f10.4,i5)') iqx,q,ngc
-    allocate( strx(nlxx,nbas,nlxx,nbas)) !! strxq: structure factor.
+    allocate( strx(nlxx,nbas,nlxx,nbas), source = (0d0,0d0)) !! strxq: structure factor.
     do ibas1 =1,nbas
       do ibas2 =1,nbas
         p = bas(:,ibas2)-bas(:,ibas1)
@@ -310,10 +310,15 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
     allocate(oox,source=oo )
     allocate(hh(ngb,ngb),zz(ngb,ngb),eb(ngb),zzr(ngb))
     hh  = - vcoul(1:ngb,1:ngb)
+    ! MO replaced diagcv by m_lapack routine
     ! nmx = ngb
     ! call diagcv(oo,hh,zz,ngb, eb,nmx,1d99,nev) !! diagonalize the Coulomb matrix
     Diagonalize_Coulomb_matrix: block
-      use m_lapack, only: zhgv
+#ifdef __GPU
+      use m_lapack, only: zhgv => zhgv_d
+#else
+      use m_lapack, only: zhgv => zhgv_h
+#endif
       integer :: istat
       nev = ngb
       !$acc data copyin(oo) copy(hh) copyout(eb)

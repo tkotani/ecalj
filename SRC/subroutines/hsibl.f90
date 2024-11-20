@@ -49,12 +49,13 @@ contains
     integer:: blks2(n0*nkap0),ntab2(n0*nkap0)
     integer:: xxxx(nkap0), ig1,i1,ig2,i2,igx(3),igx1,igx2,igx3,oiv1, iloop,ng
     integer:: ibini,ibend,nnrl,lmri,li,nnrlx,nnrli,ik,ib,ndim,ilm,offi,ixx(1)
-    complex(8) ,allocatable :: h_zv(:),phase(:,:)
+    complex(8) ,allocatable :: h_zv(:),phase(:,:), cwork(:)
     complex(8),allocatable,target:: w_oc1(:,:),w_ocf1(:),w_oc2(:,:),w_ocf2(:),ff(:)
     real(8),allocatable:: w_ocos1(:,:), w_osin1(:,:),w_ocos2(:,:), w_osin2(:,:),w_owk(:,:)
     real(8):: gmin=0d0,fac1
     complex(8):: img=(0d0,1d0)
     real(8),parameter:: pi=4d0*atan(1d0),tpi=2d0*pi
+    integer :: ngcut_iorb
     call tcn('hsibl')
     ng=lat_ng
     nlmto = ndimh - napw     ! --- <MTO|V|MTO> and < MTO|V|PW> parts of h ---
@@ -74,6 +75,7 @@ contains
        call hsibl1(net,etab,nrt,rtab,ltop,alat,q0,ng,gvv,  gg,g2,yl,he,hr)
 !       write(6,*)'hsibl xxxxxx222222211111xxxx'
        allocate( w_oc1( ng,ndimx), w_ocf1(ndimx), w_oc2( ng,ndimx), w_ocf2(ndimx), ff(k1*k2*k3))
+       allocate(cwork(ng))
 !       write(6,*)'hsibl xxxxxx3333333311111'
        ibini=1
        ibend=nbas
@@ -99,8 +101,10 @@ contains
              ir   = iprt(l1+1,ik1,is1)
              fac1 = -4d0*pi*dexp(etab(ie)*rtab(ir)**2/4)/dsqrt(vol)
              offi = ndim1-nlm1+1
+             cwork(1:ng) = he(1:ng,ie)*hr(1:ng,ir)*phase(1:ng,ib1)
              do  ilm = nlm1, nlm2
-                w_oc1(:,ilm+offi) = he(:,ie)*hr(:,ir)* yl(:,ilm)*phase(:,ib1) !PW coefficients for MTO(ilm+offi)
+                ! w_oc1(:,ilm+offi) = he(:,ie)*hr(:,ir)* yl(:,ilm)*phase(:,ib1) !PW coefficients for MTO(ilm+offi)
+                w_oc1(1:ng,ilm+offi) = cwork(1:ng)* yl(1:ng,ilm)
                 w_ocf1(ilm+offi) = (-img)**ll(ilm) * fac1
              enddo
              ndim1 = ndim1 + max(blks1(iorb1),0)
@@ -143,8 +147,11 @@ contains
                 ir   = iprt(l2+1,ik2,is2)
                 fac1 = -4d0*pi*dexp(etab(ie)*rtab(ir)**2/4)/dsqrt(vol)
                 offi = ndim2-nlm1+1
+                ngcut_iorb = min(ncut(l2t+1,ik2), ng)  !ncut is sometimes larger than ng
+                cwork(1:ngcut_iorb) = he(1:ngcut_iorb,ie)*hr(1:ngcut_iorb,ir)*phase(1:ngcut_iorb,ib2) 
                 do  ilm = nlm1, nlm2
-                   w_oc2(:,ilm+offi) = he(:,ie)*hr(:,ir)* yl(:,ilm)*phase(:,ib2) 
+                   ! w_oc2(:,ilm+offi) = he(:,ie)*hr(:,ir)* yl(:,ilm)*phase(:,ib2) 
+                   w_oc2(1:ngcut_iorb,ilm+offi) = cwork(1:ngcut_iorb)*yl(1:ngcut_iorb,ilm)
                    w_ocf2(ilm+offi) = (-img)**ll(ilm) * fac1
                 enddo
                 ncuti(ndim2+1:ndim2+nlm2-nlm1+1)=ncut(l2t+1,ik2)
@@ -154,17 +161,32 @@ contains
              ! ncuti are only at Gamma point; thus symmetry can not be kept well for other k points.
              !call ncutcorrect ( ncuti , ndim2 , gvv , ng )
              hssblock: block
-               integer::ncut,i2, io1,io2,ofw1,ofw2
+               use m_blas, only: gemm => zmm_h, m_op_C
+               integer::ncut,i2, io1,io2,ofw1,ofw2 !ncut is masked here
                complex(8)::hss(ndim1,ndim2) 
                complex(8),pointer:: c1(:,:),c2(:),cf1(:),cf2(:)
+               complex(8) :: c12(ndim1,ndim2)
+               complex(8), allocatable :: oc2_0p(:,:) !zeropadding w_oc2 depending on ncuti
+               integer :: istat, ncuti_max
                cf1=>w_ocf1(1:ndim1)
                cf2=>w_ocf2(1:ndim2)
-               do  i2 = 1, ndim2
-                  ncut = min(ng,ncuti(i2))
-                  c1=>w_oc1(1:ncut,1:ndim1)
-                  c2=>w_oc2(1:ncut,i2)
-                  hss(:,i2)= dconjg(cf1)* matmul(dconjg(transpose(c1)),c2) *cf2(i2) ! = phi1*vsm*phi2
+               ! do  i2 = 1, ndim2
+               !    ncut = min(ng,ncuti(i2))
+               !    c1=>w_oc1(1:ncut,1:ndim1)
+               !    c2=>w_oc2(1:ncut,i2)
+               !    hss(:,i2)= dconjg(cf1)* matmul(dconjg(transpose(c1)),c2) *cf2(i2) ! = phi1*vsm*phi2
+               ! enddo
+               ! MO the above loop is replaced by gemm dated 2014/11/11
+               ncuti_max = min(maxval(ncuti(1:ndim2)),ng)
+               allocate(oc2_0p(ncuti_max,ndim2))
+               do i2=1, ndim2
+                 ncut = min(ng,ncuti(i2))
+                 oc2_0p(1:ncut,i2) = w_oc2(1:ncut,i2)
+                 oc2_0p(ncut+1:ncuti_max,i2) = (0d0, 0d0) !zeropaading
                enddo
+               istat = gemm(w_oc1, oc2_0p, c12, m=ndim1, n=ndim2, k=ncuti_max, opA=m_op_C, ldA=ng)
+               forall (i1 = 1:ndim1, i2 = 1:ndim2) hss(i1,i2) = dconjg(cf1(i1))*c12(i1,i2)*cf2(i2)
+               deallocate(oc2_0p)
                deallocate(ncuti)
                ofw1 = 0
                do  io1 = 1, norb1
@@ -206,6 +228,7 @@ contains
           endblock hsmvsmpw
        enddo ib1loop
        deallocate(hr, he, g2, yl, gg, iv, kv, gvv, w_oc1,w_ocf1, w_oc2, w_ocf2,ff) 
+       deallocate(cwork)
     endif
     ! --- <e^i qpG | V |e^i qpG'>/vol = V(G'-G) ---
     if (napw > 0) then
