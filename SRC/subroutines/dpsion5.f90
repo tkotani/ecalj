@@ -102,7 +102,7 @@ contains
           do it =  1,niwt
             zz = img*freqi(it)  
             call hilbertmat(zz,nwhis,his_L,his_C,his_R, rrr) !Im(zz)>0
-            imatt(it,1:nwhis,1) = real(rrr(1:nwhis) - rrr(-1:-nwhis:-1))/pi
+            imatt(it,1:nwhis,1) = dreal(rrr(1:nwhis) - rrr(-1:-nwhis:-1))/pi
           enddo
         else ! npm=2 case 
           allocate( imattC(niwt, nwhis,npm) )
