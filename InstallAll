@@ -8,7 +8,7 @@ Usage: >FC=gfortran ./InstallAll, where we can set FC=gfortran, ifort, or nvfort
 ''')
 parser.add_argument("-np",    help='number of mpi cores',default=8,type=int)
 parser.add_argument('--clean',help='Clean CMakeCache CMakeFiles before make',action='store_true')
-parser.add_argument('--obata',help='Obata for nvfortran',action='store_true')
+parser.add_argument('--gpu'  ,help='nvfortran for GPU',action='store_true')
 args=parser.parse_args()
 
 def main():
@@ -35,13 +35,16 @@ def main():
     # Make executables
     os.chdir(f'{CWD}/SRC/exec')
     if(args.clean): os.system('rm -rf CMakeFiles CMakeCache.txt')
-    if(args.obata): #Obata for nvfortran
+    if(args.gpu): #Obata for nvfortran
         if os.system(f'FC={FC} cmake . -DBUILD_MP=ON -DBUILD_GPU=ON -DBUILD_MP_GPU=ON -DCMAKE_BUILD_TYPE={BUILD_TYPE}') != 0:sys.exit(1)
         if os.system('make -j 32') != 0: 
             if os.system('make -j 32') != 0: sys.exit(1)
     elif(FC in ["gfortran", "ifort"]):
         if os.system(f'FC={FC} cmake .') != 0: sys.exit(1)
-        if os.system('make -j') != 0:  sys.exit(1)
+        if os.system('make -j')          != 0: sys.exit(1)
+    elif(FC in ["nvfortran"]):
+        if os.system(f'FC={FC} cmake .') != 0: sys.exit(1)
+        if os.system('make ')          != 0: sys.exit(1)
     else:
         print('Check InstallAll')
         sys.exit(-1)
