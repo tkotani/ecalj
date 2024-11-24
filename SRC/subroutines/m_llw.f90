@@ -167,6 +167,8 @@ contains
           call MPI__GatherXqw(zxq(:,:,iw), zxqw, nmbas1, nmbas2)
           !$acc update device(zxqw)
         endif
+        !for log output 
+        !$acc update host(zxqw(1,1))
         call stopwatch_pause(t_sw_x_gather)
         rootq_if2:if(mpi__root_q) then
         ix=0
@@ -346,6 +348,7 @@ contains
             call MPI__GatherXqw(zxqi(:,:,iw), zxqw, nmbas1, nmbas2)
             !$acc update device(zxqw)
           endif
+          !$acc update host(zxqw(1,1))
           call stopwatch_pause(t_sw_x_gather)
           if(mpi__root_q) then
              ix=0

@@ -436,7 +436,7 @@ contains
         ppovlz_work(1:ngb,1:nbb) = ppovlz(1:ngb,1:nbb)
         !$acc host_data use_device(zmel)
         !$acc data copyin(ppovlz_work(1:ngb,1:nbb))
-        ierr = gemm(ppovlz_work, zmelt(1,nm1,1), zmel(1,nm1,1), nbb, nmtot*ncc, ngb, opA = m_op_C) ! ncc == 0, this does not be used 
+        ierr = gemm(ppovlz_work, zmelt(1,nm1,1), zmel(1,nm1,1), nbb, nmtot*ncc, ngb, opA = m_op_C) ! ncc == 0, this is not used 
         ierr = gemm(ppovlz_work, zmelt(1,nm1,ncc+1), zmel(1,nm1,ncc+ini_index), nbb, nmtot*ntp0, ngb, opA = m_op_C)
         !$acc end data
         !$acc end host_data
@@ -453,17 +453,6 @@ contains
             data_size(irank) = nmtot*nbb*num
             data_disp(irank) = nmtot*nbb*(ini-1)
           enddo
-          !GPU aware MPI style does not work ...why??
-          !!$acc data create(zmel_buf) present(zmel)
-          !!$acc host_data use_device(zmel, zmel_buf)
-          !call mpi_allgatherv(zmel(1,nm1,ncc+ini_index), data_size(mpi_rank), mpi_complex16, zmel_buf, data_size, data_disp, &
-          !          &  mpi_complex16, comm, mpi_info)
-          !!$acc kernels
-          !zmel = zmel_buf
-          !!$acc end kernels
-          !!$acc end host_data
-          !!$acc end data
-          ! data copy from GPU to CPU for MPI routine. this would be slow
           mpi_data_type = MPI_COMPLEX16
           if(kp == 4) mpi_data_type = MPI_COMPLEX8
           !$acc update host(zmel)

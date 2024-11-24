@@ -1,7 +1,7 @@
 !> Calculate W-v zxqi(on the imaginary axis) and zxq(real axis) from sperctum weight rcxq.
 module m_dpsion
   use m_kind, only: kp => kindrcxq
-  public dpsion5, dpsion_init, dpsion_xq
+  public dpsion5, dpsion_init, dpsion_xq, dpsion_setup_rcxq
   ! private
   real(8),allocatable :: his_L(:),his_R(:),his_C(:),rmat(:,:,:),rmatt(:,:,:),rmattx(:,:,:,:),imatt(:,:,:)
   complex(8),allocatable :: imattC(:,:,:)
@@ -94,7 +94,7 @@ contains
     real(8), intent(in):: ecut, schi
     integer, intent(in):: isp, npr, npr_col
     complex(kind=kp), intent(inout):: rcxq(1:npr,1:npr_col,(1-npm)*nwhis:nwhis)
-    complex(kind=kp), intent(out) :: zxqi(1:npr,1:npr_col,niwt)
+    complex(kind=kp), intent(out) ::  zxqi(1:npr,1:npr_col,niwt)
     integer :: iw
     real(8), parameter:: pi  = 4d0*datan(1d0)
     complex(8), parameter :: img = (0d0,1d0)
@@ -102,10 +102,12 @@ contains
     integer :: ipr, ipr_col, ipm, istat, ispx
     real(8) :: wfac
     logical :: debug = .true.
-    !$acc host_data use_device(rcxq, zxqi)
     write(stdo,ftox)" -- dpsion_xq: start... nw_w nwhis=",nw_w,nwhis
     call flush(stdo)
     if(chipm.and.npm==2) call rx( 'x0kf_v4h:npm==2 .AND. chipm is not meaningful probably')  ! Note rcxq here is negative 
+
+    !$acc host_data use_device(rcxq, zxqi)
+    !$acc data copyin(his_R, his_L) copy(rcxq)
     GaussianFilter: if(abs(egauss)>1d-15) then
       write(6,'("GaussianFilterX0= ",d13.6)') egauss
       if(allocated(gfmat)) deallocate(gfmat)
@@ -125,7 +127,6 @@ contains
       enddo
       !$acc end data
       if(npm==2) then
-        call rx( 'dpsion_xq: npm==2 is not implemented yet')
         ! !$acc data kernels collapse(3) private(rcxqin)
         ! do ipr = 1, npr
         !   do ipr_col = 1, npr_col
@@ -144,7 +145,6 @@ contains
     if(realomega.and.freqr(0)/=0d0) call rx( 'dpsion5: freqr(0)/=0d0') ! I think current version allows any freqr(iw), independent from frhis.
 
     call flush(stdo)
-    !$acc data copyin(his_R, his_L) copy(rcxq)
     do iw= 1, nwhis
       wfac=merge(exp(-(his_C(iw)/ecut)**2 ),1d0, ecut<1d9)     ! rcxq= Average value of Im chi.    Note rcxq is "negative" (
       !$acc kernels
@@ -153,6 +153,7 @@ contains
     enddo
     !$acc end data
     if_IMAGOMEGA: if(imagomega) then !Hilbert Transformation to get real part
+      !$acc data copyout(zxqi)
       if(debug) write(stdo,ftox)" -- dpsion_xq: start imagomega"
       if(npm==1) then
         !$acc data copyin(imatt) create(cimatt)
@@ -162,7 +163,6 @@ contains
         istat = gemm(rcxq(1,1,1), cimatt, zxqi, npr*npr_col, niwt, nwhis, opB=m_op_T)
         !$acc end data
       elseif(npm==2) then
-        call rx( 'dpsion_xq: npm==2 is not implemented yet')
         !$acc data copyin(imattC) create(cimatt)
         !$acc kernels
         cimatt(:,1:nwhis,1) = cmplx(imattC(:,1:nwhis: 1,1), kind=kp)
@@ -172,6 +172,7 @@ contains
         istat = gemm(rcxq(1,1,-nwhis), cimatt(1,1,2), zxqi, npr*npr_col, niwt, nwhis, opB=m_op_T, beta=(1d0,0d0))
         !$acc end data
       endif
+      !$acc end data
       write(stdo,ftox)" -- dpsion_xq: end of imagomega"
     endif if_IMAGOMEGA
     if_REALOMEGA: if(realomega) then !Hilbert Transformation to get real part
@@ -197,7 +198,7 @@ contains
         endif
         if(ispx == 1) then
           !$acc kernels
-          zxq_chipm(:,:,1:nw_w)= zxq_chipm(:,:,1:nw_w)+ img*rcxq(:,:,1:nw_w) 
+          zxq_chipm(:,:,1:nw_w) = zxq_chipm(:,:,1:nw_w)+ img*rcxq(:,:,1:nw_w) 
           !$acc end kernels
         endif
         !$acc data copyin(rmattx) create(crmatt)
@@ -206,18 +207,7 @@ contains
         !$acc end kernels
         istat = gemm(rcxq(1,1,1), crmatt, zxq_chipm, npr*npr_col, nw_w+1, nwhis, opB=m_op_T, beta=(1d0,0d0))
         !$acc end data
-        if(isp == 1) then
-          !$acc kernels
-          rcxq(:,:,:) = (0d0, 0d0)
-          !$acc end kernels
-        elseif(isp == 2) then
-          !$acc kernels
-          rcxq(:,:,nw_i:nw_w) = zxq_chipm(:,:,nw_i:nw_w)
-          !$acc end kernels
-          deallocate(zxq_chipm)
-        endif
       elseif(npm == 2) then
-        call rx( 'dpsion_xq: npm==2 is not implemented yet')
         !$acc data copyin(rmatt) create(crmatt, zxq_work)
         !$acc kernels
         crmatt(:,1:nwhis,1) = cmplx(rmatt(:,1:nwhis: 1,1), kind=kp)
@@ -232,11 +222,30 @@ contains
         enddo
         !$acc end data
       endif
-      write(stdo,ftox)" -- dpsion_xq: end of realomg"
+      write(stdo,ftox)" -- dpsion_xq: end of realomega"
     endif if_REALOMEGA
     call flush(stdo)
     !$acc end host_data
   end subroutine dpsion_xq
+
+  subroutine dpsion_setup_rcxq(rcxq, npr, npr_col, isp)
+    use m_freq, only:nwhis, npm, nw_i, nw_w => nw
+    implicit none
+    integer, intent(in) :: npr, npr_col, isp
+    complex(kind=kp), intent(inout):: rcxq(1:npr,1:npr_col,(1-npm)*nwhis:nwhis)
+    if(isp == 1) then
+      !$acc kernels
+      rcxq(:,:,:) = (0_kp, 0_kp)
+      !$acc end kernels
+    elseif(isp == 2) then
+      if(allocated(zxq_chipm)) then
+        !$acc kernels
+        rcxq(:,:,nw_i:nw_w) = zxq_chipm(:,:,nw_i:nw_w)
+        !$acc end kernels
+        deallocate(zxq_chipm)
+      endif
+    endif
+  end subroutine dpsion_setup_rcxq
 
   subroutine dpsion5(realomega,imagomega,rcxq,nmbas1,nmbas2, zxq,zxqi, chipm,schi,isp,ecut,ecuts) 
     use m_freq,only:  frhis, freqr=>freq_r,freqi=>freq_i, nwhis, npm, nw_i, nw_w=>nw, niwt=>niw

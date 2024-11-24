@@ -143,7 +143,7 @@ contains
   
   subroutine x0kf_zxq(realomega,imagomega, q,iq,npr,schi,crpa,chipm,nolfco,q00,zzr)
     use m_readgwinput,only: ecut, ecuts
-    use m_dpsion,only: dpsion5, dpsion_init, dpsion_xq
+    use m_dpsion,only: dpsion5, dpsion_init, dpsion_xq, dpsion_setup_rcxq
     use m_freq,only: nw_i, nw_w=>nw, niwt=>niw
     use m_readeigen,only:readeval
     use m_freq,only: nw_i,nw,niw 
@@ -393,9 +393,8 @@ contains
         !Get real part. When chipm=T, do dpsion5 for every isp_k; When =F, do dpsion5 after rxcq accumulated for spins
         mpi_k_accumulate: block
           !To reduce memory allocation size in MPI__reduceSUM, mpi_reduce operation has been split for each iw and jpm
-          use  m_mpi, only: get_mpi_size
           integer :: jpm, iw
-          if(get_mpi_size(comm_k) > 1) then
+          if(mpi__size_k > 1) then
             !$acc update host(rcxq)
             do jpm=1, npm
               do iw=1, nwhis
@@ -413,6 +412,8 @@ contains
           call stopwatch_pause(t_sw_dpsion)
           call stopwatch_show(t_sw_dpsion)
         endif
+        !set zero (if isp_k == 1) or chi+- in rcxq (if isp_k == 2)
+        if(chipm) call dpsion_setup_rcxq(rcxq, npr, npr_col, isp_k)
       endif HilbertTransformation 
 1103 enddo isloop
      call ExitDataGPU_inkx()
