@@ -101,8 +101,10 @@ contains
     complex(kind=kp) :: rcxqin(1:nwhis), zxq_work(1:npr,nw_i:nw_w), cimatt(niwt,nwhis,npm), crmatt(0:nw_w,nwhis,npm)
     integer :: ipr, ipr_col, ipm, istat, ispx
     real(8) :: wfac
+    logical :: debug = .true.
     !$acc host_data use_device(rcxq, zxqi)
     write(stdo,ftox)" -- dpsion_xq: start... nw_w nwhis=",nw_w,nwhis
+    call flush(stdo)
     if(chipm.and.npm==2) call rx( 'x0kf_v4h:npm==2 .AND. chipm is not meaningful probably')  ! Note rcxq here is negative 
     GaussianFilter: if(abs(egauss)>1d-15) then
       write(6,'("GaussianFilterX0= ",d13.6)') egauss
@@ -141,15 +143,17 @@ contains
     if(realomega.and.nwhis <= nw_w) call rxii('dpsion5: nwhis<=nw_w',nwhis,nw_w)
     if(realomega.and.freqr(0)/=0d0) call rx( 'dpsion5: freqr(0)/=0d0') ! I think current version allows any freqr(iw), independent from frhis.
 
-    !$acc data copyin(his_R, his_L)
+    call flush(stdo)
+    !$acc data copyin(his_R, his_L) copy(rcxq)
     do iw= 1, nwhis
       wfac=merge(exp(-(his_C(iw)/ecut)**2 ),1d0, ecut<1d9)     ! rcxq= Average value of Im chi.    Note rcxq is "negative" (
       !$acc kernels
-      rcxq(:,:,iw)= -wfac/(his_R(iw)-his_L(iw))*rcxq(:,:,iw)
+      rcxq(1:npr,1:npr_col,iw)= -wfac/(his_R(iw)-his_L(iw))*rcxq(1:npr,1:npr_col,iw)
       !$acc end kernels
     enddo
     !$acc end data
     if_IMAGOMEGA: if(imagomega) then !Hilbert Transformation to get real part
+      if(debug) write(stdo,ftox)" -- dpsion_xq: start imagomega"
       if(npm==1) then
         !$acc data copyin(imatt) create(cimatt)
         !$acc kernels
@@ -168,8 +172,10 @@ contains
         istat = gemm(rcxq(1,1,-nwhis), cimatt(1,1,2), zxqi, npr*npr_col, niwt, nwhis, opB=m_op_T, beta=(1d0,0d0))
         !$acc end data
       endif
+      write(stdo,ftox)" -- dpsion_xq: end of imagomega"
     endif if_IMAGOMEGA
     if_REALOMEGA: if(realomega) then !Hilbert Transformation to get real part
+      if(debug) write(stdo,ftox)" -- dpsion_xq: start realomega"
       if(npm == 1 .and. .not.chipm) then
         !$acc data copyin(rmatt) create(crmatt, zxq_work)
         !$acc kernels
@@ -226,7 +232,9 @@ contains
         enddo
         !$acc end data
       endif
+      write(stdo,ftox)" -- dpsion_xq: end of realomg"
     endif if_REALOMEGA
+    call flush(stdo)
     !$acc end host_data
   end subroutine dpsion_xq
 
