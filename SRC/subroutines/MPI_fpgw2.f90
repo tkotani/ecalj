@@ -96,7 +96,7 @@ contains
     complex(8), intent(in) :: xqw(npr,npr_col)
     complex(8), intent(out) :: xqw_all(npr,npr)  ! we suppose only column was split
     integer, allocatable :: data_disp(:), data_size(:)
-    integer :: irank_b, mpi_size, rank
+    integer :: irank_b, rank
     xqw_all(1:npr,1:npr) = (0D0, 0D0)
     allocate(data_size(0:mpi__size_b-1), data_disp(0:mpi__size_b-1))
     do irank_b = 0, mpi__size_b -1
@@ -109,7 +109,14 @@ contains
     !               &  mpi_complex16, 0, comm_root_k, mpi__info)
     deallocate(data_size, data_disp)
   end subroutine MPI__GatherXqw
-
+  integer function get_mpi_size(communicator) result(mpi_size)
+    implicit none
+    integer, intent(in), optional :: communicator
+    integer :: comm_in, ierr
+    comm_in = comm
+    if(present(communicator)) comm_in = communicator
+    call MPI_Comm_size(comm_in, mpi_size, ierr)
+  end function get_mpi_size
   subroutine MPI__Initialize_magnon(commin)
     implicit none
     character(1024*4) :: cwd, stdout
@@ -201,12 +208,14 @@ contains
     complex(8), intent(inout) :: data(sizex)
     complex(8), allocatable   :: mpi__data(:) 
     integer, intent(in), optional :: communicator
-    integer :: comm_in
-    if( mpi__size == 1 ) return
-    allocate(mpi__data(sizex))
-    mpi__data = data
+    integer :: comm_in, mpi_size_comm_in, ierr
+    if(mpi__size == 1) return
     comm_in = comm
     if(present(communicator)) comm_in = communicator
+    mpi_size_comm_in = get_mpi_size(comm_in)
+    if(mpi_size_comm_in == 1) return
+    allocate(mpi__data(sizex))
+    mpi__data = data
     call MPI_Allreduce( mpi__data, data, sizex, MPI_DOUBLE_COMPLEX, MPI_SUM, comm_in, mpi__info )
     deallocate( mpi__data )
   end subroutine MPI__AllreduceSum
@@ -216,12 +225,14 @@ contains
     complex(8), intent(inout) :: data(sizex)
     complex(8), allocatable   :: mpi__data(:) 
     integer, intent(in), optional :: communicator
-    integer :: comm_in
-    if( mpi__size == 1 ) return
-    allocate(mpi__data(sizex))
-    mpi__data = data
+    integer :: comm_in, mpi_size_comm_in, ierr
+    if(mpi__size == 1) return
     comm_in = comm
     if(present(communicator)) comm_in = communicator
+    mpi_size_comm_in = get_mpi_size(comm_in)
+    if(mpi_size_comm_in == 1) return
+    allocate(mpi__data(sizex))
+    mpi__data = data
     call MPI_reduce( mpi__data, data, sizex, MPI_DOUBLE_COMPLEX, MPI_SUM, root, comm_in, mpi__info )
     deallocate( mpi__data )
     return
@@ -232,12 +243,14 @@ contains
     complex(4), intent(inout) :: data(sizex)
     complex(4), allocatable   :: mpi__data(:) 
     integer, intent(in), optional :: communicator
-    integer :: comm_in
+    integer :: comm_in, mpi_size_comm_in, ierr
     if( mpi__size == 1 ) return
-    allocate(mpi__data(sizex))
-    mpi__data = data
     comm_in = comm
     if(present(communicator)) comm_in = communicator
+    call MPI_Comm_size(comm_in, mpi_size_comm_in, ierr)
+    if( mpi_size_comm_in == 1 ) return
+    allocate(mpi__data(sizex))
+    mpi__data = data
     call MPI_reduce( mpi__data, data, sizex, MPI_COMPLEX, MPI_SUM, root, comm_in, mpi__info )
     deallocate( mpi__data )
     return

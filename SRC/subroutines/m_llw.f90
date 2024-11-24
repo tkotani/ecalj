@@ -65,6 +65,8 @@ contains
     nwmax = nw
     nwmin = nw_i
     write(stdo,ftox)" === trace check for W-V === nqibz nwmin nwmax=",nqibz,nwmin,nwmax, 'iq q=',iq,ftof(q)
+    write(stdo,ftox) 'size of zxq:',size(zxq,1), size(zxq,2), size(zxq,3)
+    call flush(stdo)
     if(iq<=nqibz) then        !for mmmw
       if(mpi__root_q) then
         open(newunit=ifrcw, file='WVR.'//i2char(iq),form='unformatted',access='direct',recl=mreclx)
@@ -80,9 +82,13 @@ contains
           ix=0
         endif
         call stopwatch_start(t_sw_x_gather)
-        call MPI__GatherXqw(zxq(:,:,iw), zxqw, nmbas1, nmbas2)
+        BLOCK
+          complex(8) :: work(nmbas1,nmbas2)
+          work(1:nmbas1,1:nmbas2) = zxq(1:nmbas1,1:nmbas2,iw)
+        call MPI__GatherXqw(work, zxqw, nmbas1, nmbas2)
+        END BLOCK
         call stopwatch_pause(t_sw_x_gather)
-        if(mpi__root_q) then
+        rootq_if1:if(mpi__root_q) then
         do igb1=ix+1,ngb !  Eqs.(37),(38) in PRB81 125102 (Friedlich)
           do igb2=ix+1,ngb
             ! epstilde(igb1,igb2)= -vcousq(igb1)*zxq(igb1,igb2,iw)*vcousq(igb2)
@@ -119,7 +125,7 @@ contains
 1012    continue
         write(ifrcw, rec= iw-nw_i+1 ) zw !  WP = vsc-v
         call tr_chkwrite("freq_r iq iw realomg trwv=", zw, iw, frr,nblochpmx, nbloch,ngb,iq)
-        endif
+        endif rootq_if1
 1015  enddo iwloop
       if(mpi__root_q) close(ifrcw)
     else  ! llw, Wing elements of W. See PRB81 125102
@@ -133,7 +139,7 @@ contains
         call stopwatch_start(t_sw_x_gather)
         call MPI__GatherXqw(zxq(:,:,iw), zxqw, nmbas1, nmbas2)
         call stopwatch_pause(t_sw_x_gather)
-        if(mpi__root_q) then
+        rootq_if2:if(mpi__root_q) then
         ix=0
         eee=0d0
         do igb1=ix+1,ngb
@@ -179,7 +185,7 @@ contains
              iq,iw,freq_r(iw),llw(iw,iq0),1d0-vcou1*zxqw(1,1)
              ! iq,iw,freq_r(iw),llw(iw,iq0),1d0-vcou1*zxq(1,1,iw)
         continue               !iw
-        endif
+        endif rootq_if2
 1115  enddo
     endif
     deallocate(zxqw)

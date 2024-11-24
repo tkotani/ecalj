@@ -24,15 +24,15 @@ subroutine x0gemm(rcxq, npr, ipr_col, npr_col, nwhis, npm, ns1, ns2)
   !$ use omp_lib
   implicit none
   integer, intent(in) :: npr, ipr_col, npr_col, nwhis, npm, ns1, ns2
-  complex(kind=kp), intent(inout) :: rcxq(npr,npr_col,nwhis,npm) !accumulating to rcxq
+  complex(kind=kp), intent(inout) :: rcxq(npr,npr_col,((1-npm)*nwhis):nwhis)
   integer :: icoun, igb1, igb2, iw, jpm, it, itp, ittp, nttp_max, ierr
   integer, allocatable :: nttp(:,:),  itw(:,:,:), itpw(:,:,:)
   complex(kind=kp), allocatable :: zw(:,:), wzw(:,:)
   complex(kind=kp), parameter :: CONE = (1_kp, 0_kp)
   real(8), allocatable :: whw(:,:,:)
-  logical :: debug = .false.
+  logical :: debug = .true.
 #ifdef __GPU
-  attributes(device) :: zw, wzw
+  attributes(device) :: zw, wzw, rcxq
 #endif
   allocate(nttp(nwhis,npm), source = 0)
   do icoun = icounkmink, icounkmaxk
@@ -64,7 +64,6 @@ subroutine x0gemm(rcxq, npr, ipr_col, npr_col, nwhis, npm, ns1, ns2)
   enddo
 
   allocate(zw(nttp_max,npr), wzw(nttp_max,npr_col))
-  !$acc host_data use_device(rcxq)
   !$acc data copyin(whw, itw, itpw, zmel)
   do jpm = 1, npm
     do iw = 1, nwhis
@@ -85,12 +84,11 @@ subroutine x0gemm(rcxq, npr, ipr_col, npr_col, nwhis, npm, ns1, ns2)
         enddo
       enddo
       !$acc end kernels
-      ierr = gemm(zw, wzw, rcxq(1,1,iw,jpm), npr, npr_col, nttp(iw,jpm), &
-              &  opA = m_op_C, beta = CONE , ldA = nttp_max, ldB = nttp_max)
+      ierr = gemm(zw, wzw, rcxq(1,1,iw*(3-2*jpm)), npr, npr_col, nttp(iw,jpm), &
+              &  opA = m_op_C, beta = CONE, ldA = nttp_max, ldB = nttp_max)
     enddo
   enddo
   !$acc end data
-  !$acc end host_data
   deallocate(itw, itpw, whw, wzw, zw, nttp)
 
 end subroutine x0gemm
