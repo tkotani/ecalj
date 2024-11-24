@@ -98,6 +98,10 @@ contains
     integer, allocatable :: data_disp(:), data_size(:)
     integer :: irank_b, rank
     xqw_all(1:npr,1:npr) = (0D0, 0D0)
+    if(mpi__size_b == 1 .and. npr == npr_col) then
+      xqw_all = xqw
+      return
+    endif
     allocate(data_size(0:mpi__size_b-1), data_disp(0:mpi__size_b-1))
     do irank_b = 0, mpi__size_b -1
       data_size(irank_b) = npr*mpi__npr_col(irank_b)

@@ -98,25 +98,29 @@ contains
     integer :: iw
     real(8), parameter:: pi  = 4d0*datan(1d0)
     complex(8), parameter :: img = (0d0,1d0)
-    complex(kind=kp) :: rcxqin(1:nwhis), zxq_work(1:npr,0:nw_w), cimatt(niwt, nwhis, npm), crmatt(0:nw_w,nwhis,npm)
+    complex(kind=kp) :: rcxqin(1:nwhis), zxq_work(1:npr,nw_i:nw_w), cimatt(niwt,nwhis,npm), crmatt(0:nw_w,nwhis,npm)
     integer :: ipr, ipr_col, ipm, istat, ispx
     real(8) :: wfac
+    !$acc host_data use_device(rcxq, zxqi)
     write(stdo,ftox)" -- dpsion_xq: start... nw_w nwhis=",nw_w,nwhis
     if(chipm.and.npm==2) call rx( 'x0kf_v4h:npm==2 .AND. chipm is not meaningful probably')  ! Note rcxq here is negative 
     GaussianFilter: if(abs(egauss)>1d-15) then
       write(6,'("GaussianFilterX0= ",d13.6)') egauss
       if(allocated(gfmat)) deallocate(gfmat)
       allocate(gfmat(nwhis,nwhis))
+      call rx( 'dpsion_xq: GaussianFilterX0 is not implemented yet')
       gfmat=gaussianfilterhis(egauss,frhis,nwhis)
       !$acc data copyin(gfmat) create(rcxqin)
-      !$acc data kernels collapse(3) private(rcxqin)
       do ipr = 1, npr
         do ipr_col = 1, npr_col
           rcxqin = rcxq(ipr,ipr_col,1:nwhis)
-          rcxq(ipr,ipr_col,1:nwhis) = matmul(gfmat,rcxqin)
+          ! do iw = 1, nwhis
+          !   do iw = 1, nwhis
+          !   rcxq(ipr,ipr_col,iw) = rcxq(ipr,ipr_col,iw) + gfmat(iw,:),rcxqin(
+          ! rcxqin = rcxq(ipr,ipr_col,1:nwhis)
+          ! rcxq(ipr,ipr_col,1:nwhis) = matmul(gfmat,rcxqin)
         enddo
       enddo
-      !$acc end kernels
       !$acc end data
       if(npm==2) then
         call rx( 'dpsion_xq: npm==2 is not implemented yet')
@@ -145,9 +149,9 @@ contains
       !$acc end kernels
     enddo
     !$acc end data
-    IMAGEOMEGA: if(imagomega) then !Hilbert Transformation to get real part
+    if_IMAGOMEGA: if(imagomega) then !Hilbert Transformation to get real part
       if(npm==1) then
-        !$acc kernels copyin(imatt) create(cimatt)
+        !$acc data copyin(imatt) create(cimatt)
         !$acc kernels
         cimatt(:,:,:) = cmplx(imatt(:,:,:), kind=kp)
         !$acc end kernels
@@ -155,19 +159,19 @@ contains
         !$acc end data
       elseif(npm==2) then
         call rx( 'dpsion_xq: npm==2 is not implemented yet')
-        !$acc kernels copyin(imattC) create(cimatt)
+        !$acc data copyin(imattC) create(cimatt)
         !$acc kernels
         cimatt(:,1:nwhis,1) = cmplx(imattC(:,1:nwhis: 1,1), kind=kp)
         cimatt(:,1:nwhis,2) = cmplx(imattC(:,nwhis:1:-1,2), kind=kp)
         !$acc end kernels
-        istat = gemm(rcxq(1,1,      1), cimatt(1,1,1), zxqi, npr*npr_col, niwt, nwhis, opB=m_op_T)
-        istat = gemm(rcxq(1,1,-nnwhis), cimatt(1,1,2), zxqi, npr*npr_col, niwt, nwhis, opB=m_op_T, beta=(1d0,0d0))
+        istat = gemm(rcxq(1,1,     1), cimatt(1,1,1), zxqi, npr*npr_col, niwt, nwhis, opB=m_op_T)
+        istat = gemm(rcxq(1,1,-nwhis), cimatt(1,1,2), zxqi, npr*npr_col, niwt, nwhis, opB=m_op_T, beta=(1d0,0d0))
         !$acc end data
       endif
-    endif IMAGEOMEGA
-    REALOMEGA: if(realomega) then !Hilbert Transformation to get real part
+    endif if_IMAGOMEGA
+    if_REALOMEGA: if(realomega) then !Hilbert Transformation to get real part
       if(npm == 1 .and. .not.chipm) then
-        !$acc kernels copyin(rmatt) create(crmatt, zxq_work)
+        !$acc data copyin(rmatt) create(crmatt, zxq_work)
         !$acc kernels
         crmatt(:,:,:) = cmplx(rmatt(:,:,:), kind=kp)
         !$acc end kernels
@@ -190,7 +194,7 @@ contains
           zxq_chipm(:,:,1:nw_w)= zxq_chipm(:,:,1:nw_w)+ img*rcxq(:,:,1:nw_w) 
           !$acc end kernels
         endif
-        !$acc kernels copyin(rmattx) create(crmatt)
+        !$acc data copyin(rmattx) create(crmatt)
         !$acc kernels
         crmatt(:,:,:) = cmplx(rmattx(:,:,:,ispx), kind=kp)
         !$acc end kernels
@@ -208,21 +212,22 @@ contains
         endif
       elseif(npm == 2) then
         call rx( 'dpsion_xq: npm==2 is not implemented yet')
-        !$acc kernels copyin(rmatt) create(crmatt, zxq_work)
+        !$acc data copyin(rmatt) create(crmatt, zxq_work)
         !$acc kernels
         crmatt(:,1:nwhis,1) = cmplx(rmatt(:,1:nwhis: 1,1), kind=kp)
         crmatt(:,1:nwhis,2) = cmplx(rmatt(:,nwhis:1:-1,2), kind=kp)
         !$acc end kernels
         do ipr_col = 1, npr_col
-          istat = gemm(rcxq(1,ipr_col,     1), crmatt(1,1,1), zxq_work, npr, nw_w+1, nwhis, ldA=npr*npr_col, opB=m_op_T)
-          istat = gemm(rcxq(1,ipr_col,-nwhis), crmatt(1,1,2), zxq_work, npr, nw_w+1, nwhis, ldA=npr*npr_col, opB=m_op_T, beta = (1d0,0d0))
+          istat = gemm(rcxq(1,ipr_col,     1), crmatt(1,1,1), zxq_work, npr, (nw_w-nw_i)+1, nwhis, ldA=npr*npr_col, opB=m_op_T)
+          istat = gemm(rcxq(1,ipr_col,-nwhis), crmatt(1,1,2), zxq_work, npr, (nw_w-nw_i)+1, nwhis, ldA=npr*npr_col, opB=m_op_T, beta = (1d0,0d0))
           !$acc kernels
-          rcxq(1:npr,ipr_col,0:nw_w) = rcxq(1:npr,ipr_col,0:nw_w)*img + zxq_work(1:npr,0:nw_w) !override
+          rcxq(1:npr,ipr_col,nw_i:nw_w) = rcxq(1:npr,ipr_col,nw_i:nw_w)*img + zxq_work(1:npr,nw_i:nw_w) !override
           !$acc end kernels
         enddo
         !$acc end data
       endif
-    endif REALOMEGA
+    endif if_REALOMEGA
+    !$acc end host_data
   end subroutine dpsion_xq
 
   subroutine dpsion5(realomega,imagomega,rcxq,nmbas1,nmbas2, zxq,zxqi, chipm,schi,isp,ecut,ecuts) 

@@ -21,9 +21,6 @@ module m_x0kf
   complex(kind=kp), public, allocatable:: zxqi(:,:,:)   !Not yet protected because of main_hx0fp0
   complex(kind=kp), public, pointer:: zxq(:,:,:) => null()
   complex(kind=kp), allocatable, target:: rcxq(:,:,:)
-#ifdef __GPU
-  attributes(device) :: rcxq, zxq, zxqi
-#endif
   integer,public::npr
   private
   
@@ -185,12 +182,22 @@ contains
     else;                        call setppovlz(q,matz=.true.,npr=npr)!2024-5-23 obata. A minor bug to consume memory: Set npr=1 for EPSPP0 mode(no lfc)
     endif
     if(associated(zxq)) nullify(zxq)
-    if(allocated(rcxq)) deallocate(rcxq)
-    allocate(rcxq(1:npr,1:npr_col,(1-npm)*nwhis:nwhis))
+    if(allocated(rcxq)) then
+      !$acc exit data delete(rcxq)
+      deallocate(rcxq)
+    endif
+    allocate(rcxq(1:npr,1:npr_col,(1-npm)*nwhis:nwhis)) ! rcxq(:,:,0) is empty until Helbert transformation.
+    !$acc enter data create(rcxq)
     if(nw_w > nwhis) call rx('nwhis is smaller than nw_w')
     if(mpi__root_k) then
-      if(realomega) zxq(1:,1:,nw_i:) => rcxq(1:npr,1:npr,nw_i:nw_w)
-      if(imagomega) allocate(zxqi(npr,npr_col,niw))
+      if(realomega) then
+        zxq(1:,1:,nw_i:) => rcxq(1:npr,1:npr_col,nw_i:nw_w) !nw_i = 0 (npm=1) nw_i = -nw_w (npm=2)
+        !$acc enter data create(zxq)
+      endif
+      if(imagomega) then
+        allocate(zxqi(npr,npr_col,niw))
+        !$acc enter data create(zxqi)
+      endif
     endif
     write(stdo,ftox)' size of rcxq:', npr, npr_col, nwhis*npm+1
     call flush(stdo)
@@ -411,10 +418,11 @@ contains
      call ExitDataGPU_inkx()
   end subroutine x0kf_zxq
   subroutine deallocatezxq()
-    ! deallocate(zxq)
+    !$acc exit data delete(zxq)
     nullify(zxq)
   end subroutine deallocatezxq
   subroutine deallocatezxqi()
+    !$acc exit data delete(zxqi)
     deallocate(zxqi)
   end subroutine deallocatezxqi
   subroutine x0kf_zmel( q,k, isp_k,isp_kq)!, GPUTEST) ! Return zmel= <phi phi |M_I> in m_zmel

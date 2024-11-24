@@ -11,7 +11,7 @@ module m_llw
   use m_readVcoud,only: vcousq,zcousq,ngb
   use m_rdpp,only: nbloch,mrecl
   use m_x0kf,only: zxq,zxqi
-  use m_mpi, only: MPI__GatherXqw, mpi__root_k, mpi__root_q
+  use m_mpi, only: MPI__GatherXqw, mpi__root_k, mpi__root_q, mpi__size_b
   use m_kind,only: kp => kindrcxq
   use m_stopwatch
 #ifdef __GPU
@@ -60,8 +60,12 @@ contains
     ngbq0 = nbloch+ngc0
     allocate( zw0(ngb,ngb), epstilde(ngb,ngb), epstinv(ngb,ngb))
     allocate (zxqw(ngb, ngb))
-    flush(6)
-    if(nspin == 1) zxq = 2d0*zxq !if paramagnetic, multiply x0 by 2
+    !$acc enter data create(zxqw, epstilde, epstinv, zw, zw0) copyin(vcousq)
+    if(nspin == 1) then
+      !$acc kernels
+      zxq(:,:,:) = 2d0*zxq(:,:,:)
+      !$acc end kernels
+    endif
     nwmax = nw
     nwmin = nw_i
     write(stdo,ftox)" === trace check for W-V === nqibz nwmin nwmax=",nqibz,nwmin,nwmax, 'iq q=',iq,ftof(q)
@@ -76,27 +80,36 @@ contains
         frr= dsign(freq_r(abs(iw)),dble(iw))
         if(iq==1) then
           ix=1
+          !$acc kernels
           zw0(:,1)=0d0
           zw0(1,:)=0d0
+          !$acc end kernels
         else
           ix=0
         endif
         call stopwatch_start(t_sw_x_gather)
-        BLOCK
-          complex(8) :: work(nmbas1,nmbas2)
-          work(1:nmbas1,1:nmbas2) = zxq(1:nmbas1,1:nmbas2,iw)
-        call MPI__GatherXqw(work, zxqw, nmbas1, nmbas2)
-        END BLOCK
+        if(mpi__size_b == 1) then
+          !$acc kernels
+          zxqw(:,:) = zxq(:,:,iw)
+          !$acc end kernels
+        else
+          !$acc update host(zxq(1:nmbas1,1:nmbas2,iw))
+          call MPI__GatherXqw(zxq(:,:,iw), zxqw, nmbas1, nmbas2)
+          !$acc update device(zxqw)
+        endif
         call stopwatch_pause(t_sw_x_gather)
         rootq_if1:if(mpi__root_q) then
+        !$acc kernels loop independent collapse(2)
         do igb1=ix+1,ngb !  Eqs.(37),(38) in PRB81 125102 (Friedlich)
           do igb2=ix+1,ngb
-            ! epstilde(igb1,igb2)= -vcousq(igb1)*zxq(igb1,igb2,iw)*vcousq(igb2)
             epstilde(igb1,igb2)= -vcousq(igb1)*zxqw(igb1,igb2)*vcousq(igb2)
             if(igb1==igb2) epstilde(igb1,igb2)=1+epstilde(igb1,igb2)
           enddo
         enddo
+        !$acc end kernels
+        !$acc kernels 
         epstinv(ix+1:ngb,ix+1:ngb)=epstilde(ix+1:ngb,ix+1:ngb)
+        !$acc end kernels
         call stopwatch_start(t_sw_matinv)
         if(tzminv) then
           !$acc data copy(epstinv)
@@ -105,23 +118,31 @@ contains
           !$acc end host_data
           !$acc end data
         else
+          !$acc update host(epstinv)
           call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
         endif
         call stopwatch_pause(t_sw_matinv)
         !  w4p writing eps
         if(iw==0 .AND. w4pmode) then ! static epstinv is saved. For q=0 epstilde (mu=1 skipped). For q/=0 full matrix inversion. ix=1 is set for q=0)
+          !$acc update host(epstinv)
           open(newunit=ifw4p,file='W4PHONON.'//i2char(iq),form='unformatted')
           write(ifw4p) iq,q,ngb,ix !ix=0, or ix=1 for q=0 (iq=1)
           write(ifw4p) epstinv(ix+1:ngb,ix+1:ngb)
           close(ifw4p)
         endif
+        !$acc kernels loop independent collapse(2)
         do igb1=1+ix,ngb
           do igb2=1+ix,ngb
             zw0(igb1,igb2)= vcousq(igb1)*epstinv(igb1,igb2)*vcousq(igb2)
             if(igb1==igb2) zw0(igb1,igb2)= zw0(igb1,igb2)-vcousq(igb1)*vcousq(igb2)
           enddo
         enddo
+        !$acc end kernels
+        !$acc kernels
+        zw(:,:) = (0d0,0d0)
         zw(1:ngb,1:ngb) = cmplx(zw0(1:ngb,1:ngb),kind=kp)
+        !$acc end kernels
+        !$acc update host(zw)
 1012    continue
         write(ifrcw, rec= iw-nw_i+1 ) zw !  WP = vsc-v
         call tr_chkwrite("freq_r iq iw realomg trwv=", zw, iw, frr,nblochpmx, nbloch,ngb,iq)
@@ -137,26 +158,36 @@ contains
         !! Full inversion to calculalte eps with LFC.
         !if(localfieldcorrectionllw()) then
         call stopwatch_start(t_sw_x_gather)
-        call MPI__GatherXqw(zxq(:,:,iw), zxqw, nmbas1, nmbas2)
+        if(mpi__size_b == 1) then
+          !$acc kernels
+          zxqw(:,:) = zxq(:,:,iw)
+          !$acc end kernels
+        else
+          !$acc update host(zxq(1:nmbas1,1:nmbas2,iw))
+          call MPI__GatherXqw(zxq(:,:,iw), zxqw, nmbas1, nmbas2)
+          !$acc update device(zxqw)
+        endif
         call stopwatch_pause(t_sw_x_gather)
         rootq_if2:if(mpi__root_q) then
         ix=0
         eee=0d0
+        !$acc kernels loop independent collapse(2)
         do igb1=ix+1,ngb
           do igb2=ix+1,ngb
             if(igb1==1 .AND. igb2==1) then
-              ! epstilde(igb1,igb2)= 1d0 - vcou1*zxq(1,1,iw)
               epstilde(igb1,igb2)= 1d0 - vcou1*zxqw(1,1)
               cycle
             endif
-            ! epstilde(igb1,igb2)= -vcousq(igb1)*zxq(igb1,igb2,iw)*vcousq(igb2)
             epstilde(igb1,igb2)= -vcousq(igb1)*zxqw(igb1,igb2)*vcousq(igb2)
             if(igb1==igb2) then
               epstilde(igb1,igb2)=1d0 + epstilde(igb1,igb2)
             endif
           enddo
         enddo
+        !$acc end kernels
+        !$acc kernels 
         epstinv(ix+1:ngb,ix+1:ngb)=epstilde(ix+1:ngb,ix+1:ngb)
+        !$acc end kernels
         call stopwatch_start(t_sw_matinv)
         if(tzminv) then
           !$acc data copy(epstinv)
@@ -165,8 +196,11 @@ contains
           !$acc end host_data
           !$acc end data
         else
+          !$acc update host(epstinv)
           call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
+          !$acc update device(epstinv)
         endif
+        !$acc update host(epstinv)
         call stopwatch_pause(t_sw_matinv)
         if(iq0<=nq0i) llw(iw,iq0)= 1d0/epstinv(1,1)
         !     ! Wing elements calculation july2016    ! We need check nqb is the same as that of q=0
@@ -188,6 +222,7 @@ contains
         endif rootq_if2
 1115  enddo
     endif
+    !$acc exit data delete(zxqw, epstilde, epstinv, zw, zw0, vcousq)
     deallocate(zxqw)
     if(mpi__root_q) then 
        call stopwatch_show(t_sw_x_gather)
@@ -207,6 +242,7 @@ contains
     integer :: istat
     type(stopwatch) :: t_sw_matinv, t_sw_x_gather
     allocate (zxqw(ngb, ngb))
+    !$acc enter data create(zxqw, epstilde, epstinv, zw, zw0) copyin(vcousq)
     mreclx=mrecl
     emptyrun=.false. !cmdopt0('--emptyrun')
     if(init) then
@@ -217,7 +253,11 @@ contains
     call stopwatch_init(t_sw_matinv, 'matinv')
     call stopwatch_init(t_sw_x_gather, 'gather')
     write(6,*)'WVRllwI: init'
-    if (nspin == 1) zxqi = 2d0*zxqi ! if paramagnetic, multiply x0 by 2
+    if (nspin == 1) then
+      !$acc kernels
+      zxqi(:,:,:) = 2d0*zxqi(:,:,:) ! if paramagnetic, multiply x0 by 2
+      !$acc end kernels
+    endif
     if( iq<=nqibz ) then
        if(mpi__root_q) then
          open(newunit=ifrcwi,file='WVI.'//i2char(iq),form='unformatted',access='direct',recl=mreclx)
@@ -227,23 +267,36 @@ contains
           !!  Eqs.(37),(38) in PRB81 125102
           if(iq==1) then
              ix=1
+             !$acc kernels
              zw0(:,1)=0d0
              zw0(1,:)=0d0
+             !$acc end kernels
           else
              ix=0
           endif
           call stopwatch_start(t_sw_x_gather)
-          call MPI__GatherXqw(zxqi(:,:,iw), zxqw, nmbas1, nmbas2)
+          if(mpi__size_b == 1) then
+            !$acc kernels
+            zxqw(:,:) = zxqi(:,:,iw)
+            !$acc end kernels
+          else
+            !$acc update host(zxqi(1:nmbas1,1:nmbas2,iw))
+            call MPI__GatherXqw(zxqi(:,:,iw), zxqw, nmbas1, nmbas2)
+            !$acc update device(zxqw)
+          endif
           call stopwatch_pause(t_sw_x_gather)
           if(mpi__root_q) then
+          !$acc kernels loop independent collapse(2)
           do igb1=ix+1,ngb
              do igb2=ix+1,ngb
-                ! epstilde(igb1,igb2)= -vcousq(igb1)*zxqi(igb1,igb2,iw)*vcousq(igb2)
                 epstilde(igb1,igb2)= -vcousq(igb1)*zxqw(igb1,igb2)*vcousq(igb2)
                 if(igb1==igb2) epstilde(igb1,igb2)=1+epstilde(igb1,igb2)
              enddo
           enddo
-          epstinv=epstilde
+          !$acc end kernels
+          !$acc kernels 
+          epstinv(:,:) = epstilde(:,:)
+          !$acc end kernels
           call stopwatch_start(t_sw_matinv)
           if(tzminv) then
             !$acc data copy(epstinv)
@@ -252,17 +305,25 @@ contains
             !$acc end host_data
             !$acc end data
           else
+            !$acc update host(epstinv)
             call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
+            !$acc update device(epstinv)
           endif
           call stopwatch_pause(t_sw_matinv)
+          !$acc kernels loop independent collapse(2)
           do igb1=ix+1,ngb
              do igb2=ix+1,ngb
                 zw0(igb1,igb2)= vcousq(igb1)*epstinv(igb1,igb2)*vcousq(igb2)
                 if(igb1==igb2) zw0(igb1,igb2)= zw0(igb1,igb2)-vcousq(igb1)*vcousq(igb2)
              enddo
           enddo
+          !$acc end kernels
 1014      continue
+          !$acc kernels
+          zw(:,:) = (0d0,0d0)
           zw(1:ngb,1:ngb) = cmplx(zw0(1:ngb,1:ngb),kind=kp)
+          !$acc end kernels
+          !$acc update host(zw)
           write(ifrcwi, rec= iw)  zw !  WP = vsc-v
           call tr_chkwrite("freq_i iq iw imgomg trwv=",zw,iw,freq_i(iw),nblochpmx,nbloch,ngb,iq)
           endif
@@ -276,10 +337,19 @@ contains
           if(emptyrun) exit
           !if(localfieldcorrectionllw()) then
           call stopwatch_start(t_sw_x_gather)
-          call MPI__GatherXqw(zxqi(:,:,iw), zxqw, nmbas1, nmbas2)
+          if(mpi__size_b == 1) then
+            !$acc kernels
+            zxqw(:,:) = zxqi(:,:,iw)
+            !$acc end kernels
+          else
+            !$acc update host(zxqi(1:nmbas1,1:nmbas2,iw))
+            call MPI__GatherXqw(zxqi(:,:,iw), zxqw, nmbas1, nmbas2)
+            !$acc update device(zxqw)
+          endif
           call stopwatch_pause(t_sw_x_gather)
           if(mpi__root_q) then
              ix=0
+             !$acc kernels loop independent collapse(2)
              do igb1=ix+1,ngb
                 do igb2=ix+1,ngb
                    if(igb1==1 .AND. igb2==1) then
@@ -294,7 +364,10 @@ contains
                    endif
                 enddo
              enddo
+             !$acc end kernels
+             !$acc kernels 
              epstinv(ix+1:ngb,ix+1:ngb)=epstilde(ix+1:ngb,ix+1:ngb)
+             !$acc end kernels
              call stopwatch_start(t_sw_matinv)
              if(tzminv) then
                !$acc data copy(epstinv)
@@ -303,8 +376,11 @@ contains
                !$acc end host_data
                !$acc end data
              else
+               !$acc update host(epstinv)
                call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
+               !$acc update device(epstinv)
              endif
+             !$acc update host(epstinv)
              call stopwatch_pause(t_sw_matinv)
              if(iq0<=nq0i) llwI(iw,iq0)= 1d0/epstinv(1,1)
           !else
@@ -317,6 +393,7 @@ contains
           endif
 1116   enddo
     endif
+    !$acc exit data delete(zxqw, epstilde, epstinv, zw, zw0, vcousq)
     deallocate(epstinv,epstilde,zw0)
     deallocate(zxqw)
     if(mpi__root_q) then 
