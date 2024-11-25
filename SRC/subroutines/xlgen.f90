@@ -64,7 +64,7 @@ subroutine xlgen(plat,rmax,rmax2,nvmax,opts,mode,nv,vecs)! Generate a list of la
            !write(6,ftox)' goto ivckxxx',ivck
            !   ... Increment nv and copy to vec(nv)
            nv = nv+1
-           if(nv>nvmax.and.mod(opts/10,10)/=2)call rx('xlgen: too many vectors n='//trim(xt(nv)))
+           if(nv>nvmax.and.mod(opts/10,10)/=2)call rxii('xlgen: Enlarge nvmax (nkdmx or nkqmx probably) nv,nvmax=',nv,nvmax)
            if (mod(opts/10,10) == 2) then
            elseif (mod(opts/100,10) == 1) then
               vecs(:,nv) = [i,j,k]

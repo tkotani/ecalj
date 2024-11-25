@@ -306,9 +306,9 @@ contains
       call rval2('SYMGRPAF', ch=ch); symgaf=adjustl(ch) ! Extra Generator for adding anti ferro symmetry'
       afsym=merge(.true.,.false., len_trim(symgaf)/=0.and.lso/=1)
       
-      call rval2('EWALD_AS',rr=rr,defa=[2d0]);   lat_as=rr  !'Ewald smoothing parameter
       call rval2('EWALD_TOL',rr=rr,defa=[1d-8]); lat_tol=rr !'Ewald tolerance')
-      call rval2('EWALD_NKDMX',rr=rr,defa=[real(8):: 1000]); lat_nkdmx=nint(rr) !'Ewald tolerance'
+      lat_as    = 2d0   !call rval2('EWALD_AS',rr=rr,defa=[2d0]);   lat_as=rr  !'Ewald smoothing parameter
+      lat_nkdmx = 10000 !call rval2('EWALD_NKDMX',rr=rr,defa=[real(8):: 300]); lat_nkdmx=nint(rr) !'Ewald tolerance'
       mix_nsave = 8         ! nsave = # iter to save on disk
       mix_tolu = 0          ! tolu
       mix_umix = 1          ! umix (mixing parm for LDA+U)

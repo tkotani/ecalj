@@ -23,7 +23,7 @@ subroutine hx0fp0()
        nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx,nprecx,mrecl,nblochpmx
   use m_zmel,only: Mptauof_zmel!, Setppovlz,Setppovlz_chipm   ! & NOTE: these data set are stored in this module, and used
   use m_itq,only: Setitq !set itq,ntq,nband,ngcmx,ngpmx to m_itq
-  use m_freq,only: Getfreq3, &! & NOTE: call getfreq generate following data.
+  use m_freq,only: Getfreq3, getfreq2, &! & NOTE: call getfreq generate following data.
        frhis,freq_r,freq_i, nwhis,nw_i,nw,npm,wiw,niw !, frhis0,nwhis0 !output of getfreq
   use m_tetwt,only: Tetdeallocate,Gettetwt, &! & followings are output of 'L871:call gettetwt')
        whw,ihw,nhw,jhw,ibjb,nbnbx,nhwtot,n1b,n2b,nbnb
@@ -164,7 +164,7 @@ subroutine hx0fp0()
   real(8),allocatable:: aik(:,:,:,:)
   integer,allocatable:: aiktimer(:,:)
   integer:: l2nl
-  logical:: tiii,iprintx,symmetrize,eibzmode !,eibz4x0
+  logical:: tiii,iprintx=.false.,symmetrize,eibzmode !,eibz4x0
   real(8):: qread(3),imagweight,q00(3),rfac00,q1a,q2a
   character(128):: vcoudfile,aaax,itag
   integer:: src,dest
@@ -207,7 +207,7 @@ subroutine hx0fp0()
   !!  realomega: \chi on real axis  !  imagomega: \chi on imag omega !  lqall: limited range of \chi on real axis (mainly for memory reduction
   !!  chipm: \Chi_pm mode (nspin=2) !  nolfco: no local field correction
   lqall=.true.
-  if(ixc==11) then;      write(6,*)"OK ixc=11  normal ";         epsmode=.false. ; lqall=.false.
+  if(ixc==11) then;      write(6,*)"OK ixc=11  normal ";         epsmode=.false. ; lqall=.true.
   elseif(ixc==111) then; write(6,*)"OK ixc=111 normal fullband"; epsmode=.false. 
   elseif(ixc==10011)then;write(6,*)"OK ixc=10011 crpa ";         epsmode=.false. ; crpa=.true.
   elseif(ixc==202) then; write(6,*)"OK ixc=202 eps NoLFC";       epsmode =.true. ; imagomega=.false.; omitqbz=.true.;nolfco=.true.
