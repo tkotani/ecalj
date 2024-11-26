@@ -5,7 +5,7 @@ import sys,os
 #import numpy as np
 arglist=' '.join(sys.argv[1:])
 scriptpath = os.path.dirname(os.path.realpath(__file__))+'/'
-ecaljF = getlibF(scriptpath+'/libecaljF.so')
+ecaljF = getlibF(scriptpath+'/libecaljF.so',True)
 
 # world
 commw = MPI.COMM_WORLD
