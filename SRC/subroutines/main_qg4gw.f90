@@ -63,7 +63,6 @@ subroutine qg4gw() bind(C)
   call MPI__Initialize()
 !  if(.not.MPI__root) goto 9999
   call M_lgunit_init()
-  call show_programinfo(6)
   call cputid (0)
   write(6,"(a)")'qg4gw: Generate Q0P->1; Readin Q0P->2; SW(chipm)->4'
   write(6,"(a)")'       Generate Q0P and Q0P for xyz ->201 '

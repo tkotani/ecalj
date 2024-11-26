@@ -21,7 +21,6 @@ contains
     call m_ext_init()  ! Get sname, e.g. trim(sname)=si of ctrl.si
     call m_lgunit_init()
     if(nsize/=1) call rx('Current lmfa is only for single core')
-    if(master_mpi) call show_programinfo(stdo)
     aaa= '=== START LFMA ==='
     if(master_mpi) write(stdo,"(a)") trim(aaa)
     if(master_mpi) write(stdl,"(a)") trim(aaa)
