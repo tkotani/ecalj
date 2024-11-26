@@ -39,12 +39,9 @@ def main():
         if os.system(f'FC={FC} cmake . -DBUILD_MP=ON -DBUILD_GPU=ON -DBUILD_MP_GPU=ON -DCMAKE_BUILD_TYPE={BUILD_TYPE}') != 0:sys.exit(1)
         if os.system('make -j 32') != 0: 
             if os.system('make -j 32') != 0: sys.exit(1)
-    elif(FC in ["gfortran", "ifort"]):
+    elif(FC in ["gfortran", "ifort", "nvfortran"]):
         if os.system(f'FC={FC} cmake .') != 0: sys.exit(1)
         if os.system('make -j')          != 0: sys.exit(1)
-    elif(FC in ["nvfortran"]):
-        if os.system(f'FC={FC} cmake .') != 0: sys.exit(1)
-        if os.system('make ')          != 0: sys.exit(1)
     else:
         print('Check InstallAll')
         sys.exit(-1)

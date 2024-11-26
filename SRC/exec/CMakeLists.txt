@@ -8,11 +8,12 @@ else()
   message("--- ")
   message("=== Your choices to run cmake are: ===")
   message(" >FC=ifort cmake .")
-  message(" >FC=ifort DEBUG=1 cmake .")
+  message(" >FC=ifort cmake . -DCMAKE_BUILD_TYPE=Debug")
   message(" >FC=gfortran cmake .")
-  message(" >FC=gfortran DEBUG=1 cmake .")
+  message(" >FC=gfortran cmake . -DCMAKE_BUILD_TYPE=Debug")
   message(" >FC=nvfortran cmake .")
-  message(" >FC=nvfortran DEBUG=1 cmake .")
+  message(" >FC=nvfortran cmake . -DCMAKE_BUILD_TYPE=Debug")
+  message(" >FC=nvfortran cmake . -DBUILD_GPU=ON -DBUILD_MP=ON -DBUILD_MP_GPU=ON")
   message("You may run >VERBOSE=1 make -j, for detailed make messages.")
   message("Note that '>rm -rf CMakeCache.txt CMakeFiles' is needed for starting over!")
   message(FATAL_ERROR "==> FC=foobar is needed! e.g, FC=gfortran cmake .")
@@ -171,9 +172,10 @@ endforeach()
 
 ### GPU or MP version ####
 # 1:MP, 2:GPU, 3:GPU+MP
-list(FILTER SOURCES EXCLUDE REGEX "main_hhomogas.f90") # main_hhomogas.f90
-list(FILTER SOURCES EXCLUDE REGEX "main_hsfp0.f90") # main_hhomogas.f90
-list(FILTER SOURCES EXCLUDE REGEX "sxcf_fal2.f90") # main_hhomogas.f90
+# Some of sources are excluded because GPU or MP are not implemented.
+list(FILTER SOURCES EXCLUDE REGEX "main_hhomogas.f90")
+list(FILTER SOURCES EXCLUDE REGEX "main_hsfp0.f90")
+list(FILTER SOURCES EXCLUDE REGEX "sxcf_fal2.f90")
 foreach(i RANGE 1 3)
   if(BUILD_MP AND i EQUAL 1)
     set(TYPE _mp)
