@@ -25,7 +25,6 @@ subroutine lmchk(commin) bind(C)
   if(nsize/=1) call rx('Current lmchk is only for single core')
   aaa=argall
   aaa= '=== START '//trim(prgnam)//'  '//trim(aaa)//' ==='
-  if(master_mpi) call show_programinfo(stdo)
   if(master_mpi) write(stdo,"(a)") trim(aaa)
   if(master_mpi) write(stdl,"(a)") trim(aaa)
   if(master_mpi) write(stdo,*) 'mpisize=',nsize

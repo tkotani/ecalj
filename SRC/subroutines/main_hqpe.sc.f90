@@ -122,6 +122,8 @@ contains
       write(ifqpe(is),*) '==============================================================='
       write(ifqpe(is),*) 
       write(ifqpe(is),*)
+!      write(ifqpe(is),"(a)") '           q               state  SEx   SExcore SEc    vxc   ---' &
+!           // '   dSEnoZ  eQP(starting by lmf)  eHF  Z=1  FWHM=2Z*Simg ReS(elda)'
       write(ifqpe(is),"(a)") '           q               state   SEx    SExcore   SEc     vxc     ---' &
            // '    dSEnoZ   eQP(starting by lmf)    eHF   Z=1  FWHM=2Z*Simg ReS(elda)'
     enddo HeaderQPU
@@ -163,6 +165,7 @@ contains
           if(eldax(it,ip)>1d10) cycle ! padding by huge number for it for no data
           ehfx   = merge(0d0,ehf,    abs(sexcore(it,ip))==0d0)
           dsenoz = merge(0d0,eshift, abs(sexcore(it,ip))==0d0)
+!         write(ifqpe(is),'(3f9.5,1x,i2,1x,10f7.2,f5.2,f10.5,3x,f10.5)') qx(1:3,it,ip),itx(it),&
           write(ifqpe(is),'(3f9.5,1x,i3,1x,10f8.3,f5.2,f10.5,3x,f10.5)') qx(1:3,it,ip),itx(it),&
                sex(it,ip),sexcore(it,ip) ,rsec(it,ip),&
                vxc(it,ip), 0d0, dsenoz, eldax(it,ip), 0d0, 0d0, ehfx,zfac,fwhm, sex(it,ip)+sexcore(it,ip)+rsec(it,ip) 

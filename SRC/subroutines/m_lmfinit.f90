@@ -37,7 +37,7 @@ module m_lmfinit ! 'call m_lmfinit_init' sets all initial data from ctrl are pro
   integer,public,allocatable,protected:: lmxb(:),lmxa(:),idmod(:,:),idu(:,:),kmxt(:),lfoca(:),lmxl(:),nr(:),nmcore(:),&
        nkapii(:),nkaphh(:),ispec(:),ifrlx(:,:),ndelta(:), iantiferro(:), iv_a_oips (:),  lpz(:),lpzex(:),lhh(:,:) ,jnlml(:)
   real(8),public,allocatable,protected:: rsmh1(:,:),rsmh2(:,:),eh1(:,:),eh2(:,:),rs3(:),alpha(:,:),uh(:,:),jh(:,:),eh3(:),&
-       qpol(:,:),stni(:),pnusp(:,:,:),qnu(:,:,:),pnuspdefault(:,:),qnudefault(:,:),qnudummy(:,:),&
+       qpol(:,:),stni(:),pnusp(:,:,:),qnu(:,:,:),qnudefault(:,:),qnudummy(:,:),&
        coreq(:,:),rg(:),rsma(:),rfoca(:), rmt(:),pzsp(:,:,:), amom(:,:),spec_a(:),z(:),eref(:),rsmv(:)
   character*(8),public,allocatable,protected:: coreh(:)
   real(8),public,allocatable,protected:: pos(:,:), delta(:,:),mpole(:),dpole(:,:)
@@ -119,7 +119,7 @@ contains
     real(8):: pnuspx(20) ,temp33(9),seref, xxx, avwsr, d2,plat(3,3),rydberg,rr, vsn,vers,xv(2*n0),xvv(3)
     real(8),allocatable ::rv(:)
     character*(8),allocatable::clabl(:)
-    integer,allocatable:: idxdn(:,:,:) 
+    integer,allocatable:: idxdn(:,:,:) ,pnuspdefaulti(:,:)
     real(8),allocatable:: pnuspc(:,:,:),qnuc(:,:,:,:),pp(:,:,:,:),ves(:),zc(:) !    debug = cmdopt0('--debug')
     integer,optional:: commin
     integer:: comm !,nsizex,info
@@ -404,11 +404,12 @@ contains
          !     ! set default pnusp. See the following section 'correct qnu'
          !     ! isp=1 means charge. isp=2 means mmom
          ReadDefaultPnuQnu: block
-           if(allocated(pnuspdefault)) deallocate(pnuspdefault,qnudefault,qnudummy)
-           allocate(pnuspdefault(n0,nsp),qnudefault(n0,nsp),qnudummy(n0,nsp),source=0d0)
+           if(allocated(pnuspdefaulti)) deallocate(pnuspdefaulti,qnudefault,qnudummy)
+           allocate(pnuspdefaulti(n0,nsp),source=0)
+           allocate(qnudefault(n0,nsp),qnudummy(n0,nsp),source=0d0)
            iqnu = merge(0,1,sum(abs(qnu(:,1,j)))<1d-8) !check initial Q is given or not.
-           call defpq(z(j),lmxa(j),1,pnuspdefault,qnudefault)! qnu is given here for default pnusp.
-           call defpq(z(j),lmxa(j),1,pnusp(1,1,j),qnudummy)  ! Set pnusp. 
+           call defpq(z(j),lmxa(j),1,pnusp(1,1,j),qnudefault) ! qnu is given here for default pnusp. ! Set pnusp.
+           pnuspdefaulti = int(pnusp(:,:,j))
            if(iqnu==0) qnu(:,1,j)  = qnudefault(:,1) !charge (qnu(:,:,2) is maga moment.)
            if(nsp==2) pnusp(1:n0,2,j)= pnusp(1:n0,1,j)
            if(nsp==2) pzsp (1:n0,2,j)= pzsp (1:n0,1,j)
@@ -417,14 +418,14 @@ contains
            integer:: ifipnu,lr,iz,nspr,lrmx,isp,ispx
            real(8):: pnur,pzav(n0),pnav(n0),pzsp_r(n0,nsp,nspec),pnusp_r(n0,nsp,nspec)
            character(8):: charext
-           if(trim(prgnam)/='LMFA'.and.ReadPnu) then
-!           if(trim(prgnam)/='LMFA'.and.ReadPnu.and.z(j)>1.001) then
+           if(trim(prgnam)/='LMFA'.and.trim(prgnam)/='LMCHK'.and.ReadPnu) then
+              !    if(trim(prgnam)/='LMFA'.and.ReadPnu.and.z(j)>1.001) then
               pzsp_r =0d0
               pnusp_r=0d0
               open(newunit=ifipnu,file='atmpnu.'//trim(charext(j))//'.'//trim(sname))
-              if(master_mpi) write(stdo,*)'READP=T: read pnu from atmpnu.*'
               do
                  read(ifipnu,*,end=1015) pnur,iz,lr,isp
+                 if(master_mpi) write(stdo,*)'READP=T: read pnu from atmpnu.*'
                  if(iz==1) pzsp_r (lr+1,isp,j)= pnur ! +10d0 caused probelm for 3P of Fe.
                  if(iz==0) pnusp_r(lr+1,isp,j)= pnur
                  lrmx=lr
@@ -439,8 +440,7 @@ contains
               enddo
               do ispx=1,nspr
                  do lr=1,lrmx+1
-                    pzsp(lr, ispx,j) = pzav(lr)
-!                    if(lr>3.and.readpnuskipf)cycle !2024-10-15
+                    pzsp(lr, ispx,j) = pzav(lr) !     if(lr>3.and.readpnuskipf)cycle !2024-10-15
                     pnusp(lr,ispx,j)=  pnav(lr)
                  enddo
               enddo
@@ -453,11 +453,11 @@ contains
          !     Pz < P=Pdefault ! qnu + 2*(2l+1)
          !     Pz=Pdefault < P ! qnu
          if(iqnu==0) then
-            do lx=0,lmxa(j)     !correct valence number of electrons.
+            do lx=0,lmxa(j)   !correct valence number of electrons.
                if(pzsp(lx+1,1,j)<1d-8) then ! PZSP(local orbital) not exist
-                  if(int(pnuspdefault(lx+1,1))<int(pnusp(lx+1,1,j))) qnu(lx+1,1,j)=0d0 !pnuspdefault is filled and no q for pnusp. (core hole case or so)
+                  if(pnuspdefaulti(lx+1,1)<int(pnusp(lx+1,1,j))) qnu(lx+1,1,j)=0d0 !pnuspdefault is filled and no q for pnusp. (core hole case or so)
                else           !PZ exist   !     print *,'qnu=',lx,qnu(lx+1,1,j)
-                  if( mod(int(pzsp(lx+1,1,j)),10)<int(pnuspdefault(lx+1,1)) ) qnu(lx+1,1,j)= qnu(lx+1,1,j)+ 2d0*(2d0*lx+1d0)
+                  if( mod(int(pzsp(lx+1,1,j)),10)<pnuspdefaulti(lx+1,1) ) qnu(lx+1,1,j)= qnu(lx+1,1,j)+ 2d0*(2d0*lx+1d0)
                endif
             enddo
          endif

@@ -53,7 +53,6 @@ contains
     call m_ext_init()    ! Get sname, e.g. trim(sname)=si of ctrl.si
     call m_lgunit_init() ! Set file handle of stdo(console) and stdl(log)    !print *, 'len_trim(argall)=',trim(argall),len_trim(argall),master_mpi
     aaa='===START '//trim(prgnam)//' with  '//trim(argall)//' ==='
-    if(master_mpi) call show_programinfo(stdo)
     if(master_mpi) write(stdo,"(a)") trim(aaa)
     if(master_mpi) write(stdl,"(a)") trim(aaa)
     if(master_mpi) write(stdo,"(a,g0)")'mpisize=',nsize
@@ -145,4 +144,3 @@ subroutine ConvertCtrl2CtrlpByPython()
   call system(cmdl) !See  results ctrlp.* given by ctrl2ctrl.py 
 end subroutine ConvertCtrl2CtrlpByPython
 
-!include "../exec/show_programinfo.fpp" !this is for 'call show_programinfo' ! preprocessed from show_programinfo.f90 by Makefile

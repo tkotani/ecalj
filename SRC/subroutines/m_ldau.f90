@@ -17,8 +17,8 @@ contains
     call tcn('m_ldau_init')
     idmatu=nsp*nlibu*(lmaxu*2+1)**2
     if(init) then
-       allocate( dmato(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu))
-       allocate( vorb (-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu))
+       allocate( dmato(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu),source=(0d0,0d0))
+       allocate( vorb (-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu),source=(0d0,0d0))
        init=.false.
     endif
     call sudmtu(dmato, vorb)  !Read dmatu from dmatu.ext and generate vorbdmat from dmatu.ext
