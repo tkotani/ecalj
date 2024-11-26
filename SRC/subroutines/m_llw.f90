@@ -11,7 +11,12 @@ module m_llw
   use m_readVcoud,only: vcousq,zcousq,ngb
   use m_rdpp,only: nbloch,mrecl
   use m_x0kf,only: zxq,zxqi
-  use m_mpi, only: MPI__GatherXqw, mpi__root_k, mpi__root_q, mpi__size_b
+  use m_mpi, only: mpi__root_k, mpi__root_q, mpi__size_b
+#ifdef __MP
+  use m_mpi, only: MPI__GatherXqw => MPI__GatherXqw_kind4
+#else
+  use m_mpi, only: MPI__GatherXqw => MPI__GatherXqw
+#endif
   use m_kind,only: kp => kindrcxq
   use m_stopwatch
 #ifdef __GPU
@@ -39,7 +44,7 @@ contains
     integer:: nmbas1,nmbas2,ngc0,ifw4p,ifrcw,mreclx
     real(8):: frr,q(3),vcou1,quu(3),eee
     logical::  localfieldcorrectionllw,cmdopt0,emptyrun
-    complex(8), allocatable :: zxqw(:,:)
+    complex(kind=kp), allocatable :: zxqw(:,:)
     logical,save:: init=.true.
     type(stopwatch) :: t_sw_matinv, t_sw_x_gather
     integer :: istat
@@ -139,7 +144,7 @@ contains
         enddo
         !$acc end kernels
         !$acc kernels
-        zw(:,:) = (0d0,0d0)
+        zw(:,:) = (0_kp,0_kp)
         zw(1:ngb,1:ngb) = cmplx(zw0(1:ngb,1:ngb),kind=kp)
         !$acc end kernels
         !$acc update host(zw)
@@ -238,7 +243,7 @@ contains
     real(8):: frr,q(3),vcou1
     logical::  localfieldcorrectionllw,cmdopt0,emptyrun
     logical,save:: init=.true.
-    complex(8), allocatable :: zxqw(:,:)
+    complex(kind=kp), allocatable :: zxqw(:,:)
 !    complex(8):: zxqi(nmbas1,nmbas2,niw)
     character(10):: i2char
     integer :: istat
@@ -322,7 +327,7 @@ contains
           !$acc end kernels
 1014      continue
           !$acc kernels
-          zw(:,:) = (0d0,0d0)
+          zw(:,:) = (0_kp,0_kp)
           zw(1:ngb,1:ngb) = cmplx(zw0(1:ngb,1:ngb),kind=kp)
           !$acc end kernels
           !$acc update host(zw)

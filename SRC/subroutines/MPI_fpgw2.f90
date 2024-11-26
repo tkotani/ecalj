@@ -113,6 +113,28 @@ contains
     !               &  mpi_complex16, 0, comm_root_k, mpi__info)
     deallocate(data_size, data_disp)
   end subroutine MPI__GatherXqw
+  subroutine MPI__GatherXqw_kind4(xqw, xqw_all, npr, npr_col)
+    integer, intent(in) :: npr, npr_col
+    complex(4), intent(in) :: xqw(npr,npr_col)
+    complex(4), intent(out) :: xqw_all(npr,npr)  ! we suppose only column was split
+    integer, allocatable :: data_disp(:), data_size(:)
+    integer :: irank_b, rank
+    xqw_all(1:npr,1:npr) = (0.0, 0.0)
+    if(mpi__size_b == 1 .and. npr == npr_col) then
+      xqw_all = xqw
+      return
+    endif
+    allocate(data_size(0:mpi__size_b-1), data_disp(0:mpi__size_b-1))
+    do irank_b = 0, mpi__size_b -1
+      data_size(irank_b) = npr*mpi__npr_col(irank_b)
+      data_disp(irank_b) = npr*(mpi__ipr_col(irank_b)-1)
+    enddo
+    call mpi_allgatherv(xqw, npr*npr_col, mpi_complex, xqw_all, data_size, data_disp, &
+                  &  mpi_complex, comm_root_k, mpi__info)
+    ! call mpi_gatherv(xqw, npr*npr_col, mpi_complex16, xqw_all, data_size, data_disp, &
+    !               &  mpi_complex16, 0, comm_root_k, mpi__info)
+    deallocate(data_size, data_disp)
+  end subroutine MPI__GatherXqw_kind4
   integer function get_mpi_size(communicator) result(mpi_size)
     implicit none
     integer, intent(in), optional :: communicator

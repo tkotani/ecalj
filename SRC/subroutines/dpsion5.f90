@@ -7,7 +7,7 @@ module m_dpsion
   complex(8),allocatable :: imattC(:,:,:)
   real(8),allocatable,save:: gfmat(:,:)
   logical:: eginit=.true., init=.true.
-  complex(8), allocatable :: zxq_chipm(:,:,:)
+  complex(kind=kp), allocatable :: zxq_chipm(:,:,:)
 #ifdef __GPU
   attributes (device) :: zxq_chipm
 #endif
@@ -60,7 +60,7 @@ contains
         do it =  1,niwt
           zz = img*freqi(it)  
           call hilbertmat(zz,nwhis,his_L,his_C,his_R, rrr) !Im(zz)>0
-          imatt(it,1:nwhis,1) = real(rrr(1:nwhis) - rrr(-1:-nwhis:-1))/pi
+          imatt(it,1:nwhis,1) = dreal(rrr(1:nwhis) - rrr(-1:-nwhis:-1))/pi
         enddo
       else ! npm=2 case 
         allocate( imattC(niwt, nwhis,npm) )
@@ -95,10 +95,12 @@ contains
     integer, intent(in):: isp, npr, npr_col
     complex(kind=kp), intent(inout):: rcxq(1:npr,1:npr_col,(1-npm)*nwhis:nwhis)
     complex(kind=kp), intent(out) ::  zxqi(1:npr,1:npr_col,niwt)
+    complex(kind=kp), parameter:: CONE = (1_kp, 0_kp), CZERO = (0_kp, 0_kp)
     integer :: iw
     real(8), parameter:: pi  = 4d0*datan(1d0)
     complex(8), parameter :: img = (0d0,1d0)
-    complex(kind=kp) :: rcxqin(1:nwhis), zxq_work(1:npr,nw_i:nw_w), cimatt(niwt,nwhis,npm), crmatt(0:nw_w,nwhis,npm)
+    complex(kind=kp) :: zxq_work(1:npr,nw_i:nw_w), cimatt(niwt,nwhis,npm), crmatt(0:nw_w,nwhis,npm)
+    complex(kind=kp), allocatable :: rcxq_work(:,:), cgfmat(:,:)
     integer :: ipr, ipr_col, ipm, istat, ispx
     real(8) :: wfac
     logical :: debug = .true.
@@ -110,34 +112,34 @@ contains
     !$acc data copyin(his_R, his_L) copy(rcxq)
     GaussianFilter: if(abs(egauss)>1d-15) then
       write(6,'("GaussianFilterX0= ",d13.6)') egauss
-      if(allocated(gfmat)) deallocate(gfmat)
       allocate(gfmat(nwhis,nwhis))
-      call rx( 'dpsion_xq: GaussianFilterX0 is not implemented yet')
+      allocate(cgfmat(nwhis,nwhis))
+      allocate(rcxq_work(npr,nwhis))
+      call rx( 'dpsion_xq: GaussianFilterX0 is not checked yet: see dpsion_xq')
       gfmat=gaussianfilterhis(egauss,frhis,nwhis)
-      !$acc data copyin(gfmat) create(rcxqin)
-      do ipr = 1, npr
-        do ipr_col = 1, npr_col
-          rcxqin = rcxq(ipr,ipr_col,1:nwhis)
-          ! do iw = 1, nwhis
-          !   do iw = 1, nwhis
-          !   rcxq(ipr,ipr_col,iw) = rcxq(ipr,ipr_col,iw) + gfmat(iw,:),rcxqin(
-          ! rcxqin = rcxq(ipr,ipr_col,1:nwhis)
-          ! rcxq(ipr,ipr_col,1:nwhis) = matmul(gfmat,rcxqin)
-        enddo
+      !$acc data copyin(gfmat) create(cgfmat, rcxq_work)
+      !$acc kernels
+      cgfmat(:,:) = cmplx(gfmat(:,:), kind=kp)
+      !$acc end kernels
+      do ipr_col = 1, npr_col
+        !$acc kernels
+        rcxq_work(1:npr,1:nwhis) = rcxq(1:npr,ipr_col,1:nwhis)
+        !$acc end kernels
+        istat = gemm(rcxq_work, cgfmat, rcxq(1,ipr_col,1), npr, nwhis, nwhis, ldA=npr*npr_col, opB=m_op_T)
       enddo
-      !$acc end data
       if(npm==2) then
-        ! !$acc data kernels collapse(3) private(rcxqin)
-        ! do ipr = 1, npr
-        !   do ipr_col = 1, npr_col
-        !     rcxqin(:) = rcxq(ipr,ipr_col,-1:-nwhis:-1)
-        !     rcxqin(:) = matmul(gfmat,rcxqin)
-        !     rcxq(ipr,ipr_col,-nwhis:-1) = rcxqin(nwhis:1:-1)
-        !   enddo
-        ! enddo
-        ! !$acc end kernels
-        ! !$acc end data
+        !$acc kernels
+        cgfmat(1:nwhis,1:nwhis) = cmplx(gfmat(1:nwhis,nwhis:1:-1), kind=kp)
+        !$acc end kernels
+        do ipr_col = 1, npr_col
+          !$acc kernels
+          rcxq_work(1:npr,1:nwhis) = rcxq(1:npr,ipr_col,-nwhis:-1:1)
+          !$acc end kernels
+          istat = gemm(rcxq_work, cgfmat, rcxq(1,ipr_col,-nwhis), npr, nwhis, nwhis, ldA=npr*npr_col, opB=m_op_T)
+        enddo
       endif
+      !$acc end data
+      deallocate(gfmat)
     endif GaussianFilter
       
     ispx = merge(isp,3-isp,schi>=0) !  if(schi<0)  ispx = 3-isp  
@@ -169,7 +171,7 @@ contains
         cimatt(:,1:nwhis,2) = cmplx(imattC(:,nwhis:1:-1,2), kind=kp)
         !$acc end kernels
         istat = gemm(rcxq(1,1,     1), cimatt(1,1,1), zxqi, npr*npr_col, niwt, nwhis, opB=m_op_T)
-        istat = gemm(rcxq(1,1,-nwhis), cimatt(1,1,2), zxqi, npr*npr_col, niwt, nwhis, opB=m_op_T, beta=(1d0,0d0))
+        istat = gemm(rcxq(1,1,-nwhis), cimatt(1,1,2), zxqi, npr*npr_col, niwt, nwhis, opB=m_op_T, beta=CONE)
         !$acc end data
       endif
       !$acc end data
@@ -193,7 +195,7 @@ contains
         if(.not.allocated(zxq_chipm)) then
           allocate(zxq_chipm(npr,npr_col,nw_i:nw_w))
           !$acc kernels
-          zxq_chipm(:,:,:) = (0d0, 0d0)
+          zxq_chipm(:,:,:) = (0_kp, 0_kp)
           !$acc end kernels
         endif
         if(ispx == 1) then
@@ -205,7 +207,7 @@ contains
         !$acc kernels
         crmatt(:,:,:) = cmplx(rmattx(:,:,:,ispx), kind=kp)
         !$acc end kernels
-        istat = gemm(rcxq(1,1,1), crmatt, zxq_chipm, npr*npr_col, nw_w+1, nwhis, opB=m_op_T, beta=(1d0,0d0))
+        istat = gemm(rcxq(1,1,1), crmatt, zxq_chipm, npr*npr_col, nw_w+1, nwhis, opB=m_op_T, beta=CONE)
         !$acc end data
       elseif(npm == 2) then
         !$acc data copyin(rmatt) create(crmatt, zxq_work)
@@ -215,7 +217,8 @@ contains
         !$acc end kernels
         do ipr_col = 1, npr_col
           istat = gemm(rcxq(1,ipr_col,     1), crmatt(1,1,1), zxq_work, npr, (nw_w-nw_i)+1, nwhis, ldA=npr*npr_col, opB=m_op_T)
-          istat = gemm(rcxq(1,ipr_col,-nwhis), crmatt(1,1,2), zxq_work, npr, (nw_w-nw_i)+1, nwhis, ldA=npr*npr_col, opB=m_op_T, beta = (1d0,0d0))
+          istat = gemm(rcxq(1,ipr_col,-nwhis), crmatt(1,1,2), zxq_work, npr, (nw_w-nw_i)+1, nwhis, ldA=npr*npr_col, opB=m_op_T,&
+                       beta=CONE)
           !$acc kernels
           rcxq(1:npr,ipr_col,nw_i:nw_w) = rcxq(1:npr,ipr_col,nw_i:nw_w)*img + zxq_work(1:npr,nw_i:nw_w) !override
           !$acc end kernels

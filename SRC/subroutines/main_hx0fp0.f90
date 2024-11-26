@@ -18,7 +18,7 @@ subroutine hx0fp0()
   use m_readqgcou,only: readqgcou
   use m_mpi,only: MPI__Initialize,MPI__root, &
        MPI__Broadcast,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,MPI__rank,MPI__size, MPI__consoleout,comm, &
-     & MPI__SplitXq, MPI__Setnpr_col, comm_b, comm_k, mpi__root_k, mpi__root_q, MPI__GatherXqw
+     & MPI__SplitXq, MPI__Setnpr_col, comm_b, comm_k, mpi__root_k, mpi__root_q
   use m_rdpp,only: Rdpp, &   ! & NOTE: "call rdpp" generate following data.
        nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx,nprecx,mrecl,nblochpmx
   use m_zmel,only: Mptauof_zmel!, Setppovlz,Setppovlz_chipm   ! & NOTE: these data set are stored in this module, and used
@@ -117,7 +117,7 @@ subroutine hx0fp0()
   complex(8),allocatable:: ovlp(:,:),evec(:,:),ovlpi(:,:)
   real(8),allocatable::eval(:)
   integer:: new,nmxx,ii,iy,ipl1,ixx
-  complex(8),allocatable :: ppovl(:,:),oo(:,:),x0meanx(:,:),x0inv(:,:),ppovlzinv(:,:)
+  complex(8),allocatable :: ppovl(:,:),oo(:,:),x0inv(:,:),ppovlzinv(:,:)
   real(8)::qxx(3),ssm
   real(8),allocatable::SS(:),rwork(:),ss0(:)
   complex(8),allocatable:: UU(:,:),VT(:,:),work(:),zw0bk(:,:),ddd(:,:),vtt(:,:),zzz(:,:),sqsvec(:),ooo(:,:),ppo(:,:) 
@@ -467,8 +467,15 @@ contains
     endif
   end subroutine writeepsopen
   subroutine writerealeps()
-    complex(8), allocatable :: zxqw(:,:)
+#ifdef __MP
+    use m_mpi, only: MPI__GatherXqw => MPI__GatherXqw_kind4
+#else
+    use m_mpi, only: MPI__GatherXqw
+#endif
+    use m_kind,only: kp => kindrcxq
+    complex(kind=kp), allocatable :: zxqw(:,:), x0meanx(:,:)
     allocate (zxqw(npr, npr))
+    !$acc update host (zxq)
     if(nolfco) forall(iw=nw_i:nw) x0mean(iw,:,:)=zxq(:,:,iw) !1x1
     if(nolfco .AND. ( .NOT. chipm)) then
       if (nspin==1) x0mean= 2d0*x0mean !if paramagnetic, multiply x0 by 2
@@ -529,7 +536,7 @@ contains
         endif
       elseif(chipm) then ! ChiPM mode without LFC
         allocate( x0meanx(npr,npr) )
-        call MPI__GatherXqw(x0mean(iw,:,:), x0meanx, npr, npr_col)
+        call MPI__GatherXqw(cmplx(x0mean(iw,:,:),kind=kp), x0meanx, npr, npr_col)
         x0meanx = x0meanx/2d0 !in Ry unit.
         do imb1=1,npr
           do imb2=1,npr
