@@ -137,11 +137,17 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
      pwh(ig,iga+nlmto) = 1d0/srvol
   enddo
   ! --- Matrix elements between each (IPW,envelope function) pair ---
-  allocate(ppovlx(ngp,ngmx))
-  call ipwovl(alat,plat,qlat,ngp,igv,ngmx,igvx,nbas,rmax,bas,ppovlx)
+  ! allocate(ppovlx(ngp,ngmx))
+  ! call ipwovl(alat,plat,qlat,ngp,igv,ngmx,igvx,nbas,rmax,bas,ppovlx)
   ! pwhovl= matmul(ppovlx,pwh)
-  ! MO replaced matmul by a BLAS call 2024-11-09 because matmul in mic(intel) was very slow
-  istat = zmm(ppovlx, pwh, pwhovl, m=ngp, n=ndimh, k=ngmx)
+  ! 2024-11-09 MO replaced matmul by a BLAS call because matmul in mic(intel) was very slow
+  ! istat = zmm(ppovlx, pwh, pwhovl, m=ngp, n=ndimh, k=ngmx)
+  ! 2024-11-28 MO downsized ppovlx because of reduction of  memory comsumption
+  allocate(ppovlx(1,ngmx))
+  do ig=1, ngp
+    call ipwovl(alat,plat,qlat,1,igv(1:3,ig),ngmx,igvx,nbas,rmax,bas,ppovlx)
+    istat = zmm(ppovlx, pwh, pwhovl(ig,1), m=1, n=ndimh, k=ngmx, ldC = ngp)
+  enddo
   deallocate(yl,igvx,pwh,ppovlx)
 end subroutine pwmat
 subroutine ipwovl(alat,plat,qlat,ng1,igv1,ng2,igv2,nbas, rmax,bas,ppovl)
