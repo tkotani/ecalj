@@ -109,7 +109,7 @@ contains
     if(chipm.and.npm==2) call rx( 'x0kf_v4h:npm==2 .AND. chipm is not meaningful probably')  ! Note rcxq here is negative 
 
     !$acc host_data use_device(rcxq, zxqi)
-    !$acc data copyin(his_R, his_L) copy(rcxq)
+    !$acc data copyin(his_R, his_L)
     GaussianFilter: if(abs(egauss)>1d-15) then
       write(6,'("GaussianFilterX0= ",d13.6)') egauss
       allocate(gfmat(nwhis,nwhis))
@@ -155,7 +155,6 @@ contains
     enddo
     !$acc end data
     if_IMAGOMEGA: if(imagomega) then !Hilbert Transformation to get real part
-      !$acc data copyout(zxqi)
       if(debug) write(stdo,ftox)" -- dpsion_xq: start imagomega"
       if(npm==1) then
         !$acc data copyin(imatt) create(cimatt)
@@ -174,7 +173,6 @@ contains
         istat = gemm(rcxq(1,1,-nwhis), cimatt(1,1,2), zxqi, npr*npr_col, niwt, nwhis, opB=m_op_T, beta=CONE)
         !$acc end data
       endif
-      !$acc end data
       write(stdo,ftox)" -- dpsion_xq: end of imagomega"
     endif if_IMAGOMEGA
     if_REALOMEGA: if(realomega) then !Hilbert Transformation to get real part
