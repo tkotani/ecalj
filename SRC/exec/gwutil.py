@@ -1,32 +1,23 @@
-#!/usr/bin/env python3
-# -*- coding:utf-8 -*-
+import os,shutil
 '''
 util for QSGW scripts
 '''
 def gen_dir(dirname):
-    '''
-    serch directry and else generate that one
-    Arguments
-       dirname: the name of serch or generate directry
-    '''
-    if not os.path.isdir(dirname): os.mkdir(dirname)
-
+    if not os.path.isdir(dirname):
+        os.mkdir(dirname)
 def cp_files(files,cp_dir):
     for fname in files:
-        if os.path.isfile(fname):  shutil.copy(fname,cp_dir+'/'+fname)
-
+        if os.path.isfile(fname):
+            shutil.copy(fname,cp_dir+'/'+fname)
 def mv_files(files,mv_dir):
     for fname in files:
         shutil.move(fname,mv_dir+'/'+fname)
-
 def remove(fname):
     if os.path.isfile(fname):
         os.remove(fname)
-
 def rm_files(files):
     for fname in files:
         remove(fname)
-
 def run_program(commandline, ncore=0,x0=0):
     import subprocess,datetime
     xdate=datetime.datetime.now() #today().isoformat()
@@ -41,7 +32,7 @@ def run_program(commandline, ncore=0,x0=0):
         print('Error in '+run_command,flush=True)
         exit(-1)
     return xdate
-        
+
 # import os, datetime, shutil, glob
 # def gw_args(pname,note):
 #     '''
