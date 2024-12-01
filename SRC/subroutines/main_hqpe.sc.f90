@@ -181,8 +181,12 @@ contains
              -.5d0* matmul(transpose(dconjg(evec(1:nz,1:nx,ip,is))), matmul(v_xc(1:nz,1:nz,ip,is),evec(1:nz,1:nx,ip,is))) !in Hartree
         nx=ntqxx(ip)
         forall(itp=1:nx) sed(itp)=se(itp,itp,ip)
-        eavr2   = sum(eldax(1:nx,ip)**2*sed(1:nx),mask= eldax(1:nx,ip)>elow) &
-             /    sum(eldax(1:nx,ip)**2,          mask= eldax(1:nx,ip)>elow)
+        if(count(mask= eldax(1:nx,ip)>elow)>0) then
+           eavr2   = sum(eldax(1:nx,ip)**2*sed(1:nx),mask= eldax(1:nx,ip)>elow) &
+                /    sum(eldax(1:nx,ip)**2,          mask= eldax(1:nx,ip)>elow)
+        else
+           eavr2 =0d0
+        endif   
         eseavr(ip,is) = merge(eavr2,0d0,nx/=0) !in Hartree since sed is in Hartree SquareAverage4extrapolationOFsigma
         write(stdo,ftox)"###  the constant (ESEAVR=e-weighted average Ry)= ",is,ip,2d0*eseavr(ip,is)
       enddo
