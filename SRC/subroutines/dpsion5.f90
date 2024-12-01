@@ -104,11 +104,14 @@ contains
     integer :: ipr, ipr_col, ipm, istat, ispx
     real(8) :: wfac
     logical :: debug = .true.
+#ifdef __GPU
+    attributes(device) :: rcxq, zxqi
+#endif
     write(stdo,ftox)" -- dpsion_xq: start... nw_w nwhis=",nw_w,nwhis
     call flush(stdo)
     if(chipm.and.npm==2) call rx( 'x0kf_v4h:npm==2 .AND. chipm is not meaningful probably')  ! Note rcxq here is negative 
 
-    !$acc host_data use_device(rcxq, zxqi)
+!!!$acc host_data use_device(rcxq, zxqi)
     !$acc data copyin(his_R, his_L)
     GaussianFilter: if(abs(egauss)>1d-15) then
       write(6,'("GaussianFilterX0= ",d13.6)') egauss
@@ -185,7 +188,7 @@ contains
         do ipr_col = 1, npr_col
           istat = gemm(rcxq(1,ipr_col,1), crmatt, zxq_work, npr, nw_w+1, nwhis, ldA=npr*npr_col, opB=m_op_T)
           !$acc kernels
-          rcxq(:,ipr_col,0:nw_w) = rcxq(:,ipr_col,0:nw_w)*img + zxq_work(:,0:nw_w)
+          rcxq(1:npr,ipr_col,0:nw_w) = rcxq(1:npr,ipr_col,0:nw_w)*img + zxq_work(1:npr,0:nw_w)
           !$acc end kernels
         enddo
         !$acc end data
@@ -226,7 +229,7 @@ contains
       write(stdo,ftox)" -- dpsion_xq: end of realomega"
     endif if_REALOMEGA
     call flush(stdo)
-    !$acc end host_data
+!!    !$acc end host_data
   end subroutine dpsion_xq
 
   subroutine dpsion_setup_rcxq(rcxq, npr, npr_col, isp)

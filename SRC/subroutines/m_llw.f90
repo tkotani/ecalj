@@ -67,7 +67,7 @@ contains
     allocate (zxqw(ngb, ngb))
     !$acc enter data create(zxqw, epstilde, epstinv, zw, zw0) copyin(vcousq)
     if(nspin == 1) then
-      !$acc kernels
+      !$acc kernels present(zxq)
       zxq(:,:,:) = 2d0*zxq(:,:,:)
       !$acc end kernels
     endif
@@ -261,7 +261,7 @@ contains
     call stopwatch_init(t_sw_x_gather, 'gather')
     write(6,*)'WVRllwI: init'
     if (nspin == 1) then
-      !$acc kernels
+      !$acc kernels present(zxqi)
       zxqi(:,:,:) = 2d0*zxqi(:,:,:) ! if paramagnetic, multiply x0 by 2
       !$acc end kernels
     endif

@@ -408,7 +408,9 @@ contains
           call stopwatch_init(t_sw_dpsion, 'dpsion') !merge('gpu','ori',mask = GPUTEST))
           call stopwatch_start(t_sw_dpsion)
           call dpsion_init(realomega, imagomega, chipm)
+          !$acc host_data use_device(rcxq, zxqi)
           call dpsion_xq(realomega, imagomega, chipm, rcxq, zxqi, npr, npr_col, schi, isp_k, ecut)
+          !$acc end host_data
           call stopwatch_pause(t_sw_dpsion)
           call stopwatch_show(t_sw_dpsion)
         endif
