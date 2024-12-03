@@ -163,6 +163,7 @@ contains
     attributes(device) :: ppb, zmelp0, ggitp, gggmat, ggitp_work
     attributes(device) :: igcgp2i_work
     attributes(device) :: ppbvphiq_d, cphim_d, cphiq_d, ppbc_d, ppbv_d
+    attributes(device) :: zmelt, zmelt_d
 #endif
     debug=cmdopt0('--debugzmel')
     if(allocated(zmel)) then
@@ -250,9 +251,6 @@ contains
     end block SetByCPU
     if(debug) write(stdo,ftox)'zmel_init gpu',nbloch,ngc,nm1,nm2,nqtot
     ZmelBlock:block
-#ifdef __GPU
-      attributes(device) :: zmelt, zmelt_d
-#endif
       call writemem('    m_zmel000: zmelsize='//ftof(int(nbloch+ngc,8)*(nm2-nm1+1)*nqtot*16/kk**3)//' GB')
       allocate(zmelt(1:nbloch+ngc,nm1:nm2,1:nqtot))
 !$acc kernels
@@ -282,13 +280,14 @@ contains
           allocate(                cphiq_d(nv,ntp0),      source= cphiq(ias:iae,nqini_rank:nqmax_rank))
           ValenceValence: if (nm2v>=nm1v) then 
             allocate(ppbvphiq_d(nv,ntp0,mdim))
-            allocate(   zmelt_d(nm1v:nm2v,ntp0,mdim))
             allocate(    ppbv_d(nv,nv,mdim))
             !$acc kernels
             ppbv_d(1:nv,1:nv,1:mdim) = cmplx(ppb(nc1:ncnv,nc1:ncnv,1:mdim,icp), kind=kp) 
             !$acc end kernels
             ierr=gemm_batch(ppbv_d, cphiq_d,ppbvphiq_d,M=nv,N=ntp0,K=nv,         NBATCH=mdim, &
                  opA=m_op_T, sameB=.true.)
+            deallocate(ppbv_d)
+            allocate(zmelt_d(nm1v:nm2v,ntp0,mdim))
             ierr=gemm_batch(cphim_d,ppbvphiq_d,zmelt_d,M=nm2v-nm1v+1,N=ntp0,K=nv,NBATCH=mdim,alpha=cmplx(phasea(ia),kind=kp), &
                  opA=m_op_C, sameA=.true.)
             !$acc kernels
@@ -296,7 +295,7 @@ contains
               zmelt(i-1+ims,nm1v:nm2v,ncc+1:ncc+ntp0) = zmelt_d(nm1v:nm2v,1:ntp0,i)
             enddo
             !$acc end kernels
-            deallocate(zmelt_d, ppbvphiq_d, ppbv_d)
+            deallocate(zmelt_d, ppbvphiq_d)
           endif ValenceValence
           nm1cc = max(nm1c,ics+1)        !core index range between [nm1c,nm2c]. This corresponds to  nm1cc:nm2cc for atom ia.
           nm2cc=  min(nm2c,ics+ncorec)  !       write(6,*)'ia nm1cc nm2cc=',ia, nm1cc,nm2cc,ntp0,ncc,mdim
@@ -428,9 +427,9 @@ contains
       allocate(zmel(nbb,ns1:ns2,nqtot))
       if(debug) call writemem('mmmmm_zmel deallocate zmel')
 !cccccccccccccccccccccccccccccccccccc
+      !$acc enter data create(zmel)
       if(nmtot<=0) return
 
-      !$acc enter data create(zmel)
       ppovlz_x_zmelt: BLOCK
         complex(kind=kp) :: ppovlz_work(ngb,nbb)
         ppovlz_work(1:ngb,1:nbb) = ppovlz(1:ngb,1:nbb)
@@ -441,6 +440,7 @@ contains
         !$acc end data
         !$acc end host_data
       endblock ppovlz_x_zmelt
+      deallocate(zmelt)
       if (present(comm)) then
         block
           integer, allocatable :: data_disp(:), data_size(:)
@@ -470,7 +470,6 @@ contains
         !$acc end kernels
       endif
       if(present(maxmem)) maxmem=memused() ! MaxUsed memory in GB 
-      deallocate(zmelt)
     endblock ZmelBlock
   end subroutine get_zmel_init_gemm
 end module m_zmel
