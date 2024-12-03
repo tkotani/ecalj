@@ -149,6 +149,7 @@ contains
     use m_freq,only: nw_i,nw,niw 
     use m_zmel,only: Setppovlz,Setppovlz_chipm   ! & NOTE: these data set are stored in this module, and used
     use m_stopwatch
+    use m_readVcoud, only: ReleaseZcousq
     use m_mpi,only: comm_k, mpi__rank_k, mpi__size_k, &
                     mpi__ipr_col, mpi__npr_col, mpi__rank_b, mpi__root_k, comm_b
 #ifdef __MP
@@ -181,6 +182,7 @@ contains
     if(chipm .AND. nolfco) then; call setppovlz_chipm(zzr,npr)
     else;                        call setppovlz(q,matz=.true.,npr=npr)!2024-5-23 obata. A minor bug to consume memory: Set npr=1 for EPSPP0 mode(no lfc)
     endif
+    call ReleaseZcousq() !Release zcousq used in Setppovlz
     if(associated(zxq)) nullify(zxq)
     if(allocated(rcxq)) then
       !$acc exit data delete(rcxq)

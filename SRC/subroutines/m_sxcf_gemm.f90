@@ -81,7 +81,7 @@ module m_sxcf_gemm
   use m_itq, only: itq, ntq, nbandmx
   use m_genallcf_v3, only: ndima, nspin, nctot, niw, ecore,nband
   use m_read_bzdata, only: qibz, qbz, wk=>wbz, nqibz, nqbz, wklm, lxklm, wqt=>wt
-  use m_readVcoud, only: Readvcoud, vcoud, ngb, ngc
+  use m_readVcoud, only: Readvcoud, ReleaseZcousq, vcoud, ngb, ngc
   use m_readfreq_r, only: freq_r, nw_i, nw, freqx, wx=>wwx, nblochpmx, mrecl, expa_, npm
   !use m_readhbe,only: nband
   use m_readgwinput, only: ua_, corehole, wcorehole
@@ -174,6 +174,7 @@ contains
       qibz_k = qibz(:,kx)
       call Readvcoud(qibz_k, kx, NoVcou=.false.)   !Readin ngc,ngb,vcoud ! Coulomb matrix
       call Setppovlz(qibz_k, matz=.true., npr=ngb) !Set ppovlz overlap matrix used in Get_zmel_init in m_zmel
+      call ReleaseZcousq()                         !Release zcousq used in Setppovlz
       irotloop:            do irot=1, ngrp     ! (kx,irot) determines qbz(:,kr), which is in FBZ. W(kx) is rotated to be W(g(kx))
         iploopexternal:    do ip=1, nqibz      !external index for q of \Sigma(q,isp)
           isploopexternal: do isp=1, nspinmx   !external index
@@ -307,6 +308,7 @@ contains
       qibz_k = qibz(:,kx)
       call Readvcoud(qibz_k, kx, NoVcou=.false.)   !Readin ngc,ngb,vcoud ! Coulomb matrix
       call Setppovlz(qibz_k, matz=.true., npr=ngb) !Set ppovlz overlap matrix used in Get_zmel_init in m_zmel
+      call ReleaseZcousq()                         !Release zcousq used in Setppovlz
       !call setwv()
       SetWVblock: block !subroutine setwv()
         integer :: iqini, iqend, iw
