@@ -19,7 +19,7 @@ for linei in instrl: # Values from %const section !line cannot contain python ke
     if(len(line)==0): continue
     if(line[0]!='%'): continue
     if(line[0]=='#'): continue
-    line=re.sub('=\s+','=',line) #remove space after =
+    line=re.sub(r'=\s+','=',line) #remove space after =
     constdata0=(line.split('const')[1]).split('#')[0].split(' ')
     for ix in constdata0:
         if(ix!=''):
@@ -58,12 +58,12 @@ for ilinex in midfile.split('\n'): #line by line, for pure mathematical operatio
     if(len(iline)==0): continue
     if(iline[0]=='%'): continue 
     iii= iline.split('#')[0].split('!')[0].split('%')[0]  #print('iii ',iii)
-    iii= re.sub('^\s+$','',iii)
+    iii= re.sub(r'^\s+$','',iii)
     if(len(iii)==0): continue    #print('line=',iii,'=========')
     mmm=re.split('([=, ])',iii) #(...) means separators in lists.
     if('SYMGR' in mmm[0]): #insereted at 2023-5-9 for NiS
-        iii=re.sub('\(','( ',iii)
-        iii=re.sub('\)',' )',iii)
+        iii=re.sub(r'\(','( ',iii)
+        iii=re.sub(r'\)',' )',iii)
         mmm=re.split('([=, ])',iii) #(...) means separators in lists.
     nnn=[]
     for ix in mmm:
@@ -78,7 +78,7 @@ for ilinex in midfile.split('\n'): #line by line, for pure mathematical operatio
         #print('input :'+''.join(mmm))
         #print('output:'+''.join(nnn))
     outfile=outfile+''.join(nnn)+'\n'
-outfile=re.sub('\t',' ',outfile)
+outfile=re.sub(r'\t',' ',outfile)
 lll=''
 init=False
 ix=0
@@ -92,7 +92,7 @@ for line in outfile.split('\n'):
      elif(init==True):
          lll=lll+line.rstrip(' ')
 lll=lll[1:] #remove initial \n
-lll=re.sub('=\s+','=',lll) 
+lll=re.sub(r'=\s+','=',lll) 
 lmax=0
 for line in lll.split('\n'):
     #print(len(line),line)
@@ -154,5 +154,5 @@ for iline in lll.split('\n'):
 #print(catok)
 for iline in catok.split('\n'):
     ilinex=iline
-    if(re.search('_ATOM@',iline)): ilinex=re.sub(' 0',' F',iline)
+    if(re.search('_ATOM@',iline)): ilinex=re.sub(r' 0',' F',iline)
     print(ilinex)
