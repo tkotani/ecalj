@@ -14,17 +14,30 @@ module m_zmel
   use m_MPItk,only:master_mpi
   use m_mem,only: memused,writemem
   use m_kind, only: kp => kindzmel
+  use m_blas, only: m_op_c, m_op_n, m_op_t, int_split
+#if defined(__MP) && defined(__GPU)
+  use m_blas, only: gemm => cmm_d, gemm_batch => cmm_batch_d
+#elif defined(__MP)
+  use m_blas, only: gemm => cmm_h, gemm_batch => cmm_batch_h
+#elif defined(__GPU)
+  use m_blas, only: gemm => zmm_d, gemm_batch => zmm_batch_d
+#else
+  use m_blas, only: gemm => zmm_h, gemm_batch => zmm_batch_h
+#endif
+#ifdef __GPU
+  use openacc, only: acc_is_present
+#endif
   implicit none
   public:: get_zmel_init_gemm, Mptauof_zmel,Setppovlz,Setppovlz_chipm ! Call mptauof_zmel and setppovlz in advance to get_zmel_init
   complex(kind=kp),allocatable,protected,public :: zmel(:,:,:) ! OUTPUT: zmel(nbb,nmtot, nqtot) ,nbb:mixproductbasis, nmtot:middlestate, nqtot:endstate
   complex(kind=kp),allocatable,protected, private:: ppovlz(:,:)
   real(8),allocatable,protected,public :: tiat(:,:,:),shtvg(:,:)
-  real(8), allocatable, protected, private :: ppb(:,:,:,:,:),ppbir(:,:,:,:,:,:)
+  real(8), allocatable, protected, private :: ppb(:,:,:,:),ppbir(:,:,:,:,:,:)
   integer,protected,public:: nbb 
   integer,allocatable,protected,public :: miat(:,:)
   private
   real(8),parameter:: kk=1000
-  integer :: irot_prev = -1
+  integer :: irot_prev = -1, is_prev = -1
   logical :: keep_ppbir = .false., has_ppbir = .false.
 contains
   subroutine setppovlz(q,matz,npr) ! Set ppovlz for given q
@@ -41,8 +54,12 @@ contains
     !    If matz=F, no multiplication by ivcou.  Thus we have ppolz(igb,igb)
     !     
     real(8) :: q(3)
-    complex(8),allocatable :: ppovl_(:,:),ppovl(:,:)!,ppovlzinv(:,:) !    logical:: eibz4x0
-    integer:: i,ngc_r,ippovl0,npr
+    complex(8),allocatable :: ppovl(:,:)!,ppovlzinv(:,:) !    logical:: eibz4x0
+    complex(kind=kp),allocatable :: ppovlz_pw(:,:)
+#ifdef __GPU
+    attributes(device) :: ppovlz_g
+#endif
+    integer:: i,ngc_r,ippovl0,npr, ierr
     real(8):: qx(3),tolq=1d-8
     if(allocated(ppovlz)) then
       !$acc exit data delete(ppovlz)
@@ -65,10 +82,17 @@ contains
     call rx('reading ppvol0')
 1010 continue 
     close(ippovl0)
-    ppovlz(1:nbloch,1:npr) = cmplx(zcousq(1:nbloch,1:npr), kind=kp)
-    ppovlz(nbloch+1:nbloch+ngc,1:npr)=cmplx(matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,1:npr)), kind=kp)
-    !$acc enter data copyin(ppovlz)
-    deallocate(ppovl)
+    !$acc enter data crate(ppovlz)
+    allocate(ppovlz_pw(ngc,npr))
+    !$acc data copyin(zcousq(1:nbloch+ngc,1:npr), ppovl)) crate(ppovlz_pw)
+    ! ppovlz(nbloch+1:nbloch+ngc,1:npr) = cmplx(matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,1:npr)), kind=kp)
+    ierr = gemm(ppovl, zcousq(nbloch+1,1), ppovlz_pw, m=ngc, n=npr, k=ngc, ldB=nbloch+ngc)
+    !$acc kernels
+    ppovlz(       1:nbloch,    1:npr) = cmplx(zcousq(1:nbloch,1:npr), kind=kp)
+    ppovlz(nbloch+1:nbloch+ngc,1:npr) = cmplx(ppovlz_pw(1:ngc,1:npr), kind=kp)
+    !$acc end kernels
+    !$acc end data
+    deallocate(ppovl, ppovlz_pw)
     nbb=npr    ! ngb obatabugfix 2025-5-23. We had set nbb=ngb every time. Thus we had memory(and computational) loss for nolfc case.
   end subroutine setppovlz
   subroutine setppovlz_chipm(zzr,nmbas1) !Set ppovlz for chipm case
@@ -101,49 +125,50 @@ contains
     ppbafp_v2_zmel: block 
       integer :: is,irot, ic, i,lb,nb,mb,lmb,i1,ibas,i2, np,lp,mp,lmp,n,l,m,lm
       allocate(ppbir(nlnmx,nlnmx,mdimx,natom,ng,nspin)) ! ppbir is rotated <Phi(SLn,r) Phi(SL'n',r) B(S,i,rot^{-1}(r))> by rotated cg coefficients cgr
-      do irot = 1,ng
-        call set_ppb(irot)
-        ppbir(:,:,:,:,irot,:) = ppb(:,:,:,:,:)
+      do is= 1,nspin
+        do irot = 1,ng
+          call set_ppb(irot,is)
+          ppbir(:,:,:,:,irot,is) = ppb(:,:,:,:)
+        enddo
       enddo
       has_ppbir = .true.
       !$acc enter data copyin(ppbir)
     endblock ppbafp_v2_zmel
   end subroutine mptauof_zmel
-  subroutine set_ppb(irot)
+  subroutine set_ppb(irot, is)
     integer, intent(in) :: irot
     integer :: is, i, ic, ibas, lb, nb, mb, lmb, i1, i2, np, lp, mp, lmp, n, l, m, lm
     if(.not.allocated(ppb)) then
-      allocate(ppb(nlnmx,nlnmx,mdimx,natom,nspin))
+      allocate(ppb(nlnmx,nlnmx,mdimx,natom))
       !$acc enter data create(ppb)
     endif
-    if(irot == irot_prev) return
+    if(irot == irot_prev .and. is == is_prev) return
     if(has_ppbir) then
       !$acc kernels present(ppbir)
-      ppb(:,:,:,:,:) = ppbir(:,:,:,:,irot,:)
+      ppb(:,:,:,:) = ppbir(:,:,:,:,irot,is)
       !$acc end kernels
       return
     endif
-    do is = 1, nspin
-      do concurrent (ic=1:natom)
-         ibas = ic
-         i = 0 !i = product basis index.
-         do lb  = 0, lx (ibas)
-            do nb  = 1, nx (lb,ibas)
-               do mb  = -lb, lb
-                  i    = i+1           !The number of product basis is  =(i at the end of loop).
-                  lmb  = lb*lb + lb + mb + 1
-                  do concurrent (i2 = 1:mnl(ic),i1 = 1:mnl(ic)) !phi1 phi2 index
-                     np= in(i2,ic);  lp= il(i2,ic);  mp= im(i2,ic);  lmp=lp*lp + lp + mp + 1
-                     n = in(i1,ic);  l = il(i1,ic);  m = im(i1,ic);  lm = l*l + l + m + 1
-                     ppb(i1,i2,i,ic,is)=cgr(lm,lmp,lmb,irot)*ppbrd(l,n,lp,np,lb,nb,is+nspin*(ic-1))
-                     !note ppbir is not necesssairy if i1,i2 are different spins
-                  enddo
-               enddo
-            enddo
-         enddo
-      enddo
+    do concurrent (ic=1:natom)
+       ibas = ic
+       i = 0 !i = product basis index.
+       do lb  = 0, lx (ibas)
+          do nb  = 1, nx (lb,ibas)
+             do mb  = -lb, lb
+                i    = i+1           !The number of product basis is  =(i at the end of loop).
+                lmb  = lb*lb + lb + mb + 1
+                do concurrent (i2 = 1:mnl(ic),i1 = 1:mnl(ic)) !phi1 phi2 index
+                   np= in(i2,ic);  lp= il(i2,ic);  mp= im(i2,ic);  lmp=lp*lp + lp + mp + 1
+                   n = in(i1,ic);  l = il(i1,ic);  m = im(i1,ic);  lm = l*l + l + m + 1
+                   ppb(i1,i2,i,ic)=cgr(lm,lmp,lmb,irot)*ppbrd(l,n,lp,np,lb,nb,is+nspin*(ic-1))
+                   !note ppbir is not necesssairy if i1,i2 are different spins
+                enddo
+             enddo
+          enddo
+       enddo
     enddo
     irot_prev = irot
+    is_prev = is
     !$acc update device(ppb)
   end subroutine set_ppb
   subroutine get_zmel_init_gemm(q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc,  & ! get_zmel_init for blas/cuBLAS by M. Obata 2024-05-18
@@ -151,19 +176,6 @@ contains
     use m_readeigen,only: readcphif 
     use m_readeigen,only: readgeigf
     use m_itq,only: itq, ntq
-    use m_blas, only: m_op_c, m_op_n, m_op_t, int_split
-#if defined(__MP) && defined(__GPU)
-    use m_blas, only: gemm => cmm_d, gemm_batch => cmm_batch_d
-#elif defined(__MP)
-    use m_blas, only: gemm => cmm_h, gemm_batch => cmm_batch_h
-#elif defined(__GPU)
-    use m_blas, only: gemm => zmm_d, gemm_batch => zmm_batch_d
-#else
-    use m_blas, only: gemm => zmm_h, gemm_batch => zmm_batch_h
-#endif
-#ifdef __GPU
-    use openacc, only: acc_is_present
-#endif
     implicit none
     include "mpif.h"
     intent(in)::           q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc, iprx,zmelconjg
@@ -261,7 +273,7 @@ contains
         dgeigqk = cmplx(readgeigf(qk,ispm),kind=kp) !read IPW part at qk  !G2 for ngp2
         dgeigqk = conjg(dgeigqk)
       endif
-      call set_ppb(irot) !set ppb
+      call set_ppb(irot, ispq) !set ppb
       !!$acc data copyin(ppbir(1:nlnmx,1:nlnmx,1:mdimx,1:natom,irot,ispq))
       ! !$acc kernels
       ! ppb = ppbir(:,:,:,:,irot,ispq)           !MPB has no spin dependence
@@ -316,7 +328,7 @@ contains
             allocate(ppbvphiq_d(nv,ntp0,mdim))
             allocate(    ppbv_d(nv,nv,mdim))
             !$acc kernels present(ppb)
-            ppbv_d(1:nv,1:nv,1:mdim) = cmplx(ppb(nc1:ncnv,nc1:ncnv,1:mdim,icp,ispq), kind=kp) 
+            ppbv_d(1:nv,1:nv,1:mdim) = cmplx(ppb(nc1:ncnv,nc1:ncnv,1:mdim,icp), kind=kp) 
             !$acc end kernels
             ierr=gemm_batch(ppbv_d, cphiq_d,ppbvphiq_d,M=nv,N=ntp0,K=nv,         NBATCH=mdim, &
                  opA=m_op_T, sameB=.true.)
@@ -337,7 +349,7 @@ contains
             allocate(zmelt_d(mdim,ntp0,nm1cc:nm2cc), ppbc_d(mdim,nv,nm1cc:nm2cc))
             !$acc kernels present(ppb)
             do i = 1, mdim
-              ppbc_d(i,1:nv,nm1cc:nm2cc) = cmplx(ppb(nc1:ncnv,nm1cc-ics:nm2cc-ics,i,icp,ispq),kind=kp)
+              ppbc_d(i,1:nv,nm1cc:nm2cc) = cmplx(ppb(nc1:ncnv,nm1cc-ics:nm2cc-ics,i,icp),kind=kp)
             enddo
             !$acc end kernels
             ierr = gemm_batch(ppbc_d,cphiq_d,zmelt_d, M=mdim,N=ntp0,K=nv,NBATCH=nm2cc-nm1cc+1, alpha=cmplx(phasea(ia),kind=kp), sameB = .true.)
