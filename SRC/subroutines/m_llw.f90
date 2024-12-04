@@ -8,7 +8,7 @@ module m_llw
   use m_qbze,only: Setqbze, nqbze,nqibze,qbze,qibze
   use m_read_bzdata,only: Read_bzdata, ngrp2=>ngrp,nqbz,nqibz,n1,n2,n3,ginv,dq_,qbz,wbz,qibz,wibz, ntetf,idtetf,ib1bz
   use m_read_bzdata,only: qbzw,nqbzw, q0i,nq0i ,nq0iadd,ixyz
-  use m_readVcoud,only: vcousq,zcousq,ngb
+  use m_readVcoud,only: vcousq, ngb
   use m_rdpp,only: nbloch,mrecl
   use m_x0kf,only: zxq,zxqi
   use m_mpi, only: mpi__root_k, mpi__root_q, mpi__size_b

@@ -158,7 +158,6 @@ contains
     use m_mpi,only: MPI__reduceSum
 #endif
     use m_gpu, only: use_gpu
-    use m_data_gpu, only: SetDataGPU_inkx, ExitDataGPU_inkx
     implicit none
     intent(in)::      realomega,imagomega, q,iq,npr,schi,crpa,chipm,nolfco,q00,zzr
     logical:: realomega,imagomega,crpa,chipm,nolfco
@@ -206,7 +205,6 @@ contains
     !$acc kernels
     rcxq(:,:,:) = (0d0,0d0)
     !$acc end kernels
-    call SetDataGPU_inkx(set_ppovlz_in_gpu = .false.)
     isloop: do 1103 isp_k = 1,nsp
       GETtetrahedronWeight:block
         isp_kq = merge(3-isp_k,isp_k,chipm) 
@@ -420,7 +418,6 @@ contains
         if(chipm) call dpsion_setup_rcxq(rcxq, npr, npr_col, isp_k)
       endif HilbertTransformation 
 1103 enddo isloop
-     call ExitDataGPU_inkx()
   end subroutine x0kf_zxq
   subroutine deallocatezxq()
     !$acc exit data delete(zxq)
