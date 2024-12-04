@@ -198,7 +198,11 @@ contains
     if(present(lda)) lda_in = lda
     if(present(ldb)) ldb_in = ldb
     if(present(ldc)) ldc_in = ldc
+#ifdef __Nomm3m
+    call zgemm(opa_in, opb_in, m, n, k, alpha_in, a, lda_in, b, ldb_in, beta_in, c, ldc_in)
+#else
     call zgemm3m(opa_in, opb_in, m, n, k, alpha_in, a, lda_in, b, ldb_in, beta_in, c, ldc_in)
+#endif
     istat = 0
   end function zmm_h
   integer function zmm_batch_h(a, b, c, m, n, k, nbatch, opa, opb, alpha, beta, lda, ldb, ldc, samea, sameb, comm) result(istat)
@@ -254,8 +258,13 @@ contains
       enddo
     else
       do i = 1, nbatch
+#ifdef __Nomm3m
+        call zgemm(opa_in, opb_in, m, n, k, alpha_in, a(stridea*(i-1)+1), lda_in, &
+                   & b(strideb*(i-1)+1), ldb_in, beta_in, c(stridec*(i-1)+1), ldc_in)
+#else
         call zgemm3m(opa_in, opb_in, m, n, k, alpha_in, a(stridea*(i-1)+1), lda_in, &
                    & b(strideb*(i-1)+1), ldb_in, beta_in, c(stridec*(i-1)+1), ldc_in)
+#endif
       enddo
     endif
     istat = nbatch

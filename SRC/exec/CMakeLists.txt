@@ -58,8 +58,9 @@ elseif(FC MATCHES "ifort")
   find_program(MPIIFORT_COMPILER mpiifort)
   if(NOT MPIIFORT_COMPILER) 
     set(CMAKE_Fortran_COMPILER mpifort)
+    # set(FLAGS ${FLAGS} -D__Nomm3m) #In the case zgemm3m may have problems
   endif()
-  set(CMAKE_Fortran_FLAGS "-init:snan -fpic -assume byterecl") # compile flags
+  set(CMAKE_Fortran_FLAGS "-init:snan -fpic -assume byterecl -g -traceback") # compile flags
   set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -traceback")
   set(LIBM -qmkl=parallel -lmkl_rt) 
 elseif(FC MATCHES "nvfortran")
@@ -96,18 +97,18 @@ elseif(FC MATCHES "nvfortran")
 endif()
 
 # makeshow which is always invoked to save the comilation time
-execute_process(COMMAND uname -orin  OUTPUT_VARIABLE OUTPUT_UNAME OUTPUT_STRIP_TRAILING_WHITESPACE)
-execute_process(COMMAND bash -c "LANG=us; date"  OUTPUT_VARIABLE OUTPUT_DATE OUTPUT_STRIP_TRAILING_WHITESPACE)
-execute_process(COMMAND bash -c "${FC} --version |sed '/^$/d' |head -1" OUTPUT_VARIABLE OUTPUT_FCVERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
-execute_process(COMMAND bash -c "git log |head -1" OUTPUT_VARIABLE OUTPUT_GITCOMMIT1 OUTPUT_STRIP_TRAILING_WHITESPACE)
-execute_process(COMMAND bash -c "git log |head -2|tail -n 1" OUTPUT_VARIABLE OUTPUT_GITCOMMIT2 OUTPUT_STRIP_TRAILING_WHITESPACE)
-execute_process(COMMAND bash -c "git log |head -3|tail -n 1" OUTPUT_VARIABLE OUTPUT_GITCOMMIT3 OUTPUT_STRIP_TRAILING_WHITESPACE)
-execute_process(COMMAND bash -c "grep -v \"^\$\" /etc/issue | head -1 " OUTPUT_VARIABLE OUTPUT_ISSUE OUTPUT_STRIP_TRAILING_WHITESPACE)
-if(CMAKE_BUILD_TYPE STREQUAL "Release")
-  string(JOIN " "  FLAGS_ALL ${FLAGS} ${CMAKE_Fortran_FLAGS} ${CMAKE_Fortran_FLAGS_RELEASE}) #conbine lists to single variable
-elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  string(JOIN " "  FLAGS_ALL ${FLAGS} ${CMAKE_Fortran_FLAGS} ${CMAKE_Fortran_FLAGS_DEBUG})
-endif()
+# execute_process(COMMAND uname -orin  OUTPUT_VARIABLE OUTPUT_UNAME OUTPUT_STRIP_TRAILING_WHITESPACE)
+# execute_process(COMMAND bash -c "LANG=us; date"  OUTPUT_VARIABLE OUTPUT_DATE OUTPUT_STRIP_TRAILING_WHITESPACE)
+# execute_process(COMMAND bash -c "${FC} --version |sed '/^$/d' |head -1" OUTPUT_VARIABLE OUTPUT_FCVERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
+# execute_process(COMMAND bash -c "git log |head -1" OUTPUT_VARIABLE OUTPUT_GITCOMMIT1 OUTPUT_STRIP_TRAILING_WHITESPACE)
+# execute_process(COMMAND bash -c "git log |head -2|tail -n 1" OUTPUT_VARIABLE OUTPUT_GITCOMMIT2 OUTPUT_STRIP_TRAILING_WHITESPACE)
+# execute_process(COMMAND bash -c "git log |head -3|tail -n 1" OUTPUT_VARIABLE OUTPUT_GITCOMMIT3 OUTPUT_STRIP_TRAILING_WHITESPACE)
+# execute_process(COMMAND bash -c "grep -v \"^\$\" /etc/issue | head -1 " OUTPUT_VARIABLE OUTPUT_ISSUE OUTPUT_STRIP_TRAILING_WHITESPACE)
+# if(CMAKE_BUILD_TYPE STREQUAL "Release")
+#   string(JOIN " "  FLAGS_ALL ${FLAGS} ${CMAKE_Fortran_FLAGS} ${CMAKE_Fortran_FLAGS_RELEASE}) #conbine lists to single variable
+# elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
+#   string(JOIN " "  FLAGS_ALL ${FLAGS} ${CMAKE_Fortran_FLAGS} ${CMAKE_Fortran_FLAGS_DEBUG})
+# endif()
 # add_custom_command(
 #   OUTPUT ../subroutines/show_programinfo.f90
 #   COMMAND cpp -P -D___UNAME_A___=\"${OUTPUT_UNAME}\"
