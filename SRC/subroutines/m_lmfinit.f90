@@ -297,7 +297,7 @@ contains
       call rval2('BZ_W', rr=rr, defa=[5d-3]); bz_w=rr ! For BZ_N>=0,Line broadening for sampling. For BZ_N<0, Temperature for Fermi distribution (Ry)
       call rval2('BZ_ZBAK',  rr=rr, defa=[0d0]); zbak=rr !Homogeneous background charge to shift Fermi energy.
       call rval2('BZ_SAVDOS',rr=rr, defa=[real(8):: 0]); ldos=nint(rr)! '0(F) or 1(T): Write dos.tot.* file (settings are NPTS and DOS)'
-      call rval2('BZ_NPTS',  rr=rr, defa=[real(8):: 2001]); bz_ndos=nint(rr) !'No. DOS points (sampling integration)')
+      call rval2('BZ_NPTS',  rr=rr, defa=[real(8):: 4001]); bz_ndos=nint(rr) !'No. DOS points (sampling integration)')
       call rval2('BZ_DOSMAX',rr=rr, defa=[40d0/rydberg()]); bz_dosmax=rr ! Maximum energy to which DOS accumulated, relative to Efermi
       call rval2('BZ_EFMAX', rr=rr, defa=[5d0]); bz_efmax=rr !Find evecs up to efmax'
       call rval2('BZ_FSMOM',rr=rr, defa=[NULLR]); bz_fsmom=rr !Size of Fixed-spin moment (fixed-spin moment method tured on when BZ_FSMOM/=NULLR)

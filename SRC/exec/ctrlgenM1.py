@@ -744,7 +744,8 @@ tail = tail + "BZ    #ZBAK=0.1 For exmple, Si with ZBAK=0.1 gives 8-0.1=7.9 tota
                 # no problem even for insulator.
                 # For insulator, METAL=0 may be a little faster.
 
-              DOSMAX=1.5 NPTS=2001 SAVDOS=T
+              #DOSMAX=1.5 #NPTS=4001 
+              SAVDOS=T
                 # These are used to plot total dos, and pdos.
                 # DOSMAX: is the maximum of the total dos plot. It is relative to the Fermi energy.
                 #   Corresponding mimimum is automatically chosen to cover all valence states.
