@@ -88,7 +88,7 @@ subroutine hrcxq() bind(C)
   iqxend = nqibz + nq0i + nq0iadd ! [iqxini:iqxend] range of q points.
 
   if(cmdopt2('--nk=', outs)) read(outs,*) n_kpara
-  n_bpara = mpi__size/(n_kpara*(iqxend - iqxini + 1) + 1) + 1 !Default setting of parallelization. k-parallel is 1.
+  n_bpara = max(mpi__size/(n_kpara*(iqxend - iqxini + 1)), 1) !Default setting of parallelization. k-parallel is 1.
   if(cmdopt2('--nb=', outs)) read(outs,*) n_bpara
   worker_inQtask = n_bpara * n_kpara
   write(stdo,'(1X,A,3I5)') 'MPI: worker_inQtask:(n_bpara,n_kpara)', worker_inQtask, n_bpara, n_kpara
