@@ -41,6 +41,11 @@ module m_zmel
   logical :: keep_ppbir = .false., has_ppbir = .false.
 contains
   subroutine setppovlz(q,matz,npr) ! Set ppovlz for given q
+#ifdef __GPU
+    use m_blas, only: zmm => zmm_d
+#else
+    use m_blas, only: zmm => zmm_h
+#endif
     intent(in)::       q,matz,npr
     logical:: matz
     ! 2024-5-24; add npr
@@ -55,9 +60,9 @@ contains
     !     
     real(8) :: q(3)
     complex(8),allocatable :: ppovl(:,:)!,ppovlzinv(:,:) !    logical:: eibz4x0
-    complex(kind=kp),allocatable :: ppovlz_pw(:,:)
+    complex(8),allocatable :: ppovlz_pw(:,:)
 #ifdef __GPU
-    attributes(device) :: ppovlz_g
+    attributes(device) :: ppovlz_pw
 #endif
     integer:: i,ngc_r,ippovl0,npr, ierr
     real(8):: qx(3),tolq=1d-8
@@ -82,11 +87,11 @@ contains
     call rx('reading ppvol0')
 1010 continue 
     close(ippovl0)
-    !$acc enter data crate(ppovlz)
+    !$acc enter data create(ppovlz)
     allocate(ppovlz_pw(ngc,npr))
-    !$acc data copyin(zcousq(1:nbloch+ngc,1:npr), ppovl)) crate(ppovlz_pw)
+    !$acc data copyin(zcousq(1:nbloch+ngc,1:npr), ppovl) create(ppovlz_pw)
     ! ppovlz(nbloch+1:nbloch+ngc,1:npr) = cmplx(matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,1:npr)), kind=kp)
-    ierr = gemm(ppovl, zcousq(nbloch+1,1), ppovlz_pw, m=ngc, n=npr, k=ngc, ldB=nbloch+ngc)
+    ierr = zmm(ppovl, zcousq(nbloch+1,1), ppovlz_pw, m=ngc, n=npr, k=ngc, ldB=nbloch+ngc)
     !$acc kernels
     ppovlz(       1:nbloch,    1:npr) = cmplx(zcousq(1:nbloch,1:npr), kind=kp)
     ppovlz(nbloch+1:nbloch+ngc,1:npr) = cmplx(ppovlz_pw(1:ngc,1:npr), kind=kp)
