@@ -251,8 +251,8 @@ contains
        close(ifi)
     endif
     GenerateTotalDOS: if(master_mpi .AND. (tdos .OR. ldos/=0)) then !   emin=dosw(1) and emax=dosw(2) sets dos range
-       dosw(1)= emin-0.01d0     ! lowest energy limit to plot dos
-       dosw(2)= eferm+bz_dosmax !max energy limit to plot dos
+       dosw(1)= emin-0.01d0                          ! lowest energy limit to plot dos
+       dosw(2)= min(maxval(evlall),eferm + 100d0/rydberg())  ! eferm +bz_dosmax !max energy limit to plot dos
        write(stdo,ftox)' bndfp:Generating TDOS: efermi(eV)=',ftof(rydberg()*eferm),&
             ' DOSwindow emin emax(eV)= ',ftof(rydberg()*dosw),'ltet nsp=',ltet,nsp
        allocate( dosi_rv(ndos,nsp),dos_rv(ndos,nsp),source=0d0) !for xxxdif

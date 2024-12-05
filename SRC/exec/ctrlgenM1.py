@@ -72,11 +72,12 @@ Kr= "  atomz=36@ pz='PZ=5.3,5.3'@  eh=-1*4@ eh2=-2*3@                 R=1.88@"
 ### Followings are not tested well ###
 #Sr  =" atomz=38@ pz='PZ=4.9,4.9'@ eh=-1*4@ eh2=-2*3@   R=2.08@"       
 #Y   =" atomz=39@ pz='PZ=4.9,4.9'@ eh=-1*4@ eh2=-2*3@   R=1.31@" (same R with Sc) OK???
-Rb  =" atomz=37@ pz='PZ=0,4.9'@ eh=-1*4@ eh2=-2*3@   R=2.00@"
 ### PZ=4.9,4.9 is for GW
-Sr  =" atomz=38@ pz='PZ=4.9,4.9'@ eh=-1*4@ eh2=-2*3@   R=2.0@"       
 ### PZ=4.9,4.9 is for GW
-Y   =" atomz=39@  p='PZ=4.9,4.9'@ eh=-1*4@ eh2=-2*3@   R=1.3@" (same R with Sc) OK???
+
+Rb  =" atomz=37@  pz='PZ=4.9,4.9'@ eh=-1*4@ eh2=-2*3@   R=2.00@"
+Sr  =" atomz=38@  pz='PZ=4.9,4.9'@ eh=-1*4@ eh2=-2*3@   R=2.0@"       
+Y   =" atomz=39@  pz='PZ=4.9,4.9'@ eh=-1*4@ eh2=-2*3@   R=1.3@" (same R with Sc) OK???
 Zr  =" atomz=40@  eh=-1*4@ eh2=-2*3@   R=?@"
 Nb  =" atomz=41@  eh=-1*4@ eh2=-2*3@   R=?@" 
 Mo  =" atomz=42@  eh=-1*4@ eh2=-2*3@   R=?@" 
@@ -123,11 +124,11 @@ Ir  =" atomz=77@ eh=-1*4@ eh2=-2*3@ R=?@"
 Pt  =" atomz=78@ eh=-1*4@ eh2=-2*3@ R=?@" 
 Au  =" atomz=79@ eh=-1*4@ eh2=-2*3@ R=?@" 
 Hg  =" atomz=80@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Tl  =" atomz=81@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Pb  =" atomz=82@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Bi  =" atomz=83@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Po  =" atomz=84@ eh=-1*4@ eh2=-2*3@ R=?@" 
-At  =" atomz=85@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Tl  =" atomz=81@ eh=-1*4@ eh2=-2*3@ R=?@ pz='PZ=0,0,5.9'@ p='P=0,0,6.2'@ eh=-1*4@ eh2=-2*3@ R=?@"
+Pb  =" atomz=82@ eh=-1*4@ eh2=-2*3@ R=?@ pz='PZ=0,0,5.9'@ p='P=0,0,6.2'@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Bi  =" atomz=83@ eh=-1*4@ eh2=-2*3@ R=?@ pz='PZ=0,0,5.9'@ p='P=0,0,6.2'@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Po  =" atomz=84@ eh=-1*4@ eh2=-2*3@ R=?@ pz='#PZ=0,0,4.9'@ p='#P=0,0,5.5'@ eh=-1*4@ eh2=-2*3@ R=?@" 
+At  =" atomz=85@ eh=-1*4@ eh2=-2*3@ R=?@ pz='#PZ=0,0,4.9'@ eh=-1*4@ eh2=-2*3@ R=?@" 
 Rn  =" atomz=86@ eh=-1*4@ eh2=-2*3@ R=?@" 
 
 Fr  =" atomz=87@ pz='PZ=6,6'@ eh=-1*4@ eh2=-2*4@ R=?@" 
@@ -647,13 +648,17 @@ for ispec in uniq(sitename):
 #        print ispec,speckey,'tratio=',touchingratio
         print( '  From atomlist" ', dicatom[speckey])
         if touchingratio >0:
-#            rrr = string.atof(rdic[speckey]) * touchingratio
+#           rrr = string.atof(rdic[speckey]) * touchingratio
             rrr = float(rdic[ispec]) * touchingratio
         else:
             rrr = float(getdataa(dicatom[speckey],'R='))/0.529177 #*r_mul_val
         #print( rrr)
-        if(rrr>3.0 and float(z)>2.8 and float(z) <3.2 ): rrr=2.9 #upper limit of R for Li
-        if(rrr>3.0): rrr=3.0 #upper limit of R
+        if(rrr>2.9 and float(z)>2.8 and float(z)   <4.2 ): rrr=2.9   #upper limit of R for Li,Be
+        if(rrr>2.4 and float(z)>10.8 and float(z) <12.2 ): rrr=2.4   #upper limit of R for Na,Mg. NaAlO2 needed 2.4 for 3 3 3 
+        if(rrr>2.6 and float(z)>18.8 and float(z) <20.2 ): rrr=2.6   #upper limit of R for K,Ca  
+        if(rrr>3.0): rrr=3.0 #
+        print('rrr',rrr)
+        
         rrrh = rrr/2.0
         if(rrrh<0.5): rrrh=0.5 #lower limit of RSMH
     except:
@@ -739,7 +744,8 @@ tail = tail + "BZ    #ZBAK=0.1 For exmple, Si with ZBAK=0.1 gives 8-0.1=7.9 tota
                 # no problem even for insulator.
                 # For insulator, METAL=0 may be a little faster.
 
-              DOSMAX=1.5 NPTS=2001 SAVDOS=T
+              #DOSMAX=1.5 #NPTS=4001 
+              SAVDOS=T
                 # These are used to plot total dos, and pdos.
                 # DOSMAX: is the maximum of the total dos plot. It is relative to the Fermi energy.
                 #   Corresponding mimimum is automatically chosen to cover all valence states.

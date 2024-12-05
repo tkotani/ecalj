@@ -412,6 +412,7 @@ contains
             if(blas_mode) then
               istat = zmm(pzovl(1,ispc,1), pwz(1,ispc,1), testc(1,1,ispc), m=ndimhx, n=ndimhx, k=ngp, &
                           opA=m_op_C, ldA=ngp*nspc, ldB=ngp*nspc)
+              ! testc(:,:,ispc)= matmul(transpose(dconjg(pzovl(:,ispc,:))),pwz(1:ngp,ispc,1:ndimhx))
               testcd(:,ispc) = [(sum(dconjg(pwz(:,ispc,i))*ppovld(:)*pwz(:,ispc,i)),i=1,ndimhx)]
             else
             associate(pwz1=>pwz(1:ngp,ispc,1:ndimhx),pzo=>dconjg(pzovl(:,ispc,:)))
