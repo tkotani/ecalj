@@ -433,7 +433,7 @@ contains
                     enddo   itpo
                     allocate(wzmel(1:ngb,ns1:ns2,1:ntqxx), czwc(ns1:ns2,1:ntqxx,1:ngb))
                     call writemem('    Goto iwimag')
-                    !$acc data copyin(wgtim, zmel)
+                    !$acc data copyin(wgtim)
                     iwimag:do iw = 0, niw !niw is ~10. ixx=0 is for omega=0 nw_i=0 (Time reversal) or nw_i =-nw
                       if(emptyrun) cycle
                       if(keepwv) then
@@ -452,7 +452,7 @@ contains
                         if(iw > 0) read(ifrcwi,rec=iw) wv ! direct access read Wc(i*omega)=W(i*omega)-v
                         wc = wv
                       endif
-                      !$acc kernels loop independent collapse(2)
+                      !$acc kernels loop independent collapse(2) present(zmel)
                       do itp = 1, ntqxx
                         do it = ns1, ns2
                           wzmel(1:ngb,it,itp) = cmplx(wgtim(iw,itp,it)*zmel(1:ngb,it,itp),kind=kp)
@@ -542,7 +542,7 @@ contains
                         read(ifrcw,rec=iw-nw_i+1) wv
                         wc = (wv + transpose(conjg(wv)))*0.5d0  !copy to GPU
                       endif
-                      !$acc kernels loop independent
+                      !$acc kernels loop independent present(zmel)
                       do ittp = 1, nttp(iw) 
                         it = itw(ittp,iw); itp = itpw(ittp,iw)
                         wz_iw(1:ngb,ittp) = cmplx(wgtiw(ittp,iw)*zmel(1:ngb,it,itp),kind=kp)
