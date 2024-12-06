@@ -274,6 +274,7 @@ contains
     real(8),parameter :: ddw=10d0
     character(64):: charli
     character(8):: charext
+    character(10) :: i2char
     allocate(ekc(nctot+nband), eq(nband), omega(ntq)) 
     emptyrun = cmdopt0('--emptyrun')
     keepwv = cmdopt0('--keepwv')
@@ -312,7 +313,6 @@ contains
       !call setwv()
       SetWVblock: block !subroutine setwv()
         integer :: iqini, iqend, iw
-        character(10) :: i2char
         real(8), parameter :: gb = 1000*1000*1000
         if(allocated(wvi)) then
           !$acc exit data delete(wvi)
@@ -323,9 +323,9 @@ contains
           deallocate(wvr)
         endif
         if(any(kx==kxc(:))) then
-          open(newunit=ifrcwi,file='WVI.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
-          open(newunit=ifrcw, file='WVR.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
           if(keepwv) then
+            open(newunit=ifrcwi,file='WVI.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
+            open(newunit=ifrcw, file='WVR.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
             write(stdo, ftox) 'save WVI and WVR on CPU and GPU (if GPU is used) memory. This requires sufficient memory'
            ! (MO) wvi & wvr are also allocated in CPU memory and are note needed for GPU calcualtion. but allocation of huge
            ! device memory made a error (I don't know the reason). therefore, we used openacc data copyin procedure
@@ -341,6 +341,7 @@ contains
             enddo
             !$acc enter data copyin(wvi(1:nblochpmx,1:nblochpmx,1:niw), wvr(1:nblochpmx,1:nblochpmx,nw_i:nw))
             write(stdo, '(X,A,2F8.3)') 'WVI/WVR : sizes (GB)', dble(size(wvi))*kp*2/gb, dble(size(wvr))*kp*2/gb
+            close(ifrcwi); close(ifrcw)
           endif
         endif
         !end subroutine setwv
@@ -448,8 +449,15 @@ contains
                           !$acc end kernels
                         endif
                       else
-                        if(iw == 0) read(ifrcw,rec=1+(0-nw_i)) wv!direct access Wc(0) = W(0)-v ! nw_i=0 (Time reversal) or nw_i =-nw
-                        if(iw > 0) read(ifrcwi,rec=iw) wv ! direct access read Wc(i*omega)=W(i*omega)-v
+                        if(iw == 0) then
+                          open(newunit=ifrcw, file='WVR.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
+                          read(ifrcw,rec=1+(0-nw_i)) wv!direct access Wc(0) = W(0)-v ! nw_i=0 (Time reversal) or nw_i =-nw
+                          close(ifrcw)
+                        elseif(iw > 0) then
+                          open(newunit=ifrcwi,file='WVI.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
+                          read(ifrcwi,rec=iw) wv ! direct access read Wc(i*omega)=W(i*omega)-v
+                          close(ifrcwi)
+                        endif
                         wc = wv
                       endif
                       !$acc kernels loop independent collapse(2) present(zmel)
@@ -539,7 +547,9 @@ contains
                         wc(:,:) = (wvr(:,:,iw) + transpose(conjg(wvr(:,:,iw))))*0.5d0
                         !$acc end kernels
                       else
+                        open(newunit=ifrcw, file='WVR.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
                         read(ifrcw,rec=iw-nw_i+1) wv
+                        close(ifrcw)
                         wc = (wv + transpose(conjg(wv)))*0.5d0  !copy to GPU
                       endif
                       !$acc kernels loop independent present(zmel)
@@ -602,8 +612,6 @@ contains
             !$acc exit data delete(wvr)
             deallocate(wvr)
           endif
-          close(ifrcwi)
-          close(ifrcw)
         endif
       endblock releasew !  end subroutine releasewv
     enddo kxloop
