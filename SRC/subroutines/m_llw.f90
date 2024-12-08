@@ -51,7 +51,7 @@ contains
        allocate( llw(nw_i:nw,nq0i),source=(1d99,0d0) )
        if(sum(ixyz)/=0) w4pmode= .TRUE. 
        if(w4pmode) allocate( wmuk(2:nblochpmx,3),source=(1d99,0d0))
-       allocate( zw(nblochpmx,nblochpmx) )
+       allocate( zw(nblochpmx,nblochpmx),source=(0d0,0d0) )
        init=.false.
     endif
     call stopwatch_init(t_sw_matinv, 'matinv')

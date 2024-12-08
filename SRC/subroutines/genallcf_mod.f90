@@ -77,9 +77,9 @@ contains
     ReadProductBasis: block
       allocate(nindxv(nl,nclass), nindxc(nl,nclass), &
            occv(nl,nnv,nclass),unoccv(nl,nnv,nclass), &
-           occc(nl,nnc,nclass),unoccc(nl,nnc,nclass))
-      allocate(ncwf2(nl,nnc,nclass),ncwf(nl,nnc,nclass))
-      allocate(cutbase(0:2*(nl-1)))
+           occc(nl,nnc,nclass),unoccc(nl,nnc,nclass),source=0)
+      allocate(ncwf2(nl,nnc,nclass),ncwf(nl,nnc,nclass),source=0)
+      allocate(cutbase(0:2*(nl-1)),source=0d0)
       ncwf  =99 !This is for counting the number of nctot in gencor.
       ncwf2 =99
       !===================================================
@@ -201,6 +201,11 @@ contains
          ndima=ndima+sum([((2*l+1)*nindxv(l+1,iclass(ic)),l=0,lmxa(ic))]) !l=0,nl-1)])
       enddo
       nn  =  maxval(nindxv(1:nl,1:nclass)+nindxc(1:nl,1:nclass))
+!      do ic=1,nclass
+!      write(6,*)'nindxv=',nindxv(1:nl,ic)
+!      write(6,*)'nindxc=',nindxc(1:nl,ic)
+!      enddo
+!      write(6,*)'nl nclass nn=',nl,nclass,nn
       allocate(nindx(nl,nclass),nocc(nl,nn,nclass),nunocc(nl,nn,nclass),source=0)
       reindxblock: block
         integer:: nval,ncore
