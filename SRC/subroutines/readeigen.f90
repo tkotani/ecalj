@@ -100,9 +100,7 @@ contains
        geigenr(1:ngpmx*nspc,1:nband) = geig(1:ngpmx*nspc,1:nband,iqi,isp)
     else
        ikpisp= isp + nsp*(iqi-1)
-       i=openm(newunit=ifgeigm,file='GEIG',recl=mrecg) ! in the case of keepeig=F ' fix at 2024-10-15
        i=readm(ifgeigm,rec=ikpisp, data=geigenr(1:ngpmx*nspc,1:nband) )
-       i=closem(ifgeigm)
 !       open(newunit=ifgeig, file='GEIG'//trim(xt(iqi))//trim(xt(isp)),form='unformatted')
 !       read(ifgeig) geigenr(1:ngpmx*nspc,1:nband) 
 !       close(ifgeig)
@@ -162,9 +160,7 @@ contains
        cphifr(1:ndima*nspc,1:nband) = cphi(1:ndima*nspc,1:nband,iqi,isp)
     else 
        ikpisp= isp + nsp*(iqi-1)
-       i=openm(newunit=ifcphim,file='CPHI',recl=mrecb) ! Obata moved openm here, bug was 'openm after return 
        i=readm(ifcphim,rec=ikpisp, data=cphifr(1:ndima*nspc,1:nband)) ! , rec=ikpisp
-       i=closem(ifcphim)
 !     open(newunit=ifcphi, file='CPHI'//trim(xt(iqi))//trim(xt(isp)),form='unformatted')
 !       read(ifcphi) cphifr(1:ndima*nspc,1:nband) 
 !       close(ifcphi)
@@ -252,10 +248,9 @@ contains
     init2=.false.
     if(Keepeig       ) write(6,*)' KeepEigen=T; readin geig and cphi into m_readeigen'
     if( .NOT. Keepeig) write(6,*)' KeepEigen=F; not keep geig and cphi in m_readeigen'
-    if( .NOT. keepeig) return
-    !(MO) 2024-12-06: IO-Test. Files are opened/closed when they are used.
     i=openm(newunit=ifcphim,file='CPHI',recl=mrecb) ! Obata moved openm here, bug was 'openm after return 
     i=openm(newunit=ifgeigm,file='GEIG',recl=mrecg) ! in the case of keepeig=F ' fix at 2024-10-15
+    if( .NOT. keepeig) return
     allocate(geig(ngpmx*nspc,nband,nqi,nspx))
     allocate(cphi(ndima*nspc,nband,nqi,nspx))
     do ikp= 1,nqi
