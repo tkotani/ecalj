@@ -597,7 +597,7 @@ contains
                    'ec(iaxis):', ftof(stopwatch_lap_time(t_sw_ci),4),  '(sec)', &
                    'ec(raxis):', ftof(stopwatch_lap_time(t_sw_cr),4),  '(sec)', &
                    'ec:', ftof(stopwatch_lap_time(t_sw_xc),4),         '(sec)', &
-                   'readwv:', ftof(stopwatch_lap_time(t_sw_readwv),4), '(sec)', &
+                   'readwv:', ftof(stopwatch_elapsed_time(t_sw_readwv),4), '(sec)', &
                    '# of computed real omega bin:', n_nttp
               call flush(stdo)
             enddo NMBATCHloop
