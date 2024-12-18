@@ -84,7 +84,7 @@ def main():
         f.write('set terminal x11\n')
         f.write('replot\n')
 
-    if 'NoGnuplot' not in ' '.join(sys.argv[4:len(sys.argv)-2]):
+    if 'NoGnuplot' not in ' '.join(sys.argv[4:]):
         subprocess.run(['gnuplot', ufileg])
 
     print(f"To repeat, gnuplot -persist {ufileg}")
