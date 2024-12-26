@@ -13,10 +13,14 @@ module m_readeigen
   use m_read_bzdata,only: ginv
   use m_genallcf_v3,only: nsp =>nspin ,ndima,ndimanspc, mrecb,mrece,mrecg,nband,nspc,nspx
   use m_keyvalue,only: getkeyvalue
+  use m_keep_wfs,only: keep_wfs_init, update_keep_geig, update_keep_cphi, set_geig_from_keep, set_cphi_from_keep
   !! qtt(1:3, nqtt)  :q-vector in full BZ (no symmetry) in QGpsi, QGcou
   !! qtti(1:3,nqi)   :eivenvalues, eigenvectors are calculated only for irr=1 in QGpsi (See lqg4gw).
   implicit none
   public:: Init_readeigen,Init_readeigen2, Lowesteval, Readeval,Readgeigf,Readcphif
+#ifdef __GPU
+  public:: readgeigf_d, readcphif_d
+#endif
   public:: Onoff_write_pkm4crpa,Readcphifq
   public:: Init_readeigen_mlw_noeval, Readcphiw, Readgeigw
   integer,public:: nwf
@@ -176,6 +180,175 @@ contains
             cphifr(ioff+1:ioff+ndima,:), cphif(ioff+1:ioff+ndima,:))
      enddo
   end subroutine readcphi
+
+#ifdef __GPU
+  function readgeigf_d(q,isp) result(geigen)
+    use m_ftox
+    use m_rotwave,only: Rotipw
+    implicit none
+    real(8),intent(in):: q(3)
+    integer,intent(in):: isp
+    complex(8), device :: geigen(ngpmx*nspc,nband)
+    complex(8) :: geigenr(ngpmx*nspc,nband)
+    integer :: iq, ikpisp, iqq, igg, iqi, igxt, i, ioff, ispc, ifiqg
+    real(8) :: platt(3,3), qtarget(3), qu(3)
+    !$acc kernels
+    geigen(:,:) = (0d0, 0d0) !2024-5-17 for ifort NaN initialization
+    !$acc end kernels
+    platt = transpose(plat) !this is inverse of qlat
+    if(init2) call rx( 'readgeig: modele is not initialized yet')
+    call iqindx2_(q, iq, qu) !qu is used q. q-qu is a G vector.
+    quu = qu
+    if(debug) write(6,*)' readgeig:xxx iq=',iq
+    iqq=iqmap(iq)
+    iqi=iqimap(iq)
+    igg=igmap(iq)
+    qtarget=qtt(:,iq) ! iqq is mapped to qtarget=qu=qtt(:,iq)
+    if(ngp(iq)==0) return
+    if(ngp(iq)/=ngp(iqq)) then
+       write(6,*)' ddddd readgeig: iq iqq igg=',iq,iqq,igg,q,qu
+       write(6,*)' ddddd qtarget=',qtarget,' ddddd q (iqq)=',qtt(:,iqq)
+       write(6,"(a,3i5,3f10.4,2i5)")' ngp(iq) ngp(iqq)=',iq,iqq,igg,q,ngp(iq),ngp(iqq)
+       call rx( 'readgeig:x2 ngp(iq)/=ngp(iqq)')
+    endif
+    if(set_geig_from_keep(iq,isp,geigen)) return
+    !$acc enter data create(geigenr)
+    if(keepeig) then
+      !$acc kernels present(geig)
+      geigenr(1:ngpmx*nspc,1:nband) = geig(1:ngpmx*nspc,1:nband,iqi,isp)
+      !$acc end kernels
+    else
+      ikpisp= isp + nsp*(iqi-1)
+      i=readm(ifgeigm,rec=ikpisp, data=geigenr(1:ngpmx*nspc,1:nband) )
+      !$acc update device(geigenr)
+    endif
+    igxt=1 !not timereversal
+    if(.not.keepqg) then
+      allocate( ngvecp(3,ngpmx,iqq:iqq))
+      allocate( ngvecprev(-imx:imx,-imx:imx,-imx:imx,iq:iq))
+      BLOCK
+        integer:: ngvecp_tmp(3,ngpmx)
+        open(newunit=ifiqg, file='QGpsi_rec',form='unformatted', access='direct', recl=4*(3*ngpmx+(2*imx+1)**3), status='old')
+        read(ifiqg, rec=iq)  ngvecp_tmp(1:3,1:ngpmx),ngvecprev(-imx:imx,-imx:imx,-imx:imx,iq)
+        read(ifiqg, rec=iqq) ngvecp(1:3, 1:ngp(iqq),iqq)
+        close(ifiqg)
+      END BLOCK
+      !$acc enter data copyin(ngvecp,ngvecprev)
+    endif
+    do ispc=1,nspc
+      ioff=(ispc-1)*ngpmx
+      rotipw: block
+        complex(8), parameter :: img=(0d0,1d0), img2pi = 2d0*4d0*datan(1d0)*img
+        integer :: ig, ig2, i
+        integer, device :: nnn(3)
+        real(8), device :: qpg(3), qpgr(3), qin(3)
+        complex(8) :: cphase
+        qin(:) = qtt(:,iqq) !copy to GPU
+
+        !$acc data copyin(shtvg(1:3,igg), platt, qlat) present(ngvecp, ngvecprev)
+        !$acc kernels loop gang
+        do ig = 1,ngp(iqq)
+          ! qpg(:) = qin(:) + matmul(qlat(:,:), ngvecp(:,ig,iqq)) ! q+G
+          !$acc loop vector(3)
+          do i=1,3
+            qpg(i) = qin(i) + qlat(i,1)*ngvecp(1,ig,iqq)+qlat(i,2)*ngvecp(2,ig,iqq)+qlat(i,3)*ngvecp(3,ig,iqq)
+          enddo
+          ! qpgr(:) = matmul(symops(:,:,igg),qpg(:))              !rotated q+G
+          !$acc loop vector(3)
+          do i=1,3
+            qpgr(i) = symops(i,1,igg)*qpg(1)+symops(i,2,igg)*qpg(2)+symops(i,3,igg)*qpg(3)
+          enddo
+          if(igxt==-1) qpgr=-qpgr                               ! xxxxxxxx need to check!
+          !$acc loop vector(3)
+          do i=1,3
+            nnn(i) = nint(platt(i,1)*(qpgr(1)-qtarget(1)) + platt(i,2)*(qpgr(2)-qtarget(2)) + platt(i,3)*(qpgr(3)-qtarget(3)))
+          enddo
+          ig2 = ngvecprev(nnn(1),nnn(2),nnn(3),iq)   ! index for G
+          cphase = exp(-img2pi*(qpgr(1)*shtvg(1,igg)+qpgr(2)*shtvg(2,igg)+qpgr(3)*shtvg(3,igg)))
+          !$acc loop vector
+          do i=1,nband
+            geigen(ioff+ig2,i) = geigenr(ioff+ig,i)*cphase
+          enddo
+        enddo
+        !$acc end kernels
+        !$acc end data
+      endblock rotipw
+    enddo
+    !$acc exit data delete(geigenr)
+    call update_keep_geig(iq,isp,geigen)
+    if(.not.keepqg) deallocate(ngvecp,ngvecprev)
+  end function readgeigf_d
+
+  function readcphif_d(q,isp) result(cphif)
+    use m_rotwave,only: Rotmto
+    use m_blas, only : zmm_d
+    implicit none
+    integer,intent(in):: isp
+    real(8),intent(in):: q(3)
+    complex(8) :: cphif(ndima*nspc,nband), cphifr(ndima*nspc,nband)
+    integer:: iq,iqindx,ikpisp,iqq,iorb,ibaso,ibas,k,l,ini1,ini2,iend1,iend2, igg,ig,iqi,i,igxt,ioff,ispc,ix
+    real(8)   ::  qu(3)
+    complex(8):: phase
+    complex(8), parameter:: img=(0d0,1d0) ! MIZUHO-IR
+    complex(8):: img2pi = 2d0*4d0*datan(1d0)*img ! MIZUHO-IR
+    attributes(device) :: cphif
+    if(init2) call rx( 'readcphi: modele is not initialized yet')
+    call iqindx2_(q, iq, qu) !for given q, get iq. qu is used q. q-qu= G vectors. qu=qtt(:,iq)
+    igg=igmap(iq)  ! qtt(:,iq)= matmul(sympos(  ,igg),qtt(:,iqq))
+    iqq=iqmap(iq)  ! mapped from qtt(:,iqq) to qtt(:,iq);
+    ! qtt(:,iq)=matmul(sym(igg),qtt(:,iqq))+some Gvector(see iqindx2 above)
+    iqi=iqimap(iq) ! iqi is index for irr.=1 (cphi calculated. See qg4gw and sugw.F).
+    ! qtt(:,iqq) = qtti(:,iqi) is satisfied.
+    ! we have eigenfunctions calculated only for qtti(:,iqi).
+    quu(:) = qu(:)
+    if(set_cphi_from_keep(iq,isp,cphif)) return
+    !$acc enter data create(cphifr)
+    if(keepeig) then
+      !$acc kernels present(cphi)
+      cphifr(1:ndima*nspc,1:nband) = cphi(1:ndima*nspc,1:nband,iqi,isp)
+      !$acc end kernels
+    else 
+      ikpisp= isp + nsp*(iqi-1)
+      i=readm(ifcphim,rec=ikpisp, data=cphifr(1:ndima*nspc,1:nband)) ! , rec=ikpisp
+      !$acc update device(cphifr)
+    endif
+    if(debug) write(6,"('readcphi:: xxx sum of cphifr=',3i4,4d23.16)")ndimanspc,ndimanspc,norbtx, &
+         sum(cphifr(1:ndimanspc,1:nband)),sum(abs(cphifr(1:ndimanspc,1:nband)))
+    call flush(6)
+    igxt=1 !not timereversal (for future)
+    do ispc=1,nspc
+       ioff=ndima*(ispc-1)
+       rotmto: block
+         real(8) :: qrot(3),  qin(3)
+         complex(8) :: phase(nbas)
+         complex(8),parameter:: img=(0d0,1d0), img2pi = 2d0*4d0*datan(1d0)*img
+         complex(8), device :: dlmm_tmp(-lmxax:lmxax,-lmxax:lmxax, 0:lmxax)
+         integer :: iorb, ibas, l, k, ini1, ini2, ierr
+         dlmm_tmp(:,:,:) = dlmm(:,:,:,igg) !copy to device
+         qin(:) = qtt(:,iqq)
+         qrot = matmul(symops(:,:,igg),qin)
+         if(igxt==-1) qrot=-qrot !july2012takao
+         phase = [(exp(-img2pi*sum(qrot*tiat(:,ibas, igg))),ibas=1,nbas)]
+         !$acc host_data use_device(cphifr)
+         do iorb=1, norbtx !orbital-blocks
+           ibas = ibas_tbl(iorb)
+           l = l_tbl(iorb)
+           k = k_tbl(iorb)
+           ini1 = offset_tbl(iorb)+1
+           ini2 = offset_rev_tbl(miat(ibas,igg),l,k)+1
+           ierr = zmm_d(dlmm_tmp(-l,-l,l), cphifr(ini1+ioff,1), cphif(ini2+ioff,1), m=(2*l+1), n=nband, k=(2*l+1), &
+                        alpha=cmplx(phase(ibas), kind=8), lda=(2*lmxax+1), ldb=ndima*nspc, ldc=ndima*nspc)
+         enddo
+         !$acc end host_data
+       endblock rotmto
+    enddo
+    !$acc exit data delete(cphifr)
+    if(debug) write(6,*) 'before update_keep_cphi @ readcphif_d'; call flush(6)
+    call update_keep_cphi(iq,isp,cphif)
+    if(debug) write(6,*) 'end of readcphif_d'; call flush(6)
+  end function readcphif_d
+#endif
+
   subroutine init_readeigen() ! initialization. Save QpGpsi EVU EVD to arrays.--
     integer:: iq,is,ifiqg,nnnn,ikp,isx,ik,ib,verbose
     integer:: ifev,nband_ev, nqi_, nsp_ev ,ngpmx_ ,nqtt_,nspc_
@@ -206,6 +379,9 @@ contains
          read (ifiqg)
        endif
     enddo
+    if(keepqg) then
+      !$acc enter data copyin(ngvecp, ngvecprev)
+    endif
     close(ifiqg)
     deallocate(qtt_)
     open(newunit=ifev,file='EValue',form='unformatted')
@@ -230,7 +406,7 @@ contains
           enddo
        enddo
        if(debug) write(6,*)'init_readeigen:end'
-       call rx0('xxxxxxxxxxxxxxxxxx')
+       ! call rx0('xxxxxxxxxxxxxxxxxx')
     endif
     leval= minval(evud)
     init=.false.
@@ -250,6 +426,7 @@ contains
     if( .NOT. Keepeig) write(6,*)' KeepEigen=F; not keep geig and cphi in m_readeigen'
     i=openm(newunit=ifcphim,file='CPHI',recl=mrecb) ! Obata moved openm here, bug was 'openm after return 
     i=openm(newunit=ifgeigm,file='GEIG',recl=mrecg) ! in the case of keepeig=F ' fix at 2024-10-15
+    call keep_wfs_init() ! allocate for keep wfs
     if( .NOT. keepeig) return
     allocate(geig(ngpmx*nspc,nband,nqi,nspx))
     allocate(cphi(ndima*nspc,nband,nqi,nspx))
@@ -265,6 +442,7 @@ contains
           !  close(ifgeig)
        enddo
     enddo
+    !$acc enter data copyin(geig, cphi)
     if(keepeig)i=closem(ifcphim)
     if(keepeig)i=closem(ifgeigm)
   end subroutine init_readeigen2

@@ -7,6 +7,9 @@ module m_readQG
   implicit none
   !--------------------------------------------
   public:: readqg, readqg0, readngmx, readngmx2
+#ifdef __GPU
+  public:: readqg_d
+#endif
   integer,protected,public:: ngpmx=NaN, ngcmx=NaN!,nblochpmx
   !--------------------------------------------
 
@@ -113,6 +116,70 @@ contains
     call rx( "readqg: can not find QGpsi or QPcou for given q")
   end subroutine readqg
 
+  !> Get ngv and ngvec(3,ngv) for given qin(3)
+  !! key=='QGcou' or 'QGpsi'
+  subroutine readqg_d(key, qin, qu, ngv, ngvec_d)
+    implicit none
+    intent(out)::                    qu,ngv,ngvec_d
+    character*(*), intent(in) :: key
+    real(8), intent(in) :: qin(3)
+    real(8), intent(out) :: qu(3)
+    integer, intent(out) :: ngv, ngvec_d(3,*)
+    integer :: ifi, iq, ifiqg
+    integer, allocatable :: ngvec_h(:,:)
+#ifdef __GPU
+    attributes(device) :: ngvec_d
+#endif
+    ifi = -999999
+    if (key=='QGpsi') then
+      ifi=1
+    elseif(key=='QGcou') then
+      ifi=2
+    else
+      call rxi( "readqg: wrongkey ifi", ifi)
+    endif
+
+    if(init(ifi)) then
+       call init_readqg(ifi)
+       init(ifi)=.false.
+    endif
+    call iqindx2qg(qin,ifi, iq,qu)
+    if(ifi==1) then
+       ngv  = ngp(iq)
+       if(keepqg) then
+         !$acc kernels present(ngvecp)
+         ngvec_d(1:3,1:ngv) = ngvecp(1:3,1:ngv,iq)
+         !$acc end kernels
+       else
+         allocate(ngvec_h(3,ngv))
+         open(newunit=ifiqg, file='QGpsi_rec',form='unformatted', access='direct', &
+              recl=4*(3*ngpmx+(imx*2+1)**3), status='old')
+         read(ifiqg,rec=iq) ngvec_h(1:3,1:ngv)
+         close(ifiqg)
+         ngvec_d(1:3,1:ngv) = ngvec_h(1:3,1:ngv)
+         deallocate(ngvec_h)
+       endif
+       return
+    elseif(ifi==2) then
+       ngv  = ngc(iq)
+       if(keepqg) then
+         !$acc kernels present(ngvecc)
+         ngvec_d(1:3,1:ngv) = ngvecc(1:3,1:ngv,iq)
+         !$acc end kernels
+       else
+         allocate(ngvec_h(3,ngv))
+         open(newunit=ifiqg, file='QGcou_rec',form='unformatted', access='direct', &
+              recl=4*(3*ngcmx+(2*imxc+1)**3), status='old')
+         read(ifiqg,rec=iq) ngvec_h(1:3,1:ngv)
+         close(ifiqg)
+         ngvec_d(1:3,1:ngv) = ngvec_h(1:3,1:ngv)
+         deallocate(ngvec_h)
+       endif
+       return
+    endif
+    call rx( "readqg: can not find QGpsi or QPcou for given q")
+  end subroutine readqg_d
+
   !> Get ngv
   !! key=='QGcou' or 'QGpsi'
   subroutine readqg0(key,qin,qu,ngv)
@@ -177,6 +244,9 @@ contains
           endif
           if(verbose()>40) write(6,"('init_readqg psi qp ngp =',3f8.3,i5)") qp(1:3,iq),ngp(iq)
        enddo
+       if(keepqg) then
+          !$acc enter data copyin(ngvecp)
+       endif
     elseif(ifi==2) then
        open(newunit=ifiqg, file='QGcou',form='unformatted')
        read(ifiqg) nqnumc, ngcmx, QpGcut_cou
@@ -192,6 +262,9 @@ contains
             read (ifiqg)
           endif
        enddo
+       if(keepqg) then
+          !$acc enter data copyin(ngvecc)
+       endif
     endif
     close(ifiqg)
     !! === mapping of qtt ===
