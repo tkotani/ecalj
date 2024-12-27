@@ -130,6 +130,7 @@ contains
     ! In case of KeepPpb is .false. (default), only ppb for given irot is saved
     call getkeyvalue("GWinput","KeepPpb",keep_ppbir,default=.false.)
     if(.not.keep_ppbir) return
+    if(keep_ppbir) write(stdo,ftox) 'keep_ppbir:True'
     ppbafp_v2_zmel: block 
       integer :: is,irot, ic, i,lb,nb,mb,lmb,i1,ibas,i2, np,lp,mp,lmp,n,l,m,lm
       allocate(ppbir(nlnmx,nlnmx,mdimx,natom,ng,nspin)) ! ppbir is rotated <Phi(SLn,r) Phi(SL'n',r) B(S,i,rot^{-1}(r))> by rotated cg coefficients cgr

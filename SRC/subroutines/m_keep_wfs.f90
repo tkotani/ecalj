@@ -141,7 +141,8 @@ contains
     integer, allocatable :: indices(:)
     integer :: i
     wfs_index = -1
-    indices = pack([(i, i=1, nkeep_wfs)], (qs_cphi(:, 1) == iq) .and. (qs_cphi(:, 2) == is))
+    if(nkeep_wfs < 1) return
+    indices = pack([(i, i=1, nkeep_wfs)], (qs_cphi(:,1) == iq) .and. (qs_cphi(:,2) == is))
     if(size(indices) > 0) wfs_index = indices(1)
   end function get_keep_cphi_index
   pure integer function get_keep_geig_index(iq, is) result(wfs_index)
@@ -149,7 +150,8 @@ contains
     integer, allocatable :: indices(:)
     integer :: i
     wfs_index = -1
-    indices = pack([(i, i=1, nkeep_wfs)], (qs_geig(:, 1) == iq) .and. (qs_geig(:, 2) == is))
+    if(nkeep_wfs < 1) return
+    indices = pack([(i, i=1, nkeep_wfs)], (qs_geig(:,1) == iq) .and. (qs_geig(:,2) == is))
     if(size(indices) > 0) wfs_index = indices(1)
   end function get_keep_geig_index
 
