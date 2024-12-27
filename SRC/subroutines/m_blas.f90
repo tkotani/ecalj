@@ -523,11 +523,16 @@ contains
     end select
   end  function get_m_op_cublas
 #endif
-  subroutine int_split(ndata, nsplit, irank, iini, iend, n)
+  subroutine int_split(ndata, nsplit, irank, iini, iend, n, start_index)
     integer, intent(in) :: ndata, nsplit, irank
     integer, intent(out) :: iini, iend, n
+    integer, optional, intent(in) :: start_index
     n = (ndata + irank)/nsplit
     iini = (ndata/nsplit)*irank + max(irank + mod(ndata, nsplit) - nsplit, 0) + 1  
     iend = iini + n - 1
+    if(present(start_index)) then
+      iini = iini + start_index - 1
+      iend = iend + start_index - 1
+    endif
   end subroutine
 end module m_blas

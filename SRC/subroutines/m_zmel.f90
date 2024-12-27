@@ -185,9 +185,11 @@ contains
 #ifdef __GPU
     use m_readeigen,only: readcphif => readcphif_d
     use m_readeigen,only: readgeigf => readgeigf_d
+    use m_mpi, only: MPI__zBcast => MPI__zBcast_d
 #else
     use m_readeigen,only: readcphif 
     use m_readeigen,only: readgeigf
+    use m_mpi, only: MPI__zBcast => MPI__zBcast_h
 #endif
     use m_itq,only: itq, ntq
     implicit none
@@ -216,6 +218,7 @@ contains
     complex(kind=kp), allocatable:: ggitp(:,:), gggmat(:,:), ggitp_work(:,:)
     complex(kind=kp), allocatable:: ppbvphiq_d(:,:,:), cphim_d(:,:), cphiq_d(:,:), ppbc_d(:,:,:), ppbv_d(:,:,:)
     complex(8), allocatable:: wfs(:,:)
+    logical :: mpi_master
 #ifdef __GPU
     attributes(device) :: zmelp0, ggitp, gggmat, ggitp_work, cphiq, cphim, geigq, dgeigqk, igcgp2i_work, &
                           ppbvphiq_d, cphim_d, cphiq_d, ppbc_d, ppbv_d, ngvecpB1, ngvecpB2, zmelt, zmelt_d, wfs
@@ -228,6 +231,12 @@ contains
        endif
 #endif
       deallocate(zmel)
+    endif
+    mpi_master = .true.
+    if(present(comm)) then
+      call mpi_comm_rank(comm, mpi_rank, mpi_info)
+      call mpi_comm_size(comm, mpi_size, mpi_info)
+      mpi_master = (mpi_rank == 0)
     endif
     nm1=ns1
     nm2=ns2
@@ -267,11 +276,13 @@ contains
       ! endassociate
       ! cphim = cmplx(readcphif(qk, ispm),kind=kp)
       allocate(wfs(ndima,nband))
-      wfs(:,:) = readcphif(q, ispq)
+      if(mpi_master) wfs(:,:) = readcphif(q, ispq)
+      if(present(comm)) call MPI__zBcast(wfs, nband*ndima, communicator = comm)
       !$acc kernels
       cphiq(1:ndima,1:ntq) = cmplx(wfs(1:ndima,itq(1:ntq)),kind=kp)
       !$acc end kernels
-      wfs(:,:) = readcphif(qk, ispm)
+      if(mpi_master) wfs(:,:) = readcphif(qk, ispm)
+      if(present(comm)) call MPI__zBcast(wfs, nband*ndima, communicator = comm)
       !$acc kernels
       cphim(:,:) = cmplx(wfs(:,:),kind=kp)
       !$acc end kernels
@@ -299,11 +310,13 @@ contains
           call rotgvec(symope, 1, ngc, [ngc], qlat, ngvecc, ngveccR)
         endblock
         allocate(wfs(ngpmx,nband))
-        wfs(:,:) = readgeigf(q, ispq)
+        if(mpi_master) wfs(:,:) = readgeigf(q, ispq)
+        if(present(comm)) call MPI__zBcast(wfs, nband*ngpmx, communicator = comm)
         !$acc kernels
         geigq(:,:) = cmplx(wfs(:,:),kind=kp)
         !$acc end kernels
-        wfs(:,:) = readgeigf(qk,ispm)
+        if(mpi_master) wfs(:,:) = readgeigf(qk,ispm)
+        if(present(comm)) call MPI__zBcast(wfs, nband*ngpmx, communicator = comm)
         !$acc kernels
         dgeigqk(:,:) = conjg(cmplx(wfs(:,:),kind=kp))
         !$acc end kernels
@@ -328,8 +341,6 @@ contains
       iasx=[(sum(nlnmv(iclass(1:ia-1)))+1,ia=1,natom)]
       icsx=[(sum(ncore(iclass(1:ia-1))),ia=1,natom)]
       if(present(comm)) then
-        call mpi_comm_rank(comm, mpi_rank, mpi_info)
-        call mpi_comm_size(comm, mpi_size, mpi_info)
         call int_split(ntp0, mpi_size, mpi_rank, ini_index, end_index, num_index)
         ntp0 = num_index
         nqini_rank = nqini + ini_index - 1
