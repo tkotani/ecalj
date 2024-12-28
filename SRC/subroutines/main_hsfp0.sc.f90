@@ -140,11 +140,11 @@ subroutine hsfp0_sc()
     endif
     ! Additional parallelization for omega mesh in the case of ixc==2 only
     Wparallelization: block
-      integer:: n_wpara = 1
+      integer:: n_wpara = 1 !default
       character(20):: outs=''
-      if(ixc ==2) then
+      if(ixc == 2) then
         if(cmdopt2('--nwpara=', outs)) read(outs,*) n_wpara
-        worker_intask = n_wpara
+        worker_intask = min(n_wpara, mpi__size)
         write(6,'(1X,A,3I5)') 'MPI: worker_intask ', worker_intask
         call MPI__SplitSc(n_wpara)
       endif

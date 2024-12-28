@@ -342,7 +342,7 @@ contains
             call stopwatch_start(t_sw_readwv)
             do iw = wi_ini, wi_fin
               if(iw == 0) then
-                read(ifrcw,rec=iw-nw_i+1) wvr(:,:,iw)
+                read(ifrcw,rec=iw-nw_i+1) wvi(:,:,iw)
               else
                 read(ifrcwi,rec=iw) wvi(:,:,iw)
               endif
@@ -542,7 +542,7 @@ contains
                         forall(i=1:3) wgtiw(ittp3(i), ixs-2+i) = wgt3ititp(i)
                       enddo
                     enddo itploopFORwgtiw
-                    n_nttp = count(nttp(:)>0)
+                    n_nttp = count(nttp(wr_ini:wr_fin)>0)
                     allocate(wz_iw(ngb,nttp_max), czwc_iw(nttp_max,ngb))
                     !$acc data copyin(wgtiw, nttp, itw, itpw)
                     iwreal: do iw = wr_ini, wr_fin
@@ -593,7 +593,6 @@ contains
                   deallocate(wv, wc, czmelwc)
                   call writemem('    endof Correlation')
 1114              continue               
-              write(stdo,*) (dble(zsec(itp,itp)),itp=1,5)
                 endblock get_correlation_block  !end subroutine get_correlation
               endassociate
 

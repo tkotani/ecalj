@@ -17,7 +17,7 @@ module m_mpi !MPI utility for fpgw
 !MPI for Sc (hsfp0_sc --job=2)
   integer :: comm_w, mpi__rank_w, mpi__size_w
   logical :: mpi__root_w
-  integer :: worker_intask = 1 !default
+  integer :: worker_intask = 1 !default used in ixc /= 2
 
   integer,private :: mpi__info
   integer,private:: ista(MPI_STATUS_SIZE )
@@ -152,6 +152,7 @@ contains
     integer, intent(in) :: n_wpara
     integer :: color
     if(n_wpara < 1) call rx("MPI__SplitSc: n_wpara < 1")
+    if(n_wpara > mpi__size) call rx("MPI__SplitSc: n_wpara > mpi__size")
     color = mpi__rank/n_wpara
     call mpi_comm_split(comm, color, mpi__rank, comm_w, mpi__info)
     call mpi_comm_rank(comm_w, mpi__rank_w, mpi__info)
