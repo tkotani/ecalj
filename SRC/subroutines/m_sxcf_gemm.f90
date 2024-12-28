@@ -272,13 +272,14 @@ contains
     real(8), intent(in) :: ef, esmr
     integer :: icount, ns1, ns2, kr, nwxi, nws, ns2r, nwx,izz, n_nttp, wi_ini, wi_fin, wi_num, wr_ini, wr_fin, wr_num
     real(8) :: q(3), qibz_k(3), qbz_kr(3), qk(3)
-    logical, parameter :: debug=.false.
+    logical :: debug=.false.
     real(8),parameter :: ddw=10d0
     character(64):: charli
     character(8):: charext
     allocate(ekc(nctot+nband), eq(nband), omega(ntq)) 
     emptyrun = cmdopt0('--emptyrun')
     keepwv = cmdopt0('--keepwv')
+    debug = cmdopt0('--debug')
     if(nw_i/=0) call rx('Current version we assume nw_i=0. Time-reversal symmetry')
     LoopScheduleCheck: block
       izz=0
@@ -299,7 +300,9 @@ contains
     end block LoopScheduleCheck
     call int_split(    niw+1, mpi__size_w, mpi__rank_w, wi_ini, wi_fin, wi_num, start_index=0)
     call int_split(nw-nw_i+1, mpi__size_w, mpi__rank_w, wr_ini, wr_fin, wr_num, start_index=nw_i)
-    write(stdo,ftox) 'Imag omega axis split:', wi_ini, wi_fin, wi_num, 'Real omega axis split:', wr_ini, wr_fin, wr_num
+    write(stdo,ftox) 'Imag omega mesh split:', wi_ini, wi_fin, wi_num, 'Real omega mesh split:', wr_ini, wr_fin, wr_num
+    write(stdo,ftox) '# of tasks:', izz
+    call flush(stdo)
     call stopwatch_init(t_sw_zmel, 'zmel')
     call stopwatch_init(t_sw_xc, 'ec')
     call stopwatch_init(t_sw_cr, 'ec realaxis integral')
@@ -385,8 +388,12 @@ contains
               call writemem('=== KXloop '//trim(charext(izz))//' iqiqz irot ip isp icount= '//&
                    trim(charli([kx,irot,ip,isp,icount],5)))
               call stopwatch_start(t_sw_zmel)
+#ifdef __GPU
+              call get_zmel_init_gemm(q,qibz_k,irot,qbz_kr,ns1,ns2,isp,1,ntqxx,isp,nctot,ncc=0,iprx=debug,zmelconjg=.false.)
+#else
               call get_zmel_init_gemm(q,qibz_k,irot,qbz_kr,ns1,ns2,isp,1,ntqxx,isp,nctot,ncc=0,iprx=debug,zmelconjg=.false., &
                                       comm=comm_w)
+#endif
               call writemem('    endof get_zmel_init')
               call stopwatch_pause(t_sw_zmel)
               call stopwatch_reset(t_sw_readwv)
@@ -591,7 +598,7 @@ contains
                   enddo
                   !$acc end kernels
                   deallocate(wv, wc, czmelwc)
-                  call writemem('    endof Correlation')
+                  call writemem('    endof CorrelationSelfEnergy')
 1114              continue               
                 endblock get_correlation_block  !end subroutine get_correlation
               endassociate

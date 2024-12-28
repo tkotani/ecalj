@@ -18,9 +18,7 @@ module m_readeigen
   !! qtti(1:3,nqi)   :eivenvalues, eigenvectors are calculated only for irr=1 in QGpsi (See lqg4gw).
   implicit none
   public:: Init_readeigen,Init_readeigen2, Lowesteval, Readeval,Readgeigf,Readcphif
-#ifdef __GPU
-  public:: readgeigf_d, readcphif_d
-#endif
+  public:: readgeigf_mpi, readcphif_mpi
   public:: Onoff_write_pkm4crpa,Readcphifq
   public:: Init_readeigen_mlw_noeval, Readcphiw, Readgeigw
   integer,public:: nwf
@@ -181,18 +179,22 @@ contains
      enddo
   end subroutine readcphi
 
-#ifdef __GPU
-  function readgeigf_d(q,isp) result(geigen)
+  function readgeigf_mpi(q, isp, comm) result(geigen)
     use m_ftox
-    use m_rotwave,only: Rotipw
+    use m_mpi, only: MPI__AllreduceAND, MPI__zBcast => MPI__zBcast_h, get_mpi_master
     implicit none
-    real(8),intent(in):: q(3)
-    integer,intent(in):: isp
-    complex(8), device :: geigen(ngpmx*nspc,nband)
-    complex(8) :: geigenr(ngpmx*nspc,nband)
+    real(8), intent(in) :: q(3)
+    integer, intent(in) :: isp
+    integer, intent(in), optional :: comm
+    complex(8) :: geigen(ngpmx*nspc,nband), geigenr(ngpmx*nspc,nband)
     integer :: iq, ikpisp, iqq, igg, iqi, igxt, i, ioff, ispc, ifiqg
     real(8) :: platt(3,3), qtarget(3), qu(3)
-    logical :: has_geig
+    logical :: has_geig, mpi_master
+#ifdef __GPU
+    attributes(device) :: geigen
+#endif
+    mpi_master = .true.
+    if(present(comm)) mpi_master = get_mpi_master(comm)
     !$acc kernels
     geigen(:,:) = (0d0, 0d0) !2024-5-17 for ifort NaN initialization
     !$acc end kernels
@@ -221,9 +223,11 @@ contains
       !$acc host_data use_device(geigenr)
       has_geig = set_geig_from_keep(iqi,isp,geigenr) !set geigenr if it is stored
       !$acc end host_data
+      if(present(comm)) call MPI__AllreduceAND(has_geig, communicator=comm)
       if(.not.has_geig) then
         ikpisp= isp + nsp*(iqi-1)
-        i=readm(ifgeigm,rec=ikpisp, data=geigenr(1:ngpmx*nspc,1:nband) )
+        if(mpi_master) i=readm(ifgeigm,rec=ikpisp, data=geigenr(1:ngpmx*nspc,1:nband))
+        if(present(comm)) call MPI__zBcast(geigenr, ngpmx*nspc*nband, communicator=comm)
         !$acc update device(geigenr)
         !$acc host_data use_device(geigenr)
         call update_keep_geig(iqi,isp,geigenr)
@@ -282,22 +286,26 @@ contains
     enddo
     !$acc exit data delete(geigenr)
     if(.not.keepqg) deallocate(ngvecp,ngvecprev)
-  end function readgeigf_d
+  end function readgeigf_mpi
 
-  function readcphif_d(q,isp) result(cphif)
-    use m_rotwave,only: Rotmto
-    use m_blas, only : zmm_d
+  function readcphif_mpi(q, isp, comm) result(cphif)
+    use m_mpi, only: MPI__AllreduceAND, MPI__zBcast => MPI__zBcast_h, get_mpi_master
     implicit none
-    integer,intent(in):: isp
-    real(8),intent(in):: q(3)
+    real(8), intent(in) :: q(3)
+    integer, intent(in) :: isp
+    integer, intent(in), optional :: comm
     complex(8) :: cphif(ndima*nspc,nband), cphifr(ndima*nspc,nband)
-    integer:: iq,iqindx,ikpisp,iqq,iorb,ibaso,ibas,k,l,ini1,ini2,iend1,iend2, igg,ig,iqi,i,igxt,ioff,ispc,ix
-    real(8)   ::  qu(3)
+    integer:: i, iq, ikpisp, iqq, igg, iqi, igxt, ioff, ispc
+    real(8) ::  qu(3)
     complex(8):: phase
     complex(8), parameter:: img=(0d0,1d0) ! MIZUHO-IR
     complex(8):: img2pi = 2d0*4d0*datan(1d0)*img ! MIZUHO-IR
-    logical :: has_cphi
+    logical :: has_cphi, mpi_master
+#ifdef __GPU
     attributes(device) :: cphif
+#endif
+    mpi_master = .true.
+    if(present(comm)) mpi_master = get_mpi_master(comm)
     if(init2) call rx( 'readcphi: modele is not initialized yet')
     call iqindx2_(q, iq, qu) !for given q, get iq. qu is used q. q-qu= G vectors. qu=qtt(:,iq)
     igg=igmap(iq)  ! qtt(:,iq)= matmul(sympos(  ,igg),qtt(:,iqq))
@@ -316,9 +324,11 @@ contains
       !$acc host_data use_device(cphifr)
       has_cphi = set_cphi_from_keep(iqi,isp,cphifr)
       !$acc end host_data
+      if(present(comm)) call MPI__AllreduceAND(has_cphi, communicator=comm)
       if(.not.has_cphi)then
         ikpisp= isp + nsp*(iqi-1)
-        i=readm(ifcphim,rec=ikpisp, data=cphifr(1:ndima*nspc,1:nband)) ! , rec=ikpisp
+        if(mpi_master) i=readm(ifcphim,rec=ikpisp, data=cphifr(1:ndima*nspc,1:nband)) ! , rec=ikpisp
+        if(present(comm)) call MPI__zBcast(cphifr, ndima*nspc*nband, communicator=comm)
         !$acc update device(cphifr)
         !$acc host_data use_device(cphifr)
         call update_keep_cphi(iqi,isp,cphifr)
@@ -332,11 +342,18 @@ contains
     do ispc=1,nspc
        ioff=ndima*(ispc-1)
        rotmto: block
+#ifdef __GPU
+         use m_blas, only : zmm => zmm_d
+#else
+         use m_blas, only : zmm => zmm_h
+#endif
          real(8) :: qrot(3),  qin(3)
-         complex(8) :: phase(nbas)
-         complex(8),parameter:: img=(0d0,1d0), img2pi = 2d0*4d0*datan(1d0)*img
-         complex(8), device :: dlmm_tmp(-lmxax:lmxax,-lmxax:lmxax, 0:lmxax)
+         complex(8) :: phase(nbas), dlmm_tmp(-lmxax:lmxax,-lmxax:lmxax, 0:lmxax)
+         complex(8), parameter :: img=(0d0,1d0), img2pi = 2d0*4d0*datan(1d0)*img
          integer :: iorb, ibas, l, k, ini1, ini2, ierr
+#ifdef __GPU
+        attributes(device) :: dlmm_tmp
+#endif
          dlmm_tmp(:,:,:) = dlmm(:,:,:,igg) !copy to device
          qin(:) = qtt(:,iqq)
          qrot = matmul(symops(:,:,igg),qin)
@@ -349,7 +366,7 @@ contains
            k = k_tbl(iorb)
            ini1 = offset_tbl(iorb)+1
            ini2 = offset_rev_tbl(miat(ibas,igg),l,k)+1
-           ierr = zmm_d(dlmm_tmp(-l,-l,l), cphifr(ini1+ioff,1), cphif(ini2+ioff,1), m=(2*l+1), n=nband, k=(2*l+1), &
+           ierr = zmm(dlmm_tmp(-l,-l,l), cphifr(ini1+ioff,1), cphif(ini2+ioff,1), m=(2*l+1), n=nband, k=(2*l+1), &
                         alpha=cmplx(phase(ibas), kind=8), lda=(2*lmxax+1), ldb=ndima*nspc, ldc=ndima*nspc)
          enddo
          !$acc end host_data
@@ -357,8 +374,7 @@ contains
     enddo
     !$acc exit data delete(cphifr)
     if(debug) write(6,*) 'end of readcphif_d'; call flush(6)
-  end function readcphif_d
-#endif
+  end function readcphif_mpi
 
   subroutine init_readeigen() ! initialization. Save QpGpsi EVU EVD to arrays.--
     integer:: iq,is,ifiqg,nnnn,ikp,isx,ik,ib,verbose

@@ -182,15 +182,7 @@ contains
   end subroutine set_ppb
   subroutine get_zmel_init_gemm(q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc,  & ! get_zmel_init for blas/cuBLAS by M. Obata 2024-05-18
        iprx,zmelconjg,comm,maxmem)
-#ifdef __GPU
-    use m_readeigen,only: readcphif => readcphif_d
-    use m_readeigen,only: readgeigf => readgeigf_d
-    use m_mpi, only: MPI__zBcast => MPI__zBcast_d
-#else
-    use m_readeigen,only: readcphif 
-    use m_readeigen,only: readgeigf
-    use m_mpi, only: MPI__zBcast => MPI__zBcast_h
-#endif
+    use m_readeigen,only: readcphif => readcphif_mpi, readgeigf => readgeigf_mpi
     use m_itq,only: itq, ntq
     implicit none
     include "mpif.h"
@@ -218,7 +210,6 @@ contains
     complex(kind=kp), allocatable:: ggitp(:,:), gggmat(:,:), ggitp_work(:,:)
     complex(kind=kp), allocatable:: ppbvphiq_d(:,:,:), cphim_d(:,:), cphiq_d(:,:), ppbc_d(:,:,:), ppbv_d(:,:,:)
     complex(8), allocatable:: wfs(:,:)
-    logical :: mpi_master
 #ifdef __GPU
     attributes(device) :: zmelp0, ggitp, gggmat, ggitp_work, cphiq, cphim, geigq, dgeigqk, igcgp2i_work, &
                           ppbvphiq_d, cphim_d, cphiq_d, ppbc_d, ppbv_d, ngvecpB1, ngvecpB2, zmelt, zmelt_d, wfs
@@ -231,12 +222,6 @@ contains
        endif
 #endif
       deallocate(zmel)
-    endif
-    mpi_master = .true.
-    if(present(comm)) then
-      call mpi_comm_rank(comm, mpi_rank, mpi_info)
-      call mpi_comm_size(comm, mpi_size, mpi_info)
-      mpi_master = (mpi_rank == 0)
     endif
     nm1=ns1
     nm2=ns2
@@ -258,6 +243,7 @@ contains
        nm2v=-1
      endif SetRangeOfCoreAndValence
      if(debug) write(stdo,ftox)'nm1c nm2c nm1v nm2v=',nm1c,nm2c,nm1v,nm2v
+     if(debug) call writemem('mmmmzmel start')
      call flush(stdo)
     !! For given range of band index nm1;nm2, We now get nm1v:nmv2 and nm1c:nm2c, which are range of valence and core index.
     !! Note that band index is nctot+nvalence order.
@@ -267,27 +253,41 @@ contains
     end_index = ntp0
     nqini_rank = nqini
     nqmax_rank = nqmax
+    if(present(comm)) then
+      call mpi_comm_rank(comm, mpi_rank, mpi_info)
+      call mpi_comm_size(comm, mpi_size, mpi_info)
+      call int_split(ntp0, mpi_size, mpi_rank, ini_index, end_index, num_index)
+      ntp0 = num_index
+      nqini_rank = nqini + ini_index - 1
+      nqmax_rank = nqini + end_index - 1
+    endif
     SetWFs :block
       integer:: i
       qk =  q - rkvec ! qk = q-rk. rk is inside 1st BZ, not restricted to the irreducible BZ
-      if(debug) write(stdo,ftox) 'before readcphi'; call flush(stdo)
+      if(debug) call writemem('mmmmzmel start readcphi')
       ! associate(cphitemp=> readcphif(q,ispq))
       !   cphiq(1:ndima,1:ntq) = cmplx(cphitemp(1:ndima,itq(1:ntq)),kind=kp) 
       ! endassociate
       ! cphim = cmplx(readcphif(qk, ispm),kind=kp)
       allocate(wfs(ndima,nband))
-      if(mpi_master) wfs(:,:) = readcphif(q, ispq)
-      if(present(comm)) call MPI__zBcast(wfs, nband*ndima, communicator = comm)
+      if(present(comm)) then
+        wfs(:,:) = readcphif(q, ispq, comm)
+      else
+        wfs(:,:) = readcphif(q, ispq)
+      endif
       !$acc kernels
       cphiq(1:ndima,1:ntq) = cmplx(wfs(1:ndima,itq(1:ntq)),kind=kp)
       !$acc end kernels
-      if(mpi_master) wfs(:,:) = readcphif(qk, ispm)
-      if(present(comm)) call MPI__zBcast(wfs, nband*ndima, communicator = comm)
+      if(present(comm)) then
+        wfs(:,:) = readcphif(qk, ispm, comm=comm)
+      else 
+        wfs(:,:) = readcphif(qk, ispm)
+      endif
       !$acc kernels
       cphim(:,:) = cmplx(wfs(:,:),kind=kp)
       !$acc end kernels
       deallocate(wfs)
-      if(debug) write(stdo,ftox) 'end of readcphi'; call flush(stdo)
+      if(debug) call writemem('mmmmzmel endof readcphi')
 
       symope= symgg(:,:,irot)
       allocate(geigq(ngpmx,nband),dgeigqk(ngpmx,nband))
@@ -298,7 +298,7 @@ contains
       if(ngc/=0) then
         call readqg('QGpsi',q,     qt, ngp1, ngvecpB1) !q is mapped to qt in BZ
         call readqg('QGpsi',qk,   qkt, ngp2, ngvecpB2)
-        if(debug) write(stdo,ftox) 'after readqg'; call flush(stdo)
+        if(debug) call writemem('mmmmzmel after readqg')
         qdiff = matmul(symope,kvec)-qt+qkt ! rkvec + qkt - qt is not zero. <M(rkvec) Phi(qk) |Phi(q)>
         nadd = nint(matmul(transpose(plat), qdiff)) !nadd: difference in the unit of reciprocal lattice vectors.
         block
@@ -309,18 +309,26 @@ contains
           allocate(ngveccR(1:3,1:ngc))
           call rotgvec(symope, 1, ngc, [ngc], qlat, ngvecc, ngveccR)
         endblock
+        if(debug) call writemem('mmmmzmel start readgeig')
         allocate(wfs(ngpmx,nband))
-        if(mpi_master) wfs(:,:) = readgeigf(q, ispq)
-        if(present(comm)) call MPI__zBcast(wfs, nband*ngpmx, communicator = comm)
+        if(present(comm)) then
+          wfs(:,:) = readgeigf(q, ispq, comm)
+        else
+          wfs(:,:) = readgeigf(q, ispq)
+        endif
         !$acc kernels
         geigq(:,:) = cmplx(wfs(:,:),kind=kp)
         !$acc end kernels
-        if(mpi_master) wfs(:,:) = readgeigf(qk,ispm)
-        if(present(comm)) call MPI__zBcast(wfs, nband*ngpmx, communicator = comm)
+        if(present(comm)) then
+          wfs(:,:) = readgeigf(qk, ispm, comm)
+        else
+          wfs(:,:) = readgeigf(qk, ispm)
+        endif
         !$acc kernels
         dgeigqk(:,:) = conjg(cmplx(wfs(:,:),kind=kp))
         !$acc end kernels
         deallocate(wfs)
+        if(debug) call writemem('mmmmzmel endof readgeig')
         ! geigq   = cmplx(readgeigf(q, ispq),kind=kp) !read IPW part at q   !G1 for ngp1
         ! dgeigqk = cmplx(readgeigf(qk,ispm),kind=kp) !read IPW part at qk  !G2 for ngp2
         ! !$acc kernels
@@ -340,12 +348,6 @@ contains
       imdim = [( sum(nblocha(iclass(1:ia-1)))+1  ,ia=1,natom)]
       iasx=[(sum(nlnmv(iclass(1:ia-1)))+1,ia=1,natom)]
       icsx=[(sum(ncore(iclass(1:ia-1))),ia=1,natom)]
-      if(present(comm)) then
-        call int_split(ntp0, mpi_size, mpi_rank, ini_index, end_index, num_index)
-        ntp0 = num_index
-        nqini_rank = nqini + ini_index - 1
-        nqmax_rank = nqini + end_index - 1
-      endif
     end block SetWFs
     if(debug) write(stdo,ftox)'zmel_init gpu',nbloch,ngc,nm1,nm2,nqtot
     ZmelBlock:block
@@ -553,6 +555,7 @@ contains
           integer :: mpi_data_type
           allocate(zmel_buf, mold = zmel)
           allocate(data_size(0:mpi_size-1), data_disp(0:mpi_size-1))
+          if(debug) call writemem('mmmmm_zmel start mpi=allgatherv')
           do irank = 0, mpi_size - 1
             call int_split(nqmax-nqini+1, mpi_size, irank, ini, end, num)
             data_size(irank) = nmtot*nbb*num

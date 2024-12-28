@@ -147,6 +147,15 @@ contains
     if(present(communicator)) comm_in = communicator
     call MPI_Comm_size(comm_in, mpi_size, ierr)
   end function get_mpi_size
+  logical function get_mpi_master(communicator) result(mpi_master)
+    implicit none
+    integer, intent(in), optional :: communicator
+    integer :: comm_in, ierr, mpi_rank
+    comm_in = comm
+    if(present(communicator)) comm_in = communicator
+    call mpi_comm_rank(comm_in, mpi_rank, ierr)
+    mpi_master = (mpi_rank == 0)
+  end function get_mpi_master
   subroutine MPI__SplitSc(n_wpara)
     implicit none
     integer, intent(in) :: n_wpara
@@ -308,6 +317,19 @@ contains
     call MPI_Allreduce( mpi__data, data, sizex, MPI_INTEGER, MPI_MAX, comm, mpi__info )
     deallocate( mpi__data )
   end subroutine MPI__AllreduceMax
+!MO Addtional subroutines for MPI 2024/12/28
+  subroutine MPI__AllreduceAND(data, communicator)
+    implicit none
+    logical, intent(inout) :: data
+    integer, intent(in), optional :: communicator
+    logical :: mpi__data
+    integer :: comm_in
+    comm_in = comm
+    if(present(communicator)) comm_in = communicator
+    if(get_mpi_size(comm_in) == 1) return
+    mpi__data =  data
+    call MPI_Allreduce(mpi__data, data, 1, MPI_LOGICAL, MPI_LAND, comm_in, mpi__info)
+  end subroutine MPI__AllreduceAND
 !MO Following subroutines are for CPU(host) and GPU(device) implementations 2024/12/27
   subroutine MPI__zBcast_h(data, sizex, communicator, sender)
     implicit none
