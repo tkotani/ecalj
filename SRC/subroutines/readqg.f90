@@ -120,7 +120,6 @@ contains
   !! key=='QGcou' or 'QGpsi'
   subroutine readqg_d(key, qin, qu, ngv, ngvec_d)
     implicit none
-    intent(out)::                    qu,ngv,ngvec_d
     character*(*), intent(in) :: key
     real(8), intent(in) :: qin(3)
     real(8), intent(out) :: qu(3)
