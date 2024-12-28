@@ -494,7 +494,7 @@ contains
             enddo
           enddo
           !$acc end kernels
-          write(stdo,ftox) itq(nqini_rank:nqmax_rank)
+          if(debug) write(stdo,ftox) itq(nqini_rank:nqmax_rank)
           !$acc kernels
           geigq_work(:,nqini_rank:nqmax_rank) = geigq(:, itq(nqini_rank:nqmax_rank))
           !$acc end kernels

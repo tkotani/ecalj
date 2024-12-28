@@ -195,7 +195,7 @@ contains
               call writemem('=== KXloop '//trim(charext(izz))//' iqiqz irot ip isp icount= '//&
                    trim(charli([kx,irot,ip,isp,icount],5)))
               call get_zmel_init_gemm(q,qibz_k,irot,qbz_kr,ns1,ns2,isp,1,ntqxx,isp,nctot,ncc=0,iprx=debug,zmelconjg=.false.)
-              call writemem('    end of zmel')
+              call writemem('    endof get_zmel_init')
               call stopwatch_pause(t_sw_zmel)
               call stopwatch_start(t_sw_xc)
               !call get_exchange(ef, esmr, ns1, ns2, zsecall(1,1,ip,isp))
@@ -387,7 +387,7 @@ contains
               call stopwatch_start(t_sw_zmel)
               call get_zmel_init_gemm(q,qibz_k,irot,qbz_kr,ns1,ns2,isp,1,ntqxx,isp,nctot,ncc=0,iprx=debug,zmelconjg=.false., &
                                       comm=comm_w)
-              call writemem('    end of zmel')
+              call writemem('    endof get_zmel_init')
               call stopwatch_pause(t_sw_zmel)
               call stopwatch_reset(t_sw_readwv)
               call stopwatch_start(t_sw_xc)
@@ -448,7 +448,7 @@ contains
                       enddo itpdo
                     enddo   itpo
                     allocate(wzmel(1:ngb,ns1:ns2,1:ntqxx), czwc(ns1:ns2,1:ntqxx,1:ngb))
-                    call writemem('    Goto iwimag')
+                    if(debug) call writemem('    Goto iwimag')
                     !$acc data copyin(wgtim)
                     iwimag:do iw = wi_ini, wi_fin ! iwimag:do iw = 0, niw !niw is ~10. ixx=0 is for omega=0 nw_i=0 (Time reversal) or nw_i =-nw
                       if(iw < 0 .or. iw > niw) cycle
@@ -486,7 +486,7 @@ contains
                     !$acc end kernels
                     deallocate(czwc)
                   EndBlock CorrelationSelfEnergyImagAxis
-                  call writemem('    endof CorrelationSelfEnergyImagAxis')
+                  if(debug) call writemem('    endof CorrelationSelfEnergyImagAxis')
                   call stopwatch_pause(t_sw_ci)
 
                   call stopwatch_start(t_sw_cr)
@@ -576,7 +576,7 @@ contains
                     deallocate(wz_iw, czwc_iw)
 1113                continue !endif
                   EndBlock CorrelationSelfEnergyRealAxis
-                  call writemem('    endof CorrelationSelfEnergyRealAxis')
+                  if(debug) call writemem('    endof CorrelationSelfEnergyRealAxis')
                   call stopwatch_pause(t_sw_cr)
 
                   !$acc host_data use_device(zmel, zsec)
@@ -602,8 +602,8 @@ contains
                    'ec(iaxis):', ftof(stopwatch_lap_time(t_sw_ci),4),  '(sec)', &
                    'ec(raxis):', ftof(stopwatch_lap_time(t_sw_cr),4),  '(sec)', &
                    'ec:', ftof(stopwatch_lap_time(t_sw_xc),4),         '(sec)', &
-                   'readwv:', ftof(stopwatch_elapsed_time(t_sw_readwv),4), '(sec)', &
-                   '# of computed real omega bin:', n_nttp
+                   'readwv:', ftof(stopwatch_elapsed_time(t_sw_readwv),4), '(sec)'
+                   ! '# of computed real omega bin:', n_nttp
               call flush(stdo)
             enddo NMBATCHloop
           enddo isploopexternal
