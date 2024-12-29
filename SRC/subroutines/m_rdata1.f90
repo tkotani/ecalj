@@ -153,7 +153,7 @@ contains
              call rss(n1, ovv(1:n1,1:n1,l1,ic,isp), eb, zzp(1:n1,1:n1,l1,ic,isp), ierr) !!Get zzp : eigenfunctions of ovv=<gx_in|gx_in>
 !             write(stdo,"(' eb=',10f12.6)") eb(1:n1)
              if(ierr/=0) call rx(' rdata4gw: error in rs ')
-             forall(i2=1:n1) zzp(:,i2,l1,ic,isp)=zzp(:,i2,l1,ic,isp)/eb(i2)**.5
+             forall(i2=1:n1) zzp(1:n1,i2,l1,ic,isp)=zzp(1:n1,i2,l1,ic,isp)/eb(i2)**.5
              allocate(zzpx(1:n1,1:n1))
              zzpx=zzp(1:n1,1:n1,l1,ic,isp) !Get zzpi : inverse of zzp
              call matcinv(n1,zzpx)
