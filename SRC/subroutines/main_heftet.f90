@@ -24,7 +24,7 @@ contains
     integer,allocatable ::idtetx(:,:),idtet(:,:),ipq(:),iene(:,:,:),ibzx(:)   ! fermi_kbt
     real(8) ::tpia,vol,voltot,rs,alpha, qfermi,efx,efnew,edummy,efz,qm,xsex,egex, dscdw1,dscdw2,dscdw,zfac,efxx2,tripl,&
          qqex(1:3), eex,exsp,eee, exwgt,qq(3),        elda, eqp01, eqp02, efermi_kbt, e11, e22
-    real(8):: elo,ehi,e1,e2,efermi,dum,dosef,efxx,rydberg,dum111(1,1,1)  , tol=1d-10,toql=1d-8, volwgt, ddq(3),bandgap,tolq=1d-8
+    real(8):: elo,ehi,e1,e2,efermi,dum,dosef,efxx,rydberg,dum111(1,1,1)  , tol=1d-8,toql=1d-8, volwgt, ddq(3),bandgap,tolq=1d-8
     real(8),allocatable:: dos(:), qz(:,:), eband(:,:,:),eband2(:,:,:), ene(:), dos_kbt(:), dosef_kbt
     real(8),parameter:: pi= 4d0*datan(1d0)
     logical :: metal,qbzreg,usetetrakbt, cmdopt2
