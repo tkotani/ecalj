@@ -122,7 +122,7 @@ module m_sxcf_gemm
 !   attributes(device) :: wvr, wvi
 ! #endif
   logical,external :: cmdopt0 !we need external here
-  type(stopwatch) :: t_sw_zmel, t_sw_xc, t_sw_cr, t_sw_ci, t_sw_readwv
+  type(stopwatch) :: t_sw_zmel, t_sw_xc, t_sw_cr, t_sw_ci, t_sw_setwv
 contains
   subroutine reducez(nspinmx)
 #ifdef __MP
@@ -307,7 +307,7 @@ contains
     call stopwatch_init(t_sw_xc, 'ec')
     call stopwatch_init(t_sw_cr, 'ec realaxis integral')
     call stopwatch_init(t_sw_ci, 'ec imagaxis integral')
-    call stopwatch_init(t_sw_readwv, 'read wv')
+    call stopwatch_init(t_sw_setwv, 'read wv')
     allocate(zsecall(ntq,ntq,nqibz,nspinmx))
     !$acc enter data create(zsecall)
     !$acc kernels
@@ -341,8 +341,8 @@ contains
            ! but it is usually ok becuase CPU memoery size is always larger than that of GPU.
             call flush(stdo)
             allocate(wvi(nblochpmx,nblochpmx,wi_ini:wi_fin))
-            call stopwatch_reset(t_sw_readwv)
-            call stopwatch_start(t_sw_readwv)
+            call stopwatch_reset(t_sw_setwv)
+            call stopwatch_start(t_sw_setwv)
             do iw = wi_ini, wi_fin
               if(iw == 0) then
                 read(ifrcw,rec=iw-nw_i+1) wvi(:,:,iw)
@@ -355,9 +355,9 @@ contains
               read(ifrcw,rec=iw-nw_i+1) wvr(:,:,iw)
             enddo
             !$acc enter data copyin(wvi, wvr)
-            call stopwatch_pause(t_sw_readwv)
+            call stopwatch_pause(t_sw_setwv)
             write(stdo, '(X,A,2F8.3)') 'WVI/WVR : sizes (GB)', dble(size(wvi))*kp*2/gb, dble(size(wvr))*kp*2/gb
-            call stopwatch_show(t_sw_readwv)
+            call stopwatch_show(t_sw_setwv)
           endif
         endif
         !end subroutine setwv
@@ -396,7 +396,7 @@ contains
 #endif
               call writemem('    endof get_zmel_init')
               call stopwatch_pause(t_sw_zmel)
-              call stopwatch_reset(t_sw_readwv)
+              call stopwatch_reset(t_sw_setwv)
               call stopwatch_start(t_sw_xc)
               ! call get_correlation(ef, esmr, ns1, ns2, ns2r, nwxi, nwx, zsecall(1,1,ip,isp))
               associate( zsec=>zsecall(:,:,ip,isp) )
@@ -456,21 +456,22 @@ contains
                     enddo   itpo
                     allocate(wzmel(1:ngb,ns1:ns2,1:ntqxx), czwc(ns1:ns2,1:ntqxx,1:ngb))
                     if(debug) call writemem('    Goto iwimag')
+                    if(debug) write(stdo,ftox) 'mmmmSc size of mm in imagaxis', (ns2-ns1+1)*ntqxx, ngb, ngb
                     !$acc data copyin(wgtim)
                     iwimag:do iw = wi_ini, wi_fin ! iwimag:do iw = 0, niw !niw is ~10. ixx=0 is for omega=0 nw_i=0 (Time reversal) or nw_i =-nw
                       if(iw < 0 .or. iw > niw) cycle
                       if(emptyrun) cycle
+                      call stopwatch_start(t_sw_setwv)
                       if(keepwv) then
                         !$acc kernels
                         wc(:,:) = wvi(:,:,iw)
                         !$acc end kernels
                       else
-                        call stopwatch_start(t_sw_readwv)
                         if(iw == 0) read(ifrcw,rec=1+(0-nw_i)) wv!direct access Wc(0) = W(0)-v ! nw_i=0 (Time reversal) or nw_i =-nw
                         if(iw > 0) read(ifrcwi,rec=iw) wv ! direct access read Wc(i*omega)=W(i*omega)-v
-                        call stopwatch_pause(t_sw_readwv)
                         wc = wv
                       endif
+                      call stopwatch_pause(t_sw_setwv)
                       !$acc kernels loop independent collapse(2) present(zmel)
                       do itp = 1, ntqxx
                         do it = ns1, ns2
@@ -555,16 +556,16 @@ contains
                     iwreal: do iw = wr_ini, wr_fin
                       if(iw < nwxi .or. iw > nwx) cycle
                       if(nttp(iw) < 1) cycle
+                      call stopwatch_start(t_sw_setwv)
                       if(keepwv) then
                         !$acc kernels
                         wc(:,:) = (wvr(:,:,iw) + transpose(conjg(wvr(:,:,iw))))*0.5d0
                         !$acc end kernels
                       else
-                        call stopwatch_start(t_sw_readwv)
                         read(ifrcw,rec=iw-nw_i+1) wv
-                        call stopwatch_pause(t_sw_readwv)
                         wc = (wv + transpose(conjg(wv)))*0.5d0  !copy to GPU
                       endif
+                      call stopwatch_pause(t_sw_setwv)
                       !$acc kernels loop independent present(zmel)
                       do ittp = 1, nttp(iw) 
                         it = itw(ittp,iw); itp = itpw(ittp,iw)
@@ -609,7 +610,7 @@ contains
                    'ec(iaxis):', ftof(stopwatch_lap_time(t_sw_ci),4),  '(sec)', &
                    'ec(raxis):', ftof(stopwatch_lap_time(t_sw_cr),4),  '(sec)', &
                    'ec:', ftof(stopwatch_lap_time(t_sw_xc),4),         '(sec)', &
-                   'readwv:', ftof(stopwatch_elapsed_time(t_sw_readwv),4), '(sec)'
+                   'setwv:', ftof(stopwatch_elapsed_time(t_sw_setwv),4), '(sec)'
                    ! '# of computed real omega bin:', n_nttp
               call flush(stdo)
             enddo NMBATCHloop

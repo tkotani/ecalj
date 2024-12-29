@@ -271,7 +271,7 @@ contains
       ! cphim = cmplx(readcphif(qk, ispm),kind=kp)
       allocate(wfs(ndima,nband))
       if(present(comm)) then
-        wfs(:,:) = readcphif(q, ispq, comm)
+        wfs(:,:) = readcphif(q, ispq, comm=comm)
       else
         wfs(:,:) = readcphif(q, ispq)
       endif
@@ -312,7 +312,7 @@ contains
         if(debug) call writemem('mmmmzmel start readgeig')
         allocate(wfs(ngpmx,nband))
         if(present(comm)) then
-          wfs(:,:) = readgeigf(q, ispq, comm)
+          wfs(:,:) = readgeigf(q, ispq, comm=comm)
         else
           wfs(:,:) = readgeigf(q, ispq)
         endif
@@ -320,7 +320,7 @@ contains
         geigq(:,:) = cmplx(wfs(:,:),kind=kp)
         !$acc end kernels
         if(present(comm)) then
-          wfs(:,:) = readgeigf(qk, ispm, comm)
+          wfs(:,:) = readgeigf(qk, ispm, comm=comm)
         else
           wfs(:,:) = readgeigf(qk, ispm)
         endif
@@ -559,14 +559,14 @@ contains
           do irank = 0, mpi_size - 1
             call int_split(nqmax-nqini+1, mpi_size, irank, ini, end, num)
             data_size(irank) = nmtot*nbb*num
-            data_disp(irank) = nmtot*nbb*(ini-1)
+            data_disp(irank) = nmtot*nbb*(ini-1) + ncc 
           enddo
           mpi_data_type = MPI_COMPLEX16
           if(kp == 4) mpi_data_type = MPI_COMPLEX8
           !$acc update host(zmel)
           call mpi_allgatherv(zmel(1,nm1,ncc+ini_index), data_size(mpi_rank), mpi_data_type, zmel_buf, data_size, data_disp, &
-                             mpi_data_type, comm, mpi_info)
-          zmel(:,:,:) = zmel_buf(:,:,:)
+                              mpi_data_type, comm, mpi_info) !this takes time
+          zmel(1:nbb,ns1:ns2,ncc+1:nqtot) = zmel_buf(1:nbb,ns1:ns2,ncc+1:nqtot)
           !$acc update device(zmel)
           if(debug) call writemem('mmmmm_zmel after mpi=allgatherv')
           deallocate(zmel_buf, data_size, data_disp)
