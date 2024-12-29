@@ -23,7 +23,7 @@ module m_lmfinit ! 'call m_lmfinit_init' sets all initial data from ctrl are pro
        lrlxr,nkillr,nitrlx, broyinit,nmixinit,killj ,&
        ham_pwmode,ham_nlibu, nlmax,lfrce,ham_nbf,ham_lsig,bz_nabcin(3)=NULLI, bz_ndos,ldos, lmaxu,nlibu,nlmxlx
   logical,public,protected :: ham_frzwf,ham_ewald, lhf,bz_tetrahedron, addinv,&
-       readpnu,v0fix,pnufix,bexist,rdhessr, lpztail=.false., readpnuskipf, afsym
+       readpnu,v0fix,pnufix,bexist,rdhessr, lpztail=.false., afsym !, readpnuskipf
   real(8),public,protected:: pmin(n0)=0d0,pmax(n0)=0d0,tolft,scaledsigma, ham_oveps,ham_scaledsigma, cc,&!speed of light
        dlat,alat=NULLR,dalat=NULLR,vol,avw,vmtz(mxspec)=-.5d0,&
        bz_efmax,bz_zval,bz_fsmom,bz_semsh(10),zbak,bz_range=5d0,bz_dosmax,&
@@ -209,7 +209,7 @@ contains
       call rval2('HAM_PWMODE',rr=rr, defa=[real(8):: 0]);  pwmode=nint(rr)
       call rval2('HAM_PWEMAX',rr=rr, defa=[real(8):: 0]);  pwemax=rr
       call rval2('HAM_READP', rr=rr, defa=[real(8):: 0]); readpnu= nint(rr)==1
-      call rval2('HAM_READPSKIPF', rr=rr, defa=[real(8):: 1]); readpnuskipf= nint(rr)==1
+!      call rval2('HAM_READPSKIPF', rr=rr, defa=[real(8):: 1]); readpnuskipf= nint(rr)==1
       call rval2('HAM_V0FIX', rr=rr, defa=[real(8):: 0]); v0fix =  nint(rr)==1
       call rval2('HAM_PNUFIX',rr=rr,defa=[real(8):: 0]); pnufix=  nint(rr)==1
       avw = avwsr(plat,alat,vol,nbas) !vol cell volume

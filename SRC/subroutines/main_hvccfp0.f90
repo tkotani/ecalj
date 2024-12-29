@@ -346,7 +346,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
     write(ifvcoud) ngb
     write(ifvcoud) q
     write(ifvcoud) -eb
-    write(ifvcoud) zz
+    write(ifvcoud) zz !=Enu
     write(6,*)
     write(6,'(" eig0 must be equal to the largest =", 2d24.16)') sum(  dconjg(zz(1:ngb,1))*matmul( vcoul(1:ngb,1:ngb),zz(1:ngb,1)))
     write(6,'(" zz norm check=",d24.16)')    sum( dconjg(zz(1:ngb,1))*matmul(oox,zz(1:ngb,1)) )
