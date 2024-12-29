@@ -134,6 +134,7 @@ contains
 !      mmm= max(mmax - memused() - 16d0*(ngcgp*maxval(nbandmx)) /k**3,0d0)  !ggitp(ngcgp,ntp0) !rough estimation in GB
       mmm= max(mmax - 16d0*(ngcgp*maxval(nbandmx)) /k**3,0d0)  !ggitp(ngcgp,ntp0) !rough estimation in GB ! uncount memused() already 2024-8-18
       nbloch=sum(nblocha)
+      write(stdo,ftox)'sxcf_fal2_count.sc: ',nbandmx,ngcgp
       write(stdo,ftox)'sxcf_fal2_count.sc: mmax memused size(z(ngcgp,nbandmx)) nmbatch=',mmax,memused(),ngcgp*16d0*maxval(nbandmx)/k**3, mmm,nmbatch
       nmbatch = floor( min(maxval(nstatemax)+1d-8, mmm*k**3/(maxval(nbandmx)*(nbloch+ngcmx+ngcmx)*16) +1d-8) ) ! +ngcmx is for zmelp0(ngc,nm1v:nm2v,ntp0)
       if(nmbatch==0) call rx('sxcf_fal2_count.sc. Too small memory for nmbatch mechanism. Enlarge GWinput MEMnmbatch')

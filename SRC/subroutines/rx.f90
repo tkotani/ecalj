@@ -6,48 +6,49 @@ subroutine rx(string) !error exit
   integer::ierr
   character*(*) string
   write(error_unit,*) trim(string)
-  call MPI_Abort(COMM, 9110000)
+  call MPI_Abort(COMM, 11,ierr)
 end subroutine rx
 subroutine rxi(string,iarg) ! Error exit, with a single integer at end
   use, intrinsic :: iso_fortran_env, only: error_unit
   use m_lgunit,only:stdo,stdl
   use m_mpi,only:   comm
   character*(*) string
-  integer:: iarg
+  integer:: iarg,ierr
   character(10):: i2char
   write(error_unit,*)trim(' Exit -1 '//string//' '//trim(i2char(iarg)))
-  call MPI_Abort(COMM, 9110010)
+  call MPI_Abort(COMM, 21,ierr)
 end subroutine rxi
 subroutine rxii(string,iarg,iarg2) 
   use, intrinsic :: iso_fortran_env, only: error_unit
   use m_lgunit,only:stdo,stdl
   use m_mpi,only:   comm
   character*(*) string
-  integer:: iarg,iarg2
+  integer:: iarg,iarg2,ierr
   character(10):: i2char
   write(error_unit,*)trim(' Exit -1 '//string//' '//trim(i2char(iarg))//' '//trim(i2char(iarg2)))
-  call MPI_Abort(COMM, 9110011)
+  call MPI_Abort(COMM, 31,ierr)
 end subroutine rxii
 subroutine rxiii(string,iarg,iarg2,iarg3) 
   use, intrinsic :: iso_fortran_env, only: error_unit
   use m_lgunit,only:stdo,stdl
   use m_mpi,only:   comm
   character*(*) string
-  integer:: iarg,iarg2,iarg3
+  integer:: iarg,iarg2,iarg3,ierr
   character(10):: i2char
   write(error_unit,*)trim(' Exit -1 '//string//' '//trim(i2char(iarg))//' '//trim(i2char(iarg2))//' '//trim(i2char(iarg3)))
-  call MPI_Abort(COMM, 9110111)
+  call MPI_Abort(COMM, 41,ierr)
 end subroutine rxiii
 subroutine rx1(string,arg) ! Error exit, with a single argument
   use, intrinsic :: iso_fortran_env, only: error_unit
   use m_ftox
   use m_lgunit,only:stdo,stdl
   use m_mpi,only:   comm
+  integer:: ierr
   character(15):: f2a
   character*(*) string
   double precision :: arg
   write(error_unit,*)trim(' Exit -1 '//string//trim(ftof(arg)))
-  call MPI_Abort(COMM, 9120001)
+  call MPI_Abort(COMM, 51,ierr)
 end subroutine rx1
 subroutine rx2(string,arg1,arg2) ! Error exit, with two arguments
   use, intrinsic :: iso_fortran_env, only: error_unit
@@ -58,18 +59,19 @@ subroutine rx2(string,arg1,arg2) ! Error exit, with two arguments
   character*(*) string
   double precision :: arg1,arg2
   write(error_unit,*)trim(' Exit -1 '//string//trim(ftof(arg1))//' '//trim(ftof(arg2)))
-  call MPI_Abort(COMM, 9120011)
+  call MPI_Abort(COMM, 61,ierr)
 end subroutine rx2
 subroutine rx3(string,arg1,arg2,arg3) ! Error exit, with two arguments
   use, intrinsic :: iso_fortran_env, only: error_unit
   use m_lgunit,only:stdo,stdl
   use m_ftox
   use m_mpi,only:   comm
+  integer:: ierr
   character(15):: f2a
   character*(*) string
   real(8):: arg1,arg2,arg3
   write(error_unit,*)trim(' Exit -1 '//string//trim(ftof(arg1))//' '//trim(ftof(arg2))//' '//trim(ftof(arg3)))
-  call MPI_Abort(COMM, 91200111)
+  call MPI_Abort(COMM, 71,ierr)
 end subroutine rx3
 subroutine rxs(string,msg) ! Error exit with extra string message
   character*(*) string,msg
