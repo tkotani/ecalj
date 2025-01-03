@@ -27,12 +27,16 @@ contains
     integer, allocatable :: ipvt(:)
     complex(8),allocatable:: work(:)
     integer :: lwork
+    complex(8) :: wkopt
     lda_in = n; if(present(lda)) lda_in = lda
     lwork = 64*n
-    allocate(work(lwork))
     allocate(ipvt(n))
     call zgetrf(n,n,a,lda_in,ipvt,istat)
-    call zgetri(n,  a,lda_in,ipvt,work,lwork,istat)
+    lwork = -1
+    call zgetri(n, a, lda_in, ipvt, wkopt, lwork, istat)
+    lwork = int(real(wkopt))
+    allocate(work(lwork))
+    call zgetri(n, a, lda_in, ipvt, work, lwork, istat)
     deallocate(work,ipvt)
   end function zminv_h
   integer function zhgv_h(A, B, n, evl, il, iu, lda, ldb) result(istat)
