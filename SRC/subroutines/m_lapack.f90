@@ -34,7 +34,7 @@ contains
     call zgetrf(n,n,a,lda_in,ipvt,istat)
     lwork = -1
     call zgetri(n, a, lda_in, ipvt, wkopt, lwork, istat)
-    lwork = int(real(wkopt))
+    lwork = int(dble(wkopt))
     allocate(work(lwork))
     call zgetri(n, a, lda_in, ipvt, work, lwork, istat)
     deallocate(work,ipvt)
