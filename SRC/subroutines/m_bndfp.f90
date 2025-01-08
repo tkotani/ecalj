@@ -116,7 +116,7 @@ contains
     parameter (MAX_PROCS = 100)
     integer :: resultlen
     character*(MPI_MAX_PROCESSOR_NAME) name
-    character(10) :: shortname(0:MAX_PROCS-1)
+    character(10) :: shortname(0:MAX_PROCS-1),head
     double precision :: sttime,entime
     integer:: plbnd,nk1,nk2,nk3,nx,ny
     logical:: llmfgw,sigx
@@ -273,8 +273,10 @@ contains
        else
           call makdos(nkp,nevmin,ndhamx,nsp,rv_a_owtkp,evlall,bz_n,bz_w,-6d0,dosw(1),dosw(2),ndos,dos_rv) !ndmahx=>nevmin
        endif
-       open(newunit=ifi, file='dos.tot.'//trim(sname) )
-       open(newunit=ifii,file='dosi.tot.'//trim(sname))
+       head='temp.'
+       if(tdos)head=''
+       open(newunit=ifi, file=trim(head)//'dos.tot.'//trim(sname) )
+       open(newunit=ifii,file=trim(head)//'dosi.tot.'//trim(sname))
        dee=(dosw(2)-dosw(1))/(ndos-1d0)
        dosi=0d0
        do ipts=1,ndos
