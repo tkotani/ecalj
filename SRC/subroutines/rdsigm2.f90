@@ -12,7 +12,7 @@ module m_rdsigm2
   integer, allocatable,protected :: ntabs(:)
   integer,protected:: ndimsig,nspsigm,ndhrs,ham_nqsig
   real(8),protected,allocatable ::  rv_p_oqsig (:)
-  logical,private:: debugmode=.true.
+  logical,private:: debugmode=.False.
 contains
   subroutine getsenex(qp,isp,ndimh,ovlm)! Return self-energy senex at qp,isp
     implicit none
@@ -136,7 +136,7 @@ contains
     complex(8),allocatable :: wk_zv(:), sigm_zv(:,:), siglda(:,:),z(:,:),sigo(:,:)
     integer :: is(3),lshft(3),ifac(3), jj1,jj2,jj3,k,iwdummy,iaf
     real(8):: rb(3,3),qb(3,3), qp(3),tolq=1d-4,rsstol,rotm(3,3), qsmesh(3,nk1,nk2,nk3) 
-    integer:: i1,i2,i3,ikt,ldim,napw_in,debugmode, ndimsig,ix
+    integer:: i1,i2,i3,ikt,ldim,napw_in, ndimsig,ix
     logical:: isanrg, debug=.false.,mtosigmaonly
     real(8):: qir(3),diffq(3),platt(3,3)
     integer:: ii1,ii2,ii4,ispr,ig,nsp_,ndimh_,nk1_,nk2_,nk3_,nqp_
@@ -236,11 +236,11 @@ contains
              iaf=2
              ipq_pointer => ipqaf
           endif
-          write(stdo,"(a,2i5,' ',13f13.5)")' rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=', isp,iaf,qp
+          write(stdo,"(a,2i5,' ',3f13.5,d13.5)")' rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=', isp,iaf,qp !,sum(abs(sigm_zv))
           if(iprint()>60) write(stdo,"(a,13f13.5)")' rdsigm2:Goto hamfb3k  xxx input qp=', qp
           call hamfb3k(qp, iq1, nk1,nk2,nk3,ipq_pointer, napw_in,ndimsig,ndimsig,ndimsig,qb,ldim,&
                ifac,sigm_zv(1:ndimsig,1:ndimsig),iaf, sfz(1,1,1,1,1,isp))
-          if(debugmode>0) write(stdo,"(a,3f13.5)")'end of hamfbk3'
+          if(debugmode) write(stdo,"(a,3f13.5)")'end of hamfbk3'
        enddo
        deallocate(sigm_zv,wk_zv)
 2001 enddo ispsigmloop
@@ -269,7 +269,7 @@ contains
     !o   gfbz  : For those qp in star iq, hq stored
     ! ----------------------------------------------------------------------
     implicit none
-    integer:: nk1,nk2,nk3,ipq(*),ndimh,ldima,ldimb,napw_in,debugmode
+    integer:: nk1,nk2,nk3,ipq(*),ndimh,ldima,ldimb,napw_in
     real(8)::    qin(3),qb(3,3) !,plat(3,3),qlat(3,3)
     complex(8):: hq(ndimh,ndimh),gfbz(nk1,nk2,nk3,ldima,ldimb)
     integer:: i,i1,i2,i3,ig,iq,iq1,is,j,jj1,jj2,jj3,js,k,ierr,ifac(3),j1,j2,ik1,ik2,ik3,isp,ldim,iaf
@@ -279,13 +279,13 @@ contains
     qk(k,jj1,jj2,jj3) = (jj1*ifac(1)-1)*qb(k,1) + (jj2*ifac(2)-1)*qb(k,2) + (jj3*ifac(3)-1)*qb(k,3)
     !qk(k,jj1,jj2,jj3) = sum(qb(k,:)*[(jj1*ifac(1)-1),(jj2*ifac(2)-1), (jj3*ifac(3)-1)]) <=Not working in ifort
     call tcn('hamfb3k')
-    if(debugmode>0) print *, 'hamfb3k: start...'
+    if(debugmode) print *, 'hamfb3k: start...'
     iq1 = 0
     do  i3 = 1, nk3
        do  i2 = 1, nk2
           do  i1 = 1, nk1
              iq1 = iq1+1
-             if(debugmode>0) print *,'iq iq1 ipq(iq1)',iq,iq1,ipq(iq1)
+             if(debugmode) print *,'iq iq1 ipq(iq1)',iq,iq1,ipq(iq1)
              !! ipq(iq1) ist gives a table to point irreducible point.
              !!          q1,iq1 is target on regular mesh <--- qin,iq is irreducible points; this mapping is by rotsig.
              !!          iq=ipq(iq1) shows iq for given iq1.
@@ -293,16 +293,16 @@ contains
              q1(1) = qk(1,i1,i2,i3)
              q1(2) = qk(2,i1,i2,i3)
              q1(3) = qk(3,i1,i2,i3)
-             if(debugmode>0) print *,q1
-             if(debugmode>0) write(stdo,"(a,3f13.5)")' input          qin = ', qin
-             if(debugmode>0) write(stdo,"(a,3f13.5)")' target a        q1 = ', q1 ! qin = g(:,:,ig)^{-1}*q1
+             if(debugmode) print *,q1
+             if(debugmode) write(stdo,"(a,3f13.5)")' input          qin = ', qin
+             if(debugmode) write(stdo,"(a,3f13.5)")' target a        q1 = ', q1 ! qin = g(:,:,ig)^{-1}*q1
              call rotsig(qin,q1,ndimh,napw_in,ldim,hq,gfbz(i1,i2,i3,:,:),ierr,iaf)
              if(ierr/=0) write(aaa,"(' qin=',3f13.6,' q1=',3f13.6)") qin,q1
              if(ierr/=0) call rx('hamfb3: rotsig do not map qin to q1;'//trim(aaa))
           enddo
        enddo
     enddo
-    if(debugmode>0) print *, 'hamfb3k: end...'
+    if(debugmode) print *, 'hamfb3k: end...'
     call tcx('hamfb3k')
   end subroutine hamfb3k
   
@@ -325,14 +325,14 @@ contains
     real(8)   :: q(3),delta(3),ddd(3),qpg(3),platt(3,3),qtarget(3),qx(3),det,qpgr(3),ddd2(3) !plat(3,3),qlat(3,3)
     complex(8):: phase,img=(0d0,1d0),img2pi, sig(ndimh,ndimh),sigout(ndimh,ndimh)
     complex(8),allocatable:: sigx(:,:)
-    integer :: ldim,debugmode,iaf,ngini,ngend
+    integer :: ldim,iaf,ngini,ngend
     character(300)::aaa
     real(8),parameter:: tolq=1d-4
     call tcn('rotsig')
     img2pi=2*4d0*datan(1d0)*img
     ierr=1
     platt=transpose(plat) !this is inverse of qlat
-    if(debugmode>0) write(stdo,"('rotsig: qin qout=',3f9.4,x,3f9.4)") qin,qout
+    if(debugmode) write(stdo,"('rotsig: qin qout=',3f9.4,x,3f9.4)") qin,qout
     qtarget= qin
     q      = qout  
     AntiferroMechanism: if(iaf==2) then !AF isp=2. These are antiferro space-group operations
@@ -343,11 +343,11 @@ contains
        ngend = ngrp
     endif AntiferroMechanism
     GetiggOFsymops: do igx=ngini,ngend ! we find qtrget = symops(igx) * q    (this means qin = symops(igc) qout).
-       if(debugmode>0) print *, 'ddd=',matmul(platt,(qtarget-matmul(symops(:,:,igx),q)))
+       if(debugmode) print *, 'ddd=',matmul(platt,(qtarget-matmul(symops(:,:,igx),q)))
        call rangedq(   matmul(platt,(qtarget-matmul(symops(:,:,igx),q))), qx)
        if(sum(abs(qx))<tolq) then
           igg=igx
-          if(debugmode>0) then
+          if(debugmode) then
              print *,'ttt: q      =',q
              print *,'ttt: qtarget=',qtarget
              print *,'ttt: matmul q =',matmul(symops(:,:,igx),q)
@@ -365,7 +365,7 @@ contains
     allocate(sigx(ndimh,ndimh))
     sigx=0d0
     nlmto=ldim
-    if(debugmode>0) then
+    if(debugmode) then
        print *,' tttt: invgx =',invgx(igg),shtvg(:,igg)
        print *,' tttt: ntorb napwin',norbmto,ndimh,napw_in,nlmto
     endif
@@ -409,7 +409,7 @@ contains
              sigx(ix,nlmto+ig) = sig(ix,nlmto+ig2) * phase
           enddo
        enddo
-       if(debugmode>0) print *,' apw part end 111: ikt ikt2=',ikt,ikt2
+       if(debugmode) print *,' apw part end 111: ikt ikt2=',ikt,ikt2
     endif APWpart
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    
     
@@ -430,13 +430,13 @@ contains
              sigout(init1:iend1,ix)= phase * matmul(transpose(dlmm(-l:l,-l:l,l,igg)),sigx(init2:iend2,ix))
           enddo
        enddo
-       if(debugmode>0) print *,' end of 2nd mto part q=',q
+       if(debugmode) print *,' end of 2nd mto part q=',q
     endif MTOpart2
     
     APWpart2: if(napw_in/=0) then
        ikt  = getikt(q)    !index for q
        ikt2 = getikt(qtarget) !index for qtarget
-       if(debugmode>0) print *,' rotsig 111 ikt ikt2=',ikt,ikt2
+       if(debugmode) print *,' rotsig 111 ikt ikt2=',ikt,ikt2
        if(napw_in /= napwk(ikt) ) then
           call rx('rotsig: napw_in /= napw(ikt)')
        endif
@@ -444,14 +444,14 @@ contains
           qpg = q + matmul( qlat(:,:),igv2(:,ig,ikt))      !q+G
           qpgr = matmul(symops(:,:,igg),qpg)               !rotated q+G
           nnn=nint( matmul(platt,qpgr-qtarget))
-          if(debugmode>0) print *,ig,'nnn  ikt2=',nnn,ikt2
+          if(debugmode) print *,ig,'nnn  ikt2=',nnn,ikt2
           ig2 = igv2rev(nnn(1),nnn(2),nnn(3),ikt2)
           phase=exp(img2pi*sum(qpgr*shtvg(:,igg)))
           do ix=1,ndimh
              sigout(nlmto+ig,ix) =   sigx(nlmto+ig2,ix) * phase
           enddo
        enddo
-       if(debugmode>0) print *,' apw part end 222: ikt ikt2=',ikt,ikt2
+       if(debugmode) print *,' apw part end 222: ikt ikt2=',ikt,ikt2
     endif APWpart2
     deallocate(sigx)
     call tcx('rotsig')
