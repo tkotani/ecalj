@@ -29,7 +29,6 @@ contains
     integer:: i,ierr,ifsigm,iix,ikp,ip,ipxx,iq,iqq,is,isx,j,nevv,isxxx,itp,itpp,nstarsum,nt,ntqx,ntqxxmin
     integer,allocatable :: itx(:) 
     integer,allocatable:: nhqx(:,:)
-    integer, allocatable :: ipiv(:)
     real(8):: eavr,eavr2,eee,eseavr0,eseavr02,dsenoz,zfac=1d0
     real(8):: qx2(3) ,qqqx(3) ,del ,mix_fac
     real(8) ::  rydberg,hartree, qqqx0(3)
@@ -37,7 +36,7 @@ contains
     real(8),allocatable :: vxc(:,:), sex(:,:),sexcore(:,:), qx(:,:,:),eldax(:,:),rsec(:,:),csec(:,:) ,&
          qqq(:,:,:) ,qqqx_m(:,:,:),evl(:,:,:),eqp(:,:),sed(:)
     complex(8), allocatable :: sex2(:,:,:),sexcore2(:,:,:), &
-         sec2(:,:,:), se(:,:,:),work(:),evec_inv(:,:),evec_invt(:,:), se_ev(:,:), ev_se_ev(:,:),&
+         sec2(:,:,:), se(:,:,:),evec_inv(:,:),evec_invt(:,:), se_ev(:,:), ev_se_ev(:,:),&
          sen(:,:),sen2(:,:),se_in(:,:), v_xc(:,:,:,:),evec(:,:,:,:),evec0(:,:),sigma_m(:,:,:,:), &
          sigin(:,:,:,:), evec00(:,:,:,:) ,evec00inv(:,:)
     integer ::  ifse_out, ifse_in
@@ -141,7 +140,7 @@ contains
     allocate(sex2(ntq,ntq,nqibz), sexcore(ntq,nqibz),sexcore2(ntq,ntq,nqibz) )
     allocate(rsec(ntq,nqibz),csec(ntq,nqibz),sec2(ntq,ntq,nqibz))
     allocate(eqp(ntq,nqibz), ntqxx(nqibz))!,eqp2(ntq,nqibz))
-    allocate(se(ntq,ntq,nqibz),ipiv(nhq),work(nhq*nhq),evec_inv(nhq,nhq) ,evec_invt(nhq,nhq),ev_se_ev(ndimsig,ndimsig),sed(ntq))
+    allocate(se(ntq,ntq,nqibz),evec_inv(nhq,nhq) ,evec_invt(nhq,nhq),ev_se_ev(ndimsig,ndimsig),sed(ntq))
     MAINspinloop: do 1001  is = 1,nspin ; write(stdo,ftox) ' --- is=',is
       do 1010 ip = 1,nqibz
         read(ifsex2(is))     isx,qx2,sex2(1:ntq,1:ntq,ip)
@@ -156,15 +155,15 @@ contains
           csec(i,ip)   = dimag(sec2(i,i,ip))*hartree
         enddo
         if(sum((qqq(1:3,ip,is)-qx(1:3,1,ip))**2 ) > tolq ) call rx( 'hqpe.sc: qqq /=qx')
-        ntqxx(ip) = findloc([(sexcore2(itp,itp,ip)/=0d0,itp=1,ntq)],back=.true.,value=.true.,dim=1)
+        ntqxx(ip) = findloc([(sex2(itp,itp,ip)/=0d0,itp=1,ntq)],back=.true.,value=.true.,dim=1) !2025-1-8.  need to check ntqxx by sex2 instead of sexcore2
         WRITEqpe: do   it = 1,ntq
           eshift     = sex(it,ip)+sexcore(it,ip)+rsec(it,ip)-vxc(it,ip)  !eshift2     = sex(it,ip)+sexcore(it,ip)+rsec(it,ip)-vxc(it,ip)
           eqp(it,ip) = eldax(it,ip) + eshift        !eqp2(it,ip) = eldax(it,ip) + eshift2
           fwhm  =  2d0*csec(it,ip) 
           ehf   =  eldax(it,ip) + sex(it,ip)+ sexcore(it,ip) - vxc(it,ip)
           if(eldax(it,ip)>1d10) cycle ! padding by huge number for it for no data
-          ehfx   = merge(0d0,ehf,    abs(sexcore(it,ip))==0d0)
-          dsenoz = merge(0d0,eshift, abs(sexcore(it,ip))==0d0)
+          ehfx   = merge(0d0,ehf,    abs(sex(it,ip))==0d0) !2025-jan-8 TK. Check sex instead of sexcore (no core for H) 
+          dsenoz = merge(0d0,eshift, abs(sex(it,ip))==0d0)
 !         write(ifqpe(is),'(3f9.5,1x,i2,1x,10f7.2,f5.2,f10.5,3x,f10.5)') qx(1:3,it,ip),itx(it),&
           write(ifqpe(is),'(3f9.5,1x,i3,1x,10f8.3,f5.2,f10.5,3x,f10.5)') qx(1:3,it,ip),itx(it),&
                sex(it,ip),sexcore(it,ip) ,rsec(it,ip),&
@@ -211,13 +210,14 @@ contains
         write(ifsigm) qqq(1:3,ip,is),is 
         sigmv(:,:,ip) = 1d20
         sigmv(1:ns2,1:ns2,ip)= 2d0*ev_se_ev(1:ns2,1:ns2) !in Ry.
+        !write(6,*)'sssssssssssss sumcheck ',sum(abs(sigmv(1:ns2,1:ns2,ip))),ns2,nevv,nz,ntqxx(ip) !,sum(abs(evec_invt(1:nz,1:nevv))),ns2,nevv,nz
         ! Note 2*ev_se_ev bacause v_xc in sugw.f was in rydberg while SE was in hartree
         write(ifsigm) sigmv(:,:,ip)
 3003  enddo SIGMiploop
       if(laf) exit
       close(ifqpe(is)) !      close(iftote(is))!        close(iftote2(is))
 1001 enddo MAINspinloop
-    deallocate(v_xc,evec,se,ipiv,work,evec_inv,evec_invt,ev_se_ev,sed)
+    deallocate(ev_se_ev,sed,v_xc,evec,se,evec_inv,evec_invt)
     close(ifsigm)
 !!! OUTPUT: Mixing sigm with previous iteration.  GWinput mixbeta=0.3 should mix new sigm with the weight of 0.3.
     open(newUNIT=ifse_out, file='sigm',form='UNFORMATTED') !Once readin sigma
@@ -286,7 +286,7 @@ contains
     iprintxx = 30
     beta=1d0
     call getkeyvalue("GWinput","mixbeta",beta,default=1d0,status=ret)
-    write(stdo,ftox)'('' mixsigma: Anderson mixing sigma with mixing beta ='',f12.6)',beta
+    write(stdo,ftox)' mixsigma: Anderson mixing sigma with mixing beta =',ftof(beta)
     allocate ( a(2*nda,0:mxsav+1,2) )
     fff="mixsigma"
     INQUIRE (FILE =fff, EXIST = fexist)
