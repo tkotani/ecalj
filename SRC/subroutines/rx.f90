@@ -55,6 +55,7 @@ subroutine rx2(string,arg1,arg2) ! Error exit, with two arguments
   use m_lgunit,only:stdo,stdl
   use m_ftox
   use m_mpi,only:   comm
+  integer::ierr
   character(15):: f2a
   character*(*) string
   double precision :: arg1,arg2
