@@ -58,7 +58,8 @@ elseif(FC MATCHES "ifort")
   find_program(MPIIFORT_COMPILER mpiifort)
   if(NOT MPIIFORT_COMPILER) 
     set(CMAKE_Fortran_COMPILER mpifort)
-    # set(FLAGS ${FLAGS} -D__Nomm3m) #In the case zgemm3m may have problems
+    # set(FLAGS ${FLAGS} -D__Nomm3m)               #use zgemm instaed of zgemm3m
+    # set(FLAGS ${FLAGS} -D__MKL_ZMINV_SEQUENTIAL) #use sequental version of zgetri 
   endif()
   set(CMAKE_Fortran_FLAGS "-init:snan -fpic -assume byterecl -g -traceback") # compile flags
   set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -traceback")
