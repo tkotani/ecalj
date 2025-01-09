@@ -1,7 +1,7 @@
 !> Calculate W-v zxqi(on the imaginary axis) and zxq(real axis) from sperctum weight rcxq.
 module m_dpsion
   use m_kind, only: kp => kindrcxq
-  public dpsion5, dpsion_init, dpsion_xq, dpsion_setup_rcxq
+  public dpsion5, dpsion_init, dpsion_chiq, dpsion_setup_rcxq
   ! private
   real(8),allocatable :: his_L(:),his_R(:),his_C(:),rmat(:,:,:),rmatt(:,:,:),rmattx(:,:,:,:),imatt(:,:,:)
   complex(8),allocatable :: imattC(:,:,:)
@@ -74,7 +74,7 @@ contains
     endif imagomecacase
     init=.false.
   end subroutine dpsion_init
-  subroutine dpsion_xq(realomega, imagomega, chipm, rcxq, zxqi, npr, npr_col, schi, isp, ecut)
+  subroutine dpsion_chiq(realomega, imagomega, chipm, rcxq, zxqi, npr, npr_col, schi, isp, ecut)
     use m_freq, only: frhis, freqr=>freq_r,freqi=>freq_i, nwhis, npm, nw_i, nw_w=>nw, niwt=>niw
     use m_readgwinput, only: egauss
     use m_ftox
@@ -107,18 +107,17 @@ contains
 #ifdef __GPU
     attributes(device) :: rcxq, zxqi
 #endif
-    write(stdo,ftox)" -- dpsion_xq: start... nw_w nwhis=",nw_w,nwhis
+    write(stdo,ftox)" -- dpsion_chiq: start... nw_w nwhis=",nw_w,nwhis
     call flush(stdo)
     if(chipm.and.npm==2) call rx( 'x0kf_v4h:npm==2 .AND. chipm is not meaningful probably')  ! Note rcxq here is negative 
 
-!!!$acc host_data use_device(rcxq, zxqi)
     !$acc data copyin(his_R, his_L)
     GaussianFilter: if(abs(egauss)>1d-15) then
       write(6,'("GaussianFilterX0= ",d13.6)') egauss
       allocate(gfmat(nwhis,nwhis))
       allocate(cgfmat(nwhis,nwhis))
       allocate(rcxq_work(npr,nwhis))
-      call rx( 'dpsion_xq: GaussianFilterX0 is not checked yet: see dpsion_xq')
+      write(stdo,ftox) 'dpsion_chiq: GaussianFilterX0 is not checked yet: see dpsion_chiq'
       gfmat=gaussianfilterhis(egauss,frhis,nwhis)
       !$acc data copyin(gfmat) create(cgfmat, rcxq_work)
       !$acc kernels
@@ -128,7 +127,7 @@ contains
         !$acc kernels
         rcxq_work(1:npr,1:nwhis) = rcxq(1:npr,ipr_col,1:nwhis)
         !$acc end kernels
-        istat = gemm(rcxq_work, cgfmat, rcxq(1,ipr_col,1), npr, nwhis, nwhis, ldA=npr*npr_col, opB=m_op_T)
+        istat = gemm(rcxq_work, cgfmat, rcxq(1,ipr_col,1), npr, nwhis, nwhis, ldC=npr*npr_col, opB=m_op_T)
       enddo
       if(npm==2) then
         !$acc kernels
@@ -138,7 +137,7 @@ contains
           !$acc kernels
           rcxq_work(1:npr,1:nwhis) = rcxq(1:npr,ipr_col,-nwhis:-1:1)
           !$acc end kernels
-          istat = gemm(rcxq_work, cgfmat, rcxq(1,ipr_col,-nwhis), npr, nwhis, nwhis, ldA=npr*npr_col, opB=m_op_T)
+          istat = gemm(rcxq_work, cgfmat, rcxq(1,ipr_col,-nwhis), npr, nwhis, nwhis, ldC=npr*npr_col, opB=m_op_T)
         enddo
       endif
       !$acc end data
@@ -158,7 +157,7 @@ contains
     enddo
     !$acc end data
     if_IMAGOMEGA: if(imagomega) then !Hilbert Transformation to get real part
-      if(debug) write(stdo,ftox)" -- dpsion_xq: start imagomega"
+      if(debug) write(stdo,ftox)" -- dpsion_chiq: start imagomega"
       if(npm==1) then
         !$acc data copyin(imatt) create(cimatt)
         !$acc kernels
@@ -176,10 +175,10 @@ contains
         istat = gemm(rcxq(1,1,-nwhis), cimatt(1,1,2), zxqi, npr*npr_col, niwt, nwhis, opB=m_op_T, beta=CONE)
         !$acc end data
       endif
-      write(stdo,ftox)" -- dpsion_xq: end of imagomega"
+      write(stdo,ftox)" -- dpsion_chiq: end of imagomega"
     endif if_IMAGOMEGA
     if_REALOMEGA: if(realomega) then !Hilbert Transformation to get real part
-      if(debug) write(stdo,ftox)" -- dpsion_xq: start realomega"
+      if(debug) write(stdo,ftox)" -- dpsion_chiq: start realomega"
       if(npm == 1 .and. .not.chipm) then
         !$acc data copyin(rmatt) create(crmatt, zxq_work)
         !$acc kernels
@@ -226,11 +225,10 @@ contains
         enddo
         !$acc end data
       endif
-      write(stdo,ftox)" -- dpsion_xq: end of realomega"
+      write(stdo,ftox)" -- dpsion_chiq: end of realomega"
     endif if_REALOMEGA
     call flush(stdo)
-!!    !$acc end host_data
-  end subroutine dpsion_xq
+  end subroutine dpsion_chiq
 
   subroutine dpsion_setup_rcxq(rcxq, npr, npr_col, isp)
     use m_freq, only:nwhis, npm, nw_i, nw_w => nw

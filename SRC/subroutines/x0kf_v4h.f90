@@ -143,7 +143,7 @@ contains
   
   subroutine x0kf_zxq(realomega,imagomega, q,iq,npr,schi,crpa,chipm,nolfco,q00,zzr)
     use m_readgwinput,only: ecut, ecuts
-    use m_dpsion,only: dpsion5, dpsion_init, dpsion_xq, dpsion_setup_rcxq
+    use m_dpsion,only: dpsion5, dpsion_init, dpsion_chiq, dpsion_setup_rcxq
     use m_freq,only: nw_i, nw_w=>nw, niwt=>niw
     use m_readeigen,only:readeval
     use m_freq,only: nw_i,nw,niw 
@@ -409,7 +409,7 @@ contains
           call stopwatch_start(t_sw_dpsion)
           call dpsion_init(realomega, imagomega, chipm)
           !$acc host_data use_device(rcxq, zxqi)
-          call dpsion_xq(realomega, imagomega, chipm, rcxq, zxqi, npr, npr_col, schi, isp_k, ecut)
+          call dpsion_chiq(realomega, imagomega, chipm, rcxq, zxqi, npr, npr_col, schi, isp_k, ecut)
           !$acc end host_data
           call stopwatch_pause(t_sw_dpsion)
           call stopwatch_show(t_sw_dpsion)
