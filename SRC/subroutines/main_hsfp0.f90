@@ -16,7 +16,7 @@ subroutine hsfp0() bind(C)
   use m_keyvalue,only: Getkeyvalue
   use m_rdpp,only: Rdpp, nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx
   use m_zmel,only: Mptauof_zmel
-  use m_itq,only: Setitq_hsfp0, itq,ntq
+  use m_itq,only: itq,ntq,setitq_hsfp0
   use m_mpi,only: &
        MPI__Initialize,MPI__real8send,MPI__real8recv, & !MPI__sxcf_rankdivider,
        MPI__root,MPI__Broadcast,MPI__rank,MPI__size,MPI__allreducesum, &
@@ -145,10 +145,13 @@ subroutine hsfp0() bind(C)
   integer:: ififr
   integer:: timevalues(8)  ,isp,dest,ificlass,ifiq0p
   character(128) :: ixcc
-  integer:: nw,ifcoh, ixx(2) !,nbmin,nbmax,nnx
+  integer:: nw,ifcoh, ixx(2),n1x,n2x
   real(8)::dwdummy, ef
   logical:: cmdopt2
   character(20):: outs=''
+!  integer:: ntq
+!  integer,allocatable:: itq(:)
+
 !  real(8),allocatable:: qx(:,:)
   !...  mode switch. --------------
   call MPI__Initialize()
@@ -423,17 +426,13 @@ subroutine hsfp0() bind(C)
              ekt(:,iq,is)= readeval(qbz(:,iq),is)
           enddo
        enddo
-       noccxv = maxval(count(ekt(1:nband,1:nqbz,1:nspin)<eff,1))
+       noccxv = maxval(count(ekt(1:nband,1:nqbz,1:nspin)<eff,dim=1)) ! maximum no. of occupied valence states
      endblock
   endif
-  !     noccxv = maxocc (ifev,nspin, ef+0.5d0*esmr, nband,nqbz)  ! maximum no. of occupied valence states
-  !     maxocc seems to give (the maxmum number of occ + 1).
 
-  call init_readeigen2()!mrecb,ndima,mrecg) !initialize m_readeigen
-  call Getkeyvalue("GWinput","QPNT_nbandrange",nss,2,default=(/-99997,-99997/) )
-  lqall=tote
-  call getqforgw(lqall) !2024-10
-  call setitq_hsfp0(ngcmx,ngpmx,tote,nbmin,nbmax,noccxv,nss) 
+  call init_readeigen2() 
+  call getqforgw(lqall=tote) !2024-10
+  call setitq_hsfp0(ngcmx,ngpmx,tote,nbmin,nbmax,noccxv) 
   allocate(q(1:3,nq),source=qx(1:3,1:nq))
   nspinmx = nspin
   if (laf) nspinmx =1
