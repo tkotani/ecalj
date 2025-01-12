@@ -1,62 +1,73 @@
 #!/usr/bin/env python3
+import argparse
+import numpy as np
 import sys
-#import string
-import os
 
-def compareqpu(qpu1,qpu2,printsw):
-	pr = (printsw==1)
-	oxx= qpu1.split('\n') 
-	oyy= qpu2.split('\n')
-	errmax=0.0
-	for ix in range( max(len(oxx),len(oyy))):
-		iline=oxx[ix]
-		ilin2=oyy[ix]
-		if ix==5:
-			if pr: print (iline)
-		if ix>=6:
-			if pr: print (iline[0:32],end='')
-			try:
-				for iw in range(4,17,1):
-					w1=float(iline.split()[iw])
-					w2=float(ilin2.split()[iw])
-					if (iw >=15) & pr : print( '%9.5f' % (w1-w2),end='')
-					if (iw <=14) & pr : print( '%6.2f' % (w1-w2),end='')
-					if( abs(w1-w2)>errmax ): errmax=abs(w1-w2)
-					#errmax=errmax + abs(w1-w2)
-				if pr: print()
-			except:
-				if pr: print(iline)
-	return errmax
+def compareqpu(qpu1, qpu2, printsw, ecut, etol):
+    pr = not printsw
+    oxx= qpu1.split('\n') 
+    oyy= qpu2.split('\n')
+    errmax = np.zeros(13)
+    for ix in range( min(len(oxx),len(oyy))):
+        iline = oxx[ix]
+        ilin2 = oyy[ix]
+        if ix == 5:
+            print (iline)
+        if ix >= 6:
+            str = iline[0:32]
+            try:
+                w1 = np.array(list(map(float, iline.split()[4:])))
+                w2 = np.array(list(map(float, ilin2.split()[4:])))
+                if all(w1[i] == 0 for i in range(2)) or all(w2[i] == 0 for i in range(2)):
+                    continue
+                eqp1 = w1[6] #Index 6 -> eQP
+                eqp2 = w2[6]
+                if (eqp1 > ecut) or (eqp2 > ecut):
+                    continue
+                errmax = np.maximum(errmax, np.abs(w1 - w2))
+                str = str + ''.join(
+                    f'{(v1-v2):8.3f}' if i < 10 else
+                    f'{(v1-v2):5.2f}' if i == 10 else
+                    f'{(v1-v2):10.5f}' if i == 11 else
+                    f'{(v1-v2):13.5f}'
+                    for i, (v1, v2) in enumerate(zip(w1, w2))
+                )
+                if pr: print(str)
+            except:
+                if pr: print(iline)
+    str = ' '*17 + 'Max difference='+''.join(
+        f'{v:8.3f}' if i < 10 else 
+        f'{v:5.2f}' if i == 10 else
+        f'{v:10.5f}' if i == 11 else
+        f'{v:13.5f}' for i, v in enumerate(errmax)
+    )
+    print(str)
+    return errmax[6]
 
 ############### main ###################################
-try:
-	print ("   Readin two files =     ", sys.argv[1], sys.argv[2])
-except:	
-	print ("   usage: dqpu QPU1 QPU2")
-	sys.exit()
 
-qpu1 = open(sys.argv[1],'rt').read()
-qpu2 = open(sys.argv[2],'rt').read()
+parser = argparse.ArgumentParser()
+parser.add_argument('QPU1', type=str, help='QPU or QPD file')
+parser.add_argument('QPU2', type=str, help='QPU or QPD file')
+parser.add_argument('--ecut', type=float, default=1000, help='energy cutoff from Fermi level')
+parser.add_argument('--etol', type=float, default=0.011, help='eQP difference tolerance')
+parser.add_argument('--noprint', action='store_true', default=False, help='print flag')
+args = parser.parse_args()
 
-#print sys.argv
-if '--print' in sys.argv : 
-	printsw=1
+qpu1 = open(args.QPU1,'rt').read()
+qpu2 = open(args.QPU2,'rt').read()
+etol = args.etol
+ecut = args.ecut
+
+print(f'Comparing two QPU files: {args.QPU1}  and {args.QPU2}  with ecut={ecut}')
+errmax = compareqpu(qpu1,qpu2, args.noprint, ecut, etol)
+print(f'Difference= {errmax:.3f} eV')
+
+if errmax< etol:
+    print ('   Comparison OK!  Difference sum=',errmax,' <1.1e-2 between:   ' + args.QPU1+ '   and   ' + args.QPU2)
+    sys.exit()
 else:
-	printsw=0
-#print 'printsw=', printsw
-errmax = compareqpu(qpu1,qpu2, printsw)
-#errmax = compareqpu(qpu1,qpu2, printsw=0)
-	
-	
-if(errmax<1.1e-2):
-	print ('   Comparison OK!  Difference sum=',errmax,' <1.1e-2 between:   ' + sys.argv[1]+ '   and   ' + sys.argv[2])
-	sys.exit()
-else:
-	errmax = compareqpu(qpu1,qpu2, printsw=1)
-	print() 
-	print ("   Readin two files =  ", sys.argv[1], '  ',sys.argv[2])
-	print( '   Error! Difference>1.1e-2 between:   ' + sys.argv[1]+ '   and   ' + sys.argv[2], ' :  max(abs(QPU-QPU))=',errmax)
-	print( '   (But small diff can be not a problem. It can be due to a minor machine-depenence.)')
-	sys.exit(-1)
-	
-
+    print ("   Readin two files =  ", args.QPU1, '  ',args.QPU2)
+    print( '   Error! Difference>1.1e-2 between:   ' + args.QPU1 + '   and   ' + args.QPU2, ' :  max(abs(QPU-QPU))=',errmax)
+    print( '   (But small diff can be not a problem. It can be due to a minor machine-depenence.)')
+    sys.exit(-1)
