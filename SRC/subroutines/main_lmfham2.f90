@@ -622,8 +622,8 @@ contains
                enddo
             enddo; enddo
             call zhev_tk4(nMLO,hamm,ovlm,nMLO,nev, evlm(:,iq), evec, oveps)! Diangonale (hamm - evl ovlm ) evec=0
-            if(iq<6)  write(stdo,"(' iq q=',i3,*(a))") iq,' ',ftof(qp,3),' e=',ftof(evlm(1:12,iq),3)
-            if(iq==6) write(stdo,"(' iq q= ...')")
+            if(iq<6)  write(stdo,ftox) ' iq q= ',iq,' ',ftof(qp,3),' e=',ftof(evlm(1:12,iq),3)
+            if(iq==6) write(stdo,ftox) ' iq q= ...'
             do i=1,nev
                write(iband,ftox)  ftof(xdat(iq)),ftof(evlm(i,iq)), is,i
             enddo
