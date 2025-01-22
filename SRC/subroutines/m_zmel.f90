@@ -25,10 +25,12 @@ module m_zmel
   use m_blas, only: gemm => zmm_h, gemm_batch => zmm_batch_h
 #endif
 #ifdef __GPU
+  use m_blas, only: zmm => zmm_d
   use openacc, only: acc_is_present
   use m_readQG, only: readqg => readqg_d
 #else
   use m_readQG, only: readqg
+  use m_blas, only: zmm => zmm_h
 #endif
   implicit none
   public:: get_zmel_init_gemm, Mptauof_zmel,Setppovlz,Setppovlz_chipm ! Call mptauof_zmel and setppovlz in advance to get_zmel_init
@@ -457,20 +459,18 @@ contains
           use m_read_ppovl,only:igggi,igcgp2i,nxi,nxe,nyi,nye,nzi,nze,nvgcgp2,ngcgp,ggg,ppovlinv,nnxi,nnxe,nnyi,nnye,nnzi,nnze,nggg
           integer:: igcgp2,nn(3), iggg, igp1, itp, igc, igp2 ,nnnsss,nnnggg!, igcgp2i_(ngc,ngp2)
           complex(8):: phase(ngc)
-          complex(kind=kp) :: ppovlinv_work(ngc,ngc), geigq_work(ngpmx,nqini_rank:nqmax_rank)
+          complex(kind=kp) ::  geigq_work(ngpmx,nqini_rank:nqmax_rank)
+          complex(8), allocatable :: zmelt_d_dp(:,:,:), zmelp0_dp(:,:,:)
 #ifdef __GPU
-          attributes(device) :: ppovlinv_work, geigq_work
+          attributes(device) :: geigq_work, zmelt_d_dp, zmelp0_dp
 #endif
-          !$acc kernels
-          ppovlinv_work(1:ngc,1:ngc) = cmplx(ppovlinv(1:ngc,1:ngc),kind=kp) !copy to GPU
-          !$acc end kernels
           allocate( ggitp(ngcgp,ntp0), gggmat(ngcgp,ngp1), ggitp_work(ngc, ngp2), igcgp2i_work(ngc,ngp2))
           if(debug) call writemem('mmmmm_zmel111aaa')
           allocate(zmelp0(ngc,nm1v:nm2v,ntp0))
           if(debug) call writemem('mmmmm_zmel111bbb')
           phase(:)=[(exp( -img*tpi*sum((matmul(symope,kvec)+matmul(qlat,ngveccR(:,igc)))*shtv) ),igc=1,ngc)]  !prepared by CPU
           !$acc data copyin(phase, ngveccR, nadd(1:3), ggg(1:nggg), nvgcgp2(1:3,1:ngcgp), itq(nqini_rank:nqmax_rank),&
-          !$acc             igggi(nxi:nxe,nyi:nye,nzi:nze), igcgp2i(nnxi:nnxe,nnyi:nnye,nnzi:nnze)) create(nn)
+          !$acc             igggi(nxi:nxe,nyi:nye,nzi:nze), igcgp2i(nnxi:nnxe,nnyi:nnye,nnzi:nnze), ppovlinv) create(nn)
           if(debug) call writemem('mmmmm_zmel111ccc')
           !$acc kernels
           gggmat(1:ngcgp,1:ngp1) = CZERO !fix 2024-8-23  (forgotton) 0d0 -> CZERO 
@@ -516,24 +516,28 @@ contains
             ierr = gemm(ggitp_work, dgeigqk(1,nm1v), zmelp0(1,nm1v,itp), ngc, nm2v-nm1v+1, ngp2, ldB = ngpmx)
           enddo
           deallocate(ggitp_work,ggitp,igcgp2i_work)
+          allocate(zmelp0_dp(ngc,nm1v:nm2v,ntp0))
           if(debug) call writemem('mmmmm_zmel111fff')
           !$acc kernels
           do igc = 1, ngc
-            zmelp0(igc,nm1v:nm2v,1:ntp0) = cmplx(phase(igc),kind=kp)*zmelp0(igc,nm1v:nm2v,1:ntp0)
+            zmelp0_dp(igc,nm1v:nm2v,1:ntp0) = phase(igc)*cmplx(zmelp0(igc,nm1v:nm2v,1:ntp0), kind=8)
           enddo
           !$acc end kernels
-          allocate(zmelt_d(ngc,nm1v:nm2v,ntp0))
+          deallocate(zmelp0)
+          allocate(zmelt_d_dp(ngc,nm1v:nm2v,ntp0))
           if(debug) call writemem('mmmmm_zmel111hhh')
           if(debug) write(stdo,ftox) 'hhhhhhhh111'!,ngc,ntp0,nmtot
-          ierr = gemm(ppovlinv_work, zmelp0, zmelt_d, ngc, ntp0*nmtot, ngc) 
+          !MO 2025-01-22 Gemm change to zmm for the computational accuracy in the mixed precision calculation
+          !$acc host_data use_device(ppovlinv)
+          ierr = zmm(ppovlinv, zmelp0_dp, zmelt_d_dp, ngc, ntp0*nmtot, ngc) 
+          !$acc end host_data
           if(debug) write(stdo,ftox)'hhhhhhhh222',ngc,ntp0,nmtot
           !$acc kernels
-          zmelt(nbloch+1:nbloch+ngc,nm1v:nm2v,ncc+1:ncc+ntp0) = zmelt_d(1:ngc,nm1v:nm2v,1:ntp0)
+          zmelt(nbloch+1:nbloch+ngc,nm1v:nm2v,ncc+1:ncc+ntp0) = cmplx(zmelt_d_dp(1:ngc,nm1v:nm2v,1:ntp0), kind=kp)
           !$acc end kernels
           !$acc end data
           if(debug) call writemem('mmmmm_zmel333')
-          deallocate(zmelp0)
-          deallocate(zmelt_d)
+          deallocate(zmelt_d_dp)
         endblock ZmelIPW
       endif ZmelIPWif
       if(debug) call writemem('mmmmm_zmel endof ZmelIPWif')
