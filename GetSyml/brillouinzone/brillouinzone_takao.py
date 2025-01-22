@@ -373,7 +373,7 @@ def plotws(b1,b2,b3):
         iii = ilr[7]
         eee = ilr[8]
         text = [iii,eee]
-        print('k points=',text)
+        print('symline=',text)
         add_arrow(fig, x[0], x[1], x[2], y[0], y[1], y[2],text,lwid=4,linecolor='red',warrow=True,asize=asize)
     fig.write_html("./BZ.html") 
     fig.show()

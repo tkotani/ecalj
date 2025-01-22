@@ -20,10 +20,10 @@ if os.system('lmchk '+sys.argv[1]+'> outlmchk'):
     print ('ERROR: lmchk failed. Do you have ctrl.'+sys.argv[1]+'?')
     sys.exit(-1)
 
-
 #sys.exit()
 #os.system('grep Plat -A3 outlmchk > plinfo')
 plfile = open('PlatQlat.chk','r').read().split('\n')
+
 i=0
 plat=['']*3
 for iline in plfile:
@@ -51,8 +51,7 @@ for i in range(0,3):
                 sys.exit(-1)
 
 ###
-aaa='"Site     Spec            Rmax"'
-#os.system('grep -A10000 '+aaa+ ' outlmchk > siteinfo')
+aaa='"Site     Spec            Rmax"' #os.system('grep -A10000 '+aaa+ ' outlmchk > siteinfo')
 sitefile = open('SiteInfo.lmchk','r').read().split('\n')
 
 i=0
