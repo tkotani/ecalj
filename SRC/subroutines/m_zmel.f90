@@ -537,7 +537,7 @@ contains
           !$acc end kernels
           !$acc end data
           if(debug) call writemem('mmmmm_zmel333')
-          deallocate(zmelt_d_dp)
+          deallocate(zmelt_d_dp, zmelp0_dp)
         endblock ZmelIPW
       endif ZmelIPWif
       if(debug) call writemem('mmmmm_zmel endof ZmelIPWif')
