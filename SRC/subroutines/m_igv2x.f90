@@ -3,6 +3,7 @@ module m_igv2x
   use m_lgunit,only:stdo
   use m_struc_def,only: s_nv2
   public:: m_igv2xall_init, m_igv2x_setiq
+  integer,protected,public:: nbandmx
   integer,protected,pointer,public :: igv2x(:,:)
   integer,protected,pointer,public :: napw,ndimh,ndimhx
   integer,allocatable,target,protected,public:: ndimhall(:)
@@ -35,6 +36,7 @@ contains
        ndimhall(iq)= ndimh_z
        ndimhxall(iq)=ndimhx_z
     enddo
+    nbandmx=maxval(ndimhall)
     call tcx('m_igv2xall_init')
   end subroutine m_igv2xall_init
   subroutine m_igv2x_init(qp) !Set napw and igv2x_z for given qp

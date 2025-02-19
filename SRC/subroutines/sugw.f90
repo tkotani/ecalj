@@ -21,7 +21,7 @@ contains
     use m_mkpot,only: smpot=>osmpot, vconst !, vesrmt
     use m_mkpot,only: osig, otau, oppi, ohsozz,ohsopm, oppix,spotx
     use m_MPItk,only: numproc=>nsize,procid,master,master_mpi,comm
-    use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_setiq,ndimhall
+    use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_setiq,ndimhall,nbandmx
     use m_elocp,only: rsmlss=>rsml, ehlss=>ehl
     use m_qplist,only: qplist,ngplist,ngvecp,iqibzmax,niqisp,iqproc,isproc
     use m_hamindex0,only: Readhamindex0, nlindx,nclass,iclass=>iclasst,lindx,nindx,nphimx
@@ -34,7 +34,8 @@ contains
     use m_hambl,only: hambl
     use m_rdata1,only:rdata1init,nradmx,nnc,nrad,nindx_r,lindx_r,iord,nvmax,nrc,mindx,&
          gval_n,gcore_n,aac,bbc,gval_orth,zzpi,nrmxe=>nrmx
-    use m_suham,only: nbandmx=>ham_ndhamx
+!    use m_suham,only: nbandmx=>ham_ndhamx
+
     use m_blas,only: zmm => zmm_h, m_op_T
     implicit none
     intent(in)::          socmatrix,eferm,vmag,qval
