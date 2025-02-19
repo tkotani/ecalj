@@ -34,7 +34,6 @@ contains
     use m_hambl,only: hambl
     use m_rdata1,only:rdata1init,nradmx,nnc,nrad,nindx_r,lindx_r,iord,nvmax,nrc,mindx,&
          gval_n,gcore_n,aac,bbc,gval_orth,zzpi,nrmxe=>nrmx
-!    use m_suham,only: nbandmx=>ham_ndhamx
 
     use m_blas,only: zmm => zmm_h, m_op_T
     implicit none
@@ -674,7 +673,6 @@ contains
     if(master_mpi.and.(.not.cmdopt0('--skipCPHI'))) then       !call rdata4gw() !Generate other files for GW
       rdata4gwblock: block
         use m_nvfortran,only:findloc
-        use m_suham,only: ham_ndham
         use m_read_bzdata,only: Read_bzdata, nqibz,qibz, nq0i,nq0iadd,q0i,iq0pin
         use m_pwmat,only: mkppovl2
         use m_qplist,only: qirr=>qplist
