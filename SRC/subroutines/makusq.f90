@@ -7,8 +7,7 @@ contains
   subroutine makusq(nsites,isite,nev,ispin,iq,q,evec, auszall)!Accumulate coefficients (u,s,z) in all augmentation spheres for evec(:,iq,isp)
     !note. For SO=1, ispin is neglected (all spin components are calculated simultaneously).
     use m_lmfinit,only: ispec,nbas,nlmax,nsp,nspc,nkapii,lhh,rsma,lso
-    use m_suham,only: ndham=>ham_ndham
-    use m_igv2x,only: ndimh 
+    use m_igv2x,only: ndimh,nbandmx 
     use m_uspecb,only:uspecb
     use m_orbl,only: Orblib,ktab,ltab,offl,norb,blks
     use m_bstrux,only: bstrux_set,bstr
@@ -19,7 +18,7 @@ contains
     integer:: ispin,iq,nev,nsites,isite(nsites),ib,nkapi,is,nr,kmax,lmxa,lmxl,lmxh,i,nlma
     real(8):: q(3),eh(n0,nkap0),rsmh(n0,nkap0),a,rmt
     complex(8):: evec(ndimh,nspc,nev) !ndimhx = ndimh*nspc (Hamiltonian dimension). 
-    complex(8),target:: auszall(nlmax,ndham*nspc,3,nsp,nsites,iq)
+    complex(8),target:: auszall(nlmax,nbandmx,3,nsp,nsites,iq)
     auszall=0d0
     call tcn ('makusq')
     do  i = 1, nsites

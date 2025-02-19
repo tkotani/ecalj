@@ -1,13 +1,13 @@
 !>band structure calculation !How to learng this? Instead of reading all sources, understand I/O. See bndfp.f90 and 'use m_bandcal'.
 module m_bandcal 
   use m_lgunit,only:stdo,stdl
-  use m_lmfinit,only: lmxa_i=>lmxa,rmt_i=>rmt,afsym
+  use m_lmfinit,only: lmxa_i=>lmxa,rmt_i=>rmt,afsym,nspx
   use m_struc_def,only: s_rv1,s_rv5
-  use m_suham,  only: ndhamx=>ham_ndhamx,nspx=>ham_nspx
+  use m_suham,  only: ndhamx=>ham_ndhamx !,nspx=>ham_nspx
   use m_qplist, only: nkp
   use m_mkqp,only: ntet=> bz_ntet, bz_nabc
   use m_qplist,only: qplist,niqisp,iqproc,isproc
-  use m_igv2x,only: m_igv2x_setiq, napw,ndimh,ndimhx,igv2x
+  use m_igv2x,only: m_igv2x_setiq, napw,ndimh,ndimhx,igv2x,nbandmx
   use m_lmfinit,only: lrsig=>ham_lsig, lso,ham_scaledsigma,lmet=>bz_lmet,nbas,epsovl=>ham_oveps,nspc,plbnd,lfrce
   use m_lmfinit,only: pwmode=>ham_pwmode,pwemax,nsp,nlibu,lmaxu,lmxax
   use m_MPItk,only: master_mpi, procid,strprocid, numprocs=>nsize
@@ -395,7 +395,7 @@ contains
     real(8):: suml(11),s11,s22,s12,s33,s31,s32,s13,s23, suma,rmt,orbtm(lmxax+1,nsp,*) 
     complex(8):: au,as,az,iot=(0d0,1d0),evec(ndimh,nsp,nev),auasaz(3)
     complex(8),allocatable ::aus(:,:,:,:,:)
-    allocate(aus(nlmax,ndham*nspc,3,nsp,nbas))
+    allocate(aus(nlmax,nbandmx,3,nsp,nbas))
     call makusq(nbas,[-999], nev, isp,1,qp,evec, aus )
     ichan = 0
     ibloop: do  ib = 1, nbas
@@ -483,7 +483,7 @@ contains
     double complex add,au,as,az,ap1,ap2
     double precision :: dlphi,rmt,dlphip,phi,phip,dphi,dphip,r(2,2),det,phz,dphz
     integer :: lmxa,ilm1,ilm2,l,iv,m1,m2,ib,is,igetss,iblu,ispc, ksp
-    complex(8) ::aus(nlmax,ndham*nspc,3,nsp,nbas), evec(ndimh,nsp,nev)
+    complex(8) ::aus(nlmax,nbandmx,3,nsp,nbas), evec(ndimh,nsp,nev)
     real(8)::qp(3)
     complex(8):: auas(2)
     call makusq(nbas,[0] , nev,  isp, 1, qp, evec, aus )

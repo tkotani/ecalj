@@ -41,8 +41,8 @@ contains
     use m_mixrho,only: mixrho
     use m_bndfp_util,only: mkekin,makdos,phispinsym_ssite_set,iorbtm
     use m_supot,only: n1,n2,n3 !for charge mesh
-    use m_suham,only: ndhamx=>ham_ndhamx,nspx=>ham_nspx !nspx=nsp/nspc
-    use m_lmfinit,only: ncutovl,lso,ndos=>bz_ndos,bz_w,fsmom=>bz_fsmom, bz_dosmax,lmet=>bz_lmet,bz_fsmommethod,bz_n
+    use m_suham,only: nbandmx=>ham_ndhamx !,nspx=>ham_nspx !nspx=nsp/nspc
+    use m_lmfinit,only: ncutovl,lso,ndos=>bz_ndos,bz_w,fsmom=>bz_fsmom, bz_dosmax,lmet=>bz_lmet,bz_fsmommethod,bz_n,nspx
     use m_lmfinit,only: ldos,qbg=>zbak,lfrce,pwmode=>ham_pwmode,lrsig=>ham_lsig,epsovl=>ham_oveps !try to avoid line continuation in fortran
     use m_lmfinit,only: ham_scaledsigma, alat=>lat_alat, nlmax,nbas,nsp, bz_dosmax,nlmxlx,afsym
     use m_lmfinit,only: lmaxu,nlibu,lldau,lpztail,leks,lrout,  nchan=>pot_nlma, nvl=>pot_nlml,pnufix !lmfinit contains fixed input 
@@ -101,7 +101,7 @@ contains
     !l   n1,n2,n3: dimensions smrho,smpot.
     !!      nspx: number of independent spin channels
     !!      !!!nspc is now avoided (memo:nspc=2 for lso==1, nspc=1 for lso/=1 See m_lmfinit)
-    !!      ndhamx: maximum size of hamiltonian
+    !!      nbandmx: maximum size of hamiltonian
     !r How bndfp works?
     !r   (1) m_mkpot_init   make the effective potential,
     !r   (2) m_bandcal_init generate eigenvalues (and eigenvectors if lrout), then m_bzintegration_init
@@ -193,12 +193,12 @@ contains
     call mpibc2_int(ndimhx_,size(ndimhx_),'bndfp_ndimhx_') 
     call mpibc2_int(nevls,  size(nevls),  'bndfp_nevls')   
     if(afsym) then
-       call xmpbnd2(kpproc,ndhamx,nkp,evlall(:,1,:)) !all eigenvalues are distributed ndhamx blocks
-       call xmpbnd2(kpproc,ndhamx,nkp,evlall(:,2,:)) 
+       call xmpbnd2(kpproc,nbandmx,nkp,evlall(:,1,:)) !all eigenvalues are distributed nbandmx blocks
+       call xmpbnd2(kpproc,nbandmx,nkp,evlall(:,2,:)) 
     else   
-       call xmpbnd2(kpproc,ndhamx,nkp*nspx,evlall)   !all eigenvalues broadcasted !note (iq,isp) order in m_qplist.f90
+       call xmpbnd2(kpproc,nbandmx,nkp*nspx,evlall)   !all eigenvalues broadcasted !note (iq,isp) order in m_qplist.f90
     endif   
-    if(lso==1) call xmpbnd2(kpproc,ndhamx*2,nkp,spinweightsoc)   !all eigenvalues broadcasted
+    if(lso==1) call xmpbnd2(kpproc,nbandmx*2,nkp,spinweightsoc)   !all eigenvalues broadcasted
     nevmin = minval(nevls(1:nkp,1:nspx))
     BandPLOTmode: block
       fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') ! pdos mode (--mkprocar and --fullmesh)
@@ -263,7 +263,7 @@ contains
           !      write(stdo,ftox)'iq jsp=',iq,jsp,nevmin,nevls(iq,jsp)
           !      write(stdo,"('fp evl',8f8.4)")(evlall(i,jsp,iq),i=1,nevmin) !ls(iq,jsp))
           !   enddo          !enddo
-          call bzints(nnn,evlall,dum,nkp, nevmin,ndhamx,nsp,dosw(1),dosw(2), dosi_rv,ndos,xxx,1,ntet,iv_a_oidtet,dumx,dumx,&
+          call bzints(nnn,evlall,dum,nkp, nevmin,nbandmx,nsp,dosw(1),dosw(2), dosi_rv,ndos,xxx,1,ntet,iv_a_oidtet,dumx,dumx,&
           !                                                                               job=1 give IntegratedDos to dosi_rv
                spinweightsoc) !2024-5-10           !write(stdo,ftox)'xxx dosi rv=',sum(dosi_rv)
           dos_rv(2:ndos-1,:)=(dosi_rv(3:ndos,:)-dosi_rv(1:ndos-2,:))/(2d0*(dosw(2)-dosw(1))/(ndos-1))
@@ -271,7 +271,7 @@ contains
           dos_rv(ndos,:) = dos_rv(ndos-1,:)
           write(stdo,ftox)'iq jsp=',ndos,'dosw=',ftof(dosw),sum(dos_rv),sum(dosi_rv)
        else
-          call makdos(nkp,nevmin,ndhamx,nsp,rv_a_owtkp,evlall,bz_n,bz_w,-6d0,dosw(1),dosw(2),ndos,dos_rv) !ndmahx=>nevmin
+          call makdos(nkp,nevmin,nbandmx,nsp,rv_a_owtkp,evlall,bz_n,bz_w,-6d0,dosw(1),dosw(2),ndos,dos_rv) !ndmahx=>nevmin
        endif
        head='temp.'
        if(tdos)head=''
@@ -310,7 +310,7 @@ contains
     CorelevelSpectroscopy2: if(cmdopt0('--cls')) then !m_clsmode_set1 is called in m_bandcal
        dosw(1)= emin  - 0.5d0     ! lowest energy limit to plot dos
        dosw(2)= eferm + bz_dosmax ! highest energy limit to plot dos
-       call m_clsmode_finalize(eferm,ndimh,ndhamx,nspx,nkp,dosw,evlall)
+       call m_clsmode_finalize(eferm,ndimh,nbandmx,nspx,nkp,dosw,evlall)
        call rx0('Done cls mode:')
     endif CorelevelSpectroscopy2
     if(lso/=0)   call iorbtm() !WriteOribitalMoment

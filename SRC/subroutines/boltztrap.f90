@@ -1,14 +1,13 @@
 subroutine writeboltztrap(eferm) !write input file for boltztrap !test by gomi at year2020 around
   use m_lgunit,only:stdo
-  use m_lmfinit,only: nlmax,nsp,nbas,nlmax,nspc,qbg=>zbak,alat=>lat_alat
-  use m_suham,only: ndhamx=>ham_ndhamx,ndham=>ham_ndham
+  use m_lmfinit,only: nlmax,nsp,nbas,nlmax,nspc,qbg=>zbak,alat=>lat_alat,nspx
   use m_MPItk,only: master_mpi, numprocs=>nsize,procid
   use m_qplist,only: nkp,xdatt,qplist
-  use m_suham,only: nspx=>ham_nspx
   use m_mkpot,only:  qval
   use m_ext,only: sname
   use m_hamindex, only: ngrp,symops !,norbmto,ibastab,ltab,ktab,offl, symops_af
   use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, plat=>lat_plat,pos=>rv_a_opos
+  use m_igv2x,only: nbandmx 
 !  real(8):: evlall(:,:,:)
   use m_bandcal,only: evlall
   character strn*120,strn2*120
@@ -19,7 +18,7 @@ subroutine writeboltztrap(eferm) !write input file for boltztrap !test by gomi a
   !iqread=0
   !  if( cmdopt('--boltztrap',11,0,strn) .and. master_mpi) then
   !iqindex = index(strn(12:),'nb=')+2
-  nbandx = ndhamx
+!  nbandx = ndhamx
   !if(iqindex/=2) then
   !   read(strn(12+iqindex:),*) nbandx
   !   nbandx=min(nbandx,ndhamx)

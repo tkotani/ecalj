@@ -11,7 +11,6 @@ contains
     use m_lgunit,only:stdo
     use m_lmfinit,only: zz=>z,nris=>nr,lmxa,rmt,spec_a
     use m_ext,only:   sname
-    use m_suham,only: ndham=>ham_ndham !max dimension of hamiltonian +napwad (for so=0,2)
     use m_lmfinit,only: ham_pwmode,pwemax,ham_oveps,lrsig=>ham_lsig,nlmto,lso,nspx !nspx=nsp/nspc
     use m_lmfinit,only: ham_scaledsigma,alat=>lat_alat,nsp,nspc,ispec,nspec,pos
     use m_lmfinit,only: nbas,n0,nppn,nkap0,slabl,nmcorex=>nmcore,iantiferro,lmxax,nrmx, lmxax
@@ -121,7 +120,7 @@ contains
     if(cmdopt0('--wanatom').and.master_mpi) wanatom=.true. 
     if(wanatom) then ! 'wanplotatom.dat' is originally a part of gwa and gwb.head. only for wanplot which will be unsupported.
       open(newunit=ifigwa,file='wanplotatom.dat',form='unformatted') 
-      write(ifigwa)nbas,nsp,ndima,ndham,maxval(lmxa),ncoremx,nrmx,plat,alat!,nqirr,nqibz
+      write(ifigwa)nbas,nsp,ndima,nbandmx,maxval(lmxa),ncoremx,nrmx,plat,alat!,nqirr,nqibz
       write(ifigwa)bas,lmxa(ispec(1:nbas)) !,ndimaa(1:nbas) !,qplist,ngplist,ndimhall,qval
     endif
     if(master_mpi) write(stdo,ftox)' Generate radial wave functions ncoremx,nphimx=',ncoremx,nphimx
@@ -338,7 +337,7 @@ contains
         use m_locpot,only: rotp
         use m_mkpot,only : sab_rv
         integer:: ilm,im,iv
-        complex(8):: auasaz(3),aus_zv(nlmax,ndham*nspc,3,nsp,nbas),usz(3)
+        complex(8):: auasaz(3),aus_zv(nlmax,nbandmx,3,nsp,nbas),usz(3)
         real(8)::aaa
         call makusq(nbas,[-999], nev,  isp, 1,qp,reshape(evec(1:ndimhx,1:nev),[ndimh,nspc,nev]), aus_zv )
         cphiw=0d0

@@ -1,8 +1,8 @@
 !>CLS: Core-level spectroscopy !We use CLSinput instead of --cls option.
 module m_clsmode 
   use m_lmfinit, only: lmet=>bz_lmet,nbas,nsp,nlmax,nspc,lso
+  use m_igv2x,only: nbandmx
   use m_lgunit,only:stdo
-  use m_suham,only:   ndham=>ham_ndham
   use m_mkqp,only: nkp=>bz_nkp
   use m_MPItk,only: master_mpi
   use m_ftox,only: ftox
@@ -13,7 +13,7 @@ contains
   subroutine m_clsmode_init()
     logical:: cmdopt0
     character(10):: i2char
-    integer::ndhamx,i,ific
+    integer::i,ific
     character strn*120, clsopt*120
     character(512):: aaachar
     !! --- Options for core level specta (CLS) ---
@@ -31,18 +31,18 @@ contains
        do i=1,nsites
           write(stdo,ftox)'clsmode for',isite(i),iclsl(i),iclsn(i),' ! site,core-l,core-n'
        enddo
-       if (16*3*nlmax*ndham*nbas*nsp*nkp/1000000 > 24 .AND. master_mpi) then ! this path is go through by crn test.
+       if (16*3*nlmax*nbandmx*nbas*nsp*nkp/1000000 > 24 .AND. master_mpi) then ! this path is go through by crn test.
           aaachar= &
-               ' CLS: '//trim(i2char( 16*3*nlmax*ndham*nsites*nsp*nkp/1000000))// &
+               ' CLS: '//trim(i2char( 16*3*nlmax*nbandmx*nsites*nsp*nkp/1000000))// &
                ' Mb memory for aus: nlmax='//trim(i2char( nlmax))// &
-               ' ndham='  //trim(i2char( ndham))// &
+               ' nbandmx='  //trim(i2char( nbandmx))// &
                ' nsistes='//trim(i2char( nsites))// &
                ' nsp='    //trim(i2char( nsp))// &
                ' nkp='    //trim(i2char( nkp))
           write(6,"(a)") aaachar
        endif
-       allocate(ausc_zv(3*nlmax*ndham*nsites*nsp*nkp))
-       allocate(ausc(3*nlmax*ndham*nsites*nsp*nkp))
+       allocate(ausc_zv(3*nlmax*nbandmx*nsites*nsp*nkp))
+       allocate(ausc(3*nlmax*nbandmx*nsites*nsp*nkp))
        ausc_zv=0d0
     else
        icls = 0
@@ -60,13 +60,13 @@ contains
     ausc_zv = ausc_zv + ausc
   end subroutine m_clsmode_set1
 
-  subroutine m_clsmode_finalize(bz_ef,ndimh,ndhamx,nspx,nkp,dosw,evlall)
-  use m_vcdmel,only:vcdmel
-    integer:: ndimh,ndhamx,nspx,nkp
+  subroutine m_clsmode_finalize(bz_ef,ndimh,nbandmx,nspx,nkp,dosw,evlall)
+    use m_vcdmel,only:vcdmel
+    integer:: ndimh,nbandmx,nspx,nkp
     real(8),intent(in) :: bz_ef,dosw(2)
-    real(8):: eferm,evlall(ndhamx,nspx,nkp)
+    real(8):: eferm,evlall(nbandmx,nspx,nkp)
     call mpibc2_complex(ausc_zv,size(ausc_zv),'ausc_zv') !2023jan fixed for TestInstall/crn
     eferm=bz_ef
-    if(master_mpi) call vcdmel(nlmax,ndham,ndimh,nkp,nsp,nspc,eferm,evlall,ausc_zv,nsites,isite,iclsl,iclsn,dosw)
+    if(master_mpi) call vcdmel(nlmax,ndimh,nkp,nsp,nspc,eferm,evlall,ausc_zv,nsites,isite,iclsl,iclsn,dosw)
   end subroutine m_clsmode_finalize
 end module m_clsmode

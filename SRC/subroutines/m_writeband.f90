@@ -6,9 +6,9 @@ module m_writeband
 contains
   subroutine writeband(evlall,eferm,evtop,ecbot,spinweightsoc) !write band file. bnd* and bandplot.isp*.glt
     use m_lgunit,only:stdo
-    use m_lmfinit,only:nsp,alat=>lat_alat,lso
+    use m_lmfinit,only:nsp,alat=>lat_alat,lso,nspx
     use m_qplist,only: nkp,nsyml,xdatt,nqp_syml,nqp2n_syml,qplist,labeli,labele,nqps_syml,nqpe_syml,dqsyml,etolv,etolc
-    use m_suham,only: ndham=>ham_ndham, ndhamx=>ham_ndhamx,nspx=>ham_nspx
+    use m_suham,only: ndhamx=>ham_ndhamx !,nspx=>ham_nspx ndham=>ham_ndham, 
     use m_bandcal,only:nevls
     use m_ext,only: sname,dirname
     implicit none
@@ -270,10 +270,10 @@ contains
     enddo
   end function ichangesign
   subroutine writefs(evlall,eferm,spinweightsoc)!Fermi surface mode (eigenvalues in full BZ). No output variables.
-    use m_lmfinit, only: nsp,nspc,lso
+    use m_lmfinit, only: nsp,nspc,lso,nspx
     use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat
     use m_mkqp,only: bz_nabc
-    use m_suham,only: ndhamx=>ham_ndhamx,nspx=>ham_nspx
+    use m_suham,only: ndhamx=>ham_ndhamx !,nspx=>ham_nspx
     use m_qplist,only:nkp,qplist
     use m_shortn3_qlat,only: shortn3_qlat,nout,nlatout
     implicit none

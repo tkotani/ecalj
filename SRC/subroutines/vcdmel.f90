@@ -3,7 +3,8 @@ module m_vcdmel! Valence-core dipole matrix elements
   public vcdmel
   private
 contains  
-  subroutine vcdmel(nlmax,ndham,ndimh,nq,nsp,nspc,ef,evl,aus,nsite,isite,iclsl,iclsn,dosw)! Valence-core dipole matrix elements
+  subroutine vcdmel(nlmax,ndimh,nq,nsp,nspc,ef,evl,aus,nsite,isite,iclsl,iclsn,dosw)! Valence-core dipole matrix elements
+    use m_suham,only:  ndham=>ham_ndham
     use m_lmfinit,only: rv_a_ocg,iv_a_ojcg,iv_a_oidxcg,ispec,n0,lmxax
     use m_mkqp,only: iv_a_oidtet ,bz_nabc, bz_ntet
     use m_struc_def
@@ -12,6 +13,7 @@ contains
     use m_elocp,only: rsmlss=>rsml,ehlss=>ehl
     use m_density,only: v0pot,pnuall,pnzall
     use m_makusp,only: makusp
+    use m_igv2x,only: nbandmx
     !i   nlmax :first dimension of aus; largest augmentation (l+1)^2
     !i   ndham :second dimension of aus, at least as large as ndimh
     !i   ndimh :number of eigenvalues
@@ -27,8 +29,8 @@ contains
     !NOTE: lmxa=-1 -> no augmentation
     ! ----------------------------------------------------------------------
     implicit none
-    integer:: nlmax,ndham,ndimh,nq,nsp,nspc,nsite, isite(nsite),iclsl(nsite),iclsn(nsite)
-    real(8):: ef,evl(ndham,nsp,nq)
+    integer:: nlmax,ndimh,nq,nsp,nspc,nsite, isite(nsite),iclsl(nsite),iclsn(nsite)
+    real(8):: ef,evl(nbandmx,nsp,nq)
     integer:: ifi,isp,ib,is,lcls,ncls,i,j,nr,lmxa,iq,nlma,igets,igetss,i1mach,nfstg,nchan
     integer:: nbandx,nspx,npts,ifid,ikp,ichib,ifdos,ie,ild, lh(10)
     real(8),allocatable :: rofi_rv(:), ul_rv(:), sl_rv(:), gz_rv(:),ruu_rv(:), rus_rv(:),rss_rv(:), g_rv(:), s_rv(:,:,:)
@@ -37,7 +39,7 @@ contains
     character clabl*8
     logical:: lidos
     real(8),allocatable:: wk_rv(:),dos_rv(:,:,:)
-    complex(8):: aus(nlmax,ndham,3,nsp,nsite,nq)
+    complex(8):: aus(nlmax,nbandmx,3,nsp,nsite,nq)
     call tcn ('vcdmel')
     rsml=0d0
     ehl=0d0 
