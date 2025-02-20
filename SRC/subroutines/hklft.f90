@@ -20,9 +20,10 @@ subroutine hklft(v,rsm,e,tau,alat,kmax,nlm,k0,cy,hkl)! Returns one Fourier compo
   gam = .25d0*rsm**2
   call sylm(v*2*pi/alat, yl, ll(nlm), v2)
   hkl(0,:) = -4d0*pi*exp(gam*(e-v2))/(e-v2)*exp(-2d0*pi*img*sum(tau*v)) * [((-img)**ll(ilm)*cy(ilm)*yl(ilm), ilm=1,nlm)]
-  do k = 1, kmax
-     hkl(k,:) = (-v2)**k*hkl(0,:)
-  enddo
+  hkl(1:kmax,:) = matmul(spread([((-v2)**k,k=1,kmax)],dim=2,ncopies=1), transpose(spread(hkl(0,:),dim=2,ncopies=1)))
+  !do k = 1, kmax
+  !   hkl(k,:) = (-v2)**k*hkl(0,:)
+  !enddo
 end subroutine hklft
 subroutine gklft(v,rsm,e,tau,alat,kmax,nlm,k0,cy,gkl)! Returns one Fourier component of gaussians Gkl centered at tau.
   use m_ll,only:ll
@@ -46,7 +47,8 @@ subroutine gklft(v,rsm,e,tau,alat,kmax,nlm,k0,cy,gkl)! Returns one Fourier compo
   gam = 0.25d0*rsm**2
   call sylm(v(:)*2d0*pi/alat,yl, ll(nlm), v2)
   gkl(0,:) = exp(gam*(e-v2)) * exp(-2d0*img*pi*sum(tau*v)) * [((-img)**ll(ilm)*cy(ilm)*yl(ilm),  ilm=1,nlm)]
-  do k = 1, kmax
-     gkl(k,:) = (-v2)**k *gkl(0,:)
-  enddo
+  gkl(1:kmax,:) = matmul(spread([((-v2)**k,k=1,kmax)],dim=2,ncopies=1), transpose(spread(gkl(0,:),dim=2,ncopies=1)))
 end subroutine gklft
+!  do k = 1, kmax
+!     gkl(k,:) = (-v2)**k *gkl(0,:)
+!  enddo

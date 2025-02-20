@@ -232,20 +232,23 @@ contains
     endif
     ! --- <e^i qpG | V |e^i qpG'>/vol = V(G'-G) ---
     if (napw > 0) then
-       call fftz3(vsm(1,1,1,isp),n1,n2,n3,k1,k2,k3,1,0,-1)
-       do  ig1 = 1, napw
-          i1 = ig1+nlmto
-          do  ig2 = ig1, napw
-             i2 = ig2+nlmto
-             igx = igapw(:,ig1) - igapw(:,ig2)
-             igx1 = mod(igx(1)+10*n1,n1)
-             igx2 = mod(igx(2)+10*n2,n2)
-             igx3 = mod(igx(3)+10*n3,n3)
-             if (igx1<0 .OR. igx2<0 .OR. igx3<0) call rx('igx<0')
-             h(i1,i2) = h(i1,i2) + vsm(igx1+1,igx2+1,igx3+1,isp)
-          enddo
-       enddo
-       call fftz3(vsm(1,1,1,isp),n1,n2,n3,k1,k2,k3,1,0,1)
+       block
+         complex(8),allocatable:: vsmf(:,:,:)
+         allocate(vsmf,source=vsm(:,:,:,isp))
+         call fftz3(vsmf,n1,n2,n3,k1,k2,k3,1,0,-1)
+         do  ig1 = 1, napw
+            i1 = ig1+nlmto
+            do  ig2 = ig1, napw
+               i2 = ig2+nlmto
+               igx = igapw(:,ig1) - igapw(:,ig2)
+               igx1 = mod(igx(1)+10*n1,n1)
+               igx2 = mod(igx(2)+10*n2,n2)
+               igx3 = mod(igx(3)+10*n3,n3)
+               if (igx1<0 .OR. igx2<0 .OR. igx3<0) call rx('igx<0')
+               h(i1,i2) = h(i1,i2) + vsmf(igx1+1,igx2+1,igx3+1)
+            enddo
+         enddo
+       endblock !   call fftz3(vsm(1,1,1,isp),n1,n2,n3,k1,k2,k3,1,0,1)
     endif
     do  i = 1, ndimh
        h(i:ndimh,i) = dconjg(h(i,i:ndimh)) ! ... Occupy second half of matrix
