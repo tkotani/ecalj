@@ -55,8 +55,10 @@ contains
     use m_lmfinit,only: pwmode=>ham_pwmode,pwemax,ldim=>nlmto,noutmx,nsp,alat=>lat_alat,nbas,ispec,n0,nkap0,zbak,slabl,z
     use m_lmfinit,only: kxx,lxx,norbmto,lmxax,ltab,ktab,offl,offlrev,ibastab
     use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat,rv_a_opos
-    use m_suham,only: ndham=>ham_ndham !max dimension of hamiltonian +napwad (for so=0,2)
-    use m_lmfinit,only:norbx,ltabx,ktabx,offlx,lmxax
+    use m_igv2x,only: ndhamx=>nbandmx
+    
+!    use m_suham,only: ndham=>ham_ndham !max dimension of hamiltonian +napwad (for so=0,2)
+    use m_lmfinit,only:norbx,ltabx,ktabx,offlx,lmxax,nspc
     use m_MPItk,only: master_mpi,comm
     use m_lgunit,only:stdo
     use m_ftox
@@ -76,18 +78,19 @@ contains
     real(8),allocatable:: symtmp(:,:,:)
     logical:: qpgexist
     character(8)::  spid(nbas)
-    integer:: ndima,npqn,ificlass,ipqn,ifinlaindx,isp,konf,ngall,info
+    integer:: ndima,npqn,ificlass,ipqn,ifinlaindx,isp,konf,ngall,info,ndham
     logical,save:: done=.false.
     character(1):: lorb(1:3)=['p','d','l'],dig(1:9)=['1','2','3','4','5','6','7','8','9']
     character(1):: lsym(0:n0-1)=['s','p','d','f','g','5','6','7','8','9']
     character(256)::aaa
     include 'mpif.h'
     call tcn('m_hamindex_init')
+    ndham=ndhamx/nspc
     if(.not.master_mpi) goto 9999
     if(done) call rx('writehamindex is already done')
     done=.true.
     open(newunit=ifi,file='HAMindex',form='unformatted')
-    write(ifi)ngrp,nbas,kxx,lxx,norbmto,pwmode,zbak,ndham,AFmode,ngrpAF
+    write(ifi)ngrp,nbas,kxx,lxx,norbmto,pwmode,zbak,ndham,AFmode,ngrpAF !ndham,AFmode,ngrpAF
     ngall=ngrp+ngrpAF
     write(ifi)symops(:,:,1:ngall),ag(:,1:ngall),invgx(1:ngall),miat(:,1:ngall),tiat(:,:,1:ngall),shtvg(:,1:ngall)
     write(ifi)lmxax

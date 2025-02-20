@@ -16,7 +16,6 @@ contains
     use m_lmfinit,only: ispec,nsp,lfrce,lrout,nbas
     use m_bandcal,only: oqkkl,oeqkkl,frcband
     use m_mkpot,only: hab_rv,sab_rv
-    use m_suham,only: ham_ndham
     use m_rhocor,only: getcor
     integer:: ib,is,nr,lmxl,nlml
     call tcn('m_mkrout_init')

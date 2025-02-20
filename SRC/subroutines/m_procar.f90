@@ -1,9 +1,8 @@
 !>for writing PROCAR (VASP format)
 module m_procar 
   use m_lgunit,only:stdo
-  use m_lmfinit,only: nlmax,nsp,nbas,ispec,nspc,n0,lmxa_i=>lmxa,afsym,lso
-  use m_suham,only: ndham=>ham_ndham,ndhamx=>ham_ndhamx,nspx=>ham_nspx
-  use m_igv2x,only: igv2x,napw
+  use m_lmfinit,only: nlmax,nsp,nbas,ispec,nspc,n0,lmxa_i=>lmxa,afsym,lso,nspx
+  use m_igv2x,only: igv2x,napw,ndhamx=>nbandmx
   use m_mkpot,only: sab_rv 
   use m_MPItk,only: master_mpi, strprocid, numprocs=>nsize,procid,xmpbnd2
   use m_qplist,only: nkp,xdatt,qplist
@@ -93,7 +92,7 @@ contains
 
        if(isp==1) iprocar=iprocar1
        if(isp==2) iprocar=iprocar2
-       if(debug) write(stdo,*) 'm_procar',iprocar1,iprocar2,isp,iprocar,ef0,nlmax,ndham,nspc,nsp,nbas
+       if(debug) write(stdo,*) 'm_procar',iprocar1,iprocar2,isp,iprocar,ef0,nlmax,ndhamx,nspc,nsp,nbas
        ccc="ion        s       py       pz       px      dxy      dyz      dz2      dxz   dx2-y2"// &
             "      f-3      f-2      f-1       f0       f1       f2       f3      "//&
             "                                                                               tot"

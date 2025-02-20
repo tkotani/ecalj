@@ -263,7 +263,7 @@ contains
           !      write(stdo,ftox)'iq jsp=',iq,jsp,nevmin,nevls(iq,jsp)
           !      write(stdo,"('fp evl',8f8.4)")(evlall(i,jsp,iq),i=1,nevmin) !ls(iq,jsp))
           !   enddo          !enddo
-          call bzints(nnn,evlall,dum,nkp, nevmin,nbandmx,nsp,dosw(1),dosw(2), dosi_rv,ndos,xxx,1,ntet,iv_a_oidtet,dumx,dumx,&
+          call bzints(nnn,evlall,dum,nkp, nevmin,nbandmx,nspx,nsp,dosw(1),dosw(2), dosi_rv,ndos,xxx,1,ntet,iv_a_oidtet,dumx,dumx,&
           !                                                                               job=1 give IntegratedDos to dosi_rv
                spinweightsoc) !2024-5-10           !write(stdo,ftox)'xxx dosi rv=',sum(dosi_rv)
           dos_rv(2:ndos-1,:)=(dosi_rv(3:ndos,:)-dosi_rv(1:ndos-2,:))/(2d0*(dosw(2)-dosw(1))/(ndos-1))

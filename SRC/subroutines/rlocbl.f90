@@ -21,7 +21,7 @@ contains
   !o   eqhh  :energy-weighted matrix
   !o   qpp   :local density matrix for PkL expansion 
   !o  eqpp   :energy-weighted local density matrix 
-  subroutine rlocbl(lfrce,nbas,isp, q,ndham,ndimh,nspc,napw,igvapw, nevec &
+  subroutine rlocbl(lfrce,nbas,isp, q,ndimh,nspc,napw,igvapw, nevec &
        ,evec,ewgt,evl,sv_p_osig,sv_p_otau,sv_p_oppi,lekkl,sv_p_oqkkl,sv_p_oeqkkl,f )
     use m_struc_def,only: s_rv1,s_cv1,s_rv5,s_rv4,s_cv5
     use m_lmfinit,only: alat=>lat_alat,ispec
@@ -35,7 +35,7 @@ contains
     !i   nbas  :size of basis
     !i   isp   :spin channel
     !i   q     :Bloch wave number
-    !i   ndham :leanding dimension of evl
+    !i   nbandmx :leanding dimension of evl
     !i   ndimh :dimension of evec
     !i   nspc  :2 for coupled spins; otherwise 1
     !i   napw  :number of G vectors in PW basis (gvlst2.f)
@@ -84,7 +84,7 @@ contains
     !r   so that the local part of the output density is
     !r      n1 - n2 = sum_kLk'L' qpp_kLk'L' (n1kLk'L' - n2kLk'L')
     implicit none
-    integer :: lfrce,nbas,isp,ndimh,nspc,nevec,lekkl, ndham,napw,igvapw(3,napw)
+    integer :: lfrce,nbas,isp,ndimh,nspc,nevec,lekkl, nbandmx,napw,igvapw(3,napw)
     integer :: is,nlmx,ktop0,npmx, kmaxx,nlmax,nlmto, ia,isa,ivec,kmax,lmxa,nlma,lmxha,nlmha,ispc,ksp
     type(s_cv5),target:: sv_p_oppi(3,nbas)
     type(s_rv4),target:: sv_p_otau(3,nbas)
@@ -92,7 +92,7 @@ contains
     type(s_rv5),target:: sv_p_oeqkkl(3,nbas), sv_p_oqkkl(3,nbas)
     real(8),pointer:: qpp(:,:,:,:,:),eqpp(:,:,:,:,:),qhp(:,:,:,:,:),qhh(:,:,:,:,:),eqhp(:,:,:,:,:),eqhh(:,:,:,:,:)
     real(8):: q(3),f(3,nbas)
-    real(8),target:: ewgt(nevec),evl(ndham,isp)
+    real(8),target:: ewgt(nevec),evl(nevec)
     complex(8),target:: evec(ndimh,nspc,nevec)
     real(8):: force(3,nbas)
     real(8),   pointer:: sigpp(:,:,:,:),   sighp(:,:,:,:) 
@@ -149,7 +149,7 @@ contains
                ksp = max(ispc,isp) !for lso=1, we use isp=1 only. thus ksp=ispc, for lso/=1, ksp=isp since nspc=1
                evecc=> evec(1:ndimh,ispc,ivec)
                ewgtt=> ewgt(ivec)
-               evll => evl(ivec,isp)
+               evll => evl(ivec)
                ! do  k = 0, kmax
                !    cPkL(k,:) =  matmul(evec(1:ndimh,ispc,ivec),bstr(1:ndimh,:,k)) ! Pkl expansion of eigenvector
                ! enddo

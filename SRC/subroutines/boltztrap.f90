@@ -11,14 +11,15 @@ subroutine writeboltztrap(eferm) !write input file for boltztrap !test by gomi a
 !  real(8):: evlall(:,:,:)
   use m_bandcal,only: evlall
   character strn*120,strn2*120
-  integer:: iqread,iqindex,job,ist,ip,ni,ix,ifi,jsp,ncount,iq,iband,i,j,nbandx,ig
+  integer:: iqread,iqindex,job,ist,ip,ni,ix,ifi,jsp,ncount,iq,iband,i,j,nbandx,ig,nx(3)
   real(8):: eferm,qvec(3),symxx(3,3)
   character(10):: i2char
   !   qbg = !homogenious background charge.  qcore + qval-qbg = \sum_i Z_i
   !iqread=0
   !  if( cmdopt('--boltztrap',11,0,strn) .and. master_mpi) then
   !iqindex = index(strn(12:),'nb=')+2
-!  nbandx = ndhamx
+  nx = shape(evlall)
+  nbandx=nx(1)
   !if(iqindex/=2) then
   !   read(strn(12+iqindex:),*) nbandx
   !   nbandx=min(nbandx,ndhamx)
@@ -57,14 +58,10 @@ subroutine writeboltztrap(eferm) !write input file for boltztrap !test by gomi a
      open(newunit=ifi,file=trim(sname)//'.energy.isp'//trim(i2char(jsp))//'.boltztrap')
      write(ifi,"(a)") trim(sname)
      write(ifi,"(i10)") nkp
-     do iq=1,nkp
-        !! true q vector = 2pi/alat *qplist(:,iq) in cartesian
+     do iq=1,nkp         !! true q vector = 2pi/alat *qplist(:,iq) in cartesian
         qvec= matmul(transpose(plat),qplist(:,iq)) !qvec in qlat unit
         ncount=0
         do iband=1,nbandx
-!           write(6,*)'eeeeeee',iband,jsp,iq
-           !           write(6,*)'eeeeeee',iband,jsp,iq,evlall(iband,jsp,iq)
-!           write(6,*) shape(evlall)
            if(evlall(iband,jsp,iq)>1d98) cycle
            ncount=ncount+1
         enddo

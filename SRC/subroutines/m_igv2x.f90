@@ -36,7 +36,7 @@ contains
        ndimhall(iq)= ndimh_z
        ndimhxall(iq)=ndimhx_z
     enddo
-    nbandmx=maxval(ndimhall)
+    nbandmx=maxval(ndimhxall)
     call tcx('m_igv2xall_init')
   end subroutine m_igv2xall_init
   subroutine m_igv2x_init(qp) !Set napw and igv2x_z for given qp

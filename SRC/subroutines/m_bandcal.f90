@@ -33,7 +33,6 @@ module m_bandcal
   logical,private:: debug,sigmamode,call_m_bandcal_2nd,procaron,writeham,dmatuinit=.true.
   real(8),private:: sumqv(3,2),sumev(3,2)
   integer,allocatable,private::neviqis(:),ndimhxiqis(:)
-  real(8),allocatable,private::evliqis(:,:)
   complex(8),allocatable,private:: eveciqis(:,:,:)
   private
 contains
@@ -76,8 +75,8 @@ contains
     call_m_bandcal_2nd =.false.
     if(plbnd==0) call_m_bandcal_2nd= (lmet>=0 .AND. lrout>0 )
     if(call_m_bandcal_2nd) then 
-       if(allocated(neviqis))deallocate(neviqis,ndimhxiqis,evliqis,eveciqis)
-       allocate(neviqis(niqisp),ndimhxiqis(niqisp),evliqis(ndhamx,niqisp),eveciqis(ndhamx,nevmx,niqisp))
+       if(allocated(neviqis))deallocate(neviqis,ndimhxiqis,eveciqis)
+       allocate(neviqis(niqisp),ndimhxiqis(niqisp),eveciqis(nbandmx,nevmx,niqisp)) !,evliqis(ndhamx,niqisp)
     endif
     allocate( evl(ndhamx,nspx))
     sumev = 0d0
@@ -181,7 +180,7 @@ contains
        if(call_m_bandcal_2nd) then
           neviqis(idat)   =nev
           ndimhxiqis(idat)=ndimhx
-          evliqis(1:nev,idat)=evl(1:nev,isp)
+          !evliqis(1:nev,idat)=evl(1:nev,isp)
           if(nmx/=0) eveciqis(1:ndimhx,1:nev,idat)=evec(1:ndimhx,1:nev)
           !write(ifig) nev,ndimhx !nev: number of eigenvalues; write(ifig) evl(1:nev,isp); write(ifig) evec(1:ndimhx,1:nev)
        endif
@@ -253,7 +252,7 @@ contains
        !write(6,*)'nnnnnnnnnn iq nev=',iq,nev
        ndimhx= ndimhxiqis(idat)
        allocate(evec(ndimhx,nev))
-       evl(1:nev,isp)=evliqis(1:nev,idat)
+       evl(1:nev,isp)=evlall(1:nev,isp,iq) !evliqis(1:nev,idat)
        evl(nev+1:ndhamx,isp)=1d99 !padding 
        evec(1:ndimhx,1:nev)=eveciqis(1:ndimhx,1:nev,idat)
        if(lso/=0)              call mkorbm(isp, nev, iq,qp, evec,  orbtm_rv)
@@ -353,12 +352,10 @@ contains
     use m_mkpot,only: sab_rv
     use m_subzi, only: wtkb
     use m_qplist,only: nkp
-    use m_suham,only: ndham=>ham_ndham, ndhamx=>ham_ndhamx
     !i   isp   :current spin channel (1 or 2)
     !i   nsp   :2 for spin-polarized case, otherwise 1
     !i   nspc  :2 for coupled spins; otherwise 1
     !i   nlmax :leading dimension of aus
-    !i   ndham :dimensions aus,wtkp
     !i   nev   :number of eigenvectors to accumulate orbital moment
     !i   wtkp  :weight of k-point, including spin degeneracy (bzmesh.f)
     !i   iq    :current k-point
@@ -448,7 +445,6 @@ contains
     use m_mkpot,only: phzdphz
     use m_subzi, only: wtkb
     use m_igv2x,only: ndimh
-    use m_suham,only: ndham=>ham_ndham,ndhamx=>ham_ndhamx
     use m_makusq,only: makusq
     use m_locpot,only: rotp
     ! ----------------------------------------------------------------------
@@ -459,7 +455,6 @@ contains
     !i         :NB: aus is stored only for current qp
     !i   nsp   :2 for spin-polarized case, otherwise 1
     !i   nspc  :2 for coupled spins; otherwise 1
-    !i   ndham :dimensions wtkb,aus
     !i   nlmax :1st dimension of aus (maximum nlma over all sites)
     !i   nbas  :size of basis
     !i   nev   :actual number of eigenvectors generated

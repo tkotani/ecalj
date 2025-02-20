@@ -8,7 +8,6 @@ contains
     use m_lgunit,only:stdo
     use m_lmfinit,only:nsp,alat=>lat_alat,lso,nspx
     use m_qplist,only: nkp,nsyml,xdatt,nqp_syml,nqp2n_syml,qplist,labeli,labele,nqps_syml,nqpe_syml,dqsyml,etolv,etolc
-    use m_suham,only: ndhamx=>ham_ndhamx !,nspx=>ham_nspx ndham=>ham_ndham, 
     use m_bandcal,only:nevls
     use m_ext,only: sname,dirname
     implicit none
@@ -17,7 +16,7 @@ contains
     character*300::filenm(2),bchar
     real(8):: rydberg=13.6058d0 !,vadd
     character*3::charnum3
-    integer::ifbndsp(2),iprint,iq,i,ifglt,ifbndsp_nearef(2),ifmass(2),ifmglt,ifmglt2
+    integer::ifbndsp(2),iprint,iq,i,ifglt,ifbndsp_nearef(2),ifmass(2),ifmglt,ifmglt2,ndhamx
     character*300::aaa,addx
     real(8):: emin=-20d0,emax=20d0 !eV for default plotting.
     integer:: ikps,ne,ifi,ix,nee,ibb,ilt,imin,imax
@@ -29,14 +28,16 @@ contains
     character(100),allocatable:: fnameb(:,:),fnamem(:,:,:)
     logical:: initii
     logical:: semiconband,metalband
-    integer:: idat,ifglts(2),iqplist,isp
+    integer:: idat,ifglts(2),iqplist,isp,nx(3)
     character(100)::acrossef
     character(13)::massd,mass2d,labelp
     logical:: scd
     real(8)::kef
     real(8),allocatable:: kabs(:)
-    real(8)::  evlall(ndhamx,nspx,nkp)
+    real(8)::  evlall(:,:,:) !ndhamx,nspx,nkp)
     real(8):: spinweightsoc(:,:,:)
+    nx=shape(evlall)
+    ndhamx=nx(1)
     scd= evtop <ecbot
     tpiba = 2d0*4d0*datan(1d0)/alat
     !! ikpoffset
@@ -273,13 +274,12 @@ contains
     use m_lmfinit, only: nsp,nspc,lso,nspx
     use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat
     use m_mkqp,only: bz_nabc
-    use m_suham,only: ndhamx=>ham_ndhamx !,nspx=>ham_nspx
     use m_qplist,only:nkp,qplist
     use m_shortn3_qlat,only: shortn3_qlat,nout,nlatout
     implicit none
     logical:: cmdopt0,allband
     real(8):: ppin(3),eferm
-    integer:: ip,i,isp,ififm,nbxx,iq,ib,nkk1,nkk2,nkk3,ifi
+    integer:: ip,i,isp,ififm,nbxx,iq,ib,nkk1,nkk2,nkk3,ifi,nx(3),ndhamx
     real(8):: rlatp(3,3),xmx2(3),vadd,qshort(3),evlall(:,:,:)
     real(8):: spinweightsoc(:,:,:)
     character*100::sss=''
@@ -288,6 +288,8 @@ contains
     nkk2=bz_nabc(2)
     nkk3=bz_nabc(3)
     allband  = cmdopt0('--allband')
+    nx=shape(evlall)
+    ndhamx=nx(1)
     do isp=1,nsp/nspc
        if(isp==1) open(newunit=ifi, file='fermiup.bxsf')
        if(isp==2) open(newunit=ifi, file='fermidn.bxsf')

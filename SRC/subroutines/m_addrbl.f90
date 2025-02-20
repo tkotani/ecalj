@@ -1,20 +1,11 @@
 !> addrbl adds to the smooth and local output density and to eigval sum
 module m_addrbl 
-  public:: addrbl !, swtkzero, m_addrbl_allocate_swtk
+  public:: addrbl 
   private
-  !  real(8),allocatable,protected,public:: swtk(:,:,:) !spin weight
 contains
-!  subroutine m_addrbl_allocate_swtk(ndham,nsp,nkp)
-!    integer::ndham,nsp,nkp
-!    if(allocated(swtk)) deallocate(swtk)
-!    allocate(swtk(ndham,nsp,nkp))
-!  end subroutine m_addrbl_allocate_swtk
-!  subroutine swtkzero()
-!    swtk=0d0
-!  end subroutine swtkzero
-  subroutine addrbl(isp,q,iq,smpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,evec,evl,nevl, smrho,sumqv,sumev,sv_p_oqkkl,sv_p_oeqkkl,f) !Adds to the smooth and local output density and to eigval sum
+  subroutine addrbl(isp,q,iq,smpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,evec,evl,nevl, smrho,sumqv,sumev,sv_p_oqkkl,sv_p_oeqkkl,f)
+!Adds to the smooth and local output density and to eigval sum
     use m_struc_def
-    use m_suham,only: ndham=>ham_ndham,ndhamx=>ham_ndhamx,nspx=>ham_nspx
     use m_lmfinit,only:alat=>lat_alat,nbas, ispec,nsp,nspc,lmet=>bz_lmet, zbak ,lfrce,lmxa_i=>lmxa
     !zbak is added positive bg charge.
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol
@@ -26,6 +17,8 @@ contains
     use m_ropyln,only: ropyln
     use m_rsibl,only:rsibl
     use m_rlocbl,only: rlocbl
+    implicit none
+    intent(in) ::   isp,q,iq,smpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,evec,evl,nevl
     !i   isp   :current spin channel
     !i   nsp   :2 for spin-polarized case, otherwise 1
     !i   nspc  :2 for coupled spins; otherwise 1
@@ -70,14 +63,13 @@ contains
     !o   oqkkl :local part of density matrix
     !o   oeqkkl:local part of energy-weighted density matrix
     !o   f     :eigenvalue contribution to forces
-    implicit none
     integer:: i , k , nevec , lmxax , lmxa , nlmax , nlmto , ig, isp,iq,nevl,ipiv(ndimh*2) !,lfrce
-    real(8):: q(3),evl(ndham,nsp),sumev(2,3),sumqv(3,2),f(3,*),emax,emin,qval,vconst,vavg,wgt,tpiba,ewgt(ndimh*nspc),epsnevec,eee
+    real(8):: q(3),sumev(2,3),sumqv(3,2),f(3,*),emax,emin,qval,vconst,vavg,wgt,tpiba,ewgt(ndimh*nspc),epsnevec,eee !,evl(ndham,nsp)
     type(s_cv5) :: sv_p_oppi(3,1)
     type(s_rv4) :: sv_p_otau(3,1),   sv_p_osig(3,1)
     type(s_rv5) :: sv_p_oeqkkl(3,1), sv_p_oqkkl(3,1)
     complex(8):: evec(ndimh,nspc,ndimh,nspc),smrho(n1,n2,n3,isp),smpot(n1,n2,n3,isp)
-    real(8),allocatable:: qpgv(:,:),qpg2v(:),ylv(:,:)
+    real(8),allocatable:: qpgv(:,:),qpg2v(:),ylv(:,:),evl(:,:)
     complex(8),allocatable:: evecc(:,:,:,:),work(:,:,:,:)
     call tcn('addrbl')
     qval= qval_- zbak 
@@ -114,7 +106,7 @@ contains
        if(allocated(ylv)) deallocate(qpgv,qpg2v,ylv)
     endif
     call rsibl(lfrce, isp,q,iq,ndimh,nspc,napw,igapw,nevec,evec,ewgt,n1,n2,n3,smpot,smrho,f ) ! ... Add to smooth density
-    call rlocbl(lfrce,nbas,isp,q,ndham,ndimh,nspc,napw,igapw,nevec,evec,ewgt,evl,sv_p_osig,sv_p_otau,sv_p_oppi,1,&
+    call rlocbl(lfrce,nbas,isp,q,ndimh,nspc,napw,igapw,nevec,evec,ewgt,evl(1,isp),sv_p_osig,sv_p_otau,sv_p_oppi,1,&
          sv_p_oqkkl,sv_p_oeqkkl,f) !lekkl=1 ! ... Add to local density coefficients
     call tcx('addrbl')
   end subroutine addrbl

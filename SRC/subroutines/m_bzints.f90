@@ -2,9 +2,9 @@ module m_bzints
   public bzints,bzints2x
   private
 contains
-  subroutine bzints(n1n2n3,ep,wp,nq, nband,nbmx,nsp,emin,emax, dos,nr,ef,job,ntet,idtet,sumev,sumwp,spinweightsoc)!- BZ integrations by linear method
+  subroutine bzints(n1n2n3,ep,wp,nq,nband,nbmx,nspx,nsp,emin,emax, dos,nr,ef,job,ntet,idtet,sumev,sumwp,spinweightsoc)!- BZ integrations by linear method
     use m_lgunit,only:stdo
-    use m_lmfinit,only: lso,nspx
+    use m_lmfinit,only: lso!,nspx
     use m_ftox
     !i   nq    :no. of irr. k-points
     !i   ep    :energy bands
@@ -33,8 +33,8 @@ contains
     !u   17 Jan 05 Returns sumwp
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: n1n2n3,nq,nband,nbmx,nsp,idtet(0:4,*),nr,job,ntet
-    real(8) :: dos(nr,nsp),wp(nband,nsp,nq),emin,emax,ef,sumev,sumwp,ep(nbmx,nsp,nq) 
+    integer :: n1n2n3,nq,nband,nbmx,nsp,idtet(0:4,*),nr,job,ntet,nspx
+    real(8) :: dos(nr,nsp),wp(nband,nsp,nq),emin,emax,ef,sumev,sumwp,ep(nbmx,nspx,nq) 
     integer :: ib,iq,iq1,iq2,iq3,iq4,isp,itet,jjob,ispx
     integer :: ipr,iqq(4)
     real(8) :: ec(4),wc(4,2),ebot,etop,sev1,sev2,sumwm, volwgt,wt

@@ -1,10 +1,10 @@
-module m_vcdmel! Valence-core dipole matrix elements
+! Valence-core dipole matrix elements. We may need when we use this branch.
+module m_vcdmel
   use m_lmfinit,only: z_i=>z,nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,spec_a
   public vcdmel
   private
 contains  
-  subroutine vcdmel(nlmax,ndimh,nq,nsp,nspc,ef,evl,aus,nsite,isite,iclsl,iclsn,dosw)! Valence-core dipole matrix elements
-    use m_suham,only:  ndham=>ham_ndham
+  subroutine vcdmel(nlmax,ndimh,nbandmx,nspx,nq,nsp,nspc,ef,evl,aus,nsite,isite,iclsl,iclsn,dosw)! Valence-core dipole matrix elements
     use m_lmfinit,only: rv_a_ocg,iv_a_ojcg,iv_a_oidxcg,ispec,n0,lmxax
     use m_mkqp,only: iv_a_oidtet ,bz_nabc, bz_ntet
     use m_struc_def
@@ -13,7 +13,7 @@ contains
     use m_elocp,only: rsmlss=>rsml,ehlss=>ehl
     use m_density,only: v0pot,pnuall,pnzall
     use m_makusp,only: makusp
-    use m_igv2x,only: nbandmx
+!    use m_igv2x,only: nbandmx
     !i   nlmax :first dimension of aus; largest augmentation (l+1)^2
     !i   ndham :second dimension of aus, at least as large as ndimh
     !i   ndimh :number of eigenvalues
@@ -29,8 +29,8 @@ contains
     !NOTE: lmxa=-1 -> no augmentation
     ! ----------------------------------------------------------------------
     implicit none
-    integer:: nlmax,ndimh,nq,nsp,nspc,nsite, isite(nsite),iclsl(nsite),iclsn(nsite)
-    real(8):: ef,evl(nbandmx,nsp,nq)
+    integer:: nlmax,ndimh,nq,nsp,nspc,nsite, isite(nsite),iclsl(nsite),iclsn(nsite),nbandmx
+    real(8):: ef,evl(nbandmx,nspx,nq)
     integer:: ifi,isp,ib,is,lcls,ncls,i,j,nr,lmxa,iq,nlma,igets,igetss,i1mach,nfstg,nchan
     integer:: nbandx,nspx,npts,ifid,ikp,ichib,ifdos,ie,ild, lh(10)
     real(8),allocatable :: rofi_rv(:), ul_rv(:), sl_rv(:), gz_rv(:),ruu_rv(:), rus_rv(:),rss_rv(:), g_rv(:), s_rv(:,:,:)
@@ -86,22 +86,22 @@ contains
              is   = ispec(ib) 
              lmxa = lmxa_i(is)
              nlma = (lmxa+1)**2
-             if(lmxa>-1) call pvcdm2(i,nsite,ndham,ndimh,nlma,nlmax,aus(1,1,1,isp,i,iq),ume ( 0,isp,i ),sme ( 0,isp,i ),lcls ,&
+             if(lmxa>-1) call pvcdm2(i,nsite,nbandmx,ndimh,nlma,nlmax,aus(1,1,1,isp,i,iq),ume ( 0,isp,i ),sme ( 0,isp,i ),lcls ,&
                      rv_a_ocg,iv_a_ojcg,iv_a_oidxcg, s_rv(1,isp,iq))
           enddo
           s_rv(:,isp,iq)= 1d2*s_rv(:,isp,iq) !Scale weights arbitrarily by 100 for plotting etc ..
        enddo
     enddo
-    nbandx = ndimh*nspc       !q-dependent only for no PW case.
-    nspx = nsp / nspc
+!    nbandx = ndimh*nspc       !q-dependent only for no PW case.
+!    nspx = nsp / nspc
     lidos=.false.
     npts= bz_ndos
     allocate(wk_rv(npts))
     emin = dosw(1)
     emax = bz_dosmax + ef
     allocate(dos_rv(npts,nsp,nchan))
-    call dostet ( ndham,nsp,nspx,nbandx,nchan,bz_nabc(1),bz_nabc(2),bz_nabc(3), bz_ntet,iv_a_oidtet, evl &
-        ,s_rv(1:nchan*nbandx,1:nsp,1:nq), npts, emin, emax, lidos,wk_rv,dos_rv )
+    call dostet ( nbandmx,nsp,nspx,nchan,bz_nabc(1),bz_nabc(2),bz_nabc(3), bz_ntet,iv_a_oidtet, evl &
+        ,s_rv(1:nchan*nbandmx,1:nsp,1:nq), npts, emin, emax, lidos,wk_rv,dos_rv )
     del = 0d0
     open(newunit=ifdos,file='dos-vcdmel.'//trim(sname))
     write(ifdos,"(2f10.5,3i5,2f10.5,i5)") emin,emax,npts,nchan,nsp,ef,del
@@ -178,7 +178,7 @@ contains
        enddo
     enddo
   end subroutine pvcdm1
-  subroutine pvcdm2(isite,nsite,ndham,ndimh,nlma,nlmax,aus,ume,sme,lcls,cg,jcg,indxcg,s) !Kernel called by vcmdel
+  subroutine pvcdm2(isite,nsite,nbandmx,ndimh,nlma,nlmax,aus,ume,sme,lcls,cg,jcg,indxcg,s) !Kernel called by vcmdel
     use m_ll,only:ll 
     !i   cg    :Clebsch Gordon coefficients, stored in condensed form (scg.f)
     !i   jcg   :L q.n. for the C.G. coefficients stored in condensed form (scg.f)
@@ -186,9 +186,9 @@ contains
     !o Outputs
     !o   s     :Matrix elements
     implicit none
-    integer isite,lcls,ndham,ndimh,nlma,nlmax,nsite,indxcg(*),jcg(*)
+    integer isite,lcls,nbandmx,ndimh,nlma,nlmax,nsite,indxcg(*),jcg(*)
     double precision cg(*),ume(0:*),sme(0:*),s(3,nsite,ndimh,2)
-    double complex aus(nlmax,ndham,2)
+    double complex aus(nlmax,nbandmx,2)
     integer kk(4),mlm,lm,klm,ii,indx,icg1,icg2,icg,llm,ib,k
     double complex cxx     !     Transposes (y,z,x) to (x,y,z)
     data kk /0,2,3,1/
@@ -220,7 +220,7 @@ contains
        enddo
     enddo
   end subroutine pvcdm2
-  subroutine dostet(nbmx,nsp,nspx,nbandx,nchan,n1,n2,n3,ntet,idtet,eband,doswt,npts,emin,emax,lidos,wk,zos)! Density of states to third order by tetrahedron method
+  subroutine dostet(nbmx,nsp,nspx,nchan,n1,n2,n3,ntet,idtet,eband,doswt,npts,emin,emax,lidos,wk,zos)! Density of states to third order by tetrahedron method
     !i Inputs:
     !i   nbmx, first dim. of eband;
     !i   nsp=1 spin degenerate, =2 non-deg;
@@ -234,7 +234,7 @@ contains
     !i         :T zos = energy integral of dos
     !o Outputs: zos : DOS (or integrated DOS for lidos=T) for each spin and nchan
     implicit none
-    integer :: nchan,nsp,nspx,nbmx,npts,ntet,idtet(0:4,*),n1,n2,n3,nbandx,isp,ib,i,itet,ichan,iq1234(4),nspc,jsp,ksp
+    integer :: nchan,nsp,nspx,nbmx,npts,ntet,idtet(0:4,*),n1,n2,n3,isp,ib,i,itet,ichan,iq1234(4),nspc,jsp,ksp
     real(8) :: eband(nbmx,nspx,*),emin,emax,wk(npts),zos(npts,nsp,nchan),doswt(nchan,nbmx,nsp,*),bin,eigen(4),v,wt,ebot,dmin1
     logical :: lidos
     if (npts <= 1 .OR. npts <= 2 .AND. .NOT. lidos) call rx1('dostet: npts(=%i) too small for DOS : require npts>2',npts)
@@ -245,7 +245,7 @@ contains
     tetrahdronloop: do  5  itet = 1, ntet
        iq1234 = idtet(1:4,itet)
        do  4  isp = 1, nspx !Loop over spins and sum over bands ---
-          do  3  ib = 1, nbandx
+          do  3  ib = 1, nbmx !nbandx
              eigen = eband(ib,isp,iq1234)
              if (minval(eigen) > emax) cycle
              do  jsp = 1, nspc

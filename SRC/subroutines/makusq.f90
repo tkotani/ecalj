@@ -7,7 +7,7 @@ contains
   subroutine makusq(nsites,isite,nev,ispin,iq,q,evec, auszall)!Accumulate coefficients (u,s,z) in all augmentation spheres for evec(:,iq,isp)
     !note. For SO=1, ispin is neglected (all spin components are calculated simultaneously).
     use m_lmfinit,only: ispec,nbas,nlmax,nsp,nspc,nkapii,lhh,rsma,lso
-    use m_igv2x,only: ndimh,nbandmx 
+    use m_igv2x,only: ndimh,nbandmx  !ndimh is q dependent
     use m_uspecb,only:uspecb
     use m_orbl,only: Orblib,ktab,ltab,offl,norb,blks
     use m_bstrux,only: bstrux_set,bstr
