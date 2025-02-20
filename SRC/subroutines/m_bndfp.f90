@@ -41,7 +41,6 @@ contains
     use m_mixrho,only: mixrho
     use m_bndfp_util,only: mkekin,makdos,phispinsym_ssite_set,iorbtm
     use m_supot,only: n1,n2,n3 !for charge mesh
-    !use m_suham,only: nbandmx=>ham_ndhamx !,nspx=>ham_nspx !nspx=nsp/nspc
     use m_igv2x,only: nbandmx
     use m_lmfinit,only: ncutovl,lso,ndos=>bz_ndos,bz_w,fsmom=>bz_fsmom, bz_dosmax,lmet=>bz_lmet,bz_fsmommethod,bz_n,nspx
     use m_lmfinit,only: ldos,qbg=>zbak,lfrce,pwmode=>ham_pwmode,lrsig=>ham_lsig,epsovl=>ham_oveps !try to avoid line continuation in fortran
@@ -100,9 +99,9 @@ contains
     !o         :If leks=1, forces are HF  forces
     !o         :If leks=2, forces are HKS forces
     !l   n1,n2,n3: dimensions smrho,smpot.
-    !!      nspx: number of independent spin channels
-    !!      !!!nspc is now avoided (memo:nspc=2 for lso==1, nspc=1 for lso/=1 See m_lmfinit)
-    !!      nbandmx: maximum size of hamiltonian
+    !!      nspx: number of independent spin channels (nspx=nsp/nspc)
+    !       nspc: =1 lso=2, =1 otherwize
+    !!      nbandmx: maximum size of hamiltonian: nbandmx can be twiced for lso=1
     !r How bndfp works?
     !r   (1) m_mkpot_init   make the effective potential,
     !r   (2) m_bandcal_init generate eigenvalues (and eigenvectors if lrout), then m_bzintegration_init
