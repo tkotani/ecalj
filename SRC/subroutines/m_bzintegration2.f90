@@ -11,11 +11,11 @@ module  m_bzintegration2 ! BZ integration
   public bzintegration2
   private
 contains
-  subroutine bzintegration2(eb, efermi,sumev,wtkb,sumqv,vmag)  
+  subroutine bzintegration2(nbmx,eb, efermi,sumev,wtkb,sumqv,vmag)  
     use m_lmfinit,only: lso,bz_fsmommethod,fmom=>bz_fsmom,norder=>bz_n,lmet=>bz_lmet
     use m_lmfinit,only: width=>bz_w,npts=>bz_ndos, zbak,NULLR
     use m_mkqp,only: ntet=> bz_ntet, nkabc=> bz_nabc,idtet=>iv_a_oidtet, wtkp=>rv_a_owtkp
-    use m_suham,only: nbmx=>ham_ndhamx !size of Hamiltonian 
+!    use m_suham,only: nbmx=>ham_ndhamx !size of Hamiltonian 
     use m_qplist,only: nkp
     use m_mkpot,only: qval
     !i   nbmx  : leading dimension of eb
@@ -42,7 +42,7 @@ contains
     !o   vmag: magnetic field to keep give magnetic moment for fsmom (fixed moment) method.
     implicit none
     logical :: metal,tetra,wtsf2, agreemom,quitvmag,lfill
-    integer :: nevx,n1,n2,n3 ,ikp,ib,ipr,iter,iprint,itermx,nmom1,nmom2
+    integer :: nevx,n1,n2,n3 ,ikp,ib,ipr,iter,iprint,itermx,nmom1,nmom2,nbmx
     real(8) :: zval,eb(nbmx,nspx,nkp),wtkb(nbmx,nspx,nkp),efermi,sumev,sumqv(2) 
     real(8) :: amom,dosef(2),vhold(12),vmag,dv,ef0,ent,ele1,ele2, ehomo1,ehomo2,elumo1,elumo2,rnge
     real(8),parameter:: dvcap=.2d0

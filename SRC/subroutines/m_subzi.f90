@@ -44,7 +44,10 @@ contains
     implicit none
     intent(in)::                   evlall
     intent(out)::                         efermi,sev,qvalm,vmag
-    real(8):: evlall(*),sev, qvalm(2),efermi,vmag
-    call bzintegration2(evlall, efermi,sev,wtkb,qvalm,vmag)
+    real(8):: evlall(:,:,:),sev, qvalm(2),efermi,vmag
+    integer::nx(3),nbmx
+    nx=shape(evlall)
+    nbmx=nx(1)
+    call bzintegration2(nbmx,evlall, efermi,sev,wtkb,qvalm,vmag)
   end subroutine m_subzi_bzintegration
 end module m_subzi
