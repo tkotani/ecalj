@@ -41,7 +41,8 @@ contains
     use m_mixrho,only: mixrho
     use m_bndfp_util,only: mkekin,makdos,phispinsym_ssite_set,iorbtm
     use m_supot,only: n1,n2,n3 !for charge mesh
-    use m_suham,only: nbandmx=>ham_ndhamx !,nspx=>ham_nspx !nspx=nsp/nspc
+    !use m_suham,only: nbandmx=>ham_ndhamx !,nspx=>ham_nspx !nspx=nsp/nspc
+    use m_igv2x,only: nbandmx
     use m_lmfinit,only: ncutovl,lso,ndos=>bz_ndos,bz_w,fsmom=>bz_fsmom, bz_dosmax,lmet=>bz_lmet,bz_fsmommethod,bz_n,nspx
     use m_lmfinit,only: ldos,qbg=>zbak,lfrce,pwmode=>ham_pwmode,lrsig=>ham_lsig,epsovl=>ham_oveps !try to avoid line continuation in fortran
     use m_lmfinit,only: ham_scaledsigma, alat=>lat_alat, nlmax,nbas,nsp, bz_dosmax,nlmxlx,afsym

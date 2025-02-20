@@ -3,7 +3,8 @@ module m_bandcal
   use m_lgunit,only:stdo,stdl
   use m_lmfinit,only: lmxa_i=>lmxa,rmt_i=>rmt,afsym,nspx
   use m_struc_def,only: s_rv1,s_rv5
-  use m_suham,  only: ndhamx=>ham_ndhamx !,nspx=>ham_nspx
+!  use m_suham,  only: ndhamx=>ham_ndhamx !,nspx=>ham_nspx
+  use m_igv2x,only: ndhamx=>nbandmx
   use m_qplist, only: nkp
   use m_mkqp,only: ntet=> bz_ntet, bz_nabc
   use m_qplist,only: qplist,niqisp,iqproc,isproc

@@ -8,7 +8,8 @@ contains
     use m_ext,only: sname
     use m_lmfinit, only: nspc,lmet=>bz_lmet, qbg=>zbak,nspx,lso
     use m_mkqp,only: ntet=> bz_ntet ,bz_nkp
-    use m_suham,only: ndhamx=>ham_ndhamx
+    !    use m_suham,only: ndhamx=>ham_ndhamx
+    use m_igv2x,only: ndhamx=>nbandmx
     use m_mkpot,only:  qval
     use m_lmfinit,only: lso
     !   lmet/=0 : allocate tetrahedron weight wtkb
