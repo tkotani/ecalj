@@ -685,8 +685,8 @@ contains
       if(lrout == 0 ) maxit = 1
       if(bz_lmet/=0 .OR. bz_tetrahedron ) ldos=1
       if(ldos==0) bz_ndos = 1
-      if(lrout == 0 .AND. lfrce /= 0) call rx('lrout==0 and lfrce/=0 is not allowed')
-      if(lrout == 0 .AND. cmdopt0('--etot')) call rx('lrout==0 and --etot not allowed')
+      call rxx((lrout == 0 .AND. lfrce /= 0),       'lrout==0 and lfrce/=0 is not allowed')
+      call rxx((lrout == 0 .AND. cmdopt0('--etot')),'lrout==0 and --etot not allowed')
       LDApU: block 
         nlibu = 0
         lmaxu = 0

@@ -1,11 +1,12 @@
-module m_elocp ! envlope parameters for extended local orbitals
+!> envlope parameters for extended local orbitals
+module m_elocp 
   use m_lmfinit,only: nspec,n0
   real(8),allocatable,protected,public:: ehl(:,:),rsml(:,:)
   public:: elocp
   private
 contains
   subroutine elocp()! Make envlope parameters for extended local orbitals
-    use m_lmfinit,only: nspec,nbas,nsp,ispec,n0,nkapii,slabl,vmtz,rs3,eh3
+    use m_lmfinit,only: nbas,nsp,ispec,nkapii,slabl,vmtz,rs3,eh3
     use m_lmfinit,only: z_i=>z,nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,lmxb_i=>lmxb, spec_a
     use m_density,only: v0pot,pnuall,pnzall
     use m_lgunit,only: stdo
@@ -135,9 +136,9 @@ contains
     !u   27 Jun 04 First created
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: lmxb,nr,nrmt,nsp,n0,mode
+    integer :: lmxb,nr,nrmt,nsp,mode
     double precision :: a,z,rs3,eh3,vmtz
-    parameter (n0=10)
+!    parameter (n0=10)
     double precision :: rofi(nr),v(nr,nsp),pnz(n0,nsp),pnu(n0,nsp)
     double precision :: rsml(n0,2),ehl(n0,2),vsel(4,n0)
     character spid*8,orbit(2)*4,flg(2)*1

@@ -4,12 +4,11 @@ module m_mkrout
   use m_struc_def,only:s_rv1
   use m_uspecb,only:uspecb
   use m_lmfinit,only:nkapii,lhh,nkap0,n0
-  use m_orbl,only: Orblib,ktab,ltab,offl,norb, ntab,blks
-  use m_symrhoat,only:symrhoat
-  public:: m_Mkrout_init, orhoat_out, frcbandsym, qbyl_rv,hbyl_rv, sumec,sumtc,sumt0
+  use m_orbl,only: orblib,ktab,ltab,offl,norb, ntab,blks
+  public:: m_mkrout_init,              orhoat_out,frcbandsym, qbyl_rv,hbyl_rv, sumec,sumtc,sumt0
   type(s_rv1),protected,allocatable :: orhoat_out(:,:)
-  real(8),allocatable,protected::  frcbandsym(:,:), hbyl_rv(:,:,:), qbyl_rv(:,:,:)
-  real(8),protected:: sumec,sumtc,sumt0
+  real(8),allocatable,protected     :: frcbandsym(:,:), hbyl_rv(:,:,:), qbyl_rv(:,:,:)
+  real(8),protected                 :: sumec,sumtc,sumt0
   private
 contains
   subroutine m_mkrout_init()
@@ -17,6 +16,7 @@ contains
     use m_bandcal,only: oqkkl,oeqkkl,frcband
     use m_mkpot,only: hab_rv,sab_rv
     use m_rhocor,only: getcor
+    use m_symrhoat,only: symrhoat
     integer:: ib,is,nr,lmxl,nlml
     call tcn('m_mkrout_init')
     if(lfrce>0 ) then
@@ -25,16 +25,14 @@ contains
        frcbandsym=frcband         !part of atomic force from band part
     endif
     if( .NOT. allocated(orhoat_out)) allocate(orhoat_out(3,nbas))
-    do  ib = 1, nbas
+    do ib = 1, nbas
        is =  ispec(ib) 
        nr =  nr_i(is)
-       lmxl= lmxl_i(is)
+       lmxl = lmxl_i(is)
        nlml = (lmxl+1)**2
        if (lmxl > -1) then
-          if(allocated(orhoat_out(1,ib)%v)) then
-             deallocate(orhoat_out(1,ib)%v,orhoat_out(2,ib)%v,orhoat_out(3,ib)%v)
-          endif
-          allocate( orhoat_out(1,ib)%v(nr*nlml*nsp))
+          if(allocated(orhoat_out(1,ib)%v)) deallocate(orhoat_out(1,ib)%v,orhoat_out(2,ib)%v,orhoat_out(3,ib)%v)
+          allocate( orhoat_out(1,ib)%v(nr*nlml*nsp)) !rho atomic 
           allocate( orhoat_out(2,ib)%v(nr*nlml*nsp))
           allocate( orhoat_out(3,ib)%v(nr*nsp))
        endif
@@ -44,13 +42,13 @@ contains
        allocate(hbyl_rv(n0,nsp,nbas))
     endif
     call mkrout(oqkkl,oeqkkl, orhoat_out, hab_rv,sab_rv,qbyl_rv,hbyl_rv)
-    if (lrout/=00) then !  Symmetrize output atomic density and forces frcbandsym is symmetrized
+    if (lrout/=0) then !  Symmetrize output atomic density and forces frcbandsym is symmetrized
        call symrhoat ( orhoat_out, qbyl_rv, hbyl_rv, frcbandsym)
     endif
     call tcx('m_mkrout_init')
   end subroutine m_mkrout_init
-  subroutine mkrout(oqkkl,oeqkkl,orhoat_out,hab,sab, qbyl,hbyl)!Assembles local output densities out of the qkkl, and core states
-    use m_lmfinit,only: nkaphh, ispec,nbas,nsp,lrout,n0,nlmto,nmcore,rsma !lekkl=1
+  subroutine mkrout(oqkkl,oeqkkl, orhoat_out,hab,sab, qbyl,hbyl)!Assembles local output densities and core states
+    use m_lmfinit,only: nkaphh, ispec,nbas,nsp,lrout,n0,nlmto,nmcore,rsma 
     use m_lgunit,only: stdo
     use m_struc_def
     use m_elocp,only: rsmlss=>rsml, ehlss=>ehl
@@ -59,9 +57,6 @@ contains
     use m_makusp,only: makusp
     use m_MPItk,only: master_mpi
     use m_fatom,only: sspec
-    
-    !i   nbas  :size of basis, nsp: 2 for spin-polarized case, otherwise 1. nlmto:dimension of MTO basis.
-    !l   lekkl=T for eqkkl/qkkl
     !i   oqkkl :local density-matrix (rhocbl or comparable routine)
     !o   oeqkkl:local part of energy-weighted density matrix
     !i   hab   :hamiltonian matrix elements of radial wave functions at each site.  See potpus for their definition.
@@ -80,18 +75,17 @@ contains
     type(s_rv1) :: orhoat_out(3,nbas)
     type(s_rv5) :: oeqkkl(3,nbas)
     type(s_rv5) :: oqkkl(3,nbas)
-    real(8):: qbyl(n0,nsp,nbas) , hbyl(n0,nsp,nbas) , sab(3,3,n0,nsp,nbas), hab(3,3,n0,nsp,nbas)
     integer:: ib,ipr,iprint,is,k,kcor,kmax,lcor,lfoc,lgunit,lmxa,lmxh,lmxl,nlma,nlmh,nlml,nlml1,r,ncore,ifx
-    real(8) :: a,ceh,pi,qcor(2),rfoc,rmt,smec,smtc,stc0, sum1,sum2,sums1,sums2,xx,y0,z,res,rsml(n0),ehl(n0)
     integer :: nkapi,nkape,nr, lh(nkap0),nkaph
+    real(8):: qbyl(n0,nsp,nbas) , hbyl(n0,nsp,nbas) , sab(3,3,n0,nsp,nbas), hab(3,3,n0,nsp,nbas)
+    real(8) :: a,ceh,qcor(2),rfoc,rmt,smec,smtc,stc0, sum1,sum2,sums1,sums2,xx,z,res,rsml(n0),ehl(n0)
     real(8) :: eh(n0,nkap0),rsmh(n0,nkap0)
     real(8),pointer:: pnu(:,:),pnz(:,:)
     real(8):: dat(6,nbas)
-    logical:: mmtargetx=.false.
     real(8),allocatable:: rofi_rv(:),rwgt_rv(:)
+    real(8),parameter:: pi=4d0*datan(1d0), y0=1d0/dsqrt(4d0*pi)
+    logical:: mmtargetx=.false.
     ipr  = iprint()
-    pi   = 4d0*datan(1d0)
-    y0   = 1d0/dsqrt(4d0*pi)
     sums1 = 0
     call tcn('mkrout')
     sumtc = 0d0
@@ -153,8 +147,7 @@ contains
             dmatl_rv=0d0
             call mkrou1(nsp, nlmh,nlma,nlml,kmax, nkaph,nkapi,norb,ltab,ktab,blks &
                  ,oqkkl(3,ib)%v,oqkkl(2,ib)%v,oqkkl(1,ib)%v,vh_rv,dh_rv,vp_rv,dp_rv,  chh_rv,chp_rv,cpp_rv,dmatl_rv )
-!            write(6,*)'ssssssssssssss dmat=',sum(abs(dmatl_rv))
-            call mkrou2(nsp,lmxa,nlml,pnz, dmatl_rv,nr,ul_rv ,sl_rv,gz_rv,ruu_rv,rus_rv,rss_rv,     orhoat_out( 1,ib )%v)!True local density.1st component
+            call mkrou2(nsp,lmxa,nlml,pnz, dmatl_rv,nr,ul_rv ,sl_rv,gz_rv,ruu_rv,rus_rv,rss_rv,  orhoat_out( 1,ib )%v)!True local density.1st component
             !   --- Assemble rho2 = unaugmented products Pkl*Pk'l' ---
             call mkrou5(nsp,nr,nlml,nkaph,nkaph,fh_rv,lmxh ,nkaph,nkaph,fh_rv,lmxh,           chh_rv,orhoat_out( 2,ib )%v) !H H product.  
             call mkrou5(nsp,nr,nlml,nkaph,nkaph,fh_rv,lmxh ,kmax + 1,kmax + 1,fp_rv,lmxa,     chp_rv,orhoat_out( 2,ib )%v) !H Pkl product
@@ -165,7 +158,7 @@ contains
             k = max(nkaph,1+kmax)**2*(lmxa+1)**2*nlml1*nsp
             chh_rv=0d0
             chp_rv=0d0
-            cpp_rv=0d0 ! lekkl /= 0 mode only now. !history: hab were/are wrong =>it had given wrong hbyl (in previous mkrou3) 
+            cpp_rv=0d0 
             call mkrou1(nsp, nlmh, nlma, nlml1,kmax,nkaph,nkapi,norb,ltab,ktab,blks &
                  ,oeqkkl(3,ib)%v, oeqkkl(2,ib)%v,oeqkkl(1,ib)%v,vh_rv,dh_rv,vp_rv,dp_rv,chh_rv ,chp_rv,cpp_rv, dmatl_rv) ! energy weighted dmatl_rv
             call mkrou3(lmxa,nlml=nlml1,nsp=nsp,pnz=pnz,dmatl=dmatl_rv,sab=sab(1,1,1,1,ib ), qsum=hbyl(1,1,ib ))! hbyl is energy-weighted density matrix
@@ -179,7 +172,6 @@ contains
             endif
            if(nsp==1) dat(1:3,ib) = [sum1,sum2,sum1-sum2]
             if(nsp==2) dat(1:6,ib) = [sum1,sum2,sum1-sum2, -sums1,-sums2,-sums1+sums2]
-            ! cccccccccccccccccccccccccccccccccccccccccccccccccccccc
             !!exper. block to keep mag.moment for AF.controlled by uhval.aftest file. See elsewhere.
             if( nsp==2 .AND. master_mpi .AND. mmtargetx) then
                if(ib==1) then
@@ -191,10 +183,9 @@ contains
                if(ib==nbas) write(ifx,*)
                if(ib==nbas) close(ifx)
             endif
-            ! ccccccccccccccccccccccccccccccccccccccccccccccccc
           endblock fhblock
        endif
-       if (lfoc == 0) then ! Make new core density and core eigenvalue sum ---
+       if(lfoc == 0) then ! Make new core density and core eigenvalue sum ---
           call pshpr(ipr+11)
           call getcor(0,z,a,pnu,pnz,nr,lmxa,rofi_rv,v1pot(ib)%v & 
               ,kcor,lcor,qcor,smec,smtc, orhoat_out(3,ib)%v,ncore,[0d0],[0d0],nmcore(is))
@@ -612,49 +603,3 @@ contains
     ainv(2,1) = -a(2,1)/det
   end subroutine dinv22
 end module m_mkrout
-
-  ! subroutine mkrou6(rofi,rho,nr,nlml,nsp,rho0,decay,res) !- Fit tail of spin density; integrate charge beyond MT sphere
-  !   !i Inputs
-  !   !i   rofi  :radial mesh points
-  !   !i   rho   :spin-polarized charge density
-  !   !i   nr    :number of radial mesh points
-  !   !i   nlml  :L-cutoff for charge density on radial mesh
-  !   !o Outputs
-  !   !o   rho0  :fit density of form rho0*exp(-decay*r)
-  !   !o   decay :fit density of form rho0*exp(-decay*r)
-  !   !o   res   :integral of fit density from rofi(nr) to infinity
-  !   implicit none
-  !   integer :: nr,nlml,nsp
-  !   real(8) :: rofi(nr),rho(nr,nlml,2),rho0,decay,res
-  !   integer :: ir
-  !   real(8) :: norm(2,2),tnorm(2,2),rhs(2),y,dy,fac,y0,r0,pi,a,b
-  !   res = 0
-  !   if (nr < 10 .OR. nsp == 1) return
-  !   call dpzero(norm,4)
-  !   call dpzero(rhs,2)
-  !   fac = 1
-  !   if (rho(nr,1,1) < rho(nr,1,2)) fac = -1
-  !   do  ir = nr-5, nr
-  !      y = fac*(rho(ir,1,1) - rho(ir,1,2))/rofi(ir)**2
-  !      if (y <= 0) return ! If the spin density changes sign, nonsensical to try and fit
-  !      dy = dlog(y)
-  !      norm(1,1) = norm(1,1) + 1
-  !      norm(1,2) = norm(1,2) + rofi(ir)
-  !      norm(2,1) = norm(2,1) + rofi(ir)
-  !      norm(2,2) = norm(2,2) + rofi(ir)**2
-  !      rhs(1) = rhs(1) + dy
-  !      rhs(2) = rhs(2) + rofi(ir)*dy
-  !   enddo
-  !   call dinv22(norm,tnorm)
-  !   a = tnorm(1,1)*rhs(1) + tnorm(1,2)*rhs(2)
-  !   b = tnorm(2,1)*rhs(1) + tnorm(2,2)*rhs(2)
-  !   pi = 4d0*datan(1d0)
-  !   y0 = 1d0/dsqrt(4d0*pi)
-  !   a = fac*exp(a)/y0
-  !   b = -b
-  !   if (b < 1) return !   Nonsensical if density not decaying fast enough
-  !   r0 = rofi(nr)
-  !   res = a*(2+2*b*r0+b**2*r0**2)/b**3*exp(-b*r0) ! Integral a*exp(-b*r)*r*r = (2+2*b*r0+b**2*r0*2)/b**3*exp(-b*r0)
-  !   decay = b
-  !   rho0 = a
-  ! end subroutine mkrou6

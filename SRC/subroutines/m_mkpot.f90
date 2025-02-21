@@ -216,37 +216,44 @@ contains
       rhobg = (3d0/4d0/pi*vol)**(1d0/3d0)
       if(master_mpi)write(stdo,ftox)' Energy for background charge q=',ftod(qbg),'radius r=',rhobg,'E=9/5*q*q/r=',1.8d0*qbg*qbg/rhobg
     endif Printsmoothbackgroundcharge
-    call rhomom(orhoat, qmom,vsum) ! Multipole moments qmom is calculated
-    call smves(qmom,gpot0,vval,hpot0_rv,smrho,smpot,vconst,smq,qsmc,fes,rhvsm0,rhvsm,zsum,vesrmt,qbg)!0th comp. of Estatic potential Ves and Ees
-    smag = merge(2d0*dreal(sum(smrho(:,:,:,1)))*vol/(n1*n2*n3) - smq,0d0,nsp==2) !mag mom
-    novxc= present(novxc_)
-    repsm=0d0;  repsmx=0d0;  repsmc=0d0;   rmusm=0d0;  rvmusm=0d0
-    if(.not.novxc) then
-       ADDsmoothExchangeCorrelationPotential:block
-         complex(8):: smvxc_zv(n1*n2*n3*nsp),smvx_zv(n1*n2*n3*nsp), smvc_zv(n1*n2*n3*nsp),smexc_zv(n1*n2*n3)
-         real(8):: fxc_rv(3,nbas)
-         smvxc_zv=0d0; smvx_zv=0d0; smvc_zv=0d0; smexc_zv=0d0; fxc_rv=0d0 !We use n0+n^sH_a to obtain smpot.
-         call smvxcm(lfrce, smrho,smpot,smvxc_zv,smvx_zv,smvc_zv, smexc_zv,repsm,repsmx,repsmc,rmusm,rvmusm,rvepsm, fxc_rv )
-         if( lfrce /= 0 ) fes = fes+fxc_rv
-       endblock ADDsmoothExchangeCorrelationPotential
-    endif
-    call elocp() ! set ehl and rsml for extendet local orbitals
-    if(sum(lpzex)/=0) call m_bstrux_init()!computes structure constant (C_akL Eq.(38) in /JPSJ.84.034702) when we have extended local orbital.
-    call locpot(job,novxc,orhoat,qmom,vval,gpot0, & !Make local potential at atomic sites and augmentation matrices 
-         osig,otau,oppi,ohsozz,ohsopm, phzdphz,hab_rv,vab_rv,sab_rv,  &
-         vvesat,repat,repatx,repatc,rmuat, valvfa,xcore, sqloc,sqlocc,saloc,qval,qsc )
-    valfsm = rhvsm0 + sum(rvmusm) - vconst*qbg ! 0th comp. of rho_val*Veff= rho0*Ves +rho0*Vxc -vconst*qbg 
-    valvef = valfsm + valvfa                   ! Veff*n_val= veff0*rho0_val + veff1*rho1_val-veff2*rho2_val
-    usm    = 0.5d0*rhvsm   ! 0th comp. of Eq.(27). rhvsm= \int 0thEes*(n0+n^c_sH +gaussians)
-    uat    = 0.5d0*vvesat  ! vvesat= \int 1stEes*(n1+n^c)+\int (1stEes-zcontribution)*z  - \int 2ndEes*(n2+n_sH+gaussians)
-    utot = usm + uat !Ees total electro static energy. Eq.(27)
-    rhoexc = sum(repsm) + sum(repat) ! Exc=\int rho*exc 
-    rhoex  = sum(repsmx)+ sum(repatx)! Ex 
-    rhoec  = sum(repsmc)+ sum(repatc)! Ec
-    rhovxc = sum(rmusm) + sum(rmuat) ! \int rho*Vxc
-    dq = smq+sqloc + qsmc+sqlocc + qbg -zsum !smooth part + local part + smoothcore + core local + qbackground -Z
-    amom = smag+saloc !magnetic moment
-    if(iprint() >= 30) then
+    SmoothPart: block
+      call rhomom(orhoat, qmom,vsum) ! Multipole moments qmom is calculated
+      call smves(qmom,gpot0,vval,hpot0_rv,smrho,smpot,vconst,smq,qsmc,fes,rhvsm0,rhvsm,zsum,vesrmt,qbg)!0th comp. of Estatic potential Ves and Ees
+      smag = merge(2d0*dreal(sum(smrho(:,:,:,1)))*vol/(n1*n2*n3) - smq,0d0,nsp==2) !mag mom
+      novxc= present(novxc_)
+      repsm=0d0;  repsmx=0d0;  repsmc=0d0;   rmusm=0d0;  rvmusm=0d0
+      ADDsmoothExchangeCorrelationPotential: if(.not.novxc) then
+        block
+          complex(8):: smvxc_zv(n1*n2*n3*nsp),smvx_zv(n1*n2*n3*nsp), smvc_zv(n1*n2*n3*nsp),smexc_zv(n1*n2*n3)
+          real(8):: fxc_rv(3,nbas)
+          smvxc_zv=0d0; smvx_zv=0d0; smvc_zv=0d0; smexc_zv=0d0; fxc_rv=0d0 !We use n0+n^sH_a to obtain smpot.
+          call smvxcm(lfrce, smrho,smpot,smvxc_zv,smvx_zv,smvc_zv, smexc_zv,repsm,repsmx,repsmc,rmusm,rvmusm,rvepsm, fxc_rv )
+          if( lfrce /= 0 ) fes = fes+fxc_rv
+        endblock
+      endif ADDsmoothExchangeCorrelationPotential
+    endblock SmoothPart
+    StructureConstantWhenExtendedLO: block
+      call elocp() ! set ehl and rsml for extendet local orbitals
+      if(sum(lpzex)/=0) call m_bstrux_init()!computes structure constant (C_akL Eq.(38) in /JPSJ.84.034702) when we have extended local orbital.
+    endblock StructureConstantWhenExtendedLO
+    MTpartsIntegrals: block
+      call locpot(job,novxc,orhoat,qmom,vval,gpot0, & !Make local potential at atomic sites and augmentation matrices 
+           osig,otau,oppi,ohsozz,ohsopm, phzdphz,hab_rv,vab_rv,sab_rv,  &
+           vvesat,repat,repatx,repatc,rmuat, valvfa,xcore, sqloc,sqlocc,saloc,qval,qsc )
+      valfsm = rhvsm0 + sum(rvmusm) - vconst*qbg ! 0th comp. of rho_val*Veff= rho0*Ves +rho0*Vxc -vconst*qbg 
+      valvef = valfsm + valvfa                   ! Veff*n_val= veff0*rho0_val + veff1*rho1_val-veff2*rho2_val
+      usm    = 0.5d0*rhvsm   ! 0th comp. of Eq.(27). rhvsm= \int 0thEes*(n0+n^c_sH +gaussians)
+      uat    = 0.5d0*vvesat  ! vvesat= \int 1stEes*(n1+n^c)+\int (1stEes-zcontribution)*z  - \int 2ndEes*(n2+n_sH+gaussians)
+      utot = usm + uat !Ees total electro static energy. Eq.(27)
+      rhoexc = sum(repsm) + sum(repat) ! Exc=\int rho*exc 
+      rhoex  = sum(repsmx)+ sum(repatx)! Ex 
+      rhoec  = sum(repsmc)+ sum(repatc)! Ec
+      rhovxc = sum(rmusm) + sum(rmuat) ! \int rho*Vxc
+      dq = smq+sqloc + qsmc+sqlocc + qbg -zsum !smooth part + local part + smoothcore + core local + qbackground -Z
+      amom = smag+saloc !magnetic moment
+      if(dabs(dq)>1d-3) write(stdo,"(a,f13.6)")' (warning) system not neutral, dq=',dq
+    endblock MTpartsIntegrals
+    PrintEnergies: if(iprint() >= 30) then
        write(stdo,"('mkpot:',/'   Energy terms(Ry):',7x,'smooth',11x,'local',11x,'total')")
        write(stdo,680) &
             'rhoval*veff ',valfsm,valvfa,valvef, & !\int rho Veff
@@ -259,14 +266,13 @@ contains
        write(stdo,"('   Charges:  valence',f12.5,'   cores',f12.5,'   nucleii',f12.5/'   hom background',f12.5, &
          '   deviation from neutrality: ',f12.5)") smq+sqloc,qsmc+sqlocc,-zsum,qbg,dq
 680    format(3x,a,4x,3f17.6)
-    endif
-    if(iprint()>0) then
+    endif PrintEnergies
+    Printlogfile: if(iprint()>0) then
        write (stdl,"('fp qvl',f11.6,'  sm',f11.6,'  loc',f11.6,'  qbg',f11.6,' dQ',f11.6)") smq+sqloc,smq,sqloc,qbg,dq
        if (nsp == 2) write (stdl,"('fp mag ',f11.5,'  sm ',f11.5,'  loc ',f11.5)") smag+saloc,smag,saloc
        write (stdl,"('fp pot  rvxc',f18.7,'  rexc ',f18.7,'  rves ',f16.7)") rhovxc,rhoexc,utot
        write (stdl,"('fp pot  rex ',f18.7,'  rec ',f19.7)") rhoex,rhoec
-    endif
-    if(dabs(dq)>1d-3) write(stdo,"(a,f13.6)")' (warning) system not neutral, dq=',dq
+    endif Printlogfile
     call tcx('mkpot')
   end subroutine mkpot
   subroutine dfaugm(osig, otau, oppi, ohsozz,ohsopm )!Allocate pointer arrays
