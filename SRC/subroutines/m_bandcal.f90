@@ -3,8 +3,6 @@ module m_bandcal
   use m_lgunit,only:stdo,stdl
   use m_lmfinit,only: lmxa_i=>lmxa,rmt_i=>rmt,afsym,nspx
   use m_struc_def,only: s_rv1,s_rv5
-!  use m_suham,  only: ndhamx=>ham_ndhamx !,nspx=>ham_nspx
-  use m_igv2x,only: ndhamx=>nbandmx
   use m_qplist, only: nkp
   use m_mkqp,only: ntet=> bz_ntet, bz_nabc
   use m_qplist,only: qplist,niqisp,iqproc,isproc
@@ -14,7 +12,6 @@ module m_bandcal
   use m_MPItk,only: master_mpi, procid,strprocid, numprocs=>nsize
   use m_subzi, only: nevmx
   use m_supot, only: n1,n2,n3
-  use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate, osmpot,vconst, osig, otau, oppi,ohsozz,ohsopm
   use m_rdsigm2,only: senex,sene,getsenex,dsene,ndimsig
   use m_procar,only: m_procar_add,m_procar_closeprocar
   use m_clsmode,only: m_clsmode_set1
@@ -24,11 +21,12 @@ module m_bandcal
   use m_zhev,only: zhev_tk4
   use m_ftox
   use m_hambl,only: hambl
+  use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate,    osmpot,vconst,osig,otau,oppi,ohsozz,ohsopm !main inputs
   ! outputs ---------------------------
   public m_bandcal_init, m_bandcal_2nd, m_bandcal_clean, m_bandcal_allreduce, m_bandcal_symsmrho
   integer,allocatable,protected,public::     ndimhx_(:,:),nevls(:,:) 
   real(8),allocatable,protected,public::     frcband(:,:), orbtm_rv(:,:,:),evlall(:,:,:), spinweightsoc(:,:,:)
-  complex(8),allocatable,protected,public::  smrho_out(:),dmatu(:,:,:,:)
+  complex(8),allocatable,protected,public::  smrho_out(:,:,:,:),dmatu(:,:,:,:)
   type(s_rv5),allocatable,protected,public:: oeqkkl(:,:), oqkkl(:,:)
   !------------------------------------------------
   logical,private:: debug,sigmamode,call_m_bandcal_2nd,procaron,writeham,dmatuinit=.true.
@@ -46,7 +44,7 @@ contains
     real(8),allocatable    :: evl(:,:)  !eigenvalue (nband,nspin)
     complex(8),allocatable :: evec(:,:) !eigenvector( :,nband)
     logical:: ltet,cmdopt0,dmatuinit=.true.,wsene,magexist
-    character(3):: charnum3  !    real(8)::  evlall(ndhamx,nspx,nkp)
+    character(3):: charnum3  
     call tcn('m_bandcal_init')
     if(master_mpi) write(stdo,ftox)'m_bandcal_init: start'
     sigmamode = mod(lrsig,10)/=0
@@ -60,8 +58,8 @@ contains
     if(master_mpi) write(stdo,"('MagField added to Hailtonian -vmag/2 for isp=1, +vmag/2 for isp=2: vmag(Ry)=',d13.6)") vmag
     magexist= abs(vmag)>1d-6
     allocate( ndimhx_(nkp,nspx),nevls(nkp,nspx),source=0) 
-    allocate( evlall(ndhamx,nspx,nkp),source=0d0)
-    if(lso==1) allocate( spinweightsoc(ndhamx,nsp,nkp),source=0d0) !nsp=2 for lso==1
+    allocate( evlall(nbandmx,nspx,nkp),source=0d0)
+    if(lso==1) allocate( spinweightsoc(nbandmx,nsp,nkp),source=0d0) !nsp=2 for lso==1
     if(nlibu>0 .AND. dmatuinit) then
        allocate( dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu))
        dmatuinit=.false.
@@ -71,15 +69,15 @@ contains
        allocate( oeqkkl(3,nbas), oqkkl(3,nbas)) !pointer arrays. energy and charge for each ibas. 3 is for three radial channel
        call dfqkkl( oqkkl  )! allocate and zero clear
        call dfqkkl( oeqkkl )!
-       allocate( smrho_out(n1*n2*n3*nsp),source=(0d0,0d0) )
+       allocate( smrho_out(n1,n2,n3,nsp),source=(0d0,0d0) )
     endif
     call_m_bandcal_2nd =.false.
     if(plbnd==0) call_m_bandcal_2nd= (lmet>=0 .AND. lrout>0 )
     if(call_m_bandcal_2nd) then 
        if(allocated(neviqis))deallocate(neviqis,ndimhxiqis,eveciqis)
-       allocate(neviqis(niqisp),ndimhxiqis(niqisp),eveciqis(nbandmx,nevmx,niqisp)) !,evliqis(ndhamx,niqisp)
+       allocate(neviqis(niqisp),ndimhxiqis(niqisp),eveciqis(nbandmx,nevmx,niqisp)) 
     endif
-    allocate( evl(ndhamx,nspx))
+    allocate( evl(nbandmx,nspx))
     sumev = 0d0
     sumqv = 0d0
     bandcalculation_q: do 2010 idat=1,niqisp
@@ -185,10 +183,10 @@ contains
           if(nmx/=0) eveciqis(1:ndimhx,1:nev,idat)=evec(1:ndimhx,1:nev)
           !write(ifig) nev,ndimhx !nev: number of eigenvalues; write(ifig) evl(1:nev,isp); write(ifig) evec(1:ndimhx,1:nev)
        endif
-       evl(nev+1:ndhamx,isp)=1d99  !padding. flag to skip these data
+       evl(nev+1:nbandmx,isp)=1d99  !padding. flag to skip these data
        nevls(iq,isp)  = nev        !nov2014 isp and isp is confusing...
        ndimhx_(iq,isp)= ndimhx     !Hamiltonian dimension
-       evlall(1:ndhamx,isp,iq) = evl(1:ndhamx,isp)
+       evlall(1:nbandmx,isp,iq) = evl(1:nbandmx,isp)
        GetSpinWeightSOC1: if(lso==1.and.nmx/=0) then !note! nmx=0 lets zhev_tk to calculate only eigenvalues
           associate(nd=>ndimh)
             spinweightsoc(1:nev,1,iq)= [(sum(dconjg(evec(1:nd,i))*matmul(ovlms(:,1,:,1),evec(1:nd,i))),i=1,nev)]
@@ -203,7 +201,7 @@ contains
           endassociate
        endif GetSpinWeightSOC1
        if(afsym) then !cmdopt0('--afsym')) then
-          evlall(1:ndhamx,2,iq) = evl(1:ndhamx,1)
+          evlall(1:nbandmx,2,iq) = evl(1:nbandmx,1)
           nevls(iq,2)  = nev        
           ndimhx_(iq,2)= ndimhx     !Hamiltonian dimension
        endif   
@@ -238,11 +236,11 @@ contains
     if (lfrce>0)  frcband  = 0d0
     if(lso/=0) orbtm_rv=0d0
     if(allocated(smrho_out)) deallocate(smrho_out)
-    allocate( smrho_out(n1*n2*n3*nsp) )
+    allocate( smrho_out(n1,n2,n3,nsp) )
     smrho_out = 0d0
     sumev = 0d0
     sumqv = 0d0
-    allocate(evl(ndhamx,nspx))
+    allocate(evl(nbandmx,nspx))
     iqloop: do 12010 idat=1,niqisp !iq = iqini, iqend !This is a big iq loop
        iq = iqproc(idat)
        qp = qplist(:,iq)  !write(stdo,ftox)'m_bandcal_init: procid iq=',procid,iq,ftof(qp)
@@ -254,7 +252,7 @@ contains
        ndimhx= ndimhxiqis(idat)
        allocate(evec(ndimhx,nev))
        evl(1:nev,isp)=evlall(1:nev,isp,iq) !evliqis(1:nev,idat)
-       evl(nev+1:ndhamx,isp)=1d99 !padding 
+       evl(nev+1:nbandmx,isp)=1d99 !padding 
        evec(1:ndimhx,1:nev)=eveciqis(1:ndimhx,1:nev,idat)
        if(lso/=0)              call mkorbm(isp, nev, iq,qp, evec,  orbtm_rv)
        if(nlibu>0 .AND. nev>0) call mkdmtu(isp, iq,qp, nev, evec,  dmatu)

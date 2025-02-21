@@ -36,7 +36,7 @@ contains
        ndimhall(iq)= ndimh_z
        ndimhxall(iq)=ndimhx_z
     enddo
-    nbandmx=maxval(ndimhxall)
+    nbandmx=maxval(ndimhxall) !Max dim of Hamiltonian
     call tcx('m_igv2xall_init')
   end subroutine m_igv2xall_init
   subroutine m_igv2x_init(qp) !Set napw and igv2x_z for given qp
@@ -62,17 +62,13 @@ contains
        call getgv2(alat,plat,qlat, qqq, pwgmax,1, napw_z, imx11)   ! get nqpn. # of G vector for |q+G| < pwgmax
        allocate(igv2x_z(3,napw_z))
        call getgv2(alat,plat,qlat, qqq, pwgmax,2, napw_z, igv2x_z) ! for eigenfunctions (psi)
-!       write(stdo,ftox) ftof(qqq),' ',ftof(qp)
-!       do i=1,napw_z
-!          write(stdo,ftox) 'iiiiiiiggggggggg',i,'  ',igv2x_z(:,i)
-!       enddo
     else !No APWs
        napw_z=0
        allocate(igv2x_z(1,1))  
     endif
     ndimh_z = nlmto+napw_z     ! ldim+napw
     if (mod(pwmode,10)==2) ndimh_z = napw_z !APW-only mode
-    ndimhx_z = ndimh_z*nspc     !this is iq-dependent.
+    ndimhx_z = ndimh_z*nspc     !this is iq-dependent size of Hamiltonian
     call tcx('m_igv2x_init')
   end subroutine m_igv2x_init
 end module m_igv2x

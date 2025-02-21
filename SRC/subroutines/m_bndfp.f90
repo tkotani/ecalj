@@ -44,7 +44,7 @@ contains
     use m_igv2x,only: nbandmx
     use m_lmfinit,only: ncutovl,lso,ndos=>bz_ndos,bz_w,fsmom=>bz_fsmom, bz_dosmax,lmet=>bz_lmet,bz_fsmommethod,bz_n,nspx
     use m_lmfinit,only: ldos,qbg=>zbak,lfrce,pwmode=>ham_pwmode,lrsig=>ham_lsig,epsovl=>ham_oveps !try to avoid line continuation in fortran
-    use m_lmfinit,only: ham_scaledsigma, alat=>lat_alat, nlmax,nbas,nsp, bz_dosmax,nlmxlx,afsym
+    use m_lmfinit,only: ham_scaledsigma, alat=>lat_alat, nlmax,nbas,nsp, bz_dosmax,nlmxlx,afsym,ispec
     use m_lmfinit,only: lmaxu,nlibu,lldau,lpztail,leks,lrout,  nchan=>pot_nlma, nvl=>pot_nlml,pnufix !lmfinit contains fixed input 
     use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
     use m_mkqp,only: nkabc=> bz_nabc,ntet=> bz_ntet,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
@@ -313,8 +313,32 @@ contains
        call m_clsmode_finalize(eferm,ndimh,nbandmx,nspx,nkp,dosw,evlall)
        call rx0('Done cls mode:')
     endif CorelevelSpectroscopy2
-    if(lso/=0)   call iorbtm() !WriteOribitalMoment
+    if(lso/=0)   call iorbtm() !Write Orbital Moment
     if(lrout/=0) call m_bandcal_symsmrho()  !Getsmrho_out Symmetrize smooth density ! Assemble output density, energies and forces 
+    WRITEsmrhoTOxsf: if(cmdopt0('--density') .AND. master_mpi) then ! new density mode
+       block
+         use m_lmfinit,only:z
+         integer::i1,i2,i3,i
+         open(newunit=ifi,file='smrho.xsf')
+         do isp = 1, nsp
+           write(ifi,'("CRYSTAL")');     write(ifi,'("PRIMVEC")')
+           write(ifi,'(3f10.5)') ((plat(i1,i2)*alat*0.529177208,i1=1,3),i2=1,3)
+           write(ifi,'("PRIMCOORD")');   write(ifi,'(2i5)') nbas,1
+           do i = 1, nbas
+             write(ifi,'(i4,2x,3f10.5)')z(ispec(i)),(pos(i2,i)*alat*0.529177208,i2=1,3)
+           enddo
+           write(ifi,'("BEGIN_BLOCK_DATAGRID_3D")')
+           write(ifi,'("charge_density_spin_",i1)') isp
+           write(ifi,'("BEGIN_DATAGRID_3D_isp_",i1)') isp
+           write(ifi,'(3i4)') n1,n2,n3;     write(ifi,'(3f10.5)') 0.,0.,0.
+           write(ifi,'(3f10.5)') ((plat(i1,i2)*alat*0.529177208,i1=1,3),i2=1,3)
+           write(ifi,'(8e14.6)') (((dble(smrho_out(i1,i2,i3,isp)),i1=1,n1),i2=1,n2),i3=1,n3)
+           write(ifi,'("END_DATAGRID_3D_isp_",i1)') isp
+           write(ifi,'("END_BLOCK_DATAGRID_3D")')
+         enddo
+         close(ifi)
+       endblock
+    endif WRITEsmrhoTOxsf
     call m_mkrout_init() !Get force frcbandsym, symmetrized atomic densities orhoat_out, and weights hbyl,qbyl
     call pnunew(eferm) !pnuall are revised. !  New boundary conditions pnu for phi and phidot
     !  call writeqpyl() !Set if you like to print writeqbyl

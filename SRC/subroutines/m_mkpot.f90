@@ -11,10 +11,12 @@ module m_mkpot !How to learng this? Instead of reading all source, understand I/
   type(s_rv4),allocatable,protected,public  :: otau(:,:) !tau            (C.5) 
   type(s_rv4),allocatable,protected,public  :: osig(:,:) !sigma          (C.4) 
   complex(8),allocatable,protected ,public  :: osmpot(:,:,:,:)!0th component of Eq.(34)
+  
   real(8),allocatable,protected,public:: fes1_rv(:), fes2_rv(:) !force terms
   real(8),allocatable,protected,public:: hab_rv(:,:,:), sab_rv(:,:,:,:,:), qmom(:,:),vesrmt(:)
   real(8),protected,public:: qval,vconst,qsc
   real(8),allocatable,protected,public:: phzdphz(:,:,:,:) !val and slo at Rmt for local orbitals.
+  
   ! Energy terms by call m_mkpot_energyterms
   real(8),protected,public:: utot,rhoexc,xcore,valvef,amom, valves,cpnves,rhovxc
   ! NoVxc terms  by call m_mkpot_novxc
@@ -65,7 +67,7 @@ contains
     allocate( fes1_rv(3*nbas))
     allocate( osig(3,nbas), otau(3,nbas), oppi(3,nbas))
     allocate( ohsozz(3,nbas), ohsopm(3,nbas))
-    call dfaugm(osig,otau,oppi,ohsozz,ohsopm) !allocation for sig,tau,ppi integrals
+    call dfaugm(osig,otau,oppi,ohsozz,ohsopm) !allocate pointer array for sig,tau,ppi integrals
     call mkpot(1,osmrho,orhoat,osmpot,osig , otau , oppi, fes1_rv, ohsozz,ohsopm)
     call tcx('m_mkpot_init')
   end subroutine m_mkpot_init
@@ -73,7 +75,7 @@ contains
     use m_MPItk,only: master_mpi
     use m_struc_def
     type(s_rv1):: orhoat_out(:,:)
-    complex(8) :: smrho_out(:)
+    complex(8) :: smrho_out(:,:,:,:)
     call tcn('m_mkpot_energyterms')
     if(master_mpi) write(stdo,"('m_mkpot_energyterms')")
     if(allocated(fes2_rv)) deallocate(fes2_rv)
@@ -210,62 +212,33 @@ contains
     character(80) :: outs
     character strn*120
     call tcn('mkpot')
-    WRITEsmrhoTOxsf: if(cmdopt0('--density') .AND. master_mpi .AND. secondcall) then ! new density mode
-       open(newunit=ifi,file='smrho.xsf')
-       do isp = 1, nsp
-          write(ifi,'("CRYSTAL")')
-          write(ifi,'("PRIMVEC")')
-          write(ifi,'(3f10.5)') ((plat(i1,i2)*alat*0.529177208,i1=1,3),i2=1,3)
-          write(ifi,'("PRIMCOORD")')
-          write(ifi,'(2i5)') nbas,1
-          do i = 1, nbas
-             write(ifi,'(i4,2x,3f10.5)')z_i(ispec(i)),(rv_a_opos(i2,i)*alat*0.529177208,i2=1,3)
-          enddo
-          write(ifi,'("BEGIN_BLOCK_DATAGRID_3D")')
-          write(ifi,'("charge_density_spin_",i1)') isp
-          write(ifi,'("BEGIN_DATAGRID_3D_isp_",i1)') isp
-          write(ifi,'(3i4)') n1,n2,n3
-          write(ifi,'(3f10.5)') 0.,0.,0.
-          write(ifi,'(3f10.5)') ((plat(i1,i2)*alat*0.529177208,i1=1,3),i2=1,3)
-          write(ifi,'(8e14.6)') (((dble(smrho(i1,i2,i3,isp)),i1=1,n1),i2=1,n2),i3=1,n3)
-          write(ifi,'("END_DATAGRID_3D_isp_",i1)') isp
-          write(ifi,'("END_BLOCK_DATAGRID_3D")')
-       enddo
-       close(ifi)
-    else
-       secondcall=.true.
-    endif WRITEsmrhoTOxsf
     Printsmoothbackgroundcharge: if (qbg /= 0) then !
-       rhobg = (3d0/4d0/pi*vol)**(1d0/3d0)
-       if(master_mpi)write(stdo,ftox)' Energy for background charge q=',ftod(qbg),'radius r=',rhobg,&
-            'E=9/5*q*q/r=',1.8d0*qbg*qbg/rhobg
+      rhobg = (3d0/4d0/pi*vol)**(1d0/3d0)
+      if(master_mpi)write(stdo,ftox)' Energy for background charge q=',ftod(qbg),'radius r=',rhobg,'E=9/5*q*q/r=',1.8d0*qbg*qbg/rhobg
     endif Printsmoothbackgroundcharge
-    call rhomom(orhoat, qmom,vsum) !multipole moments
-    call smves(qmom,gpot0,vval,hpot0_rv,smrho,smpot,vconst,smq,qsmc,fes,rhvsm0,rhvsm,zsum,vesrmt,qbg)!0th part of electrostatic potential Ves and Ees
+    call rhomom(orhoat, qmom,vsum) ! Multipole moments qmom is calculated
+    call smves(qmom,gpot0,vval,hpot0_rv,smrho,smpot,vconst,smq,qsmc,fes,rhvsm0,rhvsm,zsum,vesrmt,qbg)!0th comp. of Estatic potential Ves and Ees
     smag = merge(2d0*dreal(sum(smrho(:,:,:,1)))*vol/(n1*n2*n3) - smq,0d0,nsp==2) !mag mom
-    ADDsmoothExchangeCorrelationPotential: if( .NOT. present(novxc_)) then 
-       novxc=.false.
-       block
+    novxc= present(novxc_)
+    repsm=0d0;  repsmx=0d0;  repsmc=0d0;   rmusm=0d0;  rvmusm=0d0
+    if(.not.novxc) then
+       ADDsmoothExchangeCorrelationPotential:block
          complex(8):: smvxc_zv(n1*n2*n3*nsp),smvx_zv(n1*n2*n3*nsp), smvc_zv(n1*n2*n3*nsp),smexc_zv(n1*n2*n3)
          real(8):: fxc_rv(3,nbas)
          smvxc_zv=0d0; smvx_zv=0d0; smvc_zv=0d0; smexc_zv=0d0; fxc_rv=0d0 !We use n0+n^sH_a to obtain smpot.
-         call smvxcm(lfrce, smrho,smpot,smvxc_zv,smvx_zv,smvc_zv, smexc_zv,repsm,repsmx,repsmc,rmusm,rvmusm,rvepsm, fxc_rv )!0th of Exc Vxc
+         call smvxcm(lfrce, smrho,smpot,smvxc_zv,smvx_zv,smvc_zv, smexc_zv,repsm,repsmx,repsmc,rmusm,rvmusm,rvepsm, fxc_rv )
          if( lfrce /= 0 ) fes = fes+fxc_rv
-       endblock
-    else
-       novxc=.true.
-       repsm=0d0;  repsmx=0d0;  repsmc=0d0;   rmusm=0d0;  rvmusm=0d0;
-    endif ADDsmoothExchangeCorrelationPotential
+       endblock ADDsmoothExchangeCorrelationPotential
+    endif
     call elocp() ! set ehl and rsml for extendet local orbitals
     if(sum(lpzex)/=0) call m_bstrux_init()!computes structure constant (C_akL Eq.(38) in /JPSJ.84.034702) when we have extended local orbital.
     call locpot(job,novxc,orhoat,qmom,vval,gpot0, & !Make local potential at atomic sites and augmentation matrices 
          osig,otau,oppi,ohsozz,ohsopm, phzdphz,hab_rv,vab_rv,sab_rv,  &
          vvesat,repat,repatx,repatc,rmuat, valvfa,xcore, sqloc,sqlocc,saloc,qval,qsc )
-    if(cmdopt0('--density') .AND. master_mpi .AND. secondcall) return
     valfsm = rhvsm0 + sum(rvmusm) - vconst*qbg ! 0th comp. of rho_val*Veff= rho0*Ves +rho0*Vxc -vconst*qbg 
     valvef = valfsm + valvfa                   ! Veff*n_val= veff0*rho0_val + veff1*rho1_val-veff2*rho2_val
-    usm = 0.5d0*rhvsm   ! 0th comp. of Eq.(27). rhvsm= \int 0thEes*(n0+n^c_sH +gaussians)
-    uat = 0.5d0*vvesat  ! vvesat= \int 1stEes*(n1+n^c)+\int (1stEes-zcontribution)*z  - \int 2ndEes*(n2+n_sH+gaussians)
+    usm    = 0.5d0*rhvsm   ! 0th comp. of Eq.(27). rhvsm= \int 0thEes*(n0+n^c_sH +gaussians)
+    uat    = 0.5d0*vvesat  ! vvesat= \int 1stEes*(n1+n^c)+\int (1stEes-zcontribution)*z  - \int 2ndEes*(n2+n_sH+gaussians)
     utot = usm + uat !Ees total electro static energy. Eq.(27)
     rhoexc = sum(repsm) + sum(repat) ! Exc=\int rho*exc 
     rhoex  = sum(repsmx)+ sum(repatx)! Ex 
@@ -312,7 +285,7 @@ contains
     !               soffd(:,2)= <H|L+(isp=2,isp=1)|P>
     !       dagger(soffd(:,2))= <P|L-(isp=1,isp=2)|H>
     implicit none
-    type(s_cv5) :: oppi(3,nbas)
+    type(s_cv5) :: oppi(3,nbas) !poiner array for pi integral
     type(s_sblock):: ohsozz(3,nbas),ohsopm(3,nbas)
     type(s_rv4) :: otau(3,nbas)
     type(s_rv4)::  osig(3,nbas)

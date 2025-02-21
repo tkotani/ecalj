@@ -15,7 +15,6 @@ contains
     use m_MPItk,only: master_mpi
     use m_ext,only: sname
     use m_esmsmves,only: esmsmves
-!    use m_hansr,only:corprm
     use m_vesgcm,only: vesgcm
     use m_ftox
     !i   n1,n2,n3 dimensions of smrho,smpot for smooth mesh density
@@ -45,12 +44,12 @@ contains
     real(8):: ceh,cofg,cofh,dgetss,hsum,qcorg,qcorh,qsc, &
          rfoc,rmt,s1,s2,sbar,sumx,sum1,sum2,u00,u0g,ugg,usm,vbar,z,R,eint, rhvsm0
     complex(8):: smrho(n1,n2,n3,nsp),smpot(n1,n2,n3,nsp)
-    complex(8) ,allocatable :: cg1_zv(:), cgsum_zv(:), cv_zv(:)
+    !complex(8) ,allocatable :: cg1_zv(:), cgsum_zv(:), cv_zv(:)
     real(8),parameter::pi = 4d0*datan(1d0), srfpi = dsqrt(4d0*pi), y0= 1d0/srfpi
+    complex(8):: cv_zv(ng),cg1_zv(ng),cgsum_zv(ng)
     call tcn('smves')
     ipr = iprint()
     if(nsp==2) smrho(:,:,:,1)=smrho(:,:,:,1)+smrho(:,:,:,2)!Electrostatics is only on total density
-    allocate(cv_zv(ng),cg1_zv(ng),cgsum_zv(ng))
     f=0d0
     call fftz3(smrho,n1,n2,n3,n1,n2,n3,1,0,-1) ! FT of smooth density to reciprocal space
     call vesft ( ng,rv_a_ogv,iv_a_okv,cv_zv,smrho,smpot,u00 )! Estatic potential of smooth density without gaussians
@@ -62,7 +61,7 @@ contains
     endblock ESMsuppliedfromMOBATA
     call mshvmt(ng,rv_a_ogv,iv_a_okv, cv_zv, smpot,vval )
     call symvvl(vval,vrmt) !Compute e.s. potential at MT boundary vrmt
-    deallocate(cgsum_zv,cg1_zv,cv_zv)
+!    deallocate(cgsum_zv,cg1_zv,cv_zv)
     vbar = 0d0
     sbar = 0d0
     do  ib = 1, nbas
@@ -313,7 +312,6 @@ contains
     use m_smhankel,only:hhugbl,hgugbl,ggugbl
     use m_lattic,only: rv_a_opos
     use m_lmfinit,only: ispec
-!    use m_hansr,only:corprm
     !i   qmom  :multipole moments of on-site densities (rhomom.f). defined at Eq.(25)
     ! o Inputs/Outputs
     ! o  Let n0  = smooth potential without compensating gaussians
