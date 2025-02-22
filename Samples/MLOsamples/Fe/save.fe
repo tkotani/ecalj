@@ -23,3 +23,28 @@ Start LMF fe --quit=band
 i mmom= 2.2443 ehf(eV)=-34574.139046 ehk(eV)=-34574.139111 sev(eV)=-327.530224
 Start LMF fe --band
 Start LMF fe --writeham --mkprocar --noinv
+Start LMFA fe
+Start LMF fe
+h mmom= 2.0771 ehf(eV)=-34574.152369 ehk(eV)=-34573.819153 sev(eV)=-317.958079
+i mmom= 2.2382 ehf(eV)=-34574.242750 ehk(eV)=-34573.741190 sev(eV)=-337.802740
+i mmom= 2.0873 ehf(eV)=-34574.435439 ehk(eV)=-34573.117496 sev(eV)=-310.020400
+i mmom= 2.2204 ehf(eV)=-34574.136661 ehk(eV)=-34574.137478 sev(eV)=-328.074058
+i mmom= 2.2253 ehf(eV)=-34574.138329 ehk(eV)=-34574.137924 sev(eV)=-328.109441
+i mmom= 2.2360 ehf(eV)=-34574.138592 ehk(eV)=-34574.138718 sev(eV)=-327.551037
+i mmom= 2.2410 ehf(eV)=-34574.139142 ehk(eV)=-34574.139109 sev(eV)=-327.707931
+i mmom= 2.2434 ehf(eV)=-34574.138881 ehk(eV)=-34574.138894 sev(eV)=-327.423055
+i mmom= 2.2439 ehf(eV)=-34574.138995 ehk(eV)=-34574.139056 sev(eV)=-327.497596
+i mmom= 2.2441 ehf(eV)=-34574.139033 ehk(eV)=-34574.139097 sev(eV)=-327.522868
+c mmom= 2.2442 ehf(eV)=-34574.139046 ehk(eV)=-34574.139111 sev(eV)=-327.531282
+Start LMF fe --quit=band
+i mmom= 2.2443 ehf(eV)=-34574.139045 ehk(eV)=-34574.139110 sev(eV)=-327.530362
+Start LMF fe --band
+Start LMF fe --writeham --mkprocar --noinv
+Start LMFA fe
+Start LMF fe
+i mmom= 2.2443 ehf(eV)=-34574.139045 ehk(eV)=-34574.139110 sev(eV)=-327.530362
+c mmom= 2.2443 ehf(eV)=-34574.139046 ehk(eV)=-34574.139111 sev(eV)=-327.530458
+Start LMF fe --quit=band
+i mmom= 2.2443 ehf(eV)=-34574.139046 ehk(eV)=-34574.139111 sev(eV)=-327.530224
+Start LMF fe --band
+Start LMF fe --writeham --mkprocar --noinv
