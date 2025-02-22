@@ -1,0 +1,4 @@
+Start LMFA gas
+Start LMF gas
+Start LMF gas --quit=band
+Start LMF gas --writeham --mkprocar --noinv

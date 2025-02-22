@@ -1,0 +1,11 @@
+Start LMFA si
+Start LMF si
+h ehf(eV)=-15731.562324 ehk(eV)=-15731.348261 sev(eV)=-14.037940
+i ehf(eV)=-15731.417479 ehk(eV)=-15731.388443 sev(eV)=-15.477657
+i ehf(eV)=-15731.394007 ehk(eV)=-15731.393438 sev(eV)=-16.494718
+i ehf(eV)=-15731.393630 ehk(eV)=-15731.393550 sev(eV)=-16.695615
+c ehf(eV)=-15731.393585 ehk(eV)=-15731.393583 sev(eV)=-16.713969
+Start LMF si --quit=band
+i ehf(eV)=-15731.393583 ehk(eV)=-15731.393582 sev(eV)=-16.711950
+Start LMF si --band
+Start LMF si --writeham --mkprocar --noinv

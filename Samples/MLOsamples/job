@@ -1,6 +1,0 @@
-lmfa fe
-mpirun -np 8 lmf fe
-job_band fe -np 8
-job_ham fe -np 8
-lmfham2 fe --job=0
-lmfham2 fe --job=1

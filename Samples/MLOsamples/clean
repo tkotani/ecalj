@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# ディレクトリを指定
+TARGET_DIR="."
+
+# 削除するファイル名のパターン
+PATTERNS=("Ham*" "atm*" "ves*" "lmfa" "rstL" "llmf" "out*" "BZ*" "temp*" "mix*" "llmf*" "_IN_" "QPLIST" "qplist*" "llmf_band" "Hamil*" "PROC*" "out_lmf*" "CNmat*" "ctrlp*" "lmfham*" "BB*" "rst*")
+
+# パターンに基づいてファイルを削除
+for pattern in "${PATTERNS[@]}"; do
+  find "$TARGET_DIR" -type f -name "$pattern" -exec rm -f {} \;
+done

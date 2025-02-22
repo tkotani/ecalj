@@ -1,0 +1,30 @@
+set terminal postscript enhanced color eps
+set output "bandplot.isp2.band.eps"
+set xzeroaxis
+set grid
+set ylabel "Energy-Efermi(eV)"
+# This is given written in subroutine writeband in lm7K/fp/bndfp.F
+set title "Band nio isp=2 at /home/takao/ecalj/Samples/MLOsamples/NiO666lda"
+set yrange [   -20.00000:    20.00000]
+set xrange [0.0:     4.95662]
+set xtics ('GAMMA'   0.0000000000,\
+'T'   0.4330127019,\
+'H_2|H_0'   1.3168961784,\
+'L'   1.8472262643,\
+'GAMMA'   2.6763824619,\
+'S_0|S_2'   3.6486542860,\
+'F'   4.0905960242,\
+'GAMMA'   4.9566214280)
+tpia=2*3.1415926/     7.88000
+ef=  0.045627
+plot \
+"band_MPO_spin2.dat" u ($1):(13.605*($2-ef)) pt 2 lc rgb "green",\
+"bnd001.spin2" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd002.spin2" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd003.spin2" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd004.spin2" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd005.spin2" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd006.spin2" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd007.spin2" u ($2):($3) lt 1 pt 1 w lp
+set terminal x11
+replot

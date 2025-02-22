@@ -1,0 +1,19 @@
+Start LMFA srtio3
+Start LMF srtio3
+h ehf(eV)=-115729.449632 ehk(eV)=-115709.110603 sev(eV)=-521.898002
+i ehf(eV)=-115724.079617 ehk(eV)=-115722.262489 sev(eV)=-510.500973
+i ehf(eV)=-115723.670125 ehk(eV)=-115722.969890 sev(eV)=-507.990369
+i ehf(eV)=-115723.495931 ehk(eV)=-115723.463338 sev(eV)=-507.276915
+i ehf(eV)=-115723.546504 ehk(eV)=-115723.304471 sev(eV)=-508.427841
+i ehf(eV)=-115723.494052 ehk(eV)=-115723.477514 sev(eV)=-510.282917
+i ehf(eV)=-115723.490836 ehk(eV)=-115723.484562 sev(eV)=-510.155704
+i ehf(eV)=-115723.488251 ehk(eV)=-115723.488288 sev(eV)=-509.885730
+i ehf(eV)=-115723.488223 ehk(eV)=-115723.488272 sev(eV)=-509.871837
+i ehf(eV)=-115723.488149 ehk(eV)=-115723.488180 sev(eV)=-509.852430
+i ehf(eV)=-115723.488079 ehk(eV)=-115723.488132 sev(eV)=-509.848483
+i ehf(eV)=-115723.487974 ehk(eV)=-115723.488058 sev(eV)=-509.839261
+c ehf(eV)=-115723.487929 ehk(eV)=-115723.488019 sev(eV)=-509.829104
+Start LMF srtio3 --quit=band
+i ehf(eV)=-115723.487888 ehk(eV)=-115723.487981 sev(eV)=-509.816588
+Start LMF srtio3 --band
+Start LMF srtio3 --writeham --mkprocar --noinv

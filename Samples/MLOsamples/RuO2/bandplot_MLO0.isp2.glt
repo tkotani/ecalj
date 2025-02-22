@@ -1,0 +1,38 @@
+set terminal postscript enhanced color eps
+set output "bandplot.isp2.band.eps"
+set xzeroaxis
+set grid
+set ylabel "Energy-Efermi(eV)"
+# This is given written in subroutine writeband in lm7K/fp/bndfp.F
+set title "Band ruo2 isp=2 at /home/takao/ecalj/Samples/MLOsamples/RuO2"
+set yrange [   -20.00000:    20.00000]
+set xrange [0.0:     6.00198]
+set xtics ('GAMMA'   0.0000000000,\
+'Y'   0.7071067812,\
+'C_0|SIGMA_0'   0.7071067812,\
+'GAMMA'   1.4142135624,\
+'Z'   2.1387325904,\
+'A_0|E_0'   2.8458393716,\
+'T'   2.8458393716,\
+'Y|GAMMA'   3.5703583996,\
+'S'   4.0703583996,\
+'R'   4.7948774277,\
+'Z'   5.2948774277,\
+'T'   6.0019842089)
+tpia=2*3.1415926/     8.54257
+ef=  0.319487
+plot \
+"band_MPO_spin2.dat" u ($1):(13.605*($2-ef)) pt 2 lc rgb "green",\
+"bnd001.spin2" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd002.spin2" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd003.spin2" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd004.spin2" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd005.spin2" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd006.spin2" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd007.spin2" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd008.spin2" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd009.spin2" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd010.spin2" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd011.spin2" u ($2):($3) lt 1 pt 1 w lp
+set terminal x11
+replot

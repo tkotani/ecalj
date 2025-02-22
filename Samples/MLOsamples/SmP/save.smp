@@ -1,0 +1,22 @@
+Start LMFA smp
+Start LMF smp
+h mmom= 5.0000 ehf(eV)=-292851.261055 ehk(eV)=-292849.543795 sev(eV)=-172.304235
+i mmom= 5.0000 ehf(eV)=-292850.407760 ehk(eV)=-292849.761246 sev(eV)=-176.506731
+i mmom= 4.9818 ehf(eV)=-292849.699561 ehk(eV)=-292848.792574 sev(eV)=-189.268000
+i mmom= 4.9984 ehf(eV)=-292849.906275 ehk(eV)=-292849.890563 sev(eV)=-182.156564
+i mmom= 4.9981 ehf(eV)=-292849.811677 ehk(eV)=-292849.808466 sev(eV)=-183.073251
+i mmom= 4.9983 ehf(eV)=-292849.753742 ehk(eV)=-292849.752377 sev(eV)=-183.350248
+i mmom= 4.9983 ehf(eV)=-292849.759677 ehk(eV)=-292849.758811 sev(eV)=-183.284301
+i mmom= 4.9983 ehf(eV)=-292849.764882 ehk(eV)=-292849.764387 sev(eV)=-183.201816
+i mmom= 4.9983 ehf(eV)=-292849.766714 ehk(eV)=-292849.766420 sev(eV)=-183.174172
+i mmom= 4.9983 ehf(eV)=-292849.766332 ehk(eV)=-292849.766172 sev(eV)=-183.179879
+i mmom= 4.9983 ehf(eV)=-292849.765717 ehk(eV)=-292849.765661 sev(eV)=-183.196830
+i mmom= 4.9983 ehf(eV)=-292849.765503 ehk(eV)=-292849.765513 sev(eV)=-183.199423
+i mmom= 4.9983 ehf(eV)=-292849.765176 ehk(eV)=-292849.765237 sev(eV)=-183.204376
+i mmom= 4.9983 ehf(eV)=-292849.765021 ehk(eV)=-292849.765114 sev(eV)=-183.204536
+i mmom= 4.9983 ehf(eV)=-292849.764830 ehk(eV)=-292849.764949 sev(eV)=-183.204611
+c mmom= 4.9983 ehf(eV)=-292849.764715 ehk(eV)=-292849.764853 sev(eV)=-183.204175
+Start LMF smp --quit=band
+i mmom= 4.9983 ehf(eV)=-292849.764658 ehk(eV)=-292849.764808 sev(eV)=-183.203681
+Start LMF smp --band
+Start LMF smp --writeham --mkprocar --noinv
