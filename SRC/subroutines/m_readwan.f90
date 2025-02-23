@@ -96,7 +96,6 @@ contains
           call diag_hm2(hrotkp,nwf,eval,evecc)
           eval_w(1:nwf,iq,isp)=eval
           evecc_w(1:nwf,1:nwf,iq,isp)=evecc
-
           ! ccccccccc eigenvalue check
           !$$$            if(iq==1) open(iwf,file="waneval_check.data")
           !$$$!     if (kx==1 .and. iq > 100 ) open(iwf,file="wan_eval_check.data")
@@ -184,7 +183,7 @@ contains
     intent(out)::                   ev_w, evc_w
     integer :: isp
     real(8) :: q(3)
-    real(8) :: ev_w(nwf)      !eigenvalue
+    real(8) :: ev_w(nwf)         !eigenvalue
     complex(8) :: evc_w(nwf,nwf) !eigenfunction
     real(8):: qu(3), shift_ev
     complex(8),allocatable:: hrotk(:,:,:),hrotkp(:,:),evec(:,:)

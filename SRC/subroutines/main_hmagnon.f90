@@ -441,7 +441,7 @@ subroutine hmagnon() bind(C)
   call MPI_barrier(comm,ierr)
 
   !! ======== Loop over iq ================================
-  do 1001 iqq = iqxini,iqxend      ! NOTE: q=(0,0,0) is active iqq=iqxini (see autogamma)
+  iqqloop: do 1001 iqq = iqxini,iqxend      ! NOTE: q=(0,0,0) is active iqq=iqxini (see autogamma)
      iq = iqq-iqxini+1 !! start with iq=1 for convenience
      if(MPI__rank > size_lim) cycle !reduce mpi-size for test (skip 21-32)
      if( .NOT. MPI__task(iq) .AND. iq /= 1) cycle
@@ -499,11 +499,8 @@ subroutine hmagnon() bind(C)
      write(6,*) "mpm nctot",npm,nctot
 
      do 5001 kx=1,nqbz      !!! ev_w1, ev_w2 unit: [Ry]
-        call wan_readeval2(  qbz(:,kx), is, &
-             ev_w1(1:nwf,kx), evc_w1(1:nwf,1:nwf,kx))
-        call wan_readeval2(q+qbz(:,kx), isf, &
-             ev_w2(1:nwf,kx), evc_w2(1:nwf,1:nwf,kx))
-
+        call wan_readeval2(  qbz(:,kx), is,    ev_w1(1:nwf,kx), evc_w1(1:nwf,1:nwf,kx)) !eigenvalue eigenfunciton
+        call wan_readeval2(q+qbz(:,kx), isf,   ev_w2(1:nwf,kx), evc_w2(1:nwf,1:nwf,kx))
         !! only Cu2MnAl (cma)
         !! Energy of Mn3d(dn) is moved by cma_shitf
         if (cma_mode) then
@@ -520,7 +517,6 @@ subroutine hmagnon() bind(C)
         !! end cma
 5001 enddo
      write(6,"('= start wan_gettetwt =',2i6,3f9.4)") nwf,iq,q
-
      !! tetrahedron weight
      !call gettetwt(q,iq,isdummy,isdummy,nwgt(:,iq),ev_w1,ev_w2,nwf,eibzmode,wan)
      call gettetwt(q,iq,isdummy,isdummy,ev_w1,ev_w2,nwf,wan)
@@ -530,13 +526,12 @@ subroutine hmagnon() bind(C)
      rnqbz=1/dble(nqbz)
      znorm=-1d0*pi
 !!!! generate wanmat
-     if ( .NOT. allocated(kmat)) allocate(kmat(1:nnwf,1:nnwf,1:nwhis,1:npm), &
-          wanmat(1:nnwf,1:nnwf)) !! (nwf^2*nwf^2)
+     if ( .NOT. allocated(kmat)) allocate(kmat(1:nnwf,1:nnwf,1:nwhis,1:npm), wanmat(1:nnwf,1:nnwf)) !! (nwf^2*nwf^2)
      !           kmat=(0d0,1d-15)
      kmat=(0d0,0d0)       !orbtest
-     do 2011 kx=1,nqbz    !! discrete k-point loop
-        do 2012 jpm=1,npm !! jpm=2: negative frequency
-           do 2013 ibib=1,nbnb(kx,jpm) !! n,n' band loop
+     kxloop: do 2011 kx=1,nqbz    !! discrete k-point loop
+        jpmloop: do 2012 jpm=1,npm !! jpm=2: negative frequency
+           ibibloop: do 2013 ibib=1,nbnb(kx,jpm) !! n,n' band loop
 !!!     n1b(ibib,k,jpm) = n :band index for k (occupied)
 !!!     n2b(ibib,k,jpm) = n':band index for q+k (unoccupied)
               if (debug) then
@@ -593,13 +588,9 @@ subroutine hmagnon() bind(C)
                           !                 wanmat(ijwf,klwf)=wanijkl+(0d0,1d-9) ! +delta (~ 1d-9?)
                           ! delta makes a width of Im[R] peaks
 
-                          continue     !lwf
 3005                   enddo
-                       continue     !kwf
 3004                enddo
-                    continue     !jwf
 3003             enddo
-                 continue     !iwf
 3002          enddo
               debug=.False.
               !========================== end caliculate M(:,:) : wanmat(nwf,nwf)
@@ -609,13 +600,9 @@ subroutine hmagnon() bind(C)
 !!!   accumulate Im[K]
                  kmat(:,:,iw,jpm)=kmat(:,:,iw,jpm)+imagweight*wanmat(:,:)
               enddo
-
-              continue                  !ibib-loop
-2013       enddo
-           continue                  !jpm-loop
-2012    enddo
-        continue                  !k-loop
-2011 enddo
+2013       enddo ibibloop
+2012    enddo jpmloop
+2011 enddo kxloop
      deallocate(evc_w1,evc_w2,wanmat)
      call tetdeallocate()      !--> deallocate(ihw,nhw,jhw, whw,ibjb,n1b,n2b)
 
@@ -769,9 +756,8 @@ subroutine hmagnon() bind(C)
      ! cccccdiagonalization for K
      print *,"nw_i,nw",nw_i,nw
      maximr=0d0; w_maximr=0d0 !!! search for Im[R] peak
-     do 2050 iw = nw_i,nw
+     iwloop: do 2050 iw = nw_i,nw
         trmat=(0d0,0d0)
-
 !!! diag
         call diagcvuh3(zxq(:,:,iw),nnwf,eval_wk)
 !!! Hermite matrix diagonization
@@ -1030,61 +1016,42 @@ subroutine hmagnon() bind(C)
            endif
         endif
         ! cc
-
-2050 enddo
+2050 enddo iwloop
      deallocate(zxq, rmat, wkmat, wkmat2)
-
-     if ( .NOT. iq==1) then
-        ! c(MF)
-        ! BZweight*omega[eV] for sum(E(q))/N
-        mf_maximr(imaximr)=wibz(iq)*w_maximr*hartree
-        ! c(RPA)
-        ! BZweight*omega[eV] for sum(1/E(q))/N
+     if ( .NOT. iq==1) then         ! c(MF)        ! BZweight*omega[eV] for sum(E(q))/N
+        mf_maximr(imaximr)=wibz(iq)*w_maximr*hartree         ! c(RPA)         ! BZweight*omega[eV] for sum(1/E(q))/N
         rpa_maximr(imaximr)=wibz(iq)/(w_maximr*hartree)
      endif
-
      if (MPI__task(iq)) then  !magnon peak
         write(6,"('AAAA',I4,3f9.4)") iq,q
         write(6,"('AAAA, w(MAX(im[R])), Im[R]',f13.5,E12.4)") w_maximr*2d0*rydberg()*1000,maximr/hartree
      endif
-
-     if (MPI__task(iq)) then
-        !$$$         write(ifwkeigen2,*)
+     if (MPI__task(iq)) then        !$$$         write(ifwkeigen2,*)
         if (l1wkout) write(ifwkeigen3,*)
         write(ifchipmz_wan,*)
-        write(ifchipmr_wan,*)
-        !         write(ifchipmrk_wan,*)
+        write(ifchipmr_wan,*)         !         write(ifchipmrk_wan,*)
      endif
-
      !$$$  !! ImagOmega end =================
      debug=.False.
-     if (MPI__task(iq)) then
-        !$$$         close(ifwkeigen2)
+     if (MPI__task(iq)) then         !$$$         close(ifwkeigen2)
         if (l1wkout) close(ifwkeigen3)
         close(ifchipmz_wan)
         close(ifchipmr_wan)
-        !         close(ifchipmrk_wan)
      endif
-     continue                  !q point loop
-1001 enddo
+1001 enddo iqqloop 
   write(6,*) "maximr RPA",rpa_maximr
   write(6,*) "maximr MFA",mf_maximr
   sumrpa_maximr=cmplx(sum(rpa_maximr(:)),0d0,kind(0d0))
   summf_maximr =cmplx(sum( mf_maximr(:)),0d0,kind(0d0))
-  !$$$!! =================== end of loop 1001 for q point ========================
   call MPI_barrier(comm,ierr)
-
   write(6,*) "MPIcheck",MPI__size,MPI__rank,sumrpa_maximr
   if(MPI__size/=1) then
      call MPI__AllreduceSum(sumrpa_maximr(1),1)
      call MPI__AllreduceSum( summf_maximr(1),1)
   endif
-
   write(6,"('sum(E(q)) for MFA:',f9.4)") real(summf_maximr(1))
   write(6,"('[sum(1/E(q))]inv for RPA',f9.5)") 1d0/real(sumrpa_maximr(1))
-
-  call cputid(0)
-  !      call MPI__Finalize
+  call cputid(0)   !      call MPI__Finalize
   write(6,"('eta for 1-eta*WK:',f13.8)") eta
   call rx0( ' OK! hmagnon mode')
 contains
