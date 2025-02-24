@@ -1,6 +1,4 @@
-subroutine hwmatK_MPI()
-  !!== Calculates the bare/screened interaction W ===
-  !!
+subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   !! W(w) = <phi(n1,dR) phi(n2,0) |W(w)| phi(n3,R') phi(n4,R'+dR')>
   !! phi(n,R): maximally localized Wannier orbital
   !!    n : band index
@@ -50,13 +48,15 @@ subroutine hwmatK_MPI()
   use m_genallcf_v3,only:niwg=>niw,alat,deltaw,esmr,icore,natom,iclass,nl,nlnmc,nlnmv,nlnmc,nlnmx,nlnx,laf
   use m_genallcf_v3,only: genallcf_v3,ncore,nn,nnc,nspin,pos,plat, nprecb,mrecb,mrece,nqbzt,nband,mrecg,ndima
   use m_keyvalue,only: getkeyvalue
-!  use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
   use m_zmel_old,only: ppbafp_v2
   use m_hamindex0,only: readhamindex0,iclasst
-  ! RS: MPI module
-  use rsmpi
-  use rsmpi_rotkindex
+
   use m_mksym_util,only:mptauof
+
+  ! RS: MPI module
+  use rsmpi,only: rsmpi_init,mpi_comm_world,mpi_double_precision,mpi_integer,mpi_sum
+  use rsmpi_rotkindex,only:setup_rotkindex,nrot_local_rotk,irot_index_rotk
+  
   implicit none
   real(8),parameter :: &
        ua    = 1d0    ! constant in w(0)exp(-ua^2*w'^2) to take care of peak around w'=0
@@ -188,15 +188,22 @@ subroutine hwmatK_MPI()
   real(8),allocatable:: &
        rv_w(:,:,:,:,:),cv_w(:,:,:,:,:), &
        rv_iw(:,:,:,:,:),cv_iw(:,:,:,:,:)
-  real(8)::ef,shtv(3)
-  ! For hmagnon (only omega=0 is used)
+  real(8)::ef,shtv(3)   ! For hmagnon (only omega=0 is used)
   integer::nw,nctot0,niw
   logical:: lomega0
+  integer:: ierr,nsize,procid,master=0,comm
+  logical:: master_mpi
+!  include "mpif.h"
+  comm= mpi_comm_world
+  call mpi_init(ierr)
+  call mpi_comm_size(comm, nsize, ierr)
+  call MPI_COMM_RANK(comm, procid, ierr )
+  master_mpi = procid == master
   call RSMPI_Init()
   hartree=2d0*rydberg()
   iii=verbose()
-  if (Is_IO_Root_RSMPI())write(6,*)' verbose=',iii
-  if (Is_IO_Root_RSMPI()) then
+  if(master_mpi)write(6,*)' verbose=',iii
+  if(master_mpi) then
      write(6,*) ' --- Choose omodes below ----------------'
      write(6,*) '  V (1) or W (2) or U(3)'
      write(6,*) '  V_omega=0 (11) or W_omega=0 (12)'
@@ -209,7 +216,7 @@ subroutine hwmatK_MPI()
      write(6,*) ' ixc nz=',ixc, nz
      if(ixc==0) stop ' --- ixc=0 --- Choose computational mode!'
   endif
-  call MPI_Bcast(input3,3,MPI_INTEGER,io_root_rsmpi, MPI_COMM_WORLD,ierror_rsmpi)
+  call MPI_Bcast(input3,3,MPI_INTEGER,master, MPI_COMM_WORLD,ierr)
   ixc=input3(1)
   nz=input3(2)
   idummy=input3(3)
@@ -222,7 +229,7 @@ subroutine hwmatK_MPI()
      lomega0=.true.
   endif
   call read_BZDATA()
-  if (Is_IO_Root_RSMPI()) then
+  if (master_mpi) then
      write(6,*)' nqbz  =',nqbz
      write(6,*)' nqibz ngrp=',nqibz,ngrp
   endif
@@ -231,7 +238,7 @@ subroutine hwmatK_MPI()
   call genallcf_v3(incwfin) !in module m_genallcf_v3
   niw=niwg
   ef=1d99
-  if (Is_IO_Root_RSMPI()) write(6,*)' hsfp0: end of genallcf2'
+  if (master_mpi) write(6,*)' hsfp0: end of genallcf2'
   call pshpr(30)
   pi   = 4d0*datan(1d0)
   tpia = 2d0*pi/alat
@@ -243,12 +250,12 @@ subroutine hwmatK_MPI()
   l1d = .false.
   inquire(file='UU1dU',exist=l1d)
   if (ixc==1) then
-     if (Is_IO_Root_RSMPI()) &
+     if (master_mpi) &
           write(6,*)' --- bare Coulomb mode --- '
      exchange =.true.
      lueff = .false.
   elseif (ixc ==2) then
-     if (Is_IO_Root_RSMPI()) &
+     if (master_mpi) &
           write(6,*)' --- screening (Wc) mode --- '
      exchange =.false.
      lueff = .false.
@@ -256,7 +263,7 @@ subroutine hwmatK_MPI()
      print *, "lcrpa =", lcrpa
      print *, "lueff=", lueff
   elseif (ixc == 100) then
-     if (Is_IO_Root_RSMPI()) &
+     if (master_mpi) &
           write(6,*)' --- screening_crpa (Wc) mode --- '
      exchange =.false.
      lueff = .false.
@@ -268,9 +275,9 @@ subroutine hwmatK_MPI()
      exchange =.false.
      lueff = .false.
   else
-     call RSMPI_Stop( 'ixc error')
+     call rx( 'ixc error')
   endif
-  if (Is_IO_Root_RSMPI()) then
+  if (master_mpi) then
      write(6, *) ' --- computational conditions --- '
      write(6,'("    deltaw  =",f13.6)') deltaw
      write(6,'("    ua      =",f13.6)') ua
@@ -284,7 +291,7 @@ subroutine hwmatK_MPI()
   call mptauof(symgg,ngrp,plat,natom,pos,iclasst,miat,tiat,invgx,shtvg )
   call getsrdpp2( natom,nl,nxx)
   call readngmx2()
-  if (Is_IO_Root_RSMPI()) write(6,*)' ngcmx ngpmx=',ngcmx,ngpmx
+  if (master_mpi) write(6,*)' ngcmx ngpmx=',ngcmx,ngpmx
   allocate( nx(0:2*(nl-1),natom), nblocha(natom) ,lx(natom), &
        ppbrd ( 0:nl-1, nn, 0:nl-1,nn, 0:2*(nl-1),nxx, nspin*natom), &
        cgr(nl**2,nl**2,(2*nl-1)**2,ngrp))
@@ -293,23 +300,23 @@ subroutine hwmatK_MPI()
   call readqg('QGpsi',qibz(1:3,1), quu,ngpn1, ngvecp)
   call readqg('QGcou',qibz(1:3,1), quu,ngcn1, ngvecc)
   deallocate(ngvecp,ngvecc)
-  if (Is_IO_Root_RSMPI()) write(6,*) ' end of read QGcou'
+  if (master_mpi) write(6,*) ' end of read QGcou'
   call pshpr(60)
   if(ixc==10011) goto 1018
   !--- Readin WV.d
   if ( .NOT. exchange) then
      if (lueff) then
-        call RSMPI_Stop('Ueff mode not implimented in the MPI version')
+        call rx('Ueff mode not implimented in the MPI version')
         ifwd      = iopen('WV.d.maxloc',1,-1,0)
      else
         ifwd      = iopen('WV.d',1,-1,0)
      endif
      read (ifwd,*) nprecx,mrecl,nblochpmx,nwp,niwt,nqnum,nw_i
-     if (Is_IO_Root_RSMPI()) write(6,"(' Readin WV.d =', 10i5)") &
+     if (master_mpi) write(6,"(' Readin WV.d =', 10i5)") &
           nprecx, mrecl, nblochpmx, nwp, niwt, nqnum, nw_i
      if(nprecx/=ndble)call rx("hwmatK_MPI: WVR and WVI not compatible")!call checkeq(nprecx,ndble)
      nw=nwp-1
-     if (niwt /= niw) call RSMPI_Stop( 'hwmatK: wrong niw')
+     if (niwt /= niw) call rx( 'hwmatK: wrong niw')
      niw = 0
      niwt = 0
      if (lueff) then
@@ -340,17 +347,17 @@ subroutine hwmatK_MPI()
   call init_readeigen2()!mrecb,nlmto,mrecg) !initialize m_readeigen
   write(*,*)'nband =',nband
   lll=.false.
-  if(ixc==10011 .AND. Is_IO_Root_RSMPI()) lll= .TRUE. 
+  if(ixc==10011 .AND. master_mpi) lll= .TRUE. 
   call onoff_write_pkm4crpa(lll)
   call init_readeigen_mlw_noeval()!nwf,nband,mrecb,mrecg)
-  if (Is_IO_Root_RSMPI()) then
+  if (master_mpi) then
      write(*,*)'Caution! evals are zero hereafter.'
      write(*,*)'nwf =',nwf
      write(*,*)'init_readeigen_mlw: done'
   endif
   if(ixc==10011) then
-     call RSMPI_Finalize()
-     if (Is_IO_Root_RSMPI()) call rx0s(' OK! hwmatK_MPI ixc=10011')
+     call mpi_finalize(ierr)
+     if (master_mpi) call rx0s(' OK! hwmatK_MPI ixc=10011')
   endif
   nq         = nqibz
   allocate(q(3,nq))
@@ -373,7 +380,7 @@ subroutine hwmatK_MPI()
      if (lwssc) then
         allocate(irws(n1*n2*n3*8),rws(3,n1*n2*n3*8),drws(n1*n2*n3*8))
         call wigner_seitz(alat,plat,n1,n2,n3,nrws,rws,irws,drws)
-        if (Is_IO_Root_RSMPI()) then
+        if (master_mpi) then
            write(*,*)'*** Wigner-Seitz Super cell'
            do i=1,nrws
               write(*,"(i5,4f12.6,i5)")i,rws(1,i),rws(2,i),rws(3,i), &
@@ -383,7 +390,7 @@ subroutine hwmatK_MPI()
      else
         allocate(irws(n1*n2*n3),rws(3,n1*n2*n3),drws(n1*n2*n3))
         call super_cell(alat,plat,n1,n2,n3,nrws,rws,irws,drws)
-        if (Is_IO_Root_RSMPI()) then
+        if (master_mpi) then
            write(*,*)'*** Super cell (Not Wigner-Seitz super cell)'
            do i=1,nrws
               write(*,"(i5,4f12.6,i5)")i,rws(1,i),rws(2,i),rws(3,i), drws(i),irws(i)
@@ -418,7 +425,7 @@ subroutine hwmatK_MPI()
      irws2(1) = 1
      nrws = nrws1*nrws2*nrws2
   endif
-  print *, "Here!!!!!!!!!!!!!", lfull, lwssc, nrws!,' Is_IO',Is_IO_Root_RSMPI()
+  print *, "Here!!!!!!!!!!!!!", lfull, lwssc, nrws!,' Is_IO',master_mpi
   write(*,'(a14,i5,f12.6)')'nrws1, rcut1 =',nrws1,rcut1
   write(*,'(a14,i5,f12.6)')'nrws2, rcut2 =',nrws2,rcut2
   write(*,*)'rrrrrrr rws1 rws1 =',rws1,' rrrrrr2',rws2
@@ -427,7 +434,7 @@ subroutine hwmatK_MPI()
   allocate( wgt0(nq0i,ngrp) )
   call getkeyvalue("GWinput","allq0i",allq0i,default= .FALSE. )!S.F.Jan06
   call q0iwgt3(allq0i,symgg,ngrp,wqt,q0i,nq0i,     wgt0)                   ! added allq0i argument
-  if (Is_IO_Root_RSMPI()) then
+  if (master_mpi) then
      if(nq0i/=0) write(6,*) ' *** tot num of q near 0   =', 1/wgt0(1,1)
      write(6,"('  sum(wgt0) from Q0P=',d14.6)")sum(wgt0)
   endif
@@ -440,7 +447,7 @@ subroutine hwmatK_MPI()
         qbze (:,ini+ix)   = q0i(:,i) + qbze(:,ix)
      enddo
   enddo
-  if (Is_IO_Root_RSMPI()) call winfo(6,nspin,nq,ntq,nspin,nbloch,ngpn1,ngcn1,nqbz,nqibz,ef,deltaw,alat,esmr)
+  if (master_mpi) call winfo(6,nspin,nq,ntq,nspin,nbloch,ngpn1,ngcn1,nqbz,nqibz,ef,deltaw,alat,esmr)
   allocate(imdim(natom)) !bugfix 12may2015
   do ia = 1,natom
      imdim(ia)  = sum(nblocha(iclass(1:ia-1)))+1
@@ -450,7 +457,7 @@ subroutine hwmatK_MPI()
      call freq01x  (niw, freqx,freqw,wwx) 
   endif
   iii=count(irk/=0) !ivsumxxx(irk,nqibz*ngrp)
-  if (Is_IO_Root_RSMPI()) write(6,*) " sum of nonzero iirk=",iii, nqbz
+  if (master_mpi) write(6,*) " sum of nonzero iirk=",iii, nqbz
   nkpo = 1
   nnmx =1
   nomx =1
@@ -465,51 +472,53 @@ subroutine hwmatK_MPI()
        cw_iw(nwf,nwf,nwf,nwf,nrws,niw), &
        rv_w(nwf,nwf,nwf,nwf,nrws), &
        cv_w(nwf,nwf,nwf,nwf,nrws))
-  call MPI_Barrier(MPI_COMM_WORLD,ierror_rsmpi)
+  call MPI_Barrier(MPI_COMM_WORLD,ierr)
   nq0ixxx=0
+  
   call setup_rotkindex(ngrp,irk,wgt0,1,nqibz,nq0ixxx,1) ! nq=1
-  if (Is_IO_Root_RSMPI()) then ! debug
+  if (master_mpi) then ! debug
      if(nq0i/=0) then
-        write(6,*) 'RS: total number of k-points should be', &
-             nqbz +  1/wgt0(1,1)   - 2 + 1 !bzcase()
+        write(6,*) ' total number of k-points should be',  nqbz +  1/wgt0(1,1)   - 2 + 1 !bzcase()
      else
-        write(6,*) 'RS: total number of k-points should be', &
-             nqbz  - 2 + 1 !bzcase()
+        write(6,*) ' total number of k-points should be',  nqbz  - 2 + 1 !bzcase()
      endif
   endif
-  call MPI_Barrier(MPI_COMM_WORLD,ierror_rsmpi)
-  ! RS: openlogfile for each process
-  if (ixc == 1) then
-     ifile_rsmpi = iopen ('lwt_v.MPI'//myrank_id_rsmpi,1,3,0)
-  else if (ixc == 2) then
-     ifile_rsmpi = iopen ('lwt_wc.MPI'//myrank_id_rsmpi,1,3,0)
-  else if (ixc == 3) then
-     ifile_rsmpi = iopen ('lwt_u.MPI'//myrank_id_rsmpi,1,3,0)
-  else if (ixc == 4) then
-     ifile_rsmpi = iopen ('lwt_v_phi.MPI'//myrank_id_rsmpi,1,3,0)
-  else if (ixc == 5) then
-     ifile_rsmpi = iopen ('lwt_wc_phi.MPI'//myrank_id_rsmpi,1,3,0)
-  else if (ixc == 6) then
-     ifile_rsmpi = iopen ('lwt_u_phi.MPI'//myrank_id_rsmpi,1,3,0)
-  elseif( ixc==10011) then
-  else
-     call RSMPI_Stop("unknown ixc")
-  endif
-  ! RS: print how symmetry operations and k-points are devided ..
-  write(ifile_rsmpi,*) "rank : ", myrank_id_rsmpi
-  write(ifile_rsmpi,*) "nrotk_local:",nk_local_qkgroup
-  write(ifile_rsmpi,*) "nrot_local :",nrot_local_rotk
-  if (nrot_local_rotk > 0) write(ifile_rsmpi,*) "iiiiii irot_index :",irot_index_rotk(1:nrot_local_rotk)
-  write(ifile_rsmpi,*) "nk_local(1:ngrp) :"
-  write(ifile_rsmpi,*) nk_local_rotk(:)
-  do irot=1,ngrp
-     if (nk_local_rotk(irot) > 0) then
-        write(ifile_rsmpi,*) "> irot,nk_local(irot) = ", irot, nk_local_rotk(irot)
-        write(ifile_rsmpi,*) "   ik_index : ",           ik_index_rotk(irot,1:nk_local_rotk(irot))
-     endif
-  enddo
-  call MPI_Barrier(MPI_COMM_WORLD,ierror_rsmpi)
-  if (Is_IO_Root_RSMPI()) write(6,*) "RS: loop over spin --"
+  call MPI_Barrier(MPI_COMM_WORLD,ierr)
+  
+  ! ! RS: openlogfile for each process
+  ! if (ixc == 1) then
+  !    ifile_rsmpi = iopen ('lwt_v.MPI'//myrank_id_rsmpi,1,3,0)
+  ! else if (ixc == 2) then
+  !    ifile_rsmpi = iopen ('lwt_wc.MPI'//myrank_id_rsmpi,1,3,0)
+  ! else if (ixc == 3) then
+  !    ifile_rsmpi = iopen ('lwt_u.MPI'//myrank_id_rsmpi,1,3,0)
+  ! else if (ixc == 4) then
+  !    ifile_rsmpi = iopen ('lwt_v_phi.MPI'//myrank_id_rsmpi,1,3,0)
+  ! else if (ixc == 5) then
+  !    ifile_rsmpi = iopen ('lwt_wc_phi.MPI'//myrank_id_rsmpi,1,3,0)
+  ! else if (ixc == 6) then
+  !    ifile_rsmpi = iopen ('lwt_u_phi.MPI'//myrank_id_rsmpi,1,3,0)
+  ! elseif( ixc==10011) then
+  ! else
+  !    call rx("unknown ixc")
+  ! endif
+  
+! RS: print how symmetry operations and k-points are devided ..
+!  write(ifile_rsmpi,*) "rank : ", myrank_id_rsmpi
+!  write(ifile_rsmpi,*) "nrotk_local:",nk_local_qkgroup
+!  write(ifile_rsmpi,*) "nrot_local :",nrot_local_rotk
+!  if (nrot_local_rotk > 0) write(ifile_rsmpi,*) "iiiiii irot_index :",irot_index_rotk(1:nrot_local_rotk)
+!  write(ifile_rsmpi,*) "nk_local(1:ngrp) :"
+!  write(ifile_rsmpi,*) nk_local_rotk(:)
+!  do irot=1,ngrp
+!     if (nk_local_rotk(irot) > 0) then
+!        write(ifile_rsmpi,*) "> irot,nk_local(irot) = ", irot, nk_local_rotk(irot)
+!        write(ifile_rsmpi,*) "   ik_index : ",           ik_index_rotk(irot,1:nk_local_rotk(irot))
+!     endif
+!  enddo
+  
+  call MPI_Barrier(MPI_COMM_WORLD,ierr)
+  if (master_mpi) write(6,*) "RS: loop over spin --"
   ! loop over spin ----------------------------------------------------
   spinloop: do 2000 is = 1,nspinmx
      write(6,*)' ssssss spinloop',is,nspinmx
@@ -520,16 +529,14 @@ subroutine hwmatK_MPI()
      rw_iw = 0d0
      cw_iw = 0d0
      call chkrot()
-     do ix=1,8
-        write(6,"('xxxirk=',a,i5,' xxx ',255i3)") myrank_id_rsmpi,ix,irk(ix,:),nrot_local_rotk
-     enddo
-     write(6,"('mmmxxx=',a,244i3)") myrank_id_rsmpi,[(irot_index_rotk(irot_local),irot_local = 1,nrot_local_rotk)]
-     !     write(6,"('xxxirk sum=',255i5)") myrank_id_rsmpi,sum(irk(1:8,1:48))
-     
+!     do ix=1,nrank
+!        write(6,"('xxxirk=',2i5,' xxx ',255i3)") procid,ix,irk(ix,:),nrot_local_rotk
+!     enddo
+     write(6,"('mmmxxx=',i5,' xxx ',244i3)") procid, [(irot_index_rotk(irot_local),irot_local = 1,nrot_local_rotk)]
      rotloop: do 1000 irot_local = 1,nrot_local_rotk
         irot = irot_index_rotk(irot_local)
         if( sum(abs( irk(:,irot) )) ==0 .AND. sum(abs( wgt0(:,irot))) == 0d0 ) then
-           call RSMPI_Stop("hwmatK_RSMPI, cylce occurs in do 1000 -loop!")
+           call rx("hwmatK_RSMPI, cylce occurs in do 1000 -loop!")
            cycle
         endif
         write (6,"(i3,'  out of ',i3,'  rotations ',$)") irot,ngrp
@@ -541,7 +548,6 @@ subroutine hwmatK_MPI()
         nctot0=0
         write(*,*) 'wmatq in',irot_local,nrot_local_rotk
         shtv = matmul(symgg(:,:,irot),shtvg(:,invr))
-        
         call wmatqk_MPI (kount,irot,     1,   1,   1,  tiat(1:3,1:natom,invr),miat(1:natom,invr), &
              rws1,rws2, nspin,is,  & !ifcphi,ifrb(is),ifcb(is),ifrhb(is),ifchb(is),
              ifrcw,ifrcwi, qbas,ginv,qibz,qbz,wbz,nstbz, wibz,nstar,irk,  &! & iindxk,
@@ -561,20 +567,20 @@ subroutine hwmatK_MPI()
           cw_w_sum(nwf,nwf,nwf,nwf,nrws,0:nrw), &
           rw_iw_sum(nwf,nwf,nwf,nwf,nrws,niw), &
           cw_iw_sum(nwf,nwf,nwf,nwf,nrws,niw))
-     write(6,*)'sssssss sumcheck rw_w... ',myrank_id_rsmpi,sum(rw_w),sum(cw_w)
-     call MPI_AllReduce(rw_w,rw_w_sum,(nrw+1)*nwf**4*nrws, MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierror_rsmpi)
+!     write(6,*)'sssssss sumcheck rw_w... ',procid,sum(rw_w),sum(cw_w)
+     call MPI_AllReduce(rw_w,rw_w_sum,(nrw+1)*nwf**4*nrws, MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
      rw_w = rw_w_sum
-     call MPI_AllReduce(cw_w,cw_w_sum,(nrw+1)*nwf**4*nrws, MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierror_rsmpi)
+     call MPI_AllReduce(cw_w,cw_w_sum,(nrw+1)*nwf**4*nrws, MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
      cw_w = cw_w_sum
      if (niw > 0) then
-        call MPI_AllReduce(rw_iw,rw_iw_sum,niw*nwf**4*nrws, MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierror_rsmpi)
+        call MPI_AllReduce(rw_iw,rw_iw_sum,niw*nwf**4*nrws, MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
         rw_iw = rw_iw_sum
-        call MPI_AllReduce(cw_iw,cw_iw_sum,niw*nwf**4*nrws, MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierror_rsmpi)
+        call MPI_AllReduce(cw_iw,cw_iw_sum,niw*nwf**4*nrws, MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
         cw_iw = cw_iw_sum
      endif                   ! niw
      deallocate(rw_w_sum,cw_w_sum,rw_iw_sum,cw_iw_sum)
 2001 continue      ! write <p p | W | p p>
-     if (Is_IO_Root_RSMPI()) then
+     if (master_mpi) then
         if (exchange) then
            call wvmat (is,nwf, &
                 rws1,rws2,irws1,irws2,nrws1,nrws2,nrws, &
@@ -604,10 +610,10 @@ subroutine hwmatK_MPI()
   isx = iclose ('RHBD')
   isx = iclose ('CHBD')
   isx = iclose ('EVD')
-  call cputid(ifile_rsmpi)
+!  call cputid(ifile_rsmpi)
   call cputid(0)
-  call RSMPI_Finalize()
-  if (Is_IO_Root_RSMPI()) call rx0s(' OK! hwmatK_MPI')
+  call mpi_finalize(ierr)
+  if (master_mpi) call rx0s(' OK! hwmatK_MPI')
 end subroutine hwmatK_MPI
 !-----------------------------------------------------------------------
 subroutine wwmat (is,nw_i,nw,nwf, &

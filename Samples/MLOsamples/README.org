@@ -83,6 +83,6 @@ Larger EUinner may destroy continuity of bands and bumpy. (this is a case with d
 After moving to Si666gwsc/, make sure that you have ctrl.si and GWinput,
 then run ../jobmlo si -np 8.
 You have all the results, with three gnuplots for bands.
->Si666gwsc/TestResutts/
+Si666gwsc/TestResutts/
 contains results which are done in advance.
 

@@ -13,7 +13,7 @@ module rsmpi
   integer :: nproc_rsmpi    ! number of processes
   integer :: io_root_rsmpi
   parameter (io_root_rsmpi = 0)
-  integer :: ierror_rsmpi   ! error check
+  integer :: ierror_rsmpi
 
   ! ID of the current process (ex. 0000012, 0123456)
   ! used mainly for output filename (ex. VCCFP.RSMPI0000012 )
@@ -31,39 +31,24 @@ contains
   !------------------------------------------------------
   subroutine RSMPI_Init()
     implicit none
-    call MPI_INIT(ierror_rsmpi)
-!    call RSMPI_Check("MPI_INIT",ierror_rsmpi)
-
+!    call MPI_INIT(ierror_rsmpi)
     t1 = MPI_WTIME()
-
     call MPI_COMM_SIZE(MPI_COMM_WORLD,nproc_rsmpi,ierror_rsmpi)
-!    call RSMPI_Check("MPI_COMM_SIZE",ierror_rsmpi)
     call MPI_COMM_RANK(MPI_COMM_WORLD,myrank_rsmpi,ierror_rsmpi)
-!    call RSMPI_Check("MPI_COMM_RANK",ierror_rsmpi)
     if (Is_IO_Root_RSMPI()) then
        write(6,*) "RS: --- RSMPI_Init ---"
        write(6,*) "RS: Number of processes : ",nproc_rsmpi
     end if
     call RSMPI_Set_ID()
-    !     if (Is_IO_Root_RSMPI()) then
-    !      write(6,*) "RS: ID : ", myrank_id_rsmpi
-    !     end if
     write(buf_rsmpi,*) "RS: RANKID = ",myrank_id_rsmpi
     call RSMPI_Write(6)
-    !      write(6,*) "RS: ID : ", myrank_id_rsmpi
-
-    !      call MPI_Barrier(MPI_COMM_WORLD,ierror_rsmpi)
-    !      call RSMPI_Check("MPI_Barrier",ierror_rsmpi)
-
     if (Is_IO_Root_RSMPI()) then
        write(6,*) "RS: --- end of RSMPI_Init ---"
     end if
   end subroutine RSMPI_Init
-
   !--------------------------------------------------------
   subroutine RSMPI_Set_ID
     implicit none
-
     if (myrank_rsmpi/1000000 >= 10) then
        ! RS: I don't expect this will happen..
        call RSMPI_Stop("RSMPI_Set_ID: # of processes exceeds 10^6: Modify RSMPI_mod.F!")

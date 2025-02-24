@@ -19,41 +19,23 @@
 module rsmpi_qkgroup
   use rsmpi
   implicit none
-  ! S:
-
-  ! MPI parameters
   integer :: nqkgroup ! number of subgroups
-  ! it is equivalent to the number of q-points
-  !                calculated at the same time
-
+  ! it is equivalent to the number of q-points       calculated at the same time
   integer :: iqkgroup ! the subgroup the current process belongs
-
-
   integer :: nproc_qkgroup    ! number of processes in the subgroup
   integer :: myrank_qkgroup   ! rank of the calling process in the subgroup
-
-
   logical :: file_io_qkgroup  ! The processes with this value .true.
-  ! dump output file for each q (ex.W(q))
-  ! (true only myrank_qkgroup==0)
-
-
   integer :: nq_local_qkgroup ! number of q-points treated in the subgroup
   integer,allocatable :: iq_index_qkgroup(:) ! index
-
   integer :: nk_local_qkgroup ! number of k-points treated in the process
   integer,allocatable :: ik_index_qkgroup(:)
-
   integer :: ierror_qkgroup   ! error check
-
   integer :: comm_qkgroup ! new communicator
-
   ! ID of the subgroup (ex. 0000012, 0123456)
   ! used mainly for output filename (ex. WVR.RSMPI0000012 )
   ! if total number of subgroups >= 10^8, increase the size of the array
   character(7) :: qkgroup_id   !
   integer :: ifile_qkgroup    ! file id
-
 contains
   !------------------------------------------------------
   subroutine RSMPI_qkgroup_Init(Nq,Nk)

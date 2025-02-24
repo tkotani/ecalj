@@ -200,7 +200,10 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
   use m_readeigen,only:readcphiw
   use m_keyvalue,only: getkeyvalue
   use m_read_bzdata,only: wklm
-  use rsmpi_rotkindex
+!
+  use rsmpi_rotkindex,only:nk_local_rotk,ik_index_rotk
+
+  
   implicit none
   integer :: ntq, natom,nqbz,nqibz,ngrp,nq,nw_i,nw,niw, natomx,&
        nband,  nlmto, nq0i,nctot,mbytes,iwksize,nlmtobnd,nstate,nstatex, &
@@ -340,8 +343,8 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
   call minv33(qbas,qbasinv)
   if(debug) write(6,*) ' sxcf: 1'
   allocate(expikt(natom))
-  if(abs(sum(qibz(:,1)**2))/=0d0) call RSMPI_Stop( ' sxcf assumes 1st qibz/=0 ')
-  if(abs(sum( qbz(:,1)**2))/=0d0) call RSMPI_Stop( ' sxcf assumes 1st qbz /=0 ')
+  if(abs(sum(qibz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qibz/=0 ')
+  if(abs(sum( qbz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qbz /=0 ')
   do it = 1,nwf
      itq(it) = it
   enddo

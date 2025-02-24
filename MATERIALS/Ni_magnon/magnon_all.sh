@@ -1,9 +1,9 @@
-#!/bin/bash
+#!/bin/bash +x
 # we need GWinput,ctrl,syml.fe, fbplot.glt, mag3d.glt, wanplot.glt
 MATERIAL=ni
-NSLOTS=4
-lmfa $MATERIAL >& llmfa
-mpirun -np $NSLOTS lmf-MPIK $MATERIAL >&llmf
+NSLOTS=8
+lmfa fe >& llmfa
+mpirun -np $NSLOTS lmf fe >&llmf
 # ### 1. band calculation and create MLWFs
 job_band $MATERIAL -np $NSLOTS NoGnuplot # &> job_band.log
 genMLWF_vw $MATERIAL -np $NSLOTS # &> genmlwf_vw.log
