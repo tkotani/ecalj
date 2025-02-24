@@ -41,7 +41,7 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   use m_ftox
   use m_readqg,only: readngmx2,ngcmx,ngpmx,readqg0,readqg
   use m_hamindex,only:   Readhamindex,symgg=>symops,ngrp,invg=>invgx
-  use m_read_bzdata,only: Read_bzdata,qibz,irk,ginv,n1,n2,n3,nqbz,nqibz,nstar,nstbz,qbas=>qlat,qbz,wibz,wbz &
+  use m_read_bzdata,only: Read_bzdata,qibz,irkin=>irk,ginv,n1,n2,n3,nqbz,nqibz,nstar,nstbz,qbas=>qlat,qbz,wibz,wbz &
        ,nq0i=>nq0ix,wqt=>wt,q0i
   use m_readeigen,only: onoff_write_pkm4crpa,init_readeigen,init_readeigen2, &
        init_readeigen_mlw_noeval,  nwf !,init_readeigen_phi_noeval
@@ -55,7 +55,7 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
 
   ! RS: MPI module
   use rsmpi,only: rsmpi_init,mpi_comm_world,mpi_double_precision,mpi_integer,mpi_sum
-  use rsmpi_rotkindex,only:setup_rotkindex,nrot_local_rotk,irot_index_rotk
+!  use rsmpi_rotkindex,only: setup_rotkindex, nrot_local_rotk,irot_index_rotk
   
   implicit none
   real(8),parameter :: &
@@ -118,7 +118,7 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
        eband(:,:,:), ene(:) !,ecore(:,:)
   integer,allocatable ::idtetx(:,:),idtet(:,:),ipq(:) &
        ,iene(:,:,:),ibzx(:) ! ,nstar(:)
-  integer ::ib,iqx,igp,iii,ivsumxxx,isx,iflegas, iqpntnum
+  integer ::ib,iqx,igp,iii,ivsumxxx,isx,iflegas, iqpntnum,ndiv
 
   real(8),allocatable   :: eex1(:,:,:),exsp1(:,:,:),qqex1(:,:,:,:)
   integer,allocatable:: nspex(:,:),ieord(:),itex1(:,:,:)
@@ -191,12 +191,13 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   real(8)::ef,shtv(3)   ! For hmagnon (only omega=0 is used)
   integer::nw,nctot0,niw
   logical:: lomega0
-  integer:: ierr,nsize,procid,master=0,comm
+  integer:: ierr,procid,master=0,comm,nrank,irr,iqibz
+  integer,allocatable::irkall(:,:),irk(:,:)
   logical:: master_mpi
 !  include "mpif.h"
   comm= mpi_comm_world
   call mpi_init(ierr)
-  call mpi_comm_size(comm, nsize, ierr)
+  call mpi_comm_size(comm, nrank, ierr)
   call MPI_COMM_RANK(comm, procid, ierr )
   master_mpi = procid == master
   call RSMPI_Init()
@@ -456,10 +457,27 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
      allocate(freqx(niw),freqw(niw),wwx(niw))!,expa(niw))
      call freq01x  (niw, freqx,freqw,wwx) 
   endif
-  iii=count(irk/=0) !ivsumxxx(irk,nqibz*ngrp)
-  if (master_mpi) write(6,*) " sum of nonzero iirk=",iii, nqbz
+  iii=count(irkin/=0) !ivsumxxx(irk,nqibz*ngrp)
+  !  write(6,*) 'sssh shape irk=',shape(irk)
+  ! write(6,*) "sssh sum of nonzero iirk=",procid,iii
+  ! irk divider
+  allocate(irk,mold=irkin)
+  ndiv= iii/nrank
+  if(mod(iii,nrank)/=0) ndiv=ndiv+1
+  irk=0
+  ix=0
+  do iqibz=1,nqibz
+     do irot=1,ngrp
+        irr=irkin(iqibz,irot)
+        if(irr==0) cycle
+        ix=ix+1
+        if(ndiv*procid<ix.and.ix<=ndiv*(procid+1)) irk(iqibz,irot)=irr
+     enddo
+  enddo
+  ! irk divider !  call setup_rotkindex(ngrp,irk,wgt0,1,nqibz,nq0ixxx,1) ! nq=1
+  
   nkpo = 1
-  nnmx =1
+  nnmx = 1
   nomx =1
   allocate( pomatr(nnmx,nomx,nkpo), qrr(3,nkpo),nor(nkpo),nnr(nkpo) )
   nlnx4    = nlnx**4
@@ -475,7 +493,8 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   call MPI_Barrier(MPI_COMM_WORLD,ierr)
   nq0ixxx=0
   
-  call setup_rotkindex(ngrp,irk,wgt0,1,nqibz,nq0ixxx,1) ! nq=1
+
+  
   if (master_mpi) then ! debug
      if(nq0i/=0) then
         write(6,*) ' total number of k-points should be',  nqbz +  1/wgt0(1,1)   - 2 + 1 !bzcase()
@@ -532,13 +551,13 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
 !     do ix=1,nrank
 !        write(6,"('xxxirk=',2i5,' xxx ',255i3)") procid,ix,irk(ix,:),nrot_local_rotk
 !     enddo
-     write(6,"('mmmxxx=',i5,' xxx ',244i3)") procid, [(irot_index_rotk(irot_local),irot_local = 1,nrot_local_rotk)]
-     rotloop: do 1000 irot_local = 1,nrot_local_rotk
-        irot = irot_index_rotk(irot_local)
-        if( sum(abs( irk(:,irot) )) ==0 .AND. sum(abs( wgt0(:,irot))) == 0d0 ) then
-           call rx("hwmatK_RSMPI, cylce occurs in do 1000 -loop!")
-           cycle
-        endif
+!     write(6,"('mmmxxx=',i5,' xxx ',244i3)") procid, [(irot_index_rotk(irot_local),irot_local = 1,nrot_local_rotk)]
+     rotloop: do 1000 irot=1,ngrp  !irot_local = 1,nrot_local_rotk
+!        irot = irot_index_rotk(irot_local)
+!        if( sum(abs( irk(:,irot) )) ==0 .AND. sum(abs( wgt0(:,irot))) == 0d0 ) then
+!           call rx("hwmatK_RSMPI, cylce occurs in do 1000 -loop!")
+!           cycle
+!        endif
         write (6,"(i3,'  out of ',i3,'  rotations ',$)") irot,ngrp
         call cputid (0)
         ! rotate atomic positions invrot*R = R' + T         !        invr       = invrot (irot,invg,ngrp)
@@ -546,7 +565,7 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
         ! -- ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)>
         call ppbafp_v2 (irot,ngrp,is,mdimx,lx,nx,nxx,cgr,nl-1,ppbrd, ppb)
         nctot0=0
-        write(*,*) 'wmatq in',irot_local,nrot_local_rotk
+!        write(*,*) 'wmatq in',irot_local,nrot_local_rotk
         shtv = matmul(symgg(:,:,irot),shtvg(:,invr))
         call wmatqk_MPI (kount,irot,     1,   1,   1,  tiat(1:3,1:natom,invr),miat(1:natom,invr), &
              rws1,rws2, nspin,is,  & !ifcphi,ifrb(is),ifcb(is),ifrhb(is),ifchb(is),
@@ -561,7 +580,7 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
              shtv,nband, ifvcfpout, &
              exchange, pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, nwf,  rw_w,cw_w,rw_iw,cw_iw) ! acuumulation variable
         
-        write(*,*) 'wmatq out',irot_local,nrot_local_rotk
+!        write(*,*) 'wmatq out',irot_local,nrot_local_rotk
 1000 enddo rotloop
      allocate( rw_w_sum(nwf,nwf,nwf,nwf,nrws,0:nrw), &
           cw_w_sum(nwf,nwf,nwf,nwf,nrws,0:nrw), &

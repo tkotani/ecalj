@@ -201,9 +201,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
   use m_keyvalue,only: getkeyvalue
   use m_read_bzdata,only: wklm
 !
-  use rsmpi_rotkindex,only:nk_local_rotk,ik_index_rotk
-
-  
+!  use rsmpi_rotkindex,only:nk_local_rotk,ik_index_rotk
   implicit none
   integer :: ntq, natom,nqbz,nqibz,ngrp,nq,nw_i,nw,niw, natomx,&
        nband,  nlmto, nq0i,nctot,mbytes,iwksize,nlmtobnd,nstate,nstatex, &
@@ -368,10 +366,10 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
   call getkeyvalue("GWinput","TestNoQ0P",noq0p,default=.false.)
   if ( .NOT. noq0p) &
        call getkeyvalue("GWinput","NoQ0P",noq0p,default= .FALSE. )
-  if (noq0p)write(*,*)'noq0p mode'
+  if(noq0p)write(*,*)'noq0p mode'
   if(noq0p) iqend=nqibz
-  do 1100 kx_local = 1,nk_local_rotk(irot)
-     kx = ik_index_rotk(irot,kx_local)
+  do 1100 kx=1,nqibz !kx_local = 1,nk_local_rotk(irot)
+!     kx = ik_index_rotk(irot,kx_local)
 !     write(6,*) ' kkkkk sxcf: kkkkk goto loop kx=',kx
      if( kx <= nqibz ) then
         kr = irk(kx,irot) ! index for rotated k in the FBZ

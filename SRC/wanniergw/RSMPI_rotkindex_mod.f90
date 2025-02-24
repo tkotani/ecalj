@@ -15,7 +15,7 @@
 
 module rsmpi_rotkindex
   use rsmpi
-  use rsmpi_qkgroup
+  use rsmpi_qkgroup,only: RSMPI_qkgroup_Init,nk_local_qkgroup,ik_index_qkgroup
   implicit none
 
   ! number of rotation operators for the current process
@@ -30,8 +30,7 @@ module rsmpi_rotkindex
 
 contains
 
-  subroutine setup_rotkindex(ngrp,irk,wgt0, &
-       bzcase_in,nqibz,nq0i,nq_calc)
+  subroutine setup_rotkindex(ngrp,irk,wgt0, bzcase_in,nqibz,nq0i,nq_calc)
     implicit none
     integer,intent(in) :: ngrp,bzcase_in,nqibz,nq0i,nq_calc
     integer,intent(in) :: irk(nqibz,ngrp)
@@ -43,24 +42,8 @@ contains
     integer,allocatable :: nrotktmp(:,:)
     ! counter
     integer :: i,j,irot,kx
-
-
-    if (Is_IO_Root_RSMPI()) then
-       write(6,*) "--- setup_rotkindex ---"
-    endif
-
-    ! calculate total number of rotation  operators and k'-points
-    ! that generate k-points
-
-    ! this part is taken from gwsrc/sxcf_fal2.F
-    !      iqini = 2
-    !      if (bzcase_in .eq. 2) iqini = 1
-    ! cccccccccccccccc
-    ! takao
     iqini=1
-    ! cccccccccccccccc
     iqend = nqibz + nq0i
-
     allocate(nrotktmp(ngrp*(iqend-iqini+1),2))
     nrotk_total = 0
     do irot=1,ngrp ! from main/hsfp0.m.F
@@ -84,24 +67,9 @@ contains
           nrotktmp(nrotk_total,2)=kx
        enddo ! do kx
     enddo  ! do irot
-
-    if (Is_IO_Root_RSMPI()) then
-       write(6,*) "RSMPI_rotk: nrotk_total = ",nrotk_total
-    endif
-
-    ! calculate correct indexes of q- and k-point parallelization
-    ! for each process
-    ! (nq_local,iq_index, nk_local, ik_index)
-    call RSMPI_qkgroup_Init(nq_calc,nrotk_total)
-
-    ! For each ik_index(calculated above)
-    ! correspoinding irot and ik'-index is set
-    call set_nrot_nk_local(nrotk_total, &
-         nrotktmp(1:nrotk_total,1:2),ngrp,iqend-iqini+1)
-
-    if (Is_IO_Root_RSMPI()) then
-       write(6,*) "--- setup_rotkindex end ---"
-    endif
+    ! calculate correct indexes of q- and k-point parallelization     ! for each process    ! (nq_local,iq_index, nk_local, ik_index)
+    call RSMPI_qkgroup_Init(nq_calc,nrotk_total)    ! For each ik_index(calculated above)    ! correspoinding irot and ik'-index is set
+    call set_nrot_nk_local(nrotk_total, nrotktmp(1:nrotk_total,1:2),ngrp,iqend-iqini+1)
   end subroutine setup_rotkindex
 
   subroutine set_nrot_nk_local(nrotk_total,nrotktmp,ngrp,nk)
@@ -109,30 +77,22 @@ contains
     integer,intent(in) :: nrotk_total
     integer,intent(in) :: nrotktmp(nrotk_total,2)
     integer,intent(in) :: ngrp,nk
-    ! local
     integer,allocatable :: irot_index_tmp(:)
     integer :: irotk,irot_tmp,ir
-    logical :: newrot
-
-    ! nk_local_qkgroup is defined in module RSMPI_qkgroup
+    logical :: newrot    ! nk_local_qkgroup is defined in module RSMPI_qkgroup
     if (nk_local_qkgroup > 0) then
        allocate(irot_index_tmp(nk_local_qkgroup))
     endif
-
     allocate(nk_local_rotk(ngrp))
-    allocate(ik_index_rotk(ngrp,nk))
-    ! set nrot_local_rotk and nk_local_rotk(1:ngrp),ik_index_rotk(1:ngrp,1:nk)
+    allocate(ik_index_rotk(ngrp,nk))     ! set nrot_local_rotk and nk_local_rotk(1:ngrp),ik_index_rotk(1:ngrp,1:nk)
     nrot_local_rotk = 0
     if (nk_local_qkgroup > 0) irot_index_tmp(:) = 0
     nk_local_rotk(:) = 0
     ik_index_rotk(:,:) = 0
-
     do irotk=1,nk_local_qkgroup
        irot_tmp = nrotktmp(ik_index_qkgroup(irotk),1)
-       nk_local_rotk(irot_tmp) = &
-            nk_local_rotk(irot_tmp) + 1
-       ik_index_rotk(irot_tmp,nk_local_rotk(irot_tmp)) = &
-            nrotktmp(ik_index_qkgroup(irotk),2)
+       nk_local_rotk(irot_tmp) =      nk_local_rotk(irot_tmp) + 1
+       ik_index_rotk(irot_tmp,nk_local_rotk(irot_tmp)) =        nrotktmp(ik_index_qkgroup(irotk),2)
        newrot = .true.
        do ir=1,nrot_local_rotk
           if (nrotktmp(ik_index_qkgroup(irotk),1) == irot_index_tmp(ir)) then
@@ -141,24 +101,15 @@ contains
        enddo
        if (newrot) then
           nrot_local_rotk = nrot_local_rotk + 1
-          irot_index_tmp(nrot_local_rotk) = &
-               nrotktmp(ik_index_qkgroup(irotk),1)
+          irot_index_tmp(nrot_local_rotk) = nrotktmp(ik_index_qkgroup(irotk),1)
        endif
-    enddo
-
-    ! set irot_index_rotk(1:nrot_local)
-    !     and ik_index_rotk(1:ngrp,1:nk_local)
-
+    enddo    ! set irot_index_rotk(1:nrot_local)    !     and ik_index_rotk(1:ngrp,1:nk_local)
     if (nrot_local_rotk > 0) then
        allocate(irot_index_rotk(nrot_local_rotk))
-       irot_index_rotk(1:nrot_local_rotk) = &
-            irot_index_tmp(1:nrot_local_rotk)
+       irot_index_rotk(1:nrot_local_rotk) =   irot_index_tmp(1:nrot_local_rotk)
     endif
-
     if (nk_local_qkgroup > 0) deallocate(irot_index_tmp)
-
-    write(buf_rsmpi,*) "RS: ", myrank_id_rsmpi, &
-         " nrot_local = ",nrot_local_rotk
+    write(buf_rsmpi,*) "RS: ", myrank_id_rsmpi,     " nrot_local = ",nrot_local_rotk
     call RSMPI_Write(6)
   end subroutine set_nrot_nk_local
 end module RSMPI_rotkindex
