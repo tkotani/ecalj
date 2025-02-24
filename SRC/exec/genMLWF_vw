@@ -16,10 +16,10 @@ MATERIAL=$1
 MPI_SIZE=$3
 NO_MPI=0
 ### end of processing input arguments ###
-if [ ! -e bnds.$1 ];then 
-    $echo_run echo "!!! Perform job_band in advance!" 
-    exit
-fi
+#if [ ! -e bnds.$1 ];then 
+#    $echo_run echo "!!! Perform job_band in advance!" 
+#    exit
+#fi
 
 ### Read funcitons run_arg and run_arg_tee defined in a file run_arg ###
 source $nfpgw/run_arg
@@ -44,17 +44,17 @@ fi
 
 ######## lmf part #########################################
 run_arg '---' $NO_MPI   $nfpgw /lmfa  llmfa $MATERIAL # if lmfa is not yet.
-run_arg '---' $MPI_SIZE $nfpgw /lmf-MPIK llmf_start $MATERIAL
+run_arg '---' $MPI_SIZE $nfpgw /lmf llmf_start $MATERIAL
 rm -f ewindow.${MATERIAL}* qbyl.${MATERIAL}* eigze*.${MATERIAL}* # remove temporaly files.
 
 ##### preparation of required inputs for GW (mainly prepare required eigenfuncitons) ######
-argin=0; run_arg $argin $NO_MPI   $nfpgw /lmf-MPIK      llmfgw00 $MATERIAL --jobgw=0
+argin=0; run_arg $argin $NO_MPI   $nfpgw /lmf      llmfgw00 $MATERIAL --jobgw=0
 argin=1; run_arg $argin $NO_MPI   $nfpgw /qg4gw      lqg4gw   #Generate requied q+G vectors.
-argin=1; run_arg $argin $MPI_SIZE $nfpgw /lmf-MPIK llmfgw01 $MATERIAL --jobgw==1
+argin=1; run_arg $argin $MPI_SIZE $nfpgw /lmf llmfgw01 $MATERIAL --jobgw=1
 #run_arg  '---' $NO_MPI   $nfpgw /lmf2gw     llmf2gw  #reform data for gw
 
 ##### GW related part (up to preparation of MPB) ###########
-argin=0; run_arg $argin $NO_MPI   $nfpgw /rdata4gw_v2 lrdata4gw_v2
+#argin=0; run_arg $argin $NO_MPI   $nfpgw /rdata4gw_v2 lrdata4gw_v2
 if [ -e ANFcond ];then # This is for ANFcond. Unused recently
     #  cp EVU EVD  
     $echo_run echo "Not maintained recently" 
@@ -88,7 +88,7 @@ argin=2; run_arg $argin $NO_MPI $nfpgw /hmaxloc lmaxloc2  #(band plot data are g
 
 
 ############## Wannier function plot. *.xsf for Xcrysden. ############
-run_arg '---' $NO_MPI $nfpgw  /wanplot lwanplot 
+#run_arg '---' $NO_MPI $nfpgw  /wanplot lwanplot 
 
 
 ### Here on, we calculate W (v and W-v) for Wannier.###########

@@ -193,13 +193,9 @@ subroutine hwmatK_MPI()
   integer::nw,nctot0,niw
   logical:: lomega0
   call RSMPI_Init()
-
   hartree=2d0*rydberg()
-
   iii=verbose()
   if (Is_IO_Root_RSMPI())write(6,*)' verbose=',iii
-
-  ! mode switch. --------------
   if (Is_IO_Root_RSMPI()) then
      write(6,*) ' --- Choose omodes below ----------------'
      write(6,*) '  V (1) or W (2) or U(3)'
@@ -214,7 +210,6 @@ subroutine hwmatK_MPI()
      if(ixc==0) stop ' --- ixc=0 --- Choose computational mode!'
   endif
   call MPI_Bcast(input3,3,MPI_INTEGER,io_root_rsmpi, MPI_COMM_WORLD,ierror_rsmpi)
-!  call RSMPI_Check("MPI_Bcast(input3)",ierror_rsmpi)
   ixc=input3(1)
   nz=input3(2)
   idummy=input3(3)
@@ -226,90 +221,27 @@ subroutine hwmatK_MPI()
      ixc=2
      lomega0=.true.
   endif
-
-  !---  readin BZDATA. See gwsrc/rwbzdata.f
-  !--------readin data set when you call read_BZDATA ---------------
-  !       integer::ngrp,nqbz,nqibz,nqbzw,nteti,ntetf
-  ! ccc    ! &   ,n_index_qbz
-  !       integer:: n1,n2,n3
-  !       real(8):: qbas(3,3),ginv(3,3),qbasmc(3,3)
-  !       real(8),allocatable:: qbz(:,:),wbz(:),qibz(:,:)
-  !     &    ,wibz(:),qbzw(:,:)
-  !       integer,allocatable:: idtetf(:,:),ib1bz(:),idteti(:,:)
-  !     &    ,nstar(:),irk(:,:),nstbz(:)          !,index_qbz(:,:,:)
-  !-----------------------------------------------------------------
   call read_BZDATA()
-  !      write(6,"(a,9f9.4)")'hwmatK_MPI:ginv=',ginv
-
   if (Is_IO_Root_RSMPI()) then
      write(6,*)' nqbz  =',nqbz
-     !      write(6,*)  qbz
      write(6,*)' nqibz ngrp=',nqibz,ngrp
-     !      write(6,*)' irk=',irk
-     !      write(6,*)' #### idtetf: ####'
-     !      write(6,*) idtetf
   endif
-
-  ! set up work array
-  !      call wkinit (iwksize)
   call pshpr(60)
-
-  !--- readin GWIN and LMTO, then allocate and set datas.
-  !      nwin =-999    !not readin NW file
-  !      efin =-999d0  !not readin EFERMI
   incwfin= -1  !use 7th colmn for core at the end section of GWIN
   call genallcf_v3(incwfin) !in module m_genallcf_v3
   niw=niwg
   ef=1d99
-  !      if(ngrp/= ngrp2)
-  !     &  call RSMPI_Stop( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
-  !---  These are allocated and setted.
-  !      integer::  natom,natom,nspin,nl,nn,nnv,nnc, ngrp,
-  !     o  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot,niw, !not readin nw
-  !      real(8) :: alat,ef, diw,dw,delta,deltaw,esmr
-  !      character(120):: symgrp
-  !      character(6),allocatable :: clabl(:)
-  !      integer,allocatable:: iclass(:)
-  !     &  ,nindxv(:,:),nindxc(:,:),ncwf(:,:,:) ,
-  !     o    invg(:), il(:,:), in(:,:), im(:,:),   ilnm(:),  nlnm(:),
-  !     o    ilv(:),inv(:),imv(:),  ilnmv(:), nlnmv(:),
-  !     o    ilc(:),inc(:),imc(:),  ilnmc(:), nlnmc(:),
-  !     o    nindx(:,:),konf(:,:),icore(:,:),ncore(:),
-  !     &    occv(:,:,:),unoccv(:,:,:)
-  !     &   ,occc(:,:,:),unoccc(:,:,:),
-  !     o    nocc(:,:,:),nunocc(:,:,:)
-  !      real(8), allocatable::
-  !     o  plat(:,:),pos(:,:),z(:),  ecore(:,:),  symgg(:,:,:) ! symgg=w(igrp),freq(:)
-  !-----------------------------------------------------------------------
-
-  !--- Get maximums takao 18June03
-  !      call getnemx(nbmx,ebmx,8,.true.) !8+1 th line of GWIN0
-  !      call getnemx8(nbmx,ebmx)
-  !      if (Is_IO_Root_RSMPI())
-  !     &  write(6,"('  nbmx ebmx from GWinput=',2i8,2d13.5)") nbmx,ebmx
-
-  !-------------------------------------------------------------------
-  !      if (natom > mxclass) stop ' hsfp0: increase mxclass'
-!!!!! WE ASSUME iclass(iatom)= iatom !!!!!!!!!!!!!!!!!!!!!!!!!
-!  if (natom /= natom ) call RSMPI_Stop( ' hsfp0: natom /= natom ') ! We assume natom = natom.
   if (Is_IO_Root_RSMPI()) write(6,*)' hsfp0: end of genallcf2'
-
   call pshpr(30)
   pi   = 4d0*datan(1d0)
   tpia = 2d0*pi/alat
-
   shtw = 0d0
   if(esmr<1d-5) shtw=0.01d0 ! Ferdi's shift to avoid resonance effect(maybe)
-
-  !      call dinv33(plat,1,xxx,vol)
-  !      voltot = dabs(vol)*(alat**3)
   voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
-
   legas = .false.
   latomic = .false.
   l1d = .false.
   inquire(file='UU1dU',exist=l1d)
-
   if (ixc==1) then
      if (Is_IO_Root_RSMPI()) &
           write(6,*)' --- bare Coulomb mode --- '
@@ -338,115 +270,32 @@ subroutine hwmatK_MPI()
   else
      call RSMPI_Stop( 'ixc error')
   endif
-
-  !---
   if (Is_IO_Root_RSMPI()) then
      write(6, *) ' --- computational conditions --- '
      write(6,'("    deltaw  =",f13.6)') deltaw
      write(6,'("    ua      =",f13.6)') ua
      write(6,'("    esmr    =",f13.6)') esmr
      write(6,'("    alat voltot =",2f13.6)') alat, voltot
-     !      write(6,'("    niw nw dw   =",2i5,f13.6)') niw,nw,dw
   endif
-
-  !>> read dimensions of wc,b,hb
-  !      ifhbed     = iopen('hbe.d',1,0,0)
-  !      read (ifhbed,*) nprecb,mrecb,mrece,nlmtot,nqbzt, nband,mrecg
-  !      if (nprecb == 4)
-  !     & call RSMPI_Stop( 'hsfp0: b,hb in single precision')
-!  call Readhbe()
   call Readhamindex()
   call init_readeigen()!nband,mrece) !initialization of readEigen
-
-  ! --- get space group information ---------------------------------
-  ! true class information in order to determine the space group -----------
-  !     because the class in the generated GW file is dummy.(iclass(ibas)=ibas should be kept).
-  !      if102=ifile_handle()
-  !      open (if102,file='CLASS')
-  allocate(invgx(ngrp) &
-       ,miat(natom,ngrp),tiat(3,natom,ngrp),shtvg(3,ngrp))
-  !      if (Is_IO_Root_RSMPI())
-  !     & write(6,*)'  --- Readingin CLASS info ---'
-  !      do ibas = 1,natom
-  !        read(if102,*) ibasx, iclasst(ibas)
-  !        if (Is_IO_Root_RSMPI())
-  !     &   write(6, "(2i10)") ibasx, iclasst(ibas)
-  !      enddo
-  !      close(if102)
+  allocate(invgx(ngrp),miat(natom,ngrp),tiat(3,natom,ngrp),shtvg(3,ngrp))
   call readhamindex0()
-
-  ! Get space-group transformation information. See header of mptaouof.
-  call mptauof(symgg,ngrp,plat,natom,pos,iclasst &
-       ,miat,tiat,invgx,shtvg )
-  !        write (*,*)  'tiat=', tiat(1:3,1:natom,invr),invr
-
-  ! Get array size to call rdpp
-  !      call getsrdpp( natom,nl,
-  !     o               ngpmx,ngcmx,nxx )
+  call mptauof(symgg,ngrp,plat,natom,pos,iclasst,miat,tiat,invgx,shtvg )
   call getsrdpp2( natom,nl,nxx)
   call readngmx2()
-  !      call readngmx('QGpsi',ngpmx)
-  !      call readngmx('QGcou',ngcmx)
-  if (Is_IO_Root_RSMPI()) &
-       write(6,*)' ngcmx ngpmx=',ngcmx,ngpmx
+  if (Is_IO_Root_RSMPI()) write(6,*)' ngcmx ngpmx=',ngcmx,ngpmx
   allocate( nx(0:2*(nl-1),natom), nblocha(natom) ,lx(natom), &
        ppbrd ( 0:nl-1, nn, 0:nl-1,nn, 0:2*(nl-1),nxx, nspin*natom), &
        cgr(nl**2,nl**2,(2*nl-1)**2,ngrp))
-
-  !- readin plane wave parts, and Radial integrals ppbrd.
-  ! ppbrd = radial integrals
-  ! cgr   = rotated cg coeffecients.
-  ! geigB = eigenfunction's coefficiens for planewave.
-  ! ngvecpB (in 1stBZ) contains G vector for eigen function.
-  ! ngveccB (in IBZ)   contains G vector for Coulomb matrix.
-  !      call rdpp_v2( ngpmx,ngcmx,nxx,  qibz,nqibz, qbz,nqbz,
-  !     i      nband, nl,ngrp, nn,  natom, nspin, symgg,    qbas,
-  !     o      nblocha, lx, nx, ppbrd ,
-  !     o      mdimx, nbloch, cgr,
-  !     o      nblochpmx, ngpn,geigB,ngvecpB,  ngcni,ngveccB )
   call rdpp_v3(nxx, nl, ngrp, nn, natom, nspin, symgg, nblocha, lx, nx, ppbrd, mdimx, nbloch, cgr)
-  !      nblochpmx = nbloch + ngcmx
-
-  !      allocate(ngcni(nqibz)) !, ngveccB(3,ngcmx,nqibz)) !, ngveccBr(3,ngcmx,nqibz))
-  !   geigB(ngpmx,nband,nqbz,nspin),ngpn(nqbz),ngvecpB(3,ngpmx,nqbz),
-  !     &   )  ! in IBZ
-
-  !      call rdpp_pln(ngpmx,ngcmx, qibz,nqibz, qbz,nqbz,nband,nspin,
-  !     o      ngpn,geigB,ngvecpB,ngcni,ngveccB)
-
-  !      do iq = 1,nqibz
-  !        call readqg('QGcou',qibz(1:3,iq),ginv,  quu,ngcni(iq), ngveccB(1,1,iq))
-  !        write(6,"('--From QGcou  qibz quu ngc=',3f9.4,'  ',3f9.4,i5)")
-  !     &       qibz(1:3,iq),quu,ngcni(iq)
-  !      enddo
-  ! for info
   allocate(ngvecp(3,ngpmx),ngvecc(3,ngcmx))
   call readqg('QGpsi',qibz(1:3,1), quu,ngpn1, ngvecp)
   call readqg('QGcou',qibz(1:3,1), quu,ngcn1, ngvecc)
   deallocate(ngvecp,ngvecc)
-
   if (Is_IO_Root_RSMPI()) write(6,*) ' end of read QGcou'
-
-  ! cccccccccccccccccccccccccccccccccccccccccccccccccc
-  !      iqx=1
-  !      do ib=1,nband
-  !        write(6,'("  iband iqx sumgeigB=",2i3,12d12.3)')
-  !     &   ib,iqx, sum(geigB(1:ngpn(1),ib,iqx))
-  !      enddo
-  ! ccccccccccccccccccccccccccccccccccccccccccccccccccc
-  !      ib =1
-  !      iqx=1
-  !      do igp =1,nbloch + ngpn(iqx)
-  !         write(6,'("  igb ib iqx geigB=",3i3,1x,3i2,12d12.3)')
-  !     &   igp,ib,iqx, ngvecpB(1:3,igp,iqx), geigB(igp,ib,iqx)
-  !      enddo
-  !      stop "xxxxxx zzz"
-  ! cccccccccccccccccccccccccccccccccccccccccccccccccc
-  !----------------------------------------------
   call pshpr(60)
-
   if(ixc==10011) goto 1018
-
   !--- Readin WV.d
   if ( .NOT. exchange) then
      if (lueff) then
@@ -456,17 +305,11 @@ subroutine hwmatK_MPI()
         ifwd      = iopen('WV.d',1,-1,0)
      endif
      read (ifwd,*) nprecx,mrecl,nblochpmx,nwp,niwt,nqnum,nw_i
-     ! nblochpmx from WV.d oct2005
      if (Is_IO_Root_RSMPI()) write(6,"(' Readin WV.d =', 10i5)") &
           nprecx, mrecl, nblochpmx, nwp, niwt, nqnum, nw_i
-     !call checkeq(nprecx,ndble)
      if(nprecx/=ndble)call rx("hwmatK_MPI: WVR and WVI not compatible")!call checkeq(nprecx,ndble)
-     !       call checkeq(nblochpmx,nblochpmx2)
-     !       if (nwt /= nw)   stop 'hwmatK: wrong nw'
-     !       nw = nwt
      nw=nwp-1
      if (niwt /= niw) call RSMPI_Stop( 'hwmatK: wrong niw')
-     ! m 050518
      niw = 0
      niwt = 0
      if (lueff) then
@@ -488,74 +331,26 @@ subroutine hwmatK_MPI()
   else
      ifvcfpout = iopen('VCCFP',0,-1,0)
      allocate(freq_r(1)); freq_r=1d99
-     !       nw = 1
      nw = 0
   endif
-
   nrw = nw
-!  if (Is_IO_Root_RSMPI()) &
-       call getkeyvalue("GWinput","wmat_static",lstatic,default= .FALSE. )
-!  call MPI_Bcast(lstatic,1,MPI_LOGICAL,io_root_rsmpi, &
-!       MPI_COMM_WORLD,ierror_rsmpi)
-!  call RSMPI_Check("MPI_Bcast(lstatic)",ierror_rsmpi)
+  call getkeyvalue("GWinput","wmat_static",lstatic,default= .FALSE. )
   if (lstatic) nrw = 0
-
-  !... Readin eigen functions
-  !      ifev(1)   = iopen('EVU', 0,0,mrece)
-  !     if (nspin==2) ifev(2) = iopen('EVD', 0,0,mrece)
-
-  !$$$c     --- determine Fermi energy ef for given valn (legas case) or corresponding charge given by z and konf.
-  !$$$!     When esmr is negative, esmr is geven automatically by efsimplef.
-  !$$$      call efsimplef2a_RSMPI(nspin,wibz,qibz,ginv,
-  !$$$     i     nband,nqibz
-  !$$$     i     ,konf,z,nl,natom,iclass,natom
-  !$$$     i     ,valn, legas, esmr,  !!! valn is input for legas=T, output otherwise.
-  !$$$c
-  !$$$     i     qbz,nqbz             !index_qbz, n_index_qbz,
-  !$$$     o     ,efnew)
-  !$$$c
-  !$$$c     write(6,*)' end of efsimple'
-  !$$$c     ef = efnew
-  !$$$c     - check total ele number -------
-  !$$$      ntot  = nocctotg2(nspin, ef,esmr, qbz,wbz, nband,nqbz) !wbz
-  !$$$      write(6,*)' ef    =',ef
-  !$$$      write(6,*)' esmr  =',esmr
-  !$$$      write(6,*)' valn  =',valn
-  !$$$      write(6,*)' ntot  =',ntot
-
-  !      ifcphi  = iopen('CPHI',0,0,mrecb)
 1018 continue
   call init_readeigen2()!mrecb,nlmto,mrecg) !initialize m_readeigen
   write(*,*)'nband =',nband
-  !! jan2015
   lll=.false.
   if(ixc==10011 .AND. Is_IO_Root_RSMPI()) lll= .TRUE. 
   call onoff_write_pkm4crpa(lll)
-  ! his is for writing pkm4crpa in init_readeigen_mlw_noeval.
-
-!  if (latomic) then
-!     call init_readeigen_phi_noeval()!nwf,nband,mrecb,mrecg)
-!  else
-     !         if (l1d) then
-     !           call init_readeigen_mlw_noeval1D(nwf,nband,mrecb,mrecg)
-     !         else
-     call init_readeigen_mlw_noeval()!nwf,nband,mrecb,mrecg)
-     !         endif
-!  endif
+  call init_readeigen_mlw_noeval()!nwf,nband,mrecb,mrecg)
   if (Is_IO_Root_RSMPI()) then
      write(*,*)'Caution! evals are zero hereafter.'
      write(*,*)'nwf =',nwf
-     !      write(*,*)'nband =',nband
-     !      write(*,*)'mrecb =',mrecb
-     !      write(*,*)'mrecg =',mrecg
      write(*,*)'init_readeigen_mlw: done'
   endif
-
-  !! pkm4crpa mode. generated by init_readeigen_mlw_noeval
   if(ixc==10011) then
      call RSMPI_Finalize()
      if (Is_IO_Root_RSMPI()) call rx0s(' OK! hwmatK_MPI ixc=10011')
-     stop
   endif
   nq         = nqibz
   allocate(q(3,nq))
@@ -570,23 +365,11 @@ subroutine hwmatK_MPI()
     write(6,*) ' If you need wmat_all, need to fix this part. or use fixed code with ifort/gfortran'
     call rx('wmat_all is not implemented because of the bug in nvfortran24.1')
   endif
-
-!  call MPI_Bcast(lfull,1,MPI_LOGICAL,io_root_rsmpi, MPI_COMM_WORLD,ierror_rsmpi)
-!  call RSMPI_Check("MPI_Bcast(lfull)",ierror_rsmpi)
   print *, "Here!!!!!!!!!!!!!", lfull, lwssc!, nrws
   if (lfull) then
-!     if (Is_IO_Root_RSMPI()) then
      call getkeyvalue("GWinput","wmat_rcut1",rcut1, default=0.01d0 )
      call getkeyvalue("GWinput","wmat_rcut2",rcut2, default=0.01d0 )
-        ! m, 070814
-        call getkeyvalue("GWinput","wmat_WSsuper",lwssc,default=.true.)
-!     endif ! Is_IO_Root_RSMPI
-!     call MPI_Bcast(rcut1,1,MPI_DOUBLE_PRECISION,io_root_rsmpi,  MPI_COMM_WORLD,ierror_rsmpi)
-!     call RSMPI_Check("MPI_Bcast(rcut1)",ierror_rsmpi)
-!     call MPI_Bcast(rcut2,1,MPI_DOUBLE_PRECISION,io_root_rsmpi,  MPI_COMM_WORLD,ierror_rsmpi)
-!     call RSMPI_Check("MPI_Bcast(rcut2)",ierror_rsmpi)
-!     call MPI_Bcast(lwssc,1,MPI_LOGICAL,io_root_rsmpi,           MPI_COMM_WORLD,ierror_rsmpi)
-!     call RSMPI_Check("MPI_Bcast(lwssc)",ierror_rsmpi)
+     call getkeyvalue("GWinput","wmat_WSsuper",lwssc,default=.true.)
      if (lwssc) then
         allocate(irws(n1*n2*n3*8),rws(3,n1*n2*n3*8),drws(n1*n2*n3*8))
         call wigner_seitz(alat,plat,n1,n2,n3,nrws,rws,irws,drws)
@@ -603,8 +386,7 @@ subroutine hwmatK_MPI()
         if (Is_IO_Root_RSMPI()) then
            write(*,*)'*** Super cell (Not Wigner-Seitz super cell)'
            do i=1,nrws
-              write(*,"(i5,4f12.6,i5)")i,rws(1,i),rws(2,i),rws(3,i), &
-                   drws(i),irws(i)
+              write(*,"(i5,4f12.6,i5)")i,rws(1,i),rws(2,i),rws(3,i), drws(i),irws(i)
            enddo
         endif
      endif
@@ -624,11 +406,7 @@ subroutine hwmatK_MPI()
      nrws = nrws1*nrws2*nrws2
      deallocate(irws,rws,drws)
   else
-     if (Is_IO_Root_RSMPI()) &
-          call getkeyvalue("GWinput","wmat_rsite", rsite,3, &
-          default=(/0.0d0,0.0d0,0.0d0/),status=ret)
-!     call MPI_Bcast(rsite,3,MPI_DOUBLE_PRECISION,io_root_rsmpi,   MPI_COMM_WORLD,ierror_rsmpi)
-!     call RSMPI_Check("MPI_Bcast(rsite)",ierror_rsmpi)
+     call getkeyvalue("GWinput","wmat_rsite", rsite,3, default=(/0.0d0,0.0d0,0.0d0/),status=ret)
      rcut1 = 0.0d0
      rcut2 = 0.0d0
      nrws1 = 1
@@ -640,56 +418,19 @@ subroutine hwmatK_MPI()
      irws2(1) = 1
      nrws = nrws1*nrws2*nrws2
   endif
-  print *, "Here!!!!!!!!!!!!!", lfull, lwssc, nrws
-!  if (Is_IO_Root_RSMPI()) then
-     write(*,'(a14,i5,f12.6)')'nrws1, rcut1 =',nrws1,rcut1
-     write(*,'(a14,i5,f12.6)')'nrws2, rcut2 =',nrws2,rcut2
-     !write(*,*)'nnnnnnnnnnn rws  =',rws1,rws2
-!  endif
-
-  !$$$c ---  q near zero
-  !$$$      write(6,*) 'reading QOP'
-  !$$$      if101=ifile_handle()
-  !$$$      open (if101,file='Q0P')
-  !$$$      read (if101,"(i5)") nq0i
-  !$$$      if(.not.exchange) call checkeq(nqibz+nq0i-1, nqnum)
-  !$$$      if (Is_IO_Root_RSMPI())
-  !$$$     & write(6,*) ' *** nqibz nq0i_total=', nqibz,nq0i
-  !$$$      nq0it = nq0i
-  !$$$      allocate( wqt(1:nq0i),q0i(1:3,1:nq0i) )
-  !$$$c      read (101,"(d24.16,3x, 3d24.16)" )( wqt(i),q0i(1:3,i),i=1,nq0i)
-  !$$$      nq0ix = nq0i
-  !$$$      do i=1,nq0i
-  !$$$      read (if101,* ) wqt(i),q0i(1:3,i)
-  !$$$      if(wqt(i)==0d0 ) nq0ix = i-1
-  !$$$      enddo
-  !$$$      nq0i = nq0ix ! New nq0i July 2001
-  !$$$      if (Is_IO_Root_RSMPI()) then
+  print *, "Here!!!!!!!!!!!!!", lfull, lwssc, nrws!,' Is_IO',Is_IO_Root_RSMPI()
+  write(*,'(a14,i5,f12.6)')'nrws1, rcut1 =',nrws1,rcut1
+  write(*,'(a14,i5,f12.6)')'nrws2, rcut2 =',nrws2,rcut2
+  write(*,*)'rrrrrrr rws1 rws1 =',rws1,' rrrrrr2',rws2
   write(6,*) ' Used k number in Q0P =', nq0i
   write(6,"(i3,f14.6,2x, 3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i)
-  !$$$      endif
-  !$$$      close(if101)
   allocate( wgt0(nq0i,ngrp) )
-  ! Sergey's 1stFeb2005
-  !      call q0iwgt2(symgg,ngrp,wqt,q0i,nq0i,
-  !     o            wgt0)
-  if (Is_IO_Root_RSMPI()) &
-       call getkeyvalue("GWinput","allq0i",allq0i,default= .FALSE. )!S.F.Jan06
-!  call MPI_Bcast(allq0i,1,MPI_LOGICAL,io_root_rsmpi,     MPI_COMM_WORLD,ierror_rsmpi)
-!  call RSMPI_Check("MPI_Bcast(allq0i)",ierror_rsmpi)
+  call getkeyvalue("GWinput","allq0i",allq0i,default= .FALSE. )!S.F.Jan06
   call q0iwgt3(allq0i,symgg,ngrp,wqt,q0i,nq0i,     wgt0)                   ! added allq0i argument
-  !--------------------------
   if (Is_IO_Root_RSMPI()) then
      if(nq0i/=0) write(6,*) ' *** tot num of q near 0   =', 1/wgt0(1,1)
      write(6,"('  sum(wgt0) from Q0P=',d14.6)")sum(wgt0)
   endif
-  !$$$      if(bzcase()==2) then
-  !$$$        wgt0= wgt0*wgtq0p()/dble(nqbz)
-  !$$$        if (Is_IO_Root_RSMPI())
-  !$$$     &   write(6,"('bzcase=2:  sum(wgt0_modified )=',d14.6)")sum(wgt0)
-  !$$$      endif
-
-  ! --- qbze(3,nqibze)
   nqbze  = nqbz *(1 + nq0i)
   allocate( qbze(3, nqbze) )
   call dcopy(3*nqbz, qbz, 1, qbze,1)
@@ -699,33 +440,8 @@ subroutine hwmatK_MPI()
         qbze (:,ini+ix)   = q0i(:,i) + qbze(:,ix)
      enddo
   enddo
-
-  ! --- read LDA eigenvalues
-  !     ntp0=ntq
-  !      allocate(eqx(ntq,nq,nspin),eqx0(ntq,nq,nspin),eqt(nband))
-  !      do      is = 1,nspin
-  !      do      ip = 1,nq
-  !c        iq       = idxk (q(1,ip),qbze,nqbze)
-  !c        call rwdd1   (ifev(is), iq, nband, eqt) !direct access read b,hb and e(q,t)
-  !        call readeval(q(1,ip),is,eqt)
-  !c        write(6,*)' eqt=',eqt
-  !        eqx0(1:ntq,ip,is) = eqt(itq(1:ntq))
-  !        eqx (1:ntq,ip,is) = rydberg()*(eqt(itq(1:ntq))- ef)
-  !      enddo
-  !      enddo
-  !      deallocate(eqt)
-
-
-  ! --- info
-  if (Is_IO_Root_RSMPI()) &
-       call winfo(6,nspin,nq,ntq,nspin,nbloch &
-       ,ngpn1,ngcn1,nqbz,nqibz,ef,deltaw,alat,esmr)
-
-  ! pointer to optimal product basis
+  if (Is_IO_Root_RSMPI()) call winfo(6,nspin,nq,ntq,nspin,nbloch,ngpn1,ngcn1,nqbz,nqibz,ef,deltaw,alat,esmr)
   allocate(imdim(natom)) !bugfix 12may2015
-  !      call indxmdm (nblocha,natom,
-  !     i              iclass,natom,
-  !     o              imdim )
   do ia = 1,natom
      imdim(ia)  = sum(nblocha(iclass(1:ia-1)))+1
   enddo
@@ -733,43 +449,12 @@ subroutine hwmatK_MPI()
      allocate(freqx(niw),freqw(niw),wwx(niw))!,expa(niw))
      call freq01x  (niw, freqx,freqw,wwx) 
   endif
-  ! c ------ write energy mesh ----------
-  ! c      if(.not.sergeys) then
-  !c      ifemesh = iopen('emesh.hwmat'//xt(nz),1,-1,0)
-  !c      deltax0 = 0d0
-  !c      call writeemesh(ifemesh,freqw,niw,freq_r,nwp,deltax0)
-  ! c
   iii=count(irk/=0) !ivsumxxx(irk,nqibz*ngrp)
   if (Is_IO_Root_RSMPI()) write(6,*) " sum of nonzero iirk=",iii, nqbz
-  !... Read pomatr
-  ! if(smbasis()) then
-  !    call RSMPI_Stop('hwmatK_MPI: smbasis notimplemented!')
-  !    write(6,*)' smooth mixed basis : augmented zmel'
-  !    call getngbpomat(nqibz+nq0i, &
-  !         nnmx,nomx)
-  !    nkpo = nqibz+nq0i
-  !    ifpomat = iopen('POmat',0,-1,0) !oct2005
-  !    allocate( pomatr(nnmx,nomx,nkpo),qrr(3,nkpo),nor(nkpo),nnr(nkpo) )
-  !    do ikpo=1,nkpo
-  !       read(ifpomat) qrr(:,ikpo),nn_,no,iqx !readin reduction matrix pomat
-  !       !         write(6,"('smbasis: ikp q no nn=',i5,3f8.4,4i5)") ikp,qrr(:,ikpo),no,nn_
-  !       nnr(ikpo)=nn_
-  !       nor(ikpo)=no
-  !       read(ifpomat) pomatr(1:nn_,1:no,ikpo)
-  !    enddo
-  !    isx = iclose("POmat")
-  !    write(6,*)"Read end of POmat ---"
-  ! else !dummy
   nkpo = 1
   nnmx =1
   nomx =1
   allocate( pomatr(nnmx,nomx,nkpo), qrr(3,nkpo),nor(nkpo),nnr(nkpo) )
-!  endif
-
-  !-----------------------------------------------------------
-  ! calculate the correlated part of the self-energy SEc(qt,w)
-  !-----------------------------------------------------------
-  ! arrays for sxcf.f
   nlnx4    = nlnx**4
   niwx     = max0 (nw,niw)
   allocate( ppb(nlnmx*nlnmx*mdimx*natom),  eq(nband), &
@@ -780,16 +465,9 @@ subroutine hwmatK_MPI()
        cw_iw(nwf,nwf,nwf,nwf,nrws,niw), &
        rv_w(nwf,nwf,nwf,nwf,nrws), &
        cv_w(nwf,nwf,nwf,nwf,nrws))
-
-  ! RS: set MPI parameters
-  ! RS: see gwsrc/RSMPI_rotkindex_mod.F
   call MPI_Barrier(MPI_COMM_WORLD,ierror_rsmpi)
-!  call RSMPI_Check("MPI_Barrier",ierror_rsmpi)
-  !      call setup_rotkindex(ngrp,irk,wgt0,bzcase(),nqibz,nq0i,nq)
   nq0ixxx=0
-  !      call setup_rotkindex(ngrp,irk,wgt0,bzcase(),nqibz,nq0ixxx,1) ! nq=1
   call setup_rotkindex(ngrp,irk,wgt0,1,nqibz,nq0ixxx,1) ! nq=1
-
   if (Is_IO_Root_RSMPI()) then ! debug
      if(nq0i/=0) then
         write(6,*) 'RS: total number of k-points should be', &
@@ -800,7 +478,6 @@ subroutine hwmatK_MPI()
      endif
   endif
   call MPI_Barrier(MPI_COMM_WORLD,ierror_rsmpi)
-!  call RSMPI_Check("MPI_Barrier",ierror_rsmpi)
   ! RS: openlogfile for each process
   if (ixc == 1) then
      ifile_rsmpi = iopen ('lwt_v.MPI'//myrank_id_rsmpi,1,3,0)
@@ -822,29 +499,17 @@ subroutine hwmatK_MPI()
   write(ifile_rsmpi,*) "rank : ", myrank_id_rsmpi
   write(ifile_rsmpi,*) "nrotk_local:",nk_local_qkgroup
   write(ifile_rsmpi,*) "nrot_local :",nrot_local_rotk
-  if (nrot_local_rotk > 0) then
-     write(ifile_rsmpi,*) &
-          "irot_index :",irot_index_rotk(1:nrot_local_rotk)
-  endif
+  if (nrot_local_rotk > 0) write(ifile_rsmpi,*) "iiiiii irot_index :",irot_index_rotk(1:nrot_local_rotk)
   write(ifile_rsmpi,*) "nk_local(1:ngrp) :"
   write(ifile_rsmpi,*) nk_local_rotk(:)
   do irot=1,ngrp
      if (nk_local_rotk(irot) > 0) then
-        write(ifile_rsmpi,*) "> irot,nk_local(irot) = ", &
-             irot, nk_local_rotk(irot)
-        write(ifile_rsmpi,*) "   ik_index : ", &
-             ik_index_rotk(irot,1:nk_local_rotk(irot))
+        write(ifile_rsmpi,*) "> irot,nk_local(irot) = ", irot, nk_local_rotk(irot)
+        write(ifile_rsmpi,*) "   ik_index : ",           ik_index_rotk(irot,1:nk_local_rotk(irot))
      endif
   enddo
-  ! ccccccccccccc
   call MPI_Barrier(MPI_COMM_WORLD,ierror_rsmpi)
-!  call RSMPI_Check("MPI_Barrier",ierror_rsmpi)
-
-  if (Is_IO_Root_RSMPI()) then
-     write(6,*) "RS: loop over spin --"
-  endif
-
-
+  if (Is_IO_Root_RSMPI()) write(6,*) "RS: loop over spin --"
   ! loop over spin ----------------------------------------------------
   spinloop: do 2000 is = 1,nspinmx
      write(6,*)' ssssss spinloop',is,nspinmx
@@ -854,60 +519,30 @@ subroutine hwmatK_MPI()
      cw_w = 0d0
      rw_iw = 0d0
      cw_iw = 0d0
-
-
-     ! loop over rotations -------------------------------
-     ! m
-     call chkrot() !ngrp)
-     do 1000 irot_local = 1,nrot_local_rotk
+     call chkrot()
+     do ix=1,8
+        write(6,"('xxxirk=',a,i5,' xxx ',255i3)") myrank_id_rsmpi,ix,irk(ix,:),nrot_local_rotk
+     enddo
+     write(6,"('mmmxxx=',a,244i3)") myrank_id_rsmpi,[(irot_index_rotk(irot_local),irot_local = 1,nrot_local_rotk)]
+     !     write(6,"('xxxirk sum=',255i5)") myrank_id_rsmpi,sum(irk(1:8,1:48))
+     
+     rotloop: do 1000 irot_local = 1,nrot_local_rotk
         irot = irot_index_rotk(irot_local)
-        if( sum(abs( irk(:,irot) )) ==0 .AND. &
-             sum(abs( wgt0(:,irot))) == 0d0 ) then
-           ! RS: this should not happen... see gwsrc/RSMPI_rotindex_mod.F
+        if( sum(abs( irk(:,irot) )) ==0 .AND. sum(abs( wgt0(:,irot))) == 0d0 ) then
            call RSMPI_Stop("hwmatK_RSMPI, cylce occurs in do 1000 -loop!")
            cycle
         endif
         write (6,"(i3,'  out of ',i3,'  rotations ',$)") irot,ngrp
         call cputid (0)
-
-        ! rotate atomic positions invrot*R = R' + T
-        !        invr       = invrot (irot,invg,ngrp)
+        ! rotate atomic positions invrot*R = R' + T         !        invr       = invrot (irot,invg,ngrp)
         invr     = invg(irot)
         ! -- ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)>
-        call ppbafp_v2 (irot,ngrp,is, &
-             mdimx,lx,nx,nxx,   & !Bloch wave
-             cgr, nl-1,         & !rotated CG
-             ppbrd,             & !radial integrals
-             ppb)
-
-        !c -- Rotated gvecc
-        !        call rotgvec(symgg(:,:,irot), nqibz,
-        !     i    ngcmx,ngcni,qbas,ngveccB,
-        !     o    ngveccBr)
-
-        !------------------------------------------------------
-        ! calculate the correlated part of the self-energy within GW
-        !        ntqx = 0
-        !        if(tetra.and.(.not.exchange)) then
-        !        ntqx =3*ntq
-        !        endif
-        ! loop over q
-        !        do ip = 1,nq   !;write (*,*) ip,'  out of ',nq,'  k-points ' ! call cputid  (0)
-        !          iq  = idxk (q(1,ip),qbz,nqbz)
-        !          call rwdd1 (ifev(is),iq, nband,eq)
-        !          call readeval(q(1,ip),is,eq)
-
-        ! cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-        ! nctot=0 in this version
+        call ppbafp_v2 (irot,ngrp,is,mdimx,lx,nx,nxx,cgr,nl-1,ppbrd, ppb)
         nctot0=0
-        ! cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         write(*,*) 'wmatq in',irot_local,nrot_local_rotk
         shtv = matmul(symgg(:,:,irot),shtvg(:,invr))
-!        write(6,ftox)' nnnnnnnnnn before wmatqk_mpi: nrws nrws1 nrws2',nrws,nrws1,nrws2
-
-
+        
         call wmatqk_MPI (kount,irot,     1,   1,   1,  tiat(1:3,1:natom,invr),miat(1:natom,invr), &
-!        call wmatqk_MPI (kount,irot,nrws1,nrws2,nrws,  tiat(1:3,1:natom,invr),miat(1:natom,invr), &
              rws1,rws2, nspin,is,  & !ifcphi,ifrb(is),ifcb(is),ifrhb(is),ifchb(is),
              ifrcw,ifrcwi, qbas,ginv,qibz,qbz,wbz,nstbz, wibz,nstar,irk,  &! & iindxk,
              iclass,nblocha,nlnmv, nlnmc,  icore,ncore, imdim, &
@@ -919,76 +554,33 @@ subroutine hwmatK_MPI()
              wgt0,wqt,nq0i,q0i, symgg(:,:,irot),alat, &
              shtv,nband, ifvcfpout, &
              exchange, pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, nwf,  rw_w,cw_w,rw_iw,cw_iw) ! acuumulation variable
+        
         write(*,*) 'wmatq out',irot_local,nrot_local_rotk
-        ! cccccccccccccccccccccccccccccccccccccccc
-        !        iii = ivsum(kount,nqibz*nq)
-        !        write(6,*)" sumkount 2=",nqibz,nq,iii
-        !        stop "--- kcount test end --- "
-        ! cccccccccccccccccccccccccccccccccccccccc
-        !< end of q-loop
-        !        enddo
-
-        !< end of rotation-loop
-        !        enddo
-        continue !end of rotation-loop
-1000 enddo
-
-
-!     print *,'xxxxxxxxbbbbbbbbbbbbbbbbbbbb'
-     ! RS: accumulate zw
+1000 enddo rotloop
      allocate( rw_w_sum(nwf,nwf,nwf,nwf,nrws,0:nrw), &
           cw_w_sum(nwf,nwf,nwf,nwf,nrws,0:nrw), &
           rw_iw_sum(nwf,nwf,nwf,nwf,nrws,niw), &
           cw_iw_sum(nwf,nwf,nwf,nwf,nrws,niw))
-     call MPI_AllReduce(rw_w,rw_w_sum,(nrw+1)*nwf**4*nrws, &
-          MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierror_rsmpi)
-!     call RSMPI_Check("MPI_AllReduce,rw_w",ierror_rsmpi)
+     write(6,*)'sssssss sumcheck rw_w... ',myrank_id_rsmpi,sum(rw_w),sum(cw_w)
+     call MPI_AllReduce(rw_w,rw_w_sum,(nrw+1)*nwf**4*nrws, MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierror_rsmpi)
      rw_w = rw_w_sum
-     call MPI_AllReduce(cw_w,cw_w_sum,(nrw+1)*nwf**4*nrws, &
-          MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierror_rsmpi)
-!     call RSMPI_Check("MPI_AllReduce,cw_w",ierror_rsmpi)
+     call MPI_AllReduce(cw_w,cw_w_sum,(nrw+1)*nwf**4*nrws, MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierror_rsmpi)
      cw_w = cw_w_sum
-
      if (niw > 0) then
-        call MPI_AllReduce(rw_iw,rw_iw_sum,niw*nwf**4*nrws, &
-             MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierror_rsmpi)
-!        call RSMPI_Check("MPI_AllReduce,rw_iw",ierror_rsmpi)
+        call MPI_AllReduce(rw_iw,rw_iw_sum,niw*nwf**4*nrws, MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierror_rsmpi)
         rw_iw = rw_iw_sum
-        call MPI_AllReduce(cw_iw,cw_iw_sum,niw*nwf**4*nrws, &
-             MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierror_rsmpi)
-!        call RSMPI_Check("MPI_AllReduce,cw_iw",ierror_rsmpi)
+        call MPI_AllReduce(cw_iw,cw_iw_sum,niw*nwf**4*nrws, MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierror_rsmpi)
         cw_iw = cw_iw_sum
      endif                   ! niw
      deallocate(rw_w_sum,cw_w_sum,rw_iw_sum,cw_iw_sum)
-
-     !      if (debug) write(*,*) 'do-rot out'
-
-     ! check that all k { FBZ have been included
-     !      if (ivsum(kount,nqibz*nq) /= nqbz*nq) then
-     !        iii = ivsum(kount,nqibz*nq)
-     !        write(6,*)" ivsum=",iii, nqbz*nq
-     !        stop 'hsfp0: missing k-pts'
-     !      endif
-
-     !---------------------------------
-
-2001 continue
-     !---------------------------------
-
-     ! write <p p | W | p p>
+2001 continue      ! write <p p | W | p p>
      if (Is_IO_Root_RSMPI()) then
         if (exchange) then
-           call       wvmat (is,nwf, &
+           call wvmat (is,nwf, &
                 rws1,rws2,irws1,irws2,nrws1,nrws2,nrws, &
                 alat,rcut1,rcut2,rw_w(:,:,:,:,:,0),cw_w(:,:,:,:,:,0), lcrpa, lomega0)
            rv_w = rw_w(:,:,:,:,:,0)
            cv_w = cw_w(:,:,:,:,:,0)
-           !        write(*,*) "This one!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1!"
-           !        write(*,*) rw_w
-           !        write(*,*) cw_w
-           !        write(*,*) rw_w(:,:,:,:,:,0)
-           !        write(*,*) cw_w(:,:,:,:,:,0)
-
         else
            call       wwmat (is,nw_i,nrw+1,nwf, &
                 rws1,rws2,irws1,irws2,nrws1,nrws2,nrws, &
@@ -998,12 +590,7 @@ subroutine hwmatK_MPI()
                 lcrpa, lomega0)
         endif
      endif
-!     continue !end of spin-loop
 2000 enddo spinloop
-
-  !------------
-  ! close files
-  !------------
   isx = iclose ('wc.d')
   isx = iclose ('wci.d')
   isx = iclose ('hbe.d')
@@ -1022,7 +609,6 @@ subroutine hwmatK_MPI()
   call RSMPI_Finalize()
   if (Is_IO_Root_RSMPI()) call rx0s(' OK! hwmatK_MPI')
 end subroutine hwmatK_MPI
-
 !-----------------------------------------------------------------------
 subroutine wwmat (is,nw_i,nw,nwf, &
      rws1,rws2,irws1,irws2,nrws1,nrws2,nrws, &
@@ -1040,7 +626,6 @@ subroutine wwmat (is,nw_i,nw,nwf, &
   integer:: iwf1, iwf2, iwf3, iwf4, ifreq2
   real(8) :: rv_w(nwf,nwf,nwf,nwf,nrws),cv_w(nwf,nwf,nwf,nwf,nrws)
   logical:: lcrpa, lomega0
-
   hartree=2d0*rydberg()
   freq2 = hartree*freq
   rw_w  = hartree*rw_w
@@ -1088,14 +673,11 @@ subroutine wwmat (is,nw_i,nw,nwf, &
   else if (lcrpa .eqv. .TRUE. ) then
      write(*,*) 'See "Screening_W-v_crpa.UP" and "Screening_W-v_crpa.DN" files'
   end if
-
 end subroutine wwmat
-!-----------------------------------------------------------------------
 subroutine wvmat (is,nwf, &
      rws1,rws2,irws1,irws2,nrws1,nrws2,nrws, &
      alat,rcut1,rcut2,rw_w,cw_w, &
      lcrpa, lomega0)
-
   implicit real*8(a-h,o-z)
   implicit integer (i-n)
   integer :: irws1(nrws1),irws2(nrws2)
@@ -1134,30 +716,13 @@ subroutine wvmat (is,nwf, &
      write(*,*)
   enddo
   close(ifcou)
-
-  return
 end subroutine wvmat
-!-----------------------------------------------------------------------
 subroutine chkrot ()
   use m_hamindex,only:   Readhamindex, symops, ngrp
   implicit integer (i-n)
   implicit real*8(a-h,o-z)
   parameter (eps = 1d-6)
   real(8) :: symope(3,3,ngrp)
-
-  !$$$      ifi = ifile_handle()
-  !$$$      open(ifi,file='SYMOPS')
-  !$$$      read(ifi,*)ngrp2
-  !$$$      if (ngrp .ne. ngrp2) stop 'chkrot: ngrp error'
-  !$$$
-  !$$$      do ig = 1,ngrp
-  !$$$         read(ifi,*)ig2
-  !$$$         do i = 1,3
-  !$$$            read(ifi,*)symope(i,1:3,ig)
-  !$$$         enddo
-  !$$$      enddo
-  !$$$
-  !$$$      close(ifi)
   symope=symops
   do i = 1,3
      symope(i,i,1) = symope(i,i,1) - 1d0
@@ -1169,7 +734,4 @@ subroutine chkrot ()
         if (as > eps) stop 'chkrot: irot=1 error'
      enddo
   enddo
-
-  return
 end subroutine chkrot
-!-----------------------------------------------------------------------

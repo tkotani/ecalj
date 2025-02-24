@@ -68,7 +68,7 @@ subroutine hmagnon() bind(C)
   logical :: tetra=.true., usetetrakbt
   ! so as to reduce the memory usage.
   complex(8) :: fff,img=(0d0,1d0)
-  logical :: debug
+  logical :: debug=.false.
   logical :: realomega=.true., imagomega=.true.
 
   real(8) :: omg2max, wemax
@@ -592,7 +592,7 @@ subroutine hmagnon() bind(C)
 3004                enddo
 3003             enddo
 3002          enddo
-              debug=.False.
+              !debug=.False.
               !========================== end caliculate M(:,:) : wanmat(nwf,nwf)
               ! c   print *,"ihw,nhw",ihw(ibib,kx,jpm),nhw(ibib,kx,jpm)
               do iw=ihw(ibib,kx,jpm),ihw(ibib,kx,jpm)+nhw(ibib,kx,jpm)-1
