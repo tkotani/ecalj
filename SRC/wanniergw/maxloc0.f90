@@ -1,66 +1,3 @@
-!$$$      subroutine wan_input(leout,lein,lbin,ieo_swt,iei_swt,
-!$$$     &    eomin,eomax,itout_i,itout_f,nbbelow,nbabove,
-!$$$     &    eimin,eimax,itin_i,itin_f,
-!$$$     &    nsc1,nsc2,conv1,conv2,alpha1,alpha2,rcut)
-!$$$      use m_keyvalue,only: getkeyvalue
-!$$$
-!$$$      implicit none
-!$$$      real(8) :: eomin,eomax,eimin,eimax,conv1,conv2,alpha1,alpha2,rcut
-!$$$      real(8) :: alph1,alp2,rc1
-!$$$      integer(4) :: ieo_swt,iei_swt,itout_i,itout_f,itin_i,itin_f,
-!$$$     &    nbbelow,nbabove,nsc1,nsc2
-!$$$      logical :: leout,lein,lbin
-!$$$!
-!$$$      ieo_swt = 0
-!$$$      eomin   = 0d0
-!$$$      eomax   = 0d0
-!$$$      itout_i = 0
-!$$$      itout_f = 0
-!$$$      iei_swt = 0
-!$$$      eimin   = 0d0
-!$$$      eimax   = 0d0
-!$$$      itin_i  = 0
-!$$$      itin_f  = 0
-!$$$      nbbelow = 0
-!$$$      nbabove = 0
-!$$$      call getkeyvalue("GWinput","wan_out_ewin",leout,default=.true.)
-!$$$      call getkeyvalue("GWinput","wan_in_ewin",lein,default=.false.)
-!$$$      call getkeyvalue("GWinput","wan_in_bwin",lbin,default=.false.)
-!$$$      if (leout) then
-!$$$        call getkeyvalue("GWinput","wan_out_emin",eomin,default=999d0 )
-!$$$        call getkeyvalue("GWinput","wan_out_emax",eomax,default=-999d0 )
-!$$$        if (eomin.gt.eomax) stop 'hmaxloc: eomin > eomax'
-!$$$        ieo_swt = 1
-!$$$      else
-!$$$        call getkeyvalue("GWinput","wan_out_bmin",itout_i,default=999 )
-!$$$        call getkeyvalue("GWinput","wan_out_bmax",itout_f,default=-999 )
-!$$$        if (itout_i.gt.itout_f) stop 'hmaxloc: itout_i > itout_f'
-!$$$      endif
-!$$$      if (lein) then
-!$$$        call getkeyvalue("GWinput","wan_in_emin",eimin,default=999d0 )
-!$$$        call getkeyvalue("GWinput","wan_in_emax",eimax,default=-999d0 )
-!$$$        if (eimin.gt.eimax) stop 'hmaxloc: eimin > eimax'
-!$$$        iei_swt = 1
-!$$$      endif
-!$$$      if (lbin) then
-!$$$        call getkeyvalue("GWinput","wan_in_bmin",itin_i,default=999 )
-!$$$        call getkeyvalue("GWinput","wan_in_bmax",itin_f,default=-999 )
-!$$$        if (itin_i.gt.itin_f) stop 'hmaxloc: itin_i > itin_f'
-!$$$        iei_swt = 2
-!$$$      endif
-!$$$      call getkeyvalue("GWinput","wan_maxit_1st",nsc1,default=100)
-!$$$      call getkeyvalue("GWinput","wan_conv_1st",conv1,default=1d-5)
-!$$$      call getkeyvalue("GWinput","wan_mix_1st",alpha1,default=0.1d0)
-!$$$      call getkeyvalue("GWinput","wan_maxit_2nd",nsc2,default=100)
-!$$$      call getkeyvalue("GWinput","wan_conv_2nd",conv2,default=1d-5)
-!$$$      call getkeyvalue("GWinput","wan_mix_2nd",alpha2,default=0.1d0)
-!$$$      call getkeyvalue("GWinput","wan_tb_cut",rcut,default=1.01d0)
-!$$$      call getkeyvalue("GWinput","wan_nb_below",nbbelow,default=0)
-!$$$      call getkeyvalue("GWinput","wan_nb_above",nbabove,default=0)
-!$$$!
-!$$$      return
-!$$$      end
-!-----------------------------------------------------------------------
 subroutine getrt(qbz,qbas,plat,n1,n2,n3,nqbz, &
      rt,rt8,qbz0)
   implicit integer (i-n)
@@ -984,7 +921,8 @@ subroutine chk_ewindow(ifbb,ispin,nspin,nqbz,nbb,iko_ix,iko_fx)
   if ( .NOT. lbb) stop 'chk_ewindow: Cannot find BBVEC'
   if ( .NOT. luu) stop 'chk_ewindow: Cannot find UUU/UUD'
 
-  ifbb = iopen('BBVEC',1,0,0)
+!  ifbb = iopen('BBVEC',1,0,0)
+  open(newunit=ifbb,file='BBVEC')
   read(ifbb,*)
   read(ifbb,*)nbb2,nqbz2
   if (nqbz /= nqbz2) stop 'chk_ewindow: nqbz is wrong!'
@@ -1005,8 +943,8 @@ subroutine chk_ewindow(ifbb,ispin,nspin,nqbz,nbb,iko_ix,iko_fx)
      read(ifbb,*)iti(is),itf(is),nt(is)
   enddo
 
-  ifbb = iclose('BBVEC')
-
+  !ifbb = iclose('BBVEC')
+  close(ifbb)
   iko_ix2 = iti(ispin)
   iko_fx2 = itf(ispin)
 
@@ -1034,9 +972,11 @@ subroutine readuu(is,iti,itf,ikbidx, &
   complex(8) :: uum(iti:itf,iti:itf,nbb,nqbz)
   complex(8),allocatable::uumread(:,:)
   if (is == 1) then
-     ifuu      = iopen('UUU',0,0,0)
+!    ifuu      = iopen('UUU',0,0,0)
+    open(newunit=ifuu,file='UUU',form='unformatted')
   else
-     ifuu      = iopen('UUD',0,0,0)
+!     ifuu      = iopen('UUD',0,0,0)
+    open(newunit=ifuu,file='UUD',form='unformatted')
   endif
 
   read(ifuu)
@@ -1082,12 +1022,12 @@ subroutine readuu(is,iti,itf,ikbidx, &
         endif
      enddo
   enddo
-
-  if (is == 1) then
-     ifu = iclose('UUU')
-  else
-     ifu = iclose('UUD')
-  endif
+  close(ifu)
+  !if (is == 1) then
+  !   close(ifu)! = iclose('UUU')
+  !else
+  !   close(ifu)! = iclose('UUD')
+  !endif
 
   return
 end subroutine readuu
@@ -1142,9 +1082,11 @@ subroutine readuu0(is,iti,itf, &
   complex(8) :: uum0(iti:itf,iti:itf,1,nqbz)
 
   if (is == 1) then
-     ifuu      = iopen('UU0U',0,0,0)
+!     ifuu      = iopen('UU0U',0,0,0)
+    open(newunit=ifuu,file='UU0U',form='unformatted')
   else
-     ifuu      = iopen('UU0D',0,0,0)
+!     ifuu      = iopen('UU0D',0,0,0)
+    open(newunit=ifuu,file='UU0D',form='unformatted')
   endif
 
   read(ifuu)
@@ -1165,13 +1107,12 @@ subroutine readuu0(is,iti,itf, &
 
      enddo
   enddo
-
-  if (is == 1) then
-     ifu = iclose('UU0U')
-  else
-     ifu = iclose('UU0D')
-  endif
-
+  close(ifu)
+  ! if (is == 1) then
+  !    close(ifu)! = iclose('UU0U')
+  ! else
+  !    close(ifu)! = iclose('UU0D')
+  ! endif
   return
 end subroutine readuu0
 !-----------------------------------------------------------------------
@@ -1184,9 +1125,11 @@ subroutine readpsig(is,iti,itf, &
   complex(8),allocatable:: psigread(:,:,:)
   print *,'readpsig:'
   if (is == 1) then
-     ifpsig      = iopen('PSIGU',0,0,0)
+!    ifpsig      = iopen('PSIGU',0,0,0)
+     open(newunit=ifpsig,file='PSIGU',form='unformatted')
   else
-     ifpsig      = iopen('PSIGD',0,0,0)
+!     ifpsig      = iopen('PSIGD',0,0,0)
+     open(newunit=ifpsig,file='PSIGD',form='unformatted')
   endif
   read(ifpsig)nqbz2,iti2,itf2,nwf2
   if (nqbz2 /= nqbz)call rx('readpsig: nqbz error')
@@ -1203,11 +1146,12 @@ subroutine readpsig(is,iti,itf, &
      read(ifpsig)((psigread(j1,j2,iqbz),j1=iti2,itf2),j2=1,nwf)
   enddo
   psig(iti:itf,:,:)=psigread(iti:itf,:,:)
-  if (is == 1) then
-     ifu = iclose('PSIGU')
-  else
-     ifu = iclose('PSIGD')
-  endif
+  close(ifu)
+  !if (is == 1) then
+  !   ! = iclose('PSIGU')
+  !else
+  !   ifu = iclose('PSIGD')
+  !endif
 
   return
 end subroutine readpsig
@@ -1304,3 +1248,2211 @@ subroutine super_cell(alat,plat,n1,n2,n3,nrws,rws,irws,drws)
   return
 end subroutine super_cell
 !-----------------------------------------------------------------------
+subroutine init_unkg(is,qbz,ginv,ef,lein, &
+     iko_ix,iko_fx,iko_i,iko_f, &
+     iki_i,iki_f, &
+     nwf,nband,nqbz, &
+     amnk,cnk)
+  implicit integer (i-n)
+  implicit real*8(a-h,o-z)
+  logical :: lein
+  !      complex(8),allocatable :: psig(:,:,:)
+  complex(8) :: amnk(iko_ix:iko_fx,nwf,nqbz), &
+       cnk(iko_ix:iko_fx,nwf,nqbz),ctmp
+  real(8) :: qbz(3,nqbz),ginv(3,3), &
+       ovlp(iko_ix:iko_fx)
+  integer(4) :: iko_i(nqbz),iko_f(nqbz), &
+       iki_i(nqbz),iki_f(nqbz)
+  ! initialize
+  cnk = (0d0,0d0)
+  amnk = (0d0,0d0)
+
+  ! read psig(it,iwf,iqbz) = < psi(it,iqbz) | g(iwf) >
+  print *,'goto readpsig'
+  call readpsig(is,iko_ix,iko_fx, &
+       nqbz,nwf, &
+       !     o              psig)
+       amnk)
+
+  call amnk2unk(amnk, &
+       iko_ix,iko_fx,iko_i,iko_f, &
+       nwf,nqbz, &
+       cnk)
+
+  ! inner energy window
+  if (lein) &
+       call init_iew(iko_ix,iko_fx,iko_i,iko_f, &
+       iki_i,iki_f, &
+       nwf,nband,nqbz, &
+       cnk)
+
+  return
+end subroutine init_unkg
+!-----------------------------------------------------------------------
+subroutine pick_nwf(ovlp,iti,itf,nwf,isort)
+
+  implicit real*8(a-h,o-z)
+  implicit integer (i-n)
+  real(8) :: ovlp(iti:itf),otmp(iti:itf)
+  integer(4) :: isort(nwf),istate(iti:itf)
+
+  ! initial
+  do it = iti,itf
+     istate(it) = it
+     otmp(it) = ovlp(it)
+  enddo
+
+  ! sorting
+  do it1 = iti,itf-1
+     do it2 = it1+1,itf
+        if (ovlp(it1) < ovlp(it2)) then
+           tmp = ovlp(it2)
+           ovlp(it2) = ovlp(it1)
+           ovlp(it1) = tmp
+           itmp = istate(it2)
+           istate(it2) = istate(it1)
+           istate(it1) = itmp
+        endif
+     enddo
+  enddo
+
+  ! sort check
+  do i1 = iti,itf-1
+     it1 = istate(i1)
+     it2 = istate(i1+1)
+     if (otmp(it1) < otmp(it2)) stop 'pick_nwf: sort error'
+  enddo
+
+  ! pick largest nwf states
+  do it = 1,nwf
+     itmp = iti - 1 + it
+     isort(it) = istate(itmp)
+  enddo
+
+  return
+end subroutine pick_nwf
+!-----------------------------------------------------------------------
+subroutine read_cnq0(ifhoev,is,qwf0,qbz,ginv,ef, &
+     itq, &
+     nwf,nband,nqbz, &
+     cnq0)
+
+  implicit real*8(a-h,o-z)
+  implicit integer (i-n)
+  complex(8),allocatable :: cks(:,:),hks(:,:),oks(:,:)
+  complex(8) :: cnq0(nband,nwf)
+  real(8),allocatable :: eval(:)
+  real(8) :: qwf0(3),qbz(3,nqbz),q(3),ginv(3,3)
+  real(8) :: rydberg
+  integer(4) :: itq(nwf)
+
+  iq0 = iqindx(qwf0,ginv,qbz,nqbz)
+  cnq0 = (0d0,0d0)
+
+  ! open
+  if (is == 1) then
+!     ifhoev = iopen('HOEV.UP',0,0,0)
+     open(newunit=ifhoev,file='HOEV.UP',form='unformatted')
+  elseif (is == 2) then
+!     ifhoev = iopen('HOEV.DN',0,0,0)
+     open(newunit=ifhoev,file='HOEV.DN',form='unformatted')
+  else
+     stop 'read_cnq0: open error'
+  endif
+
+  ! read
+  read(ifhoev)ndimh,nqtot
+  if (ndimh /= nband) stop 'read_cnq0: nband error'
+  if (nqtot < nqbz) stop 'read_cnq0: nqbz error'
+
+  allocate(hks(nband,nband),oks(nband,nband), &
+       cks(nband,nband),eval(nband))
+
+  do iq = 1,nqbz
+     read(ifhoev)iq2,q(1:3)
+     read(ifhoev)hks(1:nband,1:nband)
+     read(ifhoev)oks(1:nband,1:nband)
+     read(ifhoev)cks(1:nband,1:nband)
+     read(ifhoev)eval(1:nband)
+
+     iq3 = iqindx(q,ginv,qbz,nqbz)
+     if (iq3 /= iq) stop 'read_cnq0: iqindx error'
+     if (iq3 == iq0) then
+        do it = 1,nwf
+           cnq0(:,it) = cks(:,itq(it))
+           !               ev = (eval(itq(it)) - ef) * rydberg()
+           !               write(*,*)'iwf,nwf,ev',ev
+        enddo
+        goto 99
+     endif
+  enddo
+  stop 'read_cnq0: cannot find q0'
+99 continue
+
+  deallocate(hks,oks,cks,eval)
+
+  close(ifi)
+  ! if (is == 1) then
+  !    ifi = iclose('HOEV.UP')
+  ! else
+  !    ifi = iclose('HOEV.DN')
+  ! endif
+
+  return
+end subroutine read_cnq0
+!-----------------------------------------------------------------------
+subroutine get_amnk(ifhoev,is,qwf0,qbz,ginv, &
+     cnq0, &
+     iko_ix,iko_fx,iko_i,iko_f, &
+     nwf,nband,nqbz, &
+     amnk)
+  implicit integer (i-n)
+  implicit real*8(a-h,o-z)
+
+  complex(8),allocatable :: cks(:,:),hks(:,:),oks(:,:), &
+       wmat(:,:)
+  complex(8) :: cnq0(nband,nwf), &
+       amnk(iko_ix:iko_fx,nwf,nqbz)
+  real(8),allocatable :: eval(:)
+  real(8) :: qwf0(3),qbz(3,nqbz),q(3),ginv(3,3)
+  integer(4) :: iko_i(nqbz),iko_f(nqbz)
+
+
+  ! open
+  if (is == 1) then
+!     ifhoev = iopen('HOEV.UP',0,0,0)
+     open(newunit=ifhoev,file='HOEV.UP',form='unformatted')
+  elseif (is == 2) then
+!     ifhoev = iopen('HOEV.DN',0,0,0)
+     open(newunit=ifhoev,file='HOEV.DN',form='unformatted')
+  else
+     stop 'get_amnk: open error'
+  endif
+
+  ! read
+  read(ifhoev)ndimh,nqtot
+  if (ndimh /= nband) stop 'get_amnk: nlmto error'
+  if (nqtot < nqbz) stop 'get_amnk: nqbz error'
+
+  allocate(hks(nband,nband),oks(nband,nband), &
+       cks(nband,nband),eval(nband), &
+       wmat(nband,nwf))
+
+  ! initialize
+  amnk = (0d0,0d0)
+
+  do iq = 1,nqbz
+     read(ifhoev)iq2,q(1:3)
+     read(ifhoev)hks(1:nband,1:nband)
+     read(ifhoev)oks(1:nband,1:nband)
+     read(ifhoev)cks(1:nband,1:nband)
+     read(ifhoev)eval(1:nband)
+
+     iq3 = iqindx(q, ginv,qbz,nqbz)
+     if (iq3 /= iq) stop 'get_amnk: iqindx error'
+
+
+     ! wmat = cnq0 * oks
+     wmat = (0d0,0d0)
+     do in = 1,nwf
+        do ij = 1,nband
+           do ii = 1,nband
+              wmat(ij,in) = wmat(ij,in) &
+                   + cnq0(ii,in) * oks(ij,ii)
+           enddo
+        enddo
+     enddo
+
+     ! amnk = cks^{*} * wmat
+     do im = iko_i(iq),iko_f(iq)
+        do in = 1,nwf
+           do ij = 1,nband
+              amnk(im,in,iq) = amnk(im,in,iq) + &
+                   dconjg(cks(ij,im)) * wmat(ij,in)
+           enddo
+        enddo
+     enddo
+  enddo
+  deallocate(hks,oks,cks,eval,wmat)
+  close(ifi)
+!  if (is == 1) then
+!     ifi = iclose('HOEV.UP')
+!  else
+!     ifi = iclose('HOEV.DN')
+!  endif
+999 format(i5,3f16.8)
+  return
+end subroutine get_amnk
+!-----------------------------------------------------------------------
+subroutine amnk2unk(amnk,iko_ix,iko_fx,iko_i,iko_f,nwf,nqbz, cnk0)
+  implicit real*8(a-h,o-z)
+  implicit integer (i-n)
+  parameter (eps = 1d-3)
+  intent(in)::     amnk,iko_ix,iko_fx,iko_i,iko_f,nwf,nqbz
+  intent(out)::                                              cnk0
+  complex(8),allocatable :: aa(:,:),cc(:,:),zz(:,:),vv(:,:)
+  real(8),allocatable :: dd(:)
+  complex(8) :: amnk(iko_ix:iko_fx,nwf,nqbz), cnk0(iko_ix:iko_fx,nwf,nqbz),ctmp
+  integer :: iko_i(nqbz),iko_f(nqbz)
+  !! singular value decomposition, 061003. see around Eq.23 of Ref.[2]
+  nks = iko_fx - iko_ix + 1
+  allocate (aa(nks,nks),zz(nks,nks),vv(nwf,nwf),dd(nwf))
+  cnk0 = 0d0
+  do iq = 1,nqbz
+     aa(1:nks,1:nwf) = amnk(iko_ix:iko_fx,1:nwf,iq)
+     call zgesvdmn(nks,nwf,aa,dd,zz,vv)
+     do ij = iko_i(iq),iko_f(iq)
+        jj = ij - iko_ix + 1
+        do ii = 1,nwf
+           do ik = 1,nwf
+              cnk0(ij,ii,iq) = cnk0(ij,ii,iq) + zz(jj,ik)*vv(ik,ii)
+           enddo
+        enddo
+     enddo
+  enddo 
+  deallocate (aa,zz,vv,dd)
+  return
+end subroutine amnk2unk
+!-----------------------------------------------------------------------
+subroutine init_iew(iko_ix,iko_fx,iko_i,iko_f, iki_i,iki_f, nwf,nband,nqbz, cnk) !Modify cnk to include all the inner space explictly. See Souza Eq.27 around. 
+  implicit integer (i-n)
+  implicit real*8(a-h,o-z)
+  complex(8),allocatable :: cnk2(:,:),vnk(:,:),mat(:,:),evec(:,:)
+  complex(8) :: cnk(iko_ix:iko_fx,nwf,nqbz),ctmp
+  real(8),allocatable :: eval(:)
+  integer(4),allocatable :: it(:)
+  integer(4) :: iko_i(nqbz),iko_f(nqbz), iki_i(nqbz),iki_f(nqbz)
+  allocate(cnk2(iko_ix:iko_fx,nwf), vnk(iko_ix:iko_fx,nwf))
+  nox = iko_fx - iko_ix + 1
+!  print *, 'initnnnnnnnnox=',nox,iko_ix, iko_fx,nwf
+  do iq = 1,nqbz
+ !    print *,'initnnnnnnnnn iq=',iq,iki_i(iq),iki_f(iq)
+     ! no innner energy window
+     if (iki_i(iq) == 0) then
+        if (iki_f(iq) /= -1) stop 'init_iew: iki_f error'
+     else        ! inner energy window
+        nout = iko_f(iq) - iko_i(iq) + 1
+        nin  = iki_f(iq) - iki_i(iq) + 1
+        if (nin < 1) stop 'init_iew: nin error'
+        cnk2 = 0d0
+        do il = 1, nin ! Nin(k) states in the inner energy window
+           cnk2(iki_i(iq)-1+il,il) = 1d0
+        enddo
+        ! Nwf - Nin(k) states out of Nout states         ! |vnk>
+        vnk(:,:) = cnk(:,:,iq)
+        vnk(iki_i(iq):iki_f(iq),:) = 0d0
+!        print *,'initnnnn222 ',nox,nwf,iko_ix
+        allocate(mat(nox,nox),evec(nox,nox),eval(nox))
+        do ii = 1,nox !nox=nouter-ninner
+           do ij = 1,nox
+              mat(ii,ij) = sum(vnk(ii+iko_ix-1,1:nwf)*dconjg(vnk(ij+iko_ix-1,1:nwf))) !QPQ matrix of Eq.27 in Souza paper.
+           enddo
+        enddo
+        forall (ii=1:nox) mat(ii,ii)=mat(ii,ii)+1d-16 !stabilize calculaiton 2023-6-6
+        call chk_hm(mat,nox)
+        call diag_hm(mat,nox,eval,evec)
+ !       do i=1,nox
+ !          write(6,*)'nnnnnnneval=',i,eval(i)
+ !       enddo
+        do il = 1, nwf-nin
+           do ij = iko_ix, iko_fx
+              cnk2(ij,il+nin) = evec(ij-iko_ix+1,nox-il+1)
+           enddo
+        enddo
+        deallocate(mat,evec,eval)
+        call chk_on(cnk2(iko_ix:iko_fx,:),nox,nwf)
+        ! new cnk(:,:,q)
+        cnk(:,:,iq) = cnk2(:,:)
+        ! end of if (iki_i == 0)
+     endif     ! end of iq-loop
+     !xxxx debug if(iq==6) stop 'xxxxxxxxxxxx'
+  enddo
+  deallocate(cnk2,vnk)
+end subroutine init_iew
+!-----------------------------------------------------------------------
+subroutine   getupu(isc, &
+     uumat,cnk, &
+     lein,alpha_in,iq,ikbidx, &
+     iko_ix,iko_fx, &
+     iko_i,iko_f, &
+     iki_i,iki_f, & !inner window range
+     ikbo_i,ikbo_f, &
+     ikbi_i,ikbi_f, &
+     nwf,nbb,nqbz, &
+     upu)
+  implicit integer (i-n)
+  implicit real*8(a-h,o-z)
+  complex(8),allocatable :: wmat(:,:),wmat2(:,:)
+  complex(8) :: upu(iko_ix:iko_fx,iko_ix:iko_fx,nbb), &
+       uumat(iko_ix:iko_fx,iko_ix:iko_fx,nbb), &
+       cnk(iko_ix:iko_fx,nwf,nqbz), &
+       ctmp
+  integer :: ikbidx(nbb), &
+       ikbo_i(nbb),ikbo_f(nbb), &
+       ikbi_i(nbb),ikbi_f(nbb)
+  logical :: lein
+  if (isc == 1) then
+     alpha = 1d0
+     upu(:,:,:) = 0d0
+  else
+     alpha = alpha_in
+     upu(:,:,:) = upu(:,:,:) * (1d0-alpha)
+  endif
+!  nin = iki_f - iki_i + 1 !starting index of outer-inner (ex. When iki_i=1, nin= iki_f+1)
+!  if (nin >= nwf) stop 'getupu: Nin >= Nwf'
+  allocate(wmat(iko_ix:iko_fx,iko_ix:iko_fx), wmat2(iko_ix:iko_fx,iko_ix:iko_fx))
+  do ibb = 1,nbb
+     iqb = ikbidx(ibb)
+     i1= ikbo_i(ibb)
+     i2= ikbo_f(ibb)
+     do concurrent(inp=i1:i2, imp=i1:i2) !wmat = cnk * cnk^{*} is projector to 'wannier space'.
+        wmat(inp,imp)= sum(dconjg(cnk(inp,1:nwf,iqb))*cnk(imp,1:nwf,iqb)) !miyake BUG-> range of sum was nin+1,nwf before 2023-6-8
+     enddo
+     do concurrent(in=iko_i:iko_f, imp=i1:i2)
+        wmat2(imp,in)= sum(dconjg(uumat(in,i1:i2,ibb)) * wmat(i1:i2,imp))
+     enddo
+     do concurrent(im=iko_i:iko_f, in=iko_i:iko_f)! uumat* wmat * uumat
+        upu(im,in,ibb) = upu(im,in,ibb) +  sum(uumat(im,i1:i2,ibb)*wmat2(i1:i2,in)) * alpha  ! upu = upu + uumat * wmat2 * alpha
+     enddo
+  enddo
+  deallocate(wmat,wmat2)
+end subroutine getupu
+!-----------------------------------------------------------------------
+subroutine dimz(lein,iko_i,iko_f,iki_i,iki_f, ndz,nin)
+  implicit integer (i-n)
+  implicit real*8(a-h,o-z)
+  logical :: lein
+  nout = iko_f - iko_i + 1
+  nin  = iki_f - iki_i + 1
+  ndz  = nout - nin
+  ! eck
+  if (iki_i == 0) then
+     if (iki_f /= -1) stop 'dimz: iki_f error'
+  else
+     if (iko_i > iki_i) stop 'dimz: ik_i error'
+     if (iko_f < iki_f) stop 'dimz: ik_f error'
+     if (iki_i > iki_f) stop 'dimz: iki error'
+  endif
+  return
+end subroutine dimz
+!-----------------------------------------------------------------------
+subroutine getzmn(upu,wbb,lein, &
+     iko_ix,iko_fx, &
+     iko_i,iko_f, &
+     iki_i,iki_f, &
+     nwf,nbb,nqbz,ndz, &
+     zmn)
+  implicit integer (i-n)
+  implicit real*8(a-h,o-z)
+  complex(8) :: upu(iko_ix:iko_fx,iko_ix:iko_fx,nbb),    zmn(ndz,ndz)
+  real(8) :: wbb(nbb)
+  integer(4) :: it(ndz)
+  logical :: lein
+  zmn = (0d0,0d0)
+  ! no inner energy window
+  if (iki_i == 0) then
+!     no = iko_f - iko_i + 1
+!     if (no /= ndz) stop 'getzmn: ndz error'
+     do ibb = 1, nbb
+        zmn(1:ndz,1:ndz) = zmn(1:ndz,1:ndz) +  wbb(ibb) * upu(iko_i:iko_f,iko_i:iko_f,ibb)
+     enddo
+  else ! inner energy window
+     j = 0
+     do i = iko_i,iki_i-1
+        j = j + 1
+        it(j) = i
+     enddo
+     do i = iki_f+1,iko_f
+        j = j + 1
+        it(j) = i
+     enddo
+     if (j /= ndz) stop 'getzmn: ndz error'
+     do im = 1,ndz
+        do in = 1,ndz
+           do ibb = 1, nbb
+              zmn(im,in) = zmn(im,in) + wbb(ibb) * upu(it(im),it(in),ibb)
+           enddo
+        enddo
+     enddo
+  endif
+end subroutine getzmn
+!-----------------------------------------------------------------------
+subroutine chk_hm(zmat,ndim)
+  implicit integer (i-n)
+  implicit real*8(a-h,o-z)
+
+  parameter (eps = 1d-4)
+  complex(8):: zmat(ndim,ndim)
+
+  do i = 1,ndim
+     do j = 1,ndim
+        dr = dabs(dreal(zmat(i,j)) - dreal(zmat(j,i)))
+        di = dabs(dimag(zmat(i,j)) + dimag(zmat(j,i)))
+        dc = abs(zmat(i,j))
+        if (dr > eps) stop 'chk_hm: real part error'
+        if (di > eps) stop 'chk_hm: imag part error'
+        !         if (dr/dc .gt. eps) stop 'chk_hm: real part error'
+        !         if (di/dc .gt. eps) stop 'chk_hm: imag part error'
+        !         if (dr/dc .gt. eps) then
+        !             write(*,*)zmat(i,j),i,j
+        !             write(*,*)zmat(j,i),i,j
+        !             stop 'chk_hm: real part error'
+        !         endif
+        !         if (di/dc .gt. eps) then
+        !             write(*,*)zmat(i,j),i,j
+        !             write(*,*)zmat(j,i),i,j
+        !             stop 'chk_hm: imag part error'
+        !         endif
+     enddo
+  enddo
+
+  return
+end subroutine chk_hm
+!-----------------------------------------------------------------------
+subroutine chk_um(zmat,ndim)
+  implicit integer (i-n)
+  implicit real*8(a-h,o-z)
+
+  parameter (eps = 1d-4)
+  complex(8):: zmat(ndim,ndim),cij
+
+  do i = 1,ndim
+     do j = 1,ndim
+        cij = (0d0,0d0)
+        do k = 1,ndim
+           cij = cij + dconjg(zmat(k,i))*zmat(k,j)
+        enddo
+        if (i == j) cij = cij - 1d0
+        rij = abs(cij)
+        if (rij > eps) stop 'chk_um: error'
+     enddo
+  enddo
+
+  return
+end subroutine chk_um
+!-----------------------------------------------------------------------
+subroutine chk_on(zmat,n1,n2)
+  implicit integer (i-n)
+  implicit real*8(a-h,o-z)
+  parameter (eps = 1d-4)
+  complex(8):: zmat(n1,n2),cij
+  do i = 1,n2
+     do j = 1,n2
+        cij = sum(dconjg(zmat(:,i))*zmat(:,j))
+        if (i == j) cij = cij - 1d0
+        rij = abs(cij)
+        if (rij > eps) stop 'chk_on: error'
+     enddo
+  enddo
+end subroutine chk_on
+!-----------------------------------------------------------------------
+subroutine diag_hm(zmat,ndim,eval,evecc)
+  implicit integer (i-n)
+  implicit real*8(a-h,o-z)
+
+  complex(8),allocatable :: zmat2(:,:),ovlpc(:,:)
+  complex(8):: zmat(ndim,ndim),evecc(ndim,ndim)
+  real(8):: eval(ndim)
+
+  allocate(zmat2(ndim,ndim),ovlpc(ndim,ndim))
+
+  nev  = ndim
+  nmx  = ndim
+
+  zmat2 = zmat
+
+  ovlpc = (0d0,0d0)
+  do i=1,ndim
+     ovlpc(i,i) = (1d0,0d0)
+  enddo
+
+  evecc = (0d0,0d0)
+  eval = 0d0
+
+  call diagcv(ovlpc,zmat2, evecc, ndim, eval, nmx, 1d99, nev)
+
+  deallocate(zmat2,ovlpc)
+
+  return
+end subroutine diag_hm
+!-----------------------------------------------------------------------
+subroutine chk_eval(wbb,evz,nbb,ndz)
+  implicit integer (i-n)
+  implicit real*8(a-h,o-z)
+
+  parameter (eps = 1d-4)
+  real(8):: wbb(nbb),evz(ndz)
+
+
+  ! check order
+  do i = 1,ndz-1
+     e1 = evz(i)
+     e2 = evz(i+1)
+     if (e1 > e2) stop 'chk_eval: order is wrong'
+  enddo
+
+  ! check
+  ws = sum(wbb)
+  if (evz(ndz) > ws) then
+     write(*,*) 'chk_eval: eval is too large'
+     write(*,*)'sum(wbb) =',ws
+     do i = ndz,1,-1
+        write(*,*)'i,evz(i)=',i,evz(i)
+     enddo
+     stop
+  endif
+
+  return
+end subroutine chk_eval
+!-----------------------------------------------------------------------
+subroutine new_cnk(cnk,evecc,iq, &
+     iko_ix,iko_fx, &
+     iko_i,iko_f, &
+     iki_i,iki_f, &
+     nwf,ndz, &
+     cnk2)
+  implicit integer (i-n)
+  implicit real*8(a-h,o-z)
+  complex(8) :: cnk(iko_ix:iko_fx,nwf), cnk2(iko_ix:iko_fx,nwf), evecc(ndz,ndz)
+  integer(4) :: it(ndz)
+  cnk2(:,:) = 0d0
+  if (iki_i == 0) then! no inner energy window
+     nout = iko_f - iko_i + 1
+     if (nout /= ndz) stop 'new_cnk: ndz error'
+     if (nwf > ndz) stop 'new_cnk: nwf error'
+     il2 = ndz + 1
+     do il = 1,nwf
+        il2 = il2 - 1
+        cnk2(iko_i:iko_f,il) = evecc(1:ndz,il2)
+     enddo
+  else ! with inner energy window
+     nout = iko_f - iko_i + 1
+     nin  = iki_f - iki_i + 1
+     if (nout-nin /= ndz) stop 'new_cnk: ndz error'
+     if (nwf-nin > ndz) stop 'new_cnk: nwf error'
+     cnk2(:,1:nin) = cnk(:,1:nin) !inner window
+     j = 0
+     do i = iko_i,iki_i-1
+        j = j + 1
+        it(j) = i
+     enddo
+     do i = iki_f+1,iko_f
+        j = j + 1
+        it(j) = i
+     enddo
+     il2 = ndz + 1
+     do il = nin+1,nwf ! pick nwf-nin states with the largest eigenvalues
+        il2 = il2 - 1
+        do in = 1,ndz
+           cnk2(it(in),il) = evecc(in,il2)
+        enddo
+     enddo
+  endif
+end subroutine new_cnk
+!-----------------------------------------------------------------------
+subroutine  get_omgik(wbb,evz, &
+     iko_i,iko_f, &
+     iki_i,iki_f, &
+     nbb,nwf,ndz, &
+     omgik)
+  implicit integer (i-n)
+  implicit real*8(a-h,o-z)
+  parameter (eps = 1d-4)
+  real(8):: wbb(nbb),evz(ndz)
+  nin = iki_f - iki_i + 1
+  nn  = nwf - nin
+  if (ndz < nn) stop 'get_omgik: ndz error'
+  esum = 0d0
+  do i = 1,nn
+     j = ndz + 1 - i
+     esum = esum + evz(j)
+  enddo
+  omgik = dble(nn)*sum(wbb) - esum
+end subroutine get_omgik
+!-----------------------------------------------------------------------
+subroutine zgesvdmn(ngb1,ngb2,zzz, SS,UU,VT)
+  implicit none
+  integer(4)::lwork,info,ngb1,ngb2,i
+  complex(8):: zzz(ngb1,ngb2),UU(ngb1,ngb1),VT(ngb2,ngb2)
+  real(8):: ss(ngb2)
+  real(8),allocatable:: rwork(:)
+  complex(8),allocatable:: work(:),zw0bk(:,:),vtt(:,:)
+  lwork=4*ngb1
+  allocate(work(LWORK),rwork(5*ngb1))
+  call zgesvd('A','A',ngb1,ngb2,zzz,ngb1,SS,UU,ngb1,VT,ngb2,work,lwork,rwork,info)
+  deallocate(work,rwork)
+end subroutine zgesvdmn
+subroutine diag_unk(is,qbz, &
+     iko_ix,iko_fx,iko_i,iko_f, &
+     nband,nwf,nqbz, &
+     cnk, &
+     eunk)
+  use m_readeigen,only:readeval
+  implicit integer (i-n)
+  implicit real*8(a-h,o-z)
+  parameter (eps = 1d-3)
+  complex(8),allocatable :: evecc(:,:),ham(:,:),cnk2(:,:)
+  real(8),allocatable :: eval(:),eks(:)
+  complex(8) :: amnk(iko_ix:iko_fx,nwf,nqbz), cnk(iko_ix:iko_fx,nwf,nqbz),ctmp
+  real(8) :: qbz(3,nqbz),q(3),eunk(nwf,nqbz)
+  integer :: iko_i(nqbz),iko_f(nqbz)
+  allocate (ham(nwf,nwf),eks(nband), evecc(nwf,nwf),eval(nwf), cnk2(iko_ix:iko_fx,nwf))
+  do iq = 1,nqbz
+     q(:) = qbz(:,iq)
+     eks= readeval (q,is)! read eigenvalues
+     ham = 0d0
+     do ii = 1,nwf
+        do ij = 1,nwf
+           do ik = iko_i(iq),iko_f(iq)
+              ham(ii,ij) = ham(ii,ij) + dconjg(cnk(ik,ii,iq))*cnk(ik,ij,iq)*eks(ik)
+           enddo
+        enddo
+     enddo
+     ! diagonalize H
+     call chk_hm(ham,nwf)
+     call diag_hm(ham,nwf,eval,evecc)
+     ! cnk(n,l) = S[m] evecc(m,l)*c(n,m)
+     cnk2 = (0d0,0d0)
+     do il = 1,nwf
+        do im = 1,nwf
+           do in = iko_i(iq),iko_f(iq)
+              cnk2(in,il) = cnk2(in,il) + evecc(im,il) * cnk(in,im,iq)
+           enddo
+        enddo
+     enddo
+     cnk(:,:,iq) = cnk2
+     eunk(:,iq) = eval(:)
+  enddo
+  deallocate (ham,eks,evecc,eval,cnk2)
+  return
+end subroutine diag_unk
+!-----------------------------------------------------------------------
+subroutine chk_eunk(is,qbz,eunk,ef, &
+     nqbz,nband,nwf)
+
+  use m_readeigen,only:readeval
+  implicit integer (i-n)
+  implicit real*8(a-h,o-z)
+
+  real(8) :: qbz(3,nqbz),eunk(nwf,nqbz)
+  real(8),allocatable :: eks(:)
+
+  allocate(eks(nband))
+
+  do iq = 1,nqbz
+     eks= readeval (qbz(:,iq),is)
+
+     write(*,*)'Diag energy',iq
+     do iband = 1,nwf
+        eev = (eunk(iband,iq)-ef)*rydberg()
+        write(*,*)iband,eunk(iband,iq),eev
+     enddo
+
+     write(*,*)'KS energy  ',iq
+     do iband = 1,nband
+        eev = (eks(iband)-ef)*rydberg()
+        write(*,*)iband,eks(iband),eev
+     enddo
+  enddo
+
+  deallocate(eks)
+
+  return
+end subroutine chk_eunk
+!-----------------------------------------------------------------------
+subroutine chk_cnk(cnk, &
+     iko_ix,iko_fx,iko_i,iko_f, &
+     nband,nwf,nqbz)
+  implicit integer (i-n)
+  implicit real*8(a-h,o-z)
+
+  parameter (eps = 1d-4)
+  complex(8) :: cnk(iko_ix:iko_fx,nwf,nqbz),ctmp
+  integer :: iko_i(nqbz),iko_f(nqbz)
+
+  do iq = 1,nqbz
+
+     do im = 1,nwf
+        do in = 1,nwf
+           ctmp = (0d0,0d0)
+           do ii = iko_i(iq),iko_f(iq)
+              ctmp = ctmp + dconjg(cnk(ii,im,iq))*cnk(ii,in,iq)
+           enddo
+           if (in == im) ctmp = ctmp - 1d0
+           a = dabs(dreal(ctmp))
+           b = dabs(dimag(ctmp))
+           if (a > eps) then
+              write(*,*)'chk_cnk: real error,iq,im,in, Re'
+              write(*,*)iq,im,in,a
+           endif
+           if (b > eps) then
+              write(*,*)'chk_cnk: imag error,iq,im,in, Im'
+              write(*,*)iq,im,in,b
+           endif
+        enddo
+     enddo
+
+  enddo
+
+  stop 'chk_cnk: end'
+
+  return
+end subroutine chk_cnk
+!-----------------------------------------------------------------------
+subroutine init_mmn(cnk,uumat,ikbidx, &
+     iko_ix,iko_fx,iko_i,iko_f,ikbo_i,ikbo_f, &
+     nwf,nqbz,nbb, &
+     mmn)
+  implicit integer (i-n)
+  implicit real*8(a-h,o-z)
+
+  complex(8),allocatable :: wmat(:,:)
+  complex(8):: cnk(iko_ix:iko_fx,nwf,nqbz), &
+       uumat(iko_ix:iko_fx,iko_ix:iko_fx,nbb,nqbz), &
+       mmn(nwf,nwf,nbb,nqbz)
+  integer(4):: ikbidx(nbb,nqbz), &
+       iko_i(nqbz),iko_f(nqbz), &
+       ikbo_i(nbb,nqbz),ikbo_f(nbb,nqbz)
+
+  allocate(wmat(iko_ix:iko_fx,nwf))
+
+  mmn = (0d0,0d0)
+  do iq = 1,nqbz
+     do ibb = 1,nbb
+        iqb = ikbidx(ibb,iq)
+
+        ! wmat = cnk * uumat
+        wmat = (0d0,0d0)
+        do imp = iko_i(iq),iko_f(iq)
+           do in = 1,nwf
+              do inp = ikbo_i(ibb,iq),ikbo_f(ibb,iq)
+                 wmat(imp,in) = wmat(imp,in) &
+                      + cnk(inp,in,iqb) * uumat(imp,inp,ibb,iq)
+              enddo
+           enddo
+        enddo
+
+        ! mmn = cnk^{*} * wmat
+        do im = 1,nwf
+           do in = 1,nwf
+              do imp = iko_i(iq),iko_f(iq)
+                 mmn(im,in,ibb,iq) = mmn(im,in,ibb,iq) &
+                      + dconjg(cnk(imp,im,iq)) * wmat(imp,in)
+              enddo
+           enddo
+        enddo
+
+     enddo
+  enddo
+
+  deallocate(wmat)
+
+  return
+end subroutine init_mmn
+!-----------------------------------------------------------------------
+subroutine init_Umnk(amnk,cnk, &
+     iko_ix,iko_fx,iko_i,iko_f, &
+     nwf,nqbz, &
+     umnk)
+  implicit integer (i-n)
+  implicit real*8(a-h,o-z)
+  parameter (eps = 1d-3)
+  !      complex(8),allocatable :: amn(:,:),
+  !     &                          evecc(:,:),smat(:,:),wmat(:,:)
+  !      real (8),allocatable :: eval(:)
+  complex(8),allocatable :: amn(:,:),cc(:,:),zz(:,:),vv(:,:)
+  real(8),allocatable :: dd(:)
+  complex(8) :: umnk(nwf,nwf,nqbz), &
+       amnk(iko_ix:iko_fx,nwf,nqbz), &
+       cnk(iko_ix:iko_fx,nwf,nqbz),ctmp
+  integer :: iko_i(nqbz),iko_f(nqbz)
+  allocate (amn(nwf,nwf),zz(nwf,nwf),vv(nwf,nwf),dd(nwf))
+  umnk = (0d0,0d0)
+  do iq = 1,nqbz
+     ! construct A
+     amn = (0d0,0d0)
+     do in = 1,nwf
+        do im = 1,nwf
+           do imp = iko_i(iq),iko_f(iq)
+              amn(im,in) = amn(im,in) + &
+                   dconjg(cnk(imp,im,iq))*amnk(imp,in,iq)
+           enddo
+        enddo
+     enddo
+     ! singular value decomposition: amn = zz*dd*vv
+     call zgesvdmn(nwf,nwf,amn,dd,zz,vv)
+     ! U(m,n) = ( A S^{-1/2} )_mn = (zz*vv)_mn
+     do im = 1,nwf
+        do in = 1,nwf
+           do ik = 1,nwf
+              umnk(im,in,iq) = umnk(im,in,iq) + zz(im,ik)*vv(ik,in)
+           enddo
+        enddo
+     enddo
+
+  enddo ! iq
+
+  deallocate(amn,zz,vv,dd)
+
+  return
+end subroutine init_Umnk
+!-----------------------------------------------------------------------
+subroutine updt_mmn(umnk,mmn0,ikbidx, &
+     nwf,nqbz,nbb, &
+     mmn)
+  implicit integer (i-n)
+  implicit real*8(a-h,o-z)
+
+  parameter (eps = 1d-3)
+  complex(8),allocatable :: wmat(:,:),wmat2(:,:)
+  complex(8) :: umnk(nwf,nwf,nqbz), &
+       mmn(nwf,nwf,nbb,nqbz), &
+       mmn0(nwf,nwf,nbb,nqbz)
+  integer :: ikbidx(nbb,nqbz)
+
+  allocate (wmat(nwf,nwf),wmat2(nwf,nwf))
+  wmat = (0d0,0d0)
+
+  do iq = 1,nqbz
+     do ibb = 1,nbb
+        iqb = ikbidx(ibb,iq)
+
+        ! wmat = M * U
+        wmat = (0d0,0d0)
+        do ii = 1,nwf
+           do in = 1,nwf
+              do ij = 1,nwf
+                 wmat(ii,in) = wmat(ii,in) + &
+                      mmn0(ii,ij,ibb,iq)*umnk(ij,in,iqb)
+              enddo
+           enddo
+        enddo
+
+        ! wmat2 = U^{-1} * wmat
+        wmat2 = (0d0,0d0)
+        do im = 1,nwf
+           do in = 1,nwf
+              do ii = 1,nwf
+                 wmat2(im,in) = wmat2(im,in) + &
+                      dconjg(umnk(ii,im,iq)) * wmat(ii,in)
+              enddo
+           enddo
+        enddo
+
+        ! M = wmat2
+        mmn(:,:,ibb,iq) = wmat2(:,:)
+
+        ! end of ibb-loop
+     enddo
+     ! end of iq-loop
+  enddo
+
+  deallocate (wmat,wmat2)
+
+  return
+end subroutine updt_mmn
+!-----------------------------------------------------------------------
+subroutine get_rn(mmn,bb,wbb,wbz, &
+     nwf,nqbz,nbb, &
+     rn)
+  implicit integer (i-n)
+  implicit real*8(a-h,o-z)
+
+  complex(8) :: mmn(nwf,nwf,nbb,nqbz)
+  real(8) :: bb(3,nbb),wbb(nbb),wbz(nqbz),rn(3,nwf)
+
+  rn = 0d0
+
+  do in = 1,nwf
+     do ibb = 1,nbb
+        rtmp = 0d0
+        do iq = 1,nqbz
+           rtmp = rtmp &
+                + dimag(log(mmn(in,in,ibb,iq)))*wbz(iq)
+           ! ccccccccccccccccccccccccccc
+           !            if(abs(log(mmn(in,in,ibb,iq)))>0.9) then
+           !               write(6,"('mmmnnn in ibb iq log(mmn)',3i5,2f13.4)")
+           !     &         in,ibb,iq,log(mmn(in,in,ibb,iq))
+           !            endif
+           ! ccccccccccccccccccccccccccc
+        enddo
+        rn(:,in) = rn(:,in) + wbb(ibb)*bb(:,ibb)*rtmp
+        !            write(*,*)in,ibb,rtmp
+     enddo
+  enddo
+
+  rn(:,:) = - rn(:,:)
+
+  return
+end subroutine get_rn
+!--------------------------------------------------------r---------------
+subroutine get_rnm(mmn,bb,wbb,wbz, &
+     nwf,nqbz,nbb, &
+     rnm)! complex. See Eq.(4) and Eq.(22) in [1].
+  implicit none
+  integer:: in,im,ibb,iq,nbb,nqbz,nwf
+  complex(8) :: mmn(nwf,nwf,nbb,nqbz)
+  real(8) :: bb(3,nbb),wbb(nbb),wbz(nqbz)
+  complex(8):: img=(0d0,1d0),rnm(3,nwf,nwf),rtmp
+  rnm = 0d0
+  do in = 1,nwf
+     do im = 1,nwf
+        if(im==in) cycle
+        do ibb = 1,nbb
+           rtmp = 0d0
+           do iq = 1,nqbz
+              rtmp = rtmp + img*mmn(in,im,ibb,iq)*wbz(iq)
+           enddo
+           rnm(:,in,im) = rnm(:,in,im) + wbb(ibb)*bb(:,ibb)*rtmp
+        enddo
+     enddo
+  enddo
+end subroutine get_rnm
+!-----------------------------------------------------------------------
+subroutine getrmn(mmn, &
+     nwf, &
+     rmn)
+
+  ! [1] eq.(45)
+  implicit real*8(a-h,o-z)
+  implicit integer (i-n)
+  complex(8) :: mmn(nwf,nwf),rmn(nwf,nwf)
+
+  rmn = (0d0,0d0)
+
+  do im = 1,nwf
+     do in = 1,nwf
+        rmn(im,in) = mmn(im,in) * dconjg(mmn(in,in))
+     enddo
+  enddo
+
+  return
+end subroutine getrmn
+!-----------------------------------------------------------------------
+subroutine getamn(bmn, &
+     nwf, &
+     amn)
+  implicit integer (i-n)
+  implicit real*8(a-h,o-z)
+
+  complex(8) :: bmn(nwf,nwf),amn(nwf,nwf)
+
+  amn = (0d0,0d0)
+
+  do im = 1,nwf
+     do in = 1,nwf
+        amn(im,in) = (bmn(im,in) - dconjg(bmn(in,im))) * 0.5d0
+     enddo
+  enddo
+
+  return
+end subroutine getamn
+!-----------------------------------------------------------------------
+subroutine getsmn(bmn, &
+     nwf, &
+     smn)
+  implicit integer (i-n)
+  implicit real*8(a-h,o-z)
+
+  complex(8) :: bmn(nwf,nwf),smn(nwf,nwf),ci
+
+  smn = (0d0,0d0)
+  ci = (0d0,1d0)
+
+  do im = 1,nwf
+     do in = 1,nwf
+        smn(im,in) = -(bmn(im,in) + dconjg(bmn(in,im))) * ci * 0.5d0
+     enddo
+  enddo
+
+  return
+end subroutine getsmn
+!-----------------------------------------------------------------------
+subroutine gettmn(rn,mmn,bb, &
+     nwf, &
+     qn,tmn)
+
+  implicit real*8(a-h,o-z)
+  implicit integer (i-n)
+  complex(8),allocatable :: rtmn(:,:)
+  complex(8) :: mmn(nwf,nwf),tmn(nwf,nwf)
+  !      real(8),allocatable :: qn(:)
+  real(8) :: qn(nwf)
+  real(8) :: rn(3,nwf),bb(3)
+
+  allocate (rtmn(nwf,nwf))
+
+  ! qn ([1] eq.47)
+  do in = 1,nwf
+     qn(in) = dimag(log(mmn(in,in))) + sum(bb(:)*rn(:,in))
+  enddo
+
+  ! R~mn ([1] eq.48)
+  do im = 1,nwf
+     do in = 1,nwf
+        rtmn(im,in) = mmn(im,in) / mmn(in,in)
+     enddo
+  enddo
+
+  ! Tmn = R~mn * qn
+  do im = 1,nwf
+     do in = 1,nwf
+        tmn(im,in) = rtmn(im,in) * qn(in)
+     enddo
+  enddo
+
+  deallocate(rtmn)
+
+  return
+end subroutine gettmn
+!-----------------------------------------------------------------------
+subroutine updt_uk(wmn, &
+     nwf, &
+     umn)
+  implicit integer (i-n)
+  implicit real*8(a-h,o-z)
+
+  complex(8),allocatable :: iwmn(:,:),ewmn(:,:),evecc(:,:), &
+       zmn(:,:),evalc(:)
+  complex(8) :: wmn(nwf,nwf),umn(nwf,nwf),ci
+  real(8),allocatable :: eval(:)
+
+  allocate (iwmn(nwf,nwf),ewmn(nwf,nwf), &
+       evecc(nwf,nwf),zmn(nwf,nwf),evalc(nwf), &
+       eval(nwf))
+
+  ci = (0d0,1d0)
+
+  ! diagonalize W
+  ! notice! W is anti-Hermitian, not Hermitian
+  iwmn(:,:) = ci * wmn(:,:)
+
+  call chk_hm(iwmn,nwf)
+  call diag_hm(iwmn,nwf,eval,evecc)
+
+  ! eW = exp(W) = exp(-i * iW)
+  do ii = 1, nwf
+     !         write(*,*)'ev',ii,eval(ii)
+     evalc(ii) = exp(-ci*eval(ii))
+  enddo
+
+  ewmn = (0d0,0d0)
+  do im = 1,nwf
+     do in = 1,nwf
+        do il = 1,nwf
+           ewmn(im,in) = ewmn(im,in) + &
+                evecc(im,il) * evalc(il) * dconjg(evecc(in,il))
+        enddo
+     enddo
+  enddo
+
+  call chk_um(ewmn,nwf)
+
+  ! U = U * exp(W)
+  zmn = (0d0,0d0)
+  do im = 1,nwf
+     do in = 1,nwf
+        do il = 1,nwf
+           zmn(im,in) = zmn(im,in) + umn(im,il) * ewmn(il,in)
+        enddo
+     enddo
+  enddo
+  umn = zmn
+
+  deallocate(iwmn,ewmn,evecc,zmn,evalc,eval)
+
+  return
+end subroutine updt_uk
+!-----------------------------------------------------------------------
+subroutine getOmg(mmn,rn,bb,wbb,wbz, &
+     nwf,nqbz,nbb, &
+     omgi,omgd,omgod,omgdod,omgidod, &
+     alat,iprint)
+  implicit integer (i-n)
+  implicit real*8(a-h,o-z)
+
+  complex(8) :: mmn(nwf,nwf,nbb,nqbz)
+  real(8) :: bb(3,nbb),wbb(nbb),wbz(nqbz),rn(3,nwf),sss,r2n,alat,pi=4d0*atan(1d0)
+  logical :: iprint
+  ! omgi ([1] eq.34)
+  omgi = 0d0
+  do iq = 1,nqbz
+     do ibb = 1,nbb
+        a2mmn = 0d0
+        do im = 1,nwf
+           do in = 1,nwf
+              a2mmn = a2mmn + abs(mmn(im,in,ibb,iq))**2
+           enddo
+        enddo
+        omgi = omgi + wbz(iq)*wbb(ibb)*(dble(nwf)-a2mmn)
+     enddo
+  enddo
+
+  ! omgod ([1] eq.35)
+  omgod = 0d0
+  do iq = 1,nqbz
+     do ibb = 1,nbb
+        a2mmn = 0d0
+        do im = 1,nwf
+           do in = 1,nwf
+              if (im /= in) &
+                   a2mmn = a2mmn + abs(mmn(im,in,ibb,iq))**2
+           enddo
+        enddo
+        omgod = omgod + wbz(iq)*wbb(ibb)*a2mmn
+     enddo
+  enddo
+
+  ! omgd ([1] eq.36)
+  omgd = 0d0
+  do ibb = 1,nbb
+     rtmp = 0d0
+     do in = 1,nwf
+        brn = sum(bb(:,ibb)*rn(:,in))
+        !            write(6,*)'brn=',brn,sum(abs(bb(:,ibb))),sum(abs(rn(:,in)))
+        do iq = 1,nqbz
+           rtmp = rtmp + &
+                wbz(iq)*(-dimag(log(mmn(in,in,ibb,iq)))-brn)**2
+        enddo
+     enddo
+     !         sss=0d0
+     !         do in=1,nwf
+     !         sss=sss+sum(abs(imag(mmn(in,in,ibb,1:nqbz))))
+     !         enddo
+     !         write(6,*)'sss=',sss
+     omgd = omgd + wbb(ibb)*rtmp
+  enddo
+  !     !
+  if(iprint) then
+     do in = 1,nwf
+        r2n=0d0
+        do ibb = 1,nbb
+           brn = sum(bb(:,ibb)*rn(:,in))
+           do iq = 1,nqbz
+              r2n = r2n + &
+                   wbz(iq)*wbb(ibb)* ( (1d0-abs(mmn(in,in,ibb,iq))**2) + (dimag(log(mmn(in,in,ibb,iq))))**2 )
+           enddo
+        enddo
+        write(6,"('dddd spread: iwf r2n(bohr^2) rn(bohr)=',i3,f13.6,3x,3(f9.4))") &
+             in,(alat/(2d0*pi))**2*(r2n-sum(rn(:,in)**2)), alat/(2d0*pi)*rn(:,in)
+     enddo
+  endif
+
+  ! sum up
+  omgdod = omgd + omgod
+  omgidod = omgi + omgdod
+
+  return
+end subroutine getOmg
+!-----------------------------------------------------------------------
+subroutine writeOmg(is,mmn,rn,bb,wbb,wbz,tpia, &
+     nwf,nqbz,nbb)
+  implicit integer (i-n)
+  implicit real*8(a-h,o-z)
+
+  complex(8) :: mmn(nwf,nwf,nbb,nqbz)
+  real(8) :: bb(3,nbb),wbb(nbb),wbz(nqbz),rn(3,nwf),omg(nwf)
+
+
+  ! omgi ([1] eq.34)
+  omgi = 0d0
+  do iq = 1,nqbz
+     do ibb = 1,nbb
+        a2mmn = 0d0
+        do im = 1,nwf
+           do in = 1,nwf
+              a2mmn = a2mmn + abs(mmn(im,in,ibb,iq))**2
+           enddo
+        enddo
+        omgi = omgi + wbz(iq)*wbb(ibb)*(dble(nwf)-a2mmn)
+     enddo
+  enddo
+  omg = 0d0
+  do im = 1,nwf
+     do iq = 1,nqbz
+        do ibb = 1,nbb
+           a2mmn = 0d0
+           do in = 1,nwf
+              a2mmn = a2mmn + abs(mmn(im,in,ibb,iq))**2
+           enddo
+           omg(im) = omg(im) + wbz(iq)*wbb(ibb)*(1d0-a2mmn)
+        enddo
+     enddo
+  enddo
+
+  ! omgod ([1] eq.35)
+  omgod = 0d0
+  do iq = 1,nqbz
+     do ibb = 1,nbb
+        a2mmn = 0d0
+        do im = 1,nwf
+           do in = 1,nwf
+              if (im /= in) &
+                   a2mmn = a2mmn + abs(mmn(im,in,ibb,iq))**2
+           enddo
+        enddo
+        omgod = omgod + wbz(iq)*wbb(ibb)*a2mmn
+     enddo
+  enddo
+
+  do im = 1,nwf
+     do iq = 1,nqbz
+        do ibb = 1,nbb
+           a2mmn = 0d0
+           do in = 1,nwf
+              if (im /= in) &
+                   a2mmn = a2mmn + abs(mmn(im,in,ibb,iq))**2
+           enddo
+           omg(im) = omg(im) + wbz(iq)*wbb(ibb)*a2mmn
+        enddo
+     enddo
+  enddo
+
+  ! omgd ([1] eq.36)
+  omgd = 0d0
+  do ibb = 1,nbb
+     rtmp = 0d0
+     do in = 1,nwf
+        brn = sum(bb(:,ibb)*rn(:,in))
+        do iq = 1,nqbz
+           rtmp = rtmp + &
+                wbz(iq)*(-dimag(log(mmn(in,in,ibb,iq)))-brn)**2
+        enddo
+     enddo
+     omgd = omgd + wbb(ibb)*rtmp
+  enddo
+
+  do in = 1,nwf
+     do ibb = 1,nbb
+        rtmp = 0d0
+        brn = sum(bb(:,ibb)*rn(:,in))
+        do iq = 1,nqbz
+           rtmp = rtmp + &
+                wbz(iq)*(-dimag(log(mmn(in,in,ibb,iq)))-brn)**2
+        enddo
+        omg(in) = omg(in) + wbb(ibb)*rtmp
+     enddo
+  enddo
+
+  ! multiply (a/2pi)^2
+  omgd = omgd / tpia**2
+  omgod = omgod / tpia**2
+  omgi = omgi / tpia**2
+!  omgdod = omgdod / tpia**2
+  omg = omg / tpia**2
+
+  ! sum up
+  omgdod = omgd + omgod
+  omgidod = omgi + omgdod
+
+  ! output
+  if (is == 1) then
+!     ifbnd = iopen('spread.up',1,-1,0)
+     open(newunit=ifbnd,file='spread.up')
+  else
+!     ifbnd = iopen('spread.dn',1,-1,0)
+     open(newunit=ifbnd,file='spread.dn')
+  endif
+
+  write(ifbnd,*)'Total   omega(a.u.)     omega(ang.^2)'
+  write(ifbnd,"(5x,2f16.8)")omgidod,omgidod*0.5292d0**2
+  write(ifbnd,*)'band    omega(a.u.)     omega(ang.^2)'
+  do in = 1,nwf
+     write(ifbnd,"(i5,2f16.8)")in,omg(in),omg(in)*0.5292d0**2
+  enddo
+  omgall = sum(omg(:))
+  !      write(ifbnd,"(2x,a3,2f16.8)")'all',omgall,omgall*0.5292d0**2
+
+  write(ifbnd,*)'(a/2pi)^2 corrected'
+  close(ifbnd)
+!  if (is == 1) then
+!     isx = iclose('spread.up')
+!  else
+!     isx = iclose('spread.dn')
+!  endif
+
+  return
+end subroutine writeOmg
+!-----------------------------------------------------------------------
+subroutine writermn(is,mmn,bb,wbb,qbz,qbz0,wbz,rt, &
+     nwf,nqbz,nbb,n1,n2,n3)
+  implicit integer (i-n)
+  implicit real*8(a-h,o-z)
+
+  complex(8) :: mmn(nwf,nwf,nbb,nqbz),ci,czero,cikr,ceikr &
+       ,ctmp1,ctmp2 &
+       ,rmn(3,nwf,nwf,nqbz),amn(3,nwf,nwf,nqbz) &
+       ,c1,c2,c3
+  real(8) :: bb(3,nbb),wbb(nbb),qbz(3,nqbz),qbz0(3,nqbz),wbz(nqbz), &
+       rt(3,nqbz),dmn,rtmp(3)
+
+  pi = 4d0*atan(1d0)
+  ci = (0d0,1d0)
+  czero = (0d0,0d0)
+
+  ! Berry connecrion (in the Wannier gauge)
+  amn = czero
+  do im = 1,nwf
+     do in = 1,nwf
+        dmn = 0d0
+        if (im == in) dmn = 1d0
+        do iq = 1,nqbz
+           do ibb = 1,nbb
+              !            ctmp1 = (mmn(im,in,ibb,iq) - dmn)*wbb(ibb)
+              r1 = dimag(0.5d0*(mmn(im,in,ibb,iq)+mmn(in,im,ibb,iq))-dmn)
+              r2 = dreal(0.5d0*(mmn(im,in,ibb,iq)-mmn(in,im,ibb,iq)))
+              ctmp1 = dcmplx(r2,r1)
+              ctmp1 = log(ctmp1+1d0)*wbb(ibb)
+              do ix = 1,3 ! x,y,z
+                 amn(ix,im,in,iq) = amn(ix,im,in,iq) &
+                      + ci*imag(ctmp1) * bb(ix,ibb)
+              enddo ! ix
+           enddo ! ibb
+        enddo ! iq
+     enddo ! in
+  enddo ! im
+  amn = amn * ci
+
+  ! <0m | r | Rn>
+  rmn = czero
+  do ir = 1,nqbz
+     do iq = 1,nqbz
+        !         rk = sum(rt(:,ir)*qbz(:,iq))
+        rk = sum(rt(:,ir)*qbz0(:,iq))
+        cikr = -ci * 2d0 * pi * rk
+        ceikr = exp(cikr) * wbz(iq)
+        do in = 1,nwf
+           do im = 1,nwf
+              do ix = 1,3
+                 rmn(ix,im,in,ir) = rmn(ix,im,in,ir) + &
+                      ceikr * amn(ix,im,in,iq)
+              enddo ! ix
+           enddo ! im
+        enddo ! in
+     enddo ! iq
+  enddo ! ir
+
+  ! output
+  if (is == 1) then
+!     ifrmn = iopen('rmn.up',1,-1,0)
+     open(newunit=ifrmn,file='rmn.up')
+  else
+!     ifrmn = iopen('rmn.dn',1,-1,0)
+     open(newunit=ifrmn,file='rmn.dn')
+  endif
+
+  write(ifrmn,*)'*** nwf,nsite'
+  write(ifrmn,*)nwf,nqbz
+  write(ifrmn,*)'*** rsite'
+  write(ifrmn,*)rt
+  write(ifrmn,*)'*** rmn'
+  write(ifrmn,*)rmn
+  write(ifrmn,*)'*** amn'
+  write(ifrmn,*)amn
+  close(ifrmn)
+!  if (is == 1) then
+!     isx = iclose('rmn.up')
+!  else
+!     isx = iclose('rmn.dn')
+!  endif
+
+  return
+end subroutine writermn
+!-----------------------------------------------------------------------
+subroutine writemmn(is,mmn,bb,wbb,qbz,wbz,rt, &
+     nwf,nqbz,nbb,n1,n2,n3)
+  implicit integer (i-n)
+  implicit real*8(a-h,o-z)
+
+  complex(8) :: mmn(nwf,nwf,nbb,nqbz),ci,czero,cikr,ceikr &
+       ,ctmp1,ctmp2 &
+       ,rmn(3,nwf,nwf,nqbz),amn(3,nwf,nwf,nqbz) &
+       ,c1,c2,c3
+  real(8) :: bb(3,nbb),wbb(nbb),qbz(3,nqbz),wbz(nqbz), &
+       rt(3,nqbz),dmn
+
+  pi = 4d0*atan(1d0)
+  ci = (0d0,1d0)
+  czero = (0d0,0d0)
+
+  ! output
+  if (is == 1) then
+!     ifrmn = iopen('mmn.up',1,-1,0)
+     open(newunit=ifrmn,file='mmn.up')
+  else
+!     ifrmn = iopen('mmn.dn',1,-1,0)
+     open(newunit=ifrmn,file='mmn.up')
+  endif
+
+  write(ifrmn,*)'*** nwf,nsite,nb'
+  write(ifrmn,*)nwf,nqbz,nbb
+  write(ifrmn,*)'*** mmn'
+  write(ifrmn,*)mmn
+  write(ifrmn,*)'*** bb'
+  write(ifrmn,*)bb
+  write(ifrmn,*)'*** wbb'
+  write(ifrmn,*)wbb
+  write(ifrmn,*)'*** qbz'
+  write(ifrmn,*)qbz
+  write(ifrmn,*)'*** wbz'
+  write(ifrmn,*)wbz
+  close(ifrmn)
+!  if (is == 1) then
+!     isx = iclose('mmn.up')
+!  else
+!     isx = iclose('mmn.dn')
+!  endif
+
+  return
+end subroutine writemmn
+!-----------------------------------------------------------------------
+subroutine wmaxloc(ifmlw,ifmlwe, &
+     qbz,umnk,cnk,eunk, &
+     iko_ix,iko_fx,iko_i,iko_f, &
+     nwf,nqbz,nband,nlmto,isp, dnk)
+  use m_ftox
+  implicit integer (i-n)
+  implicit real*8(a-h,o-z)
+  complex(8):: dnk(iko_ix:iko_fx,nwf,nqbz)
+  !      complex(8),allocatable :: dnk(:,:,:)
+  complex(8) :: cnk(iko_ix:iko_fx,nwf,nqbz), &
+       umnk(nwf,nwf,nqbz)
+  real(8) :: qbz(3,nqbz),eunk(nwf,nqbz)
+  integer(4) :: iko_i(nqbz),iko_f(nqbz),ib,isp
+  character*4::fname
+
+  !      allocate(dnk(iko_ix:iko_fx,nwf,nqbz))
+
+  write(ifmlw)nqbz,nwf,iko_ix,iko_fx
+  !      write(ifmlwe)nqbz,nwf,iko_ix,iko_fx
+
+  !$$$      if (isp.eq.1) fname='pkmU'
+  !$$$      if (isp.eq.2) fname='pkmD'
+  !$$$      ifi=9034
+  !$$$      open(ifi,file=fname,form='formatted',status='unknown')
+  !$$$      write(ifi,"('== p_km^alpha in PRB83,121101 ! weight in l-subspace ==')")
+  !$$$      write(ifi,"(' (this is called as c^sigma_km in book of 45th IFFK by Ersoy)')")
+  !$$$      write(ifi,"(8i8)") nqbz,nwf,iko_ix,iko_fx
+  !$$$      write(ifi,"('       |pkm|**2          ib      iq     q(1:3)')")
+  dnk = (0d0,0d0)
+  do iq = 1,nqbz
+
+     do imp = iko_i(iq),iko_f(iq)
+        do in = 1,nwf
+           do im = 1,nwf
+              dnk(imp,in,iq) = dnk(imp,in,iq) &
+                   + umnk(im,in,iq) * cnk(imp,im,iq)
+           enddo
+        enddo
+     enddo
+
+     !         do iwf=1,nwf
+     !            write(6,ftox)' wwww   dnk',isp,iq,ftof(dnk(iko_ix:iko_fx,iwf,iq),2)
+     !         enddo
+
+     write(ifmlw)iq,qbz(1:3,iq)
+     write(ifmlw)dnk(iko_ix:iko_fx,1:nwf,iq)
+
+     ! ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+     !! jan2015 new section. Write out weight in l-subsapce.
+     !         do iwf=1,nwf
+     !            do iko=iko_ix,iko_fx
+     !               write(*,"('ib iwf iq=',3i4,f10.5)")iko,iwf,iq,abs(dnk(iko,iwf,iq))**2
+     !            enddo
+     !            write(*,"('iwf iq sumweight=',2i4,f10.5)")
+     !     &        iwf,iq, sum(abs(dnk(iko_ix:iko_fx,iwf,iq))**2)
+     !         enddo
+     !         do ib = iko_ix,iko_fx
+     !            write(*,"('ib iq winsubspace=',2i4,f10.5)")
+     !     &      ib,iq, sum(abs(dnk(ib,1:nwf,iq))**2)
+     !     enddo
+
+     !         write(*,"(' iq sumcheck winsub=',i4,f10.5)")
+     !     &      iq, sum(abs(dnk(iko_ix:iko_fx,1:nwf,iq))**2)
+
+     !$$$         do ib = iko_ix,iko_fx
+     !$$$            write(ifi,"(f19.15, 2i8, 3f13.6 )")
+     !$$$     &      sum(abs(dnk(ib,1:nwf,iq))**2),ib, iq, qbz(1:3,iq)
+     !$$$         enddo
+
+     ! ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+     !         write(ifmlwe)iq,qbz(1:3,iq)
+     !         write(ifmlwe)eunk(1:nwf,iq)
+
+  enddo
+  !$$$      close(ifi)
+
+  !      call chk_cnkweight(qbz,iko_ix,iko_fx,dnk,
+  !     &     nqbz,nwf,nband,nlmto)
+
+  !      deallocate(dnk)
+
+  return
+end subroutine wmaxloc
+!-----------------------------------------------------------------------
+subroutine chk_dnk(is,eunk,qbz, &
+     umnk,cnk, &
+     iko_ix,iko_fx,iko_i,iko_f, &
+     nband,nwf,nqbz)
+
+  use m_readeigen,only:readeval
+  implicit integer (i-n)
+  implicit real*8(a-h,o-z)
+
+  parameter (eps=1d-3)
+  complex(8),allocatable :: dnk(:,:)
+  complex(8) :: cnk(iko_ix:iko_fx,nwf,nqbz), &
+       umnk(nwf,nwf,nqbz), &
+       ctmp,ham(nwf,nwf),evecc(nwf,nwf)
+  real(8) :: eunk(nwf,nqbz),qbz(3,nqbz),eks(nband),eval(nwf)
+  integer(4) :: iko_i(nqbz),iko_f(nqbz)
+
+  allocate(dnk(iko_ix:iko_fx,nwf))
+
+  do iq = 1,nqbz
+     eks= readeval (qbz(:,iq),is)
+     dnk = (0d0,0d0)
+     do imp = iko_i(iq),iko_f(iq)
+        do in = 1,nwf
+           do im = 1,nwf
+              dnk(imp,in) = dnk(imp,in) &
+                   + umnk(im,in,iq) * cnk(imp,im,iq)
+           enddo
+        enddo
+     enddo
+
+
+     ham = 0d0
+     do ii=1,nwf
+        do ij=1,nwf
+           ctmp = 0d0
+           do ik = iko_i(iq),iko_f(iq)
+              ctmp = ctmp + eks(ik) * &
+                   dconjg(dnk(ik,ii))*dnk(ik,ij)
+           enddo
+           ham(ii,ij) = ctmp
+           write(97,"(3i5,2f12.6)")iq,ii,ij,dreal(ctmp),dimag(ctmp)
+        enddo
+     enddo
+     call diag_hm(ham,nwf,eval,evecc)
+     do ii = 1,nwf
+        write(98,"(2i5,2f12.6)")iq,ii,eval(ii),eunk(ii,iq)
+     enddo
+
+  enddo
+
+  deallocate(dnk)
+
+  return
+end subroutine chk_dnk
+!-----------------------------------------------------------------------
+subroutine rot_hmnk(umnk,eunk, &
+     nwf,nqbz, &
+     hrotk)
+
+  ! see Ref.[2] eq.24
+  implicit integer (i-n)
+  implicit real*8(a-h,o-z)
+
+  complex(8) :: umnk(nwf,nwf,nqbz),hrotk(nwf,nwf,nqbz),ctmp
+  real(8) :: eunk(nwf,nqbz)
+
+  hrotk = (0d0,0d0)
+
+  do iq = 1,nqbz
+     do im = 1,nwf
+        do in = 1,nwf
+           do ii = 1,nwf
+              hrotk(im,in,iq) = hrotk(im,in,iq) + &
+                   dconjg(umnk(ii,im,iq))*eunk(ii,iq)*umnk(ii,in,iq)
+           enddo
+        enddo
+     enddo
+  enddo
+
+  return
+end subroutine rot_hmnk
+!-----------------------------------------------------------------------
+subroutine get_hrotr_ws(hrotk,qbz,wbz, &
+     rws,irws,drws, &
+     nwf,nqbz,nrws, &
+     hrotr)
+
+  ! see Ref.[2] eq.25
+  implicit integer (i-n)
+  implicit real*8(a-h,o-z)
+
+  complex(8) :: hrotk(nwf,nwf,nqbz),hrotr(nwf,nwf,nrws), &
+       ci,cikr,ceikr,ctmp
+  real(8) :: qbz(3,nqbz),wbz(nqbz),q(3),r(3) &
+       ,rws(3,nrws),drws(nrws)
+  integer(4) :: irws(nrws)
+
+  pi = 4d0* atan(1d0)
+  ci = (0d0,1d0)
+
+  hrotr = (0d0,0d0)
+
+  ir = 0
+  do ir = 1,nrws
+     do iq = 1,nqbz
+        rk = 2d0*pi*sum(rws(:,ir)*qbz(:,iq))
+        ceikr = exp(-ci*rk)
+        do im = 1,nwf
+           do in = 1,nwf
+              hrotr(im,in,ir) = hrotr(im,in,ir) + &
+                   ceikr * hrotk(im,in,iq) / dble(nqbz)
+           enddo ! in
+        enddo ! im
+     enddo ! iq
+  enddo ! ir
+
+  return
+end subroutine get_hrotr_ws
+!-----------------------------------------------------------------------
+subroutine get_hrotkp_ws(hrotr,rws,drws,irws,q, &
+     nwf,nqbz,nrws, &
+     hrotkp)
+
+  ! see Ref.[2] eq.26
+  implicit integer (i-n)
+  implicit real*8(a-h,o-z)
+
+  complex(8) :: hrotr(nwf,nwf,nrws),hrotkp(nwf,nwf), &
+       ci,cikr,ceikr,ctmp
+  real(8) :: q(3),rws(3,nrws),drws(nrws)
+  integer(4) :: irws(nrws)
+
+  pi = 4d0* atan(1d0)
+  ci = (0d0,1d0)
+
+  hrotkp = (0d0,0d0)
+
+  do ir = 1,nrws
+     rk = sum(rws(:,ir)*q(:))
+     cikr = ci * 2d0 * pi * rk
+     ceikr = exp(cikr) / dble(irws(ir))
+     do im = 1,nwf
+        do in = 1,nwf
+           hrotkp(im,in) = hrotkp(im,in) + &
+                ceikr * hrotr(im,in,ir)
+        enddo
+     enddo
+  enddo
+
+  return
+end subroutine get_hrotkp_ws
+!-----------------------------------------------------------------------
+subroutine get_hrotkp_tb_ws(rcut,plat,alat, &
+     hrotr,rws,drws,irws,q,  ibasiwf,bas,natom, &
+     nwf,nqbz,nrws, &
+     hrotkp)
+
+  ! truncate long-range part of hrotr
+  ! from get_hrotkp_ws
+  ! see Ref.[2] eq.26
+  implicit integer (i-n)
+  implicit real*8(a-h,o-z)
+
+  parameter (delta = 1d-3)
+  complex(8) :: hrotr(nwf,nwf,nrws),hrotkp(nwf,nwf), &
+       ci,cikr,ceikr,ctmp
+  real(8) :: q(3),rws(3,nrws),drws(nrws),plat(3,3)
+  integer(4) :: irws(nrws)
+
+  integer:: ibasiwf(nwf),natom
+  real(8):: bas(3,natom)
+  !!
+  ! m
+  !      rc = rcut + delta
+  rc = rcut
+
+  pi = 4d0* atan(1d0)
+  ci = (0d0,1d0)
+
+  hrotkp = (0d0,0d0)
+
+  do ir = 1,nrws
+     ceikr = (0d0,0d0)
+     !         rtmp = alat*dsqrt(sum(rws(:,ir)**2))
+     !         if (rtmp.le.rc) then
+     rk = sum(rws(:,ir)*q(:))
+     cikr = ci * 2d0 * pi * rk
+     ceikr = exp(cikr) / dble(irws(ir))
+     !         endif
+     do im = 1,nwf
+        imp= ibasiwf(im)
+        do in = 1,nwf
+           inp= ibasiwf(in)
+           !           rtmp = alat*dsqrt( sum( (rws(:,ir)+bas(:,imp)-bas(:,inp))**2 ) )
+           !! Rn-0m
+           rtmp = alat*dsqrt( sum( (rws(:,ir)+bas(:,inp)-bas(:,imp))**2 ) )
+           if(rtmp<rc) then
+              hrotkp(im,in) = hrotkp(im,in) + &
+                   ceikr * hrotr(im,in,ir)
+           endif
+        enddo
+     enddo
+  enddo
+
+  return
+end subroutine get_hrotkp_tb_ws
+!-----------------------------------------------------------------------
+subroutine wmaxloc_diag(ifmlw,ifmlwe, &
+     iq,q,umnk,cnk,eunk,evecc,eval, &
+     iko_ix,iko_fx,iko_i,iko_f, &
+     nwf,nqbz)
+  implicit integer (i-n)
+  implicit real*8(a-h,o-z)
+
+  complex(8),allocatable :: dnk(:,:)
+  complex(8) :: cnk(iko_ix:iko_fx,nwf,nqbz), &
+       umnk(nwf,nwf,nqbz),evecc(nwf,nwf)
+  real(8) :: q(3),eunk(nwf,nqbz),eval(nwf)
+  integer(4) :: iko_i(nqbz),iko_f(nqbz)
+
+
+  write(ifmlw)iq,q(1:3)
+  write(ifmlw)evecc(1:nwf,1:nwf)
+
+  write(ifmlwe)iq,q(1:3)
+  write(ifmlwe)eval(1:nwf)
+
+  return
+end subroutine wmaxloc_diag
+!-----------------------------------------------------------------------
+subroutine chk_diag(q,ham,nwf,eval,evec)
+  implicit real*8(a-h,o-z)
+  implicit integer (i-n)
+  complex(8) :: ham(nwf,nwf),evec(nwf,nwf),zm1(nwf,nwf),zm2(nwf,nwf)
+  real(8) :: eval(nwf),q(3)
+
+
+  write(7100,*)'***'
+  write(7100,"(3f12.6)")q
+
+  ! zm1(i1,iwf2)   = S[i2] ham(i1,i2) * evec(i2,iwf2)
+  zm1 = 0d0
+  do iwf2 = 1,nwf
+     do i1   = 1,nwf
+        do i2 = 1,nwf
+           zm1(i1,iwf2) = zm1(i1,iwf2) + ham(i1,i2) * evec(i2,iwf2)
+        enddo
+     enddo
+  enddo
+
+  ! zm2(iwf1,iwf2) = S[i1] conjg(evec(i1,iwf1)) * zm1(i1,iwf2)
+  zm2 = 0d0
+  do iwf1 = 1,nwf
+     do iwf2 = 1,nwf
+        do i1 = 1,nwf
+           zm2(iwf1,iwf2) = zm2(iwf1,iwf2) &
+                + dconjg(evec(i1,iwf1)) * zm1(i1,iwf2)
+        enddo
+     enddo
+  enddo
+
+  ! output
+  do iwf1 = 1,nwf
+     do iwf2 = 1,nwf
+        tmp = 0d0
+        if (iwf1 == iwf2) tmp = eval(iwf1)
+        write(7100,"(2i5,3f12.6)")iwf1,iwf2, &
+             dreal(zm2(iwf1,iwf2)),dimag(zm2(iwf1,iwf2)),tmp
+     enddo
+  enddo
+
+  return
+end subroutine chk_diag
+!-----------------------------------------------------------------------
+subroutine chk_umnk(q,ham,nwf,eval,umn)
+  implicit real*8(a-h,o-z)
+  implicit integer (i-n)
+  complex(8) :: ham(nwf,nwf),evec(nwf,nwf),zm1(nwf,nwf),zm2(nwf,nwf), &
+       umn(nwf,nwf)
+  real(8) :: eval(nwf),q(3)
+
+
+  do i1 = 1,nwf
+     do i2 = 1,nwf
+        evec(i1,i2) = dconjg(umn(i2,i1))
+     enddo
+  enddo
+
+  write(7000,*)'***'
+  write(7000,"(3f12.6)")q
+
+  ! zm1(i1,iwf2)   = S[i2] ham(i1,i2) * evec(i2,iwf2)
+  zm1 = 0d0
+  do iwf2 = 1,nwf
+     do i1   = 1,nwf
+        do i2 = 1,nwf
+           zm1(i1,iwf2) = zm1(i1,iwf2) + ham(i1,i2) * evec(i2,iwf2)
+        enddo
+     enddo
+  enddo
+
+  ! zm2(iwf1,iwf2) = S[i1] conjg(evec(i1,iwf1)) * zm1(i1,iwf2)
+  zm2 = 0d0
+  do iwf1 = 1,nwf
+     do iwf2 = 1,nwf
+        do i1 = 1,nwf
+           zm2(iwf1,iwf2) = zm2(iwf1,iwf2) &
+                + dconjg(evec(i1,iwf1)) * zm1(i1,iwf2)
+        enddo
+     enddo
+  enddo
+
+  ! output
+  do iwf1 = 1,nwf
+     do iwf2 = 1,nwf
+        tmp = 0d0
+        if (iwf1 == iwf2) tmp = eval(iwf1)
+        write(7000,"(2i5,3f12.6)")iwf1,iwf2, &
+             dreal(zm2(iwf1,iwf2)),dimag(zm2(iwf1,iwf2)),tmp
+     enddo
+  enddo
+
+  return
+end subroutine chk_umnk
+!-----------------------------------------------------------------------
+subroutine cmp_umn_evec(q,umn,evec,eval,nwf)
+  implicit real*8(a-h,o-z)
+  implicit integer (i-n)
+  complex(8) :: evec(nwf,nwf),zm1(nwf,nwf),zm2(nwf,nwf), &
+       umn(nwf,nwf)
+  real(8) :: eval(nwf),q(3)
+
+
+  do i1 = 1,nwf
+     do i2 = 1,nwf
+        zm1(i1,i2) = dconjg(umn(i2,i1))
+     enddo
+  enddo
+
+  zm2 = zm1 - evec
+
+  ! output
+  write(7000,*)'***'
+  write(7000,"(3f12.6)")q
+  do iwf = 1,nwf
+     write(7000,*)iwf,eval(iwf)
+  enddo
+  do iwf1 = 1,nwf
+     do iwf2 = 1,nwf
+        write(7000,"(2i5,3f12.6)")iwf1,iwf2, &
+             dreal(zm2(iwf1,iwf2)),dimag(zm2(iwf1,iwf2))
+     enddo
+  enddo
+
+  return
+end subroutine cmp_umn_evec
+!-----------------------------------------------------------------------
+subroutine writeham(ifi,is,ef,alat,plat,pos,qbz,wbz,rws,irws,hrotk, &
+     nspin,natom,nwf,nqbz,nrws)
+  implicit none
+  integer(4) :: nspin,nwf,natom,nqbz,nrws,is,irws(nrws)
+  double precision :: ef,alat,plat(3,3),pos(3,natom),qbz(3,nqbz), &
+       wbz(nqbz),rws(3,nrws)
+  complex(8) :: hrotk(nwf,nwf,nqbz)
+
+  integer(4) :: ifi
+
+  if (is == 1) then
+!    ifi = iopen('HMLWF',1,-1,0)
+    open(newunit=ifi,file='HMLWF')
+     write(ifi,*)nspin,natom,nwf,nqbz,nrws,ef
+     write(ifi,*)alat
+     write(ifi,*)plat
+     write(ifi,*)pos
+     write(ifi,*)qbz
+     write(ifi,*)wbz
+     write(ifi,*)rws
+     write(ifi,*)irws
+  endif
+
+  write(ifi,*)hrotk
+  close(ifi)
+!  if (is == nspin) ifi = iclose('HMLWF')
+
+  return
+end subroutine writeham
+!-----------------------------------------------------------------------
+
+!  write *rws and hrotr to ifh
+
+subroutine write_hrotr(ifh, hrotr, &
+     rws,irws,drws, &
+     nwf,nrws )
+  implicit none
+  complex(8),intent(in) :: hrotr(nwf,nwf,nrws)
+  integer,intent(in):: ifh, nwf,nrws
+  real(8),intent(in) :: rws(3,nrws),drws(nrws)
+  integer,intent(in) :: irws(nrws)
+
+  integer:: i,j,k
+  integer:: ir,im,in
+  real(8):: rtmp,heps2
+
+  write(ifh,*) 'nwf ',nwf
+  write(ifh,*) 'nrws ',nrws
+
+  write(ifh,*) '<rws>'
+  do i=1,nrws
+     write(ifh,*) i, rws(:,i), drws(i) , irws(i)
+  enddo
+  write(ifh,*)'</rws>'
+
+  write(ifh,*) '<hrotr>'
+  do i=1,nwf
+     do j=1,nwf
+        write(ifh,*)  i,j, 'i,j , the next line is hrotr(i,j,:)'
+        write(ifh,'(10E20.10)')   hrotr(i,j,:)
+     enddo
+  enddo
+  write(ifh,*) '</hrotr>'
+
+  write(ifh,*) '<hrotr.abs>'
+  do i=1,nwf
+     do j=1,nwf
+        write(ifh,*)  i,j, 'i,j , the next line is hrotr(i,j,:)'
+        write(ifh,'(10E20.10)')  ( abs(hrotr(i,j,k)),k=1,nrws)
+     enddo
+  enddo
+  write(ifh,*) '</hrotr.abs>'
+
+
+end subroutine write_hrotr
+
+
+subroutine read_hrotr(filename,nwf,nrws, &
+     hrotr)
+  use m_keyvalue,only: getkeyvalue
+
+  implicit none
+  character(*),intent(in):: filename
+  integer,intent(in):: nwf,nrws
+  complex(8):: hrotr(nwf,nwf,nrws)
+
+  integer:: nwf_, nrws_
+  character(10):: thisfunc='read_hrotr'
+  integer:: ierror, ifh
+  integer:: i,j,i_,j_
+  character(120):: str
+
+  write(*,*) 'reading ',filename
+  call getkeyvalue(filename,'nwf',nwf_)
+  call getkeyvalue(filename,'nrws',nrws_)
+
+  ierror=0
+  if ( nwf /= nwf_) then
+     write(*,*) thisfunc,': data inconsistent nwf=', nwf, ' nwf(file)=',nwf_
+     ierror=ierror+1
+  endif
+
+  if ( nrws /= nrws_ ) then
+     write(*,*) thisfunc,': data inconsistent nrws=', nrws, ' nrws(file)=',nrws_
+     ierror=ierror+1
+  endif
+
+  if (ierror /= 0) then
+     goto 999
+  endif
+
+  call getkeyvalue(filename,'<hrotr>',unit=ifh,status=ierror,errstop='on')
+  write(*,*) 'ifh,ierror=',ifh,ierror
+  if (ierror == 0) then
+     write(*,*) thisfunc,': failed to read <hrotr>'
+     goto 999
+  endif
+
+  do i=1,nwf
+     do j=1,nwf
+        read(ifh,'(a120)')  str
+        write(*,*) 'str=',str(:len_trim(str))
+        read(str,*)i_,j_
+        write(*,*) '1)',i_,j_
+        read(ifh,'(10E20.10)')   hrotr(i,j,1:nrws)
+        !          read(ifh,*)   hrotr(i,j,1:nrws)
+        write(*,*) '2)',i_,j_
+     enddo
+  enddo
+
+  close(ifh)
+
+  return
+999 write(*,*) 'abnormal exit'
+  stop 'in read_hrotr'
+
+end subroutine read_hrotr
+
+
+subroutine make_hrotrcut( hrotr, &
+     rws,irws,drws, &
+     rcut,heps, &
+     nwf,nrws, &
+     hrotrcut )
+  implicit none
+  complex(8):: hrotr(nwf,nwf,nrws)
+  real(8):: rws(3,nrws),drws(nrws)
+  integer:: irws(nrws)
+  real(8):: rcut, heps
+  integer:: nwf,nrws
+  complex(8),intent(out):: hrotrcut(nwf,nwf,nrws)
+  integer:: ir,im,in
+  real(8):: heps2,rtmp
+  heps2=heps*heps
+  hrotrcut=hrotr
+  do ir = 1,nrws
+     rtmp = dsqrt(sum(rws(:,ir)**2))  ! unit of alat
+     write(*,"('cut:',i5,2f10.3)") ir,rtmp,rcut
+     if (rtmp>rcut) then
+        hrotrcut(:,:,ir)=0.0d0
+     endif
+     do im = 1,nwf
+        do in = 1,nwf
+           if ( im == in ) continue
+           write(*,"('  ',2i5,'(',d13.5,',',d13.5,')',d13.5,d13.5)") &
+                im,in,hrotr(im,in,ir) ,dble(hrotr(im,in,ir))**2 + dimag(hrotr(im,in,ir))**2, heps2
+           if ( dble(hrotr(im,in,ir))**2 + dimag(hrotr(im,in,ir))**2 < heps2 ) then
+              hrotrcut(im,in,ir)=0.0d0
+           endif
+
+        enddo
+     enddo
+  enddo
+end subroutine make_hrotrcut
+
+
+
+
+
+subroutine cart_to_fract (cart, fract_coord, qlat)
+  implicit none
+  real(8) :: qlat(3,3)
+  real(8) :: cart(3), fract_coord(3)
+  integer :: i
+  do i=1,3
+     fract_coord(i) = sum(cart(1:3)*qlat(1:3,i))
+  enddo
+
+  return
+
+end subroutine cart_to_fract
+
+
+subroutine write_hopping_output(is, hrotr, &
+     rws,irws,alat,plat,qlat,pos,natom, &
+     ibasiwf, nwf,nrws, spid, m_indx, l_indx, &
+     nphix, iphi, ldim2)
+  implicit none
+  integer:: natom, is
+  real(8) :: alat,plat(3,3),pos(3,natom),qlat(3,3)
+  real(8),allocatable :: cart_coord(:,:), fract_coord(:,:)
+  integer:: i,j,k, ldim2
+  complex(8),intent(in) :: hrotr(nwf,nwf,nrws)
+  integer,intent(in):: nwf,nrws
+  real(8),intent(in) :: rws(3,nrws)
+  integer,intent(in) :: irws(nrws)
+
+  integer(4) :: ibasiwf(nwf), nphix, iphi(nphix,nwf)
+  integer :: quantum_l, quantum_sym
+  character(4) :: quantum_n, spin
+  character(9), dimension(0:3,-5:5) :: orbital_sym
+  character(8) :: spid(natom)
+  integer(4) ::  m_indx(ldim2), l_indx(ldim2)
+  integer:: ir, iwf, iwf1, iwf2, ifh1,ifh
+
+  open(newunit=ifh, file='Hopping.dat')
+  if(is==1)open(newunit=ifh1,file='Hopping.up')
+  if(is==2)open(newunit=ifh1,file='Hopping.dn')
+
+  write(ifh,"('Name : Need to be modified')")
+  write(ifh1,"('Name : Need to be modified')")
+  allocate (cart_coord(3,3))
+  do i=1,3
+     cart_coord(1:3,i) = alat*plat(1:3,i)*0.529177249
+     write(ifh,"(3F16.9)") cart_coord(1:3,i)
+     write(ifh1,"(3F16.9)") cart_coord(1:3,i)
+  enddo
+  write(ifh,"(2I6,I12)") nwf,nrws,nwf*nwf*nrws
+  write(ifh,"(1A,I5)") "spin",is
+  write(ifh1,"(2I6,I12)") nwf,nrws,nwf*nwf*nrws
+  write(ifh1,"(1A,I5)") "spin",is
+  deallocate (cart_coord)
+
+  write(ifh,"(9(1A,7X))") &
+       "leg","atom","n","l","sym","spin","x","y","z"
+  write(ifh1,"(9(1A,7X))") &
+       "leg","atom","n","l","sym","  spin","x  ","y  ","z  "
+
+
+  orbital_sym(0,0)="s"
+  orbital_sym(1,-1)="y"
+  orbital_sym(1,0)="z"
+  orbital_sym(1,1)="x"
+  orbital_sym(2,-2)="xy"
+  orbital_sym(2,-1)="yz"
+  orbital_sym(2,0)="z2"
+  orbital_sym(2,1)="xz"
+  orbital_sym(2,2)="x2y2"
+  orbital_sym(3,-3)="y(3x2-y2)" !see wikipedia!
+  orbital_sym(3,-2)="xyz"
+  orbital_sym(3,-1)="y(5z2-1)"
+  orbital_sym(3,0)="z(5z2-1)"
+  orbital_sym(3,1)="x(5z2-1)"
+  orbital_sym(3,2)="z(x2-y2)"
+  orbital_sym(3,3)="x(x2-3y2)"
+
+  quantum_n = "--"
+
+  allocate (fract_coord(3,nwf))
+  do iwf=1,nwf
+     if (is == 1) spin = "up"
+     if (is == 2) spin = "down"
+
+     call cart_to_fract(pos(1:3,ibasiwf(iwf)), fract_coord(1:3,iwf), &
+          qlat)
+
+     write(ifh,"(I3,1A16,A6,I6,2A12,3F10.5)") &
+          iwf, spid(ibasiwf(iwf)), quantum_n, l_indx(iphi(1,iwf)), &
+          orbital_sym(l_indx(iphi(1,iwf)),m_indx(iphi(1,iwf))), &
+          spin, fract_coord(1:3,iwf)
+
+     write(ifh1,"(I3,1A16,A6,I6,2A12,3F10.5)") &
+          iwf, spid(ibasiwf(iwf)), quantum_n, l_indx(iphi(1,iwf)), &
+          orbital_sym(l_indx(iphi(1,iwf)),m_indx(iphi(1,iwf))), &
+          spin, fract_coord(1:3,iwf)
+
+  end do
+  deallocate (fract_coord)
+
+  allocate (fract_coord(3,nrws))
+  do ir=1,nrws
+     call cart_to_fract(rws(:,ir), fract_coord(1:3,ir), &
+          qlat)
+
+     do iwf1=1,nwf
+        do iwf2=1,nwf
+           write(ifh,"(1x, 3i6, 3f12.6, 2x,2i4,3f12.6)") &
+                nint(fract_coord(:,ir)), rws(:,ir), iwf1, iwf2, &
+                hrotr(iwf1,iwf2,ir)*13.605698066
+           write(ifh1,"(1x, 3i6, 3f12.6, 2x,2i4,3f12.6)") &
+                nint(fract_coord(:,ir)), rws(:,ir), iwf1, iwf2, &
+                hrotr(iwf1,iwf2,ir)*13.605698066
+
+        enddo
+     enddo
+     !        do iwf1=1,nwf
+     !          do iwf2=1,nwf
+     !            write(ifh,"(1x, 6f12.6, 2i4,3f12.6)")
+     !     &             rws(:,ir), fract_coord(:,ir), iwf1, iwf2,  hrotr(iwf1,iwf2,ir)
+     !          enddo
+     !        enddo
+  enddo
+  deallocate (fract_coord)
+  close(ifh1)
+  close(ifh)
+end subroutine write_hopping_output
+
+

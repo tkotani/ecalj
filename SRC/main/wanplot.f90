@@ -1,3 +1,4 @@
 program main!wannier
-    call wanplot()
+  use m_wanplot,only:wanplot
+  call wanplot()
 end program main

@@ -43,10 +43,10 @@ subroutine hmaxloc()
   real(8)    :: esmr2,shtw
   integer :: iclass2
   integer(4):: &
-    ixc,iopen,ibas,ibasx,ngpmx,nxx,ngcmx,nbloch,ifqpnt,ifwd,ifbb, &
+    ixc,ibas,ibasx,ngpmx,nxx,ngcmx,nbloch,ifqpnt,ifwd,ifbb, &
     nprecx,mrecl,nblochpmx2,nwt,niwt, nqnum,mdimx,nblochpmx, &
     ifrcw,ifrcwi,  noccxv,maxocc2,noccx,ifvcfpout,iqall,iaf,ntq, &
-    i,j,k,nspinmx, nq,is,ip,iq,idxk,ifoutsex,iclose,nq0i,ig, &
+    i,j,k,nspinmx, nq,is,ip,iq,idxk,ifoutsex,nq0i,ig, &
     mxkp,nqibzxx,ntet,nene,iqi, ix,iw, &
     nlnx4,niwx,irot,invr,invrot,ivsum, ifoutsec,ntqx, &
     ifmlw(2),ifmlwe(2),ifxc(2),ifsex(2), ifphiv(2),ifphic(2),ifec,ifexsp(2), &
@@ -284,11 +284,16 @@ subroutine hmaxloc()
   call minv33tp(plat,qlat)
   voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
 
-  ifmlw(1) = iopen('MLWU',0,-1,0)
-  ifmlwe(1)= iopen('MLWEU',0,-1,0)
+  !ifmlw(1) = iopen('MLWU',0,-1,0)
+  !ifmlwe(1)= iopen('MLWEU',0,-1,0)
+  open(newunit=ifmlw(1), file='MLWU',form='unformatted')
+  open(newunit=ifmlwe(1),file='MLWEU',form='unformatted')
+  
   if (nspx == 2) then
-    ifmlw(2) = iopen('MLWD',0,-1,0)
-    ifmlwe(2)= iopen('MLWED',0,-1,0)
+!    ifmlw(2) = iopen('MLWD',0,-1,0)
+!    ifmlwe(2)= iopen('MLWED',0,-1,0)
+    open(newunit=ifmlw(2), file='MLWD',form='unformatted')
+    open(newunit=ifmlwe(2),file='MLWED',form='unformatted')
   endif
 
   !>> read dimensions of wc,b,hb
@@ -376,7 +381,12 @@ subroutine hmaxloc()
   !------------
   ! input parameters specific to MAXLOC
   call s_read_Worb()
-
+  ! ---- check write -----
+  !  do iclass2=1,nclass_mlwf
+  !     write(*,*)'output:',iclassin(iclass2), nwf &
+  !          ,trim(classname_mlwf(iclass2)),cbas_mlwf(1:nbasclass_mlwf(iclass2),iclass2)
+  !  enddo
+  
   allocate(idorb(nwf)) !!okumura
   allocate(idorb_in(nwf))
   idorb=-1
@@ -951,13 +961,19 @@ subroutine hmaxloc()
     write(*,*)'Step 3: reduced Hamiltonian branch'
     ! open file
     if (is == 1) then
-      ifbnd = iopen('bnds.maxloc.up',1,-1,0)
-      iftb  = iopen('bnds.tb.up',1,-1,0)
-      iffb  = iopen('bnds.fb.up',1,-1,0)
+!      ifbnd = iopen('bnds.maxloc.up',1,-1,0)
+!      iftb  = iopen('bnds.tb.up',1,-1,0)
+!      iffb  = iopen('bnds.fb.up',1,-1,0)
+      open(newunit=ifbnd, file='bnds.maxloc.up')
+      open(newunit=iftb, file='bnds.tb.up')
+      open(newunit=iffb, file='bnds.fb.up')
     else
-      ifbnd = iopen('bnds.maxloc.dn',1,-1,0)
-      iftb  = iopen('bnds.tb.dn',1,-1,0)
-      iffb  = iopen('bnds.fb.dn',1,-1,0)
+!      ifbnd = iopen('bnds.maxloc.dn',1,-1,0)
+!      iftb  = iopen('bnds.tb.dn',1,-1,0)
+!      iffb  = iopen('bnds.fb.dn',1,-1,0)
+      open(newunit=ifbnd, file='bnds.maxloc.dn')
+      open(newunit=iftb, file='bnds.tb.dn')
+      open(newunit=iffb, file='bnds.fb.dn')
     endif
     write(ifbnd,*)nq
     write(ifbnd,*)nwf
@@ -976,9 +992,11 @@ subroutine hmaxloc()
       write(*,*)'SmallHam on',nsh1,nsh2
       nsh = nsh2 - nsh1 + 1
       if (is == 1) then
-        ifsh = iopen('bnds.sh.up',1,-1,0)
+        !ifsh = iopen('bnds.sh.up',1,-1,0)
+        open(newunit=ifsh, file='bnds.sh.up')
       else
-        ifsh = iopen('bnds.sh.dn',1,-1,0)
+!        ifsh = iopen('bnds.sh.dn',1,-1,0)
+        open(newunit=ifsh, file='bnds.sh.dn')
       endif
       write(ifsh,*)nq
       write(ifsh,*)nsh
@@ -1003,9 +1021,11 @@ subroutine hmaxloc()
       !     skino
       !     write hrotr and *rws
       if (is == 1) then
-        ifh = iopen('hrotr.up',1,-1,0)
+!        ifh = iopen('hrotr.up',1,-1,0)
+        open(newunit=ifh, file='hrotr.up')
       else
-        ifh = iopen('hrotr.dn',1,-1,0)
+!        ifh = iopen('hrotr.dn',1,-1,0)
+        open(newunit=ifh, file='hrotr.dn')
       endif
 
       call write_hrotr(ifh, hrotr, &
@@ -1024,9 +1044,11 @@ subroutine hmaxloc()
       call read_hrotr(filename,nwf,nrws, &
         hrotr)
       if (is == 1) then
-        ifh = iopen('hrotr.cut.up',1,-1,0)
+!        ifh = iopen('hrotr.cut.up',1,-1,0)
+        open(newunit=ifh, file='hrotr.cut.up')
       else
-        ifh = iopen('hrotr.cut.dn',1,-1,0)
+!        ifh = iopen('hrotr.cut.dn',1,-1,0)
+        open(newunit=ifh, file='hrotr.cut.dn')
       endif
       allocate(hrotrcut(nwf,nwf,nrws))
       call make_hrotrcut( hrotr, &
@@ -1072,7 +1094,8 @@ subroutine hmaxloc()
 
     !! --------------------------------------------------------------
     ! --- Readin nlam index
-    ifoc = iopen('@MNLA_CPHI',1,0,0)
+    !ifoc = iopen('@MNLA_CPHI',1,0,0)
+    open(newunit=ifoc, file='@MNLA_CPHI')
     ldim2 = ndima
     read(ifoc,*)
     if(allocated(m_indx)) deallocate(m_indx,n_indx,l_indx,ibas_indx,ibasiwf)
@@ -1081,7 +1104,8 @@ subroutine hmaxloc()
       read(ifoc,*)m_indx(ix),n_indx(ix),l_indx(ix),ibas_indx(ix),ixx
       if(ixx/=ix) call rx('failed to readin @MNLA_CPHI')
     enddo
-    ix = iclose('@MNLA_CPHI')
+    close(ifoc)
+!    ix = iclose('@MNLA_CPHI')
     allocate(ibasiwf(nwf))
     do iwf=1,nwf
       ibasiwf(iwf) = ibas_indx(iphi(1,iwf))

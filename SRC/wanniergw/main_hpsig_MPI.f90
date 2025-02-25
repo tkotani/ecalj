@@ -91,7 +91,7 @@ subroutine hpsig_MPI()
   real(8)   :: q1(3),q2(3),dq(3),absqg2,absdq,r2s,absqg
   integer(4):: j1,j2,j1max,j2max,j1min,j2min,ispin &
        ,l1,l2,lm1,lm2,ibas2,lm3,ig1,ig2,ir,ia1,ma,ia2,m2,l3,m1,lxx &
-       , iopen,ico,lxd,lx,ll
+       ,ico,lxd,lx,ll
   real(8):: ylk
 
   ! m
@@ -112,7 +112,7 @@ subroutine hpsig_MPI()
   include 'mpif.h'
   integer(4):: istatus(MPI_STATUS_SIZE)
   integer(4):: ierr,iftmp
-  integer(4):: myproc,nproc,nproc1,nproc2,nq_proc,ii,jj,kk,iclose
+  integer(4):: myproc,nproc,nproc1,nproc2,nq_proc,ii,jj,kk
   integer(4),allocatable:: iq_proc(:)
   character(4) charnum4
   integer,allocatable:: ncore(:)
@@ -210,7 +210,8 @@ subroutine hpsig_MPI()
 
   ! --- read radial functions PHIVC   (taken from hasfp0)
   if (myproc == 0) write(6,*)' Go to readining phivc'
-  ifphi  = iopen('PHIVC', 0,-1,0)     ! PHIV+PHIC augmentation wave and core
+!  ifphi  = iopen('PHIVC', 0,-1,0)     ! PHIV+PHIC augmentation wave and core
+  open(newunit=ifphi,file='PHIVC',form='unformatted')
   read(ifphi) nbas, nradmx, ncoremx,nrx
   if( nbas/=natom ) stop ' nbas(PHIVC) /= natom '
   !      deallocate(ncore)
@@ -285,7 +286,8 @@ subroutine hpsig_MPI()
   allocate( geig1(ngpmx*nspc,nband) )
   if (myproc == 0) write(6,*) 'end of initialization'
   ! --- Readin nlam index
-  ifoc = iopen('@MNLA_CPHI',1,0,0)
+  !  ifoc = iopen('@MNLA_CPHI',1,0,0)
+  open(newunit=ifoc,file='@MNLA_CPHI')
   ldim2 = ndima
   read(ifoc,*)
   allocate(m_indx(ldim2),n_indx(ldim2),l_indx(ldim2),ibas_indx(ldim2))
@@ -316,7 +318,8 @@ subroutine hpsig_MPI()
 !  close(if101)
 
   ! m
-  ifbb = iopen('BBVEC',1,0,0)
+!  ifbb = iopen('BBVEC',1,0,0)
+  open(newunit=ifbb,file='BBVEC')
   read(ifbb,*)
   read(ifbb,*)nbb,nqbz2
   if (nqbz /= nqbz2) stop 'readbb: nqbz is wrong!'

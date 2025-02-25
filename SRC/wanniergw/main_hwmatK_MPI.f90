@@ -54,7 +54,7 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   use m_mksym_util,only:mptauof
 
   ! RS: MPI module
-  use rsmpi,only: rsmpi_init,mpi_comm_world,mpi_double_precision,mpi_integer,mpi_sum
+!  use rsmpi,only: rsmpi_init,mpi_comm_world,mpi_double_precision,mpi_integer,mpi_sum
 !  use rsmpi_rotkindex,only: setup_rotkindex, nrot_local_rotk,irot_index_rotk
   
   implicit none
@@ -76,7 +76,7 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   !     o   iilc,iinc,iimc,iilnmc,i_mnlc,
   !     o   incwf,iecore,ikonf,iicore,incore,nctot,
   !     o   imagw,niw,nw,ifreq,
-  integer:: ixc,iopen, ibas,ibasx,nxx,nbloch,ifqpnt,ifwd,ifmloc, &
+  integer:: ixc, ibas,ibasx,nxx,nbloch,ifqpnt,ifwd,ifmloc, &
        nprecx,mrecl,nblochpmx2,nwp,niwt, nqnum,mdimx,nblochpmx, &
        ifrcw,ifrcwi,  noccxv,maxocc2,noccx,ifvcfpout,iqall,iaf,ntq, &
        i,k,nspinmx, nq,is,ip,iq,idxk,ifoutsex,iclose,ig, &
@@ -194,13 +194,13 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   integer:: ierr,procid,master=0,comm,nrank,irr,iqibz
   integer,allocatable::irkall(:,:),irk(:,:)
   logical:: master_mpi
-!  include "mpif.h"
+  include "mpif.h"
   comm= mpi_comm_world
   call mpi_init(ierr)
   call mpi_comm_size(comm, nrank, ierr)
   call MPI_COMM_RANK(comm, procid, ierr )
   master_mpi = procid == master
-  call RSMPI_Init()
+!  call RSMPI_Init()
   hartree=2d0*rydberg()
   iii=verbose()
   if(master_mpi)write(6,*)' verbose=',iii
@@ -308,9 +308,11 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   if ( .NOT. exchange) then
      if (lueff) then
         call rx('Ueff mode not implimented in the MPI version')
-        ifwd      = iopen('WV.d.maxloc',1,-1,0)
+!        ifwd      = iopen('WV.d.maxloc',1,-1,0)
+        open(newunit=ifwd,file='WV.d.maxloc')
      else
-        ifwd      = iopen('WV.d',1,-1,0)
+!        ifwd      = iopen('WV.d',1,-1,0)
+        open(newunit=ifwd,file='WV.d')
      endif
      read (ifwd,*) nprecx,mrecl,nblochpmx,nwp,niwt,nqnum,nw_i
      if (master_mpi) write(6,"(' Readin WV.d =', 10i5)") &
@@ -321,11 +323,12 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
      niw = 0
      niwt = 0
      if (lueff) then
-        ifrcw     = iopen('WVR.maxloc',0,-1,mrecl)
+!        ifrcw     = iopen('WVR.maxloc',0,-1,mrecl)
+        open(newunit=ifrcw, file='WVR.maxloc',form='unformatted',access='direct',recl=mrecl)
         !          ifrcwi = iopen('WVI.maxloc',0,-1,mrecl)
      else
-        ifrcw     = iopen('WVR',0,-1,mrecl)
-        !          ifrcwi = iopen('WVI',0,-1,mrecl)
+!        ifrcw     = iopen('WVR',0,-1,mrecl)
+        open(newunit=ifrcw, file='WVR',form='unformatted',access='direct',recl=mrecl)
      endif
      !... reading general energy mesh from file 'freq_r'
      open(newunit=if3111,file='freq_r') !this is in a.u.
@@ -337,7 +340,7 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
      enddo
      close(if3111)
   else
-     ifvcfpout = iopen('VCCFP',0,-1,0)
+!     ifvcfpout = iopen('VCCFP',0,-1,0)
      allocate(freq_r(1)); freq_r=1d99
      nw = 0
   endif
@@ -577,7 +580,7 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
              nlnmx,mdimx,nbloch,ngrp,nw_i,nw,nrw,niw,niwx,nq, &
              nblochpmx,ngpmx,ngcmx, &
              wgt0,wqt,nq0i,q0i, symgg(:,:,irot),alat, &
-             shtv,nband, ifvcfpout, &
+             shtv,nband, & !ifvcfpout, &
              exchange, pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, nwf,  rw_w,cw_w,rw_iw,cw_iw) ! acuumulation variable
         
 !        write(*,*) 'wmatq out',irot_local,nrot_local_rotk
@@ -616,19 +619,19 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
         endif
      endif
 2000 enddo spinloop
-  isx = iclose ('wc.d')
-  isx = iclose ('wci.d')
-  isx = iclose ('hbe.d')
-  isx = iclose ('RBU')
-  isx = iclose ('CBU')
-  isx = iclose ('RHBU')
-  isx = iclose ('CHBU')
-  isx = iclose ('EVU')
-  isx = iclose ('RBD')
-  isx = iclose ('CBD')
-  isx = iclose ('RHBD')
-  isx = iclose ('CHBD')
-  isx = iclose ('EVD')
+  ! isx = iclose ('wc.d')
+  ! isx = iclose ('wci.d')
+  ! isx = iclose ('hbe.d')
+  ! isx = iclose ('RBU')
+  ! isx = iclose ('CBU')
+  ! isx = iclose ('RHBU')
+  ! isx = iclose ('CHBU')
+  ! isx = iclose ('EVU')
+  ! isx = iclose ('RBD')
+  ! isx = iclose ('CBD')
+  ! isx = iclose ('RHBD')
+  ! isx = iclose ('CHBD')
+  ! isx = iclose ('EVD')
 !  call cputid(ifile_rsmpi)
   call cputid(0)
   call mpi_finalize(ierr)

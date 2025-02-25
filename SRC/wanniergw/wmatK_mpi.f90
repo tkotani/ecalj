@@ -192,7 +192,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
      nl,nnc,natom,natomx, &
      nlnmx,mdimx,nbloch,ngrp,nw_i,nw,nrw,niw,niwx,nq, &
      nblochpmx ,ngpmx,ngcmx, &! & ngveccBr,!Jan2004
-     wgt0,wqt,nq0i,q0i,symope,alat, shtv,nband, ifvcfpout, &
+     wgt0,wqt,nq0i,q0i,symope,alat, shtv,nband, &! ifvcfpout, &
      exchange, pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, nwf,  rw_w,cw_w,rw_iw,cw_iw)
   use m_zmel_old,only: drvmelp3
   use m_ftox
@@ -206,7 +206,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
   integer :: ntq, natom,nqbz,nqibz,ngrp,nq,nw_i,nw,niw, natomx,&
        nband,  nlmto, nq0i,nctot,mbytes,iwksize,nlmtobnd,nstate,nstatex, &
        irot,  iqisp,ikpisp,isp,nsp,  nlnmx, iq, ip, it,itp, it2, itp2,  iiclass,mdim(*), &
-       ifrcw,ifrcwi, ifvcfpout,ndummy1,ndummy2,kx,kr,kr2,kr3,ngc,ngb,nbloch, &
+       ifrcw,ifrcwi, ndummy1,ndummy2,kx,kr,kr2,kr3,ngc,ngb,nbloch, &
        kp,nt0,nocc, nt0p,nt0m,irkp,i,nt0org,nmax,nt,ntp0, &
        nbmax,nl,nnc, nblochpmx,ix,nx,iw,iwp,ixs,ixsmx, &
        mdimx, nwx,niwx, iatomp(natom), &
@@ -232,7 +232,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
        w1p(:,:,:),w2p(:,:,:)
   complex(8),allocatable :: z1p(:,:,:),vcoul(:,:),vcoult(:,:)
   logical :: debug=.false.
-  integer :: ibl,iii,ivsumxxx,ifexsp ,iopen
+  integer :: ibl,iii,ivsumxxx,ifexsp 
   integer,save::ifzwz=-999
   integer :: iwini, iwend, ia
   real(8) :: rw_w(nwf,nwf,nwf,nwf,nrws,0:nrw), &
@@ -289,7 +289,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
 
   !...
   logical::smbasis
-  integer:: nn,no,ifpomat,iclose,isx,iqx
+  integer:: nn,no,ifpomat,isx,iqx
   complex(8),allocatable:: pomat(:,:)
   real(8):: q_r(3)
   integer:: nnmx,nomx,nkpo, nnr(nkpo),nor(nkpo)
@@ -393,7 +393,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
         qxx=qibz_k
         !           if(kx<=nqibz) qxx=qibz_k
         !           if(kx>nqibz ) qxx=q0i(:,kx-nqibz)
-        ifvcoud = iopen('Vcoud.'//i2char(kx),0,0,0)
+        open(newunit=ifvcoud,file=trim('Vcoud.'//i2char(kx)),form='unformatted')
         do
            read(ifvcoud) ngb0
            read(ifvcoud) qvv
@@ -411,7 +411,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
            call rx( 'wmatK: qvv/=qibz(:,kx) hvcc is not consistent')
         endif
 1133    continue
-        ifvcoud = iclose('Vcoud.'//i2char(kx))
+        close(ifvcoud)! = iclose('Vcoud.'//i2char(kx))
         if( ngb0/=ngb ) then !sanity check
            write(6,*)' qxx ngb0 ngb=',qxx,ngb0,ngb
            call rx( 'hsfp0.m.f:ngb0/=ngb')
@@ -637,7 +637,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
         nx  = niw
         nprecx=8
         mrecl  = nprecx*2*nblochpmx*nblochpmx/nwordr()
-        ifrcwi = iopen('WVI.'//i2char(kx),0,-1,mrecl)
+        open(newunit=ifrcwi,file='WVI.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
         do ix = 1,nx     ! imaginary frequency w'-loop
            ! ccccccccccccccccccccccccccccccc
            !          nrec=(kx-2)*niw+ix
@@ -668,7 +668,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
               enddo ! ir2
            enddo ! ir3
         enddo
-        ifrcwi = iclose('WVI.'//i2char(kx))
+        close(ifrcwi)! = iclose('WVI.'//i2char(kx))
 
         !====================================================================
         ! Wc(qt,w) along the real axis
@@ -676,7 +676,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
         if(debug) write(6,*)' go to poles'
         nprecx=8
         mrecl  = nprecx*2*nblochpmx*nblochpmx/nwordr()
-        ifrcw = iopen('WVR.'//i2char(kx),0,-1,mrecl)
+        open(newunit=ifrcw, file='WVR.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
         do      ix = 0,nrw                    ! real frequency w'-loop
            ! ccccccccccccccccccccccccc
            !          nrec=(kx-2)*(nw+1-nw_i)+ ix-nw_i+1
@@ -698,7 +698,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
               enddo ! ir2
            enddo ! ir3
         enddo
-        ifrcw = iclose('WVR.'//i2char(kx))
+        close(ifrcw)! = iclose('WVR.'//i2char(kx))
         deallocate(zmelc,zw,zw2)
         if(debug) write(6,*)' end of screen-if'
         ! end of if (exchange)

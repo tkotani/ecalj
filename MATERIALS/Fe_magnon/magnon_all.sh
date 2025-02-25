@@ -1,7 +1,7 @@
 #!/bin/bash +x
 # we need GWinput,ctrl,syml.fe, fbplot.glt, mag3d.glt, wanplot.glt
 MATERIAL=fe
-NSLOTS=8
+NSLOTS=7
 lmfa fe >& llmfa
 mpirun -np $NSLOTS lmf fe >&llmf
 # ### 1. band calculation and create MLWFs
