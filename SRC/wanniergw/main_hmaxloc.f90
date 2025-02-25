@@ -52,7 +52,7 @@ subroutine hmaxloc()
     ifmlw(2),ifmlwe(2),ifxc(2),ifsex(2), ifphiv(2),ifphic(2),ifec,ifexsp(2), &
     ifsecomg(2),ifexx,ifwand,ndble=8
   real(8) :: pi,tpia,vol,voltot,rs,alpha, &
-    qfermi,efx,valn,efnew,edummy,efz,qm,xsex,egex, &
+    qfermi,efx,efnew,edummy,efz,qm,xsex,egex, &
     zfac1,zfac2,dscdw1,dscdw2,dscdw,zfac,ef2=1d99,exx,exxq,exxelgas
   logical :: lqall,laf
   integer,allocatable :: itq(:)
@@ -336,37 +336,10 @@ subroutine hmaxloc()
     read(ifi,*) ef
     close(ifi)
   endblock
-  ! lbnds=.false.
-  ! inquire(file='BNDS',exist=lbnds)
-  ! if (lbnds) then
-  !    write(*,*)'Read EF from BNDS'
-  !    ifh=ifile_handle()
-  !    open(ifh,file='BNDS',status='old')
-  !    read(ifh,*)ntmp,ef
-  !    close(ifh)
-  ! else ! lbnds
-  !    call rx('you have to perform job_band in advance')
-  ! endif
-  !$$$c --- determine Fermi energy ef for given valn (legas case) or corresponding charge given by z and konf.
-  !$$$! When esmr is negative, esmr is geven automatically by efsimplef.
-  !$$$        write(*,*)'Calculate EF in efsimplef2a'
-  !$$$        legas = .false.
-  !$$$        call efsimplef2a(nspin,wibz,qibz,ginv,
-  !$$$     i        nband,nqibz
-  !$$$     i       ,konf,z,nl,natom,iclass,nclass
-  !$$$     i       ,valn, legas, esmr,  !!! valn is input for legas=T, output otherwise.
-  !$$$c
-  !$$$     i        qbz,nqbz !index_qbz, n_index_qbz,
-  !$$$     o       ,efnew)
-  !$$$c
-  !$$$c        write(6,*)' end of efsimple'
-  !$$$        ef = efnew
-  !$$$      endif ! lbnds
-  !- check total ele number -------
   ntot  = nocctotg2(nspx, ef,esmr, qbz,wbz, nband,nqbz) !wbz
   write(6,*)' ef    =',ef
   write(6,*)' esmr  =',esmr
-  write(6,*)' valn  =',valn
+!  write(6,*)' valn  =',valn
   write(6,*)' ntot  =',ntot
   call init_readeigen2()!mrecb,nlmto,mrecg) !initialize m_readeigen
   

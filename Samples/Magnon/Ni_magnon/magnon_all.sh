@@ -2,8 +2,8 @@
 # we need GWinput,ctrl,syml.fe, fbplot.glt, mag3d.glt, wanplot.glt
 MATERIAL=ni
 NSLOTS=8
-lmfa fe >& llmfa
-mpirun -np $NSLOTS lmf fe >&llmf
+lmfa $MATERIAL >& llmfa
+mpirun -np $NSLOTS lmf $MATERIAL >&llmf
 # ### 1. band calculation and create MLWFs
 job_band $MATERIAL -np $NSLOTS NoGnuplot # &> job_band.log
 genMLWF_vw $MATERIAL -np $NSLOTS # &> genmlwf_vw.log
