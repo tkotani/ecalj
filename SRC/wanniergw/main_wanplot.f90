@@ -1,3 +1,4 @@
+!>plot wannier
 module m_lmf2gw !Note this is now only for wanplot for backward comatibility. Not in gwsc. So may unused varirables.
   !> lmf2gw() set variables to module variables by reading files from following input files.
   integer,allocatable,protected:: nindx(:),lindx(:),ibasindx(:),mnla(:,:) !,iantiferro(:)
@@ -145,7 +146,6 @@ contains
     implicit none
     integer :: ikp
     integer :: ifiqg,ifiqgc,ifile_handle
-
     write(6,*) '--- read_QG ---'
     ifiqg  = ifile_handle()
     open(ifiqg ,file='QGpsi',form='unformatted')
@@ -184,8 +184,9 @@ contains
   end subroutine read_QG
 end module m_QG
 module m_wanutil
+  public myinv3,mymatvec,calc_ylm,calc_phiall_abc2,b2w,wrt_xsf,expand_mesh,calc_npw
+  private
 contains
-  !-----------------------------------------------------
   subroutine calc_npw(nfac, npw)
     use m_QG,only: ngvecp,qqqa,nqnum,ngp
     use m_lmf2gw,only: alat,plat
@@ -199,7 +200,8 @@ contains
     double precision :: pi,gtmp(3),gcutmax,gcuttmp,at(3,3),g(3,3)
     logical :: debug=.false.
     write(*,"(a)") '--- calc_npw ---'
-    call mytranspose(plat,At,3,3)
+    !call mytranspose(plat,At,3,3)
+    At=transpose(plat)
     call myinv3(At,G)
     pi=4.0d0*atan(1.0d0)
     ntmp(1:3)=0
@@ -1113,7 +1115,8 @@ contains
     double precision ::  At(m,l)
     integer :: i,j,k
 
-    call mytranspose(A,At,l,m)
+    !call mytranspose(A,At,l,m)
+    At=transpose(A)
     C(1:l,1:n)=0.0d0
 
     do j=1,n
@@ -1136,23 +1139,23 @@ contains
          A(1,3)*(A(2,1)*A(3,2)-A(2,2)*A(3,1))
   end subroutine mydet3
   ! cccccccccccccccccccccccc
-  subroutine mytranspose(A,At,m,n)
-    implicit none
+  ! subroutine mytranspose(A,At,m,n)
+  !   implicit none
 
-    ! input
-    integer :: m,n
-    double precision ::  A(m,n)
-    ! output
-    double precision ::  At(n,m)
-    ! local
-    integer :: i,j
+  !   ! input
+  !   integer :: m,n
+  !   double precision ::  A(m,n)
+  !   ! output
+  !   double precision ::  At(n,m)
+  !   ! local
+  !   integer :: i,j
 
-    do j=1,n
-      do i=1,m
-        At(j,i)=A(i,j)
-      enddo
-    enddo
-  end subroutine mytranspose
+  !   do j=1,n
+  !     do i=1,m
+  !       At(j,i)=A(i,j)
+  !     enddo
+  !   enddo
+  ! end subroutine mytranspose
   ! cccccccccccccccccccccccc
   subroutine myinv3(A,invA)
     implicit none
@@ -1171,8 +1174,8 @@ contains
       write(*,*) 'Error in myinv3: detA<eps'
       stop 'Error in myinv3: detA<eps'
     endif
-    call mytranspose(A,At,3,3)
-
+    !call mytranspose(A,At,3,3)
+    At=transpose(A)
     at1(1:3)=At(1:3,1)
     at2(1:3)=At(1:3,2)
     at3(1:3)=At(1:3,3)
@@ -1280,7 +1283,7 @@ end module m_wanutil
 
 
 module m_wanplot
-  use m_wanutil,only:myinv3,mymatvec,mytranspose,calc_ylm,calc_phiall_abc2,b2w,wrt_xsf,expand_mesh,calc_npw
+  use m_wanutil,only:myinv3,mymatvec,calc_ylm,calc_phiall_abc2,b2w,wrt_xsf,expand_mesh,calc_npw
   public wanplot
   private
 contains
@@ -1597,26 +1600,6 @@ contains
     qdum = 0.0d0
     ang = 0.529177d0
     alat_ang=alat*ang
-    !! opendx and cube need to be fixed...
-    !$$$      if (outputformat.eq.'opendx') then
-    !$$$         call wfn2dx_2(alat_ang,plat,nsp,1,nband_wfn,qdum,bindx_wfn,
-    !$$$     &        mesh1,r_rini1,r_rfin1,wanpw1,wanaug1,wantot1)
-    !$$$         call crystal2dx_2(alat_ang,plat,r_rini1,r_rfin1,
-    !$$$     &        nbas,bas,nclass,iclass,zz)
-    !$$$      else if (outputformat.eq.'cube') then
-    !$$$         call wrt_cube(
-    !$$$     i        'wan',
-    !$$$     i        alat,plat,nsp,1,nband_wfn,q_wfn,bindx_wfn,
-    !$$$c     i     mesh,rini,rfin,phipw,phiaug,phitot  ! for bloch orbital
-    !$$$     i        mesh1,r_rini1,r_rfin1,wanpw1,wanaug1,wantot1, ! for wannier function
-    !$$$     i        nbas,bas,nclass,iclass,zz )
-    !$$$         call wrt_cube(
-    !$$$     i        'phi',
-    !$$$     i        alat,plat,nsp,1,nband_wfn,q_wfn,bindx_wfn,
-    !$$$     i        mesh1,r_rini1,r_rfin1,phipw1,phiaug1,phitot1, ! for bloch orbital
-    !$$$c     i     mesh,rini,rfin,wanpw,wanaug,wantot,  ! for wannier function
-    !$$$     i        nbas,bas,nclass,iclass,zz )
-    !$$$      else                      !--- if(outputformat.eq.'xsf') then, default
     write(6,*) 'Writing xsf (Xcrysden) file...'
     call wrt_xsf( &
          'wan',vis_unit, &
