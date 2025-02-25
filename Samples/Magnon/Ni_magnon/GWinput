@@ -207,7 +207,7 @@ GaussSmear on ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr for
 wan_out_emin  -10  !eV relative to Efermi
 wan_out_emax  45  !eV relative to Efermi
 wan_in_ewin on 
-wan_in_emin  -5.0  !eV relative to Efermi
+wan_in_emin  -10  !eV relative to Efermi
 wan_in_emax  1.0  !eV relative to Efermi
 
 wan_tb_cut 15
