@@ -1,4 +1,4 @@
-o#!/bin/bash +x
+#!/bin/bash +x
 # we need GWinput,ctrl,syml.fe, fbplot.glt, mag3d.glt, wanplot.glt
 MATERIAL=fe
 NSLOTS=7
