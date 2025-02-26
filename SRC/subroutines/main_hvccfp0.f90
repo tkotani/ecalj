@@ -47,7 +47,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
   character(20) :: xxt,outs=''
   character(3) :: charnum3
   character(10) :: i2char
-  character(128):: vcoudfile,ixcc
+  character(128):: vcoudfile!,ixcc
   real(8),external::screenfac
   call MPI__Initialize()
   call gpu_init() 
@@ -56,14 +56,13 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
   if( mpi__root) write(6,"(' mode=0,3,202 (0 and 3 give the same results for given bas)' )")
   if(cmdopt2('--job=',outs)) then; read(outs,*) imode
   elseif( mpi__root ) then       ; read(5,*) imode;   endif
-  call MPI__Broadcast(imode)
-  write(ixcc,"('.mode=',i4.4)")imode
-  call MPI__consoleout('hvccfp0'//trim(ixcc))
+  call MPI__Broadcast(imode) !  write(ixcc,"('.mode=',i4.4)")imode
+  call MPI__consoleout('hvccfp0.mode='//charnum3(imode))
   call cputid (0)
   if(imode==202 )  then; write(6,*)' hvccfp0: imode=',imode
   elseif(imode==0) then
   elseif(imode==3) then
-  else;                  call rx('hvccfp0: now hvccfp0 support just normal mode=0 3 202 101')
+  else; call rx('hvccfp0: now hvccfp0 support just normal mode=0 3 202')
   endif
   call Genallcf_v3(incwfx=0) !use ForX0 for core in GWIN
   call Readhamindex0()
@@ -73,7 +72,6 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
   voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
   allocate(ngvecc(3,ngcmx))
   call ReadGWinputKeys() !Readin dataset in GWinput
-
   ReadinBASFP:block
     allocate(lx(nbas),kmx(nbas),nblocha(nbas),nr(nbas),aa(nbas),bb(nbas),ificrb(nbas),rmax(nbas) )
     do ibas = 1,nbas !! Readin BASFP//atom. The product basis functions.

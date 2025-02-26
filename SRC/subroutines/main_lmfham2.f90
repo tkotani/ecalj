@@ -17,6 +17,7 @@ contains
     ! We use diffent idea of connectivity from [2]. Roughly speaking, we define connectivitiy of eigenfunctions between k and k+b,
     ! not by the overlap of periodic part of eigenfunctions, but by the coefficients on |MLO>.
     !
+    use m_maxloc0,only: kbbindx,getbb,writebb2,amnk2unk,diag_hm
     use m_setqibz_lmfham,only: set_qibz,qibz,irotq,irotg,ndiff,iqbzrep,qbzii,igiqibz,nqibz,iqii,wiqibz,igx,ngx
     use m_ftox
     use m_lgunit,only: stdo,m_lgunit_init

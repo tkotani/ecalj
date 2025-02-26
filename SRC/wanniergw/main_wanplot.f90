@@ -1,5 +1,5 @@
-!>plot wannier
-module m_lmf2gw !Note this is now only for wanplot for backward comatibility. Not in gwsc. So may unused varirables.
+!>plot wannier wanplot in m_wanplot is main module but not checked well.
+module m_wan_lmf2gw !Note this is now only for wanplot for backward comatibility. Not in gwsc. So may unused varirables.
   !> lmf2gw() set variables to module variables by reading files from following input files.
   integer,allocatable,protected:: nindx(:),lindx(:),ibasindx(:),mnla(:,:) !,iantiferro(:)
   integer,protected :: nbandmx,nphimx,&
@@ -132,8 +132,8 @@ contains
 3001 enddo
     close(ifigwa)
   end subroutine lmf2gw
-end module m_lmf2gw
-module m_qg ! Information for plane-wave basis
+end module m_wan_lmf2gw
+module m_wan_qg ! Information for plane-wave basis
   implicit none
   integer ::  nqnum, ngpmx_qg, nnnn
   integer ::  nqnumc, ngcmx
@@ -182,14 +182,14 @@ contains
     close(ifiqg)
     close(ifiqgc)
   end subroutine read_QG
-end module m_QG
+end module m_wan_qg
 module m_wanutil
   public myinv3,mymatvec,calc_ylm,calc_phiall_abc2,b2w,wrt_xsf,expand_mesh,calc_npw
   private
 contains
   subroutine calc_npw(nfac, npw)
-    use m_QG,only: ngvecp,qqqa,nqnum,ngp
-    use m_lmf2gw,only: alat,plat
+    use m_wan_QG,only: ngvecp,qqqa,nqnum,ngp
+    use m_wan_lmf2gw,only: alat,plat
     implicit none
     ! input
     integer :: nfac
@@ -229,7 +229,7 @@ contains
   ! Linear interpolation of gx/r
   double precision function calc_gxr(r,l,n,ic,isp)
     !      use m_LMTO
-    use m_lmf2gw,only: bb,nr,aa,alat,gx=>gx_d
+    use m_wan_lmf2gw,only: bb,nr,aa,alat,gx=>gx_d
     implicit none
     ! input
     double precision :: r
@@ -253,7 +253,7 @@ contains
   subroutine b2w(nq_wfn,nband_wfn,q_wfn,bindx_wfn,tlat,npw, &
        phi,wan)
     !! Make Wannier functions from Bloch functions in real space representation.
-    use m_lmf2gw,only: bb,nr,aa,alat,nsp,plat
+    use m_wan_lmf2gw,only: bb,nr,aa,alat,nsp,plat
     implicit none
     integer :: nq_wfn,nband_wfn,npw(3),bindx_wfn(nband_wfn),tlat(3)
     double precision :: q_wfn(3,nq_wfn),tvec(3),phase,pi,rtmp(3)
@@ -287,7 +287,7 @@ contains
        phipw,phiaug,phitot)
     !      use m_readeigen,only: readcphif,readgeig
     ! cccccccccccccccccccccccccccccccccccc
-    use m_qg,only:ngp
+    use m_wan_qg,only:ngp
     ! cccccccccccccccccccccccccccccccccccc
     !      use m_LMTO
     !      use m_FFT3D
@@ -371,7 +371,7 @@ contains
     enddo                     !iq
   end subroutine calc_phiall_abc2
   subroutine calc_augregion_abc(n1,n2,n3,augregion)
-    use m_lmf2gw,only: bb,nr,aa,alat,iclass,nclass,bas,nbas,plat
+    use m_wan_lmf2gw,only: bb,nr,aa,alat,iclass,nclass,bas,nbas,plat
     !      use m_genallcf_v3,only: nbas=>natom, bas=>pos,plat
     implicit none
     ! input
@@ -433,7 +433,7 @@ contains
   subroutine calc_eikreikT_abc(kvec,mesh, &
        augregion,eikr,eikT)
     !      use m_LMTO
-    use m_lmf2gw,only: bb,nr,aa,alat,nsp,plat
+    use m_wan_lmf2gw,only: bb,nr,aa,alat,nsp,plat
     implicit none
     ! input
     double precision :: kvec(3)
@@ -489,8 +489,8 @@ contains
                                 !!-- Plane wave expansion of an eigenfunciton (geig,cphi).
        augregion, &
        phipwtmp,phiaugtmp)
-    use m_QG,only:ngvecp,ngp
-    use m_lmf2gw,only:mnla,iclass,nbas,bas,plat,alat
+    use m_wan_QG,only:ngvecp,ngp
+    use m_wan_lmf2gw,only:mnla,iclass,nbas,bas,plat,alat
     !      use m_genallcf_v3,only: nbas=>natom, bas=>pos,plat,alat
     implicit none
     integer :: isp,iq,npw(3),mesh(3),ngpmx,ldim2 !,iband
@@ -1280,8 +1280,6 @@ contains
     enddo
   end subroutine calc_Ylm
 end module m_wanutil
-
-
 module m_wanplot
   use m_wanutil,only:myinv3,mymatvec,calc_ylm,calc_phiall_abc2,b2w,wrt_xsf,expand_mesh,calc_npw
   public wanplot
@@ -1320,8 +1318,8 @@ contains
     use m_read_bzdata,only: read_bzdata, nqbz,nqibz,nqbzw,nteti,ntetf &
          ,n1,n2,n3,qbas=>qlat,ginv,qbz,wbz,qibz,wibz,qbzw,idtetf,ib1bz,idteti &
          ,nstar,irk,nstbz,ngrp2=>ngrp !,qibz_r,nqibz_r
-    use m_lmf2gw,only: lmf2gw,iclass,nclass,zz,alat,nbas,nsp,plat,ldim2,bas !set_mnla,
-    use m_qg,only: read_qg,ngp
+    use m_wan_lmf2gw,only: lmf2gw,iclass,nclass,zz,alat,nbas,nsp,plat,ldim2,bas !set_mnla,
+    use m_wan_qg,only: read_qg,ngp
     use m_expand_mesh
     use m_genallcf_v3,only: genallcf_v3, nprecb,mrecb,mrece,nqbzt,nband,mrecg
     !  use m_wanplotformat,only: wrt_cube,wrt_xsf

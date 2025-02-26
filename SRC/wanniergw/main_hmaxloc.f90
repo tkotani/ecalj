@@ -17,7 +17,11 @@ subroutine hmaxloc()
   !  May 2004 Takashi Miyake, from hwmat.f
   !------------------------------------------------------------
   !     use m_readqg,only: readngmx,readqg
-  use m_ftox
+  use m_ftox !utility for write (just see how to use ftox. Not need to look into it)
+  use m_maxloc0,only: rot_hmnk,getamn,ewindow,getrt,getupu,getrmn,getomg,wmaxloc_diag,readuu,wmaxloc,getbb,getsmn,init_mmn,gettmn,&
+       new_cnk,get_rn,get_hrotkp_ws,updt_mmn,chk_Hm,init_unkg,write_hrotr,chk_eval,diag_unk,updt_uk,get_hrotr_ws,diag_hm,get_omgik,&
+       getzmn,wigner_seitz,writeham,make_hrotrcut,writebb,write_hopping_output,get_hrotkp_tb_ws,writeomg,read_hrotr,dimz,kbbindx,&
+       init_umnk,chkuu
   use m_hamindex,only:   Readhamindex,symgg=>symops,ngrp
   use m_readeigen,only: init_readeigen,init_readeigen2,readeval
   use m_hamindex,only: qtt,nqtt

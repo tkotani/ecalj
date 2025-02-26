@@ -148,8 +148,8 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
      write(ifbz) epslgroup(1:nq0i)
   endif
   close(ifbz)
-  !! ---------
   if (lmagnon) return       !! exit because we get QforEPSL data only (21 Feb, 2020)
+  
   !! Four kinds of mesh points setting. Q0P means offset Gamma (slightly different from Gamma).
   !! Which we need?
   !! 1. regular

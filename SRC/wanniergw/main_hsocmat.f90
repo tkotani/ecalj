@@ -35,16 +35,13 @@ subroutine hsocmat()
   complex(8):: ovi(2,2),aa,bb,cc,dd
   logical:: socmatrix
   character(8) :: xt
-!!! MPI dummy
   include 'mpif.h'
   integer:: ierr
   call mpi_init(ierr)
-  !!
   incwfin= -1
   call GENALLCF_V3(incwfin)    ! readin basic data
   call readhamindex()
   call read_bzdata()
-
   !! Read dnk
   do isp=1,nsp
      if (isp == 1) fname='MLWU'

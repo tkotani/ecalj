@@ -94,6 +94,7 @@ subroutine hsfp0_sc()
     real(8):: tripl
     logical:: cmdopt2
     character(20):: outs=''
+    character(3) :: charnum3
     call MPI__Initialize()
     call gpu_init() 
     call M_lgunit_init()
@@ -110,8 +111,8 @@ subroutine hsfp0_sc()
        endif
     endif
     call MPI__Broadcast(ixc)
-    write(ixcname,"('.mode=',i4.4)")ixc
-    call MPI__consoleout('hsfp0_sc'//trim(ixcname)) !Open console output stdout.irank.hsfp0_sc.mode
+!    write(ixcname,"('.mode=',i4.4)")ixc
+    call MPI__consoleout('hsfp0_sc.mode='//charnum3(ixc)) !trim(ixcname)) !Open console output stdout.irank.hsfp0_sc.mode
     call pshpr(60)
     if(ixc==3) then; incwfin= -2 !core exchange mode
     else           ; incwfin= -1 !use 7th colmn for core at the end section of GWIN
