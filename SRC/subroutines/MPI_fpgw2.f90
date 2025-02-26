@@ -202,7 +202,7 @@ contains
     complex(8), allocatable   :: mpi__data(:) 
     integer, intent(in), optional :: communicator
     integer :: comm_in
-    if( mpi__size == 1 ) return
+!    if( mpi__size == 1 ) return
     allocate(mpi__data(sizex))
     mpi__data = data
     comm_in = comm

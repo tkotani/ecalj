@@ -1,19 +1,5 @@
-!! hx0fp0.m.F in order to develop by Okumura (2017/03/23)
-!!  Calculate x0, \epsilon, spin susceptibility.
-!!
-!! eps_lmf_cphipm mode is now commented out; you may need to recover this if necessary
-!! (only epsPP_magnon_chipm mode works).
-module m_hmagnon
-  ! include "mpif.h"
-  ! integer :: mpi__size
-  ! integer :: mpi__rank
-  ! logical :: mpi__root
-  ! integer :: comm
-  ! integer :: mpi__sizeMG 
-  ! integer :: mpi__rankMG
-!  integer:: mpi__info
-!  integer:: comm
-  use m_mpi,only: mpi__sizeMG,mpi__rankMG
+!>  Calculate x0, \epsilon, spin susceptibility. ! (only epsPP_magnon_chipm mode works).
+module m_hmagnon !  use m_mpi,only: mpi__sizeMG,mpi__rankMG,comm,mpi__root !,mpi__info
   contains
 subroutine hmagnon() bind(C)
   use m_readwan,only: write_qdata, wan_readeigen, wan_readeval, wan_readeval2, &
@@ -29,19 +15,15 @@ subroutine hmagnon() bind(C)
        ndima,nlnmx, nctot,niw_in=>niw, alat, delta,deltaw,esmr,clabl,iclass, &
        il,in,im,nlnm, plat, pos,ecore
   use m_keyvalue,only: getkeyvalue
-
-  use m_mpi,only: MPI__Initialize,MPI__root, &
-        MPI__Initialize_magnon, MPI__consoleout_magnon, &
-        MPI__Broadcast,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,MPI__rank=>mpi__rankMG,MPI__size=>mpi__sizeMG, &
-        MPI__consoleout,MPI__REAL8send,MPI__REAL8recv,MPI__AllreduceSum,comm
-  
   use m_freq,only: getfreq, frhis,freq_r,freq_i, nwhis,nw_i,nw,npm,wiw 
   use m_tetwt,only: tetdeallocate,gettetwt, whw,ihw,nhw,jhw,ibjb,nbnbx,nhwtot,n1b,n2b,nbnb
   use m_w0w0i,only: w0w0i, w0,w0i ! w0 and w0i (head part at Gamma point)
   use m_readgwinput,only: ReadGWinputKeys
-  use m_lgunit,only:m_lgunit_init
+  use m_lgunit,only:m_lgunit_init,stdo
   use m_dpsion,only: dpsion5
   use m_kind,only:kindrcxq
+  use m_mpi,only: MPI__Initialize_magnon, MPI__consoleout_magnon, MPI__AllreduceSum
+  use m_mpi,only: MPI__rank=>mpi__rankMG,MPI__size=>mpi__sizeMG, MPI__root ,comm
   implicit none
   !! We calculate chi0 by the follwoing three steps.
   !!  gettetwt: tetrahedron weights
@@ -102,7 +84,7 @@ subroutine hmagnon() bind(C)
   complex(8)::wan_i,wan_j,wan_k,wan_l,wanijkl
   integer::igv
   real(8)::qlat(3,3),qsh1(3),qsh2(3),znorm,rnqbz, eta 
-  integer:: it,itp,isdummy,lorb, size_lim
+  integer:: it,itp,isdummy,lorb, size_lim=999
 !!! q on symline
   real(8)::rlatp(3,3),xmx2(3),qqin(3)
   integer:: nlatout(3,48),nout,iout,nqsym
@@ -116,14 +98,11 @@ subroutine hmagnon() bind(C)
   integer::ifwanmat, npm2
   complex(8)::sumrpa_maximr(1),summf_maximr(1)
   real(8),parameter::   pi = 4d0*datan(1d0),  fourpi   = 4d0*pi,  sqfourpi = sqrt(fourpi)
-!  integer:: MPI__rank,MPI__size
   hartree  = 2d0*rydberg()
-  call M_lgunit_init()
-  call getkeyvalue("GWinput","mpi_size_lim",size_lim,default=999)
+  call m_lgunit_init()
+!  call getkeyvalue("GWinput","mpi_size_lim",size_lim,default=999)
   call MPI__Initialize_magnon()
   call MPI__consoleout_magnon('hmagnon',size_lim) ! size_lim for saving memory (avoid swapping)
-!  MPI__rank=mpi__rankMG
-!  MPI__size=mpi__sizeMG
   call cputid(0)
   imagomega =.false.
   omitqbz =.true. ! for QforEPS (20Feb, 2020)
@@ -154,7 +133,7 @@ subroutine hmagnon() bind(C)
   call getkeyvalue("GWinput","cma_iwf_end"  ,cma_iwf_e,default=999)
   write(6,*) "lsvd, lhm, nms, nms_delta",lsvd,lhm,nms,nms_delta,cma_mode
   write(6,*) "negative_cut",negative_cut
-  write(6,*) "reduce mpi_size for saving memory (default =999) ",size_lim
+!  write(6,*) "reduce mpi_size for saving memory (default =999) ",size_lim
   if(MPI__root) then
     do i=1,nqbz
       if(i<10 .OR. i>nqbz-10) write(6,"('i qbz=',i8,3f8.4)") i,qbz(:,i)
@@ -225,7 +204,7 @@ subroutine hmagnon() bind(C)
     enddo
     close(ifif)
   endif
-  if(MPI__root) write(6,"(' nw npm=',2i5)") nw,npm
+  if(MPI__root) write(6,"(' nw niw npm=',3i5)") nw,niw,npm
   noccxv = nwf
   noccx  = noccxv + nctot
   nprecx = ndble  !We use double precision arrays only.
@@ -249,35 +228,46 @@ subroutine hmagnon() bind(C)
   endif
   nqsym=iqxend-iqxini+1
   write(6,"('nqsym:',I4)") nqsym
-  !! mpi processing for QforEPSL
-  call MPI__hmagnon_rankdivider(nqsym,mpi__MEq,mpi__task)
-  write(6,*) "nqsym mpi_MEq(:)",nqsym,mpi__MEq
+  rankdivider: block 
+    use m_mpi,only: mpi__sizeMG,mpi__rankMG
+    integer :: iq,i,mpi__ranktab(1:nqsym)
+    if(mpi__rankMG==0) write(6,*) "MPI_hmagnon_rankdivider:"
+    allocate( mpi__task(1:nqsym) )
+    mpi__task(:) = .false.
+    mpi__ranktab(1:nqsym)=999999
+    mpi__MEq=1+nqsym/mpi__sizeMG
+    if( mpi__sizeMG == 1 ) then
+      mpi__task(:) = .true.
+      mpi__ranktab(:) = mpi__rankMG
+    else   
+      do iq=1,nqsym
+        mpi__ranktab(iq) = mod(iq-1,mpi__sizeMG)  !rank_table for given iq. iq=1 must give rank=0
+        if(mpi__ranktab(iq) == mpi__rankMG) mpi__task(iq) = .true.         !mpi__task is nodeID-dependent.
+        if(mpi__rankMG==0) write(6,"('  iq irank=',2i5)")iq,mpi__ranktab(iq)
+      enddo
+    endif
+    write(6,*) "mpi__sizeMG nqsym mpi_MEq(:): ",mpi__sizeMG,nqsym,mpi__MEq
+  endblock rankdivider
   allocate(rpa_maximr(mpi__MEq),mf_maximr(mpi__MEq)) !list of w(MAX(Im[R])): magnon peak
   rpa_maximr=0d0
   mf_maximr=0d0
-!!! for MPI (finally nqsym ---> nqibz)
   do iq=1,nqsym
     if (MPI__task(iq)) write(6,'("iq,MPI_rank",3I8)') iq,MPI__rank!,mpi__ranktab(iq)
   enddo
   call MPI_barrier(comm,ierr)
   BIGiqqloop: do 1001 iqq = iqxini,iqxend      ! NOTE: q=(0,0,0) is active iqq=iqxini (see autogamma)
+!   if(MPI__rank > size_lim) cycle !reduce mpi-size for test (skip 21-32)
     iq = iqq-iqxini+1 !! start with iq=1 for convenience
-    if(MPI__rank > size_lim) cycle !reduce mpi-size for test (skip 21-32)
     if( .NOT. MPI__task(iq) .AND. iq /= 1) cycle
     q = merge([0d0,0d0,0d0], qibze(:,iqq),(autogamma .AND. iq==1)) !! automatically set q=(0 0 0)
     imaximr=imaximr+1      !!! imaximr=1,2,...,mpi__MEq
-    !! Caution : confusing point: !  ngc by QGcou is shown at the bottom of lqg4gw.:
-    !! ngc read from PPOVL are given by rdata4gw---> ngc(iq>nqibz )=ngc for q=0
     if(iq==1.and.sum(q**2)>1d-10) call rx( ' hx0fp0: sanity check. |q(iqx)| /= 0')
-!!! write qshort instead of q
-    ! ibz: BZ weight     !         wibz=0d0 !! not valid this version 20Feb,2020
-    write(6,"('===== do 1001: iq wibz(iq) q=',i6,f13.6,3f9.4,' ========')") iq,q!,wibz(iqlist(iq)),qshort !qq
+    write(6,"('===== do 1001: iq wibz(iq) q=',i6,f13.6,3f9.4,' ========')") iq,q !,wibz(iqlist(iq)),qshort !qq
     if (lhm) cycle
-    !     ! zxq and zxqi are the main output after Hilbert transformation
-    !     ! zxqi is not used in hmagnon (imagomega=.false.)
+    !     ! zxq and zxqi are the main output after Hilbert transformation, ! zxqi is not used in hmagnon (imagomega=.false.)
     if ( .NOT. allocated(zxq) )  allocate( zxq (nnwf,nnwf,nw_i:nw), zxqi (1,1,1))
     if ( .NOT. allocated(zxq_d)) allocate( zxq_d(nnwf,nnwf) )
-    zxq=0d0!;   if(debug) write(6,*)' niw nw=',niw,nw
+    zxq=0d0
     is =1 ! ==== spin chi_charge or chi_+- ====
     isf=2
     if( .NOT. allocated(ev_w1)) allocate(ev_w1(nwf,nqbz))
@@ -285,11 +275,10 @@ subroutine hmagnon() bind(C)
     if( .NOT. allocated(evc_w1)) allocate(evc_w1(nwf,nwf,nqbz))
     if( .NOT. allocated(evc_w2)) allocate(evc_w2(nwf,nwf,nqbz))
     write(6,*) "mpm nctot",npm,nctot
-    do 5001 kx=1,nqbz      !!! ev_w1, ev_w2 unit: [Ry]
+    readeigen: do 5001 kx=1,nqbz      !!! ev_w1, ev_w2 unit: [Ry]
       call wan_readeval2(  qbz(:,kx), is,    ev_w1(1:nwf,kx), evc_w1(1:nwf,1:nwf,kx)) !eigenvalue eigenfunciton
       call wan_readeval2(q+qbz(:,kx), isf,   ev_w2(1:nwf,kx), evc_w2(1:nwf,1:nwf,kx))
       onlyCu2MnAl: if (cma_mode) then !! only Cu2MnAl (cma)         !! Energy of Mn3d(dn) is moved by cma_shitf
-        !$$$               if (iq==1) write(6,*) "cma_mode: True"
         !$$$               if (iq==1) write(6,"('cma_mode: iwf_s, iwf_e',2i4)") cma_iwf_s,cma_iwf_e
         !$$$               if (iq==1) write(6,"('cma_mode: cma_up_shift, cma_dn_shift',2E13.5,' [eV]')") cma_up_shift,cma_dn_shift
         do iwf = 1, nwf
@@ -299,8 +288,8 @@ subroutine hmagnon() bind(C)
           endif
         enddo
       endif onlyCu2MnAl
-5001 enddo
-    write(6,"('= start wan_gettetwt =',2i6,3f9.4)") nwf,iq,q
+5001 enddo readeigen
+    write(6,"(' = start wan_gettetwt =',2i6,3f9.4)") nwf,iq,q
     call gettetwt(q,iq,isdummy,isdummy,ev_w1,ev_w2,nwf,wan) !! tetrahedron weight. Outputs are
     !!     nbnbx
     !!     ihw(ibjb,kx): omega index, to specify the section of the histogram.
@@ -471,7 +460,7 @@ subroutine hmagnon() bind(C)
       if(.NOT. gskip .AND. MPI__task(iq)) then ! Check for KK relatioin ! Some Error: remove this section or modified ... (Okumura, Oct02,2019)
         if (iw==nw_i) then !only first line
           trmat2=0d0
-          write(6,"('--check iww sum(zxq)',i5,2E13.5)") iw,sum((zxq(:,:,:)))
+          write(6,"(' --check iww sum(zxq)',i5,2E13.5)") iw,sum((zxq(:,:,:)))
           do iww=nw_i,nw
             if (iww==0) cycle !skip w=0 (Cauthy principle integral)
             call diagcvuh3(zxq(:,:,iww),nnwf,eval_wk2)
@@ -531,8 +520,8 @@ subroutine hmagnon() bind(C)
       rpa_maximr(imaximr)= wibz(iq)/(w_maximr*hartree)
     endif
     if (MPI__task(iq)) then  !magnon peak
-      write(6,"('AAAA',I4,3f9.4)") iq,q
-      write(6,"('AAAA, w(MAX(im[R])), Im[R]',f13.5,E12.4)") w_maximr*2d0*rydberg()*1000,maximr/hartree
+      write(6,"(' AAAA',I4,3f9.4)") iq,q
+      write(6,"(' AAAA, w(MAX(im[R])), Im[R]',f13.5,E12.4)") w_maximr*2d0*rydberg()*1000,maximr/hartree
       write(ifchipmz_wan,*)
       write(ifchipmr_wan,*)         !         write(ifchipmrk_wan,*)
       close(ifchipmz_wan)
@@ -553,78 +542,4 @@ subroutine hmagnon() bind(C)
   write(6,"('eta for 1-eta*WK:',f13.8)") eta
   call rx0( ' OK! hmagnon mode')
 END subroutine hmagnon
-  subroutine MPI__hmagnon_rankdivider(nqbz, mpi__MEq,mpi__task)
-    implicit none
-    integer, allocatable :: mpi__ranktab(:)
-    logical, allocatable :: mpi__task(:)
-    integer :: mpi__MEq ! for magnon E(q) parallelization
-    integer, intent(in) :: nqbz
-    integer :: iq,i
-    allocate( mpi__task(1:nqbz),mpi__ranktab(1:nqbz) )
-    mpi__task(:) = .false.
-    mpi__ranktab(1:nqbz)=999999
-    write(6,*) "mpi__sizeMG:",mpi__sizeMG
-    mpi__MEq=1+nqbz/mpi__sizeMG
-    write(6,*) "mpi__sizeMG:",mpi__MEq
-    if( mpi__sizeMG == 1 ) then
-       mpi__task(:) = .true.
-       mpi__ranktab(:) = mpi__rankMG
-       return
-    endif
-    if(mpi__rankMG==0) write(6,*) "MPI_hmagnon_rankdivider:"
-    do iq=1,nqbz
-       mpi__ranktab(iq) = mod(iq-1,mpi__sizeMG)  !rank_table for given iq. iq=1 must give rank=0
-       if( mpi__ranktab(iq) == mpi__rankMG) then
-          mpi__task(iq) = .true.               !mpi__task is nodeID-dependent.
-       endif
-       if(mpi__rankMG==0) then
-          write(6,"('  iq irank=',2i5)")iq,mpi__ranktab(iq)
-       endif
-    enddo
-  end subroutine MPI__hmagnon_rankdivider
-  ! subroutine MPI__Initialize_magnon(commin)
-  !   implicit none
-  !   character(1024*4) :: cwd, stdout
-  !   integer,optional:: commin
-  !   comm=MPI_COMM_WORLD
-  !   if(present(commin)) comm= commin
-  !   !comm= merge(commin,MPI_COMM_WORLD,present(commin))
-  !   call getcwd(cwd)          ! get current working directory
-  !   call MPI_Init( mpi__info ) ! current working directory is changed if mpirun is not used
-  !   call MPI_Comm_rank( comm, mpi__rankMG, mpi__info )
-  !   call MPI_Comm_size( comm, mpi__sizeMG, mpi__info )
-  !   mpi__root=  mpi__rankMG == 0 
-  !   if( mpi__root ) call chdir(cwd)        ! recover current working directory
-  ! end subroutine MPI__Initialize_magnon
-  ! subroutine MPI__consoleout_magnon(idn,size_lim)
-  !   use m_lgunit,only:stdo,stdl
-  !   implicit none
-  !   character(1024*4) :: cwd, stdout
-  !   character*(*):: idn
-  !   integer , intent(in) :: size_lim
-  !   if(mpi__sizeMG > size_lim) mpi__sizeMG=size_lim !Reduce size for magnon (avoid memory leak)      
-  !   if( mpi__sizeMG == 1 ) return
-  !   if( mpi__root ) then
-  !     write(6,"(' MPI outputs in each rank are in stdout.{RankId}.',a)")idn
-  !     call flush(stdo)
-  !   end if
-  !   write(stdout,"('stdout.',i4.4,'.',a)") mpi__rankMG,idn
-  !   open(unit=6,file=trim(stdout))
-  !   write(6,"(a,i3)")" ### console output for rank=",mpi__rankMG
-  ! end subroutine MPI__consoleout_magnon
-  ! subroutine MPI__AllreduceSum( data, sizex, communicator)
-  !   implicit none
-  !   integer, intent(in) :: sizex
-  !   complex(8), intent(inout) :: data(sizex)
-  !   complex(8), allocatable   :: mpi__data(:) 
-  !   integer, intent(in), optional :: communicator
-  !   integer :: comm_in
-  !   if( mpi__size == 1 ) return
-  !   allocate(mpi__data(sizex))
-  !   mpi__data = data
-  !   comm_in = comm
-  !   if(present(communicator)) comm_in = communicator
-  !   call MPI_Allreduce( mpi__data, data, sizex, MPI_DOUBLE_COMPLEX, MPI_SUM, comm_in, mpi__info )
-  !   deallocate( mpi__data )
-  ! end subroutine MPI__AllreduceSum
 end module m_hmagnon
