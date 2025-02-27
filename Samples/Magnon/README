@@ -7,6 +7,7 @@ We need
  wanplot.glt
  mag3d.glt
  fbplot.glt
+ magnon_all.sh
 to run ./magnon_all.sh, which calls genMLWF_wv and so on.
 
 After finished, you will have magnon3d_100.eps and so on.

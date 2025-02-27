@@ -1,5 +1,5 @@
-!>  Calculate x0, \epsilon, spin susceptibility. ! (only epsPP_magnon_chipm mode works).
-module m_hmagnon !  use m_mpi,only: mpi__sizeMG,mpi__rankMG,comm,mpi__root !,mpi__info
+!>  Calculate Chi^+-, spin susceptibility. 
+module m_hmagnon 
   contains
 subroutine hmagnon() bind(C)
   use m_readwan,only: write_qdata, wan_readeigen, wan_readeval, wan_readeval2, &
@@ -64,7 +64,7 @@ subroutine hmagnon() bind(C)
   complex(8),allocatable::evc_w1(:,:,:),evc_w2(:,:,:)
   complex(8),allocatable::wanmat(:,:) ,wkmat(:,:),wkmat2(:,:),rmat(:,:,:),rmat2(:,:),wmat_check(:,:)
   complex(8),allocatable:: scrw(:,:) ,cmat2(:,:), scrw_original(:,:) !screening W
-  complex(8),allocatable:: eval_wk(:),eval_k(:),eval_wk2(:)
+  complex(8),allocatable:: eval_wk(:),eval_k(:),eval_wk2(:),trmat22(:)
   complex(8)::trmat,trmatt,trmat1,trmat2
   complex(8),allocatable::imat(:,:) !unit matrix for 1-WK
   complex(kindrcxq),allocatable::kmat(:,:,:,:)
@@ -141,15 +141,15 @@ subroutine hmagnon() bind(C)
     enddo
     write(6,*)' !!nqbz nqibz =',nqbz,nqibz
   endif
-  ! need for gettetwt; automatically read file(okumura) OK   !! tetrakbt mode (usetetrakbt)
-  call getkeyvalue("GWinput","tetrakbt",usetetrakbt,default=.false.) !tetrakbt is not yet tested
-  if (usetetrakbt) then
-    call readefermi_kbt()  !!! ef_kbt: Fermi energy at finite temperature
-    ef = ef_kbt
-  else
+! need for gettetwt; automatically read file(okumura) OK   !! tetrakbt mode (usetetrakbt)
+!  call getkeyvalue("GWinput","tetrakbt",usetetrakbt,default=.false.) !tetrakbt is not yet tested
+!  if (usetetrakbt) then
+!    call readefermi_kbt()  !!! ef_kbt: Fermi energy at finite temperature
+!    ef = ef_kbt
+!  else
     call readefermi()      !!! ef:     Fermi energy at 0 K
     ef = ef_read
-  endif
+!  endif
   tpioa=2d0*pi/alat
   write( 6,*) ' num of zero weight q0p=',neps
   write(6,"(i3,f14.6,2x, 3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i)
@@ -204,7 +204,7 @@ subroutine hmagnon() bind(C)
     enddo
     close(ifif)
   endif
-  if(MPI__root) write(6,"(' nw niw npm=',3i5)") nw,niw,npm
+  if(MPI__root) write(6,"(' nw_i nw niw npm=',4i5)") nw_i,nw,niw,npm
   noccxv = nwf
   noccx  = noccxv + nctot
   nprecx = ndble  !We use double precision arrays only.
@@ -256,77 +256,57 @@ subroutine hmagnon() bind(C)
   enddo
   call MPI_barrier(comm,ierr)
   allocate(imat(1:nnwf,1:nnwf),source=(0d0,0d0))
-  forall(iwf=1:nnwf) imat(iwf,iwf)=1d0+img*merge(nms_delta,0d0,nms)
+  forall(iwf=1:nnwf) imat(iwf,iwf)=1d0+img*merge(nms_delta,0d0,nms) !identical matrix
+  allocate(zxq (nnwf,nnwf,nw_i:nw),evc_w1(nwf,nwf,nqbz),evc_w2(nwf,nwf,nqbz)) !, zxq_d(nnwf,nnwf) )
+  allocate(eval_wk(nnwf),eval_wk2(nnwf),eval_k(nnwf),trmat22(nw_i:nw))
   BIGiqqloop: do 1001 iqq = iqxini,iqxend      ! NOTE: q=(0,0,0) is active iqq=iqxini (see autogamma)
 !   if(MPI__rank > size_lim) cycle !reduce mpi-size for test (skip 21-32)
     iq = iqq-iqxini+1 !! start with iq=1 for convenience
     if( .NOT. MPI__task(iq) .AND. iq /= 1) cycle
     q = merge([0d0,0d0,0d0], qibze(:,iqq),(autogamma .AND. iq==1)) !! automatically set q=(0 0 0)
-    imaximr=imaximr+1      !!! imaximr=1,2,...,mpi__MEq
+    imaximr = imaximr+1      !!! imaximr=1,2,...,mpi__MEq
     if(iq==1.and.sum(q**2)>1d-10) call rx( ' hx0fp0: sanity check. |q(iqx)| /= 0')
     write(6,"('===== do 1001: iq wibz(iq) q=',i6,f13.6,3f9.4,' ========')") iq,q !,wibz(iqlist(iq)),qshort !qq
-    if (lhm) cycle
-    !     ! zxq and zxqi are the main output after Hilbert transformation, ! zxqi is not used in hmagnon (imagomega=.false.)
-    if ( .NOT. allocated(zxq) )  allocate( zxq (nnwf,nnwf,nw_i:nw), zxqi (1,1,1))
-    if ( .NOT. allocated(zxq_d)) allocate( zxq_d(nnwf,nnwf) )
-    zxq=0d0
-    is =1 ! ==== spin chi_charge or chi_+- ====
-    isf=2
-    if( .NOT. allocated(ev_w1)) allocate(ev_w1(nwf,nqbz))
-    if( .NOT. allocated(ev_w2)) allocate(ev_w2(nwf,nqbz))
-    if( .NOT. allocated(evc_w1)) allocate(evc_w1(nwf,nwf,nqbz))
-    if( .NOT. allocated(evc_w2)) allocate(evc_w2(nwf,nwf,nqbz))
-    write(6,*) "mpm nctot",npm,nctot
-    readeigen: do 5001 kx=1,nqbz      !!! ev_w1, ev_w2 unit: [Ry]
-      call wan_readeval2(  qbz(:,kx), is,    ev_w1(1:nwf,kx), evc_w1(1:nwf,1:nwf,kx)) !eigenvalue eigenfunciton
-      call wan_readeval2(q+qbz(:,kx), isf,   ev_w2(1:nwf,kx), evc_w2(1:nwf,1:nwf,kx))
-      onlyCu2MnAl: if (cma_mode) then !! only Cu2MnAl (cma)         !! Energy of Mn3d(dn) is moved by cma_shitf
-        !$$$               if (iq==1) write(6,"('cma_mode: iwf_s, iwf_e',2i4)") cma_iwf_s,cma_iwf_e
-        !$$$               if (iq==1) write(6,"('cma_mode: cma_up_shift, cma_dn_shift',2E13.5,' [eV]')") cma_up_shift,cma_dn_shift
-        do iwf = 1, nwf
-          if ( cma_iwf_s <= iwf .AND. iwf <= cma_iwf_e ) then
-            ev_w1(iwf,kx) = ev_w1(iwf,kx) + cma_up_shift/rydberg()
-            ev_w2(iwf,kx) = ev_w2(iwf,kx) + cma_dn_shift/rydberg()
-          endif
-        enddo
-      endif onlyCu2MnAl
-5001 enddo readeigen
-    write(6,"(' = start wan_gettetwt =',2i6,3f9.4)") nwf,iq,q
-    call gettetwt(q,iq,isdummy,isdummy,ev_w1,ev_w2,nwf,wan) !! tetrahedron weight. Outputs are
-    !!     nbnbx
-    !!     ihw(ibjb,kx): omega index, to specify the section of the histogram.
-    !!     nhw(ibjb,kx): the number of histogram sections
-    !!     jhw(ibjb,kx): pointer to whw
-    !!     whw( jhw(ibjb,kx) ) \to whw( jhw(ibjb,kx) + nhw(ibjb),kx)-1 ), where ibjb=ibjb(ib,jb,kx)
-    !!     : histogram weights for given ib,jb,kx for histogram sections
-    !!     from ihw(ibjb,kx) to ihw(ibjb,kx)+nhw(ibjb,kx)-1.
-    deallocate(ev_w1,ev_w2)
-
-    block
-      complex(8):: kmat(1:nnwf,1:nnwf,1:nwhis,1:npm), wanmat(1:nnwf,1:nnwf)
+    if(lhm) cycle
+    GETtet: block
+      integer,parameter:: is=1,isf=2
+      real(8)::ev_w1(nwf,nqbz),ev_w2(nwf,nqbz)
+      write(6,*) "mpm nctot",npm,nctot
+      readeigen: do 5001 kx=1,nqbz      !!! ev_w1, ev_w2 unit: [Ry]
+        call wan_readeval2(  qbz(:,kx), is,    ev_w1(1:nwf,kx), evc_w1(1:nwf,1:nwf,kx)) !eigenvalue eigenfunciton
+        call wan_readeval2(q+qbz(:,kx), isf,   ev_w2(1:nwf,kx), evc_w2(1:nwf,1:nwf,kx))
+        onlyCu2MnAl: if (cma_mode) then !! only Cu2MnAl (cma)         !! Energy of Mn3d(dn) is moved by cma_shitf
+          !$$$     if (iq==1) write(6,"('cma_mode: iwf_s, iwf_e',2i4)") cma_iwf_s,cma_iwf_e
+          !$$$     if (iq==1) write(6,"('cma_mode: cma_up_shift, cma_dn_shift',2E13.5,' [eV]')") cma_up_shift,cma_dn_shift
+          do iwf = 1, nwf
+            if ( cma_iwf_s <= iwf .AND. iwf <= cma_iwf_e ) then
+              ev_w1(iwf,kx) = ev_w1(iwf,kx) + cma_up_shift/rydberg()
+              ev_w2(iwf,kx) = ev_w2(iwf,kx) + cma_dn_shift/rydberg()
+            endif
+          enddo
+        endif onlyCu2MnAl
+5001  enddo readeigen
+      write(6,"(' = start wan_gettetwt =',2i6,3f9.4)") nwf,iq,q
+      call gettetwt(q,iq,isdummy,isdummy,ev_w1,ev_w2,nwf,wan) !! tetrahedron weight. 
+      !!     ihw(ibjb,kx): omega index, to specify the section of the histogram., ibjb=1,nbnb
+      !!     nhw(ibjb,kx): the number of histogram sections
+      !!     jhw(ibjb,kx): pointer to whw
+      !!     whw( jhw(ibjb,kx) ) \to whw( jhw(ibjb,kx) + nhw(ibjb),kx)-1 ), where ibjb=ibjb(ib,jb,kx)
+      !!     : histogram weights for given ib,jb,kx for histogram sections
+      !!     from ihw(ibjb,kx) to ihw(ibjb,kx)+nhw(ibjb,kx)-1.
+    endblock GETtet
+    GETzxq: block ! zxq and zxqi are the main output after Hilbert transformation, ! zxqi is not used in hmagnon (imagomega=.false.)
+      complex(8):: kmat(1:nnwf,1:nnwf,1:nwhis,1:npm), wanmat(1:nnwf,1:nnwf), zxqi(1,1,1)
+      zxq=0d0
       rnqbz=1/dble(nqbz)
       znorm=-1d0*pi ! normalization of Im[K]:
       kmat=0d0
-      kxloop:       do 2011 kx=1,nqbz    !! discrete k-point loop
-        jpmloop:    do 2012 jpm=1,npm !! jpm=2: negative frequency
-          ibibloop: do 2013 ibib=1,nbnb(kx,jpm) !! n,n' band loop
-            !! n1b(ibib,k,jpm) = n :band index for k (occupied),
-            !! n2b(ibib,k,jpm) = n':band index for q+k (unoccupied)
-            ! if (debug) then
-            !    write(6,*) 'jpm,ibib',jpm,ibib
-            !    write(6,*) 'kx,nbnb',kx,nbnb(kx,jpm)
-            !    if (jpm==1) then
-            !       write(6,*) 'n1b(occ),n2b(unocc):',n1b(ibib,kx,jpm),n2b(ibib,kx,jpm)
-            !    else
-            !       write(6,*) 'n1b(unocc),n2b(occ):',n1b(ibib,kx,jpm),n2b(ibib,kx,jpm)
-            !    endif
-            ! endif
-            !==========================caliculate M(:,:) : wanmat(nwf,nwf)              ! c   matrix elements from wannier eigenvector
-            !$$$  !!! evc_w1: upspin ; evc_w2: downspin
-            it=n1b(ibib,kx,jpm)  !index for n  for q
-            itp=n2b(ibib,kx,jpm) !index for n' for q+k
+      kxloop:       do 2011 kx=1,nqbz 
+        jpmloop:    do 2012 jpm=1,npm ! jpm=2: negative frequency
+          ibibloop: do 2013 ibib=1,nbnb(kx,jpm) !! n,n' pair band index loop
+            it=n1b(ibib,kx,jpm)  !index for n  for q   ! n1b(ibib,k,jpm) = n :band index for k (occupied),   
+            itp=n2b(ibib,kx,jpm) !index for n' for q+k ! n2b(ibib,k,jpm) = n':band index for q+k (unoccupied)
             wanmat=0d0
-            ijwf=0
             do concurrent(iwf=1:nwf,jwf=1:nwf, kwf=1:nwf,lwf=1:nwf)
               ijwf=(iwf-1)*nwf+jwf
               klwf=(kwf-1)*nwf+lwf 
@@ -346,17 +326,12 @@ subroutine hmagnon() bind(C)
 2013      enddo ibibloop
 2012    enddo jpmloop
 2011  enddo kxloop
-      deallocate(evc_w1,evc_w2)
       call tetdeallocate()      ! --> deallocate(ihw,nhw,jhw, whw,ibjb,n1b,n2b)
-      !! === Recieve llw and llwI at node 0, where q=0(iq=1) is calculated. ===      !NOTE:  npm is set by npmtwo=T
       schi=1                    ! flip over maj/min spins (<0 flip??).
       if (negative_cut) kmat(:,:,:,2)=0d0
       call dpsion5( realomega, imagomega, kmat, nnwf,nnwf, zxq, zxqi,.false., schi,1,1d99,1d99)  !! kmat ---> zxq
-      deallocate(zxqi)
-    endblock
-!    deallocate(kmat,zxqi) !!! not used in hmagnon (2018/06/20)
-!!!Hermite for Kmat (zxq)
-    if (lhm) then
+    endblock GETzxq
+    if(lhm) then !Enforce zxq Hermitian 
       allocate(zxq2(nnwf,nnwf,nw_i:nw),source=zxq)
       zxq=0d0
       ijwf=0
@@ -367,11 +342,9 @@ subroutine hmagnon() bind(C)
           do 3008 kwf=1,nwf
             do 3009 lwf=1,nwf
               klwf=klwf+1
-              if ( ijwf < klwf ) then !!! Herimite
-                continue
-              elseif (ijwf == klwf) then
+              if (ijwf == klwf) then
                 zxq(ijwf,ijwf,:)= zxq2(ijwf,ijwf,:)
-              else             !!! ijwf > klwf
+              elseif(ijwf>klwf) then             !!! ijwf > klwf
                 zxq(ijwf,klwf,:)=( zxq2(ijwf,klwf,:) + dconjg(zxq2(klwf,ijwf,:)) )/2.0
                 zxq(klwf,ijwf,:)=dconjg( zxq(ijwf,klwf,:) )
               endif
@@ -385,9 +358,6 @@ subroutine hmagnon() bind(C)
     where(abs(dimag(zxq))<1d-15) zxq=dreal(zxq) ! threshold for Im[K] (zxq)
     allocate(wkmat(1:nnwf,1:nnwf),wkmat2(1:nnwf,1:nnwf),rmat(1:nnwf,1:nnwf,nw_i:nw),source=(0d0,0d0)) !WKmatrix, WKmatrix_inv
     GetEta: if (iq==1) then ! (1-eta*WK)
-      if ( .NOT. allocated(eval_wk)) allocate(eval_wk(nnwf))
-      if ( .NOT. allocated(eval_wk2)) allocate(eval_wk2(nnwf))
-      if ( .NOT. allocated(eval_k)) allocate(eval_k(nnwf))
       wkmat(1:nnwf,1:nnwf) =matmul(scrw(1:nnwf,1:nnwf),zxq(1:nnwf,1:nnwf,0)) !omega=0
       call diagcvuh3(wkmat(:,:),nnwf,eval_wk) !!   eval_wk is complex array because of Non-Hermite WK
       eta=-1d0/maxval(abs(eval_wk))
@@ -396,7 +366,7 @@ subroutine hmagnon() bind(C)
       write(6,*) "check eigenvalue Im(WK)",aimag(eval_wk(1))
       write(6,*) "wkmat calculated eta:", eta !negative value
     endif GetEta                     !iq==1
-    if (MPI__task(iq)) then
+    InitalWritewan_ChiPM: if (MPI__task(iq)) then
       open(newunit=ifchipmz_wan,file="wan_ChiPMz.mat"//charnum4(iq))
       open(newunit=ifchipmr_wan,file="wan_ChiPMr.mat"//charnum4(iq))
       print *,'ifchipm=',ifchipmz_wan,ifchipmr_wan
@@ -412,29 +382,24 @@ subroutine hmagnon() bind(C)
           write(ifchipmr_wan,*) "# syml: ",epslgroup(iq)," "
         endif
       endif
-    endif
-    print *,"nw_i,nw",nw_i,nw
+    endif InitalWritewan_ChiPM
     maximr=0d0; w_maximr=0d0 !!! search for Im[R] peak
     iwloop: do 2050 iw = nw_i,nw
-      trmat=0d0
       call diagcvuh3(zxq(:,:,iw),nnwf,eval_wk)
 !!! Hermite matrix diagonization        ! all diagcvh2(zxq(:,:,iw),nnwf,eval_wk)
-      do iwf=1,nnwf !   if(abs(aimag(eval_wk(iwf))) < 1d-16) eval_wk(iwf)=cmplx(dble(eval_wk(iwf)),0d0,kind(0d0))
-        where(abs(dimag(eval_wk)) < 1d-16) eval_wk=dreal(eval_wk)
-      enddo         !       call diagwan_tr(zxq(:,:,iw),trmat)
-      www=merge(-freq_r(-iw),freq_r(iw),iw<0)
+      where(abs(dimag(eval_wk)) < 1d-16) eval_wk=dreal(eval_wk)
+      www = merge(-freq_r(-iw),freq_r(iw),iw<0)
       if(MPI__task(iq)) then ! Check for KK relatioin ! Some Error: remove this section or modified ... (Okumura, Oct02,2019)
-        if (iw==nw_i) then !only first line
-          trmat2=0d0;  write(6,"(' --check iww sum(zxq)',i5,2E13.5)") iw,sum((zxq(:,:,:)))
-          do iww=nw_i,nw
+        if(iw==nw_i) then !only first line
+          write(6,"(' --check iww sum(zxq)',i5,2E13.5)") iw,sum((zxq(:,:,:)))
+          trmat22=0d0
+          do iww =nw_i,nw
             if (iww==0) cycle !skip w=0 (Cauthy principle integral)
             call diagcvuh3(zxq(:,:,iww),nnwf,eval_wk2)
-            do iwf=1,nnwf
-              where(abs(dimag(eval_wk2)) < 1d-16) eval_wk2=dreal(eval_wk)
-            enddo
-            www2 = merge(-freq_r(iww),freq_r(iww),iww<0)
-            trmat2 = trmat2 + sum(eval_wk2)/(znorm)*www2*abs(freq_r(abs(iww))-freq_r(abs(iww)-1))
+            where(abs(dimag(eval_wk2)) < 1d-16) eval_wk2=dreal(eval_wk)
+            trmat22(iww) =sum(eval_wk2)/(znorm)* merge(-freq_r(iww),freq_r(iww),iww<0) *abs(freq_r(abs(iww))-freq_r(abs(iww)-1))
           enddo
+          trmat2=sum(trmat22)
           call diagcvuh3(zxq(:,:,0),nnwf,eval_wk2) !for Re[K(w=0)]
           write(ifchipmz_wan,"('# int ImK/omega dw, Re[K(0)]=',2E13.5)") dimag(trmat2),sum(dreal(eval_wk2))
         endif
@@ -470,24 +435,22 @@ subroutine hmagnon() bind(C)
       call diagcvuh3(rmat(:,:,iw),nnwf,eval_wk)
       if(MPI__task(iq)) then
         write(ifchipmr_wan,"(3f9.4,i6,E12.4,x,12E12.4)")q,iw,www*2d0,hartree*trmat
-        if (0d0 < www) then !search for MAX(Im[R]) 20180706 (0 - 1500 meV) if (0d0 <www*hartree .and. www*hartree < 1.5) then
-          if (maximr < -1d0*aimag(trmat)) then
-            maximr=-1d0*aimag(trmat)
-            w_maximr=www
-          endif
+        if (0d0 < www.and. maximr < -1d0*aimag(trmat)) then !search for MAX(Im[R]) 20180706 (0 - 1500 meV) if (0d0 <www*hartree .and. www*hartree < 1.5)
+          maximr=-1d0*aimag(trmat)
+          w_maximr=www
         endif
       endif
 2050 enddo iwloop
-    deallocate(zxq, rmat, wkmat, wkmat2)
-    if( iq/=1) then         ! c(MF)        ! BZweight*omega[eV] for sum(E(q))/N
+    deallocate(rmat, wkmat, wkmat2)
+    if(iq/=1) then         ! c(MF)        ! BZweight*omega[eV] for sum(E(q))/N
       mf_maximr(imaximr) = wibz(iq)*w_maximr*hartree         ! c(RPA)         ! BZweight*omega[eV] for sum(1/E(q))/N
       rpa_maximr(imaximr)= wibz(iq)/(w_maximr*hartree)
     endif
-    if (MPI__task(iq)) then  !magnon peak
+    if(MPI__task(iq)) then  !magnon peak
       write(6,"(' AAAA',I4,3f9.4)") iq,q
       write(6,"(' AAAA, w(MAX(im[R])), Im[R]',f13.5,E12.4)") w_maximr*2d0*rydberg()*1000,maximr/hartree
       write(ifchipmz_wan,*)
-      write(ifchipmr_wan,*)         !         write(ifchipmrk_wan,*)
+      write(ifchipmr_wan,*)    
       close(ifchipmz_wan)
       close(ifchipmr_wan)
     endif
