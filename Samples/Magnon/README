@@ -13,7 +13,12 @@ to run ./magnon_all.sh, which calls genMLWF_wv and so on.
 After finished, you will have magnon3d_100.eps and so on.
 Compare them with eps/*.eps
 
+----
+NOTE*2025-02-27
 As for Ni, we need wan_in_emin -10 eV (instead of -5 eV) to avoid error
-in init_iew
+(error occured in init_iew
 at echo 2 | /home/takao/bin/hmaxloc  > lmaxloc2 .
 (Souza Eq.27 is implmented in init_iew. It failed in Ni. Why?)
+)
+magnon3d.eps was a little different from previous results.
+But maybe difference of some settings.
