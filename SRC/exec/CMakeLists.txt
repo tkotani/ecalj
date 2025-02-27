@@ -34,10 +34,7 @@ message("BUILD_MP_GPU is " ${BUILD_MP_GPU})
 # SET(CMAKE_VERBOSE_MAKEFILE ON)
 enable_language(Fortran)
 
-file(GLOB SOURCES "../subroutines/*.f90" "../wanniergw/*.f90") # existing source files 
-#list(APPEND SOURCES "../subroutines/show_programinfo.f90") # show_programinfo.f90 will be generated latar. it will be deleted by clean
-file(GLOB SOURCES1 "../subroutines/*.f90")# "../subroutines/show_programinfo.f90") # source files
-file(GLOB SOURCES2 "../wanniergw/*.f90") # source files
+file(GLOB SOURCES "../subroutines/*.f90") # existing source files 
 file(GLOB MAINS "../main/*.f90")
 file(GLOB MAINS_GPU "../main/hsfp0_sc.f90" "../main/hrcxq.f90" "../main/hx0fp0.f90" "../main/hvccfp0.f90")  #main files for GPU versions
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}) # directory for *.so
@@ -143,9 +140,6 @@ add_custom_target(copyexe ALL
 add_executable(dummy ./dummy.f90) # exe
 target_link_libraries(dummy ${BLAS} ${LIBM} ${MPI}) # linked
 # add_custom_target(fcheck ALL COMMAND ldd dummy|grep mkl >mklloc.txt  WORKING_DIRECTORY ${CMAKE_BINARY_DIR} DEPENDS dummy)
-# Generate library and binaries ###############################
-#add_library(${LIB1} SHARED ${SOURCES1}) # Library
-#add_library(${LIB2} SHARED ${SOURCES2})
 
 # library compilation
 set(LIB ecaljF) # ecaljF, ecaljF_gpu ecaljF_mp, or ecaljF_mp_gpu

@@ -48,3 +48,12 @@ Start LMF fe --quit=band
 i mmom= 2.2443 ehf(eV)=-34574.139046 ehk(eV)=-34574.139111 sev(eV)=-327.530224
 Start LMF fe --band
 Start LMF fe --writeham --mkprocar --noinv
+Start LMF fe --writeham --mkprocar --noinv
+Start LMFA fe
+Start LMF fe
+i mmom= 2.2443 ehf(eV)=-34574.139046 ehk(eV)=-34574.139111 sev(eV)=-327.530224
+c mmom= 2.2443 ehf(eV)=-34574.139046 ehk(eV)=-34574.139111 sev(eV)=-327.530430
+Start LMF fe --quit=band
+i mmom= 2.2443 ehf(eV)=-34574.139046 ehk(eV)=-34574.139111 sev(eV)=-327.530340
+Start LMF fe --band
+Start LMF fe --writeham --mkprocar --noinv

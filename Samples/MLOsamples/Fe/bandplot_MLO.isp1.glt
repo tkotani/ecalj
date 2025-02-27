@@ -5,7 +5,7 @@ set grid
 set ylabel "Energy-Efermi(eV)"
 # This is given written in subroutine writeband in lm7K/fp/bndfp.F
 set title "Band fe isp=1 at /home/takao/ecalj/Samples/MLOsamples/Fe"
-set yrange [   -20.00000:    20.00000]
+set yrange [   -20.00000:    40.00000]
 set xrange [0.0:     4.64626]
 set xtics ('GAMMA'   0.0000000000,\
 'H'   1.0000000000,\
@@ -15,7 +15,7 @@ set xtics ('GAMMA'   0.0000000000,\
 'H|P'   4.1462643699,\
 'N'   4.6462643699)
 tpia=2*3.1415926/     5.41690
-ef=  0.019454
+ef=  0.019453
 plot \
 "band_MPO_spin1.dat" u ($1):(13.605*($2-ef)) pt 2 lc rgb "green",\
 "band_MLO_spin1.dat" u ($1):(13.605*($2-ef)) pt 2 lc rgb "red",\

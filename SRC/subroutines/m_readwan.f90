@@ -288,26 +288,15 @@ contains
     real(8)::rws1(3),freq,freq2 !dummy
     integer::is,iwf1,iwf2,iwf3,iwf4 !dummy
     integer::iwf,jwf,kwf,lwf,ijwf,klwf
-    !      real(8),allocatable::rw_w(:,:,:,:), cw_w(:,:,:,:)
     complex(8),allocatable::scrw4(:,:,:,:),scrv4(:,:,:,:)
     complex(8),allocatable::scrw_(:,:)
     integer::idummy
     logical(8)::ijklmag
-!!! set idorb: iwf ---> lorb
     call checkorb(1,nwf,idummy)
-    !     allocate(rw_w(nwf,nwf,nwf,nwf),cw_w(nwf,nwf,nwf,nwf))
     allocate(scrw4(nwf,nwf,nwf,nwf), scrv4(nwf,nwf,nwf,nwf))
     allocate(scrw_(nwf*nwf,nwf*nwf));scrw_=0d0
     open(newunit=ifscrwv,file="Screening_W-v.UP",form="formatted") !only up
     open(newunit=ifscrv,file="Coulomb_v.UP",form="formatted") !only up
-    !$$$      !!! write direct index (ijkl)
-    !$$$      open(ifd,file="ijkl_direct.d",form="formatted")
-    !$$$      !!! write exchange index (ijkl)
-    !$$$      open(ife,file="ijkl_exchange.d",form="formatted")
-    !$$$      !!! write all index (i,j,k,l --> ijwf,klwf)
-    !$$$      open(ifa,file="ijkl_all.d",form="formatted")
-    !$$$      write(ifa,*) "# iwf jwf kwf lwf ijwf klwf"
-    !     read Screening W, V
     write (6,*) "readscr: wan_ijkl index is wrriten ijkl_*.d"
     ijwf=0
     do 4001 iwf=1,nwf
@@ -317,21 +306,12 @@ contains
           do 4003 kwf=1,nwf
              do 4004 lwf=1,nwf
                 klwf=klwf+1
-!!! Vare Coulomb (v)
-                read(ifscrv,"(A,2i5, 3f12.6, 5i5,2f12.6)") &
-                     charadummy,ir1, irws1, rws1 ,is,iwf1,iwf2,iwf3,iwf4 &
-                     ,scrv4(iwf1,iwf2,iwf3,iwf4)
-!!! Screened Coulomb (W-v)
-                read(ifscrwv,"(A,2i5, 3f12.6, 5i5,4f12.6)") &
-                     charadummy,ir1, irws1, rws1  &
-                     ,is,iwf1,iwf2,iwf3,iwf4,freq, freq2 &
-                     ,scrw4(iwf1,iwf2,iwf3,iwf4)
-                !$$$         print *,"readscr     :",iwf1,iwf2,iwf3,iwf4
-                !$$$         print *,"readscr  W-v:",scrw4(iwf1,iwf2,iwf3,iwf4)
-                !$$$         print *,"readscr    v:",scrv4(iwf1,iwf2,iwf3,iwf4)
-                !$$$         print *,"readscr    W:",scrw4(iwf1,iwf2,iwf3,iwf4)
-                !$$$     &                          + scrv4(iwf1,iwf2,iwf3,iwf4)
-
+!                read(ifscrv,"(A,2i5, 3f12.6, 5i5,2f12.6)") charadummy,ir1, irws1, rws1 ,is,iwf1,iwf2,iwf3,iwf4 &
+!                read(ifscrwv,"(A,2i5, 3f12.6, 5i5,4f12.6)") charadummy,ir1, irws1, rws1,is,iwf1,iwf2,iwf3,iwf4,freq, freq2 &
+! Bare Coulomb (v)
+                read(ifscrv,*) charadummy,ir1, irws1, rws1 ,is,iwf1,iwf2,iwf3,iwf4,scrv4(iwf1,iwf2,iwf3,iwf4)
+! Screened Coulomb (W-v)
+                read(ifscrwv,*) charadummy,ir1, irws1, rws1,is,iwf1,iwf2,iwf3,iwf4,freq, freq2 ,scrw4(iwf1,iwf2,iwf3,iwf4)
                 !         if (sw1) call rx("'checkorb should be done in advance")
                 call checkorb2(iwf,jwf,kwf,lwf,ijklmag)
 !!! ijklmag = F ---> W = 0 ; ijklmag = T ---> W = Wd
@@ -339,35 +319,17 @@ contains
                 if (ijklmag) then      !!! check iwf is derived from same atom
                    if (idorb(iwf)==2 .AND. idorb(jwf)==2  & !!only d-orbital
                       .and. idorb(kwf)==2 .and. idorb(lwf)==2) then
-                      !$$$            if (.true.) then
-                      !$$$            if (idorb(iwf)==idorb(jwf) .and. idorb(kwf)==idorb(lwf)) then !!!include sp orbitals
-                      scrw_(ijwf,klwf)=scrw4(iwf1,iwf2,iwf3,iwf4) &
-                           + scrv4(iwf1,iwf2,iwf3,iwf4)
-
+                      scrw_(ijwf,klwf)=scrw4(iwf1,iwf2,iwf3,iwf4) + scrv4(iwf1,iwf2,iwf3,iwf4)
                    else
                       scrw_(ijwf,klwf)=0d0
                    endif
                 else
                    scrw_(ijwf,klwf)=0d0
                 endif
-                !         write(6,"('ijklmag:',4I3,2f9.4)") iwf,jwf,kwf,lwf,abs(scrw_(ijwf,klwf))
-
-
-                !$$$         !!! write index i,j,k,l ---> ijwf,klwf
-                !$$$         if (iwf==jwf .and. kwf==lwf) then
-                !$$$            write(ifd,"('ijwf,klwf=',2i6)") ijwf,klwf
-                !$$$         elseif (iwf==kwf .and. jwf==lwf) then
-                !$$$            write(ife,"('ijwf,klwf=',2i6)") ijwf,klwf
-                !$$$         endif
-                !$$$         write(ifa,"(6i5)") iwf,jwf,kwf,lwf,ijwf,klwf
-
 4004         enddo
 4003      enddo
 4002   enddo
 4001 enddo
-    !      close(ifd)
-    !      close(ife)
-    !      close(ifa)
     close(ifscrv)
     close(ifscrwv)
     call writescrw(scrw_) !! display matrix element of Wijkl

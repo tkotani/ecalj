@@ -157,7 +157,6 @@ subroutine hx0fp0()
   !     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
   complex(8),allocatable::sk(:),sks(:),skI(:),sksI(:), &
        w_k(:),w_ks(:),w_kI(:), w_ksI(:), s_vc(:),vw_k(:),vw_ks(:)
-!  complex(8),allocatable:: llw(:,:), llwI(:,:),aaamat(:,:)
   integer:: lxklm,nlxklm,ifrcwx,iq0xx,ircw,nini,nend,iwxx,nw_ixxx,nwxxx,iwx,icc1,icc2!,niw,niwxxx,
   complex(8):: vc1vc2   !      integer,allocatable:: neibz(:),nwgt(:,:),ngrpt(:),igx(:,:,:),igxt(:,:,:),eibzsym(:,:,:)
   integer,allocatable:: nwgt(:,:)
@@ -550,6 +549,7 @@ contains
   end subroutine writerealeps
 endsubroutine hx0fp0
 end module m_hx0fp0
+
   !$$$!! --- legas mode is not working now. Need fixing... voltot ntot are not given.
   !$$$      if(epsmode.and.legas) then
   !$$$        call rx( ' LEGAS mode is not maintained well. Need some fixing.')
@@ -659,17 +659,6 @@ end module m_hx0fp0
   !$$$c$$$          write (ifcor,*)ecelgas
   !$$$c$$$        endif
   !$$$      endif
-!   call cputid(0)
-!   !      call MPI__Finalize
-!   if(ixc==11)   call rx0( ' OK! hx0fp0 mode=11     read <Q0P> normal sergeyv')
-!   if(ixc==111)  call rx0( ' OK! hx0fp0 mode=111    normal sergeyv')
-!   if(ixc==10011)call rx0( ' OK! hx0fp0 mode=10011  crpa normal sergeyv')
-!   if(ixc==12)   call rx0( ' OK! hx0fp0 mode=12  Ecor sergeyv mode')
-!   if(ixc==101)  call rx0( ' OK! hx0fp0 mode=101 Ecor ')
-!   if(ixc==202)  call rx0( ' OK! hx0fp0 mode=202 sergeyv epsPP NoLFC')
-!   if(ixc==203)  call rx0( ' OK! hx0fp0 mode=203 sergeyv eps LFC ')
-!   if(ixc==222)  call rx0( ' OK! hx0fp0 mode=222 chi+- NoLFC sergeyv')
-! END PROGRAM hx0fp0
 
 ! !--------------------------------------------------------------------
 ! real*8 function eclda_bh(rs)
@@ -722,93 +711,3 @@ end module m_hx0fp0
 !   enddo
 !   return
 ! end subroutine wecqw
-! !---------------------------------------------------------------------
-! subroutine getsqovlp(q,ngc,ngb,sqovlp)
-!   !! == Get sqrt of ppovl ==
-!   implicit none
-!   real(8)::q(3)
-!   integer:: ngc,ngb,nbloch,i,nmxx,ix,iy,nev
-!   complex(8):: sqovlp(ngb,ngb)
-!   complex(8),allocatable:: ooo(:,:),ppo(:,:),sqovlpi(:,:),ppovl(:,:)
-!   complex(8),allocatable:: ovlp(:,:),evec(:,:)
-!   real(8),allocatable:: eval(:)
-!   nbloch = ngb-ngc
-!   if(ngc==0) goto 888
-
-!   allocate(ppovl(1:ngc,1:ngc))
-!   call readppovl0(q,ngc,ppovl)
-!   allocate(ooo(ngc,ngc),ppo(ngc,ngc),evec(ngc,ngc),eval(ngc))
-!   ooo= 0d0
-!   do ix=1,ngc
-!      ooo(ix,ix)=1d0
-!   enddo
-!   ppo = ppovl
-!   deallocate(ppovl)
-!   nmxx = ngc
-!   evec = 0d0
-!   eval = 0d0
-!   call diagcv(ooo, ppo, &
-!        evec, ngc, eval, nmxx, 1d99, nev)
-!   write(6,*)' diagcv overlap ngc nev=',ngc,nev
-!   deallocate(ooo,ppo)
-
-! 888 continue
-!   sqovlp=0d0
-!   do i=1,nbloch
-!      sqovlp(i,i)=1d0
-!   enddo
-!   do i=1,ngc
-!      if(eval(i)<0d0) then
-!         call rx( 'getsqovlp:  eval(i) <0d0')
-!      endif
-!      do ix=1,ngc;  do iy=1,ngc
-!         sqovlp(ix+nbloch,iy+nbloch)= &
-!              sqovlp(ix+nbloch,iy+nbloch) &
-!              + evec(ix,i)* sqrt(eval(i))* dconjg(evec(iy,i))
-!      enddo;      enddo
-!   enddo
-!   if(allocated(evec)) deallocate(evec)
-!   if(allocated(eval)) deallocate(eval)
-!   write(6,*)' end of getsqovlp'
-!   !         sqovlpi = sqovlp
-!   !         call matcinv(ngb,sqovlp)     !  inverse
-!   !         ovlpi=ovlp
-!   !         deallocate(ppovl,ovlp)
-! end subroutine getsqovlp
-
-!--------------------------------------------------------------------
-!      subroutine test_xxx(tagname,zw,iw,freqq,nblochpmx,nbloch,ngb,iq)
-!      implicit none
-!      integer:: nblochpmx,nbloch,ngb,iw,i,iq
-!      complex(8):: zw(nblochpmx,nblochpmx),trwv,trwv2
-!      real(8):: freqq
-!      logical :: smbasis
-!      character*(*)::tagname
-!      trwv2 = 0d0
-!      forall( i = 1:ngb)
-!        trwv2 = trwv2 + zw(i,i)
-!      end forall
-!      end
-!--------------------------------------------------------------------
-
-! !--------------------------------------------------------------------
-! subroutine diagno00(nbloch,wpvc,eval)
-!   !! == ontain eigenvalue only for input complex matrix wpvc(nbloch,nbloch)
-!   implicit none
-!   integer:: nbloch,nmx,nev,i
-!   complex(8),allocatable:: ovlpc(:,:),evecc(:,:),wpvcc(:,:)
-!   real(8)::emx,eval(nbloch)
-!   complex(8):: wpvc(nbloch,nbloch)
-!   allocate( ovlpc(nbloch,nbloch),evecc(nbloch,nbloch),wpvcc(nbloch,nbloch))
-!   wpvcc= wpvc
-!   ovlpc= 0d0
-!   do i=1,nbloch
-!      ovlpc(i,i)=1d0
-!   enddo
-!   eval=0d0
-!   nev  = nbloch
-!   nmx  = nbloch
-!   call diagcv(ovlpc,wpvcc, evecc, nbloch, eval, nmx, 1d99, nev)
-!   deallocate(ovlpc,evecc,wpvcc)
-! end subroutine diagno00
-

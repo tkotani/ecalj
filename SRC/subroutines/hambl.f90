@@ -35,8 +35,10 @@ contains
     s = 0d0 !Overlap matrix for the basis of MTO+APW
     call augmbl(isp,qin,osig,otau,oppi,ndimh, h,s)! Augmentation parts of h,s
     !                                             ! product sum f structure constant C_akL^i in Eq.(C.1)-(C.2) in Ref.[1].
+    !only upper half
     call smhsbl(vconst,qin,ndimh,napw,igvapwin,          h,s)!Smooth and Constant potential parts.
     call hsibl(n1,n2,n3,smpot,isp,qin,ndimh,napw,igvapwin, h)!Smooth potential part, 1st term of (C.3) in Ref.[1]
+    !lower half supplied
     do i=1,ndimh
        h(i+1:ndimh,i)=dconjg(h(i,i+1:ndimh)) !RU part = LD part*
        s(i+1:ndimh,i)=dconjg(s(i,i+1:ndimh))
@@ -52,15 +54,12 @@ contains
     use m_smhankel,only:hhibl
     implicit none
     intent(in)::    vavg,q,ndimh, napw,igapw 
-    !i Inputs
     !i   vavg  :constant potential (MT zero) to be added to h
     !i   q     : q wave vector
     !i   ndimh : dimension of hamiltonian
-    !o Outputs
     !o   h     :smooth Bloch hamiltonian added to h (= s * vavg)
     !o   s     :smooth Bloch overlap added to s
-    !b Bugs
-    !b   Use of qpgv(1,1:napw) is poor design ... rewrite
+    !b Bugs     !b   Use of qpgv(1,1:napw) is poor design ... rewrite
     !r Remarks
     !r  *How orbital information is extracted and deployed.
     !r   Orbital specification requires the following information:
@@ -134,9 +133,9 @@ contains
     real(8) :: qpg2,srvol,tpiba,denom,gam,ddot
     real(8),allocatable:: yl(:),ylv(:,:),qpgv(:,:),qpg2v(:)
     complex(8),allocatable:: srm1l(:)
-    complex(8):: ovl,srm1,phase,fach
+    complex(8):: ovl,phase,fach
     real(8),parameter::pi = 4d0*datan(1d0),fpi = 4*pi
-    parameter (srm1=(0d0,1d0))
+    complex(8),parameter:: img=(0d0,1d0)
     call tcn('smhsbl')
     procid = 0
     master = 0
@@ -159,7 +158,7 @@ contains
        allocate(srm1l(0:lmxax))
        srm1l(0) = 1d0
        do  l1 = 1, lmxax
-          srm1l(l1) = (srm1)**l1
+          srm1l(l1) = img**l1
        enddo
     endif
     if(nlmto >0 ) then
@@ -211,7 +210,7 @@ contains
           igloop: do  ig = 1, napw
              i2 = ig + nlmto
              qpg2 = qpg2v(ig)
-             phase = exp(srm1*alat*ddot(3,qpgv(1,ig),1,p1,1))
+             phase = exp(img*alat*ddot(3,qpgv(1,ig),1,p1,1))
              do  io1 = 1, norb1
                 if (blks1(io1) == 0) cycle
                 l1  = ltab1(io1)
@@ -238,12 +237,10 @@ contains
        h(i2,i2) = h(i2,i2) + qpg2v(ig) + vavg
     enddo
     if (napw > 0)deallocate(yl,ylv,qpgv,qpg2v,srm1l)
-    do  i1 = 1, ndimh !! ... Occupy second half of matrix
-       do  i2 = i1, ndimh
-          h(i2,i1) = dconjg(h(i1,i2))
-          s(i2,i1) = dconjg(s(i1,i2))
-       enddo
-    enddo
+!    do concurrent( i1 = 1: ndimh) !fill lower half
+!      h(i1:ndimh,i1) = dconjg(h(i1,i1:ndimh))
+!      s(i1:ndimh,i1) = dconjg(s(i1,i1:ndimh))
+!    enddo
     call tcx('smhsbl')
   end subroutine smhsbl
 endmodule m_hambl
