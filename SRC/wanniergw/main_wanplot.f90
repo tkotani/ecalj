@@ -1320,7 +1320,6 @@ contains
          ,nstar,irk,nstbz,ngrp2=>ngrp !,qibz_r,nqibz_r
     use m_wan_lmf2gw,only: lmf2gw,iclass,nclass,zz,alat,nbas,nsp,plat,ldim2,bas !set_mnla,
     use m_wan_qg,only: read_qg,ngp
-    use m_expand_mesh
     use m_genallcf_v3,only: genallcf_v3, nprecb,mrecb,mrece,nqbzt,nband,mrecg
     !  use m_wanplotformat,only: wrt_cube,wrt_xsf
     !  use m_readhbe,only:Readhbe,nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
