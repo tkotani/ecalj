@@ -78,7 +78,7 @@
 module m_sxcf_gemm
   use m_readeigen, only: Readeval
   use m_zmel, only: get_zmel_init_gemm, Setppovlz, zmel, nbb !get_zmel_init => 
-  use m_itq, only: itq, ntq, nbandmx
+  use m_itq, only: ntq, nbandmx
   use m_genallcf_v3, only: ndima, nspin, nctot, niw, ecore,nband
   use m_read_bzdata, only: qibz, qbz, wk=>wbz, nqibz, nqbz, wklm, lxklm, wqt=>wt
   use m_readVcoud, only: Readvcoud, vcoud, ngb, ngc

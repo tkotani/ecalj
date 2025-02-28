@@ -74,27 +74,21 @@ contains
     character(256):: aaa='',bbb='',a
     integer:: nmto_,nqbz_,iki_,ikf_,nMLO_,ilowest,ieLhard,iUinneradd,igrp,ndimmto
     real(8)::qx(3),qtarget(3),eps=1d-8,qp(3),WTbanddefault
-    integer:: ig,iqibz,icount,ierr,stdox,iii,nmtosum
-    !call setcmdpath()            ! Set self-command path (this is for call system at m_lmfinit)
+    integer:: ig,iqibz,icount,ierr,stdox,iii,nmtosum,ifiham
     integer:: comm
     integer,optional::commin
-!    include "mpif.h"
     comm = MPI_COMM_WORLD
     if(present(commin)) comm= commin
-    
     call m_MPItk_init(comm) ! mpi initialization
     call m_ext_init()            ! Get sname, e.g. trim(sname)=si of ctrl.si
     call m_lgunit_init() !set stdo,stdl
     if(master_mpi) call ConvertCtrl2CtrlpByPython() !convert ctrl file to ctrlp.
-    !    if(cmdopt0('--quit=ctrlp')) call rx0('--quit=ctrlp')
     call MPI_BARRIER( comm, ierr)
     call m_lmfinit_init('LMF',comm)! Read ctrlp into module m_lmfinit.
     call m_lattic_init()      ! lattice setup (for ewald sum)
     call m_mksym_init()  !symmetry go into m_lattic and m_mksym
-    !    call m_mksym_init()  !symmetry go into m_lattic and m_mksym
     call m_mkqp_init() ! data of BZ go into m_mkqp
     call m_qplist_init(plbnd=0,llmfgw=.false.) ! Get q point list at which we do band calculationsb
-    !  call m_qplist_qspdivider()  !generate iqini:iqend,isini,isend  for each rank
     if(cmdopt2('--job=',outs)) read(outs,*) job
     write(stdo,ftox)'=== Start lmfham2 --job=',job
     if(job/=0.and.job/=1) call rx0(' Set --job=0 or 1') !error exit
@@ -106,13 +100,11 @@ contains
     hartree=2d0*rydberg()
     tpia = 2d0*pi/alat
     ginv = transpose(plat)
-
     nmtosum=sum(nmtoi)
     if(nmtosum/= nmto) call rxii('lmfham2: nmtosum/= nmto',nmtosum,nmto)
     ReadInfoFromGWinput: block ! Input orbital index for MLO, stored into idmto (s,p,d=1,2,3,4,5,6,7,8,9)
       use m_nvfortran,only : findloc
       integer::lmindex(16),ifmloc,ret,imto,lmx,ib,idmtox(nmtosum),lindexx(nmtosum)
-      !call s_read_Worb() !read setting from GWinput
       call getkeyvalue("GWinput","<Worb>",unit=ifmloc,status=ret)
       nMLO=0
       do 
@@ -122,7 +114,6 @@ contains
           cycle
         endif
         aaa=trim(aaa)//repeat(' -999 ',16)
-        !write(stdo,ftox) aaa
         read(aaa,*,end=1201,err=1201) ib,a,lmindex(1:16)
         lmx= findloc(lmindex,value=-999,dim=1)-1
         write(6,*) ib,lmx,lmindex(1:lmx)
@@ -135,8 +126,8 @@ contains
       enddo
 1201  continue
       close(ifmloc)
-      allocate(idmto(nMLO), source=idmtox(1:nMLO))
-      allocate(lindex(nMLO),source=lindexx(1:nMLO))
+      allocate(idmto, source=idmtox(1:nMLO))
+      allocate(lindex,source=lindexx(1:nMLO))
       WTbanddefault=0d0
       if(minval(lindex(1:nMLO))<=1) WTbanddefault=512d0 !if s and/or p bands included in the MLO, default WTband=512
       write(stdo,ftox)' nMLO,idmto=',nMLO,'  ',idmto
@@ -200,8 +191,12 @@ contains
     ikf=nmto !maxval(iko_f) !  nox = ikf - iki + 1. nmto is for MPO Hamiltonian
     call set_qibz(plat,qbz,nqbz,symops,ngrp) !iqibzrep(iqibz) is the representative of iqibz
 
-    if(job==1) goto 1011 !Goto Souza's iteration --job=1 mode
-    GetCNmatFile_job0: block  !job=0 mode to get CNmat file (connection matrix uumat and so on).
+!JOB BRANCHING ------------------------------------------------------------------
+    if(job==0) goto 2010 
+    if(job==1) goto 2011 
+    if(job==2) goto 2012 
+    
+2010 GetCNmatFile_job0: block  !job=0 mode to get CNmat file (connection matrix uumat and so on).
       !Note that uumatrix here is defined in the tight-binding represatation. Not the overlap of periodic part <u|u>.
       real(8):: eps=1d-8
       complex(8):: emat(nmto,nmto),osq(1:nmto,1:nmto),o2al(1:nmto,1:nmto,nqbz),phase,ovlmm(nmto,nMLO),&
@@ -281,8 +276,8 @@ contains
       close(ifuumat)
       if(job==0) call rx0('OK! end of lmhfam2 job=0 for generating CNmat')
     endblock GetCNmatFile_Job0
-
-1011 continue !=== --job==1 mode start ========================================
+    
+2011 continue !=== --job==1 mode start ========================================
     !     testnlat: block
     !       use m_mksym_util,only:mptauof
     !       integer::itr,ib1m,ib2m
@@ -326,7 +321,7 @@ contains
     allocate(amnk(iki:ikf,nMLO,nqibz),idmto_(nMLO))
     allocate(wbz(nqbz),source=1d0/nqbz)
     allocate (uumat(iki:ikf,iki:ikf,nbb,nqibz),evli(nmto,nqibz),eveci(nmto,nmto,nqibz))
-
+    open(newunit=ifiham,file='MLOHamR',form='unformatted')
     ispinloop: do 1000 is = 1,nspin
       read(ifuumat) nmto_,nqbz_,iki_,ikf_,nMLO_,idmto_
       if(nMLO/=nMLO.or.sum(abs(idmto-idmto_))/=0) call rx0('lmfham2: idmto error: Repeat --job=1 with the same <Worb> in GWinput!')
@@ -603,6 +598,7 @@ contains
           close(ificmlo)
         enddo
         deallocate(cnki)
+        write(ifiham) ommr2,hmmr2
       endblock GetHamiltonianforMTObyProjection
       
       write(6,*)'Get hmmr2. Goto band_lmfham2.dat ---------'
@@ -662,15 +658,53 @@ contains
       endblock Modifiedbandplotglt
       deallocate(omgik,evals,wtbandq,wtinnerq,proj,projs,projss,upu,cnk0i,cnkb)
 1000 enddo ispinloop
-    if(job==0) call rx0('OK! end of lmfham --job=0 --------')
-    if(job==1) call rx0('OK! end of lmfham --job=1 --------')
-  contains
-    pure real(8) function filter2(x) !step like function 0(x<0) to 1(x>0)
-      real(8),intent(in) :: x
-      if(x<0d0)      then;  filter2=0d0
-      elseif(x>30d0) then;  filter2= 1d0
-      else               ;  filter2= 1d0*(1d0-2d0/(exp(x)+1d0))
-      endif
-    end function filter2
+   close(ifiham)
+   if(job==1) call rx0('OK! end of lmfham --job=1 --------')
+
+2012 PMTmatrix: block
+   write(6,*)'test band 2012 ---------'
+   open(newunit=ifiham,file='MLOHamR',form='unformatted')
+   ispinloop2: do 1002 is = 1,nspin
+      read(ifiham) ommr2,hmmr2
+      bandplotMLOtest: block
+        real(8):: evlm(nMLO,ndat)
+        complex(8):: phase,hamm(nMLO,nMLO),ovlm(nMLO,nMLO),evec(nMLO,nMLO)
+        integer:: iband
+        jsp=is
+        fband2='band_MLOre_spin'//char(48+jsp)//'.dat'
+        open(newunit=iband,file=trim(fband2))
+        do iq= 1,ndat
+           qp=qplistsy(:,iq)
+           ovlm = 0d0
+           hamm = 0d0
+           do i=1,nMLO; do j=1,nMLO
+              ib1 = ib_tableM(idmto(i))
+              ib2 = ib_tableM(idmto(j))
+              do it =1,npair(ib1,ib2)
+                 phase= 1d0/nqwgt(it,ib1,ib2)*exp(-img*2d0*pi* sum(qp*matmul(plat,nlat(:,it,ib1,ib2))))
+                 hamm(i,j)= hamm(i,j)+ hmmr2(i,j,it,is)*phase
+                 ovlm(i,j)= ovlm(i,j)+ ommr2(i,j,it,is)*phase
+              enddo
+           enddo; enddo
+           call zhev_tk4(nMLO,hamm,ovlm,nMLO,nev, evlm(:,iq), evec, oveps)! Diangonale (hamm - evl ovlm ) evec=0
+           if(iq<6)  write(stdo,ftox) ' iq q= ',iq,' ',ftof(qp,3),' e=',ftof(evlm(1:12,iq),3)
+           if(iq==6) write(stdo,ftox) ' iq q= ...'
+           do i=1,nev
+              write(iband,ftox)  ftof(xdat(iq)),ftof(evlm(i,iq)), is,i
+           enddo
+        enddo
+        close(iband)
+      endblock bandplotMLOtest
+1002 enddo ispinloop2
+     close(ifiham)
+   endblock PMTmatrix
+   if(job==2) call rx0('OK! end of lmfham --job=2 --------')
   end subroutine lmfham2
+  pure real(8) function filter2(x) !step like function 0(x<0) to 1(x>0)
+    real(8),intent(in) :: x
+    if(x<0d0)      then;  filter2=0d0
+    elseif(x>30d0) then;  filter2= 1d0
+    else               ;  filter2= 1d0*(1d0-2d0/(exp(x)+1d0))
+    endif
+  end function filter2
 end module m_lmfham2
