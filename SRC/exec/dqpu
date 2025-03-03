@@ -30,7 +30,7 @@ def compareqpu_pd(qpu_file1, qpu_file2, print_flag, ecut, etol):
                 print_df_qpu(df_diff)
             elif print_flag == 'middle':
                 mask = (df_diff.iloc[:, 4:].abs() > etol).any(axis=1)
-                print_dfqpu(df_diff[mask])
+                print_df_qpu(df_diff[mask])
         else:
             print(f'Q=({q["qx"]}, {q["qy"]}, {q["qz"]}) not found in both files')
             sys.exit()
