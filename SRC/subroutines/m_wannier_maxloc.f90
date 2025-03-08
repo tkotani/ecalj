@@ -3120,6 +3120,7 @@ contains
 
     integer(4) :: ifi
 
+    write(6,*)'vvvvvvvvvvvvvv writeham'
     if (is == 1) then
       !    ifi = iopen('HMLWF',1,-1,0)
       open(newunit=ifi,file='HMLWF')
@@ -3134,7 +3135,7 @@ contains
     endif
 
     write(ifi,*)hrotk
-    close(ifi)
+    if(is==nspin) close(ifi)
     !  if (is == nspin) ifi = iclose('HMLWF')
 
     return

@@ -1280,6 +1280,8 @@ contains
     enddo
   end subroutine calc_Ylm
 end module m_wanutil
+
+
 module m_wanplot
   use m_wanutil,only:myinv3,mymatvec,calc_ylm,calc_phiall_abc2,b2w,wrt_xsf,expand_mesh,calc_npw
   public wanplot
@@ -1354,12 +1356,10 @@ contains
     character*4::fname
     logical:: debug=.false.,vis_skip
     integer::nqbzx,incwfin
-
     !! MPI dummy
     include 'mpif.h'
     integer:: ierr
     call mpi_init(ierr)
-    !-----------------------------------------------------
     call getkeyvalue(inputfile,'vis_skip',  vis_skip,  default=.false. )
     if(vis_skip) call rx0s('wanplot: we found vis_skip on. Do nothing and Quit!')
     !! Readin all data
@@ -1402,11 +1402,20 @@ contains
     allocate(cphi2(ldim2,nband))
     allocate(geig(ngpmx,nwf,nqbz,nsp))
     allocate(cphi(ldim2,nwf,nqbz,nsp))
+
+    
+    
     geig = 0d0
     cphi = 0d0
     do ikp = 1,nqbz
-      do isp = 1,nsp
-        geig2 = readgeigf(qreg(:,ikp),isp) !    call readgeig(qreg(:,ikp),ngpmx,isp, quu, geig2)
+       do isp = 1,nsp
+          write(*,*)'ikp,isp=',ikp,isp
+          
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    call rx('wanplot: to compile at 18.0.5.274 ビルド 2018082, I need to skip next line geig2=... Compilar bug. Not yet to detour this')
+!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !   geig2 = readgeigf(qreg(:,ikp),isp) !    call readgeig(qreg(:,ikp),ngpmx,isp, quu, geig2)
+    
         cphi2 = readcphif(qreg(:,ikp),isp)
         quu   = readcphifq()
         if(sum(abs(qreg(:,ikp)-quu))>1d-6) call rx('wanplot: mmlf222eeeee')
@@ -1420,7 +1429,8 @@ contains
           enddo ! ib
         enddo ! iwf
       enddo ! isp
-    enddo ! ikp
+     enddo ! ikp
+   
     deallocate(geig2,cphi2,dnk)
     write(6,*) '### ib,bas(1:3,ib) ############'
     do ib=1,nbas

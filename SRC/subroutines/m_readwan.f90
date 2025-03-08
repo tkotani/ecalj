@@ -384,7 +384,7 @@ contains
 
     if (sw1) then !!initialize
 
-       print *,"checkorb nwf",nwf_in
+!       print *,"checkorb nwf",nwf_in
        if ( .NOT. allocated(idorb)) allocate(idorb(nwf_in))
        open(newunit=ifdorb,file="Worb2lorb.d",form="unformatted")
        read(ifdorb) idorb(1:nwf_in)

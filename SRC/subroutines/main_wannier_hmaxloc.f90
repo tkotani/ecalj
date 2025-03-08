@@ -1131,13 +1131,13 @@ subroutine hmaxloc()
     enddo
 
     if(is==2) then
-      ifh=ifile_handle()
-      open(ifh,file='EValue_w',form='unformatted')
+      !ifh=ifile_handle()
+      open(newunit=ifh,file='EValue_w',form='unformatted')
       write(ifh) nwf,nqbz,nspx
       write(ifh) eval_w(1:nwf,1:nqbz,1:nspx)
       close(ifh)
-      ifh=ifile_handle()
-      open(ifh,file='EVec_w',form='unformatted')
+      !ifh=ifile_handle()
+      open(newunit=ifh,file='EVec_w',form='unformatted')
       write(ifh) nwf,nqbz,nspx
       write(ifh) qbz(1:3,1:nqbz)
       write(ifh) evecc_w(1:nwf,1:nwf,1:nqbz,1:nspx)
@@ -1154,7 +1154,7 @@ subroutine hmaxloc()
     if(lsh) allocate(eval2(nwf,nq),evecc2(nwf,nwf,nq))
 
     do iq = 1,nq
-      !     write(6,*)' got get_hrotkp_ws iq =',iq
+           write(6,*)'gggg got get_hrotkp_ws iq =',iq
       ! (3-3) Hrot_mn(k')
       call get_hrotkp_ws(hrotr,rws,drws,irws,q(:,iq), &
         nwf,nqbz,nrws, &
@@ -1205,7 +1205,6 @@ subroutine hmaxloc()
     enddo
 
     deallocate(eval1,eval3,evecc1)
-
     if(lsh) then
       do iband = 1,nsh
         do iq = 1,nq
