@@ -30,8 +30,8 @@ def main():
         slink = os.path.join(BINDIR, scr.split('/')[-1])
         if os.path.exists(os.path.join(BINDIR, slink)):
             os.remove(os.path.join(BINDIR, slink))
-        os.symlink(src, slink)
         print(f"ln -s {src} {slink}")
+        os.symlink(src, slink)
     # Make executables
     os.chdir(f'{CWD}/SRC/exec')
     if(args.clean): os.system('rm -rf CMakeFiles CMakeCache.txt')
