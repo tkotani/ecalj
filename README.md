@@ -156,8 +156,9 @@ Set the variable of VESTA=, at the begining of
 #### Symmetry line finder at GetSyml/
 -----
 This is to generate symmetry lines. syml.* from ctrl.* in ecalj/GetSyml/
-In the directory, we have getsyml.py, which is based on the seekpath
-https://github.com/giovannipizzi/seekpath/ and spglib.
+In the directory, we have getsyml.py, which is based on the
+[seekpath](https://github.com/giovannipizzi/seekpath/)
+on top of [spglib](https://github.com/spglib/spglib).
 See Lincence.txt in it. Folllowing citations are required.
  1.Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, 
     Band structure diagram paths based on crystallography, Comp. Mat. Sci. 128, 140 (2017) 
