@@ -1,4 +1,4 @@
-module m_w_psir
+module m_w_psir_unusednow
 contains
   subroutine psir_minmax(n1,n2,n3,k1,k2,k3,f, emin,emax,norm,imagmax,imaxi)
     implicit none
@@ -185,4 +185,4 @@ contains
        enddo
     enddo
   end subroutine w_psir
-end module m_w_psir
+end module m_w_psir_unusednow

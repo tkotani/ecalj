@@ -369,7 +369,7 @@ subroutine hmagnon() bind(C)
     InitalWritewan_ChiPM: if (MPI__task(iq)) then
       open(newunit=ifchipmz_wan,file="wan_ChiPMz.mat"//charnum4(iq))
       open(newunit=ifchipmr_wan,file="wan_ChiPMr.mat"//charnum4(iq))
-      !print *,'ifchipm=',ifchipmz_wan,ifchipmr_wan
+      print *,'ifchipm=',ifchipmz_wan,ifchipmr_wan
       if (iq==1) then
         write(ifchipmz_wan,*) "# syml: Gamma"
         write(ifchipmr_wan,*) "# syml: Gamma"

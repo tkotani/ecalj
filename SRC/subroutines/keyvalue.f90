@@ -80,36 +80,49 @@ contains
   !     used only for internal use
   integer function unusedfid()
     implicit none
-    integer:: i,ifile_handle
+    integer:: i!,ifile_handle
     logical ::L
     unusedfid=-9999
     inquire(file=filename0,opened=L)
     if (L) call  getkeyvalue_err_exit( 'unusedfid(getkeyvalue module)',' The last file is still opened. Close it first.')
     unusedfid=ifile_handle() ! find unused file handle 20230803
   end function unusedfid
-  !----------------------------------------------------------
-
+  integer function ifile_handle() ! return unused file handle (5001-9999)
+    implicit none
+    integer:: i
+    logical:: nexist
+    integer,save:: irem=2001
+    character*256::nnn
+    ifile_handle=-999999
+    do i=irem,9999
+      inquire(unit=i,opened=nexist,name=nnn)
+      if( .NOT. nexist) then
+        ifile_handle=i
+        irem=i+1
+        return
+      endif
+    enddo
+    do i=5001,irem
+      inquire(unit=i,opened=nexist)
+      if( .NOT. nexist) then
+        ifile_handle=i
+        irem=i
+        return
+      endif
+    enddo
+    call rx('ifile_handle: we did not find open file handle')
+  end function ifile_handle
   subroutine input_delfirstspc(buf)
     implicit none
     character(*):: buf
     integer:: i
-
-
     buf=adjustl(buf)
     ! cut comment
     if (buf(1:1) == '#' .OR. buf(1:1) == '!') then
        buf=''
        return
     endif
-
-    !        do i=1,len_trim(buf)
-    !           if (buf(i:i).eq.'#' .or. buf(i:i).eq.'!') buf(i:)=''
-    !        enddo
-
   end subroutine input_delfirstspc
-
-  !-----------------------------------------------------------
-
   subroutine input_toupper(buf)
     implicit none
     character(*) :: buf
@@ -123,8 +136,6 @@ contains
        endif
     enddo
   end subroutine input_toupper
-  !-----------------------------------------------------------
-
   subroutine input_tolower(buf)
     implicit none
     character(*) :: buf
@@ -138,9 +149,6 @@ contains
        endif
     enddo
   end subroutine input_tolower
-
-
-  !-----------------------------------------------------------
   subroutine input_debugstart(id)
     integer,intent(in),optional:: id
     if (present(id) ) then
@@ -149,7 +157,6 @@ contains
        printlevel=1
     endif
   end subroutine input_debugstart
-
   subroutine input_debugend()
     printlevel=0
   end         subroutine input_debugend

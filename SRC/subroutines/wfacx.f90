@@ -10,8 +10,7 @@ pure real(8) function wfacx(el,eh, ek,esmr)
      return
   endif
   wfacx = .5d0*erfc(-(eh-ek)/sqrt(2d0)/esmr) - .5d0*erfc(-(el-ek)/sqrt(2d0)/esmr)
-END function wfacx
-
+end function wfacx
 module  m_wfac
   !! Get weight in window [el,eh] for a Gaussian smearing
   !! with wfacx(x) = \\int_el^eh 1/sqrt(2)/esmr exp( -(x-ek/esmr)**2))

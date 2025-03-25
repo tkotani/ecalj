@@ -7,7 +7,7 @@ module m_lmfinit ! 'call m_lmfinit_init' sets all initial data from ctrl are pro
   use m_lgunit,only: stdo,stdl
   use m_fatom,only:   sspec !allocation only in m_lmfinit: free atom density (detremined by lmfa) WARN: Not protected.
   use m_density,only: pnuall,pnzall !NOTE: These are set here! log-derivative of radial functions. m_denisty is NOT protected.
-
+  
   use m_nvfortran,only: findloc
   use m_scg,only:scg
   implicit none 
@@ -123,8 +123,7 @@ contains
     real(8),allocatable:: pnuspc(:,:,:),qnuc(:,:,:,:),pp(:,:,:,:),ves(:),zc(:) !    debug = cmdopt0('--debug')
     integer,optional:: commin
     integer:: comm !,nsizex,info
-    comm= MPI_COMM_WORLD
-    if(present(commin)) comm= commin
+    comm= merge(commin,MPI_COMM_WORLD,present(commin))
     !call MPI_Comm_size( comm, nsizex, info ); write(*,*) 'mmmmmmmyyyy 1111 mpisizexxxxxx=',nsizex
     if(master_mpi) write(stdo,"(a)")'m_lmfinit: '//trim(prgnam)
     

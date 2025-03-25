@@ -77,7 +77,7 @@ contains
        write(ifivsmconst,"(d23.15,a)") vconst, '!-(averaged electro static potential at MTs)'
        close(ifivsmconst)
     endif
-    ! ... Adjust vbar, vval, gpot0 by vconst. vconst is used at hamble.f90
+    ! ... Adjust vbar, vval, gpot0 by vconst
     do  ib = 1, nbas
        lmxl = lmxl_i(ispec(ib))
        if (lmxl > -1) then
@@ -87,7 +87,7 @@ contains
           gpot0(1,ib) = gpot0(1,ib) + vconst/y0
        endif
     enddo
-    if (ipr >= 30) then
+    if (ipr >= 40) then
        write (stdo,"(' average electrostatic potential at MT boundaries after shift')")
        write(stdo, "(a)") ' Site    ves'
        do ib=1,nbas

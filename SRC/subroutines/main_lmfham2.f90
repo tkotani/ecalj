@@ -17,6 +17,8 @@ contains
     ! We use diffent idea of connectivity from [2]. Roughly speaking, we define connectivitiy of eigenfunctions between k and k+b,
     ! not by the overlap of periodic part of eigenfunctions, but by the coefficients on |MLO>.
     !
+    use mpi
+    use m_ctrl2ctrlp,only: ConvertCtrl2ctrlpBypython
     use m_maxloc0,only: kbbindx,getbb,writebb2,amnk2unk,diag_hm
     use m_setqibz_lmfham,only: set_qibz,qibz,irotq,irotg,ndiff,iqbzrep,qbzii,igiqibz,nqibz,iqii,wiqibz,igx,ngx
     use m_ftox
@@ -76,9 +78,10 @@ contains
     !call setcmdpath()            ! Set self-command path (this is for call system at m_lmfinit)
     integer:: comm
     integer,optional::commin
-    include "mpif.h" 
+!    include "mpif.h"
     comm = MPI_COMM_WORLD
-    if(present(commin)) comm= commin  
+    if(present(commin)) comm= commin
+    
     call m_MPItk_init(comm) ! mpi initialization
     call m_ext_init()            ! Get sname, e.g. trim(sname)=si of ctrl.si
     call m_lgunit_init() !set stdo,stdl
@@ -199,6 +202,7 @@ contains
 
     if(job==1) goto 1011 !Goto Souza's iteration --job=1 mode
     GetCNmatFile_job0: block  !job=0 mode to get CNmat file (connection matrix uumat and so on).
+      !Note that uumatrix here is defined in the tight-binding represatation. Not the overlap of periodic part <u|u>.
       real(8):: eps=1d-8
       complex(8):: emat(nmto,nmto),osq(1:nmto,1:nmto),o2al(1:nmto,1:nmto,nqbz),phase,ovlmm(nmto,nMLO),&
            evec(nmto,nmto,nqbz),evecx(1:nmto,1:nmto), ovec(nmto,nmto),amnk(iki:ikf,nMLO,nqibz),&
@@ -322,6 +326,7 @@ contains
     allocate(amnk(iki:ikf,nMLO,nqibz),idmto_(nMLO))
     allocate(wbz(nqbz),source=1d0/nqbz)
     allocate (uumat(iki:ikf,iki:ikf,nbb,nqibz),evli(nmto,nqibz),eveci(nmto,nmto,nqibz))
+
     ispinloop: do 1000 is = 1,nspin
       read(ifuumat) nmto_,nqbz_,iki_,ikf_,nMLO_,idmto_
       if(nMLO/=nMLO.or.sum(abs(idmto-idmto_))/=0) call rx0('lmfham2: idmto error: Repeat --job=1 with the same <Worb> in GWinput!')
@@ -599,6 +604,7 @@ contains
         enddo
         deallocate(cnki)
       endblock GetHamiltonianforMTObyProjection
+      
       write(6,*)'Get hmmr2. Goto band_lmfham2.dat ---------'
       bandplotMLO: block
         real(8):: evlm(nMLO,ndat)
@@ -661,12 +667,9 @@ contains
   contains
     pure real(8) function filter2(x) !step like function 0(x<0) to 1(x>0)
       real(8),intent(in) :: x
-      if(x<0d0) then
-        filter2=0d0
-      elseif(x>30d0) then
-        filter2= 1d0
-      else
-        filter2= 1d0*(1d0-2d0/(exp(x)+1d0))
+      if(x<0d0)      then;  filter2=0d0
+      elseif(x>30d0) then;  filter2= 1d0
+      else               ;  filter2= 1d0*(1d0-2d0/(exp(x)+1d0))
       endif
     end function filter2
   end subroutine lmfham2

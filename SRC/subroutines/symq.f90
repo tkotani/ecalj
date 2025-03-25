@@ -42,40 +42,6 @@ subroutine psymr0(lmxl,ic,nbas,ipc,pos0,pos,ipa,nrclas)  !- Make list of atoms i
      ioff = ioff + (lmxl(ib)+1)**2
   enddo
 end subroutine psymr0
-subroutine psymq0(nrclas,nsp,ipa,wk,nvec,vec)  !- Symmetrize vector of objects with l=0 symmetry for one class of atoms
-  !i   nrclas:number of atoms in the present class
-  !i   nsp   :2 for spin-polarized case, otherwise 1
-  !o   ipa   :list of site indices for each member of class
-  !i   wk    :work array of length nvec*nsp
-  !i   nvec  :size of vector for each member of class
-  !o Inputs/Outputs
-  ! o   vec  :On input,  unsymmetrized vector of quantities
-  ! o        :On output, elements of vec in class list ipa(1..nrclas)
-  ! o        :are symmetrized.
-  implicit none
-  integer :: nrclas,nsp,nvec,ipa(nrclas)
-  double precision :: wk(nvec,nsp),vec(nvec,nsp,1)
-  integer :: ia,ib,isp,i
-  double precision :: fac
-  call dpzero(wk,nsp*nvec)
-  fac = 1d0/nrclas
-  do  ia = 1, nrclas
-     ib = ipa(ia)
-     do  isp = 1, nsp
-        do  i = 1, nvec
-           wk(i,isp) = wk(i,isp) + vec(i,isp,ib)*fac
-        enddo
-     enddo
-  enddo
-  do  ia = 1, nrclas
-     ib = ipa(ia)
-     do  isp = 1, nsp
-        do  i = 1, nvec
-           vec(i,isp,ib) = wk(i,isp)
-        enddo
-     enddo
-  enddo
-end subroutine psymq0
 subroutine pysmr1(wgt,nr,nlml,nsp,sym,rho1, rho2,nn)! Add wgt*sym*rho1 into rho2, transposed
   implicit none
   integer :: nr,nlml,nsp,nn

@@ -1,4 +1,5 @@
 module util_hwmatK
+  use mpi
   use m_maxloc0,only: sortvec2
   contains
 subroutine wwmat (is,nw_i,nw,nwf, &
@@ -23,16 +24,14 @@ subroutine wwmat (is,nw_i,nw,nwf, &
   cw_w  = hartree*cw_w
 
   write(*,*)'Writing Screened Couloumb interaction (W-v) : Real'
-  ifscr = ifile_handle()
-
   if ((is==1) .AND. (lcrpa .eqv. .FALSE. )) then
-     open(ifscr,file="Screening_W-v.UP")
+     open(newunit=ifscr,file="Screening_W-v.UP")
   else if ((is==2) .AND. (lcrpa .eqv. .FALSE. )) then
-     open(ifscr,file="Screening_W-v.DN")
+     open(newunit=ifscr,file="Screening_W-v.DN")
   else if ((is==1) .AND. (lcrpa .eqv. .TRUE. )) then
-     open(ifscr,file="Screening_W-v_crpa.UP")
+     open(newunit=ifscr,file="Screening_W-v_crpa.UP")
   else if ((is==2) .AND. (lcrpa .eqv. .TRUE. )) then
-     open(ifscr,file="Screening_W-v_crpa.DN")
+     open(newunit=ifscr,file="Screening_W-v_crpa.DN")
   end if
   if (lomega0) then !only omega=0
      nrws1=1
@@ -82,11 +81,10 @@ subroutine wvmat (is,nwf, &
   rw_w= hartree*rw_w
   cw_w= hartree*cw_w
   write(*,*)'Coulomb interaction (v) : '
-  ifcou = ifile_handle()
   if (is==1) then
-     open(ifcou,file="Coulomb_v.UP")
+     open(newunit=ifcou,file="Coulomb_v.UP")
   else if (is==2) then
-     open(ifcou,file="Coulomb_v.DN")
+     open(newunit=ifcou,file="Coulomb_v.DN")
   end if
   if (lomega0) then !only omega=0
      nrws1=1
@@ -245,6 +243,7 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   ! Apr 2002 takao kotani. multiple argumentation wave per l.
   ! This hsfp0 is build from hsec10.f by F.Aryasetiawan.
   !------------------------------------------------------------
+  use mpi
   use util_hwmatK,only: super_cell,chkrot,wwmat,wvmat
   use m_wmatqk,only: wmatqk_mpi
   use m_maxloc0,only:wigner_seitz
@@ -376,7 +375,7 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   real(8)::sumimg
   logical :: allq0i                                             !S.F.Jan06
 
-  integer:: nw_i,ifile_handle,if102,if3111,if101
+  integer:: nw_i,if102,if3111,if101
 
   logical:: latomic,lfull,lstatic,lwssc
   logical:: l1d,lll
@@ -403,7 +402,7 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   integer:: ierr,procid,master=0,comm,nrank,irr,iqibz
   integer,allocatable::irkall(:,:),irk(:,:)
   logical:: master_mpi
-  include "mpif.h"
+!  include "mpif.h"
   comm= mpi_comm_world
   call mpi_init(ierr)
   call mpi_comm_size(comm, nrank, ierr)

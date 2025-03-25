@@ -66,3 +66,22 @@ class callF:
         else:
             foobar(*data)
         return
+    
+def unload_library(library):
+    import ctypes
+    try:
+        dlclose = ctypes.cdll.LoadLibrary("libdl.so.1").dlclose
+        dlclose.restype = ctypes.c_int
+        dlclose.argtypes = [ctypes.c_void_p]
+        dlclose(library._handle)
+    except :
+        pass
+    try:
+        dlclose = ctypes.cdll.LoadLibrary("libdl.so.2").dlclose
+        dlclose.restype = ctypes.c_int
+        dlclose.argtypes = [ctypes.c_void_p]
+        dlclose(library._handle)
+    except Exception as e:
+        print(f"Error during dlclose: {e}")
+    del library
+    

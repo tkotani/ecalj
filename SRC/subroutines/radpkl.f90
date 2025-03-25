@@ -20,23 +20,16 @@ subroutine radpkl(r,rsm,kmax,lmax,n0,p)   !- Radial parts of polynomials P_kL / 
   !r    p_1l = a**l (2*(ar)**2/(2l+3) - 1)
   !r    p_kl = [(2*(ar)**2 - (4k+2l-1))p_k-1,l - 2(k-1)p_k-2,l] / (2k+2l+1)
   implicit none
-  integer :: kmax,lmax,n0
-  double precision :: r,rsm,p(0:n0,0:lmax)
-  double precision :: tar2,a
-  integer :: l,k
+  integer :: kmax,lmax,n0,l,k
+  real(8):: r,rsm,p(0:n0,0:lmax), tar2,a
   if (kmax < 0 .OR. lmax < 0) return
   a = 1d0/rsm
   tar2 = 2d0*a*a*r*r
-  ! --- Do explicitly for k=0,1 ---
-  do  7  l = 0, lmax
-     p(0,l) = a**l
-     if (kmax >= 1) p(1,l) = (a**l)*(tar2/(2*l+3)-1d0)
-7 enddo
-  ! ---- Recursion for higher k ---
-  do    k = 2, kmax
-     do    l = 0, lmax
-        p(k,l) = ((tar2-(4*k+2*l-1))*p(k-1,l)-2*(k-1)*p(k-2,l)) / (2*k+2*l+1)
-     enddo
+  p(0,:) = [(a**l,l=0,lmax)]
+  if(kmax <1) return
+  p(1,:) = [((a**l)*(tar2/(2*l+3)-1d0),l=0,lmax)]
+  do k = 2, kmax !recursion
+    p(k,:) = [(((tar2-(4*k+2*l-1))*p(k-1,l)-2*(k-1)*p(k-2,l)) / (2*k+2*l+1),l=0,lmax)]
   enddo
 end subroutine radpkl
 

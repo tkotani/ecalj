@@ -1,4 +1,4 @@
-module m_nvfortran !this is because nvfortran24.1 have no implementation to findloc
+module m_nvfortran !this is because nvfortran24.1 have no implementation to findloc,count
   public findloc,count
   interface findloc 
      module procedure findlocl,findloci

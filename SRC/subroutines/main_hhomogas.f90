@@ -1,5 +1,6 @@
 !! hhomogas, originally included in hmagnon.m.F by Okumura 
 subroutine hhomogas()
+  use mpi
   use m_readefermi,only: setefermi
   use m_genallcf_v3,only: Genallcf_v3
   use m_shortn3_qlat,only: shortn3_qlat
@@ -208,7 +209,7 @@ subroutine hhomogas()
   integer:: ifz,ifi,ifif
   real(8):: ef
   integer:: comm
-  include "mpif.h"
+!  include "mpif.h"
 ! Pay attension to the following bootstrap sequence to fill data to modules!  
   debug = cmdopt0('--debug')
   comm = MPI_COMM_WORLD

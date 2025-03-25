@@ -39,34 +39,10 @@ contains
     endif
   end function lgunit
 end module m_lgunit
+
 real(8) function rydberg()
   rydberg=13.6058d0
 END function rydberg
-integer function ifile_handle() ! return unused file handle (5001-9999)
-  implicit none
-  integer:: i
-  logical:: nexist
-  integer,save:: irem=2001
-  character*256::nnn
-  ifile_handle=-999999
-  do i=irem,9999
-     inquire(unit=i,opened=nexist,name=nnn)
-     if( .NOT. nexist) then
-        ifile_handle=i
-        irem=i+1
-        return
-     endif
-  enddo
-  do i=5001,irem
-     inquire(unit=i,opened=nexist)
-     if( .NOT. nexist) then
-        ifile_handle=i
-        irem=i
-        return
-     endif
-  enddo
-  call rx('ifile_handle: we did not find open file handle')
-end function ifile_handle
 pure subroutine rangedq(qin, qout) ! qout is in [-0.5d0,0.5d0)
   implicit none
   intent(in)::     qin

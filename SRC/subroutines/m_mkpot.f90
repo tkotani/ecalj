@@ -203,13 +203,12 @@ contains
     complex(8):: smrho(n1,n2,n3,nsp),smpot(n1,n2,n3,nsp)
     logical:: cmdopt0,novxc,secondcall=.false.     !      integer,optional:: dipole_
     logical,optional:: novxc_
-    integer:: job,i1,i2,i3,i,iprint,isw,isum, ifi,isp,j,k,ix,ismpot(4),iz,iy !dipole,
+    integer:: job,i1,i2,i3,i,iprint,isw,isum, ifi,isp,j,k !dipole,
     real(8):: hpot0_rv(nbas), dq,cpnvsa,qsmc,smq,smag,sum2,rhoex,rhoec,rhvsm,sqloc,sqlocc,saloc,uat,usm,valfsm, &
          valvfa,vvesat,vsum,zsum,rvvxcv(nsp),rvvxc(nsp),rvmusm(nsp),rmusm(nsp), rvepsm(nsp),vxcavg(nsp),repat(nsp),&
          repatx(nsp),repatc(nsp),rmuat(nsp),repsm(nsp),repsmx(nsp),repsmc(nsp),rhobg,gpot0(nlmxlx,nbas),vab_rv(3,3,n0*nsp*nbas),&
          vval(nlmxlx,nbas),fes(3,nbas),rhvsm0
     real(8),parameter:: minimumrho=1d-14,pi=4d0*datan(1d0),tpi=2d0*pi
-    real(8),external:: rydberg
     character(80) :: outs
     character strn*120
     call tcn('mkpot')
@@ -218,26 +217,9 @@ contains
       if(master_mpi)write(stdo,ftox)' Energy for background charge q=',ftod(qbg),'radius r=',rhobg,'E=9/5*q*q/r=',1.8d0*qbg*qbg/rhobg
     endif Printsmoothbackgroundcharge
     SmoothPart: block
-      integer:: ife
       call rhomom(orhoat, qmom,vsum) ! Multipole moments qmom is calculated
       call smves(qmom,gpot0,vval,hpot0_rv,smrho,smpot,vconst,smq,qsmc,fes,rhvsm0,rhvsm,zsum,vesrmt,qbg)!0th comp. of Estatic potential Ves and Ees
-      if(master_mpi) then !.and.cmdopt0('--espot')) then !writeout electrostatic potential 
-         open(newunit=ife,file='estaticpot.dat')
-         !write(ife) n1,n2,n3,alat,plat
-         ismpot = shape(smpot)
-         iy=1
-         do ix=1, ismpot(3),4
-         do iz=1, ismpot(3)
-            write(ife,'(3i5,2e16.8," !eV ")') iz,ix,iy,(smpot(1,1,ix,1)+vconst)*rydberg()
-            write(ife,'(3i5,2e16.8," !eV ")') iz,ix,iy,(smpot(1,1,ix,1)+vconst)*rydberg()
-            write(ife,'(3i5,2e16.8," !eV ")') iz,ix,iy,(smpot(1,1,ix,1)+vconst)*rydberg()
-            write(ife,'(3i5,2e16.8," !eV ")') iz,ix,iy,(smpot(1,1,ix,1)+vconst)*rydberg()
-         enddo   
-            write(ife,*)
-         enddo   
-         close(ife)
-      endif   
-      smag = merge(2d0*dreal(sum(smrho(:,:,:,1)))*vol/(n1*n2*n3) - smq,0d0,nsp==2) !mag mom  ! 2*nup-(nup-ndn) = nup-ndn
+      smag = merge(2d0*dreal(sum(smrho(:,:,:,1)))*vol/(n1*n2*n3) - smq,0d0,nsp==2) !mag mom
       novxc= present(novxc_)
       repsm=0d0;  repsmx=0d0;  repsmc=0d0;   rmusm=0d0;  rvmusm=0d0
       ADDsmoothExchangeCorrelationPotential: if(.not.novxc) then

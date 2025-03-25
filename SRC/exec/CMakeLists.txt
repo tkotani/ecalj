@@ -71,7 +71,7 @@ endif()
 if(FC MATCHES "gfortran")
   message(STATUS "===== gfortran release  =======================")
   foreach(target IN ITEMS ${SOURCES})
-    if(${target} MATCHES "../subroutines/mkqp.f90" OR ${target} MATCHES "../wannier/iopen.f90")
+    if(${target} MATCHES "../subroutines/mkqp.f90")
       set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O0")
     endif()
   endforeach()
@@ -125,7 +125,7 @@ endif()
 # )
 
 # emacs tags
-add_custom_target(etags ALL COMMAND etags ../subroutines/*.f90 ../wanniergw/*.f90 ../main/*.f90
+add_custom_target(etags ALL COMMAND etags ../subroutines/*.f90 ../main/*.f90
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 
 # copy executables etc to ../exec${FCMOD}

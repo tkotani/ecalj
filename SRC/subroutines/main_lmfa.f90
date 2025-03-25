@@ -1,14 +1,15 @@
 module m_lmfa
 contains
   subroutine lmfa(commin) bind(C)
+    use mpi
     use m_args,only: argall
-    use m_ext,only:      m_Ext_init,sname
+    use m_ext,only:      sname
     use m_MPItk,only:    m_MPItk_init,nsize,master_mpi
     use m_lgunit,only:   m_lgunit_init, stdo,stdl
     use m_lmfinit,only:m_Lmfinit_init
     use m_freeat,only:   Freeat
     implicit none
-    include "mpif.h" 
+!    include "mpif.h" 
     logical:: cmdopt0
     character:: aaa*512
     character(8) :: prgnam='LMFA', charext
@@ -18,7 +19,7 @@ contains
     comm=MPI_COMM_WORLD
     if(present(commin)) comm= commin
     call m_MPItk_init(comm) 
-    call m_ext_init()  ! Get sname, e.g. trim(sname)=si of ctrl.si
+!    call m_ext_init()  ! Get sname, e.g. trim(sname)=si of ctrl.si
     call m_lgunit_init()
     if(nsize/=1) call rx('Current lmfa is only for single core')
     aaa= '=== START LFMA ==='
@@ -33,7 +34,7 @@ contains
     open(newunit=ifi,file='save.'//trim(sname),position='append')
     write(ifi,"(a)")'Start '//trim(prgnam)//trim(argall)
     close(ifi)
-    if(master_mpi) call ConvertCtrl2CtrlpByPython()
+!    if(master_mpi) call ConvertCtrl2CtrlpByPython()
     if(cmdopt0('--quit=ctrlp')) call rx0('--quit=ctrlp')
     call MPI_BARRIER( comm, ierr)
     call m_lmfinit_init(prgnam,comm) ! Computational settings.

@@ -1,3 +1,5 @@
+module m_vbmmode
+  contains
 !>Get VBM and CBM relative to vaccum (a simple approximaiton. need fixing.).
 subroutine vbmmode()
   use m_lmfinit,only: ispec,nbas,vol,nspec,rmt_i=>rmt,z_i=>z
@@ -64,3 +66,4 @@ subroutine vbmmode()
 9898 continue
   print *,' if vesintatm.'//trim(sname)//' ---> VBM: is not shown. Need to repeat new lmfa for VBM:'
 end subroutine vbmmode
+endmodule

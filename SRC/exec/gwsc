@@ -59,7 +59,7 @@ if (not os.path.islink(sigm_name)) and os.path.isfile(sigm_name):
 if not os.path.islink(sigm_name):
     os.symlink('sigm',sigm_name) # sigm_name is a softlike to sigm
 targetss=' '+target+' '+option+' '
-flist=['ctrl.%s'%target,rst_name,sigm_name,'save.%s'%target,'log.%s'%target,'QPU','QPD','GWinput','lsxC','lsx','lsc','ECORE']
+flist=['ctrl.%s'%target,rst_name,sigm_name,'save.%s'%target,'log.%s'%target,'QPU','QPD','GWinput','lsxC','lsx','lsc']
 
 #initial band structre
 print('===== Ititial band structure ====== ',flush=True)

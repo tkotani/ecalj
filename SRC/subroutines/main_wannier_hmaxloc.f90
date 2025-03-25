@@ -17,6 +17,7 @@ subroutine hmaxloc()
   !  May 2004 Takashi Miyake, from hwmat.f
   !------------------------------------------------------------
   !     use m_readqg,only: readngmx,readqg
+  use mpi
   use m_ftox !utility for write (just see how to use ftox. Not need to look into it)
   use m_maxloc0,only: rot_hmnk,getamn,ewindow,getrt,getupu,getrmn,getomg,wmaxloc_diag,readuu,wmaxloc,getbb,getsmn,init_mmn,gettmn,&
        new_cnk,get_rn,get_hrotkp_ws,updt_mmn,chk_Hm,init_unkg,write_hrotr,chk_eval,diag_unk,updt_uk,get_hrotr_ws,diag_hm,get_omgik,&
@@ -186,7 +187,7 @@ subroutine hmaxloc()
 
   integer(4),allocatable:: &
     m_indx(:),n_indx(:),l_indx(:),ibas_indx(:),ibasiwf(:)
-  integer:: ifoc,iwf,ldim2,ixx,ifile_handle
+  integer:: ifoc,iwf,ldim2,ixx
 
   real(8):: enwfmax,qxx(3),eeee,enwfmaxi, ef
   integer:: inii,if102,iwf2
@@ -194,7 +195,7 @@ subroutine hmaxloc()
   complex(8):: cccx(7)
   integer:: ierr
   character(256)::aaac
-  include 'mpif.h'
+!  include 'mpif.h'
   call mpi_init(ierr)
   call m_MPItk_init(MPI_COMM_WORLD)
   hartree=2d0*rydberg()
@@ -390,9 +391,7 @@ subroutine hmaxloc()
     enddo
 
   enddo
-  ifdorb=ifile_handle()
-  !      open(ifdorb,file="worb_list.d",form="unformatted")
-  open(ifdorb,file="Worb2lorb.d",form="unformatted")
+  open(newunit=ifdorb,file="Worb2lorb.d",form="unformatted")
   write(ifdorb) idorb(1:nwf)
   write(ifdorb) nclass_mlwf
   write(ifdorb) nbasclass_mlwf(1:nclass_mlwf)
@@ -1088,11 +1087,9 @@ subroutine hmaxloc()
       ibasiwf(iwf) = ibas_indx(iphi(1,iwf))
     enddo
 
-
     !! write HrotRS
-    ifh=ifile_handle()
-    if(is==1) open(ifh,file='HrotRS.up',form='unformatted')
-    if(is==2) open(ifh,file='HrotRS.dn',form='unformatted')
+    if(is==1) open(newunit=ifh,file='HrotRS.up',form='unformatted')
+    if(is==2) open(newunit=ifh,file='HrotRS.dn',form='unformatted')
     write(ifh)alat,plat,natom
     write(ifh)pos
     write(ifh)ef
@@ -1100,7 +1097,6 @@ subroutine hmaxloc()
     write(ifh) irws,rws,drws,hrotr, ibasiwf !drws added by okumura Aug28,2017
     close(ifh)
 
-    !      ifh = ifile_handle()
     call write_hopping_output(is, hrotr, &
       rws,irws,alat,plat,qlat,pos,natom, &
       ibasiwf, nwf,nrws,spid , m_indx, l_indx, &
@@ -1110,8 +1106,7 @@ subroutine hmaxloc()
     !! TEST okumura: iq=1,nq, q->qbz?   (2017/06/10)
 !!! qtt -> q, nqtt -> nqbz
     ! data list for wannier
-    ifh=ifile_handle()
-    open(ifh,file="wan4chi.d",form="unformatted")
+    open(newunit=ifh,file="wan4chi.d",form="unformatted")
     write(ifh) nwf,nspx,nqbz
     close(ifh)
 
@@ -1131,12 +1126,10 @@ subroutine hmaxloc()
     enddo
 
     if(is==2) then
-      !ifh=ifile_handle()
       open(newunit=ifh,file='EValue_w',form='unformatted')
       write(ifh) nwf,nqbz,nspx
       write(ifh) eval_w(1:nwf,1:nqbz,1:nspx)
       close(ifh)
-      !ifh=ifile_handle()
       open(newunit=ifh,file='EVec_w',form='unformatted')
       write(ifh) nwf,nqbz,nspx
       write(ifh) qbz(1:3,1:nqbz)
@@ -1154,7 +1147,7 @@ subroutine hmaxloc()
     if(lsh) allocate(eval2(nwf,nq),evecc2(nwf,nwf,nq))
 
     do iq = 1,nq
-           write(6,*)'gggg got get_hrotkp_ws iq =',iq
+      !     write(6,*)' got get_hrotkp_ws iq =',iq
       ! (3-3) Hrot_mn(k')
       call get_hrotkp_ws(hrotr,rws,drws,irws,q(:,iq), &
         nwf,nqbz,nrws, &
@@ -1205,6 +1198,7 @@ subroutine hmaxloc()
     enddo
 
     deallocate(eval1,eval3,evecc1)
+
     if(lsh) then
       do iband = 1,nsh
         do iq = 1,nq

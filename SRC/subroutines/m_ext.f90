@@ -59,13 +59,13 @@ module m_ext
   character(512),public,protected::sname='temp',dirname
   public:: m_ext_init
 contains
-  subroutine m_ext_init()
+  subroutine m_ext_init() bind(C)
     logical :: master
     integer:: ifi,ipos,i,na,getcwd
     character*256:: sss,s222,argv
     i = getcwd(dirname)
     do i = 1, narg
-       write(*,*)'m_ext_init=',i, trim(arglist(i))
+       !write(*,*)'m_ext_init=',i, trim(arglist(i))
        if(arglist(i)(1:5)=='ctrl.') then
           sname=trim(arglist(i)(6:))
           goto 999

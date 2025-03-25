@@ -1,13 +1,11 @@
-!>read Wannier things.
+!>read Wannier orbital things.
 module m_readwan 
   use m_keyvalue,only: getkeyvalue
   use m_iqindx_wan,only: iqindx2_wan
   implicit none
-
   public:: Write_qdata, Wan_readeigen, Wan_readeval, Wan_readeval2, Readscr, &
        Checkorb,Checkorb2, Diagwan, Diagwan_tr, Wan_imat, Writehmat, Writeddmat, Read_wandata
   integer,protected,public:: nwf,nsp_w,nqtt_w !! read by read_wandata
-
   private
   logical:: init=.true.
   logical:: readwan=.false.,lreadhrotr=.false.
@@ -23,10 +21,7 @@ module m_readwan
   integer,allocatable:: idorb(:), nbasclass_mlwf(:)
   integer:: nclass_mlwf
   logical:: debug=.false.,sw1=.true.
-
 contains
-
-  !---------------------------------------------
   subroutine readhrotr()
     !!--- Required data set --------------------- (copied from htbplot.F)
     !! q(:,1:nq)
@@ -176,27 +171,29 @@ contains
     ev_w(1:nwf)  = eval_w(1:nwf,iq,isp) + shift_ev/13.605693009
     evc_w(1:nwf,1:nwf) = evecc_w(1:nwf,1:nwf,iq,isp)
   end subroutine wan_readeval
-
   !--------------------------------
+  
   subroutine wan_readeval2(q,isp, ev_w, evc_w)
     intent(in)::             q,isp
     intent(out)::                   ev_w, evc_w
-    integer :: isp
+    integer :: isp,ir
     real(8) :: q(3)
     real(8) :: ev_w(nwf)         !eigenvalue
-    complex(8) :: evc_w(nwf,nwf) !eigenfunction
+    complex(8) :: evc_w(nwf,nwf),img=(0d0,1d0) !eigenfunction
     real(8):: qu(3), shift_ev
     complex(8),allocatable:: hrotk(:,:,:),hrotkp(:,:),evec(:,:)
     real(8),allocatable:: eval(:)
+    real(8),parameter:: pi = 4d0* atan(1d0)
 !!! fat band plot test
     real(8):: rydberg
     !! need matrix
     if ( .NOT. lreadhrotr) call readhrotr()
     !! solve Hrotkp for given q (or q+k) --> eigenvalues and eigenfunction
-    if ( .NOT. allocated(hrotkp)) then
-       allocate(hrotkp(nwf,nwf),evecc(nwf,nwf),eval(nwf))
-    endif
-    call get_hrotkp_ws2(q ,hrotkp,isp)
+    if ( .NOT. allocated(hrotkp)) allocate(hrotkp(nwf,nwf),evecc(nwf,nwf),eval(nwf))
+    hrotkp = 0d0
+    do ir = 1,nrws ! call get_hrotkp_ws2(q ,hrotkp,isp)
+      hrotkp=hrotkp + hrotr(:,:,ir,isp)*exp(img*2d0*pi*sum(rws(:,ir)*q))/irws(ir)
+    enddo
     call diag_hm2(hrotkp,nwf,eval,evecc)
     !! shift: ev_w --> ev_w + shift_ev (change exchnage splitting by hand for test)
     call getkeyvalue("GWinput","shift_majority",shift_ev,default=0d0)
@@ -204,33 +201,19 @@ contains
     ev_w(1:nwf) = eval(1:nwf) + shift_ev/13.605693009
     evc_w(1:nwf,1:nwf) = evecc(1:nwf,1:nwf)
     deallocate(hrotkp,evecc,eval)
-    ! rite (6,"('qqq:',3E13.5)") q
-    ! rite (6,"('eval_w=',9f9.4)") ev_w(1:nwf)
+    ! write (6,"('qqq:',3E13.5)") q    ! rite (6,"('eval_w=',9f9.4)") ev_w(1:nwf)
   end subroutine wan_readeval2
 
-  !--------------------------------almpost same get_hrotkp_ws in maxloc3
-!!!! hrotr (q) => hrotkp
-  subroutine get_hrotkp_ws2(q,hrotkp,is)
-    !! see Ref.[2] eq.26
-    complex(8) :: hrotkp(nwf,nwf), ci,cikr,ceikr,ctmp
-    real(8) :: q(3),pi,rk
+  subroutine get_hrotkp_ws2(q,hrotkp,is)     !! see Ref.[2] eq.26
+    complex(8) :: hrotkp(nwf,nwf), ci,cikr,ceikr,ctmp,img=(0d0,1d0)
+    real(8) :: q(3),rk
     integer::im,in,ir,is
-    pi = 4d0* atan(1d0)
-    ci = (0d0,1d0)
-    hrotkp = (0d0,0d0)
+    real(8),parameter:: pi = 4d0* atan(1d0)
+    hrotkp = 0d0
     do ir = 1,nrws
-       rk = sum(rws(:,ir)*q(:))
-       cikr = ci * 2d0 * pi * rk
-       ceikr = exp(cikr) / dble(irws(ir))
-       do im = 1,nwf
-          do in = 1,nwf
-             hrotkp(im,in) = hrotkp(im,in) + &
-                  ceikr * hrotr(im,in,ir,is)
-          enddo
-       enddo
+      hrotkp=hrotkp + hrotr(:,:,ir,is)*exp(img*2d0*pi*sum(rws(:,ir)*q))/irws(ir)
     enddo
   end subroutine get_hrotkp_ws2
-
   !--------------------------------
   subroutine diag_hm2(zmat,ndim,eval,evecc_)
     intent(in)::        zmat,ndim
@@ -254,7 +237,6 @@ contains
     call diagcv(ovlpc,zmat2, evecc_, ndim, eval, nmx, 1d99, nev)
     deallocate(zmat2,ovlpc)
   end subroutine diag_hm2
-
   !---------------------------------------
   subroutine write_qdata(ginv,nqtt_in,qtt_in)
     intent(in)             ginv,nqtt_in,qtt_in
@@ -279,63 +261,40 @@ contains
   end subroutine read_wandata
   !---------------------------------------
   subroutine readscr(nwf,scrw_)
-    intent(in)::       nwf
-    intent(out)::          scrw_
-    integer::nwf
-    integer::ifscrwv,ifscrv!,ifd,ife,ifa
-    integer::ir1,irws1
-    character(len=9)::charadummy !dummy
+    intent(in)::     nwf
+    intent(out)::        scrw_
+    integer::nwf,ifscrwv,ifscrv,ir1,irws1
+    character(len=9)::charadummy 
     real(8)::rws1(3),freq,freq2 !dummy
-    integer::is,iwf1,iwf2,iwf3,iwf4 !dummy
-    integer::iwf,jwf,kwf,lwf,ijwf,klwf
-    complex(8),allocatable::scrw4(:,:,:,:),scrv4(:,:,:,:)
-    complex(8),allocatable::scrw_(:,:)
+    integer::is,iwf1,iwf2,iwf3,iwf4,iwf,jwf,kwf,lwf,ijwf,klwf
+    complex(8),allocatable::scrw4(:,:,:,:),scrv4(:,:,:,:),scrw_(:,:)
     integer::idummy
     logical(8)::ijklmag
     call checkorb(1,nwf,idummy)
     allocate(scrw4(nwf,nwf,nwf,nwf), scrv4(nwf,nwf,nwf,nwf))
-    allocate(scrw_(nwf*nwf,nwf*nwf));scrw_=0d0
+    allocate(scrw_(nwf*nwf,nwf*nwf),source=(0d0,0d0))
     open(newunit=ifscrwv,file="Screening_W-v.UP",form="formatted") !only up
-    open(newunit=ifscrv,file="Coulomb_v.UP",form="formatted") !only up
+    open(newunit=ifscrv, file="Coulomb_v.UP",    form="formatted") !only up
     write (6,*) "readscr: wan_ijkl index is wrriten ijkl_*.d"
-    ijwf=0
     do 4001 iwf=1,nwf
-       do 4002 jwf=1,nwf
-          ijwf=ijwf+1
-          klwf=0
-          do 4003 kwf=1,nwf
-             do 4004 lwf=1,nwf
-                klwf=klwf+1
-!                read(ifscrv,"(A,2i5, 3f12.6, 5i5,2f12.6)") charadummy,ir1, irws1, rws1 ,is,iwf1,iwf2,iwf3,iwf4 &
-!                read(ifscrwv,"(A,2i5, 3f12.6, 5i5,4f12.6)") charadummy,ir1, irws1, rws1,is,iwf1,iwf2,iwf3,iwf4,freq, freq2 &
-! Bare Coulomb (v)
-                read(ifscrv,*) charadummy,ir1, irws1, rws1 ,is,iwf1,iwf2,iwf3,iwf4,scrv4(iwf1,iwf2,iwf3,iwf4)
-! Screened Coulomb (W-v)
-                read(ifscrwv,*) charadummy,ir1, irws1, rws1,is,iwf1,iwf2,iwf3,iwf4,freq, freq2 ,scrw4(iwf1,iwf2,iwf3,iwf4)
-                !         if (sw1) call rx("'checkorb should be done in advance")
-                call checkorb2(iwf,jwf,kwf,lwf,ijklmag)
-!!! ijklmag = F ---> W = 0 ; ijklmag = T ---> W = Wd
-                !$$$         ijklmag=.true.
-                if (ijklmag) then      !!! check iwf is derived from same atom
-                   if (idorb(iwf)==2 .AND. idorb(jwf)==2  & !!only d-orbital
-                      .and. idorb(kwf)==2 .and. idorb(lwf)==2) then
-                      scrw_(ijwf,klwf)=scrw4(iwf1,iwf2,iwf3,iwf4) + scrv4(iwf1,iwf2,iwf3,iwf4)
-                   else
-                      scrw_(ijwf,klwf)=0d0
-                   endif
-                else
-                   scrw_(ijwf,klwf)=0d0
-                endif
-4004         enddo
-4003      enddo
-4002   enddo
+      do 4002 jwf=1,nwf
+        ijwf=(iwf-1)*nwf +jwf
+        do 4003 kwf=1,nwf
+          do 4004 lwf=1,nwf
+            klwf=(kwf-1)*nwf+lwf 
+            read(ifscrv,"(A,2i5, 3f12.6, 5i5,2f12.6)")charadummy,ir1,irws1,rws1,is,iwf1,iwf2,iwf3,iwf4,           scrv4(iwf1,iwf2,iwf3,iwf4)
+            read(ifscrwv,"(A,2i5, 3f12.6,5i5,4f12.6)")charadummy,ir1,irws1,rws1,is,iwf1,iwf2,iwf3,iwf4,freq,freq2,scrw4(iwf1,iwf2,iwf3,iwf4)
+            call checkorb2(iwf,jwf,kwf,lwf,ijklmag)
+            scrw_(ijwf,klwf)=0d0 !onsite dd matrix only
+            if(ijklmag.and.all(idorb([iwf,jwf,kwf,lwf])==2)) scrw_(ijwf,klwf)=scrw4(iwf1,iwf2,iwf3,iwf4)+ scrv4(iwf1,iwf2,iwf3,iwf4)
+4004      enddo
+4003    enddo
+4002  enddo
 4001 enddo
     close(ifscrv)
     close(ifscrwv)
     call writescrw(scrw_) !! display matrix element of Wijkl
   end subroutine readscr
-
-  !---------------------------------------
 !!! identify if iwf is d-orbital or not
 !!! checkorb iwf ---> lorb(1:s, 2:p, 3:d, 4:f, 5:g)
   subroutine checkorb(iwf_in,nwf_in,lorb_out)
@@ -343,10 +302,8 @@ contains
     integer,intent(in)  ::iwf_in,nwf_in
     integer,intent(out) ::lorb_out   ! 2=d-orb
     integer::ifdorb,iiwf,ief,iwf
-
     if (sw1) then !!initialize
-
-!       print *,"checkorb nwf",nwf_in
+       print *,"checkorb nwf",nwf_in
        if ( .NOT. allocated(idorb)) allocate(idorb(nwf_in))
        open(newunit=ifdorb,file="Worb2lorb.d",form="unformatted")
        read(ifdorb) idorb(1:nwf_in)
@@ -355,24 +312,15 @@ contains
        nbasclass_mlwf(0)=0
        read(ifdorb) nbasclass_mlwf(1:nclass_mlwf)
        close(ifdorb)
-
-       !$$$         print *,"tttt",idorb
-       !$$$         print *,"tttt",nclass_mlwf
-       !$$$         print *,"tttt",nclass_mlwf,nbasclass_mlwf
-
        if (debug) then
           do iwf=1,nwf_in
              print *,"idorb check, iwf,idorb",sw1,idorb(iwf)
           enddo
        endif
-
        sw1=.false.
     endif
     lorb_out=idorb(iwf_in)
-
   end subroutine checkorb
-
-  !---------------------------------------
 !!!identify if iwf,jwf,kwf,lwf is derived from same MagAtom
 !!! if not so, W=0 (or K=0) : return iwfmag=.False.
   subroutine checkorb2(iwf_in,jwf_in,kwf_in,lwf_in,iwfmag)

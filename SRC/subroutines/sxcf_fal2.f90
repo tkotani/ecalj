@@ -229,7 +229,7 @@ subroutine sxcf_fal3z(&
        nstar(nqibz),irkip(nqibz,ngrp,nq),kount(nqibz,nq)
   real(8) :: q(3),qbas(3*3),ginv(3*3), wk(nqbz),wik(nqibz),qibz(3,nqibz),qbz(3,nqbz),&
        &freqx(niw),wx(niw),     eq(nband,nq), ekq(nband), ekc(nctot+nband), &
-       &tpi,ef,ef2,esmr,esmr2,efp,efm,wtx,wfac,wfacx,we,esmrx, dwdummy,&
+       &tpi,ef,ef2,esmr,esmr2,efp,efm,wtx,wfac,we,esmrx, dwdummy,&
        &wtt,wexx,www,exx,exxq,wex
   integer:: ngpmx, ngcmx, igc,                     nadd(3)
   real(8) :: wgt0(nq0i,ngrp),qk(3), qdiff(3),add(3),symgg(3,3,ngrp),symope(3,3),&
@@ -279,15 +279,8 @@ subroutine sxcf_fal3z(&
   integer:: ib1,ib2,ifix
   !cccccccccccccccccccccccccccccccccc
   logical ::iww2=.true., oncew
-  !...
-  !      logical::smbasis
   integer:: iclose,isx,iqx !nn,no,ifpomat,
-  !      complex(8),allocatable:: pomat(:,:)
   real(8):: q_r(3)
-  !      integer:: nnmx,nomx,nkpo, nnr(nkpo),nor(nkpo)
-  !      complex(8):: pomatr(nnmx,nomx,nkpo)
-  !      real(8):: qrr(3,nkpo)
-
   real(8):: elxx,ehxx,ekxx,efxx
   integer:: ixsmin,iwm,iir,nwxi, itini,itend, npm
   real(8)   :: fffr(3),ppp
@@ -312,6 +305,7 @@ subroutine sxcf_fal3z(&
   real(8):: qip(3,*),deltaw,shtw,eqx(nband),dwplot,tolq=1d-8
   complex(8),allocatable:: zmelt(:,:)
   integer:: ntqxx,nrot
+  real(8),external::wfacx
   !--------------------------------------------------------------------
   write(6,*)'sxcf_fal3z'
   !      timemix=.false.

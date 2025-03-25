@@ -1279,6 +1279,7 @@ contains
 20  enddo
   end subroutine hsmbld
   subroutine ropylg2(lmax2,kmax,nlm,kmax0,nlm0,hkl, ghkl) !ghkl are derivatives of hkl wrt (x,y,z)
+    use m_scg,only:scglp1
     implicit none !hkl(k,ilm) \propto r^k Y_ilm
     integer :: kmax,nlm,kmax0,nlm0,ilm,k,kx1,kx2,ky1,ky2,kz,lmax2,m,nlm1
     complex(8):: hkl(0:kmax0,nlm0),ghkl(0:kmax0,nlm0,3)

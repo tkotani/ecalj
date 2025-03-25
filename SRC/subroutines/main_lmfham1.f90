@@ -3,7 +3,8 @@ module m_lmfham1
   public lmfham1
   private
 contains
-subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|MPO> and overlap <MPO|MPO>
+  subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|MPO> and overlap <MPO|MPO>
+  use mpi
   use m_HamPMT,only: ReadHamPMTInfo, HamPMTtoHamRsMPO, plat,npair,nlat,nqwgt,ldim,nkp,qplist,ib_table,alat,symops,ngrp,pos
   !                                  HamPMTtoHamRsMPO do not change variables here. Only generate HamRsMTO file.
   use m_HamRsMPO,  only: ReadHamRsMPO, hammr,ovlmr,ndimMTO, npairmx,nspx,ib_tableM
@@ -30,7 +31,7 @@ subroutine lmfham1() ! Get the Hamiltoniand on the MT-Projected orbitals <MPO|H|
   logical:: lprint=.true.,savez=.false.,getz=.false.,eee
   character(256):: fband(2)=['band_MPO_spin1.dat','band_MPO_spin2.dat'],cccx
   character(8):: prgnam=''
-  include "mpif.h"
+!  include "mpif.h"
 !  call setcmdpath() !Set self-command path (this is for call system at m_lmfinit)
   call m_ext_init()         ! Get sname, e.g. trim(sname)=si of ctrl.si
   call m_MPItk_init() ! mpi initialization

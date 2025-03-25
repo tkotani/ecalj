@@ -1,4 +1,5 @@
-module m_madmat
+!> Coefficients to Madelung matrix
+module m_madmat 
   contains
 !      subroutine madmat(nbas,bas,awald,alat,vol,dlat,nkd,glat,nkg,dmad)
 !        call madmat ( nbas , rv_a_opos , lat_awald , lat_alat , lat_vol , rv_a_odlv
@@ -9,7 +10,6 @@ subroutine madmat(dmad)
   use m_lattic,only: awald=>lat_awald,vol=>lat_vol,dlat=>rv_a_odlv,nkd=>lat_nkd,glat=>rv_a_oqlv, nkg=>lat_nkq,bas=>rv_a_opos
   use m_shortn3_plat,only: shortn3_plat,nout,nlatout
   use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat
-  !- Coefficients to Madelung matrix
   ! ----------------------------------------------------------------
   !i Inputs
   !i   nbas,bas,awald,alat,vol,dlat,nkd,glat,nkg

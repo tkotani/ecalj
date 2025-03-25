@@ -10,13 +10,14 @@ subroutine hsocmat()
   use m_read_bzdata,only: read_bzdata,qibz, nqbz,nqibz,irk,n1,n2,n3,ginv,qbz,wbz
   use m_hamindex,only: readhamindex,symops,ngrp,napwmx,ndham
   use m_ftox
+  use mpi
   implicit none
   integer(4) :: nwf,iko_ix,iko_fx,nband_wfn,ik1(2),ik2(2),ik1m,ik2m
   real(8) :: q(3)
   real(8),allocatable:: qreg(:,:),ddd(:)
   complex(8),allocatable :: dnk(:,:,:,:)
   integer :: iq,ib,  ngpmx
-  integer:: i,id,j,ifi,iqbz2,ifile_handle,incwfin
+  integer:: i,id,j,ifi,iqbz2,incwfin
   integer :: isp,iqbz,iwf,iopen!,nprecb,mrecb,mrece,nlmtot,nqbzt,ifhbed, mrecg,nband
   character*4::fname
   logical:: debug=.false.
@@ -35,7 +36,7 @@ subroutine hsocmat()
   complex(8):: ovi(2,2),aa,bb,cc,dd
   logical:: socmatrix
   character(8) :: xt
-  include 'mpif.h'
+!  include 'mpif.h'
   integer:: ierr
   call mpi_init(ierr)
   incwfin= -1

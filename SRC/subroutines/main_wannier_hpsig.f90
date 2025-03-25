@@ -13,6 +13,7 @@ subroutine hpsig_MPI()
   ! Takashi Miyake, Mar 2008, parallelized
   ! Takashi Miyake, Jun 2004
   !-------------------------------------------------
+  use mpi
   use m_readqg,only: readngmx,ngcmx,readqg0,readqg
   use m_hamindex,only:   readhamindex,ngrp
   use m_readeigen,only:init_readeigen,init_readeigen2,readcphif,readgeigf
@@ -100,7 +101,7 @@ subroutine hpsig_MPI()
        ifbb,nbb,iko_ixs(2),iko_fxs(2),noxs(2), &
        iqibz,iqbz,ibb,itmp,itmp2,iti,itf, &
        nqibz2,nqbz2,iqb,ibb2,iqtmp,ibbtmp, &
-       ia,iwf,ifile_handle!,if101
+       ia,iwf!,ifile_handle!,if101
   integer(4),allocatable:: ikidx(:),ikbidx(:,:)
   real(8),allocatable :: bbv(:,:),r0g(:,:),c1(:,:,:),c2(:,:,:), &
        phig(:,:,:,:),wphi(:,:)
@@ -109,7 +110,7 @@ subroutine hpsig_MPI()
   logical :: ghead,tailt,debug=.true.
 
   ! m, MPI
-  include 'mpif.h'
+!  include 'mpif.h'
   integer(4):: istatus(MPI_STATUS_SIZE)
   integer(4):: ierr,iftmp
   integer(4):: myproc,nproc,nproc1,nproc2,nq_proc,ii,jj,kk

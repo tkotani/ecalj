@@ -1,11 +1,12 @@
 !> Clebsch-Gordan coefficients
 module m_scg
-  public scg,scg_sizechk
+  public scg,scg_sizechk,scglp1
   ! --- CG coefficienets. <LM3|lm1 lm2>
   ! inxcg = lm1(lm1-1)/2 + lm2 (lm1>lm2)
   ! Injcg = indxcg(inxcg) to indxcg(inxcg)-1
   ! cg(inxcg)  : = <lm3|lm1 lm2>
   ! jcg(lnjcg) : = lm3
+  private
 contains
   subroutine scg(lmax,c,cindx,js)
     !   call scg(lmxcg,cg,indxcg,jcg)
@@ -66,20 +67,20 @@ contains
             !!              
             !  if (m1*m2) 2,3,4
             if(m1*m2<0) then
-               m3 = -n1 - n2
-               mb = -iabs(n1-n2)
-               if(mb == 0) then
-                  nm3 = 1
-               else
-                  nm3 = 2
-               endif
+              m3 = -n1 - n2
+              mb = -iabs(n1-n2)
+              if(mb == 0) then
+                nm3 = 1
+              else
+                nm3 = 2
+              endif
             elseif(m1*m2==0) then
-               m3 = m1+m2
-               nm3 = 1
+              m3 = m1+m2
+              nm3 = 1
             else 
-               m3 = n1+n2
-               mb = iabs(n1-n2)
-               nm3 = 2
+              m3 = n1+n2
+              mb = iabs(n1-n2)
+              nm3 = 2
             endif
 5           continue              
             n3 = iabs(m3)
@@ -153,20 +154,20 @@ contains
             t2=0
             if(m2 == 0) t2=1
             if(m1*m2 <0) then !  if(m1*m2) 2,3,4
-               m3=-n1-n2
-               mb=-iabs(n1-n2)
-               if(mb == 0) then
-                  nm3=1
-               else
-                  nm3=2
-               endif
+              m3=-n1-n2
+              mb=-iabs(n1-n2)
+              if(mb == 0) then
+                nm3=1
+              else
+                nm3=2
+              endif
             elseif(m1*m2==0) then
-               m3=m1+m2
-               nm3=1
+              m3=m1+m2
+              nm3=1
             else
-               m3=n1+n2
-               mb=iabs(n1-n2)
-               nm3=2
+              m3=n1+n2
+              mb=iabs(n1-n2)
+              nm3=2
             endif
 5           continue
             n3=iabs(m3)
@@ -241,4 +242,62 @@ contains
     f102 = 0d0
   END function f102
 
+  subroutine scglp1(mlm, kz,cz,kx1,kx2,cx1,cx2,ky1,ky2,cy1,cy2) !- Makes Clebsch-Gordan coefficients coupling to l+1 for one mlm. See ropylg and m_smhankel
+    use m_ll,only:ll
+    ! ----------------------------------------------------------------------
+    !i Inputs
+    !i   mlm
+    !o Outputs
+    !o   kz    :ilm of z component for ll(mlm)+1; see Remarks
+    !o   cz    :coefficient for z component for ll(mlm)+1
+    !o   kx1   :ilm of 1st x component for ll(mlm)+1; see Remarks
+    !o   kx2   :ilm of 2nd x component for ll(mlm)+1; see Remarks
+    !o   cx1   :coefficient for 1st x component for ll(mlm)+1
+    !o   cx2   :coefficient for 2nd x component for ll(mlm)+1
+    !o   ky1   :ilm of 1st y component for ll(mlm)+1; see Remarks
+    !o   ky2   :ilm of 2nd y component for ll(mlm)+1; see Remarks
+    !o   cy1   :coefficient for 1st y component for ll(mlm)+1
+    !o   cy2   :coefficient for 2nd y component for ll(mlm)+1
+    !r Remarks
+    !r   Gradients can be generated from smoothed Hankels as follows: Coefficients must still be multiplied by sqrt(3/4pi)
+    implicit none
+    integer :: mlm,kz,kx1,kx2,ky1,ky2,l,lav,m,mm,isg,kav,ma,mb
+    real(8) :: cz,cx1,cx2,cy1,cy2,bot,top,tap,cofa,cofb
+    l = ll(mlm)
+    lav = l*l+l+1
+    m = mlm-lav
+    mm = iabs(m)
+    isg = 1
+    if (m < 0) isg = -1
+    kav = (l+1)*(l+1)+(l+1)+1
+    bot = (2*l+1)*(2*l+3)
+    !     z coefficient
+    kz = kav+m
+    cz = dsqrt((l+mm+1)*(l-mm+1)/bot)
+    !     x,y coefficients
+    top = (l+1+mm)*(l+2+mm)/2d0
+    tap = (l+1-mm)*(l+2-mm)/2d0
+    if (mm /= 0) top = 0.5d0*top
+    if (mm /= 1) tap = 0.5d0*tap
+    cofa = dsqrt(top/bot)
+    cofb = dsqrt(tap/bot)
+    ma = isg*(mm+1)
+    mb = isg*(mm-1)
+    kx1 = kav+ma
+    cx1 = cofa
+    kx2 = kx1
+    cx2 = 0d0
+    if (m /= -1 .AND. m /= 0) then
+      kx2 = kav+mb
+      cx2 = -cofb
+    endif
+    ky1 = kav-ma
+    cy1 = isg*cofa
+    ky2 = ky1
+    cy2 = 0d0
+    if (m /= 0 .AND. m /= 1) then
+      ky2 = kav-mb
+      cy2 = isg*cofb
+    endif
+  end subroutine scglp1
 endmodule m_scg

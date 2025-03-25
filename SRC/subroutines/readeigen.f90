@@ -4,8 +4,8 @@
 ! note: we have to call init_foobar to call readeval, readcphi, readgeig.
 ! ----------------
 module m_readeigen
-  use m_mpiio,only: openm,readm,closem
   use m_ftox
+  use m_mpiio,only: openm,readm,closem
   use m_lgunit,only:stdo
   use m_iqindx_qtt,only: Iqindx2_, Init_iqindx_qtt
   use m_hamindex,only:   ngpmx, nqtt, nqi, qtt,iqimap, iqmap,igmap,shtvg,qlat,symops

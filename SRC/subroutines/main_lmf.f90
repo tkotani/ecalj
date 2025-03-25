@@ -8,8 +8,9 @@
 module m_lmf
 contains
   subroutine lmf(commin) bind(C)
+    use mpi
     use m_args,only:     argall
-    use m_ext,only:      m_ext_init,sname
+    use m_ext,only:      sname !m_ext_init,
     use m_MPItk,only:    m_MPItk_init, nsize, master_mpi
     use m_lgunit,only:   m_lgunit_init, stdo,stdl
     use m_cmdpath,only:  setcmdpath
@@ -30,6 +31,7 @@ contains
     use m_writeham,only: m_writeham_init, m_writeham_write
     use m_lmfp,only:     lmfp  !this is main part lmfp-->bndfp
     use m_writeband,only: writepdos,writedossawada
+    use m_vbmmode,only: vbmmode
     use m_ftox
     implicit none
     integer,optional:: commin
@@ -38,7 +40,7 @@ contains
     character:: outs*20,aaa*512,sss*128
     character(32):: prgnam
     integer:: comm
-    include "mpif.h" 
+!    include "mpif.h" 
     comm = MPI_COMM_WORLD
     if(present(commin)) comm= commin  
     if(cmdopt2('--jobgw=',outs))then
@@ -49,7 +51,7 @@ contains
        prgnam='LMF'
     endif
     call m_MPItk_init(comm)  ! MPI info
-    call m_ext_init()    ! Get sname, e.g. trim(sname)=si of ctrl.si
+    !call m_ext_init()    ! Get sname, e.g. trim(sname)=si of ctrl.si
     call m_lgunit_init() ! Set file handle of stdo(console) and stdl(log)    !print *, 'len_trim(argall)=',trim(argall),len_trim(argall),master_mpi
     aaa='===START '//trim(prgnam)//' with  '//trim(argall)//' ==='
     if(master_mpi) write(stdo,"(a)") trim(aaa)
@@ -75,7 +77,7 @@ contains
        write(ifi,"(a)")'Start '//trim(prgnam)//trim(argall)
        close(ifi)
     endif   
-    if(master_mpi) call ConvertCtrl2CtrlpByPython() !convert ctrl file to ctrlp.
+!    if(master_mpi) call ConvertCtrl2CtrlpByPython() !convert ctrl file to ctrlp.
     if(cmdopt0('--quit=ctrlp')) call rx0('--quit=ctrlp')
     call MPI_BARRIER( comm, ierr)
     call m_lmfinit_init(prgnam,comm)! Read ctrlp into module m_lmfinit.
@@ -111,7 +113,7 @@ contains
     if(writeham .AND. master_mpi) call m_writeham_write()
     if( cmdopt0('--quit=ham') ) call rx0('quit = ham')
     if(cmdopt0('--vbmonly')) then !Get VBM and CBM relative to vaccum ! (a simple approximaiton to determine VBM and CBM. Need fixing if necessary).
-       if(master_mpi) call Vbmmode()
+       if(master_mpi) call vbmmode()
        call rx0('--vbmonly mode done')
     endif
     if(cmdopt0('--getq')) then ! Current version is not for spin dependent, with many restrictions.
@@ -124,21 +126,3 @@ contains
     if(master_mpi) write(stdo,"(a)")"OK! end of "//trim(prgnam)//" ======================"
   end subroutine lmf
 end module m_lmf
-
-subroutine ConvertCtrl2CtrlpByPython()
-  use m_MPItk,only: master_mpi
-  use m_args,only: argall
-  use m_ext,only :sname        ! sname contains extension. foobar of ctrl.foobar
-  use m_cmdpath,only:cmdpath
-  use m_lgunit,only: stdo,stdl
-  implicit none
-  character(512):: cmdl
-  logical:: fileexist
-  integer::ifi
-  inquire(file='ctrl.'//trim(sname),exist=fileexist)
-  if(.NOT.fileexist) call rx("No ctrl file found!! ctrl."//trim(sname))
-  cmdl=trim(cmdpath)//'ctrl2ctrlp.py '//trim(argall)//'<ctrl.'//trim(sname)//' >ctrlp.'//trim(sname)
-  write(stdo,"(a)")'cmdl for python='//trim(cmdl)
-  call system(cmdl) !See  results ctrlp.* given by ctrl2ctrl.py 
-end subroutine ConvertCtrl2CtrlpByPython
-

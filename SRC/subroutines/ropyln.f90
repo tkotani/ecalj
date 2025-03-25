@@ -64,6 +64,7 @@ contains
   end subroutine ropyln
   subroutine ropylg(lp,lmax,ndim,nrx,nr,x,y,z,r2,yl,gyl)!- Gradients of YL's (polynomials) for a set of points, with YL as input
     use m_ll,only:ll
+    use m_scg,only:scglp1
     !i   lp    :if nonzero, adds term  r^l grad (r^-l Yl).
     !i   lmax  :maximum l for a given site
     !i   ndim  :dimensions gyl.  Must be at least (lmax+1)**2
