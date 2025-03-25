@@ -9,8 +9,8 @@ def comp(f1,f2,label,tol,key,key2=None):
         for i,line in enumerate(ifile): #print(line.split(' '))
             if(re.search(key,line)):
                 if(ix==0 or (ix!=0 and re.search(key2,line))):
-                    line=re.sub('=\s+','=',line)
-                    line=re.sub(':\s+',':',line)
+                    line=re.sub(r'=\s+','=',line)
+                    line=re.sub(r':\s+',':',line)
                     #print(key,line)
                     val[ifnum]= float(re.split(key,line)[1].split(' ')[0])
     #sys.exit()
@@ -30,8 +30,8 @@ def compall(f1in,f2in,tol):
     f2= open(f2in,'rt').read().split('\n')
     diff=0
     for ifnum,ifi in enumerate(f1):
-        iline1=re.split('\s+',f1[ifnum])
-        iline2=re.split('\s+',f2[ifnum])
+        iline1=re.split(r'\s+',f1[ifnum])
+        iline2=re.split(r'\s+',f2[ifnum])
         #print(ifnum, iline1, iline2)
         if(iline1[0][0:1]=='#'): continue
         iline1=[float(i) for i in iline1 if i!=''] #and float(i)!=0]
@@ -57,7 +57,7 @@ def compeval(f1in,f2in,key,lineeval,evalso,tol):
             if(re.search(key,idat)): ifg=1
             if(ifg>0): ifg=ifg+1
             if(ifg==int(lineeval)+1):
-                ival=[i for i in re.split('\s+',idat) if i!='']
+                ival=[i for i in re.split(r'\s+',idat) if i!='']
                 if(ifi==1):
                     evhomo1=float(ival[int(evalso)-1])
                     evlumo1=float(ival[int(evalso)])
@@ -148,24 +148,24 @@ dorbmtol=1e-5
 def test1_check(f1,f2):
     print('compare '+f1 +' and '+f2)
     test=  comp(f1,f2,'FA etot (last species)  ',defatol1, 'etot=' )
-    test+= comp(f1,f2,'1st  iter ehf.eV        ',dehf1tol1,'ehf\(eV\)=','^h')
-    test+= comp(f1,f2,'1st  iter ehk.eV        ',dehf1tol1,'ehk\(eV\)=','^h')
+    test+= comp(f1,f2,'1st  iter ehf.eV        ',dehf1tol1,r'ehf\(eV\)=','^h')
+    test+= comp(f1,f2,'1st  iter ehk.eV        ',dehf1tol1,r'ehk\(eV\)=','^h')
     test+= comp(f1,f2,'1st  iter mmom          ',dmom1tol1,'mmom=','^h')
     test+= comp(f1,f2,'2nd  iter ehf.Ry        ',dehf1toln,'ehf=','it  2')
     test+= comp(f1,f2,'2nd  iter ehk.Ry        ',dehf1toln,'ehk=','it  2')
     test+= comp(f1,f2,'9th  iter ehf.Ry        ',dehf1toln,'ehf=','it  9')
     test+= comp(f1,f2,'9th  iter ehk.Ry        ',dehf1toln,'ehk=','it  9')
-    test+= comp(f1,f2,'last iter x ehf.eV      ',dehf1toln,'ehf\(eV\)=','^x')
-    test+= comp(f1,f2,'last iter x ehk.eV      ',dehf1toln,'ehk\(eV\)=','^x')
-    test+= comp(f1,f2,'last iter c ehf.eV      ',dehf1toln,'ehf\(eV\)=','^c')
-    test+= comp(f1,f2,'last iter c ehk.eV      ',dehf1toln,'ehk\(eV\)=','^c')
-    test+= comp(f1,f2,'last iter E(LDA+U).eV   ',dehf1toln,'Etot\(LDA+U\)=')
+    test+= comp(f1,f2,'last iter x ehf.eV      ',dehf1toln,r'ehf\(eV\)=','^x')
+    test+= comp(f1,f2,'last iter x ehk.eV      ',dehf1toln,r'ehk\(eV\)=','^x')
+    test+= comp(f1,f2,'last iter c ehf.eV      ',dehf1toln,r'ehf\(eV\)=','^c')
+    test+= comp(f1,f2,'last iter c ehk.eV      ',dehf1toln,r'ehk\(eV\)=','^c')
+    test+= comp(f1,f2,'last iter E(LDA+U).eV   ',dehf1toln,r'Etot\(LDA+U\)=')
     test+= comp(f1,f2,'last iter max force     ',dfmax1tol1,'Maximum Harris force =')
     test+= comp(f1,f2,'last iter mmom          ',dmom1tol1,'mmom=')
     test+= comp(f1,f2,'chk1ch last iter RMS dq ',drmsqtol1,'RMS DQ=')
     test+= comp(f1,f2,'Orbital moment          ',dorbmtol,'total orbital moment   1:')
-    test+= comp(f1,f2,'last iter ehf.eV E(MTO+PW)',dehf1toln,'pwmode=[^0].*ehf\(eV\)=')
-    test+= comp(f1,f2,'last iter ehk E(MTO+PW)  ',dehf1toln, 'pwmode=[^0].*ehk\(eV\)=')
+    test+= comp(f1,f2,'last iter ehf.eV E(MTO+PW)',dehf1toln,r'pwmode=[^0].*ehf\(eV\)=')
+    test+= comp(f1,f2,'last iter ehk E(MTO+PW)  ',dehf1toln, r'pwmode=[^0].*ehk\(eV\)=')
     #print(test)
     if('ERR!' in test) :
         aaa=' FAILED! TEST 1 compare files:'+f1+' and '+f2
