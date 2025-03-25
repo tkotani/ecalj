@@ -359,13 +359,13 @@ def plotws(b1,b2,b3):
     i=0
     for iline in sfile:
         i=i+1
-        ilr=re.split('\s+',iline)
+        ilr=re.split(r'\s+',iline)
         n=int(ilr[0])
         if(n==0): break
     nline=i-1
     for iline in sfile:
         i=i+1         #print(i,iline)
-        ilr=re.split('\s+',iline)
+        ilr=re.split(r'\s+',iline)
         n=int(ilr[0])
         if(n==0): break
         x= [float(ilr[i]) for i in range(1,4)]
@@ -375,8 +375,10 @@ def plotws(b1,b2,b3):
         text = [iii,eee]
         print('symline=',text)
         add_arrow(fig, x[0], x[1], x[2], y[0], y[1], y[2],text,lwid=4,linecolor='red',warrow=True,asize=asize)
-    fig.write_html("./BZ.html") 
-    fig.show()
+    fig.write_html("./BZ.html")
+    print('\nBZ.html contains BZ plot by plotly!')
+    print('We get syml.foobar to specify symmetry lines!')
+    #fig.show()
     
 if __name__ == "__main__":
     qlat=[]
