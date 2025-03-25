@@ -5,7 +5,7 @@ set grid
 set ylabel "Energy-Efermi(eV)"
 # This is given written in subroutine writeband in lm7K/fp/bndfp.F
 set title "Band fe isp=1 at /home/takao/ecalj/Samples/MLOsamples/Fe"
-set yrange [   -20.00000:    40.00000]
+set yrange [   -20.00000:    20.00000]
 set xrange [0.0:     4.64626]
 set xtics ('GAMMA'   0.0000000000,\
 'H'   1.0000000000,\

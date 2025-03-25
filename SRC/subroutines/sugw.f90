@@ -222,9 +222,146 @@ contains
     ndble = 8
     mrecb = 2*ndima* nspc* nbandmx *ndble !byte size  !Use -assume byterecl for ifort, so that ifort recognizes the recored in the unit of bytes.
     mrece = nbandmx          *ndble 
-    mrecg = 2*ngpmx*nbandmx  *ndble 
-    allocate(cphix(ndima,nspc,nbandmx),geigr(ngpmx,nspc,nbandmx))
+    mrecg = 2*ngpmx*nbandmx  *ndble
+    WriteGWfiles: if(master_mpi) then
+      WriteGWfilesB: block
+        integer,allocatable:: ncindx(:),lcindx(:)
+        integer:: iorb,lx,nx,ifoc,ibas,ifec,irad,ifphi,ir,ibasf(nbas),ibasx,ifigwin,nnv,ifhbed
+        logical:: laf
+        ! @MNLA_core.chk index for core
+        open(newunit=ifnlax,file='@MNLA_core.chk')
+        write(ifnlax,"(a)") '    m    n    l  icore ibas   ' ! Index for core
+        write(ifnlax,'(" ------- core ------------")')
+        do ibas = 1,nbas
+          is   = ispec(ibas)
+          ic   = iclass(ibas)
+          icore = 0             
+          do l  = 0, lmxa(is)
+            do kkk = l+1,konf0(l,ic)-1 !kkk is the quantum principle number
+              icore = icore+1
+              n  = kkk - l   ! n is starting from 1 for any l.  
+              do mmm=-l,l
+                write(ifnlax,'(10i5)') mmm, n, l, icore, ibas !MNLA index. magnetic radial l numcore, ibas
+              enddo
+            enddo
+          enddo
+        enddo
+        close(ifnlax)
+        ! @MNLA_CPHI index for cphi 
+        open(newunit=ifoc,file='@MNLA_CPHI')
+        write(ifoc,"('    m    n    l ibas')")
+        iorb=0
+        do ibas = 1,nbas
+          ic = iclass(ibas)
+          is = ispec(ibas)
+          do lx = 0,lmxa(is)
+            do nx = 1,nvmax(lx,ic)
+              iorb=iorb+1
+              do mx = -lx,lx
+                write(ifoc,"(10i6)")mx,nx,lx,ibas,iord(mx,nx,lx,ibas),iorb
+              enddo
+            enddo
+          enddo
+        enddo
+        !ECORE
+        write(stdo,ftox)" === Radial function indexing === nradmx=", nradmx
+        do ibas=1,nbas
+          write(stdo,ftox)' ---- ibas nrad(ibas) =', ibas, nrad(ibas)
+          do irad = 1,nrad(ibas)
+            write(stdo,'("      irad=",i3," nindx_r lindx_r=",2i3)')irad, nindx_r(irad,ibas), lindx_r(irad,ibas)
+          enddo
+        enddo
+        write(stdo,ftox)" === Write ECORE ==="
+        open(newunit=ifec, file='ECORE')
+        ibasloopc: do ibas = 1,nbas
+          ic    = iclass(ibas)
+          is    = ispec(ibas)
+          write(ifec,*)            !ECORE
+          write(ifec,*) slabl(is) !spid(ibas) !ECORE
+          write(ifec,*) ' z,atom=class,nr,a,b,nsp ' !ECORE
+          write(ifec,"(1x,f5.1,2i10,f13.5,d14.6,i4)") zz(is),ibas,nrc(ic),aac(ic),bbc(ic),nsp !ECORE
+          write(ifec,*)' configuration'!   !!! LocalOrbital 2=upper 1=lower' !ECORE
+          write(ifec,ftox)(konf0(l,ic),l=0,lmxa(is)) !principl quantum  number of valence minimum
+          write(ifec,*)' l,n, ecore(up), ecore(down) ' !ECORE ! related to LocalOrbital part lower(=1) upper(=2).
+          icore = 0
+          do l  = 0,lmxa(is)
+            do kkk = l+1 ,konf0(l,ic)-1
+              icore = icore+1
+              n    = kkk - l
+              write(ifec,ftox) l,n,ftod(ecore(icore,1:nsp,ic),16) !,ftod(ec(icore,ic,1:nsp),16) !ECORE 
+            enddo
+          enddo
+        enddo ibasloopc
+        close(ifec)
+        !PHIVC  
+        write(stdo,ftox)" === Write PHIVC ==="
+        open(newunit=ifphi,file='PHIVC',form='unformatted')
+        write(ifphi) nbas, nradmx,ncoremx,nrmxe !extented for nrc
+        write(ifphi) nrad(1:nbas)
+        write(ifphi) nindx_r(1:nradmx,1:nbas),lindx_r(1:nradmx,1:nbas)
+        allocate(ncindx(ncoremx),lcindx(ncoremx),source=-9999)
+        ibasloopw: do ibas = 1,nbas
+          ic    = iclass(ibas)
+          is    = ispec(ibas)
+          allocate(rofi(nrc(is)))
+          rofi = [(bbc(ic)*(exp((ir-1)*aac(ic))-1d0), ir=1,nrc(ic))]
+          icore = 0
+          do l  = 0,lmxa(is) !lmxax !nl-1 !lmxa(is)
+            do kkk = l+1 ,konf0(l,ic)-1
+              icore = icore+1
+              n    = kkk - l
+              ncindx(icore)= n
+              lcindx(icore)= l
+            enddo
+          enddo
+          write(ifphi) ncores(is), ncoremx !core
+          write(ifphi) ncindx,lcindx !core
+          write(ifphi) ibas,zz(is),nrc(ic),aac(ic),bbc(ic)
+          write(ifphi) rofi(1:nrc(ic))
+          do isp = 1, nsp 
+            do icore = 1, ncores(is)
+              write(ifphi) gcore_n(1:nrc(ic),icore, isp,ic) ! core
+            enddo
+            do irad = 1,nrad(ibas)
+              l = lindx_r (irad,ibas)
+              n = nindx_r(irad,ibas)
+              write(ifphi) gval_orth(1:nrc(ic),l, n, isp,ic)  ! valence orthogonalized
+              write(ifphi) gval_n (1:nrc(ic),l, n, isp,ic)  ! valence raw
+            enddo
+          enddo
+          deallocate(rofi)
+        enddo ibasloopw
+        close(ifphi)
+        ! LMTO file. basic part of crystal structure.
+        write(stdo,ftox)" === Write LMTO file(crystal structure info and so on) ==="
+        ibasf=-999
+        do ibas=1,nbas
+          do ibasx=ibas+1,nbas !is this fine?
+            if(abs(iantiferro(ibas))/=0 .AND. iantiferro(ibas)+iantiferro(ibasx)==0) then
+              ibasf(ibas)=ibasx
+              exit
+            endif
+          enddo
+          if(ibasf(ibas)/=-999) write(6,"(a,2i5)")' AF pair: ibas ibasf(ibas)=',ibas,ibasf(ibas)
+        enddo
+        laf= sum(abs(iantiferro))/=0
+        nnv = maxval(nindx(1:ndima))
+        write(stdo,ftox)' iantiferro=',iantiferro(1:nbas)
+        open(newunit=ifigwin,file='MTOindex',form='unformatted')    
+        write(ifigwin) nbas,alat,plat,nsp,lmxax+1,nnv,nnc,nrmxe,qval,nspc,nlmto
+        write(ifigwin) pos,zz(ispec(1:nbas)),slabl(ispec(1:nbas)),lmxa(ispec(1:nbas))
+        write(ifigwin) ndble,mrecb,mrece,ndima,nqbz,nbandmx,mrecg
+        write(ifigwin) laf,ibasf 
+        close(ifigwin)
+        open(newunit=ifhbed,file='hbe.d.chk') !human check only 
+        write(stdo,'( " ndima nbandmx=",3i5)') ndima, nbandmx
+        write(ifhbed,"('hbe output=',*(g0,x))") ndble,mrecb,mrece,ndima,nqbz,nbandmx,mrecg,nspc
+        write(ifhbed,*)' precision, mrecl of b, mrecl of eval, ndima(p+d+l)  nqbz  nbandmx mrecg nspc'
+        close(ifhbed)
+      endblock WriteGWfilesB
+    endif WriteGWfiles
     ! CPHI GEIG. We use mpi-io from 2024-9-26
+    allocate(cphix(ndima,nspc,nbandmx),geigr(ngpmx,nspc,nbandmx))
     i=openm(newunit=ifcphim,file='CPHI',recl=mrecb)
     i=openm(newunit=ifgeigm,file='GEIG',recl=mrecg)
     if(cmdopt0('--skipCPHI')) goto 1011
@@ -520,155 +657,18 @@ contains
     call mpibc2_real(evl,   nbandmx*nqirr*nspx,'evl')
     call mpibc2_real(vxclda,nbandmx*nqirr*nspx,'vxclda')
 1011 continue !skipcphi
-    WriteGWfiles: if(master_mpi) then
-      WriteGWfilesB: block
-        integer,allocatable:: ncindx(:),lcindx(:)
-        integer:: iorb,lx,nx,ifoc,ifv,ibas,ifec,irad,ifphi,ir,ibasf(nbas),ibasx,ifigwin,nnv,ifhbed
-        logical:: laf
-        ! VXCFP       
-        open(newunit=ifv,file='VXCFP',form='unformatted')
-        write(ifv) nbandmx,nqirr
-        do iqq = 1,nqirr 
-          write(ifv) qplist(1:3,iqq), vxclda(1:nbandmx,iqq,1:nspx) ! VXCFP
-        enddo
-        ! Evalue
-        open(newunit=ifev,file='EValue',form='unformatted')
-        write(ifev) nbandmx, nqirr, nsp,nspc
-        write(ifev) qplist(1:3,1:nqirr) !qirr
-        write(ifev) evl(1:nbandmx, 1:nqirr, 1:nspx )
-        close(ifev)
-        ! @MNLA_core.chk index for core
-        open(newunit=ifnlax,file='@MNLA_core.chk')
-        write(ifnlax,"(a)") '    m    n    l  icore ibas   ' ! Index for core
-        write(ifnlax,'(" ------- core ------------")')
-        do ibas = 1,nbas
-          is   = ispec(ibas)
-          ic   = iclass(ibas)
-          icore = 0             
-          do l  = 0, lmxa(is)
-            do kkk = l+1,konf0(l,ic)-1 !kkk is the quantum principle number
-              icore = icore+1
-              n  = kkk - l   ! n is starting from 1 for any l.  
-              do mmm=-l,l
-                write(ifnlax,'(10i5)') mmm, n, l, icore, ibas !MNLA index. magnetic radial l numcore, ibas
-              enddo
-            enddo
-          enddo
-        enddo
-        close(ifnlax)
-        ! @MNLA_CPHI index for cphi 
-        open(newunit=ifoc,file='@MNLA_CPHI')
-        write(ifoc,"('    m    n    l ibas')")
-        iorb=0
-        do ibas = 1,nbas
-          ic = iclass(ibas)
-          is = ispec(ibas)
-          do lx = 0,lmxa(is)
-            do nx = 1,nvmax(lx,ic)
-              iorb=iorb+1
-              do mx = -lx,lx
-                write(ifoc,"(10i6)")mx,nx,lx,ibas,iord(mx,nx,lx,ibas),iorb
-              enddo
-            enddo
-          enddo
-        enddo
-        !ECORE
-        write(stdo,ftox)" === Radial function indexing === nradmx=", nradmx
-        do ibas=1,nbas
-          write(stdo,ftox)' ---- ibas nrad(ibas) =', ibas, nrad(ibas)
-          do irad = 1,nrad(ibas)
-            write(stdo,'("      irad=",i3," nindx_r lindx_r=",2i3)')irad, nindx_r(irad,ibas), lindx_r(irad,ibas)
-          enddo
-        enddo
-        write(stdo,ftox)" === Write ECORE ==="
-        open(newunit=ifec, file='ECORE')
-        ibasloopc: do ibas = 1,nbas
-          ic    = iclass(ibas)
-          is    = ispec(ibas)
-          write(ifec,*)            !ECORE
-          write(ifec,*) slabl(is) !spid(ibas) !ECORE
-          write(ifec,*) ' z,atom=class,nr,a,b,nsp ' !ECORE
-          write(ifec,"(1x,f5.1,2i10,f13.5,d14.6,i4)") zz(is),ibas,nrc(ic),aac(ic),bbc(ic),nsp !ECORE
-          write(ifec,*)' configuration'!   !!! LocalOrbital 2=upper 1=lower' !ECORE
-          write(ifec,ftox)(konf0(l,ic),l=0,lmxa(is)) !principl quantum  number of valence minimum
-          write(ifec,*)' l,n, ecore(up), ecore(down) ' !ECORE ! related to LocalOrbital part lower(=1) upper(=2).
-          icore = 0
-          do l  = 0,lmxa(is)
-            do kkk = l+1 ,konf0(l,ic)-1
-              icore = icore+1
-              n    = kkk - l
-              write(ifec,ftox) l,n,ftod(ecore(icore,1:nsp,ic),16) !,ftod(ec(icore,ic,1:nsp),16) !ECORE 
-            enddo
-          enddo
-        enddo ibasloopc
-        close(ifec)
-        !PHIVC  
-        write(stdo,ftox)" === Write PHIVC ==="
-        open(newunit=ifphi,file='PHIVC',form='unformatted')
-        write(ifphi) nbas, nradmx,ncoremx,nrmxe !extented for nrc
-        write(ifphi) nrad(1:nbas)
-        write(ifphi) nindx_r(1:nradmx,1:nbas),lindx_r(1:nradmx,1:nbas)
-        allocate(ncindx(ncoremx),lcindx(ncoremx),source=-9999)
-        ibasloopw: do ibas = 1,nbas
-          ic    = iclass(ibas)
-          is    = ispec(ibas)
-          allocate(rofi(nrc(is)))
-          rofi = [(bbc(ic)*(exp((ir-1)*aac(ic))-1d0), ir=1,nrc(ic))]
-          icore = 0
-          do l  = 0,lmxa(is) !lmxax !nl-1 !lmxa(is)
-            do kkk = l+1 ,konf0(l,ic)-1
-              icore = icore+1
-              n    = kkk - l
-              ncindx(icore)= n
-              lcindx(icore)= l
-            enddo
-          enddo
-          write(ifphi) ncores(is), ncoremx !core
-          write(ifphi) ncindx,lcindx !core
-          write(ifphi) ibas,zz(is),nrc(ic),aac(ic),bbc(ic)
-          write(ifphi) rofi(1:nrc(ic))
-          do isp = 1, nsp 
-            do icore = 1, ncores(is)
-              write(ifphi) gcore_n(1:nrc(ic),icore, isp,ic) ! core
-            enddo
-            do irad = 1,nrad(ibas)
-              l = lindx_r (irad,ibas)
-              n = nindx_r(irad,ibas)
-              write(ifphi) gval_orth(1:nrc(ic),l, n, isp,ic)  ! valence orthogonalized
-              write(ifphi) gval_n (1:nrc(ic),l, n, isp,ic)  ! valence raw
-            enddo
-          enddo
-          deallocate(rofi)
-        enddo ibasloopw
-        close(ifphi)
-        ! LMTO file. basic part of crystal structure.
-        write(stdo,ftox)" === Write LMTO file(crystal structure info and so on) ==="
-        ibasf=-999
-        do ibas=1,nbas
-          do ibasx=ibas+1,nbas !is this fine?
-            if(abs(iantiferro(ibas))/=0 .AND. iantiferro(ibas)+iantiferro(ibasx)==0) then
-              ibasf(ibas)=ibasx
-              exit
-            endif
-          enddo
-          if(ibasf(ibas)/=-999) write(6,"(a,2i5)")' AF pair: ibas ibasf(ibas)=',ibas,ibasf(ibas)
-        enddo
-        laf= sum(abs(iantiferro))/=0
-        nnv = maxval(nindx(1:ndima))
-        write(stdo,ftox)' iantiferro=',iantiferro(1:nbas)
-        open(newunit=ifigwin,file='MTOindex',form='unformatted')    
-        write(ifigwin) nbas,alat,plat,nsp,lmxax+1,nnv,nnc,nrmxe,qval,nspc,nlmto
-        write(ifigwin) pos,zz(ispec(1:nbas)),slabl(ispec(1:nbas)),lmxa(ispec(1:nbas))
-        write(ifigwin) ndble,mrecb,mrece,ndima,nqbz,nbandmx,mrecg
-        write(ifigwin) laf,ibasf 
-        close(ifigwin)
-        open(newunit=ifhbed,file='hbe.d.chk') !human check only 
-        write(stdo,'( " ndima nbandmx=",3i5)') ndima, nbandmx
-        write(ifhbed,"('hbe output=',*(g0,x))") ndble,mrecb,mrece,ndima,nqbz,nbandmx,mrecg,nspc
-        write(ifhbed,*)' precision, mrecl of b, mrecl of eval, ndima(p+d+l)  nqbz  nbandmx mrecg nspc'
-        close(ifhbed)
-      endblock WriteGWfilesB
-    endif WriteGWfiles
+    WriteGWfiles2: if(master_mpi) then
+      open(newunit=ifv,file='VXCFP',form='unformatted')
+      write(ifv) nbandmx,nqirr
+      do iqq = 1,nqirr 
+         write(ifv) qplist(1:3,iqq), vxclda(1:nbandmx,iqq,1:nspx) ! VXCFP
+      enddo
+      open(newunit=ifev,file='EValue',form='unformatted')
+      write(ifev) nbandmx, nqirr, nsp,nspc
+      write(ifev) qplist(1:3,1:nqirr) !qirr
+      write(ifev) evl(1:nbandmx, 1:nqirr, 1:nspx )
+      close(ifev)
+    endif WriteGWfiles2
     if(master_mpi.and.(.not.cmdopt0('--skipCPHI'))) then       !call rdata4gw() !Generate other files for GW
       rdata4gwblock: block
         use m_nvfortran,only:findloc
