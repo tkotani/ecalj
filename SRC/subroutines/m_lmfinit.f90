@@ -123,7 +123,8 @@ contains
     real(8),allocatable:: pnuspc(:,:,:),qnuc(:,:,:,:),pp(:,:,:,:),ves(:),zc(:) !    debug = cmdopt0('--debug')
     integer,optional:: commin
     integer:: comm !,nsizex,info
-    comm= merge(commin,MPI_COMM_WORLD,present(commin))
+    comm= MPI_COMM_WORLD
+    if(present(commin)) comm= commin
     !call MPI_Comm_size( comm, nsizex, info ); write(*,*) 'mmmmmmmyyyy 1111 mpisizexxxxxx=',nsizex
     if(master_mpi) write(stdo,"(a)")'m_lmfinit: '//trim(prgnam)
     

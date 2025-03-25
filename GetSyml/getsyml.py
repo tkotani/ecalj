@@ -29,7 +29,7 @@ plat=['']*3
 for iline in plfile:
     if(i==3): break
     i=i+1
-    plat[i-1] = [float(re.split('\s+',iline)[ix]) for ix in range(1,4)]
+    plat[i-1] = [float(re.split(r'\s+',iline)[ix]) for ix in range(1,4)]
 cell = plat
 print ('primitive cell=',cell)
 
@@ -65,7 +65,7 @@ for iline in sitefile:
     if len(iline)==0: 
         nsite=i-1
         break
-    vec=[re.split('\s+',iline)[ix] for ix in range(1,8)]
+    vec=[re.split(r'\s+',iline)[ix] for ix in range(1,8)]
 #    print iline
     pos = [float(vec[ix]) for ix in range(4,7)]
     positions.append([np.dot(pos,qlat[ix]) for ix in range(0,3)])

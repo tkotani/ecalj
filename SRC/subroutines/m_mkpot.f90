@@ -203,7 +203,7 @@ contains
     complex(8):: smrho(n1,n2,n3,nsp),smpot(n1,n2,n3,nsp)
     logical:: cmdopt0,novxc,secondcall=.false.     !      integer,optional:: dipole_
     logical,optional:: novxc_
-    integer:: job,i1,i2,i3,i,iprint,isw,isum, ifi,isp,j,k,ix,ismpot(4) !dipole,
+    integer:: job,i1,i2,i3,i,iprint,isw,isum, ifi,isp,j,k,ix,ismpot(4),iz,iy !dipole,
     real(8):: hpot0_rv(nbas), dq,cpnvsa,qsmc,smq,smag,sum2,rhoex,rhoec,rhvsm,sqloc,sqlocc,saloc,uat,usm,valfsm, &
          valvfa,vvesat,vsum,zsum,rvvxcv(nsp),rvvxc(nsp),rvmusm(nsp),rmusm(nsp), rvepsm(nsp),vxcavg(nsp),repat(nsp),&
          repatx(nsp),repatc(nsp),rmuat(nsp),repsm(nsp),repsmx(nsp),repsmc(nsp),rhobg,gpot0(nlmxlx,nbas),vab_rv(3,3,n0*nsp*nbas),&
@@ -228,10 +228,10 @@ contains
          iy=1
          do ix=1, ismpot(3),4
          do iz=1, ismpot(3)
-            write(ife,'(i5,2e16.8," !eV ")') iz,ix,iy,(smpot(1,1,ix,1)+vconst)*rydberg()
-            write(ife,'(i5,2e16.8," !eV ")') iz,ix,iy,(smpot(1,1,ix,1)+vconst)*rydberg()
-            write(ife,'(i5,2e16.8," !eV ")') iz,ix,iy,(smpot(1,1,ix,1)+vconst)*rydberg()
-            write(ife,'(i5,2e16.8," !eV ")') iz,ix,iy,(smpot(1,1,ix,1)+vconst)*rydberg()
+            write(ife,'(3i5,2e16.8," !eV ")') iz,ix,iy,(smpot(1,1,ix,1)+vconst)*rydberg()
+            write(ife,'(3i5,2e16.8," !eV ")') iz,ix,iy,(smpot(1,1,ix,1)+vconst)*rydberg()
+            write(ife,'(3i5,2e16.8," !eV ")') iz,ix,iy,(smpot(1,1,ix,1)+vconst)*rydberg()
+            write(ife,'(3i5,2e16.8," !eV ")') iz,ix,iy,(smpot(1,1,ix,1)+vconst)*rydberg()
          enddo   
             write(ife,*)
          enddo   

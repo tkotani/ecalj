@@ -161,15 +161,15 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
     if dataset is None:
         raise SymmetryDetectionError(
             "Spglib could not detect the symmetry of the system")
-    conv_lattice = dataset['std_lattice']
-    conv_positions = dataset['std_positions']
-    conv_types = dataset['std_types']
+    conv_lattice = dataset.std_lattice
+    conv_positions = dataset.std_positions
+    conv_types = dataset.std_types
     a, b, c, cosalpha, cosbeta, cosgamma = get_cell_params(conv_lattice)
-    spgrp_num = dataset['number']
+    spgrp_num = dataset.number
     # This is the transformation from the original to the crystallographic
     # conventional (called std in spglib)
     #  Lattice^{crystallographic_bravais} = L^{original} * transf_matrix
-    transf_matrix = dataset['transformation_matrix']
+    transf_matrix = dataset.transformation_matrix
 #    print( 'xxxxxxxxxxxxxxxxxxxxxxxx 000000000000000000000')
 #    print(transf_matrix)
     import sys
@@ -415,7 +415,7 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
 
     else:
         raise ValueError("Unknown type '{}' for spacegroup {}".format(
-            bravais_lattice, dataset['number']))
+            bravais_lattice, dataset.number))
 
     # NOTE: we simply use spglib.find_primitive, because the
     # find_primitive of spglib follows a different convention for mC
@@ -498,6 +498,6 @@ def get_path(structure, with_time_reversal=True, threshold=1.e-7):
             'volume_original_wrt_conv': volume_conv_wrt_original,
             'volume_original_wrt_prim': \
             volume_conv_wrt_original * np.linalg.det(invP),
-            'spacegroup_number': dataset['number'],
-            'spacegroup_international': dataset['international'],
+            'spacegroup_number': dataset.number,
+            'spacegroup_international': dataset.international,
             }
