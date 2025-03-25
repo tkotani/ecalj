@@ -1,4 +1,4 @@
-!> Ititial data for lmf lmchk lmfa read from ctrl file
+!> Ititial data for lmf lmchk lmfa read from ctrlp file
 !> pos can be from AtomPos (see lmfp.f90)
 module m_lmfinit ! 'call m_lmfinit_init' sets all initial data from ctrl are processed and stored in m_lmfinit_init.
   use m_ftox !for write(*,ftox) ftof(values)
@@ -123,27 +123,9 @@ contains
     real(8),allocatable:: pnuspc(:,:,:),qnuc(:,:,:,:),pp(:,:,:,:),ves(:),zc(:) !    debug = cmdopt0('--debug')
     integer,optional:: commin
     integer:: comm !,nsizex,info
-    comm= merge(commin,MPI_COMM_WORLD,present(commin))
-    !call MPI_Comm_size( comm, nsizex, info ); write(*,*) 'mmmmmmmyyyy 1111 mpisizexxxxxx=',nsizex
+    comm=MPI_COMM_WORLD
+    if(present(commin)) comm= commin !call MPI_Comm_size( comm, nsizex, info ); write(*,*) 'mmmmmmmyyyy 1111 mpisizexxxxxx=',nsizex
     if(master_mpi) write(stdo,"(a)")'m_lmfinit: '//trim(prgnam)
-    
-    ! ConvertCtrl2CtrlpByPython: block
-    !   use m_args,only: argall
-    !   character(512):: cmdl
-    !   logical:: fileexist
-    !   if(master_mpi) then
-    !      inquire(file='ctrl.'//trim(sname),exist=fileexist)
-    !      if(.NOT.fileexist) call rx("No ctrl file found!! ctrl."//trim(sname))
-    !      open(newunit=ifi,file='save.'//trim(sname),position='append')
-    !      write(ifi,"(a)")'Start '//trim(prgnam)//trim(argall)
-    !      close(ifi)
-    !      cmdl=trim(cmdpath)//'ctrl2ctrlp.py '//trim(argall)//'<ctrl.'//trim(sname)//' >ctrlp.'//trim(sname)
-    !      write(stdo,"(a)")'cmdl for python='//trim(cmdl)
-    !      call system(cmdl) !See  results ctrlp.* given by ctrl2ctrl.py 
-    !   endif
-    !   call MPI_BARRIER( comm, ierr)
-    ! end block ConvertCtrl2CtrlpByPython
-
     ReadCtrlp: block ! Readin ctrlp
       character(10000):: recrdx=''
       integer::ixx,lenmax

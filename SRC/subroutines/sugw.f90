@@ -360,11 +360,11 @@ contains
         close(ifhbed)
       endblock WriteGWfilesB
     endif WriteGWfiles
+    if(cmdopt0('--skipCPHI')) goto 1011
     ! CPHI GEIG. We use mpi-io from 2024-9-26
     allocate(cphix(ndima,nspc,nbandmx),geigr(ngpmx,nspc,nbandmx))
     i=openm(newunit=ifcphim,file='CPHI',recl=mrecb)
     i=openm(newunit=ifgeigm,file='GEIG',recl=mrecg)
-    if(cmdopt0('--skipCPHI')) goto 1011
     allocate(evl(nbandmx, nqirr, nspx),vxclda(nbandmx, nqirr, nspx),source=0d0)!nqirr: # ofirreducible q points
     iqisploop: do 1001 idat=1,niqisp !iq = iqini,iqend ! iqini:iqend for this procid
       iq  = iqproc(idat) ! iq index
@@ -656,7 +656,6 @@ contains
     call mpi_barrier(comm,ierr)
     call mpibc2_real(evl,   nbandmx*nqirr*nspx,'evl')
     call mpibc2_real(vxclda,nbandmx*nqirr*nspx,'vxclda')
-1011 continue !skipcphi
     WriteGWfiles2: if(master_mpi) then
       open(newunit=ifv,file='VXCFP',form='unformatted')
       write(ifv) nbandmx,nqirr
@@ -669,7 +668,7 @@ contains
       write(ifev) evl(1:nbandmx, 1:nqirr, 1:nspx )
       close(ifev)
     endif WriteGWfiles2
-    if(master_mpi.and.(.not.cmdopt0('--skipCPHI'))) then       !call rdata4gw() !Generate other files for GW
+    if(master_mpi) then       !call rdata4gw() !Generate other files for GW
       rdata4gwblock: block
         use m_nvfortran,only:findloc
         use m_read_bzdata,only: Read_bzdata, nqibz,qibz, nq0i,nq0iadd,q0i,iq0pin
@@ -808,6 +807,7 @@ contains
         write(stdo,*)" end of rdata4gw "
       endblock rdata4gwblock
     endif
+1011 continue !skipcphi
     call tcx('m_sugw_init')
   end subroutine m_sugw_init
 end module m_sugw
