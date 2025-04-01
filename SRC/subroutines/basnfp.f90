@@ -229,7 +229,7 @@ subroutine basnfp_v2(nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate 
                        lxlnln(lx,l2,n2,l1,n1)=iprad
                     enddo
                     rprod(1,iprad) = 0d0
-                    rprod(2:nrofi,iprad)=phiav(2:,l1,n1)*phiav(2:,l2,n2)/r(2:) ! phi = u = r \phi
+                    rprod(2:nrofi,iprad) = phiav(2:nrofi,l1,n1)*phiav(2:nrofi,l2,n2)/r(2:nrofi) ! phi = u = r \phi
                     !          call gintxx(phiav(1,l1,n1), phiav(1,l2,n2),aa,bb,nrofi, sss )
                     !          write(6,"(' normchk phiav*phiav=',4i3,d13.6)") l1,n1,l2,n2,sss
                  endif
@@ -640,7 +640,7 @@ subroutine basnfp_v2(nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate 
                        if(lx <abs(l1-l2) .OR. l1+l2<lx) cycle
                        rphiphi(1)       = 0d0
                        rphiphi(2:nrofi) = phitoto(2:nrofi,l1,n1,ic,isp2) &
-                            *phitoto(2:nrofi,l2,n2,ic,isp1)/r(2:) ! phi = u = r \phi
+                            *phitoto(2:nrofi,l2,n2,ic,isp1)/r(2:nrofi) ! phi = u = r \phi
                        call gintxx(rprodx(1,nx,lx), rphiphi,aa,bb,nrofi, ppbrd(l1,n1,l2,n2,lx,nx) )
                     enddo
                  enddo

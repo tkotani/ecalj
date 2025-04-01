@@ -70,7 +70,9 @@ contains
        write(ifglt,'(a,$)') 'set xtics ('
        do isyml = 1,nsyml   !symmetry line start
           labelp=labeli(isyml)
-          if(isyml>1.and.trim(labele(isyml-1))/=labeli(isyml)) labelp=trim(labele(isyml-1))//'|'//trim(labeli(isyml))
+          if(isyml>1) then
+             if(trim(labele(isyml-1))/=labeli(isyml)) labelp=trim(labele(isyml-1))//'|'//trim(labeli(isyml))
+          endif   
           write(ifglt,'(a,F15.10,",\")')"'"//trim(labelp)//"'",disoff(isyml)
        enddo
        write(ifglt,'(a,F15.10,")")') "'"//trim(labele(nsyml))//"'",disoff(nsyml+1)

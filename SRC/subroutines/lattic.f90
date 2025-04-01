@@ -146,12 +146,12 @@ contains
     if (tol > gq1) write(stdo,*)' lctoff (warning): tol gt gq1'
     q2 = 50d0
     q0 = 5d0
-    do  33  i = 1, 25
-       gq0 = (2d0*pi*q0)**(lmax-2)*dexp(-(pi*q0/a0)**2)*4d0*pi/v0
+    do  33  i = 1,25
+       gq0 = (2d0*pi*q0)**(lmax-2)*dexp(-(pi*q0/a0)**2)*4d0*pi/v0 !!this can cause
        if(gq0 > tol) q1 = q0
        if(gq0 < tol) q2 = q0
        q0 = .5d0*(q1+q2)
-33  enddo
+33  enddo 
     r1 = 0.1d0
     r2 = 50d0
     r0 = 5d0

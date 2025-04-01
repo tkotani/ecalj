@@ -1,4 +1,7 @@
-module m_lmchk
+!> note that lmchk is independent program used for ctrlgenM1.py only.
+! the main purpose of lmchk is just determine the MT raduis with charge neutrality condition.
+! I think it might be probably easier to rewrite new code  without examining detail of lmaux.
+module m_lmchk 
 contains
   subroutine lmchk(commin) bind(C)
     use mpi
@@ -36,7 +39,6 @@ contains
     endif
     call MPI_BARRIER( comm, ierr)
     call m_lmfinit_init(prgnam,comm) ! Computational settings.
-    !call m_mksym_init()  !symmetry go into m_lattic and m_mksym
     if(cmdopt2('--pr=',outs)) then
       read(outs,*) k
       call Setprint(k)

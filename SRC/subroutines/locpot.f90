@@ -248,17 +248,17 @@ contains
                 if(lldau(ib)>0)call vlm2us(lmaxu,rmt,idu(:,is),lmxa, count( idu(:,ispec(1:ib-1))>0 ), & !offset to the Ublock for ib
                      vorb,phzdphz(:,:,:,ib),rotp(0:lmxa,:,:,:,ib), vumm)!LDA+U: vumm of (u,s,gz) from vorb for phi.
                 kmax1=kmax+1
-                call gaugm(nr,nsp,lsox,rofi,rwgt,lmxa,lmxl,nlml,v2,gpot0(:,ib)-gpotb,hab_,vab_,sab_,sodb,qum,vum,& !...Pkl*Pkl !tail x tail
+                call gaugm(nr,nsp,lsox,rofi,rwgt,lmxa,lmxl,nlml,v2,gpot0(1:nlml,ib)-gpotb(1:nlml),hab_,vab_,sab_,sodb,qum,vum,& !...Pkl*Pkl !tail x tail
                      lmaxu,vumm,lldau(ib),idu(:,is),  lmxa,nlma,nlma,& !lmxa=lcutoff for augmentation
                      kmax1,kmax1,lmxa,lxa, fp,xp,vp,dp,&
                      kmax1,kmax1,lmxa,lxa, fp,xp,vp,dp,&
                      osig(1,ib)%v, otau(1,ib)%v, oppi(1,ib)%cv, ohsozz(1,ib)%sdiag, ohsopm(1,ib)%soffd)
-                call gaugm(nr,nsp,lsox,rofi,rwgt,lmxa,lmxl,nlml,v2,gpot0(:,ib)-gpotb,hab_,vab_,sab_,sodb,qum,vum,& !...Hsm*Pkl! head x tail
+                call gaugm(nr,nsp,lsox,rofi,rwgt,lmxa,lmxl,nlml,v2,gpot0(1:nlml,ib)-gpotb(1:nlml),hab_,vab_,sab_,sodb,qum,vum,& !...Hsm*Pkl! head x tail
                      lmaxu,vumm,lldau(ib),idu(:,is),  lmxh, nlmh,nlma, &!lmxh=lcutoff for basis (lmxh<=lmxa is assumed)
                      nkaph,nkapi,lmxh,lhh(:,is),fh,xh,vh,dh,&
                      kmax1,kmax1,lmxa,lxa,      fp,xp,vp,dp,&
                      osig(2,ib)%v, otau(2,ib)%v, oppi(2,ib)%cv, ohsozz(2,ib)%sdiag, ohsopm(2,ib)%soffd)
-                call gaugm(nr,nsp,lsox,rofi,rwgt,lmxa,lmxl,nlml,v2,gpot0(:,ib)-gpotb,hab_,vab_,sab_,sodb,qum,vum,& !...Hsm*Hsm! head x head
+                call gaugm(nr,nsp,lsox,rofi,rwgt,lmxa,lmxl,nlml,v2,gpot0(1:nlml,ib)-gpotb(1:nlml),hab_,vab_,sab_,sodb,qum,vum,& !...Hsm*Hsm! head x head
                      lmaxu,vumm,lldau(ib),idu(:,is),  lmxh,nlmh,nlmh,&
                      nkaph,nkapi,lmxh,lhh(:,is),fh,xh,vh,dh,&
                      nkaph,nkapi,lmxh,lhh(:,is),fh,xh,vh,dh,&

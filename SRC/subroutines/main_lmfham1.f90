@@ -58,21 +58,21 @@ contains
 !         do ib1=1,nbas
 !            do ib2=1,nbas
 !               aaaa=0d0
+!               !write(6,*)'npair=',ib1,ib2,npair(ib1,ib2)
 !               do it = 1,npair(ib1,ib2)
 !                  aaaa=aaaa+ 1d0/(nkp*nqwgt(it,ib1,ib2))*exp(img*2d0*pi* sum(qp*matmul(plat,nlat(:,it,ib1,ib2))))
 !               enddo
 !               cccx=''
 !               if(ikp==ikpd) cccx=' <--'
 !               if(abs(aaaa)>1d-8) then
-!                  if(abs(aaaa-1d0)>1d-8) then
-!                     write(stdo,ftox)'\delta-fun test ikpd ikp',ikpd,ikp,ftof(qplist(:,ikp)),ib1,ib2,ftof(aaaa),trim(cccx)
-!                  endif   
+!                  !if(abs(aaaa-1d0)>1d-8) then
+!                  write(stdo,ftox)'\delta-fun test ikpd ikp',ikpd,ikp,ftof(qplist(:,ikp)),ib1,ib2,ftof(aaaa),trim(cccx)
+!                  !endif   
 !               endif
 !            enddo
 !         enddo
 !      enddo
 !   enddo
-!   stop 'xxxxxxxxxxxxxxxxxxxxxx'
   
   call HamPMTtoHamRsMPO(facw,ecutw,eww) ! MT-projected orbital(MPO) Hamiltoinan. HamRsMPO
   ! Real-space Hamiltonian hammr,ovlmr,ndimMTO are generated,and written to a file HamRsMPO

@@ -39,7 +39,8 @@ contains
     integer,allocatable ::  iv_a_onrc (:), iv_a_oipc(:) 
     logical:: symfind
     ifind = index(ssymgr,'find')
-    gens = merge(ssymgr(1:ifind-1)//' '//ssymgr(ifind+4:),ssymgr, ifind>0)
+    gens = ssymgr
+    if(ifind>0) gens= ssymgr(1:ifind-1)//' '//ssymgr(ifind+4:)
     if(master_mpi) write(stdo,*)' Generators except find: ',trim(gens)
     symfind = ifind>0
     call gensym(slabl,gens,symfind,nbas,nspec,ngmx,plat,plat,rv_a_opos(:,1:nbas),iv_a_oips, & !Generate space group ops
@@ -381,7 +382,7 @@ contains
 99  continue
     call rx('GRPGEN: too many elements nnow ngmx='//trim(xn(nnow))//' '//trim(xn(ngmx)))
   end subroutine grpgen
-  subroutine psymop(t,plat, g,ag,ng) !- Get symmetry group operations(g,ag,ng) from symbolic representation t
+  subroutine psymop(tin,plat, g,ag,ng) !- Get symmetry group operations(g,ag,ng) from symbolic representation t
     !i Inputs:
     !i   t     string of symmetry operations, separated by spaces
     !i   plat  lattice vectors that scale translation part ag  (if needed, i.e. if translation specified by '::')
@@ -395,11 +396,13 @@ contains
     !r   The translation is also of the form (n1,n2,n3) :
     !r  CAUTION!: 2023: we do not allowe math operations in parenthesis. Give numerical number 6digits (if you like to recover, touch ctrl2ctrlp.py)
     implicit none
-    character(*):: t
+    character(*):: tin
     real(8) :: plat(3,3),g(3,3,*),h(3,3),hh(3,3),ag(3,*),vec(3)
     integer :: nt,ng,i
     logical :: flgp
-    character*1:: leftp='(' 
+    character*1:: leftp='('
+    character(256):: t
+    t=tin
     nt = len(t)
     ng = 0
     i = 0

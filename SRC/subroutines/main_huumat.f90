@@ -218,7 +218,7 @@ subroutine h_uumatrix()
             do  n1 = 1, nindx(l1+1,ic)
               do  n2 = 1, nindx(l2+1,ic)
                 rphiphi(1)       = 0d0
-                rphiphi(2:nrofi(ic)) = phitoto(2:nrofi(ic),l1,n1,ic,isp)*phitoto(2:nrofi(ic),l2,n2,ic,isp)/rr(2:,ic) ! phi = u = r \phi
+                rphiphi(2:nrofi(ic)) = phitoto(2:nrofi(ic),l1,n1,ic,isp)*phitoto(2:nrofi(ic),l2,n2,ic,isp)/rr(2:nrofi(ic),ic) ! phi = u = r \phi
                 do lx = 0, 2*(nl-1)
                   if(lx <abs(l1-l2) .OR. l1+l2<lx) cycle
                   call gintxx( rprodx(1,lx), rphiphi,aa(ic),bb(ic),nrofi(ic), ppbrd(l1, n1,l2, n2, lx, isp,ibas) )

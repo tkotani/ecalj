@@ -47,8 +47,9 @@ contains
       offset(i + 1) = offset(i) + length(i)
     end do
     ista = kpproc(procid)
+    iend = kpproc(procid + 1) - 1
     allocate (buf_rv(ndham, ndat))
-    call mpi_allgatherv(eb(1, ista), length(procid), mpi_double_precision, buf_rv, length, offset, mpi_double_precision,&
+    call mpi_allgatherv(eb(1:ndham, ista:iend), length(procid), mpi_double_precision, buf_rv, length, offset, mpi_double_precision,&
       comm, ierr)
     eb = buf_rv
     deallocate (buf_rv)

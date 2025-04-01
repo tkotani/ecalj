@@ -207,7 +207,7 @@ contains
     logical metal,tetra
     integer nevx,norder,npts,n1,n2,n3,nkp,ntet,idtet(5,ntet)
     real(8)::zval,eb(nevx,nspx,nkp),width,rnge,wtkp(nkp), efermi,sumev,dosef(2),sumqv(2),ent, &
-         wtkb(nevx,nspx,nkp),wtkbx(nevx,nspx,nkp)
+         wtkb(nevx*nspx,nkp),wtkbx(nevx*nspx,nkp)
     integer:: it,itmax,n,nptdos,nspxx,nevxx,ib &
          ,ikp,ipr,job,i1mach,nev, mkdlst,ifi,i,j,lry ,nulli,isw !,nbpw
     real(8) ,allocatable :: dos_rv(:)
@@ -406,8 +406,8 @@ contains
     amom = 0d0 ! ... Magnetic moment
     if(metal) then
        if (nsp==2.and.nspc==1 ) then ! ... Restore to uncoupled bands; ditto with weights
-          forall(ikp=1:nkp,ix=1:nevxx) wtkb(ibx(ix,ikp),isx(ix,ikp),ikp)= wtkbx(ix,1,ikp)
-          amom = sum(wtkb(1:nevx,1,1:nkp)- wtkb(1:nevx,2,1:nkp))
+          forall(ikp=1:nkp,ix=1:nevxx) wtkb(ibx(ix,ikp)+(isx(ix,ikp)-1)*nevx,ikp)= wtkbx(ix,ikp)
+          amom = sum(wtkb(1:nevx,1:nkp) - wtkb(1+nevx:2*nevx,1:nkp))
        else
           wtkb=wtkbx !nspx=1
        endif

@@ -442,7 +442,7 @@ contains
              xx(1)=0d0
              vavg(2:) = (v(2:,1)+v(2:,nsp))/2 - 2*z/ri(2:)
              dva(2:)  = dv(2:) + 2*z/ri(2:)**2
-             xx(2:) = 1/ri(2:)/(1d0+pa*(eavg-vavg(:))/c**2)**2
+             xx(2:) = 1/ri(2:)/(1d0+pa*(eavg-vavg(2:))/c**2)**2
              wk(:,1) = phi(:,l,is1)*dva(:)
              wk(:,2) = phi(:,l,is2)*xx(:)
              wk(:,3) = phid(:,l,is1)*dva(:)

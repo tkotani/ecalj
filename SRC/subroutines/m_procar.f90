@@ -146,7 +146,7 @@ contains
                    dwgt(ilm) = sum(dconjg(auasaz)*matmul( sab_rv(:,:,l+1,isp,ib),auasaz)) 
                 enddo
              enddo
-             dwgtt = dwgtt + dwgt(1:ilm)
+             dwgtt(1:ilm) = dwgtt(1:ilm) + dwgt(1:ilm)
              if(ib==1)  write(iprocar,"(a)") trim(ccc)
              write(iprocar,"(i3,100(x,f8.5))")ib,(dwgt(i),i=1,nchanp),sum(dwgt(1:nchanp))
              if(ib==nbas) write(iprocar,"('tot',100(x,f8.5))")(dwgtt(i),i=1,nchanp),sum(dwgtt(1:nchanp))

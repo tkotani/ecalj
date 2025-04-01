@@ -43,7 +43,7 @@ set(FLAGS -cpp)
 # ## compile options ############################################################
 if(FC MATCHES "gfortran")
   set(CMAKE_Fortran_COMPILER mpif90) # compiler
-  set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -fbacktrace")
+  set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -fbacktrace -fbounds-check")
   set(CMAKE_Fortran_FLAGS "-g -ffree-line-length-none -fimplicit-none -finit-integer=NaN -finit-real=NaN -fpic") # compile flags
   if(CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER_EQUAL "10.0")
     set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -w -fno-strict-aliasing -fallow-argument-mismatch")

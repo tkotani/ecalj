@@ -103,8 +103,8 @@ contains
     ndima = 0
     do  ipqn = 1, 3
        do  ib = 1, nbas
-          pnu=pnuall(:,1:nsp,ib) 
-          pnz=pnzall(:,1:nsp,ib)
+          pnu(:,1:nsp)=pnuall(:,1:nsp,ib) 
+          pnz(:,1:nsp)=pnzall(:,1:nsp,ib)
           do  l = 0, lmxa(ib)
              npqn = merge(3,2,pnz(l+1,1) >1d-10)
              if(ipqn>npqn) cycle

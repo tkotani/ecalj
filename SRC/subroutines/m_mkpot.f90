@@ -223,10 +223,10 @@ contains
       call smves(qmom,gpot0,vval,hpot0_rv,smrho,smpot,vconst,smq,qsmc,fes,rhvsm0,rhvsm,zsum,vesrmt,qbg)!0th comp. of Estatic potential Ves and Ees
       if(master_mpi) then !.and.cmdopt0('--espot')) then !writeout electrostatic potential 
          open(newunit=ife,file='estaticpot.dat')
-         !write(ife) n1,n2,n3,alat,plat
+         write(ife,'(a)') "#part of estatic.pot:' correct m_mkpo.f90:L226 around if necessary"
          ismpot = shape(smpot)
          iy=1
-         do ix=1, ismpot(3),4
+         do ix=1, ismpot(1),4
          do iz=1, ismpot(3)
             write(ife,'(3i5,2e16.8," !eV ")') iz,ix,iy,(smpot(ix,1,iz,1)+vconst)*rydberg()
          enddo   

@@ -250,8 +250,10 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
   mainforiqx: do 1001 iqx = mpi__iini, mpi__iend !q=(0,0,0) is omitted!
     write(6,"('#### do 1001 start iqx=',5i5)")iqx,nqibz
     vcoudfile='Vcoud.'//i2char(iqx)  
-    open(newunit=ifvcoud,file=trim(vcoudfile),form='unformatted') !  !! Vcoud file, which contains E(\nu,I), given in PRB81,125102
-    q = merge(q0i(:,iqx-nqibz),qibz(:,iqx), iqx > nqibz)
+    open(newunit=ifvcoud,file=trim(vcoudfile),form='unformatted') !  !! Vcoud file, which contains E(\nu,I), given in qibzPRB81,125102
+    if(iqx<=nqibz) then; q= qibz(1:3,iqx)
+    else;                q= q0i(1:3,iqx-nqibz)
+    endif
     if(imode==202 .AND. abs(sum(q))<1d-8) cycle
     call readqg('QGcou',q,  quu,ngc, ngvecc ) !Get q+G vector
     ngb = nbloch + ngc  
