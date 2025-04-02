@@ -328,3 +328,8 @@ mpisize=8
 fp qvl  38.000000  sm  26.915203  loc  11.084797  qbg   0.000000 dQ  -0.000000
 fp pot  rvxc      -440.0167675  rexc       -332.4432017  rves   -16878.3329911
 fp pot  rex       -318.4089730  rec         -14.0342287
+===START LMF with   srtio3 --writeham --mkprocar --noinv ===
+mpisize=8
+fp qvl  38.000000  sm  26.915203  loc  11.084797  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -440.0167675  rexc       -332.4432017  rves   -16878.3329911
+fp pot  rex       -318.4089730  rec         -14.0342287

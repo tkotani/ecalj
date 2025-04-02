@@ -9,10 +9,13 @@ contains
    subroutine set_qibz(plat,qbz,nqbz,symops,ngrp)
      use m_ftox
      use m_lgunit,only: stdo
-      integer:: nqbz,ngrp,i,ig,ibz,iqibz,iqbz,nx
-      real(8)::eps=1d-8
-      real(8):: plat(3,3),qbz(3,nqbz),symops(3,3,ngrp),qp(3),qx(3)
-      real(8),allocatable::wtemp(:)
+     integer:: nqbz,ngrp,i,ig,ibz,iqibz,iqbz,nx
+     real(8):: plat(3,3),qbz(3,nqbz),symops(3,3,ngrp),qp(3),qx(3)
+     real(8),allocatable::wtemp(:)
+     real(8),external::tolq !eps=1d-8
+!      do ig=1,ngrp
+!         write(6,ftox) 'gggggggggggggg',ig, ftof(reshape(symops(:,:,ig),[9]))
+!      enddo   
       allocate(qibz(3,nqbz),irotq(nqbz),irotg(nqbz),ndiff(3,nqbz),iqbzrep(nqbz),wiqibz(nqbz))
       iqibz=0
       wiqibz=0d0
@@ -22,7 +25,7 @@ contains
             do i=1,iqibz
                qx= matmul(transpose(plat),  qp-matmul(symops(:,:,ig),qibz(:,i)))
                qx=qx-nint(qx) !qx-ndiff !translation of qx
-               if(sum(abs(qx))<eps) then
+               if(sum(abs(qx))<tolq()) then
                   irotq(iqbz)=i
                   irotg(iqbz)=ig
                   ndiff(:,iqbz) = nint(qx)
@@ -34,6 +37,7 @@ contains
          iqibz=iqibz+1
          qibz(:,iqibz) = qp
          irotq(iqbz)=iqibz
+!         write(6,ftox) 'iiiiiiiiiiii setqibz',iqbz,irotq(iqbz)
          irotg(iqbz)=1 !identical symops ig=1
          ndiff(:,iqbz)=0
          iqbzrep(iqibz)= iqbz !representative
@@ -47,7 +51,7 @@ contains
          do ig=1,ngrp
             qx= matmul(transpose(plat), qibz(:,i)-matmul(symops(:,:,ig),qibz(:,i)))
             qx=qx-nint(qx) !qx-ndiff !translation of qx
-            if(sum(abs(qx))<eps) then
+            if(sum(abs(qx))<tolq()) then
                nx=nx+1
                igx(nx,i) =ig
             endif

@@ -25,3 +25,4 @@ Start LMF srtio3 --quit=band
 i ehf(eV)=-115723.487863 ehk(eV)=-115723.487956 sev(eV)=-509.805039
 Start LMF srtio3 --band
 Start LMF srtio3 --writeham --mkprocar --noinv
+Start LMF srtio3 --writeham --mkprocar --noinv

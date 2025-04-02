@@ -114,14 +114,14 @@ contains
                   ib1 = ib_tableM(i) !atomic-site index in the primitive cell
                   ib2 = ib_tableM(j)
                   do it =1,npair(ib1,ib2)
-                     phase=1d0/dble(nqwgt(it,ib1,ib2))*exp(-img*2d0*pi* sum(qp*matmul(plat,nlat(:,it,ib1,ib2))))
-                     hamm(i,j)= hamm(i,j)+ hammr(i,j,it,jsp)*phase !MPO Hamiltonian at qp
-                     ovlm(i,j)= ovlm(i,j)+ ovlmr(i,j,it,jsp)*phase
+                    phase=1d0/dble(nqwgt(it,ib1,ib2))*exp(-img*2d0*pi* sum(qp*matmul(plat,nlat(:,it,ib1,ib2))))
+                    hamm(i,j)= hamm(i,j)+ hammr(i,j,it,jsp)*phase !MPO Hamiltonian at qp
+                    ovlm(i,j)= ovlm(i,j)+ ovlmr(i,j,it,jsp)*phase
                   enddo
                enddo
             enddo FourierTransormationFROMrealspcaeTOqspace
             call zhev_tk4(ndimMTO,hamm,ovlm,0,nev, evl(:,ikp,jsp),t_zv, oveps)!nmx=0 means only eigenvalue. Diangonalize (hamm- evl ovlm) z=0
-            !write(stdo,ftox) '  evl   =',nev,ftof(evl(1:10,ikp,jsp)*rydberg())
+            write(stdo,ftox) 'eeeeeeeeeee  evl   =',nev,ftof(evl(1:10,ikp,jsp)*rydberg())
          enddo Spinloop
          !write(stdo,"(' xxx procid ikp along qplist, q=',2i5,3f9.4)")procid,ikp,qp! true q(i)= 2pi/alat * qplist(i,ikp)
        endblock Hamblock
