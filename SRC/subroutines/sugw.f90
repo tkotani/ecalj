@@ -36,7 +36,7 @@ contains
 !<<<<<<< HEAD
 !    use m_blas,only: zmm => zmm_h, m_op_T
 !=======
-    use m_suham,only: nbandmx=>ham_ndhamx
+!    use m_suham,only: nbandmx=>ham_ndhamx
     use m_blas,only: zmm => zmm_h, m_op_T, m_op_C
 !>>>>>>> c172356
     implicit none
