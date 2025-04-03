@@ -31,7 +31,9 @@ contains
     open(newunit=ifvcoud, file=trim(vcoudfile),form='unformatted')
     read(ifvcoud) ngb0
     read(ifvcoud) qvv
-    if(allocated(zcousq)) deallocate( zcousq,vcousq,vcoud )
+    if(allocated(zcousq)) deallocate(zcousq)
+    if(allocated(vcousq)) deallocate(vcousq)
+    if(allocated(vcoud)) deallocate(vcoud)
     allocate( zcousq(ngb0,ngb0),vcousq(ngb0),vcoud(ngb0))
     read(ifvcoud) vcoud
     read(ifvcoud) zcousq
@@ -40,4 +42,7 @@ contains
 !    write(6,*)'voud sumcheck1111=',sum(abs(vcousq)),sum(abs(zcousq))
 !    write(6,*)'voud sumcheck1112=',sum(abs(qvv)),ngb
   end subroutine Readvcoud
+  subroutine ReleaseZcousq
+    if(allocated(zcousq)) deallocate(zcousq)
+  end subroutine ReleaseZcousq
 end module m_readVcoud

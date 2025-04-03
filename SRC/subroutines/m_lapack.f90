@@ -26,13 +26,23 @@ contains
     integer :: lda_in
     integer, allocatable :: ipvt(:)
     complex(8),allocatable:: work(:)
-    integer :: lwork
+    integer :: lwork, original_num_threads
+    complex(8) :: wkopt
     lda_in = n; if(present(lda)) lda_in = lda
-    lwork = 64*n
-    allocate(work(lwork))
+#ifdef __MKL_ZMINV_SEQUENTIAL
+    original_num_threads = mkl_get_max_threads()
+    call mkl_set_num_threads(1)
+#endif
     allocate(ipvt(n))
     call zgetrf(n,n,a,lda_in,ipvt,istat)
-    call zgetri(n,  a,lda_in,ipvt,work,lwork,istat)
+    lwork = -1
+    call zgetri(n, a, lda_in, ipvt, wkopt, lwork, istat)
+    lwork = int(dble(wkopt))
+    allocate(work(lwork))
+    call zgetri(n, a, lda_in, ipvt, work, lwork, istat)
+#ifdef __MKL_ZMINV_SEQUENTIAL
+    call mkl_set_num_threads(original_num_threads)
+#endif
     deallocate(work,ipvt)
   end function zminv_h
   integer function zhgv_h(A, B, n, evl, il, iu, lda, ldb) result(istat)
@@ -66,7 +76,7 @@ contains
     call zhegvx( 1, 'V', 'I', 'U', n, a, lda_in, b, ldb_in, &
        vl, vu, il_in, iu_in, abstol, m, evl, z, lda_in, &
        work, lwork, rwork, iwork, ifail, info )
-    lwork = max((nb+1)*n, nint(real(dummy(1))))
+    lwork = max((nb+1)*n, nint(dble(dummy(1))))
     deallocate(work)
     allocate(work(lwork))
     call zhegvx( 1, 'V', 'I', 'U', n, a, lda_in, b, ldb_in, &

@@ -1,12 +1,254 @@
 !> Calculate W-v zxqi(on the imaginary axis) and zxq(real axis) from sperctum weight rcxq.
 module m_dpsion
-  public dpsion5
-  private
+  use m_kind, only: kp => kindrcxq
+  public dpsion5, dpsion_init, dpsion_chiq, dpsion_setup_rcxq
+  ! private
   real(8),allocatable :: his_L(:),his_R(:),his_C(:),rmat(:,:,:),rmatt(:,:,:),rmattx(:,:,:,:),imatt(:,:,:)
   complex(8),allocatable :: imattC(:,:,:)
   real(8),allocatable,save:: gfmat(:,:)
-  logical:: eginit=.true.
+  logical:: eginit=.true., init=.true.
+  complex(kind=kp), allocatable :: zxq_chipm(:,:,:)
+#ifdef __GPU
+  attributes (device) :: zxq_chipm
+#endif
 contains
+  ! set omega-bin mesh, his_L, his_R, his_C, and Hilbert transformation weight rmat, rmatt, rmattx, imatt
+  subroutine dpsion_init(realomega, imagomega, chipm)
+    use m_freq, only:  frhis, freqr=>freq_r, freqi=>freq_i, nwhis, npm, nw_i, nw_w=>nw, niwt=>niw
+    use m_lgunit,only:stdo
+    implicit none
+    logical, intent(in)::realomega, imagomega, chipm
+    complex(8):: img=(0d0,1d0), zz, rrr(-nwhis:nwhis)
+    real(8),parameter:: pi  = 4d0*datan(1d0)
+    integer :: it
+    if(.not.init) return
+    allocate( his_L(-nwhis:nwhis),source=[-frhis(nwhis+1:1+1:-1),0d0,frhis(1  :nwhis)  ])
+    allocate( his_R(-nwhis:nwhis),source=[-frhis(nwhis  :1  :-1),0d0,frhis(1+1:nwhis+1)])
+    allocate( his_C(-nwhis:nwhis),source=(his_L+his_R)/2d0) !bins are [his_Left,his_Right] !his_C(0) is at zero. his_R(0) and his_L(0) are not defined.
+    realomegacase: if(realomega)then
+      write(stdo,*) " --- realomega --- "
+      if(npm==1) then
+        allocate(rmat(0:nw_w,-nwhis:nwhis,npm), source=0d0)
+        do it =  0, nw_w
+          zz = freqr(it)
+          call hilbertmat(zz,  nwhis,his_L,his_C,his_R, rrr)
+          rmat(it,:,1) = dreal(rrr)/pi
+        enddo
+        if(chipm) then
+          allocate( rmattx(0:nw_w,nwhis,npm,2) )
+          rmattx(:,1:nwhis,1,1) =  rmat(:,1:nwhis,1)
+          rmattx(:,1:nwhis,1,2) = -rmat(:,-1:-nwhis:-1,1)
+        else  
+          allocate( rmatt(0:nw_w,nwhis,npm) )
+          rmatt(:,1:nwhis,1) =  rmat(:,1:nwhis,1) - rmat(:,-1:-nwhis:-1,1)
+        endif
+        deallocate(rmat)
+      elseif(npm==2) then
+        allocate(rmatt(-nw_w:nw_w,nwhis,npm))
+        do it  =  -nw_w,nw_w
+          zz = merge(-freqr(-it),freqr(it),it<0) 
+          call hilbertmat(zz, nwhis,his_L,his_C,his_R, rrr)
+          rmatt(it,:,1) =  dreal(rrr ( 1: nwhis))/pi
+          rmatt(it,:,2) = -dreal(rrr(-1:-nwhis:-1))/pi
+        enddo
+      endif
+    endif realomegacase
+    imagomecacase: if(imagomega) then
+      write(stdo,*) " --- imagomega --- "
+      if(npm==1) then
+        allocate( imatt(niwt, nwhis,npm) )
+        do it =  1,niwt
+          zz = img*freqi(it)  
+          call hilbertmat(zz,nwhis,his_L,his_C,his_R, rrr) !Im(zz)>0
+          imatt(it,1:nwhis,1) = dreal(rrr(1:nwhis) - rrr(-1:-nwhis:-1))/pi
+        enddo
+      else ! npm=2 case 
+        allocate( imattC(niwt, nwhis,npm) )
+        do it =  1,niwt
+          zz = img*freqi(it)  
+          call hilbertmat(zz,nwhis,his_L,his_C,his_R, rrr) !Im(zz)>0
+          imattC(it,1:nwhis,1) =   rrr( 1: nwhis   )/pi
+          imattC(it,1:nwhis,2) = - rrr(-1:-nwhis:-1)/pi
+        enddo
+      endif
+    endif imagomecacase
+    init=.false.
+  end subroutine dpsion_init
+  subroutine dpsion_chiq(realomega, imagomega, chipm, rcxq, zxqi, npr, npr_col, schi, isp, ecut)
+    use m_freq, only: frhis, freqr=>freq_r,freqi=>freq_i, nwhis, npm, nw_i, nw_w=>nw, niwt=>niw
+    use m_readgwinput, only: egauss
+    use m_ftox
+    use m_lgunit, only: stdo
+    use m_blas, only: m_op_T
+#if defined(__MP) && defined(__GPU)
+    use m_blas, only: gemm => cmm_d
+#elif defined(__MP)
+    use m_blas, only: gemm => cmm_h
+#elif defined(__GPU)
+    use m_blas, only: gemm => zmm_d
+#else
+    use m_blas, only: gemm => zmm_h
+#endif
+    implicit none
+    logical, intent(in):: realomega, imagomega, chipm
+    real(8), intent(in):: ecut, schi
+    integer, intent(in):: isp, npr, npr_col
+    complex(kind=kp), intent(inout):: rcxq(1:npr,1:npr_col,(1-npm)*nwhis:nwhis)
+    complex(kind=kp), intent(out) ::  zxqi(1:npr,1:npr_col,niwt)
+    complex(kind=kp), parameter:: CONE = (1_kp, 0_kp), CZERO = (0_kp, 0_kp)
+    integer :: iw
+    real(8), parameter:: pi  = 4d0*datan(1d0)
+    complex(8), parameter :: img = (0d0,1d0)
+    complex(kind=kp) :: zxq_work(1:npr,nw_i:nw_w), cimatt(niwt,nwhis,npm), crmatt(0:nw_w,nwhis,npm)
+    complex(kind=kp), allocatable :: rcxq_work(:,:), cgfmat(:,:)
+    integer :: ipr, ipr_col, ipm, istat, ispx
+    real(8) :: wfac
+    logical :: debug = .true.
+#ifdef __GPU
+    attributes(device) :: rcxq, zxqi
+#endif
+    write(stdo,ftox)" -- dpsion_chiq: start... nw_w nwhis=",nw_w,nwhis
+    call flush(stdo)
+    if(chipm.and.npm==2) call rx( 'x0kf_v4h:npm==2 .AND. chipm is not meaningful probably')  ! Note rcxq here is negative 
+
+    !$acc data copyin(his_R, his_L)
+    GaussianFilter: if(abs(egauss)>1d-15) then
+      write(6,'("GaussianFilterX0= ",d13.6)') egauss
+      allocate(gfmat(nwhis,nwhis))
+      allocate(cgfmat(nwhis,nwhis))
+      allocate(rcxq_work(npr,nwhis))
+      write(stdo,ftox) 'dpsion_chiq: GaussianFilterX0 is not checked yet: see dpsion_chiq'
+      gfmat=gaussianfilterhis(egauss,frhis,nwhis)
+      !$acc data copyin(gfmat) create(cgfmat, rcxq_work)
+      !$acc kernels
+      cgfmat(:,:) = cmplx(gfmat(:,:), kind=kp)
+      !$acc end kernels
+      do ipr_col = 1, npr_col
+        !$acc kernels
+        rcxq_work(1:npr,1:nwhis) = rcxq(1:npr,ipr_col,1:nwhis)
+        !$acc end kernels
+        istat = gemm(rcxq_work, cgfmat, rcxq(1,ipr_col,1), npr, nwhis, nwhis, ldC=npr*npr_col, opB=m_op_T)
+      enddo
+      if(npm==2) then
+        !$acc kernels
+        cgfmat(1:nwhis,1:nwhis) = cmplx(gfmat(1:nwhis,nwhis:1:-1), kind=kp)
+        !$acc end kernels
+        do ipr_col = 1, npr_col
+          !$acc kernels
+          rcxq_work(1:npr,1:nwhis) = rcxq(1:npr,ipr_col,-nwhis:-1:1)
+          !$acc end kernels
+          istat = gemm(rcxq_work, cgfmat, rcxq(1,ipr_col,-nwhis), npr, nwhis, nwhis, ldC=npr*npr_col, opB=m_op_T)
+        enddo
+      endif
+      !$acc end data
+      deallocate(gfmat)
+    endif GaussianFilter
+      
+    ispx = merge(isp,3-isp,schi>=0) !  if(schi<0)  ispx = 3-isp  
+    if(realomega.and.nwhis <= nw_w) call rxii('dpsion5: nwhis<=nw_w',nwhis,nw_w)
+    if(realomega.and.freqr(0)/=0d0) call rx( 'dpsion5: freqr(0)/=0d0') ! I think current version allows any freqr(iw), independent from frhis.
+
+    call flush(stdo)
+    do iw= 1, nwhis
+      wfac=merge(exp(-(his_C(iw)/ecut)**2 ),1d0, ecut<1d9)     ! rcxq= Average value of Im chi.    Note rcxq is "negative" (
+      !$acc kernels
+      rcxq(1:npr,1:npr_col,iw)= -wfac/(his_R(iw)-his_L(iw))*rcxq(1:npr,1:npr_col,iw)
+      !$acc end kernels
+    enddo
+    !$acc end data
+    if_IMAGOMEGA: if(imagomega) then !Hilbert Transformation to get real part
+      if(debug) write(stdo,ftox)" -- dpsion_chiq: start imagomega"
+      if(npm==1) then
+        !$acc data copyin(imatt) create(cimatt)
+        !$acc kernels
+        cimatt(:,:,:) = cmplx(imatt(:,:,:), kind=kp)
+        !$acc end kernels
+        istat = gemm(rcxq(1,1,1), cimatt, zxqi, npr*npr_col, niwt, nwhis, opB=m_op_T)
+        !$acc end data
+      elseif(npm==2) then
+        !$acc data copyin(imattC) create(cimatt)
+        !$acc kernels
+        cimatt(:,1:nwhis,1) = cmplx(imattC(:,1:nwhis: 1,1), kind=kp)
+        cimatt(:,1:nwhis,2) = cmplx(imattC(:,nwhis:1:-1,2), kind=kp)
+        !$acc end kernels
+        istat = gemm(rcxq(1,1,     1), cimatt(1,1,1), zxqi, npr*npr_col, niwt, nwhis, opB=m_op_T)
+        istat = gemm(rcxq(1,1,-nwhis), cimatt(1,1,2), zxqi, npr*npr_col, niwt, nwhis, opB=m_op_T, beta=CONE)
+        !$acc end data
+      endif
+      write(stdo,ftox)" -- dpsion_chiq: end of imagomega"
+    endif if_IMAGOMEGA
+    if_REALOMEGA: if(realomega) then !Hilbert Transformation to get real part
+      if(debug) write(stdo,ftox)" -- dpsion_chiq: start realomega"
+      if(npm == 1 .and. .not.chipm) then
+        !$acc data copyin(rmatt) create(crmatt, zxq_work)
+        !$acc kernels
+        crmatt(:,:,:) = cmplx(rmatt(:,:,:), kind=kp)
+        !$acc end kernels
+        do ipr_col = 1, npr_col
+          istat = gemm(rcxq(1,ipr_col,1), crmatt, zxq_work, npr, nw_w+1, nwhis, ldA=npr*npr_col, opB=m_op_T)
+          !$acc kernels
+          rcxq(1:npr,ipr_col,0:nw_w) = rcxq(1:npr,ipr_col,0:nw_w)*img + zxq_work(1:npr,0:nw_w)
+          !$acc end kernels
+        enddo
+        !$acc end data
+      elseif(npm == 1 .and. chipm) then
+        if(.not.allocated(zxq_chipm)) then
+          allocate(zxq_chipm(npr,npr_col,nw_i:nw_w))
+          !$acc kernels
+          zxq_chipm(:,:,:) = (0_kp, 0_kp)
+          !$acc end kernels
+        endif
+        if(ispx == 1) then
+          !$acc kernels
+          zxq_chipm(:,:,1:nw_w) = zxq_chipm(:,:,1:nw_w)+ img*rcxq(:,:,1:nw_w) 
+          !$acc end kernels
+        endif
+        !$acc data copyin(rmattx) create(crmatt)
+        !$acc kernels
+        crmatt(:,:,:) = cmplx(rmattx(:,:,:,ispx), kind=kp)
+        !$acc end kernels
+        istat = gemm(rcxq(1,1,1), crmatt, zxq_chipm, npr*npr_col, nw_w+1, nwhis, opB=m_op_T, beta=CONE)
+        !$acc end data
+      elseif(npm == 2) then
+        !$acc data copyin(rmatt) create(crmatt, zxq_work)
+        !$acc kernels
+        crmatt(:,1:nwhis,1) = cmplx(rmatt(:,1:nwhis: 1,1), kind=kp)
+        crmatt(:,1:nwhis,2) = cmplx(rmatt(:,nwhis:1:-1,2), kind=kp)
+        !$acc end kernels
+        do ipr_col = 1, npr_col
+          istat = gemm(rcxq(1,ipr_col,     1), crmatt(1,1,1), zxq_work, npr, (nw_w-nw_i)+1, nwhis, ldA=npr*npr_col, opB=m_op_T)
+          istat = gemm(rcxq(1,ipr_col,-nwhis), crmatt(1,1,2), zxq_work, npr, (nw_w-nw_i)+1, nwhis, ldA=npr*npr_col, opB=m_op_T,&
+                       beta=CONE)
+          !$acc kernels
+          rcxq(1:npr,ipr_col,nw_i:nw_w) = rcxq(1:npr,ipr_col,nw_i:nw_w)*img + zxq_work(1:npr,nw_i:nw_w) !override
+          !$acc end kernels
+        enddo
+        !$acc end data
+      endif
+      write(stdo,ftox)" -- dpsion_chiq: end of realomega"
+    endif if_REALOMEGA
+    call flush(stdo)
+  end subroutine dpsion_chiq
+
+  subroutine dpsion_setup_rcxq(rcxq, npr, npr_col, isp)
+    use m_freq, only:nwhis, npm, nw_i, nw_w => nw
+    implicit none
+    integer, intent(in) :: npr, npr_col, isp
+    complex(kind=kp), intent(inout):: rcxq(1:npr,1:npr_col,(1-npm)*nwhis:nwhis)
+    if(isp == 1) then
+      !$acc kernels
+      rcxq(:,:,:) = (0_kp, 0_kp)
+      !$acc end kernels
+    elseif(isp == 2) then
+      if(allocated(zxq_chipm)) then
+        !$acc kernels
+        rcxq(:,:,nw_i:nw_w) = zxq_chipm(:,:,nw_i:nw_w)
+        !$acc end kernels
+        deallocate(zxq_chipm)
+      endif
+    endif
+  end subroutine dpsion_setup_rcxq
+
   subroutine dpsion5(realomega,imagomega,rcxq,nmbas1,nmbas2, zxq,zxqi, chipm,schi,isp,ecut,ecuts) 
     use m_freq,only:  frhis, freqr=>freq_r,freqi=>freq_i, nwhis, npm, nw_i, nw_w=>nw, niwt=>niw
     use m_readgwinput,only: egauss
@@ -148,7 +390,6 @@ contains
     write(stdo,'("         end dpsion5 ",$)')
     call cputid(0)
   end subroutine dpsion5
-
 !  subroutine GaussianFilter(rcxq,nmbas1,nmbas2, egauss,iprint)
   pure function gaussianfilterhis(egauss, frhis,nwhis) result(gfmat)
     implicit none

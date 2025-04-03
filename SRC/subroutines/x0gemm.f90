@@ -24,7 +24,7 @@ subroutine x0gemm(rcxq, npr, ipr_col, npr_col, nwhis, npm, ns1, ns2)
   !$ use omp_lib
   implicit none
   integer, intent(in) :: npr, ipr_col, npr_col, nwhis, npm, ns1, ns2
-  complex(kind=kp), intent(inout) :: rcxq(npr,npr_col,nwhis,npm) !accumulating to rcxq
+  complex(kind=kp), intent(inout) :: rcxq(npr,npr_col,((1-npm)*nwhis):nwhis)
   integer :: icoun, igb1, igb2, iw, jpm, it, itp, ittp, nttp_max, ierr
   integer, allocatable :: nttp(:,:),  itw(:,:,:), itpw(:,:,:)
   complex(kind=kp), allocatable :: zw(:,:), wzw(:,:)
@@ -85,12 +85,13 @@ subroutine x0gemm(rcxq, npr, ipr_col, npr_col, nwhis, npm, ns1, ns2)
         enddo
       enddo
       !$acc end kernels
-      ierr = gemm(zw, wzw, rcxq(1,1,iw,jpm), npr, npr_col, nttp(iw,jpm), &
-              &  opA = m_op_C, beta = CONE , ldA = nttp_max, ldB = nttp_max)
+      ierr = gemm(zw, wzw, rcxq(1,1,iw*(3-2*jpm)), npr, npr_col, nttp(iw,jpm), &
+              &  opA = m_op_C, beta = CONE, ldA = nttp_max, ldB = nttp_max)
     enddo
   enddo
   !$acc end data
   !$acc end host_data
+
   deallocate(itw, itpw, whw, wzw, zw, nttp)
 
 end subroutine x0gemm

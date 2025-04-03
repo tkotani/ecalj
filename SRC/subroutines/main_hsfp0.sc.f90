@@ -66,7 +66,7 @@ subroutine hsfp0_sc()
 !  use m_readhbe,only: Readhbe, nband !nprecb,mrecb,mrece,nlmtot,nqbzt,,mrecg
   use m_mpi,only: &
        MPI__Initialize,MPI__root,MPI__Broadcast,MPI__rank,MPI__size,MPI__allreducesum, &
-       MPI__consoleout,  MPI__reduceSum,comm
+       MPI__consoleout,  MPI__reduceSum,comm, MPI__SplitSc, worker_intask
   use m_lgunit,only:m_lgunit_init,stdo
   use m_ftox
   use m_gpu,only: gpu_init
@@ -139,6 +139,17 @@ subroutine hsfp0_sc()
     else
        call rx(' hsfp0_sc: Need input (std input) 1(Sx) 2(Sc) or 3(ScoreX)!')
     endif
+    ! Additional parallelization for omega mesh in the case of ixc==2 only
+    Wparallelization: block
+      integer:: n_wpara = 1 !default
+      character(20):: outs=''
+      if(ixc == 2) then
+        if(cmdopt2('--nwpara=', outs)) read(outs,*) n_wpara
+        worker_intask = min(n_wpara, mpi__size)
+        write(6,'(1X,A,3I5)') 'MPI: worker_intask ', worker_intask
+        call MPI__SplitSc(n_wpara)
+      endif
+    endblock Wparallelization
     call setesmr(esmr_in=esmr) !set esmr back in genalloc_v3
 !    call Readhbe()        ! Read dimensions in m_readhbe
     call Readhamindex()

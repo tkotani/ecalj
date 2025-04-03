@@ -48,7 +48,7 @@ def main():
     nfpgw = os.path.dirname(n)
 
     # Run the command using run_arg
-    run_arg('---', MPI_SIZE, nfpgw, '/lmf', 'llmf_tdos', MATERIAL, '--tdos', '-ndos=4000', *sys.argv[4:len(sys.argv)-2])
+    run_arg('---', MPI_SIZE, nfpgw, '/lmf', 'llmf_tdos', MATERIAL, '--tdos', *sys.argv[4:])
 
     # Determine the number of columns in the second line of the dos.tot.$MATERIAL file
     with open(f'dos.tot.{MATERIAL}', 'r') as f:
@@ -84,7 +84,7 @@ def main():
         f.write('set terminal x11\n')
         f.write('replot\n')
 
-    if 'NoGnuplot' not in ' '.join(sys.argv[4:len(sys.argv)-2]):
+    if 'NoGnuplot' not in ' '.join(sys.argv[4:]):
         subprocess.run(['gnuplot', ufileg])
 
     print(f"To repeat, gnuplot -persist {ufileg}")

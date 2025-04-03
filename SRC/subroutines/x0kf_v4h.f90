@@ -18,9 +18,9 @@ module m_x0kf
   use m_kind,only: kp => kindrcxq
   implicit none
   public:: x0kf_zxq, deallocatezxq, deallocatezxqi
-  complex(8),public,allocatable:: zxq(:,:,:), zxqi(:,:,:)   !Not yet protected because of main_hx0fp0
-  complex(kind=kp),allocatable:: rcxq(:,:,:,:)
-!  complex(4),allocatable:: rcxq4(:,:,:,:)
+  complex(kind=kp), public, allocatable:: zxqi(:,:,:)   !Not yet protected because of main_hx0fp0
+  complex(kind=kp), public, pointer:: zxq(:,:,:) => null()
+  complex(kind=kp), allocatable, target:: rcxq(:,:,:)
   integer,public::npr
   private
   
@@ -34,7 +34,7 @@ module m_x0kf
   real(8),public::qrk(3),qq(3)
   integer,public::ns1,ns2,ispm,ispq,nqini,nqmax,icounkmink,icounkmaxk
   logical,external:: cmdopt0 
-  logical:: debug
+  logical:: debug = .false.
 contains
   function X0kf_v4hz_init(job,q,isp_k,isp_kq, iq, crpa, ikbz_in, fkbz_in) result(ierr) !index accumulation. Initialzation for calling x0kf_v4h
     implicit none
@@ -142,13 +142,14 @@ contains
   endfunction x0kf_v4hz_init
   
   subroutine x0kf_zxq(realomega,imagomega, q,iq,npr,schi,crpa,chipm,nolfco,q00,zzr)
-    use m_readgwinput,only: ecut,ecuts
-    use m_dpsion,only: dpsion5
+    use m_readgwinput,only: ecut, ecuts
+    use m_dpsion,only: dpsion5, dpsion_init, dpsion_chiq, dpsion_setup_rcxq
     use m_freq,only: nw_i, nw_w=>nw, niwt=>niw
     use m_readeigen,only:readeval
     use m_freq,only: nw_i,nw,niw 
     use m_zmel,only: Setppovlz,Setppovlz_chipm   ! & NOTE: these data set are stored in this module, and used
     use m_stopwatch
+    use m_readVcoud, only: ReleaseZcousq
     use m_mpi,only: comm_k, mpi__rank_k, mpi__size_k, &
                     mpi__ipr_col, mpi__npr_col, mpi__rank_b, mpi__root_k, comm_b
 #ifdef __MP
@@ -157,7 +158,6 @@ contains
     use m_mpi,only: MPI__reduceSum
 #endif
     use m_gpu, only: use_gpu
-    use m_data_gpu, only: SetDataGPU_inkx, ExitDataGPU_inkx
     implicit none
     intent(in)::      realomega,imagomega, q,iq,npr,schi,crpa,chipm,nolfco,q00,zzr
     logical:: realomega,imagomega,crpa,chipm,nolfco
@@ -168,17 +168,12 @@ contains
     character(10) :: i2char
     logical :: tetwtk = .false.
     real(8) :: zmel_max_size
-    type(stopwatch) :: t_sw_zmel, t_sw_x0
+    type(stopwatch) :: t_sw_zmel, t_sw_x0, t_sw_dpsion
     qq=q
-!    GPUTEST = .true. !cmdopt0('--gpu')
 
     ipr_col = mpi__ipr_col(mpi__rank_b) ! start index of column on xq for product basis set
     npr_col = mpi__npr_col(mpi__rank_b) ! number of columns on xq
 
-    if(mpi__root_k) then
-      if(realomega) allocate(zxq(npr,npr_col,nw_i:nw),source=(0d0,0d0))
-      if(imagomega) allocate(zxqi(npr,npr_col,niw),source=(0d0,0d0))
-    endif
     if(cmdopt0('--tetwtk'))  tetwtk=.true.
     if(cmdopt0('--emptyrun'))  return
     call getkeyvalue("GWinput","zmel_max_size",zmel_max_size,default=1d0) !in GB
@@ -186,7 +181,30 @@ contains
     if(chipm .AND. nolfco) then; call setppovlz_chipm(zzr,npr)
     else;                        call setppovlz(q,matz=.true.,npr=npr)!2024-5-23 obata. A minor bug to consume memory: Set npr=1 for EPSPP0 mode(no lfc)
     endif
-    call SetDataGPU_inkx(set_ppovlz_in_gpu = .false.)
+    call ReleaseZcousq() !Release zcousq used in Setppovlz
+    if(associated(zxq)) nullify(zxq)
+    if(allocated(rcxq)) then
+      !$acc exit data delete(rcxq)
+      deallocate(rcxq)
+    endif
+    allocate(rcxq(1:npr,1:npr_col,(1-npm)*nwhis:nwhis)) ! rcxq(:,:,0) is empty until Helbert transformation.
+    !$acc enter data create(rcxq)
+    if(nw_w > nwhis) call rx('nwhis is smaller than nw_w')
+    if(mpi__root_k) then
+      if(realomega) then
+        zxq(1:,1:,nw_i:) => rcxq(1:npr,1:npr_col,nw_i:nw_w) !nw_i = 0 (npm=1) nw_i = -nw_w (npm=2)
+        !$acc enter data create(zxq)
+      endif
+      if(imagomega) then
+        allocate(zxqi(npr,npr_col,niw))
+        !$acc enter data create(zxqi)
+      endif
+    endif
+    write(stdo,ftox)' size of rcxq:', npr, npr_col, nwhis*npm+1
+    call flush(stdo)
+    !$acc kernels
+    rcxq(:,:,:) = (0d0,0d0)
+    !$acc end kernels
     isloop: do 1103 isp_k = 1,nsp
       GETtetrahedronWeight:block
         isp_kq = merge(3-isp_k,isp_k,chipm) 
@@ -203,20 +221,10 @@ contains
       endblock GETtetrahedronWeight
       x0kf_v4hz_block: block !call x0kf_v4hz(q,isp_k,isp_kq,iq, npr,q00,chipm,nolfco,zzr,nmbas)
         integer:: k,jpm, ibib, iw,igb2,igb1,it,itp, nkmax1,nkqmax1, ib1, ib2, ngcx,ix,iy,igb
-        integer:: izmel,nmtot,nqtot,ierr,iwmax,ifi0,icoucold,icoun
-        integer:: nwj(nwhis,npm),imb, igc ,neibz,icc,ig,ikp,i,j,itimer,icount, kold 
+        integer:: izmel,nmtot,nqtot,iwmax,ifi0,icoucold,icoun, icount, kold
+        ! integer:: nwj(nwhis,npm),imb, igc ,neibz,icc,ig,ikp,i,j,itimer
         real(8):: imagweight, wpw_k,wpw_kq,qa,q0a 
         complex(8):: img=(0d0,1d0)
-        if(.not.allocated(rcxq)) then
-           allocate(rcxq(npr,npr_col,nwhis,npm))
-           write(stdo,ftox)' size of rcxq:', npr, npr_col, nwhis, npm
-           !$acc enter data create(rcxq) 
-           write(stdo,ftox)'after enter create'
-           call flush(stdo)
-           !$acc kernels
-           rcxq(1:npr,1:npr_col,1:nwhis,1:npm) = (0d0,0d0)
-           !$acc end kernels
-        endif
         zmel0mode: if(cmdopt0('--zmel0')) then ! For epsPP0. Use zmel-zmel0 (for subtracting numerical error) for matrix elements.
           zmel0block : block
             real(8)::  q1a,q2a,rfac00
@@ -245,7 +253,7 @@ contains
                   do iw=iwini(icoun),iwend(icoun)
                     icount= icouini(icoun)+iw-iwini(icoun)
                     if(abs(zmel0(1,it,itp))>1d10) cycle
-                    rcxq(1,1,iw,jpm)=rcxq(1,1,iw,jpm) +rfac00**2*(abs(zmel(1,it,itp))-abs(zmel0(1,it,itp)))**2 *whwc(icount)
+                    rcxq(1,1,iw*(3-2*jpm))=rcxq(1,1,iw*(3-2*jpm)) +rfac00**2*(abs(zmel(1,it,itp))-abs(zmel0(1,it,itp)))**2 *whwc(icount)
                   enddo
                 enddo
               enddo
@@ -269,7 +277,7 @@ contains
               do iw=iwini(icoun),iwend(icoun) !iw  = iwc(icount)  !omega-bin
                 icount= icouini(icoun)+iw-iwini(icoun)
                 if(abs(zmel0(1,it,itp))>1d10) cycle !We assume rcxq(1) in this mode
-                rcxq(1,1,iw,jpm)=rcxq(1,1,iw,jpm) +rfac00**2*(abs(zmel(1,it,itp))-abs(zmel0(1,it,itp)))**2 *whwc(icount)
+                rcxq(1,1,iw*(3-2*jpm))=rcxq(1,1,iw*(3-2*jpm)) +rfac00**2*(abs(zmel(1,it,itp))-abs(zmel0(1,it,itp)))**2 *whwc(icount)
               enddo
             enddo zmel0modeicount
             endif
@@ -300,14 +308,23 @@ contains
             if(debug) write(stdo,ftox) 'ggggggggg goto get_zmel_init_gemm',k, nkmin(k),nkmax(k),nctot
             NMBATCH: BLOCK 
               integer :: nsize, nns, ibatch, nbatch, ns12
+              integer, allocatable :: ns1lists(:), ns2lists(:)
               nsize = (nkqmax(k)-nkqmin(k))*npr   !
               nns = (nkmax(k) - nkmin(k) + 1) !number of middle states
               nbatch = ceiling(dble(nns)*nsize*16/1000**3/zmel_max_size)
+              allocate(ns1lists(nbatch), ns2lists(nbatch))
               ns1 = nkmin(k) + nctot 
               do ibatch = 1, nbatch
                 ns12 = (nns + ibatch - 1)/nbatch
+                ns1lists(ibatch) = ns1
+                ns2lists(ibatch) = ns1 + ns12 - 1
+                ns1 = ns2lists(ibatch) + 1
+              enddo
+              do ibatch = 1, nbatch
+                ns1 = ns1lists(ibatch)
+                ns2 = ns2lists(ibatch)
+                ns12 = ns2 - ns1 + 1
                 if(ns12 == 0) cycle
-                ns2 = ns1 + ns12 - 1
                 call stopwatch_start(t_sw_zmel)
                 write(stdo,ftox) 'zmel_batch:', ibatch, ns1, ns2, nbatch
                 if(use_gpu) then
@@ -325,8 +342,8 @@ contains
                 call stopwatch_start(t_sw_x0)
                 call x0gemm(rcxq, npr, ipr_col, npr_col, nwhis, npm, ns1, ns2)
                 call stopwatch_pause(t_sw_x0)
-                ns1 = ns2 +  1
               enddo
+              deallocate(ns1lists, ns2lists)
             END BLOCK NMBATCH
             write(6,ftox) 'end of k:', k ,' of:',nqbz, 'zmel:', ftof(stopwatch_lap_time(t_sw_zmel),4), '(sec)', &
                                                         ' x0:', ftof(stopwatch_lap_time(t_sw_x0),4), '(sec)'
@@ -369,35 +386,45 @@ contains
         call cputid (0)
 1590    continue
 2000   continue
-        write(stdo,ftox)"--- x0kf_v4hz: end: sumcheck abs(rcxq)=",sum(abs(rcxq(:,:,1:nwhis,1:npm))) !,sum((rcxq(:,:,1:nwhis,1:npm)))
+       if(debug) write(stdo,ftox)"--- x0kf_v4hz: end: sumcheck abs(rcxq)=",sum(abs(rcxq(:,:,:)))
       endblock x0kf_v4hz_block
       deallocate(whwc, kc, iwini,iwend, itc,itpc, jpmc,icouini, nkmin,nkmax,nkqmin,nkqmax,icounkmin,icounkmax)
       HilbertTransformation:if(isp_k==nsp .OR. chipm) then
         !Get real part. When chipm=T, do dpsion5 for every isp_k; When =F, do dpsion5 after rxcq accumulated for spins
-!        if(GPUTEST) then
-         !$acc exit data copyout(rcxq)
-!        endif
-        mpi_kaccumulate: block
+        mpi_k_accumulate: block
+          !To reduce memory allocation size in MPI__reduceSUM, mpi_reduce operation has been split for each iw and jpm
           integer :: jpm, iw
-            !To reduce memory allocation size in MPI__reduceSUM, mpi_reduce operation has been split for each iw and jpm
-          do jpm=1, npm
-            do iw=1, nwhis
-              call MPI__reduceSum(0, rcxq(1,1,iw,jpm), npr*npr_col, communicator = comm_k) 
+          if(mpi__size_k > 1) then
+            !$acc update host(rcxq)
+            do jpm=1, npm
+              do iw=1, nwhis
+                call MPI__reduceSum(0, rcxq(1,1,iw*(3-2*jpm)), npr*npr_col, communicator = comm_k) 
+              enddo
             enddo
-          enddo
-        end block mpi_kaccumulate
+            !$acc update device(rcxq)
+          endif
+        end block mpi_k_accumulate
         if(mpi__root_k) then
-          call dpsion5(realomega, imagomega, rcxq, npr, npr_col, zxq, zxqi, chipm, schi,isp_k,  ecut,ecuts)
+          call stopwatch_init(t_sw_dpsion, 'dpsion') !merge('gpu','ori',mask = GPUTEST))
+          call stopwatch_start(t_sw_dpsion)
+          call dpsion_init(realomega, imagomega, chipm)
+          !$acc host_data use_device(rcxq, zxqi)
+          call dpsion_chiq(realomega, imagomega, chipm, rcxq, zxqi, npr, npr_col, schi, isp_k, ecut)
+          !$acc end host_data
+          call stopwatch_pause(t_sw_dpsion)
+          call stopwatch_show(t_sw_dpsion)
         endif
-        deallocate(rcxq)
+        !set zero (if isp_k == 1) or chi+- in rcxq (if isp_k == 2)
+        if(chipm) call dpsion_setup_rcxq(rcxq, npr, npr_col, isp_k)
       endif HilbertTransformation 
 1103 enddo isloop
-     call ExitDataGPU_inkx()
   end subroutine x0kf_zxq
   subroutine deallocatezxq()
-    deallocate(zxq)
+    !$acc exit data delete(zxq)
+    nullify(zxq)
   end subroutine deallocatezxq
   subroutine deallocatezxqi()
+    !$acc exit data delete(zxqi)
     deallocate(zxqi)
   end subroutine deallocatezxqi
   subroutine x0kf_zmel( q,k, isp_k,isp_kq)!, GPUTEST) ! Return zmel= <phi phi |M_I> in m_zmel
@@ -406,21 +433,12 @@ contains
     integer::              k,isp_k,isp_kq 
     real(8)::           q(3)
     debug=cmdopt0('--debugzmel')
-!    logical, intent(in), optional:: GPUTEST
-!    call get_zmel_init(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, nm1=nkmin(k)+nctot, nm2=nkmax(k)+nctot, ispm=isp_k, &
-!         nqini=nkqmin(k), nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1), iprx=.false., zmelconjg=.true.)
-!    if (present(GPUTEST)) then
-    !      if (GPUTEST) then
     if(debug) write(stdo,ftox) 'ggggggggg goto get_zmel_init_gemm',k, nkmin(k),nkmax(k),nctot
     call get_zmel_init_gemm(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
          nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., zmelconjg=.true.)
        !$acc update host(zmel)
-!      endif
-!    else
-!      call get_zmel_init(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot, ns2=nkmax(k)+nctot, ispm=isp_k, &
-!           nqini=nkqmin(k), nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1), iprx=.false., zmelconjg=.false.)
-!    endif
   end subroutine x0kf_zmel
+
 end module m_x0kf
 
 !! === calculate chi0, or chi0_pm === 

@@ -1,62 +1,94 @@
 #!/usr/bin/env python3
 import sys
-#import string
-import os
+import argparse
+import numpy as np
+import pandas as pd
 
-def compareqpu(qpu1,qpu2,printsw):
-	pr = (printsw==1)
-	oxx= qpu1.split('\n') 
-	oyy= qpu2.split('\n')
-	errmax=0.0
-	for ix in range( max(len(oxx),len(oyy))):
-		iline=oxx[ix]
-		ilin2=oyy[ix]
-		if ix==5:
-			if pr: print (iline)
-		if ix>=6:
-			if pr: print (iline[0:32],end='')
-			try:
-				for iw in range(4,17,1):
-					w1=float(iline.split()[iw])
-					w2=float(ilin2.split()[iw])
-					if (iw >=15) & pr : print( '%9.5f' % (w1-w2),end='')
-					if (iw <=14) & pr : print( '%6.2f' % (w1-w2),end='')
-					if( abs(w1-w2)>errmax ): errmax=abs(w1-w2)
-					#errmax=errmax + abs(w1-w2)
-				if pr: print()
-			except:
-				if pr: print(iline)
-	return errmax
+def compareqpu_pd(qpu_file1, qpu_file2, print_flag, ecut, etol):
+    df_qpu1 = read_df_qpu(qpu_file1)
+    df_qpu2 = read_df_qpu(qpu_file2)
+    qlists = df_qpu1.iloc[:, :3].drop_duplicates()
+    ndata = df_qpu1.shape[1]-4
+    max_diffs = np.zeros(ndata)
+    rms_diffs = np.zeros(ndata)
+    mean_diffs = np.zeros(ndata)
+    for _, q in qlists.iterrows():
+        df_qpu1_q = qfilter_df_qpu(df_qpu1, q, ecut)
+        df_qpu2_q = qfilter_df_qpu(df_qpu2, q, ecut)
+        if not df_qpu1_q.empty and not df_qpu2_q.empty:
+            common_indices = df_qpu1_q.index.intersection(df_qpu2_q.index)
+            df_qpu1_q_common = df_qpu1_q.loc[common_indices]
+            df_qpu2_q_common = df_qpu2_q.loc[common_indices]
+            df_diff = df_qpu2_q_common - df_qpu1_q_common
+            df_diff.iloc[:, :4] = df_qpu1_q_common.iloc[:, :4]
+            diffs = df_diff.iloc[:, 4:].fillna(0).values
+            max_diffs = np.maximum(max_diffs, abs(diffs).max(axis=0))
+            mean_diffs += diffs.mean(axis=0)
+            rms_diffs += (diffs**2).mean(axis=0)
+            df_diff.columns = [col if i < 4 else f'Δ{col}' for i, col in enumerate(df_diff.columns)]
+            if print_flag == 'all':
+                print_df_qpu(df_diff)
+            elif print_flag == 'middle':
+                mask = (df_diff.iloc[:, 4:].abs() > etol).any(axis=1)
+                print_df_qpu(df_diff[mask])
+        else:
+            print(f'Q=({q["qx"]}, {q["qy"]}, {q["qz"]}) not found in both files')
+            sys.exit()
 
-############### main ###################################
-try:
-	print ("   Readin two files =     ", sys.argv[1], sys.argv[2])
-except:	
-	print ("   usage: dqpu QPU1 QPU2")
-	sys.exit()
+    mean_diffs /= len(qlists)
+    rms_diffs = np.sqrt(rms_diffs/len(qlists))
 
-qpu1 = open(sys.argv[1],'rt').read()
-qpu2 = open(sys.argv[2],'rt').read()
+    print(' === Max differences === ')
+    print_df_diff_qpu(pd.DataFrame([max_diffs]))
 
-#print sys.argv
-if '--print' in sys.argv : 
-	printsw=1
+    print(' === Mean of differences === ')
+    print_df_diff_qpu(pd.DataFrame([mean_diffs]))
+
+    print(' === RMS of differences === ')
+    print_df_diff_qpu(pd.DataFrame([rms_diffs]))
+
+    return max(max_diffs[0:10])
+
+def print_df_qpu(df):
+    pd.set_option('display.expand_frame_repr', False)
+    if not df.empty:
+        print(df.to_string(index=False))
+
+def qfilter_df_qpu(df, q, ecut):
+    condition = (df['qx'] == q['qx']) & (df['qy'] == q['qy']) & (df['qz'] == q['qz']) & (df['eQP_in'] < ecut)
+    return df[condition].reset_index(drop=True)
+
+def print_df_diff_qpu(df):
+    df.columns = ['SEx', 'SExcore', 'SEc', 'vxc', '---', 'dSEnoZ', 'eQP(starting by lmf)' , '', '', 'eHF','Z', 'FWHM', 'ReS(elda)']
+    print(df.to_string(index=False))
+    print()
+
+def read_df_qpu(qpu_file):
+    try:
+        df_qpu = pd.read_csv(qpu_file, sep=r'\s+', skip_blank_lines=True, header=None, skiprows=6)
+        df_qpu.columns = ['qx', 'qy', 'qz', 'state', 'SEx', 'SExcore', 'SEc', 'vxc', '---', 'dSEnoZ', 'eQP_in' , '', '', 'eHF','Z', 'FWHM=2Z*Simg', 'ReS(elda)']
+    except:
+        print(f'Error reading {qpu_file}')
+        sys.exit()
+    return df_qpu
+
+## main ##
+parser = argparse.ArgumentParser()
+parser.add_argument('QPU1', type=str, help='QPU or QPD file')
+parser.add_argument('QPU2', type=str, help='QPU or QPD file')
+parser.add_argument('--ecut', type=float, default=1000, help='energy cutoff from Fermi level')
+parser.add_argument('--etol', type=float, default=0.011, help='eQP difference tolerance')
+parser.add_argument('--print', choices=['none', 'middle', 'all'], default='all', help='print flag middle: print only values with difference > etol')
+args = parser.parse_args()
+
+errmax = compareqpu_pd(args.QPU1, args.QPU2, args.print, args.ecut, args.etol)
+print(f'Difference= {errmax:.3f} eV')
+
+if errmax< args.etol:
+    print ('   Comparison OK!  Difference sum=',errmax,' <1.1e-2 between:   ' + args.QPU1+ '   and   ' + args.QPU2)
+    sys.exit()
 else:
-	printsw=0
-#print 'printsw=', printsw
-errmax = compareqpu(qpu1,qpu2, printsw)
-#errmax = compareqpu(qpu1,qpu2, printsw=0)
-	
-	
-if(errmax<1.1e-2):
-	print ('   Comparison OK!  Difference sum=',errmax,' <1.1e-2 between:   ' + sys.argv[1]+ '   and   ' + sys.argv[2])
-	sys.exit()
-else:
-	errmax = compareqpu(qpu1,qpu2, printsw=1)
-	print() 
-	print ("   Readin two files =  ", sys.argv[1], '  ',sys.argv[2])
-	print( '   Error! Difference>1.1e-2 between:   ' + sys.argv[1]+ '   and   ' + sys.argv[2], ' :  max(abs(QPU-QPU))=',errmax)
-	print( '   (But small diff can be not a problem. It can be due to a minor machine-depenence.)')
-	sys.exit(-1)
-	
-
+    print ('   Readin two files =  ', args.QPU1, '  ',args.QPU2)
+    print( '   Error! Difference>1.1e-2 between:   ' + args.QPU1 + '   and   ' + args.QPU2, ' :  max(abs(QPU-QPU))=',errmax)
+    print( '   (But small diff can be not a problem. It can be due to a minor machine-depenence.)')
+    sys.exit(-1)

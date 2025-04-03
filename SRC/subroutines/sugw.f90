@@ -33,8 +33,12 @@ contains
     use m_hambl,only: hambl
     use m_rdata1,only:rdata1init,nradmx,nnc,nrad,nindx_r,lindx_r,iord,nvmax,nrc,mindx,&
          gval_n,gcore_n,aac,bbc,gval_orth,zzpi,nrmxe=>nrmx
-
-    use m_blas,only: zmm => zmm_h, m_op_T
+!<<<<<<< HEAD
+!    use m_blas,only: zmm => zmm_h, m_op_T
+!=======
+    use m_suham,only: nbandmx=>ham_ndhamx
+    use m_blas,only: zmm => zmm_h, m_op_T, m_op_C
+!>>>>>>> c172356
     implicit none
     intent(in)::          socmatrix,eferm,vmag,qval
     !  qval: valence charge
@@ -547,13 +551,13 @@ contains
             ! MO added blas_mode to replaced matmul by a BLAS call 2024-11-10.
             if(blas_mode) then
               istat = zmm(pzovl(1,ispc,1), pwz(1,ispc,1), testc(1,1,ispc), m=ndimhx, n=ndimhx, k=ngp, &
-                          opA=m_op_T, ldA=ngp*nspc, ldB=ngp*nspc)
-              testc(:,:,ispc)= matmul(transpose(dconjg(pzovl(:,ispc,:))),pwz(1:ngp,ispc,1:ndimhx))
+                          opA=m_op_C, ldA=ngp*nspc, ldB=ngp*nspc)
+              ! testc(:,:,ispc)= matmul(transpose(dconjg(pzovl(:,ispc,:))),pwz(1:ngp,ispc,1:ndimhx))
               testcd(:,ispc) = [(sum(dconjg(pwz(:,ispc,i))*ppovld(:)*pwz(:,ispc,i)),i=1,ndimhx)]
             else
             associate(pwz1=>pwz(1:ngp,ispc,1:ndimhx),pzo=>dconjg(pzovl(:,ispc,:)))
-!              testc(:,:,ispc)= matmul(transpose(pzo),pwz1)
-              testc(:,:,ispc)= matmul(transpose(dconjg(pzo)),pwz1)
+              testc(:,:,ispc)= matmul(transpose(pzo),pwz1)
+              ! testc(:,:,ispc)= matmul(transpose(dconjg(pzo)),pwz1)
               testcd(:,ispc) = [(sum(dconjg(pwz1(:,i))*ppovld*pwz1(:,i)),i=1,ndimhx)] !dimhx)]
             end associate
             endif

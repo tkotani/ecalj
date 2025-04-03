@@ -7,14 +7,18 @@ module m_mpi !MPI utility for fpgw
   integer :: comm
   integer :: mpi__sizeMG 
   integer :: mpi__rankMG
-
+!MPI for hrcxq
   integer :: comm_q, mpi__rank_q, mpi__size_q
   integer :: comm_k, mpi__rank_k, mpi__size_k
   integer :: comm_b, mpi__rank_b, mpi__size_b
   integer :: comm_root_k
-
   logical :: mpi__root_q, mpi__root_k
   integer, allocatable :: mpi__npr_col(:), mpi__ipr_col(:)
+!MPI for Sc (hsfp0_sc --job=2)
+  integer :: comm_w, mpi__rank_w, mpi__size_w
+  logical :: mpi__root_w
+  integer :: worker_intask = 1 !default used in ixc /= 2
+
   integer,private :: mpi__info
   integer,private:: ista(MPI_STATUS_SIZE )
 contains
@@ -96,8 +100,12 @@ contains
     complex(8), intent(in) :: xqw(npr,npr_col)
     complex(8), intent(out) :: xqw_all(npr,npr)  ! we suppose only column was split
     integer, allocatable :: data_disp(:), data_size(:)
-    integer :: irank_b, mpi_size, rank
+    integer :: irank_b, rank
     xqw_all(1:npr,1:npr) = (0D0, 0D0)
+    if(mpi__size_b == 1 .and. npr == npr_col) then
+      xqw_all = xqw
+      return
+    endif
     allocate(data_size(0:mpi__size_b-1), data_disp(0:mpi__size_b-1))
     do irank_b = 0, mpi__size_b -1
       data_size(irank_b) = npr*mpi__npr_col(irank_b)
@@ -109,7 +117,57 @@ contains
     !               &  mpi_complex16, 0, comm_root_k, mpi__info)
     deallocate(data_size, data_disp)
   end subroutine MPI__GatherXqw
-
+  subroutine MPI__GatherXqw_kind4(xqw, xqw_all, npr, npr_col)
+    integer, intent(in) :: npr, npr_col
+    complex(4), intent(in) :: xqw(npr,npr_col)
+    complex(4), intent(out) :: xqw_all(npr,npr)  ! we suppose only column was split
+    integer, allocatable :: data_disp(:), data_size(:)
+    integer :: irank_b, rank
+    xqw_all(1:npr,1:npr) = (0.0, 0.0)
+    if(mpi__size_b == 1 .and. npr == npr_col) then
+      xqw_all = xqw
+      return
+    endif
+    allocate(data_size(0:mpi__size_b-1), data_disp(0:mpi__size_b-1))
+    do irank_b = 0, mpi__size_b -1
+      data_size(irank_b) = npr*mpi__npr_col(irank_b)
+      data_disp(irank_b) = npr*(mpi__ipr_col(irank_b)-1)
+    enddo
+    call mpi_allgatherv(xqw, npr*npr_col, mpi_complex, xqw_all, data_size, data_disp, &
+                  &  mpi_complex, comm_root_k, mpi__info)
+    ! call mpi_gatherv(xqw, npr*npr_col, mpi_complex16, xqw_all, data_size, data_disp, &
+    !               &  mpi_complex16, 0, comm_root_k, mpi__info)
+    deallocate(data_size, data_disp)
+  end subroutine MPI__GatherXqw_kind4
+  integer function get_mpi_size(communicator) result(mpi_size)
+    implicit none
+    integer, intent(in), optional :: communicator
+    integer :: comm_in, ierr
+    comm_in = comm
+    if(present(communicator)) comm_in = communicator
+    call MPI_Comm_size(comm_in, mpi_size, ierr)
+  end function get_mpi_size
+  logical function get_mpi_master(communicator) result(mpi_master)
+    implicit none
+    integer, intent(in), optional :: communicator
+    integer :: comm_in, ierr, mpi_rank
+    comm_in = comm
+    if(present(communicator)) comm_in = communicator
+    call mpi_comm_rank(comm_in, mpi_rank, ierr)
+    mpi_master = (mpi_rank == 0)
+  end function get_mpi_master
+  subroutine MPI__SplitSc(n_wpara)
+    implicit none
+    integer, intent(in) :: n_wpara
+    integer :: color
+    if(n_wpara < 1) call rx("MPI__SplitSc: n_wpara < 1")
+    if(n_wpara > mpi__size) call rx("MPI__SplitSc: n_wpara > mpi__size")
+    color = mpi__rank/n_wpara
+    call mpi_comm_split(comm, color, mpi__rank, comm_w, mpi__info)
+    call mpi_comm_rank(comm_w, mpi__rank_w, mpi__info)
+    call mpi_comm_size(comm_w, mpi__size_w, mpi__info)
+    mpi__root_w = mpi__rank_w == 0
+  end subroutine MPI__SplitSc
   subroutine MPI__Initialize_magnon(commin)
     implicit none
     character(1024*4) :: cwd, stdout
@@ -201,12 +259,21 @@ contains
     complex(8), intent(inout) :: data(sizex)
     complex(8), allocatable   :: mpi__data(:) 
     integer, intent(in), optional :: communicator
-    integer :: comm_in
-!    if( mpi__size == 1 ) return
-    allocate(mpi__data(sizex))
-    mpi__data = data
+!<<<<<<< HEAD
+!    integer :: comm_in
+!!    if( mpi__size == 1 ) return
+!    allocate(mpi__data(sizex))
+!    mpi__data = data
+!=======
+    integer :: comm_in, mpi_size_comm_in, ierr
+    if(mpi__size == 1) return
+!>>>>>>> c172356
     comm_in = comm
     if(present(communicator)) comm_in = communicator
+    mpi_size_comm_in = get_mpi_size(comm_in)
+    if(mpi_size_comm_in == 1) return
+    allocate(mpi__data(sizex))
+    mpi__data = data
     call MPI_Allreduce( mpi__data, data, sizex, MPI_DOUBLE_COMPLEX, MPI_SUM, comm_in, mpi__info )
     deallocate( mpi__data )
   end subroutine MPI__AllreduceSum
@@ -216,12 +283,14 @@ contains
     complex(8), intent(inout) :: data(sizex)
     complex(8), allocatable   :: mpi__data(:) 
     integer, intent(in), optional :: communicator
-    integer :: comm_in
-    if( mpi__size == 1 ) return
-    allocate(mpi__data(sizex))
-    mpi__data = data
+    integer :: comm_in, mpi_size_comm_in, ierr
+    if(mpi__size == 1) return
     comm_in = comm
     if(present(communicator)) comm_in = communicator
+    mpi_size_comm_in = get_mpi_size(comm_in)
+    if(mpi_size_comm_in == 1) return
+    allocate(mpi__data(sizex))
+    mpi__data = data
     call MPI_reduce( mpi__data, data, sizex, MPI_DOUBLE_COMPLEX, MPI_SUM, root, comm_in, mpi__info )
     deallocate( mpi__data )
     return
@@ -232,12 +301,14 @@ contains
     complex(4), intent(inout) :: data(sizex)
     complex(4), allocatable   :: mpi__data(:) 
     integer, intent(in), optional :: communicator
-    integer :: comm_in
+    integer :: comm_in, mpi_size_comm_in, ierr
     if( mpi__size == 1 ) return
-    allocate(mpi__data(sizex))
-    mpi__data = data
     comm_in = comm
     if(present(communicator)) comm_in = communicator
+    call MPI_Comm_size(comm_in, mpi_size_comm_in, ierr)
+    if( mpi_size_comm_in == 1 ) return
+    allocate(mpi__data(sizex))
+    mpi__data = data
     call MPI_reduce( mpi__data, data, sizex, MPI_COMPLEX, MPI_SUM, root, comm_in, mpi__info )
     deallocate( mpi__data )
     return
@@ -253,10 +324,59 @@ contains
     call MPI_Allreduce( mpi__data, data, sizex, MPI_INTEGER, MPI_MAX, comm, mpi__info )
     deallocate( mpi__data )
   end subroutine MPI__AllreduceMax
+!MO Addtional subroutines for MPI 2024/12/28
+  subroutine MPI__AllreduceAND(data, communicator)
+    implicit none
+    logical, intent(inout) :: data
+    integer, intent(in), optional :: communicator
+    logical :: mpi__data
+    integer :: comm_in
+    comm_in = comm
+    if(present(communicator)) comm_in = communicator
+    if(get_mpi_size(comm_in) == 1) return
+    mpi__data =  data
+    call MPI_Allreduce(mpi__data, data, 1, MPI_LOGICAL, MPI_LAND, comm_in, mpi__info)
+  end subroutine MPI__AllreduceAND
+!MO Following subroutines are for CPU(host) and GPU(device) implementations 2024/12/27
+  subroutine MPI__zBcast_h(data, sizex, communicator, sender)
+    implicit none
+    integer, intent(in) :: sizex
+    complex(8), intent(inout) :: data(sizex)
+    integer, intent(in), optional :: communicator, sender
+    integer :: comm_in, sender_in, mpi_size_comm_in
+    comm_in = comm
+    sender_in = 0
+    if(present(communicator)) comm_in = communicator
+    if(present(sender)) sender_in = sender
+    mpi_size_comm_in = get_mpi_size(comm_in)
+    if(mpi_size_comm_in == 1) return
+    call MPI_Bcast(data, sizex, MPI_DOUBLE_COMPLEX, sender_in, comm_in, mpi__info)
+  end subroutine MPI__zBcast_h
+#ifdef __GPU
+  subroutine MPI__zBcast_d(data_d, sizex, communicator, sender)
+    use cudafor
+    implicit none
+    integer, intent(in) :: sizex
+    complex(8), intent(inout), device :: data_d(sizex)
+    complex(8) :: data_h(sizex) !Host data for MPI communication
+    integer, intent(in), optional :: communicator, sender
+    integer :: comm_in, sender_in, mpi_size_comm_in
+    comm_in = comm
+    sender_in = 0
+    if(present(communicator)) comm_in = communicator
+    if(present(sender)) sender_in = sender
+    mpi_size_comm_in = get_mpi_size(comm_in)
+    if(mpi_size_comm_in == 1) return
+    data_h(:) = data_d(:) ! copy to host
+    call MPI_Bcast(data_h, sizex, MPI_DOUBLE_COMPLEX, sender_in, comm_in, mpi__info)
+    data_d(:) = data_h(:) !copy to device
+  end subroutine MPI__zBcast_d
+#endif
 end module m_mpi
 
 subroutine MPI__sxcf_rankdivider(irkip_all,nspinmx,nqibz,ngrp,nq,irkip)
   use m_mpi,only: mpi__rank,mpi__size
+  use m_mpi, only: worker_intask !set as 1 in the case of without omega parallelization
   implicit none
   integer, intent(out) :: irkip    (nspinmx,nqibz,ngrp,nq)
   integer, intent(in)  :: irkip_all(nspinmx,nqibz,ngrp,nq)
@@ -265,22 +385,25 @@ subroutine MPI__sxcf_rankdivider(irkip_all,nspinmx,nqibz,ngrp,nq,irkip)
   integer :: total
   integer, allocatable :: vtotal(:)
   integer :: indexi, indexe
-  integer :: p
+  integer :: p, ngroup
   if( mpi__size == 1 ) then
      irkip = irkip_all
      return
   end if
   total = count(irkip_all>0)
+  ngroup = mpi__size/worker_intask
   write(6,"('MPI__sxcf_rankdivider:$')")
-  write(6,"('nspinmx,nqibz,ngrp,nq,total=',5i6)") nspinmx,nqibz,ngrp,nq,total 
+  write(6,"('nspinmx,nqibz,ngrp,nq,total=',5i6)") nspinmx,nqibz,ngrp,nq,total
+  write(6,'(A,2I5)') 'MPI: Worker in Task, # of groups', worker_intask, ngroup
   allocate( vtotal(0:mpi__size-1) )
-  vtotal(:) = total/mpi__size
-  do p=1, mod(total,mpi__size)
+  ! vtotal(:) = total/mpi__size
+  vtotal(:) = total/ngroup
+  do p=1, mod(total, ngroup)
      vtotal(p-1) = vtotal(p-1) + 1
   end do
   indexe=0
   indexi=-999999
-  do p=0, mpi__rank
+  do p=0, mpi__rank/worker_intask !same definition with color in SplitSc
      indexi = indexe+1
      indexe = indexi+vtotal(p)-1
   end do
