@@ -34,7 +34,7 @@ subroutine bzmesh(plat,qb,ifac,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx)! Divides 
   logical :: lshft(3)
   integer :: n1,n2,n3,nqmx,ng,nq,ipq(n1,n2,n3)
   double precision :: qb(3,3),wgt(nqmx),plat(3,3),qp(3,nqmx),g(3,3,*)
-  integer :: i1,i2,i3,ifac(3),ig,igcnt,ii,ii1,ii2,ii3,ipr,iq,is(3),iwgt,jj(3),lgunit,m1,m2,m3,ndmx,nnn(3),mmm(3)
+  integer :: i1,i2,i3,ifac(3),ig,igcnt,ii,ii1,ii2,ii3,ipr,iq,is(3),iwgt,jj(3),lgunit,m1,m2,m3,ndmx,nnn(3),mmm(3),ifi
   double precision :: w0,swgt,v(3),v1(3),rb(3,3),xx(3)
   character(1) :: chr(0:2)
   real(8):: tolq
@@ -78,6 +78,9 @@ subroutine bzmesh(plat,qb,ifac,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx)! Divides 
                  if(sum(abs(xx-jj)) > tolq()) then
                     write(stdo,"(a,3f9.4,' ',3f9.4)") ' qp mapped to is not on k-mesh',v,v1
                     write(stdo,"(a,3f9.4,' ',3i5)")   '             x j=',xx,jj(1),jj(2),jj(3)
+                    open(newunit=ifi,file='bzmesh.err')
+                    write(ifi,*)'BZMESH: symops incompatible with this mesh'
+                    close(ifi)
                     call rx('BZMESH: symops incompatible with this mesh')
                  endif
                  if(any(lshft(:).AND.mod(abs(jj(:)),2)== 1)) cycle ! discard if shifted off mesh
