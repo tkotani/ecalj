@@ -51,7 +51,7 @@ def run_popen(main_command, sub_command, out, oute, mode):
     main_command = [str(c) for c in main_command]
     sub_command = [str(c) for c in sub_command]
     print(' '.join(main_command), f'> {out}')
-    with Path(out).open(mode) as f, Path(oute).open(mode) as ff
+    with Path(out).open(mode) as f, Path(oute).open(mode) as ff:
         main_process = subprocess.Popen(main_command, stdout=f, stderr=ff)
         sub_process = subprocess.Popen(sub_command)
         try:
@@ -258,7 +258,6 @@ class Calc:
                 conv = outc.split()[0]
                 if conv == 'c':
                     self.kmesh_cube = True
-                    break
                 return f'{conv} {kkk}', errcode['kmesh']
             else:
                 return 'ERROR: lmf', errcode['others']
