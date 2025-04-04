@@ -1,0 +1,17 @@
+#!/bin/sh
+##PBS -q i1accs
+#PBS -q i2cpu
+#PBS -l select=1:ncpus=128:mpiprocs=128:ompthreads=1
+
+# do not need to touch followings ##
+export OMP_NUM_THREADS=1
+py=pythonbin
+job=job_mp
+fin=infile
+out=dir_out
+fout=outfile
+ftouch=file_to_touch
+
+$py $job --file $fin --dir $out >> $fout 2>&1
+touch $ftouch
+
