@@ -1,0 +1,59 @@
+    q(fit):     1.059853    rms diff:   0.000022
+    fit: r>rmt  1.059853   r<rmt  3.434667   qtot  4.494520
+    rho: r>rmt  1.059853   r<rmt  3.940147   qtot  5.000000
+ tailsm:  fit tails to        6 functions with
+
+ rsm=  0.95000D+00 rms error=  0.22325D-04
+conf: Core rhoc(rmt)= 0.000000 spillout= 0.000000
+ end of freats: spid nmcore=N                  1
+Sum of reference energies:                      0.000000000000
+OK! end of LMFA ======================
+
+ === INPUT options (shown values are default) === 
+  --help  Not exist
+  --showatomlist  Not exist
+  --nspin=1
+  --so=0
+  --nk1=8 Division for BZ integral along a-axis
+  --nk2=8   (if not give, nk2=nk1) along b-axis
+  --nk3=8   (if not give, nk3=nk1) along c-axis
+  --xcfun=vwn   !(bh,vwn,pbe)
+ +++ Followings are for experts to change +++
+  --tratio=0.97 (for MT radius: we use touching MT radius \times this ratio. lmf --getwsr is called.
+               if negative, we use use defalut MT radius in ctrlgenM1.py)
+  --systype=bulk !(bulk,molecule)
+  --insulator  Not exist !not set this if you are not expert. (do not set for --systype=molecule)
+  --fsmom=0.0 ! (only for FSMOM mode. --systype=molecule automatically set this)
+  --ssig=1.0 ! ScaledSigma(experimental =1.0 is the standard QSGW
+
+... Generate ctrlgenM1.ctrl.cprn from ctrls.cprn ...
+readin SPEC and #= [] 0
+### SITE   ['Pr', 'N']
+### SPEC   []
+### other  ['%const nsp=2 nk=2', '%const a=5.17/0.529177249']
+ NO SPEC is found in ctrls.cprn. USE standard SPEC; try to see; ctrlgenM1.py --showatomlist
+goto lmchk --getwsr tmp
+['Pr          2.921141', 'N           1.963801']
+['Pr', '2.921141']
+['N', '1.963801']
+
+ rmt.tmp: --getwsr gives  R= --> {'Pr': '2.921141', 'N': '1.963801'}
+  note: we use R=3.0 if R is larger than 3.0
+rdic {'Pr': '2.921141', 'N': '1.963801'}
+zspec= False
+from atomlist=  Pr  =" atomz=59@ pz='PZ=0,5,0,5'@ eh=-1*4@ eh2=-2*4@ R=?@ ext='#IDU=0 0 0 12  UH=0 0 0 0.535  JH=0 0 0 0.0692  ##MMOM=0 0 0 2'@" 
+2.83350677
+skey= Pr
+    -1*4  -1  4
+    -2*4  -2  4
+     2.83   1.42
+from atomlist=  N=   " atomz=7@               eh=-1*3@ eh2=-2*2@    R=0.55@"      
+1.90488697
+skey= N
+    -1*3  -1  3
+    -2*2  -2  2
+     1.90   0.95
+ ------tail of llmf.tmp2 ----------------------------------
+ ----  lmfa has done! --------------------------------------
+
+OK! A template of ctrl file, ctrlgenM1.ctrl.cprn, is generated.

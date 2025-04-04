@@ -1,0 +1,140 @@
+INFO: Ubuntu 20.04.4 LTS \n \l
+INFO: GNU Fortran (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.4.0
+INFO: -O2 -g -fimplicit-none -ffixed-line-length-132 -JOBJ.gfortran -IOBJ.gfortran
+INFO: MATH: -lmkl_rt
+INFO: git: commit 51097b9c19a3c77d33bf02410a9e870c8097efc6
+INFO:    : Author: Takao Kotani <takaokotani@gmail.com>
+INFO:    : Date:   Mon Dec 12 11:20:25 2022 +0900
+INFO: linked at Mon Dec 12 11:23:20 JST 2022
+===START LMFGWD with   ===
+ mpisize=           1
+  Token           Input   cast  (size,min,read,def)     result
+ IO_VERBOS         opt    i4       1,  1,   1,  0       35
+ IO_TIM            opt    i4v      2,  1,   2,  0       0  0
+ CONST             opt    chr      1,  0,   *
+ STRUC_ALAT        reqd   r8       1,  1,   1, --       9.7320888399999994
+ STRUC_NBAS        reqd   i4       1,  1,   1, --       2
+ STRUC_PLAT        reqd   r8v      9,  9,   9, --       0  0.5  0.5  0.5  0  0.5  0.5  0.5  0
+ ... found 2 species in SPEC category
+ HAM_NSPIN         opt    i4       1,  1,   1,  0       2
+ HAM_REL           opt    i4       1,  1,   1,  0       1
+ HAM_SO            opt    i4       1,  1,   1,  0       2
+ HAM_GMAX          reqd   r8       1,  1,   1, --       12
+ HAM_FRZWF         opt    lg       1,  1,   1,  0       F
+ HAM_FORCES        opt    i4       1,  1,   1,  0       0
+ HAM_XCFUN         opt    i4       1,  1,   1,  0       1
+ HAM_RDSIG         opt    i4       1,  1,   1,  0       12
+ HAM_ScaledSigma   opt    r8       1,  1,   1,  0       1
+ HAM_OVEPS         opt    r8       1,  1,   1,  0       0.00000001
+ HAM_PWMODE        opt    i4       1,  1,   1,  0       1
+ ===> for --jobgw, pwmode is switched to be  11
+ HAM_PWEMAX        opt    r8       1,  1,   1,  0       2
+ SYMGRP            opt    chr      1,  0,   1           r4z
+ SYMGRPAF          opt    chr      1,  0,   *
+  --- Parameters for species data ---
+ ... Species  1
+ SPEC_ATOM         reqd   chr      1,  0,   1           Nd
+ SPEC_ATOM_Z       reqd   r8       1,  1,   1, --       60
+ SPEC_ATOM_R       reqd   r8       1,  1,   1, --       2.8199999999999998
+ SPEC_ATOM_RSMH    reqd   r8v     10,  1,   4,  6       1.4099999999999999  1.4099999999999999  1.4099999999999999  1.4099999999999999  0  0  0  0  0  0
+ SPEC_ATOM_EH      reqd   r8v     10,  4,   4,  6       -1 -1 -1 -1  0  0  0  0  0  0
+ SPEC_ATOM_RSMH2   opt    r8v     10,  1,   4,  6       1.4099999999999999  1.4099999999999999  1.4099999999999999  1.4099999999999999  0  0  0  0  0  0
+ SPEC_ATOM_EH2     reqd   r8v     10,  4,   4, --       -2 -2 -2 -2
+ SPEC_ATOM_LMX     opt    i4       1,  1,   1,  0       3
+ SPEC_ATOM_LMXA    opt    i4       1,  1,   1,  0       6
+ SPEC_ATOM_NMCORE  opt    i4       1,  1,   1,  0       1
+ SPEC_ATOM_PZ      opt    r8v      7,  1,   4,  3       0  5  0  5  0  0  0
+ HAM_READP         opt    lg       1,  1,   1,  0       T
+ HAM_PNUFIX        opt    lg       1,  1,   1,  0       T
+ READP=T: read pnu from atmpnu.*
+ SPEC_ATOM_KMXA    opt    i4       1,  1,   1,  0       5
+ SPEC_ATOM_C-HOLE  opt    chr      1,  0,   *
+ ... Species  2
+ SPEC_ATOM         reqd   chr      1,  0,   1           N
+ SPEC_ATOM_Z       reqd   r8       1,  1,   1, --       7
+ SPEC_ATOM_R       reqd   r8       1,  1,   1, --       1.9099999999999999
+ SPEC_ATOM_RSMH    reqd   r8v     10,  1,   3,  7       0.95  0.95  0.95  0  0  0  0  0  0  0
+ SPEC_ATOM_EH      reqd   r8v     10,  3,   3,  7       -1 -1 -1  0  0  0  0  0  0  0
+ SPEC_ATOM_RSMH2   opt    r8v     10,  1,   2,  8       0.95  0.95  0  0  0  0  0  0  0  0
+ SPEC_ATOM_EH2     reqd   r8v     10,  2,   2, --       -2 -2
+ SPEC_ATOM_LMX     opt    i4       1,  1,   1,  0       3
+ SPEC_ATOM_LMXA    opt    i4       1,  1,   1,  0       6
+ SPEC_ATOM_NMCORE  opt    i4       1,  1,   1,  0       1
+ HAM_READP         opt    lg       1,  1,   1,  0       T
+ HAM_PNUFIX        opt    lg       1,  1,   1,  0       T
+ READP=T: read pnu from atmpnu.*
+ SPEC_ATOM_KMXA    opt    i4       1,  1,   1,  0       5
+ SPEC_ATOM_C-HOLE  opt    chr      1,  0,   *
+  --- Parameters for site ---
+ ... Site  1
+ SITE_ATOM         reqd   chr      1,  0,   1           Nd
+ SITE_ATOM_POS     reqd   r8v      3,  1,   3, --       0  0  0
+ ... Site  2
+ SITE_ATOM         reqd   chr      1,  0,   1           N
+ SITE_ATOM_POS     reqd   r8v      3,  1,   3, --       0.5  0.5  0.5
+  --- Parameters for Brillouin zone integration ---
+ BZ_NKABC          opt    i4v      3,  1,   3, --       8  8  8
+ BZ_METAL          opt    i4       1,  1,   1,  0       3
+ BZ_TETRA          opt    lg       1,  1,   1,  0       T
+ BZ_N              opt    i4       1,  1,   1,  0       -1
+ BZ_W              opt    r8       1,  1,   1,  0       0.01
+ BZ_SAVDOS         opt    i4       1,  1,   1,  0       1
+ BZ_NPTS           opt    i4       1,  1,   1,  0       2001
+ BZ_DOSMAX         opt    r8       1,  1,   1,  0       1.5
+  --- Parameters for Ewald sums ---
+  bndfp (warning): no sigm file found ... LDA calculation only
+pnuall: j isp pnu= 1 1 6.500000  6.500000  5.833701  4.914053  5.109767  6.076639  7.060041
+pnzall: j isp  pz= 1 1 0.000000  5.923263  0.000000  5.500000  0.000000  0.000000  0.000000
+pnuall: j isp pnu= 1 2 6.500000  6.500000  5.833701  4.914053  5.109767  6.076639  7.060041
+pnzall: j isp  pz= 1 2 0.000000  5.923263  0.000000  5.500000  0.000000  0.000000  0.000000
+pnuall: j isp pnu= 2 1 2.883627  2.855407  3.239956  4.125881  5.087677  6.067857  7.055547
+pnzall: j isp  pz= 2 1 0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
+pnuall: j isp pnu= 2 2 2.883627  2.855407  3.239956  4.125881  5.087677  6.067857  7.055547
+pnzall: j isp  pz= 2 2 0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
+
+
+mmm === MTO setting ===
+mmm ispec lmxb lpz nkapii nkaphh=    1    3    1    2    2
+mmm rsmh1    1  1.41  1.41  1.41  1.41
+mmm   eh1    1 -1.00 -1.00 -1.00 -1.00
+mmm rsmh2    1  1.41  1.41  1.41  1.41
+mmm  eh2     1 -2.00 -2.00 -2.00 -2.00
+mmm pz       1  0.00  5.92  0.00  5.50
+mmm lh       3  3  3
+mmm ispec lmxb lpz nkapii nkaphh=    2    2    0    2    2
+mmm rsmh1    2  0.95  0.95  0.95
+mmm   eh1    2 -1.00 -1.00 -1.00
+mmm rsmh2    2  0.95  0.95
+mmm  eh2     2 -2.00 -2.00
+mmm lh       2  1 -1
+
+                Plat                                  Qlat
+   0.000000   0.500000   0.500000       -1.000000   1.000000   1.000000
+   0.500000   0.000000   0.500000        1.000000  -1.000000   1.000000
+   0.500000   0.500000   0.000000        1.000000   1.000000  -1.000000
+  Cell vol=   230.440178
+ imx=           3           3           3
+ imx=           3           3           3
+
+ LATTC:  as= 2.000   tol= 1.00E-08   alat= 9.73209   awald= 0.326
+         r1=  1.867   nkd=  87      q1=  5.605   nkg= 169
+ Order of generator  1 is 4
+SGROUP:  4 symmetry operations from 1
+ ig group op
+   1  i*i                                
+   2  r4z                                
+   3  r2z                                
+   4  r4(0,0,-1)                         
+MKSYM: found  4  space group operations
+   no attempt to add inversion symmetry
+SPLCLS: ibas iclass ispec label(ispec)
+ SPLCLS     1    1    1     Nd
+ SPLCLS     2    2    2     N
+
+  === lmfgw-MPIK: Choose one of following jobs: ===
+   0 : init mode creates HAMindex0
+   1 : GW setup for eigenfunctions: HAMindex gwa.* gwb.*
+   jobgw 0 or 1?
+CPU time:    0.019s     Mon Dec 12 11:23:38 2022   on process=0
+ finalizing procid=           0
+Exit 0 procid= 0  OK! lmfgw mode=0 generated HAMindex0

@@ -1,0 +1,278 @@
+=== START LMCHK   ===
+ mpisize=           1
+  Token           Input   cast  (size,min,read,def)     result
+ IO_VERBOS         opt    i4       1,  1,   1,  0       35
+ IO_TIM            opt    i4v      2,  1,   2,  0       0  0
+ CONST             opt    chr      1,  0,   *
+ STRUC_ALAT        reqd   r8       1,  1,   1, --       9.7698833599999997
+ STRUC_NBAS        reqd   i4       1,  1,   1, --       2
+ STRUC_PLAT        reqd   r8v      9,  9,   9, --       0  0.5  0.5  0.5  0  0.5  0.5  0.5  0
+ ... found 2 species in SPEC category
+ ===> for --jobgw, pwmode is switched to be  0
+ SYMGRP            opt    chr      1,  0,   1           find
+  --- Parameters for species data ---
+ ... Species  1
+ SPEC_ATOM         reqd   chr      1,  0,   1           Pr
+ SPEC_ATOM_Z       reqd   r8       1,  1,   1, --       59
+ ... Species  2
+ SPEC_ATOM         reqd   chr      1,  0,   1           N
+ SPEC_ATOM_Z       reqd   r8       1,  1,   1, --       7
+  --- Parameters for site ---
+ ... Site  1
+ SITE_ATOM         reqd   chr      1,  0,   1           Pr
+ SITE_ATOM_POS     reqd   r8v      3,  1,   3, --       0  0  0
+ ... Site  2
+ SITE_ATOM         reqd   chr      1,  0,   1           N
+ SITE_ATOM_POS     reqd   r8v      3,  1,   3, --       0.5  0.5  0.5
+  --- Parameters for Brillouin zone integration ---
+  --- Parameters for Ewald sums ---
+pnuall: j isp pnu= 1 1 
+pnzall: j isp  pz= 1 1 
+pnuall: j isp pnu= 2 1 
+pnzall: j isp  pz= 2 1 
+
+
+mmm === MTO setting ===
+mmm ispec lmxb lpz nkapii nkaphh=    1   -1    0    1    1
+mmm rsmh1    1
+mmm   eh1    1
+mmm lh      -1
+mmm ispec lmxb lpz nkapii nkaphh=    2   -1    0    1    1
+mmm rsmh1    2
+mmm   eh1    2
+mmm lh      -1
+
+                Plat                                  Qlat
+   0.000000   0.500000   0.500000       -1.000000   1.000000   1.000000
+   0.500000   0.000000   0.500000        1.000000  -1.000000   1.000000
+   0.500000   0.500000   0.000000        1.000000   1.000000  -1.000000
+  Cell vol=   233.135358
+ imx=           3           3           3
+ imx=           3           3           3
+
+ LATTC:  as= 2.000   tol= 1.00E-08   alat= 9.76988   awald= 0.325
+         r1=  1.866   nkd=  87      q1=  5.601   nkg= 169
+SGROUP:  1 symmetry operations from 0
+ SYMLAT: Bravais system is cubic       with 48 symmetry operations.
+ SYMCRY: crystal invariant under 48 symmetry operations for tol=1e-4
+ ig  group op
+   1  i*i                                
+   2  i                                  
+   3  r3(1,1,-1)                         
+   4  i*r3(1,1,-1)                       
+   5  r3(-1,-1,1)                        
+   6  i*r3(-1,-1,1)                      
+   7  r3d                                
+   8  i*r3d                              
+   9  r3(-1,-1,-1)                       
+  10  i*r3(-1,-1,-1)                     
+  11  r2x                                
+  12  mx                                 
+  13  r4x                                
+  14  i*r4x                              
+  15  r4(-1,0,0)                         
+  16  i*r4(-1,0,0)                       
+  17  r3(1,-1,-1)                        
+  18  i*r3(1,-1,-1)                      
+  19  r3(-1,1,1)                         
+  20  i*r3(-1,1,1)                       
+  21  r2(1,1,-0)                         
+  22  m(1,1,-0)                          
+  23  r2(1,-0,-1)                        
+  24  m(1,-0,-1)                         
+  25  r2y                                
+  26  my                                 
+  27  r4y                                
+  28  i*r4y                              
+  29  r4(0,-1,0)                         
+  30  i*r4(0,-1,0)                       
+  31  r2(0,1,-1)                         
+  32  m(0,1,-1)                          
+  33  r2z                                
+  34  mz                                 
+  35  r4(0,0,-1)                         
+  36  i*r4(0,0,-1)                       
+  37  r4z                                
+  38  i*r4z                              
+  39  r3(-1,1,-1)                        
+  40  i*r3(-1,1,-1)                      
+  41  r3(1,-1,1)                         
+  42  i*r3(1,-1,1)                       
+  43  r2(1,0,1)                          
+  44  m(1,0,1)                           
+  45  r2(1,-1,0)                         
+  46  m(1,-1,0)                          
+  47  r2(-0,1,1)                         
+  48  m(-0,1,1)                          
+GROUPG: the following are sufficient to generate the space group:
+ Generators:trans(cart)  = i*r3(1,1,-1) r4x
+ Generators::trans(frac) = i*r3(1,1,-1) r4x
+MKSYM: found  48  space group operations
+SPLCLS: ibas iclass ispec label(ispec)
+ SPLCLS     1    1    1     Pr
+ SPLCLS     2    2    2     N
+  lmaux:
+ Use default rmaxs = 8.182 a.u. = 2.7*avw = 0.837*alat
+ imx=           2           2           2
+ imx=           2           2           2
+
+ ... Make sphere radii
+ makrm0:
+
+conf:------------------------------------------------------
+conf:SPEC_ATOM= Pr : --- Table for atomic configuration ---
+conf:  isp  l  int(P) int(P)z    Qval     Qcore   CoreConf
+conf:    1  0       6  0         2.000   10.000 => 1,2,3,4,5,
+conf:    1  1       6  0         0.000   24.000 => 2,3,4,5,
+conf:    1  2       5  0         1.000   20.000 => 3,4,
+conf:    1  3       4  0         2.000    0.000 => 
+usedQ=     2.000     0.000     1.000     2.000
+conf:   rmt=3.750000  rmax=48.026862  a=0.025  nr=489  nr(rmax)=591
+ goto atomc xxx
+ atomsc nmcore=           1
+
+  iter     qint         drho          vh0          rho0          vsum     beta
+ NOTE: rhocor: core density is spin-independent now for any MMOM, june2012.
+       We use spin-avaraged potential to calculate core density rhoc.
+       Thus diff of core eigen is pot. due to valence electron. I/O:iofa.F
+    1   59.000000   1.465E+04      295.0000    0.2934E+03     -118.5659   0.30
+   54   59.000000   4.130E-05      762.5962    0.1333E+07     -377.6734   0.30
+
+ end of atomsc xxxxx
+ vsum=  -377.67337630089111                1
+
+ Free-atom wavefunctions:
+ valence:      eval       node at      max at       c.t.p.   rho(r>rmt)       pnu
+   6s      -0.29648         1.774       3.623       5.320     0.591346       6.773  0
+   6p      -0.10899         2.109       4.811       8.059     0.849363       6.478  0
+   5d      -0.23627         0.896       2.137       5.918     0.217518       5.872  0
+   4f      -0.47972         0.000       0.678       4.195     0.003602       4.924  0
+
+ core:        ecore       node at      max at       c.t.p.   rho(r>rmt)
+   1s   -3068.73319         0.000       0.015       0.033     0.000000
+   2s    -494.00551         0.031       0.087       0.136     0.000000
+   2p    -442.13927         0.000       0.070       0.147     0.000000
+   3s    -106.99077         0.124       0.250       0.356     0.000000
+   3p     -90.58231         0.111       0.244       0.391     0.000000
+   3d     -67.52285         0.000       0.201       0.458     0.000000
+   4s     -21.63729         0.321       0.579       0.796     0.000000
+   4p     -16.26308         0.323       0.604       0.906     0.000000
+   4d      -8.58025         0.300       0.635       1.202     0.000000
+   5s      -3.11239         0.735       1.335       1.851     0.000686
+   5p      -1.77169         0.787       1.506       2.334     0.005893
+ tailsm: init
+
+ tailsm: fit tails to 6 smoothed hankels, rmt= 3.75000, rsm= 1.87500
+  ---E:energies of smHankels. C:fitting coeeficient for core tail. ---
+ E:    -1.00000    -2.00000    -4.00000    -6.00000    -9.00000   -15.00000
+ C:     2.62681    79.33171 -5372.77755 86440.63356************************
+        r          rho         fit         diff
+    3.750000    0.004543    0.004544   -0.000001
+    4.815101    0.001762    0.001762   -0.000000
+    6.182717    0.000419    0.000419   -0.000000
+    7.938771    0.000056    0.000056    0.000000
+   10.193589    0.000004    0.000004   -0.000000
+    q(fit):     1.407418    rms diff:   0.000002
+    fit: r>rmt  1.407418   r<rmt  1.794477   qtot  3.201895
+    rho: r>rmt  1.407418   r<rmt  3.592582   qtot  5.000000
+ tailsm:  fit tails to        6 functions with
+
+ rsm=  0.18750D+01 rms error=  0.17048D-05
+conf: Core rhoc(rmt)= 0.006375 spillout= 0.036729
+ Fit with Hankel e= -7.200013 coeff=560.401281
+      r            rhoc          fit
+    3.750000    0.08964424    0.08964424
+    3.844932    0.07132668    0.07124460
+    4.356881    0.02046249    0.02043838
+    4.936996    0.00484710    0.00488321
+    5.594352    0.00092536    0.00094831
+    6.339234    0.00013839    0.00014561
+    7.183295    0.00001570    0.00001713
+    8.139743    0.00000130    0.00000149
+    9.223539    0.00000008    0.00000009
+
+conf:------------------------------------------------------
+conf:SPEC_ATOM= N : --- Table for atomic configuration ---
+conf:  isp  l  int(P) int(P)z    Qval     Qcore   CoreConf
+conf:    1  0       2  0         2.000    2.000 => 1,
+conf:    1  1       2  0         3.000    0.000 => 
+conf:    1  2       3  0         0.000    0.000 => 
+conf:    1  3       4  0         0.000    0.000 => 
+usedQ=     2.000     3.000     0.000     0.000
+conf:   rmt=1.900000  rmax=24.359795  a=0.025  nr=271  nr(rmax)=373
+ goto atomc xxx
+ atomsc nmcore=           1
+
+  iter     qint         drho          vh0          rho0          vsum     beta
+    1    7.000000   5.957E+02       35.0000    0.3482E+02      -14.0725   0.30
+   45    7.000000   4.720E-05       36.4355    0.2079E+03      -55.1447   0.30
+
+ end of atomsc xxxxx
+ vsum=  -55.144672087783690                2
+
+ Free-atom wavefunctions:
+ valence:      eval       node at      max at       c.t.p.   rho(r>rmt)       pnu
+   2s      -1.35995         0.320       1.016       1.645     0.158605       2.883  0
+   2p      -0.53831         0.000       0.966       2.540     0.248211       2.855  0
+   3d       0.04972         0.000      16.788      24.360*    0.999986       3.241  0
+   4f       0.07509         0.000      17.973      24.360*    0.999999       4.126  0
+
+ core:        ecore       node at      max at       c.t.p.   rho(r>rmt)
+   1s     -28.03734         0.000       0.149       0.300     0.000000
+ tailsm: init
+
+ tailsm: fit tails to 6 smoothed hankels, rmt= 1.90000, rsm= 0.95000
+  ---E:energies of smHankels. C:fitting coeeficient for core tail. ---
+ E:    -1.00000    -2.00000    -4.00000    -6.00000    -9.00000   -15.00000
+ C:    -0.10908     2.94559   -42.95822   276.48978  -770.98759  1820.99088
+        r          rho         fit         diff
+    1.900000    0.033675    0.033629    0.000046
+    2.440281    0.009563    0.009553    0.000009
+    3.134015    0.002065    0.002069   -0.000005
+    4.024788    0.000327    0.000325    0.000002
+    5.168563    0.000036    0.000038   -0.000002
+    6.637198    0.000002    0.000002    0.000000
+    q(fit):     1.061866    rms diff:   0.000022
+    fit: r>rmt  1.061866   r<rmt  3.434249   qtot  4.496115
+    rho: r>rmt  1.061867   r<rmt  3.938133   qtot  5.000000
+ tailsm:  fit tails to        6 functions with
+
+ rsm=  0.95000D+00 rms error=  0.22271D-04
+conf: Core rhoc(rmt)= 0.000000 spillout= 0.000000
+ rrrrrrr           1   15.000000000000000     
+ rrrrrrr           2   7.5999999999999996     
+ imx=          10          10          10
+ imx=          10          10          10
+
+ pairc, ib=  1: 695 neighbors in range  3.071 30.000
+ pairc:     695 pairs total       695 is max cluster size
+ imx=          10          10          10
+ imx=          10          10          10
+
+ pairc, ib=  2: 291 neighbors in range  1.556 15.200
+ pairc:     291 pairs total       291 is max cluster size
+
+ makrm0: initial MT radii from first estat potential maximum
+  site   spec            rmt       rmt-       rmt-       rold   lock
+                                  <spec avg>  spec-min
+    1    1:Pr           2.9208     0.0000     0.0000     0.0000    
+    2    2:N            1.9636     0.0000     0.0000     0.0000    
+ imx=           4           4           4
+ imx=           4           4           4
+ SCLWSR:  vol =  233.13536 a.u.**3  Initial sphere packing =   58.37053 scaled to   58.39288
+ constr omax1=   0.0   0.0   0.0 %    omax2=   0.0   0.0   0.0 %
+ actual omax1=   0.0   0.0   0.0 %    omax2=   0.0   0.0   0.0 %
+
+ spec  name        old rmax    new rmax     ratio
+   1   Pr          2.920768    2.921141    1.000128
+   2   N           1.963550    1.963801    1.000128
+  zzzz nclspp=           2
+     Site   ic Spec        Rmax      Position
+conf     1      1  Pr      2.921141     0.000000   0.000000   0.000000
+conf     2      2  N       1.963801     0.500000   0.500000   0.500000
+ Cell volume=   233.135 Sum of sphere volumes=  136.134 (  0.6  %)
+
+ ib jb  sp&ic1  sp&ic2        Pos(jb)-Pos(ib)   Dist  sumrs   Ovlp    %
+  1  2  Pr1     N2        0.000  0.000 -4.885  4.885  4.885  -0.00   0.0 
+ OVMIN:  fovl=   0.0 <ovlp> =   0.0%   max ovlp =  -0.0%
+OK! end of LMCHK ======================

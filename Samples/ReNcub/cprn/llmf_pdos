@@ -1,0 +1,21 @@
+  pdosdata file=pdosdata.cprn
+  pdosdata file=pdosdata.cprn
+INFO: Ubuntu 20.04.4 LTS \n \l
+INFO: GNU Fortran (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.4.0
+INFO: -O2 -g -fimplicit-none -ffixed-line-length-132 -JOBJ.gfortran -IOBJ.gfortran
+INFO: MATH: -lmkl_rt
+INFO: git: commit 39c152841dcd21c4800f05b94a0404f4a0dcaec6
+INFO:    : Author: Takao Kotani <takaokotani@gmail.com>
+INFO:    : Date:   Sat Nov 19 08:13:36 2022 +0900
+INFO: linked at Mon Nov 21 16:45:21 JST 2022
+  pdosdata file=pdosdata.cprn
+===START LMF with   ===
+ mpisize=           4
+ ... Doing writepdos mode. Wait a while ...
+ ... See job_pdos to know how to call --writepdos mode
+  pdosdata file=pdosdata.cprn
+ finalizing procid=           3
+ finalizing procid=           2
+ finalizing procid=           1
+ finalizing procid=           0
+Exit 0 procid= 0 done: end of --writepdos mode.

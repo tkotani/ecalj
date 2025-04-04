@@ -1,0 +1,97 @@
+=== START LFMA ===
+ mpisize=           1
+fa Z  60.0   rm  48.75  qc 48.00  qspl 0.02187  dq 0.00000  Etot  -19234.052070
+fa Z   7.0   rm  24.49  qc  2.00  qspl 0.00000  dq 0.00000  Etot    -108.112839
+ CPU time:    0.274 sec    Sun Dec 11 22:11:18 2022 on 
+===START LMFGWD with   ===
+ mpisize=           1
+=== START LFMA ===
+ mpisize=           1
+fa Z  60.0   rm  48.75  qc 48.00  qspl 0.02187  dq 0.00000  Etot  -19234.052070
+fa Z   7.0   rm  24.49  qc  2.00  qspl 0.00000  dq 0.00000  Etot    -108.112839
+ CPU time:    0.264 sec    Sun Dec 11 22:17:17 2022 on 
+=== START LFMA ===
+ mpisize=           1
+fa Z  60.0   rm  48.75  qc 48.00  qspl 0.02187  dq 0.00000  Etot  -19234.052070
+fa Z   7.0   rm  24.49  qc  2.00  qspl 0.00000  dq 0.00000  Etot    -108.112839
+ CPU time:    0.277 sec    Sun Dec 11 22:18:21 2022 on 
+=== START LFMA ===
+ mpisize=           1
+fa Z  60.0   rm  48.75  qc 48.00  qspl 0.02187  dq 0.00000  Etot  -19234.052070
+fa Z   7.0   rm  24.49  qc  2.00  qspl 0.00000  dq 0.00000  Etot    -108.112839
+ CPU time:    0.264 sec    Sun Dec 11 22:20:49 2022 on 
+=== START LFMA ===
+ mpisize=           1
+fa Z  60.0   rm  48.75  qc 48.00  qspl 0.02187  dq 0.00000  Etot  -19234.052070
+fa Z   7.0   rm  24.49  qc  2.00  qspl 0.00000  dq 0.00000  Etot    -108.112839
+ CPU time:    0.281 sec    Sun Dec 11 22:24:03 2022 on 
+=== START LFMA ===
+ mpisize=           1
+fa Z  60.0   rm  48.75  qc 48.00  qspl 0.02187  dq 0.00000  Etot  -19234.052070
+fa Z   7.0   rm  24.49  qc  2.00  qspl 0.00000  dq 0.00000  Etot    -108.112839
+ CPU time:    0.331 sec    Sun Dec 11 22:24:14 2022 on 
+===START LMFGWD with   ===
+ mpisize=           1
+=== START LFMA ===
+ mpisize=           1
+fa Z  60.0   rm  48.75  qc 48.00  qspl 0.02187  dq 0.00000  Etot  -19234.052070
+fa Z   7.0   rm  24.49  qc  2.00  qspl 0.00000  dq 0.00000  Etot    -108.112839
+ CPU time:    0.414 sec    Sun Dec 11 22:30:24 2022 on 
+===START LMFGWD with   ===
+ mpisize=           1
+=== START LFMA ===
+ mpisize=           1
+fa Z  60.0   rm  48.75  qc 48.00  qspl 0.02187  dq 0.00000  Etot  -19234.052070
+fa Z   7.0   rm  24.49  qc  2.00  qspl 0.00000  dq 0.00000  Etot    -108.112839
+ CPU time:    0.270 sec    Sun Dec 11 23:01:10 2022 on 
+===START LMFGWD with   ===
+ mpisize=           1
+=== START LFMA ===
+ mpisize=           1
+fa Z  60.0   rm  48.75  qc 48.00  qspl 0.02187  dq 0.00000  Etot  -19234.052070
+fa Z   7.0   rm  24.49  qc  2.00  qspl 0.00000  dq 0.00000  Etot    -108.112839
+ CPU time:    0.449 sec    Sun Dec 11 23:03:00 2022 on 
+===START LMFGWD with   ===
+ mpisize=           1
+=== START LFMA ===
+ mpisize=           1
+fa Z  60.0   rm  48.75  qc 48.00  qspl 0.02187  dq 0.00000  Etot  -19234.052070
+fa Z   7.0   rm  24.49  qc  2.00  qspl 0.00000  dq 0.00000  Etot    -108.112839
+ CPU time:    0.272 sec    Mon Dec 12 09:50:59 2022 on 
+===START LMFGWD with   ===
+ mpisize=           1
+=== START LFMA ===
+ mpisize=           1
+fa Z  60.0   rm  48.75  qc 48.00  qspl 0.02187  dq 0.00000  Etot  -19234.052070
+fa Z   7.0   rm  24.49  qc  2.00  qspl 0.00000  dq 0.00000  Etot    -108.112839
+ CPU time:    0.264 sec    Mon Dec 12 11:11:30 2022 on 
+===START LMFGWD with   ===
+ mpisize=           1
+=== START LFMA ===
+ mpisize=           1
+fa Z  60.0   rm  48.75  qc 48.00  qspl 0.02187  dq 0.00000  Etot  -19234.052070
+fa Z   7.0   rm  24.49  qc  2.00  qspl 0.00000  dq 0.00000  Etot    -108.112839
+ CPU time:    0.262 sec    Mon Dec 12 11:20:44 2022 on 
+===START LMFGWD with   ===
+ mpisize=           1
+=== START LFMA ===
+ mpisize=           1
+fa Z  60.0   rm  48.75  qc 48.00  qspl 0.02187  dq 0.00000  Etot  -19234.052070
+fa Z   7.0   rm  24.49  qc  2.00  qspl 0.00000  dq 0.00000  Etot    -108.112839
+ CPU time:    0.260 sec    Mon Dec 12 11:22:05 2022 on 
+===START LMFGWD with   ===
+ mpisize=           1
+=== START LFMA ===
+ mpisize=           1
+fa Z  60.0   rm  48.75  qc 48.00  qspl 0.02187  dq 0.00000  Etot  -19234.052070
+fa Z   7.0   rm  24.49  qc  2.00  qspl 0.00000  dq 0.00000  Etot    -108.112839
+ CPU time:    0.284 sec    Mon Dec 12 11:22:51 2022 on 
+===START LMFGWD with   ===
+ mpisize=           1
+=== START LFMA ===
+ mpisize=           1
+fa Z  60.0   rm  48.75  qc 48.00  qspl 0.02187  dq 0.00000  Etot  -19234.052070
+fa Z   7.0   rm  24.49  qc  2.00  qspl 0.00000  dq 0.00000  Etot    -108.112839
+ CPU time:    0.394 sec    Mon Dec 12 11:23:38 2022 on 
+===START LMFGWD with   ===
+ mpisize=           1

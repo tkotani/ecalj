@@ -1,0 +1,5 @@
+=== START LMCHK   ===
+ mpisize=           1
+fa Z  59.0   rm  48.03  qc 54.00  qspl 0.03673  dq 0.00000  Etot  -18460.624135
+fa Z   7.0   rm  24.36  qc  2.00  qspl 0.00000  dq 0.00000  Etot    -108.129589
+ CPU time:    1.493 sec    Tue Nov 22 13:43:39 2022 on 

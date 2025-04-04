@@ -1,0 +1,902 @@
+INFO: Ubuntu 20.04.4 LTS \n \l
+INFO: GNU Fortran (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.4.0
+INFO: -O2 -g -fimplicit-none -ffixed-line-length-132 -JOBJ.gfortran -IOBJ.gfortran
+INFO: MATH: -lmkl_rt
+INFO: git: commit 39c152841dcd21c4800f05b94a0404f4a0dcaec6
+INFO:    : Author: Takao Kotani <takaokotani@gmail.com>
+INFO:    : Date:   Sat Nov 19 08:13:36 2022 +0900
+INFO: linked at Mon Nov 21 16:45:21 JST 2022
+===START LMF with   ===
+ mpisize=           4
+  Token           Input   cast  (size,min,read,def)     result
+ IO_VERBOS         opt    i4       1,  1,   1,  0       35
+ IO_TIM            opt    i4v      2,  1,   2,  0       0  0
+ CONST             opt    chr      1,  0,   *
+ STRUC_ALAT        reqd   r8       1,  1,   1, --       9.7698833599999997
+ STRUC_NBAS        reqd   i4       1,  1,   1, --       2
+ STRUC_PLAT        reqd   r8v      9,  9,   9, --       0  0.5  0.5  0.5  0  0.5  0.5  0.5  0
+ ... found 2 species in SPEC category
+ HAM_NSPIN         opt    i4       1,  1,   1,  0       2
+ HAM_REL           opt    i4       1,  1,   1,  0       1
+ HAM_SO            opt    i4       1,  1,   1,  0       2
+ HAM_GMAX          reqd   r8       1,  1,   1, --       12
+ HAM_FRZWF         opt    lg       1,  1,   1,  0       F
+ HAM_FORCES        opt    i4       1,  1,   1,  0       0
+ HAM_XCFUN         opt    i4       1,  1,   1,  0       1
+ HAM_RDSIG         opt    i4       1,  1,   1,  0       12
+ HAM_ScaledSigma   opt    r8       1,  1,   1,  0       1
+ HAM_OVEPS         opt    r8       1,  1,   1,  0       0.00000001
+ HAM_PWMODE        opt    i4       1,  1,   1,  0       1
+ ===> for --jobgw, pwmode is switched to be  1
+ HAM_PWEMAX        opt    r8       1,  1,   1,  0       2
+ SYMGRP            opt    chr      1,  0,   1           r4z
+ SYMGRPAF          opt    chr      1,  0,   *
+  --- Parameters for species data ---
+ ... Species  1
+ SPEC_ATOM         reqd   chr      1,  0,   1           Pr
+ SPEC_ATOM_Z       reqd   r8       1,  1,   1, --       59
+ SPEC_ATOM_R       reqd   r8       1,  1,   1, --       2.8300000000000001
+ SPEC_ATOM_RSMH    reqd   r8v     10,  1,   4,  6       1.4199999999999999  1.4199999999999999  1.4199999999999999  1.4199999999999999  0  0  0  0  0  0
+ SPEC_ATOM_EH      reqd   r8v     10,  4,   4,  6       -1 -1 -1 -1  0  0  0  0  0  0
+ SPEC_ATOM_RSMH2   opt    r8v     10,  1,   4,  6       1.4199999999999999  1.4199999999999999  1.4199999999999999  1.4199999999999999  0  0  0  0  0  0
+ SPEC_ATOM_EH2     reqd   r8v     10,  4,   4, --       -2 -2 -2 -2
+ SPEC_ATOM_LMX     opt    i4       1,  1,   1,  0       3
+ SPEC_ATOM_LMXA    opt    i4       1,  1,   1,  0       4
+ SPEC_ATOM_MMOM    opt    r8v      5,  1,   4,  1       0  0  0  2  0
+ SPEC_ATOM_NMCORE  opt    i4       1,  1,   1,  0       1
+ SPEC_ATOM_PZ      opt    r8v      5,  1,   4,  1       0  5  0  5  0
+ READP=T: read pnu from atmpnu.*
+ HAM_READP         opt    lg       1,  1,   1,  0       T
+ HAM_PNUFIX        opt    lg       1,  1,   1,  0       T
+ READP=T: read pnu from atmpnu.*
+ SPEC_ATOM_KMXA    opt    i4       1,  1,   1,  0       5
+ SPEC_ATOM_IDU     opt    i4v      4,  1,   4,  0       0  0  0  12
+ SPEC_ATOM_UH      opt    r8v      4,  1,   4,  0       0  0  0  0.535
+ SPEC_ATOM_JH      opt    r8v      4,  1,   4,  0       0  0  0  0.0692
+ SPEC_ATOM_C-HOLE  opt    chr      1,  0,   *
+ ... Species  2
+ SPEC_ATOM         reqd   chr      1,  0,   1           N
+ SPEC_ATOM_Z       reqd   r8       1,  1,   1, --       7
+ SPEC_ATOM_R       reqd   r8       1,  1,   1, --       1.8999999999999999
+ SPEC_ATOM_RSMH    reqd   r8v     10,  1,   3,  7       0.95  0.95  0.95  0  0  0  0  0  0  0
+ SPEC_ATOM_EH      reqd   r8v     10,  3,   3,  7       -1 -1 -1  0  0  0  0  0  0  0
+ SPEC_ATOM_RSMH2   opt    r8v     10,  1,   2,  8       0.95  0.95  0  0  0  0  0  0  0  0
+ SPEC_ATOM_EH2     reqd   r8v     10,  2,   2, --       -2 -2
+ SPEC_ATOM_LMX     opt    i4       1,  1,   1,  0       3
+ SPEC_ATOM_LMXA    opt    i4       1,  1,   1,  0       4
+ SPEC_ATOM_NMCORE  opt    i4       1,  1,   1,  0       1
+ HAM_READP         opt    lg       1,  1,   1,  0       T
+ HAM_PNUFIX        opt    lg       1,  1,   1,  0       T
+ READP=T: read pnu from atmpnu.*
+ SPEC_ATOM_KMXA    opt    i4       1,  1,   1,  0       5
+ SPEC_ATOM_C-HOLE  opt    chr      1,  0,   *
+  --- Parameters for site ---
+ ... Site  1
+ SITE_ATOM         reqd   chr      1,  0,   1           Pr
+ SITE_ATOM_POS     reqd   r8v      3,  1,   3, --       0  0  0
+ ... Site  2
+ SITE_ATOM         reqd   chr      1,  0,   1           N
+ SITE_ATOM_POS     reqd   r8v      3,  1,   3, --       0.5  0.5  0.5
+  --- Parameters for Brillouin zone integration ---
+ BZ_NKABC          reqd   i4v      3,  1,   3, --       8  8  8
+ BZ_METAL          opt    i4       1,  1,   1,  0       3
+ BZ_TETRA          opt    lg       1,  1,   1,  0       T
+ BZ_N              opt    i4       1,  1,   1,  0       -1
+ BZ_W              opt    r8       1,  1,   1,  0       0.01
+ BZ_SAVDOS         opt    i4       1,  1,   1,  0       1
+ BZ_NPTS           opt    i4       1,  1,   1,  0       2001
+ BZ_DOSMAX         opt    r8       1,  1,   1,  0       1.5
+  --- Parameters for Ewald sums ---
+  --- Parameters for iterations ---
+ ITER_NIT          opt    i4       1,  1,   1,  0       80
+ ITER_MIX          opt    chr      1,  0,   1           A8,b=.2
+ ITER_CONV         opt    r8       1,  1,   1,  0       0.00001
+ ITER_CONVC        opt    r8       1,  1,   1,  0       0.00001
+  --- Parameters for dynamics and statics ---
+  bndfp (warning): no sigm file found ... LDA calculation only
+pnuall: j isp pnu= 1 1 6.500000  6.500000  5.832247  4.911428  5.110854
+pnzall: j isp  pz= 1 1 0.000000  5.921959  0.000000  5.500000  0.000000
+pnuall: j isp pnu= 1 2 6.500000  6.500000  5.832247  4.911428  5.110854
+pnzall: j isp  pz= 1 2 0.000000  5.921959  0.000000  5.500000  0.000000
+pnuall: j isp pnu= 2 1 2.883018  2.854834  3.240044  4.125903  5.087686
+pnzall: j isp  pz= 2 1 0.000000  0.000000  0.000000  0.000000  0.000000
+pnuall: j isp pnu= 2 2 2.883018  2.854834  3.240044  4.125903  5.087686
+pnzall: j isp  pz= 2 2 0.000000  0.000000  0.000000  0.000000  0.000000
+suldau:   1  U block(s)  lmaxu = 3
+ READP=T: read pnu from atmpnu.*
+ READP=T: read pnu from atmpnu.*
+ READP=T: read pnu from atmpnu.*
+ READP=T: read pnu from atmpnu.*
+ READP=T: read pnu from atmpnu.*
+
+
+mmm === MTO setting ===
+mmm ispec lmxb lpz nkapii nkaphh=    1    3    1    2    2
+mmm rsmh1    1  1.42  1.42  1.42  1.42
+mmm   eh1    1 -1.00 -1.00 -1.00 -1.00
+mmm rsmh2    1  1.42  1.42  1.42  1.42
+suldau:   1  U block(s)  lmaxu = 3
+suldau:   1  U block(s)  lmaxu = 3
+suldau:   1  U block(s)  lmaxu = 3
+mmm  eh2     1 -2.00 -2.00 -2.00 -2.00
+mmm pz       1  0.00  5.92  0.00  5.50
+ imx=           3           3           3
+ imx=           3           3           3
+mmm lh       3  3  3
+mmm ispec lmxb lpz nkapii nkaphh=    2    2    0    2    2
+mmm rsmh1    2  0.95  0.95  0.95
+mmm   eh1    2 -1.00 -1.00 -1.00
+mmm rsmh2    2  0.95  0.95
+mmm  eh2     2 -2.00 -2.00
+mmm lh       2  1 -1
+
+                Plat                                  Qlat
+ imx=           3           3           3
+ imx=           3           3           3
+ imx=           3           3           3
+ imx=           3           3           3
+   0.000000   0.500000   0.500000       -1.000000   1.000000   1.000000
+   0.500000   0.000000   0.500000        1.000000  -1.000000   1.000000
+   0.500000   0.500000   0.000000        1.000000   1.000000  -1.000000
+  Cell vol=   233.135358
+ imx=           3           3           3
+ imx=           3           3           3
+
+ LATTC:  as= 2.000   tol= 1.00E-08   alat= 9.76988   awald= 0.325
+         r1=  1.866   nkd=  87      q1=  5.601   nkg= 169
+ Order of generator  1 is 4
+SGROUP:  4 symmetry operations from 1
+ ig group op
+   1  i*i                                
+   2  r4z                                
+   3  r2z                                
+   4  r4(0,0,-1)                         
+MKSYM: found  4  space group operations
+       adding inversion gives 8  operations
+SPLCLS: ibas iclass ispec label(ispec)
+ SPLCLS     1    1    1     Pr
+ SPLCLS     2    2    2     N
+ BZMESH:     78 irreducible QP from    8   8   8 shift=FFF
+ TETIRR: sorting     3072 tetrahedra ...
+     398 inequivalent tetrahedron=
+MSHSIZ: mesh has 22 x 22 x 22 divisions; length =     0.314     0.314     0.314
+      generated from gmax (a.u.)=     12.1100: 6879 vectors of 10648 (64%)
+gvlst2: gmax=  12.110 a.u. created 6879 vectors of 10648 ( 64 %)
+ SGVSYM: 1734 symmetry stars found for 6879 reciprocal lattice vectors
+
+ sugcut:  make orbital-dependent reciprocal vector cutoffs for tol= 1.00E-06
+ spec      l    rsm    eh     gmax    last term    cutoff
+  Pr       0*   1.42  -1.00   5.235    1.60E-06     537 
+  Pr       1*   1.42  -1.00   5.550    1.65E-06     645 
+  Pr       2*   1.42  -1.00   5.867    1.05E-06     821 
+  Pr       3    1.42  -1.00   6.185    1.33E-06     941 
+  Pr       0*   1.42  -2.00   5.235    1.60E-06     537 
+  Pr       1*   1.42  -2.00   5.550    1.65E-06     645 
+  Pr       2*   1.42  -2.00   5.867    1.05E-06     821 
+  Pr       3    1.42  -2.00   6.185    1.33E-06     941 
+  N        0*   0.95  -1.00   7.825    1.00E-06    1917 
+  N        1*   0.95  -1.00   8.406    1.30E-06    2277 
+  N        2    0.95  -1.00   8.983    1.01E-06    2837 
+  N        0*   0.95  -2.00   7.825    1.00E-06    1917 
+  N        1    0.95  -2.00   8.406    1.30E-06    2277 
+suham: PW basis Emin Emax 0.000  2.000 npw ndham 15 70
+  sudmtu: reading density matrix from file dmats in spherical harmonics
+sudmtu:  RMS change in dmats from symmetrization  0.000000
+
+ Symmetrized dmats real harmonics l= 3 ib 1 isp 1
+  0.49970   -0.00000    0.00015   -0.00000    0.00080    0.00000    0.00000
+  0.00000    0.51058    0.00000    0.00000    0.00000    0.00002   -0.00000
+  0.00015    0.00000    0.01097    0.00000    0.00000    0.00000    0.00080
+ -0.00000    0.00000    0.00000    0.02087    0.00000    0.00000    0.00000
+  0.00080   -0.00000    0.00000    0.00000    0.01097   -0.00000   -0.00015
+  0.00000    0.00002    0.00000    0.00000   -0.00000    0.48874    0.00000
+  0.00000    0.00000    0.00080    0.00000   -0.00015    0.00000    0.49970
+
+ -0.00000    0.00000   -0.00075    0.00000   -0.00326    0.00000   -0.49531
+  0.00000   -0.00000    0.00000    0.00000   -0.00000   -0.49764   -0.00000
+  0.00075    0.00000   -0.00000    0.00000   -0.00265    0.00000    0.00326
+  0.00000    0.00000    0.00000    0.00000    0.00000    0.00000    0.00000
+  0.00326    0.00000    0.00265    0.00000   -0.00000    0.00000   -0.00075
+  0.00000    0.49764    0.00000    0.00000   -0.00000    0.00000   -0.00000
+  0.49531    0.00000   -0.00326   -0.00000    0.00075    0.00000   -0.00000
+ Symmetrized dmats real harmonics l= 3 ib 1 isp 2
+  0.00415    0.00000    0.00316    0.00000   -0.00000    0.00000    0.00000
+  0.00000    0.00034    0.00000    0.00000   -0.00000    0.00000   -0.00000
+  0.00316    0.00000    0.00925   -0.00000    0.00000    0.00000   -0.00000
+  0.00000    0.00000    0.00000    0.01501    0.00000    0.00000    0.00000
+ -0.00000   -0.00000   -0.00000    0.00000    0.00925    0.00000   -0.00316
+  0.00000    0.00000    0.00000    0.00000    0.00000    0.00261    0.00000
+  0.00000   -0.00000   -0.00000    0.00000   -0.00316    0.00000    0.00415
+
+  0.00000   -0.00000   -0.00000    0.00000   -0.00010    0.00000    0.00011
+ -0.00000    0.00000    0.00000    0.00000    0.00000    0.00002    0.00000
+  0.00000   -0.00000   -0.00000    0.00000   -0.00001    0.00000    0.00010
+  0.00000    0.00000    0.00000    0.00000    0.00000    0.00000    0.00000
+  0.00010   -0.00000    0.00001    0.00000   -0.00000    0.00000   -0.00000
+  0.00000   -0.00002    0.00000    0.00000    0.00000    0.00000    0.00000
+ -0.00011    0.00000   -0.00010    0.00000    0.00000    0.00000    0.00000
+
+ Symmetrized dmats spherical harmonics l= 3 ib 1 isp 1
+  0.99501   -0.00000    0.00015   -0.00000    0.00080    0.00000    0.00000
+  0.00000    0.99730    0.00000    0.00000    0.00000   -0.01092   -0.00000
+  0.00015    0.00000    0.01363    0.00000    0.00000    0.00000    0.00080
+ -0.00000    0.00000    0.00000    0.02087    0.00000    0.00000    0.00000
+  0.00080   -0.00000    0.00000    0.00000    0.00832   -0.00000   -0.00015
+  0.00000   -0.01092    0.00000    0.00000   -0.00000    0.00202    0.00000
+  0.00000    0.00000    0.00080    0.00000   -0.00015    0.00000    0.00440
+
+ -0.00000    0.00000   -0.00075    0.00000   -0.00326    0.00000    0.00000
+  0.00000    0.00000    0.00000    0.00000   -0.00000    0.00002   -0.00000
+  0.00075    0.00000   -0.00000    0.00000   -0.00000    0.00000    0.00326
+  0.00000    0.00000    0.00000    0.00000    0.00000    0.00000    0.00000
+  0.00326    0.00000   -0.00000    0.00000   -0.00000    0.00000   -0.00075
+  0.00000   -0.00002    0.00000    0.00000   -0.00000    0.00000   -0.00000
+  0.00000    0.00000   -0.00326   -0.00000    0.00075    0.00000   -0.00000
+ Symmetrized dmats spherical harmonics l= 3 ib 1 isp 2
+  0.00404    0.00000    0.00316    0.00000   -0.00000    0.00000    0.00000
+  0.00000    0.00145    0.00000    0.00000   -0.00000    0.00114   -0.00000
+  0.00316    0.00000    0.00926   -0.00000    0.00000    0.00000   -0.00000
+  0.00000    0.00000    0.00000    0.01501    0.00000    0.00000    0.00000
+ -0.00000   -0.00000    0.00000    0.00000    0.00923    0.00000   -0.00316
+  0.00000    0.00114    0.00000    0.00000    0.00000    0.00149    0.00000
+  0.00000   -0.00000   -0.00000    0.00000   -0.00316    0.00000    0.00426
+
+  0.00000   -0.00000   -0.00000    0.00000   -0.00010    0.00000    0.00000
+ -0.00000    0.00000    0.00000    0.00000    0.00000    0.00000    0.00000
+  0.00000   -0.00000    0.00000    0.00000    0.00000    0.00000    0.00010
+  0.00000    0.00000    0.00000    0.00000    0.00000    0.00000    0.00000
+  0.00010   -0.00000    0.00000    0.00000   -0.00000    0.00000   -0.00000
+  0.00000   -0.00000    0.00000    0.00000    0.00000    0.00000    0.00000
+  0.00000    0.00000   -0.00010    0.00000    0.00000    0.00000    0.00000
+
+Species Pr      mode 0 0 0 2 U 0.00  0.00  0.00  0.54 J 0.00  0.00  0.00  0.07
+
+
+ sudmtu:  RMS change in vorb from symmetrization =   0.000017
+
+ Symmetrized vorb real harmonics l= 3 ib 1 isp 1
+  0.04650    0.00000   -0.00007   -0.00000   -0.00106   -0.00000    0.00000
+ -0.00000    0.00181    0.00000    0.00000    0.00000    0.00001    0.00000
+ -0.00007    0.00000    0.20534    0.00000    0.00000    0.00000   -0.00106
+ -0.00000    0.00000    0.00000    0.16082    0.00000    0.00000    0.00000
+ -0.00106    0.00000    0.00000   -0.00000    0.20534    0.00000    0.00007
+ -0.00000    0.00001    0.00000    0.00000    0.00000    0.01304    0.00000
+ -0.00000   -0.00000   -0.00106    0.00000    0.00007    0.00000    0.04650
+
+ -0.00000   -0.00000   -0.00029    0.00000   -0.00136    0.00000    0.32803
+  0.00000    0.00000    0.00000    0.00000    0.00000    0.28861    0.00000
+  0.00029    0.00000    0.00000    0.00000    0.04174    0.00000    0.00136
+  0.00000    0.00000    0.00000   -0.00000    0.00000    0.00000   -0.00000
+  0.00136   -0.00000   -0.04174    0.00000    0.00000   -0.00000   -0.00029
+  0.00000   -0.28861    0.00000    0.00000   -0.00000    0.00000   -0.00000
+ -0.32803    0.00000   -0.00136    0.00000    0.00029   -0.00000   -0.00000
+ Symmetrized vorb real harmonics l= 3 ib 1 isp 2
+  0.31305    0.00000   -0.00142   -0.00000    0.00002    0.00000    0.00000
+  0.00000    0.24843    0.00000    0.00000   -0.00000   -0.00000    0.00000
+ -0.00142   -0.00000    0.16969   -0.00000    0.00000    0.00000    0.00002
+ -0.00000    0.00000   -0.00000    0.14961    0.00000    0.00000    0.00000
+  0.00002    0.00000    0.00000    0.00000    0.16969    0.00000    0.00142
+  0.00000   -0.00000    0.00000    0.00000    0.00000    0.24594    0.00000
+  0.00000    0.00000    0.00002    0.00000    0.00142    0.00000    0.31305
+
+ -0.00000    0.00000    0.00010    0.00000   -0.00004    0.00000   -0.00006
+ -0.00000   -0.00000    0.00000    0.00000    0.00000   -0.00002    0.00000
+ -0.00010    0.00000    0.00000    0.00000    0.00000   -0.00000    0.00004
+  0.00000    0.00000    0.00000   -0.00000    0.00000    0.00000    0.00000
+  0.00004   -0.00000   -0.00000    0.00000    0.00000    0.00000    0.00010
+  0.00000    0.00002    0.00000    0.00000    0.00000    0.00000   -0.00000
+  0.00006    0.00000   -0.00004    0.00000   -0.00010   -0.00000   -0.00000
+
+ Vorb spherical harmonics l= 3 ib 1 isp 1
+ -0.28152    0.00000   -0.00007   -0.00000   -0.00106   -0.00000    0.00000
+ -0.00000   -0.28119    0.00000    0.00000    0.00000    0.00562    0.00000
+ -0.00007    0.00000    0.16360    0.00000    0.00000    0.00000   -0.00106
+ -0.00000    0.00000    0.00000    0.16082    0.00000    0.00000    0.00000
+ -0.00106    0.00000    0.00000   -0.00000    0.24708    0.00000    0.00007
+ -0.00000    0.00562    0.00000    0.00000    0.00000    0.29603    0.00000
+  0.00000   -0.00000   -0.00106    0.00000    0.00007    0.00000    0.37453
+
+ -0.00000   -0.00000   -0.00029    0.00000   -0.00136    0.00000    0.00000
+  0.00000    0.00000    0.00000    0.00000    0.00000    0.00001    0.00000
+  0.00029    0.00000    0.00000    0.00000    0.00000    0.00000    0.00136
+  0.00000    0.00000    0.00000   -0.00000    0.00000    0.00000   -0.00000
+  0.00136   -0.00000    0.00000    0.00000    0.00000   -0.00000   -0.00029
+  0.00000   -0.00001    0.00000    0.00000   -0.00000    0.00000   -0.00000
+  0.00000    0.00000   -0.00136    0.00000    0.00029   -0.00000   -0.00000
+ Vorb spherical harmonics l= 3 ib 1 isp 2
+  0.31312    0.00000   -0.00142   -0.00000    0.00002    0.00000    0.00000
+  0.00000    0.24720    0.00000    0.00000   -0.00000   -0.00124    0.00000
+ -0.00142   -0.00000    0.16969   -0.00000    0.00000    0.00000    0.00002
+ -0.00000    0.00000   -0.00000    0.14961    0.00000    0.00000    0.00000
+  0.00002    0.00000    0.00000    0.00000    0.16969    0.00000    0.00142
+  0.00000   -0.00124    0.00000    0.00000    0.00000    0.24716    0.00000
+  0.00000    0.00000    0.00002    0.00000    0.00142    0.00000    0.31299
+
+ -0.00000    0.00000    0.00010    0.00000   -0.00004    0.00000    0.00000
+ -0.00000    0.00000    0.00000    0.00000    0.00000   -0.00000    0.00000
+ -0.00010    0.00000    0.00000    0.00000    0.00000   -0.00000    0.00004
+  0.00000    0.00000    0.00000   -0.00000    0.00000    0.00000    0.00000
+  0.00004   -0.00000    0.00000    0.00000    0.00000    0.00000    0.00010
+  0.00000    0.00000    0.00000    0.00000    0.00000    0.00000   -0.00000
+  0.00000    0.00000   -0.00004    0.00000   -0.00010   -0.00000   -0.00000
+ m_qplistinit:start
+
+lmv7: Read rst version ID=  2.00
+
+ iors  : read rst restart file (binary mesh density)
+          use from  restart file:use window, pnu,
+          ignore in restart file:
+
+ Basis, after reading restart file
+ site spec        pos (Cartesian coordinates)         pos (multiples of plat)
+   1        Pr  0.000000   0.000000   0.000000    0.000000   0.000000   0.000000
+   2         N  0.500000   0.500000   0.500000    0.500000   0.500000   0.500000
+
+--- BNDFP:  begin iteration 1 of 1
+ m_mkpot_init: Making one-particle potential ...
+  esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
+  smves: avg es pot at rmt= 0.665285  avg sphere pot= 0.000000  vconst=-0.665285
+   smooth rhoves     44.018813   charge    11.704657
+  smvxcm: all smrho_w is positive
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -4.949783 -6.486213 -0.795790
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -4.827695 -6.294428 -0.787531
+  locpot:
+   site  1  z= 59.0  rmt= 2.83000  nr=777   a=0.015  nlml=25  rg=0.708  Vfloat=T
+    sm core charge in MT=  1.043475 =total-spillout=  1.069170 -  0.025695
+ vxcns2 (warning): nr*np=     48174  negative density # of points=       114         0
+ vxcns2 (warning): nr*np=     48174  negative density # of points=       114         0
+ vxcns2 (warning): nr*np=     48174  negative density # of points=       114         0
+ vxcns2 (warning): nr*np=     48174  negative density # of points=       114         0
+ vxcnsp (warning): negative rho: min val =  -1.38E-01
+ ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   6.50000   6.50000   0.00000   0.00000
+ ibas l=  1  1 pnu(1:nsp) pnz(1:nsp)=   6.50000   6.50000   5.92196   5.92196
+ ibas l=  1  2 pnu(1:nsp) pnz(1:nsp)=   5.83225   5.83225   0.00000   0.00000
+ ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.91143   4.91143   5.50000   5.50000
+ ibas l=  1  4 pnu(1:nsp) pnz(1:nsp)=   5.11085   5.11085   0.00000   0.00000
+     potential shift to crystal energy zero:    0.000312
+   site  2  z=  7.0  rmt= 1.90000  nr=451   a=0.015  nlml=25  rg=0.475  Vfloat=T
+ ibas l=  2  0 pnu(1:nsp) pnz(1:nsp)=   2.88302   2.88302   0.00000   0.00000
+ ibas l=  2  1 pnu(1:nsp) pnz(1:nsp)=   2.85483   2.85483   0.00000   0.00000
+ ibas l=  2  2 pnu(1:nsp) pnz(1:nsp)=   3.24004   3.24004   0.00000   0.00000
+ ibas l=  2  3 pnu(1:nsp) pnz(1:nsp)=   4.12590   4.12590   0.00000   0.00000
+ ibas l=  2  4 pnu(1:nsp) pnz(1:nsp)=   5.08769   5.08769   0.00000   0.00000
+     potential shift to crystal energy zero:    0.000343
+  mkpot:
+   Energy terms:           smooth           local           total
+   rhoval*veff            -30.277313      -143.804826      -174.082139
+   rhoval*ves            -57.993701       -90.974383      -148.968084
+   psnuc*ves             146.031327    -76111.050076    -75965.018749
+   utot                   44.018813    -38101.012229    -38056.993417
+   rho*exc                -9.777478      -422.571979      -432.349458
+   rho*vxc               -12.780640      -560.677360      -573.458001
+   valence chg            11.704657         4.295343        16.000000
+   valence mag             0.208670         1.793015         2.001685
+   core charge            50.000000        -0.000000        50.000000
+   Charges:  valence    16.00000   cores    50.00000   nucleii   -66.00000
+   hom background     0.00000   deviation from neutrality:     -0.00000
+
+ m_bandcal_init: start
+ bndfp: kpt     1 of   512 k=  0.0000  0.0000  0.0000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   66 by HAM_OVEPS    0.10D-07
+ bndfp: kpt     1 of   512 k=  0.0000  0.0000  0.0000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   66 by HAM_OVEPS    0.10D-07
+ bndfp: kpt     2 of   512 k= -0.1250  0.1250  0.1250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   67 by HAM_OVEPS    0.10D-07
+ bndfp: kpt     2 of   512 k= -0.1250  0.1250  0.1250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   67 by HAM_OVEPS    0.10D-07
+ bndfp: kpt     3 of   512 k= -0.2500  0.2500  0.2500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt     3 of   512 k= -0.2500  0.2500  0.2500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt     4 of   512 k= -0.3750  0.3750  0.3750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt     4 of   512 k= -0.3750  0.3750  0.3750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt     5 of   512 k= -0.5000  0.5000  0.5000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt     5 of   512 k= -0.5000  0.5000  0.5000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt     6 of   512 k= -0.6250  0.6250  0.6250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt     6 of   512 k= -0.6250  0.6250  0.6250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt     7 of   512 k= -0.7500  0.7500  0.7500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt     7 of   512 k= -0.7500  0.7500  0.7500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt     8 of   512 k= -0.8750  0.8750  0.8750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt     8 of   512 k= -0.8750  0.8750  0.8750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt     9 of   512 k=  0.1250 -0.1250  0.1250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   67 by HAM_OVEPS    0.10D-07
+ bndfp: kpt     9 of   512 k=  0.1250 -0.1250  0.1250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   67 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    10 of   512 k=  0.0000  0.0000  0.2500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    10 of   512 k=  0.0000  0.0000  0.2500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    11 of   512 k= -0.1250  0.1250  0.3750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    11 of   512 k= -0.1250  0.1250  0.3750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    12 of   512 k= -0.2500  0.2500  0.5000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    12 of   512 k= -0.2500  0.2500  0.5000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    13 of   512 k= -0.3750  0.3750  0.6250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    13 of   512 k= -0.3750  0.3750  0.6250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    14 of   512 k= -0.5000  0.5000  0.7500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    14 of   512 k= -0.5000  0.5000  0.7500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    15 of   512 k= -0.6250  0.6250  0.8750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    15 of   512 k= -0.6250  0.6250  0.8750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    16 of   512 k= -0.7500  0.7500  1.0000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    16 of   512 k= -0.7500  0.7500  1.0000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    17 of   512 k=  0.2500 -0.2500  0.2500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    17 of   512 k=  0.2500 -0.2500  0.2500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    18 of   512 k=  0.1250 -0.1250  0.3750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    18 of   512 k=  0.1250 -0.1250  0.3750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    19 of   512 k=  0.0000  0.0000  0.5000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    19 of   512 k=  0.0000  0.0000  0.5000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    20 of   512 k= -0.1250  0.1250  0.6250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    20 of   512 k= -0.1250  0.1250  0.6250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    21 of   512 k= -0.2500  0.2500  0.7500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    21 of   512 k= -0.2500  0.2500  0.7500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    22 of   512 k= -0.3750  0.3750  0.8750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    22 of   512 k= -0.3750  0.3750  0.8750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    23 of   512 k= -0.5000  0.5000  1.0000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    23 of   512 k= -0.5000  0.5000  1.0000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    24 of   512 k= -0.6250  0.6250  1.1250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    24 of   512 k= -0.6250  0.6250  1.1250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    25 of   512 k=  0.3750 -0.3750  0.3750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    25 of   512 k=  0.3750 -0.3750  0.3750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    26 of   512 k=  0.2500 -0.2500  0.5000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    26 of   512 k=  0.2500 -0.2500  0.5000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    27 of   512 k=  0.1250 -0.1250  0.6250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    27 of   512 k=  0.1250 -0.1250  0.6250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    28 of   512 k=  0.0000  0.0000  0.7500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    28 of   512 k=  0.0000  0.0000  0.7500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    29 of   512 k= -0.1250  0.1250  0.8750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    29 of   512 k= -0.1250  0.1250  0.8750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    30 of   512 k= -0.2500  0.2500  1.0000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    30 of   512 k= -0.2500  0.2500  1.0000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    31 of   512 k= -0.3750  0.3750  1.1250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    31 of   512 k= -0.3750  0.3750  1.1250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    32 of   512 k= -0.5000  0.5000  1.2500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    32 of   512 k= -0.5000  0.5000  1.2500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    33 of   512 k=  0.5000 -0.5000  0.5000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    33 of   512 k=  0.5000 -0.5000  0.5000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    34 of   512 k=  0.3750 -0.3750  0.6250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    34 of   512 k=  0.3750 -0.3750  0.6250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    35 of   512 k=  0.2500 -0.2500  0.7500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    35 of   512 k=  0.2500 -0.2500  0.7500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    36 of   512 k=  0.1250 -0.1250  0.8750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    36 of   512 k=  0.1250 -0.1250  0.8750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    37 of   512 k=  0.0000  0.0000  1.0000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    37 of   512 k=  0.0000  0.0000  1.0000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    38 of   512 k= -0.1250  0.1250  1.1250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    38 of   512 k= -0.1250  0.1250  1.1250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    39 of   512 k= -0.2500  0.2500  1.2500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    39 of   512 k= -0.2500  0.2500  1.2500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    40 of   512 k= -0.3750  0.3750  1.3750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    40 of   512 k= -0.3750  0.3750  1.3750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    41 of   512 k=  0.6250 -0.6250  0.6250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    41 of   512 k=  0.6250 -0.6250  0.6250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    42 of   512 k=  0.5000 -0.5000  0.7500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    42 of   512 k=  0.5000 -0.5000  0.7500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    43 of   512 k=  0.3750 -0.3750  0.8750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    43 of   512 k=  0.3750 -0.3750  0.8750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    44 of   512 k=  0.2500 -0.2500  1.0000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    44 of   512 k=  0.2500 -0.2500  1.0000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    45 of   512 k=  0.1250 -0.1250  1.1250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    45 of   512 k=  0.1250 -0.1250  1.1250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    46 of   512 k=  0.0000  0.0000  1.2500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    46 of   512 k=  0.0000  0.0000  1.2500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    47 of   512 k= -0.1250  0.1250  1.3750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    47 of   512 k= -0.1250  0.1250  1.3750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    48 of   512 k= -0.2500  0.2500  1.5000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    48 of   512 k= -0.2500  0.2500  1.5000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    49 of   512 k=  0.7500 -0.7500  0.7500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    49 of   512 k=  0.7500 -0.7500  0.7500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    50 of   512 k=  0.6250 -0.6250  0.8750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    50 of   512 k=  0.6250 -0.6250  0.8750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    51 of   512 k=  0.5000 -0.5000  1.0000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    51 of   512 k=  0.5000 -0.5000  1.0000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    52 of   512 k=  0.3750 -0.3750  1.1250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    52 of   512 k=  0.3750 -0.3750  1.1250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    53 of   512 k=  0.2500 -0.2500  1.2500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    53 of   512 k=  0.2500 -0.2500  1.2500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    54 of   512 k=  0.1250 -0.1250  1.3750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    54 of   512 k=  0.1250 -0.1250  1.3750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    55 of   512 k=  0.0000  0.0000  1.5000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    55 of   512 k=  0.0000  0.0000  1.5000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    56 of   512 k= -0.1250  0.1250  1.6250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    56 of   512 k= -0.1250  0.1250  1.6250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    57 of   512 k=  0.8750 -0.8750  0.8750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    57 of   512 k=  0.8750 -0.8750  0.8750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    58 of   512 k=  0.7500 -0.7500  1.0000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    58 of   512 k=  0.7500 -0.7500  1.0000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    59 of   512 k=  0.6250 -0.6250  1.1250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    59 of   512 k=  0.6250 -0.6250  1.1250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    60 of   512 k=  0.5000 -0.5000  1.2500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    60 of   512 k=  0.5000 -0.5000  1.2500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    61 of   512 k=  0.3750 -0.3750  1.3750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    61 of   512 k=  0.3750 -0.3750  1.3750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    62 of   512 k=  0.2500 -0.2500  1.5000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    62 of   512 k=  0.2500 -0.2500  1.5000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    63 of   512 k=  0.1250 -0.1250  1.6250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    63 of   512 k=  0.1250 -0.1250  1.6250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    64 of   512 k=  0.0000  0.0000  1.7500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    64 of   512 k=  0.0000  0.0000  1.7500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    65 of   512 k=  0.1250  0.1250 -0.1250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   67 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    65 of   512 k=  0.1250  0.1250 -0.1250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   67 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    66 of   512 k=  0.0000  0.2500  0.0000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    66 of   512 k=  0.0000  0.2500  0.0000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    67 of   512 k= -0.1250  0.3750  0.1250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    67 of   512 k= -0.1250  0.3750  0.1250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    68 of   512 k= -0.2500  0.5000  0.2500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    68 of   512 k= -0.2500  0.5000  0.2500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    69 of   512 k= -0.3750  0.6250  0.3750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    69 of   512 k= -0.3750  0.6250  0.3750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    70 of   512 k= -0.5000  0.7500  0.5000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    70 of   512 k= -0.5000  0.7500  0.5000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    71 of   512 k= -0.6250  0.8750  0.6250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    71 of   512 k= -0.6250  0.8750  0.6250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    72 of   512 k= -0.7500  1.0000  0.7500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    72 of   512 k= -0.7500  1.0000  0.7500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    73 of   512 k=  0.2500  0.0000  0.0000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    73 of   512 k=  0.2500  0.0000  0.0000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    74 of   512 k=  0.1250  0.1250  0.1250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   67 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    74 of   512 k=  0.1250  0.1250  0.1250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   67 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    75 of   512 k=  0.0000  0.2500  0.2500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    75 of   512 k=  0.0000  0.2500  0.2500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    76 of   512 k= -0.1250  0.3750  0.3750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    76 of   512 k= -0.1250  0.3750  0.3750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    77 of   512 k= -0.2500  0.5000  0.5000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    77 of   512 k= -0.2500  0.5000  0.5000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    78 of   512 k= -0.3750  0.6250  0.6250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    78 of   512 k= -0.3750  0.6250  0.6250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    79 of   512 k= -0.5000  0.7500  0.7500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    79 of   512 k= -0.5000  0.7500  0.7500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    80 of   512 k= -0.6250  0.8750  0.8750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    80 of   512 k= -0.6250  0.8750  0.8750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    81 of   512 k=  0.3750 -0.1250  0.1250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    81 of   512 k=  0.3750 -0.1250  0.1250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    82 of   512 k=  0.2500  0.0000  0.2500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    82 of   512 k=  0.2500  0.0000  0.2500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    83 of   512 k=  0.1250  0.1250  0.3750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    83 of   512 k=  0.1250  0.1250  0.3750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    84 of   512 k=  0.0000  0.2500  0.5000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    84 of   512 k=  0.0000  0.2500  0.5000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    85 of   512 k= -0.1250  0.3750  0.6250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    85 of   512 k= -0.1250  0.3750  0.6250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    86 of   512 k= -0.2500  0.5000  0.7500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    86 of   512 k= -0.2500  0.5000  0.7500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    87 of   512 k= -0.3750  0.6250  0.8750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    87 of   512 k= -0.3750  0.6250  0.8750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    88 of   512 k= -0.5000  0.7500  1.0000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    88 of   512 k= -0.5000  0.7500  1.0000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    89 of   512 k=  0.5000 -0.2500  0.2500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    89 of   512 k=  0.5000 -0.2500  0.2500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    90 of   512 k=  0.3750 -0.1250  0.3750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    90 of   512 k=  0.3750 -0.1250  0.3750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    91 of   512 k=  0.2500  0.0000  0.5000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    91 of   512 k=  0.2500  0.0000  0.5000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    92 of   512 k=  0.1250  0.1250  0.6250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    92 of   512 k=  0.1250  0.1250  0.6250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    93 of   512 k=  0.0000  0.2500  0.7500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    93 of   512 k=  0.0000  0.2500  0.7500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    94 of   512 k= -0.1250  0.3750  0.8750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    94 of   512 k= -0.1250  0.3750  0.8750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    95 of   512 k= -0.2500  0.5000  1.0000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    95 of   512 k= -0.2500  0.5000  1.0000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    96 of   512 k= -0.3750  0.6250  1.1250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    96 of   512 k= -0.3750  0.6250  1.1250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    97 of   512 k=  0.6250 -0.3750  0.3750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    97 of   512 k=  0.6250 -0.3750  0.3750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    98 of   512 k=  0.5000 -0.2500  0.5000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    98 of   512 k=  0.5000 -0.2500  0.5000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    99 of   512 k=  0.3750 -0.1250  0.6250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt    99 of   512 k=  0.3750 -0.1250  0.6250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   100 of   512 k=  0.2500  0.0000  0.7500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   100 of   512 k=  0.2500  0.0000  0.7500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   101 of   512 k=  0.1250  0.1250  0.8750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   101 of   512 k=  0.1250  0.1250  0.8750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   102 of   512 k=  0.0000  0.2500  1.0000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   102 of   512 k=  0.0000  0.2500  1.0000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   103 of   512 k= -0.1250  0.3750  1.1250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   103 of   512 k= -0.1250  0.3750  1.1250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   104 of   512 k= -0.2500  0.5000  1.2500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   104 of   512 k= -0.2500  0.5000  1.2500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   105 of   512 k=  0.7500 -0.5000  0.5000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   105 of   512 k=  0.7500 -0.5000  0.5000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   106 of   512 k=  0.6250 -0.3750  0.6250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   106 of   512 k=  0.6250 -0.3750  0.6250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   107 of   512 k=  0.5000 -0.2500  0.7500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   107 of   512 k=  0.5000 -0.2500  0.7500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   108 of   512 k=  0.3750 -0.1250  0.8750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   108 of   512 k=  0.3750 -0.1250  0.8750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   109 of   512 k=  0.2500  0.0000  1.0000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   109 of   512 k=  0.2500  0.0000  1.0000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   110 of   512 k=  0.1250  0.1250  1.1250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   110 of   512 k=  0.1250  0.1250  1.1250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   111 of   512 k=  0.0000  0.2500  1.2500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   111 of   512 k=  0.0000  0.2500  1.2500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   112 of   512 k= -0.1250  0.3750  1.3750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   112 of   512 k= -0.1250  0.3750  1.3750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   113 of   512 k=  0.8750 -0.6250  0.6250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   113 of   512 k=  0.8750 -0.6250  0.6250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   114 of   512 k=  0.7500 -0.5000  0.7500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   114 of   512 k=  0.7500 -0.5000  0.7500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   115 of   512 k=  0.6250 -0.3750  0.8750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   115 of   512 k=  0.6250 -0.3750  0.8750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   116 of   512 k=  0.5000 -0.2500  1.0000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   116 of   512 k=  0.5000 -0.2500  1.0000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   117 of   512 k=  0.3750 -0.1250  1.1250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   117 of   512 k=  0.3750 -0.1250  1.1250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   118 of   512 k=  0.2500  0.0000  1.2500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   118 of   512 k=  0.2500  0.0000  1.2500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   119 of   512 k=  0.1250  0.1250  1.3750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   119 of   512 k=  0.1250  0.1250  1.3750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   120 of   512 k=  0.0000  0.2500  1.5000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   120 of   512 k=  0.0000  0.2500  1.5000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   121 of   512 k=  1.0000 -0.7500  0.7500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   121 of   512 k=  1.0000 -0.7500  0.7500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   122 of   512 k=  0.8750 -0.6250  0.8750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   122 of   512 k=  0.8750 -0.6250  0.8750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   123 of   512 k=  0.7500 -0.5000  1.0000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   123 of   512 k=  0.7500 -0.5000  1.0000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   124 of   512 k=  0.6250 -0.3750  1.1250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   124 of   512 k=  0.6250 -0.3750  1.1250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   125 of   512 k=  0.5000 -0.2500  1.2500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   125 of   512 k=  0.5000 -0.2500  1.2500 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   68 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   126 of   512 k=  0.3750 -0.1250  1.3750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   126 of   512 k=  0.3750 -0.1250  1.3750 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   127 of   512 k=  0.2500  0.0000  1.5000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   127 of   512 k=  0.2500  0.0000  1.5000 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   128 of   512 k=  0.1250  0.1250  1.6250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ bndfp: kpt   128 of   512 k=  0.1250  0.1250  1.6250 ndimh = nmto+napw =    70   55   15
+ : ndimhx=   70 --> nev=   69 by HAM_OVEPS    0.10D-07
+ ... Done MPI k-loop: elapsed time=  22.6346
+ finalizing procid=           2
+ finalizing procid=           3
+ finalizing procid=           1
+ TETIRR: sorting     3072 tetrahedra ...
+    3072 inequivalent tetrahedron=
+  ntete 6*nkk1*nkk2*nkk3 nkp=        3072        3072         512
+ pdosmode: ndhamx nsp nspx =     70      2      2     66
+ pdosmode: nchanp nbas ef0=     25      2    -0.03343
+CPU time:   23.589s     Fri Nov 25 16:34:23 2022   on process=0
+ finalizing procid=           0
+Exit 0 procid= 0 Done pdos: --mkprocar & --fullmesh. Check by "grep k-point PROCAR.*.*"

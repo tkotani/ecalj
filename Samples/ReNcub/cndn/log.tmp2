@@ -1,0 +1,5 @@
+=== START LFMA ===
+ mpisize=           1
+fa Z  60.0   rm  48.75  qc 48.00  qspl 0.02187  dq 0.00000  Etot  -19234.052070
+fa Z   7.0   rm  24.49  qc  2.00  qspl 0.00000  dq 0.00000  Etot    -108.112839
+ CPU time:    0.147 sec    Sun Dec 11 22:10:34 2022 on 
