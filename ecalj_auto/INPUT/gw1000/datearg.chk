@@ -1,0 +1,2 @@
+# date: 20241230-102638
+# args: Namespace(fname='joblist', nsites=[1, 6], nels=None, include=['ANY'], exclude=['NG', 'LN', 'AC'], mag='false', theoretical='false', metal='false', mpid=False, poscar=True, dir='gw1000', conf='./config.ini')

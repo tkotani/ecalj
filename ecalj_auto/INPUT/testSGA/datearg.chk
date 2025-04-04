@@ -1,0 +1,2 @@
+# date: 20241106-160412
+# args: Namespace(fname='joblist', nsites=[1, 2], nels=None, include=['Si', 'Ga', 'Al'], exclude=['NG', 'LN', 'AC'], mag='false', theoretical='false', metal='false', mpid=False, poscar=True, dir='testSGA', conf='./config.ini')
