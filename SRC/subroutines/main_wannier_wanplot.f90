@@ -145,9 +145,11 @@ contains
   subroutine read_QG()
     implicit none
     integer :: ikp
-    integer :: ifiqg,ifiqgc
+    integer :: ifiqg,ifiqgc ,ifile_handle
     write(6,*) '--- read_QG ---'
+!    ifiqg  = ifile_handle()
     open(newunit=ifiqg ,file='QGpsi',form='unformatted')
+!    ifiqgc = ifile_handle()
     open(newunit=ifiqgc,file='QGcou',form='unformatted')
     read(ifiqg  ) nqnum , ngpmx_qg, QpGcut_psi,nnnn
     read(ifiqgc ) nqnumc, ngcmx, QpGcut_Cou
@@ -181,6 +183,7 @@ contains
     close(ifiqgc)
   end subroutine read_QG
 end module m_wan_qg
+
 module m_wanutil
   public myinv3,mymatvec,calc_ylm,calc_phiall_abc2,b2w,wrt_xsf,expand_mesh,calc_npw
   private
@@ -709,9 +712,9 @@ contains
     double precision,parameter:: zero=0.0d0
 
     double precision :: Z(natom)
-    integer:: ic,ia,nrange(3),idim, iimg
-    write(filename,'(a,a)')  basename(:len_trim(basename)), '.xyz'
-    open(newunit=ifile,file=filename)
+    integer:: ic,ia,nrange(3),idim, iimg,ifile_handle
+    ifile=ifile_handle()
+
     do ia=1,natom
       ic=iclass(ia)
       Z(ia)=zz(ic)
@@ -743,7 +746,7 @@ contains
                    isp,'q',iq,'b',iband,'i.cube'
             endif
             write(*,*) 'open ',filename
-            open(newunit=ifile,file=filename,status='unknown')
+            open(ifile,file=filename,status='unknown')
             write(ifile,'(a)') 'wavefunction'
             write(ifile,'(a,4I5)') 'isp,iq,ib,iband=',isp,iq,ib,iband
 
@@ -886,8 +889,8 @@ contains
          natomall )
     write(filename,'(a,a)')  basename(:len_trim(basename)), '.xsf'
     write(*,*) 'open ',filename
-    !ifile=ifile_handle()
-    open(newunit=ifile,file=filename,status='unknown')
+    ifile=ifile_handle()
+    open(ifile,file=filename,status='unknown')
     write(ifile,'(a)') '# wavefunction'
     write(ifile,'(a)') 'PRIMVEC'
     !      close(ifile)
@@ -1278,6 +1281,8 @@ contains
     enddo
   end subroutine calc_Ylm
 end module m_wanutil
+
+
 module m_wanplot
   use m_wanutil,only:myinv3,mymatvec,calc_ylm,calc_phiall_abc2,b2w,wrt_xsf,expand_mesh,calc_npw
   public wanplot
@@ -1309,7 +1314,6 @@ contains
     !      use m_LMTO
     !      use m_MLWF
     !      use m_wfrho_abc
-    use mpi
     use m_keyvalue,only: getkeyvalue
     use m_readqg,only:   readqg,readngmx
     use m_hamindex,only: Readhamindex
@@ -1339,7 +1343,7 @@ contains
     integer:: i_rini(3),i_rfin(3)
     integer :: npw(3),mesh(3),mesh0(3),mesh1(3),meshrange(2,3)
     integer :: iq,ib,  ngpmx
-    integer:: i,id,j,ifi,iqbz2!,ifile_handle
+    integer:: i,id,j,ifi,iqbz2,ifile_handle
     integer :: isp,iqbz,ikp,iwf !,nprecb,mrecb,mrece,nlmtot,nqbzt,ifhbed, mrecg,nband
     real(8):: r_rini0(3),r_rfin0(3),ang,alat_ang
     real(8):: r_rini(3), r_rfin(3),r
@@ -1353,12 +1357,10 @@ contains
     character*4::fname
     logical:: debug=.false.,vis_skip
     integer::nqbzx,incwfin
-
     !! MPI dummy
-    !include 'mpif.h'
+    include 'mpif.h'
     integer:: ierr
     call mpi_init(ierr)
-    !-----------------------------------------------------
     call getkeyvalue(inputfile,'vis_skip',  vis_skip,  default=.false. )
     if(vis_skip) call rx0s('wanplot: we found vis_skip on. Do nothing and Quit!')
     !! Readin all data
@@ -1368,9 +1370,10 @@ contains
     !      call set_mnla()
     call minv33tp (plat,qlat)  !inverse and transpose
     do isp=1,nsp
+      ifi = ifile_handle()
       if (isp == 1) fname='MLWU'
       if (isp == 2) fname='MLWD'
-      open(newunit=ifi,file=fname,form='unformatted',status='old', action='read')
+      open(ifi,file=fname,form='unformatted',status='old', action='read')
       read(ifi)nqbzx,nwf,iko_ix,iko_fx
       if(nqbz/=nqbzx)  call rx('wanplot:nqbz/=nqbzx')
       if (isp == 1) allocate(dnk(iko_ix:iko_fx,nwf,nqbz,nsp),qreg(3,nqbz))
@@ -1400,11 +1403,20 @@ contains
     allocate(cphi2(ldim2,nband))
     allocate(geig(ngpmx,nwf,nqbz,nsp))
     allocate(cphi(ldim2,nwf,nqbz,nsp))
+
+    
+    
     geig = 0d0
     cphi = 0d0
     do ikp = 1,nqbz
-      do isp = 1,nsp
-        geig2 = readgeigf(qreg(:,ikp),isp) !    call readgeig(qreg(:,ikp),ngpmx,isp, quu, geig2)
+       do isp = 1,nsp
+          write(*,*)'ikp,isp=',ikp,isp
+          
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    call rx('wanplot: to compile at 18.0.5.274 ビルド 2018082, I need to skip next line geig2=... Compilar bug. Not yet to detour this')
+!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !   geig2 = readgeigf(qreg(:,ikp),isp) !    call readgeig(qreg(:,ikp),ngpmx,isp, quu, geig2)
+    
         cphi2 = readcphif(qreg(:,ikp),isp)
         quu   = readcphifq()
         if(sum(abs(qreg(:,ikp)-quu))>1d-6) call rx('wanplot: mmlf222eeeee')
@@ -1418,7 +1430,8 @@ contains
           enddo ! ib
         enddo ! iwf
       enddo ! isp
-    enddo ! ikp
+     enddo ! ikp
+   
     deallocate(geig2,cphi2,dnk)
     write(6,*) '### ib,bas(1:3,ib) ############'
     do ib=1,nbas
@@ -1607,12 +1620,37 @@ contains
     !$$$      endif
 
     ! dump rho or not ----------
-    !lrho=.false.
-    !write(6,"(a,l)") 'dump rho? [T/F] (if needed set lrho=T in wanplot.F)=',lrho
-    ! if (lrho) call calc_rho_2(alat_ang,nq_wfn,nband_wfn,mesh,r_rini,r_rfin,wanpw,wanaug,wantot)
+    lrho=.false.
+    write(6,"(a,l)") 'dump rho? [T/F] (if needed set lrho=T in wanplot.F)=',lrho
+    if (lrho) call calc_rho_2(alat_ang,nq_wfn,nband_wfn,mesh,r_rini,r_rfin,wanpw,wanaug,wantot)
     !      if (lrho) call calc_rho(nq_wfn,nband_wfn,npw,phipw,phiaug,phitot)
     !      if (lrho) call calc_rho(1,nband_wfn,npw,wanpw,wanaug,wantot)
     !      call cputid(0)
     call rx0s('wanplot: ok')
   end subroutine wanplot
 endmodule m_wanplot
+integer function ifile_handle() ! return unused file handle (5001-9999)
+  implicit none
+  integer:: i
+  logical:: nexist
+  integer,save:: irem=2001
+  character*256::nnn
+  ifile_handle=-999999
+  do i=irem,9999
+     inquire(unit=i,opened=nexist,name=nnn)
+     if( .NOT. nexist) then
+        ifile_handle=i
+        irem=i+1
+        return
+     endif
+  enddo
+  do i=5001,irem
+     inquire(unit=i,opened=nexist)
+     if( .NOT. nexist) then
+        ifile_handle=i
+        irem=i
+        return
+     endif
+  enddo
+  call rx('ifile_handle: we did not find open file handle')
+end function ifile_handle
