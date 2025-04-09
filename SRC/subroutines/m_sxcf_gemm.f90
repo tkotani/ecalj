@@ -448,8 +448,8 @@ contains
                                + omd2w**4/sig2**5/120d0- omd2w**5/sig2**6/720d0 )
                           wgtim_(1:niw) = -we*cons*wt/(x**2)/pi
                           wgtim_(0) =  we*sum(cons*expa_*wt/(x**2))/pi &
-                               + dsign(1d0,we)*.5d0*exp(aw2)*( erfc(sqrt(aw2 + we**2/sig2)) -erfc(aw) ) !Gaussian part erfc(2023feb)
-                          if(npm==2) wgtim_(niw+1:2*niw) = cons*omd*wt/(x**2)/pi !Asymmetric contribution need chack
+                               + dsign(1d0,we)*.5d0*exp(aw2)*( erfc(sqrt(aw2 + we**2/sig2)) -erfc(aw) ) !See Eq.(57) in PRB165106
+                          if(npm==2) wgtim_(niw+1:2*niw) = cons*omd*wt/(x**2)/pi !Asymmetric contribution need check
                         endif
                         wgtim(:,itp,it)= wkkr*wgtim_ !! Integration weight wgtim along im axis for zwz(0:niw*npm)
                       enddo itpdo
