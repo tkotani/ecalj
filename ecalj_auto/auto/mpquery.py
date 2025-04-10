@@ -25,12 +25,16 @@ parser.add_argument('--dir', type=str, default='lists')
 parser.add_argument('--conf', type=str, default='./config.ini')
 args = parser.parse_args(sys.argv[1:])
 
-print('loading MPRester ...')
-from mp_api.client import MPRester
 ### Get API-KEY from configuration file
 config = configparser.ConfigParser()
 config.read(args.conf)
 apikey = config['DEFAULT'].get('apikey')
+if(apikey == 'YourAPIkeyToMaterialProject') :
+    print('Set correct API key in config.ini')
+    sys.exit()
+
+print('loading MPRester ...')
+from mp_api.client import MPRester
 
 ### Set elements: NobleGas, Lanthanoide, Actinoide
 special_elements = {

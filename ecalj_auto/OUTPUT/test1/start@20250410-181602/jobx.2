@@ -11,11 +11,11 @@
 # do not need to touch followings ##
 export OMP_NUM_THREADS=1
 py=/home/takao/.pyenv/versions/3.9.13/bin/python
-job=/home/takao/ecalj/ecalj_auto/OUTPUT/testSGA/start@20250404-163704/job_mp.py
+job=/home/takao/ecalj/ecalj_auto/auto/job_mp.py
 fin=joblist.2
-out=/home/takao/ecalj/ecalj_auto/OUTPUT/testSGA/start@20250404-163704
-fout=/home/takao/ecalj/ecalj_auto/OUTPUT/testSGA/start@20250404-163704/job2.out
-ftouch=/home/takao/ecalj/ecalj_auto/OUTPUT/testSGA/start@20250404-163704/job2.finished
+out=/home/takao/ecalj/ecalj_auto/OUTPUT/test1/start@20250410-181602
+fout=/home/takao/ecalj/ecalj_auto/OUTPUT/test1/start@20250410-181602/job2.out
+ftouch=/home/takao/ecalj/ecalj_auto/OUTPUT/test1/start@20250410-181602/job2.finished
 
 $py $job --file $fin --dir $out >> $fout 2>&1
 touch $ftouch

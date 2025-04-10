@@ -2,7 +2,7 @@
 time=$(date +"%Y%m%d-%H%M%S")
 dir=$time
 ### for test (Si Ga Al)
-./auto/mpquery.py --nsites 1 2 --include Si Ga Al --dir=testSGA
+./auto/mpquery.py --nsites 1 2 --include Si Ga Al --dir=testSGAXXX
 #./auto/mpquery.py --nsites 1 2 --include Si Ga Al --dir=$dir/SimpleTest
 #./auto/mpquery.py --nsites 2 3 --fname joblist_nsites3 --dir=testSGA_nsite23
 

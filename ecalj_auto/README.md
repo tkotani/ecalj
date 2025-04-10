@@ -124,3 +124,10 @@ create a replica of OUTPUT_pack/OUTPUT but with minimum files. Look into packout
 
 
 ## References:
+
+
+## MEMO
+ecalj_auto/auto/ contains
+ jobsubmit.py: main module. Run qsub in it. joblist is divided into joblist.id. It uses jobtemplate as a template for qsub.
+ job_mp.py   : this is invoked from jobx.1... which are qsub scripts.
+ creplot.py  : Called from job_mp.py. Core part to perform ecalj calculations.

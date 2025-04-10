@@ -230,11 +230,14 @@ class Calc:
             run_command([epath/'lmfa', num], out='llmfa')
 
         ### Get k_mesh from input koption
-        print('aaaaaaaaaaaa',args)
-        if(args.kkmesh):
+        print('aaaaaaaaaaaa',args.kkmesh)
+        if(args.kkmesh is not None):
+            print('args.kkmesh111=',args.kkmesh)
             self.k_points = args.kkmesh[:3]
         else:    
+            print('args.kkmesh222=',args.kkmesh)
             self.k_points = change_k.get_kpoints([koption[1]] * 3)
+        print('k-mesh for lmf: nk1nk2nk3=', self.k_points)
 
         if self.k_points is None:
             return 'ERROR: PlatQplat.chk in lmfa', errcode['ctrl']
@@ -288,11 +291,11 @@ class Calc:
                 return 'ERROR: something wrong in ctrl'
         if not self.gap_LDA:
             self.gap_LDA = self.run_plot('LDA')
-        if(args.kkmesh):
+        if(args.kkmesh is not None):
             q_points = args.kkmesh[3:6]
         else:
             q_points = change_k.get_q(self.k_points, k_gw)   #k_points is int list, like [6, 6, 6]
-        print('q-mesh', q_points)
+        print('k-mesh for GW n1n2n3', q_points)
         
         ### Prepare input for QSGW calc.
         replace(f'ctrl.{num}', r'nit=\d+', 'nit=80')

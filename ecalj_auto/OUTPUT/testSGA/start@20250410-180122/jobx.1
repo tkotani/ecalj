@@ -1,0 +1,21 @@
+#!/bin/sh
+#$ -S /bin/bash
+#$ -N job1
+#$ -pe smp 16
+#$ -o /dev/null
+#$ -e /dev/null
+#$ -cwd
+#$ -V
+#$ -q all.q@ucs18,all.q@ucs19,all.q@ucs20,all.q@ucs21,all.q@ucs22,all.q@ucs23,all.q@ucs24,all.q@ucs25,all.q@ucs26,all.q@ucs27,all.q@ucs28,all.q@ucs29,all.q@ucs30,all.q@ucs31,all.q@ucs32,all.q@ucs33,all.q@ucs34,all.q@ucs35,all.q@ucs36,all.q@ucs37,all.q@ucs38,all.q@ucs39,all.q@ucs40,all.q@ucs41,all.q@ucs42,all.q@ucs43,all.q@ucs44,all.q@ucs45,all.q@ucs46,all.q@ucs47,all.q@ucs48,all.q@ucs49,all.q@ucs50,all.q@ucs51,all.q@ucs52,all.q@ucs53
+
+# do not need to touch followings ##
+export OMP_NUM_THREADS=1
+py=/home/takao/.pyenv/versions/3.9.13/bin/python
+job=/home/takao/ecalj/ecalj_auto/auto/job_mp.py
+fin=joblist.1
+out=/home/takao/ecalj/ecalj_auto/OUTPUT/testSGA/start@20250410-180122
+fout=/home/takao/ecalj/ecalj_auto/OUTPUT/testSGA/start@20250410-180122/job1.out
+ftouch=/home/takao/ecalj/ecalj_auto/OUTPUT/testSGA/start@20250410-180122/job1.finished
+
+$py $job --file $fin --dir $out >> $fout 2>&1
+touch $ftouch

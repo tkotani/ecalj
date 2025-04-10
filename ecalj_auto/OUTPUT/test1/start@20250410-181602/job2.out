@@ -1,0 +1,228 @@
+args.file= joblist.2
+args.dir= /home/takao/ecalj/ecalj_auto/OUTPUT/test1/start@20250410-181602
+kkmesh= None <class 'NoneType'>
+/home/takao/bin
+joblist= ['mp-149Si', 'mp-1330AlN', '2490']
+job_mp core= 16
+
+MATERIAL= mp-149Si
+ koption= 8 <class 'int'>
+/home/takao/ecalj/ecalj_auto/OUTPUT/test1/start@20250410-181602/mp-149Si
+/home/takao/bin/vasp2ctrl POSCAR > llmf
+/home/takao/bin/ctrlgenM1.py mp-149Si --nspin=2 > llmf
+/home/takao/bin/lmchk mp-149Si > llmchk
+conf     1      1  Si      2.160000     3.889168   2.750059   6.736237
+conf     2      1  Si      2.160000     0.555596   0.392865   0.962319
+
+/home/takao/bin/lmfa mp-149Si > llmfa
+aaaaaaaaaaaa None
+args.kkmesh222= None
+k-mesh for lmf: nk1nk2nk3= [8, 8, 8]
+mpirun -np 16 /home/takao/bin/lmf mp-149Si -vnit=40 -vnk1=8 -vnk2=8 -vnk3=8 > llmf
+Start LMFA mp-149Si
+Start LMF mp-149Si -vnit=40 -vnk1=8 -vnk2=8 -vnk3=8
+h mmom=-0.0000 ehf(eV)=-15730.966102 ehk(eV)=-15730.665921 sev(eV)=-13.467198
+i mmom=-0.0000 ehf(eV)=-15730.864147 ehk(eV)=-15730.700082 sev(eV)=-14.064200
+i mmom=-0.0000 ehf(eV)=-15730.753482 ehk(eV)=-15730.731111 sev(eV)=-16.276553
+i mmom= 0.0000 ehf(eV)=-15730.745033 ehk(eV)=-15730.734839 sev(eV)=-16.235491
+i mmom=-0.0000 ehf(eV)=-15730.738164 ehk(eV)=-15730.738151 sev(eV)=-16.216153
+c mmom= 0.0000 ehf(eV)=-15730.738161 ehk(eV)=-15730.738153 sev(eV)=-16.212837
+lmf finished
+LDA
+/home/takao/.pyenv/versions/3.9.13/bin/python /home/takao/bin/getsyml mp-149Si --nobzview > lgetsyml
+/home/takao/bin/job_band mp-149Si -np 16 NoGnuplot > ljobband
+/home/takao/bin/job_tdos mp-149Si -np 16 NoGnuplot > ljobtdos
+/home/takao/bin/job_pdos mp-149Si -np 16 NoGnuplot > ljobpdos
+mp-149Si LDA start@ 04/10/25 18:16:08 : 25  sec c nk1=8 nk2=8 nk3=8 gap=0.4868
+k-mesh for GW n1n2n3 [4, 4, 4]
+/home/takao/bin/mkGWinput mp-149Si > lgwin
+/home/takao/bin/gwsc 2 -np 16 mp-149Si > osgw.out
+2025-04-10 18:16:35.220200   mpirun -np 1 echo --- Start gwsc ---
+--- Start gwsc ---
+option=    
+### START gwsc: ITERADD= 2, MPI size=  16, 16 TARGET= mp-149Si
+===== Ititial band structure ====== 
+---> No sigm. LDA caculation for eigenfunctions 
+0:00:00.047872   mpirun -np 1 /home/takao/bin/lmfa mp-149Si     >llmfa
+0:00:00.203554   mpirun -np 16 /home/takao/bin/lmf  mp-149Si     >llmf_lda
+===== QSGW iteration start iter 1 ===
+0:00:02.946046   mpirun -np 1 /home/takao/bin/lmf mp-149Si     --jobgw=0 >llmfgw00
+0:00:03.333140   mpirun -np 1 /home/takao/bin/qg4gw    --job=1 > lqg4gw
+0:00:03.433048   mpirun -np 16 /home/takao/bin/lmf mp-149Si     --jobgw=1 >llmfgw01
+0:00:06.211758   mpirun -np 1 /home/takao/bin/heftet --job=1    > leftet
+0:00:06.406450   mpirun -np 1 /home/takao/bin/hbasfp0 --job=3    >lbasC
+0:00:06.835956   mpirun -np 16 /home/takao/bin/hvccfp0 --job=3    > lvccC
+0:00:08.176695   mpirun -np 16 /home/takao/bin/hsfp0_sc --job=3    >lsxC
+0:00:14.102451   mpirun -np 1 /home/takao/bin/hbasfp0 --job=0    > lbas
+0:00:14.398198   mpirun -np 16 /home/takao/bin/hvccfp0 --job=0    > lvcc
+0:00:15.859604   mpirun -np 16 /home/takao/bin/hsfp0_sc --job=1    >lsx
+0:00:21.342688   mpirun -np 16 /home/takao/bin/hrcxq   > lrcxq
+0:00:39.315172   mpirun -np 16 /home/takao/bin/hsfp0_sc --job=2    > lsc
+0:01:25.728791   mpirun -np 1 /home/takao/bin/hqpe_sc    > lqpe
+0:01:26.150496   mpirun -np 16 /home/takao/bin/lmf mp-149Si     >llmf
+===== QSGW iteration end   iter 1 ===
+===== QSGW iteration start iter 2 ===
+0:01:32.498735   mpirun -np 1 /home/takao/bin/lmf mp-149Si     --jobgw=0 >llmfgw00
+0:01:33.026377   mpirun -np 1 /home/takao/bin/qg4gw    --job=1 > lqg4gw
+0:01:33.233083   mpirun -np 16 /home/takao/bin/lmf mp-149Si     --jobgw=1 >llmfgw01
+0:01:36.301149   mpirun -np 1 /home/takao/bin/heftet --job=1    > leftet
+0:01:36.470232   mpirun -np 1 /home/takao/bin/hbasfp0 --job=3    >lbasC
+0:01:36.910050   mpirun -np 16 /home/takao/bin/hvccfp0 --job=3    > lvccC
+0:01:38.370172   mpirun -np 16 /home/takao/bin/hsfp0_sc --job=3    >lsxC
+0:01:40.272313   mpirun -np 1 /home/takao/bin/hbasfp0 --job=0    > lbas
+0:01:40.689238   mpirun -np 16 /home/takao/bin/hvccfp0 --job=0    > lvcc
+0:01:41.999351   mpirun -np 16 /home/takao/bin/hsfp0_sc --job=1    >lsx
+0:01:46.384858   mpirun -np 16 /home/takao/bin/hrcxq   > lrcxq
+0:02:03.610918   mpirun -np 16 /home/takao/bin/hsfp0_sc --job=2    > lsc
+0:02:45.751288   mpirun -np 1 /home/takao/bin/hqpe_sc    > lqpe
+0:02:46.736430   mpirun -np 16 /home/takao/bin/lmf mp-149Si     >llmf
+===== QSGW iteration end   iter 2 ===
+OK! ==== All calclation finished for  gwsc ====
+creplot: QPU.1run to QSGW.1run
+QSGW.1run
+/home/takao/.pyenv/versions/3.9.13/bin/python /home/takao/bin/getsyml mp-149Si --nobzview > lgetsyml
+/home/takao/bin/job_band mp-149Si -np 16 NoGnuplot > ljobband
+/home/takao/bin/job_tdos mp-149Si -np 16 NoGnuplot > ljobtdos
+/home/takao/bin/job_pdos mp-149Si -np 16 NoGnuplot > ljobpdos
+creplot: QPU.2run to QSGW.2run
+QSGW.2run
+/home/takao/.pyenv/versions/3.9.13/bin/python /home/takao/bin/getsyml mp-149Si --nobzview > lgetsyml
+/home/takao/bin/job_band mp-149Si -np 16 NoGnuplot > ljobband
+/home/takao/bin/job_tdos mp-149Si -np 16 NoGnuplot > ljobtdos
+/home/takao/bin/job_pdos mp-149Si -np 16 NoGnuplot > ljobpdos
+/home/takao/bin/cleargw . > clear
+mp-149Si GW start@ 04/10/25 18:16:34 : 209  sec c gap=1.3014
+
+MATERIAL= mp-1330AlN
+ koption= 8 <class 'int'>
+/home/takao/ecalj/ecalj_auto/OUTPUT/test1/start@20250410-181602/mp-1330AlN
+/home/takao/bin/vasp2ctrl POSCAR > llmf
+/home/takao/bin/ctrlgenM1.py mp-1330AlN --nspin=2 > llmf
+/home/takao/bin/lmchk mp-1330AlN > llmchk
+conf     1      1  Al      2.040000     2.034518   2.034518   2.034518
+conf     2      2  N       1.690000     0.000000   0.000000   0.000000
+
+/home/takao/bin/lmfa mp-1330AlN > llmfa
+aaaaaaaaaaaa None
+args.kkmesh222= None
+k-mesh for lmf: nk1nk2nk3= [11, 11, 11]
+mpirun -np 16 /home/takao/bin/lmf mp-1330AlN -vnit=40 -vnk1=11 -vnk2=11 -vnk3=11 > llmf
+Start LMFA mp-1330AlN
+Start LMF mp-1330AlN -vnit=40 -vnk1=11 -vnk2=11 -vnk3=11
+h mmom= 0.0000 ehf(eV)=-8067.940042 ehk(eV)=-8063.371944 sev(eV)=-40.645328
+i mmom= 0.0000 ehf(eV)=-8066.576323 ehk(eV)=-8065.524331 sev(eV)=-33.718820
+i mmom=-0.0000 ehf(eV)=-8066.172849 ehk(eV)=-8066.065142 sev(eV)=-26.873197
+i mmom=-0.0000 ehf(eV)=-8066.163241 ehk(eV)=-8066.065673 sev(eV)=-27.194523
+i mmom= 0.0000 ehf(eV)=-8066.130037 ehk(eV)=-8066.129106 sev(eV)=-29.346521
+i mmom= 0.0000 ehf(eV)=-8066.129778 ehk(eV)=-8066.129240 sev(eV)=-29.369154
+i mmom= 0.0000 ehf(eV)=-8066.129301 ehk(eV)=-8066.129313 sev(eV)=-29.451102
+c mmom=-0.0000 ehf(eV)=-8066.129279 ehk(eV)=-8066.129308 sev(eV)=-29.432032
+lmf finished
+LDA
+/home/takao/.pyenv/versions/3.9.13/bin/python /home/takao/bin/getsyml mp-1330AlN --nobzview > lgetsyml
+/home/takao/bin/job_band mp-1330AlN -np 16 NoGnuplot > ljobband
+/home/takao/bin/job_tdos mp-1330AlN -np 16 NoGnuplot > ljobtdos
+/home/takao/bin/job_pdos mp-1330AlN -np 16 NoGnuplot > ljobpdos
+mp-1330AlN LDA start@ 04/10/25 18:20:04 : 26  sec c nk1=11 nk2=11 nk3=11 gap=4.306
+k-mesh for GW n1n2n3 [6, 6, 6]
+/home/takao/bin/mkGWinput mp-1330AlN > lgwin
+/home/takao/bin/gwsc 2 -np 16 mp-1330AlN > osgw.out
+2025-04-10 18:20:31.253215   mpirun -np 1 echo --- Start gwsc ---
+--- Start gwsc ---
+option=    
+### START gwsc: ITERADD= 2, MPI size=  16, 16 TARGET= mp-1330AlN
+===== Ititial band structure ====== 
+---> No sigm. LDA caculation for eigenfunctions 
+0:00:00.114801   mpirun -np 1 /home/takao/bin/lmfa mp-1330AlN     >llmfa
+0:00:00.488360   mpirun -np 16 /home/takao/bin/lmf  mp-1330AlN     >llmf_lda
+===== QSGW iteration start iter 1 ===
+0:00:02.592957   mpirun -np 1 /home/takao/bin/lmf mp-1330AlN     --jobgw=0 >llmfgw00
+0:00:02.934054   mpirun -np 1 /home/takao/bin/qg4gw    --job=1 > lqg4gw
+0:00:03.110601   mpirun -np 16 /home/takao/bin/lmf mp-1330AlN     --jobgw=1 >llmfgw01
+0:00:05.208764   mpirun -np 1 /home/takao/bin/heftet --job=1    > leftet
+0:00:05.366468   mpirun -np 1 /home/takao/bin/hbasfp0 --job=3    >lbasC
+0:00:05.670911   mpirun -np 16 /home/takao/bin/hvccfp0 --job=3    > lvccC
+0:00:06.558551   mpirun -np 16 /home/takao/bin/hsfp0_sc --job=3    >lsxC
+0:00:10.307976   mpirun -np 1 /home/takao/bin/hbasfp0 --job=0    > lbas
+0:00:10.593784   mpirun -np 16 /home/takao/bin/hvccfp0 --job=0    > lvcc
+0:00:11.483478   mpirun -np 16 /home/takao/bin/hsfp0_sc --job=1    >lsx
+0:00:21.177302   mpirun -np 16 /home/takao/bin/hrcxq   > lrcxq
+0:00:46.417400   mpirun -np 16 /home/takao/bin/hsfp0_sc --job=2    > lsc
+0:01:30.733200   mpirun -np 1 /home/takao/bin/hqpe_sc    > lqpe
+0:01:31.127838   mpirun -np 16 /home/takao/bin/lmf mp-1330AlN     >llmf
+===== QSGW iteration end   iter 1 ===
+===== QSGW iteration start iter 2 ===
+0:01:40.430473   mpirun -np 1 /home/takao/bin/lmf mp-1330AlN     --jobgw=0 >llmfgw00
+0:01:40.861781   mpirun -np 1 /home/takao/bin/qg4gw    --job=1 > lqg4gw
+0:01:41.131099   mpirun -np 16 /home/takao/bin/lmf mp-1330AlN     --jobgw=1 >llmfgw01
+0:01:44.201464   mpirun -np 1 /home/takao/bin/heftet --job=1    > leftet
+0:01:44.297250   mpirun -np 1 /home/takao/bin/hbasfp0 --job=3    >lbasC
+0:01:44.600118   mpirun -np 16 /home/takao/bin/hvccfp0 --job=3    > lvccC
+0:01:45.454764   mpirun -np 16 /home/takao/bin/hsfp0_sc --job=3    >lsxC
+0:01:53.402728   mpirun -np 1 /home/takao/bin/hbasfp0 --job=0    > lbas
+0:01:53.637024   mpirun -np 16 /home/takao/bin/hvccfp0 --job=0    > lvcc
+0:01:54.393442   mpirun -np 16 /home/takao/bin/hsfp0_sc --job=1    >lsx
+0:02:02.545107   mpirun -np 16 /home/takao/bin/hrcxq   > lrcxq
+0:02:41.097867   mpirun -np 16 /home/takao/bin/hsfp0_sc --job=2    > lsc
+0:03:28.593990   mpirun -np 1 /home/takao/bin/hqpe_sc    > lqpe
+0:03:29.018048   mpirun -np 16 /home/takao/bin/lmf mp-1330AlN     >llmf
+===== QSGW iteration end   iter 2 ===
+OK! ==== All calclation finished for  gwsc ====
+creplot: QPU.1run to QSGW.1run
+QSGW.1run
+/home/takao/.pyenv/versions/3.9.13/bin/python /home/takao/bin/getsyml mp-1330AlN --nobzview > lgetsyml
+/home/takao/bin/job_band mp-1330AlN -np 16 NoGnuplot > ljobband
+/home/takao/bin/job_tdos mp-1330AlN -np 16 NoGnuplot > ljobtdos
+/home/takao/bin/job_pdos mp-1330AlN -np 16 NoGnuplot > ljobpdos
+creplot: QPU.2run to QSGW.2run
+QSGW.2run
+/home/takao/.pyenv/versions/3.9.13/bin/python /home/takao/bin/getsyml mp-1330AlN --nobzview > lgetsyml
+/home/takao/bin/job_band mp-1330AlN -np 16 NoGnuplot > ljobband
+/home/takao/bin/job_tdos mp-1330AlN -np 16 NoGnuplot > ljobtdos
+/home/takao/bin/job_pdos mp-1330AlN -np 16 NoGnuplot > ljobpdos
+/home/takao/bin/cleargw . > clear
+mp-1330AlN GW start@ 04/10/25 18:20:30 : 270  sec c gap=6.9143
+
+MATERIAL= 2490
+ koption= 8 <class 'int'>
+/home/takao/ecalj/ecalj_auto/OUTPUT/test1/start@20250410-181602/2490
+Traceback (most recent call last):
+  File "/home/takao/ecalj/ecalj_auto/auto/creplot.py", line 199, in run_LDA
+    shutil.copy(path_poscar, 'POSCAR')
+  File "/home/takao/.pyenv/versions/3.9.13/lib/python3.9/shutil.py", line 427, in copy
+    copyfile(src, dst, follow_symlinks=follow_symlinks)
+  File "/home/takao/.pyenv/versions/3.9.13/lib/python3.9/shutil.py", line 264, in copyfile
+    with open(src, 'rb') as fsrc:
+FileNotFoundError: [Errno 2] No such file or directory: '/home/takao/ecalj/ecalj_auto/INPUT/test1/POSCARALL/POSCAR.2490'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/takao/ecalj/ecalj_auto/auto/job_mp.py", line 186, in <module>
+    out_LDA, errcode = calc.run_LDA(args,args.apikey,kkoption,ordering,args.poscar,dict_errcode)
+  File "/home/takao/ecalj/ecalj_auto/auto/creplot.py", line 201, in run_LDA
+    from pymatgen.ext.matproj import MPRester
+  File "/home/takao/.pyenv/versions/3.9.13/lib/python3.9/site-packages/pymatgen/ext/matproj.py", line 24, in <module>
+    from pymatgen.core import SETTINGS
+  File "/home/takao/.pyenv/versions/3.9.13/lib/python3.9/site-packages/pymatgen/core/__init__.py", line 13, in <module>
+    from pymatgen.core.lattice import Lattice
+  File "/home/takao/.pyenv/versions/3.9.13/lib/python3.9/site-packages/pymatgen/core/lattice.py", line 19, in <module>
+    from scipy.spatial import Voronoi
+  File "/home/takao/.pyenv/versions/3.9.13/lib/python3.9/site-packages/scipy/spatial/__init__.py", line 110, in <module>
+    from ._kdtree import *
+  File "/home/takao/.pyenv/versions/3.9.13/lib/python3.9/site-packages/scipy/spatial/_kdtree.py", line 4, in <module>
+    from ._ckdtree import cKDTree, cKDTreeNode
+  File "_ckdtree.pyx", line 11, in init scipy.spatial._ckdtree
+  File "/home/takao/.pyenv/versions/3.9.13/lib/python3.9/site-packages/scipy/sparse/__init__.py", line 294, in <module>
+    from ._base import *
+  File "/home/takao/.pyenv/versions/3.9.13/lib/python3.9/site-packages/scipy/sparse/_base.py", line 5, in <module>
+    from scipy._lib._util import VisibleDeprecationWarning
+  File "/home/takao/.pyenv/versions/3.9.13/lib/python3.9/site-packages/scipy/_lib/_util.py", line 18, in <module>
+    from scipy._lib._array_api import array_namespace
+  File "/home/takao/.pyenv/versions/3.9.13/lib/python3.9/site-packages/scipy/_lib/_array_api.py", line 17, in <module>
+    from scipy._lib.array_api_compat import (
+  File "/home/takao/.pyenv/versions/3.9.13/lib/python3.9/site-packages/scipy/_lib/array_api_compat/numpy/__init__.py", line 1, in <module>
+    from numpy import *
+  File "/home/takao/.pyenv/versions/3.9.13/lib/python3.9/site-packages/numpy/__init__.py", line 367, in __getattr__
+    msg = ("The current Numpy installation ({!r}) fails to "
+ModuleNotFoundError: No module named 'numpy.char'

@@ -16,36 +16,72 @@ def get_float(value):
     else:
         return float(value)
 
-parser = argparse.ArgumentParser(description="Run QSGW")
-#parser.add_argument('--config', type=Path, default=Path(__file__).resolve().parent.parent/'config.ini', help='Path to the config.ini')
-parser.add_argument('--config', type=Path, default=Path(__file__).parent.resolve()/'config.ini')
-args, remaining_argv = parser.parse_known_args()
-config = configparser.ConfigParser()
-config.read(args.config)
-config = config['DEFAULT'] 
-# We copy config.get --- not so meaningful since 
-import ast
-kkmesh=ast.literal_eval(config.get('kkmesh'))
-parser.add_argument('--epath', type=Path, default=Path(config.get('epath')), help='Path of ecalj package')
-parser.add_argument('--dir', type=Path, default=Path(__file__).resolve().parent, help='Output directory')
-parser.add_argument('--poscar', type=Path, default=Path(config.get('ppath')))
-parser.add_argument('--file', type=str, default=None, help='Listfile of mpid. only 1 file is allowed')
-parser.add_argument('--auto', type=Path, default=Path(__file__).resolve().parent)
-parser.add_argument('--apikey', type=str, default=config.get('apikey'))
-parser.add_argument('--niter', type=int, default=config.getint('niter'))
-parser.add_argument('--ncore', type=int, default=config.getint('ncore'))
-parser.add_argument('--bnd4all', type=bool, default=config.getboolean('bnd4all'))
-parser.add_argument('--gw80', type=bool, default=config.getboolean('gw80'))
-parser.add_argument('--koption', nargs='+', type=int, default=eval(config.get('koption')))
-parser.add_argument('--kratio', type=float, default=get_float(config.get('kratio')))
-parser.add_argument('--kkmesh', type=int, nargs=6, default=kkmesh)
-#parser.add_argument('--mpid', type=str, nargs='+', default=config.getint('mpid'))
-#parser.add_argument('--lmxa6', type=bool, default=False)
-args = parser.parse_args(sys.argv[1:]) #read auto directory.
-#print('args=',sys.argv[1:])
-print(args)
+#parser = argparse.ArgumentParser(description="Run QSGW")
+#parser.add_argument('--config', type=Path, default=Path(__file__).resolve().parent/'config.ini', help='Path to the config.ini')
+#print('ppp path=',Path(__file__).parent.resolve()/'config.ini')
+#parser.add_argument('--config', type=Path, default=opath/'config.ini')
+#args, remaining_argv = parser.parse_known_args()
 
-sys.path.append(str(args.auto))
+'''python script for qsub. jobx.foobar script calls this script.
+   This is called once from each qsub process. As shown in the schedule in joblist.*,
+   we run calculations for each material.
+'''
+
+class Args:
+    pass
+args = Args()
+
+# Readin from augments
+parser = argparse.ArgumentParser(description="Run QSGW")
+parser.add_argument('--dir', type=Path, default=Path(__file__).resolve().parent, help='Output directory')
+parser.add_argument('--file', type=str, default=None, help='Listfile of mpid. only 1 file is allowed')
+aarg=parser.parse_known_args()
+args.file=aarg[0].file
+args.dir=aarg[0].dir
+print('args.file=',args.file)
+print('args.dir=',args.dir)
+
+# Readin from config.ini
+config = configparser.ConfigParser()
+config_path = args.dir / 'config.ini'
+config.read(config_path)
+config = config['RUNjob'] 
+args.epath = Path(config.get('epath'))
+args.poscar = Path(config.get('ppath'))
+args.autopath = Path(config.get('autopath'))
+args.apikey = config.get('apikey')
+args.niter = config.getint('niter')
+args.ncore = config.getint('ncore')
+args.bnd4all = config.getboolean('bnd4all')
+args.gw80 = config.getboolean('gw80')
+args.koption = config.getint('koption')
+args.kratio = round(float(config.get('kratio')), 8)
+args.kkmesh = config.get('kkmesh')
+import ast
+if(config.get('kkmesh') is not None):args.kkmesh=ast.literal_eval(config.get('kkmesh'))
+print('kkmesh=',args.kkmesh,type(args.kkmesh))
+print(config.get('epath'))
+
+# parser.add_argument('--epath', type=Path, default=Path(config.get('epath')), help='Path of ecalj package')
+# parser.add_argument('--dir', type=Path, default=Path(__file__).resolve().parent, help='Output directory')
+# parser.add_argument('--poscar', type=Path, default=Path(config.get('ppath')))
+# parser.add_argument('--file', type=str, default=None, help='Listfile of mpid. only 1 file is allowed')
+# parser.add_argument('--autopath', type=Path, default=config.get('autopath'))
+# parser.add_argument('--apikey', type=str, default=config.get('apikey'))
+# parser.add_argument('--niter', type=int, default=config.getint('niter'))
+# parser.add_argument('--ncore', type=int, default=config.getint('ncore'))
+# parser.add_argument('--bnd4all', type=bool, default=config.getboolean('bnd4all'))
+# parser.add_argument('--gw80', type=bool, default=config.getboolean('gw80'))
+# parser.add_argument('--koption', nargs='+', type=int, default=eval(config.get('koption')))
+# parser.add_argument('--kratio', type=float,        default=get_float(config.get('kratio')))
+# parser.add_argument('--kkmesh', type=int, nargs=6, default=kkmesh)
+# #parser.add_argument('--mpid', type=str, nargs='+', default=config.getint('mpid'))
+# #parser.add_argument('--lmxa6', type=bool, default=False)
+# #args = parser.parse_args(sys.argv[1:]) #read auto directory.
+# print('args=',sys.argv[1:])
+# print(args)
+
+sys.path.append(str(args.autopath))
 import creplot
 
 args.kratio = round(float(args.kratio), 8)
@@ -132,8 +168,9 @@ for i in joblist:
     ordering = job_dict.get(i, '')
 
     kinit = args.koption
+    print(' koption=',kinit,type(kinit))
     kitmx=3
-    for kadd in range(3): # k point choices. Need fixing.
+    for kadd in range(kitmx): # k point choices. Need fixing.
         k= kinit+ kadd*2
         calc = creplot.Calc(num,args.epath,args.ncore)
         if k == kinit: kkoption = [40, k] #40 is number of max iterations

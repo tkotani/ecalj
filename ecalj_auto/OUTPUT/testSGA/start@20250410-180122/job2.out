@@ -1,0 +1,379 @@
+args.file= joblist.2
+args.dir= /home/takao/ecalj/ecalj_auto/OUTPUT/testSGA/start@20250410-180122
+kkmesh= None <class 'NoneType'>
+/home/takao/bin
+joblist= ['mp-2534', 'mp-2624', 'mp-2853', 'mp-8062']
+job_mp core= 16
+
+MATERIAL= mp-2534
+ koption= 8 <class 'int'>
+/home/takao/ecalj/ecalj_auto/OUTPUT/testSGA/start@20250410-180122/mp-2534
+/home/takao/bin/vasp2ctrl POSCAR > llmf
+/home/takao/bin/ctrlgenM1.py mp-2534 --nspin=2 > llmf
+/home/takao/bin/lmchk mp-2534 > llmchk
+conf     1      1  Ga      2.230000     0.000000   0.000000   0.000000
+conf     2      2  As      2.330000     1.173751   0.829967   2.032997
+
+/home/takao/bin/lmfa mp-2534 > llmfa
+aaaaaaaaaaaa None
+args.kkmesh222= None
+k-mesh for lmf: nk1nk2nk3= [8, 8, 8]
+mpirun -np 16 /home/takao/bin/lmf mp-2534 -vnit=40 -vnk1=8 -vnk2=8 -vnk3=8 > llmf
+Start LMFA mp-2534
+Start LMF mp-2534 -vnit=40 -vnk1=8 -vnk2=8 -vnk3=8
+h mmom= 0.0000 ehf(eV)=-114268.488978 ehk(eV)=-114268.119564 sev(eV)=-150.398130
+i mmom=-0.0000 ehf(eV)=-114268.371728 ehk(eV)=-114268.245482 sev(eV)=-155.463171
+i mmom= 0.0000 ehf(eV)=-114268.340769 ehk(eV)=-114268.216707 sev(eV)=-167.796803
+i mmom=-0.0000 ehf(eV)=-114268.308053 ehk(eV)=-114268.272480 sev(eV)=-165.242872
+i mmom= 0.0000 ehf(eV)=-114268.295386 ehk(eV)=-114268.293278 sev(eV)=-163.145148
+i mmom=-0.0000 ehf(eV)=-114268.294543 ehk(eV)=-114268.293956 sev(eV)=-163.072326
+i mmom=-0.0000 ehf(eV)=-114268.294148 ehk(eV)=-114268.294113 sev(eV)=-163.058498
+i mmom= 0.0000 ehf(eV)=-114268.294088 ehk(eV)=-114268.294081 sev(eV)=-163.108590
+i mmom=-0.0000 ehf(eV)=-114268.294091 ehk(eV)=-114268.294105 sev(eV)=-163.080632
+c mmom= 0.0000 ehf(eV)=-114268.294102 ehk(eV)=-114268.294123 sev(eV)=-163.050032
+lmf finished
+LDA
+/home/takao/.pyenv/versions/3.9.13/bin/python /home/takao/bin/getsyml mp-2534 --nobzview > lgetsyml
+/home/takao/bin/job_band mp-2534 -np 16 NoGnuplot > ljobband
+/home/takao/bin/job_tdos mp-2534 -np 16 NoGnuplot > ljobtdos
+/home/takao/bin/job_pdos mp-2534 -np 16 NoGnuplot > ljobpdos
+mp-2534 LDA start@ 04/10/25 18:01:27 : 37  sec c nk1=8 nk2=8 nk3=8 gap=0.0
+LDA
+/home/takao/.pyenv/versions/3.9.13/bin/python /home/takao/bin/getsyml mp-2534 --nobzview > lgetsyml
+/home/takao/bin/job_band mp-2534 -np 16 NoGnuplot > ljobband
+/home/takao/bin/job_tdos mp-2534 -np 16 NoGnuplot > ljobtdos
+/home/takao/bin/job_pdos mp-2534 -np 16 NoGnuplot > ljobpdos
+k-mesh for GW n1n2n3 [4, 4, 4]
+/home/takao/bin/mkGWinput mp-2534 > lgwin
+/home/takao/bin/gwsc 2 -np 16 mp-2534 > osgw.out
+2025-04-10 18:02:21.118197   mpirun -np 1 echo --- Start gwsc ---
+--- Start gwsc ---
+option=    
+### START gwsc: ITERADD= 2, MPI size=  16, 16 TARGET= mp-2534
+===== Ititial band structure ====== 
+---> No sigm. LDA caculation for eigenfunctions 
+0:00:00.071323   mpirun -np 1 /home/takao/bin/lmfa mp-2534     >llmfa
+0:00:00.418913   mpirun -np 16 /home/takao/bin/lmf  mp-2534     >llmf_lda
+===== QSGW iteration start iter 1 ===
+0:00:03.550690   mpirun -np 1 /home/takao/bin/lmf mp-2534     --jobgw=0 >llmfgw00
+0:00:03.728250   mpirun -np 1 /home/takao/bin/qg4gw    --job=1 > lqg4gw
+0:00:03.863659   mpirun -np 16 /home/takao/bin/lmf mp-2534     --jobgw=1 >llmfgw01
+0:00:07.045575   mpirun -np 1 /home/takao/bin/heftet --job=1    > leftet
+0:00:07.151591   mpirun -np 1 /home/takao/bin/hbasfp0 --job=3    >lbasC
+0:00:08.210406   mpirun -np 16 /home/takao/bin/hvccfp0 --job=3    > lvccC
+0:00:10.552410   mpirun -np 16 /home/takao/bin/hsfp0_sc --job=3    >lsxC
+0:00:20.795919   mpirun -np 1 /home/takao/bin/hbasfp0 --job=0    > lbas
+0:00:21.366819   mpirun -np 16 /home/takao/bin/hvccfp0 --job=0    > lvcc
+0:00:23.128293   mpirun -np 16 /home/takao/bin/hsfp0_sc --job=1    >lsx
+0:00:33.695449   mpirun -np 16 /home/takao/bin/hrcxq   > lrcxq
+0:01:11.312980   mpirun -np 16 /home/takao/bin/hsfp0_sc --job=2    > lsc
+0:02:55.129964   mpirun -np 1 /home/takao/bin/hqpe_sc    > lqpe
+0:02:55.590667   mpirun -np 16 /home/takao/bin/lmf mp-2534     >llmf
+===== QSGW iteration end   iter 1 ===
+===== QSGW iteration start iter 2 ===
+0:03:11.876329   mpirun -np 1 /home/takao/bin/lmf mp-2534     --jobgw=0 >llmfgw00
+0:03:12.103398   mpirun -np 1 /home/takao/bin/qg4gw    --job=1 > lqg4gw
+0:03:12.236579   mpirun -np 16 /home/takao/bin/lmf mp-2534     --jobgw=1 >llmfgw01
+0:03:15.699065   mpirun -np 1 /home/takao/bin/heftet --job=1    > leftet
+0:03:15.934830   mpirun -np 1 /home/takao/bin/hbasfp0 --job=3    >lbasC
+0:03:17.109724   mpirun -np 16 /home/takao/bin/hvccfp0 --job=3    > lvccC
+0:03:19.539639   mpirun -np 16 /home/takao/bin/hsfp0_sc --job=3    >lsxC
+0:03:26.514707   mpirun -np 1 /home/takao/bin/hbasfp0 --job=0    > lbas
+0:03:27.134909   mpirun -np 16 /home/takao/bin/hvccfp0 --job=0    > lvcc
+0:03:29.054009   mpirun -np 16 /home/takao/bin/hsfp0_sc --job=1    >lsx
+0:03:39.206758   mpirun -np 16 /home/takao/bin/hrcxq   > lrcxq
+0:04:10.792572   mpirun -np 16 /home/takao/bin/hsfp0_sc --job=2    > lsc
+0:05:37.036942   mpirun -np 1 /home/takao/bin/hqpe_sc    > lqpe
+0:05:37.488824   mpirun -np 16 /home/takao/bin/lmf mp-2534     >llmf
+===== QSGW iteration end   iter 2 ===
+OK! ==== All calclation finished for  gwsc ====
+creplot: QPU.1run to QSGW.1run
+QSGW.1run
+/home/takao/.pyenv/versions/3.9.13/bin/python /home/takao/bin/getsyml mp-2534 --nobzview > lgetsyml
+/home/takao/bin/job_band mp-2534 -np 16 NoGnuplot > ljobband
+/home/takao/bin/job_tdos mp-2534 -np 16 NoGnuplot > ljobtdos
+/home/takao/bin/job_pdos mp-2534 -np 16 NoGnuplot > ljobpdos
+creplot: QPU.2run to QSGW.2run
+QSGW.2run
+/home/takao/.pyenv/versions/3.9.13/bin/python /home/takao/bin/getsyml mp-2534 --nobzview > lgetsyml
+/home/takao/bin/job_band mp-2534 -np 16 NoGnuplot > ljobband
+/home/takao/bin/job_tdos mp-2534 -np 16 NoGnuplot > ljobtdos
+/home/takao/bin/job_pdos mp-2534 -np 16 NoGnuplot > ljobpdos
+/home/takao/bin/cleargw . > clear
+mp-2534 GW start@ 04/10/25 18:02:04 : 410  sec c gap=1.3423
+
+MATERIAL= mp-2624
+ koption= 8 <class 'int'>
+/home/takao/ecalj/ecalj_auto/OUTPUT/testSGA/start@20250410-180122/mp-2624
+/home/takao/bin/vasp2ctrl POSCAR > llmf
+/home/takao/bin/ctrlgenM1.py mp-2624 --nspin=2 > llmf
+/home/takao/bin/lmchk mp-2624 > llmchk
+conf     1      1  Al      2.330000     0.000000   0.000000   0.000000
+conf     2      2  Sb      2.580000     1.262517   0.892734   2.186742
+
+/home/takao/bin/lmfa mp-2624 > llmfa
+aaaaaaaaaaaa None
+args.kkmesh222= None
+k-mesh for lmf: nk1nk2nk3= [7, 7, 7]
+mpirun -np 16 /home/takao/bin/lmf mp-2624 -vnit=40 -vnk1=7 -vnk2=7 -vnk3=7 > llmf
+Start LMFA mp-2624
+Start LMF mp-2624 -vnit=40 -vnk1=7 -vnk2=7 -vnk3=7
+h mmom= 0.0000 ehf(eV)=-182810.037558 ehk(eV)=-182809.852115 sev(eV)=-290.974159
+i mmom=-0.0000 ehf(eV)=-182809.975351 ehk(eV)=-182809.883835 sev(eV)=-290.318896
+i mmom= 0.0000 ehf(eV)=-182809.926530 ehk(eV)=-182809.885293 sev(eV)=-290.387354
+i mmom=-0.0000 ehf(eV)=-182809.912245 ehk(eV)=-182809.898638 sev(eV)=-291.880383
+i mmom= 0.0000 ehf(eV)=-182809.905124 ehk(eV)=-182809.904215 sev(eV)=-293.363949
+i mmom= 0.0000 ehf(eV)=-182809.904783 ehk(eV)=-182809.904771 sev(eV)=-293.433813
+i mmom= 0.0000 ehf(eV)=-182809.904839 ehk(eV)=-182809.904887 sev(eV)=-293.386552
+c mmom=-0.0000 ehf(eV)=-182809.904896 ehk(eV)=-182809.904972 sev(eV)=-293.254402
+lmf finished
+LDA
+/home/takao/.pyenv/versions/3.9.13/bin/python /home/takao/bin/getsyml mp-2624 --nobzview > lgetsyml
+/home/takao/bin/job_band mp-2624 -np 16 NoGnuplot > ljobband
+/home/takao/bin/job_tdos mp-2624 -np 16 NoGnuplot > ljobtdos
+/home/takao/bin/job_pdos mp-2624 -np 16 NoGnuplot > ljobpdos
+mp-2624 LDA start@ 04/10/25 18:08:55 : 33  sec c nk1=7 nk2=7 nk3=7 gap=1.1818
+k-mesh for GW n1n2n3 [4, 4, 4]
+/home/takao/bin/mkGWinput mp-2624 > lgwin
+/home/takao/bin/gwsc 2 -np 16 mp-2624 > osgw.out
+2025-04-10 18:09:31.403593   mpirun -np 1 echo --- Start gwsc ---
+--- Start gwsc ---
+option=    
+### START gwsc: ITERADD= 2, MPI size=  16, 16 TARGET= mp-2624
+===== Ititial band structure ====== 
+---> No sigm. LDA caculation for eigenfunctions 
+0:00:00.123652   mpirun -np 1 /home/takao/bin/lmfa mp-2624     >llmfa
+0:00:00.736686   mpirun -np 16 /home/takao/bin/lmf  mp-2624     >llmf_lda
+===== QSGW iteration start iter 1 ===
+0:00:04.172110   mpirun -np 1 /home/takao/bin/lmf mp-2624     --jobgw=0 >llmfgw00
+0:00:04.383107   mpirun -np 1 /home/takao/bin/qg4gw    --job=1 > lqg4gw
+0:00:04.592298   mpirun -np 16 /home/takao/bin/lmf mp-2624     --jobgw=1 >llmfgw01
+0:00:09.005688   mpirun -np 1 /home/takao/bin/heftet --job=1    > leftet
+0:00:09.156003   mpirun -np 1 /home/takao/bin/hbasfp0 --job=3    >lbasC
+0:00:10.501411   mpirun -np 16 /home/takao/bin/hvccfp0 --job=3    > lvccC
+0:00:13.805999   mpirun -np 16 /home/takao/bin/hsfp0_sc --job=3    >lsxC
+0:00:22.906308   mpirun -np 1 /home/takao/bin/hbasfp0 --job=0    > lbas
+0:00:23.949687   mpirun -np 16 /home/takao/bin/hvccfp0 --job=0    > lvcc
+0:00:26.540450   mpirun -np 16 /home/takao/bin/hsfp0_sc --job=1    >lsx
+0:00:41.444490   mpirun -np 16 /home/takao/bin/hrcxq   > lrcxq
+0:01:24.890634   mpirun -np 16 /home/takao/bin/hsfp0_sc --job=2    > lsc
+0:04:17.025827   mpirun -np 1 /home/takao/bin/hqpe_sc    > lqpe
+0:04:18.025674   mpirun -np 16 /home/takao/bin/lmf mp-2624     >llmf
+===== QSGW iteration end   iter 1 ===
+===== QSGW iteration start iter 2 ===
+0:04:28.770667   mpirun -np 1 /home/takao/bin/lmf mp-2624     --jobgw=0 >llmfgw00
+0:04:28.924186   mpirun -np 1 /home/takao/bin/qg4gw    --job=1 > lqg4gw
+0:04:29.063277   mpirun -np 16 /home/takao/bin/lmf mp-2624     --jobgw=1 >llmfgw01
+0:04:33.266694   mpirun -np 1 /home/takao/bin/heftet --job=1    > leftet
+0:04:33.379616   mpirun -np 1 /home/takao/bin/hbasfp0 --job=3    >lbasC
+0:04:35.993068   mpirun -np 16 /home/takao/bin/hvccfp0 --job=3    > lvccC
+0:04:43.024590   mpirun -np 16 /home/takao/bin/hsfp0_sc --job=3    >lsxC
+0:04:51.526173   mpirun -np 1 /home/takao/bin/hbasfp0 --job=0    > lbas
+0:04:52.155324   mpirun -np 16 /home/takao/bin/hvccfp0 --job=0    > lvcc
+0:04:54.773531   mpirun -np 16 /home/takao/bin/hsfp0_sc --job=1    >lsx
+0:05:12.754131   mpirun -np 16 /home/takao/bin/hrcxq   > lrcxq
+0:06:01.570930   mpirun -np 16 /home/takao/bin/hsfp0_sc --job=2    > lsc
+0:08:56.169797   mpirun -np 1 /home/takao/bin/hqpe_sc    > lqpe
+0:08:56.719601   mpirun -np 16 /home/takao/bin/lmf mp-2624     >llmf
+===== QSGW iteration end   iter 2 ===
+OK! ==== All calclation finished for  gwsc ====
+creplot: QPU.1run to QSGW.1run
+QSGW.1run
+/home/takao/.pyenv/versions/3.9.13/bin/python /home/takao/bin/getsyml mp-2624 --nobzview > lgetsyml
+/home/takao/bin/job_band mp-2624 -np 16 NoGnuplot > ljobband
+/home/takao/bin/job_tdos mp-2624 -np 16 NoGnuplot > ljobtdos
+/home/takao/bin/job_pdos mp-2624 -np 16 NoGnuplot > ljobpdos
+creplot: QPU.2run to QSGW.2run
+QSGW.2run
+/home/takao/.pyenv/versions/3.9.13/bin/python /home/takao/bin/getsyml mp-2624 --nobzview > lgetsyml
+/home/takao/bin/job_band mp-2624 -np 16 NoGnuplot > ljobband
+/home/takao/bin/job_tdos mp-2624 -np 16 NoGnuplot > ljobtdos
+/home/takao/bin/job_pdos mp-2624 -np 16 NoGnuplot > ljobpdos
+/home/takao/bin/cleargw . > clear
+mp-2624 GW start@ 04/10/25 18:09:28 : 584  sec c gap=2.0444
+
+MATERIAL= mp-2853
+ koption= 8 <class 'int'>
+/home/takao/ecalj/ecalj_auto/OUTPUT/testSGA/start@20250410-180122/mp-2853
+/home/takao/bin/vasp2ctrl POSCAR > llmf
+/home/takao/bin/ctrlgenM1.py mp-2853 --nspin=2 > llmf
+/home/takao/bin/lmchk mp-2853 > llmchk
+conf     1      1  Ga      2.150000     0.000000   0.000000   0.000000
+conf     2      2  N       1.760000     2.135235   2.135235   2.135235
+
+/home/takao/bin/lmfa mp-2853 > llmfa
+aaaaaaaaaaaa None
+args.kkmesh222= None
+k-mesh for lmf: nk1nk2nk3= [11, 11, 11]
+mpirun -np 16 /home/takao/bin/lmf mp-2853 -vnit=40 -vnk1=11 -vnk2=11 -vnk3=11 > llmf
+Start LMFA mp-2853
+Start LMF mp-2853 -vnit=40 -vnk1=11 -vnk2=11 -vnk3=11
+h mmom=-0.0000 ehf(eV)=-54307.064197 ehk(eV)=-54302.117670 sev(eV)=-155.154829
+i mmom= 0.0000 ehf(eV)=-54305.655202 ehk(eV)=-54304.792700 sev(eV)=-159.494058
+i mmom=-0.0000 ehf(eV)=-54305.432987 ehk(eV)=-54305.047798 sev(eV)=-165.589558
+i mmom=-0.0000 ehf(eV)=-54305.385025 ehk(eV)=-54305.144514 sev(eV)=-166.143529
+i mmom=-0.0000 ehf(eV)=-54305.313641 ehk(eV)=-54305.307752 sev(eV)=-166.032245
+i mmom= 0.0000 ehf(eV)=-54305.312168 ehk(eV)=-54305.310350 sev(eV)=-166.347028
+i mmom= 0.0000 ehf(eV)=-54305.311255 ehk(eV)=-54305.311211 sev(eV)=-166.775088
+i mmom=-0.0000 ehf(eV)=-54305.311051 ehk(eV)=-54305.311064 sev(eV)=-166.675685
+i mmom= 0.0000 ehf(eV)=-54305.310936 ehk(eV)=-54305.310970 sev(eV)=-166.561128
+i mmom=-0.0000 ehf(eV)=-54305.310937 ehk(eV)=-54305.310971 sev(eV)=-166.480629
+i mmom= 0.0000 ehf(eV)=-54305.310951 ehk(eV)=-54305.310990 sev(eV)=-166.516919
+c mmom= 0.0000 ehf(eV)=-54305.310958 ehk(eV)=-54305.310999 sev(eV)=-166.547954
+lmf finished
+LDA
+/home/takao/.pyenv/versions/3.9.13/bin/python /home/takao/bin/getsyml mp-2853 --nobzview > lgetsyml
+/home/takao/bin/job_band mp-2853 -np 16 NoGnuplot > ljobband
+/home/takao/bin/job_tdos mp-2853 -np 16 NoGnuplot > ljobtdos
+/home/takao/bin/job_pdos mp-2853 -np 16 NoGnuplot > ljobpdos
+mp-2853 LDA start@ 04/10/25 18:19:13 : 41  sec c nk1=11 nk2=11 nk3=11 gap=0.1937
+k-mesh for GW n1n2n3 [6, 6, 6]
+/home/takao/bin/mkGWinput mp-2853 > lgwin
+/home/takao/bin/gwsc 2 -np 16 mp-2853 > osgw.out
+2025-04-10 18:19:55.858404   mpirun -np 1 echo --- Start gwsc ---
+--- Start gwsc ---
+option=    
+### START gwsc: ITERADD= 2, MPI size=  16, 16 TARGET= mp-2853
+===== Ititial band structure ====== 
+---> No sigm. LDA caculation for eigenfunctions 
+0:00:00.179312   mpirun -np 1 /home/takao/bin/lmfa mp-2853     >llmfa
+0:00:00.590781   mpirun -np 16 /home/takao/bin/lmf  mp-2853     >llmf_lda
+===== QSGW iteration start iter 1 ===
+0:00:03.312222   mpirun -np 1 /home/takao/bin/lmf mp-2853     --jobgw=0 >llmfgw00
+0:00:03.796073   mpirun -np 1 /home/takao/bin/qg4gw    --job=1 > lqg4gw
+0:00:04.023468   mpirun -np 16 /home/takao/bin/lmf mp-2853     --jobgw=1 >llmfgw01
+0:00:07.170992   mpirun -np 1 /home/takao/bin/heftet --job=1    > leftet
+0:00:07.327225   mpirun -np 1 /home/takao/bin/hbasfp0 --job=3    >lbasC
+0:00:08.003959   mpirun -np 16 /home/takao/bin/hvccfp0 --job=3    > lvccC
+0:00:09.295333   mpirun -np 16 /home/takao/bin/hsfp0_sc --job=3    >lsxC
+0:00:17.961568   mpirun -np 1 /home/takao/bin/hbasfp0 --job=0    > lbas
+0:00:18.440878   mpirun -np 16 /home/takao/bin/hvccfp0 --job=0    > lvcc
+0:00:19.614003   mpirun -np 16 /home/takao/bin/hsfp0_sc --job=1    >lsx
+0:00:34.962180   mpirun -np 16 /home/takao/bin/hrcxq   > lrcxq
+0:01:17.032034   mpirun -np 16 /home/takao/bin/hsfp0_sc --job=2    > lsc
+0:02:46.801311   mpirun -np 1 /home/takao/bin/hqpe_sc    > lqpe
+0:02:47.254250   mpirun -np 16 /home/takao/bin/lmf mp-2853     >llmf
+===== QSGW iteration end   iter 1 ===
+===== QSGW iteration start iter 2 ===
+0:03:06.479703   mpirun -np 1 /home/takao/bin/lmf mp-2853     --jobgw=0 >llmfgw00
+0:03:06.960748   mpirun -np 1 /home/takao/bin/qg4gw    --job=1 > lqg4gw
+0:03:07.127916   mpirun -np 16 /home/takao/bin/lmf mp-2853     --jobgw=1 >llmfgw01
+0:03:10.548320   mpirun -np 1 /home/takao/bin/heftet --job=1    > leftet
+0:03:10.696754   mpirun -np 1 /home/takao/bin/hbasfp0 --job=3    >lbasC
+0:03:11.446058   mpirun -np 16 /home/takao/bin/hvccfp0 --job=3    > lvccC
+0:03:12.762756   mpirun -np 16 /home/takao/bin/hsfp0_sc --job=3    >lsxC
+0:03:20.543055   mpirun -np 1 /home/takao/bin/hbasfp0 --job=0    > lbas
+0:03:20.946923   mpirun -np 16 /home/takao/bin/hvccfp0 --job=0    > lvcc
+0:03:22.067428   mpirun -np 16 /home/takao/bin/hsfp0_sc --job=1    >lsx
+0:03:38.504025   mpirun -np 16 /home/takao/bin/hrcxq   > lrcxq
+0:04:28.256839   mpirun -np 16 /home/takao/bin/hsfp0_sc --job=2    > lsc
+0:06:14.959386   mpirun -np 1 /home/takao/bin/hqpe_sc    > lqpe
+0:06:15.432201   mpirun -np 16 /home/takao/bin/lmf mp-2853     >llmf
+===== QSGW iteration end   iter 2 ===
+OK! ==== All calclation finished for  gwsc ====
+creplot: QPU.1run to QSGW.1run
+QSGW.1run
+/home/takao/.pyenv/versions/3.9.13/bin/python /home/takao/bin/getsyml mp-2853 --nobzview > lgetsyml
+/home/takao/bin/job_band mp-2853 -np 16 NoGnuplot > ljobband
+/home/takao/bin/job_tdos mp-2853 -np 16 NoGnuplot > ljobtdos
+/home/takao/bin/job_pdos mp-2853 -np 16 NoGnuplot > ljobpdos
+creplot: QPU.2run to QSGW.2run
+QSGW.2run
+/home/takao/.pyenv/versions/3.9.13/bin/python /home/takao/bin/getsyml mp-2853 --nobzview > lgetsyml
+/home/takao/bin/job_band mp-2853 -np 16 NoGnuplot > ljobband
+/home/takao/bin/job_tdos mp-2853 -np 16 NoGnuplot > ljobtdos
+/home/takao/bin/job_pdos mp-2853 -np 16 NoGnuplot > ljobpdos
+/home/takao/bin/cleargw . > clear
+mp-2853 GW start@ 04/10/25 18:19:55 : 455  sec c gap=1.7943
+
+MATERIAL= mp-8062
+ koption= 8 <class 'int'>
+/home/takao/ecalj/ecalj_auto/OUTPUT/testSGA/start@20250410-180122/mp-8062
+/home/takao/bin/vasp2ctrl POSCAR > llmf
+/home/takao/bin/ctrlgenM1.py mp-8062 --nspin=2 > llmf
+/home/takao/bin/lmchk mp-8062 > llmchk
+conf     1      1  Si      1.880000     0.888755   0.628445   1.539369
+conf     2      2  C       1.580000     0.000000   0.000000   0.000000
+
+/home/takao/bin/lmfa mp-8062 > llmfa
+aaaaaaaaaaaa None
+args.kkmesh222= None
+k-mesh for lmf: nk1nk2nk3= [11, 11, 11]
+mpirun -np 16 /home/takao/bin/lmf mp-8062 -vnit=40 -vnk1=11 -vnk2=11 -vnk3=11 > llmf
+Start LMFA mp-8062
+Start LMF mp-8062 -vnit=40 -vnk1=11 -vnk2=11 -vnk3=11
+h mmom= 0.0000 ehf(eV)=-8896.911574 ehk(eV)=-8892.195231 sev(eV)=-5.799626
+i mmom=-0.0000 ehf(eV)=-8895.478372 ehk(eV)=-8894.234575 sev(eV)=-3.068404
+i mmom=-0.0000 ehf(eV)=-8895.011884 ehk(eV)=-8894.774140 sev(eV)=-0.633260
+i mmom= 0.0000 ehf(eV)=-8894.989126 ehk(eV)=-8894.795328 sev(eV)=-1.291774
+i mmom= 0.0000 ehf(eV)=-8894.912849 ehk(eV)=-8894.911724 sev(eV)=-2.896949
+i mmom=-0.0000 ehf(eV)=-8894.912559 ehk(eV)=-8894.912008 sev(eV)=-2.902598
+i mmom=-0.0000 ehf(eV)=-8894.912298 ehk(eV)=-8894.912275 sev(eV)=-2.890881
+i mmom=-0.0000 ehf(eV)=-8894.912283 ehk(eV)=-8894.912278 sev(eV)=-2.881323
+i mmom= 0.0000 ehf(eV)=-8894.912272 ehk(eV)=-8894.912269 sev(eV)=-2.873876
+c mmom=-0.0000 ehf(eV)=-8894.912270 ehk(eV)=-8894.912264 sev(eV)=-2.874566
+lmf finished
+LDA
+/home/takao/.pyenv/versions/3.9.13/bin/python /home/takao/bin/getsyml mp-8062 --nobzview > lgetsyml
+/home/takao/bin/job_band mp-8062 -np 16 NoGnuplot > ljobband
+/home/takao/bin/job_tdos mp-8062 -np 16 NoGnuplot > ljobtdos
+/home/takao/bin/job_pdos mp-8062 -np 16 NoGnuplot > ljobpdos
+mp-8062 LDA start@ 04/10/25 18:27:30 : 24  sec c nk1=11 nk2=11 nk3=11 gap=1.3181
+k-mesh for GW n1n2n3 [6, 6, 6]
+/home/takao/bin/mkGWinput mp-8062 > lgwin
+/home/takao/bin/gwsc 2 -np 16 mp-8062 > osgw.out
+2025-04-10 18:27:55.498125   mpirun -np 1 echo --- Start gwsc ---
+--- Start gwsc ---
+option=    
+### START gwsc: ITERADD= 2, MPI size=  16, 16 TARGET= mp-8062
+===== Ititial band structure ====== 
+---> No sigm. LDA caculation for eigenfunctions 
+0:00:00.042057   mpirun -np 1 /home/takao/bin/lmfa mp-8062     >llmfa
+0:00:00.225873   mpirun -np 16 /home/takao/bin/lmf  mp-8062     >llmf_lda
+===== QSGW iteration start iter 1 ===
+0:00:02.077406   mpirun -np 1 /home/takao/bin/lmf mp-8062     --jobgw=0 >llmfgw00
+0:00:02.200638   mpirun -np 1 /home/takao/bin/qg4gw    --job=1 > lqg4gw
+0:00:02.322441   mpirun -np 16 /home/takao/bin/lmf mp-8062     --jobgw=1 >llmfgw01
+0:00:04.377664   mpirun -np 1 /home/takao/bin/heftet --job=1    > leftet
+0:00:04.442992   mpirun -np 1 /home/takao/bin/hbasfp0 --job=3    >lbasC
+0:00:04.686217   mpirun -np 16 /home/takao/bin/hvccfp0 --job=3    > lvccC
+0:00:05.522018   mpirun -np 16 /home/takao/bin/hsfp0_sc --job=3    >lsxC
+0:00:11.771541   mpirun -np 1 /home/takao/bin/hbasfp0 --job=0    > lbas
+0:00:11.971173   mpirun -np 16 /home/takao/bin/hvccfp0 --job=0    > lvcc
+0:00:12.752631   mpirun -np 16 /home/takao/bin/hsfp0_sc --job=1    >lsx
+0:00:28.053164   mpirun -np 16 /home/takao/bin/hrcxq   > lrcxq
+0:01:02.081106   mpirun -np 16 /home/takao/bin/hsfp0_sc --job=2    > lsc
+0:02:17.535806   mpirun -np 1 /home/takao/bin/hqpe_sc    > lqpe
+0:02:17.932081   mpirun -np 16 /home/takao/bin/lmf mp-8062     >llmf
+===== QSGW iteration end   iter 1 ===
+===== QSGW iteration start iter 2 ===
+0:02:26.060511   mpirun -np 1 /home/takao/bin/lmf mp-8062     --jobgw=0 >llmfgw00
+0:02:26.185701   mpirun -np 1 /home/takao/bin/qg4gw    --job=1 > lqg4gw
+0:02:26.309508   mpirun -np 16 /home/takao/bin/lmf mp-8062     --jobgw=1 >llmfgw01
+0:02:28.789297   mpirun -np 1 /home/takao/bin/heftet --job=1    > leftet
+0:02:28.849943   mpirun -np 1 /home/takao/bin/hbasfp0 --job=3    >lbasC
+0:02:29.095553   mpirun -np 16 /home/takao/bin/hvccfp0 --job=3    > lvccC
+0:02:29.959532   mpirun -np 16 /home/takao/bin/hsfp0_sc --job=3    >lsxC
+0:02:36.828173   mpirun -np 1 /home/takao/bin/hbasfp0 --job=0    > lbas
+0:02:37.034316   mpirun -np 16 /home/takao/bin/hvccfp0 --job=0    > lvcc
+0:02:37.803991   mpirun -np 16 /home/takao/bin/hsfp0_sc --job=1    >lsx
+0:02:52.446397   mpirun -np 16 /home/takao/bin/hrcxq   > lrcxq
+0:03:25.991584   mpirun -np 16 /home/takao/bin/hsfp0_sc --job=2    > lsc
+0:04:40.661851   mpirun -np 1 /home/takao/bin/hqpe_sc    > lqpe
+0:04:41.045368   mpirun -np 16 /home/takao/bin/lmf mp-8062     >llmf
+===== QSGW iteration end   iter 2 ===
+OK! ==== All calclation finished for  gwsc ====
+creplot: QPU.1run to QSGW.1run
+QSGW.1run
+/home/takao/.pyenv/versions/3.9.13/bin/python /home/takao/bin/getsyml mp-8062 --nobzview > lgetsyml
+/home/takao/bin/job_band mp-8062 -np 16 NoGnuplot > ljobband
+/home/takao/bin/job_tdos mp-8062 -np 16 NoGnuplot > ljobtdos
+/home/takao/bin/job_pdos mp-8062 -np 16 NoGnuplot > ljobpdos
+creplot: QPU.2run to QSGW.2run
+QSGW.2run
+/home/takao/.pyenv/versions/3.9.13/bin/python /home/takao/bin/getsyml mp-8062 --nobzview > lgetsyml
+/home/takao/bin/job_band mp-8062 -np 16 NoGnuplot > ljobband
+/home/takao/bin/job_tdos mp-8062 -np 16 NoGnuplot > ljobtdos
+/home/takao/bin/job_pdos mp-8062 -np 16 NoGnuplot > ljobpdos
+/home/takao/bin/cleargw . > clear
+mp-8062 GW start@ 04/10/25 18:27:55 : 336  sec c gap=2.5633
