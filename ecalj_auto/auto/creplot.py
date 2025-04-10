@@ -184,7 +184,7 @@ class Calc:
                 jjob = [self.epath/job, self.num, '-np', self.ncore, 'NoGnuplot'] + self.option_bnd
                 run_command(jjob, out=file_out)
 
-    def run_LDA(self, key, lmxa6, option, ordering, path_poscar, errcode):
+    def run_LDA(self, args, key,  koption, ordering, path_poscar, errcode): #lmxa6 need to be given at ctrlgenM1.py
         num = self.num
         epath = self.epath
         print(Path.cwd())
@@ -206,8 +206,8 @@ class Calc:
             shutil.copy('ctrls.POSCAR.vasp2ctrl', f'ctrls.{num}')
 
             ### Set magnetic conditions if ferro, anti-ferro or ferri
-            print(ordering)
-            if ordering == ('NM' or '') : pass
+            #print('ooooooo ordering='+ordering+'###')
+            if ordering == 'NM' or len(ordering)==0 : pass
             else:
                 import mag
                 mag.SetMag(key, num, 'POSCAR', 3, ordering)
@@ -219,8 +219,8 @@ class Calc:
                 print(f'ctrl.{num} doesn\'t exist !!!')
                 return 'ERROR: ctrlgen', errcode['ctrlgen']
             shutil.copy(f'ctrlgenM1.ctrl.{num}', f'ctrl.{num}')
-            if lmxa6:
-                replace(f'ctrl.{num}', 'LMXA=4', 'LMXA=6')
+            #if lmxa6:
+            #    replace(f'ctrl.{num}', 'LMXA=4', 'LMXA=6')
             
             ### Run lmchk
             run_command([epath/'lmchk', num], out='llmchk')
@@ -229,11 +229,16 @@ class Calc:
             ### Run lmfa
             run_command([epath/'lmfa', num], out='llmfa')
 
-        ### Get k_mesh from input option
-        self.k_points = change_k.get_kpoints([option[1]] * 3)
+        ### Get k_mesh from input koption
+        print('aaaaaaaaaaaa',args)
+        if(args.kkmesh):
+            self.k_points = args.kkmesh[:3]
+        else:    
+            self.k_points = change_k.get_kpoints([koption[1]] * 3)
+
         if self.k_points is None:
             return 'ERROR: PlatQplat.chk in lmfa', errcode['ctrl']
-        self.option_lmf = '-vnit={} -vnk1={} -vnk2={} -vnk3={}'.format(option[0], *self.k_points).split() + option[2:]
+        self.option_lmf = '-vnit={} -vnk1={} -vnk2={} -vnk3={}'.format(koption[0], *self.k_points).split() #+ koption[2:]
         kkk = 'nk1={} nk2={} nk3={}'.format(*self.k_points)
 
         ### Run lmf
@@ -251,9 +256,9 @@ class Calc:
             if(os.path.exists('bzmesh.err')):
                 os.remove('bzmesh.err')
                 print('Run lmf')
-                self.k_points = [option[1]] * 3
+                self.k_points = [koption[1]] * 3
                 kkk = 'nk1={} nk2={} nk3={}'.format(*self.k_points)
-                self.option_lmf = '-vnit={} -vnk1={} -vnk2={} -vnk3={}'.format(option[0], *self.k_points).split() + option[2:]
+                self.option_lmf = '-vnit={} -vnk1={} -vnk2={} -vnk3={}'.format(koption[0], *self.k_points).split() #+ koption[2:]
                 outc = self.run_lmf('llmf','llmf.err')
                 conv = outc.split()[0]
                 if conv == 'c':
@@ -271,7 +276,7 @@ class Calc:
         return f'c {kkk} gap={self.gap_LDA}', errcode['conv=c']
 
 
-    def run_QSGW(self, niter, bnd4all, gw80, k_gw):
+    def run_QSGW(self, args, niter, bnd4all, gw80, k_gw):
         num = self.num
         epath = self.epath
         self.gap_GW = None
@@ -283,7 +288,10 @@ class Calc:
                 return 'ERROR: something wrong in ctrl'
         if not self.gap_LDA:
             self.gap_LDA = self.run_plot('LDA')
-        q_points = change_k.get_q(self.k_points, k_gw)   #k_points is int list, like [6, 6, 6]
+        if(args.kkmesh):
+            q_points = args.kkmesh[3:6]
+        else:
+            q_points = change_k.get_q(self.k_points, k_gw)   #k_points is int list, like [6, 6, 6]
         print('q-mesh', q_points)
         
         ### Prepare input for QSGW calc.

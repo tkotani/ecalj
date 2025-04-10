@@ -1,10 +1,9 @@
-# material_id nsites formula bandgap symmetry-number symmetry-symbol magnetic
-2172 2 AlAs 1.5037 216 F-43m NM
-1330 2 AlN 4.4175 225 Fm-3m NM
-1550 2 AlP 1.6294 216 F-43m NM
-2624 2 AlSb 1.2255 216 F-43m NM
-2534 2 GaAs 0.1861 216 F-43m NM
-2853 2 GaN 0.4207 225 Fm-3m NM
-2490 2 GaP 1.6039 216 F-43m NM
-149 2 Si 0.6105 227 Fd-3m NM
-8062 2 SiC 1.3669 216 F-43m NM
+mp-1330
+mp-149
+mp-1550
+mp-2172
+mp-2490
+mp-2534
+mp-2624
+mp-2853
+mp-8062

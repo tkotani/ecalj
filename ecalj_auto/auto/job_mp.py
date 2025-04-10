@@ -17,15 +17,18 @@ def get_float(value):
         return float(value)
 
 parser = argparse.ArgumentParser(description="Run QSGW")
-parser.add_argument('--config', type=Path, default=Path(__file__).resolve().parent.parent/'config.ini', help='Path to the config.ini')
+#parser.add_argument('--config', type=Path, default=Path(__file__).resolve().parent.parent/'config.ini', help='Path to the config.ini')
+parser.add_argument('--config', type=Path, default=Path(__file__).parent.resolve()/'config.ini')
 args, remaining_argv = parser.parse_known_args()
 config = configparser.ConfigParser()
 config.read(args.config)
-config = config['DEFAULT']
-
+config = config['DEFAULT'] 
+# We copy config.get --- not so meaningful since 
+import ast
+kkmesh=ast.literal_eval(config.get('kkmesh'))
 parser.add_argument('--epath', type=Path, default=Path(config.get('epath')), help='Path of ecalj package')
 parser.add_argument('--dir', type=Path, default=Path(__file__).resolve().parent, help='Output directory')
-parser.add_argument('--poscar', type=Path, default=None, help='Path to the input directory')
+parser.add_argument('--poscar', type=Path, default=Path(config.get('ppath')))
 parser.add_argument('--file', type=str, default=None, help='Listfile of mpid. only 1 file is allowed')
 parser.add_argument('--auto', type=Path, default=Path(__file__).resolve().parent)
 parser.add_argument('--apikey', type=str, default=config.get('apikey'))
@@ -35,19 +38,21 @@ parser.add_argument('--bnd4all', type=bool, default=config.getboolean('bnd4all')
 parser.add_argument('--gw80', type=bool, default=config.getboolean('gw80'))
 parser.add_argument('--koption', nargs='+', type=int, default=eval(config.get('koption')))
 parser.add_argument('--kratio', type=float, default=get_float(config.get('kratio')))
-parser.add_argument('--mpid', type=str, nargs='+', default=None, help='Enter number of mpids')
-parser.add_argument('--lmxa6', type=bool, default=False)
-args = parser.parse_args(sys.argv[1:])
+parser.add_argument('--kkmesh', type=int, nargs=6, default=kkmesh)
+#parser.add_argument('--mpid', type=str, nargs='+', default=config.getint('mpid'))
+#parser.add_argument('--lmxa6', type=bool, default=False)
+args = parser.parse_args(sys.argv[1:]) #read auto directory.
+#print('args=',sys.argv[1:])
 print(args)
 
 sys.path.append(str(args.auto))
 import creplot
 
-args.kratio = round(float(args.kratio), 3)
+args.kratio = round(float(args.kratio), 8)
 args.dir = args.dir.resolve()
 
-if args.mpid:
-    args.mpid = [f for f in args.mpid if re.fullmatch(r'\d+', f)]
+#if args.mpid:
+#    args.mpid = [f for f in args.mpid if re.fullmatch(r'\d+', f)]
 if args.file:
     path_log = args.dir / f'log.{args.file}'
     path_lst = args.dir / args.file
@@ -61,7 +66,7 @@ if args.file:
     with path_lst.open('r') as f:
         for line in f:
             if len(line.strip()) == 0:  continue
-            if not line.split()[0].isdigit(): continue
+            if line.split()[0]=='#': continue #skip comment lines
             mag = line.split()[-1].rstrip()
             if mag not in ['NM','FM','AFM','FiM']:
                 mag = ''
@@ -78,13 +83,13 @@ if args.file:
                 del job_dict[num]
         except pd.errors.EmptyDataError:
             print('Error: log file is empty! skip reading')
-if args.mpid:
-    for mpid in args.mpid:
-        job_dict[mpid] = 'NM'
+#if args.mpid:
+#    for mpid in args.mpid:
+#        job_dict[mpid] = 'NM'
 joblist = list(job_dict.keys())
-print(joblist)
+print('joblist=',joblist)
 
-print('lmxa6= ',args.lmxa6)
+#print('lmxa6= ',args.lmxa6)
 print('job_mp core=',args.ncore)
 fout=path_log.open('a')
 
@@ -117,29 +122,34 @@ def change_directory(path):
 
     
 for i in joblist:
-    num = 'mp-'+i
+#    num = 'mp-'+i
+    num = i
     print()
-    print('num=', num)
+    print('MATERIAL=', num)
     num_dir = args.dir / num
     num_dir.mkdir(exist_ok=True)
     starttime=datetime.datetime.now()
     ordering = job_dict.get(i, '')
 
-    for k in args.koption:
+    kinit = args.koption
+    kitmx=3
+    for kadd in range(3): # k point choices. Need fixing.
+        k= kinit+ kadd*2
         calc = creplot.Calc(num,args.epath,args.ncore)
-        if k == args.koption[0]: option = [40, k]
-        else: option = [20, k]
-        if k == args.koption[-1]: option += ['-vtetra=F']
+        if k == kinit: kkoption = [40, k] #40 is number of max iterations
+        else:          kkoption = [20, k] #20 is number of max iterations
+        #if kadd == 2: kkoption += ['-vtetra=F']
 
-        with change_directory(num_dir):
+        with change_directory(num_dir): #go into material directory
             ### calc. LDA
             if Path('LDA').exists():
                 print('LDA calc. is already done! skip LDA calc. and go to QSGW calc.')
                 pass
             else:
-                out_LDA, errcode = calc.run_LDA(args.apikey,args.lmxa6,option,ordering,args.poscar,dict_errcode)
+                out_LDA, errcode = calc.run_LDA(args,args.apikey,kkoption,ordering,args.poscar,dict_errcode)
+                # lmxa6 removed.
                 if errcode == 1: # something wrong in k-mesh. run calc. again
-                    if option[1] == args.koption[-1]: # if the last k-mesh, save the result and go next
+                    if kadd== kitmx: # if the last k-mesh, save the result and go next
                         save_result(i, out_LDA, 'LDA', starttime)
                     continue
                 elif errcode == 0: # LDA converged or something wrong in calc. code
@@ -149,7 +159,7 @@ for i in joblist:
 
             ### calc. QSGW
             starttime = datetime.datetime.now()
-            out_GW = calc.run_QSGW(args.niter, args.bnd4all, args.gw80, args.kratio)
+            out_GW = calc.run_QSGW(args,args.niter, args.bnd4all, args.gw80, args.kratio)
             save_result(i, out_GW, 'GW', starttime)
             gap_GW = calc.gap_GW
             if gap_GW is None: pass

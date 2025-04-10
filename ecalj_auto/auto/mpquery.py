@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 import sys, os, configparser, argparse
 from datetime import datetime
+'''
+This script queries the Materials Project database for materials with specific properties and saves the results to a file.
+It allows users to specify various criteria such as the number of sites, elements, and other properties.
+The script uses the MPRester class from the mp_api.client module to interact with the Materials Project API.
+It also includes options for filtering materials based on their magnetic properties and whether they are theoretical or experimental.
+The script can save the queried materials in POSCAR format and includes options for refining the structure based on symmetry.'''
 
 
 ### Options
@@ -182,7 +188,8 @@ def get_list(dir_name):
             else:
                 mag_info = get_magnetic(doc.structure)
 
-            print(doc.material_id.strip('mp-'),
+#            print(doc.material_id.strip('mp-'),
+            print(doc.material_id,
                   doc.nsites,
                   doc.formula_pretty,
                   '{:.04f}'.format(doc.band_gap),

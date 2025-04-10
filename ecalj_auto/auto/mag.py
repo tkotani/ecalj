@@ -1,9 +1,6 @@
 from pymatgen.ext.matproj import MPRester
 from pymatgen.analysis.magnetism.analyzer import CollinearMagneticStructureAnalyzer as CMSA
 import re, shutil
-import subprocess
-
-
 
 element_data = {
     'H': 1, 'He': 2, 'Li': 3, 'Be': 4, 'B': 5, 'C': 6, 'N': 7, 'O': 8, 'F': 9, 'Ne': 10,
@@ -25,9 +22,13 @@ p_block = ['B', 'C', 'N', 'O', 'F', 'Ne', 'Al', 'Si', 'P', 'S', 'Cl', 'Ar', 'Ga'
 d_block = ['Sc', 'Ti', 'V', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Zn', 'Y', 'Zr', 'Nb', 'Mo', 'Tc', 'Ru', 'Rh', 'Pd', 'Ag', 'Cd', 'Hf', 'Ta', 'W', 'Re', 'Os', 'Ir', 'Pt', 'Au', 'Hg', 'Lu', 'Lr']
 f_block = ['La', 'Ce', 'Pr', 'Nd', 'Pm', 'Sm', 'Eu', 'Gd', 'Tb', 'Dy', 'Ho', 'Er', 'Tm', 'Yb', 'Ac', 'Th', 'Pa', 'U', 'Np', 'Pu', 'Am', 'Cm', 'Bk', 'Cf', 'Es', 'Fm', 'Md', 'No', 'Lr']
 
-
 class SetMag:
-
+    '''   Set the magnetic moment of each atom in the POSCAR file.
+    The magnetic moment is set in the following order:
+    1. Ferromagnetic (FM)
+    2. Ferrimagnetic (FiM)
+    3. Antiferromagnetic (AFM)
+    4. Non-magnetic (NM)'''
     def __init__(self, key, num, poscar, nr, ordering):
 
         self.num = num
