@@ -215,25 +215,31 @@ contains
     call tcn('mkpot')
     Printsmoothbackgroundcharge: if (qbg /= 0) then !
       rhobg = (3d0/4d0/pi*vol)**(1d0/3d0)
-      if(master_mpi)write(stdo,ftox)' Energy for background charge q=',ftod(qbg),'radius r=',rhobg,'E=9/5*q*q/r=',1.8d0*qbg*qbg/rhobg
+      if(master_mpi) write(stdo,ftox)' Energy for background charge q=',ftod(qbg),'radius r=',rhobg,'E=9/5*q*q/r=',1.8d0*qbg*qbg/rhobg
     endif Printsmoothbackgroundcharge
     SmoothPart: block
-      integer:: ife
+      integer:: ife,skipx,skipy
       call rhomom(orhoat, qmom,vsum) ! Multipole moments qmom is calculated
       call smves(qmom,gpot0,vval,hpot0_rv,smrho,smpot,vconst,smq,qsmc,fes,rhvsm0,rhvsm,zsum,vesrmt,qbg)!0th comp. of Estatic potential Ves and Ees
       if(master_mpi) then !.and.cmdopt0('--espot')) then !writeout electrostatic potential 
-         open(newunit=ife,file='estaticpot.dat')
-         write(ife,'(a)') "#part of estatic.pot:' correct m_mkpo.f90:L226 around if necessary"
-         ismpot = shape(smpot)
-         iy=1
-         do ix=1, ismpot(1),4
-         do iz=1, ismpot(3)
-            write(ife,'(3i5,2e16.8," !eV ")') iz,ix,iy,(smpot(ix,1,iz,1)+vconst)*rydberg()
-         enddo   
+        ismpot = shape(smpot)
+        open(newunit=ife,file='estaticpot.dat')
+        write(ife,'(a)') "# electrostatic potential along selected lines: Modify m_mkpo.f90:L227 around if necessary!"
+        write(ife,ftox)  "# real space mesh: ",ismpot(1:3)
+        skipx=4
+        skipy=ismpot(2)
+        if(cmdopt0('--estaticall')) skipx=1
+        if(cmdopt0('--estaticall')) skipy=1
+        do ix=1, ismpot(1),skipx
+          do iy=1, ismpot(2),skipy
+            do iz=1, ismpot(3)
+              write(ife,'(3i5,2e16.8," !ix iy iz smpot(eV) ")') ix,iy,iz,(smpot(ix,iy,iz,1)+vconst)*rydberg()
+            enddo
             write(ife,*)
-         enddo   
-         close(ife)
-      endif   
+          enddo
+        enddo
+        close(ife)
+      endif
       smag = merge(2d0*dreal(sum(smrho(:,:,:,1)))*vol/(n1*n2*n3) - smq,0d0,nsp==2) !mag mom  ! 2*nup-(nup-ndn) = nup-ndn
       novxc= present(novxc_)
       repsm=0d0;  repsmx=0d0;  repsmc=0d0;   rmusm=0d0;  rvmusm=0d0
