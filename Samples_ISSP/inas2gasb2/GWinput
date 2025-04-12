@@ -35,8 +35,6 @@ GaussSmear on ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr for
                          ! This stabilize convergence for metallic systems
                          ! This can be a default setting in the future
 keepEigen .false. 
-zmel_max_size 4
-MEMnmbatch 4
 ! ################################################# 
 <PRODUCT_BASIS> 
  tolerance to remove products due to poor linear-independency
