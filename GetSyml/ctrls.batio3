@@ -1,0 +1,11 @@
+#id  = BaTiO3
+%const bohr=0.529177 a=4.0073
+
+STRUC   ALAT={a}/{bohr}
+        PLAT=1 0 0 0 1 0  0 0 1
+
+SITE    ATOM=Ba POS=0.5 0.5 0.5
+        ATOM=Ti POS=0.0 0.0 0.0
+        ATOM=O  POS=0.5 0.0 0.0
+        ATOM=O  POS=0.0 0.5 0.0
+        ATOM=O  POS=0.0 0.0 0.5
