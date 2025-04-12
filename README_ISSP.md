@@ -30,7 +30,7 @@ pip install numpy pandas seekpath spglib pymatgen mp-api scipy plotly
 
 ## Server-Specific Information
 
-## System B: Othtaka
+## System B: Ohtaka
 
 1. Append the following to the end of `~/.bashrc`:
 ```bash
@@ -59,25 +59,25 @@ fi
 > Script for loading the required `modules` and starting MPS.
 
 ### about warning output
-:::info
-The following messages may appear on the log file of the calculation, but you can ignore them.
-```
-[cpu121:54969] 7 more processes have sent help message help-mpi-common-cuda.txt / dlopen failed
-[cpu121:54969] Set MCA parameter "orte_base_help_aggregate" to 0 to see all help / error messages
---------------------------------------------------------------------------
-The library attempted to open the following supporting CUDA libraries,
-but each of them failed.  CUDA-aware support is disabled.
-libcuda.so.1: cannot open shared object file: No such file or directory
-libcuda.dylib: cannot open shared object file: No such file or directory
-/usr/lib64/libcuda.so.1: cannot open shared object file: No such file or directory
-/usr/lib64/libcuda.dylib: cannot open shared object file: No such file or directory
-If you are not interested in CUDA-aware support, then run with
---mca opal_warn_on_missing_libcuda 0 to suppress this message.  If you are interested
-in CUDA-aware support, then try setting LD_LIBRARY_PATH to the location
-of libcuda.so.1 to get passed this issue.
-```
-:::
+
+> [!INFO]
+>The following messages may appear on the log file of the calculation, but you can ignore them.
+>```
+>[cpu121:54969] 7 more processes have sent help message help-mpi-common-cuda.txt / dlopen failed
+>[cpu121:54969] Set MCA parameter "orte_base_help_aggregate" to 0 to see all help / error messages
+>--------------------------------------------------------------------------
+>The library attempted to open the following supporting CUDA libraries,
+>but each of them failed.  CUDA-aware support is disabled.
+>libcuda.so.1: cannot open shared object file: No such file or directory
+>libcuda.dylib: cannot open shared object file: No such file or directory
+>/usr/lib64/libcuda.so.1: cannot open shared object file: No such file or directory
+>/usr/lib64/libcuda.dylib: cannot open shared object file: No such file or directory
+>If you are not interested in CUDA-aware support, then run with
+>--mca opal_warn_on_missing_libcuda 0 to suppress this message.  If you are interested
+>in CUDA-aware support, then try setting LD_LIBRARY_PATH to the location
+>of libcuda.so.1 to get passed this issue.
+>```
 
 ## Further Details
-ecalj's Othtaka & Kugui branches are already specialized for them.
+ecalj's Ohttaka & Kugui branches are already specialized for them.
 See [ecaljdoc](https://ecalj.github.io/ecaljdoc/guide/server_config) for the modification.
