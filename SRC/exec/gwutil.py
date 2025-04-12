@@ -21,7 +21,7 @@ def rm_files(files):
 def run_program(commandline, ncore=0,x0=0):
     import subprocess,datetime
     xdate=datetime.datetime.now() #today().isoformat()
-    mpirun='mpirun --bind-to none --map-by node -np %d '%ncore if ncore!=0 else ''
+    mpirun='srun -n %d '%ncore if ncore!=0 else ''
     run_command = mpirun + commandline
     if(x0==0):
         print(xdate,'  '+run_command,flush=True)

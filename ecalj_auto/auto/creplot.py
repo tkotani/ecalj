@@ -119,7 +119,7 @@ class Calc:
         return outc
 
     def run_lmf(self, fout,foute):
-        command1 = ['mpirun', '-np', self.ncore, self.epath/'lmf', self.num] + self.option_lmf
+        command1 = ['srun', '-n', self.ncore, self.epath/'lmf', self.num] + self.option_lmf
         command2 = ['tail', '-f', f'save.{self.num}']
         run_popen(command1, command2, fout, foute, 'a')
         return check_save(f'save.{self.num}')
