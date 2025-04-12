@@ -61,7 +61,7 @@ fi
 ### about warning output
 
 > [!INFO]
->The following messages may appear on the log file of the calculation, but you can ignore them.
+> The following messages may appear on the log file of the calculation, but you can ignore them.
 >```
 >[cpu121:54969] 7 more processes have sent help message help-mpi-common-cuda.txt / dlopen failed
 >[cpu121:54969] Set MCA parameter "orte_base_help_aggregate" to 0 to see all help / error messages

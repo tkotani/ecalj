@@ -4,7 +4,7 @@
 #SBATCH -n 512
 #SBATCH -c 2
 #SBATCH --job-name=inas4gasb4
-#SBATCH --ntasks-per-node=8
+#SBATCH --ntasks-per-node=64
 
 id=inas4gasb4
 ## QSGW cycle: number of cycles set to 1
