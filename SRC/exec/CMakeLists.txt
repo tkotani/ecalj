@@ -169,6 +169,7 @@ endforeach()
 ### GPU or MP version ####
 # 1:MP, 2:GPU, 3:GPU+MP
 # Some of sources are excluded because GPU or MP are not implemented.
+list(FILTER SOURCES EXCLUDE REGEX "main_hmagnon.f90")
 list(FILTER SOURCES EXCLUDE REGEX "main_hhomogas.f90")
 list(FILTER SOURCES EXCLUDE REGEX "main_hsfp0.f90")
 list(FILTER SOURCES EXCLUDE REGEX "sxcf_fal2.f90")
