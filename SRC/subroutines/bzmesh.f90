@@ -1,5 +1,6 @@
 subroutine bzmesh(plat,qb,ifac,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx)! Divides the reciprocal lattice into microcells
   use m_lgunit,only:stdo
+  use m_ext,only: sname
   !i  plat     :primitive lattice vectors
   !i  n1,n2,n3 :no. divisions for the 3 recip. latt. vecs; (see Remarks)
   !i  g,ng     :symmetry point group operations, and number
@@ -78,7 +79,7 @@ subroutine bzmesh(plat,qb,ifac,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx)! Divides 
                  if(sum(abs(xx-jj)) > tolq()) then
                     write(stdo,"(a,3f9.4,' ',3f9.4)") ' qp mapped to is not on k-mesh',v,v1
                     write(stdo,"(a,3f9.4,' ',3i5)")   '             x j=',xx,jj(1),jj(2),jj(3)
-                    open(newunit=ifi,file='bzmesh.err')
+                    open(newunit=ifi,file='bzmesh.'//trim(sname)//'.err')
                     write(ifi,*)'BZMESH: symops incompatible with this mesh'
                     close(ifi)
                     call rx('BZMESH: symops incompatible with this mesh')

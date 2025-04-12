@@ -256,8 +256,8 @@ class Calc:
             #errmsgs = check_save('llmf', n=3)
             #!for msg in errmsgs.split('\n'):
             #   if ('incompatible with this mesh' in msg) or ('qp mapped to is not on k-mesh' in msg):
-            if(os.path.exists('bzmesh.err')):
-                os.remove('bzmesh.err')
+            if(os.path.exists('bzmesh.'+num+'.err')):
+                os.remove('bzmesh.'+num+'.err')
                 print('Run lmf')
                 self.k_points = [koption[1]] * 3
                 kkk = 'nk1={} nk2={} nk3={}'.format(*self.k_points)
