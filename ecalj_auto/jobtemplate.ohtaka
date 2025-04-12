@@ -1,0 +1,19 @@
+#!/bin/sh
+#SBATCH -p i8cpu
+#SBATCH -N 2
+#SBATCH -n 128
+#SBATCH -c 2
+#SBATCH --ntasks-per-node=64
+
+# do not need to touch followings ##
+export OMP_NUM_THREADS=2
+py=pythonbin
+job=job_mp
+fin=infile
+out=dir_out
+fout=outfile
+ftouch=file_to_touch
+
+$py $job --file $fin --dir $out >> $fout 2>&1
+touch $ftouch
+
