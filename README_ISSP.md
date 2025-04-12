@@ -9,6 +9,7 @@ The default version of Python is outdated. We will prepare the latest Python in 
 
 1. Add the following settings to `~/.bashrc` for the automatic installation and activation of `mise`:
 ```bash ~/.bashrc
+export PATH="$HOME/.local/bin:$PATH"
 type mise > /dev/null 2>&1 || curl https://mise.run | sh
 eval "$(~/.local/bin/mise activate bash)"
 ```
