@@ -6,11 +6,11 @@ email: takaokotani@gmail.com
 LICENCE: [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.html)
 # ecalj: a suite of first-principles elecronic structure calculations
 
-## What can we do in ecalj package? (on github)
+## What can we do in ecalj package?
 
 1. **All electron full-potential PMT method**
    
-   Here the PMT method means; a mixed basis method of two kinds of augmented waves, that is, APW+MTO.
+   The PMT method means; a mixed basis method of two kinds of augmented waves, that is, APW+MTO.
    In other words, the PMT method= the linearized (APW+MTO) method, which is unique except the [Questaal](https://www.questaal.org/) having the same origin with ecalj. Our recent research shows that very localized MTOs (damping factor exp(-kappa r) where kappa \sim 1 a.u), together with APW (cutoff is \approx 3 Ry) works well to get reasonable convergences. We can perform atomic-position rexalxation at GGA/LDA level. Because of including APWs, we can describe the scattering states very well.
    
    The current PMT formulation is given in
@@ -19,7 +19,7 @@ LICENCE: [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.html)
    [2][KotaniKino2013, PMT applied to diatomic molecules](Document/PAPERandPRESENTATION/KotaniKino2013PMTMolecule.pdf).
 
    Since we have automatic settings for basis set paremeters, 
-   we don't need to be bothered with the parameter settings. Just crystal structure (cif,POSCAR) are needed for calculation. (In 2022, we implemented a command, job_mp, to perform automatic calculations only from the id of material project. job_mp seems working well, although we need some further developments.)
+   we don't need to be bothered with the parameter settings. Just crystal structure (cif,POSCAR) are needed for calculation. 
 
    In principle, it is possible to perform reasonable calculations just from crystal structures and
    very minimum setting. We have documents included about how to confirm calculations to be publicaiton quality. (but someghing still in progress..)
@@ -57,9 +57,10 @@ LICENCE: [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.html)
    Brillowin Zone and symmetry lines are automatically drawn with matplotlib (we need minor fixing...).
    
 ## Install and automatic test
-  After we get package from github, together with some standard tools, we do execute an automatic installer and test system. This is just by a command. Tests are for Linux with gfortran and ifort. See [README_Install.org](README_Install.org).
+  After we get package from github, together with some standard tools, we do execute an automatic installer and test system. This is just by a command. Tests are for Linux with gfortran and ifort. See [README_Install.org](README_Install.org). In addition, we have GPU version now.
 
 ## Manuals, Documents, Samples for ecalj 
+xxx under renewing xxx
 We have manuals and presentations of ecalj at [.Document/](./Document). Especially, [ecaljmanual.pdf](./Document/Manual/ecaljmanual.pdf) is the main manual. Read "LDA/GGA calculations and Plots" at first (but some part become obsolate---I have to revise)
 QSGW calculations can be performed easily after you learend the procedure. Band plot and so on are in the same manner of the LDA calculations, althogh QSGW is computationally expensive (roughly 100~1000 times expensive. We ara going to use GPU now.).
 
@@ -72,7 +73,7 @@ See Section.4. of [./Document/Manual/ecaljmanual.pdf]().
 
 ## Very minimum to run ecalj
 
-In Japanese, see a page by Dr.Gomi at http://gomisai.blog75.fc2.com/blog-entry-675.html (and others. Use search engine.)
+In Japanese, see a page by Dr.Gomi at http://gomisai.blog75.fc2.com/blog-entry-675.html and https://qiita.com/takaokotani/items/9bdf5f1551000771dc48.
 
 1. write structure file ctrls.si by hand 
     (you can generate ctrls from POSCAR(VASP) with vasp2ctrl in
@@ -83,23 +84,12 @@ In Japanese, see a page by Dr.Gomi at http://gomisai.blog75.fc2.com/blog-entry-6
    Then you have default ctrl.si (rename ctrlgenM1.ctr.si to ctrl.si). 
    Edit number of k points, spin (nsp=0 or 1) and so on if necessary.
 
-3. Run "lmfa si" to prepare atoms (very quick).Then run 'mpirun -np 4 lmf-MPIK si'.
+3. Run "lmfa si" to prepare atoms (very quick).Then run 'mpirun -np 4 lmf si'.
     This generates rst.si, which contains self-consistent density in LDA.
     Postprocessing for energy bands are job_band si, job_tdos, job_pdos are also available.
     For job_band, you need symmetry line file syml.si, which can be generated at the method implemented in GetSyml/
 
->>> NOTE: If you like to skip steps (1)-(3),  run ./job_materials.py Si at ./MATERIALS/. Then
->>>```bash
->>> >cd Si
->>> >cp ../syml.si
->>> >job_band si
->>>```
->>> This shows energy bands in LDA in gnuplot. To generate syml.si, we can use
->>> ecalj/GetSyml/getsyml.py. When it is correctly installed (see below),  
->>> ```bash
->>> >getsyml si
->>> ```
->>> should generate a syml.si from ctrl.si. You can edit it and run job_band.
+should generate a syml.si from ctrl.si. You can edit it and run job_band.
 
 4. For PMT-QSGW, make GWinput.tmp by mkGWIN_v2 si. Copy GWinput.tmp as GWinput.
 
