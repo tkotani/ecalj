@@ -4,7 +4,7 @@ import sys
 
 def run_arg(argin, mpi_size, nfpgw, command, output, *target):
     echo_run = True  # standard
-    mpi_run = f"mpirun -np {mpi_size}"  # standard
+    mpi_run = f"srun -n {mpi_size}"  # standard
 
     target_str = ' '.join(target)
     command_str = f"{nfpgw}{command} {target_str}"

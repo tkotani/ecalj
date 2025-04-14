@@ -33,6 +33,9 @@ pip install numpy pandas seekpath spglib pymatgen mp-api scipy plotly
 
 ## System B: Ohtaka
 
+0. At first, copy files to ecalj/SRC/exec
+   See ecalj/SRC/ISSPohtaka/README.md
+   
 1. Append the following to the end of `~/.bashrc`:
 ```bash
 ulimit -s unlimited
@@ -42,6 +45,8 @@ module load openmpi/4.1.5-oneapi-2023.0.0-classic
 ```
 
 ## System C: Kugui
+0. At first, copy files to ecalj/SRC/exec
+   See ecalj/SRC/ISSPkugui/README.md
 
 1. Append the following to the end of `~/.bashrc`:
 ```bash
