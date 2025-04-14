@@ -2,6 +2,10 @@
 
 Temporary file sizes will be large; therefore, it is recommended to perform calculations in the work directory.
 Use a copied Sample directory for calculations to keep the original files.
+
+Note inas2gasb2 means inas2gasb2_ohtaka or inas2gasb2_kugui.
+Take diff inas2gasb2_ohtaka or inas2gasb2_kugui. It shows only the difference is the memory contral option given in GWinput.
+
 ```
 cp -r ./inas2gasb2 YOUR WORK DIRECOTRY
 ```
