@@ -9,5 +9,6 @@ module load nvhpc-nompi/24.7 openmpi_nvhpc compiler-rt tbb mkl
 
 export PATH=$HOME/bin:$PATH
 
+cp SRC/ISSPkugui/run_arg.py SRC/ISSPkugui/job_tdos SRC/ISSPkugui/gwutil.py SRC/exec/
 rm -rf SRC/TestInstall/bin
 FC=nvfortran ./InstallAll --gpu
