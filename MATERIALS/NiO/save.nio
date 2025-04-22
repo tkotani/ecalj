@@ -1,242 +1,30 @@
-Start LMF --afsym nio
-i mmom=-0.0000 ehf(eV)=-86704.366209 ehk(eV)=-86704.365387 sev(eV)=-142.172451
-c mmom=-0.0000 ehf(eV)=-86704.366209 ehk(eV)=-86704.365387 sev(eV)=-142.172491
-Start LMF nio
-i mmom=-0.0000 ehf(eV)=-86704.366209 ehk(eV)=-86704.365386 sev(eV)=-142.172526
-c mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365386 sev(eV)=-142.172557
-Start LMF --afsym nio
-i mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172584
-c mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172607
-Start LMF --afsym --time=5,2 nio
-i mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172628
-c mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172646
-Start LMF --afsym nio
-i mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172662
-c mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172676
-Start LMF --afsym --time=0,2 nio
-i mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172688
-c mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172699
-Start LMF --afsym --time=2,0 nio
-i mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172708
-c mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172716
-Start LMF --afsym --time=2,1 nio
-i mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172723
-c mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172730
-Start LMF --afsym --time=2,2 nio
-i mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172735
-c mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172740
-Start LMF --afsym --time=1,1 nio
-i mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172744
-c mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172748
-Start LMF --afsym --time=0,0 nio
-i mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172751
-c mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172754
-Start LMF --afsym --time=0,0 nio
-Start LMF --afsym --time=0,0 nio
-i mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172757
-c mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172759
-Start LMF --afsym nio
-i mmom=-0.000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172761
-c mmom=-0.000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172763
-Start LMF --afsym nio
-Start LMF --afsym nio
-i mmom=-0.000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172764
-c mmom=-0.000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172766
-Start LMF --afsym --time= nio
-Start LMF --afsym --time=3,4 nio
-i mmom=-0.000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172767
-Start LMF --afsym --time=5,5 nio
-i mmom=-0.000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172768
-c mmom=-0.000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172769
-Start LMF --afsym nio
-i mmom=-0.000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172769
-c mmom=-0.000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172770
-Start LMF --afsym nio
-i mmom=-0.000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172771
-c mmom=-0.000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172771
-Start LMF --afsym --time=5,5 nio
-i mmom=-0.000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172772
-c mmom= 0.000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172772
-Start LMF --afsym --time=5,5 nio
-i mmom=-0.000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172772
-c mmom=-0.000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172773
-Start LMF --afsym nio
-i mmom=-0.000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172773
-c mmom= 0.000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365387 sev(eV)=-142.172773
-Start LMF nio
-i mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365386 sev(eV)=-142.172773
-Start LMCHK nio
-Start LMF nio
-i mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365386 sev(eV)=-142.172774
-c mmom=-0.0000 ehf(eV)=-86704.366210 ehk(eV)=-86704.365386 sev(eV)=-142.172775
-Start LMF nio --afsym
-i mmom= 0.0000 ehf(eV)=-86704.366277 ehk(eV)=-86704.366119 sev(eV)=-142.258294
-Start LMF nio --afsym --quit=band
-i mmom= 0.0000 ehf(eV)=-86704.366275 ehk(eV)=-86704.366116 sev(eV)=-142.258023
-Start LMF nio --quit=band
-i mmom=-0.0000 ehf(eV)=-86704.366266 ehk(eV)=-86704.366104 sev(eV)=-142.258013
-Start LMF nio --afsym --quit=band
-i mmom= 0.0000 ehf(eV)=-86704.366275 ehk(eV)=-86704.366116 sev(eV)=-142.258023
-Start LMF nio --afsym --quit=band
-i mmom= 0.0000 ehf(eV)=-86704.366275 ehk(eV)=-86704.366116 sev(eV)=-142.258023
-Start LMF nio --afsym --quit=band
-i mmom= 0.0000 ehf(eV)=-86704.366275 ehk(eV)=-86704.366116 sev(eV)=-142.258023
-Start LMF nio --afsym --quit=band
-i mmom= 0.0000 ehf(eV)=-86704.366275 ehk(eV)=-86704.366116 sev(eV)=-142.258023
-Start LMF nio --afsym --quit=band
-i mmom= 0.0000 ehf(eV)=-86704.366275 ehk(eV)=-86704.366116 sev(eV)=-142.258023
 Start LMFA nio
-Start LMFGWD --jobgw=0 nio
-Start LMCHK nio
 Start LMF nio
-h mmom=-0.0000 ehf(eV)=-86705.100336 ehk(eV)=-86703.149715 sev(eV)=-167.579897
-i mmom=-0.0000 ehf(eV)=-86704.522591 ehk(eV)=-86704.156926 sev(eV)=-155.972631
-i mmom=-0.0000 ehf(eV)=-86704.347516 ehk(eV)=-86704.173880 sev(eV)=-132.663198
-i mmom=-0.0000 ehf(eV)=-86704.365907 ehk(eV)=-86704.239689 sev(eV)=-133.836442
-i mmom=-0.0000 ehf(eV)=-86704.358332 ehk(eV)=-86704.360653 sev(eV)=-141.385148
-i mmom=-0.0000 ehf(eV)=-86704.359763 ehk(eV)=-86704.361562 sev(eV)=-141.523245
-i mmom=-0.0000 ehf(eV)=-86704.361425 ehk(eV)=-86704.362832 sev(eV)=-141.695747
-i mmom=-0.0000 ehf(eV)=-86704.367418 ehk(eV)=-86704.366476 sev(eV)=-142.456453
-i mmom=-0.0000 ehf(eV)=-86704.366674 ehk(eV)=-86704.365840 sev(eV)=-142.293117
-i mmom=-0.0000 ehf(eV)=-86704.366009 ehk(eV)=-86704.365203 sev(eV)=-142.120200
-i mmom= 0.0000 ehf(eV)=-86704.365975 ehk(eV)=-86704.365178 sev(eV)=-142.112759
-i mmom=-0.0000 ehf(eV)=-86704.366080 ehk(eV)=-86704.365283 sev(eV)=-142.131880
-i mmom= 0.0000 ehf(eV)=-86704.366148 ehk(eV)=-86704.365335 sev(eV)=-142.148917
-i mmom=-0.0000 ehf(eV)=-86704.366166 ehk(eV)=-86704.365363 sev(eV)=-142.153360
-i mmom=-0.0000 ehf(eV)=-86704.366184 ehk(eV)=-86704.365378 sev(eV)=-142.158915
-i mmom=-0.0000 ehf(eV)=-86704.366179 ehk(eV)=-86704.365371 sev(eV)=-142.158634
-i mmom=-0.0000 ehf(eV)=-86704.366186 ehk(eV)=-86704.365372 sev(eV)=-142.161898
-i mmom=-0.0000 ehf(eV)=-86704.366189 ehk(eV)=-86704.365378 sev(eV)=-142.162575
-i mmom=-0.0000 ehf(eV)=-86704.366195 ehk(eV)=-86704.365384 sev(eV)=-142.165005
-i mmom=-0.0000 ehf(eV)=-86704.366196 ehk(eV)=-86704.365384 sev(eV)=-142.166318
-i mmom=-0.0000 ehf(eV)=-86704.366196 ehk(eV)=-86704.365383 sev(eV)=-142.167031
-i mmom=-0.0000 ehf(eV)=-86704.366196 ehk(eV)=-86704.365384 sev(eV)=-142.167681
-i mmom=-0.0000 ehf(eV)=-86704.366197 ehk(eV)=-86704.365384 sev(eV)=-142.168424
-i mmom=-0.0000 ehf(eV)=-86704.366197 ehk(eV)=-86704.365384 sev(eV)=-142.169052
-c mmom=-0.0000 ehf(eV)=-86704.366197 ehk(eV)=-86704.365384 sev(eV)=-142.169270
-Start LMFAnio
-Start LMFAnio
-Start LMFAnio
-Start LMFAnio
+h mmom= 0.0000 ehf(eV)=-86705.100499 ehk(eV)=-86703.149652 sev(eV)=-167.580060
+i mmom=-0.0000 ehf(eV)=-86704.522752 ehk(eV)=-86704.157082 sev(eV)=-155.974909
+i mmom=-0.0000 ehf(eV)=-86704.429481 ehk(eV)=-86703.950730 sev(eV)=-126.586865
+i mmom= 0.0000 ehf(eV)=-86704.368915 ehk(eV)=-86704.221638 sev(eV)=-132.928098
+i mmom=-0.0000 ehf(eV)=-86704.354537 ehk(eV)=-86704.353332 sev(eV)=-140.253756
+i mmom=-0.0000 ehf(eV)=-86704.356175 ehk(eV)=-86704.355996 sev(eV)=-140.601551
+i mmom= 0.0000 ehf(eV)=-86704.359728 ehk(eV)=-86704.360876 sev(eV)=-141.286958
+i mmom= 0.0000 ehf(eV)=-86704.365653 ehk(eV)=-86704.365454 sev(eV)=-142.234797
+i mmom= 0.0000 ehf(eV)=-86704.370746 ehk(eV)=-86704.368602 sev(eV)=-143.115676
+i mmom= 0.0000 ehf(eV)=-86704.366404 ehk(eV)=-86704.365618 sev(eV)=-142.216893
+i mmom=-0.0000 ehf(eV)=-86704.366474 ehk(eV)=-86704.365677 sev(eV)=-142.230771
+i mmom= 0.0000 ehf(eV)=-86704.366324 ehk(eV)=-86704.365526 sev(eV)=-142.191743
+i mmom=-0.0000 ehf(eV)=-86704.366250 ehk(eV)=-86704.365452 sev(eV)=-142.160751
+i mmom=-0.0000 ehf(eV)=-86704.366241 ehk(eV)=-86704.365441 sev(eV)=-142.149640
+i mmom= 0.0000 ehf(eV)=-86704.366271 ehk(eV)=-86704.365468 sev(eV)=-142.159155
+i mmom=-0.0000 ehf(eV)=-86704.366272 ehk(eV)=-86704.365466 sev(eV)=-142.159568
+i mmom=-0.0000 ehf(eV)=-86704.366290 ehk(eV)=-86704.365483 sev(eV)=-142.164687
+i mmom=-0.0000 ehf(eV)=-86704.366297 ehk(eV)=-86704.365488 sev(eV)=-142.167248
+i mmom=-0.0000 ehf(eV)=-86704.366300 ehk(eV)=-86704.365491 sev(eV)=-142.169012
+i mmom=-0.0000 ehf(eV)=-86704.366302 ehk(eV)=-86704.365493 sev(eV)=-142.170262
+i mmom=-0.0000 ehf(eV)=-86704.366304 ehk(eV)=-86704.365493 sev(eV)=-142.171229
+c mmom= 0.0000 ehf(eV)=-86704.366305 ehk(eV)=-86704.365494 sev(eV)=-142.172015
 Start LMF nio
-i mmom=-0.0000 ehf(eV)=-86704.366121 ehk(eV)=-86704.365302 sev(eV)=-142.169623
+i mmom= 0.0000 ehf(eV)=-86704.366305 ehk(eV)=-86704.365494 sev(eV)=-142.172675
+c mmom=-0.0000 ehf(eV)=-86704.366306 ehk(eV)=-86704.365495 sev(eV)=-142.173241
 Start LMF nio
-i mmom= 0.0000 ehf(eV)=-86704.366217 ehk(eV)=-86704.365407 sev(eV)=-142.169984
-c mmom=-0.0000 ehf(eV)=-86704.366189 ehk(eV)=-86704.365377 sev(eV)=-142.170486
-Start LMF nio
-i mmom= 0.0000 ehf(eV)=-86704.366199 ehk(eV)=-86704.365387 sev(eV)=-142.170707
-c mmom=-0.0000 ehf(eV)=-86704.366197 ehk(eV)=-86704.365384 sev(eV)=-142.170991
-Start LMF nio
-i mmom=-0.0000 ehf(eV)=-86704.366198 ehk(eV)=-86704.365386 sev(eV)=-142.171207
-c mmom=-0.0000 ehf(eV)=-86704.366198 ehk(eV)=-86704.365386 sev(eV)=-142.171407
-Start LMF nio
-i mmom=-0.0000 ehf(eV)=-86704.366199 ehk(eV)=-86704.365386 sev(eV)=-142.171577
-c mmom=-0.0000 ehf(eV)=-86704.366199 ehk(eV)=-86704.365387 sev(eV)=-142.171727
-Start LMF nio
-i mmom=-0.0000 ehf(eV)=-86704.366199 ehk(eV)=-86704.365387 sev(eV)=-142.171858
-c mmom=-0.0000 ehf(eV)=-86704.366200 ehk(eV)=-86704.365387 sev(eV)=-142.171973
-Start LMF nio
-i mmom=-0.0000 ehf(eV)=-86704.366200 ehk(eV)=-86704.365388 sev(eV)=-142.172073
-c mmom=-0.0000 ehf(eV)=-86704.366200 ehk(eV)=-86704.365388 sev(eV)=-142.172161
-Start LMFnio
-i mmom=-0.0000 ehf(eV)=-86704.366200 ehk(eV)=-86704.365388 sev(eV)=-142.172238
-c mmom=-0.0000 ehf(eV)=-86704.366200 ehk(eV)=-86704.365388 sev(eV)=-142.172305
-Start LMFnio
-i mmom=-0.0000 ehf(eV)=-86704.366200 ehk(eV)=-86704.365388 sev(eV)=-142.172364
-c mmom=-0.0000 ehf(eV)=-86704.366201 ehk(eV)=-86704.365388 sev(eV)=-142.172416
-Start LMCHK nio
-Start LMCHK nio
-Start LMFAnio
-Start LMFAnio
-Start LMFAnio
-Start LMFAnio
-Start LMFAnio
-Start LMFAnio
-Start LMFAnio
-Start LMFAnio
-Start LMFAnio
-Start LMFnio
-i mmom=-0.0000 ehf(eV)=-86704.366201 ehk(eV)=-86704.365388 sev(eV)=-142.172461
-c mmom=-0.0000 ehf(eV)=-86704.366201 ehk(eV)=-86704.365388 sev(eV)=-142.172501
-Start LMFAnio
-Start LMFAnio
-Start LMFAnio
-Start LMFAnio
-Start LMFAnio
-Start LMFAnio
-Start LMFAnio
-Start LMFnio
-i mmom=-0.0000 ehf(eV)=-86704.366201 ehk(eV)=-86704.365389 sev(eV)=-142.172535
-c mmom=-0.0000 ehf(eV)=-86704.366201 ehk(eV)=-86704.365389 sev(eV)=-142.172566
-Start LMFAnio
-Start LMFnio
-i mmom=-0.0000 ehf(eV)=-86704.366201 ehk(eV)=-86704.365389 sev(eV)=-142.172742
-c mmom=-0.0000 ehf(eV)=-86704.366201 ehk(eV)=-86704.365389 sev(eV)=-142.172747
-Start LMFnio
-i mmom=-0.0000 ehf(eV)=-86704.366201 ehk(eV)=-86704.365389 sev(eV)=-142.172751
-c mmom=-0.0000 ehf(eV)=-86704.366201 ehk(eV)=-86704.365389 sev(eV)=-142.172755
-Start LMFnio
-i mmom=-0.0000 ehf(eV)=-86704.366201 ehk(eV)=-86704.365389 sev(eV)=-142.172758
-c mmom=-0.0000 ehf(eV)=-86704.366201 ehk(eV)=-86704.365389 sev(eV)=-142.172761
-Start LMFnio
-Start LMFnio
-i mmom=-0.0000 ehf(eV)=-86704.366201 ehk(eV)=-86704.365389 sev(eV)=-142.172763
-c mmom=-0.0000 ehf(eV)=-86704.366201 ehk(eV)=-86704.365389 sev(eV)=-142.172765
-Start LMF nio --quit=band
-i mmom=-0.0000 ehf(eV)=-86704.369131 ehk(eV)=-86704.364597 sev(eV)=-142.535200
-Start LMF nio --band
-Start LMF nio --quit=band
-i mmom=-0.0000 ehf(eV)=-86704.369131 ehk(eV)=-86704.364597 sev(eV)=-142.535200
-Start LMF nio --band
-Start LMF nio --quit=band
-i mmom=-0.0000 ehf(eV)=-86704.369131 ehk(eV)=-86704.364597 sev(eV)=-142.535200
-Start LMF nio --mkprocar --fullmesh
-Start LMF nio --tdos -emax=20.0 -ndos=2000
-Start LMF nio --quit=band
-i mmom=-0.0000 ehf(eV)=-86704.369131 ehk(eV)=-86704.364597 sev(eV)=-142.535200
-Start LMF nio --band
-Start LMF nio --quit=band
-i mmom=-0.0000 ehf(eV)=-86704.369131 ehk(eV)=-86704.364597 sev(eV)=-142.535200
-Start LMF nio --mkprocar --fullmesh
-Start LMF nio --quit=band
-i mmom=-0.0000 ehf(eV)=-86704.369131 ehk(eV)=-86704.364597 sev(eV)=-142.535200
-Start LMF nio --mkprocar --fullmesh
-Start LMF nio --mkprocar --fullmesh
-Start LMF nio --mkprocar --fullmesh
-Start LMF nio --mkprocar --fullmesh
-Start LMF nio --mkprocar --fullmesh
-Start LMF nio --mkprocar --fullmesh
-Start LMF nio --mkprocar --fullmesh
-Start LMF nio --mkprocar --fullmesh
-Start LMF nio --mkprocar --fullmesh --writedwgt
-Start LMF nio --mkprocar --fullmesh
-Start LMF nio --quit=band --writedwgw
-i mmom=-0.0000 ehf(eV)=-86704.369131 ehk(eV)=-86704.364597 sev(eV)=-142.535200
-Start LMF nio --band --writedwgw
-Start LMF nio --quit=band --writedwgw
-i mmom=-0.0000 ehf(eV)=-86704.369131 ehk(eV)=-86704.364597 sev(eV)=-142.535200
-Start LMF nio --mkprocar --fullmesh --writedwgw
-Start LMF nio --quit=band --writedwgw
-i mmom=-0.0000 ehf(eV)=-86704.369131 ehk(eV)=-86704.364597 sev(eV)=-142.535200
-Start LMF nio --mkprocar --fullmesh --writedwgw
-Start LMF nio --quit=band
-i mmom=-0.0000 ehf(eV)=-86704.369131 ehk(eV)=-86704.364597 sev(eV)=-142.535200
-Start LMF nio --mkprocar --fullmesh
-Start LMF nio --quit=band
-i mmom=-0.0000 ehf(eV)=-86704.369131 ehk(eV)=-86704.364597 sev(eV)=-142.535200
-Start LMF nio --mkprocar --fullmesh
-Start LMF nio --quit=band
-i mmom=-0.0000 ehf(eV)=-86704.369131 ehk(eV)=-86704.364597 sev(eV)=-142.535200
-Start LMF nio --mkprocar --fullmesh
-Start LMF nio --quit=band
-i mmom=-0.0000 ehf(eV)=-86704.369131 ehk(eV)=-86704.364597 sev(eV)=-142.535200
-Start LMF nio --mkprocar --fullmesh
-Start LMF nio --quit=band --writedw
-i mmom=-0.0000 ehf(eV)=-86704.369131 ehk(eV)=-86704.364597 sev(eV)=-142.535200
-Start LMF nio --mkprocar --fullmesh --writedw
-Start LMF nio --quit=band --writedw
-i mmom=-0.0000 ehf(eV)=-86704.369131 ehk(eV)=-86704.364597 sev(eV)=-142.535200
-Start LMF nio --mkprocar --fullmesh --writedw
-Start LMF nio --quit=band --writedw
-i mmom=-0.0000 ehf(eV)=-86704.369131 ehk(eV)=-86704.364597 sev(eV)=-142.535200
-Start LMF nio --mkprocar --fullmesh --writedw
+i mmom=-0.0000 ehf(eV)=-86704.366307 ehk(eV)=-86704.365495 sev(eV)=-142.173731
+c mmom=-0.0000 ehf(eV)=-86704.366307 ehk(eV)=-86704.365496 sev(eV)=-142.174158

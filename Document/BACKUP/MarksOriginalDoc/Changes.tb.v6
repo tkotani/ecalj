@@ -1,9 +1,0 @@
-TBE 6.1 corrected erroneously permuted hamiltonian blocks 
-h_R'L',RL -> h_RL,R'L' in (files tbloch.f and addves.f of) TBE 5.x
-and earlier versions.  This has the following consequences:
-
-1.  The spin orbit coupling TBE 5.x was slightly incorrect.
-
-2.  The matrix elements coupling neighbors (i,j) in the ME category was
-    in fact (j,i). To make TBE 6.1 input file compatible with 5.x,
-    permute (i,j) couplings with (j,i) couplings in category ME.

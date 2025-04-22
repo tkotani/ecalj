@@ -401,13 +401,12 @@ contains
            real(8):: pnur,pzav(n0),pnav(n0),pzsp_r(n0,nsp,nspec),pnusp_r(n0,nsp,nspec)
            character(8):: charext
            if(trim(prgnam)/='LMFA'.and.trim(prgnam)/='LMCHK'.and.ReadPnu) then
-              !    if(trim(prgnam)/='LMFA'.and.ReadPnu.and.z(j)>1.001) then
+              if(master_mpi) write(stdo,*)'READP=T: read pnu from atmpnu.*'
               pzsp_r =0d0
               pnusp_r=0d0
               open(newunit=ifipnu,file='atmpnu.'//trim(charext(j))//'.'//trim(sname))
               do
                  read(ifipnu,*,end=1015) pnur,iz,lr,isp
-                 if(master_mpi) write(stdo,*)'READP=T: read pnu from atmpnu.*'
                  if(iz==1) pzsp_r (lr+1,isp,j)= pnur ! +10d0 caused probelm for 3P of Fe.
                  if(iz==0) pnusp_r(lr+1,isp,j)= pnur
                  lrmx=lr

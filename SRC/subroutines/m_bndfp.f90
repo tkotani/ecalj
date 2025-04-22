@@ -130,7 +130,6 @@ contains
     real(8):: fh_rv(3,nbas),vmag,eee,dosi(2),dee,efermxxx,emin,qvalm(2)
     real(8),allocatable:: dosi_rv(:,:),dos_rv(:,:) 
     real(8),parameter::  NULLR =-99999,pi=4d0*datan(1d0)
-    real(8):: elind=0d0
     call tcn ('bndfp')
     debug  = cmdopt0('--debugbndfp')
     tdos   = cmdopt0('--tdos')  !total dos mode or not

@@ -91,7 +91,7 @@ contains
     type(s_rv1) :: sv_p_orhnew(3,nbas)
     character sout*80,fnam*8
     character(20) :: ext
-    logical::  mixrealsmooth, init=.true., initd=.true. !noelind,
+    logical::  mixrealsmooth, init=.true., initd=.true. 
     integer :: numprocs, ierr,isp,nnnx,ng02,ng2, iprint, iter,procid,master
     integer :: i,ib,ipl,ipr,is,k0, lmxl,nlml,nr,nmixr,nda,ifi,kkk,nnnew,nnmix,nx,nkill,naa,kmxr,kmxs,locmix,offx,off2,nlmlx,ng0
     integer,save:: broy,nmix,mxsav

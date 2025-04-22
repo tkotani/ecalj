@@ -635,17 +635,23 @@ contains
               m  = mindx(ix)
               ic = iclass(ib)
               nm = nvmax(l,ic)
-              cphix (iord(m,1:nm,l,ib),ispc,iband) = &
+              cphix      (iord(m,1:nm,l,ib),ispc,iband) = &
                    cphix (iord(m,1:nm,l,ib),ispc,iband) + zzpi(1:nm,n,l,ic,ispx)*cphi(ix,iband,ispc)
             enddo
           enddo
        enddo
        if(debug)write(stdo,ftox)' writechpigeig 2222'
        iqqisp= isp + nsp*(iq-1)
+!!!!!
+! ppj
+!    call mkppovl2(alat,plat,qlat, ngp,  ngvecp(:,:,iq),  ngp,  ngvecp(:,:,iq), nbas, rmax, pos, ppovl)
+!    call GramSchmidt2(nspc,nev,ndima,ngp,ngpmx, ppj(1:ndima,1:ndima,ispin,0),ppovl, cphi1,geig1) !Improve Orthogon. cf. norm.procid.*.chk
+       
        cphix(1:ndima,1:nspc,nev+1:nbandmx)=1d20 !padding 
        i=writem(ifcphim,rec=iqqisp,data=cphix(1:ndima,1:nspc,1:nbandmx)) 
        if(ngpmx/=0) geigr(1:ngpmx,1:nspc,nev+1:nbandmx)=1d20   ! padding
        if(ngpmx/=0) i=writem(ifgeigm,rec=iqqisp,data=geigr(1:ngpmx,1:nspc,1:nbandmx))
+       
        if(debug)write(stdo,ftox)'end of writechpigeig'  
      endblock WriteCphiGeig
      if(debug)write(stdo,ftox)' writechpigeig 1001'  
