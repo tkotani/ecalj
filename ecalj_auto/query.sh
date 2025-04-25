@@ -1,14 +1,22 @@
 #!/bin/bash
+# I use pymatgen 2024.10.3 with Python 3.13.3
+#       pymatgen 2023.5.10 with Python 3.9.13
+
 time=$(date +"%Y%m%d-%H%M%S")
 dir=$time
 ### for test (Si Ga Al)
-./auto/mpquery.py --nsites 1 2 --include Si Ga Al --dir=testSGAXXX
+./auto/mpquery.py --nsites 1 2 --include Si Ga Al --dir=testSGAtest
+
+exit
+
 #./auto/mpquery.py --nsites 1 2 --include Si Ga Al --dir=$dir/SimpleTest
 #./auto/mpquery.py --nsites 2 3 --fname joblist_nsites3 --dir=testSGA_nsite23
 
 ### gw1000 ###
 #./auto/mpquery.py --dir=$dir/default
 ./auto/mpquery.py --dir=gw1000
+./auto/mpquery.py --dir=gw1500 --nsites 1 8 
+
 ### a sample including Tl only but with the gw1000 condition. No LN AC, only expt
 #./auto/mpquery.py --include Tl --dir testTl
 
