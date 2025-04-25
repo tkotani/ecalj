@@ -185,6 +185,7 @@ class Calc:
                 run_command(jjob, out=file_out)
 
     def run_LDA(self, args, key,  koption, ordering, path_poscar, errcode): #lmxa6 need to be given at ctrlgenM1.py
+        print('---- run_LDA -----------------')
         num = self.num
         epath = self.epath
         print(Path.cwd())
@@ -246,7 +247,7 @@ class Calc:
 
         ### Run lmf
         outc = self.run_lmf('llmf','llmf.err')
-        print('lmf finished')
+        print('--- lmf finished')
 
         ### Check convergence and if k-mesh is appropreate or not
         conv = outc.split()[0]
@@ -266,6 +267,7 @@ class Calc:
                 conv = outc.split()[0]
                 if conv == 'c':
                     self.kmesh_cube = True
+                    return f'{conv} {kkk}', errcode['conv=c']  # errcode['kmesh']
                 return f'{conv} {kkk}', errcode['kmesh']
             else:
                 return 'ERROR: lmf', errcode['others']
