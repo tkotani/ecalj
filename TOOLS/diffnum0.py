@@ -44,8 +44,8 @@ def comparenum(tol,file1,file2,comparekeys,printsw):
 
 		while ix1 < len(oxx):
 			ix1 = ix1+1
-			iline= re.sub('D\+','e+',oxx[ix1])
-			iline= re.sub('D\-','e-',iline)
+			iline= re.sub(r'D\+','e+',oxx[ix1])
+			iline= re.sub(r'D\-','e-',iline)
 			iii1= iline.split()
 			if(not iii1 ==[]): break
 		#print	
@@ -53,8 +53,8 @@ def comparenum(tol,file1,file2,comparekeys,printsw):
 
 		while ix2 < len(oyy):
 			ix2 = ix2+1
-			ilin2= re.sub('D\+','e+',oyy[ix2])
-			ilin2= re.sub('D\-','e-',ilin2)
+			ilin2= re.sub(r'D\+','e+',oyy[ix2])
+			ilin2= re.sub(r'D\-','e-',ilin2)
 			iii2= ilin2.split()
 			if(not iii2 ==[]): break
 		#print '2=',ix2,iii2
