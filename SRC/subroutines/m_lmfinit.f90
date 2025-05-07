@@ -121,6 +121,8 @@ contains
     character*(8),allocatable::clabl(:)
     integer,allocatable:: idxdn(:,:,:) ,pnuspdefaulti(:,:)
     real(8),allocatable:: pnuspc(:,:,:),qnuc(:,:,:,:),pp(:,:,:,:),ves(:),zc(:) !    debug = cmdopt0('--debug')
+    integer,allocatable:: konfig(:,:),ncores(:),ndimaa(:)
+    integer:: ncoremx,ndima
     integer,optional:: commin
     integer:: comm !,nsizex,info
     comm=MPI_COMM_WORLD
@@ -756,6 +758,37 @@ contains
         endif
 9299    continue
       endblock ForceDYNsetting
+      ! MT part -----------------------
+      MTblock: block
+        real(8),pointer:: pnz(:,:)
+        integer:: ncore,konfz,konfigk
+        allocate(konfig(0:lmxax,nbas),ncores(nspec),ndimaa(nbas)) !,konf0(0:lmxax,nclass)
+        do ib=1,nbas
+          is = ispec(ib)
+!          ic = iclass(ib)
+          ncore=0
+          do l = 0, lmxa(is)
+            konfigk = floor(pnuall(l+1,1,ib))           !take isp=1 since spin-independent
+            konfz   = floor(mod(pnzall(l+1,1,ib),10d0))
+            if(konfz == 0) konfz = konfigk
+            ncore = ncore+min(konfz,konfigk)-1 -l
+            if (konfz < konfigk) then
+               konfig(l,ib) = konfz + 10
+            elseif (konfz > konfigk) then
+               konfig(l,ib) = konfigk + 20
+            else
+               konfig(l,ib)= konfigk
+            endif
+          enddo
+          ncores(is)=ncore
+          !        konf0(:,ic) = [(mod(konfig(l,ib),10),l=0,lmxa(is))]
+          pnz=>pnzall(:,1:nsp,ib)
+          if(sum(abs(pnz(:,1:nsp)-pnzall(:,1:nsp,ib)))>1d-9) call rx('sugw xxx1aaa')
+          ndimaa(ib) = sum([((2*l+1)*merge(3,2,pnz(l+1,1)>1d-10), l=0,lmxa(ispec(ib)))]) !!ndimaa is the augmented wave dimension CPHI dimension)
+        enddo
+        ncoremx= maxval(ncores)
+        ndima  =  sum(ndimaa)     !ndimax= maxval(ndima)
+      endblock MTblock
     endblock Stage3InitialSetting
     call MPI_BARRIER(comm, ierr)
     call tcx('m_lmfinit')

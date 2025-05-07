@@ -66,23 +66,25 @@ contains
          k2,k3,konf,l,ldim,loldpw, lsig,mx,mxint, ncore,nevl,nev,nglob,ngp,ngp_p, &
          ngpmx,nline,nlinemax,nlmax,nmx,nn1,nn2,nnn, kkk,mmm,n, &
          npqn,nqbz,nqnum,nqnumx,nqtot,nr,iqibz,imx,ifigwb,ifinormchk,ifigw1,ifildima,ifigwn,ifigwbhead,&
-         ispSS,ispEE,ispx,iqbk=-999,konfigk,konfz,icore2,icore2o,ic,nmcore,ifnlax,ifigwa,ifgeigm,ifcphim
-    real(8):: rsml(n0), ehl(n0) ,eferm,qval, vmag,vnow, QpGcut_psi,QpGcut_cou,dum,xx(5),a,z,vshft, qp(3),qpos,q_p(3), epsovl
+         ispSS,ispEE,ispx,iqbk=-999,konfigk,konfz,icore2,icore2o,ic,nmcore,ifnlax,ifigwa,ifgeigm,ifcphim,ixx,ix,nn
+    real(8):: rsml(n0), ehl(n0) ,eferm,qval, vmag,vnow, QpGcut_psi,QpGcut_cou,dum,xx(5),a,z,vshft, qp(3),qpos,q_p(3), epsovl,dq(3),qpx(3)
     real(8),allocatable:: rofi(:),rwgt(:), cphiw(:,:) 
     real(8),pointer:: pnu(:,:),pnz(:,:)
-    integer,allocatable :: konft(:,:,:),iiyf(:),ibidx(:,:),nqq(:),ndimaa(:)
+    integer,allocatable :: konft(:,:,:),iiyf(:),ibidx(:,:),nqq(:),ndimaa(:), m_indx(:),n_indx(:),l_indx(:),ibas_indx(:)
     complex(8),allocatable :: aus_zv(:,:,:,:,:), hamm(:,:,:,:),ovlm(:,:,:,:),ovlmtoi(:,:),ovliovl(:,:) ,hammhso(:,:,:)
     complex(8),allocatable:: evec(:,:),evec0(:,:),vxc(:,:,:,:),ppovl(:,:),phovl(:,:),pwh(:,:),pwz(:,:,:),pzovl(:,:,:), pwz0(:,:),&
-         testcc(:,:),testc(:,:,:),testcd(:,:),ppovld(:),cphi(:,:,:),cphi0(:,:,:),cphi_p(:,:,:),geig(:,:,:),geig_p(:,:,:),sene(:,:)
+         testcc(:,:),testc(:,:,:),testcd(:,:),ppovld(:),cphi(:,:,:),cphi0(:,:,:),cphi_p(:,:,:),geig(:,:,:),geig_p(:,:,:),sene(:,:),ppovlbk(:,:)
     logical :: lwvxc,cmdopt0, emptyrun, magexist, debug=.false.,sigmamode,wanatom=.false.,once=.true.
     logical,optional:: socmatrix 
     character(8) :: xt
     character(256):: ext,sprocid,extn
     complex(8),allocatable::  geigr(:,:,:), cphix(:,:,:)
     integer:: mrecb,mrece,mrecg,ndble,ifv,iqq,ifev
-    real(8),allocatable::evl(:,:,:),vxclda(:,:,:)!,evl(:,:),vxclda(:)!qirr(:,:),
-    integer :: istat
+    real(8),allocatable::evl(:,:,:),vxclda(:,:,:) !,evl(:,:),vxclda(:)!qirr(:,:),
+    complex(8),allocatable:: ppj(:,:,:)
+    integer :: istat,ifoc,ldim2,lxx,nl,nrx
     logical :: blas_mode = .true.
+    real(8):: rmax(nclass)
     include "mpif.h"
     call tcn ('m_sugw_init')
     debug=cmdopt0('--debugsugw')
@@ -121,6 +123,7 @@ contains
     enddo
     ncoremx= maxval(ncores)
     ndima  =  sum(ndimaa)     !ndimax= maxval(ndima)
+    
     if(cmdopt0('--wanatom').and.master_mpi) wanatom=.true. 
     if(wanatom) then ! 'wanplotatom.dat' is originally a part of gwa and gwb.head. only for wanplot which will be unsupported.
       open(newunit=ifigwa,file='wanplotatom.dat',form='unformatted') 
@@ -144,6 +147,7 @@ contains
         allocate(rofi(nr),rwgt(nr))
         call radmsh(rmt(is),a,nr,rofi)
         call radwgt(rmt(is),a,nr,rwgt)
+        rmax(ic) = rmt(is)
         rsml= rsmlss(:,is)
         ehl = ehlss(:,is)
         RadialWaveFunctions: block 
@@ -267,7 +271,7 @@ contains
             enddo
           enddo
         enddo
-        !ECORE
+        close(ifoc)
         write(stdo,ftox)" === Radial function indexing === nradmx=", nradmx
         do ibas=1,nbas
           write(stdo,ftox)' ---- ibas nrad(ibas) =', ibas, nrad(ibas)
@@ -275,6 +279,7 @@ contains
             write(stdo,'("      irad=",i3," nindx_r lindx_r=",2i3)')irad, nindx_r(irad,ibas), lindx_r(irad,ibas)
           enddo
         enddo
+        !ECORE
         write(stdo,ftox)" === Write ECORE ==="
         open(newunit=ifec, file='ECORE')
         ibasloopc: do ibas = 1,nbas
@@ -304,6 +309,7 @@ contains
         write(ifphi) nrad(1:nbas)
         write(ifphi) nindx_r(1:nradmx,1:nbas),lindx_r(1:nradmx,1:nbas)
         allocate(ncindx(ncoremx),lcindx(ncoremx),source=-9999)
+!        allocate(nc_max(0:lmxax,nbas))
         ibasloopw: do ibas = 1,nbas
           ic    = iclass(ibas)
           is    = ispec(ibas)
@@ -320,6 +326,7 @@ contains
           enddo
           write(ifphi) ncores(is), ncoremx !core
           write(ifphi) ncindx,lcindx !core
+!          if(ncindx>nc_max(l,ibas)) nc_max(l,ibas)=ncindx !nc_max
           write(ifphi) ibas,zz(is),nrc(ic),aac(ic),bbc(ic)
           write(ifphi) rofi(1:nrc(ic))
           do isp = 1, nsp 
@@ -327,7 +334,7 @@ contains
               write(ifphi) gcore_n(1:nrc(ic),icore, isp,ic) ! core
             enddo
             do irad = 1,nrad(ibas)
-              l = lindx_r (irad,ibas)
+              l = lindx_r(irad,ibas)
               n = nindx_r(irad,ibas)
               write(ifphi) gval_orth(1:nrc(ic),l, n, isp,ic)  ! valence orthogonalized
               write(ifphi) gval_n (1:nrc(ic),l, n, isp,ic)  ! valence raw
@@ -336,8 +343,8 @@ contains
           deallocate(rofi)
         enddo ibasloopw
         close(ifphi)
-        ! LMTO file. basic part of crystal structure.
-        write(stdo,ftox)" === Write LMTO file(crystal structure info and so on) ==="
+        ! MTOindex file. basic part of crystal structure.
+        write(stdo,ftox)" === Write MTOindex file(crystal structure info and so on) ==="
         ibasf=-999
         do ibas=1,nbas
           do ibasx=ibas+1,nbas !is this fine?
@@ -365,12 +372,103 @@ contains
       endblock WriteGWfilesB
     endif WriteGWfiles
     if(cmdopt0('--skipCPHI')) goto 1011
+
+    
+call mpi_barrier(comm,ierr)
+!------------ Get ppj --------------------
+allocate(ppj(ndima,ndima,nsp),source=(0d0,0d0)) ! ppj: ovalap matrix within MT. ibb=0 is for Gramschmidt
+lxx= 2*lmxax
+nl =   lmxax+1
+nrx= maxval(nrc)
+ldim2 = ndima
+open(newunit=ifoc,file='@MNLA_CPHI')
+read(ifoc,*)
+allocate(m_indx(ldim2),n_indx(ldim2),l_indx(ldim2),ibas_indx(ldim2))
+do ix =1,ldim2
+  read(ifoc,*) m_indx(ix),n_indx(ix),l_indx(ix),ibas_indx(ix),ixx !m,m,l,ibas index 
+  if(ixx/=ix) call rx('failed to readin @MNLA_CPHI')
+enddo
+close(ifoc)
+write(stdo,ftox)' --- read @MNLA_CPHI'
+nn=maxval(n_indx)
+ppjmat: block
+  use m_ll,only: ll
+  real(8):: cg(nl**2,nl**2,(2*nl-1)**2),symope(3,3),cy((lxx+1)**2),yl((lxx+1)**2),absdq,absqg2,absqg,r2s,ylk
+  real(8):: ppbrd(0:nl-1,nn,0:nl-1,nn,0:2*(nl-1),nsp,nbas), rprodx(nrx,0:lxx), phij(0:lxx),psij(0:lxx),rphiphi(nrx)
+  real(8),parameter::  pi = 4d0*atan(1d0),fpi =    4d0*pi
+  complex(8),parameter:: img=(0d0,1d0)
+  complex(8)::phaseatom
+  integer:: lm1,lm2,m1,m2,l1,l2,lm3,l3,ia1,ia2,ibas,ibas1,ibas2,ir,lx,ngrpx,irad1,irad2,irad,n1x,n2x
+  cg=0d0
+  symope=reshape([1d0,0d0,0d0,0d0,1d0,0d0,0d0,0d0,1d0],shape=[3,3])
+  ngrpx=1
+  call rotcg(nl-1,symope,ngrpx,cg) !CG coefficient
+  dq=(/1d-10,0d0,0d0/)
+  absdq  = sqrt(sum(dq**2))
+  absqg2 = (2*pi/alat)**2 *sum(dq**2)
+  absqg  = sqrt(absqg2)
+  call sylmnc(cy,lxx)
+  call sylm(dq/absdq,yl,lxx,r2s) !spherical factor Y(dq)
+  ppbrd=0d0
+  write(stdo,ftox)' --- ppjmat1'
+  ibasloop0: do ibas = 1,nbas ! radial integral  ppbrd = <phi phi j_l>
+    ic = iclass(ibas)
+    allocate(rofi(nrc(ic)),source=[(bbc(ic)*(exp((ir-1)*aac(ic))-1d0), ir=1,nrc(ic))])
+    rprodx=0d0
+    do ir =2,nrc(ic)
+      call bessl(absqg2*rofi(ir)**2,lxx,phij,psij) ! phij(lx) \approx 1/(2l+1)!! for small absqg*rr(ir,ibas).
+      rprodx(ir,0:lxx) = [(rofi(ir)* phij(lx)* (absqg*rofi(ir))**lx,lx=0,lxx)] != r \times j_l(|dq|r) !bessel function for the expansion of exp(i(q1-q2) r)
+    enddo
+    ispinloop00: do isp = 1,nsp
+      do irad1 = 1,nrad(ibas)
+        l1 = lindx_r(irad1,ibas)
+        n1x = nindx_r(irad1,ibas)     !     write(stdo,'("      irad1=",i3," nindx_r lindx_r=",4i3)')irad1, n1,l1
+        do irad2 = 1,nrad(ibas)
+          l2 = lindx_r(irad2,ibas)
+          n2x = nindx_r(irad2,ibas)
+          rphiphi(1:nrc(ic)) = [0d0,(gval_orth(ir,l1, n1x, isp,ic)*gval_orth(ir,l2, n2x, isp,ic)/rofi(ir),ir=2,nrc(ic))] ! phi = u = r \phi
+          do lx = abs(l1-l2), l1+l2 !2*(nl-1)
+            call gintxx( rprodx(1,lx), rphiphi,aac(ic),bbc(ic),nrc(ic), ppbrd(l1, n1x,l2, n2x, lx, isp,ibas) )
+          enddo
+        enddo
+      enddo
+    enddo ispinloop00
+    deallocate(rofi)
+  enddo ibasloop0
+  write(stdo,ftox)' --- ppjmat2',sum(abs(ppbrd))
+  ! Calcuate <u{q1x j1} | u_{q2x j2}> = < psi^*{q1x j1} exp(i(q1x-q2x)r) psi_{q2x j2} >
+  ! Note that exp(i(q1x-q2x)r) is expanded in the spherical bessel function within MT.
+  ! MT part ldim2=ndima; n_indx(1;ldim2):n(phi=1 phidot=2 localorbital=3); l_indx(1:ldim2):l index ; ibas_indx(1:ldim2):ibas index.
+  ispinloop02: do isp=1,nsp
+    ia1loop: do 10201 ia1 = 1,ndima
+      ibas1= ibas_indx(ia1)
+      ia2loop: do 10101 ia2 = 1,ndima
+        ibas2= ibas_indx(ia2)
+        if(ibas2/=ibas1) cycle
+        l1=l_indx(ia1); m1=m_indx(ia1); n1x=n_indx(ia1); lm1= l1**2+l1+1+ m1
+        l2=l_indx(ia2); m2=m_indx(ia2); n2x=n_indx(ia2); lm2= l2**2+l2+1+ m2 !+ nc_max(l2,ibas2)
+        phaseatom = exp( img* 2d0*pi*sum(dq*pos(:,ibas1)) ) !correct?
+        do lm3= (l1-l2)**2+1, (l1+l2+1)**2 ! l3 takes |l1-l2|,...l1+l2
+          l3 = ll(lm3)
+          ylk= cy(lm3)*yl(lm3)
+          ppj(ia1,ia2,isp) = ppj(ia1,ia2,isp) + ppbrd(l1,n1x,l2,n2x,l3,isp,ibas1) *cg(lm1,lm2, lm3) * fpi * img**l3* phaseatom * ylk
+          ! cg(lm1,lm2,lm3)= \int Y_lm3(\hat(r)) Y_lm2(\hat(r)) Y_lm1(\hat(r)) \frac{d \Omega}{4\pi}.
+          ! This is based on inverse expansion. See the book of angular momentum book of Rose.Eq.3.8.
+        enddo
+10101 enddo ia2loop
+10201 enddo ia1loop !              !if(cmdopt0('--fpmt')) then; geig1 = readgeigf0(q1,isp); geig2 = readgeigf0(q2,isp);else
+  enddo ispinloop02
+  write(stdo,ftox)' --- ppjmat3',sum(abs(ppj(:,:,:)))
+endblock ppjmat
+
+
     ! CPHI GEIG. We use mpi-io from 2024-9-26
     allocate(cphix(ndima,nspc,nbandmx),geigr(ngpmx,nspc,nbandmx))
     i=openm(newunit=ifcphim,file='CPHI',recl=mrecb)
     i=openm(newunit=ifgeigm,file='GEIG',recl=mrecg)
     allocate(evl(nbandmx, nqirr, nspx),vxclda(nbandmx, nqirr, nspx),source=0d0)!nqirr: # ofirreducible q points
     iqisploop: do 1001 idat=1,niqisp !iq = iqini,iqend ! iqini:iqend for this procid
+      write(stdo,ftox) 'do 1001 idat=',idat
       iq  = iqproc(idat) ! iq index
       isp = isproc(idat) ! spin index: Note isp=1:nspx, where nspx=nsp/nspc.  isp=1 nspc=2 only for lso=1 if(debug)write(stdo,ftox)' iqisploop',iq,isp  
       qp  = qplist(:,iq) ! q vector containing nqirr
@@ -443,6 +541,7 @@ contains
       if(debug)write(stdo,ftox)' iqisploop777 1212'
 1212  continue
       lwvxc = (socmatrix .or. iq<=iqibzmax).and.(.not.cmdopt0('--novxc'))
+
       if(lwvxc) then
         open(newunit=ifvxcevec, file= 'vxcevec'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
         write(ifvxcevec) qp,ndimhx,nev
@@ -451,6 +550,7 @@ contains
         if(lso/=0.or.socmatrix) write(ifvxcevec) hammhso 
         close(ifvxcevec)
       endif
+     
       if(emptyrun) then
         allocate(pwz(ngp,nspc,ndimh)) !dummy
         goto 1214
@@ -461,7 +561,8 @@ contains
       evl(1+nev:nbandmx,iq,isp)=1d20 !padding
       if(mod(iq,10) /= 1) call poppr
       if(debug) write(stdo,"(' sugw:procid iq isp lwvxc= ',3i3,' ',l)")procid, iq,isp,lwvxc
-      nlmax = (lmxax+1)**2 
+      nlmax = (lmxax+1)**2
+      
       gwcphi2: block
         !i   nlmax :leading dimension of aus
         !i   ndham :dimensions aus
@@ -480,6 +581,8 @@ contains
         integer:: ilm,im,iv
         complex(8):: auasaz(3),aus_zv(nlmax,nbandmx,3,nsp,nbas),usz(3)
         real(8)::aaa
+        
+!MT parts normalization check cphiw
         call makusq(nbas,[-999], nev,  isp, 1,qp,reshape(evec(1:ndimhx,1:nev),[ndimh,nspc,nev]), aus_zv )
         cphiw=0d0
         ispcc: do ispc=1,nspc
@@ -497,22 +600,20 @@ contains
                   cphi(nlindx(1:2,l,ib)+im,iv,ispc)= matmul(auasaz(1:2),rotp(l,ispx,:,:,ib))
                   if (nlindx(3,l,ib) >= 0) cphi(nlindx(3,l,ib) + im,iv,ispc) = auasaz(3)
                   cphiw(iv,ispc) = cphiw(iv,ispc) + sum(dconjg(auasaz)*matmul(sab_rv(:,:,l+1,ispx,ib),auasaz))
-!                  aaa=abs(sum(dconjg(auasaz)*matmul(sab_rv(:,:,l+1,ispx,ib),auasaz)))
-!                  if(aaa>0.01.and.iv==1) write(stdo,ftox)'wwwwwwwwccc',ib,l,im-l-1, ftof(aaa), &
-!                          ftof(sab_rv(1:2,1,l+1,ispx,ib)), ftof(sab_rv(1:2,2,l+1,ispx,ib))
-!                  endif   
                 enddo
               enddo
             enddo
           enddo ibb
-        enddo ispcc
+       enddo ispcc
       endblock gwcphi2
+     
       if(ngp > 0) then !IPW expansion of eigenfunctions pwz 
         !  ppovl: = O_{G1,G2} = <IPW_G1 | IPW_G2>
         !  phovl: <IPW_G1 | basis function = smooth Hankel or APW >   
         !    pwz:  IPW expansion of eigen function    
-        allocate(ppovl(ngp,ngp),pwz(ngp,nspc,ndimhx),phovl(ngp,ndimh))
-        call pwmat(nbas,ndimh,napw,igv2x,qp,ngp,nlmax,ngvecp(1,1,iq),gmax, ppovl, phovl ) 
+        allocate(ppovl(ngp,ngp),pwz(ngp,nspc,ndimhx),phovl(ngp,ndimh),ppovlbk(ngp,ngp))
+        call pwmat(nbas,ndimh,napw,igv2x,qp,ngp,nlmax,ngvecp(1,1,iq),gmax, ppovl, phovl )
+        ppovlbk=ppovl
         ! MO added blas_mode to replaced matmul by a BLAS call 2024-11-09. This is because matmul in mic(intel) was very slow.
         if(blas_mode) then
           do ispc=1, nspc
@@ -588,12 +689,14 @@ contains
 1214  continue
       if(debug)write(stdo,ftox)'goto writechpigeig'  
       WriteCphiGeig: block
+        use m_readqg,only: readngmx,ngcmx,readqg0,readqg
         use m_hamindex0,only: nindx,ibasindx
         use m_mkpot,only: sab_rv
         use m_locpot,only: rotp
+        use m_pwmat,only: mkppovl2
         real(8)::add,zzz(2,2)
-        complex(8)::ccc(3),nnn,rrr(3,3),mmm(3,3)
-        integer::iband,ibas,iqqisp,ix,m,nm,i,ilm,im,iv
+        complex(8)::ccc(3),nnn,rrr(3,3),mmm(3,3),ovv
+        integer::iband,ibas,iqqisp,ix,m,nm,i,ilm,im,iv,ngvecpf1(3,ngp),ndg1(3)
         do ispc=1,nspc
           geigr(1:ngp,      ispc,1:ndimhx)=pwz(1:ngp,ispc,1:ndimhx)
           geigr(ngp+1:ngpmx,ispc,1:ndimhx)=0d0
@@ -642,17 +745,30 @@ contains
        enddo
        if(debug)write(stdo,ftox)' writechpigeig 2222'
        iqqisp= isp + nsp*(iq-1)
-!!!!!
-! ppj
-!    call mkppovl2(alat,plat,qlat, ngp,  ngvecp(:,:,iq),  ngp,  ngvecp(:,:,iq), nbas, rmax, pos, ppovl)
-!    call GramSchmidt2(nspc,nev,ndima,ngp,ngpmx, ppj(1:ndima,1:ndima,ispin,0),ppovl, cphi1,geig1) !Improve Orthogon. cf. norm.procid.*.chk
        
+       GramSchmidtOrthogonalizationCphiGeig :block
+         write(stdo,ftox) sum(abs(ppovlbk)),'ppjsum=',sum(abs(ppj(1:ndima,1:ndima,isp)))
+         call GramSchmidt2(nspc,nev,ndima,ngp,ngpmx, ppj(1:ndima,1:ndima,isp),ppovlbk, cphix,geigr) !Improve Orthogonalization
+         do ispc=1,nspc
+           do i=1,nev
+             do j=1,nev
+               ovv= sum( dconjg(cphix(1:ndima,ispc,i))*matmul(ppj(:,:,isp), cphix(1:ndima,ispc,j))) + & !MT parts
+                    sum( dconjg(geigr(1:ngp,  ispc,i))*matmul(ppovlbk,      geigr(1:ngp,  ispc,j)))     !IPW parts
+               if(i/=j.and.abs(ovv)    >1d-9) write(stdo,ftox)'oooovlap=',i,j,ispc,ftod(abs(ovv))
+               if(i==j.and.abs(ovv-1d0)>1d-9) write(stdo,ftox)'oooovlap=',i,j,ispc,ftod(abs(ovv))
+               if(i==j)    write(stdo,ftox)'ovlap=',i,j,ispc, sum( dconjg(cphix(1:ndima,ispc,i))*matmul(ppj(:,:,isp), cphix(1:ndima,ispc,i))) +&
+                                                         sum( dconjg(geigr(1:ngp,  ispc,i))*matmul(ppovlbk,      geigr(1:ngp,  ispc,i)))
+             enddo
+           enddo
+         enddo
+         deallocate(ppovlbk)
+       end block GramSchmidtOrthogonalizationCphiGeig
        cphix(1:ndima,1:nspc,nev+1:nbandmx)=1d20 !padding 
        i=writem(ifcphim,rec=iqqisp,data=cphix(1:ndima,1:nspc,1:nbandmx)) 
        if(ngpmx/=0) geigr(1:ngpmx,1:nspc,nev+1:nbandmx)=1d20   ! padding
        if(ngpmx/=0) i=writem(ifgeigm,rec=iqqisp,data=geigr(1:ngpmx,1:nspc,1:nbandmx))
-       
-       if(debug)write(stdo,ftox)'end of writechpigeig'  
+       if(debug)write(stdo,ftox)'end of writechpigeig'
+!
      endblock WriteCphiGeig
      if(debug)write(stdo,ftox)' writechpigeig 1001'  
      deallocate(pwz,hamm,ovlm,evec,vxc,cphi,cphiw)
@@ -821,3 +937,29 @@ contains
     call tcx('m_sugw_init')
   end subroutine m_sugw_init
 end module m_sugw
+
+subroutine GramSchmidt2(nspc,n,nv1,nv2,nv2mx, omat1,omat2, zmel1,zmel2)!originally in main_huumat in AHC branch
+  implicit none
+  integer:: it,itt,n,nv1,nv2,nv2mx,nspc
+  complex(8):: dnorm2,ov(n),                  vec1(nv1*nspc),   vec2(nv2mx*nspc)
+  complex(8):: omat1(nv1,nv1),omat2(nv2,nv2), zmel1(nv1*nspc,n),zmel2(nv2mx*nspc,n)
+  do it = 1,n
+     if(abs(zmel1(1,it))>1d6) exit
+     vec1= zmel1(:,it)
+     vec2= zmel2(:,it)
+     do itt = 1,it-1
+        ov(itt) = sum( dconjg(zmel1(1:nv1,itt))*matmul(omat1,vec1(1:nv1))) \
+        +         sum( dconjg(zmel2(1:nv2,itt))*matmul(omat2,vec2(1:nv2)))
+        if(nspc==2) ov(itt) = ov(itt) \
+        +         sum( dconjg(zmel1(nv1+1:2*nv1,itt))*matmul(omat1,vec1(nv1+1:2*nv1))) \
+        +         sum( dconjg(zmel2(nv2mx+1:nv2mx+nv2,itt))*matmul(omat2,vec2(nv2mx+1:nv2mx+nv2)))
+     enddo
+     vec1 = vec1 - matmul(zmel1(:,1:it-1),ov(1:it-1))
+     vec2 = vec2 - matmul(zmel2(:,1:it-1),ov(1:it-1))
+     dnorm2 = sum( dconjg(vec1(1:nv1))*matmul(omat1,vec1(1:nv1)))   +sum( dconjg(vec2(1:nv2))*matmul(omat2,vec2(1:nv2)))
+     if(nspc==2) dnorm2=dnorm2 \
+     + sum( dconjg(vec1(nv1+1:2*nv1))*matmul(omat1,vec1(nv1+1:2*nv1))) +sum( dconjg(vec2(nv2mx+1:nv2mx+nv2))*matmul(omat2,vec2(nv2mx+1:nv2mx+nv2)))
+     zmel1(:,it) = vec1/dnorm2**.5
+     zmel2(:,it) = vec2/dnorm2**.5
+  enddo
+end subroutine GramSchmidt2

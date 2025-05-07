@@ -58,17 +58,25 @@ pure subroutine hilbertmat(zz,nwhis, his_L,his_C,his_R, rmat)
      real(8),parameter:: eps=1d-8
      complex(8):: zz,facm,facn,domega_b,domega_a
      domega_b = zz - b 
-     domega_a = zz - a 
+     domega_a = zz - a
      facm =0d0
      facn =0d0
      if(abs(domega_a)>eps.and.abs(domega_b)>eps) then
-       facn =     log(domega_b/domega_a)
-       facm =  zz*log(domega_b/domega_a) + (b-a) ! b-a is needed for linear interpolation for f(i).
+       facn =  log(domega_b/domega_a)
+       facm =  zz*facn + (b-a) ! b-a is needed for linear interpolation for f(i).
        ! facm =  zz*log(domega_b/domega_a) 
      endif
   end subroutine hilbertmat2
+  pure complex(8) function safe_log(z)
+    intent(in)::z
+    complex(8) :: z,zz
+    real(8),parameter:: eps=1d-6
+    zz=z
+    if(abs(z)<eps    ) zz=z/abs(z)*eps
+    if(abs(z)>1d0/eps) zz=z/abs(z)/eps
+    safe_log = log(zz)
+  end function safe_log
 end subroutine hilbertmat
-
 
 ! !> Martix for hilbert transformation, rmat.
 ! pure subroutine hilbertmat(zz,nwhis, his_L,his_C,his_R, rmat)
