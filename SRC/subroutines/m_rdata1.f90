@@ -158,10 +158,13 @@ contains
              zzpx=zzp(1:n1,1:n1,l1,ic,isp) !Get zzpi : inverse of zzp
              call matcinv(n1,zzpx)
              zzpi(1:n1,1:n1,l1,ic,isp) = dreal(zzpx) !connect gx_in and gval_orth
+             do nn=1,nvmax(l1,ic)
+               zzpi(1:n1,nn,l1,ic,isp) = zzpi(1:n1,nn,l1,ic,isp)/sqrt(1d0+0.1d0*nn) !2025-5-7 zzpi include this factor.
+             enddo  
              deallocate(zzpx)
              forall(ir=1:nrc(ic)) gval_orth(ir,l1,1:n1,isp,ic)= matmul(gx_in(ir,l1,1:n1,isp,ic),zzp(1:n1,1:n1,l1,ic,isp))
           enddo
-       enddo
+        enddo
 1010 enddo ibasloop
   endsubroutine rdata1init
 endmodule m_rdata1

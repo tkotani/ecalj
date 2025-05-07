@@ -372,10 +372,9 @@ contains
       endblock WriteGWfilesB
     endif WriteGWfiles
     if(cmdopt0('--skipCPHI')) goto 1011
-
     
-call mpi_barrier(comm,ierr)
 !------------ Get ppj --------------------
+call mpi_barrier(comm,ierr)
 allocate(ppj(ndima,ndima,nsp),source=(0d0,0d0)) ! ppj: ovalap matrix within MT. ibb=0 is for Gramschmidt
 lxx= 2*lmxax
 nl =   lmxax+1
@@ -393,72 +392,55 @@ write(stdo,ftox)' --- read @MNLA_CPHI'
 nn=maxval(n_indx)
 ppjmat: block
   use m_ll,only: ll
+  use m_gint,only: gintpp
   real(8):: cg(nl**2,nl**2,(2*nl-1)**2),symope(3,3),cy((lxx+1)**2),yl((lxx+1)**2),absdq,absqg2,absqg,r2s,ylk
   real(8):: ppbrd(0:nl-1,nn,0:nl-1,nn,0:2*(nl-1),nsp,nbas), rprodx(nrx,0:lxx), phij(0:lxx),psij(0:lxx),rphiphi(nrx)
   real(8),parameter::  pi = 4d0*atan(1d0),fpi =    4d0*pi
   complex(8),parameter:: img=(0d0,1d0)
   complex(8)::phaseatom
-  integer:: lm1,lm2,m1,m2,l1,l2,lm3,l3,ia1,ia2,ibas,ibas1,ibas2,ir,lx,ngrpx,irad1,irad2,irad,n1x,n2x
+  integer:: lm1,lm2,m1,m2,l1,l2,lm3,l3,ia1,ia2,ibas,ibas1,ibas2,ir,lx,ngrpx=1,irad1,irad2,irad,n1x,n2x
   cg=0d0
   symope=reshape([1d0,0d0,0d0,0d0,1d0,0d0,0d0,0d0,1d0],shape=[3,3])
-  ngrpx=1
   call rotcg(nl-1,symope,ngrpx,cg) !CG coefficient
-  dq=(/1d-10,0d0,0d0/)
+  dq     =  [1d-10,0d0,0d0]
   absdq  = sqrt(sum(dq**2))
   absqg2 = (2*pi/alat)**2 *sum(dq**2)
   absqg  = sqrt(absqg2)
   call sylmnc(cy,lxx)
   call sylm(dq/absdq,yl,lxx,r2s) !spherical factor Y(dq)
   ppbrd=0d0
-  write(stdo,ftox)' --- ppjmat1'
   ibasloop0: do ibas = 1,nbas ! radial integral  ppbrd = <phi phi j_l>
     ic = iclass(ibas)
     allocate(rofi(nrc(ic)),source=[(bbc(ic)*(exp((ir-1)*aac(ic))-1d0), ir=1,nrc(ic))])
-    rprodx=0d0
+    rprodx = 0d0
     do ir =2,nrc(ic)
       call bessl(absqg2*rofi(ir)**2,lxx,phij,psij) ! phij(lx) \approx 1/(2l+1)!! for small absqg*rr(ir,ibas).
       rprodx(ir,0:lxx) = [(rofi(ir)* phij(lx)* (absqg*rofi(ir))**lx,lx=0,lxx)] != r \times j_l(|dq|r) !bessel function for the expansion of exp(i(q1-q2) r)
     enddo
-    ispinloop00: do isp = 1,nsp
-      do irad1 = 1,nrad(ibas)
-        l1 = lindx_r(irad1,ibas)
-        n1x = nindx_r(irad1,ibas)     !     write(stdo,'("      irad1=",i3," nindx_r lindx_r=",4i3)')irad1, n1,l1
-        do irad2 = 1,nrad(ibas)
-          l2 = lindx_r(irad2,ibas)
-          n2x = nindx_r(irad2,ibas)
-          rphiphi(1:nrc(ic)) = [0d0,(gval_orth(ir,l1, n1x, isp,ic)*gval_orth(ir,l2, n2x, isp,ic)/rofi(ir),ir=2,nrc(ic))] ! phi = u = r \phi
-          do lx = abs(l1-l2), l1+l2 !2*(nl-1)
-            call gintxx( rprodx(1,lx), rphiphi,aac(ic),bbc(ic),nrc(ic), ppbrd(l1, n1x,l2, n2x, lx, isp,ibas) )
-          enddo
-        enddo
+    ispinloop00: do concurrent(isp = 1:nsp, irad1=1:nrad(ibas),irad2=1:nrad(ibas))
+      l1= lindx_r(irad1,ibas); n1x= nindx_r(irad1,ibas); l2= lindx_r(irad2,ibas); n2x= nindx_r(irad2,ibas)
+      rphiphi(1:nrc(ic)) = [0d0,(gval_orth(ir,l1,n1x,isp,ic)*gval_orth(ir,l2,n2x,isp,ic)/rofi(ir),ir=2,nrc(ic))] ! phi = u = r \phi
+      do lx = abs(l1-l2), l1+l2
+        ppbrd(l1,n1x,l2,n2x,lx, isp,ibas)= gintpp(rprodx(1,lx), rphiphi,aac(ic),bbc(ic),nrc(ic)) 
       enddo
     enddo ispinloop00
     deallocate(rofi)
   enddo ibasloop0
-  write(stdo,ftox)' --- ppjmat2',sum(abs(ppbrd))
-  ! Calcuate <u{q1x j1} | u_{q2x j2}> = < psi^*{q1x j1} exp(i(q1x-q2x)r) psi_{q2x j2} >
-  ! Note that exp(i(q1x-q2x)r) is expanded in the spherical bessel function within MT.
-  ! MT part ldim2=ndima; n_indx(1;ldim2):n(phi=1 phidot=2 localorbital=3); l_indx(1:ldim2):l index ; ibas_indx(1:ldim2):ibas index.
-  ispinloop02: do isp=1,nsp
-    ia1loop: do 10201 ia1 = 1,ndima
-      ibas1= ibas_indx(ia1)
-      ia2loop: do 10101 ia2 = 1,ndima
-        ibas2= ibas_indx(ia2)
-        if(ibas2/=ibas1) cycle
-        l1=l_indx(ia1); m1=m_indx(ia1); n1x=n_indx(ia1); lm1= l1**2+l1+1+ m1
-        l2=l_indx(ia2); m2=m_indx(ia2); n2x=n_indx(ia2); lm2= l2**2+l2+1+ m2 !+ nc_max(l2,ibas2)
-        phaseatom = exp( img* 2d0*pi*sum(dq*pos(:,ibas1)) ) !correct?
-        do lm3= (l1-l2)**2+1, (l1+l2+1)**2 ! l3 takes |l1-l2|,...l1+l2
-          l3 = ll(lm3)
-          ylk= cy(lm3)*yl(lm3)
-          ppj(ia1,ia2,isp) = ppj(ia1,ia2,isp) + ppbrd(l1,n1x,l2,n2x,l3,isp,ibas1) *cg(lm1,lm2, lm3) * fpi * img**l3* phaseatom * ylk
-          ! cg(lm1,lm2,lm3)= \int Y_lm3(\hat(r)) Y_lm2(\hat(r)) Y_lm1(\hat(r)) \frac{d \Omega}{4\pi}.
-          ! This is based on inverse expansion. See the book of angular momentum book of Rose.Eq.3.8.
-        enddo
-10101 enddo ia2loop
-10201 enddo ia1loop !              !if(cmdopt0('--fpmt')) then; geig1 = readgeigf0(q1,isp); geig2 = readgeigf0(q2,isp);else
+  ispinloop02: do concurrent(isp=1:nsp,ia1=1:ndima,ia2=1:ndima)
+    ibas1= ibas_indx(ia1); ibas2= ibas_indx(ia2)
+    if(ibas2/=ibas1) cycle
+    l1=l_indx(ia1); m1=m_indx(ia1); n1x=n_indx(ia1); lm1= l1**2+l1+1+ m1
+    l2=l_indx(ia2); m2=m_indx(ia2); n2x=n_indx(ia2); lm2= l2**2+l2+1+ m2 !+ nc_max(l2,ibas2)
+    phaseatom = exp( img* 2d0*pi*sum(dq*pos(:,ibas1)) ) !correct?
+    do lm3= (l1-l2)**2+1, (l1+l2+1)**2 ! l3 takes |l1-l2|,...l1+l2
+      l3 = ll(lm3)
+      ylk= cy(lm3)*yl(lm3)
+      ppj(ia1,ia2,isp) = ppj(ia1,ia2,isp) + ppbrd(l1,n1x,l2,n2x,l3,isp,ibas1) *cg(lm1,lm2, lm3) * fpi * img**l3* phaseatom * ylk
+      ! cg(lm1,lm2,lm3)= \int Y_lm3(\hat(r)) Y_lm2(\hat(r)) Y_lm1(\hat(r)) \frac{d \Omega}{4\pi}.
+      ! This is based on inverse expansion. See the book of angular momentum book of Rose.Eq.3.8.
+    enddo
   enddo ispinloop02
-  write(stdo,ftox)' --- ppjmat3',sum(abs(ppj(:,:,:)))
+  write(stdo,ftox)' --- end of ppjmat',sum(abs(ppbrd)),sum(abs(ppj(:,:,:)))
 endblock ppjmat
 
 
@@ -701,33 +683,10 @@ endblock ppjmat
           geigr(1:ngp,      ispc,1:ndimhx)=pwz(1:ngp,ispc,1:ndimhx)
           geigr(ngp+1:ngpmx,ispc,1:ndimhx)=0d0
         enddo
-!         iv=1
-!         ispc=1
-!         ispx=1
-!         ibb3: do ix=1,ndima
-!            ib = ibasindx(ix)
-!            l  = lindx(ix)
-!            n  = nindx(ix)
-!            m  = mindx(ix)
-!            ic = iclass(ib)
-!            im= m+l+1
-!            rrr=0d0
-!            rrr(1:2,1:2)=rotp(l,ispc,1:2,1:2,ib)
-!            call matcinv(2,rrr(1:2,1:2))
-!            mmm = matmul(dconjg(rrr),matmul(sab_rv(:,:,l+1,ispx,ib),transpose(rrr)))
-!            ccc= [cphi(nlindx(1:2,l,ib)+im,iv,ispc),(0d0,0d0)]
-!            add = sum(dconjg(ccc)*matmul(mmm,ccc))
-!            if(add>0.01.and.iv==1) write(stdo,ftox)'www3wwcccc3',ib,l,im-l-1, ftof(add)
-!            if(sum(abs(ccc)**2)>0.01.and.iv==1) write(stdo,ftox)'www3wwaaa3',ib,l,im-l-1,'ix',ix, ftof(sum(abs(ccc)**2)), ftof(add)
-!         enddo ibb3
-       do ispc=1,nspc 
-          do ix = 1,ndima !factor 0.1*nindx is for avoiding degeneracy. See zzpi.
-             cphi(ix,1:nev,ispc) = cphi(ix, 1:nev,ispc)/sqrt(1d0+0.1d0*nindx(ix))
-          enddo 
-       enddo
-       cphix=0d0 !     Augmentation wave part. cphix is coefficients for the orthogonalized functions 
-       if(debug)write(stdo,ftox)' writechpigeig 1111'
-       do ispc=1,nspc
+! skip cphi(ix,1:nev,1:nspc) = cphi(ix, 1:nev,1:nspc) /sqrt(1d0+0.1d0*nindx(ix)) here because zzpi includes this factor 2025-5-7
+        cphix=0d0 !   Augmentation wave part. cphix is coefficients for the orthogonalized functions gval_ortrh
+        if(debug)write(stdo,ftox)' writechpigeig 1111'
+        do ispc=1,nspc
           if(lso==1) ispx=ispc
           if(lso/=1) ispx=isp
           do iband = 1,nev
@@ -738,8 +697,8 @@ endblock ppjmat
               m  = mindx(ix)
               ic = iclass(ib)
               nm = nvmax(l,ic)
-              cphix      (iord(m,1:nm,l,ib),ispc,iband) = &
-                   cphix (iord(m,1:nm,l,ib),ispc,iband) + zzpi(1:nm,n,l,ic,ispx)*cphi(ix,iband,ispc)
+              cphix      (iord(m,1:nm,l,ib),ispc,iband) = & !chipx is for coeffieients of orthogonalized atomic funcitons gval_orth*Ylm
+                   cphix (iord(m,1:nm,l,ib),ispc,iband) + zzpi(1:nm,n,l,ic,ispx)*cphi(ix,iband,ispc) 
             enddo
           enddo
        enddo
@@ -936,6 +895,7 @@ endblock ppjmat
 1011 continue !skipcphi
     call tcx('m_sugw_init')
   end subroutine m_sugw_init
+
 end module m_sugw
 
 subroutine GramSchmidt2(nspc,n,nv1,nv2,nv2mx, omat1,omat2, zmel1,zmel2)!originally in main_huumat in AHC branch
