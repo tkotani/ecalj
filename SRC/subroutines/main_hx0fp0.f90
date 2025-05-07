@@ -174,9 +174,10 @@ subroutine hx0fp0()
   logical:: readw0w0itest=.false.,hx0,cmdopt0
   integer:: ifq0p,ifwc,ifif,ierr,iqxx,ifi0,npr
   real(8),allocatable:: ekxx1(:,:),ekxx2(:,:)
-  logical:: cmdopt2,zmel0mode
+  logical:: cmdopt2
+!,zmel0mode
   character(20):: outs=''
-  logical,save:: initzmel0=.true.
+!  logical,save:: initzmel0=.true.
   real(8):: q0a,qa
 !  complex(8),allocatable:: rcxq0(:,:,:,:)
   logical,allocatable::   mpi__task(:)
@@ -350,8 +351,8 @@ subroutine hx0fp0()
   n_bpara = 1
   if(cmdopt2('--nb=', outs)) read(outs,*) n_bpara
   nqcalc = iqxend - iqxini + 1
-  if(cmdopt0('--zmel0')) nqcalc = nqcalc - 1
-  if(nqcalc < 1) call rx('hx0fp0: sanity check. nqcalc < 1: specify more than 2 q-points in zmel0 mode')
+!  if(cmdopt0('--zmel0')) nqcalc = nqcalc - 1
+!  if(nqcalc < 1) call rx('hx0fp0: sanity check. nqcalc < 1: specify more than 2 q-points in zmel0 mode')
   n_kpara = max(mpi__size/(n_bpara*nqcalc), 1)  !Default setting of parallelization. b-parallel is 1.
   if(cmdopt2('--nk=', outs)) read(outs,*) n_kpara
   worker_inQtask = n_bpara * n_kpara
@@ -372,7 +373,7 @@ subroutine hx0fp0()
   write(6,*)" chi_+- mode nolfc=",nolfco
   if(.NOT.chipm) allocate(zzr(1,1),source=(0d0,0d0)) !dummy
   iqloop: do 1001 iq = iqxini,iqxend  ! NOTE: qp=(0,0,0) is omitted when iqxini=2
-    if(cmdopt0('--zmel0').and.iq==iqxini) cycle
+!    if(cmdopt0('--zmel0').and.iq==iqxini) cycle
     if( .NOT. MPI__task(iq) ) cycle
     call cputid (0)
     qp  = qibze(:,iq)

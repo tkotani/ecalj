@@ -49,6 +49,8 @@ module m_lmfinit ! 'call m_lmfinit_init' sets all initial data from ctrl are pro
   integer,public,allocatable,target:: ltabx(:,:),ktabx(:,:),offlx(:,:),ndimxx(:),norbx(:),blksx(:,:),ntabx(:,:)
   integer,public,protected :: lxx,kxx,norbmto,norbxx !oribtal index
   integer,public,allocatable,protected::ib_table(:),k_table(:),l_table(:),ltab(:),ktab(:),offl(:),offlrev(:,:,:),ibastab(:),nmtoi(:)
+  integer,public,allocatable,protected:: konfig(:,:),ncores(:),ndimaa(:),konf0(:,:)
+  integer,public,protected:: ncoremx,ndima
   private
 contains
   subroutine m_lmfinit_init(prgnam,commin) ! All the initial data are set in module variables from ctrlp.*
@@ -121,8 +123,6 @@ contains
     character*(8),allocatable::clabl(:)
     integer,allocatable:: idxdn(:,:,:) ,pnuspdefaulti(:,:)
     real(8),allocatable:: pnuspc(:,:,:),qnuc(:,:,:,:),pp(:,:,:,:),ves(:),zc(:) !    debug = cmdopt0('--debug')
-    integer,allocatable:: konfig(:,:),ncores(:),ndimaa(:)
-    integer:: ncoremx,ndima
     integer,optional:: commin
     integer:: comm !,nsizex,info
     comm=MPI_COMM_WORLD
@@ -349,7 +349,7 @@ contains
       if(sum(abs(socaxis-[0d0,0d0,1d0])) >1d-6 .AND. (.NOT.cmdopt0('--phispinsym'))) &
            call rx('We need --phispinsym for SO=1 and HAM_SOCAXIS/=001. Need check if you dislike --phispinsym.')
       !TK found --phispinsym (the same radialfunctions for both spins) caused a problem to determine required number of nodes for NiO(LDA). 2023sep.
-      if(cmdopt0('--zmel0')) OVEPS=0d0 !for epsmode ok?
+!      if(cmdopt0('--zmel0')) OVEPS=0d0 !for epsmode ok?
       if(pwmode==10) pwmode=0   !takao added. corrected Sep2011
       if(trim(prgnam)=='LMFGWD') pwmode=10+ mod(pwmode,10) !lmfgw mode use 
       if(iprint()>0) write(stdo,ftox) ' ===> for --jobgw, pwmode is switched to be ',pwmode
@@ -758,14 +758,12 @@ contains
         endif
 9299    continue
       endblock ForceDYNsetting
-      ! MT part -----------------------
-      MTblock: block
+      MTpart: block
         real(8),pointer:: pnz(:,:)
         integer:: ncore,konfz,konfigk
-        allocate(konfig(0:lmxax,nbas),ncores(nspec),ndimaa(nbas)) !,konf0(0:lmxax,nclass)
+        allocate(konfig(0:lmxax,nbas),ncores(nspec),ndimaa(nbas),konf0(0:lmxax,nbas))
         do ib=1,nbas
           is = ispec(ib)
-!          ic = iclass(ib)
           ncore=0
           do l = 0, lmxa(is)
             konfigk = floor(pnuall(l+1,1,ib))           !take isp=1 since spin-independent
@@ -781,14 +779,14 @@ contains
             endif
           enddo
           ncores(is)=ncore
-          !        konf0(:,ic) = [(mod(konfig(l,ib),10),l=0,lmxa(is))]
+          konf0(0:lmxa(is),ib) = [(mod(konfig(l,ib),10),l=0,lmxa(is))]
           pnz=>pnzall(:,1:nsp,ib)
           if(sum(abs(pnz(:,1:nsp)-pnzall(:,1:nsp,ib)))>1d-9) call rx('sugw xxx1aaa')
           ndimaa(ib) = sum([((2*l+1)*merge(3,2,pnz(l+1,1)>1d-10), l=0,lmxa(ispec(ib)))]) !!ndimaa is the augmented wave dimension CPHI dimension)
         enddo
         ncoremx= maxval(ncores)
         ndima  =  sum(ndimaa)     !ndimax= maxval(ndima)
-      endblock MTblock
+      endblock MTpart
     endblock Stage3InitialSetting
     call MPI_BARRIER(comm, ierr)
     call tcx('m_lmfinit')

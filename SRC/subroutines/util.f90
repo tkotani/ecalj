@@ -418,14 +418,17 @@ subroutine getqkey(qx,nqtt,epsd,  nkey,key) !qx is digitized by epsd
   call sortea(qx,ieord,nqtt,isig)
   ik=0
   do i=1,nqtt
-     kkk=(qx(ieord(i))+0.5d0*epsd)/epsd  !kkk is digitized by 1/epsd
-     if(i==1 .OR. key(ik)<kkk) then
-        ik=ik+1
-        key(ik) = kkk
-     elseif (key(ik)>kkk) then
-        write(6,*) ik,i, key(ik), qx(ieord(i))
-        call rx( 'iqindx: bug not sorted well')
-     endif
+    kkk=(qx(ieord(i))+0.5d0*epsd)/epsd  !kkk is digitized by 1/epsd
+    if(i==1)then
+       ik=ik+1
+       key(ik) = kkk
+    elseif( key(ik)<kkk) then   
+       ik=ik+1
+       key(ik) = kkk
+    elseif (key(ik)>kkk) then
+       write(6,*) ik,i, key(ik), qx(ieord(i))
+       call rx( 'iqindx: bug not sorted well')
+    endif
   enddo
   nkey=ik
 end subroutine getqkey

@@ -8,7 +8,7 @@ This is needed for error cancellation.
 import sys,os,re,glob
 import numpy as np
 def cleanl(iline):
-    iout= [float(re.sub('D','e',x)) for x in re.split('\s+',iline) if(len(x)>0)]
+    iout= [float(re.sub(r'D',r'e',x)) for x in re.split(r'\s+',iline) if(len(x)>0)]
     return iout
 #def fd0(x,f,dig):
  #   c=np.polyfit(x[0:dig+1],f[0:dig+1],dig)

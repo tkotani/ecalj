@@ -1622,7 +1622,7 @@ contains
     ! dump rho or not ----------
     lrho=.false.
     write(6,"(a,l)") 'dump rho? [T/F] (if needed set lrho=T in wanplot.F)=',lrho
-    if (lrho) call calc_rho_2(alat_ang,nq_wfn,nband_wfn,mesh,r_rini,r_rfin,wanpw,wanaug,wantot)
+    !if (lrho) call calc_rho_2(alat_ang,nq_wfn,nband_wfn,mesh,r_rini,r_rfin,wanpw,wanaug,wantot)
     !      if (lrho) call calc_rho(nq_wfn,nband_wfn,npw,phipw,phiaug,phitot)
     !      if (lrho) call calc_rho(1,nband_wfn,npw,wanpw,wanaug,wantot)
     !      call cputid(0)

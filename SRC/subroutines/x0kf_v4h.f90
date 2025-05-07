@@ -225,66 +225,66 @@ contains
         ! integer:: nwj(nwhis,npm),imb, igc ,neibz,icc,ig,ikp,i,j,itimer
         real(8):: imagweight, wpw_k,wpw_kq,qa,q0a 
         complex(8):: img=(0d0,1d0)
-        zmel0mode: if(cmdopt0('--zmel0')) then ! For epsPP0. Use zmel-zmel0 (for subtracting numerical error) for matrix elements.
-          zmel0block : block
-            real(8)::  q1a,q2a,rfac00
-            complex(kind=kp),allocatable:: zmel0(:,:,:)
-            kold = -999 
-            q1a=sum(q00**2)**.5
-            q2a=sum(q**2)**.5
-            rfac00=q2a/(q2a-q1a)
+!         zmel0mode: if(cmdopt0('--zmel0')) then ! For epsPP0. Use zmel-zmel0 (for subtracting numerical error) for matrix elements.
+!           zmel0block : block
+!             real(8)::  q1a,q2a,rfac00
+!             complex(kind=kp),allocatable:: zmel0(:,:,:)
+!             kold = -999 
+!             q1a=sum(q00**2)**.5
+!             q2a=sum(q**2)**.5
+!             rfac00=q2a/(q2a-q1a)
 
-            if(tetwtk) then
-              do k = 1, nqbz
-                if(mod(k-1, mpi__size_k) /= mpi__rank_k)  cycle
-                call gettetwt(q,iq,isp_k,isp_kq,ekxx1,ekxx2,nband=nband, ikbz_in = k, fkbz_in = k) ! tetrahedron weight
-                ierr=x0kf_v4hz_init(0,q,isp_k,isp_kq,iq, crpa, ikbz_in = k, fkbz_in = k)
-                ierr=x0kf_v4hz_init(1,q,isp_k,isp_kq,iq, crpa, ikbz_in = k, fkbz_in = k) 
-                call tetdeallocate()
+!             if(tetwtk) then
+!               do k = 1, nqbz
+!                 if(mod(k-1, mpi__size_k) /= mpi__rank_k)  cycle
+!                 call gettetwt(q,iq,isp_k,isp_kq,ekxx1,ekxx2,nband=nband, ikbz_in = k, fkbz_in = k) ! tetrahedron weight
+!                 ierr=x0kf_v4hz_init(0,q,isp_k,isp_kq,iq, crpa, ikbz_in = k, fkbz_in = k)
+!                 ierr=x0kf_v4hz_init(1,q,isp_k,isp_kq,iq, crpa, ikbz_in = k, fkbz_in = k) 
+!                 call tetdeallocate()
 
-                call x0kf_zmel(q00,k, isp_k,isp_kq)
-                if(allocated(zmel0)) deallocate(zmel0)
-                allocate(zmel0,source=zmel)
-                call x0kf_zmel(q, k, isp_k,isp_kq)
-                do icoun = icounkmin(k), icounkmax(k)
-                  jpm = jpmc(icoun)
-                  it  = itc (icoun)
-                  itp = itpc(icoun)
-                  do iw=iwini(icoun),iwend(icoun)
-                    icount= icouini(icoun)+iw-iwini(icoun)
-                    if(abs(zmel0(1,it,itp))>1d10) cycle
-                    rcxq(1,1,iw*(3-2*jpm))=rcxq(1,1,iw*(3-2*jpm)) +rfac00**2*(abs(zmel(1,it,itp))-abs(zmel0(1,it,itp)))**2 *whwc(icount)
-                  enddo
-                enddo
-              enddo
-            else
-            zmel0modeicount: do icoun = 1,ncoun 
-              k   = kc(icoun)
-              it  = itc (icoun) !occ      k
-              itp = itpc(icoun) !unocc    q+k
-              jpm = jpmc(icoun) ! \pm omega. Usual mode is only for jpm=1
-              if(mod(k-1, mpi__size_k) /= mpi__rank_k)  cycle
-              if(kold/=k) then
-                call x0kf_zmel(q00,k, isp_k,isp_kq)!, GPUTEST=GPUTEST)
-                if(allocated(zmel0)) deallocate(zmel0)
-                allocate(zmel0,source=zmel)
-                call x0kf_zmel(q, k, isp_k,isp_kq)!, GPUTEST=GPUTEST)
-                kold=k
-                write(6,*) 'k, mpi__rank_k', k, mpi__rank_k
-                call flush(6)
-              endif
-!              write(*,*)'zzzzzzzzzzzzzmel',shape(zmel)
-              do iw=iwini(icoun),iwend(icoun) !iw  = iwc(icount)  !omega-bin
-                icount= icouini(icoun)+iw-iwini(icoun)
-                if(abs(zmel0(1,it,itp))>1d10) cycle !We assume rcxq(1) in this mode
-                rcxq(1,1,iw*(3-2*jpm))=rcxq(1,1,iw*(3-2*jpm)) +rfac00**2*(abs(zmel(1,it,itp))-abs(zmel0(1,it,itp)))**2 *whwc(icount)
-              enddo
-            enddo zmel0modeicount
-            endif
-            !$acc update device (rcxq)
-          endblock zmel0block
-          goto 2000 
-        endif zmel0mode
+!                 call x0kf_zmel(q00,k, isp_k,isp_kq)
+!                 if(allocated(zmel0)) deallocate(zmel0)
+!                 allocate(zmel0,source=zmel)
+!                 call x0kf_zmel(q, k, isp_k,isp_kq)
+!                 do icoun = icounkmin(k), icounkmax(k)
+!                   jpm = jpmc(icoun)
+!                   it  = itc (icoun)
+!                   itp = itpc(icoun)
+!                   do iw=iwini(icoun),iwend(icoun)
+!                     icount= icouini(icoun)+iw-iwini(icoun)
+!                     if(abs(zmel0(1,it,itp))>1d10) cycle
+!                     rcxq(1,1,iw*(3-2*jpm))=rcxq(1,1,iw*(3-2*jpm)) +rfac00**2*(abs(zmel(1,it,itp))-abs(zmel0(1,it,itp)))**2 *whwc(icount)
+!                   enddo
+!                 enddo
+!               enddo
+!             else
+!             zmel0modeicount: do icoun = 1,ncoun 
+!               k   = kc(icoun)
+!               it  = itc (icoun) !occ      k
+!               itp = itpc(icoun) !unocc    q+k
+!               jpm = jpmc(icoun) ! \pm omega. Usual mode is only for jpm=1
+!               if(mod(k-1, mpi__size_k) /= mpi__rank_k)  cycle
+!               if(kold/=k) then
+!                 call x0kf_zmel(q00,k, isp_k,isp_kq)!, GPUTEST=GPUTEST)
+!                 if(allocated(zmel0)) deallocate(zmel0)
+!                 allocate(zmel0,source=zmel)
+!                 call x0kf_zmel(q, k, isp_k,isp_kq)!, GPUTEST=GPUTEST)
+!                 kold=k
+!                 write(6,*) 'k, mpi__rank_k', k, mpi__rank_k
+!                 call flush(6)
+!               endif
+! !              write(*,*)'zzzzzzzzzzzzzmel',shape(zmel)
+!               do iw=iwini(icoun),iwend(icoun) !iw  = iwc(icount)  !omega-bin
+!                 icount= icouini(icoun)+iw-iwini(icoun)
+!                 if(abs(zmel0(1,it,itp))>1d10) cycle !We assume rcxq(1) in this mode
+!                 rcxq(1,1,iw*(3-2*jpm))=rcxq(1,1,iw*(3-2*jpm)) +rfac00**2*(abs(zmel(1,it,itp))-abs(zmel0(1,it,itp)))**2 *whwc(icount)
+!               enddo
+!             enddo zmel0modeicount
+!             endif
+!             !$acc update device (rcxq)
+!           endblock zmel0block
+!           goto 2000 
+!         endif zmel0mode
         if(cmdopt0('--emptyrun')) goto 1590
         call cputid (0)
 !        if(GPUTEST) then

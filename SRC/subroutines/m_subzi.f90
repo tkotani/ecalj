@@ -27,7 +27,8 @@ contains
       if(allocated(wtkb)) deallocate(wtkb)       
       allocate(wtkb(ndhamx,nspx,nkp))
     endif
-    if(cmdopt0('--pdos').or.cmdopt0('--mkprocar').or.cmdopt0('--zmel0').or.cmdopt0('--cls')) then
+!    if(cmdopt0('--pdos').or.cmdopt0('--mkprocar').or.cmdopt0('--zmel0').or.cmdopt0('--cls')) then
+    if(cmdopt0('--pdos').or.cmdopt0('--mkprocar').or.cmdopt0('--cls')) then
       nevmx= ndhamx  !all bands
     elseif(cmdopt0('--tdos').or. cmdopt0('--band').or.cmdopt0('--fermisurface')) then !nevmx=0 implies eigenvalue-only mode
       nevmx = merge(ndhamx, 0, lso==1)
@@ -35,7 +36,7 @@ contains
 !      nevmx = merge(ndhamx, 0, lso==1)
 !    elseif(cmdopt0('--pdos').or.cmdopt0('--mkprocar').or.cmdopt0('--zmel0').or.cmdopt0('--cls')) then
 !      nevmx= ndhamx  !all bands
-    else  !above occipied bands. (tetrahedron method may require a little more than zval/2)
+    else  !just above occipied bands. (tetrahedron method may require a little more than zval/2)
       zval = qval-qbg
       nevmx = ceiling(zval)/2
       if(lmet /= 0) nevmx = max(nevmx+nevmx/2,9) !probably safer setting nevmx for metal. Rough estimation.

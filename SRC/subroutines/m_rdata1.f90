@@ -20,7 +20,7 @@ contains
     real(8),allocatable:: rofi_n(:) ,rofi(:), gx_in(:,:,:,:,:)
     real(8),allocatable :: ovv(:,:,:,:,:)
     complex(8),allocatable::  zzpx(:,:)
-    integer:: nr_n,isp,ibas,i2,is,mx,nn,ndima,ncores(nspec),ncoremx,konf0(0:lmxax,nclass)
+    integer:: nr_n,isp,ibas,i2,is,mx,nn,ndima,ncores(nspec),ncoremx,konf0(0:lmxax,nbas)
     real(8):: gval(nrmx0,0:lmxax,nphimx,nsp,nclass),gcore(nrmx0,ncoremx,nsp,nclass)
     nxx= -999; lxx= -999; ibxx=-999
     allocate(aac(nclass), bbc(nclass),nrc(nclass))
@@ -121,7 +121,7 @@ contains
        ic = iclass(ibas)
        is = ispec(ibas)
        do l = 0,lmxa(is)
-          nncx(l,ibas) = konf0(l,ic) -1 -(l+1) +1
+          nncx(l,ibas) = konf0(l,ibas) -1 -(l+1) +1
        enddo
     enddo
     nnc = maxval(nncx)
