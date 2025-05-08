@@ -295,14 +295,11 @@ subroutine gwinit_v2() bind(C) !  Generate GWinput.tmp.
 
   write(ifi,*)
   write(ifi,"(a,f8.3,a,a)") '!QforEPSIBZ on ! Use all q in IBZ for the calculation of eps mode.'
-  write(ifi,"(a)") 'QforEPSunita on'
+  write(ifi,"(a)") 'QforEPSau on'
   write(ifi,"(a)") '<QforEPS>'
-  write(ifi,"(a)") ' 0 0 0.00001   '
-  write(ifi,"(a)") ' 0 0 0.001     '
-  write(ifi,"(a)") ' 0 0 0.0014142 '
-  write(ifi,"(a)") ' 0 0 0.002     '
-  write(ifi,"(a)") ' 0 0 0.0028284 '
-  write(ifi,"(a)") ' 0 0 0.004'
+  write(ifi,"(a)") ' 0 0 0.00050'
+  write(ifi,"(a)") ' 0 0 0.00100'
+  write(ifi,"(a)") ' 0 0 0.00200'
   write(ifi,"(a)") '</QforEPS>'
   
   !write(ifi,"(a)") '!<QforEPSL>'

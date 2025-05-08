@@ -1,0 +1,19 @@
+set title "IntraBand part of Epsilon(omega(eV))"
+set xlabel "(eV)"
+set datafile fortran
+set xran[0:30]
+set yran[-30:30]
+plot\
+ "epsintra.dat" using ($2)*13.605:($4) w l title "RealPart:EPS0002.nlfc.dat.intrabandonly",\
+ "epsintra.dat" using ($2)*13.605:($5) w l title "RealPart:EPS0003.nlfc.dat.intrabandonly",\
+ "epsintra.dat" using ($2)*13.605:($6) w l title "RealPart:EPS0004.nlfc.dat.intrabandonly",\
+ "epsintra.dat" using ($2)*13.605:($7) w l title "RealPart:EPS0005.nlfc.dat.intrabandonly",\
+ "epsintra.dat" using ($2)*13.605:($8) w l title "RealPart:EPS0006.nlfc.dat.intrabandonly",\
+ "epsintra.dat" using ($2)*13.605:($9) w l title "RealPart:EPS0007.nlfc.dat.intrabandonly",\
+ "epsintra.dat" using ($2)*13.605:($11) w l title  "ImagPart:EPS0002.nlfc.dat.intrabandonly",\
+ "epsintra.dat" using ($2)*13.605:($12) w l title  "ImagPart:EPS0003.nlfc.dat.intrabandonly",\
+ "epsintra.dat" using ($2)*13.605:($13) w l title  "ImagPart:EPS0004.nlfc.dat.intrabandonly",\
+ "epsintra.dat" using ($2)*13.605:($14) w l title  "ImagPart:EPS0005.nlfc.dat.intrabandonly",\
+ "epsintra.dat" using ($2)*13.605:($15) w l title  "ImagPart:EPS0006.nlfc.dat.intrabandonly",\
+ "epsintra.dat" using ($2)*13.605:($16) w l title  "ImagPart:EPS0007.nlfc.dat.intrabandonly",\
+

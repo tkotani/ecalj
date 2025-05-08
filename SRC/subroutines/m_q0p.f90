@@ -82,6 +82,7 @@ contains
        !! Get Q0P from GWinput
     elseif(iq0pin==2) then
        call getkeyvalue("GWinput","QforEPSunita",unita,default=.false.)
+       call getkeyvalue("GWinput","QforEPSau",   unita,default=unita)
        call getkeyvalue("GWinput","QforEPSIBZ",ibzqq,default=.false.)
        if(ibzqq) then
           write(6,*)'=== Find QforEPSIBZ=on === '

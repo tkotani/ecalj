@@ -1,0 +1,7 @@
+set zeroaxis
+set datafile fortran
+set yran[0:15]
+plot 'EPS0002.nlfc.dat.interbandonly' using ($4):($6) with l,\
+'EPS0003.nlfc.dat.interbandonly' using ($4):($6) with l,\
+'EPS0004.nlfc.dat.interbandonly' using ($4):($6) with l,\
+'EPS0005.nlfc.dat.interbandonly' using ($4):($6) with l
