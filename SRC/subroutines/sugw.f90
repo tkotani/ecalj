@@ -455,11 +455,11 @@ contains
               do l = 0, lmxa(ispec(ib))
                 do im = 1, 2*l+1
                   ilm = ilm+1
-                  auasaz=aus_zv(ilm,iv,1:3,ispx,ib) !coefficient for (u,s,gz)
-                  ! cphi are coefficients for augmented functions {phi,phidot,gz(val=slo=0)}, which are not orthnormal.
-                  ! TK checked that sab_rv is almost the same as zzpi*zzpi as for nio_gwsc
-                  cphi(nlindx(1:2,l,ib)+im,iv,ispc)= matmul(auasaz(1:2),rotp(l,ispx,:,:,ib))
-                  if (nlindx(3,l,ib) >= 0) cphi(nlindx(3,l,ib) + im,iv,ispc) = auasaz(3)
+                  auasaz=aus_zv(ilm,iv,1:3,ispx,ib) !coefficient for (u,s,gz)*Ylm (u,s) are value(slo=0) and slope(val=0) functions
+                  ! cphi are coefficients for augmented functions {phi,phidot,gz(val=slo=0)}
+                  ! TK checked that sab_rv is almost the same as zzpi*zzpi as for nio_gwsc.  
+                  cphi(nlindx(1:2,l,ib)+im,iv,ispc)= matmul(auasaz(1:2),rotp(l,ispx,:,:,ib)) !rotp: convert from (u,s) to (phi,phidot)
+                  if (nlindx(3,l,ib) >= 0) cphi(nlindx(3,l,ib) + im,iv,ispc) = auasaz(3)     !      coefficients for gz is
                   !NOTE: cphiw(iv,ispc) =cphiw(iv,ispc)+sum(dconjg(auasaz)*matmul(sab_rv(:,:,l+1,ispx,ib),auasaz)) ! \approx 1d0 c.f. ovv below
                 enddo
               enddo
@@ -552,7 +552,7 @@ contains
         use m_hamindex0,only: nindx,ibasindx !    use m_mkpot,only: sab_rv
         use m_locpot,only: rotp
         use m_pwmat,only: mkppovl2
-        real(8)::add,zzz(2,2),epscheck=1d-8
+        real(8)::add,zzz(2,2),epscheck=1d-10
         complex(8)::ccc(3),nnn,rrr(3,3),mmm(3,3),ovv
         integer::iband,ibas,iqqisp,ix,m,nm,i,ilm,im,iv,ngvecpf1(3,ngp),ndg1(3)
         do ispc=1,nspc
@@ -581,8 +581,8 @@ contains
               do j=1,nev
                 ovv= sum( dconjg(cphix(1:ndima,ispc,i))*matmul(ppj(:,:,isp), cphix(1:ndima,ispc,j))) + & !MT parts
                      sum( dconjg(geigr(1:ngp,  ispc,i))*matmul(ppovl,      geigr(1:ngp,  ispc,j)))     !IPW parts
-                if(i/=j.and.abs(ovv)    >epscheck) write(stdo,ftox)'oooovlap=',i,j,ispc,ftod(abs(ovv))
-                if(i==j.and.abs(ovv-1d0)>epscheck) write(stdo,ftox)'oooovlap=',i,j,ispc,ftod(abs(ovv))
+                if(i/=j.and.abs(ovv)    >epscheck) write(stdo,ftox)'oooovlap=',i,j,ispc,ftod(abs(ovv),8)
+                if(i==j.and.abs(ovv-1d0)>epscheck) write(stdo,ftox)'oooovlap=',i,j,ispc,ftod(abs(ovv),8)
               enddo
             enddo
           enddo ncheckw
