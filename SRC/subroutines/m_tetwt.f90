@@ -18,6 +18,8 @@ module m_tetwt
 !!
 !! - NOTE: 'call getbzdata1' generates nteti,ntetf,... See mkqg.F about how to call it.
 !!
+  use m_mpi,only:ipr
+  use m_lgunit,only:stdo
   implicit none
   !! output ------------------------
   real(8),allocatable,protected,public :: whw(:)
@@ -92,13 +94,13 @@ contains
     allocate( nbnb(ikbz:fkbz,npm)   )
     allocate( nbnbtt(ikbz:fkbz,npm) ) !,ekxx1(nband,nqbz),ekxx2(nband,nqbz))
     !!===========tetraini block tetra==.true.===============================1ini
-    write(6,"(' tetra mode: nqbz nband=',2i7,'nctot ispin q=',i2,i2,3f13.6)") nqbz,nband,nctot,is,q
+    if(ipr) write(stdo,"(' tetra mode: nqbz nband=',2i7,'nctot ispin q=',i2,i2,3f13.6)") nqbz,nband,nctot,is,q
 
     !     takao-feb/2002 I replaced tetwt4 (1d30) with tetwt5(job=0) -----
     !     ... Get pairs (n1b n2b) with non-zero tetrahedron wieghts.
     !     the pairs are not dependent on the energy otemega
     !     in the denominator of the dielectric function.
-    write(6,"(' -- First tetwt5 is to get size of array --')")
+    if(ipr) write(stdo,"(' -- First tetwt5 is to get size of array --')")
     job = 0
     if(npm==1) then
        ncc=0
@@ -170,7 +172,7 @@ contains
     endif
     noccxv = maxval(noccxvx)
     noccx  = nctot + noccxv
-    write(6,*)' Tetra mode: nctot noccxv= ',nctot,noccxv
+    if(ipr) write(stdo,*)' Tetra mode: nctot noccxv= ',nctot,noccxv
     deallocate(iwgt)
     !      endif
     !=========end of tetraini block==========================================1end
@@ -184,7 +186,7 @@ contains
     !     nwp=nw+1; frhis(1)=0
     !     takao-feb/2002
     if(abs(frhis(1))>1d-12) call rx( ' hx0fp0: we assume frhis(1)=0d0')
-    write(6,*)' ----------------nbnbx nqbz= ',nbnbx,nqbz
+    if(ipr) write(stdo,*)' ----------------nbnbx nqbz= ',nbnbx,nqbz
     !!     ... make index sets
     allocate(ihw(nbnbx,ikbz:fkbz,npm),nhw(nbnbx,ikbz:fkbz,npm),jhw(nbnbx,ikbz:fkbz,npm))
     ihw=0; nhw=0; jhw=0
@@ -203,7 +205,7 @@ contains
        enddo
     enddo
     nhwtot = jhwtot-1
-    write(6,*)' nhwtot=',nhwtot
+    if(ipr) write(stdo,*)' nhwtot=',nhwtot
     deallocate(demin,demax)
     allocate( whw(nhwtot), ibjb(nctot+nband,nband+ncc,ikbz:fkbz,npm) )
     whw=0d0
@@ -220,7 +222,7 @@ contains
     enddo
     !!     ... Generate the histogram weights whw
     job=1
-    write(6,*) 'goto tetwt5x_dtet4 job=',job
+    if(ipr) write(stdo,*) 'goto tetwt5x_dtet4 job=',job
     allocate(demin(1,1,1,1),demax(1,1,1,1),iwgt(1,1,1,1)) !dummy
 
     wan1=.false.

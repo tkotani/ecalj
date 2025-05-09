@@ -1,5 +1,7 @@
 module m_tetwt5
   use m_tetrakbt,only: tetrakbt_init, tetrakbt, integtetn
+  use m_mpi,only:ipr
+  use m_lgunit,only:stdo
   use m_ftox
   public hisrange,tetwt5x_dtet4,rsvwwk00_4
   private
@@ -111,7 +113,7 @@ contains
     real(8):: ekqxx(nband+nctot),summ,voltot,volt
     complex(8)::  wmean,a1,a2,wgt2
     integer:: ik,ibx,nbnc,nb1 !kqxx(nqbz),
-    logical :: ipr=.false.
+    logical :: iprx=.false.
     real(8),parameter:: pii=3.1415926535897932d0
     real(8),pointer:: eocc(:),eunocc(:)
     integer:: idim,ivec
@@ -159,7 +161,7 @@ contains
     real(8),parameter:: tolx=1d-5
     !---------------------------------------------------------------------
     call getkeyvalue("GWinput","tetrakbt",usetetrakbt,default=.false.)
-    write(6,"(' tetwt5: job efermi usetetrakbt:=',i2,d13.6,l)") job,efermi,usetetrakbt
+    if(ipr) write(stdo,"(' tetwt5: job efermi usetetrakbt:=',i2,d13.6,l)") job,efermi,usetetrakbt
     if (usetetrakbt) then
        call tetrakbt_init()
     endif     !      if(verbose()>=150) chkwrt=.true.
@@ -199,7 +201,7 @@ contains
           do i = 1,3
              kvec(1:3,i) = kvec(1:3,i) - kvec(1:3,0)
           enddo
-          volt = volt + abs(det33(kvec(1:3,1:3))/6d0)    !        write(6,"('itet im vol=',2i5,d13.5)") itet,im,abs(det33(kvec(1:3,1:3))/6d0)
+          volt = volt + abs(det33(kvec(1:3,1:3))/6d0)    !        if(ipr) write(stdo,"('itet im vol=',2i5,d13.5)") itet,im,abs(det33(kvec(1:3,1:3))/6d0)
        enddo
     enddo     !      if(abs(volt-voltot)>1d-10) call rx( ' tetwt: abs(volt-voltot)>1d-10')
     if(job==0) then
@@ -221,7 +223,7 @@ contains
           voltet = abs(det33(am)/6d0)
           ek_ ( 1:nband+nctot, 0:3) = ekzz1( 1:nband+nctot, kkm(0:3)) ! k
           ekq_( 1:nband+nctot, 0:3) = ekzz2( 1:nband+nctot, kkm(0:3)) ! k+q
-!          write(6,ftox) 'eocc  ', ek_ -efermi,  write(6,ftox) 'eunocc', ekq_-efermi
+!          if(ipr) write(stdo,ftox) 'eocc  ', ek_ -efermi,  if(ipr) write(stdo,ftox) 'eunocc', ekq_-efermi
           noccx_k = maxval(count( ek_(1:nband, 0:3)<efermi,dim=1) ) !the highest number of occupied states
           noccx_kq= maxval(count( ekq_(1:nband,0:3)<efermi,dim=1) )
           ebmxx= merge(1d10,ebmx,present(wan)) !! exclude wannier model: (okumura, 2017/06/13)
@@ -352,17 +354,17 @@ contains
        !        if(nwgt(kx)==0) cycle
        !     endif
        if(kx < iqbz .OR. kx > fqbz) cycle
-       call chkdgn( ekxx1(:,kx), nband, nrank1, ini1,ied1,0 ,ipr)
-       call chkdgn( ekxx2(:,kx), nband, nrank2, ini2,ied2,0 ,ipr)
+       call chkdgn( ekxx1(:,kx), nband, nrank1, ini1,ied1,0 ,iprx)
+       call chkdgn( ekxx2(:,kx), nband, nrank2, ini2,ied2,0 ,iprx)
        nrankc1 = 0
        if(nctot/=0) then
           call chkdgn(ecore, nctot, &
-               nrankc1, ini1(nrank1+1), ied1(nrank1+1), nband,ipr)
+               nrankc1, ini1(nrank1+1), ied1(nrank1+1), nband,iprx)
        endif
        nrankc2 = 0
        if(nctot/=0) then
           call chkdgn(ecore, nctot, &
-               nrankc2, ini2(nrank2+1), ied2(nrank2+1), nband,ipr)
+               nrankc2, ini2(nrank2+1), ied2(nrank2+1), nband,iprx)
        endif
        !       if(ipr) print *,' kx nrank =',kx,nrank1,nrank2,nrankc
        do jpm=1,npm
@@ -458,7 +460,7 @@ contains
        !       write(6,*)' tot num of nonzero wgt   =',sum(nbnb)
        !       write(6,*)' sum of wgt   =',sum(wgt)
        !       write(6,*)' tetwt4: end '; call cputid  (0)
-       write(6,"('  tetwt5_dtet3: maxval(nbnb(1:nqbz,1:npm)) sum(nbnb)=',2i8 &
+       if(ipr) write(stdo,"('  tetwt5_dtet3: maxval(nbnb(1:nqbz,1:npm)) sum(nbnb)=',2i8 &
             ,' count(iwgt) =',i10)") maxval(nbnb),sum(nbnb),count(iwgt) !,sum(wgt)
     endif
     if (allocated(idtetfm)) deallocate(idtetfm)
@@ -504,7 +506,7 @@ contains
     if(ihw==-9999 .OR. nhw==-9999) then
        print *,' error info=',nwhis, demin,demax,ihw,nhw
        do ihis = 1, nwhis
-          write(6,*) ihis, frhis(ihis+1)
+          if(ipr) write(stdo,*) ihis, frhis(ihis+1)
        enddo
        call rx( ' hisrange: wrong')
     endif
@@ -863,12 +865,12 @@ contains
          +am(3,1)*am(1,2)*am(2,3) &
          -am(3,1)*am(2,2)*am(1,3)
   END function det33
-  subroutine chkdgn(ene,ndat,  nrank,ixini,ixend,iof,ipr)
+  subroutine chkdgn(ene,ndat,  nrank,ixini,ixend,iof,iprx)
     implicit none
     integer :: ndat,i,ix, ixini(ndat),ixend(ndat),nrank,iof
     real(8)    :: ene(ndat), epsx=1d-4
-    logical :: ipr
-    if(ipr)  write(6,*) 'chgdgn: ndat=',ndat
+    logical :: iprx
+    if(iprx)  write(6,*) 'chgdgn: ndat=',ndat
     if(ndat<1) then
        nrank =0
        return
@@ -897,7 +899,7 @@ contains
        ixini(i) = ixini(i)+iof
        ixend(i) = ixend(i)+iof
     enddo
-    if(ipr) then
+    if(iprx) then
        write(6,*)' nrank=',nrank
        do i = 1, ndat
           write(6,"(' i ',i3,' ene=',d15.7)") i,ene(i)
@@ -936,7 +938,7 @@ contains
        enddo
        nbnb(kx) = ix
     enddo
-    write(6,*) ' rsvwwk: kx nbnbmax=',kx, maxval(nbnb)
+    if(ipr)write(6,*) ' rsvwwk: kx nbnbmax=',kx, maxval(nbnb)
   end subroutine rsvwwk00_4
 end module m_tetwt5
 

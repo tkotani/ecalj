@@ -262,19 +262,22 @@ contains
       end do
       nctot = sum(ncore(1:natom))
       open(newunit=ifec,file='ECORE')         ! core energies ==========================
+      read(ifec,*)
       allocate(konf(nl,nclass),ecore(nctot,2))
       konf=0
       allocate(ecoret(0:nl-1,nnc,2,nclass))
       ecoret=0d0
       do ic = 1,nclass
-         if(ipr) write(stdo,*) ' read ECORE : ic=',ic
+         if(ipr) write(stdo,*) ' read ECORE : ic lmxa =',ic,lmxa(ic)
          read (ifec,*)
-         read (ifec,*) (konf(l+1,ic),l=0,lmxa(ic)) !nl-1)
+         read (ifec,*) (konf(l+1,ic),l=0,lmxa(ic))                ! number of cores for l 
+         konf(1:lmxa(ic)+1,ic)=[(konf(l+1,ic)+l+1,l=0,lmxa(ic))]  ! minor change of ECORE but konf unchanged. 2025-5-10
          do  l = 0,lmxa(ic) !nl-1
-            ncorex = konf(l+1,ic)-l-1
+            ncorex = konf(l+1,ic) -l-1 
             do n = 1,ncorex
                read (ifec,*) lt,nt,(ecoret(l,n,isp,ic),isp=1,nspin) !takao
-               if(nspin==1) ecoret(l,n,2,ic) = ecoret(l,n,1,ic)   !     if(ipr) write(stdo,"(' read ecore=',3i4,2d13.5)")l,n,ic,ecoret(l,n,1:nspin,ic)
+               if(nspin==1) ecoret(l,n,2,ic) = ecoret(l,n,1,ic)
+               if(ipr) write(stdo,"(' read ecore=',3i4,2d13.5)")l,n,ic,ecoret(l,n,1:nspin,ic)
             end do
          end do
       end do

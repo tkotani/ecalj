@@ -2,6 +2,7 @@
 module m_readfreq_r
   use m_genallcf_v3,only: niw
   use m_readgwinput,only: ua_
+  use m_mpi,only: ipr
   implicit none
   integer:: mrecl
   integer,protected::nprecx,nblochpmx,nwp,niwt, nqnum, nw_i,nw,npm
@@ -12,7 +13,7 @@ contains
     integer:: ififr,ifwd,ix,nwxx,iw
     open(newunit=ifwd,file='__WV.d')
     read(ifwd,*) nprecx,mrecl,nblochpmx,nwp,niwt, nqnum, nw_i
-    write(6,"(' Readin WV.d =', 10i8)") nprecx,mrecl,nblochpmx,nwp,niwt, nqnum, nw_i
+    if(ipr) write(6,"(' Readin WV.d =', 10i8)") nprecx,mrecl,nblochpmx,nwp,niwt, nqnum, nw_i
     close(ifwd)
     nw = nwp-1
     !      if(niwt /= niw) call rx( 'hsfp0_sc: wrong niw')
@@ -40,10 +41,10 @@ contains
     if(niw/=0) then
        allocate(freqx(niw),freqw(niw),wwx(niw),expa_(niw))
        call gauss   (niw,0d0,1d0,freqx,wwx) !!w = 1/(1+x) !    generate gaussian points
-       write(6,"(' --- readfreq:  ix    x    freqw(a.u.)---')")
+       if(ipr)write(6,"(' --- readfreq:  ix    x    freqw(a.u.)---')")
        do ix = 1,niw
           freqw(ix)= (1.d0 - freqx(ix)) / freqx(ix)
-          write(6,"('            ',i4,2f9.4)") ix,freqx(ix),freqw(ix)
+          if(ipr) write(6,"('            ',i4,2f9.4)") ix,freqx(ix),freqw(ix)
           expa_(ix)= dexp(-ua_**2*freqw(ix)*freqw(ix))
        end do
     endif

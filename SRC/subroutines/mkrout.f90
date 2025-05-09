@@ -97,8 +97,8 @@ contains
     ibloop: do  ib = 1, nbas
        is = ispec(ib)
        lmxa=lmxa_i(is) 
-       if (lmxa == -1) cycle 
        lmxl=lmxl_i(is)
+       if (lmxl <= -1) cycle
        kmax=kmxt_i(is)
        nkaph=nkaphh(is)
        a=spec_a(is)
@@ -204,12 +204,18 @@ contains
        if (nsp == 1) write(stdo,"('mkrout:  Qtrue      sm,loc       local')")
        if (nsp == 2) write(stdo,"('mkrout:  Qtrue      sm,loc       local',8x,'true mm   smooth mm    local mm')")
        do ib=1,nbas
-          write(stdo,"(i4,3f12.6,2x,3f12.6)") ib,dat(1:3*nsp,ib)
-        enddo
-       open(newunit=ifim,file='mmom.chk.'//trim(sname))
+         is = ispec(ib)
+         lmxl=lmxl_i(is)
+         if (lmxl <= -1) cycle
+         write(stdo,"(i4,3f12.6,2x,3f12.6)") ib,dat(1:3*nsp,ib)
+       enddo
+       open(newunit=ifim,file='mmom.'//trim(sname)//'.chk')
        if(nsp == 1) write(ifim,"('# Qtrue   Rmt     MT')")
        if(nsp == 2) write(ifim,"('# Qtrue    MagMom(up-dn) Rmt   MT')")
        do ib=1,nbas
+         is = ispec(ib)
+         lmxl=lmxl_i(is)
+         if (lmxl <= -1) cycle
          write(ifim,ftox) ib,ftof([(dat(3*(i-1)+1,ib),i=1,nsp),rmt_i(ispec(ib))]),slabl(ispec(ib))
        enddo
        close(ifim)

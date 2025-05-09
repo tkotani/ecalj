@@ -26,8 +26,7 @@ contains
     call m_ext_init()        ! Get sname, e.g. trim(sname)=si of ctrl.si
     call m_lgunit_init()
     if(nsize/=1) call rx('Current lmchk is only for single core')
-    aaa=argall
-    aaa= '=== START '//trim(prgnam)//'  '//trim(aaa)//' ==='
+    aaa= '=== START LMCHK '//trim(argall)//' ==='
     if(master_mpi) write(stdo,"(a)") trim(aaa)
     if(master_mpi) write(stdl,"(a)") trim(aaa)
     if(master_mpi) write(stdo,*) 'mpisize=',nsize

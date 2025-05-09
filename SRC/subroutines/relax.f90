@@ -83,7 +83,7 @@ contains
        !   ... Read Hessian from disc
        if (rdhessr) then
           if (master_mpi) then
-             open(newunit=ifi,file='hssn.'//trim(sname),form='unformatted')
+             open(newunit=ifi,file='__hssn.'//trim(sname),form='unformatted')
              readhess=.false.
              read(ifi,end=9888,err=9888) natrlx2,natrlx3 !,11
              if(natrlx2/=natrlx) call rx('relax:natlx2/=natlx')
@@ -100,7 +100,7 @@ contains
                 call dcopy(natrlx,1d0,0,w,natrlx+1)
              endif
           endif
-          call mpibc1(w,natrlx*natrlx,4,.false.,'relax','hssn')
+          call mpibc1(w,natrlx*natrlx,4,.false.,'relax','__hssn')
        else
           write(stdo,*)' RELAX: no Hessian read from disc'
        endif
@@ -177,7 +177,7 @@ contains
     ! --- Write Hessian to disc ---
     if (rdhessr .AND. (icom == 1 .OR. it == nit) .OR. .TRUE. ) then
        if (master_mpi) then
-          open(newunit=ifi,file='hssn.'//trim(sname),form='unformatted')
+          open(newunit=ifi,file='__hssn.'//trim(sname),form='unformatted')
           write(ifi) natrlx,natrlx,11
           write(ifi) w
           close(ifi)
@@ -189,7 +189,7 @@ contains
     if (nkillr > 0) then
        if (mod(it,nkillr) == 0) then
           write(stdo,ftox)'   ...  resetting hessian : iter=',it,' nkillr=',nkillr
-          open(newunit=ifi,file='hssn.'//trim(sname))
+          open(newunit=ifi,file='__hssn.'//trim(sname))
           close(ifi,status="delete")
           w=0d0
           call dcopy(natrlx,1d0,0,w,natrlx+1)

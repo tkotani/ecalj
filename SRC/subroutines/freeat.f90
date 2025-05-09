@@ -246,8 +246,8 @@ contains
 101 enddo nsploop
     write(stdo,*)
     write(stdo,"(a)")'conf:------------------------------------------------------'
-    write(stdo,"(a,a)")'conf:SPEC_ATOM= '//trim(spid),' : --- Table for atomic configuration ---'
-    write(stdo,"(a)")'conf:  isp  l  int(P) int(P)z    Qval     Qcore   CoreConf'
+    write(stdo,"(a,a)")'conf:SPEC_ATOM= '//trim(spid),' : --- Table for atomic configuration --- (n and nz are Pr. Quantum numbers for valence) '
+    write(stdo,"(a)")'conf:  isp  l    n nz    Qval     Qcore   CoreConf '
     do i = 1, nsp
        do l = 0, lmxa
           pzl  = mod(pz(l+1,1),10d0)
@@ -263,7 +263,7 @@ contains
           if(iplz/=0) miplzipl = min(iplz,ipl)
           qcc= (miplzipl-l-1)*(4*l+2)/nsp
           !  plplus, qlplus for P;   ql for Pz
-          write(stdo,"('conf: ', i4,i3,3x,i5,i3,6x,f8.3,1x,f8.3,' => ',10(i1,','))") &
+          write(stdo,"('conf: ', i4,i3,3x,i2,i3,1x,f8.3,1x,f8.3,' => ',10(i1,','))") &
                i,l,ipl,iplz,qlplus(l,i)+ql(1,l+1,i),qcc, (ix,ix=l+1,miplzipl-1)
        enddo
     Enddo

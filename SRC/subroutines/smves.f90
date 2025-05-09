@@ -88,11 +88,11 @@ contains
           gpot0(1,ib) = gpot0(1,ib) + vconst/y0
        endif
     enddo
-    open(newunit=ifivesr,file='vesrmt.chk.'//trim(sname))
-    write(ifivesr,"('# Averaged electrostatic potential at MT spheres. Total avarege is zero.')")
+    open(newunit=ifivesr,file='vesrmt.'//trim(sname)//'.chk')
+    write(ifivesr,"('# Averaged electrostatic potential(eV) at MT spheres. Avarege is at zero.')")
     write(ifivesr, "(a)") '# site  rmt   ves'
     do ib=1,nbas
-      write(ifivesr,ftox) ib,rmt_i(ispec(ib)),ftof(vrmt(ib),8) 
+      write(ifivesr,ftox) ib,rmt_i(ispec(ib)),ftof(vrmt(ib)*rydberg(),8) 
     enddo
     close(ifivesr)
     ! ... Back transform of density and potential to real-space mesh

@@ -32,7 +32,7 @@ subroutine hrcxq() bind(C)
   use m_x0kf,only: x0kf_zxq,deallocatezxq,deallocatezxqi
   use m_llw,only: WVRllwR,WVIllwI,w4pmode,MPI__sendllw
   use m_mpi,only: MPI__Initialize,MPI__root,MPI__rank,MPI__size,MPI__consoleout,comm, &
-                & MPI__SplitXq, MPI__Setnpr_col, comm_b, comm_k, mpi__root_k, mpi__root_q
+                & MPI__SplitXq, MPI__Setnpr_col, comm_b, comm_k, mpi__root_k, mpi__root_q,ipr
   use m_lgunit,only: m_lgunit_init,stdo
   use m_ftox
   use m_readVcoud,only: Readvcoud,ngb
@@ -90,22 +90,22 @@ subroutine hrcxq() bind(C)
   n_bpara = max(mpi__size/(n_kpara*(iqxend - iqxini + 1)), 1) !Default setting of parallelization. k-parallel is 1.
   if(cmdopt2('--nb=', outs)) read(outs,*) n_bpara
   worker_inQtask = n_bpara * n_kpara
-  write(stdo,'(1X,A,3I5)') 'MPI: worker_inQtask:(n_bpara,n_kpara)', worker_inQtask, n_bpara, n_kpara
+  if(ipr) write(stdo,'(1X,A,3I5)') 'MPI: worker_inQtask:(n_bpara,n_kpara)', worker_inQtask, n_bpara, n_kpara
   call MPI__SplitXq(n_bpara, n_kpara)
   ! allocate( mpi__Qrank(iqxini:iqxend), source=[(mod(iq-1,mpi__size)           ,iq=iqxini,iqxend)])
   ! allocate( mpi__Qtask(iqxini:iqxend), source=[(mod(iq-1,mpi__size)==mpi__rank,iq=iqxini,iqxend)])
   allocate( mpi__Qrank(iqxini:iqxend), source=[(mod(iq-1,mpi__size/worker_inQtask)*worker_inQtask           ,iq=iqxini,iqxend)])
   allocate( mpi__Qtask(iqxini:iqxend), source=[(mod(iq-1,mpi__size/worker_inQtask)==mpi__rank/worker_inQtask,iq=iqxini,iqxend)])
-  write(stdo,ftox)'mpi_rank',mpi__rank,'mpi__Qtask=',mpi__Qtask
-  write(stdo,ftox) 'mpi_qrank', mpi__qrank
+  if(ipr) write(stdo,ftox)'mpi_rank',mpi__rank,'mpi__Qtask=',mpi__Qtask
+  if(ipr) write(stdo,ftox) 'mpi_qrank', mpi__qrank
   call flush(stdo)
   if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
   MainLoopToObtainZxq: do 1001 iq = iqxini,iqxend
     if( .NOT. MPI__Qtask(iq) ) cycle
-    write(stdo,*)'mpi_rank in IQ loop:', iq, mpi__rank
+    if(ipr) write(stdo,*)'mpi_rank in IQ loop:', iq, mpi__rank
     call cputid (0)
     qp = qibze(:,iq)
-    write(stdo,ftox)'do 1001: iq q=',iq,ftof(qp,4),' of nq=',iqxend !4 means four digits below decimal point (optional).
+    if(ipr) write(stdo,ftox)'do 1001: iq q=',iq,ftof(qp,4),' of nq=',iqxend !4 means four digits below decimal point (optional).
     call Readvcoud(qp, iq,NoVcou=chipm) !Readin vcousq,zcousq ngb ngc for the Coulomb matrix
     npr=ngb
     call MPI__Setnpr_col(npr, npr_col) ! set the npr_col : split of npr(column) for MPI color_b
@@ -127,7 +127,7 @@ subroutine hrcxq() bind(C)
     ! Get effective W0,W0i, and L(omega=0) matrix. Modify WVR WVI with w0 and w0. Files WVI and WVR are modified.
     if(MPI__rank==0) call W0w0i(nw_i,nw,nq0i,niw,q0i) 
   endblock GetEffectiveWVatGammaCell
-  write(stdo,ftox) '--- end of hrcxq --- irank=',MPI__rank
+  if(ipr) write(stdo,ftox) '--- end of hrcxq --- irank=',MPI__rank
   call cputid(0)
   call rx0( ' OK! hrcxq WV generated')
   

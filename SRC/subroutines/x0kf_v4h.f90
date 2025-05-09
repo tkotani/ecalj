@@ -94,7 +94,7 @@ contains
        enddo
      endif
      flush(stdo)
-     !     write(6,*)'mm111mmmmmmm22222aaa',nqbz,k,nkqmin(k),nkqmax(k),'job=',job,nbnb(k,1)
+     !     if(ipr) write(stdo,*)'mm111mmmmmmm22222aaa',nqbz,k,nkqmin(k),nkqmax(k),'job=',job,nbnb(k,1)
      
       if(npm==2.AND.nkqmin(k)/=1)call rx( " When npm==2, nkqmin==1 should be.")
       if (job == 1) then
@@ -271,7 +271,7 @@ contains
 !                 allocate(zmel0,source=zmel)
 !                 call x0kf_zmel(q, k, isp_k,isp_kq)!, GPUTEST=GPUTEST)
 !                 kold=k
-!                 write(6,*) 'k, mpi__rank_k', k, mpi__rank_k
+!                 if(ipr) write(stdo,*) 'k, mpi__rank_k', k, mpi__rank_k
 !                 call flush(6)
 !               endif
 ! !              write(*,*)'zzzzzzzzzzzzzmel',shape(zmel)
@@ -346,7 +346,7 @@ contains
               enddo
               deallocate(ns1lists, ns2lists)
             END BLOCK NMBATCH
-            write(6,ftox) 'end of k:', k ,' of:',nqbz, 'zmel:', ftof(stopwatch_lap_time(t_sw_zmel),4), '(sec)', &
+            if(ipr) write(stdo,ftox) 'end of k:', k ,' of:',nqbz, 'zmel:', ftof(stopwatch_lap_time(t_sw_zmel),4), '(sec)', &
                                                         ' x0:', ftof(stopwatch_lap_time(t_sw_x0),4), '(sec)'
             call flush(6)
 1500      enddo kloop
@@ -377,7 +377,7 @@ contains
 !               endblock TimeConsumingRcxq
 ! 1000        enddo icounloop
 !             call stopwatch_pause(t_sw_x0)
-!             write(6,ftox) 'end of k:', k ,' of:',nqbz, 'zmel:', ftof(stopwatch_lap_time(t_sw_zmel),4), '(sec)', &
+!             if(ipr) write(stdo,ftox) 'end of k:', k ,' of:',nqbz, 'zmel:', ftof(stopwatch_lap_time(t_sw_zmel),4), '(sec)', &
 !                                                         ' x0:', ftof(stopwatch_lap_time(t_sw_x0),4), '(sec)'
 !             call flush(6)
 ! 1510      enddo kloop10

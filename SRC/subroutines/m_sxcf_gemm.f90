@@ -265,7 +265,7 @@ contains
   endsubroutine sxcf_scz_exchange
 
   subroutine sxcf_scz_correlation(ef, esmr, ixc, nspinmx) 
-    use m_mpi, only: comm_w, mpi__size_w, mpi__rank_w
+    use m_mpi, only: comm_w, mpi__size_w, mpi__rank_w,ipr
     use m_blas, only: int_split
     implicit none
     integer, intent(in) :: nspinmx, ixc
@@ -300,8 +300,8 @@ contains
     end block LoopScheduleCheck
     call int_split(    niw+1, mpi__size_w, mpi__rank_w, wi_ini, wi_fin, wi_num, start_index=0)
     call int_split(nw-nw_i+1, mpi__size_w, mpi__rank_w, wr_ini, wr_fin, wr_num, start_index=nw_i)
-    write(stdo,ftox) 'Imag omega mesh split:', wi_ini, wi_fin, wi_num, 'Real omega mesh split:', wr_ini, wr_fin, wr_num
-    write(stdo,ftox) '# of tasks:', izz
+    if(ipr)write(stdo,ftox) 'Imag omega mesh split:', wi_ini, wi_fin, wi_num, 'Real omega mesh split:', wr_ini, wr_fin, wr_num
+    if(ipr)write(stdo,ftox) '# of tasks:', izz
     call flush(stdo)
     call stopwatch_init(t_sw_zmel, 'zmel')
     call stopwatch_init(t_sw_xc, 'ec')
@@ -335,7 +335,7 @@ contains
           open(newunit=ifrcwi,file='__WVI.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
           open(newunit=ifrcw, file='__WVR.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
           if(keepwv) then
-            write(stdo, ftox) 'save WVI and WVR on CPU and GPU (if GPU is used) memory. This requires sufficient memory'
+            if(ipr)write(stdo, ftox) 'save WVI and WVR on CPU and GPU (if GPU is used) memory. This requires sufficient memory'
            ! (MO) wvi & wvr are also allocated in CPU memory and are note needed for GPU calcualtion. but allocation of huge
            ! device memory made a error (I don't know the reason). therefore, we used openacc data copyin procedure
            ! but it is usually ok becuase CPU memoery size is always larger than that of GPU.
@@ -356,7 +356,7 @@ contains
             enddo
             !$acc enter data copyin(wvi, wvr)
             call stopwatch_pause(t_sw_setwv)
-            write(stdo, '(X,A,2F8.3)') 'WVI/WVR : sizes (GB)', dble(size(wvi))*kp*2/gb, dble(size(wvr))*kp*2/gb
+            if(ipr)write(stdo, '(X,A,2F8.3)') 'WVI/WVR : sizes (GB)', dble(size(wvi))*kp*2/gb, dble(size(wvr))*kp*2/gb
             call stopwatch_show(t_sw_setwv)
           endif
         endif
@@ -599,7 +599,7 @@ contains
                   enddo
                   !$acc end kernels
                   deallocate(wv, wc, czmelwc)
-                  call writemem('    endof CorrelationSelfEnergy')
+                  if(ipr)call writemem('    endof CorrelationSelfEnergy')
 1114              continue               
                 endblock get_correlation_block  !end subroutine get_correlation
               endassociate

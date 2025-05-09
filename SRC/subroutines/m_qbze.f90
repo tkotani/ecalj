@@ -2,6 +2,7 @@
 module m_qbze 
   use NaNum,only: NaN
   use m_read_bzdata,only: nqbz,nqibz, qbz,qibz, q0i,nq0i,nq0iadd
+  use m_mpi,only:ipr
   implicit none
   integer,protected::    nqbze=NaN, nqibze=NaN
   real(8),allocatable,protected :: qbze(:,:),qibze(:,:)
@@ -19,6 +20,6 @@ contains
           qbze (:,nqbz*i + iq) = qbz(:,iq) + q0i(:,i)
        enddo
     enddo
-    write(6,*) ' m_qbze: nqibz nqibze=',nqibz,nqibze
+    if(ipr) write(6,*) ' m_qbze: nqibz nqibze=',nqibz,nqibze
   end subroutine setqbze
 end module m_qbze

@@ -10,6 +10,8 @@ module m_freq
   use m_read_bzdata,only: dq_,qbz,nqbz
   use m_qbze,only:  nqbze,nqibze,qbze,qibze
   use m_genallcf_v3,only: niw_in=>niw,ecore,nctot,nspin,nband
+  use m_mpi,only: ipr
+  use m_lgunit,only: stdo
   !use m_readhbe,only: nband
   implicit none
   public:: getfreq2, getfreq3, getfreq,freq01
@@ -104,7 +106,7 @@ contains
     do iw = 1,nwhis+1
        frhis(iw) = bb*( exp(aa*(iw-1)) - 1d0 )
     enddo
-    write(6,"('dw, omg_ratio, nwhis= ',d9.2,f13.5,i6)") dw, aa,nwhis
+    if(ipr) write(6,"('dw, omg_ratio, nwhis= ',d9.2,f13.5,i6)") dw, aa,nwhis
     !! Determine nw. Is this correct?
     do iw=3,nwhis
        omg2 = (frhis(iw-2)+frhis(iw-1))/2d0
@@ -138,24 +140,24 @@ contains
        if(npmtwo) npm2= .TRUE.
     endif   
     if( .NOT. timereversal() .OR. npm2)  then
-       write(6,"('TimeReversal off mode')")
+       if(ipr) write(6,"('TimeReversal off mode')")
        npm=2
        nw_i=-nw
        !  if(.not.tetra)   call rx( ' tetra=T for timereversal=off')
     endif
-    write(6,*)'Timereversal=',Timereversal()
+    if(ipr) write(6,*)'Timereversal=',Timereversal()
     !! Determine freq_i  : gaussian frequencies x between (0,1) and w=(1-x)/x
     if (imagomega) then
-       write(6,*)' freqimg: niw =',niw
+       if(ipr) write(stdo,*)' freqimg: niw =',niw
        allocate( freq_i(niw) ,freqx(niw),wx(niw),expa(niw),wiw(niw))
        call freq01 (niw,ua, freqx,freq_i,wx,expa)
        wiw=wx/(2d0*pi*freqx**2)
        deallocate(wx,expa) 
     endif
     if(onceww(1)) then !plot frhis
-       write(6,*)' we set frhis nwhis =',nwhis 
-       write(6,*)' --- Frequency bins to accumulate Im part  (a.u.) are ---- '
-       write(6,"(' ihis Init  End=', i5,2f18.11)") (ihis,frhis(ihis),frhis(ihis+1),ihis=1,nwhis)
+       if(ipr) write(stdo,*)' we set frhis nwhis =',nwhis 
+       if(ipr) write(stdo,*)' --- Frequency bins to accumulate Im part  (a.u.) are ---- '
+       if(ipr) write(stdo,"(' ihis Init  End=', i5,2f18.11)") (ihis,frhis(ihis),frhis(ihis+1),ihis=1,nwhis)
     endif
   end subroutine getfreq
   subroutine freq01 (nx,ua,  freqx,freqw,wx,expa)!Generates a gaussian point x between (0,1) and w = (1-x)/x 
@@ -175,10 +177,10 @@ contains
     ua2    = ua*ua
     freqw  = (1d0 - freqx) / freqx
     expa   = exp(-ua2*freqw**2)
-    !   write(6,"(' --- freq01x:  ix    x    freqw(a.u.)---')")
+    !   if(ipr) write(stdo,"(' --- freq01x:  ix    x    freqw(a.u.)---')")
     !   do      ix = 1,nx
     !      freqw(ix)  = (1.d0 - freqx(ix)) / freqx(ix)
-    !      write(6,"('            ',i4,2f9.4)") ix,freqx(ix),freqw(ix)
+    !      if(ipr) write(stdo,"('            ',i4,2f9.4)") ix,freqx(ix),freqw(ix)
     !   end do
   end subroutine freq01
 end module m_freq
@@ -201,6 +203,7 @@ subroutine getwemax(lqall,wemax)!> In order to get |e_ip-ef| on real space integ
   use m_getqforgw,only: getqforgw, nbmin,nbmax,nq,qx
   use m_lgunit,only: stdo
   use m_ftox
+  use m_mpi,only:ipr
   implicit none
   logical,intent(in):: lqall
   real(8),intent(out):: wemax
@@ -214,7 +217,7 @@ subroutine getwemax(lqall,wemax)!> In order to get |e_ip-ef| on real space integ
   ntq = nbmax-nbmin+1
   allocate( itq, source=[(i,i=nbmin,nbmax)])
   allocate(q(1:3,nq),source=qx(1:3,1:nq))
-  write(stdo,ftox)'ntq itq=',ntq,' ',itq(1:ntq)
+  if(ipr)write(stdo,ftox)'ntq itq=',ntq,' ',itq(1:ntq)
   nspinmx = nspin
   if (laf) nspinmx =1
   !! for 1shot GW deltaw id for d\Sigma/d_omega
@@ -226,7 +229,7 @@ subroutine getwemax(lqall,wemax)!> In order to get |e_ip-ef| on real space integ
         eqt = readeval(q(1:3,ip),is)
         do it=1,ntq
            eee = eqt(itq(it)) - 2d0*deltaw  !2.d0*(-1d0-shtw)*deltaw
-           !            write(6,*)' is ip it eee=',eee,eqt(itq(it))
+           !            if(ipr) write(stdo,*)' is ip it eee=',eee,eqt(itq(it))
            if(eee>=1d20-1d10) cycle !takao jun2009
            if( eee <ef .AND. eee< omegav )  then
               omegav = eee
@@ -234,7 +237,7 @@ subroutine getwemax(lqall,wemax)!> In order to get |e_ip-ef| on real space integ
               itx1 = it
            endif
            eee = eqt(itq(it)) + 2d0*deltaw  !+ 2.d0*(1d0-shtw)*deltaw
-           !            write(6,*)' is ip it eee=',eee,eqt(itq(it))
+           !            if(ipr) write(stdo,*)' is ip it eee=',eee,eqt(itq(it))
            if( eee >ef .AND. eee> omegac )  then
               omegac = eee
               ipx2 = ip

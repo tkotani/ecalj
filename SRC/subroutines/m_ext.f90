@@ -54,9 +54,8 @@ contains
 end module m_args
 
 module m_ext
-!  use m_lgunit,only: stdo
   use m_args,only: m_setargs,arglist,narg
-  character(512),public,protected::sname='temp',dirname
+  character(512),public,protected::sname='tempext',dirname
   public:: m_ext_init
 contains
   subroutine m_ext_init() bind(C)

@@ -146,7 +146,7 @@ subroutine hsfp0_sc()
       if(ixc == 2) then
         if(cmdopt2('--nwpara=', outs)) read(outs,*) n_wpara
         worker_intask = min(n_wpara, mpi__size)
-        write(6,'(1X,A,3I5)') 'MPI: worker_intask ', worker_intask
+        if(ipr) write(stdo,'(1X,A,3I5)') 'MPI: worker_intask ', worker_intask
         call MPI__SplitSc(n_wpara)
       endif
     endblock Wparallelization
@@ -185,11 +185,11 @@ subroutine hsfp0_sc()
   WriteoutInit: block
     use m_readeigen,only: readeval
     real(8):: rydberg
-    if(ixc==3) then ! Core-exchange mode. We set Ef just below the valence eigenvalue (to pick up only cores)
-       if(ipr) write(stdo,"(a)")'CoreEx mode: We change ef as ef=LOWESTEVAL-1d-3, slightly below the bottom of valence.'
-       if(ipr) write(stdo,"(a,f13.5,i5,i5)")' CoreEx mode: ef nspin nctot=',ef,nspin,nctot
+    if(ixc==3.and.ipr) then ! Core-exchange mode. We set Ef just below the valence eigenvalue (to pick up only cores)
+       write(stdo,"(a)")'CoreEx mode: We change ef as ef=LOWESTEVAL-1d-3, slightly below the bottom of valence.'
+       write(stdo,"(a,f13.5,i5,i5)")' CoreEx mode: ef nspin nctot=',ef,nspin,nctot
        do ix=1,nctot
-          if(ipr) write(stdo,"(i4,x,d13.5,x,d13.5)") ix,(ecore(ix,is),is=1,nspin)
+         write(stdo,"(i4,x,d13.5,x,d13.5)") ix,(ecore(ix,is),is=1,nspin)
        enddo
     endif
     allocate(eqx(ntq,nqibz,nspin),eqt(nband))

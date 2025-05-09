@@ -89,7 +89,8 @@ contains
 
     type(s_rv1) :: sv_p_orho(3,nbas)
     type(s_rv1) :: sv_p_orhnew(3,nbas)
-    character sout*80,fnam*8
+    character sout*80
+    character(8)::fnam
     character(20) :: ext
     logical::  mixrealsmooth, init=.true., initd=.true. 
     integer :: numprocs, ierr,isp,nnnx,ng02,ng2, iprint, iter,procid,master
@@ -367,7 +368,7 @@ contains
     type(s_rv1) :: sv_p_orhnew(3,nbas)
     real(8):: a(nda,nsp,mxsav+2,2),rms2,rmsdel
     real(8):: co(ng2,nsp),cn(ng2,nsp),qkl(0:kmxr,nlmlx,nsp,4,nbas)
-    character fnam*8
+    character(8):: fnam
     integer :: ib,na,i,j,k,m,np,iprint,nmixr,is,igetss, off,nlml,lmxl 
     real(8) ,allocatable :: rofi_rv(:)
     real(8) ::rmt,aat,rf

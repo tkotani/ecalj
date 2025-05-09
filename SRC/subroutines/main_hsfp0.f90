@@ -20,7 +20,7 @@ subroutine hsfp0() bind(C)
   use m_mpi,only: &
        MPI__Initialize,MPI__real8send,MPI__real8recv, & !MPI__sxcf_rankdivider,
        MPI__root,MPI__Broadcast,MPI__rank,MPI__size,MPI__allreducesum, &
-       MPI__consoleout
+       MPI__consoleout,ipr
 !  use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,ndimat,nqbzt,nband,mrecg
   use m_genallcf_v3,only: nprecb,mrecb,mrece,nqbzt,nband,mrecg
   use m_lgunit,only: m_lgunit_init
@@ -158,7 +158,7 @@ subroutine hsfp0() bind(C)
   call gpu_init() 
   call M_lgunit_init()
   call date_and_time(values=timevalues)
-  write(6,'(a,9i5)')'dateandtime1=',MPI__rank,timevalues(1:8)
+  if(ipr) write(6,'(a,9i5)')'dateandtime1=',MPI__rank,timevalues(1:8)
   hartree=2d0*rydberg()
   if(cohtest) then
      screen = .true.
@@ -168,11 +168,11 @@ subroutine hsfp0() bind(C)
      if(cmdopt2('--job=',outs)) then
         read(outs,*) ixc
      else
-        write(6,*) ' --- Choose omodes below ----------------'
-        write(6,*) '  Sx(1) Sc(2) ScoreX(3) Spectrum(4) '
-        write(6,*) '  EXX_val-val (5)  Exx_core-val(6) '
-        write(6,*) '  Sx_sf(11) Sc_sf(12) '
-        write(6,*) ' --- Put number above ! -----------------'
+        if(ipr) write(6,*) ' --- Choose omodes below ----------------'
+        if(ipr) write(6,*) '  Sx(1) Sc(2) ScoreX(3) Spectrum(4) '
+        if(ipr) write(6,*) '  EXX_val-val (5)  Exx_core-val(6) '
+        if(ipr) write(6,*) '  Sx_sf(11) Sc_sf(12) '
+        if(ipr) write(6,*) ' --- Put number above ! -----------------'
         read(5,*) ixc           !call readin5(ixc,nz,idummy)
         write(*,*) ' ixc=', ixc !computational mode index
      endif
@@ -182,12 +182,12 @@ subroutine hsfp0() bind(C)
 !  call MPI__Broadcast(nz)
   write(ixcc,"('.mode=',i4.4)")ixc
   call MPI__consoleout('hsfp0'//trim(ixcc))
-  write(6,*) ' ixc =',ixc!, nz
+  if(ipr) write(6,*) ' ixc =',ixc!, nz
   if(ixc==0) call rx( ' --- ixc=0 --- Choose computational mode!')
   !!  tetraex is only for Ex.
   tetraex=tetra_hsfp0()
   iii=verbose()
-  write(6,*)' verbose=',iii
+  if(ipr) write(6,*)' verbose=',iii
   if(ixc==1 .OR. ixc==5 .OR. ixc==6) then;
   else; tetraex=.false.
   endif
@@ -199,7 +199,7 @@ subroutine hsfp0() bind(C)
   !! ===  readin BZDATA. See gwsrc/rwbzdata.f ===
   !! See use m_read_bzdata,only: at the top of this routine
   call read_BZDATA()
-  write(6,*)' nqbz nqibz =',nqbz,nqibz
+  if(ipr) write(6,*)' nqbz nqibz =',nqbz,nqibz
   call pshpr(60)
 
   !! === readin GWIN and LMTO, then allocate and set datas. ===
@@ -220,7 +220,7 @@ subroutine hsfp0() bind(C)
   !! ebmx2 nbmx2 are dummy now.
   nbmx(2)=9999999
   ebmx(2)=1d10
-  write(6,"('  nbmx ebmx from GWinput=',2i8,2d13.5)") nbmx,ebmx
+  if(ipr) write(6,"('  nbmx ebmx from GWinput=',2i8,2d13.5)") nbmx,ebmx
 
   call pshpr(30)
   pi   = 4d0*datan(1d0)
@@ -235,7 +235,7 @@ subroutine hsfp0() bind(C)
   !$$$!! HOMOGENIOUS GAS code. Usually not used.Need fixing if necessary.
   !$$$      INQUIRE (FILE = 'LEGAS', EXIST = legas)
   !$$$      if(legas) then            !!! test for electron gas case.
-  !$$$        write(6,*)' find LEGAS. legas =',legas
+  !$$$        if(ipr) write(6,*)' find LEGAS. legas =',legas
   !$$$        iflegas = 2101
   !$$$        open (iflegas,file='LEGAS')
   !$$$        read(iflegas,*)rs
@@ -255,7 +255,7 @@ subroutine hsfp0() bind(C)
   if(ixc==1) then
      exchange=.true.
      tote=.false.
-     write(6,*) ' --- Exchange mode --- '
+     if(ipr) write(6,*) ' --- Exchange mode --- '
      if(MPI__root) then
         open(newunit=ifxc(1),file='XCU')!//xt(nz))
         open(newunit=ifsex(1),file='SEXU')!//xt(nz))
@@ -265,8 +265,8 @@ subroutine hsfp0() bind(C)
         endif
         INQUIRE (FILE = 'EXspTEST', EXIST = exspwrite)
         if(exspwrite) then
-           write(6,*)'--- Find EXspTEST ExspectrumWrite=',exspwrite
-           write(6,*)'--- esmr is chosen to be 2d0 Ry'
+           if(ipr) write(6,*)'--- Find EXspTEST ExspectrumWrite=',exspwrite
+           if(ipr) write(6,*)'--- esmr is chosen to be 2d0 Ry'
            esmr= 2d0
            do is=1,nspin
               open(newunit=ifexsp(is),file='EXSP.'//char(48+is))
@@ -276,7 +276,7 @@ subroutine hsfp0() bind(C)
   elseif(ixc==2) then
      exchange=.false.
      tote=.false.
-     write(6,*) ' --- Correlation mode --- '
+     if(ipr) write(6,*) ' --- Correlation mode --- '
      if(cohtest) write(6,*) ' COH calculation mode. Results in COH'
      if(MPI__root) then
         open(newunit=ifsec(1),file='SECU')!//xt(nz))
@@ -287,14 +287,14 @@ subroutine hsfp0() bind(C)
      exchange=.true.
      tote=.false.
      esmr=0d0
-     write(6,*) ' --- CORE Exchange mode --- '
+     if(ipr) write(6,*) ' --- CORE Exchange mode --- '
      if(MPI__root) then
         open(newunit=ifsex(1),file='SEXcoreU')!//xt(nz))
         if(nspin == 2) open(newunit=ifsex(2),file='SEXcoreD')!//xt(nz))
      endif
      !! ixc=4,5,6 not checked now... NEED MPI and so on...
   elseif(ixc==4) then
-     write(6,*) ' --- Spectrum function Sigma(omega) mode --- '
+     if(ipr) write(6,*) ' --- Spectrum function Sigma(omega) mode --- '
      exchange=.false.
      tote=.false.
      !        open(newunit=ifsecomg(1),file='SEComgU'//xt(nz))
@@ -303,7 +303,7 @@ subroutine hsfp0() bind(C)
   elseif(ixc==5) then
      exchange=.true.
      tote=.true.
-     write(6,*) ' --- Exx mode valence-valence --- '
+     if(ipr) write(6,*) ' --- Exx mode valence-valence --- '
      open(newunit=ifexx,file='TEEXXvv')
      esmr2 = esmr           !takao June2002
      call rx('need to test this mode again')
@@ -312,17 +312,17 @@ subroutine hsfp0() bind(C)
      tote=.true.
      esmr2 = esmr           !takao June2002
      esmr  = 0d0            !takao June2002
-     write(6,*) ' --- CORE Exx mode core-valence --- '
+     if(ipr) write(6,*) ' --- CORE Exx mode core-valence --- '
      open(newunit=ifexx,file='TEEXXcv')
      call rx('need to test this mode again')
-     write(6,'("    esmr2    =",f13.6)') esmr2
+     if(ipr) write(6,'("    esmr2    =",f13.6)') esmr2
   else
      call rx( ' hsfp0: Need input (std input) 1-6!')
   endif
-  write(6, *) ' --- computational conditions --- '
-  write(6,'("    deltaw  =",f13.6)') deltaw
-  write(6,'("    esmr    =",f13.6)') esmr
-  write(6,'("    alat voltot =",2f13.6)') alat, voltot
+  if(ipr) write(6, *) ' --- computational conditions --- '
+  if(ipr) write(6,'("    deltaw  =",f13.6)') deltaw
+  if(ipr) write(6,'("    esmr    =",f13.6)') esmr
+  if(ipr) write(6,'("    alat voltot =",2f13.6)') alat, voltot
 !  call Readhbe()    !Read dimensions of h,hb
   call Readhamindex()
   call init_readeigen()!nband,mrece) !initialization of readEigen
@@ -330,7 +330,7 @@ subroutine hsfp0() bind(C)
   call Readngmx2() !return ngpmx and ngcmx in m_readqg
   call readqg0('QGpsi',qibz(1:3,1), quu,ngpn1)
   call readqg0('QGcou',qibz(1:3,1), quu,ngcn1)
-  write(6,*) ' max number of G for QGpsi and QGcou: ngcmx ngpmx=',ngcmx,ngpmx
+  if(ipr) write(6,*) ' max number of G for QGpsi and QGcou: ngcmx ngpmx=',ngcmx,ngpmx
   if(debug) write(6,*) ' end of read QGcou'
   !! === readin plane wave parts, and Radial integrals ppbrd. ===
   !     ppbrd = radial integrals
@@ -344,7 +344,7 @@ subroutine hsfp0() bind(C)
   if( .NOT. exchange .OR. (exchange .AND. screen)) then !screen means screened exchange case
      open(newunit=ifwd,file='__WV.d') !direct access files WVR and WVI which include W-V.
      read(ifwd,*) nprecx,mrecl,nblochpmx,nwp,niwt, nqnum, nw_i
-     write(6,"(' Readin WV.d =', 10i8)") nprecx,mrecl,nblochpmx, nwp, niwt, nqnum, nw_i
+     if(ipr) write(6,"(' Readin WV.d =', 10i8)") nprecx,mrecl,nblochpmx, nwp, niwt, nqnum, nw_i
      close(ifwd)
      if(nprecx/=ndble)call rx("hsfp0: dim of WVR and WVI not compatible")!call checkeq(nprecx,ndble)
      nw=nwp-1
@@ -386,7 +386,7 @@ subroutine hsfp0() bind(C)
      if(ixc==6) then
         call efsimplef2ax(legas,esmr2, valn,efnew)!Get num of val electron valn and Fermi energy ef. legas=T give ef for given valn.
         ef2 = efnew
-        write(6,*)' end of efsimple ef2 esmr2=',ef2,esmr2
+        if(ipr) write(6,*)' end of efsimple ef2 esmr2=',ef2,esmr2
      endif
   else                      ! if(esmr/=0d0) then
      !     --- determine Fermi energy ef for given valn (legas case) or corresponding charge given by z and konf.
@@ -396,10 +396,10 @@ subroutine hsfp0() bind(C)
      if (ixc==5) ef2 = ef
      !     - check total ele number -------
      !        ntot  = nocctotg2(nspin, ef,esmr, qbz,wbz, nband,nqbz) !wbz
-     write(6,*)' ef    =',ef
-     write(6,*)' esmr  =',esmr
-     write(6,*)' valn  =',valn
-     !        write(6,*)' ntot  =',ntot
+     if(ipr) write(6,*)' ef    =',ef
+     if(ipr) write(6,*)' esmr  =',esmr
+     if(ipr) write(6,*)' valn  =',valn
+     !        if(ipr) write(6,*)' ntot  =',ntot
   endif
   !!
 201 continue
@@ -448,13 +448,13 @@ subroutine hsfp0() bind(C)
 !2038 continue
 !     omegamax = 2*freq_r(nw) !This is in Ry.
 !     if(omegamaxin < omegamax) then
-!        write(6,*)' --Use readin dwplot and omegamaxin from <QPNT>'
+!        if(ipr) write(6,*)' --Use readin dwplot and omegamaxin from <QPNT>'
 !        omegamax = omegamaxin
 !     endif
 !     if( omegamax <0) call rx( 'hsfp0 :strange omegamax <0 ')
 !     iwini =  -int( omegamax / dwplot )
 !     iwend =   int( omegamax/  dwplot )
-!     write(6,*)' iwini:iwend omegamax(Ry)=',iwini,iwend,omegamax
+!     if(ipr) write(6,*)' iwini:iwend omegamax(Ry)=',iwini,iwend,omegamax
 
 !ccccccccccccccccccccccccccccccccccccccccccccccccccc
      omegamax = 2*freq_r(nw-1) !omegamax is in Ry.
@@ -462,7 +462,7 @@ subroutine hsfp0() bind(C)
      if( omegamax <0) call rx( 'hsfp0 :strange omegamax <0 ')
      iwini =  -int( omegamax / dwplot )
      iwend =   int( omegamax/  dwplot )
-     write(6,*)' iwini:iwend omegamax(Ry)=',iwini,iwend,omegamax,nw
+     if(ipr) write(6,*)' iwini:iwend omegamax(Ry)=',iwini,iwend,omegamax,nw
 !ccccccccccccccccccccccccccccccccccccccccccccccccccc
 
   else
@@ -515,13 +515,13 @@ subroutine hsfp0() bind(C)
                 eigen-Ef (in eV) &
                 LDA XC (in eV)'
            ifoutsex = ifxc(is)
-           write(6,*)
+           if(ipr) write(6,*)
            do ip = 1,nq
               do i  = 1,ntq
                  write(ifoutsex,"(3i5,3d24.16,3x,d24.16,3x,d24.16)") &
                       itq(i),ip,is, q(1:3,ip), eqx(i,ip,is), &
                       vxcfp(i,ip,is)
-                 write(6,"(' j iq isp=' i3,i4,i2,'  q=',3f8.4, &
+                 if(ipr) write(6,"(' j iq isp=' i3,i4,i2,'  q=',3f8.4, &
                       '  eig=',f10.4,'  Sxc(LDA)=',f10.4)") &
                       itq(i),ip,is, q(1:3,ip), eqx(i,ip,is), &
                       vxcfp(i,ip,is)
@@ -538,26 +538,26 @@ subroutine hsfp0() bind(C)
   if(.not.exchange) then
      if(nqibz+nq0i-1/=nqnum) call rx("hsfp0: nqibz+nq0i-1/=nqnum")
   endif
-  write(6,*) ' *** nqibz nq0i_total=', nqibz,nq0i
-  write(6,*) ' Used k number in Q0P =', nq0i
-  write(6,"(i3,f14.6,2x, 3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i)
+  if(ipr) write(6,*) ' *** nqibz nq0i_total=', nqibz,nq0i
+  if(ipr) write(6,*) ' Used k number in Q0P =', nq0i
+  if(ipr) write(6,"(i3,f14.6,2x, 3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i)
   allocate( wgt0(nq0i,ngrp) )
   call getkeyvalue("GWinput","allq0i",allq0i,default=.false.) 
   call q0iwgt3(allq0i,symgg,ngrp,wqt,q0i,nq0i, wgt0)   
   !--------------------------
-  if(nq0i/=0) write(6,*) ' *** tot num of q near 0   =', 1/wgt0(1,1)
-  write(6,"('  sum(wgt0) from Q0P=',d14.6)")sum(wgt0)
+  if(nq0i/=0.and.ipr) write(6,*) ' *** tot num of q near 0   =', 1/wgt0(1,1)
+  if(ipr) write(6,"('  sum(wgt0) from Q0P=',d14.6)")sum(wgt0)
   if(niw/=0) then !! Generate gaussian frequencies x between (0,1) and w=(1-x)/x
      allocate(freqx(niw),freqw(niw),wwx(niw),expa(niw))
      call freq01(niw, 1d0, freqx,freqw,wwx,expa) !ua=1d0 is dummy 
   endif
   iii= count(irk/=0) !iii=ivsumxxx(irk,nqibz*ngrp)
-  write(6,*) " sum of nonzero iirk=",iii, nqbz
+  if(ipr) write(6,*) " sum of nonzero iirk=",iii, nqbz
   !! === readin Vcoud and EPSwklm for newaniso()=T ===
   !        open(newunit=ifidmlx,file='EPSwklm',form='unformatted')
   !        read(ifidmlx) nq0ix,lxklm
   !        if(nq0i/=nq0ix) then
-  !          write(6,*)'nq0i from EPSwklm /= nq0i',nq0i,nq0ix
+  !          if(ipr) write(6,*)'nq0i from EPSwklm /= nq0i',nq0i,nq0ix
   !          call rx( 'nq0i from EPSwklm /= nq0i')
   !        endif
   !        allocate( dmlx(nq0i,9))
@@ -571,10 +571,10 @@ subroutine hsfp0() bind(C)
   !! tetraex section. not checked well recentrly(sep2012) -------
   !! this can be recovered in future.
   if(tetraex) then
-     write(6,*) ' !!!!  tetraex=T is not tested well !!!!!!!!!'
+     if(ipr) write(6,*) ' !!!!  tetraex=T is not tested well !!!!!!!!!'
      open(newunit=ifefsm,file='EFERMI')
      read(ifefsm,*) ef
-     write(6,"(' ef is readin from EFERMI',d23.15)")ef
+     if(ipr) write(6,"(' ef is readin from EFERMI',d23.15)")ef
      allocate(wtet(nband,nspin,nqibz,0:0), &
           eband(nband,nspin,nqibz), qz(3,nqibz)) ! ,nstar(nqibz))
      qz=qibz !call dcopy (3*nqibz,qibz,1,qz,1)
@@ -588,12 +588,12 @@ subroutine hsfp0() bind(C)
           nspin,edummy,edummy,edummyd,1,ef,2,nteti,idteti)
      ntot= sum(wtet)
      !$$$        if(legas) then
-     !$$$          write(6,"(' tetra=T ef ntot nexact ratio=',15f12.6)") ef,ntot
+     !$$$          if(ipr) write(6,"(' tetra=T ef ntot nexact ratio=',15f12.6)") ef,ntot
      !$$$     &           , ef**1.5d0/3d0/pi**2*voltot, ef**1.5d0 /3d0/pi**2*voltot/ntot
      !$$$        else
-     !$$$          write(6,"(' tetra=T ef nvalence)=',15f12.6)") ef,ntot
+     !$$$          if(ipr) write(6,"(' tetra=T ef nvalence)=',15f12.6)") ef,ntot
      !$$$        endif
-     write(6,"(' tetra=T ef nvalence)=',15f12.6)") ef,ntot
+     if(ipr) write(6,"(' tetra=T ef nvalence)=',15f12.6)") ef,ntot
      if(nspin==1) wtet = wtet/2d0
      do iqi = 1,nqibz
         wtet(:,:,iqi,:) = wtet(:,:,iqi,:)/nstar(iqi)
@@ -618,7 +618,7 @@ subroutine hsfp0() bind(C)
   endif
   !!  end of tetra section --------------------------------------------
   iii=count(irk/=0) !ivsumxxx(irk,nqibz*ngrp)
-  write(6,*) " sum of nonzero iirk=",iii, nqbz
+  if(ipr) write(6,*) " sum of nonzero iirk=",iii, nqbz
   !-----------------------------------------------------------
   !     calculate the the self-energy SEx(ip) or SEc(ip)
   !-----------------------------------------------------------
@@ -710,7 +710,7 @@ subroutine hsfp0() bind(C)
 2000 enddo isploop
   if(MPI__root .AND. tote) call Hswrite3() ! total energy mode, obsolate now...
   if(MPI__root .AND. sum(ifexsp(1:nspin))/=0) call Hswrite4() !EXspectrum
-  write(6,*) '--- end of hsfp0 --- irank=',MPI__rank
+  if(ipr) write(6,*) '--- end of hsfp0 --- irank=',MPI__rank
   call cputid(0)
   call flush(6)
   if(ixc==1 ) call rx0( ' OK! hsfp0: Exchange mode')
@@ -753,12 +753,12 @@ contains !followings are only for writing files.
        continue 
     elseif(exchange) then
        ifoutsex=ifsex(is)
-       write(6,*)
+       if(ipr) write(6,*)
        do ip = 1,nq
           do i  = 1,ntq
              write(ifoutsex,"(3i5,3d24.16,3x,d24.16,3x,d24.16)") &
                   itq(i),ip,is, q(1:3,ip), eqx(i,ip,is), hartree*dreal(zsec(iwini,i,ip))
-             write(6,"(' j iq isp=' i3,i4,i2,'  q=',3f8.4,'  eig=',f10.4,'  Sx=',f10.4)")&
+             if(ipr) write(6,"(' j iq isp=' i3,i4,i2,'  q=',3f8.4,'  eig=',f10.4,'  Sx=',f10.4)")&
                   itq(i),ip,is, q(1:3,ip), eqx(i,ip,is), hartree*dreal(zsec(iwini,i,ip))
           enddo
        enddo
@@ -775,7 +775,7 @@ contains !followings are only for writing files.
              zfac2   = 1d0/(1d0-dscdw2)
              dscdw   = dreal( zseciip(1) - zseciip(-1) ) /(2d0*deltaw)
              zfac    = 1d0/(1d0-dscdw)
-             write(6,"(' j iq isp=' i3,i4,i2,'  q=',3f8.4, &
+             if(ipr) write(6,"(' j iq isp=' i3,i4,i2,'  q=',3f8.4, &
                   '  eig=',f8.4,'  Re(Sc) =',3f8.4,'  Img(Sc) =',3f8.4, &
                   '  zfac=',f8.4,'  zfac1&2 =',2f8.4)") &
                   itq(i),ip,is, q(1:3,ip), eqx(i,ip,is), &
@@ -799,10 +799,10 @@ contains !followings are only for writing files.
        open(ifoutsec,file='SEComg'//sss)
        do ip = 1,nq
           do i  = 1,ntq
-             write(6,"(' --- j iq isp=' i3,i4,i2,' q=',3f8.4,' eig=',f8.4)") &
+             if(ipr) write(6,"(' --- j iq isp=' i3,i4,i2,' q=',3f8.4,' eig=',f8.4)") &
                   itq(i),ip,is, q(1:3,ip), eqx(i,ip,is)
              do iw = iwini,iwend
-                if(mod(iw-iwini+1,50)==1) &
+                if(mod(iw-iwini+1,50)==1.and.ipr) &
                      write(6,"(' omega-ef=',f9.4,'  Sc=',2f9.4)") &
                      (omega(i,iw)-ef)*rydberg(), hartree*zsec(iw,i,ip)
                 write(ifoutsec,"(4i5,3f10.6,3x,f10.6,2x,2f16.8,x,3f16.8)") &
@@ -844,7 +844,7 @@ contains !followings are only for writing files.
   subroutine Hswrite4()
     character(3)  :: charnum3
     do is = 1,nspin
-       write(6,*)' --- Goto ExSpectrum section --- is=',is
+       if(ipr) write(6,*)' --- Goto ExSpectrum section --- is=',is
        rewind (ifexsp(is))
        itmx = 0
        do
@@ -855,7 +855,7 @@ contains !followings are only for writing files.
        nspexmx = itmx*(nqbz+nq0i*ngrp) !Get marimum value of the number of the ex spectrum
        allocate( eex1(nspexmx,ntq,nq), exsp1(nspexmx,ntq,nq),nspex(ntq,nq),itex1(nspexmx,ntq,nq), &
             qqex1(3,nspexmx,ntq,nq) )
-       write(6,*)' nspexmx =',nspexmx
+       if(ipr) write(6,*)' nspexmx =',nspexmx
        rewind (ifexsp(is))
        nspex = 0
        do
@@ -868,10 +868,10 @@ contains !followings are only for writing files.
           qqex1(:,iex,itpex,ipex)= qqex
        enddo
 1216   continue               !Get eex1(1:nspex) exsp1(1:nspex) for itp ip.
-       write(6,*)' nspex(1 1)=',nspex(1,1)
+       if(ipr) write(6,*)' nspex(1 1)=',nspex(1,1)
        do ipex = 1,nq
           do itpex=1,ntq
-             write(6,*)' is itq ip =',is,itq,ip
+             if(ipr) write(6,*)' is itq ip =',is,itq,ip
              nnex = nspex(itpex,ipex)
              allocate( ieord(1:nnex) )
              call sortea( eex1(1:nnex,itpex,ipex),ieord, nnex,isig)
@@ -903,11 +903,12 @@ contains !followings are only for writing files.
        enddo
        deallocate( eex1, exsp1, nspex, itex1, qqex1 )
     enddo
-    write(6,*)' End of ExSpectrum section ---'
+    if(ipr) write(6,*)' End of ExSpectrum section ---'
   end subroutine Hswrite4
 end subroutine hsfp0
 
 subroutine rsexx2 (nspin, itq, q, ntq,nq,ginv, symgg,ng, vxco)
+  use m_mpi,only:ipr
   implicit real*8 (a-h,o-z)
   implicit integer (i-n)
   dimension vxco(ntq,nq,nspin),q(3,nq),itq(ntq) !itq is not dependent on q, right?
@@ -915,14 +916,14 @@ subroutine rsexx2 (nspin, itq, q, ntq,nq,ginv, symgg,ng, vxco)
   logical ::nocore,lfind
   real(8)::  rydberg,tolq=1d-5,qx(3),ginv(3,3),qr(3),symgg(3,3,ng),sym(3,3)
   integer:: ikpx=999999
-  write(6,*)' OPEN VXCFP '
+  if(ipr) write(6,*)' OPEN VXCFP '
   open(newunit=ifvxcfp,file='__VXCFP',form='unformatted')
   read(ifvxcfp) ldim,nqbz
-  write(6,*)' rsexx ldim,nqbz',ldim,nqbz
+  if(ipr) write(6,*)' rsexx ldim,nqbz',ldim,nqbz
   allocate(qqq(3,nqbz),vxcfpx(ldim,nqbz,nspin))
   do ikp = 1,nqbz
      read(ifvxcfp) qqq(1:3,ikp),vxcfpx(1:ldim,ikp,1:nspin)
-     write(6,"(i5,100d13.5)") ikp,qqq(1:3,ikp)
+     if(ipr) write(6,"(i5,100d13.5)") ikp,qqq(1:3,ikp)
   enddo
   close(ifvxcfp)
   do iq=1,nq

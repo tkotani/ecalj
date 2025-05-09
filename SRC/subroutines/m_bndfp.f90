@@ -280,10 +280,10 @@ contains
        else
           call makdos(nkp,nevmin,nbandmx,nsp,rv_a_owtkp,evlall,bz_n,bz_w,-6d0,dosw(1),dosw(2),ndos,dos_rv) !ndmahx=>nevmin
        endif
-       head='.tmp'
+       head='.chk'
        if(tdos)head=''
-       open(newunit=ifi, file='dos.tot'//trim(head)//'.'//trim(sname))
-       open(newunit=ifii,file='dosi.tot'//trim(head)//'.'//trim(sname))
+       open(newunit=ifi, file= 'dos.tot.'//trim(sname)//trim(head))
+       open(newunit=ifii,file='dosi.tot.'//trim(sname)//trim(head))
        dee=(dosw(2)-dosw(1))/(ndos-1d0)
        dosi=0d0
        do ipts=1,ndos

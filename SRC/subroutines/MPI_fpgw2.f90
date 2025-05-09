@@ -74,7 +74,7 @@ contains
     mpi__root_k = mpi__rank_k == 0
     call mpi_comm_split(comm_q, color, mpi__rank, comm_root_k, mpi__info)
 
-    write(06,'(X,A,4I5,2L2)') "MPI: rank, rank_q, rank_k, rank_b, root_q, root_k ", &
+    if(ipr)write(06,'(X,A,4I5,2L2)') "MPI: rank, rank_q, rank_k, rank_b, root_q, root_k ", &
                 mpi__rank, mpi__rank_q, mpi__rank_k, mpi__rank_b, mpi__root_q, mpi__root_k
 
   end subroutine MPI__SplitXq
@@ -95,7 +95,7 @@ contains
     enddo
     npr_col = mpi__npr_col(mpi__rank_b)
     ipr_col = mpi__ipr_col(mpi__rank_b)
-    write(06,'(X,A,I5,2I7)') "mpi__rank_b, ipr_col, npr_col=", mpi__rank_b, ipr_col, npr_col
+    if(ipr)write(06,'(X,A,I5,2I7)') "mpi__rank_b, ipr_col, npr_col=", mpi__rank_b, ipr_col, npr_col
   end subroutine MPI__Setnpr_col
 
   subroutine MPI__GatherXqw(xqw, xqw_all, npr, npr_col)
@@ -395,7 +395,7 @@ subroutine MPI__sxcf_rankdivider(irkip_all,nspinmx,nqibz,ngrp,nq,irkip)
   end if
   total = count(irkip_all>0)
   ngroup = mpi__size/worker_intask
-  if(ipr) write(6,"('MPI__sxcf_rankdivider:$')")
+  if(ipr)write(6,"('MPI__sxcf_rankdivider:$')")
   if(ipr)write(6,"('nspinmx,nqibz,ngrp,nq,total=',5i6)") nspinmx,nqibz,ngrp,nq,total
   if(ipr)write(6,'(A,2I5)') 'MPI: Worker in Task, # of groups', worker_intask, ngroup
   allocate( vtotal(0:mpi__size-1) )

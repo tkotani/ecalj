@@ -18,7 +18,7 @@ subroutine hx0fp0()
   use m_readqgcou,only: readqgcou
   use m_mpi,only: MPI__Initialize,MPI__root, &
        MPI__Broadcast,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,MPI__rank,MPI__size, MPI__consoleout,comm, &
-     & MPI__SplitXq, MPI__Setnpr_col, comm_b, comm_k, mpi__root_k, mpi__root_q
+     & MPI__SplitXq, MPI__Setnpr_col, comm_b, comm_k, mpi__root_k, mpi__root_q,ipr
   use m_rdpp,only: Rdpp, &   ! & NOTE: "call rdpp" generate following data.
        nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx,nprecx,mrecl,nblochpmx
   use m_zmel,only: Mptauof_zmel!, Setppovlz,Setppovlz_chipm   ! & NOTE: these data set are stored in this module, and used
@@ -194,10 +194,10 @@ subroutine hx0fp0()
   fourpi   = 4d0*pi
   sqfourpi = sqrt(fourpi)
   !! computational mode select ! takao keeps only the Sergey mode.
-  write(6,"(a)") '--- Type numbers #1 #2 #3 [#2 and #3 are options] ---'
-  write(6,"(a)") ' #1:run mode= 11: normal! 111: normal fullband! 10111 : normal  crpa!'
-  write(6,"(a)") '             202: epsNoLFC! 203: eps!  222: chi^+- NoLFC'
-  write(6,"(a)")  '-------------------------------------------------------'
+  if(ipr) write(stdo,"(a)") '--- Type numbers #1 #2 #3 [#2 and #3 are options] ---'
+  if(ipr) write(stdo,"(a)") ' #1:run mode= 11: normal! 111: normal fullband! 10111 : normal  crpa!'
+  if(ipr) write(stdo,"(a)") '             202: epsNoLFC! 203: eps!  222: chi^+- NoLFC'
+  if(ipr) write(stdo,"(a)")  '-------------------------------------------------------'
   if(cmdopt2('--job=',outs)) then; read(outs,*) ixc
   elseif(MPI__root) then         ; read(5,*)    ixc
   endif
@@ -207,26 +207,26 @@ subroutine hx0fp0()
   !!  realomega: \chi on real axis  !  imagomega: \chi on imag omega !  lqall: limited range of \chi on real axis (mainly for memory reduction
   !!  chipm: \Chi_pm mode (nspin=2) !  nolfco: no local field correction
   lqall=.true.
-  if(ixc==11) then;      write(6,*)"OK ixc=11  normal ";         epsmode=.false. ; lqall=.true.
-  elseif(ixc==111) then; write(6,*)"OK ixc=111 normal fullband"; epsmode=.false. 
-  elseif(ixc==10011)then;write(6,*)"OK ixc=10011 crpa ";         epsmode=.false. ; crpa=.true.
-  elseif(ixc==202) then; write(6,*)"OK ixc=202 eps NoLFC";       epsmode =.true. ; imagomega=.false.; omitqbz=.true.;nolfco=.true.
-  elseif(ixc==203) then; write(6,*)"OK ixc=203 eps wLFC";        epsmode = .true.; imagomega=.false.; omitqbz=.true.   
-  elseif(ixc==222) then; write(6,*)"OK ixc=222 chipm noLFC";     epsmode = .true.; imagomega=.false.; omitqbz=.true.;nolfco=.true.
+  if(ixc==11) then;      if(ipr) write(stdo,*)"OK ixc=11  normal ";         epsmode=.false. ; lqall=.true.
+  elseif(ixc==111) then; if(ipr) write(stdo,*)"OK ixc=111 normal fullband"; epsmode=.false. 
+  elseif(ixc==10011)then;if(ipr) write(stdo,*)"OK ixc=10011 crpa ";         epsmode=.false. ; crpa=.true.
+  elseif(ixc==202) then; if(ipr) write(stdo,*)"OK ixc=202 eps NoLFC";       epsmode =.true. ; imagomega=.false.; omitqbz=.true.;nolfco=.true.
+  elseif(ixc==203) then; if(ipr) write(stdo,*)"OK ixc=203 eps wLFC";        epsmode = .true.; imagomega=.false.; omitqbz=.true.   
+  elseif(ixc==222) then; if(ipr) write(stdo,*)"OK ixc=222 chipm noLFC";     epsmode = .true.; imagomega=.false.; omitqbz=.true.;nolfco=.true.
      chipm=.true.    !  elseif(ixc==12) realomega=.false.; ecorr_on=901; then ! Total energy test mode --> need fixing 
   else; call rx( ' hx0fp0: given mode ixc is not appropriate')
   endif
   call Read_BZDATA(hx0)
-  write(6,"(' nqbz nqibz ngrp=',3i5)") nqbz,nqibz,ngrp
-  if(MPI__root) then
+  if(ipr) write(stdo,"(' nqbz nqibz ngrp=',3i5)") nqbz,nqibz,ngrp
+  if(MPI__root.and.ipr) then
      do i=1,nqbz
-        if(i<10 .OR. i>nqbz-10) write(6,"('i qbz=',i8,3f8.4)") i,qbz(:,i)
-        if(i==10 .AND. nqbz>18) write(6,"('... ')")
+        if(i<10 .OR. i>nqbz-10) write(stdo,"('i qbz=',i8,3f8.4)") i,qbz(:,i)
+        if(i==10 .AND. nqbz>18) write(stdo,"('... ')")
      enddo
-     write(6,*)' nqbz nqibz =',nqbz,nqibz
+     write(stdo,*)' nqbz nqibz =',nqbz,nqibz
   endif
   call Readefermi()
-  write(6,"(a,f12.6)")' --- READIN ef from EFERMI. ef=',ef
+  if(ipr) write(stdo,"(a,f12.6)")' --- READIN ef from EFERMI. ef=',ef
   call genallcf_v3(incwfx=0) !use 'ForX0 for core' in GWIN
   if(chipm .AND. nspin==1) call rx( 'chipm mode is for nspin=2')
   if(nqbz /=nqbzt ) call rx(' hx0fp0_sc: nqbz /=nqbzt  in hbe.d')
@@ -235,10 +235,10 @@ subroutine hx0fp0()
   !! Readin q+G. nqbze and nqibze are for adding Q0P related points to nqbz and nqibz.
   call Readngmx2() !return ngpmx and ngcmx in m_readqg
   call Setqbze()    ! extented BZ points list
-  write(6,*)' num of zero weight q0p=',neps
-  write(6,"(i3,f14.6,2x,3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i)
-  write(6,"(' ngcmx ngpmx nqbz nq0i= ',2i8)") ngcmx,ngpmx,nqbz,nq0i
-  !  do i = 1,nq0i+1; ini = nqbz*(i-1); do ix=1,nqbz;write(6,"('hx0fp0 qbze q0i=',i8,3f10.4,2x,3f10.4)") ini+ix,qbze(:,ini+ix);enddo
+  if(ipr) write(stdo,*)' num of zero weight q0p=',neps
+  if(ipr) write(stdo,"(i3,f14.6,2x,3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i)
+  if(ipr) write(stdo,"(' ngcmx ngpmx nqbz nq0i= ',2i8)") ngcmx,ngpmx,nqbz,nq0i
+  !  do i = 1,nq0i+1; ini = nqbz*(i-1); do ix=1,nqbz;if(ipr) write(stdo,"('hx0fp0 qbze q0i=',i8,3f10.4,2x,3f10.4)") ini+ix,qbze(:,ini+ix);enddo
   !! Get space-group transformation information. See header of mptaouof.
   !! Here we use ngrpx=1 ==> "no symmetry operation in hx0fp0", c.f. hsfp0.sc.m.F case.
   !! ngrpx=1 (no symmetry operation in hx0fp0), whereas we use ngrp in eibzmode=T.
@@ -272,7 +272,7 @@ subroutine hx0fp0()
      enddo
      close(ifif)
   endif writefreq_r
-  if(MPI__root) write(6,"(' nw=',i5)") nw
+  if(ipr) write(stdo,"(' nw=',i5)") nw
   nwp = nw+1
   !! Get eigenvector corresponds to exp(iqr) (q is almost zero).
   if(epsmode) allocate(epsi(nw_i:nw,neps))
@@ -309,13 +309,13 @@ subroutine hx0fp0()
         read(ifv,*) ibasx,lxx
         allocate(nxx_r(0:lxx))
         do i=0,lxx
-           read(ifv,*) nxx_r(i)   !   write(6,"(2i5,d13.6)") nxx_r(i)
+           read(ifv,*) nxx_r(i)   !   if(ipr) write(stdo,"(2i5,d13.6)") nxx_r(i)
         enddo
         allocate(spinvec((lxx+1)**2,maxval(nxx_r)),consvec((lxx+1)**2,maxval(nxx_r)))
         spinvec=0d0
         do ilmx = 1, (lxx+1)**2
-           lb = ll(ilmx )         !  write(6,*)' lb=',lb,lxx,ilmx
-           do ixx = 1, nxx_r(lb)  !  write(6,*)' nn=',nn,nxx_r(lb)
+           lb = ll(ilmx )         !  if(ipr) write(stdo,*)' lb=',lb,lxx,ilmx
+           do ixx = 1, nxx_r(lb)  !  if(ipr) write(stdo,*)' nn=',nn,nxx_r(lb)
               if(ilmx==1) then
                  read(ifv,*) ilm_r, nx_r, spinvec(ilmx,ixx),chg1,chg2 ,consvec(ilmx,ixx)
               else
@@ -333,7 +333,7 @@ subroutine hx0fp0()
                  ilmx = lb**2+ lb+ mb +1
                  svec(i,imb) = spinvec(ilmx,nb)
                  cvec(i,imb) = consvec(ilmx,nb)
-                 write(6,"(' i lb mb svec svec**2=',3i4,2d13.5)") i,lb,mb,svec(i,imb),svec(i,imb)**2
+                 if(ipr) write(stdo,"(' i lb mb svec svec**2=',3i4,2d13.5)") i,lb,mb,svec(i,imb),svec(i,imb)**2
               enddo
            enddo
         enddo
@@ -341,7 +341,7 @@ subroutine hx0fp0()
         close(ifv)
         mmnorm (imb) = sqrt(sum(svec(:,imb)**2))
         momsite(imb) = chg1-chg2
-        write(6,"( 'mmom mmnorm= ',2f14.10)")  momsite(imb),mmnorm(imb)
+        if(ipr) write(stdo,"( 'mmom mmnorm= ',2f14.10)")  momsite(imb),mmnorm(imb)
      enddo
   endif
 
@@ -353,7 +353,7 @@ subroutine hx0fp0()
   n_kpara = max(mpi__size/(n_bpara*nqcalc), 1)  !Default setting of parallelization. b-parallel is 1.
   if(cmdopt2('--nk=', outs)) read(outs,*) n_kpara
   worker_inQtask = n_bpara * n_kpara
-  write(6,'(1X,A,3I5)') 'MPI: worker_inQtask, n_bpara, n_kpara', worker_inQtask, n_bpara, n_kpara
+  if(ipr) write(stdo,'(1X,A,3I5)') 'MPI: worker_inQtask, n_bpara, n_kpara', worker_inQtask, n_bpara, n_kpara
   call MPI__SplitXq(n_bpara, n_kpara)
 
   allocate(ekxx1(nband,nqbz),ekxx2(nband,nqbz))
@@ -362,12 +362,12 @@ subroutine hx0fp0()
   ! allocate( mpi__task(iqxini:iqxend),    source=[(mod(iq-1,mpi__size)==mpi__rank,iq=iqxini,iqxend)])
   allocate( mpi__ranktab(iqxini:iqxend), source=[(mod(iq-1,mpi__size/worker_inQtask)*worker_inQtask           ,iq=iqxini,iqxend)])
   allocate( mpi__task(iqxini:iqxend),    source=[(mod(iq-1,mpi__size/worker_inQtask)==mpi__rank/worker_inQtask,iq=iqxini,iqxend)])
-  write(6,ftox)'mpi_rank',mpi__rank,'mpi__Qtask=',mpi__task
-  write(6,ftox) 'mpi_qrank', mpi__ranktab
+  if(ipr) write(stdo,ftox)'mpi_rank',mpi__rank,'mpi__Qtask=',mpi__task
+  if(ipr) write(stdo,ftox) 'mpi_qrank', mpi__ranktab
   !! llw, and llwI are for L(omega) for Q0P in PRB81,125102
 !  allocate( llw(nw_i:nw,nq0i), llwI(niw,nq0i) )
   if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
-  write(6,*)" chi_+- mode nolfc=",nolfco
+  if(ipr) write(stdo,*)" chi_+- mode nolfc=",nolfco
   if(.NOT.chipm) allocate(zzr(1,1),source=(0d0,0d0)) !dummy
   iqloop: do 1001 iq = iqxini,iqxend  ! NOTE: qp=(0,0,0) is omitted when iqxini=2
 !    if(cmdopt0('--zmel0').and.iq==iqxini) cycle
@@ -376,11 +376,11 @@ subroutine hx0fp0()
     qp  = qibze(:,iq)
     q00= qibze(:,iqxini)
     ! Readin diagonalized Coulomb interaction zcousq: E(\nu,I), Enu basis is given in PRB81,125102; vcousq: sqrt(v), as well.
-    write(6,*); write(6,"('===== do 1001: iq qp=',i7,3f9.4,' ========')")iq,qp
+    if(ipr) write(stdo,*); if(ipr) write(stdo,"('===== do 1001: iq qp=',i7,3f9.4,' ========')")iq,qp
     call Readqg0('QGcou',qp,   quu,ngc) ! ngc: the number of IPW for the interaction matrix (in QGcou),
     call Readvcoud(qp,iq,NoVcou=chipm) !Readin vcousq,zcousq ngb ngc for the Coulomb matrix
     ngb = ngc+nbloch
-    write(6,"('  nbloch ngb ngc=',3i10)") nbloch,ngb,ngc
+    if(ipr) write(stdo,"('  nbloch ngb ngc=',3i10)") nbloch,ngb,ngc
     if(chipm) then !npr is the dimension of zxq(npr,npr)
       npr = nmbas
     elseif(nolfco) then
@@ -390,7 +390,7 @@ subroutine hx0fp0()
     endif
     call MPI__Setnpr_col(npr, npr_col) ! set the npr_col : split of npr(column) for MPI color_b
     if(epsmode) call writeepsopen()
-    write(6,"(' ##### ',2i4,' out of nqibz+n0qi nsp=',2i4,' ##### ')")iq, nqibz + nq0i, nspin
+    if(ipr) write(stdo,"(' ##### ',2i4,' out of nqibz+n0qi nsp=',2i4,' ##### ')")iq, nqibz + nq0i, nspin
     call x0kf_zxq(realomega,imagomega,qp,iq,npr,schi,crpa,chipm,nolfco, q00,zzr)
     if(mpi__root_k) then
     realomegamode: if(realomega) then !===RealOmega === W-V: WVR and WVI. Wing elemments: llw, llwi LLWR,LLWI
@@ -486,10 +486,10 @@ contains
       ttt='with LFC'
     endif
     if(chipm) then
-      write(6,*) '--- chi0_{+-}}^{-1}      --- '//ttt
+      if(ipr) write(stdo,*) '--- chi0_{+-}}^{-1}      --- '//ttt
     else
-      write(6,*) '--- dielectric constant --- '//ttt
-      write(6, *)" trace check for W-V"
+      if(ipr) write(stdo,*) '--- dielectric constant --- '//ttt
+      if(ipr) write(stdo, *)" trace check for W-V"
     endif
     iq0 = iq - nqibz
     if(allocated(epstilde)) deallocate(epstilde,epstinv)
@@ -498,12 +498,12 @@ contains
       frr= dsign(freq_r(abs(iw)),dble(iw))
       call MPI__GatherXqw(zxq(:,:,iw), zxqw, npr, npr_col)
       if( .NOT. chipm) then
-        if(debug)write(6,*) 'xxx2 epsmode iq,iw=',iq,iw
+        if(debug) write(stdo,*) 'xxx2 epsmode iq,iw=',iq,iw
         vcmean=vcousq(1)**2 !fourpi/sum(qp**2*tpioa**2) !aug2012
         ! epsi(iw,iqixc2)= 1d0/(1d0 - vcmean*zxq(1,1,iw))
         epsi(iw,iqixc2)= 1d0/(1d0 - vcmean*zxqw(1,1))
         if(mpi__root_q) then
-          write(6,'(" iq iw omega eps epsi noLFC=",2i6,f8.3,2e23.15,3x, 2e23.15, &
+          if(ipr) write(stdo,'(" iq iw omega eps epsi noLFC=",2i6,f8.3,2e23.15,3x, 2e23.15, &
                " vcmean x0mean =", 2e23.15,3x, 2e23.15)') iqixc2,iw,2*frr, &
                1d0/epsi(iw,iqixc2),epsi(iw,iqixc2),vcmean, zxqw(1,1) !x0mean(iw,1,1)
           write(ifepsdatnolfc,'(3f12.8,2x,d12.4,2e23.15,2x,2e23.15)') &
@@ -525,9 +525,9 @@ contains
           call matcinv(npr-ix,epstinv(ix+1:npr,ix+1:npr))
           epsi(iw,iqixc2)= epstinv(1,1)
           if(mpi__root_q) then
-            write(6,'( " iq iw omega eps epsi  wLFC=",2i6,f8.3,2e23.15,3x, 2e23.15)') &
+            if(ipr) write(stdo,'( " iq iw omega eps epsi  wLFC=",2i6,f8.3,2e23.15,3x, 2e23.15)') &
                  iqixc2,iw,2*frr,1d0/epsi(iw,iqixc2),epsi(iw,iqixc2)
-            write(6,*)
+            if(ipr) write(stdo,*)
             write(ifepsdat,'(3f12.8,2x,d12.4,2e23.15,2x,2e23.15)') qp, 2*frr,1d0/epsi(iw,iqixc2),epsi(iw,iqixc2)
           endif
         endif
@@ -560,7 +560,7 @@ end module m_hx0fp0
   !$$$        call rx( ' LEGAS mode is not maintained well. Need some fixing.')
   !$$$        voltot=0d0
   !$$$        ntot=0d0
-  !$$$        write(6,*)' Find LEGAS. legas =',legas
+  !$$$        if(ipr) write(stdo,*)' Find LEGAS. legas =',legas
   !$$$        iflegas = 2101
   !$$$        open (iflegas,file='LEGAS')
   !$$$        read(iflegas,*)rs
@@ -574,7 +574,7 @@ end module m_hx0fp0
   !$$$        write (6,*)'     Exact Fermi energy    Ef  =', efx
   !$$$        do iq = iqxini,iqxend ! q=(0,0,0) is omitted!
   !$$$          if(iq<=nqibz) cycle
-  !$$$          write(6,*)' iq=',iq
+  !$$$          if(ipr) write(stdo,*)' iq=',iq
   !$$$          iqixc2 = iq- (nqibz+nq0ix)
   !$$$          filele ='EPSEG'//charnum4(iqixc2)//'.dat'
   !$$$          ife = iopen ( filele,1,3,0)
@@ -583,8 +583,8 @@ end module m_hx0fp0
   !$$$          q = qibze(:,iq)
   !$$$          qt= sqrt(sum(qibze(1:,iq)**2))*2d0*pi/alat
   !$$$          qs= qt/qfermi
-  !$$$          write(6,"(' qs qfermi=',2d13.5)"    ) qs,qfermi
-  !$$$          write(6,"(' q-q^2/2 q+q^2=',2d13.5)") qs-qs**2/2d0,qs+qs**2/2d0
+  !$$$          if(ipr) write(stdo,"(' qs qfermi=',2d13.5)"    ) qs,qfermi
+  !$$$          if(ipr) write(stdo,"(' q-q^2/2 q+q^2=',2d13.5)") qs-qs**2/2d0,qs+qs**2/2d0
   !$$$          do iw  = nw_i,nw
   !$$$            ww  = freq_r(iw)
   !$$$            muu = ww/qfermi**2
@@ -602,7 +602,7 @@ end module m_hx0fp0
   !$$$     &        q, 2*ww,1d0/epsi(iw,iqixc2),epsi(iw,iqixc2)
   !$$$          enddo
   !$$$        enddo
-  !$$$        write(6,*)' ----------legas end--------'
+  !$$$        if(ipr) write(stdo,*)' ----------legas end--------'
   !$$$      endif
 
   !$$$!! Write TEECOR ecorr_on mode
@@ -610,7 +610,7 @@ end module m_hx0fp0
   !$$$        hartree=2d0*rydberg()
   !$$$        ifcor   = iopen('TEECORR2',1,-1,0) ! output files
   !$$$        do iecut=1,necut
-  !$$$          write(6,"( ' RPA Ec =' 3f23.15,'   ecut ecuts (Ry)=',2d12.4)")
+  !$$$          if(ipr) write(stdo,"( ' RPA Ec =' 3f23.15,'   ecut ecuts (Ry)=',2d12.4)")
   !$$$     &   totexc(iecut)*hartree,trpv(iecut)*hartree, trlog(iecut)*hartree
   !$$$     &    ,ecut(iecut),ecuts(iecut)
   !$$$          write(ifcor,*) '============================'
@@ -633,7 +633,7 @@ end module m_hx0fp0
   !$$$c$$$          call rx( ' LEGAS mode is not maintained well. Need some fixing.')
   !$$$c$$$          voltot=0d0
   !$$$c$$$          ntot=0d0
-  !$$$c$$$          write(6,*)' find LEGAS. legas =',legas
+  !$$$c$$$          if(ipr) write(stdo,*)' find LEGAS. legas =',legas
   !$$$c$$$          iflegas = 2101
   !$$$c$$$          open (iflegas,file='LEGAS')
   !$$$c$$$          read(iflegas,*)rs

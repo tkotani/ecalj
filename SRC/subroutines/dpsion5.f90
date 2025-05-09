@@ -1,6 +1,7 @@
 !> Calculate W-v zxqi(on the imaginary axis) and zxq(real axis) from sperctum weight rcxq.
 module m_dpsion
   use m_kind, only: kp => kindrcxq
+  use m_mpi,only: ipr
   public dpsion5, dpsion_init, dpsion_chiq, dpsion_setup_rcxq
   ! private
   real(8),allocatable :: his_L(:),his_R(:),his_C(:),rmat(:,:,:),rmatt(:,:,:),rmattx(:,:,:,:),imatt(:,:,:)
@@ -101,13 +102,13 @@ contains
     complex(8), parameter :: img = (0d0,1d0)
     complex(kind=kp) :: zxq_work(1:npr,nw_i:nw_w), cimatt(niwt,nwhis,npm), crmatt(0:nw_w,nwhis,npm)
     complex(kind=kp), allocatable :: rcxq_work(:,:), cgfmat(:,:)
-    integer :: ipr, ipr_col, ipm, istat, ispx
+    integer :: ipr_col, ipm, istat, ispx
     real(8) :: wfac
     logical :: debug = .true.
 #ifdef __GPU
     attributes(device) :: rcxq, zxqi
 #endif
-    write(stdo,ftox)" -- dpsion_chiq: start... nw_w nwhis=",nw_w,nwhis
+    if(ipr) write(stdo,ftox)" -- dpsion_chiq: start... nw_w nwhis=",nw_w,nwhis
     call flush(stdo)
     if(chipm.and.npm==2) call rx( 'x0kf_v4h:npm==2 .AND. chipm is not meaningful probably')  ! Note rcxq here is negative 
 
@@ -117,7 +118,7 @@ contains
       allocate(gfmat(nwhis,nwhis))
       allocate(cgfmat(nwhis,nwhis))
       allocate(rcxq_work(npr,nwhis))
-      write(stdo,ftox) 'dpsion_chiq: GaussianFilterX0 is not checked yet: see dpsion_chiq'
+      if(ipr) write(stdo,ftox) 'dpsion_chiq: GaussianFilterX0 is not checked yet: see dpsion_chiq'
       gfmat=gaussianfilterhis(egauss,frhis,nwhis)
       !$acc data copyin(gfmat) create(cgfmat, rcxq_work)
       !$acc kernels
@@ -175,7 +176,7 @@ contains
         istat = gemm(rcxq(1,1,-nwhis), cimatt(1,1,2), zxqi, npr*npr_col, niwt, nwhis, opB=m_op_T, beta=CONE)
         !$acc end data
       endif
-      write(stdo,ftox)" -- dpsion_chiq: end of imagomega"
+      if(ipr) write(stdo,ftox)" -- dpsion_chiq: end of imagomega"
     endif if_IMAGOMEGA
     if_REALOMEGA: if(realomega) then !Hilbert Transformation to get real part
       if(debug) write(stdo,ftox)" -- dpsion_chiq: start realomega"
@@ -225,7 +226,7 @@ contains
         enddo
         !$acc end data
       endif
-      write(stdo,ftox)" -- dpsion_chiq: end of realomega"
+      if(ipr) write(stdo,ftox)" -- dpsion_chiq: end of realomega"
     endif if_REALOMEGA
     call flush(stdo)
   end subroutine dpsion_chiq
@@ -283,7 +284,7 @@ contains
     complex(8):: rcxqin(1:nwhis)
     complex(kindrcxq):: rcxq(nmbas1,nmbas2, nwhis,npm)
 
-    write(stdo,ftox)" -- dpsion5: start... nw_w nwhis=",nw_w,nwhis
+    if(ipr) write(stdo,ftox)" -- dpsion5: start... nw_w nwhis=",nw_w,nwhis
     if(chipm.and.npm==2) call rx( 'x0kf_v4h:npm==2 .AND. chipm is not meaningful probably')  ! Note rcxq here is negative 
     call cputid(0)
     GaussianFilter: if(abs(egauss)>1d-15) then
@@ -311,7 +312,7 @@ contains
       allocate( his_L(-nwhis:nwhis),source=[-frhis(nwhis+1:1+1:-1),0d0,frhis(1  :nwhis)  ])
       allocate( his_R(-nwhis:nwhis),source=[-frhis(nwhis  :1  :-1),0d0,frhis(1+1:nwhis+1)])
       allocate( his_C(-nwhis:nwhis),source=(his_L+his_R)/2d0) !bins are [his_Left,his_Right] !his_C(0) is at zero. his_R(0) and his_L(0) are not defined.
-      realomegacase: if(realomega)then;     write(stdo,*) " --- realomega --- "
+      realomegacase: if(realomega)then;     if(ipr) write(stdo,*) " --- realomega --- "
         if(npm==1) then
           allocate(rmat(0:nw_w,-nwhis:nwhis,npm), source=0d0)
           do it =  0,nw_w
@@ -387,7 +388,7 @@ contains
         call zgemm('n','t', nmnm,niwt,nwhis,1d0, dcmplx(rcxq(:,:,:,2)),nmnm,imattC(1,1,2),niwt, 1d0,zxqi, nmnm )
       endif
     endif
-    write(stdo,'("         end dpsion5 ",$)')
+    if(ipr) write(stdo,'("         end dpsion5 ",$)')
     call cputid(0)
   end subroutine dpsion5
 !  subroutine GaussianFilter(rcxq,nmbas1,nmbas2, egauss,iprint)

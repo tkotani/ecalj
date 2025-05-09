@@ -187,11 +187,12 @@ contains
       real(8),external::rydberg
       write(stdo,ftox)" === Write ECORE === "
       open(newunit=ifec, file='ECORE')
+      write(ifec,ftox)'# We assume MT-avaraged estatic=0.'
       ibasloopc: do ibas = 1,nbas
         ic = iclass(ibas)
         is = ispec(ibas)
         write(ifec,ftox) ibas, trim(slabl(is)),' ',ftof(zz(is)),ibas,nrc(ic),aac(ic),bbc(ic),nsp,'!ibas label nr a b nsp ' !ECORE
-        write(ifec,ftox) ' ',(konf0(l,ibas),l=0,lmxa(is)),'! configuration'  !principl quantum  number of valence minimum
+        write(ifec,ftox) ' ',(konf0(l,ibas)-l-1,l=0,lmxa(is)),'! number of cores for l'  !Show number of cores 2025-5-10
         icore = 0
         do l  = 0,lmxa(is)
           do kkk = l+1 ,konf0(l,ibas)-1
@@ -261,7 +262,7 @@ contains
           enddo
         enddo
         close(ifoc)
-        write(stdo,ftox)" === Radial function indexing === nradmx=", nradmx
+        write(stdo,ftox)' === Radial function indexing === nradmx=', nradmx
         do ibas=1,nbas
           write(stdo,ftox)' ---- ibas nrad(ibas) =', ibas, nrad(ibas)
           do irad = 1,nrad(ibas)
@@ -328,24 +329,25 @@ contains
         write(ifigwin) ndble,mrecb,mrece,ndima,nqbz,nbandmx,mrecg
         write(ifigwin) laf,ibasf 
         close(ifigwin)
-        open(newunit=ifhbed,file='hbe.d.chk') !human check only 
-        write(stdo,'( " ndima nbandmx=",3i5)') ndima, nbandmx
-        write(ifhbed,"('hbe output=',*(g0,x))") ndble,mrecb,mrece,ndima,nqbz,nbandmx,mrecg,nspc
-        write(ifhbed,*)' precision, mrecl of b, mrecl of eval, ndima(p+d+l)  nqbz  nbandmx mrecg nspc'
+        write(stdo,ftox)" ndima nbandmx nqbz=", ndima,nbandmx, nqbz
+        open(newunit=ifhbed,file='hbe.d.chk') !human check only
+        write(ifhbed,ftox) ndima,nbandmx, nqbz,' ! ndima nbandmx nqbz' 
         close(ifhbed)
+        !write(ifhbed,"('hbe output=',*(g0,x))") ndble,mrecb,mrece,ndima,nqbz,nbandmx,mrecg,nspc
+        !write(ifhbed,*)' precision, mrecl of b, mrecl of eval, ndima(p+d+l)  nqbz  nbandmx mrecg nspc'
+        !close(ifhbed)
       endblock WriteGWfilesB
     endif WriteGWfiles
     if(cmdopt0('--skipCPHI')) goto 1011
-    ! ppj: ovalap matrix within MT. Gramschmidt2
     call mpi_barrier(comm,ierr)
-    call m_ppj_init() 
+    call m_ppj_init()  !Get ppj(1:ndima,1:ndima,isp): overlap matrix between atomic orbitals within MT. 
     ! CPHI GEIG. We use mpi-io from 2024-9-26
     allocate(cphix(ndima,nspc,nbandmx),geigr(ngpmx,nspc,nbandmx))
     i=openm(newunit=ifcphim,file='__CPHI',recl=mrecb)
     i=openm(newunit=ifgeigm,file='__GEIG',recl=mrecg)
     allocate(evl(nbandmx, nqirr, nspx),vxclda(nbandmx, nqirr, nspx),source=0d0)!nqirr: # ofirreducible q points
     iqisploop: do 1001 idat=1,niqisp !iq = iqini,iqend ! iqini:iqend for this procid
-      write(stdo,ftox) 'do 1001 idat=',idat
+      !write(stdo,ftox) 'do 1001 idat=',idat
       iq  = iqproc(idat) ! iq index
       isp = isproc(idat) ! spin index: Note isp=1:nspx, where nspx=nsp/nspc.  isp=1 nspc=2 only for lso=1 if(debug)write(stdo,ftox)' iqisploop',iq,isp  
       qp  = qplist(:,iq) ! q vector containing nqirr
@@ -427,7 +429,7 @@ contains
         allocate(pwz(ngp,nspc,ndimh)) !dummy
         goto 1214
       endif
-      write(stdo,ftox)' sugw: kpt isp=',iq,isp,'of',nqnum,'k= ',ftof(qp,5),'ndimh=',ndimh,'irank=',procid,'lwvxc=',lwvxc,'nev=',nev
+      write(stdo,ftox)'sugw: kpt isp=',iq,isp,'of',nqnum,'k=',ftof(qp,5),'ndimh=',ndimh,'irank=',procid,'lwvxc=',lwvxc,'nev=',nev,' nspc=',nspc
       write(stdo,"(9f8.4)",advance='no') (evl(i,iq,isp),i=1,min(18,nev))
       write(stdo,ftox)' ...'
       evl(1+nev:nbandmx,iq,isp)=1d20 !padding
@@ -435,21 +437,22 @@ contains
       nlmax = (lmxax+1)**2
       CPHIpart: block
         use m_locpot,only: rotp !        use m_mkpot,only : sab_rv
-        integer:: ilm,im,iv
+        use m_hamindex0,only: nindx,ibasindx !    use m_mkpot,only: sab_rv
+        integer:: ilm,im,iv,iband,m,nm
         complex(8):: auasaz(3),aus_zv(nlmax,nbandmx,3,nsp,nbas),usz(3)
         !i   nlmax :leading dimension of aus
         !i   nev   :number of eigenvectors to accumulate cphi
         !i   nlindx: offset that set index in cphi for element (ipqn,l,ib)
         !i   aus   : values of (phi,phidot,pz) at MT sphere boundary; see makusq
         !o Outputs
-        !o   cphi(ichan,iv) : coefficients to phi,phidot,phiz 
-        !o      ichan = 1:ndima, orbital channel, i.e. one of phi,phidot,phiz (phiz is local orbital for a given site, l, and m; see nlindx.
-        !o      iv = eigenvector
+        !o   cphi(ichan,iv) : coefficients to atomic functions (phi,phidot,phiz)
+        !o    ichan = 1:ndima, orbital channel, i.e. one of phi,phidot,phiz (phiz is local orbital for a given site, l, and m; see nlindx.
+        !o    iv = eigenvector
         !o   cphiw: diagonal matrix elements, one for each eigenvector. only for check  : cphiw(1,iv) = <cphi(iv) | overlap | cphi(iv)>
         call makusq(nbas,[-999], nev,  isp, 1,qp,reshape(evec(1:ndimhx,1:nev),[ndimh,nspc,nev]), aus_zv ) !    cphiw=0d0
+        cphix=0d0 !   Augmentation wave part. cphix is coefficients for the orthogonalized functions gval_ortrh
         ispcc: do ispc=1,nspc
-          if(lso==1) ispx=ispc
-          if(lso/=1) ispx=isp
+          ispx = merge(ispc,isp,lso==1)
           ibb: do ib = 1, nbas
             do iv = 1, nev
               ilm  = 0
@@ -466,6 +469,15 @@ contains
               enddo
             enddo
           enddo ibb
+          do iband = 1,nev
+            do ix= 1,ndima
+              ib= ibasindx(ix); l= lindx(ix); n= nindx(ix); m= mindx(ix)
+              ic= iclass(ib)
+              nm= nvmax(l,ic)
+              cphix     (iord(m,1:nm,l,ib),ispc,iband) = & !chipx is for coeffieients of orthogonalized atomic funcitons gval_orth*Ylm
+                   cphix(iord(m,1:nm,l,ib),ispc,iband) + zzpi(1:nm,n,l,ic,ispx)*cphi(ix,iband,ispc) 
+            enddo
+          enddo
         enddo ispcc
       endblock CPHIpart
       GEIGpart: if(ngp > 0) then !IPW expansion of eigenfunctions pwz 
@@ -550,7 +562,6 @@ contains
 1214  continue;  if(debug)write(stdo,ftox)'1214 goto writechpigeig'   
       WriteCphiGeig: block
         use m_readqg,only: readngmx,ngcmx,readqg0,readqg
-        use m_hamindex0,only: nindx,ibasindx !    use m_mkpot,only: sab_rv
         use m_locpot,only: rotp
         use m_pwmat,only: mkppovl2
         real(8)::add,zzz(2,2),epscheck=1d-10
@@ -560,33 +571,20 @@ contains
           geigr(1:ngp,      ispc,1:ndimhx)=pwz(1:ngp,ispc,1:ndimhx)
           geigr(ngp+1:ngpmx,ispc,1:ndimhx)=0d0
         enddo ! skip cphi(ix,1:nev,1:nspc) = cphi(ix, 1:nev,1:nspc) /sqrt(1d0+0.1d0*nindx(ix)) here because zzpi includes this factor 2025-5-7
-        cphix=0d0 !   Augmentation wave part. cphix is coefficients for the orthogonalized functions gval_ortrh
-        if(debug)write(stdo,ftox)' writechpigeig 1111'
-        do ispc=1,nspc
-          ispx = merge(ispc,isp,lso==1)
-          do iband = 1,nev
-            do ix= 1,ndima
-              ib= ibasindx(ix); l= lindx(ix); n= nindx(ix); m= mindx(ix)
-              ic= iclass(ib)
-              nm= nvmax(l,ic)
-              cphix      (iord(m,1:nm,l,ib),ispc,iband) = & !chipx is for coeffieients of orthogonalized atomic funcitons gval_orth*Ylm
-                   cphix (iord(m,1:nm,l,ib),ispc,iband) + zzpi(1:nm,n,l,ic,ispx)*cphi(ix,iband,ispc) 
-            enddo
-          enddo
-        enddo;        if(debug)write(stdo,ftox)' writechpigeig 2222'
         GramSchmidtCphiGeig :block
           if(.not.cmdopt0('--skipGS')) &
                call GramSchmidt2(nspc,nev,ndima,ngp,ngpmx, ppj(1:ndima,1:ndima,isp),ppovl, cphix,geigr) !Improve Orthogonalization
-          ncheckw: do ispc=1,nspc !Normalization check of MT+IPW division of eigenfunctions 
+          ncheckw: block !Normalization check of MT+IPW division of eigenfunctions 
             do   i=1,nev
               do j=1,nev
-                ovv= sum( dconjg(cphix(1:ndima,ispc,i))*matmul(ppj(:,:,isp), cphix(1:ndima,ispc,j))) + & !MT parts
-                     sum( dconjg(geigr(1:ngp,  ispc,i))*matmul(ppovl,      geigr(1:ngp,  ispc,j)))     !IPW parts
+                ovv= sum([( sum( dconjg(cphix(1:ndima,ispc,i))*matmul(ppj(:,:,isp), cphix(1:ndima,ispc,j)))  & !MT parts
+                     +      sum( dconjg(geigr(1:ngp,  ispc,i))*matmul(ppovl,        geigr(1:ngp,  ispc,j)))  & !IPW parts
+                     ,ispc=1,nspc)])     
                 if(i/=j.and.abs(ovv)    >epscheck) write(stdo,ftox)'oooovlap=',i,j,ispc,ftod(abs(ovv),8)
                 if(i==j.and.abs(ovv-1d0)>epscheck) write(stdo,ftox)'oooovlap=',i,j,ispc,ftod(abs(ovv),8)
               enddo
             enddo
-          enddo ncheckw
+          endblock ncheckw
           deallocate(ppovl)
         endblock GramSchmidtCphiGeig
         cphix(1:ndima,1:nspc,nev+1:nbandmx)=1d20 !padding 

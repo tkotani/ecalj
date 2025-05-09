@@ -96,7 +96,7 @@ contains
        enddo
     enddo
     open(newunit=ifinlaindx,file='NLAindx.chk') !human check
-    write(ifinlaindx,'(''----NLAindx start---------------''/I6)') ndima
+    write(ifinlaindx,'("# NLAindx (augmentation ortaitals within MT. na l ibas i ) "/I6)') ndima
     npqn=3
     allocate(nlindx(npqn,0:lmxax,nbas),nindx(ndima),lindx(ndima),ibasindx(ndima),caption(ndima),pqn(ndima))
     iorb=0
@@ -129,7 +129,7 @@ contains
     alat=lat_alat
     npqn=3
     nclass=maxval(iclasst)
-    call wkonfchk(alat,plat,nbas,lmxax,lmxa,nsp,konft)
+!    call wkonfchk(alat,plat,nbas,lmxax,lmxa,nsp,konft)
     open(newunit=ifi,file='__HAMindex0',form='unformatted')
     write(ifi) alat,plat,qlat,nbas,lmxax,nsp,ngrp,ndima,norb,npqn,nclass,nphimx
     write(ifi) konft(0:lmxax,1:nbas,1:nsp),lmxa(1:nbas),nlindx(1:npqn,0:lmxax,1:nbas)
@@ -163,8 +163,7 @@ contains
     integer :: nbas,nsp,lmxax,lmxa(nbas),konf(0:lmxax,nbas,nsp)
     real(8) :: plat(3,3),alat
     integer :: ifi,ib,isp
-    open(newunit=ifi,file='konf.chk')
-    write(ifi,*) ' ------------------------------------------- '
+    !open(newunit=ifi,file='konf.chk')
     write(ifi,"(2i4,' ! nbas lmxax=(max l for augmentaion)')") nbas,lmxax
     write(ifi,*) ' ------------------------------------------- '
     do isp = 1, nsp
@@ -173,6 +172,6 @@ contains
           write(ifi,"('   ',99i4)")ib,lmxa(ib),konf(0:lmxa(ib),ib,isp)
        enddo
     enddo
-    close(ifi)
+    !close(ifi)
   end subroutine wkonfchk
 end module m_hamindex0

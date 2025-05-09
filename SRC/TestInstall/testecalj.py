@@ -187,7 +187,7 @@ for tname in testall.split():
                  "rm *mixm.co",
                  lmf+ " co -vmet=3 -vlmf=1 -vnk=8 -vnit=3 --pr31 --time=5 >> "+outfile,
                  lmf+ " co -vmet=3 -vnk=8 -vnit=3 --pr31  -vso=t --band:fn=syml >> "+outfile,
-                 "rm -f atm.* *mixm.* rst.* save.* log.* hssn.* wkp.* dos.* tdos.* pdos.* dos-mull.* qpp.* out.lmf-dos*"
+                 "rm -f atm.* *mixm.* rst.* save.* log.* *hssn.* wkp.* dos.* tdos.* pdos.* dos-mull.* qpp.* out.lmf-dos*"
         ])
         tall+=test1_check(testdir+'/'+outfile, workdir+'/'+outfile)
         outbnds='bnds.co'
@@ -239,7 +239,7 @@ for tname in testall.split():
         runprogs([
                  lmfa+ " -vrel=1 -vso=0 felz > "+outfile,
                  lmf + " -vrel=1 -vnit=3 -vso=2 felz -vfsmom=-2 >> "+outfile ,
-	         "rm -f atm.* fs.* moms.* *mixm.* rst.* save.* log.* hssn.* wkp.* bsmv.* syml.* bnds.*"
+	         "rm -f atm.* fs.* moms.* *mixm.* rst.* save.* log.* *hssn.* wkp.* bsmv.* syml.* bnds.*"
         ])
         tall+=test1_check(testdir+'/'+outfile, workdir+'/'+outfile)
         message1='''
@@ -326,7 +326,7 @@ for tname in testall.split():
         runprogs([
                  lmfa+" c -vzbak=0 > "+outfile,
                  lmf+ " c -vzbak=0 >>"+outfile,
-                 "rm -f *mixm.* rst.* save.* log.* hssn.* wkp.* bsmv.* bnds.*"
+                 "rm -f *mixm.* rst.* save.* log.* *hssn.* wkp.* bsmv.* bnds.*"
         ])
         tall+=test1_check(testdir+'/'+outfile, workdir+'/'+outfile)
         message1='''
@@ -337,7 +337,7 @@ for tname in testall.split():
         runprogs([
                  lmfa+" c -vzbak=1 > "+outfile,
                  lmf+ " c -vzbak=1 >>"+outfile,
-                 "rm -f *mixm.* rst.* save.* log.* hssn.* wkp.* bsmv.* bnds.*"
+                 "rm -f *mixm.* rst.* save.* log.* *hssn.* wkp.* bsmv.* bnds.*"
         ])
         tall+=test1_check(testdir+'/'+outfile, workdir+'/'+outfile)
     elif(tname=='crn'):

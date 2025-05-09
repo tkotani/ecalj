@@ -11,7 +11,7 @@ module m_llw
   use m_readVcoud,only: vcousq, ngb
   use m_rdpp,only: nbloch,mrecl
   use m_x0kf,only: zxq,zxqi
-  use m_mpi, only: mpi__root_k, mpi__root_q, mpi__size_b
+  use m_mpi, only: mpi__root_k, mpi__root_q, mpi__size_b,ipr
 #ifdef __MP
   use m_mpi, only: MPI__GatherXqw => MPI__GatherXqw_kind4
 #else
@@ -73,8 +73,8 @@ contains
     endif
     nwmax = nw
     nwmin = nw_i
-    write(stdo,ftox)" === trace check for W-V === nqibz nwmin nwmax=",nqibz,nwmin,nwmax, 'iq q=',iq,ftof(q)
-    write(stdo,ftox) 'size of zxq:',size(zxq,1), size(zxq,2), size(zxq,3)
+    if(ipr)write(stdo,ftox)" === trace check for W-V === nqibz nwmin nwmax=",nqibz,nwmin,nwmax, 'iq q=',iq,ftof(q)
+    if(ipr)write(stdo,ftox) 'size of zxq:',size(zxq,1), size(zxq,2), size(zxq,3)
     call flush(stdo)
     if(iq<=nqibz) then        !for mmmw
       if(mpi__root_q) then
@@ -213,7 +213,7 @@ contains
         !     ! Wing elements calculation july2016    ! We need check nqb is the same as that of q=0
         if(ixyz(iq0)/=0 .AND. iw==0) then
           if(ngb/=ngbq0) then
-            write(6,*)q,iq0,ngb,ngbq0
+            if(ipr)write(6,*)q,iq0,ngb,ngbq0
             call rx('hx0p0_sc: ngb/=ngbq0')
           endif
           wmuk(2:ngb,ixyz(iq0))=epstinv(1,2:ngb)/epstinv(1,1) ! this is dot(q(:)*w_mu(:,igb)). See PRB125102(2016) eq.(36)
@@ -221,7 +221,7 @@ contains
         !else
         !   if(iq0<=nq0i) llw(iw,iq0)= 1d0 - vcou1*zxq(1,1,iw)
         !endif
-        if(iq0<=nq0i) write(6,"('epsWVR: iq iw_R omg(iw) eps(wFC) eps(woLFC) ', &
+        if(iq0<=nq0i.and.ipr) write(6,"('epsWVR: iq iw_R omg(iw) eps(wFC) eps(woLFC) ', &
              2i5,x,10(d13.6,2x,d13.6,x,d13.6,2x,d13.6,x,d13.6))") &
              iq,iw,freq_r(iw),llw(iw,iq0),1d0-vcou1*zxqw(1,1)
              ! iq,iw,freq_r(iw),llw(iw,iq0),1d0-vcou1*zxq(1,1,iw)
@@ -259,7 +259,7 @@ contains
     endif
     call stopwatch_init(t_sw_matinv, 'matinv')
     call stopwatch_init(t_sw_x_gather, 'gather')
-    write(6,*)'WVRllwI: init'
+    if(ipr)write(6,*)'WVRllwI: init'
     if (nspin == 1) then
       !$acc kernels present(zxqi)
       zxqi(:,:,:) = 2d0*zxqi(:,:,:) ! if paramagnetic, multiply x0 by 2
@@ -459,6 +459,7 @@ end module m_llw
 !===================================================================
 subroutine tr_chkwrite(tagname,zw,iw,freqq,nblochpmx,nbloch,ngb,iq)
   use m_kind,only: kp => kindrcxq
+  use m_mpi,only:ipr
   implicit none
   integer:: nblochpmx,nbloch,ngb,iw,i,iq
   complex(kind=kp):: zw(nblochpmx,nblochpmx)
@@ -473,6 +474,6 @@ subroutine tr_chkwrite(tagname,zw,iw,freqq,nblochpmx,nbloch,ngb,iq)
   do i = 1,ngb
      trwv2 = trwv2 + zw(i,i)
   enddo  !  write(6,'(" realomg trwv=",2i6,4d22.14)') iq,iw,trwv(iw),trwv2(iw)
-  write(6,'(a,f10.4,2i5,4d22.14)')tagname,freqq,iq,iw,trwv,trwv2
-  call flush(6)
+  if(ipr) write(6,'(a,f10.4,2i5,4d22.14)')tagname,freqq,iq,iw,trwv,trwv2
+  if(ipr) call flush(6)
 end subroutine tr_chkwrite

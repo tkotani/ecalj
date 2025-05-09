@@ -179,8 +179,8 @@ contains
          endif
          if (master_mpi) then
             write(stdo,*)' Delete mixing and band weights files ...'
-            open(newunit=ifi, file='mixm.'//trim(sname)); close(ifi, status='delete')
-            open(newunit=ifi, file='wkp.'//trim(sname)); close(ifi, status='delete')
+            open(newunit=ifi, file='__mixm.'//trim(sname)); close(ifi, status='delete')
+!            open(newunit=ifi, file='wkp.'//trim(sname)); close(ifi, status='delete')
          endif
          if(icom==1) then ! Exit when relaxation converged or maximum number of iterations
             if(master_mpi) then
