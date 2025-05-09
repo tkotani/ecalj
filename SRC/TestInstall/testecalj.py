@@ -139,10 +139,10 @@ for tname in testall.split():
         runprogs([\
             lmfa+"te -vdyn='DYN' -vnk=3 -vnit=3 -vlf1=4 -vlmxl=4 -vnk=3 -vngd=20 -vkmx=3 -vconv=1e-4 > "+outfile, 
             lmf+ "te -vdyn='DYN' -vnk=3 -vnit=3 -vlf1=4 -vlmxl=4 -vnk=3 -vngd=20 -vkmx=3 -vconv=1e-4 -vnbas=12 -vnspec=2 >> "+outfile,
-            "rm -f mixm.te",
+            "rm -f *mixm.te",
             "cp rst.te rst.te.bk",
             lmf+"te -vnk=3 -vnit=3 -vlf1=4 -vlmxl=4 -vnk=3 -vngd=20 -vkmx=5 -vconv=1e-4 -vpwmode=11 >> "+outfile,
-            "rm -f mixm.te",
+            "rm -f *mixm.te",
             "cp rst.te.bk rst.te",
             lmf+"te -vnk=3 -vnit=3 -vlf1=4 -vlmxl=4 -vnk=3 -vngd=20 -vkmx=3 -vconv=1e-4 >> "+outfile 
         ])
@@ -182,12 +182,12 @@ for tname in testall.split():
         runprogs([
                  lmfa+" co -vmet=3 -vlmf=1 -vnk=8 -vnit=3 --pr31 > "+ outfile,
                  lmf+ " co -vmet=3 -vlmf=1 -vnk=8 -vnit=3 -vw2=0 --pr31 >> "+outfile,
-                 "rm mixm.co",
+                 "rm *mixm.co",
                  lmf+ " co -vmet=3 -vlmf=1 -vnk=8 -vnit=3 -vw1=0 --pr31 >> "+outfile,
-                 "rm mixm.co",
+                 "rm *mixm.co",
                  lmf+ " co -vmet=3 -vlmf=1 -vnk=8 -vnit=3 --pr31 --time=5 >> "+outfile,
                  lmf+ " co -vmet=3 -vnk=8 -vnit=3 --pr31  -vso=t --band:fn=syml >> "+outfile,
-                 "rm -f atm.* mixm.* rst.* save.* log.* hssn.* wkp.* dos.* tdos.* pdos.* dos-mull.* qpp.* out.lmf-dos*"
+                 "rm -f atm.* *mixm.* rst.* save.* log.* hssn.* wkp.* dos.* tdos.* pdos.* dos-mull.* qpp.* out.lmf-dos*"
         ])
         tall+=test1_check(testdir+'/'+outfile, workdir+'/'+outfile)
         outbnds='bnds.co'
@@ -239,7 +239,7 @@ for tname in testall.split():
         runprogs([
                  lmfa+ " -vrel=1 -vso=0 felz > "+outfile,
                  lmf + " -vrel=1 -vnit=3 -vso=2 felz -vfsmom=-2 >> "+outfile ,
-	         "rm -f atm.* fs.* moms.* mixm.* rst.* save.* log.* hssn.* wkp.* bsmv.* syml.* bnds.*"
+	         "rm -f atm.* fs.* moms.* *mixm.* rst.* save.* log.* hssn.* wkp.* bsmv.* syml.* bnds.*"
         ])
         tall+=test1_check(testdir+'/'+outfile, workdir+'/'+outfile)
         message1='''
@@ -256,7 +256,7 @@ for tname in testall.split():
         runprogs([
                  lmfa + " -vrel=1 -vnit=1 -vso=0 felz > "+ outfile,
                  lmf  + " -vrel=1 -vnit=1 -vso=2 felz -vpwmode=11 >> "+outfile,
-                 "rm -f mixm.felz",
+                 "rm -f *mixm.felz",
                  lmf  + " -vrel=1 -vnit=1 -vso=2 felz >> "+outfile 
         ])
         tall+=test1_check(testdir+'/'+outfile, workdir+'/'+outfile)
@@ -326,7 +326,7 @@ for tname in testall.split():
         runprogs([
                  lmfa+" c -vzbak=0 > "+outfile,
                  lmf+ " c -vzbak=0 >>"+outfile,
-                 "rm -f mixm.* rst.* save.* log.* hssn.* wkp.* bsmv.* bnds.*"
+                 "rm -f *mixm.* rst.* save.* log.* hssn.* wkp.* bsmv.* bnds.*"
         ])
         tall+=test1_check(testdir+'/'+outfile, workdir+'/'+outfile)
         message1='''
@@ -337,7 +337,7 @@ for tname in testall.split():
         runprogs([
                  lmfa+" c -vzbak=1 > "+outfile,
                  lmf+ " c -vzbak=1 >>"+outfile,
-                 "rm -f mixm.* rst.* save.* log.* hssn.* wkp.* bsmv.* bnds.*"
+                 "rm -f *mixm.* rst.* save.* log.* hssn.* wkp.* bsmv.* bnds.*"
         ])
         tall+=test1_check(testdir+'/'+outfile, workdir+'/'+outfile)
     elif(tname=='crn'):
@@ -372,7 +372,7 @@ for tname in testall.split():
         runprogs([
                  lmfa+" cu  > "+outfile ,
                  lmf+ " cu -vnk=8 -vbigbas=f >>"+outfile,
-                 "rm mixm.cu",
+                 "rm *mixm.cu",
                  lmf+ " cu -vnk=8 -vbigbas=t -vmetal=3 -vrsm2=1.3 -vrsmd1x=1 -vlmx=4 -vpwmode=0 -voveps=0d-7 >>"+outfile,
                  lmf+ " cu -vnk=8 -vbigbas=t -vmetal=3 -vrsm2=1.3 -vrsmd1x=1 -vlmx=4 -vpwmode=0 -voveps=0d-7 --band:fn=syml >>"+outfile
         ])
@@ -391,10 +391,10 @@ for tname in testall.split():
         runprogs([
                  lmfa+" na -vnk=6 -vnapval=0 -vpz1=0 -vp1=3.38  > "+outfile ,
                  lmf+ " na -vnk=6 -vnapval=0 -vpz1=0 -vp1=3.38 >>"+outfile,
-                 "rm mixm.na rst.na",
+                 "rm *mixm.na rst.na",
                  lmfa+" na -vnk=6  -vnapval=1 >>"+outfile,
                  lmf+ " na -vnk=6  -vnapval=1>>"+outfile,
-                 "rm mixm.na rst.na",
+                 "rm *mixm.na rst.na",
                  lmf+ " na -vnk=6 -vnapval=2 -vpz1=12.94 >>"+outfile
         ])
         tall+=test1_check(testdir+'/'+outfile, workdir+'/'+outfile)
