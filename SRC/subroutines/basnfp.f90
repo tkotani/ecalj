@@ -43,8 +43,6 @@ subroutine basnfp_v2(nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate 
   real(8),parameter::  pi =     3.14159265358979323846d0
   integer:: nb,ngmx,ig,ificrb,kmx,isx,k,ic,nblocha
   integer,allocatable:: iwk(:)
-  character(7) :: filename
-  character(11) :: filenamep
   integer,allocatable:: iprlc(:),lprc(:),ibo(:)
   real(8),allocatable::  rprodx(:,:,:),rprodx2(:,:,:),rprod(:,:)
   logical :: newbase2
@@ -538,8 +536,7 @@ subroutine basnfp_v2(nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate 
   endif
   !------------------------
   print *,' Write BASFP.* reserve rprodx...'
-  filename = 'BASFP'//char( 48+ic/10 )//char( 48+mod(ic,10) )
-  open(newunit=ificrb,file=trim(filename))
+  open(newunit=ificrb,file='__BASFP'//char( 48+ic/10 )//char( 48+mod(ic,10) ))
   write(ificrb,"(4i6,2d24.16)") 2*(nl-1), kmx, nblocha,nrofi,aa,bb
   write(ificrb,"(i5)") nxx(0:2*(nl-1))
   k = 0
@@ -554,8 +551,7 @@ subroutine basnfp_v2(nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate 
   deallocate(rprodx,iprlc,lprc)
   !  Write and Read even for iread==0, in order to have the exact match on PPB* when iread=1 for the same BASFP* file.
   print *,' read rprodx...'
-  filename = 'BASFP'//char( 48+ic/10 )//char( 48+mod(ic,10) )
-  open(newunit=ificrb,file=trim(filename))
+  open(newunit=ificrb,file='__BASFP'//char( 48+ic/10 )//char( 48+mod(ic,10) ))
   read(ificrb,"(4i6,2d24.16)") nl2m1, kmx,nblocha,nrofi_in,aa_in,bb_in
   if( nl /= nl2m1/2 +1)   call rx( 'wrong 2*(nl-1) in readin BASNFP')
   if(nrofi_in /= nrofi)   call rx( 'nrofi_in/=nrofi in readin BASNFP')
@@ -574,52 +570,12 @@ subroutine basnfp_v2(nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate 
      enddo
   enddo
   close(ificrb)
-  !$$$      if(iread==1) then
-  !$$$        print *,' read rprodx...'
-  !$$$        filename = 'BASFP'//char( 48+ic/10 )//char( 48+mod(ic,10) )
-  !$$$        ificrb   = iopen ( filename,0,-1,0)
-  !$$$        read(ificrb) nl2m1, kmx,nblocha,nrofi_in,aa_in,bb_in
-  !$$$        if( nl /= nl2m1/2 +1) stop 'wrong 2*(nl-1) in readin BASNFP'
-  !$$$        if(nrofi_in /= nrofi) stop 'nrofi_in/=nrofi in readin BASNFP'
-  !$$$        if(abs(aa-aa_in)>1d-12) stop 'aa_in/=aa in readin BASNFP'
-  !$$$        if(abs(bb-bb_in)>1d-12) stop 'bb_in/=bb in readin BASNFP'
-  !$$$        write(6,"(' basnfp: BASFP... kmx nblocha=',2i5)") kmx,nblocha
-  !$$$        read(ificrb) nxx(0:2*(nl-1))
-  !$$$        allocate(rprodx(nrofi,maxval(nxx(0:2*(nl-1))),0:2*(nl-1)))
-  !$$$        allocate( iprlc(kmx), lprc(kmx) )
-  !$$$        k = 0
-  !$$$        do lx = 0, 2*(nl-1)
-  !$$$        do nx = 1, nxx(lx)
-  !$$$        k = k + 1
-  !$$$        read(ificrb) k,iprlc(k),lprc(k)
-  !$$$        read(ificrb) (rprodx(i,nx,lx),i=1,nrofi)
-  !$$$        enddo
-  !$$$        enddo
-  !$$$        isx = iclose(filename)
-  !$$$      else
-  !$$$        print *,' reserve rprodx...'
-  !$$$        write(6,"(' basnfp: BASFP... kmx nblocha=',2i5)") kmx,nblocha
-  !$$$        filename = 'BASFP'//char( 48+ic/10 )//char( 48+mod(ic,10) )
-  !$$$        ificrb   = iopen ( filename,0,-1,0)
-  !$$$        write(ificrb) 2*(nl-1), kmx, nblocha,nrofi,aa,bb
-  !$$$        write(ificrb) nxx(0:2*(nl-1))
-  !$$$        k = 0
-  !$$$        do lx = 0, 2*(nl-1)
-  !$$$        do nx = 1, nxx(lx)
-  !$$$          k = k + 1
-  !$$$          write(ificrb) k,iprlc(k),lprc(k)
-  !$$$          write(ificrb) (rprodx(i,nx,lx),i=1,nrofi)
-  !$$$        enddo
-  !$$$        enddo
-  !$$$        isx = iclose(filename)
-  !$$$      endif
 
   ! Calculate radial matrix elements.
   print *,' Calculate radial matrix elements...'
   allocate( ppbrd(0:nl-1,nn,0:nl-1,nn,0:2*(nl-1) ,maxval(nxx(0:2*(nl-1))) ) )
   ppbrd =.9999999999999d99 !for safe
-  filenamep = 'PPBRD_V2_'//char( 48+ic/10 )//char(48+mod(ic,10))
-  open(newunit=ifppb,file=trim(filenamep),form='unformatted')
+  open(newunit=ifppb,file='__PPBRD_V2_'//char( 48+ic/10 )//char(48+mod(ic,10)),form='unformatted')
   write(ifppb) nblocha, 2*(nl-1), nxx(0:2*(nl-1))
   ppbrddo: do isp= 1,nsp
      isp1=isp
@@ -664,8 +620,7 @@ subroutine basnfp_v2(nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate 
   !          prodmt(2,nx,lx)= derie2(r, rprodx(1:nrofi,nx,lx)/r(1:nrofi), nrofi)
   !       enddo
   !    enddo
-  !    filenamep = 'PRODMT_'//charnum3(ic)
-  !    open(newunit=ifprodmt,file=trim(filenamep),form='unformatted')
+  !    open(newunit=ifprodmt,file='PRODMT_'//charnum3(ic),form='unformatted')
   !    write(ifprodmt) nl
   !    write(ifprodmt) maxval(nxx(0:2*(nl-1)))
   !    write(ifprodmt) nxx(0:2*(nl-1))

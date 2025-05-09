@@ -50,7 +50,7 @@ contains
     exi=0d0
     hfc=0d0
     hfct=0d0
-    if (master_mpi) open(newunit=ifi,file='atm.'//trim(sname))  !! Read free-atom density for all species ---
+    if (master_mpi) open(newunit=ifi,file='__atm.'//trim(sname))  !! Read free-atom density for all species ---
     isloop: do  10  is = 1, nspec
        spid(is)=slabl(is)
        a= spec_a(is)

@@ -148,9 +148,9 @@ contains
     integer :: ifiqg,ifiqgc ,ifile_handle
     write(6,*) '--- read_QG ---'
 !    ifiqg  = ifile_handle()
-    open(newunit=ifiqg ,file='QGpsi',form='unformatted')
+    open(newunit=ifiqg ,file='__QGpsi',form='unformatted')
 !    ifiqgc = ifile_handle()
-    open(newunit=ifiqgc,file='QGcou',form='unformatted')
+    open(newunit=ifiqgc,file='__QGcou',form='unformatted')
     read(ifiqg  ) nqnum , ngpmx_qg, QpGcut_psi,nnnn
     read(ifiqgc ) nqnumc, ngcmx, QpGcut_Cou
     write(6,*) 'nqnum,nqnumc=',nqnum,nqnumc

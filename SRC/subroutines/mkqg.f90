@@ -130,7 +130,7 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
      write(stdo,"('  q0iadd=  ', i3, 3f10.5)") i,q0i(:,i)
   enddo
   print *,' Writing BZDATA...'
-  open(newunit=ifbz, file='BZDATA',form='unformatted')
+  open(newunit=ifbz, file='__BZDATA',form='unformatted')
   write(ifbz) nqbz,nqibz, nqbzw, ntetf, nteti,ngrp,nnn ,qlat,ginv
   write(ifbz) qibz(1:3,1:nqibz),wibz(1:nqibz),nstar(1:nqibz),irk(1:nqibz,1:ngrp)
   write(ifbz) qbz(1:3,1:nqbz),wbz(1:nqbz),nstbz(1:nqbz)

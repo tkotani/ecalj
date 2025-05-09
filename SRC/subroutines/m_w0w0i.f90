@@ -94,10 +94,10 @@ contains
        if (ircw==1) then
           nini=nw_i
           nend=nw
-          open(newunit=ifrcwx,  file='WVR.'//i2char(iq), form='unformatted', &
+          open(newunit=ifrcwx,  file='__WVR.'//i2char(iq), form='unformatted', &
                status='old',access='direct',recl=mreclx)
        elseif(ircw==2) then;  nini=1;      nend=niw;
-          open(newunit=ifrcwx,  file='WVI.'//i2char(iq), form='unformatted', &
+          open(newunit=ifrcwx,  file='__WVI.'//i2char(iq), form='unformatted', &
                status='old',access='direct',recl=mreclx)
        endif
        do iw=nini,nend

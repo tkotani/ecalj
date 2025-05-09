@@ -27,8 +27,7 @@ contains
     ! quu: equivalent to q generated in qg4g4.
     ngb = ngc+nbloch
     if(NoVcou) return
-    vcoudfile='Vcoud.'//trim(i2char(iq)) ! iq was iqqv this is closed at the end of do 1001
-    open(newunit=ifvcoud, file=trim(vcoudfile),form='unformatted')
+    open(newunit=ifvcoud, file=trim('__Vcoud.'//trim(i2char(iq))),form='unformatted')
     read(ifvcoud) ngb0
     read(ifvcoud) qvv
     if(allocated(zcousq)) deallocate(zcousq)

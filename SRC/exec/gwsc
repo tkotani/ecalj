@@ -74,7 +74,8 @@ else:
     rundir='LDA'
     gen_dir(rundir)
     cp_files(flist,rundir)
-    cp_files(glob.glob('dos*'),rundir)
+    cp_files(glob.glob('atmpnu*'),rundir)
+    rm_files(glob.glob('__mixm*%s*'%target))
     rm_files(glob.glob('mixm*%s*'%target))
 
 # main iteration ###################################

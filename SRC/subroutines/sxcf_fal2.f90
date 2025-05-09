@@ -440,8 +440,8 @@ subroutine sxcf_fal3z(&
 
         !! === open WVR,WVI for correlation mode ===
         if(.not.exchange) then
-           open(newunit=ifrcw, file='WVR.'//i2char(kx),form='unformatted',access='direct',recl=mrecl)
-           open(newunit=ifrcwi,file='WVI.'//i2char(kx),form='unformatted',access='direct',recl=mrecl)
+           open(newunit=ifrcw, file='__WVR.'//i2char(kx),form='unformatted',access='direct',recl=mrecl)
+           open(newunit=ifrcwi,file='__WVI.'//i2char(kx),form='unformatted',access='direct',recl=mrecl)
         endif
         nrot=0
         do irot = 1,ngrp

@@ -211,8 +211,7 @@ subroutine hpsig_MPI()
 
   ! --- read radial functions PHIVC   (taken from hasfp0)
   if (myproc == 0) write(6,*)' Go to readining phivc'
-!  ifphi  = iopen('PHIVC', 0,-1,0)     ! PHIV+PHIC augmentation wave and core
-  open(newunit=ifphi,file='PHIVC',form='unformatted')
+  open(newunit=ifphi,file='__PHIVC',form='unformatted')
   read(ifphi) nbas, nradmx, ncoremx,nrx
   if( nbas/=natom ) stop ' nbas(PHIVC) /= natom '
   !      deallocate(ncore)

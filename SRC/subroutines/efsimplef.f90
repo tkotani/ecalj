@@ -31,7 +31,7 @@ subroutine efsimplef2ax ( legas, esmr, valn,ef)
   integer :: nbnqnsp,ix,ikx=-9999,ikini,nne
   real(8)    :: ew1,ew2,ein,valx,enumef_gauss,esmr, efini ,eee2,wwg2 ,enumef
   logical :: legas,autoew,GaussSmear=.true. !is external
-  integer:: if8301,if8302 !nqbz,
+!  integer:: if8301,if8302 !nqbz,
   autoew =.false.
   if(GaussSmear) then; write(6,*)' efsimplef2(gaussian mode):start'
   else;                write(6,*)' efsimplef2(rectangular mode):start';  endif
@@ -70,10 +70,10 @@ subroutine efsimplef2ax ( legas, esmr, valn,ef)
   call dcopy ( nband*nqibz*nspin, ekt,1, ektx ,1)
   call dcopy ( nband*nqibz*nspin, wgt,1, wgtx ,1)
   call sortea( ektx,ieaord,nband*nqibz*nspin,isig)
-  if (mpi__root) then
-     open(newunit=if8301,file = "DOSACC.lda")
-     open(newunit=if8302,file = "DOSACC2.lda")
-  endif
+!  if (mpi__root) then
+!     open(newunit=if8301,file = "DOSACC.lda")
+!     open(newunit=if8302,file = "DOSACC2.lda")
+!  endif
   wwg = 0d0
   wwg2= 0d0
   eee2= -1d99
@@ -82,9 +82,9 @@ subroutine efsimplef2ax ( legas, esmr, valn,ef)
   nne = nband*nqibz*nspin
   do ik = 1, nne
      if(eee2 +1d-4< ektx(ieaord(ik)) .OR. ik==nne ) then        ! degeneracy check
-        if (mpi__root) then
-           if(ik/=1) write(if8302,"(2i6,2d23.15)") ikini,ik-1,eee2,wwg2
-        endif
+!        if (mpi__root) then
+!           if(ik/=1) write(if8302,"(2i6,2d23.15)") ikini,ik-1,eee2,wwg2
+!        endif
         wwg2 = wgtx(ieaord(ik))
         eee2 = ektx(ieaord(ik))
         ikini =ik
@@ -93,10 +93,9 @@ subroutine efsimplef2ax ( legas, esmr, valn,ef)
      endif
      wwg = wwg + wgtx(ieaord(ik))
      if(wwg<valn+2d0) write(6,*) ik,ieaord(ik),ektx(ieaord(ik)),wwg
-     if (mpi__root) then
-        write(if8301,"(2i6,3d23.15)") &
-             ik,ieaord(ik),ektx(ieaord(ik)),wwg,wgtx(ieaord(ik))
-     endif
+!     if (mpi__root) then
+!        write(if8301,"(2i6,3d23.15)") ik,ieaord(ik),ektx(ieaord(ik)),wwg,wgtx(ieaord(ik))
+!     endif
      if( wwg>valn-1d-8 .AND. ierr==1 ) then
         write(6,*)
         efini = .5*(ektx(ieaord(ik+1))+ ektx(ieaord(ik)))
@@ -136,17 +135,17 @@ subroutine efsimplef2ax ( legas, esmr, valn,ef)
   enddo
   ef = 0.5d0*(ew1+ew2)
 8891 continue
-  if (mpi__root) then
-     write(if8301,*) " ef=",ef
-     close(if8301)
-     write(if8302,*) " ef=",ef
-     close(if8302)
-  endif
-  if(GaussSmear) then
-     write(6,*)' efsimplef2ax(gauss):end'
-  else
-     write(6,*)' efsimplef2ax:end'
-  endif
+!  if (mpi__root) then
+!     write(if8301,*) " ef=",ef
+!     close(if8301)
+!     write(if8302,*) " ef=",ef
+!     close(if8302)
+!  endif
+!  if(GaussSmear) then
+!     write(6,*)' efsimplef2ax(gauss):end'
+!  else
+!     write(6,*)' efsimplef2ax:end'
+!  endif
 end subroutine efsimplef2ax
 real(8) function enumef_gauss( wgtx,ektx,ein,esmr,nbnqnsp)
   implicit none

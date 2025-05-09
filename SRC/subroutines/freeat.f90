@@ -5,6 +5,7 @@ module m_freeat !free-standing spherical atom calculaitons for initial contditio
   use m_rseq,only: rseq
   public freeat,freats
   private
+  logical,private:: ifivv
 contains
   subroutine freeat() !For all species, we make free atom self-consistent, and get density to files.
     use m_ext,only:sname
@@ -24,10 +25,12 @@ contains
     real(8) :: qc,ccof,ceh,z,rmt,rfoca,qcor(2),a,sumec, sumtc,seref,dgets,dgetss,etot
     real(8) :: hfc(nxi0,2),exi(nxi0),hfct(nxi0,2), v(nrmx*2),rho(nrmx*2),rhoc(nrmx*2),rofi(nrmx*2)
     real(8) :: pnu(n0,2),pz(n0,2),qat(n0,2), rtab(n0,2),etab(n0,2),rsmfa
+    logical:: cmdopt0
     character strn*120
-    open(newunit=ifi,file='atm.'//trim(sname))
-    open(newunit=ifives,file='vesintatm.'//trim(sname)//'.chk')
-    open(newunit=ifiwv,file='veswavatm.'//trim(sname)//'.chk')
+    open(newunit=ifi,file='__atm.'//trim(sname))
+    ifivv=cmdopt0('--vesatom')
+    if(ifivv) open(newunit=ifives,file='vesintatm.'//trim(sname)//'.chk')
+    if(ifivv) open(newunit=ifiwv,file='veswavatm.'//trim(sname)//'.chk')
     hfct = 0d0
     do  is = 1, nspec ! Takao found that Li requires -0.5 to have positive smooth rho.
        if(z_i(is)<3.5) then !At least for Li, fitting is not good (negative smooth rho).
@@ -74,8 +77,8 @@ contains
        seref = ham_seref
        write(stdo,"(a,f35.12)") 'Sum of reference energies: ',seref
     endif
-    close(ifives)
-    close(ifiwv)
+    if(ifivv) close(ifives)
+    if(ifivv) close(ifiwv)
   end subroutine freeat
   subroutine freats(spid,is,nxi0,nxi,exi,rfoca,rsmfa,kcor,lcor,qcor, &
        nrmix,lwf,lxcf,z,rmt,a,nrmt,pnu,pz,qat,rs3,eh3,vmtz, & !,rcfa removed 2023feb. rnatm meaninful?
@@ -302,10 +305,10 @@ contains
          sec,stc, sumev,ekin,utot,rhoeps,etot,amgm,rhrmx,vrmax,dq,exrmax,'gue', nitmax,lfrz,plplus,qlplus,nmcore,qelectron,vsum)
     print *,'end of atomsc xxxxx'
     print *,'vsum=',vsum,is
-    print *,'ifives=',ifives
-    if(ifives >= 0) write(ifives,"(f23.15,i5,a)") vsum,is, ' !spacical integral of electrostatic potential' !The negative integer got error in nvfortran
-    print *,' write end of ifives'
-    if(ifiwv >= 0) write(ifiwv,"(f23.15,' ! total charge')") sum(qlplus(0:lmxa,1:nsp)+ql(1,1:lmxa+1,1:nsp))
+    if(ifivv) then
+      write(ifives,"(f23.15,i5,a)") vsum,is,' !spacical integral of electrostatic potential' !The negative integer got error in nvfortran
+      write(ifiwv,"(f23.15,' ! total charge')") sum(qlplus(0:lmxa,1:nsp)+ql(1,1:lmxa+1,1:nsp))
+    endif  
     dq=dq+sum(qlplus(:,:)) !takao feb2011
     if (ipr>=20)write(stdo,ftox)'sumev=',ftof(sumev),'etot=',ftof(etot),'eref=',ftof(eref),'etot-eref=',ftof(etot-eref)
     if (dabs(dq) > 1d-5 .AND. iprint() >= 10) write(stdo,ftox)' freeat (warning) atom not neutral, Q=',ftof(dq)
@@ -416,7 +419,7 @@ contains
     rmt = b*(dexp(a*nrmt-a)-1d0)
     tol = 1d-8
     write(stdo,"(/' Free-atom wavefunctions:')")
-    if(ifiwv >=0) write(ifiwv,"(i2,i3,' !nsp,lmaxa')")nsp,lmaxa
+    if(ifivv) write(ifiwv,"(i2,i3,' !nsp,lmaxa')")nsp,lmaxa
     open(newunit=ifipnu,file='atmpnu.'//trim(charext(is))//'.'//trim(sname))
     do  80  isp = 1, nsp
        ! --- Valence states ---
@@ -470,7 +473,7 @@ contains
              !   write default pnu setting to atmpnu file.
 400          format(i4,a1,f14.5,2x,3f12.3,a,f12.6,f12.3,x,i2)
 401          format(' valence:',6x,'eval',7x,'node at',6x,'max at',7x,'c.t.p.   rho(r>rmt)       pnu')
-             if(ifiwv >=0) write(ifiwv,"(i2,i3,i3,d23.15,d23.15,' !isp,l,eval,last is norm within MT')") isp,l,konfig,ev(l),sumr
+             if(ifivv) write(ifiwv,"(i2,i3,i3,d23.15,d23.15,' !isp,l,eval,last is norm within MT')") isp,l,konfig,ev(l),sumr
              !   ... Copy valence wavefunction to psi
              do  24  i = 1, nr
                 psi(i,l,isp) = g(i)
@@ -501,7 +504,7 @@ contains
 4011   enddo
 80  enddo
     close(ifipnu)
-    if(ifiwv >=0) write(ifiwv,"('9 9 9 9 9 --------! this is terminator for an atom section')")
+    if(ifivv) write(ifiwv,"('9 9 9 9 9 --------! this is terminator for an atom section')")
     ! --- Write file with valence wavefunctions
     if (lplawv == 1) then
        write (str,'(''wf_'',a)') spid

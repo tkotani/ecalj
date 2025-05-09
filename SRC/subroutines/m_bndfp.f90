@@ -280,7 +280,7 @@ contains
        else
           call makdos(nkp,nevmin,nbandmx,nsp,rv_a_owtkp,evlall,bz_n,bz_w,-6d0,dosw(1),dosw(2),ndos,dos_rv) !ndmahx=>nevmin
        endif
-       head='temp.'
+       head='__'
        if(tdos)head=''
        open(newunit=ifi, file=trim(head)//'dos.tot.'//trim(sname) )
        open(newunit=ifii,file=trim(head)//'dosi.tot.'//trim(sname))

@@ -77,7 +77,7 @@ contains
     endif
     if(allocated(ppovl))  deallocate(ppovl)
     allocate( ppovlz(ngb,npr))
-    open(newunit=ippovl0,file='PPOVL0',form='unformatted') !inefficient search for PPOVLO for given q
+    open(newunit=ippovl0,file='__PPOVL0',form='unformatted') !inefficient search for PPOVLO for given q
     do 
       read(ippovl0) qx,ngc_r
       if(sum(abs(qx-q))<tolq) then

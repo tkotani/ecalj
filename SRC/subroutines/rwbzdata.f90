@@ -26,7 +26,7 @@ contains
     logical,optional:: hx0
     logical:: qbzreg
     write(6,*)' ### readin BZDATA ###'
-    open(newunit=ifbz, file='BZDATA',form='unformatted')
+    open(newunit=ifbz, file='__BZDATA',form='unformatted')
     read(ifbz) nqbz,nqibz, nqbzw, ntetf, nteti, ngrp, n1,n2,n3,qlat,ginv
     allocate( qibz(1:3,1:nqibz),wibz(1:nqibz),nstar(1:nqibz),irk(1:nqibz,1:ngrp))
     read(ifbz)qibz(1:3,1:nqibz),wibz(1:nqibz),nstar(1:nqibz),irk(1:nqibz,1:ngrp)

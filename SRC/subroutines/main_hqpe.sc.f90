@@ -105,7 +105,7 @@ contains
     allocate(nhqx(nqibz,nspin))
     Readvxcever: do iq=1,nqibz               !now nqibz is not necessary to be nqbz !nqibz=nqbz
       do is=1,nspin
-        open(newunit=ifvxcevec, file='vxcevec'//trim(xt(iq))//trim(xt(is)),form='unformatted')
+        open(newunit=ifvxcevec, file='__vxcevec'//trim(xt(iq))//trim(xt(is)),form='unformatted')
         read(ifvxcevec) qqq(1:3,iq,is),nz, nev(iq,is)
         read(ifvxcevec) v_xc(1:nz,1:nz,iq,is)
         read(ifvxcevec) evec(1:nz,1:nz,iq,is) !,evl(1:nz,iq,is)
@@ -288,7 +288,7 @@ contains
     call getkeyvalue("GWinput","mixbeta",beta,default=1d0,status=ret)
     write(stdo,ftox)' mixsigma: Anderson mixing sigma with mixing beta =',ftof(beta)
     allocate ( a(2*nda,0:mxsav+1,2) )
-    fff="mixsigma"
+    fff="__mixsigma"
     INQUIRE (FILE =fff, EXIST = fexist)
     if(fexist)      write(stdo,ftox)'... reading file mixsigma'
     if( .NOT. fexist) write(stdo,ftox)'... No file mixsigma'

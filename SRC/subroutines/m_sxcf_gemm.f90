@@ -332,8 +332,8 @@ contains
           deallocate(wvr)
         endif
         if(any(kx==kxc(:))) then
-          open(newunit=ifrcwi,file='WVI.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
-          open(newunit=ifrcw, file='WVR.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
+          open(newunit=ifrcwi,file='__WVI.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
+          open(newunit=ifrcw, file='__WVR.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
           if(keepwv) then
             write(stdo, ftox) 'save WVI and WVR on CPU and GPU (if GPU is used) memory. This requires sufficient memory'
            ! (MO) wvi & wvr are also allocated in CPU memory and are note needed for GPU calcualtion. but allocation of huge

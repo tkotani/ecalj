@@ -78,7 +78,7 @@ contains
     call flush(stdo)
     if(iq<=nqibz) then        !for mmmw
       if(mpi__root_q) then
-        open(newunit=ifrcw, file='WVR.'//i2char(iq),form='unformatted',access='direct',recl=mreclx)
+        open(newunit=ifrcw, file='__WVR.'//i2char(iq),form='unformatted',access='direct',recl=mreclx)
       endif
       iwloop: do 1015 iw  = nwmin,nwmax
         if(emptyrun) exit
@@ -130,7 +130,7 @@ contains
         !  w4p writing eps
         if(iw==0 .AND. w4pmode) then ! static epstinv is saved. For q=0 epstilde (mu=1 skipped). For q/=0 full matrix inversion. ix=1 is set for q=0)
           !$acc update host(epstinv)
-          open(newunit=ifw4p,file='W4PHONON.'//i2char(iq),form='unformatted')
+          open(newunit=ifw4p,file='__W4PHONON.'//i2char(iq),form='unformatted')
           write(ifw4p) iq,q,ngb,ix !ix=0, or ix=1 for q=0 (iq=1)
           write(ifw4p) epstinv(ix+1:ngb,ix+1:ngb)
           close(ifw4p)
@@ -267,7 +267,7 @@ contains
     endif
     if( iq<=nqibz ) then
        if(mpi__root_q) then
-         open(newunit=ifrcwi,file='WVI.'//i2char(iq),form='unformatted',access='direct',recl=mreclx)
+         open(newunit=ifrcwi,file='__WVI.'//i2char(iq),form='unformatted',access='direct',recl=mreclx)
        endif
        do 1016 iw  = 1,niw
           if(emptyrun) exit

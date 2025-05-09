@@ -76,7 +76,7 @@ subroutine h_uumatrix()
   call genallcf_v3(incwfx=0) !readin condition. use ForX0 for core in GWIN !  call Readhbe()    !Read dimensions of h,hb
   call getsrdpp2(natom,nl,nxx)    ! --- read by rdpp ; Radial integrals ppbrd and plane wave part
   call readngmx('QGpsi',ngpmx)
-  open(newunit=ifphi,file='PHIVC',form='unformatted')     ! PHIV+PHIC augmentation wave and core
+  open(newunit=ifphi,file='__PHIVC',form='unformatted')     ! PHIV+PHIC augmentation wave and core
   read(ifphi) nbas, nradmx, ncoremx,nrx
   if(nqbz  /= nqbzt) call rx( ' hx0fp0: nqbz /=nqbzt  in hbe.d')
   if(nbas  /= natom) call rx(' nbas(PHIVC) /= natom ')

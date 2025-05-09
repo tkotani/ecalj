@@ -516,10 +516,8 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   if ( .NOT. exchange) then
      if (lueff) then
         call rx('Ueff mode not implimented in the MPI version')
-!        ifwd      = iopen('WV.d.maxloc',1,-1,0)
         open(newunit=ifwd,file='WV.d.maxloc')
      else
-!        ifwd      = iopen('WV.d',1,-1,0)
         open(newunit=ifwd,file='WV.d')
      endif
      read (ifwd,*) nprecx,mrecl,nblochpmx,nwp,niwt,nqnum,nw_i
@@ -531,12 +529,9 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
      niw = 0
      niwt = 0
      if (lueff) then
-!        ifrcw     = iopen('WVR.maxloc',0,-1,mrecl)
-        open(newunit=ifrcw, file='WVR.maxloc',form='unformatted',access='direct',recl=mrecl)
-        !          ifrcwi = iopen('WVI.maxloc',0,-1,mrecl)
+        open(newunit=ifrcw, file='__WVR.maxloc',form='unformatted',access='direct',recl=mrecl)
      else
-!        ifrcw     = iopen('WVR',0,-1,mrecl)
-        open(newunit=ifrcw, file='WVR',form='unformatted',access='direct',recl=mrecl)
+        open(newunit=ifrcw, file='__WVR',form='unformatted',access='direct',recl=mrecl)
      endif
      !... reading general energy mesh from file 'freq_r'
      open(newunit=if3111,file='freq_r') !this is in a.u.
@@ -548,7 +543,6 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
      enddo
      close(if3111)
   else
-!     ifvcfpout = iopen('VCCFP',0,-1,0)
      allocate(freq_r(1)); freq_r=1d99
      nw = 0
   endif

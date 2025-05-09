@@ -924,7 +924,7 @@ subroutine rsexx2 (nspin, itq, q, ntq,nq,ginv, symgg,ng, vxco)
   real(8)::  rydberg,tolq=1d-5,qx(3),ginv(3,3),qr(3),symgg(3,3,ng),sym(3,3)
   integer:: ikpx=999999
   write(6,*)' OPEN VXCFP '
-  open(newunit=ifvxcfp,file='VXCFP',form='unformatted')
+  open(newunit=ifvxcfp,file='__VXCFP',form='unformatted')
   read(ifvxcfp) ldim,nqbz
   write(6,*)' rsexx ldim,nqbz',ldim,nqbz
   allocate(qqq(3,nqbz),vxcfpx(ldim,nqbz,nspin))

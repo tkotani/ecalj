@@ -32,13 +32,13 @@ contains
     logical,optional:: getngcgp
     if(verbose()>=100) debug= .TRUE. 
     if(present(getngcgp)) then
-       open(newunit=ippovlgg,file= "PPOVLGG",form='unformatted')
+       open(newunit=ippovlgg,file= "__PPOVLGG",form='unformatted')
        read(ippovlgg) nggg, ngcgp, nqq, nqini,nqnumt
        close(ippovlgg)
        return
     endif
     if(ippovlggooo) then !!  Make igggi inversion table
-       open(newunit=ippovlgg,file= "PPOVLGG",form='unformatted')
+       open(newunit=ippovlgg,file= "__PPOVLGG",form='unformatted')
        read(ippovlgg) nggg, ngcgp, nqq, nqini,nqnumt
        if(debug)  write(stdo,"('Readin getppx2: nggg ngcgp nqq=',3i10)") nggg, ngcgp, nqq
        allocate(nvggg(1:3,1:nggg),ggg(1:nggg),nvgcgp2(1:3,ngcgp))
@@ -65,7 +65,7 @@ contains
        ippovlggooo=.false.
        allocate( qxtable(3,nqini:nqnumt) )
        do iqi = nqini,nqnumt
-          open(newunit=ippovlginit,file="PPOVLG."//charnum3(iqi),form='unformatted')
+          open(newunit=ippovlginit,file="__PPOVLG."//charnum3(iqi),form='unformatted')
           read(ippovlginit) qxtable(:,iqi) 
           close(ippovlginit) ! brought from outside of do iqi loop
        enddo
@@ -73,12 +73,12 @@ contains
     endif
     iqi=findloc([(sum(abs(qxtable(:,iqi0)-qi))<1d-10,iqi0=nqini,nqnumt)],value=.true.,dim=1)+nqini-1
     if(iqi<nqini) call rx('rppovl.f90: qi is not found. some bug. qi='//ftof(qi))
-    gex=access("PPOVLG."//charnum3(iqi),' ')
-    iex=access("PPOVLI."//charnum3(iqi),' ')
-    if(gex /= 0) call rx("PPOVLG."//charnum3(iqi)//" does not exist!") 
-    if(iex /= 0) call rx("PPOVLI."//charnum3(iqi)//" does not exist!") 
-    open(newunit=ippovlg,file= "PPOVLG."//charnum3(iqi),form='unformatted')
-    open(newunit=ippovli,file= "PPOVLI."//charnum3(iqi),form='unformatted')
+    gex=access("__PPOVLG."//charnum3(iqi),' ')
+    iex=access("__PPOVLI."//charnum3(iqi),' ')
+    if(gex /= 0) call rx("__PPOVLG."//charnum3(iqi)//" does not exist!") 
+    if(iex /= 0) call rx("__PPOVLI."//charnum3(iqi)//" does not exist!") 
+    open(newunit=ippovlg,file= "__PPOVLG."//charnum3(iqi),form='unformatted')
+    open(newunit=ippovli,file= "__PPOVLI."//charnum3(iqi),form='unformatted')
     read(ippovlg) qx, ngcread !, ngcx_s(iqi),ngc2_s(iqi)
     ngc = ngcread
     read(ippovli) qx, ngcread2 !, ngcx_s(iqi),ngc2_s(iqi)

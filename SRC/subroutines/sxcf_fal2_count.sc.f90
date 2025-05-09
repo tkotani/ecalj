@@ -127,7 +127,7 @@ contains
       read(ifiqg) iiixxx, ngcmx
       close(ifiqg)
       do ic = 1,natom 
-         open(newunit=ifp,file=trim('PPBRD_V2_'//char( 48+ic/10 )//char( 48+mod(ic,10))),form='unformatted')
+         open(newunit=ifp,file=trim('__PPBRD_V2_'//char( 48+ic/10 )//char( 48+mod(ic,10))),form='unformatted')
          read(ifp) nblocha(ic)
          close(ifp)
       enddo

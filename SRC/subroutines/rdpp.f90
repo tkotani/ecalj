@@ -15,13 +15,11 @@ contains
     integer :: is,iqi,iq,ic,isp,ip1,ip2,ioff,nxic,ifplane ,ngpmx_dum, ngcmx_dum,iqbzx,idxk,ngp,ngc,ig1,nwordr
     integer:: ngrp,ngpmx,nqbz,nqibz, nband, n1,n2,n3,iq0, ifppb(natom)
     real(8) ::  symope(3,3,ngrp),  pi
-    character(11) :: filename(natom)
     write(6,*)" rdpp: natom=",natom
     if(done_rdpp) call rx('rdpp is already called')
     allocate( nblocha(natom) ,lx(natom), nx(0:2*(nl-1),natom))
     do ic = 1,natom
-       filename(ic)='PPBRD_V2_'//char( 48+ic/10 )//char( 48+mod(ic,10))
-       open(newunit=ifppb(ic),file=trim(filename(ic)),form='unformatted')
+       open(newunit=ifppb(ic),file='__PPBRD_V2_'//char( 48+ic/10 )//char( 48+mod(ic,10)),form='unformatted')
        read(ifppb(ic)) nblocha(ic),lx(ic),nx(0:2*(nl-1),ic)
     enddo
     nxx = maxval( nx )
@@ -57,15 +55,13 @@ subroutine rdpp_v3(nxx, nl,ngrp, nn, natom, nspin,symope, &
   real(8)    ::  symope(3,3,ngrp) !, pi !qbas(3,3)
   integer(4) :: is,iqi,iq,ic,isp,ip1,ip2,ioff,nxic, &
        ifplane ,ngpmx_dum, ngcmx_dum,iqbzx,idxk,ngp,ngc,ig1
-  character(11) :: filename(natom)
   integer:: nx(0:2*(nl-1),natom)
   real(8):: ppbrd ( 0:nl-1, nn, 0:nl-1,nn, 0:2*(nl-1),nxx, nspin*natom), &
        cgr(nl**2,nl**2,(2*nl-1)**2,ngrp)
   write(6,*)" rdpp_v3: "
   !!  Radial integrals ppbrd
   do ic = 1,natom
-     filename(ic)='PPBRD_V2_'//char( 48+ic/10 )//char( 48+mod(ic,10))
-     open(newunit=ifppb(ic),file=trim(filename(ic)),form='unformatted')
+     open(newunit=ifppb(ic),file='__PPBRD_V2_'//char( 48+ic/10 )//char( 48+mod(ic,10)),form='unformatted')
      read(ifppb(ic)) nblocha(ic),lx(ic),nx(0:2*(nl-1),ic)
   enddo
   write(6,*)' ppbrd size',nl,nn,nxx,natom,nspin
@@ -85,10 +81,8 @@ end subroutine rdpp_v3
 subroutine Getsrdpp2(natom,nl,nxx)
   integer(4),intent(in):: natom,nl
   integer(4) :: nx(0:2*(nl-1),natom),nxx,ifppb,ic,lxx,nblocha
-  character(20) :: filename
   do ic = 1,natom
-     filename = 'PPBRD_V2_'//char( 48+ic/10 )//char( 48+mod(ic,10))
-     open(newunit=ifppb, file=trim(filename), action='read',form='unformatted')
+     open(newunit=ifppb, file='__PPBRD_V2_'//char( 48+ic/10 )//char( 48+mod(ic,10)), action='read',form='unformatted')
      read(ifppb) nblocha,lxx, nx(0:2*(nl-1),ic)
      close(ifppb)
   enddo

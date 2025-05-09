@@ -50,7 +50,7 @@ subroutine hbasfp0() bind(C) ! Generates orthonormal optimal product basis and r
   if(ix==8) write(stdo,*)' Enfoece lcutmx=0 for all atoms'
   write(stdo,"(' lcutmxa=',*(g0))") lcutmxa(1:natom)
   write(stdo,*)' --- end of reindx ---'
-  open(newunit=ifphi,file='PHIVC',form='unformatted') ! read PHIVC  and reserve it to phitot
+  open(newunit=ifphi,file='__PHIVC',form='unformatted') ! read PHIVC  and reserve it to phitot
   read(ifphi) nbas, nradmx, ncoremx
   allocate(  ncindx(ncoremx,nbas), lcindx(ncoremx,nbas),  nrad(nbas), &
        nindx_r(1:nradmx,1:nbas), lindx_r(1:nradmx,1:nbas), &

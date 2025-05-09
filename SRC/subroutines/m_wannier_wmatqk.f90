@@ -187,7 +187,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
     qxx=qibz_k
     !           if(kx<=nqibz) qxx=qibz_k
     !           if(kx>nqibz ) qxx=q0i(:,kx-nqibz)
-    open(newunit=ifvcoud,file=trim('Vcoud.'//i2char(kx)),form='unformatted')
+    open(newunit=ifvcoud,file=trim('__Vcoud.'//i2char(kx)),form='unformatted')
     do
       read(ifvcoud) ngb0
       read(ifvcoud) qvv
@@ -393,7 +393,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
       nx  = niw
       nprecx=8
       mrecl  = nprecx*2*nblochpmx*nblochpmx/nwordr()
-      open(newunit=ifrcwi,file='WVI.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
+      open(newunit=ifrcwi,file='__WVI.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
       do ix = 1,nx     ! imaginary frequency w'-loop
         ! ccccccccccccccccccccccccccccccc
         !          nrec=(kx-2)*niw+ix
@@ -432,7 +432,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
       if(debug) write(6,*)' go to poles'
       nprecx=8
       mrecl  = nprecx*2*nblochpmx*nblochpmx/nwordr()
-      open(newunit=ifrcw, file='WVR.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
+      open(newunit=ifrcw, file='__WVR.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
       do      ix = 0,nrw                    ! real frequency w'-loop
         ! ccccccccccccccccccccccccc
         !          nrec=(kx-2)*(nw+1-nw_i)+ ix-nw_i+1
@@ -683,7 +683,7 @@ contains
     real(8), intent(in) :: q(3)
     integer:: ngc_r,ippovl0
     real(8):: qx(3),tolq=1d-8
-    open(newunit=ippovl0,file='PPOVL0',form='unformatted')
+    open(newunit=ippovl0,file='__PPOVL0',form='unformatted')
     do
       read(ippovl0) qx,ngc_r
       if(sum(abs(qx-q))<tolq) then

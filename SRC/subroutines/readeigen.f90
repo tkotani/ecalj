@@ -411,7 +411,7 @@ contains
     endif
     close(ifiqg)
     deallocate(qtt_)
-    open(newunit=ifev,file='EValue',form='unformatted')
+    open(newunit=ifev,file='__EValue',form='unformatted')
     read(ifev) nband_ev, nqi_, nsp_ev, nspc_
     write(stdo,ftox)'Read EValue: nband nqi nsp nspc nspx', nband, nqi, nsp,nspc,nspx
     if(nband_ev/=nband) call rx( 'init_readeigen:nband_ev/=nband')
@@ -451,8 +451,8 @@ contains
     init2=.false.
     if(Keepeig       ) write(6,*)' KeepEigen=T; readin geig and cphi into m_readeigen'
     if( .NOT. Keepeig) write(6,*)' KeepEigen=F; not keep geig and cphi in m_readeigen'
-    i=openm(newunit=ifcphim,file='CPHI',recl=mrecb) ! Obata moved openm here, bug was 'openm after return 
-    i=openm(newunit=ifgeigm,file='GEIG',recl=mrecg) ! in the case of keepeig=F ' fix at 2024-10-15
+    i=openm(newunit=ifcphim,file='__CPHI',recl=mrecb) ! Obata moved openm here, bug was 'openm after return 
+    i=openm(newunit=ifgeigm,file='__GEIG',recl=mrecg) ! in the case of keepeig=F ' fix at 2024-10-15
     if( .NOT. Keepeig) call keep_wfs_init() ! allocate for keep wfs
     if( .NOT. keepeig) return
     allocate(geig(ngpmx*nspc,nband,nqi,nspx))
@@ -462,11 +462,6 @@ contains
           ikpisp= is + nsp*(ikp-1)
           i=readm(ifcphim,rec=ikpisp, data=cphi(1:ndima*nspc,1:nband,ikp,is))
           if(ngpmx/=0) i=readm(ifgeigm,rec=ikpisp,data=geig(1:ngpmx*nspc,1:nband,ikp,is))
-          !  open(newunit=ifcphi, file='CPHI'//trim(xt(ikp))//trim(xt(is)),form='unformatted')
-          !  open(newunit=ifgeig, file='GEIG'//trim(xt(ikp))//trim(xt(is)),form='unformatted')
-          !  if(ngpmx/=0) read(ifgeig) geig(1:ngpmx*nspc,1:nband,ikp,is) ! , rec=ikpisp)
-          !  close(ifcphi)
-          !  close(ifgeig)
        enddo
     enddo
     !$acc enter data copyin(geig, cphi)

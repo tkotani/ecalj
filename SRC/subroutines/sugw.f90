@@ -268,8 +268,8 @@ contains
         enddo ibasloopc
         close(ifec)
         !PHIVC  
-        write(stdo,ftox)" === Write PHIVC ==="
-        open(newunit=ifphi,file='PHIVC',form='unformatted')
+        write(stdo,ftox)" === Write __PHIVC ==="
+        open(newunit=ifphi,file='__PHIVC',form='unformatted')
         write(ifphi) nbas, nradmx,ncoremx,nrmxe !extented for nrc
         write(ifphi) nrad(1:nbas)
         write(ifphi) nindx_r(1:nradmx,1:nbas),lindx_r(1:nradmx,1:nbas)
@@ -340,8 +340,8 @@ contains
     call m_ppj_init() 
     ! CPHI GEIG. We use mpi-io from 2024-9-26
     allocate(cphix(ndima,nspc,nbandmx),geigr(ngpmx,nspc,nbandmx))
-    i=openm(newunit=ifcphim,file='CPHI',recl=mrecb)
-    i=openm(newunit=ifgeigm,file='GEIG',recl=mrecg)
+    i=openm(newunit=ifcphim,file='__CPHI',recl=mrecb)
+    i=openm(newunit=ifgeigm,file='__GEIG',recl=mrecg)
     allocate(evl(nbandmx, nqirr, nspx),vxclda(nbandmx, nqirr, nspx),source=0d0)!nqirr: # ofirreducible q points
     iqisploop: do 1001 idat=1,niqisp !iq = iqini,iqend ! iqini:iqend for this procid
       write(stdo,ftox) 'do 1001 idat=',idat
@@ -349,7 +349,7 @@ contains
       isp = isproc(idat) ! spin index: Note isp=1:nspx, where nspx=nsp/nspc.  isp=1 nspc=2 only for lso=1 if(debug)write(stdo,ftox)' iqisploop',iq,isp  
       qp  = qplist(:,iq) ! q vector containing nqirr
       ngp = ngplist(iq)  ! number of planewaves for PMT basis
-      call m_igv2x_setiq(iq) ! Set napw ndimh ndimhx, and igv2x !note ndimhx is given here.
+      call m_igv2x_setiq(iq) ! WARN! Set napw ndimh ndimhx, and igv2x !note ndimhx is given here.
       allocate(hamm(ndimh,nspc,ndimh,nspc),ovlm(ndimh,nspc,ndimh,nspc)) !Spin-offdiagonal block included since nspc=2 for lso=1.
       allocate(evec(ndimhx,ndimhx),vxc(ndimh,nspc,ndimh,nspc),cphi(ndima,ndimhx,nspc))!,cphiw(ndimhx,nspc))
       if(iqbk==iq) then
@@ -415,11 +415,11 @@ contains
 1212  continue
       lwvxc = (socmatrix .or. iq<=iqibzmax).and.(.not.cmdopt0('--novxc'))
       if(lwvxc) then
-        open(newunit=ifvxcevec, file= 'vxcevec'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
+        open(newunit=ifvxcevec, file= '__vxcevec'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
         write(ifvxcevec) qp,ndimhx,nev
         write(ifvxcevec) vxc(:,1:nspc,:,1:nspc)
         write(ifvxcevec) evec(1:ndimhx,1:ndimhx),evl(1:ndimhx,iq,isp)
-        if(lso/=0.or.socmatrix) write(ifvxcevec) hammhso 
+!        if(lso/=0.or.socmatrix) write(ifvxcevec) hammhso 
         close(ifvxcevec)
       endif
       if(emptyrun) then
@@ -602,12 +602,12 @@ contains
     call mpibc2_real(evl,   nbandmx*nqirr*nspx,'evl')
     call mpibc2_real(vxclda,nbandmx*nqirr*nspx,'vxclda')
     WriteGWfiles2: if(master_mpi) then
-      open(newunit=ifv,file='VXCFP',form='unformatted')
+      open(newunit=ifv,file='__VXCFP',form='unformatted')
       write(ifv) nbandmx,nqirr
       do iqq = 1,nqirr 
          write(ifv) qplist(1:3,iqq), vxclda(1:nbandmx,iqq,1:nspx) ! VXCFP
       enddo
-      open(newunit=ifev,file='EValue',form='unformatted')
+      open(newunit=ifev,file='__EValue',form='unformatted')
       write(ifev) nbandmx, nqirr, nsp,nspc
       write(ifev) qplist(1:3,1:nqirr) !qirr
       write(ifev) evl(1:nbandmx, 1:nqirr, 1:nspx )
@@ -631,6 +631,7 @@ contains
         integer,allocatable,target:: ngvecptt(:,:,:),ngvecctt(:,:,:),ngptt(:),ngctt(:),iqindex(:)
         complex(8),allocatable :: ppovl(:,:),ppx(:,:),ppovlinv(:,:),ggg(:)
         integer,pointer:: ngvecp(:,:),ngvecc(:,:)
+        character(5):: txx='.tmpp'
         ! Reading q+G and bzdata
         open(newunit=ifiqg ,file='QGpsi',form='unformatted')
         open(newunit=ifiqgc,file='QGcou',form='unformatted')
@@ -698,7 +699,7 @@ contains
         !Write PPOVLGG === make <Gc-Gp1+Gp2> matrix ===
         write(stdo,ftox)' === Write PPOVLGG PPOVLG PPOVLI ==='
         write(stdo,ftox)' nggg ngcgp=',nggg,ngcgp,'nqnumt nqini nqtt',nqnumt,nqini,nqtt
-        open(newunit=ippovlgg,file= "PPOVLGG",form='unformatted')
+        open(newunit=ippovlgg,file= "__PPOVLGG",form='unformatted')
         write(ippovlgg) nggg, ngcgp, nqnumt-nqini+1,nqini,nqnumt
         write(ippovlgg) nvgcgp(1:3,1:ngcgp)
         write(ippovlgg) nvggg(1:3,1:nggg)
@@ -706,10 +707,10 @@ contains
         deallocate(ggg,nvggg,nvgcgp)
         close(ippovlgg)
         !Write PPOVL0,PPOVLG, PPOVLI 
-        if(ppovl0l) open(newunit=ippovl0,form='unformatted',file='PPOVL0')
+        if(ppovl0l) open(newunit=ippovl0,form='unformatted',file='__PPOVL0')
         iqiloop: do iqi = nqini, nqnumt    !nqibz + nq0i !+ iadd
-          open(newunit=ippovlg,file= "PPOVLG."//charnum3(iqi),form='unformatted')
-          open(newunit=ippovli,file= "PPOVLI."//charnum3(iqi),form='unformatted')
+          open(newunit=ippovlg,file= "__PPOVLG."//charnum3(iqi),form='unformatted')
+          open(newunit=ippovli,file= "__PPOVLI."//charnum3(iqi),form='unformatted')
           qx  = qibze(1:3,iqi)
           iqx= findloc([(sum(abs(qx(:)-qtt(:,iqtt)))<tolq,iqtt=1,nqtt)],dim=1,value=.true.)
           ngvecp =>ngvecptt(1:3,1:ngptt(iqx),iqx)
