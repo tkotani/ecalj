@@ -342,7 +342,7 @@ subroutine hsfp0() bind(C)
   call pshpr(60)
   !! Readin WV.d
   if( .NOT. exchange .OR. (exchange .AND. screen)) then !screen means screened exchange case
-     open(newunit=ifwd,file='WV.d') !direct access files WVR and WVI which include W-V.
+     open(newunit=ifwd,file='__WV.d') !direct access files WVR and WVI which include W-V.
      read(ifwd,*) nprecx,mrecl,nblochpmx,nwp,niwt, nqnum, nw_i
      write(6,"(' Readin WV.d =', 10i8)") nprecx,mrecl,nblochpmx, nwp, niwt, nqnum, nw_i
      close(ifwd)

@@ -16,6 +16,7 @@ module m_x0kf
   use m_ftox
   use m_readVcoud,only:   vcousq,zcousq,ngb,ngc
   use m_kind,only: kp => kindrcxq
+  use m_mpi,only: ipr
   implicit none
   public:: x0kf_zxq, deallocatezxq, deallocatezxqi
   complex(kind=kp), public, allocatable:: zxqi(:,:,:)   !Not yet protected because of main_hx0fp0
@@ -52,7 +53,7 @@ contains
       ikbz = ikbz_in
       fkbz = fkbz_in
     endif
-    write(stdo,'(" x0kf_v4hz_init: job q =",i3,3f8.4)') job,q
+    if(ipr) write(stdo,'(" x0kf_v4hz_init: job q =",i3,3f8.4)') job,q
     ierr=-1
     ncc=merge(0,nctot,npm==1)
     if(job==0) then
@@ -129,7 +130,7 @@ contains
             if(crpa) imagweight = imagweight*(1d0-wpw_k*wpw_kq) 
             icount = icount+1 ! icount is including iw count
             if(job==1) whwc (icount)= imagweight
-            ! write(stdo,ftox)'x0kf_v4hz_init: icount jpm k it itp iw jpm whw=',icount,jpm, k,it,itp,iw, ftof(whwc(icount))
+            ! if(ipr) write(stdo,ftox)'x0kf_v4hz_init: icount jpm k it itp iw jpm whw=',icount,jpm, k,it,itp,iw, ftof(whwc(icount))
           enddo iwloop
 125     enddo ibibloop
 1251  enddo jpmloop
@@ -137,7 +138,7 @@ contains
 110 enddo AccumulateIndex4icount
     ncount = icount
     ncoun  = icoun
-    if(job==0) write(stdo,"('x0kf_v4hz_init: job=0 ncount ncoun nqibz=',3i8)") ncount, ncoun,nqibz
+    if(job==0.and.ipr) write(stdo,"('x0kf_v4hz_init: job=0 ncount ncoun nqibz=',3i8)") ncount, ncoun,nqibz
     ierr=0
   endfunction x0kf_v4hz_init
   
@@ -200,7 +201,7 @@ contains
         !$acc enter data create(zxqi)
       endif
     endif
-    write(stdo,ftox)' size of rcxq:', npr, npr_col, nwhis*npm+1
+    if(ipr) write(stdo,ftox)' size of rcxq:', npr, npr_col, nwhis*npm+1
     call flush(stdo)
     !$acc kernels
     rcxq(:,:,:) = (0d0,0d0)
@@ -305,7 +306,7 @@ contains
             ! nqini= nkqmin(k);      nqmax= nkqmax(k)
             icounkmink= icounkmin(k); icounkmaxk= icounkmax(k)
             debug=cmdopt0('--debugzmel')
-            if(debug) write(stdo,ftox) 'ggggggggg goto get_zmel_init_gemm',k, nkmin(k),nkmax(k),nctot
+            if(debug.and.ipr) write(stdo,ftox) 'ggggggggg goto get_zmel_init_gemm',k, nkmin(k),nkmax(k),nctot
             NMBATCH: BLOCK 
               integer :: nsize, nns, ibatch, nbatch, ns12
               integer, allocatable :: ns1lists(:), ns2lists(:)
@@ -326,7 +327,7 @@ contains
                 ns12 = ns2 - ns1 + 1
                 if(ns12 == 0) cycle
                 call stopwatch_start(t_sw_zmel)
-                write(stdo,ftox) 'zmel_batch:', ibatch, ns1, ns2, nbatch
+                if(ipr) write(stdo,ftox) 'zmel_batch:', ibatch, ns1, ns2, nbatch
                 if(use_gpu) then
                   !Currently, mpi version of get_zmel_init_gpu which is available by adding comm argument for MPI communicator,
                   !but, MPI communication is significant bottle-neck in the case where GPUs are used. Therefore, it is only used in without GPU case.
@@ -361,7 +362,7 @@ contains
 !             icounloop: do 1000 icoun=icounkmin(k),icounkmax(k)
 !               TimeConsumingRcxq: block 
 !                 complex(8):: zmelzmel(npr,npr_col)
-!                 if(debug) write(stdo,ftox)'icoun: iq k jpm it itp n(iw)=',icoun,iq,k,jpm,it,itp,iwend(icoun)-iwini(icoun)+1
+!                 if(debug) if(ipr) write(stdo,ftox)'icoun: iq k jpm it itp n(iw)=',icoun,iq,k,jpm,it,itp,iwend(icoun)-iwini(icoun)+1
 !                 associate( &
 !                      jpm => jpmc(icoun),&  !\pm omega 
 !                      it  => itc (icoun),&  !occ      at k
@@ -386,7 +387,7 @@ contains
         call cputid (0)
 1590    continue
 2000   continue
-       if(debug) write(stdo,ftox)"--- x0kf_v4hz: end: sumcheck abs(rcxq)=",sum(abs(rcxq(:,:,:)))
+       if(debug.and.ipr) write(stdo,ftox)"--- x0kf_v4hz: end: sumcheck abs(rcxq)=",sum(abs(rcxq(:,:,:)))
       endblock x0kf_v4hz_block
       deallocate(whwc, kc, iwini,iwend, itc,itpc, jpmc,icouini, nkmin,nkmax,nkqmin,nkqmax,icounkmin,icounkmax)
       HilbertTransformation:if(isp_k==nsp .OR. chipm) then
@@ -433,7 +434,7 @@ contains
     integer::              k,isp_k,isp_kq 
     real(8)::           q(3)
     debug=cmdopt0('--debugzmel')
-    if(debug) write(stdo,ftox) 'ggggggggg goto get_zmel_init_gemm',k, nkmin(k),nkmax(k),nctot
+    if(debug.and.ipr) write(stdo,ftox) 'ggggggggg goto get_zmel_init_gemm',k, nkmin(k),nkmax(k),nctot
     call get_zmel_init_gemm(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
          nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., zmelconjg=.true.)
        !$acc update host(zmel)

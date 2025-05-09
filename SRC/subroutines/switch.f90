@@ -111,7 +111,7 @@ real(8) function screenfac()
      call getkeyvalue("GWinput","TFscreen",tss, default=1d-5**.5)
      ! 1d-5**.5 is just given by rough test.
      ! Results should not depend on this value as long as default is small enough.
-     write(6,*)'TFscreen=',tss
+     ! write(6,*)'TFscreen=',tss
      init=.false.
   endif
   ! screenfac = - TFscreen**2 = energy (negative) ==> (\nabla^2 + e) v= \delta(r-r')

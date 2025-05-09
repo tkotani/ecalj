@@ -1,4 +1,5 @@
 module  m_vcoulq
+  use m_mpi,only: ipr
   public vcoulq_4,mkjb_4,mkjp_4,genjh
 contains
   subroutine vcoulq_4(q,nbloch,ngc,nbas,lx,lxx,nx,nxx,alat,qlat,vol,ngvecc, & !Coulmb matrix for each q
@@ -46,7 +47,7 @@ contains
     complex(8),allocatable :: hh(:,:),oo(:,:),zz(:,:),matp(:),matp2(:),pjyl_(:,:),phase(:,:)
     complex(8) :: xxx, img=(0d0,1d0), fouvp_ig1_ig2, fouvp_ig2_ig1, sgpp_ig1_ig2
     integer :: istat
-    write(6,'(" vcoulq_4: nblochpmx  nbloch ngc=",3i6)') nblochpmx,nbloch,ngc
+    if(ipr) write(6,'(" vcoulq_4: nblochpmx  nbloch ngc=",3i6)') nblochpmx,nbloch,ngc
     fpivol = 4*pi*vol
     allocate( pjyl_((lxx+1)**2,ngc),phase(ngc,nbas), cy((lxx+1)**2), yl((lxx+1)**2))
     call sylmnc(cy,lxx)
@@ -131,7 +132,7 @@ contains
       ! get integral coefficients of int (a*b) G_1(ir) G_2(ir) exp(a*r))
       ! simpson rule is used. nr(ibas) was set as odd number
       ! sigx_tmp(ig1,ig2,l,ibas) is int dr (aa(ibas)*bb(ibas)) a1g(r,g1)* ajr(r,l,ibas,g2) exp(aa(ibas)*r))
-      write(6,*)' vcoulq_4: pgvpg dev block. size of ajr:', size(ajr)
+      if(ipr) write(6,*)' vcoulq_4: pgvpg dev block. size of ajr:', size(ajr)
       fac_integral(1:nrx,1:nbas) = 0d0
       do ibas = 1, nbas
         fac_integral(1,ibas) = aa(ibas)*bb(ibas)/3d0
@@ -203,12 +204,12 @@ contains
       enddo
     enddo RightUpperPartOFvcoul
     do ix = 1,nbloch+ngc
-      if(mod(ix,20)==1 .OR. ix>nbloch+ngc-10) write(6,"(' Diagonal Vcoul =',i5,2d18.10)") ix,vcoul(ix,ix)
+      if((mod(ix,20)==1 .OR. ix>nbloch+ngc-10).and.ipr) write(6,"(' Diagonal Vcoul =',i5,2d18.10)") ix,vcoul(ix,ix)
     enddo
   end subroutine vcoulq_4
   ! ptest=.False.
   ! PlaneWavetest: if(ptest) then !check Coulomb by plane wave expansion.
-  !   write(6,*) ' --- plane wave Coulomb matrix check 1---- '
+  !   if(ipr) write(6,*) ' --- plane wave Coulomb matrix check 1---- '
   !   write(197,*) ' --- off diagonal ---- '
   !   nblochngc = nbloch+ngc
   !   allocate(matp(nblochngc),matp2(nblochngc))
@@ -318,7 +319,7 @@ contains
       !      else
       ! We need to implement a version of sigintAn1 to treat eee/=0 case...
     endif
-    write(6,*)' mkjp_4: sgpb dev block. size of ajr:', size(ajr)
+    if(ipr) write(6,*)' mkjp_4: sgpb dev block. size of ajr:', size(ajr)
     dev_mo: block
 #ifdef __GPU
     use m_blas, only: dmv => dmv_d, m_op_T
@@ -360,7 +361,7 @@ contains
         enddo
       enddo
       fouvb=0d0
-      write(6,*)' mkjp_4: fouvb dev block'
+      if(ipr) write(6,*)' mkjp_4: fouvb dev block'
       do ig1 = 1, ngc
         do l = 0, lx
           a1g(1:nr,ig1,l) = ajr(1:nr,l,ig1)*fac_integral(1:nr)

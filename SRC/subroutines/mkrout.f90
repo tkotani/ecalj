@@ -1,5 +1,5 @@
 module m_mkrout
-  use m_lmfinit,only: nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,lmxb_i=>lmxb,lmxl_i=>lmxl,spec_a,kmxt_i=>kmxt,lfoca_i=>lfoca,z_i=>z
+  use m_lmfinit,only: nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,lmxb_i=>lmxb,lmxl_i=>lmxl,spec_a,kmxt_i=>kmxt,lfoca_i=>lfoca,z_i=>z,slabl
   use m_ll,only:ll
   use m_struc_def,only:s_rv1
   use m_uspecb,only:uspecb
@@ -57,6 +57,8 @@ contains
     use m_makusp,only: makusp
     use m_MPItk,only: master_mpi
     use m_fatom,only: sspec
+    use m_ftox
+    use m_ext,only:sname
     !i   oqkkl :local density-matrix (rhocbl or comparable routine)
     !o   oeqkkl:local part of energy-weighted density matrix
     !i   hab   :hamiltonian matrix elements of radial wave functions at each site.  See potpus for their definition.
@@ -76,7 +78,7 @@ contains
     type(s_rv5) :: oeqkkl(3,nbas)
     type(s_rv5) :: oqkkl(3,nbas)
     integer:: ib,ipr,iprint,is,k,kcor,kmax,lcor,lfoc,lgunit,lmxa,lmxh,lmxl,nlma,nlmh,nlml,nlml1,r,ncore,ifx
-    integer :: nkapi,nkape,nr, lh(nkap0),nkaph
+    integer :: nkapi,nkape,nr, lh(nkap0),nkaph,ifim,i
     real(8):: qbyl(n0,nsp,nbas) , hbyl(n0,nsp,nbas) , sab(3,3,n0,nsp,nbas), hab(3,3,n0,nsp,nbas)
     real(8) :: a,ceh,qcor(2),rfoc,rmt,smec,smtc,stc0, sum1,sum2,sums1,sums2,xx,z,res,rsml(n0),ehl(n0)
     real(8) :: eh(n0,nkap0),rsmh(n0,nkap0)
@@ -198,12 +200,19 @@ contains
        sumtc = sumtc + merge(smtc,stc0,lfoc==0) !sum of kinetic energy of cores for ehk
        deallocate(rofi_rv,rwgt_rv)
     enddo ibloop
-    if (ipr >= 30 .AND. lrout > 0) then ! write(stdo,"(a)")' mkrout: site(class) decomposed charge and magnetic moment. class->lmchk'
+    if (lrout > 0) then ! write(stdo,"(a)")' mkrout: site(class) decomposed charge and magnetic moment. class->lmchk'
        if (nsp == 1) write(stdo,"('mkrout:  Qtrue      sm,loc       local')")
        if (nsp == 2) write(stdo,"('mkrout:  Qtrue      sm,loc       local',8x,'true mm   smooth mm    local mm')")
        do ib=1,nbas
           write(stdo,"(i4,3f12.6,2x,3f12.6)") ib,dat(1:3*nsp,ib)
+        enddo
+       open(newunit=ifim,file='mmom.chk.'//trim(sname))
+       if(nsp == 1) write(ifim,"('# Qtrue   Rmt     MT')")
+       if(nsp == 2) write(ifim,"('# Qtrue    MagMom(up-dn) Rmt   MT')")
+       do ib=1,nbas
+         write(ifim,ftox) ib,ftof([(dat(3*(i-1)+1,ib),i=1,nsp),rmt_i(ispec(ib))]),slabl(ispec(ib))
        enddo
+       close(ifim)
     endif
     call tcx('mkrout')
   end subroutine mkrout

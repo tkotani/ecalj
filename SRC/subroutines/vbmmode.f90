@@ -24,7 +24,7 @@ subroutine vbmmode()
   open(newunit=ifves,file='vessm.'//trim(sname),status='old')
   read(ifves,*) vessm       !smooth part of electrostatic pot. given in smves.F. (es on MT average).
   close(ifves)
-  open(newunit=ifvesintloc,file='vesintloc.'//trim(sname),status='old',err=9898)
+  open(newunit=ifvesintloc,file='vesintloc',status='old',err=9898)
   sumvesloc=0d0
   sumvesatm=0d0
   do ib=1,nbas

@@ -10,7 +10,7 @@ module m_readfreq_r
 contains
   subroutine readfreq_r()
     integer:: ififr,ifwd,ix,nwxx,iw
-    open(newunit=ifwd,file='WV.d')
+    open(newunit=ifwd,file='__WV.d')
     read(ifwd,*) nprecx,mrecl,nblochpmx,nwp,niwt, nqnum, nw_i
     write(6,"(' Readin WV.d =', 10i8)") nprecx,mrecl,nblochpmx,nwp,niwt, nqnum, nw_i
     close(ifwd)

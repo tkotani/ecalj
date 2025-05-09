@@ -66,7 +66,7 @@ subroutine hsfp0_sc()
 !  use m_readhbe,only: Readhbe, nband !nprecb,mrecb,mrece,nlmtot,nqbzt,,mrecg
   use m_mpi,only: &
        MPI__Initialize,MPI__root,MPI__Broadcast,MPI__rank,MPI__size,MPI__allreducesum, &
-       MPI__consoleout,  MPI__reduceSum,comm, MPI__SplitSc, worker_intask
+       MPI__consoleout,  MPI__reduceSum,comm, MPI__SplitSc, worker_intask,ipr
   use m_lgunit,only:m_lgunit_init,stdo
   use m_ftox
   use m_gpu,only: gpu_init
@@ -103,16 +103,16 @@ subroutine hsfp0_sc()
        if(cmdopt2('--job=',outs)) then
           read(outs,*) ixc
        else
-          write(stdo,*) ' --- Choose modes below ------------'
-          write(stdo,*) '  Sx(1) Sc(2) ScoreX(3) '
-          write(stdo,*) ' --- Put number above ! ------------'
+          if(ipr) write(stdo,*) ' --- Choose modes below ------------'
+          if(ipr) write(stdo,*) '  Sx(1) Sc(2) ScoreX(3) '
+          if(ipr) write(stdo,*) ' --- Put number above ! ------------'
           read(5,*) ixc
-          write(stdo,*) ' ixc=', ixc !computational mode index
+          if(ipr) write(stdo,*) ' ixc=', ixc !computational mode index
        endif
     endif
     call MPI__Broadcast(ixc)
 !    write(ixcname,"('.mode=',i4.4)")ixc
-    call MPI__consoleout('hsfp0_sc.mode='//charnum3(ixc)) !trim(ixcname)) !Open console output stdout.irank.hsfp0_sc.mode
+    call MPI__consoleout('hsfp0_sc.mode'//charnum3(ixc)) !trim(ixcname)) !Open console output stdout.irank.hsfp0_sc.mode
     call pshpr(60)
     if(ixc==3) then; incwfin= -2 !core exchange mode
     else           ; incwfin= -1 !use 7th colmn for core at the end section of GWIN
@@ -120,22 +120,22 @@ subroutine hsfp0_sc()
     call GENALLCF_V3(incwfin)    ! readin basic data
     call READ_BZDATA() ! Readin BZ data. See gwsrc/rwbzdata.f ===
 !    if(nclass /= natom ) call rx('hsfp0_sc: sanitiy check nclass /= natom ')! CAUTION. ASSUME iclass(iatom)= iatom (because of historical reason)
-    !  write(stdo,"(' nqbz nqibz ngrp=',3i12)") nqbz,nqibz,ngrp
+    !  if(ipr) write(stdo,"(' nqbz nqibz ngrp=',3i12)") nqbz,nqibz,ngrp
     call ReadGwinputKeys()
     call pshpr(30)
     esmref= esmr_in
     if(ixc==1) then
        esmr = esmr_in !read from GWinput
        exchange = .true.
-       write(stdo,*) ' --- Exchange mode --- '
+       if(ipr) write(stdo,*) ' --- Exchange mode --- '
     elseif(ixc==2) then
        esmr = esmr_in !read from GWinput
        exchange=.false.
-       write(stdo,*) ' --- Correlation mode --- '
+       if(ipr) write(stdo,*) ' --- Correlation mode --- '
     elseif(ixc==3) then
        esmr= 0d0
        exchange = .true.
-       write(stdo,*) ' --- CORE Exchange mode --- '
+       if(ipr) write(stdo,*) ' --- CORE Exchange mode --- '
     else
        call rx(' hsfp0_sc: Need input (std input) 1(Sx) 2(Sc) or 3(ScoreX)!')
     endif
@@ -157,7 +157,7 @@ subroutine hsfp0_sc()
     call INIT_READEIGEN2()! initialize m_readeigen
     call Mptauof_zmel(symgg,ngrp) ! Put space-group transformation information to m_zmel,call rdpp in this
     call Readngmx2() !return ngpmx and ngcmx in m_readqg
-    write(stdo,"(*(g0))")' max number of G for QGpsi and QGcou: ngcmx ngpmx=',ngcmx,ngpmx
+    if(ipr) write(stdo,"(*(g0))")' max number of G for QGpsi and QGcou: ngcmx ngpmx=',ngcmx,ngpmx
     call pshpr(60)
     if(.NOT.exchange) call readfreq_r()  !Readin WV.d and freq_r
     legas=.false. ! if legas=T, homogenius electron gas test case.
@@ -165,9 +165,9 @@ subroutine hsfp0_sc()
     eftrue = ef
     if(ixc==3)ef = LOWESTEVAL() -1d-3 !lowesteigen(nspin,nband,qbz,nqbz) - 1d-3 !lowesteb was
     voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3))) ! primitive cell volume
-    write(stdo,'(" --- computational conditions --- ")')
-    write(stdo,ftox)'  deltaw alat voltot=', ftof([deltaw,alat,voltot])
-    write(stdo,ftox)'  ef     esmr   valn=',ftof([ef,esmr,valn])
+    if(ipr) write(stdo,'(" --- computational conditions --- ")')
+    if(ipr) write(stdo,ftox)'  deltaw alat voltot=', ftof([deltaw,alat,voltot])
+    if(ipr) write(stdo,ftox)'  ef     esmr   valn=',ftof([ef,esmr,valn])
     nspinmx = nspin
 !    call anfcond()
     if(laf) nspinmx=1  ! Antiferro case. Only calculate up spin
@@ -186,10 +186,10 @@ subroutine hsfp0_sc()
     use m_readeigen,only: readeval
     real(8):: rydberg
     if(ixc==3) then ! Core-exchange mode. We set Ef just below the valence eigenvalue (to pick up only cores)
-       write(stdo,"(a)")'CoreEx mode: We change ef as ef=LOWESTEVAL-1d-3, slightly below the bottom of valence.'
-       write(stdo,"(a,f13.5,i5,i5)")' CoreEx mode: ef nspin nctot=',ef,nspin,nctot
+       if(ipr) write(stdo,"(a)")'CoreEx mode: We change ef as ef=LOWESTEVAL-1d-3, slightly below the bottom of valence.'
+       if(ipr) write(stdo,"(a,f13.5,i5,i5)")' CoreEx mode: ef nspin nctot=',ef,nspin,nctot
        do ix=1,nctot
-          write(stdo,"(i4,x,d13.5,x,d13.5)") ix,(ecore(ix,is),is=1,nspin)
+          if(ipr) write(stdo,"(i4,x,d13.5,x,d13.5)") ix,(ecore(ix,is),is=1,nspin)
        enddo
     endif
     allocate(eqx(ntq,nqibz,nspin),eqt(nband))
@@ -218,16 +218,16 @@ subroutine hsfp0_sc()
     ! logical:: use_original, cmdopt0
     !    use_original = cmdopt0('--oldsxcf') !2024-7-23
     !    if(use_original) then  
-    !write(stdo,ftox)'original old version'
+    !if(ipr) write(stdo,ftox)'original old version'
     !if(exchange)      call sxcf_scz_exchange   (ef,esmr,ixc,nspinmx) !main part of job
     !if(.not.exchange) call sxcf_scz_correlation(ef,esmr,ixc,nspinmx) !main part of job
     !    else
-    !      write(stdo,ftox) 'gemm version'
+    !      if(ipr) write(stdo,ftox) 'gemm version'
     !      if(exchange)      call sxcf_scz_exchange_gemm   (ef,esmr,ixc,nspinmx) !main part of job
     !      if(.not.exchange) call sxcf_scz_correlation_gemm(ef,esmr,ixc,nspinmx) !main part of job
     !    endif
     use m_sxcf_gemm,only: sxcf_scz_correlation, sxcf_scz_exchange
-    write(stdo,ftox) 'gemm version'
+    if(ipr) write(stdo,ftox) 'gemm version'
     if(exchange)      call sxcf_scz_exchange   (ef,esmr,ixc,nspinmx) !main part of job
     if(.not.exchange) call sxcf_scz_correlation(ef,esmr,ixc,nspinmx) !main part of job
   EndBlock Main4SelfEnergy
@@ -262,12 +262,12 @@ contains
     use m_rdpp,only: nbloch !Rdpp ! Generate matrix element for "call get_zmelt".
     implicit none
     integer::ifxc(2)
-    write(stdo,*)' ***'
+    if(ipr) write(stdo,*)' ***'
     call READQG0('QGpsi',qibz(1:3,1), quu,ngpn1)
     call READQG0('QGcou',qibz(1:3,1), quu,ngcn1)
-    write(stdo,ftox)'nspin nq ntq=',nspin,nq,ntq
-    write(stdo,ftox)'spin=',is,'nbloch ngp ngc=',nbloch,ngpn1,ngcn1,'nqbz=',nqbz,'nqibz=',nqibz,'ef=',ftof(ef),'Rydberg'
-    write(stdo,ftox)'deltaw(Hartree)=',ftof(deltaw),' alat=',ftof(alat), 'esmr=',ftof(esmr)
+    if(ipr) write(stdo,ftox)'nspin nq ntq=',nspin,nq,ntq
+    if(ipr) write(stdo,ftox)'spin=',is,'nbloch ngp ngc=',nbloch,ngpn1,ngcn1,'nqbz=',nqbz,'nqibz=',nqibz,'ef=',ftof(ef),'Rydberg'
+    if(ipr) write(stdo,ftox)'deltaw(Hartree)=',ftof(deltaw),' alat=',ftof(alat), 'esmr=',ftof(esmr)
     PrintLDAexchangecorrelationXCUXCD: if(ixc==1) then
        allocate(  vxcfp(ntq,nq,nspin) )
        call rsexx(nspin,qibz,ntq,nq, ginv, vxcfp) !add ginv july2011
@@ -281,13 +281,13 @@ contains
              call winfo(ifxc(is),nspin,nq,ntq,is,nbloch,ngpn1,ngcn1,nqbz,nqibz,ef,deltaw,alat,esmr)
              write (ifxc(is),*)' ***'
              write (ifxc(is),"(a)") ' jband   iq ispin                  qibz eigen-Ef (in eV)     LDA XC (in eV)'
-             write(stdo,*)
+             if(ipr) write(stdo,*)
              iploop: do ip = 1,nq
                 do i  = 1,ntq
                    write(ifxc(is),"(3i5,3d24.16,3x,d24.16,3x,d24.16)") &
                         i,ip,is, qibz(1:3,ip), eqx(i,ip,is), vxcfp(i,ip,is)
                    if(eqx(i,ip,is) <1d20 .AND. vxcfp(i,ip,is)/=0d0) then
-                      write(stdo,"(' j iq isp=' i3,i4,i2,'  q=',3f8.4,'  eig=',f10.4,'  Sxc(LDA)=',f10.4)") &
+                      if(ipr) write(stdo,"(' j iq isp=' i3,i4,i2,'  q=',3f8.4,'  eig=',f10.4,'  Sxc(LDA)=',f10.4)") &
                            i,ip,is, qibz(1:3,ip), eqx(i,ip,is), vxcfp(i,ip,is)
                    endif
                 enddo
@@ -320,13 +320,13 @@ contains
        write (ifsex(is),"(a)")&
        ' jband   iq ispin                             qibz            eigen-Ef (in eV)           exchange (in eV)'
        write(ifsex2(is)) nspin, nq, ntq,nqbz,nqibz, n1,n2,n3
-       write(stdo,*)
+       if(ipr) write(stdo,*)
        do ip = 1,nq
           do i  = 1,ntq
              write(ifsex(is),"(3i5,3d24.16,3x,d24.16,3x,d24.16)") &
                   i,ip,is, qibz(1:3,ip), eqx(i,ip,is), hartree*dreal(zsec(i,i,ip)) 
              if( eqx(i,ip,is)<1d20 .AND. abs(zsec(i,i,ip))/=0d0 ) then 
-                write(stdo,"(' j iq isp=' i3,i4,i2,'  q=',3f8.4,' eig=',f10.4,'  Sx=',f10.4)") &
+                if(ipr) write(stdo,"(' j iq isp=' i3,i4,i2,'  q=',3f8.4,' eig=',f10.4,'  Sx=',f10.4)") &
                      i,ip,is, qibz(1:3,ip), eqx(i,ip,is), hartree*dreal(zsec(i,i,ip))
              endif
           enddo
@@ -350,7 +350,7 @@ contains
        do ip = 1,nq
           do i  = 1,ntq
              if( eqx(i,ip,is)<1d20 .AND. abs(zsec(i,i,ip))/=0d0 ) then !takao june2009
-                write(stdo,"(' j iq isp=' i3,i4,i2,'  q=',3f8.4,'  eig=',f8.4,'  Re(Sc) =',f8.4,'  Img(Sc) =',f8.4 )") &
+                if(ipr) write(stdo,"(' j iq isp=' i3,i4,i2,'  q=',3f8.4,'  eig=',f8.4,'  Re(Sc) =',f8.4,'  Img(Sc) =',f8.4 )") &
                      i,ip,is, qibz(1:3,ip), eqx(i,ip,is),hartree*dreal(zsec(i,i,ip)),hartree*dimag(zsec(i,i,ip))
              endif
              write(ifsec(is),"(3i5,3d24.16,3x,d24.16,3x,d24.16, 3x,d24.16)") &
@@ -366,6 +366,7 @@ end subroutine hsfp0_sc
 
 subroutine rsexx (nspin, q, ntq,nq,ginv, vxco)
   use m_lgunit,only:m_lgunit_init,stdo
+  use m_mpi,only:ipr
   implicit real*8 (a-h,o-z)
   implicit integer (i-n)
   dimension vxco(ntq,nq,nspin),q(3,nq)!,itq(ntq) !itq is not dependent on q, right?
@@ -373,14 +374,14 @@ subroutine rsexx (nspin, q, ntq,nq,ginv, vxco)
   logical ::nocore,lfind
   real(8)::  rydberg,tolq=1d-5,qx(3),ginv(3,3)
   integer:: ikpx=999999
-  write(stdo,*)' OPEN VXCFP '
+  if(ipr) write(stdo,*)' OPEN VXCFP '
   open(newunit=ifvxcfp,file='__VXCFP',form='unformatted')
   read(ifvxcfp) ldim,nqbz  
-  write(stdo,*)' rsexx ldim,nqbz',ldim,nqbz
+  if(ipr) write(stdo,*)' rsexx ldim,nqbz',ldim,nqbz
   allocate(qqq(3,nqbz),vxcfpx(ldim,nqbz,nspin))
   do ikp = 1,nqbz
      read(ifvxcfp) qqq(1:3,ikp),vxcfpx(1:ldim,ikp,1:nspin)
-     write(stdo,"(i5,100d13.5)") ikp,qqq(1:3,ikp)
+     if(ipr) write(stdo,"(i5,100d13.5)") ikp,qqq(1:3,ikp)
   enddo
   close(ifvxcfp)
   do iq=1,nq

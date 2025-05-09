@@ -14,6 +14,7 @@ module m_readeigen
   use m_genallcf_v3,only: nsp =>nspin ,ndima,ndimanspc, mrecb,mrece,mrecg,nband,nspc,nspx
   use m_keyvalue,only: getkeyvalue
   use m_keep_wfs,only: keep_wfs_init, update_keep_geig, update_keep_cphi, set_geig_from_keep, set_cphi_from_keep
+  use m_mpi,only:ipr
   !! qtt(1:3, nqtt)  :q-vector in full BZ (no symmetry) in QGpsi, QGcou
   !! qtti(1:3,nqi)   :eivenvalues, eigenvectors are calculated only for irr=1 in QGpsi (See lqg4gw).
   implicit none
@@ -53,9 +54,9 @@ contains
     call iqindx2_(q, iq, qu) !qu is used q. q-qu is a G vector.
     ev(1:nband) = evud(1:nband,iqimap(iq),isp) !iqimap is given in suham.F/gen_hamindex
     !if(debug) then
-    !   write(6,*)'iq iqimap(iq)=',iq,iqimap(iq)
-    !   write(6,"('iq iqimap(iq) q=',2i8,3f13.5)")iq,iqimap(iq),q
-    !   write(6,"(9f9.4)")ev(1:9)
+    !   if(ipr) write(6,*)'iq iqimap(iq)=',iq,iqimap(iq)
+    !   if(ipr) write(6,"('iq iqimap(iq) q=',2i8,3f13.5)")iq,iqimap(iq),q
+    !   if(ipr) write(6,"(9f9.4)")ev(1:9)
     !endif
   end function readeval
   !> Return ev(1:nband) for given q(1:3) and isp
@@ -85,7 +86,7 @@ contains
     platt=transpose(plat) !this is inverse of qlat
     if(init2) call rx( 'readgeig: modele is not initialized yet')
     call iqindx2_(q, iq, qu) !qu is used q. q-qu is a G vector.
-    if(debug) write(6,*)' readgeig:xxx iq=',iq
+    if(debug.and.ipr) write(6,*)' readgeig:xxx iq=',iq
     iqq=iqmap(iq)
     iqi=iqimap(iq)
     igg=igmap(iq)
@@ -93,9 +94,9 @@ contains
     !!  qtt(iqq) is rotated to qtt(iq) by sympos(  ,igg).
     if(ngp(iq)==0) return
     if(ngp(iq)/=ngp(iqq)) then
-       write(6,*)' ddddd readgeig: iq iqq igg=',iq,iqq,igg,q,qu
-       write(6,*)' ddddd qtarget=',qtarget,' ddddd q (iqq)=',qtt(:,iqq)
-       write(6,"(a,3i5,3f10.4,2i5)")' ngp(iq) ngp(iqq)=',iq,iqq,igg,q,ngp(iq),ngp(iqq)
+       if(ipr) write(6,*)' ddddd readgeig: iq iqq igg=',iq,iqq,igg,q,qu
+       if(ipr) write(6,*)' ddddd qtarget=',qtarget,' ddddd q (iqq)=',qtt(:,iqq)
+       if(ipr) write(6,"(a,3i5,3f10.4,2i5)")' ngp(iq) ngp(iqq)=',iq,iqq,igg,q,ngp(iq),ngp(iqq)
        call rx( 'readgeig:x2 ngp(iq)/=ngp(iqq)')
     endif
     if(keepeig) then
@@ -209,9 +210,9 @@ contains
     qtarget=qtt(:,iq) ! iqq is mapped to qtarget=qu=qtt(:,iq)
     if(ngp(iq)==0) return
     if(ngp(iq)/=ngp(iqq)) then
-       write(6,*)' ddddd readgeig: iq iqq igg=',iq,iqq,igg,q,qu
-       write(6,*)' ddddd qtarget=',qtarget,' ddddd q (iqq)=',qtt(:,iqq)
-       write(6,"(a,3i5,3f10.4,2i5)")' ngp(iq) ngp(iqq)=',iq,iqq,igg,q,ngp(iq),ngp(iqq)
+       if(ipr) write(6,*)' ddddd readgeig: iq iqq igg=',iq,iqq,igg,q,qu
+       if(ipr) write(6,*)' ddddd qtarget=',qtarget,' ddddd q (iqq)=',qtt(:,iqq)
+       if(ipr) write(6,"(a,3i5,3f10.4,2i5)")' ngp(iq) ngp(iqq)=',iq,iqq,igg,q,ngp(iq),ngp(iqq)
        call rx( 'readgeig:x2 ngp(iq)/=ngp(iqq)')
     endif
     !$acc enter data create(geigenr)
@@ -381,19 +382,19 @@ contains
     integer:: ifev,nband_ev, nqi_, nsp_ev ,ngpmx_ ,nqtt_,nspc_
     real(8):: QpGcut_psi
     real(8),allocatable:: qtt_(:,:),qtti_(:,:)
-    write(stdo,ftox) 'init_readeigen:'
+    if(ipr) write(stdo,ftox) 'init_readeigen:'
     if(nsp<0 .OR. nsp>2) call rx( 'init_reaeigen:nsp wrong')
     !write(*,*)'nqi=',nqi!,nqtt
     call init_iqindx_qtt()
     open(newunit=ifiqg ,file='__QGpsi',form='unformatted')
     read(ifiqg) nqtt_ , ngpmx_, QpGcut_psi, nnnn,nqi_ ,imx
-    write(6,*)'read(ifiqg)', nqtt , ngpmx_, QpGcut_psi, nnnn,nqi
+    if(ipr) write(6,*)'read(ifiqg)', nqtt , ngpmx_, QpGcut_psi, nnnn,nqi
     if(nqi  /=  nqi_) call rx( 'init_readeigen:nqi/=nqi_ 11111')
     if(nqtt/=  nqtt_) call rx( 'init_readeigen:nqtt/=nqtt_ 11111')
     if(ngpmx_/=ngpmx) call rx('ngpmx error: 1111111 readeigen')
     allocate( qtt_(3,nqtt),ngp(nqtt) )
     call getkeyvalue("GWinput","KeepQG",keepqg,default=.true.)
-    if(.not.keepqg) write(6,*) 'keepQG = .false. in readeigen'
+    if((.not.keepqg).and.ipr) write(6,*) 'keepQG = .false. in readeigen'
     if(keepqg) then
       allocate( ngvecp(3,ngpmx,nqtt))
       allocate( ngvecprev(-imx:imx,-imx:imx,-imx:imx,nqtt) )
@@ -413,7 +414,7 @@ contains
     deallocate(qtt_)
     open(newunit=ifev,file='__EValue',form='unformatted')
     read(ifev) nband_ev, nqi_, nsp_ev, nspc_
-    write(stdo,ftox)'Read EValue: nband nqi nsp nspc nspx', nband, nqi, nsp,nspc,nspx
+    if(ipr) write(stdo,ftox)'Read EValue: nband nqi nsp nspc nspx', nband, nqi, nsp,nspc,nspx
     if(nband_ev/=nband) call rx( 'init_readeigen:nband_ev/=nband')
     if(nsp_ev  /= nsp)  call rx( 'init_readeigen:nsp_ev/=nsp')
     if(nqi     /= nqi_) call rx( 'init_readeigen:nqi/=nqi_')
@@ -427,7 +428,7 @@ contains
        do is= 1,nspx
           do ik= 1,nqi
              do ib= 1,nband
-               if(evud(ib,ik,is)<1d10) & !Set huge number for padding in sugw.f90
+               if(evud(ib,ik,is)<1d10.and.ipr) & !Set huge number for padding in sugw.f90
                     write(6,"('ib ik e=',3i5,f13.5,2x,3f9.4)") ib,ik,is,evud(ib,ik,is), qtti_(1:3,ik)
              enddo
           enddo
@@ -449,8 +450,8 @@ contains
     call readmnla_cphi()
     keepeig = keepeigen()
     init2=.false.
-    if(Keepeig       ) write(6,*)' KeepEigen=T; readin geig and cphi into m_readeigen'
-    if( .NOT. Keepeig) write(6,*)' KeepEigen=F; not keep geig and cphi in m_readeigen'
+    if(Keepeig       .and.ipr) write(6,*)' KeepEigen=T; readin geig and cphi into m_readeigen'
+    if(( .NOT. Keepeig).and.ipr) write(6,*)' KeepEigen=F; not keep geig and cphi in m_readeigen'
     i=openm(newunit=ifcphim,file='__CPHI',recl=mrecb) ! Obata moved openm here, bug was 'openm after return 
     i=openm(newunit=ifgeigm,file='__GEIG',recl=mrecg) ! in the case of keepeig=F ' fix at 2024-10-15
     if( .NOT. Keepeig) call keep_wfs_init() ! allocate for keep wfs
@@ -480,7 +481,7 @@ contains
        if(iorb>norbtx) norbtx=iorb
     enddo
 106 continue
-    write(6,*) ' end of readin @MNLA_CPHI: norbtx=',norbtx
+    if(ipr) write(6,*) ' end of readin @MNLA_CPHI: norbtx=',norbtx
     rewind ifoc
     read(ifoc,*)
     allocate(l_tbl(norbtx),k_tbl(norbtx),ibas_tbl(norbtx),offset_tbl(norbtx))
@@ -522,7 +523,7 @@ contains
     integer:: ikpx,ifi
     character*(8):: fname
     keepeig = .True. !keepeigen()
-    write(6,*)' init_readeigen_mlw_noeval'
+    if(ipr) write(6,*)' init_readeigen_mlw_noeval'
     ! --- Readin MLWU/D, MLWEU/D, and UUq0U/D
     do is = 1,nsp
        if (is == 1) then
@@ -642,7 +643,7 @@ contains
     mrecb_o = mrecb * nwf / nband
     mrecg_o = mrecg * nwf / nband
     if(keepeig) then
-       write(6,*)' xxx nband=',nband
+       if(ipr) write(6,*)' xxx nband=',nband
        allocate(geig2(ngpmx*nspc,nband))  !nqtt -->nqi
        allocate(cphi2(ndima*nspc,nband))
        allocate(geigW(ngpmx*nspc,nwf,nqtt,nsp))
@@ -723,7 +724,7 @@ contains
    if(init2) call rx( 'readgeig_mlw: modele is not initialized yet')
    call iqindx2_(q, iq, qu) !qu is used q.  q-qu= G vectors.
    if(ngp_in < ngp(iq)) then
-      write(6,*)'readgeig_mlw: ngpmx<ngp(iq)',iq,ngpmx,ngp(iq),q,nspc
+      if(ipr) write(6,*)'readgeig_mlw: ngpmx<ngp(iq)',iq,ngpmx,ngp(iq),q,nspc
       call rx( 'readgeig_mlw: ngpmx<ngp(iq)')
    endif
 !   if(keepeig) then

@@ -63,7 +63,7 @@ contains
        read(ifiqg) nqnum, ngpmx ,QpGcut_psi,nqbz ,nqi ,imx,nqibz
        allocate(qplist(3,nqi), ngplist(nqi), ngvecp(3,ngpmx,nqi))
        ngvecp=0
-       open(newunit=ifqplist,file='QPLIST.lmfgw.chk')
+       open(newunit=ifqplist,file='QPLIST.jobgw1.chk')
        nkp=0
        iqibz=0
        do iq=1,nqnum
@@ -86,7 +86,7 @@ contains
        nkp=bz_nkp
        allocate(qplist(3,nkp))
        qplist= rv_p_oqp !call dcopy(3*nkp, rv_p_oqp,1,qplist,1)
-       open(newunit=ifqplist,file='QPLIST.IBZ')
+       open(newunit=ifqplist,file='QPLIST.lmf.chk')
        do iq=1,nkp
           write(ifqplist,"(i5,3f23.15,3x,3f23.15)")iq, qplist(:,iq), rv_a_owtkp(iq)/2d0
        enddo
@@ -208,7 +208,7 @@ contains
        if (nkp <= 0) call rx('bndfp: nkp<=0') ! quit if nkp==0
     endif plbndmode
     if(master_mpi .AND. nsyml>0) then !plbnd mode
-       open(newunit=ifqplist,file='QPLIST')
+       open(newunit=ifqplist,file='QPLIST.bandplot.chk')
        print *,'-------- qplist --------',nsyml
        iq=0
        do isyml=1,nsyml

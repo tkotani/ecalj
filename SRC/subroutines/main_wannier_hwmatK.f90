@@ -516,9 +516,9 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   if ( .NOT. exchange) then
      if (lueff) then
         call rx('Ueff mode not implimented in the MPI version')
-        open(newunit=ifwd,file='WV.d.maxloc')
+        open(newunit=ifwd,file='__WV.d.maxloc')
      else
-        open(newunit=ifwd,file='WV.d')
+        open(newunit=ifwd,file='__WV.d')
      endif
      read (ifwd,*) nprecx,mrecl,nblochpmx,nwp,niwt,nqnum,nw_i
      if (master_mpi) write(6,"(' Readin WV.d =', 10i5)") &

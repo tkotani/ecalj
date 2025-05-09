@@ -1,4 +1,5 @@
 module m_read_bzdata ! read BZDATA
+  use m_mpi,only: ipr
   implicit none
   public:: Read_bzdata
   !! We set following data when you call read_BZDATA()
@@ -25,7 +26,7 @@ contains
     real(8) :: qout(3),deltaq(3)
     logical,optional:: hx0
     logical:: qbzreg
-    write(6,*)' ### readin BZDATA ###'
+    if(ipr)write(6,*)' ### readin BZDATA ###'
     open(newunit=ifbz, file='__BZDATA',form='unformatted')
     read(ifbz) nqbz,nqibz, nqbzw, ntetf, nteti, ngrp, n1,n2,n3,qlat,ginv
     allocate( qibz(1:3,1:nqibz),wibz(1:nqibz),nstar(1:nqibz),irk(1:nqibz,1:ngrp))
@@ -58,7 +59,7 @@ contains
        deltaq = qlat(:,1)/n1 + qlat(:,2)/n2 +qlat(:,3)/n3
        do i=1,nqbz
           qbz(:,i) = qbz(:,i) - deltaq/2d0
-          write(6,"('i qbz=',i3,3f8.4)") i,qbz(:,i)
+          if(ipr) write(6,"('i qbz=',i3,3f8.4)") i,qbz(:,i)
        enddo
     endif
     if(abs(sum(wibz(1:nqibz))-2d0)>1d-10) then
@@ -76,7 +77,7 @@ contains
     neps=nq0i-nq0ix           ! number of zero weight q0p which are used for ixc=2 or 3 mode.
 
     done_read_bzdata=.true.
-    write(6,*)' end of read_BZdata'
+    if(ipr) write(6,*)' end of read_BZdata'
   end subroutine read_BZDATA
 end module m_read_bzdata
 

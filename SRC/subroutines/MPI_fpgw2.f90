@@ -16,7 +16,7 @@ module m_mpi !MPI utility for fpgw
   integer, allocatable :: mpi__npr_col(:), mpi__ipr_col(:)
 !MPI for Sc (hsfp0_sc --job=2)
   integer :: comm_w, mpi__rank_w, mpi__size_w
-  logical :: mpi__root_w
+  logical :: mpi__root_w,ipr
   integer :: worker_intask = 1 !default used in ixc /= 2
 
   integer,private :: mpi__info
@@ -26,6 +26,7 @@ contains
     implicit none
     character(1024*4) :: cwd, stdout
     integer,optional:: commin
+    logical,external:: cmdopt0
     comm=MPI_COMM_WORLD
     if(present(commin)) comm= commin 
     !merge(commin,MPI_COMM_WORLD,present(commin))
@@ -35,6 +36,8 @@ contains
     call MPI_Comm_size( comm, mpi__size, mpi__info )
     mpi__root= mpi__rank==0
     if( mpi__root ) call chdir(cwd)        ! recover current working directory
+    ipr=mpi__root
+    if(cmdopt0('--fullstdo')) ipr=.true.
   end subroutine MPI__Initialize
 
 !  MPI__SplitXq is only used in hrcxq for q-points, k-points, and MPB parallel.
@@ -376,7 +379,7 @@ end module m_mpi
 
 subroutine MPI__sxcf_rankdivider(irkip_all,nspinmx,nqibz,ngrp,nq,irkip)
   use m_mpi,only: mpi__rank,mpi__size
-  use m_mpi, only: worker_intask !set as 1 in the case of without omega parallelization
+  use m_mpi, only: ipr,worker_intask !set as 1 in the case of without omega parallelization
   implicit none
   integer, intent(out) :: irkip    (nspinmx,nqibz,ngrp,nq)
   integer, intent(in)  :: irkip_all(nspinmx,nqibz,ngrp,nq)
@@ -392,9 +395,9 @@ subroutine MPI__sxcf_rankdivider(irkip_all,nspinmx,nqibz,ngrp,nq,irkip)
   end if
   total = count(irkip_all>0)
   ngroup = mpi__size/worker_intask
-  write(6,"('MPI__sxcf_rankdivider:$')")
-  write(6,"('nspinmx,nqibz,ngrp,nq,total=',5i6)") nspinmx,nqibz,ngrp,nq,total
-  write(6,'(A,2I5)') 'MPI: Worker in Task, # of groups', worker_intask, ngroup
+  if(ipr) write(6,"('MPI__sxcf_rankdivider:$')")
+  if(ipr)write(6,"('nspinmx,nqibz,ngrp,nq,total=',5i6)") nspinmx,nqibz,ngrp,nq,total
+  if(ipr)write(6,'(A,2I5)') 'MPI: Worker in Task, # of groups', worker_intask, ngroup
   allocate( vtotal(0:mpi__size-1) )
   ! vtotal(:) = total/mpi__size
   vtotal(:) = total/ngroup

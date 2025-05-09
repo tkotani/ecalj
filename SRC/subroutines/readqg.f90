@@ -1,5 +1,6 @@
 !> Return QGcou and QGpsi ===
 module m_readQG
+  use m_mpi,only: ipr
   use m_read_bzdata,only: ginv
   use NaNum,only:NaN
   use m_nvfortran,only:findloc
@@ -77,10 +78,10 @@ contains
     integer:: ifiqg
     if    (key=='QGpsi') then
        ifi=1
-       if(verbose()>=80) write (6,"(' readqg psi: qin=',3f8.3,i5)") qin
+       if(verbose()>=80.and.ipr) write (6,"(' readqg psi: qin=',3f8.3,i5)") qin
     elseif(key=='QGcou') then
        ifi=2
-       if(verbose()>=80) write (6,"(' readqg cou: qin=',3f8.3,i5)") qin
+       if(verbose()>=80.and.ipr) write (6,"(' readqg cou: qin=',3f8.3,i5)") qin
     else
        call rx( "readqg: wrongkey")
     endif
@@ -88,7 +89,7 @@ contains
        call init_readqg(ifi)
        init(ifi)=.false.
     endif
-    if(verbose()>=40) write(6,*)'end of init_readqg'
+    if(verbose()>=40.and.ipr) write(6,*)'end of init_readqg'
     call iqindx2qg(qin,ifi, iq,qu)
     if(ifi==1) then
        ngv  = ngp(iq)
@@ -191,10 +192,10 @@ contains
     integer:: ifi, iq,verbose
     if    (key=='QGpsi') then
        ifi=1
-       if(verbose()>=80) write (6,"('readqg0 psi: qin=',3f8.3,i5)") qin
+       if(verbose()>=80.and.ipr) write (6,"('readqg0 psi: qin=',3f8.3,i5)") qin
     elseif(key=='QGcou') then
        ifi=2
-       if(verbose()>=80) write (6,"('readqg0 cou: qin=',3f8.3,i5)") qin
+       if(verbose()>=80.and.ipr) write (6,"('readqg0 cou: qin=',3f8.3,i5)") qin
     else
        call rx( "readqg: wrongkey")
     endif
@@ -205,10 +206,10 @@ contains
     call iqindx2qg(qin,ifi, iq,qu)
     if(ifi==1) then
        ngv  = ngp(iq)
-       if(verbose()>=80) write(6,*)'ngp=',ngv
+       if(verbose()>=80.and.ipr) write(6,*)'ngp=',ngv
     elseif(ifi==2) then
        ngv  = ngc(iq)
-       if(verbose()>=80) write(6,*)'ngc=',ngv
+       if(verbose()>=80.and.ipr) write(6,*)'ngc=',ngv
     endif
     return
     call rx( "readqg0: can not find QGpsi or QPcou for given q")
@@ -223,13 +224,13 @@ contains
     real(8),allocatable:: qxx(:,:)
     integer:: isig,i,ix,kkk,kkk3(3),ik1(1),ik2(1),ik3(1),ik
     integer,allocatable:: ieord(:),key(:,:)
-    write(6,*)' init_readqg ifi=',ifi
+    if(ipr) write(6,*)' init_readqg ifi=',ifi
     call getkeyvalue("GWinput","KeepQG",keepqg,default=.true.)
     if(.not.keepqg) write(6,*) 'keepQG = .false. in readqg'
     if(ifi==1) then
        open(newunit=ifiqg, file='__QGpsi',form='unformatted')
        read(ifiqg) nqnump, ngpmx, QpGcut_psi
-       if(verbose()>49) write(6,"('init_readqg ngnumc ngcmx QpGcut_psi=',2i5,f8.3)") &
+       if(verbose()>49.and.ipr) write(6,"('init_readqg ngnumc ngcmx QpGcut_psi=',2i5,f8.3)") &
             nqnump, ngpmx, QpGcut_psi
        ! allocate(ngvecp(3,ngpmx,nqnump),qp(3,nqnump),ngp(nqnump))
        allocate(qp(3,nqnump),ngp(nqnump))
@@ -241,7 +242,7 @@ contains
           else
             read (ifiqg)
           endif
-          if(verbose()>40) write(6,"('init_readqg psi qp ngp =',3f8.3,i5)") qp(1:3,iq),ngp(iq)
+          if(verbose()>40.and.ipr) write(6,"('init_readqg psi qp ngp =',3f8.3,i5)") qp(1:3,iq),ngp(iq)
        enddo
        if(keepqg) then
           !$acc enter data copyin(ngvecp)
@@ -254,7 +255,7 @@ contains
        if(keepqg) allocate(ngvecc(3,ngcmx,nqnumc))
        do iq=1, nqnumc
           read(ifiqg) qc(1:3,iq), ngc(iq)
-          write (6,"('init_readqg cou  qc ngc =',3f8.3,i5)") qc(1:3,iq), ngc(iq)
+          if(ipr)write (6,"('init_readqg cou  qc ngc =',3f8.3,i5)") qc(1:3,iq), ngc(iq)
           if(keepqg) then
             read (ifiqg) ngvecc(1:3,1:ngc(iq),iq)
           else

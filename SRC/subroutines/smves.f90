@@ -38,7 +38,7 @@ contains
     !o   vrmt  : electrostatic potential at rmt, with G=0 term in smpot=0
     implicit none
     integer:: ib , igetss , ilm , ipr , iprint , is ,  lfoc, &
-         lgunit , lmxl , m , nlm , j1 , j2 , j3,iwdummy, ifivsmconst
+         lgunit , lmxl , m , nlm , j1 , j2 , j3,iwdummy, ifivsmconst,ifivesr
     real(8):: qmom(nlmxlx,nbas) , f(3,nbas) , gpot0(nlmxlx,nbas) , vval(nlmxlx,nbas) , hpot0(nbas) &
          , vrmt(nbas),qsmc,smq,rhvsm,vconst,zsum,zvnsm,qbg
     real(8):: ceh,cofg,cofh,dgetss,hsum,qcorg,qcorh,qsc, &
@@ -47,6 +47,7 @@ contains
     !complex(8) ,allocatable :: cg1_zv(:), cgsum_zv(:), cv_zv(:)
     real(8),parameter::pi = 4d0*datan(1d0), srfpi = dsqrt(4d0*pi), y0= 1d0/srfpi
     complex(8):: cv_zv(ng),cg1_zv(ng),cgsum_zv(ng)
+    real(8),external:: rydberg
     call tcn('smves')
     ipr = iprint()
     if(nsp==2) smrho(:,:,:,1)=smrho(:,:,:,1)+smrho(:,:,:,2)!Electrostatics is only on total density
@@ -72,11 +73,11 @@ contains
     vbar = vbar/sbar ! vbar =avg v(RMT) and optionally added to vconst
     vconst = -vbar 
     if(ipr>=20) write (stdo,"('smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst=',f9.6)") vconst
-    if(master_mpi) then
-       open(newunit=ifivsmconst,file='vessm.'//trim(sname))
-       write(ifivsmconst,"(d23.15,a)") vconst, '!-(averaged electro static potential at MTs)'
-       close(ifivsmconst)
-    endif
+!    if(master_mpi) then
+!       open(newunit=ifivsmconst,file='vessm.'//trim(sname)//'.chk')
+!       write(ifivsmconst,"(d23.15,a)") vconst*rydberg(), ' ! -(averaged electro static potential at MTs)'
+!       close(ifivsmconst)
+!    endif
     ! ... Adjust vbar, vval, gpot0 by vconst
     do  ib = 1, nbas
        lmxl = lmxl_i(ispec(ib))
@@ -87,13 +88,13 @@ contains
           gpot0(1,ib) = gpot0(1,ib) + vconst/y0
        endif
     enddo
-    if (ipr >= 40) then
-       write (stdo,"(' average electrostatic potential at MT boundaries after shift')")
-       write(stdo, "(a)") ' Site    ves'
-       do ib=1,nbas
-          write(stdo,"(i4, f12.6)")ib,vrmt(ib)
-       enddo
-    endif
+    open(newunit=ifivesr,file='vesrmt.chk.'//trim(sname))
+    write(ifivesr,"('# Averaged electrostatic potential at MT spheres. Total avarege is zero.')")
+    write(ifivesr, "(a)") '# site  rmt   ves'
+    do ib=1,nbas
+      write(ifivesr,ftox) ib,rmt_i(ispec(ib)),ftof(vrmt(ib),8) 
+    enddo
+    close(ifivesr)
     ! ... Back transform of density and potential to real-space mesh
     call fftz3(smrho,n1,n2,n3,n1,n2,n3,1,0,1)
     call fftz3(smpot,n1,n2,n3,n1,n2,n3,1,0,1)

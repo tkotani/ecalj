@@ -13,7 +13,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
   use m_hamindex0,only:    Readhamindex0
   use m_read_bzdata,only: Read_bzdata, ginv,nqbz,qbz,nqibz,qibz,nq0i,wqt=>wt,q0i,nq0iadd
   use m_readqg,only:   readqg,readngmx
-  use m_mpi,only: MPI__Initialize,mpi__root, MPI__Broadcast,mpi__rank,mpi__size,MPI__consoleout!,mpi__iend,mpi__iini !,mpi__getrange
+  use m_mpi,only: MPI__Initialize,mpi__root, MPI__Broadcast,mpi__rank,mpi__size,MPI__consoleout,ipr !,mpi__iend,mpi__iini !,mpi__getrange
   use m_readgwinput,only: ReadGwinputKeys, keeppositivecou
   use m_lgunit,only: m_lgunit_init
   use m_vcoulq,only: vcoulq_4,mkjb_4,mkjp_4,genjh
@@ -57,9 +57,9 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
   if(cmdopt2('--job=',outs)) then; read(outs,*) imode
   elseif( mpi__root ) then       ; read(5,*) imode;   endif
   call MPI__Broadcast(imode) !  write(ixcc,"('.mode=',i4.4)")imode
-  call MPI__consoleout('hvccfp0.mode='//charnum3(imode))
+  if(ipr) call MPI__consoleout('hvccfp0.mode'//charnum3(imode))
   call cputid (0)
-  if(imode==202 )  then; write(6,*)' hvccfp0: imode=',imode
+  if(imode==202 )  then; if(ipr) write(6,*)' hvccfp0: imode=',imode
   elseif(imode==0) then
   elseif(imode==3) then
   else; call rx('hvccfp0: now hvccfp0 support just normal mode=0 3 202')
@@ -101,16 +101,16 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
 
   besseltest=.False.
   BesselTestBlock: if(besseltest) then
-     write(6,*)' *** TEST case ***  rprodx is given by Bessel.'
+     if(ipr) write(6,*)' *** TEST case ***  rprodx is given by Bessel.'
      iqx  = 2 ! test G, corresponding <q+G|v|q+G> should be exact. e.g. ig1=1 and  ig1=35 for iqx=2 
      igx1 = 1
      igx2 = 35
-     write(6,"(' iqx=',i3,' ig1 ig2=',2i3)") iqx,igx1,igx2
-     write(6,"(a)") ' <q+G|v|q+G> for the corresponding iqx ig1 ig2 should be exact!'
-     write(6,"(a)") ' See fort.196'
-     write(6,"(a)") ' Errors will be from the radial function integrals !!!'
-     write(6,"(a)") ' You can slso so similar test from hbasfp0.'
-     write(6,"(a)") ' See test1 in basnfp0.'
+     if(ipr) write(6,"(' iqx=',i3,' ig1 ig2=',2i3)") iqx,igx1,igx2
+     if(ipr) write(6,"(a)") ' <q+G|v|q+G> for the corresponding iqx ig1 ig2 should be exact!'
+     if(ipr) write(6,"(a)") ' See fort.196'
+     if(ipr) write(6,"(a)") ' Errors will be from the radial function integrals !!!'
+     if(ipr) write(6,"(a)") ' You can slso so similar test from hbasfp0.'
+     if(ipr) write(6,"(a)") ' See test1 in basnfp0.'
      deallocate(rprodx,nx)
      tpiba=8.d0*datan(1.d0)/alat
      lx = 4
@@ -206,16 +206,16 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
     nkrest =4.18879*(q0+qadd)**3*vol0+.5
     call lgen(plat,r0+radd,nkd,nkdmx,dlv,work)
     call lgen(qb0, q0+qadd,nkq,nkqmx,qlv,work)
-    write(6,"(/' lattc:  as=',f6.3,'   tol=',1p,e9.2,'   lmax=',i2,'   awald=',0p,f7.4,'   v0=',f10.3/' alat1=',f9.5, &
+    if(ipr) write(6,"(/' lattc:  as=',f6.3,'   tol=',1p,e9.2,'   lmax=',i2,'   awald=',0p,f7.4,'   v0=',f10.3/' alat1=',f9.5, &
          '   estimates:   nkd',i6,'   nkr',i6)") as,tol,lmax,awald,vol0,alat1,nkdest,nkrest
-    write(6,"('  r0=',f9.4,'   rc=',f9.4,'   radd=',f9.4,'   nkd=', i7)") r0,r0*alat,radd,nkd
-    write(6,"('  q0=',f9.4,'   qc=',f9.4,'   qadd=',f9.4,'   nkr=', i7)") q0,q0*tpiba,qadd,nkq
+    if(ipr) write(6,"('  r0=',f9.4,'   rc=',f9.4,'   radd=',f9.4,'   nkd=', i7)") r0,r0*alat,radd,nkd
+    if(ipr) write(6,"('  q0=',f9.4,'   qc=',f9.4,'   qadd=',f9.4,'   nkr=', i7)") q0,q0*tpiba,qadd,nkq
     deallocate(work)
   endblock Mesh4Ewald
   
   qindependentRadialIntegrals:block
     eee= merge(0d0,screenfac(),imode==202)
-    write(6,"(' Coulomb is exp(sqrt(-eee)*r)/r. eee=',d13.6,d13.6)")eee
+    if(ipr) write(6,"(' Coulomb is exp(sqrt(-eee)*r)/r. eee=',d13.6,d13.6)")eee
     ! For eps_lmf and epsPP_ mode, even small eee=1d-4 affects to dielectric function near q=0 when eps values is large ~>100 or more.
     ! Thus we set eee=0d0 to avoid this.
     ! bessel and hankel for the expansion of exp(-r/r_0)/r. bessel and hankel is renomarized so that its behaves as r^l and r^{-l-1} near r=0.
@@ -244,11 +244,11 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
   if(imode==202) then; iqxini= nqibz + 1
   else;                iqxini = 1
   endif
-  write(6,*)'iqxini iqxend=',iqxini,iqxend
+  if(ipr) write(6,*)'iqxini iqxend=',iqxini,iqxend
   if(abs(sum(qibz(:,1)**2))/=0d0) call rx( 'hvccfp0: We assume sum(q**2)==0d0 but not.')
   call MPI__getRange( mpi__iini, mpi__iend, iqxini, iqxend )
   mainforiqx: do 1001 iqx = mpi__iini, mpi__iend !q=(0,0,0) is omitted!
-    write(6,"('#### do 1001 start iqx=',5i5)")iqx,nqibz
+    if(ipr) write(6,"('#### do 1001 start iqx=',5i5)")iqx,nqibz
     open(newunit=ifvcoud,file=trim('__Vcoud.'//i2char(iqx)),form='unformatted') !  !! Vcoud file, which contains E(\nu,I), given in qibzPRB81,125102
     if(iqx<=nqibz) then; q= qibz(1:3,iqx)
     else;                q= q0i(1:3,iqx-nqibz)
@@ -256,7 +256,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
     if(imode==202 .AND. abs(sum(q))<1d-8) cycle
     call readqg('QGcou',q,  quu,ngc, ngvecc ) !Get q+G vector
     ngb = nbloch + ngc  
-    write(6,'(" iqx q ngc =",i5,3f10.4,i5)') iqx,q,ngc
+    if(ipr) write(6,'(" iqx q ngc =",i5,3f10.4,i5)') iqx,q,ngc
     allocate( strx(nlxx,nbas,nlxx,nbas), source = (0d0,0d0)) !! strxq: structure factor.
     do ibas1 =1,nbas
       do ibas2 =1,nbas
@@ -295,12 +295,12 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
          vcoul) !the Coulomb matrix
     
     deallocate( strx, rojp,sgpb,fouvb)
-    write(6,'(" vcoul trwi=",i6,2d22.14)') iqx,sum([(vcoul(i,i),i=1,nbloch)])
-    write(6,'("### sum vcoul(1:ngb,      1:ngb) ",2d22.14,2x,d22.14)') sum(vcoul(1:ngb,1:ngb)), sum(abs(vcoul(1:ngb,1:ngb)))
-    write(6,'("### sum vcoul(1:nbloch,1:nbloch) ",2d22.14,2x,d22.14)') sum(vcoul(1:nbloch,1:nbloch)),sum(abs(vcoul(1:nbloch,1:nbloch)))
-    write(6,*)
+    if(ipr) write(6,'(" vcoul trwi=",i6,2d22.14)') iqx,sum([(vcoul(i,i),i=1,nbloch)])
+    if(ipr) write(6,'("### sum vcoul(1:ngb,      1:ngb) ",2d22.14,2x,d22.14)') sum(vcoul(1:ngb,1:ngb)), sum(abs(vcoul(1:ngb,1:ngb)))
+    if(ipr) write(6,'("### sum vcoul(1:nbloch,1:nbloch) ",2d22.14,2x,d22.14)') sum(vcoul(1:nbloch,1:nbloch)),sum(abs(vcoul(1:nbloch,1:nbloch)))
+    if(ipr) write(6,*)
 
-    write(6,"(' ngc ngb=',6i6)") ngc,ngb
+    if(ipr) write(6,"(' ngc ngb=',6i6)") ngc,ngb
     allocate( ppovl(ngc,ngc) )
     call mkppovl2(alat,plat,qlat, ngc,  ngvecc, ngc,  ngvecc, nbas, rmax, bas, ppovl)
     allocate( oo(ngb,ngb)  ,source=(0d0,0d0))
@@ -326,19 +326,19 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
       zz = hh
     endblock Diagonalize_Coulomb_matrix
     Chkwriteeb: do ipl1=1,nev
-      if(ipl1==1)  write(6,*)' --- goto eigen check1 --- '
-      if(ipl1==11) write(6,*)' ... '
+      if(ipl1==1 .and.ipr) write(6,*)' --- goto eigen check1 --- '
+      if(ipl1==11.and.ipr) write(6,*)' ... '
       if(ipl1>10 .AND. ipl1<nev-5) cycle
-      write(6,'(i4,d23.16)')ipl1,-eb(ipl1)
+      if(ipr) write(6,'(i4,d23.16)')ipl1,-eb(ipl1)
     enddo Chkwriteeb
     !9090 continue
-    write(6,"(' nev ngv q=',2i5,3f10.6)")nev,ngb,q
+    if(ipr) write(6,"(' nev ngv q=',2i5,3f10.6)")nev,ngb,q
     !! -eb should be positive definite. However, we have one (or a few?) negative ones.
     !! I(kotani) think no problem to set eb=0 when -eb is negative.
     !! But this is a temporaly fix or better manner to calcuate coulomb matrix. strxq may be needed to be replaced
     do i=1,nev
       if(eb(i)>0 .AND. keeppositivecou) then
-         write(6,"(a,d13.5)")'KeepPositiveCou enforce : -eb<0 --> eb=0',eb(i)
+         if(ipr) write(6,"(a,d13.5)")'KeepPositiveCou enforce : -eb<0 --> eb=0',eb(i)
          eb(i)=0d0
       endif
     enddo
@@ -346,12 +346,12 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
     write(ifvcoud) q
     write(ifvcoud) -eb
     write(ifvcoud) zz !=Enu
-    write(6,*)
-    write(6,'(" eig0 must be equal to the largest =", 2d24.16)') sum(  dconjg(zz(1:ngb,1))*matmul( vcoul(1:ngb,1:ngb),zz(1:ngb,1)))
-    write(6,'(" zz norm check=",d24.16)')    sum( dconjg(zz(1:ngb,1))*matmul(oox,zz(1:ngb,1)) )
-    write(6,*)
-    write(6,'(" --- vcoul(exact)=",d14.6," absq2=",d24.16)') fpi*voltot/(sum(tpiba**2*q(1:3)**2)-eee), (sum(tpiba**2*q(1:3)**2)-eee)
-    write(6,'(" --- vcoul(cal ) =",2d14.6)') sum( dconjg(zz(1:ngb,1))*matmul( vcoul(1:ngb,1:ngb),zz(1:ngb,1)) )*voltot
+    if(ipr) write(6,*)
+    if(ipr) write(6,'(" eig0 must be equal to the largest =", 2d24.16)') sum(  dconjg(zz(1:ngb,1))*matmul( vcoul(1:ngb,1:ngb),zz(1:ngb,1)))
+    if(ipr) write(6,'(" zz norm check=",d24.16)')    sum( dconjg(zz(1:ngb,1))*matmul(oox,zz(1:ngb,1)) )
+    if(ipr) write(6,*)
+    if(ipr) write(6,'(" --- vcoul(exact)=",d14.6," absq2=",d24.16)') fpi*voltot/(sum(tpiba**2*q(1:3)**2)-eee), (sum(tpiba**2*q(1:3)**2)-eee)
+    if(ipr) write(6,'(" --- vcoul(cal ) =",2d14.6)') sum( dconjg(zz(1:ngb,1))*matmul( vcoul(1:ngb,1:ngb),zz(1:ngb,1)) )*voltot
     deallocate(hh,zzr,zz,eb,oox,oo,ppovl)
     close(ifvcoud)
 1001 enddo mainforiqx

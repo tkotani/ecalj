@@ -288,7 +288,7 @@ subroutine hx0fp0()
   if(noccxv>nband) call rx( 'hx0fp0: all the bands filled! too large Ef')
   noccx  = noccxv + nctot
   if (MPI__root) then
-     open(newunit=ifwd,file='WV.d')
+     open(newunit=ifwd,file='__WV.d')
      write (ifwd,"(1x,10i14)") nprecx,mrecl,nblochpmx,nwp,niw,nqibz + nq0i-1,nw_i
      close(ifwd)
   endif

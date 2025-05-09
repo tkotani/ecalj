@@ -3,14 +3,16 @@ module m_lgunit ! file handles for standard output log, and mpilog
   !  stdo: file handle for standard output
   !  stdl: handle for log
   !  stml: mpilog
-  public:: m_lgunit_init
+  public:: m_lgunit_init,ipr
   integer,public :: stdl,stdo=6,stml
+  logical:: ipr
   private
 contains
   subroutine M_lgunit_init()
+!    use m_mpi,only: mpi__root
     logical:: cmdopt0
-    stdo=lgunit(1)
-    stdl=lgunit(2)
+    stdo= lgunit(1)
+    stdl= lgunit(2)
 !    if(cmdopt0('--mlog')) stml=lgunit(3)
   end subroutine M_lgunit_init
   integer function lgunit(i)

@@ -3,6 +3,7 @@ module m_rdpp !Read PPBRDV2_*, radial integerals <p|p b> and rotated cg coeffici
   use m_genallcf_v3,only: nl,nn,natom,nspin 
   use m_readqg,only: ngcmx
   use m_kind, only: kp => kindrcxq
+  use m_mpi,only:ipr
   public:: Rdpp
   integer,protected,public:: mdimx,nbloch,nxx,nblochpmx, mrecl
   integer,allocatable,protected,public:: nblocha(:) ,lx(:), nx(:,:)
@@ -15,7 +16,7 @@ contains
     integer :: is,iqi,iq,ic,isp,ip1,ip2,ioff,nxic,ifplane ,ngpmx_dum, ngcmx_dum,iqbzx,idxk,ngp,ngc,ig1,nwordr
     integer:: ngrp,ngpmx,nqbz,nqibz, nband, n1,n2,n3,iq0, ifppb(natom)
     real(8) ::  symope(3,3,ngrp),  pi
-    write(6,*)" rdpp: natom=",natom
+    if(ipr) write(6,*)" rdpp: natom=",natom
     if(done_rdpp) call rx('rdpp is already called')
     allocate( nblocha(natom) ,lx(natom), nx(0:2*(nl-1),natom))
     do ic = 1,natom
@@ -24,7 +25,7 @@ contains
     enddo
     nxx = maxval( nx )
     allocate( ppbrd ( 0:nl-1, nn, 0:nl-1,nn, 0:2*(nl-1),nxx, nspin*natom), cgr(nl**2,nl**2,(2*nl-1)**2,ngrp) ) 
-    write(6,*)' ppbrd size',nl,nn,nxx,natom,nspin
+    if(ipr) write(6,*)' ppbrd size',nl,nn,nxx,natom,nspin
     do ic = 1,natom
        do isp= 1,nspin
           nxic = maxval( nx(0:2*(nl-1),ic) )
@@ -37,23 +38,22 @@ contains
     nbloch = sum(nblocha)
     nblochpmx = nbloch + ngcmx ! Maximum of MPB = PBpart +  IPWpartforMPB     !! ---------- WV.d
     mrecl  = nprecx*2*nblochpmx*nblochpmx !/nwordr()!record size
-    write(6,*)' rdpp mdimx=',mdimx
+    if(ipr) write(6,*)' rdpp mdimx=',mdimx
     cgr=1d99
     call rotcg(nl-1,symope,ngrp,cgr) ! --- rotated CG setup
     done_rdpp=.true.
-    write(6,*)' rdpp:end '
+!    write(6,*)' rdpp:end '
   end subroutine rdpp
 end module m_rdpp
-
 subroutine rdpp_v3(nxx, nl,ngrp, nn, natom, nspin,symope, &
   nblocha, lx, nx,  ppbrd , mdimx,nbloch, cgr)
   implicit none
-  integer(4) :: ngpmx,ngcmx,nxx,  nqbz,nqibz, nband,nl,ngrp, &
+  integer :: ngpmx,ngcmx,nxx,  nqbz,nqibz, nband,nl,ngrp, &
        natom,nspin,nn,nblochpmx,nbloch,mdimx, &
        n1,n2,n3,iq0, &
        nblocha(natom) ,lx(natom),ifppb(natom)
   real(8)    ::  symope(3,3,ngrp) !, pi !qbas(3,3)
-  integer(4) :: is,iqi,iq,ic,isp,ip1,ip2,ioff,nxic, &
+  integer :: is,iqi,iq,ic,isp,ip1,ip2,ioff,nxic, &
        ifplane ,ngpmx_dum, ngcmx_dum,iqbzx,idxk,ngp,ngc,ig1
   integer:: nx(0:2*(nl-1),natom)
   real(8):: ppbrd ( 0:nl-1, nn, 0:nl-1,nn, 0:2*(nl-1),nxx, nspin*natom), &
@@ -79,8 +79,8 @@ subroutine rdpp_v3(nxx, nl,ngrp, nn, natom, nspin,symope, &
   write(6,*)' rdpp_v3:end '
 end subroutine rdpp_v3
 subroutine Getsrdpp2(natom,nl,nxx)
-  integer(4),intent(in):: natom,nl
-  integer(4) :: nx(0:2*(nl-1),natom),nxx,ifppb,ic,lxx,nblocha
+  integer,intent(in):: natom,nl
+  integer :: nx(0:2*(nl-1),natom),nxx,ifppb,ic,lxx,nblocha
   do ic = 1,natom
      open(newunit=ifppb, file='__PPBRD_V2_'//char( 48+ic/10 )//char( 48+mod(ic,10)), action='read',form='unformatted')
      read(ifppb) nblocha,lxx, nx(0:2*(nl-1),ic)

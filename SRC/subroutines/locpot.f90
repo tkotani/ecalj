@@ -66,7 +66,7 @@ contains
     !i   idu  :idu(l+1,ibas)>01 => this l has a nonlocal U matrix
     ! ----------------------------------------------------------------------
     integer:: ib,job,ibx,ir,isp,l,lm, kcor,lcor, i,nglob,ipr,iprint,j1,is,lmxl,lmxa,nr,lmxb,kmax,lfoc,nrml,nlml,&
-         ifivesint,ifi, lsox,lmxh, lh(nkap0),nkapi,nkaph,k
+         ifi, lsox,lmxh, lh(nkap0),nkapi,nkaph,k ,ifivesint
     type(s_rv1) :: orhoat(3,nbas)
     type(s_cv5) :: oppi(3,nbas)
     type(s_sblock):: ohsozz(3,nbas),ohsopm(3,nbas)
@@ -90,7 +90,7 @@ contains
     k = nrmx*nlmx*nsp
     allocate(efg(5,nbas),zz(nbas))
     xcore   = 0d0
-    if(master_mpi) open(newunit=ifivesint,file='vesintloc',form='formatted',status='unknown')
+!    if(master_mpi) open(newunit=ifivesint,file='vesintloc',form='formatted',status='unknown')
     if(allocated(rotp)) deallocate(rotp)
     allocate(rotp(0:lmxax,nsp,2,2,nbas))
     ibblock: block
@@ -281,7 +281,7 @@ contains
       qsc  = sum(qsca)
     endblock ibblock
     if(cmdopt0('--density') .AND. master_mpi) secondcall= .TRUE. 
-    if(master_mpi) close(ifivesint)
+!    if(master_mpi) close(ifivesint)
     if (ipr > 40) call elfigr(nbas,stdo,zz,efg)!  Electric field gradient
     deallocate(efg,zz)!,rhol1,rhol2,v1,v2,v1es,v2es)
     call tcx('locpot')
@@ -470,15 +470,15 @@ contains
            l = ll(ilm) 
            gpotb(ilm) = pi4/df(2*l+1)*sfac*(ag2/pi)**1.5d0*(2d0*ag2)**l*sum(rwgt*v2es(:,ilm,1)*rofi(:)**l* gg(:) )
         enddo
-        if(master_mpi) then
-           ves1int = pi4*(sum(rwgt*y0*v1es(:,1,1)*rofi(:)**2) - z*rofi(nr)**2)
-           ves2int = pi4*sum(rwgt*y0*v2es(:,1,1)*rofi(:)**2)
-           write(ifivesint,"(3f23.15,a)")ves1int-ves2int,ves1int,ves2int,' ! vesint1-vesint2 ves1int ves2int'
-        endif
+!        if(master_mpi) then
+!           ves1int = pi4*(sum(rwgt*y0*v1es(:,1,1)*rofi(:)**2) - z*rofi(nr)**2)
+!           ves2int = pi4*sum(rwgt*y0*v2es(:,1,1)*rofi(:)**2)
+!           write(ifivesint,ftox)ib,ftof(ves1int-ves2int),ftof(ves1int),ftof(ves2int),' ! ib estatic average vesint1-vesint2 ves1int ves2int'
+!        endif
       endblock v1esv2esgpotb
       efg(1:5)= merge(v1es(5,5:9,1)/rofi(5)**2,0d0,nlml >= 9 .AND. z > 0.01) !electric field at nucleus
       vnucl = 2d0*srfpi*sum(rwgt(2:nr)*rhol1t(2:nr,1)*(1d0/rofi(2:nr)-1d0/rmt)) + 2d0*z/rmt + y0*dEdQ(1) != v1es+vcore at ir=0 without 2z/r. Note b.c.
-      !             !Estatic term of 1st comp. of Eq.34. is given as  v1es +  2d0*(-z/r+z/rmt) =  Ves(rhol1t,zero at rmt)+y0*dEdQ(1) + 2d0*(-z/r+z/rmt)  
+      ! Estatic term of 1st comp. of Eq.34. is given as  v1es +  2d0*(-z/r+z/rmt) =  Ves(rhol1t,zero at rmt)+y0*dEdQ(1) + 2d0*(-z/r+z/rmt)  
       vvesat = rvs1-z*vnucl - rvs2  ! density \times electrostatic potential (z-z self-interaction removed).
     endblock rhototal
     if(nsp==2) v1es(:,:,2)=v1es(:,:,1)

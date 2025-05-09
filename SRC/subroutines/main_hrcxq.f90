@@ -133,7 +133,7 @@ subroutine hrcxq() bind(C)
   
   contains
   subroutine writewvfreq() !writeonly
-     open(newunit=ifwd, file='WV.d')
+     open(newunit=ifwd, file='__WV.d')
      write(ifwd,"(1x,10i14)") nprecx, mrecl, nblochpmx, nw+1,niw, nqibz + nq0i-1, nw_i
      close(ifwd)
      open(newunit=ifif,file='freq_r') ! Write number of frequency points nwp and frequensies

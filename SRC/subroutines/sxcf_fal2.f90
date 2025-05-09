@@ -315,7 +315,7 @@ subroutine sxcf_fal3z(&
   if(verbose()>=90) debug=.true.
   !!
   if(.not.exchange) then
-     open(newunit=ifwd,file='WV.d')
+     open(newunit=ifwd,file='__WV.d')
      read (ifwd,*) nprecx,mrecl
      close(ifwd)
      !$$$!! --- gauss_img : interpolation gaussion for W(i \omega).

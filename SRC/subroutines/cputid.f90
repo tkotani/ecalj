@@ -1,5 +1,7 @@
 subroutine cputid(ifilein) ! ifilein = file number ==> screen (id=6)
   use m_lgunit,only:stdo
+  use m_mpi,only: ipr
+  use mpi
   implicit none
   real(8) :: cpuetime, etw(2),cpulast, etime
   real(8) :: cpu0=-1d0
@@ -24,7 +26,7 @@ subroutine cputid(ifilein) ! ifilein = file number ==> screen (id=6)
      cpusec=diff
      cpumin=cpusec/60.d0
   endif
-  write(ifile,"('  CPU: ',f12.4,' secs = ',f7.1,' mins')")cpusec,cpumin
+  if(ipr) write(ifile,"('  CPU: ',f12.4,' secs = ',f7.1,' mins')")cpusec,cpumin
 end subroutine cputid
 
 subroutine cpudel(unit,strn,delt)  !- incremental cup time, in seconds

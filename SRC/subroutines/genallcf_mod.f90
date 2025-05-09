@@ -1,5 +1,6 @@
 module m_genallcf_v3 ! Readin starting data dat in GWinput 
  use m_lgunit,only:stdo
+  use m_mpi,only: ipr
   implicit none
   public:: setesmr, genallcf_v3
   integer,protected,public:: nrx,lcutmx
@@ -66,10 +67,10 @@ contains
     call getkeyvalue("GWinput","delta", delta )
     call getkeyvalue("GWinput","deltaw",deltaw )
     call getkeyvalue("GWinput","esmr",  esmr )
-    write(stdo,*)' --- Freq ---'
-    write(stdo,"(a,i6)")   '    niw  =',niw
-    write(stdo,"(a,f12.6)")'    delta=',delta
-    write(stdo,"(a,f12.6)")'    esmr =',esmr
+    if(ipr) write(stdo,*)' --- Freq ---'
+    if(ipr) write(stdo,"(a,i6)")   '    niw  =',niw
+    if(ipr) write(stdo,"(a,f12.6)")'    delta=',delta
+    if(ipr) write(stdo,"(a,f12.6)")'    esmr =',esmr
 !    allocate(iclass(natom),source=[(n,n=1,natom)]) !We set nclass = natom through the GW calculations
     ReadProductBasis: block
       allocate(nindxv(nl,nclass), nindxc(nl,nclass), &
@@ -79,7 +80,7 @@ contains
       allocate(cutbase(0:2*(nl-1)),source=0d0)
       ncwf  =99 !This is for counting the number of nctot in gencor.
       ncwf2 =99
-      write(stdo,*)' reading <PRODUCT_BASIS> section'
+      if(ipr) write(stdo,*)' reading <PRODUCT_BASIS> section'
       call getkeyvalue("GWinput","<PRODUCT_BASIS>",unit=ifi,status=ret)!open GWinput and locate file position
       read(ifi,*)
       read(ifi,"(a)") tolchar !tolerance in percentage for optimal product basis
@@ -101,22 +102,22 @@ contains
       cutbase(lx:)=cutbase(lx-1)
 1098  continue
       do lx=0,2*(nl-1)
-         write(stdo,"(' lx=',i3,' readin tolerance=',d11.3)") lx, cutbase(lx)
+         if(ipr) write(stdo,"(' lx=',i3,' readin tolerance=',d11.3)") lx, cutbase(lx)
       enddo
       read(ifi,*)
       allocate(lcutmxa(1:natom))
       read(ifi,*) lcutmxa(1:natom)
       lcutmx=lcutmxa(1)
-      write(stdo,'(20i3)') lcutmxa(1:natom)
-      write(stdo,"(' --- prod section: lcutmx cutbase='i3,100d11.3)") lcutmx,cutbase
+      if(ipr) write(stdo,'(20i3)') lcutmxa(1:natom)
+      if(ipr) write(stdo,"(' --- prod section: lcutmx cutbase='i3,100d11.3)") lcutmx,cutbase
       read(ifi,*)
       do    ic = 1,nclass
          do l  = 0,lmxa(ic) !nl-1
             read(ifi,*) ict,lt,nindxv(l+1,ic),nindxc(l+1,ic)
-            write(stdo,*)ict,lt,nindxv(l+1,ic),nindxc(l+1,ic)
+            if(ipr) write(stdo,*)ict,lt,nindxv(l+1,ic),nindxc(l+1,ic)
          enddo
       enddo
-      write(stdo,*)' --- valence product basis section'
+      if(ipr) write(stdo,*)' --- valence product basis section'
       occv=0
       unoccv=0
       read(ifi,*)
@@ -124,26 +125,26 @@ contains
          do     l = 0,lmxa(ic) !nl-1
             do  n = 1,nindxv(l+1,ic)
                read(ifi,*)           ict,lt,nt,occv(l+1,n,ic),unoccv(l+1,n,ic)
-               write(stdo,"(100i3)") ict,lt,nt,occv(l+1,n,ic),unoccv(l+1,n,ic)
+               if(ipr) write(stdo,"(100i3)") ict,lt,nt,occv(l+1,n,ic),unoccv(l+1,n,ic)
             enddo
          enddo
       enddo
-      write(stdo,*)' --- core product basis section'
+      if(ipr) write(stdo,*)' --- core product basis section'
       read(ifi,*)
       do       ic = 1,nclass
          do    l  = 0,lmxa(ic) !nl-1
             do n  = 1,nindxc(l+1,ic)
                read(ifi,*)           ict,lt,nt,occc(l+1,n,ic),unoccc(l+1,n,ic),ncwf(l+1,n,ic),ncwf2(l+1,n,ic)
-               write(stdo,"(100i3)") ict,lt,nt,occc(l+1,n,ic),unoccc(l+1,n,ic),ncwf(l+1,n,ic),ncwf2(l+1,n,ic)  !ncwf2 is for Sigma calcuation
+               if(ipr) write(stdo,"(100i3)") ict,lt,nt,occc(l+1,n,ic),unoccc(l+1,n,ic),ncwf(l+1,n,ic),ncwf2(l+1,n,ic)  !ncwf2 is for Sigma calcuation
             enddo
          enddo
       enddo
       close(ifi)
       if( incwfx==-1 ) then !!----- product basis setting
-         write(stdo,*)' ### incwf=-1 Use ForSxc for core'
+         if(ipr) write(stdo,*)' ### incwf=-1 Use ForSxc for core'
          ncwf = ncwf2
       elseif( incwfx==-2 ) then
-         write(stdo,*)' ### incwf=-2 Use NOT(ForSxc) for core and Pro-basis '
+         if(ipr) write(stdo,*)' ### incwf=-2 Use NOT(ForSxc) for core and Pro-basis '
          ncwf = merge(1-ncwf2,ncwf2,ncwf2==0.or.ncwf2==1) 
          occc = ncwf
          unoccc= 0
@@ -158,14 +159,14 @@ contains
             end do
          end do
          unoccc= 0
-         write(stdo,*)' ### incwf=-3  occ=1 unocc=0 incwf=1 for all core '
+         if(ipr) write(stdo,*)' ### incwf=-3  occ=1 unocc=0 incwf=1 for all core '
       elseif( incwfx==-4 ) then
-         write(stdo,*)' ### incwf=-4  occ=0 and unocc=0 for all core '
+         if(ipr) write(stdo,*)' ### incwf=-4  occ=0 and unocc=0 for all core '
          occc=0
          unoccc=0
          ncwf=0
       elseif(incwfx==0) then
-         write(stdo,*)' ### Use unocc occ ForX0 for core'
+         if(ipr) write(stdo,*)' ### Use unocc occ ForX0 for core'
       else
          call rx( ' ### proper incwf is not given for genallcf_v3:rgwinf ')
       endif
@@ -266,14 +267,14 @@ contains
       allocate(ecoret(0:nl-1,nnc,2,nclass))
       ecoret=0d0
       do ic = 1,nclass
-         write(stdo,*) ' read ECORE : ic=',ic
+         if(ipr) write(stdo,*) ' read ECORE : ic=',ic
          read (ifec,*)
          read (ifec,*) (konf(l+1,ic),l=0,lmxa(ic)) !nl-1)
          do  l = 0,lmxa(ic) !nl-1
             ncorex = konf(l+1,ic)-l-1
             do n = 1,ncorex
                read (ifec,*) lt,nt,(ecoret(l,n,isp,ic),isp=1,nspin) !takao
-               if(nspin==1) ecoret(l,n,2,ic) = ecoret(l,n,1,ic)   !     write(stdo,"(' read ecore=',3i4,2d13.5)")l,n,ic,ecoret(l,n,1:nspin,ic)
+               if(nspin==1) ecoret(l,n,2,ic) = ecoret(l,n,1,ic)   !     if(ipr) write(stdo,"(' read ecore=',3i4,2d13.5)")l,n,ic,ecoret(l,n,1:nspin,ic)
             end do
          end do
       end do
@@ -288,7 +289,7 @@ contains
                   if (ncwf(l+1,n,ic) == 1) then
                      i = i + 1
                      ecore(i,1:nspin) = ecoret(l,n,1:nspin,ic)
-                     write(stdo,"(' ecore=',4i4,2d13.5)")i, l,n,ic,ecore(i,1:nspin)
+                     if(ipr) write(stdo,"(' ecore=',4i4,2d13.5)")i, l,n,ic,ecore(i,1:nspin)
                   endif
                enddo
             enddo
@@ -302,12 +303,13 @@ contains
     endblock coreblock
     ndimanspc=ndima*nspc
     nspx=nspin/nspc
-    call cputid(0); write(stdo,*) 'genallcf_v3'
+    call cputid(0); if(ipr) write(stdo,*) 'genallcf_v3'
   end subroutine genallcf_v3
 end module m_genallcf_v3
 
 module m_ReadEfermi
   use m_lgunit,only:stdo
+  use m_mpi,only: ipr
   real(8),protected:: bandgap, ef, ef_kbt
   public:: readefermi,readefermi_kbt,setefermi
 contains
@@ -321,7 +323,7 @@ contains
     open(newunit=ifief,file='EFERMI')
     read(ifief,*) ef,bandgap
     close(ifief)
-    write(stdo,"(a,f12.6)")' --- READIN ef from EFERMI. ef=',ef
+    if(ipr) write(stdo,"(a,f12.6)")' --- READIN ef from EFERMI. ef=',ef
   end subroutine readefermi
   subroutine readefermi_kbt()
     implicit none
@@ -329,7 +331,7 @@ contains
     open(newunit=ifief_kbt,file='EFERMI_kbt')
     read(ifief_kbt,*) ef_kbt,bandgap
     close(ifief_kbt)
-    write(stdo,"(a,f12.6)")' --- READIN ef from EFERMI_kbt. ef=',ef_kbt
+    if(ipr) write(stdo,"(a,f12.6)")' --- READIN ef from EFERMI_kbt. ef=',ef_kbt
   end subroutine readefermi_kbt
 end module m_ReadEfermi
 

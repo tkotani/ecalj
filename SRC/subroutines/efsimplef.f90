@@ -3,7 +3,7 @@ subroutine efsimplef2ax ( legas, esmr, valn,ef)
   use m_genallcf_v3,only: nspin,z,natom,nl,konfig=>konf,nband,lmxa
   use m_readeigen, only: readeval
 !  use m_readhbe,only: nband
-  use m_mpi, only: mpi__root
+  use m_mpi, only: mpi__root,ipr
   use m_hamindex,only:   zbak
   implicit none
   intent(in)::            legas 
@@ -33,19 +33,19 @@ subroutine efsimplef2ax ( legas, esmr, valn,ef)
   logical :: legas,autoew,GaussSmear=.true. !is external
 !  integer:: if8301,if8302 !nqbz,
   autoew =.false.
-  if(GaussSmear) then; write(6,*)' efsimplef2(gaussian mode):start'
-  else;                write(6,*)' efsimplef2(rectangular mode):start';  endif
+  if(GaussSmear) then; if(ipr) write(6,*)' efsimplef2(gaussian mode):start'
+  else;                if(ipr) write(6,*)' efsimplef2(rectangular mode):start';  endif
   if(esmr<=0d0) autoew= .TRUE. 
   if(legas) then
-     write(6,*)' efsimplef2: legas=T use given valn = ',valn
+     if(ipr) write(6,*)' efsimplef2: legas=T use given valn = ',valn
   else ! total valence charge
      valn    = 0d0
      do ia   = 1,natom
         ic    = ia !iclass(ia)
         valn  = valn + z(ic)
-        write(6,*)' ia z(ic)=',ia, z(ic)
+        if(ipr) write(6,*)' ia z(ic)=',ia, z(ic)
         do    l = 0,lmxa(ia) !nl-1
-           write(6,*)' l (konfig(l+1,ic)-l-1) 2*(2l+1)=',l,(konfig(l+1,ic)-l-1),( 2*l +1)*2
+           if(ipr) write(6,*)' l (konfig(l+1,ic)-l-1) 2*(2l+1)=',l,(konfig(l+1,ic)-l-1),( 2*l +1)*2
            valn  = valn - (konfig(l+1,ic)-l-1) *( 2*l +1)*2
         end do
      end do
@@ -57,7 +57,7 @@ subroutine efsimplef2ax ( legas, esmr, valn,ef)
      enddo
   enddo
   if(abs(sum(wibz(1:nqibz))-2d0)>1d-10) then
-     write(6,*) 'sum (wibz)=', sum(wibz(1:nqibz))
+     if(ipr) write(6,*) 'sum (wibz)=', sum(wibz(1:nqibz))
      call rx( 'efsimplef2: wibzsumerr')
   endif
   do is = 1,nspin
@@ -92,12 +92,12 @@ subroutine efsimplef2ax ( legas, esmr, valn,ef)
         wwg2= wwg2 + wgtx(ieaord(ik))
      endif
      wwg = wwg + wgtx(ieaord(ik))
-     if(wwg<valn+2d0) write(6,*) ik,ieaord(ik),ektx(ieaord(ik)),wwg
+     if(wwg<valn+2d0.and.ipr) write(6,*) ik,ieaord(ik),ektx(ieaord(ik)),wwg
 !     if (mpi__root) then
 !        write(if8301,"(2i6,3d23.15)") ik,ieaord(ik),ektx(ieaord(ik)),wwg,wgtx(ieaord(ik))
 !     endif
      if( wwg>valn-1d-8 .AND. ierr==1 ) then
-        write(6,*)
+        if(ipr) write(6,*)
         efini = .5*(ektx(ieaord(ik+1))+ ektx(ieaord(ik)))
         if(autoew) then
            if(ik<3) call rx( ' efsimplef2: ik<3')
@@ -114,7 +114,7 @@ subroutine efsimplef2ax ( legas, esmr, valn,ef)
   else
      valx= enumef( wgtx(ieaord(1:nbnqnsp)),ektx(ieaord(1:nbnqnsp))      ,efini,esmr,nbnqnsp)
   endif
-  write(6,*) 'valx at efini=',efini,valx
+  if(ipr) write(6,*) 'valx at efini=',efini,valx
   if(abs(valx-valn)<1d-8) then
      ef=efini
      goto 8891
@@ -142,9 +142,9 @@ subroutine efsimplef2ax ( legas, esmr, valn,ef)
 !     close(if8302)
 !  endif
 !  if(GaussSmear) then
-!     write(6,*)' efsimplef2ax(gauss):end'
+!     if(ipr) write(6,*)' efsimplef2ax(gauss):end'
 !  else
-!     write(6,*)' efsimplef2ax:end'
+!     if(ipr) write(6,*)' efsimplef2ax:end'
 !  endif
 end subroutine efsimplef2ax
 real(8) function enumef_gauss( wgtx,ektx,ein,esmr,nbnqnsp)
