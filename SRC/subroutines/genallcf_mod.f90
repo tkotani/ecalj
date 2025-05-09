@@ -44,7 +44,7 @@ contains
     real(8)::efin
     character(1000) :: tolchar
     real(8),   allocatable:: ecoret(:,:,:,:)
-    integer,allocatable::ncwf2(:,:,:), nindxv(:,:),occv(:,:,:),unoccv(:,:,:), occc(:,:,:),unoccc(:,:,:),ncwf(:,:,:),iclass(:)
+    integer,allocatable::ncwf2(:,:,:), nindxv(:,:),occv(:,:,:),unoccv(:,:,:), occc(:,:,:),unoccc(:,:,:),ncwf(:,:,:)!,iclass(:)
     integer:: ia,l,m,ic1,isp,lt,nt,nr,ncorex,ifix,nclass
     real(8)::a,b,zz, efdummy,dw,diw
     integer:: nwdummy,ict,ind,l2,lm,lmxax1
@@ -70,7 +70,7 @@ contains
     write(stdo,"(a,i6)")   '    niw  =',niw
     write(stdo,"(a,f12.6)")'    delta=',delta
     write(stdo,"(a,f12.6)")'    esmr =',esmr
-    allocate(iclass(natom),source=[(n,n=1,natom)]) !We set nclass = natom through the GW calculations
+!    allocate(iclass(natom),source=[(n,n=1,natom)]) !We set nclass = natom through the GW calculations
     ReadProductBasis: block
       allocate(nindxv(nl,nclass), nindxc(nl,nclass), &
            occv(nl,nnv,nclass),unoccv(nl,nnv,nclass), &
@@ -176,7 +176,7 @@ contains
       integer:: nnn1(nclass),nnn2(nclass),nnn3(nclass),nnn4(nclass),nnn5(nclass),nnn6(nclass),nlx
       ndima=0
       do ic=1,natom
-         ndima=ndima+sum([((2*l+1)*nindxv(l+1,iclass(ic)),l=0,lmxa(ic))]) !l=0,nl-1)])
+         ndima=ndima+sum([((2*l+1)*nindxv(l+1,ic),l=0,lmxa(ic))]) !l=0,nl-1)])
       enddo
       nn  =  maxval(nindxv(1:nl,1:nclass)+nindxc(1:nl,1:nclass))
       allocate(nindx(nl,nclass),nocc(nl,nn,nclass),nunocc(nl,nn,nclass),source=0)
@@ -259,7 +259,7 @@ contains
          enddo
          ncore(ic)  = i
       end do
-      nctot = sum(ncore(iclass(1:natom)))
+      nctot = sum(ncore(1:natom))
       open(newunit=ifec,file='ECORE')         ! core energies ==========================
       allocate(konf(nl,nclass),ecore(nctot,2))
       konf=0
@@ -281,7 +281,7 @@ contains
       close(ifec)
       i = 0
       do ia = 1,nclass
-         ic  = iclass(ia)
+         ic  = ia
          do l = 0,lmxa(ic) !nl-1
             do n = 1,nnc
                do m = -l,l

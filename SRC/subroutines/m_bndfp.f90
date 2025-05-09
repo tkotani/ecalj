@@ -163,7 +163,7 @@ contains
       call m_clsmode_init()
     endif CorelevelSpectroscopyINIT
     sigmamode = (lrsig/=0)
-    READsigmForQSGW: if( sigmamode .AND. siginit ) then !sigm contains \Sigma-Vxc 
+    READsigmForQSGW: if( (sigmamode .AND. siginit).and.(.not.cmdopt0('--quitecore')) ) then !sigm contains \Sigma-Vxc 
       inquire(file='sigm.'//trim(sname),exist=sigx)
       if(sigx) then
         open(newunit=ifi,file='sigm.'//trim(sname),form='unformatted')
@@ -178,11 +178,11 @@ contains
     call rxx(cmdopt0('--wsig_fbz'),'No sigm file from which we do --wsig_fbz')
     if(sigmamode .AND. master_mpi) write(stdo,*)' ScaledSigma=',ham_scaledsigma
     magexist= abs(vmag)>1d-6
-    GWdriver: if(llmfgw) then   
-      call m_sugw_init(cmdopt0('--socmatrix'),eferm,vmag,qval) 
+    GWdriverExit: if(llmfgw) then
+      call m_sugw_init(cmdopt0('--socmatrix'),eferm,vmag,qval)
       call tcx('bndfp')
       call rx0('sugw mode')  !exit program here normally.
-    endif GWdriver
+    endif GWdriverExit
     ! Set up Hamiltonian and diagonalization in m_bandcal_init. To know outputs, see 'use m_bandcal,only:'. The outputs are evlall, and so on.
     sttime = MPI_WTIME() ! if(nspc==2) call m_addrbl_allocate_swtk(ndham,nsp,nkp)
     if(cmdopt0('--mkprocar')) call m_procar_init()

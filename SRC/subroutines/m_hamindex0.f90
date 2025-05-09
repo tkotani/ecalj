@@ -71,7 +71,8 @@ contains
        lmxa(ib) =lmxa_i(is) 
        zz(ib)   =z(is)
     enddo
-    call mptauof(symops,ngrp,plat,nbas,rv_a_opos, iclasstin,miat,tiat,invgx,shtvg ) ! translation informations in miat tiat invgx, shtvg
+    allocate(iclasst,source=iclasstin)
+    call mptauof(symops,ngrp,plat,nbas,rv_a_opos, iclasst,miat,tiat,invgx,shtvg ) ! translation informations in miat tiat invgx, shtvg
     ndima = 0
     norb=0
     do  ib = 1, nbas
@@ -127,12 +128,12 @@ contains
     if(norb/=iorb) call rx('m_hamindex0:norb/=iorb')
     alat=lat_alat
     npqn=3
-    nclass=maxval(iclasstin)
+    nclass=maxval(iclasst)
     call wkonfchk(alat,plat,nbas,lmxax,lmxa,nsp,konft)
     open(newunit=ifi,file='__HAMindex0',form='unformatted')
     write(ifi) alat,plat,qlat,nbas,lmxax,nsp,ngrp,ndima,norb,npqn,nclass,nphimx
     write(ifi) konft(0:lmxax,1:nbas,1:nsp),lmxa(1:nbas),nlindx(1:npqn,0:lmxax,1:nbas)
-    write(ifi) iclasstin(1:nbas),spid(1:nbas),zz(1:nbas)
+    write(ifi) iclasst(1:nbas),spid(1:nbas),zz(1:nbas)
     write(ifi) nindx(1:ndima),lindx(1:ndima),ibasindx(1:ndima),caption(1:ndima),pqn(1:ndima)
     write(ifi) symops(1:3,1:3,1:ngrp),invgx(1:ngrp),shtvg(1:3,1:ngrp)
     close(ifi)

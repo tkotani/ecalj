@@ -12,7 +12,7 @@ subroutine hmagnon() bind(C)
        qbz,wbz,qibz,wibz,qbzw, idtetf,ib1bz,idteti,  nstar,irk,nstbz &
        ,wqt=>wt,q0i,nq0i ,nq0iadd,ixyz,epslgroup,nq0ix,neps
   use m_genallcf_v3,only: genallcf_v3,natom,nspin,nl,nn, &
-       ndima,nlnmx, nctot,niw_in=>niw, alat, delta,deltaw,esmr,clabl,iclass, &
+       ndima,nlnmx, nctot,niw_in=>niw, alat, delta,deltaw,esmr,clabl, &
        il,in,im,nlnm, plat, pos,ecore
   use m_keyvalue,only: getkeyvalue
   use m_freq,only: getfreq, frhis,freq_r,freq_i, nwhis,nw_i,nw,npm,wiw 
@@ -40,7 +40,7 @@ subroutine hmagnon() bind(C)
   integer::maxocc2,ixc,iqxini,iqxend,iqxendx, i,mxx,ini,ix,is &
        ,iw,noccxv,noccx,iq,ngb,nprecx,nblochpmx,ifwd,nspinmx,ibas &
        ,kx,isf,job,ihis,ik,ibib,ib1,ib2,j, incwfin,  verbose
-  integer:: ificlass,k , nbmx, nqbze, nqibze
+  integer:: k , nbmx, nqbze, nqibze
   integer,allocatable:: imbas(:), imbas_s(:),iibas(:), nxx_r(:)
   real(8):: q(3),  qgbin(3),qx(3), ua=1d0 ! ua is a dummy.
   real(8) :: omg2max, wemax

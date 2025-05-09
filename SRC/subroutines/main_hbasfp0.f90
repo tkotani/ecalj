@@ -9,7 +9,7 @@ subroutine hbasfp0() bind(C) ! Generates orthonormal optimal product basis and r
   !  PPBRD_V2_//ibas :: radial <ppb> integrals. Note indexing of ppbrd
   !The main part of this routine is in the subroutine basnfp_v2
   use m_genallcf_v3,only: genallcf_v3, &
-       alat,natom,nsp=>nspin,nl,nnc,nrx, cutbase,lcutmx,nn,nindxc, iclass, nindx,nocc,nunocc, lcutmxa_in=>lcutmxa,&
+       alat,natom,nsp=>nspin,nl,nnc,nrx, cutbase,lcutmx,nn,nindxc,nindx,nocc,nunocc, lcutmxa_in=>lcutmxa,&
        ibasf,laf
   use m_mpi,only: MPI__Initialize !no mpi now but used for exit routine rx, finalizing MPI
   use m_excore,only: excore
@@ -102,15 +102,16 @@ subroutine hbasfp0() bind(C) ! Generates orthonormal optimal product basis and r
   ! enddo
   ! close(ifaln)
   if(ix==5 ) then !excore mode
-     call excore(nrx,nl,nnc,natom,nsp,natom,phitotr(1:nrx,0:nl-1,1:nnc,1:natom,1:nsp), nindxc,iclass, aa,bb,nrofi,rr)
+     block
+       integer:: i,iclass(1:nbas)
+       iclass=[(i,i=1,nbas)]
+       call excore(nrx,nl,nnc,natom,nsp,natom,phitotr(1:nrx,0:nl-1,1:nnc,1:natom,1:nsp), nindxc,iclass, aa,bb,nrofi,rr)
+     endblock
      goto 998
   endif
 !  call anfcond()! antiferro or not. ! For AF case, we have laf=.true. and we have data set for 'call anfsig', stored in m_anf.
   if(laf) then ! Check iclass =ibas ; CLASS file contains true classs information.
      write(stdo,*) '--- Antiferro mode --- '
-     do ibas=1,natom
-        if(iclass(ibas)/=ibas) call rx(' iclass(ibas)/=ibas: ')
-     enddo
      ii=0
      do ic=1,natom
         ibas=ic

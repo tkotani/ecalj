@@ -2,7 +2,7 @@
 !  All dependencies (use foobar below ) are inputs (must be protected).
 module m_zmel
   use m_genallcf_v3,only: natom,nspin,nn,nnv,nnc,nlnmx, niw,nband,ndima
-  use m_genallcf_v3,only: alat,delta,deltaw,esmr,iclass,nlnmv,nlnmc,icore,ncore,plat,pos,z,ecore,mnl=>nlnm,nn,il,in,im
+  use m_genallcf_v3,only: alat,delta,deltaw,esmr,nlnmv,nlnmc,icore,ncore,plat,pos,z,ecore,mnl=>nlnm,nn,il,in,im
   use m_hamindex,only: ngrp, symgg=>symops,invg=>invgx
   use m_rdpp,only: Rdpp, nxx,lx,nx,mdimx,nbloch,cgr,ppbrd,nblocha,done_rdpp
   use m_read_bzdata,only: nqbz,nqibz,  qlat,ginv,qbz,qibz,wbz, done_read_bzdata
@@ -201,7 +201,7 @@ contains
     complex(kind=kp)::cphiq(ndima,nband), cphim(ndima,nband)
     complex(kind=kp),allocatable:: geigq(:,:),dgeigqk(:,:)
     integer:: invr,nt0,ntp0,nmtot,nqtot
-    integer:: iasx(natom),icsx(natom),iatomp(natom),imdim(natom)
+    integer:: iasx(natom),icsx(natom),iatomp(natom),imdim(natom),iclass(natom)
     real(8)::tr(3,natom),qk(3),symope(3,3),shtv(3)
     integer :: ierr, nqini_rank, nqmax_rank, ntp0_rank ,nm1,nm2,nm1c,nm2c,nm1v,nm2v,nm1cc,nm2cc
     integer :: mpi_rank, mpi_size, ini_index, end_index, num_index, mpi_info, irank
@@ -347,6 +347,7 @@ contains
       tr    = tiat(:,:,invr)
       iatomp= miat(:,invr)
       shtv  = matmul(symope,shtvg(:,invr))
+      iclass=[(ia,ia=1,natom)]
       imdim = [( sum(nblocha(iclass(1:ia-1)))+1  ,ia=1,natom)]
       iasx=[(sum(nlnmv(iclass(1:ia-1)))+1,ia=1,natom)]
       icsx=[(sum(ncore(iclass(1:ia-1))),ia=1,natom)]

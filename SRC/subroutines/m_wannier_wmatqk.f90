@@ -5,7 +5,7 @@ module m_wmatqk
 subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
      rws1,rws2, nsp,isp, &! & ifcphi jan2004,ifrb,ifcb,ifrhb,ifchb,
      ifrcw,ifrcwi, qbas,ginv, qibz,qbz,wk,nstbz,wik,nstar,irk, & ! & koun,,iindxk
-     iclass,mdim,nlnmv,nlnmc,  icore,ncore,imdim, &
+     mdim,nlnmv,nlnmc,  icore,ncore,imdim, &
      ppb, freq_r,freqx,wx,expa,ua,dw,& ! & deltaw,freq
      nlmto,nqibz,nqbz,nctot, &
      nl,nnc,natom,natomx, &
@@ -23,7 +23,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
   implicit none
   integer :: ntq, natom,nqbz,nqibz,ngrp,nq,nw_i,nw,niw, natomx,&
        nband,  nlmto, nq0i,nctot,mbytes,iwksize,nlmtobnd,nstate,nstatex, &
-       irot,  iqisp,ikpisp,isp,nsp,  nlnmx, iq, ip, it,itp, it2, itp2,  iiclass,mdim(*), &
+       irot,  iqisp,ikpisp,isp,nsp,  nlnmx, iq, ip, it,itp, it2, itp2, mdim(*), &
        ifrcw,ifrcwi, ndummy1,ndummy2,kx,kr,kr2,kr3,ngc,ngb,nbloch, &
        kp,nt0,nocc, nt0p,nt0m,irkp,i,nt0org,nmax,nt,ntp0, &
        nbmax,nl,nnc, nblochpmx,ix,nx,iw,iwp,ixs,ixsmx, &
@@ -76,7 +76,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
   !      integer:: n_index_qbz
   !      integer:: index_qbz(n_index_qbz,n_index_qbz,n_index_qbz)
 
-  integer::nlnmv(*),nlnmc(*),iclass(*),icore(*),ncore(*),imdim(*)
+  integer::nlnmv(*),nlnmc(*),icore(*),ncore(*),imdim(*)
 
   integer::verbose,nstbz(nqbz),iqini,iqend !bzcase,
   real(8):: wgtq0p
@@ -253,7 +253,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
       ntp0 = nwf
       allocate( zzmel(nbloch,nt,ntp0)) ! rk,ibloch  q-rk,it  q,itp
       zzmel = 0d0
-      call psi2b_v2 (nbmax, ntp0, iclass, &
+      call psi2b_v2 (nbmax, ntp0, &
            dreal(expikt(1:natom)),dimag(expikt(1:natom)), &
            cphikq,      &        ! & rbkq,cbkq,rhbkq,chbkq, !  q-rk nko
            cphiq,            &   ! & rbq,cbq,rhbq,chbq,     !  q    nko
@@ -465,7 +465,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
  
 contains
   !! psi2b_v2 and psicb_v2 are older versions of psi2b_v3 and psicb_v3 in m_zmel
-  subroutine psi2b_v2(nt0,ntp0,iclass,coskt,sinkt, &
+  subroutine psi2b_v2(nt0,ntp0,coskt,sinkt, &
        cphik, cphikq,    ppb,  nlnmv,nlnmc,mdim,nctot,imdim,iatomp, &
        mdimx,nlmto,nbloch,nlnmx,noccxv,nt,ntp, &
        natom,natomx, &
@@ -505,7 +505,7 @@ contains
          ,zpsi2b(nbloch,nt,ntp),phase
     dimension &
          ppb(nlnmx,nlnmx,mdimx,natom), &
-         nlnmv(natom),nlnmc(natom),mdim(natom),iclass(natom), &
+         nlnmv(natom),nlnmc(natom),mdim(natom), &
          coskt(natom),sinkt(natom),imdim(natom),iatomp(natom)
 
     integer,allocatable::iasx(:)
@@ -525,17 +525,17 @@ contains
     if (mdimx /= maxval(mdim)) call rx( 'psi2bc: wrong mdimx')
     if (nctot+nt0 > nt) call rx( 'psi2bc: nt exceeded')
     if (nt0 > noccxv) call rx( 'psi2bc: noccxv exceeded')
-    if ( sum(mdim(iclass(1:natom)))/= nbloch ) call rx( 'psi2b_v2: wrong nbloch')
+    if ( sum(mdim(1:natom))/= nbloch ) call rx( 'psi2b_v2: wrong nbloch')
     allocate(iasx(natom))
     ias = 1
     do ia = 1,natom
        iasx(ia) = ias
-       ias = ias + nlnmv(iclass(ia))
+       ias = ias + nlnmv(ia)
     enddo
     if(ias-1/=nlmto) call rx( ' psi2b_v2:sum(nlnmv)/= nlmto')
     ! loop over atoms
     do  ia = 1,natom
-       ic   = iclass(ia)
+       ic   = ia
        nc   = nlnmc(ic)
        nv   = nlnmv(ic)
        nc1  = nc + 1
@@ -543,7 +543,7 @@ contains
        phase= dcmplx(coskt(ia),sinkt(ia))
        ias  = iasx(ia)
        iap  = iatomp(ia)
-       icp  = iclass(iap)
+       icp  = iap
        do   i = 1,mdim(icp) ! loop over optimal product basis
           zppb(1:nv,1:nv) = ppb(nc+1:nc+nv,nc+1:nc+nv,i,icp)
           call zgemm('T','N',nv,ntp0,nv, &
@@ -567,7 +567,7 @@ contains
     !      deallocate(rr,cc,iasx)
     deallocate(zz,zppb,iasx)
   end subroutine psi2b_v2
-  subroutine psicb_v2 (icore,ncore,ntp0,iclass,coskt,sinkt, &
+  subroutine psicb_v2 (icore,ncore,ntp0,coskt,sinkt, &
        cphikq, ppb,    nlnmv,nlnmc,mdim, &
        imdim,iatomp, &
        mdimx,nlmto,nbloch,nlnmx,nt,ntp,natom,natomx, &
@@ -612,21 +612,21 @@ contains
     dimension &
          icore(nl*nl*nnc,natom),ncore(natom), &
          ppb(nlnmx,nlnmx,mdimx,natom), &
-         nlnmv(natom),nlnmc(natom),mdim(natom),iclass(natom), &
+         nlnmv(natom),nlnmc(natom),mdim(natom), &
          coskt(natom),sinkt(natom),imdim(natom),iatomp(natom)
     zpsi2b = 0d0
     ib         = 0
     ias        = 1
     ics        = 0
     do      ia = 1,natom
-       ic         = iclass(ia)
+       ic         = ia
        nc         = nlnmc(ic)
        nv         = nlnmv(ic)
        nc1        = nc + 1
        phase  =  dcmplx(coskt(ia),sinkt(ia))
        ! loop over optimal product basis
        iap        = iatomp(ia)
-       icp        = iclass(iap)
+       icp        = iap
        ib         = imdim(iap)-1
        do       i = 1,mdim(icp)
           ib         = ib + 1 

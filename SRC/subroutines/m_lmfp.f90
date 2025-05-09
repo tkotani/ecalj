@@ -279,10 +279,8 @@ contains
        if (iter > 1) then
           if (mod(lhk,10) == 1) write(stdo,905) ehf1,ehk1,diffe,qdiff,etol,qtol,more
           if (mod(lhk,10) == 0) write(stdo,906) ehf1,     diffe,qdiff,etol,qtol,more
-905       format(' From last iter',4x,'ehf=',f15.6,'   ehk=',f15.6, &
-               /' diffe(q)=',f10.6,' (',f8.6,')','    tol=',f9.6,' (',f8.6,')','   more=',l1)
-906       format(' From last iter',4x,'ehf=',f15.6,/' diffe(q)=',f10.6,' (',f8.6,')', &
-               '    tol=',f9.6,' (',f8.6,')','   more=',l1)
+905       format(' From last iter',4x,'ehf=',f15.6,' ehk=',f15.6,/' diffe(q)=',f10.6,' (',f8.6,')','    tol=',f9.6,' (',f8.6,')','   more=',l1)
+906       format(' From last iter',4x,'ehf=',f15.6,/' diffe(q)=',f10.6,' (',f8.6,')','    tol=',f9.6,' (',f8.6,')','   more=',l1)
        else
           write(stdo,"(16x,'rms dq=',f10.6,8x,'tol=',f9.6,'   more=',l1)") qdiff,qtol,more
        endif

@@ -11,7 +11,7 @@ subroutine hsfp0() bind(C)
        nstar,irk,nstbz, lxklm,dmlx,epinvq0i,wklm, wqt=>wt,q0i,nq0i
   use m_hamindex,only: ngrp, symgg=>symops
   use m_genallcf_v3,only: Genallcf_v3, natom,nspin,nl,nn, ndima,nlnmx, nctot,niw, &
-       alat,delta,deltaw,esmr_in=>esmr,clabl,iclass, il,in,im,nlnm, &
+       alat,delta,deltaw,esmr_in=>esmr,clabl, il,in,im,nlnm, &
        plat, pos,z,ecore,  konf,nlnx,laf
   use m_keyvalue,only: Getkeyvalue
   use m_rdpp,only: Rdpp, nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx
@@ -143,7 +143,7 @@ subroutine hsfp0() bind(C)
   integer,allocatable:: irkip_all(:,:,:,:),irkip(:,:,:,:)
   integer:: irank,nrank
   integer:: ififr
-  integer:: timevalues(8)  ,isp,dest,ificlass,ifiq0p
+  integer:: timevalues(8)  ,isp,dest,ifiq0p
   character(128) :: ixcc
   integer:: nw,ifcoh, ixx(2),n1x,n2x
   real(8)::dwdummy, ef
@@ -222,8 +222,6 @@ subroutine hsfp0() bind(C)
   ebmx(2)=1d10
   write(6,"('  nbmx ebmx from GWinput=',2i8,2d13.5)") nbmx,ebmx
 
-!!!!  WE ASSUME iclass(iatom)= iatom (because of historical reason)
-!  if (nclass /= natom ) call rx( ' hsfp0: nclass /= natom ')
   call pshpr(30)
   pi   = 4d0*datan(1d0)
   tpia = 2d0*pi/alat
@@ -387,19 +385,13 @@ subroutine hsfp0() bind(C)
      endif
      if(ixc==6) then
         call efsimplef2ax(legas,esmr2, valn,efnew)!Get num of val electron valn and Fermi energy ef. legas=T give ef for given valn.
-!        call efsimplef2a(nspin,wibz,qibz,ginv, &
-!             nband,nqibz &
-!             ,konf,z,nl,natom,iclass,nclass &
-!             ,valn, legas, esmr2, qbz,nqbz,efnew)
         ef2 = efnew
         write(6,*)' end of efsimple ef2 esmr2=',ef2,esmr2
      endif
   else                      ! if(esmr/=0d0) then
      !     --- determine Fermi energy ef for given valn (legas case) or corresponding charge given by z and konf.
      !     When esmr is negative, esmr is geven automatically by efsimplef.
-        call efsimplef2ax(legas,esmr, valn,efnew)!Get num of val electron valn and Fermi energy ef. legas=T give ef for given valn.
-!     call efsimplef2a(nspin,wibz,qibz,ginv, nband,nqibz &
-!          ,konf,z,nl,natom,iclass,nclass,valn, legas, esmr, qbz,nqbz,efnew)
+     call efsimplef2ax(legas,esmr, valn,efnew)!Get num of val electron valn and Fermi energy ef. legas=T give ef for given valn.
      ef = efnew
      if (ixc==5) ef2 = ef
      !     - check total ele number -------

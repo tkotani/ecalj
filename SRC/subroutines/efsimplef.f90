@@ -1,6 +1,6 @@
 subroutine efsimplef2ax ( legas, esmr, valn,ef)
   use m_READ_BZDATA,only: nqbz,nqibz,ginv,  qibz,wibz,qbz
-  use m_genallcf_v3,only: nspin,z,natom,iclass,nl,konfig=>konf,nband,lmxa
+  use m_genallcf_v3,only: nspin,z,natom,nl,konfig=>konf,nband,lmxa
   use m_readeigen, only: readeval
 !  use m_readhbe,only: nband
   use m_mpi, only: mpi__root
@@ -41,7 +41,7 @@ subroutine efsimplef2ax ( legas, esmr, valn,ef)
   else ! total valence charge
      valn    = 0d0
      do ia   = 1,natom
-        ic    = iclass(ia)
+        ic    = ia !iclass(ia)
         valn  = valn + z(ic)
         write(6,*)' ia z(ic)=',ia, z(ic)
         do    l = 0,lmxa(ia) !nl-1

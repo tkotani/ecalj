@@ -253,7 +253,7 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
        ,nq0i=>nq0ix,wqt=>wt,q0i
   use m_readeigen,only: onoff_write_pkm4crpa,init_readeigen,init_readeigen2, &
        init_readeigen_mlw_noeval,  nwf !,init_readeigen_phi_noeval
-  use m_genallcf_v3,only:niwg=>niw,alat,deltaw,esmr,icore,natom,iclass,nl,nlnmc,nlnmv,nlnmc,nlnmx,nlnx,laf
+  use m_genallcf_v3,only:niwg=>niw,alat,deltaw,esmr,icore,natom,nl,nlnmc,nlnmv,nlnmc,nlnmx,nlnx,laf
   use m_genallcf_v3,only: genallcf_v3,ncore,nn,nnc,nspin,pos,plat, nprecb,mrecb,mrece,nqbzt,nband,mrecg,ndima
   use m_keyvalue,only: getkeyvalue
   use m_zmel_old,only: ppbafp_v2
@@ -656,7 +656,7 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   if (master_mpi) call winfo(6,nspin,nq,ntq,nspin,nbloch,ngpn1,ngcn1,nqbz,nqibz,ef,deltaw,alat,esmr)
   allocate(imdim(natom)) !bugfix 12may2015
   do ia = 1,natom
-     imdim(ia)  = sum(nblocha(iclass(1:ia-1)))+1
+     imdim(ia)  = sum(nblocha(1:ia-1))+1
   enddo
   if(niw/=0) then ! generate gaussian frequencies x between (0,1) and w=(1-x)/x
      allocate(freqx(niw),freqw(niw),wwx(niw))!,expa(niw))
@@ -775,7 +775,7 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
         call wmatqk_MPI (kount,irot,     1,   1,   1,  tiat(1:3,1:natom,invr),miat(1:natom,invr), &
              rws1,rws2, nspin,is,  & !ifcphi,ifrb(is),ifcb(is),ifrhb(is),ifchb(is),
              ifrcw,ifrcwi, qbas,ginv,qibz,qbz,wbz,nstbz, wibz,nstar,irk,  &! & iindxk,
-             iclass,nblocha,nlnmv, nlnmc,  icore,ncore, imdim, &
+             nblocha,nlnmv, nlnmc,  icore,ncore, imdim, &
              ppb,    freq_r,freqx, wwx, expa, ua, dwdummy,  &! & deltaw,
              ndima,nqibz,nqbz,nctot0, &
              nl,nnc,natom,natom, &

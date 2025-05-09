@@ -31,14 +31,13 @@ subroutine hmaxloc()
     idtetf,ib1bz,idteti, nstar,irk,nstbz
   use m_qbze,only: Setqbze, nqbze,qbze
   use m_genallcf_v3,only: genallcf_v3,natom,nl,nn, &
-    nlnmx, nctot,niw, alat,delta,deltaw,esmr,clabl,iclass, il, in, im, nlnm, &
+    nlnmx, nctot,niw, alat,delta,deltaw,esmr,clabl, il, in, im, nlnm, &
     plat, pos, ecore, konf,z, spid, nprecb,mrecb,mrece,nqbzt,nband,mrecg,ndima,nspx !nspin,
   use m_read_Worb,only: s_read_Worb, s_cal_Worb, &
     nwf, nclass_mlwf, cbas_mlwf, nbasclass_mlwf, &
-    classname_mlwf, iclassin, &
+    classname_mlwf, iclassin,&
     iphi, iphidot, nphi, nphix
   use m_keyvalue,only: getkeyvalue
-!  use m_readhbe,only:Readhbe,nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
   use m_hamindex0,only: readhamindex0,iclasst
   use m_mksym_util,only:mptauof
   use m_MPItk,only: m_MPItk_init
@@ -225,78 +224,20 @@ subroutine hmaxloc()
   write(6,*)' nqibz ngrp=',nqibz,ngrp
   write(6,*)' nqbz  =',nqbz
   call Setqbze()    ! extented BZ points list
-  !      write(6,*)  qbz
-  !      write(6,*)' irk=',irk
-  !      write(6,*)' #### idtetf: ####'
-  !      write(6,*) idtetf
-
-  ! set up work array
-  !      call wkinit (iwksize)
   call pshpr(60)
-
-  !--- readin GWIN and LMTO, then allocate and set datas.
-  !      nwin =-999    !not readin NW file
-  !      efin =-999d0  !not readin EFERMI
-  !      efin = 0d0    !readin EFERMI
-  !      call readefermi()
   incwfin= -1  !use 7th colmn for core at the end section of GWIN
   call genallcf_v3(incwfin) !in module m_genallcf_v3
-  !      if(ngrp/= ngrp2) stop 'ngrp inconsistent: BZDATA and LMTO GWIN_V2'
-  !---  These are allocated and setted.
-  !      integer(4)::  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
-  !     o  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot,niw, !not readin nw
-  !      real(8) :: alat,ef, diw,dw,delta,deltaw,esmr
-  !      character(120):: symgrp
-  !      character(6),allocatable :: clabl(:)
-  !      integer(4),allocatable:: iclass(:)
-  !     &  ,nindxv(:,:),nindxc(:,:),ncwf(:,:,:) ,
-  !     o    invg(:), il(:,:), in(:,:), im(:,:),   ilnm(:),  nlnm(:),
-  !     o    ilv(:),inv(:),imv(:),  ilnmv(:), nlnmv(:),
-  !     o    ilc(:),inc(:),imc(:),  ilnmc(:), nlnmc(:),
-  !     o    nindx(:,:),konf(:,:),icore(:,:),ncore(:),
-  !     &    occv(:,:,:),unoccv(:,:,:)
-  !     &   ,occc(:,:,:),unoccc(:,:,:),
-  !     o    nocc(:,:,:),nunocc(:,:,:)
-  !      real(8), allocatable::
-  !     o  plat(:,:),pos(:,:),z(:),  ecore(:,:),  symgg(:,:,:) ! symgg=w(igrp),freq(:)
-  !-----------------------------------------------------------------------
-
-  ! ccccccccccccccccccccccccccccccccccccccccccc
-  !$$$      do i=1,natom
-  !$$$       print *,'  iatom, spid= ',i,spid(i)
-  !$$$      enddo
-  ! ccccccccccccccccccccccccccccccccccccccccccc
-
-
-
-
-  !--- Get maximums takao 18June03
   call getnemx(nbmx,ebmx,8,.true.) !8+1 th line of GWIN0
-
-  !-------------------------------------------------------------------
-  !      if (nclass > mxclass) stop ' hsfp0: increase mxclass'
-!!!!! WE ASSUME iclass(iatom)= iatom !!!!!!!!!!!!!!!!!!!!!!!!!
-!  if (nclass /= natom ) stop ' hsfp0: nclass /= natom ' ! We assume nclass = natom.
   write(6,*)' hsfp0: end of genallcf2'
 
   call pshpr(30)
   pi   = 4d0*datan(1d0)
   tpia = 2d0*pi/alat
-
-  !      call dinv33(plat,1,xxx,vol)
-  !      call dinv33(plat,1,qlat,vol)
-  !      voltot = dabs(vol)*(alat**3)
   call minv33tp(plat,qlat)
   voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
-
-  !ifmlw(1) = iopen('MLWU',0,-1,0)
-  !ifmlwe(1)= iopen('MLWEU',0,-1,0)
   open(newunit=ifmlw(1), file='MLWU',form='unformatted')
   open(newunit=ifmlwe(1),file='MLWEU',form='unformatted')
-  
   if (nspx == 2) then
-!    ifmlw(2) = iopen('MLWD',0,-1,0)
-!    ifmlwe(2)= iopen('MLWED',0,-1,0)
     open(newunit=ifmlw(2), file='MLWD',form='unformatted')
     open(newunit=ifmlwe(2),file='MLWED',form='unformatted')
   endif
@@ -311,19 +252,9 @@ subroutine hmaxloc()
 
   ! --- get space group information ---------------------------------
   ! true class information in order to determine the space group -----------
-  ! because the class in the generated GW file is dummy.(iclass(ibas)=ibas should be kept).
-  !      if102=ifile_handle()
-  !      open (if102,file='CLASS')
   allocate(invgx(ngrp),miat(natom,ngrp),tiat(3,natom,ngrp),shtvg(3,ngrp))
   write(6,*)'  --- Readingin CLASS info ---'
   call readhamindex0()
-  !      do ibas = 1,natom
-  !        read(if102,*) ibasx, iclasst(ibas)
-  !        write(6, "(2i10)") ibasx, iclasst(ibas)
-  !      enddo
-  !      close(if102)
-
-  !     Get space-group transformation information. See header of mptaouof.
   print *,'goto mptauof'
   call mptauof(symgg,ngrp,plat,natom,pos,iclasst,miat,tiat,invgx,shtvg )
 !  write (*,*)  'tiat=', tiat(1:3,1:natom,invr),invr
@@ -359,12 +290,6 @@ subroutine hmaxloc()
   !------------
   ! input parameters specific to MAXLOC
   call s_read_Worb()
-  ! ---- check write -----
-  !  do iclass2=1,nclass_mlwf
-  !     write(*,*)'output:',iclassin(iclass2), nwf &
-  !          ,trim(classname_mlwf(iclass2)),cbas_mlwf(1:nbasclass_mlwf(iclass2),iclass2)
-  !  enddo
-  
   allocate(idorb(nwf)) !!okumura
   allocate(idorb_in(nwf))
   idorb=-1
