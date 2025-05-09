@@ -7,7 +7,7 @@ module m_sugw
   private
   public:: m_sugw_init
 contains
-  subroutine m_sugw_init (socmatrix,eferm,vmag,qval) !Driver for GW calculation
+  subroutine m_sugw_init (socmatrix,eferm,vmag,qval,ecoreexit) !Driver for GW calculation
     use m_lgunit,only:stdo
     use m_lmfinit,only: zz=>z,nris=>nr,lmxa,rmt,spec_a, konfig,ncores,ndimaa,ncoremx,ndima,konf0
     use m_ext,only:   sname
@@ -23,7 +23,7 @@ contains
     use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_setiq,ndimhall,nbandmx
     use m_elocp,only: rsmlss=>rsml, ehlss=>ehl
     use m_qplist,only: qplist,ngplist,ngvecp,iqibzmax,niqisp,iqproc,isproc
-    use m_hamindex0,only: Readhamindex0, nlindx,nclass,iclass=>iclasst,lindx,nindx,nphimx
+    use m_hamindex0,only: readhamindex0, nlindx,nclass,iclass=>iclasst,lindx,nindx,nphimx
     use m_density,only: v0pot,pnuall,pnzall
     use m_augmbl,only: aughsoc
     use m_makusq,only: makusq
@@ -77,8 +77,9 @@ contains
     complex(8),allocatable::  geigr(:,:,:), cphix(:,:,:)
     integer:: mrecb,mrece,mrecg,ndble,ifv,iqq,ifev,konfigk,konfz
     real(8),allocatable::evl(:,:,:),vxclda(:,:,:) !,evl(:,:),vxclda(:)!qirr(:,:), !    complex(8),allocatable:: ppj(:,:,:)
-    integer :: istat,ifoc,ldim2,lxx,nl,nrx
-    logical :: blas_mode = .true. !    real(8):: rmax(nclass)
+    integer :: istat,ifoc,ldim2,lxx,nl,nrx,ibas,ifec
+    logical :: blas_mode = .true.
+    logical,optional:: ecoreexit !    real(8):: rmax(nclass)
     include "mpif.h"
     call tcn ('m_sugw_init')
     debug=cmdopt0('--debugsugw')
@@ -89,13 +90,14 @@ contains
     magexist  = abs(vmag)>1d-6
     if(master_mpi) write(stdo,"(a)") 'm_sugw_init: start'
     if(master_mpi) write(stdo,"(' MagField added to Hailtonian -vmag/2 for isp=1, +vmag/2 for isp=2: vmag(Ry)=',d13.6)") vmag
-    call Readhamindex0() ! ==== Read file NLAindx ====
-    if(cmdopt0('--wanatom').and.master_mpi) wanatom=.true. 
-    if(wanatom) then ! 'wanplotatom.dat' is originally a part of gwa and gwb.head. only for wanplot which will be unsupported.
-      open(newunit=ifigwa,file='wanplotatom.dat',form='unformatted') 
-      write(ifigwa)nbas,nsp,ndima,nbandmx,maxval(lmxa),ncoremx,nrmx,plat,alat!,nqirr,nqibz
-      write(ifigwa)bas,lmxa(ispec(1:nbas)) !,ndimaa(1:nbas) !,qplist,ngplist,ndimhall,qval
-    endif
+    call readhamindex0() ! ==== Read file NLAindx ==== !this is not necessary since we do m_hamindex0_init in main_lmf.
+!    
+!    if(cmdopt0('--wanatom').and.master_mpi) wanatom=.true. 
+!    if(wanatom) then ! 'wanplotatom.dat' is originally a part of gwa and gwb.head. only for wanplot which will be unsupported.
+!      open(newunit=ifigwa,file='wanplotatom.dat',form='unformatted') 
+!      write(ifigwa)nbas,nsp,ndima,nbandmx,maxval(lmxa),ncoremx,nrmx,plat,alat!,nqirr,nqibz
+!      write(ifigwa)bas,lmxa(ispec(1:nbas)) !,ndimaa(1:nbas) !,qplist,ngplist,ndimhall,qval
+!    endif
     if(master_mpi) write(stdo,ftox)' Generate radial wave functions ncoremx,nphimx=',ncoremx,nphimx
     allocate(gval(nrmx,0:lmxax,nphimx,nsp,nclass), ecore(ncoremx,nsp,nclass),gcore(nrmx,ncoremx,nsp,nclass),source=0d0)
     ibmain: do 1150 ib = 1, nbas
@@ -132,28 +134,28 @@ contains
           enddo
           call getcor(1,z,a,pnu,pnz,nr,lmxa(is),rofi,v0pot(ib)%v,0,0,[0d0,0d0],sumec,sumtc,rhoc,ncore,ecorel,gcorel,nmcore) !nmcore is non-magnetic core
         endblock RadialWaveFunctions
-        if(wanatom) then
-          write(ifigwa) z, nr, a, rmt(is)/(dexp(a*nr-a)-1d0), rmt(is), lmxa(is), nsp, ncore,slabl(ib) !b=rmt(is)/(dexp(a*nr-a)-1d0)
-          write(ifigwa) konfig(0:lmxa(is),ib)
-          write(ifigwa) rofi
-          do  l = 0, lmxa(is)
-            do  i = 1, nsp
-              write(ifigwa) l,i
-              write(ifigwa) gvall(1:nr,l,1,i)
-              write(ifigwa) gvall(1:nr,l,2,i)
-              if (konfig(l,ib) >= 10 .AND. master_mpi) write(ifigwa) gvall(1:nr,l,3,i)
-            enddo
-          enddo
-          do  l = 0, lmxa(is)
-            do  isp = 1, nsp
-              do  konf = l+1, mod(konfig(l,ib),10)-1
-                icore = icore+1
-                write(ifigwa) icore, l, isp, konf, ecorel(icore)
-                write(ifigwa) gcorel(1:nr,icore)
-              enddo
-            enddo
-          enddo
-        endif
+        ! if(wanatom) then
+        !   write(ifigwa) z, nr, a, rmt(is)/(dexp(a*nr-a)-1d0), rmt(is), lmxa(is), nsp, ncore,slabl(ib) !b=rmt(is)/(dexp(a*nr-a)-1d0)
+        !   write(ifigwa) konfig(0:lmxa(is),ib)
+        !   write(ifigwa) rofi
+        !   do  l = 0, lmxa(is)
+        !     do  i = 1, nsp
+        !       write(ifigwa) l,i
+        !       write(ifigwa) gvall(1:nr,l,1,i)
+        !       write(ifigwa) gvall(1:nr,l,2,i)
+        !       if (konfig(l,ib) >= 10 .AND. master_mpi) write(ifigwa) gvall(1:nr,l,3,i)
+        !     enddo
+        !   enddo
+        !   do  l = 0, lmxa(is)
+        !     do  isp = 1, nsp
+        !       do  konf = l+1, mod(konfig(l,ib),10)-1
+        !         icore = icore+1
+        !         write(ifigwa) icore, l, isp, konf, ecorel(icore)
+        !         write(ifigwa) gcorel(1:nr,icore)
+        !       enddo
+        !     enddo
+        !   enddo
+        ! endif
         do  l = 0, lmxa(is) !!  Write orthonormalized valence wave functions for this atom
           do  i = 1, nsp
             gval(1:nr,l,1,i,ic)=  gvall(1:nr,l,1,i)
@@ -178,11 +180,33 @@ contains
         enddo
       endblock CreateAugmentedWaveFunctions
       deallocate(rofi,rwgt)
-!      if(ib==nbas) stop 'xxxxxxxxxxxxxx222'
 1150 enddo ibmain
-    
-    if(wanatom) close(ifigwa)
+!    if(wanatom) close(ifigwa)
     call rdata1init(ncores,ndima,ncoremx,konf0,gval,gcore) ! Write refined mesh and indexes to m_rdata1
+    ECOREwrite:block
+      real(8),external::rydberg
+      write(stdo,ftox)" === Write ECORE === "
+      open(newunit=ifec, file='ECORE')
+      ibasloopc: do ibas = 1,nbas
+        ic = iclass(ibas)
+        is = ispec(ibas)
+        write(ifec,ftox) ibas, trim(slabl(is)),' ',ftof(zz(is)),ibas,nrc(ic),aac(ic),bbc(ic),nsp,'!ibas label nr a b nsp ' !ECORE
+        write(ifec,ftox) ' ',(konf0(l,ibas),l=0,lmxa(is)),'! configuration'  !principl quantum  number of valence minimum
+        icore = 0
+        do l  = 0,lmxa(is)
+          do kkk = l+1 ,konf0(l,ibas)-1
+            icore = icore+1
+            n    = kkk - l
+            write(ifec,ftox) ' ',l,n,ftod(ecore(icore,1:nsp,ic)*rydberg(),16),'! l n ecore(1:nsp) eV'
+          enddo
+        enddo
+      enddo ibasloopc
+      close(ifec)
+    endblock ECOREwrite
+    if(cmdopt0('--quitecore')) then
+      call tcx('m_sugw_init')
+      return
+    endif
     ! IPW part  Main loop for eigenfunction generation ==
     open(newunit=ifiqg,file='__QGpsi',form='unformatted')
     read(ifiqg ) nqnum, ngpmx ,QpGcut_psi,nqbz,nqirr,imx,nqibz
@@ -199,7 +223,7 @@ contains
     WriteGWfiles: if(master_mpi) then
       WriteGWfilesB: block
         integer,allocatable:: ncindx(:),lcindx(:)
-        integer:: iorb,lx,nx,ifoc,ibas,ifec,irad,ifphi,ir,ibasf(nbas),ibasx,ifigwin,nnv,ifhbed
+        integer:: iorb,lx,nx,ifoc,irad,ifphi,ir,ibasf(nbas),ibasx,ifigwin,nnv,ifhbed
         logical:: laf
         ! @MNLA_core.chk index for core
         open(newunit=ifnlax,file='@MNLA_core.chk')
@@ -244,29 +268,6 @@ contains
             write(stdo,'("      irad=",i3," nindx_r lindx_r=",2i3)')irad, nindx_r(irad,ibas), lindx_r(irad,ibas)
           enddo
         enddo
-        !ECORE
-        write(stdo,ftox)" === Write ECORE ==="
-        open(newunit=ifec, file='ECORE')
-        ibasloopc: do ibas = 1,nbas
-          ic    = iclass(ibas)
-          is    = ispec(ibas)
-          write(ifec,*)            !ECORE
-          write(ifec,*) slabl(is) !spid(ibas) !ECORE
-          write(ifec,*) ' z,atom=class,nr,a,b,nsp ' !ECORE
-          write(ifec,"(1x,f5.1,2i10,f13.5,d14.6,i4)") zz(is),ibas,nrc(ic),aac(ic),bbc(ic),nsp !ECORE
-          write(ifec,*)' configuration'!   !!! LocalOrbital 2=upper 1=lower' !ECORE
-          write(ifec,ftox)(konf0(l,ibas),l=0,lmxa(is)) !principl quantum  number of valence minimum
-          write(ifec,*)' l,n, ecore(up), ecore(down) ' !ECORE ! related to LocalOrbital part lower(=1) upper(=2).
-          icore = 0
-          do l  = 0,lmxa(is)
-            do kkk = l+1 ,konf0(l,ibas)-1
-              icore = icore+1
-              n    = kkk - l
-              write(ifec,ftox) l,n,ftod(ecore(icore,1:nsp,ic),16) !,ftod(ec(icore,ic,1:nsp),16) !ECORE 
-            enddo
-          enddo
-        enddo ibasloopc
-        close(ifec)
         !PHIVC  
         write(stdo,ftox)" === Write __PHIVC ==="
         open(newunit=ifphi,file='__PHIVC',form='unformatted')

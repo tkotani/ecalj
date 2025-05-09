@@ -4,7 +4,7 @@ module m_genallcf_v3 ! Readin starting data dat in GWinput
   public:: setesmr, genallcf_v3
   integer,protected,public:: nrx,lcutmx
   real(8),allocatable,public::cutbase(:)
-  integer,allocatable,protected,public:: iclass(:), &
+  integer,allocatable,protected,public::  & 
        nindx(:,:),konf(:,:),icore(:,:), ncore(:), &
        nlnm(:),nlnmv(:), nlnmc(:), il(:,:), in(:,:), im(:,:),&
        nocc(:,:,:),nunocc(:,:,:),nindxc(:,:),lcutmxa(:),lmxa(:)
@@ -19,9 +19,6 @@ module m_genallcf_v3 ! Readin starting data dat in GWinput
   integer,allocatable,protected,public:: ibasf(:) !! - ibasf(ibas) specify AF pair atom.
   private
   logical,protected,private:: done_genallcf_v3=.false.
-!  integer,allocatable,protected,private:: &
-!       ilv(:,:),inv(:,:),imv(:,:),  ilnmv(:,:,:),  &
-!       ilc(:,:),inc(:,:),imc(:,:),  ilnmc(:,:,:) ,  ilnm(:,:,:)
 contains
   subroutine setesmr(esmr_in)
     intent(in)::     esmr_in
@@ -47,7 +44,7 @@ contains
     real(8)::efin
     character(1000) :: tolchar
     real(8),   allocatable:: ecoret(:,:,:,:)
-    integer,allocatable::ncwf2(:,:,:), nindxv(:,:),occv(:,:,:),unoccv(:,:,:), occc(:,:,:),unoccc(:,:,:),ncwf(:,:,:)
+    integer,allocatable::ncwf2(:,:,:), nindxv(:,:),occv(:,:,:),unoccv(:,:,:), occc(:,:,:),unoccc(:,:,:),ncwf(:,:,:),iclass(:)
     integer:: ia,l,m,ic1,isp,lt,nt,nr,ncorex,ifix,nclass
     real(8)::a,b,zz, efdummy,dw,diw
     integer:: nwdummy,ict,ind,l2,lm,lmxax1
@@ -82,7 +79,6 @@ contains
       allocate(cutbase(0:2*(nl-1)),source=0d0)
       ncwf  =99 !This is for counting the number of nctot in gencor.
       ncwf2 =99
-      !===================================================
       write(stdo,*)' reading <PRODUCT_BASIS> section'
       call getkeyvalue("GWinput","<PRODUCT_BASIS>",unit=ifi,status=ret)!open GWinput and locate file position
       read(ifi,*)
@@ -110,19 +106,6 @@ contains
       read(ifi,*)
       allocate(lcutmxa(1:natom))
       read(ifi,*) lcutmxa(1:natom)
-!      read(ifi,*)lcutmx
-!  call Getkeyvalue("GWinput","<PRODUCT_BASIS>",unit=ifinin,status=ret)
-!  do
-!     read(ifinin,*,err=980) aaa
-!     if(aaa=='lcutmx(atom)') then
-!        read(ifinin,*) lcutmxa(1:natom)
-!        goto 990
-!     endif
-!  enddo
-!980 continue
-!  lcutmxa=lcutmx
-!990 continue
-      !  close(ifinin)
       lcutmx=lcutmxa(1)
       write(stdo,'(20i3)') lcutmxa(1:natom)
       write(stdo,"(' --- prod section: lcutmx cutbase='i3,100d11.3)") lcutmx,cutbase
@@ -131,7 +114,6 @@ contains
          do l  = 0,lmxa(ic) !nl-1
             read(ifi,*) ict,lt,nindxv(l+1,ic),nindxc(l+1,ic)
             write(stdo,*)ict,lt,nindxv(l+1,ic),nindxc(l+1,ic)
-            if(lt  /= l ) call rx( 'genallcf_mod /=l ')
          enddo
       enddo
       write(stdo,*)' --- valence product basis section'
@@ -143,8 +125,6 @@ contains
             do  n = 1,nindxv(l+1,ic)
                read(ifi,*)           ict,lt,nt,occv(l+1,n,ic),unoccv(l+1,n,ic)
                write(stdo,"(100i3)") ict,lt,nt,occv(l+1,n,ic),unoccv(l+1,n,ic)
-               if(lt  /= l )call rx( 'genallcf: wrong l valence')
-               if(nt  /= n )call rx( 'genallcf: wrong n valence')
             enddo
          enddo
       enddo
@@ -155,8 +135,6 @@ contains
             do n  = 1,nindxc(l+1,ic)
                read(ifi,*)           ict,lt,nt,occc(l+1,n,ic),unoccc(l+1,n,ic),ncwf(l+1,n,ic),ncwf2(l+1,n,ic)
                write(stdo,"(100i3)") ict,lt,nt,occc(l+1,n,ic),unoccc(l+1,n,ic),ncwf(l+1,n,ic),ncwf2(l+1,n,ic)  !ncwf2 is for Sigma calcuation
-               if(lt /= l )call rx( 'rgwina: 2nd wrong l core')
-               if(nt /= n )call rx( 'rgwina: wrong n core')
             enddo
          enddo
       enddo
@@ -201,11 +179,6 @@ contains
          ndima=ndima+sum([((2*l+1)*nindxv(l+1,iclass(ic)),l=0,lmxa(ic))]) !l=0,nl-1)])
       enddo
       nn  =  maxval(nindxv(1:nl,1:nclass)+nindxc(1:nl,1:nclass))
-!      do ic=1,nclass
-!      write(6,*)'nindxv=',nindxv(1:nl,ic)
-!      write(6,*)'nindxc=',nindxc(1:nl,ic)
-!      enddo
-!      write(6,*)'nl nclass nn=',nl,nclass,nn
       allocate(nindx(nl,nclass),nocc(nl,nn,nclass),nunocc(nl,nn,nclass),source=0)
       reindxblock: block
         integer:: nval,ncore
@@ -214,7 +187,6 @@ contains
               ncore  = nindxc(l+1,ic)
               nval   = nindxv(l+1,ic)
               nindx(l+1,ic)= ncore + nval
-              if (ncore+nval > nn) call rx( 'reindx: ncore+nval > nn')
               nocc(l+1,1:,ic)   = [  (occc(l+1,n,ic),n=1,ncore),  (occv(l+1,n,ic),n=1,nval)]
               nunocc(l+1,1:,ic) = [(unoccc(l+1,n,ic),n=1,ncore),(unoccv(l+1,n,ic),n=1,nval)]
            enddo
@@ -239,29 +211,26 @@ contains
       endblock
       allocate(il(nlnmx,nclass), in(nlnmx,nclass), im(nlnmx,nclass)) ! index for core and MTO basis =====================
       do ic = 1,nclass
-         ind  = 0
-         do l = 0,lmxa(ic) !nl-1 ! core
-            do  n = 1,nindxc(l+1,ic)
-               do  m = 1,2*l+1
-                  ind       = ind + 1
-                  if(ind > nlnmx) call rx( 'idxlnmc: ind > nlnmx')
-                  lm        = l**2 + m
-                  il(ind,ic)= l;   in(ind,ic) = n;  im(ind,ic)= m-l-1 !; ilnm(n,lm,ic) = ind
-               enddo
+        ind  = 0
+        do l = 0,lmxa(ic) !nl-1 ! core
+          do  n = 1,nindxc(l+1,ic)
+            do  m = 1,2*l+1
+              ind       = ind + 1
+              lm        = l**2 + m
+              il(ind,ic)= l;   in(ind,ic) = n;  im(ind,ic)= m-l-1 !; ilnm(n,lm,ic) = ind
             enddo
-         enddo
-         do  l = 0,lmxa(ic) !nl-1 ! valence
-            ncorex  = nindxc(l+1,ic)
-            do    n = 1,nindxv(l+1,ic)
-               if (ncorex+n > nn) call rx( 'idxlnmc: ncore+n > nn')
-               do      m = 1,2*l+1
-                  ind = ind + 1
-                  if (ind > nlnmx) call rx( 'idxlnmc: ind > nlnmx')
-                  lm = l**2 + m
-                  il(ind,ic)  =l;  in(ind,ic) = ncorex + n; im(ind,ic)  = m-l-1 !; ilnm(ncorex+n,lm,ic) = ind
-               enddo
+          enddo
+        enddo
+        do  l = 0,lmxa(ic) !nl-1 ! valence
+          ncorex  = nindxc(l+1,ic)
+          do    n = 1,nindxv(l+1,ic)
+            do      m = 1,2*l+1
+              ind = ind + 1
+              lm = l**2 + m
+              il(ind,ic)  =l;  in(ind,ic) = ncorex + n; im(ind,ic)  = m-l-1 !; ilnm(ncorex+n,lm,ic) = ind
             enddo
-         enddo
+          enddo
+        enddo
       enddo
       allocate(nlnmv(nclass),nlnmc(nclass),nlnm(nclass))
       do ic=1,nclass
@@ -272,6 +241,7 @@ contains
       enddo
     endblock indexcoremto
     coreblock: block
+      real(8),external:: rydberg
       allocate(icore(nl**2*nnc,nclass),ncore(nclass),source=99999)
       do ic = 1,nclass ! index for allowed core states
          i  = 0
@@ -298,23 +268,16 @@ contains
       do ic = 1,nclass
          write(stdo,*) ' read ECORE : ic=',ic
          read (ifec,*)
-         read (ifec,*)
-         read (ifec,*)
-         read (ifec,*) !zz,ic1,nr ,a,b,nsp
-         read (ifec,*)
          read (ifec,*) (konf(l+1,ic),l=0,lmxa(ic)) !nl-1)
-         read (ifec,*)
          do  l = 0,lmxa(ic) !nl-1
             ncorex = konf(l+1,ic)-l-1
-            if (ncorex > nnc) call rx( 'ECORE: wrong nnc')
             do n = 1,ncorex
                read (ifec,*) lt,nt,(ecoret(l,n,isp,ic),isp=1,nspin) !takao
                if(nspin==1) ecoret(l,n,2,ic) = ecoret(l,n,1,ic)   !     write(stdo,"(' read ecore=',3i4,2d13.5)")l,n,ic,ecoret(l,n,1:nspin,ic)
-               if (lt /= l) call rx( 'rcore: wrong l')
-               if (nt /= n) call rx( 'rcore: wrong n')
             end do
          end do
       end do
+      ecoret=ecoret/rydberg() !readin ECORE is in eV from 2025-5-9
       close(ifec)
       i = 0
       do ia = 1,nclass
@@ -324,7 +287,6 @@ contains
                do m = -l,l
                   if (ncwf(l+1,n,ic) == 1) then
                      i = i + 1
-                     if (i > nctot) call rx( 'genalloc_mod: wrong nctot')
                      ecore(i,1:nspin) = ecoret(l,n,1:nspin,ic)
                      write(stdo,"(' ecore=',4i4,2d13.5)")i, l,n,ic,ecore(i,1:nspin)
                   endif
@@ -338,10 +300,6 @@ contains
       endif
       deallocate(ecoret)
     endblock coreblock
-!hbe
-!    open(newunit=ifhbe, file='hbe.d', action='read')
-!    read (ifhbe,*) nprecb,mrecb,mrece,ndima,nqbzt,nband,mrecg,nspc
-!    close(ifhbe)
     ndimanspc=ndima*nspc
     nspx=nspin/nspc
     call cputid(0); write(stdo,*) 'genallcf_v3'
