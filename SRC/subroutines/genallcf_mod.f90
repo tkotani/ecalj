@@ -54,7 +54,7 @@ contains
     real(8),parameter:: pi=4d0*datan(1d0)
     if(done_genallcf_v3) call rx('genallcf_v3 is already called')
     done_genallcf_v3=.true.
-    open(newunit=ifi,file='MTOindex',form='unformatted')
+    open(newunit=ifi,file='__MTOindex',form='unformatted')
     read(ifi) natom,alat,plat,nspin,lmxax1,nnv,nnc,nrx,qval,nspc,nlmto !,n1,n2,n3
     allocate(pos(3,natom),clabl(natom),z(natom),spid(1:natom),ibasf(natom),lmxa(natom))
     read(ifi) pos,z(1:natom),spid(1:natom),lmxa(1:natom)

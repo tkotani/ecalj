@@ -76,7 +76,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
     allocate(lx(nbas),kmx(nbas),nblocha(nbas),nr(nbas),aa(nbas),bb(nbas),ificrb(nbas),rmax(nbas) )
     do ibas = 1,nbas !! Readin BASFP//atom. The product basis functions.
        ic = ibas !
-       open(newunit=ificrb(ibas),file=trim('__BASFP'//char( 48+ic/10 )//char( 48+mod(ic,10))))
+       open(newunit=ificrb(ibas),file='__BASFP'//char( 48+ic/10 )//char( 48+mod(ic,10)))
        read(ificrb(ibas),"(4i6,2d24.16)") lx(ibas), kmx(ibas), nblocha(ibas), nr(ibas),aa(ibas),bb(ibas)
        rmax(ibas) = bb(ibas)*(exp((nr(ibas)-1)*aa(ibas))-1d0)
     enddo

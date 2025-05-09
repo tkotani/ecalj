@@ -129,7 +129,7 @@ contains
     npqn=3
     nclass=maxval(iclasstin)
     call wkonfchk(alat,plat,nbas,lmxax,lmxa,nsp,konft)
-    open(newunit=ifi,file='HAMindex0',form='unformatted')
+    open(newunit=ifi,file='__HAMindex0',form='unformatted')
     write(ifi) alat,plat,qlat,nbas,lmxax,nsp,ngrp,ndima,norb,npqn,nclass,nphimx
     write(ifi) konft(0:lmxax,1:nbas,1:nsp),lmxa(1:nbas),nlindx(1:npqn,0:lmxax,1:nbas)
     write(ifi) iclasstin(1:nbas),spid(1:nbas),zz(1:nbas)
@@ -141,7 +141,7 @@ contains
     implicit none
     integer:: ifi,ibas,i
     readhamindex0_init=.true.
-    open(newunit=ifi,file='HAMindex0',form='unformatted')
+    open(newunit=ifi,file='__HAMindex0',form='unformatted')
     read(ifi) alat,plat,qlat,nbas,lmxax,nsp,ngrp,ndima,norb,npqn,nclass,nphimx
     allocate( konft(0:lmxax,1:nbas,1:nsp),lmxa(1:nbas),nlindx(1:npqn,0:lmxax,1:nbas))
     allocate( iclasst(1:nbas),spid(1:nbas),zz(1:nbas))

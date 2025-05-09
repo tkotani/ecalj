@@ -18,7 +18,7 @@ contains
     logical::qpgexist
     integer:: ifi
     readhamindex_init=.true.
-    open(newunit=ifi,file='HAMindex',form='unformatted')
+    open(newunit=ifi,file='__HAMindex',form='unformatted')
     read(ifi)ngrp,nbas,kxx,lxx,norbmto,pwmode,zbak,ndham,AFmode,ngrpAF
     ngall=ngrp+ngrpAF
     allocate(symops(3,3,ngall),ag(3,ngall),invgx(ngall),miat(nbas,ngall),tiat(3,nbas,ngall),shtvg(3,ngall))
@@ -89,19 +89,19 @@ contains
     if(.not.master_mpi) goto 9999
     if(done) call rx('writehamindex is already done')
     done=.true.
-    open(newunit=ifi,file='HAMindex',form='unformatted')
+    open(newunit=ifi,file='__HAMindex',form='unformatted')
     write(ifi)ngrp,nbas,kxx,lxx,norbmto,pwmode,zbak,ndham,AFmode,ngrpAF !ndham,AFmode,ngrpAF
     ngall=ngrp+ngrpAF
     write(ifi)symops(:,:,1:ngall),ag(:,1:ngall),invgx(1:ngall),miat(:,1:ngall),tiat(:,:,1:ngall),shtvg(:,1:ngall)
     write(ifi)lmxax
     write(ifi)dlmm
     write(ifi)ibastab,ltab,ktab,offl,offlrev !for rotation of MTO. recovered sep2012 for EIBZ for hsfp0
-    inquire(file='QGpsi',EXIST=qpgexist)  !qpgexist is for GW drivermode
+    inquire(file='__QGpsi',EXIST=qpgexist)  !qpgexist is for GW drivermode
     write(ifi) qpgexist
     if(.not.qpgexist) goto 9998
     QGpsimodeWriteHamindex:block
       real(8):: tolq
-      open(newunit=ifiqg,file='QGpsi',form='unformatted') ! q on mesh and shortened q.
+      open(newunit=ifiqg,file='__QGpsi',form='unformatted') ! q on mesh and shortened q.
       read(ifiqg) nqtt, ngpmx ,QpGcut_psi, nqbz___, nqi
       allocate(qtt(3,nqtt), qtti(3,nqi), iqtt(nqtt),iqmap(nqtt),igmap(nqtt),iqimap(nqtt))
       iqi=0

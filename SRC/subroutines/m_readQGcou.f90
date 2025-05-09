@@ -12,7 +12,7 @@ contains
   subroutine readqgcou() !Readin QGcou 
     integer:: ifiqg,nqi,ikp,nnnn! igc,ikpm
     real(8):: QpGcut_cou,qmm(3)
-    open(newunit=ifiqg,file='QGcou',form='unformatted')
+    open(newunit=ifiqg,file='__QGcou',form='unformatted')
     read(ifiqg) nqnum , ngcmx, QpGcut_cou, nqbz_, nqi,imxc
     write(6,"('read QGcou file',2i6,f8.3,10i6)") nqnum , ngcmx, QpGcut_cou, nqbz_,nqi,imxc
     allocate( qtt_(3,nqnum),ngc(nqnum) )

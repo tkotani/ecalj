@@ -123,7 +123,7 @@ contains
       real(8):: mmm
       call getkeyvalue("GWinput","MEMnmbatch",mmax,default=2d0)
       call getppx2([(0d0,i=1,9)],[(0d0,i=1,3)],getngcgp=.true.)
-      open(newunit=ifiqg, file='QGcou',form='unformatted')
+      open(newunit=ifiqg, file='__QGcou',form='unformatted')
       read(ifiqg) iiixxx, ngcmx
       close(ifiqg)
       do ic = 1,natom 

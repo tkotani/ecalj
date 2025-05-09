@@ -184,7 +184,7 @@ contains
     if(wanatom) close(ifigwa)
     call rdata1init(ncores,ndima,ncoremx,konf0,gval,gcore) ! Write refined mesh and indexes to m_rdata1
     ! IPW part  Main loop for eigenfunction generation ==
-    open(newunit=ifiqg,file='QGpsi',form='unformatted')
+    open(newunit=ifiqg,file='__QGpsi',form='unformatted')
     read(ifiqg ) nqnum, ngpmx ,QpGcut_psi,nqbz,nqirr,imx,nqibz
     close(ifiqg)
 !    if (lchk>=1 ) then !normcheck file
@@ -321,7 +321,7 @@ contains
         laf= sum(abs(iantiferro))/=0
         nnv = maxval(nindx(1:ndima))
         write(stdo,ftox)' iantiferro=',iantiferro(1:nbas)
-        open(newunit=ifigwin,file='MTOindex',form='unformatted')    
+        open(newunit=ifigwin,file='__MTOindex',form='unformatted')    
         write(ifigwin) nbas,alat,plat,nsp,lmxax+1,nnv,nnc,nrmxe,qval,nspc,nlmto
         write(ifigwin) pos,zz(ispec(1:nbas)),slabl(ispec(1:nbas)),lmxa(ispec(1:nbas))
         write(ifigwin) ndble,mrecb,mrece,ndima,nqbz,nbandmx,mrecg
@@ -633,8 +633,8 @@ contains
         integer,pointer:: ngvecp(:,:),ngvecc(:,:)
         character(5):: txx='.tmpp'
         ! Reading q+G and bzdata
-        open(newunit=ifiqg ,file='QGpsi',form='unformatted')
-        open(newunit=ifiqgc,file='QGcou',form='unformatted')
+        open(newunit=ifiqg ,file='__QGpsi',form='unformatted')
+        open(newunit=ifiqgc,file='__QGcou',form='unformatted')
         read(ifiqg ) nqnum, ngpmx,QpGcut_psi,nqbz,nqirr
         read(ifiqgc) nqnumc,ngcmx,QpGcut_cou
         nqtt = nqnum

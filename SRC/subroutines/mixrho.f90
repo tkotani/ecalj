@@ -117,7 +117,7 @@ contains
        initd=.false.
     endif
     rms2 = 0
-    fnam = '__mixm' 
+    fnam = 'mixm' 
     nmix = nmixinit
     broy = broyinit
     if(bexist) beta=betainit

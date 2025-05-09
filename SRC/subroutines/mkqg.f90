@@ -66,8 +66,8 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
   write(stdo,"('  unit(a.u.) alat  =',f13.6 )") alat
   write(stdo,"('  ---  |k+G| < QpG(psi) QpG(Cou)=',2d13.6)") QpGcut_psi, QpGcut_Cou
   write(stdo,"('  --- k points for GW from GWinput =',3i3)") nnn(1:3)
-  open(newunit=ifiqg ,file='QGpsi',form='unformatted')
-  open(newunit=ifiqgc,file='QGcou',form='unformatted')
+  open(newunit=ifiqg ,file='__QGpsi',form='unformatted')
+  open(newunit=ifiqgc,file='__QGcou',form='unformatted')
   !     ! gammacellctrl=2 is a special mode. We only consider tetrahedron method within the Gammacell.
   !! The Gammacell is a part of BZ made from three vectors following qlatbz=(qlat(:,1)/n1q,...)
   !! Then the Gamma point is in the middle of micro_qlat = (qlat(:,1)/n1q,qlat(:,2)/n2q,...)
@@ -308,8 +308,8 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
   allocate( ngveccrev(-imxc:imxc,-imxc:imxc,-imxc:imxc),source=9999 ) !inverse mapping table for ngvecc (cou)
   if(.not.keepqg) allocate(ngvecp_tmp(3,ngpmx),ngvecc_tmp(3,ngcmx))
   if(.not.keepqg) then
-    open(newunit=ifiqg2 ,file='QGpsi_rec',form='unformatted', access='direct', recl=4*(3*ngpmx+(2*imx+1)**3))
-    open(newunit=ifiqgc2,file='QGcou_rec',form='unformatted', access='direct', recl=4*(3*ngcmx+(2*imxc+1)**3))
+    open(newunit=ifiqg2 ,file='__QGpsi_rec',form='unformatted', access='direct', recl=4*(3*ngpmx+(2*imx+1)**3))
+    open(newunit=ifiqgc2,file='__QGcou_rec',form='unformatted', access='direct', recl=4*(3*ngcmx+(2*imxc+1)**3))
   endif
   do iq = 1, nqnum
      q = qq(1:3,iq)

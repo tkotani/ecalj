@@ -385,7 +385,7 @@ contains
     if(nsp<0 .OR. nsp>2) call rx( 'init_reaeigen:nsp wrong')
     !write(*,*)'nqi=',nqi!,nqtt
     call init_iqindx_qtt()
-    open(newunit=ifiqg ,file='QGpsi',form='unformatted')
+    open(newunit=ifiqg ,file='__QGpsi',form='unformatted')
     read(ifiqg) nqtt_ , ngpmx_, QpGcut_psi, nnnn,nqi_ ,imx
     write(6,*)'read(ifiqg)', nqtt , ngpmx_, QpGcut_psi, nnnn,nqi
     if(nqi  /=  nqi_) call rx( 'init_readeigen:nqi/=nqi_ 11111')

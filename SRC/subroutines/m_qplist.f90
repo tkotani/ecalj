@@ -59,7 +59,7 @@ contains
     plbndmode: if( .NOT. master_mpi) then 
        continue
     elseif(llmfgw) then ! GW driver mode !Read QGpsi Get ngplist,ngvecp in addition to qplist.
-       open(newunit=ifiqg,file='QGpsi',form='unformatted',status='old')
+       open(newunit=ifiqg,file='__QGpsi',form='unformatted',status='old')
        read(ifiqg) nqnum, ngpmx ,QpGcut_psi,nqbz ,nqi ,imx,nqibz
        allocate(qplist(3,nqi), ngplist(nqi), ngvecp(3,ngpmx,nqi))
        ngvecp=0

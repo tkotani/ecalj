@@ -34,10 +34,10 @@ contains
   subroutine readngmx2()
     integer:: ngmx,ifiqg
     integer :: idummy
-    open(newunit=ifiqg, file='QGpsi',form='unformatted')
+    open(newunit=ifiqg, file='__QGpsi',form='unformatted')
     read(ifiqg) nqnump, ngpmx, QpGcut_psi, idummy, idummy, imx
     close(ifiqg)
-    open(newunit=ifiqg, file='QGcou',form='unformatted')
+    open(newunit=ifiqg, file='__QGcou',form='unformatted')
     read(ifiqg) nqnumc, ngcmx, QpGcut_cou, idummy, idummy, imxc
     close(ifiqg)
   end subroutine readngmx2
@@ -51,11 +51,11 @@ contains
     integer :: idummy
     character*(*) key
     if    (key=='QGpsi') then
-       open(newunit=ifiqg, file='QGpsi',form='unformatted')
+       open(newunit=ifiqg, file='__QGpsi',form='unformatted')
        read(ifiqg) nqnump, ngpmx, QpGcut_psi, idummy, idummy, imx
        ngmx=ngpmx
     elseif(key=='QGcou') then
-       open(newunit=ifiqg, file='QGcou',form='unformatted')
+       open(newunit=ifiqg, file='__QGcou',form='unformatted')
        read(ifiqg) nqnumc, ngcmx, QpGcut_cou, idummy, idummy, imxc
        ngmx=ngcmx
     else
@@ -95,7 +95,7 @@ contains
        if(keepqg) then
          ngvec(1:3,1:ngv) = ngvecp(1:3,1:ngv,iq)
        else
-         open(newunit=ifiqg, file='QGpsi_rec',form='unformatted', access='direct', &
+         open(newunit=ifiqg, file='__QGpsi_rec',form='unformatted', access='direct', &
               recl=4*(3*ngpmx+(imx*2+1)**3), status='old')
          read(ifiqg,rec=iq) ngvec(1:3,1:ngv)
          close(ifiqg)
@@ -106,7 +106,7 @@ contains
        if(keepqg) then
          ngvec(1:3,1:ngv) = ngvecc(1:3,1:ngv,iq)
        else
-         open(newunit=ifiqg, file='QGcou_rec',form='unformatted', access='direct', &
+         open(newunit=ifiqg, file='__QGcou_rec',form='unformatted', access='direct', &
               recl=4*(3*ngcmx+(2*imxc+1)**3), status='old')
          read(ifiqg,rec=iq) ngvec(1:3,1:ngv)
          close(ifiqg)
@@ -151,7 +151,7 @@ contains
          !$acc end kernels
        else
          allocate(ngvec_h(3,ngv))
-         open(newunit=ifiqg, file='QGpsi_rec',form='unformatted', access='direct', &
+         open(newunit=ifiqg, file='__QGpsi_rec',form='unformatted', access='direct', &
               recl=4*(3*ngpmx+(imx*2+1)**3), status='old')
          read(ifiqg,rec=iq) ngvec_h(1:3,1:ngv)
          close(ifiqg)
@@ -167,7 +167,7 @@ contains
          !$acc end kernels
        else
          allocate(ngvec_h(3,ngv))
-         open(newunit=ifiqg, file='QGcou_rec',form='unformatted', access='direct', &
+         open(newunit=ifiqg, file='__QGcou_rec',form='unformatted', access='direct', &
               recl=4*(3*ngcmx+(2*imxc+1)**3), status='old')
          read(ifiqg,rec=iq) ngvec_h(1:3,1:ngv)
          close(ifiqg)
@@ -227,7 +227,7 @@ contains
     call getkeyvalue("GWinput","KeepQG",keepqg,default=.true.)
     if(.not.keepqg) write(6,*) 'keepQG = .false. in readqg'
     if(ifi==1) then
-       open(newunit=ifiqg, file='QGpsi',form='unformatted')
+       open(newunit=ifiqg, file='__QGpsi',form='unformatted')
        read(ifiqg) nqnump, ngpmx, QpGcut_psi
        if(verbose()>49) write(6,"('init_readqg ngnumc ngcmx QpGcut_psi=',2i5,f8.3)") &
             nqnump, ngpmx, QpGcut_psi
@@ -247,7 +247,7 @@ contains
           !$acc enter data copyin(ngvecp)
        endif
     elseif(ifi==2) then
-       open(newunit=ifiqg, file='QGcou',form='unformatted')
+       open(newunit=ifiqg, file='__QGcou',form='unformatted')
        read(ifiqg) nqnumc, ngcmx, QpGcut_cou
        ! allocate(ngvecc(3,ngcmx,nqnumc),qc(3,nqnumc),ngc(nqnumc))
        allocate(qc(3,nqnumc),ngc(nqnumc))
