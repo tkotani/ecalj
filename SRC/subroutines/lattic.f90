@@ -10,6 +10,7 @@ module m_lattic ! Sets up the real and rmeciprocal space lattice vectors !no she
   logical,protected,public:: lattic_init=.false.
   real(8), allocatable,protected,public :: rv_a_opos(:,:)
   private
+  real(8),parameter:: pi = 4d0*datan(1d0)
 contains
   
   subroutine readatompos(irpos) !readin atomic position from AtomPos file if available
@@ -49,7 +50,7 @@ contains
     use m_lmfinit,only:nbas,alat=>lat_alat,as=>lat_as,tol=>lat_tol,rpad=>lat_rpad,nkdmx=>lat_nkdmx,nkqmx=>lat_nkqmx,lat_platin,pos
     implicit none
     integer::  lmxst , nkd,nkq,ib
-    real(8) :: dlv(3,nkdmx),qlv(3,nkqmx), awald,vol,xx1,xx2,dotprd,pi, plat0(3,3),plat(3,3),qlat(3,3) 
+    real(8) :: dlv(3,nkdmx),qlv(3,nkqmx), awald,vol,xx1,xx2,dotprd, plat0(3,3),plat(3,3),qlat(3,3) 
     !i Inputs
     !i   as    :Ewald smoothing parameter. dimensionless Ewald parameter (2 is suggested).
     !i         :Ewald parameter awald scales with the lattice as as/(vol)**(1/3)
@@ -87,6 +88,7 @@ contains
       ! Sets up the real and reciprocal space lattice vectors for Ewald
       integer :: lmax=6 , k,iprint,m,modeg(3),ifp,i
       real(8) :: qlat0(3,3),vol0,plat0(3,3),radd,qadd,qdist0,a0,rdist0,tol1,r0,q0,one(3,3),oned(3,3),rxx,qxx
+      real(8),external:: bohr
       plat0=plat 
       call dinv33(plat0,1,qlat0,vol0)
       vol0 = dabs(vol0)
@@ -99,9 +101,12 @@ contains
          open(newunit=ifp,file='PlatQlat.chk')
          write(ifp,350) ((plat0(m,k),m=1,3),(qlat0(m,k),m=1,3),k=1,3)
          write(ifp,"('             PLAT              and         QLAT    ')")
+         write(ifp,ftox) ftof(alat),ftof(alat*bohr()), ' ! Unit:P alat/bohr, alat/AA'
+         write(ifp,ftox) ftof(2*pi/alat),ftof(2*pi/(alat*bohr())),' ! Unit:Q 2pi/alat /(bohr^-1), 2pi/alat/(AA^-1)'
+         write(ifp,ftox) ftof(vol),ftof(vol*bohr()**3),' ! Cell vol (bohr**3) (AA**3)'
          close(ifp)
 350      format(3f11.6,5x,3f11.6)
-         write(stdo,ftox)'  Cell vol= ',ftof(vol)
+         write(stdo,ftox)'  Cell vol (borh**3)= ',ftof(vol)
          if((dabs(vol-vol0*(alat**3)) > 1d-9))write(stdo,ftox)'(undistorted vol=',ftof(vol0*(alat**3))
       endif
       ! --- Set up real and reciprocal vectors ---
@@ -138,8 +143,8 @@ contains
     !  with lattice constant 1.    !u   25 Jun 03 (Kino) bug fix in dimension of f and g
     implicit none
     integer :: lmax,i
-    real(8) :: a0,q0,r0,tol,v0, gq0,gq1,pi,q1,q2,r1,r2, f(0:lmax),g(0:lmax)
-    pi = 4d0*datan(1d0)
+    real(8) :: a0,q0,r0,tol,v0, gq0,gq1,q1,q2,r1,r2, f(0:lmax),g(0:lmax)
+!    pi = 4d0*datan(1d0)
     q1 = 0.001d0
     if (lmax > 2) q1 = dsqrt(.5d0*(lmax-2))*a0/pi
     gq1 = (2d0*pi*q1)**(lmax-2)*dexp(-(pi*q1/a0)**2)*4d0*pi/v0

@@ -44,6 +44,9 @@ end module m_lgunit
 real(8) function rydberg()
   rydberg=13.6058d0
 END function rydberg
+real(8) function bohr()
+  bohr=.529177d0
+END function bohr
 pure subroutine rangedq(qin, qout) ! qout is in [-0.5d0,0.5d0)
   implicit none
   intent(in)::     qin
