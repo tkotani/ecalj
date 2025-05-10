@@ -324,7 +324,7 @@ contains
         nnv = maxval(nindx(1:ndima))
         write(stdo,ftox)' iantiferro=',iantiferro(1:nbas)
         open(newunit=ifigwin,file='__MTOindex',form='unformatted')    
-        write(ifigwin) nbas,alat,plat,nsp,lmxax+1,nnv,nnc,nrmxe,qval,nspc,nlmto
+        write(ifigwin) nbas,alat,plat,nsp,lmxax,nnv,nnc,nrmxe,qval,nspc,nlmto
         write(ifigwin) pos,zz(ispec(1:nbas)),slabl(ispec(1:nbas)),lmxa(ispec(1:nbas))
         write(ifigwin) ndble,mrecb,mrece,ndima,nqbz,nbandmx,mrecg
         write(ifigwin) laf,ibasf 

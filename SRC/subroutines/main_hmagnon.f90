@@ -12,8 +12,7 @@ subroutine hmagnon() bind(C)
        qbz,wbz,qibz,wibz,qbzw, idtetf,ib1bz,idteti,  nstar,irk,nstbz &
        ,wqt=>wt,q0i,nq0i ,nq0iadd,ixyz,epslgroup,nq0ix,neps
   use m_genallcf_v3,only: genallcf_v3,natom,nspin,nl,nn, &
-       ndima,nlnmx, nctot,niw_in=>niw, alat, delta,deltaw,esmr,clabl, &
-       il,in,im,nlnm, plat, pos,ecore
+       ndima,nlnmx, nctot,niw_in=>niw, alat, delta,deltaw,esmr, il,in,im,nlnm, plat, pos,ecore
   use m_keyvalue,only: getkeyvalue
   use m_freq,only: getfreq, frhis,freq_r,freq_i, nwhis,nw_i,nw,npm,wiw 
   use m_tetwt,only: tetdeallocate,gettetwt, whw,ihw,nhw,jhw,ibjb,nbnbx,nhwtot,n1b,n2b,nbnb

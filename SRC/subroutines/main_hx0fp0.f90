@@ -11,8 +11,7 @@ subroutine hx0fp0()
   use m_readeigen,only:  Readeval,Init_readeigen,Init_readeigen2
   use m_read_bzdata,only: Read_bzdata, ngrp2=>ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,ginv, &
        dq_,qbz,wbz,qibz,wibz,qbzw, idtetf,ib1bz,idteti, nstar,irk,nstbz, wqt=>wt,q0i,nq0i ,nq0iadd,ixyz,nq0ix,neps
-  use m_genallcf_v3,only: Genallcf_v3,natom,nspin,nl,nn,nlnmx, nctot, alat, esmr,clabl, il,in,im,nlnm, &
-       plat, pos,ecore, tpioa
+  use m_genallcf_v3,only: Genallcf_v3,natom,nspin,nl,nn,nlnmx, nctot, alat, esmr, il,in,im,nlnm, plat, pos,ecore, tpioa
   use m_hamindex,only: ngrp
   use m_pbindex,only: PBindex !,norbt,l_tbl,k_tbl,ibas_tbl,offset_tbl,offset_rev_tbl
   use m_readqgcou,only: readqgcou

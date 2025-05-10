@@ -11,7 +11,7 @@ subroutine hsfp0() bind(C)
        nstar,irk,nstbz, lxklm,dmlx,epinvq0i,wklm, wqt=>wt,q0i,nq0i
   use m_hamindex,only: ngrp, symgg=>symops
   use m_genallcf_v3,only: Genallcf_v3, natom,nspin,nl,nn, ndima,nlnmx, nctot,niw, &
-       alat,delta,deltaw,esmr_in=>esmr,clabl, il,in,im,nlnm, &
+       alat,delta,deltaw,esmr_in=>esmr, il,in,im,nlnm, &
        plat, pos,z,ecore,  konf,nlnx,laf
   use m_keyvalue,only: Getkeyvalue
   use m_rdpp,only: Rdpp, nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx
@@ -40,9 +40,9 @@ subroutine hsfp0() bind(C)
 
   !    For given ixc (read(5,*), hsfp0 yields variety of results.
   !    (but some are already obsolate).
-  !     mode= 11: exchange    mode SEx, the exchange part of the self-energy
-  !     mode= 12: correlation mode SEc, the correlated part of the self-energy
-  !     mode= 3: core exchange mode SEXcore
+  !  mode= 11: exchange    mode SEx, the exchange part of the self-energy
+  !  mode= 12: correlation mode SEc, the correlated part of the self-energy
+  !  mode= 3: core exchange mode SEXcore
   !     mode= 4: plot spectrum function ---See manual
   !     mode= 5: exchange    mode Exx, the exchange part of the total energy
   !     mode= 6: core exchange mode Exxc, Exx(core-valence)

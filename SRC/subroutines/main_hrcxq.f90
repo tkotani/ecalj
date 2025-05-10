@@ -18,7 +18,7 @@ subroutine hrcxq() bind(C)
   use m_hamindex,only: Readhamindex
   use m_readeigen,only: Init_readeigen,Init_readeigen2,Readeval
   use m_read_bzdata,only:Read_bzdata,nqbz,nqibz,n1,n2,n3,ginv,dq_,qbz,wbz,qibz,wibz, ntetf,idtetf,ib1bz, qbzw,nqbzw,q0i,nq0i,nq0iadd !for tetrahedron   !     &     idteti, nstar,irk,nstbz
-  use m_genallcf_v3,only: Genallcf_v3,natom,nspin,nl,nn,nlnmx,nctot,alat,clabl,il,in,im,nlnm,plat,pos,ecore,&
+  use m_genallcf_v3,only: Genallcf_v3,natom,nspin,nl,nn,nlnmx,nctot,alat,il,in,im,nlnm,plat,pos,ecore,&
        nband
   use m_rdpp,only: Rdpp,nxx,lx,nx,mdimx,nbloch,cgr,ppbrd ,nblochpmx,mrecl,nprecx ! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
   use m_zmel,only: Mptauof_zmel !Set data for "call get_zmelt" zmelt= matrix element <phi |phi MPB>.
