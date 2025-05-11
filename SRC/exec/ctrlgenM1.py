@@ -653,9 +653,8 @@ for ispec in uniq(sitename):
         else:
             rrr = float(getdataa(dicatom[speckey],'R='))/0.529177 #*r_mul_val
         #print( rrr)
-        if(rrr>2.9 and float(z)>2.8 and float(z)   <4.2 ): rrr=2.9   #upper limit of R for Li,Be
-        if(rrr>2.4 and float(z)>10.8 and float(z) <12.2 ): rrr=2.4   #upper limit of R for Na,Mg. NaAlO2 needed 2.4 for 3 3 3 
-        if(rrr>2.6 and float(z)>18.8 and float(z) <20.2 ): rrr=2.6   #upper limit of R for K,Ca  
+        if(rrr>2.7 and float(z)>2.8  and float(z)  <4.2 ): rrr=2.7   #upper limit of R for Li,Be
+        if(rrr>2.4 and float(z)>10.8 and float(z) <12.2 ): rrr=2.4   #upper limit of R for Na,Mg. NaAlO2 needed 2.4 for 3 3 3         if(rrr>2.6 and float(z)>18.8 and float(z) <20.2 ): rrr=2.6   #upper limit of R for K,Ca  
         if(rrr>3.0): rrr=3.0 #
         print('rrr',rrr)
         

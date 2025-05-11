@@ -1,3 +1,4 @@
+#originally shota takano 2025
 import sys
 ppp=sys.executable
 
@@ -164,7 +165,7 @@ class Calc:
 
     def mkplot_and_save(self, path_save):
 
-        print(path_save)
+        print('mkplot_and_save:',path_save)
         if path_save == 'LDA':
             Path(path_save).mkdir(parents=True, exist_ok=True)
             for f in Path('.').glob(f'*.{self.num}'):
@@ -185,6 +186,7 @@ class Calc:
                 run_command(jjob, out=file_out)
 
     def run_LDA(self, args, key,  koption, ordering, path_poscar, errcode): #lmxa6 need to be given at ctrlgenM1.py
+        print('---- run_LDA -----------------')
         num = self.num
         epath = self.epath
         print(Path.cwd())
@@ -230,7 +232,7 @@ class Calc:
             run_command([epath/'lmfa', num], out='llmfa')
 
         ### Get k_mesh from input koption
-        print('aaaaaaaaaaaa',args.kkmesh)
+        print('GotoGetkmesh aaaaaaaaaaaa',args.kkmesh)
         if(args.kkmesh is not None):
             print('args.kkmesh111=',args.kkmesh)
             self.k_points = args.kkmesh[:3]
@@ -244,40 +246,50 @@ class Calc:
         self.option_lmf = '-vnit={} -vnk1={} -vnk2={} -vnk3={}'.format(koption[0], *self.k_points).split() #+ koption[2:]
         kkk = 'nk1={} nk2={} nk3={}'.format(*self.k_points)
 
-        ### Run lmf
+        ### Initial Run lmf
+        print('--- start lmf --- ')
         outc = self.run_lmf('llmf','llmf.err')
-        print('lmf finished')
+        conv = outc.split()[0]
 
         ### Check convergence and if k-mesh is appropreate or not
-        conv = outc.split()[0]
-        if conv == 'x': return f'x {kkk}', errcode['conv=x']
-        elif conv == 'i': return f'i {kkk}', errcode['conv=i']
+        if conv == 'x': 
+            return f'x {kkk}', errcode['conv=x']
+#        elif conv == 'i': 
         elif conv != 'c':
+            import glob
             #errmsgs = check_save('llmf', n=3)
             #!for msg in errmsgs.split('\n'):
             #   if ('incompatible with this mesh' in msg) or ('qp mapped to is not on k-mesh' in msg):
+            bzmeshc=False
             if(os.path.exists('bzmesh.'+num+'.err')):
                 os.remove('bzmesh.'+num+'.err')
-                print('Run lmf')
                 self.k_points = [koption[1]] * 3
                 kkk = 'nk1={} nk2={} nk3={}'.format(*self.k_points)
+                print('kmesh changed ---')
                 self.option_lmf = '-vnit={} -vnk1={} -vnk2={} -vnk3={}'.format(koption[0], *self.k_points).split() #+ koption[2:]
+                bzmeshc=True
+            while ( self.const_b > 0.05): #bmix reducing
+                if not bzmeshc: 
+                    for file in glob.glob("rst*"): os.remove(file)
+                    for file in glob.glob("mix*"): os.remove(file)
+                    self.const_b = round(self.const_b - 0.05, 2)
+                    replace(f'ctrl.{self.num}', r'b=0?\.\d+', f'b={self.const_b}')
+                print('Run lmf --- b=',self.const_b)
                 outc = self.run_lmf('llmf','llmf.err')
-                conv = outc.split()[0]
-                if conv == 'c':
-                    self.kmesh_cube = True
-                return f'{conv} {kkk}', errcode['kmesh']
-            else:
-                return 'ERROR: lmf', errcode['others']
+                if outc.split()[0] == 'c': break
+                bzmeshc=False
+
+        if outc.split()[0] != 'c':
+            return f'{conv} {kkk} {self.const_b}', errcode['others']
 
         ### Make plots
+        print('make plot LDA')
         replace(f'ctrl.{num}', r'nk1=(\d+) nk2=(\d+) nk3=(\d+)', kkk)
         self.gap_LDA = self.run_plot('LDA')
-        if self.gap_LDA is None:
-            return 'ERROR: job_band', errcode['job_band']
-    
+        #if self.gap_LDA is None:
+        #    return 'ERROR: job_band', errcode['job_band']
+        print('end of run_lmf')
         return f'c {kkk} gap={self.gap_LDA}', errcode['conv=c']
-
 
     def run_QSGW(self, args, niter, bnd4all, gw80, k_gw):
         num = self.num
@@ -336,6 +348,7 @@ class Calc:
             return outc
 
         ### Save QPU / Plot Band for all iterations of QSGW calc., swtich is "bnd4all"
+        print('make plot QSGW')
         dirs = [d for d in Path('.').glob('QSGW.*run') if d.is_dir()]
         dirs = sorted(dirs, key=lambda d: int(re.match(r'QSGW.(\d+)run', d.name).group(1)))
         for n, d in enumerate(dirs):
