@@ -4,7 +4,7 @@ ppp=sys.executable
 
 import os, subprocess, re, shutil, time
 from pathlib import Path
-import change_k
+import change_k,kauto
 import pandas as pd
 from contextlib import contextmanager
 
@@ -234,15 +234,16 @@ class Calc:
         ### Get k_mesh from input koption
         print('GotoGetkmesh aaaaaaaaaaaa',args.kkmesh)
         if(args.kkmesh is not None):
-            print('args.kkmesh111=',args.kkmesh)
+            #print('args.kkmesh111=',args.kkmesh)
             self.k_points = args.kkmesh[:3]
         else:    
-            print('args.kkmesh222=',args.kkmesh)
-            self.k_points = change_k.get_kpoints([koption[1]] * 3)
+            #self.k_points = change_k.get_kpoints([koption[1]] * 3)
+            self.k_points = kauto.kauto(koption[1])
+            #print('args.kkmesh222=',args.kkmesh)
         print('k-mesh for lmf: nk1nk2nk3=', self.k_points)
 
-        if self.k_points is None:
-            return 'ERROR: PlatQplat.chk in lmfa', errcode['ctrl']
+        #if self.k_points is None:
+        #    return 'ERROR: PlatQplat.chk in lmfa', errcode['ctrl']
         self.option_lmf = '-vnit={} -vnk1={} -vnk2={} -vnk3={}'.format(koption[0], *self.k_points).split() #+ koption[2:]
         kkk = 'nk1={} nk2={} nk3={}'.format(*self.k_points)
 
@@ -306,7 +307,7 @@ class Calc:
         if(args.kkmesh is not None):
             q_points = args.kkmesh[3:6]
         else:
-            q_points = change_k.get_q(self.k_points, k_gw)   #k_points is int list, like [6, 6, 6]
+            q_points = math.ceil( self.k_points*k_gw-1d-6 )
         print('k-mesh for GW n1n2n3', q_points)
         
         ### Prepare input for QSGW calc.

@@ -1,3 +1,4 @@
+#originally shota takano 2025
 import sys
 import argparse, configparser
 from pathlib import Path
@@ -78,7 +79,6 @@ class JobQUE:
         shutil.copy(self.lpath, self.opath)
         config = self.config
         job_mp = self.autopath / 'job_mp.py'
-        
         max_attr_length = max(len(attr) for attr in config.__dict__.keys())
         config.kratio = round(float(config.kratio),8)
         with (self.opath / 'config.ini').open('w') as f:  # Here we write opath/config.ini from auto/config.ini
@@ -133,7 +133,6 @@ class JobQUE:
     #     with Path(ffile).open('w') as f:
     #         f.write('\n'.join(text0))
 
-
 if __name__=="__main__":
     config = configparser.ConfigParser()
     config_path = Path(__file__).resolve().parent.parent / 'config.ini'
@@ -151,6 +150,7 @@ if __name__=="__main__":
     parser.add_argument('--koption', nargs='+', type=int, default=eval(config.get('koption')), help='number of k-points option for QSGW calculation')
     parser.add_argument('--kratio', type=str,   default=get_float(config.get('kratio')), help='ratio of k point for self energy/band calculation')
     parser.add_argument('--kkmesh', type=int, nargs=6, default=None, help='Given k mesh LDA and QSGW 3+3 int numbers ')
+    parser.add_argument('--ldaonly', type=bool, default=False, help='bool: LDA only or not')
     args = parser.parse_args(sys.argv[1:])
     print(args)
     args.inpath = str(args.inpath.resolve())

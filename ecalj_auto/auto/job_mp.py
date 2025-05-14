@@ -1,3 +1,4 @@
+#originally shota takano 2025
 import os,sys,shutil,re
 from pathlib import Path
 import pandas as pd
@@ -57,6 +58,7 @@ args.gw80 = config.getboolean('gw80')
 args.koption = config.getint('koption')
 args.kratio = round(float(config.get('kratio')), 8)
 args.kkmesh = config.get('kkmesh')
+args.ldaonly = config.getboolean('ldaonly') 
 import ast
 if(config.get('kkmesh') is not None):args.kkmesh=ast.literal_eval(config.get('kkmesh'))
 print('kkmesh=',args.kkmesh,type(args.kkmesh))
@@ -155,79 +157,71 @@ def change_directory(path):
         yield
     finally:
         os.chdir(args.dir)
-
     
 for i in joblist:
-#    num = 'mp-'+i
-    num = i
+    num = i #    num = 'mp-'+i
     print()
     print('MATERIAL=', num)
     num_dir = args.dir / num
     num_dir.mkdir(exist_ok=True)
     starttime=datetime.datetime.now()
     ordering = job_dict.get(i, '')
+    k = args.koption
+    print(' koption=',k)    #kitmx=3    #for kadd in range(kitmx): # k point choices. Need fixing.
+    calc = creplot.Calc(num,args.epath,args.ncore)
+    kkoption = [40, k] #40 is number of max iterations
+    with change_directory(num_dir): #go into material directory
+        ### LDA
+        if Path('LDA').exists():
+            print('LDA calc. is already done! skip LDA calc. and go to QSGW calc.')
+            pass
+        else:
+            out_LDA, errcode = calc.run_LDA(args,args.apikey,kkoption,ordering,args.poscar,dict_errcode)
+            # lmxa6 removed.
+            if errcode == 1: # something wrong in k-mesh. run calc. again
+                #if kadd== kitmx: # if the last k-mesh, save the result and go next
+                #    save_result(i, out_LDA, 'LDA', starttime)
+                continue
+            elif errcode == 0: # LDA converged or something wrong in calc. code
+                save_result(i, out_LDA, 'LDA', starttime)
+                if not out_LDA.startswith('c'):  # something wrong in the code. go next
+                    break
+        if(args.ldaonly): break
+        
+        ### QSGW
+        starttime = datetime.datetime.now()
+        out_GW = calc.run_QSGW(args,args.niter, args.bnd4all, args.gw80, args.kratio)
+        save_result(i, out_GW, 'GW', starttime)
+        gap_GW = calc.gap_GW
+        if gap_GW is None: pass
+        elif gap_GW < 1e-5:
+            if calc.gap_LDA > 1e-4:
+                print('Run gwsc 3 more loop')
+                starttime = datetime.datetime.now()
+                out_GW = calc.run_QSGW(3, args.bnd4all, args.gw80, args.kratio)
+                save_result(i, out_GW, 'RepeatGW', starttime)
+        if not out_GW.startswith('x'): break
 
-    kinit = args.koption
-    print(' koption=',kinit,type(kinit))
-    kitmx=3
-    for kadd in range(kitmx): # k point choices. Need fixing.
-        k= kinit+ kadd*2
-        calc = creplot.Calc(num,args.epath,args.ncore)
-        if k == kinit: kkoption = [40, k] #40 is number of max iterations
-        else:          kkoption = [20, k] #20 is number of max iterations
-        #if kadd == 2: kkoption += ['-vtetra=F']
-
-        with change_directory(num_dir): #go into material directory
-            ### calc. LDA
-            if Path('LDA').exists():
-                print('LDA calc. is already done! skip LDA calc. and go to QSGW calc.')
-                pass
-            else:
-                out_LDA, errcode = calc.run_LDA(args,args.apikey,kkoption,ordering,args.poscar,dict_errcode)
-                # lmxa6 removed.
-                if errcode == 1: # something wrong in k-mesh. run calc. again
-                    if kadd== kitmx: # if the last k-mesh, save the result and go next
-                        save_result(i, out_LDA, 'LDA', starttime)
-                    continue
-                elif errcode == 0: # LDA converged or something wrong in calc. code
-                    save_result(i, out_LDA, 'LDA', starttime)
-                    if not out_LDA.startswith('c'):  # something wrong in the code. go next
-                        break
-
-            ### calc. QSGW
-            starttime = datetime.datetime.now()
-            out_GW = calc.run_QSGW(args,args.niter, args.bnd4all, args.gw80, args.kratio)
-            save_result(i, out_GW, 'GW', starttime)
-            gap_GW = calc.gap_GW
-            if gap_GW is None: pass
-            elif gap_GW < 1e-5:
-                if calc.gap_LDA > 1e-4:
-                    print('Run gwsc 3 more loop')
-                    starttime = datetime.datetime.now()
-                    out_GW = calc.run_QSGW(3, args.bnd4all, args.gw80, args.kratio)
-                    save_result(i, out_GW, 'RepeatGW', starttime)
-            if not out_GW.startswith('x'): break
-
-            # 'x': maybe lack of k-mesh, then run LDA/GW with more k-volume
-            dir_save = '_'.join(map(str, calc.k_points))
-            if Path(dir_save).exists():
-                shutil.rmtree(dir_save)
+        ### error handling with x ### Not checked well
+        # 'x': maybe lack of k-mesh, then run LDA/GW with more k-volume
+        dir_save = '_'.join(map(str, calc.k_points))
+        if Path(dir_save).exists():
+            shutil.rmtree(dir_save)
             shutil.copytree('.', dir_save)
-            if Path('osgw.out').exists():
-                shutil.copy('osgw.out', dir_save)
+        if Path('osgw.out').exists():
+            shutil.copy('osgw.out', dir_save)
             print(f'information are stored in {dir_save}')
-
-            # clear files which are already stored in {dir_save}
-            for f in Path('.').glob('*'):
-                if f.is_file():
-                    f.unlink()
-            for f in Path('LDA').glob('*'):
-                if not f.match('rst.*'):
-                    shutil.copy(f, Path('.'))
-            shutil.rmtree('LDA')
-            for run_iter_dir in Path('.').glob('QSGW.*run'):
-                if run_iter_dir.is_dir():
-                    shutil.rmtree(run_iter_dir)
-            continue
+        # clear files which are already stored in {dir_save}
+        for f in Path('.').glob('*'):
+            if f.is_file():
+                f.unlink()
+        for f in Path('LDA').glob('*'):
+            if not f.match('rst.*'):
+                shutil.copy(f, Path('.'))
+                shutil.rmtree('LDA')
+        for run_iter_dir in Path('.').glob('QSGW.*run'):
+            if run_iter_dir.is_dir():
+                shutil.rmtree(run_iter_dir)
+        continue
             
 fout.close()
