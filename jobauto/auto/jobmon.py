@@ -16,10 +16,9 @@ def replace_in_file(filepath, replacements):
     with open(filepath, 'w') as f:
         f.write(content)
 
-
-def rsync(local, remote, user, remotehost, to_remote=True, includes=None, verbose=False):
-    """Rsync between local and remote."""
-    base_cmd = ["rsync", "-avz"]
+def rsync(local, remote, user, remotehost, to_remote=True, includes=None, verbose=False, retries=3, timeout=30):
+    """Rsync between local and remote with retry and timeout."""
+    base_cmd = ["rsync", "-avz", "--timeout", str(timeout)]
     if includes:
         for inc in includes:
             base_cmd += ["--include", inc]
@@ -33,12 +32,45 @@ def rsync(local, remote, user, remotehost, to_remote=True, includes=None, verbos
         src = f"{user}@{remotehost}:{remote}/"
         dst = str(local) + "/"
     cmd = base_cmd + [src, dst]
-    if verbose:
-        subprocess.run(cmd, check=True)
-    else:
-        subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    print()
-    #print("rsync done:", cmd)
+    for attempt in range(retries):
+        try:
+            if verbose:
+                subprocess.run(cmd, check=True, timeout=timeout)
+            else:
+                subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=timeout)
+            print()
+            #print("rsync done:", cmd)
+            return
+        except subprocess.TimeoutExpired:
+            print(f"rsync timeout (attempt {attempt+1}/{retries}), retrying...")
+            time.sleep(1)
+        except subprocess.CalledProcessError as e:
+            print(f"rsync failed (attempt {attempt+1}/{retries}): {e}, retrying...")
+            time.sleep(1)
+    print("rsync failed after retries.")
+
+# def rsync(local, remote, user, remotehost, to_remote=True, includes=None, verbose=False):
+#     """Rsync between local and remote."""
+#     base_cmd = ["rsync", "-avz"]
+#     if includes:
+#         for inc in includes:
+#             base_cmd += ["--include", inc]
+#         base_cmd += ["--exclude", "*"]
+#     if to_remote:
+#         print("rsync to remote")
+#         src = str(local) + "/"
+#         dst = f"{user}@{remotehost}:{remote}/"
+#     else:
+#         print("rsync from remote")
+#         src = f"{user}@{remotehost}:{remote}/"
+#         dst = str(local) + "/"
+#     cmd = base_cmd + [src, dst]
+#     if verbose:
+#         subprocess.run(cmd, check=True)
+#     else:
+#         subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+#     print()
+#     #print("rsync done:", cmd)
 
 # def rsync(local, remote, user, remotehost, to_remote=True, includes=None):
 #     """Rsync between local and remote."""
@@ -324,6 +356,7 @@ def main():
                     remote_qsub_file = qsub_file.replace(str(local_date_dir), remote_date_dir, 1)
                     submit_cmd = f"qsub {remote_qsub_file}"
                     jobid = ssh_cmd(remote_date_dir, submit_cmd, user, remotehost) #jobid : qsubの戻り値
+                    if(jobid==None): break
                     print("qsub submission: ",jobid, remote_qsub_file, ' LOCAL=',qsub_file)
                     quelist[i] = line + f" started@{get_now_str()}"
                     with open(qsub_now_path, "a") as f:
