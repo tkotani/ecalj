@@ -1,0 +1,19 @@
+__HEADER__
+
+py=__pythonpath__/
+EXE=__binpath__/  
+CWD=__cwd__/
+MATERIAL=__jobname__
+MAXCORE=__maxcore__
+
+cd $CWD
+cp POSCAR.$MATERIAL POSCAR
+$EXE/vasp2ctrl POSCAR >&  lvasp2ctrl
+cp ctrls.POSCAR.vasp2ctrl ctrls.$MATERIAL
+$EXE/ctrlgenM1.py $MATERIAL  >& lctrlgenM1
+cp $CWD/ctrlgenM1.ctrl.$MATERIAL ctrl.$MATERIAL
+rm *.tmp *.tmp2
+mpirun -np 1 $EXE/lmchk $MATERIAL >& llmchk
+mpirun -np 1 $EXE/lmfa  $MATERIAL >& llmfa
+mpirun -np $MAXCORE $EXE/lmf $MATERIAL >& $CWD/llmf
+echo "$(date +'%Y-%m-%d %H:%M:%S') Job completed" > $CWD/qsub.finished.0

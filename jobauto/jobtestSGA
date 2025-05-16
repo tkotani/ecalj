@@ -1,0 +1,43 @@
+#!/usr/bin/bash
+#cp -r testSGA0 testSGA
+python initposcar.py --ldir=testSGA
+echo 'end of initialization of testSGA. Goto jobmon'
+echo
+
+cat <<EOF > qsubheader.ucgw.temp
+#!/bin/sh
+#$ -N __jobname__
+#$ -pe smp __maxcore__
+#$ -o /dev/null
+#$ -e /dev/null
+#$ -cwd
+#$ -V
+#$ -S /usr/bin/bash
+#$ -q all.q@ucs18,all.q@ucs19,all.q@ucs20,all.q@ucs21,all.q@ucs22,all.q@ucs23,all.q@ucs24,all.q@ucs25,all.q@ucs26,all.q@ucs27,all.q@ucs28,all.q@ucs29,all.q@ucs30,all.q@ucs31,all.q@ucs32,all.q@ucs33,all.q@ucs34,all.q@ucs35,all.q@ucs36,all.q@ucs37,all.q@ucs38,all.q@ucs39,all.q@ucs40,all.q@ucs41,all.q@ucs42,all.q@ucs43,all.q@ucs44,all.q@ucs45,all.q@ucs46,all.q@ucs47,all.q@ucs48,all.q@ucs49,all.q@ucs50,all.q@ucs51,all.q@ucs52,all.q@ucs53
+export OMP_NUM_THREADS=1
+EOF
+
+cat <<EOF > qsubheader.kugui.temp
+#!/bin/sh
+#PBS -q i1accs
+#PBS -l select=1:ncpus=64:mpiprocs=64:ompthreads=1
+#PBS -N __jobname__
+#
+export NV_ACC_TIME=1
+ulimit -s unlimited
+ulimit -a
+EOF
+
+cat <<EOF > qsubheader.kugui2.temp
+#!/bin/sh
+#PBS -q i2cpu
+#PBS -l select=1:ncpus=128:mpiprocs=4:ompthreads=6
+#PBS -N __jobname__
+#
+EOF
+
+# ucgw
+#python auto/jobmon.py --pythonpath=/home/takao/.pyenv/versions/3.9.13/bin/python --binpath=/home/takao/bin --ldir=testSGA --#rdir=/home/takao/testSGA111 --maxqsub=3 --maxcore=2 --quiet --qsubheader=qsubheader.ucgw.temp --qstatcommand='qstat -j'
+
+# kugui no gpu
+python auto/jobmon.py --user k041303 --remote kugui --pythonpath=/home/k0413/k041303/.local/share/mise/installs/python/3.13.0/bin/python --binpath=/home/k0413/k041303/bin --ldir=testSGA --rdir=/home/k0413/k041303/testSGA111 --maxqsub=3 --maxcore=4 --quiet --qsubheader=qsubheader.kugui2.temp --qstatcommand='qstat '
