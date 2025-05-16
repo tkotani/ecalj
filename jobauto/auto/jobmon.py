@@ -77,27 +77,75 @@ def rsync(local, remote, user, remotehost, to_remote=True, includes=None, verbos
 #     cmd = base_cmd + [src, dst]
 #     subprocess.run(cmd, check=True)
 
-def ssh_cmd(remote_dir, cmd, user, remotehost):
-    """Run a command on the remote server."""
-    ssh_command = f"ssh {user}@{remotehost} 'cd {remote_dir} && {cmd}'"
-    #print("ssh_cmd remote_dir:", ssh_command)
-    result = subprocess.run(ssh_command, shell=True, capture_output=True, text=True)
-    #print("ssh_cmd result:", result)
-    parts= result.stdout.strip().split()
-    parts= " ".join(parts).split('.')
-    #print('ppp111',parts)
-    first_number = next((p for p in parts if p.isdigit()), None)
-    #print('ppp222',first_number)
-    #print('ssh_cmd: ',ssh_command)
-    return first_number
+import time
+import re
 
-def ssh_cmd0(remote_dir, cmd, user, remotehost):
-    """Run a command on the remote server."""
+def ssh_cmd(remote_dir, cmd, user, remotehost, retries=3, timeout=5):
+    """Run a command on the remote server with retry and timeout. Returns first number found in output."""
     ssh_command = f"ssh {user}@{remotehost} 'cd {remote_dir} && {cmd}'"
-    #print("ssh_cmd0 remote_dir:", ssh_command)
-    result = subprocess.run(ssh_command, shell=True, capture_output=True, text=True)
-    #print("ssh_cmd0 result:", result)
-    return result.stdout.strip().split()
+    for attempt in range(retries):
+        try:
+            result = subprocess.run(
+                ssh_command,
+                shell=True,
+                capture_output=True,
+                text=True,
+                timeout=timeout
+            )
+            parts = result.stdout.strip().split()
+            # 数字部分を抽出
+            for p in parts:
+                m = re.search(r'\d+', p)
+                if m:
+                    return m.group()
+            return None
+        except subprocess.TimeoutExpired:
+            print(f"ssh_cmd timeout (attempt {attempt+1}/{retries}), retrying...")
+            time.sleep(1)
+    print("ssh_cmd failed after retries.")
+    return None
+
+def ssh_cmd0(remote_dir, cmd, user, remotehost, retries=3, timeout=5):
+    """Run a command on the remote server with retry and timeout. Returns output as list of words."""
+    ssh_command = f"ssh {user}@{remotehost} 'cd {remote_dir} && {cmd}'"
+    for attempt in range(retries):
+        try:
+            result = subprocess.run(
+                ssh_command,
+                shell=True,
+                capture_output=True,
+                text=True,
+                timeout=timeout
+            )
+            return result.stdout.strip().split()
+        except subprocess.TimeoutExpired:
+            print(f"ssh_cmd0 timeout (attempt {attempt+1}/{retries}), retrying...")
+            time.sleep(1)
+    print("ssh_cmd0 failed after retries.")
+    return []
+
+
+# def ssh_cmd(remote_dir, cmd, user, remotehost):
+#     """Run a command on the remote server."""
+#     ssh_command = f"ssh {user}@{remotehost} 'cd {remote_dir} && {cmd}'"
+#     #print("ssh_cmd remote_dir:", ssh_command)
+#     result = subprocess.run(ssh_command, shell=True, capture_output=True, text=True)
+#     #print("ssh_cmd result:", result)
+#     parts= result.stdout.strip().split()
+#     parts= " ".join(parts).split('.')
+#     #print('ppp111',parts)
+#     first_number = next((p for p in parts if p.isdigit()), None)
+#     #print('ppp222',first_number)
+#     #print('ssh_cmd: ',ssh_command)
+#     return first_number
+
+# def ssh_cmd0(remote_dir, cmd, user, remotehost):
+#     """Run a command on the remote server."""
+#     ssh_command = f"ssh {user}@{remotehost} 'cd {remote_dir} && {cmd}'"
+#     #print("ssh_cmd0 remote_dir:", ssh_command)
+#     result = subprocess.run(ssh_command, shell=True, capture_output=True, text=True)
+#     #print("ssh_cmd0 result:", result)
+#     return result.stdout.strip().split()
 
 def get_now_str():
     return datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -248,9 +296,9 @@ def main():
                 qstat_out = ssh_cmd0('~/.', qstatcommand+f" {jobid}", user, remotehost)
                 qstat_out = " ".join(qstat_out)
                 nojob = "not exist" in qstat_out or "has finished" in qstat_out or len(qstat_out)<2
-                #print('jjjj qstat ',jobid, qsub_file,'runnning=',not nojob,'output='+qstat_out[0:85]+'---')
+                #print('jjjj qstat ',jobid, qsub_file,'runnning=',not nojob,'output='+qstat_out[0:15])
                 finished_file = qsub_file.replace("qsub.", "qsub.finished.")
-                #print('jjjjxx finished_file:',finished_file)
+                #print('jjjj finished_file:',finished_file)
                 quelist = read_quelist(quelist_path)
                 if nojob or Path(finished_file).exists():  # Note finished_file can apperar before qstat_out 
                     if Path(finished_file).exists():       # finished
