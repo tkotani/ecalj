@@ -11,12 +11,20 @@ export PATH=/opt/pbs/bin/:$PATH
 ```
 
 ### usage
->cp -r testSGA0/ testSGA   #note testSGA is empty
->./jobtestSGA   #look into jobtestSGA. 
+At ecalj/jobauto/, run `>tree testSGA`.
+Then you see init0/ directory.
+qsub.0 is default qsub script.
+All POSCAR is under POSCARALL/
+
+Run
+```
+> ./jobtestSGA 
+```
+Look into the bash script `jobtestSGA`.
+You have to custumize this for your purpose.
 
 
 ### Mechanism memo. How it works.
-See jobautoplan.md.
 
 #### 0. starting.
 We have initial testSGA0/ as
@@ -27,22 +35,19 @@ testSGA/
     │   ├── POSCAR.mp-1330
     │   ├── POSCAR.mp-149
                ...
-    ├── qsub.0            :qsub template
+    ├── qsub.0               :qsub template
     └── qsub.dependency.0    :dependency filempty, always)
 ```
 
-#### 1. initial set up stage
-Take a look at testSGA0/. We have testSGW0/init/qsub.0,
-which is a template of qsub. testSGW0/init/qsub.0 is machine-independent.
-Note variables `__foobar__` in it.
-`__foobar__` are replaced by the augments given to `jobmon.py`.
+#### 1. initial set up stage 
+* We have testSGW/init0/qsub.0,
+which is a template of qsub. testSGW/init/qsub.0 is not machine-dependent.
+`__foobar__` are replaced with the augments given to `jobmon.py`.
+See `jobtestSGA`.
 
-At first, we do `cp -r testSGA0/ at testSGA/` 
-(note: we need testSGA0/==testSGA/. Careful when testSGA/ already).
-
-Then we appy `python initposcar.py --ldir=testSGA` at the beginnig of jobtestSGA.
-This just initialize the directory of testSGA/
-That is, to distribute qsub.0, qsub.dependency.0, and POSCARALL/POSCAR* under testSGA/*
+* We appy `python initposcar.py --ldir=testSGA` at the beginnig of jobtestSGA.
+This create the directory `testSGA/init` from `init0/`.
+`initposcar.py` distribute `qsub.0, qsub.dependency.0, and POSCARALL/POSCAR*` under `testSGA/mp*`
 
 After `python initposcar.py --ldir=testSGA`', we have directories as
 ```
@@ -55,12 +60,14 @@ testSGA/
 ...
 ```
 
-#### 2. The second step of ./jobtestSGA
-This is the main part of job control. See the bottom of jobtestSGA, where we run
+#### 2. The main step of ./jobtestSGA
+See the bottom of jobtestSGA, where we run
 ```bash
-python auto/jobmon.py --user k041303 --remote kugui --pythonpath=/home/k0413/k041303/.local/share/mise/installs/python/3.13.0/bin/python --binpath=/home/k0413/k041303/bin --ldir=testSGA --rdir=/home/k0413/k041303/testSGA111 --maxqsub=3 --maxcore=4 --quiet --qsubheader=qsubheader.kugui2.temp --qstatcommand='qstat '
+python auto/jobmon.py --user k041303 --remote kugui --pythonpath=...'
 ```
-(note: python auto/jobmon.py --help gives a help).
+(python auto/jobmon.py --help gives a help).
 
-* qsubheader.kugui2.temp is given by Here Document in jobtestSGA. We need another here documents for other machine,
-  and set `--qsubheader=qsubheader.kugui2.temp`).
+* qsubheader.kugui2.temp is given by the Here Document in jobtestSGA. We include machine-dependent here documents in it.
+  Set `--qsubheader=qsubheader.kugui2.temp` to specify which one.
+
+* See [the algorism of jobmon.py](./jobautoplan.md)

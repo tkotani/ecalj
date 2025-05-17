@@ -1,9 +1,4 @@
 #!/usr/bin/bash
-#cp -r testSGA0 testSGA
-python initposcar.py --ldir=testSGA
-echo 'end of initialization of testSGA. Goto jobmon'
-echo
-
 cat <<EOF > qsubheader.ucgw.temp
 #!/bin/sh
 #$ -N __jobname__
@@ -36,8 +31,13 @@ cat <<EOF > qsubheader.kugui2.temp
 #
 EOF
 
+# init0 to init
+echo 'init0 to init:'
+python initposcar.py --ldir=testSGA
+
+# kugui no gpu -qsubheader=qsubheader.kugui2.temp 
+python auto/jobmon.py --user k041303 --remote kugui --pythonpath=/home/k0413/k041303/.local/share/mise/installs/python/3.13.0/bin/python --binpath=/home/k0413/k041303/bin --ldir=testSGA --rdir=/home/k0413/k041303/testSGA --maxqsub=3 --maxcore=4 --quiet --qsubheader=qsubheader.kugui2.temp 
+
 # ucgw
 #python auto/jobmon.py --pythonpath=/home/takao/.pyenv/versions/3.9.13/bin/python --binpath=/home/takao/bin --ldir=testSGA --#rdir=/home/takao/testSGA111 --maxqsub=3 --maxcore=2 --quiet --qsubheader=qsubheader.ucgw.temp --qstatcommand='qstat -j'
 
-# kugui no gpu
-python auto/jobmon.py --user k041303 --remote kugui --pythonpath=/home/k0413/k041303/.local/share/mise/installs/python/3.13.0/bin/python --binpath=/home/k0413/k041303/bin --ldir=testSGA --rdir=/home/k0413/k041303/testSGA111 --maxqsub=3 --maxcore=4 --quiet --qsubheader=qsubheader.kugui2.temp --qstatcommand='qstat '

@@ -1,7 +1,4 @@
-import os
-import sys
-import time
-import shutil
+import os,sys,time,shutil,re
 import subprocess
 from pathlib import Path
 from datetime import datetime
@@ -16,13 +13,16 @@ def replace_in_file(filepath, replacements):
     with open(filepath, 'w') as f:
         f.write(content)
 
-def rsync(local, remote, user, remotehost, to_remote=True, includes=None, verbose=False, retries=3, timeout=30):
+def rsync(local, remote, user, remotehost, to_remote=True, includes=None, verbose=False, retries=200, timeout=300):
     """Rsync between local and remote with retry and timeout."""
     base_cmd = ["rsync", "-avz", "--timeout", str(timeout)]
     if includes:
         for inc in includes:
             base_cmd += ["--include", inc]
         base_cmd += ["--exclude", "*"]
+    if not to_remote:
+        base_cmd.append("--delete") # delete files not in remote
+    print()
     if to_remote:
         print("rsync to remote")
         src = str(local) + "/"
@@ -38,8 +38,7 @@ def rsync(local, remote, user, remotehost, to_remote=True, includes=None, verbos
                 subprocess.run(cmd, check=True, timeout=timeout)
             else:
                 subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=timeout)
-            print()
-            #print("rsync done:", cmd)
+            print("rsync done:", cmd)
             return
         except subprocess.TimeoutExpired:
             print(f"rsync timeout (attempt {attempt+1}/{retries}), retrying...")
@@ -49,72 +48,10 @@ def rsync(local, remote, user, remotehost, to_remote=True, includes=None, verbos
             time.sleep(1)
     print("rsync failed after retries.")
 
-# def rsync(local, remote, user, remotehost, to_remote=True, includes=None, verbose=False):
-#     """Rsync between local and remote."""
-#     base_cmd = ["rsync", "-avz"]
-#     if includes:
-#         for inc in includes:
-#             base_cmd += ["--include", inc]
-#         base_cmd += ["--exclude", "*"]
-#     if to_remote:
-#         print("rsync to remote")
-#         src = str(local) + "/"
-#         dst = f"{user}@{remotehost}:{remote}/"
-#     else:
-#         print("rsync from remote")
-#         src = f"{user}@{remotehost}:{remote}/"
-#         dst = str(local) + "/"
-#     cmd = base_cmd + [src, dst]
-#     if verbose:
-#         subprocess.run(cmd, check=True)
-#     else:
-#         subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-#     print()
-#     #print("rsync done:", cmd)
-
-# def rsync(local, remote, user, remotehost, to_remote=True, includes=None):
-#     """Rsync between local and remote."""
-#     #base_cmd = ["rsync", "-avz", "--quiet"]
-#     base_cmd = ["rsync", "-avz"]
-#     if includes:
-#         for inc in includes:
-#             base_cmd += ["--include", inc]
-#         base_cmd += ["--exclude", "*"]
-#     if to_remote:
-#         print("rsync to remote")
-#         src = str(local) + "/"
-#         dst = f"{user}@{remotehost}:{remote}/"
-#     else:
-#         print("rsync from remote")
-#         src = f"{user}@{remotehost}:{remote}/"
-#         dst = str(local) + "/"
-#     cmd = base_cmd + [src, dst]
-#     subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-
-# def rsync(local, remote, user, remotehost, to_remote=True, includes=None):
-#     """Rsync between local and remote."""
-#     base_cmd = ["rsync", "-avz"]
-#     if includes:
-#         for inc in includes:
-#             base_cmd += ["--include", inc]
-#         base_cmd += ["--exclude", "*"]
-#     if to_remote:
-#         print("rsync to remote")
-#         src = str(local) + "/"
-#         dst = f"{user}@{remotehost}:{remote}/"
-#     else:
-#         print("rsync from remote")
-#         src = f"{user}@{remotehost}:{remote}/"
-#         dst = str(local) + "/"
-#     cmd = base_cmd + [src, dst]
-#     subprocess.run(cmd, check=True)
-
-import time
-import re
-
-def ssh_cmd(remote_dir, cmd, user, remotehost, retries=3, timeout=5):
+def ssh_cmd(remote_dir, cmd, user, remotehost, retries=1000, timeout=60):
     """Run a command on the remote server with retry and timeout. Returns first number found in output."""
     ssh_command = f"ssh {user}@{remotehost} 'cd {remote_dir} && {cmd}'"
+    #print("ssh_cmd:", ssh_command)
     for attempt in range(retries):
         try:
             result = subprocess.run(
@@ -126,58 +63,18 @@ def ssh_cmd(remote_dir, cmd, user, remotehost, retries=3, timeout=5):
             )
             parts = result.stdout.strip().split()
             # 数字部分を抽出
+            #print("ssh_cmd output:", parts)
+            #print("ssh_cmd output:", result.stdout.strip(),result.stderr.strip(),len(result.stderr.strip()))
             for p in parts:
                 m = re.search(r'\d+', p)
                 if m:
                     return m.group()
-            return None
+            continue #submission failed
         except subprocess.TimeoutExpired:
             print(f"ssh_cmd timeout (attempt {attempt+1}/{retries}), retrying...")
-            time.sleep(1)
+            time.sleep(5)
     print("ssh_cmd failed after retries.")
     return None
-
-def ssh_cmd0(remote_dir, cmd, user, remotehost, retries=3, timeout=5):
-    """Run a command on the remote server with retry and timeout. Returns output as list of words."""
-    ssh_command = f"ssh {user}@{remotehost} 'cd {remote_dir} && {cmd}'"
-    for attempt in range(retries):
-        try:
-            result = subprocess.run(
-                ssh_command,
-                shell=True,
-                capture_output=True,
-                text=True,
-                timeout=timeout
-            )
-            return result.stdout.strip().split()
-        except subprocess.TimeoutExpired:
-            print(f"ssh_cmd0 timeout (attempt {attempt+1}/{retries}), retrying...")
-            time.sleep(1)
-    print("ssh_cmd0 failed after retries.")
-    return []
-
-
-# def ssh_cmd(remote_dir, cmd, user, remotehost):
-#     """Run a command on the remote server."""
-#     ssh_command = f"ssh {user}@{remotehost} 'cd {remote_dir} && {cmd}'"
-#     #print("ssh_cmd remote_dir:", ssh_command)
-#     result = subprocess.run(ssh_command, shell=True, capture_output=True, text=True)
-#     #print("ssh_cmd result:", result)
-#     parts= result.stdout.strip().split()
-#     parts= " ".join(parts).split('.')
-#     #print('ppp111',parts)
-#     first_number = next((p for p in parts if p.isdigit()), None)
-#     #print('ppp222',first_number)
-#     #print('ssh_cmd: ',ssh_command)
-#     return first_number
-
-# def ssh_cmd0(remote_dir, cmd, user, remotehost):
-#     """Run a command on the remote server."""
-#     ssh_command = f"ssh {user}@{remotehost} 'cd {remote_dir} && {cmd}'"
-#     #print("ssh_cmd0 remote_dir:", ssh_command)
-#     result = subprocess.run(ssh_command, shell=True, capture_output=True, text=True)
-#     #print("ssh_cmd0 result:", result)
-#     return result.stdout.strip().split()
 
 def get_now_str():
     return datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -217,35 +114,34 @@ def main():
     parser.add_argument("--remote", default="ucgw", help="remote machine name (default: ucgw)")
     parser.add_argument("--quiet", action="store_true", help="verbose for rsync")
     parser.add_argument("--qsubheader", required=True,help="machine-dependent qsub header")
-    parser.add_argument("--qstatcommand", required=True,help="qstat command")
+    parser.add_argument("--datedir", required=False, help="specify date directory to continue previous run")
+    parser.add_argument("--interval", required=False, default=5,help="specify date directory to continue previous run")
     args = parser.parse_args()
-    print(args)
-    
     local_dir = Path(args.ldir).resolve()
     remote_dir = args.rdir
     user = args.user
     remotehost = args.remote
     quiet= args.quiet
-# --- make remote directory
-    ssh_mkdir(remote_dir, user, remotehost)
     
-    # date
-    date_str = get_now_str()
+    print()
+    print(f"=================  initialization ==============")
+    print(args)
+
+    # make remote directory
+    ssh_mkdir(remote_dir, user, remotehost)
+        # date
+    if(args.datedir): 
+        date_str = args.datedir
+    else:
+        date_str = get_now_str()
+        
     local_date_dir = local_dir / date_str
     remote_date_dir = f"{remote_dir}/{date_str}"
     print(f"LOCAL : {local_date_dir}")
     print(f"REMOTE: {remote_date_dir}")
     
-    def local2remote(local_path):
-        """Convert local path to remote path."""
-        return str(local_path).replace(str(local_dir), remote_dir, 1)
-    def remote2local(remote_path):
-        """Convert remote path to local path."""
-        return str(remote_path).replace(remote_dir, str(local_dir), 1)
-
     # initial sync LOCAL and REMOTE
     print(f"Replacing keywords in qsub files in {local_date_dir} and syncing to {remote_date_dir}")
-    #local_date_dir = local_dir / date_str
     if not local_date_dir.exists():
         shutil.copytree(local_dir / "init", local_date_dir)
         # qsub.{numbers} are substituted recursively
@@ -269,26 +165,34 @@ def main():
     else: # skip when restarted
         print(f"date directory {local_date_dir} already exists. Skipping initial sync.")
 
+# get files already
+    rsync(local_date_dir, remote_date_dir, user, remotehost, to_remote=False, includes=
+    ["*/","*out*", "*finished*", "llmf*","ctrl*","save*","atmpnu*","rst*"])
+
     if args.initonly:
-        print("Initial sync done (--initonly). Exiting.")
+        print("Initialization of  qsub.0 (--initonly). Exiting.")
         return
     
     quelist_path  = local_date_dir / "quelist"
-    qsub_now_path = local_date_dir / "qsub.now"
-    qsub_log_path = local_date_dir / "qsub.log"
-
-    
+    if not quelist_path.exists():
+        with open(quelist_path, "w") as f: pass # create empty quelist
+        quelist = []
+    else:
+        quelist = read_quelist(quelist_path) 
+        quelist = [l.replace("started@", "spre@") for l in quelist]
+       
     iter=0
-    interval=5
+    interval=int(args.interval)     #qstatcommand = args.qstatcommand
     while True:
-        # 2. リモートfileをローカルにrsync
         print()
-        print(f"=================  watch ============== timing= {iter*interval} sec")
-        print(f"remote_date_dir= {user}@{remotehost} {remote_date_dir}")
-        rsync(local_date_dir, remote_date_dir, user, remotehost, to_remote=False, includes=
-              ["*/","*out*", "*finished*", "qsub.failed.*","llmf*","ctrl*","save*","atmpnu*","rst*"],
-              verbose=not quiet)
-
+        print(f"=================  watch ============== timing= {iter*interval} ")
+        print(f"user@machine   = {user}@{remotehost} ")      
+        print(f"quelist        = {quelist_path}")            
+        print(f"remote_date_dir= {remote_date_dir}")         
+        print(f"local_date_dir = {local_date_dir}")
+        # rsync from remote to local          
+        rsync(local_date_dir, remote_date_dir, user, remotehost, to_remote=False, includes=["*/","*finished*"],verbose=not quiet)
+         
         # Add submittable qsub to the end of quelist. Check dependency.
         for dep_file in local_date_dir.rglob("qsub.dependency.*"):
             id = dep_file.name.split(".")[-1]
@@ -298,93 +202,65 @@ def main():
             #print(f"Checking dependency file: {dep_file}")
             #print(f"Checking       qsub file: {qsub_file}")
             depok = True
-            if dep_file.stat().st_size > 0:
-                with open(dep_file) as f:
-                    for line in f:
+            if dep_file.stat().st_size > 0: # dependency file is not empty
+                with open(dep_file) as f:   
+                    for line in f: #Check if all files in dependency file exist
                         fname = line.strip()
                         if fname and not (local_date_dir / fname).exists():
                             depok = False
                             break
             if depok :
-                quelist = read_quelist(quelist_path)
                 if not any(str(qsub_file) in line for line in quelist):
-                    with open(quelist_path, "a") as f:
-                        f.write(f"{qsub_file}\n")
-        # print("quelist:")
-        # quelist = read_quelist(quelist_path)
-        # for line in quelist:
-        #     print('quelist:',line)
+                    quelist.append(str(qsub_file))
+
+        # Add finished to quelist
+        finished = local_date_dir.rglob("qsub.finished.*")
+        nfinished=0
+        for i,fdir in enumerate(finished):
+            nfinished+=1
+            fdir=fdir.parent
+            quelist = [l + f" finished@{get_now_str()}" if l.startswith(str(fdir)) and not 'finished' in l else l  for l in quelist]
+
+        # number of submitted already
+        submitted=0
+        for line in quelist: #count numfer of lines in quelist which contains "finished" or "started"
+            if "finished" not in line and "started" in line: submitted+=1
         
-        # qsub.nowのIDをqstatで監視
-        qstatcommand = args.qstatcommand
-        running = 0
-        if qsub_now_path.exists():
-            with open(qsub_now_path,"r") as f:
-                now_lines = [line.strip() for line in f if line.strip()]
-            running = 0    
-            qnow=[]        
-            for line in now_lines:
-                jobid, qsub_file = line.split()[:2]
-                qstat_out = ssh_cmd0('~/.', qstatcommand+f" {jobid}", user, remotehost)
-                qstat_out = " ".join(qstat_out)
-                nojob = "not exist" in qstat_out or "has finished" in qstat_out or len(qstat_out)<2
-                #print('jjjj qstat ',jobid, qsub_file,'runnning=',not nojob,'output='+qstat_out[0:15])
-                finished_file = qsub_file.replace("qsub.", "qsub.finished.")
-                #print('jjjj finished_file:',finished_file)
-                quelist = read_quelist(quelist_path)
-                if nojob or Path(finished_file).exists():  # Note finished_file can apperar before qstat_out 
-                    if Path(finished_file).exists():       # finished
-                        quelist = [l if not l.startswith(str(qsub_file)) else l + f" finished {get_now_str()}" for l in quelist]
-                    else: # failed
-                        quelist = [l if not l.startswith(str(qsub_file)) else l + f" failed {get_now_str()}" for l in quelist]
-                    continue
-                running += 1
-                print("qsub running:",line)
-                qnow.append(line)
-            with open(qsub_now_path, "w") as f:
-                for line in qnow:
-                    f.write(line + "\n")
-        isub=0            
-        if running < args.maxqsub:
-            quelist = read_quelist(quelist_path)
-            nsub=args.maxqsub - running
+        # new submission
+        print()
+        isub=0
+        if submitted < args.maxqsub:
+            nsub=args.maxqsub - submitted
             isub=0
-            for i, line in enumerate(quelist):
-                #print("quelist line:",i,line)
-                if "started" not in line and "finished" not in line and "failed" not in line:
+            for i, line in enumerate(quelist): #print("quelist line:",i,line)
+                if "finished" not in line and "started" not in line: # and "finished" not in line and "failed" not in line:
                     qsub_file  = line.split(" ")[0]
-                    remote_qsub_file = qsub_file.replace(str(local_date_dir), remote_date_dir, 1)
+                    remote_qsub_file = str(qsub_file).replace(str(local_date_dir), remote_date_dir, 1)
                     submit_cmd = f"qsub {remote_qsub_file}"
-                    jobid = ssh_cmd(remote_date_dir, submit_cmd, user, remotehost) #jobid : qsubの戻り値
-                    if(jobid==None): break
-                    print("qsub submission: ",jobid, remote_qsub_file, ' LOCAL=',qsub_file)
-                    quelist[i] = line + f" started@{get_now_str()}"
-                    with open(qsub_now_path, "a") as f:
-                        f.write(f"{jobid} {qsub_file} ! jobid qsub_file\n")
-                    with open(qsub_log_path, "a") as f:
-                        f.write(f"{jobid} {qsub_file} started@{get_now_str()}\n")
+                    jobid = ssh_cmd(remote_date_dir, submit_cmd, user, remotehost) #jobid : qsub jobid
+                    if(jobid==None): 
+                        print(f'submission failed. skip {submit_cmd}')
+                        continue
+                    print("qsub submission: ",jobid, remote_qsub_file, '\n                  LOCAL=',qsub_file)
+                    quelist[i] = line + f" started@{get_now_str()}@{jobid}"
                     isub=isub + 1
                     if(isub >= nsub): break
-            if(isub>0): write_quelist(quelist_path, quelist)
-            print("quelist:", len(quelist))
-        print("running  :", running)
-        print("submitted:", isub)
-
-        #with open(qsub_now_path) as f:
-        #    lines=f.readlines()
-        #    print("qqqqqqq222 qsub_now_path:",qsub_now_path,len(lines),lines)
-
-        # 6. rsync from remote to local
-        print()
-        if(len(qsub_now_path.read_text())==0): # 5. qsub.nowが空なら終了
-            rsync(local_date_dir, remote_date_dir, user, remotehost, to_remote=False, includes=["*/","*out*", "*finished*"])
-            print('REMOTE:',str(remote_date_dir))
-            print('LOCAL:',str(local_date_dir)+"/quelist:")
-            quelist = read_quelist(quelist_path)
-            for line in quelist:
-                print('quelist:',line)
-            break         
-        # 7. rsync from local to remote
+        if(isub>0): print()
+        print("quelist          :", len(quelist))
+        print("quelist done     :", nfinished)
+        print("qsubmax            :", args.maxqsub)
+        print("  submitted        :", submitted)
+        print("  newly submitted  :", isub)         #print("running actually:", running)
+        write_quelist(quelist_path, quelist) 
+        
+        if all("finished" in line for line in quelist): 
+            rsync(local_date_dir, remote_date_dir, user, remotehost, to_remote=False, includes=
+              ["*/","*out*", "*finished*", "llmf*","ctrl*","save*","atmpnu*","rst*"])
+            print('REMOTE:', remote_date_dir)
+            print('LOCAL :', str(local_date_dir)+"/quelist:")
+            print(f'--- OK! all jobs finished. rsync done. Check {quelist_path} !')
+            break #exit while loop
+        print('waiting...')
         time.sleep(interval)
         iter=iter+1 #        if(iter==10): break
 

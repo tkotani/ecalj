@@ -6,9 +6,9 @@ import argparse
 def main(base_dir):
     
     # POSCARALLディレクトリのパス
-    poscarall_dir = Path(base_dir)        / "init" / "POSCARALL"
-    qsub_file = Path(base_dir)            / "init" / "qsub.0"
-    qsub_dependency_file = Path(base_dir) / "init" / "qsub.dependency.0"
+    poscarall_dir = Path(base_dir)        / "init0" / "POSCARALL"
+    qsub_file = Path(base_dir)            / "init0" / "qsub.0"
+    qsub_dependency_file = Path(base_dir) / "init0" / "qsub.dependency.0"
     
     # 必要なファイルやディレクトリが存在するか確認
     if not poscarall_dir.exists():
@@ -32,15 +32,15 @@ def main(base_dir):
         
         # POSCAR.foobarファイルをコピー
         shutil.copy(poscar_file, target_dir / poscar_file.name)
-        print(f"Copied {poscar_file} to {target_dir / poscar_file.name}")
+        #print(f"Copied {poscar_file} to {target_dir / poscar_file.name}")
         
         # qsub.0ファイルをコピー
         shutil.copy(qsub_file, target_dir / "qsub.0")
-        print(f"Copied {qsub_file} to {target_dir / 'qsub.0'}")
+        print(f"Copied {qsub_file} to {target_dir / 'qsub.0 ...'}")
         
         # qsub.dependency.0ファイルをコピー
         shutil.copy(qsub_dependency_file, target_dir / "qsub.dependency.0")
-        print(f"Copied {qsub_dependency_file} to {target_dir / 'qsub.dependency.0'}")
+        #print(f"Copied {qsub_dependency_file} to {target_dir / 'qsub.dependency.0'}")
 
 if __name__ == "__main__":
     # コマンドライン引数からベースディレクトリを取得
