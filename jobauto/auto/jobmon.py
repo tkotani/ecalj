@@ -15,7 +15,7 @@ def replace_in_file(filepath, replacements):
 
 def rsync(local, remote, user, remotehost, to_remote=True, includes=None, verbose=False, retries=200, timeout=300):
     """Rsync between local and remote with retry and timeout."""
-    base_cmd = ["rsync", "-avz", "--timeout", str(timeout)]
+    base_cmd = ["rsync", "-e", "ssh -x", "-avz", "--timeout", str(timeout)]
     if includes:
         for inc in includes:
             base_cmd += ["--include", inc]
@@ -50,7 +50,7 @@ def rsync(local, remote, user, remotehost, to_remote=True, includes=None, verbos
 
 def ssh_cmd(remote_dir, cmd, user, remotehost, retries=1000, timeout=60):
     """Run a command on the remote server with retry and timeout. Returns first number found in output."""
-    ssh_command = f"ssh {user}@{remotehost} 'cd {remote_dir} && {cmd}'"
+    ssh_command = f"ssh -x {user}@{remotehost} 'cd {remote_dir} && {cmd}'"
     #print("ssh_cmd:", ssh_command)
     for attempt in range(retries):
         try:
@@ -92,7 +92,7 @@ def write_quelist(quelist_path, lines):
             
 def ssh_mkdir(remote_dir, user, remotehost):
     """Create remote directory if it does not exist."""
-    ssh_command = f"ssh {user}@{remotehost} 'mkdir -p {remote_dir}'"
+    ssh_command = f"ssh -x {user}@{remotehost} 'mkdir -p {remote_dir}'"
     subprocess.run(ssh_command, shell=True, check=True)
 
 def main():
