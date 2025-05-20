@@ -2,26 +2,25 @@
 
 ### preparation at kugui
 We use kugui. (or ucgw in osaka-u)
-At kugui set following lines at .bashrc.
+At kugui, set following lines at `.bashrc`. This is usually configured by default.
 ```
-if [ -z "$PS1" ]; then
-    source /etc/profile.d/modules.sh
+if [ -f /etc/profile ]; then
+  . /etc/profile
 fi
-export PATH=/opt/pbs/bin/:$PATH
 ```
 
 ### usage
-At ecalj/jobauto/, run `>tree testSGA`.
+At ecalj/jobauto/, run `ls -R testSGA`
 Then you see init0/ directory.
 qsub.0 is default qsub script.
 All POSCAR is under POSCARALL/
 
-Run
+Look into the bash script `jobtestSGA`.
+You have to custumize this for your purpose.
+After that, run the following command:
 ```
 > ./jobtestSGA 
 ```
-Look into the bash script `jobtestSGA`.
-You have to custumize this for your purpose.
 
 
 ### Mechanism memo. How it works.
