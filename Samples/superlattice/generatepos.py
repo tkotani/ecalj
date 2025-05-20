@@ -61,7 +61,7 @@ def superlattice(lattice1,lattice2, h1,h2):
     # That is the bondary between GaSb layer and InAs layer contains GaAs and InSb bonds--> In this case,
     # we take an average of the two bulk materials GaAs and InSc.
     '''
-    Generate a superlattice structure based on the given parameters.
+    Generate superlattice structures based on the given parameters.
     lattice1: str, first lattice name (e.g. 'InAs')
     lattice2: str, second lattice name (e.g. 'GaSb')
     h1: int, number of layers in the first lattice

@@ -167,7 +167,7 @@ def main():
 
 # get files already
     rsync(local_date_dir, remote_date_dir, user, remotehost, to_remote=False, includes=
-    ["*/","*out*", "*finished*", "llmf*","ctrl*","save*","atmpnu*","rst*"])
+    ["*/","*out*", "*finished*", "llmf*","ctrl*","save*","atmpnu*","rst*"],verbose=not quiet)
 
     if args.initonly:
         print("Initialization of  qsub.0 (--initonly). Exiting.")
@@ -191,7 +191,7 @@ def main():
         print(f"remote_date_dir= {remote_date_dir}")         
         print(f"local_date_dir = {local_date_dir}")
         # rsync from remote to local          
-        rsync(local_date_dir, remote_date_dir, user, remotehost, to_remote=False, includes=["*/","*finished*"],verbose=not quiet)
+        rsync(local_date_dir, remote_date_dir, user, remotehost, to_remote=False, includes=["*/","save*","*finished*"])#,verbose=not quiet)
          
         # Add submittable qsub to the end of quelist. Check dependency.
         for dep_file in local_date_dir.rglob("qsub.dependency.*"):
