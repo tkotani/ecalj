@@ -170,7 +170,8 @@ subroutine hx0fp0()
   integer,allocatable ::  invgx(:) 
   integer:: k
   complex(8),allocatable:: ppovl_(:,:)
-  logical:: readw0w0itest=.false.,hx0,cmdopt0
+  logical:: readw0w0itest=.false.,hx0
+  logical,external::cmdopt0
   integer:: ifq0p,ifwc,ifif,ierr,iqxx,ifi0,npr
   real(8),allocatable:: ekxx1(:,:),ekxx2(:,:)
   logical:: cmdopt2
