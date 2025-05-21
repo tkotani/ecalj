@@ -1,6 +1,6 @@
 __HEADER__
 
-py=__pythonpath__/
+py=__pythonpath__
 EXE=__binpath__/  
 CWD=__cwd__/
 MATERIAL=__jobname__

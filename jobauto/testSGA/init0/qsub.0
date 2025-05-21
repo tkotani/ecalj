@@ -1,6 +1,6 @@
 __HEADER__
 
-py=__pythonpath__/
+py=__pythonpath__
 EXE=__binpath__/  
 CWD=__cwd__/
 MATERIAL=__jobname__
@@ -19,6 +19,9 @@ cp $CWD/ctrlgenM1.ctrl.$MATERIAL ctrl.$MATERIAL
 rm *.tmp *.tmp2
 mpirun -np 1 $EXE/lmchk $MATERIAL >& llmchk
 mpirun -np 1 $EXE/lmfa  $MATERIAL >& llmfa
-mpirun -np $MAXCORE $EXE/lmf $MATERIAL >& $CWD/llmf
+# a test for automatic k generation. See kauto.py
+nklist=`$py $EXE/kauto.py --bindir=$EXE --material $MATERIAL --n 6|tail -n 1`
+echo 'nklist='$nklist
+mpirun -np $MAXCORE $EXE/lmf $MATERIAL $nklist >& $CWD/llmf
 
 echo "$(date +'%Y-%m-%d %H:%M:%S') Job completed" > $CWD/qsub.finished.0

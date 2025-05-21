@@ -117,12 +117,12 @@ subroutine bzmesh(plat,qb,ifac,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx)! Divides 
         write(stdo,"(i5,2x,3f12.6,i10,1x,a,f14.6)") iq,qp(1,iq),qp(2,iq),qp(3,iq),iwgt,chr(ii),abs(wgt(iq))
      enddo
   endif
-  if(cmdopt0('--kchk')) call rx0('kchk finished: mesh is compatible for symmetry')
+  if(cmdopt0('--kchk')) call rx0('kchk finished: mesh is compatible for spg symmetry')
   return
 9999 continue
   open(newunit=ifi,file='bzmesh.'//trim(sname)//'.err')
   write(ifi,*)'BZMESH: symops incompatible with this mesh'
   close(ifi)
-  if(cmdopt0('--kchk')) call rx0('kchk finished: mesh is not compatible for symmetry')
+  if(cmdopt0('--kchk')) call rx0('kchk finished: mesh is not compatible for spg symmetry')
   call rx('BZMESH: symops incompatible with this mesh')
 end subroutine bzmesh
