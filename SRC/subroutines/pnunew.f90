@@ -2,7 +2,7 @@ subroutine pnunew(eferm) != Makes new boundary conditions pnu for phi,phidot =
   use m_lmfinit,only: z_i=>z,nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,spec_a
   use m_ftox
   use m_MPItk,only: master_mpi
-  use m_lmfinit,only:nbas,nsp,ispec,ham_frzwf,idmodis=>idmod,slabl, pmin,pmax,n0,frzwfa,pnufix
+  use m_lmfinit,only:nbas,nsp,ispec,ham_frzwf,idmodis=>idmod,slabl, pmin,pmax,n0,frzwfa,pnufix,phispinsym
   use m_mkrout,only: hbyl=>hbyl_rv,qbyl=>qbyl_rv
   use m_lgunit,only:stdo
   use m_atwf,only: phidx
@@ -48,7 +48,7 @@ subroutine pnunew(eferm) != Makes new boundary conditions pnu for phi,phidot =
   character spid*8
   integer ::iwdummy ,i_copy_size,nnz,nnv
   real(8):: eferm,eee
-  logical:: lsemicorepz,phispinsym,cmdopt0
+  logical:: lsemicorepz,cmdopt0
   real(8):: pmean
   character strn*120
   call tcn('pnunew')
@@ -207,7 +207,7 @@ subroutine pnunew(eferm) != Makes new boundary conditions pnu for phi,phidot =
               if (ipr>40) write(stdo,"(i2,i2,i6,'      ---   ',6f12.6)")l,isp,idmod(m),ez,pold,ptry,pfree,pnz(m,isp)
            endif
         enddo isploop
-        phispinsym= cmdopt0('--phispinsym') !! spin averaged pnu takaoAug2019
+        !phispinsym= cmdopt0('--phispinsym') !! spin averaged pnu takaoAug2019
         if(phispinsym) then
            if(ib==1.and.ipr>0.and.m==lmxa+1) write(stdo,*)'pnunew: --phispinsym enforces spin-averaged pnu' 
            pmean = sum(pnu(m,1:nsp))/nsp

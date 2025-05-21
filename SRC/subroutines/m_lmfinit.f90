@@ -23,7 +23,7 @@ module m_lmfinit ! 'call m_lmfinit_init' sets all initial data from ctrl are pro
        lrlxr,nkillr,nitrlx, broyinit,nmixinit,killj ,&
        ham_pwmode,ham_nlibu, nlmax,lfrce,ham_nbf,ham_lsig,bz_nabcin(3)=NULLI, bz_ndos,ldos, lmaxu,nlibu,nlmxlx
   logical,public,protected :: ham_frzwf,ham_ewald, lhf,bz_tetrahedron, addinv,&
-       readpnu,v0fix,pnufix,bexist,rdhessr, lpztail=.false., afsym !, readpnuskipf
+       readpnu,v0fix,pnufix,bexist,rdhessr, lpztail=.false., afsym,phispinsym !, readpnuskipf
   real(8),public,protected:: pmin(n0)=0d0,pmax(n0)=0d0,tolft,scaledsigma, ham_oveps,ham_scaledsigma, cc,&!speed of light
        dlat,alat=NULLR,dalat=NULLR,vol,avw,vmtz(mxspec)=-.5d0,&
        bz_efmax,bz_zval,bz_fsmom,bz_semsh(10),zbak,bz_range=5d0,bz_dosmax,&
@@ -193,6 +193,7 @@ contains
       call rval2('HAM_PWMODE',rr=rr, defa=[real(8):: 0]);  pwmode=nint(rr)
       call rval2('HAM_PWEMAX',rr=rr, defa=[real(8):: 0]);  pwemax=rr
       call rval2('HAM_READP', rr=rr, defa=[real(8):: 0]); readpnu= nint(rr)==1
+      call rval2('HAM_PHISPINSYM', rr=rr, defa=[real(8):: 0]); phispinsym= nint(rr)==1 !spin symmetric radial function
 !      call rval2('HAM_READPSKIPF', rr=rr, defa=[real(8):: 1]); readpnuskipf= nint(rr)==1
       call rval2('HAM_V0FIX', rr=rr, defa=[real(8):: 0]); v0fix =  nint(rr)==1
       call rval2('HAM_PNUFIX',rr=rr,defa=[real(8):: 0]); pnufix=  nint(rr)==1
@@ -345,7 +346,8 @@ contains
       endif
       call tcinit(io_tim(2),io_tim(1),levelinit) !Start tcn (timing monitor) 
       call tcn('m_lmfinit') 
-!      lcd4 = merge(T,F,prgnam/='LMFA')
+      !      lcd4 = merge(T,F,prgnam/='LMFA')
+      if(cmdopt0('--phispinsym'))phispinsym = .true.
       if(sum(abs(socaxis-[0d0,0d0,1d0])) >1d-6 .AND. (.NOT.cmdopt0('--phispinsym'))) &
            call rx('We need --phispinsym for SO=1 and HAM_SOCAXIS/=001. Need check if you dislike --phispinsym.')
       !TK found --phispinsym (the same radialfunctions for both spins) caused a problem to determine required number of nodes for NiO(LDA). 2023sep.

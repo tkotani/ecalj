@@ -3,7 +3,7 @@ module m_locpot
   use m_ftox
   use m_lmfinit,only: z_i=>z,nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,lmxb_i=>lmxb,lmxl_i=>lmxl,spec_a,kmxt_i=>kmxt,rg_i=>rg,nlmxlx
   use m_ll,only:ll
-  use m_lmfinit,only: lmxax,nsp,nbas
+  use m_lmfinit,only: lmxax,nsp,nbas,phispinsym
   use m_MPItk,only: master_mpi
   use m_lgunit,only:stdo
   use m_vxcatom,only: vxcnsp
@@ -77,7 +77,7 @@ contains
          qcorg,qcorh,qsc,cofg,cofh,qsca,rg,qv, qloc,qlocc,xcor, aloc,alocc,rs3,vmtz,qcor(2),qc0,qsc0, ov0mean,pmean
     real(8),target::hab(3,3,n0,nsp,nbas),vab(3,3,n0,nsp,nbas),sab(3,3,n0,nsp,nbas)
     character spid*8
-    logical :: lfltwf,phispinsym,cmdopt0,readov0,v0write,novxc
+    logical :: lfltwf,cmdopt0,readov0,v0write,novxc
     real(8),pointer:: pnu(:,:),pnz(:,:)
     real(8),allocatable:: wk(:),efg(:,:),zz(:)
     logical,save:: secondcall=.false.
@@ -170,7 +170,7 @@ contains
            if(cmdopt0('--wpotmt'))call wrhomt('vtrue.','potential',ib,v1,rofi,nr,nlml,nsp)! Write true potential to file vtrue.ib
            if(lfltwf) v0pot(ib)%v(1:nr,1:nsp) = y0*v1out(1:nr,1,1:nsp) ! Update the potential used to define radial basis set
            phispinsymB: block ! spin averaged oV0 to generate phi and phidot. takaoAug2019
-             phispinsym= cmdopt0('--phispinsym')
+             !phispinsym= cmdopt0('--phispinsym')
              if(phispinsym) then
                 if(master_mpi.AND.nsp==2)write(6,*) 'locpot: --phispinsym mode: use spin-averaged potential for phi and phidot'
                 do ir =1,nr
