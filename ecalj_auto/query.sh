@@ -13,6 +13,9 @@ exit
 #./auto/mpquery.py --nsites 2 3 --fname joblist_nsites3 --dir=testSGA_nsite23
 
 ### gw1000 ###
+./auto/mpquery.py --dir=gw1500 --nsites 1 8 --fname joblist
+
+exit
 #./auto/mpquery.py --dir=$dir/default
 ./auto/mpquery.py --dir=gw1000
 ./auto/mpquery.py --dir=gw1500 --nsites 1 8 
