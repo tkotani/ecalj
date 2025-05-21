@@ -8,6 +8,7 @@ program main
   integer:: ierr,comm,procid
   call mpi_init(ierr)
   comm = MPI_COMM_WORLD
+!  call MPI_Comm_set_errhandler(comm, MPI_ERRORS_RETURN, ierr)
   call mpi_comm_rank(comm, procid, ierr )
   call setcmdpath()
   call m_setargs()
