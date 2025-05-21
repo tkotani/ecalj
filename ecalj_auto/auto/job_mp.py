@@ -166,17 +166,17 @@ for i in joblist:
     num_dir.mkdir(exist_ok=True)
     starttime=datetime.datetime.now()
     ordering = job_dict.get(i, '')
-    k = args.koption
-    print(' koption=',k)    #kitmx=3    #for kadd in range(kitmx): # k point choices. Need fixing.
+    koption = args.koption
+    print(' koption=',koption)    #kitmx=3    #for kadd in range(kitmx): # k point choices. Need fixing.
     calc = creplot.Calc(num,args.epath,args.ncore)
-    kkoption = [40, k] #40 is number of max iterations
+    nitmax=40
     with change_directory(num_dir): #go into material directory
         ### LDA
         if Path('LDA').exists():
             print('LDA calc. is already done! skip LDA calc. and go to QSGW calc.')
             pass
         else:
-            out_LDA, errcode = calc.run_LDA(args,args.apikey,kkoption,ordering,args.poscar,dict_errcode)
+            out_LDA, errcode = calc.run_LDA(args,args.apikey,koption,nitmax,ordering,args.poscar,dict_errcode)
             # lmxa6 removed.
             if errcode == 1: # something wrong in k-mesh. run calc. again
                 #if kadd== kitmx: # if the last k-mesh, save the result and go next

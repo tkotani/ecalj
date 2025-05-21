@@ -26,7 +26,7 @@ def kauto(n): #https://www.vasp.at/wiki/index.php/KPOINTS
     #nnn= [max(        (R_k*x+.5),1) for x in absQlat]
     return(nnn)
 if __name__=='__main__':
-    n=6
+    n=8
     nnn=kauto(n)
     print(nnn)
     sys.exit()

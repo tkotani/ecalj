@@ -8,6 +8,7 @@ import change_k
 import pandas as pd
 from contextlib import contextmanager
 
+import kauto
 
 @contextmanager
 def change_directory(path):
@@ -185,12 +186,11 @@ class Calc:
                 jjob = [self.epath/job, self.num, '-np', self.ncore, 'NoGnuplot'] + self.option_bnd
                 run_command(jjob, out=file_out)
 
-    def run_LDA(self, args, key,  koption, ordering, path_poscar, errcode): #lmxa6 need to be given at ctrlgenM1.py
+    def run_LDA(self, args, key,  koption,nitmax, ordering, path_poscar, errcode): #lmxa6 need to be given at ctrlgenM1.py
         print('---- run_LDA -----------------')
         num = self.num
         epath = self.epath
         print(Path.cwd())
-        
         ### lmfa
         if Path(f'atm.{num}').exists(): #if already lmfa is finished
             pass
@@ -233,17 +233,18 @@ class Calc:
 
         ### Get k_mesh from input koption
         print('GotoGetkmesh aaaaaaaaaaaa',args.kkmesh)
-        if(args.kkmesh is not None):
-            print('args.kkmesh111=',args.kkmesh)
-            self.k_points = args.kkmesh[:3]
-        else:    
-            print('args.kkmesh222=',args.kkmesh)
-            self.k_points = change_k.get_kpoints([koption[1]] * 3)
+        # if(args.kkmesh is not None):
+        #     print('args.kkmesh111=',args.kkmesh)
+        #     self.k_points = args.kkmesh[:3]
+        # else:    
+        #     print('args.kkmesh222=',args.kkmesh)
+        #     self.k_points = change_k.get_kpoints([koption[1]] * 3)
+        self.k_points = kauto.kauto(koption)
         print('k-mesh for lmf: nk1nk2nk3=', self.k_points)
 
         if self.k_points is None:
             return 'ERROR: PlatQplat.chk in lmfa', errcode['ctrl']
-        self.option_lmf = '-vnit={} -vnk1={} -vnk2={} -vnk3={}'.format(koption[0], *self.k_points).split() #+ koption[2:]
+        self.option_lmf = '-vnit={} -vnk1={} -vnk2={} -vnk3={}'.format(nitmax, *self.k_points).split() #+ koption[2:]
         kkk = 'nk1={} nk2={} nk3={}'.format(*self.k_points)
 
         ### Initial Run lmf
@@ -263,10 +264,10 @@ class Calc:
             bzmeshc=False
             if(os.path.exists('bzmesh.'+num+'.err')):
                 os.remove('bzmesh.'+num+'.err')
-                self.k_points = [koption[1]] * 3
+                self.k_points = [kauto.kauto(koption)[0]] * 3
                 kkk = 'nk1={} nk2={} nk3={}'.format(*self.k_points)
                 print('kmesh changed ---')
-                self.option_lmf = '-vnit={} -vnk1={} -vnk2={} -vnk3={}'.format(koption[0], *self.k_points).split() #+ koption[2:]
+                self.option_lmf = '-vnit={} -vnk1={} -vnk2={} -vnk3={}'.format(nitmax, *self.k_points).split() #+ koption[2:]
                 bzmeshc=True
             while ( self.const_b > 0.05): #bmix reducing
                 if not bzmeshc: 
@@ -299,8 +300,7 @@ class Calc:
             self.option_bnd.append('-vssig=0.8')
         if not self.k_points:
             self.k_points_from_ctrl()
-            if not self.k_points:
-                return 'ERROR: something wrong in ctrl'
+            if not self.k_points:  return 'ERROR: something wrong in ctrl'
         if not self.gap_LDA:
             self.gap_LDA = self.run_plot('LDA')
         if(args.kkmesh is not None):
