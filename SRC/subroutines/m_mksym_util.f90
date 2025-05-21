@@ -40,9 +40,10 @@ contains
     logical:: symfind
     ifind = index(ssymgr,'find')
     gens = ssymgr
+    symfind = ifind>0
     if(ifind>0) gens= ssymgr(1:ifind-1)//' '//ssymgr(ifind+4:)
     if(master_mpi) write(stdo,*)' Generators except find: ',trim(gens)
-    symfind = ifind>0
+    if(master_mpi) write(stdo,*)' Generators find or not: ',symfind
     call gensym(slabl,gens,symfind,nbas,nspec,ngmx,plat,plat,rv_a_opos(:,1:nbas),iv_a_oips, & !Generate space group ops
          nsgrp, rv_a_osymgr,rv_a_oag, ngen,gen,ssymgr, nggen,isym,iv_a_oistab)
     if(nggen>ngmx) call rx('mksym: nggen>ngmx')
@@ -236,7 +237,8 @@ contains
     ag=0d0
     g(:,:,1)=reshape(e,[3,3])
     ng = 1
-    igenloop: do  80  igen = 1, ngen !For each generator, do ---  write(stdo,ftox)'do80',igen,ftof(gen(1:9,igen),3),'  ',ftof(agen(:,igen),3)
+    igenloop: do 80 igen=1, ngen
+       write(stdo,ftox)'Generator: ',igen,ftof(reshape(gen(:,:,igen),shape=[9]),3),'  ',ftof(agen(:,igen),3)
        call spgcop(gen(:,:,igen),agen(:,igen),sig,asig)
        do ig = 1, ng ! --- Extend the group by all products with sig ----
           if (spgeql(g(:,:,ig),ag(:,ig),sig,asig,qb)) then

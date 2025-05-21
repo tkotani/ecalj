@@ -11,11 +11,11 @@ mixbeta 0.3
 ! ##### From GWIN0 ################ 
 n1n2n3  4 4 4  ! for BZ meshing in GW, Wannier function and cRPA
 QpGcut_psi 3.5  !(See unit_2pioa for unit) |q+G| cutoff for eigenfunction.
-QpGcut_cou 2.5  !(See unit_2pioa for unit) |q+G| cutoff for Coulomb and W.
+QpGcut_cou 3.0  !(See unit_2pioa for unit) |q+G| cutoff for Coulomb and W.
 unit_2pioa off ! off --> a.u.; on--> unit of QpGcut_* are in 2*pi/alat 
 alpha_OffG 1.0 !(a.u.) Used in auxially function in the offset-Gamma method.
 !emax_chi0  999 !(Ry) emax cutoff for chi0  (Optional)
-emax_sigm  2.5  !(Ry)  emax cutoff for Sigma
+emax_sigm 3 !(Ry)  emax cutoff for Sigma
  
 ! ##### FREQUENCIES from GWIN_V2 ################ 
 HistBin_dw    1d-5 ! 1d-5 is fine mesh (good for metal?) !(a.u.) BinWidth along real axis at omega=0.
@@ -28,11 +28,11 @@ niw      10   ! Number of frequencies along Im axis. Used for integration to get
 delta  -1d-6  !(a.u.)  Broadening of x0. negative means tetrahedron method.
               ! used by hx0fp0. You get smeard x0 witth abs(delta).
 deltaw  0.02  !(a.u.) Mesh for numerical derivative to get the Z factor
-esmr   0.03  !(Ry) used by hsfp0. Keep esmr smaller than band gap for insulators
+esmr   0.01  !(Ry) used by hsfp0. Keep esmr smaller than band gap for insulators
               ! Poles of G^LDA are treated as if they have width esmr in hsfp0. 
               ! Change esmr for metals.  See DOSACC*---especailly around Ef.
 GaussSmear on ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr for hsfp0.
-GaussianFilterX0 0.05
+GaussianFilterX0 0.01
  
 ! ################################################# 
 <PRODUCT_BASIS> 
