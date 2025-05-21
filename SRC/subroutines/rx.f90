@@ -6,7 +6,8 @@ subroutine rx(string) !error exit
   integer::ierr
   character*(*) string
   write(stdo,*) trim(string)
-  write(error_unit,*) trim(string)
+!  write(error_unit,*) trim(string)
+  flush(stdo)
   call MPI_Abort(COMM, 11,ierr)
 end subroutine rx
 subroutine rxi(string,iarg) ! Error exit, with a single integer at end

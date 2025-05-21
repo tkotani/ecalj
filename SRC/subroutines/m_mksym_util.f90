@@ -3,6 +3,7 @@ module m_mksym_util
   use m_lgunit,only:stdo
   use m_ftox
   use m_nvfortran,only: findloc
+  use m_mpitk,only: master_mpi
   public mksym,mptauof,rotdlmm
   private
   real(8),parameter:: toll=1d-4,tiny=1d-4,epsr=1d-12
@@ -12,7 +13,6 @@ contains
   subroutine mksym(modeAddinversion,slabl,ssymgr,iv_a_oips, iclass,nclass,npgrp,nsgrp,rv_a_oag,rv_a_osymgr,iv_a_oics,iv_a_oistab)! Setup symmetry group. Split species into classes, Also assign class labels to each class
     use m_lmfinit,only: nbas,nspec
     use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat,rv_a_opos
-    use m_mpitk,only: master_mpi
     implicit none
     intent(in)::   modeAddinversion,slabl,ssymgr,iv_a_oips
     intent(out)::                                            iclass,nclass,npgrp,nsgrp,rv_a_oag,rv_a_osymgr,iv_a_oics,iv_a_oistab
@@ -238,7 +238,7 @@ contains
     g(:,:,1)=reshape(e,[3,3])
     ng = 1
     igenloop: do 80 igen=1, ngen
-       write(stdo,ftox)'Generator: ',igen,ftof(reshape(gen(:,:,igen),shape=[9]),3),'  ',ftof(agen(:,igen),3)
+!       if(master_mpi) write(stdo,ftox)'Generator: ',igen,ftof(reshape(gen(:,:,igen),shape=[9]),3),'  ',ftof(agen(:,igen),3)
        call spgcop(gen(:,:,igen),agen(:,igen),sig,asig)
        do ig = 1, ng ! --- Extend the group by all products with sig ----
           if (spgeql(g(:,:,ig),ag(:,ig),sig,asig,qb)) then

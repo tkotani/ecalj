@@ -1,6 +1,8 @@
 subroutine bzmesh(plat,qb,ifac,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx)! Divides the reciprocal lattice into microcells
   use m_lgunit,only:stdo
   use m_ext,only: sname
+  use m_ftox
+  use m_mpitk,only: master_mpi
   !i  plat     :primitive lattice vectors
   !i  n1,n2,n3 :no. divisions for the 3 recip. latt. vecs; (see Remarks)
   !i  g,ng     :symmetry point group operations, and number
@@ -38,6 +40,7 @@ subroutine bzmesh(plat,qb,ifac,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx)! Divides 
   integer :: i1,i2,i3,ifac(3),ig,igcnt,ii,ii1,ii2,ii3,ipr,iq,is(3),iwgt,jj(3),lgunit,m1,m2,m3,ndmx,nnn(3),mmm(3),ifi
   double precision :: w0,swgt,v(3),v1(3),rb(3,3),xx(3)
   character(1) :: chr(0:2)
+  logical,external:: cmdopt0
   real(8):: tolq
   call getpr(ipr)
   bzmesh0: block
@@ -66,43 +69,40 @@ subroutine bzmesh(plat,qb,ifac,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx)! Divides 
   nnn = [n1,n2,n3]
   mmm = 6*nnn*ifac
   i3loop: do 23 i3=0,n3-1 !For each of (n1*n2*n3) qp, find irreducible set ---
-     do 22      i2=0,n2-1
-        do 21   i1=0,n1-1   
-           if(ipq(i1+1,i2+1,i3+1) == 0) then ! Add qp to list if not flagged as symmetry-related to a prior
-              v(:) = matmul(qb(:,:),[i1*ifac(1)+is(1), i2*ifac(2)+is(2), i3*ifac(3)+is(3)])
-              iwgt = 0
-              v1=v
-              igloop: do ig = 1, max(ng,1)
-                 if (ng > 0) v1=matmul(g(:,:,ig),v) 
-                 xx = matmul(v1(:),rb(:,:))-is
-                 jj = nint(xx)
-                 if(sum(abs(xx-jj)) > tolq()) then
-                    write(stdo,"(a,3f9.4,' ',3f9.4)") ' qp mapped to is not on k-mesh',v,v1
-                    write(stdo,"(a,3f9.4,' ',3i5)")   '             x j=',xx,jj(1),jj(2),jj(3)
-                    open(newunit=ifi,file='bzmesh.'//trim(sname)//'.err')
-                    write(ifi,*)'BZMESH: symops incompatible with this mesh'
-                    close(ifi)
-                    call rx('BZMESH: symops incompatible with this mesh')
-                 endif
-                 if(any(lshft(:).AND.mod(abs(jj(:)),2)== 1)) cycle ! discard if shifted off mesh
-                 if(lshft(1)) jj(1) = jj(1)/2 
-                 if(lshft(2)) jj(2) = jj(2)/2
-                 if(lshft(3)) jj(3) = jj(3)/2
-                 jj = mod(jj+2*mmm,nnn) + 1 !Ensure (jj(1),jj(2),jj(3)) in first quadrant of Q
-                 call rxx(any(jj<=0),'neg j in bzmesh')
-                 if(ipq(jj(1),jj(2),jj(3)) == 0) then
-                    ipq(jj(1),jj(2),jj(3)) = nq+1
-                    iwgt = iwgt+1
-                    igcnt = igcnt+1
-                 endif
-              enddo igloop
-              nq = nq+1
-              qp(:,nq) = v
-              wgt(nq) = iwgt*w0
-              swgt = swgt + abs(wgt(nq))
-           endif
-21      enddo
-22   enddo
+    do 22 i2=0,n2-1
+      do 21 i1=0,n1-1   
+        if(ipq(i1+1,i2+1,i3+1) == 0) then ! Add qp to list if not flagged as symmetry-related to a prior
+           v(:) = matmul(qb(:,:),[i1*ifac(1)+is(1), i2*ifac(2)+is(2), i3*ifac(3)+is(3)])
+           iwgt = 0
+           v1=v
+           igloop: do ig = 1, max(ng,1)
+             if (ng > 0) v1=matmul(g(:,:,ig),v) 
+             xx = matmul(v1(:),rb(:,:))-is
+             jj = nint(xx)
+             if(sum(abs(xx-jj)) > tolq()) then
+                write(stdo,"(a,3f9.4,' ',3f9.4)") ' qp mapped to is not on k-mesh',v,v1
+                write(stdo,"(a,3f9.4,' ',3i5)")   '             x j=',xx,jj(1),jj(2),jj(3)
+                goto 9999
+             endif
+             if(any(lshft(:).AND.mod(abs(jj(:)),2)== 1)) cycle ! discard if shifted off mesh
+             if(lshft(1)) jj(1) = jj(1)/2 
+             if(lshft(2)) jj(2) = jj(2)/2
+             if(lshft(3)) jj(3) = jj(3)/2
+             jj = mod(jj+2*mmm,nnn) + 1 !Ensure (jj(1),jj(2),jj(3)) in first quadrant of Q
+             call rxx(any(jj<=0),'neg j in bzmesh')
+             if(ipq(jj(1),jj(2),jj(3)) == 0) then
+                ipq(jj(1),jj(2),jj(3)) = nq+1
+                iwgt = iwgt+1
+                igcnt = igcnt+1
+             endif
+           enddo igloop
+           nq = nq+1
+           qp(:,nq) = v
+           wgt(nq) = iwgt*w0
+           swgt = swgt + abs(wgt(nq))
+        endif
+21    enddo
+22  enddo
 23 enddo i3loop
   if(igcnt/=n1*n2*n3 ) call rx('bug in bzmesh')
   if(abs(swgt-2)>1d-9) call rx1('BZMESH: QP weights sum to ',swgt)
@@ -117,4 +117,12 @@ subroutine bzmesh(plat,qb,ifac,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx)! Divides 
         write(stdo,"(i5,2x,3f12.6,i10,1x,a,f14.6)") iq,qp(1,iq),qp(2,iq),qp(3,iq),iwgt,chr(ii),abs(wgt(iq))
      enddo
   endif
+  if(cmdopt0('--kchk')) call rx0('kchk finished: mesh is compatible for symmetry')
+  return
+9999 continue
+  open(newunit=ifi,file='bzmesh.'//trim(sname)//'.err')
+  write(ifi,*)'BZMESH: symops incompatible with this mesh'
+  close(ifi)
+  if(cmdopt0('--kchk')) call rx0('kchk finished: mesh is not compatible for symmetry')
+  call rx('BZMESH: symops incompatible with this mesh')
 end subroutine bzmesh
