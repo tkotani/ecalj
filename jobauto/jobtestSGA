@@ -33,9 +33,10 @@ EOF
 
 # init0 to init
 echo 'init0 to init:'
-python initposcar.py --ldir=testSGA
+python auto/initposcar.py --ldir=testSGA
 
 # kugui no gpu -qsubheader=qsubheader.kugui2.temp 
+# init/ is copied to date/ and started
 python auto/jobmon.py --user k041303 --remote kugui --pythonpath=/home/k0413/k041303/.local/share/mise/installs/python/3.13.0/bin/python --binpath=/home/k0413/k041303/bin --ldir=testSGA --rdir=/home/k0413/k041303/testSGA --maxqsub=3 --maxcore=4 --quiet --qsubheader=qsubheader.kugui2.temp 
 
 # ucgw

@@ -167,7 +167,7 @@ def main():
 
 # get files already
     rsync(local_date_dir, remote_date_dir, user, remotehost, to_remote=False, includes=
-    ["*/","*out*", "*finished*", "llmf*","ctrl*","save*","atmpnu*","rst*"],verbose=not quiet)
+    ["*/","out*", "*finished*", "llmf*","ctrl*","save*","atmpnu*","rst*","QPU*","QPD*"],verbose=not quiet)
 
     if args.initonly:
         print("Initialization of  qsub.0 (--initonly). Exiting.")
@@ -191,22 +191,29 @@ def main():
         print(f"remote_date_dir= {remote_date_dir}")         
         print(f"local_date_dir = {local_date_dir}")
         # rsync from remote to local          
-        rsync(local_date_dir, remote_date_dir, user, remotehost, to_remote=False, includes=["*/","save*","*finished*"])#,verbose=not quiet)
+        rsync(local_date_dir, remote_date_dir, user, remotehost, to_remote=False, includes=["*/","save*","*finished*","QPU*","QPD*"])#,verbose=not quiet)
          
         # Add submittable qsub to the end of quelist. Check dependency.
         for dep_file in local_date_dir.rglob("qsub.dependency.*"):
+            if dep_file.name.endswith("~"): continue
             id = dep_file.name.split(".")[-1]
             lwork=Path(dep_file).parent
             if lwork == local_date_dir: continue
             qsub_file = lwork / f"qsub.{id}"
+            #print()
             #print(f"Checking dependency file: {dep_file}")
             #print(f"Checking       qsub file: {qsub_file}")
             depok = True
             if dep_file.stat().st_size > 0: # dependency file is not empty
-                with open(dep_file) as f:   
+                with open(dep_file) as f:
                     for line in f: #Check if all files in dependency file exist
-                        fname = line.strip()
-                        if fname and not (local_date_dir / fname).exists():
+                        fname = local_date_dir/lwork/line.strip()
+                        if(line.startswith("not " )): 
+                            fnameN=local_date_dir/lwork/line.strip()[4:]
+                            if fnameN.exists():
+                                depok = False
+                        elif not fname.exists():
+                            #print(f"  Checking content: {fname} ---> not exists. ")
                             depok = False
                             break
             if depok :
@@ -214,13 +221,19 @@ def main():
                     quelist.append(str(qsub_file))
 
         # Add finished to quelist
-        finished = local_date_dir.rglob("qsub.finished.*")
+        finished = list(local_date_dir.rglob("qsub.finished.*"))
+        #print("finished files:", len(list(finished)))
+        #print(f"finished files:, {finished}")
         nfinished=0
         for i,fdir in enumerate(finished):
             nfinished+=1
-            fdir=fdir.parent
-            quelist = [l + f" finished@{get_now_str()}" if l.startswith(str(fdir)) and not 'finished' in l else l  for l in quelist]
-
+            fqdir = str(fdir).replace('.finished','')
+            #print("finished file:",fdir,fqdir)
+            quelist = [l + f" finished@{get_now_str()}" if l.startswith(fqdir) and not 'finished' in l
+                       else l  
+                       for l in quelist]
+        #for line in quelist:
+        #    print(line)
         # number of submitted already
         submitted=0
         for line in quelist: #count numfer of lines in quelist which contains "finished" or "started"

@@ -1,0 +1,16 @@
+# band plot
+__HEADER__gwsc
+
+py=__pythonpath__
+EXE=__binpath__/  
+CWD=__cwd__/
+MATERIAL=__jobname__
+MAXCORE=__maxcore__
+
+cd $CWD
+$EXE/mkGWinput $MATERIAL
+sed -e 's/n1n2n3/n1n2n3 2 2 2 /g' $CWD/GWinput.tmp >$CWD/GWinput
+$EXE/gwsc -np 4 1 $MATERIAL >&out.gwsc
+
+# finished file
+echo "$(date +'%Y-%m-%d %H:%M:%S') Job completed" > $CWD/qsub.finished.1
