@@ -330,7 +330,7 @@ contains
            write(ifi,'(3f10.5)') ((plat(i1,i2)*alat*0.529177208,i1=1,3),i2=1,3)
            write(ifi,'("PRIMCOORD")');   write(ifi,'(2i5)') nbas,1
            do i = 1, nbas
-             write(ifi,'(i4,2x,3f10.5)')z(ispec(i)),(pos(i2,i)*alat*0.529177208,i2=1,3)
+             write(ifi,'(f8.3,2x,3f10.5)')z(ispec(i)),(pos(i2,i)*alat*0.529177208,i2=1,3)
            enddo
            write(ifi,'("BEGIN_BLOCK_DATAGRID_3D")')
            write(ifi,'("charge_density_spin_",i1)') isp
