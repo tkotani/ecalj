@@ -21,7 +21,8 @@ module m_bandcal
   use m_zhev,only: zhev_tk4
   use m_ftox
   use m_hambl,only: hambl
-  use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate,    osmpot,vconst,osig,otau,oppi,ohsozz,ohsopm !main inputs
+  use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate, osmpot,vconst !main inputs
+  use m_locpot,only: osig,otau,oppi,ohsozz,ohsopm !main inputs
   ! outputs ---------------------------
   public m_bandcal_init, m_bandcal_2nd, m_bandcal_clean, m_bandcal_allreduce, m_bandcal_symsmrho
   integer,allocatable,protected,public::     ndimhx_(:,:),nevls(:,:) 

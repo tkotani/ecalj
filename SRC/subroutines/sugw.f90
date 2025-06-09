@@ -17,8 +17,9 @@ contains
     use m_lattic,only: plat=>lat_plat, qlat=>lat_qlat,bas=>rv_a_opos
     use m_supot,only: n1,n2,n3, gmax=>lat_gmax
     use m_rdsigm2,only: getsenex, senex,dsene
-    use m_mkpot,only: smpot=>osmpot, vconst !, vesrmt
-    use m_mkpot,only: osig, otau, oppi, ohsozz,ohsopm, oppix,spotx
+    use m_mkpot,only: smpot=>osmpot, vconst, spotx
+    use m_locpot,only: osig, otau, oppi, ohsozz,ohsopm
+    use m_locpot,only: oppix
     use m_MPItk,only: numproc=>nsize,procid,master,master_mpi,comm
     use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_setiq,ndimhall,nbandmx
     use m_elocp,only: rsmlss=>rsml, ehlss=>ehl

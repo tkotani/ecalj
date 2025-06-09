@@ -53,7 +53,8 @@ contains
     use m_subzi,only: m_subzi_init,m_subzi_bzintegration 
     use m_MPItk,only: master_mpi, strprocid, numprocs=>nsize,xmpbnd2,comm !, procid,master
     use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate, m_mkpot_energyterms,m_mkpot_novxc !  m_mkpot_novxc_dipole,
-    use m_mkpot,only: osmpot, qmom, vconst, osig,otau,oppi, qval , qsc , fes1_rv , fes2_rv, amom
+    use m_mkpot,only: osmpot, qmom, vconst, qval , qsc , fes1_rv , fes2_rv, amom
+    use m_locpot,only: osig,otau,oppi
     use m_clsmode,only: m_clsmode_init,m_clsmode_set1,m_clsmode_finalize
     use m_qplist,only: qplist,nkp,xdatt,labeli,labele,dqsyml,etolc,etolv
     use m_qplist,only: nqp2n_syml,nqp_syml,nqpe_syml,nqps_syml,nsyml,kpproc,iqini,iqend    ! MPIK divider. iqini:iqend are node-dependent
@@ -197,12 +198,14 @@ contains
       nevmin = minval(nevls(1:nkp,1:nspx))
     endblock GetHamiltonianAndDiagonalize
     BROADCASTevlall:block
-      if(afsym) then
-        call xmpbnd2(kpproc,nbandmx,nkp,evlall(:,1,:)) !all eigenvalues are distributed nbandmx blocks
-        call xmpbnd2(kpproc,nbandmx,nkp,evlall(:,2,:)) 
-      else   
-        call xmpbnd2(kpproc,nbandmx,nkp*nspx,evlall)   !all eigenvalues broadcasted !note (iq,isp) order in m_qplist.f90
-      endif
+      integer:: nspxa
+!      if(afsym) then
+!        call xmpbnd2(kpproc,nbandmx,nkp,evlall(:,1,:)) !all eigenvalues are distributed nbandmx blocks
+!        call xmpbnd2(kpproc,nbandmx,nkp,evlall(:,2,:)) 
+!     else
+      nspxa=merge(2,nspx,afsym)
+      call xmpbnd2(kpproc,nbandmx,nkp*nspxa,evlall)   !all eigenvalues broadcasted !note (iq,isp) order in m_qplist.f90
+     !endif
       if(lso==1) call xmpbnd2(kpproc,nbandmx*2,nkp,spinweightsoc)   !all eigenvalues broadcasted
       if(master_mpi) then
         do iq=1,1;do jsp=1,nspx; write(stdl,"('fp evl',8f8.4)")(evlall(i,jsp,iq),i=1,nevls(iq,jsp))
@@ -245,17 +248,17 @@ contains
       if(lmet==0) eferm = (evtop+ecbot)/2d0 !for metal
     endblock GetFermiEnergy
     WriteEfermiFile: if(master_mpi) then
-       if(lmet==0) write(stdo,"(' HOMO; Ef; LUMO =',3f11.6)")evtop,eferm,ecbot
-       open(newunit=ifi,file='efermi.lmf')
-       write(ifi,"(2d24.16, ' # (Ry) Fermi energy and Bias vmag; -vmag/2 +vmag/2 for each spin,')") eferm,vmag
-       write(ifi,"(d24.16, ' # (Ry) Top of Valence')") evtop
-       write(ifi,"(d24.16, ' # (Ry) Bottom of conduction')") ecbot
-       write(ifi,"(2d24.16,' #before: number of electrons total at sites:qval, backg:qbg=')") qval,qbg
-       write(ifi,"(2d24.16,' # band: charge(nup+nspin), mag.mom(nup-ndown)')")qvalm(1), qvalm(2)
-       write(ifi,"(f24.9 , ' # band: band energy sum (eV)=')") sev*rydberg()
-       write(ifi,"(3i10,'    # Used k point to determine Ef')") nkabc
-       write(ifi,"(i6,'# iter CAUTION! This file is overwritten by lmf SC loop')")iter
-       close(ifi)
+      if(lmet==0) write(stdo,"(' HOMO; Ef; LUMO =',3f11.6)")evtop,eferm,ecbot
+      open(newunit=ifi,file='efermi.lmf')
+      write(ifi,"(2d24.16, ' # (Ry) Fermi energy and Bias vmag; -vmag/2 +vmag/2 for each spin,')") eferm,vmag
+      write(ifi,"(d24.16, ' # (Ry) Top of Valence')") evtop
+      write(ifi,"(d24.16, ' # (Ry) Bottom of conduction')") ecbot
+      write(ifi,"(2d24.16,' #before: number of electrons total at sites:qval, backg:qbg=')") qval,qbg
+      write(ifi,"(2d24.16,' # band: charge(nup+nspin), mag.mom(nup-ndown)')")qvalm(1), qvalm(2)
+      write(ifi,"(f24.9 , ' # band: band energy sum (eV)=')") sev*rydberg()
+      write(ifi,"(3i10,'    # Used k point to determine Ef')") nkabc
+      write(ifi,"(i6,'# iter CAUTION! This file is overwritten by lmf SC loop')")iter
+      close(ifi)
     endif WriteEfermiFile
     GenerateTotalDOS: if(master_mpi .AND. (tdos .OR. ldos/=0)) then !   emin=dosw(1) and emax=dosw(2) sets dos range
        dosw(1)= emin-0.01d0                          ! lowest energy limit to plot dos
@@ -319,7 +322,7 @@ contains
       call rx0('Done cls mode:')
     endif CorelevelSpectroscopy2
     if(lso/=0)   call iorbtm() !Write Orbital Moment
-    if(lrout/=0) call m_bandcal_symsmrho()  !Getsmrho_out Symmetrize smooth density ! Assemble output density, energies and forces 
+    if(lrout/=0) call m_bandcal_symsmrho()  !Get smrho_out. Symmetrize smooth density ! Assemble output density, energies and forces 
     WRITEsmrhoTOxsf: if(cmdopt0('--density') .AND. master_mpi) then ! new density mode
        block
          use m_lmfinit,only:z

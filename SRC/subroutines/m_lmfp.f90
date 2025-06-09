@@ -118,11 +118,11 @@ contains
              if(lrout>0) k=iors(iter, 'write')  ! = iors_old ( iter , 'write' ,irs5) ! Write restart file (skip if --quit=band) ---
           endif
           if (maxit<=0) goto 9998 
-          etot(1) = ham_ehf        
-          etot(2) = ham_ehk + eorb !eorb by LDA+U, etot(1) is not the total energy for LDA+U, because vefv1,vefv2 do not include U contributions
           seref   = ham_seref !   ... reference energy supplied from ctrlfile
-          etot(1) = etot(1) - seref
-          if (etot(2)/=0) etot(2) = etot(2) - seref
+          etot = [ham_ehf - seref , ham_ehk + eorb]        
+          !etot(2) = ham_ehk + eorb !eorb by LDA+U, etot(1) is not the total energy for LDA+U, because vefv1,vefv2 do not include U contributions
+          !etot(1) = etot(1) - seref
+          if(etot(2)/=0) etot(2) = etot(2) - seref
           call mpi_barrier(comm,ierr)
           if(master_mpi) then
              hsign= (lhf.or.iatom).and.iter==1
@@ -134,11 +134,12 @@ contains
              !     :3 otherwise
           endif
           call mpibc1_int(lsc,1,'lmfp_lsc') !b
-          if (lsc==2 .AND. ( .NOT. lhf) .AND. maxit>1) lsc = 3
-          if (lsc==1 .AND. lrout>0 .OR. lsc==3) then
-             if (iter >= maxit) lsc = 1
-             if (iter < maxit) lsc = 3
-          endif
+          if(lsc==2 .AND. ( .NOT. lhf) .AND. maxit>1) lsc = 3
+          if(lsc==1 .AND. lrout>0 .OR. lsc==3) lsc=merge(1,3,iter >= maxit)
+          !then
+          !   if (iter >= maxit) lsc = 1
+          !   if (iter < maxit) lsc = 3
+          !endif
           if(master_mpi) flush(stdo)
           if( cmdopt0('--quit=band')) call rx0('lmf-MPIK : exit (--quit=band)')
           if( lsc <= 2) exit  
