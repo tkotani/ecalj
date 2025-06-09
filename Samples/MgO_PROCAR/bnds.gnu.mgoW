@@ -1,5 +1,6 @@
-set terminal postscript enhanced color eps
-set output 'mgoWeight.eps'
+#set terminal postscript enhanced color eps
+set term pdf
+set output 'mgoWeight.pdf'
 set ylab "Energy(Ry*    13.60500)"
 set yra [   -18.00000:    16.00000]
 set xtics ( ""         0.0000000000,\

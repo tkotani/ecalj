@@ -3,7 +3,7 @@ module m_locpot
   use m_ftox
   use m_lmfinit,only: z_i=>z,nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,lmxb_i=>lmxb,lmxl_i=>lmxl,spec_a,kmxt_i=>kmxt,rg_i=>rg,nlmxlx
   use m_ll,only:ll
-  use m_lmfinit,only: lmxax,nsp,nbas,phispinsym
+  use m_lmfinit,only: lmxax,nsp,nbas,phispinsym,nsp
   use m_MPItk,only: master_mpi
   use m_lgunit,only:stdo
   use m_vxcatom,only: vxcnsp
@@ -18,7 +18,7 @@ contains
     subroutine locpot(job,novxc,orhoat,qmom,vval,gpot0, osig,otau,oppi,ohsozz,ohsopm,phzdphz,hab,vab,sab, & 
        vvesat,rhoexc,rhoex,rhoec,rhovxc, valvef,xcore, sqloc,sqlocc,saloc, qval,qsc )
     use m_density,only: v0pot,v1pot,pnzall,pnuall !output
-    use m_lmfinit,only: lxcf,lhh,nkapii,nkaphh,lmaxu,lldau,n0,nppn,nrmx,nkap0,nlmx,nbas,nsp,lso,ispec,frzwfa,lmxax
+    use m_lmfinit,only: lxcf,lhh,nkapii,nkaphh,lmaxu,lldau,n0,nppn,nrmx,nkap0,nlmx,lso,ispec,frzwfa,lmxax
     use m_lmfinit,only: slabl,idu,coreh,ham_frzwf,rsma,alat,v0fix,jnlml,vol,qbg=>zbak,lpzex
     use m_uspecb,only:uspecb
     use m_ldau,only: vorb !input. 'U-V_LDA(couter term)' of LDA+U
@@ -74,8 +74,9 @@ contains
     real(8):: qmom(nlmxlx,nbas) , vval(nlmxlx,nbas),rhoexc(nsp),rhoex(nsp),rhoec(nsp),rhovxc(nsp), &
          qval,sqloc,sqlocc,saloc, valvef,vvesat,xcore,gpot0(nlmxlx,nbas),phzdphz(nppn,n0,nsp,nbas),rhobg,&
          eh(n0,nkap0),rsmh(n0,nkap0), ehl(n0),rsml(n0),z,a,rmt,qc,ceh,rfoc, &
-         qcorg,qcorh,qsc,cofg,cofh,qsca,rg,qv, qloc,qlocc,xcor, aloc,alocc,rs3,vmtz,qcor(2),qc0,qsc0, ov0mean,pmean
-    real(8),target::hab(3,3,n0,nsp,nbas),vab(3,3,n0,nsp,nbas),sab(3,3,n0,nsp,nbas)
+         qcorg,qcorh,qsc,cofg,cofh,qsca,rg,qv, qloc,qlocc,xcor, aloc,alocc,rs3,vmtz,qcor(2),qc0,qsc0, ov0mean,pmean,&
+         vesint(nbas)
+    real(8),target::hab(3,3,n0,nsp,nbas),vab(3,3,n0,nsp,nbas),sab(3,3,n0,nsp,nbas),vesaverage
     character spid*8
     logical :: lfltwf,cmdopt0,readov0,v0write,novxc
     real(8),pointer:: pnu(:,:),pnz(:,:)
@@ -143,11 +144,11 @@ contains
            call radmsh(rmt,a,nr,rofi)
            call radwgt(rmt,a,nr,rwgt)
            if(cmdopt0('--wrhomt'))call wrhomt('rhoMT.','density',ib,orhoat(1,ib)%v,rofi,nr,nlml,nsp) ! Write true density to file rhoMT.ib
-           call locpt2(ib,z,rmt,rg,a,nr,nsp,cofg,cofh, & ! Make potential and energy terms at this site ---
-                ceh,rfoc,lfoc,nlml,qmom(:,ib),vval(:,ib),rofi,rwgt, orhoat(1,ib)%v,orhoat(2,ib)%v,orhoat(3,ib)%v,   gpot0(:,ib), &
+           call locpt2(ib,z,rmt,rg,a,nr,cofg,cofh, & ! Make potential and energy terms at this site ---
+                ceh,rfoc,lfoc,nlml,qmom,vval,rofi,rwgt, orhoat(1,ib)%v,orhoat(2,ib)%v,orhoat(3,ib)%v,   gpot0(:,ib), &
                 rhol1,rhol2,v1,v2,v1es,v2es,&
                 valvs(ib),rhexc(:,ib),rhex(:,ib),rhec(:,ib),rhvxc(:,ib),&
-                valvt(ib),xcor(ib) ,qloc(ib),qlocc(ib),aloc(ib),alocc(ib),gpotb, rhobg,efg(1,ib),ifivesint,lxcf,    v1out) 
+                valvt(ib),xcor(ib) ,qloc(ib),qlocc(ib),aloc(ib),alocc(ib),gpotb, rhobg,efg(1,ib),ifivesint,lxcf, v1out,vesint) 
            ! write density 1st(true) component and counter components.
            if(cmdopt0('--density') .AND. master_mpi .AND. secondcall) then
               write(stdo,"(' TotalValenceChange diff in MT; ib,\int(rho2-rho1)=',i5,f13.5)") ib,qloc(ib)
@@ -266,7 +267,8 @@ contains
               endblock augmatblock
            endif
          endblock locpt2augmat
-      enddo ibloop
+       enddo ibloop
+      vesaverage = sum(vesint)/vol ! Integral of electrostatic potential within MT = \int d^3r (Ves1-Ves2)/vol.
       vvesat = sum(valvs)
       valvef=  sum(valvt)
       sqloc  =  sum(qloc)
@@ -286,11 +288,11 @@ contains
     deallocate(efg,zz)!,rhol1,rhol2,v1,v2,v1es,v2es)
     call tcx('locpot')
   end subroutine locpot
-  subroutine locpt2(ib,z,rmt,rg,a,nr,nsp,cofg,cofh,ceh,rfoc,lfoc, & !- Makes the potential at one site, and associated energy terms.
-       nlml,qmom,vval,rofi,rwgt,rho1,rho2,rhoc,gpot0,&
+  subroutine locpt2(ib,z,rmt,rg,a,nr,cofg,cofh,ceh,rfoc,lfoc, & !- Makes the potential at one site, and associated energy terms.
+       nlml,qmom,vval,rofi,rwgt,rho1,rho2,rhoc,gpot0,&  !See Kotani,Kino,Akai http://dx.doi.org/10.7566/JPSJ.84.034702
        rhol1,rhol2,v1,v2,v1es,v2es,&
        vvesat,rhoexc,rhoex,rhoec,rhovxc, valvef,xcore,qloc, & 
-       qlocc,aloc,alocc,gpotb,rhobg,efg,ifivesint,lxcfun  , v1out) 
+       qlocc,aloc,alocc,gpotb,rhobg,efg,ifivesint,lxcfun, v1out,vesint)  !vesint
     use m_hansmr,only: hansmr,hansmronly
     use m_hansr,only:  hansr
     !i Inputs
@@ -383,18 +385,18 @@ contains
     !r                 vbg= -(4pi/3)*(rmt^2-r^2)*rhobg to v1 and v2
     !r   in spherical components .
     implicit none
-    integer:: nr,nsp,lfoc,nlml,ib, ipr,iprint,i,isp,ilm,l,lxcfun,nglob,nrml, ifivesint
-    real(8):: rofi(nr),rwgt(nr), qmom(nlml),vval(nlmxlx),gpotb(nlml),gpot0(nlml), &
+    integer:: nr,lfoc,nlml,ib, ipr,iprint,i,isp,ilm,l,lxcfun,nglob,nrml, ifivesint
+    real(8):: rofi(nr),rwgt(nr), qmom(nlmxlx,nbas),vval(nlmxlx,nbas),gpotb(nlml),gpot0(nlml), &
          rho1(nr,nlml,nsp),rhol1(nr,nlml,nsp), rho2(nr,nlml,nsp),rho2s(nr,nlml,nsp),rhol2(nr,nlml,nsp), &
          v1(nr,nlml,nsp),v1es(nr,nlml,nsp), v2(nr,nlml,nsp),v2es(nr,nlml,nsp), &
          wk(nr,nlml,nsp),rhoc(nr,nsp), efg(5), z,rmt,rg,a,cofg,cofh,ceh,rfoc,xcore,qloc,qlocc, &
          aloc,alocc,rhoexc(nsp),rhoex(nsp),rhoec(nsp),rhovxc(nsp), valvef,vvesat, rhobg,&
          rhochs(nr),rhonsm(nr),df(0:20),cof(nlml), rhocsm(nr),tmp(nsp),xill(nr),&
          ag2,cof0,fac,qv1,qv2,qcor1,qcor2, r,rep1(nsp),rep2(nsp),rep1x(nsp),rep2x(nsp),rep1c(nsp),rep2c(nsp), &
-         rhves1,rhves2,rmu1(nsp),rmu2(nsp),rvs1,rvs2, rvsm(nsp),rvtr(nsp),samh,sfac,sgpotb,sum1,sum2,sumg,sumh,top, &
+         rmu1(nsp),rmu2(nsp),rvs1,rvs2, rvsm(nsp),rvtr(nsp),samh,sfac,sgpotb,sum1,sum2,sumg,sumh,top, &
          ves1,vales1,vales2,vcpn1,vcpn2,vefv1,vefv2,vesc1,vesc2, &
          vesn1,vesn2,vnucl,vsum,vtr,a1,a2,smrhoc, qs(nsp),ves1int,ves2int, w2(nsp),fl(1,1,1),gnu,gg(nr), &
-         v1out(nr,nlml,nsp),dEdQ(nlml)
+         v1out(nr,nlml,nsp),dEdQ(nlml), vesint(nbas)
     real(8),parameter:: pi = 4d0*datan(1d0),srfpi = dsqrt(4d0*pi),y0 = 1d0/srfpi,pi4=4d0*pi
     logical:: debug=.false.,topl
     call tcn('locpt2')
@@ -422,7 +424,7 @@ contains
     do isp = 1, nsp
        do ilm = 1, nlml
           l = ll(ilm)
-          rhol2(:,ilm,isp)=rho2(:,ilm,isp)+ qmom(ilm) *pi4/df(2*l+1)*sfac*(ag2/pi)**1.5d0 *(2d0*ag2)**l *rofi(:)**l*gg(:)/nsp
+          rhol2(:,ilm,isp)=rho2(:,ilm,isp)+ qmom(ilm,ib) *pi4/df(2*l+1)*sfac*(ag2/pi)**1.5d0 *(2d0*ag2)**l *rofi(:)**l*gg(:)/nsp
        enddo
        rhol2(:,1,isp)= rhol2(:,1,isp) + y0/nsp*rhochs ! rhol2 = n^c_sH,a + Gaussians(qmom) + rho2.  Eq.(30)
        ! caution: Eq(30) has typo. wrong: n^Zc_2,a+... ==> right: n^c_sH,a+...
@@ -450,31 +452,32 @@ contains
       sum2 = srfpi*sum(rwgt*rhol2t(:,1))     !MT charge of \bar{n}^ZcV of 2nd component  Eq.(30)
       if(dabs(sum1-sum2)>1d-6) call rx1('locpt2: sphere not neutral: charge =',sum1-sum2)
       Getv1out: block     
-        call poinsp(z,vval,nlml,v1out,rofi,rhol1t,wk,nr,rvs1,rhves1,  vnucl,vsum)
+        call poinsp(z,vval(:,ib),nlml,rofi,rhol1t,nr, rvs1,v1out)!,  vnucl,vsum)
         ! v1out is with the b.c. vval detemined by \bar{n0}^Zcv. This is needed for pnunew (set energy at the center of gravity).
         if (nsp == 2) v1out(:,:,2)=v1out(:,:,1)
         call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rhol1,lxcfun,rep1,rep1x,rep1c,rmu1,v1out,fl,qs) !v1out is for radial basis and pnu.
         xcore = sum([(sum(rwgt(2:nr)*rhoc(2:nr,isp)*(y0*v1out(2:nr,1,isp)-2d0*z/rofi(2:nr))),isp=1,nsp)]) ! Vin*rhoc
       endblock Getv1out
       v1esv2esgpotb: block
-        call poinsp(0d0,[(0d0,i=1,nlml)],nlml,v2es,rofi,rhol2t,wk,nr,rvs2,rhves2, vnucl,vsum)! Ves[rhol2], Ves=0 at MTboundaries (vval=0).
+        call poinsp(0d0,[(0d0,i=1,nlml)],nlml,rofi,rhol2t,nr, rvs2,v2es) !, vnucl,vsum)! Ves[rhol2], Ves=0 at MTboundaries (vval=0).
         rmax=rofi(nr)
         do ilm = 1,nlml
            l = ll(ilm)
            gpotb(ilm) = pi4/df(2*l+1)*sfac*(ag2/pi)**1.5d0*(2d0*ag2)**l*sum(rwgt*v2es(:,ilm,1)*rofi(:)**l* gg(:) )
-           dEdQ(ilm)  = (gpot0(ilm) - gpotb(ilm))*rmax**l  ! {\cal Q}^V_aL*rmax**l in Eq.(35) 
+           dEdQ(ilm)  = (gpot0(ilm) - gpotb(ilm))*rmax**l  ! dEdQ(L)= {\cal Q}^V_aL *rmax**l in Eq.(35) 
         enddo !NOTE     dEdQ gives the boundariy condition at MT
-        call poinsp(z,  dEdQ,nlml,v1es,rofi,rhol1t,wk,nr,rvs1,rhves1, vnucl,vsum)! v1es-2*z(1/rofi(2:nr)-1/rmt) is the es part of 1st comp. of Eq.(34).
-        call poinsp(0d0,dEdQ,nlml,v2es,rofi,rhol2t,wk,nr,rvs2,rhves2, vnucl,vsum)!                         v2es is the es part of 2nd comp. of Eq.(34).
+        call poinsp(z,  dEdQ,nlml,rofi,rhol1t,nr, rvs1,v1es)!, vnucl,vsum)! v1es - 2*z(1/rofi(2:nr)-1/rmt) is the es part of 1st comp. of Eq.(34).
+        call poinsp(0d0,dEdQ,nlml,rofi,rhol2t,nr, rvs2,v2es)!, vnucl,vsum)! v2es                           is the es part of 2nd comp. of Eq.(34).
         do ilm = 1, nlml ! gpotb = integrals of compensating gaussians times the estatic 2nd component v2es
            l = ll(ilm) 
            gpotb(ilm) = pi4/df(2*l+1)*sfac*(ag2/pi)**1.5d0*(2d0*ag2)**l*sum(rwgt*v2es(:,ilm,1)*rofi(:)**l* gg(:) )
-        enddo
-!        if(master_mpi) then
-!           ves1int = pi4*(sum(rwgt*y0*v1es(:,1,1)*rofi(:)**2) - z*rofi(nr)**2)
-!           ves2int = pi4*sum(rwgt*y0*v2es(:,1,1)*rofi(:)**2)
-!           write(ifivesint,ftox)ib,ftof(ves1int-ves2int),ftof(ves1int),ftof(ves2int),' ! ib estatic average vesint1-vesint2 ves1int ves2int'
-!        endif
+         enddo
+         if(master_mpi) then !2025-06-08 again
+           ves1int = pi4*(sum(rwgt*y0*v1es(:,1,1)*rofi(:)**2) - z*rofi(nr)**2   + 2*z/3d0*rofi(nr)**2)
+           ves2int = pi4* sum(rwgt*y0*v2es(:,1,1)*rofi(:)**2)
+           vesint(ib)= ves1int-ves2int
+           !write(ifivesint,ftox) ib,ftof(ves1int-ves2int),ftof(ves1int),ftof(ves2int),' ! ib estatic integral vesint1-vesint2 ves1int ves2int'
+         endif
       endblock v1esv2esgpotb
       efg(1:5)= merge(v1es(5,5:9,1)/rofi(5)**2,0d0,nlml >= 9 .AND. z > 0.01) !electric field at nucleus
       vnucl = 2d0*srfpi*sum(rwgt(2:nr)*rhol1t(2:nr,1)*(1d0/rofi(2:nr)-1d0/rmt)) + 2d0*z/rmt + y0*dEdQ(1) != v1es+vcore at ir=0 without 2z/r. Note b.c.
@@ -495,8 +498,9 @@ contains
       real(8):: rvsm(nlml,nsp),rvtr(nlml,nsp)
       do concurrent (ilm = 1:nlml) ! --- Integrals involving the full nonspherical potential ---
          rvtr(ilm,:) = [(sum(rwgt(2:nr)*rho1(2:nr,ilm,isp)*v1(2:nr,ilm,isp)),isp=1,nsp)]
-         if(ilm==1) rvtr(ilm,:)=rvtr(ilm,:)- srfpi*2d0*z*[(sum(rwgt(2:nr)*rho1(2:nr,ilm,isp)/rofi(2:nr)),isp=1,nsp)]
-         rvsm(ilm,:)= [(sum(rwgt(2:nr)*rho2(2:nr,ilm,isp)*v2(2:nr,ilm,isp)),isp=1,nsp)]
+         if(ilm==1) rvtr(ilm,:)=rvtr(ilm,:)- srfpi* &
+              2d0*z*   [(sum(rwgt(2:nr)*rho1(2:nr,ilm,isp)/rofi(2:nr)),      isp=1,nsp)]
+         rvsm(ilm,:) = [(sum(rwgt(2:nr)*rho2(2:nr,ilm,isp)*v2(2:nr,ilm,isp)),isp=1,nsp)]
       enddo
       vefv1=sum(rvtr)
       vefv2=sum(rvsm)
@@ -512,24 +516,23 @@ contains
         do ilm= 1,nlml
           do isp=1,nsp
             if(dmax1(dabs(rvsm(ilm,isp)),dabs(rvtr(ilm,isp)))>1d-6) then
-              if(nsp==1)write(stdo,"(i4,3x,2f15.6)") ilm,rvtr(ilm,isp),rvsm(ilm,isp)
-              if(nsp==2)write(stdo,"(i4,3x,3f12.6,2x,3f12.6,2x)")&
-                   ilm,rvtr(ilm,1:nsp),sum(rvtr(ilm,:)),rvsm(ilm,1:nsp),sum(rvsm(ilm,:))
+              if(nsp==1)write(stdo,"(i4,3x,2f15.6)")             ilm,rvtr(ilm,isp),rvsm(ilm,isp)
+              if(nsp==2)write(stdo,"(i4,3x,3f12.6,2x,3f12.6,2x)")ilm,rvtr(ilm,1:nsp),sum(rvtr(ilm,:)),rvsm(ilm,1:nsp),sum(rvsm(ilm,:))
             endif
           enddo
         enddo
       endif
     endblock vefv
-    if(ipr>=20) then
-       write(stdo,"(' local terms:     true',11x,'smooth',9x,'local')")
-       write(stdo,"(' rhoeps:  ',3f15.6/' rhomu:   ',3f15.6)") sum(rep1),sum(rep2),sum(rhoexc),rmu1(1),rmu2(1),rhovxc(1)
-       if(nsp==2) write(stdo,"(' spin2:   ',3f15.6/' total:   ',3f15.6)")rmu1(2),rmu2(2),rhovxc(2),sum(rmu1),sum(rmu2),sum(rhovxc)
-       write(stdo,"(' val*vef  ',3f15.6/' val chg: ',3f15.6)") vefv1,vefv2,valvef,qv1,qv2,qloc
-       if(nsp==2) write(stdo,"(' val mmom: ',f15.6,'  core mmom:',f11.6)") aloc,alocc !       write(stdo,"(' core chg:',3f15.6)") qcor1 !,qcor2,qlocc
-    endif
+!    if(ipr>=20) then
+    write(stdo,"(' local terms:     true',11x,'smooth',9x,'local')")
+    write(stdo,"(' rhoeps:  ',3f15.6/' rhomu:   ',3f15.6)") sum(rep1),sum(rep2),sum(rhoexc),rmu1(1),rmu2(1),rhovxc(1)
+    if(nsp==2) write(stdo,"(' spin2:   ',3f15.6/' total:   ',3f15.6)")rmu1(2),rmu2(2),rhovxc(2),sum(rmu1),sum(rmu2),sum(rhovxc)
+    write(stdo,"(' val*vef  ',3f15.6/' val chg: ',3f15.6)") vefv1,vefv2,valvef,qv1,qv2,qloc
+    if(nsp==2) write(stdo,"(' val mmom: ',f15.6,'  core mmom:',f11.6)") aloc,alocc !       write(stdo,"(' core chg:',3f15.6)") qcor1 !,qcor2,qlocc
+!    endif
     call tcx('locpt2')
   end subroutine locpt2
-  subroutine poinsp(z,vval,nlm,v,rofi,rho,rho0,nr,rhoves,rhves1, vnucl,vsum) !- Solves non-spherical poisson Equation inside sphere
+  subroutine poinsp(z,vval,nlm,rofi,rho,nr, rhoves,v)!, vnucl,vsum) !- Solves non-spherical poisson Equation inside sphere
     use m_ll,only:ll
     !i   z     :nuclear charge
     !i   vval  :boundary conditions: potential for channel ilm = vval(ilm)
@@ -538,14 +541,14 @@ contains
     !i   b     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
     !i   rofi  :radial mesh points
     !i   rho   :density, represented as sum_ilm rho(r,ilm) Y_L(ilm)
-    !i   rho0  :work array, holding spherical charge density times 4*pi*r*r
     !i   nr    :number of radial mesh points
     !o   v     :electrostatic potential, satisfying boundary c. vval above
     !o         :It does not include nuclear contribution -2z/r
     !o   rhoves:electrostatic energy
-    !o   rhves1:contribution to electrostatic energy from nonspherical rho
-    !o   vnucl :potential at the nucleus
-    !o   vsum  :integral over that potential which is zero at rmax.
+    !ww   rho0  :work array, holding spherical charge density times 4*pi*r*r
+    !xx  rhves1:contribution to electrostatic energy from nonspherical rho
+    !xx   vnucl :potential at the nucleus
+    !xx   vsum  :integral over that potential which is zero at rmax.
     !r Remarks
     !r   Poisson's equation is d2u/dr2 = u*l*(l+1)/r**2 - 8pi*rho/r
     implicit none

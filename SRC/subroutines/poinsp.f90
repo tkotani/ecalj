@@ -8,6 +8,7 @@ subroutine poiss0(z,rofi,rho,nr,vhrmax, v,rhovh,vsum,nsp)!- Hartree potential fo
   !i   rofi  :radial mesh points
   !o Outputs:
   !o   v     :spherical Hartree potential
+  !NOTE: v do not include -2z/r
   !o   vsum  :integral over that potential which is zero at rmax.
   !o   rhovh :integral of rho*vh, where vh is the electrostatic
   !o         :potential from both electronic and nuclear charge

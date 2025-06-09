@@ -267,8 +267,7 @@ contains
     do  ib = 1, nbas
        lmxl(ib)=lmxl_i(ips(ib))
     enddo
-    do  ic = 1, nclass
-       !   ... Make nrclas,ipa,posc !       call psymr0(lmxl,ic,nbas,ipc,pos,posc,ipa,nrclas)
+    do  ic = 1, nclass        !   ... Make nrclas,ipa,posc !       call psymr0(lmxl,ic,nbas,ipc,pos,posc,ipa,nrclas)
        nrclas = 0
        do  ib = 1, nbas
           if (ipc(ib) == ic) then
@@ -301,7 +300,7 @@ contains
        ic = ipc(ib)
        if(ib==findloc([(ipc(ibas)==ic,ibas=1,nbas)],dim=1,value=.true.)) then ! (ib == iclbas(ic,ipc)) then !findloc(ipc,value=ic) ) then !
           do ilm = 1, nlml
-             if (ilm == 1.and.ipr>=50) then;                    write(stdo,"(i4,2i6,2f12.6)") ib,ic,ilm,vval(ilm,ib),vrmt(ib)
+             if (ilm == 1.and.ipr>=50) then;                   write(stdo,"(i4,2i6,2f12.6)") ib,ic,ilm,vval(ilm,ib),vrmt(ib)
              elseif(dabs(vval(ilm,ib))>1d-6.AND.ipr>=50) then; write(stdo,"(10x,i6,f12.6)") ilm,vval(ilm,ib); endif
           enddo
        endif
