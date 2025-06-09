@@ -14,7 +14,7 @@ contains
   subroutine m_mkrout_init()
     use m_lmfinit,only: ispec,nsp,lfrce,lrout,nbas
     use m_bandcal,only: oqkkl,oeqkkl,frcband
-    use m_mkpot,only: hab_rv,sab_rv
+    use m_locpot,only: hab_rv=>hab,sab_rv=>sab
     use m_rhocor,only: getcor
     use m_symrhoat,only: symrhoat
     integer:: ib,is,nr,lmxl,nlml

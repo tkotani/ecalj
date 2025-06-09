@@ -7,16 +7,19 @@ module m_locpot
   use m_MPItk,only: master_mpi
   use m_lgunit,only:stdo
   use m_vxcatom,only: vxcnsp
+
   public locpot
-  
   real(8),allocatable,public :: rotp(:,:,:,:,:) !rotation matrix
   real(8),public:: sumt0,sumec,sumtc
-  
+  real(8),public:: valvef,xcore,sqloc,sqlocc,saloc,qval,qsc,vvesat
+  real(8),public,allocatable,target:: rhoexc(:),rhoex(:),rhoec(:),rhovxc(:),&
+       phzdphz(:,:,:,:),hab(:,:,:,:,:),sab(:,:,:,:,:)
+
   private
   real(8),parameter:: pi = 4d0*datan(1d0),srfpi = dsqrt(4d0*pi),y0 = 1d0/srfpi  !integer:: idipole
+  real(8),allocatable,target:: vab(:,:,:,:,:)
 contains
-    subroutine locpot(job,novxc,orhoat,qmom,vval,gpot0, osig,otau,oppi,ohsozz,ohsopm,phzdphz,hab,vab,sab, & 
-       vvesat,rhoexc,rhoex,rhoec,rhovxc, valvef,xcore, sqloc,sqlocc,saloc, qval,qsc )
+  subroutine locpot(job,novxc,orhoat,qmom,vval,gpot0, osig,otau,oppi,ohsozz,ohsopm)
     use m_density,only: v0pot,v1pot,pnzall,pnuall !output
     use m_lmfinit,only: lxcf,lhh,nkapii,nkaphh,lmaxu,lldau,n0,nppn,nrmx,nkap0,nlmx,lso,ispec,frzwfa,lmxax
     use m_lmfinit,only: slabl,idu,coreh,ham_frzwf,rsma,alat,v0fix,jnlml,vol,qbg=>zbak,lpzex
@@ -65,18 +68,17 @@ contains
     !l   lfltwf:T  update potential used to define basis
     !i   idu  :idu(l+1,ibas)>01 => this l has a nonlocal U matrix
     ! ----------------------------------------------------------------------
+    type(s_rv4)   :: otau(3,nbas), osig(3,nbas)
+    type(s_cv5)   :: oppi(3,nbas)
+    type(s_sblock):: ohsozz(3,nbas),ohsopm(3,nbas)
     integer:: ib,job,ibx,ir,isp,l,lm, kcor,lcor, i,nglob,ipr,iprint,j1,is,lmxl,lmxa,nr,lmxb,kmax,lfoc,nrml,nlml,&
          ifi, lsox,lmxh, lh(nkap0),nkapi,nkaph,k ,ifivesint
     type(s_rv1) :: orhoat(3,nbas)
-    type(s_cv5) :: oppi(3,nbas)
-    type(s_sblock):: ohsozz(3,nbas),ohsopm(3,nbas)
-    type(s_rv4) :: otau(3,nbas), osig(3,nbas)
-    real(8):: qmom(nlmxlx,nbas) , vval(nlmxlx,nbas),rhoexc(nsp),rhoex(nsp),rhoec(nsp),rhovxc(nsp), &
-         qval,sqloc,sqlocc,saloc, valvef,vvesat,xcore,gpot0(nlmxlx,nbas),phzdphz(nppn,n0,nsp,nbas),rhobg,&
+    real(8):: qmom(nlmxlx,nbas) , vval(nlmxlx,nbas),&
+         gpot0(nlmxlx,nbas),rhobg,&
          eh(n0,nkap0),rsmh(n0,nkap0), ehl(n0),rsml(n0),z,a,rmt,qc,ceh,rfoc, &
-         qcorg,qcorh,qsc,cofg,cofh,qsca,rg,qv, qloc,qlocc,xcor, aloc,alocc,rs3,vmtz,qcor(2),qc0,qsc0, ov0mean,pmean,&
-         vesint(nbas)
-    real(8),target::hab(3,3,n0,nsp,nbas),vab(3,3,n0,nsp,nbas),sab(3,3,n0,nsp,nbas),vesaverage
+         qcorg,qcorh,cofg,cofh,qsca,rg,qv, qloc,qlocc,xcor, aloc,alocc,rs3,vmtz,qcor(2),qc0,qsc0, ov0mean,pmean,&
+         vesint(nbas),vesaverage
     character spid*8
     logical :: lfltwf,cmdopt0,readov0,v0write,novxc
     real(8),pointer:: pnu(:,:),pnz(:,:)
@@ -85,6 +87,9 @@ contains
     character*20:: strib
     character strn*120
     call tcn('locpot')
+    if(allocated(rhoexc))deallocate(rhoexc,rhoex,rhoec,rhovxc,phzdphz,hab,sab,vab)
+    allocate(phzdphz(nppn,n0,nsp,nbas),vab(3,3,n0,nsp,nbas),hab(3,3,n0,nsp,nbas),sab(3,3,n0,nsp,nbas))
+    allocate(rhoexc(nsp),rhoex(nsp),rhoec(nsp),rhovxc(nsp))
     rhobg=qbg/vol
     ipr = iprint()
     if (ipr >= 30) write(stdo,"('locpot:')")
@@ -442,7 +447,7 @@ contains
       rhol2t=sum(rhol2(:,:,1:nsp),dim=3)
       rhol1t(:,1)=rhol1t(:,1)+srfpi*rhobg*rofi(:)**2 ! ... Add background density to spherical parts of rhol1 and rhol2
       rhol2t(:,1)=rhol2t(:,1)+srfpi*rhobg*rofi(:)**2
-      qv1   = srfpi*sum(rwgt*sum(rho1(:,1,1:nsp),dim=2)) ! valence charges 1st
+      qv1   = srfpi*sum(rwgt*sum(rho1(:,1,1:nsp),dim=2)) ! valence charges 1st component
       qv2   = srfpi*sum(rwgt*sum(rho2(:,1,1:nsp),dim=2))
       qloc  = qv1-qv2
 !      qcor1 = sum(rwgt*sum(rhoc(:,1:nsp),dim=2))          ! core charge 1st

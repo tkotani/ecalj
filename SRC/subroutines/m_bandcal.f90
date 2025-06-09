@@ -348,7 +348,7 @@ contains
     use m_ll,only:ll
     use m_lmfinit,only: ispec,nbas,nlmax,nsp,nspc,n0,nppn,lmxax,lso
     use m_igv2x,only: napw,ndimh,ndimhx,igvapw=>igv2x
-    use m_mkpot,only: sab_rv
+    use m_locpot,only: sab_rv=>sab
     use m_subzi, only: wtkb
     use m_qplist,only: nkp
     !i   isp   :current spin channel (1 or 2)
@@ -441,7 +441,7 @@ contains
   end subroutine mkorbm
   subroutine mkdmtu(isp,iq,qp,nev,evec,dmatu) !Get density matrix dmatu for LDA+U (phi-projected density matrix)
     use m_lmfinit,only: ispec,nbas,nlmax,nsp,nspc,n0,nppn,nlibu,lmaxu,nlibu,lldau,idu
-    use m_mkpot,only: phzdphz
+    use m_locpot,only: phzdphz
     use m_subzi, only: wtkb
     use m_igv2x,only: ndimh
     use m_makusq,only: makusq

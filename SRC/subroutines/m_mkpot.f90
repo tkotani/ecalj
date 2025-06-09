@@ -6,16 +6,17 @@ module m_mkpot !How to learng this? Instead of reading all source, understand I/
   use m_struc_def,only: s_rv1,s_cv1,s_sblock,s_rv4,s_cv5
   public:: m_mkpot_init, m_mkpot_energyterms, m_mkpot_novxc, m_mkpot_deallocate 
   ! Potential terms, call m_mkpot_init. Generated at mkpot-locpot-augmat-gaugm
+
   type(s_sblock),allocatable,protected,public  :: ohsozz(:,:),ohsopm(:,:) !SOC matrix
   type(s_cv5),allocatable,protected,public  :: oppi(:,:) !pi-integral Eq.(C.6)  in the JPSJ.84.034702
   type(s_rv4),allocatable,protected,public  :: otau(:,:) !tau            (C.5) 
   type(s_rv4),allocatable,protected,public  :: osig(:,:) !sigma          (C.4) 
+
   complex(8),allocatable,protected ,public  :: osmpot(:,:,:,:)!0th component of Eq.(34)
-  
   real(8),allocatable,protected,public:: fes1_rv(:), fes2_rv(:) !force terms
-  real(8),allocatable,protected,public:: hab_rv(:,:,:), sab_rv(:,:,:,:,:), qmom(:,:),vesrmt(:)
+  real(8),allocatable,protected,public::  qmom(:,:),vesrmt(:) !hab_rv(:,:,:), sab_rv(:,:,:,:,:),
   real(8),protected,public:: qval,vconst,qsc
-  real(8),allocatable,protected,public:: phzdphz(:,:,:,:) !val and slo at Rmt for local orbitals.
+!  real(8),allocatable,protected,public:: phzdphz(:,:,:,:) !val and slo at Rmt for local orbitals.
   
   ! Energy terms by call m_mkpot_energyterms
   real(8),protected,public:: utot,rhoexc,xcore,valvef,amom, valves,cpnves,rhovxc
@@ -38,9 +39,9 @@ contains
     write(stdo,"(a)")' m_mkpot_novxc: Making one-particle potential without XC part ...'
     allocate( vesrmt(nbas))
     allocate( qmom(nlmxlx,nbas)) !rhomom
-    allocate( hab_rv(3,3,n0*nsp*nbas))
-    allocate( sab_rv(3,3,n0,nsp,nbas))
-    allocate( phzdphz(nppn,n0,nsp,nbas))
+!    allocate( hab_rv(3,3,n0*nsp*nbas))
+!    allocate( sab_rv(3,3,n0,nsp,nbas))
+!    allocate( phzdphz(nppn,n0,nsp,nbas))
     allocate( fes1_rvx(3*nbas))
     allocate( spotx(n1,n2,n3,nsp),source=(0d0,0d0)) !smooth potential without XC
     allocate( ohsozzx(3,nbas), ohsopmx(3,nbas)) !dummy
@@ -48,7 +49,7 @@ contains
     call dfaugm(osigx, otaux, oppix, ohsozzx,ohsopmx) !for sig,tau,ppi without XC(LDA)
     call mkpot(1, osmrho,orhoat, spotx,osigx,otaux,oppix,fes1_rvx,ohsozzx,ohsopmx, novxc_) !obtain osigx,otaux,oppix,smpotx  (without XC)
     !                                                                         When novxc_ exists, we exclud XC(LDA) part. We only need spotx and oppix
-    deallocate(phzdphz,vesrmt,qmom,hab_rv,sab_rv,fes1_rvx)
+    deallocate(vesrmt,qmom,fes1_rvx)
   end subroutine m_mkpot_novxc
   subroutine m_mkpot_init()
     use m_supot,only: n1,n2,n3
@@ -61,9 +62,6 @@ contains
     allocate( vesrmt(nbas))
     allocate( osmpot(n1,n2,n3,nsp)) 
     allocate( qmom(nlmxlx,nbas))
-    allocate( hab_rv(3,3,n0*nsp*nbas))
-    allocate( sab_rv(3,3,n0,nsp,nbas))
-    allocate( phzdphz(nppn,n0,nsp,nbas))
     allocate( fes1_rv(3*nbas))
     allocate( osig(3,nbas), otau(3,nbas), oppi(3,nbas))
     allocate( ohsozz(3,nbas), ohsopm(3,nbas))
@@ -93,7 +91,8 @@ contains
     use m_struc_def
     use m_bstrux,only: m_bstrux_init
     use m_elocp,only: elocp
-    use m_locpot,only: Locpot
+    use m_locpot,only: locpot,valvfa=>valvef,xcore_=>xcore,sqloc,sqlocc,saloc,qval_=>qval,qsc_=>qsc,vvesat,&
+         repat=>rhoexc, repatx=>rhoex, repatc=>rhoec, rmuat=>rhovxc
     use m_smvxcm,only: smvxcm
     use m_smves,only: smves
     use m_ftox
@@ -203,11 +202,12 @@ contains
     complex(8):: smrho(n1,n2,n3,nsp),smpot(n1,n2,n3,nsp)
     logical:: cmdopt0,novxc,secondcall=.false.     !      integer,optional:: dipole_
     logical,optional:: novxc_
-    integer:: job,i1,i2,i3,i,iprint,isw,isum, ifi,isp,j,k,ix,iy,iz,ismpot(4) !dipole,
-    real(8):: hpot0_rv(nbas), dq,cpnvsa,qsmc,smq,smag,sum2,rhoex,rhoec,rhvsm,sqloc,sqlocc,saloc,uat,usm,valfsm, &
-         valvfa,vvesat,vsum,zsum,rvvxcv(nsp),rvvxc(nsp),rvmusm(nsp),rmusm(nsp), rvepsm(nsp),vxcavg(nsp),repat(nsp),&
-         repatx(nsp),repatc(nsp),rmuat(nsp),repsm(nsp),repsmx(nsp),repsmc(nsp),rhobg,gpot0(nlmxlx,nbas),vab_rv(3,3,n0*nsp*nbas),&
+    integer:: job,i1,i2,i3,i,iprint,isw,isum, ifi,isp,j,k,ix,iy,iz,ismpot(4) 
+    real(8):: hpot0_rv(nbas), dq,cpnvsa,qsmc,smq,smag,sum2,rhoex,rhoec,rhvsm, uat,usm,valfsm, &
+         vsum,zsum,rvvxcv(nsp),rvvxc(nsp),rvmusm(nsp),rmusm(nsp), rvepsm(nsp),vxcavg(nsp),&
+         repsm(nsp),repsmx(nsp),repsmc(nsp),rhobg,gpot0(nlmxlx,nbas),& !,vab_rv(3,3,n0*nsp*nbas),&
          vval(nlmxlx,nbas),fes(3,nbas),rhvsm0
+!         rmuat(nsp),repat(nsp),repatx(nsp),repatc(nsp) !,vvesat    valvfa,sqloc,sqlocc,saloc,
     real(8),parameter:: minimumrho=1d-14,pi=4d0*datan(1d0),tpi=2d0*pi
     real(8),external:: rydberg
     character(80) :: outs
@@ -259,8 +259,12 @@ contains
     endblock StructureConstantWhenExtendedLO
     MTpartsIntegrals: block
       call locpot(job,novxc,orhoat,qmom,vval,gpot0, & !Make local potential at atomic sites and augmentation matrices 
-           osig,otau,oppi,ohsozz,ohsopm, phzdphz,hab_rv,vab_rv,sab_rv,  &
-           vvesat,repat,repatx,repatc,rmuat, valvfa,xcore, sqloc,sqlocc,saloc,qval,qsc )
+           osig,otau,oppi,ohsozz,ohsopm)
+!   phzdphz)!,hab_rv,vab_rv,sab_rv)
+!           repat,repatx,repatc,rmuat,   vvesat, valvfa,xcore, sqloc,sqlocc,saloc,qval,qsc )
+      xcore=xcore_
+      qval =qval_
+      qsc  =qsc_
       valfsm = rhvsm0 + sum(rvmusm) - vconst*qbg ! 0th comp. of rho_val*Veff= rho0*Ves +rho0*Vxc -vconst*qbg 
       valvef = valfsm + valvfa                   ! Veff*n_val= veff0*rho0_val + veff1*rho1_val-veff2*rho2_val
       usm    = 0.5d0*rhvsm   ! 0th comp. of Eq.(27). rhvsm= \int 0thEes*(n0+n^c_sH +gaussians)
@@ -348,6 +352,6 @@ contains
     enddo
   end subroutine dfaugm
   subroutine m_mkpot_deallocate()
-    if(allocated(vesrmt)) deallocate(vesrmt,fes1_rv,phzdphz,sab_rv,hab_rv,qmom,oppi,otau,osig,osmpot,ohsozz,ohsopm)
+    if(allocated(vesrmt)) deallocate(vesrmt,fes1_rv,qmom,oppi,otau,osig,osmpot,ohsozz,ohsopm)
   end subroutine m_mkpot_deallocate
 end module m_mkpot
