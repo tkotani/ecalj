@@ -10,7 +10,7 @@ module m_iors_old ! This module is for reading old version of rst file before 20
   private
 contains
   integer function iors_old(nit,rwrw)!,irs5)
-    use m_density,only: osmrho, orhoat,eferm !these are allocated
+    use m_density,only: osmrho=>smrho, orhoat,eferm !these are allocated
     use m_supot,only: n1,n2,n3
     use m_lmfinit,only: lat_alat,nsp,lrel,ispec, nbas,nspec,n0,idmodis=>idmod,slabl,rsma
     use m_lattic,only: lat_plat
@@ -216,7 +216,7 @@ contains
        call mpibc1_real(plat,9,'iors_plat')
        call mpibc1_int(nit,1,'iors_nit')
        !   --- Read smooth charge density ---
-       allocate(osmrho(k1*k2*k3,nsp))
+       allocate(osmrho(k1,k2,k3,nsp))
        osmrho=0d0
        line = 'smoothed density'
        if (master_mpi) then

@@ -62,7 +62,6 @@ contains
     endblock ESMsuppliedfromMOBATA
     call mshvmt(ng,rv_a_ogv,iv_a_okv, cv_zv, smpot,vval )
     call symvvl(vval,vrmt) !Compute e.s. potential at MT boundary vrmt
-!    deallocate(cgsum_zv,cg1_zv,cv_zv)
     vbar = 0d0
     sbar = 0d0
     do  ib = 1, nbas
@@ -169,10 +168,10 @@ contains
     implicit none
     integer :: ng,kv(ng,3)
     real(8):: gv(ng,3),vval(nlmxlx,nbas)
-    double complex smpot(n1,n2,n3),cv(ng)
+    complex(8):: smpot(n1,n2,n3),cv(ng)
     integer :: i,ib,is,lmxx,nlmx,lmxl,nlm,m,ilm,l,ipr
     real(8) :: alat,pi,tpiba,tau(3),rmt,fac,plat(3,3)
-    double complex vvali,fprli
+    complex(8):: vvali,fprli
     parameter (lmxx=6, nlmx=(lmxx+1)**2)
     real(8),allocatable:: phil(:,:),yl(:,:)
     real(8),allocatable:: gv2(:,:),agv(:),cgp(:),sgp(:)
@@ -343,7 +342,7 @@ contains
          pi,qcorg1,qcorg2,qcorh1,qcorh2,qsc1,qsc2,qm1,qm2,rg1,rg2,rh1, &
          rh2,srfpi,y0,z1,z2
     real(8) :: df(0:20),ff(3),tau1(3),tau2(3)
-    double complex s(ndim,ndim),ds(ndim,ndim,3),s0(ndim0,ndim0),ds0(ndim0,ndim0,3)
+    complex(8):: s(ndim,ndim),ds(ndim,ndim,3),s0(ndim0,ndim0),ds0(ndim0,ndim0,3)
     integer :: nlmx,npmx,nbmx
     parameter (nlmx=64, nbmx=256)
     real(8) :: xf(3,nbas),xhpot0(nbas), xgpot0(nlmxlx,nbas),xugg

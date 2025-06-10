@@ -23,7 +23,7 @@
 !  hbyl  :site- and l-decomposed one-electron energies
 !! NOTE: check main_lmf -> lmfp(iteration loop) -> bndfp
 module m_bndfp
-  use m_density,only: orhoat,osmrho,eferm  !input/output unprotected  ! NOTE:variable in m_density are not protected
+  use m_density,only: orhoat,smrho,eferm  !input/output unprotected  ! NOTE:variable in m_density are not protected
   use m_lgunit,only:stdo,stdl
   real(8),protected,public:: ham_ehf, ham_ehk, sev  !output
   real(8),protected,public:: qdiff                  !output
@@ -72,7 +72,7 @@ contains
     use m_writeband,only: writeband,writefs,writepdos,writedossawada
     use m_totfrc,only:totfrc
     ! inputs
-    ! main input are osmrho, orhoat (in m_mkpot_init), specifing density, and vorb, which is potential for LDA+U
+    ! main input are smrho, orhoat (in m_mkpot_init), specifing density, and vorb, which is potential for LDA+U
     !i   nbas  : size of basis
     !i   nsp   : number of spins
     !i   nlibu : total number of LDA+U blocks (used to dimension dmatu and vorb)
@@ -372,13 +372,13 @@ contains
             ! fh_rv      : 2nd term in (B.5)  (need check)
             if(allocated(force)) deallocate(force)
             allocate(force(3,nbas))
-            call dfrce (lfrce,orhoat,orhoat_out,qmom_in,osmrho,smrho_out,  fh_rv)
+            call dfrce (lfrce,orhoat,orhoat_out,qmom_in,smrho,smrho_out,  fh_rv)
             call totfrc(leks, fes1_rv, fes2_rv, fh_rv, frcbandsym, force) ! force : total
          endif
-         ! Mix inputs(osmrho,orhoat) and outputs(osmrho_out,orhoat_out), resulting orhoat and osmrho.
-         call mixrho(iter,qval-qbg,orhoat_out,orhoat,smrho_out,osmrho,qdiff)!mixrho keeps history in it.
+         ! Mix inputs(smrho,orhoat) and outputs(smrho_out,orhoat_out), resulting orhoat and smrho.
+         call mixrho(iter,qval-qbg,orhoat_out,orhoat,smrho_out,smrho,qdiff)!mixrho keeps history in it.
          call mpi_barrier(comm,ierr) 
-!         write(stdo,ftox)'mixrho: output smrho =',maxval(dreal(osmrho)),minval(dreal(osmrho)),sum(dreal(osmrho))
+!         write(stdo,ftox)'mixrho: output smrho =',maxval(dreal(smrho)),minval(dreal(smrho)),sum(dreal(smrho))
 !         do ib=1,nbas!write(stdo,ftox)'mixrho: output orhoat=',ib,sum(abs(orhoat(1,ib)%v)),sum(abs(orhoat(2,ib)%v)),sum(abs(orhoat(3,ib)%v))
 !         enddo   
       endblock EvaluateKohnShamTotalEnergyandForce

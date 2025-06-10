@@ -5,7 +5,7 @@ module m_rdovfa
   public rdovfa
 contains
   subroutine rdovfa() !- Read atm files and overlap free atom densities.
-    use m_density,only: zv_a_osmrho=>osmrho,sv_p_orhoat=>orhoat,v1pot,v0pot,eferm !Outputs. allocated
+    use m_density,only: zv_a_osmrho=>smrho,sv_p_orhoat=>orhoat,v1pot,v0pot,eferm !Outputs. allocated
 
     use m_supot,only: ng=>lat_ng,rv_a_ogv,iv_a_okv,rv_a_ogv,n1,n2,n3
     use m_lmfinit,only:alat=>lat_alat,nsp,nbas,nspec,ispec,qbg=>zbak,slabl,v0fix
@@ -189,7 +189,7 @@ contains
       endif
     endblock v0wrireblock
     if(allocated(zv_a_osmrho)) deallocate(zv_a_osmrho)
-    allocate(zv_a_osmrho(n1*n2*n3,nsp),source=(0d0,0d0))
+    allocate(zv_a_osmrho(n1,n2,n3,nsp),source=(0d0,0d0))
     eferm=0d0
     allocate(cv_zv(ng*nsp))
     call ovlpfa( nbas,nxi,n0,exi,hfc,rsmfa, ng,rv_a_ogv,cv_zv ) !Overlap smooth hankels to get smooth interstitial density ---
@@ -197,8 +197,8 @@ contains
     deallocate(cv_zv)
     call fftz3(zv_a_osmrho,n1,n2,n3,n1,n2,n3,nsp, 0,1 )! ... FFT to real-space mesh
     zv_a_osmrho=zv_a_osmrho-qbg/vol/nsp   !Add compensating uniform density to compensate background
-    sum1 = dreal(sum(zv_a_osmrho(:,:)))*vol/(n1*n2*n3)
-    if(nsp==2) smom = 2d0*dreal(sum(zv_a_osmrho(:,1)))*vol/(n1*n2*n3) - sum1
+    sum1 = dreal(sum(zv_a_osmrho))*vol/(n1*n2*n3)
+    if(nsp==2) smom = 2d0*dreal(sum(zv_a_osmrho(:,:,:,1)))*vol/(n1*n2*n3) - sum1
     call ovlocr(nbas,n0,nxi,exi,hfc,rsmfa,rv_a_orhofa,sv_p_orhoat,sqloc,slmom) !Set up local densities using rmt from atm file ---
     call adbkql ( sv_p_orhoat,nbas,nsp,qbg,vol,- 1d0 ) ! Add compensating uniform electron density to compensate background
     if(abs(qbg)/=0d0.and. ipr>=10) write(stdo,ftox) ' Uniform density added to neutralize background q=',ftof(qbg)

@@ -6,7 +6,7 @@ module m_iors
   private
 contains
   integer function iors(nit,rwrw) 
-    use m_density,only: osmrho, orhoat,v1pot,v0pot,pnuall,pnzall,eferm !Main I/O. these are allocated. In addition sspc is written
+    use m_density,only: osmrho=>smrho, orhoat,v1pot,v0pot,pnuall,pnzall,eferm !Main I/O. these are allocated. In addition sspc is written
     use m_supot,only: n1,n2,n3
     use m_lmfinit,only: alat=>lat_alat,nsp,lrel,ispec, nbas,nspec,n0, idmodis=>idmod,slabl,readpnu,spec_a
     use m_lattic,only: plat=>lat_plat,vol=>lat_vol,qlat=>lat_qlat
@@ -118,17 +118,17 @@ contains
        call mpibc1_real(plat,9,'iors_plat')
        call mpibc1_int(nit,1,'iors_nit')
        !   --- Read smooth charge density ---
-       allocate(osmrho(n1*n2*n3,nsp))
+       allocate(osmrho(n1,n2,n3,nsp))
        osmrho=0d0
        line = 'smoothed density'
        if (master_mpi) then
           read(jfi,err=999,end=999) n11,n21,n31
           if (n11 == n1 .AND. n21 == n2 .AND. n31 == n3) then
              n =n1*n2*n3
-             read(jfi) osmrho(1:n1*n2*n3,1:nsp0)
+             read(jfi) osmrho(:,:,:,1:nsp0)
              if (nsp > nsp0) then
-                osmrho(1:n,1)=.5d0*osmrho(1:n,1)
-                osmrho(1:n,2)= osmrho(1:n,1)
+                osmrho(:,:,:,1)=.5d0*osmrho(:,:,:,1)
+                osmrho(:,:,:,2)= osmrho(:,:,:,1)
              endif
           else                 !... or read and remesh
              if (ipr >= 10) write(stdo,450) n11,n21,n31,n1,n2,n3

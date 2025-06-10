@@ -5,6 +5,11 @@ module m_mkpot !How to learng this? Instead of reading all source, understand I/
   use m_lmfinit,only: z_i=>z,lmxa_i=>lmxa,lmxb_i=>lmxb,kmxt_i=>kmxt,nlmxlx
   use m_lmfinit,only: nbas,qbg=>zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nppn,lfrce, nchan=>pot_nlma, nvl=>pot_nlml
   use m_struc_def,only: s_rv1,s_cv1,s_sblock,s_rv4,s_cv5
+  use m_supot,only: n1,n2,n3
+  use m_MPItk,only: master_mpi
+  use m_lmfinit,only: lso,nbas, nlibu,lmaxu,lldau,nsp,lat_alat,lxcf,lpzex
+  use m_struc_def,only: s_rv1,s_sblock
+  use m_density,only: osmrho=>smrho, orhoat !main input to represent electron density
   integer,external:: iprint
 
   public:: m_mkpot_init, m_mkpot_energyterms, m_mkpot_novxc, m_mkpot_deallocate 
@@ -18,8 +23,7 @@ module m_mkpot !How to learng this? Instead of reading all source, understand I/
   private
 contains
   subroutine m_mkpot_novxc() ! outputs are oppix and spotx (for no vxc terms).
-    use m_supot,only: n1,n2,n3
-    use m_density,only: osmrho, orhoat !main input density
+!    use m_density,only: osmrho=>smrho, orhoat !main input density
     logical:: novxc_
     real(8),allocatable :: fes1_xxx(:)
     write(stdo,"(a)")' m_mkpot_novxc: Making one-particle potential without XC part ...'
@@ -31,10 +35,8 @@ contains
     deallocate(vesrmt,qmom,fes1_xxx)
   end subroutine m_mkpot_novxc
   subroutine m_mkpot_init()
-    use m_supot,only: n1,n2,n3
-    use m_density,only: osmrho, orhoat !main input to represent electron density
-    use m_lmfinit,only: lso,nbas, nlibu,lmaxu,lldau,nsp,lat_alat,lxcf,lpzex
-    use m_struc_def,only: s_rv1,s_sblock
+!    use m_supot,only: n1,n2,n3
+!    use m_density,only: osmrho, orhoat !main input to represent electron density
     integer:: i,is,ib,kmax,lmxa,lmxh,nelt2,nlma,nlmh
     call tcn('m_mkpot_init')
     if(iprint()>=10) write(stdo,"(a)")'m_mkpot_init: Making one-particle potential ...'
@@ -46,8 +48,6 @@ contains
     call tcx('m_mkpot_init')
   end subroutine m_mkpot_init
   subroutine m_mkpot_energyterms(smrho_out,orhoat_out) 
-    use m_MPItk,only: master_mpi
-    use m_struc_def
     type(s_rv1):: orhoat_out(:,:)
     complex(8) :: smrho_out(:,:,:,:)
     call tcn('m_mkpot_energyterms')
