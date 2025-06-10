@@ -111,18 +111,16 @@ contains
        ElectronicStructureSelfConsistencyLoop: do 1000 iter = 1,maxit
           if(master_mpi) write(stdo,*)
           if(master_mpi) write(stdo,"(a)")trim("--- BNDFP:  begin iteration "//trim(i2char(iter))//" of "//trim(i2char(maxit)))
-          call bndfp(iter,llmfgw,plbnd)!Main. Band cal. Get total energies ham_ehf and ham_ehk
+          call bndfp(iter,llmfgw,plbnd) !Main. Band cal. Get total energies ham_ehf and ham_ehk
           if(nlibu>0.AND.lrout>0)call m_ldau_vorbset(ham_ehk, dmatu)!Set new vorb for dmat by given bndfp (mkpot)
-          !    --density(plot density) are in locpot.f90(rho1mt and rho2mt) and mkpot.f90(smooth part).
+          !    plot density --density are in locpot.f90(rho1mt and rho2mt) and mkpot.f90(smooth part).
           if(master_mpi.AND.(.NOT.cmdopt0('--quit=band'))) then
-             if(lrout>0) k=iors(iter, 'write')  ! = iors_old ( iter , 'write' ,irs5) ! Write restart file (skip if --quit=band) ---
+             if(lrout>0) k=iors(iter, 'write') ! Write restart file (skip if --quit=band) ---
           endif
           if (maxit<=0) goto 9998 
           seref   = ham_seref !   ... reference energy supplied from ctrlfile
-          etot = [ham_ehf - seref , ham_ehk + eorb]        
-          !etot(2) = ham_ehk + eorb !eorb by LDA+U, etot(1) is not the total energy for LDA+U, because vefv1,vefv2 do not include U contributions
-          !etot(1) = etot(1) - seref
-          if(etot(2)/=0) etot(2) = etot(2) - seref
+          etot = [ham_ehf - seref , ham_ehk + eorb -seref]        
+          ! eorb by LDA+U, etot(1) is not the total energy for LDA+U, because vefv1,vefv2 do not include U contributions
           call mpi_barrier(comm,ierr)
           if(master_mpi) then
              hsign= (lhf.or.iatom).and.iter==1
@@ -135,11 +133,7 @@ contains
           endif
           call mpibc1_int(lsc,1,'lmfp_lsc') !b
           if(lsc==2 .AND. ( .NOT. lhf) .AND. maxit>1) lsc = 3
-          if(lsc==1 .AND. lrout>0 .OR. lsc==3) lsc=merge(1,3,iter >= maxit)
-          !then
-          !   if (iter >= maxit) lsc = 1
-          !   if (iter < maxit) lsc = 3
-          !endif
+          if(lsc==1 .AND. lrout>0 .OR. lsc==3)        lsc=merge(1,3,iter >= maxit)
           if(master_mpi) flush(stdo)
           if( cmdopt0('--quit=band')) call rx0('lmf-MPIK : exit (--quit=band)')
           if( lsc <= 2) exit  

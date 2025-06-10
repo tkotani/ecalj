@@ -110,7 +110,6 @@ contains
     k = nrmx*nlmx*nsp
     allocate(efg(5,nbas),zz(nbas))
     xcore   = 0d0
-!    if(master_mpi) open(newunit=ifivesint,file='vesintloc',form='formatted',status='unknown')
     if(allocated(rotp)) deallocate(rotp)
     allocate(rotp(0:lmxax,nsp,2,2,nbas))
     ibblock: block

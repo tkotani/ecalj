@@ -23,8 +23,8 @@
 !  hbyl  :site- and l-decomposed one-electron energies
 !! NOTE: check main_lmf -> lmfp(iteration loop) -> bndfp
 module m_bndfp
-  use m_density,only: orhoat,smrho,eferm  !input/output unprotected  ! NOTE:variable in m_density are not protected
   use m_lgunit,only:stdo,stdl
+  use m_density,only: orhoat,smrho,eferm            !input/output unprotected  ! NOTE:variable in m_density are not protected
   real(8),protected,public:: ham_ehf, ham_ehk, sev  !output
   real(8),protected,public:: qdiff                  !output
   real(8),protected,allocatable,public:: force(:,:) !output
@@ -86,9 +86,6 @@ contains
     !i   lrout : =1 generate output density and attendant quantities, =0 do not
     !i   lfrce : =1 generate force (some other options)
     !i   lpnu=1  : =1 means new pnu's
-    !i   dmxp  :vector of mixing parameters; see mixrho.f for dmxp(1..25)
-    !i         :Additionally:
-    !i         :dmxp(33)  is the Lindhard parameter???
     !i   iter  :current iteration number
     !i   maxit :maximum number of iterations
     !i  LDA+U inputs and outputs
@@ -109,28 +106,22 @@ contains
     !r   (3) m_bandcal_2nd  If lrout, assemble the output density by BZ integration
     !r   (4) evaluate hf (and KS, if leks) energy by BZ integration
     !r   (5) mixrho the output density to make a new input density.
+    
     !See history github ecalj after 2009.
     implicit none
     include "mpif.h"
-    integer :: ierr, status(MPI_STATUS_SIZE)
-    integer :: MAX_PROCS
-    parameter (MAX_PROCS = 100)
-    integer :: resultlen
-    character*(MPI_MAX_PROCESSOR_NAME) name
-    character(10) :: shortname(0:MAX_PROCS-1),head
-    double precision :: sttime,entime
-    integer:: plbnd,nk1,nk2,nk3,nx,ny
-    logical:: llmfgw,sigx
-    logical:: ltet,cmdopt0,sigmamode,tdos,debug=.false.
-    logical:: fullmesh,PROCARon,writeham=.false.,magexist
-    logical:: fsmode !for --fermisurface for xcrysden.
+    character(10) :: head
+    integer:: plbnd,nk1,nk2,nk3,nx,ny, iter,i,ifi,ipr,iq,isp,jsp,iprint,ipts,ierr
+    integer:: ifih,ifii,ib,ix,ifimag,nevmin,nnn,ikp
+    logical:: llmfgw,sigx, ltet,cmdopt0,sigmamode,tdos,debug=.false.
+    logical:: fullmesh,PROCARon,writeham=.false.,magexist, fsmode 
     logical,save:: siginit=.true.
-    integer:: iter,i,ifi,ipr,iq,isp,jsp,iprint,ipts
-    integer:: idummy, unlink,ifih,ifii,ib,ix,ifimag,nevmin,nnn,ikp
-    real(8):: ekinval,eharris,eksham,  dosw(2),dum(1),evtop,ecbot,qp(3),rydberg,xxx,eeem,dumx
-    real(8):: fh_rv(3,nbas),vmag,eee,dosi(2),dee,efermxxx,emin,qvalm(2)
+    real(8):: sttime,entime
+    real(8):: ekinval,eharris,eksham,  dosw(2),dum(1),evtop,ecbot,qp(3),xxx,dumx
+    real(8):: fh_rv(3,nbas),vmag,eee,dosi(2),dee,emin,qvalm(2)
     real(8),allocatable:: dosi_rv(:,:),dos_rv(:,:) 
-    real(8),parameter::  NULLR =-99999,pi=4d0*datan(1d0)
+    real(8),parameter::  pi=4d0*datan(1d0)
+    real(8),external:: rydberg
     call tcn ('bndfp')
     debug  = cmdopt0('--debugbndfp')
     tdos   = cmdopt0('--tdos')  !total dos mode or not
@@ -152,8 +143,8 @@ contains
     writeham= cmdopt0('--writeham') ! Write out Hamiltonian HamiltonianPMT.*
     if(writeham) open(newunit=ifih,file='HamiltonianPMT.'//trim(strprocid),form='unformatted')
     GetPotentialFromDensity: block
-      if(llmfgw) call m_mkpot_novxc() !Get osigx,otaux oppix spotx, which are onsite integrals without XC part for GWdriver: lmfgw mode
-      call m_mkpot_init()! From smrho and rhoat, get one-particle potential and related quantities. mkpot->locpot->augmat. augmat calculates sig,tau,ppi.
+      if(llmfgw) call m_mkpot_novxc(smrho,orhoat) !Get osigx,otaux oppix spotx, which are onsite integrals without XC part for GWdriver: lmfgw mode
+      call m_mkpot_init(smrho,orhoat)! From smrho and rhoat, get one-particle potential and related quantities. mkpot->locpot->augmat. augmat calculates sig,tau,ppi.
       if(cmdopt0('--quit=mkpot')) call rx0('--quit=mkpot')
     endblock GetPotentialFromDensity
     call m_subzi_init() ! Setup weight wtkb for BZ integration.  ! NOTE: if (wkp.* exists).and.lmet==2, wkp is used for wkkb.
@@ -348,7 +339,7 @@ contains
        endblock
     endif WRITEsmrhoTOxsf
     call m_mkrout_init() !Get force frcbandsym, symmetrized atomic densities orhoat_out, and weights hbyl,qbyl
-    call pnunew(eferm)  !pnuall are revised. !  New boundary conditions pnu for phi and phidot
+    if(.not.pnufix) call pnunew(eferm)   !pnuall are revised. !  New boundary conditions pnu for phi and phidot
     call m_mkehkf_etot1(sev, eharris) !Evaluate_HarrisFoukner_energy (note: we now use NonMagneticCORE mode as default)
     eksham = 0d0
     if(lrout/=0) then
@@ -378,10 +369,10 @@ contains
          ! Mix inputs(smrho,orhoat) and outputs(smrho_out,orhoat_out), resulting orhoat and smrho.
          call mixrho(iter,qval-qbg,orhoat_out,orhoat,smrho_out,smrho,qdiff)!mixrho keeps history in it.
          call mpi_barrier(comm,ierr) 
-!         write(stdo,ftox)'mixrho: output smrho =',maxval(dreal(smrho)),minval(dreal(smrho)),sum(dreal(smrho))
-!         do ib=1,nbas!write(stdo,ftox)'mixrho: output orhoat=',ib,sum(abs(orhoat(1,ib)%v)),sum(abs(orhoat(2,ib)%v)),sum(abs(orhoat(3,ib)%v))
-!         enddo   
-      endblock EvaluateKohnShamTotalEnergyandForce
+         ! write(stdo,ftox)'mixrho: output smrho =',maxval(dreal(smrho)),minval(dreal(smrho)),sum(dreal(smrho))
+         ! do ib=1,nbas!write(stdo,ftox)'mixrho: output orhoat=',ib,sum(abs(orhoat(1,ib)%v)),sum(abs(orhoat(2,ib)%v)),sum(abs(orhoat(3,ib)%v))
+         ! enddo   
+       endblock EvaluateKohnShamTotalEnergyandForce
     endif
     if(magexist) then                   ! Energy by externel mag field = -nup*vmag/2 + ndn*vmag/2 = -(nup-ndn)*vmag/2= -amom*vmag/2
        eharris= eharris + amom*vmag/2d0 ! Subtract this energy 

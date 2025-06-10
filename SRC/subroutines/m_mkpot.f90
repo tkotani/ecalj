@@ -2,14 +2,12 @@
 ! potential for atomic sites are in locpot.f90
 module m_mkpot !How to learng this? Instead of reading all source, understand I/O.
   use m_lgunit,only:stdo,stdl
-  use m_lmfinit,only: z_i=>z,lmxa_i=>lmxa,lmxb_i=>lmxb,kmxt_i=>kmxt,nlmxlx
-  use m_lmfinit,only: nbas,qbg=>zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nppn,lfrce, nchan=>pot_nlma, nvl=>pot_nlml
+  use m_lmfinit,only: nlmxlx, qbg=>zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nppn,lfrce, nchan=>pot_nlma, nvl=>pot_nlml
+  use m_lmfinit,only: lso,nbas, nlibu,lmaxu,lldau,nsp,lxcf,lpzex
   use m_struc_def,only: s_rv1,s_cv1,s_sblock,s_rv4,s_cv5
   use m_supot,only: n1,n2,n3
   use m_MPItk,only: master_mpi
-  use m_lmfinit,only: lso,nbas, nlibu,lmaxu,lldau,nsp,lat_alat,lxcf,lpzex
-  use m_struc_def,only: s_rv1,s_sblock
-  use m_density,only: osmrho=>smrho, orhoat !main input to represent electron density
+  use m_ftox
   integer,external:: iprint
 
   public:: m_mkpot_init, m_mkpot_energyterms, m_mkpot_novxc, m_mkpot_deallocate 
@@ -22,29 +20,29 @@ module m_mkpot !How to learng this? Instead of reading all source, understand I/
   
   private
 contains
-  subroutine m_mkpot_novxc() ! outputs are oppix and spotx (for no vxc terms).
-!    use m_density,only: osmrho=>smrho, orhoat !main input density
+  subroutine m_mkpot_novxc(smrho,orhoat) ! outputs are oppix and spotx (for no vxc terms).
     logical:: novxc_
     real(8),allocatable :: fes1_xxx(:)
+    type(s_rv1):: orhoat(:,:)
+    complex(8) :: smrho(:,:,:,:)
     write(stdo,"(a)")' m_mkpot_novxc: Making one-particle potential without XC part ...'
     allocate( vesrmt(nbas))
     allocate( qmom(nlmxlx,nbas)) !rhomom
     allocate( fes1_xxx(3*nbas))
     allocate( spotx(n1,n2,n3,nsp),source=(0d0,0d0)) !smooth potential without XC
-    call mkpot(1, osmrho,orhoat, spotx,fes1_xxx, novxc_) !obtain oppix,smpotx without XC (novxc_ mode).
+    call mkpot(1, smrho,orhoat, spotx,fes1_xxx, novxc_) !obtain oppix,smpotx without XC (novxc_ mode).
     deallocate(vesrmt,qmom,fes1_xxx)
   end subroutine m_mkpot_novxc
-  subroutine m_mkpot_init()
-!    use m_supot,only: n1,n2,n3
-!    use m_density,only: osmrho, orhoat !main input to represent electron density
-    integer:: i,is,ib,kmax,lmxa,lmxh,nelt2,nlma,nlmh
+  subroutine m_mkpot_init(smrho,orhoat)
+    type(s_rv1):: orhoat(:,:)
+    complex(8) :: smrho(:,:,:,:)
     call tcn('m_mkpot_init')
     if(iprint()>=10) write(stdo,"(a)")'m_mkpot_init: Making one-particle potential ...'
     allocate( vesrmt(nbas))
     allocate( osmpot(n1,n2,n3,nsp)) 
     allocate( qmom(nlmxlx,nbas))
     allocate( fes1_rv(3*nbas))
-    call mkpot(1,osmrho,orhoat, osmpot,fes1_rv)
+    call mkpot(1,smrho,orhoat, osmpot,fes1_rv)
     call tcx('m_mkpot_init')
   end subroutine m_mkpot_init
   subroutine m_mkpot_energyterms(smrho_out,orhoat_out) 
@@ -62,14 +60,10 @@ contains
     ! job=1 => make core and augmentation matrices    
     use m_lmfinit,only:lso,nbas,ispec,nlibu,lmaxu,lldau,nsp,alat=>lat_alat,lxcf,lpzex,nlmxlx
     use m_lattic,only: plat=>lat_plat, vol=>lat_vol,rv_a_opos
-    use m_supot,only: n1,n2,n3
-    use m_MPItk,only: master_mpi
-    use m_struc_def
     use m_bstrux,only: m_bstrux_init
     use m_elocp,only: elocp
     use m_smvxcm,only: smvxcm
     use m_smves,only: smves
-    use m_ftox
     use m_rhomom,only: rhomom
     ! for job=0
     !o         utot   = total electrostatic energy
