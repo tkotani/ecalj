@@ -21,8 +21,11 @@ module m_bandcal
   use m_makusq,only: makusq
   use m_zhev,only: zhev_tk4
   use m_hambl,only : hambl
-  use m_mkpot,only : m_mkpot_init,m_mkpot_deallocate,  osmpot,vconst                !main inputs for potential
+  use m_mkpot,only : m_mkpot_init,  osmpot,vconst                !main inputs for potential
   use m_locpot,only:                                   osig,otau,oppi,ohsozz,ohsopm !main inputs
+  use m_lmfinit,only: ispec,nkaphh,kmxt_i=>kmxt,lmxb_i=>lmxb
+  use m_lmfinit,only: nlmax,nspc,n0,lldau,idu
+  use m_struc_def,only:s_rv5   !o oqkkl : memory is allocated for qkkl
   ! outputs ---------------------------
   public m_bandcal_init, m_bandcal_2nd, m_bandcal_clean, m_bandcal_allreduce, m_bandcal_symsmrho
   integer,allocatable,protected,public::     ndimhx_(:,:),nevls(:,:) 
@@ -347,22 +350,18 @@ contains
   end subroutine m_bandcal_symsmrho
   subroutine mkorbm(isp,nev,iq,qp,evec, orbtm) !decomposed orbital moments within MT
     use m_ll,only:ll
-    use m_lmfinit,only: ispec,nbas,nlmax,nsp,nspc,n0,nppn,lmxax,lso
     use m_igv2x,only: napw,ndimh,ndimhx,igvapw=>igv2x
     use m_locpot,only: sab_rv=>sab
     use m_subzi, only: wtkb
     use m_qplist,only: nkp
     !i   isp   :current spin channel (1 or 2)
     !i   nsp   :2 for spin-polarized case, otherwise 1
-    !i   nspc  :2 for coupled spins; otherwise 1
+    !i   nspc  :2 for so=1 (SOC), 1 otherwise.
     !i   nlmax :leading dimension of aus
     !i   nev   :number of eigenvectors to accumulate orbital moment
-    !i   wtkp  :weight of k-point, including spin degeneracy (bzmesh.f)
     !i   iq    :current k-point
-    !i   nbas  :size of basis
-    !i   aus   :values of (phi,phidot) MT sphere boundary; see makusq
-    !i   nl    :(global maximum l) + 1
-    !i   nkp   :number of irreducible k-points (bzmesh.f)
+    !i   aus   :values of (phi,phidot,pz) MT sphere boundary; see makusq
+    !i   nkp   :number of irreducible k-points
     !o Outputs
     !o   orbtm :orbital moments accumulated for this qp
     !l Local variables
@@ -375,15 +374,6 @@ contains
     !l         :spins in the spin-coupled case only
     !l   isp   :isp  is the appropriate index for objects which distinguish
     !l         :spins in the spin-uncoupled case only
-    !l   ksp   :the current spin index in both independent and coupled
-    !l         :spins cases.
-    !l         :ksp is appropriate spin index for quantities that have
-    !l         :separate address space for each spin in every case
-    !l         :(potential- and density-like objects).
-    !u Updates
-    !u   25 Apr 05 (A. Chantis) extended to local orbitals
-    !u   24 Dec 04 Extended to spin-coupled case
-    !u   30 Aug 04 (A. Chantis) first written, adapted from mkpdos
     ! ----------------------------------------------------------------------
     implicit none
     integer :: isp,nev,iq,ispx
@@ -441,14 +431,11 @@ contains
     deallocate(aus)
   end subroutine mkorbm
   subroutine mkdmtu(isp,iq,qp,nev,evec,dmatu) !Get density matrix dmatu for LDA+U (phi-projected density matrix)
-    use m_lmfinit,only: ispec,nbas,nlmax,nsp,nspc,n0,nppn,nlibu,lmaxu,nlibu,lldau,idu
     use m_locpot,only: phzdphz
     use m_subzi, only: wtkb
     use m_igv2x,only: ndimh
     use m_makusq,only: makusq
     use m_locpot,only: rotp
-    ! ----------------------------------------------------------------------
-    !i Inputs
     !i   wtkb  :eigenvalue weights for BZ integration of occupied states
     !i   isp   :current spin channel (1 or 2)
     !i   iq    :qp index, used only to address element in wtkb
@@ -464,14 +451,6 @@ contains
     !i         :U on site ib with dmat beginning at dmats(*,lldau(ib))
     !o Outputs
     !o   dmatu :density matrix for specified LDA+U channels
-    !b Bugs
-    !b   Never checked for noncollinear case
-    !u Updates
-    !u   09 Nov 05 Convert dmat to complex form
-    !u   28 Jun 05 bug fix for nspc=2
-    !u   09 Jun 05 (MvS) extended to local orbitals
-    !u   30 Apr 05 (WRL) first created
-    ! ----------------------------------------------------------------------
     implicit none
     integer :: isp,iq,nev
     double complex dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
@@ -525,24 +504,22 @@ contains
        enddo
     enddo
   end subroutine mkdmtu
+  subroutine dfqkkl( oqkkl ) !Allocates arrays to accumulate output site density
+    implicit none
+    type(s_rv5) :: oqkkl(3,nbas)
+    integer :: ib,is,kmax,lmxa,lmxh,nlma,nlmh ,nkaph
+    do  ib = 1, nbas
+      is = ispec(ib) 
+      nkaph=nkaphh(is)
+      lmxa=lmxa_i(is)
+      if (lmxa == -1) cycle
+      nlma = (lmxa+1)**2
+      nlmh = (lmxb_i(is)+1)**2
+      kmax =  kmxt_i(is)
+      if(allocated(oqkkl(1,ib)%v)) deallocate(oqkkl(1,ib)%v,oqkkl(2,ib)%v,oqkkl(3,ib)%v)
+      allocate(oqkkl(1,ib)%v(0:kmax,0:kmax, nlma,nlma ,nsp), source=0d0)! Pkl*Pkl
+      allocate(oqkkl(2,ib)%v(nkaph, 0:kmax, nlmh,nlma ,nsp), source=0d0)! Pkl*Hsm
+      allocate(oqkkl(3,ib)%v(nkaph,  nkaph, nlmh,nlmh ,nsp), source=0d0)! Hsm*Hsm
+    enddo
+  end subroutine dfqkkl
 end module m_bandcal
-subroutine dfqkkl( oqkkl ) !Allocates arrays to accumulate output site density
-  use m_lmfinit,only: nsp,nbas,ispec,nkaphh,lmxa_i=>lmxa,kmxt_i=>kmxt,lmxb_i=>lmxb
-  use m_struc_def,only:s_rv5   !o oqkkl : memory is allocated for qkkl
-  implicit none
-  type(s_rv5) :: oqkkl(3,nbas)
-  integer :: ib,is,kmax,lmxa,lmxh,nlma,nlmh ,nkaph
-  do  ib = 1, nbas
-     is = ispec(ib) 
-     nkaph=nkaphh(is)
-     lmxa=lmxa_i(is)
-     if (lmxa == -1) cycle
-     nlma = (lmxa+1)**2
-     nlmh = (lmxb_i(is)+1)**2
-     kmax =  kmxt_i(is)
-     if(allocated(oqkkl(1,ib)%v)) deallocate(oqkkl(1,ib)%v,oqkkl(2,ib)%v,oqkkl(3,ib)%v)
-     allocate(oqkkl(1,ib)%v(0:kmax,0:kmax, nlma,nlma ,nsp), source=0d0)! Pkl*Pkl
-     allocate(oqkkl(2,ib)%v(nkaph, 0:kmax, nlmh,nlma ,nsp), source=0d0)! Pkl*Hsm
-     allocate(oqkkl(3,ib)%v(nkaph,  nkaph, nlmh,nlmh ,nsp), source=0d0)! Hsm*Hsm
-  enddo
-end subroutine dfqkkl

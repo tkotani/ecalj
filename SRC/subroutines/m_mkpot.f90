@@ -1,71 +1,12 @@
 !>Get one-particle potential. See http://dx.doi.org/10.7566/JPSJ.84.034702
 ! potential for atomic sites are in locpot.f90
-module m_mkpot !How to learng this? Instead of reading all source, understand I/O.
-  use m_lgunit,only:stdo,stdl
-  use m_lmfinit,only: nlmxlx, qbg=>zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nppn,lfrce, nchan=>pot_nlma, nvl=>pot_nlml
-  use m_lmfinit,only: lso,nbas, nlibu,lmaxu,lldau,nsp,lxcf,lpzex
-  use m_struc_def,only: s_rv1,s_cv1,s_sblock,s_rv4,s_cv5
-  use m_supot,only: n1,n2,n3
-  use m_MPItk,only: master_mpi
-  use m_ftox
-  integer,external:: iprint
-
-  public:: m_mkpot_init, m_mkpot_energyterms, m_mkpot_novxc, m_mkpot_deallocate 
-  ! Potential terms, call m_mkpot_init. Generated at mkpot-locpot-augmat-gaugm
-  complex(8),allocatable,protected ,public  :: osmpot(:,:,:,:)!0th component of Eq.(34)
-  real(8),allocatable,protected,public::  fes1_rv(:), fes2_rv(:) !force terms
-  real(8),allocatable,protected,public::  qmom(:,:),vesrmt(:) 
-  real(8),protected,public:: qval,vconst,qsc,utot,rhoexc,xcore,valvef,amom,rhovxc ! Energy terms by call m_mkpot_energyterms
-  complex(8),allocatable,protected ,public  :: spotx(:,:,:,:)!0th component of Eq.(34) without xc term
-  
-  private
-contains
-  subroutine m_mkpot_novxc(smrho,orhoat) ! outputs are oppix and spotx (for no vxc terms).
-    logical:: novxc_
-    real(8),allocatable :: fes1_xxx(:)
-    type(s_rv1):: orhoat(:,:)
-    complex(8) :: smrho(:,:,:,:)
-    write(stdo,"(a)")' m_mkpot_novxc: Making one-particle potential without XC part ...'
-    allocate( vesrmt(nbas))
-    allocate( qmom(nlmxlx,nbas)) !rhomom
-    allocate( fes1_xxx(3*nbas))
-    allocate( spotx(n1,n2,n3,nsp),source=(0d0,0d0)) !smooth potential without XC
-    call mkpot(1, smrho,orhoat, spotx,fes1_xxx, novxc_) !obtain oppix,smpotx without XC (novxc_ mode).
-    deallocate(vesrmt,qmom,fes1_xxx)
-  end subroutine m_mkpot_novxc
-  subroutine m_mkpot_init(smrho,orhoat)
-    type(s_rv1):: orhoat(:,:)
-    complex(8) :: smrho(:,:,:,:)
-    call tcn('m_mkpot_init')
-    if(iprint()>=10) write(stdo,"(a)")'m_mkpot_init: Making one-particle potential ...'
-    allocate( vesrmt(nbas))
-    allocate( osmpot(n1,n2,n3,nsp)) 
-    allocate( qmom(nlmxlx,nbas))
-    allocate( fes1_rv(3*nbas))
-    call mkpot(1,smrho,orhoat, osmpot,fes1_rv)
-    call tcx('m_mkpot_init')
-  end subroutine m_mkpot_init
-  subroutine m_mkpot_energyterms(smrho_out,orhoat_out) 
-    type(s_rv1):: orhoat_out(:,:)
-    complex(8) :: smrho_out(:,:,:,:)
-    call tcn('m_mkpot_energyterms')
-    if(master_mpi) write(stdo,"('m_mkpot_energyterms')")
-    if(allocated(fes2_rv)) deallocate(fes2_rv)
-    allocate(fes2_rv(3*nbas))
-    call mkpot(0, smrho_out,orhoat_out, osmpot,fes2_rv) !job=0 is for no augmentation term
-    call tcx('m_mkpot_energyterms')
-  end subroutine m_mkpot_energyterms
-  subroutine mkpot(job,smrho,orhoat, smpot,fes,novxc_)!- Make the potential from the density (smrho, orhoat) !dipole_) 
+module m_mkpot !How to learn this? Instead of reading all source, understand I/O.
+    !i   lfrce :    nonzero =>  calculate contribution to forces
+    !i   n1,n2,n3:  dimensions of smrho for smooth crystal density
+    !i   smrho :    smooth crystal density, on a uniform mesh
+    !i   orhoat:    local atomic densities (true and smooth parts)
+    !i   qbg   :    homogeneous background charge
     ! job=0 => not make core and augmentation matrices
-    ! job=1 => make core and augmentation matrices    
-    use m_lmfinit,only:lso,nbas,ispec,nlibu,lmaxu,lldau,nsp,alat=>lat_alat,lxcf,lpzex,nlmxlx
-    use m_lattic,only: plat=>lat_plat, vol=>lat_vol,rv_a_opos
-    use m_bstrux,only: m_bstrux_init
-    use m_elocp,only: elocp
-    use m_smvxcm,only: smvxcm
-    use m_smves,only: smves
-    use m_rhomom,only: rhomom
-    ! for job=0
     !o         utot   = total electrostatic energy
     !o         valves = valence rho * estat potential
     !o         rhoexc = rho * exc
@@ -74,50 +15,30 @@ contains
     !o         valvef = smrhov * vsm + sum_ib valvef_ib
     !o           valvef_ib = rhov * vtrue - smrhov * vsm)_ib
     !o         amom   = system magnetic moment
-
-    !! documents below are under construction.
-    ! ----------------------------------------------------------------------
-    !i Inputs
-    !i   lfrce :nonzero =>  contribution to forces
-    !i   lcplxp=1 only ::0 if ppi is real; 1 if ppi is complex
-    !i   n1,n2,n3 dimensions of smrho for smooth crystal density
-    !i   smrho :smooth crystal density, on a uniform mesh
-    !i   orhoat:local atomic densities (true and smooth parts)
-    !i   qbg   :homogeneous background charge
-    
-    !i ... The following are LDA+U inputs
-    !i   vorb  :orbital dependent potential
-    !i   nlibu :number of U blocks  used to dimension vorb
-    !i   lmaxu :max l for U blocks  used to dimension vorb
-    !i   lldau :lldau(ib)=0 => no U on this site otherwise
-    !i         :U on site ib with dmat beginning at dmats(*,lldau(ib))
-    
+    ! job=1 => make core and augmentation matrices    
     !o Outputs:
     !o   smpot :smooth potential on a uniform mesh:
     !o         :Ves~ + vxc = Ves(n0 + compensating gaussians) + vxc
     !o   qmom  :multipole moments of valence sphere densities
-    !o   vconst:additional constant potential term
-    !o   vesrmt:electrostatic potential at rmt
+    !o   vconst: additional constant potential term to smpot
+    !o   vesrmt: electrostatic potential at rmt
     !o   qval  :total valence charge, including semicore states
     !o   qsc   :total charge from semicore states (local orbitals)
     !o   osig,otau,oppis: augmentation matrices
-    !o   ppn   :nmto-like potential parameters
-    !o   hab,vab,sab: augmentation matrices for local parts of the ham.
-    !o         :See Remarks in augmat.f for their generation and doc.
+    ! gpot0 :integrals of gaussians times electrostatic potential
     
-    !o   vval  :coffs to YL expansion of electro static potential at MT boundaries
-    !o   gpot0 :integrals of gaussians times electrostatic potential
+    !r ---- This is old memo ----------
+    ! vval :coffs to YL expansion of electro static potential at MT boundaries
     
     !o   fes   :contribution to the force from electrostatic + xc potential
     !o   sham->eterms various integrals for the total energy are stored:
     !l Local variables
     !l   rvmusm:int rhosm * vxc(rhosm+smcor1) where smcor1 is portion
     !l         :of smooth core density treated nonperturbatively.
-
     ! xxx   rvepsm:int rhosm * exc(rhosm+smcor1) where smcor1 is portion
     ! xxx         :of smooth core density treated nonperturbatively.
-    ! !Cl   rvepsv:integral of valence density times exc(valence density) !removed now
-    ! !Cl   rvvxcv:integral of valence density times vxc(valence density) !removed now
+    ! xxx   rvepsv:integral of valence density times exc(valence density) !removed now
+    ! xxx   rvvxcv:integral of valence density times vxc(valence density) !removed now
     !l   rhvsm :integral n0~ phi0~
     !l   sgp0  :compensating gaussians * sm-Ves = int (n0~-n0) phi0~
     !l   valfsm:rhvsm - sgp0 + rvmusm + fcvxc0 = n0 (phi0~ + Vxc(n0))
@@ -128,9 +49,6 @@ contains
     !l   valvfa:generated by locpot, called valvef there.  Sum_ib of:
     !l         :vefv1 - vefv2
     !l         := int[rho1*(v1-2*Z/r) - (rho2*v2)] - (n0~-n0)*gpotb - focvxc
-    !l   lso   :nonzero => spin orbit coupling
-    
-    !r Remarks
     !r *The total density is a sum of three terms,
     !r
     !r    n0(mesh) + sum_RL (n_RL(r) - n0_RL(r))
@@ -162,7 +80,64 @@ contains
     !r  is computed as
     !r    the electrostatic energy of  n0~  +
     !r    the electrostatic energy of (neutral) local parts
-    !r
+
+  use m_lgunit,only:stdo,stdl
+  use m_lmfinit,only: nlmxlx, qbg=>zbak,ham_frzwf,nsp,n0,lfrce, nchan=>pot_nlma, nvl=>pot_nlml
+  use m_lmfinit,only: lpzex, nbas,nsp,alat=>lat_alat,nlmxlx, vol
+  use m_struc_def,only: s_rv1,s_cv1,s_sblock,s_rv4,s_cv5
+  use m_supot,only: n1,n2,n3
+  use m_MPItk,only: master_mpi
+  use m_ftox
+  integer,external:: iprint
+
+  public:: m_mkpot_init, m_mkpot_energyterms, m_mkpot_novxc , m_mkpot_deallocate 
+  ! Potential terms, call m_mkpot_init. Generated at mkpot-locpot-augmat-gaugm
+  complex(8),allocatable,protected ,public  :: osmpot(:,:,:,:)!0th component of Eq.(34)
+  real(8),allocatable,protected,public::  fes1_rv(:), fes2_rv(:) !force terms
+  real(8),allocatable,protected,public::  qmom(:,:)
+  real(8),protected,public:: qval,vconst,qsc,utot,rhoexc,xcore,valvef,amom,rhovxc ! Energy terms by call m_mkpot_energyterms
+  complex(8),allocatable,protected ,public  :: spotx(:,:,:,:)!0th component of Eq.(34) without xc term
+  
+  private
+  real(8),allocatable,protected,public::  vesrmt(:) !unused now
+contains
+  subroutine m_mkpot_novxc(smrho,orhoat) ! outputs are oppix and spotx (for no vxc terms).
+    logical:: novxc_
+    real(8) :: fes1_xxx(3*nbas)!dummy
+    type(s_rv1):: orhoat(:,:)
+    complex(8) :: smrho(:,:,:,:)
+    write(stdo,"(a)")' m_mkpot_novxc: Making one-particle potential without XC part ...'
+    allocate( spotx(n1,n2,n3,nsp),source=(0d0,0d0)) !smooth potential without XC
+    call mkpot(1, smrho,orhoat, spotx,fes1_xxx, novxc_) !obtain oppix,smpotx without XC (novxc_ mode).
+  end subroutine m_mkpot_novxc
+  subroutine m_mkpot_init(smrho,orhoat)
+    type(s_rv1):: orhoat(:,:)
+    complex(8) :: smrho(:,:,:,:)
+    call tcn('m_mkpot_init')
+    if(iprint()>=10) write(stdo,"(a)")'m_mkpot_init: Making one-particle potential ...'
+    allocate( osmpot(n1,n2,n3,nsp),fes1_rv(3*nbas))
+    call mkpot(1,smrho,orhoat, osmpot,fes1_rv)
+    call tcx('m_mkpot_init')
+  end subroutine m_mkpot_init
+  subroutine m_mkpot_energyterms(smrho_out,orhoat_out) 
+    type(s_rv1):: orhoat_out(:,:)
+    complex(8) :: smrho_out(:,:,:,:)
+    call tcn('m_mkpot_energyterms')
+    if(master_mpi) write(stdo,"('m_mkpot_energyterms')")
+    if(allocated(fes2_rv)) deallocate(fes2_rv)
+    allocate(fes2_rv(3*nbas))
+    call mkpot(0, smrho_out,orhoat_out, osmpot,fes2_rv) !job=0 is for no augmentation term
+    call tcx('m_mkpot_energyterms')
+  end subroutine m_mkpot_energyterms
+  subroutine m_mkpot_deallocate()
+    deallocate(vesrmt,fes1_rv,qmom,osmpot)
+  end subroutine m_mkpot_deallocate
+  subroutine mkpot(job,smrho,orhoat, smpot,fes,novxc_)!- Make the potential from the density (smrho, orhoat) !dipole_) 
+    use m_bstrux,only: m_bstrux_init
+    use m_elocp,only: elocp
+    use m_smvxcm,only: smvxcm
+    use m_smves,only: smves
+    use m_rhomom,only: rhomom
     implicit none
     type(s_rv1) :: orhoat(3,nbas)
     complex(8):: smrho(n1,n2,n3,nsp),smpot(n1,n2,n3,nsp)
@@ -176,14 +151,16 @@ contains
     real(8),external:: rydberg
     character(80) :: outs
     character strn*120
+    integer:: ife,skipx,skipy
     call tcn('mkpot')
     Printsmoothbackgroundcharge: if (qbg /= 0) then !
       rhobg = (3d0/4d0/pi*vol)**(1d0/3d0)
       if(master_mpi) write(stdo,ftox)' Energy for background charge q=',ftod(qbg),'radius r=',rhobg,'E=9/5*q*q/r=',1.8d0*qbg*qbg/rhobg
-    endif Printsmoothbackgroundcharge
+     endif Printsmoothbackgroundcharge
+    if(allocated(qmom)) deallocate(vesrmt,qmom)
+    allocate( vesrmt(nbas),qmom(nlmxlx,nbas))
+    call rhomom(orhoat, qmom,vsum) ! Multipole moments qmom is calculated
     SmoothPart: block
-      integer:: ife,skipx,skipy
-      call rhomom(orhoat, qmom,vsum) ! Multipole moments qmom is calculated
       call smves(qmom,gpot0,vval,hpot0_rv,smrho,smpot,vconst,smq,qsmc,fes,rhvsm0,rhvsm,zsum,vesrmt,qbg)!0th comp. of Estatic potential Ves and Ees
       if(master_mpi) then !.and.cmdopt0('--espot')) then !writeout electrostatic potential 
         ismpot = shape(smpot)
@@ -224,7 +201,7 @@ contains
     MTpartsIntegrals: block
       use m_locpot,only: locpot,valvfa=>valvef,xcore_=>xcore,sqloc,saloc,qval_=>qval,qsc_=>qsc,vvesat,&
            repat=>rhoexc, repatx=>rhoex, repatc=>rhoec, rmuat=>rhovxc
-      call locpot(job,novxc,orhoat,qmom,vval,gpot0)! !Make local potential at atomic sites and augmentation matrices 
+      call locpot(job,novxc,orhoat,qmom,vval,gpot0)! Make local potential at atomic sites and augmentation matrices 
       xcore=xcore_
       qval =qval_
       qsc  =qsc_
@@ -264,7 +241,4 @@ contains
     endblock MTpartsIntegrals
     call tcx('mkpot')
   end subroutine mkpot
-  subroutine m_mkpot_deallocate()
-    if(allocated(vesrmt)) deallocate(vesrmt,fes1_rv,qmom,osmpot) !,oppi,otau,osig,ohsozz,ohsopm)
-  end subroutine m_mkpot_deallocate
 end module m_mkpot
