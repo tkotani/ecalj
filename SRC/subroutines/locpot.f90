@@ -18,7 +18,7 @@ module m_locpot
 
   public locpot
   real(8),allocatable,public :: rotp(:,:,:,:,:) !rotation matrix
-  real(8),public:: sumt0,sumec,sumtc,valvef,xcore,sqloc,saloc,qval,qsc,vvesat !,sqlocc
+  real(8),public:: sumt0,sumec,sumtc,valvef,xcore,sqloc,saloc,qval,qsc,vvesat,vesaverage !,sqlocc
   real(8),public,allocatable,target:: rhoexc(:),rhoex(:),rhoec(:),rhovxc(:), hab(:,:,:,:,:),sab(:,:,:,:,:)
   real(8),protected,allocatable,public:: phzdphz(:,:,:,:) !val and slo at Rmt for local orbitals.
   type(s_sblock),allocatable,protected,public  :: ohsozz(:,:),ohsopm(:,:) !SOC matrix
@@ -82,7 +82,7 @@ contains
          gpot0(nlmxlx,nbas),rhobg,&
          eh(n0,nkap0),rsmh(n0,nkap0), ehl(n0),rsml(n0),z,a,rmt,qc,ceh,rfoc, &
          qcorg,qcorh,cofg,cofh,rg,rs3,vmtz,qcor(2),qc0,qsc0, ov0mean,pmean,&
-         vesint(nbas),vesaverage
+         vesint(nbas)
     character spid*8
     logical :: lfltwf,cmdopt0,readov0,v0write,novxc
     real(8),pointer:: pnu(:,:),pnz(:,:)
@@ -254,7 +254,7 @@ contains
           enddo
           ves1int = pi4*(sum(rwgt*y0*v1es(:,1,1)*rofi(:)**2) - z*rofi(nr)**2   + 2*z/3d0*rofi(nr)**2) !2025-06-08 again
           ves2int = pi4* sum(rwgt*y0*v2es(:,1,1)*rofi(:)**2)
-          vesint(ib)= ves1int-ves2int ! estatic integral vesint1-vesint2 ves1int ves2int'
+          vesint(ib)= ves1int-ves2int ! estatic integral vesint1-vesint2 ves1int ves2int'             !2025-06-08 again
           !endblock v1esv2esgpotb
           efg(1:5,ib)= merge(v1es(5,5:9,1)/rofi(5)**2,0d0,nlml >= 9 .AND. z > 0.01) !electric field at nucleus
           vnucl= 2d0*srfpi*sum(rwgt(2:nr)*rhol1t(2:nr,1)*(1d0/rofi(2:nr)-1d0/rmt)) +2d0*z/rmt + y0*dEdQ(1) != v1es+vcore at ir=0 without 2z/r. Note b.c.
@@ -421,7 +421,7 @@ contains
         allocate(oppix(3,ib)%cv,source=oppi(3,ib)%cv)
       endif
     enddo ibloop
-    vesaverage = sum(vesint)/vol ! Integral of electrostatic potential within MT = \int d^3r (Ves1-Ves2)/vol.
+    vesaverage = sum(vesint)/vol ! Integral of electrostatic potential within MT = \int d^3r (Ves1-Ves2)/vol. !2025-6-9
     vvesat = sum(vvesata)
     valvef =  sum(valvt)
     sqloc  =  sum(qloc)

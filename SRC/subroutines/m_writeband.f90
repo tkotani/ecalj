@@ -1,17 +1,18 @@
 !>output routines such as writeband used in bndfp
 module m_writeband
   use m_MPItk,only: comm
+  use m_ftox
   public writeband,writefs,writepdos,writedossawada
   private
 contains
-  subroutine writeband(evlall,eferm,evtop,ecbot,spinweightsoc) !write band file. bnd* and bandplot.isp*.glt
+  subroutine writeband(evlall,eferm,vesav,evtop,ecbot,spinweightsoc) !write band file. bnd* and bandplot.isp*.glt
     use m_lgunit,only:stdo
     use m_lmfinit,only:nsp,alat=>lat_alat,lso,nspx
     use m_qplist,only: nkp,nsyml,xdatt,nqp_syml,nqp2n_syml,qplist,labeli,labele,nqps_syml,nqpe_syml,dqsyml,etolv,etolc
     use m_bandcal,only:nevls
     use m_ext,only: sname,dirname
     implicit none
-    real(8),intent(in):: eferm,evtop,ecbot ! evtop is max of n-th band. !evbot is bottom of bands upper than n+1
+    real(8),intent(in):: eferm,vesav,evtop,ecbot ! evtop is max of n-th band. !evbot is bottom of bands upper than n+1
     integer:: ifbndo,ikp,isyml,jsp
     character*300::filenm(2),bchar
     real(8):: rydberg=13.6058d0 !,vadd
@@ -109,7 +110,8 @@ contains
        do 4113 jsp = 1, nspx   ! ispx index.
           open(newunit=ifbndsp(jsp),file=fnameb(isyml,jsp))
           if(lso==1) sss='                '//'spinup     spindn'
-          write(ifbndsp(jsp),"('#',i5,' efermi= ',f10.5,2x,'QPE(ev)',9x,'1st-deri',14x,'qvec',a)") nkp,eferm,trim(sss)
+          write(ifbndsp(jsp),"('#',i5,'         ',f10.5,2x,'QPE(ev)',9x,'1st-deri',14x,'qvec',a)") nkp,eferm,trim(sss)
+          write(ifbndsp(jsp),ftox)'#eferm ', ftof(eferm,8),ftof(vesav),' ! efermi Vesav (Ry)'
           ibb=0
           do 5113 i=1,minval(nevls(:,:)) !band index
              !! take derivatives

@@ -54,7 +54,7 @@ contains
     use m_MPItk,only: master_mpi, strprocid, numprocs=>nsize,xmpbnd2,comm
     use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate, m_mkpot_energyterms,m_mkpot_novxc 
     use m_mkpot,only: osmpot, qmom, vconst, qval , qsc , fes1_rv , fes2_rv, amom
-    use m_locpot,only: osig,otau,oppi
+    use m_locpot,only: osig,otau,oppi,vesaverage
     use m_clsmode,only: m_clsmode_init,m_clsmode_set1,m_clsmode_finalize
     use m_qplist,only: qplist,nkp,xdatt,labeli,labele,dqsyml,etolc,etolv
     use m_qplist,only: nqp2n_syml,nqp_syml,nqpe_syml,nqps_syml,nsyml,kpproc,iqini,iqend    ! MPIK divider. iqini:iqend are node-dependent
@@ -116,7 +116,7 @@ contains
     logical:: llmfgw,sigx, ltet,cmdopt0,sigmamode,tdos,debug=.false.
     logical:: fullmesh,PROCARon,writeham=.false.,magexist, fsmode 
     logical,save:: siginit=.true.
-    real(8):: sttime,entime
+    real(8):: sttime,entime,vesav
     real(8):: ekinval,eharris,eksham,  dosw(2),dum(1),evtop,ecbot,qp(3),xxx,dumx
     real(8):: fh_rv(3,nbas),vmag,eee,dosi(2),dee,emin,qvalm(2)
     real(8),allocatable:: dosi_rv(:,:),dos_rv(:,:) 
@@ -132,6 +132,9 @@ contains
     GETefermFORplbndMODE: if(plbnd/=0) then
       open(newunit=ifi,file='efermi.lmf',status='old',err=113)
       read(ifi,*) eferm,vmag ! efermi is consistent with eferm in rst.* file (iors.f90).
+      read(ifi,*) 
+      read(ifi,*) 
+      read(ifi,*) vesav
       !                        However, efermi.lmf can be modified when we do one-shot dense-mesh calculation as is done in job_band.
       close(ifi)             ! For example, you may change NKABC, and run job_pdos (lmf --quit=band only modify efermi.lmf, without touching rst.*).
       goto 114
@@ -224,7 +227,7 @@ contains
                if(fsmode)  call writefs(evlall,eferm,spinweightsoc)   !fermi surface !bias field vmag added  2023-9-20.
                !Obata bugfix add spinweightsoc at 2024-6-11
                write(stdo,*)' Writing bands to bands file for gnuplot ...'
-               if(nsyml/=0)call writeband(evlall,eferm,evtop,ecbot,spinweightsoc) !bias field added  2023-9-20
+               if(nsyml/=0)call writeband(evlall,eferm,vesav,evtop,ecbot,spinweightsoc) !bias field added  2023-9-20
             endif
             if(fsmode) call rx0('done --fermisurface mode. *.bxsf for xcryden generated')
             call rx0('plot band mode done') ! end of band plbnd/=0, that is, band plot mode.
@@ -244,6 +247,7 @@ contains
       write(ifi,"(2d24.16, ' # (Ry) Fermi energy and Bias vmag; -vmag/2 +vmag/2 for each spin,')") eferm,vmag
       write(ifi,"(d24.16, ' # (Ry) Top of Valence')") evtop
       write(ifi,"(d24.16, ' # (Ry) Bottom of conduction')") ecbot
+      write(ifi,"(d24.16, ' # (Ry) Velectrostatic average')") vesaverage
       write(ifi,"(2d24.16,' #before: number of electrons total at sites:qval, backg:qbg=')") qval,qbg
       write(ifi,"(2d24.16,' # band: charge(nup+nspin), mag.mom(nup-ndown)')")qvalm(1), qvalm(2)
       write(ifi,"(f24.9 , ' # band: band energy sum (eV)=')") sev*rydberg()
