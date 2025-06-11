@@ -77,7 +77,7 @@ contains
     type(s_rv1) :: orhoat_out(3,nbas)
     type(s_rv5) :: oeqkkl(3,nbas)
     type(s_rv5) :: oqkkl(3,nbas)
-    integer:: ib,ipr,iprint,is,k,kcor,kmax,lcor,lfoc,lgunit,lmxa,lmxh,lmxl,nlma,nlmh,nlml,nlml1,r,ncore,ifx
+    integer:: ib,ipr,is,k,kcor,kmax,lcor,lfoc,lgunit,lmxa,lmxh,lmxl,nlma,nlmh,nlml,nlml1,r,ncore,ifx
     integer :: nkapi,nkape,nr, lh(nkap0),nkaph,ifim,i
     real(8):: qbyl(n0,nsp,nbas) , hbyl(n0,nsp,nbas) , sab(3,3,n0,nsp,nbas), hab(3,3,n0,nsp,nbas)
     real(8) :: a,ceh,qcor(2),rfoc,rmt,smec,smtc,stc0, sum1,sum2,sums1,sums2,xx,z,res,rsml(n0),ehl(n0)
@@ -87,6 +87,7 @@ contains
     real(8),allocatable:: rofi_rv(:),rwgt_rv(:)
     real(8),parameter:: pi=4d0*datan(1d0), y0=1d0/dsqrt(4d0*pi)
     logical:: mmtargetx=.false.
+    integer,external:: iprint
     ipr  = iprint()
     sums1 = 0
     call tcn('mkrout')
@@ -175,7 +176,7 @@ contains
            if(nsp==1) dat(1:3,ib) = [sum1,sum2,sum1-sum2]
             if(nsp==2) dat(1:6,ib) = [sum1,sum2,sum1-sum2, -sums1,-sums2,-sums1+sums2]
             !!exper. block to keep mag.moment for AF.controlled by uhval.aftest file. See elsewhere.
-            if( nsp==2 .AND. master_mpi .AND. mmtargetx) then
+            if( nsp==2 .AND. master_mpi .AND. mmtargetx.and.iprint()>0) then
                if(ib==1) then
                   open(newunit=ifx,file='mmagfield.aftest',position='append')
                   write(ifx,"('          ',f23.15)",advance='no') -sums1
