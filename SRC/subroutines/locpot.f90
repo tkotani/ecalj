@@ -295,7 +295,7 @@ contains
             enddo
           enddo
         endif
-        if(iprint()>=0) then !master
+        if(iprint()>=1) then !master
           sumh  = sum(rwgt*rhochs)                           
           samh = -y0*cofh*pi4*dexp(ceh*rfoc*rfoc*0.25d0)/ceh !total sm core charge (smHamkel)
           if(dabs(samh)>1d-6)write(stdo,ftox)'    sm core charge in MT=',ftof(sumh),'= total-spillout=',ftof(samh),'-',ftof(samh-sumh)

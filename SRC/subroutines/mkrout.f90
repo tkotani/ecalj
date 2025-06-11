@@ -200,7 +200,7 @@ contains
        sumtc = sumtc + merge(smtc,stc0,lfoc==0) !sum of kinetic energy of cores for ehk
        deallocate(rofi_rv,rwgt_rv)
     enddo ibloop
-    if (lrout > 0) then ! write(stdo,"(a)")' mkrout: site(class) decomposed charge and magnetic moment. class->lmchk'
+    if (lrout > 0.and.iprint()>0) then ! write(stdo,"(a)")' mkrout: site(class) decomposed charge and magnetic moment. class->lmchk'
        if (nsp == 1) write(stdo,"('mkrout:  Qtrue      sm,loc       local')")
        if (nsp == 2) write(stdo,"('mkrout:  Qtrue      sm,loc       local',8x,'true mm   smooth mm    local mm')")
        do ib=1,nbas
