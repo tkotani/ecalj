@@ -1,8 +1,8 @@
-from setcomm import callF,setcommF,getlibF,unload_library
+# >mpirun -np 4 python lmf.py si
+from setcomm import callF,setcommF,getlibF,unload_library,readflib
 from mpi4py import MPI
 import sys,os,glob
 import functools
-
 #------------------------------------------------
 print = functools.partial(print, flush=True)
 arglist=' '.join(sys.argv[1:])
@@ -18,20 +18,19 @@ if(master_mpi): print()
 group=[0] #only rank=0 is used
 stdout='llmfa'
 if(master_mpi): print('=== Run lmfa by ranks=',group, ' See stdout=',stdout)
-
 comm = setcommF(grp=group)
 if(rankw in group): 
     if(master_mpi): print(' rankw=',rankw,' group=',group)
-    flib = getlibF(scriptpath+'/libecaljF.so',prt=master_mpi) #load dynamic library
-    callF(flib. setcmdpathc,[scriptpath,master_mpi])  # Set path for ctrl2ctrlp.py at m_setcmdpath
-    callF(flib. m_setargsc, [arglist,master_mpi])     # Set args at m_args
-    callF(flib. m_ext_init, [])
-    callF(flib. sopen,[stdout]) #standard output
-    callF(flib. convertctrl2ctrlpbypython,[])
-    callF(flib. lmfa,[comm])
-    callF(flib. sclose)
+    fl = getlibF(scriptpath+'/libecaljF.so',prt=master_mpi) #load dynamic library
+    callF(fl. setcmdpathc, scriptpath,master_mpi)  #Set path for ctrl2ctrlp.py at m_setcmdpath
+    callF(fl. m_setargsc,  arglist,master_mpi)     #Set args at m_args
+    callF(fl. m_ext_init )
+    callF(fl. sopen,  stdout) #standard output
+    callF(fl. convertctrl2ctrlpbypython)
+    callF(fl. lmfa, comm)
+    callF(fl. sclose )
     if(master_mpi): print('=== end of lmfa ===')
-    unload_library(flib)
+    unload_library(fl)
 commw.Barrier()
 
 # lmf ---------------------
@@ -40,15 +39,15 @@ stdout='llmf'
 comm = setcommF(grp=group) #communicator for group
 if(rankw in group): 
     if(master_mpi): print('\n=== start lmf by ranks=',group, ' See stdout=',stdout)
-    flib = getlibF(scriptpath+'/libecaljF.so',prt=master_mpi) #load dynamic library
-    callF(flib. setcmdpathc,[scriptpath,master_mpi])  # Set path for ctrl2ctrlp.py at m_setcmdpath
-    callF(flib. m_setargsc, [arglist,   master_mpi])  # Set args at m_args
-    callF(flib. m_ext_init, [])
-    callF(flib. sopen, [stdout]) #standard output
-    callF(flib. convertctrl2ctrlpbypython,[])
-    callF(flib. lmf,  [comm])    #main part
-    callF(flib. sclose) 
-    unload_library(flib)
+    fl = getlibF(scriptpath+'/libecaljF.so',prt=master_mpi) #load dynamic library
+    callF(fl. setcmdpathc, scriptpath,master_mpi)  # Set path for ctrl2ctrlp.py at m_setcmdpath
+    callF(fl. m_setargsc,  arglist,   master_mpi)  # Set args at m_args
+    callF(fl. m_ext_init )
+    callF(fl. sopen,  stdout) #standard output
+    callF(fl. convertctrl2ctrlpbypython)
+    callF(fl. lmf,  comm)    #main part
+    callF(fl. sclose) 
+    unload_library(fl)
 commw.Barrier()
 if(master_mpi): print('=== end of lmf ===')
 

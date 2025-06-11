@@ -20,6 +20,73 @@ def setcommF(grp):
     commF = comm.py2f()
     return commF
 
+class readflib:
+    import sys
+    def __init__(self,fortranso,prt):
+        ''' Get fortran library flib callable from python. mkl is taken from mklloc.txt '''
+        scriptpath = os.path.dirname(os.path.realpath(__file__))+'/'
+        mkl=[]
+        with open(scriptpath+'./mklloc.txt') as f:
+            for line in f:
+                if 'mkl' in line:
+                    mmm=line.split('=>')[1].strip().split(' ')[0].strip()             #print(f'mmm=',mmm)
+                    mkl.append(mmm)
+        for mkll in mkl:
+            CDLL(mkll, mode=ctypes.RTLD_GLOBAL)     #flib = np.ctypeslib.load_library(fortranso,".")
+            if(prt): print(f' Load mkl=',mkll)
+        flib = CDLL(fortranso, mode=ctypes.RTLD_GLOBAL)
+        if(prt): print(f' Load fortran lib=',fortranso)
+        self.flib = flib
+    
+    def __call__(self,foobar,arguments=[]):
+        '''Equivalent to 'call foobar(a,b,c,...)' in fortran, where we supply arguments=[a,b,c,...]. 
+        a,b,c,... are integer,logical, or real(8) in this version of callF.'''
+        MAXSTRLEN=512
+        c_char_array = ARRAY(c_char,MAXSTRLEN)
+        argtypess=[]
+        data=[]
+        #method_name = foobar  # foobar が文字列として与えられている
+        method = getattr(self.flib, foobar)  # self.flib の foobar メソッドを取得
+        for ii in arguments:
+            if(type(ii)==type(1)):  
+                argtypess.append( POINTER(c_int32) ) # data type
+                data.append(c_int32(ii))             # data 
+            elif(type(ii)==type(1.0)):  
+                argtypess.append( POINTER(c_double) )
+                data.append(c_double(ii))
+            elif(type(ii)==type(True)):
+                argtypess.append( POINTER(c_bool) )
+                data.append(c_bool(ii))
+            elif(type(ii)==type('a')): #Not working well, because bind(C) in fortran allows only char(1)::aaa(:)
+                argtypess.append( POINTER(c_char_array) )
+                data.append(byref(create_string_buffer(ii.encode(),MAXSTRLEN)))
+            #print(f' outputargs=',argtypess)
+            #print(f' data=',data)
+            method.argtypes= argtypess
+        if(len(argtypess)==0):
+            method()
+        else:
+            method(*data)
+    
+    def closeflib(self):
+        import ctypes
+        library=self.flib
+        try:
+            dlclose = ctypes.cdll.LoadLibrary("libdl.so.1").dlclose
+            dlclose.restype = ctypes.c_int
+            dlclose.argtypes = [ctypes.c_void_p]
+            dlclose(library._handle)
+        except :
+            pass
+        try:
+            dlclose = ctypes.cdll.LoadLibrary("libdl.so.2").dlclose
+            dlclose.restype = ctypes.c_int
+            dlclose.argtypes = [ctypes.c_void_p]
+            dlclose(library._handle)
+        except Exception as e:
+            print(f"Error during dlclose: {e}")
+        del library
+
 def getlibF(fortranso,prt):
     ''' Get fortran library flib callable from python. mkl is taken from mklloc.txt '''
     scriptpath = os.path.dirname(os.path.realpath(__file__))+'/'
@@ -38,7 +105,7 @@ def getlibF(fortranso,prt):
 
 class callF:
     import sys
-    def __init__(self,foobar,arguments=[]):
+    def __init__(self,foobar,*arguments):
         '''Equivalent to 'call foobar(a,b,c,...)' in fortran, where we supply arguments=[a,b,c,...]. 
         a,b,c,... are integer,logical, or real(8) in this version of callF.'''
         MAXSTRLEN=512
