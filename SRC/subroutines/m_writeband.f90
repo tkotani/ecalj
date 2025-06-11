@@ -2,6 +2,7 @@
 module m_writeband
   use m_MPItk,only: comm
   use m_ftox
+  real(8),external:: rydberg
   public writeband,writefs,writepdos,writedossawada
   private
 contains
@@ -15,7 +16,6 @@ contains
     real(8),intent(in):: eferm,vesav,evtop,ecbot ! evtop is max of n-th band. !evbot is bottom of bands upper than n+1
     integer:: ifbndo,ikp,isyml,jsp
     character*300::filenm(2),bchar
-    real(8):: rydberg=13.6058d0 !,vadd
     character*3::charnum3
     integer::ifbndsp(2),iprint,iq,i,ifglt,ifbndsp_nearef(2),ifmass(2),ifmglt,ifmglt2,ndhamx
     character*300::aaa,addx
@@ -32,10 +32,11 @@ contains
     integer:: idat,ifglts(2),iqplist,isp,nx(3)
     character(100)::acrossef
     character(13)::massd,mass2d,labelp
-    logical:: scd
+    logical:: scd,cmdopt0
     real(8)::kef
     real(8),allocatable:: kabs(:)
-    real(8)::  evlall(:,:,:) !ndhamx,nspx,nkp)
+    real(8)::  evlall(:,:,:),basel
+    logical:: eszero
     real(8):: spinweightsoc(:,:,:)
     nx=shape(evlall)
     ndhamx=nx(1)
@@ -51,6 +52,8 @@ contains
        !write(stdo,"('ikpoff=',2i5)") isyml,ikpoff(isyml)
     enddo
     !! write bandplot.glt for gnuplot
+    eszero = cmdopt0('--eszero')
+    basel= merge(vesav,eferm,eszero)
     allocate(fnameb(nsyml,nspx))
     do jsp = 1, nspx
        fname='bandplot.isp'//char(48+jsp)
@@ -60,7 +63,8 @@ contains
        write(ifglt,'(a)')'set output "'//trim(fname)//'.band.eps"'
        write(ifglt,'(a)')'set xzeroaxis'
        write(ifglt,'(a)')'set grid'
-       write(ifglt,'(a)')'set ylabel "Energy-Efermi(eV)"'
+       if(eszero) write(ifglt,'(a)')'set ylabel "Energy-Eesav(eV)"'
+       if(.not.eszero) write(ifglt,'(a)')'set ylabel "Energy-Efermi(eV)"'
        write(ifglt,'(a)')'# This is given written in subroutine writeband in lm7K/fp/bndfp.F'
        if(nspx==1) addx=''
        if(nspx==2) addx=' isp='//char(48+jsp)
@@ -111,7 +115,8 @@ contains
           open(newunit=ifbndsp(jsp),file=fnameb(isyml,jsp))
           if(lso==1) sss='                '//'spinup     spindn'
           write(ifbndsp(jsp),"('#',i5,'         ',f10.5,2x,'QPE(ev)',9x,'1st-deri',14x,'qvec',a)") nkp,eferm,trim(sss)
-          write(ifbndsp(jsp),ftox)'#eferm ', ftof(eferm,8),ftof(vesav),' ! efermi Vesav (Ry)'
+          if(.not.eszero) write(ifbndsp(jsp),ftox)'#base=eferm  ', ftof(eferm*rydberg(),8),ftof(vesav*rydberg(),8),' ! efermi Vesav (eV)'
+          if(     eszero) write(ifbndsp(jsp),ftox)'#base=estatic', ftof(eferm*rydberg(),8),ftof(vesav*rydberg(),8),' ! efermi Vesav (eV)'
           ibb=0
           do 5113 i=1,minval(nevls(:,:)) !band index
              !! take derivatives
@@ -126,10 +131,10 @@ contains
                 ikp = ikpoff(isyml)+iq
                 if(lso==1) write(sss,"(2f11.6)") spinweightsoc(i,1:2,ikp)
                 write(ifbndsp(jsp),"(i5,(1x,f12.8), 2(1x,f16.10),x,3f9.5,a)") &
-                     i,xdatt(ikp),(evlall(i,jsp,ikp)-eferm)*rydberg,diffeb(iq), qplist(:,ikp), trim(sss)
+                     i,xdatt(ikp),(evlall(i,jsp,ikp)-basel)*rydberg(),diffeb(iq), qplist(:,ikp), trim(sss)
                 !! write qplist.dat (xaxis, q, efermi) used for band plot
                 if(i==1 .AND. jsp==1) then
-                   if(iq==1 .AND. isyml==1) write(iqplist,"(f16.10,' ! ef')") eferm
+                   if(iq==1 .AND. isyml==1) write(iqplist,"(f16.10,' ! ef or estaticav')") basel
                    ikp = ikpoff(isyml)+iq
                    write(iqplist,"(f16.10,x,3f9.5,' !x q')") &
                         xdatt(ikp), qplist(:,ikp)
@@ -181,8 +186,8 @@ contains
              !            print *,'jjjjjjjj',jsp,isyml,ikps,i,eee
              semiconband = scd.and.evtop-etolv<eee .and. eee<ecbot+etolv
              ! heck i-th band is neare VCM and CBM
-             metalband = ichangesign(evlall(i,jsp,ikps:ikps+ne-1)-eferm,ne) >-1
-             ! or metal crosspoint point across eferm
+             metalband = ichangesign(evlall(i,jsp,ikps:ikps+ne-1)-basel,ne) >-1
+             ! or metal crosspoint point across basel
              ! heck i-th band is near VCM and CBM
              if(semiconband .OR. metalband) then
                 ibb = ibb+1
@@ -191,7 +196,7 @@ contains
                    imax=min(ne-1,idat+2)
                    allocate( kabs(imin:imax))
                    kabs(imin:imax) = (xdatt(ikps+imin-1:ikps+imax-1)-disoff(isyml))*tpiba ! tpiba is 2pi/alat. |k|. left-end is zero.
-                   kef = polinta(0d0, evlall(i,jsp,ikps+imin-1:ikps+imax-1)-eferm, kabs, imax-imin+1) !we have k at Ef |k|=qef
+                   kef = polinta(0d0, evlall(i,jsp,ikps+imin-1:ikps+imax-1)-basel, kabs, imax-imin+1) !we have k at Ef |k|=qef
                    dEdkatef = polinta(kef, kabs, diffeb(imin:imax), imax-imin+1)
                    deallocate(kabs)
                    !                 write(stdo,"('Effective Mass for metal: ',a,
@@ -222,8 +227,8 @@ contains
                    endif
                    write(ifmass(jsp),"(3i4,i2,' ',f13.8,' ',f13.8,' ',f13.8,' ',a,' ',a,a)") &
                         isyml,i,ix,jsp,(xdatt(ikps+ix-1)-disoff(isyml))*tpiba, &
-                        (evlall(i,jsp,ikps+ix-1)-eferm)*rydberg, &
-                        (evlall(i,jsp,ikps+ix-1)-evlall(i,jsp,ikps))*rydberg, &
+                        (evlall(i,jsp,ikps+ix-1)-basel)*rydberg(), &
+                        (evlall(i,jsp,ikps+ix-1)-evlall(i,jsp,ikps))*rydberg(), &
                         mass2d,  massd,  trim(acrossef)
                 enddo
                 close(ifmass(jsp))
@@ -246,7 +251,7 @@ contains
     enddo
     !   !! bnds.* is only for backward compatibility.
     !   open(newunit=ifbndo,file='bnds.'//trim(sname))
-    !   write(ifbndo,"(i5,f10.5,i6)") sum(nqp_syml(1:nsyml)),eferm,0
+    !   write(ifbndo,"(i5,f10.5,i6)") sum(nqp_syml(1:nsyml)),basel,0
     !   do 3111 isyml = 1,nsyml
     !      ne = nqp_syml(isyml)
     !      write(ifbndo,"(i5)") ne
@@ -358,7 +363,7 @@ contains
     real(8),allocatable:: evlall(:,:,:),dwgtall(:,:,:,:,:),pdosp(:,:),pdosalla(:,:,:,:)
     real(8)::eminp,emaxp,ef0,eee,eminp_,emaxp_
     character*3::charnum3
-    real(8):: rydberg=13.6058d0, bin,eigen(4),vvv,wt,bin2
+    real(8):: bin,eigen(4),vvv,wt,bin2
     character strn*120
     character*(*)::ext
     character(8)::xt
@@ -389,16 +394,16 @@ contains
     call dstrbp(ntete,numprocs,1,kpproc(0))
     iteti = kpproc(procid)
     itete = kpproc(procid+1)-1
-    eminp =-25.0/rydberg !default values
-    emaxp = 30.0/rydberg
+    eminp =-25.0/rydberg() !default values
+    emaxp = 30.0/rydberg()
     ndos  = 5500
     if (cmdopt2('-emin=',strn)) then
        read(strn,*) eminp_
-       eminp = eminp_/rydberg
+       eminp = eminp_/rydberg()
     endif
     if (cmdopt2('-emax=',strn)) then
        read(strn,*) emaxp_
-       emaxp = emaxp_/rydberg
+       emaxp = emaxp_/rydberg()
     endif
     if(cmdopt2('-ndos=',strn))  then
        read(strn,*) ndos_
@@ -489,7 +494,7 @@ contains
     real(8)::eminp,emaxp,ef0,eee,eminp_,emaxp_
     character*100::strn
     !      character*100::filenm(2)
-    real(8):: rydberg=13.6058d0, eigen(4),wt,tot,bin,bin2
+    real(8):: eigen(4),wt,tot,bin,bin2
     logical:: mlog
     integer, dimension(:),allocatable :: kpproc
     complex(8),allocatable:: ham(:,:,:)

@@ -134,7 +134,7 @@ contains
       read(ifi,*) eferm,vmag ! efermi is consistent with eferm in rst.* file (iors.f90).
       read(ifi,*) 
       read(ifi,*) 
-      read(ifi,*) vesav
+      read(ifi,*) xxx,vesav
       !                        However, efermi.lmf can be modified when we do one-shot dense-mesh calculation as is done in job_band.
       close(ifi)             ! For example, you may change NKABC, and run job_pdos (lmf --quit=band only modify efermi.lmf, without touching rst.*).
       goto 114
@@ -247,7 +247,7 @@ contains
       write(ifi,"(2d24.16, ' # (Ry) Fermi energy and Bias vmag; -vmag/2 +vmag/2 for each spin,')") eferm,vmag
       write(ifi,"(d24.16, ' # (Ry) Top of Valence')") evtop
       write(ifi,"(d24.16, ' # (Ry) Bottom of conduction')") ecbot
-      write(ifi,"(d24.16, ' # (Ry) Vesav Efermi-Vesav')") vesaverage, eferm-vesaverage
+      write(ifi,"(2d24.16,' # (Ry) Efermi-Vesav Vesav')") eferm-vesaverage,vesaverage
       write(ifi,"(2d24.16,' #before: number of electrons total at sites:qval, backg:qbg=')") qval,qbg
       write(ifi,"(2d24.16,' # band: charge(nup+nspin), mag.mom(nup-ndown)')")qvalm(1), qvalm(2)
       write(ifi,"(f24.9 , ' # band: band energy sum (eV)=')") sev*rydberg()

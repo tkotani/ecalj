@@ -246,20 +246,27 @@ contains
             gpotb(ilm) = pi4/df(2*l+1)*sfac*(ag2/pi)**1.5d0*(2d0*ag2)**l*sum(rwgt*v2es(:,ilm,1)*rofi(:)**l* gg(:) )
             dEdQ(ilm)  = (gpot0(ilm,ib) - gpotb(ilm))*rmax**l  ! dEdQ(L)= {\cal Q}^V_aL *rmax**l in Eq.(35) 
           enddo !NOTE     dEdQ gives the boundariy condition at MT
-          call poinsp(z,  dEdQ,nlml,rofi,rhol1t,nr, rvs1,v1es)!v1es -2*z(1/rofi(2:nr)-1/rmt) is es part of 1st comp. of Eq.(34).
-          call poinsp(0d0,dEdQ,nlml,rofi,rhol2t,nr, rvs2,v2es)!v2es                          is es part of 2nd comp. of Eq.(34).
+          call poinsp(z,  dEdQ,nlml,rofi,rhol1t,nr, rvs1,v1es)!y0*v1es(:,ir) -2*z/rofi(ir) is es part of 1st comp. of Eq.(34).
+          call poinsp(0d0,dEdQ,nlml,rofi,rhol2t,nr, rvs2,v2es)!y0*v2es(:,ir)               is es part of 2nd comp. of Eq.(34).
           do ilm = 1, nlml ! gpotb = integrals of compensating gaussians times the estatic 2nd component v2es
             l = ll(ilm) 
             gpotb(ilm) = pi4/df(2*l+1)*sfac*(ag2/pi)**1.5d0*(2d0*ag2)**l*sum(rwgt*v2es(:,ilm,1)*rofi(:)**l* gg(:) )
           enddo
-          ves1int = pi4*(sum(rwgt*y0*v1es(:,1,1)*rofi(:)**2) - z*rofi(nr)**2   + 2*z/3d0*rofi(nr)**2) !2025-06-08 again
-          ves2int = pi4* sum(rwgt*y0*v2es(:,1,1)*rofi(:)**2)
+          ves1int = pi4* (sum(rwgt*y0*v1es(:,1,1)*rofi(:)**2) - z*rofi(nr)**2) !2025-06-08 again
+          ves2int = pi4*  sum(rwgt*y0*v2es(:,1,1)*rofi(:)**2)
           vesint(ib)= ves1int-ves2int ! estatic integral vesint1-vesint2 ves1int ves2int'             !2025-06-08 again
           !endblock v1esv2esgpotb
           efg(1:5,ib)= merge(v1es(5,5:9,1)/rofi(5)**2,0d0,nlml >= 9 .AND. z > 0.01) !electric field at nucleus
           vnucl= 2d0*srfpi*sum(rwgt(2:nr)*rhol1t(2:nr,1)*(1d0/rofi(2:nr)-1d0/rmt)) +2d0*z/rmt + y0*dEdQ(1) != v1es+vcore at ir=0 without 2z/r. Note b.c.
           ! Estatic term of 1st comp. of Eq.34. is given as  v1es +  2d0*(-z/r+z/rmt) =  Ves(rhol1t,zero at rmt)+y0*dEdQ(1) + 2d0*(-z/r+z/rmt)  
           vvesata(ib) = rvs1-z*vnucl - rvs2  ! density \times electrostatic potential (z-z self-interaction removed).
+          if(master_mpi.and.cmdopt0('--vesdat')) then
+            if(ib==1) open(newunit=ifi,file='ves.dat')
+            do ir=2,nr
+              write(ifi,ftox) ib, ir,rofi(ir), y0*v1es(ir,1,1)- 2*z/rofi(ir), y0*v2es(ir,1,1)
+            enddo
+            if(ib==nbas) close(ifi)
+          endif
           if(nsp==2) v1es(:,:,2)=v1es(:,:,1)
           if(nsp==2) v2es(:,:,2)=v2es(:,:,1)
           forall(isp=1:nsp) v1(:,:,isp) =v1es(:,:,1) 
