@@ -33,9 +33,9 @@ outfile0=''
 for iarg in sys.argv[1:]: # -vfoobar replacemebt by args
     try:
         vin=iarg.split('-v')[1]
+        label,val=vin.split('=')
     except:
         continue
-    label,val=vin.split('=')
     try:
         outfile0=outfile0+' '+str(label)+' '+str(eval(val))+' ! -vfoobar\n'
     except:
