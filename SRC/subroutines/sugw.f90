@@ -565,7 +565,7 @@ contains
         use m_readqg,only: readngmx,ngcmx,readqg0,readqg
         use m_locpot,only: rotp
         use m_pwmat,only: mkppovl2
-        real(8)::add,zzz(2,2),epscheck=1d-10
+        real(8)::add,zzz(2,2),epscheck=1d-8
         complex(8)::ccc(3),nnn,rrr(3,3),mmm(3,3),ovv
         integer::iband,ibas,iqqisp,ix,m,nm,i,ilm,im,iv,ngvecpf1(3,ngp),ndg1(3)
         do ispc=1,nspc
@@ -575,17 +575,19 @@ contains
         GramSchmidtCphiGeig :block
           if(.not.cmdopt0('--skipGS')) &
                call GramSchmidt2(nspc,nev,ndima,ngp,ngpmx, ppj(1:ndima,1:ndima,isp),ppovl, cphix,geigr) !Improve Orthogonalization
-          ncheckw: block !Normalization check of MT+IPW division of eigenfunctions 
-            do   i=1,nev
-              do j=1,nev
-                ovv= sum([( sum( dconjg(cphix(1:ndima,ispc,i))*matmul(ppj(:,:,isp), cphix(1:ndima,ispc,j)))  & !MT parts
-                     +      sum( dconjg(geigr(1:ngp,  ispc,i))*matmul(ppovl,        geigr(1:ngp,  ispc,j)))  & !IPW parts
-                     ,ispc=1,nspc)])     
-                if(i/=j.and.abs(ovv)    >epscheck) write(stdo,ftox)'oooovlap=',i,j,ispc,ftod(abs(ovv),8)
-                if(i==j.and.abs(ovv-1d0)>epscheck) write(stdo,ftox)'oooovlap=',i,j,ispc,ftod(abs(ovv),8)
+          if(cmdopt0('--normcheck')) then
+            ncheckw: block !Normalization check of MT+IPW division of eigenfunctions 
+              do   i=1,nev
+                do j=1,nev
+                  ovv= sum([( sum( dconjg(cphix(1:ndima,ispc,i))*matmul(ppj(:,:,isp), cphix(1:ndima,ispc,j)))  & !MT parts
+                       +      sum( dconjg(geigr(1:ngp,  ispc,i))*matmul(ppovl,        geigr(1:ngp,  ispc,j)))  & !IPW parts
+                       ,ispc=1,nspc)])     
+                  if(i/=j.and.abs(ovv)    >epscheck) write(stdo,ftox)'oooovlap=',i,j,ispc,ftod(abs(ovv),8)
+                  if(i==j.and.abs(ovv-1d0)>epscheck) write(stdo,ftox)'oooovlap=',i,j,ispc,ftod(abs(ovv),8)
+                enddo
               enddo
-            enddo
-          endblock ncheckw
+            endblock ncheckw
+          endif
           deallocate(ppovl)
         endblock GramSchmidtCphiGeig
         cphix(1:ndima,1:nspc,nev+1:nbandmx)=1d20 !padding 
