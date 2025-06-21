@@ -567,6 +567,7 @@ contains
         use m_pwmat,only: mkppovl2
         real(8)::add,zzz(2,2),epscheck=1d-8
         complex(8)::ccc(3),nnn,rrr(3,3),mmm(3,3),ovv
+        complex(8), allocatable :: pp_wfs(:,:), ovvmat(:,:)
         integer::iband,ibas,iqqisp,ix,m,nm,i,ilm,im,iv,ngvecpf1(3,ngp),ndg1(3)
         do ispc=1,nspc
           geigr(1:ngp,      ispc,1:ndimhx)=pwz(1:ngp,ispc,1:ndimhx)
@@ -576,6 +577,27 @@ contains
           if(.not.cmdopt0('--skipGS')) &
                call GramSchmidt2(nspc,nev,ndima,ngp,ngpmx, ppj(1:ndima,1:ndima,isp),ppovl, cphix,geigr) !Improve Orthogonalization
           if(cmdopt0('--normcheck')) then
+            ! MO added blas_mode to replaced matmul by a BLAS call 2025-06-21
+            if(blas_mode) then
+              allocate(ovvmat(nev,nev),source=(0d0,0d0))
+              do ispc = 1, nspc
+                allocate(pp_wfs(ndima,nev))
+                istat = zmm(ppj(1,1,isp), cphix(1,ispc,1), pp_wfs, m=ndima, n=nev, k=ndima, ldb=ndima*nspc) !MT parts
+                istat = zmm(cphix(1,ispc,1), pp_wfs, ovvmat, m=nev, n=nev, k=ndima, opA=m_op_C, lda=ndima*nspc, beta=(1d0,0d0)) !MT parts
+                deallocate(pp_wfs)
+                allocate(pp_wfs(ngp,nev))
+                istat = zmm(ppovl, geigr(1,ispc,1), pp_wfs, m=ngp, n=nev, k=ngp, ldb=ngpmx*nspc) !IPW parts
+                istat = zmm(geigr(1,ispc,1), pp_wfs, ovvmat, m=nev, n=nev, k=ngp, opA=m_op_C, lda=ngpmx*nspc, beta=(1d0,0d0)) !IPW parts
+                deallocate(pp_wfs)
+              enddo
+              do j=1,nev
+                do i=1,nev
+                  if(i/=j.and.abs(ovvmat(i,j))    >epscheck) write(stdo,ftox)'oooovlap=',i,j,ispc,ftod(abs(ovvmat(i,j)),8)
+                  if(i==j.and.abs(ovvmat(i,j)-1d0)>epscheck) write(stdo,ftox)'oooovlap=',i,j,ispc,ftod(abs(ovvmat(i,j)),8)
+                enddo
+              enddo
+              deallocate(ovvmat)
+            else
             ncheckw: block !Normalization check of MT+IPW division of eigenfunctions 
               do   i=1,nev
                 do j=1,nev
@@ -587,6 +609,7 @@ contains
                 enddo
               enddo
             endblock ncheckw
+            endif
           endif
           deallocate(ppovl)
         endblock GramSchmidtCphiGeig
