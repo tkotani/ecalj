@@ -574,8 +574,9 @@ contains
           geigr(ngp+1:ngpmx,ispc,1:ndimhx)=0d0
         enddo ! skip cphi(ix,1:nev,1:nspc) = cphi(ix, 1:nev,1:nspc) /sqrt(1d0+0.1d0*nindx(ix)) here because zzpi includes this factor 2025-5-7
         GramSchmidtCphiGeig :block
+          use m_GramSchmidt,only:GramSchmidt2 ,CB_GramSchmidt
           if(.not.cmdopt0('--skipGS')) then
-            if(cmdopt0('--MGS')) then
+            if(cmdopt0('--modifiedGS')) then !very slow
                call GramSchmidt2(nspc,nev,ndima,ngp,ngpmx, ppj(1:ndima,1:ndima,isp),ppovl, cphix,geigr) !Improve Orthogonalization
             else
                call CB_GramSchmidt(nspc,nev,ndima,ngp,ngpmx, ppj(1:ndima,1:ndima,isp),ppovl, cphix,geigr)
@@ -606,18 +607,18 @@ contains
               enddo
               write(stdo,ftox) 'sum of ovvmat-I/nev^2:', ftod(abs(sum(ovvmat(:,:)))/(dble(nev)**2),16)
               deallocate(ovvmat)
-            else
-            ncheckw: block !Normalization check of MT+IPW division of eigenfunctions 
-              do   i=1,nev
-                do j=1,nev
-                  ovv= sum([( sum( dconjg(cphix(1:ndima,ispc,i))*matmul(ppj(:,:,isp), cphix(1:ndima,ispc,j)))  & !MT parts
-                       +      sum( dconjg(geigr(1:ngp,  ispc,i))*matmul(ppovl,        geigr(1:ngp,  ispc,j)))  & !IPW parts
-                       ,ispc=1,nspc)])     
-                  if(i/=j.and.abs(ovv)    >epscheck) write(stdo,ftox)'oooovlap=',i,j,ispc,ftod(abs(ovv),8)
-                  if(i==j.and.abs(ovv-1d0)>epscheck) write(stdo,ftox)'oooovlap=',i,j,ispc,ftod(abs(ovv),8)
-                enddo
-              enddo
-            endblock ncheckw
+            ! else
+            ! ncheckw: block !Normalization check of MT+IPW division of eigenfunctions 
+            !   do   i=1,nev
+            !     do j=1,nev
+            !       ovv= sum([( sum( dconjg(cphix(1:ndima,ispc,i))*matmul(ppj(:,:,isp), cphix(1:ndima,ispc,j)))  & !MT parts
+            !            +      sum( dconjg(geigr(1:ngp,  ispc,i))*matmul(ppovl,        geigr(1:ngp,  ispc,j)))  & !IPW parts
+            !            ,ispc=1,nspc)])     
+            !       if(i/=j.and.abs(ovv)    >epscheck) write(stdo,ftox)'oooovlap=',i,j,ispc,ftod(abs(ovv),8)
+            !       if(i==j.and.abs(ovv-1d0)>epscheck) write(stdo,ftox)'oooovlap=',i,j,ispc,ftod(abs(ovv),8)
+            !     enddo
+            !  enddo
+            !endblock ncheckw
             endif
           endif
           deallocate(ppovl)
