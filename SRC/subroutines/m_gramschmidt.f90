@@ -103,9 +103,10 @@ contains
     deallocate(q1, q2)
   contains
   end subroutine CB_GramSchmidt
-  complex(8) function get_vxv(vvec, xmat, nsize) result(vxv)
+  function get_vxv(vvec, xmat, nsize) result(vxv)
     integer, intent(in) :: nsize
     complex(8), intent(in) :: vvec(nsize), xmat(nsize,nsize)
+    complex(8) :: vxv
     complex(8) :: xv(nsize)
     integer:: istat
     istat = zmv(xmat, vvec, xv, nsize, nsize) 

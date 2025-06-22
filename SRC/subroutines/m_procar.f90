@@ -166,7 +166,7 @@ contains
 !!--------------------------------------------------------
   subroutine m_procar_writepdos(evlall,nevmin,ef0,kpproc)
     use m_mkqp,only: nkabc=> bz_nabc
-    use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, plat=>lat_plat,pos=>rv_a_opos
+    use m_lattic,only: qlat=>lat_qlat, plat=>lat_plat,pos=>rv_a_opos
     use m_ext,only:sname
     use m_tetirr,only: tetirr
     real(8):: evlall(:,:,:)
