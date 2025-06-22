@@ -127,9 +127,11 @@ contains
   end function dmv_h
   integer function zvv_h(x, y, n, res, incx, incy) result(istat)
     implicit none
-!    external :: zdotc
+#ifdef __GPU
+    complex(8),external :: zdotc
+#endif
     complex(8) :: x(*), y(*)
-    complex(8) :: res!, zdotc
+    complex(8) :: res
     integer, intent(in) :: n
     integer, optional :: incx, incy
     integer :: incx_in, incy_in
@@ -137,8 +139,11 @@ contains
     incx_in = 1; incy_in = 1
     if(present(incx)) incx_in = incx
     if(present(incy)) incy_in = incy
-    !res = zdotc(n, x, incx_in, y, incy_in)
+#ifdef __GPU
+    res = zdotc   (n, x, incx_in, y, incy_in)
+#else
     call zdotc(res,n, x, incx_in, y, incy_in) !because of https://gitlab.com/QEF/q-e/-/wikis/Support/zdotc-crash
+#endif
     istat = 0
   end function zvv_h
   integer function zmv_h(a, x, y, m, n, opa, alpha, beta, lda, incx, incy) result(istat)
