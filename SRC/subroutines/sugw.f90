@@ -574,16 +574,21 @@ contains
           geigr(ngp+1:ngpmx,ispc,1:ndimhx)=0d0
         enddo ! skip cphi(ix,1:nev,1:nspc) = cphi(ix, 1:nev,1:nspc) /sqrt(1d0+0.1d0*nindx(ix)) here because zzpi includes this factor 2025-5-7
         GramSchmidtCphiGeig :block
-          if(.not.cmdopt0('--skipGS')) &
+          if(.not.cmdopt0('--skipGS')) then
+            if(cmdopt0('--MGS')) then
                call GramSchmidt2(nspc,nev,ndima,ngp,ngpmx, ppj(1:ndima,1:ndima,isp),ppovl, cphix,geigr) !Improve Orthogonalization
+            else
+               call CB_GramSchmidt(nspc,nev,ndima,ngp,ngpmx, ppj(1:ndima,1:ndima,isp),ppovl, cphix,geigr)
+            endif
+          endif
           if(cmdopt0('--normcheck')) then
             ! MO added blas_mode to replaced matmul by a BLAS call 2025-06-21
             if(blas_mode) then
               allocate(ovvmat(nev,nev),source=(0d0,0d0))
               do ispc = 1, nspc
                 allocate(pp_wfs(ndima,nev))
-                istat = zmm(ppj(1,1,isp), cphix(1,ispc,1), pp_wfs, m=ndima, n=nev, k=ndima, ldb=ndima*nspc) !MT parts
-                istat = zmm(cphix(1,ispc,1), pp_wfs, ovvmat, m=nev, n=nev, k=ndima, opA=m_op_C, lda=ndima*nspc, beta=(1d0,0d0)) !MT parts
+                istat = zmm(ppj(1,1,isp), cphix(1,ispc,1), pp_wfs, m=ndima, n=nev, k=ndima, ldb=ndima*nspc) !MT parts pp_wfs <- ppj x chipx
+                istat = zmm(cphix(1,ispc,1), pp_wfs, ovvmat, m=nev, n=nev, k=ndima, opA=m_op_C, lda=ndima*nspc, beta=(1d0,0d0)) !MT parts oovmat <- oovmat + chipx^dagger x pp_wfs
                 deallocate(pp_wfs)
                 allocate(pp_wfs(ngp,nev))
                 istat = zmm(ppovl, geigr(1,ispc,1), pp_wfs, m=ngp, n=nev, k=ngp, ldb=ngpmx*nspc) !IPW parts
@@ -592,10 +597,14 @@ contains
               enddo
               do j=1,nev
                 do i=1,nev
-                  if(i/=j.and.abs(ovvmat(i,j))    >epscheck) write(stdo,ftox)'oooovlap=',i,j,ispc,ftod(abs(ovvmat(i,j)),8)
-                  if(i==j.and.abs(ovvmat(i,j)-1d0)>epscheck) write(stdo,ftox)'oooovlap=',i,j,ispc,ftod(abs(ovvmat(i,j)),8)
+                  if(i/=j.and.abs(ovvmat(i,j))    >epscheck) write(stdo,ftox)'oooovlap=',i,j,ftod(abs(ovvmat(i,j)),8)
+                  if(i==j.and.abs(ovvmat(i,j)-1d0)>epscheck) write(stdo,ftox)'oooovlap=',i,j,ftod(abs(ovvmat(i,j)),8)
                 enddo
               enddo
+              do j = 1, nev
+                ovvmat(j,j) = ovvmat(j,j) - (1d0, 0d0)
+              enddo
+              write(stdo,ftox) 'sum of ovvmat-I/nev^2:', ftod(abs(sum(ovvmat(:,:)))/(dble(nev)**2),16)
               deallocate(ovvmat)
             else
             ncheckw: block !Normalization check of MT+IPW division of eigenfunctions 

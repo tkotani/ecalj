@@ -8,7 +8,7 @@ module m_blas !wrapper for BLAS and cuBLAS
   include "mpif.h"
   public :: int_split
   public :: m_op_n, m_op_t, m_op_c
-  public :: cmm_h, cmm_batch_h, zmm_h, zmm_batch_h, dmm_h, dmv_h, zmv_h
+  public :: cmm_h, cmm_batch_h, zmm_h, zmm_batch_h, dmm_h, dmv_h, zmv_h, zvv_h
 #ifdef __GPU
   public :: cmm_d, cmm_batch_d, zmm_d, zmm_batch_d, dmm_d, dmv_d, zmv_d
   public :: cublas_init, cublas_handle
@@ -125,6 +125,21 @@ contains
     call dgemv(opa_in, m, n, alpha_in, a, lda_in, x, incx_in, beta_in, y, incy_in)
     istat = 0
   end function dmv_h
+  integer function zvv_h(x, y, n, res, incx, incy) result(istat)
+    implicit none
+    external :: zdotc
+    complex(8) :: x(*), y(*)
+    complex(8) :: res, zdotc
+    integer, intent(in) :: n
+    integer, optional :: incx, incy
+    integer :: incx_in, incy_in
+    if (n < 1) return
+    incx_in = 1; incy_in = 1
+    if(present(incx)) incx_in = incx
+    if(present(incy)) incy_in = incy
+    res = zdotc(n, x, incx_in, y, incy_in)
+    istat = 0
+  end function zvv_h
   integer function zmv_h(a, x, y, m, n, opa, alpha, beta, lda, incx, incy) result(istat)
     implicit none
     complex(8) :: a(*), x(*), y(*)
