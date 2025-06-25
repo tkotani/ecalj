@@ -67,7 +67,7 @@ def run_popen(main_command, sub_command, out, oute, mode):
 
 def run_with_save(command, out, mode):
     command = [str(c) for c in command]
-    print(' '.join(command), f'> {out}')
+    print('xxx '.join(command), f'> {out}')
     with subprocess.Popen(command, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True) as process:
         with Path(out).open(mode, buffering=1) as fout:
             for line in process.stdout:
@@ -239,7 +239,8 @@ class Calc:
         # else:    
         #     print('args.kkmesh222=',args.kkmesh)
         #     self.k_points = change_k.get_kpoints([koption[1]] * 3)
-        self.k_points = kauto.kauto(koption)
+        #self.k_points = kauto.kauto(koption)
+        self.k_points = [max(kauto.kauto(koption))] * 3
         print('k-mesh for lmf: nk1nk2nk3=', self.k_points)
 
         if self.k_points is None:
@@ -419,7 +420,7 @@ class ReadBND:
         conbtm = get_energy(lines[2])
         self.metal = (valtop > efermi) or ((conbtm - valtop) <= 0)
 
-        ele = re.findall(r'\d+\.\w+\+\d+', lines[3])[0]
+        ele = re.findall(r'\d+\.\w+\+\d+', lines[4])[0]
         onsite = round(float(re.sub('D', 'E', ele)) / 2, 3)
         if not onsite.is_integer():
             print('Number of electrons is odd.')
@@ -440,7 +441,7 @@ class ReadBND:
 
     def load_data(self, bnd_file, num):
         try:
-            df = pd.read_csv(bnd_file, header=None, delimiter="\s+", dtype=str, skiprows=1).dropna()
+            df = pd.read_csv(bnd_file, header=None, sep="\s+", dtype=str, comment='#').dropna()
             df[0] = df[0].astype(int)
             df[1] = df[1].astype(float).round(decimals=5)
             df[2] = df[2].astype(float).round(decimals=5)

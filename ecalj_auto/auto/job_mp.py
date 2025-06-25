@@ -186,7 +186,7 @@ for i in joblist:
                 save_result(i, out_LDA, 'LDA', starttime)
                 if not out_LDA.startswith('c'):  # something wrong in the code. go next
                     break
-        if(args.ldaonly): break
+        if(args.ldaonly): continue
         
         ### QSGW
         starttime = datetime.datetime.now()
@@ -200,7 +200,7 @@ for i in joblist:
                 starttime = datetime.datetime.now()
                 out_GW = calc.run_QSGW(3, args.bnd4all, args.gw80, args.kratio)
                 save_result(i, out_GW, 'RepeatGW', starttime)
-        if not out_GW.startswith('x'): break
+        if not out_GW.startswith('x'): continue
 
         ### error handling with x ### Not checked well
         # 'x': maybe lack of k-mesh, then run LDA/GW with more k-volume
