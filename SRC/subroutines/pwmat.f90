@@ -114,11 +114,12 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
   !     Could be optimized, ala hsibl, but not a critical step for GW.
   block
     use m_stopwatch
-    type(stopwatch) :: sw1, sw2
+    type(stopwatch) :: sw1, sw2,sw3
     integer:: ig_start, ig_end, igp
     integer, parameter:: ngblock = 1024
     call stopwatch_init(sw1, 'set ppovlx,pwh')
     call stopwatch_init(sw2, 'zmm')
+    call stopwatch_init(sw3, 'zmm2')
     call get_ppovl_init(ngp, igv, ngmx, igvx)
     pwhovl(:,:) = (0d0, 0d0)
     gblock_loop: do ig_start = 1, ngmx, ngblock
@@ -152,13 +153,15 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
         enddo
       enddo
       call stopwatch_pause(sw1)
-      call stopwatch_start(sw2)
+      call stopwatch_start(sw3)
       pwh(nlmto+1:,:) = 0d0
       do iga= 1,napw 
          ig = findloc([(all(igapw(:,iga)==igvx(:,igx)),igx=ig_start, ig_end)],value=.true.,dim=1)
          !if current igx's (ig_start:ig_end) has overlap with iga
          if(1 <= ig .and. ig <= ig_end - ig_start + 1) pwh(iga+nlmto,ig + ig_start - 1) = 1d0/srvol
       enddo
+      call stopwatch_pause(sw3)
+      call stopwatch_start(sw2)
       istat = zmm(ppovlx, pwh, pwhovl, m=ngp, n=ndimh, k=(ig_end-ig_start+1), opB=m_op_T, beta = (1D0, 0d0))
       deallocate(ppovlx, pwh)
       call stopwatch_pause(sw2)
@@ -166,6 +169,7 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
     call get_ppovl_finalize()
     call stopwatch_show(sw1)
     call stopwatch_show(sw2)
+    call stopwatch_show(sw3)
   endblock
   ! ... Fourier coefficients to APWs. APWs are normalized:  |G> = 1/sqrt(vol) exp[i G.r]
   ! --- Matrix elements between each (IPW,envelope function) pair ---

@@ -69,7 +69,7 @@ contains
     real(8),pointer:: pnu(:,:),pnz(:,:)
     integer,allocatable :: konft(:,:,:),iiyf(:),ibidx(:,:),nqq(:), m_indx(:),n_indx(:),l_indx(:),ibas_indx(:)
     complex(8),allocatable :: aus_zv(:,:,:,:,:), hamm(:,:,:,:),ovlm(:,:,:,:),ovlmtoi(:,:),ovliovl(:,:) ,hammhso(:,:,:)
-    complex(8),allocatable:: evec(:,:),evec0(:,:),vxc(:,:,:,:),ppovl(:,:),phovl(:,:),pwh(:,:),pwz(:,:,:),pzovl(:,:,:), pwz0(:,:),&
+    complex(8),allocatable:: evec(:,:),evec0(:,:),vxc(:,:,:,:),ppovl(:,:),phovl(:,:),pwh(:,:),pwz(:,:),pzovl(:,:,:), pwz0(:,:),&
          testcc(:,:),testc(:,:,:),testcd(:,:),ppovld(:),cphi(:,:,:),cphi0(:,:,:),cphi_p(:,:,:),geig(:,:,:),geig_p(:,:,:),sene(:,:),ppovli(:,:)
     logical :: lwvxc,cmdopt0, emptyrun, magexist, debug=.false.,sigmamode,wanatom=.false.,once=.true.
     logical,optional:: socmatrix 
@@ -79,7 +79,7 @@ contains
     integer:: mrecb,mrece,mrecg,ndble,ifv,iqq,ifev,konfigk,konfz
     real(8),allocatable::evl(:,:,:),vxclda(:,:,:) !,evl(:,:),vxclda(:)!qirr(:,:), !    complex(8),allocatable:: ppj(:,:,:)
     integer :: istat,ifoc,ldim2,lxx,nl,nrx,ibas,ifec
-    logical :: blas_mode = .true.
+!    logical :: blas_mode = .true.
     logical,optional:: ecoreexit !    real(8):: rmax(nclass)
     include "mpif.h"
     call tcn ('m_sugw_init')
@@ -348,7 +348,8 @@ contains
     i=openm(newunit=ifgeigm,file='__GEIG',recl=mrecg)
     allocate(evl(nbandmx, nqirr, nspx),vxclda(nbandmx, nqirr, nspx),source=0d0)!nqirr: # ofirreducible q points
     iqisploop: do 1001 idat=1,niqisp !iq = iqini,iqend ! iqini:iqend for this procid
-      !write(stdo,ftox) 'do 1001 idat=',idat
+      if(debug) call cputid(0)
+      if(debug) write(stdo,ftox) 'do 1001 idat=',idat,procid
       iq  = iqproc(idat) ! iq index
       isp = isproc(idat) ! spin index: Note isp=1:nspx, where nspx=nsp/nspc.  isp=1 nspc=2 only for lso=1 if(debug)write(stdo,ftox)' iqisploop',iq,isp  
       qp  = qplist(:,iq) ! q vector containing nqirr
@@ -427,7 +428,7 @@ contains
         close(ifvxcevec)
       endif
       if(emptyrun) then
-        allocate(pwz(ngp,nspc,ndimh)) !dummy
+        allocate(pwz(ngp*nspc,ndimh)) !dummy
         goto 1214
       endif
       write(stdo,ftox)'sugw: kpt isp=',iq,isp,'of',nqnum,'k=',ftof(qp,5),'ndimh=',ndimh,'irank=',procid,'lwvxc=',lwvxc,'nev=',nev,' nspc=',nspc
@@ -436,6 +437,9 @@ contains
       evl(1+nev:nbandmx,iq,isp)=1d20 !padding
       if(mod(iq,10) /= 1) call poppr;  if(debug) write(stdo,"(' sugw:procid iq isp lwvxc= ',3i3,' ',l)")procid, iq,isp,lwvxc
       nlmax = (lmxax+1)**2
+      
+      if(debug) call cputid(0)
+      if(debug) write(stdo,ftox)' goto CPHIpart end ccccc',procid
       CPHIpart: block
         use m_locpot,only: rotp !        use m_mkpot,only : sab_rv
         use m_hamindex0,only: nindx,ibasindx !    use m_mkpot,only: sab_rv
@@ -481,79 +485,33 @@ contains
           enddo
         enddo ispcc
       endblock CPHIpart
+      if(debug) call cputid(0)
+      if(debug) write(stdo,ftox)' CPHIpart end ccccc',procid
+      
       GEIGpart: if(ngp > 0) then !IPW expansion of eigenfunctions pwz 
         !  ppovl: = O_{G1,G2} = <IPW_G1 | IPW_G2>
         !  phovl: <IPW_G1 | basis function = smooth Hankel or APW >   
         !    pwz:  IPW expansion of eigen function    
-        allocate(ppovl(ngp,ngp),pwz(ngp,nspc,ndimhx),phovl(ngp,ndimh),ppovli(ngp,ngp))
+        allocate(ppovl(ngp,ngp),pwz(ngp*nspc,ndimhx),phovl(ngp,ndimh))
         call pwmat(nbas,ndimh,napw,igv2x,qp,ngp,nlmax,ngvecp(1,1,iq),gmax, ppovl, phovl )
         ! MO added blas_mode to replaced matmul by a BLAS call 2024-11-09. This is because matmul in mic(intel) was very slow.
-        if(blas_mode) then
-          do ispc=1, nspc
-            istat = zmm(phovl, evec(ndimh*(ispc-1)+1,1), pwz(1,ispc,1), m=ngp, n=ndimhx, k=ndimh, ldb=ndimh*nspc, ldc=ngp*nspc)
-          enddo
-        else
-          pwz(1:ngp,1,1:ndimhx) = matmul(phovl(1:ngp,1:ndimh),evec(1:ndimh,1:ndimhx))
-          if(lso==1) pwz(1:ngp,2,1:ndimhx) = matmul(phovl(1:ngp,1:ndimh),evec(ndimh+1:2*ndimh,1:ndimhx))
-        endif
+        if(debug) call cputid(0)
+        if(debug) write(stdo,ftox)' CPHIpart end of pwmat pppp',procid
+        do ispc=1, nspc
+          istat = zmm(phovl, evec(ndimh*(ispc-1)+1,1), pwz(1+ngp*(ispc-1),1), m=ngp, n=ndimhx, k=ndimh, ldb=ndimh*nspc, ldc=ngp*nspc)
+        enddo
         deallocate(phovl)
-        !        if (lchk >= 1) then   
-        !          allocate(pzovl,source=pwz)
-        !          allocate(ppovld(ngp)) ! extract diagonal before ppovl overwritten
-        !          forall(i = 1:ngp) ppovld(i) = ppovl(i,i)
-        !        endif
-        ppovli=ppovl
-        call matcinv(ngp,ppovli)! inversion of hermitian ppovl
-        ! MO added blas_mode to replaced matmul by a BLAS call 2024-11-09.
-        if(blas_mode) then
-          block
-          complex(8) :: ppovl_pwz(ngp,ndimhx)
-          do ispc=1, nspc
-            istat = zmm(ppovli, pwz(1,ispc,1), ppovl_pwz, m=ngp, n=ndimhx, k=ngp, ldb=ngp*nspc)
-            pwz(1:ngp,ispc,1:ndimhx)=ppovl_pwz(1:ngp,1:ndimhx)
+        block ! MO added blas_mode to replaced matmul by a BLAS call 2024-11-09.         ! if(blas_mode) then
+          integer :: ipiv(ngp),info
+          complex(8) :: ppovlLU(ngp,ngp) !ppovl_pwz(ngp,ndimhx),
+          ppovlLU=ppovl
+          do ispc=1, nspc ! ppovlLU @ pwz(output) = pwz(input)
+            call zgesv(ngp, ndimhx, ppovlLU, ngp, ipiv, pwz(1+ngp*(ispc-1),1),ngp,info) !ppovl_pwz, ngb, info)
           enddo
-          endblock
-        else
-          pwz(1:ngp,1,1:ndimhx) = matmul(ppovli,pwz(1:ngp,1,1:ndimhx)) !pwz= O^-1 *phovl * evec  ! IPW expansion of eigenfunction
-          if(lso==1) pwz(1:ngp,2,1:ndimhx) = matmul(ppovli,pwz(1:ngp,2,1:ndimhx))
-        endif
-        deallocate(ppovli)
-      !   if (lchk >= 1) then
-      !     allocate(testc(ndimhx,ndimhx,nspc),testcd(ndimhx,nspc))
-      !     do ispc=1,nspc
-      !       if(lso/=1) ispx=isp
-      !       if(lso==1) ispx=ispc
-      !       ! MO added blas_mode to replaced matmul by a BLAS call 2024-11-10.
-      !       if(blas_mode) then
-      !         istat = zmm(pzovl(1,ispc,1), pwz(1,ispc,1), testc(1,1,ispc), m=ndimhx, n=ndimhx, k=ngp, &
-      !                     opA=m_op_C, ldA=ngp*nspc, ldB=ngp*nspc)
-      !         ! testc(:,:,ispc)= matmul(transpose(dconjg(pzovl(:,ispc,:))),pwz(1:ngp,ispc,1:ndimhx))
-      !         testcd(:,ispc) = [(sum(dconjg(pwz(:,ispc,i))*ppovld(:)*pwz(:,ispc,i)),i=1,ndimhx)]
-      !       else
-      !       associate(pwz1=>pwz(1:ngp,ispc,1:ndimhx),pzo=>dconjg(pzovl(:,ispc,:)))
-      !         testc(:,:,ispc)= matmul(transpose(pzo),pwz1)
-      !         ! testc(:,:,ispc)= matmul(transpose(dconjg(pzo)),pwz1)
-      !         testcd(:,ispc) = [(sum(dconjg(pwz1(:,i))*ppovld*pwz1(:,i)),i=1,ndimhx)] !dimhx)]
-      !       end associate
-      !       endif
-      !     enddo
-      !     write(ifinormchk,"('# iq',i5,'   q',3f12.6,' ndimhx nev',2i7)") iq,qp,ndimhx,nev
-      !     ! xx(1) = sum over all augmentation w.f.  cphi+ ovl cphi
-      !     ! xx(3) = IPW contribution to phi+ phi.   
-      !     ! xx(4) = IPW contribution to phi+ phi, using diagonal part only]
-      !     do i1 = 1, nev !nev: number of calculated eigenvals(eigenfunctions).
-      !       i2=i1
-      !       xx(1) = sum(cphiw(i1,1:nspc))
-      !       xx(3) = sum(testc(i1,i2,:))
-      !       xx(4) = sum(testcd(i1,:))    !if(i1==i2)write(ifinormchk,'(f12.5,5f14.6)')evl(i1,isp),xx(3),xx(4),xx(1),xx(1)+xx(3)
-      !       write(ifinormchk,'(i4,f12.5,5f14.6)')i1,evl(i1,iq,isp),xx(3),xx(4),xx(1),xx(1)+xx(3) !xx(1)+xx(3) should be close to unity.
-      !     enddo
-      !     deallocate(testc,testcd)
-      !     write(ifinormchk,*)
-      !     deallocate(pzovl)
-      !     deallocate(ppovld)
-      !   endif
-      endif GEIGpart;    if(debug) write (stdo,"('q ndimh=',3f10.5,i10)") qp, ndimh
+        endblock
+        if(debug) call cputid(0)
+        if(debug) write (stdo,"('endof GEIGpart q ndimh=',3f10.5,i10,' procid=',i10)") qp, ndimh,procid
+      endif GEIGpart
       VXCmat: block
         allocate(testcc(1:nev,ndimhx),source=matmul(transpose(dconjg(evec(:,1:nev))),reshape(vxc,[ndimhx,ndimhx])))
         forall(i1 = 1:nev) vxclda(i1,iq,isp) = sum(testcc(i1,1:ndimhx) * evec(1:ndimhx,i1))  !<i|Vxc^lda|i>
@@ -566,11 +524,11 @@ contains
         use m_locpot,only: rotp
         use m_pwmat,only: mkppovl2
         real(8)::add,zzz(2,2),epscheck=1d-8
-        complex(8)::ccc(3),nnn,rrr(3,3),mmm(3,3),ovv
+        complex(8)::ccc(3),nnn,rrr(3,3),mmm(3,3),ovv!,ppovl(ngp,ngp)
         complex(8), allocatable :: pp_wfs(:,:), ovvmat(:,:)
         integer::iband,ibas,iqqisp,ix,m,nm,i,ilm,im,iv,ngvecpf1(3,ngp),ndg1(3)
         do ispc=1,nspc
-          geigr(1:ngp,      ispc,1:ndimhx)=pwz(1:ngp,ispc,1:ndimhx)
+          geigr(1:ngp,      ispc,1:ndimhx)=pwz(1+ngp*(ispc-1):ngp*ispc,1:ndimhx)
           geigr(ngp+1:ngpmx,ispc,1:ndimhx)=0d0
         enddo ! skip cphi(ix,1:nev,1:nspc) = cphi(ix, 1:nev,1:nspc) /sqrt(1d0+0.1d0*nindx(ix)) here because zzpi includes this factor 2025-5-7
         GramSchmidtCphiGeig :block
@@ -578,35 +536,35 @@ contains
           if(.not.cmdopt0('--skipGS')) then
             if(cmdopt0('--modifiedGS')) then !very slow
                call GramSchmidt2(nspc,nev,ndima,ngp,ngpmx, ppj(1:ndima,1:ndima,isp),ppovl, cphix,geigr) !Improve Orthogonalization
-            else
+            else !faster
                call CB_GramSchmidt(nspc,nev,ndima,ngp,ngpmx, ppj(1:ndima,1:ndima,isp),ppovl, cphix,geigr)
             endif
           endif
           if(cmdopt0('--normcheck')) then
             ! MO added blas_mode to replaced matmul by a BLAS call 2025-06-21
-            if(blas_mode) then
-              allocate(ovvmat(nev,nev),source=(0d0,0d0))
-              do ispc = 1, nspc
-                allocate(pp_wfs(ndima,nev))
-                istat = zmm(ppj(1,1,isp), cphix(1,ispc,1), pp_wfs, m=ndima, n=nev, k=ndima, ldb=ndima*nspc) !MT parts pp_wfs <- ppj x chipx
-                istat = zmm(cphix(1,ispc,1), pp_wfs, ovvmat, m=nev, n=nev, k=ndima, opA=m_op_C, lda=ndima*nspc, beta=(1d0,0d0)) !MT parts oovmat <- oovmat + chipx^dagger x pp_wfs
-                deallocate(pp_wfs)
-                allocate(pp_wfs(ngp,nev))
-                istat = zmm(ppovl, geigr(1,ispc,1), pp_wfs, m=ngp, n=nev, k=ngp, ldb=ngpmx*nspc) !IPW parts
-                istat = zmm(geigr(1,ispc,1), pp_wfs, ovvmat, m=nev, n=nev, k=ngp, opA=m_op_C, lda=ngpmx*nspc, beta=(1d0,0d0)) !IPW parts
-                deallocate(pp_wfs)
+            !if(blas_mode) then
+            allocate(ovvmat(nev,nev),source=(0d0,0d0))
+            do ispc = 1, nspc
+              allocate(pp_wfs(ndima,nev))
+              istat = zmm(ppj(1,1,isp), cphix(1,ispc,1), pp_wfs, m=ndima, n=nev, k=ndima, ldb=ndima*nspc) !MT parts pp_wfs <- ppj x chipx
+              istat = zmm(cphix(1,ispc,1), pp_wfs, ovvmat, m=nev, n=nev, k=ndima, opA=m_op_C, lda=ndima*nspc, beta=(1d0,0d0)) !MT parts oovmat <- oovmat + chipx^dagger x pp_wfs
+              deallocate(pp_wfs)
+              allocate(pp_wfs(ngp,nev))
+              istat = zmm(ppovl, geigr(1,ispc,1), pp_wfs, m=ngp, n=nev, k=ngp, ldb=ngpmx*nspc) !IPW parts
+              istat = zmm(geigr(1,ispc,1), pp_wfs, ovvmat, m=nev, n=nev, k=ngp, opA=m_op_C, lda=ngpmx*nspc, beta=(1d0,0d0)) !IPW parts
+              deallocate(pp_wfs)
+            enddo
+            do j=1,nev
+              do i=1,nev
+                if(i/=j.and.abs(ovvmat(i,j))    >epscheck) write(stdo,ftox)'oooovlap=',i,j,ftod(abs(ovvmat(i,j)),8)
+                if(i==j.and.abs(ovvmat(i,j)-1d0)>epscheck) write(stdo,ftox)'oooovlap=',i,j,ftod(abs(ovvmat(i,j)),8)
               enddo
-              do j=1,nev
-                do i=1,nev
-                  if(i/=j.and.abs(ovvmat(i,j))    >epscheck) write(stdo,ftox)'oooovlap=',i,j,ftod(abs(ovvmat(i,j)),8)
-                  if(i==j.and.abs(ovvmat(i,j)-1d0)>epscheck) write(stdo,ftox)'oooovlap=',i,j,ftod(abs(ovvmat(i,j)),8)
-                enddo
-              enddo
-              do j = 1, nev
-                ovvmat(j,j) = ovvmat(j,j) - (1d0, 0d0)
-              enddo
-              write(stdo,ftox) 'sum of ovvmat-I/nev^2:', ftod(abs(sum(ovvmat(:,:)))/(dble(nev)**2),16)
-              deallocate(ovvmat)
+            enddo
+            do j = 1, nev
+              ovvmat(j,j) = ovvmat(j,j) - (1d0, 0d0)
+            enddo
+            write(stdo,ftox) 'sum of ovvmat-I/nev^2:', ftod(abs(sum(ovvmat(:,:)))/(dble(nev)**2),16)
+            deallocate(ovvmat)
             ! else
             ! ncheckw: block !Normalization check of MT+IPW division of eigenfunctions 
             !   do   i=1,nev
@@ -619,7 +577,7 @@ contains
             !     enddo
             !  enddo
             !endblock ncheckw
-            endif
+            !endif
           endif
           deallocate(ppovl)
         endblock GramSchmidtCphiGeig

@@ -16,12 +16,20 @@ module m_mpi !MPI utility for fpgw
   integer, allocatable :: mpi__npr_col(:), mpi__ipr_col(:)
 !MPI for Sc (hsfp0_sc --job=2)
   integer :: comm_w, mpi__rank_w, mpi__size_w
-  logical :: mpi__root_w,ipr
+  logical :: mpi__root_w,ipr=.true.
   integer :: worker_intask = 1 !default used in ixc /= 2
 
   integer,private :: mpi__info
   integer,private:: ista(MPI_STATUS_SIZE )
 contains
+  subroutine setipr(comm)
+    integer:: comm
+    logical,external:: cmdopt0
+    call MPI_Comm_rank( comm, mpi__rank, mpi__info )
+    mpi__root= mpi__rank==0
+    ipr=mpi__root
+    if(cmdopt0('--fullstdo')) ipr=.true.
+  end subroutine setipr
   subroutine MPI__Initialize(commin)
     implicit none
     character(1024*4) :: cwd, stdout
