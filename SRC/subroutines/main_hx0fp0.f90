@@ -347,6 +347,8 @@ subroutine hx0fp0()
 
   n_bpara = 1
   if(cmdopt2('--nb=', outs)) read(outs,*) n_bpara
+  if(nolfco) n_bpara = 1
+
   nqcalc = iqxend - iqxini + 1
 !  if(cmdopt0('--zmel0')) nqcalc = nqcalc - 1
 !  if(nqcalc < 1) call rx('hx0fp0: sanity check. nqcalc < 1: specify more than 2 q-points in zmel0 mode')
