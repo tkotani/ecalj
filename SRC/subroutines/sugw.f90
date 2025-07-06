@@ -34,8 +34,16 @@ contains
     use m_hambl,only: hambl
     use m_rdata1,only:rdata1init,nradmx,nnc,nrad,nindx_r,lindx_r,iord,nvmax,nrc,mindx,&
          gcore_n,aac,bbc,gval_orth,zzpi,nrmxe=>nrmx ,gval_n
-    use m_blas,only: zmm => zmm_h, m_op_T, m_op_C
+    use m_blas,only: zmm_h, m_op_T, m_op_C
+#ifdef __GPU
+    use m_blas, only: zmm => zmm_d
+    use m_lapack, only: zminv => zminv_d
+#else
+    use m_blas, only: zmm => zmm_h
+    use m_lapack, only: zminv => zminv_h 
+#endif
     use m_ppj,only: m_ppj_init,ppj
+    use m_stopwatch
     implicit none
     intent(in)::          socmatrix,eferm,vmag,qval
     !  qval: valence charge
@@ -81,6 +89,7 @@ contains
     integer :: istat,ifoc,ldim2,lxx,nl,nrx,ibas,ifec
     logical :: blas_mode = .true.
     logical,optional:: ecoreexit !    real(8):: rmax(nclass)
+    type(stopwatch) :: sw
     include "mpif.h"
     call tcn ('m_sugw_init')
     debug=cmdopt0('--debugsugw')
@@ -372,6 +381,8 @@ contains
       endif;       if(debug)write(stdo,ftox)' iqisploop333'
       GetHamiltonianAndDiagonalize: block
         integer:: iprint
+        call stopwatch_init(sw, 'getham')
+        call stopwatch_start(sw)
         if(lso==1) then !L.S case nspc=2
           vxc=0d0 !zeroclear offdiagonal parts
           ovlm=0d0
@@ -401,6 +412,7 @@ contains
             call dsene()
           endif
         endif;    if(debug)write(stdo,ftox)'sumcheck hamm=',sum(abs(hamm)),sum(abs(ovlm))
+        call stopwatch_show(sw)
         if (mod(iq,10) /= 1) call pshpr(iprint()-6)  
         epsovl = ham_oveps
         evec=-1d99
@@ -414,7 +426,10 @@ contains
             if(isp==2) hamm(:,1,:,1)= hamm(:,1,:,1) + vmag/2d0*ovlm(:,1,:,1)
           endif
         endif AddExternelMagneticField;            if(debug)write(stdo,ftox)' iqisploop666'
+        call stopwatch_init(sw, 'diag ham')
+        call stopwatch_start(sw)
         call zhev_tk4(ndimhx,hamm,ovlm,ndimhx,nev,evl(1,iq,isp),evec,epsovl) ! Diagonalization. nev:Calculated number of eigenvec
+        call stopwatch_show(sw)
       endblock GetHamiltonianAndDiagonalize;       if(debug)write(stdo,ftox)' iqisploop777 1212'
 1212  continue
       lwvxc = (socmatrix .or. iq<=iqibzmax).and.(.not.cmdopt0('--novxc'))
@@ -436,6 +451,8 @@ contains
       evl(1+nev:nbandmx,iq,isp)=1d20 !padding
       if(mod(iq,10) /= 1) call poppr;  if(debug) write(stdo,"(' sugw:procid iq isp lwvxc= ',3i3,' ',l)")procid, iq,isp,lwvxc
       nlmax = (lmxax+1)**2
+      call stopwatch_init(sw, 'cphi_part')
+      call stopwatch_start(sw)
       CPHIpart: block
         use m_locpot,only: rotp !        use m_mkpot,only : sab_rv
         use m_hamindex0,only: nindx,ibasindx !    use m_mkpot,only: sab_rv
@@ -481,43 +498,70 @@ contains
           enddo
         enddo ispcc
       endblock CPHIpart
+      call stopwatch_show(sw)
       GEIGpart: if(ngp > 0) then !IPW expansion of eigenfunctions pwz 
+      block
+        complex(8) :: ppovl_pwz(ngp,ndimhx)
         !  ppovl: = O_{G1,G2} = <IPW_G1 | IPW_G2>
         !  phovl: <IPW_G1 | basis function = smooth Hankel or APW >   
         !    pwz:  IPW expansion of eigen function    
         allocate(ppovl(ngp,ngp),pwz(ngp,nspc,ndimhx),phovl(ngp,ndimh),ppovli(ngp,ngp))
+        !$acc data create(ppovli, phovl, ppovl_pwz) copyin(evec) copyout(ppovl, pwz)
+        call stopwatch_init(sw, 'geig_par:pwmat')
+        call stopwatch_start(sw)
         call pwmat(nbas,ndimh,napw,igv2x,qp,ngp,nlmax,ngvecp(1,1,iq),gmax, ppovl, phovl )
+        call stopwatch_show(sw)
         ! MO added blas_mode to replaced matmul by a BLAS call 2024-11-09. This is because matmul in mic(intel) was very slow.
-        if(blas_mode) then
+        call stopwatch_init(sw, 'geig_par:blas')
+        call stopwatch_start(sw)
+        ! if(blas_mode) then
           do ispc=1, nspc
+            !$acc host_data use_device(phovl, evec, pwz)
             istat = zmm(phovl, evec(ndimh*(ispc-1)+1,1), pwz(1,ispc,1), m=ngp, n=ndimhx, k=ndimh, ldb=ndimh*nspc, ldc=ngp*nspc)
+            !$acc end host_data 
           enddo
-        else
-          pwz(1:ngp,1,1:ndimhx) = matmul(phovl(1:ngp,1:ndimh),evec(1:ndimh,1:ndimhx))
-          if(lso==1) pwz(1:ngp,2,1:ndimhx) = matmul(phovl(1:ngp,1:ndimh),evec(ndimh+1:2*ndimh,1:ndimhx))
-        endif
+        ! else
+        !   pwz(1:ngp,1,1:ndimhx) = matmul(phovl(1:ngp,1:ndimh),evec(1:ndimh,1:ndimhx))
+        !   if(lso==1) pwz(1:ngp,2,1:ndimhx) = matmul(phovl(1:ngp,1:ndimh),evec(ndimh+1:2*ndimh,1:ndimhx))
+        ! endif
         deallocate(phovl)
+        call stopwatch_show(sw)
         !        if (lchk >= 1) then   
         !          allocate(pzovl,source=pwz)
         !          allocate(ppovld(ngp)) ! extract diagonal before ppovl overwritten
         !          forall(i = 1:ngp) ppovld(i) = ppovl(i,i)
         !        endif
-        ppovli=ppovl
-        call matcinv(ngp,ppovli)! inversion of hermitian ppovl
+        call stopwatch_init(sw, 'geig_par:matinv')
+        call stopwatch_start(sw)
+        !$acc kernels
+        ppovli(:,:) = ppovl(:,:)
+        !$acc end kernels
+        ! call matcinv(ngp,ppovli)! inversion of hermitian ppovl
+        !$acc host_data use_device(ppovli)
+        istat = zminv(ppovli, ngp)! inversion of hermitian ppovl
+        !$acc end host_data
+        call stopwatch_show(sw)
         ! MO added blas_mode to replaced matmul by a BLAS call 2024-11-09.
-        if(blas_mode) then
-          block
-          complex(8) :: ppovl_pwz(ngp,ndimhx)
+        call stopwatch_init(sw, 'geig_par:blas2')
+        call stopwatch_start(sw)
+        ! if(blas_mode) then
+        !   block
           do ispc=1, nspc
+            !$acc host_data use_device(ppovli, pwz, ppovl_pwz) 
             istat = zmm(ppovli, pwz(1,ispc,1), ppovl_pwz, m=ngp, n=ndimhx, k=ngp, ldb=ngp*nspc)
-            pwz(1:ngp,ispc,1:ndimhx)=ppovl_pwz(1:ngp,1:ndimhx)
+            !$acc end host_data
+            !$acc kernels
+            pwz(1:ngp,ispc,1:ndimhx) = ppovl_pwz(1:ngp,1:ndimhx)
+            !$acc end kernels
           enddo
-          endblock
-        else
-          pwz(1:ngp,1,1:ndimhx) = matmul(ppovli,pwz(1:ngp,1,1:ndimhx)) !pwz= O^-1 *phovl * evec  ! IPW expansion of eigenfunction
-          if(lso==1) pwz(1:ngp,2,1:ndimhx) = matmul(ppovli,pwz(1:ngp,2,1:ndimhx))
-        endif
+        !   endblock
+        ! else
+        !   pwz(1:ngp,1,1:ndimhx) = matmul(ppovli,pwz(1:ngp,1,1:ndimhx)) !pwz= O^-1 *phovl * evec  ! IPW expansion of eigenfunction
+        !   if(lso==1) pwz(1:ngp,2,1:ndimhx) = matmul(ppovli,pwz(1:ngp,2,1:ndimhx))
+        ! endif
+        !$acc end data
         deallocate(ppovli)
+        call stopwatch_show(sw)
       !   if (lchk >= 1) then
       !     allocate(testc(ndimhx,ndimhx,nspc),testcd(ndimhx,nspc))
       !     do ispc=1,nspc
@@ -553,6 +597,7 @@ contains
       !     deallocate(pzovl)
       !     deallocate(ppovld)
       !   endif
+      endblock
       endif GEIGpart;    if(debug) write (stdo,"('q ndimh=',3f10.5,i10)") qp, ndimh
       VXCmat: block
         allocate(testcc(1:nev,ndimhx),source=matmul(transpose(dconjg(evec(:,1:nev))),reshape(vxc,[ndimhx,ndimhx])))
@@ -588,12 +633,12 @@ contains
               allocate(ovvmat(nev,nev),source=(0d0,0d0))
               do ispc = 1, nspc
                 allocate(pp_wfs(ndima,nev))
-                istat = zmm(ppj(1,1,isp), cphix(1,ispc,1), pp_wfs, m=ndima, n=nev, k=ndima, ldb=ndima*nspc) !MT parts pp_wfs <- ppj x chipx
-                istat = zmm(cphix(1,ispc,1), pp_wfs, ovvmat, m=nev, n=nev, k=ndima, opA=m_op_C, lda=ndima*nspc, beta=(1d0,0d0)) !MT parts oovmat <- oovmat + chipx^dagger x pp_wfs
+                istat = zmm_h(ppj(1,1,isp), cphix(1,ispc,1), pp_wfs, m=ndima, n=nev, k=ndima, ldb=ndima*nspc) !MT parts pp_wfs <- ppj x chipx
+                istat = zmm_h(cphix(1,ispc,1), pp_wfs, ovvmat, m=nev, n=nev, k=ndima, opA=m_op_C, lda=ndima*nspc, beta=(1d0,0d0)) !MT parts oovmat <- oovmat + chipx^dagger x pp_wfs
                 deallocate(pp_wfs)
                 allocate(pp_wfs(ngp,nev))
-                istat = zmm(ppovl, geigr(1,ispc,1), pp_wfs, m=ngp, n=nev, k=ngp, ldb=ngpmx*nspc) !IPW parts
-                istat = zmm(geigr(1,ispc,1), pp_wfs, ovvmat, m=nev, n=nev, k=ngp, opA=m_op_C, lda=ngpmx*nspc, beta=(1d0,0d0)) !IPW parts
+                istat = zmm_h(ppovl, geigr(1,ispc,1), pp_wfs, m=ngp, n=nev, k=ngp, ldb=ngpmx*nspc) !IPW parts
+                istat = zmm_h(geigr(1,ispc,1), pp_wfs, ovvmat, m=nev, n=nev, k=ngp, opA=m_op_C, lda=ngpmx*nspc, beta=(1d0,0d0)) !IPW parts
                 deallocate(pp_wfs)
               enddo
               do j=1,nev

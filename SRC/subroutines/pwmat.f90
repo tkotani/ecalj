@@ -15,6 +15,7 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
 #ifdef __GPU
   use m_ropyln,only: ropyln => ropyln_d
   use m_blas,only: zmm => zmm_d, m_op_T
+  use cudafor
 #else
   use m_blas,only: zmm => zmm_h, m_op_T
   use m_ropyln,only: ropyln => ropyln
@@ -91,7 +92,26 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
      rmax(ib) = rmt_i(is)
   enddo
   nlmto = ndimh-napw
-  call ipwovl(alat,plat,qlat,ngp,igv,ngp,igv,nbas,rmax,bas,ppovl)! --- Overlaps between IPW's ---
+  ! call ipwovl(alat,plat,qlat,ngp,igv,ngp,igv,nbas,rmax,bas,ppovl)! --- Overlaps between IPW's ---
+  ipwovl: block 
+    complex(8), allocatable:: ppovl_save(:,:,:)
+    integer :: nx(3), ig1, ig2
+#ifdef __GPU
+    attributes(device) ppovl_save
+#endif
+    call set_ppovl(ngp, igv, ngp, igv, bas, rmax, nbas, alat, plat, qlat, ppovl_save)
+    !$acc data copyout(ppovl)
+    !$acc kernels loop independent collapse(2) private(nx)
+    do ig2 = 1, ngp
+      do ig1 = 1, ngp
+        nx(1:3) = igv(1:3,ig2) - igv(1:3,ig1) 
+        ppovl(ig1,ig2) = ppovl_save(nx(1),nx(2),nx(3))
+      enddo
+    enddo
+    !$acc end kernels
+    !$acc end data
+    deallocate(ppovl_save)
+  endblock ipwovl
   ! ... G vectors for the envelope (smooth hankel) functions
   !     Find ngmx = number of G's in PW expansion of basis for this qp:
   call pshpr(0)
@@ -115,9 +135,6 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
   ! ... Fourier coefficients of smoothed hankels for all LMTOs
   !     Could be optimized, ala hsibl, but not a critical step for GW.
   block
-#ifdef __GPU
-    use cudafor
-#endif
     use m_stopwatch
     use m_lmfinit, only: nspec, ltabx, ktabx, offlx, norbx
     complex(8), allocatable:: ppovl_save(:,:,:), pwh(:,:), ppovlx(:,:)
@@ -224,7 +241,9 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
       !$acc end kernels
       call stopwatch_pause(sw1)
       call stopwatch_start(sw3)
+      !$acc host_data use_device(pwhovl)
       istat = zmm(ppovlx, pwh, pwhovl, m=ngp, n=ndimh, k=(ig_end-ig_start+1), opB=m_op_T, beta = (1D0, 0d0))
+      !$acc end host_data
       call stopwatch_pause(sw3)
       deallocate(ppovlx, pwh)
     enddo gblock_loop
