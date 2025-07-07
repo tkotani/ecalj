@@ -3,8 +3,6 @@ module m_pwmat
   use m_nvfortran,only:findloc
   public pwmat,mkppovl2
   private
-  complex(8),allocatable:: ppovl_save(:,:,:)
-  logical,allocatable:: has_ppovl(:,:,:)
   real(8):: vol_ppovl
   contains
 ! Matrix elements (IPW,IPW) and (IPW,envelope function)
@@ -14,8 +12,15 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
   use m_lattic,only:  qlat=>lat_qlat, vol=>lat_vol,plat=>lat_plat,rv_a_opos
   use m_uspecb,only:uspecb
   use m_orbl,only: Orblib,ktab,ltab,offl,norb
-  use m_ropyln,only: ropyln
-  use m_blas,only: zmm => zmm_h, zmv => zmv_h, m_op_T
+  use m_ftox
+#ifdef __GPU
+  use m_ropyln,only: ropyln => ropyln_d
+  use m_blas,only: zmm => zmm_d, m_op_T
+  use cudafor
+#else
+  use m_blas,only: zmm => zmm_h, m_op_T
+  use m_ropyln,only: ropyln => ropyln
+#endif
 !  integer,parameter:: n0=10,nkap0=3
 !  real(8),parameter:: pi=4d0*datan(1d0), pi4=4d0*pi
   implicit none
@@ -72,7 +77,6 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
   complex(8):: ppovl(ngp,ngp), pwhovl(ngp,ndimh),phase,img,fach,mimgl(0:n0)
   integer,allocatable:: igvx(:,:),kv(:,:)
   real(8),allocatable:: yl(:)
-  complex(8),allocatable:: pwh(:,:),ppovlx(:,:)
   logical:: debug=.false.
   integer :: istat
   tpiba = 2*pi/alat !vol = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
@@ -89,7 +93,26 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
      rmax(ib) = rmt_i(is)
   enddo
   nlmto = ndimh-napw
-  call ipwovl(alat,plat,qlat,ngp,igv,ngp,igv,nbas,rmax,bas,ppovl)! --- Overlaps between IPW's ---
+  ! call ipwovl(alat,plat,qlat,ngp,igv,ngp,igv,nbas,rmax,bas,ppovl)! --- Overlaps between IPW's ---
+  ipwovl: block 
+    complex(8), allocatable:: ppovl_save(:,:,:)
+    integer :: nx(3), ig1, ig2
+#ifdef __GPU
+    attributes(device) ppovl_save
+#endif
+    call set_ppovl(ngp, igv, ngp, igv, bas, rmax, nbas, alat, plat, qlat, ppovl_save)
+    !$acc data copyout(ppovl)
+    !$acc kernels loop independent collapse(2) private(nx)
+    do ig2 = 1, ngp
+      do ig1 = 1, ngp
+        nx(1:3) = igv(1:3,ig2) - igv(1:3,ig1) 
+        ppovl(ig1,ig2) = ppovl_save(nx(1),nx(2),nx(3))
+      enddo
+    enddo
+    !$acc end kernels
+    !$acc end data
+    deallocate(ppovl_save)
+  endblock ipwovl
   ! ... G vectors for the envelope (smooth hankel) functions
   !     Find ngmx = number of G's in PW expansion of basis for this qp:
   call pshpr(0)
@@ -114,62 +137,121 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
   !     Could be optimized, ala hsibl, but not a critical step for GW.
   block
     use m_stopwatch
-    type(stopwatch) :: sw1, sw2,sw3
-    integer:: ig_start, ig_end, igp
-    integer, parameter:: ngblock = 1024
-    call stopwatch_init(sw1, 'set ppovlx,pwh')
-    call stopwatch_init(sw2, 'zmm')
-    call stopwatch_init(sw3, 'zmm2')
-    call get_ppovl_init(ngp, igv, ngmx, igvx)
+    use m_lmfinit, only: nspec, ltabx, ktabx, offlx, norbx
+    complex(8), allocatable:: ppovl_save(:,:,:), pwh(:,:), ppovlx(:,:)
+    logical :: debug=.false., cmdopt0
+    type(stopwatch) :: sw1, sw2, sw3, sw4
+    integer:: ig_start, ig_end, igp, i, match_igx, blks_nb(n0*nkap0,nbas), nx(3)
+    integer, parameter:: ngblock = 1024*8
+    real(8):: eh_ns(n0,nkap0,nspec), rsmh_ns(n0,nkap0,nspec)
+#ifdef __GPU
+    attributes(device) ppovl_save, pwh, ppovlx
+#endif
+    debug=cmdopt0('--debugpwmat')
+    if(debug) call stopwatch_init(sw1,'set ppovlx')
+    if(debug) call stopwatch_init(sw2,'set_pwh')
+    if(debug) call stopwatch_init(sw3,'get_pwhovl')
+
+    if(debug) call stopwatch_start(sw1)
+    call set_ppovl(ngp, igv, ngmx, igvx, bas, rmax, nbas, alat, plat, qlat, ppovl_save) !ppovl_save is set in GPU in case of GPU version
+    if(debug) call stopwatch_pause(sw1)
+
+    do ib = 1, nbas
+      is = ispec(ib)
+      call uspecb(is,rsmh,eh)
+      call orblib(ib) !get norb,ltab,ktab,offl
+      call gtbsl8(norb,ltab,ktab,rsmh,eh,ntab,blks) !update eh, get blks
+      rsmh_ns(:,:,is) = rsmh(:,:)
+      eh_ns(:,:,is) = eh(:,:)
+      blks_nb(:,ib) = blks(:)
+    enddo
+
+    if(debug) write(06,ftox) '**xxx ndimh, ngp, ngmx, napw', ndimh, ngp, ngmx, napw
+    !$acc data copyout(pwhovl) copyin(igapw, igvx, qlat, q, bas, ispec, eh_ns, rsmh_ns, blks_nb, mimgl, ltabx, ktabx, offlx, norbx)
+    !$acc kernels
     pwhovl(:,:) = (0d0, 0d0)
+    !$acc end kernels
     gblock_loop: do ig_start = 1, ngmx, ngblock
       ig_end = min(ngmx, ig_start + ngblock -1)
-      allocate(pwh(ndimh,ig_start:ig_end), source = (0d0,0d0))
-      allocate(ppovlx(ngp,ig_start:ig_end), source = (0d0,0d0))
-      call stopwatch_start(sw1)
+      allocate(pwh(ndimh,ig_start:ig_end), ppovlx(ngp,ig_start:ig_end))
+      !$acc kernels
+      pwh(:,:) = (0d0, 0d0)
+      !$acc end kernels
+
+      if(debug) call stopwatch_start(sw2)
+      !$acc parallel 
+      !$acc loop gang worker independent private(qpg, yl, qpg2)
       do ig = ig_start, ig_end
-        qpg(1:3) = tpiba * (q(1:3) + matmul(qlat, igvx(1:3,ig)))
+        ! qpg(1:3) = tpiba * (q(1:3) + matmul(qlat, igvx(1:3,ig)))
+        !$acc loop vector
+        do i = 1, 3
+          qpg(i) = tpiba*(q(i) + sum(qlat(i,:)*igvx(:,ig)))
+        enddo
         call ropyln(1,qpg(1),qpg(2),qpg(3),lmxax,1,yl,qpg2)
+        !$acc loop vector independent
         do ib = 1, nbas
           phase = exp( -img * sum( qpg*bas(:,ib)*alat )  )
-          is = ispec(ib) 
-          call uspecb(is,rsmh,eh)
-          call orblib(ib) !return norb,ltab,ktab,offl
-          call gtbsl8(norb,ltab,ktab,rsmh,eh,ntab,blks)
-          do  io = 1, norb
-            l  = ltab(io) ! l,ik = l and kaph indices, needed to address eh,rsmh
-            ik = ktab(io)
-            ol = ltab(io)**2
-            oi = offl(io) ! offh = hamiltonian offset to this block
-            denom = eh(l+1,ik) - qpg2(1)
-            gam   = 1d0/4d0*rsmh(l+1,ik)**2
+          is = ispec(ib)
+          ! 2025-07-05 MO following table is prepared in advance
+          ! call uspecb(is,rsmh,eh)
+          ! call orblib(ib) !return norb,ltab,ktab,offl
+          ! call gtbsl8(norb,ltab,ktab,rsmh,eh,ntab,blks)
+          do  io = 1, norbx(ib)
+            l  = ltabx(io,ib) ! l,ik = l and kaph indices, needed to address eh,rsmh
+            ik = ktabx(io,ib)
+            ol = ltabx(io,ib)**2
+            oi = offlx(io,ib) ! offh = hamiltonian offset to this block
+            denom = eh_ns(l+1,ik,is) - qpg2(1)
+            gam   = 1d0/4d0*rsmh_ns(l+1,ik,is)**2
             if(abs(denom)<1d-10) cycle  !2023feb ok?
             fach  = -pi4/vol/denom * phase * mimgl(l) * exp(gam*denom)
-            pwh(oi+1:oi+blks(io),ig) = fach * yl(ol+1:ol+blks(io))
+            pwh(oi+1:oi+blks_nb(io,ib),ig) = fach * yl(ol+1:ol+blks_nb(io,ib))
           enddo
         enddo
+      enddo
+      !$acc end parallel
+      !$acc kernels
+      pwh(nlmto+1:,:) = 0d0 !is it necessary?
+      !$acc end kernels
+      ! findloc does not work with GPU, so we use a loop
+      ! do iga= 1,napw 
+      !    ig = findloc([(all(igapw(:,iga)==igvx(:,igx)),igx=ig_start, ig_end)],value=.true.,dim=1)
+      !    !if current igx's (ig_start:ig_end) has overlap with iga
+      !    if(1 <= ig .and. ig <= ig_end - ig_start + 1) pwh(iga+nlmto,ig + ig_start - 1) = 1d0/srvol
+      ! enddo
+      !$acc parallel loop gang independent
+      do iga= 1,napw 
+        match_igx = 0
+        !$acc loop vector reduction(max:match_igx)
+        do igx = ig_start, ig_end
+          if (all(igapw(:,iga) == igvx(:,igx))) match_igx = max(match_igx, igx)
+        enddo
+        if (match_igx > 0) pwh(iga+nlmto, match_igx) = 1d0/srvol
+      enddo
+      !$acc end parallel
+      if(debug) call stopwatch_pause(sw2)
+      if(debug) call stopwatch_start(sw1)
+      !$acc kernels loop independent collapse(2) private(nx)
+      do ig = ig_start, ig_end
         do igp=1, ngp
-          ppovlx(igp,ig) = get_ppovl(alat, plat, qlat, rmax, bas, nbas, igv(1:3,igp), igvx(1:3,ig))
+          nx(1:3) = igvx(1:3,ig) - igv(1:3,igp) 
+          ppovlx(igp,ig) = ppovl_save(nx(1),nx(2),nx(3))
         enddo
       enddo
-      call stopwatch_pause(sw1)
-      call stopwatch_start(sw3)
-      pwh(nlmto+1:,:) = 0d0
-      do iga= 1,napw 
-         ig = findloc([(all(igapw(:,iga)==igvx(:,igx)),igx=ig_start, ig_end)],value=.true.,dim=1)
-         !if current igx's (ig_start:ig_end) has overlap with iga
-         if(1 <= ig .and. ig <= ig_end - ig_start + 1) pwh(iga+nlmto,ig + ig_start - 1) = 1d0/srvol
-      enddo
-      call stopwatch_pause(sw3)
-      call stopwatch_start(sw2)
+      !$acc end kernels
+      if(debug) call stopwatch_pause(sw1)
+      if(debug) call stopwatch_start(sw3)
+      !$acc host_data use_device(pwhovl)
       istat = zmm(ppovlx, pwh, pwhovl, m=ngp, n=ndimh, k=(ig_end-ig_start+1), opB=m_op_T, beta = (1D0, 0d0))
+      !$acc end host_data
+      if(debug) call stopwatch_pause(sw3)
       deallocate(ppovlx, pwh)
-      call stopwatch_pause(sw2)
     enddo gblock_loop
-    call get_ppovl_finalize()
-    call stopwatch_show(sw1)
-    call stopwatch_show(sw2)
-    call stopwatch_show(sw3)
+    !$acc end data
+    deallocate(ppovl_save)
+    if(debug) call stopwatch_show(sw1)
+    if(debug) call stopwatch_show(sw2)
+    if(debug) call stopwatch_show(sw3)
   endblock
   ! ... Fourier coefficients to APWs. APWs are normalized:  |G> = 1/sqrt(vol) exp[i G.r]
   ! --- Matrix elements between each (IPW,envelope function) pair ---
@@ -329,38 +411,81 @@ subroutine mkppovl2(alat,plat,qlat,ng1,ngvec1,ng2,ngvec2,nbas,rmax,bas, ppovl)
   deallocate(ppox)
 end subroutine mkppovl2
 !2024-11-28 MO added the set of get_ppovl interfaces
-subroutine get_ppovl_init(ng1, igv1, ng2, igv2)
+!2025-07-05 MO updated for the GPU version. it is basically same with mkppovl2
+subroutine set_ppovl(ng1, igv1, ng2, igv2, bas, rmax, nbas, alat, plat, qlat, ppovl_save)
   implicit none
   integer, intent(in) :: ng1, ng2, igv1(3,ng1), igv2(3,ng2)
   integer :: nx(3), n1x, n1m, n2x, n2m, n3x, n3m
+  integer :: ig1, ig2, ig3, nbas
+  real(8) :: alat, plat(3,3), qlat(3,3), rmax(nbas), bas(3,nbas), vol, tripl
+  integer:: ibas, i
+  real(8):: absg,ggvec(3),grmx
+  real(8), parameter:: pi=4d0*datan(1d0), pi4=4d0*pi
+  complex(8):: ppovl,  img = (0d0,1d0)
+  complex(8), allocatable :: ppovl_save(:,:,:)
+#ifdef __GPU
+  attributes(device) ppovl_save
+#endif
   n1x = maxval( igv2(1,:)) - minval( igv1(1,:))
   n1m = minval( igv2(1,:)) - maxval( igv1(1,:))
   n2x = maxval( igv2(2,:)) - minval( igv1(2,:))
   n2m = minval( igv2(2,:)) - maxval( igv1(2,:))
   n3x = maxval( igv2(3,:)) - minval( igv1(3,:))
   n3m = minval( igv2(3,:)) - maxval( igv1(3,:))
-  allocate(ppovl_save(n1m:n1x,n2m:n2x,n3m:n3x), source = (0d0, 0d0))
-  allocate( has_ppovl(n1m:n1x,n2m:n2x,n3m:n3x), source = .false.)
-  ! write(06,*) 'get_ppovl_init: ', n1x, n1m, n2x, n2m, n3x, n3m
-  ! write(06,*) 'get_ppovl_init: size ppovl', size(ppovl_save)
-end subroutine get_ppovl_init
-function get_ppovl(alat, plat, qlat, rmax, bas, nbas, igv1 , igv2) result(ppovl)
-  use m_lmfinit, only: pi
-  implicit none
-  integer, intent(in) :: igv1(3), igv2(3), nbas
-  integer :: nx(3)
-  complex(8) :: ppovl
-  real(8) :: alat, plat(3,3), qlat(3,3), rmax(nbas), bas(3,nbas), vol,tripl
+  allocate(ppovl_save(n1m:n1x,n2m:n2x,n3m:n3x))
+  !$acc kernels
+  ppovl_save(:,:,:) = (0d0, 0d0)
+  !$acc end kernels
+
   vol = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
-  nx(:) = igv2(:) - igv1(:)
-  if (.not.has_ppovl(nx(1),nx(2),nx(3))) then
-    call matgg2(alat, bas, rmax, nbas, vol, 2*pi/alat*qlat, nx, ppovl_save(nx(1),nx(2),nx(3)))
-    has_ppovl(nx(1),nx(2),nx(3)) = .true.
-  endif
-  ppovl = ppovl_save(nx(1),nx(2),nx(3))
-end function get_ppovl
-subroutine get_ppovl_finalize()
-  deallocate(has_ppovl, ppovl_save)
-end subroutine get_ppovl_finalize
+  !$acc data copyin(rmax(1:nbas), alat, nbas, vol, bas(1:3,1:nbas), qlat(1:3,1:3))
+  !$acc kernels loop collapse(3) private(nx) independent
+  do ig3=n3m, n3x
+    do ig2=n2m, n2x
+      do ig1=n1m, n1x
+        !following is inlined matgg2
+        nx(1:3) = [ig1, ig2, ig3]
+        do i = 1, 3
+          ggvec(i) = 2*pi*sum(qlat(i,:)*nx(:))/alat
+        enddo
+        absg  =  sqrt(sum(ggvec(1:3)**2))
+        ppovl = 0d0
+        if(absg == 0d0) ppovl = vol
+        do ibas = 1, nbas
+          if (absg==0d0) then
+            ppovl= ppovl - pi4*rmax(ibas)**3/3d0
+          else
+            grmx = absg*rmax(ibas)
+            ppovl= ppovl - exp(img*sum(ggvec*bas(1:3,ibas))*alat)*pi4/absg**3 *(-grmx*cos(grmx)+sin(grmx))
+           endif
+        enddo
+        ! end of matgg2 
+        ppovl_save(ig1,ig2,ig3) = ppovl
+      enddo
+    enddo
+  enddo
+  !$acc end kernels
+  !$acc end data
+end subroutine set_ppovl
+
+! function get_ppovl(alat, plat, qlat, rmax, bas, nbas, igv1 , igv2) result(ppovl)
+!   use m_lmfinit, only: pi
+!   implicit none
+!   integer, intent(in) :: igv1(3), igv2(3), nbas
+!   integer :: nx(3)
+!   complex(8) :: ppovl
+!   real(8) :: alat, plat(3,3), qlat(3,3), rmax(nbas), bas(3,nbas), vol,tripl
+!   nx(:) = igv2(:) - igv1(:)
+!   ! if (.not.has_ppovl(nx(1),nx(2),nx(3))) then
+!   !   vol = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
+!   !   call matgg2(alat, bas, rmax, nbas, vol, 2*pi/alat*qlat, nx, ppovl_save(nx(1),nx(2),nx(3)))
+!   !   has_ppovl(nx(1),nx(2),nx(3)) = .true.
+!   ! endif
+!   ppovl = ppovl_save(nx(1),nx(2),nx(3))
+! end function get_ppovl
+! subroutine get_ppovl_finalize()
+!   !$acc exit data delete(ppovl_save)
+!   deallocate(ppovl_save)
+! end subroutine get_ppovl_finalize
 end module m_pwmat
 

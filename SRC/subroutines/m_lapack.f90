@@ -6,9 +6,9 @@ module m_lapack
 #endif
   use m_blas
   implicit none
-  public :: zhgv_h, zminv_h
+  public :: zhgv_h, zminv_h, zsv_h
 #ifdef __GPU
-  public :: zhgv_d, zminv_d
+  public :: zhgv_d, zminv_d, zsv_d
 #endif
   private
 #ifdef __GPU
@@ -45,6 +45,22 @@ contains
 #endif
     deallocate(work,ipvt)
   end function zminv_h
+  integer function zsv_h(a, b, n, nrhs, lda, ldb) result(istat)
+    implicit none
+    integer, intent(in) :: n, nrhs
+    complex(8) :: a(*), b(*)
+    integer, allocatable :: ipiv(:)
+    integer, intent(in), optional :: lda, ldb
+    integer :: lda_in, ldb_in
+    allocate(ipiv(n))
+    lda_in = n; ldb_in = n
+    if(present(lda)) lda_in = lda
+    if(present(ldb)) ldb_in = ldb
+    call zgetrf(n, n, a, lda_in, ipiv, istat)
+    if(istat /= 0) return
+    call zgetrs('N', n, nrhs, a, lda_in, ipiv, b, ldb_in, istat)
+    deallocate(ipiv)
+  end function zsv_h
   integer function zhgv_h(A, B, n, evl, il, iu, lda, ldb) result(istat)
   ! Solving the generalized eigenvalue problem Az = lambda Bz, where A, B are Hermitian matrixes, z is eigenfunction
   ! Eigenvalues are stores in evl, eigenvectors are stored in A
@@ -158,6 +174,32 @@ contains
     enddo
     deallocate(awork)
   end function zminv_d
+  integer function zsv_d(a, b, n, nrhs, lda, ldb) result(istat)
+    implicit none
+    integer, intent(in) :: n, nrhs
+    integer, intent(in), optional :: lda, ldb
+    complex(8), device :: a(*), b(*)
+    integer(8), device :: ipiv(n)
+    integer(8) :: n_8, lda_8, ldb_8, nrhs_8
+    integer(1), allocatable, device :: buffer_d(:)
+    integer(1), allocatable         :: buffer_h(:)
+    integer(8) :: lbuffer_d, lbuffer_h
+    integer(4), device :: devinfo
+    integer :: lda_in, ldb_in
+    istat = cusolver_init()
+    lda_in = n; if(present(lda)) lda_in = lda
+    ldb_in = n; if(present(ldb)) ldb_in = ldb
+
+    n_8 = int(n,8); lda_8 = int(lda_in,8); ldb_8 = int(ldb_in,8); nrhs_8 = int(nrhs,8)
+    istat = cusolverDnXgetrf_buffersize(cusolver_handle, cusolver_params, n_8, n_8, cudaDataType(CUDA_C_64F), a, lda_8, &
+                                        cudaDataType(CUDA_C_64F), lbuffer_d, lbuffer_h)
+    allocate(buffer_d(lbuffer_d), buffer_h(lbuffer_h))
+    istat = cusolverDnXgetrf(cusolver_handle, cusolver_params, n_8, n_8, cudaDataType(CUDA_C_64F), a, lda_8, &
+                             ipiv, cudaDataType(CUDA_C_64F), buffer_d, lbuffer_d, buffer_h, lbuffer_h, devinfo)
+    deallocate(buffer_d, buffer_h)
+    istat = cusolverDnXgetrs(cusolver_handle, cusolver_params, CUBLAS_OP_N, n_8, nrhs_8, cudaDataType(CUDA_C_64F), a, lda_8, &
+                             ipiv, cudaDataType(CUDA_C_64F), b, ldb_8, devinfo)
+  end function zsv_d
   integer function zhgv_d(A, B, n, evl, il, iu, lda, ldb) result(istat)
     implicit none
     integer, intent(in) :: n !size of matrix

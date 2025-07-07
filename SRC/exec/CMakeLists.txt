@@ -37,7 +37,7 @@ enable_language(Fortran)
 
 file(GLOB SOURCES "../subroutines/*.f90") # existing source files 
 file(GLOB MAINS "../main/*.f90")
-file(GLOB MAINS_GPU "../main/hsfp0_sc.f90" "../main/hrcxq.f90" "../main/hx0fp0.f90" "../main/hvccfp0.f90")  #main files for GPU versions
+file(GLOB MAINS_GPU "../main/hsfp0_sc.f90" "../main/hrcxq.f90" "../main/hx0fp0.f90" "../main/hvccfp0.f90" "../main/lmf.f90")  #main files for GPU versions
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}) # directory for *.so
 set(CMAKE_Fortran_FLAGS_RELEASE "-O2 -g") # -traceback")
 set(FLAGS -cpp)
