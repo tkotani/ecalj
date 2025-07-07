@@ -112,6 +112,7 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
     !$acc end kernels
     !$acc end data
     deallocate(ppovl_save)
+    write(06,*) 'ppovl', ppovl(1:5,1)
   endblock ipwovl
   ! ... G vectors for the envelope (smooth hankel) functions
   !     Find ngmx = number of G's in PW expansion of basis for this qp:
@@ -145,7 +146,7 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
     integer, parameter:: ngblock = 1024*8
     real(8):: eh_ns(n0,nkap0,nspec), rsmh_ns(n0,nkap0,nspec)
 #ifdef __GPU
-    attributes(device) ppovl_save, pwh, ppovlx
+    attributes(device) ppovl_save
 #endif
     debug=cmdopt0('--debugpwmat')
     if(debug) call stopwatch_init(sw1,'set ppovlx')
@@ -174,6 +175,7 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
     gblock_loop: do ig_start = 1, ngmx, ngblock
       ig_end = min(ngmx, ig_start + ngblock -1)
       allocate(pwh(ndimh,ig_start:ig_end), ppovlx(ngp,ig_start:ig_end))
+      !$acc data copyout(ppovlx, pwh)
       !$acc kernels
       pwh(:,:) = (0d0, 0d0)
       !$acc end kernels
@@ -183,7 +185,6 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
       !$acc loop gang worker independent private(qpg, yl, qpg2)
       do ig = ig_start, ig_end
         ! qpg(1:3) = tpiba * (q(1:3) + matmul(qlat, igvx(1:3,ig)))
-        !$acc loop vector
         do i = 1, 3
           qpg(i) = tpiba*(q(i) + sum(qlat(i,:)*igvx(:,ig)))
         enddo
@@ -219,10 +220,11 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
       !    !if current igx's (ig_start:ig_end) has overlap with iga
       !    if(1 <= ig .and. ig <= ig_end - ig_start + 1) pwh(iga+nlmto,ig + ig_start - 1) = 1d0/srvol
       ! enddo
-      !$acc parallel loop gang independent
+      !!!$acc parallel loop gang independent private(match_igx)
+      !$acc parallel loop gang private(match_igx)
       do iga= 1,napw 
         match_igx = 0
-        !$acc loop vector reduction(max:match_igx)
+        !!!!$acc loop vector reduction(max:match_igx)
         do igx = ig_start, ig_end
           if (all(igapw(:,iga) == igvx(:,igx))) match_igx = max(match_igx, igx)
         enddo
@@ -241,10 +243,15 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
       !$acc end kernels
       if(debug) call stopwatch_pause(sw1)
       if(debug) call stopwatch_start(sw3)
-      !$acc host_data use_device(pwhovl)
+      !$acc host_data use_device(ppovlx, pwh, pwhovl)
       istat = zmm(ppovlx, pwh, pwhovl, m=ngp, n=ndimh, k=(ig_end-ig_start+1), opB=m_op_T, beta = (1D0, 0d0))
       !$acc end host_data
       if(debug) call stopwatch_pause(sw3)
+
+
+      !$acc end data
+      write(06,*) 'pwh', pwh(:,1)
+      write(06,*) 'ppovlx',ppovlx(:,1)
       deallocate(ppovlx, pwh)
     enddo gblock_loop
     !$acc end data
@@ -253,6 +260,7 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
     if(debug) call stopwatch_show(sw2)
     if(debug) call stopwatch_show(sw3)
   endblock
+  write(06,*) 'pwhovl', pwhovl(1:5,1)
   ! ... Fourier coefficients to APWs. APWs are normalized:  |G> = 1/sqrt(vol) exp[i G.r]
   ! --- Matrix elements between each (IPW,envelope function) pair ---
   ! allocate(ppovlx(ngp,ngmx))
@@ -439,7 +447,7 @@ subroutine set_ppovl(ng1, igv1, ng2, igv2, bas, rmax, nbas, alat, plat, qlat, pp
 
   vol = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
   !$acc data copyin(rmax(1:nbas), alat, nbas, vol, bas(1:3,1:nbas), qlat(1:3,1:3))
-  !$acc kernels loop collapse(3) private(nx) independent
+  !$acc kernels loop collapse(3) private(nx, ggvec) independent
   do ig3=n3m, n3x
     do ig2=n2m, n2x
       do ig1=n1m, n1x

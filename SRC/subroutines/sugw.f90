@@ -35,9 +35,10 @@ contains
     use m_rdata1,only:rdata1init,nradmx,nnc,nrad,nindx_r,lindx_r,iord,nvmax,nrc,mindx,&
          gcore_n,aac,bbc,gval_orth,zzpi,nrmxe=>nrmx ,gval_n
     use m_blas,only: zmm_h, m_op_T, m_op_C
+    use m_lapack, only: zsv_h
 #ifdef __GPU
     use m_blas, only: zmm => zmm_d
-    use m_lapack, only: zsv => zsv_d
+    use m_lapack, only: zsv => zsv_d, zsv_h
 #else
     use m_blas, only: zmm => zmm_h
     use m_lapack, only: zsv => zsv_h
@@ -511,25 +512,26 @@ contains
         !  phovl: <IPW_G1 | basis function = smooth Hankel or APW >   
         !    pwz:  IPW expansion of eigen function
         allocate(ppovl(ngp,ngp),phovl(ngp,ndimh)) !pwz(ngp*nspc,ndimhx),
-        !$acc data create(phovl, ppovlLU) copyin(evec) copyout(ppovl, geigr)
+        !!$acc data create(phovl, ppovlLU) copyin(evec) copyout(ppovl, geigr)
         if(debug) call stopwatch_init(sw, 'geig_par:pwmat')
         if(debug) call stopwatch_start(sw)
-        call pwmat(nbas,ndimh,napw,igv2x,qp,ngp,nlmax,ngvecp(1,1,iq),gmax, ppovl, phovl )
+        call pwmat(nbas,ndimh,napw,igv2x,qp,ngp,nlmax,ngvecp(1,1,iq),gmax, ppovl, phovl)
         if(debug) call stopwatch_show(sw)
+        !!$acc end data
         ! MO added blas_mode to replaced matmul by a BLAS call 2024-11-09. This is because matmul in mic(intel) was very slow.
         if(debug) call cputid(0)
         if(debug) write(stdo,ftox)' CPHIpart end of pwmat pppp',procid
-        !$acc kernels
+        !!$acc kernels
         geigr(:,:,:) = (0d0, 0d0)
-        !$acc end kernels
+        !!$acc end kernels
         do ispc=1, nspc
-          !$acc host_data use_device(phovl, evec, geigr)
+          !!$acc host_data use_device(phovl, evec, geigr)
           ! istat = zmm(phovl, evec(ndimh*(ispc-1)+1,1), pwz(1+ngp*(ispc-1),1), m=ngp, n=ndimhx, k=ndimh, ldb=ndimhx, ldc=ngp*nspc)
-          istat = zmm(phovl, evec(ndimh*(ispc-1)+1,1), geigr(1,ispc,1), m=ngp, n=ndimhx, k=ndimh, ldb=ndimhx, ldc=ngpmx*nspc) !geigr is temporary
-          !$acc end host_data
-          !$acc kernels
+          istat = zmm_h(phovl, evec(ndimh*(ispc-1)+1,1), geigr(1,ispc,1), m=ngp, n=ndimhx, k=ndimh, ldb=ndimhx, ldc=ngpmx*nspc) !geigr is temporary
+          !!$acc end host_data
+          !!$acc kernels
           ppovlLU(:,:) = ppovl(:,:)
-          !$acc end kernels
+          !!$acc end kernels
         ! enddo
         ! deallocate(phovl)
         ! block ! MO added blas_mode to replaced matmul by a BLAS call 2024-11-09.         ! if(blas_mode) then
@@ -537,11 +539,11 @@ contains
         !   ppovlLU=ppovl
           ! do ispc=1, nspc ! ppovlLU @ pwz(output) = pwz(input)
             ! call zgesv(ngp, ndimhx, ppovlLU, ngp, ipiv, pwz(1+ngp*(ispc-1),1),ngp,info) !ppovl_pwz, ngb, info)
-          !$acc host_data use_device(ppovlLU, geigr)
-          istat = zsv(ppovlLU, geigr(1,ispc,1), n=ngp, nrhs=ndimhx, ldb=ngpmx*nspc) !ppovl_pwz, ngb, info) !giegr is now wavefunction's coefficients on IPW
-          !$acc end host_data
+          !!$acc host_data use_device(ppovlLU, geigr)
+          istat = zsv_h(ppovlLU, geigr(1,ispc,1), n=ngp, nrhs=ndimhx, ldb=ngpmx*nspc) !ppovl_pwz, ngb, info) !giegr is now wavefunction's coefficients on IPW
+          !!$acc end host_data
         enddo
-        !$acc end data
+        !!$acc end data
         deallocate(phovl) 
         if(debug) call cputid(0)
         if(debug) write (stdo,"('endof GEIGpart q ndimh=',3f10.5,i10,' procid=',i10)") qp, ndimh,procid
