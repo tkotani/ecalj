@@ -327,17 +327,20 @@ class Calc:
         ### Check if QSGW calc. has been successfully completed or not
         if 'Error' in out_gwsc:
             err_msg = check_gw_out(out_gwsc)
-            if 'lmf' not in out_gwsc:
-                return err_msg
-            if outc.split()[0] == 'i':   # lmf error in gwsc loop
-                while (outc.split()[0] != 'c') and (self.const_b > 0.05):
-                    out_gwsc = self.run_gwsc_re(niter)
-                    outc = check_save(f'save.{num}')
-                    if 'ERROR' in out_gwsc: return out_gwsc
-                    if (outc.split()[0] == 'c' ) and ('Error' not in out_gwsc):
-                        break
-                else:
-                    return check_gw_out(out_gwsc)
+            return err_msg
+            
+            # if 'lmf' not in out_gwsc:
+            #     return err_msg
+            # if outc.split()[0] == 'i':   # lmf error in gwsc loop
+            #     return err_msg
+            #     while (outc.split()[0] != 'c') and (self.const_b > 0.05):
+            #         out_gwsc = self.run_gwsc_re(niter)
+            #         outc = check_save(f'save.{num}')
+            #         if 'ERROR' in out_gwsc: return out_gwsc
+            #         if (outc.split()[0] == 'c' ) and ('Error' not in out_gwsc):
+            #             break
+            #     else:
+            #         return check_gw_out(out_gwsc)
                 
         ### Check if calc. is converged or not
         if outc.split()[0] == 'x':

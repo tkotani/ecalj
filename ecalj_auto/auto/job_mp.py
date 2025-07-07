@@ -101,6 +101,7 @@ else:
 ### Set joblist
 job_dict = {}
 if args.file:
+    print('Reading joblist from', path_lst)
     with path_lst.open('r') as f:
         for line in f:
             if len(line.strip()) == 0:  continue
@@ -112,7 +113,8 @@ if args.file:
                 
     if path_log.exists():
         try:
-            log_df = pd.read_csv(path_log, header=None, delim_whitespace=True, usecols=[0,1,8])
+            #log_df = pd.read_csv(path_log, header=None, delim_whitespace=True, usecols=[0,1,8])
+            log_df = pd.read_csv(path_log, header=None, sep='\s+', usecols=[0,1,8])
             log_fin = log_df[log_df[1] == 'GW'][0].astype(str).tolist()  # GW calculations have already been done, regardless of convergence
             log_error = log_df[log_df[8] != 'c'][0].astype(str).tolist() # errors during the calculation of LDA/GW
 

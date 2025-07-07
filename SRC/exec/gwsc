@@ -64,12 +64,12 @@ flist=['ctrl.%s'%target,rst_name,sigm_name,'save.%s'%target,'log.%s'%target,'QPU
 #initial band structre
 print('===== Ititial band structure ====== ',flush=True)
 if os.path.isfile(sigm_name):
-    print("---> We use existing sigm file",flush=True)
-    run_program(epath+'/lmf'+targetss+'>llmf_start',ncore,datei)
+    print("--> We use existing sigm file",flush=True)
+    run_program_breduction(epath+'/lmf'+targetss+'>llmf_start',ncore,datei,ext=target)
 else:
-    print("---> No sigm. LDA caculation for eigenfunctions ",flush=True)
+    print("--> No sigm. LDA caculation for eigenfunctions ",flush=True)
     run_program(epath+'/lmfa'+targetss+'>llmfa',1,datei)
-    run_program(epath+'/lmf '+targetss+'>llmf_lda',ncore,datei)
+    run_program_breduction(epath+'/lmf '+targetss+'>llmf_lda',ncore,datei,ext=target)
     shutil.copy(rst_name,rst_name+'.lda')
     rundir='LDA'
     gen_dir(rundir)
@@ -105,7 +105,7 @@ for i in range(1,nloop+1): #nloop is the additional number of iteration
     mv_files(glob.glob('stdout*'),'STDOUT')
     run_program(epath+'/hqpe_sc '+option+'> lqpe',1,datei)        #all Sigma are combined.
     #
-    run_program(epath+'/lmf'+targetss+'>llmf',ncore,datei)
+    run_program_breduction(epath+'/lmf'+targetss+'>llmf',ncore,datei,ext=target)
     # final part of iteration loop. Manupulate files
     mv_files(glob.glob('SEX*')+glob.glob('SEC*')+glob.glob('XC*'),'SEBK')
     for f in ['QPU','QPD','llmf','atmpnu*']:
