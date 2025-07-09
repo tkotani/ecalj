@@ -22,10 +22,10 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
   use m_nvfortran,only:findloc
   use m_gpu,only: gpu_init
   implicit none
-  integer :: ifvcfpout,ifhvccfp,is,  if1011,if3011, ifplane,ngpmx, ngcmx, nblochpmx, nbloch,&
+  integer :: ifvcfpout,ifhvccfp,is,  if1011,if3011, ifplane,ngpmx, ngcmx, nbloch,&
        ibas,ic,lxx,nxx,nrx,l,n,k,isx,kdummy, nkdmx,nkqmx,lmax,nkdest,nkrest,ngp,ngc,nlxx,i,lnjcg,lnxcg, &
        nkd,nkq ,ibas1,ibas2,nlx1,nlx2, iqibz,ir,ig1,n1,n2, ngb,nev,nmx,iqx,ipl1,ipl2,igx1,igx2,&
-       igc,igc0,ifgb0vec,ifgb0vec1,ix, iy, iqxini, iqxend,imode, ngc0, ifvcfporg,nqbz_in,nblochpmx_in,&
+       igc,igc0,ifgb0vec,ifgb0vec1,ix, iy, iqxini, iqxend,imode, ngc0, ifvcfporg,nqbz_in,&
        ifprodmt,nl_r,lx_,nxx_r,nxdim,ibl1,nn,no,ngbnew, nmatch,ifpmatch,nmatch_q,ifpmatch_q,m,ifpomat,nbln,ibln,ngb_in,nnr,igc2,&
        nnmx ,ngcnn, ifvcoud,idummy,ifiwqfac,iqbz,iqbzx,nnn,ixyz,ifq0p,incwfin, &
        nqnumc,ifiqgc , mpi__iini, mpi__iend
@@ -40,24 +40,29 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
        rojb(:,:,:),sgbb(:,:,:,:),aa(:),bb(:),rofit(:),phi(:),psi(:),wqfac(:),qbzwww(:,:),rkpr(:,:,:),rkmr(:,:,:),rofi(:,:), eb(:)
   real(8),parameter::pi  = 4d0*datan(1d0), fpi = 4d0*pi
   complex(8):: pval,pslo,phasex, phasep,img=(0d0,1d0), xxx,trwv
-  complex(8) ,allocatable :: vcoul(:,:),geig(:,:),strx(:,:,:,:),sgpb(:,:,:,:),sgpp(:,:,:,:), fouvb(:,:,:,:),fouvp(:,:,:,:),&
-       vcoul0(:,:), s(:,:),sd(:,:),rojp(:,:,:) , vcoulnn(:,:), gbvec(:), ppovl(:,:), b0mat(:), hh1(:,:),oo1(:,:),vcoul_org(:,:),&
-       matp(:),matp2(:),ppmt(:,:,:,:),pmat(:,:),pomat(:,:),oon(:,:), hh(:,:),oox(:,:),ooxi(:,:),oo(:,:),zz(:,:),zzr(:)
-  logical :: checkeig, besseltest=.false.,smbb, wvcc, cmdopt2,cmdopt0 !emptyrun,
+  complex(8),allocatable:: geig(:,:),strx(:,:,:,:),sgpb(:,:,:,:),sgpp(:,:,:,:), fouvb(:,:,:,:),fouvp(:,:,:,:),&
+       vcoul0(:,:), s(:,:),sd(:,:),rojp(:,:,:) , vcoulnn(:,:), gbvec(:), vcoul_org(:,:),&
+       matp(:),matp2(:),ppmt(:,:,:,:),pmat(:,:),pomat(:,:),zzr(:)
+  logical :: checkeig, besseltest=.false.,smbb, wvcc, cmdopt2,cmdopt0,debug=.false. !emptyrun,
   character(20) :: xxt,outs=''
   character(3) :: charnum3
   character(10) :: i2char
   character(128):: vcoudfile!,ixcc
   real(8),external::screenfac
+!  complex(8),allocatable,target :: vcoul(:,:),oo(:,:)
+!  complex(8),pointer:: ppovl(:,:)!,zz(:,:) !hh
+  complex(8),allocatable,target :: oo(:,:)
+  complex(8),allocatable,target :: vcoul(:,:) !,hh(:,:),zz(:,:)
+  complex(8),pointer:: hh(:,:), ppovl(:,:),zz(:,:)
   call MPI__Initialize()
   call gpu_init() 
-  call M_lgunit_init()
+  call m_lgunit_init() ! Initialize the unit numbers for output files.
 !  emptyrun=cmdopt0('--emptyrun')
   if( mpi__root) write(6,"(' mode=0,3,202 (0 and 3 give the same results for given bas)' )")
   if(cmdopt2('--job=',outs)) then; read(outs,*) imode
   elseif( mpi__root ) then       ; read(5,*) imode;   endif
   call MPI__Broadcast(imode) !  write(ixcc,"('.mode=',i4.4)")imode
-  if(ipr) call MPI__consoleout('hvccfp0.mode'//charnum3(imode))
+  call MPI__consoleout('hvccfp0.mode'//charnum3(imode))
   call cputid (0)
   if(imode==202 )  then; if(ipr) write(6,*)' hvccfp0: imode=',imode
   elseif(imode==0) then
@@ -230,16 +235,19 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
             rofi(1,ibas),rkpr(1,0,ibas),rkmr(1,0,ibas),  rojb(1,0,ibas),     sgbb(1,1,0,ibas))
     enddo                              !Onsite integrals rojb=<j(e=0)|B> and sgbb=<B|v(onsite)|B>
   endblock qindependentRadialIntegrals
+  
+  call cputid (0)
+  write(stdo,ftox) 'end of qindependentRadialIntegrals'
 
   nlxx= (lxx+1)**2
   allocate(ngvecc0(3,ngcmx))
   call readqg('QGcou',[0d0,0d0,0d0],  quu,ngc0, ngvecc0) !coulomb matrix for each q = qibz
   deallocate(ngvecc0)
   nbloch    = sum(nblocha)
-  nblochpmx = nbloch + ngcmx
-  ngb = nbloch + ngc0
-  allocate( vcoul(nblochpmx,nblochpmx) )
-  vcoul  = 0d0
+  !nblochpmx = nbloch + ngcmx
+  !ngb = nbloch + ngc0
+  !allocate( vcoul(nblochpmx,nblochpmx) )
+  !vcoul  = 0d0
   iqxend = nqibz + nq0i+nq0iadd
   if(imode==202) then; iqxini= nqibz + 1
   else;                iqxini = 1
@@ -247,6 +255,9 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
   if(ipr) write(6,*)'iqxini iqxend=',iqxini,iqxend
   if(abs(sum(qibz(:,1)**2))/=0d0) call rx( 'hvccfp0: We assume sum(q**2)==0d0 but not.')
   call MPI__getRange( mpi__iini, mpi__iend, iqxini, iqxend )
+  call cputid(0)
+  write(stdo,ftox)' starting do 1001 loop'
+  flush(stdo)
   mainforiqx: do 1001 iqx = mpi__iini, mpi__iend !q=(0,0,0) is omitted!
     if(ipr) write(6,"('#### do 1001 start iqx=',5i5)")iqx,nqibz
     open(newunit=ifvcoud,file=trim('__Vcoud.'//i2char(iqx)),form='unformatted') !  !! Vcoud file, which contains E(\nu,I), given in qibzPRB81,125102
@@ -290,28 +301,38 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
       enddo! rojp=<j(e=0)_L|exp(i(q+G)r)>, sgpb=<exp(i(q+G)r)|v(onsite)|B_nL>, fouvb=<exp(i(q+G)r)|v|B_nL>
     endblock qdependentRadialIntegrals
 
-    call vcoulq_4(q, nbloch, ngc, nbas, lx,lxx, nx,nxx, alat, qlat, voltot, ngvecc, strx, rojp,rojb, sgbb,sgpb, fouvb, nblochpmx, &
+    call cputid(0)
+    write(stdo,ftox)'starting vcoulq_4 for iqx=',iqx,' q=',q(1:3),' ngc=',ngc,' nbas=',nbas,' lx=',lxx,' nx=',nxx,'procid=',mpi__rank
+    flush(stdo)
+    allocate( vcoul(ngb,ngb), source=(0d0,0d0) )
+    call vcoulq_4(q, nbloch, ngc, nbas, lx,lxx, nx,nxx, alat, qlat, voltot, ngvecc, strx, rojp,rojb, sgbb,sgpb, fouvb, ngb, &
          bas,rmax, eee, aa,bb,nr,nrx,rkpr,rkmr,rofi, &
          vcoul) !the Coulomb matrix
+    vcoul=-vcoul !2025-07-09
     
+    call cputid(0)
+    write(stdo,ftox)'end of vcoulq_4 for iqx=',iqx,' q=',q(1:3),' ngc=',ngc,' nbas=',nbas,' lx=',lxx,' nx=',nxx,'procid=',mpi__rank
+    flush(stdo)
     deallocate( strx, rojp,sgpb,fouvb)
     if(ipr) write(6,'(" vcoul trwi=",i6,2d22.14)') iqx,sum([(vcoul(i,i),i=1,nbloch)])
-    if(ipr) write(6,'("### sum vcoul(1:ngb,      1:ngb) ",2d22.14,2x,d22.14)') sum(vcoul(1:ngb,1:ngb)), sum(abs(vcoul(1:ngb,1:ngb)))
+    if(ipr) write(6,'("### sum vcoul(1:ngb,      1:ngb) ",2d22.14,2x,d22.14)') sum(vcoul), sum(abs(vcoul))
     if(ipr) write(6,'("### sum vcoul(1:nbloch,1:nbloch) ",2d22.14,2x,d22.14)') sum(vcoul(1:nbloch,1:nbloch)),sum(abs(vcoul(1:nbloch,1:nbloch)))
     if(ipr) write(6,*)
 
-    if(ipr) write(6,"(' ngc ngb=',6i6)") ngc,ngb
-    allocate( ppovl(ngc,ngc) )
-    call mkppovl2(alat,plat,qlat, ngc,  ngvecc, ngc,  ngvecc, nbas, rmax, bas, ppovl)
+    call cputid(0)
+    write(stdo,"(' goto mkppovl2:  ngc ngb procid=',6i6)") ngc,ngb,mpi__rank
+    flush(stdo)
+
     allocate( oo(ngb,ngb)  ,source=(0d0,0d0))
-    forall(ipl1=1:nbloch)     oo(ipl1,ipl1) = 1d0
-    forall(ix=1:ngc,iy=1:ngc) oo(nbloch+ix, nbloch+iy) = ppovl(ix,iy)
-    allocate(oox,source=oo )
-    allocate(hh(ngb,ngb),zz(ngb,ngb),eb(ngb),zzr(ngb))
-    hh  = - vcoul(1:ngb,1:ngb)
-    ! MO replaced diagcv by m_lapack routine
-    ! nmx = ngb
-    ! call diagcv(oo,hh,zz,ngb, eb,nmx,1d99,nev) !! diagonalize the Coulomb matrix
+    forall(ipl1=1:nbloch) oo(ipl1,ipl1) = 1d0
+    ppovl => oo(nbloch+1:ngb,nbloch+1:ngb) !ppovl is a part of oo
+    call mkppovl2(alat,plat,qlat, ngc,  ngvecc, ngc,  ngvecc, nbas, rmax, bas, ppovl)
+    call cputid(0)
+    write(stdo,"(' end of mkppovl2 ngc ngb procid=',6i6)") ngc,ngb,mpi__rank
+    flush(stdo)
+
+    allocate(eb(ngb))
+    hh  => vcoul(1:ngb,1:ngb)
     Diagonalize_Coulomb_matrix: block
 #ifdef __GPU
       use m_lapack, only: zhgv => zhgv_d
@@ -323,7 +344,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
       !$acc data copyin(oo) copy(hh) copyout(eb)
       istat = zhgv(hh, oo, ngb, eb)
       !$acc end data
-      zz = hh
+      zz => hh
     endblock Diagonalize_Coulomb_matrix
     Chkwriteeb: do ipl1=1,nev
       if(ipl1==1 .and.ipr) write(6,*)' --- goto eigen check1 --- '
@@ -346,14 +367,63 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
     write(ifvcoud) q
     write(ifvcoud) -eb
     write(ifvcoud) zz !=Enu
-    if(ipr) write(6,*)
-    if(ipr) write(6,'(" eig0 must be equal to the largest =", 2d24.16)') sum(  dconjg(zz(1:ngb,1))*matmul( vcoul(1:ngb,1:ngb),zz(1:ngb,1)))
-    if(ipr) write(6,'(" zz norm check=",d24.16)')    sum( dconjg(zz(1:ngb,1))*matmul(oox,zz(1:ngb,1)) )
-    if(ipr) write(6,*)
-    if(ipr) write(6,'(" --- vcoul(exact)=",d14.6," absq2=",d24.16)') fpi*voltot/(sum(tpiba**2*q(1:3)**2)-eee), (sum(tpiba**2*q(1:3)**2)-eee)
-    if(ipr) write(6,'(" --- vcoul(cal ) =",2d14.6)') sum( dconjg(zz(1:ngb,1))*matmul( vcoul(1:ngb,1:ngb),zz(1:ngb,1)) )*voltot
-    deallocate(hh,zzr,zz,eb,oox,oo,ppovl)
     close(ifvcoud)
+    deallocate(eb,oo)!,ppovl)
+
+
+!     allocate(eb(ngb)) !,zzr(ngb)) !,zz(ngb,ngb)
+!     if(debug) then
+!       allocate(hh,source=vcoul)
+!     else
+!       hh  =>  vcoul !vcoul is overwriten
+!     endif  
+!     Diagonalize_Coulomb_matrix: block
+! #ifdef __GPU
+!       use m_lapack, only: zhgv => zhgv_d
+! #else
+!       use m_lapack, only: zhgv => zhgv_h
+! #endif
+!     integer :: istat
+!     call cputid(0)
+!     write(stdo,"(' goto Diagonalize_Coulomb_matrix:  ngb procid=',2i6)") ngb,mpi__rank
+!     nev = ngb
+!     !$acc data copyin(oo) copy(hh) copyout(eb)
+!     istat = zhgv(hh, oo, ngb, eb)
+!     !$acc end data
+!     !zz => hh
+!   endblock Diagonalize_Coulomb_matrix
+!   Chkwriteeb: do ipl1=1,nev
+!     if(ipl1==1 .and.ipr) write(6,*)' --- goto eigen check1 --- '
+!     if(ipl1==11.and.ipr) write(6,*)' ... '
+!     if(ipl1>10 .AND. ipl1<nev-5) cycle
+!     if(ipr) write(6,'(i4,d23.16)')ipl1,-eb(ipl1)
+!   enddo Chkwriteeb
+!     !9090 continue
+!     if(ipr) write(6,"(' nev ngv q=',2i5,3f10.6)")nev,ngb,q
+!     !! -eb should be positive definite. However, we have one (or a few?) negative ones.
+!     !! I(kotani) think no problem to set eb=0 when -eb is negative.
+!     !! But this is a temporaly fix or better manner to calcuate coulomb matrix. strxq may be needed to be replaced
+!     do i=1,nev
+!       if(eb(i)>0 .AND. keeppositivecou) then
+!          if(ipr) write(6,"(a,d13.5)")'KeepPositiveCou enforce : -eb<0 --> eb=0',eb(i)
+!          eb(i)=0d0
+!       endif
+!     enddo
+!     write(ifvcoud) ngb
+!     write(ifvcoud) q
+!     write(ifvcoud) -eb
+!     write(ifvcoud) hh !=Enu
+!    if(debug) then !we expect vcoul is reserved. 
+!      zz=>hh
+!      if(ipr) write(6,*)
+!      if(ipr) write(6,'(" eig0 must be equal to the largest =", 2d24.16)') sum(  dconjg(zz(1:ngb,1))*matmul( vcoul(1:ngb,1:ngb),zz(1:ngb,1)))
+! !     if(ipr) write(6,'(" zz norm check=",d24.16)')    sum( dconjg(zz(1:ngb,1))*matmul(oox,zz(1:ngb,1)) )
+!      if(ipr) write(6,*)
+!      if(ipr) write(6,'(" --- vcoul(exact)=",d14.6," absq2=",d24.16)') fpi*voltot/(sum(tpiba**2*q(1:3)**2)-eee), (sum(tpiba**2*q(1:3)**2)-eee)
+!      if(ipr) write(6,'(" --- vcoul(cal ) =",2d14.6)') sum( dconjg(zz(1:ngb,1))*matmul( vcoul(1:ngb,1:ngb),zz(1:ngb,1)) )*voltot
+!     endif 
+!     deallocate(eb,oo) !oox
+!     close(ifvcoud)
 1001 enddo mainforiqx
   deallocate(ngvecc)
   call cputid(0)

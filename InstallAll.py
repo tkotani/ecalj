@@ -3,13 +3,14 @@ import os, subprocess, sys, shutil,time,argparse,re
 
 parser = argparse.ArgumentParser(prog='InstallAll',description=
 '''
-Install ecalj and tests. Instead of InstallAll, we will use InstallAll.py
+Install ecalj and run tests. Instead of InstallAll, we will use InstallAll.py
 ''')
 parser.add_argument("-np",    help='number of mpi cores',default=8,type=int)
 parser.add_argument('--clean',help='Clean CMakeCache CMakeFiles before make',action='store_true')
 parser.add_argument('--gpu'  ,help='nvfortran for GPU',action='store_true')
 parser.add_argument('--bindir' ,help='ecalj binaries and scripts',type=str,default='bin')
 parser.add_argument('--fc'   ,help='fortran compilar  gfortran/ifort/nvfortran',type=str,required=True)
+parser.add_argument('--notest' ,help='no test. only compile',action='store_true')
 args=parser.parse_args()
 
 def main():
@@ -54,6 +55,11 @@ def main():
     print(executables)
     for exe in executables:
         shutil.copy(exe, BINDIR)
+        
+    if(args.notest):
+        print('No test. Only compile.')
+        return
+    
     # Install test
     print('=== goto test ===')
     os.chdir(f'{CWD}/SRC/TestInstall')

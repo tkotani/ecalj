@@ -21,6 +21,8 @@ def rm_files(files):
 
 nxdict = {}
 def run_program(cmd, ncore=0, x0=0):
+    """Run a program with ncore cores.
+       Decreasing ncore until the command runs successfully."""
     import subprocess, datetime
     global nxdict
     nx = ncore
@@ -41,7 +43,7 @@ def run_program(cmd, ncore=0, x0=0):
 
 const_b={}
 def run_program_breduction(cmd, ncore=0, x0=0, ext=''):
-    """Run a program with b-mix reduction.
+    """Run lmf with b-mix reduction.
        Decreasing b until lmf converges."""
     import subprocess, datetime,shutil,glob,re,os
     global const_b
@@ -69,13 +71,13 @@ def run_program_breduction(cmd, ncore=0, x0=0, ext=''):
             if first_word == 'c' or first_word =='x': 
                 const_b[cmd] = bval
                 return t
-        print(f'Error for const_b={bval} in {run_cmd}', flush=True)
+        print(f' Error for const_b={bval} in {run_cmd}', flush=True)
         for file in glob.glob("mix*"): os.remove(file)
         os.remove(f'rst.{ext}')
         shutil.copy(f'rst.{ext}.bk',f'rst.{ext}')
 
         bval = round(bval - 0.05, 2)
-        print(f'Set b={bval} in {run_cmd}', flush=True)
+        print(f' Reset b={bval} in {run_cmd}', flush=True)
         with open(f'ctrl.{ext}', 'r') as f:
             text = f.read()
         text_new = re.sub(r'b=0?\.\d+', f'b={bval}', text)
