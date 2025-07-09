@@ -13,13 +13,12 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
   use m_uspecb,only:uspecb
   use m_orbl,only: Orblib,ktab,ltab,offl,norb
   use m_ftox
+  use m_ropyln,only: ropyln
 #ifdef __GPU
-  use m_ropyln,only: ropyln => ropyln_d
-  use m_blas,only: zmm => zmm_d, m_op_T
+  use m_blas,only: zmm => zmm_d, m_op_T, zmm_h
   use cudafor
 #else
-  use m_blas,only: zmm => zmm_h, m_op_T
-  use m_ropyln,only: ropyln => ropyln
+  use m_blas,only: zmm => zmm_h, m_op_T, zmm_h
 #endif
 !  integer,parameter:: n0=10,nkap0=3
 !  real(8),parameter:: pi=4d0*datan(1d0), pi4=4d0*pi
@@ -77,8 +76,6 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
   complex(8):: ppovl(ngp,ngp), pwhovl(ngp,ndimh),phase,img,fach,mimgl(0:n0)
   integer,allocatable:: igvx(:,:),kv(:,:)
   real(8),allocatable:: yl(:)
-  logical:: debug=.false.
-  integer :: istat
   tpiba = 2*pi/alat !vol = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
   srvol = dsqrt(vol)
   img = dcmplx(0d0,1d0)
@@ -112,7 +109,6 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
     !$acc end kernels
     !$acc end data
     deallocate(ppovl_save)
-    write(06,*) 'ppovl', ppovl(1:5,1)
   endblock ipwovl
   ! ... G vectors for the envelope (smooth hankel) functions
   !     Find ngmx = number of G's in PW expansion of basis for this qp:
@@ -140,11 +136,13 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
     use m_stopwatch
     use m_lmfinit, only: nspec, ltabx, ktabx, offlx, norbx
     complex(8), allocatable:: ppovl_save(:,:,:), pwh(:,:), ppovlx(:,:)
-    logical :: debug=.false., cmdopt0
+    logical :: cmdopt0, debug=.false.
     type(stopwatch) :: sw1, sw2, sw3, sw4
-    integer:: ig_start, ig_end, igp, i, match_igx, blks_nb(n0*nkap0,nbas), nx(3)
-    integer, parameter:: ngblock = 1024*8
+    integer:: ig_start, ig_end, igp, i, match_iga, blks_nb(n0*nkap0,nbas), nx(3)
+    integer, parameter:: ngblock = 1024*4
     real(8):: eh_ns(n0,nkap0,nspec), rsmh_ns(n0,nkap0,nspec)
+    real(8), allocatable :: yl_g(:,:)
+    integer :: istat
 #ifdef __GPU
     attributes(device) ppovl_save
 #endif
@@ -175,11 +173,18 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
     gblock_loop: do ig_start = 1, ngmx, ngblock
       ig_end = min(ngmx, ig_start + ngblock -1)
       allocate(pwh(ndimh,ig_start:ig_end), ppovlx(ngp,ig_start:ig_end))
-      !$acc data copyout(ppovlx, pwh)
+
+      ! openacc parallelization may have a problem in ropyln. so it is set outside of openacc
+      allocate(yl_g(nlmax, ig_start:ig_end))
+      do ig = ig_start, ig_end
+        qpg(1:3) = tpiba * (q(1:3) + matmul(qlat, igvx(1:3,ig)))
+        call ropyln(1,qpg(1),qpg(2),qpg(3),lmxax,1,yl_g(1,ig),qpg2)
+      enddo
+
+      !$acc data create(pwh, ppovlx) copyin(yl_g)
       !$acc kernels
       pwh(:,:) = (0d0, 0d0)
       !$acc end kernels
-
       if(debug) call stopwatch_start(sw2)
       !$acc parallel 
       !$acc loop gang worker independent private(qpg, yl, qpg2)
@@ -188,10 +193,12 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
         do i = 1, 3
           qpg(i) = tpiba*(q(i) + sum(qlat(i,:)*igvx(:,ig)))
         enddo
-        call ropyln(1,qpg(1),qpg(2),qpg(3),lmxax,1,yl,qpg2)
+        ! call ropyln(1,qpg(1),qpg(2),qpg(3),lmxax,1,yl,qpg2)
+        yl(:) = yl_g(:,ig)
+        qpg2(1) = sum(qpg(:)*qpg(:))
         !$acc loop vector independent
         do ib = 1, nbas
-          phase = exp( -img * sum( qpg*bas(:,ib)*alat )  )
+          phase = exp( -img * sum( qpg(:)*bas(:,ib)*alat )  )
           is = ispec(ib)
           ! 2025-07-05 MO following table is prepared in advance
           ! call uspecb(is,rsmh,eh)
@@ -211,6 +218,7 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
         enddo
       enddo
       !$acc end parallel
+      deallocate(yl_g)
       !$acc kernels
       pwh(nlmto+1:,:) = 0d0 !is it necessary?
       !$acc end kernels
@@ -220,22 +228,21 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
       !    !if current igx's (ig_start:ig_end) has overlap with iga
       !    if(1 <= ig .and. ig <= ig_end - ig_start + 1) pwh(iga+nlmto,ig + ig_start - 1) = 1d0/srvol
       ! enddo
-      !!!$acc parallel loop gang independent private(match_igx)
-      !$acc parallel loop gang private(match_igx)
-      do iga= 1,napw 
-        match_igx = 0
-        !!!!$acc loop vector reduction(max:match_igx)
-        do igx = ig_start, ig_end
-          if (all(igapw(:,iga) == igvx(:,igx))) match_igx = max(match_igx, igx)
+      !$acc parallel loop gang independent
+      do igx = ig_start, ig_end
+        match_iga = 0
+        !$acc loop vector reduction(max:match_iga)
+        do iga= 1, napw 
+          if (all(igapw(:,iga) == igvx(:,igx))) match_iga = max(match_iga, iga)
         enddo
-        if (match_igx > 0) pwh(iga+nlmto, match_igx) = 1d0/srvol
+        if (match_iga > 0) pwh(match_iga+nlmto, igx) = 1d0/srvol
       enddo
       !$acc end parallel
       if(debug) call stopwatch_pause(sw2)
       if(debug) call stopwatch_start(sw1)
       !$acc kernels loop independent collapse(2) private(nx)
       do ig = ig_start, ig_end
-        do igp=1, ngp
+        do igp = 1, ngp
           nx(1:3) = igvx(1:3,ig) - igv(1:3,igp) 
           ppovlx(igp,ig) = ppovl_save(nx(1),nx(2),nx(3))
         enddo
@@ -247,11 +254,7 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
       istat = zmm(ppovlx, pwh, pwhovl, m=ngp, n=ndimh, k=(ig_end-ig_start+1), opB=m_op_T, beta = (1D0, 0d0))
       !$acc end host_data
       if(debug) call stopwatch_pause(sw3)
-
-
       !$acc end data
-      write(06,*) 'pwh', pwh(:,1)
-      write(06,*) 'ppovlx',ppovlx(:,1)
       deallocate(ppovlx, pwh)
     enddo gblock_loop
     !$acc end data
@@ -260,7 +263,6 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
     if(debug) call stopwatch_show(sw2)
     if(debug) call stopwatch_show(sw3)
   endblock
-  write(06,*) 'pwhovl', pwhovl(1:5,1)
   ! ... Fourier coefficients to APWs. APWs are normalized:  |G> = 1/sqrt(vol) exp[i G.r]
   ! --- Matrix elements between each (IPW,envelope function) pair ---
   ! allocate(ppovlx(ngp,ngmx))
