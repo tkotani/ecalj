@@ -1,6 +1,8 @@
 module  m_vcoulq
+  use m_cputm,only:cputm
   use m_mpi,only: ipr,mpi__rank
   use m_lgunit,only: stdo
+  use m_ftox
   public vcoulq_4,mkjb_4,mkjp_4,genjh
 contains
   subroutine vcoulq_4(q,nbloch,ngc,nbas,lx,lxx,nx,nxx,alat,qlat,vol,ngvecc, & !Coulmb matrix for each q
@@ -50,7 +52,8 @@ contains
     complex(8) :: xxx, img=(0d0,1d0), fouvp_ig1_ig2, fouvp_ig2_ig1, sgpp_ig1_ig2
     integer :: istat,lm2x
     integer,allocatable :: llx(:)
-    call cputid(0)
+    character(1024):: aaaw
+    call cputm(stdo,'starting vcoutm')
     write(stdo,'(" vcoulq_4: ngb  nbloch ngc procid=",3i6)') ngb,nbloch,ngc,mpi__rank
     call flush(stdo)
     fpivol = 4*pi*vol
@@ -107,9 +110,8 @@ contains
         if(ibas1==ibas2.AND.lm1==lm2) vcoul(ibl1,ibl2) = vcoul(ibl1,ibl2) + sgbb(n1,n2,l1, ibas1) ! sigma-type onsite parts
       enddo
     enddo BvB
-    call cputid(0)
-    write(stdo,'(" vcoulq_4: goto PvB procid=",i6)') mpi__rank
-    call flush(stdo)
+    write(aaaw,ftox)'vcoulq_4: goto PvB procid=', mpi__rank
+    call cputm(stdo,aaaw)
     ! <P_G|v|B>
     PvB_dev_mo:block
       complex(8) :: crojp_ibas(ngc,(lxx+1)**2)
@@ -139,14 +141,16 @@ contains
       enddo PvB
     endblock PvB_dev_mo
     ! <P_G|v|P_G>
+    write(aaaw,ftox) " vcoulq_4: goto PvP procid=", mpi__rank
+    call cputm(stdo,aaaw)
     PvP_dev_mo: block
-      real(8) :: fac_integral(nrx,nbas), sigx_tmp(ngc,ngc,0:lxx,nbas), a1g(nrx,ngc)
-      real(8) :: ajr_tmp(nrx,ngc), phi_rg(nrx,ngc,0:lxx), rofi_tmp(1:nrx)
+      real(8) :: fac_integral(nrx,nbas), sigx_tmp(ngc,ngc,0:lxx), a1g(nrx,ngc)
+      real(8) :: ajr_tmp(nrx,ngc), phi_rg(nrx,ngc,0:lxx,nbas), rofi_tmp(1:nrx)
       complex(8) :: crojp((lxx+1)**2,nbas)
       ! get integral coefficients of int (a*b) G_1(ir) G_2(ir) exp(a*r))
       ! simpson rule is used. nr(ibas) was set as odd number
       ! sigx_tmp(ig1,ig2,l,ibas) is int dr (aa(ibas)*bb(ibas)) a1g(r,g1)* ajr(r,l,ibas,g2) exp(aa(ibas)*r))
-      if(ipr) write(6,*)' vcoulq_4: pgvpg dev block. size of ajr:', size(ajr)
+      if(ipr) write(stdo,ftox)' vcoulq_4: pgvpg dev block. size of ajr:', size(ajr)
       fac_integral(1:nrx,1:nbas) = 0d0
       do ibas = 1, nbas
         fac_integral(1,ibas) = aa(ibas)*bb(ibas)/3d0
@@ -159,78 +163,80 @@ contains
         do ig = 1, ngc
           do ir = 1, nr(ibas)
             call bessl(absqg2(ig)*rofi(ir,ibas)**2,lx(ibas),phi, psi)
-            phi_rg(ir,ig,0:lx(ibas)) = phi(0:lx(ibas))
+            phi_rg(ir,ig,0:lx(ibas),ibas) = phi(0:lx(ibas))
           enddo
         enddo
-        do l = 0, lx(ibas)
-          rofi_tmp(1:nr(ibas)) = rofi(1:nr(ibas),ibas)**(l+1)
-          do ig = 1, ngc
-            ajr_tmp(1:nr(ibas),ig) = phi_rg(1:nr(ibas),ig,l)*rofi_tmp(1:nr(ibas))
-            call intn_smpxxx( rkpr(1,l,ibas), ajr_tmp(1,ig),int1x,aa(ibas),bb(ibas),rofi(1,ibas),nr(ibas))
-            call intn_smpxxx( rkmr(1,l,ibas), ajr_tmp(1,ig),int2x,aa(ibas),bb(ibas),rofi(1,ibas),nr(ibas))
-            a1g(1,         ig) = 0d0
-            a1g(2:nr(ibas),ig) = rkmr(2:nr(ibas),l,ibas) *( int1x(1)-int1x(2:nr(ibas)) ) &
-                 + rkpr(2:nr(ibas),l,ibas) *  int2x(2:nr(ibas))
-            a1g(1:nr(ibas),ig) = a1g(1:nr(ibas),ig) * fac_integral(1:nr(ibas),ibas)
-          enddo
-          !$acc data copyin(a1g, ajr_tmp) copyout(sigx_tmp(1:ngc,1:ngc,l,ibas))
-          istat = dmm(a1g, ajr_tmp, sigx_tmp(1,1,l,ibas), m=ngc, n=ngc, k=nr(ibas), opA=m_op_T, ldA=nrx, ldB=nrx)
-          !$acc end data
-        enddo
+        ! do l = 0, lx(ibas)
+        !   rofi_tmp(1:nr(ibas)) = rofi(1:nr(ibas),ibas)**(l+1)
+        !   do ig = 1, ngc
+        !     ajr_tmp(1:nr(ibas),ig) = phi_rg(1:nr(ibas),ig,l)*rofi_tmp(1:nr(ibas))
+        !     call intn_smpxxx( rkpr(1,l,ibas), ajr_tmp(1,ig),int1x,aa(ibas),bb(ibas),rofi(1,ibas),nr(ibas))
+        !     call intn_smpxxx( rkmr(1,l,ibas), ajr_tmp(1,ig),int2x,aa(ibas),bb(ibas),rofi(1,ibas),nr(ibas))
+        !     a1g(1,         ig) = 0d0
+        !     a1g(2:nr(ibas),ig) = rkmr(2:nr(ibas),l,ibas) *( int1x(1)-int1x(2:nr(ibas)) ) &
+        !          + rkpr(2:nr(ibas),l,ibas) *  int2x(2:nr(ibas))
+        !     a1g(1:nr(ibas),ig) = a1g(1:nr(ibas),ig) * fac_integral(1:nr(ibas),ibas)
+        !   enddo
+        ! enddo
       enddo
 
       rojpstrx = 0d0
       do ig1 = 1,ngc
         ipl1 = nbloch + ig1
-        ! do ibas1= 1, nbas
-        !   do lm1  = 1, (lx(ibas1)+1)**2
-        !     do ibas2= 1, nbas
-        !       do lm2  = 1, (lx(ibas2)+1)**2
-        !         rojpstrx(lm2, ibas2) = rojpstrx(lm2, ibas2)+ dconjg(rojp(ig1, lm1, ibas1)) *strx(lm1,ibas1,lm2,ibas2)
-        !       enddo
-        !     enddo
-        !   enddo
-        ! enddo
+        ! do ibas1= 1, nbas         !   do lm1  = 1, (lx(ibas1)+1)**2        !     do ibas2= 1, nbas        !       do lm2  = 1, (lx(ibas2)+1)**2
+        !    rojpstrx(lm2, ibas2) = rojpstrx(lm2, ibas2)+ dconjg(rojp(ig1, lm1, ibas1)) *strx(lm1,ibas1,lm2,ibas2)
+        ! enddo        !     enddo        !   enddo        ! enddo
         crojp(1:(lxx+1)**2,1:nbas) = dconjg(rojp(ig1,1:(lxx+1)**2,1:nbas))
         istat = zmv_h(strx, crojp, rojpstrx(1,1,ig1), m=nbas*(lxx+1)**2, n=nbas*(lxx+1)**2, opA=m_op_T)
         do ibas2= 1, nbas
           do lm2=1,(lx(ibas2)+1)**2
             pjyl_p(lm2,ig1,ibas2)=pjyl_(lm2,ig1)*phase(ig1,ibas2)
-          enddo  
-        enddo  
-      enddo  
-      
-      call cputid(0)
-      write(stdo,'(" vcoulq_4: goto igig PvP procid=",i6)') mpi__rank
-      call flush(stdo)
-      igigLoopSlow: do ig1 = 1,ngc !this loop is slow for large system, but maybe vcoulq_4 is rather the critical step 
-        do ig2 = 1,ig1
-        radsig=0d0 
-          do ibas2= 1, nbas
-            call wronkj( absqg2(ig1), absqg2(ig2), rmax(ibas2),lx(ibas2), fkk,fkj,fjk,fjj(0,ibas2))
-            sigx(0:lx(ibas2)) = sigx_tmp(ig1,ig2,0:lx(ibas2),ibas2)
-            if(eee==0d0) call sigintpp( absqg2(ig1)**.5, absqg2(ig2)**.5, lx(ibas2), rmax(ibas2), sigx)
-            forall(l = 0:lx(ibas2)) radsig(l,ibas2) = fpi/(2*l+1) * sigx(l)
           enddo
-          lm2x= (lxx+1)**2
-          vcoul(nbloch+ig1,nbloch+ig2) =  sum( rojpstrx(1:lm2x,:,ig1)*rojp(ig2, 1:lm2x, :) &
-               + dconjg(pjyl_p(1:lm2x,ig1,:))*pjyl_p(1:lm2x,ig2,:)* &
-               ( (fpi/(absqg2(ig1)-eee)+fpi/(absqg2(ig2)-eee)) *fjj(llx(1:lm2x),:) + radsig(llx(1:lm2x),:) )   )
-          ! do ibas2= 1, nbas  
-          !   vcoul(ipl1,ipl2) = vcoul(ipl1,ipl2) +  &
-          !   sum( rojpstrx(1:lm2x,ibas2,ig1)*rojp(ig2, 1:lm2x, ibas2) &
-          !   + dconjg(pjyl_p(1:lm2x,ig1,ibas2))*pjyl_p(1:lm2x,ig2,ibas2) * ( (fpi/(absqg2(ig1)-eee)+fpi/(absqg2(ig2)-eee)) * fjj(llx(1:lm2x),ibas2) + radsig(llx(1:lm2x),ibas2) ) )
-          !   ! do lm2  = 1, (lx(ibas2)+1)**2
-          !   !   l= ll(lm2)
-          !   !   fouvp_ig1_ig2= fpi/(absqg2(ig1)-eee)*dconjg(pjyl_p(lm2,ig1,ibas2))* (-fjj(l))*pjyl_p(lm2,ig2,ibas2)
-          !   !   fouvp_ig2_ig1= fpi/(absqg2(ig2)-eee)*dconjg(pjyl_p(lm2,ig2,ibas2))* (-fjj(l))*pjyl_p(lm2,ig1,ibas2)
-          !   !   sgpp_ig1_ig2 =                       dconjg(pjyl_p(lm2,ig1,ibas2))* radsig(l)*pjyl_p(lm2,ig2,ibas2)
-          !   !   vcoul(ipl1,ipl2) = vcoul(ipl1,ipl2) +  rojpstrx(lm2,ibas2,ig1)*rojp(ig2, lm2, ibas2) &
-          !   !        -  dconjg( fouvp_ig2_ig1 ) - fouvp_ig1_ig2  +  sgpp_ig1_ig2
-          !   ! enddo
-          ! enddo
+        enddo
+      enddo
+
+      write(aaaw,ftox)" vcoulq_4: goto igig PvP procid=", mpi__rank
+      call cputm(stdo,aaaw)
+      lm2x= (lxx+1)**2
+      igigLoopSlow: do ibas= 1, nbas
+        do l = 0, lx(ibas)
+          rofi_tmp(1:nr(ibas)) = rofi(1:nr(ibas),ibas)**(l+1)
+          do ig = 1, ngc
+            ajr_tmp(1:nr(ibas),ig) = phi_rg(1:nr(ibas),ig,l,ibas)*rofi_tmp(1:nr(ibas))
+            call intn_smpxxx( rkpr(1,l,ibas), ajr_tmp(1,ig),int1x,aa(ibas),bb(ibas),rofi(1,ibas),nr(ibas))
+            call intn_smpxxx( rkmr(1,l,ibas), ajr_tmp(1,ig),int2x,aa(ibas),bb(ibas),rofi(1,ibas),nr(ibas))
+            a1g(1:nr(ibas),ig) = [0d0,(rkmr(2:nr(ibas),l,ibas) *( int1x(1)-int1x(2:nr(ibas)) ) &
+                 + rkpr(2:nr(ibas),l,ibas) *  int2x(2:nr(ibas)))* fac_integral(2:nr(ibas),ibas)]
+          enddo
+          !$acc data copyin(a1g, ajr_tmp) copyout(sigx_tmp(1:ngc,1:ngc,l:l))
+          istat = dmm(a1g, ajr_tmp, sigx_tmp(1,1,l), m=ngc, n=ngc, k=nr(ibas), opA=m_op_T, ldA=nrx, ldB=nrx)
+          !$acc end data
+        enddo
+        do ig1 = 1,ngc !this loop is slow for large system, but maybe vcoulq_4 is rather the critical step 
+          do ig2 = 1,ig1
+            call wronkj( absqg2(ig1), absqg2(ig2), rmax(ibas),lx(ibas), fkk,fkj,fjk,fjj(0,ibas))
+            sigx(0:lx(ibas)) = sigx_tmp(ig1,ig2,0:lx(ibas))
+            if(eee==0d0) call sigintpp( absqg2(ig1)**.5, absqg2(ig2)**.5, lx(ibas), rmax(ibas), sigx)
+            forall(l = 0:lx(ibas)) radsig(l,ibas) = fpi/(2*l+1) * sigx(l)
+            vcoul(nbloch+ig1,nbloch+ig2) =  vcoul(nbloch+ig1,nbloch+ig2) + sum( rojpstrx(1:lm2x,ibas,ig1)*rojp(ig2, 1:lm2x, ibas) &
+                 + dconjg(pjyl_p(1:lm2x,ig1,ibas))*pjyl_p(1:lm2x,ig2,ibas)* &
+                 ( (fpi/(absqg2(ig1)-eee)+fpi/(absqg2(ig2)-eee)) *fjj(llx(1:lm2x),ibas) + radsig(llx(1:lm2x),ibas) )   )
+          enddo
         enddo
       enddo igigLoopSlow
+      ! do ibas= 1, nbas  
+      !   vcoul(ipl1,ipl2) = vcoul(ipl1,ipl2) +  &
+      !   sum( rojpstrx(1:lm2x,ibas,ig1)*rojp(ig2, 1:lm2x, ibas) &
+      !   + dconjg(pjyl_p(1:lm2x,ig1,ibas))*pjyl_p(1:lm2x,ig2,ibas) * ( (fpi/(absqg2(ig1)-eee)+fpi/(absqg2(ig2)-eee)) * fjj(llx(1:lm2x),ibas) + radsig(llx(1:lm2x),ibas) ) )
+      !   ! do lm2  = 1, (lx(ibas)+1)**2
+      !   !   l= ll(lm2)
+      !   !   fouvp_ig1_ig2= fpi/(absqg2(ig1)-eee)*dconjg(pjyl_p(lm2,ig1,ibas))* (-fjj(l))*pjyl_p(lm2,ig2,ibas)
+      !   !   fouvp_ig2_ig1= fpi/(absqg2(ig2)-eee)*dconjg(pjyl_p(lm2,ig2,ibas))* (-fjj(l))*pjyl_p(lm2,ig1,ibas)
+      !   !   sgpp_ig1_ig2 =                       dconjg(pjyl_p(lm2,ig1,ibas))* radsig(l)*pjyl_p(lm2,ig2,ibas)
+      !   !   vcoul(ipl1,ipl2) = vcoul(ipl1,ipl2) +  rojpstrx(lm2,ibas,ig1)*rojp(ig2, lm2, ibas) &
+      !   !        -  dconjg( fouvp_ig2_ig1 ) - fouvp_ig1_ig2  +  sgpp_ig1_ig2
+      !   ! enddo
+      ! enddo
       forall(ig1 = 1:ngc) vcoul(nbloch + ig1,nbloch + ig1) = vcoul(nbloch + ig1,nbloch + ig1) +fpivol/(absqg2(ig1) -eee) !eee is negative
     endblock PvP_dev_mo
     RightUpperPartOFvcoul: do ipl1=1, nbloch+ngc
@@ -238,9 +244,9 @@ contains
         vcoul(ipl2,ipl1) = dconjg(vcoul(ipl1,ipl2))
       enddo
     enddo RightUpperPartOFvcoul
-    do ix = 1,nbloch+ngc
-      if((mod(ix,20)==1 .OR. ix>nbloch+ngc-10).and.ipr) write(6,"(' Diagonal Vcoul =',i5,2d18.10)") ix,vcoul(ix,ix)
-    enddo
+!    do ix = 1,nbloch+ngc
+!      if((mod(ix,20)==1 .OR. ix>nbloch+ngc-10).and.ipr) write(6,"(' Diagonal Vcoul =',i5,2d18.10)") ix,vcoul(ix,ix)
+!    enddo
   end subroutine vcoulq_4
   ! ptest=.False.
   ! PlaneWavetest: if(ptest) then !check Coulomb by plane wave expansion.
@@ -354,7 +360,7 @@ contains
       !      else
       ! We need to implement a version of sigintAn1 to treat eee/=0 case...
     endif
-    if(ipr) write(6,*)' mkjp_4: sgpb dev block. size of ajr:', size(ajr)
+    if(ipr) write(stdo,ftox)' mkjp_4: sgpb dev block. size of ajr:', size(ajr)
     dev_mo: block
 #ifdef __GPU
     use m_blas, only: dmv => dmv_d, m_op_T
@@ -396,7 +402,7 @@ contains
         enddo
       enddo
       fouvb=0d0
-      if(ipr) write(6,*)' mkjp_4: fouvb dev block'
+      if(ipr) write(stdo,ftox)' mkjp_4: fouvb dev block'
       do ig1 = 1, ngc
         do l = 0, lx
           a1g(1:nr,ig1,l) = ajr(1:nr,l,ig1)*fac_integral(1:nr)

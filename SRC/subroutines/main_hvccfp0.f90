@@ -1,6 +1,7 @@
 module m_hvccfp0
   use m_ftox
   use m_lgunit,only:stdo
+  use m_cputm,only:cputm
   public hvccfp0
   private
   contains
@@ -47,23 +48,21 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
   character(20) :: xxt,outs=''
   character(3) :: charnum3
   character(10) :: i2char
-  character(128):: vcoudfile!,ixcc
+  character(128):: vcoudfile
+  character(1024):: aaaw
   real(8),external::screenfac
-!  complex(8),allocatable,target :: vcoul(:,:),oo(:,:)
-!  complex(8),pointer:: ppovl(:,:)!,zz(:,:) !hh
   complex(8),allocatable,target :: oo(:,:)
   complex(8),allocatable,target :: vcoul(:,:) !,hh(:,:),zz(:,:)
   complex(8),pointer:: ppovl(:,:),zz(:,:),hh(:,:)
   call MPI__Initialize()
   call gpu_init() 
-  call m_lgunit_init() ! Initialize the unit numbers for output files.
-!  emptyrun=cmdopt0('--emptyrun')
+  call m_lgunit_init() ! Initialize the unit numbers for output files. !  emptyrun=cmdopt0('--emptyrun')
   if( mpi__root) write(6,"(' mode=0,3,202 (0 and 3 give the same results for given bas)' )")
   if(cmdopt2('--job=',outs)) then; read(outs,*) imode
   elseif( mpi__root ) then       ; read(5,*) imode;   endif
   call MPI__Broadcast(imode) !  write(ixcc,"('.mode=',i4.4)")imode
   call MPI__consoleout('hvccfp0.mode'//charnum3(imode))
-  call cputid (0)
+  call cputm(stdo)
   if(imode==202 )  then; if(ipr) write(6,*)' hvccfp0: imode=',imode
   elseif(imode==0) then
   elseif(imode==3) then
@@ -235,9 +234,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
             rofi(1,ibas),rkpr(1,0,ibas),rkmr(1,0,ibas),  rojb(1,0,ibas),     sgbb(1,1,0,ibas))
     enddo                              !Onsite integrals rojb=<j(e=0)|B> and sgbb=<B|v(onsite)|B>
   endblock qindependentRadialIntegrals
-  
-  call cputid (0)
-  write(stdo,ftox) 'end of qindependentRadialIntegrals'
+  call cputm(stdo, 'end of qindependentRadialIntegrals')
 
   nlxx= (lxx+1)**2
   allocate(ngvecc0(3,ngcmx))
@@ -252,19 +249,14 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
   if(abs(sum(qibz(:,1)**2))/=0d0) call rx( 'hvccfp0: We assume sum(q**2)==0d0 but not.')
   call MPI__getRange( mpi__iini, mpi__iend, iqxini, iqxend )
 
-  call cputid(0)
-  write(stdo,ftox)' starting do 1001 loop'
-  flush(stdo)
-  
-  mainforiqx: do 1001 iqx = mpi__iini, mpi__iend !q=(0,0,0) is omitted!
-    if(ipr) write(6,"('#### do 1001 start iqx=',5i5)")iqx,nqibz
+  mainforiqx: do 1001 iqx = mpi__iini, mpi__iend !q=(0,0,0) is omitted!    !write(stdo,"('#### do 1001 start iqx=',5i5)")iqx,nqibz
     if(iqx<=nqibz) then; q= qibz(1:3,iqx)
     else;                q= q0i(1:3,iqx-nqibz)
     endif
     if(imode==202 .AND. abs(sum(q))<1d-8) cycle
     call readqg('QGcou',q,  quu,ngc, ngvecc ) !Get q+G vector
     ngb = nbloch + ngc  
-    if(ipr) write(6,'(" iqx q ngc =",i5,3f10.4,i5)') iqx,q,ngc
+    write(stdo,'(" do 1001: iq nqibz q ngc =",2i5,3f10.4,i5)') iqx,nqibz,q,ngc
     allocate( strx(nlxx,nbas,nlxx,nbas), source = (0d0,0d0)) !! strxq: structure factor.
     do ibas1 =1,nbas
       do ibas2 =1,nbas
@@ -288,9 +280,8 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
       enddo! rojp=<j(e=0)_L|exp(i(q+G)r)>, sgpb=<exp(i(q+G)r)|v(onsite)|B_nL>, fouvb=<exp(i(q+G)r)|v|B_nL>
     endblock qdependentRadialIntegrals
 
-    call cputid(0)
-    write(stdo,ftox)'starting vcoulq_4 for iqx=',iqx,' q=',q(1:3),' ngc=',ngc,' nbas=',nbas,' lx=',lxx,' nx=',nxx,'procid=',mpi__rank
-    flush(stdo)
+    write(aaaw,ftox)'starting vcoulq_4 for iqx=',iqx,' q=',q(1:3),' ngc=',ngc,' nbas=',nbas,' lx=',lxx,' nx=',nxx,'procid=',mpi__rank
+    call cputm(stdo,aaaw)
     
     allocate( vcoul(ngb,ngb), source=(0d0,0d0) )
     call vcoulq_4(q, nbloch, ngc, nbas, lx,lxx, nx,nxx, alat, qlat, voltot, ngvecc, strx, rojp,rojb, sgbb,sgpb, fouvb, ngb, &
@@ -298,9 +289,8 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
          vcoul) !the Coulomb matrix
     deallocate( strx, rojp,sgpb,fouvb)
     
-    call cputid(0)
-    write(stdo,ftox)'end of vcoulq_4 for iqx=',iqx,' q=',q(1:3),' ngc=',ngc,' nbas=',nbas,' lx=',lxx,' nx=',nxx,'procid=',mpi__rank
-    flush(stdo)
+    write(aaaw,ftox)'end of vcoulq_4 for iqx=',iqx,' q=',q(1:3),' ngc=',ngc,' nbas=',nbas,' lx=',lxx,' nx=',nxx,'procid=',mpi__rank
+    call cputm(stdo,aaaw)
     
     if(ipr) write(6,'(" vcoul trwi=",i6,2d22.14)') iqx,sum([(vcoul(i,i),i=1,nbloch)])
     if(ipr) write(6,'("### sum vcoul(1:ngb,      1:ngb) ",2d22.14,2x,d22.14)') sum(vcoul), sum(abs(vcoul))
@@ -311,9 +301,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
     forall(ipl1=1:nbloch) oo(ipl1,ipl1) = 1d0
     ppovl => oo(nbloch+1:ngb,nbloch+1:ngb) !ppovl is a part of oo
     call mkppovl2(alat,plat,qlat, ngc,  ngvecc, ngc,  ngvecc, nbas, rmax, bas, ppovl)
-    call cputid(0)
-    write(stdo,"(' end of mkppovl2 ngc ngb procid=',6i6)") ngc,ngb,mpi__rank
-    flush(stdo)
+    call cputm(stdo,' end of mkppovl2')
 
     allocate(eb(ngb))
     Diagonalize_Coulomb_matrix: block
@@ -336,7 +324,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
       deallocate(oo)
       zz => hh
     endblock Diagonalize_Coulomb_matrix
-    Chkwriteeb: do ipl1=1,nev
+    Chkwriteeb: do ipl1=1,ngb
       if(ipl1==1 .and.ipr) write(6,*)' --- goto eigen check1 --- '
       if(ipl1==11.and.ipr) write(6,*)' ... '
       if(ipl1>10 .AND. ipl1<nev-5) cycle
@@ -367,10 +355,11 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
     write(ifvcoud) -eb
     write(ifvcoud) zz !=Enu
     close(ifvcoud)
-    deallocate(eb,vcoul)!,ppovl)
+    deallocate(eb,vcoul)
+    call cputm(stdo,' end of do 1001')
 1001 enddo mainforiqx
   deallocate(ngvecc)
-  call cputid(0)
+  call cputm(stdo,'end of hvccfp0')
   if(imode==202) call rx0( ' OK! hvccfp0 imode=202 only for Q0P')
   if(imode==0)   call rx0( ' OK! hvccfp0 imode=0')
   if(imode==3)   call rx0( ' OK! hvccfp0 imode=3')
