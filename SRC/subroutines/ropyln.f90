@@ -11,7 +11,6 @@ contains
     !o   yl  :Ylm(i,ilm) are the real spherical harmonics for l=0..lmax and point i.
     !         yl = real harmonics (see Takao's GW note) * r^l
     !o   rsq   :rsq(i) square of length of point i
-    !$acc routine seq
     implicit none
     integer:: nd , n , i , m , lmax , l , kk=-999,lav,k1,mm,k2
     real(8):: yl(nd,*), x(n),y(n),z(n),rsq(n),cx(3),f2m,a,b,xx,yy,fff(0:lmax+1)
