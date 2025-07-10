@@ -4,7 +4,7 @@ util for QSGW scripts
 '''
 import platform
 machine_info = platform.uname()
-print(machine_info)
+#print(machine_info)
 def mpiRUN(ncore):
     if("kugui" in machine_info):
         mpirun= f'mpirun --bind-to none --map-by node -np {ncore} ' if ncore!=0 else ''
@@ -70,7 +70,7 @@ def run_program_breduction(cmd, ncore=0, x0=0, ext=''):
         if os.path.isfile(f'rst.{ext}'):
             shutil.copy(f'rst.{ext}', f'rst.{ext}.bk')
         if cmd in const_b: bval= const_b[cmd]
-        run_cmd = mpiRUN(nx) + cmd
+        run_cmd = mpiRUN(ncore) + cmd
         print(t if x0 == 0 else t - x0, ' ', run_cmd, flush=True)
 
         #result = subprocess.run(run_cmd, shell=True)
