@@ -2,6 +2,19 @@ import os,shutil
 '''
 util for QSGW scripts
 '''
+import platform
+machine_info = platform.uname()
+print(machine_info)
+def mpiRUN(ncore):
+    if("kugui" in machine_info):
+        mpirun= f'mpirun --bind-to none --map-by node -np {ncore} ' if ncore!=0 else ''
+    elif("ohtaka" in machine_info):
+        mpirun= f'srun -n {ncore} ' if ncore!=0 else ''
+    else:    
+        mpirun= f'mpirun -np {ncore} ' if ncore != 0 else ''
+    return mpirun
+
+
 def gen_dir(dirname):
     if not os.path.isdir(dirname):
         os.mkdir(dirname)
@@ -19,6 +32,7 @@ def rm_files(files):
     for fname in files:
         remove(fname)
 
+
 nxdict = {}
 def run_program(cmd, ncore=0, x0=0):
     """Run a program with ncore cores.
@@ -31,7 +45,7 @@ def run_program(cmd, ncore=0, x0=0):
         if cmd in nxdict and nx==ncore:
             run_cmd = nxdict[cmd]
         else:
-            run_cmd = (f'mpirun -np {nx} ' if ncore != 0 else '') + cmd
+            run_cmd = mpiRUN(nx) + cmd
         print(t if x0 == 0 else t - x0, ' ', run_cmd, flush=True)
         result = subprocess.run(run_cmd, shell=True)
         if result.returncode == 0:
@@ -56,7 +70,7 @@ def run_program_breduction(cmd, ncore=0, x0=0, ext=''):
         if os.path.isfile(f'rst.{ext}'):
             shutil.copy(f'rst.{ext}', f'rst.{ext}.bk')
         if cmd in const_b: bval= const_b[cmd]
-        run_cmd = (f'mpirun -np {ncore} ' if ncore != 0 else '') + cmd
+        run_cmd = mpiRUN(nx) + cmd
         print(t if x0 == 0 else t - x0, ' ', run_cmd, flush=True)
 
         #result = subprocess.run(run_cmd, shell=True)
