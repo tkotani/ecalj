@@ -91,9 +91,11 @@ contains
 !    logical :: blas_mode = .true.
     logical,optional:: ecoreexit !    real(8):: rmax(nclass)
     type(stopwatch) :: sw
+    logical :: show_time = .false.
     include "mpif.h"
     call tcn ('m_sugw_init')
     debug=cmdopt0('--debugsugw')
+    show_time = cmdopt0('--show_time')
     call getpr(ipr)
     if(lmxax<=0) call rx('sugw: lmxax>0 for gw mode')
     emptyrun  = cmdopt0('--emptyrun')
@@ -383,8 +385,8 @@ contains
       endif;       if(debug)write(stdo,ftox)' iqisploop333'
       GetHamiltonianAndDiagonalize: block
         integer:: iprint
-        if(debug) call stopwatch_init(sw, 'getham')
-        if(debug) call stopwatch_start(sw)
+        if(show_time) call stopwatch_init(sw, 'getham')
+        if(show_time) call stopwatch_start(sw)
         if(lso==1) then !L.S case nspc=2
           vxc=0d0 !zeroclear offdiagonal parts
           ovlm=0d0
@@ -414,7 +416,7 @@ contains
             call dsene()
           endif
         endif;    if(debug)write(stdo,ftox)'sumcheck hamm=',sum(abs(hamm)),sum(abs(ovlm))
-        if(debug) call stopwatch_show(sw)
+        if(show_time) call stopwatch_show(sw)
         if (mod(iq,10) /= 1) call pshpr(iprint()-6)  
         epsovl = ham_oveps
         evec=-1d99
@@ -428,10 +430,10 @@ contains
             if(isp==2) hamm(:,1,:,1)= hamm(:,1,:,1) + vmag/2d0*ovlm(:,1,:,1)
           endif
         endif AddExternelMagneticField;            if(debug)write(stdo,ftox)' iqisploop666'
-        if(debug) call stopwatch_init(sw, 'diag ham')
-        if(debug) call stopwatch_start(sw)
+        if(show_time) call stopwatch_init(sw, 'diag ham')
+        if(show_time) call stopwatch_start(sw)
         call zhev_tk4(ndimhx,hamm,ovlm,ndimhx,nev,evl(1,iq,isp),evec,epsovl) ! Diagonalization. nev:Calculated number of eigenvec
-        if(debug) call stopwatch_show(sw)
+        if(show_time) call stopwatch_show(sw)
       endblock GetHamiltonianAndDiagonalize;       if(debug)write(stdo,ftox)' iqisploop777 1212'
 1212  continue
       lwvxc = (socmatrix .or. iq<=iqibzmax).and.(.not.cmdopt0('--novxc'))
@@ -508,15 +510,18 @@ contains
       block
         ! complex(8) :: ppovl_pwz(ngp,ndimhx)
         complex(8) :: ppovlLU(ngp,ngp) !ppovl_pwz(ngp,ndimhx),
+#ifdef __GPU
+      attributes(device) :: ppovlLU
+#endif
         !  ppovl: = O_{G1,G2} = <IPW_G1 | IPW_G2>
         !  phovl: <IPW_G1 | basis function = smooth Hankel or APW >   
         !    pwz:  IPW expansion of eigen function
         allocate(ppovl(ngp,ngp),phovl(ngp,ndimh)) !pwz(ngp*nspc,ndimhx),
-        if(debug) call stopwatch_init(sw, 'geig_par:pwmat')
-        if(debug) call stopwatch_start(sw)
-        !$acc data create(phovl, ppovlLU) copyin(evec) copyout(ppovl, geigr)
+        if(show_time) call stopwatch_init(sw, 'geig_par:pwmat')
+        if(show_time) call stopwatch_start(sw)
         call pwmat(nbas,ndimh,napw,igv2x,qp,ngp,nlmax,ngvecp(1,1,iq),gmax, ppovl, phovl)
-        if(debug) call stopwatch_show(sw)
+        !$acc data copyin(evec,phovl) copyout(geigr)
+        if(show_time) call stopwatch_show(sw)
         ! MO added blas_mode to replaced matmul by a BLAS call 2024-11-09. This is because matmul in mic(intel) was very slow.
         if(debug) call cputid(0)
         if(debug) write(stdo,ftox)' CPHIpart end of pwmat pppp',procid
@@ -528,7 +533,7 @@ contains
           istat = zmm(phovl, evec(ndimh*(ispc-1)+1,1), geigr(1,ispc,1), m=ngp, n=ndimhx, k=ndimh, ldb=ndimhx, ldc=ngpmx*nspc)
           !$acc end host_data
           !$acc kernels
-          ppovlLU(:,:) = ppovl(:,:)
+          ppovlLU(:,:) = ppovl(:,:) !copy CPU from GPU
           !$acc end kernels
         ! enddo
         ! deallocate(phovl)
@@ -536,9 +541,8 @@ contains
         !   complex(8) :: ppovlLU(ngp,ngp) !ppovl_pwz(ngp,ndimhx),
         !   ppovlLU=ppovl
           ! do ispc=1, nspc ! ppovlLU @ pwz(output) = pwz(input)
-            ! call zgesv(ngp, ndimhx, ppovlLU, ngp, ipiv, pwz(1+ngp*(ispc-1),1),ngp,info) !ppovl_pwz, ngb, info) ?? 2025-07-09 MO Second ldb may be ngp*nspc
-          ! be 
-          !$acc host_data use_device(ppovlLU, geigr)
+            ! call zgesv(ngp, ndimhx, ppovlLU, ngp, ipiv, pwz(1+ngp*(ispc-1),1),ngp,info) !ppovl_pwz, ngb, info) ?? 2025-07-09 MO ldb may be ngp*nspc
+          !$acc host_data use_device(geigr)
           istat = zsv(ppovlLU, geigr(1,ispc,1), n=ngp, nrhs=ndimhx, ldb=ngpmx*nspc) !ppovl_pwz, ngb, info) !giegr is now wavefunction's coefficients on IPW
           !$acc end host_data
         enddo

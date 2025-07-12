@@ -27,7 +27,7 @@ contains
     !r  qpg(ig) = tpiba * ( qin + matmul(qlat,igapwin(1:3,ig))), ig=1,napw
     implicit none
     integer:: mode,isp,i
-    logical :: debug = .true.
+    logical :: cmdopt0, show_time = .false.
     type(s_cv5) :: oppi(3,nbas)
     type(s_rv4) :: otau(3,nbas)
     type(s_rv4) :: osig(3,nbas)
@@ -38,20 +38,21 @@ contains
     h = 0d0 !Hamiltonian for the basis of MTO+APW
     s = 0d0 !Overlap matrix for the basis of MTO+APW
 
-    call stopwatch_init(sw, 'getham_apw')
-    call stopwatch_start(sw)
+    show_time = cmdopt0('--show_time')
+    if(show_time)call stopwatch_init(sw, 'getham_apw')
+    if(show_time)call stopwatch_start(sw)
     call augmbl(isp,qin,osig,otau,oppi,ndimh, h,s)! Augmentation parts of h,s
-    if(debug) call stopwatch_show(sw)
+    if(show_time) call stopwatch_show(sw)
     !                                             ! product sum f structure constant C_akL^i in Eq.(C.1)-(C.2) in Ref.[1].
     !only upper half
-    call stopwatch_init(sw, 'getham_hsbl')
-    call stopwatch_start(sw)
+    if(show_time) call stopwatch_init(sw, 'getham_hsbl')
+    if(show_time) call stopwatch_start(sw)
     call smhsbl(vconst,qin,ndimh,napw,igvapwin,          h,s)!Smooth and Constant potential parts.
-    if(debug) call stopwatch_show(sw)
-    call stopwatch_init(sw, 'getham_hsibl')
-    call stopwatch_start(sw)
+    if(show_time) call stopwatch_show(sw)
+    if(show_time) call stopwatch_init(sw, 'getham_hsibl')
+    if(show_time) call stopwatch_start(sw)
     call hsibl(n1,n2,n3,smpot,isp,qin,ndimh,napw,igvapwin, h)!Smooth potential part, 1st term of (C.3) in Ref.[1]
-    if(debug) call stopwatch_show(sw)
+    if(show_time) call stopwatch_show(sw)
     !lower half supplied
     do i=1,ndimh
        h(i+1:ndimh,i)=dconjg(h(i,i+1:ndimh)) !RU part = LD part*

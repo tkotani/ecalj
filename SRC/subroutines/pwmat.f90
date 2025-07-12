@@ -135,7 +135,7 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
   block
     use m_stopwatch
     complex(8), allocatable:: ppovl_save(:,:,:), pwh(:,:), ppovlx(:,:)
-    logical :: cmdopt0, debug=.false.
+    logical :: cmdopt0, show_time = .false., debug = .true.
     type(stopwatch) :: sw1, sw2, sw3, sw4
     integer:: ig_start, ig_end, igp, i, match_iga,  nx(3)
     integer, parameter:: ngblock = 1024*4
@@ -143,24 +143,27 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
 #ifdef __GPU
     attributes(device) ppovl_save
 #endif
-    debug=cmdopt0('--debugpwmat')
-    if(debug) call stopwatch_init(sw1,'set ppovlx')
-    if(debug) call stopwatch_init(sw2,'set_pwh')
-    if(debug) call stopwatch_init(sw3,'get_pwhovl')
+    show_time = cmdopt0('--show_time')
+    ! debug = cmdopt0('--debugpwmat')
+    if(show_time) call stopwatch_init(sw1,'set ppovlx')
+    if(show_time) call stopwatch_init(sw2,'set_pwh')
+    if(show_time) call stopwatch_init(sw3,'get_pwhovl')
 
-    if(debug) call stopwatch_start(sw1)
+    if(show_time) call stopwatch_start(sw1)
     call set_ppovl(ngp, igv, ngmx, igvx, bas, rmax, nbas, alat, plat, qlat, ppovl_save) !ppovl_save is set in GPU in case of GPU version
-    if(debug) call stopwatch_pause(sw1)
+    if(show_time) call stopwatch_pause(sw1)
 
     if(debug) write(06,ftox) '**xxx ndimh, ngp, ngmx, napw', ndimh, ngp, ngmx, napw
     !$acc data copyout(pwhovl) copyin(igapw, igvx)
+    !$acc kernels
     pwhovl(:,:) = (0d0, 0d0)
+    !$acc end kernels
     gblock_loop: do ig_start = 1, ngmx, ngblock
       ig_end = min(ngmx, ig_start + ngblock -1)
       allocate(pwh(ndimh,ig_start:ig_end), ppovlx(ngp,ig_start:ig_end))
       ! openacc parallelization may have a problem in ropyln. so it is set outside of openacc
       pwh(:,:) = (0d0, 0d0)
-      if(debug) call stopwatch_start(sw2)
+      if(show_time) call stopwatch_start(sw2)
       do ig = ig_start, ig_end
         qpg(1:3) = tpiba * (q(1:3) + matmul(qlat, igvx(1:3,ig)))
         call ropyln(1,qpg(1),qpg(2),qpg(3),lmxax,1,yl,qpg2)
@@ -192,17 +195,17 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
       ! enddo
       !$acc data copyin(pwh) create(ppovlx)
       !$acc parallel loop gang independent
-      do igx = ig_start, ig_end
+      do ig = ig_start, ig_end
         match_iga = 0
         !$acc loop vector reduction(max:match_iga)
         do iga= 1, napw 
-          if (all(igapw(:,iga) == igvx(:,igx))) match_iga = max(match_iga, iga)
+          if (all(igapw(:,iga) == igvx(:,ig))) match_iga = max(match_iga, iga)
         enddo
-        if (match_iga > 0) pwh(match_iga+nlmto, igx) = 1d0/srvol
+        if (match_iga > 0) pwh(match_iga+nlmto, ig) = 1d0/srvol
       enddo
       !$acc end parallel
-      if(debug) call stopwatch_pause(sw2)
-      if(debug) call stopwatch_start(sw1)
+      if(show_time) call stopwatch_pause(sw2)
+      if(show_time) call stopwatch_start(sw1)
       !$acc kernels loop independent collapse(2) private(nx)
       do ig = ig_start, ig_end
         do igp = 1, ngp
@@ -211,20 +214,20 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
         enddo
       enddo
       !$acc end kernels
-      if(debug) call stopwatch_pause(sw1)
-      if(debug) call stopwatch_start(sw3)
+      if(show_time) call stopwatch_pause(sw1)
+      if(show_time) call stopwatch_start(sw3)
       !$acc host_data use_device(ppovlx, pwh, pwhovl)
       istat = zmm(ppovlx, pwh, pwhovl, m=ngp, n=ndimh, k=(ig_end-ig_start+1), opB=m_op_T, beta = (1D0, 0d0))
       !$acc end host_data
-      if(debug) call stopwatch_pause(sw3)
+      if(show_time) call stopwatch_pause(sw3)
       !$acc end data
       deallocate(ppovlx, pwh)
     enddo gblock_loop
     !$acc end data
     deallocate(ppovl_save)
-    if(debug) call stopwatch_show(sw1)
-    if(debug) call stopwatch_show(sw2)
-    if(debug) call stopwatch_show(sw3)
+    if(show_time) call stopwatch_show(sw1)
+    if(show_time) call stopwatch_show(sw2)
+    if(show_time) call stopwatch_show(sw3)
   endblock
   ! ... Fourier coefficients to APWs. APWs are normalized:  |G> = 1/sqrt(vol) exp[i G.r]
   ! --- Matrix elements between each (IPW,envelope function) pair ---
