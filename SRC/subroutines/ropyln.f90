@@ -1,7 +1,31 @@
 module m_ropyln ! Normalized spheric harmonic polynomials (vectorizes).
   public ropyln,ropylg
   private
+  integer,parameter::lmax=20
 contains
+  real(8) function f2m(m)
+    integer:: mm,m
+    real(8),save:: fff(lmax)
+    logical,save:: init=.true.
+    if(lmax<m) call rx('f2m')
+    if(init) then
+      fff(1:lmax)=[(dble(2*mm*(2*mm-1)),mm=1,lmax)]
+      init=.false.
+    endif
+    f2m = product(fff(1:m))
+  end function f2m
+  real(8) function pfff(m)
+    integer:: mm,m
+    real(8),save:: fff(0:lmax)
+    logical,save::init=.true.
+    if(lmax<m) call rx('pfff')
+    if(init) then
+      fff(0:lmax)=[(dble(2*mm+1),mm=0,lmax)]
+      init=.false.
+    endif
+    pfff=product(fff(0:m))
+  end function pfff
+
   subroutine ropyln(n,x,y,z,lmax,nd, yl,rsq) ! Normalized spheric harmonic polynomials (vectorizes).
     !i   n     :number of points for which to calculate yl
     !i   x,y,z:f Cartesian coordinate
@@ -12,54 +36,47 @@ contains
     !         yl = real harmonics (see Takao's GW note) * r^l
     !o   rsq   :rsq(i) square of length of point i
     implicit none
-    integer:: nd , n , i , m , lmax , l , kk=-999,lav,k1,mm,k2
-    real(8):: yl(nd,*), x(n),y(n),z(n),rsq(n),cx(3),f2m,a,b,xx,yy,fff(0:lmax+1)
+    integer:: nd , n , i , m , lmax , l , kk=-999,lav,mm,kp
+    real(8):: yl(nd,*), x(n),y(n),z(n),rsq(n),cx(3),a,b,xx,yy,fff(0:lmax+1),f2mx,cx1(0:lmax+1,0:lmax),cx2,cx3,cx0
     real(8),parameter:: fpi = 16*datan(1d0)
-    real(8),allocatable :: cm_rv(:),sm_rv(:), q_rv(:,:), h_rv(:)
-    ! if (n > nd) call rx('ropyln: nd too small') !does not work with acc routine seq
-    allocate(cm_rv(n),sm_rv(n),q_rv(n,2),h_rv(n))
+    real(8) :: cm_rv(n,0:lmax),sm_rv(n,0:lmax), q_rv(n,0:lmax)
+    mloop0: do m = 0, lmax
+      if(m==0) then
+        cm_rv(:,0)=1d0
+        sm_rv(:,0)=0d0
+      elseif(m==1) then  
+        cm_rv(:,1)=x
+        sm_rv(:,1)=y
+      else
+        cm_rv(:,m) = x*cm_rv(:,m-1) -  y*sm_rv(:,m-1)
+        sm_rv(:,m) = y*cm_rv(:,m-1) +  x*sm_rv(:,m-1)
+      endif  
+    enddo mloop0
+    
     rsq = x**2+y**2+z**2
     cx = 0d0 
+    cx0 = dsqrt(1/fpi)
     mloop: do  10  m = 0, lmax     ! --- Loop over m: cx are normalizations for l, l-1, l-2 ---
-       if (m == 0) then
-          cm_rv=1d0
-          sm_rv=0d0
-       elseif (m == 1) then
-          cm_rv=x
-          sm_rv=y
-       elseif (m >= 2) then
-          h_rv=cm_rv
-          cm_rv = x*cm_rv - y*sm_rv
-          sm_rv = y*h_rv +  x*sm_rv
-       endif
-       if (m == 0) then !call ropcsm ( m , n , x , y , h_rv , cm_rv , sm_rv )
-          cx(1) = dsqrt(1/fpi)
-       else
-          fff(1:m)=[(dble(2*mm*(2*mm-1)),mm=1,m)]
-          f2m = product(fff(1:m))
-          cx(1) = dsqrt((2*m+1)*2/fpi/f2m)
-       endif
-       lloop: do  11  l = m, lmax   !  These routines are the time-critical steps.
-          if (l == m) then
-             kk = 1    !  Returns kk, which points to the current component of q_rv.
-             fff(0:m)=[(dble(2*mm+1),mm=0,m-1),cx(1)]
-             q_rv(:,kk) = product(fff(0:m))
-          elseif(l == m+1) then
-             kk = 2
-             fff(0:m+1)=[(dble(2*mm+1),mm=0,m),cx(1)]
-             q_rv(:,kk) = product(fff(0:m+1))*z(:)
-          elseif (l >= m+2) then
-             k1 = kk+1
-             if (k1 == 3) k1 = 1
-             k2 = kk
-             q_rv(:,k1) = -(l+m-1d0)/(l-m)*cx(1)/cx(3)*rsq(:)*q_rv(:,k1) + (2*l-1d0)/(l-m)*cx(1)/cx(2)*z(:)*q_rv(:,k2)
-             kk = k1
+       if (m >0) cx0 = dsqrt((2*m+1)*2/fpi/f2m(m))
+       cx1(m,m)=cx0 !for l=m
+       do l = m, lmax   !  These routines are the time-critical steps.
+         cx1(l+1,m) = cx1(l,m)*dsqrt(dble((l+1-m)*(2*l+3))/dble((l+1+m)*(2*l+1)))
+       enddo
+       lloop0: do l = m, lmax   !  These routines are the time-critical steps.
+         kk = l-m !mod(l-m,2)+1    !  Returns kk, which points to the current component of q_rv.     !         fff(0:m-1)=[(dble(2*mm+1),mm=0,m-1)]
+          if (kk==0) then
+             q_rv(:,kk) = pfff(m-1)*cx1(l,m) 
+          elseif(kk==1) then
+             q_rv(:,kk) = pfff(m)*cx1(l,m)*z(:)
+          else 
+            q_rv(:,kk) = -(l+m-1d0)/(l-m)*cx1(l,m)/cx1(l-2,m)*rsq(:) *q_rv(:,kk-2) &
+                 + (2*l-1d0)/(l-m)*cx1(l,m)/cx1(l-1,m)*z(:) *q_rv(:,kk-1)
           endif
-          lav = l*(l+1)+1
-          yl(1:n,lav+m)          = cm_rv(:)*q_rv(:,kk)
-          if(m/=0) yl(1:n,lav-m) = sm_rv(:)*q_rv(:,kk)
-          cx(1:3) = [cx(1)*dsqrt(dble((l+1-m)*(2*l+3))/dble((l+1+m)*(2*l+1))), cx(1), cx(2)]
-11     enddo lloop
+       enddo lloop0
+       lloop: do l = m, lmax   
+         yl         (1:n, l*(l+1)+1+m) = cm_rv(:,m)*q_rv(:,l-m)
+         if(m/=0) yl(1:n, l*(l+1)+1-m) = sm_rv(:,m)*q_rv(:,l-m)
+       enddo lloop
 10  enddo mloop
   end subroutine ropyln
   subroutine ropylg(lp,lmax,ndim,nrx,nr,x,y,z,r2,yl,gyl)!- Gradients of YL's (polynomials) for a set of points, with YL as input
