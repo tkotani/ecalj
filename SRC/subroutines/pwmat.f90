@@ -135,7 +135,7 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
   block
     use m_stopwatch
     complex(8), allocatable:: ppovl_save(:,:,:), pwh(:,:), ppovlx(:,:)
-    logical :: cmdopt0, show_time = .false., debug = .true.
+    logical :: cmdopt0, show_time = .false., debug = .false.
     type(stopwatch) :: sw1, sw2, sw3, sw4
     integer:: ig_start, ig_end, igp, i, match_iga,  nx(3)
     integer, parameter:: ngblock = 1024*4
@@ -144,7 +144,7 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
     attributes(device) ppovl_save
 #endif
     show_time = cmdopt0('--show_time')
-    ! debug = cmdopt0('--debugpwmat')
+    debug = cmdopt0('--debugpwmat')
     if(show_time) call stopwatch_init(sw1,'set ppovlx')
     if(show_time) call stopwatch_init(sw2,'set_pwh')
     if(show_time) call stopwatch_init(sw3,'get_pwhovl')

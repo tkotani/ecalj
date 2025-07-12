@@ -55,7 +55,7 @@ subroutine hrcxq() bind(C)
   integer,allocatable::   mpi__Qrank(:)
   integer :: n_kpara = 1, n_bpara = 1, npr_col, worker_inQtask
   call MPI__Initialize()
-  call gpu_init() 
+  call gpu_init(comm) 
   call M_lgunit_init()
   emptyrun=cmdopt0('--emptyrun')
   call MPI__consoleout('hrcxq')
