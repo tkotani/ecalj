@@ -184,7 +184,7 @@ subroutine hx0fp0()
   integer,allocatable::   mpi__ranktab(:)
   integer :: n_kpara = 1, n_bpara = 1, npr_col, worker_inQtask, nqcalc
   call MPI__Initialize()
-  call gpu_init() 
+  call gpu_init(comm)
   call M_lgunit_init()
   call MPI__consoleout('hx0fp0')
   call cputid (0)

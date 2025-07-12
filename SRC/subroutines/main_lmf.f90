@@ -32,6 +32,7 @@ contains
     use m_lmfp,only:     lmfp  !this is main part lmfp-->bndfp
     use m_writeband,only: writepdos,writedossawada
     use m_vbmmode,only: vbmmode
+    use m_gpu,only:      gpu_init
     use m_ftox
     implicit none
     integer,optional:: commin
@@ -52,6 +53,7 @@ contains
     endif
     call m_MPItk_init(comm)  ! MPI info
     !call m_ext_init()    ! Get sname, e.g. trim(sname)=si of ctrl.si
+    call gpu_init(comm) 
     call m_lgunit_init() ! Set file handle of stdo(console) and stdl(log)    !print *, 'len_trim(argall)=',trim(argall),len_trim(argall),master_mpi
     aaa='===START LMF with '//trim(argall)//' ==='
     if(master_mpi) write(stdo,"(a)") trim(aaa)

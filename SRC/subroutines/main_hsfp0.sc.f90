@@ -96,7 +96,7 @@ subroutine hsfp0_sc()
     character(20):: outs=''
     character(3) :: charnum3
     call MPI__Initialize()
-    call gpu_init() 
+    call gpu_init(comm)
     call M_lgunit_init()
     call writemem('Start hsfp0: TotalRAM per node='//ftof(totalram(),3)//' GB')
     if(MPI__root) then

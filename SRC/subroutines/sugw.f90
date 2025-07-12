@@ -508,16 +508,17 @@ contains
       
       GEIGpart: if(ngp > 0) then !IPW expansion of eigenfunctions pwz
       block
+        use m_gpu, only: check_memory_gpu
         ! complex(8) :: ppovl_pwz(ngp,ndimhx)
-        complex(8) :: ppovlLU(ngp,ngp) !ppovl_pwz(ngp,ndimhx),
+        complex(8), allocatable :: ppovlLU(:,:) !ppovl_pwz(ngp,ndimhx),
 #ifdef __GPU
-      attributes(device) :: ppovlLU
+        attributes(device) :: ppovlLU
 #endif
         !  ppovl: = O_{G1,G2} = <IPW_G1 | IPW_G2>
         !  phovl: <IPW_G1 | basis function = smooth Hankel or APW >   
         !    pwz:  IPW expansion of eigen function
         allocate(ppovl(ngp,ngp),phovl(ngp,ndimh)) !pwz(ngp*nspc,ndimhx),
-        if(show_time) call stopwatch_init(sw, 'geig_par:pwmat')
+        if(show_time) call stopwatch_init(sw, 'geig_part:pwmat')
         if(show_time) call stopwatch_start(sw)
         call pwmat(nbas,ndimh,napw,igv2x,qp,ngp,nlmax,ngvecp(1,1,iq),gmax, ppovl, phovl)
         !$acc data copyin(evec,phovl) copyout(geigr)
@@ -532,8 +533,9 @@ contains
           !$acc host_data use_device(phovl, evec, geigr)
           istat = zmm(phovl, evec(ndimh*(ispc-1)+1,1), geigr(1,ispc,1), m=ngp, n=ndimhx, k=ndimh, ldb=ndimhx, ldc=ngpmx*nspc)
           !$acc end host_data
+          allocate(ppovlLU(ngp,ngp))
           !$acc kernels
-          ppovlLU(:,:) = ppovl(:,:) !copy CPU from GPU
+          ppovlLU(:,:) = ppovl(:,:) !copy to GPU from CPU
           !$acc end kernels
         ! enddo
         ! deallocate(phovl)
@@ -545,12 +547,14 @@ contains
           !$acc host_data use_device(geigr)
           istat = zsv(ppovlLU, geigr(1,ispc,1), n=ngp, nrhs=ndimhx, ldb=ngpmx*nspc) !ppovl_pwz, ngb, info) !giegr is now wavefunction's coefficients on IPW
           !$acc end host_data
+          deallocate(ppovlLU)
         enddo
         !$acc end data
         deallocate(phovl) 
         if(debug) call cputid(0)
         if(debug) write (stdo,"('endof GEIGpart q ndimh=',3f10.5,i10,' procid=',i10)") qp, ndimh,procid
       endblock
+      if(debug) call check_memory_gpu("End of GEIG")
       endif GEIGpart
       VXCmat: block
         allocate(testcc(1:nev,ndimhx),source=matmul(transpose(dconjg(evec(:,1:nev))),reshape(vxc,[ndimhx,ndimhx])))
@@ -619,8 +623,8 @@ contains
             !endblock ncheckw
             !endif
           endif
-          deallocate(ppovl)
         endblock GramSchmidtCphiGeig
+        deallocate(ppovl) !bugfix in --skipGS
         cphix(1:ndima,1:nspc,nev+1:nbandmx)=1d20 !padding 
         iqqisp= isp + nsp*(iq-1)
         i=writem(ifcphim,rec=iqqisp,data=cphix(1:ndima,1:nspc,1:nbandmx)) 

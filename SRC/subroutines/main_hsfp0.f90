@@ -20,7 +20,7 @@ subroutine hsfp0() bind(C)
   use m_mpi,only: &
        MPI__Initialize,MPI__real8send,MPI__real8recv, & !MPI__sxcf_rankdivider,
        MPI__root,MPI__Broadcast,MPI__rank,MPI__size,MPI__allreducesum, &
-       MPI__consoleout,ipr
+       MPI__consoleout,ipr,comm
 !  use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,ndimat,nqbzt,nband,mrecg
   use m_genallcf_v3,only: nprecb,mrecb,mrece,nqbzt,nband,mrecg
   use m_lgunit,only: m_lgunit_init
@@ -155,7 +155,7 @@ subroutine hsfp0() bind(C)
 !  real(8),allocatable:: qx(:,:)
   !...  mode switch. --------------
   call MPI__Initialize()
-  call gpu_init() 
+  call gpu_init(comm)
   call M_lgunit_init()
   call date_and_time(values=timevalues)
   if(ipr) write(6,'(a,9i5)')'dateandtime1=',MPI__rank,timevalues(1:8)
