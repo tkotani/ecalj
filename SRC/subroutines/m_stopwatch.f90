@@ -1,7 +1,7 @@
 module m_stopwatch !M.Obata 2024/04/21
   implicit none
   public :: stopwatch, stopwatch_start, stopwatch_init, stopwatch_pause, stopwatch_show, stopwatch_reset, &
-            stopwatch_lap_time, stopwatch_elapsed_time
+            stopwatch_lap_time, stopwatch_elapsed_time, stopwatch_begin, stopwatch_show_list
   private
   type stopwatch
     private
@@ -45,6 +45,13 @@ module m_stopwatch !M.Obata 2024/04/21
     self%running = .true.
   end subroutine stopwatch_start
 
+  subroutine stopwatch_begin(self, task_name)
+    class(stopwatch), intent(inout) :: self
+    character(len=*), intent(in) :: task_name
+    call stopwatch_init(self, task_name)
+    call stopwatch_start(self)
+  end subroutine stopwatch_begin
+
   subroutine stopwatch_pause(self)
     class(stopwatch), intent(inout) :: self
     if (self%running) then
@@ -69,6 +76,17 @@ module m_stopwatch !M.Obata 2024/04/21
     elapsed_time = stopwatch_elapsed_time(self)
     write(stdo,'(X,A,A20,X,F10.4,X,A)') 'Time:', trim(self%task_name), elapsed_time, '(sec)'
   end subroutine stopwatch_show
+
+  subroutine stopwatch_show_list(self)
+    use m_lgunit, only: stdo
+    class(stopwatch), intent(inout) :: self(:)
+    integer :: i
+    real(8) :: elapsed_time
+    do i = 1, size(self)
+      elapsed_time = stopwatch_elapsed_time(self(i))
+      write(stdo,'(X,A,A20,X,F10.4,X,A)') 'Time:', trim(self(i)%task_name), elapsed_time, '(sec)'
+    enddo
+  end subroutine stopwatch_show_list
 
   real(8) function stopwatch_elapsed_time(self) result(elapsed_time)
     class(stopwatch), intent(inout) :: self

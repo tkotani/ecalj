@@ -86,7 +86,8 @@ for i in range(1,nloop+1): #nloop is the additional number of iteration
     #gw initialize
     run_program(epath+'/lmf'+targetss+'--jobgw=0 >llmfgw00',1,datei)
     run_program(epath+'/qg4gw '+option+'--job=1 > lqg4gw',1,datei)
-    run_program(epath+'/lmf'+targetss+'--jobgw=1 >llmfgw01',ncore,datei)
+    # run_program(epath+'/lmf'+targetss+'--jobgw=1 >llmfgw01',ncore,datei)
+    run_program(epath+'/lmf'+exec_type+targetss+'--jobgw=1 >llmfgw01',ncore,datei)
     ##### main stage of gw ####
     run_program(epath+'/heftet --job=1 '+option+'> leftet',1,datei)       # A file EFERMI for hx0fp0
     ### Core part of the self-energy (exchange only) ###

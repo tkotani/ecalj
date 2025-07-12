@@ -16,7 +16,7 @@ contains
     real(8):: yl(nd,*), x(n),y(n),z(n),rsq(n),cx(3),f2m,a,b,xx,yy,fff(0:lmax+1)
     real(8),parameter:: fpi = 16*datan(1d0)
     real(8),allocatable :: cm_rv(:),sm_rv(:), q_rv(:,:), h_rv(:)
-    if (n > nd) call rx('ropyln: nd too small')
+    ! if (n > nd) call rx('ropyln: nd too small') !does not work with acc routine seq
     allocate(cm_rv(n),sm_rv(n),q_rv(n,2),h_rv(n))
     rsq = x**2+y**2+z**2
     cx = 0d0 
