@@ -66,8 +66,12 @@ hvccfp0_mp hsfp0_sc_mp hrcxq_mp hx0fp0_mp \
 hvccfp0_mp_gpu hsfp0_sc_mp_gpu hrcxq_mp_gpu hx0fp0_mp_gpu lmf_gpu lmf_mp_gpu \
  heftet hbasfp0 gw_lmfh hx0fp0 hsfp0 hqpe eps_lmfh epsPP_lmfh epsPP_lmfh_chipm genMLWFx'
 for ex in exec.split():
-    shutil.copy(ecaljroot+'/SRC/exec/'+ex,bindir)
-    print ('cp ' + ecaljroot+'/SRC/exec/' +ex+ ' to ',bindir)
+    try:
+        shutil.copy(ecaljroot+'/SRC/exec/'+ex,bindir)
+        print ('cp ' + ecaljroot+'/SRC/exec/' +ex+ ' to ',bindir)
+    except:
+        pass
+    
 #sys.exit()
 
 "Alias binaries combined with np "
