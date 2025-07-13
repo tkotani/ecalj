@@ -113,22 +113,44 @@ contains
     call cputm(stdo,aaaw)
     ! <P_G|v|B>
     PvB_dev_mo:block
-      complex(8) :: crojp_ibas(ngc,(lxx+1)**2,nbas),alpha
+      PvB2: block
+        complex(8) :: strxx(1:(lxx+1)**2,1:nbas,nbloch)
+        complex(8) :: crojp_ibas(ngc,(lxx+1)**2,nbas),alpha
+        crojp_ibas(1:ngc,1:(lxx+1)**2,1:nbas) = dconjg(rojp(1:ngc,1:(lxx+1)**2, 1:nbas))
+        do ibl2=1,nbloch
+           strxx(1:(lxx+1)**2,1:nbas,ibl2) = - strx(1:(lxx+1)**2,1:nbas,lmbl(ibl2),ibasbl(ibl2)) * rojb(nbl (ibl2),lbl (ibl2),ibasbl(ibl2))
+        enddo
+        do ibl2= 1, nbloch
+           istat = zmv_h(crojp_ibas, &
+                strxx(1:(lxx+1)**2,1:nbas,ibl2), vcoul(nbloch+1,ibl2), m=ngc, n=(lxx+1)**2*nbas, alpha=(1d0,0d0),beta=(1d0,0d0))   !punch out offsite part
+        enddo
+      endblock PvB2
       PvB: do ibl2= 1, nbloch
         ibas2= ibasbl(ibl2)
         n2   = nbl (ibl2)
         l2   = lbl (ibl2)
         m2   = mbl (ibl2)
         lm2  = lmbl(ibl2)
-        vcoul(nbloch+1:nbloch+ngc,ibl2) = fouvb(1:ngc,  n2, lm2, ibas2) !<exp(i(q+G)r)|v|B_n2L2>
-        vcoul(nbloch+1:nbloch+ngc,ibl2) = vcoul(nbloch+1:nbloch+ngc,ibl2) - sgpb(1:ngc, n2, lm2, ibas2) !punch out onsite part
+        vcoul(nbloch+1:nbloch+ngc,ibl2) = vcoul(nbloch+1:nbloch+ngc,ibl2) &
+             +fouvb(1:ngc,  n2, lm2, ibas2) - sgpb(1:ngc, n2, lm2, ibas2)   !<exp(i(q+G)r)|v|B_n2L2> !punch out onsite part
       enddo PvB
-      PvB2: do ibl2= 1, nbloch
-         crojp_ibas(1:ngc,1:(lxx+1)**2,1:nbas) = dconjg(rojp(1:ngc,1:(lxx+1)**2, 1:nbas))
-         istat = zmv_h(crojp_ibas, &
-               -rojb(nbl (ibl2),lbl (ibl2),ibasbl(ibl2))* strx(1:(lxx+1)**2,1:nbas,lmbl(ibl2),ibasbl(ibl2)),&
-               vcoul(nbloch+1,ibl2), m=ngc, n=(lxx+1)**2*nbas, alpha=(1d0,0d0),beta=(1d0,0d0))   !punch out offsite part
-      enddo PvB2
+     ! PvB2:block
+     !   complex(8)::strxx(1:(lxx+1)**2,1:nbas,nbloch)
+     !   crojp_ibas(1:ngc,1:(lxx+1)**2,1:nbas) = dconjg(rojp(1:ngc,1:(lxx+1)**2, 1:nbas))
+     !   do ibl2=1,nbloch
+     !      strxx(1:(lxx+1)**2,1:nbas,ibl2) = - strx(1:(lxx+1)**2,1:nbas,lmbl(ibl2),ibasbl(ibl2)) * rojb(nbl (ibl2),lbl (ibl2),ibasbl(ibl2))
+     !   enddo
+     ! !$acc data copyin(crojp_ibas, strxx) copyout(vcoul(nbloch+1:ngb,1:nbloch))
+     !   istat = zmm(crojp_ibas, strxx,  vcoul(nbloch+1,1), m=ngc, n=nbloch, k=(lxx+1)**2*nbas)   !punch out offsite part
+     ! !$acc end data
+     ! endblock PvB2
+!      enddo PvB2
+     ! PvB2: do ibl2= 1, nbloch
+     !     crojp_ibas(1:ngc,1:(lxx+1)**2,1:nbas) = dconjg(rojp(1:ngc,1:(lxx+1)**2, 1:nbas))
+     !     istat = zmv_h(crojp_ibas, &
+     !           -strx(1:(lxx+1)**2,1:nbas,lmbl(ibl2),ibasbl(ibl2)) * rojb(nbl (ibl2),lbl (ibl2),ibasbl(ibl2)),&
+     !           vcoul(nbloch+1,ibl2), m=ngc, n=(lxx+1)**2*nbas, alpha=(1d0,0d0),beta=(1d0,0d0))   !punch out offsite part
+     !  enddo PvB2
       ! do ig1 = 1,ngc
       !   ipl1 = nbloch + ig1
       !   vcoul(ipl1,ibl2) = fouvb(ig1,  n2, lm2, ibas2) !<exp(i(q+G)r)|v|B_n2L2>
