@@ -653,3 +653,38 @@ pure real(8) function erfcee(ra) ! erfcee(x)= erfc(|x|)/y0/exp(-x*x)  ! We still
   endif
 end function erfcee
 
+real(8) function fac2l(i)
+  !C A table of (2l-1)!!
+  !     data fac2l /1,1,3,15,105,945,10395,135135,2027025,34459425/
+  integer:: i,l
+  integer,parameter:: lmx=100
+  logical,save::  init=.true.
+  real(8),save:: fac2lx(0:lmx+1)
+  if(init) then
+     fac2lx(0)=1d0
+     do l=1,lmx
+        fac2lx(l)=fac2lx(l-1)*(2*l-1)
+     enddo
+     init=.false.
+  endif
+  fac2l=fac2lx(i)
+END function fac2l
+! real(8) function fac2l(l)
+!   integer:: l
+!   integer,parameter:: nlmax=20,  lmx=  nlmax*2+2, lmin=-nlmax
+!   integer:: fac2lx(-nlmax:nlmax*2+3)
+!   logical,save:: init=.true.
+!   ! --- A table of fac2l(l)=(2l-1)!!
+!   !     data fac2l /1,1,3,15,105,945,10395,135135,2027025,34459425/
+!   if(init) then
+!      fac2lx(0) = 1d0
+!      do  10  l = 1, lmx+1
+!         fac2lx(l) = fac2lx(l-1) * (l+l-1)
+! 10   enddo
+!      do  11  l = -1, lmin, -1
+!         fac2lx(l) = fac2lx(l+1) / (l+l+1)
+! 11   enddo
+!      init=.false.
+!   endif
+!   fac2l =fac2lx(l)
+! end function fac2l
