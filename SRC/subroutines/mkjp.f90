@@ -8,11 +8,11 @@ contains
   subroutine vcoulq_4(q,nbloch,ngc,nbas,lx,lxx,nx,nxx,alat,qlat,vol,ngvecc, & !Coulmb matrix for each q
        strx,rojp,rojb,sgbb,sgpb,fouvb,ngb,bas,rmax, eee, aa,bb,nr,nrx,rkpr,rkmr,rofi,    vcoul)
     use m_ll,only: ll
-    use m_blas, only: m_op_T, zmv_h
+    use m_blas, only: m_op_T,m_op_C, zmv_h !, zmm_h
 #ifdef __GPU
-    use m_blas, only: dmm => dmm_d
+    use m_blas, only: dmm => dmm_d, zmm=>zmm_d
 #else
-    use m_blas, only: dmm => dmm_h
+    use m_blas, only: dmm => dmm_h, zmm=>zmm_h
 #endif
     !i strx:  Structure factors
     !i nlx corresponds to (lx+1)**2 . lx corresponds to 2*lmxax.
@@ -144,8 +144,7 @@ contains
     call cputm(stdo,aaaw)
     PvP_dev_mo: block
       real(8) :: fac_integral(nrx,nbas), sigx_tmp(ngc,ngc,0:lxx), a1g(nrx,ngc)
-      real(8) :: ajr_tmp(nrx,ngc), phi_rg(nrx,ngc,0:lxx), rofi_tmp(1:nrx)
-      complex(8) :: crojp((lxx+1)**2,nbas)
+      real(8) :: ajr_tmp(nrx,ngc), phi_rg(nrx,ngc,0:lxx), rofi_tmp(1:nrx) !  complex(8) :: crojp((lxx+1)**2,nbas,ngc)
       complex(8) :: rojpstrx((lxx+1)**2,nbas,ngc)
       ! get integral coefficients of int (a*b) G_1(ir) G_2(ir) exp(a*r))
       ! simpson rule is used. nr(ibas) was set as odd number
@@ -153,14 +152,12 @@ contains
       write(aaaw,ftox) " vcoulq_4: goto PvP procid ngc lxx nrx=", mpi__rank,ngc,lxx,nrx
       call cputm(stdo,aaaw)
       
-      rojpstrx = 0d0
-      do ig1 = 1,ngc
-        crojp(1:(lxx+1)**2,1:nbas) = dconjg(rojp(ig1,1:(lxx+1)**2,1:nbas))
-        istat = zmv_h(strx, crojp, rojpstrx(1,1,ig1), m=nbas*(lxx+1)**2, n=nbas*(lxx+1)**2, opA=m_op_T)
-        !  rojpstrx(lm2, ibas2) = rojpstrx(lm2, ibas2)+ dconjg(rojp(ig1, lm1, ibas1)) *strx(lm1,ibas1,lm2,ibas2)
-     enddo
+      !$acc data copyin(strx, rojp) copyout(rojpstrx)
+      istat = zmm(strx, rojp, rojpstrx, m=nbas*(lxx+1)**2, n=ngc, k=nbas*(lxx+1)**2, opA=m_op_T, opB=m_op_C)
+      !$acc end data
+      !    rojpstrx(lm2, ibas2) = rojpstrx(lm2, ibas2)+ dconjg(rojp(ig1, lm1, ibas1)) *strx(lm1,ibas1,lm2,ibas2)
 
-     fac_integral(1:nrx,1:nbas) = 0d0
+      fac_integral(1:nrx,1:nbas) = 0d0
       do ibas = 1, nbas
         fac_integral(1,ibas) = aa(ibas)*bb(ibas)/3d0
         do ir = 2, nr(ibas) 
