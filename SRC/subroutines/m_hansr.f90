@@ -36,12 +36,30 @@ contains
     a2 = a*a
     cc = 4d0*a2*a*dexp(e/(ta*ta))/srpi
     if (a*r > 10d0) then !call bessl if exp(-a*a*r*r) is very small ---
-       call bessl(e*r*r,lmax,a0,xi)
-       rfac = r
-       do  l = 0, lmax
-          rfac = rfac*(1d0/(r*r))
-          xi(l) = rfac*xi(l)
-       enddo
+       ! call bessl(e*r*r,lmax,a0,xi)
+       ! rfac = r
+       ! do  l = 0, lmax
+       !    rfac = rfac*(1d0/(r*r))
+       !    xi(l) = rfac*xi(l)
+       ! enddo
+       Hankel: block !taken from bessl!   call bessl(e*r*r,lmax,a0,xi)
+         real(8):: y ,gi(0:lmax+1),srmy !+1 for safe for lmax=0
+         integer:: tlp1
+         y=e*r*r
+         srmy = dsqrt(-y)
+         gi(0:1) = [1d0,1d0+srmy]
+         tlp1 = 1
+         do l = 2, lmax
+            tlp1 = tlp1+2
+            gi(l) = tlp1*gi(l-1) - y*gi(l-2)
+         enddo
+         gi=gi/exp(srmy)
+         rfac = r
+         do  l = 0, lmax
+            rfac  = rfac*(1d0/(r*r))
+            xi(l) = rfac*gi(l)
+         enddo
+       endblock Hankel
     elseif(r<=rlim) then    ! --- Power series for small r ---
        a0(0) = cc/(ta*a) - akap*derfc(akap/ta)
        rhs = cc

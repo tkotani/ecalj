@@ -1,16 +1,104 @@
-subroutine bessl(y,lmax,fi,gi)! Spherical Bessel Neumann Hankel functions
+subroutine bessl(y,lmax,fi,gi)! Spherical Bessel  and  Neumann Hankel functions
   !i Inputs:   
   !i   y     :y = r**2 or (i*r)**2= -r**2  !i=cmplex(0,1d0)
-  !i   lmin  :minimum l
   !i   lmax  :maximum l
   ! TKotani think output for give y is (We use Methfessel's conventions)
   !     fi_l =   1/r**l     j_l(r) 
-  !     gi_l =   1/r**(l+1) n_l(r) for y>0
+  !     gi_l =   1/r**(l+1) n_l(r)     for y>0
   !     gi_l =  -1/r**(l+1) h^1_l(i*r) for y<0 !(h^1 means 1st kind)
-  ! ,where j_l,n_l,h^1_l are standard sperical bessel functions.
+  ! ,where j_l, n_l, h^1_l are standard sperical bessel functions.
+  !r  *Special cases:
+  !r     fi(y,l) -> 1/(2l+1)!!     for y->0
+  !r     gi(y,l) -> (2l-1)!!       for y->0
+  !r     gi(y,l=0) = exp(i*akap*r) for y<=0    akap=sqrt(e) Im(akap)>=0
+  !r     gi(y,l=0) = cos(akap*r)   for y>0     akap=sqrt(e) Im(akap)=0
+  !b   For x > 40 this algorithm is numerically unstable !!!
   ! NOTE:   For r > 40 this algorithm is numerically unstable !!!
-  ! xxx Check this and through away following old memos. !2023-jan
+  ! xxx Check this and through away following old memos below. !2023-jan
   !
+  implicit none
+  integer :: lmax, i,isn,j1,j2,k,l,lmx,lmxp1,lmxp2,nf,tlp1,ll1,ll2,nlmax
+  real(8) :: y,fi(0:lmax),gi(0:lmax), dt,dt2,exppr,my,srmy,g1,t
+  real(8),external:: fac2l !,fac2l(-nlmax:nlmax*2+3)
+  ! --- A table of fac2l(l)=(2l-1)!!  data fac2l /1,1,3,15,105,945,10395,135135,2027025,34459425/
+  real(8),allocatable:: dum(:)
+  real(8),parameter:: tol=1d-15
+  if (y == 0) then ! --- Case akap=0 ---
+     do l=0,lmax
+        fi(l) = 1/fac2l(l+1)
+        gi(l) = fac2l(l)
+     enddo   
+     return
+  endif
+  lmx = max0(lmax,2)
+  allocate(dum(lmx*2+2))
+  my = -y
+  ! --- Get dum(1) = j_{lmx}(x)/x^{lmx} = fi(lmx)
+  tlp1 = lmx+lmx+1
+  dt = 1d0
+  t = 1d0
+  i = 0
+  do  20  k = 1, 1000
+     if (dabs(dt) < tol) goto 21
+     i = i+2
+     dt2 = i+tlp1
+     dt = dt*my/(i*dt2)
+     t = t+dt
+20 enddo
+  call rx('BESSL: series not convergent 111')
+21 continue
+  dum(1) = t/fac2l(lmx+1)
+  
+  ! --- Get dum(2) = j_{lmx-1}(x)/x^{lmx-1} = fi(lmx-1) ---
+  tlp1 =  tlp1-2
+  dt = 1d0
+  t = 1d0
+  i = 0
+  do  30  k = 1, 1000
+     if (dabs(dt) < tol) goto 31
+     i = i+2
+     dt2 = i+tlp1
+     dt = dt*my/(i*dt2)
+     t = t+dt
+30 enddo
+  call rx('BESSL: series not convergent 222')
+31 continue
+  dum(2) = t/fac2l(lmx)
+  
+  ! --- Recursion for dum(k)=j_{lmx+1-k}(x)/x^{lmx+1-k}=fi(lmx+1-k)
+  nf = 2* lmx + 1
+  do  k = 3, 2*lmx + 2
+     nf = nf-2
+     dum(k) = nf*dum(k-1) - y*dum(k-2)
+  enddo
+  do  k = 0, lmax ! --- Get fi and gi from dum ---
+    fi(k) = dum(lmx+1-k)
+   enddo
+ 
+  !--- gi parts --------------------------   
+  if( y>=0d0 )then
+    do k = 0, lmax ! --- Get fi and gi from dum ---
+      gi(k) = dum(lmx+2+k)*(-1)**k !  ... n_l(x) = j_{-l-1}*(-1)^{l+1} !Neumann function
+    enddo
+  else !For E<0, use Hankel functions rather than Neumann functions ---
+     srmy = dsqrt(-y)
+     gi(0) = 1d0
+     g1 = 1d0+srmy
+     if (lmax >= 1) gi(1) = g1
+     if (lmax >= 2) then
+        tlp1 = 1
+        do   l = 2, lmax
+           tlp1 = tlp1+2
+           gi(l) = tlp1*gi(l-1) - y*gi(l-2)
+        enddo
+     endif
+     exppr = 1d0/dexp(srmy)
+     do  l = 0, lmax
+        gi(l) = gi(l)*exppr
+     enddo
+  endif
+end subroutine bessl
+
   ! Followings are old memo: Removes this old memo when you are definite for the definition above (or corrected).
   ! ----------------
   !i Inputs: We use Methfessel's conventions
@@ -97,110 +185,7 @@ subroutine bessl(y,lmax,fi,gi)! Spherical Bessel Neumann Hankel functions
   !r
   !r           n_l(x) = j_{-l-1}*(-1)^{l+1}
   !r
-  !r  *Special cases:
-  !r     fi(y,l) -> 1/(2l+1)!!     for y->0
-  !r     gi(y,l) -> (2l-1)!!       for y->0
-  !r     gi(y,l=0) = exp(i*akap*r) for y<=0    akap=sqrt(e) Im(akap)>=0
-  !r     gi(y,l=0) = cos(akap*r)   for y>0     akap=sqrt(e) Im(akap)=0
-  !b   For x > 40 this algorithm is numerically unstable !!!
   !u Updates
   !u   23 Jul 08 bug fix: besslr doesn't make fi/gi(lmax+1) when lmax=0
   !u   19 May 04 Changed loka from logical to integer
   ! ----------------------------------------------------------------------
-  implicit none
-  integer,parameter :: lmin=0
-  integer :: lmax
-  double precision :: y,fi(lmin:lmax),gi(lmin:lmax)
-  integer :: i,isn,j1,j2,k,l,lmx,lmxp1,lmxp2,nf,tlp1,ll1,ll2,nlmax
-  parameter (nlmax=20)
-  double precision :: dt,dt2,exppr,my,srmy,g1,t,tol, &
-       dum(nlmax*4+2),fac2l(-nlmax:nlmax*2+3)
-  parameter(tol=1.d-15)
-  lmx = max0(lmax,2)
-  if (lmx > nlmax+nlmax)call rxi(' BESSL : lmax gt nlmax*2, lmax=',lmx)
-  ! --- A table of fac2l(l)=(2l-1)!!
-  !     data fac2l /1,1,3,15,105,945,10395,135135,2027025,34459425/
-  fac2l(0) = 1d0
-  do  10  l = 1, lmx+1
-     fac2l(l) = fac2l(l-1) * (l+l-1)
-10 enddo
-  do  11  l = -1, lmin, -1
-     fac2l(l) = fac2l(l+1) / (l+l+1)
-11 enddo
-  ! --- Case akap=0 ---
-  if (y == 0) then
-     do  12  l = lmin, lmax
-        fi(l) = 1/fac2l(l+1)
-        gi(l) = fac2l(l)
-12   enddo
-     goto 100
-  endif
-  my = -y
-  ! --- Get dum(1) = j_{lmx}(x)/x^{lmx} = fi(lmx)
-  tlp1 = lmx+lmx+1
-  dt = 1d0
-  t = 1d0
-  i = 0
-  do  20  k = 1, 1000
-     if (dabs(dt) < tol) goto 21
-     i = i+2
-     dt2 = i+tlp1
-     dt = dt*my/(i*dt2)
-     t = t+dt
-20 enddo
-  call rx('BESSL: series not convergent')
-21 continue
-  dum(1) = t/fac2l(lmx+1)
-  ! --- Get dum(2) = j_{lmx-1}(x)/x^{lmx-1} = fi(lmx-1) ---
-  tlp1 =  tlp1-2
-  dt = 1d0
-  t = 1d0
-  i = 0
-  do  30  k = 1, 1000
-     if (dabs(dt) < tol) goto 31
-     i = i+2
-     dt2 = i+tlp1
-     dt = dt*my/(i*dt2)
-     t = t+dt
-30 enddo
-  call rx('BESSL: series not convergent')
-31 continue
-  dum(2) = t/fac2l(lmx)
-  ! --- Recursion for dum(k)=j_{lmx+1-k}(x)/x^{lmx+1-k}=fi(lmx+1-k)
-  ll1 = lmx + lmx + 1
-  ll2 = ll1 + 1
-  nf = ll1
-  do  k = 3, ll2
-     nf = nf-2
-     dum(k) = nf*dum(k-1) - y*dum(k-2)
-  enddo
-  lmxp1 = lmx+1
-  lmxp2 = lmx+2
-  isn = (-1)**lmin
-  do   k = lmin, lmax ! --- Get fi and gi from dum ---
-     j1 = lmxp1-k
-     j2 = lmxp2+k
-     fi(k) = dum(j1)
-     gi(k) = dum(j2)*isn !  ... n_l(x) = j_{-l-1}*(-1)^{l+1} !Neumann function
-     isn = -isn
-  enddo
-! --- For E<0, use Hankel functions rather than Neumann functions ---
-  if ( y < 0d0) then
-     srmy = dsqrt(-y)
-     gi(0) = 1d0
-     g1 = 1d0+srmy
-     if (lmax >= 1) gi(1) = g1
-     if (lmax >= 2) then
-        tlp1 = 1
-        do   l = 2, lmax
-           tlp1 = tlp1+2
-           gi(l) = tlp1*gi(l-1) - y*gi(l-2)
-        enddo
-     endif
-     exppr = 1d0/dexp(srmy)
-     do  l = lmin, lmax
-        gi(l) = gi(l)*exppr
-     enddo
-  endif
-100 continue
-end subroutine bessl

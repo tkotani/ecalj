@@ -46,7 +46,6 @@ contains
     complex(8) :: strx((lxx+1)**2, nbas, (lxx+1)**2,nbas) !structure constant. The multicenter expantion of 1/|r-r'|
     complex(8) :: sgpb(ngc,  nxx,  (lxx+1)**2, nbas)
     complex(8) :: fouvb(ngc,  nxx, (lxx+1)**2, nbas) ,vcoul(ngb, ngb) !<exp(i q+G r)|xxx>
-    complex(8) :: rojpstrx((lxx+1)**2,nbas,ngc)
     !complex(8),allocatable :: hh(:,:),oo(:,:),zz(:,:),matp(:),matp2(:),pjyl_(:,:),phase(:,:)
     complex(8),allocatable :: hh(:,:),oo(:,:),zz(:,:),matp(:),matp2(:),pjyl_(:,:),phase(:,:),pjyl_p(:,:,:)
     complex(8) :: xxx, img=(0d0,1d0), fouvp_ig1_ig2, fouvp_ig2_ig1, sgpp_ig1_ig2
@@ -145,12 +144,14 @@ contains
     call cputm(stdo,aaaw)
     PvP_dev_mo: block
       real(8) :: fac_integral(nrx,nbas), sigx_tmp(ngc,ngc,0:lxx), a1g(nrx,ngc)
-      real(8) :: ajr_tmp(nrx,ngc), phi_rg(nrx,ngc,0:lxx,nbas), rofi_tmp(1:nrx)
+      real(8) :: ajr_tmp(nrx,ngc), phi_rg(nrx,ngc,0:lxx), rofi_tmp(1:nrx)
       complex(8) :: crojp((lxx+1)**2,nbas)
+      complex(8) :: rojpstrx((lxx+1)**2,nbas,ngc)
       ! get integral coefficients of int (a*b) G_1(ir) G_2(ir) exp(a*r))
       ! simpson rule is used. nr(ibas) was set as odd number
       ! sigx_tmp(ig1,ig2,l,ibas) is int dr (aa(ibas)*bb(ibas)) a1g(r,g1)* ajr(r,l,ibas,g2) exp(aa(ibas)*r))
-      if(ipr) write(stdo,ftox)' vcoulq_4: pgvpg dev block. size of ajr:', size(ajr)
+      write(aaaw,ftox) " vcoulq_4: goto igig PvP procid ngc lxx nrx=", mpi__rank,ngc,lxx,nrx
+      call cputm(stdo,aaaw)
       fac_integral(1:nrx,1:nbas) = 0d0
       do ibas = 1, nbas
         fac_integral(1,ibas) = aa(ibas)*bb(ibas)/3d0
@@ -159,50 +160,29 @@ contains
         enddo
         forall(ir=2:nr(ibas)-1) fac_integral(ir,ibas) = fac_integral(ir,ibas)*merge(4d0,2d0,mod(ir,2)==0)
       enddo
-      do ibas = 1, nbas
-        do ig = 1, ngc
-          do ir = 1, nr(ibas)
-            call bessl(absqg2(ig)*rofi(ir,ibas)**2,lx(ibas),phi, psi)
-            phi_rg(ir,ig,0:lx(ibas),ibas) = phi(0:lx(ibas))
-          enddo
-        enddo
-        ! do l = 0, lx(ibas)
-        !   rofi_tmp(1:nr(ibas)) = rofi(1:nr(ibas),ibas)**(l+1)
-        !   do ig = 1, ngc
-        !     ajr_tmp(1:nr(ibas),ig) = phi_rg(1:nr(ibas),ig,l)*rofi_tmp(1:nr(ibas))
-        !     call intn_smpxxx( rkpr(1,l,ibas), ajr_tmp(1,ig),int1x,aa(ibas),bb(ibas),rofi(1,ibas),nr(ibas))
-        !     call intn_smpxxx( rkmr(1,l,ibas), ajr_tmp(1,ig),int2x,aa(ibas),bb(ibas),rofi(1,ibas),nr(ibas))
-        !     a1g(1,         ig) = 0d0
-        !     a1g(2:nr(ibas),ig) = rkmr(2:nr(ibas),l,ibas) *( int1x(1)-int1x(2:nr(ibas)) ) &
-        !          + rkpr(2:nr(ibas),l,ibas) *  int2x(2:nr(ibas))
-        !     a1g(1:nr(ibas),ig) = a1g(1:nr(ibas),ig) * fac_integral(1:nr(ibas),ibas)
-        !   enddo
-        ! enddo
-      enddo
-
       rojpstrx = 0d0
       do ig1 = 1,ngc
-        ipl1 = nbloch + ig1
-        ! do ibas1= 1, nbas         !   do lm1  = 1, (lx(ibas1)+1)**2        !     do ibas2= 1, nbas        !       do lm2  = 1, (lx(ibas2)+1)**2
-        !    rojpstrx(lm2, ibas2) = rojpstrx(lm2, ibas2)+ dconjg(rojp(ig1, lm1, ibas1)) *strx(lm1,ibas1,lm2,ibas2)
-        ! enddo        !     enddo        !   enddo        ! enddo
         crojp(1:(lxx+1)**2,1:nbas) = dconjg(rojp(ig1,1:(lxx+1)**2,1:nbas))
         istat = zmv_h(strx, crojp, rojpstrx(1,1,ig1), m=nbas*(lxx+1)**2, n=nbas*(lxx+1)**2, opA=m_op_T)
+        !  rojpstrx(lm2, ibas2) = rojpstrx(lm2, ibas2)+ dconjg(rojp(ig1, lm1, ibas1)) *strx(lm1,ibas1,lm2,ibas2)
         do ibas2= 1, nbas
           do lm2=1,(lx(ibas2)+1)**2
             pjyl_p(lm2,ig1,ibas2)=pjyl_(lm2,ig1)*phase(ig1,ibas2)
           enddo
         enddo
       enddo
-
-      write(aaaw,ftox)" vcoulq_4: goto igig PvP procid=", mpi__rank
-      call cputm(stdo,aaaw)
       lm2x= (lxx+1)**2
       igigLoopSlow: do ibas= 1, nbas
+        do ig = 1, ngc
+          do ir = 1, nr(ibas)
+            call bessl(absqg2(ig)*rofi(ir,ibas)**2,lx(ibas),phi, psi)
+            phi_rg(ir,ig,0:lx(ibas)) = phi(0:lx(ibas))
+          enddo
+        enddo
         do l = 0, lx(ibas)
           rofi_tmp(1:nr(ibas)) = rofi(1:nr(ibas),ibas)**(l+1)
           do ig = 1, ngc
-            ajr_tmp(1:nr(ibas),ig) = phi_rg(1:nr(ibas),ig,l,ibas)*rofi_tmp(1:nr(ibas))
+            ajr_tmp(1:nr(ibas),ig) = phi_rg(1:nr(ibas),ig,l)*rofi_tmp(1:nr(ibas))
             call intn_smpxxx( rkpr(1,l,ibas), ajr_tmp(1,ig),int1x,aa(ibas),bb(ibas),rofi(1,ibas),nr(ibas))
             call intn_smpxxx( rkmr(1,l,ibas), ajr_tmp(1,ig),int2x,aa(ibas),bb(ibas),rofi(1,ibas),nr(ibas))
             a1g(1:nr(ibas),ig) = [0d0,(rkmr(2:nr(ibas),l,ibas) *( int1x(1)-int1x(2:nr(ibas)) ) &

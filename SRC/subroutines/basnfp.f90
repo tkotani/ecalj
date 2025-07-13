@@ -162,7 +162,7 @@ subroutine basnfp_v2(nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate 
               lxx=max(2,lx)
               call bessl(absqg2*r(ir)**2,lxx,phij,psij)!lmin must be larger than 1,right?
               phij(0:lxx) = phij(0:lxx)*fac2l(0:lxx)*0.5d0 !Andersen factor
-              psij(0:lxx) = psij(0:lxx)/fac2l(0:lxx)       !Andersen factor
+!              psij(0:lxx) = psij(0:lxx)/fac2l(0:lxx)       !Andersen factor
               rprod(ir,iprad) = phij(lx)* r(ir) **(lx +1)
            enddo
            print *,' sumchk rprod=',lx,n1,sum(abs(rprod(1:nrofi,iprad)))
@@ -719,21 +719,6 @@ subroutine basnfp_v2(nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate 
   if (allocated(lprc))    deallocate(lprc)
   return
 end subroutine basnfp_v2
-
-real(8) function fac2l(i)
-  !C A table of (2l-1)!!
-  !     data fac2l /1,1,3,15,105,945,10395,135135,2027025,34459425/
-  integer:: i,l
-  logical,save::  init=.true.
-  real(8),save:: fac2lx(101)
-  if(init) then
-     fac2lx(1)=1d0
-     do l=1,100
-        fac2lx(l+1)=fac2lx(l)*(2*l-1)
-     enddo
-  endif
-  fac2l=fac2lx(i)
-END function fac2l
 
 real(8) function derie2 (x,y,n)
   intent(in)::x,y,n
