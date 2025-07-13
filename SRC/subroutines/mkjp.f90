@@ -113,13 +113,22 @@ contains
     call cputm(stdo,aaaw)
     ! <P_G|v|B>
     PvB_dev_mo:block
-      complex(8) :: crojp_ibas(ngc,(lxx+1)**2)
+      complex(8) :: crojp_ibas(ngc,(lxx+1)**2,nbas),alpha
       PvB: do ibl2= 1, nbloch
         ibas2= ibasbl(ibl2)
         n2   = nbl (ibl2)
         l2   = lbl (ibl2)
         m2   = mbl (ibl2)
         lm2  = lmbl(ibl2)
+        vcoul(nbloch+1:nbloch+ngc,ibl2) = fouvb(1:ngc,  n2, lm2, ibas2) !<exp(i(q+G)r)|v|B_n2L2>
+        vcoul(nbloch+1:nbloch+ngc,ibl2) = vcoul(nbloch+1:nbloch+ngc,ibl2) - sgpb(1:ngc, n2, lm2, ibas2) !punch out onsite part
+      enddo PvB
+      PvB2: do ibl2= 1, nbloch
+         crojp_ibas(1:ngc,1:(lxx+1)**2,1:nbas) = dconjg(rojp(1:ngc,1:(lxx+1)**2, 1:nbas))
+         istat = zmv_h(crojp_ibas, &
+               -rojb(nbl (ibl2),lbl (ibl2),ibasbl(ibl2))* strx(1:(lxx+1)**2,1:nbas,lmbl(ibl2),ibasbl(ibl2)),&
+               vcoul(nbloch+1,ibl2), m=ngc, n=(lxx+1)**2*nbas, alpha=(1d0,0d0),beta=(1d0,0d0))   !punch out offsite part
+      enddo PvB2
       ! do ig1 = 1,ngc
       !   ipl1 = nbloch + ig1
       !   vcoul(ipl1,ibl2) = fouvb(ig1,  n2, lm2, ibas2) !<exp(i(q+G)r)|v|B_n2L2>
@@ -130,14 +139,6 @@ contains
       !     enddo
       !   enddo
       ! enddo
-        vcoul(nbloch+1:nbloch+ngc,ibl2) = fouvb(1:ngc,  n2, lm2, ibas2) !<exp(i(q+G)r)|v|B_n2L2>
-        vcoul(nbloch+1:nbloch+ngc,ibl2) = vcoul(nbloch+1:nbloch+ngc,ibl2) - sgpb(1:ngc, n2, lm2, ibas2) !punch out onsite part
-        do ibas1 = 1, nbas
-          crojp_ibas(1:ngc,1:(lx(ibas1)+1)**2) = dconjg(rojp(1:ngc,1:(lx(ibas1)+1)**2, ibas1))
-          istat = zmv_h(crojp_ibas, strx(1,ibas1,lm2,ibas2), vcoul(nbloch+1,ibl2), m=ngc, n=(lx(ibas1)+1)**2, &
-                        alpha=dcmplx(-rojb(n2,l2,ibas2),0d0), beta=(1d0, 0d0))   !punch out offsite part
-        enddo
-      enddo PvB
     endblock PvB_dev_mo
     ! <P_G|v|P_G>
     write(aaaw,ftox) " vcoulq_4: goto PvP procid=", mpi__rank
@@ -151,7 +152,6 @@ contains
       ! sigx_tmp(ig1,ig2,l,ibas) is int dr (aa(ibas)*bb(ibas)) a1g(r,g1)* ajr(r,l,ibas,g2) exp(aa(ibas)*r))
       write(aaaw,ftox) " vcoulq_4: goto PvP procid ngc lxx nrx=", mpi__rank,ngc,lxx,nrx
       call cputm(stdo,aaaw)
-      
       !$acc data copyin(strx, rojp) copyout(rojpstrx)
       istat = zmm(strx, rojp, rojpstrx, m=nbas*(lxx+1)**2, n=ngc, k=nbas*(lxx+1)**2, opA=m_op_T, opB=m_op_C)
       !$acc end data
