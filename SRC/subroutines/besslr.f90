@@ -73,7 +73,7 @@ subroutine bessl(y,lmax,fi,gi)! Spherical Bessel  and  Neumann Hankel functions
   enddo
   do  k = 0, lmax ! --- Get fi and gi from dum ---
     fi(k) = dum(lmx+1-k)
-   enddo
+  enddo
  
   !--- gi parts --------------------------   
   if( y>=0d0 )then

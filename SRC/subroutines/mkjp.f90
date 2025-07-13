@@ -150,7 +150,7 @@ contains
       ! get integral coefficients of int (a*b) G_1(ir) G_2(ir) exp(a*r))
       ! simpson rule is used. nr(ibas) was set as odd number
       ! sigx_tmp(ig1,ig2,l,ibas) is int dr (aa(ibas)*bb(ibas)) a1g(r,g1)* ajr(r,l,ibas,g2) exp(aa(ibas)*r))
-      write(aaaw,ftox) " vcoulq_4: goto igig PvP procid ngc lxx nrx=", mpi__rank,ngc,lxx,nrx
+      write(aaaw,ftox) " vcoulq_4: goto PvP procid ngc lxx nrx=", mpi__rank,ngc,lxx,nrx
       call cputm(stdo,aaaw)
       fac_integral(1:nrx,1:nbas) = 0d0
       do ibas = 1, nbas
@@ -171,6 +171,8 @@ contains
           enddo
         enddo
       enddo
+      write(aaaw,ftox) " vcoulq_4: goto igig loop", mpi__rank
+      call cputm(stdo,aaaw)
       lm2x= (lxx+1)**2
       igigLoopSlow: do ibas= 1, nbas
         do ig = 1, ngc
