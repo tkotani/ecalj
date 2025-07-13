@@ -152,7 +152,15 @@ contains
       ! sigx_tmp(ig1,ig2,l,ibas) is int dr (aa(ibas)*bb(ibas)) a1g(r,g1)* ajr(r,l,ibas,g2) exp(aa(ibas)*r))
       write(aaaw,ftox) " vcoulq_4: goto PvP procid ngc lxx nrx=", mpi__rank,ngc,lxx,nrx
       call cputm(stdo,aaaw)
-      fac_integral(1:nrx,1:nbas) = 0d0
+      
+      rojpstrx = 0d0
+      do ig1 = 1,ngc
+        crojp(1:(lxx+1)**2,1:nbas) = dconjg(rojp(ig1,1:(lxx+1)**2,1:nbas))
+        istat = zmv_h(strx, crojp, rojpstrx(1,1,ig1), m=nbas*(lxx+1)**2, n=nbas*(lxx+1)**2, opA=m_op_T)
+        !  rojpstrx(lm2, ibas2) = rojpstrx(lm2, ibas2)+ dconjg(rojp(ig1, lm1, ibas1)) *strx(lm1,ibas1,lm2,ibas2)
+     enddo
+
+     fac_integral(1:nrx,1:nbas) = 0d0
       do ibas = 1, nbas
         fac_integral(1,ibas) = aa(ibas)*bb(ibas)/3d0
         do ir = 2, nr(ibas) 
@@ -160,17 +168,14 @@ contains
         enddo
         forall(ir=2:nr(ibas)-1) fac_integral(ir,ibas) = fac_integral(ir,ibas)*merge(4d0,2d0,mod(ir,2)==0)
       enddo
-      rojpstrx = 0d0
       do ig1 = 1,ngc
-        crojp(1:(lxx+1)**2,1:nbas) = dconjg(rojp(ig1,1:(lxx+1)**2,1:nbas))
-        istat = zmv_h(strx, crojp, rojpstrx(1,1,ig1), m=nbas*(lxx+1)**2, n=nbas*(lxx+1)**2, opA=m_op_T)
-        !  rojpstrx(lm2, ibas2) = rojpstrx(lm2, ibas2)+ dconjg(rojp(ig1, lm1, ibas1)) *strx(lm1,ibas1,lm2,ibas2)
         do ibas2= 1, nbas
           do lm2=1,(lx(ibas2)+1)**2
             pjyl_p(lm2,ig1,ibas2)=pjyl_(lm2,ig1)*phase(ig1,ibas2)
           enddo
         enddo
       enddo
+     
       write(aaaw,ftox) " vcoulq_4: goto igig loop", mpi__rank
       call cputm(stdo,aaaw)
       lm2x= (lxx+1)**2
