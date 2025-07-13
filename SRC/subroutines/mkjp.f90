@@ -4,6 +4,8 @@ module  m_vcoulq
   use m_lgunit,only: stdo
   use m_ftox
   public vcoulq_4,mkjb_4,mkjp_4,genjh
+  private
+  character(1024):: aaaw
 contains
   subroutine vcoulq_4(q,nbloch,ngc,nbas,lx,lxx,nx,nxx,alat,qlat,vol,ngvecc, & !Coulmb matrix for each q
        strx,rojp,rojb,sgbb,sgpb,fouvb,ngb,bas,rmax, eee, aa,bb,nr,nrx,rkpr,rkmr,rofi,    vcoul)
@@ -51,10 +53,8 @@ contains
     complex(8) :: xxx, img=(0d0,1d0), fouvp_ig1_ig2, fouvp_ig2_ig1, sgpp_ig1_ig2
     integer :: istat,lm2x
     integer,allocatable :: llx(:)
-    character(1024):: aaaw
-    call cputm(stdo,'starting vcoutm')
-    write(stdo,'(" vcoulq_4: ngb  nbloch ngc procid=",3i6)') ngb,nbloch,ngc,mpi__rank
-    call flush(stdo)
+    write(aaaw,'(" vcoulq_4: ngb  nbloch ngc nrx procid=",5i6)') ngb,nbloch,ngc,nrx,mpi__rank
+    call cputm(stdo,aaaw)
     fpivol = 4*pi*vol
     allocate( pjyl_((lxx+1)**2,ngc),pjyl_p((lxx+1)**2,ngc,nbas),phase(ngc,nbas),source=(0d0,0d0) )
     allocate( cy((lxx+1)**2), yl((lxx+1)**2),source=0d0)
@@ -109,76 +109,48 @@ contains
         if(ibas1==ibas2.AND.lm1==lm2) vcoul(ibl1,ibl2) = vcoul(ibl1,ibl2) + sgbb(n1,n2,l1, ibas1) ! sigma-type onsite parts
       enddo
     enddo BvB
-    write(aaaw,ftox)'vcoulq_4: goto PvB procid=', mpi__rank
-    call cputm(stdo,aaaw)
     ! <P_G|v|B>
     PvB_dev_mo:block
+      write(aaaw,ftox)'vcoulq_4: goto PvB procid=', mpi__rank
+      call cputm(stdo,aaaw)
       PvB2: block
         complex(8) :: strxx(1:(lxx+1)**2,1:nbas,nbloch)
-        complex(8) :: crojp_ibas(ngc,(lxx+1)**2,nbas),alpha
+        complex(8) :: crojp_ibas(ngc,(lxx+1)**2,nbas)
         crojp_ibas(1:ngc,1:(lxx+1)**2,1:nbas) = dconjg(rojp(1:ngc,1:(lxx+1)**2, 1:nbas))
         do ibl2=1,nbloch
-           strxx(1:(lxx+1)**2,1:nbas,ibl2) = - strx(1:(lxx+1)**2,1:nbas,lmbl(ibl2),ibasbl(ibl2)) * rojb(nbl (ibl2),lbl (ibl2),ibasbl(ibl2))
+           strxx(:,:,ibl2)= -strx(:,:,lmbl(ibl2),ibasbl(ibl2)) * rojb(nbl (ibl2),lbl (ibl2),ibasbl(ibl2))
         enddo
-        do ibl2= 1, nbloch
-           istat = zmv_h(crojp_ibas, &
-                strxx(1:(lxx+1)**2,1:nbas,ibl2), vcoul(nbloch+1,ibl2), m=ngc, n=(lxx+1)**2*nbas, alpha=(1d0,0d0),beta=(1d0,0d0))   !punch out offsite part
-        enddo
+        associate(vcounn=>vcoul(nbloch+1:ngb,1:nbloch))
+          !$acc data copyin(crojp_ibas, strxx) copyout(vcounn)
+          istat = zmm(crojp_ibas, strxx,  vcoul(nbloch+1,1), m=ngc, n=nbloch, k=(lxx+1)**2*nbas,LdC=ngb) !not LdC is needed
+          !$acc end data
+        endassociate  
       endblock PvB2
       PvB: do ibl2= 1, nbloch
         ibas2= ibasbl(ibl2)
         n2   = nbl (ibl2)
         l2   = lbl (ibl2)
-        m2   = mbl (ibl2)
         lm2  = lmbl(ibl2)
-        vcoul(nbloch+1:nbloch+ngc,ibl2) = vcoul(nbloch+1:nbloch+ngc,ibl2) &
-             +fouvb(1:ngc,  n2, lm2, ibas2) - sgpb(1:ngc, n2, lm2, ibas2)   !<exp(i(q+G)r)|v|B_n2L2> !punch out onsite part
+        !m2   = mbl (ibl2)
+        vcoul(     nbloch+1:nbloch+ngc,ibl2) =&
+             vcoul(nbloch+1:nbloch+ngc,ibl2) &
+             +fouvb(1:ngc, n2, lm2, ibas2) - sgpb(1:ngc, n2, lm2, ibas2)   !<exp(i(q+G)r)|v|B_n2L2> !punch out onsite part
       enddo PvB
-     ! PvB2:block
-     !   complex(8)::strxx(1:(lxx+1)**2,1:nbas,nbloch)
-     !   crojp_ibas(1:ngc,1:(lxx+1)**2,1:nbas) = dconjg(rojp(1:ngc,1:(lxx+1)**2, 1:nbas))
-     !   do ibl2=1,nbloch
-     !      strxx(1:(lxx+1)**2,1:nbas,ibl2) = - strx(1:(lxx+1)**2,1:nbas,lmbl(ibl2),ibasbl(ibl2)) * rojb(nbl (ibl2),lbl (ibl2),ibasbl(ibl2))
-     !   enddo
-     ! !$acc data copyin(crojp_ibas, strxx) copyout(vcoul(nbloch+1:ngb,1:nbloch))
-     !   istat = zmm(crojp_ibas, strxx,  vcoul(nbloch+1,1), m=ngc, n=nbloch, k=(lxx+1)**2*nbas)   !punch out offsite part
-     ! !$acc end data
-     ! endblock PvB2
-!      enddo PvB2
-     ! PvB2: do ibl2= 1, nbloch
-     !     crojp_ibas(1:ngc,1:(lxx+1)**2,1:nbas) = dconjg(rojp(1:ngc,1:(lxx+1)**2, 1:nbas))
-     !     istat = zmv_h(crojp_ibas, &
-     !           -strx(1:(lxx+1)**2,1:nbas,lmbl(ibl2),ibasbl(ibl2)) * rojb(nbl (ibl2),lbl (ibl2),ibasbl(ibl2)),&
-     !           vcoul(nbloch+1,ibl2), m=ngc, n=(lxx+1)**2*nbas, alpha=(1d0,0d0),beta=(1d0,0d0))   !punch out offsite part
-     !  enddo PvB2
-      ! do ig1 = 1,ngc
-      !   ipl1 = nbloch + ig1
-      !   vcoul(ipl1,ibl2) = fouvb(ig1,  n2, lm2, ibas2) !<exp(i(q+G)r)|v|B_n2L2>
-      !   do ibas1= 1, nbas
-      !     do lm1  = 1, (lx(ibas1)+1)**2
-      !       vcoul(ipl1,ibl2)=vcoul(ipl1,ibl2) - dconjg(rojp(ig1,lm1,ibas1))*strx(lm1,ibas1,lm2,ibas2)*rojb(n2, l2, ibas2) !punch out offsite part
-      !       if(ibas1==ibas2.AND.lm1==lm2)  vcoul(ipl1,ibl2) = vcoul(ipl1,ibl2) - sgpb(ig1, n2, lm2, ibas2)                !punch out onsite part
-      !     enddo
-      !   enddo
-      ! enddo
     endblock PvB_dev_mo
     ! <P_G|v|P_G>
-    write(aaaw,ftox) " vcoulq_4: goto PvP procid=", mpi__rank
-    call cputm(stdo,aaaw)
     PvP_dev_mo: block
       real(8) :: fac_integral(nrx,nbas), sigx_tmp(ngc,ngc,0:lxx), a1g(nrx,ngc)
       real(8) :: ajr_tmp(nrx,ngc), phi_rg(nrx,ngc,0:lxx), rofi_tmp(1:nrx) !  complex(8) :: crojp((lxx+1)**2,nbas,ngc)
       complex(8) :: rojpstrx((lxx+1)**2,nbas,ngc)
-      ! get integral coefficients of int (a*b) G_1(ir) G_2(ir) exp(a*r))
+      ! Get integral coefficients of int (a*b) G_1(ir) G_2(ir) exp(a*r))
       ! simpson rule is used. nr(ibas) was set as odd number
-      ! sigx_tmp(ig1,ig2,l,ibas) is int dr (aa(ibas)*bb(ibas)) a1g(r,g1)* ajr(r,l,ibas,g2) exp(aa(ibas)*r))
+      !   sigx_tmp(ig1,ig2,l) is int dr (aa(ibas)*bb(ibas)) a1g(r,g1)* ajr(r,l,ibas,g2) exp(aa(ibas)*r))
       write(aaaw,ftox) " vcoulq_4: goto PvP procid ngc lxx nrx=", mpi__rank,ngc,lxx,nrx
       call cputm(stdo,aaaw)
       !$acc data copyin(strx, rojp) copyout(rojpstrx)
       istat = zmm(strx, rojp, rojpstrx, m=nbas*(lxx+1)**2, n=ngc, k=nbas*(lxx+1)**2, opA=m_op_T, opB=m_op_C)
       !$acc end data
       !    rojpstrx(lm2, ibas2) = rojpstrx(lm2, ibas2)+ dconjg(rojp(ig1, lm1, ibas1)) *strx(lm1,ibas1,lm2,ibas2)
-
       fac_integral(1:nrx,1:nbas) = 0d0
       do ibas = 1, nbas
         fac_integral(1,ibas) = aa(ibas)*bb(ibas)/3d0
@@ -194,7 +166,6 @@ contains
           enddo
         enddo
       enddo
-     
       write(aaaw,ftox) " vcoulq_4: goto igig loop", mpi__rank
       call cputm(stdo,aaaw)
       lm2x= (lxx+1)**2
@@ -230,19 +201,6 @@ contains
           enddo
         enddo
       enddo igigLoopSlow
-      ! do ibas= 1, nbas  
-      !   vcoul(ipl1,ipl2) = vcoul(ipl1,ipl2) +  &
-      !   sum( rojpstrx(1:lm2x,ibas,ig1)*rojp(ig2, 1:lm2x, ibas) &
-      !   + dconjg(pjyl_p(1:lm2x,ig1,ibas))*pjyl_p(1:lm2x,ig2,ibas) * ( (fpi/(absqg2(ig1)-eee)+fpi/(absqg2(ig2)-eee)) * fjj(llx(1:lm2x),ibas) + radsig(llx(1:lm2x),ibas) ) )
-      !   ! do lm2  = 1, (lx(ibas)+1)**2
-      !   !   l= ll(lm2)
-      !   !   fouvp_ig1_ig2= fpi/(absqg2(ig1)-eee)*dconjg(pjyl_p(lm2,ig1,ibas))* (-fjj(l))*pjyl_p(lm2,ig2,ibas)
-      !   !   fouvp_ig2_ig1= fpi/(absqg2(ig2)-eee)*dconjg(pjyl_p(lm2,ig2,ibas))* (-fjj(l))*pjyl_p(lm2,ig1,ibas)
-      !   !   sgpp_ig1_ig2 =                       dconjg(pjyl_p(lm2,ig1,ibas))* radsig(l)*pjyl_p(lm2,ig2,ibas)
-      !   !   vcoul(ipl1,ipl2) = vcoul(ipl1,ipl2) +  rojpstrx(lm2,ibas,ig1)*rojp(ig2, lm2, ibas) &
-      !   !        -  dconjg( fouvp_ig2_ig1 ) - fouvp_ig1_ig2  +  sgpp_ig1_ig2
-      !   ! enddo
-      ! enddo
       forall(ig1 = 1:ngc) vcoul(nbloch + ig1,nbloch + ig1) = vcoul(nbloch + ig1,nbloch + ig1) +fpivol/(absqg2(ig1) -eee) !eee is negative
     endblock PvP_dev_mo
     RightUpperPartOFvcoul: do ipl1=1, nbloch+ngc
@@ -341,6 +299,8 @@ contains
       enddo
     enddo 
     ! rojp
+    write(aaaw,ftox)' mkjp_4: goto rojploop'
+    call cputm(stdo,aaaw)
     rojp = (0d0, 0d0)
     rojploop: do ig1 = 1,ngc
       call wronkj( absqg(ig1)**2, eee, rmax,lx, fkk,fkj,fjk,fjj)
@@ -363,10 +323,10 @@ contains
       do ig1 = 1,ngc
         call sigintAn1( absqg(ig1), lx, rofi, nr,a1(1:nr, 0:lx,ig1) )
       enddo
-      !      else
-      ! We need to implement a version of sigintAn1 to treat eee/=0 case...
+      !      else       ! We need to implement a version of sigintAn1 to treat eee/=0 case...
     endif
-    if(ipr) write(stdo,ftox)' mkjp_4: sgpb dev block. size of ajr:', size(ajr)
+    write(aaaw,ftox)' mkjp_4: goto dev_mo block. size of ajr:', size(ajr)
+    call cputm(stdo,aaaw)
     dev_mo: block
 #ifdef __GPU
     use m_blas, only: dmv => dmv_d, m_op_T
@@ -408,7 +368,7 @@ contains
         enddo
       enddo
       fouvb=0d0
-      if(ipr) write(stdo,ftox)' mkjp_4: fouvb dev block'
+!      if(ipr) write(stdo,ftox)' mkjp_4: fouvb dev block'
       do ig1 = 1, ngc
         do l = 0, lx
           a1g(1:nr,ig1,l) = ajr(1:nr,l,ig1)*fac_integral(1:nr)

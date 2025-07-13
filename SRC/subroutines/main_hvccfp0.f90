@@ -256,7 +256,8 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
     if(imode==202 .AND. abs(sum(q))<1d-8) cycle
     call readqg('QGcou',q,  quu,ngc, ngvecc ) !Get q+G vector
     ngb = nbloch + ngc  
-    write(stdo,'(" do 1001: iq nqibz q ngc =",2i5,3f10.4,i5)') iqx,nqibz,q,ngc
+    write(aaaw,'(" do 1001: iq nqibz q ngc =",2i5,3f10.4,i5)') iqx,nqibz,q,ngc
+    call cputm(stdo,aaaw)
     allocate( strx(nlxx,nbas,nlxx,nbas), source = (0d0,0d0)) !! strxq: structure factor.
     do ibas1 =1,nbas
       do ibas2 =1,nbas
@@ -271,6 +272,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
       enddo
     enddo
 
+    call cputm(stdo,' : goto qdepenentRadialIntegral')
     qdependentRadialIntegrals:block
       allocate( rojp(ngc, nlxx, nbas), sgpb(ngc, nxx, nlxx, nbas), fouvb(ngc, nxx, nlxx, nbas))
       do ibas = 1,nbas 
