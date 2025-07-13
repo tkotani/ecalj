@@ -81,4 +81,4 @@ module m_gpu
 #endif
   end subroutine
 
-end module
+end module m_gpu

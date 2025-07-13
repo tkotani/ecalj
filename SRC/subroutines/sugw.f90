@@ -553,8 +553,8 @@ contains
         deallocate(phovl) 
         if(debug) call cputid(0)
         if(debug) write (stdo,"('endof GEIGpart q ndimh=',3f10.5,i10,' procid=',i10)") qp, ndimh,procid
+        if(debug) call check_memory_gpu("End of GEIG")
       endblock
-      if(debug) call check_memory_gpu("End of GEIG")
       endif GEIGpart
       VXCmat: block
         allocate(testcc(1:nev,ndimhx),source=matmul(transpose(dconjg(evec(:,1:nev))),reshape(vxc,[ndimhx,ndimhx])))
