@@ -315,17 +315,12 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
 #endif
       integer :: istat
       nev = ngb
-      if(debug) then
-        allocate(hh,source=vcoul)
-      else
-        hh => vcoul
-      endif  
-      hh=-hh ! trick to get decendent order of eigenvalues by zhgv.
-      !$acc data copyin(oo) copy(hh) copyout(eb)
-      istat = zhgv(hh, oo, ngb, eb)
+      vcoul=-vcoul ! trick to get decendent order of eigenvalues by zhgv.
+      !$acc data copyin(vcoul) copy(oo) copyout(eb)
+      istat = zhgv(vcoul, oo, ngb, eb)
       !$acc end data
       deallocate(oo)
-      zz => hh
+      zz => vcoul
     endblock Diagonalize_Coulomb_matrix
     Chkwriteeb: do ipl1=1,ngb
       if(ipl1==1 .and.ipr) write(6,*)' --- goto eigen check1 --- '
