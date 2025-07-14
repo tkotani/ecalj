@@ -1,3 +1,43 @@
+module m_cputm
+  contains
+subroutine cputm(ifilein,aaa) ! ifilein = file number ==> screen (id=6)
+  use m_lgunit,only:stdo
+  use m_mpi,only: ipr
+  use mpi
+  use m_ftox
+  implicit none
+  real(8) :: cpuetime, etw(2),cpulast, etime
+  real(8) :: cpu0=-1d0
+  character*(*),optional:: aaa
+  save cpu0
+  real(8):: cpusec,cpumax,cpumin
+  integer:: ierr,rank ,ifile,ifilein
+  logical,save::firsttime=.true.
+  integer,save::i1
+  integer:: i2,irate,imax
+  real(8)::diff
+  character(1024)::aaax
+  ifile = merge(ifilein,stdo,ifilein/=0)
+  if (firsttime) then
+     call system_clock(i1)
+     firsttime=.false.
+     cpusec=0d0
+     cpumin=0d0
+  else
+     call system_clock(i2,irate,imax)
+     diff=i2-i1
+     if (diff<0) diff=imax-i1+i2
+     diff=diff/dble(irate)
+     cpusec=diff
+     cpumin=cpusec/60.d0
+  endif
+  aaax=''
+  if(present(aaa)) aaax=aaa
+  write(ifile,ftox)'CPU:',cpusec,'s=',cpumin,'min',trim(aaax)
+  flush(ifile)
+end subroutine cputm
+end module m_cputm
+
 subroutine cputid(ifilein) ! ifilein = file number ==> screen (id=6)
   use m_lgunit,only:stdo
   use m_mpi,only: ipr
@@ -29,43 +69,6 @@ subroutine cputid(ifilein) ! ifilein = file number ==> screen (id=6)
   write(ifile,"(' CPU: ',f12.4,' secs = ',f7.1,' mins.')")cpusec,cpumin
   flush(ifile)
 end subroutine cputid
-
-module m_cputm
-  contains
-subroutine cputm(ifilein,aaa) ! ifilein = file number ==> screen (id=6)
-  use m_lgunit,only:stdo
-  use m_mpi,only: ipr
-  use mpi
-  implicit none
-  real(8) :: cpuetime, etw(2),cpulast, etime
-  real(8) :: cpu0=-1d0
-  character*(*),optional:: aaa
-  save cpu0
-  real(8):: cpusec,cpumax,cpumin
-  integer:: ierr,rank ,ifile,ifilein
-  logical,save::firsttime=.true.
-  integer,save::i1
-  integer:: i2,irate,imax
-  real(8)::diff
-  ifile = merge(ifilein,stdo,ifilein/=0)
-  if (firsttime) then
-     call system_clock(i1)
-     firsttime=.false.
-     cpusec=0.0d0
-     cpumin=0.0d0
-  else
-     call system_clock(i2,irate,imax)
-     diff=i2-i1
-     if (diff<0) diff=imax-i1+i2
-     diff=diff/dble(irate)
-     cpusec=diff
-     cpumin=cpusec/60.d0
-  endif
-  if(present(aaa))      write(ifile,"('  CPU: ',f12.4,' secs = ',f7.1,' mins. ',a)")cpusec,cpumin,trim(aaa)
-  if(.not.present(aaa)) write(ifile,"('  CPU: ',f12.4,' secs = ',f7.1,' mins.')")cpusec,cpumin
-  flush(ifile)
-end subroutine cputm
-end module m_cputm
 
 subroutine cpudel(unit,strn,delt)  !- incremental cup time, in seconds
   ! ----------------------------------------------------------------------

@@ -273,7 +273,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
       enddo
     enddo
 
-    call cputm(stdo,' : goto qdepenentRadialIntegral')
+    call cputm(stdo,'goto mkjp_4')
     qdependentRadialIntegrals:block
       allocate( rojp(ngc, nlxx, nbas), sgpb(ngc, nxx, nlxx, nbas), fouvb(ngc, nxx, nlxx, nbas))
       do ibas = 1,nbas 
@@ -283,7 +283,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
       enddo! rojp=<j(e=0)_L|exp(i(q+G)r)>, sgpb=<exp(i(q+G)r)|v(onsite)|B_nL>, fouvb=<exp(i(q+G)r)|v|B_nL>
     endblock qdependentRadialIntegrals
 
-    write(aaaw,ftox)'starting vcoulq_4 for iqx=',iqx,' q=',q(1:3),' ngc=',ngc,' nbas=',nbas,' lx=',lxx,' nx=',nxx,'procid=',mpi__rank
+    write(aaaw,ftox)'start vcoulq_4 for iqx=',iqx,' q=',ftof(q(1:3),4),' ngc=',ngc,' nbas=',nbas,' lx=',lxx,' nx=',nxx,'procid=',mpi__rank
     call cputm(stdo,aaaw)
     
     allocate( vcoul(ngb,ngb), source=(0d0,0d0) )
@@ -294,19 +294,18 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
     
     write(aaaw,ftox)'end of vcoulq_4 for iqx=',iqx,' q=',q(1:3),' ngc=',ngc,' nbas=',nbas,' lx=',lxx,' nx=',nxx,'procid=',mpi__rank
     call cputm(stdo,aaaw)
-    
-    if(ipr) write(6,'(" vcoul trwi=",i6,2d22.14)') iqx,sum([(vcoul(i,i),i=1,nbloch)])
-    if(ipr) write(6,'("### sum vcoul(1:ngb,      1:ngb) ",2d22.14,2x,d22.14)') sum(vcoul), sum(abs(vcoul))
-    if(ipr) write(6,'("### sum vcoul(1:nbloch,1:nbloch) ",2d22.14,2x,d22.14)') sum(vcoul(1:nbloch,1:nbloch)),sum(abs(vcoul(1:nbloch,1:nbloch)))
-    if(ipr) write(6,*)
-
+    if(debug) then
+       write(stdo,'(" vcoul trwi=",i6,2d22.14)') iqx,sum([(vcoul(i,i),i=1,nbloch)])
+       write(stdo,'("### sum vcoul(1:ngb,      1:ngb) ",2d22.14,2x,d22.14)') sum(vcoul), sum(abs(vcoul))
+       write(stdo,'("### sum vcoul(1:nbloch,1:nbloch) ",2d22.14,2x,d22.14)') sum(vcoul(1:nbloch,1:nbloch)),sum(abs(vcoul(1:nbloch,1:nbloch)))
+       write(stdo,*)
+    endif
     allocate( oo(ngb,ngb)  ,source=(0d0,0d0))
     forall(ipl1=1:nbloch) oo(ipl1,ipl1) = 1d0
     ppovl => oo(nbloch+1:ngb,nbloch+1:ngb) !ppovl is a part of oo
     call mkppovl2(alat,plat,qlat, ngc,  ngvecc, ngc,  ngvecc, nbas, rmax, bas, ppovl)
     call cputm(stdo,' end of mkppovl2')
 
-    allocate(eb(ngb))
     Diagonalize_Coulomb_matrix: block
 #ifdef __GPU
       use m_lapack, only: zhgv => zhgv_d
@@ -314,6 +313,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
       use m_lapack, only: zhgv => zhgv_h
 #endif
       integer :: istat
+      allocate(eb(ngb))
       nev = ngb
       vcoul=-vcoul ! trick to get decendent order of eigenvalues by zhgv.
       !$acc data copyin(vcoul) copy(oo) copyout(eb)
