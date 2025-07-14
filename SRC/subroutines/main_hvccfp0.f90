@@ -53,7 +53,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
   real(8),external::screenfac
   complex(8),allocatable,target :: oo(:,:)
   complex(8),allocatable,target :: vcoul(:,:) !,hh(:,:),zz(:,:)
-  complex(8),pointer:: ppovl(:,:),zz(:,:),hh(:,:)
+  complex(8),pointer:: ppovl(:,:),zz(:,:)
   call MPI__Initialize()
   call gpu_init(comm) 
   call M_lgunit_init()
@@ -75,7 +75,6 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
   call Read_bzdata()
   call readngmx('QGcou',ngcmx)
   voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
-  allocate(ngvecc(3,ngcmx))
   call ReadGWinputKeys() !Readin dataset in GWinput
   ReadinBASFP:block
     allocate(lx(nbas),kmx(nbas),nblocha(nbas),nr(nbas),aa(nbas),bb(nbas),ificrb(nbas),rmax(nbas) )
@@ -255,6 +254,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
     else;                q= q0i(1:3,iqx-nqibz)
     endif
     if(imode==202 .AND. abs(sum(q))<1d-8) cycle
+    allocate(ngvecc(3,ngcmx))
     call readqg('QGcou',q,  quu,ngc, ngvecc ) !Get q+G vector
     ngb = nbloch + ngc  
     write(aaaw,'(" do 1001: iq nqibz q ngc =",2i5,3f10.4,i5)') iqx,nqibz,q,ngc
@@ -273,26 +273,25 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
       enddo
     enddo
 
-    call cputm(stdo,'goto mkjp_4')
     qdependentRadialIntegrals:block
       allocate( rojp(ngc, nlxx, nbas), sgpb(ngc, nxx, nlxx, nbas), fouvb(ngc, nxx, nlxx, nbas))
-      do ibas = 1,nbas 
+      do ibas = 1,nbas
+        write(aaaw,ftox)'mkjp_4 ibas=',ibas
+        call cputm(stdo,aaaw)
         call mkjp_4(q,ngc, ngvecc, alat, qlat, lxx, lx(ibas),nxx, nx(0:lxx,ibas), bas(1,ibas),aa(ibas),bb(ibas),rmax(ibas), &
              nr(ibas), nrx, rprodx(1,1,0,ibas), eee, rofi(1,ibas), rkpr(1,0,ibas), rkmr(1,0,ibas), &
              rojp(1,1,ibas),               sgpb(1,1,1,ibas),                   fouvb(1,1,1,ibas)) 
       enddo! rojp=<j(e=0)_L|exp(i(q+G)r)>, sgpb=<exp(i(q+G)r)|v(onsite)|B_nL>, fouvb=<exp(i(q+G)r)|v|B_nL>
     endblock qdependentRadialIntegrals
 
-    write(aaaw,ftox)'start vcoulq_4 for iqx=',iqx,' q=',ftof(q(1:3),4),' ngc=',ngc,' nbas=',nbas,' lx=',lxx,' nx=',nxx,'procid=',mpi__rank
+    write(aaaw,ftox)'start vcoulq_4 for iqx=',iqx,'q=',ftof(q(1:3),4),' ngc=',ngc,' nbas=',nbas,' lx=',lxx,' nx=',nxx,'procid=',mpi__rank
     call cputm(stdo,aaaw)
-    
     allocate( vcoul(ngb,ngb), source=(0d0,0d0) )
     call vcoulq_4(q, nbloch, ngc, nbas, lx,lxx, nx,nxx, alat, qlat, voltot, ngvecc, strx, rojp,rojb, sgbb,sgpb, fouvb, ngb, &
          bas,rmax, eee, aa,bb,nr,nrx,rkpr,rkmr,rofi, &
          vcoul) !the Coulomb matrix
-    deallocate( strx, rojp,sgpb,fouvb)
-    
-    write(aaaw,ftox)'end of vcoulq_4 for iqx=',iqx,' q=',q(1:3),' ngc=',ngc,' nbas=',nbas,' lx=',lxx,' nx=',nxx,'procid=',mpi__rank
+    deallocate( strx,rojp,sgpb,fouvb)
+    write(aaaw,ftox)'end of vcoulq_4 for iqx=',iqx,'procid=',mpi__rank
     call cputm(stdo,aaaw)
     if(debug) then
        write(stdo,'(" vcoul trwi=",i6,2d22.14)') iqx,sum([(vcoul(i,i),i=1,nbloch)])
@@ -304,21 +303,30 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
     forall(ipl1=1:nbloch) oo(ipl1,ipl1) = 1d0
     ppovl => oo(nbloch+1:ngb,nbloch+1:ngb) !ppovl is a part of oo
     call mkppovl2(alat,plat,qlat, ngc,  ngvecc, ngc,  ngvecc, nbas, rmax, bas, ppovl)
+    deallocate(ngvecc)
     call cputm(stdo,' end of mkppovl2')
-
+    nullify(ppovl)
     Diagonalize_Coulomb_matrix: block
 #ifdef __GPU
       use m_lapack, only: zhgv => zhgv_d
+      use m_gpu,only: Amem_gpu
 #else
       use m_lapack, only: zhgv => zhgv_h
+      real(8):: Amem_gpu=1d10
 #endif
       integer :: istat
       allocate(eb(ngb))
       nev = ngb
       vcoul=-vcoul ! trick to get decendent order of eigenvalues by zhgv.
-      !$acc data copyin(vcoul) copy(oo) copyout(eb)
-      istat = zhgv(vcoul, oo, ngb, eb)
-      !$acc end data
+      do
+        if( Amem_gpu> size(vcoul)+size(oo)+size(eb)) then
+          !$acc data copy(vcoul) copy(oo) copyout(eb)
+          istat = zhgv(vcoul, oo, ngb, eb)
+          !$acc end data
+          exit
+        endif
+        call execute_command_line('sleep 3')
+      enddo
       deallocate(oo)
       zz => vcoul
     endblock Diagonalize_Coulomb_matrix
@@ -353,10 +361,10 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
     write(ifvcoud) -eb
     write(ifvcoud) zz !=Enu
     close(ifvcoud)
+    nullify(zz)
     deallocate(eb,vcoul)
     call cputm(stdo,' end of do 1001')
 1001 enddo mainforiqx
-  deallocate(ngvecc)
   call cputm(stdo,'end of hvccfp0')
   if(imode==202) call rx0( ' OK! hvccfp0 imode=202 only for Q0P')
   if(imode==0)   call rx0( ' OK! hvccfp0 imode=0')

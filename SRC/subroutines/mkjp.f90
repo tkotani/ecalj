@@ -111,7 +111,7 @@ contains
     enddo BvB
     ! <P_G|v|B>
     PvB_dev_mo:block
-      write(aaaw,ftox)'vcoulq_4: goto PvB procid=', mpi__rank
+      write(aaaw,ftox)' vcoulq_4: goto PvB procid=', mpi__rank
       call cputm(stdo,aaaw)
       PvB2: block
         complex(8) :: strxx(1:(lxx+1)**2,1:nbas,nbloch)

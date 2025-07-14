@@ -33,7 +33,7 @@ subroutine cputm(ifilein,aaa) ! ifilein = file number ==> screen (id=6)
   endif
   aaax=''
   if(present(aaa)) aaax=aaa
-  write(ifile,ftox)'CPU:',cpusec,'s=',cpumin,'min',trim(aaax)
+  write(ifile,ftox)'CPU:',ftof(cpusec,2),'s=',ftof(cpumin,1),'min',trim(aaax)
   flush(ifile)
 end subroutine cputm
 end module m_cputm

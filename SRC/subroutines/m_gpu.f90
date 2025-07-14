@@ -1,8 +1,9 @@
 module m_gpu
   implicit none
-  public :: gpu_init, check_memory_gpu, use_gpu
+  public :: gpu_init, check_memory_gpu, use_gpu, Amem_gpu
   logical, protected :: use_gpu = .false.
   private
+  integer :: procid, nsize
   contains
   
   subroutine gpu_init(comm)
@@ -15,7 +16,6 @@ module m_gpu
     integer, intent(in) :: comm
     integer :: mpi_status(mpi_status_size)
     integer :: ierr, ndevs, ndevs_tmp, mydev_tmp, hostid_tmp, i, hostid, nlocal_procs, ilocal_rank, mydev
-    integer :: procid, nsize
     integer, allocatable :: hostids(:), rankids(:)
     logical :: cmdopt0
     interface
@@ -81,4 +81,25 @@ module m_gpu
 #endif
   end subroutine
 
+  real(8) function Amem_gpu() !Available memory in GPU
+#ifdef __GPU
+    use cudafor
+#endif
+    character(len=1024) :: cmd
+    integer :: ierr,ifi
+    character(256):: temp
+    character(8),external:: xt
+    Amem_GPU =1d10
+#ifdef __GPU
+    ierr = cudadevicesynchronize()
+    temp= 'tempmemgpu'//xt(procid)
+    cmd = 'nvidia-smi --query-gpu=memory.free --format=csv >'//trim(temp)
+    call execute_command_line(cmd)
+    open(newunit=ifi,file=temp)
+    read(ifi,*)
+    read(ifi,*) Amem_gpu
+    close(ifi)
+#endif
+  end function Amem_gpu
+ 
 end module m_gpu
