@@ -1,20 +1,21 @@
 module m_gpu
-  use m_mpi, only: comm, nsize=>mpi__size, procid=>mpi__rank
   implicit none
   public :: gpu_init, check_memory_gpu, use_gpu
   logical, protected :: use_gpu = .false.
   private
-  include "mpif.h"
   contains
   
-  subroutine gpu_init
+  subroutine gpu_init(comm)
 #ifdef __GPU
     use openacc
 #endif
     use iso_c_binding
+    use mpi
     implicit none
+    integer, intent(in) :: comm
     integer :: mpi_status(mpi_status_size)
     integer :: ierr, ndevs, ndevs_tmp, mydev_tmp, hostid_tmp, i, hostid, nlocal_procs, ilocal_rank, mydev
+    integer :: procid, nsize
     integer, allocatable :: hostids(:), rankids(:)
     logical :: cmdopt0
     interface
@@ -25,6 +26,8 @@ module m_gpu
     end interface
 
 #ifdef __GPU
+    call mpi_comm_rank(comm, procid, ierr)
+    call mpi_comm_size(comm, nsize, ierr)
     allocate(hostids(nsize), source = 0)
     allocate(rankids(nsize), source = 0)
     hostid = gethostid()
@@ -41,7 +44,7 @@ module m_gpu
     use_gpu = .true.
     call acc_set_device_num(mydev, acc_device_nvidia)
     call acc_init(acc_device_nvidia)
-    call check_memory_gpu("gpu_init")
+    ! call check_memory_gpu("gpu_init")
 
     if (procid == 0) then
       write(06,'(a,i6,x,2(a,i3),a,i12)') "i_procs:", procid, "gpuid:", mydev, "/", ndevs, " hostid:", hostid
@@ -78,4 +81,4 @@ module m_gpu
 #endif
   end subroutine
 
-end module
+end module m_gpu

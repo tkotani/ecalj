@@ -14,7 +14,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
   use m_hamindex0,only:    Readhamindex0
   use m_read_bzdata,only: Read_bzdata, ginv,nqbz,qbz,nqibz,qibz,nq0i,wqt=>wt,q0i,nq0iadd
   use m_readqg,only:   readqg,readngmx
-  use m_mpi,only: MPI__Initialize,mpi__root, MPI__Broadcast,mpi__rank,mpi__size,MPI__consoleout,ipr !,mpi__iend,mpi__iini !,mpi__getrange
+  use m_mpi,only: MPI__Initialize,mpi__root, MPI__Broadcast,mpi__rank,mpi__size,MPI__consoleout,ipr,comm !,mpi__iend,mpi__iini !,mpi__getrange
   use m_readgwinput,only: ReadGwinputKeys, keeppositivecou
   use m_lgunit,only: m_lgunit_init
   use m_vcoulq,only: vcoulq_4,mkjb_4,mkjp_4,genjh
@@ -55,8 +55,9 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
   complex(8),allocatable,target :: vcoul(:,:) !,hh(:,:),zz(:,:)
   complex(8),pointer:: ppovl(:,:),zz(:,:),hh(:,:)
   call MPI__Initialize()
-  call gpu_init() 
-  call m_lgunit_init() ! Initialize the unit numbers for output files. !  emptyrun=cmdopt0('--emptyrun')
+  call gpu_init(comm) 
+  call M_lgunit_init()
+!  emptyrun=cmdopt0('--emptyrun')
   if( mpi__root) write(6,"(' mode=0,3,202 (0 and 3 give the same results for given bas)' )")
   if(cmdopt2('--job=',outs)) then; read(outs,*) imode
   elseif( mpi__root ) then       ; read(5,*) imode;   endif

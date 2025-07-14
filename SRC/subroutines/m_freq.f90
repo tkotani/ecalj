@@ -101,7 +101,7 @@ contains
        iw=iw+1
        if( bb*( exp(aa*(iw-1)) - 1d0 ) >omg2max+1d-6) exit
     enddo
-    nwhis = iw+2 !+2 for margin. Necessary?
+    nwhis = iw +2 !+2 for margin. Necessary?
     allocate(frhis(1:nwhis+1))
     do iw = 1,nwhis+1
        frhis(iw) = bb*( exp(aa*(iw-1)) - 1d0 )
@@ -127,6 +127,7 @@ contains
     ! Now, frhis_m(nw-1)> all relevent frequensies for Wc(omg)
     ! and one more point omg=frhis_m(nw) needed for extropolation
     !! Determine freq_r
+    nw=min(nw,nwhis-1) ! tk 2025-7-10
     if(epsmode) nw  = nwhis-1
     allocate(freq_r(0:nw))
     freq_r(0)=0d0

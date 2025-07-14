@@ -34,8 +34,17 @@ contains
     use m_hambl,only: hambl
     use m_rdata1,only:rdata1init,nradmx,nnc,nrad,nindx_r,lindx_r,iord,nvmax,nrc,mindx,&
          gcore_n,aac,bbc,gval_orth,zzpi,nrmxe=>nrmx ,gval_n
-    use m_blas,only: zmm => zmm_h, m_op_T, m_op_C
+    use m_blas,only: zmm_h, m_op_T, m_op_C
+    use m_lapack, only: zsv_h
+#ifdef __GPU
+    use m_blas, only: zmm => zmm_d
+    use m_lapack, only: zsv => zsv_d, zsv_h
+#else
+    use m_blas, only: zmm => zmm_h
+    use m_lapack, only: zsv => zsv_h
+#endif
     use m_ppj,only: m_ppj_init,ppj
+    use m_stopwatch
     implicit none
     intent(in)::          socmatrix,eferm,vmag,qval
     !  qval: valence charge
@@ -81,9 +90,12 @@ contains
     integer :: istat,ifoc,ldim2,lxx,nl,nrx,ibas,ifec
 !    logical :: blas_mode = .true.
     logical,optional:: ecoreexit !    real(8):: rmax(nclass)
+    type(stopwatch) :: sw
+    logical :: show_time = .false.
     include "mpif.h"
     call tcn ('m_sugw_init')
     debug=cmdopt0('--debugsugw')
+    show_time = cmdopt0('--show_time')
     call getpr(ipr)
     if(lmxax<=0) call rx('sugw: lmxax>0 for gw mode')
     emptyrun  = cmdopt0('--emptyrun')
@@ -373,6 +385,8 @@ contains
       endif;       if(debug)write(stdo,ftox)' iqisploop333'
       GetHamiltonianAndDiagonalize: block
         integer:: iprint
+        if(show_time) call stopwatch_init(sw, 'getham')
+        if(show_time) call stopwatch_start(sw)
         if(lso==1) then !L.S case nspc=2
           vxc=0d0 !zeroclear offdiagonal parts
           ovlm=0d0
@@ -402,6 +416,7 @@ contains
             call dsene()
           endif
         endif;    if(debug)write(stdo,ftox)'sumcheck hamm=',sum(abs(hamm)),sum(abs(ovlm))
+        if(show_time) call stopwatch_show(sw)
         if (mod(iq,10) /= 1) call pshpr(iprint()-6)  
         epsovl = ham_oveps
         evec=-1d99
@@ -415,7 +430,10 @@ contains
             if(isp==2) hamm(:,1,:,1)= hamm(:,1,:,1) + vmag/2d0*ovlm(:,1,:,1)
           endif
         endif AddExternelMagneticField;            if(debug)write(stdo,ftox)' iqisploop666'
+        if(show_time) call stopwatch_init(sw, 'diag ham')
+        if(show_time) call stopwatch_start(sw)
         call zhev_tk4(ndimhx,hamm,ovlm,ndimhx,nev,evl(1,iq,isp),evec,epsovl) ! Diagonalization. nev:Calculated number of eigenvec
+        if(show_time) call stopwatch_show(sw)
       endblock GetHamiltonianAndDiagonalize;       if(debug)write(stdo,ftox)' iqisploop777 1212'
 1212  continue
       lwvxc = (socmatrix .or. iq<=iqibzmax).and.(.not.cmdopt0('--novxc'))
@@ -428,7 +446,7 @@ contains
         close(ifvxcevec)
       endif
       if(emptyrun) then
-        allocate(pwz(ngp*nspc,ndimh)) !dummy
+        ! allocate(pwz(ngp*nspc,ndimh)) !dummy
         goto 1214
       endif
       write(stdo,ftox)'sugw: kpt isp=',iq,isp,'of',nqnum,'k=',ftof(qp,5),'ndimh=',ndimh,'irank=',procid,'lwvxc=',lwvxc,'nev=',nev,' nspc=',nspc
@@ -488,29 +506,55 @@ contains
       if(debug) call cputid(0)
       if(debug) write(stdo,ftox)' CPHIpart end ccccc',procid
       
-      GEIGpart: if(ngp > 0) then !IPW expansion of eigenfunctions pwz 
+      GEIGpart: if(ngp > 0) then !IPW expansion of eigenfunctions pwz
+      block
+        use m_gpu, only: check_memory_gpu
+        ! complex(8) :: ppovl_pwz(ngp,ndimhx)
+        complex(8), allocatable :: ppovlLU(:,:) !ppovl_pwz(ngp,ndimhx),
+#ifdef __GPU
+        attributes(device) :: ppovlLU
+#endif
         !  ppovl: = O_{G1,G2} = <IPW_G1 | IPW_G2>
         !  phovl: <IPW_G1 | basis function = smooth Hankel or APW >   
-        !    pwz:  IPW expansion of eigen function    
-        allocate(ppovl(ngp,ngp),pwz(ngp*nspc,ndimhx),phovl(ngp,ndimh))
-        call pwmat(nbas,ndimh,napw,igv2x,qp,ngp,nlmax,ngvecp(1,1,iq),gmax, ppovl, phovl )
+        !    pwz:  IPW expansion of eigen function
+        allocate(ppovl(ngp,ngp),phovl(ngp,ndimh)) !pwz(ngp*nspc,ndimhx),
+        if(show_time) call stopwatch_init(sw, 'geig_part:pwmat')
+        if(show_time) call stopwatch_start(sw)
+        call pwmat(nbas,ndimh,napw,igv2x,qp,ngp,nlmax,ngvecp(1,1,iq),gmax, ppovl, phovl)
+        !$acc data copyin(evec,phovl) copyout(geigr)
+        if(show_time) call stopwatch_show(sw)
         ! MO added blas_mode to replaced matmul by a BLAS call 2024-11-09. This is because matmul in mic(intel) was very slow.
         if(debug) call cputid(0)
         if(debug) write(stdo,ftox)' CPHIpart end of pwmat pppp',procid
+        !$acc kernels
+        geigr(:,:,:) = (0d0, 0d0)
+        !$acc end kernels
         do ispc=1, nspc
-          istat = zmm(phovl, evec(ndimh*(ispc-1)+1,1), pwz(1+ngp*(ispc-1),1), m=ngp, n=ndimhx, k=ndimh, ldb=ndimh*nspc, ldc=ngp*nspc)
+          !$acc host_data use_device(phovl, evec, geigr)
+          istat = zmm(phovl, evec(ndimh*(ispc-1)+1,1), geigr(1,ispc,1), m=ngp, n=ndimhx, k=ndimh, ldb=ndimhx, ldc=ngpmx*nspc)
+          !$acc end host_data
+          allocate(ppovlLU(ngp,ngp))
+          !$acc kernels
+          ppovlLU(:,:) = ppovl(:,:) !copy to GPU from CPU
+          !$acc end kernels
+        ! enddo
+        ! deallocate(phovl)
+        ! block ! MO added blas_mode to replaced matmul by a BLAS call 2024-11-09.         ! if(blas_mode) then
+        !   complex(8) :: ppovlLU(ngp,ngp) !ppovl_pwz(ngp,ndimhx),
+        !   ppovlLU=ppovl
+          ! do ispc=1, nspc ! ppovlLU @ pwz(output) = pwz(input)
+            ! call zgesv(ngp, ndimhx, ppovlLU, ngp, ipiv, pwz(1+ngp*(ispc-1),1),ngp,info) !ppovl_pwz, ngb, info) ?? 2025-07-09 MO ldb may be ngp*nspc
+          !$acc host_data use_device(geigr)
+          istat = zsv(ppovlLU, geigr(1,ispc,1), n=ngp, nrhs=ndimhx, ldb=ngpmx*nspc) !ppovl_pwz, ngb, info) !giegr is now wavefunction's coefficients on IPW
+          !$acc end host_data
+          deallocate(ppovlLU)
         enddo
-        deallocate(phovl)
-        block ! MO added blas_mode to replaced matmul by a BLAS call 2024-11-09.         ! if(blas_mode) then
-          integer :: ipiv(ngp),info
-          complex(8) :: ppovlLU(ngp,ngp) !ppovl_pwz(ngp,ndimhx),
-          ppovlLU=ppovl
-          do ispc=1, nspc ! ppovlLU @ pwz(output) = pwz(input)
-            call zgesv(ngp, ndimhx, ppovlLU, ngp, ipiv, pwz(1+ngp*(ispc-1),1),ngp,info) !ppovl_pwz, ngb, info)
-          enddo
-        endblock
+        !$acc end data
+        deallocate(phovl) 
         if(debug) call cputid(0)
         if(debug) write (stdo,"('endof GEIGpart q ndimh=',3f10.5,i10,' procid=',i10)") qp, ndimh,procid
+        if(debug) call check_memory_gpu("End of GEIG")
+      endblock
       endif GEIGpart
       VXCmat: block
         allocate(testcc(1:nev,ndimhx),source=matmul(transpose(dconjg(evec(:,1:nev))),reshape(vxc,[ndimhx,ndimhx])))
@@ -527,10 +571,10 @@ contains
         complex(8)::ccc(3),nnn,rrr(3,3),mmm(3,3),ovv!,ppovl(ngp,ngp)
         complex(8), allocatable :: pp_wfs(:,:), ovvmat(:,:)
         integer::iband,ibas,iqqisp,ix,m,nm,i,ilm,im,iv,ngvecpf1(3,ngp),ndg1(3)
-        do ispc=1,nspc
-          geigr(1:ngp,      ispc,1:ndimhx)=pwz(1+ngp*(ispc-1):ngp*ispc,1:ndimhx)
-          geigr(ngp+1:ngpmx,ispc,1:ndimhx)=0d0
-        enddo ! skip cphi(ix,1:nev,1:nspc) = cphi(ix, 1:nev,1:nspc) /sqrt(1d0+0.1d0*nindx(ix)) here because zzpi includes this factor 2025-5-7
+        ! do ispc=1,nspc
+        !   geigr(1:ngp,      ispc,1:ndimhx)=pwz(1+ngp*(ispc-1):ngp*ispc,1:ndimhx)
+        !   geigr(ngp+1:ngpmx,ispc,1:ndimhx)=0d0
+        ! enddo ! skip cphi(ix,1:nev,1:nspc) = cphi(ix, 1:nev,1:nspc) /sqrt(1d0+0.1d0*nindx(ix)) here because zzpi includes this factor 2025-5-7
         GramSchmidtCphiGeig :block
           use m_GramSchmidt,only:GramSchmidt2 ,CB_GramSchmidt
           if(.not.cmdopt0('--skipGS')) then
@@ -546,12 +590,12 @@ contains
             allocate(ovvmat(nev,nev),source=(0d0,0d0))
             do ispc = 1, nspc
               allocate(pp_wfs(ndima,nev))
-              istat = zmm(ppj(1,1,isp), cphix(1,ispc,1), pp_wfs, m=ndima, n=nev, k=ndima, ldb=ndima*nspc) !MT parts pp_wfs <- ppj x chipx
-              istat = zmm(cphix(1,ispc,1), pp_wfs, ovvmat, m=nev, n=nev, k=ndima, opA=m_op_C, lda=ndima*nspc, beta=(1d0,0d0)) !MT parts oovmat <- oovmat + chipx^dagger x pp_wfs
+              istat = zmm_h(ppj(1,1,isp), cphix(1,ispc,1), pp_wfs, m=ndima, n=nev, k=ndima, ldb=ndima*nspc) !MT parts pp_wfs <- ppj x chipx
+              istat = zmm_h(cphix(1,ispc,1), pp_wfs, ovvmat, m=nev, n=nev, k=ndima, opA=m_op_C, lda=ndima*nspc, beta=(1d0,0d0)) !MT parts oovmat <- oovmat + chipx^dagger x pp_wfs
               deallocate(pp_wfs)
               allocate(pp_wfs(ngp,nev))
-              istat = zmm(ppovl, geigr(1,ispc,1), pp_wfs, m=ngp, n=nev, k=ngp, ldb=ngpmx*nspc) !IPW parts
-              istat = zmm(geigr(1,ispc,1), pp_wfs, ovvmat, m=nev, n=nev, k=ngp, opA=m_op_C, lda=ngpmx*nspc, beta=(1d0,0d0)) !IPW parts
+              istat = zmm_h(ppovl, geigr(1,ispc,1), pp_wfs, m=ngp, n=nev, k=ngp, ldb=ngpmx*nspc) !IPW parts
+              istat = zmm_h(geigr(1,ispc,1), pp_wfs, ovvmat, m=nev, n=nev, k=ngp, opA=m_op_C, lda=ngpmx*nspc, beta=(1d0,0d0)) !IPW parts
               deallocate(pp_wfs)
             enddo
             do j=1,nev
@@ -579,15 +623,15 @@ contains
             !endblock ncheckw
             !endif
           endif
-          deallocate(ppovl)
         endblock GramSchmidtCphiGeig
+        deallocate(ppovl) !bugfix in --skipGS
         cphix(1:ndima,1:nspc,nev+1:nbandmx)=1d20 !padding 
         iqqisp= isp + nsp*(iq-1)
         i=writem(ifcphim,rec=iqqisp,data=cphix(1:ndima,1:nspc,1:nbandmx)) 
         if(ngpmx/=0) geigr(1:ngpmx,1:nspc,nev+1:nbandmx)=1d20   ! padding
         if(ngpmx/=0) i=writem(ifgeigm,rec=iqqisp,data=geigr(1:ngpmx,1:nspc,1:nbandmx));  if(debug)write(stdo,ftox)'end of writechpigeig'
       endblock WriteCphiGeig; if(debug)write(stdo,ftox)' writechpigeig 1001'  
-      deallocate(pwz,hamm,ovlm,evec,vxc,cphi)!,cphiw)
+      deallocate(hamm,ovlm,evec,vxc,cphi)!,pwz,cphiw)
 1001 enddo iqisploop
     i=closem(ifcphim) !mpi-io
     i=closem(ifgeigm)
