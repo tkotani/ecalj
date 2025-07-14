@@ -11,6 +11,7 @@ parser.add_argument('--gpu'  ,help='nvfortran for GPU',action='store_true')
 parser.add_argument('--bindir' ,help='ecalj binaries and scripts',type=str,default='bin')
 parser.add_argument('--fc'   ,help='fortran compilar  gfortran/ifort/nvfortran',type=str,required=True)
 parser.add_argument('--notest' ,help='no test. only compile',action='store_true')
+parser.add_argument('--verbose' ,help='verbose on ',action='store_true')
 args=parser.parse_args()
 
 def main():
@@ -22,6 +23,8 @@ def main():
     #FC = os.getenv('FC')
     #if not FC:
     FC=args.fc
+    verbose=''
+    if(args.verbose): verbose='VERBOSE=1 '
     #    if(FC==''):
     #        print('Usage: >FC=gfortran ./InstallAll [options]. Run ./InstallAll -h for help.')
     #        sys.exit()
@@ -42,11 +45,11 @@ def main():
     if(args.clean): os.system('rm -rf CMakeFiles CMakeCache.txt')
     if(args.gpu): #Obata for nvfortran
         if os.system(f'FC={FC} cmake . -DBUILD_MP=ON -DBUILD_GPU=ON -DBUILD_MP_GPU=ON -DCMAKE_BUILD_TYPE={BUILD_TYPE}') != 0:sys.exit(1)
-        if os.system('make -j 32') != 0: 
-            if os.system('make -j 32') != 0: sys.exit(1)
+        if os.system(f'{verbose}make -j 32') != 0: 
+            if os.system(f'{verbose}make -j 32') != 0: sys.exit(1)
     elif(FC in ["gfortran", "ifort", "nvfortran"]):
-        if os.system(f'FC={FC} cmake .') != 0: sys.exit(1)
-        if os.system('make -j')          != 0: sys.exit(1)
+        if os.system('FC={FC} cmake .') != 0: sys.exit(1)
+        if os.system(f'{verbose}make -j')          != 0: sys.exit(1)
     else:
         print('Check InstallAll')
         sys.exit(-1)

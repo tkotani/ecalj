@@ -120,11 +120,9 @@ contains
         do ibl2=1,nbloch
            strxx(:,:,ibl2)= -strx(:,:,lmbl(ibl2),ibasbl(ibl2)) * rojb(nbl (ibl2),lbl (ibl2),ibasbl(ibl2))
         enddo
-        associate(vcounn=>vcoul(nbloch+1:ngb,1:nbloch))
-          !$acc data copyin(crojp_ibas, strxx) copyout(vcounn)
-          istat = zmm(crojp_ibas, strxx,  vcoul(nbloch+1,1), m=ngc, n=nbloch, k=(lxx+1)**2*nbas,LdC=ngb) !not LdC is needed
-          !$acc end data
-        endassociate  
+        !$acc data copyin(crojp_ibas, strxx) copyout(vcoul(nbloch+1:ngb,1:nbloch))
+        istat = zmm(crojp_ibas, strxx,  vcoul(nbloch+1,1), m=ngc, n=nbloch, k=(lxx+1)**2*nbas,LdC=ngb) !not LdC is needed
+        !$acc end data
       endblock PvB2
       PvB: do ibl2= 1, nbloch
         ibas2= ibasbl(ibl2)
