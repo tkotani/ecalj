@@ -338,7 +338,8 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
          !        write(stdo,ftox) 'procid gpuid=',procid,gpuid,free_mem/GG
          rmem = free_mem- total_required_bytes 
 #endif
-        write(stdo,ftox) 'diag: gpuid, freemem reqmem rmem GB=',gpuid,ftof([free_mem/GG,total_required_bytes/GG,rmem/GG],3)
+         write(aaaw,ftox)'diag: gpuid freemem reqmem rmem GB=',gpuid,ftof([free_mem/GG,total_required_bytes/GG,rmem/GG],3)
+        call cputm(stdo,aaaw)
         if(rmem>0d0) then 
           !$acc data copy(vcoul) copyin(oo) copyout(eb)
           istat = zhgv(vcoul, oo, ngb, eb)
