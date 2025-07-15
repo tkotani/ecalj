@@ -187,6 +187,8 @@ contains
           istat = dmm(a1g, ajr_tmp, sigx_tmp(1,1,l), m=ngc, n=ngc, k=nr(ibas), opA=m_op_T, ldA=nrx, ldB=nrx)
           !$acc end data
         enddo
+        write(aaaw,ftox) " vcoulq_4:  igig loop procid ibas=", mpi__rank,ibas
+        call cputm(stdo,aaaw)
         do ig1 = 1,ngc !this loop is slow for large system, but maybe vcoulq_4 is rather the critical step 
           do ig2 = 1,ig1
             call wronkj( absqg2(ig1), absqg2(ig2), rmax(ibas),lx(ibas), fkk,fkj,fjk,fjj(0,ibas))

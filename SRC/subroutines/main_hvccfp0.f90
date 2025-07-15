@@ -309,27 +309,51 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
     Diagonalize_Coulomb_matrix: block
 #ifdef __GPU
       use m_lapack, only: zhgv => zhgv_d
-      use m_gpu,only: Amem_gpu
+      use openacc
+!      use cudafor
 #else
       use m_lapack, only: zhgv => zhgv_h
-      real(8):: Amem_gpu=1d10
 #endif
-      integer :: istat
+      integer :: istat,ix,gpuid
+      real(8):: afac=8d0,total_required_bytes,rmem
+      real(8),parameter:: kk=1024,GG=kk**3 !afac for workspace of zhgv
+      integer(8):: total_mem,free_mem, used_mem
+      total_required_bytes = afac*16 * ngb**2 + 8*ngb + 3d0*ngcmx*nqbz*4 !ngcvec reserved in another module
+      !afac. Work area for zhgv can be huge, afac may be still small (tk asked to copilot).
       allocate(eb(ngb))
+      !free_mem=huge(0_8)
       nev = ngb
       vcoul=-vcoul ! trick to get decendent order of eigenvalues by zhgv.
+      ix=0
       do
-        if( Amem_gpu> size(vcoul)+size(oo)+size(eb)) then
-          !$acc data copy(vcoul) copy(oo) copyout(eb)
+         ix=ix+1
+         rmem=1d20
+#ifdef __GPU
+         total_mem = acc_get_property(0, acc_device_nvidia, acc_property_memory)
+         free_mem  = acc_get_property(0, acc_device_nvidia, acc_property_free_memory)
+         used_mem  = total_mem - free_mem
+         !write(stdo,ftox)"GPU memory used (G bytes):", ftof(used_mem/GG,3)
+         gpuid = acc_get_device_num(acc_device_nvidia)
+         !         istat = cudaMemGetInfo(free_mem, total_mem)
+         !        write(stdo,ftox) 'procid gpuid=',procid,gpuid,free_mem/GG
+         rmem = free_mem- total_required_bytes 
+#endif
+        write(stdo,ftox) 'diag: gpuid, freemem reqmem rmem GB=',gpuid,ftof([free_mem/GG,total_required_bytes/GG,rmem/GG],3)
+        if(rmem>0d0) then 
+          !$acc data copy(vcoul) copyin(oo) copyout(eb)
           istat = zhgv(vcoul, oo, ngb, eb)
           !$acc end data
           exit
         endif
-        call execute_command_line('sleep 3')
+        call sleep(3)
+        write(stdo,ftox)'sleep sec',3*ix
+        flush(stdo)
       enddo
       deallocate(oo)
-      zz => vcoul
+      zz => vcoul !this may not delete vcoul in GPU
     endblock Diagonalize_Coulomb_matrix
+    call cputm(stdo,'end of Diag_Coul')
+    
     Chkwriteeb: do ipl1=1,ngb
       if(ipl1==1 .and.ipr) write(6,*)' --- goto eigen check1 --- '
       if(ipl1==11.and.ipr) write(6,*)' ... '
@@ -363,6 +387,11 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
     close(ifvcoud)
     nullify(zz)
     deallocate(eb,vcoul)
+#ifdef __GPU
+    !this is because zz=>vcoul may try to keep memory in GPU 
+    !$acc exit data delete(vcoul,oo,eb)
+    call acc_clear_freelists()
+#endif    
     call cputm(stdo,' end of do 1001')
 1001 enddo mainforiqx
   call cputm(stdo,'end of hvccfp0')
