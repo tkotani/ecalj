@@ -48,7 +48,7 @@ def main():
         if os.system(f'{verbose}make -j 32') != 0: 
             if os.system(f'{verbose}make -j 32') != 0: sys.exit(1)
     elif(FC in ["gfortran", "ifort", "nvfortran"]):
-        if os.system('FC={FC} cmake .') != 0: sys.exit(1)
+        if os.system(f'FC={FC} cmake .') != 0: sys.exit(1)
         if os.system(f'{verbose}make -j')          != 0: sys.exit(1)
     else:
         print('Check InstallAll')
