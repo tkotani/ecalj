@@ -64,7 +64,6 @@ contains
       llx(lm) = ll(lm)
     enddo
     call sylmnc(cy,lxx)
-    vcoul = 0d0
     tpiba = 2*pi/alat
     do ig1 = 1,ngc
       qg(1:3) = tpiba * (q(1:3)+ matmul(qlat, ngvecc(1:3,ig1))) !q+G in a.u.
@@ -92,14 +91,19 @@ contains
       enddo
     enddo
     if(ibl1/=nbloch) call rx(' vcoulq: error ibl1/=nbloch', ibl1, nbloch)
+    !$acc enter data copyin(strx, rojb, rojp) create(vcoul) copyin(ibasbl, nbl, lbl, mbl, lmbl)
+    !$acc kernels
+    vcoul(:,:) = 0d0
+    !$acc end kernels
     !-- <B|v|B> block
-    BvB: do ibl1= 1, nbloch
-      ibas1= ibasbl(ibl1)
-      n1   = nbl (ibl1)
-      l1   = lbl (ibl1)
-      m1   = mbl (ibl1)
-      lm1  = lmbl(ibl1)
-      do ibl2= 1, ibl1
+    !$acc kernels loop independent collapse(2)
+    BvB: do ibl2= 1, nbloch
+      do ibl1= 1, nbloch
+        ibas1= ibasbl(ibl1)
+        n1   = nbl (ibl1)
+        l1   = lbl (ibl1)
+        m1   = mbl (ibl1)
+        lm1  = lmbl(ibl1)
         ibas2= ibasbl(ibl2)
         n2   = nbl (ibl2)
         l2   = lbl (ibl2)
@@ -109,6 +113,8 @@ contains
         if(ibas1==ibas2.AND.lm1==lm2) vcoul(ibl1,ibl2) = vcoul(ibl1,ibl2) + sgbb(n1,n2,l1, ibas1) ! sigma-type onsite parts
       enddo
     enddo BvB
+    !$acc end kernels
+
     ! <P_G|v|B>
     PvB_dev_mo:block
       write(aaaw,ftox)' vcoulq_4: goto PvB procid=', mpi__rank
@@ -116,14 +122,22 @@ contains
       PvB2: block
         complex(8) :: strxx(1:(lxx+1)**2,1:nbas,nbloch)
         complex(8) :: crojp_ibas(ngc,(lxx+1)**2,nbas)
+        !$acc data create(strxx, crojp_ibas)
+        !$acc kernels
         crojp_ibas(1:ngc,1:(lxx+1)**2,1:nbas) = dconjg(rojp(1:ngc,1:(lxx+1)**2, 1:nbas))
+        !$acc end kernels
+        !$acc kernels loop present(strx, rojb, nbl, lbl, ibasbl, lmbl)
         do ibl2=1,nbloch
-           strxx(:,:,ibl2)= -strx(:,:,lmbl(ibl2),ibasbl(ibl2)) * rojb(nbl (ibl2),lbl (ibl2),ibasbl(ibl2))
+          strxx(:,:,ibl2)= -strx(:,:,lmbl(ibl2),ibasbl(ibl2)) * rojb(nbl (ibl2),lbl (ibl2),ibasbl(ibl2))
         enddo
-        !$acc data copyin(crojp_ibas, strxx) copyout(vcoul(nbloch+1:ngb,1:nbloch))
+        !$acc end kernels
+        !$acc host_data use_device(vcoul)
         istat = zmm(crojp_ibas, strxx,  vcoul(nbloch+1,1), m=ngc, n=nbloch, k=(lxx+1)**2*nbas,LdC=ngb) !not LdC is needed
+        !$acc end host_data
         !$acc end data
       endblock PvB2
+      !$acc data copyin(fouvb, sgpb) 
+      !$acc kernels loop present(vcoul, ibasbl, nbl, lbl, lmbl)
       PvB: do ibl2= 1, nbloch
         ibas2= ibasbl(ibl2)
         n2   = nbl (ibl2)
@@ -134,10 +148,16 @@ contains
              vcoul(nbloch+1:nbloch+ngc,ibl2) &
              +fouvb(1:ngc, n2, lm2, ibas2) - sgpb(1:ngc, n2, lm2, ibas2)   !<exp(i(q+G)r)|v|B_n2L2> !punch out onsite part
       enddo PvB
+      !$acc end kernels
+      !$acc end data
     endblock PvB_dev_mo
+    !$acc exit data delete(rojb, ibasbl, nbl, lbl, mbl, lmbl)
+    !$acc exit data copyout(vcoul)
+
     ! <P_G|v|P_G>
     PvP_dev_mo: block
-      real(8) :: fac_integral(nrx,nbas), sigx_tmp(ngc,ngc,0:lxx), a1g(nrx,ngc)
+      use m_bessl, only: bessl2 => bessl, set_fac2l
+      real(8) :: fac_integral(nrx,nbas), sigx_tmp(ngc,ngc,0:lxx), a1g(nrx,ngc), aabb_by3
       real(8) :: ajr_tmp(nrx,ngc), phi_rg(nrx,ngc,0:lxx), rofi_tmp(1:nrx) !  complex(8) :: crojp((lxx+1)**2,nbas,ngc)
       complex(8) :: rojpstrx((lxx+1)**2,nbas,ngc)
       ! Get integral coefficients of int (a*b) G_1(ir) G_2(ir) exp(a*r))
@@ -145,18 +165,36 @@ contains
       !   sigx_tmp(ig1,ig2,l) is int dr (aa(ibas)*bb(ibas)) a1g(r,g1)* ajr(r,l,ibas,g2) exp(aa(ibas)*r))
       write(aaaw,ftox) " vcoulq_4: goto PvP procid ngc lxx nrx=", mpi__rank,ngc,lxx,nrx
       call cputm(stdo,aaaw)
-      !$acc data copyin(strx, rojp) copyout(rojpstrx)
+      !$acc data create(rojpstrx, fac_integral, pjyl_p, phi_rg) copyin(rofi, rkpr, rkmr, pjyl_, phase, aa, bb, nr)
+      !$acc host_data use_device(strx, rojp)
       istat = zmm(strx, rojp, rojpstrx, m=nbas*(lxx+1)**2, n=ngc, k=nbas*(lxx+1)**2, opA=m_op_T, opB=m_op_C)
-      !$acc end data
+      !$acc end host_data
       !    rojpstrx(lm2, ibas2) = rojpstrx(lm2, ibas2)+ dconjg(rojp(ig1, lm1, ibas1)) *strx(lm1,ibas1,lm2,ibas2)
+      !$acc kernels
       fac_integral(1:nrx,1:nbas) = 0d0
+      !$acc end kernels
+
+      !$acc parallel loop gang
       do ibas = 1, nbas
-        fac_integral(1,ibas) = aa(ibas)*bb(ibas)/3d0
-        do ir = 2, nr(ibas) 
-          fac_integral(ir,ibas) = fac_integral(ir-1,ibas)*dexp(aa(ibas))
+        ! fac_integral(1,ibas) = aa(ibas)*bb(ibas)/3d0
+        ! !$acc loop vector
+        ! do ir = 2, nr(ibas) 
+        !   fac_integral(ir,ibas) = fac_integral(ir-1,ibas)*dexp(aa(ibas))
+        ! enddo
+        ! forall(ir=2:nr(ibas)-1) fac_integral(ir,ibas) = fac_integral(ir,ibas)*merge(4d0,2d0,mod(ir,2)==0)
+        aabb_by3 = aa(ibas)*bb(ibas)/3d0
+        !$acc loop vector
+        do ir = 1, nr(ibas)
+          fac_integral(ir,ibas) = aabb_by3*dexp(aa(ibas)*(ir-1))
         enddo
-        forall(ir=2:nr(ibas)-1) fac_integral(ir,ibas) = fac_integral(ir,ibas)*merge(4d0,2d0,mod(ir,2)==0)
+        !$acc loop vector
+        do ir = 2, nr(ibas)-1 
+          fac_integral(ir,ibas) = fac_integral(ir,ibas)*merge(4d0,2d0,mod(ir,2)==0)
+         enddo
       enddo
+      !$acc end parallel
+
+      !$acc kernels loop independent collapse(2)
       do ig1 = 1,ngc
         do ibas2= 1, nbas
           do lm2=1,(lx(ibas2)+1)**2
@@ -164,18 +202,27 @@ contains
           enddo
         enddo
       enddo
+      !$acc end kernels
       write(aaaw,ftox) " vcoulq_4: goto igig loop", mpi__rank
       call cputm(stdo,aaaw)
       lm2x= (lxx+1)**2
+      call set_fac2l()
+
+      !$acc data create(ajr_tmp, a1g, sigx_tmp)
       igigLoopSlow: do ibas= 1, nbas
+        !$acc parallel loop collapse(2) private(phi(0:lxx), psi(0:lxx))
         do ig = 1, ngc
           do ir = 1, nr(ibas)
-            call bessl(absqg2(ig)*rofi(ir,ibas)**2,lx(ibas),phi, psi)
+            call bessl2(absqg2(ig)*rofi(ir,ibas)**2,lx(ibas),phi, psi)
             phi_rg(ir,ig,0:lx(ibas)) = phi(0:lx(ibas))
           enddo
         enddo
+        !$acc end parallel
         do l = 0, lx(ibas)
+          !$acc kernels
           rofi_tmp(1:nr(ibas)) = rofi(1:nr(ibas),ibas)**(l+1)
+          !$acc end kernels
+          !$acc kernels loop independent private(int1x, int2x)
           do ig = 1, ngc
             ajr_tmp(1:nr(ibas),ig) = phi_rg(1:nr(ibas),ig,l)*rofi_tmp(1:nr(ibas))
             call intn_smpxxx( rkpr(1,l,ibas), ajr_tmp(1,ig),int1x,aa(ibas),bb(ibas),rofi(1,ibas),nr(ibas))
@@ -183,12 +230,11 @@ contains
             a1g(1:nr(ibas),ig) = [0d0,(rkmr(2:nr(ibas),l,ibas) *( int1x(1)-int1x(2:nr(ibas)) ) &
                  + rkpr(2:nr(ibas),l,ibas) *  int2x(2:nr(ibas)))* fac_integral(2:nr(ibas),ibas)]
           enddo
-          !$acc data copyin(a1g, ajr_tmp) copyout(sigx_tmp(1:ngc,1:ngc,l:l))
           istat = dmm(a1g, ajr_tmp, sigx_tmp(1,1,l), m=ngc, n=ngc, k=nr(ibas), opA=m_op_T, ldA=nrx, ldB=nrx)
-          !$acc end data
         enddo
         write(aaaw,ftox) " vcoulq_4:  igig loop procid ibas=", mpi__rank,ibas
         call cputm(stdo,aaaw)
+        !$acc update self(sigx_tmp, rojpstrx, pjyl_p)
         do ig1 = 1,ngc !this loop is slow for large system, but maybe vcoulq_4 is rather the critical step 
           do ig2 = 1,ig1
             call wronkj( absqg2(ig1), absqg2(ig2), rmax(ibas),lx(ibas), fkk,fkj,fjk,fjj(0,ibas))
@@ -201,8 +247,13 @@ contains
           enddo
         enddo
       enddo igigLoopSlow
+      !$acc end data
+
+      !$acc end data
       forall(ig1 = 1:ngc) vcoul(nbloch + ig1,nbloch + ig1) = vcoul(nbloch + ig1,nbloch + ig1) +fpivol/(absqg2(ig1) -eee) !eee is negative
     endblock PvP_dev_mo
+    !$acc exit data delete(strx, rojp)
+
     RightUpperPartOFvcoul: do ipl1=1, nbloch+ngc
       do ipl2=1, ipl1-1
         vcoul(ipl2,ipl1) = dconjg(vcoul(ipl1,ipl2))
@@ -265,6 +316,7 @@ contains
     ! oniste integral is based on 1/|r-r'| = \sum 4 pi /(2k+1) \frac{r_<^k }{ r_>^{k+1} } Y_L(r) Y_L(r')
     ! See PRB34 5512(1986) for sigma type integral
     use m_ll,only: ll
+    use m_bessl, only: bessl2 => bessl, set_fac2l
     implicit none
     integer:: ngc,ngvecc(3,ngc), lxx, lx, nxx,nx(0:lxx),nr,nrx, nlx,ig1,ig2,l,n,ir,n1,n2,lm !, ibas
     real(8):: q(3),bas(3), rprodx(nrx,nxx,0:lxx),a,b,rmax,alat, qlat(3,3)
@@ -272,14 +324,16 @@ contains
          fac,radint,radsigo(0:lx),radsig(0:lx),phi(0:lx),psi(0:lx),r2s,sig,sig1,sig2,sigx(0:lx),sig0(0:lx) ,qg2(3)
     real(8):: rofi(nrx),rkpr(nrx,0:lxx),rkmr(nrx,0:lxx),eee,qg1a(3)
     real(8),allocatable::cy(:),yl(:)
-    real(8),allocatable ::ajr(:,:,:),a1(:,:,:), qg(:,:),absqg(:)
+    real(8),allocatable ::ajr(:,:,:),a1(:,:,:), qg(:,:),absqg(:), rofi_nr(:)
     complex(8) :: rojp(ngc, (lxx+1)**2)        ! rho-type onsite integral
     complex(8) :: sgpb(ngc,  nxx,  (lxx+1)**2) !sigma-type onsite integral
     complex(8) :: fouvb(ngc,  nxx, (lxx+1)**2)
     complex(8) :: img =(0d0,1d0),phase
     complex(8),allocatable :: pjyl(:,:)
     nlx = (lx+1)**2
-    allocate(ajr(1:nr,0:lx,ngc),a1(1:nr,0:lx,ngc), qg(3,ngc),absqg(ngc), pjyl((lx+1)**2,ngc) )
+    ! allocate(ajr(1:nr,0:lx,ngc),a1(1:nr,0:lx,ngc), qg(3,ngc),absqg(ngc), pjyl((lx+1)**2,ngc) )
+    allocate(ajr(1:nr,ngc,0:lx), qg(3,ngc),absqg(ngc), pjyl((lx+1)**2,ngc) )
+
     pi    = 4d0*datan(1d0)
     fpi   = 4*pi
     tpiba = 2*pi/alat
@@ -309,82 +363,123 @@ contains
         rojp(ig1,lm) = (-fjj(l))* pjyl(lm,ig1)
       enddo
     enddo rojploop
-    do ig1 = 1,ngc
-      do ir  = 1,nr
-        call bessl(absqg(ig1)**2*rofi(ir)**2,lx,phi,psi)
-        do l   = 0,lx
-          ajr(ir,l,ig1) = phi(l)* rofi(ir) **(l +1 )  ! ajr = j_l(sqrt(e) r) * r / (sqrt(e))**l
+
+    call set_fac2l()
+    allocate(rofi_nr, source = rofi(1:nr))
+    !$acc enter data create(ajr) copyin(absqg(1:ngc), rofi_nr(1:nr))
+
+    !$acc parallel loop collapse(2) private(phi(0:lx), psi(0:lx))
+    do ig1 = 1, ngc
+      do ir = 1, nr
+        call bessl2(absqg(ig1)**2*rofi_nr(ir)**2,lx,phi,psi)
+        do l = 0, lx
+          ajr(ir,ig1,l) = phi(l)* rofi_nr(ir) **(l +1 )  ! ajr = j_l(sqrt(e) r) * r / (sqrt(e))**l
           !  Sperical Bessel j_l(r) \propto r**l/ (2l+1)!! near r=0.
         enddo
       enddo
     enddo
+    !$acc end parallel
     !-------------------------
     if(eee==0d0) then
+      allocate(a1(1:nr,0:lx,ngc))
       do ig1 = 1,ngc
-        call sigintAn1( absqg(ig1), lx, rofi, nr,a1(1:nr, 0:lx,ig1) )
+        call sigintAn1( absqg(ig1), lx, rofi_nr, nr,a1(1:nr, 0:lx,ig1) )
       enddo
       !      else       ! We need to implement a version of sigintAn1 to treat eee/=0 case...
     endif
-    write(aaaw,ftox)' mkjp_4: goto dev_mo block. size of ajr:', size(ajr)
+    write(aaaw,ftox)' mkjp_4: goto dev_mo block. size of ajr:,nx', size(ajr), nx(:)
     call cputm(stdo,aaaw)
     dev_mo: block
 #ifdef __GPU
-    use m_blas, only: dmv => dmv_d, m_op_T
+      use m_blas, only: dmm => dmm_d, m_op_T
 #else
-    use m_blas, only: dmv => dmv_h, m_op_T
+      use m_blas, only: dmm => dmm_h, m_op_T
 #endif
-      real(8):: a1work(nr), a2work(nr), int1x(nr), int2x(nr), a1g(nr,ngc,0:lx), sigg(ngc), fac_integral(1:nr), radintg(ngc)
+      real(8):: a1work(nr), a2work(nr), int1x(nr), int2x(nr), a1g(nr,ngc), fac_integral(1:nr)
+      real(8), allocatable :: sigg(:,:,:), radintg(:,:,:)
+      integer :: llist(nlx)
       integer:: istat
+
+      llist(1:nlx) = [(ll(lm), lm=1, nlx)]
       fac_integral(1) = a*b/3d0
       do ir = 2, nr
         fac_integral(ir) = fac_integral(ir-1)*dexp(a)
       enddo
       forall(ir=2:nr-1) fac_integral(ir) = fac_integral(ir)*merge(4d0,2d0,mod(ir,2)==0)
-      do l = 0, lx
-        do ig1 = 1, ngc
-          a1work(1) = 0d0;  a1work(2:nr) = rkpr(2:nr,l)
-          a2work(1) = 0d0;  a2work(2:nr) = rkmr(2:nr,l)
-          call intn_smpxxx(a1work,ajr(1,l,ig1),int1x,a,b,rofi,nr)
-          call intn_smpxxx(a2work,ajr(1,l,ig1),int2x,a,b,rofi,nr)
-          a1g(1,ig1,l) = 0d0
-          a1g(2:nr,ig1,l) = rkmr(2:nr,l) *( int1x(1)-int1x(2:nr) )+ rkpr(2:nr,l) * int2x(2:nr)
-          a1g(1:nr,ig1,l) = a1g(1:nr,ig1,l)*fac_integral(1:nr)
-        enddo
-      enddo
-      do lm = 1, nlx
-        l = ll(lm)
-        do n =1,nx(l)      
-          if(eee==0d0) then
+
+      !$acc data copyin(fac_integral, rkpr, rkmr, pjyl, rprodx, llist) create(a1g)
+      if(eee==0d0) then
+        do lm = 1, nlx
+          l = llist(lm)
+          do n = 1, nx(l)      
             do ig1 = 1,ngc
               call gintxx(a1(1,l,ig1),rprodx(1,n,l),A,B,NR, sig )
               sgpb(ig1,n,lm) = dconjg(pjyl(lm,ig1))* sig/(2*l+1)*fpi
             enddo
-          else
-            !$acc data copyin(a1g(1:nr,1:ngc,l), rprodx(1:nr,n,l)) copyout(sigg(1:ngc))
-            istat = dmv(a1g(1,1,l), rprodx(1,n,l), sigg, m=nr, n=ngc, opA=m_op_T)
-            !$acc end data
-            sgpb(1:ngc,n,lm) = dconjg(pjyl(lm,1:ngc))* sigg(1:ngc)/(2*l+1)*fpi
-          endif
+          enddo
         enddo
-      enddo
-      fouvb=0d0
-!      if(ipr) write(stdo,ftox)' mkjp_4: fouvb dev block'
-      do ig1 = 1, ngc
+      else
+        allocate(sigg(ngc,nxx,0:lx))
+        !$acc data create(sigg) copyout(sgpb)
         do l = 0, lx
-          a1g(1:nr,ig1,l) = ajr(1:nr,l,ig1)*fac_integral(1:nr)
+          if(nx(l) == 0) cycle
+          !$acc kernels loop independent private(int1x, int2x, a1work, a2work)
+          do ig1 = 1, ngc
+            a1work(1) = 0d0;  a1work(2:nr) = rkpr(2:nr,l)
+            a2work(1) = 0d0;  a2work(2:nr) = rkmr(2:nr,l)
+            call intn_smpxxx(a1work,ajr(1,ig1,l),int1x,a,b,rofi_nr,nr)
+            call intn_smpxxx(a2work,ajr(1,ig1,l),int2x,a,b,rofi_nr,nr)
+            a1g(1,ig1) = 0d0
+            a1g(2:nr,ig1) = rkmr(2:nr,l) *( int1x(1)-int1x(2:nr) )+ rkpr(2:nr,l) * int2x(2:nr)
+            a1g(1:nr,ig1) = a1g(1:nr,ig1)*fac_integral(1:nr)
+          enddo
+          !$acc end kernels
+          istat = dmm(a1g, rprodx(1,1,l), sigg(1,1,l), m=ngc, n=nx(l), k=nr, opA=m_op_T, ldB=nrx)
+        enddo
+        !$acc kernels loop independent collapse(2)
+        do lm = 1, nlx
+          do n = 1, nxx
+            l = llist(lm)
+            if(n > nx(l)) cycle
+            sgpb(1:ngc,n,lm) = dconjg(pjyl(lm,1:ngc))* sigg(1:ngc,n,l)/(2*l+1)*fpi
+          enddo
+        enddo
+        !$acc end kernels
+        !$acc end data
+        deallocate(sigg)
+      endif
+!      if(ipr) write(stdo,ftox)' mkjp_4: fouvb dev block'
+      allocate(radintg(ngc,nxx,0:lx))
+      !$acc data create(radintg) copyout(fouvb)
+      do l = 0, lx
+        if(nx(l) == 0) cycle
+        !$acc kernels loop independent present(ajr)
+        do ig1 = 1, ngc
+          a1g(1:nr,ig1) = ajr(1:nr,ig1,l)*fac_integral(1:nr)
+        enddo
+        !$acc end kernels
+        istat = dmm(a1g, rprodx(1,1,l), radintg(1,1,l), m=ngc, n=nx(l), k=nr, opA=m_op_T, ldB=nrx)
+      enddo
+      !$acc kernels
+      fouvb(:,:,:) = 0d0
+      !$acc end kernels
+      !$acc kernels loop independent collapse(2) present(absqg)
+      do lm = 1, nlx
+        do n = 1, nxx
+          l = llist(lm)
+          if(n > nx(l)) cycle
+          fouvb(1:ngc, n, lm) = fpi/(absqg(1:ngc)**2-eee) *dconjg(pjyl(lm,1:ngc))*radintg(1:ngc,n,l)
         enddo
       enddo
-      do lm  = 1,nlx
-        l = ll(lm)
-        do n = 1,nx(l)
-          !$acc data copyin(a1g(1:nr,1:ngc,l), rprodx(1:nr,n,l)) copyout(radintg(1:ngc))
-          istat = dmv(a1g(1,1,l), rprodx(1,n,l), radintg, m=nr, n=ngc, opA=m_op_T)
-          !$acc end data
-          fouvb(1:ngc, n, lm) = fpi/(absqg(1:ngc)**2-eee) *dconjg(pjyl(lm,1:ngc))*radintg(1:ngc)
-        enddo
-      enddo
+      !$acc end kernels
+      !$acc end data
+      deallocate(radintg)
+
+      !$acc end data
     endblock dev_mo
     !endif
+    !$acc exit data delete(ajr, absqg, rofi_nr)
+    deallocate(ajr, absqg, qg, pjyl, cy, yl, rofi_nr)
   end subroutine mkjp_4
   real(8) function fac2m(i)   ! A table of (2l-1)!! data fac2l /1,1,3,15,105,945,10395,135135,2027025,34459425/
     integer:: i,l
@@ -474,11 +569,12 @@ contains
     call gintxx(a1,b1,A,B,NR, sig )
   end subroutine sigint_4
   subroutine intn_smpxxx(g1,g2,intg,a,b,rofi,nr) ! Intergral of two wave function. used in ppdf
+    !$acc routine seq
     ! int(r) = \int_(r)^(rmax) u1(r') u2(r') dr' Simpson rule ,and with higher rule for odd devision.
     IMPLICIT none
     integer :: nr,ir,lr0
     real(8) :: g1(nr),g2(nr),intg(nr),a,b,rofi(nr),w1,w2,w3,ooth,foth
-    if(mod(nr,2) == 0) call rx( ' INTN: nr should be odd for simpson integration rule')
+    ! if(mod(nr,2) == 0) call rx( ' INTN: nr should be odd for simpson integration rule')
     intg(1)=0d0
     do ir = 3,nr,2
       intg(ir)=intg(ir-2) &
