@@ -6,7 +6,7 @@ module  m_vcoulq
   public vcoulq_4,mkjb_4,mkjp_4,genjh, ajr
   private
   character(1024):: aaaw
-  real(8),allocatable  :: ajr(:,:,:)
+  real(8), allocatable  :: ajr(:,:,:)
 contains
   subroutine vcoulq_4(q,nbloch,ngc,nbas,lx,lxx,nx,nxx,alat,qlat,vol,ngvecc, & !Coulmb matrix for each q
        strx,rojp,rojb,sgbb,sgpb,fouvb,ngb,bas,rmax, eee, aa,bb,nr,nrx,rkpr,rkmr,rofi,    vcoul)
@@ -157,15 +157,17 @@ contains
     ! <P_G|v|P_G>
     PvP_dev_mo: block
       use m_bessl, only: bessl2 => bessl, set_fac2l, wronkj2 => wronkj
+      use m_keyvalue,only: getkeyvalue
       ! real(8), allocatable :: sigx_tmp(ngc,ngc,0:lxx), a1g(nrx,ngc), aabb_by3
       ! real(8) :: ajr_tmp(nrx,ngc), phi_rg(nrx,ngc,0:lxx), rofi_tmp(1:nrx) !  complex(8) :: crojp((lxx+1)**2,nbas,ngc)
       real(8), allocatable :: fac_integral(:), sigx_tmp(:,:,:), a1g(:,:), ajr_tmp(:,:), phi_rg(:,:,:), rofi_tmp(:)
       complex(8) :: rojpstrx((lxx+1)**2,nbas,ngc)
-      real(8), parameter :: epsilon = 1d-10
-      logical :: hasBessel
+      logical :: hasBessel, keepWronkj
+      real(8), allocatable ::  keep_fjj(:,:,:)
       ! Get integral coefficients of int (a*b) G_1(ir) G_2(ir) exp(a*r))
       ! simpson rule is used. nr(ibas) was set as odd number
       !   sigx_tmp(ig1,ig2,l) is int dr (aa(ibas)*bb(ibas)) a1g(r,g1)* ajr(r,l,ibas,g2) exp(aa(ibas)*r))
+      call getkeyvalue("GWinput","KeepWronkj",keepWronkj,default=.true.)
       write(aaaw,ftox) " vcoulq_4: goto PvP procid ngc lxx nrx=", mpi__rank,ngc,lxx,nrx
       call cputm(stdo,aaaw)
 
@@ -221,9 +223,10 @@ contains
           hasBessel = .false.
           if(ibas > 1) then
             if(nr(ibas) == nr(ibas-1)) then
-              if( all(rofi(1:nr(ibas),ibas) == rofi(1:nr(ibas-1),ibas-1)) )  hasBessel = .true.
+              if( all(abs(rofi(1:nr(ibas),ibas) - rofi(1:nr(ibas-1),ibas-1)) < 1d-10) .and. lx(ibas) == lx(ibas-1) ) hasBessel = .true.
             endif
           endif
+
           if(.not.hasBessel) then
             !$acc parallel loop collapse(2) private(phi(0:lxx), psi(0:lxx))
             do ig = 1, ngc
@@ -233,6 +236,23 @@ contains
               enddo
             enddo
             !$acc end parallel
+            if(keepWronkj) then
+              if(allocated(keep_fjj)) then
+                !$acc exit data delete(keep_fjj)
+                 deallocate(keep_fjj)
+              endif
+              allocate(keep_fjj(0:lx(ibas),ngc,ngc))
+              !$acc enter data create(keep_fjj)
+              !$acc parallel loop private(fkk(0:lxx), fkj(0:lxx), fjk(0:lxx), fjj(0:lxx))
+              do ig1 = 1,ngc !this loop is slow for large system, but maybe vcoulq_4 is rather the critical step 
+                do ig2 = 1, ngc ! ngc was ig1
+                  if(ig2 > ig1) cycle
+                  call wronkj2( absqg2(ig1), absqg2(ig2), rmax(ibas),lx(ibas), fkk,fkj,fjk,fjj)
+                  keep_fjj(0:lx(ibas),ig1,ig2) = fjj(0:lx(ibas))
+                enddo
+              enddo
+              !$acc end parallel
+             endif
            endif
 
           do l = 0, lx(ibas)
@@ -257,7 +277,11 @@ contains
           do ig1 = 1,ngc !this loop is slow for large system, but maybe vcoulq_4 is rather the critical step 
             do ig2 = 1, ngc ! ngc was ig1
               if(ig2 > ig1) cycle
-              call wronkj2( absqg2(ig1), absqg2(ig2), rmax(ibas),lx(ibas), fkk,fkj,fjk,fjj)
+              if(KeepWronkj) then
+                fjj(0:lx(ibas)) = keep_fjj(0:lx(ibas),ig1,ig2)
+              else
+                call wronkj2( absqg2(ig1), absqg2(ig2), rmax(ibas),lx(ibas), fkk,fkj,fjk,fjj)
+             endif
               sigx(0:lx(ibas)) = sigx_tmp(ig1,ig2,0:lx(ibas))
               radsig(0:lxx) = 0d0 
               forall(l = 0:lx(ibas)) radsig(l) = fpi/(2*l+1) * sigx(l)
@@ -272,6 +296,10 @@ contains
           deallocate(a1g, ajr_tmp, sigx_tmp, rofi_tmp, fac_integral)
         endif
       enddo igigLoopSlow
+      if(allocated(keep_fjj)) then
+        !$acc exit data delete(keep_fjj)
+        deallocate(keep_fjj)
+      endif
 
       !$acc kernels
       do ig1 = 1, ngc
@@ -280,6 +308,7 @@ contains
       !$acc end kernels
 
       !$acc end data
+      deallocate(phi_rg)
     endblock PvP_dev_mo
 
     !$acc exit data copyout(vcoul) delete(strx, rojp)

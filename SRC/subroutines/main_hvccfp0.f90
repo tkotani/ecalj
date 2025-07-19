@@ -281,7 +281,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
         hasBessel = .false.
         if(ibas > 1) then
           if(nr(ibas) == nr(ibas-1)) then
-            if( all(rofi(1:nr(ibas),ibas) == rofi(1:nr(ibas-1),ibas-1)) .and. lx(ibas) == lx(ibas-1) ) hasBessel = .true.
+            if( all(abs(rofi(1:nr(ibas),ibas) - rofi(1:nr(ibas-1),ibas-1)) < 1d-10) .and. lx(ibas) == lx(ibas-1) ) hasBessel = .true.
           endif
         endif
         write(aaaw,ftox)'mkjp_4 ibas, hasBessel=',ibas, hasBessel
