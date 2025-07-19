@@ -3,9 +3,10 @@ module  m_vcoulq
   use m_mpi,only: ipr,mpi__rank
   use m_lgunit,only: stdo
   use m_ftox
-  public vcoulq_4,mkjb_4,mkjp_4,genjh
+  public vcoulq_4,mkjb_4,mkjp_4,genjh, ajr
   private
   character(1024):: aaaw
+  real(8),allocatable  :: ajr(:,:,:)
 contains
   subroutine vcoulq_4(q,nbloch,ngc,nbas,lx,lxx,nx,nxx,alat,qlat,vol,ngvecc, & !Coulmb matrix for each q
        strx,rojp,rojb,sgbb,sgpb,fouvb,ngb,bas,rmax, eee, aa,bb,nr,nrx,rkpr,rkmr,rofi,    vcoul)
@@ -42,7 +43,7 @@ contains
     real(8) ::  fkk(0:lxx),fkj(0:lxx),fjk(0:lxx),fjj(0:lxx),sigx(0:lxx),radsig(0:lxx) !,radsig(0:lxx,nbas),fjj(0:lxx,nbas)
     real(8) :: eee , int1x(nrx),int2x(nrx),phi(0:lxx),psi(0:lxx) &
          ,aa(nbas),bb(nbas),rkpr(nrx,0:lxx,nbas),rkmr(nrx,0:lxx,nbas),rofi(nrx,nbas)
-    real(8),allocatable  :: eb(:),cy(:),yl(:), ajr(:,:,:,:), a1(:,:,:)
+    real(8),allocatable  :: eb(:),cy(:),yl(:), a1(:,:,:)
     real(8),parameter:: pi=4d0*datan(1d0),fpi=4d0*pi
     complex(8) :: rojp(ngc, (lxx+1)**2, nbas)   !rho-type onsite integral
     complex(8) :: strx((lxx+1)**2, nbas, (lxx+1)**2,nbas) !structure constant. The multicenter expantion of 1/|r-r'|
@@ -218,7 +219,7 @@ contains
           !$acc end kernels
 
           hasBessel = .false.
-          if( ibas > 1) then
+          if(ibas > 1) then
             if(nr(ibas) == nr(ibas-1)) then
               if( all(rofi(1:nr(ibas),ibas) == rofi(1:nr(ibas-1),ibas-1)) )  hasBessel = .true.
             endif
@@ -342,7 +343,7 @@ contains
   ! endif PlaneWavetest
   !end subroutine vcoulq_4
 
-  subroutine mkjp_4(q,ngc,ngvecc,alat,qlat,lxx,lx,nxx,nx,bas,a,b,rmax,nr,nrx,rprodx,eee,rofi,rkpr,rkmr, rojp,sgpb,fouvb)! Integrals@MT and fouvb
+  subroutine mkjp_4(q,ngc,ngvecc,alat,qlat,lxx,lx,nxx,nx,bas,a,b,rmax,nr,nrx,rprodx,eee,rofi,rkpr,rkmr, rojp,sgpb,fouvb,hasBessel)! Integrals@MT and fouvb
     ! The integrals rojp, fouvb,fouvp are for  J_L(r)= j_l(sqrt(e) r)/sqrt(e)**l Y_L, which behaves as r^l/(2l+1)!! near r=0.
     ! oniste integral is based on 1/|r-r'| = \sum 4 pi /(2k+1) \frac{r_<^k }{ r_>^{k+1} } Y_L(r) Y_L(r')
     ! See PRB34 5512(1986) for sigma type integral
@@ -355,15 +356,16 @@ contains
          fac,radint,radsigo(0:lx),radsig(0:lx),phi(0:lx),psi(0:lx),r2s,sig,sig1,sig2,sigx(0:lx),sig0(0:lx) ,qg2(3)
     real(8):: rofi(nrx),rkpr(nrx,0:lxx),rkmr(nrx,0:lxx),eee,qg1a(3)
     real(8),allocatable::cy(:),yl(:)
-    real(8),allocatable ::ajr(:,:,:),a1(:,:,:), qg(:,:),absqg(:), rofi_nr(:)
+    real(8),allocatable ::a1(:,:,:), qg(:,:),absqg(:), rofi_nr(:)
     complex(8) :: rojp(ngc, (lxx+1)**2)        ! rho-type onsite integral
     complex(8) :: sgpb(ngc,  nxx,  (lxx+1)**2) !sigma-type onsite integral
     complex(8) :: fouvb(ngc,  nxx, (lxx+1)**2)
     complex(8) :: img =(0d0,1d0),phase
     complex(8),allocatable :: pjyl(:,:)
+    logical, intent(in) :: hasBessel
     nlx = (lx+1)**2
     ! allocate(ajr(1:nr,0:lx,ngc),a1(1:nr,0:lx,ngc), qg(3,ngc),absqg(ngc), pjyl((lx+1)**2,ngc) )
-    allocate(ajr(1:nr,ngc,0:lx), qg(3,ngc),absqg(ngc), pjyl((lx+1)**2,ngc) )
+    allocate(qg(3,ngc),absqg(ngc), pjyl((lx+1)**2,ngc) )
 
     pi    = 4d0*datan(1d0)
     fpi   = 4*pi
@@ -397,19 +399,27 @@ contains
 
     call set_fac2l()
     allocate(rofi_nr, source = rofi(1:nr))
-    !$acc enter data create(ajr) copyin(absqg(1:ngc), rofi_nr(1:nr))
+    !$acc enter data copyin(absqg(1:ngc), rofi_nr(1:nr))
 
-    !$acc parallel loop collapse(2) private(phi(0:lx), psi(0:lx))
-    do ig1 = 1, ngc
-      do ir = 1, nr
-        call bessl2(absqg(ig1)**2*rofi_nr(ir)**2,lx,phi,psi)
-        do l = 0, lx
-          ajr(ir,ig1,l) = phi(l)* rofi_nr(ir) **(l +1 )  ! ajr = j_l(sqrt(e) r) * r / (sqrt(e))**l
-          !  Sperical Bessel j_l(r) \propto r**l/ (2l+1)!! near r=0.
+    if(.not.hasBessel) then
+      if(allocated(ajr)) then
+        !$acc exit data delete(ajr)
+        deallocate(ajr)
+      endif
+      allocate(ajr(1:nr,ngc,0:lx)) 
+      !$acc enter data create(ajr)
+      !$acc parallel loop collapse(2) private(phi(0:lx), psi(0:lx))
+      do ig1 = 1, ngc
+        do ir = 1, nr
+          call bessl2(absqg(ig1)**2*rofi_nr(ir)**2,lx,phi,psi)
+          do l = 0, lx
+            ajr(ir,ig1,l) = phi(l)* rofi_nr(ir) **(l +1 )  ! ajr = j_l(sqrt(e) r) * r / (sqrt(e))**l
+            !  Sperical Bessel j_l(r) \propto r**l/ (2l+1)!! near r=0.
+          enddo
         enddo
       enddo
-    enddo
-    !$acc end parallel
+      !$acc end parallel
+    endif
     !-------------------------
     if(eee==0d0) then
       allocate(a1(1:nr,0:lx,ngc))
@@ -508,9 +518,9 @@ contains
 
       !$acc end data
     endblock dev_mo
-    !endif
-    !$acc exit data delete(ajr, absqg, rofi_nr)
-    deallocate(ajr, absqg, qg, pjyl, cy, yl, rofi_nr)
+
+    !$acc exit data delete(absqg, rofi_nr)
+    deallocate(absqg, qg, pjyl, cy, yl, rofi_nr)
   end subroutine mkjp_4
   real(8) function fac2m(i)   ! A table of (2l-1)!! data fac2l /1,1,3,15,105,945,10395,135135,2027025,34459425/
     integer:: i,l
