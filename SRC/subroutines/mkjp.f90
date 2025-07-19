@@ -171,8 +171,7 @@ contains
       write(aaaw,ftox) " vcoulq_4: goto PvP procid ngc lxx nrx=", mpi__rank,ngc,lxx,nrx
       call cputm(stdo,aaaw)
 
-      allocate(phi_rg(nrx, ngc, 0:lxx))
-      !$acc data create(rojpstrx,pjyl_p,phi_rg) copyin(rofi, rkpr, rkmr, aa, bb, nr, absqg2, pjyl_, phase)
+      !$acc data create(rojpstrx,pjyl_p) copyin(rofi, rkpr, rkmr, aa, bb, nr, absqg2, pjyl_, phase)
 
       !$acc host_data use_device(strx, rojp)
       istat = zmm(strx, rojp, rojpstrx, m=nbas*(lxx+1)**2, n=ngc, k=nbas*(lxx+1)**2, opA=m_op_T, opB=m_op_C)
@@ -208,17 +207,6 @@ contains
           enddo
           !$acc update device(vcoul)
         else !eee is nonzero
-          allocate(a1g(nr(ibas),ngc), ajr_tmp(nr(ibas),ngc))
-          allocate(sigx_tmp(ngc, ngc, 0:lx(ibas)))
-          allocate(rofi_tmp(1:nr(ibas)), fac_integral(1:nr(ibas)))
-
-          !$acc data create(ajr_tmp, a1g, rofi_tmp, fac_integral, sigx_tmp)
-          !$acc kernels
-          do ir = 1, nr(ibas)
-            fac_integral(ir) = aa(ibas)*bb(ibas)*dexp(aa(ibas)*(ir-1))/3d0
-            if( ir /= 1 .and. ir /= nr(ibas)) fac_integral(ir) = fac_integral(ir)*merge(4d0,2d0,mod(ir,2)==0)
-          enddo
-          !$acc end kernels
 
           hasBessel = .false.
           if(ibas > 1) then
@@ -228,6 +216,10 @@ contains
           endif
 
           if(.not.hasBessel) then
+            allocate(phi_rg(nr(ibas), ngc, 0:lx(ibas)))
+            allocate(rofi_tmp(1:nr(ibas)), fac_integral(1:nr(ibas)), a1g(nr(ibas),ngc), ajr_tmp(nr(ibas),ngc))
+            !$acc data create(phi_rg, ajr_tmp, a1g, rofi_tmp, fac_integral)
+
             !$acc parallel loop collapse(2) private(phi(0:lxx), psi(0:lxx))
             do ig = 1, ngc
               do ir = 1, nr(ibas)
@@ -236,6 +228,7 @@ contains
               enddo
             enddo
             !$acc end parallel
+
             if(keepWronkj) then
               if(allocated(keep_fjj)) then
                 !$acc exit data delete(keep_fjj)
@@ -252,28 +245,47 @@ contains
                 enddo
               enddo
               !$acc end parallel
-             endif
-           endif
+            endif
 
-          do l = 0, lx(ibas)
+            if(allocated(sigx_tmp)) then
+              !$acc exit data delete(sigx_tmp)
+              deallocate(sigx_tmp)
+            endif
+            allocate(sigx_tmp(ngc, ngc, 0:lx(ibas)))
+            !$acc enter data create(sigx_tmp)
+
             !$acc kernels
-            rofi_tmp(1:nr(ibas)) = rofi(1:nr(ibas),ibas)**(l+1)
-            !$acc end kernels
-            !$acc kernels loop independent private(int1x, int2x)
-            do ig = 1, ngc
-              ajr_tmp(1:nr(ibas),ig) = phi_rg(1:nr(ibas),ig,l)*rofi_tmp(1:nr(ibas))
-              call intn_smpxxx( rkpr(1,l,ibas), ajr_tmp(1,ig),int1x,aa(ibas),bb(ibas),rofi(1,ibas),nr(ibas))
-              call intn_smpxxx( rkmr(1,l,ibas), ajr_tmp(1,ig),int2x,aa(ibas),bb(ibas),rofi(1,ibas),nr(ibas))
-              a1g(1:nr(ibas),ig) = [0d0,(rkmr(2:nr(ibas),l,ibas) *( int1x(1)-int1x(2:nr(ibas)) ) &
-                                       + rkpr(2:nr(ibas),l,ibas) *  int2x(2:nr(ibas)))* fac_integral(2:nr(ibas))]
+            do ir = 1, nr(ibas)
+              fac_integral(ir) = aa(ibas)*bb(ibas)*dexp(aa(ibas)*(ir-1))/3d0
+              if( ir /= 1 .and. ir /= nr(ibas)) fac_integral(ir) = fac_integral(ir)*merge(4d0,2d0,mod(ir,2)==0)
             enddo
             !$acc end kernels
-            istat = dmm(a1g, ajr_tmp, sigx_tmp(1,1,l), m=ngc, n=ngc, k=nr(ibas), opA=m_op_T)
-          enddo
+            do l = 0, lx(ibas)
+              !$acc kernels
+              rofi_tmp(1:nr(ibas)) = rofi(1:nr(ibas),ibas)**(l+1)
+              !$acc end kernels
+              !$acc kernels loop independent private(int1x, int2x)
+              do ig = 1, ngc
+                ajr_tmp(1:nr(ibas),ig) = phi_rg(1:nr(ibas),ig,l)*rofi_tmp(1:nr(ibas))
+                call intn_smpxxx( rkpr(1,l,ibas), ajr_tmp(1,ig),int1x,aa(ibas),bb(ibas),rofi(1,ibas),nr(ibas))
+                call intn_smpxxx( rkmr(1,l,ibas), ajr_tmp(1,ig),int2x,aa(ibas),bb(ibas),rofi(1,ibas),nr(ibas))
+                a1g(1:nr(ibas),ig) = [0d0,(rkmr(2:nr(ibas),l,ibas) *( int1x(1)-int1x(2:nr(ibas)) ) &
+                                         + rkpr(2:nr(ibas),l,ibas) *  int2x(2:nr(ibas)))* fac_integral(2:nr(ibas))]
+              enddo
+              !$acc end kernels
+              !$acc host_data use_device(sigx_tmp)
+              istat = dmm(a1g, ajr_tmp, sigx_tmp(1,1,l), m=ngc, n=ngc, k=nr(ibas), opA=m_op_T)
+              !$acc end host_data
+            enddo
+
+            !$acc end data
+            deallocate(ajr_tmp, a1g, rofi_tmp, fac_integral, phi_rg)
+          endif
+
           write(aaaw,ftox) " vcoulq_4:  igig loop procid ibas nr lx, hasBessel=", mpi__rank,ibas, nr(ibas), lx(ibas), hasBessel
           call cputm(stdo,aaaw)
 
-          !$acc parallel loop private(fkk(0:lxx), fkj(0:lxx), fjk(0:lxx), fjj(0:lxx), sigx(0:lxx), radsig(0:lxx))
+          !$acc parallel loop private(fkk(0:lxx), fkj(0:lxx), fjk(0:lxx), fjj(0:lxx), sigx(0:lxx), radsig(0:lxx)) present(sigx_tmp)
           do ig1 = 1,ngc !this loop is slow for large system, but maybe vcoulq_4 is rather the critical step 
             do ig2 = 1, ngc ! ngc was ig1
               if(ig2 > ig1) cycle
@@ -292,13 +304,15 @@ contains
           enddo
           !$acc end parallel
 
-          !$acc end data
-          deallocate(a1g, ajr_tmp, sigx_tmp, rofi_tmp, fac_integral)
         endif
       enddo igigLoopSlow
       if(allocated(keep_fjj)) then
         !$acc exit data delete(keep_fjj)
         deallocate(keep_fjj)
+      endif
+      if(allocated(sigx_tmp)) then
+        !$acc exit data delete(sigx_tmp)
+        deallocate(sigx_tmp)
       endif
 
       !$acc kernels
@@ -308,7 +322,6 @@ contains
       !$acc end kernels
 
       !$acc end data
-      deallocate(phi_rg)
     endblock PvP_dev_mo
 
     !$acc exit data copyout(vcoul) delete(strx, rojp)
