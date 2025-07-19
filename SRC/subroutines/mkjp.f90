@@ -160,14 +160,16 @@ contains
       ! real(8) :: ajr_tmp(nrx,ngc), phi_rg(nrx,ngc,0:lxx), rofi_tmp(1:nrx) !  complex(8) :: crojp((lxx+1)**2,nbas,ngc)
       real(8), allocatable :: fac_integral(:), sigx_tmp(:,:,:), a1g(:,:), ajr_tmp(:,:), phi_rg(:,:,:), rofi_tmp(:)
       complex(8) :: rojpstrx((lxx+1)**2,nbas,ngc)
+      real(8), parameter :: epsilon = 1d-10
+      logical :: hasBessel
       ! Get integral coefficients of int (a*b) G_1(ir) G_2(ir) exp(a*r))
       ! simpson rule is used. nr(ibas) was set as odd number
       !   sigx_tmp(ig1,ig2,l) is int dr (aa(ibas)*bb(ibas)) a1g(r,g1)* ajr(r,l,ibas,g2) exp(aa(ibas)*r))
       write(aaaw,ftox) " vcoulq_4: goto PvP procid ngc lxx nrx=", mpi__rank,ngc,lxx,nrx
       call cputm(stdo,aaaw)
 
-
-      !$acc data create(rojpstrx,pjyl_p) copyin(rofi, rkpr, rkmr, aa, bb, nr, absqg2, pjyl_, phase)
+      allocate(phi_rg(nrx, ngc, 0:lxx))
+      !$acc data create(rojpstrx,pjyl_p,phi_rg) copyin(rofi, rkpr, rkmr, aa, bb, nr, absqg2, pjyl_, phase)
 
       !$acc host_data use_device(strx, rojp)
       istat = zmm(strx, rojp, rojpstrx, m=nbas*(lxx+1)**2, n=ngc, k=nbas*(lxx+1)**2, opA=m_op_T, opB=m_op_C)
@@ -203,12 +205,11 @@ contains
           enddo
           !$acc update device(vcoul)
         else !eee is nonzero
-          allocate(phi_rg(nr(ibas), ngc, 0:lx(ibas)))
           allocate(a1g(nr(ibas),ngc), ajr_tmp(nr(ibas),ngc))
           allocate(sigx_tmp(ngc, ngc, 0:lx(ibas)))
           allocate(rofi_tmp(1:nr(ibas)), fac_integral(1:nr(ibas)))
 
-          !$acc data create(ajr_tmp, a1g, phi_rg, rofi_tmp, fac_integral, sigx_tmp)
+          !$acc data create(ajr_tmp, a1g, rofi_tmp, fac_integral, sigx_tmp)
           !$acc kernels
           do ir = 1, nr(ibas)
             fac_integral(ir) = aa(ibas)*bb(ibas)*dexp(aa(ibas)*(ir-1))/3d0
@@ -216,14 +217,22 @@ contains
           enddo
           !$acc end kernels
 
-          !$acc parallel loop collapse(2) private(phi(0:lxx), psi(0:lxx))
-          do ig = 1, ngc
-            do ir = 1, nr(ibas)
-              call bessl2(absqg2(ig)*rofi(ir,ibas)**2,lx(ibas),phi, psi)
-              phi_rg(ir,ig,0:lx(ibas)) = phi(0:lx(ibas))
+          hasBessel = .false.
+          if( ibas > 1) then
+            if(nr(ibas) == nr(ibas-1)) then
+              if( all(rofi(1:nr(ibas),ibas) == rofi(1:nr(ibas-1),ibas-1)) )  hasBessel = .true.
+            endif
+          endif
+          if(.not.hasBessel) then
+            !$acc parallel loop collapse(2) private(phi(0:lxx), psi(0:lxx))
+            do ig = 1, ngc
+              do ir = 1, nr(ibas)
+                call bessl2(absqg2(ig)*rofi(ir,ibas)**2,lx(ibas),phi, psi)
+                phi_rg(ir,ig,0:lx(ibas)) = phi(0:lx(ibas))
+              enddo
             enddo
-          enddo
-          !$acc end parallel
+            !$acc end parallel
+           endif
 
           do l = 0, lx(ibas)
             !$acc kernels
@@ -240,7 +249,7 @@ contains
             !$acc end kernels
             istat = dmm(a1g, ajr_tmp, sigx_tmp(1,1,l), m=ngc, n=ngc, k=nr(ibas), opA=m_op_T)
           enddo
-          write(aaaw,ftox) " vcoulq_4:  igig loop procid ibas nr lx=", mpi__rank,ibas, nr(ibas), lx(ibas)
+          write(aaaw,ftox) " vcoulq_4:  igig loop procid ibas nr lx, hasBessel=", mpi__rank,ibas, nr(ibas), lx(ibas), hasBessel
           call cputm(stdo,aaaw)
 
           !$acc parallel loop private(fkk(0:lxx), fkj(0:lxx), fjk(0:lxx), fjj(0:lxx), sigx(0:lxx), radsig(0:lxx))
@@ -259,7 +268,7 @@ contains
           !$acc end parallel
 
           !$acc end data
-          deallocate(phi_rg, a1g, ajr_tmp, sigx_tmp, rofi_tmp, fac_integral)
+          deallocate(a1g, ajr_tmp, sigx_tmp, rofi_tmp, fac_integral)
         endif
       enddo igigLoopSlow
 
