@@ -134,14 +134,18 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
   !     Could be optimized, ala hsibl, but not a critical step for GW.
   block
     use m_stopwatch
+    use m_lmfinit, only: nspec, ltabx, ktabx, offlx, norbx
     complex(8), allocatable:: ppovl_save(:,:,:), pwh(:,:), ppovlx(:,:)
     logical :: cmdopt0, show_time = .false., debug = .false.
     type(stopwatch) :: sw1, sw2, sw3, sw4
-    integer:: ig_start, ig_end, igp, i, match_iga,  nx(3)
+    integer:: ig_start, ig_end, igp, i, match_iga, nx(3), istat
+    integer :: blks_nb(n0*nkap0,nbas), ltab_nb(n0*nkap0,nbas), ktab_nb(n0*nkap0,nbas), &
+               offl_nb(n0*nkap0,nbas), norb_nb(nbas)
+    real(8) :: eh_ns(n0,nkap0,nspec), rsmh_ns(n0,nkap0,nspec)
     integer, parameter:: ngblock = 1024*4
-    integer :: istat
 #ifdef __GPU
     attributes(device) ppovl_save
+    !$acc routine (ropyln) seq
 #endif
     show_time = cmdopt0('--show_time')
     debug = cmdopt0('--debugpwmat')
@@ -152,48 +156,87 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
     if(show_time) call stopwatch_start(sw1)
     call set_ppovl(ngp, igv, ngmx, igvx, bas, rmax, nbas, alat, plat, qlat, ppovl_save) !ppovl_save is set in GPU in case of GPU version
     if(show_time) call stopwatch_pause(sw1)
+    do ib = 1, nbas
+      is = ispec(ib)
+      call uspecb(is,rsmh,eh)
+      call orblib(ib) !get norb,ltab,ktab,offl
+      call gtbsl8(norb,ltab,ktab,rsmh,eh,ntab,blks) !update eh, get blks
+      rsmh_ns(:,:,is) = rsmh(:,:)
+      eh_ns(:,:,is) = eh(:,:)
+      blks_nb(:,ib) = blks(:)
+      norb_nb(ib) = norb
+      ltab_nb(:,ib) = ltab(:)
+      ktab_nb(:,ib) = ktab(:)
+      offl_nb(:,ib) = offl(:)
+    enddo
 
     if(debug) write(06,ftox) '**xxx ndimh, ngp, ngmx, napw', ndimh, ngp, ngmx, napw
-    !$acc data copyout(pwhovl) copyin(igapw, igvx)
+    !$acc data copyout(pwhovl) copyin(igapw, igvx, qlat, q, bas, ispec(1:nbas), eh_ns, rsmh_ns, blks_nb, mimgl) &
+    !$acc                      copyin(norb_nb, ltab_nb, ktab_nb, offl_nb)
     !$acc kernels
     pwhovl(:,:) = (0d0, 0d0)
     !$acc end kernels
+
     gblock_loop: do ig_start = 1, ngmx, ngblock
+
       ig_end = min(ngmx, ig_start + ngblock -1)
       allocate(pwh(ndimh,ig_start:ig_end), ppovlx(ngp,ig_start:ig_end))
-      ! openacc parallelization may have a problem in ropyln. so it is set outside of openacc
+      !$acc data create(pwh, ppovlx)
+
+      !$acc kernels
       pwh(:,:) = (0d0, 0d0)
+      !$acc end kernels
+
       if(show_time) call stopwatch_start(sw2)
+
+      !$acc parallel loop gang independent private(qpg, qpg2, yl)
       do ig = ig_start, ig_end
-        qpg(1:3) = tpiba * (q(1:3) + matmul(qlat, igvx(1:3,ig)))
+        !$acc loop vector
+        do i = 1, 3
+          qpg(i) = tpiba*(q(i) + sum(qlat(i,:)*igvx(:,ig)))
+        enddo
         call ropyln(1,qpg(1),qpg(2),qpg(3),lmxax,1,yl,qpg2)
+        !$acc loop vector
         do ib = 1, nbas
           phase = exp( -img * sum( qpg*bas(:,ib)*alat )  )
           is = ispec(ib)
-          call uspecb(is,rsmh,eh)
-          call orblib(ib) !return norb,ltab,ktab,offl
-          call gtbsl8(norb,ltab,ktab,rsmh,eh,ntab,blks)
-          do  io = 1, norb
-            l  = ltab(io) ! l,ik = l and kaph indices, needed to address eh,rsmh
-            ik = ktab(io)
-            ol = ltab(io)**2
-            oi = offl(io) ! offh = hamiltonian offset to this block
-            denom = eh(l+1,ik) - qpg2(1)
-            gam   = 1d0/4d0*rsmh(l+1,ik)**2
+          ! call uspecb(is,rsmh,eh)
+          ! call orblib(ib) !return norb,ltab,ktab,offl
+          ! call gtbsl8(norb,ltab,ktab,rsmh,eh,ntab,blks)
+          ! do  io = 1, norb
+          !   l  = ltab(io) ! l,ik = l and kaph indices, needed to address eh,rsmh
+          !   ik = ktab(io)
+          !   ol = ltab(io)**2
+          !   oi = offl(io) ! offh = hamiltonian offset to this block
+          !   denom = eh(l+1,ik) - qpg2(1)
+          !   gam   = 1d0/4d0*rsmh(l+1,ik)**2
+          !   if(abs(denom)<1d-10) cycle  !2023feb ok?
+          !   fach  = -pi4/vol/denom * phase * mimgl(l) * exp(gam*denom)
+          !   pwh(oi+1:oi+blks(io),ig) = fach * yl(ol+1:ol+blks(io))
+          ! enddo
+          do  io = 1, norb_nb(ib)
+            l  = ltab_nb(io,ib) ! l,ik = l and kaph indices, needed to address eh,rsmh
+            ik = ktab_nb(io,ib)
+            ol = ltab_nb(io,ib)**2
+            oi = offl_nb(io,ib) ! offh = hamiltonian offset to this block
+            denom = eh_ns(l+1,ik,is) - qpg2(1)
+            gam   = 1d0/4d0*rsmh_ns(l+1,ik,is)**2
             if(abs(denom)<1d-10) cycle  !2023feb ok?
             fach  = -pi4/vol/denom * phase * mimgl(l) * exp(gam*denom)
-            pwh(oi+1:oi+blks(io),ig) = fach * yl(ol+1:ol+blks(io))
+            pwh(oi+1:oi+blks_nb(io,ib),ig) = fach * yl(ol+1:ol+blks_nb(io,ib))
           enddo
         enddo
       enddo
+      !$acc end parallel
+      !$acc kernels
       pwh(nlmto+1:,:) = 0d0 !is it necessary?
+      !$acc end kernels
       ! findloc does not work with GPU, so we use a loop
       ! do iga= 1,napw 
       !    ig = findloc([(all(igapw(:,iga)==igvx(:,igx)),igx=ig_start, ig_end)],value=.true.,dim=1)
       !    !if current igx's (ig_start:ig_end) has overlap with iga
       !    if(1 <= ig .and. ig <= ig_end - ig_start + 1) pwh(iga+nlmto,ig + ig_start - 1) = 1d0/srvol
       ! enddo
-      !$acc data copyin(pwh) create(ppovlx)
       !$acc parallel loop gang independent
       do ig = ig_start, ig_end
         match_iga = 0

@@ -1,32 +1,48 @@
 module m_ropyln ! Normalized spheric harmonic polynomials (vectorizes).
   public ropyln,ropylg
   private
-  integer,parameter::lmax=20
+  ! f2m = (2m)!
+  real(8), parameter :: f2m(0:20) = [ 0.1000000000000000D+01, & !l=0
+    0.2000000000000000D+01, 0.2400000000000000D+02, 0.7200000000000000D+03, 0.4032000000000000D+05, & !l=1-4
+    0.3628800000000000D+07, 0.4790016000000000D+09, 0.8717829120000000D+11, 0.2092278988800000D+14, & !l=5-8
+    0.6402373705728000D+16, 0.2432902008176640D+19, 0.1124000727777608D+22, 0.6204484017332394D+24, & !l=9-12
+    0.4032914611266057D+27, 0.3048883446117139D+30, 0.2652528598121911D+33, 0.2631308369336936D+36, & !l=13-16
+    0.2952327990396042D+39, 0.3719933267899013D+42, 0.5230226174666012D+45, 0.8159152832478978D+48]   !l=17-20
+
+  ! pfff = (2(m-1)+1)!! = (2m+1)!!
+  real(8) :: pfff(-1:20) = [ 0.1000000000000000D+01, 0.1000000000000000D+01, &
+    0.3000000000000000D+01, 0.1500000000000000D+02, 0.1050000000000000D+03, 0.9450000000000000D+03, &
+    0.1039500000000000D+05, 0.1351350000000000D+06, 0.2027025000000000D+07, 0.3445942500000000D+08, &
+    0.6547290750000000D+09, 0.1374931057500000D+11, 0.3162341432250000D+12, 0.7905853580625000D+13, &
+    0.2134580466768750D+15, 0.6190283353629375D+16, 0.1918987839625106D+18, 0.6332659870762850D+19, &
+    0.2216430954766998D+21, 0.8200794532637891D+22, 0.3198309867728778D+24, 0.1311307045768799D+26]
+  !$acc declare copyin(f2m, pfff)
 contains
-  real(8) function f2m(m)
-    integer:: mm,m
-    real(8),save:: fff(lmax)
-    logical,save:: init=.true.
-    if(lmax<m) call rx('f2m')
-    if(init) then
-      fff(1:lmax)=[(dble(2*mm*(2*mm-1)),mm=1,lmax)]
-      init=.false.
-    endif
-    f2m = product(fff(1:m))
-  end function f2m
-  real(8) function pfff(m)
-    integer:: mm,m
-    real(8),save:: fff(0:lmax)
-    logical,save::init=.true.
-    if(lmax<m) call rx('pfff')
-    if(init) then
-      fff(0:lmax)=[(dble(2*mm+1),mm=0,lmax)]
-      init=.false.
-    endif
-    pfff=product(fff(0:m))
-  end function pfff
+  ! real(8) function f2m(m)
+  !   integer:: mm,m
+  !   real(8),save:: fff(lmax)
+  !   logical,save:: init=.true.
+  !   ! if(lmax<m) call rx('f2m')
+  !   if(init) then
+  !     fff(1:lmax)=[(dble(2*mm*(2*mm-1)),mm=1,lmax)]
+  !     init=.false.
+  !   endif
+  !   f2m = product(fff(1:m))
+  ! end function f2m
+  ! real(8) function pfff(m)
+  !   integer:: mm,m
+  !   real(8),save:: fff(0:lmax)
+  !   logical,save::init=.true.
+  !   ! if(lmax<m) call rx('pfff')
+  !   if(init) then
+  !     fff(0:lmax)=[(dble(2*mm+1),mm=0,lmax)]
+  !     init=.false.
+  !   endif
+  !   pfff=product(fff(0:m))
+  ! end function pfff
 
   subroutine ropyln(n,x,y,z,lmax,nd, yl,rsq) ! Normalized spheric harmonic polynomials (vectorizes).
+    !$acc routine seq
     !i   n     :number of points for which to calculate yl
     !i   x,y,z:f Cartesian coordinate
     !i   lmax  :compute yl for l=0..lmax
