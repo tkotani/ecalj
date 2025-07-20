@@ -1,10 +1,15 @@
 module m_bessl
-  public :: bessl, wronkj, radkj, set_fac2l
+  public :: bessl, wronkj, radkj
   private
-  logical :: hasFac2l = .false.
-  real(8) :: fac2lx(0:100)
-  !$acc declare create(fac2lx)
-  !$acc declare create(hasFac2l)
+  !C A table of (2l-1)!!
+  real(8), parameter :: fac2l(0:24) = [ 0.1000000000000000E+01, & !l=0
+    0.1000000000000000E+01, 0.3000000000000000E+01, 0.1500000000000000E+02, 0.1050000000000000E+03, & !l=1-4
+    0.9450000000000000E+03, 0.1039500000000000E+05, 0.1351350000000000E+06, 0.2027025000000000E+07, & !l=5-8
+    0.3445942500000000E+08, 0.6547290750000000E+09, 0.1374931057500000E+11, 0.3162341432250000E+12, & !l=9-12
+    0.7905853580625000E+13, 0.2134580466768750E+15, 0.6190283353629375E+16, 0.1918987839625106E+18, & !l=13-16
+    0.6332659870762850E+19, 0.2216430954766998E+21, 0.8200794532637891E+22, 0.3198309867728778E+24, & !l=17-20
+    0.1311307045768799E+26, 0.5638620296805834E+27, 0.2537379133562626E+29, 0.1192568192774434E+31]   !l=21-24
+  !$acc declare copyin(fac2l)
 contains
 subroutine bessl(y,lmax,fi,gi)! Spherical Bessel  and  Neumann Hankel functions
   !$acc routine seq
@@ -192,25 +197,13 @@ subroutine radkj(e,r,lmax,ak,aj,dk,dj,job)
   endif
   return
 end subroutine radkj
-real(8) function fac2l(i)
-  !$acc routine seq
-  !C A table of (2l-1)!!
-  !     data fac2l /1,1,3,15,105,945,10395,135135,2027025,34459425/
-  integer:: i
-  fac2l = fac2lx(i)
-end function fac2l
-subroutine set_fac2l()
-  integer:: l
-  if(.not. hasFac2l) then
-     fac2lx(0) = 1d0
-     do l=1, 100
-        fac2lx(l)=fac2lx(l-1)*(2*l-1)
-     enddo
-     hasFac2l = .true.
-    !$acc update device(fac2lx)
-    !$acc update device(hasFac2l)
-  endif
-end subroutine
+! real(8) function fac2l(i)
+!   !$acc routine seq
+!   !C A table of (2l-1)!!
+!   !     data fac2l /1,1,3,15,105,945,10395,135135,2027025,34459425/
+!   integer:: i
+!   fac2l = fac2lx(i)
+! end function fac2l
 end module m_bessl
   ! Followings are old memo: Removes this old memo when you are definite for the definition above (or corrected).
   ! ----------------

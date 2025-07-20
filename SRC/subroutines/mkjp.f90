@@ -156,7 +156,7 @@ contains
 
     ! <P_G|v|P_G>
     PvP_dev_mo: block
-      use m_bessl, only: bessl2 => bessl, set_fac2l, wronkj2 => wronkj
+      use m_bessl, only: bessl2 => bessl, wronkj2 => wronkj
       use m_keyvalue,only: getkeyvalue
       ! real(8), allocatable :: sigx_tmp(ngc,ngc,0:lxx), a1g(nrx,ngc), aabb_by3
       ! real(8) :: ajr_tmp(nrx,ngc), phi_rg(nrx,ngc,0:lxx), rofi_tmp(1:nrx) !  complex(8) :: crojp((lxx+1)**2,nbas,ngc)
@@ -180,7 +180,6 @@ contains
       write(aaaw,ftox) " vcoulq_4: goto igig loop", mpi__rank
       call cputm(stdo,aaaw)
       lm2x= (lxx+1)**2
-      call set_fac2l()
 
       igigLoopSlow: do ibas= 1, nbas
         !$acc kernels loop collapse(2)
@@ -390,7 +389,7 @@ contains
     ! oniste integral is based on 1/|r-r'| = \sum 4 pi /(2k+1) \frac{r_<^k }{ r_>^{k+1} } Y_L(r) Y_L(r')
     ! See PRB34 5512(1986) for sigma type integral
     use m_ll,only: ll
-    use m_bessl, only: bessl2 => bessl, set_fac2l
+    use m_bessl, only: bessl2 => bessl
     implicit none
     integer:: ngc,ngvecc(3,ngc), lxx, lx, nxx,nx(0:lxx),nr,nrx, nlx,ig1,ig2,l,n,ir,n1,n2,lm !, ibas
     real(8):: q(3),bas(3), rprodx(nrx,nxx,0:lxx),a,b,rmax,alat, qlat(3,3)
@@ -439,7 +438,6 @@ contains
       enddo
     enddo rojploop
 
-    call set_fac2l()
     allocate(rofi_nr, source = rofi(1:nr))
     !$acc enter data copyin(absqg(1:ngc), rofi_nr(1:nr))
 
