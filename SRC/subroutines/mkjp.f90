@@ -160,10 +160,12 @@ contains
       use m_keyvalue,only: getkeyvalue
       ! real(8), allocatable :: sigx_tmp(ngc,ngc,0:lxx), a1g(nrx,ngc), aabb_by3
       ! real(8) :: ajr_tmp(nrx,ngc), phi_rg(nrx,ngc,0:lxx), rofi_tmp(1:nrx) !  complex(8) :: crojp((lxx+1)**2,nbas,ngc)
-      real(8), allocatable :: fac_integral(:), sigx_tmp(:,:,:), a1g(:,:), ajr_tmp(:,:), phi_rg(:,:,:), rofi_tmp(:)
+      real(8), allocatable :: fac_integral(:), a1g(:,:), ajr_tmp(:,:), phi_rg(:,:,:), rofi_tmp(:)
       complex(8) :: rojpstrx((lxx+1)**2,nbas,ngc)
       logical :: hasBessel, keepWronkj
-      real(8), allocatable ::  keep_fjj(:,:,:)
+      real(8), allocatable ::  keep_fjj(:,:), keep_sigx(:,:), __sigx(:,:)
+      integer, allocatable :: iggtable(:,:)
+      integer :: nggc, igg
       ! Get integral coefficients of int (a*b) G_1(ir) G_2(ir) exp(a*r))
       ! simpson rule is used. nr(ibas) was set as odd number
       !   sigx_tmp(ig1,ig2,l) is int dr (aa(ibas)*bb(ibas)) a1g(r,g1)* ajr(r,l,ibas,g2) exp(aa(ibas)*r))
@@ -171,7 +173,19 @@ contains
       write(aaaw,ftox) " vcoulq_4: goto PvP procid ngc lxx nrx=", mpi__rank,ngc,lxx,nrx
       call cputm(stdo,aaaw)
 
-      !$acc data create(rojpstrx,pjyl_p) copyin(rofi, rkpr, rkmr, aa, bb, nr, absqg2, pjyl_, phase)
+      !make table for ig1,ig2 from one dimensional index (igg = 1, ..., ngg)
+      nggc = (ngc*(ngc+1))/2
+      allocate(iggtable(2,nggc))
+      igg = 0
+      do ig1 = 1,ngc
+        do ig2 = 1, ig1
+          igg = igg + 1
+          iggtable(1,igg) = ig1
+          iggtable(2,igg) = ig2
+        enddo
+      enddo
+
+      !$acc data create(rojpstrx,pjyl_p) copyin(rofi, rkpr, rkmr, aa, bb, nr, absqg2, pjyl_, phase, iggtable)
 
       !$acc host_data use_device(strx, rojp)
       istat = zmm(strx, rojp, rojpstrx, m=nbas*(lxx+1)**2, n=ngc, k=nbas*(lxx+1)**2, opA=m_op_T, opB=m_op_C)
@@ -217,7 +231,8 @@ contains
           setBessel: if(.not.hasBessel) then
             allocate(phi_rg(nr(ibas), ngc, 0:lx(ibas)))
             allocate(rofi_tmp(1:nr(ibas)), fac_integral(1:nr(ibas)), a1g(nr(ibas),ngc), ajr_tmp(nr(ibas),ngc))
-            !$acc data create(phi_rg, ajr_tmp, a1g, rofi_tmp, fac_integral)
+            allocate(__sigx(ngc,ngc))
+            !$acc data create(phi_rg, ajr_tmp, a1g, rofi_tmp, fac_integral, __sigx)
 
             !$acc parallel loop collapse(2) private(phi(0:lxx), psi(0:lxx))
             do ig = 1, ngc
@@ -233,25 +248,24 @@ contains
                 !$acc exit data delete(keep_fjj)
                  deallocate(keep_fjj)
               endif
-              allocate(keep_fjj(0:lx(ibas),ngc,ngc))
+              allocate(keep_fjj(0:lx(ibas),nggc))
               !$acc enter data create(keep_fjj)
               !$acc parallel loop private(fkk(0:lxx), fkj(0:lxx), fjk(0:lxx), fjj(0:lxx))
-              do ig1 = 1,ngc !this loop is slow for large system, but maybe vcoulq_4 is rather the critical step 
-                do ig2 = 1, ngc ! ngc was ig1
-                  if(ig2 > ig1) cycle
-                  call wronkj2( absqg2(ig1), absqg2(ig2), rmax(ibas),lx(ibas), fkk,fkj,fjk,fjj)
-                  keep_fjj(0:lx(ibas),ig1,ig2) = fjj(0:lx(ibas))
-                enddo
+              do igg = 1, nggc
+                ig1 = iggtable(1,igg)
+                ig2 = iggtable(2,igg)
+                call wronkj2( absqg2(ig1), absqg2(ig2), rmax(ibas),lx(ibas), fkk,fkj,fjk,fjj)
+                keep_fjj(0:lx(ibas),igg) = fjj(0:lx(ibas))
               enddo
               !$acc end parallel
             endif
 
-            if(allocated(sigx_tmp)) then
-              !$acc exit data delete(sigx_tmp)
-              deallocate(sigx_tmp)
+            if(allocated(keep_sigx)) then
+              !$acc exit data delete(keep_sigx)
+              deallocate(keep_sigx)
             endif
-            allocate(sigx_tmp(ngc, ngc, 0:lx(ibas)))
-            !$acc enter data create(sigx_tmp)
+            allocate(keep_sigx(0:lx(ibas),nggc))
+            !$acc enter data create(keep_sigx)
 
             !$acc kernels
             do ir = 1, nr(ibas)
@@ -272,34 +286,38 @@ contains
                                          + rkpr(2:nr(ibas),l,ibas) *  int2x(2:nr(ibas)))* fac_integral(2:nr(ibas))]
               enddo
               !$acc end kernels
-              !$acc host_data use_device(sigx_tmp)
-              istat = dmm(a1g, ajr_tmp, sigx_tmp(1,1,l), m=ngc, n=ngc, k=nr(ibas), opA=m_op_T)
-              !$acc end host_data
+              istat = dmm(a1g, ajr_tmp, __sigx, m=ngc, n=ngc, k=nr(ibas), opA=m_op_T)
+              !$acc kernels
+              do igg = 1, nggc
+                ig1 = iggtable(1,igg)
+                ig2 = iggtable(2,igg)
+                keep_sigx(l,igg) = __sigx(ig1,ig2)
+              enddo
+              !$acc end kernels
             enddo
 
             !$acc end data
-            deallocate(ajr_tmp, a1g, rofi_tmp, fac_integral, phi_rg)
+            deallocate(ajr_tmp, a1g, rofi_tmp, fac_integral, phi_rg, __sigx)
           endif setBessel
 
           write(aaaw,ftox) " vcoulq_4:  igig loop procid ibas nr lx, hasBessel=", mpi__rank,ibas, nr(ibas), lx(ibas), hasBessel
           call cputm(stdo,aaaw)
 
-          !$acc parallel loop private(fkk(0:lxx), fkj(0:lxx), fjk(0:lxx), fjj(0:lxx), sigx(0:lxx), radsig(0:lxx)) present(sigx_tmp)
-          do ig1 = 1,ngc !this loop is slow for large system, but maybe vcoulq_4 is rather the critical step 
-            do ig2 = 1, ngc ! ngc was ig1
-              if(ig2 > ig1) cycle
-              if(keepWronkj) then
-                fjj(0:lx(ibas)) = keep_fjj(0:lx(ibas),ig1,ig2)
-              else
-                call wronkj2( absqg2(ig1), absqg2(ig2), rmax(ibas),lx(ibas), fkk,fkj,fjk,fjj)
-             endif
-              sigx(0:lx(ibas)) = sigx_tmp(ig1,ig2,0:lx(ibas))
-              radsig(0:lxx) = 0d0 
-              forall(l = 0:lx(ibas)) radsig(l) = fpi/(2*l+1) * sigx(l)
-              vcoul(nbloch+ig1,nbloch+ig2) =  vcoul(nbloch+ig1,nbloch+ig2) + sum( rojpstrx(1:lm2x,ibas,ig1)*rojp(ig2, 1:lm2x, ibas) &
-                   + dconjg(pjyl_p(1:lm2x,ig1))*pjyl_p(1:lm2x,ig2)* &
-                   ( (fpi/(absqg2(ig1)-eee)+fpi/(absqg2(ig2)-eee)) *fjj(llx(1:lm2x)) + radsig(llx(1:lm2x)) )   )
-            enddo
+          !$acc parallel loop private(fkk(0:lxx), fkj(0:lxx), fjk(0:lxx), fjj(0:lxx), sigx(0:lxx), radsig(0:lxx)) present(keep_sigx)
+          do igg = 1, nggc
+            ig1 = iggtable(1,igg)
+            ig2 = iggtable(2,igg)
+            if(keepWronkj) then
+              fjj(0:lx(ibas)) = keep_fjj(0:lx(ibas),igg)
+            else
+              call wronkj2( absqg2(ig1), absqg2(ig2), rmax(ibas),lx(ibas), fkk,fkj,fjk,fjj)
+            endif
+            sigx(0:lx(ibas)) = keep_sigx(0:lx(ibas),igg)
+            radsig(0:lxx) = 0d0 
+            forall(l = 0:lx(ibas)) radsig(l) = fpi/(2*l+1) * sigx(l)
+            vcoul(nbloch+ig1,nbloch+ig2) =  vcoul(nbloch+ig1,nbloch+ig2) + sum( rojpstrx(1:lm2x,ibas,ig1)*rojp(ig2, 1:lm2x, ibas) &
+                 + dconjg(pjyl_p(1:lm2x,ig1))*pjyl_p(1:lm2x,ig2)* &
+                 ( (fpi/(absqg2(ig1)-eee)+fpi/(absqg2(ig2)-eee)) *fjj(llx(1:lm2x)) + radsig(llx(1:lm2x)) )   )
           enddo
           !$acc end parallel
 
@@ -309,10 +327,11 @@ contains
         !$acc exit data delete(keep_fjj)
         deallocate(keep_fjj)
       endif
-      if(allocated(sigx_tmp)) then
-        !$acc exit data delete(sigx_tmp)
-        deallocate(sigx_tmp)
+      if(allocated(keep_sigx)) then
+        !$acc exit data delete(keep_sigx)
+        deallocate(keep_sigx)
       endif
+      deallocate(iggtable)
 
       !$acc kernels
       do ig1 = 1, ngc
