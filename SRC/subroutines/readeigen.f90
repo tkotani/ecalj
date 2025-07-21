@@ -115,7 +115,7 @@ contains
       allocate( ngvecprev(-imx:imx,-imx:imx,-imx:imx,iq:iq))
       BLOCK
         integer:: ngvecp_tmp(3,ngpmx)
-        open(newunit=ifiqg, file='QGpsi_rec',form='unformatted', access='direct', recl=4*(3*ngpmx+(2*imx+1)**3), status='old')
+        open(newunit=ifiqg, file='__QGpsi_rec',form='unformatted', access='direct', recl=4*(3*ngpmx+(2*imx+1)**3), status='old')
         read(ifiqg, rec=iq)  ngvecp_tmp(1:3,1:ngpmx),ngvecprev(-imx:imx,-imx:imx,-imx:imx,iq)
         read(ifiqg, rec=iqq) ngvecp(1:3, 1:ngp(iqq),iqq)
         close(ifiqg)
@@ -241,7 +241,7 @@ contains
       allocate( ngvecprev(-imx:imx,-imx:imx,-imx:imx,iq:iq))
       BLOCK
         integer:: ngvecp_tmp(3,ngpmx)
-        open(newunit=ifiqg, file='QGpsi_rec',form='unformatted', access='direct', recl=4*(3*ngpmx+(2*imx+1)**3), status='old')
+        open(newunit=ifiqg, file='__QGpsi_rec',form='unformatted', access='direct', recl=4*(3*ngpmx+(2*imx+1)**3), status='old')
         read(ifiqg, rec=iq)  ngvecp_tmp(1:3,1:ngpmx),ngvecprev(-imx:imx,-imx:imx,-imx:imx,iq)
         read(ifiqg, rec=iqq) ngvecp(1:3, 1:ngp(iqq),iqq)
         close(ifiqg)
