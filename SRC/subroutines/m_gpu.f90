@@ -1,6 +1,10 @@
 module m_gpu
+#ifdef __GPU
+  use openacc
+  use cudafor
+#endif
   implicit none
-  public :: gpu_init, check_memory_gpu, use_gpu !, Amem_gpu
+  public :: gpu_init, check_memory_gpu, use_gpu, gpu_finalize !, Amem_gpu
   integer,public :: mydev
   logical, protected :: use_gpu = .false.
   private
@@ -8,9 +12,6 @@ module m_gpu
   contains
   
   subroutine gpu_init(comm)
-#ifdef __GPU
-    use openacc
-#endif
     use iso_c_binding
     use mpi
     implicit none
@@ -67,9 +68,6 @@ module m_gpu
   end subroutine
   
   subroutine check_memory_gpu(keyword)
-#ifdef __GPU
-    use cudafor
-#endif
     character(len=*), intent(in) :: keyword
     character(len=1024) :: cmd
     integer :: ierr
@@ -82,6 +80,17 @@ module m_gpu
 #endif
   end subroutine
 
+  subroutine gpu_finalize()
+#ifdef __GPU
+    use m_blas, only: cublas_finalize
+    use m_lapack, only: cusolver_finalize
+    integer :: istat
+    istat = cusolver_finalize()
+    istat = cublas_finalize()
+    call acc_shutdown(acc_device_nvidia)
+#endif
+    use_gpu = .false.
+  end subroutine gpu_finalize
  !  real(8) function Amem_gpu() !Available memory in GPU 
 ! #ifdef __GPU
 !     use cudafor

@@ -11,7 +11,7 @@ module m_blas !wrapper for BLAS and cuBLAS
   public :: cmm_h, cmm_batch_h, zmm_h, zmm_batch_h, dmm_h, dmv_h, zmv_h, zvv_h
 #ifdef __GPU
   public :: cmm_d, cmm_batch_d, zmm_d, zmm_batch_d, dmm_d, dmv_d, zmv_d, zvv_d
-  public :: cublas_init, cublas_handle
+  public :: cublas_init, cublas_handle, cublas_finalize
   type(cublashandle), value :: cublas_handle
   logical, save :: set_cublas_handle = .false.
 #endif
@@ -549,6 +549,13 @@ contains
       set_cublas_handle = .true.
     endif
   end function cublas_init
+  integer function cublas_finalize() result(istat)
+      istat = 0
+      if(set_cublas_handle) then
+          istat = cublasdestroy(cublas_handle)
+          set_cublas_handle = .false.
+      endif
+  end function cublas_finalize
   integer function get_m_op_cublas(m_op_blas) result(m_op_cublas)
     character, intent(in) :: m_op_blas
     select case (m_op_blas)

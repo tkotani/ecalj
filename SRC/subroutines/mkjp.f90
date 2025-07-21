@@ -214,7 +214,7 @@ contains
             endif
           endif
 
-          if(.not.hasBessel) then
+          setBessel: if(.not.hasBessel) then
             allocate(phi_rg(nr(ibas), ngc, 0:lx(ibas)))
             allocate(rofi_tmp(1:nr(ibas)), fac_integral(1:nr(ibas)), a1g(nr(ibas),ngc), ajr_tmp(nr(ibas),ngc))
             !$acc data create(phi_rg, ajr_tmp, a1g, rofi_tmp, fac_integral)
@@ -279,7 +279,7 @@ contains
 
             !$acc end data
             deallocate(ajr_tmp, a1g, rofi_tmp, fac_integral, phi_rg)
-          endif
+          endif setBessel
 
           write(aaaw,ftox) " vcoulq_4:  igig loop procid ibas nr lx, hasBessel=", mpi__rank,ibas, nr(ibas), lx(ibas), hasBessel
           call cputm(stdo,aaaw)
@@ -288,7 +288,7 @@ contains
           do ig1 = 1,ngc !this loop is slow for large system, but maybe vcoulq_4 is rather the critical step 
             do ig2 = 1, ngc ! ngc was ig1
               if(ig2 > ig1) cycle
-              if(KeepWronkj) then
+              if(keepWronkj) then
                 fjj(0:lx(ibas)) = keep_fjj(0:lx(ibas),ig1,ig2)
               else
                 call wronkj2( absqg2(ig1), absqg2(ig2), rmax(ibas),lx(ibas), fkk,fkj,fjk,fjj)
@@ -333,6 +333,12 @@ contains
 !    do ix = 1,nbloch+ngc
 !      if((mod(ix,20)==1 .OR. ix>nbloch+ngc-10).and.ipr) write(6,"(' Diagonal Vcoul =',i5,2d18.10)") ix,vcoul(ix,ix)
 !    enddo
+#ifdef __GPU
+    GPUmemoryRelease: block
+      use openacc
+      call acc_clear_freelists()
+    end block GPUmemoryRelease
+#endif    
   end subroutine vcoulq_4
 
   
@@ -441,7 +447,7 @@ contains
     allocate(rofi_nr, source = rofi(1:nr))
     !$acc enter data copyin(absqg(1:ngc), rofi_nr(1:nr))
 
-    if(.not.hasBessel) then
+    setBessel: if(.not.hasBessel) then
       if(allocated(ajr)) then
         !$acc exit data delete(ajr)
         deallocate(ajr)
@@ -459,7 +465,7 @@ contains
         enddo
       enddo
       !$acc end parallel
-    endif
+    endif setBessel
     !-------------------------
     if(eee==0d0) then
       allocate(a1(1:nr,0:lx,ngc))
