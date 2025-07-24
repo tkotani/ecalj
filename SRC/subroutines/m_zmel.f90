@@ -468,7 +468,7 @@ contains
           if(debug) write(stdo,ftox)'goto zmelipwif: ngc,ngpmx,ngp1,ngp2,ngcgp,nm1v,nm2v,ntp0=',ngc,ngpmx,ngp1,ngp2,ngcgp,nm1v,nm2v,ntp0
           phase(:)=[(exp( -img*tpi*sum((matmul(symope,kvec)+matmul(qlat,ngveccR(:,igc)))*shtv) ),igc=1,ngc)]  !prepared by CPU
           !$acc data copyin(phase, ngveccR, nadd(1:3), ggg(1:nggg), nvgcgp2(1:3,1:ngcgp), &
-          !$acc             igggi(nxi:nxe,nyi:nye,nzi:nze), igcgp2i(nnxi:nnxe,nnyi:nnye,nnzi:nnze), ppovlinv) create(nn)
+          !$acc             igggi(nxi:nxe,nyi:nye,nzi:nze), igcgp2i(nnxi:nnxe,nnyi:nnye,nnzi:nnze))
 
           if(debug) write(stdo,ftox) itq(nqini_rank:nqmax_rank)
           if(debug) call writemem('mmmmm_zmel111aaa')
@@ -548,6 +548,7 @@ contains
               enddo
             enddo
             !$acc end kernels
+            if(debug) call writemem('mmmmm_zmel222ccd')
             do it = nm1v, nm2v
               !$acc kernels loop independent collapse(2)
               do igp1 = 1, ngp1
@@ -574,13 +575,15 @@ contains
           if(debug) call writemem('mmmmm_zmel111hhh')
           if(debug) write(stdo,ftox) 'hhhhhhhh111'!,ngc,ntp0,nmtot
           !MO 2025-01-22 Gemm change to zmm for the computational accuracy in the mixed precision calculation
-          !$acc host_data use_device(ppovlinv)
-          ierr = zmm(ppovlinv, zmelp0_dp, zmelt_d_dp, ngc, ntp0*nmtot, ngc) 
-          !$acc end host_data
+          !$acc data copyin(ppovlinv(1:ngc,1:ngc))
+          ierr = zmm(ppovlinv, zmelp0_dp, zmelt_d_dp, ngc, ntp0*(nm2v-nm1v+1), ngc)
+          !$acc end data
           if(debug) write(stdo,ftox)'hhhhhhhh222',ngc,ntp0,nmtot
           !$acc kernels
           zmelt(nbloch+1:nbloch+ngc,nm1v:nm2v,ncc+1:ncc+ntp0) = cmplx(zmelt_d_dp(1:ngc,nm1v:nm2v,1:ntp0), kind=kp)
           !$acc end kernels
+          if(debug) call writemem('mmmmm_zmel111iii')
+
           !$acc end data
           if(debug) call writemem('mmmmm_zmel333')
           deallocate(zmelt_d_dp, zmelp0_dp)
@@ -623,7 +626,7 @@ contains
         end block
       endif
       if(zmelconjg) then
-        !$acc kernels
+        !$acc kernels present(zmel)
         zmel = conjg(zmel)
         !$acc end kernels
       endif
