@@ -460,10 +460,10 @@ contains
           integer, parameter :: ngcgp_block = 1024
           complex(8):: phase(ngc)
           complex(8), allocatable :: zmelt_d_dp(:,:,:), zmelp0_dp(:,:,:)
-          complex(kind=kp), allocatable:: ggitp(:,:), gggmat(:,:), ggitp_work(:,:)
+          complex(kind=kp), allocatable:: ggitp(:,:), gggmat(:,:), ggitp_work(:,:), ggit(:,:), ggit_work(:,:)
           integer, allocatable:: igcgp2i_work(:,:), igcgp1i_work(:,:)
 #ifdef __GPU
-          attributes(device) :: zmelt_d_dp, zmelp0_dp, ggitp, gggmat, ggitp_work, igcgp2i_work, igcgp1i_work
+          attributes(device) :: zmelt_d_dp, zmelp0_dp, ggitp, gggmat, ggitp_work, igcgp2i_work, igcgp1i_work, ggit, ggit_work
 #endif
           if(debug) write(stdo,ftox)'goto zmelipwif: ngc,ngpmx,ngp1,ngp2,ngcgp,nm1v,nm2v,ntp0=',ngc,ngpmx,ngp1,ngp2,ngcgp,nm1v,nm2v,ntp0
           phase(:)=[(exp( -img*tpi*sum((matmul(symope,kvec)+matmul(qlat,ngveccR(:,igc)))*shtv) ),igc=1,ngc)]  !prepared by CPU
@@ -519,7 +519,7 @@ contains
             if(debug) call writemem('mmmmm_zmel111ddd')
           else ! G2 integral first
             if(debug) call writemem('mmmmm_zmel222bbb')
-            allocate( ggitp(ngcgp,nm1v:nm2v), ggitp_work(ngc, ngp1), igcgp1i_work(ngc,ngp1))
+            allocate(ggit(ngcgp,nm1v:nm2v), ggit_work(ngc, ngp1), igcgp1i_work(ngc,ngp1))
             gcgp1_block_loop: do igcgp1_start = 1, ngcgp, ngcgp_block
               igcgp1_end = min(ngcgp, igcgp1_start + ngcgp_block - 1)
               allocate(gggmat(igcgp1_start:igcgp1_end,1:ngp2))
@@ -536,7 +536,7 @@ contains
                 enddo
               enddo
               !$acc end kernels
-              ierr = gemm(gggmat, dgeigqk, ggitp(igcgp1_start,nm1v), igcgp1_end-igcgp1_start+1, nm2v-nm1v+1, ngp2, ldB=ngpmx, ldC=ngcgp)
+              ierr = gemm(gggmat, dgeigqk, ggit(igcgp1_start,nm1v), igcgp1_end-igcgp1_start+1, nm2v-nm1v+1, ngp2, ldB=ngpmx, ldC=ngcgp)
               deallocate(gggmat)
             enddo gcgp1_block_loop
             if(debug) call writemem('mmmmm_zmel222ccc')
@@ -552,13 +552,13 @@ contains
               !$acc kernels loop independent collapse(2)
               do igp1 = 1, ngp1
                 do igc = 1, ngc
-                  ggitp_work(igc,igp1) = ggitp(igcgp1i_work(igc,igp1),it)
+                  ggit_work(igc,igp1) = ggit(igcgp1i_work(igc,igp1),it)
                 enddo
               enddo
               !$acc end kernels
-              ierr = gemm(ggitp_work, geigq, zmelp0(1,it,1), ngc, ntp0, ngp1, ldB=ngpmx, ldC=ngc*(nm2v-nm1v+1))
+              ierr = gemm(ggit_work, geigq, zmelp0(1,it,1), ngc, ntp0, ngp1, ldB=ngpmx, ldC=ngc*(nm2v-nm1v+1))
             enddo
-            deallocate(ggitp_work,ggitp,igcgp1i_work)
+            deallocate(ggit_work,ggit,igcgp1i_work)
             if(debug) call writemem('mmmmm_zmel222ddd')
           endif G1G2_Integral
 
