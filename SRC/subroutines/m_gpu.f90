@@ -16,7 +16,7 @@ module m_gpu
     use mpi
     implicit none
     integer, intent(in) :: comm
-    integer :: mpi_status(mpi_status_size)
+    integer :: status(mpi_status_size)
     integer :: ierr, ndevs, ndevs_tmp, mydev_tmp, hostid_tmp, i, hostid, nlocal_procs, ilocal_rank
     integer, allocatable :: hostids(:), rankids(:)
     logical :: cmdopt0
@@ -53,9 +53,9 @@ module m_gpu
     endif
     do i = 1, nsize-1
       if(procid == 0) then
-        call mpi_recv(mydev_tmp, 1, mpi_integer, i, i, comm, mpi_status, ierr)
-        call mpi_recv(ndevs_tmp, 1, mpi_integer, i, i, comm, mpi_status, ierr)
-        call mpi_recv(hostid_tmp, 1, mpi_integer, i, i, comm, mpi_status, ierr)
+        call mpi_recv(mydev_tmp, 1, mpi_integer, i, i, comm, status, ierr)
+        call mpi_recv(ndevs_tmp, 1, mpi_integer, i, i, comm, status, ierr)
+        call mpi_recv(hostid_tmp, 1, mpi_integer, i, i, comm, status, ierr)
         write(06,'(a,i6,x,2(a,i3),a,i12)') "i_procs:", i, "gpuid:", mydev_tmp, "/", ndevs_tmp, " hostid:", hostid_tmp
       elseif(procid == i) then
         call mpi_send(mydev, 1, mpi_integer, 0, procid, comm, ierr)

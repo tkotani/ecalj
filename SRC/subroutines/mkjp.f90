@@ -163,7 +163,7 @@ contains
       real(8), allocatable :: fac_integral(:), a1g(:,:), ajr_tmp(:,:), phi_rg(:,:,:), rofi_tmp(:)
       complex(8) :: rojpstrx((lxx+1)**2,nbas,ngc)
       logical :: hasBessel, keepWronkj
-      real(8), allocatable ::  keep_fjj(:,:), keep_sigx(:,:), __sigx(:,:)
+      real(8), allocatable ::  keep_fjj(:,:), keep_sigx(:,:), sigx_tmp(:,:)
       integer, allocatable :: iggtable(:,:)
       integer :: nggc, igg
       ! Get integral coefficients of int (a*b) G_1(ir) G_2(ir) exp(a*r))
@@ -231,8 +231,8 @@ contains
           setBessel: if(.not.hasBessel) then
             allocate(phi_rg(nr(ibas), ngc, 0:lx(ibas)))
             allocate(rofi_tmp(1:nr(ibas)), fac_integral(1:nr(ibas)), a1g(nr(ibas),ngc), ajr_tmp(nr(ibas),ngc))
-            allocate(__sigx(ngc,ngc))
-            !$acc data create(phi_rg, ajr_tmp, a1g, rofi_tmp, fac_integral, __sigx)
+            allocate(sigx_tmp(ngc,ngc))
+            !$acc data create(phi_rg, ajr_tmp, a1g, rofi_tmp, fac_integral, sigx_tmp)
 
             !$acc parallel loop collapse(2) private(phi(0:lxx), psi(0:lxx))
             do ig = 1, ngc
@@ -286,18 +286,18 @@ contains
                                          + rkpr(2:nr(ibas),l,ibas) *  int2x(2:nr(ibas)))* fac_integral(2:nr(ibas))]
               enddo
               !$acc end kernels
-              istat = dmm(a1g, ajr_tmp, __sigx, m=ngc, n=ngc, k=nr(ibas), opA=m_op_T)
+              istat = dmm(a1g, ajr_tmp, sigx_tmp, m=ngc, n=ngc, k=nr(ibas), opA=m_op_T)
               !$acc kernels
               do igg = 1, nggc
                 ig1 = iggtable(1,igg)
                 ig2 = iggtable(2,igg)
-                keep_sigx(l,igg) = __sigx(ig1,ig2)
+                keep_sigx(l,igg) = sigx_tmp(ig1,ig2)
               enddo
               !$acc end kernels
             enddo
 
             !$acc end data
-            deallocate(ajr_tmp, a1g, rofi_tmp, fac_integral, phi_rg, __sigx)
+            deallocate(ajr_tmp, a1g, rofi_tmp, fac_integral, phi_rg, sigx_tmp)
           endif setBessel
 
           write(aaaw,ftox) " vcoulq_4:  igig loop procid ibas nr lx, hasBessel=", mpi__rank,ibas, nr(ibas), lx(ibas), hasBessel
