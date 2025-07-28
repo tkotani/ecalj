@@ -191,7 +191,7 @@ contains
     integer :: iq, ikpisp, iqq, igg, iqi, igxt, i, ioff, ispc, ifiqg
     real(8) :: platt(3,3), qtarget(3), qu(3)
     logical :: has_geig, mpi_master
-    logical, save :: iqq_prev = -99999, iq_prev = -99999
+    integer, save :: iqq_prev = -99999, iq_prev = -99999
 #ifdef __GPU
     attributes(device) :: geigen
 #endif
