@@ -11,7 +11,7 @@ def mpiRUN(ncore):
     elif("ohtaka" in machine_info):
         mpirun= f'srun -n {ncore} ' if ncore!=0 else ''
     else:    
-        mpirun= f'mpirun -np {ncore} ' if ncore != 0 else ''
+        mpirun= f'mpirun --bind-to core --map-by core -np {ncore} ' if ncore != 0 else ''
     return mpirun
 
 
