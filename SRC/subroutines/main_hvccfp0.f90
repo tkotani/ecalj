@@ -274,14 +274,26 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
     enddo
 
     qdependentRadialIntegrals:block
+      use m_vcoulq, only: ajr
+      logical :: hasBessel
       allocate( rojp(ngc, nlxx, nbas), sgpb(ngc, nxx, nlxx, nbas), fouvb(ngc, nxx, nlxx, nbas))
       do ibas = 1,nbas
-        write(aaaw,ftox)'mkjp_4 ibas=',ibas
+        hasBessel = .false.
+        if(ibas > 1) then
+          if(nr(ibas) == nr(ibas-1)) then
+            if( all(abs(rofi(1:nr(ibas),ibas) - rofi(1:nr(ibas-1),ibas-1)) < 1d-10) .and. lx(ibas) == lx(ibas-1) ) hasBessel = .true.
+          endif
+        endif
+        write(aaaw,ftox)'mkjp_4 ibas, hasBessel=',ibas, hasBessel
         call cputm(stdo,aaaw)
         call mkjp_4(q,ngc, ngvecc, alat, qlat, lxx, lx(ibas),nxx, nx(0:lxx,ibas), bas(1,ibas),aa(ibas),bb(ibas),rmax(ibas), &
              nr(ibas), nrx, rprodx(1,1,0,ibas), eee, rofi(1,ibas), rkpr(1,0,ibas), rkmr(1,0,ibas), &
-             rojp(1,1,ibas),               sgpb(1,1,1,ibas),                   fouvb(1,1,1,ibas)) 
+             rojp(1,1,ibas),               sgpb(1,1,1,ibas),                   fouvb(1,1,1,ibas), hasBessel) 
       enddo! rojp=<j(e=0)_L|exp(i(q+G)r)>, sgpb=<exp(i(q+G)r)|v(onsite)|B_nL>, fouvb=<exp(i(q+G)r)|v|B_nL>
+      if(allocated(ajr)) then
+        !$acc exit data delete(ajr)
+        deallocate(ajr)
+      endif
     endblock qdependentRadialIntegrals
 
     write(aaaw,ftox)'start vcoulq_4 for iqx=',iqx,'q=',ftof(q(1:3),4),' ngc=',ngc,' nbas=',nbas,' lx=',lxx,' nx=',nxx,'procid=',mpi__rank

@@ -7,9 +7,25 @@ contains
     use m_ftox
     use m_lgunit,only:stdo
     use m_mpi,only: MPI__rank
+#ifdef __GPU
+    use openacc
+    use cudafor
+#endif
     character(*)  :: message
+    character(len=128) :: memuse_gpu = ''
+#ifdef __GPU
+    real(8),parameter:: kk=1024,GG=kk**3 !afac for workspace of zhgv
+    integer(8):: total_mem,free_mem, used_mem
+    integer :: istat
+    istat = cudaDeviceSynchronize()
+    total_mem = acc_get_property(0, acc_device_nvidia, acc_property_memory)
+    free_mem  = acc_get_property(0, acc_device_nvidia, acc_property_free_memory)
+    used_mem  = total_mem - free_mem
+    write(memuse_gpu,ftox,advance="no") ' (GPU)',ftof(dble(used_mem/GG),3),'GB'
+#endif
     write(stdo,ftox)trim(message)//repeat(' ',mod(1000-len_trim(message),55))//&
-         ' rank=',MPI__rank,'Memused',ftof(memused(),3),'GB',datetime()
+         ' rank=',MPI__rank,'Memused (CPU)',ftof(memused(),3),'GB'//trim(memuse_gpu),datetime()
+
     flush(stdo)
     if(mempeak>memused()) mempeak=memused()
   end subroutine writemem

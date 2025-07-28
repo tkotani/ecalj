@@ -1,5 +1,9 @@
 module m_GramSchmidt
+#ifdef __GPU
+  use m_blas,only: zmm => zmm_d, m_op_C, zmv => zmv_d, zvv => zvv_d
+#else
   use m_blas,only: zmm => zmm_h, m_op_C, zmv => zmv_h, zvv => zvv_h
+#endif
   public GramSchmidt2,CB_GramSchmidt
 contains
   subroutine GramSchmidt2(nspc,n,nv1,nv2,nv2mx, omat1,omat2, zmel1,zmel2)!Modified GramSchmidt. MTpart+IPW. Originally for AHC branch.
@@ -46,19 +50,29 @@ contains
     integer :: istat, cblock, jt, h, nrows, mcb = 256 !blocking size
     logical :: debug = .false.
     complex(8), allocatable :: w(:), oz1(:,:), oz2(:,:), wmat(:,:), q1(:,:), q2(:,:)
+#ifdef __GPU
+    attributes(device) :: w, oz1, oz2, wmat, q1, q2, vec1, vec2
+#endif
     if(debug) write(stdo,ftox) 'CB_GramSchmidt: Original GramSchmidt, NOT Modified version, with Column-wise Blocking'
-    allocate(q1, source = zmel1)
-    allocate(q2, source = zmel2)
 
+    allocate(q1, mold = zmel1)
+    allocate(q2, mold = zmel2)
+    !$acc data copy(zmel1, zmel2) copyin(omat1, omat2)
+    !$acc kernels
+    q1(:,:) = zmel1(:,:)
+    q2(:,:) = zmel2(:,:)
+    !$acc end kernels
     cblock_loop: do jt = 1, n, mcb
       h = min(mcb, n-jt+1)
-      allocate(w(h))
       if(debug) write(06,*) 'CB_GramSchmidt: = ', n, mcb, jt, h
+      allocate(w(h))
       do it = jt, jt + h - 1
         if(abs(zmel1(1,it))>1d6) exit cblock_loop !To skip padding parts.
         if(it /= jt) then
+          !$acc kernels
           vec1(:) = (0d0,0d0)
           vec2(:) = (0d0,0d0)
+          !$acc end kernels
           istat = zmv(omat1, zmel1(:,it), vec1, m=nv1, n=nv1)
           istat = zmv(omat2, zmel2(:,it), vec2, m=nv2, n=nv2)
           if(nspc==2) then
@@ -69,21 +83,32 @@ contains
           istat = zmv(q2(1,jt), vec2, w, m=nv2mx*nspc, n=it-jt, opA=m_op_C, beta=(1d0,0d0))
           istat = zmv(q1(1,jt), w, vec1, m=nv1*nspc  , n=it-jt)
           istat = zmv(q2(1,jt), w, vec2, m=nv2mx*nspc, n=it-jt)
+          !$acc kernels
           q1(:,it) = q1(:,it) - vec1(:)
           q2(:,it) = q2(:,it) - vec2(:)
+          !$acc end kernels
         endif
+        !$acc host_data use_device(omat1, omat2)
         dnorm2 = get_vxv(q1(1,it), omat1, nv1) + get_vxv(q2(1,it), omat2, nv2)
         if(nspc==2) dnorm2 = dnorm2 + get_vxv(q1(nv1+1,it), omat1, nv1) + get_vxv(q2(nv2mx+1,it), omat2, nv2)
+        !$acc end host_data
+        !$acc data copyin(dnorm2)
+        !$acc kernels
         q1(:,it) = q1(:,it)/dnorm2**.5
         q2(:,it) = q2(:,it)/dnorm2**.5
+        !$acc end kernels
+        !$acc end data
         if(it == n) exit cblock_loop
       enddo
       deallocate(w)
       nrows = n - (jt + h) + 1
-      allocate(oz1(nv1*nspc  ,nrows), source=(0d0,0d0))
-      allocate(oz2(nv2mx*nspc,nrows), source=(0d0,0d0))
+      allocate(oz1(nv1*nspc  ,nrows))
+      allocate(oz2(nv2mx*nspc,nrows))
       allocate(wmat(h,nrows))
-
+      !$acc kernels
+      oz1(:,:) =(0d0,0d0)
+      oz2(:,:) =(0d0,0d0)
+      !$acc end kernels
       istat = zmm(omat1, zmel1(1,jt+h), oz1, m=nv1, n=nrows, k=nv1, ldb=nv1*nspc  , ldc=nv1*nspc  )
       istat = zmm(omat2, zmel2(1,jt+h), oz2, m=nv2, n=nrows, k=nv2, ldb=nv2mx*nspc, ldc=nv2mx*nspc)
       if(nspc==2) then
@@ -94,14 +119,18 @@ contains
       istat = zmm(q2(1,jt), oz2, wmat, m=h, n=nrows, k=nv2mx*nspc, opA=m_op_C, beta=(1d0,0d0))
       istat = zmm(q1(1,jt), wmat, oz1, m=nv1*nspc  , n=nrows, k=h)
       istat = zmm(q2(1,jt), wmat, oz2, m=nv2mx*nspc, n=nrows, k=h)
+      !$acc kernels
       q1(:,jt+h:n) = q1(:,jt+h:n) - oz1(:,1:nrows)
       q2(:,jt+h:n) = q2(:,jt+h:n) - oz2(:,1:nrows)
+      !$acc end kernels
       deallocate(oz1, oz2, wmat)
     enddo cblock_loop
+    !$acc kernels
     zmel1(:,:) = q1(:,:)
     zmel2(:,:) = q2(:,:)
+    !$acc end kernels
+    !$acc end data
     deallocate(q1, q2)
-  contains
   end subroutine CB_GramSchmidt
   function get_vxv(vvec, xmat, nsize) result(vxv)
     integer, intent(in) :: nsize
@@ -109,8 +138,11 @@ contains
     complex(8) :: vxv
     complex(8) :: xv(nsize)
     integer:: istat
+#ifdef __GPU
+    attributes(device) :: vvec, xmat, xv
+#endif
     istat = zmv(xmat, vvec, xv, nsize, nsize) 
-    istat = zvv(vvec, xv, nsize, vxv) 
+    istat = zvv(vvec, xv, nsize, vxv)  !vxv is in host
   end function get_vxv
 end module m_gramschmidt
 ! subroutine GramSchmidt2(nspc,n,nv1,nv2,nv2mx, omat1,omat2, zmel1,zmel2)!MTpart+IPW part. Originally in main_huumat in AHC branch

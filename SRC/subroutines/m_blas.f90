@@ -10,8 +10,8 @@ module m_blas !wrapper for BLAS and cuBLAS
   public :: m_op_n, m_op_t, m_op_c
   public :: cmm_h, cmm_batch_h, zmm_h, zmm_batch_h, dmm_h, dmv_h, zmv_h, zvv_h
 #ifdef __GPU
-  public :: cmm_d, cmm_batch_d, zmm_d, zmm_batch_d, dmm_d, dmv_d, zmv_d
-  public :: cublas_init, cublas_handle
+  public :: cmm_d, cmm_batch_d, zmm_d, zmm_batch_d, dmm_d, dmv_d, zmv_d, zvv_d
+  public :: cublas_init, cublas_handle, cublas_finalize
   type(cublashandle), value :: cublas_handle
   logical, save :: set_cublas_handle = .false.
 #endif
@@ -368,6 +368,20 @@ contains
                                        alpha_in, a, m_type, lda_in, stridea, b, m_type, ldb_in, strideb, beta_in, &
                                        c, m_type, ldc_in, stridec, nbatch, compute_type, algo)
   end function cmm_batch_d
+  integer function zvv_d(x, y, n, res, incx, incy) result(istat)
+    implicit none
+    complex(8), device :: x(*), y(*)
+    complex(8) :: res
+    integer, intent(in) :: n
+    integer, optional :: incx, incy
+    integer :: incx_in, incy_in
+    if (n < 1) return
+    incx_in = 1; incy_in = 1
+    if(present(incx)) incx_in = incx
+    if(present(incy)) incy_in = incy
+    istat = cublas_init()
+    istat = cublaszdotc(cublas_handle, n, x, incx_in, y, incy_in, res)
+  end function zvv_d
   integer function dmv_d(a, x, y, m, n, opa, alpha, beta, lda, incx, incy) result(istat)
     implicit none
     real(8), device :: a(*), x(*), y(*)
@@ -535,6 +549,13 @@ contains
       set_cublas_handle = .true.
     endif
   end function cublas_init
+  integer function cublas_finalize() result(istat)
+      istat = 0
+      if(set_cublas_handle) then
+          istat = cublasdestroy(cublas_handle)
+          set_cublas_handle = .false.
+      endif
+  end function cublas_finalize
   integer function get_m_op_cublas(m_op_blas) result(m_op_cublas)
     character, intent(in) :: m_op_blas
     select case (m_op_blas)

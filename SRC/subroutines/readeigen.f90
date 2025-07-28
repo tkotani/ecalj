@@ -115,7 +115,7 @@ contains
       allocate( ngvecprev(-imx:imx,-imx:imx,-imx:imx,iq:iq))
       BLOCK
         integer:: ngvecp_tmp(3,ngpmx)
-        open(newunit=ifiqg, file='QGpsi_rec',form='unformatted', access='direct', recl=4*(3*ngpmx+(2*imx+1)**3), status='old')
+        open(newunit=ifiqg, file='__QGpsi_rec',form='unformatted', access='direct', recl=4*(3*ngpmx+(2*imx+1)**3), status='old')
         read(ifiqg, rec=iq)  ngvecp_tmp(1:3,1:ngpmx),ngvecprev(-imx:imx,-imx:imx,-imx:imx,iq)
         read(ifiqg, rec=iqq) ngvecp(1:3, 1:ngp(iqq),iqq)
         close(ifiqg)
@@ -191,6 +191,7 @@ contains
     integer :: iq, ikpisp, iqq, igg, iqi, igxt, i, ioff, ispc, ifiqg
     real(8) :: platt(3,3), qtarget(3), qu(3)
     logical :: has_geig, mpi_master
+    logical, save :: iqq_prev = -99999, iq_prev = -99999
 #ifdef __GPU
     attributes(device) :: geigen
 #endif
@@ -236,17 +237,32 @@ contains
       endif
     endif
     igxt=1 !not timereversal
-    if(.not.keepqg) then
-      allocate( ngvecp(3,ngpmx,iqq:iqq))
-      allocate( ngvecprev(-imx:imx,-imx:imx,-imx:imx,iq:iq))
-      BLOCK
+    if(.not.keepqg .and. (iqq_prev /= iqq .or. iq_prev /= iq)) then
+      ReadQGpsi: BLOCK
         integer:: ngvecp_tmp(3,ngpmx)
-        open(newunit=ifiqg, file='QGpsi_rec',form='unformatted', access='direct', recl=4*(3*ngpmx+(2*imx+1)**3), status='old')
-        read(ifiqg, rec=iq)  ngvecp_tmp(1:3,1:ngpmx),ngvecprev(-imx:imx,-imx:imx,-imx:imx,iq)
-        read(ifiqg, rec=iqq) ngvecp(1:3, 1:ngp(iqq),iqq)
+        open(newunit=ifiqg, file='__QGpsi_rec',form='unformatted', access='direct', recl=4*(3*ngpmx+(2*imx+1)**3), status='old')
+        if(iqq_prev /= iqq)  then
+          if(allocated(ngvecp)) then
+            !$acc exit data delete(ngvecp)
+            deallocate(ngvecp)
+          endif
+          allocate(ngvecp(3,ngpmx,iqq:iqq))
+          read(ifiqg, rec=iqq) ngvecp(1:3, 1:ngp(iqq),iqq)
+          !$acc enter data copyin(ngvecp)
+          iqq_prev = iqq
+        endif
+        if(iq_prev /= iq)  then
+          if(allocated(ngvecprev)) then
+            !$acc exit data delete(ngvecprev)
+            deallocate(ngvecprev)
+          endif
+          allocate( ngvecprev(-imx:imx,-imx:imx,-imx:imx,iq:iq))
+          read(ifiqg, rec=iq)  ngvecp_tmp(1:3,1:ngpmx),ngvecprev(-imx:imx,-imx:imx,-imx:imx,iq)
+          !$acc enter data copyin(ngvecprev)
+          iq_prev = iq
+        endif
         close(ifiqg)
-      END BLOCK
-      !$acc enter data copyin(ngvecp,ngvecprev)
+      END BLOCK ReadQGpsi
     endif
     do ispc=1,nspc
       ioff=(ispc-1)*ngpmx
@@ -286,7 +302,6 @@ contains
       endblock rotipw
     enddo
     !$acc exit data delete(geigenr)
-    if(.not.keepqg) deallocate(ngvecp,ngvecprev)
   end function readgeigf_mpi
 
   function readcphif_mpi(q, isp, comm) result(cphif)

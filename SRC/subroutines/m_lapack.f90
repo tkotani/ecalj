@@ -8,14 +8,14 @@ module m_lapack
   implicit none
   public :: zhgv_h, zminv_h, zsv_h
 #ifdef __GPU
-  public :: zhgv_d, zminv_d, zsv_d
+  public :: zhgv_d, zminv_d, zsv_d, cusolver_finalize
 #endif
   private
 #ifdef __GPU
   integer :: cuda_runtime_version
   type(cusolverDnHandle), value :: cusolver_handle 
   type(cusolverDnParams), value :: cusolver_params
-  logical, save :: set_cusolver_init = .false.
+  logical, save :: set_cusolver_handle = .false.
 #endif
 contains
   integer function zminv_h(a, n, lda) result(istat)
@@ -229,15 +229,29 @@ contains
   end function zhgv_d
   integer function cusolver_init() result(istat)
     istat = 0
-    if(.not.set_cusolver_init) then 
+    if(.not.set_cusolver_handle) then 
       istat = cusolverDnCreate(cusolver_handle)
       if(istat /= CUSOLVER_STATUS_SUCCESS) then
         print *, 'Error in cusolverDnCreate'
       endif
       istat = cusolverDnCreateParams(cusolver_params)
       istat = cudaRuntimeGetversion(cuda_runtime_version)
-      set_cusolver_init = .true.
+      set_cusolver_handle = .true.
     endif
   end function cusolver_init
+  integer function cusolver_finalize() result(istat)
+    istat = 0
+    if(set_cusolver_handle) then
+      istat = cusolverDnDestroy(cusolver_handle)
+      if(istat /= CUSOLVER_STATUS_SUCCESS) then
+        print *, 'Error in cusolverDnDestroy'
+      endif
+      istat = cusolverDnDestroyParams(cusolver_params)
+      if(istat /= CUSOLVER_STATUS_SUCCESS) then
+        print *, 'Error in cusolverDnDestroyParams'
+      endif
+      set_cusolver_handle = .false.
+    endif
+  end function cusolver_finalize
 #endif
 end module m_lapack
