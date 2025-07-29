@@ -1,10 +1,12 @@
 # run_arg.py
 import subprocess
 import sys
+from MachineDependence import mpiRUN
 
 def run_arg(argin, mpi_size, nfpgw, command, output, *target):
     echo_run = True  # standard
-    mpi_run = f"mpirun --bind-to none --map-by node -np {mpi_size}"  # standard
+    #mpi_run = f"mpirun --bind-to none --map-by node -np {mpi_size}"  # standard
+    mpi_run = mpiRUN(mpi_size)
 
     target_str = ' '.join(target)
     command_str = f"{nfpgw}{command} {target_str}"

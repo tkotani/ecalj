@@ -59,20 +59,19 @@ if(showt):
 
 "Install to bin"
 os.makedirs(bindir,exist_ok=True)
-exec='lmfa lmf run_arg run_arg.py job_pdos job_tdos ctrl2ctrlp.py a2vec.py \
- gwsc gwutil.py qg4gw hvccfp0 hsfp0_sc hqpe_sc hmaxloc hpsig_MPI huumat_MPI hwmatK_MPI hrcxq \
-hvccfp0_gpu hsfp0_sc_gpu hrcxq_gpu hx0fp0_gpu \
-hvccfp0_mp hsfp0_sc_mp hrcxq_mp hx0fp0_mp \
-hvccfp0_mp_gpu hsfp0_sc_mp_gpu hrcxq_mp_gpu hx0fp0_mp_gpu lmf_gpu lmf_mp_gpu \
- heftet hbasfp0 gw_lmfh hx0fp0 hsfp0 hqpe eps_lmfh epsPP_lmfh epsPP_lmfh_chipm genMLWFx'
-for ex in exec.split():
-    try:
-        shutil.copy(ecaljroot+'/SRC/exec/'+ex,bindir)
-        print ('cp ' + ecaljroot+'/SRC/exec/' +ex+ ' to ',bindir)
-    except:
-        pass
-    
-#sys.exit()
+
+# Copy executables to BINDIR
+binexe = ecaljroot+'/SRC/exec/'
+print(binexe)
+#executables = [f for f in os.listdir(binexe)]
+executables = [
+    f for f in os.listdir(binexe)
+    if os.access(os.path.join(binexe, f), os.X_OK)
+    and not os.path.isdir(os.path.join(binexe, f))
+]
+for exe in executables:
+    print('cp '+binexe+exe+' to ',bindir)
+    shutil.copy(binexe+exe, bindir)
 
 "Alias binaries combined with np "
 lmfa = 'mpirun -np 1 '+testroot+'/bin/lmfa ' 

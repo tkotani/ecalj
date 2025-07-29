@@ -1,1 +1,1 @@
-FC=gfortran ./InstallAll
+./InstallAll.py --fc gfortran
