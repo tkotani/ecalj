@@ -1,0 +1,3 @@
+./InstallAll.py --fc nvfortran --gpu
+
+

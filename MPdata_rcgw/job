@@ -1,5 +1,0 @@
-#!/usr/bin/env python3 
-MPqueryAll
-SelectDivideList list.job_mp.no4f
-SelectDivideList list.job_mp.4f
-joballqsub

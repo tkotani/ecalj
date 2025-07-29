@@ -1,8 +1,0 @@
-STRUC
-     ALAT=10.26
-     PLAT=0 0.5 0.5 
-          0.5 0 0.5 
-          0.5 0.5 0 
-SITE
-     ATOM=Si POS=0.0 0.0 0.0
-     ATOM=Si POS=.25 .25 .25
