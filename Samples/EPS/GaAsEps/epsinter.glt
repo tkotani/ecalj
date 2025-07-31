@@ -1,8 +1,8 @@
 set title "InterBand part of Epsilon(omega(eV))"
 set xlabel "(eV)"
 set datafile fortran
-set xran[0:30]
-set yran[-30:30]
+set xran[0:230]
+set yran[0:2]
 plot\
  "epsinter.dat" using ($2)*13.605:($3) w l title "RealPart:EPS0001.nlfc.dat.interbandonly",\
  "epsinter.dat" using ($2)*13.605:($4) w l title "RealPart:EPS0002.nlfc.dat.interbandonly",\

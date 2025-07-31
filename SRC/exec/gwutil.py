@@ -25,9 +25,8 @@ def rm_files(files):
     for fname in files:
         remove(fname)
 
-
 nxdict = {}
-def run_program(cmd, ncore=0, x0=0):
+def run_program(cmd, ncore=1, x0=0):
     """Run a program with ncore cores.
        Decreasing ncore until the command runs successfully."""
     import subprocess, datetime
