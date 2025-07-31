@@ -210,7 +210,7 @@ contains
           ndimhx_(iq,2)= ndimhx     !Hamiltonian dimension
        endif   
        if(master_mpi.AND.epsovl>=1d-14.AND.plbnd/=0) write(stdo,&
-            "(' : ndimhx=',i5,' --> nev=',i5' by HAM_OVEPS ',d11.2)") ndimhx,nev,epsovl
+            "(' : ndimhx=',i5,' --> nev=',i5,' by HAM_OVEPS ',d11.2)") ndimhx,nev,epsovl
        if(PROCARon) call m_procar_add(iq,isp,ef0,evl,qp,nev,evec,ndimhx)
        if(allocated(evec)) deallocate(evec)
        if(allocated(hammhso)) deallocate(hammhso)
