@@ -193,13 +193,13 @@ contains
     endblock GetHamiltonianAndDiagonalize
     BROADCASTevlall:block
       integer:: nspxa
-!      if(afsym) then
-!        call xmpbnd2(kpproc,nbandmx,nkp,evlall(:,1,:)) !all eigenvalues are distributed nbandmx blocks
-!        call xmpbnd2(kpproc,nbandmx,nkp,evlall(:,2,:)) 
-!     else
-      nspxa=merge(2,nspx,afsym)
-      call xmpbnd2(kpproc,nbandmx,nkp*nspxa,evlall)   !all eigenvalues broadcasted !note (iq,isp) order in m_qplist.f90
-     !endif
+      if(afsym) then !this block recovered! (was commented out at 2025-06-09)
+        call xmpbnd2(kpproc,nbandmx,nkp,evlall(:,1,:)) !all eigenvalues are distributed nbandmx blocks
+        call xmpbnd2(kpproc,nbandmx,nkp,evlall(:,2,:)) 
+      else 
+        nspxa=nsp !   nspxa=merge(2,nspx,afsym)
+        call xmpbnd2(kpproc,nbandmx,nkp*nspxa,evlall)   !all eigenvalues broadcasted !note (iq,isp) order in m_qplist.f90
+      endif
       if(lso==1) call xmpbnd2(kpproc,nbandmx*2,nkp,spinweightsoc)   !all eigenvalues broadcasted
       if(master_mpi) then
         do iq=1,1;do jsp=1,nspx; write(stdl,"('fp evl',8f8.4)")(evlall(i,jsp,iq),i=1,nevls(iq,jsp))
