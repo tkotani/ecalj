@@ -27,8 +27,7 @@ def vasp2ctrl_write(vaspread,alat_val,NBAS_val,atom_list,titleinput,all_atom,rat
     cvecs = ' '.join(['%18.11f ' % x for x in cvec])
     plats = 'PLAT=  '+ avecs +' \n' +' '*12+ bvecs +'\n'+' '*12+ cvecs +'\n'
     outputlist1 = 'STRUC'+'\n'+' '*5+'ALAT=' + str(alat_val*ratioa) +'\n' \
-    +' '*5+ plats \
-    +' '*2+'NBAS='+str(NBAS_val)+'\n'+'SITE'+'\n'
+    +' '*5+ plats +'SITE'+'\n'
     ctrlwrite.write(outputlist1)
     for sort in range(len(tes)):
         position  = [float(x)/ratioa for x in atom_list[sort][0:3] ]
@@ -81,10 +80,10 @@ def fileopen(openfile): #return cleanuped contents of openfile.
 def constlist(openfile): #---get input values from ctrls (openfile)
     keywordlist = []
     for open_read in openfile:
-        hx = re.match('^',open_read)
-        open_read = re.sub('\^','**',open_read) # x^y means x**y
-        rx = re.match('/', open_read)
-        open_read = re.sub('/', '/1.0/', open_read) # python /1.0/
+        hx = re.match(r'^',open_read)
+        open_read = re.sub(r'\^','**',open_read) # x^y means x**y
+        rx = re.match(r'/', open_read)
+        open_read = re.sub(r'/', '/1.0/', open_read) # python /1.0/
         fx = re.match(r'\s*=\s* ',  open_read) 
         open_read = re.sub(r'\s*=\s* ', '=', open_read)
         ex = re.match(r'^\%\s*const ',  open_read) 
@@ -118,7 +117,7 @@ def alat(perfectopen,keyword_name): #get alat (unit)
     for alat_first in range(len(ALATone)):
         for alat_second in range(len(ALATone[alat_first])):
             for const_name in range(len(keyword_name)):
-                ALATone[alat_first][alat_second] = re.sub('\{'+keyword_name[const_name]+'\}',keyword_name[const_name],ALATone[alat_first][alat_second]) #replace {foobar} from ALAT
+                ALATone[alat_first][alat_second] = re.sub(r'\{'+keyword_name[const_name]+r'\}',keyword_name[const_name],ALATone[alat_first][alat_second]) #replace {foobar} from ALAT
     return ALATone
 
 def plat(perfectopen,keyword_name): #---get PLAT
@@ -145,7 +144,7 @@ def plat(perfectopen,keyword_name): #---get PLAT
 #    PLAT_list = PLATone[-1] # last element constains PLAT.
     for line_ing in range(len(PLAT_list)):
         for const_name in range(len(keyword_name)):
-            PLAT_list[line_ing] = re.sub('\{'+keyword_name[const_name]+'\}',keyword_name[const_name],PLAT_list[line_ing]) # replace {foobar} with its values
+            PLAT_list[line_ing] = re.sub(r'\{'+keyword_name[const_name]+r'\}',keyword_name[const_name],PLAT_list[line_ing]) # replace {foobar} with its values
     return PLAT_list
 
 def atom(perfectopen,keyword_name): #---get ATOM,POS
@@ -175,7 +174,7 @@ def atom(perfectopen,keyword_name): #---get ATOM,POS
     for line_each in range(len(temp5)):
 #        print 'pppp',temp5[line_each]
         for const_name in range(len(keyword_name)):
-            temp5[line_each] = re.sub('\{'+keyword_name[const_name]+'\}',keyword_name[const_name],temp5[line_each]) 
+            temp5[line_each] = re.sub(r'\{'+keyword_name[const_name]+r'\}',keyword_name[const_name],temp5[line_each]) 
     sep_atom = []
     count = int(len(temp5)/4) 
     j1 = -1

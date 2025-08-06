@@ -25,6 +25,8 @@ contains
     !o   orhoat: vector of offsets containing site density, in standard
     !o           3-component form (true rho, smoothed rho, core rho)
     !o   smrho :smoothed interstitial density, complex (for computational convenience)
+    ! rsmfa:  smoothing radius for tails of free-atom charge density. Irrelevant except first iteration only (non-self-consistent harris). A large radius produces smoother interstitial charge, but somewhat less accurate fit.
+!Default: R/2, with R=augmentation (muffin-tin) radius. 
     ! ----------------------------------------------------------------------
     implicit none
     integer :: nrmx, n0,i_spec

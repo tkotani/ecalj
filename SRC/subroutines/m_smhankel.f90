@@ -1,4 +1,8 @@
 !>Bloch sum of smooth Hankel and Gaussians. Expansion and Integrals.
+! rsmg: is the moothing radius for Gaussians added to sphere densities to correct multipole moments needed for electrostatics.
+! Value should be as large as possible but small enough that the Gaussian doesn't spill out significantly beyond rmt.
+! Default: R/4, with R=augmentation (muffin-tin) radius. 
+
 module m_smhankel   !2023-4-28 memo: TK added qshortn(q). This allows q is not need to be within BZ.
   use m_ll,only:ll
   use m_factorial,only: factorial_init,factorial2,factorial

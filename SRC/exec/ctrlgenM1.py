@@ -570,7 +570,7 @@ SYMGRP find   # 'find' generates space-group symmetry from lattice.
                # Enlarge this, when your enlarge pwemax, and check little dependence on kmxa. 
 """
 alltmp = head + glist(listno) \
-     + glist(liststruc)  + "     NL=4  NBAS= "+ ansite + "  NSPEC="+ anspec +'\n' \
+     + glist(liststruc)  +'\n' \
      + glist(listsite) \
      + 'SPEC\n' #specsec
 f = open("ctrl.tmp",'wt')
@@ -876,4 +876,5 @@ g = open("ctrlgenM1.ctrl."+ext,'wt')
 g.write(alltmp+specsec+tail)
 g.close()
 print( "=== End of ctrlgenM1.py. OK! A template of ctrl file, ctrlgenM1.ctrl."+ext+", is generated.")
+os.system('rm -f *.tmp *.tmp2 ves* llm* exit* atomlist*')
 sys.exit()
