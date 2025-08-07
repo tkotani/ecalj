@@ -1,0 +1,12 @@
+# NLAindx (augmentation ortaitals within MT. na l ibas i ) 
+    50
+     1  0   1     0    4s_phi   
+     1  1   1     1    4p_phi   
+     1  2   1     4    3d_phi   
+     1  3   1     9    4f_phi   
+     1  4   1    16    5g_phi   
+     2  0   1    25    4s_phidot
+     2  1   1    26    4p_phidot
+     2  2   1    29    3d_phidot
+     2  3   1    34    4f_phidot
+     2  4   1    41    5g_phidot

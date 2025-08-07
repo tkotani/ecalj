@@ -343,12 +343,14 @@ contains
     !i   nsp   :2 for spin-polarized case, otherwise 1
     !i   orbtm :orbital moments
     implicit none
-    integer :: isp,l,im,lm,m,l1,ipr,is,ibas,nl
+    integer :: isp,l,im,lm,m,l1,ipr,is,ibas,nl,ifi
     double precision :: amom,orbl(10)
     nl=lmxax+1
     call getpr(ipr)
     if (ipr < 20) return
+    open(ifi,file='orbtalmom.chk')
     write(stdo,332)
+    write(ifi,332)
 332 format(/'IORBTM:  orbital moments :'/' ibas  Spec        spin   Moment decomposed by l ...')
     do  ibas = 1,nbas
        amom = 0
@@ -356,8 +358,11 @@ contains
           orbl(1:lmxax+1) = orbtm(1:lmxax+1,isp,ibas)
           amom = amom + sum(orbtm(1:lmxax+1,isp,ibas))
           write(stdo,"(i5,4x,a8,i6,8f12.6)") ibas,slabl(ispec(ibas)),isp,(orbl(l1),l1=1,nl)
+          write(ifi ,"(i5,4x,a8,i6,8f12.6)") ibas,slabl(ispec(ibas)),isp,(orbl(l1),l1=1,nl)
        enddo
        write(stdo,"(' total orbital moment',i4,':',f12.6)") ibas, amom
-    enddo
+       write(ifi ,"(' total orbital moment',i4,':',f12.6)") ibas, amom
+     enddo
+     close(ifi)
   end subroutine iorbtm
 endmodule m_bndfp_util
