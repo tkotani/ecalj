@@ -196,8 +196,8 @@ contains
       if(afsym) then !this block recovered! (was commented out at 2025-06-09)
         call xmpbnd2(kpproc,nbandmx,nkp,evlall(:,1,:)) !all eigenvalues are distributed nbandmx blocks
         call xmpbnd2(kpproc,nbandmx,nkp,evlall(:,2,:)) 
-      else 
-        nspxa=nsp !   nspxa=merge(2,nspx,afsym)
+      else
+        nspxa=merge(2,nspx,afsym)
         call xmpbnd2(kpproc,nbandmx,nkp*nspxa,evlall)   !all eigenvalues broadcasted !note (iq,isp) order in m_qplist.f90
       endif
       if(lso==1) call xmpbnd2(kpproc,nbandmx*2,nkp,spinweightsoc)   !all eigenvalues broadcasted
