@@ -476,7 +476,7 @@ contains
       maxit=iter_maxit
       nlmax=(max(lmxbx,lmxax)+1)**2
 !      if (dalat == NULLR) dalat=0d0
-!      lat_alat=alat+dalat
+      lat_alat=alat !+dalat
       lat_avw=avw
       lat_nkqmx=lat_nkdmx
       lat_platin=plat
