@@ -348,7 +348,7 @@ contains
     nl=lmxax+1
     call getpr(ipr)
     if (ipr < 20) return
-    open(ifi,file='orbtalmom.chk')
+    open(ifi,file='orbitalmom.chk')
     write(stdo,332)
     write(ifi,332)
 332 format(/'IORBTM:  orbital moments :'/' ibas  Spec        spin   Moment decomposed by l ...')

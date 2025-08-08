@@ -98,22 +98,23 @@ Xe  =" atomz=54@  eh=-1*4@ eh2=-2*3@ R=?@"
 Cs  =" atomz=55@ pz='PZ=5,5'@ p='P=6.2,6.2'@ eh=-1*4@ eh2=-2*3@ R=?@" 
 Ba  =" atomz=56@ pz='PZ=0,5'@ eh=-1*4@ eh2=-2*3@ R=?@" 
 
-# Take U value from PRB75 045114 (2007) +1eV for stabilizing convergence 
-La  =" atomz=57@ pz='PZ=0,5,0,5'@ eh=-1*4@ eh2=-2*4@ R=?@ ext='#IDU=0 0 0 12  UH=0 0 0 0.549  JH=0 0 0 0.0727  ##MMOM=0 0 0 0'@" 
-Ce  =" atomz=58@ pz='PZ=0,5,0,5'@ eh=-1*4@ eh2=-2*4@ R=?@ ext='#IDU=0 0 0 12  UH=0 0 0 0.549+2*0.0735 JH=0 0 0 0.0727  ##MMOM=0 0 0 1'@" 
-Pr  =" atomz=59@ pz='PZ=0,5,0,5'@ eh=-1*4@ eh2=-2*4@ R=?@ ext='#IDU=0 0 0 12  UH=0 0 0 0.535  JH=0 0 0 0.0692  ##MMOM=0 0 0 2'@" 
-Nd  =" atomz=60@ pz='PZ=0,5,0,5'@ eh=-1*4@ eh2=-2*4@ R=?@ ext='#IDU=0 0 0 12  UH=0 0 0 0.559  JH=0 0 0 0.0726  ##MMOM=0 0 0 3'@"
-Pm  =" atomz=61@ pz='PZ=0,5,0,5'@ eh=-1*4@ eh2=-2*4@ R=?@ ext='#IDU=0 0 0 12  UH=0 0 0 0.583  JH=0 0 0 0.0757  ##MMOM=0 0 0 4'@" 
-Sm  =" atomz=62@ pz='PZ=0,5,0,5'@ eh=-1*4@ eh2=-2*4@ R=?@ ext='#IDU=0 0 0 12  UH=0 0 0 0.604  JH=0 0 0 0.0787  ##MMOM=0 0 0 5'@" 
-Eu  =" atomz=63@ pz='PZ=0,5,0,5'@ eh=-1*4@ eh2=-2*4@ R=?@ ext='#IDU=0 0 0 12  UH=0 0 0 0.625+0.0735 JH=0 0 0 0.0815  ##MMOM=0 0 0 6'@" 
-Gd  =" atomz=64@ pz='PZ=0,5,0,5'@ eh=-1*4@ eh2=-2*4@ R=?@ ext='#IDU=0 0 0 12  UH=0 0 0 0.676  JH=0 0 0 0.0882  ##MMOM=0 0 0 7'@" 
-Tb  =" atomz=65@ pz='PZ=0,5,0,5'@ eh=-1*4@ eh2=-2*4@ R=?@ ext='#IDU=0 0 0 12  UH=0 0 0 0.696  JH=0 0 0 0.0924  ##MMOM=0 0 0 6'@" 
-Dy  =" atomz=66@ pz='PZ=0,5,0,5'@ eh=-1*4@ eh2=-2*4@ R=?@ ext='#IDU=0 0 0 12  UH=0 0 0 0.685  JH=0 0 0 0.0895  ##MMOM=0 0 0 5'@"
-Ho  =" atomz=67@ pz='PZ=0,5,0,5'@ eh=-1*4@ eh2=-2*4@ R=?@ ext='#IDU=0 0 0 12  UH=0 0 0 0.704  JH=0 0 0 0.0920  ##MMOM=0 0 0 4'@"
-Er  =" atomz=68@ pz='PZ=0,5,0,5'@ eh=-1*4@ eh2=-2*4@ R=?@ ext='#IDU=0 0 0 12  UH=0 0 0 0.773  JH=0 0 0 0.0945  ##MMOM=0 0 0 3'@"
-Tm  =" atomz=69@ pz='PZ=0,5,0,5'@ eh=-1*4@ eh2=-2*4@ R=?@ ext='#IDU=0 0 0 12  UH=0 0 0 0.741  JH=0 0 0 0.0968  ##MMOM=0 0 0 2'@"
-Yb  =" atomz=70@ pz='PZ=0,5,0,5'@ eh=-1*4@ eh2=-2*4@ R=?@ ext='#IDU=0 0 0 12  UH=0 0 0 0.759  JH=0 0 0 0.0992  Q=2 6 1 13 ##MMOM=0 0 0 1'@"
-Lu  =" atomz=71@ pz='PZ=0,5,0,5'@ eh=-1*4@ eh2=-2*4@ R=?@ ext='#IDU=0 0 0 12  UH=0 0 0 0.804  JH=0 0 0 0.1065  ##MMOM=0 0 0 0'@"
+# Take U value from PRB75 045114 (2007) +1eV for stabilizing convergence
+# NOt believe UH, JH so much.
+La  =" atomz=57@ pz='PZ=0,5,0,5'@ eh=-1*4@ eh2=-2*4@ R=?@ ext='IDU=0 0 0 12  UH=0 0 0 0.549  JH=0 0 0 0.0727  MMOM=0 0 0 0'@" 
+Ce  =" atomz=58@ pz='PZ=0,5,0,5'@ eh=-1*4@ eh2=-2*4@ R=?@ ext='IDU=0 0 0 12  UH=0 0 0 0.5495 JH=0 0 0 0.0727  MMOM=0 0 0 1'@" 
+Pr  =" atomz=59@ pz='PZ=0,5,0,5'@ eh=-1*4@ eh2=-2*4@ R=?@ ext='IDU=0 0 0 12  UH=0 0 0 0.535  JH=0 0 0 0.0692  MMOM=0 0 0 2'@" 
+Nd  =" atomz=60@ pz='PZ=0,5,0,5'@ eh=-1*4@ eh2=-2*4@ R=?@ ext='IDU=0 0 0 12  UH=0 0 0 0.559  JH=0 0 0 0.0726  MMOM=0 0 0 3'@"
+Pm  =" atomz=61@ pz='PZ=0,5,0,5'@ eh=-1*4@ eh2=-2*4@ R=?@ ext='IDU=0 0 0 12  UH=0 0 0 0.583  JH=0 0 0 0.0757  MMOM=0 0 0 4'@" 
+Sm  =" atomz=62@ pz='PZ=0,5,0,5'@ eh=-1*4@ eh2=-2*4@ R=?@ ext='IDU=0 0 0 12  UH=0 0 0 0.604  JH=0 0 0 0.0787  MMOM=0 0 0 5'@" 
+Eu  =" atomz=63@ pz='PZ=0,5,0,5'@ eh=-1*4@ eh2=-2*4@ R=?@ ext='IDU=0 0 0 12  UH=0 0 0 0.773  JH=0 0 0 0.0945  MMOM=0 0 0 6'@" 
+Gd  =" atomz=64@ pz='PZ=0,5,0,5'@ eh=-1*4@ eh2=-2*4@ R=?@ ext='IDU=0 0 0 12  UH=0 0 0 0.676  JH=0 0 0 0.0882  MMOM=0 0 0 7'@" 
+Tb  =" atomz=65@ pz='PZ=0,5,0,5'@ eh=-1*4@ eh2=-2*4@ R=?@ ext='IDU=0 0 0 12  UH=0 0 0 0.696  JH=0 0 0 0.0924  MMOM=0 0 0 6'@" 
+Dy  =" atomz=66@ pz='PZ=0,5,0,5'@ eh=-1*4@ eh2=-2*4@ R=?@ ext='IDU=0 0 0 12  UH=0 0 0 0.685  JH=0 0 0 0.0895  MMOM=0 0 0 5'@"
+Ho  =" atomz=67@ pz='PZ=0,5,0,5'@ eh=-1*4@ eh2=-2*4@ R=?@ ext='IDU=0 0 0 12  UH=0 0 0 0.704  JH=0 0 0 0.0920  MMOM=0 0 0 4'@"
+Er  =" atomz=68@ pz='PZ=0,5,0,5'@ eh=-1*4@ eh2=-2*4@ R=?@ ext='IDU=0 0 0 12  UH=0 0 0 0.773  JH=0 0 0 0.0945  MMOM=0 0 0 3'@"
+Tm  =" atomz=69@ pz='PZ=0,5,0,5'@ eh=-1*4@ eh2=-2*4@ R=?@ ext='IDU=0 0 0 12  UH=0 0 0 0.741  JH=0 0 0 0.0968  MMOM=0 0 0 2'@"
+Yb  =" atomz=70@ pz='PZ=0,5,0,5'@ eh=-1*4@ eh2=-2*4@ R=?@ ext='IDU=0 0 0 12  UH=0 0 0 0.759  JH=0 0 0 0.0992  MMOM=0 0 0 1'@"
+Lu  =" atomz=71@ pz='PZ=0,5,0,5'@ eh=-1*4@ eh2=-2*4@ R=?@ ext='IDU=0 0 0 12  UH=0 0 0 0.804  JH=0 0 0 0.1065  MMOM=0 0 0 0'@"
 
 Hf  =" atomz=72@ pz='PZ=0,5.5'@ p='P=0,6.5,0,4.5 Q=2,6,2,14'@ eh=-1*5@ eh2=-2*4@
 Ta  =" atomz=73@ eh=-1*4@ eh2=-2*3@ R=?@" 
@@ -132,22 +133,24 @@ At  =" atomz=85@ eh=-1*4@ eh2=-2*3@ R=?@ pz='#PZ=0,0,4.9'@ eh=-1*4@ eh2=-2*3@ R=
 Rn  =" atomz=86@ eh=-1*4@ eh2=-2*3@ R=?@" 
 
 Fr  =" atomz=87@ pz='PZ=6,6'@ eh=-1*4@ eh2=-2*4@ R=?@" 
-Ra  =" atomz=88@ pz='PZ=0,6'@ eh=-1*4@ eh2=-2*4@ R=?@" 
-Ac  =" atomz=89@ pz='PZ=0,6'@ eh=-1*4@ eh2=-2*4@ R=?@" 
-Th  =" atomz=90@ pz='PZ=0,6'@ eh=-1*4@ eh2=-2*4@ R=?@" 
-Pa  =" atomz=91@ pz='PZ=0,6'@ eh=-1*4@ eh2=-2*4@ R=?@" 
-U   =" atomz=92@ pz='PZ=0,6'@ eh=-1*4@ eh2=-2*4@ R=?@" 
-Np  =" atomz=93@ pz='PZ=0,6'@ eh=-1*4@ eh2=-2*4@ R=?@" 
-Pu  =" atomz=94@ pz='PZ=0,6'@ eh=-1*4@ eh2=-2*4@ R=?@" 
-Am  =" atomz=95@ pz='PZ=0,6'@ eh=-1*4@ eh2=-2*4@ R=?@" 
-Cm  =" atomz=96@ pz='PZ=0,6'@ eh=-1*4@ eh2=-2*4@ R=?@" 
-Bk  =" atomz=97@ pz='PZ=0,6'@ eh=-1*4@ eh2=-2*4@ R=?@" 
-Cf  =" atomz=98@ pz='PZ=0,6'@ eh=-1*4@ eh2=-2*4@ R=?@"
-Es  =" atomz=99@ pz='PZ=0,6'@ eh=-1*4@ eh2=-2*4@ R=?@"
-Fm  =" atomz=100@ pz='PZ=0,6'@ eh=-1*4@ eh2=-2*4@ R=?@"
-Md  =" atomz=101@ pz='PZ=0,6'@ eh=-1*4@ eh2=-2*4@ R=?@"
-No  =" atomz=102@ pz='PZ=0,6'@ eh=-1*4@ eh2=-2*4@ R=?@"
-Lr  =" atomz=103@ pz='PZ=0,6'@ eh=-1*4@ eh2=-2*4@ R=?@"
+Ra  =" atomz=88@ pz='PZ=0,6'@ eh=-1*4@ eh2=-2*4@ R=?@"
+
+### No check yet ###
+Ac  =" atomz=89@ not set yet follow Setting of 4f"
+Th  =" atomz=90@ not set yet follow Setting of 4f"
+Pa  =" atomz=91@ not set yet follow Setting of 4f"
+U   =" atomz=92@ not set yet follow Setting of 4f"
+Np  =" atomz=93@ not set yet follow Setting of 4f" 
+Pu  =" atomz=94@ not set yet follow Setting of 4f"
+Am  =" atomz=95@  not set yet follow Setting of 4f" 
+Cm  =" atomz=96@  not set yet follow Setting of 4f" 
+Bk  =" atomz=97@  not set yet follow Setting of 4f" 
+Cf  =" atomz=98@  not set yet follow Setting of 4f"
+Es  =" atomz=99@  not set yet follow Setting of 4f"
+Fm  =" atomz=100@ not set yet follow Setting of 4f"
+Md  =" atomz=101@ not set yet follow Setting of 4f"
+No  =" atomz=102@ not set yet follow Setting of 4f"
+Lr  =" atomz=103@ not set yet follow Setting of 4f"
 ### CAUTION!!! R= in this table is in Angstrome.
 ### This gives smaller basis than those used in our dimer paper. ###
 """
@@ -552,16 +555,13 @@ for ispec in uniq(sitename):
 os.system("rm -rf llmchk_getwsr llmfa.tmp2")
 head="### This is generated by ctrlgenM1.py from ctrls \n"
 head= head+ r"""
-IO      VERBOS=35 TIM=0,0
-           # Use TIM=3,3 or more for debug (to show which routines go through).
-           # larger VERBOSE gives more detailed console output.
+IO      VERBOS=35 TIM=0,0   # Use TIM=3,3 or more for debug (to show which routines go through).
+                            # larger VERBOSE gives more detailed console output.
 
 SYMGRP find   # 'find' generates space-group symmetry from lattice.
-              #
               # If you like to set lower symmetry than the lattice symmetry,
               # we need to set lower symmetry by hand.
-              # 'lmchk foobar --pr60' shows what symmetry is recognized.
-              # See file://Document/Manual/CaterogyAndToken.org
+              # 'lmchk foobar --pr60' shows what space-gropu symmetry is recognized.
               # To read its results.
 
 %const kmxa=5  # =radial degree of freedom to expand eigenfuncitons in tail sites.
