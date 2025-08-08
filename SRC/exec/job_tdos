@@ -3,7 +3,7 @@ import sys
 import os
 import subprocess
 import gwutil,MachineDependence
-
+from gwutil import mpiRUN 
 def run_arg(argin, mpi_size, nfpgw, command, output, *target):
     echo_run = ""  # standard
     serial_run = ""  # standard

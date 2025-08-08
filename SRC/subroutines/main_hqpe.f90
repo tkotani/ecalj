@@ -14,8 +14,7 @@ subroutine hqpe() bind(C)  ! Jul,2000 t.kotani started from hqpe by Ferdi.Aryase
   use m_keyvalue,only: getkeyvalue
   implicit real*8 (a-h,o-z)
   implicit integer(i-n)
-  dimension ifsex(2),ifsexcore(2),ifxc(2),ifsec(2),ifqpe(2) &
-       ,iftote(2),iftote2(2)
+  dimension ifsex(2),ifsexcore(2),ifxc(2),ifsec(2),ifqpe(2),iftote(2)
   integer,allocatable :: itxc(:),itc(:),itx(:)
   real(8),allocatable :: qxc(:,:,:),eldaxc(:,:),vxc(:,:), &
        qc(:,:,:),eldac(:,:),sex(:,:),sexcore(:,:), &
@@ -40,11 +39,11 @@ subroutine hqpe() bind(C)  ! Jul,2000 t.kotani started from hqpe by Ferdi.Aryase
   !> output file
   open(newunit=ifqpe(1)   ,file='QPU')
   open(newunit=iftote(1)  ,file='TOTE.UP')
-  open(newunit=iftote2(1) ,file='TOTE2.UP')
+!  open(newunit=iftote2(1) ,file='TOTE2.UP')
   if (nspin == 2) then
      open(newunit=ifqpe(2)   ,file='QPD')
      open(newunit=iftote(2)  ,file='TOTE.DN')
-     open(newunit=iftote2(2) ,file='TOTE2.DN')
+!     open(newunit=iftote2(2) ,file='TOTE2.DN')
   endif
   ! loop over spin
   do      is = 1,nspin
@@ -135,7 +134,7 @@ subroutine hqpe() bind(C)  ! Jul,2000 t.kotani started from hqpe by Ferdi.Aryase
      enddo
      if (sum(abs(itx(1:ntq)-itc(1:ntq)))/=0)  call rx('hqpe itx /= itc ')
      if (sum(abs(itx(1:ntq)-itxc(1:ntq)))/=0) call rx('hqpe itx /= itxc ')
-     call qpe1     (ifqpe(is),iftote(is),iftote2(is),itc,qc, &
+     call qpe1     (ifqpe(is),iftote(is),itc,qc, &
           eldac,vxc,sex,sexcore, &
           rsec,csec,zfac,jin,deltaw,alat,ef, &
           ntq,nq,is, &

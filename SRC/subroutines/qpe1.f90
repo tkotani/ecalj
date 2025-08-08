@@ -1,4 +1,4 @@
-subroutine qpe1 (ifqpe,iftote,iftote2,itq,q, &
+subroutine qpe1 (ifqpe,iftote,itq,q, &
      elda,vxc,sex,sexcore, &
      rsec,csec,zfac,jin,deltaw,alat,ef, &
      ntq,nq,is, &
@@ -40,8 +40,7 @@ subroutine qpe1 (ifqpe,iftote,iftote2,itq,q, &
 
   dimension eqp(ntq,nq),eqp2(ntq,nq),wqp(ntq,nq)
   logical :: legas
-  integer:: iflife,ifqpe,iftote,itq,ntq,jin,nq,is,ifeflda,ifefqp,ifefqp1,ifegas, &
-       iftote2,iq,it
+  integer:: iflife,ifqpe,iftote,itq,ntq,jin,nq,is,ifeflda,ifefqp,ifefqp1,ifegas, iq,it
 
   if(is==1) open(newunit=iflife,file='QPU_life')
   if(is==2) open(newunit=iflife,file='QPD_life')
@@ -98,8 +97,8 @@ subroutine qpe1 (ifqpe,iftote,iftote2,itq,q, &
 
   ! loop over q-vector
   write (iftote, *) nq,ntq,ef
-  write (iftote2,"(2i9,4d24.16)") &
-       nq,ntq, ef*rydberg(), eshtlda, eshift0, eshift02
+!  write (iftote2,"(2i9,4d24.16)") &
+!       nq,ntq, ef*rydberg(), eshtlda, eshift0, eshift02
   write (ifqpe,*)
   write (ifqpe,"(a)") &
        '           q               state  SEx   SExcore SEc    vxc    dSE' &
@@ -138,9 +137,9 @@ subroutine qpe1 (ifqpe,iftote,iftote2,itq,q, &
         write(iftote,"(3f12.7,1x,2i4,1x,4d24.16)") &
              q(1:3,it,iq),itq(it),iq, elda(it,iq), eqp01, eqp02, zfac(it,iq)
 
-        write(iftote2,"(3f12.7,1x,2i4,1x,4d24.16)") &
-             q(1:3,it,iq),itq(it),iq, elda(it,iq)+eshtlda, &
-             eqp(it,iq),eqp2(it,iq), zfac(it,iq)
+!        write(iftote2,"(3f12.7,1x,2i4,1x,4d24.16)") &
+!             q(1:3,it,iq),itq(it),iq, elda(it,iq)+eshtlda, &
+!             eqp(it,iq),eqp2(it,iq), zfac(it,iq)
      end do
      write (ifqpe,*)
   end do
