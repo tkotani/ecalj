@@ -88,7 +88,7 @@ argin=2; run_arg $argin $NO_MPI $nfpgw /hmaxloc lmaxloc2  #(band plot data are g
 
 
 ############## Wannier function plot. *.xsf for Xcrysden. ############
-run_arg '---' $NO_MPI $nfpgw  /wanplot lwanplot 
+#run_arg '---' $NO_MPI $nfpgw  /wanplot lwanplot 
 
 
 ### Here on, we calculate W (v and W-v) for Wannier.###########
