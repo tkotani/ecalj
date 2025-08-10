@@ -101,9 +101,8 @@ subroutine qpe1 (ifqpe,iftote,itq,q, &
 !       nq,ntq, ef*rydberg(), eshtlda, eshift0, eshift02
   write (ifqpe,*)
   write (ifqpe,"(a)") &
-       '           q               state  SEx   SExcore SEc    vxc    dSE' &
-       // &
-       '  dSEnoZ  eLDA    eQP  eQPnoZ   eHF  Z    FWHM=2Z*Simg  ReS(elda)'
+       '           q               state   SEx    SExcore   SEc     vxc     dSE' // &
+       '    dSEnoZ   eLDA    eQP   eQPnoZ    eHF   Z    FWHM=2Z*Simg  ReS(elda)'
 
   do      iq = 1,nq
      do      it = 1,ntq
@@ -122,7 +121,8 @@ subroutine qpe1 (ifqpe,iftote,itq,q, &
              vxc(it,iq), eshift,eshift2,elda(it,iq)+eshtlda, &
              eqp(it,iq), eqp2(it,iq), ehf,zfac(it,iq),fwhm, &
              sex(it,iq)+sexcore(it,iq)+rsec(2,it,iq)
-6100    format (3f9.5,1x,i2,1x,10f7.2,f5.2,f10.5,3x,f10.5)
+!6100    format (3f9.5,1x,i2,1x,10f7.2,f5.2,f10.5,3x,f10.5)
+6100    format (3f9.5,1x,i3,1x,10f8.3,f5.2,f10.5,3x,f10.5)
 
         !---------------
         write(iflife,6150) q(1:3,it,iq),itq(it), &
