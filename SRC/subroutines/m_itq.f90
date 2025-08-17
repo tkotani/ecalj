@@ -3,6 +3,7 @@ module m_itq
   use m_keyvalue,only: Getkeyvalue
   use m_readeigen,only: Readeval
   use m_genallcf_v3,only: nband
+  use m_lgunit,only: stdo
   implicit none
   public itq,ntq,setitq_hsfp0sc,setitq,nbandmx,setitq_hsfp0
   integer,allocatable,protected :: itq(:),nbandmx(:,:)
@@ -19,7 +20,7 @@ contains
     use m_read_bzdata,only:qibz,nqibz
     use m_nvfortran,only: findloc
     use m_ftox
-    use m_MPItk,only: master_mpi
+    use m_mpi,only: mpi__root
     intent(in)::            nbmx_sig,ebmx_sig,eftrue,nspinmx
     integer:: nbmx_sig,nspinmx,ifih,nspinmxin
     integer:: ntqxx,is,ip,iband,i,nqibzin,nspinin,iqibz,ierr
@@ -49,7 +50,8 @@ contains
              nbandmx(ip,is) = min(findloc(eqt-eftrue>ebmx_sig,value=.true.,dim=1)-1, nbmx_sig)
           enddo
       enddo
-      if(master_mpi.and.cmdopt0('--ntqxx')) then
+      write(stdo,*)'vvvvvvvvvvv222 ntqxx=',cmdopt0('--ntqxx'),mpi__root
+      if(mpi__root.and.cmdopt0('--ntqxx')) then
           open(newunit=ifih,file='NTQXX')
           write(ifih,ftox) nqibz,nspinmx,' !nqibz nspinmx. Note NTQXX is used when --ntqxx'
           do iqibz=1,nqibz
