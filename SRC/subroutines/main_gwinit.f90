@@ -156,15 +156,10 @@ subroutine gwinit_v2() bind(C) !  Generate GWinput.tmp.
   !!
   write(ifi,*)
   write(ifi,"(a)" ) '! ##### FREQUENCIES from GWIN_V2 ################ '
-  write(ifi,"(a)")  'HistBin_dw    2d-3 ! 1d-5 is fine mesh (good for metal?) !(a.u.) BinWidth along real axis at omega=0.'
+  write(ifi,"(a)")  'HistBin_dw    2d-3 ! 1d-5 is fine mesh (good for metal? Use with GaussianFilterX0) !(a.u.) BinWidth along real axis at omega=0.'
   write(ifi,"(a)")  'HistBin_ratio 1.08 ! 1.03 maybe safer. frhis(iw)= b*(exp(a*(iw-1))-1), where a=ratio-1.0 and dw=b*a'
-  write(ifi,"(a)")  '                   ! This "ba mesh" is from 9Mar2016'
-  write(ifi,"(a)")  '                   ! See fpgw/gwsrc/m_freq.F'
-  write(ifi,"(a)")  'iSigMode  3   ! QSGW mode switch for gwsc. use =3.'
   write(ifi,"(a)")  'niw      10   ! Number of frequencies along Im axis. Used for integration to get Sigma_c'
   write(ifi,"(a)")  '              ! To test, try niw=6 and niw=12'
-  write(ifi,"(a)")  'delta  -1d-6  !(a.u.)  Broadening of x0. negative means tetrahedron method.'
-  write(ifi,"(a)")  '              ! used by hx0fp0. You get smeard x0 witth abs(delta).'
   write(ifi,"(a)")  'deltaw  0.02  !(a.u.) Mesh for numerical derivative to get the Z factor'
   write(ifi,"(a)")  'esmr   0.003  !(Ry) used by hsfp0. Keep esmr smaller than band gap for insulators'
   write(ifi,"(a)")  '              ! Poles of G^LDA are treated as if they have width esmr in hsfp0. '
@@ -172,7 +167,6 @@ subroutine gwinit_v2() bind(C) !  Generate GWinput.tmp.
   write(ifi,"(a)")  'GaussSmear on ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr for hsfp0.'
   write(ifi,"(a)")  '!GaussianFilterX0 0.0001 !(a.u.) Gaussian smearing for the polarization function x0. '
   write(ifi,"(a)")  '                         ! This stabilize convergence for metallic systems'
-  write(ifi,"(a)")  '                         ! This can be a default setting in the future'
   write(ifi,*)
   write(ifi,"(a)" ) '! ################################################# '
   write(ifi,"(a)")'<PRODUCT_BASIS> '

@@ -76,6 +76,7 @@ contains
     init=.false.
   end subroutine dpsion_init
   subroutine dpsion_chiq(realomega, imagomega, chipm, rcxq, zxqi, npr, npr_col, schi, isp, ecut)
+    use m_keyvalue,only: getkeyvalue
     use m_freq, only: frhis, freqr=>freq_r,freqi=>freq_i, nwhis, npm, nw_i, nw_w=>nw, niwt=>niw
     use m_readgwinput, only: egauss
     use m_ftox
@@ -97,13 +98,13 @@ contains
     complex(kind=kp), intent(inout):: rcxq(1:npr,1:npr_col,(1-npm)*nwhis:nwhis)
     complex(kind=kp), intent(out) ::  zxqi(1:npr,1:npr_col,niwt)
     complex(kind=kp), parameter:: CONE = (1_kp, 0_kp), CZERO = (0_kp, 0_kp)
-    integer :: iw
+    integer :: iw,i,j
     real(8), parameter:: pi  = 4d0*datan(1d0)
     complex(8), parameter :: img = (0d0,1d0)
     complex(kind=kp) :: zxq_work(1:npr,nw_i:nw_w), cimatt(niwt,nwhis,npm), crmatt(0:nw_w,nwhis,npm)
     complex(kind=kp), allocatable :: rcxq_work(:,:), cgfmat(:,:)
     integer :: ipr_col, ipm, istat, ispx
-    real(8) :: wfac
+    real(8) :: wfac,smearx0
     logical :: debug = .true.
 #ifdef __GPU
     attributes(device) :: rcxq, zxqi
@@ -111,15 +112,28 @@ contains
     if(ipr) write(stdo,ftox)" -- dpsion_chiq: start... nw_w nwhis=",nw_w,nwhis
     call flush(stdo)
     if(chipm.and.npm==2) call rx( 'x0kf_v4h:npm==2 .AND. chipm is not meaningful probably')  ! Note rcxq here is negative 
-
     !$acc data copyin(his_R, his_L)
     GaussianFilter: if(abs(egauss)>1d-15) then
-      write(6,'("GaussianFilterX0= ",d13.6)') egauss
+    call getkeyvalue("GWinput","SmearX0", smearx0, default=0d0 )
+      write(6,'("SmearX0= ",d13.6)') smearx0
       allocate(gfmat(nwhis,nwhis))
       allocate(cgfmat(nwhis,nwhis))
       allocate(rcxq_work(npr,nwhis))
       if(ipr) write(stdo,ftox) 'dpsion_chiq: GaussianFilterX0 is not checked yet: see dpsion_chiq'
-      gfmat=gaussianfilterhis(egauss,frhis,nwhis)
+      gfmat=gaussianfilterhis(smearx0,frhis,nwhis)
+
+    do j=1,nwhis
+      if(j>10) cycle
+      write(1019,*)
+      write(1019,*)
+      do i=1,nwhis
+        write(1019,'(2f19.8)') frhis(i),gfmat(i,j)
+      enddo
+!      write(*,*)'sssssss',i,sum(gfmat(:,j)*([(frhis(i+1)-frhis(i),i=1,nwhis)]))
+      write(*,*)'sssssss',j,sum(gfmat(:,j))
+    enddo
+    stop 'xxxxxxxxxxxaaa'
+      
       !$acc data copyin(gfmat) create(cgfmat, rcxq_work)
       !$acc kernels
       cgfmat(:,:) = cmplx(gfmat(:,:), kind=kp)
@@ -257,6 +271,7 @@ contains
     use m_ftox
     use m_lgunit,only:stdo
     use m_kind,only:kindrcxq
+    use m_keyvalue,only: getkeyvalue
     implicit none
     intent(in)::     realomega,imagomega,     nmbas1,nmbas2,           chipm,schi,isp,ecut,ecuts
     intent(out)::                        rcxq,                zxq,zxqi
@@ -274,7 +289,7 @@ contains
     !r  We suppose "freqr(i)=moddle of i-th bin; freqr(0)=0." (I think called routine hilbertmat itself is not limited by this condition).
     integer:: igb1,igb2, iw,iwp,ix,ifxx,nmbas1,nmbas2,isp,ispx,it, ii,i,ibas1,ibas2,nmnm
     logical :: evaltest     
-    real(8):: px,omp,om,om2,om1, aaa,d_omg, ecut,ecuts,wcut,dee,schi, domega_r,domega_c,domega_l,delta_l,delta_r
+    real(8):: px,omp,om,om2,om1, aaa,d_omg, ecut,ecuts,wcut,dee,schi, domega_r,domega_c,domega_l,delta_l,delta_r,smearx0
     complex(8):: zxq(nmbas1,nmbas2, nw_i:nw_w),zxqi(nmbas1,nmbas2,niwt),img=(0d0,1d0),beta,wfac, zz,rrr(-nwhis:nwhis)
     logical :: realomega, imagomega,chipm,debug=.false.
     integer:: jpm,ipm,verbose,isgi   !     complex(8):: x0mean(nw_i:nw_w,nmbas,nmbas)
@@ -288,10 +303,11 @@ contains
     if(chipm.and.npm==2) call rx( 'x0kf_v4h:npm==2 .AND. chipm is not meaningful probably')  ! Note rcxq here is negative 
     call cputid(0)
     GaussianFilter: if(abs(egauss)>1d-15) then
+      call getkeyvalue("GWinput","SmearX0", smearx0, default=0d0 )
        if(eginit) then
-          write(6,'("GaussianFilterX0= ",d13.6)') egauss
+          write(6,'("SmearX0= ",d13.6)') smearx0
           allocate(gfmat(nwhis,nwhis))
-          gfmat=gaussianfilterhis(egauss,frhis,nwhis)
+          gfmat=gaussianfilterhis(smearx0,frhis,nwhis)
           eginit=.false.
        endif
        do ipm=1,npm
@@ -392,10 +408,10 @@ contains
     call cputid(0)
   end subroutine dpsion5
 !  subroutine GaussianFilter(rcxq,nmbas1,nmbas2, egauss,iprint)
-  pure function gaussianfilterhis(egauss, frhis,nwhis) result(gfmat)
+  pure function gaussianfilterhis(smearx0, frhis,nwhis) result(gfmat)
     implicit none
     integer,intent(in):: nwhis
-    real(8),intent(in):: egauss,frhis(nwhis+1)
+    real(8),intent(in):: smearx0,frhis(nwhis+1)
     real(8):: gfmat(nwhis,nwhis)
     real(8),allocatable:: frc(:),gfm(:)
     real(8):: ggg
@@ -406,20 +422,12 @@ contains
     enddo
     do i=1,nwhis
        do j=1,nwhis
-          gfm(j)= exp( -(frc(i)-frc(j))**2/(2d0*egauss))
+          gfm(j)= exp( -(frc(i)-frc(j))**2/(2d0*smearx0**2))
        enddo
        ggg = sum(gfm(:))
        do j=1,nwhis
           gfmat(j,i)= gfm(j)/ggg
        enddo
-       
-       ! do j=1,nwhis
-       !    gfm(j)= frc(j) * exp( -(frc(i)-frc(j))**2/(2d0*egauss))
-       ! enddo
-       ! ggg = sum(gfm) ! omega*e2(omega) sum rule
-       ! do j=1,nwhis
-       !    gfmat(j,i) = gfm(j)/frc(j)/ggg
-       ! enddo
     enddo
     deallocate(frc,gfm)
   end function gaussianfilterhis

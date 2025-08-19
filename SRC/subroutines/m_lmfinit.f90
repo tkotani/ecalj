@@ -388,7 +388,8 @@ contains
          if(nnx>0.and.sum(floor(pzsp(1:lmxa(j)+1,1,j)/10))>0 ) lpzex(j)=1
          if(maxval(pzsp(1:n0,1,j))>10d0) lpztail= .TRUE. ! PZ +10 mode exist or not.
          nkaphh(j) = nkapii(j) + lpz(j) !number of radial basis of MTOs for j.
-      enddo nspecloop0
+       enddo nspecloop0
+       
       PnuQnuSetting: do 1111 j = 1, nspec ! Radial mesh parameters: determine default value of a
          if (lmxa(j)==-1) cycle
          !Pnu is fractional quantum number. For example, P=4.56; 4 is principle quantum number (nodenum-l);

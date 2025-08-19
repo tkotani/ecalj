@@ -34,7 +34,7 @@ contains
     call getkeyvalue("GWinput","nband_chi0",nbmx, default=nband)
     call getkeyvalue("GWinput","emax_chi0", ebmx, default=1d10  )
     call getkeyvalue("GWinput","multitet",mtet,3,default=(/1,1,1/))
-    call getkeyvalue("GWinput","GaussianFilterX0", egauss, default=0d0 )
+!    call getkeyvalue("GWinput","GaussianFilterX0", egauss, default=0d0 )
     !      call getkeyvalue("GWinput","nbcutlow_sig",nbcutlow_sig, default=0 )
 
     call getkeyvalue("GWinput","iSigMode"  ,iSigMode, default=3 )
