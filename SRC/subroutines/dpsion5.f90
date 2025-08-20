@@ -457,7 +457,7 @@ contains
   end subroutine dpsion5
 !  subroutine GaussianFilter(rcxq,nmbas1,nmbas2, egauss,iprint)
   function gaussianfilterhis(smearx0, frhis,nwhis) result(gfmat)
-    use m_getxc,only: getxc,mean_from_xc
+!    use m_getxc,only: getxc,mean_from_xc
     implicit none
     integer,intent(in):: nwhis
     real(8),intent(in):: smearx0,frhis(nwhis+1)

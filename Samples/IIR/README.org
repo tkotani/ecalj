@@ -99,6 +99,10 @@ Take
 >diff C/GWinput C121212GW/GWinput
 to know how to modify GWinput.
 
+Set
+QforGWIBZ on 
+in GWinput to calculate all irreducible q points (2025-8-20). 
+
 Main job is run by gw_lmfh by gw_lmfh. An example of qsub script is
 ----------------------------------
 #!/bin/bash

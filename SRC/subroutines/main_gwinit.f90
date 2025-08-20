@@ -90,7 +90,8 @@ subroutine gwinit_v2() bind(C) !  Generate GWinput.tmp.
   call getbzdata1(qlat,(/n1q,n2q,n3q/),symops,ngrp,tetrai=.false.,tetraf=.false.,gammacellctrl=0) !,mtet=(/1,1,1/)
   !! Write to file KPNTin1BZ
   nnn = n1q*n2q*n3q
-  nqs=0
+  write(6,"(' --- TOTAL num of q is n1*n2*n3=',i10)")nnn
+!  nqs=0
 !  open(ifkpt,file='KPTin1BZ.gwinit.chk')
 !  do      i1 = 1,nnn
 !     call shorbz(qbz(1,i1),qp,qlat,plat)
@@ -98,21 +99,20 @@ subroutine gwinit_v2() bind(C) !  Generate GWinput.tmp.
 !          i1,qbz(1,i1),qbz(2,i1),qbz(3,i1),wbz(i1),qp
 !  end do
 !  close (ifkpt)
-  write(6,"(' --- TOTAL num of q is n1*n2*n3=',i10)")nnn
-  ! --- Sample QPNT file ---------------
-  open (newunit=ifqpnt,file='QPNT.chk')
-!  write(ifqpnt,"(a,a)") " --- Specify the q and band indeces for which we evaluate the self-energy ---"
-  write(ifqpnt,"(a)")"*** all qibz for gw_lmfh -->1, otherwise 0" !;  up only -->1, otherwise 0"
-  iqall = 1 !;      iaf   = 0
-  write(ifqpnt,*) iqall !,iaf
-  write(ifqpnt,"(a)")"*** # of states and band index for gw_lmfh calculation."
-  iii = min(ndima,100) !this is the number of MTO (max of iii is ndima+napw(lowest))
-  write(ifqpnt,*)  iii ! nband
-  write(ifqpnt,'(*(g0,x))') (i,i=1,iii)
-!  write(ifqpnt,"(a)") "*** q-points, which shoud be in qbz. See KPNTin1BZ."
-!  write(ifqpnt,*) min(nqibz,3)
-!  write(ifqpnt,'(i3,3f23.16)')(i,qibz(1:3,i),i=1,nqibz)
-  rewind ifqpnt
+!   ! --- Sample QPNT file ---------------
+!   open (newunit=ifqpnt,file='QPNT.chk')
+! !  write(ifqpnt,"(a,a)") " --- Specify the q and band indeces for which we evaluate the self-energy ---"
+!   write(ifqpnt,"(a)")"*** all qibz for gw_lmfh -->1, otherwise 0" !;  up only -->1, otherwise 0"
+!   iqall = 1 !;      iaf   = 0
+!   write(ifqpnt,*) iqall !,iaf
+!   write(ifqpnt,"(a)")"*** # of states and band index for gw_lmfh calculation."
+!   iii = min(ndima,100) !this is the number of MTO (max of iii is ndima+napw(lowest))
+!   write(ifqpnt,*)  iii ! nband
+!   write(ifqpnt,'(*(g0,x))') (i,i=1,iii)
+! !  write(ifqpnt,"(a)") "*** q-points, which shoud be in qbz. See KPNTin1BZ."
+! !  write(ifqpnt,*) min(nqibz,3)
+! !  write(ifqpnt,'(i3,3f23.16)')(i,qibz(1:3,i),i=1,nqibz)
+!   rewind ifqpnt
   allocate(nnvv(0:lmxax,nbas))
   nnvv = 0
   mnla_=0
@@ -283,10 +283,11 @@ subroutine gwinit_v2() bind(C) !  Generate GWinput.tmp.
 !      write(ifi,"(a)") trim(pppx)
 !   enddo
 ! 756 write(ifi,"(a)")'</QPNT>'
-  close(ifqpnt,status='delete')
+!  close(ifqpnt,status='delete')
 
   write(ifi,*)
-  write(ifi,"(a,f8.3,a,a)") '!QforEPSIBZ on ! Use all q in IBZ for the calculation of eps mode.'
+  write(ifi,*)'!######### q for dielectric functions epsilon. epsPP0 eps_lmfh ##############'
+  write(ifi,"(a,f8.3,a,a)") '!QforEPSIBZ on ! Use all q in IBZ for the calculation of eps mode instead of QforEPS.'
   write(ifi,"(a)") 'QforEPSau on'
   write(ifi,"(a)") '<QforEPS>'
   write(ifi,"(a)") ' 0 0 0.00050'
@@ -299,7 +300,10 @@ subroutine gwinit_v2() bind(C) !  Generate GWinput.tmp.
   !write(ifi,"(a)") '! 0d0 0d0 0d0  .5d0  .5d0  0d0 8'
   !write(ifi,"(a)") '!</QforEPSL>'
   
-  write(ifi,"(a)") 'EMAXforGW 5  !eV(above Efermi)'
+  write(ifi,*)
+  write(ifi,*)'!######### q for diagonal Sigma=GW mode. gw_lmfh ##############'
+  write(ifi,"(a,f8.3,a,a)") '!QforGWIBZ on ! Use all q in IBZ for the calculation of Sigma=GW instead of QforGW.'
+  write(ifi,"(a)") 'EMAXforGW 15 !eV (above Efermi) to set bands for calculating Sigma = GW'
   write(ifi,"(a)") '<QforGW>  !Set q for GW calculation. '
   write(ifi,"(a)") ' 0.0 0.0 0.0'
   write(ifi,"(a)") ' 0.1 0.0 0.0'
@@ -308,6 +312,12 @@ subroutine gwinit_v2() bind(C) !  Generate GWinput.tmp.
   write(ifi,"(a)") '</QforGW>'
   !!
   write(ifi,*)
+  write(ifi,*)'!######### Modelling ##############'
+  write(ifi,"(a)")'<Worb> !Set atomic orbitals for modelling'
+  do iatom = 1,nbas
+     write(ifi,"(1a,i3,1x,a,2x,a)") '!', iatom,trim(spid(iatom)),' 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16'
+  enddo
+  write(ifi,"(a)")'</Worb> '
   write(ifi,"(a)")'!!! ##### Maximally localized Wannier function ################ '
   write(ifi,"(a)")'!!! For s,p,d,f the indices 1-16 correspond to: '
   write(ifi,"(a)")'!!! index l m polynomial '
@@ -332,33 +342,27 @@ subroutine gwinit_v2() bind(C) !  Generate GWinput.tmp.
   write(ifi,"(a)")'!!! ------------------------ '
   write(ifi,"(a)")'!!! higher is lm ordered. See Ylm definition in lmto/fpgw doc.'
   write(ifi,"(a)")
-  write(ifi,"(a)")'<Worb> Site '
-  do iatom = 1,nbas
-     write(ifi,"(1a,i3,1x,a,2x,a)") &
-          '!', iatom,trim(spid(iatom)),' 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16'
-  enddo
-  write(ifi,"(a)")'</Worb> '
-  write(ifi,"(a)")
-  write(ifi,"(a)")'!wan_out_ewin off'
-  write(ifi,"(a)")'!wan_out_bmin 16  !band index for outer window'
-  write(ifi,"(a)")'!wan_out_bmax 18  !band index for outer window'
   write(ifi,"(a)")'wan_out_emin  -1.05  !eV relative to Efermi'
-  write(ifi,"(a)")'wan_out_emax  2.4  !eV relative to Efermi'
-  write(ifi,"(a)")'!wan_in_ewin on '
-  write(ifi,"(a)")'!wan_in_emin  -1.0  !eV relative to Efermi'
-  write(ifi,"(a)")'!wan_in_emax  -0.3  !eV relative to Efermi'
-  write(ifi,"(a)")
-  write(ifi,"(a)")'wan_tb_cut 15'
+  write(ifi,"(a)")'wan_out_emax  2.4    !eV relative to Efermi'
   write(ifi,"(a)")'wan_maxit_1st 300'
   write(ifi,"(a)")'wan_conv_1st 1d-7'
   write(ifi,"(a)")'wan_max_1st   0.1'
   write(ifi,"(a)")'wan_maxit_2nd 1500'
   write(ifi,"(a)")'wan_max_2nd   0.3'
   write(ifi,"(a)")'wan_conv_end  1d-8'
+  
+  write(ifi,"(a)")
+  write(ifi,"(a)")'!wan_out_ewin off'
+  write(ifi,"(a)")'!wan_out_bmin 16  !band index for outer window'
+  write(ifi,"(a)")'!wan_out_bmax 18  !band index for outer window'
+  write(ifi,"(a)")'!wan_in_ewin on '
+  write(ifi,"(a)")'!wan_in_emin  -1.0  !eV relative to Efermi'
+  write(ifi,"(a)")'!wan_in_emax  -0.3  !eV relative to Efermi'
+  write(ifi,"(a)")'!wan_tb_cut 15'
   write(ifi,"(a)")'!wmat_all .true.'
   write(ifi,"(a)")'!wmat_rcut1 8'
   write(ifi,"(a)")'!wmat_rcut2 0.01'
-  write(ifi,"(a)")
+  write(ifi,"(a)")'!--- we do not maintain wanplot recently for vis_foobar -----'
   write(ifi,"(a)")'!vis_wan_band_n 3'
   write(ifi,"(a)")'!vis_wan_band_id 1 2 3  !integer x vis_wan_band_n, this is index for hmaxloc, as you like.'
   write(ifi,"(a)")'!vis_wan_tvec 0 0 0 !1 1 1   !integer x 3, tlat(R)'
