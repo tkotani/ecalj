@@ -31,7 +31,7 @@ subroutine hmaxloc()
     idtetf,ib1bz,idteti, nstar,irk,nstbz
   use m_qbze,only: Setqbze, nqbze,qbze
   use m_genallcf_v3,only: genallcf_v3,natom,nl,nn, &
-    nlnmx, nctot,niw, alat,delta,deltaw,esmr, il, in, im, nlnm, &
+    nlnmx, nctot,niw, alat,deltaw,esmr, il, in, im, nlnm, &
     plat, pos, ecore, konf,z, spid, nprecb,mrecb,mrece,nqbzt,nband,mrecg,ndima,nspx !nspin,
   use m_read_Worb,only: s_read_Worb, s_cal_Worb, &
     nwf, nclass_mlwf, cbas_mlwf, nbasclass_mlwf, &

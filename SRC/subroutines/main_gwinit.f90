@@ -35,7 +35,7 @@ subroutine gwinit_v2() bind(C) !  Generate GWinput.tmp.
   integer ::n1q,n2q,n3q,ifiqg,ifiqgc,ifigw0,ifi,i,ig
   real(8) :: alp,QpGcut_psi, QpGcut_Cou,dummy
   real(8) :: volum,q0(3),qlat0(3,3),QpGx1,QpGx2, &
-       dw,delta,deltaw,esmr,tolopt,qm(3,3)
+       dw,deltaw,esmr,tolopt,qm(3,3)
   integer :: ibas,l,ixxx,lmxa,ibasx,ifigw0t,mxkp, &
        irs,niw,ic,iclass, ifiqibz,iqibz,ifqpnt,iqall,iaf,iii, ifigwinv2,lk,  nocc,nunocc, &
        kkk,noccc,nunoccc,ncinc,ncinc2,isp
@@ -155,11 +155,11 @@ subroutine gwinit_v2() bind(C) !  Generate GWinput.tmp.
   write(ifi,"(a)") 'emax_sigm  3.0  !(Ry)  emax cutoff for Sigma'
   !!
   write(ifi,*)
-  write(ifi,"(a)" ) '! ##### FREQUENCIES from GWIN_V2 ################ '
+  write(ifi,"(a)" ) '! ##### FREQUENCIES default at 2025.08.20 ################ '
   write(ifi,"(a)")  'niw      10   ! Number of frequencies along Im axis. Used for integration to get Sigma_c  ! To test, try niw=6 and niw=12'
-  write(ifi,"(a)")  'HistBin_dw    2d-3 ! 1d-5 is fine mesh (good for metal? Use with GaussianFilterX0) !(a.u.) BinWidth along real axis at omega=0.'
-  write(ifi,"(a)")  'HistBin_ratio 1.08 ! 1.03 maybe safer. frhis(iw)= b*(exp(a*(iw-1))-1), where a=ratio-1.0 and dw=b*a'
-  write(ifi,"(a)")  '!SmearX0 0.001 !(a.u.) Gaussian smearing for X0. To stabilize convergence for metallic systems. Need for HisBin_dw=1d-5'
+  write(ifi,"(a)")  'HistBin_dw    1d-4 ! 1d-5 !  BinWidth along real axis at omega=0.'
+  write(ifi,"(a)")  'HistBin_ratio 1.05 ! 1.03 !  Bin are frhis(iw)= dw*(exp(ratio*(iw-1))-1), where a=ratio-1.0 and dw=b*a'
+  write(ifi,"(a)")  'SmearX0 0.0036 !(a.u.) 0.0036Hartree=0.1eV. Gaussian smearing for X0. To stabilize convergence for metallic systems'
   write(ifi,"(a)")  'GaussSmear on ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr for hsfp0.'
   write(ifi,"(a)")  'deltaw  0.02  !(a.u.) Mesh for numerical derivative to get the Z factor'
   write(ifi,"(a)")  'esmr   0.003  !(Ry) used by hsfp0. Keep esmr smaller than band gap for insulators'
