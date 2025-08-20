@@ -377,7 +377,7 @@ contains
          call rmesh(z(j),rmt(j),lrel,.false.,nrmx,spec_a(j),i0)
          call poppr
          rg(j)   = 0.25d0*rmt(j) !smoothing radius for Gaussians added to sphere densities to correct multipole moments needed for electrostatics. Value should be as large as possible but small enough that the Gaussian doesn't spill out significantly beyond rmt.
-Default: R/4, with R=augmentation (muffin-tin) radius. 
+!Default: R/4, with R=augmentation (muffin-tin) radius. 
          rfoca(j)= 0.4d0*rmt(j) !smoothing radius fitting tails of core density. A large radius produces smoother interstitial charge, but less accurate fit. Default: R*0.4, with R=augmentation (muffin-tin) radius. 
          if(nr(j) == 0) nr(j) = i0
          call rxx( nr(j)         > nrmx,'m_lmfinit: increase nrmx')
@@ -476,7 +476,7 @@ Default: R/4, with R=augmentation (muffin-tin) radius.
       maxit=iter_maxit
       nlmax=(max(lmxbx,lmxax)+1)**2
 !      if (dalat == NULLR) dalat=0d0
-!      lat_alat=alat+dalat
+      lat_alat=alat !+dalat
       lat_avw=avw
       lat_nkqmx=lat_nkdmx
       lat_platin=plat

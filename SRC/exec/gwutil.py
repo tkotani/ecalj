@@ -62,7 +62,7 @@ def run_program_breduction(cmd, ncore=0, x0=0, ext=''):
         if os.path.isfile(f'rst.{ext}'):
             shutil.copy(f'rst.{ext}', f'rst.{ext}.bk')
         if cmd in const_b: bval= const_b[cmd]
-        run_cmd = mpiRUN(ncore) + cmd
+        run_cmd = mpiRUN(ncore) + re.sub(r'>', f' -vb={bval} >', cmd)
         print(t if x0 == 0 else t - x0, ' ', run_cmd, flush=True)
 
         #result = subprocess.run(run_cmd, shell=True)
@@ -84,10 +84,10 @@ def run_program_breduction(cmd, ncore=0, x0=0, ext=''):
 
         bval = round(bval - 0.05, 2)
         print(f' Reset b={bval} in {run_cmd}', flush=True)
-        with open(f'ctrl.{ext}', 'r') as f:
-            text = f.read()
-        text_new = re.sub(r'b=0?\.\d+', f'b={bval}', text)
-        with open(f'ctrl.{ext}', 'w') as f:
-            f.write(text_new)
+        # with open(f'ctrl.{ext}', 'r') as f:
+        #     text = f.read()
+        # text_new = re.sub(r'b=0?\.\d+', f'b={bval}', text)
+        # with open(f'ctrl.{ext}', 'w') as f:
+        #     f.write(text_new)
         
     exit(-1)

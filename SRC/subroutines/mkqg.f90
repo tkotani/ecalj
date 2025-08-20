@@ -97,14 +97,14 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
   if(sum(abs(dq_))>tolw()) write(stdo,'(" Shift vector (skip Gamma) by dq_=",3f9.4)')dq_
   !! Get BZ data by 'call Getbzdata1'. See m_get_bzdata1
   !! we usually use negative delta (tetrahedron).
-  call getkeyvalue("GWinput","delta",aaa)
-  if(aaa<0d0) then
-     write(stdo,"(a)")'  GWinput delta<0: tetrahedron method for x0'
+!  call getkeyvalue("GWinput","delta",aaa)
+!  if(aaa<0d0) then
+!     write(stdo,"(a)")'  GWinput delta<0: tetrahedron method for x0'
      tetraf=.true.
-  else
-     write(stdo,"(a)")'  GWinput delta>0: not use tetrahedron method for x0'
-     tetraf=.false.
-  endif
+!  else
+!     write(stdo,"(a)")'  GWinput delta>0: not use tetrahedron method for x0'
+!     tetraf=.false.
+!  endif
   call Getbzdata1(qlatbz,nnn,symops,ngrp,tetrai,tetraf,gammacellctrl) !all inputs !,mtet
   open (newunit=ifiqbz, file='QBZ.chk') !write q-points in IBZ.
   write(ifiqbz,"(i10)") nqbz

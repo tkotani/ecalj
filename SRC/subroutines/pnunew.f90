@@ -55,7 +55,7 @@ subroutine pnunew(eferm) != Makes new boundary conditions pnu for phi,phidot =
   pi = 4d0*datan(1d0)
   call getpr(ipr)
   if(ipr>20)write(stdo,ftox)' Make new boundary conditions for phi,phidot..'
-  if(ipr>40) then
+  if(ipr>34) then
      print *, ' pnunew: ebar: '
      print *, '   without lo    : ebar = center of gravity of occupied states'
      print *, '   with lo & PZ>P: ebar for lo is meaningless(zero is shown). Use empty-sphere PZ.'
@@ -75,8 +75,8 @@ subroutine pnunew(eferm) != Makes new boundary conditions pnu for phi,phidot =
      if (lmxa .eq. -1) cycle
      spid=slabl(is)
      if (frzwfa(is)) idmod=1 
-     if (ipr >40) write(stdo,"(/' site',i5,'   species',i4,':',a)") ib,is,spid
-     if (ipr >40) write(stdo,"(' l isp idmod     ql',9x,'ebar',7x,' pold',8x,'ptry',8x,'pfree',8x,'pnew',8x)")
+     if (ipr >34) write(stdo,"(/' site',i5,'   species',i4,':',a)") ib,is,spid
+     if (ipr >34) write(stdo,"(' l isp idmod     ql',9x,'ebar',7x,' pold',8x,'ptry',8x,'pfree',8x,'pnew',8x)")
      lloop: do  l = 0, lmxa
         m = l+1
         lpz = pnz(m,1) .ne. 0
@@ -121,7 +121,7 @@ subroutine pnunew(eferm) != Makes new boundary conditions pnu for phi,phidot =
               endif
               if(lsemicorepz)then
                  ebar=eferm
-                 if(ipr>40) write(6,"(' pnunew: valence with semicore ebar=efermi=',f12.6)")ebar
+                 if(ipr>34) write(6,"(' pnunew: valence with semicore ebar=efermi=',f12.6)")ebar
               endif
               call phidx(2,z,l,v0i_rv,rofi_rv,nr,0,1d-12,ebar,val,slo,nn,g_rv,gp_rv,phi,dphi,0d0,0d0,0d0)
               nnv=nn
@@ -190,7 +190,7 @@ subroutine pnunew(eferm) != Makes new boundary conditions pnu for phi,phidot =
                  if (ptry .gt. ipqn+pmax(m)) pnu(m,isp) = ipqn+pmax(m)
               endif
            endif
-           if (ipr>40) write(stdo,"(i2,i2,i6,6f12.6,l)") &
+           if (ipr>34) write(stdo,"(i2,i2,i6,6f12.6,l)") &
                 l,isp,idmod(m),qbyl(m,isp,ib),ebar,pold,ptry,pfree,pnu(m,isp)
            if (lpz) then !Set the new pnz 
               pold = mod(pnz(m,isp),10d0)
@@ -204,7 +204,7 @@ subroutine pnunew(eferm) != Makes new boundary conditions pnu for phi,phidot =
                  d0l = l
                  if (ptry .lt. pfree) pnz(m,isp) = pfree + (pnz(m,isp)-mod(pnz(m,isp),10d0))
               endif
-              if (ipr>40) write(stdo,"(i2,i2,i6,'      ---   ',6f12.6)")l,isp,idmod(m),ez,pold,ptry,pfree,pnz(m,isp)
+              if (ipr>34) write(stdo,"(i2,i2,i6,'      ---   ',6f12.6)")l,isp,idmod(m),ez,pold,ptry,pfree,pnz(m,isp)
            endif
         enddo isploop
         !phispinsym= cmdopt0('--phispinsym') !! spin averaged pnu takaoAug2019

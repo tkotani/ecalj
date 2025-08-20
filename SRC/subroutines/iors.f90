@@ -205,10 +205,11 @@ contains
           call mpibc1_real(a0,1,'iors_a0')
           call mpibc1_real(qc,1,'iors_qc')
           if (is == -1 ) call rx('iors: need check for is==-1')
-          if(readpnu) then 
-             read(jfi)
-             read(jfi)
-          else   
+          !if(readpnu) then 
+          !   read(jfi)
+          !   read(jfi)
+          !else
+          if(.true.) then
              pnu=>pnuall(:,:,ib)
              pnz=>pnzall(:,:,ib)
              if (master_mpi) then

@@ -9,7 +9,7 @@ module m_genallcf_v3 ! Readin starting data dat in GWinput
        nindx(:,:),konf(:,:),icore(:,:), ncore(:), nlnm(:),nlnmv(:), nlnmc(:), il(:,:), in(:,:), im(:,:),&
        nocc(:,:,:),nunocc(:,:,:),nindxc(:,:),lcutmxa(:),lmxa(:)
   integer,protected,public:: natom,nspin,nl,nn,nnv,nnc, nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot, niw,ndimanspc,nlmto
-  real(8),protected,public::  plat(3,3),alat,deltaw,esmr,delta,tpioa,qval
+  real(8),protected,public::  plat(3,3),alat,deltaw,esmr,tpioa,qval
   real(8), allocatable,protected,public:: pos(:,:),z(:),ecore(:,:) !,symgg(:,:,:)
   character(8),allocatable,protected,public :: spid(:)
   integer,protected,public:: nprecb,mrecb,mrece,ndima,nqbzt,nband,mrecg,nspc,nspx 
@@ -55,12 +55,12 @@ contains
     nl   = lmxax+1
     tpioa= 2d0*pi/alat
     call getkeyvalue("GWinput","niw",   niw ) ! FREQUENCIES
-    call getkeyvalue("GWinput","delta", delta )
+!    call getkeyvalue("GWinput","delta", delta )
     call getkeyvalue("GWinput","deltaw",deltaw )
     call getkeyvalue("GWinput","esmr",  esmr )
     if(ipr) write(stdo,*)' --- Freq ---'
     if(ipr) write(stdo,"(a,i6)")   '    niw  =',niw
-    if(ipr) write(stdo,"(a,f12.6)")'    delta=',delta
+!    if(ipr) write(stdo,"(a,f12.6)")'    delta=',delta
     if(ipr) write(stdo,"(a,f12.6)")'    esmr =',esmr
     ReadProductBasis: block
       allocate(nindxv(nl,natom), nindxc(nl,natom), &

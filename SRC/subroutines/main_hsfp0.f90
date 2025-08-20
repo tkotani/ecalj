@@ -11,7 +11,7 @@ subroutine hsfp0() bind(C)
        nstar,irk,nstbz, lxklm,dmlx,epinvq0i,wklm, wqt=>wt,q0i,nq0i
   use m_hamindex,only: ngrp, symgg=>symops
   use m_genallcf_v3,only: Genallcf_v3, natom,nspin,nl,nn, ndima,nlnmx, nctot,niw, &
-       alat,delta,deltaw,esmr_in=>esmr, il,in,im,nlnm, &
+       alat,deltaw,esmr_in=>esmr, il,in,im,nlnm, &
        plat, pos,z,ecore,  konf,nlnx,laf
   use m_keyvalue,only: Getkeyvalue
   use m_rdpp,only: Rdpp, nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx

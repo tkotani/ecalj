@@ -35,7 +35,7 @@ subroutine gwinit_v2() bind(C) !  Generate GWinput.tmp.
   integer ::n1q,n2q,n3q,ifiqg,ifiqgc,ifigw0,ifi,i,ig
   real(8) :: alp,QpGcut_psi, QpGcut_Cou,dummy
   real(8) :: volum,q0(3),qlat0(3,3),QpGx1,QpGx2, &
-       dw,delta,deltaw,esmr,tolopt,qm(3,3)
+       dw,deltaw,esmr,tolopt,qm(3,3)
   integer :: ibas,l,ixxx,lmxa,ibasx,ifigw0t,mxkp, &
        irs,niw,ic,iclass, ifiqibz,iqibz,ifqpnt,iqall,iaf,iii, ifigwinv2,lk,  nocc,nunocc, &
        kkk,noccc,nunoccc,ncinc,ncinc2,isp
@@ -160,11 +160,11 @@ subroutine gwinit_v2() bind(C) !  Generate GWinput.tmp.
   write(ifi,"(a)")  'HistBin_ratio 1.08 ! 1.03 maybe safer. frhis(iw)= b*(exp(a*(iw-1))-1), where a=ratio-1.0 and dw=b*a'
   write(ifi,"(a)")  '                   ! This "ba mesh" is from 9Mar2016'
   write(ifi,"(a)")  '                   ! See fpgw/gwsrc/m_freq.F'
-  write(ifi,"(a)")  'iSigMode  3   ! QSGW mode switch for gwsc. use =3.'
+!  write(ifi,"(a)")  'iSigMode  3   ! QSGW mode switch for gwsc. use =3.'
   write(ifi,"(a)")  'niw      10   ! Number of frequencies along Im axis. Used for integration to get Sigma_c'
   write(ifi,"(a)")  '              ! To test, try niw=6 and niw=12'
-  write(ifi,"(a)")  'delta  -1d-6  !(a.u.)  Broadening of x0. negative means tetrahedron method.'
-  write(ifi,"(a)")  '              ! used by hx0fp0. You get smeard x0 witth abs(delta).'
+!  write(ifi,"(a)")  'delta  -1d-6  !(a.u.)  Broadening of x0. negative means tetrahedron method.'
+!  write(ifi,"(a)")  '              ! used by hx0fp0. You get smeard x0 witth abs(delta).'
   write(ifi,"(a)")  'deltaw  0.02  !(a.u.) Mesh for numerical derivative to get the Z factor'
   write(ifi,"(a)")  'esmr   0.003  !(Ry) used by hsfp0. Keep esmr smaller than band gap for insulators'
   write(ifi,"(a)")  '              ! Poles of G^LDA are treated as if they have width esmr in hsfp0. '
