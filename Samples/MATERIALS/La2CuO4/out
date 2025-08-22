@@ -1,0 +1,328 @@
+2025-08-21 09:49:47.089337   mpirun --bind-to core --map-by core -np 1 echo --- Start gwsc ---
+--- Start gwsc ---
+option=   -vssig=1.0 
+### START gwsc: ITERADD= 20, MPI size=  32, 32 TARGET= la2cuo4swj
+===== Ititial band structure ====== 
+--> We use existing sigm file
+0:00:00.057677   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0   -vb=0.2 >llmf_start
+===== QSGW iteration start iter 1 ===
+0:00:10.196275   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0  --jobgw=0 >llmfgw00
+0:00:10.326054   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/qg4gw   -vssig=1.0 --job=1 > lqg4gw
+0:00:10.557439   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0  --jobgw=1 >llmfgw01
+0:00:25.535598   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/heftet --job=1   -vssig=1.0 > leftet
+0:00:25.687108   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hbasfp0 --job=3   -vssig=1.0 >lbasC
+0:00:28.284643   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hvccfp0 --job=3   -vssig=1.0 > lvccC
+0:00:38.753694   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=3   -vssig=1.0 >lsxC
+0:01:37.187990   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hbasfp0 --job=0   -vssig=1.0 > lbas
+0:01:38.638996   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hvccfp0 --job=0   -vssig=1.0 > lvcc
+0:01:46.073825   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=1   -vssig=1.0 >lsx
+0:02:24.683948   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hrcxq  -vssig=1.0 > lrcxq
+0:08:57.848022   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=2   -vssig=1.0 > lsc
+0:34:16.854885   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hqpe_sc   -vssig=1.0 > lqpe
+0:34:20.398194   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0   -vb=0.2 >llmf
+===== QSGW iteration end   iter 1 ===
+===== QSGW iteration start iter 2 ===
+0:34:47.100475   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0  --jobgw=0 >llmfgw00
+0:34:47.241708   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/qg4gw   -vssig=1.0 --job=1 > lqg4gw
+0:34:47.552648   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0  --jobgw=1 >llmfgw01
+0:35:02.438956   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/heftet --job=1   -vssig=1.0 > leftet
+0:35:02.623965   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hbasfp0 --job=3   -vssig=1.0 >lbasC
+0:35:05.155078   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hvccfp0 --job=3   -vssig=1.0 > lvccC
+0:35:15.602116   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=3   -vssig=1.0 >lsxC
+0:36:13.210408   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hbasfp0 --job=0   -vssig=1.0 > lbas
+0:36:14.656758   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hvccfp0 --job=0   -vssig=1.0 > lvcc
+0:36:22.247756   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=1   -vssig=1.0 >lsx
+0:37:00.921114   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hrcxq  -vssig=1.0 > lrcxq
+0:44:21.421405   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=2   -vssig=1.0 > lsc
+1:09:12.305896   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hqpe_sc   -vssig=1.0 > lqpe
+1:09:16.596581   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0   -vb=0.2 >llmf
+===== QSGW iteration end   iter 2 ===
+===== QSGW iteration start iter 3 ===
+1:09:46.527840   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0  --jobgw=0 >llmfgw00
+1:09:46.661631   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/qg4gw   -vssig=1.0 --job=1 > lqg4gw
+1:09:46.988998   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0  --jobgw=1 >llmfgw01
+1:10:02.788847   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/heftet --job=1   -vssig=1.0 > leftet
+1:10:02.958570   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hbasfp0 --job=3   -vssig=1.0 >lbasC
+1:10:05.478684   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hvccfp0 --job=3   -vssig=1.0 > lvccC
+1:10:16.156634   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=3   -vssig=1.0 >lsxC
+1:11:14.431709   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hbasfp0 --job=0   -vssig=1.0 > lbas
+1:11:15.878524   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hvccfp0 --job=0   -vssig=1.0 > lvcc
+1:11:23.425509   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=1   -vssig=1.0 >lsx
+1:12:02.176697   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hrcxq  -vssig=1.0 > lrcxq
+1:20:13.710094   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=2   -vssig=1.0 > lsc
+1:45:19.007389   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hqpe_sc   -vssig=1.0 > lqpe
+1:45:22.820309   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0   -vb=0.2 >llmf
+===== QSGW iteration end   iter 3 ===
+===== QSGW iteration start iter 4 ===
+1:45:33.186220   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0  --jobgw=0 >llmfgw00
+1:45:33.335146   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/qg4gw   -vssig=1.0 --job=1 > lqg4gw
+1:45:33.639995   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0  --jobgw=1 >llmfgw01
+1:45:49.081696   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/heftet --job=1   -vssig=1.0 > leftet
+1:45:49.613800   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hbasfp0 --job=3   -vssig=1.0 >lbasC
+1:45:52.148344   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hvccfp0 --job=3   -vssig=1.0 > lvccC
+1:46:03.231590   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=3   -vssig=1.0 >lsxC
+1:47:00.883184   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hbasfp0 --job=0   -vssig=1.0 > lbas
+1:47:02.371157   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hvccfp0 --job=0   -vssig=1.0 > lvcc
+1:47:10.045617   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=1   -vssig=1.0 >lsx
+1:47:48.941033   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hrcxq  -vssig=1.0 > lrcxq
+1:54:10.543508   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=2   -vssig=1.0 > lsc
+2:18:45.307273   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hqpe_sc   -vssig=1.0 > lqpe
+2:18:47.474559   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0   -vb=0.2 >llmf
+===== QSGW iteration end   iter 4 ===
+===== QSGW iteration start iter 5 ===
+2:18:57.399078   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0  --jobgw=0 >llmfgw00
+2:18:57.527804   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/qg4gw   -vssig=1.0 --job=1 > lqg4gw
+2:18:57.710654   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0  --jobgw=1 >llmfgw01
+2:19:12.744025   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/heftet --job=1   -vssig=1.0 > leftet
+2:19:12.814037   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hbasfp0 --job=3   -vssig=1.0 >lbasC
+2:19:15.310176   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hvccfp0 --job=3   -vssig=1.0 > lvccC
+2:19:25.875760   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=3   -vssig=1.0 >lsxC
+2:20:22.724541   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hbasfp0 --job=0   -vssig=1.0 > lbas
+2:20:24.188962   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hvccfp0 --job=0   -vssig=1.0 > lvcc
+2:20:31.773117   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=1   -vssig=1.0 >lsx
+2:21:10.652161   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hrcxq  -vssig=1.0 > lrcxq
+2:27:51.029588   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=2   -vssig=1.0 > lsc
+2:52:28.978228   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hqpe_sc   -vssig=1.0 > lqpe
+2:52:33.090581   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0   -vb=0.2 >llmf
+===== QSGW iteration end   iter 5 ===
+===== QSGW iteration start iter 6 ===
+2:52:43.085997   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0  --jobgw=0 >llmfgw00
+2:52:43.215543   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/qg4gw   -vssig=1.0 --job=1 > lqg4gw
+2:52:43.415390   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0  --jobgw=1 >llmfgw01
+2:52:58.598534   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/heftet --job=1   -vssig=1.0 > leftet
+2:52:58.679030   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hbasfp0 --job=3   -vssig=1.0 >lbasC
+2:53:01.203061   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hvccfp0 --job=3   -vssig=1.0 > lvccC
+2:53:12.043745   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=3   -vssig=1.0 >lsxC
+2:54:10.361030   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hbasfp0 --job=0   -vssig=1.0 > lbas
+2:54:11.808778   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hvccfp0 --job=0   -vssig=1.0 > lvcc
+2:54:19.296024   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=1   -vssig=1.0 >lsx
+2:54:58.478143   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hrcxq  -vssig=1.0 > lrcxq
+3:01:39.539674   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=2   -vssig=1.0 > lsc
+3:26:25.735525   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hqpe_sc   -vssig=1.0 > lqpe
+3:26:29.038598   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0   -vb=0.2 >llmf
+===== QSGW iteration end   iter 6 ===
+===== QSGW iteration start iter 7 ===
+3:26:39.164392   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0  --jobgw=0 >llmfgw00
+3:26:39.295465   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/qg4gw   -vssig=1.0 --job=1 > lqg4gw
+3:26:39.481979   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0  --jobgw=1 >llmfgw01
+3:26:54.446167   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/heftet --job=1   -vssig=1.0 > leftet
+3:26:54.516947   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hbasfp0 --job=3   -vssig=1.0 >lbasC
+3:26:57.012727   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hvccfp0 --job=3   -vssig=1.0 > lvccC
+3:27:07.531808   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=3   -vssig=1.0 >lsxC
+3:28:05.400816   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hbasfp0 --job=0   -vssig=1.0 > lbas
+3:28:06.842624   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hvccfp0 --job=0   -vssig=1.0 > lvcc
+3:28:14.503906   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=1   -vssig=1.0 >lsx
+3:28:53.462937   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hrcxq  -vssig=1.0 > lrcxq
+3:35:29.454536   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=2   -vssig=1.0 > lsc
+4:00:11.389926   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hqpe_sc   -vssig=1.0 > lqpe
+4:00:15.257314   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0   -vb=0.2 >llmf
+===== QSGW iteration end   iter 7 ===
+===== QSGW iteration start iter 8 ===
+4:00:25.384717   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0  --jobgw=0 >llmfgw00
+4:00:25.514742   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/qg4gw   -vssig=1.0 --job=1 > lqg4gw
+4:00:25.714050   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0  --jobgw=1 >llmfgw01
+4:00:40.712266   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/heftet --job=1   -vssig=1.0 > leftet
+4:00:40.781371   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hbasfp0 --job=3   -vssig=1.0 >lbasC
+4:00:43.275093   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hvccfp0 --job=3   -vssig=1.0 > lvccC
+4:00:54.152820   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=3   -vssig=1.0 >lsxC
+4:01:52.258864   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hbasfp0 --job=0   -vssig=1.0 > lbas
+4:01:53.709677   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hvccfp0 --job=0   -vssig=1.0 > lvcc
+4:02:01.177817   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=1   -vssig=1.0 >lsx
+4:02:40.099195   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hrcxq  -vssig=1.0 > lrcxq
+4:09:12.327463   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=2   -vssig=1.0 > lsc
+4:34:20.735435   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hqpe_sc   -vssig=1.0 > lqpe
+4:34:22.899715   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0   -vb=0.2 >llmf
+===== QSGW iteration end   iter 8 ===
+===== QSGW iteration start iter 9 ===
+4:34:32.862613   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0  --jobgw=0 >llmfgw00
+4:34:32.994332   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/qg4gw   -vssig=1.0 --job=1 > lqg4gw
+4:34:33.179463   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0  --jobgw=1 >llmfgw01
+4:34:48.111777   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/heftet --job=1   -vssig=1.0 > leftet
+4:34:48.182736   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hbasfp0 --job=3   -vssig=1.0 >lbasC
+4:34:50.680242   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hvccfp0 --job=3   -vssig=1.0 > lvccC
+4:35:01.147735   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=3   -vssig=1.0 >lsxC
+4:35:58.924342   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hbasfp0 --job=0   -vssig=1.0 > lbas
+4:36:00.423875   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hvccfp0 --job=0   -vssig=1.0 > lvcc
+4:36:07.616717   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=1   -vssig=1.0 >lsx
+4:36:46.911158   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hrcxq  -vssig=1.0 > lrcxq
+4:43:20.183041   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=2   -vssig=1.0 > lsc
+5:08:13.245710   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hqpe_sc   -vssig=1.0 > lqpe
+5:08:17.147070   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0   -vb=0.2 >llmf
+===== QSGW iteration end   iter 9 ===
+===== QSGW iteration start iter 10 ===
+5:08:27.242233   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0  --jobgw=0 >llmfgw00
+5:08:27.385038   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/qg4gw   -vssig=1.0 --job=1 > lqg4gw
+5:08:27.721098   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0  --jobgw=1 >llmfgw01
+5:08:42.695174   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/heftet --job=1   -vssig=1.0 > leftet
+5:08:43.239949   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hbasfp0 --job=3   -vssig=1.0 >lbasC
+5:08:45.809811   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hvccfp0 --job=3   -vssig=1.0 > lvccC
+5:08:56.476591   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=3   -vssig=1.0 >lsxC
+5:09:54.322052   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hbasfp0 --job=0   -vssig=1.0 > lbas
+5:09:55.796125   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hvccfp0 --job=0   -vssig=1.0 > lvcc
+5:10:03.300426   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=1   -vssig=1.0 >lsx
+5:10:42.477446   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hrcxq  -vssig=1.0 > lrcxq
+5:17:11.359579   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=2   -vssig=1.0 > lsc
+5:42:09.541331   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hqpe_sc   -vssig=1.0 > lqpe
+5:42:13.241803   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0   -vb=0.2 >llmf
+===== QSGW iteration end   iter 10 ===
+===== QSGW iteration start iter 11 ===
+5:42:34.779884   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0  --jobgw=0 >llmfgw00
+5:42:34.911177   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/qg4gw   -vssig=1.0 --job=1 > lqg4gw
+5:42:35.106977   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0  --jobgw=1 >llmfgw01
+5:42:50.632290   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/heftet --job=1   -vssig=1.0 > leftet
+5:42:50.738915   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hbasfp0 --job=3   -vssig=1.0 >lbasC
+5:42:53.254578   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hvccfp0 --job=3   -vssig=1.0 > lvccC
+5:43:04.091655   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=3   -vssig=1.0 >lsxC
+5:44:01.473018   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hbasfp0 --job=0   -vssig=1.0 > lbas
+5:44:02.925605   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hvccfp0 --job=0   -vssig=1.0 > lvcc
+5:44:10.374086   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=1   -vssig=1.0 >lsx
+5:44:49.236473   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hrcxq  -vssig=1.0 > lrcxq
+5:51:16.215069   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=2   -vssig=1.0 > lsc
+6:15:49.731915   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hqpe_sc   -vssig=1.0 > lqpe
+6:15:53.647797   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0   -vb=0.2 >llmf
+===== QSGW iteration end   iter 11 ===
+===== QSGW iteration start iter 12 ===
+6:16:07.751971   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0  --jobgw=0 >llmfgw00
+6:16:07.883898   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/qg4gw   -vssig=1.0 --job=1 > lqg4gw
+6:16:08.085817   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0  --jobgw=1 >llmfgw01
+6:16:23.704694   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/heftet --job=1   -vssig=1.0 > leftet
+6:16:23.799075   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hbasfp0 --job=3   -vssig=1.0 >lbasC
+6:16:26.322058   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hvccfp0 --job=3   -vssig=1.0 > lvccC
+6:16:36.949262   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=3   -vssig=1.0 >lsxC
+6:17:34.788205   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hbasfp0 --job=0   -vssig=1.0 > lbas
+6:17:36.254152   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hvccfp0 --job=0   -vssig=1.0 > lvcc
+6:17:43.768784   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=1   -vssig=1.0 >lsx
+6:18:22.737558   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hrcxq  -vssig=1.0 > lrcxq
+6:25:07.959474   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=2   -vssig=1.0 > lsc
+6:49:38.646313   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hqpe_sc   -vssig=1.0 > lqpe
+6:49:41.966850   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0   -vb=0.2 >llmf
+===== QSGW iteration end   iter 12 ===
+===== QSGW iteration start iter 13 ===
+6:49:52.166898   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0  --jobgw=0 >llmfgw00
+6:49:52.300585   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/qg4gw   -vssig=1.0 --job=1 > lqg4gw
+6:49:52.484866   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0  --jobgw=1 >llmfgw01
+6:50:07.512893   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/heftet --job=1   -vssig=1.0 > leftet
+6:50:07.584444   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hbasfp0 --job=3   -vssig=1.0 >lbasC
+6:50:10.077111   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hvccfp0 --job=3   -vssig=1.0 > lvccC
+6:50:20.826800   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=3   -vssig=1.0 >lsxC
+6:51:18.955306   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hbasfp0 --job=0   -vssig=1.0 > lbas
+6:51:20.405239   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hvccfp0 --job=0   -vssig=1.0 > lvcc
+6:51:28.005679   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=1   -vssig=1.0 >lsx
+6:52:06.823201   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hrcxq  -vssig=1.0 > lrcxq
+6:58:50.846595   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=2   -vssig=1.0 > lsc
+7:23:29.765186   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hqpe_sc   -vssig=1.0 > lqpe
+7:23:33.573640   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0   -vb=0.2 >llmf
+===== QSGW iteration end   iter 13 ===
+===== QSGW iteration start iter 14 ===
+7:23:43.466965   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0  --jobgw=0 >llmfgw00
+7:23:43.596948   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/qg4gw   -vssig=1.0 --job=1 > lqg4gw
+7:23:43.781555   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0  --jobgw=1 >llmfgw01
+7:23:59.820064   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/heftet --job=1   -vssig=1.0 > leftet
+7:23:59.890696   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hbasfp0 --job=3   -vssig=1.0 >lbasC
+7:24:02.386353   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hvccfp0 --job=3   -vssig=1.0 > lvccC
+7:24:12.889689   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=3   -vssig=1.0 >lsxC
+7:25:10.808021   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hbasfp0 --job=0   -vssig=1.0 > lbas
+7:25:12.255806   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hvccfp0 --job=0   -vssig=1.0 > lvcc
+7:25:19.614923   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=1   -vssig=1.0 >lsx
+7:25:58.372313   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hrcxq  -vssig=1.0 > lrcxq
+7:32:36.968011   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=2   -vssig=1.0 > lsc
+7:57:44.122089   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hqpe_sc   -vssig=1.0 > lqpe
+7:57:46.305554   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0   -vb=0.2 >llmf
+===== QSGW iteration end   iter 14 ===
+===== QSGW iteration start iter 15 ===
+7:57:56.342766   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0  --jobgw=0 >llmfgw00
+7:57:56.496701   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/qg4gw   -vssig=1.0 --job=1 > lqg4gw
+7:57:56.681024   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0  --jobgw=1 >llmfgw01
+7:58:11.725965   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/heftet --job=1   -vssig=1.0 > leftet
+7:58:11.795965   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hbasfp0 --job=3   -vssig=1.0 >lbasC
+7:58:14.297172   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hvccfp0 --job=3   -vssig=1.0 > lvccC
+7:58:24.913786   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=3   -vssig=1.0 >lsxC
+7:59:25.368451   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hbasfp0 --job=0   -vssig=1.0 > lbas
+7:59:26.820563   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hvccfp0 --job=0   -vssig=1.0 > lvcc
+7:59:34.448522   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=1   -vssig=1.0 >lsx
+8:00:13.543529   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hrcxq  -vssig=1.0 > lrcxq
+8:06:40.811637   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=2   -vssig=1.0 > lsc
+8:31:35.829595   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hqpe_sc   -vssig=1.0 > lqpe
+8:31:38.489472   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0   -vb=0.2 >llmf
+===== QSGW iteration end   iter 15 ===
+===== QSGW iteration start iter 16 ===
+8:31:48.389746   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0  --jobgw=0 >llmfgw00
+8:31:48.544741   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/qg4gw   -vssig=1.0 --job=1 > lqg4gw
+8:31:48.751843   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0  --jobgw=1 >llmfgw01
+8:32:03.753988   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/heftet --job=1   -vssig=1.0 > leftet
+8:32:03.849021   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hbasfp0 --job=3   -vssig=1.0 >lbasC
+8:32:06.373982   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hvccfp0 --job=3   -vssig=1.0 > lvccC
+8:32:16.916017   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=3   -vssig=1.0 >lsxC
+8:33:14.409593   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hbasfp0 --job=0   -vssig=1.0 > lbas
+8:33:15.859895   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hvccfp0 --job=0   -vssig=1.0 > lvcc
+8:33:23.373183   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=1   -vssig=1.0 >lsx
+8:34:02.042817   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hrcxq  -vssig=1.0 > lrcxq
+8:40:31.104018   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=2   -vssig=1.0 > lsc
+9:05:46.789392   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hqpe_sc   -vssig=1.0 > lqpe
+9:05:50.179469   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0   -vb=0.2 >llmf
+===== QSGW iteration end   iter 16 ===
+===== QSGW iteration start iter 17 ===
+9:05:59.982237   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0  --jobgw=0 >llmfgw00
+9:06:00.115723   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/qg4gw   -vssig=1.0 --job=1 > lqg4gw
+9:06:00.311159   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0  --jobgw=1 >llmfgw01
+9:06:15.842845   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/heftet --job=1   -vssig=1.0 > leftet
+9:06:15.969271   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hbasfp0 --job=3   -vssig=1.0 >lbasC
+9:06:18.488619   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hvccfp0 --job=3   -vssig=1.0 > lvccC
+9:06:29.084832   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=3   -vssig=1.0 >lsxC
+9:07:27.323589   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hbasfp0 --job=0   -vssig=1.0 > lbas
+9:07:28.776094   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hvccfp0 --job=0   -vssig=1.0 > lvcc
+9:07:36.206448   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=1   -vssig=1.0 >lsx
+9:08:15.011554   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hrcxq  -vssig=1.0 > lrcxq
+9:15:07.173564   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=2   -vssig=1.0 > lsc
+9:39:57.084321   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hqpe_sc   -vssig=1.0 > lqpe
+9:39:59.517502   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0   -vb=0.2 >llmf
+===== QSGW iteration end   iter 17 ===
+===== QSGW iteration start iter 18 ===
+9:40:09.739721   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0  --jobgw=0 >llmfgw00
+9:40:09.873301   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/qg4gw   -vssig=1.0 --job=1 > lqg4gw
+9:40:10.067272   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0  --jobgw=1 >llmfgw01
+9:40:25.111991   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/heftet --job=1   -vssig=1.0 > leftet
+9:40:25.183162   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hbasfp0 --job=3   -vssig=1.0 >lbasC
+9:40:27.732174   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hvccfp0 --job=3   -vssig=1.0 > lvccC
+9:40:38.202076   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=3   -vssig=1.0 >lsxC
+9:41:36.087095   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hbasfp0 --job=0   -vssig=1.0 > lbas
+9:41:37.542272   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hvccfp0 --job=0   -vssig=1.0 > lvcc
+9:41:45.103118   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=1   -vssig=1.0 >lsx
+9:42:24.041588   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hrcxq  -vssig=1.0 > lrcxq
+9:48:49.131031   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=2   -vssig=1.0 > lsc
+10:13:33.819168   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hqpe_sc   -vssig=1.0 > lqpe
+10:13:37.494024   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0   -vb=0.2 >llmf
+===== QSGW iteration end   iter 18 ===
+===== QSGW iteration start iter 19 ===
+10:13:47.686411   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0  --jobgw=0 >llmfgw00
+10:13:47.873585   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/qg4gw   -vssig=1.0 --job=1 > lqg4gw
+10:13:48.123309   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0  --jobgw=1 >llmfgw01
+10:14:03.213153   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/heftet --job=1   -vssig=1.0 > leftet
+10:14:03.304434   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hbasfp0 --job=3   -vssig=1.0 >lbasC
+10:14:05.842897   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hvccfp0 --job=3   -vssig=1.0 > lvccC
+10:14:17.128383   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=3   -vssig=1.0 >lsxC
+10:15:15.143738   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hbasfp0 --job=0   -vssig=1.0 > lbas
+10:15:16.601138   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hvccfp0 --job=0   -vssig=1.0 > lvcc
+10:15:24.352615   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=1   -vssig=1.0 >lsx
+10:16:03.214715   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hrcxq  -vssig=1.0 > lrcxq
+10:22:33.575633   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=2   -vssig=1.0 > lsc
+10:47:13.830104   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hqpe_sc   -vssig=1.0 > lqpe
+10:47:17.731572   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0   -vb=0.2 >llmf
+===== QSGW iteration end   iter 19 ===
+===== QSGW iteration start iter 20 ===
+10:47:28.672452   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0  --jobgw=0 >llmfgw00
+10:47:28.804956   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/qg4gw   -vssig=1.0 --job=1 > lqg4gw
+10:47:29.012458   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0  --jobgw=1 >llmfgw01
+10:47:44.642260   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/heftet --job=1   -vssig=1.0 > leftet
+10:47:44.738101   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hbasfp0 --job=3   -vssig=1.0 >lbasC
+10:47:47.256839   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hvccfp0 --job=3   -vssig=1.0 > lvccC
+10:47:57.762320   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=3   -vssig=1.0 >lsxC
+10:48:55.669895   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hbasfp0 --job=0   -vssig=1.0 > lbas
+10:48:57.116743   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hvccfp0 --job=0   -vssig=1.0 > lvcc
+10:49:04.377822   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=1   -vssig=1.0 >lsx
+10:49:43.230784   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hrcxq  -vssig=1.0 > lrcxq
+10:56:16.757490   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/hsfp0_sc --job=2   -vssig=1.0 > lsc
+11:20:57.124274   mpirun --bind-to core --map-by core -np 1 /home/takao/bin/hqpe_sc   -vssig=1.0 > lqpe
+11:21:00.711014   mpirun --bind-to core --map-by core -np 32 /home/takao/bin/lmf la2cuo4swj   -vssig=1.0   -vb=0.2 >llmf
+===== QSGW iteration end   iter 20 ===
+OK! ==== All calclation finished for  gwsc ====

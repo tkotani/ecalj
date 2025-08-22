@@ -159,7 +159,7 @@ subroutine gwinit_v2() bind(C) !  Generate GWinput.tmp.
   write(ifi,"(a)")  'niw      10   ! Number of frequencies along Im axis. Used for integration to get Sigma_c  ! To test, try niw=6 and niw=12'
   write(ifi,"(a)")  'HistBin_dw    1d-4 ! 1d-5 !  BinWidth along real axis at omega=0.'
   write(ifi,"(a)")  'HistBin_ratio 1.05 ! 1.03 !  Bin are frhis(iw)= dw*(exp(ratio*(iw-1))-1), where a=ratio-1.0 and dw=b*a'
-  write(ifi,"(a)")  'SmearX0 0.0037 !(a.u.) 0.0037 Hartree=0.1eV. Gaussian smearing for X0. To stabilize convergence for metallic systems'
+  write(ifi,"(a)")  'SmearX0 0.01  !(a.u.) 0.01 Harree= 0.272eV. Gaussian smearing for X0. To stabilize convergence for metallic systems'
   write(ifi,"(a)")  'GaussSmear on ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr for hsfp0.'
   write(ifi,"(a)")  'deltaw  0.02  !(a.u.) Mesh for numerical derivative to get the Z factor'
   write(ifi,"(a)")  'esmr   0.003  !(Ry) used by hsfp0. Keep esmr smaller than band gap for insulators'
