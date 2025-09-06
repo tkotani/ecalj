@@ -32,7 +32,7 @@ def main():
     print(f"Going to install required binaries and scripts to {BINDIR}")
     start0_time = time.time()
     # Make links
-    for scr in ['StructureTool/viewvesta', 'StructureTool/ctrl2vasp', 'StructureTool/vasp2ctrl','GetSyml/getsyml']:
+    for scr in ['StructureTool/viewvesta', 'StructureTool/refineposcar', 'StructureTool/ctrl2vasp', 'StructureTool/vasp2ctrl','GetSyml/getsyml']:
         src   = os.path.join(CWD, scr+'.py')
         slink = os.path.join(BINDIR, scr.split('/')[-1])
         if os.path.exists(os.path.join(BINDIR, slink)):
