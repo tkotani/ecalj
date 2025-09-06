@@ -587,7 +587,8 @@ if(rlmchk==1):
     try:
         listr = lineReadfile("rmt.tmp")
     except:
-        print( ' Error: Can not readin rmt.tmp! Check structure by >viewvesta ctrls.foobar! ')
+        print()
+        print('Error! lmchk --getwsr tmp: Maybe numerical problem of crystal symmetry. See llmchk_getwsr or run it again')
         sys.exit()
     #print(' ', listr)
     rdic={}
