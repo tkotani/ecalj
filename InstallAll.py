@@ -12,10 +12,15 @@ parser.add_argument('--bindir' ,help='ecalj binaries and scripts',type=str,defau
 parser.add_argument('--fc'   ,help='fortran compilar  gfortran/ifort/nvfortran',type=str,required=True)
 parser.add_argument('--notest' ,help='no test. only compile',action='store_true')
 parser.add_argument('--verbose' ,help='verbose on for debug',action='store_true')
+#parser.add_argument('--debug' ,help='debug',action='store_true')
 args=parser.parse_args()
 
 def main():
-    BUILD_TYPE = "Release"    # = "Debug"
+#    if(args.debug):
+#        BUILD_TYPE = "Debug"    # = "Debug"
+#    else:
+#        BUILD_TYPE = "Release"    # = "Debug"
+    
     CWD =os.getcwd()
     HOME=os.getenv('HOME')
     BINDIR = os.path.join(HOME,args.bindir) #os.path.join(HOME, 'bin')  # Make directory for ecalj binaries and scripts.
