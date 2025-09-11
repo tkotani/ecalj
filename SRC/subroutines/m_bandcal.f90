@@ -126,8 +126,13 @@ contains
                call hambl(ispc,qp,osmpot,vconst,osig,otau,oppi, hamm(:,ispc,:,ispc),ovlm(:,ispc,:,ispc))
                hamm(:,ispc,:,ispc)= hamm(:,ispc,:,ispc) + hammhso(:,:,ispc) !spin-diag SOC elements (1,1), (2,2) added
             enddo
-            hamm(:,1,:,2)= hammhso(:,:,3)                    !spin-offdiagonal SOC elements (1,2) added
-            hamm(:,2,:,1)= transpose(dconjg(hammhso(:,:,3)))
+            if (cmdopt0('--testso')) then !this is for AHC test
+               hamm(:,1,:,2) = 0d0
+               hamm(:,2,:,1) = 0d0
+            else
+              hamm(:,1,:,2)= hammhso(:,:,3)                    !spin-offdiagonal SOC elements (1,2) added
+              hamm(:,2,:,1)= transpose(dconjg(hammhso(:,:,3)))
+            endif   
             if(sigmamode) then
                do ispc=1,nspc
                   call getsenex(qp, ispc, ndimh, ovlm(:,ispc,:,ispc)) !bugfix at 2024-4-24 obata: ispc was 1 when 2023-9-20
