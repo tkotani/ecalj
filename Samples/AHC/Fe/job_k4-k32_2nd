@@ -1,0 +1,61 @@
+#!/bin/bash -x
+nc=40
+nc2=20
+exe=/path_to_ecalj/bin
+mat=Fe
+ndiv=101
+
+# so2
+_CONDA_ROOT="$HOME/anaconda3"
+\. "$_CONDA_ROOT/etc/profile.d/conda.sh" || return $?
+conda activate mpipy
+cd k4_so1
+mpirun -np $nc2 python $exe/hx0ahc.py -4. 4. $ndiv --phispinsym >& lhx0ahc
+cd ..
+cd k8_so1
+mpirun -np $nc2 python $exe/hx0ahc.py -4. 4. $ndiv --phispinsym >& lhx0ahc
+cd ..
+cd k12_so1
+mpirun -np $nc2 python $exe/hx0ahc.py -4. 4. $ndiv --phispinsym >& lhx0ahc
+cd ..
+cd k16_so1
+mpirun -np $nc2 python $exe/hx0ahc.py -4. 4. $ndiv --phispinsym >& lhx0ahc
+cd ..
+cd k20_so1
+mpirun -np $nc2 python $exe/hx0ahc.py -4. 4. $ndiv --phispinsym >& lhx0ahc
+cd ..
+cd k24_so1
+mpirun -np $nc2 python $exe/hx0ahc.py -4. 4. $ndiv --phispinsym >& lhx0ahc
+cd ..
+cd k28_so1
+mpirun -np $nc2 python $exe/hx0ahc.py -4. 4. $ndiv --phispinsym >& lhx0ahc
+cd ..
+cd k32_so1
+mpirun -np $nc2 python $exe/hx0ahc.py -4. 4. $ndiv --phispinsym >& lhx0ahc
+cd ..
+
+# so1
+cd k4_so1
+mpirun -np $nc2 python $exe/hx0ahc.py -4. 4. $ndiv --phispinsym --testso -vso=1 >& lhx0ahc
+cd ..
+cd k8_so1
+mpirun -np $nc2 python $exe/hx0ahc.py -4. 4. $ndiv --phispinsym --testso -vso=1 >& lhx0ahc
+cd ..
+cd k12_so1
+mpirun -np $nc2 python $exe/hx0ahc.py -4. 4. $ndiv --phispinsym --testso -vso=1 >& lhx0ahc
+cd ..
+cd k16_so1
+mpirun -np $nc2 python $exe/hx0ahc.py -4. 4. $ndiv --phispinsym --testso -vso=1 >& lhx0ahc
+cd ..
+cd k20_so1
+mpirun -np $nc2 python $exe/hx0ahc.py -4. 4. $ndiv --phispinsym --testso -vso=1 >& lhx0ahc
+cd ..
+cd k24_so1
+mpirun -np $nc2 python $exe/hx0ahc.py -4. 4. $ndiv --phispinsym --testso -vso=1 >& lhx0ahc
+cd ..
+cd k28_so1
+mpirun -np $nc2 python $exe/hx0ahc.py -4. 4. $ndiv --phispinsym --testso -vso=1 >& lhx0ahc
+cd ..
+cd k32_so1
+mpirun -np $nc2 python $exe/hx0ahc.py -4. 4. $ndiv --phispinsym --testso -vso=1 >& lhx0ahc
+cd ..

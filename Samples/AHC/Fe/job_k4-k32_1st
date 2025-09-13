@@ -1,0 +1,124 @@
+#!/bin/bash -x
+nc=40
+nc2=20
+exe=/path_to_ecalj/bin
+mat=Fe
+
+# so2
+mkdir k4_so2
+cd k4_so2
+cp ../*.Fe .
+cp ../GWinput .
+$exe/lmfa $mat >& llmfa
+mpirun -np $nc $exe/lmf $mat --phispinsym >& llmf
+$exe/job_band $mat -np $nc --phispinsym >& job_band.out
+$exe/job_AHC $mat -np $nc --phispinsym >& job_AHC.out
+cd ..
+
+cp -r k4_so1 k8_so1
+cd k8_so1
+cp ../GWinput_for_AHC GWinput
+sed -i -e "s/{kp}/8/g" GWinput
+$exe/job_AHC $mat -np $nc --phispinsym >& job_AHC.out
+cd ..
+
+cp -r k4_so1 k12_so1
+cd k12_so1
+cp ../GWinput_for_AHC GWinput
+sed -i -e "s/{kp}/12/g" GWinput
+$exe/job_AHC $mat -np $nc --phispinsym >& job_AHC.out
+cd ..
+
+cp -r k4_so1 k16_so1
+cd k16_so1
+cp ../GWinput_for_AHC GWinput
+sed -i -e "s/{kp}/16/g" GWinput
+$exe/job_AHC $mat -np $nc --phispinsym >& job_AHC.out
+cd ..
+
+cp -r k4_so1 k20_so1
+cd k20_so1
+cp ../GWinput_for_AHC GWinput
+sed -i -e "s/{kp}/20/g" GWinput
+$exe/job_AHC $mat -np $nc --phispinsym >& job_AHC.out
+cd ..
+
+cp -r k4_so1 k24_so1
+cd k24_so1
+cp ../GWinput_for_AHC GWinput
+sed -i -e "s/{kp}/24/g" GWinput
+$exe/job_AHC $mat -np $nc --phispinsym >& job_AHC.out
+cd ..
+
+cp -r k4_so1 k28_so1
+cd k28_so1
+cp ../GWinput_for_AHC GWinput
+sed -i -e "s/{kp}/28/g" GWinput
+$exe/job_AHC $mat -np $nc --phispinsym >& job_AHC.out
+cd ..
+
+cp -r k4_so1 k32_so1
+cd k32_so1
+cp ../GWinput_for_AHC GWinput
+sed -i -e "s/{kp}/32/g" GWinput
+$exe/job_AHC $mat -np $nc --phispinsym >& job_AHC.out
+cd ..
+
+# so1
+cp -r k4_so2 k4_so1
+cd k4_so1
+cp ../*.Fe .
+cp ../GWinput .
+mpirun -np $nc $exe/lmf $mat --phispinsym --testso -vso=1 >& llmf
+$exe/job_band $mat -np $nc --phispinsym --testso -vso=1 >& job_band.out
+$exe/job_AHC $mat -np $nc --phispinsym --testso -vso=1 >& job_AHC.out
+cd ..
+
+cp -r k4_so1 k8_so1
+cd k8_so1
+cp ../GWinput_for_AHC GWinput
+sed -i -e "s/{kp}/8/g" GWinput
+$exe/job_AHC $mat -np $nc --phispinsym --testso -vso=1 >& job_AHC.out
+cd ..
+
+cp -r k4_so1 k12_so1
+cd k12_so1
+cp ../GWinput_for_AHC GWinput
+sed -i -e "s/{kp}/12/g" GWinput
+$exe/job_AHC $mat -np $nc --phispinsym --testso -vso=1 >& job_AHC.out
+cd ..
+
+cp -r k4_so1 k16_so1
+cd k16_so1
+cp ../GWinput_for_AHC GWinput
+sed -i -e "s/{kp}/16/g" GWinput
+$exe/job_AHC $mat -np $nc --phispinsym --testso -vso=1 >& job_AHC.out
+cd ..
+
+cp -r k4_so1 k20_so1
+cd k20_so1
+cp ../GWinput_for_AHC GWinput
+sed -i -e "s/{kp}/20/g" GWinput
+$exe/job_AHC $mat -np $nc --phispinsym --testso -vso=1 >& job_AHC.out
+cd ..
+
+cp -r k4_so1 k24_so1
+cd k24_so1
+cp ../GWinput_for_AHC GWinput
+sed -i -e "s/{kp}/24/g" GWinput
+$exe/job_AHC $mat -np $nc --phispinsym --testso -vso=1 >& job_AHC.out
+cd ..
+
+cp -r k4_so1 k28_so1
+cd k28_so1
+cp ../GWinput_for_AHC GWinput
+sed -i -e "s/{kp}/28/g" GWinput
+$exe/job_AHC $mat -np $nc --phispinsym --testso -vso=1 >& job_AHC.out
+cd ..
+
+cp -r k4_so1 k32_so1
+cd k32_so1
+cp ../GWinput_for_AHC GWinput
+sed -i -e "s/{kp}/32/g" GWinput
+$exe/job_AHC $mat -np $nc --phispinsym --testso -vso=1 >& job_AHC.out
+cd ..

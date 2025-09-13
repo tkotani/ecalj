@@ -72,6 +72,10 @@ contains
     logical:: wan1,cmdopt0
     integer, intent(in),optional :: ikbz_in, fkbz_in
     integer :: ikbz, fkbz
+    real(8):: efshift=0d0
+    character(256):: strn
+    logical:: cmdopt2
+    real(8),external::rydberg
     ikbz = 1
     fkbz = nqbz
     if(present(ikbz_in) .and. present(fkbz_in)) then
@@ -129,7 +133,11 @@ contains
     if (present(wan)) then
        if(wan) wan1= .TRUE. 
     endif
-    call tetwt5x_dtet4(npm,ncc, q, ekxx1, ekxx2, qlat,ginv,ef, ntetf,nqbzw, nband, &
+    AHCrigidEfshift: if (cmdopt2('-EfermiShifteV=',strn)) then
+       read(strn,*) efshift
+       efshift = efshift/rydberg()
+    endif AHCrigidEfshift
+    call tetwt5x_dtet4(npm,ncc, q, ekxx1, ekxx2, qlat,ginv,ef+efshift, ntetf,nqbzw, nband, &
          ikbz, fkbz, nqbz, nctot,ecore_(1,is),idtetf,qbzw,ib1bz,job, &
          iwgt,nbnb,   demin,demax,                          & !job=0
          frhis, nwhis,nbnbx,ibjb,nhwtot,  ihw,nhw,jhw, whw, & ! job=1    not-used

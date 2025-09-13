@@ -3349,7 +3349,9 @@ contains
     close(ifh)
   end subroutine write_hopping_output
 end module m_maxloc0
-  subroutine readuu(is,iti,itf,ikbidx, &
+
+
+subroutine readuu(is,iti,itf,ikbidx, &
        nqbz,nbb, &
        uum)
     implicit integer (i-n)
@@ -3416,4 +3418,4 @@ end module m_maxloc0
     !endif
 
     return
-  end subroutine readuu
+end subroutine readuu
