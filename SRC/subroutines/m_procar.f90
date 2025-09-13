@@ -6,13 +6,15 @@ module m_procar
   use m_locpot,only: sab_rv=>sab 
   use m_MPItk,only: master_mpi, strprocid, numprocs=>nsize,procid,xmpbnd2
   use m_qplist,only: nkp,xdatt,qplist
-  public m_procar_init, m_procar_closeprocar, m_procar_writepdos, dwgtall,nchanp,m_procar_add
+!  public m_procar_init, m_procar_closeprocar, m_procar_writepdos, dwgtall,nchanp,m_procar_add
+  public m_procar_init, m_procar_closeprocar, m_procar_writepdos, dwgtall,nchanp,m_procar_add,sdendwgtall,m_sden_add,read_sdenmat
 
+ 
   private
   integer::  nchanp=25      !total of s,p,d,f
-  real(8),allocatable,protected:: dwgtall(:,:,:,:,:)
+  real(8),allocatable,protected:: dwgtall(:,:,:,:,:),sdendwgtall(:,:,:,:,:)
   logical,private:: isp1init=.true.,isp2init=.true. !,init=.true.
-  integer,private:: iprocar1,iprocar2
+  integer,private:: iprocar1,iprocar2 ,isdenmat
   logical,private:: cmdopt0,fullmesh,debug,procaron
   logical,private:: idwmode=.false.
   real(8), allocatable:: dlmm(:,:,:,:)
@@ -163,6 +165,7 @@ contains
     if(idwmode) close(idw)
     deallocate( evlm,auspp )
   end subroutine m_procar_add
+  
 !!--------------------------------------------------------
   subroutine m_procar_writepdos(evlall,nevmin,ef0,kpproc)
     use m_mkqp,only: nkabc=> bz_nabc
@@ -296,4 +299,117 @@ contains
        enddo
     endif
   end subroutine m_procar_setlocalaxis_init
+!!--------------------------------------------------------
+  subroutine m_sden_add(iq,ispin,ef0,evl,qp,nev,evec,ndimhx)
+    use m_makusq,only: makusq
+    use m_ftox
+    implicit none
+    complex(8):: evec(ndimhx,nev)! ,evec_reshape(ndhamx,nspc,nev)
+    character*1000::ccc
+    real(8):: ef0
+    complex(8):: auasaz(3,nspc),paulim(2,2,3)
+    real(8):: s11,s22,s33,s12,s13,s23,xdat,qold(3),qp(3),dwgt(nchanp,3),dwgtt(nchanp)  !,vmag0
+    complex(8),allocatable:: auspp(:,:,:,:,:)
+    complex(8),parameter::img=dcmplx(0d0,1d0),img0=dcmplx(0d0,0d0),img1=dcmplx(1d0,0d0)
+    integer:: iq,isp,iprocar,iband,is,ilm,ib,nev,i,m,l,ndimhx,ispin,ispstart,ispend,ispx,ksp,ixyz
+    real(8):: rydberg=13.6058d0,evl(ndhamx,nspx)
+    real(8),allocatable:: evlm(:,:)
+    character(8)::xt
+    integer::idw
+    logical:: cmdopt0 
+    !!! I have to modify this to calculate at q in GWinput.
+    if(lso/=1.or..not.cmdopt0('--phispinsym')) return
+    ispx = 1
+    allocate(evlm,source=evl)
+    evlm(:,ispin)=evl(:,ispin) !+ vmag0*(ispin-1.5d0)
+    allocate( auspp(nlmax,ndhamx*nspc,3,nspc,nbas),source=(0d0,0d0) ) !3 for three radial funcitons (u,s,gz). ndhamx is the dimension of Hamiltonian.
+    ! write(*,*) "evec"
+    ! evec_reshape=reshape(evec(1:ndhamx*nspc,1:nev),(/ndhamx,nspc,nev/))
+    ! write(*,*) evec_reshape(1,1:2,1)
+    ! call makusq(nbas,[-999], nev,ispin,1,qp,reshape(evec(1:ndhamx*nspc,1:nev),(/ndhamx,nspc,nev/)),auspp)
+    call makusq(nbas,[-999], nev,ispin,1,qp,evec, auspp ) !Get (u,s,gz) !ispin is neglected for lso=1
+    paulim(:,:,1) = reshape((/img0,img1,img1,img0/),(/2,2/))
+    paulim(:,:,2) = reshape((/img0,-img,img,img0/),(/2,2/))
+    paulim(:,:,3) = reshape((/img1,img0,img0,-img1/),(/2,2/))
+    if(isp1init) then
+       open(newunit=isdenmat,file='SDENMAT.'//trim(strprocid))
+       isp1init=.false.
+    endif
+    ! write(*,*) "sab_rv"
+    ! write(*,*) sab_rv(1:3,1:3,2,1,1)
+    ! write(*,*) "auspp"
+    ! write(*,*) auspp(2,1,1:3,1:nspc,1)
+    if(debug) write(stdo,*) 'm_sdenmat',isp,isdenmat,ef0,nlmax,ndhamx,nspc,nsp,nbas
+    ccc="ion        s       py       pz       px      dxy      dyz      dz2      dxz   dx2-y2"// &
+         "      f-3      f-2      f-1       f0       f1       f2       f3      "//&
+         "                                                                               tot"
+    write(isdenmat,*)
+    write(isdenmat,*)
+    write(isdenmat,"('k-point ',i4,' :    ',3f13.8,'     weight = -------  : x =',f15.8)")iq,qp,xdatt(iq)
+    write(isdenmat,*)
+    ibandloop: do iband = 1, nev !band index 
+       write(isdenmat,*)
+       write(isdenmat,"('band ',i3,' # energy ',f13.8,' # occ. -----' )")iband,(evlm(iband,ispx)-ef0)*rydberg
+       write(isdenmat,*)
+       ixyzloop: do ixyz = 1, 3
+          dwgtt=0d0
+          ibloop: do ib = 1, nbas
+             is  = ispec(ib)
+             ilm = 0
+             dwgt=0d0
+             ksp=1
+             do  l = 0, lmxa_i(is)
+                do  m = -l, l
+                   ilm = ilm+1 
+                   if(ilm>nchanp) cycle !2024-6-22 dwgt segmentation error bugfix
+                   auasaz = auspp(ilm,iband,1:3,1:nspc,ib) ! auasaz is for phi,phidot,pz(val=slo=0)
+                   !Note au,as,az are coefficients for phi1*Ylm phi2*Ylm phi3*Ylm.
+                   dwgt(ilm,ixyz) = 0.5*sum(matmul(matmul(dconjg(transpose(auasaz(1:3,1:nspc))), &
+                        matmul(sab_rv(1:3,1:3,l+1,ksp,ib),auasaz(1:3,1:nspc))),  &
+                        paulim(1:nspc,1:nspc,ixyz)) )
+                   ! sum(dconjg(auasaz)*matmul( sab_rv(:,:,l+1,isp,ib),auasaz))
+                   ! write(stdo,*) dwgt(ilm,1:3)
+                enddo
+             enddo
+             dwgtt = dwgtt + dwgt(1:ilm,ixyz)
+             if(ib==1.and.ixyz==1)  write(isdenmat,"(a)") trim(ccc)
+             write(isdenmat,"(i3,x,i3,100(x,f8.5))")ixyz,ib,(dwgt(i,ixyz),i=1,nchanp),sum(dwgt(1:nchanp,ixyz))
+             if(ib==nbas) write(isdenmat,"('tot',100(x,f8.5))")(dwgtt(i),i=1,nchanp),sum(dwgtt(1:nchanp))
+             if((.not.idwmode).and.fullmesh) sdendwgtall(1:nchanp,ib,iband,ixyz,iq) = dwgt(1:nchanp,ixyz)
+             if(idwmode.and.fullmesh) write(idw) dwgt(1:nchanp,ixyz) 
+          enddo ibloop
+       enddo ixyzloop
+    enddo ibandloop
+    if(idwmode) close(idw)
+    deallocate( evlm,auspp )
+  end subroutine m_sden_add
+!!--------------------------------------------------------
+  subroutine read_sdenmat()
+    use m_genallcf_v3,only: nband,ndima
+    use m_read_bzdata,only: nqbz
+    implicit none
+    integer::ifisden,iq,iband,ib,ic,ixyz,ibb,isp
+    real(8)::totsden
+    if(.not.allocated(sdendwgtall)) allocate(sdendwgtall(nchanp,nbas,ndhamx,3,nkp),source=0d0)
+    write(stdo,*) "nqbz, nband, ndima=",nqbz,nband,ndima
+    open(newunit=ifisden,file='SDENMAT')
+    do iq=1,nqbz
+       do ic=1,4; read(ifisden,*); enddo
+       do iband=1,nband
+          do ic=1,3; read(ifisden,*); enddo
+          do ib=1,ndima
+             do ixyz=1,3
+                read(ifisden,*) isp,ibb,sdendwgtall(1:nchanp,ib,iband,ixyz,iq),totsden
+             enddo
+          enddo
+          read(ifisden,*) 
+       enddo
+    enddo
+    close(ifisden)
+    do ixyz=1,3
+       write(stdo,*) sdendwgtall(1:nchanp,1,1,ixyz,1)
+    enddo
+  endsubroutine read_sdenmat
+!!--------------------------------------------------------
+
 end module m_procar

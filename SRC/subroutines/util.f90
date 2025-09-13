@@ -126,6 +126,18 @@ character(4) function charnum4(num)
        char(48+mod(num/10,10))// &
        char(48+mod(num,10))
 END function charnum4
+character(7) function charnum7(num)
+  integer(4) :: num
+  charnum7 = &
+       char(48+mod(num/1000000,10))// &
+       char(48+mod(num/100000,10))// &
+       char(48+mod(num/10000,10))// &
+       char(48+mod(num/1000,10))// &
+       char(48+mod(num/100,10))// &
+       char(48+mod(num/10,10))// &
+       char(48+mod(num,10))
+END function charnum7
+
 character(9) function ftoa9(arg)
   real(8):: arg
   write(ftoa9,"(1x,f8.3)") arg

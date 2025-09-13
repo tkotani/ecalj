@@ -25,7 +25,7 @@ subroutine h_uumatrix()
     ,mdimx,nbloch,nblochpmx,ifvcfpout,ndummy1,ndummy2,ifcphi,is,nwp, &
     ifepscond,nxx,ifvxcpout,ifgb0vec,nw0,iw,nwhis,ifinin,nw2,iw0,ifwwk,noccxv,noccx &
     ,ifemesh,nprecx,mrecl,ifwd,ifrcwi,ifrcw,nspinmx,ifianf,ibas &
-    ,ibas1,irot,iq,ngb,iqixc2,ifepsdatnolfc,ifepsdat,ngbin,igc0 &
+    ,ibas1,irot,ngb,iqixc2,ifepsdatnolfc,ifepsdat,ngbin,igc0 &
     ,kx,isf,kqxx,kp,job,nbnbx,nhwtot,noccxvx,nwmax,ihis,jhwtot,ik,ibib,ib1,ib2,ichkhis,ihww,j,imode,ngpmx
   integer:: nwin,incwfin,verbose,ifphi,nbas,nradmx,ncoremx,nrx,ic,icx,isp,l,n,irad,ifoc, ldim2,ixx,ngp1,ngp2,nq0it
   integer:: iqindx,nqbandx,nqband,j1min_c(2),j1max_c(2),nbmin,nbmax, nmin,nmax,iq2,ntmp,if99,ifile_handle
@@ -147,10 +147,10 @@ subroutine h_uumatrix()
     do i = 1,nbb
       read(ifbb,*) bbv(1:3,i)
     enddo
-    do iq = 1,nqbz
+    do iqbz = 1,nqbz
       read(ifbb,*) !itmp,u(1:3)
       do ib = 1,nbb
-        read(ifbb,*)itmp,itmp2,ikbidx(ib,iq) !,u(1:3)
+        read(ifbb,*)itmp,itmp2,ikbidx(ib,iqbz) !,u(1:3)
       enddo
     enddo
     read(ifbb,*)
@@ -309,8 +309,7 @@ subroutine h_uumatrix()
         q1(:) = qbz(:,iqbz)
         q2(:) = qbz(:,iqbz) + q0i(:,ibb)
       endif
-      write(stdo,ftox)'iq =',iqbz, 'out of',nqbz
-!      write(stdo,ftox)'  ibbloop iq =',ibb,iq
+      write(stdo,ftox)' iqbz ibb=',iqbz,ibb,'out of',nqbz,nbb
       call readqg0('QGpsi',q1,  q1x, ngp1) ! write(stdo,"('uuuiq q1 q1x=',3f9.4,3x,3f9.4,i5)") q1,q1x,ngp1
       call readqg0('QGpsi',q2,  q2x, ngp2) ! write(stdo,"('uuuiq q2 q2x=',3f9.4,3x,3f9.4,i5)") q2,q2x,ngp2
       allocate( ngvecpf1(3,ngp1), ngvecpf2(3,ngp2), ppovl(ngp1,ngp2) )
@@ -346,11 +345,12 @@ subroutine h_uumatrix()
         if(ixc==3) write(ifuu(ispin)) iqbz,ibb
         write(ifuu(ispin)) ((uum(j1,j2,ispin),j1=ii,ie),j2=ii,ie)
         checkwirte: block
-          do j1=ii,ie; j2=j1 !; do j2=j2min,j2max !checkwrite  !if(j1==j2)
+          do j1=ii,ie
+            do j2=ii,ie !; do j2=j2min,j2max !checkwrite  !if(j1==j2)
             if(eval1(j1)>1d10.or.eval2(j2)>1d10) cycle ! see sugw.f90. padding by huge number
-            write(stdo,ftox)'uumatrix: iq isp=',iqbz,ispin,'j1j2=',j1,j2,'q1 q2-q1=',ftof(q1,4),ftof(q1-q2,4),&
-                 '<u|u>=',ftof(uum(j1,j2,ispin),4),'abs',ftof(abs(uum(j1,j2,ispin)))
-          enddo !; enddo
+!            write(stdo,ftox)'uumatrix: iq isp j1 j2 q1 q2 <uu>= ',iqbz,ispin,j1,j2,ftof(q1,4),ftof(q1-q2,4),ftof(uum(j1,j2),4),ftof(abs(uum(j1,j2)))
+            write(stdo,ftox)'uumatrix: iq isp j1 j2 q1 q2 <uu>= ',iqbz,ispin,j1,j2,ftof(q1,4),ftof(q1-q2,4),ftof(uum(j1,j2,ispin),4),'abs',ftof(abs(uum(j1,j2,ispin)))
+          enddo ; enddo
         endblock checkwirte
 1050  enddo ispinloop2
       deallocate(ngvecpf1, ngvecpf2, ppovl)
