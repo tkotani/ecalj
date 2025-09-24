@@ -1,28 +1,56 @@
-#!/bin/bash -eux
-nfpgw=`dirname $0`
-echo $0
-echo $@
-#echo $4
-if [ $# -le 2 ] || [ $2 != "-np" ]; then
-  echo "An example of usage: job_ham si -np 4 [options for lmf]"
-  exit
-else
-  MPI_SIZE=$3
-fi
-rm -f HamiltonianPMT.*
-echo 'Runnnig Hamiltonian generation'
-mpirun -np $3 $nfpgw/lmf $1 --writeham --mkprocar --noinv >& out_writeham
-# Get Hamiltonian file, namded as HamiltonianMTO
-#cat HamiltonianPMT.* >HamiltonianPMT
-#rm HamiltonianPMT.* 
-# Get |MTP> Get MTprojected Hamiltonian
-mpirun -np $3 $nfpgw/lmfham1 $1 >& out_lmfham1
+import sys
+import os
+import subprocess
 
-# Get |MLO> Get MLO Hamiltonian
-#$nfpgw/lmfham2 --job=0 >& out_lmfham2_0
-#$nfpgw/lmfham2 --job=1 >& out_lmfham2_1
-echo ' --- steps to get MLO ---'
-echo '1.Edit mlo_foobar in GWinput, and Run'
-echo '2.>lmfham2 si --job=0'
-echo '3.>lmfham2 si --job=1, then Check bandplot.lmfham2.*.glt'
-echo 'OK! end of job_ham. Run next steps above'
+def main():
+    nfpgw = os.path.dirname(os.path.abspath(__file__))
+    print(f"Script name: {sys.argv[0]}")
+    print(f"Arguments: {sys.argv[1:]}")
+
+    if len(sys.argv) <= 3 or sys.argv[2] != "-np":
+        print("Usage example: job_ham si -np 4 [options for lmf]")
+        sys.exit(1)
+
+    MPI_SIZE = sys.argv[3]
+    target = sys.argv[1]
+
+    # 追加オプション（--skipf など）を抽出
+    extra_args = sys.argv[4:] if len(sys.argv) > 4 else []
+
+    # HamiltonianPMT.* を削除
+    for f in os.listdir('.'):
+        if f.startswith("HamiltonianPMT."):
+            os.remove(f)
+
+    print("Running Hamiltonian generation")
+
+    # lmf 実行
+    cmd_writeham = [
+        "mpirun", "-np", MPI_SIZE,
+        os.path.join(nfpgw, "lmf"),
+        target,
+        "--writeham", "--mkprocar", "--noinv"
+    ] + extra_args
+    print("Executing:", " ".join(cmd_writeham))
+    with open("out_writeham", "w") as out:
+        subprocess.run(cmd_writeham, stdout=out, stderr=subprocess.STDOUT)
+
+    # lmfham1 実行
+    cmd_lmfham1 = [
+        "mpirun", "-np", MPI_SIZE,
+        os.path.join(nfpgw, "lmfham1"),
+        target
+    ] + extra_args
+    print("Executing:", " ".join(cmd_lmfham1))
+    with open("out_lmfham1", "w") as out:
+        subprocess.run(cmd_lmfham1, stdout=out, stderr=subprocess.STDOUT)
+
+    # MLO の案内
+    print(" --- steps to get MLO ---")
+    print("1. Edit mlo_foobar in GWinput, and Run")
+    print("2. >lmfham2 si --job=0")
+    print("3. >lmfham2 si --job=1, then Check bandplot.lmfham2.*.glt")
+    print("OK! end of job_ham. Run next steps above")
+
+if __name__ == "__main__":
+    main()

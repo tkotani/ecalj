@@ -97,8 +97,8 @@ contains
       logical::debug=.true.
       nn=0
       do i=1,ldim  !only MTOs. Further restrictions.
-!         if(l_table(i)>=3) cycle !only spd. skip f orbitals. !if(k_table(i)==2.and.l_table(i)>=2) cycle ! throw away EH2 for d
-!         if(k_table(i)>=2) cycle 
+         if(cmdopt0('--skipf') .and. l_table(i)>=3) cycle !only spd. skip f orbitals. !if(k_table(i)==2.and.l_table(i)>=2) cycle ! throw away EH2 for d
+         if(cmdopt0('--skip2ndd') .and. k_table(i)>=2.and.l_table(i)>=2) cycle ! throw away EH2 for d
          nn=nn+1
          ix(nn)=i
          ib_tableM(nn)= ib_table(i)

@@ -8,7 +8,7 @@ contains
     use m_density,only: zv_a_osmrho=>smrho,sv_p_orhoat=>orhoat,v1pot,v0pot,eferm !Outputs. allocated
 
     use m_supot,only: ng=>lat_ng,rv_a_ogv,iv_a_okv,rv_a_ogv,n1,n2,n3
-    use m_lmfinit,only:alat=>lat_alat,nsp,nbas,nspec,ispec,qbg=>zbak,slabl,v0fix
+    use m_lmfinit,only:alat=>lat_alat,nsp,nbas,nspec,ispec,qbg=>zbak,slabl!,v0fix
     use m_lattic,only: vol=>lat_vol
     use m_struc_def,only: s_rv1,s_rv2
     use m_ext,only: sname
@@ -173,23 +173,23 @@ contains
        ztot = ztot+z
        ctot = ctot+qc
 20  enddo ibloop
-    v0wrireblock:block
-      integer:: ir,isp
-      character(8):: charext
-      if(v0fix.and.master_mpi) then
-         do ib=1,nbas
-            is = ispec(ib) 
-            nr = nr_i(is)
-            do ir=1,nr
-               v0pot(ib)%v(ir,:)= sum(v0pot(ib)%v(ir,1:nsp))/nsp
-            enddo
-            write(stdo,*)' v0fix=T: writing v0pot',ib,nr
-            open(newunit=ifi,file='v0pot.'//trim(charext(ib)),form='unformatted')
-            write(ifi) v0pot(ib)%v
-            close(ifi)
-         enddo
-      endif
-    endblock v0wrireblock
+    ! v0wrireblock:block
+    !   integer:: ir,isp
+    !   character(8):: charext
+    !   if(v0fix.and.master_mpi) then
+    !      do ib=1,nbas
+    !         is = ispec(ib) 
+    !         nr = nr_i(is)
+    !         do ir=1,nr
+    !            v0pot(ib)%v(ir,:)= sum(v0pot(ib)%v(ir,1:nsp))/nsp
+    !         enddo
+    !         write(stdo,*)' v0fi=xT: writing v0pot',ib,nr
+    !         open(newunit=ifi,file='v0pot.'//trim(charext(ib)),form='unformatted')
+    !         write(ifi) v0pot(ib)%v
+    !         close(ifi)
+    !      enddo
+    !   endif
+    ! endblock v0wrireblock
     if(allocated(zv_a_osmrho)) deallocate(zv_a_osmrho)
     allocate(zv_a_osmrho(n1,n2,n3,nsp),source=(0d0,0d0))
     eferm=0d0

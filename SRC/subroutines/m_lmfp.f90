@@ -135,7 +135,7 @@ contains
           if(lsc==2 .AND. ( .NOT. lhf) .AND. maxit>1) lsc = 3
           if(lsc==1 .AND. lrout>0 .OR. lsc==3)        lsc=merge(1,3,iter >= maxit)
           if(master_mpi) flush(stdo)
-          if( cmdopt0('--quit=band')) call rx0('lmf-MPIK : exit (--quit=band)')
+          if( cmdopt0('--quit=band')) call rx0('lmf : exit (--quit=band)')
           if( lsc <= 2) exit  
 1000   enddo ElectronicStructureSelfConsistencyLoop
        if(nitrlx==0) exit !no molecular dynamics (=no atomic position relaxation)
