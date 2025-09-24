@@ -1,5 +1,5 @@
 #!/bin/bash -x
-exe=$HOME/ecalj/SRC/exec/
+exe=$HOME/temp/ecalj/SRC/exec/
 nc=8
 mat=Fe
 

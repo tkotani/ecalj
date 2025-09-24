@@ -1,0 +1,100 @@
+#!/bin/bash 
+# -------------------------------------------------------------------------
+# job script for anomalous Hall conductivity (AHC)
+#--------------------------------------------------------------------------
+### all input arguments are processed ###
+if [ $# -le 2 ] || [ $2 != "-np" ] ; then
+    echo "An example of usage: genMLWF cu -np 4"
+    echo "Do job_band_* in advance to genMLWF to get superposition of Wannier band plot!"
+    exit 101
+fi
+nfpgw=`dirname $0`
+MATERIAL=$1
+MPI_SIZE=$3
+NO_MPI=0
+### end of processing input arguments ###
+if [ ! -e bnd001.spin1 ];then 
+    $echo_run echo "!!! Perform job_band in advance!" 
+    exit
+fi
+
+### Read funcitons run_arg and run_arg_tee defined in a file run_arg ###
+source $nfpgw/run_arg
+
+######## start here ##########
+$echo_run echo "### START genMLWF: MPI size= " $MPI_SIZE, "MATERIAL= "$MATERIAL
+rm -f SYML BNDS
+ln -s syml.${MATERIAL} SYML
+# ln -s bnds.${MATERIAL} BNDS
+## Make softlink from sigm --> simg.$MATERIAL.
+## If sigm and sigm.$MATERIAL coexist, sigm.$MATERIAL is moved to sigm.$MATERIAL.backup in advance.
+if [ -e sigm ]; then 
+    if [ -e sigm.$MATERIAL ]; then
+	mv sigm.$MATERIAL sigm.$MATERIAL.bakup 
+  	ln -s -f sigm sigm.$MATERIAL 
+  	$echo_run echo '--- sigm is used. sigm.$MATERIAL is softlink to it  ---'
+    fi
+else
+    $echo_run echo '--- Neither sigm nor sigm.$MATERIAL exists. ==> LDA '
+fi 
+
+######## lmf part #########################################
+run_arg '---' $NO_MPI   $nfpgw /lmfa  llmfa $MATERIAL ${@:4:($#-2)} # if lmfa is not yet.
+run_arg '---' $MPI_SIZE $nfpgw /lmf llmf_start $MATERIAL ${@:4:($#-2)}
+rm -f ewindow.${MATERIAL}* qbyl.${MATERIAL}* eigze*.${MATERIAL}* # remove temporaly files.
+
+##### preparation of required inputs for GW (mainly prepare required eigenfuncitons) ######
+argin=0; run_arg $argin $NO_MPI   $nfpgw /lmf      llmfgw00 $MATERIAL --jobgw=0 --novxc ${@:4:($#-2)}
+argin=1; run_arg $argin $NO_MPI   $nfpgw /qg4gw    lqg4gw04 --job=4 ${@:4:($#-2)}  #Generate requied q+G vectors.
+argin=1; run_arg $argin $MPI_SIZE $nfpgw /lmf llmfgw01 $MATERIAL --jobgw=1 ${@:4:($#-2)}
+#run_arg  '---' $NO_MPI   $nfpgw /lmf2gw     llmf2gw  #reform data for gw
+
+##### GW related part (up to preparation of MPB) ###########
+#argin=0; run_arg $argin $NO_MPI   $nfpgw /rdata4gw_v2 lrdata4gw_v2
+#if [ -e ANFcond ];then # This is for ANFcond. Unused recently
+#    #  cp EVU EVD  
+#    $echo_run echo "Not maintained recently" 
+#    exit 10
+#fi
+#rm gwa gwb.* gwb0.*
+argin=1; run_arg $argin $NO_MPI $nfpgw /heftet leftet ${@:4:($#-2)} # A file EFERMI for hx0fp0
+argin=0; run_arg $argin $NO_MPI $nfpgw /hbasfp0 lbas --job=4 ${@:4:($#-2)}  # Product basis generation 
+
+argin=1 ;run_arg $argin $NO_MPI $nfpgw   /hmaxloc lmaxloc1 ${@:4:($#-2)}    # b-vector BBVEC
+# argin=1 ;run_arg $argin $MPI_SIZE $nfpgw /hpsig_MPI lpsig_MPI # PSIG* =<Psi|Gaussian>.
+# Gather all PSIG* into a file. (U meand UP isp=1, D means Down spin isp=2)
+# cat PSIGU.* >PSIGU
+# rm -f PSIGU.*
+# if [ -e PSIGD.0000 ]; then 
+#     cat PSIGD.* >PSIGD
+#     rm -f PSIGD.*
+# fi
+
+#argin=2 ;run_arg $argin $MPI_SIZE $nfpgw /huumat_MPI luumat2 ${@:4:($#-2)} # --qibzonly   # UU (UUmatrix <u_k,i|u_k+b,j>) matrix are caltulated.
+argin=2 ;run_arg $argin $MPI_SIZE $nfpgw /huumat_MPI luumat2 ${@:4:($#-2)} # --qibzonly   # UU (UUmatrix <u_k,i|u_k+b,j>) matrix are caltulated.
+# Gather all UU*.* into a file UUU/UUD.
+# cat UUU.* >UUU
+# rm -f UUU.*
+# if [ -e UUD.0000000 ]; then 
+#     cat UUD.* >UUD
+#     rm -f UUD.*
+# fi
+
+### Muffin-Tin Orbital generation
+##########
+
+cat UUU.* >UUU
+rm -f UUU.*
+if [ -e UUD.0000 ]; then 
+    cat UUD.* >UUD
+    rm -f UUD.*
+fi
+
+### Anomalous Hall conductivity by linear response theory
+# run_arg '---' $MPI_SIZE $nfpgw /hvccfp0 lvcc --job=202 --ahc
+#nfpgw=$HOME/people/Saito/ecaljdeveloper/SRC/exec/
+
+run_arg '---' $NO_MPI $nfpgw /hahc lahc --job=202 --ahc --interbandonly ${@:4:($#-2)}
+
+$echo_run echo "OK! It's finished well."
+exit 0

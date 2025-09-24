@@ -1,5 +1,5 @@
 #!/bin/bash -x
-exe=$HOME/ecalj/SRC/exec/
+exe=$HOME/temp/ecalj/SRC/exec/
 
 nc=8
 mat=Fe
@@ -10,6 +10,7 @@ cp ../*.Fe .
 cp ../GWinput .
 $exe/lmfa $mat >& llmfa
 mpirun -np $nc $exe/lmf $mat --phispinsym >& llmf
+getsyml $mat
 $exe/job_band $mat -np $nc --phispinsym >& job_band.out
 $exe/job_AHC $mat -np $nc --phispinsym |tee job_AHC.out
 cd ..
