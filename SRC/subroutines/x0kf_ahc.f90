@@ -291,6 +291,7 @@ contains
             complex(8):: img=(0d0,1d0)
             logical :: cmdopt0,cmdopt2,GPUTEST
             character*4:: charnum4
+            character*7:: charnum7
             character(8):: charext
             character(256)::strn
             if(.not.allocated(rcxq)) then
@@ -615,7 +616,7 @@ contains
 1590        continue
 2000        continue
             if(cmdopt0('--x0test')) then
-               open(newunit=ifx0,file='x0test.'//charnum4(iq)//'.dat') !iq is after nqibz
+               open(newunit=ifx0,file='x0test.'//charnum7(iq)//'.dat') !iq is after nqibz
                iwloop: do iw= 1,nwhis
                   write(ifx0,ftox) ftof(q),' ',iw,ftod(2d0*frhis(iw)),ftod(2d0*frhis(iw+1)),' ',rcxq(1,1,iw,1) !frhis in a.u.
                enddo iwloop
@@ -793,7 +794,6 @@ subroutine readuun(ikbidx,iko_ixs,iko_fxs,nband,nqbz,nbb,nspin,uum)
   implicit none
   integer:: iqbz,nband,nqbz,nbb,nspin,ifuu,ibb,isp,iko_ixs(2),iko_fxs(2),ii,ie
   complex(8) :: uum(nband,nband,nbb,nqbz,nspin)
-  character(7):: charnum7
   integer:: ikbidx(nbb,nqbz)
   do isp=1,nspin
     ii=iko_ixs(isp)
