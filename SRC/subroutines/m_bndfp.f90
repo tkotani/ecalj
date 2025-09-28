@@ -51,7 +51,7 @@ contains
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, plat=>lat_plat,pos=>rv_a_opos
     use m_rdsigm2,only: m_rdsigm2_init
     use m_subzi,only: m_subzi_init,m_subzi_bzintegration 
-    use m_MPItk,only: master_mpi, strprocid, numprocs=>nsize,xmpbnd2,comm
+    use m_MPItk,only: master_mpi, strprocid, numprocs=>nsize,xmpbnd2,comm,procid
     use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate, m_mkpot_energyterms,m_mkpot_novxc 
     use m_mkpot,only: osmpot, qmom, vconst, qval , qsc , fes1_rv , fes2_rv, amom
     use m_locpot,only: osig,otau,oppi,vesaverage
@@ -145,6 +145,7 @@ contains
     if(phispinsym) call phispinsym_ssite_set() !pnu,pz are spin symmetrized! Set spin-symmetrized pnu.aug2019. See also in pnunew and locpot
     writeham= cmdopt0('--writeham') ! Write out Hamiltonian HamiltonianPMT.*
     if(writeham) open(newunit=ifih,file='HamiltonianPMT.'//trim(strprocid),form='unformatted')
+    if(writeham) write(ifih)procid,numprocs
     GetPotentialFromDensity: block
       if(llmfgw) call m_mkpot_novxc(smrho,orhoat) !Get osigx,otaux oppix spotx, which are onsite integrals without XC part for GWdriver: lmfgw mode
       call m_mkpot_init(smrho,orhoat)! From smrho and rhoat, get one-particle potential and related quantities. mkpot->locpot->augmat. augmat calculates sig,tau,ppi.
@@ -193,13 +194,13 @@ contains
     endblock GetHamiltonianAndDiagonalize
     BROADCASTevlall:block
       integer:: nspxa
-!      if(afsym) then
-!        call xmpbnd2(kpproc,nbandmx,nkp,evlall(:,1,:)) !all eigenvalues are distributed nbandmx blocks
-!        call xmpbnd2(kpproc,nbandmx,nkp,evlall(:,2,:)) 
-!     else
-      nspxa=merge(2,nspx,afsym)
-      call xmpbnd2(kpproc,nbandmx,nkp*nspxa,evlall)   !all eigenvalues broadcasted !note (iq,isp) order in m_qplist.f90
-     !endif
+      if(afsym) then !this block recovered! (was commented out at 2025-06-09)
+        call xmpbnd2(kpproc,nbandmx,nkp,evlall(:,1,:)) !all eigenvalues are distributed nbandmx blocks
+        call xmpbnd2(kpproc,nbandmx,nkp,evlall(:,2,:)) 
+      else
+        nspxa=merge(2,nspx,afsym)
+        call xmpbnd2(kpproc,nbandmx,nkp*nspxa,evlall)   !all eigenvalues broadcasted !note (iq,isp) order in m_qplist.f90
+      endif
       if(lso==1) call xmpbnd2(kpproc,nbandmx*2,nkp,spinweightsoc)   !all eigenvalues broadcasted
       if(master_mpi) then
         do iq=1,1;do jsp=1,nspx; write(stdl,"('fp evl',8f8.4)")(evlall(i,jsp,iq),i=1,nevls(iq,jsp))

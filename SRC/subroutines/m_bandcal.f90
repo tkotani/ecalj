@@ -126,8 +126,13 @@ contains
                call hambl(ispc,qp,osmpot,vconst,osig,otau,oppi, hamm(:,ispc,:,ispc),ovlm(:,ispc,:,ispc))
                hamm(:,ispc,:,ispc)= hamm(:,ispc,:,ispc) + hammhso(:,:,ispc) !spin-diag SOC elements (1,1), (2,2) added
             enddo
-            hamm(:,1,:,2)= hammhso(:,:,3)                    !spin-offdiagonal SOC elements (1,2) added
-            hamm(:,2,:,1)= transpose(dconjg(hammhso(:,:,3)))
+            if (cmdopt0('--testso')) then !this is for AHC test
+               hamm(:,1,:,2) = 0d0
+               hamm(:,2,:,1) = 0d0
+            else
+              hamm(:,1,:,2)= hammhso(:,:,3)                    !spin-offdiagonal SOC elements (1,2) added
+              hamm(:,2,:,1)= transpose(dconjg(hammhso(:,:,3)))
+            endif   
             if(sigmamode) then
                do ispc=1,nspc
                   call getsenex(qp, ispc, ndimh, ovlm(:,ispc,:,ispc)) !bugfix at 2024-4-24 obata: ispc was 1 when 2023-9-20
@@ -210,7 +215,7 @@ contains
           ndimhx_(iq,2)= ndimhx     !Hamiltonian dimension
        endif   
        if(master_mpi.AND.epsovl>=1d-14.AND.plbnd/=0) write(stdo,&
-            "(' : ndimhx=',i5,' --> nev=',i5' by HAM_OVEPS ',d11.2)") ndimhx,nev,epsovl
+            "(' : ndimhx=',i5,' --> nev=',i5,' by HAM_OVEPS ',d11.2)") ndimhx,nev,epsovl
        if(PROCARon) call m_procar_add(iq,isp,ef0,evl,qp,nev,evec,ndimhx)
        if(allocated(evec)) deallocate(evec)
        if(allocated(hammhso)) deallocate(hammhso)

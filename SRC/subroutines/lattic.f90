@@ -94,6 +94,7 @@ contains
       vol0 = dabs(vol0)
       plat=plat0 
       call dinv33(plat,1,qlat,vol)
+      print *,'aaaaaaa alat=',alat
       vol = dabs(vol)*(alat**3)
       if(iprint()>0) then
          write(stdo,"(/t17,'Plat',t55,'Qlat')")

@@ -1,2 +1,0 @@
-../fp/bndfp.F:      use m_w_psir, only: w_psir_cmdopt
-../fp/rsibl_ev.F:      use m_w_psir

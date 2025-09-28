@@ -1,0 +1,12 @@
+set xzeroaxis
+set yzeroaxis
+set grid
+set xlabel font 'Times New Roman, 12'
+set ylabel font 'Times New Roman, 12'
+set tics font 'Times New Roman, 12'
+set key font 'Times New Roman, 12'
+set ylabel "{/Symbol s}_{xy} ({/Symbol W}^{-1}cm^{-1})"
+set xlabel "Energy (eV)"
+plot \
+"< paste k4_so2/sum.isp11.dat k4_so2/sum.isp22.dat" u ($1):($3+$6) lt 1 lc 'red' w l ti 'tet so=2 k4',\
+"k4_so1/sum.isp11.dat" u ($1):($2) lt 1 lc 'blue' w l ti 'tet so=1 without off-diagonal k4'

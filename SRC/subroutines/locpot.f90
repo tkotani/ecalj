@@ -133,7 +133,7 @@ contains
       spid=slabl(is) 
       zz(ib)=z
       nlml = (lmxl+1)**2
-      lfltwf = (.not.frzwfa(is)).and.(.not.ham_frzwf).and.job==1 ! modify b.c. of Rad.wave func.
+      lfltwf = (.not.frzwfa(is)).and.(.not.ham_frzwf) !.and.job==1 ! modify b.c. of Rad.wave func.
       j1 = jnlml(ib)
       !r   sig and tau are l diagonal, ppi is full matrix
       !r   Thus integral (P~_kL P~_k'L' - P_kL P_k'L') is diagonal in LL', sig(nf1,nf2,0..lmax) with lmax the l-cutoff
@@ -334,25 +334,28 @@ contains
         endif
         if(cmdopt0('--wpotmt'))call wrhomt('vtrue.','potential',ib,v1,rofi,nr,nlml,nsp)! Write true potential to file vtrue.ib
         if(lfltwf) v0pot(ib)%v(1:nr,1:nsp) = y0*v1out(1:nr,1,1:nsp) ! Update the potential used to define radial basis set
-        phispinsymB: block ! spin averaged oV0 to generate phi and phidot. takaoAug2019
-          if(phispinsym) then
-            if(master_mpi.AND.nsp==2)write(6,*) 'locpot: --phispinsym mode: use spin-averaged potential for phi and phidot'
-            do ir =1,nr
-              v0pot(ib)%v(ir,:)= sum([(v0pot(ib)%v(ir,isp),isp=1,nsp)])/nsp
-            enddo
-          endif
-        endblock phispinsymB
-        v0fixblock: block ! experimental case --v0fix
+        v1pot(ib)%v(1:nr,1:nsp) = y0*v1out(1:nr,1,1:nsp) ! Store the potential used in mkrout to calculate the core
+        phispinsymB: if(phispinsym) then ! spin averaged oV0 to generate phi and phidot. takaoAug2019
+          if(master_mpi.AND.nsp==2)write(6,*) 'locpot: --phispinsym mode: use spin-averaged potential for phi and phidot'
+          do ir =1,nr
+            v0pot(ib)%v(ir,:)= sum([(v0pot(ib)%v(ir,isp),isp=1,nsp)])/nsp
+          enddo
+        endif phispinsymB
+        v0fixblock: block !v0fix and pnu determines radial functions.
           character charext*8
-          real(8):: ov0(nr)
+          real(8):: ov0(nr,nsp)
           if(v0fix) then
             inquire(file='v0pot.'//trim(charext(ib)),exist=readov0)
-            write(6,*)'v0fixmode=',readov0,ib,nr
-            if(.not.readov0) call rx('no v0pot files')
+            if(.not.readov0) call rx('--v0fix but no v0pot')
             open(newunit=ifi,file='v0pot.'//trim(charext(ib)),form='unformatted')
-            read(ifi) ov0(1:nr)
+            read(ifi) ov0(1:nr,1:nsp)
             close(ifi)
-            forall(ir=1:nr) v0pot(ib)%v(ir,:)= ov0(ir)
+            forall(ir=1:nr) v0pot(ib)%v(ir,:)= ov0(ir,:)
+          elseif(cmdopt0('--writev0')) then
+            open(newunit=ifi,file='v0pot.'//trim(charext(ib)),form='unformatted')
+            write(ifi) v0pot(ib)%v(ir,1:nsp)
+            close(ifi)
+            if(ib==nbas) call rx0('OK! write v0pot and exit')            
           endif
         endblock v0fixblock
         if(master_mpi .AND. nsp==2)then
@@ -360,7 +363,6 @@ contains
             write(6,"(' ibas l=',2i3,' pnu(1:nsp) pnz(1:nsp)=',4f10.5)") ib,l,pnu(l+1,1:nsp),pnz(l+1,1:nsp)
           enddo
         endif
-        v1pot(ib)%v(1:nr,1:nsp) = y0*v1out(1:nr,1,1:nsp) ! Store the potential used in mkrout to calculate the core
         if(lfoc==0) xcore = xcore + xcor(ib)
         if(kcor/=0.and.(dabs(qcor(2)-alocc(ib))>0.01d0).and.iprint()>=10)& !Check for core moment mismatch ; add to total moment
              write(stdo,ftox) ' (warning) core moment mismatch spec=',is,'input file=',qcor(2),'core density=',alocc

@@ -363,6 +363,35 @@ contains
     if(mpi_size_comm_in == 1) return
     call MPI_Bcast(data, sizex, MPI_DOUBLE_COMPLEX, sender_in, comm_in, mpi__info)
   end subroutine MPI__zBcast_h
+
+  subroutine MPI__AllreduceSumReal( data, sizex, communicator)
+    implicit none
+    integer, intent(in) :: sizex
+    real(8), intent(inout) :: data(sizex)
+    real(8), allocatable   :: mpi__data(:) 
+    integer, intent(in), optional :: communicator
+    integer :: comm_in
+    if( mpi__size == 1 ) return
+    allocate(mpi__data(sizex))
+    mpi__data = data
+    comm_in = comm
+    if(present(communicator)) comm_in = communicator
+    call MPI_Allreduce( mpi__data, data, sizex, MPI_DOUBLE_PRECISION, MPI_SUM, comm_in, mpi__info )
+    deallocate( mpi__data )
+  end subroutine MPI__AllreduceSumReal
+  subroutine MPI__AllreduceSumRealSca( data, communicator)
+    implicit none
+    real(8), intent(inout) :: data
+    real(8) :: mpi__data
+    integer, intent(in), optional :: communicator
+    integer :: comm_in
+    if( mpi__size == 1 ) return
+    mpi__data = data
+    comm_in = comm
+    if(present(communicator)) comm_in = communicator
+    call MPI_Allreduce( mpi__data, data, 1, MPI_DOUBLE_PRECISION, MPI_SUM, comm_in, mpi__info )
+  end subroutine MPI__AllreduceSumRealSca
+
 #ifdef __GPU
   subroutine MPI__zBcast_d(data_d, sizex, communicator, sender)
     use cudafor

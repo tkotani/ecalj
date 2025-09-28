@@ -198,13 +198,8 @@ contains
               call writemem('    endof get_zmel_init')
               call stopwatch_pause(t_sw_zmel)
               call stopwatch_start(t_sw_xc)
-              !call get_exchange(ef, esmr, ns1, ns2, zsecall(1,1,ip,isp))
               associate( zsec=>zsecall(:,:,ip,isp) )
                 get_exchange_block:block !subroutine get_exchange(ef, esmr, ns1, ns2, zsec)
-                  !implicit none
-                  !integer, intent(in) :: ns1, ns2
-                  !real(8), intent(in) :: ef, esmr
-                  !complex(kind=kp), intent(inout) ::zsec(ntq,ntq)
                   real(8) :: wfacx, wtff(ns1:ns2) ! external function
                   real(8), allocatable :: vcoud_buf(:)
                   complex(kind=kp), allocatable :: vzmel(:,:,:)
@@ -212,17 +207,12 @@ contains
 #ifdef __GPU
                   attributes(device) :: vzmel, vcoud_buf
 #endif
-                 if(ns1 > ns2) goto 1110 !instead of return. Use guard clause coding.
-                 do is1=ns1,ns2
+                  if(ns1 > ns2) goto 1110 !instead of return. Use guard clause coding.
+                  do is1=ns1,ns2
                     if(is1<=nctot) then; wtff(is1) = 1d0 !these are for nvfortran24.1
                     else;                wtff(is1) = wfacx(-1d99, ef, ekc(is1+nctot), esmr)
-                    endif   
-                 enddo
-!                  allocate(wtff(ns1:ns2))
-!                  wtff(ns1:nctot) = 1d0
-!                  do it = max(nctot+1,ns1), ns2
-!                    wtff(it) = wfacx(-1d99, ef, ekc(it), esmr)
-!                  enddo
+                    endif
+                  enddo
                   if(corehole) wtff(ns1:nctot) = wtff(ns1:nctot) * wcorehole(ns1:nctot,isp)
                   allocate(vcoud_buf(ngb))
                   !$acc data copyin(vcoud, wklm(1), wk(1), wtff, zmel)
@@ -400,10 +390,7 @@ contains
               call stopwatch_start(t_sw_xc)
               ! call get_correlation(ef, esmr, ns1, ns2, ns2r, nwxi, nwx, zsecall(1,1,ip,isp))
               associate( zsec=>zsecall(:,:,ip,isp) )
-                get_correlation_block :block !  subroutine get_correlation(ef, esmr, ns1, ns2, ns2r, nwxi, nwx, zsec)
-                  !    integer, intent(in) :: ns1, ns2, nwxi, nwx, ns2r
-                  !    real(8), intent(in) :: ef, esmr
-                  !    complex(kind=kp), intent(inout) :: zsec(ntq,ntq)
+                get_correlation_block :block 
                   real(8), parameter :: wfaccut=1d-8
                   complex(kind=kp), parameter :: img=(0_kp,1_kp)
                   complex(kind=kp) :: beta
@@ -617,7 +604,6 @@ contains
           enddo isploopexternal
         enddo iploopexternal
       enddo irotloop
-      !      call releasewv()
       releasew :block !subroutine releasewv()
         if(any(kx==kxc(:))) then
           if(allocated(wvi)) then

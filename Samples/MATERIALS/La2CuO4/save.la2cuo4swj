@@ -1,0 +1,327 @@
+Start LMFA ctrl.la2cuo4swj
+Start LMFA la2cuo4swj
+Start LMFGWD --jobgw=0 la2cuo4swj
+Start LMFA la2cuo4swj
+Start LMFGWD --jobgw=0 la2cuo4swj
+Start LMFA la2cuo4swj -vssig=1.0
+Start LMF la2cuo4swj -vssig=1.0 -vb=0.2
+h ehf(eV)=-515022.731828 ehk(eV)=-514956.582559 sev(eV)=-370.217579
+i ehf(eV)=-515016.684312 ehk(eV)=-515001.727853 sev(eV)=-401.810053
+i ehf(eV)=-515014.333400 ehk(eV)=-515011.247754 sev(eV)=-378.556842
+i ehf(eV)=-515013.785093 ehk(eV)=-515011.399180 sev(eV)=-359.609475
+i ehf(eV)=-515013.320622 ehk(eV)=-515013.143947 sev(eV)=-352.934337
+i ehf(eV)=-515013.301839 ehk(eV)=-515013.287953 sev(eV)=-357.605561
+i ehf(eV)=-515013.300473 ehk(eV)=-515013.296697 sev(eV)=-358.267183
+i ehf(eV)=-515013.299795 ehk(eV)=-515013.297859 sev(eV)=-358.334093
+i ehf(eV)=-515013.299787 ehk(eV)=-515013.300249 sev(eV)=-358.409909
+i ehf(eV)=-515013.298989 ehk(eV)=-515013.299650 sev(eV)=-358.302396
+i ehf(eV)=-515013.298947 ehk(eV)=-515013.299630 sev(eV)=-358.310814
+i ehf(eV)=-515013.298873 ehk(eV)=-515013.299567 sev(eV)=-358.315096
+c ehf(eV)=-515013.298789 ehk(eV)=-515013.299492 sev(eV)=-358.316746
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=0
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=1
+Start LMF la2cuo4swj -vssig=1.0 -vb=0.2
+i ehf(eV)=-515018.141998 ehk(eV)=-515017.885159 sev(eV)=-363.162822
+i ehf(eV)=-515018.159590 ehk(eV)=-515018.053288 sev(eV)=-368.482701
+i ehf(eV)=-515018.190991 ehk(eV)=-515018.169793 sev(eV)=-373.400263
+i ehf(eV)=-515018.216065 ehk(eV)=-515018.213380 sev(eV)=-375.469175
+i ehf(eV)=-515018.226370 ehk(eV)=-515018.226779 sev(eV)=-376.269598
+i ehf(eV)=-515018.224014 ehk(eV)=-515018.224608 sev(eV)=-376.275727
+i ehf(eV)=-515018.222710 ehk(eV)=-515018.223381 sev(eV)=-376.251110
+i ehf(eV)=-515018.223679 ehk(eV)=-515018.224363 sev(eV)=-376.262915
+i ehf(eV)=-515018.224929 ehk(eV)=-515018.225625 sev(eV)=-376.286058
+i ehf(eV)=-515018.225806 ehk(eV)=-515018.226506 sev(eV)=-376.314761
+c ehf(eV)=-515018.225824 ehk(eV)=-515018.226526 sev(eV)=-376.321808
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=0
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=1
+Start LMF la2cuo4swj -vssig=1.0 -vb=0.2
+i ehf(eV)=-515037.277142 ehk(eV)=-515037.201699 sev(eV)=-395.380724
+i ehf(eV)=-515037.277266 ehk(eV)=-515037.201762 sev(eV)=-395.385437
+i ehf(eV)=-515037.277056 ehk(eV)=-515037.201773 sev(eV)=-395.369917
+i ehf(eV)=-515037.209929 ehk(eV)=-515037.198877 sev(eV)=-390.644233
+i ehf(eV)=-515037.221923 ehk(eV)=-515037.219106 sev(eV)=-391.127880
+i ehf(eV)=-515037.231690 ehk(eV)=-515037.231411 sev(eV)=-391.312271
+i ehf(eV)=-515037.233809 ehk(eV)=-515037.234313 sev(eV)=-390.958921
+i ehf(eV)=-515037.233872 ehk(eV)=-515037.234478 sev(eV)=-390.839563
+i ehf(eV)=-515037.233435 ehk(eV)=-515037.234098 sev(eV)=-390.797849
+i ehf(eV)=-515037.233754 ehk(eV)=-515037.234437 sev(eV)=-390.870775
+i ehf(eV)=-515037.234157 ehk(eV)=-515037.234848 sev(eV)=-390.900142
+i ehf(eV)=-515037.234583 ehk(eV)=-515037.235278 sev(eV)=-390.906930
+c ehf(eV)=-515037.234685 ehk(eV)=-515037.235383 sev(eV)=-390.904613
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=0
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=1
+Start LMF la2cuo4swj -vssig=1.0 -vb=0.2
+i ehf(eV)=-515040.295661 ehk(eV)=-515040.288605 sev(eV)=-393.960959
+i ehf(eV)=-515040.295772 ehk(eV)=-515040.288785 sev(eV)=-393.962309
+i ehf(eV)=-515040.295631 ehk(eV)=-515040.288538 sev(eV)=-393.965728
+i ehf(eV)=-515040.306005 ehk(eV)=-515040.306101 sev(eV)=-393.561317
+i ehf(eV)=-515040.301389 ehk(eV)=-515040.301894 sev(eV)=-393.381329
+i ehf(eV)=-515040.300055 ehk(eV)=-515040.300654 sev(eV)=-393.285122
+i ehf(eV)=-515040.297567 ehk(eV)=-515040.298257 sev(eV)=-393.042170
+c ehf(eV)=-515040.297641 ehk(eV)=-515040.298337 sev(eV)=-393.061140
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=0
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=1
+Start LMF la2cuo4swj -vssig=1.0 -vb=0.2
+i ehf(eV)=-515041.563800 ehk(eV)=-515041.564160 sev(eV)=-394.341763
+i ehf(eV)=-515041.563849 ehk(eV)=-515041.564169 sev(eV)=-394.359095
+i ehf(eV)=-515041.563944 ehk(eV)=-515041.564149 sev(eV)=-394.399592
+i ehf(eV)=-515041.563207 ehk(eV)=-515041.563910 sev(eV)=-394.085432
+i ehf(eV)=-515041.562928 ehk(eV)=-515041.563635 sev(eV)=-394.066788
+c ehf(eV)=-515041.562895 ehk(eV)=-515041.563603 sev(eV)=-394.061383
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=0
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=1
+Start LMF la2cuo4swj -vssig=1.0 -vb=0.2
+i ehf(eV)=-515040.152653 ehk(eV)=-515040.153149 sev(eV)=-392.638920
+i ehf(eV)=-515040.152563 ehk(eV)=-515040.153065 sev(eV)=-392.640532
+i ehf(eV)=-515040.152766 ehk(eV)=-515040.153247 sev(eV)=-392.644825
+i ehf(eV)=-515040.150240 ehk(eV)=-515040.150926 sev(eV)=-392.593441
+i ehf(eV)=-515040.150821 ehk(eV)=-515040.151517 sev(eV)=-392.615177
+c ehf(eV)=-515040.150797 ehk(eV)=-515040.151498 sev(eV)=-392.618402
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=0
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=1
+Start LMF la2cuo4swj -vssig=1.0 -vb=0.2
+i ehf(eV)=-515040.957980 ehk(eV)=-515040.958293 sev(eV)=-393.431313
+i ehf(eV)=-515040.957942 ehk(eV)=-515040.958261 sev(eV)=-393.429801
+i ehf(eV)=-515040.957450 ehk(eV)=-515040.957871 sev(eV)=-393.402365
+i ehf(eV)=-515040.954514 ehk(eV)=-515040.955215 sev(eV)=-393.246361
+c ehf(eV)=-515040.954624 ehk(eV)=-515040.955327 sev(eV)=-393.248195
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=0
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=1
+Start LMF la2cuo4swj -vssig=1.0 -vb=0.2
+i ehf(eV)=-515040.685534 ehk(eV)=-515040.686063 sev(eV)=-392.980058
+i ehf(eV)=-515040.685596 ehk(eV)=-515040.686107 sev(eV)=-392.978049
+i ehf(eV)=-515040.685587 ehk(eV)=-515040.686020 sev(eV)=-392.969127
+c ehf(eV)=-515040.685543 ehk(eV)=-515040.686246 sev(eV)=-393.016399
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=0
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=1
+Start LMF la2cuo4swj -vssig=1.0 -vb=0.2
+i ehf(eV)=-515041.456647 ehk(eV)=-515041.455654 sev(eV)=-393.781087
+i ehf(eV)=-515041.456546 ehk(eV)=-515041.455700 sev(eV)=-393.773513
+i ehf(eV)=-515041.456608 ehk(eV)=-515041.455674 sev(eV)=-393.778535
+i ehf(eV)=-515041.454483 ehk(eV)=-515041.455187 sev(eV)=-393.572717
+i ehf(eV)=-515041.454236 ehk(eV)=-515041.454945 sev(eV)=-393.560910
+i ehf(eV)=-515041.453979 ehk(eV)=-515041.454692 sev(eV)=-393.551981
+i ehf(eV)=-515041.453486 ehk(eV)=-515041.454203 sev(eV)=-393.544230
+c ehf(eV)=-515041.453478 ehk(eV)=-515041.454196 sev(eV)=-393.543602
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=0
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=1
+Start LMF la2cuo4swj -vssig=1.0 -vb=0.2
+i ehf(eV)=-515041.403726 ehk(eV)=-515041.404396 sev(eV)=-393.493416
+i ehf(eV)=-515041.403693 ehk(eV)=-515041.404363 sev(eV)=-393.492595
+i ehf(eV)=-515041.403702 ehk(eV)=-515041.404372 sev(eV)=-393.492858
+i ehf(eV)=-515041.401658 ehk(eV)=-515041.402358 sev(eV)=-393.429120
+i ehf(eV)=-515041.402180 ehk(eV)=-515041.402893 sev(eV)=-393.439576
+i ehf(eV)=-515041.402781 ehk(eV)=-515041.403499 sev(eV)=-393.452029
+c ehf(eV)=-515041.402842 ehk(eV)=-515041.403563 sev(eV)=-393.452238
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=0
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=1
+Start LMF la2cuo4swj -vssig=1.0 -vb=0.2
+i ehf(eV)=-515040.370091 ehk(eV)=-515040.369423 sev(eV)=-392.419038
+i ehf(eV)=-515040.370052 ehk(eV)=-515040.369382 sev(eV)=-392.418064
+i ehf(eV)=-515040.370073 ehk(eV)=-515040.369402 sev(eV)=-392.419038
+i ehf(eV)=-515040.382469 ehk(eV)=-515040.382333 sev(eV)=-392.801183
+i ehf(eV)=-515040.378490 ehk(eV)=-515040.378895 sev(eV)=-392.745243
+i ehf(eV)=-515040.375236 ehk(eV)=-515040.375879 sev(eV)=-392.716258
+i ehf(eV)=-515040.374154 ehk(eV)=-515040.374826 sev(eV)=-392.735360
+i ehf(eV)=-515040.374546 ehk(eV)=-515040.375228 sev(eV)=-392.754209
+c ehf(eV)=-515040.374501 ehk(eV)=-515040.375191 sev(eV)=-392.754232
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=0
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=1
+Start LMF la2cuo4swj -vssig=1.0 -vb=0.2
+i ehf(eV)=-515040.376162 ehk(eV)=-515040.376631 sev(eV)=-392.750714
+i ehf(eV)=-515040.376213 ehk(eV)=-515040.376685 sev(eV)=-392.754401
+i ehf(eV)=-515040.376179 ehk(eV)=-515040.376643 sev(eV)=-392.752141
+i ehf(eV)=-515040.375053 ehk(eV)=-515040.375673 sev(eV)=-392.750076
+i ehf(eV)=-515040.374444 ehk(eV)=-515040.375072 sev(eV)=-392.722939
+i ehf(eV)=-515040.374302 ehk(eV)=-515040.374968 sev(eV)=-392.713553
+c ehf(eV)=-515040.374243 ehk(eV)=-515040.374950 sev(eV)=-392.697083
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=0
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=1
+Start LMF la2cuo4swj -vssig=1.0 -vb=0.2
+i ehf(eV)=-515040.754265 ehk(eV)=-515040.754712 sev(eV)=-393.076533
+i ehf(eV)=-515040.754203 ehk(eV)=-515040.754631 sev(eV)=-393.072886
+i ehf(eV)=-515040.754204 ehk(eV)=-515040.754629 sev(eV)=-393.073554
+i ehf(eV)=-515040.755513 ehk(eV)=-515040.756208 sev(eV)=-393.145108
+c ehf(eV)=-515040.755413 ehk(eV)=-515040.756110 sev(eV)=-393.143749
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=0
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=1
+Start LMF la2cuo4swj -vssig=1.0 -vb=0.2
+i ehf(eV)=-515040.959231 ehk(eV)=-515040.959767 sev(eV)=-393.343619
+i ehf(eV)=-515040.959213 ehk(eV)=-515040.959757 sev(eV)=-393.341816
+i ehf(eV)=-515040.958928 ehk(eV)=-515040.959617 sev(eV)=-393.298797
+c ehf(eV)=-515040.958831 ehk(eV)=-515040.959533 sev(eV)=-393.282265
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=0
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=1
+Start LMF la2cuo4swj -vssig=1.0 -vb=0.2
+i ehf(eV)=-515041.295879 ehk(eV)=-515041.296545 sev(eV)=-393.617598
+i ehf(eV)=-515041.295879 ehk(eV)=-515041.296545 sev(eV)=-393.617845
+i ehf(eV)=-515041.295900 ehk(eV)=-515041.296566 sev(eV)=-393.619158
+i ehf(eV)=-515041.294779 ehk(eV)=-515041.295466 sev(eV)=-393.533882
+c ehf(eV)=-515041.294890 ehk(eV)=-515041.295586 sev(eV)=-393.539135
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=0
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=1
+Start LMF la2cuo4swj -vssig=1.0 -vb=0.2
+i ehf(eV)=-515041.235626 ehk(eV)=-515041.236321 sev(eV)=-393.488763
+i ehf(eV)=-515041.235666 ehk(eV)=-515041.236362 sev(eV)=-393.488777
+i ehf(eV)=-515041.235819 ehk(eV)=-515041.236519 sev(eV)=-393.483157
+i ehf(eV)=-515041.236128 ehk(eV)=-515041.236833 sev(eV)=-393.478614
+i ehf(eV)=-515041.235959 ehk(eV)=-515041.236667 sev(eV)=-393.486859
+c ehf(eV)=-515041.235899 ehk(eV)=-515041.236607 sev(eV)=-393.485481
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=0
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=1
+Start LMF la2cuo4swj -vssig=1.0 -vb=0.2
+i ehf(eV)=-515041.149576 ehk(eV)=-515041.150254 sev(eV)=-393.395781
+i ehf(eV)=-515041.149585 ehk(eV)=-515041.150262 sev(eV)=-393.398202
+i ehf(eV)=-515041.149594 ehk(eV)=-515041.150272 sev(eV)=-393.396178
+i ehf(eV)=-515041.150444 ehk(eV)=-515041.151144 sev(eV)=-393.427494
+i ehf(eV)=-515041.150275 ehk(eV)=-515041.150979 sev(eV)=-393.420258
+i ehf(eV)=-515041.149951 ehk(eV)=-515041.150657 sev(eV)=-393.411587
+c ehf(eV)=-515041.149872 ehk(eV)=-515041.150578 sev(eV)=-393.412709
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=0
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=1
+Start LMF la2cuo4swj -vssig=1.0 -vb=0.2
+i ehf(eV)=-515041.124104 ehk(eV)=-515041.124739 sev(eV)=-393.387385
+i ehf(eV)=-515041.124103 ehk(eV)=-515041.124737 sev(eV)=-393.387322
+i ehf(eV)=-515041.124119 ehk(eV)=-515041.124755 sev(eV)=-393.387643
+i ehf(eV)=-515041.124347 ehk(eV)=-515041.125046 sev(eV)=-393.409006
+i ehf(eV)=-515041.124183 ehk(eV)=-515041.124886 sev(eV)=-393.413947
+c ehf(eV)=-515041.124178 ehk(eV)=-515041.124882 sev(eV)=-393.415356
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=0
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=1
+Start LMF la2cuo4swj -vssig=1.0 -vb=0.2
+i ehf(eV)=-515041.266913 ehk(eV)=-515041.267604 sev(eV)=-393.557958
+i ehf(eV)=-515041.266790 ehk(eV)=-515041.267481 sev(eV)=-393.556585
+i ehf(eV)=-515041.266961 ehk(eV)=-515041.267649 sev(eV)=-393.560595
+i ehf(eV)=-515041.265954 ehk(eV)=-515041.266657 sev(eV)=-393.521087
+i ehf(eV)=-515041.266223 ehk(eV)=-515041.266928 sev(eV)=-393.517918
+c ehf(eV)=-515041.266223 ehk(eV)=-515041.266929 sev(eV)=-393.517330
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=0
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=1
+Start LMF la2cuo4swj -vssig=1.0 -vb=0.2
+i ehf(eV)=-515041.424394 ehk(eV)=-515041.425094 sev(eV)=-393.674780
+c ehf(eV)=-515041.424460 ehk(eV)=-515041.425161 sev(eV)=-393.675883
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=0
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=1
+Start LMF la2cuo4swj -vssig=1.0 -vb=0.2
+i ehf(eV)=-515041.872662 ehk(eV)=-515041.873365 sev(eV)=-394.123632
+i ehf(eV)=-515041.872866 ehk(eV)=-515041.873568 sev(eV)=-394.125576
+c ehf(eV)=-515041.872892 ehk(eV)=-515041.873594 sev(eV)=-394.128075
+Start LMF la2cuo4swj -vssig=1.0 -vb=0.2
+i ehf(eV)=-515041.872644 ehk(eV)=-515041.873348 sev(eV)=-394.105305
+c ehf(eV)=-515041.872598 ehk(eV)=-515041.873302 sev(eV)=-394.101163
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=0
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=1
+Start LMF la2cuo4swj -vssig=1.0 -vb=0.2
+i ehf(eV)=-515042.547680 ehk(eV)=-515042.548334 sev(eV)=-394.771941
+i ehf(eV)=-515042.547757 ehk(eV)=-515042.548412 sev(eV)=-394.775234
+i ehf(eV)=-515042.547596 ehk(eV)=-515042.548244 sev(eV)=-394.771232
+i ehf(eV)=-515042.548659 ehk(eV)=-515042.549360 sev(eV)=-394.780373
+i ehf(eV)=-515042.548504 ehk(eV)=-515042.549207 sev(eV)=-394.781583
+c ehf(eV)=-515042.548438 ehk(eV)=-515042.549141 sev(eV)=-394.783846
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=0
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=1
+Start LMF la2cuo4swj -vssig=1.0 -vb=0.2
+i ehf(eV)=-515042.739940 ehk(eV)=-515042.740587 sev(eV)=-394.977791
+i ehf(eV)=-515042.739895 ehk(eV)=-515042.740540 sev(eV)=-394.976135
+i ehf(eV)=-515042.739996 ehk(eV)=-515042.740646 sev(eV)=-394.977175
+i ehf(eV)=-515042.741127 ehk(eV)=-515042.741821 sev(eV)=-394.977249
+i ehf(eV)=-515042.740899 ehk(eV)=-515042.741600 sev(eV)=-394.973327
+i ehf(eV)=-515042.740750 ehk(eV)=-515042.741453 sev(eV)=-394.971319
+c ehf(eV)=-515042.740647 ehk(eV)=-515042.741351 sev(eV)=-394.971625
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=0
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=1
+Start LMF la2cuo4swj -vssig=1.0 -vb=0.2
+i ehf(eV)=-515042.768947 ehk(eV)=-515042.769651 sev(eV)=-394.999830
+c ehf(eV)=-515042.768948 ehk(eV)=-515042.769651 sev(eV)=-394.999708
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=0
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=1
+Start LMF la2cuo4swj -vssig=1.0 -vb=0.2
+i ehf(eV)=-515042.874409 ehk(eV)=-515042.875112 sev(eV)=-395.105056
+c ehf(eV)=-515042.874375 ehk(eV)=-515042.875078 sev(eV)=-395.091889
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=0
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=1
+Start LMF la2cuo4swj -vssig=1.0 -vb=0.2
+i ehf(eV)=-515042.796248 ehk(eV)=-515042.796952 sev(eV)=-395.010419
+c ehf(eV)=-515042.796266 ehk(eV)=-515042.796970 sev(eV)=-395.014738
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=0
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=1
+Start LMF la2cuo4swj -vssig=1.0 -vb=0.2
+i ehf(eV)=-515043.249276 ehk(eV)=-515043.249971 sev(eV)=-395.468583
+c ehf(eV)=-515043.249282 ehk(eV)=-515043.249976 sev(eV)=-395.469406
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=0
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=1
+Start LMF la2cuo4swj -vssig=1.0 -vb=0.2
+i ehf(eV)=-515043.288396 ehk(eV)=-515043.289095 sev(eV)=-395.500732
+c ehf(eV)=-515043.288263 ehk(eV)=-515043.288965 sev(eV)=-395.481756
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=0
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=1
+Start LMF la2cuo4swj -vssig=1.0 -vb=0.2
+i ehf(eV)=-515043.314962 ehk(eV)=-515043.315666 sev(eV)=-395.495168
+c ehf(eV)=-515043.314973 ehk(eV)=-515043.315677 sev(eV)=-395.495676
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=0
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=1
+Start LMF la2cuo4swj -vssig=1.0 -vb=0.2
+i ehf(eV)=-515043.297686 ehk(eV)=-515043.298390 sev(eV)=-395.478974
+c ehf(eV)=-515043.297687 ehk(eV)=-515043.298391 sev(eV)=-395.479085
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=0
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=1
+Start LMF la2cuo4swj -vssig=1.0 -vb=0.2
+i ehf(eV)=-515043.310914 ehk(eV)=-515043.311595 sev(eV)=-395.485767
+i ehf(eV)=-515043.310884 ehk(eV)=-515043.311565 sev(eV)=-395.483644
+i ehf(eV)=-515043.310829 ehk(eV)=-515043.311513 sev(eV)=-395.481721
+i ehf(eV)=-515043.309845 ehk(eV)=-515043.310548 sev(eV)=-395.446775
+c ehf(eV)=-515043.309888 ehk(eV)=-515043.310591 sev(eV)=-395.446685
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=0
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=1
+Start LMF la2cuo4swj -vssig=1.0 -vb=0.2
+i ehf(eV)=-515043.374480 ehk(eV)=-515043.375174 sev(eV)=-395.511296
+i ehf(eV)=-515043.374490 ehk(eV)=-515043.375185 sev(eV)=-395.511721
+c ehf(eV)=-515043.374487 ehk(eV)=-515043.375185 sev(eV)=-395.515618
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=0
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=1
+Start LMF la2cuo4swj -vssig=1.0 -vb=0.2
+i ehf(eV)=-515043.379011 ehk(eV)=-515043.379713 sev(eV)=-395.534880
+c ehf(eV)=-515043.379047 ehk(eV)=-515043.379750 sev(eV)=-395.537241
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=0
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=1
+Start LMF la2cuo4swj -vssig=1.0 -vb=0.2
+i ehf(eV)=-515043.339715 ehk(eV)=-515043.340418 sev(eV)=-395.496621
+c ehf(eV)=-515043.339778 ehk(eV)=-515043.340480 sev(eV)=-395.498129
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=0
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=1
+Start LMF la2cuo4swj -vssig=1.0 -vb=0.2
+i ehf(eV)=-515043.357013 ehk(eV)=-515043.357716 sev(eV)=-395.513102
+c ehf(eV)=-515043.356891 ehk(eV)=-515043.357595 sev(eV)=-395.509398
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=0
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=1
+Start LMF la2cuo4swj -vssig=1.0 -vb=0.2
+i ehf(eV)=-515043.374290 ehk(eV)=-515043.374993 sev(eV)=-395.529065
+c ehf(eV)=-515043.374185 ehk(eV)=-515043.374889 sev(eV)=-395.519048
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=0
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=1
+Start LMF la2cuo4swj -vssig=1.0 -vb=0.2
+i ehf(eV)=-515043.437700 ehk(eV)=-515043.438404 sev(eV)=-395.578078
+c ehf(eV)=-515043.437760 ehk(eV)=-515043.438463 sev(eV)=-395.580719
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=0
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=1
+Start LMF la2cuo4swj -vssig=1.0 -vb=0.2
+i ehf(eV)=-515043.399693 ehk(eV)=-515043.400396 sev(eV)=-395.548128
+c ehf(eV)=-515043.399678 ehk(eV)=-515043.400381 sev(eV)=-395.546685
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=0
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=1
+Start LMF la2cuo4swj -vssig=1.0 -vb=0.2
+i ehf(eV)=-515043.432378 ehk(eV)=-515043.433082 sev(eV)=-395.574725
+c ehf(eV)=-515043.432338 ehk(eV)=-515043.433042 sev(eV)=-395.572012
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=0
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=1
+Start LMF la2cuo4swj -vssig=1.0 -vb=0.2
+i ehf(eV)=-515043.419928 ehk(eV)=-515043.420632 sev(eV)=-395.559083
+c ehf(eV)=-515043.419921 ehk(eV)=-515043.420625 sev(eV)=-395.558456
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=0
+Start LMFGWD la2cuo4swj -vssig=1.0 --jobgw=1
+Start LMF la2cuo4swj -vssig=1.0 -vb=0.2
+i ehf(eV)=-515043.434195 ehk(eV)=-515043.434899 sev(eV)=-395.572386
+c ehf(eV)=-515043.434209 ehk(eV)=-515043.434913 sev(eV)=-395.574759
+Start LMF la2cuo4swj --quit=band
+i ehf(eV)=-515043.434220 ehk(eV)=-515043.434924 sev(eV)=-395.575972
+Start LMF la2cuo4swj --band

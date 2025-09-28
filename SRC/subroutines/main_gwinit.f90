@@ -35,7 +35,7 @@ subroutine gwinit_v2() bind(C) !  Generate GWinput.tmp.
   integer ::n1q,n2q,n3q,ifiqg,ifiqgc,ifigw0,ifi,i,ig
   real(8) :: alp,QpGcut_psi, QpGcut_Cou,dummy
   real(8) :: volum,q0(3),qlat0(3,3),QpGx1,QpGx2, &
-       dw,delta,deltaw,esmr,tolopt,qm(3,3)
+       dw,deltaw,esmr,tolopt,qm(3,3)
   integer :: ibas,l,ixxx,lmxa,ibasx,ifigw0t,mxkp, &
        irs,niw,ic,iclass, ifiqibz,iqibz,ifqpnt,iqall,iaf,iii, ifigwinv2,lk,  nocc,nunocc, &
        kkk,noccc,nunoccc,ncinc,ncinc2,isp
@@ -90,7 +90,8 @@ subroutine gwinit_v2() bind(C) !  Generate GWinput.tmp.
   call getbzdata1(qlat,(/n1q,n2q,n3q/),symops,ngrp,tetrai=.false.,tetraf=.false.,gammacellctrl=0) !,mtet=(/1,1,1/)
   !! Write to file KPNTin1BZ
   nnn = n1q*n2q*n3q
-  nqs=0
+  write(6,"(' --- TOTAL num of q is n1*n2*n3=',i10)")nnn
+!  nqs=0
 !  open(ifkpt,file='KPTin1BZ.gwinit.chk')
 !  do      i1 = 1,nnn
 !     call shorbz(qbz(1,i1),qp,qlat,plat)
@@ -98,21 +99,20 @@ subroutine gwinit_v2() bind(C) !  Generate GWinput.tmp.
 !          i1,qbz(1,i1),qbz(2,i1),qbz(3,i1),wbz(i1),qp
 !  end do
 !  close (ifkpt)
-  write(6,"(' --- TOTAL num of q is n1*n2*n3=',i10)")nnn
-  ! --- Sample QPNT file ---------------
-  open (newunit=ifqpnt,file='QPNT.chk')
-!  write(ifqpnt,"(a,a)") " --- Specify the q and band indeces for which we evaluate the self-energy ---"
-  write(ifqpnt,"(a)")"*** all qibz for gw_lmfh -->1, otherwise 0" !;  up only -->1, otherwise 0"
-  iqall = 1 !;      iaf   = 0
-  write(ifqpnt,*) iqall !,iaf
-  write(ifqpnt,"(a)")"*** # of states and band index for gw_lmfh calculation."
-  iii = min(ndima,100) !this is the number of MTO (max of iii is ndima+napw(lowest))
-  write(ifqpnt,*)  iii ! nband
-  write(ifqpnt,'(*(g0,x))') (i,i=1,iii)
-!  write(ifqpnt,"(a)") "*** q-points, which shoud be in qbz. See KPNTin1BZ."
-!  write(ifqpnt,*) min(nqibz,3)
-!  write(ifqpnt,'(i3,3f23.16)')(i,qibz(1:3,i),i=1,nqibz)
-  rewind ifqpnt
+!   ! --- Sample QPNT file ---------------
+!   open (newunit=ifqpnt,file='QPNT.chk')
+! !  write(ifqpnt,"(a,a)") " --- Specify the q and band indeces for which we evaluate the self-energy ---"
+!   write(ifqpnt,"(a)")"*** all qibz for gw_lmfh -->1, otherwise 0" !;  up only -->1, otherwise 0"
+!   iqall = 1 !;      iaf   = 0
+!   write(ifqpnt,*) iqall !,iaf
+!   write(ifqpnt,"(a)")"*** # of states and band index for gw_lmfh calculation."
+!   iii = min(ndima,100) !this is the number of MTO (max of iii is ndima+napw(lowest))
+!   write(ifqpnt,*)  iii ! nband
+!   write(ifqpnt,'(*(g0,x))') (i,i=1,iii)
+! !  write(ifqpnt,"(a)") "*** q-points, which shoud be in qbz. See KPNTin1BZ."
+! !  write(ifqpnt,*) min(nqibz,3)
+! !  write(ifqpnt,'(i3,3f23.16)')(i,qibz(1:3,i),i=1,nqibz)
+!   rewind ifqpnt
   allocate(nnvv(0:lmxax,nbas))
   nnvv = 0
   mnla_=0
@@ -155,24 +155,16 @@ subroutine gwinit_v2() bind(C) !  Generate GWinput.tmp.
   write(ifi,"(a)") 'emax_sigm  3.0  !(Ry)  emax cutoff for Sigma'
   !!
   write(ifi,*)
-  write(ifi,"(a)" ) '! ##### FREQUENCIES from GWIN_V2 ################ '
-  write(ifi,"(a)")  'HistBin_dw    2d-3 ! 1d-5 is fine mesh (good for metal?) !(a.u.) BinWidth along real axis at omega=0.'
-  write(ifi,"(a)")  'HistBin_ratio 1.08 ! 1.03 maybe safer. frhis(iw)= b*(exp(a*(iw-1))-1), where a=ratio-1.0 and dw=b*a'
-  write(ifi,"(a)")  '                   ! This "ba mesh" is from 9Mar2016'
-  write(ifi,"(a)")  '                   ! See fpgw/gwsrc/m_freq.F'
-  write(ifi,"(a)")  'iSigMode  3   ! QSGW mode switch for gwsc. use =3.'
-  write(ifi,"(a)")  'niw      10   ! Number of frequencies along Im axis. Used for integration to get Sigma_c'
-  write(ifi,"(a)")  '              ! To test, try niw=6 and niw=12'
-  write(ifi,"(a)")  'delta  -1d-6  !(a.u.)  Broadening of x0. negative means tetrahedron method.'
-  write(ifi,"(a)")  '              ! used by hx0fp0. You get smeard x0 witth abs(delta).'
+  write(ifi,"(a)" ) '! ##### FREQUENCIES default at 2025.08.20 ################ '
+  write(ifi,"(a)")  'niw      10   ! Number of frequencies along Im axis. Used for integration to get Sigma_c  ! To test, try niw=6 and niw=12'
+  write(ifi,"(a)")  'HistBin_dw    1d-4 ! 1d-5 !  BinWidth along real axis at omega=0.'
+  write(ifi,"(a)")  'HistBin_ratio 1.05 ! 1.03 !  Bin are frhis(iw)= dw*(exp(ratio*(iw-1))-1), where a=ratio-1.0 and dw=b*a'
+  write(ifi,"(a)")  '!SmearX0 0.01  !for metal. (Hartree = a.u.) 0.01 Harree= 0.272eV. Gaussian smearing for X0. To stabilize convergence for metallic systems'
+  write(ifi,"(a)")  'GaussSmear on ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr for hsfp0.'
   write(ifi,"(a)")  'deltaw  0.02  !(a.u.) Mesh for numerical derivative to get the Z factor'
   write(ifi,"(a)")  'esmr   0.003  !(Ry) used by hsfp0. Keep esmr smaller than band gap for insulators'
   write(ifi,"(a)")  '              ! Poles of G^LDA are treated as if they have width esmr in hsfp0. '
   write(ifi,"(a)")  '              ! Change esmr for metals.  See DOSACC*---especailly around Ef.'
-  write(ifi,"(a)")  'GaussSmear on ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr for hsfp0.'
-  write(ifi,"(a)")  '!GaussianFilterX0 0.0001 !(a.u.) Gaussian smearing for the polarization function x0. '
-  write(ifi,"(a)")  '                         ! This stabilize convergence for metallic systems'
-  write(ifi,"(a)")  '                         ! This can be a default setting in the future'
   write(ifi,*)
   write(ifi,"(a)" ) '! ################################################# '
   write(ifi,"(a)")'<PRODUCT_BASIS> '
@@ -291,10 +283,11 @@ subroutine gwinit_v2() bind(C) !  Generate GWinput.tmp.
 !      write(ifi,"(a)") trim(pppx)
 !   enddo
 ! 756 write(ifi,"(a)")'</QPNT>'
-  close(ifqpnt,status='delete')
+!  close(ifqpnt,status='delete')
 
   write(ifi,*)
-  write(ifi,"(a,f8.3,a,a)") '!QforEPSIBZ on ! Use all q in IBZ for the calculation of eps mode.'
+  write(ifi,*)'!######### q for dielectric functions epsilon. epsPP0 eps_lmfh ##############'
+  write(ifi,"(a,f8.3,a,a)") '!QforEPSIBZ on ! Use all q in IBZ for the calculation of eps mode instead of QforEPS.'
   write(ifi,"(a)") 'QforEPSau on'
   write(ifi,"(a)") '<QforEPS>'
   write(ifi,"(a)") ' 0 0 0.00050'
@@ -307,7 +300,10 @@ subroutine gwinit_v2() bind(C) !  Generate GWinput.tmp.
   !write(ifi,"(a)") '! 0d0 0d0 0d0  .5d0  .5d0  0d0 8'
   !write(ifi,"(a)") '!</QforEPSL>'
   
-  write(ifi,"(a)") 'EMAXforGW 5  !eV(above Efermi)'
+  write(ifi,*)
+  write(ifi,*)'!######### q for diagonal Sigma=GW mode. gw_lmfh ##############'
+  write(ifi,"(a,f8.3,a,a)") '!QforGWIBZ on ! Use all q in IBZ for the calculation of Sigma=GW instead of QforGW.'
+  write(ifi,"(a)") 'EMAXforGW 15 !eV (above Efermi) to set bands for calculating Sigma = GW'
   write(ifi,"(a)") '<QforGW>  !Set q for GW calculation. '
   write(ifi,"(a)") ' 0.0 0.0 0.0'
   write(ifi,"(a)") ' 0.1 0.0 0.0'
@@ -316,6 +312,12 @@ subroutine gwinit_v2() bind(C) !  Generate GWinput.tmp.
   write(ifi,"(a)") '</QforGW>'
   !!
   write(ifi,*)
+  write(ifi,*)'!######### Modelling ##############'
+  write(ifi,"(a)")'<Worb> !Set atomic orbitals for modelling'
+  do iatom = 1,nbas
+     write(ifi,"(1a,i3,1x,a,2x,a)") '!', iatom,trim(spid(iatom)),' 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16'
+  enddo
+  write(ifi,"(a)")'</Worb> '
   write(ifi,"(a)")'!!! ##### Maximally localized Wannier function ################ '
   write(ifi,"(a)")'!!! For s,p,d,f the indices 1-16 correspond to: '
   write(ifi,"(a)")'!!! index l m polynomial '
@@ -340,33 +342,27 @@ subroutine gwinit_v2() bind(C) !  Generate GWinput.tmp.
   write(ifi,"(a)")'!!! ------------------------ '
   write(ifi,"(a)")'!!! higher is lm ordered. See Ylm definition in lmto/fpgw doc.'
   write(ifi,"(a)")
-  write(ifi,"(a)")'<Worb> Site '
-  do iatom = 1,nbas
-     write(ifi,"(1a,i3,1x,a,2x,a)") &
-          '!', iatom,trim(spid(iatom)),' 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16'
-  enddo
-  write(ifi,"(a)")'</Worb> '
-  write(ifi,"(a)")
-  write(ifi,"(a)")'!wan_out_ewin off'
-  write(ifi,"(a)")'!wan_out_bmin 16  !band index for outer window'
-  write(ifi,"(a)")'!wan_out_bmax 18  !band index for outer window'
   write(ifi,"(a)")'wan_out_emin  -1.05  !eV relative to Efermi'
-  write(ifi,"(a)")'wan_out_emax  2.4  !eV relative to Efermi'
-  write(ifi,"(a)")'!wan_in_ewin on '
-  write(ifi,"(a)")'!wan_in_emin  -1.0  !eV relative to Efermi'
-  write(ifi,"(a)")'!wan_in_emax  -0.3  !eV relative to Efermi'
-  write(ifi,"(a)")
-  write(ifi,"(a)")'wan_tb_cut 15'
+  write(ifi,"(a)")'wan_out_emax  2.4    !eV relative to Efermi'
   write(ifi,"(a)")'wan_maxit_1st 300'
   write(ifi,"(a)")'wan_conv_1st 1d-7'
   write(ifi,"(a)")'wan_max_1st   0.1'
   write(ifi,"(a)")'wan_maxit_2nd 1500'
   write(ifi,"(a)")'wan_max_2nd   0.3'
   write(ifi,"(a)")'wan_conv_end  1d-8'
+  
+  write(ifi,"(a)")
+  write(ifi,"(a)")'!wan_out_ewin off'
+  write(ifi,"(a)")'!wan_out_bmin 16  !band index for outer window'
+  write(ifi,"(a)")'!wan_out_bmax 18  !band index for outer window'
+  write(ifi,"(a)")'!wan_in_ewin on '
+  write(ifi,"(a)")'!wan_in_emin  -1.0  !eV relative to Efermi'
+  write(ifi,"(a)")'!wan_in_emax  -0.3  !eV relative to Efermi'
+  write(ifi,"(a)")'!wan_tb_cut 15'
   write(ifi,"(a)")'!wmat_all .true.'
   write(ifi,"(a)")'!wmat_rcut1 8'
   write(ifi,"(a)")'!wmat_rcut2 0.01'
-  write(ifi,"(a)")
+  write(ifi,"(a)")'!--- we do not maintain wanplot recently for vis_foobar -----'
   write(ifi,"(a)")'!vis_wan_band_n 3'
   write(ifi,"(a)")'!vis_wan_band_id 1 2 3  !integer x vis_wan_band_n, this is index for hmaxloc, as you like.'
   write(ifi,"(a)")'!vis_wan_tvec 0 0 0 !1 1 1   !integer x 3, tlat(R)'

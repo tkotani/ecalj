@@ -54,7 +54,7 @@ contains
     integer,allocatable :: ndiv(:)
     real(8),allocatable:: qsave(:,:),   qmin(:,:),qmax(:,:)
     real(8),allocatable:: qany(:,:)
-    logical:: anyq,ibzqq,lnq0iadd,unita,cmdopt0
+    logical:: ibzqq,lnq0iadd,unita,cmdopt0
     integer:: dummyia(1,1),k
     real(8),parameter:: pi=4d0* atan(1d0)
     real(8):: tpioa

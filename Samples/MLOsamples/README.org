@@ -8,6 +8,7 @@ Starting from PMT Hamiltonian (APW+MTO), we remove APW part at the 1st step.
 Then we have the |MLO0> (MuffinTin localized orbital zero) and the Hamiltonian of |MLO0>.
 At the 2nd step, we get  |MLO>  (MuffinTin localized oribtals), and the Hamiltonian of |MLO>.
 
+
 * Minimum setting for calculation.
 We need two settings.
 
@@ -27,6 +28,8 @@ We dont need to set B for systems like 3d and O2p model for transition-metal oxi
 becasue we have only narrow bands.
 
 (In future, we may introduce atom-dependent EUinner..., to make things automatic).
+
+(See job.py which is to perform all below).
 
 * 0th step: job_band
 Get some results in LDA or QSGW. 

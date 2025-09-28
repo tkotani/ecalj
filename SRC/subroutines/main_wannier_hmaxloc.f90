@@ -19,7 +19,7 @@ subroutine hmaxloc()
   !     use m_readqg,only: readngmx,readqg
   use mpi
   use m_ftox !utility for write (just see how to use ftox. Not need to look into it)
-  use m_maxloc0,only: rot_hmnk,getamn,ewindow,getrt,getupu,getrmn,getomg,wmaxloc_diag,readuu,wmaxloc,getbb,getsmn,init_mmn,gettmn,&
+  use m_maxloc0,only: rot_hmnk,getamn,ewindow,getrt,getupu,getrmn,getomg,wmaxloc_diag,wmaxloc,getbb,getsmn,init_mmn,gettmn,&
        new_cnk,get_rn,get_hrotkp_ws,updt_mmn,chk_Hm,init_unkg,write_hrotr,chk_eval,diag_unk,updt_uk,get_hrotr_ws,diag_hm,get_omgik,&
        getzmn,wigner_seitz,writeham,make_hrotrcut,writebb,write_hopping_output,get_hrotkp_tb_ws,writeomg,read_hrotr,dimz,kbbindx,&
        init_umnk,chkuu
@@ -31,7 +31,7 @@ subroutine hmaxloc()
     idtetf,ib1bz,idteti, nstar,irk,nstbz
   use m_qbze,only: Setqbze, nqbze,qbze
   use m_genallcf_v3,only: genallcf_v3,natom,nl,nn, &
-    nlnmx, nctot,niw, alat,delta,deltaw,esmr, il, in, im, nlnm, &
+    nlnmx, nctot,niw, alat,deltaw,esmr, il, in, im, nlnm, &
     plat, pos, ecore, konf,z, spid, nprecb,mrecb,mrece,nqbzt,nband,mrecg,ndima,nspx !nspin,
   use m_read_Worb,only: s_read_Worb, s_cal_Worb, &
     nwf, nclass_mlwf, cbas_mlwf, nbasclass_mlwf, &

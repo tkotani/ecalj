@@ -14,6 +14,4 @@ export PATH=$HOME/bin:$PATH
 
 #nvidia-smi --query-gpu=name,utilization.memory,memory.total,memory.free,memory.used --format=csv
 
-cp SRC/ISSPkugui/run_arg.py SRC/ISSPkugui/job_tdos SRC/exec/
-rm -rf SRC/TestInstall/bin
-FC=nvfortran ./InstallAll --gpu
+./InstallAll.py --fc nvfortran --gpu

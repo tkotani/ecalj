@@ -1,4 +1,64 @@
 !> Calculate W-v zxqi(on the imaginary axis) and zxq(real axis) from sperctum weight rcxq.
+! module m_getxc
+!   implicit none
+!   public :: getxc,mean_from_xc
+!   private
+! contains
+!   ! Internal function: Compute the mean μ of a truncated normal distribution
+!   ! given center xc and standard deviation sigma.
+!   real(kind=8) function mean_from_xc(xc, sigma)
+!     implicit none
+!     real(kind=8), intent(in) :: xc, sigma
+!     real(kind=8) :: Z, arg
+!     ! Argument for the error function
+!     arg = xc / (sqrt(2.0d0) * sigma)
+!     ! Normalization constant over [0, ∞)
+!     Z = sqrt(acos(-1.0d0)) * sigma / sqrt(2.0d0) * (1.0d0 + erf(arg))
+!     ! Mean of the truncated normal distribution
+!     mean_from_xc = xc + (sigma**2 / Z) * exp(-xc**2 / (2.0d0 * sigma**2))
+!   end function mean_from_xc
+!   ! Public function: Given mean μ and standard deviation σ,
+!   ! numerically solve for the distribution center x_c.
+!   real(kind=8) function getxc(mu, sigma)
+!     use m_ftox
+!     implicit none
+!     real(kind=8), intent(in) :: mu, sigma
+!     real(kind=8) :: a, b, c, fa, fb, fc, tol=1d-12
+!     integer :: max_iter=100, i
+!     ! Tolerance and iteration limit for bisection method
+!     ! Initial bracket [a, b] for root finding
+!     a =  max(0d0, -5.0d0 * sigma+mu)
+!     b =  5.0d0 * sigma + mu
+!     ! Evaluate residuals at endpoints
+!     fa = mean_from_xc(a, sigma) - mu
+!     fb = mean_from_xc(b, sigma) - mu
+!     write (6,ftox) 'gggggggggg', a,b,sigma, 'xxxxxxx', ftod(mu),ftod(mean_from_xc(a, sigma)), ftod(mean_from_xc(b, sigma))
+!     ! Check if root is bracketed
+!     if (fa * fb > 0.0d0) then
+!       getxc = -999.0d0  ! Return error value if no root found
+!       return
+!     end if
+!     ! Bisection loop
+!     do i = 1, max_iter
+!       c = 0.5d0 * (a + b)
+!       fc = mean_from_xc(c, sigma) - mu
+!       if (abs(fc) < tol) then
+!         getxc = c
+!         return
+!       end if
+!       if (fa * fc < 0.0d0) then
+!         b = c
+!         fb = fc
+!       else
+!         a = c
+!         fa = fc
+!       end if
+!     end do
+!     ! Return approximate root if convergence not achieved
+!     getxc = c
+!   end function getxc
+! end module m_getxc
+
 module m_dpsion
   use m_kind, only: kp => kindrcxq
   use m_mpi,only: ipr
@@ -76,8 +136,9 @@ contains
     init=.false.
   end subroutine dpsion_init
   subroutine dpsion_chiq(realomega, imagomega, chipm, rcxq, zxqi, npr, npr_col, schi, isp, ecut)
+    use m_keyvalue,only: getkeyvalue
     use m_freq, only: frhis, freqr=>freq_r,freqi=>freq_i, nwhis, npm, nw_i, nw_w=>nw, niwt=>niw
-    use m_readgwinput, only: egauss
+!    use m_readgwinput, only: egauss
     use m_ftox
     use m_lgunit, only: stdo
     use m_blas, only: m_op_T
@@ -97,13 +158,13 @@ contains
     complex(kind=kp), intent(inout):: rcxq(1:npr,1:npr_col,(1-npm)*nwhis:nwhis)
     complex(kind=kp), intent(out) ::  zxqi(1:npr,1:npr_col,niwt)
     complex(kind=kp), parameter:: CONE = (1_kp, 0_kp), CZERO = (0_kp, 0_kp)
-    integer :: iw
+    integer :: iw,i,j
     real(8), parameter:: pi  = 4d0*datan(1d0)
     complex(8), parameter :: img = (0d0,1d0)
     complex(kind=kp) :: zxq_work(1:npr,nw_i:nw_w), cimatt(niwt,nwhis,npm), crmatt(0:nw_w,nwhis,npm)
     complex(kind=kp), allocatable :: rcxq_work(:,:), cgfmat(:,:)
     integer :: ipr_col, ipm, istat, ispx
-    real(8) :: wfac
+    real(8) :: wfac,smearx0
     logical :: debug = .true.
 #ifdef __GPU
     attributes(device) :: rcxq, zxqi
@@ -111,15 +172,16 @@ contains
     if(ipr) write(stdo,ftox)" -- dpsion_chiq: start... nw_w nwhis=",nw_w,nwhis
     call flush(stdo)
     if(chipm.and.npm==2) call rx( 'x0kf_v4h:npm==2 .AND. chipm is not meaningful probably')  ! Note rcxq here is negative 
-
     !$acc data copyin(his_R, his_L)
-    GaussianFilter: if(abs(egauss)>1d-15) then
-      write(6,'("GaussianFilterX0= ",d13.6)') egauss
+    call getkeyvalue("GWinput","SmearX0", smearx0, default=0d0 )
+    GaussianFilter: if(abs(smearx0)>1d-15) then
+      write(6,'("SmearX0= ",d13.6)') smearx0
       allocate(gfmat(nwhis,nwhis))
       allocate(cgfmat(nwhis,nwhis))
       allocate(rcxq_work(npr,nwhis))
       if(ipr) write(stdo,ftox) 'dpsion_chiq: GaussianFilterX0 is not checked yet: see dpsion_chiq'
-      gfmat=gaussianfilterhis(egauss,frhis,nwhis)
+      gfmat=gaussianfilterhis(smearx0,frhis,nwhis)
+
       !$acc data copyin(gfmat) create(cgfmat, rcxq_work)
       !$acc kernels
       cgfmat(:,:) = cmplx(gfmat(:,:), kind=kp)
@@ -252,11 +314,12 @@ contains
 
   subroutine dpsion5(realomega,imagomega,rcxq,nmbas1,nmbas2, zxq,zxqi, chipm,schi,isp,ecut,ecuts) 
     use m_freq,only:  frhis, freqr=>freq_r,freqi=>freq_i, nwhis, npm, nw_i, nw_w=>nw, niwt=>niw
-    use m_readgwinput,only: egauss
+!    use m_readgwinput,only: egauss
 !    use m_GaussianFilter,only: GaussianFilter
     use m_ftox
     use m_lgunit,only:stdo
     use m_kind,only:kindrcxq
+    use m_keyvalue,only: getkeyvalue
     implicit none
     intent(in)::     realomega,imagomega,     nmbas1,nmbas2,           chipm,schi,isp,ecut,ecuts
     intent(out)::                        rcxq,                zxq,zxqi
@@ -274,24 +337,25 @@ contains
     !r  We suppose "freqr(i)=moddle of i-th bin; freqr(0)=0." (I think called routine hilbertmat itself is not limited by this condition).
     integer:: igb1,igb2, iw,iwp,ix,ifxx,nmbas1,nmbas2,isp,ispx,it, ii,i,ibas1,ibas2,nmnm
     logical :: evaltest     
-    real(8):: px,omp,om,om2,om1, aaa,d_omg, ecut,ecuts,wcut,dee,schi, domega_r,domega_c,domega_l,delta_l,delta_r
+    real(8):: px,omp,om,om2,om1, aaa,d_omg, ecut,ecuts,wcut,dee,schi, domega_r,domega_c,domega_l,delta_l,delta_r,smearx0
     complex(8):: zxq(nmbas1,nmbas2, nw_i:nw_w),zxqi(nmbas1,nmbas2,niwt),img=(0d0,1d0),beta,wfac, zz,rrr(-nwhis:nwhis)
     logical :: realomega, imagomega,chipm,debug=.false.
     integer:: jpm,ipm,verbose,isgi   !     complex(8):: x0mean(nw_i:nw_w,nmbas,nmbas)
     real(8),parameter:: pi  = 4d0*datan(1d0)
     logical::init=.true.
-    integer:: imbas1,imbas2
+    integer:: imbas1,imbas2,j
     complex(8):: rcxqin(1:nwhis)
     complex(kindrcxq):: rcxq(nmbas1,nmbas2, nwhis,npm)
 
     if(ipr) write(stdo,ftox)" -- dpsion5: start... nw_w nwhis=",nw_w,nwhis
     if(chipm.and.npm==2) call rx( 'x0kf_v4h:npm==2 .AND. chipm is not meaningful probably')  ! Note rcxq here is negative 
     call cputid(0)
-    GaussianFilter: if(abs(egauss)>1d-15) then
+    call getkeyvalue("GWinput","SmearX0", smearx0, default=0d0 )
+    GaussianFilter: if(abs(smearx0)>1d-15) then
        if(eginit) then
-          write(6,'("GaussianFilterX0= ",d13.6)') egauss
+          write(6,'("SmearX0= ",d13.6)') smearx0
           allocate(gfmat(nwhis,nwhis))
-          gfmat=gaussianfilterhis(egauss,frhis,nwhis)
+          gfmat=gaussianfilterhis(smearx0,frhis,nwhis)
           eginit=.false.
        endif
        do ipm=1,npm
@@ -392,36 +456,45 @@ contains
     call cputid(0)
   end subroutine dpsion5
 !  subroutine GaussianFilter(rcxq,nmbas1,nmbas2, egauss,iprint)
-  pure function gaussianfilterhis(egauss, frhis,nwhis) result(gfmat)
+  function gaussianfilterhis(smearx0, frhis,nwhis) result(gfmat)
+!    use m_getxc,only: getxc,mean_from_xc
     implicit none
     integer,intent(in):: nwhis
-    real(8),intent(in):: egauss,frhis(nwhis+1)
-    real(8):: gfmat(nwhis,nwhis)
+    real(8),intent(in):: smearx0,frhis(nwhis+1)
+    real(8):: gfmat(nwhis,nwhis),xc(nwhis)
     real(8),allocatable:: frc(:),gfm(:)
     real(8):: ggg
     integer:: i,j
     allocate(frc(nwhis),gfm(nwhis))
     do i=1,nwhis
-       frc(i)=(frhis(i)+frhis(i+1))/2d0
+      frc(i)=(frhis(i)+frhis(i+1))/2d0
+!      xc(i) = mean_from_xc(frc(i),smearx0)
+!      write(*,*)'ggggggggg', smearx0, ftod(frc(i)), ftod(xc(i))
     enddo
     do i=1,nwhis
        do j=1,nwhis
-          gfm(j)= exp( -(frc(i)-frc(j))**2/(2d0*egauss))
+          gfm(j)= exp( -(frc(i)-frc(j))**2/(2d0*smearx0**2))
        enddo
        ggg = sum(gfm(:))
        do j=1,nwhis
           gfmat(j,i)= gfm(j)/ggg
        enddo
-       
-       ! do j=1,nwhis
-       !    gfm(j)= frc(j) * exp( -(frc(i)-frc(j))**2/(2d0*egauss))
-       ! enddo
-       ! ggg = sum(gfm) ! omega*e2(omega) sum rule
-       ! do j=1,nwhis
-       !    gfmat(j,i) = gfm(j)/frc(j)/ggg
-       ! enddo
     enddo
     deallocate(frc,gfm)
+! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
+!      do j=1,nwhis,20
+! !      if(j>10) cycle
+!       write(1019,*)
+!       write(1019,*)
+!       do i=1,nwhis
+!         write(1019,'(2f19.8)') frhis(i),gfmat(i,j) !/(frhis(i+1)-frhis(i))
+!       enddo
+! !      write(*,*)'sssssss',i,sum(gfmat(:,j)*([(frhis(i+1)-frhis(i),i=1,nwhis)]))
+!       write(*,*)'sssssss',j,sum(gfmat(:,j))
+!     enddo
+!     stop 'xxxxxxxxxxxaaa'
+    
   end function gaussianfilterhis
 end module m_dpsion
+
 

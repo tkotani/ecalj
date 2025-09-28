@@ -2,7 +2,7 @@
 !  All dependencies (use foobar below ) are inputs (must be protected).
 module m_zmel
   use m_genallcf_v3,only: natom,nspin,nn,nnv,nnc,nlnmx, niw,nband,ndima
-  use m_genallcf_v3,only: alat,delta,deltaw,esmr,nlnmv,nlnmc,icore,ncore,plat,pos,z,ecore,mnl=>nlnm,nn,il,in,im
+  use m_genallcf_v3,only: alat,esmr,nlnmv,nlnmc,icore,ncore,plat,pos,z,ecore,mnl=>nlnm,nn,il,in,im
   use m_hamindex,only: ngrp, symgg=>symops,invg=>invgx
   use m_rdpp,only: Rdpp, nxx,lx,nx,mdimx,nbloch,cgr,ppbrd,nblocha,done_rdpp
   use m_read_bzdata,only: nqbz,nqibz,  qlat,ginv,qbz,qibz,wbz, done_read_bzdata

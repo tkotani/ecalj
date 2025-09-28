@@ -1,18 +1,11 @@
+from MachineDependence import mpiRUN
 import os,shutil
 '''
 util for QSGW scripts
 '''
-import platform
-machine_info = platform.uname()
-#print(machine_info)
-def mpiRUN(ncore):
-    if("kugui" in machine_info):
-        mpirun= f'mpirun --bind-to none --map-by node -np {ncore} ' if ncore!=0 else ''
-    elif("ohtaka" in machine_info):
-        mpirun= f'srun -n {ncore} ' if ncore!=0 else ''
-    else:    
-        mpirun= f'mpirun -np {ncore} ' if ncore != 0 else ''
-    return mpirun
+
+
+
 
 
 def gen_dir(dirname):
@@ -32,9 +25,8 @@ def rm_files(files):
     for fname in files:
         remove(fname)
 
-
 nxdict = {}
-def run_program(cmd, ncore=0, x0=0):
+def run_program(cmd, ncore=1, x0=0):
     """Run a program with ncore cores.
        Decreasing ncore until the command runs successfully."""
     import subprocess, datetime
@@ -70,7 +62,7 @@ def run_program_breduction(cmd, ncore=0, x0=0, ext=''):
         if os.path.isfile(f'rst.{ext}'):
             shutil.copy(f'rst.{ext}', f'rst.{ext}.bk')
         if cmd in const_b: bval= const_b[cmd]
-        run_cmd = mpiRUN(ncore) + cmd
+        run_cmd = mpiRUN(ncore) + re.sub(r'>', f' -vb={bval} >', cmd)
         print(t if x0 == 0 else t - x0, ' ', run_cmd, flush=True)
 
         #result = subprocess.run(run_cmd, shell=True)
@@ -92,10 +84,10 @@ def run_program_breduction(cmd, ncore=0, x0=0, ext=''):
 
         bval = round(bval - 0.05, 2)
         print(f' Reset b={bval} in {run_cmd}', flush=True)
-        with open(f'ctrl.{ext}', 'r') as f:
-            text = f.read()
-        text_new = re.sub(r'b=0?\.\d+', f'b={bval}', text)
-        with open(f'ctrl.{ext}', 'w') as f:
-            f.write(text_new)
+        # with open(f'ctrl.{ext}', 'r') as f:
+        #     text = f.read()
+        # text_new = re.sub(r'b=0?\.\d+', f'b={bval}', text)
+        # with open(f'ctrl.{ext}', 'w') as f:
+        #     f.write(text_new)
         
     exit(-1)

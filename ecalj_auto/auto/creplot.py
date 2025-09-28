@@ -1,4 +1,3 @@
-#originally shota takano 2025
 import sys
 ppp=sys.executable
 
@@ -8,7 +7,6 @@ import change_k
 import pandas as pd
 from contextlib import contextmanager
 
-import kauto
 
 @contextmanager
 def change_directory(path):
@@ -67,7 +65,7 @@ def run_popen(main_command, sub_command, out, oute, mode):
 
 def run_with_save(command, out, mode):
     command = [str(c) for c in command]
-    print('xxx '.join(command), f'> {out}')
+    print(' '.join(command), f'> {out}')
     with subprocess.Popen(command, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True) as process:
         with Path(out).open(mode, buffering=1) as fout:
             for line in process.stdout:
@@ -166,7 +164,7 @@ class Calc:
 
     def mkplot_and_save(self, path_save):
 
-        print('mkplot_and_save:',path_save)
+        print(path_save)
         if path_save == 'LDA':
             Path(path_save).mkdir(parents=True, exist_ok=True)
             for f in Path('.').glob(f'*.{self.num}'):
@@ -186,11 +184,11 @@ class Calc:
                 jjob = [self.epath/job, self.num, '-np', self.ncore, 'NoGnuplot'] + self.option_bnd
                 run_command(jjob, out=file_out)
 
-    def run_LDA(self, args, key,  koption,nitmax, ordering, path_poscar, errcode): #lmxa6 need to be given at ctrlgenM1.py
-        print('---- run_LDA -----------------')
+    def run_LDA(self, args, key,  koption, ordering, path_poscar, errcode): #lmxa6 need to be given at ctrlgenM1.py
         num = self.num
         epath = self.epath
         print(Path.cwd())
+        
         ### lmfa
         if Path(f'atm.{num}').exists(): #if already lmfa is finished
             pass
@@ -232,66 +230,52 @@ class Calc:
             run_command([epath/'lmfa', num], out='llmfa')
 
         ### Get k_mesh from input koption
-        print('GotoGetkmesh aaaaaaaaaaaa',args.kkmesh)
-        # if(args.kkmesh is not None):
-        #     print('args.kkmesh111=',args.kkmesh)
-        #     self.k_points = args.kkmesh[:3]
-        # else:    
-        #     print('args.kkmesh222=',args.kkmesh)
-        #     self.k_points = change_k.get_kpoints([koption[1]] * 3)
-        #self.k_points = kauto.kauto(koption)
-        self.k_points = [max(kauto.kauto(koption))] * 3
+        #print('aaaaaaaaaaaa',args)
+        if(args.kkmesh):
+            self.k_points = args.kkmesh[:3]
+        else:    
+            self.k_points = change_k.get_kpoints([koption[1]] * 3)
         print('k-mesh for lmf: nk1nk2nk3=', self.k_points)
 
         if self.k_points is None:
             return 'ERROR: PlatQplat.chk in lmfa', errcode['ctrl']
-        self.option_lmf = '-vnit={} -vnk1={} -vnk2={} -vnk3={}'.format(nitmax, *self.k_points).split() #+ koption[2:]
+        self.option_lmf = '-vnit={} -vnk1={} -vnk2={} -vnk3={}'.format(koption[0], *self.k_points).split() #+ koption[2:]
         kkk = 'nk1={} nk2={} nk3={}'.format(*self.k_points)
 
-        ### Initial Run lmf
-        print('--- start lmf --- ')
+        ### Run lmf
         outc = self.run_lmf('llmf','llmf.err')
-        conv = outc.split()[0]
+        print('lmf finished')
 
         ### Check convergence and if k-mesh is appropreate or not
-        if conv == 'x': 
-            return f'x {kkk}', errcode['conv=x']
-#        elif conv == 'i': 
+        conv = outc.split()[0]
+        if conv == 'x': return f'x {kkk}', errcode['conv=x']
+        elif conv == 'i': return f'i {kkk}', errcode['conv=i']
         elif conv != 'c':
-            import glob
             #errmsgs = check_save('llmf', n=3)
             #!for msg in errmsgs.split('\n'):
             #   if ('incompatible with this mesh' in msg) or ('qp mapped to is not on k-mesh' in msg):
-            bzmeshc=False
-            if(os.path.exists('bzmesh.'+num+'.err')):
-                os.remove('bzmesh.'+num+'.err')
-                self.k_points = [kauto.kauto(koption)[0]] * 3
+            if(os.path.exists('bzmesh.err')):
+                os.remove('bzmesh.err')
+                print('Run lmf')
+                self.k_points = [koption[1]] * 3
                 kkk = 'nk1={} nk2={} nk3={}'.format(*self.k_points)
-                print('kmesh changed ---')
-                self.option_lmf = '-vnit={} -vnk1={} -vnk2={} -vnk3={}'.format(nitmax, *self.k_points).split() #+ koption[2:]
-                bzmeshc=True
-            while ( self.const_b > 0.05): #bmix reducing
-                if not bzmeshc: 
-                    for file in glob.glob("rst*"): os.remove(file)
-                    for file in glob.glob("mix*"): os.remove(file)
-                    self.const_b = round(self.const_b - 0.05, 2)
-                    replace(f'ctrl.{self.num}', r'b=0?\.\d+', f'b={self.const_b}')
-                print('Run lmf --- b=',self.const_b)
+                self.option_lmf = '-vnit={} -vnk1={} -vnk2={} -vnk3={}'.format(koption[0], *self.k_points).split() #+ koption[2:]
                 outc = self.run_lmf('llmf','llmf.err')
-                if outc.split()[0] == 'c': break
-                bzmeshc=False
-
-        if outc.split()[0] != 'c':
-            return f'{conv} {kkk} {self.const_b}', errcode['others']
+                conv = outc.split()[0]
+                if conv == 'c':
+                    self.kmesh_cube = True
+                return f'{conv} {kkk}', errcode['kmesh']
+            else:
+                return 'ERROR: lmf', errcode['others']
 
         ### Make plots
-        print('make plot LDA')
         replace(f'ctrl.{num}', r'nk1=(\d+) nk2=(\d+) nk3=(\d+)', kkk)
         self.gap_LDA = self.run_plot('LDA')
-        #if self.gap_LDA is None:
-        #    return 'ERROR: job_band', errcode['job_band']
-        print('end of run_lmf')
+        if self.gap_LDA is None:
+            return 'ERROR: job_band', errcode['job_band']
+    
         return f'c {kkk} gap={self.gap_LDA}', errcode['conv=c']
+
 
     def run_QSGW(self, args, niter, bnd4all, gw80, k_gw):
         num = self.num
@@ -301,10 +285,11 @@ class Calc:
             self.option_bnd.append('-vssig=0.8')
         if not self.k_points:
             self.k_points_from_ctrl()
-            if not self.k_points:  return 'ERROR: something wrong in ctrl'
+            if not self.k_points:
+                return 'ERROR: something wrong in ctrl'
         if not self.gap_LDA:
             self.gap_LDA = self.run_plot('LDA')
-        if(args.kkmesh is not None):
+        if(args.kkmesh):
             q_points = args.kkmesh[3:6]
         else:
             q_points = change_k.get_q(self.k_points, k_gw)   #k_points is int list, like [6, 6, 6]
@@ -327,20 +312,17 @@ class Calc:
         ### Check if QSGW calc. has been successfully completed or not
         if 'Error' in out_gwsc:
             err_msg = check_gw_out(out_gwsc)
-            return err_msg
-            
-            # if 'lmf' not in out_gwsc:
-            #     return err_msg
-            # if outc.split()[0] == 'i':   # lmf error in gwsc loop
-            #     return err_msg
-            #     while (outc.split()[0] != 'c') and (self.const_b > 0.05):
-            #         out_gwsc = self.run_gwsc_re(niter)
-            #         outc = check_save(f'save.{num}')
-            #         if 'ERROR' in out_gwsc: return out_gwsc
-            #         if (outc.split()[0] == 'c' ) and ('Error' not in out_gwsc):
-            #             break
-            #     else:
-            #         return check_gw_out(out_gwsc)
+            if 'lmf' not in out_gwsc:
+                return err_msg
+            if outc.split()[0] == 'i':   # lmf error in gwsc loop
+                while (outc.split()[0] != 'c') and (self.const_b > 0.05):
+                    out_gwsc = self.run_gwsc_re(niter)
+                    outc = check_save(f'save.{num}')
+                    if 'ERROR' in out_gwsc: return out_gwsc
+                    if (outc.split()[0] == 'c' ) and ('Error' not in out_gwsc):
+                        break
+                else:
+                    return check_gw_out(out_gwsc)
                 
         ### Check if calc. is converged or not
         if outc.split()[0] == 'x':
@@ -352,7 +334,6 @@ class Calc:
             return outc
 
         ### Save QPU / Plot Band for all iterations of QSGW calc., swtich is "bnd4all"
-        print('make plot QSGW')
         dirs = [d for d in Path('.').glob('QSGW.*run') if d.is_dir()]
         dirs = sorted(dirs, key=lambda d: int(re.match(r'QSGW.(\d+)run', d.name).group(1)))
         for n, d in enumerate(dirs):
@@ -423,7 +404,7 @@ class ReadBND:
         conbtm = get_energy(lines[2])
         self.metal = (valtop > efermi) or ((conbtm - valtop) <= 0)
 
-        ele = re.findall(r'\d+\.\w+\+\d+', lines[4])[0]
+        ele = re.findall(r'\d+\.\w+\+\d+', lines[3])[0]
         onsite = round(float(re.sub('D', 'E', ele)) / 2, 3)
         if not onsite.is_integer():
             print('Number of electrons is odd.')
@@ -444,7 +425,7 @@ class ReadBND:
 
     def load_data(self, bnd_file, num):
         try:
-            df = pd.read_csv(bnd_file, header=None, sep="\s+", dtype=str, comment='#').dropna()
+            df = pd.read_csv(bnd_file, header=None, delimiter="\s+", dtype=str, skiprows=1).dropna()
             df[0] = df[0].astype(int)
             df[1] = df[1].astype(float).round(decimals=5)
             df[2] = df[2].astype(float).round(decimals=5)

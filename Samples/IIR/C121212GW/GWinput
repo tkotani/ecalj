@@ -79,13 +79,20 @@ GaussSmear on ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr for
 </PRODUCT_BASIS>
  
 ! ################################################# 
-<QPNT> ! This block is the same as QPNT.
-*** all qibz for gw_lmfh -->1, otherwise 0
-           1
-*** # of states and band index for gw_lmfh calculation.
-         12
-1 2 3 4 5 6 7 8 9 10 11 12
-</QPNT>
+
+
+!! 2025-8-8 I think QPNT is now obsolate. We have to use EMAXforGW instead.
+!! Not tested yet.
+! 
+! <QPNT> ! This block is the same as QPNT.
+! *** all qibz for gw_lmfh -->1, otherwise 0
+!            1
+! *** # of states and band index for gw_lmfh calculation.
+!          12
+! 1 2 3 4 5 6 7 8 9 10 11 12
+! </QPNT>
+EMAXforGW 30 !eV
+
 !EPSrange  1    !(Ry) [0,EPSrange] for dielectric function plot.
 !EPSdw     0.05 !(Ry) energy mesh  for dielectric function plot.
  

@@ -962,74 +962,6 @@ contains
   !   return
   ! end subroutine chk_ewindow
   !-----------------------------------------------------------------------
-  subroutine readuu(is,iti,itf,ikbidx, &
-       nqbz,nbb, &
-       uum)
-    implicit integer (i-n)
-    implicit real*8(a-h,o-z)
-    integer :: ikbidx(nbb,nqbz)
-    complex(8) :: uum(iti:itf,iti:itf,nbb,nqbz)
-    complex(8),allocatable::uumread(:,:)
-    if (is == 1) then
-      !    ifuu      = iopen('UUU',0,0,0)
-      open(newunit=ifuu,file='UUU',form='unformatted')
-    else
-      !     ifuu      = iopen('UUD',0,0,0)
-      open(newunit=ifuu,file='UUD',form='unformatted')
-    endif
-
-    read(ifuu)
-    read(ifuu)nqbz2,nbb2,iti2,itf2
-    !      if (nqbz2 .ne. nqbz) stop 'readuu: nqbz error'
-    !      if (nbb2 .ne. nbb) stop 'readuu: nbb error'
-    !      if (iti2 .ne. iti) stop 'readuu: iti error'
-    !      if (itf2 .ne. itf) stop 'readuu: itf error'
-    if (nqbz2 /= nqbz)call rx('readuu: nqbz2/= nqbz')
-    if (nbb2  /= nbb) call rx('readuu: nbb2 /= nbb')
-    if (iti2 > iti)   call rx('readuu: iti error')
-    if (itf2 < itf)   call rx('readuu: itf error')
-    allocate(uumread(iti2:itf2,iti2:itf2))
-
-    do iqbz = 1,nqbz
-      do ibb = 1,nbb
-        read(ifuu)iflg
-        if (iflg == -10) then
-          read(ifuu) iqbz2,ibb2,ikbidx2
-          read(ifuu) ((uumread(j1,j2),j1=iti2,itf2),j2=iti2,itf2)
-          !     &         ((uum(j1,j2,ibb,iqbz),j1=iti,itf),j2=iti,itf)
-          uum(iti:itf,iti:itf,ibb,iqbz)=uumread(iti:itf,iti:itf)
-          if (iqbz2 /= iqbz) stop 'readuu: iqbz error'
-          if (ibb2 /= ibb) stop 'readuu: ibb error'
-          if (ikbidx2 /= ikbidx(ibb,iqbz)) &
-               stop 'readuu: ikbidx error'
-        elseif(iflg == -20) then
-          read(ifuu)iqbz2,ibb2,iqtmp,ibbtmp
-          if (iqbz2 /= iqbz) stop 'readuu: iqbz error'
-          if (ibb2 /= ibb) stop 'readuu: ibb error'
-          if (iqtmp >= iqbz) stop 'readuu: iqtmp error'
-          if (ibbtmp <= 0) stop 'readuu: ibbtmp error'
-          if (ibbtmp > nbb) stop 'readuu: ibbtmp error'
-
-          do j1 = iti,itf
-            do j2 = iti,itf
-              uum(j1,j2,ibb,iqbz) = &
-                   dconjg(uum(j2,j1,ibbtmp,iqtmp))
-            enddo
-          enddo
-        else
-          stop 'readuu: iflg error'
-        endif
-      enddo
-    enddo
-    close(ifu)
-    !if (is == 1) then
-    !   close(ifu)! = iclose('UUU')
-    !else
-    !   close(ifu)! = iclose('UUD')
-    !endif
-
-    return
-  end subroutine readuu
   !-----------------------------------------------------------------------
   subroutine chkuu(is,iti,itf,ikbidx,uum, &
        nqbz,nbb)
@@ -3417,3 +3349,73 @@ contains
     close(ifh)
   end subroutine write_hopping_output
 end module m_maxloc0
+
+
+subroutine readuu(is,iti,itf,ikbidx, &
+       nqbz,nbb, &
+       uum)
+    implicit integer (i-n)
+    implicit real*8(a-h,o-z)
+    integer :: ikbidx(nbb,nqbz)
+    complex(8) :: uum(iti:itf,iti:itf,nbb,nqbz)
+    complex(8),allocatable::uumread(:,:)
+    if (is == 1) then
+      !    ifuu      = iopen('UUU',0,0,0)
+      open(newunit=ifuu,file='UUU',form='unformatted')
+    else
+      !     ifuu      = iopen('UUD',0,0,0)
+      open(newunit=ifuu,file='UUD',form='unformatted')
+    endif
+
+    read(ifuu)
+    read(ifuu)nqbz2,nbb2,iti2,itf2
+    !      if (nqbz2 .ne. nqbz) stop 'readuu: nqbz error'
+    !      if (nbb2 .ne. nbb) stop 'readuu: nbb error'
+    !      if (iti2 .ne. iti) stop 'readuu: iti error'
+    !      if (itf2 .ne. itf) stop 'readuu: itf error'
+    if (nqbz2 /= nqbz)call rx('readuu: nqbz2/= nqbz')
+    if (nbb2  /= nbb) call rx('readuu: nbb2 /= nbb')
+    if (iti2 > iti)   call rx('readuu: iti error')
+    if (itf2 < itf)   call rxii('readuu: itf error',itf2,itf)
+    allocate(uumread(iti2:itf2,iti2:itf2))
+
+    do iqbz = 1,nqbz
+      do ibb = 1,nbb
+        read(ifuu)iflg
+        if (iflg == -10) then
+          read(ifuu) iqbz2,ibb2,ikbidx2
+          read(ifuu) ((uumread(j1,j2),j1=iti2,itf2),j2=iti2,itf2)
+          !     &         ((uum(j1,j2,ibb,iqbz),j1=iti,itf),j2=iti,itf)
+          uum(iti:itf,iti:itf,ibb,iqbz)=uumread(iti:itf,iti:itf)
+          if (iqbz2 /= iqbz) stop 'readuu: iqbz error'
+          if (ibb2 /= ibb) stop 'readuu: ibb error'
+          if (ikbidx2 /= ikbidx(ibb,iqbz)) &
+               stop 'readuu: ikbidx error'
+        elseif(iflg == -20) then
+          read(ifuu)iqbz2,ibb2,iqtmp,ibbtmp
+          if (iqbz2 /= iqbz) stop 'readuu: iqbz error'
+          if (ibb2 /= ibb) stop 'readuu: ibb error'
+          if (iqtmp >= iqbz) stop 'readuu: iqtmp error'
+          if (ibbtmp <= 0) stop 'readuu: ibbtmp error'
+          if (ibbtmp > nbb) stop 'readuu: ibbtmp error'
+
+          do j1 = iti,itf
+            do j2 = iti,itf
+              uum(j1,j2,ibb,iqbz) = &
+                   dconjg(uum(j2,j1,ibbtmp,iqtmp))
+            enddo
+          enddo
+        else
+          stop 'readuu: iflg error'
+        endif
+      enddo
+    enddo
+    close(ifu)
+    !if (is == 1) then
+    !   close(ifu)! = iclose('UUU')
+    !else
+    !   close(ifu)! = iclose('UUD')
+    !endif
+
+    return
+end subroutine readuu

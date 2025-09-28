@@ -928,7 +928,7 @@ contains
     real(8) ::tran(3),delta(3,ng)
     logical:: cmdopt0
     logical,optional:: afmode
-    data ep/1.0d-3/
+    ep=1d-3
     if(iprintx>=46) write(6,*)'MPTAUOf: search miat tiat for wave function rotation'
     do 10 ig=1,ng
        do igd=1,ng

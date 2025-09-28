@@ -313,7 +313,7 @@ contains
       a(1:nda,0,2)       = dreal(sigin)        !input
       a(nda+1:2*nda,0,2) = dimag(sigin)  !input
     endif
-    call getkeyvalue("GWinput","mixpriorit",imix,default=9,status=ret) !  Restrict maximum number of prior iterations
+    call getkeyvalue("GWinput","mixpriorit",imix,default=3,status=ret) !  Restrict maximum number of prior iterations
     mmix = min(max(nitr-1,0),imix)
     if (mmix > mxsav) mmix = mxsav
     call getkeyvalue("GWinput","mixtj",acc,default=0d0,status=ret)

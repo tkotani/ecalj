@@ -1,0 +1,17 @@
+#!/bin/bash -x
+exe=$HOME/temp/ecalj/SRC/exec/
+nc=8
+mat=Fe
+
+cd k4_so2
+#mpirun -np $nc2 python $exe/hx0ahc.py -4. 4. 51 --phispinsym |tee lhx0ahc
+python $exe/hx0ahc.py -4. 4. 51 --phispinsym |tee lhx0ahc
+cd ..
+cd k4_so1
+#mpirun -np $nc2 python $exe/hx0ahc.py -4. 4. 51 --phispinsym --testso -vso=1 |tee lhx0ahc
+python $exe/hx0ahc.py -4. 4. 51 --phispinsym --testso -vso=1 |tee lhx0ahc
+cd ..
+
+gnuplot -persist plot_AHC_tet.glt
+gnuplot -persist plot_AHC_direct.glt
+#gnuplot -persist plot_sum.glt

@@ -13,22 +13,20 @@ subroutine hrcxq() bind(C)
   !    (3) During the main loop, a few of module variables are rewritten by module functions
   !        (tetrahedron weight, matrix elements ...). Be careful, and clarify it.
   !    (4) Do now write long fortran program. One MPI loop and one OpenMP loop.
-  use m_ReadEfermi,only: Readefermi,ef
-  use m_readqg,only: Readngmx2,ngpmx,ngcmx
+  use m_ReadEfermi,only: Readefermi !,ef
+  use m_readqg,only: Readngmx2!,ngpmx,ngcmx
   use m_hamindex,only: Readhamindex
   use m_readeigen,only: Init_readeigen,Init_readeigen2,Readeval
-  use m_read_bzdata,only:Read_bzdata,nqbz,nqibz,n1,n2,n3,ginv,dq_,qbz,wbz,qibz,wibz, ntetf,idtetf,ib1bz, qbzw,nqbzw,q0i,nq0i,nq0iadd !for tetrahedron   !     &     idteti, nstar,irk,nstbz
-  use m_genallcf_v3,only: Genallcf_v3,natom,nspin,nl,nn,nlnmx,nctot,alat,il,in,im,nlnm,plat,pos,ecore,&
-       nband
-  use m_rdpp,only: Rdpp,nxx,lx,nx,mdimx,nbloch,cgr,ppbrd ,nblochpmx,mrecl,nprecx ! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
+  use m_read_bzdata,only:Read_bzdata, nq0i,nq0iadd,nqibz,q0i 
+  use m_genallcf_v3,only: Genallcf_v3
+  use m_rdpp,only: Rdpp, mrecl,nblochpmx,nprecx ! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
   use m_zmel,only: Mptauof_zmel !Set data for "call get_zmelt" zmelt= matrix element <phi |phi MPB>.
-  use m_itq,only: Setitq !set itq,ntq,nband,ngcmx,ngpmx to m_itq
-  use m_freq,only: Getfreq2,frhis,freq_r,freq_i,nwhis,nw_i,nw,npm,niw ! Frequency !output of getfreq
-  use m_tetwt,only: Tetdeallocate,Gettetwt,whw,ihw,nhw,jhw,ibjb,nbnbx,nhwtot,n1b,n2b,nbnb
-  use m_w0w0i,only:       W0w0i,    w0,w0i,llmat   !      use m_readq0p,only:     Readq0p,  wqt,q0i,nq0i ,nq0iadd,ixyz
-  use m_readgwinput,only: ReadGwinputKeys,egauss,ecut,ecuts,mtet,ebmx,nbmx,imbas
-  use m_qbze,only:    Setqbze,nqbze,nqibze,qbze,qibze
-!  use m_readhbe,only: Readhbe,nband !,nprecb,mrecb,mrece,nqbzt,nband,mrecg !  use m_eibz,only:    Seteibz,nwgt,neibz,igx,igxt,eibzsym
+  use m_itq,only:  Setitq 
+  use m_freq,only: Getfreq2,frhis,freq_r,freq_i,nw_i,nw,npm,niw ! Frequency !output of getfreq
+  use m_tetwt,only: Tetdeallocate,Gettetwt 
+  use m_w0w0i,only: W0w0i 
+  use m_readgwinput,only: ReadGwinputKeys 
+  use m_qbze,only:  Setqbze,nqbze,nqibze,qbze,qibze
   use m_x0kf,only: x0kf_zxq,deallocatezxq,deallocatezxqi
   use m_llw,only: WVRllwR,WVIllwI,w4pmode,MPI__sendllw
   use m_mpi,only: MPI__Initialize,MPI__root,MPI__rank,MPI__size,MPI__consoleout,comm, &

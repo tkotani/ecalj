@@ -5,17 +5,22 @@ parser = argparse.ArgumentParser(prog='InstallAll',description=
 '''
 Install ecalj and run tests. Instead of InstallAll, we will use InstallAll.py
 ''')
-parser.add_argument("-np",    help='number of mpi cores',default=8,type=int)
+parser.add_argument("-np",    help='number of mpi cores for install test',default=8,type=int)
 parser.add_argument('--clean',help='Clean CMakeCache CMakeFiles before make',action='store_true')
 parser.add_argument('--gpu'  ,help='nvfortran for GPU',action='store_true')
 parser.add_argument('--bindir' ,help='ecalj binaries and scripts',type=str,default='bin')
 parser.add_argument('--fc'   ,help='fortran compilar  gfortran/ifort/nvfortran',type=str,required=True)
 parser.add_argument('--notest' ,help='no test. only compile',action='store_true')
-parser.add_argument('--verbose' ,help='verbose on ',action='store_true')
+parser.add_argument('--verbose' ,help='verbose on for debug',action='store_true')
+#parser.add_argument('--debug' ,help='debug',action='store_true')
 args=parser.parse_args()
 
 def main():
-    BUILD_TYPE = "Release"    # = "Debug"
+#    if(args.debug):
+#        BUILD_TYPE = "Debug"    # = "Debug"
+#    else:
+#        BUILD_TYPE = "Release"    # = "Debug"
+    
     CWD =os.getcwd()
     HOME=os.getenv('HOME')
     BINDIR = os.path.join(HOME,args.bindir) #os.path.join(HOME, 'bin')  # Make directory for ecalj binaries and scripts.
@@ -32,7 +37,7 @@ def main():
     print(f"Going to install required binaries and scripts to {BINDIR}")
     start0_time = time.time()
     # Make links
-    for scr in ['StructureTool/viewvesta', 'StructureTool/ctrl2vasp', 'StructureTool/vasp2ctrl','GetSyml/getsyml']:
+    for scr in ['StructureTool/viewvesta', 'StructureTool/refineposcar', 'StructureTool/ctrl2vasp', 'StructureTool/vasp2ctrl','GetSyml/getsyml']:
         src   = os.path.join(CWD, scr+'.py')
         slink = os.path.join(BINDIR, scr.split('/')[-1])
         if os.path.exists(os.path.join(BINDIR, slink)):
@@ -48,7 +53,7 @@ def main():
         if os.system(f'{verbose}make -j 32') != 0: 
             if os.system(f'{verbose}make -j 32') != 0: sys.exit(1)
     elif(FC in ["gfortran", "ifort", "nvfortran"]):
-        if os.system('FC={FC} cmake .') != 0: sys.exit(1)
+        if os.system(f'FC={FC} cmake .') != 0: sys.exit(1)
         if os.system(f'{verbose}make -j')          != 0: sys.exit(1)
     else:
         print('Check InstallAll')

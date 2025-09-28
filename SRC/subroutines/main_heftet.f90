@@ -6,7 +6,7 @@ contains
   subroutine heftet() bind(C)! Calculates the Fermi energy by tetrahedron method. 
     use m_read_bzdata,only: read_bzdata, idteti,qbz,qibz,dq_,nqibz,ntetf,nteti,ginv,nqbz
     use m_genallcf_v3,only: genallcf_v3,natom,nspin,nl,nn,nnv,nnc,nlnmx, nctot,niw,nspx
-    use m_genallcf_v3,only: alat, delta,deltaw,esmr, plat, pos,z,ecore, konf,nlnx,valn=>qval
+    use m_genallcf_v3,only: alat, deltaw,esmr, plat, pos,z,ecore, konf,nlnx,valn=>qval
     use m_hamindex,only:   Readhamindex,qtt,nqtt
     use m_readeigen,only: init_readeigen,readeval
     use m_tetrakbt,only: tetrakbt_init, kbt

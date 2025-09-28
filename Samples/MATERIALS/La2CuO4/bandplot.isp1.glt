@@ -1,0 +1,32 @@
+set terminal postscript enhanced color eps
+set output "bandplot.isp1.band.eps"
+set xzeroaxis
+set grid
+set ylabel "Energy-Efermi(eV)"
+# This is given written in subroutine writeband in lm7K/fp/bndfp.F
+set title "Band la2cuo4swj at /home/takao/Xiaoting/testsmearx0_001/QSGW.20run"
+set yrange [   -5.00000:    4.00000]
+set xrange [0.0:     1.02132]
+set xtics ('GAMMA'   0.0000000000,\
+'X'   0.1869811940,\
+'P'   0.2247207458,\
+'N'   0.3569364160,\
+'GAMMA'   0.4944328058,\
+'M'   0.5699119094,\
+'S|S_0'   0.6913552274,\
+'GAMMA|X'   0.8343432498,\
+'R|G'   0.8495776564,\
+'M'   1.0213244438)
+tpia=2*3.1415926/     1.88973
+plot \
+"bnd001.spin1" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd002.spin1" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd003.spin1" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd004.spin1" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd005.spin1" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd006.spin1" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd007.spin1" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd008.spin1" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd009.spin1" u ($2):($3) lt 1 pt 1 w lp 
+set terminal x11
+replot

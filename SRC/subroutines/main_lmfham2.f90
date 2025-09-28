@@ -396,7 +396,8 @@ contains
             endif
           enddo
           if((isc==1.or.convn.or.isc==nsc1)) then !.and.iq==1)then
-            aaa=merge('auto.given by CUouter='//ftof(CUouter),repeat(' ',256), eUouterauto)
+            aaa=repeat(' ',256)
+            if( eUouterauto) aaa='auto.given by CUouter='//ftof(CUouter)
             write(stdo,ftox)' eUouter=',ftof((eUouter-eferm)*rydberg(),3),'eV',trim(aaa)
             aaa=''
             if(eUinnerauto) aaa='auto.default'//' EUinner by proj>CUinner='//ftof(CUinner)

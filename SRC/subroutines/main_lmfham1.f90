@@ -49,7 +49,7 @@ contains
   eww  = eww  /rydberg()
   call readqplistsy()      ! When symlcase=T, read qplist.dat (q points list, see bndfp.F).
   call set_qibz(plat,qplist,nkp,symops,ngrp) ! Setup m_setqibz_lmfham
-  
+
 ! !!! delta fun check for FFT: k --> T --> k ! \delta_{kk'} = \sum_{T \in T(i,j)} W_T exp( i (k-k') T)
 !   do ikpd=1,nkp
 !      write(stdo,*)'test for ikpd=',ikpd

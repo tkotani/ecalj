@@ -1,5 +1,6 @@
 !> Ititial data for lmf lmchk lmfa read from ctrlp file
 !> pos can be from AtomPos (see lmfp.f90)
+
 module m_lmfinit ! 'call m_lmfinit_init' sets all initial data from ctrl are processed and stored in m_lmfinit_init.
   use m_ftox !for write(*,ftox) ftof(values)
   use m_ext,only :sname        ! sname contains extension. foobar of ctrl.foobar
@@ -25,7 +26,7 @@ module m_lmfinit ! 'call m_lmfinit_init' sets all initial data from ctrl are pro
   logical,public,protected :: ham_frzwf,ham_ewald, lhf,bz_tetrahedron, addinv,&
        readpnu,v0fix,pnufix,bexist,rdhessr, lpztail=.false., afsym,phispinsym !, readpnuskipf
   real(8),public,protected:: pmin(n0)=0d0,pmax(n0)=0d0,tolft,scaledsigma, ham_oveps,ham_scaledsigma, cc,&!speed of light
-       dlat,alat=NULLR,dalat=NULLR,vol,avw,vmtz(mxspec)=-.5d0,&
+       dlat,alat=NULLR,vol,avw,vmtz(mxspec)=-.5d0,& !,dalat=NULLR
        bz_efmax,bz_zval,bz_fsmom,bz_semsh(10),zbak,bz_range=5d0,bz_dosmax,&
        lat_as,lat_tol,lat_rpad=0d0, str_rmax=nullr, etol,qtol,mix_tolu,mix_umix, pwemax,oveps,& !,pwemin=0d0
        ham_seref, bz_w,lat_platin(3,3),lat_alat,lat_avw,lat_tolft,lat_gmaxin,socaxis(3), xtolr,gtolr,stepr, wtinit(2),wc,betainit 
@@ -89,7 +90,9 @@ contains
     !         rfoca= rfoca(j) !smoothing radius for frozen core overlap approx
     !         lfoca= lfoca(j) !lfoca=1,usually (frozen core mode)
     !         rg=    rg(j)   !rsm for gaussians to fix multipole moments
-    
+    ! rg=rsmg: is the moothing radius for Gaussians. See below.
+
+
     !  MTO is specified by (n,l,m). (n=1,2,3. n=1:EH1, n=2:EH2, n=3:PZ)
     !   nbas  :number of atoms in the basis
     !   nkaphh :The maximum number of radial functions centered at particular R and l channel used in the lmto basis. 
@@ -171,7 +174,7 @@ contains
       call rval2('IO_VERBOS' , rr=rr, defa=[real(8)::  30]); verbos=nint(rr)
       call rval2('IO_TIM'    , rr=rr, defa=[real(8)::  1 ]); io_tim=nint(rr)
       call rval2('STRUC_ALAT', rr=rr, nout=n);  alat=rr  !   lattice parameter, in a.u.
-      call rval2('STRUC_DALAT',rr=rr, nout=n);  dalat=rr !adding to ALAT
+!      call rval2('STRUC_DALAT',rr=rr, nout=n);  dalat=rr !adding to ALAT
       call rval2('STRUC_PLAT', rv=rv, nreq=9);  plat=reshape(rv,shape(plat))
       call rval2('OPTIONS_HF' ,rr=rr, defa=[real(8):: 0]);  lhf= nint(rr)==1 ! for non-self-consistent Harris'
       call rval2('HAM_REL',    rr=rr, defa=[real(8):: 1]);  lrel=nint(rr)!lrel=0 non relativistic. lrel=1 scalar relativistic
@@ -195,8 +198,12 @@ contains
       call rval2('HAM_READP', rr=rr, defa=[real(8):: 0]); readpnu= nint(rr)==1
       call rval2('HAM_PHISPINSYM', rr=rr, defa=[real(8):: 0]); phispinsym= nint(rr)==1 !spin symmetric radial function
 !      call rval2('HAM_READPSKIPF', rr=rr, defa=[real(8):: 1]); readpnuskipf= nint(rr)==1
-      call rval2('HAM_V0FIX', rr=rr, defa=[real(8):: 0]); v0fix =  nint(rr)==1
-      call rval2('HAM_PNUFIX',rr=rr,defa=[real(8):: 0]); pnufix=  nint(rr)==1
+!      call rval2('HAM_V0FIX', rr=rr, defa=[real(8):: 0]); v0fix =  nint(rr)==1
+      call rval2('HAM_PNUFIX',rr=rr, defa=[real(8):: 0]); pnufix=  nint(rr)==1
+      if(cmdopt0('--v0fix')) then
+        v0fix=.true.
+        pnufix=.true.
+      endif  
       avw = avwsr(plat,alat,vol,nbas) !vol cell volume
       specloop: do j=1,nspec !SPEC_ATOM j is spec index. In SPEC category, we do j=j+1 after we find ATOM=xx. See ctrl2ctrlp.py
          if(master_mpi) write(stdo,"(a,g0)")'=== SPEC =',j
@@ -290,7 +297,14 @@ contains
       call rval2('SYMGRP', ch=ch); symg=adjustl(ch) ! Generators for symmetry group'
       call rval2('SYMGRPAF', ch=ch); symgaf=adjustl(ch) ! Extra Generator for adding anti ferro symmetry'
       afsym=merge(.true.,.false., len_trim(symgaf)/=0.and.lso/=1)
-      
+
+! 4 EWALD
+! Category EWALD holds information controlling the Ewald sums for structure constants entering into, e.g. the Madelung summations. The defaults are usually adequate; for a detailed description the reader is referred to documentation on the Madelung sums.
+! 4.1 NKDMX= the maximum number of real-space lattice vectors
+! entering into the Ewald sum, used for memory allocation. Normally you should not need this token. Increase NKDMX if you encounter an error message like xlgen: too many vectors, n=…
+! 4.2 AS= controls the relative number of lattice vectors in real
+! and reciprocal space.
+! 4.3 TOL= error criterion for the Ewald sums.
       call rval2('EWALD_TOL',rr=rr,defa=[1d-8]); lat_tol=rr !'Ewald tolerance')
       lat_as    = 2d0   !call rval2('EWALD_AS',rr=rr,defa=[2d0]);   lat_as=rr  !'Ewald smoothing parameter
       lat_nkdmx = 10000 !call rval2('EWALD_NKDMX',rr=rr,defa=[real(8):: 300]); lat_nkdmx=nint(rr) !'Ewald tolerance'
@@ -366,8 +380,9 @@ contains
          i0 = 0
          call rmesh(z(j),rmt(j),lrel,.false.,nrmx,spec_a(j),i0)
          call poppr
-         rg(j)   = 0.25d0*rmt(j)
-         rfoca(j)= 0.4d0*rmt(j)
+         rg(j)   = 0.25d0*rmt(j) !smoothing radius for Gaussians added to sphere densities to correct multipole moments needed for electrostatics. Value should be as large as possible but small enough that the Gaussian doesn't spill out significantly beyond rmt.
+         !Default: R/4, with R=augmentation (muffin-tin) radius. 
+         rfoca(j)= 0.4d0*rmt(j) !smoothing radius fitting tails of core density. A large radius produces smoother interstitial charge, but less accurate fit. Default: R*0.4, with R=augmentation (muffin-tin) radius. 
          if(nr(j) == 0) nr(j) = i0
          call rxx( nr(j)         > nrmx,'m_lmfinit: increase nrmx')
          call rxx((lmxl(j)+1)**2 > nlmx,'m_lmfinit: increase nlmx')!nlml
@@ -377,7 +392,8 @@ contains
          if(nnx>0.and.sum(floor(pzsp(1:lmxa(j)+1,1,j)/10))>0 ) lpzex(j)=1
          if(maxval(pzsp(1:n0,1,j))>10d0) lpztail= .TRUE. ! PZ +10 mode exist or not.
          nkaphh(j) = nkapii(j) + lpz(j) !number of radial basis of MTOs for j.
-      enddo nspecloop0
+       enddo nspecloop0
+       
       PnuQnuSetting: do 1111 j = 1, nspec ! Radial mesh parameters: determine default value of a
          if (lmxa(j)==-1) cycle
          !Pnu is fractional quantum number. For example, P=4.56; 4 is principle quantum number (nodenum-l);
@@ -464,8 +480,8 @@ contains
       lmxax = maxval(lmxa) !Maximum L-cutoff
       maxit=iter_maxit
       nlmax=(max(lmxbx,lmxax)+1)**2
-      if (dalat == NULLR) dalat=0d0
-      lat_alat=alat+dalat
+!      if (dalat == NULLR) dalat=0d0
+      lat_alat=alat !+dalat
       lat_avw=avw
       lat_nkqmx=lat_nkdmx
       lat_platin=plat

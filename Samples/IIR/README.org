@@ -5,15 +5,10 @@ For this, we use hybrid QSGW (Deguchi,10.7567/JJAP.55.051201), 20 percent LDA in
 Then we run one-show GW calculations where we calcualte self-energy with dense k point mesh.
 
 ** Step 0.
-Install ecalj
-In principle, read ecalj/README.org. But it may be still confusing.
-Just push ./Install.ifort at ecalj/.
-Then ./Install.ifort does install and test. It may take ~10 minutes.
-For band plot along symmetry line See Getsyml described in README.org.
+Install ecalj. See ecaljdoc https://ecalj.github.io/ecaljdoc/
 
 ** Step 1.
-Create C/ directory, while keep original C/ in the ecalj package somewhere.
-This is for diamond.
+Create C/ directory, while keep original C/ in the ecalj package somewhere. This is for diamond.
 Prepare crystal structure file ctrls.c file. Here .c is an extension for diamond.
 This contains only the crystal structure. 
 We can get it via conversion to VASP POSCAR format (thus cif=>POSCAR=>ctrl).
@@ -29,6 +24,8 @@ SITE
 -------------------------
 
 ** Step 2. LDA band calculation
+See https://ecalj.github.io/ecaljdoc/
+
 Convert this to ctrl.c by
 >ctrlgenM1.py c
 >cp ctrlgenM1.ctrl.c ctrl.c
@@ -40,15 +37,17 @@ Then we run
 >lmfa
 , which is to generate spherical atom data for band structure calculation.
 atm* atmpnu* are used in the followings.
->mpirun -np 4 lmf-MPIK c
+>mpirun -np 4 lmf c
 Main part of band calculation. save.c show info for iteration summary.
 >getsyml c
 (currently, showing BZ may not work. But stop it and have syml.c for symmetry line of BZ).
 >job_band c -np 4
 At this point, we should have band structure plot correctly in LDA.
 
+
 ** Step 3. QSGW band calculation
-   Set ssig=0.8 in ctrl.c file. This is QSGW80(20 percent of LDA xc term included).
+https://ecalj.github.io/ecaljdoc/
+Set ssig=0.8 in ctrl.c file. This is QSGW80(20 percent of LDA xc term included).
 (ssig do not affect to LDA calculation. So, we can set this in advance).
 >mkGWinput c
 This quickly generates GWinput.tmp for GW kinds of calculations.
@@ -73,21 +72,36 @@ We need to keep atmpnu* (logarismic derivative at Muffin-tin boundary).
 In cases NTQXX causes a problem (when you change setting of comutational condition), then delete NTQXX 
 (number of bands for which we calcuate XC_QSGW).
 
+
 ** Step 4. QPE_life energy
 Let us make another directory as C121212GW/.
 From C/, copy GWinput, ctrl.c, rst.c, sigm.c, atmpnu.*.c to C121212GW/.
-(At C1212GW/, we can run >mpirun -np 4 lmf-MPIK c to reproduce final results).
+(At C1212GW/, we can run >mpirun -np 4 lmf c to reproduce final results).
 All XC_QSGW is in sigm.c.
 
 Then edit GWinput file for GW calculation for diagonal elements only but including imaginary part.
 We set 
 1. 12 12 12 k points.
 2. lcutmx =2 for atoms (light atoms) to have computational time. This sets somehow automatic.
-3. number of bands at which we calculate self-energy in <QPNT> section. Our example is
-   for 12 bands from index 1 to index 12.
+
+xxx 3. number of bands at which we calculate self-energy in <QPNT> section. Our example is
+xxx   for 12 bands from index 1 to index 12.
+
+3. Set EMAXforGW
+(2025-08-08. I think GWinput need to be modified because <QPNT> did not work.
+Instead, I think we need to set
+---
+EMAXforGW 30 !eV
+---
+in GWinput
+
 Take
 >diff C/GWinput C121212GW/GWinput
 to know how to modify GWinput.
+
+Set
+QforGWIBZ on 
+in GWinput to calculate all irreducible q points (2025-8-20). 
 
 Main job is run by gw_lmfh by gw_lmfh. An example of qsub script is
 ----------------------------------

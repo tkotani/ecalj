@@ -1,4 +1,3 @@
-#originally shota takano 2025
 import os,sys,shutil,re
 from pathlib import Path
 import pandas as pd
@@ -17,73 +16,36 @@ def get_float(value):
     else:
         return float(value)
 
-#parser = argparse.ArgumentParser(description="Run QSGW")
-#parser.add_argument('--config', type=Path, default=Path(__file__).resolve().parent/'config.ini', help='Path to the config.ini')
-#print('ppp path=',Path(__file__).parent.resolve()/'config.ini')
-#parser.add_argument('--config', type=Path, default=opath/'config.ini')
-#args, remaining_argv = parser.parse_known_args()
-
-'''python script for qsub. jobx.foobar script calls this script.
-   This is called once from each qsub process. As shown in the schedule in joblist.*,
-   we run calculations for each material.
-'''
-
-class Args:
-    pass
-args = Args()
-
-# Readin from augments
 parser = argparse.ArgumentParser(description="Run QSGW")
-parser.add_argument('--dir', type=Path, default=Path(__file__).resolve().parent, help='Output directory')
-parser.add_argument('--file', type=str, default=None, help='Listfile of mpid. only 1 file is allowed')
-aarg=parser.parse_known_args()
-args.file=aarg[0].file
-args.dir=aarg[0].dir
-print('args.file=',args.file)
-print('args.dir=',args.dir)
-
-# Readin from config.ini
+#parser.add_argument('--config', type=Path, default=Path(__file__).resolve().parent.parent/'config.ini', help='Path to the config.ini')
+parser.add_argument('--config', type=Path, default=Path(__file__).parent.resolve()/'config.ini')
+args, remaining_argv = parser.parse_known_args()
 config = configparser.ConfigParser()
-config_path = args.dir / 'config.ini'
-config.read(config_path)
-config = config['RUNjob'] 
-args.epath = Path(config.get('epath'))
-args.poscar = Path(config.get('ppath'))
-args.autopath = Path(config.get('autopath'))
-args.apikey = config.get('apikey')
-args.niter = config.getint('niter')
-args.ncore = config.getint('ncore')
-args.bnd4all = config.getboolean('bnd4all')
-args.gw80 = config.getboolean('gw80')
-args.koption = config.getint('koption')
-args.kratio = round(float(config.get('kratio')), 8)
-args.kkmesh = config.get('kkmesh')
-args.ldaonly = config.getboolean('ldaonly') 
+config.read(args.config)
+config = config['DEFAULT'] 
+# We copy config.get --- not so meaningful since 
 import ast
-if(config.get('kkmesh') is not None):args.kkmesh=ast.literal_eval(config.get('kkmesh'))
-print('kkmesh=',args.kkmesh,type(args.kkmesh))
-print(config.get('epath'))
+kkmesh=ast.literal_eval(config.get('kkmesh'))
+parser.add_argument('--epath', type=Path, default=Path(config.get('epath')), help='Path of ecalj package')
+parser.add_argument('--dir', type=Path, default=Path(__file__).resolve().parent, help='Output directory')
+parser.add_argument('--poscar', type=Path, default=Path(config.get('ppath')))
+parser.add_argument('--file', type=str, default=None, help='Listfile of mpid. only 1 file is allowed')
+parser.add_argument('--auto', type=Path, default=Path(__file__).resolve().parent)
+parser.add_argument('--apikey', type=str, default=config.get('apikey'))
+parser.add_argument('--niter', type=int, default=config.getint('niter'))
+parser.add_argument('--ncore', type=int, default=config.getint('ncore'))
+parser.add_argument('--bnd4all', type=bool, default=config.getboolean('bnd4all'))
+parser.add_argument('--gw80', type=bool, default=config.getboolean('gw80'))
+parser.add_argument('--koption', nargs='+', type=int, default=eval(config.get('koption')))
+parser.add_argument('--kratio', type=float, default=get_float(config.get('kratio')))
+parser.add_argument('--kkmesh', type=int, nargs=6, default=kkmesh)
+#parser.add_argument('--mpid', type=str, nargs='+', default=config.getint('mpid'))
+#parser.add_argument('--lmxa6', type=bool, default=False)
+args = parser.parse_args(sys.argv[1:]) #read auto directory.
+#print('args=',sys.argv[1:])
+print(args)
 
-# parser.add_argument('--epath', type=Path, default=Path(config.get('epath')), help='Path of ecalj package')
-# parser.add_argument('--dir', type=Path, default=Path(__file__).resolve().parent, help='Output directory')
-# parser.add_argument('--poscar', type=Path, default=Path(config.get('ppath')))
-# parser.add_argument('--file', type=str, default=None, help='Listfile of mpid. only 1 file is allowed')
-# parser.add_argument('--autopath', type=Path, default=config.get('autopath'))
-# parser.add_argument('--apikey', type=str, default=config.get('apikey'))
-# parser.add_argument('--niter', type=int, default=config.getint('niter'))
-# parser.add_argument('--ncore', type=int, default=config.getint('ncore'))
-# parser.add_argument('--bnd4all', type=bool, default=config.getboolean('bnd4all'))
-# parser.add_argument('--gw80', type=bool, default=config.getboolean('gw80'))
-# parser.add_argument('--koption', nargs='+', type=int, default=eval(config.get('koption')))
-# parser.add_argument('--kratio', type=float,        default=get_float(config.get('kratio')))
-# parser.add_argument('--kkmesh', type=int, nargs=6, default=kkmesh)
-# #parser.add_argument('--mpid', type=str, nargs='+', default=config.getint('mpid'))
-# #parser.add_argument('--lmxa6', type=bool, default=False)
-# #args = parser.parse_args(sys.argv[1:]) #read auto directory.
-# print('args=',sys.argv[1:])
-# print(args)
-
-sys.path.append(str(args.autopath))
+sys.path.append(str(args.auto))
 import creplot
 
 args.kratio = round(float(args.kratio), 8)
@@ -101,7 +63,6 @@ else:
 ### Set joblist
 job_dict = {}
 if args.file:
-    print('Reading joblist from', path_lst)
     with path_lst.open('r') as f:
         for line in f:
             if len(line.strip()) == 0:  continue
@@ -113,8 +74,7 @@ if args.file:
                 
     if path_log.exists():
         try:
-            #log_df = pd.read_csv(path_log, header=None, delim_whitespace=True, usecols=[0,1,8])
-            log_df = pd.read_csv(path_log, header=None, sep='\s+', usecols=[0,1,8])
+            log_df = pd.read_csv(path_log, header=None, delim_whitespace=True, usecols=[0,1,8])
             log_fin = log_df[log_df[1] == 'GW'][0].astype(str).tolist()  # GW calculations have already been done, regardless of convergence
             log_error = log_df[log_df[8] != 'c'][0].astype(str).tolist() # errors during the calculation of LDA/GW
 
@@ -159,71 +119,78 @@ def change_directory(path):
         yield
     finally:
         os.chdir(args.dir)
+
     
 for i in joblist:
-    num = i #    num = 'mp-'+i
+#    num = 'mp-'+i
+    num = i
     print()
     print('MATERIAL=', num)
     num_dir = args.dir / num
     num_dir.mkdir(exist_ok=True)
     starttime=datetime.datetime.now()
     ordering = job_dict.get(i, '')
-    koption = args.koption
-    print(' koption=',koption)    #kitmx=3    #for kadd in range(kitmx): # k point choices. Need fixing.
-    calc = creplot.Calc(num,args.epath,args.ncore)
-    nitmax=40
-    with change_directory(num_dir): #go into material directory
-        ### LDA
-        if Path('LDA').exists():
-            print('LDA calc. is already done! skip LDA calc. and go to QSGW calc.')
-            pass
-        else:
-            out_LDA, errcode = calc.run_LDA(args,args.apikey,koption,nitmax,ordering,args.poscar,dict_errcode)
-            # lmxa6 removed.
-            if errcode == 1: # something wrong in k-mesh. run calc. again
-                #if kadd== kitmx: # if the last k-mesh, save the result and go next
-                #    save_result(i, out_LDA, 'LDA', starttime)
-                continue
-            elif errcode == 0: # LDA converged or something wrong in calc. code
-                save_result(i, out_LDA, 'LDA', starttime)
-                if not out_LDA.startswith('c'):  # something wrong in the code. go next
-                    break
-        if(args.ldaonly): continue
-        
-        ### QSGW
-        starttime = datetime.datetime.now()
-        out_GW = calc.run_QSGW(args,args.niter, args.bnd4all, args.gw80, args.kratio)
-        save_result(i, out_GW, 'GW', starttime)
-        gap_GW = calc.gap_GW
-        if gap_GW is None: pass
-        elif gap_GW < 1e-5:
-            if calc.gap_LDA > 1e-4:
-                print('Run gwsc 3 more loop')
-                starttime = datetime.datetime.now()
-                out_GW = calc.run_QSGW(3, args.bnd4all, args.gw80, args.kratio)
-                save_result(i, out_GW, 'RepeatGW', starttime)
-        if not out_GW.startswith('x'): continue
 
-        ### error handling with x ### Not checked well
-        # 'x': maybe lack of k-mesh, then run LDA/GW with more k-volume
-        dir_save = '_'.join(map(str, calc.k_points))
-        if Path(dir_save).exists():
-            shutil.rmtree(dir_save)
+    kinit = args.koption
+    kitmx=3
+    for kadd in range(3): # k point choices. Need fixing.
+        k= kinit+ kadd*2
+        calc = creplot.Calc(num,args.epath,args.ncore)
+        if k == kinit: kkoption = [40, k] #40 is number of max iterations
+        else:          kkoption = [20, k] #20 is number of max iterations
+        #if kadd == 2: kkoption += ['-vtetra=F']
+
+        with change_directory(num_dir): #go into material directory
+            ### calc. LDA
+            if Path('LDA').exists():
+                print('LDA calc. is already done! skip LDA calc. and go to QSGW calc.')
+                pass
+            else:
+                out_LDA, errcode = calc.run_LDA(args,args.apikey,kkoption,ordering,args.poscar,dict_errcode)
+                # lmxa6 removed.
+                if errcode == 1: # something wrong in k-mesh. run calc. again
+                    if kadd== kitmx: # if the last k-mesh, save the result and go next
+                        save_result(i, out_LDA, 'LDA', starttime)
+                    continue
+                elif errcode == 0: # LDA converged or something wrong in calc. code
+                    save_result(i, out_LDA, 'LDA', starttime)
+                    if not out_LDA.startswith('c'):  # something wrong in the code. go next
+                        break
+
+            ### calc. QSGW
+            starttime = datetime.datetime.now()
+            out_GW = calc.run_QSGW(args,args.niter, args.bnd4all, args.gw80, args.kratio)
+            save_result(i, out_GW, 'GW', starttime)
+            gap_GW = calc.gap_GW
+            if gap_GW is None: pass
+            elif gap_GW < 1e-5:
+                if calc.gap_LDA > 1e-4:
+                    print('Run gwsc 3 more loop')
+                    starttime = datetime.datetime.now()
+                    out_GW = calc.run_QSGW(3, args.bnd4all, args.gw80, args.kratio)
+                    save_result(i, out_GW, 'RepeatGW', starttime)
+            if not out_GW.startswith('x'): break
+
+            # 'x': maybe lack of k-mesh, then run LDA/GW with more k-volume
+            dir_save = '_'.join(map(str, calc.k_points))
+            if Path(dir_save).exists():
+                shutil.rmtree(dir_save)
             shutil.copytree('.', dir_save)
-        if Path('osgw.out').exists():
-            shutil.copy('osgw.out', dir_save)
+            if Path('osgw.out').exists():
+                shutil.copy('osgw.out', dir_save)
             print(f'information are stored in {dir_save}')
-        # clear files which are already stored in {dir_save}
-        for f in Path('.').glob('*'):
-            if f.is_file():
-                f.unlink()
-        for f in Path('LDA').glob('*'):
-            if not f.match('rst.*'):
-                shutil.copy(f, Path('.'))
-                shutil.rmtree('LDA')
-        for run_iter_dir in Path('.').glob('QSGW.*run'):
-            if run_iter_dir.is_dir():
-                shutil.rmtree(run_iter_dir)
-        continue
+
+            # clear files which are already stored in {dir_save}
+            for f in Path('.').glob('*'):
+                if f.is_file():
+                    f.unlink()
+            for f in Path('LDA').glob('*'):
+                if not f.match('rst.*'):
+                    shutil.copy(f, Path('.'))
+            shutil.rmtree('LDA')
+            for run_iter_dir in Path('.').glob('QSGW.*run'):
+                if run_iter_dir.is_dir():
+                    shutil.rmtree(run_iter_dir)
+            continue
             
 fout.close()

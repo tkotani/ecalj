@@ -45,6 +45,7 @@ contains
   end subroutine getqforgw
   subroutine getqonly()
     integer:: ret,nnx,ip,is,k,ifqpnt
+    logical:: ibzqq
     real(8),allocatable::eqt(:)
     real(8)::qq(3)
     call getkeyvalue("GWinput","<QforGW>",unit=ifqpnt,errstop='off',status=ret)
@@ -61,7 +62,8 @@ contains
        close(ifqpnt)
     endif
     write(6,*)' Readin from QforGW :nq=',nq
-    if(nq==0) then
+    call getkeyvalue("GWinput","QforGWIBZ",ibzqq,default=.false.)
+    if(nq==0.or.ibzqq) then
        nq=nqibz
        allocate(qx(3,nq),source= qibz(1:3,1:nq))
     else    
