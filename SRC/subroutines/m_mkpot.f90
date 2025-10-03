@@ -126,7 +126,7 @@ contains
     if(master_mpi) write(stdo,"('m_mkpot_energyterms')")
     if(allocated(fes2_rv)) deallocate(fes2_rv)
     allocate(fes2_rv(3*nbas))
-    call mkpot(0, smrho_out,orhoat_out, osmpot,fes2_rv) !job=0 is for no augmentation term
+    call mkpot(0, smrho_out,orhoat_out, osmpot,fes2_rv) !job=0 is for no augmentation term and for no v0pot revision.
     call tcx('m_mkpot_energyterms')
   end subroutine m_mkpot_energyterms
   subroutine m_mkpot_deallocate()

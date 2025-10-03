@@ -133,7 +133,7 @@ contains
       spid=slabl(is) 
       zz(ib)=z
       nlml = (lmxl+1)**2
-      lfltwf = (.not.frzwfa(is)).and.(.not.ham_frzwf) !.and.job==1 ! modify b.c. of Rad.wave func.
+      lfltwf = (.not.frzwfa(is)) .and. (.not.ham_frzwf) .and.job==1 ! modify b.c. of Rad.wave func.
       j1 = jnlml(ib)
       !r   sig and tau are l diagonal, ppi is full matrix
       !r   Thus integral (P~_kL P~_k'L' - P_kL P_k'L') is diagonal in LL', sig(nf1,nf2,0..lmax) with lmax the l-cutoff
