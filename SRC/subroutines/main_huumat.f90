@@ -52,7 +52,7 @@ subroutine h_uumatrix()
   complex(8):: phaseatom,aaa,bbb
   logical:: qbzreg, lbnds,cmdopt2,cmdopt0
   character(8) :: xt,head(2:3,2)
-!  character(4) charnum4
+  character(4) charnum4
   character*7:: charnum7
   character(20):: outs=''
   call MPI__Initialize()
@@ -166,7 +166,11 @@ subroutine h_uumatrix()
   head(3,1:2)=['UUq0U.','UUq0D.']
   if(mpi__root) then
     do isp=1,nspx
-      open(newunit=ifuu(isp),file=trim(head(ixc,isp))//charnum7(0),form='unformatted')
+      if(cmdopt0('--ahc')) then
+        open(newunit=ifuu(isp),file=trim(head(ixc,isp))//charnum7(0),form='unformatted')
+      else
+        open(newunit=ifuu(isp),file=trim(head(ixc,isp))//charnum4(0),form='unformatted')
+      endif
       if(ixc==2)then
         write(ifuu(isp))'nqbz,nbb,iko_ixs(isp),iko_fxs(isp)',isp
         write(ifuu(isp))nqbz,nbb,iko_ixs(isp),iko_fxs(isp)
@@ -276,7 +280,11 @@ subroutine h_uumatrix()
       if(irotg(iqbz)/=1)  cycle !only irreducible q point
     endif  
     do isp=1,nspx
-      open(newunit=ifuu(isp),file=trim(head(ixc,isp))//charnum7(iqbz),form='unformatted')
+      if(cmdopt0('--ahc')) then
+        open(newunit=ifuu(isp),file=trim(head(ixc,isp))//charnum7(iqbz),form='unformatted')
+      else
+        open(newunit=ifuu(isp),file=trim(head(ixc,isp))//charnum4(iqbz),form='unformatted')
+      endif
     enddo
     if (ixc == 2) nbbloop = nbb
     if (ixc == 3) nbbloop = nq0i
