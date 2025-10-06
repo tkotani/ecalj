@@ -93,13 +93,13 @@ def diffnum(f1,f2,tol,comparekeys):
     if(errmax<tol):
         print(' Comparison OK!  MaxDiff=',errmax,'< tol=',tol,' for ', os.path.basename(f2))
         out='ok! '
-        aaa='PASSED! '+f2.split('work/')[1]
+        aaa='PASSED! '+f2 #.split('work/')[1]
     else:
         print()
         print() 
         print(' Error! MaxDiff=',errmax,'> tol=',tol,' for ', os.path.basename(f2))
         out='err! '
-        aaa='FAILED at '+f2.split('work/')[1]
+        aaa='FAILED at '+f2 #.split('work/')[1]
     with open("summary.txt", "a") as aout: print(aaa, file=aout)
     return out
 
@@ -137,13 +137,13 @@ def dqpu(f1,f2):
         if(errmax<etol):
                 print(' Comparison OK! max(abs(QPU-QPU))=',errmax,' <etol=',etol,'for',os.path.basename(f2))
                 out='ok! '
-                aaa='PASSED! '+f2.split('work/')[1]
+                aaa='PASSED! '+ f2 #f2.split('work/')[1]
         else:
                 errmax = compareqpu(qpu1,qpu2, printsw=1)
                 print() 
                 print(' Error! max(abs(QPU-QPU))=',errmax,'>etol=',etol,'for',os.path.basename(f2))
                 out='err! '
-                aaa='FAILED at '+f2.split('work/')[1]
+                aaa='FAILED at '+f2 #.split('work/')[1]
         with open("summary.txt", "a") as aout: print(aaa, file=aout)
         return out
 
