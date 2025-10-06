@@ -70,9 +70,9 @@ def main():
     
     # Install test
     print('=== goto test ===')
-    os.chdir(f'{CWD}/SRC/TestInstall')
+    os.chdir(f'{CWD}/Samples/TestInstall')
     start_time = time.time()
-    os.system(f'./testecalj.py -np {ncore} ')
+    os.system(f'{BINDIR}/testecalj -np {ncore} ')
     end_time = time.time()
     elapsed_time = end_time - start_time
     elapsed0_time = start_time-start0_time

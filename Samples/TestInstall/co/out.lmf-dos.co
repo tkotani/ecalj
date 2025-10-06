@@ -1,0 +1,2 @@
+An example of usage: job_pdos si -np 4 [options for lmf]
+   For example, [options for lmf] is ' -vnspin=2 -vso=1 -vnk1=10 -vnk2=10 -vnk3=10'
