@@ -37,10 +37,12 @@ def compall(f1in,f2in,tol):
     f2= open(f2in,'rt').read().split('\n')
     diff=0
     for ifnum,ifi in enumerate(f1):
+        #print(f1[ifnum])
         iline1=re.split(r'\s+',f1[ifnum])
         iline2=re.split(r'\s+',f2[ifnum])
         #print(ifnum, iline1, iline2)
-        if(iline1[0][0:1]=='#'): continue
+        if re.match(r'^\s*#', f1[ifnum]): continue
+        #if(iline1[0][0:1]=='#'): continue
         iline1=[float(i) for i in iline1 if i!=''] #and float(i)!=0]
         iline2=[float(i) for i in iline2 if i!=''] #and float(i)!=0]
         #print(ifnum, iline1, iline2)

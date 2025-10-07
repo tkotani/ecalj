@@ -1,4 +1,3 @@
-import os
 from comp import test1_check,test2_check,runprogs
 def test(args,bindir,testdir,workdir):
     np4=' -np '+args.np+' '
