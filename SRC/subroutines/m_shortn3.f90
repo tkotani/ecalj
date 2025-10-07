@@ -203,7 +203,7 @@ contains
     integer :: npfac,pfac(10),fmax,i,indx,iprint,i1,i2,i3,nn,nmin,nmx(3),nmxn(3),k,ngabcn(3),ngn,nginit,PRTG,kxx(1,1)
     double precision :: gmaxn,xx,q(3),gmax0,qlat(3,3),tpiba,facg,tolg,s1,s2,s3,ddot,gxx(1,1)
     character(256) :: outs
-    parameter (fmax=6000,tolg=1d0,PRTG=30)
+    parameter (fmax=600,tolg=1d0,PRTG=30)
     integer :: mshlst(0:3*fmax)
     logical:: fullmesh
     call tcn('mshsiz')

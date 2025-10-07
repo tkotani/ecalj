@@ -53,7 +53,9 @@ subroutine gtbsl1(mode,norb,ltab,ktab,rsmh,eh, ntab,blks)
      do  jorb = iorb+1, norb
         kj = ktab(jorb)
         lj = ltab(jorb)
-        if (lreqr.and.(abs(eh(lj+1,kj)-eh(li+1,ki))>eps.or.abs(rsmh(lj+1,kj)-rsmh(li+1,ki))>eps)) exit
+        if (lreqr) then
+          if((abs(eh(lj+1,kj)-eh(li+1,ki))>eps.or.abs(rsmh(lj+1,kj)-rsmh(li+1,ki))>eps)) exit
+        endif
         if (.not.(lj==lk+1.and.kj==kk)) exit
         ntab(iorb) = jorb !   Increment upper limit
         ntab(jorb) = 0

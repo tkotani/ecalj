@@ -423,8 +423,9 @@ contains
                       do in=1,nband_k !For in at k, we look for inbb at k+b. inbb(-1),inbb(1) is lowest and highest.
                         if(ekxx0(in)>1d6) cycle    ! 1d6 for eigenvalue is skip data padding (no data for given in).
 
-                        Bandmatching: block !inbb(0,ibb,in):center 
-                          real(8),parameter::epsdege=1d-4 !Ry !degeneracy
+                        ! cycle in the block cause the complier error in ifx
+                        ! Bandmatching: block !inbb(0,ibb,in):center 
+                        !   real(8),parameter::epsdege=1d-4 !Ry !degeneracy
                           ! integer:: nww=4  !2,5, Maybe smaller for denser mesh
                           ! real(8):: cutuu=.3d0       !.3   Maybe larger(1 is max) for denser mesh.　
                           if(abs(uumat_k(in,in,ibb,k,isp_k))<cutuu) then
@@ -445,7 +446,7 @@ contains
                           ! Range of degenerated bands inbb-1 to inbb 1. ekxx(inbb0)-epsdege < ekxx(i,ibb) < ekxx(inbb0)
                           inbb(-1,ibb,in)= findloc( ekxx(:,ibb)-ekxx(inbb(0,ibb,in),ibb)>-epsdege,value=.true.,dim=1)            !-1:left end
                           inbb( 1,ibb,in)= findloc( ekxx(:,ibb)-ekxx(inbb(0,ibb,in),ibb)<epsdege,value=.true.,dim=1,back=.true.) ! 1:right end
-                        endblock Bandmatching
+                        ! endblock Bandmatching
 
                         ii = inbb(-1,ibb,in) 
                         ee = inbb( 1,ibb,in)
