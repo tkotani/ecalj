@@ -1,0 +1,55 @@
+#!/usr/bin/env python3
+import os, sys, shutil, argparse
+import importlib.util
+
+testallinit='copt te zrt co cr3si6 felz gasls eras c crn cu na gas_eps_lmfh gas_epsPP_lmfh fe_epsPP_lmfh_chipm si_gw_lmfh gas_pw_gw_lmfh si_gwsc gas_gwsc nio_gwsc fe_gwsc ni_crpa srvo3_crpa'
+gwall='gas_eps_lmfh gas_epsPP_lmfh fe_epsPP_lmfh_chipm si_gw_lmfh gas_pw_gw_lmfh si_gwsc gas_gwsc nio_gwsc fe_gwsc ni_crpa srvo3_crpa'
+
+parser = argparse.ArgumentParser(description="ecalj test runner")
+parser.add_argument('-np', type=str, default='8', help='MPI size (default: 8)')
+parser.add_argument('--gpu', action='store_true', help='Use GPU mode')
+parser.add_argument('--mp', action='store_true', help='Use MP mode')
+parser.add_argument('--gwall', action='store_true', help='Run all GW tests')
+parser.add_argument('testdirs', nargs='*', help='Test directories')
+args = parser.parse_args()
+
+if args.gwall:
+    args.testdirs = gwall.split()
+elif len(args.testdirs) == 0:
+    args.testdirs = testallinit.split()
+
+cwd = os.getcwd()
+bindir = os.path.dirname(os.path.abspath(__file__))
+
+print("cwd =", cwd)
+print("bindir =", bindir)
+print("tests =", args.testdirs)
+
+tall=''
+aaa=''
+for tname in args.testdirs:
+    testsrc = os.path.join(cwd, tname)
+    workdir = os.path.join(cwd, tname + '_work')
+    print()
+    print(f'=== START test at {testsrc}')
+    print(f'          Workdir {workdir}')
+    shutil.rmtree(workdir, ignore_errors=True)
+    shutil.copytree(testsrc, workdir)
+    os.chdir(workdir)
+    # import module test from workdir/test.py
+    testpy_path = os.path.join(workdir, "test.py")
+    spec = importlib.util.spec_from_file_location("testmod", testpy_path)
+    testmod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(testmod)
+    # Run def test in workdir/test.py
+    tall=tall+testmod.test(args,bindir, testsrc, workdir)
+    print(f'=== END test at {testsrc}')
+    print()
+    with open('summary.txt') as f:
+        out=f.read().replace('PASSED!','PASSED! '+tname)
+        aaa+=out
+    print(aaa)
+    if('err' in tall):
+        print('FAILED at some tests ===')
+    else:    
+        print('OK! ALL PASSED ===')

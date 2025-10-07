@@ -71,7 +71,7 @@ argin=1 ;run_arg $argin $NO_MPI $nfpgw   /hmaxloc lmaxloc1 ${@:4:($#-2)}    # b-
 # fi
 
 #argin=2 ;run_arg $argin $MPI_SIZE $nfpgw /huumat_MPI luumat2 ${@:4:($#-2)} # --qibzonly   # UU (UUmatrix <u_k,i|u_k+b,j>) matrix are caltulated.
-argin=2 ;run_arg $argin $MPI_SIZE $nfpgw /huumat_MPI luumat2 ${@:4:($#-2)} # --qibzonly   # UU (UUmatrix <u_k,i|u_k+b,j>) matrix are caltulated.
+argin=2 ;run_arg $argin $MPI_SIZE $nfpgw /huumat_MPI luumat2 --ahc ${@:4:($#-2)} # --qibzonly   # UU (UUmatrix <u_k,i|u_k+b,j>) matrix are caltulated.
 # Gather all UU*.* into a file UUU/UUD.
 # cat UUU.* >UUU
 # rm -f UUU.*
