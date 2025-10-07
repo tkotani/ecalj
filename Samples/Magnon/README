@@ -1,5 +1,10 @@
-Check test at 2022-5-31
-----------------------
+We can reproduce Ni_magnon and Fe_magnon
+with
+> testecalj Ni_magnon
+> testecalj Fe_magnon
+--------------------------
+
+-------
 We need
  GWinput
  ctrl.fe
@@ -13,7 +18,7 @@ to run ./magnon_all.sh, which calls genMLWF_wv and so on.
 After finished, you will have magnon3d_100.eps and so on.
 Compare them with eps/*.eps
 
-----
+-------
 NOTE*2025-02-27
 As for Ni, we need wan_in_emin -10 eV (instead of -5 eV) to avoid error
 (error occured in init_iew
