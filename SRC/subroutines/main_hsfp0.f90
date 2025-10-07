@@ -12,7 +12,7 @@ subroutine hsfp0() bind(C)
   use m_hamindex,only: ngrp, symgg=>symops
   use m_genallcf_v3,only: Genallcf_v3, natom,nspin,nl,nn, ndima,nlnmx, nctot,niw, &
        alat,deltaw,esmr_in=>esmr, il,in,im,nlnm, &
-       plat, pos,z,ecore,  konf,nlnx,laf
+       plat, pos,z,ecore,  konf,nlnx,laf,ncore
   use m_keyvalue,only: Getkeyvalue
   use m_rdpp,only: Rdpp, nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx
   use m_zmel,only: Mptauof_zmel
@@ -380,8 +380,10 @@ subroutine hsfp0() bind(C)
   if((ixc==3) .OR. (ixc==6)) then
      ef = lowesteval() -1d-3 !lowesteigen(nspin,nband,qbz,nqbz) - 1d-3 !lowesteb was
      write(*,*)'efffffffffff=',ef
-     if(maxval(ecore(:,1:nspin))>ef) then
+     if(sum(ncore)>0) then
+      if(maxval(ecore(:,1:nspin))>ef) then
         call rx( 'hsfp0 ixc=3/6:  ecore>evalence ')
+      endif
      endif
      if(ixc==6) then
         call efsimplef2ax(legas,esmr2, valn,efnew)!Get num of val electron valn and Fermi energy ef. legas=T give ef for given valn.
