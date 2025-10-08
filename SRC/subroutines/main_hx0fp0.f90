@@ -442,10 +442,10 @@ contains
     if(mpi__root_q) then
       if(( .NOT. chipm) .AND. wqt(iq-nqibz)==0d0) then
         open(newunit=ifepsdatnolfc,file=trim('EPS'//charnum4(iqixc2)//'.nlfc.dat'//itag))
-        write(ifepsdatnolfc,"(a)")' qp(1:3)   w(Ry)   eps    epsi  --- NO LFC'
+        write(ifepsdatnolfc,"(a)")'# qp(1:3)   w(Ry)   eps    epsi  --- NO LFC'
         if( .NOT. nolfco) then
           open(newunit=ifepsdat,file=trim('EPS'//charnum4(iqixc2)//'.dat'//itag))
-          write(ifepsdat,"(a)") ' qp(1:3)   w(Ry)   eps  epsi --- LFC included. '
+          write(ifepsdat,"(a)") '# qp(1:3)   w(Ry)   eps  epsi --- LFC included. '
         endif
       endif
     endif
@@ -508,7 +508,7 @@ contains
           if(ipr) write(stdo,'(" iq iw omega eps epsi noLFC=",2i6,f8.3,2e23.15,3x, 2e23.15, &
                " vcmean x0mean =", 2e23.15,3x, 2e23.15)') iqixc2,iw,2*frr, &
                1d0/epsi(iw,iqixc2),epsi(iw,iqixc2),vcmean, zxqw(1,1) !x0mean(iw,1,1)
-          write(ifepsdatnolfc,'(3f12.8,2x,d12.4,2e23.15,2x,2e23.15)') &
+          write(ifepsdatnolfc,'(3f12.8,2x,e12.4,2e23.15,2x,2e23.15)') &
                qp, 2*frr, 1d0/epsi(iw,iqixc2),epsi(iw,iqixc2)
         endif
         if( .NOT. nolfco) then

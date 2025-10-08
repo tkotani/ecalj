@@ -450,10 +450,10 @@ contains
     if(mpi__root_q) then
       if(( .NOT. chipm) .AND. wqt(iq-nqibz)==0d0) then
         open(newunit=ifepsdatnolfc,file=trim('EPS'//charnum4(iqixc2)//'.nlfc.dat'//itag))
-        write(ifepsdatnolfc,"(a)")' qp(1:3)   w(Ry)   eps    epsi  --- NO LFC'
+        write(ifepsdatnolfc,"(a)")'# qp(1:3)   w(Ry)   eps    epsi  --- NO LFC'
         if( .NOT. nolfco) then
           open(newunit=ifepsdat,file=trim('EPS'//charnum4(iqixc2)//'.dat'//itag))
-          write(ifepsdat,"(a)") ' qp(1:3)   w(Ry)   eps  epsi --- LFC included. '
+          write(ifepsdat,"(a)") '# qp(1:3)   w(Ry)   eps  epsi --- LFC included. '
         endif
       endif
     endif
