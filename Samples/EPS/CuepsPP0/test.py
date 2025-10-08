@@ -20,7 +20,7 @@ def test(args,bindir,testdir,workdir): #Fixed. called as >testecalj Fe_magnon
         "gnuplot -p epsall.glt"
     ])
     import re
-    skipcond = lambda line: any( abs(float(tok.replace('D', 'E'))) >= 1e4
+    skipcond = lambda line: any( abs(float(tok)) >= 1e4
                                  for tok in re.split(r'\s+', line.strip())[4:]
                                  if tok != '' )
     for file in ['EPS0001','EPS0002','EPS0003']:

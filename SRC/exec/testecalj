@@ -6,21 +6,25 @@ testallinit='copt te zrt co cr3si6 felz gasls eras c crn cu na gas_eps_lmfh gas_
 gwall='gas_eps_lmfh gas_epsPP_lmfh fe_epsPP_lmfh_chipm si_gw_lmfh gas_pw_gw_lmfh si_gwsc gas_gwsc nio_gwsc fe_gwsc ni_crpa srvo3_crpa'
 
 parser = argparse.ArgumentParser(description="ecalj test runner")
+parser.add_argument('--all', action='store_true', help='Run all install tests. only at ecalj/Samples/TestInstall')
+parser.add_argument('--gwall', action='store_true', help='Run all GW tests. only at ecalj/Samples/TestInstall')
 parser.add_argument('-np', type=str, default='8', help='MPI size (default: 8)')
 parser.add_argument('--gpu', action='store_true', help='Use GPU mode')
 parser.add_argument('--mp', action='store_true', help='Use MP mode')
-parser.add_argument('--gwall', action='store_true', help='Run all GW tests')
 parser.add_argument('--checkonly', action='store_true', help='File comparison check only')
 parser.add_argument('testdirs', nargs='*', help='Test directories')
 args = parser.parse_args()
-
-if args.gwall:
-    args.testdirs = gwall.split()
-elif len(args.testdirs) == 0:
-    args.testdirs = testallinit.split()
-
 cwd = os.getcwd()
 bindir = os.path.dirname(os.path.abspath(__file__))
+if len(sys.argv) == 1:
+    parser.print_help()
+    sys.exit(0)
+if (args.all or args.gwall) and os.path.basename(cwd) != 'TestInstall':
+    print("Error: --all option must be run inside the TestInstall/ directory.\n")
+    parser.print_help()
+    sys.exit(1)
+if args.gwall:  args.testdirs = gwall.split()
+if args.all:    args.testdirs = testallinit.split()
 
 print("cwd =", cwd)
 print("bindir =", bindir)
