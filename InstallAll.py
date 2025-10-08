@@ -37,14 +37,19 @@ def main():
     print(f"Going to install required binaries and scripts to {BINDIR}")
     start0_time = time.time()
     # Make links
-    for scr in ['StructureTool/viewvesta', 'StructureTool/refineposcar', 'StructureTool/ctrl2vasp', 'StructureTool/vasp2ctrl','GetSyml/getsyml']:
+    EXECDIR= os.path.join(CWD,'SRC/exec')
+    print(EXECDIR)
+    for scr in ['StructureTool/viewvesta', 'StructureTool/ctrl2vasp', 'StructureTool/vasp2ctrl','GetSyml/getsyml']:
         src   = os.path.join(CWD, scr+'.py')
-        slink = os.path.join(BINDIR, scr.split('/')[-1])
+        slink  = os.path.join(BINDIR,  scr.split('/')[-1])
+        slink2 = os.path.join(EXECDIR, scr.split('/')[-1])
         if os.path.exists(os.path.join(BINDIR, slink)):
-            os.remove(os.path.join(BINDIR, slink))
-        print(f"ln -s {src} {slink}")
-        if os.path.islink(slink): os.remove(slink)
+            os.remove(os.path.join(BINDIR,  slink))
+        if os.path.exists(os.path.join(BINDIR, slink2)):
+            os.remove(os.path.join(EXECDIR, slink2))
+        print(f"ln -s {src} {slink}",f"ln -s {src} {slink2}")
         os.symlink(src, slink)
+        os.symlink(src, slink2)
     # Make executables
     os.chdir(f'{CWD}/SRC/exec')
     if(args.clean): os.system('rm -rf CMakeFiles CMakeCache.txt')
@@ -58,17 +63,17 @@ def main():
     else:
         print('Check InstallAll')
         sys.exit(-1)
-    # Copy executables to BINDIR
-    executables = [f for f in os.listdir('.') if os.path.isfile(f) and os.access(f, os.X_OK)]
-    print(executables)
+    # Copy executables to BINDIR (but not soft link)
+    executables = [f for f in os.listdir('.') if os.path.isfile(f) and not os.path.islink(f) and os.access(f, os.X_OK) ]
+    print('COPY to BINDIR',executables)
     for exe in executables:
         shutil.copy(exe, BINDIR)
-        
     if(args.notest):
         print('No test. Only compile.')
         return
     
     # Install test
+    print()
     print('=== goto test ===')
     os.chdir(f'{CWD}/Samples/TestInstall')
     start_time = time.time()
