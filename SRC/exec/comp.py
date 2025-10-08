@@ -189,8 +189,8 @@ def test1_check(f1,f2):
     with open("summary.txt", "a") as aout: print(aaa, file=aout)
     return out
 
-def test2_check(f1,f2):
-    test=compall(f1,f2, dosclstol)
+def test2_check(f1,f2,tol=dosclstol):
+    test=compall(f1,f2,tol)
     if('ERR!' in test) :
         aaa='FAILED! TEST 2 comparison comparison files:'+f1+' and '+f2
         out='err! '

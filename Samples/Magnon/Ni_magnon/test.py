@@ -19,14 +19,15 @@ def test(args,bindir,testdir,workdir):
         "gnuplot wanplot.glt",
         "gnuplot mag3d.glt"
     ])
+    tol=0.001
     dat='wan_ChiPMz.mat.syml1'
-    tall+=test2_check(testdir+'/'+dat, workdir+'/'+dat)
+    tall+=test2_check(testdir+'/'+dat, workdir+'/'+dat,tol)
     dat='wan_ChiPMz.mat.syml2'
-    tall+=test2_check(testdir+'/'+dat, workdir+'/'+dat)
+    tall+=test2_check(testdir+'/'+dat, workdir+'/'+dat,tol)
     dat='wan_ChiPMr.mat.syml1'
-    tall+=test2_check(testdir+'/'+dat, workdir+'/'+dat)
+    tall+=test2_check(testdir+'/'+dat, workdir+'/'+dat,tol)
     dat='wan_ChiPMr.mat.syml2'
-    tall+=test2_check(testdir+'/'+dat, workdir+'/'+dat)
+    tall+=test2_check(testdir+'/'+dat, workdir+'/'+dat,tol)
     message1='''
      ======================================================
      Magnon calculation finished                           
