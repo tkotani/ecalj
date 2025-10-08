@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 import os,sys,re
-def runprogs(runlist):
+def runprogs(runlist,quiet=False):
     for irun in runlist:
-        print(irun)
+        if(not quiet): print(irun)
         err = os.system(irun)
         if(err): print('Error exit!')
         if(err): sys.exit(-1)
@@ -32,22 +32,19 @@ def comp(f1,f2,label,tol,key,key2=None):
     print(keys)
     return out
 
-def compall(f1in,f2in,tol):
+def compall(f1in,f2in,tol,skipcond):
     f1= open(f1in,'rt').read().split('\n')
     f2= open(f2in,'rt').read().split('\n')
     diff=0
     for ifnum,ifi in enumerate(f1):
-        #print(f1[ifnum])
+        if re.match(r'^\s*#', f1[ifnum]): continue
+        if skipcond(f1[ifnum]) :          continue 
         iline1=re.split(r'\s+',f1[ifnum])
         iline2=re.split(r'\s+',f2[ifnum])
-        #print(ifnum, iline1, iline2)
-        if re.match(r'^\s*#', f1[ifnum]): continue
-        #if(iline1[0][0:1]=='#'): continue
         iline1=[float(i) for i in iline1 if i!=''] #and float(i)!=0]
         iline2=[float(i) for i in iline2 if i!=''] #and float(i)!=0]
-        #print(ifnum, iline1, iline2)
         for i,idat1 in enumerate(iline1):
-            diff=max(idat1-iline2[i],diff)
+            diff=max(abs(idat1-iline2[i]),diff)
     if(diff>float(tol)) :
         print('ERROR: max deviation =',diff,' tolerance =',tol)
         return 'ERR! '
@@ -179,7 +176,6 @@ def test1_check(f1,f2):
     test+= comp(f1,f2,'Orbital moment          ',dorbmtol,'total orbital moment   1:')
     test+= comp(f1,f2,'last iter ehf.eV E(MTO+PW)',dehf1toln,r'pwmode=[^0].*ehf\(eV\)=')
     test+= comp(f1,f2,'last iter ehk E(MTO+PW)  ',dehf1toln, r'pwmode=[^0].*ehk\(eV\)=')
-    #print(test)
     if('ERR!' in test) :
         aaa=' FAILED! TEST 1 compare files:'+f1+' and '+f2
         out='err! '
@@ -189,8 +185,8 @@ def test1_check(f1,f2):
     with open("summary.txt", "a") as aout: print(aaa, file=aout)
     return out
 
-def test2_check(f1,f2,tol=dosclstol):
-    test=compall(f1,f2,tol)
+def test2_check(f1,f2,tol=dosclstol,skipcond=(lambda line:False)):
+    test=compall(f1,f2,tol,skipcond)
     if('ERR!' in test) :
         aaa='FAILED! TEST 2 comparison comparison files:'+f1+' and '+f2
         out='err! '

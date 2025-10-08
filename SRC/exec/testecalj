@@ -10,6 +10,7 @@ parser.add_argument('-np', type=str, default='8', help='MPI size (default: 8)')
 parser.add_argument('--gpu', action='store_true', help='Use GPU mode')
 parser.add_argument('--mp', action='store_true', help='Use MP mode')
 parser.add_argument('--gwall', action='store_true', help='Run all GW tests')
+parser.add_argument('--checkonly', action='store_true', help='File comparison check only')
 parser.add_argument('testdirs', nargs='*', help='Test directories')
 args = parser.parse_args()
 
@@ -33,8 +34,11 @@ for tname in args.testdirs:
     print()
     print(f'=== START test at {testsrc}')
     print(f'          Workdir {workdir}')
-    shutil.rmtree(workdir, ignore_errors=True)
-    shutil.copytree(testsrc, workdir)
+    if(not args.checkonly): 
+        shutil.rmtree(workdir, ignore_errors=True)
+        shutil.copytree(testsrc, workdir)
+    else:
+        shutil.copy(testsrc+'/test.py', workdir+'/test.py')
     os.chdir(workdir)
     # import module test from workdir/test.py
     testpy_path = os.path.join(workdir, "test.py")
