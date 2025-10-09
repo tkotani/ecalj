@@ -77,32 +77,35 @@ contains
     endif
     if(allocated(ppovl))  deallocate(ppovl)
     allocate( ppovlz(ngb,npr))
-    open(newunit=ippovl0,file='__PPOVL0',form='unformatted') !inefficient search for PPOVLO for given q
-    do 
-      read(ippovl0) qx,ngc_r
-      if(sum(abs(qx-q))<tolq) then
-        allocate( ppovl(ngc,ngc))
-        if(ngc_r/=ngc) call rx( 'readin ppovl: ngc_r/=ngc')
-        read(ippovl0) ppovl
-        goto 1010
-      else
-        read(ippovl0)
-      endif
-    enddo
-    call rx('reading ppvol0')
-1010 continue 
-    close(ippovl0)
-    !$acc enter data create(ppovlz)
-    allocate(ppovlz_pw(ngc,npr))
-    !$acc data copyin(zcousq(1:nbloch+ngc,1:npr), ppovl) create(ppovlz_pw)
-    ! ppovlz(nbloch+1:nbloch+ngc,1:npr) = cmplx(matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,1:npr)), kind=kp)
-    ierr = zmm(ppovl, zcousq(nbloch+1,1), ppovlz_pw, m=ngc, n=npr, k=ngc, ldB=nbloch+ngc)
+!     open(newunit=ippovl0,file='__PPOVL0',form='unformatted') !inefficient search for PPOVLO for given q
+!     do 
+!       read(ippovl0) qx,ngc_r
+!       if(sum(abs(qx-q))<tolq) then
+!         allocate( ppovl(ngc,ngc))
+!         if(ngc_r/=ngc) call rx( 'readin ppovl: ngc_r/=ngc')
+!         read(ippovl0) ppovl
+!         goto 1010
+!       else
+!         read(ippovl0)
+!       endif
+!     enddo
+!     call rx('reading ppvol0')
+! 1010 continue 
+!     close(ippovl0)
+    ! !$acc enter data create(ppovlz)
+    ! allocate(ppovlz_pw(ngc,npr))
+    ! !$acc data copyin(zcousq(1:nbloch+ngc,1:npr), ppovl) create(ppovlz_pw)
+    ! ! ppovlz(nbloch+1:nbloch+ngc,1:npr) = cmplx(matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,1:npr)), kind=kp)
+    ! ierr = zmm(ppovl, zcousq(nbloch+1,1), ppovlz_pw, m=ngc, n=npr, k=ngc, ldB=nbloch+ngc)
+    ! !$acc kernels
+    ! ppovlz(       1:nbloch,    1:npr) = cmplx(zcousq(1:nbloch,1:npr), kind=kp)
+    ! ppovlz(nbloch+1:nbloch+ngc,1:npr) = cmplx(ppovlz_pw(1:ngc,1:npr), kind=kp)
+    ! !$acc end kernels
+    ! !$acc end data
+    ! deallocate(ppovl, ppovlz_pw)
     !$acc kernels
-    ppovlz(       1:nbloch,    1:npr) = cmplx(zcousq(1:nbloch,1:npr), kind=kp)
-    ppovlz(nbloch+1:nbloch+ngc,1:npr) = cmplx(ppovlz_pw(1:ngc,1:npr), kind=kp)
+    ppovlz(1:nbloch+ngc,1:npr) = cmplx(zcousq(1:nbloch+ngc,1:npr), kind=kp)
     !$acc end kernels
-    !$acc end data
-    deallocate(ppovl, ppovlz_pw)
     nbb=npr    ! ngb obatabugfix 2025-5-23. We had set nbb=ngb every time. Thus we had memory(and computational) loss for nolfc case.
   end subroutine setppovlz
   subroutine setppovlz_chipm(zzr,nmbas1) !Set ppovlz for chipm case
@@ -451,7 +454,7 @@ contains
           deallocate(cphiq_d)
         enddo iatomloop
       endblock ZmelWithinMT
-      call writemem('    m_zmel111 ngc= '//trim(charext(ngc))//' nm1v nm2v= '//trim(charext(nm1v))//' '//trim(charext(nm2v)))
+      call writemem('    m_zmel111(notildeM) ngc= '//trim(charext(ngc))//' nm1v nm2v= '//trim(charext(nm1v))//' '//trim(charext(nm2v)))
       flush(stdo)
       ZmelIPWif: if(ngc/=0 .and. nm1v<=nm2v) then
         ZmelIPW:block  !> Mattrix elements <Plane psi |psi> from interstitial plane wave.
@@ -563,30 +566,35 @@ contains
             if(debug) call writemem('mmmmm_zmel222ddd')
           endif G1G2_Integral
 
-          allocate(zmelp0_dp(ngc,nm1v:nm2v,ntp0))
-          if(debug) call writemem('mmmmm_zmel111fff')
+          ! allocate(zmelp0_dp(ngc,nm1v:nm2v,ntp0))
+          ! if(debug) call writemem('mmmmm_zmel111fff')
+          ! !$acc kernels
+          ! do igc = 1, ngc
+          !   zmelp0_dp(igc,nm1v:nm2v,1:ntp0) = phase(igc)*cmplx(zmelp0(igc,nm1v:nm2v,1:ntp0), kind=8)
+          ! enddo
+          ! !$acc end kernels
+          ! deallocate(zmelp0)
+          ! allocate(zmelt_d_dp(ngc,nm1v:nm2v,ntp0))
+          ! if(debug) call writemem('mmmmm_zmel111hhh')
+          ! if(debug) write(stdo,ftox) 'hhhhhhhh111'!,ngc,ntp0,nmtot
+          ! !MO 2025-01-22 Gemm change to zmm for the computational accuracy in the mixed precision calculation
+          ! !$acc data copyin(ppovlinv(1:ngc,1:ngc))
+          ! ierr = zmm(ppovlinv, zmelp0_dp, zmelt_d_dp, ngc, ntp0*(nm2v-nm1v+1), ngc)
+          ! !$acc end data
+          ! if(debug) write(stdo,ftox)'hhhhhhhh222',ngc,ntp0,nmtot
+          ! !$acc kernels
+          ! zmelt(nbloch+1:nbloch+ngc,nm1v:nm2v,ncc+1:ncc+ntp0) = cmplx(zmelt_d_dp(1:ngc,nm1v:nm2v,1:ntp0), kind=kp)
+          ! !$acc end kernels
           !$acc kernels
           do igc = 1, ngc
-            zmelp0_dp(igc,nm1v:nm2v,1:ntp0) = phase(igc)*cmplx(zmelp0(igc,nm1v:nm2v,1:ntp0), kind=8)
+            zmelt(nbloch+igc,nm1v:nm2v,ncc+1:ncc+ntp0) = cmplx(phase(igc),kind=kp)*zmelp0(igc,nm1v:nm2v,1:ntp0)
           enddo
-          !$acc end kernels
-          deallocate(zmelp0)
-          allocate(zmelt_d_dp(ngc,nm1v:nm2v,ntp0))
-          if(debug) call writemem('mmmmm_zmel111hhh')
-          if(debug) write(stdo,ftox) 'hhhhhhhh111'!,ngc,ntp0,nmtot
-          !MO 2025-01-22 Gemm change to zmm for the computational accuracy in the mixed precision calculation
-          !$acc data copyin(ppovlinv(1:ngc,1:ngc))
-          ierr = zmm(ppovlinv, zmelp0_dp, zmelt_d_dp, ngc, ntp0*(nm2v-nm1v+1), ngc)
-          !$acc end data
-          if(debug) write(stdo,ftox)'hhhhhhhh222',ngc,ntp0,nmtot
-          !$acc kernels
-          zmelt(nbloch+1:nbloch+ngc,nm1v:nm2v,ncc+1:ncc+ntp0) = cmplx(zmelt_d_dp(1:ngc,nm1v:nm2v,1:ntp0), kind=kp)
           !$acc end kernels
           if(debug) call writemem('mmmmm_zmel111iii')
 
           !$acc end data
           if(debug) call writemem('mmmmm_zmel333')
-          deallocate(zmelt_d_dp, zmelp0_dp)
+          ! deallocate(zmelt_d_dp, zmelp0_dp)
         endblock ZmelIPW
       endif ZmelIPWif
       if(debug) call writemem('mmmmm_zmel endof ZmelIPWif')
