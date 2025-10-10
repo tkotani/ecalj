@@ -211,14 +211,19 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
       call rx( 'hsfp0.m.f:ngb0/=ngb')
     endif
     !! <I|v|J>= \sum_mu ppovl*zcousq(:,mu) v^mu (Zcousq^*(:,mu) ppovl)
-    !! zmel contains O^-1=<I|J>^-1 factor. zmel(phi phi J)= <phi_q,itp |phi_q-rk,it B_rk,I> O^-1_IJ
-    !! ppovlz= O Zcousq
     !! (V_IJ - vcoud_mu O_IJ) Zcousq(J, mu)=0, where Z is normalized with O_IJ.
+
+    !! 2025-10-10
+    !! zmelt is given as zmelt(phi phi J)= <phi_q,itp |phi_q-rk,it B_rk,I> !O^-1_IJ is removed 2025-10-10
+    !! Thus we now have 
+    !! ppovlz= Zcousq
+    !!xxx before 2025-10-10 ---> zmel contains O^-1=<I|J>^-1 factor. zmel(phi phi J)= <phi_q,itp |phi_q-rk,it B_rk,I> O^-1_IJ
+    
     if(allocated(ppovlz)) deallocate(ppovlz)
     allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb))
     call readppovl0(qibz_k,ngc,ppovl)
     ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
-    ppovlz(nbloch+1:nbloch+ngc,:) = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
+    ppovlz(nbloch+1:nbloch+ngc,:) = zcousq(nbloch+1:nbloch+ngc,:) !matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
     deallocate(zcousq,ppovl)
     if (kr == 0) cycle
     if(OnlyQ0P .AND. kx<=nqibz) then
