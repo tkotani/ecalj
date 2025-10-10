@@ -175,7 +175,7 @@ contains
     if(sigmamode .AND. master_mpi) write(stdo,*)' ScaledSigma=',ham_scaledsigma
     magexist= abs(vmag)>1d-6
     GWdriverExit: if(llmfgw) then
-      call m_sugw_init(cmdopt0('--socmatrix'),eferm,vmag,qval)
+      call m_sugw_init(cmdopt0('--socmatrix'),eferm,vmag,qval-qbg)
       call tcx('bndfp')
       call rx0('sugw mode')  !exit program here normally.
     endif GWdriverExit
