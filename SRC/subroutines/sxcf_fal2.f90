@@ -12,7 +12,7 @@ subroutine sxcf_fal3z(&
   use m_readqg,only:readqg0
   use m_readeigen,only: readeval
   use m_keyvalue,only: getkeyvalue
-  use m_zmel,only: get_zmel_init_gemm,setppovlz, zmel
+  use m_zmel,only: get_zmel_init_gemm, set_m2e_prod_basis, zmel
   use m_readVcoud,only:   Readvcoud, vcoud,vcousq,zcousq,ngb,ngc
   use m_wfac,only:wfacx2,weavx2
   implicit none
@@ -435,7 +435,7 @@ subroutine sxcf_fal3z(&
         !$$$          ppovlz(nbloch+1:nbloch+ngc,:) = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
 
         call Readvcoud(qibz_k,kx,NoVcou=.false.) ! Readin vcousq,zcousq !for the Coulomb matrix
-        call Setppovlz(qibz_k,matz=.true.,npr=ngb) !add npr at 2024-5-23 obata
+        call set_m2e_prod_basis(npr=ngb) !Set M to E basis transformation matrix
         if(debug) write(6,*) ' sxcf_fal2: ngb ngc nbloch=',ngb,ngc,nbloch
 
         !! === open WVR,WVI for correlation mode ===

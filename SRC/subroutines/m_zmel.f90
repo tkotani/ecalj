@@ -25,17 +25,15 @@ module m_zmel
   use m_blas, only: gemm => zmm_h, gemm_batch => zmm_batch_h
 #endif
 #ifdef __GPU
-  use m_blas, only: zmm => zmm_d
   use openacc, only: acc_is_present
   use m_readQG, only: readqg => readqg_d
 #else
   use m_readQG, only: readqg
-  use m_blas, only: zmm => zmm_h
 #endif
   implicit none
-  public:: get_zmel_init_gemm, Mptauof_zmel,Setppovlz,Setppovlz_chipm ! Call mptauof_zmel and setppovlz in advance to get_zmel_init
+  public:: get_zmel_init_gemm, Mptauof_zmel, set_m2e_prod_basis, set_m2e_prod_basis_chipm ! Call mptauof_zmel and set_m2e_basis in advance to get_zmel_init
   complex(kind=kp),allocatable,protected,public :: zmel(:,:,:) ! OUTPUT: zmel(nbb,nmtot, nqtot) ,nbb:mixproductbasis, nmtot:middlestate, nqtot:endstate
-  complex(kind=kp),allocatable,protected, private:: ppovlz(:,:)
+  complex(kind=kp),allocatable,protected,public :: m2e_prod_basis(:,:)
   real(8),allocatable,protected,public :: tiat(:,:,:),shtvg(:,:)
   real(8), allocatable, protected, private :: ppb(:,:,:,:),ppbir(:,:,:,:,:,:)
   integer,protected,public:: nbb 
@@ -45,78 +43,30 @@ module m_zmel
   integer :: irot_prev = -1, is_prev = -1
   logical :: keep_ppbir = .false., has_ppbir = .false.
 contains
-  subroutine setppovlz(q,matz,npr) ! Set ppovlz for given q
-#ifdef __GPU
-    use m_blas, only: zmm => zmm_d
-#else
-    use m_blas, only: zmm => zmm_h
-#endif
-    intent(in)::       q,matz,npr
-    logical:: matz
-    ! 2024-5-24; add npr
-    ! Set ppovlz(ngb,npr), where
-    !    ngb: the size of MPB
-    !   npr: the degree of freedom to calculate polarization funciton.
-    !          npr=1 for eps mode nolfc., npr=ngb for no nolfc (epsPP0 mode)
-    !
-    !    ppolvz(igb,ivcou)= (1    0 ) \times  zcousq(igb, ivcou)
-    !                       (0 ppovl)
-    !    If matz=F, no multiplication by ivcou.  Thus we have ppolz(igb,igb)
-    !     
-    real(8) :: q(3)
-    complex(8),allocatable :: ppovl(:,:)!,ppovlzinv(:,:) !    logical:: eibz4x0
-    complex(8),allocatable :: ppovlz_pw(:,:)
-#ifdef __GPU
-    attributes(device) :: ppovlz_pw
-#endif
-    integer:: i,ngc_r,ippovl0,npr, ierr
-    real(8):: qx(3),tolq=1d-8
-    if(allocated(ppovlz)) then
-      !$acc exit data delete(ppovlz)
-      deallocate(ppovlz)
+  subroutine set_m2e_prod_basis(npr) 
+  ! set product basis M to E basis transformation matrix
+  ! 2025-10-10, Setppovlz was changed to set_m2e_prod_basis
+  ! In accordance with this change, all matrices related to ppovl (the transformation from M to M~) and its inverse transformation have been removed.
+    integer, intent(in)::  npr
+    if(allocated(m2e_prod_basis)) then
+      !$acc exit data delete(m2e_prod_basis)
+      deallocate(m2e_prod_basis)
     endif
-    if(allocated(ppovl))  deallocate(ppovl)
-    allocate( ppovlz(ngb,npr))
-!     open(newunit=ippovl0,file='__PPOVL0',form='unformatted') !inefficient search for PPOVLO for given q
-!     do 
-!       read(ippovl0) qx,ngc_r
-!       if(sum(abs(qx-q))<tolq) then
-!         allocate( ppovl(ngc,ngc))
-!         if(ngc_r/=ngc) call rx( 'readin ppovl: ngc_r/=ngc')
-!         read(ippovl0) ppovl
-!         goto 1010
-!       else
-!         read(ippovl0)
-!       endif
-!     enddo
-!     call rx('reading ppvol0')
-! 1010 continue 
-!     close(ippovl0)
-    ! !$acc enter data create(ppovlz)
-    ! allocate(ppovlz_pw(ngc,npr))
-    ! !$acc data copyin(zcousq(1:nbloch+ngc,1:npr), ppovl) create(ppovlz_pw)
-    ! ! ppovlz(nbloch+1:nbloch+ngc,1:npr) = cmplx(matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,1:npr)), kind=kp)
-    ! ierr = zmm(ppovl, zcousq(nbloch+1,1), ppovlz_pw, m=ngc, n=npr, k=ngc, ldB=nbloch+ngc)
-    ! !$acc kernels
-    ! ppovlz(       1:nbloch,    1:npr) = cmplx(zcousq(1:nbloch,1:npr), kind=kp)
-    ! ppovlz(nbloch+1:nbloch+ngc,1:npr) = cmplx(ppovlz_pw(1:ngc,1:npr), kind=kp)
-    ! !$acc end kernels
-    ! !$acc end data
-    ! deallocate(ppovl, ppovlz_pw)
+    allocate(m2e_prod_basis(ngb,npr))
     !$acc kernels
-    ppovlz(1:nbloch+ngc,1:npr) = cmplx(zcousq(1:nbloch+ngc,1:npr), kind=kp)
+    m2e_prod_basis(1:nbloch+ngc,1:npr) = cmplx(zcousq(1:nbloch+ngc,1:npr), kind=kp)
     !$acc end kernels
-    nbb=npr    ! ngb obatabugfix 2025-5-23. We had set nbb=ngb every time. Thus we had memory(and computational) loss for nolfc case.
-  end subroutine setppovlz
-  subroutine setppovlz_chipm(zzr,nmbas1) !Set ppovlz for chipm case
+    nbb=npr
+  end subroutine set_m2e_prod_basis
+  subroutine set_m2e_prod_basis_chipm(zzr,nmbas1) !Set ppovlz for chipm case
     intent(in)::             zzr,nmbas1
     integer::nmbas1
     complex(8):: zzr(ngb,nmbas1)
-    if(allocated(ppovlz)) deallocate(ppovlz)
-    allocate(ppovlz(ngb,nmbas1))
-    ppovlz= cmplx(zzr,kind=kp)
+    if(allocated(m2e_prod_basis)) deallocate(m2e_prod_basis)
+    allocate(m2e_prod_basis(ngb,nmbas1))
+    m2e_prod_basis = cmplx(zzr,kind=kp)
     nbb   = nmbas1
-  end subroutine setppovlz_chipm
+  end subroutine set_m2e_prod_basis_chipm
   subroutine mptauof_zmel(symops,ng)! Set miat,tiat,invgx,shtvg
     use m_mksym_util,only:mptauof
     use m_hamindex0,only: Readhamindex0,iclasst
@@ -458,7 +408,7 @@ contains
       flush(stdo)
       ZmelIPWif: if(ngc/=0 .and. nm1v<=nm2v) then
         ZmelIPW:block  !> Mattrix elements <Plane psi |psi> from interstitial plane wave.
-          use m_read_ppovl,only:igggi,igcgp2i,nxi,nxe,nyi,nye,nzi,nze,nvgcgp2,ngcgp,ggg,ppovlinv,nnxi,nnxe,nnyi,nnye,nnzi,nnze,nggg
+          use m_read_ppovl,only:igggi,igcgp2i,nxi,nxe,nyi,nye,nzi,nze,nvgcgp2,ngcgp,ggg,nnxi,nnxe,nnyi,nnye,nnzi,nnze,nggg
           integer:: igcgp2,nn(3), iggg, igp1, itp, igc, igp2, igcgp2_start, igcgp2_end, igcgp1_start, igcgp1_end, igcgp1
           integer, parameter :: ngcgp_block = 1024
           complex(8):: phase(ngc)
@@ -565,26 +515,7 @@ contains
             deallocate(ggit_work,ggit,igcgp1i_work)
             if(debug) call writemem('mmmmm_zmel222ddd')
           endif G1G2_Integral
-
-          ! allocate(zmelp0_dp(ngc,nm1v:nm2v,ntp0))
-          ! if(debug) call writemem('mmmmm_zmel111fff')
-          ! !$acc kernels
-          ! do igc = 1, ngc
-          !   zmelp0_dp(igc,nm1v:nm2v,1:ntp0) = phase(igc)*cmplx(zmelp0(igc,nm1v:nm2v,1:ntp0), kind=8)
-          ! enddo
-          ! !$acc end kernels
-          ! deallocate(zmelp0)
-          ! allocate(zmelt_d_dp(ngc,nm1v:nm2v,ntp0))
-          ! if(debug) call writemem('mmmmm_zmel111hhh')
-          ! if(debug) write(stdo,ftox) 'hhhhhhhh111'!,ngc,ntp0,nmtot
-          ! !MO 2025-01-22 Gemm change to zmm for the computational accuracy in the mixed precision calculation
-          ! !$acc data copyin(ppovlinv(1:ngc,1:ngc))
-          ! ierr = zmm(ppovlinv, zmelp0_dp, zmelt_d_dp, ngc, ntp0*(nm2v-nm1v+1), ngc)
-          ! !$acc end data
-          ! if(debug) write(stdo,ftox)'hhhhhhhh222',ngc,ntp0,nmtot
-          ! !$acc kernels
-          ! zmelt(nbloch+1:nbloch+ngc,nm1v:nm2v,ncc+1:ncc+ntp0) = cmplx(zmelt_d_dp(1:ngc,nm1v:nm2v,1:ntp0), kind=kp)
-          ! !$acc end kernels
+          ! 2025-10-10: Procedures involving ppovlinv and ppovlz have been removed.
           !$acc kernels
           do igc = 1, ngc
             zmelt(nbloch+igc,nm1v:nm2v,ncc+1:ncc+ntp0) = cmplx(phase(igc),kind=kp)*zmelp0(igc,nm1v:nm2v,1:ntp0)
@@ -594,7 +525,6 @@ contains
 
           !$acc end data
           if(debug) call writemem('mmmmm_zmel333')
-          ! deallocate(zmelt_d_dp, zmelp0_dp)
         endblock ZmelIPW
       endif ZmelIPWif
       if(debug) call writemem('mmmmm_zmel endof ZmelIPWif')
@@ -604,9 +534,9 @@ contains
       !$acc enter data create(zmel)
       if(nmtot<=0) return
 
-      !$acc host_data use_device(zmel, ppovlz)
-      ierr = gemm(ppovlz, zmelt(1,nm1,1), zmel(1,nm1,1), nbb, nmtot*ncc, ngb, opA = m_op_C) ! ncc == 0, this is not used 
-      ierr = gemm(ppovlz, zmelt(1,nm1,ncc+1), zmel(1,nm1,ncc+ini_index), nbb, nmtot*ntp0, ngb, opA = m_op_C)
+      !$acc host_data use_device(zmel, m2e_prod_basis)
+      ierr = gemm(m2e_prod_basis, zmelt(1,nm1,1), zmel(1,nm1,1), nbb, nmtot*ncc, ngb, opA = m_op_C) ! ncc == 0, this is not used 
+      ierr = gemm(m2e_prod_basis, zmelt(1,nm1,ncc+1), zmel(1,nm1,ncc+ini_index), nbb, nmtot*ntp0, ngb, opA = m_op_C)
       !$acc end host_data
       deallocate(zmelt)
       if (present(comm)) then

@@ -138,7 +138,7 @@ contains
     use m_freq,only: nw_i, nw_w=>nw, niwt=>niw
     use m_readeigen,only:readeval
     use m_freq,only: nw_i,nw,niw 
-    use m_zmel,only: Setppovlz,Setppovlz_chipm   ! & NOTE: these data set are stored in this module, and used
+    use m_zmel,only: set_m2e_prod_basis, set_m2e_prod_basis_chipm
     use m_stopwatch
     use m_readVcoud, only: ReleaseZcousq
     use m_mpi,only: comm_k, mpi__rank_k, mpi__size_k, &
@@ -169,10 +169,10 @@ contains
     if(cmdopt0('--emptyrun'))  return
     call getkeyvalue("GWinput","zmel_max_size",zmel_max_size,default=1d0) !in GB
     if(zmel_max_size < 0.001d0) zmel_max_size = 1d0
-    if(chipm .AND. nolfco) then; call setppovlz_chipm(zzr,npr)
-    else;                        call setppovlz(q,matz=.true.,npr=npr) !bugfix 2024-5-23 mobata. Set npr=1 for EPSPP0 mode(no lfc)
+    if(chipm .AND. nolfco) then; call set_m2e_prod_basis_chipm(zzr,npr)
+    else;                        call set_m2e_prod_basis(npr=npr) !bugfix 2024-5-23 mobata. Set npr=1 for EPSPP0 mode(no lfc)
     endif
-    call ReleaseZcousq() !Release zcousq used in Setppovlz
+    call ReleaseZcousq() !Release zcousq used in set_m2e_prod_basis
     if(associated(zxq)) nullify(zxq)
     if(allocated(rcxq)) then
       !$acc exit data delete(rcxq)

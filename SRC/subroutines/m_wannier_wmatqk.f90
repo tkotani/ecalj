@@ -126,7 +126,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
   complex(8),allocatable :: cnk(:,:,:),zmel2(:,:,:),zmel3(:,:,:)
   integer :: itq(nwf)
   complex(8) :: weightc(nrws1),zmeltt1
-  complex(8),allocatable:: ppovl(:,:),ppovlz(:,:),zcousq(:,:),zmeltt(:,:,:)
+  complex(8),allocatable:: ppovlz(:,:),zcousq(:,:),zmeltt(:,:,:)!,ppovl(:,:)
   real(8),allocatable::vcoud(:),vcousq(:)
   real(8),parameter:: pi=4d0*atan(1d0),fpi=4d0*4d0*atan(1d0)
   integer:: ifvcoud,ivc,ngb0
@@ -220,11 +220,11 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
     !!xxx before 2025-10-10 ---> zmel contains O^-1=<I|J>^-1 factor. zmel(phi phi J)= <phi_q,itp |phi_q-rk,it B_rk,I> O^-1_IJ
     
     if(allocated(ppovlz)) deallocate(ppovlz)
-    allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb))
-    call readppovl0(qibz_k,ngc,ppovl)
+    allocate(ppovlz(ngb,ngb)) !ppovl(ngc,ngc),
+    ! call readppovl0(qibz_k,ngc,ppovl)
     ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
     ppovlz(nbloch+1:nbloch+ngc,:) = zcousq(nbloch+1:nbloch+ngc,:) !matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
-    deallocate(zcousq,ppovl)
+    deallocate(zcousq)!,ppovl)
     if (kr == 0) cycle
     if(OnlyQ0P .AND. kx<=nqibz) then
       if(exchange) deallocate(vcoul)
@@ -681,23 +681,23 @@ contains
     enddo
     deallocate(CC)
   end subroutine matzwz3
-  subroutine readppovl0(q,ngc,ppovl)
-    implicit none
-    integer, intent(in) :: ngc
-    complex(8), intent(out) :: ppovl(ngc,ngc)
-    real(8), intent(in) :: q(3)
-    integer:: ngc_r,ippovl0
-    real(8):: qx(3),tolq=1d-8
-    open(newunit=ippovl0,file='__PPOVL0',form='unformatted')
-    do
-      read(ippovl0) qx,ngc_r
-      if(sum(abs(qx-q))<tolq) then
-        if(ngc_r/=ngc) call rx( 'readin ppovl: ngc_r/=ngc')
-        read(ippovl0) ppovl
-        exit
-      endif
-    enddo
-    close(ippovl0)
-  end subroutine readppovl0
+  ! subroutine readppovl0(q,ngc,ppovl)
+  !   implicit none
+  !   integer, intent(in) :: ngc
+  !   complex(8), intent(out) :: ppovl(ngc,ngc)
+  !   real(8), intent(in) :: q(3)
+  !   integer:: ngc_r,ippovl0
+  !   real(8):: qx(3),tolq=1d-8
+  !   open(newunit=ippovl0,file='__PPOVL0',form='unformatted')
+  !   do
+  !     read(ippovl0) qx,ngc_r
+  !     if(sum(abs(qx-q))<tolq) then
+  !       if(ngc_r/=ngc) call rx( 'readin ppovl: ngc_r/=ngc')
+  !       read(ippovl0) ppovl
+  !       exit
+  !     endif
+  !   enddo
+  !   close(ippovl0)
+  ! end subroutine readppovl0
 end subroutine wmatqk_mpi
 end module m_wmatqk

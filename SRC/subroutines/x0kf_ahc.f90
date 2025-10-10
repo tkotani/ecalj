@@ -114,7 +114,7 @@ contains
     use m_freq,only: nw_i, nw_w=>nw, niwt=>niw
     use m_readeigen,only:readeval
     use m_freq,only: nw_i,nw,niw 
-    use m_zmel,only: Setppovlz,Setppovlz_chipm   ! & NOTE: these data set are stored in this module, and used
+    use m_zmel,only: set_m2e_prod_basis, set_m2e_prod_basis_chipm
     use m_stopwatch
     use m_mpi,only: comm_k, mpi__rank_k, mpi__size_k, MPI__reduceSum, &
          mpi__ipr_col, mpi__npr_col, mpi__rank_b, mpi__root_k, comm_b,&
@@ -151,8 +151,8 @@ contains
       if(imagomega) allocate(zxqi(npr,npr_col,niw),source=(0d0,0d0))
     endif
     if(cmdopt0('--emptyrun'))  return
-    if(chipm .AND. nolfco) then; call setppovlz_chipm(zzr,npr)
-    else;                        call setppovlz(q,matz=.true.,npr=npr)!2024-5-23 obata. A minor bug to consume memory: Set npr=1 for EPSPP0 mode(no lfc)
+    if(chipm .AND. nolfco) then; call set_m2e_prod_basis_chipm(zzr,npr)
+    else;                        call set_m2e_prod_basis(npr=npr) !bugfix 2024-5-23 mobata. Set npr=1 for EPSPP0 mode(no lfc)
     endif
     if(cmdopt0('--qibzonly')) call set_qibz(plat,qbz,nqbz,symops,ngrp)
     
