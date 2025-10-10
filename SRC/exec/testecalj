@@ -51,7 +51,7 @@ for tname in args.testdirs:
     spec.loader.exec_module(testmod)
     # Run def test in workdir/test.py
     tall=tall+testmod.test(args,bindir, testsrc, workdir)
-    print(f'=== END test at {testsrc}')
+    print(f'=== END test at {workdir}')
     print()
     with open('summary.txt') as f:
         out=f.read().replace('PASSED!','PASSED! '+tname)

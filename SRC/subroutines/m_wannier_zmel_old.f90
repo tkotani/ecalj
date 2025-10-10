@@ -75,7 +75,7 @@ contains
        shtv,qq, qi, symope, qlat, qt, &
        zmelp)
     use m_read_ppovl,only: getppx2,igggi,igcgp2i,nxi,nxe,nyi,nye,nzi,nze,nvggg,nvgcgp2,ngvecc
-    use m_read_ppovl,only: nggg,ngcgp,ngcread, ggg,ppovlinv, ngc2,ngvecc2
+    use m_read_ppovl,only: nggg,ngcgp,ngcread, ggg, ngc2,ngvecc2 !,ppovlinv
     implicit none
     integer:: itp,igc
     integer,intent(in) :: ngp1, ngvecp1(3,ngp1), ngp2
@@ -128,7 +128,7 @@ contains
        zmelp0(:,:,itp)= matmul(transpose(ggitp_),geigq2)
     enddo
     deallocate(ggitp)
-    call matm(dconjg(ppovlinv),zmelp0,zmelp,ngc,ngc,ntp0*nt0)
+    zmelp=zmelp0 !    call matm(dconjg(ppovlinv),zmelp0,zmelp,ngc,ngc,ntp0*nt0)
     if(verbose()>=100) write(6,*)' melpln2t: end'
   end subroutine melpln2t
   subroutine drvmelp3(q,ntp0,q_rk,nt0,qik,isp,ginv,ngc,ngcmx,ngpmx,nband,itp0, symope, shtv, qlat, qlatinv,qibz,qbz,nqbz,nqibz, &
