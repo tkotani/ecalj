@@ -53,6 +53,7 @@ contains
       deallocate(m2e_prod_basis)
     endif
     allocate(m2e_prod_basis(ngb,npr))
+    !$acc enter data create(m2e_prod_basis)
     !$acc kernels
     m2e_prod_basis(1:nbloch+ngc,1:npr) = cmplx(zcousq(1:nbloch+ngc,1:npr), kind=kp)
     !$acc end kernels
