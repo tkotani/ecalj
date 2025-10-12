@@ -1,5 +1,5 @@
 import os
-from comp import test1_check,test2_check,runprogs
+from comp import test1_check,test2_check,runprogs,rmfiles
 def test(args,bindir,testdir,workdir):
         lmfa= f'mpirun -np 1 {bindir}/lmfa '
         lmf = f'mpirun -np {args.np} {bindir}/lmf '
@@ -19,6 +19,7 @@ def test(args,bindir,testdir,workdir):
          '''       
         print(message1)
         outfile='out.lmf.cr3si6'
+        rmfiles(workdir,[outfile])
         runprogs([
                  lmfa+" cr3si6 --pr51 -vnit=2 --time=6 >  "+outfile,
                  lmf +" cr3si6 --pr51 -vnit=2 --time=6 >> "+outfile

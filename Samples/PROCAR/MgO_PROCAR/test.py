@@ -1,4 +1,4 @@
-from comp import test2_check,runprogs
+from comp import test2_check,runprogs,rmfiles
 def test(args,bindir,testdir,workdir): #Fixed. called as >testecalj Fe_magnon
     tall=''
     MATERIAL="mgo"
@@ -6,6 +6,8 @@ def test(args,bindir,testdir,workdir): #Fixed. called as >testecalj Fe_magnon
     lmfa= f'mpirun -np 1 {bindir}/lmfa '
     lmf = f'mpirun -np {args.np} {bindir}/lmf '
     outfile='out.lmf.fe'
+    dat= 'bw.dat'
+    rmfiles(workdir,[outfile,dat])
     if(args.checkonly): runprogs([
             "rm -rf summary.txt"
             ],quiet=True)
@@ -16,17 +18,17 @@ def test(args,bindir,testdir,workdir): #Fixed. called as >testecalj Fe_magnon
             "rm -rf PROCAR*",
             lmf + f"--mkprocar --band:fn=syml mgo >lbandW", # This is for pdos mode
             "cat PROCAR.UP.* >>PROCAR.UP",
-            "rm PROCAR.UP.* bw.dat",
+            "rm PROCAR.UP.*",
             f"{workdir}/BandWeight.py > bw.dat",
-            "gnuplot bnds.gnu.mgoW"
+            "gnuplot bnds.gnu.mgoW",
+            f"evince {workdir}/mgoWeight.pdf"
     ])
-    dat= 'bw.dat'
     print(dat,end=': ')
     tall+=test2_check(testdir+'/'+dat, workdir+'/'+dat) 
     message1=f'''
-     ======================================================
-     See {workdir}/mgoWeight.pdf file for fat band
-     ======================================================
+    ======================================================
+    We show fat band for O(2p) in {workdir}/mgoWeight.pdf
+    ======================================================
     '''
     print(message1)
     return tall

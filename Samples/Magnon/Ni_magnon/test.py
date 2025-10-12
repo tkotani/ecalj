@@ -1,12 +1,21 @@
 from comp import test1_check,test2_check,runprogs
 def test(args,bindir,testdir,workdir):
-    tall=''
     MATERIAL="ni"
     NSLOTS=args.np
     lmfa= f'mpirun -np 1 {bindir}/lmfa '
     lmf = f'mpirun -np {args.np} {bindir}/lmf '
     outfile=f'out.lmf.{MATERIAL}'
-    runprogs([
+    dat1='wan_ChiPMz.mat.syml1'
+    dat2='wan_ChiPMz.mat.syml2'
+    dat3='wan_ChiPMr.mat.syml1'
+    dat4='wan_ChiPMr.mat.syml2'
+    tall=''
+    
+    rmfiles(workdir,[outfile,dat1,dat2])
+    if(args.checkonly): runprogs([
+            "rm -rf summary.txt"
+            ],quiet=True)
+    else: runprogs([
         lmfa + f" {MATERIAL} > "+ outfile,
         lmf  + f" {MATERIAL} > "+ outfile,
         f"{bindir}/job_band   {MATERIAL} -np {NSLOTS}",
@@ -17,17 +26,14 @@ def test(args,bindir,testdir,workdir):
         "date",
         "gnuplot fbplot.glt" ,
         "gnuplot wanplot.glt",
-        "gnuplot mag3d.glt"
+            "gnuplot mag3d.glt",
+        f"evince {workdir}/magnon3d.pdf &"
     ])
     tol=0.001
-    dat='wan_ChiPMz.mat.syml1'
-    tall+=test2_check(testdir+'/'+dat, workdir+'/'+dat,tol)
-    dat='wan_ChiPMz.mat.syml2'
-    tall+=test2_check(testdir+'/'+dat, workdir+'/'+dat,tol)
-    dat='wan_ChiPMr.mat.syml1'
-    tall+=test2_check(testdir+'/'+dat, workdir+'/'+dat,tol)
-    dat='wan_ChiPMr.mat.syml2'
-    tall+=test2_check(testdir+'/'+dat, workdir+'/'+dat,tol)
+    tall+=test2_check(testdir+'/'+dat1, workdir+'/'+dat1,tol)
+    tall+=test2_check(testdir+'/'+dat2, workdir+'/'+dat2,tol)
+    tall+=test2_check(testdir+'/'+dat3, workdir+'/'+dat3,tol)
+    tall+=test2_check(testdir+'/'+dat4, workdir+'/'+dat4,tol)
     message1='''
      ======================================================
      Magnon calculation finished                           

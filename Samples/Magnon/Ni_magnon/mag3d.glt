@@ -1,5 +1,5 @@
 ############
-set term postscript enhanced color eps
+set term pdf
 set output "magnon3d.eps"
 set pm3d map
 set pm3d map interpolate 1,1 # interpolation

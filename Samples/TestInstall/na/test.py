@@ -1,5 +1,5 @@
 import os
-from comp import test1_check,test2_check,runprogs,compeval
+from comp import test1_check,runprogs,compeval,rmfiles
 def test(args,bindir,testdir,workdir):
         lmfa= f'mpirun -np 1 {bindir}/lmfa '
         lmf = f'mpirun -np {args.np} {bindir}/lmf '
@@ -13,6 +13,7 @@ def test(args,bindir,testdir,workdir):
              After the test finishes, compare the three energies with out.lmf.na
         '''
         print(message1)
+        rmfiles(workdir,[outfile])
         runprogs([
                  lmfa+" na -vnk=6 -vnapval=0 -vpz1=0 -vp1=3.38  > "+outfile ,
                  lmf+ " na -vnk=6 -vnapval=0 -vpz1=0 -vp1=3.38 >>"+outfile,

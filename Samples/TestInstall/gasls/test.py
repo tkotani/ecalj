@@ -1,5 +1,5 @@
 import os
-from comp import test1_check,test2_check,runprogs,compeval
+from comp import test1_check,test2_check,runprogs,compeval,rmfiles
 def test(args,bindir,testdir,workdir):
         lmfa= f'mpirun -np 1 {bindir}/lmfa '
         lmf = f'mpirun -np {args.np} {bindir}/lmf '
@@ -12,6 +12,7 @@ def test(args,bindir,testdir,workdir):
          This test checks SO coupling in conjunction with conventional local orbitals.
         '''
         outfile='out.lmf.ls-bands.gasls'
+        rmfiles(workdir,[outfile])
         runprogs([
                  lmfa+" -vso=1 gasls -vpwmode=0 >"+outfile,
                  lmf+ " -vso=1 -vnit=1 gasls --band:fn=syml -vpwmode=0 >>"+outfile
