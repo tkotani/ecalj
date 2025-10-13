@@ -133,12 +133,12 @@ def gen_md(img_dir, img_form):
     for png_file in sorted_png_files:
         fname = png_file.name
         img_number = get_mpid(png_file)
-        content += f'<a id="img_{img_number}"></a>'
+        content += f'<p><a id="img_{img_number}"></a>'
         content += f'<img src="LDA/{fname}" width="50%">'
         if (img_dir / "GW" / (fname)).exists():
-            content += f'<img src="GW/{fname}" width="50%">\n'
+            content += f'<img src="GW/{fname}" width="50%"></p>\n'
         else:
-            content += '\n'
+            content += '</p>\n'
 
     content += "\n### jump links\n"
     sorted_png_files_by_number = sorted(LDA_dir.glob(f"*.{img_form}"), key=lambda x: int(get_mpid(x)))
