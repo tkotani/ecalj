@@ -9,7 +9,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
   !    strx: structure constant for e=0 (means 1/|r-r'| )
   use m_xlgen,only:lgen
   use m_lattic,only:lctoff
-  use m_genallcf_v3,only: Genallcf_v3,  alat,nbas=>natom, bas=>pos
+  use m_genallcf_v3,only: Genallcf_v3,  alat,nbas=>natom, bas=>pos,nl
   use m_hamindex,only:    Readhamindex,plat,qlat
   use m_hamindex0,only:    Readhamindex0
   use m_read_bzdata,only: Read_bzdata, ginv,nqbz,qbz,nqibz,qibz,nq0i,wqt=>wt,q0i,nq0iadd
@@ -79,23 +79,25 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
   ReadinBASFP:block
     allocate(lx(nbas),kmx(nbas),nblocha(nbas),nr(nbas),aa(nbas),bb(nbas),ificrb(nbas),rmax(nbas) )
     do ibas = 1,nbas !! Readin BASFP//atom. The product basis functions.
-       ic = ibas !
-       open(newunit=ificrb(ibas),file='__BASFP'//char( 48+ic/10 )//char( 48+mod(ic,10)))
-       read(ificrb(ibas),"(4i6,2d24.16)") lx(ibas), kmx(ibas), nblocha(ibas), nr(ibas),aa(ibas),bb(ibas)
-       rmax(ibas) = bb(ibas)*(exp((nr(ibas)-1)*aa(ibas))-1d0)
+      ic = ibas !
+      open(newunit=ificrb(ibas),file='__BASFP'//char( 48+ic/10 )//char( 48+mod(ic,10)))
+      read(ificrb(ibas),"(4i6,2d24.16)") lx(ibas), kmx(ibas), nblocha(ibas), nr(ibas),aa(ibas),bb(ibas)
+      rmax(ibas) = bb(ibas)*(exp((nr(ibas)-1)*aa(ibas))-1d0)
     enddo
+    
     lxx = maxval(lx)
-    allocate( nx(0:lxx,nbas) )
+    
+    allocate( nx(0:lxx,nbas),source=0 )
     do ibas = 1,nbas
-       read(ificrb(ibas),"(i5)") nx(0:lx(ibas),ibas)
+      read(ificrb(ibas),"(i5)") nx(0:lx(ibas),ibas)
     enddo
     nxx = maxval(nx)
     nrx = maxval(nr)
-    allocate( rprodx(nrx,nxx,0:lxx,nbas) )
+    allocate( rprodx(nrx,nxx,0:lxx,nbas),source=0d0 )
     do ibas = 1,nbas
        do l = 0, lx(ibas)
           do n = 1, nx(l,ibas)
-             read(ificrb(ibas),"(3i5)"   ) k, kdummy,kdummy
+             read(ificrb(ibas),*) !"(3i5)"   ) kdummy, kdummy,kdummy
              read(ificrb(ibas),"(d23.15)") (rprodx(i,n,l,ibas),i=1,nr(ibas))
           enddo
        enddo

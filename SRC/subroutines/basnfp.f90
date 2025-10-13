@@ -417,11 +417,18 @@ subroutine basnfp_v2(nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate 
   elseif(kmx==0 ) then
      nblocha = 0
   endif
-
+  
+!!!!!!!!!!!!!!!!!!!!!!----------------------
+!  newlxx: do l=0,lxx
+!    if(nxx(l)>0) lxx_=l
+!  enddo newlxx
+!  lxx = lxx_ !lxx is ic dependent 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  
   print *,' Write BASFP.* reserve rprodx...'
+  write(6,"(' basnfp: BASFP... kmx nblocha=',2i5)") kmx,nblocha
   open(newunit=ificrb,file='__BASFP'//char( 48+ic/10 )//char( 48+mod(ic,10) ))
   write(ificrb,"(4i6,2d24.16)") lxx, kmx, nblocha,nrofi,aa,bb
-  write(6,"(' basnfp: BASFP... kmx nblocha=',2i5)") kmx,nblocha
   write(ificrb,"(i5)") nxx(0:lxx)
   k = 0
   do lx = 0, lxx
