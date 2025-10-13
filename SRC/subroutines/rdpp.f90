@@ -14,22 +14,24 @@ contains
   subroutine Rdpp( ngrp, symope) 
     implicit none
     integer :: is,iqi,iq,ic,isp,ip1,ip2,ioff,nxic,ifplane ,ngpmx_dum, ngcmx_dum,iqbzx,idxk,ngp,ngc,ig1,nwordr
-    integer:: ngrp,ngpmx,nqbz,nqibz, nband, n1,n2,n3,iq0, ifppb(natom)
+    integer:: ngrp,ngpmx,nqbz,nqibz, nband, n1,n2,n3,iq0, ifppb(natom),lxx
     real(8) ::  symope(3,3,ngrp),  pi
     if(ipr) write(6,*)" rdpp: natom=",natom
     if(done_rdpp) call rx('rdpp is already called')
-    allocate( nblocha(natom) ,lx(natom), nx(0:2*(nl-1),natom))
+    allocate( nblocha(natom) ,lx(natom), nx(0:2*(nl-1),natom),source=0)
     do ic = 1,natom
        open(newunit=ifppb(ic),file='__PPBRD_V2_'//char( 48+ic/10 )//char( 48+mod(ic,10)),form='unformatted')
-       read(ifppb(ic)) nblocha(ic),lx(ic),nx(0:2*(nl-1),ic)
+       read(ifppb(ic)) nblocha(ic),lx(ic) !lx is max l of PB
+       read(ifppb(ic)) nx(0:lx(ic),ic)
     enddo
     nxx = maxval( nx )
-    allocate( ppbrd ( 0:nl-1, nn, 0:nl-1,nn, 0:2*(nl-1),nxx, nspin*natom), cgr(nl**2,nl**2,(2*nl-1)**2,ngrp) ) 
+    lxx = maxval( lx )
+    allocate( ppbrd ( 0:nl-1, nn, 0:nl-1,nn, 0:lxx,nxx, nspin*natom), cgr(nl**2,nl**2,(2*nl-1)**2,ngrp) ) 
     if(ipr) write(6,*)' ppbrd size',nl,nn,nxx,natom,nspin
     do ic = 1,natom
        do isp= 1,nspin
-          nxic = maxval( nx(0:2*(nl-1),ic) )
-          read(ifppb(ic)) ppbrd(:,:,:,:,:,1:nxic, isp+nspin*(ic-1)) !  Radial integrals ppbrd
+          nxic = maxval( nx(0:lx(ic),ic) )
+          read(ifppb(ic)) ppbrd(:,:,:,:,0:lx(ic),1:nxic, isp+nspin*(ic-1)) !  Radial integrals ppbrd
        enddo
        close(ifppb(ic))
     enddo
@@ -60,15 +62,17 @@ subroutine rdpp_v3(nxx, nl,ngrp, nn, natom, nspin,symope, &
        cgr(nl**2,nl**2,(2*nl-1)**2,ngrp)
   write(6,*)" rdpp_v3: "
   !!  Radial integrals ppbrd
+  nx=0
   do ic = 1,natom
      open(newunit=ifppb(ic),file='__PPBRD_V2_'//char( 48+ic/10 )//char( 48+mod(ic,10)),form='unformatted')
-     read(ifppb(ic)) nblocha(ic),lx(ic),nx(0:2*(nl-1),ic)
+     read(ifppb(ic)) nblocha(ic),lx(ic)
+     read(ifppb(ic)) nx(0:lx(ic),ic)
   enddo
   write(6,*)' ppbrd size',nl,nn,nxx,natom,nspin
   do ic = 1,natom
      do isp= 1,nspin
-        nxic = maxval( nx(0:2*(nl-1),ic) )
-        read(ifppb(ic)) ppbrd(:,:,:,:,:,1:nxic, isp+nspin*(ic-1))
+        nxic = maxval( nx(0:lx(ic),ic) )
+        read(ifppb(ic)) ppbrd(:,:,:,:,0:lx(ic),1:nxic, isp+nspin*(ic-1))
      enddo
      close(ifppb(ic))
   enddo
@@ -80,10 +84,12 @@ subroutine rdpp_v3(nxx, nl,ngrp, nn, natom, nspin,symope, &
 end subroutine rdpp_v3
 subroutine Getsrdpp2(natom,nl,nxx)
   integer,intent(in):: natom,nl
-  integer :: nx(0:2*(nl-1),natom),nxx,ifppb,ic,lxx,nblocha
+  integer :: nx(0:2*(nl-1),natom),nxx,ifppb,ic,lxxx,nblocha
+  nx=0
   do ic = 1,natom
      open(newunit=ifppb, file='__PPBRD_V2_'//char( 48+ic/10 )//char( 48+mod(ic,10)), action='read',form='unformatted')
-     read(ifppb) nblocha,lxx, nx(0:2*(nl-1),ic)
+     read(ifppb) nblocha,lxxx
+     read(ifppb) nx(0:lxxx,ic)
      close(ifppb)
   enddo
   nxx   = maxval( nx )
