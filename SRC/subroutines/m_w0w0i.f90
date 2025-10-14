@@ -32,12 +32,13 @@ contains
     deallocate(wmu)
   end subroutine finalizew4p
   !-------------------------------------------------------------
-  subroutine w0w0i(nw_i,nw,nq0i,niw,q0i) !llw,llwI,
+  subroutine w0w0i(nw_i,nw,nq0i,niw,q0i,is_m_basis) !llw,llwI,
     !! Get w0 and w0i (diagonal element at Gamma point) for given llw and llwi
     !! Outputs w0,w0i,llmat. See use m_w0w0i at the begining of this routine.
     use m_read_bzdata,only:  wbz,lxklm,dmlx,epinvq0i,epinv,wklm
     intent(in)::     nw_i,nw,nq0i,niw,q0i !llw,llwI,
     real(8)   :: q0i(1:3,1:nq0i)
+    logical :: is_m_basis
     integer:: nw_i,nw,nq0i,nq0ix,niw,ifidmlx,i,ifw0w0i,ixc,nlxklm
     logical:: readw0w0itest
     complex(8):: llmat_dummy(3,3)
@@ -68,19 +69,29 @@ contains
        write(6,"('w0i=',i4,2f13.4)")i,w0i(i)
     enddo
     !! modivy files WVR and WVI
-    call ModifyWV0()
+    call ModifyWV0(is_m_basis)
     if(w4pmode) call FinalizeW4p() !W for phonon mode finalized.
   end subroutine w0w0i
   !-------------------------------------------------
-  subroutine modifyWV0()
+  subroutine modifyWV0(is_m_basis)
     use m_qbze,only: nqbze,nqibze,qbze,qibze
     use m_rdpp,only: nblochpmx,mrecl
     use m_freq,only: niw ,nw,nw_i
     use m_kind, only: kp => kindrcxq
+    use m_readVcoud,only: Readvcoud, ngb, ReleaseZcousq, zcousq
+    use m_blas, only: m_op_C
+#ifdef __MP
+    use m_blas, only: gemm_h => cmm_h
+#else
+    use m_blas, only: gemm_h => zmm_h
+#endif
     integer:: ifrcwx,iq,ircw,iw,nini,nend,mreclx
     real(8)::q(3)
+    logical:: is_m_basis
     complex(kind=kp),allocatable:: zw(:,:)
     character(10):: i2char
+    integer :: istat
+    complex(kind=kp),allocatable :: x_m2e(:,:), m2e(:,:)
     mreclx=mrecl
     !! Read WVR and WVI at Gamma point, and give correct W(0) (averaged in the Gamma cell, where
     !! Gamma cell) is the micro cell of BZ including Gamma point).
@@ -90,6 +101,12 @@ contains
     allocate( zw(nblochpmx,nblochpmx) )
     iq = 1             !iq=1 only 4pi/k**2 /eps part only ! iq = iqxini,iqxend
     q = qibze(:,iq)
+    if(is_m_basis) then
+      call Readvcoud(q, iq, NoVcou=.false.)   !update ngb, zcousq
+      allocate(m2e(ngb,ngb), x_m2e(ngb, ngb))
+      m2e(1:ngb,1:ngb) = cmplx(zcousq(1:ngb,1:ngb),kind=kp)
+      call ReleaseZcousq()                  !Release zcousq used in set_m2e_prod_basis
+    endif
     do ircw=1,2
        if (ircw==1) then
           nini=nw_i
@@ -103,8 +120,12 @@ contains
        do iw=nini,nend
           read(ifrcwx, rec= iw-nini+1 ) zw !(1:ngb,1:ngb)
           if( iq==1 ) then
-             if(ircw==1) zw(1,1) = cmplx(w0(iw),kind=kp)
-             if(ircw==2) zw(1,1) = cmplx(w0i(iw),kind=kp)
+            if(ircw==1) zw(1,1) = cmplx(w0(iw),kind=kp)
+            if(ircw==2) zw(1,1) = cmplx(w0i(iw),kind=kp)
+            if(is_m_basis) then
+              istat = gemm_h(zw, m2e, x_m2e, ngb, ngb, ngb, opB=m_op_C, ldA=nblochpmx)
+              istat = gemm_h(m2e, x_m2e, zw, ngb, ngb, ngb, ldC=nblochpmx)
+            endif
           endif
           write(ifrcwx,rec=iw-nini+1) zw !(1:ngb,1:ngb)
        enddo

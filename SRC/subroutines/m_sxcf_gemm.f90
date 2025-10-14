@@ -381,10 +381,10 @@ contains
               call stopwatch_start(t_sw_zmel)
 #ifdef __GPU
               call get_zmel_init_gemm(q,qibz_k,irot,qbz_kr,ns1,ns2,isp,1,ntqxx,isp,nctot,ncc=0,iprx=debug,zmelconjg=.false., &
-                                      is_m_basis=.false.)
+                                      is_m_basis=.true.)
 #else
               call get_zmel_init_gemm(q,qibz_k,irot,qbz_kr,ns1,ns2,isp,1,ntqxx,isp,nctot,ncc=0,iprx=debug,zmelconjg=.false., &
-                                      is_m_basis=.false., comm=comm_w)
+                                      is_m_basis=.true., comm=comm_w)
 #endif
               call writemem('    endof get_zmel_init')
               call stopwatch_pause(t_sw_zmel)

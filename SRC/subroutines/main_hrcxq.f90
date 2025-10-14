@@ -123,7 +123,7 @@ subroutine hrcxq() bind(C)
     call MPI_barrier(comm,ierr)
     call MPI__sendllw(iqxend,MPI__Qrank) ! Send all LLW data to mpi_root.
     ! Get effective W0,W0i, and L(omega=0) matrix. Modify WVR WVI with w0 and w0. Files WVI and WVR are modified.
-    if(MPI__rank==0) call W0w0i(nw_i,nw,nq0i,niw,q0i) 
+    if(MPI__rank==0) call W0w0i(nw_i,nw,nq0i,niw,q0i,is_m_basis=.true.) 
   endblock GetEffectiveWVatGammaCell
   if(ipr) write(stdo,ftox) '--- end of hrcxq --- irank=',MPI__rank
   call cputid(0)

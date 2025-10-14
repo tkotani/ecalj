@@ -417,7 +417,7 @@ subroutine hx0fp0()
   if( .NOT. epsmode) call MPI__sendllw2(iqxend,MPI__ranktab) !!! mpi send LLW to root.
   !! == W(0) divergent part and W(0) non-analytic constant part.== Note that this is only for qp=0 -->iq=1
   !! get w0 and w0i (diagonal element at Gamma point.   !! This return w0, and w0i
-  if(( .NOT. epsmode) .AND. MPI__rank==0) call w0w0i(nw_i,nw,nq0i,niw,q0i) !llw,llwI,
+  if(( .NOT. epsmode) .AND. MPI__rank==0) call w0w0i(nw_i,nw,nq0i,niw,q0i,is_m_basis=.false.) !llw,llwI,
   ! === w0,w0i are stored to zw for qp=0 ===    !! === w_ks*wk are stored to zw for iq >nqibz ===
   call cputid(0)
   if(ixc==11)   call rx0( ' OK! hx0fp0 mode=11    read <Q0P> normal')

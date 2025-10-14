@@ -52,7 +52,7 @@ contains
 #else
      use m_lapack, only: zminv => zminv_h
 #endif
-    integer, intent(in)::  npr
+    integer, intent(in) :: npr
     if(allocated(m2e_prod_basis)) then
       !$acc exit data delete(m2e_prod_basis)
       deallocate(m2e_prod_basis)
