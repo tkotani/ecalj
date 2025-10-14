@@ -1,6 +1,6 @@
 module m_rdpp !Read PPBRDV2_*, radial integerals <p|p b> and rotated cg coefficients cgr.
   !note nbloch is the total number of ProductBasis (within MTs).
-  use m_genallcf_v3,only: nl,nn,natom,nspin 
+  use m_genallcf_v3,only: lmxax,nn,natom,nspin 
   use m_readqg,only: ngcmx
   use m_kind, only: kp => kindrcxq
   use m_mpi,only:ipr
@@ -14,8 +14,9 @@ contains
   subroutine Rdpp( ngrp, symope) 
     implicit none
     integer :: is,iqi,iq,ic,isp,ip1,ip2,ioff,nxic,ifplane ,ngpmx_dum, ngcmx_dum,iqbzx,idxk,ngp,ngc,ig1,nwordr
-    integer:: ngrp,ngpmx,nqbz,nqibz, nband, n1,n2,n3,iq0, ifppb(natom),lxx
+    integer:: ngrp,ngpmx,nqbz,nqibz, nband, n1,n2,n3,iq0, ifppb(natom),lxx,nl
     real(8) ::  symope(3,3,ngrp),  pi
+    nl=lmxax+1
     if(ipr) write(6,*)" rdpp: natom=",natom
     if(done_rdpp) call rx('rdpp is already called')
     allocate( nblocha(natom) ,lx(natom), nx(0:2*(nl-1),natom),source=0)

@@ -1,5 +1,5 @@
 module m_zmel_old !for wannier part This will be removed soon. 
-  use m_genallcf_v3,only: natom,nspin,nl,nn,nnv,nnc,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, niw, nband
+  use m_genallcf_v3,only: natom,nspin,nn,nnv,nnc,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, niw, nband
   use m_genallcf_v3,only: alat,esmr,nlnmv,nlnmc,icore,ncore,plat,pos,z,ecore,mnl=>nlnm,nl,nn,nlnmx,il,in,im
   use m_hamindex,only: ngrp, symgg=>symops,invg=>invgx
   use m_rdpp,only: Rdpp, nxx,lx,nx,mdimx,nbloch,cgr,ppbrd,nblocha,done_rdpp
@@ -44,7 +44,7 @@ contains
     real(8), intent(in) :: cgr((lmxax+1)**2,(lmxax+1)**2,(2*lmxax+1)**2,ng)
     real(8), intent(in) :: ppbrd(0:nl-1,nn,0:nl-1,nn,0:2*(nl-1),nxx,natom*nspin)
     real(8), intent(out) :: ppb(nlnmx,nlnmx,mdimx,natom)
-    integer :: ic, i,lb,nb,mb,lmb,i1,ibas,i2, np,lp,mp,lmp,n,l,m,lm
+    integer :: ic, i,lb,nb,mb,lmb,i1,ibas,i2, np,lp,mp,lmp,n,l,m,lm,nl
     do concurrent (ic=1:natom)
        ibas = ic
        i = 0 !i = product basis index.

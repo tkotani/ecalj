@@ -9,7 +9,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
   !    strx: structure constant for e=0 (means 1/|r-r'| )
   use m_xlgen,only:lgen
   use m_lattic,only:lctoff
-  use m_genallcf_v3,only: Genallcf_v3,  alat,nbas=>natom, bas=>pos,nl
+  use m_genallcf_v3,only: Genallcf_v3,  alat,nbas=>natom, bas=>pos
   use m_hamindex,only:    Readhamindex,plat,qlat
   use m_hamindex0,only:    Readhamindex0
   use m_read_bzdata,only: Read_bzdata, ginv,nqbz,qbz,nqibz,qibz,nq0i,wqt=>wt,q0i,nq0iadd
@@ -84,8 +84,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
       read(ificrb(ibas),"(4i6,2d24.16)") lx(ibas), kmx(ibas), nblocha(ibas), nr(ibas),aa(ibas),bb(ibas)
       rmax(ibas) = bb(ibas)*(exp((nr(ibas)-1)*aa(ibas))-1d0)
     enddo
-    
-    lxx = maxval(lx)
+    lxx = maxval(lx) !lxx is 2*lmxax
     
     allocate( nx(0:lxx,nbas),source=0 )
     do ibas = 1,nbas

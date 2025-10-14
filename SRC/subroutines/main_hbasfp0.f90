@@ -9,7 +9,7 @@ subroutine hbasfp0() bind(C) ! Generates orthonormal optimal product basis and r
   !  PPBRD_V2_//ibas :: radial <ppb> integrals. Note indexing of ppbrd
   !The main part of this routine is in the subroutine basnfp_v2
   use m_genallcf_v3,only: genallcf_v3, &
-       alat,natom,nsp=>nspin,nl,nnc,nrx, cutbase,lcutmx,nn,nindxc,nindx,nocc,nunocc, lcutmxa_in=>lcutmxa,&
+       alat,natom,nsp=>nspin,lmxax,nnc,nrx, cutbase,lcutmx,nn,nindxc,nindx,nocc,nunocc, lcutmxa_in=>lcutmxa,&
        ibasf,laf
   use m_mpi,only: MPI__Initialize !no mpi now but used for exit routine rx, finalizing MPI
   use m_excore,only: excore
@@ -44,9 +44,10 @@ subroutine hbasfp0() bind(C) ! Generates orthonormal optimal product basis and r
   allocate(lcutmxa(1:natom))
   lcutmxa=lcutmxa_in
   if(ix==8) lcutmxa=0
-  lmx  = 2*(nl-1)
-  lmx2 = (lmx+1)**2
-  nphi = nrx*nl*nn*natom
+!  nl=lmxax+1 !lmxax is max l for augmentation
+!  lmx  = 2*(lmxax)
+!  lmx2 = (lmx+1)**2
+  nphi = nrx*(lmxax+1)*nn*natom
   if(ix==8) write(stdo,*)' Enfoece lcutmx=0 for all atoms'
   write(stdo,"(' lcutmxa=',*(g0))") lcutmxa(1:natom)
   write(stdo,*)' --- end of reindx ---'
@@ -55,9 +56,9 @@ subroutine hbasfp0() bind(C) ! Generates orthonormal optimal product basis and r
   allocate(  ncindx(ncoremx,nbas), lcindx(ncoremx,nbas),  nrad(nbas), &
        nindx_r(1:nradmx,1:nbas), lindx_r(1:nradmx,1:nbas), &
        aa(nbas),bb(nbas),zz(nbas), rr(nrx,nbas), nrofi(nbas) , &
-       phitoto(nrx,0:nl-1,nn,nbas,nsp), &
-       phitotr(nrx,0:nl-1,nn,nbas,nsp), &
-       nc_max(0:nl-1,nbas),ncore(nbas) )
+       phitoto(nrx,0:lmxax,nn,nbas,nsp), &
+       phitotr(nrx,0:lmxax,nn,nbas,nsp), &
+       nc_max(0:lmxax,nbas),ncore(nbas) )
   read(ifphi) nrad(1:nbas)
   read(ifphi) nindx_r(1:nradmx,1:nbas),lindx_r(1:nradmx,1:nbas)
   nc_max=0
@@ -105,7 +106,7 @@ subroutine hbasfp0() bind(C) ! Generates orthonormal optimal product basis and r
      block
        integer:: i,iclass(1:nbas)
        iclass=[(i,i=1,nbas)]
-       call excore(nrx,nl,nnc,natom,nsp,natom,phitotr(1:nrx,0:nl-1,1:nnc,1:natom,1:nsp), nindxc,iclass, aa,bb,nrofi,rr)
+       call excore(nrx,lmxax,nnc,natom,nsp,natom,phitotr(1:nrx,0:lmxax,1:nnc,1:natom,1:nsp), nindxc,iclass, aa,bb,nrofi,rr)
      endblock
      goto 998
   endif
@@ -121,14 +122,14 @@ subroutine hbasfp0() bind(C) ! Generates orthonormal optimal product basis and r
         endif
      enddo
   endif
-  allocate( cutbasex(0:2*(nl-1)) ) ! override cutbase to make epsPP_lmfh safer. may2013takao
+  allocate( cutbasex(0:2*(lmxax)) ) ! override cutbase to make epsPP_lmfh safer. may2013takao
   cutbasex=cutbase
   if(ix==4) then
      write(stdo,*)' !!! set tolerance for PB to be 1d-6 ---'
      cutbasex=1d-6
   endif
   do ic = 1,natom
-     call basnfp_v2(nocc(1,1,ic),nunocc(1,1,ic),nindx(1,ic),nl,nn,nrx, nrofi(ic),rr(1,ic),aa(ic),bb(ic),ic, &
+     call basnfp_v2(nocc(1,1,ic),nunocc(1,1,ic),nindx(1,ic),lmxax,nn,nrx, nrofi(ic),rr(1,ic),aa(ic),bb(ic),ic, &
           phitoto,phitotr,nsp,natom, cutbasex, lcutmxa(ic),ix,alat,nc_max(0,ic) )
   enddo
   if(ix==0) call rx0( ' OK! hbasfp0 ix=0 normal mode ')

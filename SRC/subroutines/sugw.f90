@@ -13,7 +13,7 @@ contains
     use m_ext,only:   sname
     use m_lmfinit,only: ham_pwmode,pwemax,ham_oveps,lrsig=>ham_lsig,nlmto,lso,nspx !nspx=nsp/nspc
     use m_lmfinit,only: ham_scaledsigma,alat=>lat_alat,nsp,nspc,ispec,nspec,pos
-    use m_lmfinit,only: nbas,n0,nppn,nkap0,slabl,nmcorex=>nmcore,iantiferro,lmxax,nrmx, lmxax
+    use m_lmfinit,only: nbas,n0,nppn,nkap0,slabl,nmcorex=>nmcore,iantiferro,lmxax,nrmx
     use m_lattic,only: plat=>lat_plat, qlat=>lat_qlat,bas=>rv_a_opos
     use m_supot,only: n1,n2,n3, gmax=>lat_gmax
     use m_rdsigm2,only: getsenex, senex,dsene

@@ -1,4 +1,4 @@
-subroutine basnfp_v2(nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate product basis siwhin MT
+subroutine basnfp_v2(nocc,nunocc,nindx, lmxax,nn,nrx,nrofi,r,aa,bb,ic, & !Generate product basis siwhin MT
        phitoto,phitotr,nsp,nclass, cutbase,lcutmx,ixx,alat,nc_max)
   use m_keyvalue,only:getkeyvalue
   use m_ll,only: ll
@@ -22,16 +22,16 @@ subroutine basnfp_v2(nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate 
   implicit none
   character(8) :: xtxx
   integer,parameter:: nxxmx=300, npradmx=300
-  integer:: nl,nn,nrx, nocc(0:nl-1,nn), nunocc(0:nl-1,nn), nindx(0:nl-1), &
-       npr(0:nl-1,nn,0:nl-1,nn),nprpd(0:nl-1,nn,0:nl-1,nn), &
+  integer:: nn,nrx, lmxax, nocc(0:lmxax,nn), nunocc(0:lmxax,nn), nindx(0:lmxax), &
+       npr(0:lmxax,nn,0:lmxax,nn),nprpd(0:lmxax,nn,0:lmxax,nn), &
        iprad,l1,l2,n1,n2,lx,nx, ifix,icx
-  real(8):: phi(nrx,0:nl-1,nn) 
+  real(8):: phi(nrx,0:lmxax,nn) 
   integer:: nrofi, i,kmax,nx1,nx2,ib1,ib2,iadd,ibx, &
-       nxx( 0:2*(nl-1) ),nprad, nprod, &
-       nxxold( 0:2*(nl-1) ), ngmxx( 0:2*(nl-1) ),nodnum,nbasen
+       nxx( 0:2*(lmxax) ),nprad, nprod, &
+       nxxold( 0:2*(lmxax) ), ngmxx( 0:2*(lmxax) ),nodnum,nbasen
   real(8)::    aa,bb,tot, hnrofi,rmax, &
        r(nrx),sig,sig0,ovv,rxx(nrofi) ,epsx,sxx,rrt, &
-       alpha,polinta,cutbase(0:2*(nl-1)),adist,rax, plgndr
+       alpha,polinta,cutbase(0:2*(lmxax)),adist,rax, plgndr
   real(8):: screen(nrofi),screent(nrofi),kappa,axx,epp   ,f0(nrofi)
   real(8),allocatable:: ovvv(:,:),ovvi(:,:),sc(:,:),oso(:,:), &
        rkp (:,:), rkm (:,:), &
@@ -50,11 +50,11 @@ subroutine basnfp_v2(nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate 
   real(8),allocatable ::phij(:),psij(:)
   integer::lxx,nxxx,ir,n,l,ierr,   lcutmx,lxxm
   integer::nsp,nclass,ifppb,isp,ip1,ip2
-  real(8) :: phitoto(nrx,0:nl-1,nn,nclass, nsp)
-  real(8) :: phitotr(nrx,0:nl-1,nn,nclass, nsp)
+  real(8) :: phitoto(nrx,0:lmxax,nn,nclass, nsp)
+  real(8) :: phitotr(nrx,0:lmxax,nn,nclass, nsp)
   real(8),allocatable :: ppbrd(:,:,:,:,:,:),absqg2x(:) !,wqt(:), q0i(:,:)
   real(8),allocatable :: phiav(:,:,:)
-  real(8) :: rnormphi(0:nl-1,nn) ,alat,sss
+  real(8) :: rnormphi(0:lmxax,nn) ,alat,sss
   integer :: irx,noo,nuu      ,ix !,nq0i, neps, nq0ix
   integer:: zvztest,nlmlsp
   real(8):: ovvs,rrr(nrx)
@@ -67,20 +67,20 @@ subroutine basnfp_v2(nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate 
   logical :: newaniso,addbasnew, read_bzdata_done=.false. !smbasis,
   character(15) :: rprodf
   integer :: ifprodmt, l1l2p,l1l2m,inn !smbasiscut,
-  integer :: lxlnln(0:2*(nl-1), 0:nl-1,nn,0:nl-1,nn) ,nzz
+  integer :: lxlnln(0:2*(lmxax), 0:lmxax,nn,0:lmxax,nn) ,nzz
 !  real(8),allocatable:: prodmt (:,:,:)
   real(8):: prr(3),derie,derie2,ddd,derie3
-  integer:: nc_max(0:nl-1),nnn !, smbasis_case
+  integer:: nc_max(0:lmxax),nnn !, smbasis_case
   character(len=100):: recxxx
   character(len=160):: recxxx2
-  integer:: npbasmax(0:2*(nl-1)),ifinin,iax,izz,naxx,verbose
+  integer:: npbasmax(0:2*(lmxax)),ifinin,iax,izz,naxx,verbose
   integer,allocatable:: ipx(:,:)
   real(8):: bb1,bb1s,aa_in,bb_in
   integer:: nl2m1,nrofi_in,lxx_
   print *,' basnfp_v2: ********** start ******** nrofi=',nrofi
-  allocate(phiav(nrx,0:nl-1,nn),rprod(1:nrx, npradmx),ipx(0:2*(nl-1),nxxmx))
+  allocate(phiav(nrx,0:lmxax,nn),rprod(1:nrx, npradmx),ipx(0:2*(lmxax),nxxmx))
   ! To make the sign of phitotr safer; but I may already added something for keeping sss=1d0, right?
-  do l1 = 0, nl-1
+  do l1 = 0, lmxax
      do n1 = 1, nindx(l1)
         if(nsp==1) then
            phiav(1:nrx, l1, n1) = phitotr(1:nrx, l1, n1, ic, 1)
@@ -92,7 +92,7 @@ subroutine basnfp_v2(nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate 
      enddo
    enddo
    
-  lxx = 2*(nl-1)
+  lxx = 2*(lmxax)
   ptestixx4: if(ixx==4) then  ! ccccccccc start of ptest mode cccccccccccccccccccccccccccccccccccccccccccc
     if( .NOT. read_bzdata_done) then
       call read_bzdata()
@@ -150,7 +150,7 @@ subroutine basnfp_v2(nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate 
     goto 1212
   endif ptestixx4
   
-  normcheck: do l1 = 0, nl-1
+  normcheck: do l1 = 0, lmxax
      do n1 = 1, nindx(l1)
         call gintxx(phiav(1,l1,n1),phiav(1,l1,n1),aa,bb,nrofi,ovv)
         write(6,"(' norm check for phi='2i3,d13.6)") l1,n1,ovv
@@ -167,9 +167,9 @@ subroutine basnfp_v2(nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate 
   nxxold = 0
   iprad  = 0
   rprod  = 0d0
-  do 203 l1 = 0, nl-1
+  do 203 l1 = 0, lmxax
     do 202 n1 = 1, nindx(l1)  ; noo = nocc  (l1,n1)
-      do 201 l2 = 0, nl-1
+      do 201 l2 = 0, lmxax
         do 20 n2 = 1, nindx(l2)  ; nuu = nunocc(l2,n2)
           !!  phiav * phiav ----
           if( noo>=1 .AND. nuu>=1 ) then
@@ -201,7 +201,7 @@ subroutine basnfp_v2(nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate 
 !   if(smbasis()) then ! Dec2005
 !      !$$$!!--- CASE1. Add r^l r^(l+2) anyway. ---
 !      if(smbasis_case()==1) then
-!         do 110 lx  = 0, 2*(nl-1)
+!         do 110 lx  = 0, 2*(lmxax)
 !            if(lx > smbasiscut() ) cycle
 !            do inn = 1, 2
 !               iprad = iprad + 1
@@ -216,7 +216,7 @@ subroutine basnfp_v2(nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate 
 ! 110     enddo
 !      elseif(smbasis_case()==2) then
 !         !!--- CASE2 ---
-!         do 111 lx  = 0, 2*(nl-1)
+!         do 111 lx  = 0, 2*(lmxax)
 !            if(lx > smbasiscut() ) cycle
 !            nxx_i =nxx(lx)
 !            do inn = nxx_i+1, 2
@@ -238,7 +238,7 @@ subroutine basnfp_v2(nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate 
 !         !!     1. smaller l_1 +l_2,
 !         !!     2. smaller |l1-l2|
 !         !!     3.  phi*phi,  phi*phidot, phi*local
-!         do 112 lx  = 0, 2*(nl-1)
+!         do 112 lx  = 0, 2*(lmxax)
 !            if(lx>  smbasiscut() ) cycle
 !            inn=0
 !            l1= lx/2
@@ -270,7 +270,7 @@ subroutine basnfp_v2(nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate 
 ! 112     enddo
 !      endif
      !      print *, '======= basis set up =============='
-     !      do lx  = 0, 2*(nl-1)
+     !      do lx  = 0, 2*(lmxax)
      !      do nx = 1, nxx(lx) ;  ib1 = ipx(lx,nx)
      !        nprod = nprod + 2*lx+1
      !        write(6,"('lx nx number ipx=',4i4)") lx, nx, 2*lx+1, ipx(lx,nx)
@@ -312,7 +312,7 @@ subroutine basnfp_v2(nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate 
   if(nprad > npradmx)call rx( ' basnfp: nprad > npradmx --- Enlarge npradmx in basnfp.f')
   !! nprod
   nprod = 0
-  do lx = 0, lxx !2*(nl-1)
+  do lx = 0, lxx !2*(lmxax)
      do nx = 1, nxx(lx)
         nprod = nprod + 2*lx+1
         write(6,"('lx nx number ipx=',4i4)") lx, nx, 2*lx+1, ipx(lx,nx)
@@ -320,9 +320,9 @@ subroutine basnfp_v2(nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate 
   enddo
   print *,' *** total number of product basis nprod=', nprod
   !! ovmt
-  kmax = lxx !2*(nl-1)
-  allocate( ovmt  (nprad,nprad,0:lxx)) !2*(nl-1))  )
-  do lx  = 0, lxx !2*(nl-1)
+  kmax = lxx !2*(lmxax)
+  allocate( ovmt  (nprad,nprad,0:lxx)) !2*(lmxax))  )
+  do lx  = 0, lxx !2*(lmxax)
      do nx1 = 1, nxx(lx) ;  ib1 = ipx(lx,nx1)
         do nx2 = 1, nxx(lx) ;  ib2 = ipx(lx,nx2)
            call gintxx(rprod(1,ib1),rprod(1,ib2),aa,bb,nrofi, ovv)
@@ -400,7 +400,7 @@ subroutine basnfp_v2(nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate 
   allocate( iprlc(kmx), lprc(kmx) )
   k = 0
   iprlc(1:kmx) = 0
-  do lx = 0, lxx !2*(nl-1)
+  do lx = 0, lxx !2*(lmxax)
      do nx = 1, nxx(lx)
         k = k + 1
         if( k==1 ) then
@@ -450,7 +450,7 @@ subroutine basnfp_v2(nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate 
 !  allocate(rprodx(nrofi,maxval(nxx(0:lxx)),0:lxx))
 !  allocate( iprlc(kmx), lprc(kmx) )
 !  k = 0
-!  do lx = 0, lxx !2*(nl-1)
+!  do lx = 0, lxx !2*(lmxax)
 !     do nx = 1, nxx(lx)
 !        k = k + 1
 !        read(ificrb,"(3i5)"   ) k,iprlc(k),lprc(k)
@@ -465,7 +465,7 @@ subroutine basnfp_v2(nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate 
     if(nxx(l)>0) lxx_=l
   enddo newlxx
   lxx=lxx_ !lxx is ic dependent 
-  allocate( ppbrd(0:nl-1,nn,0:nl-1,nn, 0:lxx, maxval(nxx(0:lxx)) ) )
+  allocate( ppbrd(0:lmxax,nn,0:lmxax,nn, 0:lxx, maxval(nxx(0:lxx)) ) )
   ppbrd =.9999d99 !for safe
   open(newunit=ifppb,file='__PPBRD_V2_'//char( 48+ic/10 )//char(48+mod(ic,10)),form='unformatted')
   write(ifppb) nblocha, lxx
@@ -482,9 +482,9 @@ subroutine basnfp_v2(nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate 
     endif
     do  lx = 0, lxx
       do  nx = 1, nxx(lx)
-        do  l1 = 0, lmxa(ic) !nl-1
+        do  l1 = 0, lmxa(ic) !lmxax
           do  n1 = 1, nindx(l1)
-            do  l2 = 0, lmxa(ic) !nl-1
+            do  l2 = 0, lmxa(ic) !lmxax
               do  n2 = 1, nindx(l2)
                 if(lx <abs(l1-l2) .OR. l1+l2<lx) cycle
                 rphiphi(1)       = 0d0
@@ -504,9 +504,9 @@ subroutine basnfp_v2(nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate 
   ! prodmt proddmt (value and slope of the product at MT). !oct2005
   !    Stored into the tail of PPBRD* files.
   ! if(smbasis()) then
-  !    allocate( prodmt (2,maxval(nxx(0:2*(nl-1))),0:2*(nl-1)))
+  !    allocate( prodmt (2,maxval(nxx(0:2*(lmxax))),0:2*(lmxax)))
   !    prodmt = 1d10 !for safe
-  !    do lx = 0, 2*(nl-1)
+  !    do lx = 0, 2*(lmxax)
   !       do nx = 1, nxx(lx)
   !          prodmt(1,nx,lx)= rprodx(nrofi,nx,lx)/r(nrofi)
   !          prodmt(2,nx,lx)= derie2(r, rprodx(1:nrofi,nx,lx)/r(1:nrofi), nrofi)
@@ -514,8 +514,8 @@ subroutine basnfp_v2(nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate 
   !    enddo
   !    open(newunit=ifprodmt,file='PRODMT_'//charnum3(ic),form='unformatted')
   !    write(ifprodmt) nl
-  !    write(ifprodmt) maxval(nxx(0:2*(nl-1)))
-  !    write(ifprodmt) nxx(0:2*(nl-1))
+  !    write(ifprodmt) maxval(nxx(0:2*(lmxax)))
+  !    write(ifprodmt) nxx(0:2*(lmxax))
   !    write(ifprodmt) prodmt
   !    close(ifprodmt)
   !    deallocate(prodmt)
@@ -556,7 +556,7 @@ subroutine basnfp_v2(nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate 
     if(nsp/=2    ) call rx( " This mode is only for nsp==2")
     rho1= sqrtfpi*rho1  !rho1 is not including sqrt(fpi) Right?
     open(newunit=ifv,file='MixSpin.'//charnum3(ibas))
-    write(ifv,"(2i10,' ! ibas, max l of product basis' )") ibas,lxx !2*(nl-1)
+    write(ifv,"(2i10,' ! ibas, max l of product basis' )") ibas,lxx !2*(lmxax)
     write(ifv,"(i10,'           ! nxx(lx)'  )") nxx(0:lxx)
     do ilmx = 1,(lxx+1)**2
       lx = ll(ilmx)
