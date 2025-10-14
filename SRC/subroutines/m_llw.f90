@@ -42,9 +42,6 @@ module m_llw
   logical,protected,public:: w4pmode
   integer,protected,public:: ngbq0
   private
-  complex(kind=kp), allocatable :: zw(:,:)
-  complex(8),allocatable,target :: epstilde(:,:)
-  complex(8), pointer :: epstinv(:,:) => null()
   real(8),parameter:: pi=4d0*datan(1d0),fourpi = 4d0*pi
 contains
   subroutine WVRllwR(q,iq,nmbas1,nmbas2,is_m_basis)
@@ -55,30 +52,36 @@ contains
     integer:: nmbas1,nmbas2,ngc0,ifw4p,ifrcw,mreclx
     real(8):: frr,q(3),vcou1,quu(3),eee
     logical::  localfieldcorrectionllw,cmdopt0,emptyrun
-    complex(kind=kp), allocatable :: zxqw(:,:), x_m2e(:,:)
     logical,save:: init=.true.
     type(stopwatch) :: t_sw_matinv, t_sw_x_gather, t_sw_x_m2e_xf
     integer :: istat
 !    complex(8):: zxq(nmbas1,nmbas2,nw_i:nw)
     character(10):: i2char
+    complex(kind=kp), allocatable :: zw(:,:), zxqw(:,:), x_m2e(:,:)
+    complex(8), allocatable, target :: epstilde(:,:)
+    complex(8), pointer :: epstinv(:,:) => null()
+#ifdef __GPU
+    attributes(device) :: epstinv, epstilde
+#endif
     mreclx=mrecl
     emptyrun=.false. !cmdopt0('--emptyrun')
     if(init) then !initialization related to w4pmode, zw, tpioa...
        allocate( llw(nw_i:nw,nq0i),source=(1d99,0d0) )
        if(sum(ixyz)/=0) w4pmode= .TRUE. 
        if(w4pmode) allocate( wmuk(2:nblochpmx,3),source=(1d99,0d0))
-       allocate( zw(nblochpmx,nblochpmx),source=(0d0,0d0) )
        init=.false.
     endif
     call stopwatch_init(t_sw_matinv, 'matinv')
     call stopwatch_init(t_sw_x_gather, 'gather')
-    call stopwatch_init(t_sw_x_m2e_xf, 'xf chi: M2E')
+    call stopwatch_init(t_sw_x_m2e_xf, 'xf chi/W: M2E/E2M')
     call readqg0('QGcou', (/0d0,0d0,0d0/),  quu,ngc0) ! ngb is q-dependent. released at the end of WVIllwi
     ngbq0 = nbloch+ngc0
     allocate(epstilde(ngb,ngb))
-    allocate (zxqw(ngb, ngb), x_m2e(ngb,ngb))
+    allocate(zxqw(ngb, ngb))
+    allocate(x_m2e(ngb,ngb))
+    allocate(zw(nblochpmx,nblochpmx))
 
-    !$acc enter data create(zxqw, epstilde, zw, x_m2e) copyin(vcousq)
+    !$acc enter data create(zxqw, zw, x_m2e) copyin(vcousq)
     if(nspin == 1) then
       !$acc kernels present(zxq)
       zxq(:,:,:) = 2d0*zxq(:,:,:)
@@ -97,7 +100,7 @@ contains
         if(emptyrun) exit
         frr= dsign(freq_r(abs(iw)),dble(iw))
         !$acc kernels
-        zw(:,:) = 0d0
+          zw(:,:) = (0_kp, 0_kp)
         !$acc end kernels
         if(iq==1) then
           ix=1
@@ -137,18 +140,18 @@ contains
 
           call stopwatch_start(t_sw_matinv)
           epstinv => epstilde
-          !$acc data create(epstinv)
-          !$acc host_data use_device(epstinv)
           istat = zminv(epstinv(ix+1,ix+1), n=ngb-ix, lda=ngb)
-          !$acc end host_data
           call stopwatch_pause(t_sw_matinv)
           !  w4p writing eps
           if(iw==0 .AND. w4pmode) then ! static epstinv is saved. For q=0 epstilde (mu=1 skipped). For q/=0 full matrix inversion. ix=1 is set for q=0)
-            !$acc update host(epstinv)
+            block
+            real(kind=kp) :: epstinv_h(ngb,ngb)
+            epstinv_h(:,:) = epstinv(:,:) !copy from CPU to GPU
             open(newunit=ifw4p,file='__W4PHONON.'//i2char(iq),form='unformatted')
             write(ifw4p) iq,q,ngb,ix !ix=0, or ix=1 for q=0 (iq=1)
-            write(ifw4p) epstinv(ix+1:ngb,ix+1:ngb)
+            write(ifw4p) epstinv_h(ix+1:ngb,ix+1:ngb)
             close(ifw4p)
+            endblock
           endif
           !$acc kernels loop independent collapse(2)
           do igb2=1+ix,ngb
@@ -158,9 +161,7 @@ contains
             enddo
           enddo
           !$acc end kernels
-          !$acc end data
           nullify(epstinv)
-
           ! W^[M] = AW^[E]A^\dagger
           EtoMBasisTransformation: if(is_m_basis .and. iq /= 1) then
             call stopwatch_start(t_sw_x_m2e_xf)
@@ -170,7 +171,6 @@ contains
             !$acc end host_data
             call stopwatch_pause(t_sw_x_m2e_xf)
           endif EtoMBasisTransformation
-
           !$acc update host(zw)
           write(ifrcw, rec= iw-nw_i+1 ) zw !  WP = vsc-v
           call tr_chkwrite("freq_r iq iw realomg trwv=", zw, iw, frr,nblochpmx, nbloch,ngb,iq)
@@ -224,11 +224,7 @@ contains
         !$acc end kernels
         call stopwatch_start(t_sw_matinv)
         epstinv => epstilde
-        !$acc data copyout(epstinv)
-        !$acc host_data use_device(epstinv)
         istat = zminv(epstinv(ix+1,ix+1), n=ngb-ix, lda=ngb)
-        !$acc end host_data
-        !$acc end data
         call stopwatch_pause(t_sw_matinv)
         if(iq0<=nq0i) llw(iw,iq0)= 1d0/epstinv(1,1)
         !     ! Wing elements calculation july2016    ! We need check nqb is the same as that of q=0
@@ -248,19 +244,18 @@ contains
              iq,iw,freq_r(iw),llw(iw,iq0),1d0-vcou1*zxqw(1,1)
              ! iq,iw,freq_r(iw),llw(iw,iq0),1d0-vcou1*zxq(1,1,iw)
         continue               !iw
-        nullify(epstinv)
         endif rootq_if2
 1115  enddo
     endif
-    !$acc exit data delete(zxqw, epstilde, zw, vcousq, x_m2e)
-    deallocate(zxqw)
+    !$acc exit data delete(zxqw, zw, vcousq, x_m2e)
+    deallocate(zw, zxqw, epstilde, x_m2e)
     if(mpi__root_q) then 
       call stopwatch_show(t_sw_x_gather)
       call stopwatch_show(t_sw_matinv)
       if(is_m_basis) call stopwatch_show(t_sw_x_m2e_xf)
     endif
   end subroutine WVRllwR
-  subroutine WVIllwi(q,iq,nmbas1,nmbas2,is_m_basis)
+  subroutine WVIllwI(q,iq,nmbas1,nmbas2,is_m_basis)
     intent(in)::       q,iq,     nmbas1,nmbas2 !zxqi can be twiced when nspin=2
     integer:: nmbas1,nmbas2,mreclx
     integer:: iq,iq0,nwmax,nwmin,iw,imode,ix,igb1,igb2,ifllwi,ifrcwi
@@ -268,19 +263,26 @@ contains
     logical::  localfieldcorrectionllw,cmdopt0,emptyrun
     logical, intent(in) :: is_m_basis
     logical,save:: init=.true.
-    complex(kind=kp), allocatable :: zxqw(:,:), x_m2e(:,:)
 !    complex(8):: zxqi(nmbas1,nmbas2,niw)
     character(10):: i2char
     integer :: istat
     type(stopwatch) :: t_sw_matinv, t_sw_x_gather, t_sw_x_m2e_xf
-    allocate (zxqw(ngb, ngb), x_m2e(ngb,ngb))
-    !$acc enter data create(zxqw, x_m2e, epstilde, zw) copyin(vcousq)
+    complex(kind=kp), allocatable :: zw(:,:), zxqw(:,:), x_m2e(:,:)
+    complex(8), allocatable, target :: epstilde(:,:)
+    complex(8), pointer :: epstinv(:,:) => null()
+#ifdef __GPU
+    attributes(device) :: epstinv, epstilde
+#endif
+    allocate(epstilde(ngb,ngb))
+    allocate(zxqw(ngb, ngb))
+    allocate(x_m2e(ngb,ngb))
+    allocate(zw(nblochpmx,nblochpmx))
+    !$acc enter data create(zxqw, x_m2e, zw) copyin(vcousq)
     mreclx=mrecl
     emptyrun=.false. !cmdopt0('--emptyrun')
     if(init) then
-       allocate( llwI(niw,nq0i) )
+       allocate(llwI(niw,nq0i), source=(1d99,0d0))
        init=.false.
-       llwI= 1d99
     endif
     call stopwatch_init(t_sw_matinv, 'matinv')
     call stopwatch_init(t_sw_x_gather, 'gather')
@@ -299,7 +301,7 @@ contains
           if(emptyrun) exit
           !!  Eqs.(37),(38) in PRB81 125102
           !$acc kernels
-          zw(:,:)=0d0
+          zw(:,:) = (0_kp, 0_kp)
           !$acc end kernels
           if(iq==1) then
              ix=1
@@ -336,10 +338,7 @@ contains
             !$acc end kernels
             call stopwatch_start(t_sw_matinv)
             epstinv => epstilde
-            !$acc data create(epstinv)
-            !$acc host_data use_device(epstinv)
             istat = zminv(epstinv(ix+1,ix+1), n=ngb-ix, lda=ngb)
-            !$acc end host_data
             call stopwatch_pause(t_sw_matinv)
             !$acc kernels loop independent collapse(2)
             do igb2=ix+1,ngb
@@ -349,7 +348,6 @@ contains
                enddo
             enddo
             !$acc end kernels
-            !$acc end data
             nullify(epstinv)
             ! W^[M] = AW^[E]A^\dagger except iq==1
             EtoMBasisTransformation: if(is_m_basis .and. iq /= 1) then
@@ -413,13 +411,9 @@ contains
              !$acc end kernels
              call stopwatch_start(t_sw_matinv)
              epstinv => epstilde
-             !$acc data copyout(epstinv)
-             !$acc host_data use_device(epstinv)
              istat = zminv(epstinv(ix+1,ix+1), n=ngb-ix, lda=ngb)
-             !$acc end host_data
-             !$acc end data
              call stopwatch_pause(t_sw_matinv)
-             if(iq0<=nq0i) llwI(iw,iq0)= 1d0/epstinv(1,1)
+             if(iq0<=nq0i) llwI(iw,iq0)= 1d0/epstinv(1,1) !copy to CPU
           !else
           !   if(iq0<=nq0i) llwI(iw,iq0)=  1d0 -vcou1*zxqi(1,1,iw)
           !endif
@@ -431,15 +425,14 @@ contains
           endif
 1116   enddo
     endif
-    !$acc exit data delete(zxqw, epstilde, zw, vcousq, x_m2e) 
-    deallocate(epstilde)
-    deallocate(zxqw)
+    !$acc exit data delete(zxqw, zw, vcousq, x_m2e) 
+    deallocate(zxqw, zw, epstilde, x_m2e)
     if(mpi__root_q) then 
       call stopwatch_show(t_sw_x_gather)
       call stopwatch_show(t_sw_matinv)
       if(is_m_basis) call stopwatch_show(t_sw_x_m2e_xf)
     endif
-  end subroutine WVILLWI
+  end subroutine WVIllWI
   subroutine MPI__sendllw2(iqxend,MPI__ranktab) !for hx0fp0
     use m_mpi,only: MPI__root,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,MPI__rank,MPI__size
     intent(in)::             iqxend

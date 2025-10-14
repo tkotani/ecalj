@@ -80,18 +80,21 @@ contains
     use m_kind, only: kp => kindrcxq
     use m_readVcoud,only: Readvcoud, ngb, ReleaseZcousq, zcousq
     use m_blas, only: m_op_C
-#ifdef __MP
-    use m_blas, only: gemm_h => cmm_h
+#if defined(__MP) && defined(__GPU)
+    use m_blas, only: gemm => cmm_d
+#elif defined(__MP)
+    use m_blas, only: gemm => cmm_h
+#elif defined(__GPU)
+    use m_blas, only: gemm => zmm_d
 #else
-    use m_blas, only: gemm_h => zmm_h
+    use m_blas, only: gemm => zmm_h
 #endif
     integer:: ifrcwx,iq,ircw,iw,nini,nend,mreclx
     real(8)::q(3)
     logical:: is_m_basis
-    complex(kind=kp),allocatable:: zw(:,:)
+    complex(kind=kp),allocatable:: zw(:,:), x_m2e(:,:), m2e(:,:)
     character(10):: i2char
     integer :: istat
-    complex(kind=kp),allocatable :: x_m2e(:,:), m2e(:,:)
     mreclx=mrecl
     !! Read WVR and WVI at Gamma point, and give correct W(0) (averaged in the Gamma cell, where
     !! Gamma cell) is the micro cell of BZ including Gamma point).
@@ -106,6 +109,7 @@ contains
       allocate(m2e(ngb,ngb), x_m2e(ngb, ngb))
       m2e(1:ngb,1:ngb) = cmplx(zcousq(1:ngb,1:ngb),kind=kp)
       call ReleaseZcousq()                  !Release zcousq used in set_m2e_prod_basis
+      !$acc enter data create(x_m2e) copyin(m2e)
     endif
     do ircw=1,2
        if (ircw==1) then
@@ -123,14 +127,20 @@ contains
             if(ircw==1) zw(1,1) = cmplx(w0(iw),kind=kp)
             if(ircw==2) zw(1,1) = cmplx(w0i(iw),kind=kp)
             if(is_m_basis) then
-              istat = gemm_h(zw, m2e, x_m2e, ngb, ngb, ngb, opB=m_op_C, ldA=nblochpmx)
-              istat = gemm_h(m2e, x_m2e, zw, ngb, ngb, ngb, ldC=nblochpmx)
+              !$acc data copy(zw) present(x_m2e,m2e)
+              istat = gemm(zw, m2e, x_m2e, ngb, ngb, ngb, opB=m_op_C, ldA=nblochpmx)
+              istat = gemm(m2e, x_m2e, zw, ngb, ngb, ngb, ldC=nblochpmx)
+              !$acc end data
             endif
           endif
           write(ifrcwx,rec=iw-nini+1) zw !(1:ngb,1:ngb)
        enddo
        close(ifrcwx)
     enddo
+    if(is_m_basis) then
+      !$acc exit data delete(x_m2e,m2e)
+      deallocate(x_m2e,m2e)
+    endif
   end subroutine modifyWV0
   
   subroutine getw0(llw,ii,ie,nq0i,dmlx,epinvq0i,wklm,wbz,lmxax,q0i,epinv, w0,llmat)
