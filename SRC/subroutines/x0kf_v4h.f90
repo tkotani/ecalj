@@ -16,6 +16,15 @@ module m_x0kf
   use m_readVcoud,only:   vcousq,zcousq,ngb,ngc
   use m_kind,only: kp => kindrcxq
   use m_mpi,only: ipr
+#if defined(__MP) && defined(__GPU)
+  use m_blas, only: gemm => cmm_d
+#elif defined(__MP)
+  use m_blas, only: gemm => cmm_h
+#elif defined(__GPU)
+  use m_blas, only: gemm => zmm_d
+#else
+  use m_blas, only: gemm => zmm_h
+#endif
   implicit none
   public:: x0kf_zxq, deallocatezxq, deallocatezxqi
   complex(kind=kp), public, allocatable:: zxqi(:,:,:)   !Not yet protected because of main_hx0fp0
@@ -132,7 +141,7 @@ contains
     ierr=0
   endfunction x0kf_v4hz_init
   
-  subroutine x0kf_zxq(realomega,imagomega, q,iq,npr,schi,crpa,chipm,nolfco,q00,zzr)
+  subroutine x0kf_zxq(realomega,imagomega, q,iq,npr,schi,crpa,chipm,nolfco,q00,zzr, is_m_basis)
     use m_readgwinput,only: ecut, ecuts
     use m_dpsion,only: dpsion5, dpsion_init, dpsion_chiq, dpsion_setup_rcxq
     use m_freq,only: nw_i, nw_w=>nw, niwt=>niw
@@ -151,7 +160,7 @@ contains
     use m_gpu, only: use_gpu
     implicit none
     intent(in)::      realomega,imagomega, q,iq,npr,schi,crpa,chipm,nolfco,q00,zzr
-    logical:: realomega,imagomega,crpa,chipm,nolfco
+    logical:: realomega,imagomega,crpa,chipm,nolfco, is_m_basis
     integer:: iq, isp_k,isp_kq,ix0,is,isf,kx,ierr,npr,k, ipr_col, npr_col
     real(8),optional:: q00(3)
     complex(8),optional:: zzr(:,:)
@@ -160,6 +169,7 @@ contains
     logical :: tetwtk = .false.
     real(8) :: zmel_max_size
     type(stopwatch) :: t_sw_zmel, t_sw_x0, t_sw_dpsion
+    logical ::  _is_m_basis
     qq=q
 
     ipr_col = mpi__ipr_col(mpi__rank_b) ! start index of column on xq for product basis set
@@ -262,11 +272,11 @@ contains
                   !but, MPI communication is bottle-neck when GPUs are used. Therefore, it is only used in without GPU case.
                   call get_zmel_init_gemm(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=ns1,ns2=ns2, ispm=isp_k, &
                        nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., &
-                       zmelconjg=.true.)
+                       zmelconjg=.true., is_m_basis = is_m_basis)
                 else
                   call get_zmel_init_gemm(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=ns1,ns2=ns2, ispm=isp_k, &
                        nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., &
-                       zmelconjg=.true., comm = comm_b)
+                       zmelconjg=.true., comm = comm_b, is_m_basis = is_m_basis)
                 endif
                 call stopwatch_pause(t_sw_zmel)
                 call stopwatch_start(t_sw_x0)
@@ -325,17 +335,19 @@ contains
     !$acc exit data delete(zxqi)
     deallocate(zxqi)
   end subroutine deallocatezxqi
-  subroutine x0kf_zmel( q,k, isp_k,isp_kq)!, GPUTEST) ! Return zmel= <phi phi |M_I> in m_zmel
-    use m_mpi, only: comm_b
-    intent(in)   ::     q,k, isp_k,isp_kq   
-    integer::              k,isp_k,isp_kq 
-    real(8)::           q(3)
-    debug=cmdopt0('--debugzmel')
-    if(debug.and.ipr) write(stdo,ftox) 'ggggggggg goto get_zmel_init_gemm',k, nkmin(k),nkmax(k),nctot
-    call get_zmel_init_gemm(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
-         nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., zmelconjg=.true.)
-       !$acc update host(zmel)
-  end subroutine x0kf_zmel
+  ! MO 2025-10-13  Due to the discontinuation of --zmel0 mode, x0kf_zmel is no longer necessary.
+  ! subroutine x0kf_zmel( q,k, isp_k,isp_kq)!, GPUTEST) ! Return zmel= <phi phi |M_I> in m_zmel
+  !   use m_mpi, only: comm_b
+  !   intent(in)   ::     q,k, isp_k,isp_kq   
+  !   integer::              k,isp_k,isp_kq 
+  !   real(8)::           q(3)
+  !   debug=cmdopt0('--debugzmel')
+  !   if(debug.and.ipr) write(stdo,ftox) 'ggggggggg goto get_zmel_init_gemm',k, nkmin(k),nkmax(k),nctot
+  !   call get_zmel_init_gemm(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
+  !        nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false.,
+  !   zmelconjg=.true., is_m_basis=.true.)
+  !      !$acc update host(zmel)
+  ! end subroutine x0kf_zmel
 end module m_x0kf
 
 !! === calculate chi0, or chi0_pm === 

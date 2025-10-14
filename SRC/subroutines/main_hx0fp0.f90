@@ -393,19 +393,19 @@ subroutine hx0fp0()
     call MPI__Setnpr_col(npr, npr_col) ! set the npr_col : split of npr(column) for MPI color_b
     if(epsmode) call writeepsopen()
     if(ipr) write(stdo,"(' ##### ',2i4,' out of nqibz+n0qi nsp=',2i4,' ##### ')")iq, nqibz + nq0i, nspin
-    call x0kf_zxq(realomega,imagomega,qp,iq,npr,schi,crpa,chipm,nolfco, q00,zzr)
+    call x0kf_zxq(realomega,imagomega,qp,iq,npr,schi,crpa,chipm,nolfco, q00,zzr,is_m_basis=.false.)
     if(mpi__root_k) then
     realomegamode: if(realomega) then !===RealOmega === W-V: WVR and WVI. Wing elemments: llw, llwi LLWR,LLWI
       if(mpi__root_k) then
         if(     epsmode) call writerealeps() !write eps file and close
-        if(.NOT.epsmode) call WVRllwR(qp,iq,npr,npr_col)
+        if(.NOT.epsmode) call WVRllwR(qp,iq,npr,npr_col,is_m_basis=.false.)
         call deallocatezxq()
       endif
     endif realomegamode
     imagomegamode: if(imagomega) then ! ImagOmega start ============================
       if(mpi__root_k) then
         if(     epsmode) call rx('hx0fp0: imagoemga=T and epsmod=T is not implemented')
-        if(.NOT.epsmode) call WVIllwI(qp,iq,npr,npr_col)
+        if(.NOT.epsmode) call WVIllwI(qp,iq,npr,npr_col,is_m_basis=.false.)
         call deallocatezxqi()
       endif
     endif imagomegamode

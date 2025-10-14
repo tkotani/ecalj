@@ -107,12 +107,12 @@ subroutine hrcxq() bind(C)
     call Readvcoud(qp, iq,NoVcou=chipm) !Readin vcousq,zcousq ngb ngc for the Coulomb matrix
     npr=ngb
     call MPI__Setnpr_col(npr, npr_col) ! set the npr_col : split of npr(column) for MPI color_b
-    call x0kf_zxq(realomega,imagomega,qp,iq,npr,schi, crpa=.false.,chipm=.false.,nolfco=.false.) !Get zxq,zxqi in m_x0kf
+    call x0kf_zxq(realomega,imagomega,qp,iq,npr,schi, crpa=.false.,chipm=.false.,nolfco=.false.,is_m_basis=.true.) !Get zxq,zxqi in m_x0kf
     if(debug) print *,'sumchk zxq=',sum(zxq),sum(abs(zxq)),' zxqi=',sum(zxqi),sum(abs(zxqi))
     if(mpi__root_k) then
-      call WVRllwR(qp,iq,npr,npr_col) !WV=W-v in RandomPhaseApproximation along realaxis. Write big files WVR.  --emptyrun in it
+      call WVRllwR(qp,iq,npr,npr_col,is_m_basis=.true.) !WV=W-v in RandomPhaseApproximation along realaxis. Write big files WVR.  --emptyrun in it
       call deallocatezxq()
-      call WVIllwI(qp,iq,npr,npr_col) !WV=W-v along imagaxis Write WVI --emptyrun in it 
+      call WVIllwI(qp,iq,npr,npr_col,is_m_basis=.true.) !WV=W-v along imagaxis Write WVI --emptyrun in it 
       call deallocatezxqi()
     endif
     call mpi_barrier(comm_k, ierr)

@@ -194,7 +194,8 @@ contains
               izz=izz+1
               call writemem('=== KXloop '//trim(charext(izz))//' iqiqz irot ip isp icount= '//&
                    trim(charli([kx,irot,ip,isp,icount],5)))
-              call get_zmel_init_gemm(q,qibz_k,irot,qbz_kr,ns1,ns2,isp,1,ntqxx,isp,nctot,ncc=0,iprx=debug,zmelconjg=.false.)
+              call get_zmel_init_gemm(q,qibz_k,irot,qbz_kr,ns1,ns2,isp,1,ntqxx,isp,nctot,ncc=0,iprx=debug,zmelconjg=.false., &
+                                      is_m_basis=.false.)
               call writemem('    endof get_zmel_init')
               call stopwatch_pause(t_sw_zmel)
               call stopwatch_start(t_sw_xc)
@@ -379,10 +380,11 @@ contains
                    trim(charli([kx,irot,ip,isp,icount],5)))
               call stopwatch_start(t_sw_zmel)
 #ifdef __GPU
-              call get_zmel_init_gemm(q,qibz_k,irot,qbz_kr,ns1,ns2,isp,1,ntqxx,isp,nctot,ncc=0,iprx=debug,zmelconjg=.false.)
+              call get_zmel_init_gemm(q,qibz_k,irot,qbz_kr,ns1,ns2,isp,1,ntqxx,isp,nctot,ncc=0,iprx=debug,zmelconjg=.false., &
+                                      is_m_basis=.false.)
 #else
               call get_zmel_init_gemm(q,qibz_k,irot,qbz_kr,ns1,ns2,isp,1,ntqxx,isp,nctot,ncc=0,iprx=debug,zmelconjg=.false., &
-                                      comm=comm_w)
+                                      is_m_basis=.false., comm=comm_w)
 #endif
               call writemem('    endof get_zmel_init')
               call stopwatch_pause(t_sw_zmel)

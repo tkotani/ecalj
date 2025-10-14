@@ -12,6 +12,7 @@ module m_llw
   use m_rdpp,only: nbloch,mrecl
   use m_x0kf,only: zxq,zxqi
   use m_mpi, only: mpi__root_k, mpi__root_q, mpi__size_b,ipr
+  use m_zmel, only: m2e_prod_basis
 #ifdef __MP
   use m_mpi, only: MPI__GatherXqw => MPI__GatherXqw_kind4
 #else
@@ -19,10 +20,20 @@ module m_llw
 #endif
   use m_kind,only: kp => kindrcxq
   use m_stopwatch
+  use m_blas, only: m_op_c, m_op_t
 #ifdef __GPU
   use m_lapack, only: zminv => zminv_d
 #else
   use m_lapack, only: zminv => zminv_h
+#endif
+#if defined(__MP) && defined(__GPU)
+  use m_blas, only: gemm => cmm_d
+#elif defined(__MP)
+  use m_blas, only: gemm => cmm_h
+#elif defined(__GPU)
+  use m_blas, only: gemm => zmm_d
+#else
+  use m_blas, only: gemm => zmm_h
 #endif
   implicit none
   public:: WVRllwR,WVIllwI,  MPI__sendllw,MPI__sendllw2
@@ -37,16 +48,17 @@ module m_llw
   real(8),parameter:: pi=4d0*datan(1d0),fourpi = 4d0*pi
   logical :: tzminv=.true.
 contains
-  subroutine WVRllwR(q,iq,nmbas1,nmbas2)
+  subroutine WVRllwR(q,iq,nmbas1,nmbas2,is_m_basis)
     use m_readqg,only: Readqg0
     intent(in)::       q,iq,    nmbas1,nmbas2 !zxq can be twiced when nspin=2
+    logical, intent(in) :: is_m_basis
     integer:: iq,iq0,nwmax,nwmin,iw,imode,ix,igb1,igb2,ifllw
     integer:: nmbas1,nmbas2,ngc0,ifw4p,ifrcw,mreclx
     real(8):: frr,q(3),vcou1,quu(3),eee
     logical::  localfieldcorrectionllw,cmdopt0,emptyrun
-    complex(kind=kp), allocatable :: zxqw(:,:)
+    complex(kind=kp), allocatable :: zxqw(:,:), x_m2e(:,:)
     logical,save:: init=.true.
-    type(stopwatch) :: t_sw_matinv, t_sw_x_gather
+    type(stopwatch) :: t_sw_matinv, t_sw_x_gather, t_sw_x_m2e_xf
     integer :: istat
 !    complex(8):: zxq(nmbas1,nmbas2,nw_i:nw)
     character(10):: i2char
@@ -61,11 +73,12 @@ contains
     endif
     call stopwatch_init(t_sw_matinv, 'matinv')
     call stopwatch_init(t_sw_x_gather, 'gather')
+    call stopwatch_init(t_sw_x_m2e_xf, 'xf chi: M2E')
     call readqg0('QGcou', (/0d0,0d0,0d0/),  quu,ngc0) ! ngb is q-dependent. released at the end of WVIllwi
     ngbq0 = nbloch+ngc0
     allocate( zw0(ngb,ngb), epstilde(ngb,ngb), epstinv(ngb,ngb))
-    allocate (zxqw(ngb, ngb))
-    !$acc enter data create(zxqw, epstilde, epstinv, zw, zw0) copyin(vcousq)
+    allocate (zxqw(ngb, ngb), x_m2e(ngb,ngb))
+    !$acc enter data create(zxqw, epstilde, epstinv, zw, zw0, x_m2e) copyin(vcousq)
     if(nspin == 1) then
       !$acc kernels present(zxq)
       zxq(:,:,:) = 2d0*zxq(:,:,:)
@@ -103,6 +116,16 @@ contains
           !$acc update device(zxqw)
         endif
         call stopwatch_pause(t_sw_x_gather)
+
+        MToEBasisTransformation1: if(is_m_basis) then
+          call stopwatch_start(t_sw_x_m2e_xf)
+          !$acc host_data use_device(zxqw, m2e_prod_basis, x_m2e)
+          istat = gemm(zxqw, m2e_prod_basis, x_m2e, ngb, ngb, ngb)
+          istat = gemm(m2e_prod_basis, x_m2e, zxqw, ngb, ngb, ngb, opA=m_op_C)
+          !$acc end host_data
+          call stopwatch_pause(t_sw_x_m2e_xf)
+        endif MToEBasisTransformation1
+
         rootq_if1:if(mpi__root_q) then
         !$acc kernels loop independent collapse(2)
         do igb1=ix+1,ngb !  Eqs.(37),(38) in PRB81 125102 (Friedlich)
@@ -175,6 +198,14 @@ contains
         !for log output 
         !$acc update host(zxqw(1,1))
         call stopwatch_pause(t_sw_x_gather)
+        MToEBasisTransformation2: if(is_m_basis) then
+          call stopwatch_start(t_sw_x_m2e_xf)
+          !$acc host_data use_device(zxqw, m2e_prod_basis, x_m2e)
+          istat = gemm(zxqw, m2e_prod_basis, x_m2e, ngb, ngb, ngb)
+          istat = gemm(m2e_prod_basis, x_m2e, zxqw, ngb, ngb, ngb, opA=m_op_C)
+          !$acc end host_data
+          call stopwatch_pause(t_sw_x_m2e_xf)
+        endif MToEBasisTransformation2
         rootq_if2:if(mpi__root_q) then
         ix=0
         eee=0d0
@@ -229,27 +260,29 @@ contains
         endif rootq_if2
 1115  enddo
     endif
-    !$acc exit data delete(zxqw, epstilde, epstinv, zw, zw0, vcousq)
+    !$acc exit data delete(zxqw, epstilde, epstinv, zw, zw0, vcousq, x_m2e)
     deallocate(zxqw)
     if(mpi__root_q) then 
-       call stopwatch_show(t_sw_x_gather)
-       call stopwatch_show(t_sw_matinv)
+      call stopwatch_show(t_sw_x_gather)
+      call stopwatch_show(t_sw_matinv)
+      if(is_m_basis) call stopwatch_show(t_sw_x_m2e_xf)
     endif
   end subroutine WVRllwR
-  subroutine WVIllwi(q,iq,nmbas1,nmbas2)
+  subroutine WVIllwi(q,iq,nmbas1,nmbas2,is_m_basis)
     intent(in)::       q,iq,     nmbas1,nmbas2 !zxqi can be twiced when nspin=2
     integer:: nmbas1,nmbas2,mreclx
     integer:: iq,iq0,nwmax,nwmin,iw,imode,ix,igb1,igb2,ifllwi,ifrcwi
     real(8):: frr,q(3),vcou1
     logical::  localfieldcorrectionllw,cmdopt0,emptyrun
+    logical, intent(in) :: is_m_basis
     logical,save:: init=.true.
-    complex(kind=kp), allocatable :: zxqw(:,:)
+    complex(kind=kp), allocatable :: zxqw(:,:), x_m2e(:,:)
 !    complex(8):: zxqi(nmbas1,nmbas2,niw)
     character(10):: i2char
     integer :: istat
-    type(stopwatch) :: t_sw_matinv, t_sw_x_gather
-    allocate (zxqw(ngb, ngb))
-    !$acc enter data create(zxqw, epstilde, epstinv, zw, zw0) copyin(vcousq)
+    type(stopwatch) :: t_sw_matinv, t_sw_x_gather, t_sw_x_m2e_xf
+    allocate (zxqw(ngb, ngb), x_m2e(ngb,ngb))
+    !$acc enter data create(zxqw, x_m2e, epstilde, epstinv, zw, zw0) copyin(vcousq)
     mreclx=mrecl
     emptyrun=.false. !cmdopt0('--emptyrun')
     if(init) then
@@ -259,6 +292,7 @@ contains
     endif
     call stopwatch_init(t_sw_matinv, 'matinv')
     call stopwatch_init(t_sw_x_gather, 'gather')
+    call stopwatch_init(t_sw_x_m2e_xf, 'xf chi: M2E')
     if(ipr)write(6,*)'WVRllwI: init'
     if (nspin == 1) then
       !$acc kernels present(zxqi)
@@ -292,6 +326,14 @@ contains
             !$acc update device(zxqw)
           endif
           call stopwatch_pause(t_sw_x_gather)
+          MToEBasisTransformation1: if(is_m_basis) then
+            call stopwatch_start(t_sw_x_m2e_xf)
+            !$acc host_data use_device(zxqw, m2e_prod_basis, x_m2e)
+            istat = gemm(zxqw, m2e_prod_basis, x_m2e, ngb, ngb, ngb)
+            istat = gemm(m2e_prod_basis, x_m2e, zxqw, ngb, ngb, ngb, opA=m_op_C)
+            !$acc end host_data
+            call stopwatch_pause(t_sw_x_m2e_xf)
+          endif MToEBasisTransformation1
           if(mpi__root_q) then
           !$acc kernels loop independent collapse(2)
           do igb1=ix+1,ngb
@@ -355,6 +397,14 @@ contains
           endif
           !$acc update host(zxqw(1,1))
           call stopwatch_pause(t_sw_x_gather)
+          MToEBasisTransformation2: if(is_m_basis) then
+            call stopwatch_start(t_sw_x_m2e_xf)
+            !$acc host_data use_device(zxqw, m2e_prod_basis, x_m2e)
+            istat = gemm(zxqw, m2e_prod_basis, x_m2e, ngb, ngb, ngb)
+            istat = gemm(m2e_prod_basis, x_m2e, zxqw, ngb, ngb, ngb, opA=m_op_C)
+            !$acc end host_data
+          call stopwatch_pause(t_sw_x_m2e_xf)
+          endif MToEBasisTransformation2
           if(mpi__root_q) then
              ix=0
              !$acc kernels loop independent collapse(2)
@@ -401,12 +451,13 @@ contains
           endif
 1116   enddo
     endif
-    !$acc exit data delete(zxqw, epstilde, epstinv, zw, zw0, vcousq)
+    !$acc exit data delete(zxqw, epstilde, epstinv, zw, zw0, vcousq, x_m2e) 
     deallocate(epstinv,epstilde,zw0)
     deallocate(zxqw)
     if(mpi__root_q) then 
-       call stopwatch_show(t_sw_x_gather)
-       call stopwatch_show(t_sw_matinv)
+      call stopwatch_show(t_sw_x_gather)
+      call stopwatch_show(t_sw_matinv)
+      if(is_m_basis) call stopwatch_show(t_sw_x_m2e_xf)
     endif
   end subroutine WVILLWI
   subroutine MPI__sendllw2(iqxend,MPI__ranktab) !for hx0fp0

@@ -514,7 +514,7 @@ contains
                   else
                      call get_zmel_init_gemm(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot, &
                           ns2=nkmax(k)+nctot, ispm=isp_k, nqini=nkqmin(k),nqmax=nkqmax(k), &
-                          ispq=isp_kq,nctot=nctot,ncc=merge(0,nctot,npm==1),iprx=.false.,zmelconjg=.true.)
+                          ispq=isp_kq,nctot=nctot,ncc=merge(0,nctot,npm==1),iprx=.false.,zmelconjg=.true., is_m_basis=.false.)
                   endif
                   icounloop: do 1000 icoun=icounkmin(k),icounkmax(k)
                      ! call get_zmel_init is equivalent to call x0kf_zmel(q, k, isp_k,isp_kq) 
@@ -734,7 +734,8 @@ contains
     !      if (GPUTEST) then
     if(debug) write(stdo,ftox) 'ggggggggg goto get_zmel_init_gemm',k, nkmin(k),nkmax(k),nctot
     call get_zmel_init_gemm(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
-         nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., zmelconjg=.true.)
+         nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., zmelconjg=.true., &
+        is_m_basis=.false.)
        !$acc update host(zmel)
 !      endif
 !    else

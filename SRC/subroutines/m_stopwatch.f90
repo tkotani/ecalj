@@ -1,7 +1,8 @@
 module m_stopwatch !M.Obata 2024/04/21
   implicit none
   public :: stopwatch, stopwatch_start, stopwatch_init, stopwatch_pause, stopwatch_show, stopwatch_reset, &
-            stopwatch_lap_time, stopwatch_elapsed_time, stopwatch_begin, stopwatch_show_list
+            stopwatch_lap_time, stopwatch_elapsed_time, stopwatch_begin, stopwatch_pause_and_show, &
+            stopwatch_show_list
   private
   type stopwatch
     private
@@ -61,6 +62,12 @@ module m_stopwatch !M.Obata 2024/04/21
       self%running = .false.
     endif
   end subroutine stopwatch_pause
+
+  subroutine stopwatch_pause_and_show(self)
+  class(stopwatch), intent(inout) :: self
+  call stopwatch_pause(self)
+  call stopwatch_show(self)
+end subroutine stopwatch_pause_and_show
 
   subroutine stopwatch_reset(self)
     class(stopwatch), intent(inout) :: self

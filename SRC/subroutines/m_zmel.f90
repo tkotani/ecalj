@@ -47,6 +47,11 @@ contains
   ! set product basis M to E basis transformation matrix
   ! 2025-10-10, Setppovlz was changed to set_m2e_prod_basis
   ! In accordance with this change, all matrices related to ppovl (the transformation from M to M~) and its inverse transformation have been removed.
+#ifdef __GPU
+     use m_lapack, only: zminv => zminv_d
+#else
+     use m_lapack, only: zminv => zminv_h
+#endif
     integer, intent(in)::  npr
     if(allocated(m2e_prod_basis)) then
       !$acc exit data delete(m2e_prod_basis)
@@ -54,9 +59,11 @@ contains
     endif
     allocate(m2e_prod_basis(ngb,npr))
     !$acc enter data create(m2e_prod_basis)
+    !$acc data copyin(zcousq)
     !$acc kernels
-    m2e_prod_basis(1:nbloch+ngc,1:npr) = cmplx(zcousq(1:nbloch+ngc,1:npr), kind=kp)
+    m2e_prod_basis(1:nbloch+ngc,1:npr) = cmplx(zcousq(1:nbloch+ngc,1:npr),kind=kp)
     !$acc end kernels
+    !$acc end data
     nbb=npr
   end subroutine set_m2e_prod_basis
   subroutine set_m2e_prod_basis_chipm(zzr,nmbas1) !Set ppovlz for chipm case
@@ -137,13 +144,14 @@ contains
     !$acc update device(ppb)
   end subroutine set_ppb
   subroutine get_zmel_init_gemm(q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc,  & ! get_zmel_init for blas/cuBLAS by M. Obata 2024-05-18
-       iprx,zmelconjg,comm,maxmem)
+       iprx,zmelconjg,is_m_basis,comm,maxmem)
     use m_readeigen,only: readcphif => readcphif_mpi, readgeigf => readgeigf_mpi
     use m_itq,only: itq, ntq
     implicit none
     include "mpif.h"
     intent(in)::           q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc, iprx,zmelconjg
     integer, optional, intent(in) :: comm
+    logical, intent(in) :: is_m_basis
     complex(8), parameter:: img=(0d0,1d0),tpi= 8d0*datan(1d0)
     integer:: ns1, ns2, nqmax, irot, ispq, ispm, nqini, nctot, ncc, ncnv, ncorec, nccc, mdim, it, ia
     integer:: ngp1, ngp2, ngvecpB1(3,ngpmx),ngvecpB2(3,ngpmx),nadd(3)
@@ -535,10 +543,25 @@ contains
       !$acc enter data create(zmel)
       if(nmtot<=0) return
 
-      !$acc host_data use_device(zmel, m2e_prod_basis)
-      ierr = gemm(m2e_prod_basis, zmelt(1,nm1,1), zmel(1,nm1,1), nbb, nmtot*ncc, ngb, opA = m_op_C) ! ncc == 0, this is not used 
-      ierr = gemm(m2e_prod_basis, zmelt(1,nm1,ncc+1), zmel(1,nm1,ncc+ini_index), nbb, nmtot*ntp0, ngb, opA = m_op_C)
-      !$acc end host_data
+      MToEBasisTransformation:block
+        if (is_m_basis) then
+          if(ncc >0) then
+            !$acc kernels
+            zmel(1:nbb,ns1:ns2,1:ncc) = zmelt(1:nbb,ns1:ns2,1:ncc)
+            !$acc end kernels
+          endif
+          !$acc kernels
+          zmel(1:nbb,ns1:ns2,ncc+ini_index:ncc+end_index) = zmelt(1:nbb,ns1:ns2,ncc+1:ncc+ntp0)
+          !$acc end kernels
+        else
+          !convert to product basis E
+          !$acc host_data use_device(zmel, m2e_prod_basis)
+          ierr = gemm(m2e_prod_basis, zmelt(1,nm1,1), zmel(1,nm1,1), nbb, nmtot*ncc, ngb, opA = m_op_C) ! ncc == 0, this is not used 
+          ierr = gemm(m2e_prod_basis, zmelt(1,nm1,ncc+1), zmel(1,nm1,ncc+ini_index), nbb, nmtot*ntp0, ngb, opA = m_op_C)
+          !$acc end host_data
+        endif
+      endblock MToEBasisTransformation
+
       deallocate(zmelt)
       if (present(comm)) then
         block
