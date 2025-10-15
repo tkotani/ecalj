@@ -1,4 +1,4 @@
-from comp import test1_check,test2_check,runprogs
+from comp import test1_check,test2_check,runprogs,rmfiles
 def test(args,bindir,testdir,workdir):
     lmfa= f'mpirun -np 1 {bindir}/lmfa '
     lmf = f'mpirun -np {args.np} {bindir}/lmf '
@@ -30,14 +30,15 @@ def test(args,bindir,testdir,workdir):
 '''
     print(message1)
     outfile='out.lmf.te'
+    rmfiles(workdir,[outfile])
     runprogs([\
         lmfa+"te -vdyn='DYN' -vnk=3 -vnit=3 -vlf1=4 -vlmxl=4 -vnk=3 -vngd=20 -vkmx=3 -vconv=1e-4 > "+outfile, 
         lmf+ "te -vdyn='DYN' -vnk=3 -vnit=3 -vlf1=4 -vlmxl=4 -vnk=3 -vngd=20 -vkmx=3 -vconv=1e-4 -vnbas=12 -vnspec=2 >> "+outfile,
-        "rm -f *mixm.te",
-        "cp rst.te rst.te.bk",
+        f"rm -f *mixm.te",
+        f"cp rst.te rst.te.bk",
         lmf+"te -vnk=3 -vnit=3 -vlf1=4 -vlmxl=4 -vnk=3 -vngd=20 -vkmx=5 -vconv=1e-4 -vpwmode=11 >> "+outfile,
-        "rm -f *mixm.te",
-        "cp rst.te.bk rst.te",
+        f"rm -f *mixm.te",
+        f"cp rst.te.bk rst.te",
         lmf+"te -vnk=3 -vnit=3 -vlf1=4 -vlmxl=4 -vnk=3 -vngd=20 -vkmx=3 -vconv=1e-4 >> "+outfile 
     ])
     tall=test1_check(testdir+'/'+outfile, workdir+'/'+outfile)

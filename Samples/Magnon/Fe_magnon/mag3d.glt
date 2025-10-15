@@ -1,6 +1,6 @@
 ############
-set term postscript enhanced color eps
-# set output "magnon3d.eps"
+set terminal pdf
+# set output "magnon3d.pdf"
 set pm3d map
 set pm3d map interpolate 1,1 # interpolation
 # set pm3d map interpolate 5,5 # interpolation
@@ -13,21 +13,21 @@ set xrange[0:1]
 set ylabel "{/Symbol w} [meV]"
 set xtics ('{/Symbol G}'   0.0000000000,\
 'H'   1.0000000000)
-set output "magnon3d_100.eps"
+set output "magnon3d_100.pdf"
 splot "wan_ChiPMr.mat.syml1" u (sqrt(($1*$1)+($2*$2)+($3*$3))):(13605*$5):(log10(-$7)) with pm3d ti "" # for ChiPMr
 
 # set xrange[0:sqrt(2)/2.0]
 # set ylabel "{/Symbol w} [meV]"
 # set xtics ('{/Symbol G}'   0.0000000000,\
 # 'N'   sqrt(2)/2.0)
-# set output "magnon3d_110.eps"
+# set output "magnon3d_110.pdf"
 # splot "wan_ChiPMr.mat.syml2" u (sqrt(($1*$1)+($2*$2)+($3*$3))):(13605*$5):(log10(-$7)) with pm3d ti "" # for ChiPMr
 
 # set xrange[0:sqrt(3)/2.0]
 # set ylabel "{/Symbol w} [meV]"
 # set xtics ('{/Symbol G}'   0.0000000000,\
 # 'P'   sqrt(3)/2.0)
-# set output "magnon3d_111.eps"
+# set output "magnon3d_111.pdf"
 # splot "wan_ChiPMr.mat.syml3" u (sqrt(($1*$1)+($2*$2)+($3*$3))):(13605*$5):(log10(-$7)) with pm3d ti "" # for ChiPMr
 
 ################################################
@@ -38,19 +38,19 @@ set xrange[0:1]
 set ylabel "{/Symbol w} [eV]"
 set xtics ('{/Symbol G}'   0.0000000000,\
 'H'   1.0000000000)
-set output "stoner3d_100.eps"
+set output "stoner3d_100.pdf"
 splot "wan_ChiPMz.mat.syml1" u (sqrt(($1*$1)+($2*$2)+($3*$3))):(13.605*$5):(log10($7)) with pm3d ti "" # for ChiPMr
 
 # set xrange[0:sqrt(2)/2.0]
 # set ylabel "{/Symbol w} [eV]"
 # set xtics ('{/Symbol G}'   0.0000000000,\
 # 'N'   sqrt(2)/2.0)
-# set output "stoner3d_110.eps"
+# set output "stoner3d_110.pdf"
 # splot "wan_ChiPMz.mat.syml2" u (sqrt(($1*$1)+($2*$2)+($3*$3))):(13.605*$5):(log10($7)) with pm3d ti ""
 
 # set xrange[0:sqrt(3)/2.0]
 # set ylabel "{/Symbol w} [eV]"
 # set xtics ('{/Symbol G}'   0.0000000000,\
 # 'P'   sqrt(3)/2.0)
-# set output "stoner3d_111.eps"
+# set output "stoner3d_111.pdf"
 # splot "wan_ChiPMz.mat.syml3" u (sqrt(($1*$1)+($2*$2)+($3*$3))):(13.605*$5):(log10($7)) with pm3d ti "" # for ChiPMr

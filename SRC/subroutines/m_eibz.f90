@@ -1,7 +1,7 @@
 !> EIBZ (extended Irreducible Brillowin zone) procedure PRB81,125102 ===
 module m_eibz 
   use m_read_bzdata,only: Read_bzdata, nqbz,nqibz,n1,n2,n3,ginv,dq_,qbz,wbz,qibz,wibz,ntetf,idtetf,ib1bz, qbzw,nqbzw !for tetrahedron
-  use m_genallcf_v3,only: Genallcf_v3, natom,nspin,nl,nn, nlnmx, nctot, alat, deltaw, plat, pos, ecore
+  use m_genallcf_v3,only: Genallcf_v3, natom,nspin,lmxax,nn, nlnmx, nctot, alat, deltaw, plat, pos, ecore
   use m_hamindex,only: symgg =>symops
   use m_qbze,only: Setqbze, nqbze,nqibze,qbze,qibze
   use m_genallcf_v3,only: nprecb,mrecb,mrece,nqbzt,nband,mrecg
@@ -16,8 +16,9 @@ module m_eibz
 contains
   subroutine Seteibz(iqxini,iqxend,iprintx)
     logical:: eibzmode,tiii,iprintx !,eibz4x0
-    integer:: iqxini,iqxend,iqxendx,timereversal
+    integer:: iqxini,iqxend,iqxendx,timereversal,nl
     eibzmode = eibz4x0()
+    nl=lmxax+1
     !!  For rotation of zcousq.  See readeigen.F rotwv.F ppbafp.fal.F(for index of product basis).
     if(eibzmode) then
        !! commentout block inversion Use iqxendx=iqxend because of full inversion

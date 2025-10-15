@@ -1,6 +1,6 @@
 subroutine efsimplef2ax ( legas, esmr, valn,ef)
   use m_READ_BZDATA,only: nqbz,nqibz,ginv,  qibz,wibz,qbz
-  use m_genallcf_v3,only: nspin,z,natom,nl,konfig=>konf,nband,lmxa
+  use m_genallcf_v3,only: nspin,z,natom,lmxax,konfig=>konf,nband,lmxa
   use m_readeigen, only: readeval
 !  use m_readhbe,only: nband
   use m_mpi, only: mpi__root,ipr
@@ -28,10 +28,11 @@ subroutine efsimplef2ax ( legas, esmr, valn,ef)
   real(8)   :: qx(3),qbas(3,3),wwg !qbzx(3), ,ginv(3,3),
   integer:: ncore,l,ia,ic ,ierr
   real(8)   :: valn,ef
-  integer :: nbnqnsp,ix,ikx=-9999,ikini,nne
+  integer :: nbnqnsp,ix,ikx=-9999,ikini,nne,nl
   real(8)    :: ew1,ew2,ein,valx,enumef_gauss,esmr, efini ,eee2,wwg2 ,enumef
   logical :: legas,autoew,GaussSmear=.true. !is external
-!  integer:: if8301,if8302 !nqbz,
+  !  integer:: if8301,if8302 !nqbz,
+  nl=lmxax+1
   autoew =.false.
   if(GaussSmear) then; if(ipr) write(6,*)' efsimplef2(gaussian mode):start'
   else;                if(ipr) write(6,*)' efsimplef2(rectangular mode):start';  endif

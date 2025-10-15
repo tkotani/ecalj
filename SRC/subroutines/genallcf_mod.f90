@@ -8,7 +8,7 @@ module m_genallcf_v3 ! Readin starting data dat in GWinput
   integer,allocatable,protected,public::  & 
        nindx(:,:),konf(:,:),icore(:,:), ncore(:), nlnm(:),nlnmv(:), nlnmc(:), il(:,:), in(:,:), im(:,:),&
        nocc(:,:,:),nunocc(:,:,:),nindxc(:,:),lcutmxa(:),lmxa(:)
-  integer,protected,public:: natom,nspin,nl,nn,nnv,nnc, nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot, niw,ndimanspc,nlmto
+  integer,protected,public:: natom,nspin,nn,nnv,nnc, nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot, niw,ndimanspc,nlmto,lmxax,nl
   real(8),protected,public::  plat(3,3),alat,deltaw,esmr,tpioa,qval
   real(8), allocatable,protected,public:: pos(:,:),z(:),ecore(:,:) !,symgg(:,:,:)
   character(8),allocatable,protected,public :: spid(:)
@@ -40,7 +40,7 @@ contains
     character(1000) :: tolchar
     real(8),   allocatable:: ecoret(:,:,:,:)
     integer,allocatable::ncwf2(:,:,:), nindxv(:,:),occv(:,:,:),unoccv(:,:,:), occc(:,:,:),unoccc(:,:,:),ncwf(:,:,:)!,iclass(:)
-    integer:: ia,l,m,ic1,isp,lt,nt,nr,ncorex,ifix,nwdummy,ind,l2,lm,lmxax
+    integer:: ia,l,m,ic1,isp,lt,nt,nr,ncorex,ifix,nwdummy,ind,l2,lm
     real(8):: a,b,zz, efdummy,dw,diw,efin
     real(8),parameter:: pi=4d0*datan(1d0)
     if(done_genallcf_v3) call rx('genallcf_v3 is already called')
@@ -52,15 +52,13 @@ contains
     read(ifi) nprecb,mrecb,mrece,ndima,nqbzt,nband,mrecg
     read(ifi) laf,ibasf
     close(ifi)
-    nl   = lmxax+1
+    nl   = lmxax+1 !we move to lmxax
     tpioa= 2d0*pi/alat
-    call getkeyvalue("GWinput","niw",   niw ) ! FREQUENCIES
-!    call getkeyvalue("GWinput","delta", delta )
+    call getkeyvalue("GWinput","niw",   niw ) ! FREQUENCIES 
     call getkeyvalue("GWinput","deltaw",deltaw )
     call getkeyvalue("GWinput","esmr",  esmr )
     if(ipr) write(stdo,*)' --- Freq ---'
     if(ipr) write(stdo,"(a,i6)")   '    niw  =',niw
-!    if(ipr) write(stdo,"(a,f12.6)")'    delta=',delta
     if(ipr) write(stdo,"(a,f12.6)")'    esmr =',esmr
     ReadProductBasis: block
       allocate(nindxv(nl,natom), nindxc(nl,natom), &

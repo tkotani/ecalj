@@ -1,27 +1,27 @@
 module m_excore ! Calculate core-core exchange energy.
   public excore
   contains
-subroutine excore(nrmx,nl,nnc,nclass,nspn,nbas,phic,nindxc,iclass, a,b,nr,rofi)
+subroutine excore(nrmx,lmxax,nnc,nclass,nspn,nbas,phic,nindxc,iclass, a,b,nr,rofi)
   use m_ll,only: ll
   implicit none
-  integer:: nrmx,nnc,nclass,nspn,ncmx,nl,nbas, nindxc(0:nl-1,nclass),nr(nclass),iclass(nclass)
-  real(8) :: a(nclass),b(nclass),rofi(nrmx,nclass),phic (nrmx,0:nl-1,nnc,nclass,nspn),wgtx,exacct,exacc(nbas,nspn),rydberg
+  integer:: nrmx,nnc,nclass,nspn,ncmx,nbas,lmxax, nindxc(0:lmxax,nclass),nr(nclass),iclass(nclass)
+  real(8) :: a(nclass),b(nclass),rofi(nrmx,nclass),phic (nrmx,0:lmxax,nnc,nclass,nspn),wgtx,exacct,exacc(nbas,nspn),rydberg
   integer,parameter :: nsxamx=10000000
   real(8),allocatable :: gc(:,:,:,:), sxadata(:),sigkcc(:,:,:,:,:)
   integer,allocatable:: indxsxa(:,:),lcr(:,:,:),ncr(:,:)
   integer:: ir,l,n,ic,ncrr,ncmxx(nclass),kmax,k,it,isp,isx,lm1,lm2,lm3,lm4,ibas,icr,icrd,nsxatot,ifexcore
-  real(8):: rkp(nrmx,0:2*(nl-1)),rkm(nrmx,0:2*(nl-1))
+  real(8):: rkp(nrmx,0:2*(lmxax)),rkm(nrmx,0:2*(lmxax))
   do ic = 1,nclass
-     ncmxx(ic) = sum(nindxc(0:nl-1,ic))
+     ncmxx(ic) = sum(nindxc(0:lmxax,ic))
   enddo
   ncmx = maxval(ncmxx(1:nclass))
-  print *,' ncmx nl nspn=',ncmx,nl,nspn
+  print *,' ncmx lmxax nspn=',ncmx,lmxax,nspn
   ! --- convert format of core function ---   ! nindxc(l,ic) phic ---> ncr lcr gc
   allocate( gc(nrmx,ncmx,nspn,nclass) &
        ,lcr(ncmx,nspn,nclass),ncr(nspn,nclass) )
   do ic = 1,nclass
      ncrr = 0
-     do  l = 0,nl-1
+     do  l = 0,lmxax
         do  n = 1,nindxc(l,ic)
            print *, ' l n nindx=',l,n,nindxc(l,ic)
            ncrr = ncrr + 1
@@ -34,9 +34,9 @@ subroutine excore(nrmx,nl,nnc,nclass,nspn,nbas,phic,nindxc,iclass, a,b,nr,rofi)
      ncr(1:nspn,ic) = ncrr
   enddo
   print *,' goto alloc'
-  allocate( sxadata(nsxamx),indxsxa(6,nsxamx),sigkcc(0:2*(nl-1), ncmx, ncmx, nclass,nspn) )
+  allocate( sxadata(nsxamx),indxsxa(6,nsxamx),sigkcc(0:2*(lmxax), ncmx, ncmx, nclass,nspn) )
   print *,' end of alloc'
-  kmax  = 2*(nl-1)
+  kmax  = 2*(lmxax)
   do ic = 1,nclass
      print *,' make rkp rkm ic=',ic
      !- rkp,rkm ----------- This is from subroutine bess
@@ -51,11 +51,11 @@ subroutine excore(nrmx,nl,nnc,nclass,nspn,nbas,phic,nindxc,iclass, a,b,nr,rofi)
      print *,' end of make rkp rkm ic=',ic
      !- radial integrals
      do isp = 1,nspn
-        call intsigkcc(sigkcc(0,1,1,ic,isp), ncmx, gc(1,1,isp,ic), a(ic),b(ic),nr(ic),rofi(1,ic),nl, ncr(isp,ic),lcr(1,isp,ic), &
+        call intsigkcc(sigkcc(0,1,1,ic,isp), ncmx, gc(1,1,isp,ic), a(ic),b(ic),nr(ic),rofi(1,ic),lmxax, ncr(isp,ic),lcr(1,isp,ic), &
              kmax, rkp, rkm )
      enddo
   enddo
-  call mksxa(nl,nsxamx, sxadata,indxsxa,nsxatot)!- make structure spherical part --- sxadata
+  call mksxa(lmxax,nsxamx, sxadata,indxsxa,nsxatot)!- make structure spherical part --- sxadata
   !- core-core exchange =sxadata * radial integral
   print * !; print *,' go into EXEX.CORE part'
   exacc = 0d0
@@ -103,12 +103,12 @@ subroutine excore(nrmx,nl,nnc,nclass,nspn,nbas,phic,nindxc,iclass, a,b,nr,rofi)
      enddo
   enddo
 end subroutine excore
-subroutine intsigkcc(sigkcc,ncmx,gc,a,b,nr,rofi,nl,ncr,lcr,kmax, rkp,rkm)! integral \sigma^k(l1,l3,ip1,ip3,l2,l4,ip2,ip4) in the Phys.Rev.B34, 5512 ,Simpson
+subroutine intsigkcc(sigkcc,ncmx,gc,a,b,nr,rofi,lmxax,ncr,lcr,kmax, rkp,rkm)! integral \sigma^k(l1,l3,ip1,ip3,l2,l4,ip2,ip4) in the Phys.Rev.B34, 5512 ,Simpson
   !i ncmx,nrec, gl,gpl,gc , a,b,nr,rofi,nl,ncr,lcr
   !o  sigkcc
   implicit none
-  integer::nr, ncmx, nl,l1,l2,l3,l4,l1l3,l2l4,k,ip1,ip3,ip2,ip4,ip2ip4,icr,l1l4,icrd,ip1ip3,ir,lr0,ncr,lcr(ncmx)
-  real(8):: a,b,rofi(nr), gc(nr,ncmx), sum1,sum2, sigkcc(0:2*(nl-1), ncmx, ncmx), int1(nr),int2(nr),a1(nr),a2(nr),b1(nr),f13(nr)
+  integer::lmxax,nr, ncmx, nl,l1,l2,l3,l4,l1l3,l2l4,k,ip1,ip3,ip2,ip4,ip2ip4,icr,l1l4,icrd,ip1ip3,ir,lr0,ncr,lcr(ncmx)
+  real(8):: a,b,rofi(nr), gc(nr,ncmx), sum1,sum2, sigkcc(0:2*(lmxax), ncmx, ncmx), int1(nr),int2(nr),a1(nr),a2(nr),b1(nr),f13(nr)
   integer :: kmax
   real(8) :: rkp(nr,0:kmax),rkm(nr,0:kmax)
   print *,' intsigkcc:'
@@ -145,7 +145,7 @@ subroutine intsigkcc(sigkcc,ncmx,gc,a,b,nr,rofi,nl,ncr,lcr,kmax, rkp,rkm)! integ
 2215 enddo
 2216 enddo
 end subroutine intsigkcc
-subroutine mksxa(nl,nsxamx, sxadata,indxsxa,nsxatot)  !- make sx (spherical-dependent part for exx energy.) ------------c
+subroutine mksxa(lmxax,nsxamx, sxadata,indxsxa,nsxatot)  !- make sx (spherical-dependent part for exx energy.) ------------c
   !i   nl
   !i   nsxamx
   !o   indxsxa, sxdata, nsxatot
@@ -153,14 +153,14 @@ subroutine mksxa(nl,nsxamx, sxadata,indxsxa,nsxatot)  !- make sx (spherical-depe
   !r  Generation of
   !r     cgau(k,L',L) for R=R'
   implicit none
-  integer :: nl,nlx, &
+  integer :: lmxax,nlx, &
        m,istcl,lrd,lr,j1,j2,j3,m1,m2,m3,jm1,jm2,jm3, ngau,ngaut,ngau2,k1,k2,j4,m4,jm1m, jm2m,jm4,km1,km2, i,j,k ,jmax
   integer :: nsxamx, nsxatot, indxsxa(6,nsxamx)
   real(8) :: sxadata(nsxamx)
   double complex &
-       sxx(-(nl-1):(nl-1),-(nl-1):(nl-1),-(nl-1):(nl-1),-(nl-1):(nl-1))
+       sxx(-(lmxax):(lmxax),-(lmxax):(lmxax),-(lmxax):(lmxax),-(lmxax):(lmxax))
   real(8) :: osq2
-  real(8) :: cg( (2*nl-1)**2,(2*nl-1)**2, 0:4*(nl-1) ) , cgau(0:2*(nl-1),nl**2, nl**2 ) ,dum
+  real(8) :: cg( (2*lmxax)**2,(2*lmxax)**2, 0:4*(lmxax) ) , cgau(0:2*(lmxax),(lmxax+1)**2, (lmxax+1)**2 ) ,dum
   double complex msc(0:1,2,2),mcs(0:1,2,2),Img  ,ap,am
   integer :: ngautx
   data Img/(0.0d0,1.0d0)/
@@ -179,7 +179,7 @@ subroutine mksxa(nl,nsxamx, sxadata,indxsxa,nsxatot)  !- make sx (spherical-depe
      Mcs(m,2,2)=-osq2*Img
   enddo
   !- CG coeff. generation
-  jmax=  2*(nl-1)
+  jmax=  2*(lmxax)
   call clebsh_t( cg,jmax )
   print *,' end of clebsh'
   !---------------------------------------------------------------
@@ -195,10 +195,10 @@ subroutine mksxa(nl,nsxamx, sxadata,indxsxa,nsxatot)  !- make sx (spherical-depe
 
   ngaut=0
   ngautx=0
-  do  j3=0,nl-1
-     do  j1=0,nl-1
+  do  j3=0,lmxax
+     do  j1=0,lmxax
         ! takao  max of j2 is 2*lmx, because max of j3 and j1 is lmx. cgau(j2,jm3,jm1)
-        do  j2=0,2*(nl-1)
+        do  j2=0,2*(lmxax)
            do  m1=-j1,j1
               do  m3=-j3,j3
                  jm1= j1**2+m1+j1+1
@@ -212,7 +212,7 @@ subroutine mksxa(nl,nsxamx, sxadata,indxsxa,nsxatot)  !- make sx (spherical-depe
                       j2 >= abs(j3-j1) .AND. j2 <= (j3+j1) ) then
                     ngaut=ngaut+1
                     ! cc
-                    if( j2 <= nl-1) ngautx=ngautx+1
+                    if( j2 <= lmxax) ngautx=ngautx+1
                     ! c
                     cgau(j2,jm3,jm1)=cg(jm1,jm2,j3) &
                          *cg(j1**2+j1+1,j2**2+j2+1,j3) &
@@ -223,8 +223,7 @@ subroutine mksxa(nl,nsxamx, sxadata,indxsxa,nsxatot)  !- make sx (spherical-depe
         enddo
      enddo
   enddo
-  PRINT *,' * Gaunt coef. end;  num of Gaunt; nl  =' &
-       , ngaut ,nl
+  PRINT *,' * Gaunt coef. end;  num of Gaunt; lmxax  ='   , ngaut ,lmxax
   print *,' ngautx=',ngautx
   !-- sxa cal. for R=R', see eq.(A11) --------------------------------c
   print *
@@ -232,11 +231,11 @@ subroutine mksxa(nl,nsxamx, sxadata,indxsxa,nsxatot)  !- make sx (spherical-depe
   print *, '  *** Go into SXA cal. for R=Rdash pair '
   nsxatot=0
   !      nsxatot2=0
-  do 147 k=0,2*(nl-1)
-     do 137 j1=0,nl-1
-        do 127 j2=0,nl-1
-           do 117 j3=0,nl-1
-              do 107 j4=0,nl-1
+  do 147 k=0,2*(lmxax)
+     do 137 j1=0,lmxax
+        do 127 j2=0,lmxax
+           do 117 j3=0,lmxax
+              do 107 j4=0,lmxax
                  do 237 m1=-j1,j1
                     do 227 m2=-j2,j2
                        do 217 m3=-j3,j3
@@ -261,7 +260,7 @@ subroutine mksxa(nl,nsxamx, sxadata,indxsxa,nsxatot)  !- make sx (spherical-depe
 237              enddo
 
                  ! convert to real harmonics rep.-------------
-                 call convsx(sxx,j1,j2,j3,j4,nl,msc,mcs)
+                 call convsx(sxx,j1,j2,j3,j4,lmxax,msc,mcs)
 
                  do 437 m1=-j1,j1
                     do 427 m2=-j2,j2
@@ -389,13 +388,13 @@ subroutine clebsh_t(cg,j1mx) ! Generate crebsh gordon coefficient
 405  enddo
 403 enddo
 end subroutine clebsh_t
-subroutine convsx(sxx,j1,j2,j3,j4,nl,msc,mcs)  !- sx based on spherical har. rep. is converted to cub rep.
+subroutine convsx(sxx,j1,j2,j3,j4,lmxax,msc,mcs)  !- sx based on spherical har. rep. is converted to cub rep.
   !i     sxx; in the harmonic rep.
   !o     sxx; in the sperical rep.
   !r inversion test was included; uncomment the lines commented by ct.
   implicit none
-  integer ::    nl,j1,j2,j3,j4,m1,m2,m3,m4
-  complex(8):: sxx (-(nl-1):(nl-1),-(nl-1):(nl-1), -(nl-1):(nl-1),-(nl-1):(nl-1)), msc(0:1,2,2),Img,ap,am,  mcs(0:1,2,2)
+  integer ::    lmxax,j1,j2,j3,j4,m1,m2,m3,m4
+  complex(8):: sxx (-(lmxax):(lmxax),-(lmxax):(lmxax), -(lmxax):(lmxax),-(lmxax):(lmxax)), msc(0:1,2,2),Img,ap,am,  mcs(0:1,2,2)
   !      if(nlx.ne.nl) stop 'CONVSX: nlx.ne.nl'
   do m1=   1, j1
      do m2= -j2, j2

@@ -1,10 +1,13 @@
-from comp import test1_check,test2_check,runprogs
+from comp import test1_check,test2_check,runprogs,rmfiles
 def test(args,bindir,testdir,workdir):
     np4=' -np '+args.np+' '
     job_pdos=bindir+'/job_pdos '
     lmfa= f'mpirun -np 1 {bindir}/lmfa '
     lmf = f'mpirun -np {args.np} {bindir}/lmf '
-    outfile='out.lmf.co'
+    out1='out.lmf.co'
+    out2='bnd001.spin1 bnd002.spin1  bnd003.spin1  bnd004.spin1  bnd005.spin1'
+    out2=out2.split()
+    out3='dos.isp2.site002.co'
     message1='''
     # Case co: a hexagonal environment with two equivalent atoms.
     # --- Test 1.  Basic check of programs lmfa,lmf ---
@@ -22,19 +25,21 @@ def test(args,bindir,testdir,workdir):
         '''       
     print(message1)
     tall=''
+    rmfiles(workdir,[out1,out3]+out2)
     runprogs([
-                lmfa+" co -vmet=3 -vlmf=1 -vnk=8 -vnit=3 --pr31 > "+ outfile,
-                lmf+ " co -vmet=3 -vlmf=1 -vnk=8 -vnit=3 -vw2=0 --pr31 >> "+outfile,
+                lmfa+" co -vmet=3 -vlmf=1 -vnk=8 -vnit=3 --pr31 > "+ out1,
+                lmf+ " co -vmet=3 -vlmf=1 -vnk=8 -vnit=3 -vw2=0 --pr31 >> "+out1,
                 "rm *mixm.co",
-                lmf+ " co -vmet=3 -vlmf=1 -vnk=8 -vnit=3 -vw1=0 --pr31 >> "+outfile,
+                lmf+ " co -vmet=3 -vlmf=1 -vnk=8 -vnit=3 -vw1=0 --pr31 >> "+out1,
                 "rm *mixm.co",
-                lmf+ " co -vmet=3 -vlmf=1 -vnk=8 -vnit=3 --pr31 --time=5 >> "+outfile,
-                lmf+ " co -vmet=3 -vnk=8 -vnit=3 --pr31  -vso=t --band:fn=syml >> "+outfile,
+                lmf+ " co -vmet=3 -vlmf=1 -vnk=8 -vnit=3 --pr31 --time=5 >> "+out1,
+                lmf+ " co -vmet=3 -vnk=8 -vnit=3 --pr31  -vso=t --band:fn=syml >> "+out1,
                 "rm -f atm.* *mixm.* rst.* save.* log.* *hssn.* wkp.* dos.* tdos.* pdos.* dos-mull.* qpp.* out.lmf-dos*"
     ])
-    tall+=test1_check(testdir+'/'+outfile, workdir+'/'+outfile)
-    outbnds='bnds.co'
-    tall+=test2_check(testdir+'/'+outbnds, workdir+'/'+outbnds)
+    tall+=test1_check(testdir+'/'+out1, workdir+'/'+out1)
+    for out in out2:
+        print(out,end=" ")
+        tall+=test2_check(testdir+'/'+out, workdir+'/'+out)
     message1='''
     # --- Test 2.  Core-level spectroscopy (EELS), Mulliken analysis, partial DOS ---
         The Co test case illustrates partial dos resolved by both l and m.
@@ -47,6 +52,5 @@ def test(args,bindir,testdir,workdir):
                 lmfa+" co -vmet=3 -vlmf=1 -vnk=8 -vnit=1 --pr31 > out.lmf-dos.co",\
                 job_pdos+" co "+ np4 +" -vmet=3 -vlmf=1 -vnk=8 -vnit=1 --pr31 ---NoGnuplot > out.lmf-dos.co"\
     ])
-    pdos2002='dos.isp2.site002.co'
-    tall+=test2_check(testdir+'/'+pdos2002, workdir+'/'+pdos2002)
+    tall+=test2_check(testdir+'/'+out3, workdir+'/'+out3)
     return tall

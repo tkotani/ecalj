@@ -477,10 +477,9 @@ contains
             endif
          enddo
       endif SkipLDAUwhenSigmExistFORidu10plus
-      lmxax = maxval(lmxa) !Maximum L-cutoff
+      lmxax = maxval(lmxa) !Maximum l for augmentation
       maxit=iter_maxit
       nlmax=(max(lmxbx,lmxax)+1)**2
-!      if (dalat == NULLR) dalat=0d0
       lat_alat=alat !+dalat
       lat_avw=avw
       lat_nkqmx=lat_nkdmx

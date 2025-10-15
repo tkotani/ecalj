@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 import os,sys,re
+def rmfiles(workdir, filelists):
+    for fname in filelists:
+        fullpath = os.path.join(workdir, fname)
+        os.system(f"rm -rf {fullpath}")
+        print(f"Deleted: {fullpath}")
+
 def runprogs(runlist,quiet=False):
     for irun in runlist:
         if(not quiet): print(irun)

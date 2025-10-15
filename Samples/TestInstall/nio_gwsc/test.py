@@ -1,14 +1,14 @@
-from comp import runprogs,diffnum,dqpu
+from comp import runprogs,diffnum,dqpu,rmfiles
 def test(args,bindir,testdir,workdir):
         gwsc0= bindir + f'/gwsc 0 -np {args.np} '
         tall=''
+        out1="QPU"
+        out2='log.nio'
+        rmfiles(workdir,[out1,out2])
         runprogs([
-                 "rm -f log.nio QPU QPD",
                  gwsc0+ " nio",
         ])
-        dfile="QPU"
-        for outfile in dfile.split():   
+        for outfile in out1.split():   
                 tall+=dqpu(testdir+'/'+outfile, workdir+'/'+outfile)
-        outfile='log.nio'
-        tall+=diffnum(testdir+'/'+outfile, workdir+'/'+outfile,tol=3e-3,comparekeys=['fp evl'])
+        tall+=diffnum(testdir+'/'+out2, workdir+'/'+out2,tol=3e-3,comparekeys=['fp evl'])
         return tall

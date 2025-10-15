@@ -1,9 +1,10 @@
-from comp import test2_check,runprogs
+from comp import test2_check,runprogs,rmfiles
 def test(args,bindir,testdir,workdir):
         lmfa= f'mpirun -np 1 {bindir}/lmfa '
         lmf = f'mpirun -np {args.np} {bindir}/lmf '
         tall=''
-        outfile='out.lmf-dos.crn'
+        out1='out.lmf-dos.crn'
+        out2='dos-vcdmel.crn'
         message1='''
         # Case CrN: test of CLS with core hole
         # --- Test 2.  Core-level spectroscopy (EELS), Mulliken analysis, partial DOS ---
@@ -14,12 +15,12 @@ def test(args,bindir,testdir,workdir):
          from electron exited out of hole).
         '''
         print(message1)
+        rmfiles(workdir,[out1,out2])
         runprogs([
-                 lmfa+" crn > "+outfile ,
-                 lmf+ " crn >>"+outfile,
-                 lmf+ " -vnit=1 -vmetal=2 crn >>"+outfile,
-                 lmf+ " --cls crn >>"+outfile
+                 lmfa+" crn > "+out1 ,
+                 lmf+ " crn >>"+out1,
+                 lmf+ " -vnit=1 -vmetal=2 crn >>"+out1,
+                 lmf+ " --cls crn >>"+out1
         ])
-        outfile='dos-vcdmel.crn'
-        tall+=test2_check(testdir+'/'+outfile, workdir+'/'+outfile)
+        tall+=test2_check(testdir+'/'+out2, workdir+'/'+out2)
         return tall
