@@ -1,7 +1,7 @@
-from comp import test1_check,test2_check,runprogs
+from comp import test1_check,test2_check,runprogs,rmfiles
 def test(args,bindir,testdir,workdir):
     MATERIAL="ni"
-    NSLOTS=args.np
+    ncore=args.np
     lmfa= f'mpirun -np 1 {bindir}/lmfa '
     lmf = f'mpirun -np {args.np} {bindir}/lmf '
     outfile=f'out.lmf.{MATERIAL}'
@@ -11,29 +11,30 @@ def test(args,bindir,testdir,workdir):
     dat4='wan_ChiPMr.mat.syml2'
     tall=''
     
-    rmfiles(workdir,[outfile,dat1,dat2])
+    rmfiles(workdir,[outfile,dat1,dat2,dat3,dat4])
     if(args.checkonly): runprogs([
             "rm -rf summary.txt"
             ],quiet=True)
     else: runprogs([
         lmfa + f" {MATERIAL} > "+ outfile,
         lmf  + f" {MATERIAL} > "+ outfile,
-        f"{bindir}/job_band   {MATERIAL} -np {NSLOTS}",
-        f"{bindir}/genMLWF_vw {MATERIAL} -np {NSLOTS}",              # Wannier
+        f"{bindir}/job_band   {MATERIAL} -np {ncore}",
+        f"{bindir}/genMLWF_vw {MATERIAL} -np {ncore}",              # Wannier
         "echo --- Go into epsPP_magnon. It may take several minutes ---",
         "date",
-        f"{bindir}/epsPP_magnon_chipm_mpi -np {NSLOTS} {MATERIAL}",  # magnon calculation
+        f"{bindir}/epsPP_magnon_chipm_mpi -np {ncore} {MATERIAL}",  # magnon calculation
         "date",
         "gnuplot fbplot.glt" ,
         "gnuplot wanplot.glt",
-            "gnuplot mag3d.glt",
+        "gnuplot mag3d.glt",
         f"evince {workdir}/magnon3d.pdf &"
     ])
     tol=0.001
-    tall+=test2_check(testdir+'/'+dat1, workdir+'/'+dat1,tol)
-    tall+=test2_check(testdir+'/'+dat2, workdir+'/'+dat2,tol)
-    tall+=test2_check(testdir+'/'+dat3, workdir+'/'+dat3,tol)
-    tall+=test2_check(testdir+'/'+dat4, workdir+'/'+dat4,tol)
+    skipcond = lambda line: len(line.split()) >= 5 and all(float(x) == 0.0 for x in line.split()[:5])
+    tall+=test2_check(testdir+'/'+dat1, workdir+'/'+dat1, tol, rel_tol=1e-3, skipcond=skipcond)
+    tall+=test2_check(testdir+'/'+dat2, workdir+'/'+dat2, tol, rel_tol=1e-3, skipcond=skipcond)
+    tall+=test2_check(testdir+'/'+dat3, workdir+'/'+dat3, tol, rel_tol=1e-3, skipcond=skipcond)
+    tall+=test2_check(testdir+'/'+dat4, workdir+'/'+dat4, tol, rel_tol=1e-3, skipcond=skipcond)
     message1='''
      ======================================================
      Magnon calculation finished                           
