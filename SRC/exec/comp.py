@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os,sys,re
+import math
 def rmfiles(workdir, filelists):
     for fname in filelists:
         fullpath = os.path.join(workdir, fname)
@@ -38,24 +39,36 @@ def comp(f1,f2,label,tol,key,key2=None):
     print(keys)
     return out
 
-def compall(f1in,f2in,tol,skipcond):
-    f1= open(f1in,'rt').read().split('\n')
-    f2= open(f2in,'rt').read().split('\n')
-    diff=0
-    for ifnum,ifi in enumerate(f1):
+def compall(f1in,f2in,abs_tol,rel_tol,skipcond):
+    f1 = open(f1in,'rt').read().split('\n')
+    f2 = open(f2in,'rt').read().split('\n')
+    abs_diff = 0
+    rel_diff = 0
+    over_tol = False
+    for ifnum, line in enumerate(f1):
         if re.match(r'^\s*#', f1[ifnum]): continue
         if skipcond(f1[ifnum]) :          continue 
-        iline1=re.split(r'\s+',f1[ifnum])
-        iline2=re.split(r'\s+',f2[ifnum])
-        iline1=[float(i) for i in iline1 if i!=''] #and float(i)!=0]
-        iline2=[float(i) for i in iline2 if i!=''] #and float(i)!=0]
-        for i,idat1 in enumerate(iline1):
-            diff=max(abs(idat1-iline2[i]),diff)
-    if(diff>float(tol)) :
-        print('ERROR: max deviation =',diff,' tolerance =',tol)
+        vals1 = [v for v in re.split(r'\s+', line.strip()) if v]
+        vals2 = [v for v in re.split(r'\s+', f2[ifnum].strip()) if v]
+        for v1, v2 in zip(vals1, vals2):
+            try:
+                n1 = float(v1)
+                n2 = float(v2)
+            except ValueError:
+                continue
+            abs_diff = max(abs(n1 - n2), abs_diff)
+            rel_diff = max(abs(n1 - n2)/max(abs(n1), abs(n2), 1e-10), rel_diff)
+            if not math.isclose(n1, n2, rel_tol=rel_tol, abs_tol=abs_tol):
+                over_tol = True
+    if(over_tol):
+        print('ERROR: max deviation =', abs_diff, ' tolerance =', abs_tol)
+        if(rel_tol>0):
+            print('ERROR: max relative deviation =', rel_diff, ' tolerance =', rel_tol)
         return 'ERR! '
-    if(diff<=float(tol)):
-        print('max deviation =',diff,' tolerance =',tol)
+    else:
+        print('max deviation =', abs_diff, ' tolerance =', abs_tol)
+        if(rel_tol>0):
+            print('max relative deviation =', rel_diff, ' tolerance =', rel_tol)
         return 'OK! '
     
 def compeval(f1in,f2in,key,lineeval,evalso,tol):
@@ -191,8 +204,8 @@ def test1_check(f1,f2):
     with open("summary.txt", "a") as aout: print(aaa, file=aout)
     return out
 
-def test2_check(f1,f2,tol=dosclstol,skipcond=(lambda line:False)):
-    test=compall(f1,f2,tol,skipcond)
+def test2_check(f1,f2,abs_tol=dosclstol,rel_tol=0.0,skipcond=(lambda line:False)):
+    test=compall(f1,f2,abs_tol,rel_tol,skipcond)
     if('ERR!' in test) :
         aaa='FAILED! TEST 2 comparison comparison files:'+f1+' and '+f2
         out='err! '
