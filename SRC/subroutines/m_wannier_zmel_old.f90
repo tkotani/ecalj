@@ -44,7 +44,7 @@ contains
     real(8), intent(in) :: cgr((lmxax+1)**2,(lmxax+1)**2,(2*lmxax+1)**2,ng)
     real(8), intent(in) :: ppbrd(0:nl-1,nn,0:nl-1,nn,0:2*(nl-1),nxx,natom*nspin)
     real(8), intent(out) :: ppb(nlnmx,nlnmx,mdimx,natom)
-    integer :: ic, i,lb,nb,mb,lmb,i1,ibas,i2, np,lp,mp,lmp,n,l,m,lm,nl
+    integer :: ic, i,lb,nb,mb,lmb,i1,ibas,i2, np,lp,mp,lmp,n,l,m,lm
     do concurrent (ic=1:natom)
        ibas = ic
        i = 0 !i = product basis index.
