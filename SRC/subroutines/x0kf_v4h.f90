@@ -169,7 +169,6 @@ contains
     logical :: tetwtk = .false.
     real(8) :: zmel_max_size
     type(stopwatch) :: t_sw_zmel, t_sw_x0, t_sw_dpsion
-    logical ::  _is_m_basis
     qq=q
 
     ipr_col = mpi__ipr_col(mpi__rank_b) ! start index of column on xq for product basis set
