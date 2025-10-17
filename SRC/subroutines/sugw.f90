@@ -667,7 +667,7 @@ contains
         integer,allocatable:: nvggg(:,:),nvgcgp(:,:), ngveccB(:,:)
         integer,allocatable,target:: ngvecptt(:,:,:),ngvecctt(:,:,:),ngptt(:),ngctt(:),iqindex(:)
         complex(8),allocatable :: ppx(:,:),ggg(:) !, ppovl(:,:) !,ppovlinv(:,:)
-        integer,pointer:: ngvecp(:,:),ngvecc(:,:)
+        integer,pointer:: ngvecc(:,:) !ngvecp(:,:),
         character(5):: txx='.tmpp'
         ! Reading q+G and bzdata
         open(newunit=ifiqg ,file='__QGpsi',form='unformatted')
