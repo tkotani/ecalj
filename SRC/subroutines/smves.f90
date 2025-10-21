@@ -5,6 +5,8 @@ module m_smves
   use m_nvfortran,only:findloc
   private
   public smves
+  real(8), allocatable, target :: keep_phil(:,:,:)
+  logical :: set_keep_phil = .false.
 contains
   subroutine smves(qmom,gpot0,vval,hpot0,smrho,smpot,vconst,smq,qsmc,f,rhvsm0,rhvsm,zsum,vrmt,qbg) ! Electrostatic potential of the 0th component (represented by PlaneWave + Gaussians + smHankels)
     use m_supot,only: iv_a_okv, rv_a_ogv
@@ -173,10 +175,12 @@ contains
     real(8) :: alat,pi,tpiba,tau(3),rmt,fac,plat(3,3)
     complex(8):: vvali,fprli
     parameter (lmxx=6, nlmx=(lmxx+1)**2)
-    real(8),allocatable:: phil(:,:),yl(:,:)
+    real(8),allocatable:: yl(:,:) !phil(:,:),
+    real(8),pointer :: phil(:,:) => null()
     real(8),allocatable:: gv2(:,:),agv(:),cgp(:),sgp(:)
+    logical :: has_phil_is
     call tcn('mshvmt')
-    allocate(phil(ng,0:lmxx),yl(ng,nlmx))
+    allocate(yl(ng,nlmx)) !phil(ng,0:lmxx),
     allocate(gv2(ng,3),agv(ng),cgp(ng),sgp(ng))
     call getpr(ipr)
     pi = 4d0*datan(1d0)
@@ -186,9 +190,28 @@ contains
     call gvgetf(ng,1,kv,n1,n2,n3,smpot,cv)
     call dpcopy(gv,gv2,1,3*ng,tpiba)
     call ropyln(ng,gv2(1,1),gv2(1,2),gv2(1,3),lmxx,ng,yl,agv) !YL(G)*G**l, agv=|G| for each g ---
-    do  i = 1, ng
-       agv(i) = sqrt(agv(i))
-    enddo
+    if(.not. set_keep_phil) then
+      SetKeepPhil: block
+        use m_lmfinit,only: nspec
+        use m_lgunit,only:stdo
+        use m_ftox
+        use m_MPItk,only: master_mpi
+        agv(:) = sqrt(agv(:))
+        allocate(keep_phil(ng,0:lmxx,nspec))
+        if(master_mpi) write(stdo,ftox) ' Precomputing and storing keep_phil array in mshvmt: size=', &
+                                          ng*(lmxx+1)*nspec*8.d0/1024.d0/1024.d0,' MB'
+        do is = 1, nspec
+          rmt=rmt_i(is)
+          lmxl=lmxl_i(is)
+          if (lmxl == -1) cycle
+          rmt = rmt+1d-32
+          phil(1:,0:) => keep_phil(1:ng,0:lmxx,is)
+          call ropbes(agv,rmt**2,lmxl,cgp,sgp,phil,ng)
+          nullify(phil)
+        enddo
+      endblock SetKeepPhil
+      set_keep_phil = .true.
+    endif
     do  ib = 1, nbas
        is=ispec(ib)
        tau=rv_a_opos(:,ib) 
@@ -201,7 +224,8 @@ contains
        rmt = rmt+1d-32
        !   --- j_l(|rmt*q|)/rmt**l for each G and l=0..lmax ---
        !       Does not evolve correctly in the correct large r limit
-       call ropbes(agv,rmt**2,lmxl,cgp,sgp,phil,ng)
+       ! call ropbes(agv,rmt**2,lmxl,cgp,sgp,phil,ng)
+       phil(1:,0:) => keep_phil(1:ng,0:lmxx,is)
        tau=alat*tau !call dscal(3,alat,tau,1)
        do  i = 1, ng
           fac = -sum(tau*gv2(i,:)) !+tau(2)*gv2(i,2)+tau(3)*gv2(i,3))
@@ -218,9 +242,10 @@ contains
           enddo
           fprli = fprli*(0d0,1d0)*rmt
        enddo
+       nullify(phil)
 10     continue
     enddo
-    deallocate(phil,yl)
+    deallocate(yl) !phil
     deallocate(gv2,agv,cgp,sgp)
     call tcx('mshvmt')
   end subroutine mshvmt

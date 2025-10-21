@@ -39,7 +39,7 @@ contains
     real(8) :: xx(n0),p1(3),p2(3)
     complex(8):: h(ndimh,ndimh),vsm(k1,k2,k3,isp)
     integer :: npmx,nlmto
-    integer:: ltop , net, nlmtop , nrt , iprint
+    integer:: ltop , net, nlmtop , nrt , iprint, ncuti_max
     real(8) ,allocatable :: gg(:), g2(:), gvv(:),he(:,:), hr(:,:),yl(:,:)
     real(8) :: q0(3), etab(nermx),rtab(nermx)
     integer ,allocatable :: kv(:),iv(:,:),ncuti(:)
@@ -71,7 +71,7 @@ contains
     allocate(gg(ng*3),yl(ng,nlmtop),g2(ng),he(ng,net),hr(ng,nrt),phase(ng,nbas))
     q0=0d0
     call hsibl1(net,etab,nrt,rtab,ltop,alat,q0,ng,gvv,  gg,g2,yl,he,hr)
-    allocate( w_oc1( ng,ndimx), w_ocf1(ndimx), w_oc2( ng,ndimx), w_ocf2(ndimx), ff(k1*k2*k3))
+    allocate( w_oc1( ng,ndimx), w_ocf1(ndimx), w_ocf2(ndimx), ff(k1*k2*k3)) !w_oc2( ng,ndimx), 
     ! w_oc1(ng,ndimx,ibas,iq)
     allocate(cwork(ng))
     ibini=1
@@ -122,14 +122,8 @@ contains
         ofh2 = offl2(1)
         call uspecb(is2,rsmh2,eh2) 
         call gtbsl1(1,norb2,ltab2,ktab2,rsmh2,eh2,ntab2,blks2) ![1,1,1,0,1]
-        ndim2 = 0
-        do  iorb2 = 1, norb2
-          if (blks2(iorb2) == 0) cycle
-          nlm1 = l2**2+1
-          nlm2 = nlm1 + blks2(iorb2)-1
-          ndim2 = ndim2 + max(blks2(iorb2),0)
-        enddo
-        allocate(ncuti(ndim2))
+        ncuti_max = min(maxval(ncut(:,:)), ng)
+        allocate(w_oc2(ncuti_max,ndimx))
         ndim2 = 0
         iorb2loop: do  iorb2 = 1, norb2
           if (blks2(iorb2) == 0) cycle
@@ -150,7 +144,7 @@ contains
             w_oc2(1:ngcut_iorb,ilm+offi) = cwork(1:ngcut_iorb)*yl(1:ngcut_iorb,ilm)
             w_ocf2(ilm+offi) = (-img)**ll(ilm) * fac1
           enddo
-          ncuti(ndim2+1:ndim2+nlm2-nlm1+1)=ncut(l2t+1,ik2)
+          w_oc2(ngcut_iorb+1:ncuti_max,nlm1+offi:nlm2+offi) = 0d0
           ndim2 = ndim2 + max(nlm2-nlm1+1,0)
         enddo iorb2loop
         !     ... Scalar products phi1*vsm*phi2 for all orbitals in (ib1,ib2)
@@ -158,12 +152,12 @@ contains
         !call ncutcorrect ( ncuti , ndim2 , gvv , ng )
         hssblock: block
           use m_blas, only: gemm => zmm_h, m_op_C
-          integer::ncut,i2, io1,io2,ofw1,ofw2 !ncut is masked here
+          integer::io1,io2,ofw1,ofw2 !ncut is masked here
           complex(8)::hss(ndim1,ndim2) 
           complex(8),pointer:: c1(:,:),c2(:),cf1(:),cf2(:)
           complex(8) :: c12(ndim1,ndim2)
-          complex(8), allocatable :: oc2_0p(:,:) !zeropadding w_oc2 depending on ncuti
-          integer :: istat, ncuti_max
+          ! complex(8), allocatable :: oc2_0p(:,:) !zeropadding w_oc2 depending on ncuti
+          integer :: istat
           cf1=>w_ocf1(1:ndim1)
           cf2=>w_ocf2(1:ndim2)
           ! do  i2 = 1, ndim2
@@ -173,17 +167,8 @@ contains
           !    hss(:,i2)= dconjg(cf1)* matmul(dconjg(transpose(c1)),c2) *cf2(i2) ! = phi1*vsm*phi2
           ! enddo
           ! MO the above loop is replaced by gemm dated 2014/11/11
-          ncuti_max = min(maxval(ncuti(1:ndim2)),ng)
-          allocate(oc2_0p(ncuti_max,ndim2))
-          do i2=1, ndim2
-            ncut = min(ng,ncuti(i2))
-            oc2_0p(1:ncut,i2) = w_oc2(1:ncut,i2)
-            oc2_0p(ncut+1:ncuti_max,i2) = (0d0, 0d0) !zeropaading
-          enddo
-          istat = gemm(w_oc1, oc2_0p, c12, m=ndim1, n=ndim2, k=ncuti_max, opA=m_op_C, ldA=ng)
+          istat = gemm(w_oc1, w_oc2, c12, m=ndim1, n=ndim2, k=ncuti_max, opA=m_op_C, ldA=ng)
           forall (i1 = 1:ndim1, i2 = 1:ndim2) hss(i1,i2) = dconjg(cf1(i1))*c12(i1,i2)*cf2(i2)
-          deallocate(oc2_0p)
-          deallocate(ncuti)
           ofw1 = 0
           do  io1 = 1, norb1
             if (blks1(io1) ==0) cycle
@@ -204,6 +189,7 @@ contains
             ofw1 = ofw1 + blks1(io1)
           enddo
         endblock hssblock
+        deallocate(w_oc2)
 1010  enddo ib2loop
       hsmvsmpw: block !   ... Matrix elements <Hsm| Vsm |PW>
         integer:: i2x,ig,io1,ofw1
@@ -223,7 +209,7 @@ contains
         enddo
       endblock hsmvsmpw
     enddo ib1loop
-    deallocate(hr, he, g2, yl, gg, iv, kv, gvv, w_oc1,w_ocf1, w_oc2, w_ocf2,ff) 
+    deallocate(hr, he, g2, yl, gg, iv, kv, gvv, w_oc1,w_ocf1, w_ocf2,ff) 
     deallocate(cwork)
 333 continue
     if(napw==0) goto 666

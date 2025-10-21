@@ -75,12 +75,26 @@ contains
     i00 = 1
     ierr=-1
     do  irep = 1, ng+1
-       i0 = findloc([(ips0(i)==0,i=i00,ng)],value=.true.,dim=1)+i00-1
+       ! i0 = findloc([(ips0(i)==0,i=i00,ng)],value=.true.,dim=1)+i00-1
+       i0 = i00 - 1
+       do i = i00, ng
+         if(ips0(i) == 0) then
+           i0 = i
+           exit
+         endif
+       enddo
        if(i0==i00-1) goto 81 
        nstar = irep !   --- Apply all point ops, find in list, add to phase sum ---
        do k = 1, ngrp  ! ... Find G' = g(k) G; j0 is index to G'
           v = matmul(g(:,:,k),gv(i0,:))
-          j0 = findloc([(sum((v-gv(j,:))**2) < tol,j=i0,ng)],value=.true.,dim=1) + i0-1
+          ! j0 = findloc([(sum((v-gv(j,:))**2) < tol,j=i0,ng)],value=.true.,dim=1) + i0-1
+          j0 = i0 - 1
+          do j = i0, ng
+            if(sum((v - gv(j, :))**2) < tol) then
+               j0 = j
+               exit
+            endif
+          enddo
           if(j0==i0-1) return
           !       if(j0==i0-1) call rxi('SGVSYM: cannot find mapped vector in list:',i0)
           ips0(j0) = i0
