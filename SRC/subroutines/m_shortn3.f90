@@ -369,7 +369,7 @@ contains
     real(8):: plat1(3,3),qlat1(3,3),gg,gs(3)
     integer:: j1,j2,j3,m,jj1,jj2,jj3,nn1,nn2,nn3,i123(3),jjj(3),jg,igrp,jjg
     real(8):: rlatp(3,3),xmx2(3),gvv(3),diffmin
-    integer :: nginit,kv_tmp(ngmx,3),igv_tmp(ngmx,3),ips(ngmx),jx,nxx,itemp(ngmx),ix,iprint
+    integer :: nginit,kv_tmp(ngmx,3),igv_tmp(ngmx,3),ips(ngmx),jx,nxx,itemp(ngrp),ix,iprint
     real(8):: gv_tmp(ngmx,3)
     call tcn('gvlst2')
     call pshpr(iprint()-30)
@@ -447,7 +447,7 @@ contains
        allocate(idx_sort(nginit), source = sort_index(gv_tmp_norm(:)))
        do ig = 1,nginit
           if(job>999.and.ips(ig)==0) then 
-             itemp=0
+             ! itemp=0  !not needed
              ix=0
              do igrp = 1, ngrp
                 gvv = matmul(gsym(:,:,igrp),gv_tmp(ig,:)) !  ... gvv = g(k) gv
