@@ -434,9 +434,17 @@ contains
     enddo j1loop
     ng = ig
     if(job0/=0) then !symmetry checker
+       SymmetryChecker:block
+       use m_sort
+       integer :: jg_found, lower, upper, kg
+       real(8) :: diff, gvv_norm
+       real(8), allocatable :: gv_tmp_norm(:)
+       integer, allocatable, target :: idx_sort(:)
        nginit = ng
        ng=0
        ips=0
+       allocate(gv_tmp_norm(nginit), source = [(sqrt(sum(gv_tmp(ig,1:3)**2)),ig=1,nginit)])
+       allocate(idx_sort(nginit), source = sort_index(gv_tmp_norm(:)))
        do ig = 1,nginit
           if(job>999.and.ips(ig)==0) then 
              itemp=0
@@ -444,10 +452,28 @@ contains
              do igrp = 1, ngrp
                 gvv = matmul(gsym(:,:,igrp),gv_tmp(ig,:)) !  ... gvv = g(k) gv
                 !write(6,ftox) 'iii ig igrp gvv=',ig,igrp,ftof(gvv)
-                jg = findloc([(sum(abs(gvv-gv_tmp(jg,:)))<tolg2,jg=1,nginit)],value=.true.,dim=1)
-                if(jg/=0) then
-                   ix=ix+1
-                   itemp(ix)=jg
+                ! jg = findloc([(sum(abs(gvv-gv_tmp(jg,:)))<tolg2,jg=1,nginit)],value=.true.,dim=1)
+                ! if(jg/=0) then
+                !    ix=ix+1
+                !    itemp(ix)=jg
+                ! else
+                !    goto 70
+                ! endif
+                jg_found = 0
+                gvv_norm = sqrt(sum(gvv(:)**2))
+                lower = lower_bound(gv_tmp_norm, value=gvv_norm-tolg2, idx=idx_sort)
+                upper = upper_bound(gv_tmp_norm, value=gvv_norm+tolg2, idx=idx_sort)
+                do kg = lower, upper
+                  jg = idx_sort(kg)
+                  diff = sum(abs(gvv(:) - gv_tmp(jg,:)))
+                  if(diff < tolg2) then
+                    jg_found = jg
+                    exit
+                   endif
+                enddo
+                if (jg_found /= 0) then
+                   ix = ix + 1
+                   itemp(ix) = jg_found
                 else
                    goto 70
                 endif
@@ -460,6 +486,8 @@ contains
           if(lgv )  gv(ng,:)= gv_tmp(ig,:) 
 70        continue
        enddo !   write(stdo,ftox)'gmax ng nginit ngmx=',ftof(gmax),ng,nginit,ngmx,ftof(q)
+       deallocate(gv_tmp_norm, idx_sort)
+       endblock SymmetryChecker
     endif
     if(lsort) then
        gvsort:block !Sort vectors -- !call gvlsts(ng,gv(1:ng,1:3),kv(1:ng,1:3),igv(1:ng,1:3),ligv) 
