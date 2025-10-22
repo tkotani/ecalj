@@ -75,3 +75,45 @@ Start LMF si --quit=band
 i ehf(eV)=-15731.393584 ehk(eV)=-15731.393583 sev(eV)=-16.709879
 Start LMF si --band
 Start LMF si --writeham --mkprocar --noinv
+Start LMF si --writeham --mkprocar --noinv
+Start LMF si --writeham --mkprocar --noinv
+Start LMF si --writeham --mkprocar --noinv
+Start LMF si --writeham --mkprocar --noinv
+Start LMF si --writeham --mkprocar --noinv
+Start LMF si --writeham --mkprocar --noinv
+Start LMF si --writeham --mkprocar --noinv --skipf --skip2ndd
+Start LMF si --writeham --mkprocar --noinv --skipf --skip2ndd
+Start LMF si --writeham --mkprocar --noinv --skipf --skip2ndd
+Start LMF si --writeham --mkprocar --noinv --skipf --skip2ndd
+Start LMF si --writeham --mkprocar --noinv --skipf --skip2ndd
+Start LMF si --writeham --mkprocar --noinv --skipf --skip2ndd
+Start LMF si --writeham --mkprocar --noinv --skipf --skip2ndd
+Start LMF si --writeham --mkprocar --noinv --skipf --skip2ndd
+Start LMF si --writeham --mkprocar --noinv --skipf
+Start LMF si --writeham --mkprocar --noinv --skipf
+Start LMF si --writeham --mkprocar --noinv --skipf --skip2ndd
+Start LMF si --writeham --mkprocar --noinv --skipf --skipd
+Start LMF si --writeham --mkprocar --noinv --skipf --skipd
+Start LMF si --writeham --mkprocar --noinv --skipf --skipd --skip2nd
+Start LMF si --writeham --mkprocar --noinv --skipf --skipd
+Start LMF si --writeham --mkprocar --noinv --skipf --skipd --skip2nd
+Start LMF si --writeham --mkprocar --noinv --skipf --skip2nd
+Start LMF si --writeham --mkprocar --noinv --skipf --skipd
+Start LMF si --writeham --mkprocar --noinv --skipf --skipd
+Start LMF si --writeham --mkprocar --noinv --skipf --skipd
+Start LMF si --writeham --mkprocar --noinv --skipf --skipd --skip2nd --skip2ndp
+Start LMF si --writeham --mkprocar --noinv --skipf --skip2nd --skip2ndp
+Start LMF si --writeham --mkprocar --noinv --skipf --skip2nd --skipd --skip2ndp
+Start LMF si --writeham --mkprocar --noinv --skipf --skip2nd --skipd --skip2ndp
+Start LMF si --writeham --mkprocar --noinv --skipf --skip2nd --skipd
+Start LMF si --writeham --mkprocar --noinv --skipf --skip2nd --skipd
+Start LMF si --writeham --mkprocar --noinv --skipf --skip2nd --skipd
+Start LMF si --writeham --mkprocar --noinv --skipf --skip2nd --skipd
+Start LMF si --writeham --mkprocar --noinv --skipf --skip2nd --skipd
+Start LMF si --writeham --mkprocar --noinv --skipf
+Start LMF si --writeham --mkprocar --noinv --skip2nd --skipf --skip1d
+Start LMF si --writeham --mkprocar --noinv --skip2nd --skipf --skip1d
+Start LMF si --writeham --mkprocar --noinv --skip2nd --skipf --skip1d
+Start LMF si --writeham --mkprocar --noinv --skip2nd --skipf --skip1d
+Start LMF si --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF si --writeham --mkprocar --noinv --skip2nd --skipf --skiplo --skipd

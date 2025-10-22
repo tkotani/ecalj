@@ -99,6 +99,22 @@ contains
       do i=1,ldim  !only MTOs. Further restrictions.
          if(cmdopt0('--skipf') .and. l_table(i)>=3) cycle !only spd. skip f orbitals. !if(k_table(i)==2.and.l_table(i)>=2) cycle ! throw away EH2 for d
          if(cmdopt0('--skip2ndd') .and. k_table(i)>=2.and.l_table(i)>=2) cycle ! throw away EH2 for d
+         if(cmdopt0('--skipd') .and.   l_table(i)>=2) cycle ! throw away EH2 for d
+         if(cmdopt0('--skip1d') .and.  k_table(i)==1 .and. l_table(i)==2) cycle ! throw away EH2 for d
+         if(cmdopt0('--skip2nd') .and. k_table(i)==2) cycle 
+         if(cmdopt0('--skip2ndp').and. k_table(i)==2.and.l_table(i)==1) cycle 
+         if(cmdopt0('--skip2nds').and. k_table(i)==2.and.l_table(i)==0) cycle 
+         if(cmdopt0('--skiplo') .and. k_table(i)==3) cycle
+
+         if(cmdopt0('--nio'))then
+         if(ib_table(i)==1.or.ib_table(i)==2) then
+           if(l_table(i)<2) cycle
+         endif  
+         if(ib_table(i)==3.or.ib_table(i)==4) then
+           if(l_table(i)/=1) cycle
+         endif  
+         endif
+
          nn=nn+1
          ix(nn)=i
          ib_tableM(nn)= ib_table(i)
@@ -271,7 +287,7 @@ subroutine Hreduction(iprx,facw,ecutw,eww,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, ham
    use m_lgunit,only:stdo
    use m_lmfinit,only:oveps
    implicit none
-   integer::i,j,ndimPMT,ndimMTO,nx,nmx,ix(ndimMTO),nev,nxx,jj,ndimPMTx
+   integer::i,j,ndimPMT,ndimMTO,nx,nmx,ix(ndimMTO),nev,nxx,jj,ndimPMTx,nvpmt
    real(8)::beta,emu,val,wgt(ndimPMT),evlmto(ndimMTO),evl(ndimPMT),evlx(ndimPMT),facw,ecutw,eww
    complex(8):: evecmto(ndimMTO,ndimMTO),evecpmt(ndimPMT,ndimPMT)
    complex(8):: ovlmx(ndimPMT,ndimPMT),hammx(ndimPMT,ndimPMT),fac(ndimPMT,ndimMTO),ddd(ndimMTO,ndimMTO)
@@ -292,37 +308,83 @@ subroutine Hreduction(iprx,facw,ecutw,eww,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, ham
    call zhev_tk4(ndimPMT,hamm(1:ndimPMT,1:ndimPMT),ovlm(1:ndimPMT,1:ndimPMT), nmx,nev, evl,evecpmt, oveps) !PMT
    ovlm=ovlmx
    ndimPMTx=nev !obtained. oveps may reduce ndimPMT to be ndimPMTx
-   do j=1,ndimMTO !wnm is corrected matrix element of <psi_PMT|psi_MTO>
+   do j=1,ndimMTO !wnm is corrected matrix element of fac=<psi_PMT|psi_MTO>
       do i=1,nev
-         fac(i,j)= sum(dconjg(evecpmt(:,i))*matmul(ovlmx(:,ix(1:ndimMTO)),evecmto(1:ndimMTO,j)))
+         fac(i,j)= sum(dconjg(evecpmt(:,i))*matmul(ovlmx(:,ix(1:ndimMTO)),evecmto(1:ndimMTO,j))) !<Psi_PMT|Psi_MTO>
       enddo
    enddo
    ModifyMatrixElements :block
-      integer:: ie,nidxevlmto,nidxevl,ibx,jx,idxevlmto(ndimMTO),idxevl(ndimPMT),jbx
-      real(8):: eee,fffx,ecut,xxx,ewcutf,rydberg,facww
+      use m_ftox
+      integer:: ie,nidxevlmto,nidxevl,ibx,jx,idxevlmto(ndimMTO),idxevl(ndimPMT),jbx,nval,nskip,nnn
+      real(8):: eee,fffx,ecut,xxx,ewcutf,rydberg,facww,sss,fff,epscore,emax,alpha,emin
       real(8),allocatable::mulfac(:,:),mulfacw(:,:)
+      complex(8):: imag=(0d0,1d0)
       allocate(wnm(ndimPMTx,ndimMTO))!this is to avoid bug in ifort18.0.5
       ewcutf = ecutw+eferm
-      do j=1,ndimMTO
-         do i=1,ndimPMTx
-            facww = facw*fermidist((evlmto(j)-ewcutf)/eww)
-            wnm(i,j) = fac(i,j)*abs(fac(i,j))**facww !2023-12-5 abs(fac) needed with PWMODE=11 to keep symmetry
-            !  wnm(i,j) = fac(i,j)*fac(i,j)**facww
-         enddo
-      enddo
-      call GramSchmidt(ndimPMTx,ndimMTO,wnm)
+      write(stdo,ftox)'ecutw=',ecutw
+      ! do j=1,ndimMTO !wnm is corrected matrix element of <psi_PMT|psi_MTO>
+      !   do i=1,ndimPMTx
+      !     if(abs(fac(i,j))>.1) write(stdo,ftox)'fac matrix j=',j,'  ',i,ftof(abs(fac(i,j))**2)
+      !   enddo
+      ! enddo
+      
+      ! do j=1,ndimMTO
+      !    do i=1,ndimPMTx
+      !       facww = facw*fermidist((evlmto(j)-ewcutf)/eww)
+      !       wnm(i,j) = fac(i,j)*abs(fac(i,j))**facww !2023-12-5 abs(fac) needed with PWMODE=11 to keep symmetry
+      !    enddo
+      !    if(evlmto(j)-ewcutf<0) then
+      !      wnm(:,j) = 0
+      !      wnm(j,j) = fermidist((evlmto(j)-ewcutf)/eww) !or =1d0
+      !    endif
+      ! enddo
+      ! call GramSchmidt(ndimPMTx,ndimMTO,wnm)
+
       if(iprx) then
-         do j=1,ndimMTO !wnm is corrected matrix element of <psi_PMT|psi_MTO>
-            do i=1,ndimPMTx
-               if(abs(wnm(i,j))>.1) write(stdo,*)'wnm matrix ',j,i,abs(wnm(i,j))**2
-            enddo
-         enddo
+      do j=1,ndimMTO !wnm is corrected matrix element of <psi_PMT|psi_MTO>
+        do i=1,ndimPMTx
+          if(abs(fac(i,j))**2>.1) write(stdo,ftox)'fac matrix ',j,i,ftof(abs(fac(i,j))**2)
+        enddo
+      enddo
       endif
-      ! Mapping operator wnm*<psi_MTO|F_i>, where F_i is MTO basis.
-      nx=ndimPMTx
+      
+      epscore=0.1d0
+      eww=.4d0
+      nskip=0
+      nskip = findloc( sum(abs(fac(:,:))**2,dim=2)>epscore,value=.true.,dim=1)-1 !core level skip by LO. Or skip evec outside of MTO
+      
+      write(stdo,*)'ccccc nskip',nskip
+      emax  = evl(ndimMTO+nskip)
+      emin  = evl(1+nskip)
+      alpha=1d0
+      wnm=0d0
+      do j=1,ndimMTO
+        write(stdo,ftox) 'sumcheck1=',j,sum(abs(fac(:,j))**2)
+        write(stdo,ftox) 'sumcheck2=',j,ftof([(abs(fac(i,j))**2,i=1,ndimPMTx)],2)
+        do i= 1,ndimPMTx !MTO+nskip !PMTx !          if(i==j+nskip) then 
+!             wnm(i,j)= fac(i,j)* fermidist((evl(i)-emax)/eww) *  (0.2 + (evl(i)-emax)/(evl(nskip+1)-emax))**2
+          
+!          wnm(i,j)= fac(i,j)* fermidist((evl(i)-emax)/eww) &
+!               *  (0.1 + (evl(i)-emax)/(evl(nskip+1)-emax))**2 & !low energy enhancement
+!               *  abs(fac(i,j)) ! peak truncation
+          wnm(i,j)= fac(i,j)* fermidist((evl(i)-emax-eww)/eww) &
+               *  (0.01 + (evl(i)-emax)/(evl(nskip+1)-emax)) **2  !low energy enhancement
+!               *  abs(fac(i,j)) ! peak truncation
+        enddo
+      enddo
+!      nvpmt=findloc(evl>eferm,value=.true.,dim=1)-1
+!      nvpmt= nvpmt + 2!(nvpmt-nskip)
+!      write(stdo,ftox)'nvpmt=',nvpmt
+!      wnm(1:nvpmt,   nvpmt-nskip+1:)=0d0 !valence is respected. valence is nvpmt-nskip is the number of MTO for valence
+!      wnm(nvpmt+1:, :nvpmt-nskip)=0d0
+      wnm(1:nskip,:)=0d0 
+      call GramSchmidt(ndimPMTx,ndimMTO,wnm)
+      ! P = \sum_i \sum_j |Psi_i><Psi_i|MTO_j><MTO_j|, where range of i is restricted. wnm= <PsiPMT_n|PsiMTO_m>
+      ! |MPO_k>=  P| F_k>, where we make take Limited Hilbert space spanned by i for the number of MTOs
+      nx = ndimPMTx
       cmpo(ndimPMTx+1:ndimPMT,1:ndimMTO)=0d0
-      cmpo(1:ndimPMTx,1:ndimMTO) = matmul(wnm(1:ndimPMTx,1:ndimMTO),&
-         matmul(transpose(dconjg(evecmto(:,:))),ovlmx(ix(1:ndimMTO),ix(1:ndimMTO))))
+      cmpo(1:ndimPMTx,1:ndimMTO) = matmul(wnm(1:ndimPMTx,1:ndimMTO),&   !sum_i sum_j <PsiPMT_i |Psi_MTO j><Psi_MTO j|MTO_k> 
+         matmul(transpose(dconjg(evecmto(:,:))),ovlmx(ix(1:ndimMTO),ix(1:ndimMTO)))) !
       do i=1,ndimMTO
          do j=1,ndimMTO
             hammout(i,j)= sum( dconjg(cmpo(1:nx,i))*evl(1:nx)*cmpo(1:nx,j)) !|FMPO_i>=|PsiPMT_j> cmpo(j,i)

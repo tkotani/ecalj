@@ -24,7 +24,7 @@ SITE    ATOM=Niup POS=  .0   .0   .0
         ATOM=O    POS=  .5   .5   .5
         ATOM=O    POS= 1.5  1.5  1.5
 SPEC
-    ATOM=Niup Z=28 R=2.19 PZ=0,0,3.9  P=0,0,4.2 
+    ATOM=Niup Z=28 R=2.19 #PZ=0,0,3.9  #P=0,0,4.2 
       EH=-1 -1 -1 -1  RSMH=1.09 1.09 1.09 1.09 
       EH2=-2 -2 -2   RSMH2=1.09 1.09 1.09 
       KMXA={kmxa}  LMX=3 LMXA=4 NMCORE=1
@@ -33,7 +33,7 @@ SPEC
       #Q= 
       #MMOM and Q are to set electron population. grep conf: in lmfa output
 
-    ATOM=Nidn Z=28 R=2.19 PZ=0,0,3.9  P=0,0,4.2 
+    ATOM=Nidn Z=28 R=2.19 #PZ=0,0,3.9  #P=0,0,4.2 
       EH=-1 -1 -1 -1  RSMH=1.09 1.09 1.09 1.09 
       EH2=-2 -2 -2    RSMH2=1.09 1.09 1.09 
       KMXA={kmxa}  LMX=3 LMXA=4 NMCORE=1

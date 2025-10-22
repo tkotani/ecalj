@@ -562,3 +562,208 @@ mpisize=8
 fp qvl   8.000000  sm   8.655246  loc  -0.655246  qbg   0.000000 dQ   0.000000
 fp pot  rvxc      -104.9150772  rexc        -79.4142184  rves    -2235.4862339
 fp pot  rex        -75.1044185  rec          -4.3097998
+===START LMF with  si --writeham --mkprocar --noinv ===
+mpisize=8
+fp qvl   8.000000  sm   8.655246  loc  -0.655246  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -104.9150772  rexc        -79.4142184  rves    -2235.4862339
+fp pot  rex        -75.1044185  rec          -4.3097998
+===START LMF with  si --writeham --mkprocar --noinv ===
+mpisize=8
+fp qvl   8.000000  sm   8.655246  loc  -0.655246  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -104.9150772  rexc        -79.4142184  rves    -2235.4862339
+fp pot  rex        -75.1044185  rec          -4.3097998
+===START LMF with  si --writeham --mkprocar --noinv ===
+mpisize=8
+fp qvl   8.000000  sm   8.655246  loc  -0.655246  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -104.9150772  rexc        -79.4142184  rves    -2235.4862339
+fp pot  rex        -75.1044185  rec          -4.3097998
+===START LMF with  si --writeham --mkprocar --noinv ===
+mpisize=8
+fp qvl   8.000000  sm   8.655246  loc  -0.655246  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -104.9150772  rexc        -79.4142184  rves    -2235.4862339
+fp pot  rex        -75.1044185  rec          -4.3097998
+===START LMF with  si --writeham --mkprocar --noinv ===
+mpisize=8
+fp qvl   8.000000  sm   8.655246  loc  -0.655246  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -104.9150772  rexc        -79.4142184  rves    -2235.4862339
+fp pot  rex        -75.1044185  rec          -4.3097998
+===START LMF with  si --writeham --mkprocar --noinv ===
+mpisize=8
+fp qvl   8.000000  sm   8.655246  loc  -0.655246  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -104.9150772  rexc        -79.4142184  rves    -2235.4862339
+fp pot  rex        -75.1044185  rec          -4.3097998
+===START LMF with  si --writeham --mkprocar --noinv --skipf --skip2ndd ===
+mpisize=8
+fp qvl   8.000000  sm   8.655246  loc  -0.655246  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -104.9150772  rexc        -79.4142184  rves    -2235.4862339
+fp pot  rex        -75.1044185  rec          -4.3097998
+===START LMF with  si --writeham --mkprocar --noinv --skipf --skip2ndd ===
+mpisize=8
+fp qvl   8.000000  sm   8.655246  loc  -0.655246  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -104.9150772  rexc        -79.4142184  rves    -2235.4862339
+fp pot  rex        -75.1044185  rec          -4.3097998
+===START LMF with  si --writeham --mkprocar --noinv --skipf --skip2ndd ===
+mpisize=8
+fp qvl   8.000000  sm   8.655246  loc  -0.655246  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -104.9150772  rexc        -79.4142184  rves    -2235.4862339
+fp pot  rex        -75.1044185  rec          -4.3097998
+===START LMF with  si --writeham --mkprocar --noinv --skipf --skip2ndd ===
+mpisize=8
+fp qvl   8.000000  sm   8.655246  loc  -0.655246  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -104.9150772  rexc        -79.4142184  rves    -2235.4862339
+fp pot  rex        -75.1044185  rec          -4.3097998
+===START LMF with  si --writeham --mkprocar --noinv --skipf --skip2ndd ===
+mpisize=8
+fp qvl   8.000000  sm   8.655246  loc  -0.655246  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -104.9150772  rexc        -79.4142184  rves    -2235.4862339
+fp pot  rex        -75.1044185  rec          -4.3097998
+===START LMF with  si --writeham --mkprocar --noinv --skipf --skip2ndd ===
+mpisize=8
+fp qvl   8.000000  sm   8.655246  loc  -0.655246  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -104.9150772  rexc        -79.4142184  rves    -2235.4862339
+fp pot  rex        -75.1044185  rec          -4.3097998
+===START LMF with  si --writeham --mkprocar --noinv --skipf --skip2ndd ===
+mpisize=8
+fp qvl   8.000000  sm   8.655246  loc  -0.655246  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -104.9150772  rexc        -79.4142184  rves    -2235.4862339
+fp pot  rex        -75.1044185  rec          -4.3097998
+===START LMF with  si --writeham --mkprocar --noinv --skipf --skip2ndd ===
+mpisize=8
+fp qvl   8.000000  sm   8.655246  loc  -0.655246  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -104.9150772  rexc        -79.4142184  rves    -2235.4862339
+fp pot  rex        -75.1044185  rec          -4.3097998
+===START LMF with  si --writeham --mkprocar --noinv --skipf ===
+mpisize=8
+fp qvl   8.000000  sm   8.655246  loc  -0.655246  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -104.9150772  rexc        -79.4142184  rves    -2235.4862339
+fp pot  rex        -75.1044185  rec          -4.3097998
+===START LMF with  si --writeham --mkprocar --noinv --skipf ===
+mpisize=8
+fp qvl   8.000000  sm   8.655246  loc  -0.655246  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -104.9150772  rexc        -79.4142184  rves    -2235.4862339
+fp pot  rex        -75.1044185  rec          -4.3097998
+===START LMF with  si --writeham --mkprocar --noinv --skipf --skip2ndd ===
+mpisize=8
+fp qvl   8.000000  sm   8.655246  loc  -0.655246  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -104.9150772  rexc        -79.4142184  rves    -2235.4862339
+fp pot  rex        -75.1044185  rec          -4.3097998
+===START LMF with  si --writeham --mkprocar --noinv --skipf --skipd ===
+mpisize=8
+fp qvl   8.000000  sm   8.655246  loc  -0.655246  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -104.9150772  rexc        -79.4142184  rves    -2235.4862339
+fp pot  rex        -75.1044185  rec          -4.3097998
+===START LMF with  si --writeham --mkprocar --noinv --skipf --skipd --skip2nd ===
+mpisize=8
+fp qvl   8.000000  sm   8.655246  loc  -0.655246  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -104.9150772  rexc        -79.4142184  rves    -2235.4862339
+fp pot  rex        -75.1044185  rec          -4.3097998
+===START LMF with  si --writeham --mkprocar --noinv --skipf --skipd ===
+mpisize=8
+fp qvl   8.000000  sm   8.655246  loc  -0.655246  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -104.9150772  rexc        -79.4142184  rves    -2235.4862339
+fp pot  rex        -75.1044185  rec          -4.3097998
+===START LMF with  si --writeham --mkprocar --noinv --skipf --skipd --skip2nd ===
+mpisize=8
+fp qvl   8.000000  sm   8.655246  loc  -0.655246  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -104.9150772  rexc        -79.4142184  rves    -2235.4862339
+fp pot  rex        -75.1044185  rec          -4.3097998
+===START LMF with  si --writeham --mkprocar --noinv --skipf --skip2nd ===
+mpisize=8
+fp qvl   8.000000  sm   8.655246  loc  -0.655246  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -104.9150772  rexc        -79.4142184  rves    -2235.4862339
+fp pot  rex        -75.1044185  rec          -4.3097998
+===START LMF with  si --writeham --mkprocar --noinv --skipf --skipd ===
+mpisize=8
+fp qvl   8.000000  sm   8.655246  loc  -0.655246  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -104.9150772  rexc        -79.4142184  rves    -2235.4862339
+fp pot  rex        -75.1044185  rec          -4.3097998
+===START LMF with  si --writeham --mkprocar --noinv --skipf --skipd ===
+mpisize=8
+fp qvl   8.000000  sm   8.655246  loc  -0.655246  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -104.9150772  rexc        -79.4142184  rves    -2235.4862339
+fp pot  rex        -75.1044185  rec          -4.3097998
+===START LMF with  si --writeham --mkprocar --noinv --skipf --skipd ===
+mpisize=8
+fp qvl   8.000000  sm   8.655246  loc  -0.655246  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -104.9150772  rexc        -79.4142184  rves    -2235.4862339
+fp pot  rex        -75.1044185  rec          -4.3097998
+===START LMF with  si --writeham --mkprocar --noinv --skipf --skipd --skip2nd --skip2ndp ===
+mpisize=8
+fp qvl   8.000000  sm   8.655246  loc  -0.655246  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -104.9150772  rexc        -79.4142184  rves    -2235.4862339
+fp pot  rex        -75.1044185  rec          -4.3097998
+===START LMF with  si --writeham --mkprocar --noinv --skipf --skip2nd --skip2ndp ===
+mpisize=8
+fp qvl   8.000000  sm   8.655246  loc  -0.655246  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -104.9150772  rexc        -79.4142184  rves    -2235.4862339
+fp pot  rex        -75.1044185  rec          -4.3097998
+===START LMF with  si --writeham --mkprocar --noinv --skipf --skip2nd --skipd --skip2ndp ===
+mpisize=8
+fp qvl   8.000000  sm   8.655246  loc  -0.655246  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -104.9150772  rexc        -79.4142184  rves    -2235.4862339
+fp pot  rex        -75.1044185  rec          -4.3097998
+===START LMF with  si --writeham --mkprocar --noinv --skipf --skip2nd --skipd --skip2ndp ===
+mpisize=8
+fp qvl   8.000000  sm   8.655246  loc  -0.655246  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -104.9150772  rexc        -79.4142184  rves    -2235.4862339
+fp pot  rex        -75.1044185  rec          -4.3097998
+===START LMF with  si --writeham --mkprocar --noinv --skipf --skip2nd --skipd ===
+mpisize=8
+fp qvl   8.000000  sm   8.655246  loc  -0.655246  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -104.9150772  rexc        -79.4142184  rves    -2235.4862339
+fp pot  rex        -75.1044185  rec          -4.3097998
+===START LMF with  si --writeham --mkprocar --noinv --skipf --skip2nd --skipd ===
+mpisize=8
+fp qvl   8.000000  sm   8.655246  loc  -0.655246  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -104.9150772  rexc        -79.4142184  rves    -2235.4862339
+fp pot  rex        -75.1044185  rec          -4.3097998
+===START LMF with  si --writeham --mkprocar --noinv --skipf --skip2nd --skipd ===
+mpisize=8
+fp qvl   8.000000  sm   8.655246  loc  -0.655246  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -104.9150772  rexc        -79.4142184  rves    -2235.4862339
+fp pot  rex        -75.1044185  rec          -4.3097998
+===START LMF with  si --writeham --mkprocar --noinv --skipf --skip2nd --skipd ===
+mpisize=8
+fp qvl   8.000000  sm   8.655246  loc  -0.655246  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -104.9150772  rexc        -79.4142184  rves    -2235.4862339
+fp pot  rex        -75.1044185  rec          -4.3097998
+===START LMF with  si --writeham --mkprocar --noinv --skipf --skip2nd --skipd ===
+mpisize=8
+fp qvl   8.000000  sm   8.655246  loc  -0.655246  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -104.9150772  rexc        -79.4142184  rves    -2235.4862339
+fp pot  rex        -75.1044185  rec          -4.3097998
+===START LMF with  si --writeham --mkprocar --noinv --skipf ===
+mpisize=8
+fp qvl   8.000000  sm   8.655246  loc  -0.655246  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -104.9150772  rexc        -79.4142184  rves    -2235.4862339
+fp pot  rex        -75.1044185  rec          -4.3097998
+===START LMF with  si --writeham --mkprocar --noinv --skip2nd --skipf --skip1d ===
+mpisize=1
+fp qvl   8.000000  sm   8.655246  loc  -0.655246  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -104.9150772  rexc        -79.4142184  rves    -2235.4862339
+fp pot  rex        -75.1044185  rec          -4.3097998
+===START LMF with  si --writeham --mkprocar --noinv --skip2nd --skipf --skip1d ===
+mpisize=1
+fp qvl   8.000000  sm   8.655246  loc  -0.655246  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -104.9150772  rexc        -79.4142184  rves    -2235.4862339
+fp pot  rex        -75.1044185  rec          -4.3097998
+===START LMF with  si --writeham --mkprocar --noinv --skip2nd --skipf --skip1d ===
+mpisize=1
+fp qvl   8.000000  sm   8.655246  loc  -0.655246  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -104.9150772  rexc        -79.4142184  rves    -2235.4862339
+fp pot  rex        -75.1044185  rec          -4.3097998
+===START LMF with  si --writeham --mkprocar --noinv --skip2nd --skipf --skip1d ===
+mpisize=1
+fp qvl   8.000000  sm   8.655246  loc  -0.655246  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -104.9150772  rexc        -79.4142184  rves    -2235.4862339
+fp pot  rex        -75.1044185  rec          -4.3097998
+===START LMF with  si --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl   8.000000  sm   8.655246  loc  -0.655246  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -104.9150772  rexc        -79.4142184  rves    -2235.4862339
+fp pot  rex        -75.1044185  rec          -4.3097998
+===START LMF with  si --writeham --mkprocar --noinv --skip2nd --skipf --skiplo --skipd ===
+mpisize=8
+fp qvl   8.000000  sm   8.655246  loc  -0.655246  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -104.9150772  rexc        -79.4142184  rves    -2235.4862339
+fp pot  rex        -75.1044185  rec          -4.3097998

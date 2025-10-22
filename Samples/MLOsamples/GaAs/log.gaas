@@ -145,3 +145,2326 @@ mpisize=8
 fp qvl  18.000000  sm   9.993421  loc   8.006579  qbg   0.000000 dQ   0.000000
 fp pot  rvxc      -407.1500878  rexc       -307.4077945  rves   -16664.4771776
 fp pot  rex       -295.8555241  rec         -11.5522704
+===START LMF with  gaas ===
+mpisize=8
+fp qvl  18.000000  sm   9.993193  loc   8.006807  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -407.1502000  rexc       -307.4078799  rves   -16664.4776560
+fp pot  rex       -295.8556035  rec         -11.5522764
+fp evl -0.9497 -0.9497 -0.9497 -0.9437 -0.9437 -0.7987  0.1413  0.1413
+fp evl  0.1413  0.1628  0.4120  0.4120  0.4120  0.6818  0.8926  0.8926
+fp evl  0.9854  0.9854
+bzmet T tet T ef  0.141348 sev -11.476377 zval  18.000000
+sumqv  18.000000 amom  0.000000 egap(eV)  0.021
+fp Har: U  -16664.477656  T    8573.384813  sev    -11.476377  EH   -8398.500723
+fp qvl  18.000000  sm   9.992705  loc   8.007295  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -407.1503572  rexc       -307.4079996  rves   -16664.4783274
+fp pot  rex       -295.8557142  rec         -11.5522853
+fp KS: U  -16664.4783274 T    8573.3856022 Exc   -307.4079996 EKS  -8398.5007248
+fp qvl  18.000000  sm   9.993095  loc   8.006905  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -407.1502315  rexc       -307.4079038  rves   -16664.4777903
+fp pot  rex       -295.8556256  rec         -11.5522782
+fp evl -0.9497 -0.9497 -0.9497 -0.9437 -0.9437 -0.7987  0.1413  0.1413
+fp evl  0.1413  0.1628  0.4120  0.4120  0.4120  0.6817  0.8926  0.8926
+fp evl  0.9854  0.9854
+bzmet T tet T ef  0.141347 sev -11.476325 zval  18.000000
+sumqv  18.000000 amom  0.000000 egap(eV)  0.021
+fp Har: U  -16664.477790  T    8573.384971  sev    -11.476325  EH   -8398.500723
+fp qvl  18.000000  sm   9.992663  loc   8.007337  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -407.1503448  rexc       -307.4079901  rves   -16664.4783094
+fp pot  rex       -295.8557054  rec         -11.5522847
+fp KS: U  -16664.4783094 T    8573.3855747 Exc   -307.4079901 EKS  -8398.5007248
+===START LMF with  gaas --writeham --mkprocar --noinv --skipf --skip2nd --skipd ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skipf --skip2nd ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skipf ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skipf --skip2ndd ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skipf --skip2ndp ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skipf ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skipf --skip2ndp --skip2nds ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skipf --skip2ndp ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skipf --skip2nd ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skipf --skip2nd ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skipf --skip2nd ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skipf --skip2ndd ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skipf --skip2nds ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skipf ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skipf --skip2nd ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skipf --skip2nd --skip1d ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skipf --skip2nd ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skipf --skip2nd ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skipf --skip2nd --skip1d ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skipf --skip2nd ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skipf --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skipf --skip2nd ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skipf --skip2nd ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skipf --skip2nd --skip1d ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skipf --skip2nd --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skipf --skip2nd --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skipf --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skipf --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skipf --skip2nd ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skipf --skip2nd ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skipf --skip2nd --skip1d ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip2d ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skipd ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo --skip1d ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo --skip1d ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo --skip1d ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo --skip1d ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skipd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo --skipd ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo --skipd ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo --skipd ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo --skipd ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=1
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795
+===START LMF with  gaas --writeham --mkprocar --noinv --skip2nd --skiplo ===
+mpisize=8
+fp qvl  18.000000  sm   9.993009  loc   8.006991  qbg   0.000000 dQ  -0.000000
+fp pot  rvxc      -407.1502541  rexc       -307.4079211  rves   -16664.4778941
+fp pot  rex       -295.8556416  rec         -11.5522795

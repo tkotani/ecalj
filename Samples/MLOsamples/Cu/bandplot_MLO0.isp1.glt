@@ -17,7 +17,7 @@ set xtics ('GAMMA'   0.0000000000,\
 tpia=2*3.1415926/     6.79800
 ef= -0.026286
 plot \
-"band_MPO_spin1.dat" u ($1):(13.605*($2-ef)) pt 2 lc rgb "green",\
+"band_MPO_spin1.dat" u ($1):(13.605*($2-ef)) pt 2 lc rgb "red",\
 "bnd001.spin1" u ($2):($3) lt 1 pt 1 w lp,\
 "bnd002.spin1" u ($2):($3) lt 1 pt 1 w lp,\
 "bnd003.spin1" u ($2):($3) lt 1 pt 1 w lp,\

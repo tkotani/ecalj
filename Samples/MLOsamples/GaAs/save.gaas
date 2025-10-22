@@ -12,3 +12,465 @@ Start LMF gaas --quit=band
 i ehf(eV)=-114268.321140 ehk(eV)=-114268.321164 sev(eV)=-156.148840
 Start LMF gaas --band
 Start LMF gaas --writeham --mkprocar --noinv
+Start LMF gaas
+i ehf(eV)=-114268.321135 ehk(eV)=-114268.321162 sev(eV)=-156.145290
+c ehf(eV)=-114268.321134 ehk(eV)=-114268.321161 sev(eV)=-156.144586
+Start LMF gaas --writeham --mkprocar --noinv --skipf --skip2nd --skipd
+Start LMF gaas --writeham --mkprocar --noinv --skipf --skip2nd
+Start LMF gaas --writeham --mkprocar --noinv --skipf
+Start LMF gaas --writeham --mkprocar --noinv --skipf --skip2ndd
+Start LMF gaas --writeham --mkprocar --noinv --skipf --skip2ndp
+Start LMF gaas --writeham --mkprocar --noinv --skipf
+Start LMF gaas --writeham --mkprocar --noinv --skipf --skip2ndp --skip2nds
+Start LMF gaas --writeham --mkprocar --noinv --skipf --skip2ndp
+Start LMF gaas --writeham --mkprocar --noinv --skipf --skip2nd
+Start LMF gaas --writeham --mkprocar --noinv --skipf --skip2nd
+Start LMF gaas --writeham --mkprocar --noinv --skipf --skip2nd
+Start LMF gaas --writeham --mkprocar --noinv --skipf --skip2ndd
+Start LMF gaas --writeham --mkprocar --noinv --skipf --skip2nds
+Start LMF gaas --writeham --mkprocar --noinv --skipf
+Start LMF gaas --writeham --mkprocar --noinv --skipf --skip2nd
+Start LMF gaas --writeham --mkprocar --noinv --skipf --skip2nd --skip1d
+Start LMF gaas --writeham --mkprocar --noinv --skipf --skip2nd
+Start LMF gaas --writeham --mkprocar --noinv --skipf --skip2nd
+Start LMF gaas --writeham --mkprocar --noinv --skipf --skip2nd --skip1d
+Start LMF gaas --writeham --mkprocar --noinv --skipf --skip2nd
+Start LMF gaas --writeham --mkprocar --noinv --skipf --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skipf --skip2nd
+Start LMF gaas --writeham --mkprocar --noinv --skipf --skip2nd
+Start LMF gaas --writeham --mkprocar --noinv --skipf --skip2nd --skip1d
+Start LMF gaas --writeham --mkprocar --noinv --skipf --skip2nd --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skipf --skip2nd --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skipf --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skipf --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skipf --skip2nd
+Start LMF gaas --writeham --mkprocar --noinv --skipf --skip2nd
+Start LMF gaas --writeham --mkprocar --noinv --skipf --skip2nd --skip1d
+Start LMF gaas --writeham --mkprocar --noinv
+Start LMF gaas --writeham --mkprocar --noinv
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip2d
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skipd
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo --skip1d
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo --skip1d
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo --skip1d
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo --skip1d
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skipd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo --skipd
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo --skipd
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo --skipd
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo --skipd
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skip1d --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skipf --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo
+Start LMF gaas --writeham --mkprocar --noinv --skip2nd --skiplo

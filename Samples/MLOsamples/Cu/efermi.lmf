@@ -1,6 +1,7 @@
- -0.2628596853322586D-01  0.0000000000000000D+00 # (Ry) Fermi energy and Bias vmag; -vmag/2 +vmag/2 for each spin,
- -0.4077924252626179D-01 # (Ry) Top of Valence
- -0.2512718836243038D-01 # (Ry) Bottom of conduction
+ -0.2628596851848352D-01  0.0000000000000000D+00 # (Ry) Fermi energy and Bias vmag; -vmag/2 +vmag/2 for each spin,
+ -0.4077924246274756D-01 # (Ry) Top of Valence
+ -0.2512718838020472D-01 # (Ry) Bottom of conduction
+  0.6478669500981916D+00 -0.6741529186166751D+00 # (Ry) Efermi-Vesav Vesav
   0.1100000000000000D+02  0.0000000000000000D+00 #before: number of electrons total at sites:qval, backg:qbg=
   0.1100000000000037D+02  0.0000000000000000D+00 # band: charge(nup+nspin), mag.mom(nup-ndown)
            -39.204912253 # band: band energy sum (eV)=

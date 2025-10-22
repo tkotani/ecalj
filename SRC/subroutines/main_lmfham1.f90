@@ -43,7 +43,7 @@ contains
   call ReadHamPMTInfo()  ! Read info from PMTHamiltonianInfo (lattice structures and index of basis).
   call getkeyvalue("GWinput","mlo_facw",facw,default=.5d0)
   call getkeyvalue("GWinput","mlo_ecutw",ecutw,default=999*rydberg())
-  call getkeyvalue("GWinput","mlo_eww",eww,default=.1d0*rydberg()) !size of fixing inner window
+  call getkeyvalue("GWinput","mlo_eww",eww,default=.05d0*rydberg()) !size of fixing inner window
   if(master_mpi) write(stdo,ftox)'mlo_facw _ecutw (eV)=',ftof(facw),ftof(ecutw/rydberg())!,ftof(eww)
   ecutw= ecutw/rydberg()
   eww  = eww  /rydberg()
@@ -154,7 +154,7 @@ contains
           if(aline(1:4)=='plot') then 
             write(ifglt1,ftox)"ef=",ftof(eferm)
             write(ifglt1,ftox)trim(aline)
-            write(ifglt1,ftox)'"'//trim(fband(jsp))//'" u ($1):(13.605*($2-ef)) pt 2 lc rgb "green",\' !'
+            write(ifglt1,ftox)'"'//trim(fband(jsp))//'" u ($1):(13.605*($2-ef)) pt 2 lc rgb "red",\' !'
           else
             write(ifglt1,ftox)trim(aline)
           endif

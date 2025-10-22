@@ -134,7 +134,7 @@ HAM   NSPIN={nspin}   # Set NSPIN=2 for spin-polarize case; then set SPEC_MMOM (
           #   (subs/evxc.F had a problem when =2 if rho(up)=0 or rho(down)=0).
                 # =103 PBE-GGA
 
-      PWMODE=11  # 0:  MTO basis only (LMTO) !2021feb. I think PWMODE=1 is usually better because of the smoothness.
+      PWMODE=1  # 0:  MTO basis only (LMTO) !2021feb. I think PWMODE=1 is usually better because of the smoothness.
                 # 11: APW+MTO        (PMT)
                 # 12: APW basis only (LAPW)
                 #
