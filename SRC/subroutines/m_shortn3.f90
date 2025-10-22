@@ -435,9 +435,9 @@ contains
     ng = ig
     if(job0/=0) then !symmetry checker
        SymmetryChecker:block
-       use m_sort
-       integer :: jg_found, lower, upper, kg
-       real(8) :: diff, gvv_norm
+       use m_sort, only: sort_index, lower_bound, upper_bound
+       integer :: kg_found, lower, upper, kg
+       real(8) :: gvv_norm
        real(8), allocatable :: gv_tmp_norm(:)
        integer, allocatable, target :: idx_sort(:)
        nginit = ng
@@ -445,7 +445,7 @@ contains
        ips=0
        allocate(gv_tmp_norm(nginit), source = [(sqrt(sum(gv_tmp(ig,1:3)**2)),ig=1,nginit)])
        allocate(idx_sort(nginit), source = sort_index(gv_tmp_norm(:)))
-       do ig = 1,nginit
+       ig_loop: do ig = 1,nginit
           if(job>999.and.ips(ig)==0) then 
              ! itemp=0  !not needed
              ix=0
@@ -459,23 +459,15 @@ contains
                 ! else
                 !    goto 70
                 ! endif
-                jg_found = 0
                 gvv_norm = sqrt(sum(gvv(:)**2))
                 lower = lower_bound(gv_tmp_norm, value=gvv_norm-tolg2, idx=idx_sort)
                 upper = upper_bound(gv_tmp_norm, value=gvv_norm+tolg2, idx=idx_sort)
-                do kg = lower, upper
-                  jg = idx_sort(kg)
-                  diff = sum(abs(gvv(:) - gv_tmp(jg,:)))
-                  if(diff < tolg2) then
-                    jg_found = jg
-                    exit
-                   endif
-                enddo
-                if (jg_found /= 0) then
-                   ix = ix + 1
-                   itemp(ix) = jg_found
+                kg_found = findloc([(sum(abs(gvv(:)-gv_tmp(idx_sort(kg),:)))<tolg2,kg=lower,upper)], value=.true., dim=1)
+                if(kg_found /= 0) then
+                  ix = ix + 1
+                  itemp(ix) = idx_sort(lower + kg_found - 1)
                 else
-                   goto 70
+                  cycle ig_loop
                 endif
              enddo
              ips(itemp(1:ix))=1 !jg=itemp(1:ix) need to be included.
@@ -484,8 +476,8 @@ contains
           kv(ng,:) = kv_tmp(ig,:)
           if(ligv) igv(ng,:)=igv_tmp(ig,:)
           if(lgv )  gv(ng,:)= gv_tmp(ig,:) 
-70        continue
-       enddo !   write(stdo,ftox)'gmax ng nginit ngmx=',ftof(gmax),ng,nginit,ngmx,ftof(q)
+! 70        continue
+       enddo ig_loop !   write(stdo,ftox)'gmax ng nginit ngmx=',ftof(gmax),ng,nginit,ngmx,ftof(q)
        deallocate(gv_tmp_norm, idx_sort)
        endblock SymmetryChecker
     endif
