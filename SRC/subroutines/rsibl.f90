@@ -101,10 +101,9 @@ contains
     rsibl1: block !    ! Make wave function for a block of evecs, or add contr. to forces
       integer:: blks(n0*nkap0),ntab(n0*nkap0),ncut(n0,nkap0),nkapi,jo,l2,lt,kp,ie,ir,ioff,nlm1,nlm2,ilm,io,l,ncutt
       real(8) :: e,rsm,eh(n0,nkap0),rsmh(n0,nkap0),fac
-      integer :: ngmin, istat
+      integer :: ngmin, istat, ngmin_ib, ngmax_ib
       complex(8) :: cfac, beta
       complex(8), allocatable :: cwork(:,:),psi_ib(:,:,:)
-      allocate(psi_ib(ngmax,nspc,nevec))
       do ib = 1, nbas
          is=ispec(ib) 
          ncut=ngcut(:,:,is)
@@ -112,7 +111,11 @@ contains
          call orblib(ib) !Return norb,ltab,ktab,offl
          call uspecb(is,rsmh,eh)
          call gtbsl1(1,norb,ltab,ktab,rsmh,eh,ntab,blks)
-         psi_ib = (0d0, 0d0)
+         ngmin_ib = minval(pack(ncut, ncut > 0))
+         ngmax_ib = min(maxval(ncut), ng)
+         allocate(psi_ib(ngmax_ib,nspc,nevec))
+         psi_ib(ngmin_ib+1:ngmax_ib,:,:) = (0d0, 0d0)
+         beta = (0d0, 0d0)
          do io = 1, norb
             if (blks(io) == 0) cycle
             jo = ntab(io)
@@ -140,10 +143,9 @@ contains
                cfac = fac*(0d0,-1d0)**(l+2)
                cwork(1:ngmin,ilm) = he(1:ngmin,ie)*hr(1:ngmin,ir)*yl(1:ngmin,ilm)*phase(1:ngmin)*cfac
             enddo
-            beta = (1d0, 0d0)
-            if(io == 1) beta = (0d0, 0d0)
             istat = gemm(cwork(1,nlm1), evec(ioff+1,1,1), psi_ib, m=ngmin, n=nspc*nevec, k=blks(io), &
-                      &  beta=beta, ldB=ndimh, ldC=ngmax)
+                      &  beta=beta, ldB=ndimh, ldC=ngmax_ib)
+            beta = (1d0, 0d0)
             deallocate(cwork)
             ! MO replased the above gemm version 2024-11-07
             ! do  ilm = nlm1, nlm2 ! ... Make vector evec*phase ! ... Combine G-dependent energy, rsm and YL factors
@@ -154,10 +156,10 @@ contains
             !    enddo
             ! enddo
          enddo
-         psi(1:ngmax,1:nspc,1:nevec) = psi(1:ngmax,1:nspc,1:nevec) + psi_ib(1:ngmax,1:nspc,1:nevec)
-         if(lfrce /= 0) psi0(1:ngmax,1:nspc,1:nevec,ib) = psi_ib(1:ngmax,1:nspc,1:nevec)
+         psi(1:ngmax_ib,1:nspc,1:nevec) = psi(1:ngmax_ib,1:nspc,1:nevec) + psi_ib(1:ngmax_ib,1:nspc,1:nevec)
+         if(lfrce /= 0) psi0(1:ngmax_ib,1:nspc,1:nevec,ib) = psi_ib(1:ngmax_ib,1:nspc,1:nevec)
+         deallocate(psi_ib)
       enddo
-      deallocate(psi_ib)
     endblock rsibl1
     ! psi(:,:,:) = sum(psi0(:,:,:,1:nbas),dim=4)
     if(napw>0) psi(ivp(:),:,1:nevec) = psi(ivp(:),:,1:nevec) + evec(nlmto+1:nlmto+napw,:,1:nevec)/vol**.5 !add PW(G) to psi
