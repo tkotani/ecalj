@@ -1003,7 +1003,7 @@ contains
     implicit none
     integer :: k0,kmax,lmax,nrx,job, ilm,ir,k,l,m,nlm,job0,job1,li,le,lx
     real(8) :: alat,rsm,p(3),q(3),yl(nrx,(lmax+1)**2) !,dlv(3,nkd)
-    complex(8) :: gkl(0:k0,(lmax+1)**2),img=(0d0,1d0),phase,sss(nkd)
+    complex(8) :: gkl(0:k0,(lmax+1)**2),img=(0d0,1d0),phase,sss(nkd), s1,s2
     complex(8):: wkc1(nkd),wkc2(nkd),wkz(nkd)       !    wkz = wk(1:nkd,3)+img*wk(1:nkd,4) !phase
     real(8) :: qdotr,ta2,a2,g0fac,xx1,xx2,x1,sp,pp(3),wk1(nkd,0:lmax),wk2(nkd,0:lmax),wkfac(nkd),r2(nkd),e
     real(8),parameter:: pi  = 4*datan(1d0),tpi = 2*pi,y0  = 1/dsqrt(4*pi)
@@ -1039,11 +1039,22 @@ contains
           le=l*l+2*l+1 !For each point, add G_kl Y_L exp(i q.dlv) into Bloch G_kL
           !  gkl(k,li:le) =             gkl(k,li:le)   +[(sum([(wkz(ir)*wk1(ir,l)*yl(ir,ilm),ir=nkd,1,-1)]), ilm=li,le)] !bugfix for nvfortran24.1
           !  if(k<kmax) gkl(k+1,li:le)= gkl(k+1,li:le) +[(sum([(wkz(ir)*wk2(ir,l)*yl(ir,ilm),ir=nkd,1,-1)]), ilm=li,le)]
-          do lx=li,le
-             sss=[(wkz(ir)*wk1(ir,l)*yl(ir,lx),ir=nkd,1,-1)]
-             gkl(k,lx) =             gkl(k,lx)  + sum(sss)
-             sss=[(wkz(ir)*wk2(ir,l)*yl(ir,lx),ir=nkd,1,-1)]
-             if(k<kmax) gkl(k+1,lx)= gkl(k+1,lx)+ sum(sss)
+          !
+          ! do lx=li,le
+          !    sss=[(wkz(ir)*wk1(ir,l)*yl(ir,lx),ir=nkd,1,-1)]
+          !    gkl(k,lx) =             gkl(k,lx)  + sum(sss)
+          !    sss=[(wkz(ir)*wk2(ir,l)*yl(ir,lx),ir=nkd,1,-1)]
+          !    if(k<kmax) gkl(k+1,lx)= gkl(k+1,lx)+ sum(sss)
+          ! enddo
+          do lx = li, le
+            s1 = 0d0
+            s2 = 0d0
+            do ir = nkd, 1, -1
+               s1 = s1 + wkz(ir)*wk1(ir, l)*yl(ir, lx)
+               s2 = s2 + wkz(ir)*wk2(ir, l)*yl(ir, lx)
+            end do
+            gkl(k, lx) = gkl(k, lx) + s1
+            if(k < kmax) gkl(k+1, lx) = gkl(k+1, lx) + s2
           enddo
 30     enddo lloop
 301 enddo kloop2
