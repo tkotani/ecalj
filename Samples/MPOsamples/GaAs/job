@@ -1,0 +1,2 @@
+#lmfa, lmf, getsyml, job_band
+job_ham gaas -np 8 ; tail out_lmf; gnuplot bandplot_MLO0.isp1.glt

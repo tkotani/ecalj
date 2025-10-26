@@ -27,7 +27,7 @@ contains
   integer:: ndatx,ifsy1,ifsy2,ifsy,iix(36),nsc1,iqini,iqend,ndiv
   complex(8)::img=(0d0,1d0),phase,aaaa
   real(8),allocatable:: evl(:)
-  real(8)::qp(3),pi=4d0*atan(1d0),rydberg,posd(3)         , facw,ecutw,eww
+  real(8)::qp(3),pi=4d0*atan(1d0),rydberg,posd(3)         ,ecutw,eww
   logical:: lprint=.true.,savez=.false.,getz=.false.,eee
   character(256):: fband(2)=['band_MPO_spin1.dat','band_MPO_spin2.dat'],cccx
   character(8):: prgnam=''
@@ -41,12 +41,12 @@ contains
   call m_mksym_init()  !symmetry go into m_lattic and m_mksym
   call m_mkqp_init() ! data of BZ go into m_mkqp
   call ReadHamPMTInfo()  ! Read info from PMTHamiltonianInfo (lattice structures and index of basis).
-  call getkeyvalue("GWinput","mlo_facw",facw,default=.5d0)
-  call getkeyvalue("GWinput","mlo_ecutw",ecutw,default=999*rydberg())
-  call getkeyvalue("GWinput","mlo_eww",eww,default=.05d0*rydberg()) !size of fixing inner window
-  if(master_mpi) write(stdo,ftox)'mlo_facw _ecutw (eV)=',ftof(facw),ftof(ecutw/rydberg())!,ftof(eww)
+!  call getkeyvalue("GWinput","mlo_facw",facw,default=.5d0)
+!  call getkeyvalue("GWinput","mlo_ecutw",ecutw,default=999*rydberg())
+!  call getkeyvalue("GWinput","mlo_eww",eww,default=.05d0*rydberg()) !size of fixing inner window
+!  if(master_mpi) write(stdo,ftox)'mlo_facw _ecutw (eV)=',ftof(facw),ftof(ecutw/rydberg())!,ftof(eww)
   ecutw= ecutw/rydberg()
-  eww  = eww  /rydberg()
+!  eww  = eww  /rydberg()
   call readqplistsy()      ! When symlcase=T, read qplist.dat (q points list, see bndfp.F).
   call set_qibz(plat,qplist,nkp,symops,ngrp) ! Setup m_setqibz_lmfham
 
@@ -74,7 +74,7 @@ contains
 !      enddo
 !   enddo
   
-  call HamPMTtoHamRsMPO(facw,ecutw,eww) ! MT-projected orbital(MPO) Hamiltoinan. HamRsMPO
+  call HamPMTtoHamRsMPO()!ecutw,eww) ! MT-projected orbital(MPO) Hamiltoinan. HamRsMPO
   ! Real-space Hamiltonian hammr,ovlmr,ndimMTO are generated,and written to a file HamRsMPO
   call mpi_barrier(comm,ierr)
   call ReadHamRsMPO()                   ! Read HamRsMPO containing real-space Hamiltonian hammr,ovlmr
@@ -121,7 +121,12 @@ contains
                enddo
             enddo FourierTransormationFROMrealspcaeTOqspace
             call zhev_tk4(ndimMTO,hamm,ovlm,0,nev, evl(:,ikp,jsp),t_zv, oveps)!nmx=0 means only eigenvalue. Diangonalize (hamm- evl ovlm) z=0
-            write(stdo,ftox) 'eeeeeeeeeee  evl   =',nev,ftof(evl(1:10,ikp,jsp)*rydberg())
+            !            write(stdo,ftox) 'eigen  evl   =',nev,ftof(evl(1:10,ikp,jsp)*rydberg())
+            ! if(.true.) then
+            ! do i=1,ndimMTO
+            !   write(stdo,ftox)'eigen222 procid',procid,ikp,i,ftof(qp,3),'  ',ftof(evl(i,ikp,jsp))
+            ! enddo
+            ! endif
          enddo Spinloop
          !write(stdo,"(' xxx procid ikp along qplist, q=',2i5,3f9.4)")procid,ikp,qp! true q(i)= 2pi/alat * qplist(i,ikp)
        endblock Hamblock
@@ -146,7 +151,7 @@ contains
       character(256):: aline,fname,fname1
       do jsp = 1,nspx
          fname ='bandplot.isp'//char(48+jsp)//'.glt'
-         fname1='bandplot_MLO0.isp'//char(48+jsp)//'.glt'  !MPO -->MLO0
+         fname1='bandplot_MPO.isp'//char(48+jsp)//'.glt' 
          open(newunit=ifglt1, file=trim(fname1))
          open(newunit=ifglt,  file=trim(fname))
          do

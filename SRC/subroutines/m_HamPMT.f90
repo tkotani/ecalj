@@ -4,10 +4,11 @@ module m_HamPMT
    use m_lgunit,only:stdo
    use m_ftox
    use m_lmfinit,only: oveps
+   use m_keyvalue,only: getkeyvalue
    real(8),external::tolq !eps=1d-8
    real(8),allocatable,protected:: plat(:,:),pos(:,:),qlat(:,:),symops(:,:,:)
    real(8),allocatable,protected,target:: qplist(:,:)
-   integer,allocatable,protected:: nlat(:,:,:,:),npair(:,:),ib_table(:),l_table(:),k_table(:),ispec_table(:),nqwgt(:,:,:)
+   integer,allocatable,protected:: nlat(:,:,:,:),npair(:,:),ib_table(:),l_table(:),k_table(:),ispec_table(:),nqwgt(:,:,:),m_table(:)
    character(8),allocatable,protected:: slabl_table(:)
    integer,protected:: nkk1,nkk2,nkk3,nbas,nkp,npairmx,ldim,jsp,lso,nsp,nspx,ngrp !ldim is number of MTOs
    real(8),protected:: alat
@@ -33,7 +34,7 @@ contains
       read(ififft) ngrp
       allocate(symops(3,3,ngrp))
       read(ififft) ldim,lso,nsp,symops ! size of Hamiltonian: PMT part
-      allocate(ib_table(ldim),l_table(ldim),k_table(ldim),ispec_table(ldim),slabl_table(ldim))
+      allocate(ib_table(ldim),l_table(ldim),m_table(ldim),k_table(ldim),ispec_table(ldim),slabl_table(ldim))
       read(ififft)ib_table,l_table,k_table,ispec_table,slabl_table
       close(ififft)
       if(master_mpi) write(stdo,"('MHAM: --- MTO part of PMT Hamiltonian index (real-harmonics table is in job_pdos script) --- ')")
@@ -53,7 +54,7 @@ contains
             ibold=ib_table(i)
          endif
          if(master_mpi) write(stdo,"('MHAM: i i-ioffib ib(atom) l m k(1:EH,2:EH2,3:PZ)=',i4,5i3)")&
-            i,i-ioff,ib_table(i),l_table(i),m,k_table(i)
+            i,i-ioff,ib_table(i),l_table(i),m_table(i),k_table(i)
       enddo
    end subroutine ReadHamPMTInfo
    !c$$$  !! delta fun check for FFT: k --> T --> k
@@ -74,7 +75,7 @@ contains
    !c$$$          enddo
    !c$$$        enddo
    !c$$$      enddo
-   subroutine HamPMTtoHamRsMPO(facw,ecutw,eww) !Convert HamPMT(k mesh) to HamRsMPO(real space)
+   subroutine HamPMTtoHamRsMPO()!eww) !Convert HamPMT(k mesh) to HamRsMPO(real space)
       use m_setqibz_lmfham,only: qibz,irotq,irotg,ndiff,iqbzrep,qbzii,igiqibz,nqibz,iqii,wiqibz,ngx,igx
       use m_zhev,only:zhev_tk4
       use m_readqplist,only: eferm
@@ -85,53 +86,72 @@ contains
       complex(8),allocatable:: hamm(:,:),ovlm(:,:), cmpo(:,:) 
       logical:: lprint=.true.,savez=.false.,getz=.false.,skipdiagtest=.false.
       complex(8):: img=(0d0,1d0),aaaa,phase
-      real(8)::qp(3),pi=4d0*atan(1d0),fff,ef,fff1=2,fff2=2,fff3=0 ,facw,ecutw,eww,xxx,posd(3)
+      real(8)::qp(3),pi=4d0*atan(1d0),fff,ef,fff1=2,fff2=2,fff3=0 ,xxx,posd(3) !,ecutw,eww
       integer:: nn,ib,k,l,ix5,imin,ixx,j2,j1,j3,nx,ix(ldim),iqini,iqend,ndiv
       integer:: ndimMTO !ndimMTO<ldim if we throw away f MTOs, for example.
 
-      integer:: ib_tableM(ldim),k_tableM(ldim),l_tableM(ldim),ierr,ificmpo,iqibz,iqbz,igg,nMTO,procid_in,numprocs_in
+      integer:: ib_tableM(ldim),k_tableM(ldim),l_tableM(ldim),ierr,ificmpo,iqibz,iqbz,igg,nMTO,procid_in,numprocs_in,mlomethod,nskip
       logical:: cmdopt0
       real(8),pointer::qbz(:,:)
       complex(8),allocatable::ovlmi(:,:,:,:),hammi(:,:,:,:),rotmat(:,:)
       integer,allocatable::ndimPMTq(:)
       logical::debug=.true.
-      nn=0
-      do i=1,ldim  !only MTOs. Further restrictions.
-         if(cmdopt0('--skipf') .and. l_table(i)>=3) cycle !only spd. skip f orbitals. !if(k_table(i)==2.and.l_table(i)>=2) cycle ! throw away EH2 for d
-         if(cmdopt0('--skip2ndd') .and. k_table(i)>=2.and.l_table(i)>=2) cycle ! throw away EH2 for d
-         if(cmdopt0('--skipd') .and.   l_table(i)>=2) cycle ! throw away EH2 for d
-         if(cmdopt0('--skip1d') .and.  k_table(i)==1 .and. l_table(i)==2) cycle ! throw away EH2 for d
-         if(cmdopt0('--skip2nd') .and. k_table(i)==2) cycle 
-         if(cmdopt0('--skip2ndp').and. k_table(i)==2.and.l_table(i)==1) cycle 
-         if(cmdopt0('--skip2nds').and. k_table(i)==2.and.l_table(i)==0) cycle 
-         if(cmdopt0('--skiplo') .and. k_table(i)==3) cycle
-
-         if(cmdopt0('--nio'))then
-         if(ib_table(i)==1.or.ib_table(i)==2) then
-           if(l_table(i)<2) cycle
-         endif  
-         if(ib_table(i)==3.or.ib_table(i)==4) then
-           if(l_table(i)/=1) cycle
-         endif  
-         endif
-
-         nn=nn+1
-         ix(nn)=i
-         ib_tableM(nn)= ib_table(i)
-         k_tableM(nn) = k_table(i)
-         l_tableM(nn) = l_table(i)
-      enddo
+      
+      ReadInfoFromGWinput: block ! Input orbital index for MLO, stored into idmto (s,p,d=1,2,3,4,5,6,7,8,9)
+        use m_nvfortran,only : findloc
+        integer::lmindex(16,nbas),ifmloc,ret,lm
+        character(256):: labl,aaa
+        call getkeyvalue("GWinput","mlo_method",mlomethod,default=1)
+        call getkeyvalue("GWinput","<Worb>",unit=ifmloc,status=ret)
+        do 
+          read(ifmloc,"(a)") aaa
+          if(aaa(1:1) == '!') then
+            read(aaa,*)
+            cycle
+          endif
+          aaa=trim(aaa)//repeat(' -999 ',16)
+          read(aaa,*,end=1201,err=1201) ib,labl,lmindex(1:16,ib)
+        enddo
+1201    continue
+        close(ifmloc)
+        nn=0
+        lold=-999
+!        nskip=0
+        do i=1,ldim  !Only MTOs for EH 
+          if( k_table(i)==2) cycle  !skip 2nd
+          if( k_table(i)==3) then
+!            nskip=nskip+1 
+            cycle  !skip local orbita l! we assume nskip is for local orbtail to skip 
+          endif  
+          ib=ib_table(i)
+          if(lold/=l_table(i)) then
+            m= -l_table(i)
+          else
+            m=m+1
+          endif
+          lm = l_table(i)**2 + l_table(i) + m +1
+          if(.not. any(lm==lmindex(1:16,ib))) cycle
+          !     if(cmdopt0('--skipf') .and.   l_table(i)>=3) cycle ! skip f orbitals. !if(k_table(i)==2.and.l_table(i)>=2) cycle ! throw away EH2 for d
+          !     if(cmdopt0('--skipd') .and.   l_table(i)>=2) cycle ! throw away EH2 for d
+          !     if(cmdopt0('--skip2nd') .and. k_table(i)==2) cycle 
+          !     if(cmdopt0('--skip2ndp').and. k_table(i)==2.and.l_table(i)==1) cycle 
+          !     if(cmdopt0('--skip2nds').and. k_table(i)==2.and.l_table(i)==0) cycle  !skip EH2 
+          !     if(cmdopt0('--skiplo') .and. k_table(i)==3) cycle !skip local orbital
+          !     if(cmdopt0('--skip2ndd') .and. k_table(i)>=2.and.l_table(i)>=2) cycle ! throw away EH2 for d
+          !     if(cmdopt0('--skip1d') .and.  k_table(i)==1 .and. l_table(i)==2) cycle ! throw away EH2 for d
+          nn=nn+1
+          ix(nn)=i
+          ib_tableM(nn)= ib_table(i)
+          k_tableM(nn) = k_table(i)
+          l_tableM(nn) = l_table(i)
+        enddo
+      endblock ReadInfoFromGWinput
       ndimMTO=nn
       if(lso==1) ndimMTO=nn*2 !L.S mode
-
       nMTO=ldim
-
       nspx=nsp
       if(lso==1) nspx=1
       
-!      do i=1,ldim  !only MTOs. Further restrictions.
-!         write(6,*)'iiiiiii',i,ib_table(i),ib_tableM(i)
-!      enddo   
       ! Readin Hamiltonian only at iqibz
       allocate(ovlmi(1:ndimMTO,1:ndimMTO,nqibz,nspx),hammi(1:ndimMTO,1:ndimMTO,nqibz,nspx),source=(0d0,0d0))
       allocate(rotmat(nMTO,nMTO))
@@ -157,7 +177,7 @@ contains
                 complex(8):: ovlmp(1:ndimPMT,1:ndimPMT),hammp(1:ndimPMT,1:ndimPMT),cmpo(ndimPMT,ndimMTO)
                 read(ifih) ovlmp
                 read(ifih) hammp
-                call Hreduction(.false.,facw,ecutw,eww,ndimPMT,hammp,ovlmp, ndimMTO,ix,fff1, hamm,ovlm,cmpo) !Get reduced Hamitonian for ndimMTO
+                call Hreduction(mlomethod,.false.,ndimPMT,hammp,ovlmp, ndimMTO,ix,fff1, hamm,ovlm,cmpo,qp) !Get reduced Hamitonian for ndimMTO
                 if(cmdopt0('--cmlo')) then  !at qibz only
                    open(newunit=ificmpo, file='Cmpo' //trim(xt(i))//trim(xt(jsp)),form='unformatted')
                    write(ificmpo) ndimPMT,ndimMTO
@@ -166,7 +186,18 @@ contains
                 endif
               endblock readingovlmp
               ndimPMTq(iqibz)=ndimPMT
-              if(debug)write(6,*)'nnnnnnnnn111111 ndimPMT=',ndimPMT,iqibz
+! ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11
+!        block
+!          real(8):: evlx(ndimMTO),oveps=0d0
+!          complex(8):: zzz(ndimMTO,ndimMTO)
+!          call zhev_tk4(ndimMTO,hamm(1:ndimMTO,1:ndimMTO),ovlm(1:ndimMTO,1:ndimMTO),0,nev, evlx,zzz, oveps)!nmx=0 means only eigenvalue. Diangonalize (hamm- evl ovlm) z=0
+!          do i=1,ndimMTO
+!            write(stdo,ftox)'eigen1110xx',i,ftof(qp,3),'  ',ftof(evlx(i))
+!          enddo
+!        endblock
+! ! !!!!!!!!!!!!!!!!!!!!!            
+!             write(6,ftox)'nnnnnnnnn111111 ndimPMT=',ndimPMT,iqibz,ftof(qibz(:,iqibz),3),'  ',ngx(iqibz)
+              
               do igg=1,ngx(iqibz) !symmetrized for rotations keeping qibz
                  call rotmatMTO(igg=igx(igg,iqibz),q=qibz(:,iqibz),qtarget=qibz(:,iqibz),ndimh=nMTO,rotmat=rotmat)
                  !associate( rotmatt=>rotmat(ix(1:ndimMTO),ix(1:ndimMTO)))
@@ -175,8 +206,20 @@ contains
                    hammi(:,:,iqibz,jsp)=hammi(:,:,iqibz,jsp) +matmul(rotmatt,matmul(hamm,dconjg(transpose(rotmatt))))
                  !endassociate
               enddo
-              hammi(:,:,iqibz,jsp)=hammi(:,:,iqibz,jsp)/ngx(iqibz)  
-              ovlmi(:,:,iqibz,jsp)=ovlmi(:,:,iqibz,jsp)/ngx(iqibz)  
+              hammi(:,:,iqibz,jsp)=hammi(:,:,iqibz,jsp) /ngx(iqibz)  
+              ovlmi(:,:,iqibz,jsp)=ovlmi(:,:,iqibz,jsp) /ngx(iqibz)
+
+! ! ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11
+!        block
+!          real(8):: evlx(ndimMTO),oveps=0d0
+!          complex(8):: zzz(ndimMTO,ndimMTO)
+!          call zhev_tk4(ndimMTO,hammi(1:ndimMTO,1:ndimMTO,iqibz,jsp),ovlmi(1:ndimMTO,1:ndimMTO,iqibz,jsp),0,nev, evlx,zzz, oveps)!nmx=0 means only eigenvalue. Diangonalize (hamm- evl ovlm) z=0
+!          do i=1,ndimMTO
+!            write(stdo,ftox)'eigen1110xx',i,ftof(qp,3),'  ',ftof(evlx(i))
+!          enddo
+!        endblock
+! ! ! !!!!!!!!!!!!!!!!!!!!!            
+              
               deallocate(ovlm,hamm)
            enddo
            if(debug)write(6,*)' end of iqiloop=',iqxx,nqibz
@@ -215,6 +258,7 @@ contains
             forall(i=1:ndimMTO,j=1:ndimMTO) rotmatt(i,j)=rotmat(ix(i),ix(j))
             ovlm(1:ndimMTO,1:ndimMTO) = matmul(rotmatt,matmul(ovlmi(:,:,iqibz,jsp),dconjg(transpose(rotmatt))))
             hamm(1:ndimMTO,1:ndimMTO) = matmul(rotmatt,matmul(hammi(:,:,iqibz,jsp),dconjg(transpose(rotmatt))))
+            
             GETrealspaceHamiltonian: block ! H(k) ->  H(T) FourierTransformation to real space
               do i=1,ndimMTO; do j=1,ndimMTO
                 ib1 = ib_tableM(i)
@@ -280,20 +324,21 @@ contains
    end subroutine ReadHamRsMPO
 end module m_HamRsMPO
  
-subroutine Hreduction(iprx,facw,ecutw,eww,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, hammout,ovlmout, cmpo) !> Reduce H(ndimPMT) to H(ndimMTO)
+subroutine Hreduction(mlomethod,iprx,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, hammout,ovlmout, cmpo,qp) !> Reduce H(ndimPMT) to H(ndimMTO)
    use m_zhev,only:zhev_tk4
    use m_readqplist,only: eferm
    use m_HamPMT,only: GramSchmidt!,epsovl
    use m_lgunit,only:stdo
    use m_lmfinit,only:oveps
+   use m_keyvalue,only: getkeyvalue
    implicit none
-   integer::i,j,ndimPMT,ndimMTO,nx,nmx,ix(ndimMTO),nev,nxx,jj,ndimPMTx,nvpmt
-   real(8)::beta,emu,val,wgt(ndimPMT),evlmto(ndimMTO),evl(ndimPMT),evlx(ndimPMT),facw,ecutw,eww
+   integer::i,j,ndimPMT,ndimMTO,nx,nmx,ix(ndimMTO),nev,nxx,jj,ndimPMTx,nvpmt,mlomethod,nskip
+   real(8)::beta,emu,val,wgt(ndimPMT),evlmto(ndimMTO),evl(ndimPMT),evlx(ndimPMT),qp(3),eww
    complex(8):: evecmto(ndimMTO,ndimMTO),evecpmt(ndimPMT,ndimPMT)
    complex(8):: ovlmx(ndimPMT,ndimPMT),hammx(ndimPMT,ndimPMT),fac(ndimPMT,ndimMTO),ddd(ndimMTO,ndimMTO)
    complex(8):: hamm(ndimPMT,ndimPMT),ovlm(ndimPMT,ndimPMT)
    complex(8):: hammout(ndimMTO,ndimMTO),ovlmout(ndimMTO,ndimMTO) , cmpo(ndimPMT,ndimMTO)
-   complex(8),allocatable :: wnm(:,:)
+   complex(8),allocatable :: Amat(:,:)
    real(8):: fff1,fff !epsovl=1d-8 epsovlm=0d0 ,
    logical:: iprx
    logical:: cmdopt0
@@ -308,21 +353,21 @@ subroutine Hreduction(iprx,facw,ecutw,eww,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, ham
    call zhev_tk4(ndimPMT,hamm(1:ndimPMT,1:ndimPMT),ovlm(1:ndimPMT,1:ndimPMT), nmx,nev, evl,evecpmt, oveps) !PMT
    ovlm=ovlmx
    ndimPMTx=nev !obtained. oveps may reduce ndimPMT to be ndimPMTx
-   do j=1,ndimMTO !wnm is corrected matrix element of fac=<psi_PMT|psi_MTO>
+   do j=1,ndimMTO !Amat is corrected matrix element of fac=<psi_PMT|psi_MTO>
       do i=1,nev
          fac(i,j)= sum(dconjg(evecpmt(:,i))*matmul(ovlmx(:,ix(1:ndimMTO)),evecmto(1:ndimMTO,j))) !<Psi_PMT|Psi_MTO>
       enddo
    enddo
    ModifyMatrixElements :block
       use m_ftox
-      integer:: ie,nidxevlmto,nidxevl,ibx,jx,idxevlmto(ndimMTO),idxevl(ndimPMT),jbx,nval,nskip,nnn
-      real(8):: eee,fffx,ecut,xxx,ewcutf,rydberg,facww,sss,fff,epscore,emax,alpha,emin
+      integer:: ie,nidxevlmto,nidxevl,ibx,jx,idxevlmto(ndimMTO),idxevl(ndimPMT),jbx,nval,nnn,imx,nbx
+      real(8):: eee,fffx,ecut,xxx,rydberg,facww,sss,fff,epscore,emax,alpha,emin,ww(ndimPMTx),dex !,ewcutf
       real(8),allocatable::mulfac(:,:),mulfacw(:,:)
       complex(8):: imag=(0d0,1d0)
-      allocate(wnm(ndimPMTx,ndimMTO))!this is to avoid bug in ifort18.0.5
-      ewcutf = ecutw+eferm
-      write(stdo,ftox)'ecutw=',ecutw
-      ! do j=1,ndimMTO !wnm is corrected matrix element of <psi_PMT|psi_MTO>
+      allocate(Amat(ndimPMTx,ndimMTO))!this is to avoid bug in ifort18.0.5
+!      ewcutf = ecutw+eferm
+!      write(stdo,ftox)'ecutw=',ecutw
+      ! do j=1,ndimMTO !Amat is corrected matrix element of <psi_PMT|psi_MTO>
       !   do i=1,ndimPMTx
       !     if(abs(fac(i,j))>.1) write(stdo,ftox)'fac matrix j=',j,'  ',i,ftof(abs(fac(i,j))**2)
       !   enddo
@@ -331,17 +376,17 @@ subroutine Hreduction(iprx,facw,ecutw,eww,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, ham
       ! do j=1,ndimMTO
       !    do i=1,ndimPMTx
       !       facww = facw*fermidist((evlmto(j)-ewcutf)/eww)
-      !       wnm(i,j) = fac(i,j)*abs(fac(i,j))**facww !2023-12-5 abs(fac) needed with PWMODE=11 to keep symmetry
+      !       Amat(i,j) = fac(i,j)*abs(fac(i,j))**facww !2023-12-5 abs(fac) needed with PWMODE=11 to keep symmetry
       !    enddo
       !    if(evlmto(j)-ewcutf<0) then
-      !      wnm(:,j) = 0
-      !      wnm(j,j) = fermidist((evlmto(j)-ewcutf)/eww) !or =1d0
+      !      Amat(:,j) = 0
+      !      Amat(j,j) = fermidist((evlmto(j)-ewcutf)/eww) !or =1d0
       !    endif
       ! enddo
-      ! call GramSchmidt(ndimPMTx,ndimMTO,wnm)
+      ! call GramSchmidt(ndimPMTx,ndimMTO,Amat)
 
       if(iprx) then
-      do j=1,ndimMTO !wnm is corrected matrix element of <psi_PMT|psi_MTO>
+      do j=1,ndimMTO !Amat is corrected matrix element of <psi_PMT|psi_MTO>
         do i=1,ndimPMTx
           if(abs(fac(i,j))**2>.1) write(stdo,ftox)'fac matrix ',j,i,ftof(abs(fac(i,j))**2)
         enddo
@@ -349,49 +394,75 @@ subroutine Hreduction(iprx,facw,ecutw,eww,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, ham
       endif
       
       epscore=0.1d0
-      eww=.4d0
-      nskip=0
-      nskip = findloc( sum(abs(fac(:,:))**2,dim=2)>epscore,value=.true.,dim=1)-1 !core level skip by LO. Or skip evec outside of MTO
+      eww=.1d0 !Ry
+
+      call getkeyvalue("GWinput","mlo_nskip",nskip,default=nskip) !nskip is LO bands
+      ! nskip = findloc( sum(abs(fac(:,:))**2,dim=2)>epscore,value=.true.,dim=1)-1 !semicore level skip by LO. Or skip evec outside of MTO
+      ! do j=1,ndimMTO
+      !   write(stdo,ftox) 'ffffff',j,'wgt=',ftof(abs(fac(1:5,j))**2)
+      ! enddo  
+      ! nskip=2 !for nio
+      ! write(stdo,*)'ccccc nskip',nskip
       
-      write(stdo,*)'ccccc nskip',nskip
       emax  = evl(ndimMTO+nskip)
       emin  = evl(1+nskip)
       alpha=1d0
-      wnm=0d0
+      Amat=0d0
+      call getkeyvalue("GWinput","mlo_emax",eee,default=10d0) !10 eV above fermi energy
+      eee=eee/rydberg()
+      nbx= findloc(evl(:)-eferm>eee,value=.true.,dim=1)-1    
       do j=1,ndimMTO
-        write(stdo,ftox) 'sumcheck1=',j,sum(abs(fac(:,j))**2)
-        write(stdo,ftox) 'sumcheck2=',j,ftof([(abs(fac(i,j))**2,i=1,ndimPMTx)],2)
-        do i= 1,ndimPMTx !MTO+nskip !PMTx !          if(i==j+nskip) then 
-!             wnm(i,j)= fac(i,j)* fermidist((evl(i)-emax)/eww) *  (0.2 + (evl(i)-emax)/(evl(nskip+1)-emax))**2
-          
-!          wnm(i,j)= fac(i,j)* fermidist((evl(i)-emax)/eww) &
-!               *  (0.1 + (evl(i)-emax)/(evl(nskip+1)-emax))**2 & !low energy enhancement
-!               *  abs(fac(i,j)) ! peak truncation
-          wnm(i,j)= fac(i,j)* fermidist((evl(i)-emax-eww)/eww) &
-               *  (0.01 + (evl(i)-emax)/(evl(nskip+1)-emax)) **2  !low energy enhancement
-!               *  abs(fac(i,j)) ! peak truncation
-        enddo
+        if(abs(sum(abs(fac(:,j))**2)-1d0)>1d-6) call rxi('normalization error',j)
+!        write(stdo,ftox) 'sumcheck=',j,ftof([(abs(fac(i,j))**2,i=1,ndimPMTx)],2)
+        if(mlomethod==1) then !for GaAs
+          i=j+nskip
+          Amat(i,j)=   fac(i,j) * fermidist((evl(i)-emax-eww)/eww)
+        else !for NiO 3d2p model
+          if(j<=nbx-nskip) then !for levelx <eee
+            do i= 1,nbx 
+              Amat(i,j)= fac(i,j) * fermidist((evl(i)-emax-eww)/eww)
+            enddo
+          else  
+            i=j+nskip
+            Amat(i,j)=   fac(i,j) * fermidist((evl(i)-emax-eww)/eww)
+          endif  
+        endif
       enddo
-!      nvpmt=findloc(evl>eferm,value=.true.,dim=1)-1
-!      nvpmt= nvpmt + 2!(nvpmt-nskip)
-!      write(stdo,ftox)'nvpmt=',nvpmt
-!      wnm(1:nvpmt,   nvpmt-nskip+1:)=0d0 !valence is respected. valence is nvpmt-nskip is the number of MTO for valence
-!      wnm(nvpmt+1:, :nvpmt-nskip)=0d0
-      wnm(1:nskip,:)=0d0 
-      call GramSchmidt(ndimPMTx,ndimMTO,wnm)
-      ! P = \sum_i \sum_j |Psi_i><Psi_i|MTO_j><MTO_j|, where range of i is restricted. wnm= <PsiPMT_n|PsiMTO_m>
+      Amat(1:nskip,:)=0d0 
+      call GramSchmidt(ndimPMTx,ndimMTO,Amat)
+      ! KEYPART!
+      ! P = \sum_i \sum_j |Psi_i><Psi_i|MTO_j><MTO_j|, where range of i is restricted. Amat= <PsiPMT_n|PsiMTO_m>
+
+      
       ! |MPO_k>=  P| F_k>, where we make take Limited Hilbert space spanned by i for the number of MTOs
       nx = ndimPMTx
       cmpo(ndimPMTx+1:ndimPMT,1:ndimMTO)=0d0
-      cmpo(1:ndimPMTx,1:ndimMTO) = matmul(wnm(1:ndimPMTx,1:ndimMTO),&   !sum_i sum_j <PsiPMT_i |Psi_MTO j><Psi_MTO j|MTO_k> 
-         matmul(transpose(dconjg(evecmto(:,:))),ovlmx(ix(1:ndimMTO),ix(1:ndimMTO)))) !
-      do i=1,ndimMTO
+      cmpo(1:ndimPMTx,1:ndimMTO) = matmul(Amat(1:ndimPMTx,1:ndimMTO),&   !sum_i sum_j <PsiPMT_i |Psi_MTO j><Psi_MTO j|MTO_k> 
+           matmul(transpose(dconjg(evecmto(:,:))),ovlmx(ix(1:ndimMTO),ix(1:ndimMTO)))) !
+      
+!      call GramSchmidt(ndimPMTx,ndimMTO,cmpo(1:ndimPMTx,1:ndimMTO))
+      
+!      do i=1,ndimMTO+nskip !PMTx
+!        ww(i)=fermidist((evl(i)-emax-eww)/eww)
+!      enddo
+      
+       do i=1,ndimMTO
          do j=1,ndimMTO
             hammout(i,j)= sum( dconjg(cmpo(1:nx,i))*evl(1:nx)*cmpo(1:nx,j)) !|FMPO_i>=|PsiPMT_j> cmpo(j,i)
             ovlmout(i,j)= sum( dconjg(cmpo(1:nx,i))*cmpo(1:nx,j) ) !<MPO|MPO>
          enddo
-      enddo
-   endblock ModifyMatrixElements
+       enddo
+
+       ! block
+       !   real(8):: evlx(ndimMTO),oveps=0d0
+       !   complex(8):: zzz(ndimMTO,ndimMTO)
+       !   call zhev_tk4(ndimMTO,hammout,ovlmout,0,nev, evlx,zzz, oveps)!nmx=0 means only eigenvalue. Diangonalize (hamm- evl ovlm) z=0
+       !   do i=1,ndimMTO
+       !     write(stdo,ftox)'eigen111',i,ftof(qp,3),'  ',ftof(evl(i+nskip)),' ',ftof(evlx(i))
+       !   enddo
+       ! endblock
+
+     endblock ModifyMatrixElements
    return
 contains
    real(8) function fermidist(x)
