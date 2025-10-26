@@ -77,7 +77,7 @@
 !! \endverbatim
 module m_sxcf_gemm
   use m_readeigen, only: Readeval
-  use m_zmel, only: get_zmel_init_gemm, Setppovlz, zmel, nbb !get_zmel_init => 
+  use m_zmel, only: get_zmel_init_gemm, set_m2e_prod_basis, zmel, nbb !get_zmel_init => 
   use m_itq, only: ntq, nbandmx
   use m_genallcf_v3, only: ndima, nspin, nctot, niw, ecore,nband
   use m_read_bzdata, only: qibz, qbz, wk=>wbz, nqibz, nqbz, wklm, lxklm, wqt=>wt
@@ -173,8 +173,8 @@ contains
     kxloop:                do kx=1, nqibz      ! kx is irreducible !kx is main axis where we calculate W(kx).
       qibz_k = qibz(:,kx)
       call Readvcoud(qibz_k, kx, NoVcou=.false.)   !Readin ngc,ngb,vcoud ! Coulomb matrix
-      call Setppovlz(qibz_k, matz=.true., npr=ngb) !Set ppovlz overlap matrix used in Get_zmel_init in m_zmel
-      call ReleaseZcousq()                         !Release zcousq used in Setppovlz
+      call set_m2e_prod_basis(npr=ngb)     !Set M to E basis transformation matrix
+      call ReleaseZcousq()                         !Release zcousq used in set_m2e_prod_basis
       irotloop:            do irot=1, ngrp     ! (kx,irot) determines qbz(:,kr), which is in FBZ. W(kx) is rotated to be W(g(kx))
         iploopexternal:    do ip=1, nqibz      !external index for q of \Sigma(q,isp)
           isploopexternal: do isp=1, nspinmx   !external index
@@ -194,7 +194,8 @@ contains
               izz=izz+1
               call writemem('=== KXloop '//trim(charext(izz))//' iqiqz irot ip isp icount= '//&
                    trim(charli([kx,irot,ip,isp,icount],5)))
-              call get_zmel_init_gemm(q,qibz_k,irot,qbz_kr,ns1,ns2,isp,1,ntqxx,isp,nctot,ncc=0,iprx=debug,zmelconjg=.false.)
+              call get_zmel_init_gemm(q,qibz_k,irot,qbz_kr,ns1,ns2,isp,1,ntqxx,isp,nctot,ncc=0,iprx=debug,zmelconjg=.false., &
+                                      is_m_basis=.false.)
               call writemem('    endof get_zmel_init')
               call stopwatch_pause(t_sw_zmel)
               call stopwatch_start(t_sw_xc)
@@ -306,8 +307,8 @@ contains
     kxloop: do kx=1, nqibz                         ! kx is irreducible !kx is main axis where we calculate W(kx).
       qibz_k = qibz(:,kx)
       call Readvcoud(qibz_k, kx, NoVcou=.false.)   !Readin ngc,ngb,vcoud ! Coulomb matrix
-      call Setppovlz(qibz_k, matz=.true., npr=ngb) !Set ppovlz overlap matrix used in Get_zmel_init in m_zmel
-      call ReleaseZcousq()                         !Release zcousq used in Setppovlz
+      call set_m2e_prod_basis(npr=ngb)     !Set M to E basis transformation matrix
+      call ReleaseZcousq()                         !Release zcousq used in set_m2e_prod_basis
       !call setwv()
       SetWVblock: block !subroutine setwv()
         integer :: iqini, iqend, iw
@@ -379,10 +380,11 @@ contains
                    trim(charli([kx,irot,ip,isp,icount],5)))
               call stopwatch_start(t_sw_zmel)
 #ifdef __GPU
-              call get_zmel_init_gemm(q,qibz_k,irot,qbz_kr,ns1,ns2,isp,1,ntqxx,isp,nctot,ncc=0,iprx=debug,zmelconjg=.false.)
+              call get_zmel_init_gemm(q,qibz_k,irot,qbz_kr,ns1,ns2,isp,1,ntqxx,isp,nctot,ncc=0,iprx=debug,zmelconjg=.false., &
+                                      is_m_basis=.true.)
 #else
               call get_zmel_init_gemm(q,qibz_k,irot,qbz_kr,ns1,ns2,isp,1,ntqxx,isp,nctot,ncc=0,iprx=debug,zmelconjg=.false., &
-                                      comm=comm_w)
+                                      is_m_basis=.true., comm=comm_w)
 #endif
               call writemem('    endof get_zmel_init')
               call stopwatch_pause(t_sw_zmel)

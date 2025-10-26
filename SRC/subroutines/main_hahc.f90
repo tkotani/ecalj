@@ -404,14 +404,14 @@ subroutine hahc() bind(C)
       realomegamode: if(realomega) then !===RealOmega === W-V: WVR and WVI. Wing elemments: llw, llwi LLWR,LLWI
         if(mpi__root_k) then
           if(     epsmode) call writerealeps() !write eps file and close
-          if(.NOT.epsmode) call WVRllwR(qp,iq,npr,npr_col)
+          if(.NOT.epsmode) call WVRllwR(qp,iq,npr,npr_col,is_m_basis=.false.)
           call deallocatezxq()
         endif
       endif realomegamode
       imagomegamode: if(imagomega) then ! ImagOmega start ============================
         if(mpi__root_k) then
           if(     epsmode) call rx('hx0fp0: imagoemga=T and epsmod=T is not implemented')
-          if(.NOT.epsmode) call WVIllwI(qp,iq,npr,npr_col)
+          if(.NOT.epsmode) call WVIllwI(qp,iq,npr,npr_col,is_m_basis=.false.)
           call deallocatezxqi()
         endif
       endif imagomegamode

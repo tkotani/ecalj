@@ -12,7 +12,7 @@ subroutine sxcf_fal3z(&
   use m_readqg,only:readqg0
   use m_readeigen,only: readeval
   use m_keyvalue,only: getkeyvalue
-  use m_zmel,only: get_zmel_init_gemm,setppovlz, zmel
+  use m_zmel,only: get_zmel_init_gemm, set_m2e_prod_basis, zmel
   use m_readVcoud,only:   Readvcoud, vcoud,vcousq,zcousq,ngb,ngc
   use m_wfac,only:wfacx2,weavx2
   implicit none
@@ -435,7 +435,7 @@ subroutine sxcf_fal3z(&
         !$$$          ppovlz(nbloch+1:nbloch+ngc,:) = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
 
         call Readvcoud(qibz_k,kx,NoVcou=.false.) ! Readin vcousq,zcousq !for the Coulomb matrix
-        call Setppovlz(qibz_k,matz=.true.,npr=ngb) !add npr at 2024-5-23 obata
+        call set_m2e_prod_basis(npr=ngb) !Set M to E basis transformation matrix
         if(debug) write(6,*) ' sxcf_fal2: ngb ngc nbloch=',ngb,ngc,nbloch
 
         !! === open WVR,WVI for correlation mode ===
@@ -500,7 +500,8 @@ subroutine sxcf_fal3z(&
            ntqxx= ntp0
            !! Get matrix element zmelt= rmelt + img*cmelt, defined in m_zmel.F---
 !          call      Get_zmel_init(q,qibz_k,irot,qbz_kr,1,nbmax+nctot,isp,1,ntqxx,isp,nctot,ncc=0,iprx=.false.,zmelconjg=.false.)
-           call get_zmel_init_gemm(q,qibz_k,irot,qbz_kr,1,nbmax+nctot,isp,1,ntqxx,isp,nctot,ncc=0,iprx=debug,  zmelconjg=.false.)!2024-8-20
+           call get_zmel_init_gemm(q,qibz_k,irot,qbz_kr,1,nbmax+nctot,isp,1,ntqxx,isp,nctot,ncc=0,iprx=debug, &
+                                   zmelconjg=.false., is_m_basis = .false.)!2024-8-20
           !$acc update host(zmel)
            
            if(kx<= nqibz) then

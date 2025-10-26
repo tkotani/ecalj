@@ -114,7 +114,7 @@ contains
     use m_freq,only: nw_i, nw_w=>nw, niwt=>niw
     use m_readeigen,only:readeval
     use m_freq,only: nw_i,nw,niw 
-    use m_zmel,only: Setppovlz,Setppovlz_chipm   ! & NOTE: these data set are stored in this module, and used
+    use m_zmel,only: set_m2e_prod_basis, set_m2e_prod_basis_chipm
     use m_stopwatch
     use m_mpi,only: comm_k, mpi__rank_k, mpi__size_k, MPI__reduceSum, &
          mpi__ipr_col, mpi__npr_col, mpi__rank_b, mpi__root_k, comm_b,&
@@ -151,8 +151,8 @@ contains
       if(imagomega) allocate(zxqi(npr,npr_col,niw),source=(0d0,0d0))
     endif
     if(cmdopt0('--emptyrun'))  return
-    if(chipm .AND. nolfco) then; call setppovlz_chipm(zzr,npr)
-    else;                        call setppovlz(q,matz=.true.,npr=npr)!2024-5-23 obata. A minor bug to consume memory: Set npr=1 for EPSPP0 mode(no lfc)
+    if(chipm .AND. nolfco) then; call set_m2e_prod_basis_chipm(zzr,npr)
+    else;                        call set_m2e_prod_basis(npr=npr) !bugfix 2024-5-23 mobata. Set npr=1 for EPSPP0 mode(no lfc)
     endif
     if(cmdopt0('--qibzonly')) call set_qibz(plat,qbz,nqbz,symops,ngrp)
     
@@ -514,7 +514,7 @@ contains
                   else
                      call get_zmel_init_gemm(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot, &
                           ns2=nkmax(k)+nctot, ispm=isp_k, nqini=nkqmin(k),nqmax=nkqmax(k), &
-                          ispq=isp_kq,nctot=nctot,ncc=merge(0,nctot,npm==1),iprx=.false.,zmelconjg=.true.)
+                          ispq=isp_kq,nctot=nctot,ncc=merge(0,nctot,npm==1),iprx=.false.,zmelconjg=.true., is_m_basis=.false.)
                   endif
                   icounloop: do 1000 icoun=icounkmin(k),icounkmax(k)
                      ! call get_zmel_init is equivalent to call x0kf_zmel(q, k, isp_k,isp_kq) 
@@ -734,7 +734,8 @@ contains
     !      if (GPUTEST) then
     if(debug) write(stdo,ftox) 'ggggggggg goto get_zmel_init_gemm',k, nkmin(k),nkmax(k),nctot
     call get_zmel_init_gemm(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
-         nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., zmelconjg=.true.)
+         nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., zmelconjg=.true., &
+        is_m_basis=.false.)
        !$acc update host(zmel)
 !      endif
 !    else
