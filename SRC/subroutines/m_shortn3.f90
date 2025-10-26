@@ -369,7 +369,7 @@ contains
     real(8):: plat1(3,3),qlat1(3,3),gg,gs(3)
     integer:: j1,j2,j3,m,jj1,jj2,jj3,nn1,nn2,nn3,i123(3),jjj(3),jg,igrp,jjg
     real(8):: rlatp(3,3),xmx2(3),gvv(3),diffmin
-    integer :: nginit,kv_tmp(ngmx,3),igv_tmp(ngmx,3),ips(ngmx),jx,nxx,itemp(ngmx),ix,iprint
+    integer :: nginit,kv_tmp(ngmx,3),igv_tmp(ngmx,3),ips(ngmx),jx,nxx,itemp(ngrp),ix,iprint
     real(8):: gv_tmp(ngmx,3)
     call tcn('gvlst2')
     call pshpr(iprint()-30)
@@ -434,22 +434,40 @@ contains
     enddo j1loop
     ng = ig
     if(job0/=0) then !symmetry checker
+       SymmetryChecker:block
+       use m_sort, only: sort_index, lower_bound, upper_bound
+       integer :: kg_found, lower, upper, kg
+       real(8) :: gvv_norm
+       real(8), allocatable :: gv_tmp_norm(:)
+       integer, allocatable, target :: idx_sort(:)
        nginit = ng
        ng=0
        ips=0
-       do ig = 1,nginit
+       allocate(gv_tmp_norm(nginit), source = [(sqrt(sum(gv_tmp(ig,1:3)**2)),ig=1,nginit)])
+       allocate(idx_sort(nginit), source = sort_index(gv_tmp_norm(:)))
+       ig_loop: do ig = 1,nginit
           if(job>999.and.ips(ig)==0) then 
-             itemp=0
+             ! itemp=0  !not needed
              ix=0
              do igrp = 1, ngrp
                 gvv = matmul(gsym(:,:,igrp),gv_tmp(ig,:)) !  ... gvv = g(k) gv
                 !write(6,ftox) 'iii ig igrp gvv=',ig,igrp,ftof(gvv)
-                jg = findloc([(sum(abs(gvv-gv_tmp(jg,:)))<tolg2,jg=1,nginit)],value=.true.,dim=1)
-                if(jg/=0) then
-                   ix=ix+1
-                   itemp(ix)=jg
+                ! jg = findloc([(sum(abs(gvv-gv_tmp(jg,:)))<tolg2,jg=1,nginit)],value=.true.,dim=1)
+                ! if(jg/=0) then
+                !    ix=ix+1
+                !    itemp(ix)=jg
+                ! else
+                !    goto 70
+                ! endif
+                gvv_norm = sqrt(sum(gvv(:)**2))
+                lower = lower_bound(gv_tmp_norm, value=gvv_norm-tolg2, idx=idx_sort)
+                upper = upper_bound(gv_tmp_norm, value=gvv_norm+tolg2, idx=idx_sort)
+                kg_found = findloc([(sum(abs(gvv(:)-gv_tmp(idx_sort(kg),:)))<tolg2,kg=lower,upper)], value=.true., dim=1)
+                if(kg_found /= 0) then
+                  ix = ix + 1
+                  itemp(ix) = idx_sort(lower + kg_found - 1)
                 else
-                   goto 70
+                  cycle ig_loop
                 endif
              enddo
              ips(itemp(1:ix))=1 !jg=itemp(1:ix) need to be included.
@@ -458,8 +476,10 @@ contains
           kv(ng,:) = kv_tmp(ig,:)
           if(ligv) igv(ng,:)=igv_tmp(ig,:)
           if(lgv )  gv(ng,:)= gv_tmp(ig,:) 
-70        continue
-       enddo !   write(stdo,ftox)'gmax ng nginit ngmx=',ftof(gmax),ng,nginit,ngmx,ftof(q)
+! 70        continue
+       enddo ig_loop !   write(stdo,ftox)'gmax ng nginit ngmx=',ftof(gmax),ng,nginit,ngmx,ftof(q)
+       deallocate(gv_tmp_norm, idx_sort)
+       endblock SymmetryChecker
     endif
     if(lsort) then
        gvsort:block !Sort vectors -- !call gvlsts(ng,gv(1:ng,1:3),kv(1:ng,1:3),igv(1:ng,1:3),ligv) 

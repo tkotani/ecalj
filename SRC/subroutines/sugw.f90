@@ -667,7 +667,7 @@ contains
         integer,allocatable:: nvggg(:,:),nvgcgp(:,:), ngveccB(:,:)
         integer,allocatable,target:: ngvecptt(:,:,:),ngvecctt(:,:,:),ngptt(:),ngctt(:),iqindex(:)
         complex(8),allocatable :: ppovl(:,:),ppx(:,:),ppovlinv(:,:),ggg(:)
-        integer,pointer:: ngvecp(:,:),ngvecc(:,:)
+        integer,pointer:: ngvecc(:,:) !ngvecp(:,:),
         character(5):: txx='.tmpp'
         ! Reading q+G and bzdata
         open(newunit=ifiqg ,file='__QGpsi',form='unformatted')
@@ -750,7 +750,7 @@ contains
           open(newunit=ippovli,file= "__PPOVLI."//charnum3(iqi),form='unformatted')
           qx  = qibze(1:3,iqi)
           iqx= findloc([(sum(abs(qx(:)-qtt(:,iqtt)))<tolq,iqtt=1,nqtt)],dim=1,value=.true.)
-          ngvecp =>ngvecptt(1:3,1:ngptt(iqx),iqx)
+          ! ngvecp =>ngvecptt(1:3,1:ngptt(iqx),iqx)
           ngvecc =>ngvecctt(1:3,1:ngctt(iqx),iqx)
           ngp=ngptt(iqx)
           ngc=ngctt(iqx)
