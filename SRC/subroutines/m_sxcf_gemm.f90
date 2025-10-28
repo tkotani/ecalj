@@ -116,11 +116,8 @@ module m_sxcf_gemm
   integer, allocatable :: ndiv(:), nstatei(:,:), nstatee(:,:)
   real(8), allocatable :: ekc(:), eq(:), omega(:)
   logical :: emptyrun, keepwv
-  complex(kind=kp), allocatable :: wvr(:,:,:), wvi(:,:,:)
+  complex(kind=kp), allocatable :: wvr_upper(:,:), wvi_upper(:,:)
   real(8), parameter:: rmax=2d0
-! #ifdef __GPU
-!   attributes(device) :: wvr, wvi
-! #endif
   logical,external :: cmdopt0 !we need external here
   type(stopwatch) :: t_sw_zmel, t_sw_xc, t_sw_cr, t_sw_ci, t_sw_setwv
 contains
@@ -311,16 +308,17 @@ contains
       call ReleaseZcousq()                         !Release zcousq used in set_m2e_prod_basis
       !call setwv()
       SetWVblock: block !subroutine setwv()
-        integer :: iqini, iqend, iw
+        integer :: iqini, iqend, iw, i, j
         character(10) :: i2char
+        complex(kind=kp), allocatable :: wv(:,:)
         real(8), parameter :: gb = 1000*1000*1000
-        if(allocated(wvi)) then
-          !$acc exit data delete(wvi)
-          deallocate(wvi)
+        if(allocated(wvi_upper)) then
+          !$acc exit data delete(wvi_upper)
+          deallocate(wvi_upper)
         endif
-        if(allocated(wvr)) then
-          !$acc exit data delete(wvr)
-          deallocate(wvr)
+        if(allocated(wvr_upper)) then
+          !$acc exit data delete(wvr_upper)
+          deallocate(wvr_upper)
         endif
         if(any(kx==kxc(:))) then
           open(newunit=ifrcwi,file='__WVI.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
@@ -331,24 +329,44 @@ contains
            ! device memory made a error (I don't know the reason). therefore, we used openacc data copyin procedure
            ! but it is usually ok becuase CPU memoery size is always larger than that of GPU.
             call flush(stdo)
-            allocate(wvi(nblochpmx,nblochpmx,wi_ini:wi_fin))
+            allocate(wv(nblochpmx,nblochpmx))
+            allocate(wvi_upper(int(nblochpmx*(nblochpmx+1)/2,8),wi_ini:wi_fin))
+            allocate(wvr_upper(int(nblochpmx*(nblochpmx+1)/2,8),wr_ini:wr_fin))
             call stopwatch_reset(t_sw_setwv)
             call stopwatch_start(t_sw_setwv)
+            !$acc enter data create(wvi_upper, wvr_upper)
             do iw = wi_ini, wi_fin
               if(iw == 0) then
-                read(ifrcw,rec=iw-nw_i+1) wvi(:,:,iw)
+                read(ifrcw,rec=iw-nw_i+1) wv(:,:)
               else
-                read(ifrcwi,rec=iw) wvi(:,:,iw)
+                read(ifrcwi,rec=iw) wv(:,:)
               endif
+              !$acc data copyin(wv)
+              !$acc kernels
+              do j = 1, ngb
+                do i = 1, j
+                  wvi_upper(i+(j-1)*j/2,iw) = wv(i,j)
+                enddo
+              enddo
+              !$acc end kernels
+              !$acc end data
             enddo
-            allocate(wvr(nblochpmx,nblochpmx,wr_ini:wr_fin))
             do iw = wr_ini, wr_fin
-              read(ifrcw,rec=iw-nw_i+1) wvr(:,:,iw)
+              read(ifrcw,rec=iw-nw_i+1) wv(:,:)
+              !$acc data copyin(wv)
+              !$acc kernels
+              do i = 1, ngb
+                do j = i, ngb
+                  wvr_upper(i+(j-1)*j/2,iw) = (wv(i,j) + conjg(wv(j,i)))*0.5_kp
+                enddo
+              enddo
+              !$acc end kernels
+              !$acc end data
             enddo
-            !$acc enter data copyin(wvi, wvr)
             call stopwatch_pause(t_sw_setwv)
-            if(ipr)write(stdo, '(X,A,2F8.3)') 'WVI/WVR : sizes (GB)', dble(size(wvi))*kp*2/gb, dble(size(wvr))*kp*2/gb
+            if(ipr)write(stdo, '(X,A,2F8.3)') 'WVI/WVR : sizes (GB)', dble(size(wvi_upper))*kp*2/gb, dble(size(wvr_upper))*kp*2/gb
             call stopwatch_show(t_sw_setwv)
+            deallocate(wv)
           endif
         endif
         !end subroutine setwv
@@ -397,7 +415,7 @@ contains
                   complex(kind=kp), parameter :: img=(0_kp,1_kp)
                   complex(kind=kp) :: beta
                   complex(kind=kp), allocatable :: czmelwc(:,:,:)
-                  integer :: it, itp, iw, ierr, i
+                  integer :: it, itp, iw, ierr, i, j
                   complex(kind=kp), allocatable :: wv(:,:), wc(:,:)
                   real(kind=kp) :: zsec_img
 #ifdef __GPU
@@ -453,12 +471,17 @@ contains
                       call stopwatch_start(t_sw_setwv)
                       if(keepwv) then
                         !$acc kernels
-                        wc(:,:) = wvi(:,:,iw)
+                        do j = 1, ngb
+                          do i = 1, j
+                            wc(i,j) = wvi_upper(i+(j-1)*j/2,iw)
+                            wc(j,i) = conjg(wc(i,j))
+                          enddo
+                        enddo
                         !$acc end kernels
                       else
                         if(iw == 0) read(ifrcw,rec=1+(0-nw_i)) wv!direct access Wc(0) = W(0)-v ! nw_i=0 (Time reversal) or nw_i =-nw
                         if(iw > 0) read(ifrcwi,rec=iw) wv ! direct access read Wc(i*omega)=W(i*omega)-v
-                        wc = wv
+                        wc = wv  !copy to GPU
                       endif
                       call stopwatch_pause(t_sw_setwv)
                       !$acc kernels loop independent collapse(2) present(zmel)
@@ -489,7 +512,7 @@ contains
                   call stopwatch_start(t_sw_cr)
                   CorrelationSelfEnergyRealAxis: Block !Real Axis integral. Fig.1 PHYSICAL REVIEW B 76, 165106(2007)
                     use m_wfac, only: wfacx2, weavx2
-                    integer :: itini, itend, ittp, ittp3(3), ixs, nttp_max, nttp(0:nw)
+                    integer :: itini, itend, ittp, ittp3(3), ixs, nttp_max, nttp(0:nw), i, j
                     real(8) :: we_(ns1:ns2r,ntqxx), wfac_(ns1:ns2r,ntqxx), omg, amat(3,3), wgt3ititp(3)
                     complex(kind=kp), allocatable :: wz_iw(:,:), czwc_iw(:,:)
                     real(8), allocatable :: wgtiw(:,:)
@@ -548,7 +571,12 @@ contains
                       call stopwatch_start(t_sw_setwv)
                       if(keepwv) then
                         !$acc kernels
-                        wc(:,:) = (wvr(:,:,iw) + transpose(conjg(wvr(:,:,iw))))*0.5d0
+                        do j = 1, ngb
+                          do i = 1, j
+                            wc(i,j) = wvr_upper(i+(j-1)*j/2,iw)
+                            wc(j,i) = conjg(wc(i,j))
+                          enddo
+                        enddo
                         !$acc end kernels
                       else
                         read(ifrcw,rec=iw-nw_i+1) wv
@@ -608,13 +636,13 @@ contains
       enddo irotloop
       releasew :block !subroutine releasewv()
         if(any(kx==kxc(:))) then
-          if(allocated(wvi)) then
-            !$acc exit data delete(wvi)
-            deallocate(wvi)
+          if(allocated(wvi_upper)) then
+            !$acc exit data delete(wvi_upper)
+            deallocate(wvi_upper)
           endif
-          if(allocated(wvr)) then
-            !$acc exit data delete(wvr)
-            deallocate(wvr)
+          if(allocated(wvr_upper)) then
+            !$acc exit data delete(wvr_upper)
+            deallocate(wvr_upper)
           endif
           close(ifrcwi)
           close(ifrcw)
