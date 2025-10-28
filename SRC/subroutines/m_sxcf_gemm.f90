@@ -258,10 +258,11 @@ contains
     implicit none
     integer, intent(in) :: nspinmx, ixc
     real(8), intent(in) :: ef, esmr
-    integer :: icount, ns1, ns2, kr, nwxi, nws, ns2r, nwx,izz, n_nttp, wi_ini, wi_fin, wi_num, wr_ini, wr_fin, wr_num
+    integer :: icount, ns1, ns2, kr, nwxi, nws, ns2r, nwx,izz, n_nttp, wi_ini, wi_fin, wi_num, wr_ini, wr_fin, wr_num, tri_idx
     real(8) :: q(3), qibz_k(3), qbz_kr(3), qk(3)
     logical :: debug=.false.
     real(8),parameter :: ddw=10d0
+    integer, allocatable :: idx_i(:), idx_j(:)
     character(64):: charli
     character(8):: charext
     allocate(ekc(nctot+nband), eq(nband), omega(ntq)) 
@@ -312,14 +313,6 @@ contains
         character(10) :: i2char
         complex(kind=kp), allocatable :: wv(:,:)
         real(8), parameter :: gb = 1000*1000*1000
-        if(allocated(wvi_upper)) then
-          !$acc exit data delete(wvi_upper)
-          deallocate(wvi_upper)
-        endif
-        if(allocated(wvr_upper)) then
-          !$acc exit data delete(wvr_upper)
-          deallocate(wvr_upper)
-        endif
         if(any(kx==kxc(:))) then
           open(newunit=ifrcwi,file='__WVI.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
           open(newunit=ifrcw, file='__WVR.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
@@ -329,40 +322,41 @@ contains
            ! device memory made a error (I don't know the reason). therefore, we used openacc data copyin procedure
            ! but it is usually ok becuase CPU memoery size is always larger than that of GPU.
             call flush(stdo)
-            allocate(wv(nblochpmx,nblochpmx))
-            allocate(wvi_upper(int(nblochpmx*(nblochpmx+1)/2,8),wi_ini:wi_fin))
-            allocate(wvr_upper(int(nblochpmx*(nblochpmx+1)/2,8),wr_ini:wr_fin))
             call stopwatch_reset(t_sw_setwv)
             call stopwatch_start(t_sw_setwv)
-            !$acc enter data create(wvi_upper, wvr_upper)
+            allocate(idx_i(ngb*(ngb+1)/2), idx_j(ngb*(ngb+1)/2))
+            tri_idx = 1
+            do j = 1, ngb
+              do i = 1, j
+                idx_i(tri_idx) = i
+                idx_j(tri_idx) = j
+                tri_idx = tri_idx + 1
+              enddo
+            enddo
+            allocate(wv(nblochpmx,nblochpmx))
+            allocate(wvi_upper(ngb*(ngb+1)/2,wi_ini:wi_fin))
+            allocate(wvr_upper(ngb*(ngb+1)/2,wr_ini:wr_fin))
             do iw = wi_ini, wi_fin
               if(iw == 0) then
                 read(ifrcw,rec=iw-nw_i+1) wv(:,:)
               else
                 read(ifrcwi,rec=iw) wv(:,:)
               endif
-              !$acc data copyin(wv)
-              !$acc kernels
-              do j = 1, ngb
-                do i = 1, j
-                  wvi_upper(i+(j-1)*j/2,iw) = wv(i,j)
-                enddo
+              do tri_idx = 1, ngb*(ngb+1)/2
+                i = idx_i(tri_idx)
+                j = idx_j(tri_idx)
+                wvi_upper(tri_idx,iw) = wv(i,j)
               enddo
-              !$acc end kernels
-              !$acc end data
             enddo
             do iw = wr_ini, wr_fin
               read(ifrcw,rec=iw-nw_i+1) wv(:,:)
-              !$acc data copyin(wv)
-              !$acc kernels
-              do i = 1, ngb
-                do j = i, ngb
-                  wvr_upper(i+(j-1)*j/2,iw) = (wv(i,j) + conjg(wv(j,i)))*0.5_kp
-                enddo
+              do tri_idx = 1, ngb*(ngb+1)/2
+                i = idx_i(tri_idx)
+                j = idx_j(tri_idx)
+                wvr_upper(tri_idx,iw) = (wv(i,j) + conjg(wv(j,i)))*0.5_kp
               enddo
-              !$acc end kernels
-              !$acc end data
             enddo
+            !$acc enter data copyin(wvi_upper, wvr_upper, idx_i, idx_j)
             call stopwatch_pause(t_sw_setwv)
             if(ipr)write(stdo, '(X,A,2F8.3)') 'WVI/WVR : sizes (GB)', dble(size(wvi_upper))*kp*2/gb, dble(size(wvr_upper))*kp*2/gb
             call stopwatch_show(t_sw_setwv)
@@ -470,12 +464,12 @@ contains
                       if(emptyrun) cycle
                       call stopwatch_start(t_sw_setwv)
                       if(keepwv) then
-                        !$acc kernels
-                        do j = 1, ngb
-                          do i = 1, j
-                            wc(i,j) = wvi_upper(i+(j-1)*j/2,iw)
-                            wc(j,i) = conjg(wc(i,j))
-                          enddo
+                        !$acc kernels loop independent present(wvi_upper, idx_i, idx_j)
+                        do tri_idx = 1, ngb*(ngb+1)/2
+                          i = idx_i(tri_idx)
+                          j = idx_j(tri_idx)
+                          wc(i,j) = wvi_upper(tri_idx,iw)
+                          wc(j,i) = conjg(wvi_upper(tri_idx,iw))
                         enddo
                         !$acc end kernels
                       else
@@ -570,12 +564,12 @@ contains
                       if(nttp(iw) < 1) cycle
                       call stopwatch_start(t_sw_setwv)
                       if(keepwv) then
-                        !$acc kernels
-                        do j = 1, ngb
-                          do i = 1, j
-                            wc(i,j) = wvr_upper(i+(j-1)*j/2,iw)
-                            wc(j,i) = conjg(wc(i,j))
-                          enddo
+                        !$acc kernels loop independent present(wvr_upper, idx_i, idx_j)
+                        do tri_idx = 1, ngb*(ngb+1)/2
+                          i = idx_i(tri_idx)
+                          j = idx_j(tri_idx)
+                          wc(i,j) = wvr_upper(tri_idx,iw)
+                          wc(j,i) = conjg(wvr_upper(tri_idx,iw))
                         enddo
                         !$acc end kernels
                       else
@@ -634,7 +628,7 @@ contains
           enddo isploopexternal
         enddo iploopexternal
       enddo irotloop
-      releasew :block !subroutine releasewv()
+      ReleaseWV :block !subroutine releasewv()
         if(any(kx==kxc(:))) then
           if(allocated(wvi_upper)) then
             !$acc exit data delete(wvi_upper)
@@ -644,10 +638,18 @@ contains
             !$acc exit data delete(wvr_upper)
             deallocate(wvr_upper)
           endif
+          if(allocated(idx_i)) then
+            !$acc exit data delete(idx_i)
+            deallocate(idx_i)
+          endif
+          if(allocated(idx_j)) then
+            !$acc exit data delete(idx_j)
+            deallocate(idx_j)
+          endif
           close(ifrcwi)
           close(ifrcw)
         endif
-      endblock releasew !  end subroutine releasewv
+      endblock ReleaseWV !  end subroutine releasewv
     enddo kxloop
     !$acc exit data copyout (zsecall)
     deallocate(ekc, eq, omega)
