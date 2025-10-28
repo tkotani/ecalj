@@ -517,7 +517,7 @@ contains
       enddo
       forall(ir=2:nr-1) fac_integral(ir) = fac_integral(ir)*merge(4d0,2d0,mod(ir,2)==0)
 
-      !$acc data copyin(fac_integral, rkpr, rkmr, pjyl, rprodx, llist) create(a1g)
+      !$acc data copyin(fac_integral, rkpr, rkmr, pjyl, rprodx, llist, nx) create(a1g)
       if(eee==0d0) then
         do lm = 1, nlx
           l = llist(lm)
