@@ -36,7 +36,8 @@ def main():
     print(f"Going to install required binaries and scripts to {BINDIR}")
     start0_time = time.time()
     # Make links
-    EXECDIR= os.path.join(CWD,'SRC/exec')
+    EXECDIR = os.path.join(CWD,'SRC/exec')
+    BUILDIR = os.path.join(CWD,'SRC/exec/build')
     print(EXECDIR)
     for scr in ['StructureTool/viewvesta', 'StructureTool/ctrl2vasp', 'StructureTool/vasp2ctrl','GetSyml/getsyml']:
         src   = os.path.join(CWD, scr+'.py')
@@ -49,21 +50,31 @@ def main():
         print(f"ln -s {src} {slink}",f"ln -s {src} {slink2}")
         os.symlink(src, slink)
         os.symlink(src, slink2)
-    # Make executables
-    os.chdir(f'{CWD}/SRC/exec')
-    if(args.clean): os.system('rm -rf CMakeFiles CMakeCache.txt')
+    if(args.clean):
+        # Clean CMakeCache & CMakeFiles in exec
+        os.path.exists(f'{EXECDIR}/CMakeCache.txt') and os.remove(f'{EXECDIR}/CMakeCache.txt')
+        shutil.rmtree(f'{EXECDIR}/CMakeFiles', ignore_errors=True)
+        shutil.rmtree(f'{BUILDIR}', ignore_errors=True)
+    os.makedirs(f'{BUILDIR}', exist_ok=True)
+    os.chdir(f'{BUILDIR}')
     if(args.gpu): #Obata for nvfortran
-        if os.system(f'FC={FC} cmake . -DBUILD_MP=ON -DBUILD_GPU=ON -DBUILD_MP_GPU=ON -DCMAKE_BUILD_TYPE={BUILD_TYPE}') != 0:sys.exit(1)
-        if os.system(f'{verbose}make -j 32') != 0: 
-            if os.system(f'{verbose}make -j 32') != 0: sys.exit(1)
+        if os.system(f'FC={FC} cmake .. -DBUILD_MP=ON -DBUILD_GPU=ON -DBUILD_MP_GPU=ON -DCMAKE_BUILD_TYPE={BUILD_TYPE}') != 0:sys.exit(1)
     elif(FC in ["gfortran", "ifort", "ifx", "nvfortran"]):
-        if os.system(f'FC={FC} cmake . -DCMAKE_BUILD_TYPE={BUILD_TYPE}') != 0: sys.exit(1)
-        if os.system(f'{verbose}make -j')          != 0: sys.exit(1)
+        if os.system(f'FC={FC} cmake .. -DCMAKE_BUILD_TYPE={BUILD_TYPE}') != 0: sys.exit(1)
     else:
         print('Check InstallAll')
         sys.exit(-1)
+    jobs = min(os.cpu_count(), 32)
+    if os.system(f'{verbose}make -j {jobs}') != 0: sys.exit(1)
     # Copy executables to BINDIR (but not soft link)
-    executables = [f for f in os.listdir('.') if os.path.isfile(f) and not os.path.islink(f) and os.access(f, os.X_OK) ]
+    executables = [
+        os.path.join(d, f)
+        for d in [BUILDIR, EXECDIR]
+        for f in os.listdir(d)
+        if os.path.isfile(os.path.join(d, f))
+        and not os.path.islink(os.path.join(d, f))
+        and os.access(os.path.join(d, f), os.X_OK)
+    ]
     print('COPY to BINDIR',executables)
     for exe in executables:
         shutil.copy(exe, BINDIR)
