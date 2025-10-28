@@ -6,7 +6,7 @@ def test(args,bindir,testdir,workdir):
         out2="log.fe"
         rmfiles(workdir,out1+[out2])
         runprogs([
-                 gwsc0+ " fe",
+                 gwsc0+ " fe"+ f' {args.run_args}',
         ])
         for outfile in out1:   
                 tall+=dqpu(testdir+'/'+outfile, workdir+'/'+outfile)

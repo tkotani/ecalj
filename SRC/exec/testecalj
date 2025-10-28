@@ -9,9 +9,10 @@ parser = argparse.ArgumentParser(description="ecalj test runner")
 parser.add_argument('--all', action='store_true', help='Run all install tests. only at ecalj/Samples/TestInstall')
 parser.add_argument('--gwall', action='store_true', help='Run all GW tests. only at ecalj/Samples/TestInstall')
 parser.add_argument('-np', type=str, default='8', help='MPI size (default: 8)')
-parser.add_argument('--gpu', action='store_true', help='Use GPU mode')
-parser.add_argument('--mp', action='store_true', help='Use MP mode')
+parser.add_argument('--gpu', action='store_true', help='Use GPU mode (gwsc only)')
+parser.add_argument('--mp', action='store_true', help='Use MP mode (gwsc only)')
 parser.add_argument('--checkonly', action='store_true', help='File comparison check only')
+parser.add_argument('--run-args', type=str, default='', help='Additional command-line arguments (gwsc only):e.g. --run-args="--debug"')
 parser.add_argument('testdirs', nargs='*', help='Test directories')
 args = parser.parse_args()
 cwd = os.getcwd()
@@ -29,6 +30,9 @@ if args.all:    args.testdirs = testallinit.split()
 print("cwd =", cwd)
 print("bindir =", bindir)
 print("tests =", args.testdirs)
+if args.gpu: args.run_args += ' --gpu'
+if args.mp: args.run_args += ' --mp'
+print("All additional run arguments:", args.run_args)
 
 tall=''
 aaa=''
