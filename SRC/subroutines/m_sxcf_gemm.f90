@@ -417,21 +417,22 @@ contains
 #endif
                   if(ns1 > ns2) goto 1114 !instead of return
                   allocate(wv(nblochpmx,nblochpmx))
-                  allocate(wc, mold = wv)
+                  allocate(wc(ngb,ngb))
+                  allocate(czmelwc, mold = zmel)
                   call stopwatch_start(t_sw_ci)
                   CorrelationSelfEnergyImagAxis: Block !Fig.1 PHYSICAL REVIEW B 76, 165106(2007)! Integration along ImAxis for zwz(omega) 
                     use m_readfreq_r, only: wt=>wwx, x=>freqx
-                    real(8):: wgtim_(0:npm*niw), wgtim(0:npm*niw,ntqxx,ns1:ns2), we, cons(niw), omd(niw), omd2w(niw)
+                    real(8):: wgtim_(0:npm*niw), wgtim(0:npm*niw,ns1:ns2,ntqxx), we, cons(niw), omd(niw), omd2w(niw)
                     real(8):: sig, sig2, aw, aw2
                     integer :: igb
-                    complex(kind=kp), allocatable :: wzmel(:,:,:),  czwc(:,:,:)
+                    complex(kind=kp), allocatable :: wzmel(:,:,:)
 #ifdef __GPU
-                    attributes(device) :: wzmel, czwc
+                    attributes(device) :: wzmel
 #endif
                     sig = .5d0*esmr
                     sig2 = 2d0*(.5d0*esmr)**2
-                    itpo :   do it = ns1, ns2
-                      itpdo: do itp = 1, ntqxx
+                    itpdo: do itp = 1, ntqxx
+                     itpo: do it = ns1, ns2
                         we = .5d0*(omega(itp)-ekc(it)) !we in hartree unit (atomic unit)
                         aw = abs(ua_*we)
                         aw2 = aw*aw
@@ -452,10 +453,10 @@ contains
                                + dsign(1d0,we)*.5d0*exp(aw2)*( erfc(sqrt(aw2 + we**2/sig2)) -erfc(aw) ) !See Eq.(57) in PRB165106
                           if(npm==2) wgtim_(niw+1:2*niw) = cons*omd*wt/(x**2)/pi !Asymmetric contribution need check
                         endif
-                        wgtim(:,itp,it)= wkkr*wgtim_ !! Integration weight wgtim along im axis for zwz(0:niw*npm)
-                      enddo itpdo
-                    enddo   itpo
-                    allocate(wzmel(1:ngb,ns1:ns2,1:ntqxx), czwc(ns1:ns2,1:ntqxx,1:ngb))
+                        wgtim(:,it,itp)= wkkr*wgtim_ !! Integration weight wgtim along im axis for zwz(0:niw*npm)
+                      enddo itpo
+                    enddo itpdo
+                    allocate(wzmel(1:ngb,ns1:ns2,1:ntqxx))
                     if(debug) call writemem('    Goto iwimag')
                     if(debug) write(stdo,ftox) 'mmmmSc size of mm in imagaxis', (ns2-ns1+1)*ntqxx, ngb, ngb
                     !$acc data copyin(wgtim)
@@ -475,30 +476,23 @@ contains
                       else
                         if(iw == 0) read(ifrcw,rec=1+(0-nw_i)) wv!direct access Wc(0) = W(0)-v ! nw_i=0 (Time reversal) or nw_i =-nw
                         if(iw > 0) read(ifrcwi,rec=iw) wv ! direct access read Wc(i*omega)=W(i*omega)-v
-                        wc = wv  !copy to GPU
+                        wc(1:ngb,1:ngb) = wv(1:ngb,1:ngb)  !copy to GPU
                       endif
                       call stopwatch_pause(t_sw_setwv)
                       !$acc kernels loop independent collapse(2) present(zmel)
                       do itp = 1, ntqxx
                         do it = ns1, ns2
-                          wzmel(1:ngb,it,itp) = cmplx(wgtim(iw,itp,it)*zmel(1:ngb,it,itp),kind=kp)
+                          wzmel(1:ngb,it,itp) = cmplx(wgtim(iw,it,itp)*zmel(1:ngb,it,itp),kind=kp)
                         enddo
                       enddo
                       !$acc end kernels
                       !the most time-consuming part in the correlation part
                       beta = CONE
                       if(iw == wi_ini) beta = CZERO
-                      ierr = gemm(wzmel, wc, czwc, (ns2-ns1+1)*ntqxx, ngb, ngb, opA = m_op_c, beta = beta, ldB = nblochpmx)
+                      ierr = gemm(wc, wzmel, czmelwc, ngb, (ns2-ns1+1)*ntqxx, ngb, beta = beta, opA = m_op_C)
                     enddo iwimag
                     !$acc end data
                     deallocate(wzmel)
-                    allocate(czmelwc(1:nbb,ns1:ns2,1:ntqxx)) !same size with zmel
-                    !$acc kernels loop independent
-                    do igb = 1, ngb
-                      czmelwc(igb,ns1:ns2,1:ntqxx) = czwc(ns1:ns2,1:ntqxx,igb)
-                    enddo
-                    !$acc end kernels
-                    deallocate(czwc)
                   EndBlock CorrelationSelfEnergyImagAxis
                   if(debug) call writemem('    endof CorrelationSelfEnergyImagAxis')
                   call stopwatch_pause(t_sw_ci)
@@ -557,7 +551,7 @@ contains
                       enddo
                     enddo itploopFORwgtiw
                     n_nttp = count(nttp(wr_ini:wr_fin)>0)
-                    allocate(wz_iw(ngb,nttp_max), czwc_iw(nttp_max,ngb))
+                    allocate(wz_iw(ngb,nttp_max), czwc_iw(ngb,nttp_max))
                     !$acc data copyin(wgtiw, nttp, itw, itpw)
                     iwreal: do iw = wr_ini, wr_fin
                       if(iw < nwxi .or. iw > nwx) cycle
@@ -574,7 +568,10 @@ contains
                         !$acc end kernels
                       else
                         read(ifrcw,rec=iw-nw_i+1) wv
-                        wc = (wv + transpose(conjg(wv)))*0.5d0  !copy to GPU
+                        wc(1:ngb,1:ngb) = wv(1:ngb,1:ngb)  !copy to GPU
+                        !$acc kernels
+                        wc(:,:) = (wc(:,:) + transpose(conjg(wc(:,:))))*0.5_kp
+                        !$acc end kernels
                       endif
                       call stopwatch_pause(t_sw_setwv)
                       !$acc kernels loop independent present(zmel)
@@ -583,11 +580,11 @@ contains
                         wz_iw(1:ngb,ittp) = cmplx(wgtiw(ittp,iw)*zmel(1:ngb,it,itp),kind=kp)
                       enddo
                       !$acc end kernels
-                      ierr = gemm(wz_iw, wc, czwc_iw, nttp(iw), ngb, ngb, opA = m_op_c, ldB = nblochpmx, ldC = nttp_max)
+                      ierr = gemm(wc, wz_iw, czwc_iw, ngb, nttp(iw), ngb, opA=m_op_C)
                       !$acc kernels loop independent
                       do ittp = 1, nttp(iw) 
                         it = itw(ittp,iw); itp = itpw(ittp,iw)
-                        czmelwc(1:ngb,it,itp) = czmelwc(1:ngb,it,itp) + czwc_iw(ittp,1:ngb)
+                        czmelwc(1:ngb,it,itp) = czmelwc(1:ngb,it,itp) + czwc_iw(1:ngb,ittp)
                       enddo
                       !$acc end kernels
                     enddo iwreal
@@ -599,7 +596,7 @@ contains
                   call stopwatch_pause(t_sw_cr)
 
                   !$acc host_data use_device(zmel, zsec)
-                  ierr = gemm(czmelwc, zmel, zsec, ntqxx, ntqxx, nbb*(ns2-ns1+1), opA = m_op_T, beta = CONE, ldC = ntq)
+                  ierr = gemm(czmelwc, zmel, zsec, ntqxx, ntqxx, nbb*(ns2-ns1+1), opA = m_op_C, beta = CONE, ldC = ntq)
                   !$acc end host_data
                   !$acc kernels loop independent
                   do itp = 1, ntqxx
